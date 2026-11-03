@@ -12,13 +12,26 @@
  *            + [k≡0(9)] – 2·[k≡0(18)] . * Then a(n) = h_{n+1}...
  * Range:     i8 n <= 163, i16 n <= 469, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   exponent
+ * Validated: standard, pass, 109 terms through n = 995 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/exponent.h"
+#include "../utils/mem.h"
+
+/* exponent e(k) for the eta‑product, k ≥ 1 */
+static signed char exponent(idx_t k)
+{
+    signed char e = 2;
+    if (k % 2 == 0)    e -= 1;
+    if (k % 3 == 0)    e -= 1;
+    if (k % 6 == 0)    e += 1;
+    if (k % 9 == 0)    e += 1;
+    if (k % 18 == 0)   e -= 2;
+    return e;
+}
 
 /* global cache */
 static seq_t *coeff = NULL;      /* coeff[i] = coefficient of q^i in h(q) */
@@ -29,7 +42,7 @@ static void compute_coeff(idx_t maxIdx)
 {
     /* allocate new array */
     size_t sz = (size_t)(maxIdx + 1);
-    seq_t *c = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *c = mem_new(seq_t, sz);
     if (!c) exit(EXIT_FAILURE);
     c[0] = (seq_t)1;   /* h_0 = 1 */
 
@@ -45,7 +58,7 @@ static void compute_coeff(idx_t maxIdx)
     }
 
     /* replace old cache */
-    if (coeff) free(coeff);
+    if (coeff) mem_free(coeff);
     coeff = c;
     coeff_size = maxIdx + 1;
 }

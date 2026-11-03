@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 36, u16 n <= 136, u32 n <= 528, u64 n <= 2080,
  *            u128 n <= 8001, big any n
- * Helpers:   comb_le
+ * Validated: standard, pass, 82 terms through n = 6855 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,24 @@
    combinatorial unranking to find the c‑th integer with r ones. */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/comb_le.h"
+
+/* Return binomial coefficient C(n,k) but stop and return limit+1
+   when the result would exceed limit.  This avoids overflow for
+   small limit values. */
+static inline idx_t comb_le(idx_t n, idx_t k, idx_t limit)
+{
+    if (k > n) return 0;
+    if (k == 0 || k == n) return (1 <= limit) ? 1 : limit + 1;
+    if (k > n - k) k = n - k;
+    idx_t result = 1;
+    for (idx_t i = 1; i <= k; ++i) {
+        __uint128_t tmp = (__uint128_t)result * (n - k + i);
+        tmp /= i;
+        if (tmp > limit) return limit + 1;
+        result = (idx_t)tmp;
+    }
+    return result;
+}
 
 seq_t a(idx_t n)
 {

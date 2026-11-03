@@ -7,13 +7,15 @@
  * Formula:   a(n) = F(n+2) - 2^floor((n+1)/2) - 2^floor(n/2) + 1
  * Range:     u8 n <= 12, u16 n <= 22, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   pw2
+ * Validated: partial, pass, 40 terms through n = 39 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pw2.h"
-
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n) {
     // Compute F(n+2)
@@ -25,5 +27,5 @@ seq_t a(idx_t n) {
     }
     
     // Result: F(n+2) - 2^floor((n+1)/2) - 2^floor(n/2) + 1
-    return fib_curr - pw2((n + 1) / 2) - pw2(n / 2) + 1;
+    return fib_curr - pow2((n + 1) / 2) - pow2(n / 2) + 1;
 }

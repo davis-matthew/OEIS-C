@@ -14,13 +14,15 @@
  *            the main expression from the OEIS entry.)
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static bool *prime_flags   = NULL;   /* prime_flags[i] == true iff i is prime */
 static seq_t *pi_values    = NULL;   /* π(i) for 0≤i≤prime_limit            */
@@ -44,7 +46,7 @@ sieve_and_pi(idx_t limit)
     }
 
     /* Build the Pi table. */
-    seq_t *pi = (seq_t*)malloc((size_t)(limit + 1) * sizeof(seq_t));
+    seq_t *pi = mem_new(seq_t, (size_t)(limit + 1));
     if (!pi) { free(flags); exit(1); }
     pi[0] = 0;
     for (idx_t i = 1; i <= limit; ++i)
@@ -52,7 +54,7 @@ sieve_and_pi(idx_t limit)
 
     /* Replace old tables. */
     free(prime_flags);
-    free(pi_values);
+    mem_free(pi_values);
     prime_flags = flags;
     pi_values   = pi;
     prime_limit = limit;

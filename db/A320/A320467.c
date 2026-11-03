@@ -8,6 +8,7 @@
  * Formula:   a(2n-1) = ((n - 1) mod 13) + 1; a(2n) = ((n - 1) mod 20) + 1;
  * Range:     u8 n <= 520, u16 n <= 520, u32 n <= 520, u64 n <= 520,
  *            u128 n <= 520, big any n
+ * Validated: full, pass, 520 terms through n = 520 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

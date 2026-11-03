@@ -10,15 +10,17 @@
  *            Σ_{j=0..r} (−1)^(k−j) · (j+1)^r · binomial(r+1, k−j)
  * Range:     i8 n <= 16, i16 n <= 36, i32 n <= 55, i64 n <= 55, i128 n <= 55,
  *            big any n
- * Helpers:   binomial, pow_int
+ * Validated: partial, pass, 56 terms through n = 55 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>          /* required for bool */
 #include <stdint.h>           /* for standard integer types */
-#include "../utils/pow_int.h"
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/ipow_idx.h"
 
 static idx_t
 find_row(idx_t n)
@@ -51,7 +53,7 @@ a(idx_t n)
         if (diff > r + 1)
             continue;                         /* binomial would be zero */
 
-        seq_t term = pow_int((seq_t)(j + 1), r); /* (j+1)^r */
+        seq_t term = ipow_idx((seq_t)(j + 1), r); /* (j+1)^r */
         term *= binomial(r + 1, diff);          /* * C(r+1, k-j) */
         if ((diff & 1U) != 0)                   /* sign = (−1)^(k−j) */
             sum -= term;

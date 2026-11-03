@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static void init_diff_bits(size_t max_needed);
 static void resize_diff_bits(size_t new_needed);
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
     /* initialise once */
     if (seq_len == 0) {
         seq_cap = 16;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         if (!seq) return (seq_t)0;   /* allocation failure */
 
         /* first two terms */
@@ -96,7 +98,7 @@ seq_t a(idx_t n)
         /* append new term */
         if (seq_len >= seq_cap) {
             seq_cap *= 2;
-            seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, seq_cap);
             if (!seq) return (seq_t)0;   /* allocation failure */
         }
         seq[seq_len] = new_val;

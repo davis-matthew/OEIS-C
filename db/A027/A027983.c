@@ -8,12 +8,14 @@
  *            3·a(n‑1) – a(n‑2) – 2·a(n‑3) (Linear recurrence)
  * Range:     i8 n <= 4, i16 n <= 12, i32 n <= 26, i64 n <= 26, i128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
     /* Expand cache if the requested index is not yet computed */
     if (n + 1 > cache_size) {
         idx_t new_size = n + 1;
-        seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_size);
         if (!new_cache)
             exit(EXIT_FAILURE);      /* allocation failed */
 
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
         if (cache) {
             for (idx_t i = 0; i < cache_size; ++i)
                 new_cache[i] = cache[i];
-            free(cache);
+            mem_free(cache);
         }
         cache = new_cache;
 

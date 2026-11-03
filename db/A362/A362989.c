@@ -7,7 +7,8 @@
  * Formula:   a(n) = lcm(1..n+1) / Π{d | n, (d+1) prime} (d+1)
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 24, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   big_pow, build_primes_upto, factor_u64, is_prime, seq_mul
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-01)
+ * Helpers:   build_primes_upto, factor_u64, ipow, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,11 +20,16 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <string.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/is_prime.h"
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
-#include "../utils/seq_mul.h"
+#include "../utils/ipow.h"
+#include "../utils/is_prime.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -120,7 +126,7 @@ seq_t a(idx_t n)
     for (size_t j = 0; j < primes_cnt; ++j) {
         int e = prime_exponent[j];
         if (e > 0) {
-            seq_t pow_val = big_pow((seq_t)primes[j], (seq_t)e);
+            seq_t pow_val = ipow((seq_t)primes[j], (seq_t)e);
             result = seq_mul(result, pow_val);
         }
     }

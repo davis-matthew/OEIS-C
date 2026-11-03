@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = sum of even divisors of λ(n) (Carmichael function)
- * Range:     u8 n <= 156, u16 n <= 9339, u32 n <= 9339, u64 n <= 9339,
- *            u128 n <= 9339, big any n
+ * Range:     u8 n <= 156, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 102 terms through n = 9339 (2026-11-01)
  * Helpers:   factor_u64, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,8 +15,9 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/gcd.h"           /* seq_t gcd(seq_t a, seq_t b); */
-#include "../utils/factor_u64.h"    /* void factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt); */
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {

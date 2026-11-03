@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 15, u64 n <= 25, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 185 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static storage for computed Bell numbers. */
 static seq_t *bell = NULL;          /* array of Bell numbers B(0)..B(max)   */
@@ -39,7 +41,7 @@ static void bell_resize(idx_t need)
     if (need <= bell_cap)
         return;
 
-    seq_t *new_arr = (seq_t *)malloc(need * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, need);
     if (!new_arr)          /* out of memory – abort silently */
         return;
 
@@ -48,7 +50,7 @@ static void bell_resize(idx_t need)
     for (idx_t i = bell_cap; i < need; ++i)
         new_arr[i] = (seq_t)0;
 
-    free(bell);
+    mem_free(bell);
     bell = new_arr;
     bell_cap = need;
 }

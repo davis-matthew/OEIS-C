@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 2703, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64
+ * Validated: standard, pass, 71 terms through n = 9623 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stddef.h>
 
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* Return true iff n = p*q with p<q distinct primes and |p−q| = r*s
  * with r≠s distinct primes. */
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
         if (test_good(last_tested)) {
             if (seq_len >= seq_cap) {
                 seq_cap = seq_cap ? seq_cap << 1 : 8;
-                seq_cache = (seq_t*)realloc(seq_cache, seq_cap * sizeof(seq_t));
+                seq_cache = mem_resize(seq_t, seq_cache, seq_cap);
             }
             seq_cache[seq_len++] = (seq_t)last_tested;
         }

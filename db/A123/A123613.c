@@ -12,7 +12,8 @@
  *            implementation...
  * Range:     u8 n <= 4, u16 n <= 17, u32 n <= 171, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 998 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Cache for the intermediate coefficients C(m) */
 static seq_t *C = NULL;          /* array of seq_t, capacity C_cap */
@@ -34,7 +36,7 @@ static void ensure_C(idx_t n)
     if (needed <= C_cap)
         return;
 
-    void *tmp = realloc(C, needed * sizeof(seq_t));
+    void *tmp = mem_resize(seq_t, C, needed);
     if (!tmp)
         abort(); /* allocation failed */
     C = (seq_t *)tmp;

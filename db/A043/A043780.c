@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 34, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   has_runs_div5
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,21 @@
 /* Sequence: numbers n such that the number of runs in the base‑3 representation of n is 0 mod 5.
    a(n) returns the nth such number (offset 1). */
 #include <stdbool.h>
-#include "../utils/has_runs_div5.h"
+
+static inline bool has_runs_div5(seq_t x)
+{
+    int runs = 0;
+    int prev = -1;
+    while (x > 0) {
+        int d = (int)(x % 3);     /* current base‑3 digit (0,1,2) */
+        if (d != prev) {
+            runs++;
+            prev = d;
+        }
+        x /= 3;
+    }
+    return (runs % 5) == 0;
+}
 
 seq_t a(idx_t n)
 {

@@ -11,13 +11,23 @@
  *            number
  * Range:     u8 n <= 3, u16 n <= 11, u32 n <= 179, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow10
+ * Validated: standard, pass, 53 terms through n = 9584 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow10.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* bit-length of a positive uint64_t */
 static uint64_t bitlen_uint64(uint64_t v)

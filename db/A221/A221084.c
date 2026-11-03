@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 9, u128 n <= 18,
  *            big any n
- * Helpers:   seq_from_str
+ * Validated: standard, pass, 28 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,18 @@
  *  Offset: 1   (a(1) = 8)          */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_from_str.h"
+#include <string.h>
+#include "../utils/mem.h"
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
 
 /* external types supplied by the build */
 typedef idx_t idx_t;      /* 64‑bit unsigned index */
@@ -46,7 +58,7 @@ static const char *init_str[10] = {
 static void ensure_cache_size(idx_t new_size) {
     if (cache_size >= new_size) return;
     seq_t *new_cache;
-    new_cache = (seq_t *)realloc(cache, (size_t)new_size * sizeof(seq_t));
+    new_cache = mem_resize(seq_t, cache, (size_t)new_size);
     if (!new_cache) exit(1);        /* allocation failed */
     /* zero-initialize the new slots for safety, though not strictly needed */
     for (idx_t i = cache_size; i < new_size; ++i) new_cache[i] = (seq_t)0;

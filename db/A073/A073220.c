@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 14, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *powers   = NULL;      /* all 13^k encountered so far   */
 static size_t pow_len  = 0;          /* number of valid entries       */
@@ -34,7 +36,7 @@ static void ensure_pow(idx_t k_needed)
 {
     if (pow_len == 0) {                          /* initialisation */
         pow_cap = 4;
-        powers = (seq_t*)malloc(pow_cap * sizeof(seq_t));
+        powers = mem_new(seq_t, pow_cap);
         if (!powers) abort();
         powers[0] = (seq_t)1;                   /* 13^0 */
         pow_len  = 1;
@@ -42,7 +44,7 @@ static void ensure_pow(idx_t k_needed)
     while (pow_len <= (size_t)k_needed) {
         if (pow_len == pow_cap) {
             pow_cap = pow_cap ? (pow_cap << 1) : 4;
-            seq_t *tmp = (seq_t*)realloc(powers, pow_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, powers, pow_cap);
             if (!tmp) abort();
             powers = tmp;
         }
@@ -69,7 +71,7 @@ static void heap_push(struct Node node)
 {
     if (heap_size == heap_cap) {
         heap_cap = heap_cap ? (heap_cap << 1) : 4;
-        struct Node *tmp = (struct Node*)realloc(heap, heap_cap * sizeof(struct Node));
+        struct Node *tmp = mem_resize(struct Node, heap, heap_cap);
         if (!tmp) abort();
         heap = tmp;
     }
@@ -146,7 +148,7 @@ static void generate_next(void)
 
     if (terms_len == terms_cap) {
         terms_cap = terms_cap ? (terms_cap << 1) : 4;
-        seq_t *tmp = (seq_t*)realloc(terms, terms_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, terms_cap);
         if (!tmp) abort();
         terms = tmp;
     }

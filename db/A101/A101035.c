@@ -8,14 +8,25 @@
  *            e>1 (multiplicative function)
  * Range:     i8 n <= 29, i16 n <= 2309, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   prime_power_value
+ * Validated: standard, pass, 88 terms through n = 9028 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/prime_power_value.h"
+
+/* Helper: value of the multiplicative function at a prime power p^e */
+static seq_t prime_power_value(idx_t p, unsigned e)
+{
+    if (e == 1) {
+        return (seq_t)(1) - (seq_t)(2) * (seq_t)p;
+    } else {
+        seq_t pp = (seq_t)p - (seq_t)1;
+        return pp * pp;
+    }
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)

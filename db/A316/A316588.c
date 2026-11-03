@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 128, u16 n <= 2402, u32 n <= 2402, u64 n <= 2402,
  *            u128 n <= 2402, big any n
- * Helpers:   board_num, visited_contains
+ * Validated: full, pass, 2402 terms through n = 2402 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,25 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/board_num.h"
-#include "../utils/visited_contains.h"
+#include "../utils/mem.h"
+
+/* diagonal numbering described in the OEIS entry.                          */
+static inline seq_t board_num(seq_t x, seq_t y)
+{
+    seq_t d = x + y - 2;          /* diagonal index (0‑based) */
+    seq_t preceding = (d * (d + 1)) / 2; /* numbers before this diagonal */
+    seq_t num = preceding + d + 2 - x;    /* position inside diagonal */
+    return num;
+}
+
+/* Linear search to test whether 'val' is already in the visited array.     */
+static bool visited_contains(const seq_t *arr, size_t len, seq_t val)
+{
+    for (size_t i = 0; i < len; ++i)
+        if (arr[i] == val)
+            return true;
+    return false;
+}
 
 /* Dynamic storage for the sequence visited so far.                          */
 static seq_t *seq      = NULL;      /* visited board numbers            */
@@ -43,7 +61,7 @@ static void ensure_seq_capacity(size_t need)
     size_t new_cap = seq_cap ? seq_cap * 2 : 64;
     if (new_cap < need)
         new_cap = need;
-    seq_t *newp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq_t *newp = mem_resize(seq_t, seq, new_cap);
     if (!newp)
         abort(); /* allocation failure */
     seq = newp;

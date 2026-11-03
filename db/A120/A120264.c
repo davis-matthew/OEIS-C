@@ -7,7 +7,8 @@
  * Formula:   a(n) = numerator of ∑_{k=1..n} (-1)^(k+1)/k^k
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 7, u128 n <= 10,
  *            big any n
- * Helpers:   alloc_seq_array, free_seq_array, seq_gcd, seq_pow
+ * Validated: partial, pass, 11 terms through n = 11 (2026-11-03)
+ * Helpers:   gcd, ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,11 +17,21 @@
 #include <stdint.h>
 
 /* Utility headers (prototypes for the provided helper functions) */
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
-#include "../utils/seq_pow.h"
-#include "../utils/seq_gcd.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/gcd.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
 
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 static seq_t *num_cache = NULL;
 static seq_t *den_cache = NULL;
@@ -58,7 +69,7 @@ static void ensure_cache(idx_t n)
         seq_t prev_num = num_cache[k - 1];
         seq_t prev_den = den_cache[k - 1];
 
-        seq_t k_pow_k = seq_pow((seq_t)k, k);          /* k^k */
+        seq_t k_pow_k = ipow_idx((seq_t)k, k);          /* k^k */
         seq_t new_num = prev_num * k_pow_k;
         if ((k & 1) == 0)          /* even k: subtract previous denom */
             new_num -= prev_den;
@@ -67,7 +78,7 @@ static void ensure_cache(idx_t n)
 
         seq_t new_den = prev_den * k_pow_k;
 
-        seq_t g = seq_gcd(new_num, new_den);
+        seq_t g = gcd(new_num, new_den);
         new_num /= g;
         new_den /= g;
 

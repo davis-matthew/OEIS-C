@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabf
  * Formula:   not stated
- * Range:     u8 n <= 9755, u16 n <= 9755, u32 n <= 9755, u64 n <= 9755,
- *            u128 n <= 9755, big any n
- * Helpers:   none
+ * Range:     u8 n <= 10632, u16 n <= 10632, u32 n <= 10632, u64 n <= 10632,
+ *            u128 n <= 10632, big any n
+ * Validated: standard, pass, 116 terms through n = 9755 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *seq = NULL;   /* sequence array */
@@ -34,7 +36,7 @@ seq_t a(idx_t n) {
     /* initialise the sequence with the first term if this is the first call */
     if (seq_len == 0) {
         seq_cap = 16;                                     /* start capacity   */
-        seq = (seq_t *)malloc((size_t)seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, (size_t)seq_cap);
         seq[0] = (seq_t)1;                                /* a(1) = 1         */
         seq_len = 1;
     }
@@ -42,7 +44,7 @@ seq_t a(idx_t n) {
     /* grow sequence until we have at least n elements */
     while (seq_len < n) {
         /* compute the nonincreasing run transform of seq[0 .. seq_len-1] */
-        seq_t *tmp = (seq_t *)malloc((size_t)seq_len * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, (size_t)seq_len);
         idx_t tmp_len = 0;
 
         idx_t i = 0;
@@ -61,8 +63,7 @@ seq_t a(idx_t n) {
             idx_t new_cap = seq_cap * 2;
             while (new_cap < seq_len + tmp_len)
                 new_cap *= 2;
-            seq = (seq_t *)realloc((void *)seq,
-                                    (size_t)new_cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, (size_t)new_cap);
             seq_cap = new_cap;
         }
 
@@ -70,7 +71,7 @@ seq_t a(idx_t n) {
         for (idx_t j = 0; j < tmp_len; ++j)
             seq[seq_len++] = tmp[j];
 
-        free(tmp);
+        mem_free(tmp);
     }
 
     /* return the requested element (1‑based index) */

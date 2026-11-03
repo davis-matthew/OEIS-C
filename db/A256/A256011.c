@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 42, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gpf
+ * Validated: standard, pass, 71 terms through n = 9397 (2026-11-03)
+ * Helpers:   largest_prime_factor, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,9 @@
     avoid overflow for realistic n. */
 
 #include <stdlib.h>
-#include "../utils/gpf.h"                 /* uint64_t gpf(uint64_t) */
+#include <stdint.h>
+#include "../utils/largest_prime_factor.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -42,7 +45,7 @@ seq_t a(idx_t n)
         unsigned __int128 tmp = (unsigned __int128)cur_k * cur_k + 1;
         uint64_t m = (uint64_t)tmp;   /* safe for k up to 2^32-1 */
 
-        uint64_t lpf = gpf(m);        /* largest prime factor of m */
+        uint64_t lpf = largest_prime_factor(m);        /* largest prime factor of m */
 
         if (lpf < cur_k)              /* satisfies the condition */
         {
@@ -50,7 +53,7 @@ seq_t a(idx_t n)
             if (len + 1 > cap)
             {
                 size_t new_cap = cap ? cap * 2 : 16;
-                seq_t *tmp_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp_cache = mem_resize(seq_t, cache, new_cap);
                 if (!tmp_cache) abort();   /* allocation failure */
                 cache = tmp_cache;
                 cap = new_cap;

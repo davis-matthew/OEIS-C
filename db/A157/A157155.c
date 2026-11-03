@@ -11,6 +11,7 @@
  *            m*k*(n-k)*T(n-2,k-1,m) with T(n,0,m)=T(n,n,m)=1 m = 4
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 57, u64 n <= 140,
  *            u128 n <= 360, big any n
+ * Validated: standard, pass, 61 terms through n = 1306 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

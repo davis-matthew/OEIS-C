@@ -8,7 +8,8 @@
  * Formula:   a(n) = Sum_{d|n} d * [str(d) is not a substring of str(n)]
  * Range:     u8 n <= 167, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   not_substring
+ * Validated: standard, pass, 96 terms through n = 8552 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,13 @@
 #include <string.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/not_substring.h"
+
+static bool not_substring(const char *n_str, idx_t d)
+{
+    char d_str[22]; /* enough for 64‑bit values */
+    snprintf(d_str, sizeof d_str, "%llu", (unsigned long long)d);
+    return strstr(n_str, d_str) == NULL;
+}
 
 seq_t a(idx_t n)
 {

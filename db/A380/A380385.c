@@ -12,13 +12,15 @@
  *            triangle. * For example: 1,0,1,0,-1,1,0,0,-1,1,0...
  * Range:     i8 n <= 78, i16 n <= 78, i32 n <= 78, i64 n <= 78, i128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *triangle_cache = NULL;      /* flattened triangle values */
 static idx_t  cache_cap      = 0;         /* allocated capacity (number of terms) */
@@ -38,9 +40,9 @@ static void ensure_capacity(idx_t need)
     if (need <= cache_cap)
         return;
     if (triangle_cache == NULL) {
-        triangle_cache = (seq_t*)malloc(need * sizeof(seq_t));
+        triangle_cache = mem_new(seq_t, need);
     } else {
-        triangle_cache = (seq_t*)realloc(triangle_cache, need * sizeof(seq_t));
+        triangle_cache = mem_resize(seq_t, triangle_cache, need);
     }
     /* Initialize the new part to zero (optional, but clean). */
     for (idx_t i = cache_cap; i < need; ++i)

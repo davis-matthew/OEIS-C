@@ -9,14 +9,44 @@
  * Formula:   a(n) = Fibonacci(n) * A002652(n)
  * Range:     u8 n <= 10, u16 n <= 21, u32 n <= 43, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   fib, floor_sqrt
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/floor_sqrt.h"   /* floor_sqrt(seq_t x) */
-#include "../utils/fib.h"          /* fib(idx_t n) */
+#include <stdbool.h>
+#include "../utils/ipow_i32.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
 
 /* Count representations of n by the norm a^2 + a*b + 2*b^2
    (A002652(n)).  Assumes n > 0.  */

@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 154, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 84 terms through n = 8166 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <math.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /*  static state and helper functions                                    */
@@ -51,7 +53,7 @@ static void append_gap(seq_t g)
 {
     if (gaps_len == gaps_cap) {
         size_t new_cap = gaps_cap ? gaps_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(gaps, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, gaps, new_cap);
         gaps = tmp;
         gaps_cap = new_cap;
     }
@@ -63,7 +65,7 @@ static void append_extrema(seq_t v)
 {
     if (extrema_len == extrema_cap) {
         size_t new_cap = extrema_cap ? extrema_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(extrema, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, extrema, new_cap);
         extrema = tmp;
         extrema_cap = new_cap;
     }

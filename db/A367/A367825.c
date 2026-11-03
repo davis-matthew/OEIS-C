@@ -7,9 +7,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, base, frac, tabl
  * Formula:   not stated
- * Range:     u8 n <= 8178, u16 n <= 9685, u32 n <= 9685, u64 n <= 9685,
- *            u128 n <= 9685, big any n
- * Helpers:   gcd, rev
+ * Range:     u8 n <= 8178, u16 n <= 11475, u32 n <= 11475, u64 n <= 11475,
+ *            u128 n <= 11475, big any n
+ * Validated: standard, pass, 107 terms through n = 9685 (2026-11-01)
+ * Helpers:   gcd, reverse_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,9 @@
 */
 
 #include <stdint.h>
-#include "../utils/rev.h"   /* idx_t rev(idx_t) */
-#include "../utils/gcd.h"   /* seq_t gcd(seq_t, seq_t) */
+#include <stdbool.h>
+#include "../utils/gcd.h"
+#include "../utils/reverse_digits_idx.h"
 
 seq_t a(idx_t n) {
     /* A(0,0) is defined to be 1 */
@@ -57,7 +59,7 @@ seq_t a(idx_t n) {
     idx_t i = s - j;
 
     /* Compute the denominator of (R(i) - j)/(i + j)          */
-    seq_t rev_i  = (seq_t)rev(i);                 /* R(i) */
+    seq_t rev_i  = (seq_t)reverse_digits_idx(i);                 /* R(i) */
     seq_t num    = rev_i >= j ? rev_i - (seq_t)j
                               : (seq_t)j - rev_i;  /* |R(i) - j|   */
     seq_t denom  = (seq_t)(i + j);

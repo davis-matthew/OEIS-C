@@ -10,12 +10,15 @@
  *            A175186(n) = A175186(n-m) + (n-m)
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   floor_log2_uint64
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/ilog2.h"
 
 seq_t a(idx_t n) {
     idx_t orig = n;          /* original argument */
@@ -29,7 +32,7 @@ seq_t a(idx_t n) {
         }
 
         /* largest power of two less than n: 2^floor_log2(n-1) */
-        unsigned l = floor_log2_uint64(n - 1);
+        unsigned l = ilog2(n - 1);
         idx_t m   = ((idx_t)1) << l;   /* m < n */
 
         sum += (seq_t)(n - m);   /* add remainder */

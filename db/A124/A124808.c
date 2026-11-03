@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 356, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 89 terms through n = 9640 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *prefix      = NULL;      /* prefix[k] = a(k)            */
 static idx_t  prefix_len  = 0;          /* indices 0 .. prefix_len-1   */
@@ -74,7 +76,7 @@ static void ensure_prefix(idx_t n)
     if (n + 1 <= prefix_len) return;
 
     /* Extend the array. */
-    prefix = (seq_t *)realloc(prefix, (n + 1) * sizeof(seq_t));
+    prefix = mem_resize(seq_t, prefix, (n + 1));
 
     /* Build primes up to at least n+1 for squarefree tests. */
     ensure_primes(n + 1);

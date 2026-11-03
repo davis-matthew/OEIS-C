@@ -10,7 +10,8 @@
  *            builds the sequence on demand, caching previously found values
  * Range:     u8 n <= 12, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Test whether the base‑5 representation of x contains the
    substring 2,0 (most significant digit first). */
@@ -39,7 +41,7 @@ static void push_cache(seq_t **cache, size_t *cap, size_t *len, seq_t value)
 {
     if (*len == *cap) {
         *cap = (*cap == 0) ? 32 : (*cap << 1);
-        seq_t *tmp = (seq_t *)realloc(*cache, *cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *cache, (*cap * sizeof(seq_t)) / sizeof(seq_t));
         *cache = tmp; /* realloc is safe; tmp is non‑NULL here */
     }
     (*cache)[*len] = value;

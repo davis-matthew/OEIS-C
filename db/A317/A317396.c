@@ -8,9 +8,10 @@
  * Keywords:  nonn
  * Formula:   Sequence A317396 – numbers with exactly six representations of 1
  *            + p1*(1 + p2*(1 + …)) where the p’s are distinct primes
- * Range:     u8 none, u16 n <= 5392, u32 n <= 9462, u64 n <= 9462,
- *            u128 n <= 9462, big any n
- * Helpers:   none
+ * Range:     u8 none, u16 n <= 5392, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 59 terms through n = 9462 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* upper bound for values we will generate – chosen large enough to contain
    the first 10000 terms.  2 000 000 is safe for this sequence. */
@@ -106,13 +108,13 @@ seq_t a(idx_t n) {
         /* ---------- build list of numbers with exactly 6 reps -------- */
         /* allocate rough capacity; will grow if needed */
         size_t cap = 16384;
-        terms = (seq_t *)malloc(cap * sizeof(seq_t));
+        terms = mem_new(seq_t, cap);
         terms_len = 0;
         for (uint64_t v = 2; v <= MAX_VAL; ++v) {
             if (freq[v] == 6) {
                 if (terms_len == cap) {
                     cap *= 2;
-                    terms = (seq_t *)realloc(terms, cap * sizeof(seq_t));
+                    terms = mem_resize(seq_t, terms, cap);
                 }
                 terms[terms_len++] = (seq_t)v;
             }

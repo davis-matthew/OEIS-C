@@ -8,7 +8,8 @@
  *            contains the decimal representation of n
  * Range:     u8 n <= 1008, u16 n <= 9999, u32 n <= 9999, u64 n <= 9999,
  *            u128 n <= 9999, big any n
- * Helpers:   build_pi
+ * Validated: standard, pass, 92 terms through n = 8497 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,17 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/build_pi.h"
+
+static size_t build_pi(const char *pat, size_t m, size_t *pi) {
+    pi[0] = 0;
+    for (size_t i = 1; i < m; ++i) {
+        size_t j = pi[i - 1];
+        while (j > 0 && pat[i] != pat[j]) j = pi[j - 1];
+        if (pat[i] == pat[j]) ++j;
+        pi[i] = j;
+    }
+    return 0;
+}
 
 static void u64_to_str(idx_t n, char *buf, size_t *len) {
     size_t pos = 0;

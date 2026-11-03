@@ -9,12 +9,21 @@
  *            cubes of digits map
  * Range:     u8 none, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   sum_of_cubes_of_digits
+ * Validated: partial, pass, 80 terms through n = 80 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/sum_of_cubes_of_digits.h"
+static seq_t sum_of_cubes_of_digits(seq_t x) {
+    seq_t result = 0;
+    while (x > 0) {
+        seq_t digit = x % 10;
+        result += digit * digit * digit;
+        x /= 10;
+    }
+    return result;
+}
 
 seq_t a(idx_t n) {
     seq_t current = (seq_t)n * 3;

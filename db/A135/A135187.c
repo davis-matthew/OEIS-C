@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   digit_sum, pow_seq
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   digit_sum, ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/digit_sum.h"   /* seq_t digit_sum(seq_t v); */
-#include "../utils/pow_seq.h"     /* seq_t pow_seq(seq_t a, int k); */
+#include "../utils/digit_sum.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* stored terms */
 static size_t cache_len = 0;          /* number of terms stored */
@@ -35,11 +37,11 @@ static bool check_candidate(seq_t n)
     seq_t s1 = digit_sum(n);
     if (n % s1 != 0) return false;
 
-    seq_t n2 = pow_seq(n, 2);
+    seq_t n2 = ipow_i32(n, 2);
     seq_t s2 = digit_sum(n2);
     if (n2 % s2 != 0) return false;
 
-    seq_t n3 = pow_seq(n, 3);
+    seq_t n3 = ipow_i32(n, 3);
     seq_t s3 = digit_sum(n3);
     /* n^3 must NOT be a multiple of its digit sum */
     return (n3 % s3) != 0;
@@ -50,7 +52,7 @@ static void grow_cache(void)
 {
     if (cache_len >= cache_cap) {
         size_t new_cap = cache_cap ? (cache_cap << 1) : 8;
-        seq_t *new_arr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, cache, new_cap);
         if (!new_arr) abort();   /* out of memory */
         cache = new_arr;
         cache_cap = new_cap;

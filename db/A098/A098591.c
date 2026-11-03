@@ -13,13 +13,14 @@
  *            the interval [30*n, 30*n+30)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 73 terms through n = 9351 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>                /* for bool */
-#include "../utils/is_prime.h"      /* bool is_prime(idx_t n) */
+#include "../utils/is_prime.h"
 
 /* Compute a(n) for all n ≥ 1.  The function is stateless and works
    for any seq_t size (8, 16, 32, 64 or larger). */

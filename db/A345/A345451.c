@@ -8,13 +8,17 @@
  *            n minus 1
  * Range:     u8 n <= 71, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   factor_u64, pow_uint
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-01)
+ * Helpers:   factor_u64, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +31,7 @@ seq_t a(idx_t n)
 
     seq_t prod = 1;
     for (size_t i = 0; i < cnt; ++i) {
-        seq_t ppe = pow_uint(primes[i], exps[i]);   /* p^e */
+        seq_t ppe = ipow_u64_idx(primes[i], exps[i]);   /* p^e */
         prod = prod * (ppe + (seq_t)1);             /* multiply by (1+p^e) */
     }
 

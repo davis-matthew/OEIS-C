@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  Dynamic array of primes                                           */
@@ -136,7 +138,7 @@ static void ensure_terms(size_t needed)
         if (seq_cnt == seq_cap)
         {
             size_t newcap = (seq_cap == 0) ? 4 : seq_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(seq_arr, newcap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq_arr, newcap);
             if (!tmp) return;               /* allocation failure – abort silently */
             seq_arr = tmp;
             seq_cap = newcap;

@@ -8,18 +8,21 @@
  * Formula:   a(n) = 2^{n(n+1)} + 1, except a(2) = 17
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 7, u128 n <= 10,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 11 terms through n = 11 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     if (n == (idx_t)2) {
         return (seq_t)17;
     }
     seq_t exp = (seq_t)n * ((seq_t)n + (seq_t)1);
-    seq_t val = big_pow((seq_t)2, exp);
+    seq_t val = ipow((seq_t)2, exp);
     return val + (seq_t)1;
 }

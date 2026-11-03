@@ -8,7 +8,8 @@
  * Formula:   a(n) = (n+5)! * binomial(n+8,8) / 120
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 25,
  *            big any n
- * Helpers:   legendre
+ * Validated: standard, pass, 34 terms through n = 396 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,19 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/legendre.h"
+
+/* Legendre exponent of prime p in N! */
+static idx_t legendre(idx_t N, idx_t p)
+{
+    idx_t cnt = 0;
+    for (idx_t denom = p; denom <= N; ) {
+        cnt += N / denom;
+        /* avoid overflow in the next multiply */
+        if (denom > N / p) break;
+        denom *= p;
+    }
+    return cnt;
+}
 
 seq_t a(idx_t n)
 {

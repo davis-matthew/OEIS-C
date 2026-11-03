@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 8831, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   get_digits
+ * Validated: standard, pass, 62 terms through n = 9800 (2026-11-03)
+ * Helpers:   get_digits, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/get_digits.h"
+#include "../utils/mem.h"
 
 /* Return true if k satisfies the defining property. */
 static bool ok(seq_t k)
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
     /* Initialise cache lazily. */
     if (len == 0 && n > 0) {
         cap   = 16;
-        cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cap);
     }
 
     /* Generate terms until we have at least n of them. */
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
         if (ok(next)) {
             if (len == cap) {
                 cap *= 2;
-                cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cap);
             }
             cache[len++] = next;
         }

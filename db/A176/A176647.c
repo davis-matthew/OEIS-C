@@ -10,16 +10,19 @@
  *            determined from the index n by n = r*(r+1)/2 + k (0 ≤ k ≤ r).
  *            This reads the triangle T(r,k) = f(r,k)+f(r,r-k)-f(r,r)
  *            row‑by‑row
- * Range:     i8 n <= 6, i16 n <= 10, i32 n <= 28, i64 n <= 78, i128 n <= 231,
+ * Range:     i8 n <= 6, i16 n <= 15, i32 n <= 28, i64 n <= 78, i128 n <= 231,
  *            big any n
- * Helpers:   binomial, isqrt
+ * Validated: standard, pass, 52 terms through n = 1296 (2026-11-01)
+ * Helpers:   binomial, isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/isqrt.h"
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/binomial.h"
+#include "../utils/isqrt_u64.h"
 
 seq_t a(idx_t n)
 {

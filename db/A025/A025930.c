@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 10, u64 n <= 23, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 897 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Recurrence: a(n) = 16*a(n-1) - 91*a(n-2) + 216*a(n-3) - 180*a(n-4)
    initial values: a(0)=1, a(1)=16, a(2)=165, a(3)=1400 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t * _cache = NULL;
 static idx_t   _cache_len = 0;
@@ -26,7 +28,7 @@ static void _ensure_cache(idx_t n)
     /* allocate initial cache if needed */
     if (_cache == NULL) {
         _cache_cap = 4;
-        _cache = (seq_t *)malloc(sizeof(seq_t) * _cache_cap);
+        _cache = mem_new(seq_t, _cache_cap);
         if (_cache == NULL) abort();  /* cannot happen in normal use */
         _cache[0] = (seq_t)1;
         _cache[1] = (seq_t)16;
@@ -39,7 +41,7 @@ static void _ensure_cache(idx_t n)
     if (n >= _cache_cap) {
         idx_t new_cap = _cache_cap > 0 ? _cache_cap : 4;
         while (new_cap <= n) new_cap <<= 1;
-        _cache = (seq_t *)realloc(_cache, sizeof(seq_t) * new_cap);
+        _cache = mem_resize(seq_t, _cache, new_cap);
         if (_cache == NULL) abort();
         _cache_cap = new_cap;
     }

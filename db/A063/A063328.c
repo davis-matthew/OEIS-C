@@ -11,13 +11,15 @@
  *            946, a(12) = 1054, a(13) = 1166
  * Range:     i8 n <= 3, i16 n <= 42, i32 n <= 42, i64 n <= 42, i128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build environment */
 extern seq_t a(idx_t n);  /* declaration to satisfy the compiler */
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
         while (new_cap <= n)
             new_cap <<= 1;          /* double until we have enough */
 
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_cap);
         if (!tmp)               /* allocation failed; terminate safely */
             abort();
         cache = tmp;

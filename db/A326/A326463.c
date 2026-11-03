@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 35, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 59 terms through n = 58 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,9 @@
  * is O(n·π(n)) – about 1–2×10⁸ elementary operations for n≈10000.  */
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +42,7 @@ seq_t a(idx_t n)
     const size_t cols   = 9;          /* k = 0 … 8 */
     const size_t rows   = (size_t)n + 1;
     const size_t total  = rows * cols;
-    seq_t *dp = (seq_t *)calloc(total, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, total);
     if (!dp) {            /* allocation failure – unlikely for n ≤ 10000 */
         free(primes);
         return 0;
@@ -70,6 +73,6 @@ seq_t a(idx_t n)
     }
 
     free(primes);
-    free(dp);
+    mem_free(dp);
     return ans;
 }

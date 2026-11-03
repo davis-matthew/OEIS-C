@@ -11,13 +11,27 @@
  *            (a(n-k(3k-1)/2) + a(n-k(3k+1)/2))
  * Range:     u8 n <= 5, u16 n <= 21, u32 n <= 25, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   a002768_e
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/a002768_e.h"
+#include "../utils/mem.h"
+
+static long long a002768_e(idx_t i) {
+    if (i == 0) return 5;
+    if (i == 1) return -2;
+    if (i == 2) return 1;
+    if (i < 6) return 0;
+    switch (i % 6) {
+        case 0: return 1;
+        case 1: return -1;
+        case 2: return 1;
+        default: return 0;
+    }
+}
 
 static seq_t *A_cache = NULL;
 static long long *B_cache = NULL;
@@ -28,7 +42,7 @@ seq_t a(idx_t n) {
         idx_t newlen = n + 1;
         if (newlen < 2 * A_len) newlen = 2 * A_len;
         if (newlen < 64) newlen = 64;
-        seq_t *na = (seq_t *)malloc((size_t)newlen * sizeof(seq_t));
+        seq_t *na = mem_new(seq_t, (size_t)newlen);
         long long *nb = (long long *)malloc((size_t)newlen * sizeof(long long));
         long long d = 0, b = 0;
         for (idx_t i = 0; i < newlen; i++) {
@@ -54,7 +68,7 @@ seq_t a(idx_t n) {
             }
             na[i] = pos - neg;
         }
-        free(A_cache);
+        mem_free(A_cache);
         free(B_cache);
         A_cache = na;
         B_cache = nb;

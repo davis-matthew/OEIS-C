@@ -8,7 +8,8 @@
  *            solution
  * Range:     u8 n <= 42, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd_uint64, modpow_uint64
+ * Validated: standard, pass, 73 terms through n = 941 (2026-11-01)
+ * Helpers:   gcd_u64, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/gcd_uint64.h"
-#include "../utils/modpow_uint64.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/powmod_u64.h"
 
 /* Greatest common divisor, for uint64_t values. */
 
@@ -61,9 +62,9 @@ seq_t a(idx_t n)
             primes[primes_len++] = cand;
 
             /* Test the 30th‑power residue condition. */
-            uint64_t g   = gcd_uint64(30ULL, cand - 1ULL);
+            uint64_t g   = gcd_u64(30ULL, cand - 1ULL);
             uint64_t exp = (cand - 1ULL) / g;
-            uint64_t val = modpow_uint64(2ULL, exp, cand);
+            uint64_t val = powmod_u64(2ULL, exp, cand);
             if (val != 1ULL) {
                 ensure_cap(&special, &special_cap, special_len + 1);
                 special[special_len++] = cand;

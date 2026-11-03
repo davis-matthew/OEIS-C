@@ -12,7 +12,8 @@
  *            or...
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 10, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>   /* for memset */
+#include "../utils/mem.h"
 
 /* maximum n we will support (twice this for λ buffers) */
 #define MAX_N     20000
@@ -43,8 +45,8 @@ static void init_static(void)
     cache_init = 1;
 
     /* zero the λ buffers */
-    memset(λ_buf0, 0, sizeof(λ_buf0));
-    memset(λ_buf1, 0, sizeof(λ_buf1));
+    mem_set(λ_buf0, 0, sizeof(λ_buf0));
+    mem_set(λ_buf1, 0, sizeof(λ_buf1));
 
     /* a(0) = 1 */
     a_cache[0] = (seq_t)1;

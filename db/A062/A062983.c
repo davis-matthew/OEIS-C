@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 232, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 9788 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* External integer types supplied by the build system. */
 extern seq_t a(idx_t n);
@@ -80,7 +82,7 @@ static void init_sequence(void)
         M[i] = M[i - 1] + (int32_t)mu[i];
 
     /* build the desired sequence */
-    seq = (seq_t *)calloc(LIMIT, sizeof(seq_t));
+    seq = mem_new(seq_t, LIMIT);
     seq_len = 0;
     for (i = 1; i <= LIMIT; ++i) {
         if ((M[i] % (int32_t)phi[i]) != 0) {

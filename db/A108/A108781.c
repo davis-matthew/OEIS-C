@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 6, i16 n <= 11, i32 n <= 22, i64 n <= 32, i128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
  * n*a(n) + (-2*n+1)*a(n-1) + (9*n-25)*a(n-2) + 4*(-2*n+5)*a(n-3) = 0
  * with a(0)=1, a(1)=1, a(2)=5.  The function memoizes computed terms. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* cache of computed terms */
 static seq_t *seq = NULL;
@@ -28,7 +30,7 @@ static void ensure_cap(idx_t n)
     if (seq_cap > n) return;
     idx_t new_cap = seq_cap ? seq_cap << 1 : 8;
     while (new_cap <= n) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(*seq));
+    seq_t *tmp = mem_resize(seq_t, seq, new_cap);
     if (!tmp) exit(1);   /* out of memory */
     seq = tmp;
     seq_cap = new_cap;

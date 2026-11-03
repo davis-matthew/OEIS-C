@@ -12,6 +12,7 @@
  *            obtained by reading T row by row. Thus a(0)=T...
  * Range:     u8 n <= 7, u16 n <= 17, u32 n <= 48, u64 n <= 114, u128 n <= 336,
  *            big any n
+ * Validated: standard, pass, 56 terms through n = 1319 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

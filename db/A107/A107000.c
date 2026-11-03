@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   primes of the form 2*x^2 - x*y + 12*y^2 (x, y ≥ 0)
- * Range:     u8 none, u16 none, u32 n <= 42, u64 n <= 42, u128 n <= 42,
- *            big any n
- * Helpers:   alloc_seq_array, free_seq_array
+ * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 58 terms through n = 9938 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,27 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
+#include "../utils/mem.h"
+
+/* Allocate an array of seq_t, compatible with C and C++ */
+static inline seq_t *alloc_seq_array(size_t cap)
+{
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t *)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+/* Free an array of seq_t, compatible with C and C++ */
+static inline void free_seq_array(seq_t *ptr)
+{
+#ifdef __cplusplus
+    delete [] ptr;
+#else
+    free(ptr);
+#endif
+}
 
 /* Helper: compare two seq_t values for qsort */
 static int cmp_seq(const void *a, const void *b)
@@ -71,7 +91,7 @@ static void generate_primes(uint64_t B, seq_t **out, size_t *len)
     free(is_prime);
 
     /* Sort the primes */
-    qsort(buf, cnt, sizeof(seq_t), cmp_seq);
+    mem_qsort(buf, cnt, sizeof(seq_t), cmp_seq);
 
     *out = buf;
     *len = cnt;

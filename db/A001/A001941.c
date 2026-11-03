@@ -10,7 +10,8 @@
  *            build: expand the product directly using only additions
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 25, u64 n <= 81, u128 n <= 280,
  *            big any n
- * Helpers:   a001941_big_mode
+ * Validated: standard, pass, 45 terms through n = 976 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include "../utils/a001941_big_mode.h"
+#include "../utils/mem.h"
+
+static int a001941_big_mode(void) {
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 200; i++) x *= 2;
+    return x != 0;
+}
 
 static seq_t *a001941_A = NULL;   /* big mode: terms a(0..An-1) */
 static idx_t a001941_An = 0;
@@ -47,9 +55,9 @@ static seq_t a001941_big(idx_t n) {
         seq_t *na;
         if (cap < need) cap = need;
         if (a001941_Bcap < cap) a001941_build_b(cap);
-        na = (seq_t *)calloc(cap, sizeof(seq_t));
+        na = mem_new(seq_t, cap);
         for (i = 0; i < a001941_An; i++) na[i] = a001941_A[i];
-        free(a001941_A);
+        mem_free(a001941_A);
         a001941_A = na;
         if (a001941_An == 0) {
             a001941_A[0] = 1;
@@ -71,14 +79,14 @@ static seq_t a001941_fixed(idx_t n) {
         int r;
         seq_t *f;
         if (N < n + 1) N = n + 1;
-        f = (seq_t *)calloc(N, sizeof(seq_t));
+        f = mem_new(seq_t, N);
         f[0] = 1;
         for (k = 1; k < N; k++) {
             if (k % 4 == 0) continue;
             for (r = 0; r < 7; r++)
                 for (i = k; i < N; i++) f[i] += f[i - k];
         }
-        free(a001941_F);
+        mem_free(a001941_F);
         a001941_F = f;
         a001941_Fn = N;
     }

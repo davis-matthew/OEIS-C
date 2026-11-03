@@ -9,6 +9,7 @@
  *            binomial(k,n-2*k)^2
  * Range:     u8 n <= 8, u16 n <= 15, u32 n <= 32, u64 n <= 33, u128 n <= 33,
  *            big any n
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 /* Compute A377149: a(n) = Σ_{k=0}^{⌊n/2⌋} C(k+3,3) ⋅ [C(k,n-2k)]² */
 /* Uses the binomial utility from the build. */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

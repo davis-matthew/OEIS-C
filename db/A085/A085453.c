@@ -9,7 +9,8 @@
  *            across n² and n³). The sequence is finite in base 10 (six terms)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 6, u64 n <= 6, u128 n <= 6,
  *            big any n
- * Helpers:   distinct_digits_across
+ * Validated: full, pass, 6 terms through n = 6 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,26 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/distinct_digits_across.h"
+#include "../utils/mem.h"
+
+/* Helper: true if the decimal digits of x and y are all distinct. */
+static bool distinct_digits_across(seq_t x, seq_t y)
+{
+    unsigned mask = 0;          /* bit i set iff digit i has appeared */
+    while (x > 0) {
+        unsigned d = (unsigned)(x % 10);
+        if (mask & (1u << d)) return false;
+        mask |= (1u << d);
+        x /= 10;
+    }
+    while (y > 0) {
+        unsigned d = (unsigned)(y % 10);
+        if (mask & (1u << d)) return false;
+        mask |= (1u << d);
+        y /= 10;
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {
@@ -34,7 +54,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         /* Reserve space for a few terms; the sequence has only six. */
         capacity = 8;
-        list = (seq_t*)malloc(sizeof(seq_t) * capacity);
+        list = mem_new(seq_t, capacity);
         count = 0;
 
         /* Brute‑force search: increment candidate, test, store. */

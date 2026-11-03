@@ -7,11 +7,13 @@
  * Formula:   a(n) = least integer >1 coprime to both n and n+1
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 117 terms through n = 9316 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /* The function uses a simple sieve to pre‑compute a list of primes
    sufficient for n up to at least 10⁶ (practically the tests only
    require n≈10⁴).  For each query it factors n and n+1, collects

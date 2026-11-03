@@ -10,6 +10,7 @@
  *            T(1,1)=2, T(2,0)=4, T(2,1)=9, T(2,2)=4,
  * Range:     u8 n <= 10, u16 n <= 16, u32 n <= 30, u64 n <= 44, u128 n <= 44,
  *            big any n
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,7 +18,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binomial.h"   /* binomial(idx_t n, idx_t k) -> seq_t */
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 /* Multiply a base by itself exp times.  Works for all seq_t types
  * that support the operators +, -, *, /, %, <<, >>, &, |, ^. */

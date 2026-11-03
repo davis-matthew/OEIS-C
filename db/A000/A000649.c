@@ -8,25 +8,37 @@
  *            r(x) = 1 + x*(r(x)^3 + 3*r(x)*r(x^2) + 2*r(x^3))/6
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 19, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   sq_coef
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/sq_coef.h"
+#include "../utils/mem.h"
+
+static seq_t sq_coef(const seq_t *A, idx_t m) {
+    seq_t s = 0;
+    idx_t i;
+    for (i = 0; 2 * i < m; i++)
+        s += A[i] * A[m - i];
+    s = s + s;
+    if (m % 2 == 0)
+        s += A[m / 2] * A[m / 2];
+    return s;
+}
 
 static seq_t *R = 0, *S2 = 0, *S3 = 0, *P4 = 0, *P8 = 0;
 static idx_t cap = 0;
 
 static void build(idx_t N) {
     idx_t m, i, j;
-    if (R) { free(R); free(S2); free(S3); free(P4); free(P8); }
-    R = (seq_t *)calloc(N, sizeof(seq_t));
-    S2 = (seq_t *)calloc(N, sizeof(seq_t));
-    S3 = (seq_t *)calloc(N, sizeof(seq_t));
-    P4 = (seq_t *)calloc(N, sizeof(seq_t));
-    P8 = (seq_t *)calloc(N, sizeof(seq_t));
+    if (R) { mem_free(R); mem_free(S2); mem_free(S3); mem_free(P4); mem_free(P8); }
+    R = mem_new(seq_t, N);
+    S2 = mem_new(seq_t, N);
+    S3 = mem_new(seq_t, N);
+    P4 = mem_new(seq_t, N);
+    P8 = mem_new(seq_t, N);
     for (m = 0; m < N; m++) {
         if (m == 0) {
             R[0] = 1;

@@ -7,14 +7,27 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 none, u64 n <= 10000, u128 n <= 10000,
  *            big any n
- * Helpers:   cmp_vals, pow11
+ * Validated: standard, pass, 52 terms through n = 9630 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/cmp_vals.h"
-#include "../utils/pow11.h"
+#include "../utils/mem.h"
+
+static int cmp_vals(const void *a, const void *b) {
+    seq_t va = *(const seq_t *)a;
+    seq_t vb = *(const seq_t *)b;
+    return (va > vb) - (va < vb);
+}
+
+static seq_t pow11(seq_t b) {
+    seq_t b2 = b * b;
+    seq_t b4 = b2 * b2;
+    seq_t b8 = b4 * b4;
+    return b8 * b2 * b;
+}
 
 /* a(n) = n-th smallest sum of 12 positive 11th powers */
 
@@ -24,7 +37,7 @@ seq_t a(idx_t n) {
     
     if (sums == NULL) {
         idx_t capacity = 2000000;
-        sums = (seq_t *)malloc(capacity * sizeof(seq_t));
+        sums = mem_new(seq_t, capacity);
         idx_t idx = 0;
         
         seq_t MAX_BASE = 12;
@@ -68,7 +81,7 @@ seq_t a(idx_t n) {
             }
         }
         
-        qsort(sums, idx, sizeof(seq_t), cmp_vals);
+        mem_qsort(sums, idx, sizeof(seq_t), cmp_vals);
         
         idx_t write = 0;
         for (idx_t i = 0; i < idx; i++) {

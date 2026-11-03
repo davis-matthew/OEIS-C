@@ -9,14 +9,19 @@
  *            exactly in integers
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   a001468_beatty, a001468_isqrt
+ * Validated: standard, pass, 109 terms through n = 954 (2026-11-01)
+ * Helpers:   isqrt_u128
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a001468_beatty.h"
-#include "../utils/a001468_isqrt.h"
+#include "../utils/isqrt_u128.h"
+
+static unsigned __int128 a001468_beatty(unsigned __int128 m) {
+	unsigned __int128 s = isqrt_u128(5 * m * m);
+	return (m + s) / 2;
+}
 
 seq_t a(idx_t n) {
 	unsigned __int128 m = (unsigned __int128)n;

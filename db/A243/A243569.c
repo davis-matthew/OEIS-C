@@ -9,6 +9,7 @@
  *            (n>0) s(n,k) = s(n-1,k-1) + (n-1) * s(n-1,k) (n>0, k>0)
  * Range:     u8 n <= 9, u16 n <= 11, u32 n <= 15, u64 n <= 22, u128 n <= 35,
  *            big any n
+ * Validated: standard, pass, 32 terms through n = 295 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

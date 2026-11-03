@@ -12,6 +12,7 @@
  *            {30, 25, 20, 10, 5, 0}, y = 30 – x. * For n ≥ 6 th...
  * Range:     i8 n <= 0, i16 n <= 5, i32 n <= 5, i64 n <= 5, i128 n <= 5,
  *            big any n
+ * Validated: full, pass, 6 terms through n = 5 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

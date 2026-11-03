@@ -11,13 +11,15 @@
  *            a(8)=9928, a(9)=15514, a(10)=23180
  * Range:     u8 n <= 2, u16 n <= 13, u32 n <= 210, u64 n <= 210,
  *            u128 n <= 210, big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 175 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* dynamically grown cache of terms */
 static size_t cache_size = 0;        /* number of terms currently stored */
@@ -36,7 +38,7 @@ static void ensure_initialization(void)
     if (cache_size > 0)
         return;
 
-    cache = (seq_t *)realloc(NULL, 10 * sizeof(seq_t));
+    cache = mem_resize(seq_t, NULL, 10);
     if (!cache) { /* allocation failure – the caller will get 0. */
         cache_size = 0;
         return;
@@ -52,7 +54,7 @@ static void grow_cache(idx_t n)
     if ((idx_t)cache_size >= n)
         return;
     size_t new_size = (size_t)n;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache) {
         /* retain the old cache; subsequent calls will try again.
            The caller will receive 0. */

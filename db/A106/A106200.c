@@ -11,7 +11,8 @@
  *            [n(n-1)(n^2-n-1)+4∑_{k=2}^{⌊√n⌋}⌊n/k²⌋ϕ(k)-2∑_{k=2}^{n}⌊n/k⌋²ϕ(k)]/(2n⁴)
  * Range:     u8 n <= 5, u16 n <= 16, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 #if defined(__SIZEOF_INT128__)
   typedef unsigned __int128  big_t;
@@ -49,7 +51,7 @@ seq_t a(idx_t n) {
     if (n > phi_size) {
         /* Reallocate phi array to accommodate up to n (inclusive). */
         size_t new_size = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(phi, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, phi, new_size);
         if (!tmp) return (seq_t)0;          /* allocation failed – return 0 */
         phi = tmp;
         /* Initialize phi[i] = i for i ≥ 0. */

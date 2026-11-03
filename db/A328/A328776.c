@@ -12,12 +12,14 @@
  *            d<n} a(d)·(-1)^{n/d+1}·d (2) a(n) = A[n] / n...
  * Range:     i8 n <= 15, i16 n <= 39, i32 n <= 55, i64 n <= 55, i128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static idx_t max_computed = 0;
 static seq_t *sigma_arr   = NULL;   /* σ(n) */
@@ -28,7 +30,7 @@ static seq_t *a_arr       = NULL;   /* result sequence a(n)   */
 static void compute_sigma(idx_t n)
 {
     /* allocate new array */
-    sigma_arr = (seq_t*)realloc(sigma_arr, (size_t)(n + 1) * sizeof(seq_t));
+    sigma_arr = mem_resize(seq_t, sigma_arr, (size_t)(n + 1));
     for (idx_t i = 0; i <= n; ++i) sigma_arr[i] = 0;
 
     for (idx_t i = 1; i <= n; ++i) {
@@ -48,8 +50,8 @@ seq_t a(idx_t n)
         compute_sigma(n);
 
         /* allocate arrays up to n */
-        Mc_arr = (seq_t*)realloc(Mc_arr, (size_t)(n + 1) * sizeof(seq_t));
-        a_arr  = (seq_t*)realloc(a_arr,  (size_t)(n + 1) * sizeof(seq_t));
+        Mc_arr = mem_resize(seq_t, Mc_arr, (size_t)(n + 1));
+        a_arr  = mem_resize(seq_t, a_arr, (size_t)(n + 1));
 
         /* compute Mc[1..n] using recurrence (1) */
         Mc_arr[0] = 0;  /* unused */

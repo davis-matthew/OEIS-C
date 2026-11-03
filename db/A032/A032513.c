@@ -8,7 +8,8 @@
  * Formula:   a(n) = sum_{k=1}^{n} floor(k^(1/5))
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   root5_uint64
+ * Validated: partial, pass, 70 terms through n = 69 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,25 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/root5_uint64.h"
+#include "../utils/mem.h"
+
+/* Integer fifth‑root by binary search, result fits into an unsigned 64‑bit integer.
+   For all 64‑bit x, the output is < 8192, so the search range is very small. */
+static int root5_uint64(uint64_t x)
+{
+    uint64_t lo = 0, hi = 8192;    /* hi exclusive */
+    while (lo + 1 < hi)
+    {
+        uint64_t mid = (lo + hi) >> 1;
+        /* Compute mid^5 safely in 128 bits to avoid overflow. */
+        __int128 m5 = (__int128)mid * mid * mid * mid * mid;
+        if (m5 <= x)
+            lo = mid;
+        else
+            hi = mid;
+    }
+    return (int)lo;
+}
 
 /* Cached values of the sequence */
 static seq_t *a_cache = NULL;          /* array holding a(0)..a(k) */
@@ -32,7 +51,7 @@ static void ensure_cache(size_t needed)
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     if (new_cap < needed)
         new_cap = needed;
-    a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, new_cap);
     cache_cap = new_cap;
 }
 

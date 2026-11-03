@@ -10,14 +10,27 @@
  *            listing all such palindromes in increasing numeric order
  * Range:     u8 n <= 30, u16 n <= 171, u32 n <= 757, u64 n <= 1023,
  *            u128 n <= 1023, big any n
- * Helpers:   cmp_uint128
+ * Validated: full, pass, 1023 terms through n = 1023 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/cmp_uint128.h"
+#include <stdbool.h>
+#include <stdio.h>
+#include "../utils/mem.h"
+
+/* Compare function for qsort on __uint128_t */
+static int cmp_uint128(const void *a, const void *b)
+{
+    const unsigned __int128 *x = (const unsigned __int128 *)a;
+    const unsigned __int128 *y = (const unsigned __int128 *)b;
+    if (*x < *y) return -1;
+    if (*x > *y) return 1;
+    return 0;
+}
 
 /* Helper: comparison function for unsigned __int128 values, used by qsort. */
 
@@ -61,7 +74,7 @@ static void build_cache(seq_t **cache_ptr, size_t *len_ptr) {
     qsort(tmp, CAP, sizeof(unsigned __int128), cmp_uint128);
 
     /* Allocate cache of type seq_t and fill it. */
-    seq_t *cache = (seq_t *)malloc(CAP * sizeof(seq_t));
+    seq_t *cache = mem_new(seq_t, CAP);
     if (!cache) abort();
     for (size_t i = 0; i < CAP; ++i) {
         cache[i] = (seq_t)tmp[i];

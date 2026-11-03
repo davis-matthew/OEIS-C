@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 459, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 9244 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* The function a(n) returns the nth element of the sequence, as
    defined by OEIS, with a(1) = 40. */
@@ -80,7 +82,7 @@ static void ensure_terms(idx_t need)
         free(is_prime);
 
         /* Collect terms. */
-        seq_t *new_cache = (seq_t *)calloc((size_t)need, sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, (size_t)need);
         if (!new_cache) {
             free(cubefree);
             return;
@@ -95,14 +97,14 @@ static void ensure_terms(idx_t need)
 
         /* If we found enough terms, replace the cache. */
         if (count >= need) {
-            free(term_cache);
+            mem_free(term_cache);
             term_cache = new_cache;
             cache_size = count;
             return;
         }
 
         /* Not enough terms – free the temporary cache and try again. */
-        free(new_cache);
+        mem_free(new_cache);
         need *= 2;   /* increase requirement and loop again */
     }
 }

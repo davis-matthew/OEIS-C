@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 0, u16 none, u32 n <= 1499, u64 n <= 1499,
  *            u128 n <= 1499, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 1440 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static state */
 static seq_t *f_counts   = NULL;   /* f_counts[s] = number of combinations for score s */
@@ -46,7 +48,7 @@ static void init_sequence(void)
     const idx_t S_MAX = 200000;
 
     /* Allocate and initialise f_counts */
-    f_counts = (seq_t *)malloc((S_MAX + 1) * sizeof(seq_t));
+    f_counts = mem_new(seq_t, (S_MAX + 1));
     if (f_counts == NULL) return;        /* failure propagates as zero result */
 
     for (idx_t i = 0; i <= S_MAX; ++i) f_counts[i] = 0;
@@ -62,7 +64,7 @@ static void init_sequence(void)
     }
 
     /* Allocate best_score table */
-    best_score = (seq_t *)malloc((N_MAX + 1) * sizeof(seq_t));
+    best_score = mem_new(seq_t, (N_MAX + 1));
     if (best_score == NULL) return;     /* failure propagates as zero result */
 
     for (idx_t i = 0; i <= N_MAX; ++i) best_score[i] = 0;

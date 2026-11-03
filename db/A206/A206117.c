@@ -9,6 +9,7 @@
  * Formula:   a(n) = 7075*a(n-3) for n>10; a(1..10) given
  * Range:     u8 none, u16 none, u32 n <= 4, u64 n <= 11, u128 n <= 27,
  *            big any n
+ * Validated: standard, pass, 29 terms through n = 201 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

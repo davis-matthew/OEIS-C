@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign, mult, easy
  * Formula:   a(n) = multiplicative function with a(p^e) = 2 - (e-1)*(p-1)
- * Range:     i8 n <= 8213, i16 n <= 9771, i32 n <= 9771, i64 n <= 9771,
- *            i128 n <= 9771, big any n
+ * Range:     i8 n <= 8213, i16 n <= 65537, i32 n <= 65537, i64 n <= 65537,
+ *            i128 n <= 65537, big any n
+ * Validated: standard, pass, 99 terms through n = 9771 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,8 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 /* Computes the n-th term of OEIS sequence A344326.

@@ -13,12 +13,14 @@
  *            where r and k satisfy n = r*(r+1)/2 + k, 0 ≤ k ≤ r
  * Range:     u8 n <= 48, u16 n <= 127, u32 n <= 419, u64 n <= 1509,
  *            u128 n <= 5612, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 7312 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     idx_t size = r + 1;
 
     /* Allocate a contiguous block for the triangle. */
-    seq_t *data = (seq_t *)malloc((size_t)size * (size_t)size * sizeof(seq_t));
+    seq_t *data = mem_new(seq_t, (size_t)size * (size_t)size);
     if (!data) abort();
 
     /* Initialize the first row. */
@@ -75,6 +77,6 @@ seq_t a(idx_t n)
     /* Result is the desired entry. */
     seq_t result = data[r * size + k];
 
-    free(data);
+    mem_free(data);
     return result;
 }

@@ -11,7 +11,8 @@
  *            times as its exponent)
  * Range:     u8 n <= 15, u16 n <= 15, u32 n <= 26, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   factor_u64, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,10 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /* Recursive helper that returns the minimal tower value for the
    current multiset of remaining prime factors.
@@ -64,7 +67,7 @@ static seq_t dfs(int *state, size_t uniq, uint64_t *primes,
         seq_t exp = dfs(state, uniq, primes, mult, memo);
         state[i]++;                     /* restore the state */
 
-        seq_t val = big_pow((seq_t)primes[i], exp);
+        seq_t val = ipow((seq_t)primes[i], exp);
 
         if (best == 0 || val < best)
             best = val;
@@ -108,7 +111,7 @@ seq_t a(idx_t n)
     size_t total_states = mult[uniq - 1] * ((size_t)exps[uniq - 1] + 1);
 
     /* Memoisation table initialized to 0 (uncomputed). */
-    seq_t *memo = (seq_t *)calloc(total_states, sizeof(seq_t));
+    seq_t *memo = mem_new(seq_t, total_states);
     if (!memo) {
         free(state);
         free(mult);
@@ -119,7 +122,7 @@ seq_t a(idx_t n)
 
     free(state);
     free(mult);
-    free(memo);
+    mem_free(memo);
 
     return result;
 }

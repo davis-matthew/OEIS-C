@@ -9,16 +9,30 @@
  *            binary‐polynomial of d divides the binary‐polynomial of n over
  *            GF(2). The function enumerates all divisors of n and checks the
  *            divisibility by a standard GF(2) polynomial division
- * Range:     u8 n <= 9250, u16 n <= 9250, u32 n <= 9250, u64 n <= 9250,
- *            u128 n <= 9250, big any n
- * Helpers:   poly_divides_uint64
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9250 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/poly_divides_uint64.h"
+
+/* Return true iff the binary polynomial of 'divisor' divides that of 'dividend'. */
+static bool poly_divides_uint64(uint64_t dividend, uint64_t divisor)
+{
+    if (divisor == 0) return false;          /* should never happen */
+    while (dividend) {
+        int deg_dividend = 63 - __builtin_clzll(dividend);
+        int deg_divisor  = 63 - __builtin_clzll(divisor);
+        if (deg_dividend < deg_divisor) break;
+        int shift = deg_dividend - deg_divisor;
+        dividend ^= divisor << shift;
+    }
+    return dividend == 0;
+}
 
 seq_t a(idx_t n)
 {

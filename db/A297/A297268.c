@@ -9,7 +9,8 @@
  *            are equal
  * Range:     u8 n <= 36, u16 n <= 7289, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   first_equals_last
+ * Validated: standard, pass, 73 terms through n = 9064 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,17 @@
    types and for both C and C++ builds. */
 
 #include <stdlib.h>
-#include "../utils/first_equals_last.h"
+#include "../utils/mem.h"
+
+/* Return true if the base‑9 representation of x starts and ends with the
+   same digit.  Uses only integer arithmetic. */
+static int first_equals_last(idx_t x)
+{
+    idx_t last = x % 9;
+    idx_t first = x;
+    while (first >= 9) first /= 9;
+    return first == last;
+}
 
 /* Global cache of computed sequence values. */
 static seq_t *cache = NULL;          /* array of a(i) */
@@ -36,7 +47,7 @@ static void grow_cache(idx_t need)
     if (need <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < (size_t)need) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) exit(EXIT_FAILURE);  /* allocation failed */
     cache = tmp;
     cache_cap = new_cap;

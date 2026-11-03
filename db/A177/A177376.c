@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 20, u32 n <= 29, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   digit_frequencies
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-03)
+ * Helpers:   digit_frequencies, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/digit_frequencies.h"
+#include "../utils/mem.h"
 
 /* Return true iff the decimal digits of value contain no '9'. */
 static bool has_no_nine(seq_t value)
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     /* initialise cache and state on first call */
     if (!cache) {
         cap   = 64;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         f_prev = 0;
         f_curr = 1;
         k      = 1;
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
         if (has_no_nine(f_curr)) {
             if (len >= cap) {
                 cap <<= 1;
-                cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cap);
             }
             cache[len++] = f_curr;
         }

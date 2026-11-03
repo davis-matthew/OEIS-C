@@ -11,12 +11,14 @@
  *            and is computed incrementally with memoization for effic...
  * Range:     u8 n <= 13, u16 n <= 33, u32 n <= 95, u64 n <= 301,
  *            u128 n <= 1041, big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 9949 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t  cache_size = 0;
@@ -30,7 +32,7 @@ static void ensure_cache(idx_t n)
     idx_t old_size = cache_size;
     idx_t new_len   = n + 1;
 
-    seq_t *new_cache = (seq_t *)malloc(sizeof(seq_t) * new_len);
+    seq_t *new_cache = mem_new(seq_t, new_len);
     if (!new_cache)
         abort();
 
@@ -38,7 +40,7 @@ static void ensure_cache(idx_t n)
     if (cache) {
         for (idx_t i = 0; i < old_size; ++i)
             new_cache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
     cache     = new_cache;
     cache_size = new_len;

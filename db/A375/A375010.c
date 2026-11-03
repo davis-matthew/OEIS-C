@@ -7,8 +7,9 @@
  * Keywords:  sign, easy
  * Formula:   a(n) = prime(n-1) - floor((prime(n-2) + prime(n-1) +
  *            prime(n))/3)
- * Range:     i8 n <= 9885, i16 n <= 9885, i32 n <= 9885, i64 n <= 9885,
- *            i128 n <= 9885, big any n
+ * Range:     i8 n <= 10002, i16 n <= 10002, i32 n <= 10002, i64 n <= 10002,
+ *            i128 n <= 10002, big any n
+ * Validated: standard, pass, 97 terms through n = 9885 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,13 +7,15 @@
  * Formula:   a(n) = number of distinct prime factors of (2*n^3 - 2*n + 9)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_distinct_primes
+ * Validated: standard, pass, 121 terms through n = 9776 (2026-11-01)
+ * Helpers:   omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/count_distinct_primes.h"
+#include <stdbool.h>
+#include "../utils/omega.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     uint64_t val = (uint64_t)val128;
 
     /* Use the provided helper to count distinct prime factors */
-    int res = count_distinct_primes(val);
+    int res = omega(val);
 
     return (seq_t)res;
 }

@@ -7,16 +7,48 @@
  * Formula:   a(n) = A000720(A001358(n)) (number of primes < semiprime(n))
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   cmp_seq, push_seq, seq_malloc
+ * Validated: standard, pass, 89 terms through n = 8092 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_malloc.h"
-#include "../utils/push_seq.h"
-#include "../utils/cmp_seq.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* helper to allocate an array of seq_t that works in both C and C++ */
+static inline seq_t *seq_malloc(idx_t n)
+{
+#ifdef __cplusplus
+    return mem_new(seq_t, n);
+#else
+    return (seq_t *)malloc(n * sizeof(seq_t));
+#endif
+}
+
+/* Dynamic array helpers. */
+static void push_seq(seq_t **arr, idx_t *cap, idx_t *size, seq_t val)
+{
+    if (*size >= *cap) {
+        size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+        *arr = mem_resize(seq_t, *arr, new_cap);
+        *cap = new_cap;
+    }
+    (*arr)[*size] = val;
+    (*size)++;
+}
+
+/* Comparator for qsort on seq_t values. */
+static int cmp_seq(const void *a, const void *b)
+{
+    const seq_t *x = (const seq_t *)a;
+    const seq_t *y = (const seq_t *)b;
+    if (*x < *y) return -1;
+    if (*x > *y) return 1;
+    return 0;
+}
 
 /* Global data, initialized on first call */
 static bool initialized = false;
@@ -73,7 +105,7 @@ static void init_sequence(void)
     }
 
     /* Sort semiprimes */
-    qsort(semip_arr, size, sizeof(seq_t), cmp_seq);
+    mem_qsort(semip_arr, size, sizeof(seq_t), cmp_seq);
 
     semiprimes = semip_arr;
     semip_size = size;

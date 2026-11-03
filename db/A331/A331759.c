@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 11, u32 n <= 204, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 9979 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
  */
 
 #include <stdlib.h>   /* for malloc, free, calloc */
+#include "../utils/mem.h"
 
 /* Forward declaration of phi cache data */
 static seq_t *phi_cache = NULL;   /* array of phi values */
@@ -31,7 +33,7 @@ static void ensure_phi_up_to(idx_t limit)
         return;                    /* already computed enough */
 
     /* Recompute phi from scratch up to the new limit (simple and cheap). */
-    seq_t *phi = (seq_t *)calloc(limit + 1, sizeof(seq_t));
+    seq_t *phi = mem_new(seq_t, limit + 1);
     if (phi == NULL) exit(EXIT_FAILURE);   /* out of memory */
 
     /* Initialize phi[i] = i */
@@ -47,7 +49,7 @@ static void ensure_phi_up_to(idx_t limit)
     }
 
     /* Replace old cache */
-    free(phi_cache);
+    mem_free(phi_cache);
     phi_cache = phi;
     phi_cap   = limit;
 }

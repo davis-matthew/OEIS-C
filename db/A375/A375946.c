@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..n} A007559(k+1) * |Stirling1(n,k)|
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 14, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static idx_t max_n = 0;
 static seq_t *A_arr  = NULL; /* A_arr[k] = A007559(k+1)  */
@@ -28,16 +30,16 @@ static void ensure_capacity(idx_t new_size) {
     if (new_size <= (idx_t)(S_rows[0] ? 0 : 0)) return; /* already enough */
 
     /* Reallocate A_arr */
-    A_arr = (seq_t *)realloc(A_arr, new_size * sizeof(seq_t));
+    A_arr = mem_resize(seq_t, A_arr, new_size);
     if (!A_arr) abort();
 
     /* Reallocate a_arr */
-    a_arr = (seq_t *)realloc(a_arr, new_size * sizeof(seq_t));
+    a_arr = mem_resize(seq_t, a_arr, new_size);
     if (!a_arr) abort();
 
     /* Reallocate both Stirling rows */
     for (int i = 0; i < 2; ++i) {
-        S_rows[i] = (seq_t *)realloc(S_rows[i], new_size * sizeof(seq_t));
+        S_rows[i] = mem_resize(seq_t, S_rows[i], new_size);
         if (!S_rows[i]) abort();
     }
 

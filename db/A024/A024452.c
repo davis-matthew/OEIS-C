@@ -10,13 +10,15 @@
  *            the first n+1 primes
  * Range:     u8 n <= 3, u16 n <= 14, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /*  Static storage for primes and their prefix sums of first and second
     elementary symmetric functions.  */
@@ -35,9 +37,9 @@ static void grow_storage(size_t needed)
     size_t new_cap = Capacity ? Capacity : 1;
     while (new_cap < needed) new_cap <<= 1;
 
-    Primes = (seq_t *)realloc(Primes, new_cap * sizeof(seq_t));
-    Sum1   = (seq_t *)realloc(Sum1,   new_cap * sizeof(seq_t));
-    Sum2   = (seq_t *)realloc(Sum2,   new_cap * sizeof(seq_t));
+    Primes = mem_resize(seq_t, Primes, new_cap);
+    Sum1   = mem_resize(seq_t, Sum1, new_cap);
+    Sum2   = mem_resize(seq_t, Sum2, new_cap);
 
     Capacity = new_cap;
 }

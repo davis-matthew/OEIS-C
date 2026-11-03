@@ -8,6 +8,7 @@
  *            least one decimal digit 0
  * Range:     u8 none, u16 n <= 8, u32 n <= 1817, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 74 terms through n = 9575 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

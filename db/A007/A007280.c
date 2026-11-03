@@ -9,7 +9,8 @@
  *            parts: T(i,j) = T(i-1,j-1) + T(i-j,j), T(i,1) = T(i,i) = 1
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 6, u64 n <= 8, u128 n <= 10,
  *            big any n
- * Helpers:   a007280_isprime, a007280_pow
+ * Validated: partial, pass, 12 terms through n = 12 (2026-11-03)
+ * Helpers:   ipow_u64, is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/a007280_isprime.h"
-#include "../utils/a007280_pow.h"
+#include "../utils/ipow_u64.h"
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n) {
     idx_t w = n + 1;
@@ -41,8 +42,8 @@ seq_t a(idx_t n) {
 
     cand = 1;
     for (k = 1; k <= n; k++) {
-        do { cand++; } while (!a007280_isprime(cand));
-        result *= a007280_pow((seq_t)cand, TT(n, k));
+        do { cand++; } while (!is_prime_u64(cand));
+        result *= ipow_u64((seq_t)cand, TT(n, k));
     }
 #undef TT
     free(T);

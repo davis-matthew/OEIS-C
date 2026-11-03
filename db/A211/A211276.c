@@ -13,13 +13,15 @@
  *            [1,1]) – (# of [1,2]). Only words with d = 0 a...
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 21, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,12 +38,12 @@ seq_t a(idx_t n)
     /* Allocate six arrays: three current state arrays (ending in 1,2,3)
        and three temporary arrays for the next length.  The calloc call
        is cast to silence the C++ conversion warning. */
-    seq_t *cur1 = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *cur2 = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *cur3 = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *nxt1 = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *nxt2 = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *nxt3 = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *cur1 = mem_new(seq_t, sz);
+    seq_t *cur2 = mem_new(seq_t, sz);
+    seq_t *cur3 = mem_new(seq_t, sz);
+    seq_t *nxt1 = mem_new(seq_t, sz);
+    seq_t *nxt2 = mem_new(seq_t, sz);
+    seq_t *nxt3 = mem_new(seq_t, sz);
 
     if (!cur1 || !cur2 || !cur3 || !nxt1 || !nxt2 || !nxt3)
         return (seq_t)0;          /* allocation failed – unlikely */
@@ -54,9 +56,9 @@ seq_t a(idx_t n)
     /* Transition loop: grow the words from length 1 up to n. */
     for (idx_t len = 1; len < n; ++len) {
         /* Clear the next‑state arrays. */
-        memset(nxt1, 0, sz * sizeof(seq_t));
-        memset(nxt2, 0, sz * sizeof(seq_t));
-        memset(nxt3, 0, sz * sizeof(seq_t));
+        mem_set(nxt1, 0, sz * sizeof(seq_t));
+        mem_set(nxt2, 0, sz * sizeof(seq_t));
+        mem_set(nxt3, 0, sz * sizeof(seq_t));
 
         /* Active range of differences for the current length. */
         const idx_t start = off - len;
@@ -103,8 +105,8 @@ seq_t a(idx_t n)
     seq_t result = cur1[off] + cur2[off] + cur3[off];
 
     /* Free temporary memory. */
-    free(cur1); free(cur2); free(cur3);
-    free(nxt1); free(nxt2); free(nxt3);
+    mem_free(cur1); mem_free(cur2); mem_free(cur3);
+    mem_free(nxt1); mem_free(nxt2); mem_free(nxt3);
 
     return result;
 }

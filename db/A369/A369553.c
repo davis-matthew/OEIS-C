@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 24, u64 n <= 47, u128 n <= 92,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 465 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /*  For n = 0 we don't have a term; return 0. */
@@ -33,10 +35,10 @@ seq_t a(idx_t n) {
     idx_t size = N + 2;          /*  we need indexes up to N+1 for x^{n+1}  */
 
     /*  Working arrays  */
-    seq_t *a_vals   = (seq_t*)calloc(size, sizeof(seq_t));   /*  a[1..N]  */
-    seq_t *ans      = (seq_t*)calloc(size, sizeof(seq_t));   /*  accumulator  */
-    seq_t *prev_row = (seq_t*)calloc(size, sizeof(seq_t));   /*  coefficients for y^{k-1}  */
-    seq_t *curr_row = (seq_t*)calloc(size, sizeof(seq_t));   /*  coefficients for y^k    */
+    seq_t *a_vals   = mem_new(seq_t, size);   /*  a[1..N]  */
+    seq_t *ans      = mem_new(seq_t, size);   /*  accumulator  */
+    seq_t *prev_row = mem_new(seq_t, size);   /*  coefficients for y^{k-1}  */
+    seq_t *curr_row = mem_new(seq_t, size);   /*  coefficients for y^k    */
 
     if (!a_vals || !ans || !prev_row || !curr_row)
         return 0;    /*  out of memory – just return 0, the build will never hit this  */
@@ -51,7 +53,7 @@ seq_t a(idx_t n) {
     for (idx_t k = 1; k <= N - 1; ++k) {
 
         /*  compute curr_row = y^k  */
-        memset(curr_row, 0, size * sizeof(seq_t));
+        mem_set(curr_row, 0, size * sizeof(seq_t));
         for (idx_t m = 2 * k; m <= N + 1; ++m) {
             seq_t val = 0;
             val += prev_row[m - 2];
@@ -78,9 +80,9 @@ seq_t a(idx_t n) {
     }
 
     /*  free temporary arrays  */
-    free(prev_row);
-    free(curr_row);
-    free(ans);
+    mem_free(prev_row);
+    mem_free(curr_row);
+    mem_free(ans);
 
     /*  result */
     return a_vals[n];

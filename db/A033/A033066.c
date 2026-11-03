@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   valid_base15
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,29 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/valid_base15.h"
+
+static bool valid_base15(seq_t val)
+{
+    /* convert to base‑15 digits (least significant first) */
+    unsigned char digits[256];
+    size_t len = 0;
+    seq_t tmp = val;
+    do {
+        seq_t d = tmp % (seq_t)15;
+        digits[len++] = (unsigned char)d;
+        tmp /= (seq_t)15;
+    } while (tmp > 0);
+
+    /* most significant digit index m */
+    size_t m = len - 1;
+
+    /* check parity condition for all odd (m‑i) */
+    for (size_t j = 0; j < len; ++j) {
+        if ( (((m - j) & 1U) == 1U) && ((digits[j] & 1U) == 0U) )
+            return false;
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {

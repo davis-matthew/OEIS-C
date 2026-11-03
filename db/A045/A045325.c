@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_small, seq_realloc
+ * Validated: standard, pass, 71 terms through n = 974 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,20 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/is_prime_small.h"   /* bool is_prime_small(seq_t num) */
-#include "../utils/seq_realloc.h"      /* seq_t *seq_realloc(seq_t *old, size_t old_cap, size_t new_cap) */
+#include <stdlib.h>
+#include "../utils/is_prime_seq.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 static seq_t *cache = NULL;          /* cache of qualifying primes */
 static size_t cache_len = 0;         /* number of terms stored */
@@ -54,7 +67,7 @@ seq_t a(idx_t n)
     idx_t candidate = last_checked + 1;
 
     while (cache_len < n) {
-        if (is_prime_small((seq_t)candidate)) {
+        if (is_prime_seq((seq_t)candidate)) {
             int r = (int)(candidate % 7);
             if (r == 0 || r == 2 || r == 3 || r == 4) {
                 ensure_cap(cache_len + 1);

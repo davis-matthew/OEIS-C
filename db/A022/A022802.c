@@ -10,7 +10,8 @@
  *            positive integer that is 1 or not a Lucas number
  * Range:     u8 n <= 10, u16 n <= 22, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   is_lucas_small
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,31 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_lucas_small.h"
+#include "../utils/mem.h"
+
+/* Helper: test whether an integer x (x>1) is a Lucas number
+   (only the small Lucas numbers are needed for the c(n) search). */
+static bool is_lucas_small(idx_t x)
+{
+    if (x <= 1)
+        return false;
+    /* Lucas numbers up to 15127 – the first that exceeds 2×10⁴.   */
+    static const idx_t smallLucasVals[] = {
+        3, 4, 7, 11, 18, 29, 47, 76, 123, 199,
+        322, 521, 843, 1364, 2207, 3571, 5778,
+        9349, 15127
+    };
+    static const size_t smallLucasCount =
+        sizeof(smallLucasVals) / sizeof(smallLucasVals[0]);
+
+    for (size_t i = 0; i < smallLucasCount; ++i) {
+        if (smallLucasVals[i] == x)
+            return true;
+        if (smallLucasVals[i] > x)
+            break;
+    }
+    return false;
+}
 
 /* Main sequence function. */
 seq_t a(idx_t n)
@@ -32,7 +57,7 @@ seq_t a(idx_t n)
     /* Initialise the cache on first use. */
     if (lucas_len == 0) {
         lucas_cap = 16;
-        lucas = (seq_t *)malloc(lucas_cap * sizeof(seq_t));
+        lucas = mem_new(seq_t, lucas_cap);
         if (!lucas) return (seq_t)0;          /* out‑of‑memory guard */
         lucas[0] = (seq_t)2;   /* L(0) */
         lucas[1] = (seq_t)1;   /* L(1) */
@@ -45,7 +70,7 @@ seq_t a(idx_t n)
         size_t new_cap = lucas_cap;
         while (new_cap < desired)
             new_cap = new_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(lucas, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, lucas, new_cap);
         if (!tmp) return (seq_t)0;          /* out‑of‑memory guard */
         lucas = tmp;
         lucas_cap = new_cap;

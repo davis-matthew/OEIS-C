@@ -13,15 +13,33 @@
  *            -1,0,0,-1,-1,0,-1,-1,-1...
  * Range:     i8 n <= 163, i16 n <= 469, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   has_factor, seq_alloc_array
+ * Validated: standard, pass, 116 terms through n = 993 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_alloc_array.h"  /* seq_alloc_array */
-#include "../utils/has_factor.h"
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+/* Return true iff factor (1 - q^m) appears in the product. */
+static inline bool has_factor(idx_t m)
+{
+    int e = 1;
+    e += (m % 4 == 0)  ? 1 : 0;
+    e += (m % 18 == 0) ? 1 : 0;
+    e -= (m % 2  == 0) ? 1 : 0;
+    e -= (m % 9  == 0) ? 1 : 0;
+    e -= (m % 36 == 0) ? 1 : 0;
+    return e == 1;
+}
 
 static seq_t *coeff = NULL;      /* coefficients of the product */
 static size_t coeff_len = 0;     /* current size of coeff array */

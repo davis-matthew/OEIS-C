@@ -10,12 +10,14 @@
  *            x_{k+1} - x_k) /(2*x_{k+1} - x_k + 1)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,11 +28,11 @@ seq_t a(idx_t n)
     size_t sz = (size_t)N;
 
     /* Allocate two working arrays of length N */
-    seq_t *dp_prev = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *dp_next = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *dp_prev = mem_new(seq_t, sz);
+    seq_t *dp_next = mem_new(seq_t, sz);
     if (!dp_prev || !dp_next) {
-        free(dp_prev);
-        free(dp_next);
+        mem_free(dp_prev);
+        mem_free(dp_next);
         return 0;
     }
 
@@ -71,7 +73,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp_prev[N - 1];
-    free(dp_prev);
-    free(dp_next);
+    mem_free(dp_prev);
+    mem_free(dp_next);
     return result;
 }

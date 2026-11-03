@@ -11,12 +11,13 @@
  *            1)
  * Range:     u8 n <= 3, u16 n <= 31, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   msb_idx
+ * Validated: standard, pass, 53 terms through n = 899 (2026-11-01)
+ * Helpers:   ilog2_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/msb_idx.h"
+#include "../utils/ilog2_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +25,7 @@ seq_t a(idx_t n)
         return (seq_t)0;
 
     /* Find the highest bit set in n. */
-    idx_t msb = msb_idx(n);
+    idx_t msb = ilog2_idx(n);
     idx_t shift = (idx_t)1 << msb;  /* 2^msb */
 
     seq_t result = (seq_t)0;

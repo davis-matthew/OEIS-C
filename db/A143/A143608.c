@@ -8,13 +8,15 @@
  *            a(n-4) (OEIS A143608)
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 25, u64 n <= 51, u128 n <= 101,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 948 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;   // pointer to cached values
 static size_t a_cache_size = 0; // number of values currently stored
@@ -29,7 +31,7 @@ static void ensure_cache(idx_t n)
     if (need > a_cache_cap) {
         size_t new_cap = a_cache_cap ? a_cache_cap * 2 : 16;
         while (new_cap < need) new_cap <<= 1;
-        a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_cap);
         a_cache_cap = new_cap;
     }
 

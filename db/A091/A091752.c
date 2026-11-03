@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 9, i16 n <= 16, i32 n <= 36, i64 n <= 41, i128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* integer square‑root (floor) – does not overflow                     */
@@ -80,7 +82,7 @@ static void ensure_capacity(idx_t r)
 static void compute_row(idx_t i)
 {
     idx_t len = 2 * i + 1;                    /* indices 0..2*i          */
-    seq_t *curr = (seq_t *)calloc(len, sizeof(seq_t));
+    seq_t *curr = mem_new(seq_t, len);
     if (!curr) abort();
 
     if (i == 1) {

@@ -10,13 +10,32 @@
  *            length
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   equal_run_parity
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/equal_run_parity.h"
+
+static bool equal_run_parity(seq_t x)
+{
+    seq_t even_sum = 0, odd_sum = 0;
+    seq_t temp = x;
+    while (temp != 0) {
+        seq_t digit = temp % 4;
+        seq_t run_len = 0;
+        while (temp != 0 && (temp % 4) == digit) {
+            temp /= 4;
+            run_len++;
+        }
+        if ((run_len & 1) == 0)
+            even_sum += run_len;
+        else
+            odd_sum += run_len;
+    }
+    return even_sum == odd_sum;
+}
 
 seq_t a(idx_t n)
 {

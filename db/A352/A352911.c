@@ -10,12 +10,14 @@
  *            as i followed by j
  * Range:     u8 n <= 9914, u16 n <= 9914, u32 n <= 9914, u64 n <= 9914,
  *            u128 n <= 9914, big any n
+ * Validated: standard, pass, 106 terms through n = 8801 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 static idx_t *pref = NULL;          /* pref[s] = Σ_{k=2}^{s} φ(k) */

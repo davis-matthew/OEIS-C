@@ -12,13 +12,31 @@
  *            a(1) = A(0,1), a(2) = A(1,0),
  * Range:     u8 n <= 38, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   A_value
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>   // for standard integer types used in helper functions
-#include "../utils/A_value.h"
+
+/* Compute entry A(n,k) as described above.  row = n, col = k. */
+static seq_t A_value(idx_t row, idx_t col)
+{
+    if (row == 0)
+        return (seq_t)(col + 1);
+
+    seq_t n = (seq_t)row;        /* row index  (n>0)            */
+    seq_t k = (seq_t)col;        /* column index (k>=0)         */
+    seq_t sum = 0;
+
+    for (idx_t a = 0; a <= col; ++a) {
+        seq_t term1 = a * n + 1;
+        seq_t term2 = (k - a) * n + 1;
+        sum += term1 * term2;
+    }
+    return sum;
+}
 
 /* Convert global index n to coordinates (row, col) in the array A by
    descending antidiagonals.  The antidiagonals are numbered by d so that

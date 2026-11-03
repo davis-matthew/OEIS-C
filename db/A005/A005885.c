@@ -11,18 +11,24 @@
  *            sqrt
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   a005885_is1mod3, a005885_isqrt
+ * Validated: partial, pass, 62 terms through n = 61 (2026-11-01)
+ * Helpers:   isqrt_i64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a005885_is1mod3.h"
-#include "../utils/a005885_isqrt.h"
+#include "../utils/isqrt_i64.h"
+
+static int a005885_is1mod3(long long t) {
+    long long m = t % 3;
+    if (m < 0) m += 3;
+    return m == 1;
+}
 
 seq_t a(idx_t n) {
     long long N = 6 * ((long long)n + 1);
-    long long M = a005885_isqrt(N);
+    long long M = isqrt_i64(N);
     long long count = 0;
     long long u, v, r, s;
     for (u = -M; u <= M; u++) {
@@ -34,7 +40,7 @@ seq_t a(idx_t n) {
             if (!a005885_is1mod3(v)) continue;
             r = ru - v * v;
             if (r < 0) continue;
-            s = a005885_isqrt(r);
+            s = isqrt_i64(r);
             if (s * s != r) continue;
             if (s == 0) {
                 if (a005885_is1mod3(0)) count++;

@@ -9,13 +9,15 @@
  *            distinct prime factors
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 90 terms through n = 90 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 
 static bool *odd_arr = NULL;          /* odd_arr[i] == true iff i has an odd number of distinct prime factors */
@@ -124,7 +126,7 @@ seq_t a(idx_t n)
     /* Resize cache if necessary */
     if (n > max_cached)
     {
-        a_cache = (seq_t *)realloc(a_cache, (n + 1) * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, (n + 1));
         /* Initialize new entries to 0 */
         for (idx_t i = max_cached + 1; i <= n; ++i)
             a_cache[i] = 0;

@@ -7,12 +7,17 @@
  * Formula:   a(n) = least k>1 such that k^n == 1 (mod n)
  * Range:     u8 n <= 254, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 96 terms through n = 9517 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +28,7 @@ seq_t a(idx_t n)
     seq_t mod = (seq_t)n;   /* modulus for exponentiation */
     /* Search k from 2 up to n+1. By Euler's theorem k = n+1 always works. */
     for (idx_t k = 2; k <= n + 1; ++k) {
-        seq_t r = mod_pow((seq_t)k, n, mod);
+        seq_t r = powmod((seq_t)k, n, mod);
         if (r == 1)
             return (seq_t)k;
     }

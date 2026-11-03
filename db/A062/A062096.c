@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 475, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   ensure_capacity_seq, gcd
+ * Validated: standard, pass, 84 terms through n = 843 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,29 @@
  */
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/ensure_capacity_seq.h"
+
+static void ensure_capacity_seq(size_t needed, size_t *cap, seq_t **arr) {
+#if defined(__cplusplus)
+    if (*cap < needed) {
+        seq_t *new_arr = new seq_t[needed];
+        if (*arr) {
+            for (size_t i = 0; i < *cap; ++i) new_arr[i] = (*arr)[i];
+            delete[] *arr;
+        }
+        *arr = new_arr;
+        *cap = needed;
+    }
+#else
+    if (*cap < needed) {
+        seq_t *tmp = realloc(*arr, needed * sizeof(seq_t));
+        if (!tmp) exit(1);
+        *arr = tmp;
+        *cap = needed;
+    }
+#endif
+}
 
 static seq_t *seq = NULL;
 static size_t seq_cap = 0;

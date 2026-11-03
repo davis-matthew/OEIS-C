@@ -9,13 +9,16 @@
  *            a(1)=4, a(2)=9, a(3)=9, a(4)=32, …
  * Range:     u8 n <= 10, u16 n <= 28, u32 n <= 66, u64 n <= 190,
  *            u128 n <= 561, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 61 terms through n = 5030 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *fact = NULL;        /* factorial array, fact[i]=i! for i>=0   */
 static size_t fact_cap = 0;        /* number of entries stored in fact[] */
@@ -27,7 +30,7 @@ static void ensure_factorial(idx_t up_to)
         return;
 
     size_t new_cap = (size_t)(up_to + 1);
-    seq_t *new_f = (seq_t *)realloc(fact, new_cap * sizeof(seq_t));
+    seq_t *new_f = mem_resize(seq_t, fact, new_cap);
     if (!new_f) { /* allocation failure – abort program (must not happen) */
         abort();
     }

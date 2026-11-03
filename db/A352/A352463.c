@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   digit_len, digit_product, pow10
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   digit_product, mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,21 @@
 /* Computes OEIS A352463: numbers k whose decimal digits product is a
  * prefix of k.  Uses brute‑force search with memoisation. */
 #include <stdlib.h>
+#include <stdbool.h>
+#include <stdint.h>
 #include "../utils/digit_product.h"
-#include "../utils/digit_len.h"
-#include "../utils/pow10.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -37,7 +50,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call. */
     if (cache_cap == 0) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* generate terms until we have the requested index. */
@@ -48,8 +61,8 @@ seq_t a(idx_t n)
         seq_t prod = digit_product(val);
         if (prod == 0) continue;            /* any zero digit → impossible */
 
-        int len_k = digit_len(val);
-        int len_p = digit_len(prod);
+        int len_k = num_digits(val);
+        int len_p = num_digits(prod);
         if (len_p > len_k) continue;        /* product longer than k → fail */
 
         /* prefix of val that may equal prod. */
@@ -58,7 +71,7 @@ seq_t a(idx_t n)
             /* store the value into the cache. */
             if (cache_used == cache_cap) {
                 cache_cap *= 2;
-                seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                 if (!tmp) return (seq_t)0;   /* allocation failure */
                 cache = tmp;
             }

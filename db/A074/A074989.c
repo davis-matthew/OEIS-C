@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2452, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   cube_root_floor_idx
+ * Validated: standard, pass, 105 terms through n = 9901 (2026-11-01)
+ * Helpers:   icbrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,11 +18,11 @@
           n - floor(cuberoot(n))^3  and  (ceil(cuberoot(n)))^3 - n   */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/cube_root_floor_idx.h"
+#include "../utils/icbrt.h"
 
 seq_t a(idx_t n)
 {
-    idx_t k = cube_root_floor_idx(n);
+    idx_t k = icbrt(n);
     unsigned __int128 k3   = (unsigned __int128)k * k * k;
     if ((unsigned __int128)n == k3)
         return 0;                        /* n is exactly a cube */

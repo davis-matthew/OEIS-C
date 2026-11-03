@@ -8,13 +8,15 @@
  *            x^(4k))
  * Range:     i8 n <= 85, i16 n <= 85, i32 n <= 85, i64 n <= 85, i128 n <= 85,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 86 terms through n = 85 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;
 static size_t dp_cap = 0;
@@ -25,7 +27,7 @@ static void ensure_dp(size_t n)
     if (dp_cap > n)
         return;
     size_t new_cap = n + 1;
-    seq_t *p = (seq_t *)realloc(dp, new_cap * sizeof(seq_t));
+    seq_t *p = mem_resize(seq_t, dp, new_cap);
     if (!p)
         abort();
     dp = p;

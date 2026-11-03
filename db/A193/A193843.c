@@ -11,13 +11,15 @@
  *            this triangle row by row
  * Range:     u8 n <= 14, u16 n <= 45, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t N)
 {
@@ -50,7 +52,7 @@ seq_t a(idx_t N)
         /* Resize array of row pointers. */
         triangle = (seq_t **)realloc(triangle, (cur + 2) * sizeof(seq_t *));
         /* Allocate the current row (length cur+1). */
-        triangle[cur] = (seq_t *)malloc((cur + 1) * sizeof(seq_t));
+        triangle[cur] = mem_new(seq_t, (cur + 1));
 
         /* Update power of 3 for this row. */
         pow3 *= 3;                     /* pow3 now holds 3^(cur+1) */

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   has_even_runs_more
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,36 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has_even_runs_more.h"
+#include "../utils/mem.h"
+
+/* Return true iff x has more even‑length runs than odd‑length runs
+   in its base‑5 representation. Runs are maximal consecutive blocks of a
+   single digit. */
+static inline bool has_even_runs_more(seq_t x)
+{
+    if (x == 0) return false;          /* zero is not a positive integer */
+
+    seq_t cur_digit = x % 5;
+    x /= 5;
+    size_t run_len = 1;
+    size_t even_runs = 0, odd_runs = 0;
+
+    while (x != 0) {
+        seq_t next_digit = x % 5;
+        x /= 5;
+        if (next_digit == cur_digit) {
+            run_len++;
+        } else {
+            if (run_len % 2 == 0) even_runs++; else odd_runs++;
+            cur_digit = next_digit;
+            run_len = 1;
+        }
+    }
+    /* process last run */
+    if (run_len % 2 == 0) even_runs++; else odd_runs++;
+
+    return even_runs > odd_runs;
+}
 
 static seq_t *cache            = NULL;   /* cached terms            */
 static size_t cache_len        = 0;      /* number of cached terms  */
@@ -36,7 +66,7 @@ static void fill_cache(idx_t n)
         new_cap = n > 8 ? n * 2 : 8;
     }
     if (new_cap != cache_cap) {
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) { /* allocation failed; abort */
             abort();
         }

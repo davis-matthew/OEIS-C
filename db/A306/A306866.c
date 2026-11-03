@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 255, u16 n <= 8192, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   runs_of_ones_leq2
+ * Validated: standard, pass, 83 terms through n = 8128 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,23 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/runs_of_ones_leq2.h"
+
+/* Return true iff x's binary representation contains at most two runs
+ * of consecutive 1‑bits. */
+static inline bool runs_of_ones_leq2(seq_t x) {
+    int runs = 0;
+    int prev = 0;
+    while (x) {
+        int bit = (int)(x & (seq_t)1);
+        if (bit && !prev) {
+            ++runs;
+            if (runs > 2) return false;
+        }
+        prev = bit;
+        x >>= 1;
+    }
+    return true;
+}
 
 static seq_t *seq = NULL;
 static size_t seq_len = 0;

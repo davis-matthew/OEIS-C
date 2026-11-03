@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ---- Global state (static) ------------------------------------ */
 static seq_t *perm          = NULL;   /* permutation array, 1‑based */
@@ -39,11 +41,11 @@ static void ensure_perm_size(size_t needed)
     size_t newSize = permSize > 0 ? permSize << 1 : 16;
     while (newSize < needed) newSize <<= 1;
 
-    seq_t *newPerm = (seq_t *)realloc(perm, newSize * sizeof(seq_t));
+    seq_t *newPerm = mem_resize(seq_t, perm, newSize);
     if (!newPerm) exit(1);               /* allocation failure */
 
     /* Zero‑initialize the newly allocated part. */
-    memset(newPerm + permSize, 0, (newSize - permSize) * sizeof(seq_t));
+    mem_set(newPerm + permSize, 0, (newSize - permSize) * sizeof(seq_t));
 
     perm   = newPerm;
     permSize = newSize;
@@ -79,7 +81,7 @@ seq_t a(idx_t n)
     /* Initialise storage if first call. */
     if (perm == NULL) {
         permSize = 16;
-        perm = (seq_t *)calloc(permSize, sizeof(seq_t));
+        perm = mem_new(seq_t, permSize);
     }
 
     /* Make array large enough for index n. */

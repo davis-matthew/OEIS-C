@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   bitlen_seq_t, kth_root, power_with_limit
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-03)
+ * Helpers:   bit_length, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,9 +31,37 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/bitlen_seq_t.h"
-#include "../utils/kth_root.h"
-#include "../utils/power_with_limit.h"
+#include "../utils/bit_length.h"
+#include "../utils/mem.h"
+
+/* power_by_exponent_with_limit: base^exp, but if result would exceed limit
+   returns limit+1 instead (so caller can detect overflow). */
+static inline seq_t power_with_limit(seq_t base, idx_t exp, seq_t limit)
+{
+    seq_t result = 1;
+    for (idx_t i = 0; i < exp; ++i) {
+        if (base == 0) return 0;
+        if (result > limit / base) return limit + 1;
+        result *= base;
+    }
+    return result;
+}
+
+/* integer kth root (floor of n^(1/k)) */
+static inline seq_t kth_root(seq_t n, idx_t k)
+{
+    if (k == 1) return n;
+    seq_t low = 1;
+    seq_t high = n;
+    while (low <= high) {
+        seq_t mid = low + ((high - low) >> 1);
+        seq_t val = power_with_limit(mid, k, n);
+        if (val == n) return mid;
+        if (val < n) low = mid + 1;
+        else high = mid - 1;
+    }
+    return high;
+}
 
 /* Helper prototypes ----------------------------------------------------- */
 static inline seq_t power_with_limit(seq_t base, idx_t exp, seq_t limit);
@@ -56,7 +85,7 @@ static void ensure_terms_cap(size_t need)
     if (terms_cap < need) {
         size_t new_cap = terms_cap ? terms_cap * 2 : 8;
         while (new_cap < need) new_cap <<= 1;
-        terms = (seq_t*)realloc(terms, new_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, new_cap);
         terms_cap = new_cap;
     }
 }
@@ -66,7 +95,7 @@ static void ensure_pref_cap(size_t need)
     if (pref_cap < need) {
         size_t new_cap = pref_cap ? pref_cap * 2 : 8;
         while (new_cap < need) new_cap <<= 1;
-        pref = (seq_t*)realloc(pref, new_cap * sizeof(seq_t));
+        pref = mem_resize(seq_t, pref, new_cap);
         pref_cap = new_cap;
     }
 }
@@ -157,7 +186,7 @@ static inline bool is_perfect_power(seq_t x)
 {
     if (x <= 1) return true;          /* 0 and 1 are perfect powers */
 
-    idx_t maxExp = bitlen_seq_t(x) - 1;  /* 2^maxExp ≤ x < 2^(maxExp+1) */
+    idx_t maxExp = bit_length(x) - 1;  /* 2^maxExp ≤ x < 2^(maxExp+1) */
     for (idx_t e = 2; e <= maxExp; ++e) {
         seq_t r = kth_root(x, e);
         if (r <= 1) break;           /* further exponents will give root 1 */

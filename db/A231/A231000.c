@@ -10,13 +10,15 @@
  *            n > 7
  * Range:     u8 n <= 63, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 930 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache shared by all calls */
 static seq_t *cache = NULL;
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* First call: allocate cache and copy the initial values */
     if (cache_cap == 0) {
         cache_cap = 8;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         for (size_t i = 0; i < cache_cap; ++i)
             cache[i] = init[i];
     }
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     size_t required = (size_t)n + 1;
     size_t old_cap = cache_cap;
     if (required > cache_cap) {
-        cache = (seq_t *)realloc(cache, required * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, required);
         cache_cap = required;
     }
 

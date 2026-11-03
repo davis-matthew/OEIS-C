@@ -10,13 +10,15 @@
  *            parts each of size 1, 2, or 3, and satisfies * T(r,k) =
  *            T(r-1,k-1) + T(r-2,k-1) + T(r-3,k-1), with T(0,0)=1
  * Range:     u8 n <= 72, u16 n <= 243, u32 n <= 843, u64 n <= 3047,
- *            u128 n <= 9954, big any n
- * Helpers:   none
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 100 terms through n = 9954 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* for malloc, free */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
      */
     size_t dim = (size_t)(r + 1);
     size_t sz   = dim * dim;
-    seq_t *dp   = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *dp   = mem_new(seq_t, sz);
     if (!dp)                 /* allocation failed – return 0 as fallback */
         return 0;
 
@@ -65,6 +67,6 @@ seq_t a(idx_t n)
     /* Result is T(r,k) */
     seq_t result = dp[r * dim + k];
 
-    free(dp);
+    mem_free(dp);
     return result;
 }

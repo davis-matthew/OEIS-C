@@ -7,15 +7,18 @@
  * Formula:   a(n) = Sum_{d^2 | n} (d^2)^7 = Sum_{d | n, d is square} d^7
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 24, u64 n <= 575,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, seq_pow
+ * Validated: standard, pass, 67 terms through n = 9700 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +38,7 @@ seq_t a(idx_t n)
         seq_t term = (seq_t)1;            /* holds 1 + p^14 + p^28 + ... */
 
         if (t > 0) {
-            seq_t p14 = seq_pow((seq_t)p, (idx_t)14);
+            seq_t p14 = ipow_idx((seq_t)p, (idx_t)14);
             seq_t cur = (seq_t)1;
             for (uint64_t k = 1; k <= t; ++k) {
                 cur *= p14;

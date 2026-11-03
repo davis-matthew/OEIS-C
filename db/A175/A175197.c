@@ -10,17 +10,20 @@
  *            of the A_k lattice with maximum infinity norm m. The enumeration
  *            follows antidiagonals of the table A(k,n). A(k, m) is computed
  *            via inclusion–exclusion
- * Range:     u8 n <= 15, u16 n <= 37, u32 n <= 62, u64 n <= 62, u128 n <= 62,
+ * Range:     u8 n <= 22, u16 n <= 46, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   binom, seq_one
+ * Validated: partial, pass, 63 terms through n = 62 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <math.h>
-#include "../utils/binom.h"
-#include "../utils/seq_one.h"
+#include <stdlib.h>
+#include "../utils/binomial.h"
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
 
 static seq_t compute_F(idx_t k, idx_t n)
 {
@@ -44,8 +47,8 @@ static seq_t compute_F(idx_t k, idx_t n)
         if (rem == (idx_t)-1)              /* when N < j*upper */
             break;
 
-        seq_t term1 = binom(k + 1, j);     /* C(k+1 , j) */
-        seq_t term2 = binom(rem + k, k);   /* C(rem + k , k) */
+        seq_t term1 = binomial(k + 1, j);     /* C(k+1 , j) */
+        seq_t term2 = binomial(rem + k, k);   /* C(rem + k , k) */
         seq_t term  = term1 * term2;
 
         if (j & 1)

@@ -10,15 +10,19 @@
  *            2m+1 (odd), row r = {m+1, … , 3m+1} * • if r = 2m (even), row r
  *            = {m, … , 2m‑1} ∪ {2m+1, … , 3m} * The global index n determines
  *            the row r such that r(r‑1)/2 < n ≤ r(r+1...
- * Range:     u8 n <= 9567, u16 n <= 9567, u32 n <= 9567, u64 n <= 9567,
- *            u128 n <= 9567, big any n
- * Helpers:   cumsum
+ * Range:     u8 n <= 11325, u16 n <= 11325, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 94 terms through n = 9567 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/cumsum.h"
+
+static inline unsigned __int128 cumsum(idx_t r) {
+    return (unsigned __int128)r * (r + 1) / 2;
+}
 
 seq_t a(idx_t n) {
     /* binary search for row r: smallest r with r(r+1)/2 ≥ n */

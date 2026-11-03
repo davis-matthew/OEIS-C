@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 455, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 90 terms through n = 996 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* -------------- log factorial table ------------------------------- */
 static size_t log_fact_size = 0;        /* number of entries stored (0…size-1)   */
@@ -50,7 +52,7 @@ static void ensure_cache(size_t n)
 {
     if (n < cache_size) return;
     size_t new_size = n + 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache) exit(EXIT_FAILURE);
     for (size_t i = cache_size; i <= n; ++i) new_cache[i] = 0;
     cache = new_cache;

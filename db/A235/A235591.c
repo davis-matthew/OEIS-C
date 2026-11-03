@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 74, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 74 terms through n = 74 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute the digital root (for a positive seq_t value). */
 static inline uint8_t digital_root(seq_t x)
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
             if (q % drq == 0) {
                 if (len == cap) {
                     size_t newcap = cap ? cap * 2 : 16;
-                    seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, newcap);
                     if (!tmp) abort();
                     cache = tmp;
                     cap   = newcap;

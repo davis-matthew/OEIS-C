@@ -13,7 +13,8 @@
  *            each n, count sequences of n rows where each row is a p...
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 33, u64 n <= 210, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 192 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
  /* Forward declaration of dynamic array helpers */
 static void ensure_cache_cap(idx_t need);
@@ -80,7 +82,7 @@ static void ensure_cache_cap(idx_t need)
     if (cache_cap >= need) return;
     size_t new_cap = cache_cap ? (cache_cap * 2) : 4;
     while (new_cap < need) new_cap *= 2;
-    seq_t *newp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *newp = mem_resize(seq_t, cache, new_cap);
     cache = newp;
     cache_cap = new_cap;
 }
@@ -112,7 +114,7 @@ seq_t a(idx_t n)
     /* extend DP to required n */
     for (idx_t step = current_n + 1; step <= n; ++step) {
         /* zero dp_next */
-        memset(dp_next, 0, PERM_COUNT * sizeof(seq_t));
+        mem_set(dp_next, 0, PERM_COUNT * sizeof(seq_t));
 
         /* transition: for each previous permutation (prev) */
         for (int prev = 0; prev < PERM_COUNT; ++prev) {
@@ -127,7 +129,7 @@ seq_t a(idx_t n)
         }
 
         /* copy back */
-        memcpy(dp, dp_next, PERM_COUNT * sizeof(seq_t));
+        mem_copy(dp, dp_next, PERM_COUNT * sizeof(seq_t));
 
         /* compute a(step) = sum(dp) */
         seq_t sum = 0;

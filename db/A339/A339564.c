@@ -9,13 +9,15 @@
  *            unordered factorizations of its argument.)
  * Range:     u8 n <= 82, u16 n <= 82, u32 n <= 82, u64 n <= 82, u128 n <= 82,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 82 terms through n = 82 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 struct CacheEntry {
     uint64_t key;   /* (n << 32) | min_factor  */
@@ -30,7 +32,7 @@ static struct CacheEntry *cache = NULL;
 /* one‑time initialization of the cache */
 static void init_cache(void) {
     if (!cache) {
-        cache = (struct CacheEntry *)malloc(CACHE_CAP * sizeof(struct CacheEntry));
+        cache = mem_new(struct CacheEntry, CACHE_CAP);
         for (size_t i = 0; i < CACHE_CAP; ++i)
             cache[i].used = 0;
     }

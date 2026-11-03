@@ -10,14 +10,23 @@
  *            4,16,37,58,89,145,42,20)
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_cycle_member
+ * Validated: standard, pass, 121 terms through n = 841 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_cycle_member.h"
+
+/* local helper: test whether x is a member of the 89‑cycle or the fixed
+   point 1. */
+static inline bool is_cycle_member(uint64_t x)
+{
+    return x == 1 || x == 4 || x == 16 || x == 37 ||
+           x == 58 || x == 89 || x == 145 || x == 42 ||
+           x == 20;
+}
 
 /* compute Σ dᵢ² for a non‑negative 64‑bit integer x. */
 static inline uint64_t digit_square_sum_uint64(uint64_t x)

@@ -9,13 +9,15 @@
  *            a(3)=18, a(4)=47, a(5)=118
  * Range:     u8 n <= 5, u16 n <= 12, u32 n <= 25, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static const seq_t INIT[6] = { (seq_t)1, (seq_t)2, (seq_t)7,
                                (seq_t)18, (seq_t)47, (seq_t)118 };
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* If cache is uninitialized, allocate space up to max(n,5)+1 */
     if (cache_len == 0) {
         size_t init_len = (size_t)n + 1;
-        cache = (seq_t *)malloc(init_len * sizeof(seq_t));
+        cache = mem_new(seq_t, init_len);
         if (!cache) { /* allocation failed – return 0 as sentinel */
             return (seq_t)0;
         }
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     /* Grow cache if necessary */
     if ((size_t)n >= cache_len) {
         size_t new_len = (size_t)n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_len);
         if (!new_cache) {
             return (seq_t)0; /* allocation failed */
         }

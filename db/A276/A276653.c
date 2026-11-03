@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digit_count
+ * Validated: standard, pass, 103 terms through n = 811 (2026-11-01)
+ * Helpers:   num_digits0
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
  *   the decimal point (e.g. 0.11 = 11/100).
  */
 #include <stdint.h>
-#include "../utils/digit_count.h"
+#include <math.h>
+#include "../utils/num_digits0.h"
 
 seq_t a(idx_t n)
 {
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
     /* find maximum number of decimal digits among the prime factors */
     int maxd = 0;
     for (int k = 0; k < pcnt; ++k) {
-        int d = digit_count(primes[k]);
+        int d = num_digits0(primes[k]);
         if (d > maxd) maxd = d;
     }
 
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
     seq_t sum = 0;
     for (int k = 0; k < pcnt; ++k) {
         uint64_t p = primes[k];
-        int d = digit_count(p);
+        int d = num_digits0(p);
         seq_t term = (seq_t)p;
         int shift = maxd - d;
         for (int s = 0; s < shift; ++s) term *= 10;

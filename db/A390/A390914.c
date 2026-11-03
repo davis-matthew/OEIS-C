@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 84, u16 n <= 84, u32 n <= 84, u64 n <= 84, u128 n <= 84,
  *            big any n
- * Helpers:   divisor_count_u64_simple, get_digits_u64
+ * Validated: partial, pass, 84 terms through n = 84 (2026-11-01)
+ * Helpers:   num_divisors_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,25 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/divisor_count_u64_simple.h"
-#include "../utils/get_digits_u64.h"
+#include "../utils/num_divisors_u64.h"
+
+/* Get decimal digits of a uint64_t number, most significant first. */
+static void get_digits_u64(uint64_t n, int *buf, size_t *len)
+{
+    int tmp[64];
+    size_t i = 0;
+    if (n == 0) {
+        tmp[i++] = 0;
+    } else {
+        while (n > 0) {
+            tmp[i++] = (int)(n % 10);
+            n /= 10;
+        }
+    }
+    *len = i;
+    for (size_t j = 0; j < i; ++j)
+        buf[j] = tmp[i - 1 - j];
+}
 
 /* next_permutation for an array of ints, size n. */
 static bool next_perm(int *arr, size_t n)
@@ -111,7 +129,7 @@ seq_t a(idx_t n)
     /* find maximum divisor count among distinct numbers */
     seq_t best = 0;
     for (size_t i = 0; i < uniq_len; ++i) {
-        seq_t dcnt = divisor_count_u64_simple(nums[i]);
+        seq_t dcnt = num_divisors_u64(nums[i]);
         if (dcnt > best)
             best = dcnt;
     }

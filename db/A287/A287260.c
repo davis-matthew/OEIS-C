@@ -9,13 +9,15 @@
  *            between consecutive block minima ≤10
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 15, u64 n <= 25, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 570 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,13 +26,13 @@ seq_t a(idx_t n)
 
     /* capacity for dp arrays: (n+2) possible block counts × 11 distances */
     size_t cap = (size_t)(n + 2) * 11;
-    seq_t *dp  = (seq_t *)malloc(cap * sizeof(seq_t));
-    seq_t *ndp = (seq_t *)malloc(cap * sizeof(seq_t));
+    seq_t *dp  = mem_new(seq_t, cap);
+    seq_t *ndp = mem_new(seq_t, cap);
     if (!dp || !ndp) {
-        free(dp); free(ndp);
+        mem_free(dp); mem_free(ndp);
         return (seq_t)0;       /* allocation failure – unlikely in tests */
     }
-    memset(dp, 0, cap * sizeof(seq_t));
+    mem_set(dp, 0, cap * sizeof(seq_t));
 
     /* initial state: one block (minimum 0), distance 0 */
     dp[1 * 11 + 0] = (seq_t)1;
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     /* process elements 1 .. n-1 */
     for (idx_t pos = 1; pos < n; ++pos) {
         /* clear next array */
-        memset(ndp, 0, cap * sizeof(seq_t));
+        mem_set(ndp, 0, cap * sizeof(seq_t));
 
         for (idx_t k = 1; k <= max_k; ++k) {
             for (idx_t d = 0; d <= 10; ++d) {
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
         }
     }
 
-    free(dp);
-    free(ndp);
+    mem_free(dp);
+    mem_free(ndp);
     return result;
 }

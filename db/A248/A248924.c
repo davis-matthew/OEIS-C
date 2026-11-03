@@ -9,13 +9,15 @@
  *            (L(0)=2, L(1)=1, L(n)=L(n-1)+L(n-2))
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
 
     /* initialise cache for the first two Lucas numbers */
     if (lucas == NULL) {
-        lucas = (seq_t *)malloc(sizeof(seq_t) * 2);
+        lucas = mem_new(seq_t, 2);
         lucas[0] = (seq_t)2;   /* L(0) */
         lucas[1] = (seq_t)1;   /* L(1) */
         cap = 2;
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* grow cache up to n if necessary */
     if ((size_t)n >= cap) {
         size_t new_cap = (size_t)n + 1;
-        lucas = (seq_t *)realloc(lucas, sizeof(seq_t) * new_cap);
+        lucas = mem_resize(seq_t, lucas, new_cap);
         for (size_t i = cap; i <= (size_t)n; ++i) {
             /* L(i) = L(i-1) + L(i-2) */
             lucas[i] = lucas[i - 1] + lucas[i - 2];

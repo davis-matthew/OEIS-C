@@ -12,7 +12,8 @@
  *            each state. The DP is recomputed up to the...
  * Range:     u8 none, u16 none, u32 n <= 3, u64 n <= 9, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 28 terms through n = 180 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Allocate an array of seq_t of length n. */
 static inline seq_t *alloc_seq_arr(size_t n)
@@ -130,7 +132,7 @@ seq_t a(idx_t n)
     while (a_vals_len <= n)
     {
         /* Clear the next‑state table. */
-        memset(dp_next, 0, sizeof(dp_next));
+        mem_set(dp_next, 0, sizeof(dp_next));
 
         /* Transition step: propagate counts from each state. */
         for (int state = 0; state < STATE_COUNT; ++state)
@@ -151,7 +153,7 @@ seq_t a(idx_t n)
         }
 
         /* Prepare for the next height. */
-        memcpy(dp, dp_next, sizeof(dp));
+        mem_copy(dp, dp_next, sizeof(dp));
 
         /* Total number of arrays of current height. */
         seq_t total = 0;

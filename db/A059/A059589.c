@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 3425, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   compute_factorials
+ * Validated: standard, pass, 74 terms through n = 9397 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,17 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/compute_factorials.h"
+#include "../utils/mem.h"
+
+/* Precompute factorials up to (K-1)! . 0! and 1! are both 1 and kept
+   distinct as separate entries. */
+static void compute_factorials(seq_t *fact, size_t K)
+{
+    fact[0] = (seq_t)1;              /* 0! */
+    if (K > 1) fact[1] = (seq_t)1;   /* 1! */
+    for (size_t i = 2; i < K; ++i)
+        fact[i] = fact[i - 1] * (seq_t)i;
+}
 
 /* Comparison function for qsort (works for any integer‑like seq_t). */
 static int cmp_seq_t(const void *p1, const void *p2)
@@ -46,7 +57,7 @@ static void build(void)
 
     /* All non‑empty subsets: 1 .. (2^K-1). */
     const size_t total_masks = ((size_t)1 << K) - 1;
-    seq_t *tmp = (seq_t *)malloc(total_masks * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, total_masks);
     if (!tmp) abort();
 
     /* Compute the sum for each subset. */
@@ -60,7 +71,7 @@ static void build(void)
     }
 
     /* Sort the sums.  We will deduplicate in place later. */
-    qsort(tmp, total_masks, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(tmp, total_masks, sizeof(seq_t), cmp_seq_t);
 
     /* Count unique values. */
     size_t uniq_local_cnt = 0;
@@ -74,7 +85,7 @@ static void build(void)
     uniq_local_cnt += 1; /* include the first value */
 
     /* Allocate the array for unique sums. */
-    uniqs = (seq_t *)malloc(uniq_local_cnt * sizeof(seq_t));
+    uniqs = mem_new(seq_t, uniq_local_cnt);
     if (!uniqs) abort();
 
     /* Copy unique values into uniqs. */
@@ -89,7 +100,7 @@ static void build(void)
     }
     uniq_cnt = uniq_local_cnt;
 
-    free(tmp);
+    mem_free(tmp);
     initialized = true;
 }
 

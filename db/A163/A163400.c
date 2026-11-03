@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy, base
  * Formula:   not stated
- * Range:     u8 n <= 9624, u16 n <= 9624, u32 n <= 9624, u64 n <= 9624,
- *            u128 n <= 9624, big any n
- * Helpers:   floor_log2_uint64, is_prime
+ * Range:     u8 n <= 90409, u16 n <= 90409, u32 n <= 90409, u64 n <= 90409,
+ *            u128 n <= 90409, big any n
+ * Validated: standard, pass, 121 terms through n = 9624 (2026-11-01)
+ * Helpers:   ilog2, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,9 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stddef.h>
+#include "../utils/ilog2.h"
 #include "../utils/is_prime.h"
-#include "../utils/floor_log2_uint64.h"
 
 seq_t a(idx_t n) {
     if (n < 1) return 0;          /* undefined for n < 1, return 0 */
@@ -43,5 +45,5 @@ seq_t a(idx_t n) {
     if (nonprime == 0)
         return (seq_t)1;          /* 0 in binary is "0" -> 1 bit */
 
-    return (seq_t)(floor_log2_uint64(nonprime) + 1);
+    return (seq_t)(ilog2(nonprime) + 1);
 }

@@ -10,12 +10,15 @@
  *            d*(d+1)/2) is the row index within that diagonal
  * Range:     u8 n <= 9, u16 n <= 27, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 /* Integer square‑root based on binary search (no floating point used). */
 static idx_t diag_index(idx_t n)
@@ -45,5 +48,5 @@ seq_t a(idx_t n)
     idx_t i = d - offset;                    /* row index in the array */
 
     /* (n+k)^n = d^i for the coordinates (i, d-i). */
-    return seq_pow((seq_t)d, i);
+    return ipow_idx((seq_t)d, i);
 }

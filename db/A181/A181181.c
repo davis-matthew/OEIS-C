@@ -9,14 +9,30 @@
  *            digit sum equals n. Offset: 1
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 10, u128 n <= 15,
  *            big any n
- * Helpers:   minimal_number
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/minimal_number.h"
+
+/* Construct the lexicographically smallest digits array of length `len`
+   having digit sum `sum`.  Each digit is in [1,9]. */
+static void
+minimal_number(uint8_t *digits, size_t len, idx_t sum)
+{
+    for (size_t i = 0; i < len; ++i) digits[i] = 1;
+    idx_t remaining = sum - (idx_t)len;
+    for (size_t i = len; i > 0 && remaining > 0; --i)
+    {
+        size_t idx = i - 1;
+        idx_t add = remaining > 8 ? 8 : remaining;
+        digits[idx] += (uint8_t)add;
+        remaining -= add;
+    }
+}
 
 /* Convert the first `len` digits of `digits` into a positive integer. */
 static seq_t

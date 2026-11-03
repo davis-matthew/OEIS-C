@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   digit_sum, gcd
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   digit_sum, gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,10 @@
 #include <stdlib.h>   /* for malloc, realloc, abort */
 #include <stdbool.h>  /* for bool, true, false */
 
-#include "../utils/gcd.h"
+#include <stdint.h>
 #include "../utils/digit_sum.h"
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* Test whether x is a power of 10 (i.e. 1, 10, 100, ...). */
 static bool is_power_of_10(seq_t x)
@@ -55,7 +58,7 @@ seq_t a(idx_t n)
                 /* Grow allocation if necessary. */
                 if (cache_size == cache_cap) {
                     size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-                    void *tmp = realloc(cache, new_cap * sizeof(seq_t));
+                    void *tmp = mem_resize(seq_t, cache, new_cap);
                     if (!tmp)
                         abort();                 /* allocation failed */
                     cache = (seq_t *)tmp;

@@ -11,7 +11,8 @@
  *            σ(n)
  * Range:     u8 n <= 15, u16 n <= 63, u32 n <= 276, u64 n <= 660,
  *            u128 n <= 728, big any n
- * Helpers:   build_primes_upto, pow_uint
+ * Validated: standard, pass, 102 terms through n = 7832 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,9 @@
 #include <stdlib.h>
 
 /* Utilities */
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 /* Global storage for primes up to a fixed limit. */
 static uint64_t *primes = NULL;     /* array of primes (ascending order)   */
@@ -91,7 +93,7 @@ seq_t a(idx_t n)
     {
         uint64_t p = pf[i];
         size_t   e = pev[i];
-        seq_t    term = (pow_uint(p, (idx_t)(e + 1)) - (seq_t)1) / ((seq_t)(p - 1));
+        seq_t    term = (ipow_u64_idx(p, (idx_t)(e + 1)) - (seq_t)1) / ((seq_t)(p - 1));
         sigma *= term;
     }
 

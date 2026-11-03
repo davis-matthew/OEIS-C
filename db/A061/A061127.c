@@ -11,13 +11,15 @@
  *            This follows from the standard cycle-counting a...
  * Range:     u8 n <= 10, u16 n <= 10, u32 n <= 13, u64 n <= 21, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper sets of divisors */
 static const idx_t div4[]  = {1,2,4};
@@ -42,7 +44,7 @@ static void ensure_fact(idx_t N)
 {
     if (N < fact_len) return;
     size_t new_size = (size_t)(N + 1);
-    fact = (seq_t *)realloc(fact, new_size * sizeof(seq_t));
+    fact = mem_resize(seq_t, fact, new_size);
     for (idx_t i = fact_len; i <= N; ++i) {
         if (i == 0) fact[i] = (seq_t)1;
         else fact[i] = fact[i-1] * (seq_t)i;
@@ -55,10 +57,10 @@ static void ensure_g(idx_t N)
 {
     if (N < g_len) return;
     size_t new_size = (size_t)(N + 1);
-    g4  = (seq_t *)realloc(g4 , new_size * sizeof(seq_t));
-    g8  = (seq_t *)realloc(g8 , new_size * sizeof(seq_t));
-    g12 = (seq_t *)realloc(g12, new_size * sizeof(seq_t));
-    g24 = (seq_t *)realloc(g24, new_size * sizeof(seq_t));
+    g4  = mem_resize(seq_t, g4, new_size);
+    g8  = mem_resize(seq_t, g8, new_size);
+    g12 = mem_resize(seq_t, g12, new_size);
+    g24 = mem_resize(seq_t, g24, new_size);
     /* initialize new entries based on recurrence */
     for (idx_t i = g_len; i <= N; ++i) {
         if (i == 0) {

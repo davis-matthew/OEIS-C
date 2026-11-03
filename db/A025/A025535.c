@@ -8,6 +8,7 @@
  * Formula:   a(n) = LCM{n+1, n+2, ..., 2*n+1}/(n+1) (OEIS A025535)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 20,
  *            big any n
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-01)
  * Helpers:   build_primes, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,8 +18,9 @@
 #include <stdlib.h>
 
 /* External utilities from the build environment */
-#include "../utils/gcd.h"        /* not used directly, kept for potential use */
+#include <stddef.h>
 #include "../utils/build_primes.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {

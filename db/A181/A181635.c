@@ -8,12 +8,14 @@
  *            values a(1)=0, a(2)=36, a(3)=0, a(4)=1296
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 23, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 819 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes the n-th term of OEIS sequence A181635.  */
 seq_t a(idx_t n)
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* Initialise the cache lazily with the first four terms.  */
     if (cache == NULL) {
         cache_size = 4;
-        cache = (seq_t *)malloc(sizeof(seq_t) * (cache_size + 1));
+        cache = mem_new(seq_t, (cache_size + 1));
         if (!cache)
             return (seq_t)0;                /* allocation failure */
 
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
 
     /* Grow the cache to accommodate up to index n.  */
     idx_t new_size = n;
-    seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * (new_size + 1));
+    seq_t *tmp = mem_resize(seq_t, cache, (new_size + 1));
     if (!tmp)
         return (seq_t)0;    /* allocation failure */
 

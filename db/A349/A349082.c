@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 990, u16 n <= 990, u32 n <= 990, u64 n <= 990,
  *            u128 n <= 990, big any n
- * Helpers:   gcd_seq
+ * Validated: standard, pass, 136 terms through n = 919 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,7 @@
  */
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/gcd_seq.h"
+#include "../utils/gcd.h"
 
 /* Small integer gcd, works for any seq_t */
 
@@ -120,7 +121,7 @@ seq_t a(idx_t n) {
     idx_t x = pos;
 
     /* Reduce the fraction x/y */
-    seq_t g = gcd_seq((seq_t)x, (seq_t)y);
+    seq_t g = gcd((seq_t)x, (seq_t)y);
     seq_t a_red = (seq_t)x / g;
     seq_t b_red = (seq_t)y / g;
 

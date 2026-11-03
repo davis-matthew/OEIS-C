@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 19, u64 n <= 188, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static void init(void);
 
@@ -97,14 +99,14 @@ static void init(void)
     }
 
     /* DP arrays for length 2 (any pair) */
-    dp_prev = (seq_t *)calloc(total_pairs, sizeof(seq_t));
-    dp_cur  = (seq_t *)calloc(total_pairs, sizeof(seq_t));
+    dp_prev = mem_new(seq_t, total_pairs);
+    dp_cur  = mem_new(seq_t, total_pairs);
     for (size_t p = 0; p < total_pairs; ++p) dp_prev[p] = (seq_t)1;
     computed_len = 2;
 
     /* Series array, initialise first two terms */
     series_cap = 3;          /* indices 0..2 will be used */
-    series = (seq_t *)calloc(series_cap, sizeof(seq_t));
+    series = mem_new(seq_t, series_cap);
     series[1] = (seq_t)m;
     series[2] = (seq_t)m * (seq_t)m;
 }
@@ -121,7 +123,7 @@ seq_t a(idx_t n)
     /* enlarge series array if needed */
     if (N + 1 > series_cap) {
         size_t new_cap = N + 1;
-        series = (seq_t *)realloc(series, new_cap * sizeof(seq_t));
+        series = mem_resize(seq_t, series, new_cap);
         series_cap = new_cap;
     }
 
@@ -129,7 +131,7 @@ seq_t a(idx_t n)
     for (size_t len = computed_len + 1; len <= N; ++len) {
         /* dp_prev contains counts for length len‑1 */
         /* compute dp_cur for length len */
-        memset(dp_cur, 0, total_pairs * sizeof(seq_t));
+        mem_set(dp_cur, 0, total_pairs * sizeof(seq_t));
 
         for (size_t pair = 0; pair < total_pairs; ++pair) {
             seq_t v = dp_prev[pair];

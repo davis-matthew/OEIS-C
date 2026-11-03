@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   _floor_isqrt_u64, gcd, is_prime_small, next_prime
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   gcd, is_prime_seq, isqrt, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,15 +28,16 @@
 #include <limits.h>
 
 /*  Utility functions supplied by the build  */
-#include "../utils/gcd.h"              /* seq_t gcd(seq_t a, seq_t b); */
-#include "../utils/is_prime_small.h"   /* bool is_prime_small(seq_t n); */
-#include "../utils/next_prime.h"       /* uint64_t next_prime(uint64_t start); */
-#include "../utils/_floor_isqrt_u64.h" /* idx_t _floor_isqrt_u64(idx_t n); */
+#include "../utils/gcd.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/isqrt.h"
+#include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 /*  Integer square root for uint64_t values.  */
 static inline uint64_t isqrt_u64(uint64_t n)
 {
-    return (uint64_t)_floor_isqrt_u64(n);
+    return (uint64_t)isqrt(n);
 }
 
 /*  (i)  Does prime p satisfy the first condition?  */
@@ -62,7 +64,7 @@ static bool first_condition(uint64_t p)
         uint64_t a = m * m - n * n;
         uint64_t b = 2 * m * n;
         uint64_t sum = a + b;
-        if (is_prime_small((seq_t)sum))
+        if (is_prime_seq((seq_t)sum))
             return true;
     }
     return false;
@@ -108,7 +110,7 @@ static void ensure_cache_cap(size_t new_cap)
     while (newsize < new_cap)
         newsize <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(cache, newsize * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, newsize);
     if (!tmp)
         abort();                 /* Unsuitable for judge, should not happen. */
 

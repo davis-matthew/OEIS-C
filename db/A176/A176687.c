@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 7325, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64
+ * Validated: standard, pass, 69 terms through n = 9483 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/factor_u64.h"   // factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt)
+#include <stdint.h>
+#include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 //  --------------------------------------------------------------------
 //  Cache of already found terms.  The array is resized as needed.
@@ -33,11 +36,11 @@ static idx_t  last_k      = 2;   // last even k examined
 static void push_term(seq_t k)
 {
     if (cache == NULL) {
-        cache   = (seq_t *)malloc(32 * sizeof(seq_t));
+        cache   = mem_new(seq_t, 32);
         cache_cap = 32;
     } else if (cache_len >= cache_cap) {
         cache_cap <<= 1;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
     cache[cache_len++] = k;
 }

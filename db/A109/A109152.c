@@ -11,7 +11,8 @@
  *            T(n-1,j) * T(j,k)
  * Range:     u8 n <= 20, u16 n <= 44, u32 n <= 119, u64 n <= 324,
  *            u128 n <= 350, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 290 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
    both under C and C++ (where seq_t may be a big-integer class). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Find the row r such that r(r+1)/2 ≤ n < (r+1)(r+2)/2.  */
 static idx_t
@@ -65,7 +67,7 @@ ensure_rows(idx_t up_to)
     /* Compute each missing row in order.  */
     for (idx_t n = rows_used; n <= up_to; ++n) {
         /* Allocate an array for row n.  */
-        seq_t *row = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (n + 1));
         if (!row)
             return;   /* memory exhaustion – abort building */
 

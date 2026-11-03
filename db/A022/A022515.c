@@ -11,13 +11,15 @@
  *            block digit followed by the block length
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 6, u128 n <= 9,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of the helper that computes the next term. */
 static seq_t next_term(seq_t prev);
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
         while (new_cap < n + 1) {
             new_cap *= 2;
         }
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) {
             /* Allocation failed – terminate. */
             exit(EXIT_FAILURE);

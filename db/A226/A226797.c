@@ -11,12 +11,15 @@
  *            brute‑force all n‑digit x to count the valid ones
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 85, u128 n <= 85,
  *            big any n
+ * Validated: partial, pass, 85 terms through n = 85 (2026-11-01)
  * Helpers:   digit_counts
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdint.h>
+#include <stddef.h>
 #include "../utils/digit_counts.h"
 
 seq_t a(idx_t n)

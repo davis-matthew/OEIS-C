@@ -8,6 +8,7 @@
  * Formula:   a(n) = (n^5 - 5*n^4 + 45*n^3 + 5*n^2 + 314*n + 360) / 120
  * Range:     u8 n <= 7, u16 n <= 24, u32 n <= 200, u64 n <= 200,
  *            u128 n <= 200, big any n
+ * Validated: standard, pass, 54 terms through n = 200 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

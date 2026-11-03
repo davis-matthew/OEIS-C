@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 34, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 72 terms through n = 903 (2026-11-01)
+ * Helpers:   is_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include <string.h>
+#include <stdbool.h>
 #include "../utils/is_prime.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
 
 /* Euclidean algorithm for uint64_t; used to compute gcd(57,p-1). */
 static uint64_t gcd64(uint64_t a, uint64_t b)
@@ -83,7 +86,7 @@ seq_t a(idx_t n)
                 uint64_t p    = next_candidate;
                 uint64_t d    = gcd64(57ULL, p - 1ULL);
                 uint64_t exp  = (p - 1ULL) / d;
-                seq_t   res   = mod_pow(2, exp, p);
+                seq_t   res   = powmod(2, exp, p);
                 if (res == 1) {
                     append_cache(p);
                 }

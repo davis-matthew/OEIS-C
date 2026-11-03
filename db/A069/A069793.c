@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 0, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   same_digits
+ * Validated: partial, pass, 48 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,18 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <math.h>
-#include "../utils/same_digits.h"
+#include "../utils/mem.h"
+
+/* Check whether two numbers consist of the same decimal digits. */
+static bool same_digits(uint64_t a, uint64_t b)
+{
+    int cnt[10] = {0};
+    while (a) { cnt[a % 10]++; a /= 10; }
+    while (b) { cnt[b % 10]--; b /= 10; }
+    for (int i = 0; i < 10; ++i)
+        if (cnt[i] != 0) return false;
+    return true;
+}
 
 /* Prime generation ---------------------------------------------------- */
 /* Prime limit big enough for the required queries (n ≤ 10000). */
@@ -80,7 +92,7 @@ static size_t cache_cap = 0;
 static void ensure_cache(size_t needed)
 {
     if (needed <= cache_cap) return;
-    seq_t *new_cache = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, needed);
     if (!new_cache) abort();
     /* Initialize new slots to 0. */
     for (size_t i = cache_cap; i < needed; ++i)

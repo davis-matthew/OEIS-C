@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 262, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow2
+ * Validated: standard, pass, 77 terms through n = 9896 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,9 @@
 /* Union of squares and powers of 2 (A188915) */
 /* a(n) = the n‑th element of the sorted union of {k²: k≥0} and {2^k: k≥0} */
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 /* public function ---------------------------------------------------------- */
 seq_t a(idx_t n)
@@ -35,7 +38,7 @@ seq_t a(idx_t n)
     /* initialise the cache on first call */
     if (cache == NULL) {
         cache_cap = 128;
-        cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();  /* memory allocation failed */
     }
 
@@ -45,7 +48,7 @@ seq_t a(idx_t n)
         if (cache_len >= cache_cap) {
             size_t new_cap = cache_cap * 2;
             if (new_cap < cache_len + 1) new_cap = cache_len + 1;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort();           /* memory allocation failed */
             cache = tmp;
             cache_cap = new_cap;

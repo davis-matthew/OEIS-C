@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 55, u32 n <= 950, u64 n <= 960,
  *            u128 n <= 960, big any n
- * Helpers:   none
+ * Validated: full, pass, 960 terms through n = 960 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static int compare_seq_t(const void *p1, const void *p2)
 {
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     /* Build cache on first call */
     if (cache == NULL) {
         /* The maximum possible number of terms is 960 */
-        cache = (seq_t *)malloc(960 * sizeof(seq_t));
+        cache = mem_new(seq_t, 960);
         if (cache == NULL) return 0;          /* OOM fallback */
 
         /* order_digits[r] gives the digit corresponding to rank r (0..9) */
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
         /* pos should be exactly 960 */
         cache_size = pos;
         /* Sort the cache numerically */
-        qsort(cache, cache_size, sizeof(seq_t), compare_seq_t);
+        mem_qsort(cache, cache_size, sizeof(seq_t), compare_seq_t);
     }
 
     if (n == 0 || n > cache_size) return 0;

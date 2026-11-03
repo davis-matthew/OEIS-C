@@ -10,16 +10,23 @@
  *            (5*n/2)*2^n for even n, n*2^(n+1) for odd n
  * Range:     u8 n <= 4, u16 n <= 11, u32 n <= 25, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   a007057_A187274, a007057_phi, a007057_pow2
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-01)
+ * Helpers:   pow2, totient_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/a007057_A187274.h"
-#include "../utils/a007057_phi.h"
-#include "../utils/a007057_pow2.h"
+#include "../utils/pow2.h"
+#include "../utils/totient_u64.h"
+
+static seq_t a007057_A187274(idx_t m) {
+    if (m % 2 == 0) {
+        return (seq_t)(m / 2) * 5 * pow2(m);
+    }
+    return (seq_t)m * pow2(m + 1);
+}
 
 #define A007057_MAXD 4096
 
@@ -49,7 +56,7 @@ seq_t a(idx_t n) {
         for (j = 0; j < k; j++) {
             idx_t dj = divs[j];
             if (dk % dj == 0) {
-                s += (seq_t)a007057_phi(dk / dj) * vals[j];
+                s += (seq_t)totient_u64(dk / dj) * vals[j];
             }
         }
         vals[k] = a007057_A187274(dk) - s;

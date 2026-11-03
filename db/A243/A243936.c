@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 987 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Computes the n‑th integer m such that the partition number p(m) is divisible by 7
  * using the pentagonal number theorem recurrence. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper function to grow an array of seq_t to at least new_cap elements. */
 static void grow_seq(seq_t **arr, size_t *cap, size_t new_cap)
@@ -24,7 +26,7 @@ static void grow_seq(seq_t **arr, size_t *cap, size_t new_cap)
     size_t new_size = (*cap > 0) ? (*cap * 2) : 4;
     if (new_size < new_cap)
         new_size = new_cap;
-    seq_t *tmp = (seq_t *)realloc(*arr, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *arr, new_size);
     if (!tmp)
         abort(); /* Allocation failure: abort the program. */
     *arr = tmp;
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     /* Initialise the partition table with p(0) = 1 */
     if (pmod_len == 0) {
         pmod_cap = 1;
-        pmod = (seq_t *)malloc(pmod_cap * sizeof(seq_t));
+        pmod = mem_new(seq_t, pmod_cap);
         if (!pmod)
             abort();
         pmod[0] = 1;                /* p(0) = 1 */
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
     /* Initialise found array if not yet allocated */
     if (found_len == 0 && found_cap == 0) {
         found_cap = 4;
-        found = (seq_t *)malloc(found_cap * sizeof(seq_t));
+        found = mem_new(seq_t, found_cap);
         if (!found)
             abort();
     }

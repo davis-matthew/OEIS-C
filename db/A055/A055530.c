@@ -9,12 +9,14 @@
  *            Stirling numbers of the second kind
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;      /* cached a(n) values */
 static idx_t a_cache_size = 0;     /* number of cached entries */
@@ -33,8 +35,8 @@ static void extend_cache(idx_t new_n)
 {
     /* Ensure factorial and pow9 tables are large enough */
     if (fact_size <= new_n) {
-        fact_cache = (seq_t *)realloc(fact_cache, (new_n + 1) * sizeof(seq_t));
-        pow9_cache = (seq_t *)realloc(pow9_cache, (new_n + 1) * sizeof(seq_t));
+        fact_cache = mem_resize(seq_t, fact_cache, (new_n + 1));
+        pow9_cache = mem_resize(seq_t, pow9_cache, (new_n + 1));
         for (idx_t i = fact_size; i <= new_n; ++i) {
             if (i == 0) {
                 fact_cache[i] = (seq_t)1;
@@ -50,7 +52,7 @@ static void extend_cache(idx_t new_n)
 
     /* Extend a_cache */
     if (a_cache_size <= new_n) {
-        a_cache = (seq_t *)realloc(a_cache, (new_n + 1) * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, (new_n + 1));
         for (idx_t i = a_cache_size; i <= new_n; ++i)
             a_cache[i] = 0;              /* initialise to zero */
         a_cache_size = new_n + 1;
@@ -59,7 +61,7 @@ static void extend_cache(idx_t new_n)
     /* If we are beyond previously computed n */
     if (prev_size == 0) {
         /* First time: initialise for n = 0 */
-        prev_row = (seq_t *)malloc(sizeof(seq_t));   /* size 1 */
+        prev_row = mem_new(seq_t, 1);   /* size 1 */
         prev_row[0] = (seq_t)1;                      /* S(0,0) = 1 */
         prev_size = 1;
         a_cache[0] = (seq_t)1;                       /* a(0) = 1 */
@@ -68,7 +70,7 @@ static void extend_cache(idx_t new_n)
     /* Compute rows for n = prev_size .. new_n */
     for (idx_t n = prev_size; n <= new_n; ++n) {
         /* Allocate memory for current row (size n+1) */
-        seq_t *curr_row = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        seq_t *curr_row = mem_new(seq_t, (n + 1));
         curr_row[0] = 0;                            /* S(n,0) = 0 for n>0 */
 
         /* Compute Stirling numbers for this row */
@@ -89,7 +91,7 @@ static void extend_cache(idx_t new_n)
         a_cache[n] = sum * (seq_t)10;
 
         /* Free previous row and update */
-        free(prev_row);
+        mem_free(prev_row);
         prev_row = curr_row;
         prev_size = n + 1;
     }

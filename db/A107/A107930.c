@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 9, u32 n <= 9, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   single_bit_pos
+ * Validated: full, pass, 10 terms through n = 9 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,15 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/single_bit_pos.h"
+
+/* Helper: find the index of the single set bit in a mask */
+static inline int single_bit_pos(int mask)
+{
+    for (int i = 0; i < 10; ++i)
+        if ((mask >> i) & 1)
+            return i;
+    return -1; /* should not happen when mask has exactly one bit set */
+}
 
 /* Helper: compute mask of digits present in x */
 static inline int digit_mask(uint64_t x)

@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign
  * Formula:   a(n) = n * (3 * A003961(n) - sigma(A003961(n)))
- * Range:     i8 n <= 6, i16 n <= 63, i32 n <= 4095, i64 n <= 9132,
- *            i128 n <= 9132, big any n
+ * Range:     i8 n <= 6, i16 n <= 63, i32 n <= 4095, i64 n <= 16384,
+ *            i128 n <= 16384, big any n
+ * Validated: standard, pass, 71 terms through n = 9132 (2026-11-01)
  * Helpers:   build_primes_upto, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,8 +19,9 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/build_primes_upto.h"   /* build_primes_upto(limit,&primes,&cnt) */
-#include "../utils/next_prime.h"          /* next_prime(p) -> next prime > p */
+#include <stdlib.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/next_prime.h"
 
 /* Static prime table for factorisation (up to 200 000). */
 static uint64_t *primes = NULL;

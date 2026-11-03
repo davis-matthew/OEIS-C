@@ -8,6 +8,7 @@
  *            limbs, then shifted right by n bits
  * Range:     u8 n <= 13, u16 n <= 27, u32 n <= 54, u64 n <= 109,
  *            u128 n <= 218, big any n
+ * Validated: standard, pass, 57 terms through n = 997 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

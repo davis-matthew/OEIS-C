@@ -8,6 +8,7 @@
  *            ways to partition a 30‑element set into n non‑empty subsets)
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 2, u64 n <= 5, u128 n <= 30,
  *            big any n
+ * Validated: full, pass, 30 terms through n = 30 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

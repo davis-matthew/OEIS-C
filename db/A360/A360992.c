@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 7, i16 n <= 12, i32 n <= 18, i64 n <= 26, i128 n <= 26,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/binom.h"   /* seq_t binom(idx_t a, idx_t b); */
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +32,7 @@ seq_t a(idx_t n)
 
     /* initialise cache with a(0) if needed */
     if (cache_len == 0) {
-        cache = (seq_t *)malloc(sizeof(seq_t) * 1);
+        cache = mem_new(seq_t, 1);
         if (!cache) return 0;          /* allocation failure – undefined behaviour */
         cache[0] = (seq_t)1;           /* a(0) */
         cache_len = 1;
@@ -38,7 +41,7 @@ seq_t a(idx_t n)
     /* grow cache to accommodate index n if necessary */
     if ((size_t)n + 1 > cache_len) {
         size_t new_len = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) return 0;            /* allocation failure – undefined behaviour */
         cache = tmp;
         cache_len = new_len;
@@ -51,7 +54,7 @@ seq_t a(idx_t n)
 
         seq_t sum = (seq_t)0;
         for (idx_t k = 0; k < i; ++k) {
-            seq_t bin = binom((idx_t)(i + 1 - k), k);
+            seq_t bin = binomial((idx_t)(i + 1 - k), k);
             seq_t term = bin * cache[i - 1 - k];
             if (k & 1)
                 term = -term;          /* (-1)^k */

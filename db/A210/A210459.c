@@ -12,13 +12,15 @@
  *            then g(0) = 1, B(n) = ∑_{d|n} d·c_d, g(m) = (1/m)·∑...
  * Range:     u8 n <= 8, u16 n <= 27, u32 n <= 90, u64 n <= 313, u128 n <= 990,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 991 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* period‑20 sequence c_k (index starts at 1) */
 static const int64_t cyc[20] = {
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
     /* initialise g if first call */
     if (cap_g == 0) {
         cap_g = 4;
-        g = (seq_t*)malloc(cap_g * sizeof(seq_t));
+        g = mem_new(seq_t, cap_g);
         if (!g) return 0;
         g[0] = (seq_t)1;      /* a(-1) = 1 */
         len_g = 1;
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
     if (idx >= cap_g) {
         size_t new_cap = idx + 1;
         if (new_cap < cap_g * 2) new_cap = cap_g * 2;
-        seq_t *tmp = (seq_t*)realloc(g, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, g, new_cap);
         if (!tmp) return 0;
         g = tmp;
         cap_g = new_cap;

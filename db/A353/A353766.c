@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 17, u16 n <= 9001, u32 n <= 9001, u64 n <= 9001,
- *            u128 n <= 9001, big any n
- * Helpers:   factor_u64, is_prime_small, phi, sigma_of
+ * Range:     u8 n <= 17, u16 n <= 100000, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 136 terms through n = 9001 (2026-11-01)
+ * Helpers:   factor_u64, is_prime_seq, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,10 +25,25 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-#include "../utils/phi.h"           /* seq_t phi(idx_t m);          */
-#include "../utils/factor_u64.h"    /* void factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt); */
-#include "../utils/sigma_of.h"     /* seq_t sigma_of(idx_t n);     */
-#include "../utils/is_prime_small.h"/* bool is_prime_small(seq_t n);*/
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/totient.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 /* Multiply a prime power q^e into result, using seq_t arithmetic. */
 static seq_t pow_seq(seq_t q, uint64_t e)
@@ -63,7 +79,7 @@ static seq_t shift_product(idx_t n)
             q = 1;               /* shift 2 → 1 */
         } else {
             uint64_t cand = p - 1;
-            while (cand >= 2 && !is_prime_small((seq_t)cand))
+            while (cand >= 2 && !is_prime_seq((seq_t)cand))
                 --cand;
             /* cand is guaranteed ≥ 2 because 2 is prime. */
             q = cand;
@@ -77,7 +93,7 @@ static seq_t shift_product(idx_t n)
 /* A353749(k) = phi(k) * A064989(k). */
 static seq_t A353749_of(idx_t k)
 {
-    seq_t phi_val = phi(k);
+    seq_t phi_val = totient(k);
     seq_t shift_val = shift_product(k);
     return phi_val * shift_val;
 }

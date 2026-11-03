@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 20, u32 n <= 54, u64 n <= 123, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Ensure the dynamic array can hold at least 'req' elements. */
 static void grow_seq_array(seq_t **arr, size_t *cap, size_t req)
@@ -36,7 +38,7 @@ static void grow_seq_array(seq_t **arr, size_t *cap, size_t req)
     if (*cap >= req) return;
     size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
     while (new_cap < req) new_cap <<= 1;
-    *arr = (seq_t *)realloc(*arr, new_cap * sizeof(**arr));
+    *arr = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
     *cap = new_cap;
 }
 

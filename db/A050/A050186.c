@@ -13,14 +13,29 @@
  *            0)
  * Range:     u8 n <= 69, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   gcd_idx, row_from_n
+ * Validated: partial, pass, 77 terms through n = 76 (2026-11-01)
+ * Helpers:   gcd_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include "../utils/gcd_idx.h"
-#include "../utils/row_from_n.h"
+
+/*--------------------------------------------------------------------
+   Helper: find the row h for a given index n.  Returns the largest
+   h such that h*(h+1)/2 <= n. */
+static inline idx_t row_from_n(idx_t n) {
+    idx_t lo = 0, hi = 1;
+    while ((unsigned __int128)hi * (hi + 1) / 2 <= n) hi <<= 1;   /* grow hi   */
+    lo = hi >> 1;
+    while (lo < hi) {                                             /* binary search */
+        idx_t mid = (lo + hi + 1) >> 1;
+        if ((unsigned __int128)mid * (mid + 1) / 2 <= n) lo = mid;
+        else hi = mid - 1;
+    }
+    return lo;
+}
 
 /*--------------------------------------------------------------------
    Helper: Euclidean greatest common divisor for uint64_t */

@@ -8,6 +8,7 @@
  * Formula:   a(n) = 2*Sum_{k=1..n} floor( sqrt((n+1/2)^2 - k^2) )
  * Range:     u8 n <= 12, u16 n <= 204, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 65 terms through n = 975 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

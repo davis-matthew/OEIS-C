@@ -10,16 +10,18 @@
  *            entries for 0 ≤ k are given by C_3(r,k) = binom(r + k, k) –
  *            binom(r + k, k – 3) (with binom(a,b)=0 when b<0 or b>a). The
  *            triangle rows have lengths r+3; row indices r...
- * Range:     u8 n <= 21, u16 n <= 50, u32 n <= 51, u64 n <= 51, u128 n <= 51,
+ * Range:     u8 n <= 30, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 52 terms through n = 51 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Include the provided binomial helper.
    It returns a seq_t value for given idx_t arguments. */
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 /* Compute a(n) */
 seq_t a(idx_t n)
@@ -54,10 +56,10 @@ seq_t a(idx_t n)
     idx_t k = n - first_idx;
 
     /* Compute the entry using the binomial formula */
-    seq_t term1 = binom(r + k, k);          /* binom(n+k, k) */
+    seq_t term1 = binomial(r + k, k);          /* binom(n+k, k) */
     seq_t term2 = 0;
     if (k >= 3) {
-        term2 = binom(r + k, k - 3);        /* binom(n+k, k-3) */
+        term2 = binomial(r + k, k - 3);        /* binom(n+k, k-3) */
     }
 
     return term1 - term2;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 877, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 93 terms through n = 9399 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Sequence A087826: a(n) = a(n-a(n-1)) + a(a(n-a(n-2)))  (offset 1) */
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* cache[0] is unused; cache[1] and cache[2] are the base cases (1,1) */
 static seq_t *cache = NULL;
@@ -29,16 +31,16 @@ ensure_cache(idx_t n)
     if (needed <= cache_size)
         return;
 
-    seq_t *tmp = (seq_t *)malloc(needed * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, needed);
     if (!tmp)
         return;               /* Allocation failure – treat as empty. */
 
     if (cache) {
-        memcpy(tmp, cache, cache_size * sizeof(seq_t));
-        free(cache);
+        mem_copy(tmp, cache, cache_size * sizeof(seq_t));
+        mem_free(cache);
     }
     /* Zero the newly allocated part. */
-    memset(tmp + cache_size, 0, (needed - cache_size) * sizeof(seq_t));
+    mem_set(tmp + cache_size, 0, (needed - cache_size) * sizeof(seq_t));
     cache = tmp;
     cache_size = needed;
 

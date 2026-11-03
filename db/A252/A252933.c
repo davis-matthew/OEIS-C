@@ -13,12 +13,14 @@
  *            a(5)=494, a(6)=1343, a(7)=3016, a(8)=5833
  * Range:     u8 n <= 4, u16 n <= 14, u32 n <= 210, u64 n <= 210,
  *            u128 n <= 210, big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 150 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[9] = {0,4,13,44,153,494,1343,3016,5833};
 
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
 
     if (cap == 0) {
         size_t need = (N > 8) ? N : 8;
-        seq = (seq_t *)malloc((need + 1) * sizeof(seq_t));
+        seq = mem_new(seq_t, (need + 1));
         if (!seq) return 0;
         cap = need;
         for (size_t i = 1; i <= 8 && i <= cap; ++i)
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     }
     else if (cap < N) {
         size_t old = cap;
-        seq = (seq_t *)realloc(seq, (N + 1) * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, (N + 1));
         if (!seq) return 0;
         cap = N;
         for (size_t i = old + 1; i <= cap; ++i) {

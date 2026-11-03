@@ -12,14 +12,64 @@
  *            reproduces all terms of sequence A225896
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 16, u64 n <= 81, u128 n <= 169,
  *            big any n
- * Helpers:   init_coeff
+ * Validated: standard, pass, 38 terms through n = 161 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/init_coeff.h"
+
+/* Pre‑compute forward‑difference coefficients.
+   pos[k] holds Δ^k a(1) if it is non‑negative,
+   neg[k] holds -Δ^k a(1) if it is negative. */
+static void init_coeff(seq_t *pos, seq_t *neg)
+{
+    /* first 17 terms a(1)…a(17) from the OEIS entry */
+    static const seq_t base[17] = {
+        11ULL,          /* a(1) */
+        78ULL,          /* a(2) */
+        545ULL,         /* a(3) */
+        3459ULL,        /* a(4) */
+        19270ULL,       /* a(5) */
+        93428ULL,       /* a(6) */
+        396804ULL,      /* a(7) */
+        1495926ULL,     /* a(8) */
+        5079770ULL,     /* a(9) */
+        15751596ULL,    /* a(10) */
+        45136888ULL,    /* a(11) */
+        120738965ULL,   /* a(12) */
+        304047638ULL,   /* a(13) */
+        725911911ULL,   /* a(14) */
+        1652919000ULL,  /* a(15) */
+        3607621216ULL,  /* a(16) */
+        7579528833ULL   /* a(17) */
+    };
+
+    /* use signed 128‑bit integers for the differences */
+    static __int128 diff[17][17];
+    int i, j, step, k;
+
+    /* initial forward differences (order 0) */
+    for (i = 0; i < 17; ++i)
+        diff[0][i] = (__int128)base[i];
+
+    /* higher‑order differences */
+    for (step = 1; step < 17; ++step) {
+        for (j = 0; j < 17 - step; ++j)
+            diff[step][j] = diff[step - 1][j + 1] - diff[step - 1][j];
+    }
+
+    /* store positive and negative parts separately */
+    for (k = 0; k <= 16; ++k) {
+        __int128 val = diff[k][0];
+        if (val >= 0)
+            pos[k] = (seq_t)val, neg[k] = 0;
+        else
+            neg[k] = (seq_t)(-val), pos[k] = 0;
+    }
+}
 
 seq_t a(idx_t n)
 {

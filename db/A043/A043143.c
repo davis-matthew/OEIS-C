@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   contains_adjacent_2_4
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,20 @@
    the representation of k-1 does not. */
 
 #include <stdbool.h>
-#include "../utils/contains_adjacent_2_4.h"
+
+/* Return true iff x in base 7 has a '24' or '42' pair of digits. */
+static bool contains_adjacent_2_4(seq_t x)
+{
+    int prev = -1;                 /* previous digit (more significant) */
+    while (x != 0) {
+        int d = (int)(x % 7);
+        if ((d == 2 && prev == 4) || (d == 4 && prev == 2))
+            return true;
+        prev = d;
+        x /= 7;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

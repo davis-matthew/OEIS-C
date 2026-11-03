@@ -9,16 +9,18 @@
  *            a(2)=T(2,1), a(3)=T(3,1), a(4)=T(3,2), a(5)=T(4,1),
  * Range:     u8 n <= 715, u16 n <= 8346, u32 n <= 8346, u64 n <= 8346,
  *            u128 n <= 8346, big any n
- * Helpers:   factor_u64, gcd, pow_uint
+ * Validated: standard, pass, 100 terms through n = 7089 (2026-11-01)
+ * Helpers:   factor_u64, gcd, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/gcd.h"
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_uint.h"
+#include "../utils/gcd.h"
+#include "../utils/ipow_u64_idx.h"
 
 static seq_t lcm_seq(seq_t a, seq_t b)
 {
@@ -52,7 +54,7 @@ static seq_t psi_of(idx_t n)
         else
         {
             seq_t part = (seq_t)(p - 1);
-            seq_t pow = pow_uint(p, (idx_t)(e - 1));
+            seq_t pow = ipow_u64_idx(p, (idx_t)(e - 1));
             part *= pow;                    /* λ(p^e) = (p-1)p^(e-1) */
             lambda = part;
         }
@@ -91,7 +93,7 @@ static seq_t T_of(idx_t n, idx_t k)
         else /* odd prime power, cyclic */
         {
             seq_t order = (seq_t)(p - 1);
-            seq_t pow = pow_uint(p, (idx_t)(e - 1));
+            seq_t pow = ipow_u64_idx(p, (idx_t)(e - 1));
             order *= pow;            /* order = (p-1)p^(e-1) */
             result *= gcd(k_seq, order);
         }

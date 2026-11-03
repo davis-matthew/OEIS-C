@@ -8,8 +8,9 @@
  * Formula:   a(n) = 1 + a(log_2(n)) if n is a power of two, 0 otherwise;
  *            a(0)=0 (a(0)=0, a(1)=1, a(2)=2, a(3)=0, a(4)=3, a(5)=0, a(6)=0,
  *            a(7)=0, a(8)=1, a(16)=4, ...)
- * Range:     u8 n <= 9340, u16 n <= 9340, u32 n <= 9340, u64 n <= 9340,
- *            u128 n <= 9340, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 145 terms through n = 9340 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

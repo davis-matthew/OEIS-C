@@ -7,6 +7,7 @@
  * Formula:   a(n) = 0 if n%2==0, else a(n) = ((n/4)%2==0 ? 1 : -1)
  * Range:     i8 n <= 2500, i16 n <= 2500, i32 n <= 2500, i64 n <= 2500,
  *            i128 n <= 2500, big any n
+ * Validated: standard, pass, 121 terms through n = 2461 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

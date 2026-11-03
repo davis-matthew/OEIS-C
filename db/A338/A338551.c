@@ -8,6 +8,7 @@
  *            where the last dart is a double (2×i for 1≤i≤20 or 50)
  * Range:     u8 n <= 19, u16 n <= 170, u32 n <= 170, u64 n <= 170,
  *            u128 n <= 170, big any n
+ * Validated: full, pass, 170 terms through n = 170 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

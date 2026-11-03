@@ -10,13 +10,15 @@
  *            2, 3, or not a Lucas number
  * Range:     u8 n <= 9, u16 n <= 21, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
             size_t new_cap = lucas_cap == 0 ? 4 : lucas_cap * 2;
             while (new_cap < (size_t)(n + 1))
                 new_cap *= 2;
-            lucas = (seq_t *)realloc(lucas, new_cap * sizeof(seq_t));
+            lucas = mem_resize(seq_t, lucas, new_cap);
             lucas_cap = new_cap;
         }
         /* Initialize first two Lucas numbers (L0=1, L1=3) */
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
             size_t new_cap = allowed_cap == 0 ? 4 : allowed_cap * 2;
             while (new_cap < (size_t)(n + 1))
                 new_cap *= 2;
-            allowed = (seq_t *)realloc(allowed, new_cap * sizeof(seq_t));
+            allowed = mem_resize(seq_t, allowed, new_cap);
             allowed_cap = new_cap;
         }
         /* Enumerate integers starting from next_cur until we have n+1 allowed terms */

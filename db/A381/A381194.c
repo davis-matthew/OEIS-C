@@ -9,12 +9,14 @@
  *            2^GCD(2*n,i)
  * Range:     u8 n <= 15, u16 n <= 31, u32 n <= 63, u64 n <= 127,
  *            u128 n <= 255, big any n
+ * Validated: standard, pass, 66 terms through n = 4841 (2026-11-01)
  * Helpers:   gcd, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/gcd.h"
 #include "../utils/pow2.h"
 

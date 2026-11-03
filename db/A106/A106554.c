@@ -8,9 +8,10 @@
  * Formula:   a(n) = concatenation of the two prime divisors of the n‑th
  *            semiprime, with the smaller divisor first. The first semiprime
  *            is 4 = 2·2
- * Range:     u8 n <= 10, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
- *            big any n
- * Helpers:   num_digits_uint32
+ * Range:     u8 n <= 10, u16 n <= 1814, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 64 terms through n = 9662 (2026-11-01)
+ * Helpers:   num_digits_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/num_digits_uint32.h"
+#include "../utils/num_digits_u32.h"
 
 /* ---- sieve parameters ----------------------------------------------------- */
 #define PRIME_LIMIT 200000        /* enough for at least 10 000 semiprimes */
@@ -138,7 +139,7 @@ static void ensure_semiprimes_generated(size_t n)
 /* ---- concatenation -------------------------------------------------------- */
 static inline seq_t concat_primes(uint32_t p1, uint32_t p2)
 {
-    unsigned int digits = num_digits_uint32(p2);
+    unsigned int digits = num_digits_u32(p2);
     seq_t pow = (seq_t)pow10_uint64(digits);
     return (seq_t)p1 * pow + (seq_t)p2;
 }

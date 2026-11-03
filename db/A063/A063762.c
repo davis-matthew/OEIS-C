@@ -11,7 +11,8 @@
  *            so repeated calls are O(n). All computations use...
  * Range:     u8 n <= 130, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   integer_sqrt_uint64
+ * Validated: standard, pass, 80 terms through n = 9260 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,25 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/integer_sqrt_uint64.h"
+#include "../utils/mem.h"
+
+static uint32_t integer_sqrt_uint64(uint64_t n)
+{
+    uint32_t low = 0, high = 0xFFFFFFFFU, mid, ans = 0;
+    while (low <= high) {
+        mid = low + ((high - low) >> 1);
+        unsigned __int128 sq = (unsigned __int128)mid * mid;
+        if (sq == n) return mid;
+        if (sq < n) {
+            ans = mid;
+            low = mid + 1;
+        } else {
+            if (mid == 0) break;
+            high = mid - 1;
+        }
+    }
+    return ans;
+}
 
 /* forward declarations */
 static uint32_t integer_sqrt_uint64(uint64_t);
@@ -74,7 +93,7 @@ seq_t a(idx_t n)
                 /* Store term, expanding array if needed */
                 if (terms_len == terms_cap) {
                     size_t newcap = terms_cap ? terms_cap * 2 : 16;
-                    seq_t *tmp = (seq_t *)realloc(terms, newcap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, terms, newcap);
                     terms = tmp;
                     terms_cap = newcap;
                 }

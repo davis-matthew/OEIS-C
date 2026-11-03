@@ -9,7 +9,8 @@
  *            a(n/d) = ε(n), with ε(1)=1 and ε(n)=0 for n>1
  * Range:     i8 n <= 90, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   seq_gcd, seq_pow
+ * Validated: standard, pass, 88 terms through n = 848 (2026-11-03)
+ * Helpers:   gcd, ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,10 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "../utils/seq_gcd.h"
-#include "../utils/seq_pow.h"
+#include <stdint.h>
+#include "../utils/gcd.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
 
 static seq_t *cache_g = NULL;
 static bool *seen_g  = NULL;
@@ -34,7 +37,7 @@ static void ensure_cache(idx_t n, seq_t **cache, bool **seen, size_t *cap) {
     if ((size_t)n + 1 <= *cap) return;
     size_t new_cap = (*cap) ? (*cap) * 2 : 16;
     if ((size_t)n + 1 > new_cap) new_cap = (size_t)n + 1;
-    *cache = (seq_t *)realloc(*cache, new_cap * sizeof(seq_t));
+    *cache = mem_resize(seq_t, *cache, new_cap);
     *seen  = (bool  *)realloc(*seen , new_cap * sizeof(bool));
     for (size_t i = *cap; i < new_cap; ++i) (*seen)[i] = false;
     *cap = new_cap;
@@ -63,7 +66,7 @@ static seq_t lambda_of(idx_t m) {
             lam2 = 1;
             for (idx_t i = 0; i < e - 2; ++i) lam2 <<= 1;  /* 2^(e-2) */
         }
-        seq_t g = seq_gcd(res, lam2);
+        seq_t g = gcd(res, lam2);
         res = (res / g) * lam2;
     }
 
@@ -75,16 +78,16 @@ static seq_t lambda_of(idx_t m) {
                 temp /= p;
                 ++e;
             }
-            seq_t lam = seq_pow((seq_t)p, e - 1);   /* p^(e-1) */
+            seq_t lam = ipow_idx((seq_t)p, e - 1);   /* p^(e-1) */
             lam = lam * (seq_t)(p - 1);             /* p^(e-1)*(p-1) */
-            seq_t g = seq_gcd(res, lam);
+            seq_t g = gcd(res, lam);
             res = (res / g) * lam;
         }
     }
 
     if (temp > 1) {          /* remaining prime factor */
         seq_t lam = (seq_t)(temp - 1);  /* e=1 => just p-1 */
-        seq_t g = seq_gcd(res, lam);
+        seq_t g = gcd(res, lam);
         res = (res / g) * lam;
     }
 

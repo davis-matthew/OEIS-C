@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 80, i16 n <= 80, i32 n <= 80, i64 n <= 80, i128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 81 terms through n = 80 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    This routine evaluates the coefficient a(n). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
        (unlimited parts of size 1 or 4 mod 5). Then multiply
        by each numerator factor (1−2x^d+x^(2d)) for d=5k+5. */
     size_t len = (size_t)n + 1;
-    seq_t *P = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *P = mem_new(seq_t, len);
     if (!P) return 0;                       /* allocation failure */
 
     for (size_t i = 0; i < len; ++i) P[i] = 0;   /* zero initial array */
@@ -62,6 +64,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = P[n];
-    free(P);
+    mem_free(P);
     return result;
 }

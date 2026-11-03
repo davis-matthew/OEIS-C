@@ -10,14 +10,17 @@
  *            table, so calls may be in any order.)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 20, u128 n <= 22,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /* Lazy memoisation table.  cache[i] holds a(i) for i>0;
    cache[0] is never stored (a(0)=1). */
@@ -31,7 +34,7 @@ static void ensure_cache(idx_t n)
     if (n < cache_limit)
         return;                       /* already large enough */
 
-    seq_t *tmp = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
     if (!tmp)
         abort();                       /* allocation failed */
     cache = tmp;
@@ -69,7 +72,7 @@ seq_t a(idx_t n)
             /* ----- first divisor d ----- */
             {
                 idx_t e = i / d;                     /* exponent n/d */
-                seq_t pow = big_pow(cache[d - 1], (seq_t)e);
+                seq_t pow = ipow(cache[d - 1], (seq_t)e);
                 /* term : d*pow if e odd,   -d*pow if e even */
                 if (e & 1ULL)
                     sum += (seq_t)d * pow;
@@ -81,7 +84,7 @@ seq_t a(idx_t n)
             idx_t q = i / d;
             if (q != d) {
                 idx_t e = d;                         /* exponent n/q == d */
-                seq_t pow = big_pow(cache[q - 1], (seq_t)e);
+                seq_t pow = ipow(cache[q - 1], (seq_t)e);
                 /* term : q*pow if e odd,   -q*pow if e even */
                 if (e & 1ULL)
                     sum += (seq_t)q * pow;

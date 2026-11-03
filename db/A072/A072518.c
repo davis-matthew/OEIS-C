@@ -9,14 +9,15 @@
  *            = k(k+1)/2 is the k‑th triangular number
  * Range:     u8 n <= 6, u16 n <= 16, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   seq_len
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-01)
+ * Helpers:   num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_len.h"
+#include "../utils/num_digits.h"
 
 seq_t a(idx_t n) {
     /* pre‑compute powers of 10 once */
@@ -31,14 +32,14 @@ seq_t a(idx_t n) {
 
     /* triangular number for index n */
     seq_t T_n = ((seq_t)n * ((seq_t)n + 1)) / 2;
-    int len_n = seq_len(T_n);
+    int len_n = num_digits(T_n);
 
     /* start searching from n+1 */
     seq_t T_cur = T_n;          /* T_{m-1} initially */
     for (idx_t m = n + 1;; ++m) {
         T_cur += m;             /* now T_m = T_{m-1} + m */
         seq_t T_m = T_cur;
-        int len_m = seq_len(T_m);
+        int len_m = num_digits(T_m);
 
         if (len_m < len_n) continue;           /* unreachable, but keep for safety */
 

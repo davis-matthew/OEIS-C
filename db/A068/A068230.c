@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 8, i16 n <= 19, i32 n <= 19, i64 n <= 19, i128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ----- Miller‑Rabin primality test for 64‑bit numbers ----- */
 static uint64_t mod_pow(uint64_t a, uint64_t e, uint64_t mod) {
@@ -74,7 +76,7 @@ static uint64_t next_candidate = 5ULL;   /* next 5 mod 12 number to test */
 /* Grow cache capacity (doubling strategy) */
 static void grow_cache(void) {
     size_t new_cap = cache_cap == 0 ? 64 : cache_cap * 2;
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cache_cap = new_cap;
 }
 

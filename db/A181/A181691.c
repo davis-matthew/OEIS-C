@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 44, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   decimal_add
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,34 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/decimal_add.h"
+
+/* helper: add two non‑negative decimal numbers a and b.
+   The arrays a[0..la-1] and b[0..lb-1] store least‑significant digit first.
+   Result is written into *out, realloced if necessary.
+   The caller supplies *cap which holds the current capacity of *out;
+   it will be enlarged to at least max(la,lb)+1 bits. */
+static void decimal_add(const uint8_t *a, size_t la,
+                        const uint8_t *b, size_t lb,
+                        uint8_t **out, size_t *lo, size_t *cap)
+{
+    size_t maxlen = (la > lb ? la : lb);
+    size_t needed = maxlen + 1;
+    if (*cap < needed) {
+        *cap = needed;
+        *out = (uint8_t *)realloc(*out, *cap * sizeof(uint8_t));
+    }
+    unsigned int carry = 0;
+    size_t i = 0;
+    while (i < maxlen || carry) {
+        unsigned int sum = carry;
+        if (i < la) sum += a[i];
+        if (i < lb) sum += b[i];
+        (*out)[i] = sum % 10;
+        carry = sum / 10;
+        ++i;
+    }
+    *lo = i;
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)

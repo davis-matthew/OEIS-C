@@ -12,7 +12,8 @@
  *            divisor‑sum sieve and then returns the requested term
  * Range:     u8 n <= 16, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 991 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* The build supplies seq_t and idx_t */
 extern idx_t _floor_isqrt_u64(idx_t n);
@@ -41,7 +43,7 @@ static void init_sieve(void)
     const idx_t max = LIMIT + 2;      /* need sigma up to LIMIT+2 */
     sigma_len = max + 1;              /* indices 0..max inclusive */
 
-    sigma = (seq_t *)malloc(sigma_len * sizeof(seq_t));
+    sigma = mem_new(seq_t, sigma_len);
     if (sigma == NULL) return;        /* allocation failure */
 
     for (idx_t i = 0; i <= max; ++i)
@@ -64,7 +66,7 @@ static void grow_found(size_t needed)
     while (found_cap < needed)
         found_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(found, found_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, found, found_cap);
     if (tmp == NULL) {
         /* memory exhaustion – keep old pointer */
         return;

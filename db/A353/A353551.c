@@ -12,14 +12,16 @@
  *            all n that fit in idx_t and fast enough for n up to ~10...
  * Range:     u8 n <= 23, u16 n <= 1187, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64
+ * Validated: standard, pass, 73 terms through n = 9504 (2026-11-03)
+ * Helpers:   mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     if (!cache || n >= cached_upto) {
         /* Ensure allocation for indices 0..n */
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return (seq_t)0;        /* out of memory – return 0 as fallback */
         cache = tmp;
         if (!cache[0]) cache[0] = (seq_t)0;   /* initialise a(0) = 0 */
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
             uint64_t kk = (uint64_t)k;
             /* k^3 < 10^12 for k <= 10 000; safe in 64‑bit unsigned. */
             uint64_t kk3 = kk * kk * kk;
-            seq_t tau = divisor_count_u64(kk3);
+            seq_t tau = num_divisors(kk3);
             cache[k] = cache[k - 1] + tau;
         }
         cached_upto = n;

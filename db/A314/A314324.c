@@ -11,13 +11,15 @@
  *            78, 75
  * Range:     u8 n <= 48, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[17] = {
     1, 5, 7, 13, 17, 26, 25, 34, 37, 48, 43, 56, 57, 70, 59, 78, 75
@@ -37,7 +39,7 @@ static void ensure_capacity(idx_t n)
         new_cap = 32;           /* small default for first grow   */
     if (new_cap < 2 * cache_cap)
         new_cap = 2 * cache_cap;
-    seq_t *tmp = (seq_t*)realloc(cache, sizeof(seq_t) * new_cap);
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) {
         /* allocation failed – terminate program (cannot recover) */
         exit(1);

@@ -10,6 +10,7 @@
  *            the triangle read by rows (r = 1,2,3,...)
  * Range:     i8 n <= 18, i16 n <= 33, i32 n <= 74, i64 n <= 168,
  *            i128 n <= 432, big any n
+ * Validated: standard, pass, 70 terms through n = 5058 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

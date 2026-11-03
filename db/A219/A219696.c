@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 33, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   hits_k
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,23 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/hits_k.h"
+#include "../utils/mem.h"
+
+static bool hits_k(idx_t k)
+{
+    seq_t target = (seq_t)k;
+    seq_t cur    = target * (seq_t)3 + (seq_t)1;      /* 3k+1 */
+
+    while (cur != target && cur != (seq_t)1) {
+        /* if cur is even, halve it */
+        if ((cur & (seq_t)1) == (seq_t)0)
+            cur >>= 1;
+        else
+            cur = (cur * (seq_t)3) + (seq_t)1;
+    }
+
+    return cur == target;
+}
 
 static void ensure_cache_cap(size_t needed, size_t *cap, seq_t **ptr)
 {
@@ -33,7 +50,7 @@ static void ensure_cache_cap(size_t needed, size_t *cap, seq_t **ptr)
         size_t new_cap = (*cap) ? (*cap) * 2 : 16;
         if (new_cap < needed)
             new_cap = needed;
-        *ptr = (seq_t *)realloc(*ptr, new_cap * sizeof(seq_t));
+        *ptr = mem_resize(seq_t, *ptr, new_cap);
         if (!*ptr)
             abort();
         *cap = new_cap;

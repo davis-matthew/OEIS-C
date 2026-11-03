@@ -7,7 +7,8 @@
  * Formula:   a(n) = a(floor(n/3)) + a(n - floor(n/3)), a(1)=a(2)=1
  * Range:     u8 n <= 73, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 73 terms through n = 73 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
  *  occur because the result fits in seq_t as required by the build. */
 #include <stdlib.h>
 #include <stdint.h>   /* for abort() */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* dynamic memoisation table */
 static idx_t cache_size = 0;     /* current number of allocated slots */
@@ -41,7 +43,7 @@ static void ensure_cache(idx_t n)
     while (new_size <= n + 1)
         new_size *= 2;
 
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache)
         abort();  /* out of memory */
 

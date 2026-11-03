@@ -11,13 +11,15 @@
  *            values a(1) … a(9) as listed in the OEIS entry
  * Range:     u8 none, u16 n <= 9, u32 n <= 20, u64 n <= 42, u128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 192 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* External types provided by the build: */
 /* typedef uint64_t idx_t;   (or other width) */
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     /* First allocation: store the 9 known terms. */
     if (!cache) {
         cache_size = 9;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache) abort();        /* allocation failure */
         for (size_t i = 0; i < 9; ++i) cache[i] = init_val[i];
     }
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
     /* Grow the cache if necessary. */
     if ((size_t)(n - 1) >= cache_size) {
         size_t new_size = (size_t)n;   /* need indices 0 … n‑1 */
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) abort(); /* allocation failure */
         cache = tmp;
 

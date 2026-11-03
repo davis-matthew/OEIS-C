@@ -11,7 +11,8 @@
  *            complementary sequences
  * Range:     u8 n <= 7, u16 n <= 19, u32 n <= 42, u64 n <= 88, u128 n <= 180,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 1825 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static state: sequences, capacity and generation counter */
 static seq_t *A = NULL;
@@ -35,8 +37,8 @@ static void ensure_capacity(idx_t n)
     size_t new_stride = stride ? stride << 1 : 8;
     while (new_stride <= (size_t)(n + 1))
         new_stride <<= 1;
-    A = (seq_t *)realloc(A, new_stride * sizeof(seq_t));
-    B = (seq_t *)realloc(B, new_stride * sizeof(seq_t));
+    A = mem_resize(seq_t, A, new_stride);
+    B = mem_resize(seq_t, B, new_stride);
     stride = new_stride;
 }
 

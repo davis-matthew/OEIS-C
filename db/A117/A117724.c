@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 41, u16 n <= 86, u32 n <= 185, u64 n <= 487,
  *            u128 n <= 1222, big any n
- * Helpers:   offset_row_val
+ * Validated: standard, pass, 82 terms through n = 1322 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,13 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/offset_row_val.h"
+#include "../utils/mem.h"
+
+/* Helper to compute the offset of the first element of row r. */
+static inline __uint128_t offset_row_val(idx_t r)
+{
+    return (__uint128_t)r * (r + 1) / 2;
+}
 
 /* Find the row r such that r(r+1)/2 <= n < (r+1)(r+2)/2. */
 static inline idx_t row_of(idx_t n)
@@ -56,7 +63,7 @@ seq_t a(idx_t n)
     if (r == 2) return 1;
 
     /* Allocate small array to compute recurrence for this k. */
-    seq_t *T = (seq_t *)malloc((size_t)(r + 1) * sizeof(seq_t));
+    seq_t *T = mem_new(seq_t, (size_t)(r + 1));
     if (!T) return 0;    /* allocation failure fallback */
 
     T[0] = 0;
@@ -68,6 +75,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = T[r];
-    free(T);
+    mem_free(T);
     return result;
 }

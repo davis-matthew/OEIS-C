@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   sum_pent
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,15 @@
          b_k = k·r – k(k-1)/2.          */
 
 #include <stdint.h>
-#include "../utils/sum_pent.h"
+
+/* sum of the first x pentagonal numbers
+   P_i = i(3i-1)/2    ->   S(x) = x^2 (x+1) / 2 */
+static inline seq_t sum_pent(idx_t x)
+{
+    unsigned __int128 xx = (unsigned __int128)x;
+    unsigned __int128 res = xx * xx * (xx + 1) / 2;
+    return (seq_t)res;
+}
 
 /* integer square root of a 64‑bit unsigned integer   */
 static inline idx_t isqrt_u64(idx_t n)

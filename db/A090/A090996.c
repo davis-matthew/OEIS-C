@@ -7,8 +7,9 @@
  * Formula:   a(n) = number of consecutive leading 1's in the binary
  *            representation of n (a(0) = 0, a(1) = 1, a(2) = 1, a(3) = 2,
  *            a(14) = 3, a(15) = 4, …)
- * Range:     u8 n <= 7685, u16 n <= 7685, u32 n <= 7685, u64 n <= 7685,
- *            u128 n <= 7685, big any n
+ * Range:     u8 n <= 65535, u16 n <= 65535, u32 n <= 65535, u64 n <= 65535,
+ *            u128 n <= 65535, big any n
+ * Validated: standard, pass, 118 terms through n = 7685 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

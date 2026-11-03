@@ -6,17 +6,37 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = τ(n)(τ(n)+1)/2 - #{ d | n : d+1 | n }
- * Range:     u8 n <= 359, u16 n <= 7543, u32 n <= 7543, u64 n <= 7543,
- *            u128 n <= 7543, big any n
- * Helpers:   _count_consecutive, factor_u64
+ * Range:     u8 n <= 359, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 97 terms through n = 7543 (2026-11-01)
+ * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/_count_consecutive.h"
+
+static void _count_consecutive(size_t idx, unsigned __int128 cur,
+                               uint64_t n, const uint64_t *primes,
+                               const uint64_t *exps, size_t cnt,
+                               seq_t *cnt_consec)
+{
+    if (idx == cnt) {
+        uint64_t d = (uint64_t)cur;
+        if (d == (uint64_t)-1) return;            /* avoid overflow of d+1 */
+        if (n % (d + 1ULL) == 0ULL) (*cnt_consec)++;
+        return;
+    }
+    unsigned __int128 val = 1;
+    for (size_t e = 0; e <= exps[idx]; ++e) {
+        _count_consecutive(idx + 1, cur * val, n, primes, exps, cnt, cnt_consec);
+        if (e < exps[idx]) val *= primes[idx];
+    }
+}
 
 seq_t a(idx_t n)
 {

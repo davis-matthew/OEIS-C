@@ -10,7 +10,8 @@
  *            for n>=1
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   digit_frequencies, reverse
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-01)
+ * Helpers:   digit_frequencies, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,10 @@
 /* This implementation memoizes the values up to the required index. */
 
 #include <stddef.h>
-#include "../utils/reverse.h"          /* provides seq_t reverse(seq_t v) */
-#include "../utils/digit_frequencies.h"/* provides void digit_frequencies(seq_t x, unsigned int freq[10]) */
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/digit_frequencies.h"
+#include "../utils/reverse_digits.h"
 
 /* Maximum cache size – sufficient for the expected n (≤ 10000). */
 #define MAX_CACHE 20000
@@ -30,7 +33,7 @@ static size_t cache_len = 0;
 /* Compute the next term from the current term. */
 static seq_t next_term(seq_t k)
 {
-    seq_t rev = reverse(k);
+    seq_t rev = reverse_digits(k);
     seq_t sum = k + rev;
 
     unsigned freq[10] = {0};

@@ -13,19 +13,47 @@
  *            successor and to [-a,b,-c], [c,b,a], [-c,b,-a] with unio...
  * Range:     u8 n <= 96, u16 n <= 96, u32 n <= 96, u64 n <= 96, u128 n <= 96,
  *            big any n
- * Helpers:   a000037_isqrt, gcd_ll, inv_mod, square_case, uf_join, uf_root
+ * Validated: partial, pass, 96 terms through n = 96 (2026-11-01)
+ * Helpers:   gcd_i64, isqrt_u64, modinv_i64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/a000037_isqrt.h"
-#include "../utils/gcd_ll.h"
-#include "../utils/inv_mod.h"
-#include "../utils/square_case.h"
-#include "../utils/uf_join.h"
-#include "../utils/uf_root.h"
+#include <string.h>
+#include <stdint.h>
+#include "../utils/gcd_i64.h"
+#include "../utils/isqrt_u64.h"
+#include "../utils/modinv_i64.h"
+
+static long long square_case(long long k) {
+    long long m = 2 * k, total = 0;
+    for (long long d = 1; d <= m; d++) {
+        if (m % d) continue;
+        if (d == 1) { total++; continue; }
+        char *vis = (char *)calloc((size_t)d, 1);
+        for (long long u = 1; u < d; u++) {
+            if (vis[u] || gcd_i64(u, d) != 1) continue;
+            long long v = modinv_i64(u, d);
+            total++;
+            vis[u] = 1; vis[d - u] = 1; vis[v] = 1; vis[d - v] = 1;
+        }
+        free(vis);
+    }
+    return total;
+}
+
+static long long uf_root(long long *par, long long x) {
+    while (par[x] != x) { par[x] = par[par[x]]; x = par[x]; }
+    return x;
+}
+
+static void uf_join(long long *par, long long x, long long y) {
+    if (y < 0) return;
+    x = uf_root(par, x); y = uf_root(par, y);
+    if (x != y) par[x] = y;
+}
 
 typedef struct { long long fa, fb, fc; } QForm;
 
@@ -49,7 +77,7 @@ static long long qf_find(const QForm *arr, long long cnt, long long fa, long lon
 
 seq_t a(idx_t n) {
     long long N = (long long)n;
-    long long s = (long long)a000037_isqrt((uint64_t)n);
+    long long s = (long long)isqrt_u64((uint64_t)n);
     if (s * s == N) return (seq_t)square_case(s);
 
     long long cap = 2 * s * (s + 1) + 4;

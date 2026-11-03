@@ -8,8 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, cmp_seq_t, digit_count, pow10,
- *            seq_alloc_new_array, seq_free, seq_realloc
+ * Validated: standard, pass, 62 terms through n = 9038 (2026-11-03)
+ * Helpers:   build_primes_upto, mem, num_digits0
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,14 +22,49 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "../utils/build_primes_upto.h" /* build_primes_upto(idx_t, uint64_t**, size_t*) */
-#include "../utils/pow10.h"             /* pow10(idx_t) */
-#include "../utils/digit_count.h"       /* digit_count(uint64_t) */
+#include <math.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/num_digits0.h"
+#include "../utils/mem.h"
 
-#include "../utils/seq_alloc_new_array.h" /* seq_alloc_new_array(size_t) */
-#include "../utils/seq_realloc.h"         /* seq_realloc(seq_t*, size_t, size_t) */
-#include "../utils/seq_free.h"            /* seq_free(seq_t*) */
-#include "../utils/cmp_seq_t.h"           /* cmp_seq_t(const void*, const void*) */
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
+
+static void seq_free(seq_t *p) { mem_free(p); }
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
 
 /* Forward declaration */
 static bool is_triprime(seq_t n);
@@ -89,7 +124,7 @@ static void generate_block(uint64_t start, uint64_t end)
 {
     for (uint64_t k = start; k < end; ++k) {
         uint64_t sq = k * k;                 /* k^2 fits into 64 bits for the used range */
-        int sq_digits = digit_count(sq);
+        int sq_digits = num_digits0(sq);
         if (sq_digits % 2) continue;         /* need even number of digits */
 
         uint64_t half      = sq_digits / 2;
@@ -125,7 +160,7 @@ static void sort_and_dedup_cache(void)
 {
     if (cache_len == 0) return;
 
-    qsort(cache, cache_len, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(cache, cache_len, sizeof(seq_t), cmp_seq_t);
 
     size_t new_len = 0;
     for (size_t i = 0; i < cache_len; ++i) {

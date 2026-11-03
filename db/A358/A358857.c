@@ -9,7 +9,8 @@
  *            k*n is also in A031443; a(n) = -1 if no such k exists
  * Range:     i8 n <= 2, i16 n <= 8, i32 n <= 2045, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 9869 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Test whether x has an equal number of 0's and 1's in its binary representation. */
 static inline bool is_balanced(seq_t x)
@@ -51,10 +53,10 @@ static void maybe_expand_cache(idx_t n)
         newcap <<= 1;
 
     seq_t *old = cache;
-    seq_t *newp = (seq_t *)calloc(newcap, sizeof(seq_t));
+    seq_t *newp = mem_new(seq_t, newcap);
     if (old) {
-        memcpy(newp, old, cache_cap * sizeof(seq_t));
-        free(old);
+        mem_copy(newp, old, cache_cap * sizeof(seq_t));
+        mem_free(old);
     }
     cache = newp;
     cache_cap = newcap;

@@ -11,6 +11,7 @@
  *            CRT with three primes to avoid overflow on 64‑bit seq_t
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 3, u64 n <= 8, u128 n <= 11,
  *            big any n
+ * Validated: partial, pass, 12 terms through n = 11 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

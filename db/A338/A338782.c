@@ -8,15 +8,19 @@
  *            of e)
  * Range:     u8 n <= 256, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow, factor_u64, rad
+ * Validated: standard, pass, 84 terms through n = 9995 (2026-11-01)
+ * Helpers:   factor_u64, ipow, radical
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/rad.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
+#include "../utils/radical.h"
 
 seq_t a(idx_t n)
 {
@@ -31,8 +35,8 @@ seq_t a(idx_t n)
     seq_t result = 1;
     for (size_t i = 0; i < cnt; ++i)
     {
-        seq_t rad_exp = rad(ex[i]);                 /* rad(e) as seq_t */
-        seq_t powp   = big_pow((seq_t)pr[i], rad_exp); /* p^{rad(e)} */
+        seq_t rad_exp = radical(ex[i]);                 /* rad(e) as seq_t */
+        seq_t powp   = ipow((seq_t)pr[i], rad_exp); /* p^{rad(e)} */
         result *= powp;
     }
     return result;

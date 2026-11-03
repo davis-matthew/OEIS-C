@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 65 terms through n = 869 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;          /* array of sequence values */
 static size_t seq_len = 0;         /* number of stored terms   */
@@ -45,7 +47,7 @@ static void ensure_seq(idx_t need)
     /* Allocate or grow the sequence storage if needed */
     if (seq == NULL) {
         seq_cap = 64;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         seq_len = 0;
     }
     if (seq_len == 0) {               /* initialize first two terms */
@@ -65,7 +67,7 @@ static void ensure_seq(idx_t need)
                 cand++;
                 continue;
             }
-            if (is_prime_small(cand))
+            if (is_prime_seq(cand))
                 break;
             cand++;
         }
@@ -84,7 +86,7 @@ static void ensure_seq(idx_t need)
             /* Grow storage if necessary */
             if (seq_len + 1 > seq_cap) {
                 seq_cap = seq_cap ? seq_cap * 2 : 64;
-                seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, seq_cap);
             }
             seq[seq_len++] = (seq_t)cand;   /* append new term */
         }

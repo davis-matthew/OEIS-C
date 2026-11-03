@@ -7,7 +7,8 @@
  * Formula:   a(n) = the n‑th prime ≡ 17 (mod 28)
  * Range:     u8 n <= 5, u16 n <= 548, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 918 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Simple deterministic Miller–Rabin test for 64‑bit integers.          */
@@ -77,8 +79,7 @@ static void ensure_cache(idx_t n)
         if (is_prime_uint64(candidate)) {
             if (cache_size == cache_cap) {
                 cache_cap = cache_cap ? cache_cap * 2 : 32;
-                prime_cache = (seq_t *)realloc(prime_cache,
-                                                cache_cap * sizeof(seq_t));
+                prime_cache = mem_resize(seq_t, prime_cache, cache_cap);
             }
             prime_cache[cache_size++] = (seq_t)candidate;
         }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 68, i16 n <= 68, i32 n <= 68, i64 n <= 68, i128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 69 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
     a(3) = B(2,0), a(4) = B(2,1), a(5) = B(2,2), …          */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     /*  Compute any missing rows up to r   */
     for (idx_t i = next_row; i <= r; ++i) {
         /*  Allocate the i‑th row (length i+1)   */
-        tri[i] = (seq_t *)malloc((size_t)(i + 1) * sizeof(seq_t));
+        tri[i] = mem_new(seq_t, (size_t)(i + 1));
 
         /*  For each column j in this row, accumulate the sum of previous
             entries B(l,j) for l from ceil(i/2) to i-1, using the recurrence   */

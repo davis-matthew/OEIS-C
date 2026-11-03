@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 9173 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --- global storage ---------------------------------------------- */
 static seq_t *global_values = NULL; /* sorted, unique list of values */
@@ -54,7 +56,7 @@ static void ensure_capacity(size_t needed)
     if (needed <= global_cap) return;
     size_t new_cap = global_cap ? global_cap * 2 : 16;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(global_values, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, global_values, new_cap);
     if (!tmp) abort(); /* out of memory */
     global_values = tmp;
     global_cap    = new_cap;
@@ -128,7 +130,7 @@ static void initial_precompute(void)
     for (uint64_t b = 2; b <= 20; ++b)
         generate_base(b);
 
-    qsort(global_values, global_count, sizeof(seq_t), seq_cmp);
+    mem_qsort(global_values, global_count, sizeof(seq_t), seq_cmp);
     global_count = dedup_sorted(global_values, global_count);
     processed_base = 20;
 }
@@ -141,7 +143,7 @@ static void extend_to(idx_t n)
         ++processed_base;
         generate_base(processed_base);
         /* Merge the new values into the sorted unique list. */
-        qsort(global_values, global_count, sizeof(seq_t), seq_cmp);
+        mem_qsort(global_values, global_count, sizeof(seq_t), seq_cmp);
         global_count = dedup_sorted(global_values, global_count);
     }
 }

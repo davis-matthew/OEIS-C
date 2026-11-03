@@ -8,7 +8,8 @@
  * Formula:   a(n) = Sum_{d|n} mu(d) * 6^{ceil((n/d)/2)}
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 24, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   pow6
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,20 @@
 /* where mu(d) is the Möbius function. */
 
 #include <stdint.h>
-#include "../utils/pow6.h"
+
+/* Compute 6^e using binary exponentiation.  e is non–negative. */
+static seq_t pow6(idx_t e)
+{
+    seq_t result = 1;
+    seq_t base = 6;
+    while (e) {
+        if (e & 1)
+            result *= base;
+        base *= base;
+        e >>= 1;
+    }
+    return result;
+}
 
 /* Compute the Möbius function μ(n).  n >= 1. */
 static int mobius(idx_t n)

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 12, u32 n <= 41, u64 n <= 99, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 185 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 #else
 #define REINTERP_PTR(ptr, type) ((type)(ptr))
 #endif
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     if (!init) {
         /* Allocate space for indices 0..11 */
         cache_size = 12;
-        cache = REINTERP_PTR(malloc(cache_size * sizeof(seq_t)), seq_t*);
+        cache = REINTERP_PTR(mem_new(seq_t, cache_size), seq_t*);
         if (!cache) abort();
 
         cache[0] = (seq_t)0;            /* unused placeholder */
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
     if (n >= cache_size) {
         idx_t old_cap = cache_size;
         idx_t new_cap = n + 1;          /* ensure index n is valid */
-        seq_t *tmp = REINTERP_PTR(realloc(cache, new_cap * sizeof(seq_t)), seq_t*);
+        seq_t *tmp = REINTERP_PTR(mem_resize(seq_t, cache, new_cap), seq_t*);
         if (!tmp) abort();
         cache = tmp;
         cache_size = new_cap;

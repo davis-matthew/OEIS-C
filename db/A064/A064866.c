@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn, tabf
  * Formula:   not stated
- * Range:     u8 n <= 1495, u16 n <= 9214, u32 n <= 9214, u64 n <= 9214,
- *            u128 n <= 9214, big any n
- * Helpers:   sum_squares
+ * Range:     u8 n <= 1495, u16 n <= 22140, u32 n <= 22140, u64 n <= 22140,
+ *            u128 n <= 22140, big any n
+ * Validated: standard, pass, 99 terms through n = 9214 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,12 @@
  *          S(t) = t(t+1)(2t+1)/6      (sum of squares)
  * and    m = min{t : S(t) ≥ n}. */
 #include <stdint.h>
-#include "../utils/sum_squares.h"
+
+static inline __int128 sum_squares(idx_t m)
+{
+    __int128 mm = m;
+    return mm * (mm + 1) * (2 * mm + 1) / 6;
+}
 
 seq_t a(idx_t n)
 {

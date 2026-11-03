@@ -7,13 +7,14 @@
  * Formula:   a(n) = Sum_{k=1..n} A000005(k)*(k-1)!*binomial(n, k)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 34,
  *            big any n
- * Helpers:   a002746_gcd
+ * Validated: standard, pass, 36 terms through n = 441 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/a002746_gcd.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n) {
     idx_t k, m;
@@ -28,7 +29,7 @@ seq_t a(idx_t n) {
     for (k = 1; k <= n; k++) {
         /* C(n,k) = C(n,k-1) * (n-k+1) / k, done without overflowing */
         unsigned long long r = (unsigned long long)(C % k);
-        unsigned long long g = a002746_gcd(r, (unsigned long long)k);
+        unsigned long long g = gcd_u64(r, (unsigned long long)k);
         idx_t kk = k / (idx_t)g;
         C = (C / (seq_t)g) * (seq_t)((n - k + 1) / kk);
 

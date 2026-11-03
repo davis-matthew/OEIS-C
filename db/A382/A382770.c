@@ -7,6 +7,7 @@
  * Formula:   the number of k < n with gcd(k,n)=1 and k is powerful
  * Range:     u8 n <= 1955, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 100 terms through n = 9385 (2026-11-01)
  * Helpers:   build_spf, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,8 +19,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "../utils/gcd.h"
 #include "../utils/build_spf.h"
+#include "../utils/gcd.h"
 
 /* ---------- static state for SPF table ---------------------------------- */
 static idx_t *spf = NULL;       /* smallest prime factor array (1‑based) */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 61, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   binom_uint64, next_combination
+ * Validated: standard, pass, 60 terms through n = 8676 (2026-11-01)
+ * Helpers:   binomial_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,15 @@
    by combinatorial counting and binary combination generation. */
 
 #include <stdint.h>
-#include "../utils/binom_uint64.h"
-#include "../utils/next_combination.h"
+#include "../utils/binomial_u64.h"
+
+static void next_combination(uint64_t *mask, uint32_t need)
+{
+    /* Transform *mask to the next combination with the same popcount. */
+    uint64_t c = (*mask) & (~(*mask) + 1);           /* lowest set bit            */
+    uint64_t r = (*mask) + c;                       /* ripple up */
+    *mask = (((r ^ (*mask)) >> 2) / c) | r;
+}
 
 seq_t a(idx_t n)
 {
@@ -34,7 +42,7 @@ seq_t a(idx_t n)
         uint32_t lower_bits = L - 1;          /* bits below the leading 1        */
         uint32_t need       = b1 - 1;         /* additional ones to place         */
 
-        uint64_t term_count = binom_uint64((uint64_t)lower_bits, need);
+        uint64_t term_count = binomial_u64((uint64_t)lower_bits, need);
 
         if (remaining > term_count)
         {

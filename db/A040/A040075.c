@@ -8,16 +8,29 @@
  * Formula:   a(n) = binomial(n+4,4) * 4^n
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 10, u64 n <= 24, u128 n <= 54,
  *            big any n
- * Helpers:   binom, pow4
+ * Validated: standard, pass, 38 terms through n = 369 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
-#include "../utils/pow4.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+
+static inline seq_t pow4(idx_t exp) {
+    seq_t result = 1;
+    seq_t base   = 4;
+    idx_t e = exp;
+    while (e) {
+        if (e & 1) result *= base;
+        base *= base;
+        e >>= 1;
+    }
+    return result;
+}
 
 seq_t a(idx_t n)
 {
     /* Compute (n+4 choose 4) * 4^n */
-    return binom(n + 4, 4) * pow4(n);
+    return binomial(n + 4, 4) * pow4(n);
 }

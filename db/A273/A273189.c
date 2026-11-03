@@ -13,13 +13,15 @@
  *            with all such types, so the implementation * is valid as bo...
  * Range:     u8 n <= 0, u16 n <= 3, u32 n <= 10, u64 n <= 22, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 1000 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>   /* size_t */
 #include <stdlib.h>   /* malloc, realloc, abort */
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build system. */
 
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
         /* start with space for two terms */
         cap = 2;
         len = 2;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (cache == NULL) abort();
         cache[0] = (seq_t)51;
         cache[1] = (seq_t)401;
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
         /* exponential growth to keep amortised realloc cost low */
         while (newcap <= n)
             newcap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (tmp == NULL) abort();
         cache = tmp;
         cap   = newcap;

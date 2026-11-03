@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 27, u32 n <= 2868, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   mul_mod, pow_mod, prime_of_form
+ * Validated: standard, pass, 51 terms through n = 4655 (2026-11-01)
+ * Helpers:   mulmod, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,16 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/mul_mod.h"
-#include "../utils/pow_mod.h"
-#include "../utils/prime_of_form.h"
+#include "../utils/mulmod.h"
+#include "../utils/powmod_u64.h"
+
+/* compute 8*k^2 - 9 (value fits in 64 bits for n up to 10000) */
+static seq_t prime_of_form(idx_t k)
+{
+    unsigned __int128 t = (unsigned __int128)k * k * 8;
+    t -= 9;
+    return (seq_t)(uint64_t)t;
+}
 
 /* --- 64‑bit Miller–Rabin primality test --------------------------------- */
 
@@ -50,12 +58,12 @@ static bool is_prime_uint64(uint64_t n)
         uint64_t a = witnesses[i] % n;
         if (a == 0)
             continue;
-        uint64_t x = pow_mod(a, d, n);
+        uint64_t x = powmod_u64(a, d, n);
         if (x == 1 || x == n - 1)
             continue;
         bool composite = true;
         for (uint64_t r = 1; r < s; ++r) {
-            x = mul_mod(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) {
                 composite = false;
                 break;

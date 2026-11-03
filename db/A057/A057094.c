@@ -7,9 +7,10 @@
  * Formula:   a(n) is the flattening (row‑major) of the triangle a(r,m)
  *            defined by a(0,0) = 0, a(r,m) = 0 if m < floor(r/2)+1, a(r,m) =
  *            ((-1)^(r-m+1))*binomial(m-1, r-m) otherwise (with 1≤r, m ≤ r)
- * Range:     i8 n <= 86, i16 n <= 101, i32 n <= 101, i64 n <= 101,
+ * Range:     i8 n <= 101, i16 n <= 101, i32 n <= 101, i64 n <= 101,
  *            i128 n <= 101, big any n
- * Helpers:   binom
+ * Validated: partial, pass, 102 terms through n = 101 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
    index n corresponds to (r,m) where r is the greatest integer
    satisfying r*(r+1)/2 ≤ n, and m = n - r*(r+1)/2.  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     seq_t sign = ((r - m + 1) & 1) ? -1 : 1;
 
     /* Binomial part: C(m-1, r-m) */
-    seq_t bin = binom(m - 1, r - m);
+    seq_t bin = binomial(m - 1, r - m);
 
     return sign * bin;
 }

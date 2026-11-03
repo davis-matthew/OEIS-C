@@ -7,13 +7,16 @@
  * Formula:   a(1) = 6, a(n) = a(n-1) + digit_sum( a(n-1)^3 )
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 45, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   digit_sum
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>            /* malloc, realloc */
-#include "../utils/digit_sum.h" /* digit_sum(seq_t v) */
+#include <stdbool.h>
+#include "../utils/digit_sum.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +33,7 @@ seq_t a(idx_t n)
         size_t new_cap = cap > 0 ? cap : 1;
         while (new_cap <= n)
             new_cap <<= 1;                /* double until large enough */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp)
             exit(EXIT_FAILURE);           /* out of memory */
         cache = tmp;

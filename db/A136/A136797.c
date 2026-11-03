@@ -7,12 +7,15 @@
  * Formula:   a(n) = 2^(2*n-1) * n^(n-2)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 12, u128 n <= 21,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 33 terms through n = 200 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -26,8 +29,8 @@ seq_t a(idx_t n)
     idx_t exp_pown = (idx_t)(n - (idx_t)2);
 
     /* Compute powers using the provided big_pow utility */
-    seq_t pow2 = big_pow((seq_t)2, (seq_t)exp_pow2);
-    seq_t pown = big_pow((seq_t)n, (seq_t)exp_pown);
+    seq_t pow2 = ipow((seq_t)2, (seq_t)exp_pow2);
+    seq_t pown = ipow((seq_t)n, (seq_t)exp_pown);
 
     /* The sequence value is the product of the two powers */
     return pow2 * pown;

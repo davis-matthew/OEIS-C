@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 7150, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 9273 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* The build provides the integer types seq_t and idx_t. */
 static const idx_t _sieve_limit = 2000000u;          /* upper bound for sieving */
@@ -70,7 +72,7 @@ init_sieve(void)
     for (uint32_t i = 2; i <= _sieve_limit; ++i) {
         if (omega[i] == 5) ++terms_count;
     }
-    terms = (seq_t *)malloc(terms_count * sizeof(seq_t));
+    terms = mem_new(seq_t, terms_count);
     size_t idx = 0;
     for (uint32_t i = 2; i <= _sieve_limit; ++i) {
         if (omega[i] == 5) {

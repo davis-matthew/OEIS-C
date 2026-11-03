@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..n} (n-2*k+1)^{k-1} * Stirling1(n,k)
  * Range:     i8 n <= 4, i16 n <= 6, i32 n <= 10, i64 n <= 16, i128 n <= 19,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /* external linkage as required */
 seq_t a(idx_t n)
@@ -32,12 +35,12 @@ seq_t a(idx_t n)
 
     /* first call: initialise */
     if (cache == NULL) {
-        cache      = (seq_t *)calloc(1, sizeof(seq_t));
+        cache      = mem_new(seq_t, 1);
         cache[0]   = (seq_t)1;          /* a(0) = 1 */
         cache_len  = 1;
         max_computed = 0;
 
-        s_prev     = (seq_t *)malloc(sizeof(seq_t));
+        s_prev     = mem_new(seq_t, 1);
         s_prev[0]  = (seq_t)1;          /* s(0,0) = 1 */
         s_prev_len = 1;
     }
@@ -50,7 +53,7 @@ seq_t a(idx_t n)
     /* compute rows up to n */
     for (idx_t cur = max_computed + 1; cur <= n; ++cur) {
         size_t len   = (size_t)cur + 1;                 /* row length */
-        seq_t *s_next = (seq_t *)malloc(len * sizeof(seq_t));
+        seq_t *s_next = mem_new(seq_t, len);
         /* compute Stirling row using recurrence:
            s(cur,k) = s(cur-1,k-1) - (cur-1)*s(cur-1,k)        */
         for (size_t k = 0; k <= cur; ++k) {
@@ -64,7 +67,7 @@ seq_t a(idx_t n)
         for (size_t k = 1; k <= cur; ++k) {
             seq_t base = (seq_t)cur - (seq_t)2 * (seq_t)k + (seq_t)1;
             seq_t exp  = (seq_t)(k - 1);
-            seq_t pow_val = big_pow(base, exp);
+            seq_t pow_val = ipow(base, exp);
             sum += s_next[k] * pow_val;
         }
 
@@ -72,7 +75,7 @@ seq_t a(idx_t n)
         if ((size_t)cur >= cache_len) {
             size_t new_len = cache_len ? cache_len << 1 : 1;
             while (new_len <= (size_t)cur) new_len <<= 1;
-            cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_len);
             cache_len = new_len;
         }
 
@@ -80,7 +83,7 @@ seq_t a(idx_t n)
         max_computed = cur;
 
         /* free previous row and move to the next */
-        free(s_prev);
+        mem_free(s_prev);
         s_prev     = s_next;
         s_prev_len = len;
     }

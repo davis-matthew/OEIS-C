@@ -9,12 +9,14 @@
  *            a(1)=7, a(2)=20, a(3)=34, a(4)=48, a(5)=62, a(6)=74
  * Range:     u8 n <= 19, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
 
         /* First allocation or size increase */
         if (!seq) {
-            seq = (seq_t *)malloc(newSize * sizeof(seq_t));
+            seq = mem_new(seq_t, newSize);
             if (!seq) return 0;       /* allocation failed */
 
             /* initialise known initial values */
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
             seq[6] = (seq_t)74;
             cached = 6;
         } else {
-            seq = (seq_t *)realloc(seq, newSize * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, newSize);
             if (!seq) return 0;       /* allocation failed */
         }
 

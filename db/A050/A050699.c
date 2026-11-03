@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 35, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 9179 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static int *prime_list = NULL;
 static size_t prime_count = 0;
@@ -117,7 +119,7 @@ seq_t a(idx_t n)
         /* store found term */
         if (terms_len == terms_cap) {
             terms_cap = terms_cap ? terms_cap * 2 : 16;
-            terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+            terms = mem_resize(seq_t, terms, terms_cap);
             if (!terms) abort();
         }
         terms[terms_len++] = (seq_t)cand;

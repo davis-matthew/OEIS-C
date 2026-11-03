@@ -8,7 +8,8 @@
  *            of the cubes of distinct primes. The sequence is indexed from 1
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 9755 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static cache for pre‑computed values.  The first 20 primes are enough
    to generate more than 10 000 distinct sum‑of‑cubes values. */
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
         const size_t m = 20;
 
         /* Compute cubes of the primes in seq_t. */
-        seq_t *cube = (seq_t *)malloc(m * sizeof(seq_t));
+        seq_t *cube = mem_new(seq_t, m);
         for (size_t i = 0; i < m; ++i)
         {
             seq_t p = (seq_t)primes[i];
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
 
         /* Enumerate all subset sums: 2^m entries. */
         const size_t total = 1UL << m;
-        cache = (seq_t *)malloc(total * sizeof(seq_t));
+        cache = mem_new(seq_t, total);
         cache[0] = (seq_t)0;              /* empty subset */
 
         /* Use the identity sum(mask) = sum(mask_without_lowest_bit) + cube[bit]. */
@@ -67,10 +69,10 @@ seq_t a(idx_t n)
             cache[mask] = cache[prev] + cube[bit];
         }
 
-        free(cube);
+        mem_free(cube);
 
         /* Sort all sums. */
-        qsort(cache, total, sizeof(seq_t), cmp_seq);
+        mem_qsort(cache, total, sizeof(seq_t), cmp_seq);
 
         /* Compact into unique sequence. */
         size_t uniq = 0;

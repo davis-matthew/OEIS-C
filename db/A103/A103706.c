@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 83, u16 n <= 83, u32 n <= 83, u64 n <= 83, u128 n <= 83,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 83 terms through n = 83 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    a(1) = 1, a(n+1) is the next element popped from the queue. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The function is required to have external linkage. */
 seq_t a(idx_t n) {
@@ -27,7 +29,7 @@ seq_t a(idx_t n) {
     /* A queue large enough for all elements that will be
        in the queue while generating n terms. */
     idx_t cap = n + 1;
-    seq_t *queue = (seq_t *)malloc(cap * sizeof(seq_t));
+    seq_t *queue = mem_new(seq_t, cap);
     if (!queue) return 0;                       // allocation failed
 
     idx_t head = 0;                       /* next element to pop   */
@@ -67,6 +69,6 @@ seq_t a(idx_t n) {
         }
     }
 
-    free(queue);
+    mem_free(queue);
     return result;
 }

@@ -7,13 +7,15 @@
  * Formula:   a(n) = smallest k such that k*n^3 + 1 is an n‑th power
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 10, u128 n <= 17,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 32 terms through n = 205 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -27,11 +29,11 @@ seq_t a(idx_t n)
     for (;; ++m)
     {
         seq_t m_big = (seq_t)m;
-        seq_t residue = big_pow(m_big, n_big) % n3;
+        seq_t residue = ipow(m_big, n_big) % n3;
         if (residue == (seq_t)1) break;
     }
 
-    seq_t m_pow = big_pow((seq_t)m, n_big);
+    seq_t m_pow = ipow((seq_t)m, n_big);
     seq_t k = (m_pow - (seq_t)1) / n3;
     return k;
 }

@@ -13,13 +13,15 @@
  *            459, 1287, 3490, 9699, 27707, 79358, 229491, 669...
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 22, u64 n <= 42, u128 n <= 83,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static const seq_t BASE[16] = {
     3ULL,     11ULL,    14ULL,    35ULL,    71ULL,
@@ -35,16 +37,15 @@ seq_t a(idx_t n) {
     /* Ensure cache is initialized with the first 16 terms. */
     if (cache == NULL) {
         /* allocate at least 16 slots – may enlarge later */
-        cache = (seq_t *)malloc(16 * sizeof(seq_t));
+        cache = mem_new(seq_t, 16);
         if (!cache) return (seq_t)0;      /* out of memory – caller must handle */
-        memcpy(cache, BASE, 16 * sizeof(seq_t));
+        mem_copy(cache, BASE, 16 * sizeof(seq_t));
         cache_len = 16;
     }
 
     /* grow cache if a larger n is requested */
     if (n > cache_len) {
-        seq_t *tmp = (seq_t *)realloc(cache,
-                                      (size_t)n * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)n);
         if (!tmp) return (seq_t)0;          /* out of memory */
         cache = tmp;
         /* compute missing terms using the recurrence */

@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn
  * Formula:   not stated
- * Range:     u8 n <= 9521, u16 n <= 9521, u32 n <= 9521, u64 n <= 9521,
- *            u128 n <= 9521, big any n
- * Helpers:   build_primes, largest_prime_leq
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 121 terms through n = 9521 (2026-11-01)
+ * Helpers:   build_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,23 @@
     so far.  For n ≥ 2 the result is always ≥ 1; for n ≤ 1 the result is 0. */
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/build_primes.h"
-#include "../utils/largest_prime_leq.h"
+
+/* return largest prime <= x, given sorted array p[0..cnt-1] */
+static idx_t largest_prime_leq(idx_t x, const idx_t *p, size_t cnt) {
+    size_t lo = 0, hi = cnt - 1, ans = 2;
+    while (lo <= hi) {
+        size_t mid = lo + (hi - lo) / 2;
+        if ((idx_t)p[mid] <= x) {
+            ans = (idx_t)p[mid];
+            lo = mid + 1;
+        } else {
+            hi = mid - 1;
+        }
+    }
+    return (idx_t)ans;
+}
 
 /* static state */
 static idx_t *primes = NULL;      /* list of primes up to primes_limit */

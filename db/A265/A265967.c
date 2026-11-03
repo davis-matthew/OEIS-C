@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 12, u64 n <= 25, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 190 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* State of one row */
 static int row_val[25][2];
@@ -118,7 +120,7 @@ seq_t a(idx_t n)
     /* ensure cache large enough */
     if (cache_len <= N) {
         size_t new_size = N + 1;          /* indices 0..N, we ignore 0 */
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) abort();
         /* initialise new slots to 0 */
         for (size_t i = cache_len; i < new_size; ++i) tmp[i] = 0;
@@ -139,7 +141,7 @@ seq_t a(idx_t n)
 
     /* initialise dp for two rows if not already done */
     if (!dp_ready || dp_rows < 2) {
-        memset(dp, 0, sizeof(dp));
+        mem_set(dp, 0, sizeof(dp));
         for (int p = 0; p < 25; ++p)
             for (int c = 0; c < 25; ++c)
                 if (valid_top[p][c]) dp[p * 25 + c] = (seq_t)1;
@@ -151,7 +153,7 @@ seq_t a(idx_t n)
     /* extend DP to requested N */
     for (size_t len = dp_rows + 1; len <= N; ++len) {
         /* clear dp_next */
-        memset(dp_next, 0, sizeof(dp_next));
+        mem_set(dp_next, 0, sizeof(dp_next));
         for (int pp = 0; pp < 25; ++pp) {
             for (int p = 0; p < 25; ++p) {
                 seq_t val = dp[pp * 25 + p];
@@ -162,7 +164,7 @@ seq_t a(idx_t n)
                 }
             }
         }
-        memcpy(dp, dp_next, sizeof(dp));
+        mem_copy(dp, dp_next, sizeof(dp));
         cache[len] = sum_dp();
     }
     dp_rows = N;

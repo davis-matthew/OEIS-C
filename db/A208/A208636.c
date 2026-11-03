@@ -10,7 +10,8 @@
  *            a(2)=191, a(3)=628, a(4)=2149 (OEIS A208636)
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 15, u64 n <= 32, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    We memoize the terms so that any call order runs in amortised O(1). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* initialise cache with first four terms */
     if (cache == NULL) {
         cap = 8;
-        cache = (seq_t*)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) abort();        /* fatal in unlikely event of OOM */
 
         cache[1] = 64;
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
             /* grow array if needed */
             if ((size_t)i >= cap) {
                 size_t new_cap = cap * 2;
-                seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) abort();          /* OOM */
                 cache = tmp;
                 cap = new_cap;

@@ -12,7 +12,8 @@
  *            p(k)≤n
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <inttypes.h>     /* for PRIu64 if needed */
+#include "../utils/mem.h"
 
 static seq_t *p = NULL;          /* partition numbers p(k) */
 static seq_t *b = NULL;          /* cumulative values A026905(k) */
@@ -32,8 +34,8 @@ seq_t a(idx_t n)
 
     /* initialise with p[0]=1, b[0]=1. */
     if (p_len == 0) {
-        p = (seq_t *)malloc(sizeof(seq_t));
-        b = (seq_t *)malloc(sizeof(seq_t));
+        p = mem_new(seq_t, 1);
+        b = mem_new(seq_t, 1);
         p[0] = (seq_t)1;
         b[0] = (seq_t)1;
         p_len = 1;
@@ -58,8 +60,8 @@ seq_t a(idx_t n)
         seq_t pi = (seq_t)total;    /* value of p[i] */
 
         /* grow arrays */
-        p = (seq_t *)realloc(p, sizeof(seq_t) * (i + 1));
-        b = (seq_t *)realloc(b, sizeof(seq_t) * (i + 1));
+        p = mem_resize(seq_t, p, (i + 1));
+        b = mem_resize(seq_t, b, (i + 1));
 
         p[i] = pi;
         if (i == 1) {

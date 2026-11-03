@@ -8,8 +8,9 @@
  * Formula:   a(n) = T(r,k) with r = max{k | k(k+1)/2 <= n}, k = n - r(r+1)/2,
  *            * T(r,k) = (r+k)*(r^2 + k^2). That is, the triangular table *
  *            T(n,k) = (n+k)*(n^2 + k^2) read by rows
- * Range:     u8 n <= 13, u16 n <= 375, u32 n <= 9825, u64 n <= 9825,
- *            u128 n <= 9825, big any n
+ * Range:     u8 n <= 13, u16 n <= 375, u32 n <= 10010, u64 n <= 10010,
+ *            u128 n <= 10010, big any n
+ * Validated: standard, pass, 61 terms through n = 9825 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

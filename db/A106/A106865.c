@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 1639, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   add_prime, is_prime
+ * Validated: standard, pass, 68 terms through n = 9902 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,21 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/add_prime.h"
-#include "../utils/is_prime.h"
+#include <stdlib.h>
+#include "../utils/is_prime_u64.h"
+
+/* Dynamically grow the array of found primes */
+static void add_prime(uint64_t **arr, size_t *cap, size_t *cnt, uint64_t val)
+{
+    if (*cnt >= *cap) {
+        size_t new_cap = (*cap == 0) ? 16 : (*cap << 1);
+        uint64_t *tmp = (uint64_t *)realloc(*arr, new_cap * sizeof(**arr));
+        if (!tmp) return;           /* allocation failed – caller will free on exit */
+        *arr = tmp;
+        *cap = new_cap;
+    }
+    (*arr)[(*cnt)++] = val;
+}
 
 seq_t a(idx_t n) {
     /* static state to memoize previously generated primes */
@@ -40,7 +54,7 @@ seq_t a(idx_t n) {
         if (cand == 2) {
             ok = true;                    /* 2 is always included */
         } else if ((cand % 20 == 3) || (cand % 20 == 7)) {
-            if (is_prime(cand))
+            if (is_prime_u64(cand))
                 ok = true;
         }
 

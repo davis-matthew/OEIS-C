@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    sums up to a growing bound and returns the requested element. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *sums = NULL;      /* sorted unique sums */
 static size_t sums_len = 0;      /* number of stored sums */
@@ -42,7 +44,7 @@ static void ensure_cache(size_t need)
         current_M = newM;
 
         /* Prefix sums of centered cube numbers: c(k) = 2k^3 - 3k^2 + 3k - 1 */
-        seq_t *prefix = (seq_t *)malloc(sizeof(seq_t) * (size_t)(current_M + 1));
+        seq_t *prefix = mem_new(seq_t, (size_t)(current_M + 1));
         if (!prefix) abort();
         prefix[0] = 0;
         for (idx_t i = 1; i <= current_M; ++i) {
@@ -53,7 +55,7 @@ static void ensure_cache(size_t need)
 
         /* Generate all sums of consecutive centered cubes. */
         size_t tot_pairs = (size_t)current_M * (current_M + 1) / 2;
-        seq_t *all_sums = (seq_t *)malloc(sizeof(seq_t) * tot_pairs);
+        seq_t *all_sums = mem_new(seq_t, tot_pairs);
         if (!all_sums) abort();
         size_t pos = 0;
         for (idx_t end = 1; end <= current_M; ++end) {
@@ -63,7 +65,7 @@ static void ensure_cache(size_t need)
         }
 
         /* Sort the sums. */
-        qsort(all_sums, tot_pairs, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(all_sums, tot_pairs, sizeof(seq_t), cmp_seq_t);
 
         /* Count unique values. */
         size_t uniq_cnt = 0;
@@ -81,7 +83,7 @@ static void ensure_cache(size_t need)
         /* Allocate array of unique sums. */
         seq_t *uniq = NULL;
         if (uniq_cnt > 0) {
-            uniq = (seq_t *)malloc(sizeof(seq_t) * uniq_cnt);
+            uniq = mem_new(seq_t, uniq_cnt);
             if (!uniq) abort();
             uniq[0] = all_sums[0];
             size_t idx = 1;
@@ -95,9 +97,9 @@ static void ensure_cache(size_t need)
         }
 
         /* Replace old cache with new one. */
-        free(prefix);
-        free(all_sums);
-        free(sums);
+        mem_free(prefix);
+        mem_free(all_sums);
+        mem_free(sums);
         sums = uniq;
         sums_len = uniq_cnt;
     }

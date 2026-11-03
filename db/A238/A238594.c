@@ -11,12 +11,14 @@
  *            algorithm accumulates the required * contribution to B[n]...
  * Range:     u8 n <= 19, u16 n <= 50, u32 n <= 143, u64 n <= 452,
  *            u128 n <= 1543, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 9475 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;     /* counts partitions with parts ≥ current m */
 static seq_t *B  = NULL;     /* counts partitions where 2*min part is present */
@@ -28,12 +30,12 @@ static void recompute(idx_t N)
     if (N <= max_n) return;
 
     /* free previous tables and allocate new ones */
-    if (dp) free(dp);
-    if (B)  free(B);
+    if (dp) mem_free(dp);
+    if (B)  mem_free(B);
 
     size_t sz = (size_t)(N + 1);
-    dp = (seq_t*)calloc(sz, sizeof(seq_t));
-    B  = (seq_t*)calloc(sz, sizeof(seq_t));
+    dp = mem_new(seq_t, sz);
+    B  = mem_new(seq_t, sz);
     if (!dp || !B) exit(1);          /* out‑of‑memory */
 
     dp[0] = (seq_t)1;                /* empty partition */

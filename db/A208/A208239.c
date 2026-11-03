@@ -9,7 +9,8 @@
  *            n + k - n/k and k is the m‑th divisor of n
  * Range:     u8 n <= 648, u16 n <= 1098, u32 n <= 1098, u64 n <= 1098,
  *            u128 n <= 1098, big any n
- * Helpers:   cmp_idx, factor_u64
+ * Validated: standard, pass, 97 terms through n = 1073 (2026-11-01)
+ * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,16 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/cmp_idx.h"
+
+/* compare two idx_t values for qsort */
+static int cmp_idx(const void *a, const void *b)
+{
+    idx_t va = *(const idx_t *)a;
+    idx_t vb = *(const idx_t *)b;
+    if (va < vb) return -1;
+    if (va > vb) return 1;
+    return 0;
+}
 
 /* ----------  helper functions  ---------- */
 

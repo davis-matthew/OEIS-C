@@ -7,7 +7,8 @@
  * Formula:   a(n) = Σ_{p^e‖n} e * digits(p)
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digit_count
+ * Validated: standard, pass, 122 terms through n = 985 (2026-11-01)
+ * Helpers:   num_digits0
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
  * the prime factorization of n, counting multiplicities. */
 
 #include <stdint.h>
-#include "../utils/digit_count.h"
+#include <math.h>
+#include "../utils/num_digits0.h"
 
 seq_t a(idx_t n)
 {
@@ -34,12 +36,12 @@ seq_t a(idx_t n)
             tmp /= p;
             ++e;
         }
-        sum += (seq_t)e * (seq_t)digit_count(p);
+        sum += (seq_t)e * (seq_t)num_digits0(p);
     }
 
     /* If anything remains, it is a prime factor > sqrt(n). */
     if (tmp > 1) {
-        sum += (seq_t)digit_count(tmp);
+        sum += (seq_t)num_digits0(tmp);
     }
 
     return sum;

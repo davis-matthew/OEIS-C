@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 57, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    returns 0. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Return 0 for illegal offset 0. */
@@ -34,7 +36,7 @@ seq_t a(idx_t n) {
         /* Maximum value to search: 7-digit number composed of 1's. */
         const idx_t max_search = 1111111;
         /* Upper bound on number of terms: 64. */
-        cache = (seq_t *)malloc(64 * sizeof(seq_t));
+        cache = mem_new(seq_t, 64);
         size = 0;
 
         for (idx_t i = 1; i <= max_search; ++i) {

@@ -9,7 +9,8 @@
  *            b(k) = ⌊e·k/(e-1)⌋, k ≥ 0
  * Range:     i8 n <= 1, i16 n <= 1, i32 none, i64 n <= 66, i128 n <= 131,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 191 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* standard headers */
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* forward declarations (if any helper functions are needed) */
 static void init_constants(void);
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
     init_constants();
 
     /* allocate array for the n‑th difference computation */
-    seq_t *buf = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *buf = mem_new(seq_t, (n + 1));
     if (!buf) return 0;             /* allocation failure – shouldn't happen */
 
     /* ----- Step 1: compute the base sequence f(k) = ⌊e·k/(e-1)⌋ ----- */
@@ -85,6 +87,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = buf[0];
-    free(buf);
+    mem_free(buf);
     return result;
 }

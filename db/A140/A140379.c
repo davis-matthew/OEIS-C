@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   isPrimeTrial
+ * Validated: standard, pass, 67 terms through n = 984 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/isPrimeTrial.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* Cache for memoisation.  cache[0] holds the first term (1). */
 static seq_t   *cache      = NULL;
@@ -35,7 +37,7 @@ static void ensure_cache_cap(size_t need)
     size_t new_cap = cache_cap ? cache_cap << 1 : 16;
     while (new_cap < need)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) {
         /* Allocation failed – abort as the test harness cannot handle it. */
         abort();
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
         seq_t val = (seq_t)raw_val;          /* cast to output type */
 
         /* Include 1 and every composite number; prime numbers are skipped. */
-        if (val == (seq_t)1 || !isPrimeTrial(val)) {
+        if (val == (seq_t)1 || !is_prime_seq(val)) {
             ensure_cache_cap(cache_len + 1);
             cache[cache_len++] = val;
         }

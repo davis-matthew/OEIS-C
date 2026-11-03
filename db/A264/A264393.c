@@ -11,13 +11,31 @@
  *            whenever a * larger n is requested. The computatio...
  * Range:     u8 n <= 23, u16 n <= 57, u32 n <= 158, u64 n <= 489,
  *            u128 n <= 1638, big any n
- * Helpers:   int_cube_root
+ * Validated: standard, pass, 68 terms through n = 9458 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/int_cube_root.h"
+#include <stdint.h>
+#include <limits.h>
+#include "../utils/mem.h"
+
+/* integer cube root: largest k with k³ ≤ x */
+static idx_t int_cube_root(idx_t x)
+{
+    idx_t lo = 0, hi = x;
+    while (lo < hi) {
+        idx_t mid = lo + (hi - lo + 1) / 2;
+        __int128 cube = (__int128)mid * mid * mid;
+        if (cube <= x)
+            lo = mid;
+        else
+            hi = mid - 1;
+    }
+    return lo;
+}
 
 static seq_t *dp = NULL;     /* cached partition counts */
 static idx_t max_n = 0;      /* largest n for which dp is valid */
@@ -30,7 +48,7 @@ seq_t a(idx_t n)
         idx_t new_n = n;
 
         /* Allocate new array (may replace a previous one). */
-        seq_t *new_dp = (seq_t *)malloc((new_n + 1) * sizeof(seq_t));
+        seq_t *new_dp = mem_new(seq_t, (new_n + 1));
         if (new_dp == NULL) { /* allocation failure unlikely for n<=10000 */
             abort();
         }
@@ -54,7 +72,7 @@ seq_t a(idx_t n)
         }
 
         /* Replace old cache. */
-        free(dp);
+        mem_free(dp);
         dp = new_dp;
         max_n = new_n;
     }

@@ -10,7 +10,8 @@
  *            L(1)=1,L(2)=3. The values are sorted and duplicates are removed
  * Range:     u8 n <= 8, u16 n <= 40, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ----------  Lucas numbers  ---------- */
 static seq_t *lucas_tbl = NULL;
@@ -31,7 +33,7 @@ ensure_lucas_upto(idx_t k)
     size_t new_cap = lucas_cap ? lucas_cap : 4;
     while ((idx_t)new_cap <= k) new_cap <<= 1;
     if (new_cap != lucas_cap) {
-        seq_t *tmp = (seq_t*)realloc(lucas_tbl, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, lucas_tbl, new_cap);
         if (!tmp) abort();
         lucas_tbl = tmp;
         lucas_cap = new_cap;
@@ -66,7 +68,7 @@ heap_push(HeapNode node)
 {
     if (heap_size == heap_cap) {
         size_t new_cap = heap_cap ? heap_cap << 1 : 4;
-        HeapNode *tmp = (HeapNode*)realloc(heap, new_cap * sizeof(HeapNode));
+        HeapNode *tmp = mem_resize(HeapNode, heap, new_cap);
         if (!tmp) abort();
         heap = tmp;
         heap_cap = new_cap;
@@ -135,7 +137,7 @@ initialize_sequence(idx_t n)
     if (!seq_cache) {
         cache_cap = n + 10;
         if (cache_cap < 4) cache_cap = 4;
-        seq_cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, cache_cap);
         if (!seq_cache) abort();
         seq_cache[0] = 0;                /* dummy 0‑th element */
         seq_cache[1] = 0;                /* a(1) = 0            */
@@ -145,7 +147,7 @@ initialize_sequence(idx_t n)
     } else if (cache_cap < n + 10) {
         size_t new_cap = cache_cap << 1;
         if (new_cap < n + 10) new_cap = n + 10;
-        seq_t *tmp = (seq_t*)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
         if (!tmp) abort();
         seq_cache = tmp;
         cache_cap = new_cap;
@@ -168,13 +170,13 @@ initialize_sequence(idx_t n)
     if (!heap) {
         heap_cap = n + 10;
         if (heap_cap < 4) heap_cap = 4;
-        heap = (HeapNode*)malloc(heap_cap * sizeof(HeapNode));
+        heap = mem_new(HeapNode, heap_cap);
         if (!heap) abort();
         heap_size = 0;
     } else if (heap_cap < n + 10) {
         size_t new_cap = heap_cap << 1;
         if (new_cap < n + 10) new_cap = n + 10;
-        HeapNode *tmp = (HeapNode*)realloc(heap, new_cap * sizeof(HeapNode));
+        HeapNode *tmp = mem_resize(HeapNode, heap, new_cap);
         if (!tmp) abort();
         heap = tmp;
         heap_cap = new_cap;
@@ -215,7 +217,7 @@ generate_until(idx_t n)
             last_added = node.val;
             if (cache_len + 1 >= cache_cap) {
                 size_t new_cap = cache_cap << 1;
-                seq_t *tmp = (seq_t*)realloc(seq_cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
                 if (!tmp) abort();
                 seq_cache = tmp;
                 cache_cap = new_cap;

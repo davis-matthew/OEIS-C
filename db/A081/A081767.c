@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 7452, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 9907 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* -- helper: smallest prime factor sieve --------------------------------- */
 static uint32_t *spf = NULL;     /* spf[x] = smallest prime factor of x  */
@@ -98,7 +100,7 @@ static void push_term(uint64_t v)
 {
     if (term_cap == term_len) {
         size_t newcap = (term_cap == 0) ? 32 : term_cap << 1;
-        terms = (seq_t*)realloc(terms, newcap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, newcap);
         term_cap = newcap;
     }
     terms[term_len++] = (seq_t)v;

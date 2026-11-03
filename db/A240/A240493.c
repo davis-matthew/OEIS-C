@@ -12,18 +12,20 @@
  *            else => contribution = P_{j+1}(n - j*m - m) * w...
  * Range:     u8 n <= 19, u16 n <= 47, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* dp[t] holds P_k(t) where current k starts at n+1 and decreases
      * in the main loop. Initially P_{n+1}(0)=1, others 0. */
-    seq_t *dp = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1));
     if (!dp) return (seq_t)0;          /* memory error: return 0 */
 
     for (idx_t i = 0; i <= n; ++i) dp[i] = (seq_t)0;
@@ -71,6 +73,6 @@ seq_t a(idx_t n)
         }
     }
 
-    free(dp);
+    mem_free(dp);
     return ans;
 }

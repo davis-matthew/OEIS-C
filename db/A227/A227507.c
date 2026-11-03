@@ -9,7 +9,8 @@
  * Formula:   a(n) = p(a,n) read by antidiagonals according to OEIS A227507
  * Range:     u8 n <= 97, u16 n <= 97, u32 n <= 97, u64 n <= 97, u128 n <= 97,
  *            big any n
- * Helpers:   gcd, phi
+ * Validated: partial, pass, 97 terms through n = 97 (2026-11-01)
+ * Helpers:   gcd, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 #include <math.h>
 #include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/phi.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -49,7 +50,7 @@ seq_t a(idx_t n)
     for (idx_t d = 1; d <= g; ++d) {
         if (g % d == 0) {
             idx_t quot = col / d;
-            seq_t phi_val = phi(quot);
+            seq_t phi_val = totient(quot);
             result += (seq_t)d * phi_val;
         }
     }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 11, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   append_candidate, big_pow, seq_to_str
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,47 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-#include "../utils/big_pow.h"      /* big_pow(seq_t base, seq_t exp) */
-#include "../utils/seq_to_str.h"   /* seq_to_str(seq_t v, char *buf, size_t *len) */
-#include "../utils/append_candidate.h" /* append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val) */
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
+
+/* convert a seq_t value to a decimal string */
+static void seq_to_str(seq_t v, char *buf, size_t *len)
+{
+    if (v == 0) {
+        buf[0] = '0';
+        *len = 1;
+        return;
+    }
+    char tmp[64];
+    int pos = 0;
+    seq_t ten = (seq_t)10;
+    while (v != 0) {
+        tmp[pos++] = '0' + (int)(v % ten);
+        v /= ten;
+    }
+    for (int i = 0; i < pos; ++i)
+        buf[i] = tmp[pos - 1 - i];
+    *len = pos;
+}
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
 
 static seq_t *terms      = NULL;   /* array of found terms */
 static size_t terms_size = 0;      /* number of terms stored */
@@ -33,7 +72,7 @@ static idx_t next_k      = 1;      /* next integer to test */
 /* Test whether k satisfies the condition. */
 static bool matches_reversed_cube(seq_t k)
 {
-    seq_t cube = big_pow(k, 3);
+    seq_t cube = ipow(k, 3);
 
     /* Get decimal representation of cube. */
     char cubebuf[512];

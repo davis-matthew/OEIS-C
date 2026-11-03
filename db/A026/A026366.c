@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,13 +40,13 @@ seq_t a(idx_t n)
     /* initialise static storage once */
     if (cache == NULL) {
         cache_cap = 16;
-        cache = (seq_t*)calloc(cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
 
         dupe_cap = 16;
-        dupe = (seq_t*)calloc(dupe_cap, sizeof(seq_t));
+        dupe = mem_new(seq_t, dupe_cap);
 
         occ_cap = 16;
-        occurrence = (seq_t*)calloc(occ_cap, sizeof(seq_t));
+        occurrence = mem_new(seq_t, occ_cap);
     }
 
     /* extend cache until it contains terms up to n */
@@ -64,9 +66,9 @@ seq_t a(idx_t n)
                     /* grow occurrence array to encompass idx */
                     size_t new_cap = occ_cap ? occ_cap * 2 : 16;
                     while (new_cap < idx) new_cap <<= 1;
-                    seq_t *tmp = (seq_t*)realloc(occurrence, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, occurrence, new_cap);
                     if (!tmp) abort();
-                    memset(tmp + occ_cap, 0, (new_cap - occ_cap) * sizeof(seq_t));
+                    mem_set(tmp + occ_cap, 0, (new_cap - occ_cap) * sizeof(seq_t));
                     occurrence = tmp;
                     occ_cap = new_cap;
                 }
@@ -84,9 +86,9 @@ seq_t a(idx_t n)
         if (val_idx > occ_cap) {
             size_t new_cap = occ_cap ? occ_cap * 2 : 16;
             while (new_cap < val_idx) new_cap <<= 1;
-            seq_t *tmp = (seq_t*)realloc(occurrence, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, occurrence, new_cap);
             if (!tmp) abort();
-            memset(tmp + occ_cap, 0, (new_cap - occ_cap) * sizeof(seq_t));
+            mem_set(tmp + occ_cap, 0, (new_cap - occ_cap) * sizeof(seq_t));
             occurrence = tmp;
             occ_cap = new_cap;
         }
@@ -101,9 +103,9 @@ seq_t a(idx_t n)
             if (target_idx > dupe_cap) {
                 size_t new_cap = dupe_cap ? dupe_cap * 2 : 16;
                 while (new_cap < target_idx) new_cap <<= 1;
-                seq_t *tmp = (seq_t*)realloc(dupe, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, dupe, new_cap);
                 if (!tmp) abort();
-                memset(tmp + dupe_cap, 0, (new_cap - dupe_cap) * sizeof(seq_t));
+                mem_set(tmp + dupe_cap, 0, (new_cap - dupe_cap) * sizeof(seq_t));
                 dupe = tmp;
                 dupe_cap = new_cap;
             }
@@ -114,9 +116,9 @@ seq_t a(idx_t n)
         if (cache_size + 1 > cache_cap) {
             size_t new_cap = cache_cap ? cache_cap * 2 : 16;
             while (new_cap < cache_size + 1) new_cap <<= 1;
-            seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort();
-            memset(tmp + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
+            mem_set(tmp + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
             cache = tmp;
             cache_cap = new_cap;
         }

@@ -12,12 +12,14 @@
  *            = 44099648, a(8) = 135348914
  * Range:     u8 none, u16 n <= 1, u32 n <= 11, u64 n <= 30, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External linkage required for the compile environment */
 seq_t a(idx_t n)
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     if (n > cached_up_to) {
         /* Allocate or reallocate */
         idx_t new_size = n;
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * (new_size + 1));
+        seq_t *tmp = mem_resize(seq_t, cache, (new_size + 1));
         if (tmp == NULL) {
             /* In a real application error handling would go here */
             return 0;

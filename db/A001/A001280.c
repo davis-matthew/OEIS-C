@@ -11,12 +11,19 @@
  *            permutations with exactly 4 maximal runs i,i+1,...,i+j of l...
  * Range:     u8 n <= 8, u16 n <= 10, u32 n <= 14, u64 n <= 22, u128 n <= 23,
  *            big any n
- * Helpers:   a001280_bin
+ * Validated: partial, pass, 16 terms through n = 23 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a001280_bin.h"
+static seq_t a001280_bin(idx_t x, unsigned k) {
+    seq_t r = 1;
+    unsigned i;
+    for (i = 0; i < k; i++)
+        r = r * (seq_t)(x - i) / (seq_t)(i + 1);
+    return r;
+}
 
 seq_t a(idx_t n) {
     seq_t dp1, dp, sum, next;

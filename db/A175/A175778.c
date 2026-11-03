@@ -9,8 +9,9 @@
  *            (with non‑zero common difference) that sums to n. Implements by
  *            checking all possible lengths k in decreasing order and testing
  *            whether an integer solution exists
- * Range:     u8 n <= 2735, u16 n <= 9717, u32 n <= 9717, u64 n <= 9717,
- *            u128 n <= 9717, big any n
+ * Range:     u8 n <= 2735, u16 n <= 65536, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 115 terms through n = 9717 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

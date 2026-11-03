@@ -12,7 +12,8 @@
  *            root d, computing f(d) via a recursive coun...
  * Range:     u8 n <= 32, u16 n <= 84, u32 n <= 84, u64 n <= 84, u128 n <= 84,
  *            big any n
- * Helpers:   _factor_count_rec, pow_uint
+ * Validated: partial, pass, 84 terms through n = 84 (2026-11-03)
+ * Helpers:   ipow_u64_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,22 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/pow_uint.h"
-#include "../utils/_factor_count_rec.h"
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/mem.h"
+
+/* --------------------------------------------------------------------- */
+static seq_t _factor_count_rec(idx_t n, idx_t min_factor)
+{
+    seq_t res = 1;                       /* the factorization consisting of n itself */
+    for (idx_t d = min_factor; d * d <= n; ++d)
+    {
+        if (n % d == 0)
+        {
+            res += _factor_count_rec(n / d, d);
+        }
+    }
+    return res;
+}
 
 /* --------------------------------------------------------------------- */
 /* counting unordered factorizations of n (f(n))                          */
@@ -36,7 +51,7 @@ static seq_t _factor_count(idx_t n)
     {
         if (f_cache == NULL)
         {
-            f_cache      = (seq_t*)malloc(CACHE_LIMIT * sizeof(seq_t));
+            f_cache      = mem_new(seq_t, CACHE_LIMIT);
             f_computed   = (uint8_t*)malloc(CACHE_LIMIT * sizeof(uint8_t));
             for (size_t i = 0; i < CACHE_LIMIT; ++i)
             {
@@ -68,7 +83,7 @@ static idx_t _perfect_root(idx_t n, int e)
     while (low <= high)
     {
         idx_t mid = low + (high - low) / 2;
-        seq_t p = pow_uint((uint64_t)mid, (idx_t)e);   /* value of mid^e */
+        seq_t p = ipow_u64_idx((uint64_t)mid, (idx_t)e);   /* value of mid^e */
         if (p == (seq_t)n)
             return mid;
         if (p < (seq_t)n)
@@ -96,7 +111,7 @@ seq_t a(idx_t n)
     for (int e = 2; ; ++e)
     {
         /* smallest candidate 2^e; if it already exceeds n, no further e are possible */
-        if (pow_uint(2, (idx_t)e) > (seq_t)n)
+        if (ipow_u64_idx(2, (idx_t)e) > (seq_t)n)
             break;
 
         idx_t root = _perfect_root(n, e);

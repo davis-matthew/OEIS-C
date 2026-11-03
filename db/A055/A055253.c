@@ -8,13 +8,15 @@
  *            representation of 2^n
  * Range:     u8 n <= 1568, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 107 terms through n = 9797 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,11 +34,11 @@ seq_t a(idx_t n)
     if ((idx_t)counts_len <= n) {
         size_t new_len = (size_t)n + 1;
         if (counts == NULL) {
-            counts = (seq_t*)malloc(new_len * sizeof(seq_t));
+            counts = mem_new(seq_t, new_len);
             if (!counts) return (seq_t)0;
             counts_len = new_len;
         } else {
-            seq_t *tmp = (seq_t*)realloc(counts, new_len * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, counts, new_len);
             if (!tmp) return (seq_t)0;
             counts = tmp;
             counts_len = new_len;

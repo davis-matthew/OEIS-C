@@ -8,14 +8,28 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 12, u64 n <= 24, u128 n <= 49,
  *            big any n
- * Helpers:   ok_triple
+ * Validated: standard, pass, 36 terms through n = 196 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* A208074: DP over rows; a(1)=10, a(2)=100. */
 #include <stdbool.h>
-#include "../utils/ok_triple.h"
+
+/* Checks that a vertical triple of rows does not contain the forbidden
+   patterns 000 or 010 in any column. */
+static inline bool ok_triple(unsigned int top, unsigned int mid, unsigned int bot)
+{
+    for (int col = 0; col < 4; ++col) {
+        int btop = (top >> (3 - col)) & 1;
+        int bmid = (mid >> (3 - col)) & 1;
+        int bbot = (bot >> (3 - col)) & 1;
+        if (btop == 0 && bmid == 0 && bbot == 0) return false; /* 000 forbidden */
+        if (btop == 0 && bmid == 1 && bbot == 0) return false; /* 010 forbidden */
+    }
+    return true;
+}
 
 /* List of allowed 4-bit row patterns that avoid horizontal 000 and 001. */
 static const unsigned int rows[10] = {

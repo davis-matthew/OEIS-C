@@ -14,6 +14,7 @@
  *            even, = ((i+1)/2)^(j/2) if i is odd and j is even
  * Range:     u8 n <= 98, u16 n <= 244, u32 n <= 651, u64 n <= 1688,
  *            u128 n <= 4434, big any n
+ * Validated: standard, pass, 121 terms through n = 9813 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

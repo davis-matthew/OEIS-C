@@ -11,6 +11,7 @@
  *            row r of the triangle <i,j> = 2^i · 5^j
  * Range:     u8 n <= 14, u16 n <= 35, u32 n <= 119, u64 n <= 434,
  *            u128 n <= 1651, big any n
+ * Validated: standard, pass, 71 terms through n = 5016 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

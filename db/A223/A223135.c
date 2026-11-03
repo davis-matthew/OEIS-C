@@ -9,8 +9,9 @@
  *            i*j*k = n and gcd(i, j, k) <= 1. * * For n>0 all i,j,k are
  *            positive and must satisfy gcd(i,j,k)=1. * For n==0 only the
  *            triple (0,0,0) is counted, giving a(0)=1
- * Range:     u8 n <= 9410, u16 n <= 9410, u32 n <= 9410, u64 n <= 9410,
- *            u128 n <= 9410, big any n
+ * Range:     u8 n <= 10001, u16 n <= 10001, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 122 terms through n = 9410 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

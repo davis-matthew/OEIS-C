@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 16, u32 n <= 16, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   build_sequence_up_to
+ * Validated: partial, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,53 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/build_sequence_up_to.h"
+#include "../utils/mem.h"
+
+static void build_sequence_up_to(idx_t limit, seq_t **out_vals, size_t *len)
+{
+    /* count array: 0..limit */
+    uint16_t *cnt = (uint16_t *)calloc(limit + 1, sizeof(uint16_t));
+    if (!cnt) return;
+
+    /* enumeration of triples (a,b,c), 1 <= a <= b <= c */
+    for (uint64_t a = 1; 3ULL * a * a <= limit; ++a)
+    {
+        for (uint64_t b = a; ; ++b)
+        {
+            uint64_t f_min = 2ULL * a * b + b * b;      /* with c = b */
+            if (f_min > limit) break;                   /* no larger b will work */
+
+            for (uint64_t c = b; ; ++c)
+            {
+                uint64_t val = a * b + a * c + b * c;
+                if (val > limit) break;
+                if (cnt[val] < 65535) ++cnt[val];        /* we only need to know >1 */
+            }
+        }
+    }
+
+    /* collect values occurring exactly once */
+    size_t estimated = limit / 4 + 10;          /* rough upper bound */
+    seq_t *list = mem_new(seq_t, estimated);
+    size_t size = 0;
+
+    for (uint64_t v = 3; v <= limit; ++v)       /* minimum is 3 (1*1+1*1+1*1) */
+    {
+        if (cnt[v] == 1)
+        {
+            if (size == estimated)
+            {
+                estimated = (estimated * 3) / 2 + 10;
+                list = mem_resize(seq_t, list, estimated);
+            }
+            list[size++] = (seq_t)v;
+        }
+    }
+
+    free(cnt);
+    *out_vals = list;
+    *len = size;
+}
 
 /* ---------- private helpers (local to this file) ---------- */
 
@@ -51,7 +98,7 @@ seq_t a(idx_t n)
 
         build_sequence_up_to(new_limit, &new_vals, &new_len);
 
-        if (values) free(values);
+        if (values) mem_free(values);
         values = new_vals;
         values_len = new_len;
         current_limit = new_limit;

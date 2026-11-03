@@ -8,12 +8,19 @@
  * Formula:   a(n) = \prod_{i=0}^{9} \lfloor (n+i)/10 \rfloor !
  * Range:     u8 n <= 17, u16 n <= 23, u32 n <= 33, u64 n <= 47, u128 n <= 71,
  *            big any n
- * Helpers:   factorial_u
+ * Validated: standard, pass, 55 terms through n = 689 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/factorial_u.h"
+static seq_t factorial_u(idx_t k)
+{
+    seq_t r = 1;
+    for (idx_t i = 1; i <= k; ++i)
+        r *= (seq_t)i;
+    return r;
+}
 
 seq_t a(idx_t n)
 {

@@ -8,8 +8,9 @@
  *            number of prime powers x ≤ n with exponent >0. * It uses an
  *            Eratosthenes sieve to generate all primes ≤ n and then * for
  *            each prime counts how many powers of that prime are ≤ n
- * Range:     u8 n <= 1437, u16 n <= 9684, u32 n <= 9684, u64 n <= 9684,
- *            u128 n <= 9684, big any n
+ * Range:     u8 n <= 1437, u16 n <= 99999, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 90 terms through n = 9684 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

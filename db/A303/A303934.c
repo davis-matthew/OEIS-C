@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_mul64
+ * Validated: standard, pass, 106 terms through n = 9670 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/mod_mul64.h"
+#include <stddef.h>
+#include "../utils/mulmod.h"
 
 /* ------------------------------------------------------------ */
 /*  Basic utilities used only internally                           */
@@ -36,8 +38,8 @@ static uint64_t mod_pow64(uint64_t a, uint64_t e, uint64_t mod)
     uint64_t res = 1;
     uint64_t base = a % mod;
     while (e) {
-        if (e & 1) res = mod_mul64(res, base, mod);
-        base = mod_mul64(base, base, mod);
+        if (e & 1) res = mulmod(res, base, mod);
+        base = mulmod(base, base, mod);
         e >>= 1;
     }
     return res;
@@ -68,7 +70,7 @@ static bool isPrime64(uint64_t n)
         if (x == 1 || x == n-1) continue;
         bool cont = false;
         for (uint64_t r = 1; r < s; ++r) {
-            x = mod_mul64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n-1) { cont = true; break; }
         }
         if (!cont) return false;

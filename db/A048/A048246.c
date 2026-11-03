@@ -10,12 +10,35 @@
  *            the 3×3 tic‑tac‑toe board)
  * Range:     u8 n <= 2, u16 n <= 9, u32 n <= 9, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   compute_fixed
+ * Validated: full, pass, 10 terms through n = 9 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/compute_fixed.h"
+static seq_t compute_fixed(int n, const int *len, int cnt) {
+    int xTarget = (n + 1) / 2;
+    int oTarget = n / 2;
+    int bTarget = 9 - n;
+    int total = 1;
+    for (int i = 0; i < cnt; ++i) total *= 3;      /* 3^cnt assignments */
+
+    seq_t res = 0;
+    for (int a = 0; a < total; ++a) {
+        int tmp = a;
+        int cx = 0, co = 0, cb = 0;
+        for (int j = 0; j < cnt; ++j) {
+            int col = tmp % 3;     /* 0 = X, 1 = O, 2 = blank */
+            tmp /= 3;
+            int l = len[j];
+            if (col == 0) cx += l;
+            else if (col == 1) co += l;
+            else cb += l;
+        }
+        if (cx == xTarget && co == oTarget && cb == bTarget) ++res;
+    }
+    return res;
+}
 static const int cycles_id[]      = {1,1,1,1,1,1,1,1,1};
 static const int cycles_r90[]     = {4,4,1};
 static const int cycles_r270[]    = {4,4,1};

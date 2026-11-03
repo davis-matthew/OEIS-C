@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 107, u16 n <= 8539, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   isPrime
+ * Validated: standard, pass, 79 terms through n = 9875 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/isPrime.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* cached terms of the sequence */
 static seq_t *terms   = NULL;      /* array of terms */
@@ -35,7 +37,7 @@ static void recompute_terms(void)
     uint32_t *pr = NULL;   size_t pc = 0, cap = 0;
     uint32_t *spf = (uint32_t*)malloc((n+1) * sizeof(uint32_t));
     uint64_t *powp = (uint64_t*)malloc((n+1) * sizeof(uint64_t));
-    seq_t *sigma = (seq_t*)malloc((n+1) * sizeof(seq_t));
+    seq_t *sigma = mem_new(seq_t, (n+1));
     if (!spf || !powp || !sigma) exit(EXIT_FAILURE);
 
     /* initialise */
@@ -74,24 +76,24 @@ static void recompute_terms(void)
     }
 
     /* collect the terms */
-    free(terms);
+    mem_free(terms);
     size_t cap_terms = n / 10 + 100;
-    terms = (seq_t*)malloc(cap_terms * sizeof(seq_t));
+    terms = mem_new(seq_t, cap_terms);
     if (!terms) exit(EXIT_FAILURE);
     terms_len = 0;
 
     for (idx_t i = 1; i <= n; ++i) {
-        if (isPrime((idx_t)(sigma[i] + (seq_t)1))) {
+        if (is_prime((idx_t)(sigma[i] + (seq_t)1))) {
             if (terms_len == cap_terms) {
                 cap_terms *= 2;
-                terms = (seq_t*)realloc(terms, cap_terms * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, cap_terms);
             }
             terms[terms_len++] = (seq_t)i;
         }
     }
 
     /* free temporary arrays */
-    free(spf); free(powp); free(sigma); free(pr);
+    free(spf); free(powp); mem_free(sigma); free(pr);
 }
 
 /* ensure that at least n terms are cached */

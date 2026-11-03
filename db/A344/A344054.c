@@ -9,13 +9,15 @@
  *            squares)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 19, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Compute A344054 */
 seq_t a(idx_t n)
@@ -31,12 +33,12 @@ seq_t a(idx_t n)
     if (last_n == 0 && e == NULL)
     {
         e_cap = 1;
-        e = (seq_t *)malloc(e_cap * sizeof(seq_t));
+        e = mem_new(seq_t, e_cap);
         if (!e) return 0;          /* allocation failed */
         e[0] = (seq_t)1;           /* E(0,0) = 1 */
 
         a_cap = 1;
-        a_cache = (seq_t *)malloc(a_cap * sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_cap);
         if (!a_cache) return 0;
         a_cache[0] = (seq_t)0;     /* a(0) = 0 */
     }
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
         /* extend Eulerian array to size m+1 */
         if (e_cap < (size_t)(m + 1))
         {
-            seq_t *tmp = (seq_t *)realloc(e, (size_t)(m + 1) * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, e, (size_t)(m + 1));
             if (!tmp) return 0;
             e = tmp;
             e_cap = (size_t)(m + 1);
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
         /* extend a-cache to size m+1 */
         if (a_cap < (size_t)(m + 1))
         {
-            seq_t *tmp = (seq_t *)realloc(a_cache, (size_t)(m + 1) * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, a_cache, (size_t)(m + 1));
             if (!tmp) return 0;
             a_cache = tmp;
             a_cap = (size_t)(m + 1);

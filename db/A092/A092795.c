@@ -7,6 +7,7 @@
  * Formula:   a(n) = 16^n - 4*9^n - 3*7^n + 12*6^n - 6*5^n (offset = 1)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 32,
  *            big any n
+ * Validated: standard, pass, 34 terms through n = 793 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

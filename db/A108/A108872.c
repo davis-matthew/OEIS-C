@@ -11,13 +11,14 @@
  *            the * row index.)
  * Range:     u8 n <= 7875, u16 n <= 7875, u32 n <= 7875, u64 n <= 7875,
  *            u128 n <= 7875, big any n
- * Helpers:   tri_uint64
+ * Validated: standard, pass, 92 terms through n = 7553 (2026-11-01)
+ * Helpers:   triangular_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/tri_uint64.h"
+#include "../utils/triangular_u64.h"
 
 seq_t a(idx_t n) {
     /* Find smallest i such that tri_uint64(i) >= n. */
@@ -34,7 +35,7 @@ seq_t a(idx_t n) {
     /* Binary search for the minimal i. */
     while (low < high) {
         uint64_t mid = low + ((high - low) >> 1);
-        if (tri_uint64(mid) >= n)
+        if (triangular_u64(mid) >= n)
             high = mid;
         else
             low = mid + 1;
@@ -42,7 +43,7 @@ seq_t a(idx_t n) {
     uint64_t i = low;
 
     /* j = n - (i-1)*i/2 */
-    uint64_t j = n - tri_uint64(i - 1);
+    uint64_t j = n - triangular_u64(i - 1);
 
     /* Return i + j as seq_t. */
     return (seq_t)i + (seq_t)j;

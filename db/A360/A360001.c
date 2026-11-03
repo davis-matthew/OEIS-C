@@ -7,19 +7,21 @@
  * Formula:   Expansion of Product_{k>=0} (1 - x^(k^2+4)) in powers of x
  * Range:     i8 n <= 819, i16 n <= 3373, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 98 terms through n = 9458 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute a(n) where a(n) is the coefficient of x^n in
    ∏_{k≥0} (1 - x^(k^2+4)). */
 seq_t a(idx_t n)
 {
     /* Allocate array for coefficients up to n. */
-    seq_t *coef = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *coef = mem_new(seq_t, (n + 1));
     if (!coef)
         return 0;           /* out‑of‑memory: return zero (should never happen) */
 
@@ -44,6 +46,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = coef[n];
-    free(coef);
+    mem_free(coef);
     return result;
 }

@@ -11,13 +11,15 @@
  *            15, 87, 205, 899, 2521, 9709, 29747
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 17, u64 n <= 36, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* Ensure the cache is allocated and holds at least the first 8 terms */
     if (cache_size < 8) {
         cache_size = 8;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_size);
+        cache = mem_new(seq_t, cache_size);
         for (size_t i = 0; i < 8; ++i)
             cache[i] = init[i];
     }
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
         return cache[n - 1];
 
     /* Extend the cache up to n using the 8‑term recurrence */
-    cache = (seq_t *)realloc(cache, sizeof(seq_t) * n);
+    cache = mem_resize(seq_t, cache, n);
     for (size_t i = cache_size; i < n; ++i) {
         /* Fetch the last eight values (a(i), a(i-1), ..., a(i-7)) */
         seq_t a1 = cache[i - 1];   /* a(i)   */

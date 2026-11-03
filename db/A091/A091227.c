@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 98, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   _deg_of, _is_irreducible, _poly_mod
+ * Validated: partial, pass, 98 terms through n = 98 (2026-11-03)
+ * Helpers:   ilog2_u64_to_u32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,37 @@
    the lower coefficients run in ascending binary order. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/_deg_of.h"
-#include "../utils/_is_irreducible.h"
-#include "../utils/_poly_mod.h"
+#include "../utils/ilog2_u64_to_u32.h"
+#include "../utils/mem.h"
+
+/* Utility: remainder of f divided by g over GF(2). */
+static inline uint64_t _poly_mod(uint64_t f, uint64_t g) {
+    if (g == 0) return f;
+    unsigned deg_g = ilog2_u64_to_u32(g);
+    while (f != 0) {
+        unsigned deg_f = ilog2_u64_to_u32(f);
+        if (deg_f < deg_g) break;
+        f ^= g << (deg_f - deg_g);
+    }
+    return f;
+}
+
+/* Test whether f (monic of degree deg) is irreducible over GF(2). */
+static bool _is_irreducible(uint64_t f, unsigned deg) {
+    if (deg == 0) return false;          /* 1 is not considered irreducible */
+    if (deg == 1) return true;           /* linear polynomials are irreducible */
+
+    /* Check all possible proper monic divisors of degree 1 .. deg/2. */
+    for (unsigned d = 1; d <= deg / 2; ++d) {
+        uint64_t limit = 1ULL << d;          /* number of polynomials of degree d */
+        for (uint64_t sub = 0; sub < limit; ++sub) {
+            uint64_t g = (1ULL << d) | sub;   /* monic of degree d */
+            if (_poly_mod(f, g) == 0)          /* divides exactly */
+                return false;                  /* reducible */
+        }
+    }
+    return true;                               /* no divisor found */
+}
 
 /* Memoisation state. */
 static idx_t    _last_computed = 0;          /* largest n already computed    */
@@ -45,7 +74,7 @@ static void _ensure_capacity(idx_t n) {
     if ((size_t)n + 1 <= _a_cap) return;
     size_t new_cap = _a_cap ? _a_cap * 2 : 128;
     while (new_cap <= (size_t)n + 1) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(_a_vals, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, _a_vals, new_cap);
     if (!tmp && new_cap > 0) abort();
     _a_vals = tmp;
     _a_cap  = new_cap;

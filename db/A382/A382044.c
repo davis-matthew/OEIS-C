@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 17,
  *            big any n
- * Helpers:   big_pow, binomial, gcd
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-01)
+ * Helpers:   binomial, gcd, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,10 @@
 */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/gcd.h"
+#include "../utils/ipow.h"
 
 static inline seq_t mul3div(seq_t a, seq_t b, seq_t c, seq_t d)
 {
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
 
     for (idx_t k = 0; k <= n; ++k)
     {
-        seq_t power = big_pow((seq_t)(2 * k), (seq_t)(n - k));
+        seq_t power = ipow((seq_t)(2 * k), (seq_t)(n - k));
         seq_t B = binomial((idx_t)(n + 3 * k + 1), k);
         seq_t denom = (seq_t)(n + 3 * k + 1);
 

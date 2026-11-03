@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 27, u32 n <= 80, u64 n <= 281,
  *            u128 n <= 1009, big any n
+ * Validated: standard, pass, 61 terms through n = 9931 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -23,7 +24,7 @@
 */
 
 #include <stdint.h>
-#include "../utils/gcd.h"          /* provides seq_t gcd(seq_t, seq_t) */
+#include "../utils/gcd.h"
 
 /* Find the row index r such that r(r+1)/2 ≤ n < (r+1)(r+2)/2. */
 static idx_t _row_of(idx_t n)

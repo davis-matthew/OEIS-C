@@ -7,12 +7,14 @@
  * Formula:   a(n) = number of partitions of n into parts 3, 10, 11, 12
  * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 69 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Count partitions of n using parts 3, 10, 11, 12 */
 seq_t a(idx_t n)
@@ -24,11 +26,11 @@ seq_t a(idx_t n)
     /* Ensure the array is large enough for n */
     if (n >= allocated) {
         idx_t new_size = n + 1;                     /* need indices up to n */
-        seq_t *new_dp = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_dp = mem_new(seq_t, new_size);
         if (!new_dp) return (seq_t)0;               /* out‑of‑memory, return 0 */
 
         /* Replace old array */
-        free(dp);
+        mem_free(dp);
         dp = new_dp;
         allocated = new_size;
     }

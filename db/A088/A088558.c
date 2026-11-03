@@ -10,13 +10,14 @@
  *            m*n = 2*n we compute m^2 - n^2 and take the minimum
  * Range:     u8 n <= 8, u16 n <= 255, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd_uint64
+ * Validated: standard, pass, 73 terms through n = 942 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/gcd_uint64.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +31,7 @@ seq_t a(idx_t n)
         uint64_t n_val = d;
         uint64_t m_val = P / d;   /* m > n by construction if m_val > n_val */
         if (m_val <= n_val) continue;
-        if (gcd_uint64(m_val, n_val) != 1) continue;
+        if (gcd_u64(m_val, n_val) != 1) continue;
         if ((m_val & 1ULL) == (n_val & 1ULL)) continue;   /* opposite parity */
         seq_t odd_leg = (seq_t)(m_val * m_val - n_val * n_val);
         if (first || odd_leg < best) {

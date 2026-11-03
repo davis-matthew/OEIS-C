@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 19, u64 n <= 38, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    Initial values (n = 0 … 23) are taken from the OEIS entry. */
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* 24 known values – initial conditions for the recurrence. */
 static const seq_t init24[24] = {
@@ -39,9 +41,9 @@ seq_t a(idx_t n)
     if (cache_len == 0) {
         /* Allocate space for the initial 24 entries. */
         cache_len = 24;
-        cache = (seq_t *)calloc(cache_len, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         if (!cache) return (seq_t)0;            /* allocation failure */
-        memcpy(cache, init24, sizeof(init24));
+        mem_copy(cache, init24, sizeof(init24));
     }
 
     /* If the cache is large enough, return immediately. */
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
 
     /* Grow the cache to accommodate term n. */
     size_t new_len = (size_t)n + 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_len);
     if (!new_cache) return (seq_t)0;            /* allocation failure */
 
     /* Compute new terms sequentially. */

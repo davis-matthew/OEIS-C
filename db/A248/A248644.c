@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   get_digits_seq, is_even_ones
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,47 @@
  * search. */
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/get_digits_seq.h"
-#include "../utils/is_even_ones.h"
+#include "../utils/mem.h"
+
+/* Extract decimal digits of x into buf[0..len-1] (most significant first). */
+static void get_digits_seq(seq_t x, uint8_t *buf, size_t *len)
+{
+    if (x == (seq_t)0)
+    {
+        buf[0] = 0;
+        *len = 1;
+        return;
+    }
+    size_t pos = 0;
+    seq_t tmp = x;
+    while (tmp != (seq_t)0)
+    {
+        uint8_t d = (uint8_t)(tmp % (seq_t)10);
+        buf[pos++] = d;
+        tmp /= (seq_t)10;
+    }
+    /* reverse to most‑significant first */
+    for (size_t i = 0; i < pos / 2; ++i)
+    {
+        uint8_t t = buf[i];
+        buf[i] = buf[pos - 1 - i];
+        buf[pos - 1 - i] = t;
+    }
+    *len = pos;
+}
+
+/* Return true if x has an even number of 1-bits in its binary representation. */
+static bool is_even_ones(seq_t x)
+{
+    bool parity = false;                       /* false → even number of ones so far */
+    while (x != (seq_t)0)
+    {
+        if (x & (seq_t)1)
+            parity = !parity;
+        x >>= 1;
+    }
+    return parity == false;
+}
 
 /* Check whether deleting any single decimal digit from x yields an evil number. */
 static bool good_candidate(seq_t x)
@@ -58,7 +98,7 @@ static void ensure_cache(idx_t need)
     if (cache_cap == 0)
     {
         cache_cap = 16;
-        cache = (seq_t *)realloc(NULL, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, cache_cap);
         if (!cache)
             abort();
     }
@@ -74,7 +114,7 @@ static void ensure_cache(idx_t need)
         if (cache_len == cache_cap)
         {
             size_t new_cap = cache_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp)
                 abort();
             cache = tmp;

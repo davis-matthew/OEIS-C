@@ -11,7 +11,8 @@
  *            (n-k)·A(n-1,k-1), with A(1,0)=1
  * Range:     i8 n <= 6, i16 n <= 16, i32 n <= 38, i64 n <= 38, i128 n <= 38,
  *            big any n
- * Helpers:   eulerian_value
+ * Validated: partial, pass, 39 terms through n = 38 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,35 @@
 /* Include standard integer types for idx_t and seq_t (defined by build) */
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/eulerian_value.h"
+
+/* compute the Eulerian number A(row,k) for 1 <= row <= 200, 0 <= k < row */
+static seq_t eulerian_value(idx_t row, idx_t k)
+{
+    /* row is at most 200 for n up to 10000 (see analysis) */
+    const idx_t MAX_ROW = 200;
+    seq_t cur[MAX_ROW];
+    seq_t nxt[MAX_ROW];
+    /* initialise first row: A(1,0)=1 */
+    cur[0] = (seq_t)1;
+    idx_t curSize = 1;          /* current number of valid entries in cur */
+
+    /* build rows 2 .. row */
+    for (idx_t n = 2; n <= row; ++n) {
+        for (idx_t j = 0; j < n; ++j) {
+            seq_t term1 = 0;
+            if (j < curSize)                 /* A(n-1,j) */
+                term1 = (seq_t)(j + 1) * cur[j];
+            seq_t term2 = 0;
+            if (j > 0)                       /* A(n-1,j-1) */
+                term2 = (seq_t)(n - j) * cur[j - 1];
+            nxt[j] = term1 + term2;
+        }
+        curSize = n;
+        for (idx_t j = 0; j < curSize; ++j)
+            cur[j] = nxt[j];
+    }
+    return cur[k];
+}
 
 /* main sequence function */
 seq_t a(idx_t n)

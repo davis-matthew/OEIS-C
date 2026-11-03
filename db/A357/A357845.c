@@ -9,7 +9,8 @@
  *            sum of divisors)
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,13 +19,14 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return 0;          /* not used, but harmless */
 
     /* Allocate array for sigma values (1..n). 0=unused. */
-    seq_t *sigma = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *sigma = mem_new(seq_t, (n + 1));
     if (!sigma) return 0;          /* allocation failure, return 0 as fallback */
 
     /* initialize sigma to 0 */
@@ -59,6 +61,6 @@ seq_t a(idx_t n)
         den = new_den / g;
     }
 
-    free(sigma);
+    mem_free(sigma);
     return num;                         /* return the numerator of the reduced sum */
 }

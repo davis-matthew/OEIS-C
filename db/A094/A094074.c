@@ -8,7 +8,8 @@
  *            2n*(2n-1)^2*a(n-1))
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 9, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 29 terms through n = 217 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for the sequence values */
 static seq_t *seq_cache     = NULL;   /* dynamically grown array */
@@ -27,13 +29,13 @@ static void ensure_cache_size(size_t need)
 {
     if (need <= cache_size)
         return;
-    seq_t *new_cache = (seq_t *)malloc(need * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, need);
     if (new_cache == NULL)
         exit(1);                     /* out of memory */
     if (seq_cache) {
         for (size_t i = 0; i < cache_size; ++i)
             new_cache[i] = seq_cache[i];
-        free(seq_cache);
+        mem_free(seq_cache);
     }
     seq_cache   = new_cache;
     cache_size  = need;

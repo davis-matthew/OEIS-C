@@ -10,7 +10,8 @@
  * Formula:   a(n) = [x^n y^2] Π_{j≥1} 1/(1 - y*x^j)^A000085(j)
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 19, u64 n <= 32, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 800 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static cache for involution counts */
 static seq_t *invol = NULL;
@@ -36,7 +38,7 @@ static void ensure_invol(idx_t n) {
     /* initial allocation */
     if (!invol) {
         invol_cap = 2;
-        invol = (seq_t *)malloc(invol_cap * sizeof(seq_t));
+        invol = mem_new(seq_t, invol_cap);
         invol[0] = (seq_t)1;
         invol[1] = (seq_t)1;
         invol_current = 1;
@@ -45,7 +47,7 @@ static void ensure_invol(idx_t n) {
     /* grow capacity if necessary */
     if ((size_t)n + 1 > invol_cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(invol, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, invol, new_cap);
         invol = tmp;
         invol_cap = new_cap;
     }

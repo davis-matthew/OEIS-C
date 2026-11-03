@@ -8,6 +8,7 @@
  * Formula:   a(n) = 1 for n = 0; for n >= 1, a(n) = 2^⌊(2*n+3)/3⌋
  * Range:     u8 n <= 10, u16 n <= 22, u32 n <= 46, u64 n <= 94, u128 n <= 190,
  *            big any n
+ * Validated: standard, pass, 60 terms through n = 954 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

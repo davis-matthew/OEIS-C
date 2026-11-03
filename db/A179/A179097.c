@@ -8,6 +8,7 @@
  * Formula:   a(n) = n*(40 + 26*n + 5*n^2 + 75*n^3 + 75*n^4 + 19*n^5) / 240
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
+ * Validated: standard, pass, 45 terms through n = 54 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

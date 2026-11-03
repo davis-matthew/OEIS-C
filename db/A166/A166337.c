@@ -7,7 +7,8 @@
  * Formula:   a(n) = (2n + 0^n) * C(4n,2n) (0^0 = 1)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 18,
  *            big any n
- * Helpers:   binom_n_k
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,13 +17,14 @@
    with a(0)=1, a(1)=12 */
 
 #include <stdint.h>
-#include "../utils/binom_n_k.h"
+#include <stdbool.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n) {
     if (n == 0) {
         return 1;
     }
-    seq_t bin = binom_n_k((idx_t)(4 * n), (idx_t)(2 * n));
+    seq_t bin = binomial((idx_t)(4 * n), (idx_t)(2 * n));
     seq_t mult = (seq_t)2 * (seq_t)n;
     return bin * mult;
 }

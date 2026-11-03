@@ -8,12 +8,14 @@
  *            4‑th binomial transform of (1,3,0,0,0,…)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 14, u64 n <= 29, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 296 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache for previously computed terms */
@@ -23,7 +25,7 @@ seq_t a(idx_t n) {
     /* Ensure cache has at least two elements for the base cases */
     if (cache_len < 2) {
         size_t new_len = 2;
-        cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_len);
         if (cache == NULL) return (seq_t)0;  /* allocation failure – unlikely */
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)7;
@@ -37,7 +39,7 @@ seq_t a(idx_t n) {
 
     /* Expand cache to accommodate n */
     size_t new_len = (size_t)n + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_len);
     if (tmp == NULL) return (seq_t)0;  /* allocation failure – unlikely */
     cache = tmp;
     /* Compute terms iteratively up to n */

@@ -7,7 +7,8 @@
  * Formula:   a(n) = (1/3) * Sum_{k=0..n} (2k+3)!! * Stirling2(n,k)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 14, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *A = NULL;         /* memoised sequence values */
 static seq_t *S = NULL;         /* current Stirling row (size = max_n+1) */
@@ -36,10 +38,10 @@ static void enlarge(size_t *cap, seq_t **arr, size_t new_cap)
 {
     if (*cap < new_cap) {
         seq_t *old = *arr;
-        *arr = (seq_t *)realloc(old, new_cap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, old, new_cap);
         /* initialise new slots to zero */
         if (new_cap > *cap) {
-            memset(*arr + *cap, 0, (new_cap - *cap) * sizeof(seq_t));
+            mem_set(*arr + *cap, 0, (new_cap - *cap) * sizeof(seq_t));
         }
         *cap = new_cap;
     }

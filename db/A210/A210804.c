@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Integer square root for 64‑bit unsigned integers.  Result is floor(sqrt(x)). */
 static inline idx_t
@@ -60,7 +62,7 @@ ensure_rows(idx_t needed)
 
     /* Allocate and compute new rows. */
     for (idx_t r = max_row + 1; r <= needed; ++r) {
-        rows[r] = (seq_t *)malloc(sizeof(seq_t) * r);   /* r elements: 0 … r-1 */
+        rows[r] = mem_new(seq_t, r);   /* r elements: 0 … r-1 */
         if (r == 1) {
             rows[1][0] = (seq_t)1;                     /* T(1,0)=1   */
         } else if (r == 2) {

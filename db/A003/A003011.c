@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 11, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 226 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,13 +17,14 @@
 /* Recurrence: n*a(n) = (2*n^3 - n^2 + n + 1)*a(n-1) + (-3*n^3 + 4*n^2 + 2*n - 3)*a(n-2) + (n^3 - 2*n^2 - n + 2)*a(n-3) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)1;
     if (n == 1) return (seq_t)3;
     if (n == 2) return (seq_t)19;
     
-    seq_t *cache = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *cache = mem_new(seq_t, (n + 1));
     cache[0] = (seq_t)1;
     cache[1] = (seq_t)3;
     cache[2] = (seq_t)19;
@@ -41,6 +43,6 @@ seq_t a(idx_t n) {
     }
     
     seq_t result = cache[n];
-    free(cache);
+    mem_free(cache);
     return result;
 }

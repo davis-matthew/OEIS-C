@@ -7,14 +7,17 @@
  * Formula:   a(n) = 3^(2*prime(n)+1)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 8, u128 n <= 12,
  *            big any n
- * Helpers:   is_prime, pow_seq
+ * Validated: partial, pass, 13 terms through n = 13 (2026-11-03)
+ * Helpers:   ipow_idx, is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/is_prime.h"
-#include "../utils/pow_seq.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +32,7 @@ seq_t a(idx_t n)
 
     while (count < n)
     {
-        if (is_prime((uint64_t)candidate))
+        if (is_prime_u64((uint64_t)candidate))
         {
             ++count;
             prime = candidate;
@@ -39,5 +42,5 @@ seq_t a(idx_t n)
 
     /* exponent e = 2*prime + 1 */
     idx_t exp = 2 * prime + 1;
-    return pow_seq((seq_t)3, exp);
+    return ipow_idx((seq_t)3, exp);
 }

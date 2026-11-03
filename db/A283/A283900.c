@@ -11,6 +11,7 @@
  *            1 (a(1) is the first listed term)
  * Range:     u8 none, u16 n <= 2210, u32 n <= 8520, u64 n <= 8520,
  *            u128 n <= 8520, big any n
+ * Validated: full, pass, 8520 terms through n = 8520 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

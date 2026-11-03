@@ -12,7 +12,8 @@
  *            using a recurrence. * It then evaluates the formula exact...
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 13, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   mul_small, phi, seq_mul
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,27 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/phi.h"          /* phi(idx_t) */
-#include "../utils/mul_small.h"    /* mul_small(seq_t, unsigned int) */
-#include "../utils/seq_mul.h"      /* seq_mul(seq_t, seq_t) */
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/totient.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 #define MAX_N 10000   /* maximum n expected by the evaluator */
 
@@ -80,14 +99,14 @@ seq_t a(idx_t n)
     seq_t sum = (seq_t)0;
     for (uint64_t d = 1; d * d <= n; ++d) {
         if (n % d == 0) {
-            seq_t phi_d   = phi(d);
+            seq_t phi_d   = totient(d);
             uint64_t nd1  = n / d;
             seq_t s_nd1   = S2_table[nd1][6];
             sum = sum + seq_mul(phi_d, s_nd1);
 
             uint64_t d2 = n / d;
             if (d2 != d) {
-                seq_t phi_d2 = phi(d2);
+                seq_t phi_d2 = totient(d2);
                 uint64_t nd2  = n / d2;        /* equals d */
                 seq_t s_nd2   = S2_table[nd2][6];
                 sum = sum + seq_mul(phi_d2, s_nd2);

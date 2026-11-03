@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 8, u32 n <= 100, u64 n <= 100, u128 n <= 100,
  *            big any n
- * Helpers:   digit_counts, digit_len, pow10
+ * Validated: standard, pass, 54 terms through n = 100 (2026-11-03)
+ * Helpers:   digit_counts, mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,16 +20,27 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/pow10.h"
-#include "../utils/digit_len.h"
+#include <stdint.h>
 #include "../utils/digit_counts.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Returns true if some permutation of the digits of x equals k*x for
    some integer k in [2,9].  The multiplication k*x is guaranteed to have
    the same number of decimal digits as x. */
 static bool has_perm_multiple(seq_t x)
 {
-    int d = digit_len(x);
+    int d = num_digits(x);
     seq_t lower = pow10(d - 1);
     seq_t upper = pow10(d);
 
@@ -50,7 +62,7 @@ static bool has_perm_multiple(seq_t x)
 /* Grows the cached table of terms to at least new_cap entries. */
 static void grow_terms(size_t new_cap, seq_t **terms, size_t *cap)
 {
-    seq_t *new_ptr = (seq_t *)realloc(*terms, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, *terms, new_cap);
     if (!new_ptr)
         exit(1);                       /* terminate on allocation failure */
     *terms = new_ptr;

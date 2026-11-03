@@ -8,20 +8,27 @@
  *            powers)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 15, u128 n <= 26,
  *            big any n
- * Helpers:   _floor_isqrt_u64, big_pow, build_primes_upto, seq_mul, seq_one,
- *            seq_pow
+ * Validated: standard, pass, 38 terms through n = 364 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow, ipow_idx, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/_floor_isqrt_u64.h"
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/seq_one.h"
-#include "../utils/seq_pow.h"
-#include "../utils/seq_mul.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/isqrt.h"
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n) {
     if (n == 1) return seq_one();
@@ -31,7 +38,7 @@ seq_t a(idx_t n) {
     seq_t result = seq_one();
 
     /* Generate primes up to sqrt(n) */
-    idx_t limit = _floor_isqrt_u64(nn);
+    idx_t limit = isqrt(nn);
     uint64_t *primes = NULL;
     size_t prime_cnt = 0;
     build_primes_upto(limit, &primes, &prime_cnt);
@@ -46,9 +53,9 @@ seq_t a(idx_t n) {
                 ++e;
             }
             /* pp = p^e */
-            seq_t pp = seq_pow((seq_t)p, e);
+            seq_t pp = ipow_idx((seq_t)p, e);
             /* part = pp^pp */
-            seq_t part = big_pow(pp, pp);
+            seq_t part = ipow(pp, pp);
             /* Multiply into result */
             result = seq_mul(result, part);
         }
@@ -56,8 +63,8 @@ seq_t a(idx_t n) {
 
     /* Handle remaining prime factor > sqrt(original n) */
     if (nn > 1) {
-        seq_t pp = seq_pow((seq_t)nn, 1);        /* pp = nn (prime power 1) */
-        seq_t part = big_pow(pp, pp);            /* part = pp^pp */
+        seq_t pp = ipow_idx((seq_t)nn, 1);        /* pp = nn (prime power 1) */
+        seq_t part = ipow(pp, pp);            /* part = pp^pp */
         result = seq_mul(result, part);
     }
 

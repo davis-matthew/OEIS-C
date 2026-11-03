@@ -8,22 +8,23 @@
  *            A001700(m) = binomial(2*m+1, m)
  * Range:     u8 n <= 41, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   binom_small, int_sqrt
+ * Validated: partial, pass, 92 terms through n = 91 (2026-11-01)
+ * Helpers:   binomial, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/int_sqrt.h"
-#include "../utils/binom_small.h"
+#include "../utils/binomial.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
     /* Compute s = floor(sqrt(1 + 4n)) */
     idx_t t = 4 * n;
     t += 1;
-    idx_t s = int_sqrt(t);
+    idx_t s = isqrt(t);
     if (s * s != t)          /* not a perfect square */
         return 0;
 
@@ -34,5 +35,5 @@ seq_t a(idx_t n)
         return 0;
 
     idx_t m = (s - 3) / 2;
-    return binom_small(2 * m + 1, m);
+    return binomial(2 * m + 1, m);
 }

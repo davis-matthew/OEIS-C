@@ -10,14 +10,15 @@
  *            x – y = 5n + 2k.) See OEIS A226003
  * Range:     u8 none, u16 none, u32 n <= 1, u64 n <= 2, u128 n <= 5,
  *            big any n
- * Helpers:   binom, pow_uint
+ * Validated: standard, pass, 22 terms through n = 36 (2026-11-01)
+ * Helpers:   binomial, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
-#include "../utils/pow_uint.h"
+#include "../utils/binomial.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;                      /* outside the offset */
@@ -31,9 +32,9 @@ seq_t a(idx_t n) {
         idx_t b = 5 * n + 2 * k;               /* positions where they differ */
 
         /* term = C(L, x) * C(L – x, y) * 2^b   */
-        seq_t term = binom(L, x);
-        term = term * binom(L - x, y);
-        term = term * pow_uint(2, b);
+        seq_t term = binomial(L, x);
+        term = term * binomial(L - x, y);
+        term = term * ipow_u64_idx(2, b);
 
         sum += term;
     }

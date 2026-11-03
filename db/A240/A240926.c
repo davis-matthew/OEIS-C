@@ -7,6 +7,7 @@
  * Formula:   a(n) = 3*a(n-1) - a(n-2) - 2, with a(0) = 4, a(1) = 5
  * Range:     i8 n <= 5, i16 n <= 10, i32 n <= 22, i64 n <= 28, i128 n <= 28,
  *            big any n
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

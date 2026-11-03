@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 59, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   _isqrt_uint64
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   isqrt_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/_isqrt_uint64.h"
+#include "../utils/isqrt_u64.h"
+#include "../utils/mem.h"
 
 /* ---------- prime list, built incrementally ---------- */
 static uint64_t *primes = NULL;
@@ -32,7 +34,7 @@ static uint64_t prime_next_check = 2;
 static void _ensure_primes_upto(uint64_t max) {
     while (prime_next_check <= max) {
         bool is_prime = true;
-        uint64_t limit = _isqrt_uint64(prime_next_check);
+        uint64_t limit = isqrt_u64(prime_next_check);
         for (size_t i = 0; i < primes_len && primes[i] <= limit; ++i) {
             if (prime_next_check % primes[i] == 0) {
                 is_prime = false;
@@ -64,7 +66,7 @@ static void _factor_sums(uint64_t k, uint64_t *sopf, uint64_t *sopfr) {
     uint64_t sopfr_sum = 0;
     uint64_t sopf_sum = 0;
 
-    uint64_t sqrt_k = _isqrt_uint64(k);
+    uint64_t sqrt_k = isqrt_u64(k);
     _ensure_primes_upto(sqrt_k);
 
     for (size_t i = 0; i < primes_len && primes[i] <= sqrt_k; ++i) {
@@ -77,7 +79,7 @@ static void _factor_sums(uint64_t k, uint64_t *sopf, uint64_t *sopfr) {
                 n /= p;
             }
             sopf_sum += p;          /* distinct prime counted once */
-            sqrt_k = _isqrt_uint64(n);   /* update while loop upper bound */
+            sqrt_k = isqrt_u64(n);   /* update while loop upper bound */
         }
     }
     if (n > 1) {                     /* remaining prime factor > sqrt(k) */
@@ -97,7 +99,7 @@ static uint64_t next_k = 2;   /* smallest integer to test */
 static void _append_cache(seq_t val) {
     if (cache_len >= cache_cap) {
         size_t new_cap = cache_cap ? (cache_cap << 1) : 16;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp)
             exit(EXIT_FAILURE);
         cache = tmp;

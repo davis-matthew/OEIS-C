@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 36, u32 n <= 121, u64 n <= 438,
  *            u128 n <= 1660, big any n
- * Helpers:   binomial, pow4
+ * Validated: standard, pass, 64 terms through n = 9698 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,20 @@
  */
 
 #include <stdint.h>
-#include "../utils/binomial.h"   /* seq_t binomial(idx_t n, idx_t k); */
-#include "../utils/pow4.h"       /* seq_t pow4(idx_t exp); */
+#include <stdlib.h>
+#include "../utils/binomial.h"
+
+static inline seq_t pow4(idx_t exp) {
+    seq_t result = 1;
+    seq_t base   = 4;
+    idx_t e = exp;
+    while (e) {
+        if (e & 1) result *= base;
+        base *= base;
+        e >>= 1;
+    }
+    return result;
+}
 
 static inline idx_t find_row(idx_t n)
 {

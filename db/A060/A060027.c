@@ -8,12 +8,14 @@
  *            of k into parts 1..8
  * Range:     i8 n <= 27, i16 n <= 60, i32 n <= 322, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 988 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *partitions = NULL;   /* p(k) for k = 0..max_n */
 static idx_t   part_size  = 0;     /* current allocated size */
@@ -22,7 +24,7 @@ static idx_t   part_size  = 0;     /* current allocated size */
 static void compute_partitions(idx_t max_n)
 {
     /* allocate new array */
-    seq_t *newp = (seq_t *)malloc((max_n + 1) * sizeof(seq_t));
+    seq_t *newp = mem_new(seq_t, (max_n + 1));
     if (!newp) abort();                 /* out of memory */
 
     /* initialise */
@@ -37,7 +39,7 @@ static void compute_partitions(idx_t max_n)
     }
 
     /* replace old table */
-    free(partitions);
+    mem_free(partitions);
     partitions = newp;
     part_size  = max_n + 1;
 }

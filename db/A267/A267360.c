@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 31, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 962 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 
 #include <stddef.h>   /* for size_t */
 #include <stdlib.h>   /* for malloc, free */
+#include "../utils/mem.h"
 
 /* The build supplies the following typedefs:
  *   typedef <unsigned integer type> seq_t;   // e.g. uint64_t or __int128
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
      * (including the base values).  An idx_t may contain > 32 bits,
      *  so we cast to size_t for allocation when it is safe. */
     size_t len = (size_t)(n + 1);
-    seq_t *buf = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *buf = mem_new(seq_t, len);
     if (!buf) {
         /* Allocation failed; aborting is acceptable as the caller
          * is expected to handle this in a larger context. */
@@ -69,6 +71,6 @@ seq_t a(idx_t n)
 
     /* Extract result and free temporary storage */
     seq_t result = buf[n];
-    free(buf);
+    mem_free(buf);
     return result;
 }

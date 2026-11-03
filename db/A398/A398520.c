@@ -8,12 +8,14 @@
  * Formula:   a(n) = Sum_{k=1..n} tau(floor(n/k))
  * Range:     u8 n <= 131, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 86 terms through n = 9809 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute divisor counts up to n, reuse cache when possible */
 static seq_t* tau_cache = NULL;
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* Resize divisor array if needed */
     if (n >= tau_cap) {
         idx_t new_cap = n + 1;  /* include index 0 */
-        seq_t *tmp = (seq_t *)realloc(tau_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, tau_cache, new_cap);
         if (!tmp) return 0;  /* allocation failed */
         tau_cache = tmp;
         tau_cap = new_cap;

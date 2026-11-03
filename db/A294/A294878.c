@@ -6,8 +6,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = 1 if n is a Perrin number (0, 2, 3, 5, 7, 10, 12, 17, 22,
  *            30, ...), 0 otherwise
- * Range:     u8 n <= 9185, u16 n <= 9185, u32 n <= 9185, u64 n <= 9185,
- *            u128 n <= 9185, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 137 terms through n = 9185 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

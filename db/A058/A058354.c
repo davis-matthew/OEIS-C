@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 30, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 44 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;          /* cached values a[0..size-1]        */
 static idx_t  a_cache_size = 0;        /* current capacity                   */
@@ -84,18 +86,16 @@ static void ensure_cache(idx_t need)
     if (a_cache_size > need) return;
 
     size_t new_size = (size_t)(need + 1);
-    seq_t *new_cache = (seq_t*)malloc(new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_size);
     if (!new_cache) exit(1);
 
     if (a_cache) {
-        memcpy(new_cache, a_cache, a_cache_size * sizeof(seq_t));
-        free(a_cache);
+        mem_copy(new_cache, a_cache, a_cache_size * sizeof(seq_t));
+        mem_free(a_cache);
     }
 
     /* zero‑initialize the new region */
-    memset(new_cache + a_cache_size,
-           0,
-           (new_size - a_cache_size) * sizeof(seq_t));
+    mem_set(new_cache + a_cache_size, 0, (new_size - a_cache_size) * sizeof(seq_t));
 
     a_cache = new_cache;
     a_cache_size = new_size;

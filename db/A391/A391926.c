@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base, tabl
  * Formula:   not stated
- * Range:     u8 n <= 764, u16 n <= 9744, u32 n <= 9744, u64 n <= 9744,
- *            u128 n <= 9744, big any n
- * Helpers:   bitlen_seq_t
+ * Range:     u8 n <= 764, u16 n <= 10440, u32 n <= 10440, u64 n <= 10440,
+ *            u128 n <= 10440, big any n
+ * Validated: standard, pass, 121 terms through n = 9744 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -40,7 +41,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/bitlen_seq_t.h"
+#include "../utils/bit_length.h"
 
 /* Carryless (XOR‑based) binary multiplication of a * b. */
 static inline seq_t carryless_mul(seq_t a, seq_t b)
@@ -60,9 +61,9 @@ static inline bool poly_div_exact(seq_t dividend, seq_t divisor, seq_t *quotient
     if (divisor == 0) return false;
     seq_t q = 0;
     seq_t a = dividend;
-    unsigned deg_div = bitlen_seq_t(divisor) - 1;
-    while (a != 0 && bitlen_seq_t(a) >= bitlen_seq_t(divisor)) {
-        unsigned deg_a  = bitlen_seq_t(a) - 1;
+    unsigned deg_div = bit_length(divisor) - 1;
+    while (a != 0 && bit_length(a) >= bit_length(divisor)) {
+        unsigned deg_a  = bit_length(a) - 1;
         unsigned shift  = deg_a - deg_div;
         q |= ((seq_t)1 << shift);
         a ^= (divisor << shift);

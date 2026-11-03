@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 74, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 74 terms through n = 74 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* Sequence generation: start with 1, then for each term read its decimal digits
    from most significant to least, multiply each by 7, append the results. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     }
 
     /* Allocate storage for up to n terms; all terms are ≤ 63. */
-    seq_t *seq = (seq_t *)malloc((size_t)n * sizeof(seq_t));
+    seq_t *seq = mem_new(seq_t, (size_t)n);
     if (!seq) {
         return 0;                 /* allocation failure (should not happen) */
     }
@@ -57,6 +59,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = seq[n - 1];
-    free(seq);
+    mem_free(seq);
     return result;
 }

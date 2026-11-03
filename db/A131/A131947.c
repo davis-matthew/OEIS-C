@@ -10,14 +10,17 @@
  *            prime‑factorising n.)
  * Range:     i8 n <= 12, i16 n <= 445, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   factor_u64, pow_int
+ * Validated: standard, pass, 77 terms through n = 9075 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n) {
     if (n <= 1) return (n == 1) ? (seq_t)1 : (seq_t)0;  /* a(1) = 1, a(0) unused */
@@ -37,12 +40,12 @@ seq_t a(idx_t n) {
         seq_t   a_pe;
 
         if (p == 2) {
-            seq_t pow2 = pow_int((seq_t)2, e + 1);
+            seq_t pow2 = ipow_idx((seq_t)2, e + 1);
             a_pe = (seq_t)3 - pow2;
         } else if (p == 3) {
             a_pe = (seq_t)1;
         } else {
-            seq_t numerator = pow_int((seq_t)p, e + 1) - (seq_t)1;
+            seq_t numerator = ipow_idx((seq_t)p, e + 1) - (seq_t)1;
             seq_t denom     = (seq_t)(p - 1);
             a_pe = numerator / denom;
         }

@@ -8,6 +8,7 @@
  * Formula:   a(n) = (n^2-4)*(n^2+2*n+3)*(n^5-2*n^4-n^3-28*n^2+60*n-90)/1080
  * Range:     i8 none, i16 n <= 3, i32 n <= 10, i64 n <= 34, i128 n <= 34,
  *            big any n
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

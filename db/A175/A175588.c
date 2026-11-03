@@ -9,7 +9,8 @@
  *            also a semiprime; a(1) = 4
  * Range:     u8 n <= 28, u16 n <= 6589, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 9910 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Integer square root for uint64_t, using binary search. */
 static uint64_t isqrt_u64(uint64_t n) {
@@ -103,7 +105,7 @@ seq_t a(idx_t n) {
         if (cache_len == 0) {
             /* initialise cache with first term 4 */
             cache_len = 1;
-            seq_cache = (seq_t *)malloc(sizeof(seq_t));
+            seq_cache = mem_new(seq_t, 1);
             seq_cache[0] = (seq_t)4;
             /* initialise prime list up to sqrt(4)=2 */
             ensure_primes_upto(2);
@@ -125,7 +127,7 @@ seq_t a(idx_t n) {
         }
         /* Store the new term. */
         cache_len++;
-        seq_cache = (seq_t *)realloc(seq_cache, cache_len * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, cache_len);
         seq_cache[cache_len - 1] = cand;
     }
     return seq_cache[n - 1];

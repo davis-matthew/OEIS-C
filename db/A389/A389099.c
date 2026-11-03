@@ -9,15 +9,18 @@
  *            offset. A(i,k) = k / gcd(i^k, k). (and A(i,0)=0)
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   gcd, mod_pow
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-01)
+ * Helpers:   gcd, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/gcd.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -41,7 +44,7 @@ seq_t a(idx_t n)
     seq_t k_seq = (seq_t)k;
 
     /* Compute i^k mod k using the provided mod_pow helper */
-    seq_t powmod_val = mod_pow(i_seq, (uint64_t)k, k_seq);
+    seq_t powmod_val = powmod(i_seq, (uint64_t)k, k_seq);
 
     /* Greatest common divisor */
     seq_t g = gcd(powmod_val, k_seq);

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 2023, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _smallest_prime_factor, digit_sum, floor_sqrt, is_prime
+ * Validated: standard, pass, 67 terms through n = 9529 (2026-11-01)
+ * Helpers:   digit_sum, ipow_i32, is_prime, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,10 +21,30 @@
    memoisation is required.  It works for any seq_t type that exposes
    the usual arithmetic operators.  */
 #include <stdbool.h>
-#include "../utils/_smallest_prime_factor.h"
-#include "../utils/is_prime.h"
+#include <stdint.h>
+#include <stddef.h>
 #include "../utils/digit_sum.h"
-#include "../utils/floor_sqrt.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/is_prime.h"
+#include "../utils/smallest_prime_factor.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Test whether m is a semiprime (product of exactly two primes,
    counting multiplicity).  */
@@ -31,7 +52,7 @@ static bool is_semiprime(uint64_t m)
 {
     if (m < 4)            /* 2, 3 are prime, 1 is not */
         return false;
-    uint64_t p = _smallest_prime_factor(m);
+    uint64_t p = smallest_prime_factor(m);
     if (p == m)          /* m itself is prime */
         return false;
     uint64_t q = m / p;

@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, look
  * Formula:   not stated
- * Range:     u8 none, u16 n <= 9985, u32 n <= 9985, u64 n <= 9985,
- *            u128 n <= 9985, big any n
- * Helpers:   count_distinct_primes, gcd64
+ * Range:     u8 none, u16 n <= 25000, u32 n <= 25000, u64 n <= 25000,
+ *            u128 n <= 25000, big any n
+ * Validated: standard, pass, 67 terms through n = 9985 (2026-11-03)
+ * Helpers:   gcd_u64, mem, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -37,8 +38,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/count_distinct_primes.h"
-#include "../utils/gcd64.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/omega.h"
+#include "../utils/mem.h"
 
 /* ----------  State  ----------------------------------------------- */
 
@@ -70,8 +72,8 @@ static void ensure_perm_len(size_t idx)
     if (idx < perm_len) return;
     size_t new_cap = (perm_cap) ? (perm_cap << 1) : 64;
     while (new_cap <= idx) new_cap <<= 1;
-    perm_array = (seq_t *)realloc(perm_array, new_cap * sizeof(seq_t));
-    memset(perm_array + perm_len, 0, (new_cap - perm_len) * sizeof(seq_t));
+    perm_array = mem_resize(seq_t, perm_array, new_cap);
+    mem_set(perm_array + perm_len, 0, (new_cap - perm_len) * sizeof(seq_t));
     perm_len = perm_cap = new_cap;
 }
 
@@ -101,7 +103,7 @@ static inline int get_prime_cnt(uint64_t x)
     if (x <= 1) return 0;
     int *p = &prime_cnt[(size_t)x];
     if (*p == 0) {
-        *p = count_distinct_primes(x);
+        *p = omega(x);
     }
     return *p;
 }
@@ -116,7 +118,7 @@ static void seq_init(void)
 
     /* allocate minimal initial capacities */
     perm_cap = perm_len = 64;
-    perm_array = (seq_t *)calloc(perm_cap, sizeof(seq_t));
+    perm_array = mem_new(seq_t, perm_cap);
 
     used_cap = used_len = 512;
     used_flag = (unsigned char *)calloc(used_cap, sizeof(unsigned char));
@@ -168,7 +170,7 @@ seq_t a(idx_t n)
                 if (used_flag[(size_t)partner]) { ++partner; continue; }
 
                 int cnt_p = get_prime_cnt((uint64_t)partner);
-                uint64_t g = gcd64((uint64_t)i, (uint64_t)partner);
+                uint64_t g = gcd_u64((uint64_t)i, (uint64_t)partner);
                 int cnt_g = (g > 1) ? get_prime_cnt(g) : 0;
                 int union_cnt = cnt_i + cnt_p - cnt_g;
 

@@ -9,6 +9,7 @@
  *            For n % 163 == 0 the value is defined as 0
  * Range:     u8 n <= 162, u16 n <= 162, u32 n <= 162, u64 n <= 162,
  *            u128 n <= 162, big any n
+ * Validated: full, pass, 162 terms through n = 162 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

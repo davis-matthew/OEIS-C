@@ -11,13 +11,14 @@
  *            where A011782(0) = 1 and A011782(n) = 2^(n-1) for n > 0
  * Range:     u8 n <= 44, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 /* Return the n-th element (0‑based) of A296612. */
 seq_t a(idx_t n)
@@ -40,7 +41,7 @@ seq_t a(idx_t n)
 
     /* 3. Number of compositions of n_coord. */
     seq_t comps = (n_coord == 0) ? (seq_t)1
-                                 : pow_uint(2, (idx_t)n_coord - 1);
+                                 : ipow_u64_idx(2, (idx_t)n_coord - 1);
 
     /* 4. Result is k_coord * comps. */
     return (seq_t)k_coord * comps;

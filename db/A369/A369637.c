@@ -7,8 +7,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = [A328390(n) < A051903(n)]
- * Range:     u8 n <= 6427, u16 n <= 9396, u32 n <= 9396, u64 n <= 9396,
- *            u128 n <= 9396, big any n
+ * Range:     u8 n <= 6427, u16 n <= 100000, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 144 terms through n = 9396 (2026-11-01)
  * Helpers:   build_primes_upto, factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -22,8 +23,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/factor_u64.h"
 #include "../utils/build_primes_upto.h"
+#include "../utils/factor_u64.h"
 
 /* Global table of primes used for the primorial base system.  The table
    is lazily initialized on the first call to a(). */

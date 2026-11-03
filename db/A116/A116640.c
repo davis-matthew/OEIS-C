@@ -11,13 +11,15 @@
  *            so repeated calls are O(1) after the first eval...
  * Range:     u8 n <= 28, u16 n <= 1014, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 8259 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* static cache for memoised values */
 static seq_t *cache = NULL;
@@ -31,11 +33,10 @@ static void ensure_cache_capacity(idx_t n)
     idx_t new_size = cache_size;
     if (new_size == 0) new_size = 1;
     while (new_size <= n) new_size <<= 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache) abort();              /* fatal: out of memory */
     /* initialise the new part to zero */
-    memset(new_cache + cache_size, 0,
-           (new_size - cache_size) * sizeof(seq_t));
+    mem_set(new_cache + cache_size, 0, (new_size - cache_size) * sizeof(seq_t));
     cache = new_cache;
     cache_size = new_size;
 }

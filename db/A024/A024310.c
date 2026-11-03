@@ -9,12 +9,14 @@
  *            satisfy L(0)=2, L(1)=1, L(k)=L(k-1)+L(k-2)
  * Range:     u8 n <= 7, u16 n <= 18, u32 n <= 41, u64 n <= 87, u128 n <= 179,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 897 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
 
     if (luc_size <= n + 2u) {          /* need indices 0 .. n+2 */
         idx_t new_size = n + 3u;       /* allocate one extra for safety   */
-        seq_t *tmp = (seq_t *)realloc(luc, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, luc, new_size);
         if (!tmp)
             exit(EXIT_FAILURE);       /* allocation failed ------------- */
         luc = tmp;

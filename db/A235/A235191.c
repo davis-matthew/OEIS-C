@@ -14,12 +14,14 @@
  *            arithmetic uses the nominal integer type seq_t; interme...
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 14, u64 n <= 30, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     /* First call: allocate and initialise the cache */
     if (cache == NULL) {
         cache_alloc = 7;                   /* indices 0..6 */
-        cache = (seq_t *)malloc((size_t)cache_alloc * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)cache_alloc);
         if (!cache) exit(EXIT_FAILURE);
         for (idx_t i = 1; i <= 6; ++i)
             cache[i] = init[i];
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
     /* Ensure the cache can hold index n */
     if (cache_alloc <= n) {
         idx_t new_alloc = n + 1;           /* allocate up to index n */
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)new_alloc * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_alloc);
         if (!tmp) exit(EXIT_FAILURE);
         /* initialise new slots to zero */
         for (idx_t i = cache_alloc; i <= n; ++i)

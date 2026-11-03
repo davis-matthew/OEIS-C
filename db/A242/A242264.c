@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper comparator for qsort on seq_t */
 static int compare_seq_t(const void *a, const void *b) {
@@ -74,8 +76,8 @@ static void compute_terms(void) {
     }
 
     /* Sort both lists */
-    qsort(sums_desc, cnt_desc, sizeof(seq_t), compare_seq_t);
-    qsort(sums_asc,  cnt_asc,  sizeof(seq_t), compare_seq_t);
+    mem_qsort(sums_desc, cnt_desc, sizeof(seq_t), compare_seq_t);
+    mem_qsort(sums_asc, cnt_asc, sizeof(seq_t), compare_seq_t);
 
     /* Merge to get the intersection, removing duplicates */
     size_t i = 0, j = 0;

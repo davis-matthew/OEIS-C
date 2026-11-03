@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = number of divisors of n that are Lucas numbers > 3 (Lucas
  *            numbers: 2,1,3,4,7,11,18,29,...). Count only divisors d > 3
- * Range:     u8 n <= 5477, u16 n <= 9756, u32 n <= 9756, u64 n <= 9756,
- *            u128 n <= 9756, big any n
+ * Range:     u8 n <= 5477, u16 n <= 65536, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 136 terms through n = 9756 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

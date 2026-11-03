@@ -7,14 +7,18 @@
  * Formula:   a(n) = n! * Sum_{k=0..n-1} (n-k-1)^k/k! + (-1)^n
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 20,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Implements the explicit summation given in OEIS A092148 */
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /* static storage for factorials */
 static seq_t *fact = NULL;
@@ -29,7 +33,7 @@ ensure_fact(idx_t n)
     if (fact_len > n) return;
     size_t need = (size_t)n + 1;
     if (need > fact_cap) {
-        seq_t *tmp = (seq_t *)realloc(fact, need * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fact, need);
         if (!tmp) abort();          /* out of memory */
         fact = tmp;
         fact_cap = need;
@@ -57,7 +61,7 @@ a(idx_t n)
     for (idx_t k = 0; k < n; ++k) {
         /* base = n-k-1 is always non‑negative here */
         seq_t base = (seq_t)(n - k - 1);
-        seq_t powv = big_pow(base, (seq_t)k);
+        seq_t powv = ipow(base, (seq_t)k);
         /* term = (n! / k!) * base^k */
         seq_t term = (fact_n / fact[k]) * powv;
         sum += term;

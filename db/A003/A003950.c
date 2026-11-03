@@ -7,14 +7,16 @@
  * Formula:   a(0) = 1; a(n) = 8*7^(n-1) for n >= 1
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 22, u128 n <= 45,
  *            big any n
- * Helpers:   a000248_pow
+ * Validated: standard, pass, 38 terms through n = 994 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a000248_pow.h"
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)1;
-    return (seq_t)8 * a000248_pow((seq_t)7, n - 1);
+    return (seq_t)8 * ipow_idx((seq_t)7, n - 1);
 }

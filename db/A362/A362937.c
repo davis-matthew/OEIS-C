@@ -7,11 +7,13 @@
  * Formula:   a(n) = (A000982(n) - A362931(n))/2
  * Range:     u8 n <= 22, u16 n <= 515, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 81 terms through n = 9821 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /* 
  *  A000982(n) = number of pairs (i,j) in [1..n]^2 with integer
  *  arithmetic mean.  This equals e^2 + o^2 where 

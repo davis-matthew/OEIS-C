@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 9, u32 n <= 23, u64 n <= 50, u128 n <= 105,
  *            big any n
- * Helpers:   amp_alloc, amp_free
+ * Validated: standard, pass, 42 terms through n = 204 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,27 @@
 */
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/amp_alloc.h"
-#include "../utils/amp_free.h"
+
+/* Allocate an array of seq_t of size sz.  Use operator new[] for C++,
+   malloc for C. */
+static seq_t *amp_alloc(size_t sz)
+{
+#if defined(__cplusplus)
+    return new seq_t[sz];
+#else
+    return (seq_t*)malloc(sz * sizeof(seq_t));
+#endif
+}
+
+/* Deallocate an array previously allocated by amp_alloc. */
+static void amp_free(seq_t *p)
+{
+#if defined(__cplusplus)
+    delete[] p;
+#else
+    free(p);
+#endif
+}
 
 extern seq_t a(idx_t n);
 

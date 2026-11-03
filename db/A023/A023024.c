@@ -11,7 +11,8 @@
  *            Möbius function μ is computed by a linear sieve
  * Range:     u8 n <= 32, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static idx_t max_precalc = 0;
 static seq_t *b_cache = NULL;
@@ -33,7 +35,7 @@ static void ensure_precalc(idx_t n)
     idx_t new_size = max_precalc ? max_precalc * 2 : 4;
     while (new_size < n) new_size *= 2;
 
-    seq_t *new_b = (seq_t *)realloc(b_cache, (new_size + 1) * sizeof(seq_t));
+    seq_t *new_b = mem_resize(seq_t, b_cache, (new_size + 1));
     if (!new_b) abort();
     b_cache = new_b;
     signed char *new_mu = (signed char *)realloc(mu_cache, (new_size + 1) * sizeof(signed char));
@@ -63,8 +65,8 @@ static void ensure_precalc(idx_t n)
     free(pr);
 
     /* DP for partitions into parts ≤4 (dp4) and parts ≤3 (dp3). */
-    seq_t *dp4 = (seq_t *)calloc(new_size + 1, sizeof(seq_t));
-    seq_t *dp3 = (seq_t *)calloc(new_size + 1, sizeof(seq_t));
+    seq_t *dp4 = mem_new(seq_t, new_size + 1);
+    seq_t *dp3 = mem_new(seq_t, new_size + 1);
     dp4[0] = 1;
     dp3[0] = 1;
     for (idx_t s = 1; s <= 4; ++s) {
@@ -74,8 +76,8 @@ static void ensure_precalc(idx_t n)
         for (idx_t i = s; i <= new_size; ++i) dp3[i] += dp3[i - s];
     }
     for (idx_t i = 0; i <= new_size; ++i) b_cache[i] = dp4[i] - dp3[i];
-    free(dp4);
-    free(dp3);
+    mem_free(dp4);
+    mem_free(dp3);
 
     max_precalc = new_size;
 }

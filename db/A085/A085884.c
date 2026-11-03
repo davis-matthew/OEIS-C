@@ -9,7 +9,8 @@
  *            the sum of all positive divisors of m
  * Range:     u8 n <= 95, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 9612 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,12 +19,13 @@
    and then scans the n-1 possibilities to find the maximum sum. */
 
 #include <stdlib.h>   /* for malloc, free */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n < 2) return 0;                     /* indices below the offset are irrelevant */
 
     /* Allocate a temporary array to hold sigma(1..n).  All entries are initialized to 0. */
-    seq_t *sigma = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+    seq_t *sigma = mem_new(seq_t, (n + 1));
     if (!sigma) return 0;                     /* allocation failure */
     for (idx_t i = 0; i <= n; ++i) sigma[i] = 0;
 
@@ -41,6 +43,6 @@ seq_t a(idx_t n) {
         if (sum > best) best = sum;
     }
 
-    free(sigma);
+    mem_free(sigma);
     return best;
 }

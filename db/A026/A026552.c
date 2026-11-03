@@ -13,8 +13,9 @@
  *            T(n,k) = T(n-1,k-2)+T(n-1,k-1)+T(n-1,k) (even n); * T(n,k) =
  *            T(n-1,k-2)+T(n-1,k) (odd n)
  * Range:     u8 n <= 70, u16 n <= 236, u32 n <= 805, u64 n <= 2855,
- *            u128 n <= 9348, big any n
- * Helpers:   get_prev
+ *            u128 n <= 10200, big any n
+ * Validated: standard, pass, 88 terms through n = 9348 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,13 @@
 /* Implements OEIS A026552 via the recurrence described in the entry. */
 #include <stdlib.h>  /* malloc, realloc, free */
 #include <stdint.h>  /* for size_t,uint64_t if needed */
-#include "../utils/get_prev.h"
+#include "../utils/mem.h"
+
+/* static helpers used in the implementation */
+static inline seq_t get_prev(const seq_t *prev, size_t idx, size_t len)
+{
+    return (idx < len) ? prev[idx] : (seq_t)0;
+}
 
 /* static storage for rows and cumulative row sizes */
 static seq_t **rowp   = NULL;          /* array of pointers to rows   */
@@ -58,7 +65,7 @@ static void ensure_cum_cap(size_t needed)
 static void build_row(idx_t r)
 {
     size_t len = 2 * r + 1;               /* length of row r           */
-    seq_t *row = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *row = mem_new(seq_t, len);
     if (!row) exit(1);                   /* out‑of‑memory; terminate  */
 
     if (r == 0) {                         /* base row 0                */

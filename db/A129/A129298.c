@@ -10,12 +10,14 @@
  *            implementation uses memoization with a static cache
  * Range:     u8 n <= 3, u16 n <= 13, u32 n <= 31, u64 n <= 69, u128 n <= 145,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 919 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* constants for the first six terms */
@@ -36,8 +38,8 @@ seq_t a(idx_t n) {
 
         /* allocate or resize cache */
         seq_t *tmp = (cache == NULL)
-                     ? (seq_t *)malloc(new_size * sizeof(seq_t))
-                     : (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+                     ? mem_new(seq_t, new_size)
+                     : mem_resize(seq_t, cache, new_size);
         if (!tmp) {
             /* allocation failed – return zero (sequence values are non‑negative, so zero is distinct) */
             return (seq_t)0;

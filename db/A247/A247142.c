@@ -9,7 +9,8 @@
  *            root‑mean‑square is an integer
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 59, u64 n <= 1249,
  *            u128 n <= 1249, big any n
- * Helpers:   factor_u64, floor_sqrt, seq_pow
+ * Validated: standard, pass, 90 terms through n = 1206 (2026-11-01)
+ * Helpers:   factor_u64, ipow_i32, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,28 @@
 #include <stddef.h>
 #include <stdbool.h>
 
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_pow.h"
-#include "../utils/floor_sqrt.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/ipow_idx.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Check whether val satisfies the RMS‑integer property. */
 static bool _is_rms_integer(seq_t val)
@@ -45,7 +65,7 @@ static bool _is_rms_integer(seq_t val)
         tau = tau * (seq_t)(e + 1);
 
         seq_t p_sq = p * p;
-        seq_t num = seq_pow(p_sq, (idx_t)(e + 1));
+        seq_t num = ipow_idx(p_sq, (idx_t)(e + 1));
         num = num - 1;                     /* p^{2(e+1)} – 1 */
         seq_t denom = p_sq - 1;             /* p² – 1 */
         seq_t term = num / denom;           /* (p^{2(e+1)} –1)/(p²–1) */

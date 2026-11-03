@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   not stated
- * Range:     u8 n <= 22, u16 n <= 4894, u32 n <= 9026, u64 n <= 9026,
- *            u128 n <= 9026, big any n
- * Helpers:   none
+ * Range:     u8 n <= 22, u16 n <= 4894, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 98 terms through n = 9026 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    returns (seq_t)-1.  The sequence is A133420.                                              */
 
 #include <stdlib.h>   /* malloc, realloc, exit */
+#include "../utils/mem.h"
 
 static seq_t *seen = NULL;     /* dynamic array of previously visited values   */
 static size_t seen_cap = 0;    /* current capacity of 'seen'                   */
@@ -34,7 +36,7 @@ static void ensure_seen_cap(size_t needed)
         size_t new_cap = seen_cap ? seen_cap * 2 : 256;
         if (new_cap < needed)
             new_cap = needed;
-        seq_t *tmp = (seq_t *)realloc(seen, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seen, new_cap);
         if (!tmp)          /* allocation failure – abort the run */
             exit(1);
         seen = tmp;

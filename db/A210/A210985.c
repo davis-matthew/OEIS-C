@@ -8,6 +8,7 @@
  * Formula:   a(0)=1, a(1)=3, a(n)=5*a(n-1)-4*a(n-2)-4 for n ≥ 2
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
+ * Validated: partial, pass, 9 terms through n = 8 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   _divisor_count
+ * Validated: partial, pass, 47 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,27 @@
 /* Computes number of partitions of 2*n into minimal numbers (OEIS A099385). */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/_divisor_count.h"
+#include "../utils/mem.h"
+
+static idx_t _divisor_count(idx_t n)
+{
+    if (n == 0) return 0;
+    idx_t cnt = 1;
+    idx_t t   = n;
+    idx_t p;
+    for (p = 2; p * p <= t; ++p) {
+        if (t % p == 0) {
+            idx_t e = 0;
+            while (t % p == 0) {
+                t /= p;
+                ++e;
+            }
+            cnt *= (e + 1);
+        }
+    }
+    if (t > 1) cnt *= 2;
+    return cnt;
+}
 
 seq_t a(idx_t n)
 {
@@ -66,7 +87,7 @@ seq_t a(idx_t n)
     /* ------------------------------------------------------------------ */
     /* Coin‑change DP: dp[s] = number of partitions of s using the coins. */
     /* ------------------------------------------------------------------ */
-    seq_t *dp = (seq_t *)calloc((size_t)(target + 1), sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(target + 1));
     if (!dp) {
         free(coins);
         return 0;   /* OOM, return zero */
@@ -84,7 +105,7 @@ seq_t a(idx_t n)
 
     seq_t result = dp[target];
 
-    free(dp);
+    mem_free(dp);
     free(coins);
     return result;
 }

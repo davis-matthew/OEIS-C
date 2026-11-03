@@ -9,7 +9,8 @@
  *            6*a(n-10) - a(n-18) + a(n-19)
  * Range:     u8 n <= 3, u16 n <= 28, u32 n <= 84, u64 n <= 198, u128 n <= 424,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 56 terms through n = 968 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* (Derived from the rational generating function of A207077) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -53,14 +55,14 @@ seq_t a(idx_t n)
 
     if (cache == NULL) {
         cache_size = 19;
-        cache = (seq_t *)malloc(sizeof(seq_t) * (cache_size + 1));
+        cache = mem_new(seq_t, (cache_size + 1));
         for (idx_t i = 1; i <= cache_size; ++i)
             cache[i] = init[i];
     }
 
     if (n > cache_size) {
         idx_t new_size = n;
-        cache = (seq_t *)realloc(cache, sizeof(seq_t) * (new_size + 1));
+        cache = mem_resize(seq_t, cache, (new_size + 1));
         for (idx_t i = cache_size + 1; i <= new_size; ++i) {
             /* Use recurrence: a(i) = a(i-1) + 6*a(i-9) - 6*a(i-10) - a(i-18) + a(i-19) */
             seq_t term = cache[i - 1]

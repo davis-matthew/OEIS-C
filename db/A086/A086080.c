@@ -5,13 +5,15 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  base, nonn
  * Formula:   number of 9's in the decimal expansion of n(n+1)/2
- * Range:     u8 n <= 24, u16 n <= 423, u32 n <= 9405, u64 n <= 9405,
- *            u128 n <= 9405, big any n
+ * Range:     u8 n <= 24, u16 n <= 423, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9405 (2026-11-01)
  * Helpers:   digit_frequencies
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/digit_frequencies.h"
 
 seq_t a(idx_t n)

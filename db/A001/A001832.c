@@ -10,13 +10,14 @@
  *            A047863)/2)
  * Range:     u8 n <= 5, u16 n <= 6, u32 n <= 9, u64 n <= 14, u128 n <= 20,
  *            big any n
- * Helpers:   A001832_pow2
+ * Validated: standard, pass, 34 terms through n = 50 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/A001832_pow2.h"
+#include "../utils/pow2.h"
 
 #define A001832_MAXN 10002
 
@@ -48,7 +49,7 @@ seq_t a(idx_t n) {
         seq_t bhalf = 1;
         for (idx_t k = 1; k < m; k++) {
             idx_t e = k * (m - k);
-            seq_t p = A001832_pow2(e - 1);
+            seq_t p = pow2(e - 1);
             seq_t t = A001832_row[k] * p;
             bhalf += t;
             bfull += t * 2;

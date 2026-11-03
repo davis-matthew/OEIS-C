@@ -8,13 +8,27 @@
  *            <= n < 16 are listed explicitly below
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 23, u64 n <= 43, u128 n <= 86,
  *            big any n
- * Helpers:   mul4354
+ * Validated: standard, pass, 46 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/mul4354.h"
+#include "../utils/mem.h"
+
+/* Multiply by 4354 without causing overflow in 64‑bit builds. */
+static inline seq_t mul4354(seq_t x)
+{
+#if defined(__SIZEOF_INT128__)
+    return (seq_t)(((unsigned __int128)4354 * x));
+#else
+    /* Fallback: repeated addition (works for all integer widths). */
+    seq_t res = 0;
+    for (int i = 0; i < 4354; ++i) res += x;
+    return res;
+#endif
+}
 
 /* Persistent cache of already computed terms. */
 static seq_t *cache = NULL;
@@ -33,7 +47,7 @@ seq_t a(idx_t n)
 {
     /* Initialise cache with the first 16 terms on first call. */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(16 * sizeof(seq_t));
+        cache = mem_new(seq_t, 16);
         if (!cache) return (seq_t)0;             /* allocation failed */
         for (size_t i = 0; i < 16; ++i) cache[i] = init_terms[i];
         cache_len = 16;
@@ -45,7 +59,7 @@ seq_t a(idx_t n)
     /* Grow cache to hold terms up to n. */
     size_t needed = (size_t)n + 1;
     if (needed > cache_len) {
-        seq_t *tmp = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, needed);
         if (!tmp) return (seq_t)0;              /* allocation failed */
         cache = tmp;
         /* cache_len will be updated after computing new terms */

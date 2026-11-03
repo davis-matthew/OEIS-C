@@ -9,8 +9,9 @@
  * Formula:   a(n) = Sum_{d|n} d where A083345(n/d) is even. A083345(m) is the
  *            numerator of the reduced fraction Σ e/p over the prime power
  *            factorisation p^e of m
- * Range:     u8 n <= 215, u16 n <= 9559, u32 n <= 9559, u64 n <= 9559,
- *            u128 n <= 9559, big any n
+ * Range:     u8 n <= 215, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 97 terms through n = 9559 (2026-11-01)
  * Helpers:   factor_u64, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,8 +20,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/gcd.h"
 #include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
 
 /* --- helper: parity test for A083345 ------------------------------------- */
 static bool a083345_even(idx_t m)

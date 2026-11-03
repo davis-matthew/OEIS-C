@@ -9,7 +9,8 @@
  *            square
  * Range:     u8 n <= 67, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   int_sqrt, is_prime
+ * Validated: standard, pass, 73 terms through n = 932 (2026-11-03)
+ * Helpers:   is_prime, isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,10 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/is_prime.h"
-#include "../utils/int_sqrt.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 static seq_t   *cache      = NULL;
 static size_t   cache_len  = 0;
@@ -34,11 +37,11 @@ static void ensure_cache(idx_t n)
     /* Allocate or grow the cache array. */
     if (cache_cap == 0) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
     while (cache_cap < (size_t)n) {
         cache_cap *= 2;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 
     /* Generate terms until we have at least n of them. */
@@ -48,7 +51,7 @@ static void ensure_cache(idx_t n)
 
         /* Check composite (not prime). */
         if (!is_prime((idx_t)next_odd)) {
-            idx_t s = int_sqrt((idx_t)next_odd);
+            idx_t s = isqrt((idx_t)next_odd);
             /* Exclude perfect squares. */
             if (s * s != (idx_t)next_odd) {
                 cache[cache_len++] = (seq_t)next_odd;

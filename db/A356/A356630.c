@@ -7,7 +7,8 @@
  * Formula:   a(n) = n! * Sum_{k=0..⌊n/4⌋} (n - 4*k)^k / (n - 4*k)!
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 19, u128 n <= 21,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,8 @@
 /* Computed by direct summation with incremental factorial ratios */
 
 #include <stdint.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
         seq_t m = (seq_t)m_idx;
 
         /* m^k */
-        seq_t pow_k = seq_pow(m, k);
+        seq_t pow_k = ipow_idx(m, k);
 
         /* term = ratio * m^k */
         sum += ratio * pow_k;

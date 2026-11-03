@@ -9,6 +9,7 @@
  * Formula:   a(n) = (-1)^floor(n/2)*sign(floor(5/n)) - floor(n/4)*floor(4/n)
  * Range:     i8 n <= 105, i16 n <= 105, i32 n <= 105, i64 n <= 105,
  *            i128 n <= 105, big any n
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

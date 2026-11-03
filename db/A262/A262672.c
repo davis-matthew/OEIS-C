@@ -10,6 +10,7 @@
  *            a(3)=1, a(4)=4
  * Range:     u8 n <= 400, u16 n <= 400, u32 n <= 400, u64 n <= 400,
  *            u128 n <= 400, big any n
+ * Validated: standard, pass, 89 terms through n = 392 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

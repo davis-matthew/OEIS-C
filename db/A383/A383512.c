@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   is_conj_wilf
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,30 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/is_conj_wilf.h"
+#include "../utils/mem.h"
+
+/* Checks whether the partition given by parts[0..len-1] (descending) is
+ * conjugate Wilf. */
+static bool is_conj_wilf(const uint32_t *parts, size_t len)
+{
+    if (len == 0) return true;
+
+    uint32_t diff[64];
+    size_t   diffCnt = 0;
+
+    for (size_t i = 0; i < len; ++i) {
+        uint32_t next = (i + 1 < len) ? parts[i + 1] : 0;
+        uint32_t d    = parts[i] - next;
+        if (d != 0) diff[diffCnt++] = d;
+    }
+
+    for (size_t i = 0; i < diffCnt; ++i) {
+        for (size_t j = i + 1; j < diffCnt; ++j) {
+            if (diff[i] == diff[j]) return false;
+        }
+    }
+    return true;
+}
 
 /* Largest integer to sieve. Chosen large enough for the first ~10 000 terms. */
 #define SIEVE_LIMIT 5000000U
@@ -114,7 +138,7 @@ static void process_candidate(uint32_t x)
     if (is_conj_wilf(parts, len)) {
         if (cacheSize == cacheCap) {
             cacheCap = cacheCap ? cacheCap << 1 : 64;
-            cache    = (seq_t *)realloc(cache, sizeof(seq_t) * cacheCap);
+            cache    = mem_resize(seq_t, cache, cacheCap);
         }
         cache[cacheSize++] = (seq_t)x;
     }
@@ -128,7 +152,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         init_sieve();
         cacheCap  = 64;
-        cache     = (seq_t *)malloc(sizeof(seq_t) * cacheCap);
+        cache     = mem_new(seq_t, cacheCap);
         cacheSize = 0;
 
         /* a(1) is 1 (empty partition). */

@@ -8,12 +8,14 @@
  * Formula:   a(n) = n! if n is odd, otherwise 2^n * ((n/2)!)^2
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>  /* malloc, realloc, exit */
+#include "../utils/mem.h"
 
 /* Cache for factorials, 0! = 1 is stored at index 0. */
 static seq_t *fact_cache = NULL;   /* array of factorials */
@@ -28,7 +30,7 @@ ensure_fact_capacity(idx_t n)
         return;                          /* already big enough */
 
     size_t new_cap = ((size_t)(n + 1)) * 2; /* double for amortised growth */
-    void *tmp = realloc(fact_cache, new_cap * sizeof(seq_t));
+    void *tmp = mem_resize(seq_t, fact_cache, new_cap);
     if (!tmp) exit(1);                    /* allocation failure */
     fact_cache = (seq_t *)tmp;
     fact_cap   = new_cap;

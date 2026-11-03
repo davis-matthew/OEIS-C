@@ -12,13 +12,15 @@
  *            (k-1)(S-k+1)f(k-2), S=n+2
  * Range:     i8 n <= 4, i16 n <= 6, i32 n <= 11, i64 n <= 19, i128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 339 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     size_t sz = (size_t)n + 1;
-    seq_t *f = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *f = mem_new(seq_t, sz);
     if (!f)
         return 0; /* allocation failed – unlikely */
 
@@ -47,6 +49,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = f[n];
-    free(f);
+    mem_free(f);
     return result;
 }

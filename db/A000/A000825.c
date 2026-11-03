@@ -11,23 +11,25 @@
  *            Q_n(tan y), Q_0 = t, Q_{n+1}(t) = (1+t^2)*Q_n'(...
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 19, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 188 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *vals = NULL;
 static idx_t have = 0;
 
 static void build(idx_t N) {
     idx_t len = N + 3, m, j;
-    seq_t *p = (seq_t *)calloc(len, sizeof(seq_t));
-    seq_t *np = (seq_t *)calloc(len, sizeof(seq_t));
-    seq_t *q = (seq_t *)calloc(len, sizeof(seq_t));
-    seq_t *nq = (seq_t *)calloc(len, sizeof(seq_t));
-    seq_t *nv = (seq_t *)calloc(N + 1, sizeof(seq_t));
+    seq_t *p = mem_new(seq_t, len);
+    seq_t *np = mem_new(seq_t, len);
+    seq_t *q = mem_new(seq_t, len);
+    seq_t *nq = mem_new(seq_t, len);
+    seq_t *nv = mem_new(seq_t, N + 1);
     seq_t pow4 = 1;
     p[0] = 1;
     q[1] = 1;
@@ -56,8 +58,8 @@ static void build(idx_t N) {
         { seq_t *t = p; p = np; np = t; }
         { seq_t *t = q; q = nq; nq = t; }
     }
-    free(p); free(np); free(q); free(nq);
-    if (vals) free(vals);
+    mem_free(p); mem_free(np); mem_free(q); mem_free(nq);
+    if (vals) mem_free(vals);
     vals = nv;
     have = N + 1;
 }

@@ -13,7 +13,8 @@
  *            * is determined by reading the slice antidiagonally (t = i+j), *
  *            with i increasing along each antidiagonal...
  * Range:     u8 n <= 95, u16 n <= 325, u32 n <= 1651, u64 n <= 8946,
- *            u128 n <= 9754, big any n
+ *            u128 n <= 12340, big any n
+ * Validated: standard, pass, 100 terms through n = 9754 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,6 +7,7 @@
  * Formula:   a(n) = (10^(n+3)-8*7^(n+3)+9*6^(n+3)-2*4^(n+3))/72
  * Range:     u8 n <= 0, u16 n <= 2, u32 n <= 6, u64 n <= 16, u128 n <= 16,
  *            big any n
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

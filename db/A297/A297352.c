@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 n <= 247, u16 n <= 9886, u32 n <= 9886, u64 n <= 9886,
- *            u128 n <= 9886, big any n
- * Helpers:   none
+ * Range:     u8 n <= 247, u16 n <= 11111, u32 n <= 11111, u64 n <= 11111,
+ *            u128 n <= 11111, big any n
+ * Validated: standard, pass, 86 terms through n = 9886 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 /* Standard headers – needed for malloc, size_t and bool */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static state for memoisation */
 static seq_t *seq = NULL;              /* array of computed terms */
@@ -123,7 +125,7 @@ seq_t a(idx_t n)
     /* initialise on first call */
     if (max_n_computed == 0) {
         seq_cap = 128;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         if (!seq) abort();          /* allocation failure */
 
         used = NULL;
@@ -142,7 +144,7 @@ seq_t a(idx_t n)
     if (n > (idx_t)seq_cap) {
         size_t new_cap = seq_cap;
         while (new_cap < (size_t)n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq, new_cap);
         if (!tmp) abort();
         seq = tmp;
         seq_cap = new_cap;

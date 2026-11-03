@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4482, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 99 terms through n = 9933 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
    This implementation memoises all required terms up to n. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static storage for the sequence and counts of values. */
 static seq_t *seq = NULL;          /* sequence values */
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
     /* Lazy allocation on first use. */
     if (!seq) {
         seq_cap = 16;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         cnt_cap = 16;
         cnt = (idx_t *)malloc(cnt_cap * sizeof(idx_t));
         for (size_t i = 0; i < cnt_cap; ++i)
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
     while (seq_len <= (size_t)n) {
         if (seq_len == seq_cap) {
             seq_cap <<= 1;
-            seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, seq_cap);
         }
 
         if (seq_len == 0) {          /* a(0) = 0 */

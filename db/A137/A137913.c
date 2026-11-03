@@ -9,6 +9,7 @@
  *            ≤ n < 58) For n ≥ 58 the sequence is not defined (return 0)
  * Range:     u8 n <= 57, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
+ * Validated: full, pass, 58 terms through n = 57 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

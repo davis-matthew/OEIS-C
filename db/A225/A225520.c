@@ -9,7 +9,8 @@
  *            elements are pairwise coprime
  * Range:     u8 n <= 359, u16 n <= 359, u32 n <= 359, u64 n <= 359,
  *            u128 n <= 359, big any n
- * Helpers:   factor_u64
+ * Validated: standard, pass, 88 terms through n = 320 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,10 @@
 /* Helper functions and types are assumed to be provided externally. */
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Special case n == 0 is undefined; all tests use n >= 1. */
@@ -38,12 +42,12 @@ seq_t a(idx_t n) {
     size_t M = (size_t)1 << k;     /* Safe: k is small for all n in tests. */
 
     /* Allocate DP arrays. */
-    seq_t *dp = (seq_t*)malloc(M * sizeof(seq_t));
-    seq_t *weight = (seq_t*)malloc(M * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, M);
+    seq_t *weight = mem_new(seq_t, M);
     if (!dp || !weight) {
         /* In case of allocation failure, return 0 (should not happen). */
-        if (dp) free(dp);
-        if (weight) free(weight);
+        if (dp) mem_free(dp);
+        if (weight) mem_free(weight);
         return (seq_t)0;
     }
 
@@ -78,7 +82,7 @@ seq_t a(idx_t n) {
         total += dp[i];
     total *= (seq_t)2;                 /* 1 can be either chosen or not. */
 
-    free(dp);
-    free(weight);
+    mem_free(dp);
+    mem_free(weight);
     return total;
 }

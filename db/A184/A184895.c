@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 7, u128 n <= 13,
  *            big any n
- * Helpers:   build_primes_upto, factor_u64, seq_mul, seq_one, seq_pow
+ * Validated: standard, pass, 28 terms through n = 100 (2026-11-01)
+ * Helpers:   build_primes_upto, factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,11 +21,16 @@
 #include <stdbool.h>
 
 /* Utility functions from the repository */
-#include "../utils/factor_u64.h"
 #include "../utils/build_primes_upto.h"
-#include "../utils/seq_mul.h"
-#include "../utils/seq_pow.h"
-#include "../utils/seq_one.h"
+#include "../utils/factor_u64.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
 
 seq_t a(idx_t n)
 {
@@ -119,7 +125,7 @@ seq_t a(idx_t n)
     seq_t result = seq_one();
     for (size_t pi = 0; pi < prime_cnt; ++pi) {
         if (expon[pi] > 0) {
-            seq_t pow_val = seq_pow((seq_t)prime_list[pi], (idx_t)expon[pi]);
+            seq_t pow_val = ipow_idx((seq_t)prime_list[pi], (idx_t)expon[pi]);
             result = seq_mul(result, pow_val);
         }
     }

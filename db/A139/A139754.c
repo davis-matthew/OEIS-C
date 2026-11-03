@@ -7,18 +7,21 @@
  * Formula:   a(n) = floor(2*n*((3^n)-(2^n))/2^n)
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 16, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
     seq_t sn = (seq_t)n;         /* cast index to seq_t */
-    seq_t pow3 = big_pow((seq_t)3, sn);   /* compute 3^n   */
-    seq_t pow2 = big_pow((seq_t)2, sn);   /* compute 2^n   */
+    seq_t pow3 = ipow((seq_t)3, sn);   /* compute 3^n   */
+    seq_t pow2 = ipow((seq_t)2, sn);   /* compute 2^n   */
     seq_t diff = pow3 - pow2;            /* 3^n - 2^n   */
     seq_t twon = sn * (seq_t)2;          /* 2*n        */
     seq_t numer = twon * diff;           /* 2*n*(3^n-2^n) */

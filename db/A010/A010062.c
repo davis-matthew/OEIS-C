@@ -8,13 +8,15 @@
  * Formula:   a(0)=1; a(n+1)=a(n)+popcount(a(n))
  * Range:     u8 n <= 70, u16 n <= 8492, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 9883 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute the number of set bits in a value of type seq_t.
    Assumes that bitwise operators &, >> are defined for seq_t. */
@@ -38,7 +40,7 @@ seq_t a(idx_t n) {
     /* Allocate cache if this is the first call */
     if (cache == NULL) {
         cache_len = 1; /* at least space for a(0) */
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         cache[0] = (seq_t)1;  /* a(0) */
         cached_max = 0;
     }
@@ -47,7 +49,7 @@ seq_t a(idx_t n) {
     if ((size_t)n + 1 > cache_len) {
         size_t new_len = (size_t)n + 1;
         /* allocate a new array, copy old values, keep old (leak is harmless) */
-        seq_t *new_cache = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_len);
         for (size_t i = 0; i < cache_len; ++i) {
             new_cache[i] = cache[i];
         }

@@ -8,14 +8,45 @@
  *            divisor count σ₀
  * Range:     i8 n <= 7, i16 n <= 12, i32 n <= 21, i64 n <= 36, i128 n <= 66,
  *            big any n
- * Helpers:   divisor_count_u64, ensure_cache
+ * Validated: standard, pass, 45 terms through n = 735 (2026-11-03)
+ * Helpers:   mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/divisor_count_u64.h"
-#include "../utils/ensure_cache.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
+
+/* Make sure the cache is large enough */
+static void ensure_cache(idx_t n, seq_t **cache_ptr, size_t *cap_ptr) {
+    seq_t *cache = *cache_ptr;
+    size_t cap = *cap_ptr;
+    if (cap <= (size_t)n) {
+        size_t new_cap = cap ? (cap << 1) : 16;
+        while (new_cap <= (size_t)n)
+            new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
+        if (!tmp && new_cap > 0) {
+            /* Allocation failed – abort the program. */
+            exit(1);
+        }
+        if (tmp) {
+            /* Initialize newly allocated slots to zero. */
+            if (!cache) {
+                for (size_t i = 0; i < new_cap; ++i)
+                    tmp[i] = 0;
+            } else {
+                for (size_t i = cap; i < new_cap; ++i)
+                    tmp[i] = 0;
+            }
+            *cache_ptr = tmp;
+            *cap_ptr = new_cap;
+        }
+    }
+}
 
 /* Static cache for already computed terms. */
 static seq_t *cache     = NULL;
@@ -43,8 +74,8 @@ seq_t a(idx_t n)
             cache[i] = 1;
         else
         {
-            seq_t tau_prev = divisor_count_u64(i - 1);
-            seq_t tau_curr = divisor_count_u64(i);
+            seq_t tau_prev = num_divisors(i - 1);
+            seq_t tau_curr = num_divisors(i);
             cache[i] = tau_curr - tau_prev * cache[i - 1];
         }
     }

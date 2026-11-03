@@ -8,6 +8,7 @@
  *            over distinct primes p dividing n. For n = 1 a(1) = 1
  * Range:     u8 n <= 256, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 129 terms through n = 9274 (2026-11-01)
  * Helpers:   factorize, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,8 @@
 
 #include <stdint.h>
 #include <stddef.h>     /* for size_t */
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factorize.h"
 #include "../utils/gcd.h"
 

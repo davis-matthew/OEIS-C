@@ -7,14 +7,15 @@
  * Formula:   a(n) = denominator of n / (4^n - 2^n)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   pow2, seq_gcd
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-01)
+ * Helpers:   gcd, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include "../utils/gcd.h"
 #include "../utils/pow2.h"
-#include "../utils/seq_gcd.h"
 
 seq_t a(idx_t n)
 {
@@ -41,7 +42,7 @@ seq_t a(idx_t n)
 
     /* gcd contribution */
     seq_t pow2_v2 = pow2((idx_t)v2);
-    seq_t g_odd = seq_gcd((seq_t)n_odd, two_n_minus1);
+    seq_t g_odd = gcd((seq_t)n_odd, two_n_minus1);
     seq_t g = pow2_v2 * g_odd;
 
     /* final denominator after reducing with n */

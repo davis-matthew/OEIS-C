@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 30, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   isPrime
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,8 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/isPrime.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Forward declaration of helper that tests a single k          */
 static inline bool is_good_k(idx_t k);
@@ -45,7 +47,7 @@ static void ensure_cache_capacity(void)
 {
     if (cache_len >= cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 256;
-        seq_t *p = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *p = mem_resize(seq_t, cache, new_cap);
         if (!p) abort();                 /* out of memory */
         cache = p;
         cache_cap = new_cap;
@@ -66,7 +68,7 @@ static inline bool is_good_k(idx_t k)
         unsigned __int128 tmp = (unsigned __int128)r + (unsigned __int128)(2 * x - 1);
         r = (seq_t)(tmp % (unsigned __int128)modk);
 
-        if (r >= 2 && isPrime((idx_t)r))
+        if (r >= 2 && is_prime((idx_t)r))
             return false;                  /* prime residue found */
     }
     return true;                            /* all residues composite (or 0,1) */

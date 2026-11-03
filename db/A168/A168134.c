@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 30, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   _reprable
+ * Validated: full, pass, 30 terms through n = 30 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,15 @@
    the largest non‑representable integer is 59, so the sequence ends
    after 30 terms. For n larger than that the function returns 0. */
 #include <stdbool.h>
-#include "../utils/_reprable.h"
+
+static bool _reprable(seq_t x) {
+    /* Check if x can be written as 7*k + 11*m for some k,m ≥ 0 */
+    for (idx_t m = 0; m * (seq_t)11 <= x; ++m) {
+        seq_t y = x - (seq_t)11 * m;
+        if (y % (seq_t)7 == 0) return true;
+    }
+    return false;
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;          /* undefined for n = 0, but guard anyway */

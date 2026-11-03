@@ -6,6 +6,7 @@
  * Keywords:  nonn
  * Formula:   a(n) = 88 represented in base n (concatenated in decimal)
  * Range:     u8 none, u16 none, u32 none, u64 none, u128 none, big any n
+ * Validated: partial, pass, 12 terms through n = 12 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

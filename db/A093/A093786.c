@@ -8,13 +8,15 @@
  *            non‑decreasing order (equivalently a(n) = 8! / A003872(23-n))
  * Range:     u8 none, u16 n <= 22, u32 n <= 22, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Comparator for qsort on seq_t values */
 static int cmp_seq_t(const void *p1, const void *p2)
@@ -80,7 +82,7 @@ seq_t a(idx_t n)
         int cur[8];
         num_products = 0;
         gen_partitions(8, 8, cur, 0, products, &num_products);
-        qsort(products, num_products, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(products, num_products, sizeof(seq_t), cmp_seq_t);
         initialized = 1;
     }
 

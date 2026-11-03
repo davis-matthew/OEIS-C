@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   mul_mod, pow_mod
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,27 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mul_mod.h"
-#include "../utils/pow_mod.h"
+#include "../utils/mem.h"
+
+/* multiply a and b modulo mod, using the seq_t type’s operators   */
+static inline seq_t mul_mod(seq_t a, seq_t b, seq_t mod)
+{
+    return (a * b) % mod;
+}
+
+/* modular exponentiation: base^exp mod mod, with seq_t arithmetic */
+static inline seq_t pow_mod(seq_t base, idx_t exp, seq_t mod)
+{
+    if (mod == 1) return 0;
+    seq_t result = 1 % mod;
+    seq_t b = base % mod;
+    while (exp) {
+        if (exp & 1) result = mul_mod(result, b, mod);
+        exp >>= 1;
+        if (exp) b = mul_mod(b, b, mod);
+    }
+    return result;
+}
 
 static seq_t *terms   = NULL;   /* stored terms of the sequence   */
 static size_t terms_len = 0;    /* number of stored terms         */
@@ -47,7 +67,7 @@ static inline void add_term(seq_t v)
 {
     if (terms_len == terms_cap) {
         size_t new_cap = terms_cap ? terms_cap * 2 : 16;
-        seq_t *tmp = (seq_t*)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
         if (!tmp) exit(1);
         terms = tmp;
         terms_cap = new_cap;

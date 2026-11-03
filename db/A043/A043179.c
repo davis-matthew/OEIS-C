@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   has_adjacent_6_7
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,23 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_adjacent_6_7.h"
+#include "../utils/mem.h"
+
+/* Return true iff x in base‑8 has adjacent digits 6 and 7 in any order. */
+static bool has_adjacent_6_7(seq_t x)
+{
+    if (x == (seq_t)0) return false;
+
+    int prev = -1;                     /* previous least‑significant digit */
+    while (x > (seq_t)0) {
+        int d = (int)(x % (seq_t)8);   /* least‑significant digit */
+        if ((d == 6 && prev == 7) || (d == 7 && prev == 6))
+            return true;
+        prev = d;
+        x /= (seq_t)8;
+    }
+    return false;
+}
 
 /* Return the n‑th term of the sequence (a(1) = 55). */
 seq_t a(idx_t n)
@@ -35,7 +52,7 @@ seq_t a(idx_t n)
     /* Allocate an initial capacity if needed. */
     if (cache == NULL) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) exit(EXIT_FAILURE);
     }
 
@@ -45,7 +62,7 @@ seq_t a(idx_t n)
             /* Grow cache if full. */
             if (cache_len == cache_cap) {
                 cache_cap *= 2;
-                seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                 if (!tmp) exit(EXIT_FAILURE);
                 cache = tmp;
             }

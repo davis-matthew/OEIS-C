@@ -10,7 +10,8 @@
  *            algorithm that builds the DP table incrementally
  * Range:     u8 n <= 88, u16 n <= 88, u32 n <= 88, u64 n <= 88, u128 n <= 88,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 88 terms through n = 88 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* dynamic data */
 static seq_t *dp = NULL;           /* minimal counts: dp[i] = a(i)            */
@@ -69,7 +71,7 @@ static void extend_to(idx_t n)
     idx_t old_max = dp_size;
 
     /* resize dp array */
-    seq_t *tmp_dp = (seq_t *)realloc(dp, (n + 1) * sizeof(seq_t));
+    seq_t *tmp_dp = mem_resize(seq_t, dp, (n + 1));
     if (!tmp_dp) exit(EXIT_FAILURE);
     dp = tmp_dp;
     for (idx_t i = old_max + 1; i <= n; ++i) dp[i] = (seq_t)i;  /* initial value via coin 1 */

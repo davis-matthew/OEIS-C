@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 22, u64 n <= 42, u128 n <= 84,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 2073 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 static seq_t *denom = NULL;          /* computed denominators */
 static size_t denom_len = 0;         /* number of stored denominators */
@@ -70,7 +72,7 @@ static void ensure_denoms(idx_t n)
     /* initialise denominators if needed */
     if (denom_len == 0) {
         denom_cap = 1;
-        denom = (seq_t *)malloc(denom_cap * sizeof(seq_t));
+        denom = mem_new(seq_t, denom_cap);
         denom[0] = (seq_t)1;          /* a(0) = 1 */
         denom_len = 1;
     }
@@ -79,7 +81,7 @@ static void ensure_denoms(idx_t n)
     if (n + 1 > denom_cap) {
         size_t new_cap = denom_cap ? denom_cap * 2 : 1;
         while (new_cap <= (size_t)n + 1) new_cap <<= 1;
-        denom = (seq_t *)realloc(denom, new_cap * sizeof(seq_t));
+        denom = mem_resize(seq_t, denom, new_cap);
         denom_cap = new_cap;
     }
 

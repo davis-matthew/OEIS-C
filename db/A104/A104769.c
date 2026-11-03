@@ -7,13 +7,15 @@
  * Formula:   a(n+3) = a(n) - a(n+2); a(0) = 0, a(1) = -1, a(2) = 1
  * Range:     i8 n <= 36, i16 n <= 76, i32 n <= 156, i64 n <= 313,
  *            i128 n <= 629, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 9608 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* enlarge allocation if necessary */
     if (n >= sz) {
         idx_t new_sz = (n + 1) > 4 ? (n + 1) : 4;   /* start with at least 4 slots */
-        tbl = (seq_t *)realloc(tbl, (size_t)new_sz * sizeof(seq_t));
+        tbl = mem_resize(seq_t, tbl, (size_t)new_sz);
         sz = new_sz;
     }
 

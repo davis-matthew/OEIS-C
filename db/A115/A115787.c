@@ -7,6 +7,7 @@
  * Formula:   a(n) = 4 if n >= 8 and n ≡ 1 (mod 7); otherwise a(n) = 3
  * Range:     i8 n <= 22, i16 n <= 22, i32 n <= 22, i64 n <= 22, i128 n <= 22,
  *            big any n
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

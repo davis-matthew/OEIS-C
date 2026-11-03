@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 71, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   get_digits, isPrimeTrial
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   get_digits, is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/get_digits.h"      /* void get_digits(seq_t x, uint8_t *buf, size_t *len); */
-#include "../utils/isPrimeTrial.h"    /* bool isPrimeTrial(seq_t n); */
+#include <stddef.h>
+#include "../utils/get_digits.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* Holds the sequence values found so far   */
 static size_t cache_len = 0;     /* Number of values in the cache           */
@@ -41,7 +44,7 @@ static void grow_cache(size_t need)
     size_t new_cap = (cache_cap == 0) ? 8 : cache_cap * 2;
     while (new_cap < need)
         new_cap *= 2;
-    seq_t *newp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *newp = mem_resize(seq_t, cache, new_cap);
     if (!newp)
         abort(); /* unrecoverable allocation failure */
     cache = newp;
@@ -69,7 +72,7 @@ static bool qualifies(seq_t x)
     seq_t pair_sum = ((sum * sum - sumsq) / (seq_t)2);
 
     /* Return true iff pair_sum is a prime number. */
-    return isPrimeTrial(pair_sum);
+    return is_prime_seq(pair_sum);
 }
 
 /* Return the nth element of A187234 (1‑based). */

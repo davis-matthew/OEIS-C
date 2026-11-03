@@ -12,7 +12,8 @@
  *            odd numbers up to a limit * sufficient to cover 10000 terms
  * Range:     u8 n <= 39, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   seq_alloc_new_array, sigma_of
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,28 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "../utils/sigma_of.h"
-#include "../utils/seq_alloc_new_array.h"
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
 
 static const size_t INIT_CAP = 200000;          /* enough for n ≈ 1e4 */
 static seq_t *terms = NULL;                    /* array of found terms      */

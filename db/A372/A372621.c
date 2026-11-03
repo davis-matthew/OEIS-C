@@ -7,19 +7,21 @@
  * Formula:   a(n) = (1/2) * Sum_{k=1..n} phi(3 * k)
  * Range:     u8 n <= 18, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   phi
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/phi.h"
+#include <stdint.h>
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
     seq_t sum = 0;
     for (idx_t k = 1; k <= n; ++k)
     {
-        sum += phi(3 * k);
+        sum += totient(3 * k);
     }
     return sum / 2;
 }

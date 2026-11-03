@@ -9,7 +9,8 @@
  * Formula:   a(n) = max( π(⌊n/2⌋) , π(n-1) – π(⌈n/2⌉-1) )
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 95 terms through n = 990 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static prime sieve and prefix counts */
 static bool *is_prime  = NULL; /* true if index is prime */
@@ -42,7 +44,7 @@ static void ensure_limit(idx_t limit)
         }
     }
 
-    seq_t *new_cnt = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cnt = mem_new(seq_t, new_cap);
     if (!new_cnt) {
         free(new_prime);
         return;
@@ -54,7 +56,7 @@ static void ensure_limit(idx_t limit)
     }
 
     free(is_prime);
-    free(prime_cnt);
+    mem_free(prime_cnt);
     is_prime  = new_prime;
     prime_cnt = new_cnt;
     capacity  = new_cap;

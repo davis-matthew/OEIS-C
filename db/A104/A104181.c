@@ -8,7 +8,8 @@
  *            37 = prime(12))
  * Range:     u8 none, u16 n <= 2, u32 n <= 4, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   binom37
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,16 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/binom37.h"
+
+/* Compute C(37, k) for 0 ≤ k ≤ 11 with a multiplicative formula
+   that keeps the intermediate values integer. */
+static inline seq_t binom37(uint32_t k)
+{
+    seq_t r = 1;
+    for (uint32_t i = 1; i <= k; ++i)
+        r = r * (seq_t)(37 - k + i) / (seq_t)i;
+    return r;
+}
 
 static uint32_t *prime_cache = NULL;   /* array of primes, 0‑based      */
 static idx_t prime_cache_size = 0;     /* number of primes cached      */

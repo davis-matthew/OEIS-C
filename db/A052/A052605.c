@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* Initialise base values once */
     if (len == 0) {
         cap = 8;                            /* start with a little more than needed */
-        seq = (seq_t*)malloc(cap * sizeof(seq_t));
+        seq = mem_new(seq_t, cap);
         if (!seq) abort();
         seq[0] = 0;
         seq[1] = 1;
@@ -44,8 +46,8 @@ seq_t a(idx_t n)
         /* Double capacity until it is larger than the index needed */
         while (cap <= (size_t)n) {
             size_t new_cap = cap * 2;
-            seq_t *tmp = (seq_t*)realloc(seq, new_cap * sizeof(seq_t));
-            if (!tmp) { free(seq); abort(); }
+            seq_t *tmp = mem_resize(seq_t, seq, new_cap);
+            if (!tmp) { mem_free(seq); abort(); }
             seq = tmp;
             cap = new_cap;
         }

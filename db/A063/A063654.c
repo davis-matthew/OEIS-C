@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   dfs_fill
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,30 @@
    this file. */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/dfs_fill.h"
+#include "../utils/mem.h"
+
+/*  Helper: Enumerate all ways to fill a column, given the current mask
+    of already occupied cells.  The function fills the array tmp[nextMask]
+    with the number of ways that produce that nextMask.  Recursion depth
+    is at most 10.  */
+static void dfs_fill(uint16_t curMask, uint16_t nextMask, seq_t tmp[])
+{
+    int r = 0;
+    while (r < 10 && (curMask & (1U << r))) r++; /* find first empty row */
+    if (r >= 10) {                                 /* column complete */
+        tmp[nextMask] += 1;
+        return;
+    }
+    /* Option 1: place a 1×1 tile at (r) */
+    dfs_fill(curMask | (1U << r), nextMask, tmp);
+
+    /* Option 2: place a vertical 2×2 tile covering rows r and r+1, if free */
+    if (r + 1 < 10 && !(curMask & (1U << (r + 1)))) {
+        uint16_t newMask  = curMask | (1U << r) | (1U << (r + 1));
+        uint16_t newNext  = nextMask | (1U << r) | (1U << (r + 1));
+        dfs_fill(newMask, newNext, tmp);
+    }
+}
 
 /* Maximal number of column states: 2^10 = 1024 */
 #define MAX_STATES (1U << 10)
@@ -60,7 +84,7 @@ static void init_transitions(void)
         for (size_t i = 0; i < MAX_STATES; ++i)
             if (tmp[i] != 0) ++cnt;
         trans_len[s] = cnt;
-        trans[s] = (struct TransEntry *)malloc(cnt * sizeof(struct TransEntry));
+        trans[s] = mem_new(struct TransEntry, cnt);
         if (!trans[s]) abort();   /* fatal error if allocation fails */
         size_t idx = 0;
         for (size_t i = 0; i < MAX_STATES; ++i) {

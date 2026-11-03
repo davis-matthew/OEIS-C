@@ -11,21 +11,23 @@
  *            S_n (where S_n = a(n+1), S_0 = a(1) = 1) i...
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 14, u64 n <= 26, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return 0;          /* sequence is defined for n >= 1 */
 
     size_t N = (size_t)n;          /* number of terms to compute */
-    seq_t *S   = (seq_t *)malloc((N + 1) * sizeof(seq_t));
-    seq_t *p2  = (seq_t *)calloc((N + 1), sizeof(seq_t));   /* convolution of f with itself */
+    seq_t *S   = mem_new(seq_t, (N + 1));
+    seq_t *p2  = mem_new(seq_t, (N + 1));   /* convolution of f with itself */
     if (!S || !p2) return 0;      /* failure: do nothing special */
 
     /* initialise */
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = S[(size_t)n];
-    free(S);
-    free(p2);
+    mem_free(S);
+    mem_free(p2);
     return result;
 }

@@ -9,13 +9,15 @@
  *            * c(0)=1, c(1..47)=2, c(48)=1, c(n)=0 otherwise
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Memoised cache of already computed values */
 static seq_t *cache = NULL;      /* array of a(i) values       */
@@ -27,11 +29,11 @@ static void ensure_cache(idx_t n)
 {
     if (n + 1 <= cache_cap) return;
     idx_t new_cap = (n + 1) * 2;
-    seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, new_cap);
     if (!tmp) abort();              /* allocation failure */
     if (cache) {
-        memcpy(tmp, cache, cache_cap * sizeof(seq_t));
-        free(cache);
+        mem_copy(tmp, cache, cache_cap * sizeof(seq_t));
+        mem_free(cache);
     }
     cache = tmp;
     cache_cap = new_cap;

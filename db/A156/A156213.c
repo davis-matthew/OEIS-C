@@ -8,7 +8,8 @@
  * Formula:   a(0)=1; a(n) = (1/n) * Σ_{k=1..n} 2^{k^2} * C(2k-1,k) * a(n-k)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 7, u128 n <= 10,
  *            big any n
- * Helpers:   binomial, pow2, seq_one
+ * Validated: partial, pass, 11 terms through n = 10 (2026-11-03)
+ * Helpers:   binomial, mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,13 @@
  *  A(x) = exp( Σ_{n≥1} 2^{n^2} * C(2n-1,n) * x^n / n ).  */
 
 #include <stdlib.h>
+#include <stdbool.h>
+#include <stdint.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
-#include "../utils/seq_one.h"
+#include "../utils/mem.h"
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
 
 seq_t a(idx_t n)
 {
@@ -31,7 +36,7 @@ seq_t a(idx_t n)
     if ((size_t)n + 1 > A_cap) {
         size_t old_cap = A_cap;
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(A, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, A, new_cap);
         if (tmp == NULL) abort();   /* memory exhausted */
         A = tmp;
         A_cap = new_cap;

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   add_to_span
+ * Validated: partial, pass, 80 terms through n = 80 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,14 @@
  */
 
 #include <stdlib.h>
-#include "../utils/add_to_span.h"
+#include "../utils/mem.h"
+
+/* Utility: add val to all elements of dst[t..t+len-1] */
+static void add_to_span(seq_t *dst, size_t t, size_t len, seq_t val) {
+    for (size_t i = 0; i < len; ++i) {
+        dst[t + i] += val;
+    }
+}
 
 /* Compute the required triangle rows up to index n and return a(n). */
 seq_t a(idx_t n) {
@@ -60,7 +68,7 @@ seq_t a(idx_t n) {
 
         if (r == 1) {
             /* base case: p(x,1) = 1 */
-            rows[1] = (seq_t*)malloc(sizeof(seq_t));
+            rows[1] = mem_new(seq_t, 1);
             rows[1][0] = (seq_t)1;
             len_r = 1;
         } else if (r % 2 == 0) {
@@ -68,7 +76,7 @@ seq_t a(idx_t n) {
             size_t prev_len = row_len[r - 1];
             size_t base_len = r;           /* coefficients of 1+x+...+x^{r-1} are all 1 */
             len_r = prev_len + base_len - 1;
-            seq_t *new_arr = (seq_t*)calloc(len_r, sizeof(seq_t));
+            seq_t *new_arr = mem_new(seq_t, len_r);
             seq_t *prev_arr = rows[r - 1];
             for (size_t i = 0; i < prev_len; ++i) {
                 seq_t val = prev_arr[i];
@@ -81,17 +89,17 @@ seq_t a(idx_t n) {
             size_t m = r / 2;
             size_t base_len = r;           /* all coefficients are 1 */
             /* start with polynomial 1 */
-            seq_t *cur = (seq_t*)calloc(1, sizeof(seq_t));
+            seq_t *cur = mem_new(seq_t, 1);
             cur[0] = (seq_t)1;
             size_t cur_len = 1;
             for (size_t step = 0; step < m; ++step) {
                 size_t new_len = cur_len + base_len - 1;
-                seq_t *next_arr = (seq_t*)calloc(new_len, sizeof(seq_t));
+                seq_t *next_arr = mem_new(seq_t, new_len);
                 for (size_t i = 0; i < cur_len; ++i) {
                     seq_t val = cur[i];
                     add_to_span(next_arr, i, base_len, val);
                 }
-                free(cur);
+                mem_free(cur);
                 cur = next_arr;
                 cur_len = new_len;
             }

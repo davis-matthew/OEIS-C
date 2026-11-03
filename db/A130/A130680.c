@@ -10,13 +10,15 @@
  *            such number (1‑based)
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 6, u64 n <= 6, u128 n <= 6,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 6 terms through n = 6 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* forward declaration of the function required by the test harness */
 seq_t a(idx_t n);
@@ -34,7 +36,7 @@ static void init_sequence(void)
 
     /* start with a small capacity, grow as needed */
     seq_cap = 256;
-    seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+    seq = mem_new(seq_t, seq_cap);
     if (seq == NULL)
         return;        /* allocation failed, give up */
 
@@ -53,7 +55,7 @@ static void init_sequence(void)
             /* store the number */
             if (seq_len == seq_cap) {
                 seq_cap *= 2;
-                seq_t *newp = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+                seq_t *newp = mem_resize(seq_t, seq, seq_cap);
                 if (newp == NULL)
                     return;            /* allocation failed, give up */
                 seq = newp;

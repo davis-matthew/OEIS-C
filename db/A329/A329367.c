@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   bitlen_seq_t, is_necklace
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   bit_length, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,22 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/bitlen_seq_t.h"
-#include "../utils/is_necklace.h"
+#include "../utils/bit_length.h"
+#include "../utils/mem.h"
+
+/* Test whether a (k‑bit) binary string represented by 's' is a necklace.
+   The string is represented in packed form: the most significant bit of
+   the string is the bit at position k-1. */
+static bool is_necklace(seq_t s, unsigned k)
+{
+    if (k <= 1) return true;   /* a single bit string is always a necklace */
+    seq_t mask = ((seq_t)1 << k) - 1ULL;
+    for (unsigned i = 1; i < k; ++i) {
+        seq_t rot = ((s << i) | (s >> (k - i))) & mask;
+        if (rot < s) return false;   /* not minimal rotation */
+    }
+    return true;
+}
 
 static seq_t *terms = NULL;
 static size_t term_count = 0;   /* number of terms stored */
@@ -33,7 +48,7 @@ static void ensure_terms_capacity(size_t need)
     if (term_cap >= need) return;
     size_t new_cap = term_cap ? term_cap * 2 : 64;
     if (new_cap < need) new_cap = need;
-    seq_t *new_terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *new_terms = mem_resize(seq_t, terms, new_cap);
     if (!new_terms) abort();   /* allocation failed */
     terms = new_terms;
     term_cap = new_cap;
@@ -43,7 +58,7 @@ static void ensure_terms_capacity(size_t need)
    most significant bit is NOT a necklace”. */
 static bool is_valid_value(seq_t m)
 {
-    unsigned lenbits = bitlen_seq_t(m);
+    unsigned lenbits = bit_length(m);
     if (lenbits <= 1) return false;   /* empty suffix is not considered */
     unsigned k = lenbits - 1;          /* length of the suffix */
     seq_t topbit = ((seq_t)1 << k);

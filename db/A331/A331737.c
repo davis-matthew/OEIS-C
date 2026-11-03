@@ -7,16 +7,17 @@
  * Keywords:  nonn, mult
  * Formula:   a(n) = ∏_{p^e‖n} p^{odd(e)}, where odd(e) is the odd part of the
  *            exponent e
- * Range:     u8 n <= 256, u16 n <= 8993, u32 n <= 8993, u64 n <= 8993,
- *            u128 n <= 8993, big any n
- * Helpers:   seq_pow_uint64
+ * Range:     u8 n <= 256, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 106 terms through n = 8993 (2026-11-01)
+ * Helpers:   ipow_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_pow_uint64.h"
+#include "../utils/ipow_u64.h"
 
 /* helper: exponentiation by squaring for seq_t (any unsigned type) */
 
@@ -37,7 +38,7 @@ seq_t a(idx_t n) {
             while ((e & 1ULL) == 0ULL) e >>= 1ULL;   /* divide by 2 while even */
 
             /* multiply by p^odd(e) */
-            seq_t pow = seq_pow_uint64((seq_t)p, e);
+            seq_t pow = ipow_u64((seq_t)p, e);
             res *= pow;
         }
     }

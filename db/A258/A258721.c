@@ -7,6 +7,7 @@
  * Formula:   a(n) = 24*n^2 + 52*n + 29
  * Range:     u8 n <= 2, u16 n <= 51, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 57 terms through n = 9636 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

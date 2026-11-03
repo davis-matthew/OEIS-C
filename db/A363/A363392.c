@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum of all divisors d of (4*n-2) with d ≡ 3 (mod 4)
  * Range:     u8 n <= 64, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
+ * Validated: partial, pass, 81 terms through n = 81 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

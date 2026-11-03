@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 6, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 /* The build provides an implementation of this function. */
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Storage for terms already found. */
 static seq_t *terms   = NULL;     /* array of found primes p */
@@ -37,7 +39,7 @@ ensure_terms(idx_t n)
     /* Allocate initial storage if needed. */
     if (terms == NULL) {
         term_cap = 8;
-        terms = (seq_t *)malloc(term_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, term_cap);
         if (terms == NULL) exit(1);
     }
 
@@ -70,7 +72,7 @@ ensure_terms(idx_t n)
             /* Store the found prime. */
             if (term_count == term_cap) {
                 term_cap *= 2;
-                seq_t *tmp = (seq_t *)realloc(terms, term_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, term_cap);
                 if (tmp == NULL) exit(1);
                 terms = tmp;
             }

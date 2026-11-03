@@ -12,7 +12,8 @@
  *            answers any query * in O(1). The table is r...
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   seq_cmp
+ * Validated: standard, pass, 79 terms through n = 7954 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,16 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/seq_cmp.h"     /* seq_cmp */
+#include "../utils/mem.h"
+
+static int seq_cmp(const void *p, const void *q)
+{
+    const seq_t *a = (const seq_t *)p;
+    const seq_t *b = (const seq_t *)q;
+    if (*a < *b) return -1;
+    if (*a > *b) return 1;
+    return 0;
+}
 
 #define TARGET_TERMS (20000U)         /* terms we guarantee to pre‑compute   */
 #define INITIAL_LIMIT ((seq_t)10000000ULL) /* starting upper bound for sums      */
@@ -38,7 +48,7 @@ static void grow_vector(seq_t **arr, size_t *cap, size_t need)
         size_t new_cap = (*cap) << 1;
         if (new_cap < need)
             new_cap = need;
-        *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, new_cap);
         *cap = new_cap;
     }
 }
@@ -50,7 +60,7 @@ static size_t build_sums(seq_t limit, seq_t **out)
 {
     /* ---- Build all perfect powers ≤ limit ---- */
     size_t pw_cap = 256;
-    seq_t *powers = (seq_t *)malloc(pw_cap * sizeof(seq_t));
+    seq_t *powers = mem_new(seq_t, pw_cap);
     size_t pw_cnt = 0;
 
     for (seq_t base = 2; ; ++base) {
@@ -70,7 +80,7 @@ static size_t build_sums(seq_t limit, seq_t **out)
     }
 
     /* sort and deduplicate powers */
-    qsort(powers, pw_cnt, sizeof(seq_t), seq_cmp_wrapper);
+    mem_qsort(powers, pw_cnt, sizeof(seq_t), seq_cmp_wrapper);
     size_t uniq_pw = 0;
     for (size_t i = 0; i < pw_cnt; ++i) {
         if (i == 0 || seq_cmp(&powers[i], &powers[uniq_pw - 1]) != 0) {
@@ -81,7 +91,7 @@ static size_t build_sums(seq_t limit, seq_t **out)
 
     /* ---- Generate all distinct sums pw[i] + pw[j] with i < j ---- */
     size_t sum_cap = 1 << 20;          /* start with 1,048,576 slots */
-    seq_t *sums = (seq_t *)malloc(sum_cap * sizeof(seq_t));
+    seq_t *sums = mem_new(seq_t, sum_cap);
     size_t sum_cnt = 0;
 
     for (size_t i = 0; i < pw_cnt; ++i) {
@@ -96,7 +106,7 @@ static size_t build_sums(seq_t limit, seq_t **out)
     }
 
     /* sort and deduplicate sums */
-    qsort(sums, sum_cnt, sizeof(seq_t), seq_cmp_wrapper);
+    mem_qsort(sums, sum_cnt, sizeof(seq_t), seq_cmp_wrapper);
     size_t uniq_sum = 0;
     for (size_t i = 0; i < sum_cnt; ++i) {
         if (i == 0 || seq_cmp(&sums[i], &sums[uniq_sum - 1]) != 0) {
@@ -107,7 +117,7 @@ static size_t build_sums(seq_t limit, seq_t **out)
 
     /* finalize output */
     *out = sums;
-    free(powers);
+    mem_free(powers);
     return sum_cnt;
 }
 

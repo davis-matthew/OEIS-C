@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 928 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
                 a(n+1) = 9*a(n) + 9^ceil((n+1)/2) - a(ceil((n+1)/2))
    (offset 0) */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache    = NULL;   /* cache of a(0)…a(k) */
 static size_t a_cap      = 0;      /* allocated size of a_cache   */
@@ -32,7 +34,7 @@ static void init_a_cache(void)
 {
     if (a_cap == 0) {
         a_cap = 2;
-        a_cache = (seq_t *)malloc(a_cap * sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_cap);
         a_cache[0] = 0;
         a_cache[1] = 0;
     }
@@ -43,7 +45,7 @@ static void init_pow9_cache(void)
 {
     if (pow_cap == 0) {
         pow_cap = 1;
-        pow9_cache = (seq_t *)malloc(pow_cap * sizeof(seq_t));
+        pow9_cache = mem_new(seq_t, pow_cap);
         pow9_cache[0] = 1;  /* 9^0 = 1 */
         pow_up_to = 0;
     }
@@ -55,7 +57,7 @@ static void ensure_a_cache(idx_t n)
     if ((size_t)n < a_cap) return;
     size_t new_cap = (a_cap == 0) ? 2 : a_cap * 2;
     while (new_cap <= (size_t)n) new_cap <<= 1;
-    a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, new_cap);
     a_cap = new_cap;
 }
 
@@ -67,7 +69,7 @@ static void ensure_pow9_cache(idx_t k)
     if ((size_t)(k + 1) > pow_cap) {
         size_t new_cap = (pow_cap == 0) ? 1 : pow_cap;
         while ((size_t)(k + 1) > new_cap) new_cap <<= 1;
-        pow9_cache = (seq_t *)realloc(pow9_cache, new_cap * sizeof(seq_t));
+        pow9_cache = mem_resize(seq_t, pow9_cache, new_cap);
         pow_cap = new_cap;
     }
     for (idx_t i = pow_up_to + 1; i <= k; ++i) {

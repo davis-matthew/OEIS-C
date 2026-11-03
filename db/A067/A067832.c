@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 4792, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, is_prime_small
+ * Validated: standard, pass, 68 terms through n = 9553 (2026-11-01)
+ * Helpers:   factor_u64, is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/is_prime_small.h"   /* bool is_prime_small(seq_t num); */
-#include "../utils/factor_u64.h"        /* void factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt); */
+#include "../utils/factor_u64.h"
+#include "../utils/is_prime_seq.h"
 
 /* Local cache of primes satisfying the condition. */
 static uint64_t *found_primes = NULL;      /* prime values (uint64_t) */
@@ -63,7 +64,7 @@ seq_t a(idx_t n)
     /* Generate primes until we have at least n accepted ones. */
     while (found_count < (size_t)n) {
         /* Test current_candidate for primality. */
-        if (is_prime_small(current_candidate)) {
+        if (is_prime_seq(current_candidate)) {
             uint64_t p = current_candidate;
             uint64_t m = p - 6;
             uint64_t sigma = sigma_u64(m);

@@ -9,14 +9,16 @@
  *            6]_p) a(1) = 1
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 24, u64 n <= 1199,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow, gcd
+ * Validated: standard, pass, 44 terms through n = 9867 (2026-11-01)
+ * Helpers:   gcd, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
 #include "../utils/gcd.h"
+#include "../utils/ipow.h"
 
 static seq_t a_prime_power(uint64_t p, uint64_t e)
 {
@@ -24,9 +26,9 @@ static seq_t a_prime_power(uint64_t p, uint64_t e)
     seq_t den = 1;   /* denominator of the product */
 
     for (uint64_t k = 1; k <= 6; ++k) {
-        seq_t num_k = big_pow((seq_t)p, (seq_t)(e + k));
+        seq_t num_k = ipow((seq_t)p, (seq_t)(e + k));
         num_k -= 1;
-        seq_t den_k = big_pow((seq_t)p, (seq_t)k);
+        seq_t den_k = ipow((seq_t)p, (seq_t)k);
         den_k -= 1;
 
         /* cancel num_k with den, and den_k with num, before multiplication

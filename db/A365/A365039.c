@@ -8,14 +8,17 @@
  *            (OEIS A365039)
  * Range:     i8 n <= 4, i16 n <= 6, i32 n <= 9, i64 n <= 15, i128 n <= 18,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 /* Computes the sequence value a(n) for arbitrary-precision or fixed-size seq_t. */
 seq_t a(idx_t n)
@@ -43,7 +46,7 @@ seq_t a(idx_t n)
             if (k == 0)
                 power = (seq_t)1; /* 1^(-1) is defined as 1 */
             else
-                power = big_pow((seq_t)(-2 * (int)k + 1), (seq_t)(k - 1));
+                power = ipow((seq_t)(-2 * (int)k + 1), (seq_t)(k - 1));
 
             /* term = (n! / k!) * binomial(k, n-k) * power = ratio * bin * power */
             seq_t term = ratio * bin;

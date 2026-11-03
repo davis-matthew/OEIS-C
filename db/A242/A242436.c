@@ -7,6 +7,7 @@
  * Formula:   a(n) = n^5 - 2n
  * Range:     i8 n <= 2, i16 n <= 8, i32 n <= 73, i64 n <= 6208,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 51 terms through n = 9984 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 9079, u16 n <= 9079, u32 n <= 9079, u64 n <= 9079,
- *            u128 n <= 9079, big any n
- * Helpers:   none
+ * Range:     u8 n <= 17000, u16 n <= 17000, u32 n <= 17000, u64 n <= 17000,
+ *            u128 n <= 17000, big any n
+ * Validated: standard, pass, 115 terms through n = 9079 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     if (n >= cache_len) {
         size_t old_len = cache_len;
         size_t new_len = (size_t)n + 1;          /* n is idx_t (uint64_t) */
-        cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_len);
 
         /* Ensure the base values are correctly set for the new capacity */
         if (new_len > 0 && old_len < 1) cache[0] = 0;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 1023, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 85 terms through n = 9506 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static storage for the sequence and the priority queue */
 static seq_t *seq      = NULL;
@@ -37,7 +39,7 @@ static void heap_push(seq_t v)
 {
     if (heap_len == heap_cap) {
         heap_cap = (heap_cap == 0) ? 16 : heap_cap * 2;
-        heap = (seq_t *)realloc(heap, heap_cap * sizeof(seq_t));
+        heap = mem_resize(seq_t, heap, heap_cap);
     }
     size_t i = heap_len++;
     heap[i] = v;
@@ -85,12 +87,12 @@ static void build_up_to(idx_t n)
     /* initialise first element if needed */
     if (seq_len == 0) {
         seq_cap = 16;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         seq[0] = (seq_t)1;
         seq_len = 1;
 
         heap_cap = 16;
-        heap = (seq_t *)malloc(heap_cap * sizeof(seq_t));
+        heap = mem_new(seq_t, heap_cap);
         heap_len = 0;
         /* children of 1: 3*1-2 = 1 (duplicate) and 3*1 = 3 */
         heap_push((seq_t)3);        /* only the unique child */
@@ -101,7 +103,7 @@ static void build_up_to(idx_t n)
         /* store it */
         if (seq_len == seq_cap) {
             seq_cap *= 2;
-            seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, seq_cap);
         }
         seq[seq_len++] = val;
 

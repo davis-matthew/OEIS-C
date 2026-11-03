@@ -9,13 +9,24 @@
  *            ((n-2) mod 8) steps from 2
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   a000216_step
+ * Validated: standard, pass, 84 terms through n = 99 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a000216_step.h"
+
+static unsigned a000216_step(unsigned x)
+{
+    unsigned s = 0;
+    while (x > 0) {
+        unsigned d = x % 10;
+        s += d * d;
+        x /= 10;
+    }
+    return s;
+}
 
 seq_t a(idx_t n)
 {

@@ -8,6 +8,7 @@
  * Formula:   a(n) = numerator(((3/4)*((4^n / C(2n,n))^2)/(2n+1)))
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 8, u64 n <= 17, u128 n <= 17,
  *            big any n
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 
 /* Recurrence: r(1)=1/1, r(n)=r(n-1)*4n^2/((2n-1)(2n+1)), a(n)=numerator(r(n)) */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

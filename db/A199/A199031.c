@@ -7,12 +7,14 @@
  * Formula:   a(n) = 2*12^n-1 * Recurrence: a(0)=1, a(n)=12*a(n-1)+11
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 8, u64 n <= 17, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 886 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,14 +25,14 @@ seq_t a(idx_t n)
     /* initialise base case a(0)=1 */
     if (cache_len == 0) {
         cache_len = 1;
-        cache = (seq_t *)realloc(cache, sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, 1);
         cache[0] = (seq_t)1;
     }
 
     /* grow cache up to the requested index */
     if ((size_t)n >= cache_len) {
         size_t new_len = (size_t)n + 1;
-        cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_len);
         for (size_t i = cache_len; i < new_len; ++i) {
             cache[i] = cache[i - 1] * (seq_t)12 + (seq_t)11;
         }

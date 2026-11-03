@@ -7,21 +7,24 @@
  * Formula:   a(n) = 1 + Sum_{m >= 1} (m + 1)^n / 2^(m - 1) (OEIS A299404)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 20,
  *            big any n
- * Helpers:   pow2
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/pow2.h"   /* provides seq_t pow2(idx_t) */
+#include <stdbool.h>
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     idx_t N = n;                     /* index is 64‑bit unsigned */
     /* Allocate temporary arrays */
-    seq_t *fact  = (seq_t *)malloc((N + 1) * sizeof(seq_t));
-    seq_t *stir  = (seq_t *)malloc((N + 1) * sizeof(seq_t));
-    seq_t *S     = (seq_t *)malloc((N + 1) * sizeof(seq_t));
+    seq_t *fact  = mem_new(seq_t, (N + 1));
+    seq_t *stir  = mem_new(seq_t, (N + 1));
+    seq_t *S     = mem_new(seq_t, (N + 1));
     if (!fact || !stir || !S) {
         /* Allocation failure – return 0 as a graceful fallback */
         return (seq_t)0;
@@ -69,9 +72,9 @@ seq_t a(idx_t n)
     }
 
     /* Clean up */
-    free(fact);
-    free(stir);
-    free(S);
+    mem_free(fact);
+    mem_free(stir);
+    mem_free(S);
 
     return result;
 }

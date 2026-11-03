@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 4, u128 n <= 7,
  *            big any n
- * Helpers:   pow10_of_idx
+ * Validated: standard, pass, 26 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,17 @@
     a(n+1) = (n^10+(n+1)^10)*a(n) - n^20*a(n-1)   for n>0
 */
 #include <stdlib.h>
-#include "../utils/pow10_of_idx.h"
+#include "../utils/mem.h"
+
+/* Helper: compute n^10 where n fits in idx_t, return seq_t. */
+static seq_t pow10_of_idx(idx_t n)
+{
+    seq_t res = 1;
+    seq_t base = (seq_t)n;
+    for (idx_t i = 0; i < 10; ++i)
+        res *= base;
+    return res;
+}
 
 /* Cache for computed terms. */
 static seq_t *a_cache = NULL;     /* a(n) values */
@@ -32,7 +43,7 @@ seq_t a(idx_t n)
        allocation of size 2: a(0) and a(1). */
     if (a_cache == NULL) {
         a_cache_size = (n >= 1) ? n + 1 : 2;
-        a_cache = (seq_t *)malloc(a_cache_size * sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_cache_size);
         if (!a_cache) return 0;          /* fallback on allocation failure   */
         a_cache[0] = (seq_t)0;           /* a(0) = 0                          */
         if (a_cache_size > 1)
@@ -43,7 +54,7 @@ seq_t a(idx_t n)
     /* Grow the cache if the requested index exceeds current capacity. */
     if (n + 1 > a_cache_size) {
         size_t new_size = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(a_cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_size);
         if (!tmp) return 0;              /* fallback on allocation failure   */
         a_cache     = tmp;
         a_cache_size = new_size;         /* preserve existing values          */

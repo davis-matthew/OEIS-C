@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 62, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   factor_u64, seq_cmp, seq_mul, seq_pow
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   factor_u64, ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,10 +23,25 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
+#include <stddef.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_mul.h"
-#include "../utils/seq_pow.h"
-#include "../utils/seq_cmp.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+static int seq_cmp(const void *p, const void *q)
+{
+    const seq_t *a = (const seq_t *)p;
+    const seq_t *b = (const seq_t *)q;
+    if (*a < *b) return -1;
+    if (*a > *b) return 1;
+    return 0;
+}
 
 seq_t a(idx_t n)
 {
@@ -39,11 +55,11 @@ seq_t a(idx_t n)
     /* initialise arrays on first call */
     if (seq_arr == NULL) {
         seq_cap = 1024;
-        seq_arr = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_arr = mem_new(seq_t, seq_cap);
     }
     if (seen_arr == NULL) {
         seen_cap = 1024;
-        seen_arr = (seq_t *)malloc(seen_cap * sizeof(seq_t));
+        seen_arr = mem_new(seq_t, seen_cap);
     }
 
     /* generate terms until we have n of them */
@@ -74,7 +90,7 @@ seq_t a(idx_t n)
             mmk = 1;
             for (int e = 1; e <= max_exp; ++e) {
                 if (count[e] == 0) continue;
-                seq_t term = seq_pow((seq_t)min_prime[e], (idx_t)count[e]);
+                seq_t term = ipow_idx((seq_t)min_prime[e], (idx_t)count[e]);
                 mmk = seq_mul(mmk, term);
             }
         }
@@ -92,11 +108,11 @@ seq_t a(idx_t n)
             /* grow sequence array if needed */
             if (seq_len == seq_cap) {
                 seq_cap *= 2;
-                seq_arr = (seq_t *)realloc(seq_arr, seq_cap * sizeof(seq_t));
+                seq_arr = mem_resize(seq_t, seq_arr, seq_cap);
             }
             if (seen_len == seen_cap) {
                 seen_cap *= 2;
-                seen_arr = (seq_t *)realloc(seen_arr, seen_cap * sizeof(seq_t));
+                seen_arr = mem_resize(seq_t, seen_arr, seen_cap);
             }
             seq_arr[seq_len++] = (seq_t)next_k;
             seen_arr[seen_len++] = mmk;

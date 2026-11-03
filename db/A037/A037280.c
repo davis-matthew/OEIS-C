@@ -10,7 +10,8 @@
  *            odd part, repeatedly divide by 2 until odd
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 47, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   cmp_uint64, digit_len, factor_u64, is_prime, pow10
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-02)
+ * Helpers:   factor_u64, is_prime, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,12 +22,27 @@
 #include <stdlib.h>           /* qsort, malloc, realloc, free */
 
 /* Utilities from the build */
-#include "../utils/is_prime.h"      /* bool is_prime(idx_t n) */
-#include "../utils/factor_u64.h"    /* void factor_u64(uint64_t n, uint64_t *primes,
-                                      uint64_t *exps, size_t *cnt) */
-#include "../utils/pow10.h"         /* seq_t pow10(idx_t exp) */
-#include "../utils/digit_len.h"     /* int digit_len(seq_t x) */
-#include "../utils/cmp_uint64.h"
+#include "../utils/factor_u64.h"
+#include "../utils/is_prime.h"
+#include "../utils/num_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
+
+/* ---------- Helper for sorting divisors ---------- */
+static int cmp_uint64(const void *p1, const void *p2)
+{
+    uint64_t a = *(const uint64_t *)p1;
+    uint64_t b = *(const uint64_t *)p2;
+    return (a < b) ? -1 : (a > b);
+}
 
 /* Compare two uint64_t values for qsort */
 
@@ -72,7 +88,7 @@ seq_t a(idx_t n)
             if (d == 1 || d == nn)
                 continue; /* skip 1 and n */
             seq_t dseq = (seq_t)d;
-            unsigned int dig = (unsigned int)digit_len(dseq);
+            unsigned int dig = (unsigned int)num_digits(dseq);
             value = value * pow10(dig) + dseq;
         }
     }

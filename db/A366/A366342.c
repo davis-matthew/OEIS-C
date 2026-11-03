@@ -7,13 +7,17 @@
  * Formula:   a(n) = Product_{k=1..n} Sum_{j=1..k} j^k
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 6, u128 n <= 9,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 11 terms through n = 11 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +32,7 @@ seq_t a(idx_t n)
     while (n > cache_size) {
         /* Grow cache by one element */
         size_t new_size = cache_size + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (!new_cache)  /* allocation failure */
             exit(1);
         cache = new_cache;
@@ -39,7 +43,7 @@ seq_t a(idx_t n)
 
         /* Compute S_k = sum_{j=1..k} j^k */
         for (idx_t j = 1; j <= k; ++j)
-            sum += big_pow((seq_t)j, (seq_t)k);
+            sum += ipow((seq_t)j, (seq_t)k);
 
         if (k == 1) {
             /* a(1) = S_1 = 1^1 = 1 */

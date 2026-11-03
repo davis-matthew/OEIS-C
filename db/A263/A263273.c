@@ -8,6 +8,7 @@
  * Formula:   a(n) = A030102(A038502(n)) * A038500(n)
  * Range:     u8 n <= 244, u16 n <= 6561, u32 n <= 6561, u64 n <= 6561,
  *            u128 n <= 6561, big any n
+ * Validated: standard, pass, 98 terms through n = 6187 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

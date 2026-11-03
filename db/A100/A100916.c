@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,6 +35,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static bool init_done = false;
 
@@ -119,22 +121,22 @@ static void init_sequence(void)
     }
 
     /* 3. Build sorted semiprime list */
-    semiprimes = (seq_t*)malloc((N_MAX/3) * sizeof(seq_t)); /* over‑estimate */
+    semiprimes = mem_new(seq_t, (N_MAX/3)); /* over‑estimate */
     if (!semiprimes) abort();
     for (idx_t n = 2; n <= N_MAX; ++n)
         if (is_semiprime[n]) semiprimes[semiprime_count++] = (seq_t)n;
-    semiprimes = (seq_t*)realloc(semiprimes, semiprime_count * sizeof(seq_t));
+    semiprimes = mem_resize(seq_t, semiprimes, semiprime_count);
 
     /* 4. Build a(n) sequence */
     idx_t cap = semiprime_count / 12 + 10;            /* guess capacity */
-    a_vals = (seq_t*)malloc(cap * sizeof(seq_t));
+    a_vals = mem_new(seq_t, cap);
     if (!a_vals) abort();
     for (idx_t k = 0; k < semiprime_count; ++k) {
         seq_t val = semiprimes[k] + (seq_t)(k + 1);
         if (is_semiprime_value(val)) {
             if (a_count == cap) {               /* grow if needed */
                 cap *= 2;
-                a_vals = (seq_t*)realloc(a_vals, cap * sizeof(seq_t));
+                a_vals = mem_resize(seq_t, a_vals, cap);
                 if (!a_vals) abort();
             }
             a_vals[a_count++] = semiprimes[k];

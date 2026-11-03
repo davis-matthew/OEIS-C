@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 21, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_primes
+ * Validated: standard, pass, 49 terms through n = 954 (2026-11-03)
+ * Helpers:   build_primes, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
 #include <string.h>
 
 #include "../utils/build_primes.h"
+#include "../utils/mem.h"
 
 /* ==== Static state for memoisation ==== */
 static seq_t *SEQ_CACHE = NULL;   /* array of found terms          */
@@ -43,10 +45,9 @@ static uint64_t LIMIT = 30000000ULL;   /* current sieve upper bound    */
 static void append_term(seq_t val)
 {
     if (SEQ_LEN == 0) {
-        SEQ_CACHE = (seq_t*)malloc(16 * sizeof(seq_t));
+        SEQ_CACHE = mem_new(seq_t, 16);
     } else if (SEQ_LEN % 16 == 0) {
-        SEQ_CACHE = (seq_t*)realloc(SEQ_CACHE,
-                                    (SEQ_LEN + 16) * sizeof(seq_t));
+        SEQ_CACHE = mem_resize(seq_t, SEQ_CACHE, (SEQ_LEN + 16));
     }
     SEQ_CACHE[SEQ_LEN++] = val;
 }
@@ -60,7 +61,7 @@ static void generate_up_to_limit(void)
     build_primes((idx_t)LIMIT, &primes, &pcount);
 
     /* 2. free old cache (rebuild from scratch) */
-    free(SEQ_CACHE);
+    mem_free(SEQ_CACHE);
     SEQ_CACHE = NULL;
     SEQ_LEN   = 0;
 

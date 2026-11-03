@@ -8,12 +8,14 @@
  *            a(n-5k-1) (OEIS recurrence for A365977)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- local helper: multiplicative binomial ---------- */
 static seq_t binomial_calc(idx_t n, idx_t k)
@@ -37,7 +39,7 @@ static void ensure_fact_capacity(idx_t n)
     if (n == (idx_t)0 && fact_cap == 0) return;
     if (fact_cap > n) return;
     size_t new_cap = (size_t)n + 1;
-    seq_t *tmp = (seq_t *)realloc(fact, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, fact, new_cap);
     if (!tmp) abort();
     fact = tmp;
     if (fact_cap == 0) {
@@ -60,7 +62,7 @@ static void ensure_a_capacity(idx_t n)
     if (a_cap > (size_t)n) return;
     size_t new_cap = (size_t)(n + 1) * 2;
     if (new_cap < (size_t)n + 1) new_cap = (size_t)n + 1;
-    seq_t *tmp = (seq_t *)realloc(A, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, A, new_cap);
     if (!tmp) abort();
     A = tmp;
     a_cap = new_cap;
@@ -73,13 +75,13 @@ seq_t a(idx_t n)
     if (A == NULL) {
         /* allocate minimal space for index 0 */
         a_cap = 1;
-        A = (seq_t *)malloc(sizeof(seq_t));
+        A = mem_new(seq_t, 1);
         if (!A) abort();
         A[0] = 1;
         computed = 0;
 
         fact_cap = 1;
-        fact = (seq_t *)malloc(sizeof(seq_t));
+        fact = mem_new(seq_t, 1);
         if (!fact) abort();
         fact[0] = 1;
     }

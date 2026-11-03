@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 50, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   swap_digits_3_6
+ * Validated: standard, pass, 72 terms through n = 896 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,29 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/swap_digits_3_6.h"
+
+static inline seq_t
+swap_digits_3_6(uint32_t v)
+{
+    seq_t res = 0;
+    if (v == 0) return 0;                 /* not needed for primes but keep */
+
+    /* We use a small buffer; primes are < 1e9 for the required range. */
+    uint8_t buf[10];
+    size_t len = 0;
+
+    while (v) {
+        uint8_t d = v % 10;
+        v /= 10;
+        if (d == 3) d = 6;
+        else if (d == 6) d = 3;
+        buf[len++] = d;                   /* store reversed */
+    }
+    for (int i = (int)len - 1; i >= 0; --i) {
+        res = res * 10 + buf[i];
+    }
+    return res;
+}
 
 /* ---------- Prime generation (static table) ---------- */
 

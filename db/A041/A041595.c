@@ -10,12 +10,14 @@
  *            calls in any order
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 19, u64 n <= 35, u128 n <= 71,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 189 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* initialise the first 8 terms once */
     if (cache == NULL) {
         capacity = 8;
-        cache = (seq_t *)malloc(capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, capacity);
         if (cache == NULL) abort();    /* cannot proceed without memory */
 
         cache[0] = (seq_t)1;
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= capacity) {
         size_t new_cap = capacity ? capacity : 8;
         while (new_cap <= (size_t)n) new_cap <<= 1;   /* double until big enough */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) abort();                     /* out of memory */
         cache = tmp;
         capacity = new_cap;

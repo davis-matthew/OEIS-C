@@ -7,14 +7,16 @@
  * Keywords:  nonn, easy
  * Formula:   fixed point of morphism a->aab, b->b over alphabet {a,b} encoded
  *            as 1 for 'a' and 2 for 'b'
- * Range:     u8 n <= 8125, u16 n <= 8125, u32 n <= 8125, u64 n <= 8125,
- *            u128 n <= 8125, big any n
- * Helpers:   none
+ * Range:     u8 n <= 16383, u16 n <= 16383, u32 n <= 16383, u64 n <= 16383,
+ *            u128 n <= 16383, big any n
+ * Validated: standard, pass, 103 terms through n = 8125 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache   = NULL;   /* cached prefix of the infinite word */
 static idx_t  cache_len = 0;    /* length of the cached prefix */
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     while (cache_len < n) {
         if (cache_len == 0) {                /* start with the first symbol 'a' = 1 */
             cache_len = 1;
-            cache = (seq_t *)malloc(sizeof(seq_t));
+            cache = mem_new(seq_t, 1);
             if (!cache) abort();
             cache[0] = (seq_t)1;
             continue;
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
 
         /* New length: each existing 'a' expands to 3 symbols, 'b' stays 1. */
         idx_t new_len = 2 * cache_len + 1;
-        seq_t *new_cache = (seq_t *)malloc(sizeof(seq_t) * new_len);
+        seq_t *new_cache = mem_new(seq_t, new_len);
         if (!new_cache) abort();
 
         idx_t r = 0, w = 0;
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
             }
         }
 
-        free(cache);
+        mem_free(cache);
         cache     = new_cache;
         cache_len = new_len;
     }

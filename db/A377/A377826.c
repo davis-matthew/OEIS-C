@@ -7,7 +7,8 @@
  * Formula:   a(n) = n! * Sum_{k=0..n} (k+1)^(k-1) * binomial(k+1,n-k)/k!
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 18,
  *            big any n
- * Helpers:   binomial, pow_seq
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,37 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
-#include "../utils/binomial.h"   /* seq_t binomial(idx_t, idx_t) */
-#include "../utils/pow_seq.h"    /* seq_t pow_seq(seq_t, int) */
+/* Compute binomial coefficient n choose k multiplicatively.
+   This works for any seq_t that supports + - * / % with integer constants. */
+static seq_t binomial(idx_t n, idx_t k)
+{
+    if (k > n)
+        return 0;
+    if (k > n - k)      /* use symmetry */
+        k = n - k;
+    seq_t res = 1;
+    for (idx_t i = 1; i <= k; ++i) {
+        res = res * (seq_t)(n - k + i);
+        res = res / (seq_t)i;
+    }
+    return res;
+}
+
+/* Generic power for small exponents (k <= 3) */
+static inline seq_t pow_seq(seq_t a, int k)
+{
+    seq_t r = 1;
+    while (k)
+    {
+        if (k & 1)
+            r *= a;
+        if (k >>= 1)
+            a *= a;
+    }
+    return r;
+}
 
 seq_t a(idx_t n) {
     /* Static cache for factorials and powers */
@@ -29,8 +58,8 @@ seq_t a(idx_t n) {
 
     /* Initialise cache on first call */
     if (fact == NULL) {
-        fact = (seq_t *)malloc((n + 1) * sizeof(seq_t));
-        pow  = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        fact = mem_new(seq_t, (n + 1));
+        pow  = mem_new(seq_t, (n + 1));
         if (!fact || !pow) {
             /* On allocation failure return 0 (should not happen in tests). */
             return (seq_t)0;
@@ -42,8 +71,8 @@ seq_t a(idx_t n) {
 
     /* Expand the cache if a larger n is requested */
     if (n > cache_n) {
-        seq_t *new_fact = (seq_t *)realloc(fact, (n + 1) * sizeof(seq_t));
-        seq_t *new_pow  = (seq_t *)realloc(pow,  (n + 1) * sizeof(seq_t));
+        seq_t *new_fact = mem_resize(seq_t, fact, (n + 1));
+        seq_t *new_pow  = mem_resize(seq_t, pow, (n + 1));
         if (!new_fact || !new_pow) {
             /* Allocation failure – abort (should not occur). */
             return (seq_t)0;

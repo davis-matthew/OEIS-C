@@ -12,12 +12,16 @@
  *            odd_part(q^2-1)^e (q=2 contributes 1)
  * Range:     u8 n <= 15, u16 n <= 292, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   odd_part, seq_pow
+ * Validated: standard, pass, 116 terms through n = 8677 (2026-11-01)
+ * Helpers:   ipow_idx, odd_part
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow_idx.h"
 #include "../utils/odd_part.h"
 
 /* Compute σ(n) = sum of divisors of n.  */
@@ -34,7 +38,7 @@ static seq_t sigma_of_n(idx_t n)
             ++e;
         }
         /* (2^(e+1)-1) */
-        sigma *= seq_pow((seq_t)2, (idx_t)(e + 1)) - 1;
+        sigma *= ipow_idx((seq_t)2, (idx_t)(e + 1)) - 1;
     }
 
     /* odd factors */
@@ -45,7 +49,7 @@ static seq_t sigma_of_n(idx_t n)
                 temp /= p;
                 ++e;
             }
-            seq_t numer = seq_pow((seq_t)p, (idx_t)(e + 1)) - 1;
+            seq_t numer = ipow_idx((seq_t)p, (idx_t)(e + 1)) - 1;
             seq_t denom = (seq_t)(p - 1);
             sigma *= numer / denom;
         }
@@ -53,7 +57,7 @@ static seq_t sigma_of_n(idx_t n)
 
     /* remaining prime factor >1 */
     if (temp > 1) {
-        seq_t numer = seq_pow((seq_t)temp, 2) - 1;
+        seq_t numer = ipow_idx((seq_t)temp, 2) - 1;
         seq_t denom = (seq_t)(temp - 1);
         sigma *= numer / denom;
     }

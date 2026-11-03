@@ -9,7 +9,8 @@
  *            number)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 15, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   fib, pow2
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,19 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/fib.h"    /* seq_t fib(idx_t n) */
-#include "../utils/pow2.h"   /* seq_t pow2(idx_t exp) */
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
 
 /* Cache for large Schröder numbers L(n) (indices start at 0) */
 static seq_t *schroeder_cache = NULL;
@@ -32,7 +44,7 @@ static void ensure_schroeder_cache(idx_t n)
         return;
 
     size_t new_size = (size_t)(n + 1);
-    seq_t *new_cache = (seq_t *)realloc(schroeder_cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, schroeder_cache, new_size);
     if (!new_cache) {
         /* Allocation failed; terminate gracefully. */
         exit(1);

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   digits_ge10, digits_le9
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,29 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/digits_ge10.h"
-#include "../utils/digits_le9.h"
+#include "../utils/mem.h"
+
+/* Helper: does x in the given base contain at least one digit >= 10? */
+static bool digits_ge10(seq_t x, int base) {
+    seq_t y = x;
+    while (y > 0) {
+        if ((y % base) >= 10)
+            return true;
+        y /= base;
+    }
+    return false;
+}
+
+/* Helper: are all digits of x in the given base <= 9? */
+static bool digits_le9(seq_t x, int base) {
+    seq_t y = x;
+    while (y > 0) {
+        if ((y % base) >= 10)
+            return false;
+        y /= base;
+    }
+    return true;
+}
 
 /* Return the nth term of the sequence (offset 1). */
 seq_t a(idx_t n) {
@@ -34,7 +56,7 @@ seq_t a(idx_t n) {
     /* grow the list storage when needed */
     if (list == NULL) {
         list_cap = 256;
-        list = (seq_t *)malloc(list_cap * sizeof(seq_t));
+        list = mem_new(seq_t, list_cap);
     }
 
     /* generate terms until we have at least n of them */
@@ -55,7 +77,7 @@ seq_t a(idx_t n) {
             /* store the term */
             if (terms_found == list_cap) {
                 list_cap *= 2;
-                list = (seq_t *)realloc(list, list_cap * sizeof(seq_t));
+                list = mem_resize(seq_t, list, list_cap);
             }
             list[terms_found++] = last_checked;
         }

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 14, u64 n <= 27, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 184 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static cache for memoisation */
@@ -40,7 +42,7 @@ seq_t a(idx_t n) {
     /* Initialise cache with first 17 terms once */
     if (!cache) {
         cache_cap = 64;              /* initial capacity */
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         static const seq_t init[17] = {
             1ULL, 8ULL, 23ULL, 107ULL, 537ULL, 2800ULL,
             14652ULL, 77128ULL, 406622ULL, 2146188ULL,
@@ -60,7 +62,7 @@ seq_t a(idx_t n) {
     if (n > cache_cap) {
         idx_t new_cap = cache_cap ? cache_cap << 1 : 64;
         while (new_cap < n) new_cap <<= 1;
-        cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 

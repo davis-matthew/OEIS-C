@@ -9,20 +9,23 @@
  *            n into the minimal number of palindromic parts
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_log2_uint64
+ * Validated: standard, pass, 101 terms through n = 9568 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/ilog2.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return (seq_t)0;   /* undefined for offset 1, but guard */
 
     /* Determine the length of the binary representation */
-    idx_t len = floor_log2_uint64(n) + 1;   /* number of bits, 1 <= len <= 64 */
+    idx_t len = ilog2(n) + 1;   /* number of bits, 1 <= len <= 64 */
 
     /* bits[0] is the most significant bit */
     unsigned char bits[65];   /* 64 bits + 1 for safety */

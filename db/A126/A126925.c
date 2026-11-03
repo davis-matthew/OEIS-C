@@ -11,13 +11,14 @@
  *            128726, 76046, 39671, 18631, 7896, 2996, 1001, 286, 66, 11, 1]
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 10, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +38,7 @@ seq_t a(idx_t n)
     idx_t lim = (n < 24) ? n : 24;           /* k runs 0..lim */
     for (idx_t k = 0; k <= lim; ++k) {
         idx_t m = n - k + 23;                /* n-k ≥ 0 because k ≤ lim ≤ n */
-        seq_t bin = binom(m, 23);            /* binomial coefficient */
+        seq_t bin = binomial(m, 23);            /* binomial coefficient */
         result += (seq_t)coef[k] * bin;
     }
     return result;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 89, u16 n <= 89, u32 n <= 89, u64 n <= 89, u128 n <= 89,
  *            big any n
- * Helpers:   has_digit7_seq_t
+ * Validated: partial, pass, 89 terms through n = 89 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,7 +34,32 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/has_digit7_seq_t.h"
+#include "../utils/mem.h"
+
+/* Helper: check whether the product of two seq_t values contains
+ * the digit 7.  Works for native integer seq_t (<= 64‑bit) and
+ * for arbitrary‑precision seq_t classes. */
+static bool has_digit7_seq_t(seq_t a, seq_t b)
+{
+    /* If seq_t is a native unsigned integer type, use 128‑bit arithmetic. */
+    if (sizeof(seq_t) <= sizeof(uint64_t)) {
+        unsigned __int128 prod = (unsigned __int128)a * (unsigned __int128)b;
+        while (prod > 0) {
+            if ((unsigned)(prod % 10) == 7)
+                return true;
+            prod /= 10;
+        }
+        return false;
+    }
+    /* Otherwise, seq_t is an arbitrary‑precision type; use its operators. */
+    seq_t prod = a * b;
+    while (prod > 0) {
+        if ((prod % 10) == 7)
+            return true;
+        prod /= 10;
+    }
+    return false;
+}
 
 /* Ensure that the used bitmap can address indices up to `upTo` (inclusive).
  * The bitmap is stored as a contiguous array of bool values indexed by
@@ -61,7 +87,7 @@ static void ensure_seq_capacity(idx_t n, seq_t **seq, idx_t *cap)
     idx_t newCap = (*cap == 0) ? 8 : *cap;
     while (newCap < n)
         newCap <<= 1;
-    seq_t *newArr = (seq_t *)realloc(*seq, newCap * sizeof(seq_t));
+    seq_t *newArr = mem_resize(seq_t, *seq, newCap);
     if (!newArr) abort();           /* allocation failed */
     *seq = newArr;
     *cap = newCap;

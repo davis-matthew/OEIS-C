@@ -9,15 +9,31 @@
  *            least n terms
  * Range:     u8 n <= 1, u16 n <= 16, u32 n <= 7602, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   A4808_cmp, u128_to_seq
+ * Validated: standard, pass, 54 terms through n = 9342 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/u128_to_seq.h"
-#include "../utils/A4808_cmp.h"
+
+static seq_t u128_to_seq(unsigned __int128 u)
+{
+    seq_t r = 0;
+    int k;
+    for (k = 3; k >= 0; k--) {
+        r = r * 65536ULL;
+        r = r * 65536ULL;
+        r += (seq_t)(uint64_t)(uint32_t)(u >> (32 * k));
+    }
+    return r;
+}
+
+static int A4808_cmp(const void *x, const void *y) {
+    uint64_t u = *(const uint64_t *)x, v = *(const uint64_t *)y;
+    return (u > v) - (u < v);
+}
 
 static uint64_t *A4808_pw = NULL;
 static int A4808_npw = 0;

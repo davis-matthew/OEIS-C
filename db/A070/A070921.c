@@ -8,13 +8,20 @@
  *            (e+1)^5 − e^5) Offset: 1 (a(1) = 1)
  * Range:     u8 n <= 5, u16 n <= 59, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow5_small
+ * Validated: standard, pass, 66 terms through n = 9213 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow5_small.h"
+
+static inline seq_t pow5_small(seq_t base)
+{
+    seq_t r = 1;
+    for (int i = 0; i < 5; ++i) r *= base;
+    return r;
+}
 
 seq_t a(idx_t n)
 {

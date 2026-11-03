@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    a(n) = [ (12n-6)a(n-1) - (19n-35)a(n-2) + (13n-32)a(n-3) - (4n-14)a(n-4) ] / (2(n+1))
    a(0)=1, a(1)=0, a(2)=0, a(3)=1 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* dynamically allocated cache of computed values   */
 static size_t cache_cap = 0;         /* current capacity of cache                       */
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* Grow the cache to fit all indices up to n. */
     size_t new_cap = (size_t)n + 1;
     if (new_cap > cache_cap) {
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();          /* allocation failed – terminate */
         cache = tmp;
         cache_cap = new_cap;

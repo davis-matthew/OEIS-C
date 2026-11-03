@@ -11,13 +11,21 @@
  *            + Sum_{i=1..m-2} v(i)*v(m-1-i), used for fixed-width builds)
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 33, u64 n <= 62, u128 n <= 118,
  *            big any n
- * Helpers:   detect_fixed_local
+ * Validated: standard, pass, 49 terms through n = 193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/detect_fixed_local.h"
+#include "../utils/mem.h"
+
+static int detect_fixed_local(void) {
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 200; i++) x = x * 2;
+    return x == 0;
+}
 
 static seq_t *vmemo = NULL;
 static idx_t vlen = 0;   /* number of valid entries v[0..vlen-1] */
@@ -29,11 +37,11 @@ static seq_t v_term(idx_t m) {
     if (m + 1 > vcap) {
         idx_t nc = vcap ? vcap : 16;
         while (nc < m + 1) nc *= 2;
-        seq_t *nv = (seq_t *)malloc(nc * sizeof(seq_t));
+        seq_t *nv = mem_new(seq_t, nc);
         idx_t i;
         for (i = 0; i < vlen; i++) nv[i] = vmemo[i];
         for (i = vlen; i < nc; i++) nv[i] = 0;
-        if (vmemo) free(vmemo);
+        if (vmemo) mem_free(vmemo);
         vmemo = nv;
         vcap = nc;
     }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 71, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   has_qualifying_prime
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,7 +35,40 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/has_qualifying_prime.h"
+
+/* Helper: test if m has a qualifying prime factor. */
+static bool has_qualifying_prime(uint64_t m) {
+    /* Prime 2 */
+    if ((m & 1ULL) == 0) {
+        int exp = 0;
+        while ((m & 1ULL) == 0) {
+            exp ^= 1;            /* toggle between 0 and 1 for odd/even */
+            m >>= 1;
+        }
+        if (exp)   /* odd exponent of 2 */
+            return true;
+    }
+
+    /* Odd primes */
+    for (uint64_t p = 3; p * p <= m; p += 2) {
+        if (m % p == 0) {
+            int exp = 0;
+            while (m % p == 0) {
+                exp ^= 1;            /* toggle parity */
+                m /= p;
+            }
+            if (exp && (p % 5 == 2 || p % 5 == 3))
+                return true;
+        }
+    }
+
+    /* Remaining prime factor > sqrt(m) */
+    if (m > 1) {                 /* m is prime */
+        if (m % 5 == 2 || m % 5 == 3)
+            return true;
+    }
+    return false;
+}
 
 /* Main sequence function */
 seq_t a(idx_t n) {

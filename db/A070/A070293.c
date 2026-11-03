@@ -7,6 +7,7 @@
  * Formula:   a(n) = lcm(30,n)/gcd(30,n) = (30/gcd(30,n)) * (n/gcd(30,n))
  * Range:     u8 n <= 10, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

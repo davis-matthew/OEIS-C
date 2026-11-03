@@ -9,7 +9,8 @@
  *            1 if |i-j| ≤ 8, else 0. a(0)=1
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Number of states (digits 0…22). */
 #define DIM 23
@@ -81,7 +83,7 @@ seq_t a(idx_t n)
         }
 
         /* Compute a[0..ORD] (0..23). */
-        seq_t *a_vec = (seq_t*)malloc((ORD + 1) * sizeof(seq_t));
+        seq_t *a_vec = mem_new(seq_t, (ORD + 1));
         a_vec[0] = 1;                      /* empty string */
         a_vec[1] = mat_trace(A);           /* 23 */
 
@@ -103,7 +105,7 @@ seq_t a(idx_t n)
 
         /* Build recurrence coefficients using Newton's identities. */
         /* Elementary symmetric polynomials e[0..ORD].  e[0] = 1. */
-        seq_t *e = (seq_t*)malloc((ORD + 1) * sizeof(seq_t));
+        seq_t *e = mem_new(seq_t, (ORD + 1));
         e[0] = 1;
         for (size_t k = 1; k <= ORD; ++k) {
             seq_t sum = a_vec[k];          /* start with p_k */
@@ -119,7 +121,7 @@ seq_t a(idx_t n)
 
         /* Store recurrence coefficients c[0..ORD-1] where
            λ^ORD + c[ORD-1] λ^{ORD-1} + … + c[0] = 0            */
-        coeff = (seq_t*)malloc(ORD * sizeof(seq_t));
+        coeff = mem_new(seq_t, ORD);
         for (size_t k = 1; k <= ORD; ++k) {
             seq_t val = e[k];
             if ( ((k & 1) == 0) )          /* (-1)^k */
@@ -129,12 +131,12 @@ seq_t a(idx_t n)
 
         /* Prepare cache up to ORD.  */
         cache_size = ORD + 1;
-        cache = (seq_t*)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         for (size_t i = 0; i <= ORD; ++i)
             cache[i] = a_vec[i];
 
-        free(a_vec);
-        free(e);
+        mem_free(a_vec);
+        mem_free(e);
 
         initialized = true;
     }
@@ -143,7 +145,7 @@ seq_t a(idx_t n)
     idx_t required = n;
     if (required >= cache_size) {
         size_t new_size = (size_t)(required + 1);
-        cache = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
         for (size_t i = cache_size; i <= required; ++i) {
             /* Compute a[i] using recurrence. */
             seq_t pos = 0;

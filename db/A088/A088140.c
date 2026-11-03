@@ -7,7 +7,8 @@
  * Formula:   a(n) = 1 if n is an odd prime, otherwise a(n) = n
  * Range:     i8 n <= 79, i16 n <= 79, i32 n <= 79, i64 n <= 79, i128 n <= 79,
  *            big any n
- * Helpers:   mul_mod128
+ * Validated: partial, pass, 78 terms through n = 79 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/mul_mod128.h"
+#include "../utils/mulmod.h"
 
 /* 64‑bit modular exponentiation (binary exponentiation) */
 static uint64_t mod_pow64(uint64_t base, uint64_t exp, uint64_t mod)
@@ -25,8 +26,8 @@ static uint64_t mod_pow64(uint64_t base, uint64_t exp, uint64_t mod)
     uint64_t result = 1ULL;
     while (exp > 0) {
         if (exp & 1ULL)
-            result = mul_mod128(result, base, mod);
-        base = mul_mod128(base, base, mod);
+            result = mulmod(result, base, mod);
+        base = mulmod(base, base, mod);
         exp >>= 1ULL;
     }
     return result;
@@ -60,7 +61,7 @@ static bool is_prime64(uint64_t n)
         if (x == 1ULL || x == n - 1) continue;
         bool composite = true;
         for (int r = 1; r < s; ++r) {
-            x = mul_mod128(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) {
                 composite = false;
                 break;

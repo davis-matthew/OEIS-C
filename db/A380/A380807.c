@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 61, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;          /* array of non‑representable numbers */
 static size_t seq_len = 0;         /* number of values stored */
@@ -60,7 +62,7 @@ static void recompute_for_limit(idx_t new_limit) {
 
     /* Allocate / resize seq array */
     if (seq_cap < count) {
-        seq = (seq_t*)realloc(seq, count * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, count);
         seq_cap = count;
     }
 

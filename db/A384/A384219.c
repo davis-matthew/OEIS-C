@@ -11,12 +11,14 @@
  *            odd Fibonacci numbers
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 31, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 992 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #ifdef __SIZEOF_INT128__
     typedef unsigned __int128 u128;
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (!oddFib) {
         oddCap = 4;
-        oddFib = (seq_t *)realloc(NULL, oddCap * sizeof(seq_t));
+        oddFib = mem_resize(seq_t, NULL, oddCap);
         if (!oddFib) return 0;
         oddFib[0] = 1;                  /* first odd Fibonacci number F1 */
         oddFib[1] = 1;                  /* second odd Fibonacci number F2 */
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
         /* grow the array if needed */
         if (oddCount >= oddCap) {
             size_t newCap = oddCap * 2;
-            seq_t *tmp = (seq_t *)realloc(oddFib, newCap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, oddFib, newCap);
             if (!tmp) return 0;
             oddFib = tmp;
             oddCap = newCap;

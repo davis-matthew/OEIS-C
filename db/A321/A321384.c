@@ -7,13 +7,15 @@
  * Formula:   a(1) = 1; a(n+1) = -∑_{d|n} d * a(d) (OEIS A321384)
  * Range:     i8 n <= 6, i16 n <= 9, i32 n <= 13, i64 n <= 21, i128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 423 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;            /* 1‑based array holding a(n) */
 static idx_t  alloc_len = 0;           /* allocated length of cache (index+1) */
@@ -24,7 +26,7 @@ static void ensure_cache(idx_t n)
 {
     if (alloc_len >= n + 1) return;
     idx_t new_len = n + 1;                     /* +1 because we ignore index 0 */
-    seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_len);
     if (!tmp) abort();                        /* allocation failure */
     cache = tmp;
     alloc_len = new_len;

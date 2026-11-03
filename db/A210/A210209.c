@@ -11,6 +11,7 @@
  *            the fast‑doubling method to compute Fibonac...
  * Range:     u8 n <= 25, u16 n <= 49, u32 n <= 93, u64 n <= 185,
  *            u128 n <= 369, big any n
+ * Validated: standard, pass, 77 terms through n = 852 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

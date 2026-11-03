@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 10, i16 n <= 51, i32 n <= 51, i64 n <= 51, i128 n <= 51,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
  * directly by iterating over k = 0,1,2,…, testing |m| for primality.  The
  * implementation is O(n) and requires no caching. */
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 /* Return the nth term of the sequence (1‑based). */
 seq_t a(idx_t n)
@@ -33,7 +34,7 @@ seq_t a(idx_t n)
 
         /* Test if |m| is prime; is_prime_small works for both small and
          * arbitrary‑precision seq_t values. */
-        if (is_prime_small(abs_m)) {
+        if (is_prime_seq(abs_m)) {
             found++;
             if (found == n)
                 return m;                    /* desired term found */

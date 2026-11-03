@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <string.h>   /* for memset */
+#include "../utils/mem.h"
 
 /* Static cache of already computed terms. */
 static seq_t *a_cache   = NULL;
@@ -33,14 +35,13 @@ static void ensure_cache(idx_t n) {
     if (cache_cap <= (size_t)n) {
         /* Allocate at least n+1 elements, double size for amortisation. */
         size_t new_cap = (n + 1 > cache_cap * 2) ? (n + 1) : (cache_cap * 2);
-        seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
         if (!tmp) abort();                /* Out of memory            */
         if (!a_cache) {
-            memset(tmp, 0, new_cap * sizeof(seq_t));
+            mem_set(tmp, 0, new_cap * sizeof(seq_t));
         } else {
             /* New memory must be zeroed. */
-            memset(tmp + cache_cap, 0,
-                   (new_cap - cache_cap) * sizeof(seq_t));
+            mem_set(tmp + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
         }
         a_cache   = tmp;
         cache_cap = new_cap;

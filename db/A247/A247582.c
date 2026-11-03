@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 54, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   binom_u
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,7 +31,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binom_u.h"
+#include "../utils/binomial.h"
 
 /* --------------------------------------------------------------------- */
 
@@ -49,8 +50,8 @@ static seq_t triangle_entry(idx_t n, idx_t k)
         for (idx_t i = 0; i < n - k; ++i)
         {
             seq_t term = ((seq_t)(k + 1)
-                         * binom_u(k + 2 * i, i)
-                         * binom_u(n - i - 1, n - k - i))
+                         * binomial(k + 2 * i, i)
+                         * binomial(n - i - 1, n - k - i))
                          / ((seq_t)(k + i + 1));
             sum += term;
         }
@@ -58,7 +59,7 @@ static seq_t triangle_entry(idx_t n, idx_t k)
 
     /* Last term i = n-k:  binom(k-1,0) = 1 for all k (C(-1,0)=1 when k=0) */
     seq_t last = ((seq_t)(k + 1)
-                 * binom_u(2 * n - k, n - k))
+                 * binomial(2 * n - k, n - k))
                  / (seq_t)(n + 1);
     return sum + last;
 }

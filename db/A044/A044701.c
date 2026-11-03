@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   base9_has_76
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,23 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/base9_has_76.h"
+#include "../utils/mem.h"
+
+/* Helper: return true if x in base 9 has the substring 76. */
+static bool base9_has_76(seq_t x)
+{
+    if (x < 6) return false;          /* need at least two digits */
+    seq_t prev = x % 9;
+    x /= 9;
+    while (x) {
+        seq_t curr = x % 9;
+        if (curr == 7 && prev == 6)   /* more significant digit 7, less 6 */
+            return true;
+        prev = curr;
+        x /= 9;
+    }
+    return false;
+}
 
 /* The required sequence function. */
 seq_t a(idx_t n)
@@ -42,7 +59,7 @@ seq_t a(idx_t n)
             /* Ensure enough space in cache. */
             if (cache_len >= cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap << 1 : 16;
-                cache = (seq_t *)realloc((void*)cache, new_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, new_cap);
                 cache_cap = new_cap;
             }
             /* Store the found term. */

@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  base, nonn
  * Formula:   not stated
- * Range:     u8 n <= 87, u16 n <= 7914, u32 n <= 7914, u64 n <= 7914,
- *            u128 n <= 7914, big any n
- * Helpers:   none
+ * Range:     u8 n <= 87, u16 n <= 13846, u32 n <= 13846, u64 n <= 13846,
+ *            u128 n <= 13846, big any n
+ * Validated: standard, pass, 84 terms through n = 7914 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* bit length of an integer */
 static size_t bitlen_seq_t(seq_t x)
@@ -143,7 +145,7 @@ seq_t a(idx_t n)
                 if (cache_len == cache_cap)
                 {
                     cache_cap = cache_cap ? cache_cap << 1 : 16;
-                    cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cache_cap);
                 }
                 cache[cache_len++] = x;
                 next_candidate = x + 2;

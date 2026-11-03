@@ -12,14 +12,41 @@
  *            implementati...
  * Range:     u8 n <= 9, u16 n <= 21, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   dfs_divs
+ * Validated: partial, pass, 43 terms through n = 42 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/dfs_divs.h"
+
+/* Recursively enumerate all divisors from the prime factorisation
+   and add their contribution to the accumulator *acc.  */
+static void dfs_divs(size_t idx, idx_t cur,
+                     const uint64_t *pr, const int *exp,
+                     size_t cnt, idx_t n, seq_t *acc)
+{
+    if (idx == cnt)
+    {
+        idx_t d = cur;                     /* current divisor              */
+        seq_t term = (seq_t)d * (seq_t)d;   /* d²                           */
+        term *= (seq_t)1 << (d - 1);        /* 2^(d-1)                      */
+        idx_t mult = n / d - 1;             /* (n/d - 1)                    */
+        term *= (seq_t)mult;                /* complete term                */
+        *acc += term;
+        return;
+    }
+
+    uint64_t p   = pr[idx];
+    int    emax = exp[idx];
+    idx_t  value = cur;
+    for (int e = 0; e <= emax; ++e)
+    {
+        dfs_divs(idx + 1, value, pr, exp, cnt, n, acc);
+        value *= p;                          /* multiply by next power of p  */
+    }
+}
 
 /* Simple trial division factorisation of a 64‑bit integer.
    The result is stored in the arrays pr[] and exp[] and

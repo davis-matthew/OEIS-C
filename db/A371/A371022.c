@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 64, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_vals   = NULL;    /* sorted list of found terms */
 static size_t seq_size   = 0;       /* number of terms stored      */
@@ -35,7 +37,7 @@ static const size_t   fermat_cnt      = sizeof(fermat_primes)/sizeof(fermat_prim
 static void build_sequence(idx_t limit)
 {
     /* free previous data */
-    if (seq_vals) { free(seq_vals); seq_vals = NULL; }
+    if (seq_vals) { mem_free(seq_vals); seq_vals = NULL; }
     seq_size = 0;
     seq_limit = limit;
 
@@ -89,7 +91,7 @@ static void build_sequence(idx_t limit)
     for (idx_t i = 2; i <= limit; ++i) if (flag[i]) ++count;
 
     if (count > 0) {
-        seq_vals = (seq_t*)malloc(count * sizeof(seq_t));
+        seq_vals = mem_new(seq_t, count);
         if (seq_vals) {
             size_t idx = 0;
             for (idx_t i = 2; i <= limit; ++i)

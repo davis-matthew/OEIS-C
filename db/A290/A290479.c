@@ -10,13 +10,15 @@
  *            power, a(n) = 1
  * Range:     u8 n <= 29, u16 n <= 41, u32 n <= 209, u64 n <= 569,
  *            u128 n <= 2309, big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 96 terms through n = 8653 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -45,5 +47,5 @@ seq_t a(idx_t n)
     seq_t exp = ((seq_t)1 << (k - 1)) - (seq_t)1;
 
     /* For k = 1, exp = 0, so rad^0 = 1, which is correct. */
-    return big_pow(rad, exp);
+    return ipow(rad, exp);
 }

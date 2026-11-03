@@ -7,12 +7,14 @@
  * Formula:   a(n) = 2 - mu(n) (where mu is the Möbius function)
  * Range:     i8 n <= 1001, i16 n <= 1001, i32 n <= 1001, i64 n <= 1001,
  *            i128 n <= 1001, big any n
+ * Validated: standard, pass, 103 terms through n = 879 (2026-11-01)
  * Helpers:   mobius
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/mobius.h"  /* provides seq_t mobius(idx_t n) */
+#include <stdint.h>
+#include "../utils/mobius.h"
 
 seq_t a(idx_t n)
 {

@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 2, u64 n <= 18, u128 n <= 18,
  *            big any n
+ * Validated: full, pass, 18 terms through n = 18 (2026-11-02)
  * Helpers:   digit_counts
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,9 @@
    of the digits 0–9 (i.e. full six‑digit distinct digit numbers).  There are
    exactly 27 such numbers, and the function returns the n-th smallest of
    them for n >= 1.  If n is larger than 27 it returns 0. */
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
 #include "../utils/digit_counts.h"
 #include <stdbool.h>
 

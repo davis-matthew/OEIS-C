@@ -11,12 +11,14 @@
  *            33*a(n-2) + 16*a(n-3) for n>8)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 32,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: standard, pass, 32 terms through n = 38 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
 
     /* For n > 5 use the closed‑form expression:
          a(n) = 16^n - 36*n - 312                           */
-    seq_t result = pow_seq((seq_t)16, (int)n);   /* 16^n  */
+    seq_t result = ipow_i32((seq_t)16, (int)n);   /* 16^n  */
     result -= (seq_t)36 * (seq_t)n;              /* subtract 36*n */
     result -= (seq_t)312;                       /* subtract 312  */
     return result;

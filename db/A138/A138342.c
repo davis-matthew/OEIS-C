@@ -6,8 +6,9 @@
  * Keywords:  nonn, mult
  * Formula:   a(n) = binary_to_decimal(n) - binary_to_decimal(n-1) where
  *            binary_to_decimal(n) = Σ bit_i(n) * 10^i, i = 0 .. floor(log2 n)
- * Range:     u8 n <= 7, u16 n <= 31, u32 n <= 1023, u64 n <= 9828,
- *            u128 n <= 9828, big any n
+ * Range:     u8 n <= 7, u16 n <= 31, u32 n <= 1023, u64 n <= 16383,
+ *            u128 n <= 16383, big any n
+ * Validated: standard, pass, 102 terms through n = 9828 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

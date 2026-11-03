@@ -8,7 +8,8 @@
  * Formula:   a(n) = largest palindromic prime divisor of n, or 0 if none
  * Range:     u8 n <= 103, u16 n <= 103, u32 n <= 103, u64 n <= 103,
  *            u128 n <= 103, big any n
- * Helpers:   build_primes_upto, is_palindrome
+ * Validated: partial, pass, 102 terms through n = 103 (2026-11-01)
+ * Helpers:   build_primes_upto, is_palindrome_base
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/is_palindrome.h"
+#include "../utils/is_palindrome_base.h"
 
 /* Static cache of primes up to the current limit. */
 static uint64_t *primes_cache = NULL;
@@ -65,7 +66,7 @@ seq_t a(idx_t n)
                 temp /= p;
             } while (temp % p == 0);
 
-            if (is_palindrome((seq_t)p, 10) && (seq_t)p > best)
+            if (is_palindrome_base((seq_t)p, 10) && (seq_t)p > best)
                 best = (seq_t)p;
         }
     }
@@ -73,7 +74,7 @@ seq_t a(idx_t n)
     /* If a prime factor > sqrt(original n) remains. */
     if (temp > 1) {
         /* temp itself is prime. */
-        if (is_palindrome((seq_t)temp, 10) && (seq_t)temp > best)
+        if (is_palindrome_base((seq_t)temp, 10) && (seq_t)temp > best)
             best = (seq_t)temp;
     }
 

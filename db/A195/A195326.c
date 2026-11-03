@@ -9,14 +9,17 @@
  *            factorial of n)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *D = NULL;         /* array of D[n] values */
 static seq_t *fact = NULL;      /* array of n! values */
@@ -29,8 +32,8 @@ static void ensure_up_to(idx_t n)
         return;
 
     size_t new_size = (size_t)n + 1;  /* indices 0..n */
-    D = (seq_t*)realloc(D, new_size * sizeof(seq_t));
-    fact = (seq_t*)realloc(fact, new_size * sizeof(seq_t));
+    D = mem_resize(seq_t, D, new_size);
+    fact = mem_resize(seq_t, fact, new_size);
     if (!D || !fact)
         exit(EXIT_FAILURE);   /* allocation failed */
 

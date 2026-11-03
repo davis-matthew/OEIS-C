@@ -9,12 +9,15 @@
  *            141*exp(2*n) + 50*exp(n) - 6) / 24
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 17, u128 n <= 32,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 36 terms through n = 836 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"   /* seq_t big_pow(seq_t base, seq_t exp); */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +43,7 @@ seq_t a(idx_t n)
     seq_t pos = 0, neg = 0;
     seq_t exp = (seq_t)n;
     for (int i = 0; i < 11; ++i) {
-        seq_t power = big_pow((seq_t)ks[i], exp);
+        seq_t power = ipow((seq_t)ks[i], exp);
         int c = coeffs[i];
         seq_t term = power * (seq_t)(c >= 0 ? c : -c);
         if (c >= 0) pos += term; else neg += term;

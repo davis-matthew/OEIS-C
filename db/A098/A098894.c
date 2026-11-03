@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
         c(k) = 2*c(k-1) + c(k-2).                      */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,14 +38,14 @@ seq_t a(idx_t n)
 
     /* initialise caches on first call */
     if (a_cache == NULL) {
-        a_cache = (seq_t *)malloc((2) * sizeof(seq_t));   /* indices 0..1 */
+        a_cache = mem_new(seq_t, (2));   /* indices 0..1 */
         if (a_cache == NULL) return 0;                   /* allocation failure */
         a_cache[0] = 0;                                 /* unused            */
         a_cache[1] = (seq_t)1;                          /* a(1) = 1          */
         a_last = 1;
     }
     if (c_cache == NULL) {
-        c_cache = (seq_t *)malloc((3) * sizeof(seq_t));   /* indices 0..2 */
+        c_cache = mem_new(seq_t, (3));   /* indices 0..2 */
         if (c_cache == NULL) return 0;                  /* allocation failure */
         c_cache[0] = 0;                                 /* unused            */
         c_cache[1] = (seq_t)1;                          /* c(1) = 1          */
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
     idx_t kmax = (n + 1) / 2;                     /* ceil(n/2) */
     if (kmax > c_last) {
         size_t new_cap = (size_t)(kmax + 1);
-        seq_t *tmp = (seq_t *)realloc(c_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, c_cache, new_cap);
         if (tmp == NULL) return 0;                /* allocation failure */
         c_cache = tmp;
         for (idx_t k = c_last + 1; k <= kmax; ++k) {
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
     /* grow a_cache if needed */
     if (n > a_last) {
         size_t new_cap = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
         if (tmp == NULL) return 0;                /* allocation failure */
         a_cache = tmp;
         for (idx_t i = a_last + 1; i <= n; ++i) {

@@ -10,7 +10,8 @@
  *            second smallest prime factor) – (index of smallest prime factor)
  * Range:     u8 n <= 3237, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _floor_isqrt_u64, build_primes_upto
+ * Validated: standard, pass, 134 terms through n = 8948 (2026-11-01)
+ * Helpers:   build_primes_upto, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
 
 /* static storage for a growing list of primes */
 static idx_t primes_limit = 0;          /* current sieve limit          */
@@ -52,7 +53,7 @@ static uint64_t spf(idx_t n)
 {
     if (n <= 1) return n;
 
-    idx_t sqrt_n = _floor_isqrt_u64(n);
+    idx_t sqrt_n = isqrt(n);
     if (primes_limit < sqrt_n) ensure_primes_upto(sqrt_n);
 
     for (size_t i = 0; i < primes_cnt; ++i) {

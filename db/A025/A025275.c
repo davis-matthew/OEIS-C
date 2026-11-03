@@ -9,12 +9,14 @@
  *            Initial values: a(1)=1, a(2)=0, a(3)=1, a(4)=0
  * Range:     u8 n <= 12, u16 n <= 19, u32 n <= 31, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached values of the sequence */
 static seq_t *cache = NULL;
@@ -32,7 +34,7 @@ static void ensure_capacity(size_t needed)
     if (new_cap < needed)
         new_cap = needed;
     /* realloc returns void* in C; cast explicitly for C++ compatibility. */
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         abort();                     /* allocation failed – terminate */
     cache = tmp;

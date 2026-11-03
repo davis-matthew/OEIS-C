@@ -7,12 +7,14 @@
  * Formula:   a(0) = 2, a(n) = \sum_{k=0}^{n-1} binom(n,k) * a(k) (n ≥ 1)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 11, u64 n <= 18, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 179 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     /* initialise cache with a(0) */
     if (cache_cap == 0) {
         cache_cap = 4;            /* arbitrary small capacity */
-        cache = (seq_t *)realloc(NULL, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, cache_cap);
         cache[0] = (seq_t)2;      /* a(0) = 2 */
         cache_size = 1;
     }
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
         /* append new term */
         if (cache_size >= cache_cap) {
             cache_cap = cache_cap * 2;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
         cache[cache_size] = sum;
         ++cache_size;

@@ -11,9 +11,10 @@
  *            - n + 4)/2, where m = 0, +1, -1, +2, -2, +3, -3, ... (col‑index
  *            0,1,2,3,4,...) The array is traversed by antidiagonals upwards:
  *            (0,0),(1,0),(0,1),(2,0),(1,1),(0,2),…
- * Range:     i8 n <= 239, i16 n <= 7698, i32 n <= 9604, i64 n <= 9604,
- *            i128 n <= 9604, big any n
- * Helpers:   tri_le
+ * Range:     i8 n <= 239, i16 n <= 7698, i32 n <= 20300, i64 n <= 20300,
+ *            i128 n <= 20300, big any n
+ * Validated: standard, pass, 107 terms through n = 9604 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,12 @@
 #include <stdint.h>
 #include <math.h>
 #include <stdbool.h>
-#include "../utils/tri_le.h"
+
+/* True iff d*(d+1)/2 <= n  (uses 128‑bit to avoid overflow) */
+static inline bool tri_le(idx_t d, idx_t n)
+{
+    return ((__int128)d * (d + 1)) / 2 <= n;
+}
 
 seq_t a(idx_t n)
 {

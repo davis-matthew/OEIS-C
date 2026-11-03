@@ -12,7 +12,8 @@
  *            satisfied by the next column. Complexity O(n·S·C) wher...
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 9, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -68,11 +70,11 @@ seq_t a(idx_t n)
     /* DP arrays: state id = (prev_mask << 7) | need_mask, size 128*128 = 16384 */
     static seq_t dp[16384];
     static seq_t ndp[16384];
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
     dp[0] = (seq_t)1;                     /* prev_mask = 0, need = 0 */
 
     for (idx_t col = 0; col < n; ++col) {
-        memset(ndp, 0, sizeof(ndp));
+        mem_set(ndp, 0, sizeof(ndp));
 
         for (int sid = 0; sid < 16384; ++sid) {
             seq_t ways = dp[sid];
@@ -92,7 +94,7 @@ seq_t a(idx_t n)
             }
         }
         /* swap dp and ndp */
-        memcpy(dp, ndp, sizeof(dp));
+        mem_copy(dp, ndp, sizeof(dp));
     }
 
     /* Sum over states whose need mask is zero (no future requirement). */

@@ -12,7 +12,8 @@
  *            - Sum F(i,j) R(k-i,m-j); computed modulo several prime...
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 8, u128 n <= 11,
  *            big any n
- * Helpers:   seq_is_fixed_width, trial_prime, u128_to_seq
+ * Validated: standard, pass, 28 terms through n = 45 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,31 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_is_fixed_width.h"
-#include "../utils/u128_to_seq.h"
-#include "../utils/trial_prime.h"
+#include "../utils/is_prime_u64.h"
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
+
+static seq_t u128_to_seq(unsigned __int128 u)
+{
+    seq_t r = 0;
+    int k;
+    for (k = 3; k >= 0; k--) {
+        r = r * 65536ULL;
+        r = r * 65536ULL;
+        r += (seq_t)(uint64_t)(uint32_t)(u >> (32 * k));
+    }
+    return r;
+}
 
 static uint64_t pw_mod(uint64_t b, uint64_t e, uint64_t p) {
     uint64_t r = 1 % p;
@@ -93,7 +116,7 @@ seq_t a(idx_t n) {
 
     cand = 4294967295ULL;
     for (i = 0; i < P; i++) {
-        while (!trial_prime(cand)) cand -= 2;
+        while (!is_prime_u64(cand)) cand -= 2;
         pr[i] = cand;
         cand -= 2;
     }

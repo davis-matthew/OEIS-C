@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 0, u16 n <= 9, u32 n <= 44, u64 n <= 82, u128 n <= 82,
  *            big any n
- * Helpers:   digit_len, floor_cube_root, pow10
+ * Validated: partial, pass, 83 terms through n = 82 (2026-11-03)
+ * Helpers:   ipow_i32, mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,9 +25,38 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "../utils/pow10.h"             /* seq_t pow10(idx_t) */
-#include "../utils/floor_cube_root.h"   /* seq_t floor_cube_root(seq_t) */
-#include "../utils/digit_len.h"         /* size_t digit_len(seq_t) */
+#include "../utils/ipow_i32.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
+
+/* Floor cube root by binary search */
+static inline seq_t floor_cube_root(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    /* raise hi until hi^3 > x */
+    while (ipow_i32(hi, 3) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid3 = ipow_i32(mid, 3);
+        if (mid3 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 static seq_t *cubes = NULL;    /* largest cube for each digit length (1‑based) */
 static idx_t *cum   = NULL;    /* cumulative number of digits up to that cube */
@@ -44,11 +74,11 @@ static void extend_to(size_t new_len)
         seq_t sq   = root * root;
         seq_t cube = sq * root;             /* cube = root^3 */
 
-        size_t digits = digit_len(cube);    /* decimal digits of this cube */
+        size_t digits = num_digits(cube);    /* decimal digits of this cube */
 
         if (sz == cap) {                    /* grow storage if needed */
             cap = cap ? cap << 1 : 4;
-            cubes = (seq_t *)realloc(cubes, cap * sizeof(seq_t));
+            cubes = mem_resize(seq_t, cubes, cap);
             cum   = (idx_t *)realloc(cum,   cap * sizeof(idx_t));
         }
 
@@ -81,7 +111,7 @@ seq_t a(idx_t n)
     idx_t offset      = n - prev_digits;            /* 0‑based offset */
 
     seq_t cube         = cubes[cube_idx];
-    size_t digits      = digit_len(cube);
+    size_t digits      = num_digits(cube);
     idx_t exp          = (idx_t)(digits - offset - 1); /* 10^exp */
     seq_t divisor      = pow10(exp);
     seq_t temp         = cube / divisor;

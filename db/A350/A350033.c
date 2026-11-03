@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 234, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mobius
+ * Validated: standard, pass, 84 terms through n = 9510 (2026-11-03)
+ * Helpers:   mem, mobius
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include "../utils/mobius.h"
+#include "../utils/mem.h"
 
 /* Forward declaration of the helper function supplied by the build */
 extern seq_t mobius(idx_t m);
@@ -60,7 +62,7 @@ static void ensure_seq(size_t n)
     if (n <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap << 1 : 128;
     while (new_cap < n) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, new_cap);
     if (!tmp) abort();
     seq = tmp;
     seq_cap = new_cap;
@@ -70,7 +72,7 @@ static void init_once(void)
 {
     if (seq) return;          /* already initialised */
 
-    seq = (seq_t *)malloc(128 * sizeof(seq_t));
+    seq = mem_new(seq_t, 128);
     if (!seq) abort();
     seq_cap = 128;
     seq_len = 0;

@@ -7,7 +7,8 @@
  * Formula:   a(n) = number of 8's in the decimal representation of n!
  * Range:     u8 n <= 967, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 111 terms through n = 9943 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stddef.h>   /* size_t */
 #include <stdint.h>   /* uint8_t, uint32_t, uint64_t */
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 static unsigned char *digits      = NULL;   /* decimal digits (LSB first) */
 static size_t      digits_len    = 0;       /* current number of digits  */
@@ -45,7 +47,7 @@ static void ensure_cnt_cap(size_t min_cap)
     if (cnt_cap >= min_cap) return;
     size_t new_cap = cnt_cap ? cnt_cap << 1 : 16;
     while (new_cap < min_cap) new_cap <<= 1;
-    count8 = (seq_t *)realloc(count8, new_cap * sizeof(seq_t));
+    count8 = mem_resize(seq_t, count8, new_cap);
     cnt_cap = new_cap;
 }
 

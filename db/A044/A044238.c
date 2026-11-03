@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   has63
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,21 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/has63.h"
+
+/* Internal helper: check whether a 64‑bit value contains the octal substring "63" */
+static bool has63(uint64_t v)
+{
+    bool prev_is3 = false;
+    while (v > 0)
+    {
+        uint8_t digit = (uint8_t)(v & 7ULL); /* v % 8 */
+        if (digit == 6 && prev_is3)
+            return true;
+        prev_is3 = (digit == 3);
+        v >>= 3;                /* divide by 8 */
+    }
+    return false;
+}
 
 /* Static cache for computed terms. */
 static uint64_t *cache_uint64 = NULL;

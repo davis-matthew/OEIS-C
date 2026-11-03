@@ -7,13 +7,16 @@
  * Formula:   a(n) = number of primes <= 2*n^2
  * Range:     u8 n <= 28, u16 n <= 640, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   compute_pi
+ * Validated: standard, pass, 74 terms through n = 4816 (2026-11-01)
+ * Helpers:   prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/compute_pi.h"
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/prime_pi.h"
 
 seq_t a(idx_t n)
 {
@@ -24,5 +27,5 @@ seq_t a(idx_t n)
     idx_t limit = (idx_t)2 * n * n;
 
     /* Return the prime‑counting function π(limit). */
-    return compute_pi(limit);
+    return prime_pi(limit);
 }

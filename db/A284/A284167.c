@@ -8,14 +8,16 @@
  * Formula:   a(n) = Sum_{i=1..A000005(n)} d(n + k(i))
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   divisor_count_u64
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Computes the number of divisors of each divisor‑shifted value n+d */
 
-#include "../utils/divisor_count_u64.h"
+#include <stdint.h>
+#include "../utils/num_divisors.h"
 
 seq_t a(idx_t n)
 {
@@ -24,11 +26,11 @@ seq_t a(idx_t n)
     for (uint64_t d = 1; d * d <= N; ++d) {
         if (N % d == 0) {
             /* divisor d */
-            sum += (seq_t)divisor_count_u64(N + d);
+            sum += (seq_t)num_divisors(N + d);
             uint64_t d2 = N / d;
             if (d2 != d) {
                 /* complementary divisor d2 */
-                sum += (seq_t)divisor_count_u64(N + d2);
+                sum += (seq_t)num_divisors(N + d2);
             }
         }
     }

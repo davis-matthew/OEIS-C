@@ -8,6 +8,7 @@
  *            (1-x^(2*i))/(1-x)
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 31, u64 n <= 156, u128 n <= 156,
  *            big any n
+ * Validated: full, pass, 157 terms through n = 156 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

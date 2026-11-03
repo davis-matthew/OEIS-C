@@ -8,12 +8,14 @@
  * Formula:   a(n) = Σ_{k=1}^{⌊t/3⌋} C(t,3k) * C(n‑t,k) where t = ⌊(n‑2)/2⌋
  * Range:     u8 n <= 15, u16 n <= 25, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n) {
     if (n < 8) return 0;                     /* first non‑zero term at n = 8 */
@@ -26,8 +28,8 @@ seq_t a(idx_t n) {
 
     seq_t sum = 0;
     for (idx_t k = 1; k <= kmax; ++k) {
-        seq_t c1 = binom(t, 3 * k);          /* C(t,3k)   */
-        seq_t c2 = binom(sizeB, k);          /* C(n‑t,k)  */
+        seq_t c1 = binomial(t, 3 * k);          /* C(t,3k)   */
+        seq_t c2 = binomial(sizeB, k);          /* C(n‑t,k)  */
         sum += c1 * c2;                      /* add term   */
     }
     return sum;

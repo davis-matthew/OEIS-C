@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_distinct_primes
+ * Validated: standard, pass, 121 terms through n = 9785 (2026-11-01)
+ * Helpers:   omega_idx_to_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,14 +19,14 @@
     we have a(n) = 2^(ω(n))  when n is even,
     a(n) = 2^(ω(n)+1)      when n is odd. */
 #include <stdbool.h>
-#include "../utils/count_distinct_primes.h"
+#include "../utils/omega_idx_to_u32.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return 0;          /* undefined for n=0, but keep harmless */
 
     /* number of distinct primes of n */
-    unsigned int cnt = count_distinct_primes(n);
+    unsigned int cnt = omega_idx_to_u32(n);
 
     /* add 2 for the prime factor 2 coming from 2n when n is odd */
     if ((n & 1) != 0) cnt++;

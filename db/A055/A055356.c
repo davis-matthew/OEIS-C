@@ -12,7 +12,8 @@
  *            row
  * Range:     u8 n <= 23, u16 n <= 40, u32 n <= 85, u64 n <= 201,
  *            u128 n <= 515, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 1254 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *triangle = NULL;   /* flattened triangle */
 static size_t  max_row  = 0;      /* highest row computed so far */
@@ -50,7 +52,7 @@ ensure_rows(idx_t r)
     if (r <= max_row) return;
 
     size_t new_total = (size_t)r * (r + 1) / 2;
-    seq_t *new_tri = (seq_t *)realloc(triangle, new_total * sizeof(seq_t));
+    seq_t *new_tri = mem_resize(seq_t, triangle, new_total);
     if (!new_tri) { /* allocation failed – abort */
         exit(1);
     }

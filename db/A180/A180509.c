@@ -10,12 +10,14 @@
  *            a(10)=248750, a(11)=1191812
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 18, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache for memoization */
@@ -27,7 +29,7 @@ seq_t a(idx_t n) {
     /* initialize cache with first 12 terms */
     if (!initialized) {
         cacheSize = 12;
-        cache = (seq_t *)malloc(cacheSize * sizeof(seq_t));
+        cache = mem_new(seq_t, cacheSize);
         if (!cache) return 0; /* memory error fallback */
         cache[0]  = (seq_t)6;
         cache[1]  = (seq_t)12;
@@ -53,7 +55,7 @@ seq_t a(idx_t n) {
     /* grow cache to hold value at index n */
     if ((size_t)n + 1 > cacheSize) {
         size_t newSize = (size_t)n + 1;
-        seq_t *newCache = (seq_t *)realloc(cache, newSize * sizeof(seq_t));
+        seq_t *newCache = mem_resize(seq_t, cache, newSize);
         if (!newCache) return 0; /* memory error fallback */
         cache = newCache;
         cacheSize = newSize;

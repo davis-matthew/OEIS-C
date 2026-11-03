@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 37, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
- *            big any n
- * Helpers:   none
+ * Range:     u8 n <= 37, u16 n <= 107, u32 n <= 356, u64 n <= 1236,
+ *            u128 n <= 4677, big any n
+ * Validated: standard, pass, 83 terms through n = 8712 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Map index n (1‑based) to row r (0‑based) and column c in the triangle */
@@ -53,7 +55,7 @@ seq_t a(idx_t n) {
     while (rows_cap <= r) {
         idx_t len = rows_cap + 1; /* row length = r+1 */
         rows = (seq_t**)realloc(rows, (rows_cap + 1) * sizeof(seq_t*));
-        rows[rows_cap] = (seq_t*)malloc(len * sizeof(seq_t));
+        rows[rows_cap] = mem_new(seq_t, len);
 
         if (rows_cap == 0) {               /* row 0 */
             rows[0][0] = (seq_t)1;

@@ -7,13 +7,15 @@
  * Formula:   a(n) = a(n-1) - (n-1)*(n-2)*a(n-3); a(0)=a(1)=a(2)=1
  * Range:     i8 n <= 6, i16 n <= 10, i32 n <= 16, i64 n <= 28, i128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 537 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static cache for memoised terms */
 static seq_t *cache      = NULL;          /* array of cached values      */
@@ -28,8 +30,7 @@ static void ensure_cache(idx_t n)
         if (new_cap < (size_t)(n + 1))
             new_cap = n + 1;
 #ifdef __cplusplus
-        seq_t *tmp = reinterpret_cast<seq_t*>(realloc(cache,
-                                new_cap * sizeof(seq_t)));
+        seq_t *tmp = reinterpret_cast<seq_t*>(mem_resize(seq_t, cache, new_cap));
 #else
         seq_t *tmp = realloc(cache, new_cap * sizeof(seq_t));
 #endif

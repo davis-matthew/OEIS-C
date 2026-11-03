@@ -9,7 +9,8 @@
  *            even number 2*k repeated C_k times, starting with k = 0
  * Range:     u8 n <= 76, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 77 terms through n = 76 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *C = NULL;      /* Catalan numbers */
 static seq_t *cum = NULL;   /* Cumulative sums of Catalan numbers */
@@ -29,12 +31,12 @@ static void ensure_capacity(idx_t need)
     if (cap < need) {
         size_t new_cap = cap == 0 ? 4 : cap * 2;
         if (new_cap < (size_t)need) new_cap = (size_t)need;
-        seq_t *newC = (seq_t *)malloc(new_cap * sizeof(seq_t));
-        seq_t *newcum = (seq_t *)malloc(new_cap * sizeof(seq_t));
-        if (C && len > 0) memcpy(newC, C, len * sizeof(seq_t));
-        if (cum && len > 0) memcpy(newcum, cum, len * sizeof(seq_t));
-        if (C) free(C);
-        if (cum) free(cum);
+        seq_t *newC = mem_new(seq_t, new_cap);
+        seq_t *newcum = mem_new(seq_t, new_cap);
+        if (C && len > 0) mem_copy(newC, C, len * sizeof(seq_t));
+        if (cum && len > 0) mem_copy(newcum, cum, len * sizeof(seq_t));
+        if (C) mem_free(C);
+        if (cum) mem_free(cum);
         C = newC;
         cum = newcum;
         cap = new_cap;

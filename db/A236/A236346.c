@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 306, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   col_of_square
+ * Validated: standard, pass, 84 terms through n = 9651 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,13 @@
  */
 
 #include <stddef.h>
-#include "../utils/col_of_square.h"
+
+/* Column of the square n^2, given its row r. */
+static inline idx_t col_of_square(idx_t n, idx_t r)
+{
+    idx_t tri_prev = (r - 1) * r / 2; /* T_{r-1} */
+    return n * n - tri_prev;
+}
 
 /* Integer floor square root of a 64‑bit value, using only division. */
 static inline idx_t floor_sqrt_u64(idx_t x)

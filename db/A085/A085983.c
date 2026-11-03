@@ -8,7 +8,8 @@
  *            2)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_9s, upper_bound_prime_idx
+ * Validated: standard, pass, 121 terms through n = 9984 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,26 @@
 #include <stdbool.h>
 #include <math.h>
 #include <stdint.h>
-#include "../utils/count_9s.h"
-#include "../utils/upper_bound_prime_idx.h"
+
+/* ------- count digit 9 --------------------------------------------------- */
+static seq_t count_9s(uint64_t v)
+{
+    seq_t c = 0;
+    while (v != 0) {
+        if ((v % 10) == 9) ++c;
+        v /= 10;
+    }
+    return c;
+}
+
+/* ------- upper bound for the n‑th prime --------------------------------- */
+static uint64_t upper_bound_prime_idx(idx_t n)
+{
+    if (n < 6) return 15;                         /* 6th prime is 13            */
+    double dn = (double)n;
+    double b  = dn * (log(dn) + log(log(dn)));
+    return (uint64_t)(b + 3.0);                    /* safety margin             */
+}
 
 /* ------- reusable data --------------------------------------------------- */
 static uint64_t *prime_cache = NULL;      /* primes gathered so far          */

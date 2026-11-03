@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 26, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  Cache of previously found terms                                    */
@@ -36,7 +39,7 @@ static void ensure_cache(idx_t need)
         return;
     while (cache_cap < need)
         cache_cap = (cache_cap == 0) ? 4 : cache_cap << 1;
-    cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, cache_cap);
 }
 
 /* Append a new term to the cache. */
@@ -57,7 +60,7 @@ static bool valid_candidate(idx_t n)
 
     for (int i = 0; i < 7; ++i) {
         unsigned long long x = base + offs[i];
-        if (!is_prime(x))        /* is_prime is defined in utils/is_prime.h */
+        if (!is_prime_u64(x))        /* is_prime is defined in utils/is_prime.h */
             return false;
     }
     return true;

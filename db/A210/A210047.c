@@ -13,13 +13,15 @@
  *            Initial values: a(1)=75, a(2)=1271, a(3)=20871, a(4...
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static const seq_t known[15] = {
     0ULL,                        // unused 0 index
@@ -54,7 +56,7 @@ static void ensure_capacity(idx_t needed) {
     if (needed < cache_cap)
         return;
     idx_t new_cap = needed * 2 + 128;  /* allow growth */
-    seq_t *new_buf = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_buf = mem_resize(seq_t, cache, new_cap);
     if (!new_buf) {
         /* In a real implementation you might handle OOM. */
         abort();

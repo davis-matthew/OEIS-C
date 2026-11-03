@@ -9,7 +9,8 @@
  *            in some base b ≥ 2 (digits a∈[1,b‑1], d∈[0,b‑1], c∈[0,b‑1])
  * Range:     u8 n <= 5, u16 n <= 2994, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   calc_val, next_triple, pow4plus1
+ * Validated: standard, pass, 66 terms through n = 9939 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,40 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/calc_val.h"
-#include "../utils/next_triple.h"
-#include "../utils/pow4plus1.h"
+#include "../utils/mem.h"
+
+static seq_t calc_val(idx_t base, uint32_t a, uint32_t d, uint32_t c)
+{
+    seq_t b = (seq_t)base;
+    seq_t b2 = b * b;           /* b^2 */
+    seq_t b3 = b2 * b;          /* b^3 */
+    seq_t b4 = b3 * b;          /* b^4 */
+    return (seq_t)a * b4 + (seq_t)d * b3 + (seq_t)c * b2 + (seq_t)d * b + (seq_t)a;
+}
+
+static bool next_triple(idx_t base, uint32_t *a, uint32_t *d, uint32_t *c)
+{
+    ++(*c);
+    if (*c == base) {
+        *c = 0;
+        ++(*d);
+        if (*d == base) {
+            *d = 0;
+            ++(*a);
+            if (*a == base) return false; /* finished this base */
+        }
+    }
+    return true;
+}
+
+/* ---------- small utilities ---------- */
+static seq_t pow4plus1(idx_t b)
+{
+    seq_t x = (seq_t)b;
+    x *= x;           /* b^2 */
+    x *= x;           /* b^4 */
+    return x + (seq_t)1;
+}
 
 typedef struct {
     seq_t val; /* palindrome value */
@@ -35,7 +67,7 @@ static size_t heap_sz  = 0;
 static void heap_expand(void)
 {
     size_t new_cap = heap_cap ? heap_cap << 1 : 16;
-    Node *tmp = (Node *)realloc(heap, new_cap * sizeof(Node));
+    Node *tmp = mem_resize(Node, heap, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     heap = tmp;
     heap_cap = new_cap;
@@ -93,7 +125,7 @@ static void cache_append(seq_t v)
 {
     if (cache_sz == cache_cap) {
         size_t new_cap = cache_cap ? cache_cap << 1 : 32;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         cache = tmp;
         cache_cap = new_cap;

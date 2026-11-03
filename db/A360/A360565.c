@@ -9,8 +9,9 @@
  *            enumeration of rationals in (0,1) defined by * * * start with
  *            1/2 * * for each node p/q add children p/(q+1) and (p+1)/q * (in
  *            that order) if the child is < 1 and not seen before
- * Range:     u8 n <= 8098, u16 n <= 9675, u32 n <= 9675, u64 n <= 9675,
- *            u128 n <= 9675, big any n
+ * Range:     u8 n <= 8098, u16 n <= 10052, u32 n <= 10052, u64 n <= 10052,
+ *            u128 n <= 10052, big any n
+ * Validated: standard, pass, 105 terms through n = 9675 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 #define MAX_NODES 200000   /* sufficient for n up to about 10 000 */

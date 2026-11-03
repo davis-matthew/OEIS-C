@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 6130, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sigma_is_forbidden, sigma_of
+ * Validated: standard, pass, 78 terms through n = 9960 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,31 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/sigma_of.h"
-#include "../utils/sigma_is_forbidden.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
+
+/* Helper: test whether m is of the form 4^a(8b+7). */
+static inline bool sigma_is_forbidden(seq_t m)
+{
+    while (m % 4 == 0) {
+        m /= 4;
+    }
+    return m % 8 == 7;
+}
 
 /* Cached sequence values. */
 static seq_t  *cache      = NULL;
@@ -43,7 +67,7 @@ seq_t a(idx_t n)
             /* Grow cached array if necessary. */
             if (cache_len >= cache_cap) {
                 size_t new_cap = cache_cap ? (cache_cap << 1) : 16;
-                seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_new(seq_t, new_cap);
                 if (!tmp) {
                     /* In a real program you would handle allocation failure. */
                     abort();
@@ -51,7 +75,7 @@ seq_t a(idx_t n)
                 for (size_t i = 0; i < cache_len; ++i) {
                     tmp[i] = cache[i];
                 }
-                free((void *)cache);
+                mem_free(cache);
                 cache      = tmp;
                 cache_cap  = new_cap;
             }

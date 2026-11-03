@@ -10,14 +10,20 @@
  *            word never contains the pair 11
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   pair_value
+ * Validated: standard, pass, 116 terms through n = 1000 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/pair_value.h"
+
+/* Map two bits to the integer 0, 1, or 2. */
+static inline seq_t pair_value(uint8_t a, uint8_t b)
+{
+    return (seq_t)((a << 1) | b);
+}
 
 static uint8_t *fib_word = NULL;   /* bits of the Fibonacci word */
 static size_t fib_len   = 0;       /* current length of fib_word */

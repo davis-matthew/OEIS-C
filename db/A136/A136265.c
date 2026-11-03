@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 24, i16 n <= 68, i32 n <= 68, i64 n <= 68, i128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
    The function is memoised and works for all n≥1. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t **P_rows = NULL;      /* P_rows[n] holds coeffs of P_n (size n+1)  */
 static idx_t  P_rows_n = 0;        /* highest n that has been computed         */
@@ -54,7 +56,7 @@ static void ensure_P_rows(idx_t target)
         if (!P_rows) abort();
 
         /* P_0 = 1 */
-        P_rows[0] = (seq_t*)malloc(1 * sizeof(seq_t));
+        P_rows[0] = mem_new(seq_t, 1);
         if (!P_rows[0]) abort();
         P_rows[0][0] = (seq_t)1;
         P_rows_n = 0;
@@ -71,7 +73,7 @@ static void ensure_P_rows(idx_t target)
     }
 
     for (idx_t n = P_rows_n + 1; n <= target; ++n) {
-        seq_t *coeff = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+        seq_t *coeff = mem_new(seq_t, (n + 1));
         if (!coeff) abort();
 
         if (n == 1) {
@@ -121,7 +123,7 @@ static void ensure_IP_rows(idx_t target)
     for (idx_t r = IP_rows_n + 1; r <= target; ++r) {
         if (r == 1) {
             /* row 1: just {1} */
-            seq_t *row1 = (seq_t*)malloc(1 * sizeof(seq_t));
+            seq_t *row1 = mem_new(seq_t, 1);
             if (!row1) abort();
             row1[0] = (seq_t)1;
             IP_rows[1] = row1;
@@ -131,7 +133,7 @@ static void ensure_IP_rows(idx_t target)
         idx_t n_ip = r - 2;          /* n for which IP_n is this row */
         idx_t len  = r;              /* number of coefficients in the row */
 
-        seq_t *row = (seq_t*)malloc(len * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, len);
         if (!row) abort();
 
         /* we need P_n and P_{n+1} */

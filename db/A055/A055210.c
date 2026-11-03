@@ -6,8 +6,9 @@
  * Keywords:  nonn, mult
  * Formula:   a(n) = Sum_{d is square | d|n} φ(d) = Π_{p^e||n}
  *            (p^(e+1)+1)/(p+1) for even e, (p^e+1)/(p+1) for odd e
- * Range:     u8 n <= 48, u16 n <= 7920, u32 n <= 9158, u64 n <= 9158,
- *            u128 n <= 9158, big any n
+ * Range:     u8 n <= 48, u16 n <= 7920, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 113 terms through n = 9158 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

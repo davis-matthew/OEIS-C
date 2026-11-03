@@ -10,7 +10,8 @@
  *            least
  * Range:     u8 n <= 9, u16 n <= 21, u32 n <= 83, u64 n <= 100, u128 n <= 100,
  *            big any n
- * Helpers:   digit_len, pow_uint
+ * Validated: standard, pass, 56 terms through n = 100 (2026-11-03)
+ * Helpers:   ipow_u64_idx, mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,10 @@
 #include <stdlib.h>
 
 /* helper declarations – the build system will provide the headers */
-#include "../utils/digit_len.h"
-#include "../utils/pow_uint.h"
+#include <stdbool.h>
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;                /* undefined; harmless */
@@ -33,7 +36,7 @@ seq_t a(idx_t n) {
     /* ensure the cache is large enough */
     if (cache_cap <= n) {
         cache_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
         if (!tmp) return 0;              /* allocation failure – unlikely in tests */
         cache = tmp;
     }
@@ -49,7 +52,7 @@ seq_t a(idx_t n) {
         seq_t prev = cache[i - 1];
 
         /* get number of decimal digits of prev */
-        int len = digit_len(prev);
+        int len = num_digits(prev);
         if (len <= 0) len = 1;           /* safeguard for 0, though it never occurs */
 
         /* extract digits into a temporary array (least‑significant first) */
@@ -67,7 +70,7 @@ seq_t a(idx_t n) {
         for (int d = 0; d < len; ++d) {
             uint8_t digit = digits[len - 1 - d];  /* most significant first */
             if (digit) {
-                add += pow_uint(digit, d + 1);    /* exponent = position counting from 1 */
+                add += ipow_u64_idx(digit, d + 1);    /* exponent = position counting from 1 */
             }
         }
 

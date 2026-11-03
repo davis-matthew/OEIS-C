@@ -10,12 +10,14 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 63, u128 n <= 126,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 120 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Recurrence:  a(n) = 2*a(n-1) + a(n-4) - 2*a(n-5)  for n ≥ 9
    Initial values:
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
 
     /* initialise cache with base cases if needed */
     if (cache_size == 0) {
-        cache = (seq_t *)realloc(NULL, (size_t)9 * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, (size_t)9);
         if (!cache) { abort(); }
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)3;
@@ -50,8 +52,7 @@ seq_t a(idx_t n)
     }
 
     /* grow cache to accommodate up to n */
-    seq_t *new_cache = (seq_t *)realloc(cache,
-                                        (size_t)(n + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (size_t)(n + 1));
     if (!new_cache) {
         abort();
     }

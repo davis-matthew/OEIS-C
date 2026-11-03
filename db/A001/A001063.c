@@ -8,7 +8,8 @@
  *            1
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 16, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 296 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;
 static bool *computed = NULL;
@@ -40,9 +42,9 @@ seq_t a(idx_t n) {
     
     if (memo == NULL) {
         memo_size = 16;
-        memo = (seq_t *)malloc(memo_size * sizeof(seq_t));
+        memo = mem_new(seq_t, memo_size);
         computed = (bool *)malloc(memo_size * sizeof(bool));
-        memset(memo, 0, memo_size * sizeof(seq_t));
+        mem_set(memo, 0, memo_size * sizeof(seq_t));
         memset(computed, 0, memo_size * sizeof(bool));
         memo[0] = 1;
         memo[1] = 1;
@@ -52,13 +54,13 @@ seq_t a(idx_t n) {
     
     while ((idx_t)memo_size <= n) {
         idx_t new_size = memo_size * 2;
-        seq_t *new_memo = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_memo = mem_new(seq_t, new_size);
         bool *new_computed = (bool *)malloc(new_size * sizeof(bool));
-        memset(new_memo, 0, new_size * sizeof(seq_t));
+        mem_set(new_memo, 0, new_size * sizeof(seq_t));
         memset(new_computed, 0, new_size * sizeof(bool));
-        memcpy(new_memo, memo, memo_size * sizeof(seq_t));
+        mem_copy(new_memo, memo, memo_size * sizeof(seq_t));
         memcpy(new_computed, computed, memo_size * sizeof(bool));
-        free(memo);
+        mem_free(memo);
         free(computed);
         memo = new_memo;
         computed = new_computed;

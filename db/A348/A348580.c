@@ -7,7 +7,8 @@
  * Formula:   a(n) = Σ_{k=0..n} binomial(n,k) * A000111(k+1)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 22, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 445 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* An efficient O(n²) incremental computation that uses the EGF
    recurrence exp(x)/(1 - sin x).  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,9 +32,9 @@ seq_t a(idx_t n)
     idx_t old_size = cache_size;
     idx_t new_size = n + 1;
     if (!cache)
-        cache = (seq_t*)calloc((size_t)new_size, sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)new_size);
     else
-        cache = (seq_t*)realloc(cache, (size_t)new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (size_t)new_size);
     cache_size = new_size;   /* now cache[0..n] exist but may be uninitialized beyond old_size */
 
     /* Compute new terms from old_size up to n */

@@ -9,12 +9,14 @@
  *            whose parts lie in [k,2k]
  * Range:     u8 n <= 50, u16 n <= 157, u32 n <= 521, u64 n <= 1828,
  *            u128 n <= 6727, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 8814 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
     idx_t N = n;
     idx_t max_k = n / 3;
 
-    seq_t *coeff = (seq_t *)malloc((N + 1) * sizeof(seq_t));
+    seq_t *coeff = mem_new(seq_t, (N + 1));
     if (!coeff) return 0;
 
     /* initialize coefficient array to zero */
@@ -70,6 +72,6 @@ seq_t a(idx_t n)
         result += coeff[N - 3 * k];
     }
 
-    free(coeff);
+    mem_free(coeff);
     return result;
 }

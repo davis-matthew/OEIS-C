@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 411, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 9880 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static uint64_t mul_mod64(uint64_t a, uint64_t b, uint64_t mod)
 {
@@ -98,7 +100,7 @@ static void ensure_terms(idx_t n)
     if (!prime_cache)
     {
         cache_cap = 32;
-        prime_cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        prime_cache = mem_new(seq_t, cache_cap);
         cache_len = 0;
     }
 
@@ -117,7 +119,7 @@ static void ensure_terms(idx_t n)
             if (cache_len + 1 > cache_cap)
             {
                 cache_cap = cache_cap * 2;
-                prime_cache = (seq_t *)realloc(prime_cache, cache_cap * sizeof(seq_t));
+                prime_cache = mem_resize(seq_t, prime_cache, cache_cap);
             }
             prime_cache[cache_len++] = (seq_t)next_candidate;
         }

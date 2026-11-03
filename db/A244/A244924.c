@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 96, u64 n <= 96, u128 n <= 96,
  *            big any n
- * Helpers:   mod_inv32, order_of_two
+ * Validated: standard, pass, 40 terms through n = 93 (2026-11-01)
+ * Helpers:   modinv_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -44,8 +45,19 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/mod_inv32.h"
-#include "../utils/order_of_two.h"
+#include "../utils/modinv_u32.h"
+
+/* multiplicative order of 2 modulo prime p */
+static uint8_t order_of_two(uint32_t p)
+{
+    uint32_t cur = 2 % p;
+    uint8_t t = 1;
+    while (cur != 1) {
+        cur = (cur * 2) % p;
+        ++t;
+    }
+    return t;
+}
 
 /* constants */
 static const uint32_t primes[7] = {3,5,7,13,17,97,673};
@@ -93,7 +105,7 @@ static void dfs(int depth)
             uint32_t r = inv2pow[i][e_sel[i]];
             uint32_t xmod = (uint32_t)(x % p);
             uint32_t diff = (r + p - xmod) % p;
-            uint32_t inv_m = mod_inv32((uint32_t)(m % p), p);
+            uint32_t inv_m = modinv_u32((uint32_t)(m % p), p);
             uint32_t k = (uint64_t)diff * inv_m % p;
             x += m * k;
             m *= p;                /* m == P after final iteration */
@@ -145,7 +157,7 @@ static void init_sequence(void)
         uint32_t pow_val = 1; /* 2^0 */
         for (uint8_t e = 0; e < periods[i]; ++e) {
             pow2_mod[i][e] = pow_val;
-            inv2pow[i][e] = mod_inv32(pow_val, p);
+            inv2pow[i][e] = modinv_u32(pow_val, p);
 
             /* build mask for this residue */
             uint64_t m[WORDS] = {0};

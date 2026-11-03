@@ -10,15 +10,28 @@
  *            NAND(k-1,n-k)
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   bitlen_seq_t_local, nand_bitwise
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-01)
+ * Helpers:   bit_length_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /*   The sequence is obtained by reading the triangle row by row. */
 #include <stdint.h>
-#include "../utils/bitlen_seq_t_local.h"
-#include "../utils/nand_bitwise.h"
+#include "../utils/bit_length_seq.h"
+
+/* bitwise NAND of a and b, using only the bits up to the maximum bit
+   length of the operands. */
+static seq_t nand_bitwise(seq_t a, seq_t b)
+{
+    int wa = bit_length_seq(a);
+    int wb = bit_length_seq(b);
+    int w = wa > wb ? wa : wb;
+    seq_t mask = (seq_t)0;
+    if (w > 0)
+        mask = (((seq_t)1 << w) - (seq_t)1);
+    return (~(a & b)) & mask;
+}
 
 /* public sequence function -------------------------------------------------- */
 seq_t a(idx_t n)

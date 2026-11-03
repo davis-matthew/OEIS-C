@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   has_adjacent27
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,21 @@
    terms so that calls are O(1) after an initial scan. */
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has_adjacent27.h"
+#include "../utils/mem.h"
+
+/* True iff x (in base 8) contains a 2 and a 7 adjacent in any order. */
+static bool has_adjacent27(seq_t x)
+{
+    int prev = -1;
+    while (x > 0) {
+        int d = (int)(x % (seq_t)8);
+        if ((d == 2 && prev == 7) || (d == 7 && prev == 2))
+            return true;
+        prev = d;
+        x = x / (seq_t)8;
+    }
+    return false;
+}
 
 static seq_t *cache = NULL;
 static size_t cap = 0;
@@ -33,7 +48,7 @@ static void grow(size_t need)
     size_t ncap = cap < 4 ? 4 : cap * 2;
     while (ncap < need)
         ncap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, ncap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, ncap);
     if (!tmp)
         abort();
     cache = tmp;

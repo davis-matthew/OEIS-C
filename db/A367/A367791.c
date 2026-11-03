@@ -10,7 +10,8 @@
  *            by an incremental search and memoisation
  * Range:     u8 none, u16 n <= 16, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /*---------------------------------------------------------------------*/
 /*  Prime sieve – one‑time initialisation                              */
@@ -98,7 +100,7 @@ static void grow_terms(size_t needed)
     if (needed <= terms_cap) return;
     size_t new_cap = terms_cap ? terms_cap * 2 : 64;
     if (new_cap < needed) new_cap = needed;
-    seq_t *tmp = (seq_t*)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, terms, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     terms = tmp;
     terms_cap = new_cap;
@@ -113,7 +115,7 @@ seq_t a(idx_t n)
     if (!primes_init) init_primes();
 
     if (terms == NULL) {
-        terms = (seq_t*)malloc(64 * sizeof(seq_t));
+        terms = mem_new(seq_t, 64);
         if (!terms) exit(EXIT_FAILURE);
         terms_cap   = 64;
         terms_count = 0;

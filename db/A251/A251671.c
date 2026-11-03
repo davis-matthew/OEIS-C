@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..n} C(n,k) * (2^k + 3^k)^k
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 6, u128 n <= 8,
  *            big any n
- * Helpers:   big_pow, binomial, pow2, pow3, seq_mul
+ * Validated: partial, pass, 11 terms through n = 10 (2026-11-03)
+ * Helpers:   binomial, ipow, mem, pow2, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,11 +16,18 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/binomial.h"   /* seq_t binomial(idx_t a, idx_t b) */
-#include "../utils/pow2.h"       /* seq_t pow2(idx_t exp) */
-#include "../utils/pow3.h"       /* seq_t pow3(idx_t exp) */
-#include "../utils/big_pow.h"    /* seq_t big_pow(seq_t base, seq_t exp) */
-#include "../utils/seq_mul.h"    /* seq_t seq_mul(seq_t a, seq_t b) */
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow.h"
+#include "../utils/pow2.h"
+#include "../utils/pow3.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -30,8 +38,8 @@ seq_t a(idx_t n)
 
     if ((size_t)n + 1 > cache_cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp2 = (seq_t *)realloc(pow2_cache, new_cap * sizeof(seq_t));
-        seq_t *tmp3 = (seq_t *)realloc(pow3_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp2 = mem_resize(seq_t, pow2_cache, new_cap);
+        seq_t *tmp3 = mem_resize(seq_t, pow3_cache, new_cap);
         if (!tmp2 || !tmp3) exit(1);     /* allocation failure */
         pow2_cache = tmp2;
         pow3_cache = tmp3;
@@ -56,7 +64,7 @@ seq_t a(idx_t n)
         seq_t base = pow2_cache[k] + pow3_cache[k];
 
         /* term_pow = base^k */
-        seq_t term_pow = big_pow(base, (seq_t)k);
+        seq_t term_pow = ipow(base, (seq_t)k);
 
         /* binom = C(n,k) */
         seq_t binom = binomial(n, k);

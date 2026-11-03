@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 91, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   tri_uint64
+ * Validated: partial, pass, 91 terms through n = 91 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,11 @@
  */
 
 #include <stdint.h>
-#include "../utils/tri_uint64.h"
+
+static inline unsigned __int128 tri_uint64(idx_t x)
+{
+    return (unsigned __int128)x * (x + 1) / 2;
+}
 
 seq_t a(idx_t n)
 {

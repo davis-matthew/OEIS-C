@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   psi_value
+ * Validated: standard, pass, 103 terms through n = 9483 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,33 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/psi_value.h"
+#include "../utils/mem.h"
+
+/* compute ψ(m) using trial division */
+static idx_t psi_value(idx_t m)
+{
+    idx_t val  = m;
+    idx_t x    = m;
+    idx_t last = 0;
+
+    for (idx_t p = 2; p * p <= x; ++p)
+    {
+        if (x % p == 0)
+        {
+            if (p != last)
+            {
+                val = val * (p + 1) / p;
+                last = p;
+            }
+            while (x % p == 0) x /= p;
+        }
+    }
+    if (x > 1 && x != last)      /* remaining prime factor */
+    {
+        val = val * (x + 1) / x;
+    }
+    return val;
+}
 
 /* static state */
 static seq_t *cnt_arr = NULL;          /* counts of each ψ value */
@@ -34,7 +61,7 @@ static void ensure_count_cap(size_t needed)
     size_t new_cap = old_cap ? old_cap * 2 : 16;
     if (new_cap < needed) new_cap = needed;
 
-    seq_t *tmp = (seq_t *)realloc(cnt_arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cnt_arr, new_cap);
     if (!tmp) exit(1); /* out of memory */
 
     for (size_t i = old_cap; i < new_cap; ++i) tmp[i] = (seq_t)0;

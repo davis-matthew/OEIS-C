@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 14, u32 n <= 30, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   binom, pow_uint
+ * Validated: partial, pass, 37 terms through n = 36 (2026-11-01)
+ * Helpers:   binomial, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,12 +28,12 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binom.h"
-#include "../utils/pow_uint.h"
+#include "../utils/binomial.h"
+#include "../utils/ipow_u64_idx.h"
 
 /* 2^exponent using the provided pow_uint helper. */
 static seq_t pow2(idx_t exponent) {
-    return pow_uint(2, exponent);
+    return ipow_u64_idx(2, exponent);
 }
 
 /* Computes the nth term of A326599.  The function has external linkage. */
@@ -59,8 +60,8 @@ seq_t a(idx_t n) {
             idx_t L = k + k_val;                  /* L = n - k*j = k + k_val */
 
             /* binomial(L, k_val) * binomial(L, j) */
-            seq_t term = binom(L, k_val);
-            term *= binom(L, j);
+            seq_t term = binomial(L, k_val);
+            term *= binomial(L, j);
 
             total += term;
         }

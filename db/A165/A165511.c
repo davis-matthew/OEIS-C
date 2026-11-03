@@ -7,13 +7,15 @@
  * Formula:   a(0)=1, a(1)=10, a(n)=90*a(n-2)-a(n-1)
  * Range:     i8 n <= 2, i16 n <= 4, i32 n <= 9, i64 n <= 20, i128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 952 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Computes the n‑th term of OEIS sequence A165511.  It memoizes already
  * computed values so that any order of calls works fast.  The function
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     size_t needed = (size_t)(n + 1);
     if (needed < 2) needed = 2;
     if (needed > cache_cap) {
-        seq_t *tmp = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, needed);
         if (!tmp) abort();
         cache = tmp;
         cache_cap = needed;

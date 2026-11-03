@@ -11,12 +11,14 @@
  *            triangular * layout of the coefficients of v(n,x)
  * Range:     u8 n <= 30, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ----- internal lazy construction of the polynomial coefficients ----- */
 static seq_t **u_rows = NULL;   /* pointers to rows of u(n,x) */
@@ -38,8 +40,8 @@ static void ensure_rows(idx_t need)
         idx_t prev = r - 1;
         idx_t len = r;                    /* length of the current row */
 
-        seq_t *new_u = (seq_t*)calloc(len, sizeof(seq_t));
-        seq_t *new_v = (seq_t*)calloc(len, sizeof(seq_t));
+        seq_t *new_u = mem_new(seq_t, len);
+        seq_t *new_v = mem_new(seq_t, len);
         if (!new_u || !new_v) exit(EXIT_FAILURE);
 
         if (r == 1) {                     /* base case */

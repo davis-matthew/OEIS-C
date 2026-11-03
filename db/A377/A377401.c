@@ -7,13 +7,16 @@
  * Formula:   a(n) = denominator((1/n!)*Sum_{k=1..n} 1/(2*k))
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 19,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *fact   = NULL;
 static seq_t *harm_num = NULL;
@@ -26,10 +29,10 @@ seq_t a(idx_t n)
     /* First call: allocate and build up to n */
     if (res_arr == NULL) {
         size_t sz = (size_t)(n + 1);
-        fact     = (seq_t*)malloc(sz * sizeof(seq_t));
-        harm_num = (seq_t*)malloc(sz * sizeof(seq_t));
-        harm_den = (seq_t*)malloc(sz * sizeof(seq_t));
-        res_arr  = (seq_t*)malloc(sz * sizeof(seq_t));
+        fact     = mem_new(seq_t, sz);
+        harm_num = mem_new(seq_t, sz);
+        harm_den = mem_new(seq_t, sz);
+        res_arr  = mem_new(seq_t, sz);
 
         fact[0]     = (seq_t)1;
         harm_num[0] = (seq_t)0;
@@ -57,10 +60,10 @@ seq_t a(idx_t n)
     /* Increase cache when a larger n is requested */
     else if (n > max_comp) {
         size_t new_sz = (size_t)(n + 1);
-        fact   = (seq_t*)realloc(fact,   new_sz * sizeof(seq_t));
-        harm_num = (seq_t*)realloc(harm_num, new_sz * sizeof(seq_t));
-        harm_den = (seq_t*)realloc(harm_den, new_sz * sizeof(seq_t));
-        res_arr  = (seq_t*)realloc(res_arr,  new_sz * sizeof(seq_t));
+        fact   = mem_resize(seq_t, fact, new_sz);
+        harm_num = mem_resize(seq_t, harm_num, new_sz);
+        harm_den = mem_resize(seq_t, harm_den, new_sz);
+        res_arr  = mem_resize(seq_t, res_arr, new_sz);
 
         for (idx_t k = max_comp + 1; k <= n; ++k) {
             fact[k] = fact[k-1] * (seq_t)k;

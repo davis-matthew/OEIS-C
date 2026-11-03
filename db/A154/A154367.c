@@ -12,7 +12,8 @@
  *            sequence consists of those k values, OEIS A154367
  * Range:     u8 n <= 29, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   factor_sum_lpf_gpf
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,36 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/factor_sum_lpf_gpf.h"
+#include "../utils/mem.h"
+
+/* Factorisation : sum of prime factors with multiplicity,
+ *  smallest prime factor (lpf) and largest prime factor (gpf). ---- */
+static void factor_sum_lpf_gpf(uint64_t n, uint64_t *sum,
+                               uint64_t *lpf, uint64_t *gpf)
+{
+    uint64_t temp = n;
+    uint64_t s = 0;
+    uint64_t l = 0;
+    uint64_t g = 0;
+
+    for (uint64_t p = 2; p <= temp / p; ++p) {
+        while (temp % p == 0) {
+            s += p;
+            if (l == 0) l = p;   /* first factor encountered */
+            g = p;                /* last factor encountered */
+            temp /= p;
+        }
+    }
+    if (temp > 1) {               /* remaining prime factor */
+        s += temp;
+        if (l == 0) l = temp;
+        g = temp;
+    }
+
+    *sum = s;
+    *lpf = l;
+    *gpf = g;
+}
 
 /* ------------------------------------------------------------------ */
 /* Small prime test --------------------------------------------------- */
@@ -48,7 +78,7 @@ static void ensure_terms_capacity(size_t needed)
     if (needed <= terms_cap) return;
     if (terms_cap == 0) terms_cap = 16;
     while (terms_cap < needed) terms_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, terms, terms_cap);
     terms = tmp;
 }
 

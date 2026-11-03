@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 32, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Maximum number to pre‑compute sigma for.  This value is chosen to be large
    enough to hold at least the first 10 000 terms of the sequence. */
@@ -30,7 +32,7 @@
 static void append_value(seq_t **arr, size_t *len, size_t *cap, seq_t val) {
     if (*len == *cap) {
         size_t new_cap = (*cap == 0) ? 32 : (*cap * 2);
-        seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
         if (!tmp) { /* handle allocation failure */
             abort();
         }
@@ -51,7 +53,7 @@ seq_t a(idx_t n) {
 
     if (!initialized) {
         /* Allocate and initialise sigma array. */
-        sigma = (seq_t *)calloc((size_t)PRECOMP_LIMIT + 1, sizeof(seq_t));
+        sigma = mem_new(seq_t, (size_t)PRECOMP_LIMIT + 1);
         if (!sigma) abort();
 
         for (idx_t i = 1; i <= PRECOMP_LIMIT; ++i) {
@@ -70,7 +72,7 @@ seq_t a(idx_t n) {
         }
 
         /* Free the sigma array as it is no longer needed. */
-        free(sigma);
+        mem_free(sigma);
         sigma = NULL;
 
         initialized = true;

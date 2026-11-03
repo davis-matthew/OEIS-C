@@ -10,17 +10,26 @@
  *            is 0 → 11 and 1 → 10. * * The implementation stores the
  *            generated bits in a static array * that expands as needed. It
  *            works for any seq_t (uint​8/16/32/64/128 * or an...
- * Range:     u8 n <= 9647, u16 n <= 9647, u32 n <= 9647, u64 n <= 9647,
- *            u128 n <= 9647, big any n
- * Helpers:   alloc_seq_array, seq_free
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9647 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/alloc_seq_array.h"
-#include "../utils/seq_free.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void seq_free(seq_t *p) { mem_free(p); }
 
 seq_t a(idx_t n)
 {

@@ -11,7 +11,8 @@
  *            Complexity: O(n*sqrt(n)) time, O(n) space. * The routine...
  * Range:     u8 n <= 49, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   alloc_seq, free_seq
+ * Validated: partial, pass, 68 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,20 @@
 #include <stdlib.h>
 
 /* Helper allocation functions from the utilities framework. */
-#include "../utils/alloc_seq.h"
-#include "../utils/free_seq.h"
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+/* Helper: free an array allocated by alloc_seq. */
+static void free_seq(seq_t *p)
+{
+    mem_free(p);
+}
 
 seq_t a(idx_t n)
 {
@@ -33,8 +46,8 @@ seq_t a(idx_t n)
     seq_t *P = alloc_seq(len);   /* polynomial P_k coefficients */
 
     /* Ensure memory is zeroed.  alloc_seq may not initialise memory. */
-    memset(A, 0, len * sizeof(seq_t));
-    memset(P, 0, len * sizeof(seq_t));
+    mem_set(A, 0, len * sizeof(seq_t));
+    mem_set(P, 0, len * sizeof(seq_t));
 
     /* Base case k = 0: term = 1, contributes to a(0). */
     P[0] = 1;

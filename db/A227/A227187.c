@@ -12,7 +12,8 @@
  *            results so that calls with arbitrary n * are fast and c...
  * Range:     u8 n <= 198, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_nonleading_zero_digits
+ * Validated: standard, pass, 83 terms through n = 9674 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,44 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/count_nonleading_zero_digits.h"
+#include "../utils/mem.h"
+
+static int count_nonleading_zero_digits(seq_t x)
+{
+    /* 0 and 1 do not have any non‑leading zero in their factorial base
+       representations, so we return 0 for them. */
+    if (x < 2)
+        return 0;
+
+    /* Find the largest k such that k! <= x.  We build factorials
+       incrementally while avoiding overflow. */
+    seq_t fact = 1;     /* currently k!   (k starts as 1) */
+    size_t k = 1;       /* k! corresponds to factorial of k */
+
+    while (1) {
+        /* If (k+1)! would exceed x (or would overflow), stop. */
+        if (fact > x / (k + 1))
+            break;
+        fact *= (k + 1);
+        ++k;
+    }
+
+    /* Now fact == k!  and k! <= x < (k+1)!.  Count zero digits
+       among positions 1..k (i.e., coefficients for 1!,2!,…k!). */
+    seq_t rem = x;
+    int zeros = 0;
+    for (size_t i = k; ; --i) {
+        seq_t digit = rem / fact;
+        if (digit == 0)
+            ++zeros;
+        rem -= digit * fact;
+        if (i == 1)      /* finished the 1! position */
+            break;
+        fact /= (seq_t)i;   /* move to (i‑1)! for next iteration */
+    }
+
+    return zeros;
+}
 
 seq_t a(idx_t n)
 {
@@ -36,7 +74,7 @@ seq_t a(idx_t n)
     /* Expand the cache to accommodate indices up to n. */
     if (n + 1 > capacity) {
         capacity = n + 1;
-        cache = (seq_t *)realloc(cache, capacity * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, capacity);
     }
 
     /* Compute missing terms in order. */

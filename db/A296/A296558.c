@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 20, u32 n <= 43, u64 n <= 89, u128 n <= 181,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 990 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 struct seq_state_t {
     seq_t *a;          /* array of a-values */
@@ -40,7 +42,7 @@ static void ensure_a_capacity(size_t needed)
     if (needed <= state.a_cap) return;
     size_t new_cap = state.a_cap ? state.a_cap * 2 : 16;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(state.a, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, state.a, new_cap);
     if (!tmp) abort();
     state.a = tmp;
     state.a_cap = new_cap;
@@ -68,7 +70,7 @@ static seq_t next_b(void)
 static void state_init(void)
 {
     state.a_cap  = 16;
-    state.a      = (seq_t *)calloc(state.a_cap, sizeof(seq_t));
+    state.a      = mem_new(seq_t, state.a_cap);
     if (!state.a) abort();
 
     /* Base terms */

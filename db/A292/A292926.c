@@ -7,6 +7,7 @@
  * Formula:   a(n) = prime(n)*prime(n+1) + prime(n+2)
  * Range:     u8 n <= 6, u16 n <= 54, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 59 terms through n = 937 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,7 +16,9 @@
 #include <stddef.h>      /* size_t */
 #include <stdlib.h>     /* malloc, free */
 #include <math.h>       /* log */
-#include "../utils/build_primes_upto.h"  /* build_primes_upto */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/build_primes_upto.h"
 
 /* Return a(n) for all n >= 1 (a(0) is undefined, returns 0). */
 seq_t a(idx_t n)

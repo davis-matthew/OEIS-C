@@ -9,13 +9,15 @@
  *            phi(primorial of index n)
  * Range:     u8 n <= 3942, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 92 terms through n = 9563 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* The build supplies the integer types idx_t and seq_t. */
 /* ------------------------------------------------------------------ */
@@ -59,7 +61,7 @@ static void init(void)
     free(is_prime);
 
     /* ----- Allocate sequence and helper arrays ----- */
-    aArr = (seq_t *)malloc((primeCount + 2) * sizeof(seq_t));
+    aArr = mem_new(seq_t, (primeCount + 2));
     seen = (bool *)calloc(primeCount + 2, sizeof(bool));
 
     /* ----- Compute the sequence incrementally ----- */

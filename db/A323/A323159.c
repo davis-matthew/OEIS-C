@@ -8,8 +8,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = gcd(∏(1 + p^e) , ∏(1 + p)) where n = ∏ p^e is the prime
  *            factorization of n
- * Range:     u8 n <= 137, u16 n <= 9719, u32 n <= 9719, u64 n <= 9719,
- *            u128 n <= 9719, big any n
+ * Range:     u8 n <= 137, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 106 terms through n = 9719 (2026-11-01)
  * Helpers:   factor_u64, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -22,6 +23,9 @@
  */
 
 #include <stddef.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 #include "../utils/gcd.h"
 

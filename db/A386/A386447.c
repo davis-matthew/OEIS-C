@@ -7,13 +7,15 @@
  * Formula:   a(0) = 1; a(n) = a(n-1) + Σ_{k=0}^{n-1} k^6 * a(k) * a(n-1-k)
  * Range:     u8 n <= 3, u16 n <= 3, u32 n <= 5, u64 n <= 7, u128 n <= 10,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 13 terms through n = 12 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Dynamic cache for the sequence values */
 static seq_t *a_cache = NULL;
@@ -32,7 +34,7 @@ static void ensure_a_capacity(idx_t n)
     if (a_cap < need) {
         size_t cap = a_cap ? a_cap * 2 : 8;
         if (cap < need) cap = need;
-        seq_t *tmp = (seq_t *)realloc(a_cache, cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, cap);
         if (!tmp) abort();   /* out of memory */
         a_cache = tmp;
         a_cap   = cap;
@@ -46,7 +48,7 @@ static void ensure_pow6_capacity_and_compute(idx_t k)
     if (pow6_cap < need) {
         size_t cap = pow6_cap ? pow6_cap * 2 : 8;
         if (cap < need) cap = need;
-        seq_t *tmp = (seq_t *)realloc(pow6_cache, cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, pow6_cache, cap);
         if (!tmp) abort();
         pow6_cache = tmp;
         pow6_cap   = cap;

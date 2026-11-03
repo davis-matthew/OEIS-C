@@ -7,13 +7,15 @@
  * Formula:   a(n) = 3^(n+1)-2^(n+1)+13*a(n‑1)-42*a(n‑2), a(0)=1, a(1)=18
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 10, u64 n <= 21, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 877 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Cache previously computed values to answer calls in any order. */
 static seq_t *cache   = NULL;
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     if (cache_sz == 0)
     {
         cache_sz = 2;
-        cache    = (seq_t *)malloc(cache_sz * sizeof(seq_t));
+        cache    = mem_new(seq_t, cache_sz);
         if (!cache) abort();
         cache[0] = (seq_t)1;   /* a(0) */
         cache[1] = (seq_t)18;  /* a(1) */
@@ -52,8 +54,8 @@ seq_t a(idx_t n)
 
     /* Extend the cache to hold up to index n. */
     idx_t new_sz = n + 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_sz * sizeof(seq_t));
-    if (!new_cache) { free(cache); abort(); }
+    seq_t *new_cache = mem_resize(seq_t, cache, new_sz);
+    if (!new_cache) { mem_free(cache); abort(); }
     cache = new_cache;
 
     /* Compute missing terms iteratively using the recurrence. */

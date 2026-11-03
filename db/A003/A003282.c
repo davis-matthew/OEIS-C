@@ -11,7 +11,8 @@
  *            N(k+1) = A(k)*N(k) - B(k)*L(k-1)*N(k-1) - D(k)*L(k...
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 15, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   g3282_addfac
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include "../utils/g3282_addfac.h"
+
+static void g3282_addfac(long *ex, const uint32_t *spf, uint32_t v) {
+    while (v > 1) { uint32_t p = spf[v]; ex[p]++; v /= p; }
+}
 
 typedef struct { uint32_t *d; size_t len, cap; } g3282_bn;
 

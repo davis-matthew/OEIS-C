@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 45, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   contains1
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,17 @@
    (searching multiples of 3 and checking for the digit 1). */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/contains1.h"
+#include "../utils/mem.h"
+
+/* Test whether a number contains the decimal digit 1 */
+static bool contains1(seq_t v)
+{
+    while (v > 0) {
+        if (v % 10 == 1) return true;
+        v /= 10;
+    }
+    return false;
+}
 
 /* Return the nth term (n >= 1) of A207830 */
 seq_t a(idx_t n)
@@ -39,7 +50,7 @@ seq_t a(idx_t n)
         /* Grow cache array if necessary */
         if (cache_len == cache_cap) {
             size_t new_cap = cache_cap == 0 ? 16 : cache_cap << 1;
-            cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_cap);
             cache_cap = new_cap;
         }
 

@@ -8,7 +8,8 @@
  * Formula:   a(n) = prime(n) mod (n - pi(n))
  * Range:     u8 n <= 54, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 100 terms through n = 1000 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static cache for sieve, primes, and prime counts */
 static size_t sieve_limit = 0;
@@ -72,7 +74,7 @@ static void ensure_sieve(size_t n)
 
     /* Build cumulative prime count array pi_arr */
     size_t new_pi_cap = bound + 1;
-    seq_t *new_pi = (seq_t*)realloc(pi_arr, new_pi_cap * sizeof(seq_t));
+    seq_t *new_pi = mem_resize(seq_t, pi_arr, new_pi_cap);
     if (!new_pi) return;
     pi_arr = new_pi;
     pi_cap = new_pi_cap;

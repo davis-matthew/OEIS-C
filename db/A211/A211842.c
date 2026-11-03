@@ -13,7 +13,8 @@
  *            of * distinct values. The answer for a give...
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 38, u128 n <= 69,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* The maximum length we need to support.  For n up to about 10000
  * the length n+3 is less than 20000, which is safely inside this
@@ -48,8 +50,8 @@ static void ensure_len(size_t target_len) {
 
     /* Initialise the base case for length 2 */
     if (computed_len == 1) {
-        memset(eq, 0, sizeof(eq));
-        memset(neq, 0, sizeof(neq));
+        mem_set(eq, 0, sizeof(eq));
+        mem_set(neq, 0, sizeof(neq));
         eq[1] = 1;   /* sequence [0,0] */
         neq[2] = 1;  /* sequence [0,1] */
         sum_by_len[1] = 0;
@@ -62,8 +64,8 @@ static void ensure_len(size_t target_len) {
         size_t next_len = len + 1;
 
         /* Clear temporary tables up to the next length */
-        memset(eq_next, 0, sizeof(seq_t) * (next_len + 1));
-        memset(neq_next, 0, sizeof(seq_t) * (next_len + 1));
+        mem_set(eq_next, 0, sizeof(seq_t) * (next_len + 1));
+        mem_set(neq_next, 0, sizeof(seq_t) * (next_len + 1));
 
         for (size_t d = 1; d <= len; ++d) {
             seq_t val_eq  = eq[d];

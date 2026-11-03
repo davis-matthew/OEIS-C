@@ -9,12 +9,14 @@
  *            a(1)=a(2)=a(3)=a(4)=a(5)=1 (K = 5)
  * Range:     u8 n <= 8, u16 n <= 10, u32 n <= 11, u64 n <= 13, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 24 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     if (required_cap < 6)
         required_cap = 6;        /* 6 = (5 + 1) */
     if (required_cap > cache_cap) {
-        void *ptr = realloc(cache, required_cap * sizeof(seq_t));
+        void *ptr = mem_resize(seq_t, cache, required_cap);
         if (!ptr) abort();      /* out of memory – terminate */
         cache     = (seq_t *)ptr;
         cache_cap = required_cap;

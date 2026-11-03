@@ -11,15 +11,17 @@
  *            contributes floor(factor/2)+1 to the product
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _floor_isqrt_u64, build_primes_upto
+ * Validated: standard, pass, 95 terms through n = 9637 (2026-11-01)
+ * Helpers:   build_primes_upto, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/_floor_isqrt_u64.h"
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;   /* undefined for 0, but safe */
@@ -41,7 +43,7 @@ seq_t a(idx_t n) {
     if (rem == 1) return result;
 
     /* Generate primes up to √rem and factor the odd part */
-    idx_t limit = _floor_isqrt_u64(rem);
+    idx_t limit = isqrt(rem);
     uint64_t *primes = NULL;
     size_t prime_cnt = 0;
     build_primes_upto(limit, &primes, &prime_cnt);

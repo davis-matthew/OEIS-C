@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   not stated
- * Range:     u8 n <= 6, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
- *            big any n
- * Helpers:   isPrime64
+ * Range:     u8 n <= 6, u16 n <= 653, u32 n <= 1000, u64 n <= 1000,
+ *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 72 terms through n = 946 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/isPrime64.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 /* cache of terms found so far */
 static seq_t  *term_cache = NULL;
@@ -35,7 +37,7 @@ static void ensure_cache_cap(size_t needed)
     size_t new_cap = (cache_cap == 0) ? 8 : cache_cap << 1;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(term_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, term_cache, new_cap);
     if (!tmp)
         exit(EXIT_FAILURE);          /* allocation failure aborts */
     term_cache = tmp;
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
         bool prime = false;
         if ((seq_t)UINT64_MAX >= cand_prime) {
             uint64_t p64 = (uint64_t)cand_prime;
-            prime = isPrime64(p64);
+            prime = is_prime_u64(p64);
         } else {
             /* For values larger than 64‑bit the test is not available.
                The problem definition does not require such huge numbers

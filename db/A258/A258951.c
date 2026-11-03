@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 11, u64 n <= 30, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ---------- Transition tables ----------
    There are 2^15 = 32768 states (three 5‑bit rows).  For each state,
@@ -170,7 +172,7 @@ static void ensure_cache(idx_t n)
 /* Perform one DP step: add a new row. */
 static void dp_step(void)
 {
-    memset(dp_next, 0, sizeof(dp_buf0));
+    mem_set(dp_next, 0, sizeof(dp_buf0));
 
     for (int s = 0; s < 32768; ++s) {
         seq_t val = dp_cur[s];

@@ -12,12 +12,14 @@
  *            needed (O(n) time, O(n) memory)
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 24, u64 n <= 48, u128 n <= 97,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Memoisation cache: cache[i] holds a(i) for 0 ≤ i ≤ cache_max.
    Index 0 is unused (a(0) is not defined). */
@@ -32,7 +34,7 @@ static void ensure_cache(idx_t n)
 
     if (cache == NULL) {
         /* Allocate fresh cache. */
-        cache = (seq_t *)malloc(needed * sizeof(seq_t));
+        cache = mem_new(seq_t, needed);
         if (cache == NULL) abort();             /* out of memory   */
         cache[0] = 0;                           /* unused, but set */
         cache[1] = 2;
@@ -44,7 +46,7 @@ static void ensure_cache(idx_t n)
         cache_max = 6;
     } else if (needed > cache_max + 1) {
         /* Grow the cache to the required size. */
-        seq_t *tmp = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, needed);
         if (tmp == NULL) abort();              /* out of memory   */
         cache = tmp;
         /* Initialise new entries only if the cache was freshly allocated */

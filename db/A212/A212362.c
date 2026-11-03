@@ -11,12 +11,14 @@
  *            r*(r+1)/2
  * Range:     u8 n <= 22, u16 n <= 68, u32 n <= 257, u64 n <= 914,
  *            u128 n <= 1325, big any n
+ * Validated: standard, pass, 71 terms through n = 1302 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
 

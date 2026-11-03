@@ -10,6 +10,7 @@
  *            k, (x0+…+xk)/(k+1) ≤ (x0+…+xk+1)/(k+2))
  * Range:     u8 n <= 3, u16 n <= 10, u32 n <= 72, u64 n <= 210, u128 n <= 210,
  *            big any n
+ * Validated: standard, pass, 46 terms through n = 194 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

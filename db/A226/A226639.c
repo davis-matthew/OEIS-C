@@ -7,6 +7,7 @@
  * Formula:   a(n) = n^4/8 + (5*n^3)/12 - n^2/8 - (5*n)/12 + 1
  * Range:     u8 n <= 6, u16 n <= 26, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
+ * Validated: partial, pass, 41 terms through n = 39 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

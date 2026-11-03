@@ -9,12 +9,14 @@
  * Formula:   a(n) = 12*a(n-1) - 36*a(n-2); a(1)=2, a(2)=28
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 23, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,10 +27,10 @@ seq_t a(idx_t n)
 
     if (n > cache_size) {
         /* enlarge cache to size n */
-        seq_t *new_cache = (seq_t *)realloc(cache, n * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, n);
         if (!new_cache) {
             /* out of memory – fall back to zero */
-            if (cache) free(cache);
+            if (cache) mem_free(cache);
             return 0;
         }
         cache = new_cache;

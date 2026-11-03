@@ -11,6 +11,7 @@
  *            8*x)*(1 - 12*x - 17*x^2 + 608*x^3 - 856*x^4 - 9920*x^5 * +...
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 10, u64 n <= 20, u128 n <= 22,
  *            big any n
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

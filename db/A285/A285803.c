@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   contains_digit7, seq_realloc
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,30 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/seq_realloc.h"   /* provides seq_realloc(seq_t*,size_t,size_t) */
-#include "../utils/contains_digit7.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
+
+/* Check if the decimal representation of x contains the digit 7. */
+static unsigned char contains_digit7(seq_t x)
+{
+    while (x)
+    {
+        if ((x % 10) == 7)
+            return 1;
+        x /= 10;
+    }
+    return 0;
+}
 
 /* Static cache for generated sequence values. */
 static seq_t *cache      = NULL;   /* pointer to the cached array */

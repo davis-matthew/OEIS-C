@@ -8,9 +8,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 298, u16 n <= 9255, u32 n <= 9255, u64 n <= 9255,
- *            u128 n <= 9255, big any n
- * Helpers:   is_prime, key_hash, prime_run_lengths
+ * Range:     u8 n <= 298, u16 n <= 72484, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 117 terms through n = 9255 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,8 +28,50 @@
 #include <string.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
-#include "../utils/key_hash.h"
-#include "../utils/prime_run_lengths.h"
+#include "../utils/mem.h"
+
+/* --- Helper: hash a key (run lengths) --------------------------------- */
+static uint64_t key_hash(const uint8_t *runs, size_t len)
+{
+    uint64_t h = len;
+    for (size_t i = 0; i < len; ++i)
+        h = h * 134775813ULL + runs[i];
+    return h;
+}
+
+/* --- Helper: compute sorted list of 1‑run lengths for a prime ---------- */
+static void prime_run_lengths(idx_t p, uint8_t *out, size_t *olen)
+{
+    uint8_t runs[64];
+    size_t  r = 0;
+    uint64_t v = p;
+    uint8_t cur = 0;
+
+    while (v) {
+        if (v & 1ULL) {
+            ++cur;
+        } else {
+            if (cur) {
+                runs[r++] = cur;
+                cur = 0;
+            }
+        }
+        v >>= 1;
+    }
+    if (cur) runs[r++] = cur;
+
+    /* bubble sort the runs (r ≤ 64) */
+    for (size_t i = 0; i < r; ++i)
+        for (size_t j = i + 1; j < r; ++j)
+            if (runs[j] < runs[i]) {
+                uint8_t t = runs[i];
+                runs[i] = runs[j];
+                runs[j] = t;
+            }
+
+    memcpy(out, runs, r);
+    *olen = r;
+}
 
 #define KEY_CAP 8192   /* power‑of‑two table size (enough for <~2000 keys) */
 
@@ -79,13 +122,13 @@ static void extend_to(idx_t n)
     if (n + 1 > seq_cap) {
         size_t new_cap = seq_cap ? seq_cap : 64;
         while (new_cap < n + 1) new_cap <<= 1;
-        seq_arr = (seq_t *)realloc(seq_arr, new_cap * sizeof(seq_t));
+        seq_arr = mem_resize(seq_t, seq_arr, new_cap);
         seq_cap = new_cap;
     }
 
     /* initialise key table once */
     if (!key_tbl) {
-        key_tbl = (KeyEntry *)calloc(KEY_CAP, sizeof(KeyEntry));
+        key_tbl = mem_new(KeyEntry, KEY_CAP);
     }
 
     /* compute values from seq_max+1 up to n */

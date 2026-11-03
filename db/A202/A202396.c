@@ -12,14 +12,27 @@
  *            n<k
  * Range:     u8 n <= 15, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   alloc_seq_array, free_seq_array
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 seq_t a(idx_t n)
 {
@@ -56,15 +69,15 @@ seq_t a(idx_t n)
             curr[k] = val;
 
             if (start + k == n) {      /* target found – clean up and return                */
-                free(prev_prev);
-                free(prev);
-                free(curr);
+                mem_free(prev_prev);
+                mem_free(prev);
+                mem_free(curr);
                 return val;
             }
         }
 
         /* shift rows for the next iteration                                     */
-        free(prev_prev);
+        mem_free(prev_prev);
         prev_prev = prev;
         prev = curr;
         curr = NULL;

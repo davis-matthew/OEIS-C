@@ -8,11 +8,14 @@
  * Formula:   a(n) = 2^n * binomial(n,3) * (n-1)*(n-3)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 15, u64 n <= 40, u128 n <= 97,
  *            big any n
+ * Validated: standard, pass, 41 terms through n = 3079 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
 

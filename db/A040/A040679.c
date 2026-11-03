@@ -8,6 +8,7 @@
  *            offset 0, so a(0)=26 and for n>=1 a(n)=pattern[(n-1) mod 8]
  * Range:     u8 n <= 83, u16 n <= 83, u32 n <= 83, u64 n <= 83, u128 n <= 83,
  *            big any n
+ * Validated: partial, pass, 84 terms through n = 83 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

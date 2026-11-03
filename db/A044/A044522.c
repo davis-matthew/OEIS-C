@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   has03
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,25 @@
  * specialized libraries are required beyond <stdbool.h>. */
 
 #include <stdbool.h>
-#include "../utils/has03.h"
+
+/* Return true if x in base 7 contains the substring "03". */
+static bool has03(seq_t x)
+{
+    /* prev holds the previous (less significant) digit just processed.
+     * Using an impossible sentinel (7) guarantees that the first digit 
+     * cannot accidentally match the pattern. */
+    seq_t prev = 7;
+    while (x != 0) {
+        seq_t d = x % 7;
+        /* In base‑7 the pattern "0 3" appears when the current digit is 0
+         * and the next more significant digit (prev) is 3. */
+        if (d == 0 && prev == 3)
+            return true;
+        prev = d;
+        x = x / 7;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

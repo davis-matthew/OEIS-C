@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   is_palindrome
+ * Validated: partial, pass, 60 terms through n = 59 (2026-11-01)
+ * Helpers:   is_palindrome_base
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
    increment candidates until both the modulo and palindrome tests
    are satisfied. */
 #include <stdbool.h>
-#include "../utils/is_palindrome.h"
+#include "../utils/is_palindrome_base.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)1;
@@ -29,7 +30,7 @@ seq_t a(idx_t n) {
     const seq_t one = (seq_t)1;
     for ( ;; candidate++ ) {
         if ( (candidate % (seq_t)n) == one ) {
-            if ( is_palindrome(candidate, (idx_t)10) )
+            if ( is_palindrome_base(candidate, (idx_t)10) )
                 return candidate;
         }
     }

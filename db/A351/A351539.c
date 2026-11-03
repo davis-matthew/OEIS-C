@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 119, u16 n <= 9834, u32 n <= 9834, u64 n <= 9834,
- *            u128 n <= 9834, big any n
- * Helpers:   factor_u64_local
+ * Range:     u8 n <= 119, u16 n <= 9834, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 136 terms through n = 9834 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,30 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/factor_u64_local.h"
+
+/* local helper: factorisation of n */
+static void factor_u64_local(uint64_t n, uint64_t *primes, uint64_t *exps, size_t *cnt)
+{
+    size_t c = 0;
+    uint64_t m = n;
+    for (uint64_t p = 2; p <= m / p; ++p) {
+        if (m % p == 0) {
+            primes[c] = p;
+            exps[c]   = 0;
+            while (m % p == 0) {
+                m /= p;
+                exps[c]++;
+            }
+            ++c;
+        }
+    }
+    if (m > 1) {
+        primes[c] = m;
+        exps[c]   = 1;
+        ++c;
+    }
+    *cnt = c;
+}
 
 /* Return a(n) for OEIS sequence A351539 */
 seq_t a(idx_t n)

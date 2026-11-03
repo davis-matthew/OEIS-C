@@ -8,12 +8,14 @@
  *            a(2) = 2
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 25, u64 n <= 51, u128 n <= 101,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 862 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;
 static idx_t a_cache_size = 0;    /* number of slots allocated */
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* First call: allocate and compute up to n */
     if (a_cache == NULL) {
         a_cache_size = (n + 1 > 32) ? (n + 1) : 32;
-        a_cache = (seq_t *)malloc(a_cache_size * sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_cache_size);
         if (a_cache == NULL) abort();   /* allocation failure */
         a_cache[0] = 0;
         a_cache[1] = 0;
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     /* Grow cache to accommodate n */
     if ((idx_t)(a_cache_size) <= n) {
         size_t new_size = (n + 1 > a_cache_size * 2) ? (n + 1) : a_cache_size * 2;
-        seq_t *new_ptr = (seq_t *)realloc(a_cache, new_size * sizeof(seq_t));
+        seq_t *new_ptr = mem_resize(seq_t, a_cache, new_size);
         if (new_ptr == NULL) abort();
         a_cache = new_ptr;
         a_cache_size = new_size;

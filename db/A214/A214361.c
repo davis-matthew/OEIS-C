@@ -12,14 +12,49 @@
  *            (declared static in the header) and then evaluates e...
  * Range:     u8 n <= 16, u16 n <= 586, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   big_pow, smallest_prime_factor
+ * Validated: standard, pass, 84 terms through n = 975 (2026-11-03)
+ * Helpers:   gcd_u64, ipow, is_prime_u64, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/smallest_prime_factor.h"
-#include "../utils/big_pow.h"
+#include <stddef.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/gcd_u64.h"
+#include "../utils/ipow.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mulmod.h"
+
+/* Pollard–Rho: find a non‑trivial divisor of n (n composite) */
+static uint64_t pollard(uint64_t n) {
+    if (n % 2 == 0) return 2;
+    uint64_t c = 1;
+    while (1) {
+        uint64_t x = 2, y = 2, d = 1;
+        while (d == 1) {
+            x = (mulmod(x, x, n) + c) % n;
+            y = (mulmod(y, y, n) + c) % n;
+            y = (mulmod(y, y, n) + c) % n;
+            uint64_t diff = x > y ? x - y : y - x;
+            d = gcd_u64(diff, n);
+        }
+        if (d != n) return d;
+        ++c;  /* try another constant */
+    }
+}
+
+/* recursive smallest prime factor */
+static uint64_t smallest_prime_factor(uint64_t n) {
+    if (n % 2 == 0) return 2;
+    if (is_prime_u64(n)) return n;
+    uint64_t d = pollard(n);
+    uint64_t s1 = smallest_prime_factor(d);
+    uint64_t s2 = smallest_prime_factor(n / d);
+    return (s1 < s2) ? s1 : s2;
+}
 
 seq_t a(idx_t n)
 {
@@ -40,9 +75,9 @@ seq_t a(idx_t n)
         if (p == 2) {
             part = (seq_t)3;                       /* a(2^e) = 3 */
         } else if (p == 3) {
-            part = big_pow((seq_t)3, (seq_t)exp);  /* a(3^e) = 3^e */
+            part = ipow((seq_t)3, (seq_t)exp);  /* a(3^e) = 3^e */
         } else {
-            seq_t top = big_pow((seq_t)p, (seq_t)(exp + 1));
+            seq_t top = ipow((seq_t)p, (seq_t)(exp + 1));
             seq_t bottom = (seq_t)p - (seq_t)1;
             part = (top - (seq_t)1) / bottom;      /* (p^(e+1)-1)/(p-1) */
         }

@@ -9,12 +9,14 @@
  *            0)
  * Range:     i8 n <= 3, i16 n <= 7, i32 n <= 16, i64 n <= 33, i128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *qpow = NULL;     /* qpow[i] = (-15)^i, i ≥ 0 */
 static idx_t qp_len = 0;       /* number of computed powers   */
@@ -27,7 +29,7 @@ static void ensure_powers(idx_t n)
     idx_t newcap = qp_cap ? qp_cap << 1 : 16;
     while (newcap <= n)
         newcap <<= 1;
-    seq_t *tmp = (seq_t*)realloc(qpow, (size_t)newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, qpow, (size_t)newcap);
     if (!tmp)
         abort();
     qpow = tmp;

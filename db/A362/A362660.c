@@ -8,7 +8,8 @@
  *            k! * (n-2k)!) (OEIS A362660)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 16, u128 n <= 18,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -33,8 +34,8 @@ seq_t a(idx_t n)
         if (m == 0)                   /* term would be 0 for k > 0 */
             break;
 
-        seq_t pow1 = big_pow((seq_t)m,      (seq_t)k);      /* (n-2k)^k   */
-        seq_t pow2 = big_pow((seq_t)(m + 1), (seq_t)(m - 1));/* (n-2k+1)^(n-2k-1) */
+        seq_t pow1 = ipow((seq_t)m,      (seq_t)k);      /* (n-2k)^k   */
+        seq_t pow2 = ipow((seq_t)(m + 1), (seq_t)(m - 1));/* (n-2k+1)^(n-2k-1) */
 
         seq_t term = f;
         term *= pow1;

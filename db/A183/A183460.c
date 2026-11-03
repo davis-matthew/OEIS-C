@@ -12,7 +12,8 @@
  *            pairs. * Precomputation of valid next rows per p...
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 32, u128 n <= 63,
  *            big any n
- * Helpers:   no2x2
+ * Validated: standard, pass, 40 terms through n = 185 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,15 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/no2x2.h"
+#include "../utils/mem.h"
+
+/* Check whether two rows contain a 2×2 block of 1s. */
+static inline bool no2x2(uint8_t a, uint8_t b)
+{
+    uint8_t aa = a & (a << 1);
+    uint8_t bb = b & (b << 1);
+    return (aa & bb) == 0;
+}
 
 #define MASKS 128                 // 2^7 possible rows
 #define STATES (MASKS * MASKS)    // 16384 possible state pairs
@@ -105,7 +114,7 @@ seq_t a(idx_t n)
      * processing the current number of rows.  State encoded as (prev<<7 | curr). */
     static seq_t dp_cur[STATES];
     static seq_t dp_next[STATES];
-    memset(dp_cur, 0, sizeof(dp_cur));
+    mem_set(dp_cur, 0, sizeof(dp_cur));
 
     /* Initial row: dummy row 0 (before first real row) + first real row */
     for (uint32_t m0 = 0; m0 < MASKS; ++m0)
@@ -114,7 +123,7 @@ seq_t a(idx_t n)
     idx_t rows = n + 4;                     /* total number of rows */
     for (idx_t row = 1; row < rows; ++row)  /* we already have 1 row */
     {
-        memset(dp_next, 0, sizeof(dp_next));
+        mem_set(dp_next, 0, sizeof(dp_next));
 
         for (uint32_t p = 0; p < MASKS; ++p)
         {
@@ -135,7 +144,7 @@ seq_t a(idx_t n)
             }
         }
         /* swap dp arrays for next iteration */
-        memcpy(dp_cur, dp_next, sizeof(dp_cur));
+        mem_copy(dp_cur, dp_next, sizeof(dp_cur));
     }
 
     /* After all rows processed, validate the last row against zero bottom row. */

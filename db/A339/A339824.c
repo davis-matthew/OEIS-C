@@ -10,7 +10,8 @@
  *            up to 2·10⁴ (and indeed for all k < 2⁶⁶)
  * Range:     u8 n <= 85, u16 n <= 85, u32 n <= 85, u64 n <= 85, u128 n <= 85,
  *            big any n
- * Helpers:   floor_phi_u128
+ * Validated: partial, pass, 86 terms through n = 85 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,15 @@
    using 128‑bit integer operations only. */
 
 #include <stdint.h>
-#include "../utils/floor_phi_u128.h"
+
+/* Integer floor of k·φ using the rational approximation 987/610. */
+static inline seq_t floor_phi_u128(unsigned __int128 k)
+{
+    /* tmp = k * 987 */
+    unsigned __int128 tmp = k * (unsigned __int128)987ULL;
+    /* floor(tmp / 610) */
+    return (seq_t)(tmp / (unsigned __int128)610ULL);
+}
 
 /* Sequence generator for A339824 (even bisection of Fibonacci word). */
 seq_t a(idx_t n)

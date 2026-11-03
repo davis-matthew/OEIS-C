@@ -8,14 +8,36 @@
  *            antidiagonal coordinates of n
  * Range:     u8 n <= 5, u16 n <= 14, u32 n <= 45, u64 n <= 154, u128 n <= 538,
  *            big any n
- * Helpers:   big_pow, binomial, floor_sqrt
+ * Validated: standard, pass, 48 terms through n = 934 (2026-11-01)
+ * Helpers:   binomial, ipow, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/floor_sqrt.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
+#include "../utils/ipow_i32.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 seq_t a(idx_t n)
 {
@@ -33,8 +55,8 @@ seq_t a(idx_t n)
 
     /* evaluate the triangle entry */
     seq_t bin   = binomial(i, j);
-    seq_t pow11 = big_pow((seq_t)11, (seq_t)(i - j));
-    seq_t pow6  = big_pow((seq_t)6,  (seq_t)j);
+    seq_t pow11 = ipow((seq_t)11, (seq_t)(i - j));
+    seq_t pow6  = ipow((seq_t)6,  (seq_t)j);
 
     return bin * pow11 * pow6;
 }

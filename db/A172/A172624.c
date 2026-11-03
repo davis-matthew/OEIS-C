@@ -8,7 +8,8 @@
  *            number of positive divisors
  * Range:     u8 n <= 12, u16 n <= 2585, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 9253 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---- Global static data ------------------------------------------- */
 static size_t sieve_limit   = 0;     /* highest number with known tau      */
@@ -33,7 +35,7 @@ static void push_seq(seq_t val)
 {
     if (seq_len == seq_cap) {
         size_t newcap = seq_cap ? seq_cap * 2 : 16;
-        seq_arr = (seq_t *)realloc(seq_arr, newcap * sizeof(seq_t));
+        seq_arr = mem_resize(seq_t, seq_arr, newcap);
         seq_cap = newcap;
     }
     seq_arr[seq_len++] = val;
@@ -46,7 +48,7 @@ static void extend_sieve(size_t new_limit)
 
     /* Allocate fresh arrays and zero them */
     uint32_t *new_spf = (uint32_t *)calloc(new_limit + 1, sizeof(uint32_t));
-    seq_t   *new_tau  = (seq_t   *)calloc(new_limit + 1, sizeof(seq_t));
+    seq_t   *new_tau  = mem_new(seq_t, new_limit + 1);
 
     /* Smallest prime factor sieve */
     for (size_t i = 2; i <= new_limit; ++i) {
@@ -81,7 +83,7 @@ static void extend_sieve(size_t new_limit)
 
     /* Free old arrays and install the new ones */
     free(spf);
-    free(tau_arr);
+    mem_free(tau_arr);
     spf   = new_spf;
     tau_arr = new_tau;
 

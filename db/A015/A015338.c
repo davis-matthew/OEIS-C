@@ -11,14 +11,16 @@
  *            only integer arithmetic, a few utilities (gcd, big_p...
  * Range:     i8 none, i16 none, i32 n <= 11, i64 n <= 16, i128 n <= 25,
  *            big any n
- * Helpers:   big_pow, gcd
+ * Validated: standard, pass, 28 terms through n = 450 (2026-11-01)
+ * Helpers:   gcd, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/gcd.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 /* Return the Gaussian binomial coefficient [n,7] for q = -2.
  * For n < 7 the behaviour is undefined; this implementation reports 0. */
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
         seq_t base = (seq_t)-2;
         seq_t product = 1;
         for (int j = 1; j <= 7; ++j) {
-            seq_t term = big_pow(base, (seq_t)j) - 1; /* (q^j - 1) */
+            seq_t term = ipow(base, (seq_t)j) - 1; /* (q^j - 1) */
             product *= term;
         }
         /* The product is positive (see analysis). */
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
 
     for (int i = 0; i < 7; ++i) {
         idx_t exp = n - (idx_t)i;            /* current exponent n-i */
-        seq_t pow_val = big_pow((seq_t)-2, (seq_t)exp);  /* (-2)^(n-i) */
+        seq_t pow_val = ipow((seq_t)-2, (seq_t)exp);  /* (-2)^(n-i) */
         seq_t num_term = pow_val - 1;                 /* numerator factor */
 
         seq_t g = gcd(num_term, denom_rem);

@@ -13,19 +13,57 @@
  *            =...
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 40,
  *            big any n
- * Helpers:   alloc_zero, grow_zero, rk_gs, rk_match_bwd, rk_match_fwd, rk_ss
+ * Validated: standard, pass, 36 terms through n = 946 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <string.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/grow_zero.h"
-#include "../utils/rk_gs.h"
-#include "../utils/rk_match_bwd.h"
-#include "../utils/rk_match_fwd.h"
-#include "../utils/rk_ss.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
+
+static int rk_gs(int st, int k) { return (st >> (2 * k)) & 3; }
+
+static int rk_match_bwd(int st, int p) {
+    int d = 0, k;
+    for (k = p; k >= 0; k--) {
+        int v = rk_gs(st, k);
+        if (v == 2) d++;
+        else if (v == 1) { d--; if (d == 0) return k; }
+    }
+    return -1;
+}
+
+static int rk_match_fwd(int st, int p) {
+    int d = 0, k;
+    for (k = p; k < 6; k++) {
+        int v = rk_gs(st, k);
+        if (v == 1) d++;
+        else if (v == 2) { d--; if (d == 0) return k; }
+    }
+    return -1;
+}
+
+static int rk_ss(int st, int k, int v) { return (st & ~(3 << (2 * k))) | (v << (2 * k)); }
 
 typedef unsigned __int128 u128_t;
 #define MAXS 64

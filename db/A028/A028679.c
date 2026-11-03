@@ -7,18 +7,20 @@
  * Formula:   a(n) = 17^n * ∏_{k=0}^{n-1} (17^n - 17^k)
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 2, u64 n <= 3, u128 n <= 5,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 24 terms through n = 28 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
     /* Compute 17^n */
-    seq_t pown = pow_uint(17ULL, n);
+    seq_t pown = ipow_u64_idx(17ULL, n);
     seq_t prod = (seq_t)1;
     seq_t pow_k = (seq_t)1;            /* 17^k, starts with k = 0 */
 

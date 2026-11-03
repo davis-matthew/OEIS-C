@@ -8,12 +8,14 @@
  *            a(0)=1, a(1)=2, a(2)=6, a(3)=24
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_max = 0;   /* highest index that has been computed */
@@ -23,7 +25,7 @@ static void ensure_cache(idx_t n)
     if (cache == NULL)    /* first call – allocate and seed the base values */
     {
         size_t init_cap = 4;
-        cache = (seq_t*)malloc(init_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, init_cap);
         /* base values */
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)2;
@@ -37,7 +39,7 @@ static void ensure_cache(idx_t n)
     size_t cap = cache_max + 1;
     while (cap <= n) cap <<= 1;          /* double until we fit n */
     if (cap > (cache_max + 1))
-        cache = (seq_t*)realloc(cache, cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cap);
 
     /* compute missing terms */
     for (idx_t i = cache_max + 1; i <= n; ++i)

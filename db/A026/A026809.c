@@ -8,6 +8,7 @@
  *            a(n)=3*(13*a(n-1)-117*a(n-2)+243*a(n-3)) for n>=3
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 7, u64 n <= 14, u128 n <= 27,
  *            big any n
+ * Validated: standard, pass, 34 terms through n = 659 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

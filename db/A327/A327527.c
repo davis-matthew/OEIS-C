@@ -6,8 +6,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = Number of uniform divisors of n * a(n) = 1 + Σ_{k≥1}
  *            (2^{M_k} – 1) where M_k = #primes of n with exponent ≥ k
- * Range:     u8 n <= 9745, u16 n <= 9745, u32 n <= 9745, u64 n <= 9745,
- *            u128 n <= 9745, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9745 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,8 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 seq_t a(idx_t n)

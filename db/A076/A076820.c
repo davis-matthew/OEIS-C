@@ -7,8 +7,9 @@
  * Keywords:  nonn, easy, look
  * Formula:   a(n) = the second–largest distinct prime factor of n, or 1 if n
  *            is a prime power (including n = 1)
- * Range:     u8 n <= 9483, u16 n <= 9483, u32 n <= 9483, u64 n <= 9483,
- *            u128 n <= 9483, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9483 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,8 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 seq_t a(idx_t n)

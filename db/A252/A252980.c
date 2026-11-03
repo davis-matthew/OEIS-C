@@ -12,13 +12,15 @@
  *            a(11)=10878576
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 94, u64 n <= 210, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t  cache_len = 0;
@@ -35,9 +37,9 @@ seq_t a(idx_t n)
     if (cache_len < 11) {
         idx_t need = 11;
         if (!cache) {
-            cache = (seq_t *)malloc(need * sizeof(seq_t));
+            cache = mem_new(seq_t, need);
         } else if (cache_len < need) {
-            cache = (seq_t *)realloc(cache, need * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, need);
         }
         for (idx_t i = cache_len; i < need; ++i) {
             cache[i] = init_vals[i];
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
 
     /* Extend cache up to index n */
     idx_t new_len = n;
-    cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_len);
     for (idx_t i = cache_len; i < new_len; ++i) {
         /* recurrence: a(i+1) = 3*a(i) - 3*a(i-1) + a(i-2) */
         cache[i] = (3 * cache[i-1]) - (3 * cache[i-2]) + cache[i-3];

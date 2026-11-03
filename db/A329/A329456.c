@@ -13,7 +13,8 @@
  *            a(n-4)…a(n). Sequence values are distinct. The function...
  * Range:     u8 n <= 77, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/is_prime.h"         /* provides bool is_prime(idx_t) */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* global static tables */
 static seq_t *seq            = NULL;      /* stored sequence values */
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         /* capacity for the sequence array (will grow as needed) */
         seq_cap  = 32;
-        seq      = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq      = mem_new(seq_t, seq_cap);
         if (!seq) exit(1);
 
         /* used array: start with small size, grow when required */
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
     /* enlarge the sequence array if a larger index is requested */
     if (n + 1 > seq_cap) {
         seq_cap = (n + 1) * 2;
-        seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, seq_cap);
         if (!seq) exit(1);
     }
 

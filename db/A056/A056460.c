@@ -8,15 +8,17 @@
  * Formula:   a(n) = Sum_{d|n} mu(d) * 4^ceil((n/d)/2) (OEIS A056460)
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   mu_of_idx, seq_pow
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-01)
+ * Helpers:   ipow_idx, mobius_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <math.h>
-#include "../utils/seq_pow.h"
-#include "../utils/mu_of_idx.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/mobius_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -29,11 +31,11 @@ seq_t a(idx_t n)
         if (n % i == 0) {
             /* divisor d1 = i */
             idx_t d1 = i;
-            int mu1 = mu_of_idx(d1);
+            int mu1 = mobius_idx(d1);
             if (mu1) {
                 idx_t k = n / d1;
                 idx_t e = (k + 1) / 2;          /* ceil(k/2) */
-                seq_t term = seq_pow((seq_t)4, e);
+                seq_t term = ipow_idx((seq_t)4, e);
                 if (mu1 > 0) sum += term;
                 else        sum -= term;
             }
@@ -41,11 +43,11 @@ seq_t a(idx_t n)
             /* divisor d2 = n / i, if distinct */
             idx_t d2 = n / i;
             if (d2 != d1) {
-                int mu2 = mu_of_idx(d2);
+                int mu2 = mobius_idx(d2);
                 if (mu2) {
                     idx_t k = n / d2;
                     idx_t e = (k + 1) / 2;
-                    seq_t term = seq_pow((seq_t)4, e);
+                    seq_t term = ipow_idx((seq_t)4, e);
                     if (mu2 > 0) sum += term;
                     else        sum -= term;
                 }

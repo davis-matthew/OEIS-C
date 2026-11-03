@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 24, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   binomial, pow2, pow_int
+ * Validated: partial, pass, 41 terms through n = 40 (2026-11-01)
+ * Helpers:   binomial, ipow_idx, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,9 +24,11 @@
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/ipow_idx.h"
 #include "../utils/pow2.h"
-#include "../utils/pow_int.h"
 
 seq_t a(idx_t n)
 {
@@ -47,7 +50,7 @@ seq_t a(idx_t n)
     /* Compute T(i,j) = binomial(i,j) * 2^(i-j) * 6^j */
     seq_t bin = binomial(i, j);
     seq_t pow2v = pow2(i - j);
-    seq_t pow6v = pow_int((seq_t)6, j);
+    seq_t pow6v = ipow_idx((seq_t)6, j);
 
     return bin * pow2v * pow6v;
 }

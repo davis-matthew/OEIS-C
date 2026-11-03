@@ -8,13 +8,15 @@
  *            which is equivalent to ∏_{k=1}^{37} (1 + x + … + x^k)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 10, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,13 +28,13 @@ seq_t a(idx_t n)
     if (!initialized) {
         /* start with polynomial 1 */
         poly_len = 1;
-        poly = (seq_t*)calloc(poly_len, sizeof(seq_t));
+        poly = mem_new(seq_t, poly_len);
         poly[0] = (seq_t)1;
 
         /* multiply by (1 + x + … + x^k) for k = 1 .. 37 */
         for (int k = 1; k <= 37; ++k) {
             size_t new_len = poly_len + (size_t)k;
-            seq_t *new_poly = (seq_t*)calloc(new_len, sizeof(seq_t));
+            seq_t *new_poly = mem_new(seq_t, new_len);
 
             for (size_t i = 0; i < poly_len; ++i) {
                 const seq_t val = poly[i];
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
                 }
             }
 
-            free(poly);
+            mem_free(poly);
             poly = new_poly;
             poly_len = new_len;
         }

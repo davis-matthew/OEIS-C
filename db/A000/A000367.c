@@ -11,7 +11,8 @@
  *            D_n = A002445(n) is the product of the primes p with (p-1)...
  * Range:     i8 n <= 5, i16 n <= 8, i32 n <= 13, i64 n <= 17, i128 n <= 29,
  *            big any n
- * Helpers:   b367_bitlen, b367_isprime, b367_lin, b367_mul_small
+ * Validated: standard, pass, 40 terms through n = 245 (2026-11-03)
+ * Helpers:   bit_length_u64, is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,10 +20,42 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/b367_bitlen.h"
-#include "../utils/b367_isprime.h"
-#include "../utils/b367_lin.h"
-#include "../utils/b367_mul_small.h"
+#include "../utils/bit_length_u64.h"
+#include "../utils/is_prime_u64.h"
+
+/* y <- a*x + b*y */
+static void b367_lin(uint32_t *y, size_t *ly, const uint32_t *x, size_t lx,
+                     uint64_t a, uint64_t b) {
+    size_t m = lx > *ly ? lx : *ly, i;
+    uint64_t carry = 0;
+    for (i = 0; i < m; i++) {
+        uint64_t xi = i < lx ? x[i] : 0;
+        uint64_t yi = i < *ly ? y[i] : 0;
+        uint64_t v = a * xi + b * yi + carry;
+        y[i] = (uint32_t)v;
+        carry = v >> 32;
+    }
+    while (carry) {
+        y[m++] = (uint32_t)carry;
+        carry >>= 32;
+    }
+    while (m > 0 && y[m - 1] == 0) m--;
+    *ly = m;
+}
+
+static void b367_mul_small(uint32_t *x, size_t *lx, uint64_t m) {
+    size_t i;
+    uint64_t carry = 0;
+    for (i = 0; i < *lx; i++) {
+        uint64_t v = (uint64_t)x[i] * m + carry;
+        x[i] = (uint32_t)v;
+        carry = v >> 32;
+    }
+    while (carry) {
+        x[(*lx)++] = (uint32_t)carry;
+        carry >>= 32;
+    }
+}
 
 static uint32_t **b367_T = NULL;
 static size_t *b367_len = NULL;
@@ -40,7 +73,7 @@ static void b367_build(size_t N) {
     b367_len = (size_t *)calloc(N + 1, sizeof(size_t));
     for (j = 1; j <= N; j++) {
         size_t cap;
-        bits += (uint64_t)b367_bitlen(2 * j - 1) + (uint64_t)b367_bitlen(2 * j);
+        bits += (uint64_t)bit_length_u64(2 * j - 1) + (uint64_t)bit_length_u64(2 * j);
         cap = (size_t)((bits + 4 * (uint64_t)j + 2) / 32 + 2);
         b367_T[j] = (uint32_t *)calloc(cap, sizeof(uint32_t));
     }
@@ -69,9 +102,9 @@ seq_t a(idx_t n) {
     }
     two_n = 2 * (uint64_t)n;
 
-    extra_bits = 64 + (uint64_t)b367_bitlen(n);
+    extra_bits = 64 + (uint64_t)bit_length_u64(n);
     for (d = 1; d <= two_n; d++)
-        if (two_n % d == 0) extra_bits += (uint64_t)b367_bitlen(d + 1) + 1;
+        if (two_n % d == 0) extra_bits += (uint64_t)bit_length_u64(d + 1) + 1;
     cap = b367_len[nn] + (size_t)(extra_bits / 32) + 4;
     X = (uint32_t *)calloc(cap, sizeof(uint32_t));
     memcpy(X, b367_T[nn], b367_len[nn] * sizeof(uint32_t));
@@ -80,7 +113,7 @@ seq_t a(idx_t n) {
     /* X = T_n * n * D_n */
     b367_mul_small(X, &lx, (uint64_t)n);
     for (d = 1; d <= two_n; d++)
-        if (two_n % d == 0 && b367_isprime(d + 1))
+        if (two_n % d == 0 && is_prime_u64(d + 1))
             b367_mul_small(X, &lx, d + 1);
 
     /* X >>= 2n-1 */

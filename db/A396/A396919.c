@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   next_prime, seq_cmp
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,18 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/next_prime.h"   /* uint64_t next_prime(uint64_t start); */
-#include "../utils/seq_cmp.h"     /* int seq_cmp(const void *, const void *); */
+#include <stddef.h>
+#include "../utils/next_prime.h"
+#include "../utils/mem.h"
+
+static int seq_cmp(const void *p, const void *q)
+{
+    const seq_t *a = (const seq_t *)p;
+    const seq_t *b = (const seq_t *)q;
+    if (*a < *b) return -1;
+    if (*a > *b) return 1;
+    return 0;
+}
 
 /* Binary min‑heap for seq_t values.  cmp_seq_t is defined in seq_cmp.h. */
 typedef struct {
@@ -36,7 +47,7 @@ static void heap_ensure_capacity(seq_heap *h)
 {
     if (h->size == h->capacity) {
         size_t new_cap = h->capacity ? h->capacity * 2 : 8;
-        seq_t *new_data = (seq_t *)realloc(h->data, new_cap * sizeof(seq_t));
+        seq_t *new_data = mem_resize(seq_t, h->data, new_cap);
         h->data = new_data;
         h->capacity = new_cap;
     }
@@ -103,7 +114,7 @@ seq_t a(idx_t n)
     if (n > cache_size) {
         /* Allocate heap if first run. */
         if (heap.data == NULL)
-            heap.data = (seq_t *)calloc(8, sizeof(seq_t));
+            heap.data = mem_new(seq_t, 8);
 
         /* Generate primes and push their 4*p and 2*p^2 terms into the heap
            until we have at least n values in the cache. */
@@ -132,7 +143,7 @@ seq_t a(idx_t n)
                 seq_t val = heap_pop(&heap);
                 if (cache_size == cache_cap) {
                     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-                    seq_t *new_mem = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                    seq_t *new_mem = mem_resize(seq_t, cache, new_cap);
                     cache = new_mem;
                     cache_cap = new_cap;
                 }

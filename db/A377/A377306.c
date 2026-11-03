@@ -8,14 +8,51 @@
  *            m - 1 otherwise where m = floor((5n)^(1/5))
  * Range:     u8 n <= 252, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_fifth_root_uint128, pow5_u128
+ * Validated: standard, pass, 83 terms through n = 9370 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/floor_fifth_root_uint128.h"
-#include "../utils/pow5_u128.h"
+
+/* Compute y^5 using unsigned __int128 to avoid overflow. */
+static unsigned __int128 pow5_u128(uint64_t y)
+{
+    unsigned __int128 v = y;
+    return v * v * v * v * v;
+}
+
+/* Integer floor fifth root of an unsigned __int128 value x. */
+static uint64_t floor_fifth_root_uint128(unsigned __int128 x)
+{
+    uint64_t low = 0;
+    uint64_t high = 1;
+
+    /* Expand the search interval until high^5 > x */
+    while (pow5_u128(high) <= x)
+    {
+        low = high;
+        /* Prevent overflow of high while shifting left */
+        if (high > ((uint64_t)-1) >> 1)
+        {
+            high = (uint64_t)-1;
+            break;
+        }
+        high <<= 1;
+    }
+
+    /* Binary search in [low, high) */
+    while (low + 1 < high)
+    {
+        uint64_t mid = low + ((high - low) >> 1);
+        if (pow5_u128(mid) <= x)
+            low = mid;
+        else
+            high = mid;
+    }
+    return low;
+}
 
 seq_t a(idx_t n)
 {

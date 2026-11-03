@@ -10,9 +10,10 @@
  *            N: let r be the unique integer with offset_row(r) <= N <
  *            offset_row(r+1) and let c = N - offset_row(r). Then a(N) =
  *            T(r,c), where - if c == r, T(r,r) = 1 - otherwise T(r,c) =...
- * Range:     u8 n <= 299, u16 n <= 1595, u32 n <= 8976, u64 n <= 8976,
- *            u128 n <= 8976, big any n
- * Helpers:   alloc_seq_array, free_seq_array, offset_row
+ * Range:     u8 n <= 299, u16 n <= 1595, u32 n <= 10010, u64 n <= 10010,
+ *            u128 n <= 10010, big any n
+ * Validated: standard, pass, 121 terms through n = 8976 (2026-11-03)
+ * Helpers:   mem, triangular
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,22 @@
    row currently needed and evaluates T(r,c) using the known formula. */
 
 #include <stdlib.h>
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
-#include "../utils/offset_row.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <math.h>
+#include "../utils/triangular.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 static seq_t *part = NULL;     /* cache of partition numbers p[0..part_n] */
 static idx_t part_n = 0;
@@ -54,10 +68,10 @@ seq_t a(idx_t N)
 {
     /* Find row r so that offset_row(r) <= N < offset_row(r+1) */
     idx_t r = 0;
-    while (offset_row(r) <= N) ++r;
+    while (triangular(r) <= N) ++r;
     --r;
 
-    idx_t offset = offset_row(r);
+    idx_t offset = triangular(r);
     idx_t col = N - offset;
 
     /* Ensure partitions up to r are known */

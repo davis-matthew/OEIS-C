@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 34, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   isPrime
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
    The implementation memorizes the sequence to answer any order of calls. */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/isPrime.h"   /* bool isPrime(idx_t x) */
+#include <stdbool.h>
+#include "../utils/is_prime.h"
 
 seq_t a(idx_t n)
 {
@@ -32,12 +34,12 @@ seq_t a(idx_t n)
     /* build the cache up to requested term                                 */
     while (cache_len < n) {
         /* find the next composite number                                  */
-        while (!isPrime(current_number)) {
+        while (!is_prime(current_number)) {
             /* current_number is composite (or 1, but we start at 4)          */
             break;
         }
         /* If the current number is prime, skip it and search further.     */
-        while (isPrime(current_number)) {
+        while (is_prime(current_number)) {
             ++current_number;
         }
 
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
         sum_of_composites += current_number;
 
         /* test the property: (sum - 1) is prime?                            */
-        if (isPrime(sum_of_composites - 1)) {
+        if (is_prime(sum_of_composites - 1)) {
             /* ensure capacity of cache array                                 */
             if (cache_len + 1 > cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 64;

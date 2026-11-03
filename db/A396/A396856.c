@@ -8,13 +8,15 @@
  *            the perfect powers (including 1)
  * Range:     u8 n <= 62, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* 0‑based cache size */
@@ -89,7 +91,7 @@ seq_t a(idx_t n) {
     /* ----------------------------------------------------------
        Build the cache array with the discovered elements.
        ---------------------------------------------------------- */
-    seq_t *new_cache = (seq_t*)malloc(total_cnt * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, total_cnt);
     if (!new_cache) {
         free(is_prime); free(is_power);
         return 0; /* allocation failure (unlikely) */
@@ -106,12 +108,12 @@ seq_t a(idx_t n) {
     /* Sanity check */
     if (pos != total_cnt) {
         free(is_prime); free(is_power);
-        free(new_cache);
+        mem_free(new_cache);
         return 0;
     }
 
     /* Replace old cache */
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
     cache_len = total_cnt;
     /* limit remains valid for future extensions */

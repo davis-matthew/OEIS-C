@@ -7,6 +7,7 @@
  * Formula:   a(n) = n^3 * Sum_{p|n, p prime} 1/p^3
  * Range:     u8 n <= 11, u16 n <= 77, u32 n <= 2939, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 72 terms through n = 8894 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

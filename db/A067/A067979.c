@@ -11,14 +11,16 @@
  *            L(i)=L(i-1)+L(i-2)
  * Range:     u8 n <= 25, u16 n <= 146, u32 n <= 732, u64 n <= 3453,
  *            u128 n <= 10000, big any n
- * Helpers:   int_sqrt_u128
+ * Validated: standard, pass, 82 terms through n = 9413 (2026-11-03)
+ * Helpers:   isqrt_u128_to_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/int_sqrt_u128.h"
+#include "../utils/isqrt_u128_to_u64.h"
+#include "../utils/mem.h"
 
 /* Cached Lucas numbers (zero‑based index).  Index i stores L(i). */
 static seq_t *lucas = NULL;
@@ -30,7 +32,7 @@ static void ensure_lucas(size_t max_index)
     if (max_index < lucas_len)
         return;
     size_t new_len = max_index + 1;
-    seq_t *new_lucas = (seq_t *)realloc(lucas, new_len * sizeof(seq_t));
+    seq_t *new_lucas = mem_resize(seq_t, lucas, new_len);
     if (!new_lucas)
         abort();
     lucas = new_lucas;
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
 {
     /* Determine row r and column m from flattened index n. */
     unsigned __int128 eight_n_plus_1 = (unsigned __int128)8 * n + 1;
-    unsigned long long t = int_sqrt_u128(eight_n_plus_1);
+    unsigned long long t = isqrt_u128_to_u64(eight_n_plus_1);
     idx_t r = (idx_t)((t - 1) / 2);
     unsigned __int128 start = (unsigned __int128)r * (r + 1) / 2;
     idx_t m = (idx_t)(n - (uint64_t)start);   /* column in the r‑th row */

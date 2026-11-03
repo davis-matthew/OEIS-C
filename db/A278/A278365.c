@@ -9,13 +9,15 @@
  *            24*binomial(n+4,11) + 18*binomial(n+3,11) - 4*binomial(n+2,11)
  *            (n >= 5), a(n) = 0 for 1 <= n < 5. Derived from the generating
  *            function G(x) = x^5*(2-x)*(3-2x)*(1+2x-2x^2)/(1-x)^12
- * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 28, u64 n <= 210, u128 n <= 210,
+ * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 32, u64 n <= 210, u128 n <= 210,
  *            big any n
+ * Validated: standard, pass, 46 terms through n = 209 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

@@ -10,14 +10,15 @@
  *            otherwise. (OEIS A214509)
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   _floor_isqrt_u64
+ * Validated: standard, pass, 100 terms through n = 970 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +28,7 @@ seq_t a(idx_t n)
         return 0;
 
     /* Test whether n itself is a perfect square. */
-    idx_t s = _floor_isqrt_u64(n);
+    idx_t s = isqrt(n);
     if (s * s == n) {
         /* n is a square.  Odd square → 1, even square → -1. */
         return (s & 1) ? (seq_t)1 : (seq_t)-1;
@@ -36,7 +37,7 @@ seq_t a(idx_t n)
     /* If n is even, test whether n/2 is a perfect square. */
     if ((n & 1u) == 0) {
         idx_t m = n >> 1;          /* m = n/2 */
-        idx_t t = _floor_isqrt_u64(m);
+        idx_t t = isqrt(m);
         if (t * t == m) {
             /* t even (even square) → 1, t odd (odd square) → -1. */
             return (t & 1) ? (seq_t)-1 : (seq_t)1;

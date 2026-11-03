@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 18, u32 n <= 34, u64 n <= 66, u128 n <= 130,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 978 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /*  seq_t and idx_t are provided by the build environment.  */
 
@@ -39,14 +41,14 @@ seq_t a(idx_t n)
     size_t sz = N + 2;           /* arrays of size N+2 (indices 0..N+1)  */
 
     /*  Allocate working arrays.  */
-    seq_t *dp0  = (seq_t *)calloc(N + 1, sizeof(seq_t));   /* no oversized part yet */
-    seq_t *dp1  = (seq_t *)calloc(N + 1, sizeof(seq_t));   /* exactly one oversized part */
-    seq_t *n0   = (seq_t *)calloc(N + 1, sizeof(seq_t));
-    seq_t *n1   = (seq_t *)calloc(N + 1, sizeof(seq_t));
-    seq_t *inc0 = (seq_t *)calloc(sz,     sizeof(seq_t)); /* starts of intervals for dp0 */
-    seq_t *dec0 = (seq_t *)calloc(sz,     sizeof(seq_t)); /* ends+1 of intervals for dp0 */
-    seq_t *inc1 = (seq_t *)calloc(sz,     sizeof(seq_t)); /* starts of intervals for dp1 */
-    seq_t *dec1 = (seq_t *)calloc(sz,     sizeof(seq_t)); /* ends+1 of intervals for dp1 */
+    seq_t *dp0  = mem_new(seq_t, N + 1);   /* no oversized part yet */
+    seq_t *dp1  = mem_new(seq_t, N + 1);   /* exactly one oversized part */
+    seq_t *n0   = mem_new(seq_t, N + 1);
+    seq_t *n1   = mem_new(seq_t, N + 1);
+    seq_t *inc0 = mem_new(seq_t, sz); /* starts of intervals for dp0 */
+    seq_t *dec0 = mem_new(seq_t, sz); /* ends+1 of intervals for dp0 */
+    seq_t *inc1 = mem_new(seq_t, sz); /* starts of intervals for dp1 */
+    seq_t *dec1 = mem_new(seq_t, sz); /* ends+1 of intervals for dp1 */
 
     /*  Start with the empty composition: one way, sum 0, 0 parts.  */
     dp0[0] = (seq_t)1;
@@ -120,8 +122,8 @@ seq_t a(idx_t n)
     seq_t result = dp1[N];
 
     /*  Free all allocated memory.  */
-    free(dp0); free(dp1); free(n0); free(n1);
-    free(inc0); free(dec0); free(inc1); free(dec1);
+    mem_free(dp0); mem_free(dp1); mem_free(n0); mem_free(n1);
+    mem_free(inc0); mem_free(dec0); mem_free(inc1); mem_free(dec1);
 
     return result;
 }

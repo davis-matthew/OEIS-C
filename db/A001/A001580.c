@@ -7,14 +7,15 @@
  * Formula:   a(n) = 2^n + n^2
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 63, u128 n <= 127,
  *            big any n
- * Helpers:   a001580_pow2
+ * Validated: standard, pass, 51 terms through n = 920 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a001580_pow2.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n) {
   seq_t m = (seq_t)n;
-  return a001580_pow2(n) + m * m;
+  return pow2(n) + m * m;
 }

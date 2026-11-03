@@ -8,7 +8,8 @@
  * Formula:   a(n) = nth term of OEIS A385411
  * Range:     u8 n <= 175, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow_clamped
+ * Validated: standard, pass, 79 terms through n = 8120 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,20 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/pow_clamped.h"
+#include "../utils/mem.h"
+
+/* integer power, returning the exact value (no overflow for our use) */
+static seq_t pow_clamped(seq_t base, unsigned exp, seq_t limit)
+{
+    seq_t res = 1;
+    for (unsigned i = 0; i < exp; ++i) {
+        if (base != 0 && res > limit / base) {
+            return limit + 1;           /* overflow or > limit  */
+        }
+        res *= base;
+    }
+    return res;
+}
 
 /* auxiliary functions ----------------------------------------------------- */
 
@@ -170,7 +184,7 @@ static void ensure_terms(idx_t n)
 
     if (terms_cap == 0) {
         terms_cap = 64;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
         if (!terms)
             exit(EXIT_FAILURE);
     }
@@ -180,7 +194,7 @@ static void ensure_terms(idx_t n)
         if (candidate_k(last_k)) {
             if (terms_len >= terms_cap) {
                 size_t new_cap = terms_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, new_cap);
                 if (!tmp)
                     exit(EXIT_FAILURE);
                 terms = tmp;

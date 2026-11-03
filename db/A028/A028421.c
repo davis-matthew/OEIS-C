@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 36, u32 n <= 79, u64 n <= 211,
  *            u128 n <= 595, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 1256 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Computes the n-th term of A028421. */
 seq_t a(idx_t n)
@@ -51,11 +53,11 @@ seq_t a(idx_t n)
 
     /* If r == 0 we already handled k==0; otherwise r >= 1. */
     size_t maxlen = r + 1;
-    seq_t *prev = (seq_t *)malloc(maxlen * sizeof(seq_t));
-    seq_t *curr = (seq_t *)malloc(maxlen * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, maxlen);
+    seq_t *curr = mem_new(seq_t, maxlen);
     if (!prev || !curr) {
         /* In case of allocation failure return 0. */
-        free(prev); free(curr);
+        mem_free(prev); mem_free(curr);
         return (seq_t)0;
     }
 
@@ -77,7 +79,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = prev[k];
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
     return result;
 }

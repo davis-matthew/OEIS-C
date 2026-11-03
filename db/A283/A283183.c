@@ -8,7 +8,8 @@
  * Formula:   a(n) = (prime(n) ? 1 : 0) + 2 * Σ_{m=1}^{⌊√(n‑2)⌋} [prime(n‑m²)]
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   fsqrt_u64
+ * Validated: standard, pass, 103 terms through n = 9861 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/fsqrt_u64.h"
+#include "../utils/isqrt.h"
 
 /* Static prime sieve storage */
 static bool *prime_sieve = NULL;     /* prime_sieve[i] == true iff i is prime */
@@ -35,7 +36,7 @@ static void rebuild_sieve(idx_t new_limit)
 
     for (idx_t i = 2; i <= new_limit; ++i) prime_sieve[i] = true;
 
-    idx_t sqrt_lim = fsqrt_u64(new_limit);
+    idx_t sqrt_lim = isqrt(new_limit);
     for (idx_t p = 2; p <= sqrt_lim; ++p) {
         if (prime_sieve[p]) {
             /* start from p*p, avoid overflow by using 128 bits */
@@ -60,7 +61,7 @@ seq_t a(idx_t n)
     if (prime_sieve[n]) count += 1;       /* m = 0 representation */
 
     if (n >= 3) {
-        idx_t m_max = fsqrt_u64(n - 2);
+        idx_t m_max = isqrt(n - 2);
         for (idx_t m = 1; m <= m_max; ++m) {
             idx_t p = n - m * m;
             if (p >= 2 && prime_sieve[p]) count += 2;   /* ±m */

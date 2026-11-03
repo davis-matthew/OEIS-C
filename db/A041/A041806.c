@@ -11,6 +11,7 @@
  *            a0 = 20, m_{k+1} = d_k*a_k - m_k, d_{k+1} =...
  * Range:     u8 n <= 1, u16 n <= 8, u32 n <= 20, u64 n <= 42, u128 n <= 88,
  *            big any n
+ * Validated: standard, pass, 40 terms through n = 198 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

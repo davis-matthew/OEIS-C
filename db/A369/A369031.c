@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = 2 if n is prime; a(n) = the k‑th prime when n = p^k (k ≥
  *            1); otherwise a(n) = 1. a(1) = 1
- * Range:     u8 n <= 9443, u16 n <= 9443, u32 n <= 9443, u64 n <= 9443,
- *            u128 n <= 9443, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9443 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

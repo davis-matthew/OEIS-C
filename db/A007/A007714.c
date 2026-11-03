@@ -9,17 +9,40 @@
  *            Product_{k>=1} 1/(1-x^k)^c(k) = Sum_{n>=0} b(n) x^n
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 41, u128 n <= 85,
  *            big any n
- * Helpers:   a007714_gcd, alloc_zero, release, seq_is_fixed_width
+ * Validated: standard, pass, 45 terms through n = 929 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
-#include "../utils/seq_is_fixed_width.h"
-#include "../utils/a007714_gcd.h"
+#include <stdlib.h>
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
 
 /* Exact-arithmetic Euler transform: n*b(n) = Sum_{k=1..n} d(k) b(n-k), d(k) = Sum_{e|k} e*c(e). */
 static void a007714_euler_div(const seq_t *c, seq_t *b, idx_t len) {
@@ -48,7 +71,7 @@ static void a007714_euler_mc(const seq_t *c, seq_t *b, idx_t len) {
         for (idx_t j = 1; j <= jmax; j++) {
             seq_t r = mc[j - 1];
             seq_t jj = (seq_t)j;
-            seq_t g = a007714_gcd(r, jj);
+            seq_t g = gcd(r, jj);
             mc[j] = (r / g) * ((c[k] + (seq_t)(j - 1)) / (jj / g));
         }
         for (idx_t m = len - 1; m >= k; m--) {

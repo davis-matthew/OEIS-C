@@ -11,13 +11,15 @@
  *            otherwise
  * Range:     u8 n <= 13, u16 n <= 43, u32 n <= 151, u64 n <= 559,
  *            u128 n <= 2143, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 8879 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* compute A(i,j) for i>=0, j>=0 */
 static seq_t compute_A(idx_t i, idx_t j)
@@ -36,7 +38,7 @@ static seq_t compute_A(idx_t i, idx_t j)
 
     /* general case: use a circular buffer of size j+1 */
     size_t buf_size = (size_t)(j + 1);
-    seq_t *buf = (seq_t *)malloc(buf_size * sizeof(seq_t));
+    seq_t *buf = mem_new(seq_t, buf_size);
     if (!buf)
         abort();                 /* fail if memory allocation fails */
 
@@ -55,7 +57,7 @@ static seq_t compute_A(idx_t i, idx_t j)
     }
 
     seq_t result = buf[i % buf_size];
-    free(buf);
+    mem_free(buf);
     return result;
 }
 

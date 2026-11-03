@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 167, u16 n <= 9994, u32 n <= 9994, u64 n <= 9994,
- *            u128 n <= 9994, big any n
- * Helpers:   none
+ * Range:     u8 n <= 167, u16 n <= 65536, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 111 terms through n = 9994 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static uint64_t isqrt_u64(uint64_t n) {
     uint64_t low = 0, high = (n >> 1) + 1;
@@ -77,7 +79,7 @@ static void ensure_upto(idx_t n) {
     if (n > seq_cap) {
         size_t new_cap = seq_cap ? seq_cap << 1 : 256;
         while (new_cap < n) new_cap <<= 1;
-        seq_arr = (seq_t *)realloc(seq_arr, new_cap * sizeof(seq_t));
+        seq_arr = mem_resize(seq_t, seq_arr, new_cap);
         seq_cap = new_cap;
     }
 
@@ -100,7 +102,7 @@ static void ensure_upto(idx_t n) {
         if (label == 0) {
             if (nodes_len >= nodes_cap) {
                 size_t new_ncap = nodes_cap ? nodes_cap << 1 : 256;
-                nodes = (struct Node *)realloc(nodes, new_ncap * sizeof(struct Node));
+                nodes = mem_resize(struct Node, nodes, new_ncap);
                 nodes_cap = new_ncap;
             }
             label = next_label++;

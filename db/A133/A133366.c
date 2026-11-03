@@ -13,7 +13,8 @@
  *            r*(r+1)/2
  * Range:     u8 n <= 9, u16 n <= 35, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     if (maxRow == (idx_t)-1) {
         rows_cap = 1;
         rows = (seq_t**)malloc(rows_cap * sizeof(*rows));
-        rows[0] = (seq_t*)malloc(sizeof(seq_t) * 1);
+        rows[0] = mem_new(seq_t, 1);
         rows[0][0] = (seq_t)1;
         maxRow = 0;
     }
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
         }
         for (idx_t i = maxRow + 1; i <= r; ++i) {
             idx_t len = i + 1;
-            seq_t *curr = (seq_t*)malloc(sizeof(seq_t) * (size_t)len);
+            seq_t *curr = mem_new(seq_t, (size_t)len);
             seq_t *prev = rows[i - 1];
 
             /* first element: T(i,0) */

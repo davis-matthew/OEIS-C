@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   generic_realloc
+ * Validated: partial, pass, 51 terms through n = 52 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,22 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/generic_realloc.h"
+
+/* ---------- General reallocation helper (C/C++) ---------- */
+static void *generic_realloc(void *old, size_t old_cap, size_t new_cap)
+{
+#ifdef __cplusplus
+    seq_t *newp = new seq_t[new_cap];
+    size_t copy_len = old_cap < new_cap ? old_cap : new_cap;
+    for (size_t i = 0; i < copy_len; ++i)
+        newp[i] = ((seq_t *)old)[i];
+    if (old && old_cap > 0)
+        delete[] (seq_t *)old;
+    return newp;
+#else
+    return realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 /* ---------- Prime sieve up to a fixed limit ---------- */
 #define PRIME_LIMIT 50000

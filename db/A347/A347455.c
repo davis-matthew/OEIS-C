@@ -11,7 +11,8 @@
  *            result matches the OEIS A347455 sequence starting at index 1
  * Range:     u8 n <= 55, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   cmp_uint32_asc
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,15 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/cmp_uint32_asc.h"
+#include "../utils/mem.h"
+
+/* comparison: ascending order */
+static int cmp_uint32_asc(const void *p1, const void *p2)
+{
+    uint32_t a = *(const uint32_t *)p1;
+    uint32_t b = *(const uint32_t *)p2;
+    return (a > b) - (a < b);
+}
 
 seq_t a(idx_t n)
 {
@@ -55,7 +64,7 @@ seq_t a(idx_t n)
 
         /* initial cache for sequence values */
         terms_cap = 256;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
 
         initialized = true;
     }
@@ -113,7 +122,7 @@ seq_t a(idx_t n)
         if (den != 0 && (num % den != (unsigned __int128)0)) {
             if (terms_len == terms_cap) {
                 terms_cap *= 2;
-                terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
             }
             terms[terms_len++] = (seq_t)current_m;
         }

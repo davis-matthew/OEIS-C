@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 47, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 64 terms through n = 63 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -39,7 +40,10 @@
  */
 
 #include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -59,8 +63,8 @@ seq_t a(idx_t n)
     seq_t **dp   = (seq_t **)malloc(9 * sizeof(seq_t *));
     seq_t **sum4 = (seq_t **)malloc(9 * sizeof(seq_t *));
     for (size_t k = 0; k <= 8; ++k) {
-        dp[k]   = (seq_t *)calloc(sz, sizeof(seq_t));
-        sum4[k] = (seq_t *)calloc(sz, sizeof(seq_t));
+        dp[k]   = mem_new(seq_t, sz);
+        sum4[k] = mem_new(seq_t, sz);
     }
 
     dp[0][0] = (seq_t)1;            /* Empty partition */
@@ -96,8 +100,8 @@ seq_t a(idx_t n)
 
     /* Free allocated memory. */
     for (size_t k = 0; k <= 8; ++k) {
-        free(dp[k]);
-        free(sum4[k]);
+        mem_free(dp[k]);
+        mem_free(sum4[k]);
     }
     free(dp);
     free(sum4);

@@ -9,7 +9,8 @@
  *            proper substring in decimal notation
  * Range:     u8 none, u16 n <= 6, u32 n <= 10, u64 n <= 13, u128 n <= 16,
  *            big any n
- * Helpers:   seq_to_str
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,28 @@
 #include <stdlib.h>
 
 /* we use the helper that converts a seq_t to a decimal string */
-#include "../utils/seq_to_str.h"
+#include <stddef.h>
+#include "../utils/mem.h"
+
+/* convert a seq_t value to a decimal string */
+static void seq_to_str(seq_t v, char *buf, size_t *len)
+{
+    if (v == 0) {
+        buf[0] = '0';
+        *len = 1;
+        return;
+    }
+    char tmp[64];
+    int pos = 0;
+    seq_t ten = (seq_t)10;
+    while (v != 0) {
+        tmp[pos++] = '0' + (int)(v % ten);
+        v /= ten;
+    }
+    for (int i = 0; i < pos; ++i)
+        buf[i] = tmp[pos - 1 - i];
+    *len = pos;
+}
 
 /* ------------------------------------------------------------------ */
 /*  cache for memoised answers: each index stores the computed value   */
@@ -33,7 +55,7 @@ static void ensure_ans_cache(idx_t idx)
 {
     if (ans_cache_len > idx) return;
     size_t new_len = (size_t)idx + 1;
-    seq_t *new_val = (seq_t *)realloc(ans_val, new_len * sizeof(seq_t));
+    seq_t *new_val = mem_resize(seq_t, ans_val, new_len);
     if (!new_val) exit(1);
     bool *new_seen = (bool *)realloc(ans_seen, new_len * sizeof(bool));
     if (!new_seen) exit(1);

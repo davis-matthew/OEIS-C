@@ -9,13 +9,15 @@
  *            (tribonacci-like with shifted start)
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 35, u64 n <= 71, u128 n <= 144,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 3230 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>           /* size_t */
+#include "../utils/mem.h"
 
 /* External integer types supplied by the build system. */
 extern seq_t a(idx_t n);
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* Initialise the cache on the first call. */
     if (cache_size == 0) {
         cache_size = 3;
-        cache = (seq_t *)realloc(cache, cache_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_size);
         cache[0] = (seq_t)3;
         cache[1] = (seq_t)4;
         cache[2] = (seq_t)7;
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     if (n >= cache_size) {
         idx_t old_size = cache_size;
         cache_size = n + 1;
-        cache = (seq_t *)realloc(cache, cache_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_size);
 
         for (idx_t i = old_size; i <= n; ++i) {
             /* The indices i-1, i-2, i-3 are safe because i ≥ old_size ≥ 3. */

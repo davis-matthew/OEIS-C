@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 96 terms through n = 8576 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* ---------- static data and helper functions ----------------------- */
@@ -94,10 +96,10 @@ static void ensure_cache_up_to(idx_t new_max_n)
 
     /* grow cache if needed */
     if (cache == NULL) {
-        cache = (seq_t*)malloc((new_max_n + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (new_max_n + 1));
         cache[0] = cache[1] = 0;
     } else if (new_max_n + 1 > (size_t)cache_size) {
-        cache = (seq_t*)realloc(cache, (new_max_n + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (new_max_n + 1));
         /* keep existing values */
         for (idx_t i = cache_size; i <= new_max_n; ++i)
             cache[i] = 0;

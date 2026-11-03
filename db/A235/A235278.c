@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 6, u32 n <= 21, u64 n <= 46, u128 n <= 96,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached sequence values.  1‑based indexing; seq_cache[0] unused. */
 static seq_t *seq_cache = NULL;
@@ -67,7 +69,7 @@ static void ensure_cache(idx_t n) {
     if (seq_cache == NULL) {
         /* Create initial cache covering indices 0..9 (capacity 16). */
         cache_cap = 16;
-        seq_cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, cache_cap);
         if (seq_cache == NULL) return;  /* memory failure – caller guards */
 
         for (idx_t i = 0; i < cache_cap; ++i)
@@ -83,7 +85,7 @@ static void ensure_cache(idx_t n) {
         size_t new_cap = cache_cap;
         while (new_cap <= (size_t)(n + 1))
             new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
         if (tmp == NULL) return;  /* memory failure – caller guards */
         seq_cache = tmp;
         for (size_t i = cache_cap; i < new_cap; ++i)

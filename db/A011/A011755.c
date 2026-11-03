@@ -7,13 +7,15 @@
  * Formula:   a(n) = Sum_{k=1..n} k*phi(k) (OEIS A011755)
  * Range:     u8 n <= 10, u16 n <= 68, u32 n <= 2766, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 9984 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Note: seq_t and idx_t are defined by the build environment. */
 /* We use a simple O(n) sieve for Euler's totient and a running sum. */
@@ -34,11 +36,11 @@ seq_t a(idx_t n)
         /* Allocate/resize arrays. */
         if (phi == NULL) {
             phi  = (uint64_t*)malloc((size_t)(new_n + 1) * sizeof(uint64_t));
-            psum = (seq_t*)malloc((size_t)(new_n + 1) * sizeof(seq_t));
+            psum = mem_new(seq_t, (size_t)(new_n + 1));
             if (!phi || !psum) abort();   /* failure */
         } else {
             phi  = (uint64_t*)realloc(phi, (size_t)(new_n + 1) * sizeof(uint64_t));
-            psum = (seq_t*)realloc(psum, (size_t)(new_n + 1) * sizeof(seq_t));
+            psum = mem_resize(seq_t, psum, (size_t)(new_n + 1));
             if (!phi || !psum) abort();   /* failure */
         }
 

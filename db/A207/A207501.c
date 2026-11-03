@@ -10,6 +10,7 @@
  *            forbidden vertical patterns 0 0 1 and 1 0 0 in each column
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 25, u64 n <= 62, u128 n <= 140,
  *            big any n
+ * Validated: standard, pass, 43 terms through n = 205 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

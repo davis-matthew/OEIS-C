@@ -8,17 +8,20 @@
  *            composite numbers ≤ m = m – pi(m) – 1
  * Range:     u8 n <= 73, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   compute_pi
+ * Validated: partial, pass, 73 terms through n = 73 (2026-11-01)
+ * Helpers:   prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/compute_pi.h"
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/prime_pi.h"
 
 static seq_t comp_leq(idx_t m)
 {
     if (m < 2) return (seq_t)0;                 /* 0 and 1 are not composite */
-    seq_t primes = compute_pi(m);               /* pi(m) – primes ≤ m */
+    seq_t primes = prime_pi(m);               /* pi(m) – primes ≤ m */
     return (seq_t)m - primes - (seq_t)1;        /* composites ≤ m */
 }
 

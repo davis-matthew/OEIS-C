@@ -9,12 +9,14 @@
  *            a(0)=1, a(1)=2, a(2)=4, a(3)=8, a(4)=14, a(5)=25
  * Range:     u8 n <= 8, u16 n <= 18, u32 n <= 37, u64 n <= 74, u128 n <= 149,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 473 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;
@@ -24,7 +26,7 @@ seq_t a(idx_t n) {
     /* Ensure we have space for indices 0..n */
     size_t needed = (size_t)n + 1;
     if (needed > capacity) {
-        seq_t *new_cache = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, needed);
         if (!new_cache) { /* allocation failed – aborting is acceptable */
             /* In a production setting you might handle this differently. */
             abort();

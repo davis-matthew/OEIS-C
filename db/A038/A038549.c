@@ -8,6 +8,7 @@
  * Formula:   a(n) = min(A005179(2n-1), A005179(2n))
  * Range:     u8 n <= 8, u16 n <= 18, u32 n <= 36, u64 n <= 78, u128 n <= 138,
  *            big any n
+ * Validated: standard, pass, 55 terms through n = 991 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,14 +10,16 @@
  *            decreasing row index inside each diagonal. * T(i,k) = 1/i *
  *            Σ_{j=0..⌊k/2⌋} binom(i*k+j-1 , j) * * binom((i+1)k-2j-1 , k-2j)
  *            for i,k ≥ 1 * * The implementation uses the helper f...
- * Range:     u8 n <= 11, u16 n <= 25, u32 n <= 54, u64 n <= 54, u128 n <= 54,
+ * Range:     u8 n <= 12, u16 n <= 31, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -47,8 +49,8 @@ seq_t a(idx_t n)
     seq_t sum = 0;
 
     for (idx_t j = 0; j <= maxj; ++j) {
-        seq_t a1 = binom(nk + j - 1, j);
-        seq_t a2 = binom((i + 1) * k - 2 * j - 1, k - 2 * j);
+        seq_t a1 = binomial(nk + j - 1, j);
+        seq_t a2 = binomial((i + 1) * k - 2 * j - 1, k - 2 * j);
         sum += a1 * a2;
     }
 

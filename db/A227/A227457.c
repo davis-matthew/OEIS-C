@@ -11,15 +11,29 @@
  *            signs
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 20,
  *            big any n
- * Helpers:   binom, mul_small
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/binom.h"        /* seq_t binom(idx_t a, idx_t b); */
-#include "../utils/mul_small.h"    /* seq_t mul_small(seq_t x, unsigned int m); */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 seq_t a(idx_t n)
 {
@@ -29,7 +43,7 @@ seq_t a(idx_t n)
 
     /* Allocate array for unsigned Stirling numbers of the first kind,
        c[k] = |s(m,k)| for current m.  */
-    seq_t *c = (seq_t *)malloc((m + 1) * sizeof(seq_t));
+    seq_t *c = mem_new(seq_t, (m + 1));
     if (!c) return 0; /* fallback on failure */
 
     /* Initialize row 0: c[0] = 1, others 0.  */
@@ -73,7 +87,7 @@ seq_t a(idx_t n)
         }
     }
 
-    free(c);
+    mem_free(c);
 
     /* Result = pos - neg  (pos >= neg for all n) */
     return pos - neg;

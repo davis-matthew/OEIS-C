@@ -11,13 +11,22 @@
  *            E(k,j-1) + E(k-1,k-j), A000111(k) = E(k,k)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 9, u128 n <= 15,
  *            big any n
- * Helpers:   grow_arr
+ * Validated: standard, pass, 30 terms through n = 192 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/grow_arr.h"
+#include "../utils/mem.h"
+
+static seq_t *grow_arr(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *r = mem_new(seq_t, newlen);
+    idx_t i;
+    for (i = 0; i < oldlen; i++) r[i] = old[i];
+    if (old) mem_free(old);
+    return r;
+}
 
 static seq_t *s_row = 0, *s_tmp = 0, *s_zz = 0;
 static idx_t s_cap = 0, s_cur = 0;

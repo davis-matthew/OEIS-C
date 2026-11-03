@@ -9,7 +9,8 @@
  *            begins with a(n)
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 16,
  *            big any n
- * Helpers:   alloc_seq_array, sieve_first_n_primes
+ * Validated: partial, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   mem, sieve_first_n_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,15 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/sieve_first_n_primes.h"     /* sieve_first_n_primes() */
-#include "../utils/alloc_seq_array.h"          /* alloc_seq_array()   */
+#include <string.h>
+#include <math.h>
+#include "../utils/sieve_first_n_primes.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 /*------------------------------------------------------------*/
 /*  Return the nth term of OEIS A085953.
@@ -49,7 +57,7 @@ seq_t a(idx_t n)
         if (seq_arr) {
             for (size_t i = 1; i <= last_used; ++i)
                 new_arr[i] = seq_arr[i];
-            free(seq_arr);
+            mem_free(seq_arr);
         }
         seq_arr = new_arr;
         arr_sz  = n;

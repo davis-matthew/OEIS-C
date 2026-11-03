@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 10, u32 n <= 11, u64 n <= 11, u128 n <= 11,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 11 terms through n = 11 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static const idx_t MAX_LIMIT = 2000000;        /* generous bound for the 10 kth term */
 static bool   *is_prime = NULL;                /* sieve array */
@@ -79,7 +81,7 @@ static void initialise(void)
         if (is_prime[i] && !excluded[i]) {
             if (good_count == good_cap) {
                 good_cap = good_cap == 0 ? 1024 : good_cap * 2;
-                seq_t *new_buf = (seq_t*)realloc(good_primes, good_cap * sizeof(seq_t));
+                seq_t *new_buf = mem_resize(seq_t, good_primes, good_cap);
                 if (!new_buf) break;          /* allocation failure */
                 good_primes = new_buf;
             }

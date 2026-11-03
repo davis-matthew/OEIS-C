@@ -7,6 +7,7 @@
  * Formula:   a(n) = (n*(n+1)/2)^8
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 17, u128 n <= 17,
  *            big any n
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

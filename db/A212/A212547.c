@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 49, u32 n <= 144, u64 n <= 458,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 934 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,15 +37,15 @@ seq_t a(idx_t n)
     /* Grow the tables if the requested n is larger than what we have. */
     if (n >= size) {
         idx_t new_size = n + 1;                  /* indices 0 … n */
-        seq_t *new_dp  = (seq_t *)malloc(new_size * sizeof(seq_t));
-        seq_t *new_ans = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_dp  = mem_new(seq_t, new_size);
+        seq_t *new_ans = mem_new(seq_t, new_size);
         if (!new_dp || !new_ans) {               /* allocation failed */
-            free(new_dp);
-            free(new_ans);
+            mem_free(new_dp);
+            mem_free(new_ans);
             return 0;
         }
-        memset(new_dp,  0, new_size * sizeof(seq_t));
-        memset(new_ans, 0, new_size * sizeof(seq_t));
+        mem_set(new_dp, 0, new_size * sizeof(seq_t));
+        mem_set(new_ans, 0, new_size * sizeof(seq_t));
         new_dp[0] = 1;                           /* empty partition */
 
         /* Build the tables up to n. */
@@ -66,8 +68,8 @@ seq_t a(idx_t n)
         }
 
         /* Replace old tables with the new ones. */
-        free(dp);
-        free(ans);
+        mem_free(dp);
+        mem_free(ans);
         dp   = new_dp;
         ans  = new_ans;
         size = new_size;

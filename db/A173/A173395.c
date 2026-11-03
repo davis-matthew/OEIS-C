@@ -8,8 +8,9 @@
  *            value by determining the diagonal * index d such that d(d+1)/2 ≥
  *            n and the position p on that * diagonal, then returns
  *            (p+1)*(d+2-p)
- * Range:     u8 n <= 420, u16 n <= 9944, u32 n <= 9944, u64 n <= 9944,
- *            u128 n <= 9944, big any n
+ * Range:     u8 n <= 420, u16 n <= 11325, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 83 terms through n = 9944 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

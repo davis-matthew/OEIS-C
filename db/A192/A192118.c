@@ -9,15 +9,27 @@
  *            differences 2^i - 7^j with 0 <= i <= 40 and j >= 0
  * Range:     u8 n <= 8, u16 n <= 38, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   pow_seq, seq_cmp
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/pow_seq.h"
-#include "../utils/seq_cmp.h"
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+static int seq_cmp(const void *p, const void *q)
+{
+    const seq_t *a = (const seq_t *)p;
+    const seq_t *b = (const seq_t *)q;
+    if (*a < *b) return -1;
+    if (*a > *b) return 1;
+    return 0;
+}
 
 seq_t a(idx_t n)
 {
@@ -30,16 +42,16 @@ seq_t a(idx_t n)
         /* Generate all nonnegative differences. */
         size_t tmp = 0;
         for (idx_t i = 0; i <= 40; ++i) {
-            seq_t p2 = pow_seq(2, (int)i);           /* 2^i  */
+            seq_t p2 = ipow_i32(2, (int)i);           /* 2^i  */
             for (idx_t j = 0; ; ++j) {
-                seq_t p7 = pow_seq(7, (int)j);       /* 7^j  */
+                seq_t p7 = ipow_i32(7, (int)j);       /* 7^j  */
                 if (p7 > p2) break;                 /* p2 - p7 would become negative */
                 values[tmp++] = p2 - p7;             /* keep nonnegative difference */
             }
         }
 
         /* Sort the values. */
-        qsort(values, tmp, sizeof(seq_t), seq_cmp);
+        mem_qsort(values, tmp, sizeof(seq_t), seq_cmp);
 
         /* Remove duplicates. */
         if (tmp > 0) {

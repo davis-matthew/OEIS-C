@@ -8,12 +8,14 @@
  *            >= 5
  * Range:     u8 n <= 32, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
+ * Validated: standard, pass, 60 terms through n = 60 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* required helper to compute powers of two */
+#include <stdint.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

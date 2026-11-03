@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 113 terms through n = 9805 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Ensure that the bool flag array `sum_seen` can store an entry at
    index `idx` (0‑based).  This array records whether a particular
@@ -49,7 +51,7 @@ static void ensure_a_cache_cap(size_t idx)
     if (idx < a_cache_cap) return;
     size_t new_cap = a_cache_cap ? a_cache_cap << 1 : 1;
     while (new_cap <= idx) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
     if (!tmp) abort();
     /* Initialise new elements to zero.  This works for integer
        types and for big‑int classes that have a default constructor. */

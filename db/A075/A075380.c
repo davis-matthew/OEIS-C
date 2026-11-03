@@ -12,7 +12,8 @@
  *            integer that yields a sum with the previous term t...
  * Range:     u8 n <= 134, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 88 terms through n = 9786 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ----------  Helper tables  ---------- */
 
@@ -43,7 +45,7 @@ static void grow_perm(void)
 {
     if (perm_cap == 0) perm_cap = 4;
     else              perm_cap <<= 1;
-    perm = (seq_t *)realloc(perm, perm_cap * sizeof(seq_t));
+    perm = mem_resize(seq_t, perm, perm_cap);
 }
 
 static void ensure_used(size_t need)

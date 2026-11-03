@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 470, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 85 terms through n = 9668 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Integer square root for 64‑bit unsigned values (binary search) */
 static uint64_t isqrt_u64(uint64_t x) {
@@ -47,7 +49,7 @@ static void ensure_capacity(seq_t **arr, size_t *cap, size_t need) {
     if (need <= *cap) return;
     size_t new_cap = (*cap == 0) ? 16 : *cap * 2;
     while (new_cap < need) new_cap *= 2;
-    *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, new_cap);
     *cap = new_cap;
 }
 

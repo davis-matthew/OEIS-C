@@ -11,7 +11,8 @@
  *            of the remaining three terms
  * Range:     u8 none, u16 n <= 3, u32 n <= 12, u64 n <= 31, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define STATE_COUNT 2401   /* 7^4 */
 
@@ -83,13 +85,13 @@ seq_t a(idx_t n)
 
     /* Allocate/initialize structures on first call */
     if (!dp_cur) {
-        dp_cur  = (seq_t*)malloc(sizeof(seq_t) * STATE_COUNT);
-        dp_next = (seq_t*)malloc(sizeof(seq_t) * STATE_COUNT);
+        dp_cur  = mem_new(seq_t, STATE_COUNT);
+        dp_next = mem_new(seq_t, STATE_COUNT);
         for (int i = 0; i < STATE_COUNT; ++i) dp_cur[i] = (seq_t)1; /* all 4‑tuples */
 
         /* values[0] unused, values[1] will hold first term */
         val_cap = 1;
-        values  = (seq_t*)malloc(sizeof(seq_t) * val_cap);
+        values  = mem_new(seq_t, val_cap);
         values[0] = 0;
         cur_len = 4;
     }
@@ -98,13 +100,13 @@ seq_t a(idx_t n)
     if ((size_t)(n + 1) > val_cap) {
         size_t new_cap = val_cap ? val_cap : 1;
         while (new_cap < (size_t)(n + 1)) new_cap <<= 1;
-        values = (seq_t*)realloc(values, sizeof(seq_t) * new_cap);
+        values = mem_resize(seq_t, values, new_cap);
         val_cap = new_cap;
     }
 
     /* Extend DP until we have a(n) */
     for (idx_t k = max_n + 1; k <= n; ++k) {
-        memset(dp_next, 0, sizeof(seq_t) * STATE_COUNT);
+        mem_set(dp_next, 0, sizeof(seq_t) * STATE_COUNT);
 
         for (int s = 0; s < STATE_COUNT; ++s) {
             seq_t cnt = dp_cur[s];

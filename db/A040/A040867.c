@@ -7,6 +7,7 @@
  * Formula:   a(0)=29; a(1)=1; a(2)=18; a(3)=1; a(4)=58; a(n)=a(n-4) for n>4
  * Range:     u8 n <= 74, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
+ * Validated: partial, pass, 75 terms through n = 74 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

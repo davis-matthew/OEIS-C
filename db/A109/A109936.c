@@ -10,13 +10,21 @@
  *            sequence enumerates all such composites in increasing order
  * Range:     u8 n <= 6, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   isprime_big, pow10
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow10.h"       /* seq_t pow10(idx_t exp) */
-#include "../utils/isprime_big.h" /* bool isprime_big(seq_t n) */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/is_prime_seq.h"
+
+static seq_t pow10(idx_t exp) {
+    seq_t res = 1;
+    for (idx_t i = 0; i < exp; ++i) res *= (seq_t)10;
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -30,13 +38,13 @@ seq_t a(idx_t n)
 
         /* Find the largest len‑digit prime P */
         seq_t P = high_start;
-        while (!isprime_big(P)) {
+        while (!is_prime_seq(P)) {
             P -= 1;
         }
 
         /* Find the smallest (len+1)-digit prime Q */
         seq_t Q = start_next_digit;
-        while (!isprime_big(Q)) {
+        while (!is_prime_seq(Q)) {
             Q += 1;
         }
 

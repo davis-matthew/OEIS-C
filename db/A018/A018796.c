@@ -5,8 +5,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, base, easy
  * Formula:   not stated
- * Range:     u8 n <= 4, u16 n <= 65, u32 n <= 9087, u64 n <= 9087,
- *            u128 n <= 9087, big any n
+ * Range:     u8 n <= 4, u16 n <= 65, u32 n <= 25316, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 66 terms through n = 9087 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

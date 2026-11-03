@@ -11,12 +11,16 @@
  *            sqrt(k))^n + (1 - sqrt(k))^n)/2
  * Range:     u8 n <= 35, u16 n <= 91, u32 n <= 277, u64 n <= 824,
  *            u128 n <= 1274, big any n
- * Helpers:   seq_one
+ * Validated: standard, pass, 82 terms through n = 1234 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_one.h"
+#include <stdint.h>
+#include <stdlib.h>
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
 
 /* Compute b(n,k) = ((1+√k)^n + (1-√k)^n)/2
    using the recurrence   b(0)=1, b(1)=1,

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 39, u16 n <= 112, u32 n <= 391, u64 n <= 1455,
  *            u128 n <= 5050, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 4849 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* forward declaration of helpers */
 static void ensure_table(size_t dim);
@@ -48,7 +50,7 @@ static void ensure_table(size_t dim)
 
     /* allocate new table of size (dim+1) × (dim+1) */
     size_t w = dim + 1;
-    seq_t *new_table = (seq_t *)calloc(w * w, sizeof(seq_t));
+    seq_t *new_table = mem_new(seq_t, w * w);
     if (!new_table)
         return;   /* out of memory – caller will fail gracefully */
 
@@ -66,7 +68,7 @@ static void ensure_table(size_t dim)
         }
     }
 
-    free(table);           /* discard old cache */
+    mem_free(table);           /* discard old cache */
     table = new_table;     /* store new cache */
     width = w;
     max_dim = dim;

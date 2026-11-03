@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 8, u32 n <= 1380, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   p11, u128_to_seq
+ * Validated: standard, pass, 52 terms through n = 9594 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,25 @@
    every sum below (B+1)^11 + 6 is then complete. B grows until n terms are known. */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/u128_to_seq.h"
-#include "../utils/p11.h"
+
+static seq_t u128_to_seq(unsigned __int128 u)
+{
+    seq_t r = 0;
+    int k;
+    for (k = 3; k >= 0; k--) {
+        r = r * 65536ULL;
+        r = r * 65536ULL;
+        r += (seq_t)(uint64_t)(uint32_t)(u >> (32 * k));
+    }
+    return r;
+}
+
+static uint64_t p11(uint64_t x) {
+    uint64_t r = 1;
+    int i;
+    for (i = 0; i < 11; i++) r *= x;
+    return r;
+}
 
 static uint64_t *g_vals = NULL;
 static size_t g_nvals = 0;

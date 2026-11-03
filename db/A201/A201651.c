@@ -9,7 +9,8 @@
  * Formula:   a(n) = T(r,k)
  * Range:     u8 n <= 2143, u16 n <= 8000, u32 n <= 8000, u64 n <= 8000,
  *            u128 n <= 8000, big any n
- * Helpers:   shifted_add
+ * Validated: standard, pass, 86 terms through n = 7193 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,30 @@
 /* positions instead of one.               */
 
 #include <stdint.h>
-#include "../utils/shifted_add.h"
+
+/* Compute the bit‑interleaved addition of two non‑negative integers
+   with carries shifted two bit positions. */
+static inline seq_t shifted_add(idx_t a, idx_t b)
+{
+    seq_t result = 0;
+    seq_t bit = 1;
+    seq_t carry0 = 0, carry1 = 0;
+
+    while (a || b || carry0 || carry1) {
+        int sum = (a & 1) + (b & 1) + (int)carry0;
+        if (sum & 1) {
+            result |= bit;
+        }
+        int new_carry = sum >> 1;   /* carry is 0 or 1 */
+        carry0 = carry1;
+        carry1 = new_carry;
+
+        a >>= 1;
+        b >>= 1;
+        bit <<= 1;
+    }
+    return result;
+}
 
 /* Helper: compute (x * (x + 1) / 2) using 128‑bit arithmetic
    to avoid overflow for large r. */

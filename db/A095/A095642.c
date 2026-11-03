@@ -6,7 +6,8 @@
  * Keywords:  nonn
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 none, u64 none, u128 none, big any n
- * Helpers:   repunit
+ * Validated: partial, pass, 11 terms through n = 11 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,15 @@
    digits of 126 in base n.  For n=1 the result is the 126‑digit
    repunit 111…1.  */
 #include <stdint.h>
-#include "../utils/repunit.h"
+
+static seq_t repunit(idx_t len)
+{
+    seq_t r = 0;
+    for (idx_t i = 0; i < len; ++i) {
+        r = r * 10 + 1;
+    }
+    return r;
+}
 
 seq_t a(idx_t n)
 {

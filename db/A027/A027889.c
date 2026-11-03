@@ -7,7 +7,8 @@
  * Formula:   a(n) = nth divisor of 999999999
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 20 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* comparison for qsort */
 static int seq_cmp(const void *p1, const void *p2)
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
         }
 
         /* sort the divisors */
-        qsort(divisors, 20, sizeof(seq_t), seq_cmp);
+        mem_qsort(divisors, 20, sizeof(seq_t), seq_cmp);
         initialized = true;
     }
 

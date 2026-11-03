@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-01)
  * Helpers:   largest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -21,6 +22,7 @@
 #include <stdint.h>   /* for uint64_t */
 #include <stddef.h>   /* for size_t */
 #include <stdlib.h>   /* for malloc, realloc, abort */
+#include <stdbool.h>
 #include "../utils/largest_prime_factor.h"
 
 #if defined(__cplusplus)

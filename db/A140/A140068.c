@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 39, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    index n (n ≥ 1) find the row r with T(r)=r(r+1)/2 ≥ n and the
    column c = n − T(r‑1).  Then a(n) = t[r][c]. */
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 seq_t a(idx_t n)
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
 
         /* Compute and store new rows from rows_len+1 up to r. */
         for (idx_t k = rows_len + 1; k <= r; ++k) {
-            seq_t *row = (seq_t*)malloc((k + 1) * sizeof(seq_t));
+            seq_t *row = mem_new(seq_t, (k + 1));
             row[0] = 0;   /* unused slot */
 
             if (k == 1) {

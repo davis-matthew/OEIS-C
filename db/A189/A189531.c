@@ -9,13 +9,29 @@
  *            arithmetic is used; no floating point operations
  * Range:     u8 n <= 83, u16 n <= 83, u32 n <= 83, u64 n <= 83, u128 n <= 83,
  *            big any n
- * Helpers:   _ucube_root_floor
+ * Validated: partial, pass, 83 terms through n = 83 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_ucube_root_floor.h"
+
+/* Compute integer cube root floor of an unsigned __int128 value. */
+static inline unsigned __int128 _ucube_root_floor(unsigned __int128 x)
+{
+    unsigned __int128 low = 0, high = x + 1;
+    while (high - low > 1) {
+        unsigned __int128 mid = low + (high - low) / 2;
+        unsigned __int128 mid2 = mid * mid;
+        unsigned __int128 cube = mid2 * mid;
+        if (cube <= x)
+            low = mid;
+        else
+            high = mid;
+    }
+    return low;
+}
 
 seq_t a(idx_t n)
 {

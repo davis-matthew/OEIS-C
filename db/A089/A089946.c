@@ -8,17 +8,18 @@
  * Formula:   a(n) = 2*(n+1)*(n+2)^(n-1) (a(0)=1)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 26,
  *            big any n
- * Helpers:   _pow_seq_t
+ * Validated: standard, pass, 35 terms through n = 375 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/_pow_seq_t.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)1;          /* a(0) = 1 */
     seq_t base = (seq_t)(n + 2);           /* (n+2) */
-    seq_t power = _pow_seq_t(base, n - 1); /* (n+2)^(n-1) */
+    seq_t power = ipow_idx(base, n - 1); /* (n+2)^(n-1) */
     seq_t n_plus_one = (seq_t)(n + 1);     /* (n+1) */
     return (seq_t)2 * n_plus_one * power;  /* 2*(n+1)*(n+2)^(n-1) */
 }

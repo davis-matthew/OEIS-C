@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 6, u64 n <= 15, u128 n <= 31,
  *            big any n
- * Helpers:   compute_subblock_sum
+ * Validated: standard, pass, 31 terms through n = 195 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,19 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/compute_subblock_sum.h"
+
+static inline void compute_subblock_sum(int r1, int r2, int *sum0, int *sum1)
+{
+    int a0 =  r1 / 16;          /* first column of top row      */
+    int a1 = (r1 / 4) % 4;      /* second column of top row     */
+    int a2 =  r1 % 4;           /* third column of top row      */
+    int b0 =  r2 / 16;          /* first column of bottom row   */
+    int b1 = (r2 / 4) % 4;      /* second column of bottom row  */
+    int b2 =  r2 % 4;           /* third column of bottom row   */
+
+    *sum0 = ((a1 > a0) + (b1 > b0) + (b0 > a0) + (b1 > a1));
+    *sum1 = ((a2 > a1) + (b2 > b1) + (b1 > a1) + (b2 > a2));
+}
 
 /* Pre‑computed adjacency lists for each allowed sum s (0..4). */
 /* For a given sum s and starting row state i (0..63) the list contains all

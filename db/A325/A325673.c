@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 3, i16 n <= 21, i32 n <= 35, i64 n <= 67, i128 n <= 132,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: standard, pass, 52 terms through n = 192 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,13 +17,33 @@
 /* Sequence A325673: First term of n-th difference sequence of floor(k*(-sqrt(7))),
  *  r = -sqrt(7), k >= 0.  The returned value is a(n) with offset 1.  */
 #include <stdlib.h>
-#include "../utils/floor_sqrt.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 seq_t a(idx_t n)
 {
     /* Need s[0..n] (n+1 elements) */
     size_t len = (size_t)n + 1;
-    seq_t *s = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *s = mem_new(seq_t, len);
     if (!s) return 0;  /* fallback on allocation failure */
 
     /* Compute s_k = floor(k*r) with r = -sqrt(7) */
@@ -43,6 +64,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = s[0];
-    free(s);
+    mem_free(s);
     return result;
 }

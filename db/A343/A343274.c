@@ -8,7 +8,8 @@
  *            distinct prime factors of d
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 26,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 35 terms through n = 383 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 static uint64_t *spf = NULL;
 static idx_t spf_size = 0;
@@ -62,7 +64,7 @@ static void dfs_sum(int idx, seq_t cur_d, seq_t cur_sopf,
                     seq_t *res)
 {
     if (idx == (int)cnt) {
-        seq_t powd = big_pow(cur_d, cur_d);
+        seq_t powd = ipow(cur_d, cur_d);
         *res += powd * cur_sopf;
         return;
     }

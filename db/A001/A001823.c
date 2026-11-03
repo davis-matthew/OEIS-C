@@ -7,12 +7,13 @@
  * Formula:   a(n) = n*(n-1)*(2*n+1)*(2*n-1)*(2*n-3)*(10*n+7)/90
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 41, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   a1823_g
+ * Validated: standard, pass, 45 terms through n = 988 (2026-11-01)
+ * Helpers:   gcd_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a1823_g.h"
+#include "../utils/gcd_u32.h"
 
 seq_t a(idx_t n) {
     if (n < 2) return 0;
@@ -29,7 +30,7 @@ seq_t a(idx_t n) {
     f[5] = 10 * m + 7;
     /* cancel the denominator factor by factor so no intermediate exceeds the result */
     for (i = 0; i < 6 && d > 1; i++) {
-        unsigned g = a1823_g((unsigned)(f[i] % d), d);
+        unsigned g = gcd_u32((unsigned)(f[i] % d), d);
         if (g > 1) { f[i] /= g; d /= g; }
     }
     for (i = 0; i < 6; i++) r *= f[i];

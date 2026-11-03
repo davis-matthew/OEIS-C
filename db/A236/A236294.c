@@ -10,12 +10,14 @@
  *            term for any n ≥ 0 in any call order
  * Range:     u8 n <= 60, u16 n <= 1020, u32 n <= 2500, u64 n <= 2500,
  *            u128 n <= 2500, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 2118 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache of already computed values */
 static seq_t *cache = NULL;      /* array of a(i) */
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     if (!cache || cache_len == 0) {
         /* Allocate initial space. 8 is arbitrary but gives room for growth. */
         cache_cap = 8;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
         if (!cache) exit(EXIT_FAILURE); /* unexpected allocation failure */
 
         /* Store the first four known terms. */
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
         if (i == cache_cap) {
             /* Double the capacity. */
             size_t new_cap = cache_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) exit(EXIT_FAILURE);
             cache = tmp;
             cache_cap = new_cap;

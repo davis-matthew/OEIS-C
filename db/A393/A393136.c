@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static void ensure_capacity(idx_t req)
 {
@@ -36,7 +38,7 @@ static void ensure_capacity(idx_t req)
         while (new_cap <= (size_t)req)
             new_cap <<= 1;
 
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();
         cache = tmp;
         /* Initialize newly allocated slots to zero */
@@ -51,7 +53,7 @@ static void ensure_capacity(idx_t req)
     (void)0;
 }
 
-static void* _cache_ptr = NULL;   /* pointer to the cache array */
+static seq_t *_cache_ptr = NULL;   /* pointer to the cache array */
 static size_t _cap = 0;           /* capacity of the cache array */
 static idx_t _last_idx = 0;       /* largest n fully computed */
 
@@ -60,7 +62,7 @@ static void ensure_cache(idx_t n)
     /* Wrapper to guarantee cache exists and has at least n+1 slots
        and to return its pointer and capacity via static variables. */
     if (_cache_ptr == NULL) {
-        _cache_ptr = malloc(sizeof(seq_t) * 4);
+        _cache_ptr = mem_new(seq_t, 4);
         if (!_cache_ptr) abort();
         _cap = 4;
         ((seq_t *)_cache_ptr)[0] = (seq_t)1;    /* a(0) = 1 */
@@ -71,7 +73,7 @@ static void ensure_cache(idx_t n)
         size_t new_cap = _cap;
         while (new_cap <= (size_t)n)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(_cache_ptr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, _cache_ptr, new_cap);
         if (!tmp) abort();
         _cache_ptr = tmp;
         for (size_t i = _cap; i < new_cap; ++i)

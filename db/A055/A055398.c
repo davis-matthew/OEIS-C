@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 58, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;          /* cached terms                          */
 static size_t a_cache_len = 0;          /* number of cached terms                */
@@ -42,7 +44,7 @@ static void a_ensure(idx_t n)
             if (a_cache_len >= a_cache_cap)
             {
                 size_t new_cap = a_cache_cap ? a_cache_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
                 if (!tmp) abort();          /* allocation failure */
                 a_cache = tmp;
                 a_cache_cap = new_cap;

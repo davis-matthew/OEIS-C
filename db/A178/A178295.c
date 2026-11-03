@@ -9,19 +9,22 @@
  *            143*a(n-2) + 315*a(n-3)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 10 terms through n = 9 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
     /* compute the required powers */
-    seq_t pow9 = big_pow((seq_t)9, (seq_t)n);
-    seq_t pow7 = big_pow((seq_t)7, (seq_t)n);
-    seq_t pow5 = big_pow((seq_t)5, (seq_t)n);
+    seq_t pow9 = ipow((seq_t)9, (seq_t)n);
+    seq_t pow7 = ipow((seq_t)7, (seq_t)n);
+    seq_t pow5 = ipow((seq_t)5, (seq_t)n);
 
     /* sum = pow9 + 3*pow7 .   Use only addition to avoid signed subtractions */
     seq_t sum = pow9;

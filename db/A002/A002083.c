@@ -8,12 +8,14 @@
  * Formula:   a(1) = 1, a(2) = 1; a(2n) = 2*a(2n-1), a(2n+1) = 2*a(2n) - a(n)
  * Range:     u8 n <= 11, u16 n <= 19, u32 n <= 35, u64 n <= 67, u128 n <= 131,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 3287 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_len = 0;
@@ -22,7 +24,7 @@ seq_t a(idx_t n) {
 	// Expand cache if needed
 	if (n >= cache_len) {
 		idx_t new_len = (n < 100) ? 100 : (n + 100);
-		seq_t *new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+		seq_t *new_cache = mem_resize(seq_t, cache, new_len);
 		cache = new_cache;
 		for (idx_t i = cache_len; i < new_len; i++) {
 			cache[i] = 0;

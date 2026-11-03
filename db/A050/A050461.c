@@ -7,7 +7,8 @@
  * Formula:   a(n) = sum_{d|n, (n/d) % 4 == 1} d^2 * with offset 1 (a(1) = 1)
  * Range:     u8 n <= 15, u16 n <= 254, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factorize_u64
+ * Validated: standard, pass, 63 terms through n = 9125 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,45 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/factorize_u64.h"
+
+/* ------------------------------------------------------------------ */
+static void factorize_u64(uint64_t n, uint64_t *pr, uint64_t *exp, size_t *cnt)
+{
+    size_t c = 0;
+    uint64_t m = n;
+
+    /* factor 2 separately to allow odd p loop */
+    if (m % 2ULL == 0ULL) {
+        pr[c] = 2ULL;
+        exp[c] = 0;
+        while (m % 2ULL == 0ULL) {
+            ++exp[c];
+            m /= 2ULL;
+        }
+        ++c;
+    }
+
+    /* odd primes */
+    for (uint64_t p = 3ULL; p * p <= m; p += 2ULL) {
+        if (m % p == 0ULL) {
+            pr[c] = p;
+            exp[c] = 0;
+            while (m % p == 0ULL) {
+                ++exp[c];
+                m /= p;
+            }
+            ++c;
+        }
+    }
+
+    if (m > 1ULL) {             /* remaining prime factor */
+        pr[c] = m;
+        exp[c] = 1;
+        ++c;
+    }
+
+    *cnt = c;
+}
 
 /* ------------------------------------------------------------------ */
 /* Simple factorisation routine (trial division). This works fast     */

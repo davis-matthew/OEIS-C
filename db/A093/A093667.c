@@ -7,6 +7,7 @@
  * Formula:   a(n) = prime(n) - prime(n+1) + prime(n+2)
  * Range:     u8 n <= 53, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 75 terms through n = 911 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -25,7 +26,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"   /* provides bool is_prime(uint64_t) */
+#include "../utils/is_prime.h"
 
 static uint64_t *prime_cache    = NULL;   /* 1‑based prime cache */
 static size_t    prime_cnt      = 0;      /* number of primes cached   */

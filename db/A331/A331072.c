@@ -8,14 +8,15 @@
  *            representations of k as a * b * c with 1 ≤ a ≤ b ≤ c
  * Range:     u8 n <= 83, u16 n <= 7587, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_cuberoot_u64
+ * Validated: standard, pass, 90 terms through n = 9724 (2026-11-01)
+ * Helpers:   icbrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/floor_cuberoot_u64.h"
+#include "../utils/icbrt_u64.h"
 
 /* Compute floor(sqrt(n)) for a 64‑bit unsigned integer. */
 static inline uint64_t floor_sqrt_u64(uint64_t n)
@@ -50,7 +51,7 @@ static inline seq_t u3_value(uint64_t n)
     if (n == 0)
         return 0;
     seq_t cnt = 0;
-    uint64_t cuberoot = floor_cuberoot_u64(n);
+    uint64_t cuberoot = icbrt_u64(n);
     for (uint64_t a = 1; a <= cuberoot; ++a) {
         if (n % a == 0) {
             uint64_t m = n / a;

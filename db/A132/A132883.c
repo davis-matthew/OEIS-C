@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,6 +34,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 struct Row {
     idx_t len;     /* number of elements in this row            */
@@ -56,7 +58,7 @@ static void ensure_flat_capacity(size_t need)
 {
     while (flat_cap < need) {
         flat_cap = flat_cap ? flat_cap * 2 : 128;
-        flat = (seq_t *)realloc(flat, flat_cap * sizeof(seq_t));
+        flat = mem_resize(seq_t, flat, flat_cap);
     }
 }
 
@@ -67,17 +69,17 @@ seq_t a(idx_t n)
     if (!initialized) {
         /* row 0 : T(0,0)=1 */
         rows[0].len = 1;
-        rows[0].data = (seq_t *)malloc(sizeof(seq_t) * 1);
+        rows[0].data = mem_new(seq_t, 1);
         rows[0].data[0] = (seq_t)1;
 
         /* row 1 : T(1,0)=1 */
         rows[1].len = 1;
-        rows[1].data = (seq_t *)malloc(sizeof(seq_t) * 1);
+        rows[1].data = mem_new(seq_t, 1);
         rows[1].data[0] = (seq_t)1;
 
         /* flattened array */
         flat_cap = 128;
-        flat = (seq_t *)malloc(sizeof(seq_t) * flat_cap);
+        flat = mem_new(seq_t, flat_cap);
         flat[0] = (seq_t)1;          /* row 0 */
         flat[1] = (seq_t)1;          /* row 1 */
         flat_used = 2;
@@ -93,7 +95,7 @@ seq_t a(idx_t n)
 
         /* Size of the new row */
         size_t len = (size_t)(r / 2) + 1;
-        seq_t *cur = (seq_t *)malloc(sizeof(seq_t) * len);
+        seq_t *cur = mem_new(seq_t, len);
 
         /* k = 0 case: Fibonacci recurrence */
         cur[0] = rows[r-1].data[0] + rows[r-2].data[0];

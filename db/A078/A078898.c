@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 511, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _ensure_cap, _spf
+ * Validated: standard, pass, 103 terms through n = 9575 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,64 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/_ensure_cap.h"
-#include "../utils/_spf.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* Ensure that 'cap' is at least 'needed', reallocating if necessary. */
+#ifdef __cplusplus
+template <class T>
+static void _ensure_cap(size_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (*cap < needed) {
+        size_t old = *cap;
+        size_t newcap = *cap ? *cap * 2 : 1;
+        if (newcap < needed) newcap = needed;
+        T *newptr = mem_resize(T, *ptr, (newcap * elem_size) / sizeof(T));
+        if (!newptr) abort(); /* out of memory, terminate */
+        if (newcap > old) {
+            /* zero newly allocated memory */
+            mem_set((char *)newptr + old * elem_size, 0,
+                   (newcap - old) * elem_size);
+        }
+        *cap = newcap;
+        *ptr = newptr;
+    }
+}
+#else
+static void _ensure_cap(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (*cap < needed) {
+        size_t old = *cap;
+        size_t newcap = *cap ? *cap * 2 : 1;
+        if (newcap < needed) newcap = needed;
+        void *newptr = realloc(*ptr, newcap * elem_size);
+        if (!newptr) abort(); /* out of memory, terminate */
+        if (newcap > old) {
+            /* zero newly allocated memory */
+            memset((char *)newptr + old * elem_size, 0,
+                   (newcap - old) * elem_size);
+        }
+        *cap = newcap;
+        *ptr = newptr;
+    }
+}
+#endif
+
+/* Helper: compute smallest prime factor of n (with n ≤ 10⁴). */
+static inline idx_t _spf(idx_t n)
+{
+    if (n < 2) return 1;            /* by definition lpf(1)=1 */
+    for (idx_t d = 2; d * d <= n; ++d)
+        if (n % d == 0) return d;
+    return n;                       /* n is prime */
+}
 
 /* Memoised storage for a(n) */
 static seq_t *a_cache = NULL;
@@ -37,17 +94,17 @@ seq_t a(idx_t n)
 {
     /* Initialise caches if first call */
     if (!a_cache) {
-        _ensure_cap(n + 1, &a_cap, (void **)&a_cache, sizeof(seq_t));
+        _ensure_cap(n + 1, &a_cap, OEISC_VPP(&a_cache), sizeof(seq_t));
         a_cache[0] = 0;              /* a(0)=0 */
         computed_max = 0;
     }
     if (!prim_cnt) {
-        _ensure_cap(n + 1, &pcap, (void **)&prim_cnt, sizeof(seq_t));
+        _ensure_cap(n + 1, &pcap, OEISC_VPP(&prim_cnt), sizeof(seq_t));
     }
 
     /* Extend caches to hold up to index n */
-    if (n + 1 > a_cap) _ensure_cap(n + 1, &a_cap, (void **)&a_cache, sizeof(seq_t));
-    if (n + 1 > pcap) _ensure_cap(n + 1, &pcap, (void **)&prim_cnt, sizeof(seq_t));
+    if (n + 1 > a_cap) _ensure_cap(n + 1, &a_cap, OEISC_VPP(&a_cache), sizeof(seq_t));
+    if (n + 1 > pcap) _ensure_cap(n + 1, &pcap, OEISC_VPP(&prim_cnt), sizeof(seq_t));
 
     /* Compute values up to n if needed */
     for (idx_t i = computed_max + 1; i <= n; ++i) {

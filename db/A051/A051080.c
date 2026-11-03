@@ -8,7 +8,8 @@
  *            solution
  * Range:     u8 n <= 24, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd, is_prime, mod_pow
+ * Validated: standard, pass, 90 terms through n = 916 (2026-11-03)
+ * Helpers:   gcd, is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,11 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include <string.h>
 #include "../utils/gcd.h"
-#include "../utils/mod_pow.h"
 #include "../utils/is_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* Static state for memoisation */
 static idx_t   next_candidate = 2;   /* next integer to test */
@@ -33,7 +36,7 @@ static bool is_good_prime(seq_t p)
     seq_t g   = gcd(p - 1, (seq_t)22);         /* gcd(p-1,22)  */
     seq_t exp = (p - 1) / g;                  /* (p-1)/g      */
     seq_t base = p - 2;                       /* -2 mod p      */
-    seq_t r   = mod_pow(base, (uint64_t)exp, p);
+    seq_t r   = powmod(base, (uint64_t)exp, p);
     return r == 1;
 }
 
@@ -42,7 +45,7 @@ static void append_prime(seq_t p)
 {
     if (good_cnt + 1 > good_cap) {
         size_t new_cap = good_cap ? good_cap * 2 : 4;
-        seq_t *tmp = (seq_t *)realloc(good_arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, good_arr, new_cap);
         if (!tmp) abort();
         good_arr = tmp;
         good_cap = new_cap;

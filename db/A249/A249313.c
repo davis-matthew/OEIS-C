@@ -8,12 +8,14 @@
  *            a(3)=14, a(4)=170
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 35, u128 n <= 69,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 996 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_len = 0;
@@ -23,7 +25,7 @@ static void ensure_cache(idx_t n)
     if ((size_t)n <= cache_len)
         return;
     size_t new_len = (size_t)n;
-    seq_t *new_cache = (seq_t *)realloc(cache, (new_len + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (new_len + 1));
     if (!new_cache)
         exit(EXIT_FAILURE);
     cache = new_cache;

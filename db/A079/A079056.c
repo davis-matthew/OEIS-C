@@ -9,7 +9,8 @@
  *            with sum d)
  * Range:     u8 n <= 84, u16 n <= 84, u32 n <= 84, u64 n <= 84, u128 n <= 84,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 84 terms through n = 84 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;              /* cached values a(1..n)             */
 static idx_t cache_limit = 0;              /* last n for which cache is valid   */
@@ -26,7 +28,7 @@ static void compute_up_to(idx_t new_limit)
 {
     /* Free previous cache if any */
     if (a_cache) {
-        free(a_cache);
+        mem_free(a_cache);
         a_cache = NULL;
     }
 
@@ -57,7 +59,7 @@ static void compute_up_to(idx_t new_limit)
     free(isPrime);   /* done with isPrime */
 
     /* ---- 2. Count prime triples for each sum ---- */
-    seq_t *triple = (seq_t*)calloc(len, sizeof(seq_t));   /* triple[s] = A068307(s) */
+    seq_t *triple = mem_new(seq_t, len);   /* triple[s] = A068307(s) */
     for (int ii = 0; ii < primeCount; ++ii) {
         int p = primes[ii];
         for (int jj = ii; jj < primeCount; ++jj) {
@@ -74,7 +76,7 @@ static void compute_up_to(idx_t new_limit)
     }
 
     /* ---- 3. Build divisor sum array a(n) ---- */
-    seq_t *new_cache = (seq_t*)calloc(len, sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, len);
     for (int d = 1; d <= new_limit; ++d) {
         seq_t val = triple[d];
         if (!val) continue;
@@ -83,7 +85,7 @@ static void compute_up_to(idx_t new_limit)
         }
     }
 
-    free(triple);
+    mem_free(triple);
     free(primes);
 
     a_cache = new_cache;

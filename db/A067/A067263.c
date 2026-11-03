@@ -7,7 +7,8 @@
  * Formula:   numbers k such that sigma(k+1) = 5*phi(k)
  * Range:     u8 none, u16 n <= 9, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   phi, sigma_of
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-03)
+ * Helpers:   mem, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,23 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/phi.h"
-#include "../utils/sigma_of.h"
+#include "../utils/totient.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 seq_t a(idx_t n)
 {
@@ -30,17 +46,17 @@ seq_t a(idx_t n)
 
     if (cached == NULL) {
         cached_cap = 128;
-        cached = (seq_t *)malloc(cached_cap * sizeof(seq_t));
+        cached = mem_new(seq_t, cached_cap);
     }
 
     while (cached_len < (size_t)n) {
         seq_t sigma = sigma_of(next_k + 1);
-        seq_t phi_val = phi(next_k);
+        seq_t phi_val = totient(next_k);
         seq_t rhs = (seq_t)5 * phi_val;
         if (sigma == rhs) {
             if (cached_len == cached_cap) {
                 cached_cap *= 2;
-                cached = (seq_t *)realloc(cached, cached_cap * sizeof(seq_t));
+                cached = mem_resize(seq_t, cached, cached_cap);
             }
             cached[cached_len++] = next_k;
         }

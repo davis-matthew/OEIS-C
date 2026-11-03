@@ -8,7 +8,8 @@
  *            a(3) = 1
  * Range:     u8 n <= 8, u16 n <= 14, u32 n <= 23, u64 n <= 42, u128 n <= 79,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 889 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Cache of computed terms.  1‑based indexing; cache[0] unused. */
 static seq_t *cache = NULL;
@@ -34,18 +36,18 @@ static void ensure_capacity(idx_t n)
     while (new_cap < need)
         new_cap <<= 1;                    /* double until enough */
 
-    seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, new_cap);
     if (!tmp)
         abort();                         /* unrecoverable memory failure */
 
     /* Copy existing data */
     if (cache) {
-        memcpy(tmp, cache, cache_cap * sizeof(seq_t));
-        free(cache);
+        mem_copy(tmp, cache, cache_cap * sizeof(seq_t));
+        mem_free(cache);
     }
 
     /* Zero‑initialize the new part */
-    memset(tmp + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
+    mem_set(tmp + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
 
     cache = tmp;
     cache_cap = new_cap;

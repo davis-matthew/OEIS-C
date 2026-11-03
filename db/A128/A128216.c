@@ -8,13 +8,15 @@
  *            dividing n
  * Range:     u8 n <= 19, u16 n <= 53, u32 n <= 131, u64 n <= 311,
  *            u128 n <= 719, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 9151 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ---------- helper: smallest prime factor sieve ---------- */
 static idx_t *spf_cache = NULL;   /* indices start at 0 */
@@ -62,8 +64,7 @@ static void ensure_seq_cache(idx_t n)
     if (n + 1 <= seq_cap) return;                     /* capacity already enough */
 
     idx_t new_cap = n + 1;
-    seq_t *new_cache = (seq_t *)realloc(seq_cache,
-                                        (size_t)new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, seq_cache, (size_t)new_cap);
     if (!new_cache) return;                           /* allocation fail */
     seq_cache = new_cache;
     seq_cap = new_cap;

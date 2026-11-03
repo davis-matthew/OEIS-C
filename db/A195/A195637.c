@@ -8,15 +8,18 @@
  *            … n‑1
  * Range:     u8 n <= 73, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 89 terms through n = 9790 (2026-11-01)
+ * Helpers:   is_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <string.h>
 #include "../utils/is_prime.h"
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +33,7 @@ seq_t a(idx_t n)
 
     size_t count = 0;
     for (idx_t k = 0; k < n; ++k) {
-        seq_t residue = mod_pow((seq_t)k, (uint64_t)n, (seq_t)n);
+        seq_t residue = powmod((seq_t)k, (uint64_t)n, (seq_t)n);
         idx_t r = (idx_t)residue;  /* residue < n guarantees this cast is safe */
         if (!seen[r]) {
             seen[r] = true;

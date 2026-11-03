@@ -8,8 +8,9 @@
  * Formula:   a(n) = ((i-1) XOR (j-1)) + 1, where (i, j) are the coordinates
  *            in the antidiagonal enumeration of the table T(i,j) = ((i-1) XOR
  *            (j-1)) + 1
- * Range:     u8 n <= 3, u16 n <= 63, u32 n <= 9763, u64 n <= 9763,
- *            u128 n <= 9763, big any n
+ * Range:     u8 n <= 3, u16 n <= 63, u32 n <= 32896, u64 n <= 32896,
+ *            u128 n <= 32896, big any n
+ * Validated: standard, pass, 107 terms through n = 9763 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

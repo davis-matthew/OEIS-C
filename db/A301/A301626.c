@@ -10,8 +10,9 @@
  * Formula:   a(n) is the square of the Euclidean distance from the Gaussian
  *            integer n + k·i (read along antidiagonals) to the nearest cube
  *            of a Gaussian integer. N is 0‑based as in the OEIS entry
- * Range:     u8 n <= 2235, u16 n <= 8767, u32 n <= 8767, u64 n <= 8767,
- *            u128 n <= 8767, big any n
+ * Range:     u8 n <= 2235, u16 n <= 20300, u32 n <= 20300, u64 n <= 20300,
+ *            u128 n <= 20300, big any n
+ * Validated: standard, pass, 97 terms through n = 8767 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -12,7 +12,8 @@
  *            convenience)
  * Range:     u8 n <= 1, u16 n <= 8, u32 n <= 22, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* table of the first 12 terms; index 0 is a dummy 0 */
 static const seq_t init_vals[13] = {
@@ -45,9 +47,9 @@ seq_t a(idx_t n)
         size_t needed = (size_t)n + 1;            /* include index 0 */
         seq_t *tmp = NULL;
         if (cache == NULL) {
-            tmp = (seq_t *)malloc(needed * sizeof(seq_t));
+            tmp = mem_new(seq_t, needed);
         } else {
-            tmp = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+            tmp = mem_resize(seq_t, cache, needed);
         }
         if (tmp == NULL) {   /* allocation failed – return 0 as safe fallback */
             return (seq_t)0;

@@ -8,7 +8,8 @@
  *            composite number
  * Range:     u8 n <= 19, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Cached list of odd composite numbers. */
 static seq_t *comps      = NULL;
@@ -32,7 +34,7 @@ static void add_next_comp(void)
         if (cand > 2U && !is_prime(cand)) {
             if (comps_len == comps_cap) {
                 size_t new_cap = comps_cap ? comps_cap * 2U : 16U;
-                seq_t *tmp = (seq_t *)realloc(comps, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, comps, new_cap);
                 if (!tmp) abort();      /* allocation failure */
                 comps = tmp;
                 comps_cap = new_cap;

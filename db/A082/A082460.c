@@ -6,15 +6,17 @@
  * Keywords:  nonn
  * Formula:   a(n) = pi(n) - a(n-1) with a(1) = 0 ; for n ≥ 2, a(n) = pi(n) -
  *            a(n-1) (pi(n) is the prime counting function A000720)
- * Range:     u8 n <= 1620, u16 n <= 9830, u32 n <= 9830, u64 n <= 9830,
- *            u128 n <= 9830, big any n
- * Helpers:   none
+ * Range:     u8 n <= 1620, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 116 terms through n = 9830 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Local helper: compute the prime counting function pi(n). */
@@ -91,7 +93,7 @@ seq_t a(idx_t n)
 
     /* Initialise cache if it is empty. */
     if (cache_len == 0) {
-        cache = (seq_t *)malloc(1 * sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) exit(1);
         cache[0] = (seq_t)0;        /* a(1) = 0 */
         cache_len = 1;
@@ -99,7 +101,7 @@ seq_t a(idx_t n)
 
     /* Grow cache if necessary. */
     if (n > cache_len) {
-        seq_t *new_cache = (seq_t *)realloc(cache, n * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, n);
         if (!new_cache) exit(1);
         cache = new_cache;
 

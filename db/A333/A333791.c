@@ -10,8 +10,9 @@
  * Formula:   a(n) = A332993(n) - A332994(n) (difference of sums obtained by
  *            repeatedly dividing by the smallest and the largest remaining
  *            prime factor)
- * Range:     u8 n <= 327, u16 n <= 8816, u32 n <= 8816, u64 n <= 8816,
- *            u128 n <= 8816, big any n
+ * Range:     u8 n <= 327, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 112 terms through n = 8816 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

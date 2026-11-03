@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 19, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   floor_log2_uint64
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-03)
+ * Helpers:   ilog2, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,9 @@
    2^p < n-1 ≤ 2^(p+1).  */
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/floor_log2_uint64.h"   /* provides floor_log2_uint64 */
+#include <stdint.h>
+#include "../utils/ilog2.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;           /* 0‑based array of a(i) */
 static size_t capacity = 0;           /* allocated capacity of cache   */
@@ -34,7 +37,7 @@ static void grow_cache(size_t needed)
     if (capacity < needed) {
         size_t newcap = capacity ? capacity * 2 : 32;
         if (newcap < needed) newcap = needed;
-        seq_t *tmp = (seq_t*)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp) abort();          /* out‑of‑memory */
         cache = tmp;
         capacity = newcap;
@@ -59,7 +62,7 @@ seq_t a(idx_t n)
             } else {
                 /* recurrence for i ≥ 4 */
                 idx_t t = i - 1;                       /* n‑1 */
-                idx_t p_log = floor_log2_uint64(t);
+                idx_t p_log = ilog2(t);
                 /* 2^p < t ≤ 2^(p+1)  →  p = (t is a power of two) ? p_log−1 : p_log */
                 idx_t p;
                 if ((t & (t - 1)) == 0) {              /* t is power of two */

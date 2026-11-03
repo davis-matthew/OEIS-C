@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 4, u64 n <= 10, u128 n <= 21,
  *            big any n
- * Helpers:   row_digits
+ * Validated: standard, pass, 29 terms through n = 206 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,7 +35,15 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/row_digits.h"
+
+/* Convert a row index (0…242) into its base‑3 digits (5 digits).   */
+static void row_digits(int idx, int d[5]) {
+    d[4] = idx % 3; idx /= 3;
+    d[3] = idx % 3; idx /= 3;
+    d[2] = idx % 3; idx /= 3;
+    d[1] = idx % 3; idx /= 3;
+    d[0] = idx;
+}
 
 /* number of possible 5‑tuples */
 enum { ROWS = 243 };

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   lower_bound_uint32
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,18 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/lower_bound_uint32.h"
+
+/* Binary search helpers for uint32_t arrays */
+static size_t lower_bound_uint32(const uint32_t *arr, size_t n, uint32_t value)
+{
+    size_t l = 0, r = n;
+    while (l < r) {
+        size_t m = (l + r) >> 1;
+        if (arr[m] < value) l = m + 1;
+        else r = m;
+    }
+    return l;
+}
 
 /* --- binary search lower bound on an array of uint32_t --- */
 

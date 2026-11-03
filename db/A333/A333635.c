@@ -7,7 +7,8 @@
  * Formula:   a(n) = nth m such that m^2 + 1 has at most 2 prime factors
  * Range:     u8 n <= 14, u16 n <= 203, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   count_prime_factors
+ * Validated: standard, pass, 80 terms through n = 998 (2026-11-01)
+ * Helpers:   bigomega_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/count_prime_factors.h"
+#include "../utils/bigomega_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +35,7 @@ seq_t a(idx_t n)
         seq_t v = (seq_t)m * (seq_t)m + (seq_t)1;
 
         /* count how many prime factors v has (with multiplicity) */
-        if (count_prime_factors(v) <= 2U)
+        if (bigomega_seq(v) <= 2U)
         {
             found++;
             if (found == n)

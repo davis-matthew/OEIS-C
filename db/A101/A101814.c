@@ -9,15 +9,41 @@
  *            sum of its decimal digits (even Harshad number)
  * Range:     u8 n <= 53, u16 n <= 6647, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_sum, resize_array
+ * Validated: standard, pass, 74 terms through n = 9168 (2026-11-01)
+ * Helpers:   digit_sum
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/digit_sum.h"
-#include "../utils/resize_array.h"
+
+/* dynamic array helpers -------------------------------------------------- */
+static seq_t *resize_array(seq_t *old, idx_t old_size, idx_t new_size)
+{
+    seq_t *new_arr;
+#ifdef __cplusplus
+    new_arr = new seq_t[new_size]();        /* value–init for C++ objects   */
+#else
+    new_arr = (seq_t *)calloc(new_size, sizeof(seq_t));   /* zero for C */
+#endif
+    /* copy old data */
+    idx_t i;
+    for (i = 0; i < old_size && i < new_size; ++i)
+        new_arr[i] = old[i];
+
+    /* free old storage */
+    if (old) {
+#ifdef __cplusplus
+        delete[] old;
+#else
+        free(old);
+#endif
+    }
+    return new_arr;
+}
 
 seq_t a(idx_t n) {
     /* static cache of found terms */

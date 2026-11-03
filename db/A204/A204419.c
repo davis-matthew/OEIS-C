@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 1, u64 n <= 2, u128 n <= 3,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 5 terms through n = 5 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_size = 0;   /* highest index already computed */
@@ -28,7 +30,7 @@ seq_t a(idx_t n) {
     /* Ensure base cases exist */
     if (cache_size == 0) {
         size_t init_cap = 2;
-        cache = (seq_t *)realloc(NULL, init_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, init_cap);
         cache[0] = (seq_t)0ULL;                           /* a(1) */
         cache[1] = (seq_t)1819380158564160ULL;            /* a(2) */
         cache_size = 2;
@@ -41,7 +43,7 @@ seq_t a(idx_t n) {
 
     /* Grow cache to size n (allow extra space) */
     size_t new_cap = n;
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
 
     const seq_t COEFF = (seq_t)64376241658269698ULL;
 

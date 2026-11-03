@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 52, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 75 terms through n = 74 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* polynomial coefficients of the generating polynomial */
 static const unsigned int COEFF[8] = {1, 1, 1, 3, 1, 1, 1, 1};
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
 
     /* Previous row array (initialised to 1 for row 0). */
     size_t prev_len = 1;
-    seq_t *prev = (seq_t *)calloc(prev_len, sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, prev_len);
     if (!prev)
         return (seq_t)0;          /* allocation failure → 0 */
     prev[0] = (seq_t)1;
@@ -66,9 +68,9 @@ seq_t a(idx_t n)
     /* Build rows up to r. */
     for (idx_t row = 1; row <= r; ++row) {
         size_t curr_len = 7 * row + 1;
-        seq_t *curr = (seq_t *)calloc(curr_len, sizeof(seq_t));
+        seq_t *curr = mem_new(seq_t, curr_len);
         if (!curr) {
-            free(prev);
+            mem_free(prev);
             return (seq_t)0;
         }
 
@@ -86,7 +88,7 @@ seq_t a(idx_t n)
             }
         }
 
-        free(prev);
+        mem_free(prev);
         prev = curr;
         prev_len = curr_len;
     }
@@ -96,6 +98,6 @@ seq_t a(idx_t n)
     if (k < prev_len)
         result = prev[k];
 
-    free(prev);
+    mem_free(prev);
     return result;
 }

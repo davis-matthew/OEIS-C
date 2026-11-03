@@ -8,7 +8,8 @@
  *            * and σ(d) is the sum of the divisors of d
  * Range:     u8 n <= 7, u16 n <= 17, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Smallest prime factor array */
 static uint32_t *spf_arr = NULL;
@@ -123,7 +125,7 @@ seq_t a(idx_t n)
         if (new_size < 16)
             new_size = 16;
 
-        a_cache = (seq_t *)realloc(a_cache, new_size * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_size);
         if (!a_cache)
             exit(1);
 

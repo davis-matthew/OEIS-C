@@ -8,8 +8,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = gcd(A001414(n), A167344(n))
- * Range:     u8 n <= 21, u16 n <= 1915, u32 n <= 8094, u64 n <= 8094,
- *            u128 n <= 8094, big any n
+ * Range:     u8 n <= 21, u16 n <= 1915, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 108 terms through n = 8094 (2026-11-01)
  * Helpers:   factor_u64, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,6 +21,9 @@
 #ifndef A306709_H
 #define A306709_H
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 #include "../utils/gcd.h"
 

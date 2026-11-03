@@ -8,8 +8,9 @@
  * Formula:   a(n) = 1 iff the binary expansion of n contains no odd run of
  *            consecutive 1's that is immediately followed by a 0 to its
  *            right; otherwise a(n) = 0
- * Range:     u8 n <= 9821, u16 n <= 9821, u32 n <= 9821, u64 n <= 9821,
- *            u128 n <= 9821, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 137 terms through n = 9821 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

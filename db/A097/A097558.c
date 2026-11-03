@@ -7,15 +7,37 @@
  * Formula:   a(1) = 1; for n >= 2, a(n) = 1 - Σ_{d|n, 2≤d≤n-1} a(n/d) * a(d)
  * Range:     i8 n <= 143, i16 n <= 2879, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   factor_u64, sum_div_rec
+ * Validated: standard, pass, 118 terms through n = 9524 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/sum_div_rec.h"
+#include "../utils/mem.h"
+
+static void sum_div_rec(const uint64_t *pr, const uint64_t *ex,
+                        size_t cnt, size_t pos,
+                        uint64_t cur, uint64_t n,
+                        seq_t *sum, const seq_t *cache)
+{
+    if (pos == cnt) {
+        if (cur > 1 && cur < n) {
+            seq_t t1 = cache[(size_t)(n / cur - 1)];
+            seq_t t2 = cache[(size_t)(cur - 1)];
+            *sum = *sum + t1 * t2;
+        }
+        return;
+    }
+    uint64_t cur_val = cur;
+    for (uint64_t e = 0; e <= ex[pos]; ++e) {
+        sum_div_rec(pr, ex, cnt, pos + 1, cur_val, n, sum, cache);
+        cur_val *= pr[pos];
+    }
+}
 
 seq_t a(idx_t n)
 {
@@ -27,7 +49,7 @@ seq_t a(idx_t n)
     /* Ensure cache has room for up to n terms */
     if ((idx_t)cache_cap < n) {
         size_t new_cap = (size_t)n;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (new_cache == NULL) return (seq_t)0;   /* allocation failed */
 
         cache = new_cache;

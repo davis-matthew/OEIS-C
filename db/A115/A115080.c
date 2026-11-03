@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 44, u32 n <= 104, u64 n <= 299,
  *            u128 n <= 350, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 331 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    reading the triangle row by row, starting with T(0,0)=1. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *T = NULL;              /* storage of all triangle entries        */
 static size_t T_cap = 0;             /* allocated number of seq_t elements      */
@@ -38,7 +40,7 @@ static void ensure_rows(idx_t up_to)
     __uint128_t cap128 = (__uint128_t)(up_to + 1) * (up_to + 2) / 2;
     size_t new_cap = (size_t)cap128;
     if (new_cap > T_cap) {
-        seq_t *tmp = (seq_t *)realloc(T, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, T, new_cap);
         T = tmp;
         T_cap = new_cap;
     }

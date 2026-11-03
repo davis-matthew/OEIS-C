@@ -9,15 +9,16 @@
  * Formula:   a(n) is the prime that is subtracted in the last step of the
  *            iteration x -> x - gpf(x) starting at n (where gpf is the
  *            largest prime factor)
- * Range:     u8 n <= 77, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
+ * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gpf
+ * Validated: standard, pass, 94 terms through n = 9553 (2026-11-01)
+ * Helpers:   largest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/gpf.h"
+#include "../utils/largest_prime_factor.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +29,7 @@ seq_t a(idx_t n)
     while (1) {
         /* gpf works on 64–bit unsigned values */
         uint64_t ux = (uint64_t)x;
-        uint64_t p  = gpf(ux);
+        uint64_t p  = largest_prime_factor(ux);
         seq_t sp   = (seq_t)p;
 
         /* If x itself is prime, it is the last step. */

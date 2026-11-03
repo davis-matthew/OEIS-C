@@ -13,14 +13,25 @@
  *            ones)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 10, u64 n <= 20, u128 n <= 38,
  *            big any n
- * Helpers:   floor_log2_uint64, pow10
+ * Validated: standard, pass, 39 terms through n = 125 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow10.h"
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include "../utils/ilog2.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 static seq_t ones_decimal(idx_t k)
 {
@@ -43,7 +54,7 @@ seq_t a(idx_t n)
         return t;
     } else {                    /* even n */
         idx_t x = (n + 2) / 2;   /* x ≥ 1 */
-        unsigned l = floor_log2_uint64(x);
+        unsigned l = ilog2(x);
         idx_t m = (idx_t)1 << l; /* m = largest power of two ≤ x */
         return ones_decimal(m);
     }

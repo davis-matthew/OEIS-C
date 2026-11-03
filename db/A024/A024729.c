@@ -8,12 +8,14 @@
  * Formula:   a(1)=a(2)=1, a(3)=5; a(n)=∑_{i=1..⌊(n+1)/4⌋} a(2*i-1)*a(n-2*i+1)
  * Range:     u8 n <= 10, u16 n <= 16, u32 n <= 29, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* for malloc, realloc, free */
+#include "../utils/mem.h"
 
 /* static cache: 1‑based indexing, cache[0] unused */
 static seq_t *cache      = NULL;
@@ -28,7 +30,7 @@ static void ensure_cache(idx_t n)
     /* Resize if necessary */
     if ((size_t)n + 1 > cache_cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         /* If realloc fails we simply abort; the evaluated environment will handle it */
         if (!tmp) abort();
         cache     = tmp;

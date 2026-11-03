@@ -13,13 +13,36 @@
  *            -1 a(p^e) = e+1 if Kronecker(-38,p) = 1 The...
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   kronecker_minus38_prime
+ * Validated: standard, pass, 97 terms through n = 9570 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/kronecker_minus38_prime.h"
+
+/* Helper: return Kronecker(-38, p) for prime p */
+static int kronecker_minus38_prime(uint64_t p)
+{
+    /* p dividing 38 */
+    if (p == 2 || p == 19)
+        return 0;
+
+    /* (2|p) */
+    int leg2 = ((p & 7) == 1 || (p & 7) == 7) ? 1 : -1;
+
+    /* (p|19) via pre‑computed residues */
+    static const unsigned char residues19[9] = {1,4,5,6,7,9,11,16,17};
+    uint64_t mod = p % 19;
+    int leg19 = -1; /* default non‑residue */
+    for (int i = 0; i < 9; ++i) {
+        if (residues19[i] == mod) {
+            leg19 = 1;
+            break;
+        }
+    }
+    return leg2 * leg19; /* product gives (-38|p) */
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)

@@ -12,7 +12,8 @@
  *            natural numbers from 2 upwards, skipping perfect * pow...
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /*  Static state kept between calls to a().  */
 static seq_t          *anti_maxes   = NULL;  /* array of run maxima   */
@@ -49,9 +51,9 @@ static void add_max(seq_t val)
 {
     if (anti_count == anti_cap) {
         size_t new_cap = anti_cap ? anti_cap * 2 : 4;
-        seq_t *new_arr = (seq_t*)malloc(new_cap * sizeof(seq_t));
-        if (anti_maxes) memcpy(new_arr, anti_maxes, anti_count * sizeof(seq_t));
-        free(anti_maxes);
+        seq_t *new_arr = mem_new(seq_t, new_cap);
+        if (anti_maxes) mem_copy(new_arr, anti_maxes, anti_count * sizeof(seq_t));
+        mem_free(anti_maxes);
         anti_maxes = new_arr;
         anti_cap   = new_cap;
     }

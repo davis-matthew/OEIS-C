@@ -10,14 +10,16 @@
  *            parts ≤ k
  * Range:     u8 n <= 27, u16 n <= 59, u32 n <= 179, u64 n <= 599,
  *            u128 n <= 2519, big any n
- * Helpers:   divisor_count_u64
+ * Validated: standard, pass, 74 terms through n = 9909 (2026-11-03)
+ * Helpers:   mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
 
 /* external function to be implemented elsewhere */
 seq_t a(idx_t n)
@@ -26,10 +28,10 @@ seq_t a(idx_t n)
         return (seq_t)0;
 
     size_t N = (size_t)n;
-    size_t d = (size_t)divisor_count_u64(n);  /* τ(n) */
+    size_t d = (size_t)num_divisors(n);  /* τ(n) */
 
     /* compute p(N, d) */
-    seq_t *dp = (seq_t*)calloc(N + 1, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, N + 1);
     if (!dp)
         return (seq_t)0;            /* out of memory – unlikely for test size */
 
@@ -40,12 +42,12 @@ seq_t a(idx_t n)
         }
     }
     seq_t with_max = dp[N];
-    free(dp);
+    mem_free(dp);
 
     /* compute p(N, d-1) only if d>1 */
     seq_t without_max = (seq_t)0;
     if (d > 1) {
-        seq_t *dp2 = (seq_t*)calloc(N + 1, sizeof(seq_t));
+        seq_t *dp2 = mem_new(seq_t, N + 1);
         if (!dp2)
             return with_max;         /* fallback – should not happen */
 
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
             }
         }
         without_max = dp2[N];
-        free(dp2);
+        mem_free(dp2);
     }
 
     return with_max - without_max;

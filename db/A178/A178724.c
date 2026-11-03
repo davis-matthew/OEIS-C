@@ -10,7 +10,8 @@
  *            (property described in OEIS A178724)
  * Range:     u8 n <= 51, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   mask_of
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,17 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/mask_of.h"
+
+/*  Utility: bit mask of the letters in a lower‑case string               */
+static uint32_t mask_of(const char *s)
+{
+    uint32_t m = 0;
+    for (; *s; ++s) {
+        if (*s >= 'a' && *s <= 'z')
+            m |= 1u << (*s - 'a');
+    }
+    return m;
+}
 
 /* --------------------------------------------------------------------- */
 

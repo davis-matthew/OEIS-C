@@ -8,7 +8,8 @@
  * Formula:   primes having a prime number of 1's in binary representation
  * Range:     u8 n <= 40, u16 n <= 2334, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   popcount_seq_t
+ * Validated: standard, pass, 72 terms through n = 9984 (2026-11-03)
+ * Helpers:   mem, popcount_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/popcount_seq_t.h"
+#include "../utils/popcount_seq.h"
+#include "../utils/mem.h"
 
 /* Small prime test for values up to 200 (used for popcounts). */
 static inline bool is_prime_small(unsigned int x)
@@ -67,22 +69,20 @@ seq_t a(idx_t n)
             if (prime_cnt == prime_cap)
             {
                 prime_cap = prime_cap ? prime_cap * 2 : 4;
-                seq_t *tmp = (seq_t *)realloc(prime_list,
-                                              prime_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, prime_list, prime_cap);
                 prime_list = tmp;
             }
             prime_list[prime_cnt++] = p;
 
             /* Count 1-bits in the binary representation of p. */
-            unsigned int pc = popcount_seq_t(p);
+            unsigned int pc = popcount_seq(p);
             if (is_prime_small(pc))
             {
                 /* Sequence term satisfies the property – store it. */
                 if (seq_cnt == seq_cap)
                 {
                     seq_cap = seq_cap ? seq_cap * 2 : 4;
-                    seq_t *tmp = (seq_t *)realloc(seq_terms,
-                                                  seq_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, seq_terms, seq_cap);
                     seq_terms = tmp;
                 }
                 seq_terms[seq_cnt++] = p;

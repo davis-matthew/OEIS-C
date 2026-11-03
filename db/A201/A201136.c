@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 22, u32 n <= 183, u64 n <= 183,
  *            u128 n <= 183, big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 182 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;              /* offset is 1 */
@@ -36,9 +38,9 @@ seq_t a(idx_t n) {
 
     /* For performance, allocate buffers once */
     const size_t N = (size_t)n;
-    seq_t *dp_prev = (seq_t*)calloc(N + 1, sizeof(seq_t));
-    seq_t *dp_curr = (seq_t*)calloc(N + 1, sizeof(seq_t));
-    seq_t *diff    = (seq_t*)malloc((N + 2) * sizeof(seq_t));  /* +1 for diff end slot */
+    seq_t *dp_prev = mem_new(seq_t, N + 1);
+    seq_t *dp_curr = mem_new(seq_t, N + 1);
+    seq_t *diff    = mem_new(seq_t, (N + 2));  /* +1 for diff end slot */
 
     seq_t result = 0;
     const uint64_t subset_limit = 1ULL << 6;          /* 64 subsets of {0..5} */
@@ -54,8 +56,8 @@ seq_t a(idx_t n) {
             c[v] = (uint8_t)(k + ((mask >> v) & 1U));
 
         /* Reset DP buffers */
-        memset(dp_prev, 0, (N + 1) * sizeof(seq_t));
-        memset(dp_curr, 0, (N + 1) * sizeof(seq_t));
+        mem_set(dp_prev, 0, (N + 1) * sizeof(seq_t));
+        mem_set(dp_curr, 0, (N + 1) * sizeof(seq_t));
         dp_prev[0] = 1;                   /* start with empty prefix */
 
         idx_t prefix_total = 0;
@@ -66,7 +68,7 @@ seq_t a(idx_t n) {
             idx_t max_prefix = prefix_total / 2;   /* floor(total_v/2) */
 
             /* Difference array for range updates */
-            memset(diff, 0, (N + 2) * sizeof(seq_t));
+            mem_set(diff, 0, (N + 2) * sizeof(seq_t));
 
             /* For each achievable prefix sum in dp_prev,
                add contributions to all allowable new prefix sums. */
@@ -106,9 +108,9 @@ seq_t a(idx_t n) {
     }
 
     /* Free temporary arrays */
-    free(dp_prev);
-    free(dp_curr);
-    free(diff);
+    mem_free(dp_prev);
+    mem_free(dp_curr);
+    mem_free(diff);
 
     return result;
 }

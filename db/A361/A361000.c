@@ -11,8 +11,9 @@
  *            the number of divisors of n, and A083039(n) is: 3 if n divisible
  *            by 6, 2 if n even (but not divisible by 6) or n divisible by 3
  *            only, 1 otherwise. (For n=1,2 the values are a(1)=2, a(2)=3.)
- * Range:     u8 n <= 9694, u16 n <= 9694, u32 n <= 9694, u64 n <= 9694,
- *            u128 n <= 9694, big any n
+ * Range:     u8 n <= 16384, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 95 terms through n = 9694 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

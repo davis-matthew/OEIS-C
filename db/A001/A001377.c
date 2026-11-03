@@ -11,19 +11,39 @@
  *            acting on n^4 tuples)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 2, u64 n <= 2, u128 n <= 3,
  *            big any n
- * Helpers:   a001377_fixed, a001377_gcd, a001377_inv, a001377_pow2,
- *            a677_from_u128
+ * Validated: standard, pass, 7 terms through n = 7 (2026-11-01)
+ * Helpers:   gcd_u64, pow2_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/a677_from_u128.h"
-#include "../utils/a001377_fixed.h"
-#include "../utils/a001377_gcd.h"
-#include "../utils/a001377_inv.h"
-#include "../utils/a001377_pow2.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/pow2_u64.h"
+
+static seq_t a677_from_u128(unsigned __int128 v)
+{
+    int i;
+    seq_t r = (seq_t)(uint64_t)(v >> 64);
+    for (i = 0; i < 8; i++) r = r * 256;
+    r += (seq_t)(uint64_t)v;
+    return r;
+}
+
+static int a001377_fixed(void) {
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 130; i++) x = x * 2;
+    return x == 0;
+}
+
+static unsigned __int128 a001377_inv(unsigned __int128 q) {
+    unsigned __int128 x = q;
+    int i;
+    for (i = 0; i < 7; i++) x *= (unsigned __int128)2 - q * x;
+    return x;
+}
 
 static uint64_t *a001377_L = NULL;
 static uint64_t *a001377_M = NULL;
@@ -39,13 +59,13 @@ static uint64_t a001377_cycles(int k) {
         uint64_t li = a001377_L[i], mi = a001377_M[i];
         for (j = 0; j < k; j++) {
             uint64_t lj = a001377_L[j], mj = a001377_M[j];
-            uint64_t l2 = li / a001377_gcd(li, lj) * lj;
+            uint64_t l2 = li / gcd_u64(li, lj) * lj;
             for (s = 0; s < k; s++) {
                 uint64_t ls = a001377_L[s], ms = a001377_M[s];
-                uint64_t l3 = l2 / a001377_gcd(l2, ls) * ls;
+                uint64_t l3 = l2 / gcd_u64(l2, ls) * ls;
                 for (t = 0; t < k; t++) {
                     uint64_t lt = a001377_L[t], mt = a001377_M[t];
-                    uint64_t l4 = l3 / a001377_gcd(l3, lt) * lt;
+                    uint64_t l4 = l3 / gcd_u64(l3, lt) * lt;
                     c += mi * mj * ms * mt * (li * lj * ls * lt / l4);
                 }
             }
@@ -81,7 +101,7 @@ static void a001377_leaf(int k) {
             for (j = 0; j < a001377_M[i]; j++) z *= (seq_t)a001377_L[i];
             for (j = 2; j <= a001377_M[i]; j++) z *= (seq_t)j;
         }
-        a001377_sum += a001377_nf / z * a001377_pow2(c);
+        a001377_sum += a001377_nf / z * pow2_u64(c);
     }
 }
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 38, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   compute_initials
+ * Validated: partial, pass, 39 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,33 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/compute_initials.h"
+#include "../utils/mem.h"
+
+/* Brute‑force computation of a(0)…a(max)  (max ≤ 10).  Results are
+   placed in cache[0 … max].  The enumeration counts 4‑tuples
+   (w,x,y,z)∈{0,…,m}⁴ with w = floor((max—min)/2). */
+static void
+compute_initials(seq_t *cache, idx_t max)
+{
+    for (idx_t m = 0; m <= max; ++m) {
+        idx_t cnt = 0;
+        for (idx_t w = 0; w <= m; ++w)
+            for (idx_t x = 0; x <= m; ++x)
+                for (idx_t y = 0; y <= m; ++y)
+                    for (idx_t z = 0; z <= m; ++z) {
+                        idx_t mx = w, mn = w;
+                        if (x > mx) mx = x;
+                        if (y > mx) mx = y;
+                        if (z > mx) mx = z;
+                        if (x < mn) mn = x;
+                        if (y < mn) mn = y;
+                        if (z < mn) mn = z;
+                        idx_t R = mx - mn;
+                        if (w == R/2) ++cnt;
+                    }
+        cache[m] = (seq_t)cnt;
+    }
+}
 
 /* Ensure that *ptr points to an array of at least 'needed' elements.
    The array is grown by successive doubling to keep amortised
@@ -38,7 +65,7 @@ ensure_capacity(size_t needed, size_t *cap, seq_t **ptr)
     if (*cap >= needed) return;
     size_t new_cap = (*cap == 0) ? 1 : *cap;
     while (new_cap < needed) new_cap <<= 1;
-    *ptr = (seq_t *)realloc(*ptr, new_cap * sizeof(seq_t));
+    *ptr = mem_resize(seq_t, *ptr, new_cap);
     *cap = new_cap;
 }
 

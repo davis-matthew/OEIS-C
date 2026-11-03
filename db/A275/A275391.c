@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 1578, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 97 terms through n = 9668 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
 #include <stdbool.h>
 
 /* The mod_pow routine is provided by the Seq­ium library. */
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/powmod.h"
 
 #define MAX_PRIME 20000
 
@@ -73,7 +76,7 @@ static seq_t sigma_kpk_mod(uint64_t k, uint64_t mod)
             /* sum = (p^{E+1} - 1)/(p-1)  (exact division) */
             seq_t p_seq    = (seq_t)p;
             seq_t modmp    = denom * (seq_t)(p - 1);        /* mod * (p-1) */
-            seq_t pow_val  = mod_pow(p_seq, E + 1, modmp);
+            seq_t pow_val  = powmod(p_seq, E + 1, modmp);
             seq_t numerator = pow_val + modmp - 1;         /* = p^{E+1} - 1 (mod modmp) */
             seq_t sum = numerator / (seq_t)(p - 1);        /* exact division */
             sum = sum % denom;                            /* reduce modulo mod */
@@ -89,7 +92,7 @@ static seq_t sigma_kpk_mod(uint64_t k, uint64_t mod)
 
         seq_t p_seq    = (seq_t)p;
         seq_t modmp    = denom * (seq_t)(p - 1);        /* mod * (p-1) */
-        seq_t pow_val  = mod_pow(p_seq, E + 1, modmp);
+        seq_t pow_val  = powmod(p_seq, E + 1, modmp);
         seq_t numerator = pow_val + modmp - 1;         /* = p^{E+1} - 1 (mod modmp) */
         seq_t sum = numerator / (seq_t)(p - 1);        /* exact division */
         sum = sum % denom;                            /* reduce modulo mod */

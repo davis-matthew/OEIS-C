@@ -10,7 +10,8 @@
  *            terms and computes each new term using this recurrence
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* initialise first four terms */
     if (!initialized) {
         memo_len = 4;
-        memo = (seq_t *)malloc(memo_len * sizeof(seq_t));
+        memo = mem_new(seq_t, memo_len);
         memo[0] = 0;
         memo[1] = 0;
         memo[2] = 0;
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     /* extend memo table if necessary */
     if (n >= memo_len) {
         idx_t new_len = n + 1;
-        memo = (seq_t *)realloc(memo, new_len * sizeof(seq_t));
+        memo = mem_resize(seq_t, memo, new_len);
         for (idx_t i = memo_len; i < new_len; ++i) memo[i] = 0;
 
         for (idx_t i = memo_len; i <= n; ++i) {

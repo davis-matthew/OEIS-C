@@ -11,7 +11,8 @@
  *            appear. The function returns the value of a(n) f...
  * Range:     u8 n <= 21, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* --------- static cache --------- */
 static bool initialized = false;
@@ -38,11 +40,11 @@ static void ensure_terms_cap(size_t needed)
 {
     if (terms == NULL) {
         terms_cap = 256;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
     } else {
         while (terms_cap < needed) {
             terms_cap <<= 1;
-            terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+            terms = mem_resize(seq_t, terms, terms_cap);
         }
     }
 }
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
             if (is_prime[(size_t)i]) ++prime_cnt;
 
         /* ---- allocate prime array ---- */
-        primes = (seq_t *)malloc(prime_cnt * sizeof(seq_t));
+        primes = mem_new(seq_t, prime_cnt);
         if (!primes) { free(is_prime); exit(EXIT_FAILURE); }
         size_t pi = 0;
         for (idx_t i = 2; i <= LIMIT; ++i)
@@ -81,8 +83,8 @@ seq_t a(idx_t n)
 
         /* ---- composite array: 1 followed by all non‑prime numbers ---- */
         composite_cnt = LIMIT - prime_cnt + 1;   /* include 1 */
-        composites = (seq_t *)malloc(composite_cnt * sizeof(seq_t));
-        if (!composites) { free(is_prime); free(primes); exit(EXIT_FAILURE); }
+        composites = mem_new(seq_t, composite_cnt);
+        if (!composites) { free(is_prime); mem_free(primes); exit(EXIT_FAILURE); }
         composites[0] = (seq_t)1;
         size_t ci = 1;
         for (idx_t i = 2; i <= LIMIT; ++i)
@@ -105,7 +107,7 @@ seq_t a(idx_t n)
 
         if (prime_val > composite_val) {
             seq_t diff = prime_val - composite_val;
-            if (diff > 1 && is_prime_small(diff)) {
+            if (diff > 1 && is_prime_seq(diff)) {
                 ensure_terms_cap(terms_cnt + 1);
                 terms[terms_cnt++] = diff;
             }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 33, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 928 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,15 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 /* ---- Miller–Rabin primality test for 64‑bit unsigned integers ---- */
 static inline uint64_t mulmod(uint64_t a, uint64_t b, uint64_t mod) {
@@ -74,6 +84,16 @@ static size_t seq_len   = 0;
 static size_t seq_cap   = 0;
 static idx_t    next_k  = 1;      /* next integer k to test */
 
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size) {
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : *cap * 2;
+    if (new_cap < needed) new_cap = needed;
+    *ptr = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+    *cap = new_cap;
+}
+#else
 static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size) {
     if (needed <= *cap) return;
     size_t new_cap = (*cap == 0) ? 4 : *cap * 2;
@@ -81,6 +101,7 @@ static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_
     *ptr = realloc(*ptr, new_cap * elem_size);
     *cap = new_cap;
 }
+#endif
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;          /* undefined for offset 1, but safe */
@@ -89,7 +110,7 @@ seq_t a(idx_t n) {
     while (seq_len < (size_t)n) {
         uint64_t pk = (uint64_t)next_k * (uint64_t)next_k - 6;
         if (is_prime_uint64(pk)) {
-            ensure_capacity(seq_len + 1, &seq_cap, (void**)&seq_cache, sizeof(seq_t));
+            ensure_capacity(seq_len + 1, &seq_cap, OEISC_VPP(&seq_cache), sizeof(seq_t));
             seq_cache[seq_len++] = next_k;
         }
         ++next_k;

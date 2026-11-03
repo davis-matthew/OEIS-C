@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 10, u32 n <= 10, u64 n <= 10, u128 n <= 10,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 10 terms through n = 10 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *terms      = NULL;   /* list of sequence values */
 static size_t term_count = 0;      /* number of values stored */
@@ -93,7 +95,7 @@ static void init_sequence(void)
 
     init_cubes();
 
-    terms = (seq_t *)malloc(16 * sizeof(seq_t));
+    terms = mem_new(seq_t, 16);
     for (idx_t n = 0; n <= 15; ++n) {
         if (!can_represent(n))
             terms[term_count++] = (seq_t)n;

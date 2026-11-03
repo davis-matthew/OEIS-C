@@ -7,13 +7,36 @@
  * Formula:   a(1) = 1, a(n) = 2*a(n-1) + ceil(log10(n+1)) for n >= 2
  * Range:     u8 n <= 8, u16 n <= 15, u32 n <= 31, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   ceil_log10
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/ceil_log10.h"
+#include "../utils/mem.h"
+
+/* Return ceil(log10(x)) for unsigned 64‑bit integer x (x >= 2).  */
+static inline seq_t ceil_log10(idx_t x)
+{
+    /* Count decimal digits of x. */
+    idx_t digits = 0;
+    idx_t temp   = x;
+    while (temp > 0) {
+        temp   /= 10;
+        ++digits;
+    }
+
+    /* Check whether x is exactly a power of 10. */
+    idx_t pow10 = 1;
+    for (idx_t i = 1; i < digits; ++i)
+        pow10 *= 10;
+
+    if (pow10 == x)
+        return (seq_t)(digits - 1);   /* ceil(log10(10^k)) = k */
+    else
+        return (seq_t)digits;         /* otherwise digits = ceil(log10(x)) */
+}
 
 /* Cache storage for previously computed values. */
 static seq_t *cache      = NULL; /* 1‑based array: cache[1] = a(1) = 1 */
@@ -29,7 +52,7 @@ static void grow_cache(idx_t needed)
     while (new_cap < needed)
         new_cap <<= 1;
 
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) abort();           /* allocation failed */
     cache     = new_cache;
     cache_cap = new_cap;

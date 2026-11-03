@@ -10,18 +10,19 @@
  *            direct enumeration over x, y, z, solving for w
  * Range:     u8 n <= 45, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   a005880_isqrt
+ * Validated: standard, pass, 60 terms through n = 4706 (2026-11-01)
+ * Helpers:   isqrt_i64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a005880_isqrt.h"
+#include "../utils/isqrt_i64.h"
 
 seq_t a(idx_t n) {
     seq_t count = 0;
     long long M = 4LL * (long long)n + 2;
-    long long L = a005880_isqrt(M) + 1;
+    long long L = isqrt_i64(M) + 1;
     long long x, y, z;
 
     for (x = -L; x <= L; x++) {
@@ -39,7 +40,7 @@ seq_t a(idx_t n) {
                 r = M - C;
                 if (r % 4 != 0) continue;
                 q = r / 4;
-                w = a005880_isqrt(q);
+                w = isqrt_i64(q);
                 if (w * w != q) continue;
                 if (((x + y + z + w) & 1) != 0) continue;
                 if (w == 0) count += 1;

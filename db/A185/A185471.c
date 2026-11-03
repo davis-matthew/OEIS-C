@@ -11,13 +11,28 @@
  *            1401 c_12= 205 c_13= 14
  * Range:     u8 none, u16 n <= 1, u32 n <= 15, u64 n <= 132, u128 n <= 200,
  *            big any n
- * Helpers:   binom, mul_small
+ * Validated: standard, pass, 37 terms through n = 196 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
-#include "../utils/mul_small.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 seq_t a(idx_t n)
 {
@@ -33,7 +48,7 @@ seq_t a(idx_t n)
     seq_t result = 0;
     /* compute terms while k < n (since C(n-1, k) = 0 for k >= n) */
     for (idx_t k = 0; k < 14 && k < n; ++k) {
-        seq_t b = binom(n - 1, k);              /* binomial coefficient */
+        seq_t b = binomial(n - 1, k);              /* binomial coefficient */
         seq_t term = mul_small(b, (unsigned)coeff[k]); /* multiply by small integer */
         result += term;
     }

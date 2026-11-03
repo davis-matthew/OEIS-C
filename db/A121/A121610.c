@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 53, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   digits, is_prime_small, pow10
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   is_prime_seq, mem, num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,19 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "../utils/is_prime_small.h"
-#include "../utils/digits.h"
-#include "../utils/pow10.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/num_digits_idx.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 static seq_t *cache = NULL;
 static size_t cache_len = 0;
@@ -30,12 +41,12 @@ static idx_t next_candidate = 4;
 /* Test whether a seq_t number is composite. */
 static inline bool is_composite(seq_t x) {
     if (x <= (seq_t)3) return false;
-    return !is_prime_small(x);
+    return !is_prime_seq(x);
 }
 
 /* Return true if num can be split into two composite parts. */
 static bool has_two_composite_parts(seq_t num) {
-    int d = digits((idx_t)num);            /* number of decimal digits */
+    int d = num_digits_idx((idx_t)num);            /* number of decimal digits */
     for (int pos = 1; pos < d; ++pos) {
         seq_t pow = pow10((idx_t)(d - pos));
         seq_t left = num / pow;
@@ -50,7 +61,7 @@ static void grow_cache(size_t need) {
     if (need > cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
         if (new_cap < need) new_cap = need;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 }

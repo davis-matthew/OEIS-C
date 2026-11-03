@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   contains26_or62
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,19 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/contains26_or62.h"
+#include "../utils/mem.h"
+
+static bool contains26_or62(seq_t x) {
+    int prev = -1;             /* previous digit (-1 means none) */
+    while (x > 0) {
+        int digit = (int)(x % 10);
+        if ((digit == 2 && prev == 6) || (digit == 6 && prev == 2))
+            return true;
+        prev = digit;
+        x /= 10;
+    }
+    return false;
+}
 
 seq_t a(idx_t n) {
     static seq_t *cache      = NULL; /* cached values */
@@ -40,7 +53,7 @@ seq_t a(idx_t n) {
                 /* store k as next term */
                 if (cache_len == cache_cap) {
                     cache_cap = (cache_cap == 0) ? 4 : cache_cap * 2;
-                    cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cache_cap);
                 }
                 cache[cache_len++] = k;
                 break;

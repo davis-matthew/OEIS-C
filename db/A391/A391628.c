@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 39, u32 n <= 78, u64 n <= 156,
  *            u128 n <= 314, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 997 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #ifndef MAX_A
 #define MAX_A 10001   /* sufficient for n up to about 10 000 */
 #endif
+#include "../utils/mem.h"
 
 static seq_t cache[MAX_A];
 static idx_t cache_len = 0;  /* number of cached entries (next free index) */
@@ -83,7 +85,7 @@ seq_t a(idx_t n)
     seq_t prev[8] = {0};
     for (idx_t i = 0; i <= n; ++i) {
         if (i < cache_len) {
-            memcpy(prev, &cache[i - 7], 7 * sizeof(seq_t));
+            mem_copy(prev, &cache[i - 7], 7 * sizeof(seq_t));
         } else {
             /* shift values */
             for (idx_t j = 0; j < 7; ++j) prev[j] = prev[j + 1];

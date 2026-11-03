@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 none, u16 n <= 1, u32 n <= 1168, u64 n <= 9807,
- *            u128 n <= 9807, big any n
- * Helpers:   digit_len, pow10, seq_alloc_new_array
+ * Range:     u8 none, u16 n <= 1, u32 n <= 1168, u64 n <= 24527,
+ *            u128 n <= 24527, big any n
+ * Validated: standard, pass, 65 terms through n = 9807 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,15 +20,29 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/digit_len.h"
-#include "../utils/pow10.h"
+#include <string.h>
+#include <math.h>
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Helper to compute the run length of equal leading digits of x. */
 static unsigned leading_run(seq_t x)
 {
     seq_t temp = x;
-    unsigned len = digit_len(temp);
+    unsigned len = num_digits(temp);
     // numbers with fewer than two digits cannot be part of the sequence
     if (len < 2)
         return 1;
@@ -78,7 +93,7 @@ seq_t a(idx_t n)
                     seq_t *newarr = seq_alloc_new_array(newcap);
                     for (size_t i = 0; i < cache_len; ++i)
                         newarr[i] = cache[i];
-                    free(cache);
+                    mem_free(cache);
                     cache = newarr;
                     cache_cap = newcap;
                 }

@@ -11,6 +11,7 @@
  *            24 → k = 2 (base‑5 “2”), r = 4; a(24) = 4 + 1...
  * Range:     u8 n <= 79, u16 n <= 4499, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 84 terms through n = 9890 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

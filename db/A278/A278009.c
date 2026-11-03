@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 187 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* helper struct for adjacency lists */
 typedef struct {
@@ -100,7 +102,7 @@ seq_t a(idx_t n)
     }
 
     /* initialize dp_prev: all pairs (first,second) with first row constraint satisfied */
-    memset(dp_prev, 0, sizeof(dp_prev));
+    mem_set(dp_prev, 0, sizeof(dp_prev));
     for (int first = 0; first < 27; ++first) {
         if (patterns[first][0] != 0) continue;               /* (0,0) fixed */
         for (int second = 0; second < 27; ++second) {
@@ -111,7 +113,7 @@ seq_t a(idx_t n)
 
     /* iterate rows 3..n */
     for (int i = 3; (idx_t)i <= n; ++i) {
-        memset(dp_next, 0, sizeof(dp_next));
+        mem_set(dp_next, 0, sizeof(dp_next));
         for (int up = 0; up < 27; ++up) {
             for (int cur = 0; cur < 27; ++cur) {
                 seq_t val = dp_prev[up][cur];
@@ -124,7 +126,7 @@ seq_t a(idx_t n)
             }
         }
         /* copy dp_next to dp_prev for next iteration */
-        memcpy(dp_prev, dp_next, sizeof(dp_prev));
+        mem_copy(dp_prev, dp_next, sizeof(dp_prev));
     }
 
     /* finally sum over states where the last row satisfies its constraint */

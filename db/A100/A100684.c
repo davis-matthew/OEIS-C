@@ -10,20 +10,22 @@
  *            multiples of 8, at most one part equal to 4, and every odd part
  *            appearing with even multiplicity. Generating function:
  *            (1-x^4)*∏_{i≥1}(1+x^{2i})/(1-x^{2i-1})^2
- * Range:     u8 n <= 11, u16 n <= 32, u32 n <= 40, u64 n <= 40, u128 n <= 40,
- *            big any n
- * Helpers:   none
+ * Range:     u8 n <= 11, u16 n <= 32, u32 n <= 99, u64 n <= 330,
+ *            u128 n <= 1168, big any n
+ * Validated: standard, pass, 57 terms through n = 9901 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     idx_t M = 2 * n;                      /* target sum 2n   */
     size_t sz = (size_t)(M + 1);          /* array size      */
-    seq_t *dp = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, sz);
     if (!dp) return 0;                    /* allocation fail */
 
     /* initialise dp[0] = 1, others 0 */
@@ -48,6 +50,6 @@ seq_t a(idx_t n)
     }
 
     seq_t res = dp[M];
-    free(dp);
+    mem_free(dp);
     return res;
 }

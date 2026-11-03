@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 692, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   next_prime
+ * Validated: standard, pass, 61 terms through n = 9823 (2026-11-03)
+ * Helpers:   mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
 
 /* Utility from the build system – gives the next prime ≥ start. */
 #include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------ */
 /* Fibonacci modulo p – fast doubling                           */
@@ -126,7 +128,7 @@ static void ensure_cache_cap(size_t need)
     if (seq_cap >= need) return;
     size_t new_cap = seq_cap == 0 ? 64 : seq_cap * 2;
     while (new_cap < need) new_cap *= 2;
-    seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_cache = mem_resize(seq_t, seq_cache, new_cap);
     if (!seq_cache) abort();
     seq_cap = new_cap;
 }

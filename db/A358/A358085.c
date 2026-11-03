@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 511, u16 n <= 8192, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   bitlen_seq_t
+ * Validated: standard, pass, 80 terms through n = 8143 (2026-11-03)
+ * Helpers:   bit_length, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,9 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
+#include "../utils/mem.h"
 
 /* Static state */
 static seq_t *A   = NULL;     /* 1‑based sequence (A[0] dummy) */
@@ -40,7 +43,7 @@ static void grow_array(idx_t needed)
     if (new_cap == 0) new_cap = 4;
     while ((size_t)needed + 1 > new_cap) new_cap <<= 1;
     if (new_cap > cap) {
-        seq_t *tmp = (seq_t *)realloc(A, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, A, new_cap);
         if (!tmp) exit(1);
         A   = tmp;
         cap = new_cap;
@@ -67,7 +70,7 @@ static void ensure_up_to(idx_t n)
         unsigned counts[129] = {0};         /* max bitlen assumed < 129 */
         unsigned max_len     = 0;
         for (idx_t i = 1; i <= cur_len; ++i) {
-            unsigned l = bitlen_seq_t(A[i]);    /* binary length of A[i] */
+            unsigned l = bit_length(A[i]);    /* binary length of A[i] */
             if (l > max_len) max_len = l;
             ++counts[l];
         }
@@ -89,7 +92,7 @@ static void ensure_up_to(idx_t n)
         if (!row) exit(1);
 
         for (idx_t i = 1; i <= cur_len; ++i) {
-            unsigned l = bitlen_seq_t(A[i]);      /* length of term A[i] */
+            unsigned l = bit_length(A[i]);      /* length of term A[i] */
             unsigned pos = next[l]++;             /* target slot in row */
             row[pos] = (idx_t)i;                  /* store the position */
         }

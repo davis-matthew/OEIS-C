@@ -11,6 +11,7 @@
  *            ∏_{i=0..j-1} (1 - (r - k + 1) * (3*i - 2))
  * Range:     i8 n <= 12, i16 n <= 18, i32 n <= 25, i64 n <= 41, i128 n <= 63,
  *            big any n
+ * Validated: standard, pass, 61 terms through n = 442 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

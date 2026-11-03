@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 182, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 58 terms through n = 993 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *prime_mod55_cache = NULL;
 static size_t prime_mod55_count = 0;
@@ -31,7 +33,7 @@ static void grow_cache(size_t need)
     size_t new_cap = prime_mod55_cap ? prime_mod55_cap * 2 : 16;
     while (new_cap < need)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(prime_mod55_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, prime_mod55_cache, new_cap);
     if (!tmp)
         abort();
     prime_mod55_cache = tmp;
@@ -48,8 +50,10 @@ seq_t a(idx_t n)
     }
     while (prime_mod55_count < (size_t)n) {
         uint64_t candidate = 57 * next_k + 55;
-        if (is_prime((idx_t)candidate))
+        if (is_prime((idx_t)candidate)) {
+            grow_cache(prime_mod55_count + 1);      /* (it grew only once) */
             prime_mod55_cache[prime_mod55_count++] = (seq_t)candidate;
+        }
         ++next_k;
     }
     return prime_mod55_cache[n - 1];

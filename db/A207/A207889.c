@@ -10,7 +10,8 @@
  *            states
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 13, u64 n <= 31, u128 n <= 65,
  *            big any n
- * Helpers:   vertical_ok
+ * Validated: standard, pass, 37 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,18 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/vertical_ok.h"
+#include "../utils/mem.h"
+
+static inline bool vertical_ok(int mask) {
+    for (int r = 0; r <= 4; ++r) {                     /* 7 rows → 5 triples */
+        int a = (mask >> r) & 1;
+        int b = (mask >> (r + 1)) & 1;
+        int c = (mask >> (r + 2)) & 1;
+        if ((a == 0 && b == 1 && c == 1) || (a == 1 && b == 1 && c == 0))
+            return false;
+    }
+    return true;
+}
 
 seq_t a(idx_t n) {
     /* ---------- static pre‑computation of column states and transitions ---------- */
@@ -70,7 +82,7 @@ seq_t a(idx_t n) {
 
     /* ---------- DP for n >= 3 ---------- */
     const size_t pairs = S * S;
-    seq_t *dp  = (seq_t*)calloc(pairs, sizeof(seq_t));
+    seq_t *dp  = mem_new(seq_t, pairs);
     seq_t *tmp = NULL;
 
     /* start with all pairs having count 1 */
@@ -78,7 +90,7 @@ seq_t a(idx_t n) {
 
     /* iterate columns 3 … n */
     for (size_t step = 3; step <= (size_t)n; ++step) {
-        tmp = (seq_t*)calloc(pairs, sizeof(seq_t));
+        tmp = mem_new(seq_t, pairs);
         for (size_t p = 0; p < S; ++p) {
             for (size_t q = 0; q < S; ++q) {
                 seq_t cnt = dp[p * S + q];
@@ -91,7 +103,7 @@ seq_t a(idx_t n) {
                 }
             }
         }
-        free(dp);
+        mem_free(dp);
         dp = tmp;
     }
 
@@ -100,6 +112,6 @@ seq_t a(idx_t n) {
     for (size_t idx = 0; idx < pairs; ++idx) {
         total += dp[idx];
     }
-    free(dp);
+    mem_free(dp);
     return total;
 }

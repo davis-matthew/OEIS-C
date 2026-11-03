@@ -7,11 +7,13 @@
  * Formula:   a(n) = Sum_{k=1..n} C(n, floor(n/k))
  * Range:     u8 n <= 8, u16 n <= 17, u32 n <= 34, u64 n <= 67, u128 n <= 131,
  *            big any n
+ * Validated: standard, pass, 49 terms through n = 860 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 static seq_t my_binom(idx_t n, idx_t k)

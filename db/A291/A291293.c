@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 63, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   is_prime, sigma_of
+ * Validated: partial, pass, 85 terms through n = 86 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,8 +31,22 @@
 #include <stdbool.h>  /* bool */
 #include <string.h>   /* memset */
 
-#include "../utils/sigma_of.h"   /* seq_t sigma_of(idx_t n); */
-#include "../utils/is_prime.h"   /* bool is_prime(idx_t n); */
+#include "../utils/is_prime.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 static uint8_t *cache_vals = NULL;   /* 0–4 values, 0xFF = unknown */
 static size_t   cache_cap  = 0;       /* allocated size */

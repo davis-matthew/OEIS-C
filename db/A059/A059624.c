@@ -8,6 +8,7 @@
  *            3*binomial(n+9,11)
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 23, u64 n <= 210, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 44 terms through n = 998 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 
 /* Uses the provided binomial utility from the utils library */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* Computes the nth term of OEIS A059624 */

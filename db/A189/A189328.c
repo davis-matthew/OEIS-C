@@ -13,12 +13,14 @@
  *            +8*a(n-8) +3*a(n-9) -2*a(n-10) -5*a(n-11) -5*a(n-12)...
  * Range:     u8 n <= 35, u16 n <= 200, u32 n <= 200, u64 n <= 200,
  *            u128 n <= 200, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;      /* stored terms, 0‑based */
 static idx_t cache_len = 0;          /* number of stored terms */
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     if (cache_len == 0)
     {
         cache_len = 14;
-        seq_cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, cache_len);
         if (!seq_cache) abort();                  /* fatal allocation error */
 
         seq_cache[0] =  (seq_t)2;   /* a(1) */
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
     if (n > cache_len)
     {
         seq_t *new_cache =
-            (seq_t *)realloc(seq_cache, n * sizeof(seq_t));
+            mem_resize(seq_t, seq_cache, n);
         if (!new_cache) abort();                  /* fatal allocation error */
 
         seq_cache = new_cache;

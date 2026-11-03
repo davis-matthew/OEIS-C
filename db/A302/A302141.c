@@ -7,7 +7,8 @@
  * Formula:   a(n) = multiplicative order of 16 modulo (2n+1)
  * Range:     u8 n <= 259, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes, calc_phi, gcd, mod_pow
+ * Validated: standard, pass, 117 terms through n = 9919 (2026-11-01)
+ * Helpers:   build_primes, gcd, powmod, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,10 +19,12 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/gcd.h"
-#include "../utils/mod_pow.h"
-#include "../utils/calc_phi.h"
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/build_primes.h"
+#include "../utils/gcd.h"
+#include "../utils/powmod.h"
+#include "../utils/totient_seq.h"
 
 static seq_t _order16_mod(seq_t m)
 {
@@ -30,7 +33,7 @@ static seq_t _order16_mod(seq_t m)
         return (seq_t)1;          /* by definition a(0) = 1 */
 
     /* φ(m) -- guaranteed ≤ m-1 <= 20000 for n ≤ 10000 */
-    seq_t phi_seq = calc_phi(m);
+    seq_t phi_seq = totient_seq(m);
     uint64_t phi = (uint64_t)phi_seq;
 
     /* Sieve primes up to φ(m) for factorisation. */
@@ -51,7 +54,7 @@ static seq_t _order16_mod(seq_t m)
             while (temp % p == 0)
                 temp /= p;                  /* strip factor from φ(m) */
             while (order % p == 0) {
-                if (mod_pow((seq_t)16, order / p, m) == (seq_t)1)
+                if (powmod((seq_t)16, order / p, m) == (seq_t)1)
                     order /= p;
                 else
                     break;
@@ -61,7 +64,7 @@ static seq_t _order16_mod(seq_t m)
     if (temp > 1) {                   /* remaining prime factor */
         uint64_t p = temp;
         while (order % p == 0) {
-            if (mod_pow((seq_t)16, order / p, m) == (seq_t)1)
+            if (powmod((seq_t)16, order / p, m) == (seq_t)1)
                 order /= p;
             else
                 break;

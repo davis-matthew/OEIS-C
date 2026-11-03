@@ -5,14 +5,16 @@
  * Offset:    70    (a(70) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = binom(n,70) (i.e. the binomial coefficient C(n,70))
- * Range:     u8 n <= 71, u16 n <= 73, u32 n <= 77, u64 n <= 89, u128 n <= 131,
+ * Range:     u8 n <= 71, u16 n <= 73, u32 n <= 77, u64 n <= 89, u128 n <= 132,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 32 terms through n = 9822 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -32,6 +34,6 @@ seq_t a(idx_t n)
         }
         return res;
     } else {
-        return binom(n, 70u);
+        return binomial(n, 70u);
     }
 }

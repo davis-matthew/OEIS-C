@@ -9,15 +9,23 @@
  *            Riordan triangle * T(r,c) = 2^c ⋅ binomial(c, r‑c)
  * Range:     u8 n <= 32, u16 n <= 100, u32 n <= 317, u64 n <= 1162,
  *            u128 n <= 4254, big any n
- * Helpers:   binomial, pow2, seq_mul
+ * Validated: standard, pass, 94 terms through n = 5002 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binomial.h"   /* seq_t binomial(idx_t a, idx_t b); */
-#include "../utils/pow2.h"       /* seq_t pow2(idx_t exp); */
-#include "../utils/seq_mul.h"    /* seq_t seq_mul(seq_t a, seq_t b); */
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/binomial.h"
+#include "../utils/pow2.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Integer square‑root of a 64‑bit value.
  * Returns ⌊√x⌋ using binary search.  */

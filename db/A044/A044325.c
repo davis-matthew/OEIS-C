@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 889, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_82
+ * Validated: standard, pass, 63 terms through n = 9937 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,23 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_82.h"
+#include "../utils/mem.h"
+
+/* Helper to test whether a number has the substring "82" in its
+   base‑9 representation. */
+static inline bool has_82(seq_t x)
+{
+    if (x < 9) return false;
+    seq_t last = x % 9;
+    x /= 9;
+    while (x > 0) {
+        seq_t cur = x % 9;
+        if (cur == 8 && last == 2) return true;
+        last = cur;
+        x /= 9;
+    }
+    return false;
+}
 
 /* Main sequence function. */
 seq_t a(idx_t n)
@@ -34,7 +51,7 @@ seq_t a(idx_t n)
     /* Grow the cache array as needed. */
     if (cache == NULL) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* Ensure we've found at least n terms. */
@@ -45,9 +62,9 @@ seq_t a(idx_t n)
             /* New qualifying term: add to cache. */
             if (cache_sz == cache_cap) {
                 size_t new_cap = cache_cap * 2;
-                seq_t *newp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *newp = mem_resize(seq_t, cache, new_cap);
                 if (newp == NULL) {           /* allocation failure */
-                    free(cache);
+                    mem_free(cache);
                     cache = NULL;
                     cache_sz = 0;
                     cache_cap = 0;

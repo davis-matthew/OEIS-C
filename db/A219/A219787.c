@@ -11,7 +11,8 @@
  *            right vertices n+1..a. The feasibility test uses Hopcroft–Karp
  * Range:     u8 n <= 99, u16 n <= 500, u32 n <= 500, u64 n <= 500,
  *            u128 n <= 500, big any n
- * Helpers:   _bfs
+ * Validated: standard, pass, 86 terms through n = 446 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,50 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/_bfs.h"
+
+static bool _bfs(idx_t n, idx_t a,
+                 int *dist, int *matchL, int *matchR)
+{
+    idx_t *queue = (idx_t*)malloc(n * sizeof(idx_t));
+    if (!queue) return false;
+    idx_t qh = 0, qt = 0;
+    const idx_t n1 = n + 1;
+    for (idx_t i = 1; i <= n; ++i)
+    {
+        if (matchL[i] == -1)
+        {
+            dist[i] = 0;
+            queue[qt++] = i;
+        }
+        else
+            dist[i] = -1;
+    }
+
+    bool found = false;
+    while (qh < qt)
+    {
+        idx_t i = queue[qh++];
+        /* first multiple of i that is > n */
+        idx_t first = ((n1 + i - 1) / i) * i;
+        for (idx_t m = first; m <= a; m += i)
+        {
+            idx_t r = m - n1;             /* right vertex index [0..a-n] */
+            idx_t j = matchR[r];
+            if (j == -1)
+            {
+                found = true;
+            }
+            else if (dist[j] == -1)
+            {
+                dist[j] = dist[i] + 1;
+                queue[qt++] = j;
+            }
+        }
+    }
+
+    free(queue);
+    return found;
+}
 
 static bool _dfs(idx_t i, idx_t n, idx_t a,
                  int *dist, int *matchL, int *matchR)

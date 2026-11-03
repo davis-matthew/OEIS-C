@@ -8,6 +8,7 @@
  * Formula:   a(n) = product_{2<=x<y<=n+1} (x^2 + x*y + y^2)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 6,
  *            big any n
+ * Validated: partial, pass, 8 terms through n = 8 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

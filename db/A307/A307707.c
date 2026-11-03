@@ -9,8 +9,9 @@
  * Formula:   let t_m = m*(m+1)/2. For n with t_{m-1} < n ≤ t_m and j = n -
  *            t_{m-1} - 1, a(n) = { m/2 if m even (m-1)/2 + (j mod 2) if m odd
  *            }
- * Range:     u8 n <= 7832, u16 n <= 7832, u32 n <= 7832, u64 n <= 7832,
- *            u128 n <= 7832, big any n
+ * Range:     u8 n <= 11326, u16 n <= 11326, u32 n <= 11326, u64 n <= 11326,
+ *            u128 n <= 11326, big any n
+ * Validated: standard, pass, 123 terms through n = 7832 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   a(n) = 9! / A003873(31-n)
  * Range:     u8 none, u16 n <= 26, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /*         a(n) equals the n-th smallest hook product of all partitions of 9 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* compute hook product of a partition given in non‑increasing order */
 /* parts[0..len-1] contains the parts of the partition */
@@ -78,7 +80,7 @@ seq_t a(idx_t n)
         seq_t products[30];
         size_t count = 0;
         gen_parts(9, 9, 0, parts, &count, products);
-        qsort(products, count, sizeof(seq_t), cmp_seq);
+        mem_qsort(products, count, sizeof(seq_t), cmp_seq);
         for (size_t i = 0; i < count; ++i)
             table[i] = products[i];
         ready = 1;

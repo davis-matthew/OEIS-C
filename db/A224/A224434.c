@@ -9,12 +9,15 @@
  *            -304590*4^n*n + 74910*2^n*n - 18150*2^n*n^2
  * Range:     u8 none, u16 n <= 0, u32 n <= 5, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -22,8 +25,8 @@ seq_t a(idx_t n)
     seq_t N = (seq_t)n;
 
     /* Powers of 2 and 4 */
-    seq_t pow2n = big_pow((seq_t)2, N);
-    seq_t pow4n = big_pow((seq_t)4, N);
+    seq_t pow2n = ipow((seq_t)2, N);
+    seq_t pow4n = ipow((seq_t)4, N);
 
     /* n^2 */
     seq_t n2 = N * N;

@@ -8,14 +8,22 @@
  * Formula:   a(n) = Sum_{d|n} mu(d) * 2^{(n/d)-1} (for n > 1), a(1) = 0
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 33, u64 n <= 65, u128 n <= 129,
  *            big any n
- * Helpers:   alloc_seq_array
+ * Validated: standard, pass, 51 terms through n = 494 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/alloc_seq_array.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 /* Compute the Möbius function μ(n). Return +1, -1 or 0. */
 static int mobius(idx_t n)
@@ -57,7 +65,7 @@ static void ensure_pow2_idx(idx_t exp)
             new_cache[i] = pow2_cache[i];
         for (idx_t i = pow2_cache_len; i < new_len; ++i)
             new_cache[i] = new_cache[i-1] * (seq_t)2;
-        free(pow2_cache);
+        mem_free(pow2_cache);
     }
     pow2_cache = new_cache;
     pow2_cache_len = new_len;

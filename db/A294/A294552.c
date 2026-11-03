@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 18, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Bookkeeping arrays for the sequences and the used flag table. */
 static seq_t *a_vals = NULL;      /* a[0..] */
@@ -43,7 +45,7 @@ static void ensure_a_cap(size_t idx)
     if (idx < a_cap) return;
     size_t newcap = a_cap ? a_cap << 1 : 16;
     while (newcap <= idx) newcap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(a_vals, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_vals, newcap);
     if (!tmp) exit(1);
     a_vals = tmp;
     a_cap = newcap;
@@ -55,7 +57,7 @@ static void ensure_b_cap(size_t idx)
     if (idx < b_cap) return;
     size_t newcap = b_cap ? b_cap << 1 : 16;
     while (newcap <= idx) newcap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(b_vals, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, b_vals, newcap);
     if (!tmp) exit(1);
     b_vals = tmp;
     b_cap = newcap;
@@ -89,9 +91,9 @@ seq_t a(idx_t n)
     /* Lazy initialisation */
     if (!a_vals) {
         a_cap = 16;
-        a_vals = (seq_t *)calloc(a_cap, sizeof(seq_t));
+        a_vals = mem_new(seq_t, a_cap);
         b_cap = 16;
-        b_vals = (seq_t *)calloc(b_cap, sizeof(seq_t));
+        b_vals = mem_new(seq_t, b_cap);
         used_cap = 64;
         used = (bool *)calloc(used_cap, sizeof(bool));
         if (!a_vals || !b_vals || !used) exit(1);

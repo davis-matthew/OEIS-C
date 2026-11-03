@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 4, u32 n <= 12, u64 n <= 26, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define STATES 81          /* 3^4 possible rows */
 #define MAXC    9          /* possible constants C = sum – 2*min (0..8) */
@@ -97,7 +99,7 @@ static void init(void)
 
     /* Allocate the result table. */
     res_cap = 1;
-    res = (seq_t *)malloc(res_cap * sizeof(seq_t));
+    res = mem_new(seq_t, res_cap);
     res[0] = 0;          /* unused; a(0) is not defined */
     max_computed = 0;
 }
@@ -110,7 +112,7 @@ seq_t a(idx_t n)
     if (n > max_computed) {
         /* Ensure result array large enough. */
         if ((size_t)(n + 1) > res_cap) {
-            seq_t *tmp = (seq_t *)realloc(res, (n + 1) * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, res, (n + 1));
             if (!tmp) abort();          /* fatal memory error */
             res = tmp;
             res_cap = n + 1;
@@ -120,7 +122,7 @@ seq_t a(idx_t n)
         for (idx_t step = max_computed + 1; step <= n; ++step) {
             /* Zero dp_next. */
             for (int C = 0; C < MAXC; ++C)
-                memset(dp_next[C], 0, STATES * sizeof(seq_t));
+                mem_set(dp_next[C], 0, STATES * sizeof(seq_t));
 
             /* Propagate one step for each constant. */
             for (int C = 0; C < MAXC; ++C) {
@@ -144,7 +146,7 @@ seq_t a(idx_t n)
 
             /* Copy dp_next into dp_cur for next iteration. */
             for (int C = 0; C < MAXC; ++C)
-                memcpy(dp_cur[C], dp_next[C], STATES * sizeof(seq_t));
+                mem_copy(dp_cur[C], dp_next[C], STATES * sizeof(seq_t));
         }
 
         max_computed = n;

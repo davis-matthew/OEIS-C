@@ -10,13 +10,30 @@
  *            x^9 / (x - 1)^7
  * Range:     u8 n <= 11, u16 n <= 19, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   binom6
+ * Validated: partial, pass, 31 terms through n = 39 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom6.h"
+
+/* Compute binomial coefficient C(k,6) = k*(k-1)*...*(k-5)/720.
+   For k < 6 the result is 0.  */
+static seq_t binom6(idx_t k)
+{
+    if (k < 6)
+        return 0;
+    unsigned __int128 num = 1;
+    num *= (unsigned __int128)(k);
+    num *= (unsigned __int128)(k - 1);
+    num *= (unsigned __int128)(k - 2);
+    num *= (unsigned __int128)(k - 3);
+    num *= (unsigned __int128)(k - 4);
+    num *= (unsigned __int128)(k - 5);
+    num /= 720;                     /* 720 = 6! */
+    return (seq_t)num;
+}
 
 seq_t a(idx_t n)
 {

@@ -9,8 +9,9 @@
  * Formula:   a(n) = (7 n^12 + 42 n^11 - 105 n^10 - 1918 n^9 + 6097 n^8 + 6214
  *            n^7 - 39011 n^6 + 16198 n^5 + 73556 n^4 - 62776 n^3 - 40544 n^2
  *            + 42240 n) / 322560
- * Range:     u8 none, u16 n <= 3, u32 n <= 5, u64 n <= 29, u128 n <= 29,
+ * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 29, u128 n <= 29,
  *            big any n
+ * Validated: standard, pass, 29 terms through n = 29 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

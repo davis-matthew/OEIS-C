@@ -13,15 +13,40 @@
  *            offs...
  * Range:     u8 n <= 31, u16 n <= 60, u32 n <= 143, u64 n <= 337,
  *            u128 n <= 880, big any n
- * Helpers:   _diag_for_n, binomial, factorial
+ * Validated: standard, pass, 82 terms through n = 1190 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/factorial.h"
-#include "../utils/_diag_for_n.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
+
+static idx_t _diag_for_n(idx_t n) {
+    idx_t low = 2, high = 2;
+    while ((unsigned __int128)(high - 1) * high / 2 < n)
+        high <<= 1;                     /* double until high is enough */
+    while (low < high) {
+        idx_t mid = low + (high - low) / 2;
+        if ((unsigned __int128)(mid - 1) * mid / 2 >= n)
+            high = mid;
+        else
+            low = mid + 1;
+    }
+    return low;                         /* d = low */
+}
 
 static seq_t _T_value(idx_t m, idx_t n) {
     idx_t mn = m < n ? m : n;

@@ -10,6 +10,7 @@
  *            = 750, a(5) = 3735. The function returns a(n) for every n ≥ 0
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 13, u64 n <= 27, u128 n <= 55,
  *            big any n
+ * Validated: standard, pass, 41 terms through n = 780 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 57, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   has_adjacent_diff_one
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,26 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_adjacent_diff_one.h"
+#include "../utils/mem.h"
+
+/* Convert a 64‑bit integer to seq_t and test if the number has an adjacent
+   digit pair differing by 1.  The function operates purely on idx_t values. */
+static bool has_adjacent_diff_one(idx_t x)
+{
+    /* Numbers with fewer than two digits cannot satisfy the property. */
+    if (x < 10) return false;
+
+    int prev = x % 10;
+    x /= 10;
+    while (x > 0) {
+        int curr = x % 10;
+        int diff = curr > prev ? curr - prev : prev - curr;
+        if (diff == 1) return true;
+        prev = curr;
+        x /= 10;
+    }
+    return false;
+}
 
 /* Dynamic cache of already found sequence terms. */
 static seq_t *cache = NULL;
@@ -33,7 +53,7 @@ static void ensure_cache_cap(size_t need)
     if (cache_cap < need) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 8;
         if (new_cap < need) new_cap = need;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();          /* insufficient memory */
         cache = tmp;
         cache_cap = new_cap;

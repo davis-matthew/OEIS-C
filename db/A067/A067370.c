@@ -10,7 +10,8 @@
  *            Stirling number of the first kind
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 19, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 446 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* dynamic arrays for factorials and unsigned Stirling numbers of the first
    kind with k = 2 */
@@ -33,7 +35,7 @@ static void ensure_fact(idx_t n)
     if (fact_len > (size_t)n) return;
     size_t new_len = (size_t)n + 1;
     /* realloc with cast to support arbitrary-precision seq_t */
-    fact = (seq_t *)realloc(fact, new_len * sizeof *fact);
+    fact = mem_resize(seq_t, fact, (new_len * sizeof *fact) / sizeof(seq_t));
     /* initialise new entries */
     if (fact_len == 0) {
         /* 0! = 1 */
@@ -52,7 +54,7 @@ static void ensure_stirr(idx_t n)
 {
     if (stirr_len > (size_t)n) return;
     size_t new_len = (size_t)n + 1;
-    stirr = (seq_t *)realloc(stirr, new_len * sizeof *stirr);
+    stirr = mem_resize(seq_t, stirr, (new_len * sizeof *stirr) / sizeof(seq_t));
     if (stirr_len == 0) {
         /* base values:
            s(0,2)=0, s(1,2)=0, s(2,2)=1 */

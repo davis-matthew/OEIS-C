@@ -8,13 +8,15 @@
  * Formula:   a(n) = Count_{k ≤ n} (μ(k) = 1)
  * Range:     u8 n <= 841, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 96 terms through n = 8633 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Here μ(n) is the Möbius function.          */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static size_t  cache_n  = 0;      /* largest n processed so far   */
 static uint64_t *spf   = NULL;    /* smallest prime factor array   */
@@ -28,7 +30,7 @@ static void grow_cache(size_t max_n)
     size_t i, n = max_n + 1;  /* include index 0 */
     uint64_t *new_spf = (uint64_t *)calloc(n, sizeof(uint64_t));
     int      *new_mu  = (int      *)malloc(n * sizeof(int));
-    seq_t    *new_pref= (seq_t    *)malloc(n * sizeof(seq_t));
+    seq_t    *new_pref= mem_new(seq_t, n);
 
     if (!new_spf || !new_mu || !new_pref) return; /* allocation fail */
 
@@ -58,7 +60,7 @@ static void grow_cache(size_t max_n)
     /* Replace old arrays. */
     free(spf);
     free(mu);
-    free(pref);
+    mem_free(pref);
     spf   = new_spf;
     mu    = new_mu;
     pref  = new_pref;

@@ -7,9 +7,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 434, u16 n <= 2164, u32 n <= 9605, u64 n <= 9605,
- *            u128 n <= 9605, big any n
- * Helpers:   none
+ * Range:     u8 n <= 434, u16 n <= 2164, u32 n <= 14589, u64 n <= 20300,
+ *            u128 n <= 20300, big any n
+ * Validated: standard, pass, 107 terms through n = 9605 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* bounds sufficient for all n up to about 10 000 */
 #define MAXK 200
@@ -38,7 +40,7 @@ static bool initialized = false;
 static void init(void)
 {
     size_t sz = (size_t)(MAXK + 1) * (MAXK + 1);
-    dp = (seq_t *)calloc(sz, sizeof(seq_t));
+    dp = mem_new(seq_t, sz);
     if (dp == NULL)            /*  out of memory – caller will not use the function  */
         return;
 

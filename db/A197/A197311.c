@@ -11,12 +11,14 @@
  *            a(5)=9, a(6)=6, a(7)=27
  * Range:     u8 n <= 10, u16 n <= 20, u32 n <= 40, u64 n <= 77, u128 n <= 150,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;        /* 1‑based cache of previously computed terms */
 static idx_t a_cache_size = 0;       /* one past the largest index stored */
@@ -35,8 +37,7 @@ seq_t a(idx_t n)
     if (n >= a_cache_size)
     {
         idx_t newsize = n + 1;    /* include index 0 */
-        seq_t *tmp = (seq_t *)realloc(a_cache,
-                                      (size_t)newsize * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, (size_t)newsize);
         if (!tmp)                 /* out of memory – abort gracefully */
             return 0;
         a_cache = tmp;

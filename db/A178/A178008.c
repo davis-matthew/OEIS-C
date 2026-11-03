@@ -11,14 +11,26 @@
  *            cases: a(0)=a(1)=a(2)=1
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 16, u64 n <= 25, u128 n <= 40,
  *            big any n
- * Helpers:   subtree_size
+ * Validated: standard, pass, 42 terms through n = 471 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/subtree_size.h"
+#include "../utils/mem.h"
+
+/* Recursive size of the subtree rooted at 'node' in a heap of size 'n'.
+ * The children of node i are 3*i-1, 3*i, 3*i+1 (1‑based indexing). */
+static idx_t subtree_size(idx_t node, idx_t n)
+{
+    if (node > n) return (idx_t)0;
+    return (idx_t)1
+           + subtree_size(3 * node - (idx_t)1, n)
+           + subtree_size(3 * node,     n)
+           + subtree_size(3 * node + (idx_t)1, n);
+}
 
 /* --- Internal helpers --------------------------------------------------- */
 /* Multiplicative binomial coefficient: binom(n,k) for idx_t indices. */
@@ -49,13 +61,13 @@ seq_t a(idx_t n)
     if ((size_t)n >= a_cap) {
         size_t new_cap = n + 1;
         if (a_cap == 0) {
-            a_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+            a_cache = mem_new(seq_t, new_cap);
             a_seen  = (unsigned char *)malloc(new_cap * sizeof(unsigned char));
             if (!a_cache || !a_seen) { /* allocation failure */
                 return (seq_t)0;
             }
         } else {
-            a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+            a_cache = mem_resize(seq_t, a_cache, new_cap);
             a_seen  = (unsigned char *)realloc(a_seen,  new_cap * sizeof(unsigned char));
             if (!a_cache || !a_seen) {
                 return (seq_t)0;

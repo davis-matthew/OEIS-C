@@ -7,12 +7,15 @@
  * Formula:   a(n) = ceil((n+1/3)^n) = ((3n+1)^n + 3^n - 1) / 3^n
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 24,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 34 terms through n = 281 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -40,8 +43,8 @@ seq_t a(idx_t n)
 
     /* For arbitrary‑precision seq_t, rely on seq_pow. */
     seq_t base = (seq_t)(3 * n + 1);
-    seq_t den  = seq_pow((seq_t)3, n);
-    seq_t num  = seq_pow(base, n);
+    seq_t den  = ipow_idx((seq_t)3, n);
+    seq_t num  = ipow_idx(base, n);
 
     seq_t tmp = num + den - (seq_t)1;
     return tmp / den;

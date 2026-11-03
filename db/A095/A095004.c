@@ -9,12 +9,14 @@
  *            1, a(2) = 10, a(3) = 81
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
 
     /* Resize cache to accommodate up to index n */
     idx_t new_size = n;
-    seq_t *new_cache = (seq_t *)malloc((size_t)new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, (size_t)new_size);
     if (new_cache == NULL) {
         /* If allocation fails, do not change existing cache; return 0 */
         return (seq_t)0;
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
     }
 
     /* Free old cache and update pointers */
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
     cache_size = new_size;
 

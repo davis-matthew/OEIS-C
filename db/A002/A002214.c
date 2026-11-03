@@ -13,17 +13,46 @@
  *            [x^k]...
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 18, u64 n <= 33, u128 n <= 61,
  *            big any n
- * Helpers:   a002214_S2, a002214_fixedw, a002214_tri, a002214_ub
+ * Validated: standard, pass, 45 terms through n = 186 (2026-11-03)
+ * Helpers:   mem, triangular_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/a002214_S2.h"
-#include "../utils/a002214_fixedw.h"
-#include "../utils/a002214_tri.h"
-#include "../utils/a002214_ub.h"
+#include "../utils/triangular_seq.h"
+#include "../utils/mem.h"
+
+static seq_t a002214_S2(const seq_t *u, idx_t k) {
+    seq_t s = 0;
+    idx_t i;
+    for (i = 1; 2 * i < k; i++) s += u[i] * u[k - i];
+    if (k % 2 == 0) s += triangular_seq(u[k / 2]);
+    return s;
+}
+
+static int a002214_fixedw(void) {
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 200; i++) t <<= 1;
+    return t == 0;
+}
+
+/* u(k) via the holonomic recurrence (exact; used for arbitrary precision) */
+static seq_t a002214_ub(idx_t k) {
+    seq_t b2, b1;
+    idx_t j;
+    if (k == 0) return 0;
+    if (k == 1) return 1;
+    b2 = 1; b1 = 1;
+    for (j = 2; j <= k; j++) {
+        seq_t b = ((seq_t)(6 * j - 3) * b1 - (seq_t)(5 * j - 10) * b2) / (seq_t)(j + 1);
+        b2 = b1;
+        b1 = b;
+    }
+    return b1;
+}
 
 seq_t a(idx_t n) {
     if (n < 1) return 0;
@@ -44,7 +73,7 @@ seq_t a(idx_t n) {
     } else {
         /* fixed width: ring operations only (wraparound-safe), division by 3 via inverse */
         idx_t L = n + 2, k, i;
-        seq_t *u = (seq_t *)malloc((size_t)L * sizeof(seq_t));
+        seq_t *u = mem_new(seq_t, (size_t)L);
         seq_t U2n1, U2n, U3, t, C3, inv3, res;
         int r;
         u[0] = 0; u[1] = 1;
@@ -65,7 +94,7 @@ seq_t a(idx_t n) {
         if (n == 1) res += 1;
         if (n % 2 == 0) res += u[n / 2];
         res -= a002214_S2(u, n);
-        free(u);
+        mem_free(u);
         return res;
     }
 }

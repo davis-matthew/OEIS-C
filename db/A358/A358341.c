@@ -8,12 +8,14 @@
  *            3*binom(n,3) (with a(0)=0, a(3)=7)
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *pow2_cache = NULL;
 static seq_t *pow3_cache = NULL;
@@ -26,7 +28,7 @@ static void ensure_pow2(idx_t n)
     if (n + 1 <= pow2_len)
         return;
     idx_t newlen = n + 1;
-    seq_t *newcache = (seq_t *)realloc(pow2_cache, newlen * sizeof(seq_t));
+    seq_t *newcache = mem_resize(seq_t, pow2_cache, newlen);
     if (!newcache)
         exit(1);
     for (idx_t i = pow2_len; i < newlen; ++i) {
@@ -45,7 +47,7 @@ static void ensure_pow3(idx_t n)
     if (n + 1 <= pow3_len)
         return;
     idx_t newlen = n + 1;
-    seq_t *newcache = (seq_t *)realloc(pow3_cache, newlen * sizeof(seq_t));
+    seq_t *newcache = mem_resize(seq_t, pow3_cache, newlen);
     if (!newcache)
         exit(1);
     for (idx_t i = pow3_len; i < newlen; ++i) {

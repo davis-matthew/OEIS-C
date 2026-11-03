@@ -8,12 +8,13 @@
  * Formula:   a(n) = Product_{k=1..n} phi(k)
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 16, u64 n <= 24, u128 n <= 40,
  *            big any n
- * Helpers:   phi
+ * Validated: standard, pass, 42 terms through n = 458 (2026-11-01)
+ * Helpers:   totient_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/phi.h"
+#include "../utils/totient_u64.h"
 
 seq_t a(idx_t n) {
     static idx_t memo_n = 0;
@@ -22,7 +23,7 @@ seq_t a(idx_t n) {
     if (n < memo_n) {
         seq_t result = 1;
         for (idx_t k = 1; k <= n; k++) {
-            result *= (seq_t)phi(k);
+            result *= (seq_t)totient_u64(k);
         }
         return result;
     } else if (n == memo_n) {
@@ -30,7 +31,7 @@ seq_t a(idx_t n) {
     } else {
         seq_t result = memo_result;
         for (idx_t k = memo_n + 1; k <= n; k++) {
-            result *= (seq_t)phi(k);
+            result *= (seq_t)totient_u64(k);
         }
         memo_n = n;
         memo_result = result;

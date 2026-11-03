@@ -10,13 +10,15 @@
  *            a(0)=1, a(1)=4, a(2)=1, a(3)=20, …
  * Range:     u8 n <= 5, u16 n <= 20, u32 n <= 90, u64 n <= 299,
  *            u128 n <= 1080, big any n
- * Helpers:   binom, pow2
+ * Validated: standard, pass, 64 terms through n = 8694 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include <stdbool.h>
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
 
 static idx_t _row_from_index(idx_t n)
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     idx_t c = n - (idx_t)r_tri;
 
     /* Compute T(r,c) via the closed form */
-    seq_t val = binom(2 * (r + 1), r - c);          /* C(2*(r+1), r-c) */
+    seq_t val = binomial(2 * (r + 1), r - c);          /* C(2*(r+1), r-c) */
     val = val * pow2(r - c);                       /* * 2^(r-c) */
     val = val * (seq_t)(c + 1);                    /* * (c+1) */
     val = val / (seq_t)(r + 1);                    /* / (r+1) */

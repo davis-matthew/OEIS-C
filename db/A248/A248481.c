@@ -11,7 +11,8 @@
  *            on demand and memoises them across calls
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 6, u128 n <= 6,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: full, pass, 6 terms through n = 6 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,26 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/floor_sqrt.h"   /* floor_sqrt(seq_t) returns ⌊√x⌋ */
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 seq_t a(idx_t n) {
     /* Fail fast for n < 1 */
@@ -34,7 +54,7 @@ seq_t a(idx_t n) {
     /* Allocate initial cache on first call */
     if (sol_cap == 0) {
         sol_cap = 16;
-        solutions = (seq_t*)malloc(sol_cap * sizeof(seq_t));
+        solutions = mem_new(seq_t, sol_cap);
         if (solutions == NULL) return 0;  /* allocation failure */
     }
 
@@ -51,10 +71,10 @@ seq_t a(idx_t n) {
                 /* Grow solutions array if needed */
                 if (sol_len >= sol_cap) {
                     size_t new_cap = sol_cap * 2;
-                    seq_t *tmp = (seq_t*)realloc(solutions, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, solutions, new_cap);
                     if (tmp == NULL) {
                         /* Allocation failure – abort further work */
-                        free(solutions);
+                        mem_free(solutions);
                         solutions = NULL;
                         sol_cap = sol_len = 0;
                         return 0;

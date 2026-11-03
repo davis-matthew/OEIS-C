@@ -11,7 +11,8 @@
  *            squares summing to n
  * Range:     u8 n <= 18, u16 n <= 33, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *f = NULL;          /* total compositions of i into squares */
 static uint8_t *is_sq = NULL;    /* is i a perfect square? */
@@ -36,7 +38,7 @@ static void ensure(idx_t n)
     size_t new_cap = (size_t)(n + 1);
 
     /* Re‑allocate arrays – cast to avoid C++ void* conversion error */
-    f = (seq_t *)realloc(f, new_cap * sizeof(seq_t));
+    f = mem_resize(seq_t, f, new_cap);
     is_sq = (uint8_t *)realloc(is_sq, new_cap * sizeof(uint8_t));
     pairs = (idx_t *)realloc(pairs, new_cap * sizeof(idx_t));
 

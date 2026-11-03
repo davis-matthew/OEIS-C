@@ -7,8 +7,9 @@
  * Offset:    2    (a(2) is the first term)
  * Keywords:  nonn, look
  * Formula:   a(n) = A003415(n) mod A001414(n)
- * Range:     u8 n <= 1075, u16 n <= 9397, u32 n <= 9397, u64 n <= 9397,
- *            u128 n <= 9397, big any n
+ * Range:     u8 n <= 1075, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 120 terms through n = 9397 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

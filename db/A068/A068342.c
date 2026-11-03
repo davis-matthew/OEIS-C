@@ -9,7 +9,8 @@
  *            (i.e. a(m) depends on the divisors of m‑1)
  * Range:     u8 n <= 8, u16 n <= 12, u32 n <= 16, u64 n <= 20, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 /* static state for memoisation */
 static seq_t *cache       = NULL;   /* cache[i] holds a(i), 1‑based          */
@@ -30,14 +32,14 @@ static void ensure_cap(idx_t n)
     size_t needed = (size_t)n + 1;
     if (needed <= cache_cap)
         return;
-    seq_t *new_cache = (seq_t*)malloc(needed * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, needed);
     if (!new_cache)
         abort();                     /* allocation failure */
 
     if (cache) {
         /* copy already computed values (0 … computed_max) */
-        memcpy(new_cache, cache, (computed_max + 1) * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_cache, cache, (computed_max + 1) * sizeof(seq_t));
+        mem_free(cache);
     }
 
     cache     = new_cache;

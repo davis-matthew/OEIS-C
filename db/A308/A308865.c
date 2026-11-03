@@ -10,12 +10,14 @@
  *            B_{2*n+1}. The values are cached for all n in any order of calls
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 5, u64 n <= 8, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* holds B[0 .. max]   */
 static idx_t  cache_len = 0;         /* total allocated size */
@@ -29,7 +31,7 @@ static void ensure_cache(idx_t m)
 
     /* grow array by realloc */
     idx_t new_len = m + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_len);
     if (!tmp)
         abort();                     /* out of memory */
     cache = tmp;

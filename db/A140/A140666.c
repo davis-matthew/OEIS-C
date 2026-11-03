@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     i8 n <= 111, i16 n <= 111, i32 n <= 111, i64 n <= 111,
  *            i128 n <= 111, big any n
+ * Validated: partial, pass, 111 terms through n = 111 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,6 +21,7 @@
    (exponent 0,2,4,…,p-3) and 0 at odd positions. */
 
 /* Include the helper function that recognises primes. */
+#include <stdbool.h>
 #include "../utils/is_prime.h"
 #include <stdbool.h>
 

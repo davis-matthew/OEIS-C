@@ -9,13 +9,32 @@
  * Formula:   a(n) = least member of each equivalence class for floor(n/x)
  * Range:     u8 n <= 85, u16 n <= 85, u32 n <= 85, u64 n <= 85, u128 n <= 85,
  *            big any n
- * Helpers:   row_elem
+ * Validated: partial, pass, 85 terms through n = 85 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/row_elem.h"
+
+static seq_t row_elem(idx_t n, idx_t pos) {
+    /* return pos-th element (0‑based) in row n */
+    seq_t prev_q = (seq_t)-1;
+    idx_t count = 0;
+    seq_t x = 1;
+    while (1) {
+        seq_t q = (seq_t)n / (seq_t)x;
+        if (q != prev_q) {
+            if (count == pos) return x;
+            ++count;
+            prev_q = q;
+        }
+        if (q == 0 && x == n + 1) break;
+        ++x;
+    }
+    /* pos refers to the last element (0‑based), which is n+1 */
+    return (seq_t)(n + 1);
+}
 
 static idx_t row_len(idx_t n) {
     /* number of distinct values floor(n/x) for x>=1 */

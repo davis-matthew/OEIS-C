@@ -9,14 +9,17 @@
  *            distinct prime divisors of n
  * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd, mul64
+ * Validated: standard, pass, 86 terms through n = 9761 (2026-11-01)
+ * Helpers:   gcd, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/gcd.h"
-#include "../utils/mul64.h"
+#include "../utils/mulmod.h"
 
 /* Return the denomin­ator of Σ_{d|n} μ(n/d)/d   (n ≥ 1). */
 seq_t a(idx_t n) {
@@ -31,7 +34,7 @@ seq_t a(idx_t n) {
 
     /* Factor 2 separately for a slight speed gain. */
     if ((temp & 1ULL) == 0) {
-        prod_mod = mul64(prod_mod, (uint64_t)1, orig);   /* (2-1) = 1 */
+        prod_mod = mulmod(prod_mod, (uint64_t)1, orig);   /* (2-1) = 1 */
         while ((temp & 1ULL) == 0) {
             temp >>= 1;
         }
@@ -40,7 +43,7 @@ seq_t a(idx_t n) {
     /* Trial division by odd numbers. */
     for (uint64_t p = 3; p <= temp / p; p += 2) {
         if (temp % p == 0) {
-            prod_mod = mul64(prod_mod, (p - 1ULL) % orig, orig);
+            prod_mod = mulmod(prod_mod, (p - 1ULL) % orig, orig);
             while (temp % p == 0) {
                 temp /= p;
             }
@@ -49,7 +52,7 @@ seq_t a(idx_t n) {
 
     /* If a prime factor remains > 1, include it. */
     if (temp > 1) {
-        prod_mod = mul64(prod_mod, (temp - 1ULL) % orig, orig);
+        prod_mod = mulmod(prod_mod, (temp - 1ULL) % orig, orig);
     }
 
     /* Compute gcd and the final denominator. */

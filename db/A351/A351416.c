@@ -9,6 +9,7 @@
  * Formula:   a(n) = Sum_{d|n} [[omega(d)=2] = mu(d)^2]
  * Range:     u8 n <= 95, u16 n <= 95, u32 n <= 95, u64 n <= 95, u128 n <= 95,
  *            big any n
+ * Validated: partial, pass, 95 terms through n = 95 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 /* Recursive helper to enumerate all divisors of n */

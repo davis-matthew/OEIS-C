@@ -11,13 +11,15 @@
  *            through cached results
  * Range:     u8 n <= 6, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* ----------  static data  ---------- */
 static seq_t  *g_cache      = NULL;  /* cached decade starts          */
@@ -92,8 +94,7 @@ extern seq_t a(idx_t n)
             /* store the decade start in the cache */
             if (g_cache_len == g_cache_cap) {
                 size_t new_cap = g_cache_cap ? g_cache_cap * 2 : 16;
-                seq_t *new_buf = (seq_t *)realloc(g_cache,
-                                                  new_cap * sizeof(seq_t));
+                seq_t *new_buf = mem_resize(seq_t, g_cache, new_cap);
                 if (!new_buf)
                     abort();   /* memory exhausted */
                 g_cache = new_buf;

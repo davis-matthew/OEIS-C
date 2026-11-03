@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, easy
  * Formula:   not stated
- * Range:     u8 n <= 9881, u16 n <= 9881, u32 n <= 9881, u64 n <= 9881,
- *            u128 n <= 9881, big any n
- * Helpers:   none
+ * Range:     u8 n <= 10922, u16 n <= 10922, u32 n <= 10922, u64 n <= 10922,
+ *            u128 n <= 10922, big any n
+ * Validated: standard, pass, 103 terms through n = 9881 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* initialise the buffer with the seed symbol '0' */
     if (buf == NULL) {
         buf_cap = 8;
-        buf = (seq_t *)malloc(buf_cap * sizeof(seq_t));
+        buf = mem_new(seq_t, buf_cap);
         if (buf == NULL) return 0;          /* out of memory → safe default */
         buf[0] = 0;
         buf_len = 1;
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
         if (new_len > buf_cap) {
             size_t new_cap = buf_cap ? buf_cap * 2 : 8;
             while (new_cap < new_len) new_cap *= 2;
-            seq_t *tmp = (seq_t *)realloc(buf, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, buf, new_cap);
             if (tmp == NULL) return 0;       /* out of memory → safe default */
             buf = tmp;
             buf_cap = new_cap;

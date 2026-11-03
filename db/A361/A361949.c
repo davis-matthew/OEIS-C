@@ -9,13 +9,15 @@
  *            starts at 1). The triangle entry is T(row, col) = C(3*row‑1,
  *            3*col‑1). The function computes row and col by subtracting
  *            successive row lengths from n
- * Range:     u8 n <= 7, u16 n <= 17, u32 n <= 45, u64 n <= 45, u128 n <= 45,
+ * Range:     u8 n <= 7, u16 n <= 23, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

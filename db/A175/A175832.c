@@ -8,12 +8,14 @@
  * Formula:   a(n) = number of integer solutions (p,q) ≥ 0 to 3^q − 2^p = n
  * Range:     u8 none, u16 n <= 16, u32 n <= 100, u64 n <= 100, u128 n <= 100,
  *            big any n
+ * Validated: partial, pass, 101 terms through n = 100 (2026-11-01)
  * Helpers:   pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/pow3.h"
 
 static inline bool is_power_of_two(seq_t x)

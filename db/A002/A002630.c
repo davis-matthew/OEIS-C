@@ -11,13 +11,14 @@
  *            integers; two 3-sequences arise from one block of length 4...
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 14, u64 n <= 22, u128 n <= 24,
  *            big any n
- * Helpers:   a2630_binom
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/a2630_binom.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n) {
     if (n < 4) return 0;
@@ -30,7 +31,7 @@ seq_t a(idx_t n) {
         {
             idx_t b = n - 3 - m, aa = m - 1;
             if (b <= aa) {
-                if (!inA) { cA = a2630_binom(aa, b); inA = true; }
+                if (!inA) { cA = binomial(aa, b); inA = true; }
                 total += (seq_t)m * cA * Tc;
                 if (b >= 1) {
                     cA = cA * (seq_t)(aa + 1) * (seq_t)b
@@ -42,7 +43,7 @@ seq_t a(idx_t n) {
         if (m >= 2 && m + 4 <= n) {
             idx_t b = n - 4 - m, aa = m - 2;
             if (b <= aa) {
-                if (!inB) { cB = a2630_binom(aa, b); inB = true; }
+                if (!inB) { cB = binomial(aa, b); inB = true; }
                 seq_t coef = (seq_t)m * (seq_t)(m - 1) / 2;
                 total += coef * cB * Tc;
                 if (b >= 1) {

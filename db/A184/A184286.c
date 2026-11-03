@@ -7,7 +7,8 @@
  * Formula:   a(n) = (1/(3n)) * Σ_{d|n} φ(n/d) * (5^{3d} + 2·5^{d·gcd(n/d,3)})
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 9, u128 n <= 18,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 30 terms through n = 98 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,9 @@
 /* This is a direct application of Burnside's lemma for the group C_n × C_3
    acting on n×3 arrays over the alphabet {0,1,2,3,4}.  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 #include <stdint.h>
 
 /* Euclidean algorithm for 64‑bit integers */
@@ -70,8 +73,8 @@ seq_t a(idx_t n)
             uint64_t exp0 = 3 * d;
             uint64_t exp1 = d * gcd_uint64(m, 3ULL);
 
-            seq_t pow0 = big_pow((seq_t)5, (seq_t)exp0);
-            seq_t pow1 = big_pow((seq_t)5, (seq_t)exp1);
+            seq_t pow0 = ipow((seq_t)5, (seq_t)exp0);
+            seq_t pow1 = ipow((seq_t)5, (seq_t)exp1);
 
             S0 = S0 + pow0 * (seq_t)phi_m;
             S1 = S1 + pow1 * (seq_t)phi_m;
@@ -85,8 +88,8 @@ seq_t a(idx_t n)
             uint64_t exp0 = 3 * d;
             uint64_t exp1 = d * gcd_uint64(m, 3ULL);
 
-            seq_t pow0 = big_pow((seq_t)5, (seq_t)exp0);
-            seq_t pow1 = big_pow((seq_t)5, (seq_t)exp1);
+            seq_t pow0 = ipow((seq_t)5, (seq_t)exp0);
+            seq_t pow1 = ipow((seq_t)5, (seq_t)exp1);
 
             S0 = S0 + pow0 * (seq_t)phi_m;
             S1 = S1 + pow1 * (seq_t)phi_m;

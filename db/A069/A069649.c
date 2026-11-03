@@ -9,7 +9,8 @@
  *            \,\prod_{1\le i<j\le n}(j-i)^2\Bigr)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 7, u128 n <= 10,
  *            big any n
- * Helpers:   seq_pow_seq_t
+ * Validated: partial, pass, 10 terms through n = 10 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,7 @@
    exponents are non‑negative.  */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/seq_pow_seq_t.h"
+#include "../utils/ipow_idx.h"
 
 /* main sequence function */
 seq_t a(idx_t n)
@@ -95,7 +96,7 @@ seq_t a(idx_t n)
     {
         if (spf[p] != p) continue;   /* not prime */
         int32_t e = exps[p];
-        if (e > 0) result *= seq_pow_seq_t((seq_t)p, (idx_t)e);
+        if (e > 0) result *= ipow_idx((seq_t)p, (idx_t)e);
         /* e should never be negative for a correct integer result */
     }
 

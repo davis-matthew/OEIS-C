@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 64, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -29,7 +30,7 @@
 #include <stddef.h>
 
 /*  Utilities --------------------------------------------------------------- */
-#include "../utils/is_prime.h"  /* is_prime(idx_t) */
+#include "../utils/is_prime.h"
 
 static seq_t  composites[COMPOSITE_CAP];
 static size_t composites_len = 0;   /* number of composites stored */

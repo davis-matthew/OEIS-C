@@ -8,12 +8,13 @@
  *            evaluated at x = 17/32 (with H_0 = 1, H_1 = 2x)
  * Range:     i8 n <= 1, i16 n <= 2, i32 n <= 6, i64 n <= 11, i128 n <= 15,
  *            big any n
- * Helpers:   seq_gcd
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_gcd.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +35,7 @@ seq_t a(idx_t n)
     seq_t a1_den = Q;                     /* denominator of H_k */
 
     /* Reduce H_1 to lowest terms */
-    seq_t g = seq_gcd(a1_num < (seq_t)0 ? -a1_num : a1_num, a1_den);
+    seq_t g = gcd(a1_num < (seq_t)0 ? -a1_num : a1_num, a1_den);
     if (g != (seq_t)1) { a1_num /= g; a1_den /= g; }
     if (a1_den < (seq_t)0) { a1_den = -a1_den; a1_num = -a1_num; }
 
@@ -51,7 +52,7 @@ seq_t a(idx_t n)
         seq_t t2_den = a0_den;
 
         /* Compute (term1 - term2) with least common denominator. */
-        seq_t g_common = seq_gcd(t1_den, t2_den);
+        seq_t g_common = gcd(t1_den, t2_den);
         seq_t d1_div = t1_den / g_common;   /* factor to bring term1 to common denom */
         seq_t d2_div = t2_den / g_common;   /* factor to bring term2 to common denom */
 
@@ -60,7 +61,7 @@ seq_t a(idx_t n)
 
         /* Reduce the resulting fraction */
         seq_t abs_num = num < (seq_t)0 ? -num : num;
-        seq_t g2 = seq_gcd(abs_num, den);
+        seq_t g2 = gcd(abs_num, den);
         if (g2 != (seq_t)1) { num /= g2; den /= g2; }
         if (den < (seq_t)0) { den = -den; num = -num; }
 

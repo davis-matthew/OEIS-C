@@ -12,13 +12,43 @@
  *            φ₂(2n-1) (FOIL: identity, two 90° rotations,...
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 8, u128 n <= 14,
  *            big any n
- * Helpers:   phi_four, phi_two
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/phi_four.h"
-#include "../utils/phi_two.h"
+/* φ₄(r) = Σ_{k=0}^{⌊r/2⌋} 2^k * r! / ((r-2k)! * k!) */
+static seq_t phi_four(idx_t r)
+{
+    seq_t sum = 1;          /* k = 0 term */
+    seq_t T   = 1;          /* T_k as above */
+    seq_t pow2 = 1;         /* 2^k */
+    for (idx_t k = 1; k <= r/2; ++k)
+    {
+        T = T * (seq_t)(r - 2*k + 2);
+        T = T * (seq_t)(r - 2*k + 1);
+        T = T / (seq_t)k;
+        pow2 = pow2 * 2;
+        sum += T * pow2;
+    }
+    return sum;
+}
+
+/* φ₂(r) = Σ_{k=0}^{⌊r/2⌋} r! / ((r-2k)! * k!) */
+static seq_t phi_two(idx_t r)
+{
+    seq_t sum = 1;          /* k = 0 term */
+    seq_t T   = 1;          /* T_k = r! / ((r-2k)! * k!) */
+    for (idx_t k = 1; k <= r/2; ++k)
+    {
+        T = T * (seq_t)(r - 2*k + 2); /* multiply by (r-2k+2) */
+        T = T * (seq_t)(r - 2*k + 1); /* multiply by (r-2k+1) */
+        T = T / (seq_t)k;            /* divide by k   */
+        sum += T;
+    }
+    return sum;
+}
 /* Compute (4n-1)!! by multiplying the odd numbers 1,3,5,...,4n-1 */
 static seq_t odd_double_factorial(idx_t n)
 {

@@ -10,14 +10,15 @@
  *            length of the principal cycle
  * Range:     u8 n <= 27, u16 n <= 2633, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a002052_isqrt
+ * Validated: standard, pass, 72 terms through n = 9973 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/a002052_isqrt.h"
+#include "../utils/isqrt_u64.h"
 
 static uint32_t *a002052_spf = NULL;
 static uint64_t a002052_lim = 0;
@@ -67,7 +68,7 @@ static uint64_t a002052_count(uint64_t m, uint64_t k, uint64_t p)
 static int a002052_test(uint64_t p)
 {
     long long P = (long long)p;
-    long long f = (long long)a002052_isqrt(p);
+    long long f = (long long)isqrt_u64(p);
     long long a, k, c, L = 0;
     uint64_t half = 0, kk;
 

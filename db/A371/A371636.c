@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   balanced_ternary, is_symmetric
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,94 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/balanced_ternary.h"
-#include "../utils/is_symmetric.h"
+#include "../utils/mem.h"
+
+/* Convert a non‑negative integer k to its balanced ternary digits
+   (msd first).  The digits are stored in array 'dig', length is returned.
+   The array must be large enough to hold the digits (≤ 50). */
+static size_t balanced_ternary(uint64_t k, int8_t *dig)
+{
+    if (k == 0)
+    {
+        dig[0] = 0;
+        return 1;
+    }
+    size_t pos = 0;
+    while (k > 0)
+    {
+        uint64_t r = k % 3;
+        if (r == 0)
+        {
+            dig[pos++] = 0;
+            k /= 3;
+        }
+        else if (r == 1)
+        {
+            dig[pos++] = 1;
+            k /= 3;
+        }
+        else /* r == 2 */
+        {
+            dig[pos++] = -1;
+            k = (k + 1) / 3;
+        }
+    }
+    /* Reverse to get msd first */
+    for (size_t i = 0; i < pos / 2; ++i)
+    {
+        int8_t tmp = dig[i];
+        dig[i] = dig[pos - 1 - i];
+        dig[pos - 1 - i] = tmp;
+    }
+    return pos;
+}
+
+/* Build triangle T_k and test for 3‑fold rotational symmetry.
+   Returns true if symmetric, false otherwise. */
+static bool is_symmetric(uint64_t k)
+{
+    /* Buffer for balanced digits (max 50). */
+    int8_t digits[50];
+    size_t m = balanced_ternary(k, digits);              /* number of digits */
+
+    /* Triangle data: up to 50 rows, each row length ≤ 50. */
+    int8_t tri[50][50] = {0};
+
+    /* Base row (row 0). */
+    for (size_t c = 0; c < m; ++c)
+        tri[0][c] = digits[c];
+
+    /* Build upper rows. */
+    for (size_t r = 1; r < m; ++r)
+    {
+        for (size_t c = 0; c < m - r; ++c)
+        {
+            int sum = tri[r - 1][c] + tri[r - 1][c + 1];
+            int rem = sum % 3;
+            if (rem < 0) rem += 3;
+            if (rem == 0)
+                tri[r][c] = 0;
+            else if (rem == 1)
+                tri[r][c] = -1;
+            else /* rem == 2 */
+                tri[r][c] = 1;
+        }
+    }
+
+    /* Test rotational symmetry. */
+    for (size_t r = 0; r < m; ++r)
+    {
+        for (size_t c = 0; c < m - r; ++c)
+        {
+            size_t a = m - 1 - c - r;     /* a = m-1-c-r */
+            size_t r2 = a;                /* rotated row */
+            size_t c2 = r;                /* rotated column */
+            if (tri[r][c] != tri[r2][c2])
+                return false;
+        }
+    }
+    return true;
+}
 
 /* Forward declarations of utility functions that may or may not be available */
 #ifndef _COUNT
@@ -50,11 +137,11 @@ static void extend_terms()
     if (terms_len >= terms_cap)
     {
         size_t new_cap = (terms_cap == 0) ? 64 : terms_cap * 2;
-        seq_t *new_terms = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_terms = mem_new(seq_t, new_cap);
         if (!new_terms) return; /* allocation failure, give up */
         for (size_t i = 0; i < terms_len; ++i)
             new_terms[i] = terms[i];
-        free(terms);
+        mem_free(terms);
         terms = new_terms;
         terms_cap = new_cap;
     }

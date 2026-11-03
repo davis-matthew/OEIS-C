@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 82, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   divisor_count_u64
+ * Validated: standard, pass, 77 terms through n = 907 (2026-11-03)
+ * Helpers:   mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
 
 /* cache holding the computed terms of the sequence */
 static seq_t *cache      = NULL;
@@ -35,7 +37,7 @@ static void grow_cache(size_t need)
         while (new_cap < need) new_cap *= 2;
         /* In C++ a C‑style cast is allowed to convert the void* from realloc
            to the typed pointer seq_t*. */
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         if (!cache) abort();          /* allocation failure, terminate */
         cache_cap = new_cap;
     }
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
 {
     if (n < 1) return 0;                 /* undefined for n <= 0 */
     while (cache_size < (size_t)n) {      /* generate terms until we have n of them */
-        uint64_t d = divisor_count_u64((uint64_t)next_check);
+        uint64_t d = num_divisors((uint64_t)next_check);
         if (d == 4u || d == 5u || d == 7u) {
             grow_cache(cache_size + 1);
             cache[cache_size++] = (seq_t)next_check;

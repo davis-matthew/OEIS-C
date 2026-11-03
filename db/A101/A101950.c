@@ -10,16 +10,23 @@
  *            treated as 0). The OEIS sequence a(n) is the row‑major
  *            flattening of T: a(n)=T(r,k) where r,r+1 satisfy
  *            r(r+1)/2≤n<(r+1)(r+2)/2 and k=n−r(r+1)/2
- * Range:     i8 n <= 81, i16 n <= 84, i32 n <= 84, i64 n <= 84, i128 n <= 84,
- *            big any n
- * Helpers:   tri64
+ * Range:     i8 n <= 81, i16 n <= 264, i32 n <= 965, i64 n <= 1325,
+ *            i128 n <= 1325, big any n
+ * Validated: standard, pass, 101 terms through n = 1301 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/tri64.h"
+#include "../utils/mem.h"
+
+/* Integer triangular number using 128‑bit math to avoid overflow. */
+static inline __int128 tri64(idx_t x)
+{
+    return (__int128)x * (x + 1) / 2;
+}
 
 /* Static storage for the computed rows of the triangle. */
 static seq_t **triangle = NULL;
@@ -42,7 +49,7 @@ static void ensure_triangle(idx_t up_to)
 
     /* Row 0 is the base case. */
     if (triangle_rows == 0) {
-        triangle[0] = (seq_t*)malloc(sizeof(seq_t));
+        triangle[0] = mem_new(seq_t, 1);
         if (!triangle[0]) abort();
         triangle[0][0] = 1;
         triangle_rows = 1;
@@ -50,7 +57,7 @@ static void ensure_triangle(idx_t up_to)
 
     /* Compute successive rows from triangle_rows up to up_to. */
     for (idx_t n = triangle_rows; n <= up_to; ++n) {
-        seq_t *row = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (n + 1));
         if (!row) abort();
         triangle[n] = row;
 

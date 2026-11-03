@@ -9,12 +9,14 @@
  *            Σ_{t=1}^{min(s,m)} C(m,t) * f(m‑t,t) (s = 1…8)
  * Range:     u8 n <= 9, u16 n <= 12, u32 n <= 16, u64 n <= 23, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 403 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* --- Helper: binomial coefficient C(n,k) for k ≤ 8, computed safely -- */
 static seq_t binom(size_t n, size_t k)
@@ -40,7 +42,7 @@ static void ensure_dp(size_t max_n)
     f_cap           = max_n;
 
     /* Resize arrays */
-    f = (seq_t *)realloc(f, (f_cap + 1) * 9 * sizeof(seq_t));
+    f = mem_resize(seq_t, f, (f_cap + 1) * 9);
 
     /* Initialize new rows to zero */
     for (size_t n = old_cap + 1; n <= f_cap; ++n)

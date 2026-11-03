@@ -6,8 +6,9 @@
  * Keywords:  nonn, mult
  * Formula:   a(n) = ∏_{p^e‖n} (nextprime(p)-1)^e , a(1)=1 Fully
  *            multiplicative with a(prime_k) = prime_{k+1}-1
- * Range:     u8 n <= 80, u16 n <= 6560, u32 n <= 9815, u64 n <= 9815,
- *            u128 n <= 9815, big any n
+ * Range:     u8 n <= 80, u16 n <= 6560, u32 n <= 10205, u64 n <= 10205,
+ *            u128 n <= 10205, big any n
+ * Validated: standard, pass, 95 terms through n = 9815 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

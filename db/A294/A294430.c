@@ -10,12 +10,15 @@
  *            if k ≡ 0 (mod 4) and k > 0 (This covers all n ≥ 0.)
  * Range:     u8 n <= 9, u16 n <= 16, u32 n <= 16, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -26,13 +29,13 @@ seq_t a(idx_t n)
     /* Even n (n ≥ 2) */
     if ((n & 1) == 0) {
         idx_t k = n >> 1;                 /* k = n/2, k ≥ 1 */
-        seq_t p = seq_pow((seq_t)3, k - 1);
+        seq_t p = ipow_idx((seq_t)3, k - 1);
         return (seq_t)4 * p;              /* 4 * 3^(k-1) */
     }
 
     /* Odd n (n ≥ 3) */
     idx_t k = (n - 1) >> 1;                /* k = (n-1)/2 */
-    seq_t p = seq_pow((seq_t)3, k);        /* 3^k */
+    seq_t p = ipow_idx((seq_t)3, k);        /* 3^k */
     seq_t val = (seq_t)2 * p;              /* 2 * 3^k */
 
     if ((k & 1) == 0) {                   /* k even */

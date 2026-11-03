@@ -12,13 +12,14 @@
  *            (40*330/174611 ~ 0.07...
  * Range:     i8 n <= 1, i16 n <= 75, i32 n <= 75, i64 n <= 75, i128 n <= 75,
  *            big any n
- * Helpers:   a3245_gcd
+ * Validated: partial, pass, 76 terms through n = 75 (2026-11-01)
+ * Helpers:   gcd_i128
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/a3245_gcd.h"
+#include "../utils/gcd_i128.h"
 
 #define A3245_MAXM 20
 
@@ -38,14 +39,14 @@ static void a3245_init(void) {
             __int128 td = a3245_den[k];
             sn = sn * td + tn * sd;
             sd = sd * td;
-            g = a3245_gcd(sn, sd);
+            g = gcd_i128(sn, sd);
             if (g > 1) { sn /= g; sd /= g; }
             c = c * (m + 1 - k) / (k + 1);
         }
         sn = -sn;
         sd = sd * (m + 1);
         if (sd < 0) { sd = -sd; sn = -sn; }
-        g = a3245_gcd(sn, sd);
+        g = gcd_i128(sn, sd);
         if (g > 1) { sn /= g; sd /= g; }
         if (sn == 0) sd = 1;
         a3245_num[m] = sn;

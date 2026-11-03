@@ -7,13 +7,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 99, u16 n <= 695, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 951 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Sequence A029275: Number of partitions of n into parts 3, 5, 6 and 10. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
            indices 0 .. n.  Existing values are irrelevant because we will
            recompute the whole table. */
         idx_t new_size = n + 1;
-        seq_t *new_dp = (seq_t *)malloc(sizeof(seq_t) * new_size);
+        seq_t *new_dp = mem_new(seq_t, new_size);
         if (!new_dp) {
             /* Out of memory – return 0 (unlikely for the ranges used). */
             return (seq_t)0;
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
         }
 
         /* Replace the old table (if any). */
-        if (dp) free(dp);
+        if (dp) mem_free(dp);
         dp = new_dp;
         dp_size = new_size;
     }

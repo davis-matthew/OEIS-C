@@ -7,12 +7,14 @@
  * Formula:   a(n) = (1/n)*sum_{d|n} (phi(d)-mu(d))*3^(n/d)
  * Range:     u8 n <= 9, u16 n <= 19, u32 n <= 39, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute phi(n) for n>=1.  n is small (<= 10000) */
 static seq_t compute_phi(idx_t n)
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
         return 0;  /* a(0) = 0 by definition */
 
     /* Pre‑compute 3^k for k = 0..n */
-    seq_t *pow3 = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *pow3 = mem_new(seq_t, (size_t)(n + 1));
     if (!pow3)
         return 0;                  /* allocation failure → 0 (unlikely) */
     pow3[0] = 1;
@@ -110,6 +112,6 @@ seq_t a(idx_t n)
         }
     }
 
-    free(pow3);
+    mem_free(pow3);
     return sum / (seq_t)n;   /* exact division */
 }

@@ -8,13 +8,15 @@
  *            values: a(0)=0, a(1)=1, a(2)=1, a(3)=2, a(4)=1, a(5)=2, a(6)=0
  * Range:     i8 n <= 25, i16 n <= 50, i32 n <= 100, i64 n <= 199,
  *            i128 n <= 395, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 911 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static const seq_t base[7] = {0, 1, 1, 2, 1, 2, 0};
 
@@ -28,7 +30,7 @@ static void ensure_up_to(idx_t n)
     /* initialise cache on first call */
     if (!cache) {
         cache_cap = (size_t)( (n < 7) ? 7 : n + 1 );
-        cache     = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache     = mem_new(seq_t, cache_cap);
         /* copy base values */
         for (idx_t i = 0; i < 7; ++i) cache[i] = base[i];
         cache_len = 7;
@@ -39,9 +41,9 @@ static void ensure_up_to(idx_t n)
         size_t new_cap = cache_cap;
         if (new_cap == 0) new_cap = 1;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
-        memcpy(new_cache, cache, cache_len * sizeof(seq_t));
-        free(cache);
+        seq_t *new_cache = mem_new(seq_t, new_cap);
+        mem_copy(new_cache, cache, cache_len * sizeof(seq_t));
+        mem_free(cache);
         cache   = new_cache;
         cache_cap = new_cap;
     }

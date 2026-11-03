@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 218, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 940 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Dynamic programming table: counts of representations up to 3.
    dp_counts[k][s] = number of unordered ways to write s as the sum of exactly k
@@ -59,14 +61,14 @@ static void build_table(void)
 
     /* Collect numbers with at least three representations. */
     size_t cap = 10000;
-    terms = (seq_t*)malloc(cap * sizeof(seq_t));
+    terms = mem_new(seq_t, cap);
     terms_len = 0;
 
     for (idx_t s = 1; s <= MAXM; ++s) {
         if (dp_counts[K][(size_t)s] >= 3) {
             if (terms_len == cap) {
                 cap *= 2;
-                terms = (seq_t*)realloc(terms, cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, cap);
             }
             terms[terms_len++] = (seq_t)s;
             if (terms_len == 10000) break;

@@ -7,7 +7,8 @@
  * Formula:   a(n) = prime( d(n) ), where d(n) is the number of divisors of n
  * Range:     u8 n <= 5039, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 105 terms through n = 9878 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdalign.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static data used only in this file */
 static bool primes_initialized = false;
@@ -43,7 +45,7 @@ static void init_primes(void) {
     prime_count = 0;
     for (size_t i = 2; i <= limit; ++i) if (is_prime[i]) ++prime_count;
 
-    prime_list = (seq_t *)malloc(prime_count * sizeof(seq_t));
+    prime_list = mem_new(seq_t, prime_count);
     if (!prime_list) exit(1);
     size_t idx = 0;
     for (size_t i = 2; i <= limit; ++i)

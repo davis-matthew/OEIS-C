@@ -7,7 +7,8 @@
  * Formula:   a(n) = \sum_{k=1}^{\lfloor n/2 \rfloor} d(k)
  * Range:     u8 n <= 76, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 76 terms through n = 76 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage ------------------------------------------------------- */
 
@@ -55,10 +57,10 @@ static void ensure_cumulative(idx_t m)
 
     /* allocate temporary arrays */
     uint32_t *new_tau = (uint32_t *)calloc(new_cap, sizeof(uint32_t));
-    seq_t    *new_cum = (seq_t    *)calloc(new_cap, sizeof(seq_t));
+    seq_t    *new_cum = mem_new(seq_t, new_cap);
 
     if (!new_tau || !new_cum) {             /* allocation failed       */
-        free(new_tau); free(new_cum);
+        free(new_tau); mem_free(new_cum);
         return; /* fall back: leave the old arrays untouched */
     }
 
@@ -76,7 +78,7 @@ static void ensure_cumulative(idx_t m)
 
     /* replace old arrays (memory is freed; acceptable for short‑lived run) */
     free(tau);
-    free(cum);
+    mem_free(cum);
     tau     = new_tau;
     cum     = new_cum;
     tau_cap = new_cap;

@@ -11,6 +11,7 @@
  *            primes (p, q, r) with gaps (4, 2)
  * Range:     u8 n <= 8, u16 n <= 185, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 61 terms through n = 996 (2026-11-01)
  * Helpers:   is_prime, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,6 +21,8 @@
    Miller‑Rabin primality test (is_prime) and next_prime
    generator. */
 
+#include <stdbool.h>
+#include <stdint.h>
 #include "../utils/is_prime.h"
 #include "../utils/next_prime.h"
 

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 130, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   phi
+ * Validated: standard, pass, 92 terms through n = 7697 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,9 @@
 /* Find the least k such that φ(k+n) = 2·φ(k).  It is known that
  * such a k always exists and satisfies k ≤ 2·n.  We simply test
  * k = 1 .. 2·n until the condition holds. */
-#include "../utils/phi.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/totient.h"
 #include <stdbool.h>
 
 seq_t a(idx_t n)
@@ -29,8 +32,8 @@ seq_t a(idx_t n)
 
     for (idx_t k = 1; k <= limit; ++k)
     {
-        seq_t phi_k   = phi(k);         /* φ(k)  */
-        seq_t phi_knp = phi(k + n);     /* φ(k+n) */
+        seq_t phi_k   = totient(k);         /* φ(k)  */
+        seq_t phi_knp = totient(k + n);     /* φ(k+n) */
 
         /* 2·φ(k) fits safely into seq_t for k ≤ limit. */
         seq_t double_phi_k = (seq_t)2 * phi_k;

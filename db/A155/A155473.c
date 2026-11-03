@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 none, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* fast integer exponentiation (seq_t base ^ idx_t exp) */
 static seq_t pow_int(seq_t base, idx_t exp)
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
 
         /* estimate capacity */
         size_t capacity = (size_t)MAX_X * (size_t)MAX_Y;
-        seq_t *tmp = (seq_t *)malloc(capacity * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, capacity);
         if (!tmp) return 0;   /* allocation failure */
 
         size_t cnt = 0;
@@ -73,16 +75,16 @@ seq_t a(idx_t n)
         }
 
         /* Allocate exact sized cache and copy data */
-        cache = (seq_t *)malloc(cnt * sizeof(seq_t));
+        cache = mem_new(seq_t, cnt);
         if (!cache) {
-            free(tmp);
+            mem_free(tmp);
             return 0;
         }
         for (size_t i = 0; i < cnt; ++i) cache[i] = tmp[i];
-        free(tmp);
+        mem_free(tmp);
 
         /* Sort the sequence */
-        qsort(cache, cnt, sizeof(seq_t), cmp_seq);
+        mem_qsort(cache, cnt, sizeof(seq_t), cmp_seq);
         cache_len = cnt;
         initialized = true;
     }

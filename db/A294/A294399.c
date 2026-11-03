@@ -9,7 +9,8 @@
  *            b(n) is the smallest unused positive integer
  * Range:     u8 n <= 17, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   ensure_bitset_capacity
+ * Validated: partial, pass, 52 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,24 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/ensure_bitset_capacity.h"
+#include "../utils/mem.h"
+
+/* ensure that used_bits can represent numbers up to val (inclusive) */
+static inline void ensure_bitset_capacity(seq_t val,
+                                         uint8_t **bits, size_t *bytes)
+{
+    size_t idx = (size_t)(unsigned long long)val;
+    size_t needed = (idx >> 3) + 1;
+    if (needed <= *bytes) return;
+
+    size_t new_bytes = (*bytes == 0) ? 64 : (*bytes << 1);
+    if (new_bytes < needed) new_bytes = needed;
+    uint8_t *new_bits = (uint8_t *)realloc(*bits, new_bytes);
+    if (!new_bits) exit(EXIT_FAILURE);
+    memset(new_bits + *bytes, 0, new_bytes - *bytes);
+    *bits = new_bits;
+    *bytes = new_bytes;
+}
 
 static inline bool bit_is_set(seq_t val, const uint8_t *bits)
 {
@@ -48,8 +66,8 @@ seq_t a(idx_t n)
     if (max_idx == (idx_t)-1) {
         a_cap = 8;
         b_cap = 8;
-        a_cache = (seq_t *)calloc(a_cap, sizeof(seq_t));
-        b_cache = (seq_t *)calloc(b_cap, sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_cap);
+        b_cache = mem_new(seq_t, b_cap);
         if (!a_cache || !b_cache) exit(EXIT_FAILURE);
 
         /* initialise first four terms */
@@ -74,7 +92,7 @@ seq_t a(idx_t n)
     if ((size_t)(n + 1) > a_cap) {
         size_t new_cap = a_cap;
         while (new_cap <= (size_t)(n + 1)) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         a_cache = tmp;
         a_cap = new_cap;
@@ -82,7 +100,7 @@ seq_t a(idx_t n)
     if ((size_t)(n + 1) > b_cap) {
         size_t new_cap = b_cap;
         while (new_cap <= (size_t)(n + 1)) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(b_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, b_cache, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         b_cache = tmp;
         b_cap = new_cap;

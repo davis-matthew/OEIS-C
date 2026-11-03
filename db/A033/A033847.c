@@ -8,12 +8,14 @@
  *            ascending order, starting from 1 (h(0)=1)
  * Range:     u8 n <= 7, u16 n <= 35, u32 n <= 161, u64 n <= 687,
  *            u128 n <= 2832, big any n
- * Helpers:   none
+ * Validated: standard, pass, 56 terms through n = 9787 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
 
     if (h_len == 0) {
         h_cap = 16;
-        h = (seq_t *)malloc(h_cap * sizeof(seq_t));
+        h = mem_new(seq_t, h_cap);
         h[0] = (seq_t)1;            /* h(0) = 1 */
         h_len = 1;
     }
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
 
         if (h_len == h_cap) {
             h_cap *= 2;
-            h = (seq_t *)realloc(h, h_cap * sizeof(seq_t));
+            h = mem_resize(seq_t, h, h_cap);
         }
         h[h_len++] = next;
 

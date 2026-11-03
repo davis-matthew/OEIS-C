@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 42, u64 n <= 10000, u128 n <= 10000,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 103 terms through n = 9351 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* -----------------  precomputation  ----------------- */
 static size_t init_done = 0;
@@ -55,7 +57,7 @@ static void push_val(seq_t val)
 {
     if (cubefull_len == cubefull_cap) {
         cubefull_cap = cubefull_cap ? cubefull_cap * 2 : 1024;
-        seq_t *tmp = (seq_t *)realloc(cubefull_vec, cubefull_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cubefull_vec, cubefull_cap);
         if (!tmp) { cubefull_vec = NULL; return; }
         cubefull_vec = tmp;
     }
@@ -107,7 +109,7 @@ static void init(void)
 
     /* generate cubefull numbers */
     cubefull_cap = 1024;
-    cubefull_vec = (seq_t *)malloc(cubefull_cap * sizeof(seq_t));
+    cubefull_vec = mem_new(seq_t, cubefull_cap);
 
     int primes[32], exps[32];
     const size_t MAX_PR = 32;
@@ -132,7 +134,7 @@ static void init(void)
     }
 
     /* sort and deduplicate */
-    qsort(cubefull_vec, cubefull_len, sizeof(seq_t), cmp_seq);
+    mem_qsort(cubefull_vec, cubefull_len, sizeof(seq_t), cmp_seq);
     size_t uniq = 0;
     for (size_t i = 0; i < cubefull_len; ++i) {
         if (uniq == 0 || cubefull_vec[i] != cubefull_vec[uniq - 1]) {

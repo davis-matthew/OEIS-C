@@ -9,12 +9,14 @@
  *            A038040 * (the divisor-count sequence shifted by one)
  * Range:     u8 n <= 10, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *divcnt = NULL;   /* divisor counts for 0..N */
 static size_t divcnt_size = 0; /* current size of divcnt array */
@@ -27,7 +29,7 @@ static void ensure_divcnt(size_t upto)
 
     /* Allocate new array and compute divisor counts from scratch. */
     size_t newsize = upto + 1;
-    seq_t *newarr = (seq_t *)malloc((newsize + 1) * sizeof(seq_t));
+    seq_t *newarr = mem_new(seq_t, (newsize + 1));
     if (!newarr)                         /* allocation failed – leaf program */
         return;
 
@@ -38,7 +40,7 @@ static void ensure_divcnt(size_t upto)
         for (size_t j = i; j <= newsize; j += i)
             ++newarr[j];                 /* count divisor i of j */
 
-    free(divcnt);
+    mem_free(divcnt);
     divcnt     = newarr;
     divcnt_size = newsize;
 }

@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 21, u32 n <= 21, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    The function computes a(n) for any n ≥ 2 using memoisation. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     /* Initialise the cache on first call. */
     if (!cache) {
         cap   = 16;                  /* start with 16 slots           */
-        cache = (seq_t *)calloc(cap, sizeof(seq_t)); /* conversion needed for C++ */
+        cache = mem_new(seq_t, cap); /* conversion needed for C++ */
         /* initialise safe indices 0 and 1 (unused) */
         cache[0] = (seq_t)0;
         cache[1] = (seq_t)0;
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     if (n + 1 > cap) {
         while (n + 1 > cap)
             cap <<= 1;                 /* double size until big enough */
-        cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cap);
     }
 
     /* Store initial values (if they haven't been stored already). */

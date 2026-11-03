@@ -8,12 +8,14 @@
  *            - q^(2k+1))
  * Range:     i8 n <= 0, i16 n <= 3, i32 n <= 14, i64 n <= 56, i128 n <= 217,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 961 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 seq_t a(idx_t n) {
@@ -21,7 +23,7 @@ seq_t a(idx_t n) {
     
     idx_t degree = n + 1;
     
-    seq_t *chi = (seq_t *)calloc(degree + 1, sizeof(seq_t));
+    seq_t *chi = mem_new(seq_t, degree + 1);
     chi[0] = 1;
     
     for (idx_t k = 0; (2 * k + 1) <= degree; k++) {
@@ -31,34 +33,34 @@ seq_t a(idx_t n) {
         }
     }
     
-    seq_t *result = (seq_t *)calloc(degree + 1, sizeof(seq_t));
+    seq_t *result = mem_new(seq_t, degree + 1);
     result[0] = 1;
     
-    seq_t *base = (seq_t *)malloc((degree + 1) * sizeof(seq_t));
+    seq_t *base = mem_new(seq_t, (degree + 1));
     for (idx_t i = 0; i <= degree; i++) {
         base[i] = chi[i];
     }
     
     for (int pow = 24; pow > 0; pow >>= 1) {
         if (pow & 1) {
-            seq_t *temp = (seq_t *)calloc(degree + 1, sizeof(seq_t));
+            seq_t *temp = mem_new(seq_t, degree + 1);
             for (idx_t i = 0; i <= degree; i++) {
                 for (idx_t j = 0; i + j <= degree; j++) {
                     temp[i + j] += result[i] * base[j];
                 }
             }
-            free(result);
+            mem_free(result);
             result = temp;
         }
         
         if (pow > 1) {
-            seq_t *temp = (seq_t *)calloc(degree + 1, sizeof(seq_t));
+            seq_t *temp = mem_new(seq_t, degree + 1);
             for (idx_t i = 0; i <= degree; i++) {
                 for (idx_t j = 0; i + j <= degree; j++) {
                     temp[i + j] += base[i] * base[j];
                 }
             }
-            free(base);
+            mem_free(base);
             base = temp;
         }
     }
@@ -72,9 +74,9 @@ seq_t a(idx_t n) {
         coeff = result[n + 1];
     }
     
-    free(chi);
-    free(result);
-    free(base);
+    mem_free(chi);
+    mem_free(result);
+    mem_free(base);
     
     return coeff;
 }

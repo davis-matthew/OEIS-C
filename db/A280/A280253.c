@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 539, u16 n <= 9796, u32 n <= 9719, u64 n <= 9719,
- *            u128 n <= 9719, big any n
- * Helpers:   none
+ * Range:     u8 n <= 539, u16 n <= 9796, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 107 terms through n = 9719 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Cache of partition numbers p(k).  p_arr[0] = 1 (convention), p_arr[1] = 1, ... */
 static seq_t *p_arr = NULL;
@@ -36,7 +38,7 @@ static void ensure_p_size(idx_t k)
     size_t new_size = p_size ? p_size * 2 : 2;
     while ((size_t)k >= new_size)
         new_size *= 2;
-    seq_t *tmp = (seq_t *)realloc(p_arr, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, p_arr, new_size);
     if (!tmp) return;          /* allocation failure; caller will handle */
     p_arr = tmp;
     /* initialise new entries to zero; p_arr[0] remains 1 once set */
@@ -79,7 +81,7 @@ seq_t a(idx_t n)
 
     /* Allocate DP array for subset sum counting */
     size_t sz = (size_t)n + 1;
-    seq_t *dp = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, sz);
     if (!dp) return 0;                 /* out of memory; return 0 as sentinel */
     for (size_t i = 0; i < sz; ++i)
         dp[i] = 0;
@@ -101,6 +103,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[(size_t)n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

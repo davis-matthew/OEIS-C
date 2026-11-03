@@ -9,6 +9,7 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 5, u32 n <= 17, u64 n <= 37, u128 n <= 78,
  *            big any n
+ * Validated: standard, pass, 38 terms through n = 186 (2026-11-01)
  * Helpers:   pow2, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,8 @@
  * Formula: a(n) = 14306 + 1365*2^n + 49*3^(n-1)   for n > 3
  * Initial values: a(1) = 19701, a(2) = 20975, a(3) = 25715
  */
+#include <stdbool.h>
+#include <stdint.h>
 #include "../utils/pow2.h"
 #include "../utils/pow3.h"
 

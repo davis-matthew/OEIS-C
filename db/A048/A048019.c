@@ -9,12 +9,14 @@
  *            floor((n-2)/3), U = n - T, and C(n,k) is the binomial coeff
  * Range:     u8 n <= 9, u16 n <= 19, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,12 +30,12 @@ seq_t a(idx_t n)
         return 0;
 
     /* allocate arrays for binomials */
-    seq_t *cT = (seq_t *)malloc((T + 1) * sizeof(seq_t));
-    seq_t *cU = (seq_t *)malloc((U + 1) * sizeof(seq_t));
+    seq_t *cT = mem_new(seq_t, (T + 1));
+    seq_t *cU = mem_new(seq_t, (U + 1));
     if (!cT || !cU) {
         /* Out of memory – return 0 as a safe fallback (unlikely in tests). */
-        free(cT);
-        free(cU);
+        mem_free(cT);
+        mem_free(cU);
         return 0;
     }
 
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
         res += term;
     }
 
-    free(cT);
-    free(cU);
+    mem_free(cT);
+    mem_free(cU);
     return res;
 }

@@ -7,19 +7,20 @@
  * Formula:   a(n) = n + (71*10^floor(log_10(9*n-8))-8)/9
  * Range:     u8 n <= 1, u16 n <= 236, u32 n <= 1111, u64 n <= 1111,
  *            u128 n <= 1111, big any n
- * Helpers:   decimal_digits_seq_t
+ * Validated: standard, pass, 70 terms through n = 936 (2026-11-01)
+ * Helpers:   num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/decimal_digits_seq_t.h"
+#include "../utils/num_digits.h"
 
 seq_t a(idx_t n)
 {
     seq_t n_seq = (seq_t)n;
     seq_t x = (seq_t)9 * n_seq - (seq_t)8;          /* x = 9*n - 8 */
-    int m = decimal_digits_seq_t(x) - 1;           /* m = floor(log10(x)) */
+    int m = num_digits(x) - 1;           /* m = floor(log10(x)) */
     seq_t pow10_m = (seq_t)1;
     for (int i = 0; i < m; ++i) {
         pow10_m *= (seq_t)10;                      /* 10^m */

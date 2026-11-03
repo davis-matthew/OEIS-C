@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 14, u128 n <= 28,
  *            big any n
- * Helpers:   middle_ok
+ * Validated: standard, pass, 31 terms through n = 185 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,25 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/middle_ok.h"
+#include "../utils/mem.h"
+
+static inline bool middle_ok(uint8_t upper, uint8_t mid, uint8_t lower) {
+    for (int col = 0; col < 6; ++col) {
+        if (!(mid & (1U << col))) continue;
+        int cnt = 0;
+        /* same row neighbors */
+        if (col > 0 && (mid & (1U << (col - 1)))) ++cnt;
+        if (col < 5 && (mid & (1U << (col + 1)))) ++cnt;
+        /* upper row neighbors */
+        if (col > 0 && (upper & (1U << (col - 1)))) ++cnt;
+        if (col < 5 && (upper & (1U << (col + 1)))) ++cnt;
+        /* lower row neighbors */
+        if (col > 0 && (lower & (1U << (col - 1)))) ++cnt;
+        if (col < 5 && (lower & (1U << (col + 1)))) ++cnt;
+        if (cnt != 1 && cnt != 2 && cnt != 4) return false;
+    }
+    return true;
+}
 
 static bool   valid[64][64][64];
 static uint8_t next_list[4096][64];
@@ -64,11 +83,11 @@ seq_t a(idx_t n) {
     static seq_t dp_cur[4096];
     static seq_t dp_next[4096];
 
-    memset(dp_cur, 0, sizeof(dp_cur));
+    mem_set(dp_cur, 0, sizeof(dp_cur));
     for (int r = 0; r < 64; ++r) dp_cur[r] = 1; /* state: prev=0, curr=r */
 
     for (idx_t step = 1; step < n; ++step) {
-        memset(dp_next, 0, sizeof(dp_next));
+        mem_set(dp_next, 0, sizeof(dp_next));
         for (int state = 0; state < 4096; ++state) {
             seq_t ways = dp_cur[state];
             if (ways == 0) continue;
@@ -81,7 +100,7 @@ seq_t a(idx_t n) {
                 dp_next[ns] += ways;
             }
         }
-        memcpy(dp_cur, dp_next, sizeof(dp_cur));
+        mem_copy(dp_cur, dp_next, sizeof(dp_cur));
     }
 
     for (int state = 0; state < 4096; ++state) {

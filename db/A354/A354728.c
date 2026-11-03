@@ -8,13 +8,15 @@
  *            Stirling1(n,k) are signed Stirling numbers of the first kind
  * Range:     i8 n <= 6, i16 n <= 7, i32 n <= 11, i64 n <= 17, i128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,14 +33,14 @@ seq_t a(idx_t n)
     /* initialize cache and first Stirling array on first call */
     if (cachesz == 0) {
         cachecap = 2;
-        cache = (seq_t *)malloc(cachecap * sizeof(seq_t));
+        cache = mem_new(seq_t, cachecap);
         if (!cache) exit(1);
         cache[0] = (seq_t)1;      /* a(0) */
         cachesz = 1;
 
         scap = 2;
-        s[0] = (seq_t *)malloc(scap * sizeof(seq_t));
-        s[1] = (seq_t *)malloc(scap * sizeof(seq_t));
+        s[0] = mem_new(seq_t, scap);
+        s[1] = mem_new(seq_t, scap);
         if (!s[0] || !s[1]) exit(1);
         s[0][0] = (seq_t)1;      /* Stirling numbers for n=0, s(0,0)=1 */
     }
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
     if (need > cachecap) {
         size_t newcap = cachecap;
         while (newcap < need) newcap <<= 1;
-        seq_t *p = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *p = mem_resize(seq_t, cache, newcap);
         if (!p) exit(1);
         cache = p;
         cachecap = newcap;
@@ -63,8 +65,8 @@ seq_t a(idx_t n)
     if (needscap > scap) {
         size_t newcap = scap;
         while (newcap < needscap) newcap <<= 1;
-        seq_t *p0 = (seq_t *)realloc(s[0], newcap * sizeof(seq_t));
-        seq_t *p1 = (seq_t *)realloc(s[1], newcap * sizeof(seq_t));
+        seq_t *p0 = mem_resize(seq_t, s[0], newcap);
+        seq_t *p1 = mem_resize(seq_t, s[1], newcap);
         if (!p0 || !p1) exit(1);
         s[0] = p0;
         s[1] = p1;

@@ -11,13 +11,15 @@
  *            a(n)=a(n-1)+a(n-2)+(n-1)
  * Range:     u8 n <= 13, u16 n <= 25, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* initialise the base terms only once */
     if (computed == 0) {
         capacity = 2;
-        cache = (seq_t *)realloc(cache, capacity * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, capacity);
         cache[0] = 1;
         cache[1] = 1;
         computed = 2;
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     /* grow the cache if necessary */
     if (N + 1 > capacity) {
         capacity = N + 1;
-        cache = (seq_t *)realloc(cache, capacity * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, capacity);
     }
 
     /* compute the missing terms up to N */

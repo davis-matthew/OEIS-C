@@ -9,7 +9,8 @@
  *            k^(k-3)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 10, u64 n <= 16, u128 n <= 20,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 /* (where binomial(n, k) is the ordinary binomial coefficient) */
 
 #include <stdbool.h>
-#include "../utils/seq_pow.h"   /* Provides seq_pow(seq_t base, idx_t exp) */
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +41,7 @@ seq_t a(idx_t n)
             seq_t factor = ((seq_t)(k - 1) * (k - 2)) / 2;
 
             /* k^(k-3) where the exponent is non‑negative for k ≥ 3 */
-            seq_t powk = seq_pow((seq_t)k, (idx_t)(k - 3));
+            seq_t powk = ipow_idx((seq_t)k, (idx_t)(k - 3));
 
             /* term = binom * factor * k^(k-3) */
             seq_t term = binom * factor;

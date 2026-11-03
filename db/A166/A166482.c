@@ -9,12 +9,14 @@
  *            n ≥ 4 Initial values: a(0)=1, a(1)=3, a(2)=12, a(3)=51
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 15, u64 n <= 30, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 495 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* cache[0..current_max] */
 static idx_t  cache_len = 0;    /* number of initialized entries */
@@ -24,7 +26,7 @@ static void init_cache(void)
 {
     if (cache != NULL)
         return;
-    cache = (seq_t *)malloc(4 * sizeof(seq_t));
+    cache = mem_new(seq_t, 4);
     /* a(0) ... a(3) */
     cache[0] = 1;
     cache[1] = 3;
@@ -38,7 +40,7 @@ static void extend_cache(idx_t n)
 {
     if (n < cache_len)
         return;
-    seq_t *new_cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
     if (new_cache == NULL) {
         /* Allocation failed – terminate program as this sequence cannot be
            produced without memory. */

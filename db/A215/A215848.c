@@ -7,7 +7,8 @@
  * Formula:   a(n) = A000040(n+2) (the (n+2)-th prime)
  * Range:     u8 n <= 52, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 /* static cache of primes, 1‑based: prime_list[0]=2, prime_list[1]=3, ... */
 static uint64_t *prime_list = NULL;
@@ -28,7 +29,7 @@ static void extend_primes(size_t target)
 {
     while (prime_cnt < target) {
         /* Find the next prime. */
-        while (!is_prime_small(next_candidate))
+        while (!is_prime_seq(next_candidate))
             ++next_candidate;
 
         /* Grow the array if necessary. */

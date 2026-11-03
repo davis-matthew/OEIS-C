@@ -9,12 +9,14 @@
  *            t(m,k) read row by row (row 0: 1; row 1: 1,1; row 2: 1,5,4; …)
  * Range:     u8 n <= 11, u16 n <= 24, u32 n <= 50, u64 n <= 101,
  *            u128 n <= 248, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 5123 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Persistent cache of the triangle entries. */
 static seq_t *terms     = NULL;   /* flat array of all terms          */
@@ -42,7 +44,7 @@ static void grow_terms (size_t need)
     size_t newCap = termCap ? termCap * 2 : 64;
     while (newCap < need)
         newCap *= 2;
-    seq_t *tmp = (seq_t *)realloc(terms, newCap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, terms, newCap);
     if (!tmp)
         abort();
     terms = tmp;
@@ -57,8 +59,8 @@ static void grow_rows (size_t len)
     size_t newCap = rowCap ? rowCap * 2 : 64;
     while (newCap < len)
         newCap *= 2;
-    seq_t *tmpPrev = (seq_t *)realloc(prevRow, newCap * sizeof(seq_t));
-    seq_t *tmpCur  = (seq_t *)realloc(curRow , newCap * sizeof(seq_t));
+    seq_t *tmpPrev = mem_resize(seq_t, prevRow, newCap);
+    seq_t *tmpCur  = mem_resize(seq_t, curRow, newCap);
     if (!tmpPrev || !tmpCur)
         abort();
     prevRow = tmpPrev;

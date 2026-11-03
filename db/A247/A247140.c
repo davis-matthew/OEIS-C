@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
    Complexity: O(n^2) time and O(n) memory for the largest n seen.  */
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static idx_t   current_max = 0;          /* maximum n processed so far   */
 static seq_t *a_arr        = NULL;       /* array of a(n) values          */
@@ -33,12 +36,12 @@ static size_t  seen_cnt     = 0;          /* number of distinct integers   */
 static void recompute_until(idx_t new_max)
 {
     /* free previous memory */
-    if (a_arr)     free(a_arr);
-    if (sigma_arr) free(sigma_arr);
-    if (seen_vals) free(seen_vals);
+    if (a_arr)     mem_free(a_arr);
+    if (sigma_arr) mem_free(sigma_arr);
+    if (seen_vals) mem_free(seen_vals);
 
     /* allocate sigma array */
-    sigma_arr = (seq_t*)calloc((size_t)new_max + 1, sizeof(seq_t));
+    sigma_arr = mem_new(seq_t, (size_t)new_max + 1);
     if (!sigma_arr) { abort(); }
 
     /* compute sigma(k) via a simple divisor sieve */
@@ -49,12 +52,12 @@ static void recompute_until(idx_t new_max)
     }
 
     /* allocate a_arr */
-    a_arr = (seq_t*)calloc((size_t)new_max + 1, sizeof(seq_t));
+    a_arr = mem_new(seq_t, (size_t)new_max + 1);
     if (!a_arr) { abort(); }
 
     /* initialise storage for distinct numerators/denominators */
     seen_cap = (size_t)new_max * 2 + 10;
-    seen_vals = (seq_t*)malloc(seen_cap * sizeof(seq_t));
+    seen_vals = mem_new(seq_t, seen_cap);
     if (!seen_vals) { abort(); }
     seen_cnt = 0;
 
@@ -73,7 +76,7 @@ static void recompute_until(idx_t new_max)
         if (!found) {
             if (seen_cnt == seen_cap) {
                 seen_cap *= 2;
-                seen_vals = (seq_t*)realloc(seen_vals, seen_cap * sizeof(seq_t));
+                seen_vals = mem_resize(seq_t, seen_vals, seen_cap);
                 if (!seen_vals) { abort(); }
             }
             seen_vals[seen_cnt++] = num;
@@ -87,7 +90,7 @@ static void recompute_until(idx_t new_max)
         if (!found) {
             if (seen_cnt == seen_cap) {
                 seen_cap *= 2;
-                seen_vals = (seq_t*)realloc(seen_vals, seen_cap * sizeof(seq_t));
+                seen_vals = mem_resize(seq_t, seen_vals, seen_cap);
                 if (!seen_vals) { abort(); }
             }
             seen_vals[seen_cnt++] = den;

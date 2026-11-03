@@ -11,12 +11,14 @@
  *            arbitrary order of n are efficient
  * Range:     i8 n <= 6, i16 n <= 9, i32 n <= 13, i64 n <= 21, i128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 431 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     if (new_size < cached_size * 2) new_size = cached_size * 2;
     if (new_size < 2) new_size = 2;
 
-    cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_size);
     if (!cache) return (seq_t)0;   /* Allocation failure – unlikely in tests. */
 
     /* Initialisation: a(1) = 2.  Only needed on the first run. */

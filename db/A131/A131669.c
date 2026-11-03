@@ -7,6 +7,7 @@
  * Formula:   a(n) = cycle[(n-1) mod 9] where cycle = {1,3,5,7,9,2,4,6,8}
  * Range:     u8 n <= 81, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
+ * Validated: partial, pass, 81 terms through n = 81 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

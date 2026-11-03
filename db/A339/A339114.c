@@ -9,6 +9,7 @@
  *            prime (p_1 = 2)
  * Range:     u8 n <= 13, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
+ * Validated: partial, pass, 56 terms through n = 57 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,7 +19,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/build_primes_upto.h"   /* build_primes_upto() */
+#include "../utils/build_primes_upto.h"
 
 static uint64_t *prime_arr = NULL;   /* 0‑based array of primes */
 static size_t   prime_cnt = 0;       /* number of primes stored */

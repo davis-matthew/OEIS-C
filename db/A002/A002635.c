@@ -9,13 +9,14 @@
  *            with a found by integer square root
  * Range:     u8 n <= 4049, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a2635_isqrt
+ * Validated: standard, pass, 124 terms through n = 8985 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a2635_isqrt.h"
+#include "../utils/isqrt_u64.h"
 
 seq_t a(idx_t n) {
   seq_t count = 0;
@@ -25,7 +26,7 @@ seq_t a(idx_t n) {
     for (c = d; d * d + 3 * c * c <= N; c++) {
       for (b = c; d * d + c * c + 2 * b * b <= N; b++) {
         uint64_t r = N - d * d - c * c - b * b;
-        uint64_t s = a2635_isqrt(r);
+        uint64_t s = isqrt_u64(r);
         if (s * s == r) count++;
       }
     }

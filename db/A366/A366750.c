@@ -11,7 +11,8 @@
  *            g1(n) = Σ_{d|n, d odd} μ(d) * f(n/d), μ is the Möbius function
  * Range:     u8 n <= 84, u16 n <= 84, u32 n <= 84, u64 n <= 84, u128 n <= 84,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 85 terms through n = 84 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of types */
 extern seq_t a(idx_t n);
@@ -32,7 +34,7 @@ static idx_t max_n_computed = 0;   /* current maximum n for which tables are bui
 static void build_tables(idx_t limit)
 {
     /* allocate new arrays */
-    seq_t *new_f = (seq_t*)malloc((size_t)(limit + 1) * sizeof(seq_t));
+    seq_t *new_f = mem_new(seq_t, (size_t)(limit + 1));
     int8_t *new_mu = (int8_t*)malloc((size_t)(limit + 1) * sizeof(int8_t));
     if (!new_f || !new_mu) return; /* allocation failed; caller will handle */
 
@@ -55,7 +57,7 @@ static void build_tables(idx_t limit)
     /* Sieve for primes and Möbius */
     uint8_t *is_prime = (uint8_t*)malloc((size_t)(limit + 1) * sizeof(uint8_t));
     if (!is_prime) {
-        free(new_f);
+        mem_free(new_f);
         free(new_mu);
         return;
     }
@@ -76,7 +78,7 @@ static void build_tables(idx_t limit)
     free(is_prime);
 
     /* free old tables if any */
-    if (f_cache) free(f_cache);
+    if (f_cache) mem_free(f_cache);
     if (mu_cache) free(mu_cache);
 
     /* store new tables */

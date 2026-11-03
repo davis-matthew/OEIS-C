@@ -9,15 +9,31 @@
  *            * 1249,1273,1399,1447,1657,1711,1735,1777,1825 (mod 1848)
  * Range:     u8 n <= 3, u16 n <= 425, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   grow_seq, is_prime
+ * Validated: standard, pass, 58 terms through n = 9742 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/is_prime.h"     /* is_prime(idx_t) */
-#include "../utils/grow_seq.h"    /* grow_seq(seq_t **, size_t *, size_t) */
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
 
 static bool representable(seq_t p)
 {

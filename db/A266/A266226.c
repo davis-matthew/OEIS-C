@@ -7,7 +7,8 @@
  * Formula:   a(n) = floor(Sum_{d|n} 1 / tau(d))
  * Range:     u8 n <= 35, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 104 terms through n = 4858 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stddef.h>   /* idx_t      */
 #include <stdint.h>   /* uint64_t   */
 #include <stdlib.h>   /* malloc,realloc */
+#include "../utils/mem.h"
 
 /* GCD for the integer type seq_t */
 static seq_t gcd_seq(seq_t a, seq_t b)
@@ -37,7 +39,7 @@ static void compute_tau_up_to(idx_t limit)
     if (limit < 1) return;
     idx_t size = limit + 1;
 
-    tau_cache = (seq_t *)realloc(tau_cache, size * sizeof(seq_t));
+    tau_cache = mem_resize(seq_t, tau_cache, size);
     for (idx_t i = 0; i < size; ++i) {
         tau_cache[i] = (seq_t)0;
     }

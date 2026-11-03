@@ -9,12 +9,14 @@
  *            a(8)=10, a(9)=12, a(10)=8, a(11)=7, a(12)=15, a(13)=11, a(14)=16
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t base_values[] = {3, 4, 5, 6, 2, 0, 1, 9, 10, 12, 8, 7, 15, 11, 16};
 
@@ -41,7 +43,7 @@ seq_t a(idx_t n) {
     idx_t idx = n - 15;
     if (idx >= cache_len) {
         idx_t new_len = (idx + 1) * 2;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_len);
         if (new_cache == NULL) return 0;
         cache = new_cache;
         cache_len = new_len;

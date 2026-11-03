@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 80, u16 n <= 6560, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes, factor_u64, is_prime_small
+ * Validated: standard, pass, 91 terms through n = 9813 (2026-11-01)
+ * Helpers:   build_primes, factor_u64, is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,9 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/factor_u64.h"
-#include "../utils/is_prime_small.h"
 #include "../utils/build_primes.h"
+#include "../utils/factor_u64.h"
+#include "../utils/is_prime_seq.h"
 
 /* External-linkage function required by the test harness */
 seq_t a(idx_t n)
@@ -49,7 +50,7 @@ seq_t a(idx_t n)
         data.nonprimes = (uint64_t *)malloc(data.prime_cnt * sizeof(uint64_t));
         size_t cnt = 0;
         for (uint64_t x = 1; x <= limit && cnt < data.prime_cnt; ++x) {
-            if (!is_prime_small((seq_t)x)) {
+            if (!is_prime_seq((seq_t)x)) {
                 data.nonprimes[cnt] = x;
                 ++cnt;
             }

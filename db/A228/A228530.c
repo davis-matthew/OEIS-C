@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 145, u128 n <= 145,
  *            big any n
- * Helpers:   digit_counts, seq_from_str
+ * Validated: standard, pass, 36 terms through n = 135 (2026-11-03)
+ * Helpers:   digit_counts, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,21 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/digit_counts.h"     /* void digit_counts(seq_t x, unsigned char cnt[10]); */
-#include "../utils/seq_from_str.h"   /* seq_t seq_from_str(const char *s); */
+#include <string.h>
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/digit_counts.h"
+#include "../utils/mem.h"
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
 
 /* External types supplied by the build system */
  /* seq_t and idx_t are provided by the build system */
@@ -41,7 +55,7 @@ static void ensure_cache_size(idx_t n)
     if ((size_t)(n + 1) <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 32;
     while (new_cap < (size_t)(n + 1)) new_cap *= 2;
-    seq_t *new_cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) { /* Allocation failed – terminate; this should not happen */
         exit(1);
     }

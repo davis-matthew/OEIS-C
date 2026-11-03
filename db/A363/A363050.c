@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,8 @@
 #include <stdint.h>
 
 /* Primality utilities ----------------------------------------------------- */
-#include "../utils/build_primes_upto.h"   /* build_primes_upto() */
+#include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------------- */
 /*  Local data: memoised sequence and prime list --------------------------- */
@@ -101,7 +103,7 @@ static void generate_up_to(idx_t wanted)
     /* initialise terms array on first call */
     if (!terms) {
         terms_cap = 128;
-        terms     = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms     = mem_new(seq_t, terms_cap);
     }
 
     /* scan integers until we have enough terms */
@@ -123,7 +125,7 @@ static void generate_up_to(idx_t wanted)
         if (ok) {
             if (terms_len == terms_cap) {
                 terms_cap <<= 1;
-                terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
             }
             terms[terms_len++] = (seq_t)cur;
         }

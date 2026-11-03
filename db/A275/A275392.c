@@ -9,12 +9,14 @@
  *            number not exceeding the current remainder)
  * Range:     u8 n <= 272, u16 n <= 9999, u32 n <= 9999, u64 n <= 9999,
  *            u128 n <= 9999, big any n
- * Helpers:   none
+ * Validated: standard, pass, 120 terms through n = 9514 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *trib = NULL;       /* tribonacci numbers, trib[0] = 0, trib[1] = 0, trib[2] = 1 */
 static size_t trib_len = 0;      /* number of stored entries */
@@ -27,7 +29,7 @@ ensure_tribonacci(idx_t max_needed)
     /* Initialize the array if it hasn't been yet. */
     if (trib_len == 0) {
         trib_cap = 8;
-        trib = (seq_t *)malloc(sizeof(seq_t) * trib_cap);
+        trib = mem_new(seq_t, trib_cap);
         trib[0] = (seq_t)0;
         trib[1] = (seq_t)0;
         trib[2] = (seq_t)1;
@@ -41,7 +43,7 @@ ensure_tribonacci(idx_t max_needed)
         /* Resize if necessary. */
         if (trib_len >= trib_cap) {
             trib_cap *= 2;
-            trib = (seq_t *)realloc(trib, sizeof(seq_t) * trib_cap);
+            trib = mem_resize(seq_t, trib, trib_cap);
         }
         trib[trib_len++] = next;
     }

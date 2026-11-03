@@ -7,6 +7,7 @@
  * Formula:   a(n) = ∏_{p^e‖n} ( 1 if e ≤ p else e - p + 1 )
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 103 terms through n = 9689 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,7 +15,9 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/factor_u64.h"   /* provides factor_u64 */
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
 uint64_t _smallest_prime_factor(uint64_t);
 
 seq_t a(idx_t n)

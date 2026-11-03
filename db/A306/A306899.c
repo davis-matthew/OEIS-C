@@ -7,16 +7,19 @@
  * Formula:   a(n) = Sum_{d|n} (2^d - (-1)^d) * phi(3*n/d)
  * Range:     u8 n <= 6, u16 n <= 14, u32 n <= 30, u64 n <= 62, u128 n <= 126,
  *            big any n
- * Helpers:   calc_phi, factor_u64, pow2
+ * Validated: standard, pass, 48 terms through n = 3260 (2026-11-01)
+ * Helpers:   factor_u64, pow2, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/calc_phi.h"
 #include "../utils/pow2.h"
+#include "../utils/totient_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -58,7 +61,7 @@ seq_t a(idx_t n)
             term = pow - 1;
 
         seq_t m = (seq_t)( ( (seq_t)3 * (seq_t)n ) / d );
-        seq_t phi_val = calc_phi(m);
+        seq_t phi_val = totient_seq(m);
 
         result += term * phi_val;
     }

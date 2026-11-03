@@ -7,6 +7,7 @@
  * Formula:   a(n) = binomial(n, floor(n/7))
  * Range:     u8 n <= 20, u16 n <= 34, u32 n <= 62, u64 n <= 116,
  *            u128 n <= 223, big any n
+ * Validated: standard, pass, 62 terms through n = 4672 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

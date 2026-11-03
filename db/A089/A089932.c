@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 18, u64 n <= 37, u128 n <= 76,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 988 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* The function must be compiled with C11 or C++17 support.
    The types idx_t and seq_t are supplied by the build. */
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     /* Ensure the cache is big enough to hold the first six terms */
     if (cache == NULL) {
         cache_size = 6; /* at least 6 terms */
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_size);
+        cache = mem_new(seq_t, cache_size);
         if (!cache) return (seq_t)0; /* allocation failed – unlikely */
 
         /* initial terms */
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
     if (n >= cache_size) {
         idx_t new_size = cache_size;
         while (new_size <= n) new_size <<= 1;   /* double until big enough */
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_size);
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) return (seq_t)0; /* allocation failed */
         cache = tmp;
         cache_size = new_size;

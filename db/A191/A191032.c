@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   append_candidate, is_prime, powmod64
+ * Validated: standard, pass, 71 terms through n = 927 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,27 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/is_prime.h"
-#include "../utils/powmod64.h"
-#include "../utils/append_candidate.h"
+#include "../utils/powmod_u64.h"
+#include "../utils/mem.h"
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
 
 /* Return the n-th prime p such that the Kronecker symbol (p|46) equals 1. */
 /* idx_t is an unsigned integer type for indices; seq_t is an unsigned integer
@@ -46,7 +65,7 @@ seq_t a(idx_t n)
                 /* compute the Legendre symbols (cur|2) and (cur|23) */
                 int s2 = ((cur % 8u) == 1u || (cur % 8u) == 7u) ? 1 : -1;
 
-                uint64_t s23_res = powmod64(cur, 11u, 23u);
+                uint64_t s23_res = powmod_u64(cur, 11u, 23u);
                 int s23 = (s23_res == 1u) ? 1 : ((s23_res == 22u) ? -1 : 0);
 
                 if (s23 != 0 && s2 * s23 == 1) {

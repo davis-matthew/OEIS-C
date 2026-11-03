@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 1839, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _divisor_helper, factor_u64, has_abundant_divisor
+ * Validated: standard, pass, 70 terms through n = 9975 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,8 +30,51 @@
 #include <stdbool.h>
 
 #include "../utils/factor_u64.h"
-#include "../utils/_divisor_helper.h"
-#include "../utils/has_abundant_divisor.h"
+#include "../utils/mem.h"
+
+/* Recursive test: does the factorization of 'full' contain a proper
+   abundant divisor?
+   primes[0..cnt-1]   – prime factors of full
+   exps  [0..cnt-1]   – their exponents (≤2)
+   pos    – current position in the factor list
+   d      – current divisor being built
+   sigma_d – σ(d) (product of local sums)
+*/
+static bool _divisor_helper(const uint64_t *primes, const int *exps, size_t cnt,
+                            uint64_t full, size_t pos, uint64_t d,
+                            unsigned long long sigma_d)
+{
+    if (pos == cnt) {
+        if (d == full) return false;            /* skip full number itself */
+        unsigned long long two_d = (unsigned long long)d * 2ULL;
+        return sigma_d > two_d;
+    }
+
+    uint64_t p = primes[pos];
+    int      e = exps[pos];
+    unsigned long long pw   = 1ULL;   /* p^k */
+    unsigned long long sum  = 1ULL;   /* sum_{t=0}^k p^t */
+
+    for (int k = 0; k <= e; ++k) {
+        if (k > 0) {
+            pw   *= (unsigned long long)p;
+            sum  += pw;
+        }
+        uint64_t new_d   = d * pw;
+        unsigned long long new_sigma = sigma_d * sum;
+        if (_divisor_helper(primes, exps, cnt, full, pos + 1,
+                            new_d, new_sigma))
+            return true;
+    }
+    return false;
+}
+
+/* Wrapper that initiates the recursion. */
+static bool has_abundant_divisor(const uint64_t *primes, const int *exps,
+                                 size_t cnt, uint64_t full)
+{
+    return _divisor_helper(primes, exps, cnt, full, 0, 1ULL, 1ULL);
+}
 
 /* -----------  helpers  ------------------------------------------- */
 
@@ -107,7 +151,7 @@ seq_t a(idx_t n)
         /* ensure capacity */
         if (seq_len == seq_cap) {
             size_t new_cap = seq_cap ? seq_cap * 2 : 8;
-            seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
             if (!tmp) {
                 /* memory allocation failure – return 0 as a sentinel */
                 return (seq_t)0;

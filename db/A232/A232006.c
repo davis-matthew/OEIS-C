@@ -12,12 +12,15 @@
  *            r^(r-k-1) (1 <= k <= r-1, r>0)
  * Range:     u8 n <= 21, u16 n <= 36, u32 n <= 78, u64 n <= 171,
  *            u128 n <= 435, big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 82 terms through n = 2727 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 /* compute the row index r for a given triangular index n */
 static inline idx_t triangular_row(idx_t n)
@@ -52,7 +55,7 @@ seq_t a(idx_t n)
     if (k == r) return (seq_t)1;           /* r components, all singletons */
 
     /* For 1 <= k <= r-1 :  T(r,k) = k * r^(r-k-1) */
-    seq_t pow_val = big_pow((seq_t)r, (seq_t)(r - k - 1));
+    seq_t pow_val = ipow((seq_t)r, (seq_t)(r - k - 1));
     seq_t result  = pow_val * (seq_t)k;
     return result;
 }

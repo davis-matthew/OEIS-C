@@ -9,13 +9,15 @@
  *            sequence * equals the OEIS entry A293838
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   none
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Cache of already computed terms (1‑indexed). */
@@ -29,7 +31,7 @@ seq_t a(idx_t n) {
     /* Initialise the cache on the first call. */
     if (cache_len == 0) {
         cache_cap = 4;                 /* initial capacity */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();
         cache[0] = 1;
         cache[1] = 2;
@@ -47,7 +49,7 @@ seq_t a(idx_t n) {
             size_t new_cap = cache_cap > 0 ? cache_cap << 1 : 8;
             if (new_cap < required)
                 new_cap = required;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort();
             cache = tmp;
             cache_cap = new_cap;

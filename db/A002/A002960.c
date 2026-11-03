@@ -8,12 +8,20 @@
  *            floor(sqrt(a(n-1))))), a(1) = 2
  * Range:     u8 n <= 26, u16 n <= 502, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   a002960_raise_sqrt
+ * Validated: standard, pass, 79 terms through n = 968 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a002960_raise_sqrt.h"
+/* Raise s until s = floor(sqrt(v)), assuming s starts at or below it.
+   Uses division instead of squaring so it cannot overflow. */
+static seq_t a002960_raise_sqrt(seq_t s, seq_t v) {
+    while (s + 1 <= v / (s + 1)) {
+        s++;
+    }
+    return s;
+}
 
 seq_t a(idx_t n) {
     seq_t cur = (seq_t)2;

@@ -12,13 +12,15 @@
  *            a(10)=1040400, a(11)=1082540, a(12)=1112608, a(13)=1...
  * Range:     u8 none, u16 none, u32 n <= 51, u64 n <= 157, u128 n <= 200,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 190 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* base values a(1) … a(21); index 0 unused */
 static const seq_t base_vals[22] = {
@@ -56,7 +58,7 @@ static void ensure_cache(idx_t n)
 
     /* Allocate new array of size n+1 (indices 0..n) */
     size_t new_size = (size_t)(n + 1);
-    seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_size);
     if (!new_cache) abort();
 
     /* Copy existing cached values into new array */
@@ -84,7 +86,7 @@ static void ensure_cache(idx_t n)
     }
 
     /* Replace old cache */
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
     cached_up_to = n;
 }

@@ -10,7 +10,8 @@
  *            of prime factors of k. The terms are listed in increasing order
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 9389 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Upper bound for k (and therefore for p).  A limit of 2 000 000
    is sufficient to generate more than 10 000 terms in the sequence. */
@@ -86,7 +88,7 @@ static void build_sequence(void)
     }
 
     /* 4. Sort the collected primes in ascending order. */
-    qsort(seq, seq_len, sizeof(seq[0]), seq_cmp);
+    mem_qsort(seq, seq_len, sizeof(seq[0]), seq_cmp);
 }
 
 /* Public function.  n is 1‑based: a(1) = 3, a(2) = 11, … */

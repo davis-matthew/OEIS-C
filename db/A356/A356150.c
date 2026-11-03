@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 64, u16 n <= 8192, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   add_substrings, floor_log2_uint64
+ * Validated: standard, pass, 75 terms through n = 7768 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,30 @@
 #include <stdint.h>
 #include <stdlib.h>
 /* function floor_log2_uint64() is provided in the utils package */
-#include "../utils/floor_log2_uint64.h"
-#include "../utils/add_substrings.h"
+#include <stddef.h>
+#include "../utils/ilog2.h"
+
+/* add all substrings that start with a '1' bit from a binary string of
+   length len into the array arr.  arr must be large enough (here 5000). */
+static void add_substrings(uint64_t val, size_t len, uint64_t *arr,
+                           size_t *cnt)
+{
+    uint8_t bits[64];
+    size_t i, j;
+
+    /* build bit array (most significant bit first) */
+    for (i = 0; i < len; ++i)
+        bits[i] = (uint8_t)((val >> (len - 1 - i)) & 1);
+
+    for (i = 0; i < len; ++i) {
+        if (bits[i] == 0) continue;          /* start must be 1 */
+        uint64_t v = 0;
+        for (j = i; j < len; ++j) {
+            v = (v << 1) | bits[j];
+            arr[(*cnt)++] = v;
+        }
+    }
+}
 
 /* comparator for qsort */
 static int cmp_uint64(const void *a, const void *b)
@@ -38,7 +61,7 @@ seq_t a(idx_t n)
     if (n == 0) return 0;   /* not needed for OEIS offset but safe */
 
     /* number of bits of n (without leading zeros) */
-    size_t len = (size_t)floor_log2_uint64((idx_t)n) + 1;
+    size_t len = (size_t)ilog2((idx_t)n) + 1;
 
     /* mask of len bits:  (1<<len)-1, handle len==64 case */
     uint64_t mask;

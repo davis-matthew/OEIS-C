@@ -12,14 +12,27 @@
  *            T(n-2,k-1) (k>0) (Out‑of‑range indices are treated as 0.)
  * Range:     u8 n <= 27, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   fib
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/fib.h"   /* fib(idx_t n) */
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
 
 static seq_t **rows = NULL;          /* array of pointers to rows */
 static idx_t  rows_count = 0;        /* number of rows currently stored */
@@ -45,7 +58,7 @@ static void ensure_row(idx_t r)
 
         /* allocate and compute the next row (index = rows_count) */
         idx_t n = rows_count;
-        seq_t *row = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (n + 1));
         if (!row) return;
 
         /* T(n,0) = F_{2n+1} */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 48, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   alt_base4
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,32 @@
    where d0 is the least‑significant digit). */
 
 #include <stdbool.h>
-#include "../utils/alt_base4.h"
+
+/* Test whether a number has the required alternating base‑4 pattern */
+static bool alt_base4(seq_t x)
+{
+    /* Handle 0 explicitly: it is not part of the sequence. */
+    if (x == 0) return false;
+
+    /* Extract least significant digit first. */
+    int last_digit = (int)(x % 4);
+    x /= 4;
+    int idx = 0;            /* idx is the index of the lower digit processed */
+
+    while (x != 0) {
+        int d = (int)(x % 4);
+        /* For even idx (lower digit position), require <; for odd, >. */
+        if ((idx & 1) == 0) {          /* idx even -> last_digit < d */
+            if (!(last_digit < d)) return false;
+        } else {                      /* idx odd -> last_digit > d */
+            if (!(last_digit > d)) return false;
+        }
+        last_digit = d;
+        x /= 4;
+        ++idx;
+    }
+    return true;
+}
 
 /* Main function as required by the build system */
 seq_t a(idx_t n)

@@ -12,14 +12,15 @@
  *            a(n) for any n ≥ 1. For n > 26 the probability is 0
  * Range:     u8 none, u16 none, u32 none, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   binom
+ * Validated: full, pass, 52 terms through n = 52 (2026-11-02)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 /* maximum allowed run length (≤ 26) */
 #define MAX_M 26
@@ -37,7 +38,7 @@ static void init(void)
     initialized = true;
 
     /* total number of arrangements of 26 red and 26 black cards */
-    total_val = binom(52, 26);
+    total_val = binomial(52, 26);
 
     /* f[0] = 0  (no arrangement can have max run length 0) */
     f[0] = 0;

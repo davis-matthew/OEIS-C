@@ -13,7 +13,8 @@
  *            far. * See the explanation above for full details
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* --- precomputed row‑violation table ------------------------------------- */
 static bool table_precomputed = false;
@@ -60,7 +62,7 @@ static void precompute_row_viol(void) {
 static inline void zero_dp(seq_t dp[MAX_V][ROWS][ROWS]) {
     for (int v = 0; v < MAX_V; ++v)
         for (int i = 0; i < ROWS; ++i)
-            memset(dp[v][i], 0, ROWS * sizeof(seq_t));
+            mem_set(dp[v][i], 0, ROWS * sizeof(seq_t));
 }
 
 /* ---- global cache for computed a(n) ------------------------------------ */
@@ -91,7 +93,7 @@ static void extend_one_row(void) {
         }
     }
     /* swap dp_next into dp_cur */
-    memcpy(dp_cur, dp_next, sizeof(dp_cur));
+    mem_copy(dp_cur, dp_next, sizeof(dp_cur));
     ++current_k;
 }
 
@@ -124,7 +126,7 @@ static void ensure_cache_size(size_t n) {
             }
             if (cache_len == cache_alloc) {
                 size_t new_alloc = cache_alloc ? cache_alloc * 2 : 16;
-                seq_t *new_cache = (seq_t *)realloc(cache, new_alloc * sizeof(seq_t));
+                seq_t *new_cache = mem_resize(seq_t, cache, new_alloc);
                 cache = new_cache;
                 cache_alloc = new_alloc;
             }
@@ -143,7 +145,7 @@ static void ensure_cache_size(size_t n) {
             a2 = compute_answer_current();
             if (cache_len == cache_alloc) {
                 size_t new_alloc = cache_alloc ? cache_alloc * 2 : 16;
-                seq_t *new_cache = (seq_t *)realloc(cache, new_alloc * sizeof(seq_t));
+                seq_t *new_cache = mem_resize(seq_t, cache, new_alloc);
                 cache = new_cache;
                 cache_alloc = new_alloc;
             }
@@ -153,7 +155,7 @@ static void ensure_cache_size(size_t n) {
             seq_t an = compute_answer_current();
             if (cache_len == cache_alloc) {
                 size_t new_alloc = cache_alloc ? cache_alloc * 2 : 16;
-                seq_t *new_cache = (seq_t *)realloc(cache, new_alloc * sizeof(seq_t));
+                seq_t *new_cache = mem_resize(seq_t, cache, new_alloc);
                 cache = new_cache;
                 cache_alloc = new_alloc;
             }

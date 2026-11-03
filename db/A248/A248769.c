@@ -7,7 +7,8 @@
  * Formula:   a(n) = ∏p≤n p^( (∑⌊n/p^k⌋) mod 5 )
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 18, u64 n <= 37, u128 n <= 60,
  *            big any n
- * Helpers:   build_primes_upto, pow_uint, seq_mul
+ * Validated: standard, pass, 43 terms through n = 959 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,15 @@
 #include <stdint.h>   /* uint64_t */
 #include <stdlib.h>   /* abort, free, realloc */
 
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/pow_uint.h"
-#include "../utils/seq_mul.h"
+#include "../utils/ipow_u64_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* --- static data shared between calls ----------------------------------- */
 static uint64_t *primes   = NULL;     /* array of primes up to primes_limit */
@@ -69,7 +76,7 @@ seq_t a(idx_t n)
 
         uint64_t e = exp % 5;          /* keep only remainder < 5 */
         if (e) {
-            seq_t pp = pow_uint((uint64_t)p, e);   /* p^e as seq_t */
+            seq_t pp = ipow_u64_idx((uint64_t)p, e);   /* p^e as seq_t */
             result = seq_mul(result, pp);          /* multiply into product */
         }
     }

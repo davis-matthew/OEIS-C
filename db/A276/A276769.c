@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 6665, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   prime
+ * Validated: standard, pass, 86 terms through n = 9243 (2026-11-03)
+ * Helpers:   mem, prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* compute bit mask of decimal digits of x (0‑9)   */
 static uint16_t digit_mask(seq_t x)
@@ -50,7 +52,7 @@ static void ensure_cache(size_t new_cap)
     if (new_cap <= cache_cap) return;
     size_t new_size = new_cap > cache_cap * 2 ? new_cap : cache_cap * 2;
     if (new_size == 0) new_size = 16;
-    cache_vals  = (seq_t *)   realloc(cache_vals,  new_size * sizeof(seq_t));
+    cache_vals  = mem_resize(seq_t, cache_vals, new_size);
     cache_done = (uint8_t *) realloc(cache_done, new_size * sizeof(uint8_t));
     if (!cache_vals || !cache_done) { /* allocation failed – use abort for safety */
         abort();

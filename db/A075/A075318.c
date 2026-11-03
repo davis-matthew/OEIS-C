@@ -10,7 +10,8 @@
  * Formula:   a(n) = 2*floor(n*phi^2)-1 (phi = (1+sqrt5)/2)
  * Range:     u8 n <= 49, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 986 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static cache of already computed terms */
 static seq_t *a_arr = NULL;      /* 1‑indexed array, a_arr[0] unused     */
@@ -40,9 +42,9 @@ static void ensure_capacity(idx_t n)
 
     /* ---------- Allocate or grow a_arr ---------- */
     if (a_arr == NULL) {
-        a_arr = (seq_t *)calloc(n + 1, sizeof(seq_t));
+        a_arr = mem_new(seq_t, n + 1);
     } else {
-        void *tmp = realloc(a_arr, (n + 1) * sizeof(seq_t));
+        void *tmp = mem_resize(seq_t, a_arr, (n + 1));
         a_arr = (seq_t *)tmp;
     }
 

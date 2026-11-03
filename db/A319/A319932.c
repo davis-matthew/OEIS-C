@@ -7,6 +7,7 @@
  * Formula:   a(n) = (1/720)*n*(n-10)*(n-1)*(n^3 - 34*n^2 + 181*n - 144)
  * Range:     i8 n <= 10, i16 n <= 29, i32 n <= 115, i64 n <= 4342,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 56 terms through n = 9298 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

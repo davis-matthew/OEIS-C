@@ -11,12 +11,14 @@
  *            index offset_row(r)
  * Range:     u8 n <= 15, u16 n <= 48, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --- static state ---------------------------------------------------- */
 
@@ -37,12 +39,12 @@ static void ensure_dp_capacity(idx_t need) {
         idx_t new_cap = dp_cap ? dp_cap << 1 : 16;
         while (new_cap < need)
             new_cap <<= 1;
-        dpPrev0 = (seq_t*)realloc(dpPrev0, new_cap * sizeof(seq_t));
-        dpPrev1 = (seq_t*)realloc(dpPrev1, new_cap * sizeof(seq_t));
-        dpPrev2 = (seq_t*)realloc(dpPrev2, new_cap * sizeof(seq_t));
-        dpCurr0 = (seq_t*)realloc(dpCurr0, new_cap * sizeof(seq_t));
-        dpCurr1 = (seq_t*)realloc(dpCurr1, new_cap * sizeof(seq_t));
-        dpCurr2 = (seq_t*)realloc(dpCurr2, new_cap * sizeof(seq_t));
+        dpPrev0 = mem_resize(seq_t, dpPrev0, new_cap);
+        dpPrev1 = mem_resize(seq_t, dpPrev1, new_cap);
+        dpPrev2 = mem_resize(seq_t, dpPrev2, new_cap);
+        dpCurr0 = mem_resize(seq_t, dpCurr0, new_cap);
+        dpCurr1 = mem_resize(seq_t, dpCurr1, new_cap);
+        dpCurr2 = mem_resize(seq_t, dpCurr2, new_cap);
         /* Zero the newly allocated part */
         for (idx_t i = dp_cap; i < new_cap; ++i) {
             dpPrev0[i] = 0;  dpPrev1[i] = 0;  dpPrev2[i] = 0;

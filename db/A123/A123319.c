@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 14, i16 n <= 28, i32 n <= 51, i64 n <= 51, i128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,12 +25,13 @@
         b[k]   = -c[k-1]                 (last element)
    where c[0..k-1] are the coefficients of p(k-1). */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate the first row (k = 0) */
     size_t cur_len = 1;
-    seq_t *cur = (seq_t *)malloc(cur_len * sizeof(seq_t));
+    seq_t *cur = mem_new(seq_t, cur_len);
     cur[0] = (seq_t)1;
 
     idx_t remaining = n;   /* index to locate in the triangle */
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
         ++row;                    /* move to next row k = row */
 
         size_t next_len = row + 1;
-        seq_t *next = (seq_t *)malloc(next_len * sizeof(seq_t));
+        seq_t *next = mem_new(seq_t, next_len);
 
         if (row == 1)     /* special initial row {1, -1} */
         {
@@ -62,13 +64,13 @@ seq_t a(idx_t n)
             next[row] = -cur[row - 1];
         }
 
-        free(cur);
+        mem_free(cur);
         cur = next;
         cur_len = next_len;
     }
 
     /* remaining now indexes the element within the final row */
     seq_t result = cur[remaining];
-    free(cur);
+    mem_free(cur);
     return result;
 }

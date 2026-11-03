@@ -7,13 +7,16 @@
  * Formula:   a(n) = (2^(3*n + 3 + (-1)^n) - (6 + (-1)^n)) / 9 , n ≥ 1
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 11, u64 n <= 21, u128 n <= 42,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 35 terms through n = 1062 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* External linkage as required */
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 /* Computes the nth term of OEIS sequence A350053 */
 seq_t a(idx_t n)
@@ -38,7 +41,7 @@ seq_t a(idx_t n)
     }
 
     /* Arbitrary‑precision build: rely on big_pow to generate 2^exp exactly */
-    seq_t pow2 = big_pow((seq_t)2, exp);
+    seq_t pow2 = ipow((seq_t)2, exp);
     seq_t numerator = pow2 - sub;
     return numerator / (seq_t)9;
 }

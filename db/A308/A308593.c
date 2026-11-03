@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{d|n} d^(n^2/d)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 11, u128 n <= 15,
  *            big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: standard, pass, 32 terms through n = 77 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 #include <stdlib.h>
 
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -67,7 +68,7 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < divCnt; ++i) {
         uint64_t d = divs[i];
         seq_t exp = nSq / (seq_t)d;
-        seq_t term = big_pow((seq_t)d, exp);
+        seq_t term = ipow((seq_t)d, exp);
         sum += term;
     }
 

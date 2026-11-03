@@ -12,13 +12,15 @@
  *            * a(1)=T(1,0), a(2)=T(2,0), a(3)=T(2,1),...
  * Range:     u8 n <= 24, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     size_t col = (size_t)(n - tprev - 1);
 
     /* Row 0. */
-    seq_t *row0 = (seq_t *)malloc(sizeof(seq_t));
+    seq_t *row0 = mem_new(seq_t, 1);
     if (!row0) return 0;
     row0[0] = (seq_t)1;
     size_t len0 = 1;
@@ -40,19 +42,19 @@ seq_t a(idx_t n)
     /* Row 1. */
     if (r == 1) {
         seq_t val = row0[0];   /* a(1) = 1 */
-        free(row0);
+        mem_free(row0);
         return val;
     }
 
-    seq_t *row1 = (seq_t *)malloc(sizeof(seq_t));
-    if (!row1) { free(row0); return 0; }
+    seq_t *row1 = mem_new(seq_t, 1);
+    if (!row1) { mem_free(row0); return 0; }
     row1[0] = (seq_t)1;            /* T(1,0)=1 */
     size_t len1 = 1;
 
     /* If r==2 we can answer directly. */
     if (r == 2) {
         seq_t val = (col == 0) ? row1[0] : (seq_t)2;
-        free(row0); free(row1);
+        mem_free(row0); mem_free(row1);
         return val;
     }
 
@@ -66,10 +68,10 @@ seq_t a(idx_t n)
 
     for (idx_t i = 2; i <= r; ++i) {
         len_curr = (size_t)i;
-        curr = (seq_t *)malloc(len_curr * sizeof(seq_t));
+        curr = mem_new(seq_t, len_curr);
         if (!curr) {
-            free(prev2);
-            free(prev1);
+            mem_free(prev2);
+            mem_free(prev1);
             return 0;
         }
         for (size_t k = 0; k < len_curr; ++k) {
@@ -85,7 +87,7 @@ seq_t a(idx_t n)
             curr[k] = t1 - t4 + t2 + t3;
         }
         /* Rotate rows: prev2←prev1, prev1←curr. */
-        free(prev2);
+        mem_free(prev2);
         prev2 = prev1;
         len_prev2 = len_prev1;
         prev1 = curr;
@@ -94,7 +96,7 @@ seq_t a(idx_t n)
 
     /* We now have the r‑th row in prev1. */
     seq_t result = prev1[col];
-    free(prev2);
-    free(prev1);
+    mem_free(prev2);
+    mem_free(prev1);
     return result;
 }

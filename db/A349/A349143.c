@@ -7,8 +7,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 23, u16 n <= 287, u32 n <= 9031, u64 n <= 9031,
- *            u128 n <= 9031, big any n
+ * Range:     u8 n <= 23, u16 n <= 287, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 93 terms through n = 9031 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -24,7 +25,9 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/factor_u64.h"   /* provides factor_u64 */
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
 
 static void _a_rec(uint64_t *pr, uint64_t *exp, size_t cnt, size_t idx,
                   uint64_t *cur, seq_t *sum, seq_t n_seq)

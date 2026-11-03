@@ -9,7 +9,8 @@
  *            satisfies p ≡ 3 (mod 4). (OEIS A080148)
  * Range:     u8 n <= 132, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   grow_idx_array
+ * Validated: standard, pass, 82 terms through n = 9870 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,17 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/grow_idx_array.h"
+
+/* grow an array of idx_t elements */
+static void grow_idx_array(idx_t **arr, size_t *num, size_t *cap, size_t add)
+{
+    if (*cap < *num + add) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        while (newcap < *num + add) newcap <<= 1;
+        *arr = (idx_t *)realloc(*arr, newcap * sizeof(idx_t));
+        *cap = newcap;
+    }
+}
 
 /* static state ---------------------------------------------------------- */
 

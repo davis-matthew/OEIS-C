@@ -7,15 +7,17 @@
  * Keywords:  nonn, tabl
  * Formula:   a(n) = binom( row*(row+1)/2 + (row - col), row - col ) where row
  *            = floor((sqrt(8*n+1)-1)/2) and col = n - row*(row+1)/2
- * Range:     u8 n <= 9, u16 n <= 14, u32 n <= 44, u64 n <= 45, u128 n <= 45,
+ * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 44, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 46 terms through n = 45 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n) {
     /* find the row that contains index n */
@@ -32,5 +34,5 @@ seq_t a(idx_t n) {
     idx_t N = triangular + (row - col);    /* numerator */
     idx_t K = row - col;                   /* denominator */
 
-    return binom(N, K);
+    return binomial(N, K);
 }

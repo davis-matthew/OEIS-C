@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   alloc2d, idx_to_coord
+ * Validated: partial, pass, 76 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,28 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/alloc2d.h"
-#include "../utils/idx_to_coord.h"
+#include "../utils/mem.h"
+
+/* Helper to allocate a 2D array of seq_t with zero initialization */
+static seq_t **alloc2d(idx_t rows, idx_t cols)
+{
+    seq_t **arr = (seq_t **)malloc(rows * sizeof(seq_t *));
+    if (!arr) return NULL;
+    for (idx_t i = 0; i < rows; ++i) {
+        arr[i] = mem_new(seq_t, cols);
+        if (!arr[i]) return NULL;
+    }
+    return arr;
+}
+
+/* Converts index n to coordinates (h,k) where n = T(h,k) */
+static void idx_to_coord(idx_t n, idx_t *h, idx_t *k)
+{
+    idx_t d = 0;
+    while ((d + 1) * (d + 2) / 2 <= n) ++d;
+    *h = n - d * (d + 1) / 2;
+    *k = d - *h;
+}
 
 static seq_t **dp_above = NULL;
 static seq_t **dp_below = NULL;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 55, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper to compute floor(sqrt(x)) for unsigned 64‑bit integers.
    Uses 128‑bit arithmetic to avoid overflow. */
@@ -79,7 +81,7 @@ seq_t a(idx_t n)
         /* DP table: (t+1) rows, (S+1) columns */
         size_t rows = (size_t)(t + 1);
         size_t cols = (size_t)(S + 1);
-        seq_t *dp = (seq_t *)calloc(rows * cols, sizeof(seq_t));
+        seq_t *dp = mem_new(seq_t, rows * cols);
         if (!dp)
             return 0;  /* allocation failure: return 0 as safe fallback */
 
@@ -97,7 +99,7 @@ seq_t a(idx_t n)
         }
 
         result += dp[t * cols + S];
-        free(dp);
+        mem_free(dp);
     }
 
     return result;

@@ -10,15 +10,20 @@
  *            enumerated by prime m (increasing) and multiplier a (1 … m‑1)
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   factorize, is_prime, mod_pow
+ * Validated: partial, pass, 69 terms through n = 70 (2026-11-01)
+ * Helpers:   factorize, is_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/is_prime.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
 #include "../utils/factorize.h"
-#include "../utils/mod_pow.h"
+#include "../utils/is_prime.h"
+#include "../utils/powmod.h"
 
 static idx_t primes[1024];
 static idx_t cum_terms[1024];
@@ -74,7 +79,7 @@ seq_t a(idx_t n)
         uint64_t q = fac[i];
         while (order % q == 0) {
             uint64_t test = order / q;
-            if (mod_pow((seq_t)a_val, test, (seq_t)m) == (seq_t)1)
+            if (powmod((seq_t)a_val, test, (seq_t)m) == (seq_t)1)
                 order = test;
             else
                 break;

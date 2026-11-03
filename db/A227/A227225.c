@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   digit_product, digit_sum, floor_cube_root, seq_mul
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   digit_product, digit_sum, ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,10 +24,35 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "../utils/digit_sum.h"
+#include <string.h>
 #include "../utils/digit_product.h"
-#include "../utils/floor_cube_root.h"
-#include "../utils/seq_mul.h"
+#include "../utils/digit_sum.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor cube root by binary search */
+static inline seq_t floor_cube_root(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    /* raise hi until hi^3 > x */
+    while (ipow_i32(hi, 3) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid3 = ipow_i32(mid, 3);
+        if (mid3 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 static seq_t *terms = NULL;        /* memoised sequence values */
 static size_t term_count = 0;      /* number of values currently stored */
@@ -38,7 +64,7 @@ static void grow_terms(size_t needed)
     if (term_cap >= needed) return;
     size_t new_cap = term_cap ? term_cap * 2 : 16;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *new_ptr = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, terms, new_cap);
     if (!new_ptr) abort();          /* out of memory */
     terms = new_ptr;
     term_cap = new_cap;

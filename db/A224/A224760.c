@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 10, u64 n <= 20, u128 n <= 26,
  *            big any n
- * Helpers:   digit_len, pow10
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-01)
+ * Helpers:   num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,19 @@
 /* A224760: a(1)=9; a(n)=smallest m such that a(n‑1)+m = concat(a(n‑1), leading digit of m). */
 
 #include <stdbool.h>
-#include "../utils/pow10.h"
-#include "../utils/digit_len.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/num_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -28,7 +40,7 @@ seq_t a(idx_t n)
     for (idx_t i = 2; i <= n; ++i) {
         for (int L = 1; L <= 9; ++L) {
             seq_t m = term * 9 + (seq_t)L;   /* candidate m */
-            int len = digit_len(m);          /* number of decimal digits of m */
+            int len = num_digits(m);          /* number of decimal digits of m */
             seq_t pow10len = pow10((idx_t)(len - 1));
             seq_t lead = m / pow10len;       /* leading digit of m */
             if (lead == (seq_t)L) {

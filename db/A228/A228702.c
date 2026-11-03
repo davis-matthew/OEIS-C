@@ -11,21 +11,23 @@
  *            of such strings that end with 0 (E[0]=1, E[k]=...
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;
 
     /* Allocate space for tribonacci values and helper counts */
     size_t N = (size_t)n + 1;
-    seq_t *S   = (seq_t *)calloc(N, sizeof(seq_t));   /* S[0..n] */
-    seq_t *E   = (seq_t *)calloc(N, sizeof(seq_t));   /* E[0..n] = end-with-0  */
-    seq_t *D   = (seq_t *)calloc(N, sizeof(seq_t));   /* D[0..n] = end-with-single-1 */
+    seq_t *S   = mem_new(seq_t, N);   /* S[0..n] */
+    seq_t *E   = mem_new(seq_t, N);   /* E[0..n] = end-with-0  */
+    seq_t *D   = mem_new(seq_t, N);   /* D[0..n] = end-with-single-1 */
 
     if (!S || !E || !D) { return 0; } /* memory failure – return 0 as a safe fallback */
 
@@ -60,9 +62,9 @@ seq_t a(idx_t n) {
     }
 
     /* Clean up */
-    free(S);
-    free(E);
-    free(D);
+    mem_free(S);
+    mem_free(E);
+    mem_free(D);
 
     return result;
 }

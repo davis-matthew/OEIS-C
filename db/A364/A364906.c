@@ -11,7 +11,8 @@
  *            1‑based index of prime p_i
  * Range:     u8 n <= 63, u16 n <= 79, u32 n <= 79, u64 n <= 79, u128 n <= 79,
  *            big any n
- * Helpers:   build_primes
+ * Validated: partial, pass, 79 terms through n = 79 (2026-11-03)
+ * Helpers:   build_primes, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/build_primes.h"
+#include "../utils/mem.h"
 
 static idx_t *primes = NULL;           /* list of primes ≤ current limit */
 static size_t prime_count = 0;
@@ -108,7 +110,7 @@ seq_t a(idx_t n)
         S += (size_t)exps[i] * (size_t)idxs[i];
 
     /* DP array for counting solutions: dp[t] = number of ways to reach sum t. */
-    seq_t *dp = (seq_t *)calloc(S + 1, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, S + 1);
     if (!dp)   /* memory error – the caller may handle it */
         return 0;
 
@@ -126,6 +128,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[S];
-    free(dp);
+    mem_free(dp);
     return result;
 }

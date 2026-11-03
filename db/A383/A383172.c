@@ -7,13 +7,15 @@
  * Formula:   a(n) = Σ_{k=3..n} 2^(n-k) * |Stirling1(n,k) * Stirling1(k,3)|
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,11 +32,11 @@ seq_t a(idx_t n)
     /* initialise on first invocation */
     if (capacity == 0) {
         capacity = 4;                         /* start with indices 0..3 */
-        prev = (seq_t*)calloc(capacity, sizeof(seq_t));
-        curr = (seq_t*)calloc(capacity, sizeof(seq_t));
-        pow2 = (seq_t*)calloc(capacity, sizeof(seq_t));
-        a3   = (seq_t*)calloc(capacity, sizeof(seq_t));
-        res  = (seq_t*)calloc(capacity, sizeof(seq_t));
+        prev = mem_new(seq_t, capacity);
+        curr = mem_new(seq_t, capacity);
+        pow2 = mem_new(seq_t, capacity);
+        a3   = mem_new(seq_t, capacity);
+        res  = mem_new(seq_t, capacity);
         if (!prev || !curr || !pow2 || !a3 || !res) abort();
 
         pow2[0] = (seq_t)1;
@@ -60,15 +62,15 @@ seq_t a(idx_t n)
 
         seq_t *tmp;
 
-        tmp = (seq_t*)realloc(prev, newcap * sizeof(seq_t));
+        tmp = mem_resize(seq_t, prev, newcap);
         if (!tmp) abort(); prev = tmp;
-        tmp = (seq_t*)realloc(curr, newcap * sizeof(seq_t));
+        tmp = mem_resize(seq_t, curr, newcap);
         if (!tmp) abort(); curr = tmp;
-        tmp = (seq_t*)realloc(pow2, newcap * sizeof(seq_t));
+        tmp = mem_resize(seq_t, pow2, newcap);
         if (!tmp) abort(); pow2 = tmp;
-        tmp = (seq_t*)realloc(a3, newcap * sizeof(seq_t));
+        tmp = mem_resize(seq_t, a3, newcap);
         if (!tmp) abort(); a3 = tmp;
-        tmp = (seq_t*)realloc(res, newcap * sizeof(seq_t));
+        tmp = mem_resize(seq_t, res, newcap);
         if (!tmp) abort(); res = tmp;
 
         for (size_t i = capacity; i < newcap; ++i) {

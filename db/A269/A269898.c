@@ -12,14 +12,26 @@
  *            a(6)=3529041005211929340, a(7)=3455975332370347120110
  * Range:     u8 none, u16 n <= 1, u32 n <= 3, u64 n <= 6, u128 n <= 12,
  *            big any n
- * Helpers:   seq_from_str
+ * Validated: standard, pass, 26 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/seq_from_str.h"
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
 
 seq_t a(idx_t n)
 {
@@ -46,7 +58,7 @@ seq_t a(idx_t n)
     /* initialise cache with first 7 values on first call */
     if (cached_n == 0) {
         cache_cap = 8;                 /* capacity at least up to 7 */
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache)
             return (seq_t)0;           /* allocation failure: give up gracefully */
         cache[0] = (seq_t)0;           /* unused */
@@ -63,12 +75,12 @@ seq_t a(idx_t n)
             new_cap <<= 1;                /* double until big enough */
         if (new_cap != cache_cap) {
             /* allocate a new buffer and copy old contents */
-            seq_t *new_cache = (seq_t*)malloc(new_cap * sizeof(seq_t));
+            seq_t *new_cache = mem_new(seq_t, new_cap);
             if (!new_cache)
                 return (seq_t)0;          /* allocation failure */
             for (size_t j = 0; j < cached_n + 1; ++j)
                 new_cache[j] = cache[j];
-            free(cache);
+            mem_free(cache);
             cache = new_cache;
             cache_cap = new_cap;
         }

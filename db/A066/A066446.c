@@ -6,8 +6,9 @@
  * Keywords:  easy, nonn, changed
  * Formula:   a(n) = C(d(n), 2) = d(n)*(d(n)-1)/2 where d(n) is the number of
  *            positive divisors of n
- * Range:     u8 n <= 359, u16 n <= 9029, u32 n <= 9029, u64 n <= 9029,
- *            u128 n <= 9029, big any n
+ * Range:     u8 n <= 359, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 104 terms through n = 9029 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

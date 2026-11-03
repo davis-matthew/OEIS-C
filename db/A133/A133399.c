@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 26, u32 n <= 59, u64 n <= 150,
  *            u128 n <= 409, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 62 terms through n = 8906 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 #define MAX_M 500          /* enough for n up to 10000 */
 #define MAX_N 520          /* maximum n in Stirling recurrence */
@@ -98,7 +99,7 @@ seq_t a(idx_t n)
     idx_t k = offset;                 /* k runs from 0 to floor(m/2) in ascending order */
 
     /* Compute T(m,k) = C(m,k) * k! * S(m-k+1, k+1) */
-    seq_t bin = binom((idx_t)m, (idx_t)k);          /* C(m,k) */
+    seq_t bin = binomial((idx_t)m, (idx_t)k);          /* C(m,k) */
     seq_t val = bin * fact[(idx_t)k];               /* multiply by k! */
     seq_t stir = S[(idx_t)(m - k + 1)][(idx_t)(k + 1)];
     val *= stir;

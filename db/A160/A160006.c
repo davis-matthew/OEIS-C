@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 103, u16 n <= 103, u32 n <= 103, u64 n <= 103,
  *            u128 n <= 103, big any n
- * Helpers:   none
+ * Validated: partial, pass, 103 terms through n = 103 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
  */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Comparator for qsort on idx_t, ascending order */
 static int cmp_idx(const void *p1, const void *p2)
@@ -80,7 +82,7 @@ static void init(void)
 
     /* Allocate arrays */
     sums = (idx_t *)malloc(sizeof(idx_t) * MAX_PAIRS);
-    a_vals = (seq_t *)malloc(sizeof(seq_t) * MAX_PAIRS);
+    a_vals = mem_new(seq_t, MAX_PAIRS);
     size_t sums_cnt = 0;
 
     /* Generate all a^2 + b^2 for 1 <= a <= b <= LIMIT_B */

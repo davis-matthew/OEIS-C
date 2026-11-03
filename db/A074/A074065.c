@@ -11,12 +11,14 @@
  *            a(n-1) otherwise
  * Range:     u8 n <= 24, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 74 terms through n = 74 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* memoized values, 1‑based index */
 static idx_t  max_computed = 0; /* highest index for which cache is filled */
@@ -28,7 +30,7 @@ static void ensure_cache(idx_t n)
     if (cache_cap < (size_t)(n + 1)) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
         while (new_cap < (size_t)(n + 1)) new_cap <<= 1;
-        cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 

@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = the nth prime of the form 5*k^2 - 3
- * Range:     u8 n <= 2, u16 n <= 15, u32 n <= 33, u64 n <= 33, u128 n <= 33,
- *            big any n
- * Helpers:   is_prime
+ * Range:     u8 n <= 2, u16 n <= 15, u32 n <= 1678, u64 n <= 5000,
+ *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 49 terms through n = 4508 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
 
         /* The product 5*k^2 may exceed 64 bits for very large k.  
            In the test ranges it safely fits in uint64_t, so we cast. */
-        if (val <= (seq_t)UINT64_MAX && is_prime((uint64_t)val)) {
+        if (val <= (seq_t)UINT64_MAX && is_prime_u64((uint64_t)val)) {
             count++;
             if (count == n) {
                 return val;

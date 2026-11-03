@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   digit_sum
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include "../utils/digit_sum.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  semiprime storage, spf sieve and dynamic growth                   */
@@ -78,7 +80,7 @@ static void extend_sem_list(idx_t needed_index) {
         }
 
         /* second pass: store them                                */
-        seq_t *new_list = (seq_t*)malloc((size_t)count * sizeof(seq_t));
+        seq_t *new_list = mem_new(seq_t, (size_t)count);
         if (!new_list) abort();
         idx_t pos = 0;
         for (idx_t n = 2; n <= target_limit; ++n) {
@@ -92,7 +94,7 @@ static void extend_sem_list(idx_t needed_index) {
         }
 
         /* replace old list                                          */
-        free(sem_list);
+        mem_free(sem_list);
         sem_list  = new_list;
         sem_size  = count;
         sem_limit = target_limit;
@@ -114,7 +116,7 @@ static void ensure_a_cap(idx_t cap) {
     if (a_cap >= cap) return;
     if (a_cap == 0) a_cap = 16;
     while (a_cap < cap) a_cap <<= 1;
-    seq_t *tmp = (seq_t*)realloc(a_list, a_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_list, a_cap);
     if (!tmp) abort();
     a_list = tmp;
 }

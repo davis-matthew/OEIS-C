@@ -10,7 +10,8 @@
  *            entry.)
  * Range:     u8 n <= 9, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* 1‑based cache of the lower Wythoff sequence s(n) = ⌊n·φ⌋. */
 static seq_t *s_cache = NULL;  /* s_cache[0] is unused */
@@ -31,7 +33,7 @@ static void ensure_s_cache(idx_t n)
         return;
 
     size_t new_len = (size_t)n;
-    seq_t *tmp = (seq_t *)realloc(s_cache, (new_len + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, s_cache, (new_len + 1));
     if (!tmp)  /* allocation failure – leave cache unchanged */
         return;
     s_cache = tmp;

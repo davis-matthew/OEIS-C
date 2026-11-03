@@ -11,11 +11,13 @@
  *            n)/(n+1) - 9*binomial(4*n+2 , n-1)/n (for n >= 1; a(0)=0)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 20,
  *            big any n
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 static inline __int128 binom128(idx_t a, idx_t b)

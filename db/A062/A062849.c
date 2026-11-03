@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 69, u16 n <= 734, u32 n <= 1775, u64 n <= 1775,
  *            u128 n <= 1775, big any n
- * Helpers:   mul8_mod64, satisfies
+ * Validated: standard, pass, 80 terms through n = 1666 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,37 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mul8_mod64.h"
-#include "../utils/satisfies.h"
+#include "../utils/mem.h"
+
+/* Fallback for systems without __int128 support.
+   The algorithm uses repeated doubling to avoid 128‑bit arithmetic. */
+static inline uint64_t mul8_mod64(uint64_t a, uint64_t mod)
+{
+    uint64_t res = 0;
+    for (int i = 0; i < 3; ++i)           /* multiply by 8 = 2^3 */
+    {
+        res = a + a;                      /* doubling */
+        if (res >= mod) res -= mod;
+        a   = res;
+    }
+    return res;
+}
+
+static inline bool satisfies(uint64_t x)
+{
+    if (x == 0) return true;
+    uint64_t rem  = 0;
+    uint64_t mult = 1 % x;                /* 8^0 mod x, always 1 for x>1 */
+    uint64_t bits = x;
+    while (bits)
+    {
+        if (bits & 1ULL)
+            rem = (rem + mult) % x;
+        bits >>= 1ULL;
+        mult = mul8_mod64(mult, x);
+    }
+    return rem == 0;
+}
 
 #if defined(__SIZEOF_INT128__)
 
@@ -43,7 +73,7 @@ seq_t a(idx_t n)
     if (seq_vals == NULL)
     {
         seq_cap = 8;
-        seq_vals = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_vals = mem_new(seq_t, seq_cap);
         if (!seq_vals) abort();   /* out of memory */
     }
 
@@ -55,7 +85,7 @@ seq_t a(idx_t n)
             if (seq_cnt == seq_cap)
             {
                 seq_cap *= 2;
-                seq_t *tmp = (seq_t *)realloc(seq_vals, seq_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, seq_vals, seq_cap);
                 if (!tmp) abort();
                 seq_vals = tmp;
             }

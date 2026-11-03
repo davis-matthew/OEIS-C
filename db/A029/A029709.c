@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = k where the k‑th and (k+1)‑th primes differ by 4
- * Range:     u8 n <= 57, u16 n <= 6932, u32 n <= 8825, u64 n <= 8825,
- *            u128 n <= 8825, big any n
- * Helpers:   none
+ * Range:     u8 n <= 57, u16 n <= 6932, u32 n <= 10213, u64 n <= 10213,
+ *            u128 n <= 10213, big any n
+ * Validated: standard, pass, 72 terms through n = 8825 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Determine the number of prime gaps of size 4 up to a given sieve limit
    and store their indices (1‑based) in a static array.  The sieve limit
@@ -90,7 +92,7 @@ seq_t a(idx_t n)
                 ++new_gaps;
 
         /* Allocate or resize the gap_indices array to hold all gaps. */
-        seq_t *tmp_gaps = (seq_t *)realloc(gap_indices, new_gaps * sizeof(seq_t));
+        seq_t *tmp_gaps = mem_resize(seq_t, gap_indices, new_gaps);
         if (tmp_gaps == NULL) {
             /* Non‑fatal – keep the old array around. */
             return 0;                          /* out of memory – abort */

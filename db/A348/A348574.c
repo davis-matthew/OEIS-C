@@ -9,11 +9,13 @@
  * Formula:   a(n) = n + binomial(n, ceil(n/2)) - 2 for n>=2; a(1)=1
  * Range:     u8 n <= 7, u16 n <= 7, u32 n <= 7, u64 n <= 7, u128 n <= 7,
  *            big any n
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

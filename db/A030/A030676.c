@@ -10,15 +10,53 @@
  *            starting at 1: 1,2,…,9,11,22,…,99,101,111,… etc
  * Range:     u8 n <= 4, u16 n <= 13, u32 n <= 36, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_sqrt, pow10, reverse_int
+ * Validated: standard, pass, 52 terms through n = 9917 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/pow10.h"
-#include "../utils/floor_sqrt.h"
-#include "../utils/reverse_int.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+static seq_t reverse_int(seq_t x, int digits)
+{
+    seq_t rev = 0;
+    for (int i = 0; i < digits; ++i) {
+        rev = rev * 10 + (x % 10);
+        x /= 10;
+    }
+    return rev;
+}
 
 static seq_t ceil_sqrt(seq_t x)
 {

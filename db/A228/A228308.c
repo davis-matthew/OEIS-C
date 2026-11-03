@@ -11,7 +11,8 @@
  *            k‑1) * C(n, k) / 2
  * Range:     u8 n <= 4, u16 n <= 17, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 34 terms through n = 35 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* Compare two seq_t values for qsort.  Works for built‑in integer types
    as well as for arbitrary‑precision integer classes that overload <.   */
@@ -78,7 +80,7 @@ seq_t a(idx_t n)
     idx_t offset = pos - prev;                 /* 0 ≤ offset < m-1 */
 
     size_t len = (size_t)(m-1);
-    seq_t *row = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *row = mem_new(seq_t, len);
     if (!row) return 0;                        /* memory allocation failed */
 
     /* Compute all triangle entries for this row. */
@@ -87,10 +89,10 @@ seq_t a(idx_t n)
     }
 
     /* Sort the row ascending. */
-    qsort(row, len, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(row, len, sizeof(seq_t), cmp_seq_t);
 
     /* The required term is at position 'offset' in the sorted row. */
     seq_t result = row[offset];
-    free(row);
+    mem_free(row);
     return result;
 }

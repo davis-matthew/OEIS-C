@@ -9,14 +9,24 @@
  *            101, and vertical 010 or 111, a(1)=13, a(2)=169,
  * Range:     u8 n <= 2, u16 n <= 9, u32 n <= 23, u64 n <= 50, u128 n <= 105,
  *            big any n
- * Helpers:   allowed_row
+ * Validated: standard, pass, 42 terms through n = 196 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/allowed_row.h"
+
+/* Helper: check if a 5‑bit pattern has the forbidden horizontal substrings */
+static bool allowed_row(uint8_t pat) {
+    for (int i = 0; i < 3; ++i) {
+        uint8_t sub = (pat >> i) & 0x7; /* 3 bits */
+        if (sub == 0x0 || sub == 0x5)   /* 000 or 101 */
+            return false;
+    }
+    return true;
+}
 
 /* Constants for the DP */
 #define ROWS 5

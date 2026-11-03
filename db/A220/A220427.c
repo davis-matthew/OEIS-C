@@ -10,7 +10,8 @@
  *            of k
  * Range:     u8 n <= 4, u16 n <= 11, u32 n <= 28, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   compute_S
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,27 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/compute_S.h"
+#include "../utils/mem.h"
+
+/* ---------- compute A005064 for 1..limit --------------------------- */
+static void compute_S(idx_t limit, const idx_t *spf, seq_t *S)
+{
+    S[0] = 0;
+    for (idx_t k = 1; k <= limit; ++k) {
+        seq_t sum = 0;
+        idx_t x = k;
+        idx_t lastp = 0;
+        while (x > 1) {
+            idx_t p = spf[x];
+            if (p != lastp) {
+                sum += (seq_t)p * (seq_t)p * (seq_t)p; /* p³ */
+                lastp = p;
+            }
+            x /= p;
+        }
+        S[k] = sum;
+    }
+}
 
 /* ---------- cached data ------------------------------------------- */
 static seq_t *a_cache   = NULL;   /* a[n]      */
@@ -64,14 +85,14 @@ static void ensure_cap(idx_t n)
     if (n <= cap) return;
 
     /* Allocate new tables */
-    seq_t  *new_a  = (seq_t  *)calloc((size_t)(n + 1), sizeof(seq_t));
-    seq_t  *new_S  = (seq_t  *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t  *new_a  = mem_new(seq_t, (size_t)(n + 1));
+    seq_t  *new_S  = mem_new(seq_t, (size_t)(n + 1));
     idx_t  *new_spf= (idx_t  *)calloc((size_t)(n + 1), sizeof(idx_t));
 
     if (!new_a || !new_S || !new_spf) {
         /* Allocation failure: keep old cache */
-        if (new_a) free(new_a);
-        if (new_S) free(new_S);
+        if (new_a) mem_free(new_a);
+        if (new_S) mem_free(new_S);
         if (new_spf) free(new_spf);
         return;
     }
@@ -81,8 +102,8 @@ static void ensure_cap(idx_t n)
     compute_a(n, new_S, new_a);
 
     /* Free old tables */
-    free(a_cache);
-    free(S_cache);
+    mem_free(a_cache);
+    mem_free(S_cache);
     free(spf_cache);
 
     /* Store new tables */

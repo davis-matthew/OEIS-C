@@ -8,17 +8,20 @@
  * Formula:   a(n) = 2 * (#i ≤ n with μ(i) = +1) * (#j ≤ n with μ(j) = –1)
  * Range:     u8 n <= 34, u16 n <= 500, u32 n <= 500, u64 n <= 500,
  *            u128 n <= 500, big any n
+ * Validated: standard, pass, 74 terms through n = 438 (2026-11-02)
  * Helpers:   mobius
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /* ≡ 2 × (number of square‑free integers ≤ n with an even number of
    prime factors) × (number of square‑free integers ≤ n with an odd
    number of prime factors)                     */
 
 #include <stdbool.h>
-#include "../utils/mobius.h"   /* needed only for the type definitions */
+#include <stdint.h>
+#include "../utils/mobius.h"
 
 seq_t a(idx_t n)
 {

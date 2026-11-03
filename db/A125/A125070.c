@@ -9,7 +9,8 @@
  *            of n that are not prime numbers
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_spf, is_prime_exponent
+ * Validated: standard, pass, 121 terms through n = 9598 (2026-11-03)
+ * Helpers:   build_spf, is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
+#include <stdlib.h>
 #include "../utils/build_spf.h"
-#include "../utils/is_prime_exponent.h"
+#include "../utils/is_prime_u64.h"
 
 static idx_t *spf = NULL;    /* smallest prime factor array */
 static idx_t spf_limit = 0;  /* last limit for which spf was built */
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
             nn /= p;
             ++e;
         }
-        if (!is_prime_exponent(e))
+        if (!is_prime_u64(e))
             ++count;
     }
 

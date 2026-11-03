@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 110, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_equal_4_and_5
+ * Validated: standard, pass, 82 terms through n = 9052 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,25 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/has_equal_4_and_5.h"
+#include "../utils/mem.h"
+
+/*-----------------------------------------------------------------------*/
+static bool has_equal_4_and_5(seq_t val)
+{
+    idx_t n4 = 0, n5 = 0;
+    seq_t x = val;
+
+    while (x > (seq_t)0) {
+        seq_t d = x % (seq_t)6;
+        if (d == (seq_t)4) {
+            ++n4;
+        } else if (d == (seq_t)5) {
+            ++n5;
+        }
+        x /= (seq_t)6;
+    }
+    return n4 == n5;          /* 0‑digit numbers also return true   */
+}
 
 /* Cached sequence values.  The cache grows lazily as larger n are requested. */
 static seq_t *cache = NULL;           /* pointer to array of seq_t values      */
@@ -44,11 +63,11 @@ static void ensure_cache(idx_t n)
 
     if (cache == NULL) {
         cache_cap = needed > (size_t)128 ? needed : (size_t)128;
-        cache     = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache     = mem_new(seq_t, cache_cap);
     } else if (cache_cap < needed) {
         size_t new_cap = cache_cap * 2;
         if (new_cap < needed) new_cap = needed;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) {
             /* In a real project we would handle out‑of‑memory.  For the
                purposes of the unit tests we simply abort. */

@@ -6,9 +6,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = number of partitions of n into distinct unitary divisors
  *            of n
- * Range:     u8 n <= 2309, u16 n <= 2309, u32 n <= 9498, u64 n <= 9498,
- *            u128 n <= 9498, big any n
- * Helpers:   none
+ * Range:     u8 n <= 2309, u16 n <= 2309, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 131 terms through n = 9498 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --------------- Helper functions for prime generation ------------------- */
 static int  primes[1225];
@@ -82,7 +84,7 @@ seq_t a(idx_t n)
     }
 
     /* Subset‑sum DP: count subsets of units summing to n */
-    seq_t *dp = (seq_t*)calloc((size_t)n_orig + 1, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)n_orig + 1);
     if (!dp) { free(units); return 0; }  /* allocation failure */
 
     dp[0] = 1;   /* empty subset */
@@ -96,7 +98,7 @@ seq_t a(idx_t n)
 
     seq_t result = dp[n_orig];
 
-    free(dp);
+    mem_free(dp);
     free(units);
     return result;
 }

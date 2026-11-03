@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 1552, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   uint_pow
+ * Validated: standard, pass, 83 terms through n = 8048 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
            a(p^e) = (p^(e+1)-1)/(p-1)            if p ≡ 1 or 7 (mod 8),  
            a(p^e) = (p^(e+1)+(-1)^e)/(p+1)        if p ≡ 3 or 5 (mod 8). */
 #include <stdint.h>
-#include "../utils/uint_pow.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +37,7 @@ seq_t a(idx_t n)
         ++e;
     }
     if (e != 0)
-        result *= uint_pow(2, e);
+        result *= ipow_idx(2, e);
 
     /* factor odd primes */
     for (idx_t p = 3; p <= temp / p; p += 2) {
@@ -47,7 +48,7 @@ seq_t a(idx_t n)
                 ++exp;
             }
 
-            seq_t p_pow = uint_pow((seq_t)p, (idx_t)(exp + 1));
+            seq_t p_pow = ipow_idx((seq_t)p, (idx_t)(exp + 1));
             seq_t term;
             if (p % 8 == 1 || p % 8 == 7) {
                 term = (p_pow - 1) / (p - 1);
@@ -62,7 +63,7 @@ seq_t a(idx_t n)
     /* remaining prime factor (if any) */
     if (temp > 1) {
         seq_t p = temp;
-        seq_t p_pow = uint_pow(p, 2);     /* exp = 1 → exponent + 1 = 2 */
+        seq_t p_pow = ipow_idx(p, 2);     /* exp = 1 → exponent + 1 = 2 */
         seq_t term;
         if (p % 8 == 1 || p % 8 == 7) {
             term = (p_pow - 1) / (p - 1);

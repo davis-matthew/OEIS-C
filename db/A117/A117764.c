@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 8, u64 n <= 13, u128 n <= 15,
  *            big any n
- * Helpers:   digit_sum
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include "../utils/digit_sum.h"
+#include "../utils/mem.h"
 
 static bool initialized = false;
 static seq_t *lucas_arr   = NULL;   /* all generated Lucas numbers      */
@@ -38,7 +40,7 @@ static seq_t prev1 = 0;   /* L_{k-1} */
 static void ensure_cap(seq_t **arr, size_t *len, size_t *cap) {
     if (*len == *cap) {
         size_t new_cap = (*cap == 0) ? 8 : (*cap << 1);
-        *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, new_cap);
         *cap = new_cap;
     }
 }
@@ -78,10 +80,10 @@ seq_t a(idx_t n) {
     if (!initialized) {
         /* initial capacities */
         lucas_cap   = 8;
-        lucas_arr   = (seq_t *)malloc(lucas_cap * sizeof(seq_t));
+        lucas_arr   = mem_new(seq_t, lucas_cap);
 
         special_cap = 8;
-        special_arr = (seq_t *)malloc(special_cap * sizeof(seq_t));
+        special_arr = mem_new(seq_t, special_cap);
 
         prev2 = (seq_t)1;   /* L0 */
         prev1 = (seq_t)3;   /* L1 */

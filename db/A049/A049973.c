@@ -11,14 +11,19 @@
  *            2^(p+1) + 2 - n a(n) = (a(1)+...+a(n-1)) + a(m)
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   floor_log2_uint64, pow2
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   ilog2, mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/floor_log2_uint64.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/ilog2.h"
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 static seq_t *a_arr   = NULL;   /* a values, 1‑based; a_arr[0] unused */
 static seq_t *pref    = NULL;   /* cumulative sums, pref[0]=0 */
@@ -35,11 +40,11 @@ static void ensure_capacity(size_t needed)
     while (newcap < needed)
         newcap <<= 1;            /* double until sufficient */
 
-    seq_t *tmp = (seq_t *)realloc(a_arr, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_arr, newcap);
     if (!tmp) exit(EXIT_FAILURE);
     a_arr = tmp;
 
-    tmp = (seq_t *)realloc(pref, newcap * sizeof(seq_t));
+    tmp = mem_resize(seq_t, pref, newcap);
     if (!tmp) exit(EXIT_FAILURE);
     pref = tmp;
 
@@ -66,7 +71,7 @@ seq_t a(idx_t n)
             pref[i] = pref[i-1] + a_arr[i];
         } else {
             /* use p = floor_log2(i-2) to satisfy 2^p < i-1 <= 2^(p+1) */
-            idx_t p = floor_log2_uint64(i - 2);
+            idx_t p = ilog2(i - 2);
             idx_t pow2p1 = (idx_t)pow2(p + 1);   /* 2^(p+1) */
             idx_t m = pow2p1 + (idx_t)2 - i;     /* m = 2^(p+1)+2-i */
 

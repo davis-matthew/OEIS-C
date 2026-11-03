@@ -13,7 +13,8 @@
  *            C(n) = {c₁,…,cₗ} be the indices of the primes in...
  * Range:     u8 n <= 116, u16 n <= 116, u32 n <= 116, u64 n <= 116,
  *            u128 n <= 116, big any n
- * Helpers:   none
+ * Validated: partial, pass, 115 terms through n = 116 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 #define PRIME_LIMIT 2000000          /* enough for all n up to about 10⁴ */
 
@@ -125,8 +127,8 @@ static VecInfo *build_vector(uint64_t n)
     VecInfo *info = &vec_cache[n];
     if (n == 1) {                  /* leaf */
         info->len = 0;
-        info->s   = (seq_t *)malloc(sizeof(seq_t));
-        info->t   = (seq_t *)malloc(sizeof(seq_t));
+        info->s   = mem_new(seq_t, 1);
+        info->t   = mem_new(seq_t, 1);
         if (!info->s || !info->t) abort();
         info->s[0] = (seq_t)1;
         info->t[0] = (seq_t)0;
@@ -147,8 +149,8 @@ static VecInfo *build_vector(uint64_t n)
     }
 
     /* sum over children */
-    seq_t *sum_s = (seq_t *)calloc(max_child_len + 1, sizeof(seq_t));
-    seq_t *sum_t = (seq_t *)calloc(max_child_len + 1, sizeof(seq_t));
+    seq_t *sum_s = mem_new(seq_t, max_child_len + 1);
+    seq_t *sum_t = mem_new(seq_t, max_child_len + 1);
     if (!sum_s || !sum_t) abort();
     for (size_t i = 0; i < child_cnt; ++i) {
         VecInfo *c = child_vec[i];
@@ -159,8 +161,8 @@ static VecInfo *build_vector(uint64_t n)
     }
 
     info->len = max_child_len + 1;
-    info->s   = (seq_t *)malloc((info->len + 1) * sizeof(seq_t));
-    info->t   = (seq_t *)malloc((info->len + 1) * sizeof(seq_t));
+    info->s   = mem_new(seq_t, (info->len + 1));
+    info->t   = mem_new(seq_t, (info->len + 1));
     if (!info->s || !info->t) abort();
 
     info->s[0] = (seq_t)1;
@@ -173,8 +175,8 @@ static VecInfo *build_vector(uint64_t n)
         info->t[k] = sum_t_k + sum_s_k_1;
     }
 
-    free(sum_s);
-    free(sum_t);
+    mem_free(sum_s);
+    mem_free(sum_t);
     return info;
 }
 
@@ -189,12 +191,12 @@ static void append_to_flat(seq_t *vals, size_t cnt)
 {
     while (flat_len + cnt > flat_cap) {
         size_t new_cap = flat_cap ? flat_cap << 1 : 16;
-        seq_t *new_arr = (seq_t *)realloc(flat_terms, new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, flat_terms, new_cap);
         if (!new_arr) abort();
         flat_terms = new_arr;
         flat_cap   = new_cap;
     }
-    memcpy(&flat_terms[flat_len], vals, cnt * sizeof(seq_t));
+    mem_copy(&flat_terms[flat_len], vals, cnt * sizeof(seq_t));
     flat_len += cnt;
 }
 

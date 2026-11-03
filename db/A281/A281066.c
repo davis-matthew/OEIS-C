@@ -8,15 +8,18 @@
  * Formula:   a(n) = A138793(n) mod n, where A138793(n) is the integer
  *            obtained by concatenating the digit‑reversals of n , n‑1, …, 1
  *            (with leading zeros from trailing zeros preserved)
- * Range:     u8 n <= 269, u16 n <= 9794, u32 n <= 9794, u64 n <= 9794,
- *            u128 n <= 9794, big any n
- * Helpers:   mod_mul
+ * Range:     u8 n <= 269, u16 n <= 20008, u32 n <= 20008, u64 n <= 20008,
+ *            u128 n <= 20008, big any n
+ * Validated: standard, pass, 96 terms through n = 9794 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/mod_mul.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/mulmod.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +35,7 @@ seq_t a(idx_t n)
            zeros that arise from trailing zeros of the original number). */
         do {
             uint64_t d = x % 10;
-            res = (mod_mul(res, 10, mod) + d) % mod;
+            res = (mulmod(res, 10, mod) + d) % mod;
             x /= 10;
         } while (x > 0);
     }

@@ -9,14 +9,17 @@
  *            (n>0)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 22, u128 n <= 37,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 38 terms through n = 516 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +34,7 @@ seq_t a(idx_t n)
         while (n >= new_cap)
             new_cap *= 2;
 
-        seq_t *new_mem = (seq_t *)realloc(memo, new_cap * sizeof(seq_t));
+        seq_t *new_mem = mem_resize(seq_t, memo, new_cap);
         bool   *new_comp = (bool *)realloc(computed, new_cap * sizeof(bool));
 
         for (size_t i = cap; i < new_cap; ++i) {
@@ -54,7 +57,7 @@ seq_t a(idx_t n)
         } else {
             seq_t sum = 0;
             for (idx_t k = 0; k < i; ++k) {
-                seq_t coeff = binom(i + k - 1, i - k - 1);
+                seq_t coeff = binomial(i + k - 1, i - k - 1);
                 sum += coeff * memo[k];
             }
             memo[i] = sum;

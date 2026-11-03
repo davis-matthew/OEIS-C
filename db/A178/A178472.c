@@ -8,6 +8,7 @@
  * Formula:   a(n) = Sum_{d|n, d<n} 2^(d-1) * (-mu(n/d))
  * Range:     u8 n <= 17, u16 n <= 33, u32 n <= 65, u64 n <= 129,
  *            u128 n <= 257, big any n
+ * Validated: standard, pass, 67 terms through n = 952 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -35,6 +36,7 @@ static int mu_of_idx(idx_t m) {
 /* ---------- main sequence function ---------- */
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n) {

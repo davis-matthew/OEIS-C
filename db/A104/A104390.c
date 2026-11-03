@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 813, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_sum_uint64, is_two_smith, sp_of
+ * Validated: standard, pass, 63 terms through n = 9762 (2026-11-03)
+ * Helpers:   digit_sum_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,46 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/digit_sum_uint64.h"
-#include "../utils/is_two_smith.h"
-#include "../utils/sp_of.h"
+#include "../utils/digit_sum_u64.h"
+#include "../utils/mem.h"
+
+/*  Computes the digit sum of prime factors (with multiplicity) of n  */
+static uint64_t sp_of(uint64_t n)
+{
+    uint64_t sp = 0;
+    /* factor 2 separately */
+    if ((n & 1) == 0) {
+        uint64_t exp = 0;
+        while ((n & 1) == 0) {
+            n >>= 1;
+            ++exp;
+        }
+        sp += exp * digit_sum_u64(2ULL);
+    }
+    /* odd factors */
+    for (uint64_t p = 3; p <= n / p; p += 2) {
+        if (n % p == 0) {
+            uint64_t exp = 0;
+            while (n % p == 0) {
+                n /= p;
+                ++exp;
+            }
+            sp += exp * digit_sum_u64(p);
+        }
+    }
+    /* remainder is a prime > sqrt(original n) */
+    if (n > 1) {
+        sp += digit_sum_u64(n);
+    }
+    return sp;
+}
+
+/*--------- test whether a 64‑bit integer is a 2‑Smith number ---------*/
+static bool is_two_smith(uint64_t x)
+{
+    if (x < 32) return false;          /* the first 2‑Smith number is 32 */
+    return sp_of(x) == 2 * digit_sum_u64(x);
+}
 
 /*--------- helper: trial‑division factorisation (64‑bit) -------------*/
 
@@ -38,7 +76,7 @@ seq_t a(idx_t n)
     /* grow cache if needed */
     if (terms == NULL) {
         terms_cap = 64;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
         if (!terms) exit(EXIT_FAILURE);
     }
     while (terms_len < (size_t)n) {
@@ -52,7 +90,7 @@ seq_t a(idx_t n)
         if (terms_len == terms_cap) {
             terms_cap <<= 1;
             size_t new_bytes = terms_cap * sizeof(seq_t);
-            seq_t *tmp = (seq_t *)realloc(terms, new_bytes);
+            seq_t *tmp = mem_resize(seq_t, terms, (new_bytes) / sizeof(seq_t));
             if (!tmp) exit(EXIT_FAILURE);
             terms = tmp;
         }

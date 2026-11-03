@@ -10,14 +10,17 @@
  *            all positive divisors of m
  * Range:     i8 n <= 12, i16 n <= 672, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   factor_u64, my_pow_seq
+ * Validated: standard, pass, 90 terms through n = 952 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/my_pow_seq.h"
+#include "../utils/ipow_idx.h"
 
 /* sum of divisors sigma(m) for a uint64_t m */
 static seq_t sigma_u64(uint64_t m)
@@ -33,7 +36,7 @@ static seq_t sigma_u64(uint64_t m)
     for (size_t i = 0; i < cnt; ++i) {
         seq_t p = (seq_t)primes[i];
         idx_t e = (idx_t)(exps[i] + 1);          /* need e+1 */
-        seq_t term = my_pow_seq(p, e);
+        seq_t term = ipow_idx(p, e);
         term = (term - 1) / (p - 1);             /* (p^(e+1)-1)/(p-1) */
         res *= term;
     }

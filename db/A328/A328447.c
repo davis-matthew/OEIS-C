@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 93 terms through n = 8473 (2026-11-01)
  * Helpers:   digit_frequencies
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
  * up to permutation: sort the digits in increasing order.  If the leading
  * digit is 0, move the smallest non‑zero digit to the front.  The function
  * implements this definition directly by counting digit frequencies. */
+#include <stdbool.h>
 #include "../utils/digit_frequencies.h"
 
 seq_t a(idx_t n)

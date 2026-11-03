@@ -10,9 +10,10 @@
  *            each n we find the row r and column k. A(r,k) = ord'(2, ord'(k,
  *            r)), where ord'(x, m) = the multiplicative order of x modulo the
  *            largest divisor of m that is coprime to x
- * Range:     u8 n <= 8995, u16 n <= 8995, u32 n <= 8995, u64 n <= 8995,
- *            u128 n <= 8995, big any n
- * Helpers:   coprime_divisor, gcd, mod_pow, odd_part
+ * Range:     u8 n <= 10011, u16 n <= 10011, u32 n <= 10011, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 107 terms through n = 8995 (2026-11-01)
+ * Helpers:   gcd, odd_part, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,10 +22,35 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/gcd.h"
-#include "../utils/mod_pow.h"
-#include "../utils/coprime_divisor.h"
 #include "../utils/odd_part.h"
+#include "../utils/powmod.h"
+
+/* Compute the largest divisor of n that is coprime to k. */
+static seq_t coprime_divisor(seq_t n, seq_t k)
+{
+    seq_t d = n;
+    seq_t tmp = n;
+    seq_t p = 2;
+    while (p * p <= tmp) {
+        if (tmp % p == 0) {
+            bool k_has_p = (k % p == 0);
+            while (tmp % p == 0) tmp /= p;
+            if (k_has_p) {
+                while (d % p == 0) d /= p;
+            }
+        }
+        ++p;
+    }
+    if (tmp > 1) {
+        if (k % tmp == 0) {
+            while (d % tmp == 0) d /= tmp;
+        }
+    }
+    return d;
+}
 
 /* Return multiplicative order of base modulo mod.
    mod > 1 and gcd(base, mod) == 1 is assumed. */
@@ -68,7 +94,7 @@ static seq_t multiplicative_order(seq_t base, seq_t mod)
         seq_t f = pf[i];
         while (order % f == 0) {
             seq_t cand = order / f;
-            if (mod_pow(base, (uint64_t)cand, mod) == 1)
+            if (powmod(base, (uint64_t)cand, mod) == 1)
                 order = cand;
             else
                 break;

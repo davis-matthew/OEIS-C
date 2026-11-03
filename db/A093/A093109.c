@@ -10,7 +10,8 @@
  *            such values, producing the terms in increasing order
  * Range:     u8 none, u16 none, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- auxiliary types ---------- */
 typedef struct {
@@ -140,7 +142,7 @@ static void init(void)
 
     /* --- build the heap with one element per prime (except 5) --- */
     heap_cap = prime_cnt + 1;  /* capacity for heap nodes */
-    heap = (node_t*)malloc(heap_cap * sizeof(node_t));
+    heap = mem_new(node_t, heap_cap);
     heap_sz = 0;
     for (size_t i = 0; i < prime_cnt; ++i) {
         uint64_t p = prime_tab[i];
@@ -152,7 +154,7 @@ static void init(void)
 
     /* --- sequence array --- */
     seq_cap = 256;
-    seq = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+    seq = mem_new(seq_t, seq_cap);
     seq_sz = 0;
 
     init_done = true;
@@ -170,7 +172,7 @@ seq_t a(idx_t n)
         seq_t val = cur.val;
         if (seq_sz == seq_cap) {
             seq_cap <<= 1;
-            seq = (seq_t*)realloc(seq, seq_cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, seq_cap);
         }
         seq[seq_sz++] = val;
 

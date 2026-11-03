@@ -7,6 +7,7 @@
  * Formula:   a(n) = sum_{d|n, d odd, d <= floor(sqrt(n))} d^4 (OEIS A347175)
  * Range:     u8 n <= 24, u16 n <= 288, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 91 terms through n = 9800 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

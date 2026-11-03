@@ -8,8 +8,9 @@
  *            sequence of Legendre symbols has period 263 and its partial sums
  *            are periodic with the same period, since Σ_{k=1}^{263} (k|263) =
  *            0
- * Range:     u8 n <= 9807, u16 n <= 9807, u32 n <= 9807, u64 n <= 9807,
- *            u128 n <= 9807, big any n
+ * Range:     u8 n <= 59701, u16 n <= 59701, u32 n <= 59701, u64 n <= 59701,
+ *            u128 n <= 59701, big any n
+ * Validated: standard, pass, 94 terms through n = 9807 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

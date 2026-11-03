@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   dow_feb1
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,22 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/dow_feb1.h"
+#include "../utils/mem.h"
+
+/* Zeller's Congruence for the Gregorian calendar.
+   For years after 1582 it returns 0 = Saturday, 1 = Sunday, …, 6 = Friday.
+   We use month = 14 and year-1 for February. */
+static idx_t dow_feb1(idx_t y)
+{
+    /* Month 14 represents February of the preceding year. */
+    const idx_t m = 14;
+    const idx_t Y = y - 1;
+    const idx_t q = 1;                /* Day of month */
+    const idx_t K = Y % 100;
+    const idx_t J = Y / 100;
+    const idx_t h = (q + (13 * (m + 1)) / 5 + K + K / 4 + J / 4 + 5 * J) % 7;
+    return h;                         /* 0 = Saturday, … */
+}
 
 /* Utility: test whether y is a leap year in the Gregorian calendar. */
 static bool is_leap(idx_t y)
@@ -38,7 +54,7 @@ seq_t a(idx_t n)
 
     if (!cache) {                      /* initialise cache */
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache_len = 0;
         last_year = 0;
     }
@@ -55,7 +71,7 @@ seq_t a(idx_t n)
         if (is_leap(year) && dow_feb1(year) == 0) { /* five Saturdays in Feb */
             if (cache_len == cache_cap) {          /* grow cache if needed */
                 cache_cap <<= 1;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = (seq_t)year;
             last_year = year;

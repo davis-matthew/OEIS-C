@@ -7,11 +7,13 @@
  * Formula:   a(n) = Sum_{k=0..floor(n/4)} binomial(n,k) * binomial(n-3k,k)
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 31, u64 n <= 34, u128 n <= 34,
  *            big any n
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* Compute a(n) for any n ≥ 0 */

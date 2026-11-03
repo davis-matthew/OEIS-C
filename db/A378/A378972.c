@@ -7,7 +7,8 @@
  * Formula:   a(n) = p_strict(n+2) - 2*p_strict(n+1) + p_strict(n)
  * Range:     i8 n <= 60, i16 n <= 69, i32 n <= 69, i64 n <= 69, i128 n <= 69,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 70 terms through n = 69 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache for strict partition numbers p_strict(0 .. dp_limit) */
 static seq_t *dp = NULL;
@@ -25,7 +27,7 @@ static idx_t dp_limit = 0;
 static void compute_dp(idx_t up)
 {
     /* allocate new array */
-    seq_t *newdp = (seq_t *)malloc((size_t)(up + 1) * sizeof(seq_t));
+    seq_t *newdp = mem_new(seq_t, (size_t)(up + 1));
     if (!newdp)
         return;                      /* allocation failed – caller will return 0 */
 
@@ -39,7 +41,7 @@ static void compute_dp(idx_t up)
             newdp[i] += newdp[i - k];
 
     /* replace old cache, freeing the previous memory */
-    free(dp);
+    mem_free(dp);
     dp = newdp;
     dp_limit = up;
 }

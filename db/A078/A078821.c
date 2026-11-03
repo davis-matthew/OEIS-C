@@ -12,6 +12,7 @@
  *            (n-r)/2 * diff = k-m (must be even) * X1 = diff/...
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

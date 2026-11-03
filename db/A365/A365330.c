@@ -10,7 +10,8 @@
  *            (gives the OEIS sequence A365330)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *fact  = NULL;   /* factorials */
 static seq_t *c_arr = NULL;   /* C[n] – number of compositions of n with parts ≤3 */
@@ -30,9 +32,9 @@ static void ensure_cache(idx_t n)
     if ((size_t)n + 1 <= cache_sz) return;        /* already computed */
 
     size_t new_sz = (size_t)n + 1;
-    fact   = (seq_t *)realloc(fact,   new_sz * sizeof(seq_t));
-    c_arr  = (seq_t *)realloc(c_arr,  new_sz * sizeof(seq_t));
-    T_arr  = (seq_t *)realloc(T_arr,  new_sz * sizeof(seq_t));
+    fact   = mem_resize(seq_t, fact, new_sz);
+    c_arr  = mem_resize(seq_t, c_arr, new_sz);
+    T_arr  = mem_resize(seq_t, T_arr, new_sz);
 
     if (cache_sz == 0) {                         /* initialise first elements */
         fact[0]  = (seq_t)1;

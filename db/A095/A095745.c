@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   bitlen_uint64, next_prime
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-01)
+ * Helpers:   next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,12 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/next_prime.h"   /* next_prime(uint64_t) → next prime ≥ start */
-#include "../utils/bitlen_uint64.h"/* bitlen_uint64(uint64_t) → number of bits needed */
+#include "../utils/next_prime.h"
+
+static inline uint64_t bitlen_uint64(uint64_t n) {
+    /* n > 0 */
+    return 64 - __builtin_clzll(n);
+}
 
 /* static data used for memoisation */
 static seq_t *seq_primes = NULL;   /* array of found sequence values            */

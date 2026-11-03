@@ -13,7 +13,8 @@
  *            change y_i = z_i + (i-1)(k+1) with z_i≥0 and z...
  * Range:     u8 n <= 52, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*   seq_t       is the type used for sequence values   (unspecified, could be
     uint64_t, unsigned __int128, or big integer class).        */
@@ -49,12 +51,12 @@ seq_t a(idx_t n)
     /* Recompute the DP table if necessary                                 */
     if (dp_rows < nmax_needed + 1 || dp_cols < kmax_needed + 1) {
         /* free old table if it exists                                     */
-        free(dp);
+        mem_free(dp);
 
         dp_rows = nmax_needed + 1;
         dp_cols = kmax_needed + 1;
         /* allocate                                       */
-        dp = (seq_t *)malloc(dp_rows * dp_cols * sizeof(seq_t));
+        dp = mem_new(seq_t, dp_rows * dp_cols);
         if (!dp) { /* allocation failed – return 0 as a safe fallback      */
             return (seq_t)0;
         }

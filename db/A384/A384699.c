@@ -10,6 +10,7 @@
  *            by the square and then lexicographically within each square
  * Range:     u8 n <= 686, u16 n <= 1839, u32 n <= 1839, u64 n <= 1839,
  *            u128 n <= 1839, big any n
+ * Validated: standard, pass, 103 terms through n = 1527 (2026-11-01)
  * Helpers:   build_primes_upto, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -27,8 +28,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
 #include "../utils/build_primes_upto.h"
+#include "../utils/is_prime.h"
 
 /* static storage for primes */
 static uint64_t *primes = NULL;

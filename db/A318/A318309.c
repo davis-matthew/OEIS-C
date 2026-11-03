@@ -7,9 +7,10 @@
  * Formula:   a(n) is the restricted‑growth sequence transform * of b(n) =
  *            2*phi(n) – n; i.e., a(n) is the order of first * appearance of
  *            b(n) among b(1)..b(n)
- * Range:     u8 n <= 225, u16 n <= 9806, u32 n <= 9806, u64 n <= 9806,
- *            u128 n <= 9806, big any n
- * Helpers:   calc_phi
+ * Range:     u8 n <= 526, u16 n <= 65536, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 116 terms through n = 9806 (2026-11-03)
+ * Helpers:   mem, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,9 @@
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/calc_phi.h"
+#include <stdint.h>
+#include "../utils/totient_seq.h"
+#include "../utils/mem.h"
 
 typedef struct {
     seq_t key;
@@ -46,7 +49,7 @@ seq_t a(idx_t n)
     /* grow cache to hold indices up to n (including 0) */
     if ((size_t)n + 1 > cache_cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;            /* allocation failure – unlikely in tests */
         cache = tmp;
         cache_cap = new_cap;
@@ -55,7 +58,7 @@ seq_t a(idx_t n)
     /* compute values from max_n+1 up to n */
     if (n > max_n) {
         for (idx_t i = max_n + 1; i <= n; ++i) {
-            seq_t b = (seq_t)2 * calc_phi((seq_t)i) - (seq_t)i;
+            seq_t b = (seq_t)2 * totient_seq((seq_t)i) - (seq_t)i;
 
             /* look for an existing key */
             seq_t label = 0;
@@ -71,7 +74,7 @@ seq_t a(idx_t n)
                 label = (seq_t)(tab_cnt + 1);
                 if (tab_cnt == tab_cap) {
                     size_t new_cap = tab_cap ? tab_cap * 2 : 4;
-                    entry_t *tmp = (entry_t *)realloc(table, new_cap * sizeof(entry_t));
+                    entry_t *tmp = mem_resize(entry_t, table, new_cap);
                     if (!tmp) return 0; /* allocation failure – unlikely in tests */
                     table = tmp;
                     tab_cap = new_cap;

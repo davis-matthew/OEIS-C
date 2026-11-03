@@ -11,15 +11,45 @@
  *            polynomials u(n,x). The sequence is indexed from 1
  * Range:     u8 n <= 24, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   row_of_terms, terms_before
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/row_of_terms.h"
-#include "../utils/terms_before.h"
+#include "../utils/mem.h"
+
+/* Find the row r (≥1) that contains the n‑th term.
+   A row r has (r==1?1: (r==2?1: r-1)) terms. */
+static idx_t
+row_of_terms(idx_t n)
+{
+    if (n == 0)
+        return 0; /* undefined, but harmless */
+
+    idx_t r = 0;
+    idx_t cum = 0;
+    while (cum < n) {
+        ++r;
+        if (r == 1 || r == 2)
+            cum += 1;
+        else
+            cum += r - 1;
+    }
+    return r;
+}
+
+/* Number of terms before row r (n ≥ 1). */
+static idx_t
+terms_before(idx_t r)
+{
+    if (r == 1)
+        return 0;
+    /* 1 + (r-1)(r-2)/2   (valid for r≥2) */
+    return 1 + ((r - 1) * (r - 2)) / 2;
+}
 
 /* Return the n‑th term of A207625. */
 seq_t
@@ -41,8 +71,8 @@ a(idx_t n)
     }
 
     /* Allocate space for the polynomial of the previous row. */
-    seq_t *u_prev = (seq_t *)malloc(sizeof(seq_t));
-    seq_t *v_prev = (seq_t *)malloc(sizeof(seq_t));
+    seq_t *u_prev = mem_new(seq_t, 1);
+    seq_t *v_prev = mem_new(seq_t, 1);
     u_prev[0] = (seq_t)1; /* u(1,x)=1 */
     v_prev[0] = (seq_t)1; /* v(1,x)=1 */
     idx_t len_u_prev = 1;
@@ -54,8 +84,8 @@ a(idx_t n)
         idx_t len_u_cur = (cur == 2) ? 1 : cur - 1; /* u(cur) */
         idx_t len_v_cur = cur;                      /* v(cur) */
 
-        seq_t *u_cur = (seq_t *)malloc(len_u_cur * sizeof(seq_t));
-        seq_t *v_cur = (seq_t *)malloc(len_v_cur * sizeof(seq_t));
+        seq_t *u_cur = mem_new(seq_t, len_u_cur);
+        seq_t *v_cur = mem_new(seq_t, len_v_cur);
 
         /* Initialize to zero. */
         for (idx_t i = 0; i < len_u_cur; ++i)
@@ -81,8 +111,8 @@ a(idx_t n)
             u_cur[i] += v_prev[i];
 
         /* Free previous row and advance. */
-        free(u_prev);
-        free(v_prev);
+        mem_free(u_prev);
+        mem_free(v_prev);
         u_prev = u_cur;
         v_prev = v_cur;
         len_u_prev = len_u_cur;
@@ -93,8 +123,8 @@ a(idx_t n)
     seq_t result = u_prev[pos];
 
     /* Clean up. */
-    free(u_prev);
-    free(v_prev);
+    mem_free(u_prev);
+    mem_free(v_prev);
 
     return result;
 }

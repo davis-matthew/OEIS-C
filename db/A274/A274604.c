@@ -11,13 +11,35 @@
  *            for * all n >= 0
  * Range:     u8 n <= 505, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _s_of
+ * Validated: standard, pass, 109 terms through n = 9304 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_s_of.h"
+
+static int64_t _s_of(idx_t n)
+{
+    int64_t s = 0;
+    if (n == 0)
+        return 0;
+
+    /* Find the most significant set bit (mask). */
+    idx_t mask = 1;
+    while (mask <= (n >> 1))
+        mask <<= 1;
+
+    /* Process bits from MSB down to LSB. */
+    for (idx_t m = mask; m > 0; m >>= 1)
+    {
+        if (n & m)
+            s = s + 1;   /* bit 1 */
+        else
+            s = -s;      /* bit 0 */
+    }
+    return s;
+}
 
 seq_t a(idx_t n)
 {

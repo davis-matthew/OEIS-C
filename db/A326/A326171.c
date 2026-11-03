@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 75, i16 n <= 75, i32 n <= 75, i64 n <= 75, i128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Global storage for real and imaginary parts of the walk. */
 static seq_t *real_part = NULL;
@@ -56,8 +58,8 @@ seq_t a(idx_t n)
         size_t new_cap = capacity > 0 ? capacity << 1 : 4;
         if (new_cap < (size_t)n + 1)
             new_cap = (size_t)n + 1;
-        real_part = (seq_t *)realloc(real_part, new_cap * sizeof(seq_t));
-        imag_part = (seq_t *)realloc(imag_part, new_cap * sizeof(seq_t));
+        real_part = mem_resize(seq_t, real_part, new_cap);
+        imag_part = mem_resize(seq_t, imag_part, new_cap);
         capacity = new_cap;
     }
 

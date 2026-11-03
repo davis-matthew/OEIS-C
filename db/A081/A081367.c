@@ -8,13 +8,15 @@
  *            This follows from a(n) = Sum_{k=0..n} A046716(n,k)*2^k
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 95 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Required headers for dynamic allocation */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for memoization */
 static seq_t *cache = NULL;
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
         /* New size */
         idx_t new_size = n + 1U;
         /* Reallocate cache */
-        seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (!new_cache)   /* Allocation failed – abort */
             abort();
         cache      = new_cache;

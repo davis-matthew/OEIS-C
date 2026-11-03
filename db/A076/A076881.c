@@ -8,12 +8,17 @@
  * Formula:   a(n) = pi(n) - floor(n / log(n))
  * Range:     i8 n <= 100, i16 n <= 100, i32 n <= 100, i64 n <= 100,
  *            i128 n <= 100, big any n
- * Helpers:   compute_pi
+ * Validated: partial, pass, 99 terms through n = 100 (2026-11-01)
+ * Helpers:   prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/compute_pi.h"
+#include <stddef.h>
+#include <stdlib.h>
+#include <math.h>
+#include <stdint.h>
+#include "../utils/prime_pi.h"
 #include <math.h>
 #include <stdint.h>
 
@@ -24,7 +29,7 @@ seq_t a(idx_t n)
         return 0; /* offset does not apply */
 
     /* Number of primes ≤ n (uses the provided helper). */
-    seq_t pi_val = compute_pi(n);
+    seq_t pi_val = prime_pi(n);
 
     /* Compute floor(n / ln(n)) using double precision.  Cast to an integer
        type that is safe for the target build (uint64_t works for all sizes

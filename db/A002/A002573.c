@@ -11,13 +11,18 @@
  *            0; f(r, m) = f(r, r) for m > r; f(r, m) = f(r, m-1)...
  * Range:     u8 n <= 12, u16 n <= 21, u32 n <= 40, u64 n <= 78, u128 n <= 154,
  *            big any n
- * Helpers:   zalloc_arr
+ * Validated: standard, pass, 56 terms through n = 466 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/zalloc_arr.h"
+#include "../utils/mem.h"
+
+static seq_t *zalloc_arr(idx_t len) {
+    return mem_new(seq_t, (size_t)len);
+}
 
 static seq_t **rows = NULL;
 static idx_t built = 0;      /* rows 0 .. built-1 are computed */

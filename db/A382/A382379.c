@@ -12,12 +12,14 @@
  *            4*(1-3x+2x^2+2x^3+x^4) / ((1+x)(1-3x+x^2)(1-x-x^2))
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 22, u64 n <= 45, u128 n <= 91,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 976 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     idx_t need = n + 1;                 /* we need cache[0..n] */
     if (cache_cap < need) {
         idx_t new_cap = need;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) {               /* allocation failure – return zero */
             return (seq_t)0;
         }

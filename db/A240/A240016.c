@@ -9,7 +9,8 @@
  *            (∏_{j=1..k}(1-x^(2j))·∏_{j=1..k+7}(1-x^(2j)))
  * Range:     u8 n <= 30, u16 n <= 62, u32 n <= 161, u64 n <= 481,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 977 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    keeping the memory consumption well below the 2 GB limit. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,9 +35,9 @@ seq_t a(idx_t n)
     /* allocate 8 rows for a circular buffer of p(k, t) */
     seq_t *rows[8];
     for (size_t i = 0; i < 8; ++i) {
-        rows[i] = (seq_t *)calloc(stride, sizeof(seq_t));
+        rows[i] = mem_new(seq_t, stride);
         if (!rows[i]) {
-            for (size_t j = 0; j < i; ++j) free(rows[j]);
+            for (size_t j = 0; j < i; ++j) mem_free(rows[j]);
             return 0;
         }
     }
@@ -80,7 +82,7 @@ seq_t a(idx_t n)
     }
 
     /* free allocated memory */
-    for (size_t i = 0; i < 8; ++i) free(rows[i]);
+    for (size_t i = 0; i < 8; ++i) mem_free(rows[i]);
 
     return ans;
 }

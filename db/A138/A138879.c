@@ -8,13 +8,15 @@
  * Formula:   a(n) = A000041(n)*n - A000041(n-1)*(n-1)
  * Range:     u8 n <= 11, u16 n <= 32, u32 n <= 105, u64 n <= 365,
  *            u128 n <= 1344, big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 9793 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>   /* for size_t */
 #include <stdlib.h>   /* for malloc, realloc, free */
+#include "../utils/mem.h"
 
 static seq_t *P = NULL;          /* partition numbers p[0]..p[last] */
 static size_t P_alloc = 0;       /* allocated array capacity (in elements) */
@@ -28,7 +30,7 @@ static void compute_partitions_upto(idx_t n)
     if (needed > P_alloc) {
         size_t new_cap = P_alloc ? P_alloc * 2 : 16;
         if (new_cap < needed) new_cap = needed;
-        seq_t *tmp = (seq_t *)realloc(P, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, P, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         P = tmp;
         P_alloc = new_cap;

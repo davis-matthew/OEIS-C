@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 26, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   seq_gcd_generic
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,7 @@
  */
 
 #include <stdint.h>  /* for uint64_t */
-#include "../utils/seq_gcd_generic.h"
+#include "../utils/gcd.h"
 
 /* Multiply v by (num / den) exactly, cancelling factors with GCDs. */
 static seq_t mul_div(seq_t v, idx_t num, idx_t den)
@@ -38,14 +39,14 @@ static seq_t mul_div(seq_t v, idx_t num, idx_t den)
     seq_t d = (seq_t)den;
 
     /* cancel common factor between m and d */
-    seq_t g = seq_gcd_generic(m, d);
+    seq_t g = gcd(m, d);
     if (g > 1) {
         m /= g;
         d /= g;
     }
 
     /* cancel remaining factor of d with v */
-    g = seq_gcd_generic(v, d);
+    g = gcd(v, d);
     if (g > 1) {
         v /= g;
         d /= g;

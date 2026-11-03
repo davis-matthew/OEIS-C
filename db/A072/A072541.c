@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 32, u16 n <= 1720, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   isPrime
+ * Validated: standard, pass, 72 terms through n = 9472 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
    The sequence lists the pairs (k, k+4). */
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/isPrime.h"
+#include "../utils/is_prime.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +36,7 @@ seq_t a(idx_t n)
 
     /* Generate k's on demand, caching them for future calls. */
     while (size < need) {
-        if (isPrime(next - 1) && isPrime(next + 3)) {
+        if (is_prime(next - 1) && is_prime(next + 3)) {
             if (size == cap) {          /* grow the array if necessary */
                 size_t new_cap = cap ? cap * 2 : 16;
                 idx_t *tmp = (idx_t*)realloc(ks, new_cap * sizeof(idx_t));

@@ -13,13 +13,15 @@
  *            a(6)=1, a(7)=1, a(8)=2, a(9)=1, a(10)=3, a(11)=3
  * Range:     u8 n <= 32, u16 n <= 58, u32 n <= 111, u64 n <= 216,
  *            u128 n <= 427, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 985 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[12] = {
     0, 0, 1, 0, 1, 1, 1, 1, 2, 1, 3, 3
@@ -37,7 +39,7 @@ static void ensure_cache(size_t needed)
 
     size_t new_cap = needed;
 #if defined(__cplusplus)
-    seq_t *tmp = reinterpret_cast<seq_t*>(realloc(cache, new_cap * sizeof(seq_t)));
+    seq_t *tmp = reinterpret_cast<seq_t*>(mem_resize(seq_t, cache, new_cap));
 #else
     seq_t *tmp = realloc(cache, new_cap * sizeof(seq_t));
 #endif

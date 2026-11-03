@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 9, u64 n <= 20, u128 n <= 43,
  *            big any n
- * Helpers:   triple_ok
+ * Validated: standard, pass, 34 terms through n = 182 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -38,7 +39,18 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/triple_ok.h"
+
+/* Utility: test horizontal constraint for a triple of columns */
+static bool triple_ok(uint8_t c1, uint8_t c2, uint8_t c3) {
+    for (int r = 0; r < 7; ++r) {
+        uint8_t b1 = (c1 >> r) & 1U;
+        uint8_t b2 = (c2 >> r) & 1U;
+        uint8_t b3 = (c3 >> r) & 1U;
+        if (b1 == b2 && b2 == b3)        /* 000 or 111 forbidden */
+            return false;
+    }
+    return true;
+}
 
 #define NUM_COLS 35          /* number of column types satisfying vertical rule */
 

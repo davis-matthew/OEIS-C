@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 73, u32 n <= 223, u64 n <= 696,
  *            u128 n <= 1274, big any n
+ * Validated: standard, pass, 79 terms through n = 1243 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -21,6 +22,7 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 static seq_t triangle_T(idx_t r, idx_t k)

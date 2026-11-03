@@ -8,13 +8,15 @@
  *            A015102)
  * Range:     i8 n <= 2, i16 n <= 3, i32 n <= 5, i64 n <= 7, i128 n <= 10,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 27 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>   /* size_t */
 #include <stdlib.h>   /* malloc, realloc, abort */
+#include "../utils/mem.h"
 
 static seq_t *cache_seq = NULL;   /* a(n) values */
 static seq_t *cache_pow = NULL;   /* (-6)^i values */
@@ -28,8 +30,8 @@ static void ensure_cache(idx_t upper)
 
     /* Grow the arrays */
     #if defined(__cplusplus)
-        seq_t *tmp_seq = static_cast<seq_t*>(realloc(cache_seq, needed * sizeof(seq_t)));
-        seq_t *tmp_pow = static_cast<seq_t*>(realloc(cache_pow, needed * sizeof(seq_t)));
+        seq_t *tmp_seq = mem_resize(seq_t, cache_seq, needed);
+        seq_t *tmp_pow = mem_resize(seq_t, cache_pow, needed);
     #else
         seq_t *tmp_seq = (seq_t*)realloc(cache_seq, needed * sizeof(seq_t));
         seq_t *tmp_pow = (seq_t*)realloc(cache_pow, needed * sizeof(seq_t));

@@ -7,7 +7,8 @@
  * Formula:   a(n) = a(n-9)+a(n-10)+a(n-11)+a(n-12)+a(n-13)+a(n-14)+a(n-15)
  * Range:     u8 n <= 47, u16 n <= 81, u32 n <= 147, u64 n <= 280,
  *            u128 n <= 546, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 957 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Initial values: a(0) = 1; a(1) = a(2) = … = a(8) = 0; a(9)=…=a(15)=1   */
 /* Exact computation, memoised per call.  Works for any seq_t type. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* first call – allocate array big enough for the requested n */
     if (dp == NULL) {
         size_t sz = (size_t)(n + 1);
-        dp = (seq_t*)calloc(sz, sizeof(seq_t));
+        dp = mem_new(seq_t, sz);
         if (dp == NULL) return (seq_t)0;  /* allocation failed */
 
         /* initialise the first nine values, but only those that exist */
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     /* if we need values beyond what we have, extend the table and compute */
     else if (n > max_n) {
         size_t new_sz = (size_t)(n + 1);
-        seq_t *tmp = (seq_t*)realloc(dp, new_sz * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, new_sz);
         if (tmp == NULL) return (seq_t)0;  /* allocation failed */
         dp = tmp;
 

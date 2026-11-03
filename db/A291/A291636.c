@@ -11,7 +11,8 @@
  *            natural order
  * Range:     u8 n <= 24, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static idx_t sieve_limit = 0;          /* current maximum of the sieve   */
 static uint32_t *spf = NULL;           /* smallest prime factor table    */
@@ -99,7 +101,7 @@ static void ensure_seq_capacity(idx_t needed)
     if (seq_cap >= needed) return;
     idx_t new_cap = seq_cap ? seq_cap << 1 : 64;
     if (new_cap < needed) new_cap = needed;
-    seq_arr = (seq_t *)realloc(seq_arr, new_cap * sizeof(seq_t));
+    seq_arr = mem_resize(seq_t, seq_arr, new_cap);
     seq_cap = new_cap;
 }
 
@@ -113,7 +115,7 @@ seq_t a(idx_t n)
     /* First call: initialise data structures. */
     if (seq_cap == 0) {
         seq_cap = 64;
-        seq_arr = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_arr = mem_new(seq_t, seq_cap);
         seq_len = 0;
         seq_arr[seq_len++] = (seq_t)1;   /* a(1) = 1 */
         recompute_sieve(1024);            /* initial sieve */

@@ -8,8 +8,8 @@
  * Formula:   a(n) = gcd( lcm{d+1 : d|n}, lcm{d-1 : d>1 and d|n} )
  * Range:     u8 n <= 35, u16 n <= 119, u32 n <= 629, u64 n <= 3359,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, factor_to_exp, factor_u64, gcd, seq_mul,
- *            seq_pow, update_max
+ * Validated: standard, pass, 93 terms through n = 8836 (2026-11-01)
+ * Helpers:   build_primes_upto, factor_u64, gcd, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,13 +19,46 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/gcd.h"
-#include "../utils/seq_mul.h"
-#include "../utils/seq_pow.h"
+#include <string.h>
 #include "../utils/build_primes_upto.h"
 #include "../utils/factor_u64.h"
-#include "../utils/factor_to_exp.h"
-#include "../utils/update_max.h"
+#include "../utils/gcd.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* helper: factor a number (<= limit) using a list of primes,
+   store exponents in exp_arr (must be zeroed before call). */
+static void factor_to_exp(uint64_t value,
+                          const uint64_t *primes, size_t primecnt,
+                          uint8_t *exp_arr)
+{
+    for (size_t i = 0; i < primecnt && primes[i] * primes[i] <= value; ++i) {
+        while (value % primes[i] == 0) {
+            value /= primes[i];
+            exp_arr[i] += 1;
+        }
+    }
+    if (value > 1) {                  /* remaining prime factor */
+        /* find its index in the primes list */
+        for (size_t i = 0; i < primecnt; ++i)
+            if (primes[i] == value) {
+                exp_arr[i] += 1;
+                break;
+            }
+        /* If it is not found (should not happen for value <= limit) */
+    }
+}
+
+/* helper: merge factor exponents into the maximums */
+static void update_max(uint8_t *max_exp, const uint8_t *local_exp, size_t primecnt)
+{
+    for (size_t i = 0; i < primecnt; ++i)
+        if (local_exp[i] > max_exp[i]) max_exp[i] = local_exp[i];
+}
 
 seq_t a(idx_t n)
 {
@@ -94,7 +127,7 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < primecnt; ++i) {
         uint8_t common = exp1[i] < exp2[i] ? exp1[i] : exp2[i];
         if (common > 0) {
-            seq_t p_pow = seq_pow((seq_t)prime_list[i], (idx_t)common);
+            seq_t p_pow = ipow_idx((seq_t)prime_list[i], (idx_t)common);
             result = seq_mul(result, p_pow);
         }
     }

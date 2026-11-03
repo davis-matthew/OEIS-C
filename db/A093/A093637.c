@@ -11,12 +11,14 @@
  *            a(k‑1)·x^k)
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 24, u64 n <= 45, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 1979 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Memoised cache for the sequence up to the largest requested index. */
 static seq_t *cache = NULL;
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* If necessary, grow the cache and recompute everything up to n. */
     if (n >= cache_size) {
         idx_t new_size = n + 1;
-        seq_t *new_cache = (seq_t*)calloc((size_t)new_size, sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, (size_t)new_size);
         if (!new_cache) return (seq_t)0;  /* allocation failed */
 
         /* a(0) = 1.  All other entries start at 0. */
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
         }
 
         /* Replace old cache. */
-        if (cache) free(cache);
+        if (cache) mem_free(cache);
         cache     = new_cache;
         cache_size = new_size;
     }

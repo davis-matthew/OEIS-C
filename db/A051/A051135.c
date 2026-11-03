@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 202, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 9927 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* a(n) = number of times n occurs in the Hofstadter–Conway 10000 sequence A004001 */
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* static state shared across calls */
 static seq_t *seq = NULL;          /* sequence values, 1-indexed */
@@ -33,10 +35,10 @@ static void ensure_seq_cap(size_t need)
     if (seq_cap >= need) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 8;
     while (new_cap < need) new_cap *= 2;
-    seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, new_cap);
     if (seq == NULL) abort();
     /* zero-initialize new part */
-    memset(seq + seq_cap, 0, (new_cap - seq_cap) * sizeof(seq_t));
+    mem_set(seq + seq_cap, 0, (new_cap - seq_cap) * sizeof(seq_t));
     seq_cap = new_cap;
 }
 
@@ -46,9 +48,9 @@ static void ensure_freq_cap(size_t need)
     if (freq_cap >= need) return;
     size_t new_cap = freq_cap ? freq_cap * 2 : 8;
     while (new_cap < need) new_cap *= 2;
-    freq = (seq_t *)realloc(freq, new_cap * sizeof(seq_t));
+    freq = mem_resize(seq_t, freq, new_cap);
     if (freq == NULL) abort();
-    memset(freq + freq_cap, 0, (new_cap - freq_cap) * sizeof(seq_t));
+    mem_set(freq + freq_cap, 0, (new_cap - freq_cap) * sizeof(seq_t));
     freq_cap = new_cap;
 }
 
@@ -59,12 +61,12 @@ static void init_tables(void)
 
     /* allocate initial space for seq and freq */
     seq_cap = 8;
-    seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
-    memset(seq, 0, seq_cap * sizeof(seq_t));
+    seq = mem_new(seq_t, seq_cap);
+    mem_set(seq, 0, seq_cap * sizeof(seq_t));
 
     freq_cap = 8;
-    freq = (seq_t *)malloc(freq_cap * sizeof(seq_t));
-    memset(freq, 0, freq_cap * sizeof(seq_t));
+    freq = mem_new(seq_t, freq_cap);
+    mem_set(freq, 0, freq_cap * sizeof(seq_t));
 
     /* seed the Hofstadter–Conway sequence */
     seq[1] = 1;

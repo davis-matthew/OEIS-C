@@ -9,7 +9,8 @@
  *            10^k*n) whose digit sum is a multiple of the digit sum of n
  * Range:     u8 n <= 18, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   digit_sum, is_power_of_ten
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-01)
+ * Helpers:   digit_sum
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,16 @@
 /* This implementation performs an exhaustive search over multiples k of n
    (k ≥ 2), skipping k that are powers of ten, and returns the first
    multiple whose digit sum is divisible by the digit sum of n. */
-#include "../utils/digit_sum.h"
 #include <stdbool.h>
-#include "../utils/is_power_of_ten.h"
+#include "../utils/digit_sum.h"
+
+static inline bool is_power_of_ten(idx_t k)
+{
+    if (k < 10) return false;            /* 10^0 = 1 is already excluded (k≥2) */
+    while (k % 10 == 0) k /= 10;
+    return k == 1;
+}
+#include <stdbool.h>
 
 seq_t a(idx_t n)
 {

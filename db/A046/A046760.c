@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 137, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_count
+ * Validated: standard, pass, 83 terms through n = 9671 (2026-11-01)
+ * Helpers:   num_digits0
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/digit_count.h"
+#include <math.h>
+#include "../utils/num_digits0.h"
 
 /* Return true iff x is a wasteful number */
 static bool is_wasteful(uint64_t x)
@@ -38,9 +40,9 @@ static bool is_wasteful(uint64_t x)
             m >>= 1;
             ++exp;
         }
-        dsum += digit_count(2);
+        dsum += num_digits0(2);
         if (exp > 1)
-            dsum += digit_count(exp);
+            dsum += num_digits0(exp);
     }
 
     /* odd prime factors */
@@ -51,17 +53,17 @@ static bool is_wasteful(uint64_t x)
                 m /= p;
                 ++exp;
             }
-            dsum += digit_count(p);
+            dsum += num_digits0(p);
             if (exp > 1)
-                dsum += digit_count(exp);
+                dsum += num_digits0(exp);
         }
     }
 
     /* remaining prime factor > sqrt(original x) */
     if (m > 1)
-        dsum += digit_count(m);
+        dsum += num_digits0(m);
 
-    uint64_t l = digit_count(x);
+    uint64_t l = num_digits0(x);
     return dsum > l;
 }
 

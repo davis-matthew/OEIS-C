@@ -8,15 +8,16 @@
  * Formula:   a(n) = T(row, col) where T(r,k)=C(r*(r-1)/2 - k*(k-1)/2 + r - k
  *            + 1, r - k), row is the largest integer r with r*(r+1)/2 ≤ n,
  *            and col = n - r*(r+1)/2
- * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 44, u64 n <= 47, u128 n <= 47,
+ * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   binom_seq
+ * Validated: partial, pass, 48 terms through n = 47 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom_seq.h"
+#include "../utils/binomial.h"
 
 /* Find the row r such that r*(r+1)/2 ≤ n < (r+1)*(r+2)/2.  */
 static inline idx_t
@@ -49,5 +50,5 @@ seq_t a(idx_t n)
     const idx_t start = (idx_t)start128;
     const idx_t choose = r - k;
 
-    return binom_seq(start, choose);
+    return binomial(start, choose);
 }

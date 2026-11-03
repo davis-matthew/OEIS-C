@@ -11,7 +11,8 @@
  *            n‑th such index (1‑based)
  * Range:     u8 none, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   digit_squaresum, seq_malloc
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,29 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_malloc.h"
-#include "../utils/digit_squaresum.h"
+#include "../utils/mem.h"
+
+/* helper to allocate an array of seq_t that works in both C and C++ */
+static inline seq_t *seq_malloc(idx_t n)
+{
+#ifdef __cplusplus
+    return mem_new(seq_t, n);
+#else
+    return (seq_t *)malloc(n * sizeof(seq_t));
+#endif
+}
+
+/* Sum of squares of decimal digits of n (uint64_t). */
+static uint64_t digit_squaresum(uint64_t n)
+{
+    uint64_t sum = 0;
+    while (n) {
+        unsigned d = n % 10;
+        sum += (uint64_t)d * (uint64_t)d;
+        n /= 10;
+    }
+    return sum;
+}
 
 /* Simple deterministic primality test for uint64_t, sufficient for
    the primes needed up to n≈10000. */
@@ -60,7 +82,7 @@ static void ensure_buffer(idx_t N)
         seq_t *tmp = seq_malloc(new_cap);
         if (!tmp) abort();
         for (idx_t i = 0; i < seq_size; ++i) tmp[i] = seq_vals[i];
-        free(seq_vals);
+        mem_free(seq_vals);
         seq_vals = tmp;
         seq_cap  = new_cap;
     }

@@ -6,14 +6,19 @@
  * Offset:    4    (a(4) is the first term)
  * Keywords:  nonn
  * Formula:   least k in [2, ⌊√n⌋] with kⁿ ≡ k (mod n), or 0 if none
- * Range:     u8 n <= 1170, u16 n <= 9099, u32 n <= 9099, u64 n <= 9099,
- *            u128 n <= 9099, big any n
- * Helpers:   mod_pow
+ * Range:     u8 n <= 1170, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 103 terms through n = 9099 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 /* Integer floor‑square‑root for idx_t (uint64_t). */
 static inline idx_t floor_isqrt_u64(idx_t n)
@@ -46,7 +51,7 @@ seq_t a(idx_t n)
     seq_t mod = (seq_t)n;
 
     for (idx_t k = 2; k <= limit; ++k) {
-        if (mod_pow((seq_t)k, n, mod) == (seq_t)k)
+        if (powmod((seq_t)k, n, mod) == (seq_t)k)
             return (seq_t)k;
     }
     return 0;

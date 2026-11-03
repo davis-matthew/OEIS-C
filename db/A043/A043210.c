@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   has56_seq
+ * Validated: standard, pass, 58 terms through n = 939 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,20 @@
    Computed by brute‑force enumeration. */
 
 #include <stdbool.h>
-#include "../utils/has56_seq.h"
+
+/* Test whether x has the substring "56" or "65" in base 9 (most significant first) */
+static bool has56_seq(seq_t x)
+{
+    seq_t prev = (seq_t)(-1); /* sentinel for no previous digit */
+    while (x > (seq_t)0) {
+        int d = (int)(x % (seq_t)9);
+        if ((d == 5 && prev == 6) || (d == 6 && prev == 5))
+            return true;
+        prev = d;
+        x /= (seq_t)9;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

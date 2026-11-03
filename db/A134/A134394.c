@@ -9,14 +9,23 @@
  *            sequence a(n) is the triangle read by rows with offset 1
  * Range:     u8 n <= 83, u16 n <= 83, u32 n <= 83, u64 n <= 83, u128 n <= 83,
  *            big any n
- * Helpers:   triangular_cumulative, triangular_preceding
+ * Validated: partial, pass, 83 terms through n = 83 (2026-11-01)
+ * Helpers:   triangular
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/triangular_cumulative.h"
-#include "../utils/triangular_preceding.h"
+#include "../utils/triangular.h"
+
+static inline idx_t triangular_cumulative(idx_t r)
+/* returns (r+1)*(r+2)/2, the total number of terms up to and including row r */
+{
+    __uint128_t a = (r + 1U);
+    a = a * (r + 2U);
+    a /= 2U;
+    return (idx_t)a;
+}
 
 seq_t a(idx_t n)
 {
@@ -30,7 +39,7 @@ seq_t a(idx_t n)
             low = mid + 1U;
     }
     idx_t r = low;
-    idx_t preceding = triangular_preceding(r);
+    idx_t preceding = triangular(r);
     idx_t c = n - preceding - 1U;        /* column index, 0‑based */
 
     /* Compute T(r,c) = (c - r - 1)*(c*(c - r) - 2)/2 using signed 128‑bit for safety */

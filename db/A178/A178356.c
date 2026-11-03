@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 8, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
- * Helpers:   dec_by_one
+ * Validated: full, pass, 8 terms through n = 8 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,24 @@
    0 is returned. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/dec_by_one.h"
+#include "../utils/mem.h"
+
+/* Return true if x has successive digits that decrease by 1. */
+static bool dec_by_one(seq_t x)
+{
+    if (x < 10)            /* single digit always ok */
+        return true;
+    seq_t next = x % 10;   /* least significant digit */
+    x /= 10;
+    while (x > 0) {
+        seq_t cur = x % 10;
+        if (cur != next + 1)          /* not decreasing by 1 */
+            return false;
+        next = cur;
+        x /= 10;
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {
@@ -50,7 +68,7 @@ seq_t a(idx_t n)
         }
 
         /* Allocate array for the good Fibonacci numbers */
-        good = (seq_t*)malloc(sizeof(seq_t) * fibcnt);
+        good = mem_new(seq_t, fibcnt);
         if (!good) return 0; /* allocation failure, return 0 */
 
         bool first = true;

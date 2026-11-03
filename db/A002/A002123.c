@@ -10,7 +10,8 @@
  *            3<=p<=largest_prime_less_than_n) + (n if n is prime else 0)
  * Range:     i8 n <= 18, i16 n <= 39, i32 n <= 82, i64 n <= 167,
  *            i128 n <= 336, big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 862 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static bool is_prime(uint64_t n) {
     if (n < 2) return false;
@@ -52,16 +54,16 @@ seq_t a(idx_t n) {
     
     if (memo.vals == NULL) {
         memo.len = (n < 1000) ? 1000 : n + 100;
-        memo.vals = (seq_t *)calloc(memo.len, sizeof(seq_t));
+        memo.vals = mem_new(seq_t, memo.len);
         memo.computed = (unsigned char *)calloc(memo.len, sizeof(unsigned char));
         if (memo.vals == NULL || memo.computed == NULL) return 0;
     } else if (n >= memo.len) {
         idx_t new_len = n + 100;
-        seq_t *new_vals = (seq_t *)realloc(memo.vals, new_len * sizeof(seq_t));
+        seq_t *new_vals = mem_resize(seq_t, memo.vals, new_len);
         unsigned char *new_computed = (unsigned char *)realloc(memo.computed, new_len * sizeof(unsigned char));
         if (new_vals == NULL || new_computed == NULL) return 0;
         
-        memset(new_vals + memo.len, 0, (new_len - memo.len) * sizeof(seq_t));
+        mem_set(new_vals + memo.len, 0, (new_len - memo.len) * sizeof(seq_t));
         memset(new_computed + memo.len, 0, (new_len - memo.len) * sizeof(unsigned char));
         
         memo.vals = new_vals;

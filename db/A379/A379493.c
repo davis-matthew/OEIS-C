@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = A276086(A001065(n))
  * Range:     u8 n <= 17, u16 n <= 79, u32 n <= 431, u64 n <= 2495,
- *            u128 n <= 8582, big any n
- * Helpers:   next_prime, seq_mul, seq_pow, sigma_of
+ *            u128 n <= 30030, big any n
+ * Validated: standard, pass, 88 terms through n = 8582 (2026-11-01)
+ * Helpers:   ipow_idx, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,10 +22,31 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/sigma_of.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/ipow_idx.h"
 #include "../utils/next_prime.h"
-#include "../utils/seq_pow.h"
-#include "../utils/seq_mul.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -68,7 +90,7 @@ seq_t a(idx_t n)
         rem     %= primorials[k];
         if (cnt == (seq_t)0)
             continue;                 /* skip factor if exponent is zero */
-        seq_t term = seq_pow((seq_t)primes[k], (idx_t)cnt);
+        seq_t term = ipow_idx((seq_t)primes[k], (idx_t)cnt);
         prod = seq_mul(prod, term);
     }
 

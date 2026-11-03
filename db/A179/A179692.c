@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 27, u64 n <= 1000, u128 n <= 1000,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: standard, pass, 54 terms through n = 941 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/build_primes_upto.h"   /* build_primes_upto */
+#include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 static bool initialized = false;
 static uint64_t *prime_list = NULL;
@@ -92,7 +94,7 @@ static void init(void) {
     p_cnt = prime_cnt;          /* use all primes as possible p */
 
     /* allocate and compute p^9 for each prime */
-    pow9_vals = (seq_t *)malloc(sizeof(seq_t) * p_cnt);
+    pow9_vals = mem_new(seq_t, p_cnt);
     for (size_t i = 0; i < p_cnt; ++i) {
         __uint128_t v = 1;
         for (int k = 0; k < 9; ++k)
@@ -101,7 +103,7 @@ static void init(void) {
     }
 
     /* allocate heap */
-    heap = (struct Node *)malloc(sizeof(struct Node) * p_cnt);
+    heap = mem_new(struct Node, p_cnt);
     heap_size = 0;
 
     /* seed heap with the first q for each p (skipping q==p) */
@@ -118,7 +120,7 @@ static void init(void) {
 
     /* allocate initial cache for output sequence */
     seq_cap = 1024;
-    seq_vals = (seq_t *)malloc(sizeof(seq_t) * seq_cap);
+    seq_vals = mem_new(seq_t, seq_cap);
     seq_size = 0;
 }
 
@@ -132,7 +134,7 @@ static void ensure(idx_t n) {
 
         if (seq_size == seq_cap) {
             seq_cap <<= 1;
-            seq_vals = (seq_t *)realloc(seq_vals, sizeof(seq_t) * seq_cap);
+            seq_vals = mem_resize(seq_t, seq_vals, seq_cap);
         }
         seq_vals[seq_size++] = node.val;
 

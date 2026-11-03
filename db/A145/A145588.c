@@ -12,7 +12,8 @@
  *            sieve
  * Range:     u8 none, u16 n <= 11, u32 n <= 11, u64 n <= 11, u128 n <= 11,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 11 terms through n = 11 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static storage for precomputed values */
 static seq_t *rem_counts = NULL;
@@ -37,12 +39,12 @@ static void init_rem_counts(void)
 
     /* temporary storage for the counts with a simple growth strategy */
     size_t cap = 200;                          /* initial capacity, enough for 2^10 */
-    seq_t *counts_tmp = (seq_t*)malloc(cap * sizeof(seq_t));
+    seq_t *counts_tmp = mem_new(seq_t, cap);
     if (!counts_tmp) { free(removed); return; }
 
     /* array of primes (not strictly needed afterwards, but used for the loop) */
     idx_t *prime_list = (idx_t*)malloc((N + 1) * sizeof(idx_t));
-    if (!prime_list) { free(removed); free(counts_tmp); return; }
+    if (!prime_list) { free(removed); mem_free(counts_tmp); return; }
 
     size_t prime_cnt = 0;                      /* number of primes found */
 
@@ -65,7 +67,7 @@ static void init_rem_counts(void)
             /* store the count, reallocate if needed */
             if (prime_cnt > cap) {
                 cap <<= 1;
-                seq_t *tmp = (seq_t*)realloc(counts_tmp, cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, counts_tmp, cap);
                 if (!tmp) break;            /* allocation failed → abort */
                 counts_tmp = tmp;
             }
@@ -74,14 +76,14 @@ static void init_rem_counts(void)
     }
 
     /* copy final results into static storage */
-    rem_counts = (seq_t*)malloc(prime_cnt * sizeof(seq_t));
+    rem_counts = mem_new(seq_t, prime_cnt);
     if (rem_counts) {
-        memcpy(rem_counts, counts_tmp, prime_cnt * sizeof(seq_t));
+        mem_copy(rem_counts, counts_tmp, prime_cnt * sizeof(seq_t));
     }
     rem_counts_len = prime_cnt;
 
     /* free temporary arrays */
-    free(counts_tmp);
+    mem_free(counts_tmp);
     free(removed);
     free(prime_list);
 }

@@ -9,7 +9,8 @@
  *            prime
  * Range:     u8 n <= 1410, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   is_prime, seq_malloc, seq_realloc, simple_sieve
+ * Validated: standard, pass, 101 terms through n = 1968 (2026-11-03)
+ * Helpers:   is_prime_u64, mem, simple_sieve
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,10 +24,28 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-#include "../utils/is_prime.h"      /* bool is_prime(uint64_t n); */
-#include "../utils/seq_malloc.h"    /* seq_t *seq_malloc(idx_t n); */
-#include "../utils/seq_realloc.h"   /* seq_t *seq_realloc(seq_t *p, idx_t n); */
-#include "../utils/simple_sieve.h"  /* void simple_sieve(uint32_t limit, uint32_t **primes_out, size_t *count_out); */
+#include "../utils/is_prime_u64.h"
+#include "../utils/simple_sieve.h"
+#include "../utils/mem.h"
+
+/* helper to allocate an array of seq_t that works in both C and C++ */
+static inline seq_t *seq_malloc(idx_t n)
+{
+#ifdef __cplusplus
+    return mem_new(seq_t, n);
+#else
+    return (seq_t *)malloc(n * sizeof(seq_t));
+#endif
+}
+
+static inline seq_t *seq_realloc(seq_t *p, idx_t n)
+{
+#ifdef __cplusplus
+    return mem_resize(seq_t, p, n);
+#else
+    return (seq_t *)realloc(p, n * sizeof(seq_t));
+#endif
+}
 
 /* Prime sieve data */
 static uint32_t *prime_list = NULL;
@@ -72,7 +91,7 @@ static bool is_prime_cached(uint64_t x)
 {
     if (x <= sieve_limit)
         return is_prime_from_list((uint32_t)x);
-    return is_prime(x);
+    return is_prime_u64(x);
 }
 
 /* Core sequence function */
@@ -102,7 +121,7 @@ seq_t a(idx_t n)
     } else if (n > cache_size) {
         seq_t *tmp = seq_realloc(cache, n);
         if (!tmp) {          /* realloc failed – abort safely */
-            free(cache);
+            mem_free(cache);
             cache = NULL;
             cache_size = 0;
             computed = 0;

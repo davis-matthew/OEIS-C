@@ -8,9 +8,10 @@
  * Formula:   a(n) = coefficient of
  *            (1‑x²)(1‑x⁸)(1‑x¹²)(1‑x¹⁴)(1‑x¹⁸)(1‑x²⁰)(1‑x²⁴)(1‑x³⁰)/(1‑x)⁸ in
  *            the generating function
- * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 56, u64 n <= 120, u128 n <= 120,
- *            big any n
- * Helpers:   binom
+ * Range:     u8 n <= 3, u16 n <= 14, u32 n <= 117, u64 n <= 120,
+ *            u128 n <= 120, big any n
+ * Validated: full, pass, 121 terms through n = 120 (2026-11-02)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 /* Computed by inclusion‑exclusion: a(n) = Σ_S (-1)ⁿˢ C(n‑ΣS + 7, 7) where S ranges over subsets of {2,8,12,14,18,20,24,30} */
 
 #include <stddef.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n) {
     const idx_t exps[8] = {(idx_t)2, (idx_t)8, (idx_t)12, (idx_t)14,
@@ -35,7 +37,7 @@ seq_t a(idx_t n) {
         }
         if (n < sum) continue;
         idx_t k = (n - sum) + (idx_t)7;
-        seq_t term = binom(k, (idx_t)7);
+        seq_t term = binomial(k, (idx_t)7);
         if (parity == 0) {
             result += term;
         } else {

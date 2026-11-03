@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 13, u32 n <= 13, u64 n <= 13, u128 n <= 13,
  *            big any n
- * Helpers:   _smallest_prime_factor, is_prime
+ * Validated: full, pass, 13 terms through n = 13 (2026-11-03)
+ * Helpers:   is_prime, mem, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,12 +31,13 @@
 #include <stdbool.h>
 
 #include "../utils/is_prime.h"
-#include "../utils/_smallest_prime_factor.h"
+#include "../utils/smallest_prime_factor.h"
+#include "../utils/mem.h"
 
 static bool is_bad_part(idx_t x) {
     if (x < 6) return false;                /* 1–5 are not composite */
     if (is_prime(x)) return false;          /* primes are allowed */
-    uint64_t spf = _smallest_prime_factor((uint64_t)x);
+    uint64_t spf = smallest_prime_factor((uint64_t)x);
     idx_t t = x;
     while (t % spf == 0) t /= spf;
     return (t != 1);                        /* composite and not prime‑power */
@@ -59,7 +61,7 @@ seq_t a(idx_t n) {
     /* initialise on first call */
     if (!good) {
         good_cap = 16;
-        good = (seq_t*)malloc(good_cap * sizeof(seq_t));
+        good = mem_new(seq_t, good_cap);
         if (!good) exit(1);
         good_len = 0;
 
@@ -94,7 +96,7 @@ seq_t a(idx_t n) {
         bool badp = false;
         if (cur >= 6) {
             if (!is_prime(cur)) {
-                uint64_t spf = _smallest_prime_factor((uint64_t)cur);
+                uint64_t spf = smallest_prime_factor((uint64_t)cur);
                 idx_t t = cur;
                 while (t % spf == 0) t /= spf;
                 if (t != 1) badp = true;
@@ -129,7 +131,7 @@ seq_t a(idx_t n) {
         if (!reachable) {
             if (good_len == good_cap) {
                 size_t new_cap = good_cap ? good_cap * 2 : 16;
-                seq_t *tmp = (seq_t*)realloc(good, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, good, new_cap);
                 if (!tmp) exit(1);
                 good = tmp;
                 good_cap = new_cap;

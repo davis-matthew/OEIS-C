@@ -11,7 +11,8 @@
  *            under the Collatz map
  * Range:     u8 n <= 6, u16 n <= 14, u32 n <= 30, u64 n <= 62, u128 n <= 126,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 950 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 // No external symbols other than a() are defined.
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -43,12 +45,12 @@ seq_t a(idx_t n)
     /* Initialise on first call ------------------------------------- */
     if (odd_len == 0) {
         odd_cap = 64;
-        odd_vals = (seq_t*)malloc(odd_cap * sizeof(seq_t));
+        odd_vals = mem_new(seq_t, odd_cap);
         odd_vals[0] = (seq_t)27;          /* odd_iterate(0) */
         odd_len  = 1;
 
         a_cap = 64;
-        a_vals = (seq_t*)malloc(a_cap * sizeof(seq_t));
+        a_vals = mem_new(seq_t, a_cap);
         a_vals[0] = (seq_t)1;            /* a(0)   */
         a_len = 1;
     }
@@ -67,8 +69,7 @@ seq_t a(idx_t n)
         /* Store next odd iterate */
         if (odd_len == odd_cap) {
             odd_cap <<= 1;                /* double capacity */
-            odd_vals = (seq_t*)realloc(odd_vals,
-                                       odd_cap * sizeof(seq_t));
+            odd_vals = mem_resize(seq_t, odd_vals, odd_cap);
         }
         odd_vals[odd_len] = nxt;
         odd_len++;
@@ -87,8 +88,7 @@ seq_t a(idx_t n)
 
         if (a_len == a_cap) {
             a_cap <<= 1;
-            a_vals = (seq_t*)realloc(a_vals,
-                                     a_cap * sizeof(seq_t));
+            a_vals = mem_resize(seq_t, a_vals, a_cap);
         }
         a_vals[a_len] = new_a;
         a_len++;

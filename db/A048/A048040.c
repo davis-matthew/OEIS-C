@@ -9,12 +9,14 @@
  *            2t) * binom(n-⌊(n+1)/3⌋, t)
  * Range:     u8 n <= 13, u16 n <= 25, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -25,8 +27,8 @@ seq_t a(idx_t n)
 
     seq_t sum = 0;
     for (idx_t t = 1; t <= max_t; ++t) {
-        seq_t small = binom(m, 2 * t);
-        seq_t big   = binom(r, t);
+        seq_t small = binomial(m, 2 * t);
+        seq_t big   = binomial(r, t);
         sum += small * big;
     }
     return sum;

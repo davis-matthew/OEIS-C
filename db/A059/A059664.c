@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 111, u32 n <= 340, u64 n <= 340, u128 n <= 340,
  *            big any n
- * Helpers:   grow_uint64_array
+ * Validated: standard, pass, 54 terms through n = 322 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,17 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/grow_uint64_array.h"
+
+/* Grow a dynamic array of uint64_t values */
+static void grow_uint64_array(uint64_t **arr, size_t *cnt, size_t *cap)
+{
+    if (*cnt < *cap) return;
+    size_t new_cap = (*cap == 0) ? 16 : (*cap << 1);
+    uint64_t *tmp = (uint64_t *)realloc(*arr, new_cap * sizeof(uint64_t));
+    if (!tmp) exit(1);
+    *arr = tmp;
+    *cap = new_cap;
+}
 
 /* 64‑bit modular multiplication (uses compiler extension __int128) */
 static inline uint64_t mod_mul64(uint64_t a, uint64_t b, uint64_t mod)

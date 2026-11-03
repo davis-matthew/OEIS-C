@@ -8,6 +8,7 @@
  * Formula:   a(n) = 12 * floor((n-1)/7) + {0,2,3,5,7,8,10}[(n-1) mod 7]
  * Range:     u8 n <= 150, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
+ * Validated: standard, pass, 84 terms through n = 1981 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

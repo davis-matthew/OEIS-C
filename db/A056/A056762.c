@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 8, u32 n <= 83, u64 n <= 83, u128 n <= 83,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 83 terms through n = 83 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache of qualifying odd integers (sorted ascending) */
 static seq_t *qual = NULL;
@@ -47,7 +49,7 @@ static void init_qual(void)
 
     /* Rough upper bound for the number of qualifying odd integers */
     size_t est = LIMIT / 2 + 1;
-    seq_t *tmp = (seq_t *)malloc(est * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, est);
     if (!tmp) { free(spf); return; }
 
     size_t cnt = 0;
@@ -70,7 +72,7 @@ static void init_qual(void)
     }
 
     /* Shrink array to exact size */
-    qual = (seq_t *)realloc(tmp, cnt * sizeof(seq_t));
+    qual = mem_resize(seq_t, tmp, cnt);
     qual_cnt = cnt;
     free(spf);
     qual_init = 1;

@@ -10,6 +10,7 @@
  *            for k<0). For m > 192, a(m)=0 (degree φ(221)=192)
  * Range:     i8 n <= 192, i16 n <= 192, i32 n <= 192, i64 n <= 192,
  *            i128 n <= 192, big any n
+ * Validated: full, pass, 193 terms through n = 192 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

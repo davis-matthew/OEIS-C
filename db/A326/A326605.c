@@ -8,14 +8,16 @@
  *            9^{\,d−(n/d−1)} ⋅ (−1)^{\,n/d−1}, with a(0) = 1
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 8, u64 n <= 18, u128 n <= 38,
  *            big any n
- * Helpers:   binomial, seq_pow
+ * Validated: standard, pass, 37 terms through n = 326 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 /* Return the unsigned value of the contribution of divisor d to a(n)
    and set *oddp to 1 if (n/d−1) is odd (so the term is negative), 0 otherwise.
@@ -29,7 +31,7 @@ static inline seq_t divisor_term(idx_t d, idx_t n, int *oddp) {
     *oddp = (k & 1U) ? 1 : 0;      /* sign */
     seq_t val = (seq_t)(2U * d + 1U);     /* first factor 2d+1 */
     val *= binomial(d, k);               /* binomial coefficient C(d,k) */
-    val *= seq_pow((seq_t)9, d - k);     /* 9^{d−k} */
+    val *= ipow_idx((seq_t)9, d - k);     /* 9^{d−k} */
     return val;
 }
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Cached data structures */
 static seq_t *terms   = NULL;   /* terms[1 .. max_cached] */
@@ -66,7 +68,7 @@ static void ensure_terms_capacity(idx_t needed)
     if (!terms) {
         size_t sz = needed + 1;
         if (sz < 17) sz = 17;
-        terms = (seq_t*)calloc(sz, sizeof(seq_t));
+        terms = mem_new(seq_t, sz);
         if (!terms) exit(1);
         terms_cap = sz;
         return;
@@ -74,7 +76,7 @@ static void ensure_terms_capacity(idx_t needed)
     while ((size_t)needed + 1 > terms_cap) {
         size_t new_cap = terms_cap * 2;
         if ((size_t)needed + 1 > new_cap) new_cap = (size_t)needed + 1;
-        seq_t *tmp = (seq_t*)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
         if (!tmp) exit(1);
         terms = tmp;
         terms_cap = new_cap;

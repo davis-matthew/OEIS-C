@@ -6,8 +6,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = product of (digit+1) in the primorial‑base representation
  *            of n (digits < next_prime). This yields A000005( A276086(n) )
- * Range:     u8 n <= 358, u16 n <= 8318, u32 n <= 8318, u64 n <= 8318,
- *            u128 n <= 8318, big any n
+ * Range:     u8 n <= 358, u16 n <= 30030, u32 n <= 30030, u64 n <= 30030,
+ *            u128 n <= 30030, big any n
+ * Validated: standard, pass, 109 terms through n = 8318 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

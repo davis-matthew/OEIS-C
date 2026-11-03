@@ -12,13 +12,15 @@
  *            implementation memoises f(n) with an open‑addressing ha...
  * Range:     u8 n <= 287, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 113 terms through n = 9057 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static const int DIGITS[8] = {2,3,4,5,6,7,8,9};
 
@@ -33,7 +35,7 @@ static void _map_init(void)
     if (_map_cap != 0) return;            /* already initialised */
     _map_cap = 16;
     _map_keys = (idx_t *)malloc(_map_cap * sizeof(idx_t));
-    _map_vals = (seq_t *)malloc(_map_cap * sizeof(seq_t));
+    _map_vals = mem_new(seq_t, _map_cap);
     for (size_t i = 0; i < _map_cap; ++i) _map_keys[i] = 0;
 }
 
@@ -45,7 +47,7 @@ static void _map_resize(size_t new_cap)
     size_t old_cap  = _map_cap;
 
     _map_keys = (idx_t *)malloc(new_cap * sizeof(idx_t));
-    _map_vals = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    _map_vals = mem_new(seq_t, new_cap);
     for (size_t i = 0; i < new_cap; ++i) _map_keys[i] = 0;
 
     _map_cap = new_cap;
@@ -63,7 +65,7 @@ static void _map_resize(size_t new_cap)
     }
 
     free(old_keys);
-    free(old_vals);
+    mem_free(old_vals);
 }
 
 /* Store a key/value pair into the hash map. */

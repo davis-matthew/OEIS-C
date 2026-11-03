@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 1, i16 n <= 3, i32 n <= 9, i64 n <= 19, i128 n <= 31,
  *            big any n
- * Helpers:   binom, gcd
+ * Validated: standard, pass, 37 terms through n = 231 (2026-11-03)
+ * Helpers:   binomial, gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,10 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
 #include "../utils/gcd.h"
-#include "../utils/binom.h"
+#include "../utils/mem.h"
 
 /* Rational number stored as a quotient of seq_t integers,
    reduced to lowest terms with a positive denominator. */
@@ -90,7 +93,7 @@ static void ensure_B_cache(size_t n) {
     size_t new_cap = n + 1;
     if (new_cap > B_cap) {
         size_t cap = new_cap * 2;
-        Rat *tmp = (Rat *)realloc(B_cache, cap * sizeof(Rat));
+        Rat *tmp = mem_resize(Rat, B_cache, cap);
         B_cache = tmp; B_cap = cap;
     }
 
@@ -99,7 +102,7 @@ static void ensure_B_cache(size_t n) {
         else {
             Rat sum = make_rat((seq_t)0, (seq_t)1);
             for (size_t i = 0; i < k; ++i) {
-                seq_t coeff = binom((idx_t)(k + 1), (idx_t)i);
+                seq_t coeff = binomial((idx_t)(k + 1), (idx_t)i);
                 Rat prod = rat_mul_int(&B_cache[i], coeff);
                 sum = rat_add(&sum, &prod);
             }
@@ -117,7 +120,7 @@ static void ensure_Xpow_cache(size_t n) {
     size_t new_cap = n + 1;
     if (new_cap > X_cap) {
         size_t cap = new_cap * 2;
-        Rat *tmp = (Rat *)realloc(Xpow_cache, cap * sizeof(Rat));
+        Rat *tmp = mem_resize(Rat, Xpow_cache, cap);
         Xpow_cache = tmp; X_cap = cap;
     }
 
@@ -136,7 +139,7 @@ seq_t a(idx_t n) {
 
     Rat sum = make_rat((seq_t)0, (seq_t)1);
     for (size_t k = 0; k <= N; ++k) {
-        seq_t coeff = binom((idx_t)N, (idx_t)k);
+        seq_t coeff = binomial((idx_t)N, (idx_t)k);
         Rat part = rat_mul_int(&B_cache[k], coeff);
         Rat term = rat_mul(&part, &Xpow_cache[N-k]);
         sum = rat_add(&sum, &term);

@@ -9,13 +9,15 @@
  *            smallest prime divisor of m) dividing (m + 1)
  * Range:     u8 n <= 42, u16 n <= 881, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 9673 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Global state shared by all calls of a() */
 static uint64_t *g_spf          = NULL;   /* smallest prime factor array   */
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
                         g_spf[j] = i;
 
         g_seq_capacity = 16;
-        g_seq = (seq_t *)malloc(g_seq_capacity * sizeof(seq_t));
+        g_seq = mem_new(seq_t, g_seq_capacity);
         if (!g_seq) exit(1);
         g_initialized = 1;
     }
@@ -95,7 +97,7 @@ seq_t a(idx_t n)
         if (diff != 0 && (uint64_t)((m + 1) % diff) == 0) {
             if (g_seq_size >= g_seq_capacity) {
                 g_seq_capacity *= 2;
-                seq_t *tmp_seq = (seq_t *)realloc(g_seq, g_seq_capacity * sizeof(seq_t));
+                seq_t *tmp_seq = mem_resize(seq_t, g_seq, g_seq_capacity);
                 if (!tmp_seq) exit(1);
                 g_seq = tmp_seq;
             }

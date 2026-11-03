@@ -7,6 +7,7 @@
  * Formula:   a(n) = interpret(sorted base‑6 digits of n as base‑6 number)
  * Range:     u8 n <= 258, u16 n <= 7775, u32 n <= 7775, u64 n <= 7775,
  *            u128 n <= 7775, big any n
+ * Validated: standard, pass, 90 terms through n = 7755 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

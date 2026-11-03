@@ -13,7 +13,8 @@
  *            of primes ≡ 2 (mod 3) (mod 3). Then k is in the seq...
  * Range:     u8 n <= 28, u16 n <= 6478, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 9923 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static uint64_t *prime_array = NULL;
 static size_t prime_count = 0;
@@ -126,7 +128,7 @@ static void extend_cache(idx_t n)
 
     if (cache_capacity == 0) {
         cache_capacity = 128;
-        term_cache = (seq_t *)malloc(cache_capacity * sizeof(seq_t));
+        term_cache = mem_new(seq_t, cache_capacity);
         if (!term_cache) return;   // allocation failure - shouldn't happen
     }
 
@@ -134,7 +136,7 @@ static void extend_cache(idx_t n)
         if (good_candidate(next_candidate)) {
             if (cache_size == cache_capacity) {
                 cache_capacity <<= 1;
-                seq_t *tmp = (seq_t *)realloc(term_cache, cache_capacity * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, term_cache, cache_capacity);
                 if (!tmp) break;   // allocation fail
                 term_cache = tmp;
             }

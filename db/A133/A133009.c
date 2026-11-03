@@ -15,14 +15,19 @@
  *            odd‑parity integers respectively
  * Range:     u8 n <= 1022, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   even_parity_idx
+ * Validated: standard, pass, 107 terms through n = 9992 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* required external types */
 #include <stdint.h>
-#include "../utils/even_parity_idx.h"
+
+/* compute parity of the number of 1‑bits using GCC/Clang built‑ins. */
+static inline int even_parity_idx(idx_t x) {
+    return (__builtin_popcountll((unsigned long long)x) & 1) == 0;
+}
 
 seq_t a(idx_t n)
 {

@@ -11,13 +11,15 @@
  *            a(n) = T(m,k) with m the row and k the column satisfyi...
  * Range:     u8 n <= 20, u16 n <= 77, u32 n <= 252, u64 n <= 945,
  *            u128 n <= 3485, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 6856 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Typedefs defined by the build environment. */
 extern seq_t a(idx_t n);          /* forward declaration may not be needed */
@@ -29,7 +31,7 @@ static idx_t   triangle_rows = 0; /* number of rows currently stored */
 /* Allocate a new row of the triangle.  The new row has length 'len' (row+1). */
 static void add_row(idx_t row) {
     idx_t len = row + 1;
-    seq_t *row_arr = (seq_t *)malloc(sizeof(seq_t) * len);
+    seq_t *row_arr = mem_new(seq_t, len);
     if (!row_arr) abort();        /* allocation failure */
 
     if (row == 0) {                /* base row */

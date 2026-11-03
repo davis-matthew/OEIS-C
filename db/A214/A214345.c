@@ -5,8 +5,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = { n^2+4*n+5 , if n even n^2+4*n+2 , if n odd }
- * Range:     u8 n <= 13, u16 n <= 253, u32 n <= 9561, u64 n <= 9561,
- *            u128 n <= 9561, big any n
+ * Range:     u8 n <= 13, u16 n <= 253, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 65 terms through n = 9561 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

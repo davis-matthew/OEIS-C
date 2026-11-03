@@ -9,7 +9,8 @@
  *            integer with exactly three prime factors
  * Range:     u8 n <= 257, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 9905 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -42,13 +44,13 @@ seq_t a(idx_t n)
             /* free old tables */
             free(spf);
             free(omega);
-            free(sumpf);
-            free(results);
+            mem_free(sumpf);
+            mem_free(results);
 
             /* allocate new tables */
             spf = (uint32_t*)calloc(limit + 1, sizeof(uint32_t));
             omega = (uint8_t*)calloc(limit + 1, sizeof(uint8_t));
-            sumpf = (seq_t*)   calloc(limit + 1, sizeof(seq_t));
+            sumpf = mem_new(seq_t, limit + 1);
 
             if (!spf || !omega || !sumpf) return (seq_t)0; /* allocation failure */
 
@@ -78,7 +80,7 @@ seq_t a(idx_t n)
             }
 
             /* Allocate results array */
-            results = (seq_t*)calloc(results_cnt, sizeof(seq_t));
+            results = mem_new(seq_t, results_cnt);
             if (!results && results_cnt != 0) return (seq_t)0;
 
             /* Second pass: store the sums in order */

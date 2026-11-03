@@ -9,7 +9,8 @@
  *            is n, or 0 if no such k exists
  * Range:     u8 n <= 2, u16 n <= 1, u32 n <= 4, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   alloc_seq_array, digit_sum, free_seq_array
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,9 +27,19 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/digit_sum.h"      /* seq_t digit_sum(seq_t) */
-#include "../utils/alloc_seq_array.h" /* seq_t *alloc_seq_array(size_t) */
-#include "../utils/free_seq_array.h"  /* void free_seq_array(seq_t *) */
+#include <stdbool.h>
+#include "../utils/digit_sum.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 seq_t a(idx_t n)
 {

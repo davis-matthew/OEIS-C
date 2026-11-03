@@ -10,6 +10,7 @@
  *            max_prime_index_of(n) (n > 1)
  * Range:     i8 n <= 76, i16 n <= 76, i32 n <= 76, i64 n <= 76, i128 n <= 76,
  *            big any n
+ * Validated: partial, pass, 75 terms through n = 76 (2026-11-02)
  * Helpers:   build_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -44,7 +45,7 @@ seq_t a(idx_t n)
         /* Regenerate the sieve for the larger limit.
            Free old storage if any. */
         if (primes != NULL)
-            free((void *)primes);
+            free(primes);
 
         build_primes(n, &primes, &primes_cnt);
         primes_limit = n;

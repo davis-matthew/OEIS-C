@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 6, i16 n <= 15, i32 n <= 21, i64 n <= 21, i128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached data for the triangle */
 static seq_t *tri_data  = NULL;
@@ -57,7 +59,7 @@ static void ensure_row(idx_t r)
     if (needed > tri_cap) {
         size_t new_cap = (tri_cap == 0) ? 64 : tri_cap;
         while (new_cap < needed) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(tri_data, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, tri_data, new_cap);
         if (!tmp) abort();
         tri_data = tmp;
         tri_cap  = new_cap;

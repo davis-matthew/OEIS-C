@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 52, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ---------- Prime infrastructure -------------------------------------- */
 static uint64_t *primes = NULL;          /* sorted list of primes found      */
@@ -98,7 +100,7 @@ static void add_value (seq_t v)
 {
     if (seq_len == seq_cap) {
         seq_cap = seq_cap ? seq_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(seq_cache, seq_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, seq_cap);
         if (!tmp) abort();
         seq_cache = tmp;
     }
@@ -130,7 +132,7 @@ seq_t a (idx_t n)
     /* Lazy initialization of fundamental structures */
     if (seq_len == 0) {
         seq_cap = 16;
-        seq_cache = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, seq_cap);
         if (!seq_cache) abort();
         /* primes array is empty; primes discovered on demand. */
     }

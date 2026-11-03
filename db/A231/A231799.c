@@ -10,13 +10,15 @@
  *            a(n)=a(n-1)+2*a(n-2)+5*a(n-3)-2*a(n-5)-4*a(n-6) for n≥7
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 23, u64 n <= 47, u128 n <= 95,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* cache[i] holds a(i+1)  */
 static size_t cache_len = 0;  /* number of terms currently stored */
@@ -29,7 +31,7 @@ static void ensure_cache(idx_t target)
 
     /* First time: initialise with the fixed 6 terms. */
     if (!cache) {
-        cache = (seq_t *)malloc(6 * sizeof(seq_t));
+        cache = mem_new(seq_t, 6);
         if (!cache) return;          /* allocation failure */
         cache[0] = (seq_t)5;         /* a(1) */
         cache[1] = (seq_t)13;        /* a(2) */
@@ -43,7 +45,7 @@ static void ensure_cache(idx_t target)
     /* Extend the array if needed. */
     if ((size_t)target > cache_len) {
         size_t new_len = (size_t)target;
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) return;          /* allocation failure */
         cache = tmp;
         /* Compute new terms up to target. */

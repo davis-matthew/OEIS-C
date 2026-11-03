@@ -9,15 +9,27 @@
  *            consecutive primes from prime(n) until sigma(P) >= 2P
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 2, u64 n <= 3, u128 n <= 4,
  *            big any n
- * Helpers:   is_prime, seq_is_fixed_width
+ * Validated: standard, pass, 14 terms through n = 14 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"
-#include "../utils/seq_is_fixed_width.h"
+#include "../utils/is_prime_u64.h"
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
 
 static bool too_wide(uint64_t c) {
     if (seq_is_fixed_width() && sizeof(seq_t) * 8 < 64)
@@ -30,7 +42,7 @@ seq_t a(idx_t n) {
     idx_t count = 0;
     while (count < n) {
         c++;
-        if (is_prime(c)) count++;
+        if (is_prime_u64(c)) count++;
     }
     if (too_wide(c)) return (seq_t)c;
 
@@ -39,7 +51,7 @@ seq_t a(idx_t n) {
     seq_t D = P - 1;
     for (;;) {
         c++;
-        while (!is_prime(c)) c++;
+        while (!is_prime_u64(c)) c++;
         if (too_wide(c)) return P;
         seq_t p = (seq_t)c;
         seq_t newP = P * p;

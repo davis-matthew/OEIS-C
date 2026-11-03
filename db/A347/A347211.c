@@ -11,14 +11,15 @@
  *            > 0, and T(n,k) = (-1)^n if k = 0, for 0 <= n,k <= 11
  * Range:     i8 n <= 6, i16 n <= 26, i32 n <= 143, i64 n <= 143,
  *            i128 n <= 143, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 61 terms through n = 142 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 static seq_t pow_seq_int(seq_t base, idx_t exp)
 {
@@ -60,7 +61,7 @@ seq_t a(idx_t n)
                 int64_t base_int = (int64_t)6 - (int64_t)i + (int64_t)j;
                 seq_t base   = (seq_t)base_int;
                 seq_t powv   = pow_seq_int(base, k);
-                seq_t coeff  = binom(12, i - j);
+                seq_t coeff  = binomial(12, i - j);
                 seq_t term   = powv * coeff;
                 if (parity < 0)
                     term = -term;

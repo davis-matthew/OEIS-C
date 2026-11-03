@@ -10,14 +10,23 @@
  *            = 1 (from (sinh^k/k!)'' = k^2 sinh^k/k! + sinh^(k-2)/(k-2)!)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 10, u128 n <= 17,
  *            big any n
- * Helpers:   release, zalloc_arr
+ * Validated: standard, pass, 31 terms through n = 93 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/zalloc_arr.h"
-#include "../utils/release.h"
+#include "../utils/mem.h"
+
+static seq_t *zalloc_arr(idx_t len) {
+    return mem_new(seq_t, (size_t)len);
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
 
 static seq_t *cache = NULL;
 static idx_t cached = 0;

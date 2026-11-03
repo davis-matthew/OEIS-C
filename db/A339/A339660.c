@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 74, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 75 terms through n = 74 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build system */
 extern seq_t a(idx_t n)
@@ -35,16 +37,16 @@ extern seq_t a(idx_t n)
     if (n + 1 > cache_cap) {
         /* New cache size */
         idx_t new_cap = n + 1;
-        seq_t *new_cache = (seq_t *)calloc((size_t)new_cap, sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, (size_t)new_cap);
         if (!new_cache) return 0; /* allocation failed – return 0 as graceful failure */
 
         /* a(0) = 1 (empty partition) */
         new_cache[0] = 1;
 
         /* Working array for subset sum DP, size n+1 */
-        seq_t *dp = (seq_t *)calloc((size_t)new_cap, sizeof(seq_t));
+        seq_t *dp = mem_new(seq_t, (size_t)new_cap);
         if (!dp) {
-            free(new_cache);
+            mem_free(new_cache);
             return 0;
         }
 
@@ -87,8 +89,8 @@ extern seq_t a(idx_t n)
         }
 
         /* Clean up and install the new cache */
-        free(dp);
-        free(cache);
+        mem_free(dp);
+        mem_free(cache);
         cache = new_cache;
         cache_cap = new_cap;
     }

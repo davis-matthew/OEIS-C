@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 40, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
    helpers are used. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -46,19 +48,19 @@ seq_t a(idx_t n)
         /* reserve space for indices 0,1,2 (unused) */
         a_cap  = 8;
         a_used = 3;
-        a_cache = (seq_t*)malloc(a_cap * sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_cap);
         a_cache[0] = a_cache[1] = a_cache[2] = 0;
 
         /* build first row (n = 3) */
         prev_len = 4; /* indices 0..3 */
-        prev = (seq_t*)malloc(prev_len * sizeof(seq_t));
+        prev = mem_new(seq_t, prev_len);
         for (size_t i = 0; i < prev_len; ++i) prev[i] = 0;
         prev[3] = 1;             /* T(3,3) = 1 */
         last_row = 3;
         /* store its only term in the flattened sequence */
         if (a_used == a_cap) {
             a_cap *= 2;
-            a_cache = (seq_t*)realloc(a_cache, a_cap * sizeof(seq_t));
+            a_cache = mem_resize(seq_t, a_cache, a_cap);
         }
         a_cache[a_used++] = prev[3];   /* a(3) */
     }
@@ -71,7 +73,7 @@ seq_t a(idx_t n)
         size_t next_row = last_row + 1;          /* new row number */
         size_t curr_len = next_row + 1;          /* array size needed */
 
-        seq_t *curr = (seq_t*)malloc(curr_len * sizeof(seq_t));
+        seq_t *curr = mem_new(seq_t, curr_len);
         for (size_t i = 0; i < curr_len; ++i) curr[i] = 0;
 
         /* compute current row entries for k = 3..next_row */
@@ -84,13 +86,13 @@ seq_t a(idx_t n)
             /* append this term to flattened cache */
             if (a_used == a_cap) {
                 a_cap = (a_cap == 0) ? 8 : a_cap * 2;
-                a_cache = (seq_t*)realloc(a_cache, a_cap * sizeof(seq_t));
+                a_cache = mem_resize(seq_t, a_cache, a_cap);
             }
             a_cache[a_used++] = val;
         }
 
         /* discard previous row, move to current */
-        free(prev);
+        mem_free(prev);
         prev = curr;
         prev_len = curr_len;
         last_row = next_row;

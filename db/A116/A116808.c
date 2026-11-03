@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 29, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     /* Allocate or grow the memoisation array as needed. */
     if (seq == NULL || n > cached) {
         /* New size: at least n+1 (indices 0..n). */
-        seq_t *new_seq = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        seq_t *new_seq = mem_new(seq_t, (n + 1));
         if (new_seq == NULL)  /* allocation failure */ {
             return (seq_t)0;
         }

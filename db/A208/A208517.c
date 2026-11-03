@@ -11,7 +11,8 @@
  *            with u(1,x)=v(1,x)=1)
  * Range:     u8 n <= 34, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static idx_t find_row(idx_t n)
 {
@@ -41,10 +43,10 @@ seq_t a(idx_t n)
 
     /* Allocate coefficient arrays up to degree p */
     size_t k = (size_t)(p + 1);
-    seq_t *u[2] = { (seq_t*)calloc(k, sizeof(seq_t)),
-                    (seq_t*)calloc(k, sizeof(seq_t)) };
-    seq_t *v[2] = { (seq_t*)calloc(k, sizeof(seq_t)),
-                    (seq_t*)calloc(k, sizeof(seq_t)) };
+    seq_t *u[2] = { mem_new(seq_t, k),
+                    mem_new(seq_t, k) };
+    seq_t *v[2] = { mem_new(seq_t, k),
+                    mem_new(seq_t, k) };
     if (!u[0] || !u[1] || !v[0] || !v[1]) {
         /* Allocation failed – return 0 as a safe fallback */
         return (seq_t)0;
@@ -80,6 +82,6 @@ seq_t a(idx_t n)
 
     seq_t result = v[cur][p];
 
-    free(u[0]); free(u[1]); free(v[0]); free(v[1]);
+    mem_free(u[0]); mem_free(u[1]); mem_free(v[0]); mem_free(v[1]);
     return result;
 }

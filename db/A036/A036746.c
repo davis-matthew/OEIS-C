@@ -11,12 +11,14 @@
  *            integers * and stores the first occurrence of each length
  * Range:     u8 n <= 9, u16 n <= 15, u32 n <= 15, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const unsigned char ones_len[10]   = {0,1,2,3,2,1,2,3,4,2};
 static const unsigned char tens_len[10]   = {0,1,2,3,2,1,2,3,4,2};
@@ -39,7 +41,7 @@ static void ensure_capacity(size_t required, seq_t **arr, size_t *cap)
     if (required < *cap) return;
     size_t new_cap = (*cap == 0) ? 16 : (*cap << 1);
     while (new_cap <= required) new_cap <<= 1;
-    seq_t *new_arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, *arr, new_cap);
     if (!new_arr) return; /* allocation failed; caller will get 0 */
     for (size_t i = *cap; i < new_cap; ++i) new_arr[i] = 0;
     *arr = new_arr;

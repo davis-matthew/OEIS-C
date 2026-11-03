@@ -9,13 +9,31 @@
  *            implements the sequence described in A293811
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   get_rec
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/get_rec.h"
+
+static seq_t get_rec(idx_t idx, int level, const uint64_t *L)
+{
+    if (idx == 1) return (seq_t)1;
+    if (idx == 2) return (seq_t)2;
+
+    uint64_t prev = L[level-1];              /* length of the previous stage */
+    if (idx <= prev) {
+        return get_rec(idx, level-1, L);
+    }
+
+    uint64_t limit = 2*prev - 1;              /* end of the first copy of B */
+    if (idx <= limit) {
+        return get_rec(idx - prev, level-1, L);
+    }
+
+    return get_rec(idx - limit, level-1, L);
+}
 
 seq_t a(idx_t n)
 {

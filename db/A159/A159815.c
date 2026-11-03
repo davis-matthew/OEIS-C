@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 15, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   append_candidate, digit_len, pow10
+ * Validated: standard, pass, 51 terms through n = 923 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,36 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/append_candidate.h"
-#include "../utils/pow10.h"
-#include "../utils/digit_len.h"
+#include <stdlib.h>
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -37,7 +65,7 @@ seq_t a(idx_t n)
         for (;;) {
             seq_t sq = next * next;
             if ((sq % (seq_t)100) == (seq_t)49) {
-                size_t d = digit_len(sq);
+                size_t d = num_digits(sq);
                 if (d >= 2) {
                     seq_t div  = pow10((idx_t)(d - 2));
                     seq_t lead = sq / div;

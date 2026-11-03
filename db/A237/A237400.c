@@ -14,7 +14,8 @@
  *            vertically
  * Range:     u8 none, u16 n <= 2, u32 n <= 7, u64 n <= 17, u128 n <= 37,
  *            big any n
- * Helpers:   subblock_val
+ * Validated: standard, pass, 32 terms through n = 202 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,22 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/subblock_val.h"
+#include "../utils/mem.h"
+
+/* compute max + upper median + lower median - min for 4 values */
+static uint8_t subblock_val(uint8_t a, uint8_t b, uint8_t c, uint8_t d)
+{
+    uint8_t v[4] = { a, b, c, d };
+    /* simple insertion sort for 4 elements */
+    if (v[1] < v[0]) { uint8_t t = v[0]; v[0] = v[1]; v[1] = t; }
+    if (v[2] < v[0]) { uint8_t t = v[0]; v[0] = v[2]; v[2] = t; }
+    if (v[2] < v[1]) { uint8_t t = v[1]; v[1] = v[2]; v[2] = t; }
+    if (v[3] < v[0]) { uint8_t t = v[0]; v[0] = v[3]; v[3] = t; }
+    if (v[3] < v[1]) { uint8_t t = v[1]; v[1] = v[3]; v[3] = t; }
+    if (v[3] < v[2]) { uint8_t t = v[2]; v[2] = v[3]; v[3] = t; }
+    /* v[0] <= v[1] <= v[2] <= v[3] */
+    return v[3] + v[2] + v[1] - v[0];
+}
 
 #define ROWS       64          /* 4^3 possible rows */
 #define STATE_MULT 100         /* 10*10 for m0,m1 */
@@ -121,8 +137,8 @@ seq_t a(idx_t n)
     if (n == 0) return 0;   /* below offset, undefined but safe */
 
     size_t max_states = STATE_CNT;
-    seq_t *dp   = (seq_t *)calloc(max_states, sizeof(seq_t));
-    seq_t *dp2  = (seq_t *)calloc(max_states, sizeof(seq_t));
+    seq_t *dp   = mem_new(seq_t, max_states);
+    seq_t *dp2  = mem_new(seq_t, max_states);
     if (!dp || !dp2) {
         /* allocation failure: return 0 */
         return 0;
@@ -141,7 +157,7 @@ seq_t a(idx_t n)
     /* advance for remaining pairs */
     for (idx_t step = 1; step < n; ++step) {
         /* zero dp2 */
-        memset(dp2, 0, max_states * sizeof(seq_t));
+        mem_set(dp2, 0, max_states * sizeof(seq_t));
         for (size_t s = 0; s < max_states; ++s) {
             seq_t val = dp[s];
             if (val == 0) continue;
@@ -161,7 +177,7 @@ seq_t a(idx_t n)
     for (size_t s = 0; s < max_states; ++s)
         ans += dp[s];
 
-    free(dp);
-    free(dp2);
+    mem_free(dp);
+    mem_free(dp2);
     return ans;
 }

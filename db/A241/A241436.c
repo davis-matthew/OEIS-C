@@ -16,12 +16,14 @@
  *            Initial values are the first 24 terms of the se...
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 63, u128 n <= 128,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     }
 
     /* allocate array for sequence values */
-    seq_t *seq = (seq_t *)malloc(sizeof(seq_t) * (size_t)n);
+    seq_t *seq = mem_new(seq_t, (size_t)n);
     if (!seq) return (seq_t)0; /* allocation failure fallback */
 
     /* copy initial terms */
@@ -80,6 +82,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = seq[n - 1];
-    free(seq);
+    mem_free(seq);
     return result;
 }

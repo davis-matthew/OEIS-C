@@ -10,13 +10,15 @@
  *            (0‑based)
  * Range:     u8 n <= 11, u16 n <= 17, u32 n <= 39, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Eulerian numbers are computed using the recurrence
    A(n,k) = (k+1)·A(n-1,k) + (n-k)·A(n-1,k-1) with A(1,0)=1. */
@@ -37,13 +39,13 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* allocate array for previous row (size 1) */
-    seq_t *prev = (seq_t *)malloc(sizeof(seq_t) * 1);
+    seq_t *prev = mem_new(seq_t, 1);
     prev[0] = (seq_t)1;                     /* A(1,0) = 1 */
 
     /* iterate rows 2 … r */
     for (idx_t cur = 2; cur <= r; ++cur)
     {
-        seq_t *curr = (seq_t *)malloc(sizeof(seq_t) * cur);
+        seq_t *curr = mem_new(seq_t, cur);
 
         for (idx_t m = 0; m < cur; ++m)
         {
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
             curr[m] = part1 + part2;
         }
 
-        free(prev);
+        mem_free(prev);
         prev = curr;
     }
 
@@ -67,6 +69,6 @@ seq_t a(idx_t n)
     seq_t val      = prev[idx];
     seq_t result   = val * val;
 
-    free(prev);
+    mem_free(prev);
     return result;
 }

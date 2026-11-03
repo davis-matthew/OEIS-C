@@ -9,14 +9,17 @@
  *            n-(n mod 2)+q are both practical
  * Range:     u8 n <= 542, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: standard, pass, 96 terms through n = 9780 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 #define MAX_PRACTICAL 20000   /* covers 2 * 10000, needed for n ≤ 10000 */
 
@@ -37,7 +40,7 @@ static bool is_practical(uint64_t x)
         /* If p > sigma + 1, the number is not practical. */
         if ((seq_t)p > sigma + 1) return false;
         /* sigma(p^e) = (p^(e+1) - 1) / (p - 1) */
-        seq_t pe1  = big_pow((seq_t)p, (seq_t)(e + 1));
+        seq_t pe1  = ipow((seq_t)p, (seq_t)(e + 1));
         seq_t sigma_p = (pe1 - 1) / (p - 1);
         sigma *= sigma_p;
     }

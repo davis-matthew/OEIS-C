@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   allocate_seq_array, digit_sum
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-01)
+ * Helpers:   digit_sum
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,18 @@
 /* Search: a(n) is the n-th integer m such that digit_sum(8*m) == 16 */
 
 #include <stdlib.h>
+#include <assert.h>
+#include <stdbool.h>
 #include "../utils/digit_sum.h"
-#include "../utils/allocate_seq_array.h"
+
+static seq_t *allocate_seq_array(size_t n)
+{
+#ifdef __cplusplus
+    return new seq_t[n];
+#else
+    return (seq_t *)malloc(n * sizeof(seq_t));
+#endif
+}
 
 /* static state for memoisation */
 static seq_t *cache       = NULL;  /* array of found terms */

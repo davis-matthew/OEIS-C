@@ -7,7 +7,8 @@
  * Formula:   a(n) = #{m <= n : m is refactorable (m % d(m) == 0)}
  * Range:     u8 n <= 3279, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 86 terms through n = 9960 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     if (n > Nmax) {
         /* Allocate new arrays of size n+1 (indices 0..n). */
         div_counts = (uint32_t *)calloc((size_t)(n + 1), sizeof(uint32_t));
-        pref_counts = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+        pref_counts = mem_new(seq_t, (size_t)(n + 1));
         if (!div_counts || !pref_counts) {
             /* In a production program we would report the error; here we
                simply return 0 to satisfy the interface. */

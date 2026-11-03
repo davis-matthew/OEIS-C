@@ -10,12 +10,14 @@
  * Formula:   a(n) = binomial(n-4,4) * Bell(n-5) (for n >= 8)
  * Range:     u8 n <= 9, u16 n <= 12, u32 n <= 17, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static idx_t bell_max = 0;        /* highest n for which Bell has been computed */
 static seq_t *bell_cache = NULL; /* Bell numbers B[0..bell_max]   */
@@ -29,9 +31,9 @@ static void ensure_bell(idx_t n)
     /* Allocate more space if needed */
     if (n >= alloc_cap) {
         idx_t new_cap = n + 1;
-        seq_t *new_bell = (seq_t*)realloc(bell_cache, new_cap * sizeof(seq_t));
-        seq_t *new_prev = (seq_t*)realloc(prev_row,  new_cap * sizeof(seq_t));
-        seq_t *new_curr = (seq_t*)realloc(curr_row,  new_cap * sizeof(seq_t));
+        seq_t *new_bell = mem_resize(seq_t, bell_cache, new_cap);
+        seq_t *new_prev = mem_resize(seq_t, prev_row, new_cap);
+        seq_t *new_curr = mem_resize(seq_t, curr_row, new_cap);
         if (!new_bell || !new_prev || !new_curr) exit(1);
         bell_cache = new_bell;
         prev_row   = new_prev;

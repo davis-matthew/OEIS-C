@@ -6,8 +6,9 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = Sum_{d|n, d<n} [3 == d mod 4] (number of proper divisors
  *            of n of the form 4k+3)
- * Range:     u8 n <= 8540, u16 n <= 8540, u32 n <= 8540, u64 n <= 8540,
- *            u128 n <= 8540, big any n
+ * Range:     u8 n <= 16384, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 121 terms through n = 8540 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -11,6 +11,7 @@
  *            directly by testing each m
  * Range:     u8 n <= 791, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
+ * Validated: standard, pass, 112 terms through n = 1958 (2026-11-01)
  * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/gcd_u64.h"
 
 /* Compute gcd of two 64‑bit unsigned integers. */

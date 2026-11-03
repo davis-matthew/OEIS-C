@@ -8,8 +8,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabf
  * Formula:   T(n,k) = A000108(n-k) * A001147(k) * C(n,2*k)
- * Range:     u8 n <= 11, u16 n <= 26, u32 n <= 40, u64 n <= 40, u128 n <= 40,
+ * Range:     u8 n <= 12, u16 n <= 26, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
+ * Validated: partial, pass, 41 terms through n = 40 (2026-11-01)
  * Helpers:   binomial, catalan
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,8 +20,10 @@
    read row‑by‑row (a(0)=1, a(1)=1, a(2)=2, a(3)=1, …).          */
 
 #include <stdbool.h>
-#include "../utils/catalan.h"
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/catalan.h"
 
 /* compute the double factorial (2k-1)!! for k ≥ 0 */
 static seq_t double_factorial(idx_t k)

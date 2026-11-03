@@ -8,13 +8,15 @@
  * Formula:   a(n) = (-1)^n + Sum_{k=0..n-1} a(floor(k/2)) * a(n-1-k)
  * Range:     u8 n <= 10, u16 n <= 19, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* sequence cache */
 static size_t cap   = 0;      /* allocated capacity */
@@ -28,14 +30,14 @@ static void ensure_capacity(size_t needed)
     size_t newcap = cap ? cap * 2 : 2;
     while (newcap < needed)
         newcap *= 2;
-    seq_t *newbuf = (seq_t *)malloc(newcap * sizeof(seq_t));
+    seq_t *newbuf = mem_new(seq_t, newcap);
     if (!newbuf)
         exit(1);         /* OOM: caller never expects this */
     if (cache)
     {
         for (size_t i = 0; i < len; ++i)
             newbuf[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
     cache = newbuf;
     cap   = newcap;

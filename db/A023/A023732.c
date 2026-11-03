@@ -7,13 +7,28 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   count_twos_base5
+ * Validated: standard, pass, 58 terms through n = 941 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/count_twos_base5.h"
+#include "../utils/mem.h"
+
+static inline int count_twos_base5(seq_t x)
+{
+    int cnt = 0;
+    while (x) {
+        if ((x % 5) == 2) {
+            ++cnt;
+            if (cnt > 3)      /* more than three twos – stop early */
+                return cnt;
+        }
+        x /= 5;
+    }
+    return cnt;
+}
 
 /* Computation: successive integers whose base‑5 representation
  * contains exactly three digits equal to 2. */
@@ -28,7 +43,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (cache_len == 0) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         last_val = 0;
     }
 
@@ -46,7 +61,7 @@ seq_t a(idx_t n)
         /* grow cache if needed */
         if (cache_len == cache_cap) {
             cache_cap <<= 1;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
 
         cache[cache_len++] = x;          /* store the new term */

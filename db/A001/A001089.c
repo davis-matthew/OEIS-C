@@ -10,13 +10,14 @@
  *            for n < 4
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 18, u64 n <= 34, u128 n <= 67,
  *            big any n
- * Helpers:   a001089_gcd
+ * Validated: standard, pass, 44 terms through n = 912 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a001089_gcd.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n) {
     if (n < 4) return 0;
@@ -28,10 +29,10 @@ seq_t a(idx_t n) {
         uint64_t Q = (uint64_t)(k + 5) * (uint64_t)(k - 4);
         uint64_t Q2 = 59 * (uint64_t)k * (uint64_t)k - (uint64_t)k + 42;
         uint64_t g;
-        g = a001089_gcd(P, Q);  P /= g;  Q /= g;
-        g = a001089_gcd(P, Q2); P /= g;  Q2 /= g;
-        g = a001089_gcd(P2, Q); P2 /= g; Q /= g;
-        g = a001089_gcd(P2, Q2); P2 /= g; Q2 /= g;
+        g = gcd_u64(P, Q);  P /= g;  Q /= g;
+        g = gcd_u64(P, Q2); P /= g;  Q2 /= g;
+        g = gcd_u64(P2, Q); P2 /= g; Q /= g;
+        g = gcd_u64(P2, Q2); P2 /= g; Q2 /= g;
         /* now Q*Q2 divides r exactly */
         {
             seq_t d1 = (seq_t)Q;

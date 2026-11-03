@@ -10,7 +10,8 @@
  *            (with multiplicity) equals 3
  * Range:     u8 n <= 98, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 98 terms through n = 98 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------
  * Smallest prime factor (spf) sieve.
@@ -76,8 +78,8 @@ static idx_t  semis_lim = 0;           /* current limit (exclusive) */
 
 static void recompute_semis(idx_t limit)
 {
-    free(semis);
-    semis = (seq_t*)malloc((size_t)(limit + 1) * sizeof(seq_t));
+    mem_free(semis);
+    semis = mem_new(seq_t, (size_t)(limit + 1));
     if (!semis) exit(1);
 
     semis_cnt = 0;

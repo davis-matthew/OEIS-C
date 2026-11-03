@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 38, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
  * and returns the requested entry. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,16 +43,16 @@ seq_t a(idx_t n)
     idx_t col = n - prev_cum;           /* 1 ≤ col ≤ r */
 
     /* Allocate the first row (row 1). */
-    seq_t *prev = (seq_t *)malloc(sizeof(seq_t) * 1);
+    seq_t *prev = mem_new(seq_t, 1);
     if (!prev)
         return 0;                      /* allocation failure */
     prev[0] = 1;                        /* T(1,1)=1 */
 
     /* Build rows 2 through r. */
     for (idx_t row = 2; row <= r; ++row) {
-        seq_t *curr = (seq_t *)malloc(sizeof(seq_t) * row);
+        seq_t *curr = mem_new(seq_t, row);
         if (!curr) {                    /* allocation failure */
-            free(prev);
+            mem_free(prev);
             return 0;
         }
 
@@ -65,12 +67,12 @@ seq_t a(idx_t n)
             curr[k - 1] = mult * term_n + term_n_minus1;
         }
 
-        free(prev);
+        mem_free(prev);
         prev = curr;
     }
 
     /* Extract the wanted element and free the last row. */
     seq_t result = prev[col - 1];
-    free(prev);
+    mem_free(prev);
     return result;
 }

@@ -9,7 +9,8 @@
  *            4) with exponent one
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 9003 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* constants */
 #define BOUND 10000000ULL  /* sieve limit, sufficient for n≈10000 */
@@ -123,7 +125,7 @@ static void init_sequence(void) {
     init_M();
 
     heap_size = primes_cnt;
-    heap = (HeapNode *)malloc(heap_size * sizeof(HeapNode));
+    heap = mem_new(HeapNode, heap_size);
     if (!heap) return;
 
     /* initial heap nodes */
@@ -153,7 +155,7 @@ seq_t a(idx_t n) {
         /* append to cache */
         if (cache_len >= cache_cap) {
             size_t new_cap = cache_cap ? cache_cap << 1 : 128;
-            cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_cap);
             cache_cap = new_cap;
         }
         cache[cache_len++] = val;

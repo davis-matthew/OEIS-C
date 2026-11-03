@@ -7,14 +7,25 @@
  * Formula:   a(n) = concat(n, 2n, 3n, …, n*n)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 9, u128 n <= 14,
  *            big any n
- * Helpers:   digits, pow10
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-01)
+ * Helpers:   num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/pow10.h"
-#include "../utils/digits.h"
+#include <stdint.h>
+#include "../utils/num_digits_idx.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -26,7 +37,7 @@ seq_t a(idx_t n)
     for (idx_t i = 1; i <= n; ++i)
     {
         seq_t mult = n_seq * i;                 /* i * n */
-        int d = digits((idx_t)mult);            /* decimal digits of mult */
+        int d = num_digits_idx((idx_t)mult);            /* decimal digits of mult */
         result = result * pow10((idx_t)d) + mult;
     }
     return result;

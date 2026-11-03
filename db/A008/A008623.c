@@ -8,7 +8,8 @@
  *            ((1-x^2)*(1-x^3)*(1-x^4)*(1-x^7))
  * Range:     u8 n <= 30, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Denominator coefficients Q(x) = 1 - x^2 - x^3 - x^4 + x^5 + x^6
    - still -x^10 -x^11 + x^12 + x^13 + x^14 + x^16   (values above)
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
     /* Grow cache and compute missing terms up to n. */
     if ((size_t)n >= cache_len) {
         size_t new_len = (size_t)n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_len);
         if (!new_cache)
             abort();
         cache = new_cache;

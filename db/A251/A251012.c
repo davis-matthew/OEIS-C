@@ -11,13 +11,15 @@
  *            a(5)=126468
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 10, u64 n <= 22, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,8 +33,7 @@ seq_t a(idx_t n)
     /* Extend cache to length n, recomputing missing values. */
     if (n > cache_len) {
         idx_t new_len = n;
-        seq_t *tmp = (seq_t *)realloc(cache,
-                                      (new_len + 1) * sizeof(seq_t)); /* +1 for 1‑based */
+        seq_t *tmp = mem_resize(seq_t, cache, (new_len + 1)); /* +1 for 1‑based */
         if (!tmp) return 0;                           /* allocation failure */
         cache = tmp;
 

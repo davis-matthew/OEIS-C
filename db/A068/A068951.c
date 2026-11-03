@@ -8,7 +8,8 @@
  *            digit_sum(p_n) is prime. (n starts at 1)
  * Range:     u8 n <= 76, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   digit_sum_uint32, grow_seq_t_arr, is_small_prime_int
+ * Validated: partial, pass, 76 terms through n = 76 (2026-11-03)
+ * Helpers:   is_prime_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,24 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/digit_sum_uint32.h"
-#include "../utils/grow_seq_t_arr.h"
-#include "../utils/is_small_prime_int.h"
+#include "../utils/is_prime_i32.h"
+#include "../utils/mem.h"
+
+/* sum of decimal digits of an unsigned integer */
+static inline int digit_sum_uint32(uint32_t x)
+{
+    int s = 0;
+    while (x) { s += x % 10; x /= 10; }
+    return s;
+}
+
+/* grow a dynamically allocated array of seq_t */
+static void grow_seq_t_arr(seq_t **arr, size_t *cap)
+{
+    if (*cap == 0)        *cap = 64;
+    else                  *cap <<= 1;
+    *arr = mem_resize(seq_t, *arr, (*cap * sizeof(seq_t)) / sizeof(seq_t));
+}
 
 /* ---- small helpers --------------------------------------------------- */
 
@@ -56,7 +72,7 @@ seq_t a(idx_t n)
 
         /* digit sum */
         int ds = digit_sum_uint32(p);
-        if (is_small_prime_int(ds)) {
+        if (is_prime_i32(ds)) {
             if (vals_len >= vals_cap) grow_seq_t_arr(&vals, &vals_cap);
             vals[vals_len++] = (seq_t)ds;
         }

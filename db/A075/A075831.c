@@ -12,14 +12,28 @@
  *            words are multiplied together
  * Range:     u8 none, u16 n <= 2, u32 n <= 20, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   product_of_string
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/product_of_string.h"
+
+static seq_t product_of_string(const char *s)
+{
+    seq_t prod = 1;
+    while (*s) {
+        unsigned char c = (unsigned char)*s;
+        if (c >= 'A' && c <= 'Z')
+            prod *= (seq_t)(c - 'A' + 1);
+        else if (c >= 'a' && c <= 'z')
+            prod *= (seq_t)(c - 'a' + 1);
+        ++s;
+    }
+    return prod;
+}
 
 seq_t a(idx_t n)
 {

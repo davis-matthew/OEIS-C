@@ -9,12 +9,14 @@
  *            for n >= 2 Thus a(n) can be computed in O(n) time
  * Range:     u8 n <= 16, u16 n <= 72, u32 n <= 529, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 969 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     /* we need values of b up to index (n-1) */
     idx_t m = n - 1;                     /* m >= 1 */
     /* allocate array b[0..m], using 0 as dummy */
-    seq_t *b = (seq_t*)malloc((m + 1) * sizeof(seq_t));
+    seq_t *b = mem_new(seq_t, (m + 1));
     if (!b) return 0;                    /* malloc failure: return 0 */
 
     b[0] = 0;                            /* unused but safe */
@@ -35,6 +37,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = (seq_t)3 * b[m] - 1;
-    free(b);
+    mem_free(b);
     return result;
 }

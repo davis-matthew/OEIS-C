@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 4049, u32 n <= 6761, u64 n <= 6761,
  *            u128 n <= 6761, big any n
+ * Validated: standard, pass, 69 terms through n = 6737 (2026-11-01)
  * Helpers:   is_squarefree
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
    first decimal digit is not 6, and counts only the square‑free ones
    until the desired n‑th term is reached.  */
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/is_squarefree.h"
 
 static inline unsigned char first_digit(seq_t x) {

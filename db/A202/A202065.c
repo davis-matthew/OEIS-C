@@ -9,12 +9,14 @@
  *            (4n^2+2n)·a(n) (OEIS A202065 recurrence)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 10, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 214 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;         /* cached values */
 static idx_t  capacity = 0;         /* allocated cache size */
@@ -30,7 +32,7 @@ static void ensure_capacity(idx_t need)
     while (new_cap <= need)
         new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp && new_cap > 0)
         abort();      /* allocation failed – terminate */
     cache = tmp;

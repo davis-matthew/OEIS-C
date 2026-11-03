@@ -13,7 +13,8 @@
  *            3426377423999, 83356792653385, 2027901056098050, 493347038...
  * Range:     u8 none, u16 n <= 1, u32 n <= 4, u64 n <= 11, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         /* initialise cache with the first 11 terms */
         capacity = 11;
-        cache = (seq_t *)malloc(capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, capacity);
         if (!cache) return (seq_t)0;
         for (size_t i = 0; i < 11; ++i) cache[i] = init[i];
         used = 11;
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
         if (newcap == 0) newcap = 1;
         while (newcap < (size_t)n)
             newcap <<= 1;          /* double until enough */
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp) return (seq_t)0;
         cache = tmp;
         capacity = newcap;

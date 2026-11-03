@@ -10,7 +10,8 @@
  *            The triangle T(r,k) = coeff / 2^k forms A112227
  * Range:     i8 n <= 17, i16 n <= 47, i32 n <= 79, i64 n <= 79, i128 n <= 79,
  *            big any n
- * Helpers:   integer_sqrt, pow2
+ * Validated: partial, pass, 80 terms through n = 79 (2026-11-03)
+ * Helpers:   isqrt, mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/integer_sqrt.h"
+#include "../utils/isqrt.h"
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     {
         /* Compute integer sqrt of 8*n+1 safely for the expected limits. */
         idx_t disc = (idx_t)8 * n + 1;
-        idx_t root = integer_sqrt(disc);           /* floor(sqrt(disc)) */
+        idx_t root = isqrt(disc);           /* floor(sqrt(disc)) */
         r = (root - 1) / 2;                        /* floor ((sqrt(8n+1)-1)/2) */
 
         /* Correct r in case of rounding errors (double-check bounds). */
@@ -49,13 +51,13 @@ seq_t a(idx_t n)
     /* Allocate or grow array as required. */
     if (!coeff) {           /* first call */
         coeff_cap = needed_cap;
-        coeff = (seq_t *)malloc(coeff_cap * sizeof(seq_t));
+        coeff = mem_new(seq_t, coeff_cap);
         if (!coeff) return 0;           /* allocation failure – unlikely */
         coeff[0] = (seq_t)1;            /* C(0,0) */
         max_r = 0;
     } else if (coeff_cap < needed_cap) {
         coeff_cap = needed_cap;
-        seq_t *tmp = (seq_t *)realloc(coeff, coeff_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, coeff, coeff_cap);
         if (!tmp) return 0;             /* allocation failure */
         coeff = tmp;
     }

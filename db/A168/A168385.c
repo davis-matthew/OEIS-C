@@ -10,7 +10,8 @@
  *            12 distinct values; a(n)=0 for n>12
  * Range:     u8 n <= 1, u16 n <= 8, u32 n <= 12, u64 n <= 12, u128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 12 terms through n = 12 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t pow_small(seq_t base, idx_t exp)
 {
@@ -60,7 +62,7 @@ static void init_sequence(void)
         }
     }
 
-    qsort(all, allcnt, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(all, allcnt, sizeof(seq_t), cmp_seq_t);
 
     static seq_t values[12];
     static size_t valcnt = 0;
@@ -76,7 +78,7 @@ static void init_sequence(void)
     /* Store in static global variables */
     if (!valcnt) return;
     static seq_t *array = NULL;
-    array = (seq_t *)malloc(valcnt * sizeof(seq_t));
+    array = mem_new(seq_t, valcnt);
     for (size_t t = 0; t < valcnt; ++t) array[t] = values[t];
     static seq_t *cache = NULL;
     static size_t cachecnt = 0;
@@ -109,7 +111,7 @@ seq_t a(idx_t n)
                     }
                 }
             }
-        qsort(all, allcnt, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(all, allcnt, sizeof(seq_t), cmp_seq_t);
         static seq_t values[12];
         size_t valcnt = 0;
         values[0] = all[0];
@@ -117,7 +119,7 @@ seq_t a(idx_t n)
         for (size_t m = 1; m < allcnt; ++m)
             if (all[m] != values[valcnt - 1])
                 values[valcnt++] = all[m];
-        cache = (seq_t *)malloc(valcnt * sizeof(seq_t));
+        cache = mem_new(seq_t, valcnt);
         for (size_t t = 0; t < valcnt; ++t) cache[t] = values[t];
         cachecnt = valcnt;
         built = true;

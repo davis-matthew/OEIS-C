@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 3, u32 n <= 9, u64 n <= 22, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
    12: 215312392794
 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;            /* cache[0] <-- a(1) */
@@ -48,12 +50,12 @@ seq_t a(idx_t n) {
     if (n == 0) return 0; /* undefined; safety */
     if (cache == NULL) {
         cache_size = (n > 12) ? n : 12;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache) return 0; /* allocation failure */
         for (size_t i = 0; i < 12; ++i) cache[i] = init[i];
         max_computed = 12;
     } else if ((size_t)n > cache_size) {
-        seq_t *tmp = (seq_t *)realloc(cache, n * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, n);
         if (!tmp) return 0;
         cache = tmp;
         cache_size = n;

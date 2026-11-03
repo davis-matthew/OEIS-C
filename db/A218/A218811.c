@@ -13,12 +13,14 @@
  *            a(n-18) - a(n-19) Initial values (n from 1 to...
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 32, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 202 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* external types supplied by the build */
 #define seq_t seq_t
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         cache_size = 24;                      /* indices 0..23 */
         cache_cap  = 23;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         for (idx_t i = 0; i < cache_size; ++i)
             cache[i] = init[i];
     }
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
     if (n > cache_cap) {
         /* Allocate new size */
         idx_t new_size = n + 1;                /* include index 0 */
-        seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (new_cache == NULL) {               /* allocation failed */
             /* In a real program you might handle this error;
                here we simply return 0 for safety. */

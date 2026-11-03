@@ -14,7 +14,8 @@
  *            counting with a dynamic programming algorithm described...
  * Range:     u8 none, u16 n <= 16, u32 n <= 51, u64 n <= 122, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 187 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Number of rows in the array (6+1) */
 #define NUM_ROWS 7
@@ -114,8 +116,8 @@ static void init_cache(void)
     /* Allocate DP arrays: number of states = NUM_COLS * NUM_DIFF_STATES
        (including sentinel). */
     size_t states = (size_t)NUM_COLS * NUM_DIFF_STATES;
-    dp_curr = (seq_t *)calloc(states, sizeof(seq_t));
-    dp_next = (seq_t *)calloc(states, sizeof(seq_t));
+    dp_curr = mem_new(seq_t, states);
+    dp_next = mem_new(seq_t, states);
 
     /* Initialise DP for the first column: no constraints yet ⇒ sentinel diff. */
     for (int col = 0; col < NUM_COLS; ++col) {
@@ -125,7 +127,7 @@ static void init_cache(void)
 
     /* DP for width 2 .. 32  (n = 1 .. 31) */
     for (int step = 1; step <= 31; ++step) {
-        memset(dp_next, 0, states * sizeof(seq_t));
+        mem_set(dp_next, 0, states * sizeof(seq_t));
 
         for (size_t idx = 0; idx < states; ++idx) {
             seq_t cnt = dp_curr[idx];
@@ -159,7 +161,7 @@ static void init_cache(void)
 
     /* Initialise cache with first 31 values (indices 1..31) */
     cache_size = 32;   /* indices 0..31 */
-    cache = (seq_t *)calloc((size_t)cache_size, sizeof(seq_t));
+    cache = mem_new(seq_t, (size_t)cache_size);
     for (idx_t i = 1; i <= 31; ++i) cache[i] = first_terms[i];
 }
 
@@ -171,8 +173,8 @@ static void ensure_cache(idx_t n)
     if (n < cache_size) return;
 
     size_t new_size = n + 1;
-    cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
-    memset(cache + cache_size, 0, (new_size - cache_size) * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_size);
+    mem_set(cache + cache_size, 0, (new_size - cache_size) * sizeof(seq_t));
     cache_size = new_size;
 
     for (idx_t i = 32; i <= n; ++i) {

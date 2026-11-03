@@ -12,7 +12,8 @@
  *            sequentially, storing results in static arrays so subsequen...
  * Range:     u8 n <= 6, u16 n <= 7, u32 n <= 7, u64 n <= 7, u128 n <= 7,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 /* Includes */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static storage for computed values */
 static seq_t *G = NULL;          /* Grundy array */
@@ -46,7 +48,7 @@ static void ensure_G_cap(idx_t need) {
     if (need <= G_cap) return;
     size_t new_cap = G_cap ? G_cap : 1;
     while (new_cap <= need) new_cap <<= 1;
-    G = (seq_t *)realloc(G, new_cap * sizeof(seq_t));
+    G = mem_resize(seq_t, G, new_cap);
     G_cap = new_cap;
 }
 
@@ -118,7 +120,7 @@ seq_t a(idx_t n) {
     /* initialization on first call */
     if (!G) {
         G_cap = 1;
-        G = (seq_t *)malloc(G_cap * sizeof(seq_t));
+        G = mem_new(seq_t, G_cap);
         G[0] = (seq_t)0;
         G_next = 1;                /* next Grundy index to compute */
 

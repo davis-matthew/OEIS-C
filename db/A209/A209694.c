@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t **u = NULL;          /* coefficient arrays for u(n,x)  – 1‑based rows, 0‑based cols  */
 static seq_t **v = NULL;          /* coefficient arrays for v(n,x)  – same layout          */
@@ -47,8 +49,8 @@ seq_t a(idx_t n) {
 
         for (size_t i = max_rows + 1; i <= new_rows; ++i) {
             size_t len = i;                     /* number of coefficients in row i */
-            u[i-1] = (seq_t*)malloc(len * sizeof(seq_t));
-            v[i-1] = (seq_t*)malloc(len * sizeof(seq_t));
+            u[i-1] = mem_new(seq_t, len);
+            v[i-1] = mem_new(seq_t, len);
 
             if (i == 1) {                       /* base case u(1)=v(1)=1 */
                 u[0][0] = 1;

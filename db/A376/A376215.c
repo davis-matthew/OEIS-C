@@ -10,13 +10,33 @@
  *            floor(floor(1+2*(n-1)/sqrt(3))/2))
  * Range:     u8 n <= 15, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   floor_div_by_sqrt3
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/floor_div_by_sqrt3.h"
+
+static idx_t floor_div_by_sqrt3(idx_t k)
+{
+    /* Return floor(k / sqrt(3)) using integer arithmetic */
+    if (k == 0) return 0;
+    idx_t low = 0, high = k, ans = 0;
+    unsigned __int128 k2 = (unsigned __int128)k * k;
+    while (low <= high) {
+        idx_t mid = (low + high) >> 1;
+        unsigned __int128 lhs = (unsigned __int128)mid * mid * 3;
+        if (lhs <= k2) {
+            ans = mid;
+            low = mid + 1;
+        } else {
+            if (mid == 0) break;
+            high = mid - 1;
+        }
+    }
+    return ans;
+}
 
 seq_t a(idx_t n)
 {

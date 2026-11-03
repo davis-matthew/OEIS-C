@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 48, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Forward declarations for utilities that may be used for heap sizes, etc. */
 static seq_t *seq = NULL;            /* memoised sequence values               */
@@ -40,7 +42,7 @@ static void ensure_seq_cap(size_t needed) {
     if (needed <= seq_cap) return;
     size_t newcap = seq_cap ? seq_cap << 1 : 16;
     while (newcap < needed) newcap <<= 1;
-    seq = (seq_t *)realloc(seq, newcap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, newcap);
     seq_cap = newcap;
 }
 
@@ -54,7 +56,7 @@ static void ensure_forbidden_upto(seq_t limit) {
 
         if (forb_cap <= forb_size) {
             forb_cap = forb_cap ? forb_cap << 1 : 16;
-            forbidden = (seq_t *)realloc(forbidden, forb_cap * sizeof(seq_t));
+            forbidden = mem_resize(seq_t, forbidden, forb_cap);
         }
         forbidden[forb_size++] = f;
 
@@ -81,11 +83,11 @@ static void init(void) {
     if (init_done) return;
     /* initialise sequence storage */
     seq_cap = 16;
-    seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+    seq = mem_new(seq_t, seq_cap);
     seq_size = 0;
     /* initialise forbidden storage */
     forb_cap = 16;
-    forbidden = (seq_t *)malloc(forb_cap * sizeof(seq_t));
+    forbidden = mem_new(seq_t, forb_cap);
     forb_size = 0;
     next_k = 1;
     init_done = true;

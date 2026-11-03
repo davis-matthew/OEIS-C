@@ -10,7 +10,8 @@
  * Formula:   t0(n,m) = 4 + n! - m! - (n-m)! + P[n] - P[m] - P[n-m]
  * Range:     u8 n <= 21, u16 n <= 45, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* idx_t and seq_t are supplied by the build (do not redefine them). */
 
@@ -38,7 +40,7 @@ static void ensure_factorials(idx_t n)
     while (new_size <= n + 1)
         new_size *= 2;
 
-    seq_t *new_cache = (seq_t *)realloc(fact_cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, fact_cache, new_size);
     if (!new_cache) abort();
     fact_cache = new_cache;
 
@@ -62,7 +64,7 @@ static void ensure_partitions(idx_t n)
     while (new_size <= n + 1)
         new_size *= 2;
 
-    seq_t *new_cache = (seq_t *)realloc(part_cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, part_cache, new_size);
     if (!new_cache) abort();
     part_cache = new_cache;
 

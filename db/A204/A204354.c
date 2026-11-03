@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 16, u64 n <= 35, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,11 +31,12 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper: allocate array of seq_t with given capacity (>=1).  */
 static seq_t *alloc_seq_array(idx_t cap)
 {
-    return (seq_t *)malloc(sizeof(seq_t) * cap);
+    return mem_new(seq_t, cap);
 }
 
 /* Memoization cache.  cache[0] is unused.  */
@@ -100,7 +102,7 @@ static void ensure_cache(idx_t n)
     }
 
     /* Replace old cache.  */
-    free(cache);
+    mem_free(cache);
     cache      = new_cache;
     cache_size = need;
 }

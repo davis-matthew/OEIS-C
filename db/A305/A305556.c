@@ -9,8 +9,9 @@
  *            triangle row‑wise: a(1)=T(1,1), a(2)=T(2,1), a(3)=T(2,2), … The
  *            function maps the linear index n to the unique pair (row,column)
  *            and returns the corresponding binomial value
- * Range:     u8 n <= 53, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
+ * Range:     u8 n <= 68, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
+ * Validated: partial, pass, 80 terms through n = 80 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

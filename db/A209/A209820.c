@@ -12,13 +12,15 @@
  *            linearised triangle (offset 1)
  * Range:     u8 n <= 25, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static storage for rows of u and v polynomials */
 static seq_t **u_rows = NULL;          /* u_rows[k-1] = coeffs of u(k,x) */
@@ -50,8 +52,8 @@ static void ensure_rows(idx_t m)
 
     for (size_t idx = rows_count + 1; idx <= (size_t)m; ++idx) {
         size_t len = idx;                          /* number of coefficients in row idx */
-        seq_t *u = (seq_t *)malloc(len * sizeof(seq_t));
-        seq_t *v = (seq_t *)malloc(len * sizeof(seq_t));
+        seq_t *u = mem_new(seq_t, len);
+        seq_t *v = mem_new(seq_t, len);
         u_rows[idx - 1] = u;
         v_rows[idx - 1] = v;
 

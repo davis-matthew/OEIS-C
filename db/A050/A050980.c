@@ -7,7 +7,8 @@
  * Formula:   a(n) = multiplicative order of 8 modulo (2n+1)
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   factor_u64, powmod64
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-01)
+ * Helpers:   factor_u64, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,8 +29,10 @@
 #include <stdint.h>
 #include <stddef.h>
 
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/powmod64.h"
+#include "../utils/powmod_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -65,7 +68,7 @@ seq_t a(idx_t n)
         /* consider each distinct prime factor */
         while (order % p == 0ull) {
             uint64_t cand = order / p;
-            if (powmod64(8ull, cand, m) == 1ull)
+            if (powmod_u64(8ull, cand, m) == 1ull)
                 order = cand;
             else
                 break;

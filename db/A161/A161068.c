@@ -9,7 +9,8 @@
  *            each part appears at least 6 times
  * Range:     u8 n <= 145, u16 n <= 540, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   free_seq_arr
+ * Validated: standard, pass, 105 terms through n = 996 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,15 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/free_seq_arr.h"
+
+static inline void free_seq_arr(seq_t* p)
+{
+#if defined(__cplusplus)
+    delete[] p;
+#else
+    free(p);
+#endif
+}
 
 /* helper for dynamic allocation that works in C and C++ */
 static seq_t* alloc_seq_arr(size_t n)

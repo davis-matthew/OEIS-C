@@ -9,7 +9,8 @@
  *            core(n) is the squarefree part of n
  * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_uint64, phi
+ * Validated: standard, pass, 96 terms through n = 8975 (2026-11-01)
+ * Helpers:   factor_uint64, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,8 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-#include "../utils/factor_uint64.h"   /* factor_uint64 */
-#include "../utils/phi.h"            /* phi */
+#include "../utils/factor_uint64.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -43,7 +44,7 @@ seq_t a(idx_t n)
     }
 
     /* Compute φ(n). */
-    seq_t phi_val = phi(n);
+    seq_t phi_val = totient(n);
 
     /* Return the smaller of core(n) and φ(n). */
     return core < phi_val ? core : phi_val;

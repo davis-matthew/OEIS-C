@@ -11,15 +11,35 @@
  *            -Sum_{k=1..n} theta(k)*a(n-k)
  * Range:     i8 n <= 1, i16 n <= 1, i32 n <= 3, i64 n <= 7, i128 n <= 14,
  *            big any n
- * Helpers:   a1942_sq, alloc_zero
+ * Validated: standard, pass, 28 terms through n = 341 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/a1942_sq.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void a1942_sq(const seq_t *x, seq_t *r, idx_t N) {
+    for (idx_t i = 0; i < N; i++) {
+        seq_t s = 0;
+        for (idx_t j = 0; 2 * j < i; j++) {
+            if (x[j] == 0) continue;
+            s += x[j] * x[i - j];
+        }
+        s = s + s;
+        if (i % 2 == 0) s += x[i / 2] * x[i / 2];
+        r[i] = s;
+    }
+}
 
 static seq_t *a1942_A = NULL;
 static idx_t a1942_cap = 0;

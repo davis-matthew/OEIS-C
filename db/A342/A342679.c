@@ -9,7 +9,8 @@
  *            A037916 (concatenation of exponents of the prime factorisation)
  * Range:     u8 n <= 89, u16 n <= 89, u32 n <= 89, u64 n <= 89, u128 n <= 89,
  *            big any n
- * Helpers:   digit_len_uint, pow10
+ * Validated: partial, pass, 88 terms through n = 89 (2026-11-01)
+ * Helpers:   num_digits_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,17 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow10.h"
-#include "../utils/digit_len_uint.h"
+#include "../utils/num_digits_u32.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Main function implementing the sequence. */
 seq_t a(idx_t n)
@@ -45,12 +55,12 @@ seq_t a(idx_t n)
                     u   /= p;
                     exp += 1;
                 }
-                unsigned int d = digit_len_uint(exp);
+                unsigned int d = num_digits_u32(exp);
                 next = next * pow10((idx_t)d) + exp;
             }
         }
         if (u > 1) {               /* remaining prime factor with exponent 1 */
-            unsigned int d = digit_len_uint(1);
+            unsigned int d = num_digits_u32(1);
             next = next * pow10((idx_t)d) + 1;
         }
 

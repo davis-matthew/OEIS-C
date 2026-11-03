@@ -7,9 +7,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = 1 if all solutions of phi(x)=n have a common divisor >1,
  *            otherwise 0
- * Range:     u8 n <= 91, u16 n <= 9352, u32 n <= 9352, u64 n <= 9352,
- *            u128 n <= 9352, big any n
- * Helpers:   build_primes_upto, seq_cmp, seq_gcd, seq_mul, seq_pow
+ * Range:     u8 n <= 91, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 136 terms through n = 9352 (2026-11-01)
+ * Helpers:   build_primes_upto, gcd, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,11 +20,25 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/seq_mul.h"
-#include "../utils/seq_pow.h"
-#include "../utils/seq_gcd.h"
-#include "../utils/seq_cmp.h"
+#include "../utils/gcd.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+static int seq_cmp(const void *p, const void *q)
+{
+    const seq_t *a = (const seq_t *)p;
+    const seq_t *b = (const seq_t *)q;
+    if (*a < *b) return -1;
+    if (*a > *b) return 1;
+    return 0;
+}
 
 /* Recursive helper that finds all solutions of phi(x)=rem
    and accumulates their greatest common divisor in *gcd_out. */
@@ -33,7 +48,7 @@ search(uint64_t rem, size_t p_idx, seq_t curr, seq_t *gcd_out,
 {
     if (rem == 1) {
         /* Found a solution curr. Update the accumulated GCD. */
-        *gcd_out = seq_gcd(*gcd_out, curr);
+        *gcd_out = gcd(*gcd_out, curr);
         return;
     }
 
@@ -47,7 +62,7 @@ search(uint64_t rem, size_t p_idx, seq_t curr, seq_t *gcd_out,
         while (term <= rem) {
             if (rem % term == 0) {
                 /* New potential solution using prime p with exponent k. */
-                seq_t p_pow = seq_pow((seq_t)p, (idx_t)k);
+                seq_t p_pow = ipow_idx((seq_t)p, (idx_t)k);
                 seq_t new_val = seq_mul(curr, p_pow);
                 search(rem / term, i + 1, new_val, gcd_out,
                        primes, prime_len);

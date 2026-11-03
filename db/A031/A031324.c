@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 108 terms through n = 9330 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Simple representation of a large integer as a little‑endian array
  * of decimal digits. */
@@ -76,7 +78,7 @@ static void append_big_digits(const BigInt *b, seq_t **cache,
     /* Ensure enough space. */
     if (*used + b->len > *cap) {
         size_t newcap = *cap ? (*cap << 1) : 512;
-        seq_t *tmp = (seq_t*)realloc(*cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *cache, newcap);
         if (!tmp) abort();
         *cache = tmp;
         *cap   = newcap;
@@ -105,7 +107,7 @@ seq_t a(idx_t n)
         big_from_uint(&fcurr, 1);
 
         /* Allocate initial digit cache. */
-        digit_cache = (seq_t*)malloc(512 * sizeof(seq_t));
+        digit_cache = mem_new(seq_t, 512);
         if (!digit_cache) abort();
         cache_cap   = 512;
         cache_len   = 0;

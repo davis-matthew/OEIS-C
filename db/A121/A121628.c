@@ -7,6 +7,7 @@
  * Formula:   a(n) = 3*(n-1)*(3*n^2-3*n+1)
  * Range:     u8 n <= 3, u16 n <= 20, u32 n <= 782, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 54 terms through n = 894 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

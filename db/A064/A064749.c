@@ -7,12 +7,14 @@
  * Formula:   a(n) = n*11^n + 1
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 17, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 808 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached powers of 11; pow11[i] = 11^i */
 static seq_t *pow11 = NULL;
@@ -26,7 +28,7 @@ ensure_pow11(idx_t n)
         return;                    /* already computed */
 
     idx_t new_len = n + 1;
-    seq_t *new_pow11 = (seq_t *)realloc(pow11, new_len * sizeof(seq_t));
+    seq_t *new_pow11 = mem_resize(seq_t, pow11, new_len);
     if (!new_pow11) {
         /* Out of memory – terminate; this should never happen in normal use */
         abort();

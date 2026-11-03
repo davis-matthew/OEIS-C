@@ -8,8 +8,9 @@
  *            trailing_zeros(k) + 1 where trailing_zeros(k) is the number of
  *            zero bits before the first 1 in the binary representation of k
  *            (starting from the LSB)
- * Range:     u8 n <= 54, u16 n <= 2583, u32 n <= 8480, u64 n <= 8480,
- *            u128 n <= 8480, big any n
+ * Range:     u8 n <= 54, u16 n <= 2583, u32 n <= 10945, u64 n <= 10945,
+ *            u128 n <= 10945, big any n
+ * Validated: standard, pass, 75 terms through n = 8480 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

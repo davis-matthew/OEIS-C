@@ -9,6 +9,7 @@
  *            60*n^24 + 48*n^32 + 32*n^36 - 5*n^48 + 72*n^50 - 12*n^52 -
  *            12*n^60 + n^96) / 1152
  * Range:     u8 none, u16 none, u32 none, u64 none, u128 n <= 2, big any n
+ * Validated: standard, pass, 20 terms through n = 27 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

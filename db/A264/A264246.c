@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 13, u64 n <= 25, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
                   a(7)=105839, a(8)=602365, a(9)=3432551, a(10)=19548549. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init[10] = {
     3, 21, 95, 557, 3303, 18725, 105839, 602365, 3432551, 19548549
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     /* First call: allocate space for at least the initial terms. */
     if (arr == NULL) {
         cap = (n > 10 ? n : 10);          /* de‑finitely enough for init */
-        arr = (seq_t*)malloc(cap * sizeof(seq_t));
+        arr = mem_new(seq_t, cap);
         if (!arr) return (seq_t)0;        /* allocation failure -> 0 */
         for (size_t i = 0; i < 10; ++i)   /* copy initial values */
             arr[i] = init[i];
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
     if (cap < (size_t)n) {
         size_t new_cap = cap * 2;
         if (new_cap < (size_t)n) new_cap = n;
-        seq_t *tmp = (seq_t*)realloc(arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, arr, new_cap);
         if (!tmp) return (seq_t)0;        /* allocation failure -> 0 */
         arr = tmp;
         cap = new_cap;

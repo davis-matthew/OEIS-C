@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 46, i16 n <= 123, i32 n <= 384, i64 n <= 1290,
  *            i128 n <= 4690, big any n
- * Helpers:   none
+ * Validated: standard, pass, 84 terms through n = 9616 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Global cache for the rows of the array. */
 static seq_t **rows = NULL;          /* pointers to rows a_0, a_1, …   */
@@ -47,7 +49,7 @@ static void ensure_rows(idx_t r)
 
     for (idx_t i = rows_count; i <= r; ++i) {
         size_t sz = (size_t)(i + 2);                    /* length of row i */
-        seq_t *arr = (seq_t *)calloc(sz, sizeof(seq_t));
+        seq_t *arr = mem_new(seq_t, sz);
         if (!arr)
             abort();
 

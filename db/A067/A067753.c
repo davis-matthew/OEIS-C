@@ -9,13 +9,15 @@
  *            with xy + xz + yz = n (primitive means gcd(x,y,z) = 1)
  * Range:     u8 n <= 1318, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd64
+ * Validated: standard, pass, 90 terms through n = 9736 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/gcd64.h"
+#include <stdbool.h>
+#include "../utils/gcd_u64.h"
 
 /* helper for greatest common divisor on 64-bit integers */
 
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
             if (z128 > (__uint128_t)UINT64_MAX) continue;   /* safety, shouldn't happen */
 
             uint64_t z = (uint64_t)z128;
-            uint64_t g = gcd64(gcd64(x, y), z);
+            uint64_t g = gcd_u64(gcd_u64(x, y), z);
             if (g == 1) ++count;
         }
     }

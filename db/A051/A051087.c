@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 966 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --- helper routines ---------------------------------------------------- */
 
@@ -96,7 +98,7 @@ static idx_t next_prime_idx = 0;
 static void init_terms(void) {
     if (term_array) return;
     term_capacity = 128;
-    term_array = (seq_t*)malloc(term_capacity * sizeof(seq_t));
+    term_array = mem_new(seq_t, term_capacity);
     if (!term_array) exit(EXIT_FAILURE);
 }
 
@@ -104,8 +106,7 @@ static void init_terms(void) {
 static void append_term(seq_t val) {
     if (term_count == term_capacity) {
         term_capacity *= 2;
-        term_array = (seq_t*)realloc(term_array,
-                                     term_capacity * sizeof(seq_t));
+        term_array = mem_resize(seq_t, term_array, term_capacity);
         if (!term_array) exit(EXIT_FAILURE);
     }
     term_array[term_count++] = val;

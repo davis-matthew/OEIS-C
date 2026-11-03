@@ -9,6 +9,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 43, u32 n <= 132, u64 n <= 424,
  *            u128 n <= 1561, big any n
+ * Validated: standard, pass, 80 terms through n = 8862 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -23,6 +24,7 @@
 
 #include <stdint.h>
 #include <math.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* integer sqrt using floating point conversion and correction */

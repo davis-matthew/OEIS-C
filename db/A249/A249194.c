@@ -11,7 +11,8 @@
  *            elements * equal to three times the sum of the remaining four
  * Range:     u8 none, u16 none, u32 n <= 6, u64 n <= 20, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define STATE_COUNT 46656  /* 6^6 */
 #define POWER6_5   7776    /* 6^5 */
@@ -99,15 +101,15 @@ static void init_once(void)
 
     init_transitions();
 
-    cur_vec  = (seq_t *)malloc(sizeof(seq_t) * STATE_COUNT);
-    next_vec = (seq_t *)malloc(sizeof(seq_t) * STATE_COUNT);
+    cur_vec  = mem_new(seq_t, STATE_COUNT);
+    next_vec = mem_new(seq_t, STATE_COUNT);
     if (!cur_vec || !next_vec) abort();
 
     /* Every 6‑tuple is a valid initial state */
     for (int i = 0; i < STATE_COUNT; ++i) cur_vec[i] = 1;
 
     /* Results array (index 0 unused for clarity) */
-    results = (seq_t *)malloc(sizeof(seq_t) * 1);
+    results = mem_new(seq_t, 1);
     if (!results) abort();
     results[0] = 0;
     results_cap = 1;
@@ -125,7 +127,7 @@ seq_t a(idx_t n)
     /* Resize results buffer if necessary */
     if ((size_t)(n + 1) > results_cap) {
         size_t new_cap = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(results, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, results, new_cap);
         if (!tmp) abort();
         results = tmp;
         results_cap = new_cap;
@@ -134,7 +136,7 @@ seq_t a(idx_t n)
     /* Compute the dynamic programming up to the required n */
     for (idx_t step = max_n_done + 1; step <= n; ++step) {
         /* Zero the next vector */
-        memset(next_vec, 0, sizeof(seq_t) * STATE_COUNT);
+        mem_set(next_vec, 0, sizeof(seq_t) * STATE_COUNT);
 
         /* Apply all transitions */
         for (int s = 0; s < STATE_COUNT; ++s) {

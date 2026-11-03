@@ -8,7 +8,8 @@
  *            inclusive
  * Range:     u8 n <= 74, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   rev_seq
+ * Validated: partial, pass, 75 terms through n = 74 (2026-11-01)
+ * Helpers:   reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/rev_seq.h"
+#include "../utils/reverse_digits.h"
 
 /* ---------- small helpers -------------------------------------------- */
 
@@ -74,9 +75,9 @@ seq_t a(idx_t n)
 
     seq_t palindrome;
     if ((digits & 1) == 0) {                   /* even length */
-        palindrome = first_half * base + rev_seq(first_half);
+        palindrome = first_half * base + reverse_digits(first_half);
     } else {                                   /* odd length */
-        palindrome = first_half * base + rev_seq(first_half / 10);
+        palindrome = first_half * base + reverse_digits(first_half / 10);
     }
 
     seq_t same_len_count;

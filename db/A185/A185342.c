@@ -9,13 +9,15 @@
  *            column index given by k = n - r*(r-1)/2 + 1
  * Range:     i8 n <= 16, i16 n <= 60, i32 n <= 241, i64 n <= 885,
  *            i128 n <= 3452, big any n
- * Helpers:   binom, pow_uint
+ * Validated: standard, pass, 66 terms through n = 4906 (2026-11-01)
+ * Helpers:   binomial, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_u64_idx.h"
 
 /* Compute row index r (1‑based) for given zero‑based linear index n. */
 static inline idx_t
@@ -43,10 +45,10 @@ a(idx_t n)
     idx_t k = n - start + 1;     /* 1‑based column index */
 
     /* Compute binom(r, k). */
-    seq_t bin = binom(r, k);
+    seq_t bin = binomial(r, k);
 
     /* Compute 2^k. */
-    seq_t pow2 = pow_uint(2, k);
+    seq_t pow2 = ipow_u64_idx(2, k);
 
     /* Multiply and apply sign. The sign is negative when k is even. */
     seq_t res = bin * pow2;

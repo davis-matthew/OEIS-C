@@ -10,14 +10,52 @@
  *            largest term is 67379 (104 terms)
  * Range:     u8 n <= 36, u16 n <= 101, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   is_fixed
+ * Validated: full, pass, 104 terms through n = 104 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_fixed.h"
+
+/* Test whether a candidate n has the required property. */
+static bool is_fixed(uint64_t n)
+{
+    /* Put decimal digits of n into array s, most significant first. */
+    uint8_t s[20];
+    int len = 0;
+    if (n == 0) {
+        s[len++] = 0;
+    } else {
+        uint64_t t = n;
+        while (t > 0) {
+            s[len++] = (uint8_t)(t % 10);
+            t /= 10;
+        }
+        /* Reverse to obtain normal order. */
+        for (int i = 0; i < len / 2; ++i) {
+            uint8_t tmp = s[i];
+            s[i] = s[len - 1 - i];
+            s[len - 1 - i] = tmp;
+        }
+    }
+
+    /* Check all substrings of length ≥ 2 that do not start with 0. */
+    for (int st = 0; st < len - 1; ++st) {
+        if (s[st] == 0) continue;          /* leading zero – skip */
+        uint64_t val = 0;
+        for (int l = 1; st + l <= len; ++l) {
+            val = val * 10 + s[st + l - 1];
+            if (l >= 2) {
+                if ((val % 2 == 0) || (val % 3 == 0) ||
+                    (val % 5 == 0) || (val % 7 == 0))
+                    return false;
+            }
+        }
+    }
+    return true;
+}
 
 /* Pre‑computed fixed points (maximum 104 elements). */
 static seq_t seq_fixed[104];

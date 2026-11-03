@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   base7_len
+ * Validated: partial, pass, 90 terms through n = 90 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,18 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/base7_len.h"
+
+/* number of digits of x when written in base 7 */
+static inline idx_t
+base7_len(idx_t x)
+{
+    idx_t cnt = 0;
+    do {
+        x /= 7;
+        ++cnt;
+    } while (x > 0);
+    return cnt;
+}
 
 /* static storage for cumulative digit counts */
 static size_t cum_cap  = 0;   /* capacity of cum array          */

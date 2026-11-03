@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 14, u32 n <= 15, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   digit_product, phi
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-03)
+ * Helpers:   digit_product, mem, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,10 @@
 #include <stdbool.h>
 
 /* Utility functions provided by the build */
-#include "../utils/phi.h"             /* static seq_t phi(idx_t) */
-#include "../utils/digit_product.h"   /* static seq_t digit_product(seq_t) */
+#include <stdint.h>
+#include "../utils/digit_product.h"
+#include "../utils/totient.h"
+#include "../utils/mem.h"
 
 /* Cached solutions up to the largest n requested so far. */
 static seq_t *solutions = NULL;
@@ -32,7 +35,7 @@ static void push_solution(seq_t val)
 {
     if (sol_len == sol_cap) {
         sol_cap = sol_cap ? sol_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(solutions, sol_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, solutions, sol_cap);
         if (!tmp) exit(EXIT_FAILURE);
         solutions = tmp;
     }
@@ -46,7 +49,7 @@ static void compute_until(idx_t want)
     const idx_t MAX_SEARCH = 2000000ULL;
     for (; last_checked <= MAX_SEARCH && sol_len < (size_t)want; ++last_checked) {
         seq_t m = (seq_t)last_checked;
-        if (phi(last_checked) == digit_product(m))
+        if (totient(last_checked) == digit_product(m))
             push_solution(m);
     }
 }
@@ -59,7 +62,7 @@ seq_t a(idx_t n)
 
     if (!solutions) {    /* first call: initialise */
         sol_cap = 16;
-        solutions = (seq_t *)malloc(sol_cap * sizeof(seq_t));
+        solutions = mem_new(seq_t, sol_cap);
         if (!solutions) exit(EXIT_FAILURE);
     }
 

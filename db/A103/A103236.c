@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -45,6 +46,7 @@
 
 #include <stdlib.h>
 #include <math.h>     /* for sqrt */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Compute the row r that contains index n */
@@ -55,13 +57,13 @@ seq_t a(idx_t n) {
     if (!rows) return 0;          /* shouldn't happen */
 
     /* Row 0 */
-    rows[0] = (seq_t *)malloc(sizeof(seq_t));
+    rows[0] = mem_new(seq_t, 1);
     rows[0][0] = 1;                /* T(0,0)=1 */
 
     for (idx_t i = 0; i < r; ++i) {
         idx_t next = i + 1;
         /* Allocate the next row of length next+1 */
-        rows[next] = (seq_t *)calloc((next + 1), sizeof(seq_t));
+        rows[next] = mem_new(seq_t, (next + 1));
         if (!rows[next]) return 0;
 
         /* Diagonal entry */
@@ -82,7 +84,7 @@ seq_t a(idx_t n) {
     seq_t result = rows[r][offset];
 
     /* Clean up */
-    for (idx_t i = 0; i <= r; ++i) free(rows[i]);
+    for (idx_t i = 0; i <= r; ++i) mem_free(rows[i]);
     free(rows);
 
     return result;

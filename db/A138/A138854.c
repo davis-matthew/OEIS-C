@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 9438 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*  Comparator for qsort using seq_t. */
 static int seq_cmp(const void *p1, const void *p2)
@@ -90,7 +92,7 @@ static void ensure_sums(idx_t n)
             tot = prime_cnt * (prime_cnt - 1) * (prime_cnt - 2) / 6;
 
         /* Temporary array for all sums. */
-        seq_t *tmp = (seq_t *)malloc(tot * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, tot);
 
         /* Compute all cube sums. */
         size_t idx = 0;
@@ -112,11 +114,11 @@ static void ensure_sums(idx_t n)
         }
 
         /* Sort the sums. */
-        qsort(tmp, tot, sizeof(seq_t), seq_cmp);
+        mem_qsort(tmp, tot, sizeof(seq_t), seq_cmp);
 
         /* Deduplicate into the cache array. */
-        if (sums_cache) free(sums_cache);
-        sums_cache = (seq_t *)calloc(tot, sizeof(seq_t));
+        if (sums_cache) mem_free(sums_cache);
+        sums_cache = mem_new(seq_t, tot);
 
         size_t uniq = 0;
         if (tot > 0)
@@ -127,7 +129,7 @@ static void ensure_sums(idx_t n)
                 if (tmp[i] != tmp[i-1])
                     sums_cache[uniq++] = tmp[i];
         }
-        free(tmp);
+        mem_free(tmp);
 
         sums_len = uniq;
         /* Loop again if still not enough terms. */

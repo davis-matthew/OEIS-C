@@ -7,8 +7,9 @@
  * Formula:   a(n) = floor(r/k) + r % k where r, k are the row and column of n
  *            in the triangle T(n, k) read by rows. Here r is the smallest
  *            integer such that r*(r+1)/2 ≥ n, and k = n - (r-1)*r/2
- * Range:     u8 n <= 8709, u16 n <= 8709, u32 n <= 8709, u64 n <= 8709,
- *            u128 n <= 8709, big any n
+ * Range:     u8 n <= 10440, u16 n <= 10440, u32 n <= 10440, u64 n <= 10440,
+ *            u128 n <= 10440, big any n
+ * Validated: standard, pass, 103 terms through n = 8709 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -12,7 +12,8 @@
  *            of consecutive columns
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 9, u64 n <= 20, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* helper: true if column c has no vertical 001 or 100 */
 static inline bool vertical_ok(uint8_t c)
@@ -107,8 +109,8 @@ seq_t a(idx_t n)
     }
 
     /* n >= 3 : DP over pairs of columns */
-    seq_t *dp_prev = (seq_t *)calloc(stateCount, sizeof(seq_t));
-    seq_t *dp_next = (seq_t *)calloc(stateCount, sizeof(seq_t));
+    seq_t *dp_prev = mem_new(seq_t, stateCount);
+    seq_t *dp_next = mem_new(seq_t, stateCount);
 
     /* initialize for n==2 */
     for (int s = 0; s < stateCount; ++s)
@@ -143,8 +145,8 @@ seq_t a(idx_t n)
     for (int s = 0; s < stateCount; ++s)
         total += dp_prev[s];
 
-    free(dp_prev);
-    free(dp_next);
+    mem_free(dp_prev);
+    mem_free(dp_next);
 
     return total;
 }

@@ -8,12 +8,14 @@
  * Formula:   a(n) = 227*a(n-1) - a(n-2); a(0)=1, a(1)=226
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 8, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 409 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute the n-th term of OEIS sequence A098247. */
 seq_t a(idx_t n)
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* Initialise cache with first two terms if not yet done. */
     if (cache_size == 0) {
         cache_size = 2;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_size);
+        cache = mem_new(seq_t, cache_size);
         if (!cache) { /* out of memory; fall back to minimal behaviour */
             return 0;
         }
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     /* Grow the cache up to n. */
     if (n >= cache_size) {
         size_t new_size = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_size);
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) { /* out of memory; keep current cache */
             return 0;
         }

@@ -8,8 +8,9 @@
  * Formula:   a(0)=0, a(1)=1. For n>1, let k be the smallest integer such that
  *            2^k+1>n. Then repeatedly subtract 2^{k-1}+1 from the index while
  *            k>0. The remaining index is 0 or 1, which is the sequence value
- * Range:     u8 n <= 9088, u16 n <= 9088, u32 n <= 9088, u64 n <= 9088,
- *            u128 n <= 9088, big any n
+ * Range:     u8 n <= 16384, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 121 terms through n = 9088 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

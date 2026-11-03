@@ -10,6 +10,7 @@
  *            numbers up to 2k+1), where (2m-1)!! = ∏_{i=1}^{m} (2i-1)
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 18, u64 n <= 32, u128 n <= 56,
  *            big any n
+ * Validated: standard, pass, 45 terms through n = 788 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

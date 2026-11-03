@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 42, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ----- static caching state ------------------------------------------ */
 static seq_t   *seq_cache = NULL;   /* sequence values   */
@@ -70,7 +72,7 @@ static void init_sequence(void)
     }
 
     /* 3. generate the missing odd numbers (and 1).                     */
-    seq_cache = (seq_t *)malloc(sizeof *seq_cache * TARGET);
+    seq_cache = mem_new(seq_t, (sizeof *seq_cache * TARGET) / sizeof(seq_t));
     if (!seq_cache) { free(phi); free(present); return; }
 
     seq_len = 0;

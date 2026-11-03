@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 41, u16 n <= 5258, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 91 terms through n = 9490 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/is_prime.h"   /* bool is_prime(idx_t) */
-#include "../utils/mod_pow.h"   /* seq_t mod_pow(seq_t, uint64_t, seq_t) */
+#include <string.h>
+#include "../utils/is_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* Fast multiplication modulo mod (handles any seq_t width via 128‑bit temp). */
 static inline seq_t mul_mod_seq(seq_t a, seq_t b, seq_t mod)
@@ -70,7 +73,7 @@ static uint64_t fibonacci_entry_point(uint64_t p)
     if (p == 5) return 5;          /* known entry point */
 
     /* Legendre symbol (5|p) via Euler's criterion */
-    seq_t s = mod_pow((seq_t)5, (p - 1) >> 1, (seq_t)p);
+    seq_t s = powmod((seq_t)5, (p - 1) >> 1, (seq_t)p);
     uint64_t s_mod = (uint64_t)s;   /* should be 1 or p-1 */
 
     uint64_t D = (s_mod == 1) ? (p - 1) : (p + 1);
@@ -115,7 +118,7 @@ static void ensure_up_to(idx_t n)
                 /* add cand to list */
                 if (valid_len == valid_cap) {
                     valid_cap = (valid_cap == 0) ? 4 : valid_cap << 1;
-                    valid_primes = (seq_t *)realloc(valid_primes, valid_cap * sizeof(seq_t));
+                    valid_primes = mem_resize(seq_t, valid_primes, valid_cap);
                 }
                 valid_primes[valid_len++] = (seq_t)cand;
             }

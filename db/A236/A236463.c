@@ -9,17 +9,26 @@
  *            Σ_{i=0..k} (-1)^i * binomial(4*n+1,i) * binomial(k+4-i,4)^n *
  *            for 0 ≤ k ≤ 4*(n-1). a(1) = T(1,0), a(2) = T(1,1), a(3) =
  *            T(2,0), …
- * Range:     u8 n <= 5, u16 n <= 18, u32 n <= 33, u64 n <= 98, u128 n <= 210,
+ * Range:     u8 n <= 8, u16 n <= 18, u32 n <= 33, u64 n <= 98, u128 n <= 210,
  *            big any n
- * Helpers:   binomial, pow_seq, seq_mul
+ * Validated: standard, pass, 54 terms through n = 757 (2026-11-01)
+ * Helpers:   binomial, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_seq.h"
-#include "../utils/seq_mul.h"
+#include "../utils/ipow_i32.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Number of terms up to and including row r (rows are 1‑based).  */
 static inline idx_t terms_upto(idx_t r)
@@ -47,7 +56,7 @@ static seq_t T_row_k(idx_t n, idx_t k)
     for (idx_t i = 0; i <= k; ++i) {
         seq_t bin1 = binomial(4 * n + 1, i);           /* C(4n+1,i) */
         seq_t base = binomial(k + 4 - i, 4);           /* C(k+4-i,4) */
-        seq_t powv = pow_seq(base, (int)n);            /* base^n  */
+        seq_t powv = ipow_i32(base, (int)n);            /* base^n  */
         seq_t term = seq_mul(bin1, powv);              /* bin1 * powv */
 
         if ((i & 1) == 0)

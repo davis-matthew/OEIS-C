@@ -10,7 +10,8 @@
  *            __int128) and count x3 in [x2, max]
  * Range:     u8 n <= 7, u16 n <= 18, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   a345_ok
+ * Validated: partial, pass, 74 terms through n = 76 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,22 @@
 #include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/a345_ok.h"
+
+/* exact test: sqrt(a) + sqrt(b) + sqrt(c) <= N */
+static bool a345_ok(long long N, long long a, long long b, long long c)
+{
+    __int128 n2 = (__int128)N * N;
+    if ((__int128)c > n2) return false;
+    __int128 R = n2 + c - a - b;               /* 2sqrt(ab) + 2N sqrt(c) <= R */
+    if (R < 0) return false;
+    __int128 S = R * R - (__int128)4 * a * b - (__int128)4 * n2 * c; /* 8N sqrt(abc) <= S */
+    if (S < 0) return false;
+    unsigned __int128 lhs = (unsigned __int128)64 * (unsigned __int128)n2
+                          * (unsigned __int128)a * (unsigned __int128)b
+                          * (unsigned __int128)c;
+    unsigned __int128 us = (unsigned __int128)S;
+    return lhs <= us * us;
+}
 
 seq_t a(idx_t n)
 {

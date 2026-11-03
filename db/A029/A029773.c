@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 38, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digit_mask_idx, digit_mask_seq, has_digits_in_square
+ * Validated: standard, pass, 54 terms through n = 921 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,42 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/digit_mask_idx.h"
-#include "../utils/digit_mask_seq.h"
-#include "../utils/has_digits_in_square.h"
+#include "../utils/mem.h"
+
+/* Mask a decimal digit set by a sequence or index value.  16 bits are enough for digits 0‑9. */
+static inline uint16_t digit_mask_idx(idx_t x)
+{
+    uint16_t mask = 0;
+    if (x == 0)
+        return 1u << 0;
+    while (x > 0) {
+        mask |= 1u << (x % 10);
+        x /= 10;
+    }
+    return mask;
+}
+
+static inline uint16_t digit_mask_seq(seq_t v)
+{
+    uint16_t mask = 0;
+    if (v == 0)
+        return 1u << 0;
+    while (v > 0) {
+        uint64_t d = (uint64_t)(v % (seq_t)10);
+        mask |= 1u << d;
+        v /= (seq_t)10;
+    }
+    return mask;
+}
+
+/* Return true if every digit of k appears in k^2. */
+static inline bool has_digits_in_square(idx_t k)
+{
+    uint16_t mk = digit_mask_idx(k);
+    seq_t sq = (seq_t)k * (seq_t)k;
+    uint16_t msq = digit_mask_seq(sq);
+    return (mk & ~msq) == 0;
+}
 
 /* Main entry‑point required by the test harness. */
 seq_t a(idx_t n)
@@ -48,7 +82,7 @@ seq_t a(idx_t n)
         /* grow underlying array if needed */
         if (cache_len + 1 > cache_cap) {
             size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp)
                 abort();                /* allocation failed */
             cache = tmp;

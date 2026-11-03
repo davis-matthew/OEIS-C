@@ -10,13 +10,15 @@
  *            by row (0‑based indices)
  * Range:     u8 n <= 11, u16 n <= 22, u32 n <= 40, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>   /* NULL, size_t */
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
 
         /* Allocate (or grow) the buffer */
         /* use realloc; realloc(NULL, size) behaves like malloc */
-        tri = (seq_t *)realloc(tri, new_size * sizeof(seq_t));
+        tri = mem_resize(seq_t, tri, new_size);
 
         /* Pointers to the new row and the previous row */
         seq_t *row_start  = tri + old_size;

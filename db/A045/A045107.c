@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 36, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   choose_uint
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,18 @@
    simple closed formula, so the algorithm enumerates digit positions. */
 
 #include <stdint.h>
-#include "../utils/choose_uint.h"
+
+/* n choose k, for n <= 63. */
+static inline seq_t choose_uint(int n, int k)
+{
+    if (k < 0 || k > n) return 0;
+    if (k > n - k) k = n - k;
+    seq_t res = 1;
+    for (int i = 1; i <= k; ++i) {
+        res = res * (seq_t)(n - k + i) / (seq_t)i;
+    }
+    return res;
+}
 
 /* powers of two up to 2^63 */
 static const seq_t pow2_arr[64] = {

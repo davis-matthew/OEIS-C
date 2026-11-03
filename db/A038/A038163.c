@@ -10,6 +10,7 @@
  *            (15+4*k)*C(k+4,4)/5 C(m,4) = m*(m-1)*(m-2)*(m-3)/24
  * Range:     u8 n <= 4, u16 n <= 21, u32 n <= 251, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 54 terms through n = 922 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

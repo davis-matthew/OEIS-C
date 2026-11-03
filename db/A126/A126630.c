@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 76, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   gcd_uint64
+ * Validated: partial, pass, 76 terms through n = 76 (2026-11-03)
+ * Helpers:   gcd_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/gcd_uint64.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/mem.h"
 
 /* ---------- utilities ---------- */
 
@@ -70,7 +72,7 @@ static void ensure_cache(idx_t n) {
     if (a_cap < (size_t)n) {
         size_t new_cap = a_cap ? a_cap : 16;
         while (new_cap < (size_t)n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
         if (!tmp) abort(); /* allocation failure */
         a_cache = tmp;
         a_cap   = new_cap;
@@ -85,7 +87,7 @@ static void ensure_cache(idx_t n) {
             for (idx_t k = 1; k < i; ++k) {
                 uint64_t m = (uint64_t)a_cache[k - 1];   /* a(k) <= 10⁴ */
                 uint64_t rem = fib_mod_uint64(i, m);     /* F(i) mod m */
-                if (gcd_uint64(m, rem) == 1) ++count;
+                if (gcd_u64(m, rem) == 1) ++count;
             }
             a_cache[i - 1] = (seq_t)count;   /* a(i) */
         }

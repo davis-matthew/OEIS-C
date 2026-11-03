@@ -11,7 +11,8 @@
  *            memoisation
  * Range:     u8 n <= 630, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 91 terms through n = 9454 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* -------------------------------------------------------------
    Prime counting cache: pi_cache[n] = pi(n) for 0 ≤ n ≤ cache_cap.
@@ -34,11 +36,11 @@ static void ensure_pi_cache(idx_t limit)
 
     /* Allocate new cache (limit+1 entries) and copy existing data. */
     idx_t new_cap    = limit + 1;
-    seq_t *new_cache = (seq_t *)calloc((size_t)new_cap, sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, (size_t)new_cap);
     if (!new_cache) return;                      /* abort on OOM */
     if (pi_cache) {
-        memcpy(new_cache, pi_cache, (size_t)(pi_cache_cap + 1) * sizeof(seq_t));
-        free(pi_cache);
+        mem_copy(new_cache, pi_cache, (size_t)(pi_cache_cap + 1) * sizeof(seq_t));
+        mem_free(pi_cache);
     }
     pi_cache = new_cache;
 
@@ -80,12 +82,12 @@ static void ensure_a_cache(idx_t n)
     /* Save old capacity and allocate a larger buffer. */
     idx_t old_cap   = a_cache_cap;           /* last computed index */
     idx_t new_cap   = n + 1;                 /* array size needed */
-    seq_t *new_cache = (seq_t *)calloc((size_t)new_cap, sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, (size_t)new_cap);
     if (!new_cache) return;                 /* abort on OOM */
 
     if (a_cache) {
-        memcpy(new_cache, a_cache, (size_t)(old_cap + 1) * sizeof(seq_t));
-        free(a_cache);
+        mem_copy(new_cache, a_cache, (size_t)(old_cap + 1) * sizeof(seq_t));
+        mem_free(a_cache);
     }
     a_cache = new_cache;
     a_cache_cap = n;                        /* last computed index */

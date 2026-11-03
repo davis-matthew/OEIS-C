@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 15, u128 n <= 29,
  *            big any n
- * Helpers:   compute_pending
+ * Validated: standard, pass, 32 terms through n = 200 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,29 @@
  */
 
 #include <stdbool.h>
-#include "../utils/compute_pending.h"
+
+/* Compute the pending mask for a row:  cur (mask_cur) with up
+ * neighbors from mask_up. Returns -1 if a 1 cell would have 0
+ * known neighbors in the current partial setting; otherwise a
+ * 6‑bit mask where bit j is set iff the j‑th 1 in cur needs a 1
+ * below it.                                                    */
+static int compute_pending(int mask_cur, int mask_up)
+{
+    int pending = 0;
+    for (int j = 0; j < 6; ++j)
+    {
+        if ((mask_cur >> j) & 1)
+        {
+            int cnt = (mask_up >> j) & 1;        /* vertical up neighbor */
+            if (j > 0)   cnt += (mask_cur >> (j - 1)) & 1; /* left */
+            if (j < 5)   cnt += (mask_cur >> (j + 1)) & 1; /* right */
+            if (cnt == 0) return -1;            /* impossible: no neighbor yet */
+            if (cnt == 1) pending |= 1 << j;     /* need another 1 below */
+            /* cnt >= 2: already satisfied, no pending bit */
+        }
+    }
+    return pending;
+}
 
 #define MAX_STATES 4096           /* 2⁶×2⁶ (mask * 64 + pending) */
 #define MAX_EDGES_PER_STATE 64    /* each mask may transition to all 64 masks */

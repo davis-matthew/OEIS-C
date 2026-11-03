@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 34, u16 n <= 2434, u32 n <= 6561, u64 n <= 6561,
  *            u128 n <= 6561, big any n
- * Helpers:   gcd, pow2, step_ternary
+ * Validated: standard, pass, 102 terms through n = 6468 (2026-11-01)
+ * Helpers:   gcd, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,13 @@
 
 #include "../utils/gcd.h"
 #include "../utils/pow2.h"
-#include "../utils/step_ternary.h"
+
+/* helper: multiply current remainder by 3, obtain ternary digit, and next remainder */
+static void step_ternary(idx_t *r, idx_t n, uint8_t *d, idx_t *next_r) {
+    idx_t t = *r * (idx_t)3;
+    *d = (uint8_t)(t / n);
+    *next_r = t % n;
+}
 
 /* sequence function */
 seq_t a(idx_t n) {

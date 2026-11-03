@@ -10,7 +10,8 @@
  *            distinct, and d_odd(m) = number of odd divisors of m
  * Range:     u8 n <= 18, u16 n <= 47, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* global static arrays */
 static seq_t *b = NULL;        /* b[k] */
@@ -33,9 +35,9 @@ static void compute_up_to(idx_t n)
     size_t size_dodd = (size_t)(N / 2 + 1);    /* indices 0..N/2 */
 
     /* reallocate arrays */
-    b = (seq_t *)realloc(b, size_b * sizeof(seq_t));
-    a_arr = (seq_t *)realloc(a_arr, size_b * sizeof(seq_t));
-    dodd = (seq_t *)realloc(dodd, size_dodd * sizeof(seq_t));
+    b = mem_resize(seq_t, b, size_b);
+    a_arr = mem_resize(seq_t, a_arr, size_b);
+    dodd = mem_resize(seq_t, dodd, size_dodd);
 
     /* initialise */
     for (size_t i = 0; i < size_b; ++i) {

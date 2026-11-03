@@ -7,6 +7,7 @@
  * Formula:   a(1)=11; for n>1, a(n)=n^3 unless n≡2 (mod 4) where a(n)=3*n^3/4
  * Range:     i8 n <= 5, i16 n <= 16, i32 n <= 16, i64 n <= 16, i128 n <= 16,
  *            big any n
+ * Validated: partial, pass, 16 terms through n = 16 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

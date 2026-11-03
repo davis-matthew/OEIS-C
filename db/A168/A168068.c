@@ -11,6 +11,7 @@
  *            offset, j = offset
  * Range:     u8 n <= 56, u16 n <= 96, u32 n <= 96, u64 n <= 96, u128 n <= 96,
  *            big any n
+ * Validated: partial, pass, 97 terms through n = 96 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

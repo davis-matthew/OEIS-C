@@ -10,13 +10,14 @@
  *            such that m*(m+1)/2 ≥ n. k = n - (m-1)*m/2 - 1
  * Range:     u8 n <= 23, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;      /* offset 1 – behaviour for n<1 irrelevant */
@@ -37,10 +38,10 @@ seq_t a(idx_t n) {
 
     /* compute binomial components; guard against underflow and invalid ranges */
     if (k > 0 && k - 1 <= m - 2) {
-        bin1 = binom(m - 2, k - 1); /* C(m-2, k-1) */
+        bin1 = binomial(m - 2, k - 1); /* C(m-2, k-1) */
     }
     if (k <= m - 2) {
-        bin2 = binom(m - 2, k);     /* C(m-2, k)   */
+        bin2 = binomial(m - 2, k);     /* C(m-2, k)   */
     }
 
     /* final triangle value: n*(bin1 + n*bin2) */

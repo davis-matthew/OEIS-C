@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 201 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const int32_t coeff[9] = {
     63, -882, 792, 35736, -70768, -246208, 327936, 146432, -180224
@@ -46,7 +48,7 @@ static void ensure_cache_size(idx_t n)
 {
     if (cache_size >= n + 1)
         return;
-    cache = (seq_t *)realloc(cache, sizeof(seq_t) * (n + 1));
+    cache = mem_resize(seq_t, cache, (n + 1));
     cache_size = n + 1;
 }
 
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
     /* initialise cache for first 9 terms */
     if (current_len < 9) {
         if (cache_size < 10) {
-            cache = (seq_t *)realloc(cache, sizeof(seq_t) * 10);
+            cache = mem_resize(seq_t, cache, 10);
             cache_size = 10;
         }
         for (idx_t i = 1; i <= 9; ++i)

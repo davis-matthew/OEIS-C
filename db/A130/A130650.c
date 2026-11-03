@@ -9,7 +9,8 @@
  *            (A014612(n) mod k), 0 if no such k exists
  * Range:     u8 n <= 62, u16 n <= 9999, u32 n <= 9999, u64 n <= 9999,
  *            u128 n <= 9999, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 9925 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* globally store the 3-almost-prime sequence (A014612) */
 static seq_t *a014 = NULL;          /* array of A014612 values */
@@ -46,7 +48,7 @@ static void init_a014(void)
 
     /* gather numbers with exactly 3 prime factors (counted with multiplicity) */
     size_t cap = 50000;
-    a014 = (seq_t *)malloc(cap * sizeof(seq_t));
+    a014 = mem_new(seq_t, cap);
     a014_len = 0;
     for (size_t n = 2; n <= LIMIT; ++n) {
         size_t nn = n;
@@ -58,7 +60,7 @@ static void init_a014(void)
         if (omega == 3) {
             if (a014_len == cap) {
                 cap *= 2;
-                a014 = (seq_t *)realloc(a014, cap * sizeof(seq_t));
+                a014 = mem_resize(seq_t, a014, cap);
             }
             a014[a014_len++] = (seq_t)n;
         }

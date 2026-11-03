@@ -13,7 +13,8 @@
  *            The...
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 18, u128 n <= 22,
  *            big any n
- * Helpers:   phi
+ * Validated: partial, pass, 19 terms through n = 22 (2026-11-03)
+ * Helpers:   mem, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/phi.h"
+#include "../utils/totient.h"
+#include "../utils/mem.h"
 
 /* ---- power in unsigned 128‑bit arithmetic -------------------------------- */
 static inline unsigned __int128 pow128(unsigned __int128 base, idx_t exp)
@@ -46,7 +48,7 @@ static void ensure_factorial(size_t upto)
     if (upto + 1 > fact_cap) {
         size_t new_cap = (fact_cap == 0) ? 16 : fact_cap * 2;
         if (new_cap < upto + 1) new_cap = upto + 1;
-        seq_t *tmp = (seq_t *)realloc(fact, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fact, new_cap);
         if (!tmp) abort();
         fact = tmp;
         fact_cap = new_cap;
@@ -76,7 +78,7 @@ seq_t a(idx_t n)
 
         /* ---- term for divisor d ------------------------------------- */
         {
-            unsigned __int128 ph   = (unsigned __int128)phi(d);
+            unsigned __int128 ph   = (unsigned __int128)totient(d);
             unsigned __int128 ph2  = ph * ph;                 /* φ(d)^2          */
             unsigned __int128 pow2 = pow128((unsigned __int128)2, q);  /* 2^(n/d)    */
             unsigned __int128 fact_term = (unsigned __int128)fact[q - 1];/* (n/d‑1)!*/
@@ -90,7 +92,7 @@ seq_t a(idx_t n)
 
         /* ---- term for complementary divisor q if it differs from d -- */
         if (d != q) {
-            unsigned __int128 ph   = (unsigned __int128)phi(q);
+            unsigned __int128 ph   = (unsigned __int128)totient(q);
             unsigned __int128 ph2  = ph * ph;
             unsigned __int128 pow2 = pow128((unsigned __int128)2, d);
             unsigned __int128 fact_term = (unsigned __int128)fact[d - 1];

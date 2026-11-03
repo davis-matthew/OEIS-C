@@ -12,13 +12,15 @@
  *            any...
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>          /* for realloc, calloc */
-#include "../utils/binomial.h"   /* binomial helper */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* cache[0] = a(0), cache[1] = a(1), … */
 static size_t cache_len = 0;  /* number of entries currently cached */
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* initialise cache if first call */
     if (cache_len == 0) {
         cache_len = 1;
-        cache = (seq_t *)calloc(cache_len, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         if (!cache) return 0;          /* allocation failure – unlikely */
         cache[0] = 1;                  /* a(0) */
     }
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     /* grow cache if needed */
     if (cache_len <= (size_t)n) {
         size_t new_len = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) return 0;            /* allocation failure – unlikely */
         cache = tmp;
 

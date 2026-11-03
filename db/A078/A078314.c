@@ -9,22 +9,24 @@
  *            multiplicity)
  * Range:     u8 n <= 16, u16 n <= 1595, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_prime_factors, rad
+ * Validated: standard, pass, 121 terms through n = 9829 (2026-11-01)
+ * Helpers:   bigomega_seq, radical
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/rad.h"
-#include "../utils/count_prime_factors.h"
+#include <stdint.h>
+#include "../utils/bigomega_seq.h"
+#include "../utils/radical.h"
 
 seq_t a(idx_t n)
 {
     /* Compute the square‑free part of n */
-    seq_t rad_n = rad(n);
+    seq_t rad_n = radical(n);
 
     /* Compute n * rad(n) + 1, taking care to promote n to the correct type */
     seq_t val = ((seq_t)n * rad_n) + 1;
 
     /* Count prime factors of val, counting multiplicities */
-    return count_prime_factors(val);
+    return bigomega_seq(val);
 }

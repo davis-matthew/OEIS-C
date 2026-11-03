@@ -8,7 +8,8 @@
  * Formula:   a(n) = ceil((F(2*n) + F(2*n+1))/2)
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 23, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* Initial values: a(0)=1, a(1)=2, a(2)=4, a(3)=11, a(4)=28 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* cache of computed a(n) values */
 static idx_t cache_size = 0;     /* number of elements stored */
@@ -24,7 +26,7 @@ static idx_t cache_size = 0;     /* number of elements stored */
 /* Helper: initialize cache with first five terms */
 static void init_cache(void) {
     if (cache == NULL) {
-        cache = (seq_t *)malloc(5 * sizeof(seq_t));
+        cache = mem_new(seq_t, 5);
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)2;
         cache[2] = (seq_t)4;
@@ -38,7 +40,7 @@ static void init_cache(void) {
 static void ensure_cache(idx_t n) {
     if (cache_size > n) return;
     idx_t new_size = n + 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache) {
         /* If realloc fails, abort to avoid undefined behaviour */
         abort();

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   gcd
+ * Validated: full, pass, 20 terms through n = 20 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <limits.h>
-#include "../utils/gcd.h"            /* provided helper */
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* cached terms: cache[0] = a(1) */
 static idx_t cache_cap = 0;   /* allocated size (1‑based) */
@@ -42,7 +44,7 @@ ensure_cache_capacity(idx_t required)
     idx_t new_cap = cache_cap ? cache_cap * 2 : required;
     while (new_cap < required)
         new_cap <<= 1;
-    seq_t *p = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *p = mem_resize(seq_t, cache, new_cap);
     if (!p)
         return;                /* allocation failure – keep old cache */
     cache = p;

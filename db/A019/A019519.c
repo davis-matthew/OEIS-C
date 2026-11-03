@@ -8,15 +8,28 @@
  *            integers)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 12, u128 n <= 16,
  *            big any n
- * Helpers:   digit_len, pow10
+ * Validated: partial, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/pow10.h"
-#include "../utils/digit_len.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -38,7 +51,7 @@ seq_t a(idx_t n)
         while (new_cap < (size_t)n) {
             new_cap <<= 1;
         }
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cache_cap = new_cap;
     }
@@ -53,7 +66,7 @@ seq_t a(idx_t n)
         if (i == 1) {
             current = odd;                          /* first term */
         } else {
-            seq_t mult = pow10((idx_t)digit_len(odd));
+            seq_t mult = pow10((idx_t)num_digits(odd));
             current = current * mult + odd;
         }
 

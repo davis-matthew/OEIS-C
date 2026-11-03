@@ -8,7 +8,8 @@
  *            primes
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 8858 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Helper structure for the min‑heap */
 typedef struct {
@@ -56,7 +58,7 @@ static bool       has_last_sum = false;
 static inline void heap_push(heap_node node) {
     if (heap_size >= heap_cap) {
         heap_cap = (heap_cap == 0) ? 4 : heap_cap * 2;
-        heap_arr = (heap_node *)realloc(heap_arr, heap_cap * sizeof(heap_node));
+        heap_arr = mem_resize(heap_node, heap_arr, heap_cap);
     }
     size_t i = heap_size++;
     while (i > 0) {
@@ -119,7 +121,7 @@ static void gen_primes(void) {
 
     /* Prefix sums */
     prefix_len = prime_cnt + 1;
-    prefix     = (seq_t *)malloc(prefix_len * sizeof(seq_t));
+    prefix     = mem_new(seq_t, prefix_len);
     prefix[0] = (seq_t)0;
     for (size_t i = 0; i < prime_cnt; ++i)
         prefix[i + 1] = prefix[i] + (seq_t)primes[i];
@@ -133,7 +135,7 @@ static void init(void) {
 
     /* Build initial heap: one node per starting index with len = 2 */
     heap_cap = (prime_cnt > 1) ? (prime_cnt - 1) : 0;
-    heap_arr = (heap_node *)malloc(heap_cap * sizeof(heap_node));
+    heap_arr = mem_new(heap_node, heap_cap);
     heap_size = 0;
     for (size_t s = 0; s + 1 < prime_cnt; ++s) {
         heap_node n;
@@ -145,7 +147,7 @@ static void init(void) {
 
     /* Cache of distinct sums */
     cache_cap = 1024;
-    cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     cache_size = 0;
 
     initialized = true;
@@ -163,7 +165,7 @@ static void ensure_cache(idx_t target) {
         if (!has_last_sum || cur.sum != last_sum) {
             if (cache_size >= cache_cap) {
                 cache_cap *= 2;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_size++] = cur.sum;
             last_sum = cur.sum;

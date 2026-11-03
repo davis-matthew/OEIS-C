@@ -9,12 +9,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 47, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _gcd_seq
+ * Validated: standard, pass, 97 terms through n = 962 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/_gcd_seq.h"
+#include "../utils/gcd.h"
 /* OEIS A229964: a(n) = # { (q1,q2) | 1<q1<q2<n and
    n * floor(n/lcm(q1,q2)) = floor(n/q1) * floor(n/q2) }.
    This implementation evaluates the definition directly by
@@ -37,7 +38,7 @@ seq_t a(idx_t n)
             seq_t q2s = (seq_t)q2;
             seq_t b_val = nn / q2s;   /* floor(n/q2) */
 
-            seq_t g = _gcd_seq(q1s, q2s);
+            seq_t g = gcd(q1s, q2s);
             seq_t l = (q1s / g) * q2s;    /* lcm(q1,q2) */
 
             seq_t left  = nn * (nn / l);  /* n * floor(n/lcm) */

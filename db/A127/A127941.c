@@ -9,7 +9,8 @@
  *            b(n)=Σ_{1≤k<n, gcd(k,n)=1} 1/b(k)
  * Range:     u8 n <= 6, u16 n <= 7, u32 n <= 8, u64 n <= 10, u128 n <= 10,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 12 terms through n = 12 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/gcd.h"      /* provides static seq_t gcd(seq_t, seq_t) */
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *num_arr = NULL;   /* numerators of b(k) */
 static seq_t *den_arr = NULL;   /* denominators of b(k) */
@@ -59,8 +61,8 @@ seq_t a(idx_t n)
     if (!num_arr || (size_t)n > cap) {
         size_t new_cap = cap ? cap << 1 : 4;
         if (new_cap < (size_t)n) new_cap = (size_t)n;
-        seq_t *new_num = (seq_t *)realloc(num_arr, new_cap * sizeof(seq_t));
-        seq_t *new_den = (seq_t *)realloc(den_arr, new_cap * sizeof(seq_t));
+        seq_t *new_num = mem_resize(seq_t, num_arr, new_cap);
+        seq_t *new_den = mem_resize(seq_t, den_arr, new_cap);
         if (!new_num || !new_den) { /* allocation failed – abort */
             exit(1);
         }

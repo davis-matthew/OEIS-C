@@ -7,7 +7,8 @@
  * Formula:   a(n) = A001222(A001414(n))
  * Range:     u8 n <= 4662, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_prime_factors, factor_u64
+ * Validated: standard, pass, 115 terms through n = 9897 (2026-11-01)
+ * Helpers:   bigomega_seq, factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,10 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/bigomega_seq.h"
 #include "../utils/factor_u64.h"
-#include "../utils/count_prime_factors.h"
 
 seq_t a(idx_t n)
 {
@@ -45,5 +48,5 @@ seq_t a(idx_t n)
     }
 
     /* Compute A001222 of that sum: total number of prime factors with multiplicity */
-    return count_prime_factors(sum);
+    return bigomega_seq(sum);
 }

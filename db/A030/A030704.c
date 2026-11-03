@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 14, u32 n <= 14, u64 n <= 14, u128 n <= 14,
  *            big any n
- * Helpers:   mul_by8
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,25 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/mul_by8.h"
+#include "../utils/mem.h"
+
+/* Multiply the decimal number stored in 'digits' (least‑significant
+   digit first) by 8, updating its length in 'len'.  */
+static void mul_by8(uint8_t *digits, size_t *len)
+{
+    uint16_t carry = 0;
+    for (size_t i = 0; i < *len; ++i)
+    {
+        uint16_t tmp = digits[i] * 8 + carry;
+        digits[i] = tmp % 10;
+        carry = tmp / 10;
+    }
+    while (carry)
+    {
+        digits[(*len)++] = carry % 10;
+        carry /= 10;
+    }
+}
 
 /* Helper: ensure the digit array has room for at least 'need' digits */
 static void ensure_digits_capacity(size_t need)
@@ -62,7 +81,7 @@ seq_t a(idx_t n)
     if (!cache)
     {
         cache_cap = 64;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache)
             abort(); /* fatal */
 
@@ -92,7 +111,7 @@ seq_t a(idx_t n)
             if (cache_sz == cache_cap)
             {
                 size_t new_cap = cache_cap * 2;
-                seq_t *p = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *p = mem_resize(seq_t, cache, new_cap);
                 if (!p)
                     abort();
                 cache = p;

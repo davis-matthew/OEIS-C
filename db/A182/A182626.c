@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{k=0..n} (-2)^k * binomial(n,k) * binomial(n+k-1,k)
  * Range:     i8 n <= 3, i16 n <= 7, i32 n <= 13, i64 n <= 26, i128 n <= 50,
  *            big any n
+ * Validated: standard, pass, 38 terms through n = 983 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 68, u16 n <= 85, u32 n <= 85, u64 n <= 85, u128 n <= 85,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 85 terms through n = 85 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
 
     if (fib == NULL) {
         fib_cap = 16;
-        fib = (seq_t *)malloc(fib_cap * sizeof(seq_t));
+        fib = mem_new(seq_t, fib_cap);
         fib[0] = 0;               /* unused */
         fib[1] = 1;
         fib[2] = 1;
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
         /* grow array if necessary */
         if (fib_len + 1 >= fib_cap) {
             fib_cap = fib_cap * 2 > need + 1 ? fib_cap * 2 : need + 1;
-            seq_t *tmp = (seq_t *)realloc(fib, fib_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, fib, fib_cap);
             if (!tmp) return 0;  /* allocation failure – unlikely */
             fib = tmp;
         }
@@ -75,7 +77,7 @@ seq_t a(idx_t n)
 
     /* ---------- compute row coefficients up to column c ---------- */
 
-    seq_t *row = (seq_t *)malloc((size_t)(c + 1) * sizeof(seq_t));
+    seq_t *row = mem_new(seq_t, (size_t)(c + 1));
     if (!row) return 0;               /* allocation failure – unlikely */
 
     row[0] = 1;                       /* T(r,0) = 1 for all rows */
@@ -90,6 +92,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = row[c];
-    free(row);
+    mem_free(row);
     return result;
 }

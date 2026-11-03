@@ -7,7 +7,8 @@
  * Formula:   a(n) = #{x | 1 ≤ x < n, x + largest_digit_of(x) = n}
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   largest_digit
+ * Validated: partial, pass, 99 terms through n = 100 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,18 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/largest_digit.h"
+
+/* Helper to obtain the largest decimal digit of a seq_t value. */
+static inline seq_t largest_digit(seq_t v)
+{
+    seq_t dmax = 0;
+    while (v != 0) {
+        seq_t d = v % 10;
+        if (d > dmax) dmax = d;
+        v /= 10;
+    }
+    return dmax;
+}
 
 seq_t a(idx_t n)
 {

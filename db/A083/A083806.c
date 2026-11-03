@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 25, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* helper: true if x consists only of digits 1,2,3,5,7 */
 static bool allowed_digits(seq_t x) {
@@ -55,10 +57,10 @@ static size_t terms_cap = 0;
 static void terms_push(seq_t v) {
     if (terms_cap == 0) {
         terms_cap = 1024;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
     } else if (terms_size == terms_cap) {
         terms_cap <<= 1;
-        terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, terms_cap);
     }
     terms[terms_size++] = v;
 }
@@ -92,7 +94,7 @@ static void generate_terms(void) {
     }
 
     /* sort and deduplicate */
-    qsort(terms, terms_size, sizeof(seq_t), cmp_seq);
+    mem_qsort(terms, terms_size, sizeof(seq_t), cmp_seq);
     size_t unique = 0;
     for (size_t i = 0; i < terms_size; ++i) {
         if (i == 0 || terms[i] != terms[unique - 1]) {

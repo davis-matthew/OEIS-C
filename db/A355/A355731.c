@@ -10,7 +10,8 @@
  *            is the number of divisors of k
  * Range:     u8 n <= 6560, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 8330 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ---------- global state for primes and divisor numbers of indices ---------- */
 static uint64_t *g_primes      = NULL;   /* list of primes */
@@ -130,8 +132,7 @@ static void ensure_primes_up_to(idx_t limit)
             if (g_prime_count + 1 > g_tau_cap)
             {
                 size_t new_cap = g_tau_cap ? g_tau_cap * 2 : 16;
-                seq_t *new_tau = (seq_t *)realloc(g_tau,
-                                                  new_cap * sizeof(seq_t));
+                seq_t *new_tau = mem_resize(seq_t, g_tau, new_cap);
                 if (!new_tau) exit(EXIT_FAILURE);
                 g_tau = new_tau;
                 g_tau_cap = new_cap;

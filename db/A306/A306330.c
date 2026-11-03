@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 5920, u32 n <= 5920, u64 n <= 5920,
  *            u128 n <= 5920, big any n
- * Helpers:   factor_u64, gcd
+ * Validated: standard, pass, 69 terms through n = 5716 (2026-11-03)
+ * Helpers:   factor_u64, gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdbool.h>
 #include "../utils/factor_u64.h"
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static idx_t   max_checked = 0;     /* largest integer already examined   */
 static size_t  cache_cap   = 0;     /* capacity of the cache array        */
@@ -40,7 +42,7 @@ ensure_cache_capacity(size_t need)
     if (cache_cap < need) {
         size_t new_cap = cache_cap ? cache_cap << 1 : 16;
         if (new_cap < need) new_cap = need;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();
         cache = tmp;
         cache_cap = new_cap;

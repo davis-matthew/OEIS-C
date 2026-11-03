@@ -8,11 +8,14 @@
  * Formula:   a(n) = Sum_{k=1..n+1} bigomega(k / gcd(n+1, k))
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-01)
  * Helpers:   bigomega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/bigomega.h"
 #include <stdbool.h>
 

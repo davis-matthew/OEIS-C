@@ -14,13 +14,29 @@
  *            by row (row n has 2n values). Indexing starts...
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   T_triangle
+ * Validated: partial, pass, 80 terms through n = 80 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
-#include "../utils/T_triangle.h"
+
+/* compute T(n,k) for a given row n and position k (1 ≤ k ≤ 2n) */
+static inline seq_t T_triangle(idx_t n, idx_t k)
+{
+    if (k == 1)
+        return (seq_t)4 * n;
+    if (k == 2)
+        return (seq_t)6 * n - 4;
+    if (k & 1) {                /* odd k = 2p+1 */
+        idx_t p = (k - 1) / 2;
+        return (seq_t)4 * (seq_t)(n - p);
+    } else {                    /* even k = 2p */
+        idx_t p = k / 2;
+        return (seq_t)5 * (seq_t)(n - p) + 1;
+    }
+}
 
 /* a(n) : n >= 1 is the sequence term */
 seq_t a(idx_t n)

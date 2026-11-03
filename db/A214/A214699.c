@@ -7,6 +7,7 @@
  * Formula:   a(n) = 3*a(n-2) - a(n-3) with a(0)=0, a(1)=3, a(2)=0
  * Range:     i8 n <= 8, i16 n <= 16, i32 n <= 34, i64 n <= 69, i128 n <= 139,
  *            big any n
+ * Validated: standard, pass, 51 terms through n = 933 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 43, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,7 +20,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/factor_u64.h"   /* void factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt); */
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
 
 #define MAX_TERMS 200000  /* enough for the first 10 000 listed terms */
 

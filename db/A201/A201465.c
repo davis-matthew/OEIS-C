@@ -11,12 +11,14 @@
  *            equation and the relation between A and exp(A)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 14, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,8 +32,8 @@ seq_t a(idx_t n)
     /* first allocation */
     if (a_vals == NULL) {
         capacity = 2; /* enough for indices 0 and 1 */
-        a_vals = (seq_t *)malloc(capacity * sizeof(seq_t));
-        b_vals = (seq_t *)malloc(capacity * sizeof(seq_t));
+        a_vals = mem_new(seq_t, capacity);
+        b_vals = mem_new(seq_t, capacity);
         /* initialise b[0] */
         b_vals[0] = (seq_t)1;
     }
@@ -46,8 +48,8 @@ seq_t a(idx_t n)
     /* grow arrays if needed */
     if (n > (idx_t)(capacity - 1)) {
         size_t new_cap = (size_t)(n + 1);
-        a_vals = (seq_t *)realloc(a_vals, new_cap * sizeof(seq_t));
-        b_vals = (seq_t *)realloc(b_vals, new_cap * sizeof(seq_t));
+        a_vals = mem_resize(seq_t, a_vals, new_cap);
+        b_vals = mem_resize(seq_t, b_vals, new_cap);
         capacity = new_cap;
     }
 

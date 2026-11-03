@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 3125, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 9746 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* The integer type used in the build (int8_t … int64_t, __int128,
    or an arbitrary‑precision integer class).  seq_t is supplied
@@ -54,7 +56,7 @@ static void ensure_seq_capacity(size_t new_cap)
     size_t cap = seq_cap > 0 ? seq_cap : 64;
     while (cap < new_cap)
         cap <<= 1;
-    gaussian_t *tmp = (gaussian_t *)realloc(seq, cap * sizeof(gaussian_t));
+    gaussian_t *tmp = mem_resize(gaussian_t, seq, cap);
     if (!tmp && cap != 0) /* allocation failure */
         abort();
     seq = tmp;

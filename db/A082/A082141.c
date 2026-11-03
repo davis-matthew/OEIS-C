@@ -7,6 +7,7 @@
  * Formula:   a(n) = ceil(binomial(n+7,7) * 2^(n-1))
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 15, u64 n <= 39, u128 n <= 94,
  *            big any n
+ * Validated: standard, pass, 39 terms through n = 978 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  *            A009829)
  * Range:     i8 n <= 7, i16 n <= 9, i32 n <= 15, i64 n <= 22, i128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static size_t cache_size = 0;   /* current allocated size */
@@ -29,21 +31,21 @@ seq_t a(idx_t n) {
         size_t new_size = (size_t)n + 1;
 
         /* allocate new storage */
-        seq_t *t_new = (seq_t*)malloc(new_size * sizeof(seq_t));
-        seq_t *f_new = (seq_t*)malloc(new_size * sizeof(seq_t));
-        seq_t *a_new = (seq_t*)malloc(new_size * sizeof(seq_t));
+        seq_t *t_new = mem_new(seq_t, new_size);
+        seq_t *f_new = mem_new(seq_t, new_size);
+        seq_t *a_new = mem_new(seq_t, new_size);
 
         /* copy old contents */
         if (old_size > 0) {
-            memcpy(t_new, t_arr, old_size * sizeof(seq_t));
-            memcpy(f_new, f_arr, old_size * sizeof(seq_t));
-            memcpy(a_new, a_arr, old_size * sizeof(seq_t));
+            mem_copy(t_new, t_arr, old_size * sizeof(seq_t));
+            mem_copy(f_new, f_arr, old_size * sizeof(seq_t));
+            mem_copy(a_new, a_arr, old_size * sizeof(seq_t));
         }
 
         /* free old storage */
-        free(t_arr);
-        free(f_arr);
-        free(a_arr);
+        mem_free(t_arr);
+        mem_free(f_arr);
+        mem_free(a_arr);
 
         t_arr = t_new;
         f_arr = f_new;

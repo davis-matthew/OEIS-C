@@ -7,7 +7,8 @@
  * Formula:   a(n) = the n-th prime p satisfying p ≡ 7 (mod 64)
  * Range:     u8 n <= 3, u16 n <= 203, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_primes_upto
+ * Validated: standard, pass, 60 terms through n = 914 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 static seq_t   *primes_mod      = NULL; /* cached primes ≡ 7 (mod 64) */
 static size_t  primes_mod_cnt  = 0;     /* number of cached primes   */
@@ -46,7 +48,7 @@ ensure_primes_mod(idx_t n)
         size_t tmp_cap = prime_cnt; /* worst case */
         seq_t *tmp = NULL;
         if (tmp_cap > 0) {
-            tmp = (seq_t *)malloc(tmp_cap * sizeof(seq_t));
+            tmp = mem_new(seq_t, tmp_cap);
         }
 
         size_t idx = 0;
@@ -59,7 +61,7 @@ ensure_primes_mod(idx_t n)
         free(primes);
 
         /* If we already had a cache, free it */
-        if (primes_mod) free(primes_mod);
+        if (primes_mod) mem_free(primes_mod);
 
         primes_mod      = tmp;
         primes_mod_cnt  = idx;

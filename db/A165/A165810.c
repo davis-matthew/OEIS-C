@@ -7,7 +7,8 @@
  * Formula:   a(n) = n-th prime p such that 18*p+1 is also prime
  * Range:     u8 n <= 20, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 932 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Multiply two 64‑bit values modulo an arbitrary 64‑bit modulus.
    The result fits in 128 bits; we rely on the ubiquitous
@@ -109,8 +111,7 @@ seq_t a(idx_t n)
                 /* grow the cache if needed */
                 if (cache_cnt == cache_cap) {
                     cache_cap = cache_cap ? cache_cap * 2 : 16;
-                    cache = (seq_t *)realloc(cache,
-                                             cache_cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cache_cap);
                 }
                 cache[cache_cnt++] = (seq_t)last_checked; /* store the prime */
             }

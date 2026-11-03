@@ -8,7 +8,8 @@
  *            Fib(k)=Fib(k-1)+Fib(k-2) and h(m)=⌊(m+1)φ⌋ with φ=(1+√5)/2
  * Range:     u8 n <= 7, u16 n <= 18, u32 n <= 29, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <math.h>           /* for sqrt() */
+#include "../utils/mem.h"
 
 /* integer square‑root using double – safe for the small arguments we need */
 static inline uint64_t uint64_sqrt(uint64_t x)
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     /* ------------------------------------------------------------- */
     /* 2.  Fibonacci numbers Fib[0..N+1]                            */
     /* ------------------------------------------------------------- */
-    seq_t *fib = (seq_t *)malloc((N + 2) * sizeof(seq_t));
+    seq_t *fib = mem_new(seq_t, (N + 2));
     if (!fib) return (seq_t)0;            /* allocation failed – return 0 */
 
     fib[0] = (seq_t)0;
@@ -49,8 +51,8 @@ seq_t a(idx_t n)
     /*    Use the identity  floor((u+u√5)/2) with u=m+1              */
     /*    floor(u√5) is floor(√(5u²))                                 */
     /* ------------------------------------------------------------- */
-    seq_t *h = (seq_t *)malloc((N + 1) * sizeof(seq_t));
-    if (!h) { free(fib); return (seq_t)0; }
+    seq_t *h = mem_new(seq_t, (N + 1));
+    if (!h) { mem_free(fib); return (seq_t)0; }
 
     for (size_t m = 0; m <= N; ++m) {
         uint64_t u = (uint64_t)m + 1;                     /* u = m+1 */
@@ -71,8 +73,8 @@ seq_t a(idx_t n)
     /* ------------------------------------------------------------- */
     /* 5.  Clean up                                               */
     /* ------------------------------------------------------------- */
-    free(fib);
-    free(h);
+    mem_free(fib);
+    mem_free(h);
 
     return result;
 }

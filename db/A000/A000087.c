@@ -12,7 +12,8 @@
  *            n-1)/(n(2n-1)) and m = (n+1)/2, this becomes 12n*a(n) =...
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 17, u64 n <= 29, u128 n <= 53,
  *            big any n
- * Helpers:   a87_phi
+ * Validated: standard, pass, 40 terms through n = 189 (2026-11-01)
+ * Helpers:   totient_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a87_phi.h"
+#include "../utils/totient_u64.h"
 
 typedef struct {
     uint32_t *d;
@@ -128,7 +129,7 @@ seq_t a(idx_t n)
             a87_mul(&t, 2 * k + j);
             a87_div(&t, j);
         }
-        a87_mul(&t, (uint32_t)a87_phi(nn / k));
+        a87_mul(&t, (uint32_t)totient_u64(nn / k));
         a87_add(&S, &t);
     }
     a87_mul(&S, 4);

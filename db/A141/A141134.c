@@ -9,13 +9,15 @@
  *            = -16
  * Range:     i8 n <= 50, i16 n <= 50, i32 n <= 50, i64 n <= 50, i128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Compute a(n) */
 seq_t a(idx_t n)
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* Helper to initialise the cache with the first six terms. */
     if (!initialized) {
         cache_size = 6;
-        cache = (seq_t*)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache) return 0; /* malloc failed – should never happen for small sizes */
         /* Base terms */
         cache[0] = (seq_t)1;
@@ -50,14 +52,14 @@ seq_t a(idx_t n)
     /* Extend the cache if necessary. */
     if ((size_t)(n+1) > cache_size) {
         size_t new_size = n + 1;
-        seq_t *new_cache = (seq_t*)malloc(new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_size);
         if (!new_cache) return 0; /* malloc failed */
         /* Copy existing values */
         for (size_t i = 0; i < cache_size; ++i) {
             new_cache[i] = cache[i];
         }
         /* Free old cache and update pointers */
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_size = new_size;
     }

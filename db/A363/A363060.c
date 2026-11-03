@@ -11,13 +11,24 @@
  *            20‑digit fixed‑point representation
  * Range:     u8 n <= 22, u16 n <= 5189, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   parse_uint128
+ * Validated: standard, pass, 71 terms through n = 9662 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/parse_uint128.h"
+
+static unsigned __int128
+parse_uint128(const char *s)
+{
+    unsigned __int128 r = 0;
+    while (*s) {
+        r = r * 10 + (unsigned)(__int128)(*s - '0');
+        ++s;
+    }
+    return r;
+}
 
 /* seq_t and idx_t are defined by the build environment. */
 seq_t a(idx_t n)

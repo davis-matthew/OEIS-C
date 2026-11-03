@@ -8,16 +8,19 @@
  *            is π(p) and π(k) is the prime-counting function
  * Range:     u8 n <= 5896, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   compute_pi, factor_u64, seq_pow
+ * Validated: standard, pass, 103 terms through n = 9181 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx, prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/compute_pi.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/prime_pi.h"
 
 seq_t a(idx_t n)
 {
@@ -37,12 +40,12 @@ seq_t a(idx_t n)
         size_t e = exps[i];
 
         /* pi(p) = index of prime p */
-        seq_t pi_p = compute_pi((idx_t)p);
+        seq_t pi_p = prime_pi((idx_t)p);
         /* pi(pi(p)) = replacement value for one occurrence of p */
-        seq_t rep = compute_pi((idx_t)pi_p);
+        seq_t rep = prime_pi((idx_t)pi_p);
 
         /* contribution of p^e */
-        seq_t contrib = seq_pow(rep, (idx_t)e);
+        seq_t contrib = ipow_idx(rep, (idx_t)e);
         result *= contrib;
         if (result == 0) return 0;
     }

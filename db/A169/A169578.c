@@ -8,13 +8,14 @@
  * Formula:   a(0) = 1, a(n) = 37 * 36^(n-1) for n >= 1
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 14,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +23,7 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* Compute 36^(n-1) */
-    seq_t power = pow_seq((seq_t)36, (int)(n - 1));
+    seq_t power = ipow_i32((seq_t)36, (int)(n - 1));
 
     /* a(n) = 37 * 36^(n-1) */
     return (seq_t)37 * power;

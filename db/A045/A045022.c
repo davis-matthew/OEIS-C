@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 221, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 4632 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    length up to 9 (enough for the first 10 000 terms), sorts them, and
    then returns the n‑th term.  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t seq_arr[12000];
 static size_t seq_len = 0;
@@ -85,7 +87,7 @@ static void init_sequence(void)
     unsigned L;
     for (L = 5; L <= 9; ++L)
         gen_length(L);
-    qsort(seq_arr, seq_len, sizeof(seq_t), cmp_seq);
+    mem_qsort(seq_arr, seq_len, sizeof(seq_t), cmp_seq);
     seq_inited = 1;
 }
 

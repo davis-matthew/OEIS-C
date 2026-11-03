@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 17, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 182 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static bool _a208312_comp[64][64];
 static bool _a208312_comp_inited = false;
@@ -71,7 +73,7 @@ seq_t a(idx_t n)
     }
 
     for (idx_t row = 2; row <= n; ++row) {
-        memset(dp_cur, 0, sizeof(dp_cur));
+        mem_set(dp_cur, 0, sizeof(dp_cur));
         for (int prev = 0; prev < 64; ++prev) {
             seq_t ways = dp_prev[prev];
             if (!ways)
@@ -82,7 +84,7 @@ seq_t a(idx_t n)
                 }
             }
         }
-        memcpy(dp_prev, dp_cur, sizeof(dp_prev));
+        mem_copy(dp_prev, dp_cur, sizeof(dp_prev));
     }
 
     /* Sum over all ending row patterns to get total arrays. */

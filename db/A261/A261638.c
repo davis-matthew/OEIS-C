@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,16 +17,17 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* compute the nth coefficient of the product (1 + x^(4k+1))^4 for all k≥0.
    The sequence is zero‑indexed: a(0) = 1. */
 seq_t a(idx_t n)
 {
     /* Allocate two working arrays of length n+1. */
-    seq_t *dp   = (seq_t *)malloc((n + 1) * sizeof(seq_t));
-    seq_t *newdp = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *dp   = mem_new(seq_t, (n + 1));
+    seq_t *newdp = mem_new(seq_t, (n + 1));
     if (dp == NULL || newdp == NULL) {
-        free(dp); free(newdp);
+        mem_free(dp); mem_free(newdp);
         return (seq_t)0;          /* allocation failure – caller may ignore */
     }
 
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
-    free(newdp);
+    mem_free(dp);
+    mem_free(newdp);
     return result;
 }

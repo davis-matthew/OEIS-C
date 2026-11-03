@@ -12,13 +12,15 @@
  *            ending in that state
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 12, u64 n <= 26, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define STATES 81            /* 9 possible rows × 9 possible rows */
 
@@ -91,27 +93,27 @@ seq_t a(idx_t n)
     if (!graph_built) {
         build_graph();
         /* initialise memo for n = 1 */
-        memo = (seq_t *)malloc(sizeof(seq_t) * 2);   /* indices 0 and 1 */
+        memo = mem_new(seq_t, 2);   /* indices 0 and 1 */
         if (!memo) return (seq_t)0;
         memo[0] = (seq_t)0;
         memo[1] = (seq_t)81;        /* a(1) = 81 */
         memo_n = 1;
         /* initialize dp_cur for step 1 (one state per row pair) */
         for (int i = 0; i < STATES; ++i) dp_cur[i] = (seq_t)1;
-        memset(dp_next, 0, sizeof(dp_next));
+        mem_set(dp_next, 0, sizeof(dp_next));
     }
 
     if (n == 0) return (seq_t)0;   /* undefined below offset 1 */
 
     if (n > memo_n) {
         idx_t new_size = n + 1;
-        seq_t *tmp = (seq_t *)realloc(memo, sizeof(seq_t) * new_size);
+        seq_t *tmp = mem_resize(seq_t, memo, new_size);
         if (!tmp) return (seq_t)0;
         memo = tmp;
 
         /* compute successive terms */
         for (idx_t step = memo_n + 1; step <= n; ++step) {
-            memset(dp_next, 0, sizeof(dp_next));
+            mem_set(dp_next, 0, sizeof(dp_next));
             for (int i = 0; i < STATES; ++i) {
                 seq_t val = dp_cur[i];
                 if (val == (seq_t)0) continue;
@@ -120,7 +122,7 @@ seq_t a(idx_t n)
                 for (unsigned char k = 0; k < cnt; ++k)
                     dp_next[nbr[k]] += val;
             }
-            memcpy(dp_cur, dp_next, sizeof(dp_cur));
+            mem_copy(dp_cur, dp_next, sizeof(dp_cur));
 
             /* sum over all ending states */
             seq_t sum = (seq_t)0;

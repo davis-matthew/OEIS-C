@@ -9,13 +9,15 @@
  *            values: a(1)=31, a(2)=165, a(3)=792, a(4)=3971
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 12, u64 n <= 26, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cap = 0;
@@ -27,7 +29,7 @@ static void ensure_cache(idx_t n)
         /* allocate at least enough space for the first 5 indices
            (index 0 is unused) */
         cap = (n > 4) ? (size_t)(n + 1) : 5;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) return;           /* memory error – unlikely */
         cache[1] = (seq_t)31;
         cache[2] = (seq_t)165;
@@ -41,10 +43,10 @@ static void ensure_cache(idx_t n)
     if ((size_t)(n + 1) > cap) {
         size_t new_cap = cap;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, new_cap);
         if (!tmp) return;               /* memory error – unlikely */
-        memcpy(tmp, cache, (max_n + 1) * sizeof(seq_t));
-        free(cache);
+        mem_copy(tmp, cache, (max_n + 1) * sizeof(seq_t));
+        mem_free(cache);
         cache = tmp;
         cap   = new_cap;
     }

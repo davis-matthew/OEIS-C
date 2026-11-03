@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    of prime indices of a partition satisfying 2*min_index < max_index. */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static data for sieve and cache */
 #define LIMIT 2000000      /* Enough for the first 10000 terms */
@@ -95,8 +97,7 @@ seq_t a(idx_t n)
 
         /* Check the condition: at least two distinct primes and max>2*min */
         if (distinct >= 2 && max_idx > 2 * min_idx) {
-            cache = (seq_t*)realloc(cache,
-                                     (cache_size + 1) * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, (cache_size + 1));
             cache[cache_size++] = (seq_t)value;
         }
     }

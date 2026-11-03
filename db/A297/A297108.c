@@ -9,6 +9,7 @@
  *            π(p) is the number of primes ≤ p
  * Range:     u8 n <= 22, u16 n <= 58, u32 n <= 136, u64 n <= 312,
  *            u128 n <= 726, big any n
+ * Validated: standard, pass, 99 terms through n = 1024 (2026-11-01)
  * Helpers:   prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/prime_pi.h"
 
 seq_t a(idx_t n)

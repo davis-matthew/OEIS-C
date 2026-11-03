@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 77, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   decompose_flattened
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -37,7 +38,22 @@
 
 #include <stdlib.h>
 #include <stddef.h>   /* for size_t */
-#include "../utils/decompose_flattened.h"
+#include "../utils/mem.h"
+
+/*  Convert a flattened index n to the corresponding (row r, column k)  */
+static void decompose_flattened(idx_t n, size_t *r_out, size_t *k_out)
+{
+    /* find r such that  r(r+1)/2 <= n < (r+1)(r+2)/2   */
+    size_t r = 0;
+    while (((unsigned long long)(r + 1) * (r + 2) / 2) <= n)
+        ++r;
+
+    size_t prev_terms = r * (r + 1) / 2;     /* terms before row r   */
+    size_t k          = n - prev_terms;      /* column within row    */
+
+    *r_out = r;
+    *k_out = k;
+}
 
 /*  seq_t and idx_t are defined by the build system.  Do not re‑define them.  */
 extern seq_t a(idx_t n);   /* forward declaration for the build system */
@@ -58,7 +74,7 @@ static void ensure_rows(size_t upto)
 
     for (size_t r = max_cached; r <= upto; ++r) {
         /* allocate the row: r+1 entries (k = 0 .. r) */
-        T[r] = (seq_t *)malloc((r + 1) * sizeof(seq_t));
+        T[r] = mem_new(seq_t, (r + 1));
         if (T[r] == NULL) exit(1);
 
         for (size_t k = 0; k <= r; ++k) {

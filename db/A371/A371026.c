@@ -11,12 +11,14 @@
  *            n! , * T(n,k) = k*T(n‑1,k‑1) + (4*n‑4+k)*T(n‑1,k) (0<k<n)
  * Range:     u8 n <= 10, u16 n <= 21, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,11 +33,11 @@ seq_t a(idx_t n)
     idx_t k = n - m * (m + 1) / 2;
 
     /* Allocate two rows of length m+1 */
-    seq_t *prev = (seq_t *)malloc((m + 1) * sizeof(seq_t));
-    seq_t *curr = (seq_t *)malloc((m + 1) * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, (m + 1));
+    seq_t *curr = mem_new(seq_t, (m + 1));
     if (!prev || !curr) { /* allocation failed – return 0 as a safe fallback */
-        if (prev) free(prev);
-        if (curr) free(curr);
+        if (prev) mem_free(prev);
+        if (curr) mem_free(curr);
         return (seq_t)0;
     }
 
@@ -62,8 +64,8 @@ seq_t a(idx_t n)
 
         if (r == m) {            /* desired row reached */
             seq_t result = curr[k];
-            free(prev);
-            free(curr);
+            mem_free(prev);
+            mem_free(curr);
             return result;
         }
 
@@ -74,7 +76,7 @@ seq_t a(idx_t n)
     }
 
     /* Fallback (should never happen) */
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
     return (seq_t)0;
 }

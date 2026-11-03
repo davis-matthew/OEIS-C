@@ -11,13 +11,22 @@
  *            arithmetic to avoid overflow on small seq_t types
  * Range:     u8 n <= 41, u16 n <= 629, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   part
+ * Validated: standard, pass, 64 terms through n = 978 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>   /* only for uint64_t (used for intermediates) */
-#include "../utils/part.h"
+
+static seq_t part(idx_t m)
+{
+    /* Compute p_3(m) = floor( (m^2 + 6m + 12) / 12 ) */
+    uint64_t mm = (uint64_t)m;
+    uint64_t num = mm * mm + 6 * mm + 12;
+    uint64_t res = num / 12;
+    return (seq_t)res;
+}
 
 seq_t a(idx_t n)
 {

@@ -9,15 +9,32 @@
  *            duplicates; raise L until at least n terms are found
  * Range:     u8 n <= 9, u16 n <= 165, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   cmp_ull, u128_to_seq
+ * Validated: standard, pass, 67 terms through n = 9966 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/u128_to_seq.h"
-#include "../utils/cmp_ull.h"
+
+static seq_t u128_to_seq(unsigned __int128 u)
+{
+    seq_t r = 0;
+    int k;
+    for (k = 3; k >= 0; k--) {
+        r = r * 65536ULL;
+        r = r * 65536ULL;
+        r += (seq_t)(uint64_t)(uint32_t)(u >> (32 * k));
+    }
+    return r;
+}
+
+static int cmp_ull(const void *x, const void *y) {
+    unsigned long long u = *(const unsigned long long *)x;
+    unsigned long long v = *(const unsigned long long *)y;
+    return (u < v) ? -1 : (u > v) ? 1 : 0;
+}
 
 static unsigned long long *cache_vals = NULL;
 static idx_t cache_count = 0;

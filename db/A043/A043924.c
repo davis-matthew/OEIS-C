@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   has_adjacent_2_5_or_5_2
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,23 @@
    sequential search. */
 
 #include <stdbool.h>
-#include "../utils/has_adjacent_2_5_or_5_2.h"
+
+static bool has_adjacent_2_5_or_5_2(seq_t v) {
+    const seq_t base = (seq_t)7;
+    const seq_t d2  = (seq_t)2;
+    const seq_t d5  = (seq_t)5;
+    seq_t prev = base;        /* sentinel for no previous digit */
+    while (v > (seq_t)0) {
+        seq_t cur = v % base;
+        v /= base;
+        if (prev != base) {
+            if ((prev == d2 && cur == d5) || (prev == d5 && cur == d2))
+                return true;
+        }
+        prev = cur;
+    }
+    return false;
+}
 
 seq_t a(idx_t n) {
     /*  n is 1‑based;  n ≥ 1 */

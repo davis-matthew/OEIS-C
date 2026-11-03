@@ -8,14 +8,15 @@
  * Formula:   a(n) = (-1)^(n/2) if n even; = (2^(n/2) - (-1)^(n/2))/3 if n odd
  * Range:     i8 n <= 14, i16 n <= 30, i32 n <= 56, i64 n <= 56, i128 n <= 56,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 57 terms through n = 56 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +25,7 @@ seq_t a(idx_t n)
         return ((k & 1ULL) == 0ULL) ? 1 : -1;
     } else {
         idx_t k = n >> 1;            /* k = floor(n/2) */
-        seq_t pow2k = pow_uint(2ULL, k);
+        seq_t pow2k = ipow_u64_idx(2ULL, k);
         seq_t sign   = ((k & 1ULL) == 0ULL) ? 1 : -1;   /* (-1)^k */
         seq_t diff   = pow2k - sign;
         return diff / 3;

@@ -9,7 +9,8 @@
  *            sum_of_prime_factors(k) = product_of_prime_indices(k)
  * Range:     u8 n <= 5, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static state for the sieve and cache */
 static idx_t *spf = NULL;          /* smallest prime factor for each number */
@@ -125,7 +127,7 @@ static void grow_cache(size_t need)
     size_t new_cap = cached_cap ? cached_cap * 2 : 16;
     while (new_cap < need)
         new_cap *= 2;
-    cached_terms = (seq_t*)realloc(cached_terms, new_cap * sizeof(seq_t));
+    cached_terms = mem_resize(seq_t, cached_terms, new_cap);
     if (!cached_terms)
         exit(EXIT_FAILURE);
     cached_cap = new_cap;

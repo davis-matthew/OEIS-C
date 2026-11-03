@@ -11,14 +11,16 @@
  *            * and c = n - r(r+1)/2. * If r and c have different parity the
  *            coefficient is 0. * Otherwise let k = (r - c)/2. The numerator
  *            before reduction equals * binom(r,k) * bi...
- * Range:     i8 n <= 13, i16 n <= 43, i32 n <= 180, i64 n <= 551,
+ * Range:     i8 n <= 17, i16 n <= 49, i32 n <= 180, i64 n <= 551,
  *            i128 n <= 1935, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 82 terms through n = 9107 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -40,8 +42,8 @@ seq_t a(idx_t n)
     idx_t k = (r - c) / 2;               /* k = (r - c)/2 */
 
     /* Binomial coefficients needed for the numerator */
-    seq_t b1 = binom(r, k);              /* C(r, k) */
-    seq_t b2 = binom(r + c, r);          /* C(r + c, r) = C(2r-2k, r) */
+    seq_t b1 = binomial(r, k);              /* C(r, k) */
+    seq_t b2 = binomial(r + c, r);          /* C(r + c, r) = C(2r-2k, r) */
 
     seq_t raw_abs = b1 * b2;              /* product is positive */
 

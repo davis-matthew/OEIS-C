@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   not stated
- * Range:     u8 n <= 14, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
- *            big any n
- * Helpers:   mulmod64
+ * Range:     u8 n <= 14, u16 n <= 1649, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 67 terms through n = 9977 (2026-11-03)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mulmod64.h"
+#include <stddef.h>
+#include "../utils/mulmod.h"
 
 /* Miller‑Rabin for 64‑bit integers ------------------------------------- */
 
@@ -29,8 +31,8 @@ static inline uint64_t powmod64(uint64_t a, uint64_t e, uint64_t mod)
 {
     uint64_t r = 1;
     while (e) {
-        if (e & 1) r = mulmod64(r, a, mod);
-        a = mulmod64(a, a, mod);
+        if (e & 1) r = mulmod(r, a, mod);
+        a = mulmod(a, a, mod);
         e >>= 1;
     }
     return r;
@@ -57,7 +59,7 @@ static bool is_prime64(uint64_t n)
         if (x == 1 || x == n-1) continue;
         bool composite = true;
         for (uint64_t r = 1; r < s; ++r) {
-            x = mulmod64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n-1) { composite = false; break; }
         }
         if (composite) return false;
@@ -67,8 +69,7 @@ static bool is_prime64(uint64_t n)
 
 /* --------------------------------------------------------------- */
 /* static storage (enough for n up to ~10 000)                     */
-#define MAX_PRIMES 40000      /* safety margin */
-static uint64_t primes64[MAX_PRIMES];
+static uint64_t *primes64 = NULL;         /* every prime of the form <= current_limit */
 static size_t prime_cnt = 0;
 static uint64_t current_limit = 200000;   /* initial search bound */
 static bool initialized = false;
@@ -86,17 +87,27 @@ static int cmp_uint64(const void *a, const void *b)
 /* generate all primes of the form ≤ limit -------------------------- */
 static void generate_primes(uint64_t limit)
 {
-    size_t cnt = 0;
-    for (uint64_t y = 0; ; ++y) {
+    size_t cnt = 0, cap = 1024;
+    free(primes64);
+    primes64 = (uint64_t *)malloc(cap * sizeof *primes64);
+    if (!primes64) abort();
+    /* for fixed y the form is smallest, 6.25 y^2, at x = y/2, and it falls
+       for x below that and rises after */
+    for (uint64_t y = 0; 25 * y * y <= 4 * limit; ++y) {
         uint64_t baseY = 7ULL * y * y;
-        if (baseY > limit) break;
         for (uint64_t x = 0; ; ++x) {
             uint64_t val = 3ULL * x * x + baseY - 3ULL * x * y;
-            if (val > limit) break;
+            if (val > limit) {
+                if (2 * x >= y) break;
+                continue;
+            }
             if (val >= 2 && is_prime64(val)) {
-                if (cnt < MAX_PRIMES) {
-                    primes64[cnt++] = val;
+                if (cnt == cap) {
+                    uint64_t *t = (uint64_t *)realloc(primes64, (cap *= 2) * sizeof *primes64);
+                    if (!t) abort();
+                    primes64 = t;
                 }
+                primes64[cnt++] = val;
             }
         }
     }

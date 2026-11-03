@@ -7,12 +7,24 @@
  * Formula:   a(n) = Sum_{d|n} phi(d) * sigma(d) * sigma(n/d)
  * Range:     u8 n <= 11, u16 n <= 143, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sigma_of_value
+ * Validated: standard, pass, 68 terms through n = 9873 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/sigma_of_value.h"
+static inline seq_t sigma_of_value(idx_t val)
+{
+    seq_t sigma = 0;
+    for (idx_t i = 1; i * i <= val; ++i) {
+        if (val % i == 0) {
+            sigma += i;
+            idx_t j = val / i;
+            if (j != i) sigma += j;
+        }
+    }
+    return sigma;
+}
 static inline seq_t totient(idx_t m)
 {
     seq_t phi = m;

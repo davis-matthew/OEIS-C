@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 5, u32 n <= 828, u64 n <= 9833, u128 n <= 9833,
  *            big any n
- * Helpers:   uint64_sqrt
+ * Validated: standard, pass, 47 terms through n = 9800 (2026-11-03)
+ * Helpers:   isqrt_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/uint64_sqrt.h"
+#include "../utils/isqrt_u64.h"
+#include "../utils/mem.h"
 
 /* ----------------------------------------------------------------------
    Static state used by the routine.
@@ -67,7 +69,7 @@ static void init(void)
     is_prime[0] = is_prime[1] = 0;
 
     /* Simple Eratosthenes sieve. */
-    uint64_t lim = uint64_sqrt(SIEVE_LIMIT + 100);
+    uint64_t lim = isqrt_u64(SIEVE_LIMIT + 100);
     for (uint64_t i = 2; i <= lim; ++i) {
         if (!is_prime[i]) continue;
         for (uint64_t j = i * i; j <= SIEVE_LIMIT + 100; j += i)
@@ -76,7 +78,7 @@ static void init(void)
 
     /* Allocate initial space for terms.  We grow this array as needed. */
     terms_cap = 20000;  /* initial capacity – plenty for ~10k terms */
-    terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+    terms = mem_new(seq_t, terms_cap);
     if (!terms) { free(is_prime); return; }
 
     /* Generate all concatenated prime pairs up to SIEVE_LIMIT. */
@@ -94,7 +96,7 @@ static void init(void)
         /* Expand the array if it is full. */
         if (terms_len == terms_cap) {
             terms_cap <<= 1;  /* double capacity */
-            seq_t *tmp_terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+            seq_t *tmp_terms = mem_resize(seq_t, terms, terms_cap);
             if (!tmp_terms) break;  /* allocation failed – stop adding */
             terms = tmp_terms;
         }

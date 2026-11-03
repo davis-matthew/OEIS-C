@@ -10,7 +10,8 @@
  *            square; a(n) = x for the n-th such prime
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   a002346_isqrt
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a002346_isqrt.h"
+#include "../utils/isqrt_u64.h"
 
 static uint64_t *a002346_xs = NULL;
 static size_t a002346_cnt = 0;
@@ -39,7 +40,7 @@ static void a002346_build(uint64_t limit) {
         fp = 4 * p;
         for (y = 0; 11 * y * y <= fp; y++) {
             uint64_t xsq = fp - 11 * y * y;
-            uint64_t x = a002346_isqrt(xsq);
+            uint64_t x = isqrt_u64(xsq);
             if (x * x == xsq) {
                 if (cnt == cap) {
                     cap *= 2;

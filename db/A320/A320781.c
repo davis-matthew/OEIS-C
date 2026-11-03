@@ -8,7 +8,8 @@
  *            A320781). The sequence starts with a(1)=1, a(2)=-2, a(3)=0, …
  * Range:     i8 n <= 14, i16 n <= 25, i32 n <= 45, i64 n <= 45, i128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* The build supplies the types seq_t (signed integer, may be big) and
    idx_t (unsigned integer, can be uint64_t).  They are declared externally
@@ -55,9 +57,9 @@ static void extend(idx_t n) {
     /* Expand storage if necessary */
     size_t needed = (size_t)n + 1;
     if (cap < needed) {
-        A      = (seq_t*) realloc(A,        sizeof(seq_t) * needed);
-        Tarr   = (seq_t*) realloc(Tarr,     sizeof(seq_t) * needed);
-        muArr  = (seq_t*) realloc(muArr,    sizeof(seq_t) * needed);
+        A      = mem_resize(seq_t, A, needed);
+        Tarr   = mem_resize(seq_t, Tarr, needed);
+        muArr  = mem_resize(seq_t, muArr, needed);
         cap = needed;
         for (size_t i = current_max + 1; i < needed; ++i) {
             A[i]     = 0;

@@ -9,13 +9,18 @@
  *            x^k) = Sum_{k} (-1)^k x^(k(3k-1)/2) 16 times
  * Range:     i8 n <= 2, i16 n <= 11, i32 n <= 261, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   zalloc_arr
+ * Validated: standard, pass, 47 terms through n = 9460 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/zalloc_arr.h"
+#include "../utils/mem.h"
+
+static seq_t *zalloc_arr(idx_t len) {
+    return mem_new(seq_t, (size_t)len);
+}
 
 static seq_t *cache = NULL;
 static long long cache_n = -1;

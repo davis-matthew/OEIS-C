@@ -7,7 +7,8 @@
  * Formula:   a(n) = (a(n-1)*a(n-3) + 3*a(n-2)^2) / a(n-4)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 14, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #ifdef __cplusplus
 #include <type_traits>
 #endif
+#include "../utils/mem.h"
 
 #if defined(__SIZEOF_INT128__)
 typedef unsigned __int128 u128;
@@ -41,7 +43,7 @@ static void ensure_cache_size(idx_t n)
     size_t new_len = cache_len ? cache_len : 8;
     while (new_len < needed)
         new_len <<= 1;
-    cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_len);
     cache_len = new_len;
 }
 
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call. */
     if (!cache) {
         cache_len = 8;
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         for (size_t i = 0; i < 4; ++i)
             cache[i] = init_vals[i];
         last_computed = 3;

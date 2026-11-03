@@ -9,6 +9,7 @@
  *            generating function (1 + x + x^2 + 2*x^5 - 2*x^10)/(1-3*x^3)
  * Range:     u8 n <= 16, u16 n <= 31, u32 n <= 61, u64 n <= 121,
  *            u128 n <= 242, big any n
+ * Validated: standard, pass, 61 terms through n = 927 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

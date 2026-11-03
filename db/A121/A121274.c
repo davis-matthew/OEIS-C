@@ -9,11 +9,13 @@
  * Formula:   a(n) = nth integer coprime to (nth integer coprime to n)
  * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 static seq_t nth_coprime(seq_t target, idx_t rank) {

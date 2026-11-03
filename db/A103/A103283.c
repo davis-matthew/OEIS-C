@@ -14,7 +14,8 @@
  *            C(r-1,k-1) + (r+1)⋅C(r-1,k) ] (1 ≤ k < r) where C...
  * Range:     i8 n <= 30, i16 n <= 77, i32 n <= 77, i64 n <= 77, i128 n <= 77,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,8 @@
 
 #include <stdint.h>
 #include <math.h>
-#include "../utils/binom.h"
+#include <sys/types.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -54,8 +56,8 @@ seq_t a(idx_t n)
     }
 
     /* 1 ≤ k < r : use the explicit formula */
-    seq_t b1 = binom(r - 1, k - 1);        /* C(r-1, k-1) */
-    seq_t b2 = binom(r - 1, k);            /* C(r-1, k)   */
+    seq_t b1 = binomial(r - 1, k - 1);        /* C(r-1, k-1) */
+    seq_t b2 = binomial(r - 1, k);            /* C(r-1, k)   */
     seq_t prod = b2 * (seq_t)(r + 1); /* (r+1)*C(r-1,k) */
     seq_t sum = b1 + prod;
     return sign * sum;

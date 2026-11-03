@@ -7,13 +7,15 @@
  * Formula:   a(n) = [x^n] Π_{k=0}^{2n-1} (x + (-1)^k * k)
  * Range:     i8 n <= 3, i16 n <= 5, i32 n <= 8, i64 n <= 13, i128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 293 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
        of the numbers (-1)^k * k for k = 1 .. 2n-1.  We need indices
        0..n. */
     size_t sz = (size_t)n + 1;
-    seq_t *e = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *e = mem_new(seq_t, sz);
     if (!e)
         abort();                    /* memory allocation failure */
 
@@ -43,6 +45,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = e[n];
-    free(e);
+    mem_free(e);
     return result;
 }

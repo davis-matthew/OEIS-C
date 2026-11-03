@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 7022, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   heap_swap
+ * Validated: standard, pass, 79 terms through n = 9089 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,10 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/heap_swap.h"
+
+static void heap_swap(seq_t *a, seq_t *b) {
+    seq_t t = *a; *a = *b; *b = t;
+}
 
 /* comparison for seq_t (works for integral types and big‑integer classes) */
 static inline int seq_cmp(const seq_t *a, const seq_t *b)

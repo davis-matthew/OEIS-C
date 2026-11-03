@@ -9,14 +9,17 @@
  *            C(i,⌊i/2⌋)
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 23, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   binom, gcd
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-03)
+ * Helpers:   binomial, gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
 #include "../utils/gcd.h"
-#include "../utils/binom.h"
+#include "../utils/mem.h"
 
 static seq_t *a_cache      = NULL;   /* cache of already computed terms */
 static size_t a_cache_cap  = 0;       /* capacity of the cache           */
@@ -41,7 +44,7 @@ seq_t a(idx_t n)
         size_t new_cap = a_cache_cap ? a_cache_cap * 2 : 1;
         while (new_cap < (size_t)n + 1)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(a_cache, (new_cap + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, (new_cap + 1));
         if (!tmp) abort();        /* allocation failure – fatal */
         a_cache = tmp;
         a_cache_cap = new_cap;
@@ -50,7 +53,7 @@ seq_t a(idx_t n)
     /* Compute missing terms up to n.  */
     for (idx_t i = a_cache_n; i < n; ++i) {
         idx_t k = i >> 1;                     /* floor(i/2) */
-        seq_t bi = binom(i, k);               /* b(i) = C(i, floor(i/2)) */
+        seq_t bi = binomial(i, k);               /* b(i) = C(i, floor(i/2)) */
 
         seq_t g = gcd(L_cur, bi);             /* gcd of current LCM and bi */
         seq_t m = bi / g;                     /* multiplier to reach new LCM */

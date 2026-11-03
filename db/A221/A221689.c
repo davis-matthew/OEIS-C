@@ -10,13 +10,15 @@
  *            a(n)=24*a(n-1)-69*a(n-2)-71*a(n-3)+2*a(n-4)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 15, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 184 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /*  Compute A221689, memoized for any call order. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* cache[n-1] stores a(n) */
 static idx_t cache_len = 0;      /* current number of cached terms */
@@ -30,9 +32,9 @@ static void ensure_cache(idx_t n)
         /* Allocate at least 5 entries and initialize known terms. */
         size_t need = (size_t) (n < 5 ? n : 5);
         if (cache == NULL) {
-            cache = (seq_t *)malloc(need * sizeof(seq_t));
+            cache = mem_new(seq_t, need);
         } else {
-            cache = (seq_t *)realloc(cache, need * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, need);
         }
         cache[0] = (seq_t)6;
         if (need > 1) cache[1] = (seq_t)152;
@@ -42,7 +44,7 @@ static void ensure_cache(idx_t n)
         cache_len = (idx_t)need;
     } else if (cache_len < n) {
         /* Extend the cache to size n */
-        cache = (seq_t *)realloc(cache, (size_t) n * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (size_t) n);
     }
 
     /* Compute missing values using the recurrence */

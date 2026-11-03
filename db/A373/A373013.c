@@ -8,12 +8,14 @@
  *            congruent to 2 modulo 3 (OEIS A373013)
  * Range:     u8 n <= 37, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 static seq_t *dp = NULL;      /* dp[s] = # of distinct partitions of s  */
@@ -29,8 +31,8 @@ seq_t a(idx_t n)
     /* Ensure we have enough space for indices 0 .. n                 */
     size_t need = (size_t)n + 1;
     if (need > max_size) {
-        dp   = (seq_t *)realloc(dp,   need * sizeof(seq_t));
-        ans  = (seq_t *)realloc(ans,  need * sizeof(seq_t));
+        dp   = mem_resize(seq_t, dp, need);
+        ans  = mem_resize(seq_t, ans, need);
         max_size = need;
     }
 

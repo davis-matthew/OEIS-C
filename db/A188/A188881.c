@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 37, u32 n <= 81, u64 n <= 195,
  *            u128 n <= 508, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 2348 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t **triangle = NULL;        /* pointers to each row of the triangle      */
 static size_t  max_row   = (size_t)-1;  /* index of the last generated row (wraps to SIZE_MAX) */
@@ -36,7 +38,7 @@ static void ensure_triangle(size_t target_row)
         triangle = (seq_t **)malloc(capacity * sizeof(seq_t *));
         if (triangle == NULL)
             exit(EXIT_FAILURE);
-        triangle[0] = (seq_t *)malloc(sizeof(seq_t));
+        triangle[0] = mem_new(seq_t, 1);
         triangle[0][0] = (seq_t)1;       /* T(0,0)=1 */
         max_row = 0;
     }
@@ -44,7 +46,7 @@ static void ensure_triangle(size_t target_row)
     while (max_row < target_row) {       /* generate next row */
         size_t row = max_row + 1;        /* row index of the new row */
         size_t len = row + 1;            /* number of elements in the new row (k=0..row) */
-        seq_t *new_row = (seq_t *)malloc(len * sizeof(seq_t));
+        seq_t *new_row = mem_new(seq_t, len);
         seq_t *prev_row = triangle[max_row];
         size_t prev_len = max_row + 1;   /* length of previous row */
 

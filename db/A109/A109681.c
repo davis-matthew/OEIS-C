@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 237, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   ternary_len
+ * Validated: standard, pass, 83 terms through n = 9071 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -37,7 +38,16 @@
  */
 
 #include <stdint.h>
-#include "../utils/ternary_len.h"
+
+/* Helper: number of ternary digits of x (x can be 0) */
+static idx_t ternary_len(idx_t x) {
+    idx_t len = 0;
+    do {
+        len++;
+        x /= 3;
+    } while (x);
+    return len;
+}
 
 static const seq_t POW3[64] = { 1ULL, 3ULL, 9ULL, 27ULL, 81ULL, 243ULL, 729ULL,
                                2187ULL, 6561ULL, 19683ULL, 59049ULL, 177147ULL,

@@ -7,7 +7,8 @@
  * Formula:   a(n) = the nth integer x with 11*x + 13 prime
  * Range:     u8 n <= 42, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_uint64
+ * Validated: standard, pass, 68 terms through n = 954 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime_uint64.h"   /* provides bool is_prime_uint64(uint64_t) */
+#include <stdlib.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
 
     while (1) {
         uint64_t val = 11ULL * (uint64_t)m + 13ULL;   /* 11*m + 13 */
-        if (is_prime_uint64(val)) {
+        if (is_prime_u64(val)) {
             count++;
             if (count == n) {
                 return (seq_t)m;

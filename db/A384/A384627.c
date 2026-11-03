@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 106 terms through n = 9732 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Compute and cache the 2997‑digit repeating period once. */
 static seq_t *period = NULL;      /* array of digits                */
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
         /* The period length is known to be 2997. Allocate a bit more to
            be safe with compilers that may consider small overflow.   */
         const size_t buffer = 3000;
-        period = (seq_t*)malloc(buffer * sizeof(seq_t));
+        period = mem_new(seq_t, buffer);
         if (period == NULL) {
             /* In a real library we would abort or handle the error,
                but for the purposes of the exercise we skip error

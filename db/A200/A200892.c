@@ -12,13 +12,15 @@
  *            10*a(n-9) - a(n-10) for n>10
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 17, u64 n <= 210, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <limits.h>
+#include "../utils/mem.h"
 
 /* coefficients for the linear recurrence (a(n) depends on the previous 10 terms) */
 static const int coeffs[10] = {
@@ -52,7 +54,7 @@ static void ensure_capacity(size_t n)
     /* grow by doubling strategy to reduce realloc frequency */
     size_t new_cap = cache_size ? cache_size : 16;
     while (new_cap < n) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) exit(1);                  /* memory allocation failed */
     for (size_t i = cache_size; i < new_cap; ++i) tmp[i] = 0;
     cache = tmp;

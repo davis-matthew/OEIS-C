@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 72, u16 n <= 1940, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bitlen_seq_t
+ * Validated: standard, pass, 77 terms through n = 9803 (2026-11-03)
+ * Helpers:   bit_length, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,11 +27,13 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/bitlen_seq_t.h"   /* bitlen_seq_t(seq_t) */
+#include <stdint.h>
+#include "../utils/bit_length.h"
+#include "../utils/mem.h"
 
 static bool heap_valid(seq_t x)
 {
-    idx_t len = bitlen_seq_t(x);
+    idx_t len = bit_length(x);
     for (idx_t i = 0; i < len; ++i) {
         if ((x >> i) & 1) {                 /* bit i is 1 */
             idx_t c1 = 2 * i + 1;
@@ -53,7 +56,7 @@ static void ensure_cache(size_t need)
     if (need <= cache_cap) return;
     size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
     while (new_cap < need) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) {
         /* allocation failure – terminate */
         abort();

@@ -9,7 +9,8 @@
  *            periodic part of the continued fraction
  * Range:     u8 n <= 88, u16 n <= 88, u32 n <= 88, u64 n <= 88, u128 n <= 88,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 89 terms through n = 88 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* static state for the continued fraction cycle */
 static seq_t *cycle = NULL;        /* array of period terms (a1 … aL) */
@@ -39,7 +41,7 @@ static void init_cycle(void)
 
     /* initial capacity guess – the period is short for this D */
     cycle_cap = 10;
-    cycle = (seq_t *)malloc(cycle_cap * sizeof(seq_t));
+    cycle = mem_new(seq_t, cycle_cap);
     cycle_len = 0;
 
     int m = 0;
@@ -54,7 +56,7 @@ static void init_cycle(void)
         /* ensure capacity */
         if (cycle_len == cycle_cap) {
             cycle_cap <<= 1;
-            cycle = (seq_t *)realloc(cycle, cycle_cap * sizeof(seq_t));
+            cycle = mem_resize(seq_t, cycle, cycle_cap);
         }
         cycle[cycle_len++] = (seq_t)a;
 

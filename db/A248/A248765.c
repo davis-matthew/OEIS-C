@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 31, u32 n <= 48, u64 n <= 77, u128 n <= 129,
  *            big any n
- * Helpers:   build_primes, pow_uint, seq_mul
+ * Validated: standard, pass, 56 terms through n = 997 (2026-11-01)
+ * Helpers:   build_primes, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,9 +16,16 @@
 /* Compute the greatest k such that k^4 divides n! */
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include <stddef.h>
 #include "../utils/build_primes.h"
-#include "../utils/seq_mul.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -44,7 +52,7 @@ seq_t a(idx_t n)
         idx_t r = e / 4;   /* floor division gives exponent in k */
         if (r > 0)
         {
-            seq_t p_pow = pow_uint((uint64_t)p, r);
+            seq_t p_pow = ipow_u64_idx((uint64_t)p, r);
             result = seq_mul(result, p_pow);
         }
     }

@@ -10,7 +10,8 @@
  *            3
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 63, u128 n <= 127,
  *            big any n
- * Helpers:   pow2mod_uint64
+ * Validated: standard, pass, 49 terms through n = 947 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,23 @@
    computed only once, regardless of the order of calls. */
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/pow2mod_uint64.h"
+#include "../utils/mem.h"
+
+/* Helper: fast modular exponentiation 2^exp mod mod.
+   exp and mod fit in idx_t (uint64_t).  The result is a uint64_t
+   that is < mod. */
+static inline uint64_t pow2mod_uint64(idx_t exp, uint64_t mod)
+{
+    uint64_t result = 1 % mod;
+    uint64_t base   = 2 % mod;
+    while (exp > 0) {
+        if (exp & 1ULL)
+            result = (unsigned __int128)result * base % mod;
+        base = (unsigned __int128)base * base % mod;
+        exp >>= 1;
+    }
+    return result;
+}
 
 seq_t a(idx_t n)
 {
@@ -31,7 +48,7 @@ seq_t a(idx_t n)
     /* initialise cache with first two terms */
     if (cache_len == 0) {
         idx_t init_cap = 4;
-        cache = (seq_t *)malloc(sizeof(seq_t) * init_cap);
+        cache = mem_new(seq_t, init_cap);
         if (!cache) exit(1);
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)3;
@@ -47,10 +64,10 @@ seq_t a(idx_t n)
         idx_t new_cap = cache_cap;
         while (new_cap <= n)
             new_cap <<= 1;
-        seq_t *new_cache = (seq_t *)malloc(sizeof(seq_t) * new_cap);
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (!new_cache) exit(1);
-        memcpy(new_cache, cache, sizeof(seq_t) * cache_len);
-        free(cache);
+        mem_copy(new_cache, cache, sizeof(seq_t) * cache_len);
+        mem_free(cache);
         cache = new_cache;
         cache_cap = new_cap;
     }

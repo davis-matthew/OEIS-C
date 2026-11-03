@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 1003, u32 n <= 1003, u64 n <= 1003,
  *            u128 n <= 1003, big any n
- * Helpers:   digit_product, digit_sum, is_prime_small
+ * Validated: standard, pass, 69 terms through n = 953 (2026-11-03)
+ * Helpers:   digit_product, digit_sum, is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,9 +27,10 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/digit_sum.h"
 #include "../utils/digit_product.h"
-#include "../utils/is_prime_small.h"
+#include "../utils/digit_sum.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;            /* stored terms */
 static size_t cache_cap = 0;           /* allocated capacity   */
@@ -40,7 +42,7 @@ static void ensure_cache_cap(size_t need) {
     if (cache_cap < need) {
         size_t new_cap = cache_cap == 0 ? 8 : cache_cap * 2;
         if (new_cap < need) new_cap = need;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();                 /* unlikely in practice */
         cache = tmp;
         cache_cap = new_cap;
@@ -52,9 +54,9 @@ static bool good_number(seq_t x) {
     seq_t sum = digit_sum(x);
     if (sum < 2) return false;              /* ensures sum‑1 >= 1 */
     seq_t prod = digit_product(x);
-    return is_prime_small(prod + (seq_t)1) &&
-           is_prime_small(sum + (seq_t)1) &&
-           is_prime_small(sum - (seq_t)1);
+    return is_prime_seq(prod + (seq_t)1) &&
+           is_prime_seq(sum + (seq_t)1) &&
+           is_prime_seq(sum - (seq_t)1);
 }
 
 /* sequence accessor */

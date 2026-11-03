@@ -7,6 +7,7 @@
  * Formula:   a(n) = 5*n - 7*floor((7*n+3)/10)
  * Range:     i8 n <= 93, i16 n <= 93, i32 n <= 93, i64 n <= 93, i128 n <= 93,
  *            big any n
+ * Validated: partial, pass, 93 terms through n = 93 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,14 +10,17 @@
  *            triangle A213347
  * Range:     u8 n <= 8, u16 n <= 20, u32 n <= 69, u64 n <= 265,
  *            u128 n <= 1040, big any n
+ * Validated: standard, pass, 49 terms through n = 2344 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* External utilities */
-#include "../utils/pow2.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/pow2.h"
 
 /* Return the total number of terms in rows 5 … N (inclusive). */
 static inline idx_t cumulative_terms(idx_t N)

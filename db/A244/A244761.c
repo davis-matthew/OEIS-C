@@ -8,15 +8,47 @@
  * Formula:   a(n) = concatenation of the squares of the digits of Lucas(n)
  * Range:     u8 n <= 6, u16 n <= 14, u32 n <= 27, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   digit_len, pow10, seq_to_str
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-01)
+ * Helpers:   num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/digit_len.h"
-#include "../utils/seq_to_str.h"
-#include "../utils/pow10.h"
+#include <stddef.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/num_digits.h"
+
+/* convert a seq_t value to a decimal string */
+static void seq_to_str(seq_t v, char *buf, size_t *len)
+{
+    if (v == 0) {
+        buf[0] = '0';
+        *len = 1;
+        return;
+    }
+    char tmp[64];
+    int pos = 0;
+    seq_t ten = (seq_t)10;
+    while (v != 0) {
+        tmp[pos++] = '0' + (int)(v % ten);
+        v /= ten;
+    }
+    for (int i = 0; i < pos; ++i)
+        buf[i] = tmp[pos - 1 - i];
+    *len = pos;
+}
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* fast doubling Fibonacci: returns F(n) in *fn and F(n+1) in *fn1 */
 static void fib_pair(idx_t n, seq_t *fn, seq_t *fn1)
@@ -56,7 +88,7 @@ seq_t a(idx_t n)
     seq_t lucas = lucas_n(n);
 
     /* convert Lucas(n) to decimal string */
-    size_t digs = digit_len(lucas);
+    size_t digs = num_digits(lucas);
     size_t buf_size = digs * 2 + 1;       /* maximum needed */
     char *buf = (char *)malloc(buf_size);
     if (!buf) return 0;                  /* allocation failure */

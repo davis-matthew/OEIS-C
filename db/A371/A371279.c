@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 80 terms through n = 80 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 typedef struct { seq_t num; seq_t den; } frac_t;
 
@@ -72,11 +75,11 @@ static void init_once(void)
     init_done = true;
 
     hash_used = (bool*)calloc(HASH_CAP, sizeof(bool));
-    hash_num  = (seq_t*)calloc(HASH_CAP, sizeof(seq_t));
-    hash_den  = (seq_t*)calloc(HASH_CAP, sizeof(seq_t));
+    hash_num  = mem_new(seq_t, HASH_CAP);
+    hash_den  = mem_new(seq_t, HASH_CAP);
 
     seen_cap = 4;
-    seen = (frac_t*)malloc(seen_cap * sizeof(frac_t));
+    seen = mem_new(frac_t, seen_cap);
     seq_t one = (seq_t)1;
     seen[0].num = one;
     seen[0].den = one;
@@ -84,7 +87,7 @@ static void init_once(void)
     hash_insert(one, one);
 
     next_cap = 4;
-    next = (frac_t*)malloc(next_cap * sizeof(frac_t));
+    next = mem_new(frac_t, next_cap);
     next_len = 0;
 }
 
@@ -99,7 +102,7 @@ seq_t a(idx_t n)
         if (next_cap < cap_needed) {
             size_t newcap = next_cap ? next_cap << 1 : 4;
             while (newcap < cap_needed) newcap <<= 1;
-            next = (frac_t*)realloc(next, newcap * sizeof(frac_t));
+            next = mem_resize(frac_t, next, newcap);
             next_cap = newcap;
         }
         next_len = 0;
@@ -128,7 +131,7 @@ seq_t a(idx_t n)
         if (seen_cap < seen_len + next_len) {
             size_t newcap = seen_cap ? seen_cap << 1 : 4;
             while (newcap < seen_len + next_len) newcap <<= 1;
-            seen = (frac_t*)realloc(seen, newcap * sizeof(frac_t));
+            seen = mem_resize(frac_t, seen, newcap);
             seen_cap = newcap;
         }
         for (size_t k = 0; k < next_len; ++k) {

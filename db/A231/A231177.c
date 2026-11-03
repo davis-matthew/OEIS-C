@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   odd_popcount_big
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,19 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/odd_popcount_big.h"
+#include "../utils/mem.h"
+
+/*  Test whether the binary popcount of x is odd (for any seq_t).  */
+static inline bool
+odd_popcount_big(seq_t x)
+{
+    seq_t parity = 0;
+    while (x != 0) {
+        parity ^= 1;
+        x &= x - 1;
+    }
+    return (unsigned)(parity & 1);
+}
 
 /* -------------------------------------------------------------- */
 /*  Small factorisation routine for 64‑bit integers                */
@@ -102,7 +115,7 @@ generate_up_to(idx_t n)
 {
     if (terms_cap == 0) {
         terms_cap = 16;
-        terms     = (seq_t *)realloc(NULL, terms_cap * sizeof(seq_t));
+        terms     = mem_resize(seq_t, NULL, terms_cap);
     }
 
     while (terms_sz < (size_t)n) {
@@ -123,8 +136,7 @@ generate_up_to(idx_t n)
         if (cntA == cntB) {            /* term qualifies       */
             if (terms_sz == terms_cap) {
                 size_t new_cap = terms_cap * 2;
-                terms = (seq_t *)realloc(terms,
-                                         new_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, new_cap);
                 terms_cap = new_cap;
             }
             terms[terms_sz++] = square;

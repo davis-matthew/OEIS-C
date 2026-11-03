@@ -9,14 +9,35 @@
  *            the * standard recurrence for quadratic irrationals
  * Range:     u8 none, u16 n <= 89, u32 n <= 89, u64 n <= 89, u128 n <= 89,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: partial, pass, 90 terms through n = 89 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/floor_sqrt.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 static seq_t *cache = NULL;
 static size_t cache_cap = 0;
@@ -31,8 +52,7 @@ static void ensure_capacity(idx_t n)
     if (cache_cap < (size_t)n + 1) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
         while (new_cap <= (size_t)n) new_cap *= 2;
-        seq_t *new_cache = (seq_t *)realloc(cache,
-                                            new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) exit(1); /* allocation failure */
         cache = new_cache;
         cache_cap = new_cap;

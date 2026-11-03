@@ -9,18 +9,19 @@
  *            n >= 6
  * Range:     u8 n <= 9, u16 n <= 9, u32 n <= 9, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   fib_at
+ * Validated: partial, pass, 8 terms through n = 9 (2026-11-01)
+ * Helpers:   fibonacci
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/fib_at.h"
+#include "../utils/fibonacci.h"
 
 seq_t a(idx_t n) {
     seq_t result = ((seq_t)(n+1) * (seq_t)(n+4)) / 2;
     
     if (n >= 6) {
-        result -= fib_at(n - 3);
+        result -= fibonacci(n - 3);
     }
     
     return result;

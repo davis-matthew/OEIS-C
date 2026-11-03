@@ -9,13 +9,31 @@
  *            (-1)^k*(2k+1)*x^(k(k+1)/2)
  * Range:     u8 n <= 6, u16 n <= 16, u32 n <= 47, u64 n <= 149, u128 n <= 512,
  *            big any n
- * Helpers:   a306_grow
+ * Validated: standard, pass, 55 terms through n = 9555 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/a306_grow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+static seq_t *a306_alloc0(idx_t len)
+{
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static seq_t *a306_grow(seq_t *old, idx_t oldlen, idx_t newlen)
+{
+    seq_t *p = a306_alloc0(newlen);
+    for (idx_t i = 0; i < oldlen; i++) p[i] = old[i];
+    if (old) mem_free(old);
+    return p;
+}
 
 seq_t a(idx_t n) {
     static seq_t *c = NULL;

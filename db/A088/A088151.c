@@ -7,19 +7,21 @@
  * Formula:   a(n) = floor(n^n / 3^n) mod 3
  * Range:     u8 n <= 101, u16 n <= 101, u32 n <= 101, u64 n <= 101,
  *            u128 n <= 101, big any n
- * Helpers:   none
+ * Validated: partial, pass, 102 terms through n = 101 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return (seq_t)1;          /* 0^0 is defined as 1 */
     
     size_t len = (size_t)n + 1;           /* need digits 0 … n */
-    seq_t *d = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *d = mem_new(seq_t, len);
     if (!d) return (seq_t)0;              /* out‑of‑memory fallback */
     
     for (size_t i = 0; i < len; ++i) d[i] = 0;
@@ -38,6 +40,6 @@ seq_t a(idx_t n)
     }
     
     seq_t result = d[n];
-    free(d);
+    mem_free(d);
     return result;
 }

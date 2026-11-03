@@ -7,13 +7,15 @@
  * Keywords:  nonn
  * Formula:   a(n) = (1+v₃(n)) * 3^(1+v₃(n)) where v₃(n) is the 3-adic
  *            valuation of n
- * Range:     u8 n <= 26, u16 n <= 6560, u32 n <= 9819, u64 n <= 9819,
- *            u128 n <= 9819, big any n
+ * Range:     u8 n <= 26, u16 n <= 6560, u32 n <= 59049, u64 n <= 59049,
+ *            u128 n <= 59049, big any n
+ * Validated: standard, pass, 106 terms through n = 9819 (2026-11-01)
  * Helpers:   pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/pow3.h"
 
 seq_t a(idx_t n)

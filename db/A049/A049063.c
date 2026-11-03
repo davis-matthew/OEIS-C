@@ -11,6 +11,7 @@
  *            triangle. The code builds rows on demand and caches t...
  * Range:     u8 n <= 51, u16 n <= 149, u32 n <= 496, u64 n <= 1872,
  *            u128 n <= 6942, big any n
+ * Validated: standard, pass, 88 terms through n = 9672 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

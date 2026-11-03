@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 5, i16 n <= 8, i32 n <= 13, i64 n <= 20, i128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,11 +33,11 @@ seq_t a(idx_t n)
     if (n == 0) return 1;
 
     /* Allocate arrays of size n+1 (indices 0..n) */
-    seq_t *l = (seq_t *)malloc((n + 1) * sizeof(seq_t)); /* log(1+x) EG coeffs */
-    seq_t *t = (seq_t *)malloc((n + 1) * sizeof(seq_t)); /* tanh EG coeffs   */
-    seq_t *g = (seq_t *)malloc((n + 1) * sizeof(seq_t)); /* A(x)=log-tanh EG coeffs */
-    seq_t *y = (seq_t *)malloc((n + 1) * sizeof(seq_t)); /* cos(A) EG coeffs   */
-    seq_t *s = (seq_t *)malloc((n + 1) * sizeof(seq_t)); /* sin(A) EG coeffs   */
+    seq_t *l = mem_new(seq_t, (n + 1)); /* log(1+x) EG coeffs */
+    seq_t *t = mem_new(seq_t, (n + 1)); /* tanh EG coeffs   */
+    seq_t *g = mem_new(seq_t, (n + 1)); /* A(x)=log-tanh EG coeffs */
+    seq_t *y = mem_new(seq_t, (n + 1)); /* cos(A) EG coeffs   */
+    seq_t *s = mem_new(seq_t, (n + 1)); /* sin(A) EG coeffs   */
 
     /* ------------------------------------------------------------------ */
     /* 1. EG coefficients of log(1+x):  l_k = (-1)^{k-1} (k-1)! for k>=1 */
@@ -107,11 +109,11 @@ seq_t a(idx_t n)
 
     /* ------------------------------------------------------------------ */
     /* Free memory */
-    free(l);
-    free(t);
-    free(g);
-    free(y);
-    free(s);
+    mem_free(l);
+    mem_free(t);
+    mem_free(g);
+    mem_free(y);
+    mem_free(s);
 
     return result;
 }

@@ -7,7 +7,8 @@
  * Formula:   a(n) = c([n/2]) + n with a(1)=1 and c = complement of a
  * Range:     u8 n <= 64, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Forward declarations of helper functions */
 static void ensure_used_cap(idx_t new_cap);
@@ -65,7 +67,7 @@ static void ensure_comp_len(idx_t k)
                     idx_t new_cap = comp_cap ? comp_cap * 2 : 2;
                     if (new_cap < comp_len)
                         new_cap = comp_len;
-                    seq_t *new_arr = (seq_t *)realloc(comp_seq, (new_cap + 1) * sizeof(seq_t));
+                    seq_t *new_arr = mem_resize(seq_t, comp_seq, (new_cap + 1));
                     if (!new_arr)
                         exit(1);
                     comp_seq = new_arr;
@@ -105,7 +107,7 @@ static void ensure_a_len(idx_t n)
             idx_t new_cap = a_cap ? a_cap * 2 : 2;
             if (new_cap < i)
                 new_cap = i;
-            seq_t *new_a = (seq_t *)realloc(a_seq, (new_cap + 1) * sizeof(seq_t));
+            seq_t *new_a = mem_resize(seq_t, a_seq, (new_cap + 1));
             if (!new_a)
                 exit(1);
             a_seq = new_a;

@@ -7,13 +7,27 @@
  * Formula:   a(n) = numerator of 3*Sum_{i=1..n} 1/(i^2*C(2*i,i))
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 16, u128 n <= 17,
  *            big any n
- * Helpers:   gcd_any, mul128
+ * Validated: standard, pass, 36 terms through n = 726 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/gcd_any.h"
-#include "../utils/mul128.h"
+#include <stdlib.h>
+#include <stdalign.h>
+#include "../utils/gcd.h"
+
+/* Helper: safe multiplication using 128‑bit intermediate when
+   available and seq_t is a built‑in integer.  For arbitrary‑precision
+   types the plain * operator is used. */
+static inline seq_t mul128(seq_t a, seq_t b)
+{
+#if defined(__SIZEOF_INT128__) && !defined(__cplusplus)
+    return (seq_t)((unsigned __int128)(unsigned long long)a * b);
+#else
+    return a * b;
+#endif
+}
 
 seq_t a(idx_t n)
 {
@@ -35,13 +49,13 @@ seq_t a(idx_t n)
 
         /* -------- term : 3/(i²*bi) -------- */
         seq_t term_den = mul128(i_sq, bi);            /* denominator of the term */
-        seq_t g_term   = gcd_any( (seq_t)3, term_den );
+        seq_t g_term   = gcd( (seq_t)3, term_den );
         seq_t term_num = ((seq_t)3) / g_term;         /* numerator after reduction */
         seq_t term_den_red = term_den / g_term;       /* denominator after reduction */
 
         /* -------- add term to current fraction N/D -------- */
         /* Cross‑cancel common factors between term_den_red and D */
-        seq_t g_cd = gcd_any(term_den_red, D);
+        seq_t g_cd = gcd(term_den_red, D);
         seq_t denom_part = term_den_red / g_cd;        /* term_den_red/g */
         seq_t D_div_g    = D / g_cd;                   /* D/g           */
 
@@ -54,7 +68,7 @@ seq_t a(idx_t n)
         seq_t newD  = mul128(D_div_g, term_den_red);
 
         /* Reduce the new fraction */
-        seq_t g_reduce = gcd_any(newN, newD);
+        seq_t g_reduce = gcd(newN, newD);
         N = newN / g_reduce;
         D = newD / g_reduce;
     }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 73, i16 n <= 73, i32 n <= 73, i64 n <= 73, i128 n <= 73,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 73 terms through n = 73 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static state for the omega sieve */
 static seq_t *omega = NULL;   /* Ω[0] unused, Ω[n] stored as seq_t */
@@ -43,7 +45,7 @@ static void ensure_omega(idx_t limit)
         return;
 
     /* Allocate/resize */
-    seq_t *tmp = (seq_t *)realloc(omega, (limit + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, omega, (limit + 1));
     if (!tmp)
         abort();                    /* allocation failed */
     omega = tmp;

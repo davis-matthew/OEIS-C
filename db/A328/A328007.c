@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 19, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
         /* make sure the derangement array has room */
         size_t need = (size_t)(n + 1);
         if (need > d_cap) {
-            void *tmp = realloc(d_cache, need * sizeof(seq_t));
+            void *tmp = mem_resize(seq_t, d_cache, need);
             if (!tmp) return 0; /* allocation failure -> undefined behaviour */
             d_cache = (seq_t *)tmp;
             d_cap   = need;
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
         /* make sure the value array has room */
         size_t need = (size_t)(n + 1);
         if (need > a_cap) {
-            void *tmp = realloc(a_cache, need * sizeof(seq_t));
+            void *tmp = mem_resize(seq_t, a_cache, need);
             if (!tmp) return 0; /* allocation failure */
             a_cache = (seq_t *)tmp;
             a_cap   = need;

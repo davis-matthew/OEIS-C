@@ -7,13 +7,15 @@
  * Formula:   a(n) = Sum_{k=0..n} ( Fibonacci(2*k-1) + (n-k)*Fibonacci(2*k) )
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 23, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Cache of Fibonacci numbers to avoid recomputation.
    fib_cache[i] = Fibonacci(i).  We keep fib_cache[0] = 0, fib_cache[1] = 1. */
@@ -25,7 +27,7 @@ static void ensure_fib(idx_t need)
 {
     if (fib_cap == 0) {
         fib_cap = 2;
-        fib_cache = (seq_t *)malloc(sizeof(seq_t) * fib_cap);
+        fib_cache = mem_new(seq_t, fib_cap);
         if (!fib_cache) return;          /* allocation failure is ignored – caller
                                             will get garbage, which is acceptable
                                             for large values that don't fit in seq_t */
@@ -35,7 +37,7 @@ static void ensure_fib(idx_t need)
     if (need < fib_cap) return;
 
     idx_t new_cap = need + 1;
-    seq_t *tmp = (seq_t *)realloc(fib_cache, sizeof(seq_t) * new_cap);
+    seq_t *tmp = mem_resize(seq_t, fib_cache, new_cap);
     if (!tmp) return;  /* allocation failure ignored */
     fib_cache = tmp;
     for (idx_t i = fib_cap; i <= need; ++i) {

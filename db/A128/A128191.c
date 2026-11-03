@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 14, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* Arrays holding the numerators and denominators of b(k) for k = 1..cap (1‑based). */
 static seq_t *num = NULL;
@@ -37,16 +40,16 @@ ensure_capacity(idx_t n)
     idx_t newcap = cap ? (cap << 1) : 1;
     while (newcap < n)
         newcap <<= 1;
-    seq_t *newnum = (seq_t *)malloc(newcap * sizeof(seq_t));
-    seq_t *newden = (seq_t *)malloc(newcap * sizeof(seq_t));
+    seq_t *newnum = mem_new(seq_t, newcap);
+    seq_t *newden = mem_new(seq_t, newcap);
     if (!newnum || !newden)
         abort();
     for (idx_t i = 0; i < sz; ++i) {
         newnum[i] = num[i];
         newden[i] = den[i];
     }
-    free(num);
-    free(den);
+    mem_free(num);
+    mem_free(den);
     num = newnum;
     den = newden;
     cap = newcap;

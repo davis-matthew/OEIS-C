@@ -10,12 +10,15 @@
  *            supplied seq_t type
  * Range:     i8 n <= 1, i16 n <= 3, i32 n <= 6, i64 n <= 10, i128 n <= 20,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 32 terms through n = 387 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"  /* for big_pow(base, exp) */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +28,7 @@ seq_t a(idx_t n)
 
     seq_t factnk = 1;             /* n!/(k! (n-2k)!) initially 1 for k=0 */
     seq_t pow361 = 1;             /* 361^k, initially 1 */
-    seq_t pow14  = big_pow((seq_t)14, (seq_t)n);  /* 14^n */
+    seq_t pow14  = ipow((seq_t)14, (seq_t)n);  /* 14^n */
     int sign = 1;                 /* (-1)^k, flips each iteration */
 
     for (idx_t k = 0; k <= maxk; ++k) {

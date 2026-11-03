@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Helper to count divisors of x (x ≥ 1). */
 static idx_t divisor_count(idx_t x)
@@ -122,8 +124,8 @@ seq_t a(idx_t n)
 
     /* Allocate arrays for current and next rows of the difference
        table, and for the accumulated column sums. */
-    seq_t *cur  = (seq_t *)malloc(d * sizeof(seq_t));
-    seq_t *sums = (seq_t *)calloc(d, sizeof(seq_t));
+    seq_t *cur  = mem_new(seq_t, d);
+    seq_t *sums = mem_new(seq_t, d);
 
     /* Initialize current row with the divisors (as seq_t). */
     for (idx_t i = 0; i < d; ++i)
@@ -139,7 +141,7 @@ seq_t a(idx_t n)
         if (len == 1) break;
 
         /* Build the next row of absolute differences. */
-        seq_t *next = (seq_t *)malloc((len - 1) * sizeof(seq_t));
+        seq_t *next = mem_new(seq_t, (len - 1));
         for (idx_t j = 0; j < len - 1; ++j)
         {
             seq_t a = cur[j];
@@ -147,7 +149,7 @@ seq_t a(idx_t n)
             next[j] = (a > b) ? (a - b) : (b - a);
         }
 
-        free(cur);
+        mem_free(cur);
         cur = next;
         len--;
     }
@@ -155,8 +157,8 @@ seq_t a(idx_t n)
     seq_t result = sums[col];
 
     /* Clean up. */
-    free(cur);
-    free(sums);
+    mem_free(cur);
+    mem_free(sums);
 
     return result;
 }

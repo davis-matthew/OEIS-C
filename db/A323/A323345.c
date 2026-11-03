@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 91, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   pair_from_index
+ * Validated: partial, pass, 91 terms through n = 91 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,29 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/pair_from_index.h"
+
+/* Map the sequence index to the (n,k) pair in the triangle */
+static void pair_from_index(idx_t pos, idx_t *n_out, idx_t *k_out)
+{
+    /* Find smallest d such that d*(d+1)/2 >= pos */
+    idx_t low = 0, high = 1;
+    while ((unsigned __int128)high * (high + 1) / 2 < pos) high <<= 1;
+
+    while (low + 1 < high) {
+        idx_t mid = (low + high) >> 1;
+        if ((unsigned __int128)mid * (mid + 1) / 2 >= pos)
+            high = mid;
+        else
+            low = mid;
+    }
+    idx_t d = high;                /* diagonal number (starting from 1) */
+
+    idx_t prev = (d - 1) * d / 2;   /* number of elements before this diagonal */
+    idx_t offset = pos - prev - 1;  /* 0-based offset inside the diagonal */
+
+    *k_out = offset;               /* column index (k) */
+    *n_out = d - offset;           /* row index (n) */
+}
 
 /* Helper to count T(n,k) */
 static seq_t count_T(idx_t n, idx_t k)

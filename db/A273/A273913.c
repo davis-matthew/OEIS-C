@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2371, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_product_big
+ * Validated: standard, pass, 65 terms through n = 9754 (2026-11-01)
+ * Helpers:   digit_product
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,7 @@
  */
 
 #include <stdbool.h>
-#include "../utils/digit_product_big.h"
+#include "../utils/digit_product.h"
 
 /* a(n): the constant value reached by the sequence described above */
 seq_t a(idx_t n)
@@ -33,13 +34,13 @@ seq_t a(idx_t n)
     seq_t b_prev1 = (seq_t)n;      /* b(k-1) */
 
     while (true) {
-        seq_t pd2 = digit_product_big(b_prev2);     /* Pd(b(k-2)) */
+        seq_t pd2 = digit_product(b_prev2);     /* Pd(b(k-2)) */
 
         /* if both the last two terms have a zero digit product,
          * the next addition will be zero and the sequence
          * will stay constant thereafter. */
         if (pd2 == (seq_t)0 &&
-            digit_product_big(b_prev1) == (seq_t)0)
+            digit_product(b_prev1) == (seq_t)0)
             return b_prev1;            /* constant reached */
 
         /* compute next term b(k) = b(k-1) + Pd(b(k-2)) */

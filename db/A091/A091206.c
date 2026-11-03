@@ -10,9 +10,10 @@
  *            * increasing order and tests each for irreducibility using
  *            Rabin’s * test over GF(2). Results are cached for efficient
  *            repeated calls
- * Range:     u8 n <= 27, u16 n <= 1156, u32 n <= 9043, u64 n <= 9043,
- *            u128 n <= 9043, big any n
- * Helpers:   bitlen_seq_t, isPrimeGeneric, poly_mul_mod
+ * Range:     u8 n <= 27, u16 n <= 1156, u32 n <= 10226, u64 n <= 10226,
+ *            u128 n <= 10226, big any n
+ * Validated: standard, pass, 71 terms through n = 9043 (2026-11-03)
+ * Helpers:   bit_length, is_prime_u128, is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,52 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-#include "../utils/isPrimeGeneric.h"   /* bool isPrimeGeneric(seq_t);   */
-#include "../utils/bitlen_seq_t.h"    /* unsigned bitlen_seq_t(seq_t); */
-#include "../utils/poly_mul_mod.h"
+#include <stdint.h>
+#include <limits.h>
+#include "../utils/bit_length.h"
+#include "../utils/is_prime_u128.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+/* -----------------  Generic primality test ------------------------ */
+static bool isPrimeGeneric(seq_t n)
+{
+    /* all seq_t are unsigned; use the smallest type that fits */
+    if ((seq_t)(ULLONG_MAX) >= n) {
+        return is_prime_u64((uint64_t)n);
+    }
+#if defined(__SIZEOF_INT128__)
+    return is_prime_u128((__uint128_t)n);
+#else
+    /* fallback: if seq_t > 64‑bit but no 128‑bit support,
+       order the test as simple trial division up to sqrt */
+    seq_t limit = 0;
+    for (seq_t i = 2; i*i <= n; ++i) {
+        if (n % i == 0) return false;
+    }
+    return true;
+#endif
+}
+
+/* Multiply a and b modulo a monic polynomial mod of degree moddeg. */
+static inline seq_t poly_mul_mod(seq_t a, seq_t b, seq_t mod, unsigned moddeg)
+{
+    seq_t res = 0;
+    seq_t aa = a, bb = b;
+
+    while (bb) {
+        if (bb & 1)
+            res ^= aa;                     /* addition over GF(2) */
+
+        bb >>= 1;
+        aa <<= 1;
+
+        /* If aa and therefore the product grows to deg+1, reduce it. */
+        if (aa & ((seq_t)1 << moddeg))
+            aa ^= mod;
+    }
+    return res;
+}
 
 /* --------------------------------------------------------------------- */
 /* Polynomial arithmetic over GF(2)                                     */
@@ -35,10 +79,10 @@
  * the degree of b. */
 static inline seq_t poly_mod(seq_t a, seq_t b)
 {
-    unsigned deg_b = bitlen_seq_t(b) - 1;          /* degree of b */
+    unsigned deg_b = bit_length(b) - 1;          /* degree of b */
 
     while (a != 0) {
-        unsigned deg_a = bitlen_seq_t(a) - 1;
+        unsigned deg_a = bit_length(a) - 1;
         if (deg_a < deg_b)
             break;
         a ^= b << (deg_a - deg_b);                /* subtract b * x^{deg_a-deg_b} */
@@ -67,7 +111,7 @@ static inline seq_t poly_gcd(seq_t a, seq_t b)
  * confirm that x^(2^d) ≡ x (mod poly). */
 static bool poly_irreducible(seq_t poly)
 {
-    unsigned deg = bitlen_seq_t(poly) - 1;     /* degree of the polynomial */
+    unsigned deg = bit_length(poly) - 1;     /* degree of the polynomial */
 
     if (deg <= 1)                /* X and X+1 are always irreducible  */
         return true;
@@ -110,7 +154,7 @@ static void grow_cache(size_t new_len)
     if (new_cap < new_len)
         new_cap = new_len;
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     cache = tmp;
     cache_cap = new_cap;
 }

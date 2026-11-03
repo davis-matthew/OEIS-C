@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 7, i16 n <= 14, i32 n <= 33, i64 n <= 33, i128 n <= 33,
  *            big any n
- * Helpers:   block_partial_product
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,15 @@
 /* The sequence starts at index 1. */
 
 #include <stdint.h>
-#include "../utils/block_partial_product.h"
+
+/* Helper: product of the first 'cnt' terms of the block starting at 5*block. */
+static seq_t block_partial_product(idx_t block, idx_t cnt)
+{
+    seq_t prod = 1;
+    for (idx_t j = 0; j < cnt; ++j)
+        prod *= (seq_t)(5 * block - j);
+    return prod;
+}
 
 /* Main sequence function. */
 seq_t a(idx_t n)

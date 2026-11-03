@@ -11,12 +11,14 @@
  *            [a(n-3),a(n-4),a(n-5)]])
  * Range:     i8 n <= 7, i16 n <= 9, i32 n <= 11, i64 n <= 12, i128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     if (needed < 6)                /* ensure space for the first 5 terms */
         needed = 6;
     if (needed > cache_size) {
-        seq_t *tmp = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, needed);
         if (!tmp)                 /* allocation failed – return 0 */
             return (seq_t)0;
         cache = tmp;

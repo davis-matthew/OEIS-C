@@ -11,12 +11,14 @@
  *            (n-1)!/(n-k)! = Π_{t=n-k+1}^{n-1} t
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 20, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 386 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;
 static idx_t a_cache_size = 0;
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     if (n >= a_cache_size)
     {
         idx_t newSize = n + 1;
-        a_cache = (seq_t *)realloc(a_cache, newSize * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, newSize);
         if (a_cache == NULL)
             return (seq_t)0; /* out of memory, return 0 as error */
         /* Compute new entries */

@@ -8,7 +8,8 @@
  *            (i.e. the coefficient of x^n in 1/((1‑x)*(1‑x²)²*(1‑x³)*(1‑x⁶))
  * Range:     u8 n <= 19, u16 n <= 96, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   alloc_seq_array, free_seq_array
+ * Validated: standard, pass, 67 terms through n = 921 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,20 @@
    It is expanded only when a larger n is requested.  No private
    global variables other than dp and dp_cap are used. */
 #include <stddef.h>
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 static seq_t *dp = NULL;          /* cache of computed terms */
 static idx_t dp_cap = 0;          /* first index that is not yet known */

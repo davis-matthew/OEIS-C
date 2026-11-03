@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 106, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 9854 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,12 +42,12 @@ seq_t a(idx_t n)
        Allocation / reallocation of a_arr
        ------------------------------------------------------------- */
     if (!a_arr) {
-        a_arr = (seq_t *)malloc((n + 2) * sizeof(seq_t));
+        a_arr = mem_new(seq_t, (n + 2));
         if (!a_arr) return (seq_t)0; /* out of memory */
         a_len = 0;
     } else if (n + 1 > (idx_t)( (sizeof(seq_t) * (size_t)0) ? 0 : 0)) {
         /* grow a_arr if requested n is larger than current capacity */
-        seq_t *tmp = (seq_t *)realloc(a_arr, (n + 2) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_arr, (n + 2));
         if (!tmp) return (seq_t)0; /* out of memory */
         a_arr = tmp;
     }

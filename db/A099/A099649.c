@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 130, u16 n <= 130, u32 n <= 130, u64 n <= 130,
  *            u128 n <= 130, big any n
- * Helpers:   digit_square_sum
+ * Validated: full, pass, 130 terms through n = 130 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,19 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/digit_square_sum.h"
+#include <stdlib.h>
+
+/* Helper: sum of squares of decimal digits of a 64‑bit integer. */
+static uint64_t digit_square_sum(uint64_t x)
+{
+    uint64_t sum = 0;
+    while (x > 0) {
+        uint64_t d = x % 10;
+        sum += d * d;
+        x /= 10;
+    }
+    return sum;
+}
 
 seq_t a(idx_t n)
 {

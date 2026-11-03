@@ -11,15 +11,25 @@
  *            call order.)
  * Range:     u8 n <= 111, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd, prime_divs_gt17
+ * Validated: standard, pass, 77 terms through n = 9008 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/prime_divs_gt17.h"
+#include "../utils/mem.h"
+
+/* Return true iff n has no prime divisor <= 17 (i.e., all its prime
+   divisors are greater than 17). */
+static inline bool prime_divs_gt17(idx_t n)
+{
+    return (n % 2) && (n % 3) && (n % 5) &&
+           (n % 7) && (n % 11) && (n % 13) && (n % 17);
+}
 
 /* Cached values of a(n).  cache[i] holds a(i) for i >= 17; indices <17
    are unused.  cache_size == highest computed index + 1. */
@@ -32,7 +42,7 @@ static void init_cache(void)
 {
     /* Allocate a modest initial capacity. */
     cache_cap = 64;
-    cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+    cache = mem_new(seq_t, cache_cap);
     if (!cache) return;               /* out of memory – caller will handle */
     /* Fill unused entries. */
     for (idx_t i = 0; i < 17; ++i) cache[i] = 0;
@@ -46,7 +56,7 @@ static void ensure_capacity(idx_t need)
     if (need <= cache_cap) return;
     idx_t new_cap = cache_cap ? cache_cap : 64;
     while (new_cap <= need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (tmp) {
         cache = tmp;
         cache_cap = new_cap;

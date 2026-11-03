@@ -8,13 +8,14 @@
  *            Σ_{i=1}^{k} (prime(i)-1) (OEIS A389810)
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 84 terms through n = 897 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_prime.h"   /* provides bool is_prime(idx_t x) */
+#include "../utils/is_prime.h"
 
 seq_t a(idx_t n)
 {

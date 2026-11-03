@@ -9,7 +9,8 @@
  *            2157840*n - 362880) / 9! (valid for n >= 5)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 26, u64 n <= 281, u128 n <= 1000,
  *            big any n
- * Helpers:   poly_base_value
+ * Validated: standard, pass, 41 terms through n = 974 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,37 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/poly_base_value.h"
+#include "../utils/mem.h"
+
+/* Compute a(n) for n <= 14 using the polynomial form, using 64‑bit signed
+   arithmetic which is safe for n <= 14. */
+static seq_t poly_base_value(idx_t n)
+{
+    int64_t nn = (int64_t)n;
+    int64_t n1 = nn;
+    int64_t n2 = n1 * n1;
+    int64_t n3 = n2 * n1;
+    int64_t n4 = n3 * n1;
+    int64_t n5 = n4 * n1;
+    int64_t n6 = n5 * n1;
+    int64_t n7 = n6 * n1;
+    int64_t n8 = n7 * n1;
+    int64_t n9 = n8 * n1;
+
+    int64_t num = 642 * n9
+                  - 13833 * n8
+                  + 132840 * n7
+                  - 726642 * n6
+                  + 2439738 * n5
+                  - 5133177 * n4
+                  + 6699660 * n3
+                  - 5194188 * n2
+                  + 2157840 * n1
+                  - 362880;
+
+    /* division by 9! = 362880, the numerator is always divisible */
+    return (seq_t)(num / 362880);
+}
 
 static seq_t *cache = NULL;          /* cache of computed terms */
 static size_t cache_size = 0;        /* number of initialized entries in cache */
@@ -34,12 +65,12 @@ static void _ensure_cache_capacity(idx_t n)
 {
     if (cache == NULL) {
         cache_cap = (n < 16) ? 16 : n + 1;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         for (size_t i = 0; i < cache_cap; ++i) cache[i] = 0;
     } else if (n + 1 > cache_cap) {
         size_t new_cap = cache_cap;
         while (n + 1 > new_cap) new_cap <<= 1;   /* double until enough */
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         for (size_t i = cache_cap; i < new_cap; ++i) cache[i] = 0;
         cache_cap = new_cap;
     }

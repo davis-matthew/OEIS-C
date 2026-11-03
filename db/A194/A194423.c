@@ -12,7 +12,8 @@
  *            of **{k√2}<1/3**, we can compute it using only int...
  * Range:     u8 n <= 55, u16 n <= 2043, u32 n <= 2043, u64 n <= 2043,
  *            u128 n <= 2043, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 1558 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* integer square root of a __int128 in [0, 2^64) */
 static unsigned long long isqrt128(__int128 x)
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
             /* store new term m = k */
             if (count == capacity) {
                 capacity = capacity ? capacity * 2 : 64;
-                seq = (seq_t *)realloc(seq, capacity * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, capacity);
             }
             seq[count++] = (seq_t)k;
         }

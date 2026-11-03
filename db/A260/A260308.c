@@ -12,13 +12,15 @@
  *            η(q²)² η(q⁶)⁵ / (η(q) η(q³)² η(q¹²)²)
  * Range:     u8 n <= 47, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 103 terms through n = 888 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
         idx_t newcap = n;              /* allocate up to index n          */
 
         /* Allocate memory for A (sequence values). */
-        seq_t *newA = (seq_t *)realloc(A, (newcap + 1) * sizeof(seq_t));
+        seq_t *newA = mem_resize(seq_t, A, (newcap + 1));
         if (!newA) abort();
         A = newA;
 

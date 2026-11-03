@@ -8,12 +8,22 @@
  *            1)/((p-1)/2) if p > 2
  * Range:     u8 n <= 36, u16 n <= 1657, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   compute_odd_prime_power
+ * Validated: standard, pass, 90 terms through n = 9977 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/compute_odd_prime_power.h"
+static seq_t compute_odd_prime_power(seq_t p, idx_t e) {
+    seq_t base = (p + 1) / 2;
+    seq_t power = 1;
+    for (idx_t i = 0; i < e + 1; i++) {
+        power *= base;
+    }
+    seq_t numerator = power - 1;
+    seq_t denominator = (p - 1) / 2;
+    return numerator / denominator;
+}
 
 seq_t a(idx_t n) {
     if (n == 1) return 1;

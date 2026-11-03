@@ -12,7 +12,8 @@
  *            palindrome, then the block ends and the sum is a term
  * Range:     u8 n <= 11, u16 n <= 34, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* -------------------------------------------------------------- */
 /* Test whether a seq_t value is a decimal palindrome.            */
@@ -66,8 +68,7 @@ static void ensure_terms_cached(idx_t upto)
                         cached_cap = 64;
                     else
                         cached_cap <<= 1;
-                    cached_terms = (seq_t*)realloc(cached_terms,
-                                                   cached_cap * sizeof(seq_t));
+                    cached_terms = mem_resize(seq_t, cached_terms, cached_cap);
                 }
                 cached_terms[cached_len++] = sum;
                 next_start = i + 1;

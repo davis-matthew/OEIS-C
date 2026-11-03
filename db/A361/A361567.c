@@ -9,13 +9,15 @@
  *            a(0)=1, a(1)=0, a(2)=1, a(3)=6
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,11 +35,11 @@ seq_t a(idx_t n)
                 new_cap <<= 1;
         }
         if (new_cap > capacity) {
-            seq_t *tmp = (seq_t*)malloc(new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_new(seq_t, new_cap);
             if (!tmp) abort();
             for (idx_t i = 0; i < size; ++i)
                 tmp[i] = cache[i];
-            free(cache);
+            mem_free(cache);
             cache = tmp;
             capacity = new_cap;
         }

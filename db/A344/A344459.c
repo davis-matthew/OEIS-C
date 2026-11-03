@@ -8,13 +8,17 @@
  *            multiplicity)
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   big_pow, bigomega
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-01)
+ * Helpers:   bigomega, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/bigomega.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -26,12 +30,12 @@ seq_t a(idx_t n)
         if (n % d == 0)
         {
             /* contribution of divisor d */
-            sum += big_pow((seq_t)d, bigomega(d));
+            sum += ipow((seq_t)d, bigomega(d));
 
             /* contribution of complementary divisor d2 if distinct */
             idx_t d2 = n / d;
             if (d2 != d)
-                sum += big_pow((seq_t)d2, bigomega(d2));
+                sum += ipow((seq_t)d2, bigomega(d2));
         }
     }
     return sum;

@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  sign, tabl
  * Formula:   not stated
- * Range:     i8 n <= 9647, i16 n <= 9647, i32 n <= 9647, i64 n <= 9647,
- *            i128 n <= 9647, big any n
- * Helpers:   compute_a010815
+ * Range:     i8 n <= 10885, i16 n <= 20000, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 98 terms through n = 9647 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,31 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/compute_a010815.h"
+#include "../utils/mem.h"
+
+/* Helper: compute the A010815 sequence (coefficients of Π(1-x^k))
+   up to max_n (inclusive) into the array 'arr' (length max_n+1). */
+static void compute_a010815(seq_t *arr, idx_t max_n)
+{
+    /* zero all entries */
+    for (idx_t i = 0; i <= max_n; ++i)
+        arr[i] = 0;
+    arr[0] = 1;                       /* n = 0 term */
+    /* generalized pentagonal numbers */
+    for (int m = 1; ; ++m)
+    {
+        idx_t g1 = (idx_t)m * (3u * (idx_t)m - 1u) / 2u;
+        if (g1 <= max_n)
+            arr[g1] = (m & 1) ? (seq_t)(-1) : (seq_t)1;
+
+        idx_t g2 = (idx_t)m * (3u * (idx_t)m + 1u) / 2u;
+        if (g2 <= max_n)
+            arr[g2] = (m & 1) ? (seq_t)(-1) : (seq_t)1;
+
+        if (g1 > max_n && g2 > max_n)
+            break;
+    }
+}
 
 seq_t a(idx_t n)
 {
@@ -44,12 +69,12 @@ seq_t a(idx_t n)
 
     /* Need A010815 values up to r-1 (for n-1 when n = r). */
     idx_t max_a010815 = r - 1;
-    seq_t *a010815 = (seq_t *)calloc((size_t)(max_a010815 + 1), sizeof(seq_t));
+    seq_t *a010815 = mem_new(seq_t, (size_t)(max_a010815 + 1));
     compute_a010815(a010815, max_a010815);
 
     /* Allocate a 2‑D triangular table: T[i][j] stored in a flat array. */
     size_t dim = (size_t)(r + 1);
-    seq_t *T = (seq_t *)calloc(dim * dim, sizeof(seq_t));
+    seq_t *T = mem_new(seq_t, dim * dim);
 
     /* Helper macro for index access. */
     #define IDX(i, j) ((i) * dim + (j))
@@ -86,8 +111,8 @@ seq_t a(idx_t n)
 
     seq_t result = T[IDX(r, c)];
 
-    free(a010815);
-    free(T);
+    mem_free(a010815);
+    mem_free(T);
     #undef IDX
     return result;
 }

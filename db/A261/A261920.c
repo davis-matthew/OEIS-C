@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 44, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   digit_len, is_palindrome
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-01)
+ * Helpers:   is_palindrome_base, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -37,8 +38,8 @@ static uint64_t *qual;         /* qualifying numbers (up to MAX_VAL) */
 static size_t qual_len = 0;    /* number of qualifying numbers cached */
 
 /* Utility helpers provided by the build. */
-#include "../utils/is_palindrome.h"   /* bool is_palindrome(seq_t x, idx_t base) */
-#include "../utils/digit_len.h"       /* int digit_len(seq_t x) */
+#include "../utils/is_palindrome_base.h"
+#include "../utils/num_digits.h"
 
 /* Main sequence function. */
 seq_t a(idx_t n)
@@ -67,7 +68,7 @@ seq_t a(idx_t n)
         size_t pal_cnt = 0;
 
         for (uint64_t i = 1; i <= MAX_VAL; ++i) {
-            bool pal = is_palindrome((seq_t)i, 10);
+            bool pal = is_palindrome_base((seq_t)i, 10);
             is_pal[(size_t)i] = pal;
             if (pal) {
                 if (pal_cnt == pal_cap) {
@@ -77,7 +78,7 @@ seq_t a(idx_t n)
                     if (!pal_val || !pal_len_arr) { free(pal_val); free(pal_len_arr); initialized = true; return (seq_t)0; }
                 }
                 pal_val[pal_cnt] = i;
-                pal_len_arr[pal_cnt] = digit_len((seq_t)i);
+                pal_len_arr[pal_cnt] = num_digits((seq_t)i);
                 ++pal_cnt;
             }
         }

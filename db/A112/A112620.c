@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 76, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 76 terms through n = 76 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Euclidean algorithm for seq_t */
 static inline seq_t gcd_seq(seq_t a, seq_t b)
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
 {
     /* n >= 1 by OEIS offset */
     /* allocate array b[1..n] (index 0 unused) */
-    seq_t *b = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *b = mem_new(seq_t, (n + 1));
     if (!b) return 0;                      /* allocation failure (unlikely) */
 
     b[1] = (seq_t)n;                          /* b(n,1) = n */
@@ -51,6 +53,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = b[n];
-    free(b);
+    mem_free(b);
     return result;
 }

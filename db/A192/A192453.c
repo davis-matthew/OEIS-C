@@ -8,7 +8,8 @@
  *            all its odd prime factors are ≡ 1 (mod 8)
  * Range:     u8 n <= 18, u16 n <= 2946, u32 n <= 4380, u64 n <= 4380,
  *            u128 n <= 4380, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 4008 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_vals = NULL;
 static idx_t seq_len = 0;
@@ -80,7 +82,7 @@ seq_t a(idx_t n)
         }
 
         /* store all allowed numbers up to 'limit' */
-        new_vals = (seq_t*)malloc(count * sizeof(seq_t));
+        new_vals = mem_new(seq_t, count);
         size_t pos = 0;
         size_t sz = (size_t)limit + 1;
         for (size_t i = 1; i < sz && pos < count; ++i)
@@ -90,7 +92,7 @@ seq_t a(idx_t n)
         free(allowed);
         free(is_prime);
 
-        free(seq_vals);      /* replace old sequence */
+        mem_free(seq_vals);      /* replace old sequence */
         seq_vals = new_vals;
         seq_len  = count;
     }

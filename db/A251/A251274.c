@@ -12,13 +12,15 @@
  *            listed below
  * Range:     u8 none, u16 n <= 1, u32 n <= 8, u64 n <= 38, u128 n <= 102,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static const int COEFF[16] = {
     17, -135, 665, -2275, 5733, -11011, 16445, -19305,
@@ -46,14 +48,14 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* Allocate initial buffer large enough for the first query */
         cache_len = (n >= 17 ? n + 2 : 18);
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         if (!cache) abort();
         /* Initialize first 16 terms */
         for (idx_t i = 1; i <= 16; ++i) cache[i] = INIT[i - 1];
         last_computed = 16;
     } else if (n + 1 > cache_len) {
         size_t new_len = (size_t)n + 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) abort();
         cache = tmp;
         cache_len = new_len;

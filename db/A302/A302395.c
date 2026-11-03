@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1046, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   substring_value
+ * Validated: standard, pass, 88 terms through n = 9890 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,17 @@
    fast. */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/substring_value.h"
+
+/* Compute the value of bits[start..end-1] as an integer.
+   The bit string may contain leading zeros, which are preserved
+   in the length of the substring. */
+static inline seq_t substring_value(const uint8_t *bits, int start, int end)
+{
+    seq_t val = 0;
+    for (int i = start; i < end; ++i)
+        val = (val << 1) | bits[i];
+    return val;
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)

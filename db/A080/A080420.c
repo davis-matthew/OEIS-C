@@ -7,13 +7,14 @@
  * Formula:   a(n) = (n+1)*(n+6)*3^n/6 (OEIS A080420)
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 16, u64 n <= 35, u128 n <= 74,
  *            big any n
- * Helpers:   _pow3
+ * Validated: standard, pass, 42 terms through n = 876 (2026-11-01)
+ * Helpers:   pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_pow3.h"
+#include "../utils/pow3.h"
 
 seq_t a(idx_t n)
 {
@@ -26,5 +27,5 @@ seq_t a(idx_t n)
     seq_t prod = (seq_t)(n + 1) * (seq_t)(n + 6);   /* (n+1)*(n+6) is always even */
     prod /= (seq_t)2;                               /* safe integer division */
 
-    return prod * _pow3(n - 1U);
+    return prod * pow3(n - 1U);
 }

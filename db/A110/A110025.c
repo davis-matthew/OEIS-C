@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 35, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,7 +31,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 static seq_t *results   = NULL;   /* stored terms in ascending order   */
 static size_t res_cap = 0;        /* capacity of the array             */
@@ -41,7 +44,7 @@ static void add_result(seq_t p)
 {
     if (res_size + 1 > res_cap) {
         size_t new_cap = res_cap ? (res_cap << 1) : 64;
-        seq_t *tmp = (seq_t *)realloc(results, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, results, new_cap);
         if (!tmp) exit(1); /* allocation failure */
         results = tmp;
         res_cap = new_cap;
@@ -57,18 +60,18 @@ static bool chain_first_kind(uint64_t p)
     /* reject if predecessor exists */
     if (p > 2) {
         uint64_t q = (p - 1) >> 1;
-        if (is_prime(q))
+        if (is_prime_u64(q))
             return false;
     }
 
     uint64_t n1 = 2 * p + 1;
-    if (!is_prime(n1)) return false;
+    if (!is_prime_u64(n1)) return false;
     uint64_t n2 = 2 * n1 + 1;
-    if (!is_prime(n2)) return false;
+    if (!is_prime_u64(n2)) return false;
     uint64_t n3 = 2 * n2 + 1;
-    if (!is_prime(n3)) return false;
+    if (!is_prime_u64(n3)) return false;
     uint64_t n4 = 2 * n3 + 1;
-    return !is_prime(n4);
+    return !is_prime_u64(n4);
 }
 
 /*  A second‑kind chain: p -> 2p-1 -> 4p-3 -> 8p-7,
@@ -79,18 +82,18 @@ static bool chain_second_kind(uint64_t p)
     /* reject if predecessor exists */
     if (p > 2) {
         uint64_t q = (p + 1) >> 1;
-        if (is_prime(q))
+        if (is_prime_u64(q))
             return false;
     }
 
     uint64_t n1 = 2 * p - 1;
-    if (!is_prime(n1)) return false;
+    if (!is_prime_u64(n1)) return false;
     uint64_t n2 = 2 * n1 - 1;
-    if (!is_prime(n2)) return false;
+    if (!is_prime_u64(n2)) return false;
     uint64_t n3 = 2 * n2 - 1;
-    if (!is_prime(n3)) return false;
+    if (!is_prime_u64(n3)) return false;
     uint64_t n4 = 2 * n3 - 1;
-    return !is_prime(n4);
+    return !is_prime_u64(n4);
 }
 
 /*  Ensure that at least n terms have been found.  It keeps
@@ -99,7 +102,7 @@ static void ensure_size(idx_t n)
 {
     if (n < 1) return;
     while (res_size < (size_t)n) {
-        if (is_prime(probe)) {
+        if (is_prime_u64(probe)) {
             if (chain_first_kind(probe) || chain_second_kind(probe))
                 add_result((seq_t)probe);
         }

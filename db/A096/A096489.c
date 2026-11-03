@@ -10,13 +10,14 @@
  *            function returns 0
  * Range:     u8 n <= 22, u16 n <= 22, u32 n <= 22, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   small_prime
+ * Validated: full, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/small_prime.h"
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +28,7 @@ seq_t a(idx_t n)
     idx_t count = 0;
 
     for (uint64_t p = 11; p <= 99; ++p) {
-        if (small_prime(p)) {
+        if (is_prime_u64(p)) {
             ++count;
             if (count == target) return (seq_t)p;
         }

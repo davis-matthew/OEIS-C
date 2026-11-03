@@ -7,6 +7,7 @@
  * Formula:   a(n) = numerator( Σ_{k=1..n} prime(k)^2 / Σ_{k=1..n} prime(k) )
  * Range:     u8 n <= 5, u16 n <= 24, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

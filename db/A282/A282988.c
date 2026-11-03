@@ -11,7 +11,8 @@
  *            a(4) = T(3,1), a(5) = T(3,2), a(6) = T(3,3) * … * *...
  * Range:     u8 n <= 21, u16 n <= 45, u32 n <= 120, u64 n <= 325,
  *            u128 n <= 903, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 82 terms through n = 8874 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *tri   = NULL;   /* 2‑D array rows[0..maxR][0..maxR] (flattened) */
 static idx_t  maxR  = 0;      /* highest row currently stored */
@@ -35,7 +37,7 @@ ensure_triangle(idx_t R)
     idx_t new_stride = R + 1;
     size_t new_size  = (size_t)new_stride * (size_t)new_stride;
 
-    seq_t *new_tri = (seq_t*)malloc(new_size * sizeof(seq_t));
+    seq_t *new_tri = mem_new(seq_t, new_size);
     if (!new_tri) abort();          /* out of memory */
 
     /* zero‑initialise all new entries */
@@ -49,7 +51,7 @@ ensure_triangle(idx_t R)
                     tri[i * stride + j];
             }
         }
-        free(tri);                   /* free old storage */
+        mem_free(tri);                   /* free old storage */
     }
 
     tri    = new_tri;
@@ -63,7 +65,7 @@ ensure_triangle(idx_t R)
         for (idx_t m = 1; m <= n; ++m) {
             seq_t sum = (seq_t)0;
             for (idx_t i = 0; i <= n - m; ++i) {
-                seq_t coeff = binom(n - 1, i + m - 1);
+                seq_t coeff = binomial(n - 1, i + m - 1);
                 seq_t val   = tri[(n - i - m) * stride + m];
                 sum += coeff * val;
             }

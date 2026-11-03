@@ -10,13 +10,28 @@
  *            - r*(r+1)/2 (r is the row, k the position within that row)
  * Range:     u8 n <= 10, u16 n <= 61, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   row_from_offset
+ * Validated: standard, pass, 64 terms through n = 944 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/row_from_offset.h"
+
+static idx_t row_from_offset(idx_t n)
+{
+    idx_t lo = 0, hi = n;
+    while (lo < hi)
+    {
+        idx_t mid = lo + (hi - lo + 1) / 2;
+        __int128 val = (__int128)mid * (mid + 1) / 2;
+        if (val <= (__int128)n)
+            lo = mid;
+        else
+            hi = mid - 1;
+    }
+    return lo;
+}
 
 seq_t a(idx_t n)
 {

@@ -7,8 +7,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  base, sign, look
  * Formula:   a(0)=0; a(3n)=3*a(n); a(3n+1)=3*a(n)+1; a(3n+2)=3*a(n)-1
- * Range:     i8 n <= 242, i16 n <= 9922, i32 n <= 9922, i64 n <= 9922,
- *            i128 n <= 9922, big any n
+ * Range:     i8 n <= 242, i16 n <= 59048, i32 n <= 59048, i64 n <= 59048,
+ *            i128 n <= 59048, big any n
+ * Validated: standard, pass, 89 terms through n = 9922 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

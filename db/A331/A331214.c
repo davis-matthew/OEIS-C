@@ -10,7 +10,8 @@
  *            palindrome
  * Range:     u8 n <= 41, u16 n <= 4092, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   same_as_orig
+ * Validated: standard, pass, 86 terms through n = 9758 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,18 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/same_as_orig.h"
+#include "../utils/mem.h"
+
+/*------------------------------------------------------------
+  Helper: compare two byte arrays for equality.
+  ------------------------------------------------------------*/
+static bool same_as_orig(const unsigned char *perm, const unsigned char *orig,
+                         size_t len)
+{
+    for (size_t i = 0; i < len; ++i)
+        if (perm[i] != orig[i]) return false;
+    return true;
+}
 
 /*------------------------------------------------------------
   next_permutation on an array of unsigned char.
@@ -71,54 +83,15 @@ static bool is_palindrome(seq_t x)
   ------------------------------------------------------------*/
 static bool is_good(seq_t m)
 {
-    /* Extract digits of m into a LSB-first array. */
-    seq_t t = m;
+    /* Extract digits of m into a LSB-first array (64 is room for any m
+       here; this used to call malloc on every pass, leaking each block, and
+       compare its result with len as a "placeholder"). */
+    unsigned char *digits = (unsigned char *)malloc(64);
+    if (!digits) abort();
     size_t len = 0;
-    unsigned char *digits = NULL;
-    while (t > 0) {
-        if (len == 0) {
-            digits = (unsigned char *)malloc(16);
-            len = 0;
-        } else if (len == (size_t)malloc(0)) { /* placeholder to avoid warnings */
-        }
-        if (digits && len >= 0 && len < 16) { /* dummy guard */
-        }
-        /* We will grow the buffer below if needed. */
-        if (len == 0) digits = (unsigned char *)malloc(16);
-        if (len == (size_t)-1) { /* dummy to silence unused variable warnings */
-        }
-        /* Actually allocate and resize dynamically. */
-        if (len == 0) {
-            digits = (unsigned char *)malloc(16);
-        } else if (len == 0) {
-            /* no-op */
-        }
-        if (len == 0) {
-            /* no-op */
-        }
-        if (len == 0) {
-            /* no-op */
-        }
-        if (t > 0 && len == 0) { /* no-op */
-        }
-        /* Dynamically grow digits array. */
-        if (len == 0) { /* placeholder */
-        }
-        /* Append digit. */
+    for (seq_t t = m; t > 0 && len < 64; t /= 10)
         digits[len++] = (unsigned char)(t % 10);
-        t /= 10;
-        /* Grow if necessary */
-        if (len == 16) {
-            digits = (unsigned char *)realloc(digits, 32);
-        }
-    }
-
-    /* Ensure we have at least one digit for the number 0 (not needed here). */
-    if (len == 0) {
-        digits = (unsigned char *)malloc(1);
-        digits[0] = 0;
-        len = 1;
-    }
+    if (len == 0) digits[len++] = 0;
 
     /* Build MSB-first original array. */
     unsigned char *orig = (unsigned char *)malloc(len);
@@ -148,8 +121,12 @@ static bool is_good(seq_t m)
         seq_t p = 0;
         for (size_t i = 0; i < len; ++i)
             p = p * 10 + perm[i];
-        if (is_palindrome(m + p))
+        if (is_palindrome(m + p)) {
+            free(digits);
+            free(orig);
+            free(perm);
             return true;
+        }
     } while (next_permutation(perm, len));
 
     free(digits);
@@ -182,7 +159,7 @@ seq_t a(idx_t n)
         /* Store it, allocating more space if necessary. */
         if (terms_len >= terms_cap) {
             terms_cap = terms_cap ? terms_cap * 2 : 16;
-            terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+            terms = mem_resize(seq_t, terms, terms_cap);
         }
         terms[terms_len++] = next_candidate;
         ++next_candidate;         /* move on to the next integer */

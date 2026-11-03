@@ -7,7 +7,8 @@
  * Formula:   a(n) = (-1)^n + Sum_{k=0..floor((n-1)/4)} a(k) * a(n-1-4*k)
  * Range:     u8 n <= 34, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,11 +33,11 @@ seq_t a(idx_t n)
             newcap <<= 1;
 
         /* Reallocate vals and done.  Use explicit casts to keep C++ valid. */
-        seq_t *tmp_vals = (seq_t *)realloc(vals, newcap * sizeof(seq_t));
+        seq_t *tmp_vals = mem_resize(seq_t, vals, newcap);
         if (!tmp_vals) return (seq_t)0; /* Allocation failure – return 0 silently. */
         uint8_t *tmp_done = (uint8_t *)realloc(done, newcap * sizeof(uint8_t));
         if (!tmp_done) {
-            free(tmp_vals);
+            mem_free(tmp_vals);
             return (seq_t)0;
         }
 

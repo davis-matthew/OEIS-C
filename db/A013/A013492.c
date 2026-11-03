@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 5, i16 n <= 8, i32 n <= 12, i64 n <= 20, i128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 182 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* internal dynamic arrays for sequence values and the auxiliary t-values */
 static seq_t *seq_val = NULL;   /* a(n) values */
@@ -35,12 +37,12 @@ static void ensure_seq_cap(idx_t n)
 {
     if (seq_val == NULL) {
         seq_cap = (n >= 1 ? (size_t)(n+1) : 1);
-        seq_val = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_val = mem_new(seq_t, seq_cap);
         seq_len = 0;
     } else if (seq_cap <= (size_t)n) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 1;
         while (new_cap <= (size_t)n) new_cap *= 2;
-        seq_val = (seq_t *)realloc(seq_val, new_cap * sizeof(seq_t));
+        seq_val = mem_resize(seq_t, seq_val, new_cap);
         seq_cap = new_cap;
     }
 }
@@ -50,12 +52,12 @@ static void ensure_t_cap(idx_t m)
 {
     if (t_val == NULL) {
         t_cap = (m >= 1 ? (size_t)(m+1) : 1);
-        t_val = (seq_t *)malloc(t_cap * sizeof(seq_t));
+        t_val = mem_new(seq_t, t_cap);
         t_len = 0;
     } else if (t_cap <= (size_t)m) {
         size_t new_cap = t_cap ? t_cap * 2 : 1;
         while (new_cap <= (size_t)m) new_cap *= 2;
-        t_val = (seq_t *)realloc(t_val, new_cap * sizeof(seq_t));
+        t_val = mem_resize(seq_t, t_val, new_cap);
         t_cap = new_cap;
     }
 }

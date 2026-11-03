@@ -14,12 +14,14 @@
  *            elements, etc.). * a(n)=T(r,c...
  * Range:     u8 n <= 4, u16 n <= 12, u32 n <= 40, u64 n <= 143, u128 n <= 510,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 1223 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
 
         for (idx_t i = maxRow + 1; i <= r; ++i)
         {
-            rows[i] = (seq_t*)malloc(i * sizeof(seq_t));
+            rows[i] = mem_new(seq_t, i);
             if (i == 1)
             {
                 rows[1][0] = (seq_t)2;

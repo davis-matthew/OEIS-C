@@ -9,8 +9,9 @@
  * Formula:   a(n) is the triangle read by rows: T(n,k) = binom(k-1,2) *
  *            floor(n/(k-1)) + binom(n mod (k-1),2) + ceil(n/(k-1)) - 1 with 3
  *            ≤ k ≤ n. The sequence a starts at a(3)=T(3,3)
- * Range:     u8 n <= 277, u16 n <= 9905, u32 n <= 9905, u64 n <= 9905,
- *            u128 n <= 9905, big any n
+ * Range:     u8 n <= 277, u16 n <= 11028, u32 n <= 11028, u64 n <= 11028,
+ *            u128 n <= 11028, big any n
+ * Validated: standard, pass, 94 terms through n = 9905 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

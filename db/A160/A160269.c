@@ -8,13 +8,15 @@
  *            a(n) = 30*a(n-1) - 1682*(n-1)*a(n-2) (n≥2)
  * Range:     i8 n <= 1, i16 n <= 2, i32 n <= 5, i64 n <= 9, i128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 345 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* standard headers for memory allocation */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for memoisation */
 static seq_t *cache          = NULL;  /* array of computed terms */
@@ -26,13 +28,13 @@ static void ensure_cache(idx_t need)
 {
     if (need <= cache_alloc)
         return;
-    seq_t *new_cache = (seq_t *)malloc(need * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, need);
     if (!new_cache)
         abort();
     /* copy existing entries */
     for (idx_t i = 0; i < cache_len; ++i)
         new_cache[i] = cache[i];
-    free(cache);
+    mem_free(cache);
     cache           = new_cache;
     cache_alloc     = need;
 }

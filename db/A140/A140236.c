@@ -7,6 +7,7 @@
  * Formula:   a(n) = (n*(n+1)*(n+2)*(n+3)*(2 + n^2)*(12 + n*(n+1)*(n+2)))/1296
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 25, u64 n <= 305,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 44 terms through n = 8928 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

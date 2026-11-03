@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 9509 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  *  the current word until at least n symbols have been produced. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Remember the fixed point as we grow it.  The buffer is expanded only
  * when a new level of the morphism is applied.  The array elements are
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* Initialise the sequence with the first symbol (1). */
     if (seq == NULL) {
         seq_len = 1;
-        seq = (seq_t *)malloc(sizeof(seq_t));
+        seq = mem_new(seq_t, 1);
         seq[0] = 1;
     }
 
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
             new_len += (seq[i] == 1) ? 7 : 13;   /* 1 → 7, 2 → 13 symbols */
 
         /* Build the next level in a freshly allocated buffer. */
-        seq_t *new_seq = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_seq = mem_new(seq_t, new_len);
         idx_t pos = 0;
         for (idx_t i = 0; i < seq_len; ++i) {
             seq_t v = seq[i];
@@ -78,7 +80,7 @@ seq_t a(idx_t n)
         }
 
         /* Replace the old sequence with the new one. */
-        free(seq);
+        mem_free(seq);
         seq = new_seq;
         seq_len = new_len;
     }

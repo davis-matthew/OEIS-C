@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..n} (-2)^k * (k+3)^(n-k) * binomial(n,k)
  * Range:     i8 n <= 4, i16 n <= 7, i32 n <= 13, i64 n <= 22, i128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* a(n+1)=Σ_{k=0}^n binomial(n,k) * a(n-k) * h(k) with  h(0)=1, h(k)=-(2+2k) (k>0). */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Allocate or enlarge the cache that holds computed values
    up to the highest index requested so far. */
@@ -28,7 +30,7 @@ static void ensure_cache_capacity(idx_t needed)
     if (needed <= a_cache_cap) return;
     idx_t new_cap = a_cache_cap ? a_cache_cap << 1 : 1;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *new_ptr = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, a_cache, new_cap);
     a_cache = new_ptr;
     a_cache_cap = new_cap;
 }

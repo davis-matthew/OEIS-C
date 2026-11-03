@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 17, u32 n <= 119, u64 n <= 210,
  *            u128 n <= 210, big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 191 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
  *   a(7)=1097, a(8)=1887, a(9)=3112.
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Memoized array of precomputed terms. */
 static seq_t *cache = NULL;
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     /* Initialize cache with the first nine terms on the first call. */
     if (cache == NULL) {
         cache_size = init_len;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         for (size_t i = 0; i < init_len; ++i)
             cache[i] = init_vals[i];
     }
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
     /* Grow the cache to hold all terms up to a(n). */
     size_t needed = (size_t)n;
     if (needed > cache_size) {
-        seq_t *new_cache = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, needed);
         if (new_cache == NULL) { /* malloc failure – aborting. */
             return 0;
         }

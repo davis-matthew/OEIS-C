@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 785, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, report_divisor, seq_realloc
+ * Validated: standard, pass, 65 terms through n = 9629 (2026-11-01)
+ * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,8 +30,58 @@
 #include <stddef.h>
 
 #include "../utils/factor_u64.h"
-#include "../utils/seq_realloc.h"
-#include "../utils/report_divisor.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
+
+/*  Recursive generation of all divisors d|k (k’s factorization
+ *  given in primes[0..cnt-1] with corresponding exponents exps[0..cnt-1]).
+ *  For each divisor d it accumulates the p‑exponents in the products
+ *  ∏(d+1) and ∏(d−1) into sum_f and sum_g, respectively.          */
+static void report_divisor(const uint64_t *primes,
+                           const uint64_t *exps,
+                           size_t cnt,
+                           size_t idx,
+                           uint64_t val,           /* current divisor */
+                           uint64_t *sum_f,
+                           uint64_t *sum_g)
+{
+    if (idx == cnt) {
+        /* process divisor val */
+        uint64_t t = val + 1;
+        for (size_t i = 0; i < cnt; ++i) {
+            uint64_t p = primes[i];
+            uint32_t e = 0;
+            while (t % p == 0) { t /= p; ++e; }
+            sum_f[i] += e;
+        }
+        if (val > 1) {          /* d=1 is excluded from the second product */
+            uint64_t t2 = val - 1;
+            for (size_t i = 0; i < cnt; ++i) {
+                uint64_t p = primes[i];
+                uint32_t e = 0;
+                while (t2 % p == 0) { t2 /= p; ++e; }
+                sum_g[i] += e;
+            }
+        }
+        return;
+    }
+    uint64_t base = 1;
+    for (unsigned e = 0; e <= (unsigned)exps[idx]; ++e) {
+        report_divisor(primes, exps, cnt, idx + 1,
+                       val * base, sum_f, sum_g);
+        base *= primes[idx];
+    }
+}
 
 static struct {
     seq_t *data;   /* array of already found terms             */

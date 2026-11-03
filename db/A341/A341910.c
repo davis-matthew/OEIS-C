@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 255, u16 n <= 8191, u32 n <= 8191, u64 n <= 8191,
  *            u128 n <= 8191, big any n
- * Helpers:   none
+ * Validated: standard, pass, 84 terms through n = 7885 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- popcount for any unsigned type seq_t ---------- */
 static inline unsigned bitcount(seq_t x)
@@ -87,7 +89,7 @@ static void ensure_terms(idx_t n)
 {
     if (!seq_vals) {                    /* first call – initialise */
         seq_cap = 32;
-        seq_vals = (seq_t *)calloc(seq_cap, sizeof(seq_t));
+        seq_vals = mem_new(seq_t, seq_cap);
         if (!seq_vals) abort();
 
         used_cap = 64;
@@ -114,7 +116,7 @@ static void ensure_terms(idx_t n)
         /* store the value */
         if (seq_len == seq_cap) {
             seq_cap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(seq_vals, seq_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq_vals, seq_cap);
             if (!tmp) abort();
             seq_vals = tmp;
         }

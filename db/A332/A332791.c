@@ -7,13 +7,16 @@
  * Formula:   a(1)=1; a(n+1)=Σ_{d|n} φ(d)*a(d) (OEIS A332791)
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 16, u64 n <= 25, u128 n <= 40,
  *            big any n
- * Helpers:   calc_phi
+ * Validated: standard, pass, 41 terms through n = 472 (2026-11-03)
+ * Helpers:   mem, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/calc_phi.h"
+#include <stdint.h>
+#include "../utils/totient_seq.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* cache[0] is unused; cache[1] = a(1) */
@@ -23,7 +26,7 @@ seq_t a(idx_t n) {
     /* Ensure there is space for index n */
     if ((size_t)n >= cache_size) {
         size_t new_size = (size_t)n + 1; /* allow index n */
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (tmp == NULL) { /* allocation failed */
             /* In this framework we assume allocation is always successful. */
             return (seq_t)0;
@@ -54,13 +57,13 @@ seq_t a(idx_t n) {
         if (m % i == 0) {
             /* first divisor */
             idx_t d1 = i;
-            seq_t term1 = calc_phi((seq_t)d1) * a(d1);
+            seq_t term1 = totient_seq((seq_t)d1) * a(d1);
             sum += term1;
 
             /* paired divisor */
             idx_t d2 = m / i;
             if (d2 != d1) {
-                seq_t term2 = calc_phi((seq_t)d2) * a(d2);
+                seq_t term2 = totient_seq((seq_t)d2) * a(d2);
                 sum += term2;
             }
         }

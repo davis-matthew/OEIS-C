@@ -10,6 +10,7 @@
  *            non‑negative n and returns 1 when the argument is ±1 or 0
  * Range:     u8 n <= 43, u16 n <= 1049, u32 n <= 9999, u64 n <= 9999,
  *            u128 n <= 9999, big any n
+ * Validated: standard, pass, 93 terms through n = 9982 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

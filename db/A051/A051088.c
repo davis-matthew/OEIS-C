@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd64
+ * Validated: standard, pass, 95 terms through n = 992 (2026-11-03)
+ * Helpers:   gcd_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/gcd64.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/mem.h"
 
 /* Greatest common divisor for uint64_t values. */
 
@@ -112,7 +114,7 @@ static bool extend_primes(size_t min_terms)
     /* Ensure seq array has enough capacity. */
     if (seq_cap == 0) {
         seq_cap = 256;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         if (!seq) return false;
     }
 
@@ -123,14 +125,14 @@ static bool extend_primes(size_t min_terms)
         if (p == 2) {
             ok = true;
         } else {
-            uint64_t g = gcd64(38ULL, p - 1ULL);
+            uint64_t g = gcd_u64(38ULL, p - 1ULL);
             uint64_t e = (p - 1) / g;
             ok = (modpow64(p - 2, e, p) == 1);
         }
         if (ok) {
             if (seq_len == seq_cap) {
                 seq_cap *= 2;
-                seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, seq_cap);
                 if (!seq) return false;
             }
             seq[seq_len++] = (seq_t)p;

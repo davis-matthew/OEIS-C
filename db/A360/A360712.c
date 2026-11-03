@@ -7,12 +7,13 @@
  * Formula:   a(n) = Sum_{d|n} d^(d + n/d - 1) * binomial(d, n/d -1)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 26,
  *            big any n
- * Helpers:   binomial_seq
+ * Validated: standard, pass, 34 terms through n = 386 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binomial_seq.h"
+#include "../utils/binomial.h"
 /* Computes a(n) for any seq_t and idx_t. */
 
 static seq_t pow_seq(seq_t base, idx_t exp) {
@@ -31,7 +32,7 @@ static seq_t term_for_divisor(idx_t d, idx_t n) {
     seq_t pow_term = pow_seq((seq_t)d, exp);
     idx_t k = md - 1;
     seq_t bin_term = 0;
-    if (k <= d) bin_term = binomial_seq(d, k);
+    if (k <= d) bin_term = binomial(d, k);
     return pow_term * bin_term;
 }
 

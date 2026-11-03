@@ -7,13 +7,24 @@
  * Formula:   a(n) = (n-1)! * (2^n - 1) (with a(0)=0)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 29,
  *            big any n
- * Helpers:   pow2
+ * Validated: standard, pass, 37 terms through n = 399 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/pow2.h"
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Compute 2^exp for any exponent that may not fit in the bit width of seq_t. */
+static seq_t pow2(idx_t exp)
+{
+    seq_t res = (seq_t)1;
+    for (idx_t i = 0; i < exp; ++i)
+        res *= (seq_t)2;
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -29,7 +40,7 @@ seq_t a(idx_t n)
 
     if (fact_cache_size <= needed) {
         idx_t new_cap = needed + 1;
-        fact_cache = (seq_t *)realloc(fact_cache, new_cap * sizeof(seq_t));
+        fact_cache = mem_resize(seq_t, fact_cache, new_cap);
         if (!fact_cache) exit(EXIT_FAILURE);      /* OOM */
 
         /* Resolve factorial values that have not yet been computed */

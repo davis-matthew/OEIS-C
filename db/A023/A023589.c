@@ -7,7 +7,8 @@
  * Formula:   a(n) = number of distinct prime divisors of 2*prime(n)+1
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _prime_limit_for_idx, build_primes, count_distinct_primes
+ * Validated: standard, pass, 115 terms through n = 9224 (2026-11-01)
+ * Helpers:   build_primes, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,18 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "../utils/count_distinct_primes.h"
-#include "../utils/_prime_limit_for_idx.h"
+#include <math.h>
+#include <stdbool.h>
 #include "../utils/build_primes.h"
+#include "../utils/omega.h"
+
+static size_t _prime_limit_for_idx(idx_t n) {
+    /* Rough upper bound for the n-th prime using n*(log n + log log n) + 3 */
+    if (n < 6) return 15; /* first 6 primes < 15 */
+    double nn = (double)n;
+    double bound = nn * (log(nn) + log(log(nn))) + 3.0;
+    return (size_t)bound;
+}
 
 static idx_t *primes = NULL;
 static size_t primes_cnt = 0;
@@ -55,7 +65,7 @@ seq_t a(idx_t n)
     uint64_t val = 2ULL * (uint64_t)p + 1ULL;
 
     /* Count its distinct prime factors. */
-    int cnt = count_distinct_primes(val);
+    int cnt = omega(val);
 
     return (seq_t)cnt;
 }

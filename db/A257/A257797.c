@@ -11,7 +11,8 @@
  *            else (n is nontriangular) → a(n) = 2 * a(n−k)
  * Range:     u8 n <= 3, u16 n <= 63, u32 n <= 528, u64 n <= 2080,
  *            u128 n <= 8256, big any n
- * Helpers:   isqrt_seq
+ * Validated: standard, pass, 82 terms through n = 9850 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,24 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/isqrt_seq.h"   /* or use custom isqrt implementation */
+#include "../utils/mem.h"
+
+/* Integer square root (floor) of a non‑negative seq_t value. */
+static seq_t isqrt_seq(seq_t v)
+{
+    seq_t lo = 0, hi = v;
+    while (lo <= hi) {
+        seq_t mid = lo + ((hi - lo) >> 1);
+        seq_t sq  = mid * mid;
+        if (sq == v) return mid;
+        if (sq < v) {
+            lo = mid + 1;
+        } else {
+            hi = mid - 1;
+        }
+    }
+    return hi;
+}
 
 static seq_t *a_cache = NULL;      /* cache for computed a(n), indices 1.. */
 static size_t a_cache_cap = 0;     /* current capacity of a_cache */
@@ -29,7 +47,7 @@ static size_t a_cache_cap = 0;     /* current capacity of a_cache */
 static void ensure_cache(idx_t n)
 {
     if (n <= a_cache_cap) return;
-    seq_t *new_cache = (seq_t *) realloc(a_cache, n * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, a_cache, n);
     if (new_cache == NULL) {
         /* allocation failed – abort in this context */
         abort();

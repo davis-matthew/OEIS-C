@@ -11,15 +11,16 @@
  *            smallest prime factor (hence the largest proper divisor) and
  *            divisor enumeration for sigma(n). GCD is computed via the
  *            Euclid...
- * Range:     u8 n <= 255, u16 n <= 9784, u32 n <= 9784, u64 n <= 9784,
- *            u128 n <= 9784, big any n
- * Helpers:   compute_lpf
+ * Range:     u8 n <= 255, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 121 terms through n = 9784 (2026-11-01)
+ * Helpers:   smallest_prime_factor_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/compute_lpf.h"
+#include "../utils/smallest_prime_factor_idx.h"
 
 /* Return sigma(n) (sum of all divisors of n) via divisor enumeration.
    Works for any n up to 2^64 - 1. */
@@ -54,7 +55,7 @@ seq_t a(idx_t n)
     if (n == 1) return 1; /* defined explicitly */
 
     seq_t sn = (seq_t)n;
-    idx_t spf = compute_lpf(n);
+    idx_t spf = smallest_prime_factor_idx(n);
     seq_t d = sn / (seq_t)spf;      /* largest proper divisor */
 
     seq_t sigma = compute_sigma(n);

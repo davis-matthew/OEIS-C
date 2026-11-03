@@ -9,13 +9,16 @@
  *            binomial((n+6)-n i, i)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 22,
  *            big any n
- * Helpers:   binomial, pow_seq
+ * Validated: standard, pass, 30 terms through n = 169 (2026-11-01)
+ * Helpers:   binomial, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_seq.h"
+#include <stdlib.h>
+#include <stdint.h>
 #include "../utils/binomial.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +29,7 @@ seq_t a(idx_t n)
 
     for (idx_t i = 0; i <= max_i; ++i) {
         idx_t exp = (n + 6) - (n + 1) * i;      /* (n+6) - (n+1)*i */
-        seq_t power = pow_seq(base, (int)exp);
+        seq_t power = ipow_i32(base, (int)exp);
         seq_t binom = binomial((n + 6) - n * i, i);
         seq_t term = power * binom;
 

@@ -11,22 +11,24 @@
  *            the corresponding total number of 2's
  * Range:     u8 n <= 40, u16 n <= 94, u32 n <= 264, u64 n <= 837,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 996 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate temporary arrays */
     size_t size = (size_t)(n + 1);
-    seq_t *cnt_even = (seq_t*)calloc(size, sizeof(seq_t));
-    seq_t *cnt_odd  = (seq_t*)calloc(size, sizeof(seq_t));
-    seq_t *twos_even = (seq_t*)calloc(size, sizeof(seq_t));
-    seq_t *twos_odd  = (seq_t*)calloc(size, sizeof(seq_t));
+    seq_t *cnt_even = mem_new(seq_t, size);
+    seq_t *cnt_odd  = mem_new(seq_t, size);
+    seq_t *twos_even = mem_new(seq_t, size);
+    seq_t *twos_odd  = mem_new(seq_t, size);
 
     if (!cnt_even || !cnt_odd || !twos_even || !twos_odd)
         return (seq_t)0; /* allocation failure, return 0 */
@@ -57,10 +59,10 @@ seq_t a(idx_t n)
 
     seq_t result = twos_odd[n];
 
-    free(cnt_even);
-    free(cnt_odd);
-    free(twos_even);
-    free(twos_odd);
+    mem_free(cnt_even);
+    mem_free(cnt_odd);
+    mem_free(twos_even);
+    mem_free(twos_odd);
 
     return result;
 }

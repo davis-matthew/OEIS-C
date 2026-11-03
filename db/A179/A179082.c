@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 65, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digits_sum_even
+ * Validated: standard, pass, 75 terms through n = 971 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,19 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/digits_sum_even.h"
+#include "../utils/mem.h"
+
+/* Sum of decimal digits of x (mod 2).  The function returns true if the sum is even. */
+static bool digits_sum_even(seq_t x)
+{
+    seq_t t = x;
+    unsigned int sum = 0u;
+    while (t) {
+        sum += (unsigned int)(t % 10u);
+        t /= 10u;
+    }
+    return (sum & 1u) == 0u;
+}
 
 seq_t a(idx_t n)
 {
@@ -35,7 +48,7 @@ seq_t a(idx_t n)
         if (cache_cap < n) {
             size_t new_cap = cache_cap ? cache_cap * 2 : 128;
             if (new_cap < (size_t)n) new_cap = (size_t)n;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) exit(EXIT_FAILURE); /* Allocation failure */
             cache = tmp;
             cache_cap = new_cap;

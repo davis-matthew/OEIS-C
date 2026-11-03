@@ -7,6 +7,7 @@
  * Formula:   a(n) = (7^(n-1)-1)*(7^n-1)/288
  * Range:     u8 none, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 24,
  *            big any n
+ * Validated: standard, pass, 31 terms through n = 187 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

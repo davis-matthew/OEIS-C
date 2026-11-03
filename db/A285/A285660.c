@@ -10,13 +10,30 @@
  *            of the minimal polynomial of sin(n°)
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   _phi_div180
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_phi_div180.h"
+
+static unsigned _phi_div180(uint64_t m) {
+    unsigned result = (unsigned)m;
+    if (m % 2 == 0) {
+        result -= result / 2;
+        while (m % 2 == 0) m /= 2;
+    }
+    if (m % 3 == 0) {
+        result -= result / 3;
+        while (m % 3 == 0) m /= 3;
+    }
+    if (m % 5 == 0) {
+        result -= result / 5;
+        while (m % 5 == 0) m /= 5;
+    }
+    return result;
+}
 
 static inline idx_t _gcd_idx(idx_t a, idx_t b) {
     while (b) {

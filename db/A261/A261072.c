@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 12, u32 n <= 22, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   factor_u64, seq_cmp
+ * Validated: full, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,18 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/factor_u64.h"  /* factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt) */
-#include "../utils/seq_cmp.h"     /* int seq_cmp(const void *, const void *); */
+#include <stddef.h>
+#include "../utils/factor_u64.h"
+#include "../utils/mem.h"
+
+static int seq_cmp(const void *p, const void *q)
+{
+    const seq_t *a = (const seq_t *)p;
+    const seq_t *b = (const seq_t *)q;
+    if (*a < *b) return -1;
+    if (*a > *b) return 1;
+    return 0;
+}
 
 /* static storage for the divisors */
 static seq_t divisors[64];
@@ -66,7 +77,7 @@ static void init_divisors(void)
     gen_divisors(0, primes, exps, num_factors, 1ULL);
 
     /* sort the array */
-    qsort(divisors, divcnt, sizeof(seq_t), seq_cmp);
+    mem_qsort(divisors, divcnt, sizeof(seq_t), seq_cmp);
 
     initialized = true;
 }

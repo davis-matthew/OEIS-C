@@ -8,6 +8,7 @@
  *            2^{6n+s} )
  * Range:     u8 none, u16 none, u32 n <= 1, u64 n <= 2, u128 n <= 5,
  *            big any n
+ * Validated: standard, pass, 22 terms through n = 31 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -22,6 +23,7 @@
    pairs. */
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
 

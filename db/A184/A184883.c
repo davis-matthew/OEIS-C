@@ -11,6 +11,7 @@
  *            OEIS A184883
  * Range:     u8 n <= 23, u16 n <= 70, u32 n <= 219, u64 n <= 798,
  *            u128 n <= 1325, big any n
+ * Validated: standard, pass, 82 terms through n = 1297 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

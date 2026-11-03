@@ -8,7 +8,8 @@
  *            ≥ 2
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 13, u64 n <= 21, u128 n <= 35,
  *            big any n
- * Helpers:   alloc_seq_array, free_seq_array
+ * Validated: standard, pass, 41 terms through n = 436 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,20 @@
 /* External integer types: seq_t and idx_t supplied by the build. */
 
 #include <stddef.h>
-#include "../utils/alloc_seq_array.h"   /* alloc_seq_array(size_t) */
-#include "../utils/free_seq_array.h"    /* free_seq_array(seq_t*) */
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 static seq_t *fact_arr    = NULL;   /* factorial 0! … n!   */
 static seq_t *a_cache     = NULL;   /* a(n) values 0…n     */

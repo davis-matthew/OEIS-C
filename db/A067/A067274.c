@@ -8,7 +8,8 @@
  * Formula:   a(n) = 2*(A006218(n)+n)+floor(sqrt(n))-1 for n>0
  * Range:     u8 n <= 27, u16 n <= 3512, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sum_floor
+ * Validated: standard, pass, 71 terms through n = 9353 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,14 @@
 /*    a(0) = 1                                            */
 
 #include <stdint.h>
-#include "../utils/sum_floor.h"
+
+static seq_t sum_floor(idx_t n)
+{
+    seq_t res = 0;
+    for (idx_t i = 1; i <= n; ++i)
+        res += (seq_t)(n / i);
+    return res;
+}
 
 static idx_t isqrt_idx(idx_t n)
 {

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   has_adjacent_1_5
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,22 @@
    k+1’s base‑9 representation does not.   */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_adjacent_1_5.h"
+#include "../utils/mem.h"
+
+static bool has_adjacent_1_5(seq_t val)
+{
+    const seq_t base = 9;
+    int prev_digit = 10;           // sentinel larger than any 0..8 digit
+    while (val > 0) {
+        int digit = (int)(val % base);
+        val      = val / base;
+        if ((prev_digit == 1 && digit == 5) ||
+            (prev_digit == 5 && digit == 1))
+            return true;
+        prev_digit = digit;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -34,7 +50,7 @@ seq_t a(idx_t n)
     /* initialise cache */
     if (cache == NULL) {
         cap = 32;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cap);
+        cache = mem_new(seq_t, cap);
     }
 
     /* extend cache until it contains at least n terms */
@@ -47,7 +63,7 @@ seq_t a(idx_t n)
             if (!has_adjacent_1_5(kp1)) {
                 if (sz == cap) {
                     cap *= 2;
-                    cache = (seq_t *)realloc(cache, sizeof(seq_t) * cap);
+                    cache = mem_resize(seq_t, cache, cap);
                 }
                 cache[sz++] = k;
             }

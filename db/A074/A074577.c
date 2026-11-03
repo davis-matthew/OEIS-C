@@ -7,7 +7,8 @@
  * Formula:   a(n) = 6^n + 7^n + 8^n
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 21, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 295 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Recurrence: a(0)=3, a(1)=21, a(2)=149, a(n)=21*a(n-1)-146*a(n-2)+336*a(n-3) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* initialise cache with first three terms */
     if (cache_size == 0) {
         cache_size = 3;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         cache[0] = (seq_t)3;   /* a(0) */
         cache[1] = (seq_t)21;  /* a(1) */
         cache[2] = (seq_t)149; /* a(2) */
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
 
     /* extend cache up to index n */
     idx_t new_size = n + 1;                     /* maximum index needed + 1 */
-    cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_size);
 
     for (idx_t i = cache_size; i <= n; ++i) {
         /* use recurrence: a(i) = 21*a(i-1) - 146*a(i-2) + 336*a(i-3) */

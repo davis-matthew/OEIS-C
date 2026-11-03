@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 15, u64 n <= 31, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* --- dynamic cache --------------------------------------------------- */
 
@@ -43,7 +45,7 @@ ensure_capacity(size_t idx)
 
     /* grow to idx+1 slots, index 0 will stay unused */
     size_t new_size = idx + 1;
-    seq_t *new_buf = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_buf = mem_resize(seq_t, cache, new_size);
     if (!new_buf) {
         /* out of memory – terminate immediately */
         exit(EXIT_FAILURE);

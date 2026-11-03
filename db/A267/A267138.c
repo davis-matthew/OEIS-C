@@ -12,12 +12,14 @@
  *            Those values are obtained by parsing the following strings
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 4, u64 n <= 10, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 978 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Parse a decimal string into a seq_t value.  Works for any integer type. */
 static seq_t parse_decimal(const char *s)
@@ -44,7 +46,7 @@ static void ensure_cache(idx_t needed)
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < target) new_cap <<= 1;     /* grow geometrically */
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) exit(1);                         /* allocation failed */
     cache = tmp;
     cache_cap = new_cap;

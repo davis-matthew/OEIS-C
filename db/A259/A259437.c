@@ -9,7 +9,8 @@
  *            A000041
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 11, u128 n <= 15,
  *            big any n
- * Helpers:   free_seq_array, seq_alloc_new_array, seq_pow
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,20 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/free_seq_array.h"
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include <stdbool.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 /* Cache of partition numbers p(0..m). */
 static seq_t *partitions = NULL;
@@ -89,7 +101,7 @@ seq_t a(idx_t n)
 
     seq_t total = 0;
     for (idx_t k = 0; k <= n; ++k) {
-        seq_t term = seq_pow(partitions[k], n);
+        seq_t term = ipow_idx(partitions[k], n);
         total += term;
     }
     return total;

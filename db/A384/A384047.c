@@ -8,8 +8,9 @@
  * Formula:   a(n) = T(row, k) where row = smallest integer with row*(row+1)/2
  *            >= n and k = n - (row-1)*row/2. T(row, k) = product of
  *            prime‑power factors p^e of row such that p^e divides k
- * Range:     u8 n <= 8574, u16 n <= 8574, u32 n <= 8574, u64 n <= 8574,
- *            u128 n <= 8574, big any n
+ * Range:     u8 n <= 10585, u16 n <= 10585, u32 n <= 10585, u64 n <= 10585,
+ *            u128 n <= 10585, big any n
+ * Validated: standard, pass, 107 terms through n = 8574 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

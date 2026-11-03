@@ -8,12 +8,14 @@
  * Formula:   a(n) = 4*a(ceil(n/2)) + 1*a(floor(n/2)), a(1) = 1
  * Range:     u8 n <= 8, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* memoized array of previously computed values */
 static seq_t *cache = NULL;     /* dynamically resized cache */
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* Ensure the cache can hold indices up to n */
     if (n >= capacity) {
         idx_t new_cap = n + 1; /* indices 0..n inclusive */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;    /* allocation failed – unlikely in this context */
         cache = tmp;
         capacity = new_cap;

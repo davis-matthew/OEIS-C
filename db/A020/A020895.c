@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 501, u64 n <= 501, u128 n <= 501,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 480 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Utility: comparison for qsort                                       */
@@ -72,7 +74,7 @@ static void build_sums(idx_t bound, seq_t **out, size_t *len)
 {
     /* Rough upper bound on the number of candidates: 4 * bound². */
     size_t max_cand = (size_t)4 * bound * bound;
-    seq_t *tmp = (seq_t *)malloc(max_cand * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, max_cand);
     size_t cnt = 0;
 
     for (idx_t a = 1; a <= bound; ++a) {
@@ -97,7 +99,7 @@ static void build_sums(idx_t bound, seq_t **out, size_t *len)
     }
 
     /* Sort the candidates and keep only unique values. */
-    qsort(tmp, cnt, sizeof(seq_t), seq_cmp);
+    mem_qsort(tmp, cnt, sizeof(seq_t), seq_cmp);
     size_t uniq = 0;
     for (size_t i = 0; i < cnt; ++i) {
         if (i == 0 || tmp[i] != tmp[i - 1])
@@ -127,7 +129,7 @@ seq_t a(idx_t n)
 
         build_sums((idx_t)new_max, &new_vals, &new_len);
 
-        free(vals);          /* discard previous array */
+        mem_free(vals);          /* discard previous array */
         vals = new_vals;
         vals_len = new_len;
         max_a = (idx_t)new_max;

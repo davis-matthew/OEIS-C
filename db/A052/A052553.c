@@ -10,14 +10,16 @@
  *            (binomial is defined as 0 when c > r)
  * Range:     u8 n <= 123, u16 n <= 384, u32 n <= 1338, u64 n <= 4875,
  *            u128 n <= 5459, big any n
- * Helpers:   gcd64
+ * Validated: standard, pass, 110 terms through n = 5224 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* <stdint.h> is included for the 64‑bit types used in the helper functions. */
 #include <stdint.h>
-#include "../utils/gcd64.h"
+#include <stdbool.h>
+#include "../utils/gcd_u64.h"
 
 /* Euclidean algorithm for seq_t (works for built‑in integer types and
    arbitrary‑precision integer classes). */
@@ -49,7 +51,7 @@ static inline seq_t binom_exact(idx_t n, idx_t k)
         idx_t  den = i;                       /* denominator: <= k    */
 
         /* Cancel common factors between numerator and denominator. */
-        uint64_t g1 = gcd64((uint64_t)num, den);
+        uint64_t g1 = gcd_u64((uint64_t)num, den);
         num /= g1;
         den /= g1;
 

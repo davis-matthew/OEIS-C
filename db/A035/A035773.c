@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 3, u64 n <= 10, u128 n <= 42,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 29 terms through n = 8559 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,8 @@
 /* OEIS A035773: a(n) = coefficient of x^(2n) in ((1+x)/(1-x))^36
    Equivalent formula: a(n) = Σ_{i=0}^{min(36,2n)} C(36,i) * C(35+2n-i,35)   */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
 
     seq_t sum = 0;
     for (idx_t i = 0; i <= i_max; ++i) {
-        seq_t term = binom(EXP, i) * binom(SHIFT + two_n - i, SHIFT);
+        seq_t term = binomial(EXP, i) * binomial(SHIFT + two_n - i, SHIFT);
         sum += term;
     }
     return sum;

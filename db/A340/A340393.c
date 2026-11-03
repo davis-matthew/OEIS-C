@@ -7,8 +7,9 @@
  * Offset:    2    (a(2) is the first term)
  * Keywords:  nonn, look, base
  * Formula:   not stated
- * Range:     u8 n <= 39, u16 n <= 207, u32 n <= 2335, u64 n <= 9334,
- *            u128 n <= 9334, big any n
+ * Range:     u8 n <= 39, u16 n <= 207, u32 n <= 2335, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 79 terms through n = 9334 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,10 @@
    Treat the prime factors of n in ascending order as digits of a number
    in base (greatest prime factor + 1) and return that number in decimal. */
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <stddef.h>
 #include "../utils/factor_u64.h"
 #include <stddef.h>
 

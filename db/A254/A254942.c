@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 20, u64 n <= 40, u128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define MOD 2310          /* lcm(2,3,5,7,11) */
 
@@ -94,7 +96,7 @@ seq_t a(idx_t n)
         if (sumSize == sumCap)
         {
             size_t newCap = sumCap ? sumCap * 2 : 4;
-            seq_t *tmp = (seq_t *)realloc(sums, newCap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, sums, newCap);
             if (!tmp)   /* allocation failed – let the program abort. */
                 return (seq_t)0;
             sums = tmp;

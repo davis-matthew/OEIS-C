@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 98, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 99 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    a(1)=1, a(2)=0, a(3)=0, a(4)=1, … is obtained from this morphism. */
 
 #include <stdlib.h>   /* malloc, free */
+#include "../utils/mem.h"
 
 static seq_t *f = NULL;          /* current Fibonacci word list (index 0…f_len-1) */
 static idx_t f_len = 0;          /* length of the list */
@@ -27,7 +29,7 @@ seq_t a(idx_t n) {
 
     /* Initialise the word list on the first call. */
     if (f == NULL) {
-        f = (seq_t*)malloc(sizeof(seq_t));
+        f = mem_new(seq_t, 1);
         if (f == NULL) exit(EXIT_FAILURE);
         f[0] = (seq_t)0;   /* first term of the standard Fibonacci word */
         f_len = 1;
@@ -44,7 +46,7 @@ seq_t a(idx_t n) {
             if (f[i] == (seq_t)0) ++zeros;
 
         idx_t next_len = f_len + zeros;          /* each 0 expands to 01 (add 1) */
-        seq_t *next = (seq_t*)malloc(next_len * sizeof(seq_t));
+        seq_t *next = mem_new(seq_t, next_len);
         if (next == NULL) exit(EXIT_FAILURE);
 
         /* Apply the morphism 0→01, 1→0. */
@@ -59,7 +61,7 @@ seq_t a(idx_t n) {
         }
 
         /* Replace the old word with the new one. */
-        free(f);
+        mem_free(f);
         f = next;
         f_len = next_len;
     }

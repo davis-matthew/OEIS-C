@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -54,6 +55,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
         /* first expansion: initialise with 1 */
         if (seq_len == 0) {
             seq_len = 1;
-            seq = (seq_t *)malloc(sizeof(seq_t));
+            seq = mem_new(seq_t, 1);
             seq[0]  = (seq_t)1;
             continue;
         }
@@ -81,7 +83,7 @@ seq_t a(idx_t n)
             sum += (size_t)seq[i];
 
         size_t new_len = seq_len + sum;
-        seq_t *new_seq = (seq_t *)calloc(new_len, sizeof(seq_t));
+        seq_t *new_seq = mem_new(seq_t, new_len);
         if (!new_seq) exit(1);   /* allocation failed */
 
         /* -----------------  construct 'seen' bit array  ----------------- */
@@ -97,7 +99,7 @@ seq_t a(idx_t n)
         while (seen_cap < seen_needed) seen_cap <<= 1;
 
         unsigned char *seen = (unsigned char *)calloc(seen_cap, 1);
-        if (!seen) { free(new_seq); exit(1); }
+        if (!seen) { mem_free(new_seq); exit(1); }
 
         /* ---------------------------------------------------------------
          *  run the transformation: for each element of seq,
@@ -140,7 +142,7 @@ seq_t a(idx_t n)
 
         /* finished one expansion */
         free(seen);
-        free(seq);
+        mem_free(seq);
         seq = new_seq;
         seq_len = new_len;
     }

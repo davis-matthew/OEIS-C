@@ -7,7 +7,8 @@
  * Formula:   a(n) = ∑_{k=0..n} Catalan(k) * Jacobsthal(n-k)
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 18, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Jacobsthal numbers: J(0)=0, J(1)=1, J(n)=J(n-1)+2*J(n-2) for n≥2 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cat_seq = NULL;   /* Catalan numbers up to current size-1 */
 static seq_t *jac_seq = NULL;   /* Jacobsthal numbers up to current size-1 */
@@ -29,9 +31,9 @@ ensure_size(idx_t n)
         return;
 
     idx_t new_cap = n + 1;
-    cat_seq = (seq_t *)realloc(cat_seq, new_cap * sizeof(seq_t));
-    jac_seq = (seq_t *)realloc(jac_seq, new_cap * sizeof(seq_t));
-    a_seq   = (seq_t *)realloc(a_seq,   new_cap * sizeof(seq_t));
+    cat_seq = mem_resize(seq_t, cat_seq, new_cap);
+    jac_seq = mem_resize(seq_t, jac_seq, new_cap);
+    a_seq   = mem_resize(seq_t, a_seq, new_cap);
 
     for (idx_t i = size_cap; i < new_cap; ++i) {
         if (i == 0) {                     /* base case */

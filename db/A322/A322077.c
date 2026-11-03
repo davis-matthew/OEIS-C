@@ -14,7 +14,8 @@
  *            multiset of block sums
  * Range:     u8 n <= 40, u16 n <= 40, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   lsb_index
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,16 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/lsb_index.h"
+
+/* ---------- helper functions for key manipulation ---------- */
+static inline int lsb_index(int mask) {
+    int pos = 0;
+    while (!(mask & 1)) {
+        mask >>= 1;
+        ++pos;
+    }
+    return pos;
+}
 
 /* ---------- data structures ---------- */
 typedef struct {

@@ -13,6 +13,7 @@
  *            … (i.e., for each k≥0, output T[k,1], T[k-1,2], …, T[0,k+1])
  * Range:     u8 n <= 55, u16 n <= 79, u32 n <= 79, u64 n <= 79, u128 n <= 79,
  *            big any n
+ * Validated: partial, pass, 80 terms through n = 79 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 10, i16 n <= 34, i32 n <= 117, i64 n <= 418,
  *            i128 n <= 1547, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 1647 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static void precompute(idx_t max_n, seq_t *f)
 {
@@ -102,11 +104,11 @@ seq_t a(idx_t n)
     /* If a requested n exceeds the precomputed limit,
        recompute with a larger size (rare case). */
     if (n > MAX_N) {
-        seq_t *new_cache = (seq_t*)malloc((size_t)(n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, (size_t)(n + 1));
         if (!new_cache) return (seq_t)0; /* out of memory */
         precompute(n, new_cache);
         /* Free old cache if it was allocated beyond 10001 */
-        if (MAX_N != 10000) free(cache);
+        if (MAX_N != 10000) mem_free(cache);
         cache[n] = new_cache[n];
         return new_cache[n];
     }

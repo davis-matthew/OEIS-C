@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_u64, reverse_digits_uint64
+ * Validated: standard, pass, 62 terms through n = 998 (2026-11-03)
+ * Helpers:   is_prime_u64, reverse_digits_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,9 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/is_prime_u64.h"
-#include "../utils/reverse_digits_uint64.h"
+#include "../utils/reverse_digits_u64.h"
 
 #ifdef __cplusplus
 #include <vector>
@@ -72,7 +74,7 @@ seq_t a(idx_t n) {
         if (fd != 1 && fd != 3 && fd != 7 && fd != 9) continue;
 
         /* reversal must be composite (non‑prime) */
-        uint64_t rev = reverse_digits_uint64(last_checked);
+        uint64_t rev = reverse_digits_u64(last_checked);
         if (is_prime_u64(rev)) continue;
 
         /* store the qualified prime */

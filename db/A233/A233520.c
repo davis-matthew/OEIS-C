@@ -9,7 +9,8 @@
  *            n
  * Range:     u8 n <= 357, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 86 terms through n = 9762 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdbool.h>
 
 /* helpers */
-#include "../utils/mod_pow.h"    /* provides: seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod) */
+#include <string.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     idx_t offset = n - 1;         /* shift negative values to non‑negative indices */
 
     for (idx_t x = 1; x < n; ++x) {
-        seq_t pow = mod_pow((seq_t)x, x, (seq_t)n);
+        seq_t pow = powmod((seq_t)x, x, (seq_t)n);
         int64_t diff = (int64_t)pow - (int64_t)x;   /* may be negative */
         idx_t idx  = (idx_t)(diff + offset);
         seen[idx] = true;

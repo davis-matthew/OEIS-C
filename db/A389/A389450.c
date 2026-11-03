@@ -10,8 +10,9 @@
  *            of n. Input n is an idx_t >= 1. This implementation performs a
  *            simple trial‑division factorisation and uses only integer
  *            arithmetic
- * Range:     u8 n <= 137, u16 n <= 9975, u32 n <= 9975, u64 n <= 9975,
- *            u128 n <= 9975, big any n
+ * Range:     u8 n <= 137, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 99 terms through n = 9975 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -12,13 +12,14 @@
  *            sigma(n_j) + 1. Complexity is O( sqrt(n) ) for fact...
  * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   power_seq_u64
+ * Validated: standard, pass, 97 terms through n = 9975 (2026-11-01)
+ * Helpers:   ipow_u64_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/power_seq_u64.h"
+#include "../utils/ipow_u64_i32.h"
 
 extern uint64_t _smallest_prime_factor(uint64_t n); /* provided helper, not used below */
 
@@ -72,7 +73,7 @@ seq_t a(idx_t n)
         uint64_t p = primes[i];
         int e = exps[i];
 
-        seq_t p_pow = power_seq_u64(p, e);        /* p^e   */
+        seq_t p_pow = ipow_u64_i32(p, e);        /* p^e   */
         seq_t new_cur = cur * p_pow;              /* n_j   */
 
         /* update sigma */

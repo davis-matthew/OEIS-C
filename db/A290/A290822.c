@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 55, u16 n <= 2684, u32 n <= 9999, u64 n <= 9999,
  *            u128 n <= 9999, big any n
- * Helpers:   contains_prime
+ * Validated: standard, pass, 75 terms through n = 8587 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,15 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/contains_prime.h"
+#include "../utils/mem.h"
+
+/* Helper: does the array pf[0..cnt-1] contain d? */
+static bool contains_prime(uint64_t d, uint64_t *pf, size_t cnt)
+{
+    for (size_t i = 0; i < cnt; ++i)
+        if (pf[i] == d) return true;
+    return false;
+}
 
 /* --------------------------------------------------------------- */
 /* Small static prime sieve – enough for the range needed by the
@@ -152,7 +161,7 @@ static void cache_append(uint64_t val)
 {
     if (CACHE_SIZE == CACHE_CAP) {
         size_t new_cap = (CACHE_CAP == 0) ? 16 : CACHE_CAP * 2;
-        CACHE = (seq_t *)realloc(CACHE, new_cap * sizeof(seq_t));
+        CACHE = mem_resize(seq_t, CACHE, new_cap);
         CACHE_CAP = new_cap;
     }
     CACHE[CACHE_SIZE++] = (seq_t)val;

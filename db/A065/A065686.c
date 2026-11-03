@@ -7,7 +7,8 @@
  * Formula:   a(n) = #{k ≤ n : the k‑th prime starts with digit 7}
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   nth_prime_upper_bound, starts_with_7
+ * Validated: standard, pass, 121 terms through n = 994 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,24 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
-#include "../utils/nth_prime_upper_bound.h"
-#include "../utils/starts_with_7.h"
+#include "../utils/mem.h"
+
+/* ------------------------------------------------------------------ */
+static uint64_t nth_prime_upper_bound(uint64_t n)
+{
+    if (n < 6) return 15;                       /* 6th prime = 13 */
+    double nd = (double)n;
+    double bound = nd * (log(nd) + log(log(nd)));
+    return (uint64_t)(bound + 10.0);             /* safety margin   */
+}
+
+/* ------------------------------------------------------------------ */
+static int starts_with_7(uint64_t p)
+{
+    if (p < 7) return 0;
+    while (p >= 10) p /= 10;
+    return p == 7;
+}
 
 /* ------------------------------------------------------------------ */
 /* Helper: upper bound for the n-th prime (n ≥ 6)                      */
@@ -80,7 +97,7 @@ static void extend_cache_to(idx_t n)
     if (prefix_cache_cap < total_primes) {
         size_t new_cap = prefix_cache_cap ? prefix_cache_cap * 2 : 1024;
         while (new_cap < total_primes) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(prefix_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, prefix_cache, new_cap);
         if (!tmp) abort();
         prefix_cache = tmp;
         prefix_cache_cap = new_cap;

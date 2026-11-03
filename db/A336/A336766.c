@@ -10,7 +10,8 @@
  * Formula:   a(n) = coefficient of q^n in ∏_{k>0} ((1 - q^(6k))/(1 + q^k))
  * Range:     i8 n <= 71, i16 n <= 71, i32 n <= 71, i64 n <= 71, i128 n <= 71,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 71 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,14 +23,15 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* clarification: seq_t and idx_t types are supplied by the build environment. */
 seq_t a(idx_t n) {
     /* Allocate two temporary arrays of size n+1.  We use calloc to
        initialise them to zero. */
     size_t sz = (size_t)n + 1;
-    seq_t *dp = (seq_t*)calloc(sz, sizeof(seq_t));
-    seq_t *tmp = (seq_t*)calloc(sz, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, sz);
+    seq_t *tmp = mem_new(seq_t, sz);
     if (!dp || !tmp) {
         /* In case of allocation failure, abort the program. */
         abort();
@@ -66,15 +68,15 @@ seq_t a(idx_t n) {
         seq_t *o = dp;
         dp = tmp;
         tmp = o;
-        memset(tmp, 0, sz * sizeof(seq_t));
+        mem_set(tmp, 0, sz * sizeof(seq_t));
     }
 
     /* Result is the coefficient for q^n. */
     seq_t result = dp[n];
 
     /* Clean up. */
-    free(dp);
-    free(tmp);
+    mem_free(dp);
+    mem_free(tmp);
 
     return result;
 }

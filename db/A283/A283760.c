@@ -8,7 +8,8 @@
  *            and k ≥ 1
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes, int_cube_root, is_prime
+ * Validated: standard, pass, 127 terms through n = 9981 (2026-11-01)
+ * Helpers:   build_primes, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,26 @@
 #include <stdbool.h>
 
 /* Trampoline helpers provided by the build system */
-#include "../utils/build_primes.h"    /* void build_primes(idx_t limit, idx_t **out, size_t *cnt); */
-#include "../utils/is_prime.h"        /* bool is_prime(idx_t x); */
-#include "../utils/int_cube_root.h"   /* idx_t int_cube_root(idx_t x); */
+#include <stdint.h>
+#include <limits.h>
+#include <stdlib.h>
+#include "../utils/build_primes.h"
+#include "../utils/is_prime.h"
+
+/* integer cube root: largest k with k³ ≤ x */
+static idx_t int_cube_root(idx_t x)
+{
+    idx_t lo = 0, hi = x;
+    while (lo < hi) {
+        idx_t mid = lo + (hi - lo + 1) / 2;
+        __int128 cube = (__int128)mid * mid * mid;
+        if (cube <= x)
+            lo = mid;
+        else
+            hi = mid - 1;
+    }
+    return lo;
+}
 
 /* Static cache so that repeated calls with larger n do not recompute
    the same prime list. */

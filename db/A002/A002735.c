@@ -9,12 +9,14 @@
  *            a(1) = 4
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 11, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     N = (n % 2 == 0) ? n : n - 1;      /* even level to compute b(2,N) */
     R1 = N / 2 + 2;                     /* range of m needed at level 1 */
 
-    v = (seq_t *)calloc((size_t)(R1 + 3), sizeof(seq_t));
+    v = mem_new(seq_t, (size_t)(R1 + 3));
     for (m = 1; m <= R1; m++)
         v[m] = (seq_t)m * (seq_t)m;
 
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     }
 
     result = v[2];
-    free(v);
+    mem_free(v);
     if (n % 2 == 1) result *= 4;
     return result;
 }

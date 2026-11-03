@@ -13,7 +13,8 @@
  *            permutation is built on demand and stored in static arrays
  * Range:     u8 n <= 255, u16 n <= 8192, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   none
+ * Validated: standard, pass, 84 terms through n = 7996 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* two types are provided by the build system:
    seq_t  – the value type (unsigned integer or arbitrary‑precision class)
@@ -41,7 +43,7 @@ static void ensure_size(size_t needed)
     size_t new_cap = cap ? cap << 1 : 8;
     while (new_cap <= needed)
         new_cap <<= 1;
-    perm = (seq_t *)realloc(perm, new_cap * sizeof(seq_t));
+    perm = mem_resize(seq_t, perm, new_cap);
     used = (bool *)realloc(used, new_cap * sizeof(bool));
     for (size_t i = cap; i < new_cap; ++i)
     {

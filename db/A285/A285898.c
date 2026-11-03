@@ -8,12 +8,25 @@
  * Formula:   not stated
  * Range:     u8 n <= 136, u16 n <= 136, u32 n <= 136, u64 n <= 136,
  *            u128 n <= 136, big any n
- * Helpers:   ceil_row
+ * Validated: partial, pass, 136 terms through n = 136 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/ceil_row.h"
+static inline idx_t ceil_row(idx_t n) {
+    /* Return the smallest i such that i*(i+1)/2 >= n. */
+    idx_t low = 1, high = n;          /* i never exceeds n */
+    while (low < high) {
+        idx_t mid = low + (high - low) / 2;
+        unsigned __int128 val = (unsigned __int128)mid * (mid + 1) / 2;
+        if (val >= n)
+            high = mid;
+        else
+            low = mid + 1;
+    }
+    return low;
+}
 /* Sequence A285898: triangle of partitions into k consecutive parts,
    read by row.  A(n) is 1 if the row/column indexed by the n‑th
    entry corresponds to a valid partition, otherwise 0.  The entry

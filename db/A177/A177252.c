@@ -12,14 +12,15 @@
  *            * See OEIS A177252
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 27, u64 n <= 65, u128 n <= 170,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 56 terms through n = 5001 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 /* Evaluate the term T(r,k) of the triangle using the explicit formula. */
 static seq_t compute_T(idx_t r, idx_t k)
@@ -30,7 +31,7 @@ static seq_t compute_T(idx_t r, idx_t k)
     for (idx_t j = k; j <= maxj; ++j)
     {
         /* C(j,k) */
-        seq_t bin = binom(j, k);
+        seq_t bin = binomial(j, k);
 
         /* (r-3j)! / j!  = ∏_{t=j+1}^{r-3j} t */
         seq_t comb = 1;

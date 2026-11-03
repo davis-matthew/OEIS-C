@@ -9,12 +9,14 @@
  *            2*a(n-3)) for n > 3
  * Range:     i8 n <= 10, i16 n <= 18, i32 n <= 34, i64 n <= 68, i128 n <= 134,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 963 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
         idx_t new_size = (cache_size == 0) ? n : cache_size * 2;
         if (new_size < n) new_size = n;
 
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) return 0;   /* allocation failed – return 0, or could abort */
         cache = tmp;
 

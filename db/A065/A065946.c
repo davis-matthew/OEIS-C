@@ -7,6 +7,7 @@
  * Formula:   a(n) = Σ_{k=2}^{n} (-1)^k * (n+k)!/(k!(n-k)!) * k(k-1) / 4
  * Range:     i8 n <= 2, i16 n <= 4, i32 n <= 7, i64 n <= 13, i128 n <= 23,
  *            big any n
+ * Validated: standard, pass, 33 terms through n = 348 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

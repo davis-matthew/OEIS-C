@@ -15,12 +15,14 @@
  *            after th...
  * Range:     u8 none, u16 n <= 4, u32 n <= 10, u64 n <= 23, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[12] = {
     (seq_t)256, (seq_t)1280, (seq_t)6400, (seq_t)34560,
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     /* First call: allocate space for at least the first 12 terms. */
     if (cache == NULL) {
         cache_cap = (size_t)(n > 12 ? n : 12);
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) /* memory failure – return 0 as best effort */
             return (seq_t)0;
 
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
 
     /* Grow cache if required. */
     if ((size_t)n > cache_cap) {
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)n * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)n);
         if (tmp == NULL)  /* reallocation failed – keep old buffer */
             return (seq_t)0;
         cache = tmp;

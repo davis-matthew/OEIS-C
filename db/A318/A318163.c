@@ -7,9 +7,10 @@
  * Keywords:  sign, easy
  * Formula:   a(0)=0, a(1)=1, a(2)=1, a(3)=0; for n≥2, a(2*n) = -a(n-1)
  *            a(2*n+1) = -a(n-1)-a(n)
- * Range:     i8 n <= 3368, i16 n <= 9172, i32 n <= 9172, i64 n <= 9172,
- *            i128 n <= 9172, big any n
- * Helpers:   none
+ * Range:     i8 n <= 3368, i16 n <= 20480, i32 n <= 20480, i64 n <= 20480,
+ *            i128 n <= 20480, big any n
+ * Validated: standard, pass, 117 terms through n = 9172 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* This function memoises results, so any order of calls is fast. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     if ((idx_t)cap <= n)
     {
         size_t new_cap = (size_t)n + 1;          /* need indices 0..n inclusive */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp && new_cap > 0)                /* allocation failed */
             abort();
 

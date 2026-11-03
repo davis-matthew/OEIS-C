@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 21, u64 n <= 43, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 187 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache of computed denominators */
 static seq_t *den_cache = NULL;
@@ -50,7 +52,7 @@ static void ensure_capacity(size_t n) {
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap <= n)
         new_cap <<= 1;
-    den_cache = (seq_t *)realloc(den_cache, sizeof(seq_t) * new_cap);
+    den_cache = mem_resize(seq_t, den_cache, new_cap);
     cache_cap = new_cap;
 }
 

@@ -12,12 +12,14 @@
  *            coefficients of the q‑expansion described in OEIS A225700
  * Range:     u8 n <= 52, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static uint32_t *spf = NULL;          /* smallest prime factor array   */
 static idx_t   spf_cap = 0;           /* current capacity of spf array */
@@ -92,7 +94,7 @@ static void ensure_cache(idx_t n)
 {
     if (cache_cap > n) return;
     idx_t old_cap = cache_cap;
-    seq_t *new_cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
     if (!new_cache) abort();
     cache = new_cache;
     cache_cap = n + 1;

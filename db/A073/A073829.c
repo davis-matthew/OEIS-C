@@ -7,12 +7,14 @@
  * Formula:   a(n) = 4*((n-1)! + 1) + n
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 21, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 434 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *fact_cache = NULL;   /* factorial cache: fact_cache[i] = i! */
 static idx_t fact_cache_max = 0;  /* maximum i cached so far */
@@ -27,7 +29,7 @@ static void ensure_fact(idx_t up_to)
     if (!fact_cache) {
         /* Cache at least up_to+1 elements: index up_to is needed */
         size_t new_size = up_to + 1;
-        fact_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+        fact_cache = mem_new(seq_t, new_size);
         if (!fact_cache) abort();
         fact_cache[0] = (seq_t)1;        /* 0! = 1 */
         fact_cache_max = 0;
@@ -35,7 +37,7 @@ static void ensure_fact(idx_t up_to)
         size_t old_size = fact_cache_max + 1;
         size_t new_size = up_to + 1;
         if (new_size > old_size) {
-            seq_t *tmp = (seq_t *)realloc(fact_cache, new_size * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, fact_cache, new_size);
             if (!tmp) abort();
             fact_cache = tmp;
         }

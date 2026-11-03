@@ -12,12 +12,14 @@
  *            T(n,m)=T(n-1,m-1)+2*(n-1)²*T(n-1,m)-(n-1)²*(n-2)²*T(n...
  * Range:     u8 n <= 15, u16 n <= 21, u32 n <= 45, u64 n <= 105,
  *            u128 n <= 253, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 1207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Find the row r that contains index n */
@@ -37,9 +39,9 @@ seq_t a(idx_t n) {
 
     /* Allocate three rows of maximum length r+1 */
     idx_t maxlen = r + 1;
-    seq_t *row_prev2 = (seq_t *)malloc(sizeof(seq_t) * maxlen); /* row n-2 */
-    seq_t *row_prev1 = (seq_t *)malloc(sizeof(seq_t) * maxlen); /* row n-1 */
-    seq_t *row_cur   = (seq_t *)malloc(sizeof(seq_t) * maxlen); /* current row */
+    seq_t *row_prev2 = mem_new(seq_t, maxlen); /* row n-2 */
+    seq_t *row_prev1 = mem_new(seq_t, maxlen); /* row n-1 */
+    seq_t *row_cur   = mem_new(seq_t, maxlen); /* current row */
 
     /* Initialize all to zero */
     for (idx_t i = 0; i < maxlen; i++) {
@@ -83,9 +85,9 @@ seq_t a(idx_t n) {
     seq_t result = row_prev1[m];
 
     /* Free allocated memory */
-    free(row_prev2);
-    free(row_prev1);
-    free(row_cur);
+    mem_free(row_prev2);
+    mem_free(row_prev1);
+    mem_free(row_cur);
 
     return result;
 }

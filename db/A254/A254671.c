@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 168, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _has_ge3_factor_pair
+ * Validated: standard, pass, 82 terms through n = 9660 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,22 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/_has_ge3_factor_pair.h"
+#include "../utils/mem.h"
+
+/* Helper: test whether v (≥ 3) can be written as a*b with a≥3, b≥3. */
+static bool _has_ge3_factor_pair(seq_t v)
+{
+    /* v is assumed to fit in a 64‑bit unsigned integer for the
+       ranges we need (< 2·10⁴), so cast safely. */
+    uint64_t vv = (uint64_t)v;
+    for (uint64_t d = 3; d * d <= vv; ++d) {
+        if (vv % d == 0) {
+            uint64_t e = vv / d;
+            if (e >= 3) return true;
+        }
+    }
+    return false;
+}
 
 /* Main sequence function. */
 seq_t a(idx_t n)
@@ -34,7 +50,7 @@ seq_t a(idx_t n)
     /* Allocate or grow the cache if needed. */
     if (cap == 0) {
         cap = 16;
-        vals = (seq_t *)malloc(cap * sizeof(seq_t));
+        vals = mem_new(seq_t, cap);
     }
 
     /* Generate terms until we have at least n of them. */
@@ -46,7 +62,7 @@ seq_t a(idx_t n)
         if (_has_ge3_factor_pair((seq_t)(last + 1))) {
             if (len == cap) {
                 cap <<= 1;
-                vals = (seq_t *)realloc(vals, cap * sizeof(seq_t));
+                vals = mem_resize(seq_t, vals, cap);
             }
             vals[len++] = (seq_t)last;
         }

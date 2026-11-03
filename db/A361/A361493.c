@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* cache for previously computed terms */
 static seq_t *cache      = NULL; /* array of terms */
@@ -34,14 +36,14 @@ static void ensure_capacity(idx_t need)
 {
     if (!cache) {
         cache_len = 1;
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
     }
     if (need >= cache_len) {
         idx_t new_len = cache_len;
         while (new_len <= need) new_len <<= 1;   /* grow fast enough */
-        seq_t *tmp = (seq_t *)malloc(new_len * sizeof(seq_t));
-        memcpy(tmp, cache, cache_len * sizeof(seq_t));
-        free(cache);
+        seq_t *tmp = mem_new(seq_t, new_len);
+        mem_copy(tmp, cache, cache_len * sizeof(seq_t));
+        mem_free(cache);
         cache = tmp;
         cache_len = new_len;
     }

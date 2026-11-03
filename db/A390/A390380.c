@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Choose a limit that safely exceeds the largest term
    (6563) and is large enough to collect all positions. */
@@ -84,7 +86,7 @@ static void init_sequence(void)
     for (size_t k = 1; k <= (size_t)LIMIT; ++k)
         if (!rep[k]) ++non_rep_count;
 
-    non_rep = (seq_t *)malloc(non_rep_count * sizeof(seq_t));
+    non_rep = mem_new(seq_t, non_rep_count);
     if (!non_rep) exit(1);
 
     size_t idx = 0;

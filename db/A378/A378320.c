@@ -11,13 +11,15 @@
  *            T(n-1,k-1) + T(n-2,k+1) for n≥2, k≥1
  * Range:     u8 n <= 60, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Computes a(n) for any unsigned 64‑bit index n. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* ---------- build the triangular prefix of the array ---------- */
     idx_t stride = s + 1;                              /* table width/height */
     size_t tblsize = (size_t)stride * (size_t)stride;  /* total cells needed   */
-    seq_t *data = (seq_t *)calloc(tblsize, sizeof(seq_t));
+    seq_t *data = mem_new(seq_t, tblsize);
     if (!data) return 0;                              /* allocation failure    */
 
     for (idx_t i = 0; i <= s; ++i)
@@ -64,6 +66,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = data[row * stride + col];
-    free(data);
+    mem_free(data);
     return result;
 }

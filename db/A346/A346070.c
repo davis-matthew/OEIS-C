@@ -6,8 +6,9 @@
  * Keywords:  easy, nonn
  * Formula:   a(n) = A007814(n) mod 4 (number of trailing zero bits of n,
  *            modulo 4)
- * Range:     u8 n <= 9903, u16 n <= 9903, u32 n <= 9903, u64 n <= 9903,
- *            u128 n <= 9903, big any n
+ * Range:     u8 n <= 16384, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 103 terms through n = 9903 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

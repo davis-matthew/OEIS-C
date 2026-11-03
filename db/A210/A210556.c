@@ -12,13 +12,15 @@
  *            higher powers afterward, row by row
  * Range:     u8 n <= 40, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* external integer types supplied by the build environment */
 extern seq_t a(idx_t n);
@@ -40,13 +42,13 @@ seq_t a(idx_t n)
     size_t len = (size_t)r;                 /* row length */
 
     /* Allocate 4 temporary rows of length 'len' */
-    seq_t *u_prev = (seq_t *)malloc(sizeof(seq_t) * len);
-    seq_t *v_prev = (seq_t *)malloc(sizeof(seq_t) * len);
-    seq_t *u_cur  = (seq_t *)malloc(sizeof(seq_t) * len);
-    seq_t *v_cur  = (seq_t *)malloc(sizeof(seq_t) * len);
+    seq_t *u_prev = mem_new(seq_t, len);
+    seq_t *v_prev = mem_new(seq_t, len);
+    seq_t *u_cur  = mem_new(seq_t, len);
+    seq_t *v_cur  = mem_new(seq_t, len);
     if (!u_prev || !v_prev || !u_cur || !v_cur) {
         /* allocation failure – return 0 as a safe fallback */
-        free(u_prev); free(v_prev); free(u_cur); free(v_cur);
+        mem_free(u_prev); mem_free(v_prev); mem_free(u_cur); mem_free(v_cur);
         return 0;
     }
 
@@ -83,10 +85,10 @@ seq_t a(idx_t n)
     seq_t result = v_prev[(size_t)idx_row];
 
     /* Clean up the allocated memory */
-    free(u_prev);
-    free(v_prev);
-    free(u_cur);
-    free(v_cur);
+    mem_free(u_prev);
+    mem_free(v_prev);
+    mem_free(u_cur);
+    mem_free(v_cur);
 
     return result;
 }

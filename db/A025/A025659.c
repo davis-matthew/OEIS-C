@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   hash_insert
+ * Validated: standard, pass, 120 terms through n = 9149 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,19 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/hash_insert.h"
+
+/* open addressing hash for 64‑bit composite key (i<<32 | j) */
+static inline bool hash_insert(uint64_t *keys, uint8_t *used, size_t cap, uint64_t key)
+{
+    size_t h = key & (cap - 1);
+    while (used[h]) {
+        if (keys[h] == key) return true;  /* already present */
+        h = (h + 1) & (cap - 1);
+    }
+    keys[h] = key;
+    used[h] = 1;
+    return false;  /* inserted */
+}
 
 typedef struct {
     long double val;   /* real logarithm of 5^i * 6^j */

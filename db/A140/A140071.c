@@ -14,17 +14,19 @@
  *            r(r+1)/2 ≥ n * k = n – r(r...
  * Range:     u8 n <= 21, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *alloc_row(int len)
 /* allocate array with indices 1..len (len≥1) */
 {
-    return (seq_t *)malloc((len + 1) * sizeof(seq_t));
+    return mem_new(seq_t, (len + 1));
 }
 
 seq_t a(idx_t n)
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     row1[1] = (seq_t)1;
     if (r == 1) {
         seq_t res = row1[1];
-        free(row1);
+        mem_free(row1);
         return res;
     }
 
@@ -54,8 +56,8 @@ seq_t a(idx_t n)
     row2[2] = (seq_t)1;
     if (r == 2) {
         seq_t res = row2[(int)k];
-        free(row1);
-        free(row2);
+        mem_free(row1);
+        mem_free(row2);
         return res;
     }
 
@@ -76,13 +78,13 @@ seq_t a(idx_t n)
                 val += prev2[(int)(j - 2)];
             curr[(int)j] = val;
         }
-        free(prev2);
+        mem_free(prev2);
         prev2 = prev1;
         prev1 = curr;
     }
 
     seq_t result = prev1[(int)k];
-    free(prev2);
-    free(prev1);
+    mem_free(prev2);
+    mem_free(prev1);
     return result;
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   has_equal_2_9
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,22 @@
    contains equal non‑zero counts of digits 2 and 9. */
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/has_equal_2_9.h"
+
+/* Return true if x in base‑12 has the same non‑zero number of 2’s and 9’s. */
+static bool has_equal_2_9(idx_t x)
+{
+    size_t c2 = 0, c9 = 0;
+    while (x > 0) {
+        int d = (int)(x % 12);
+        if (d == 2) {
+            c2++;
+        } else if (d == 9) {
+            c9++;
+        }
+        x /= 12;
+    }
+    return (c2 == c9) && (c2 > 0);
+}
 
 /* Maximum number of terms we cache – large enough for n ≤ 10 000. */
 #define MAX_CACHED 200000

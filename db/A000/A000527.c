@@ -11,13 +11,21 @@
  *            Prod_k (1-x^k)^(-b(k)) = 1 + Sum c(m) x^m, b(1) = 1
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 14, u64 n <= 30, u128 n <= 38,
  *            big any n
- * Helpers:   a527_zero
+ * Validated: partial, pass, 35 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/a527_zero.h"
+#include "../utils/mem.h"
+
+static seq_t *a527_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    idx_t i;
+    for (i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
 
 static seq_t *a527_g = NULL;
 static idx_t a527_len = 0;
@@ -72,8 +80,8 @@ static void a527_build(idx_t N) {
         }
     }
 
-    free(b); free(c); free(d); free(t); free(u);
-    if (a527_g) free(a527_g);
+    mem_free(b); mem_free(c); mem_free(d); mem_free(t); mem_free(u);
+    if (a527_g) mem_free(a527_g);
     a527_g = g;
     a527_len = N + 1;
 }

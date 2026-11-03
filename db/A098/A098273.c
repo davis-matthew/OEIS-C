@@ -11,14 +11,25 @@
  *            [(n+k+1)(2n+2k+1)] * C(2k,k) * C(3n+2k,n)
  * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 41, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   index_to_rc
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /*  Compile with -std=c11 or -std=gnu++17 in the build environment.  */
 #include <stdbool.h>
-#include "../utils/index_to_rc.h"
+
+/* Mapping from linear index n to antidiagonal coordinates (row,col). */
+static inline void index_to_rc(idx_t n, idx_t *row, idx_t *col) {
+    /* Find the smallest s such that (s+1)(s+2)/2 > n. */
+    idx_t s = 0;
+    while (((s + 1) * (s + 2)) / 2 <= n) ++s;
+    idx_t prev_cum = (s * (s + 1)) / 2;   /* cumulative count before diag s */
+    idx_t offset   = n - prev_cum;        /* 0‑based offset within diag s */
+    *row = offset;                       /* r = offset */
+    *col = s - offset;                    /* k = s - offset */
+}
 
 static inline seq_t pow_seq_t(seq_t base, idx_t exp) {
     seq_t result = 1;

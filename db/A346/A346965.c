@@ -11,8 +11,9 @@
  *            * * Each block consists of one or more consecutive odd steps *
  *            (n → (3*n+1)/2). We count a new block whenever we encounter an
  *            odd * number that follows an even number or the st...
- * Range:     u8 n <= 26, u16 n <= 7658, u32 n <= 9803, u64 n <= 9803,
- *            u128 n <= 9803, big any n
+ * Range:     u8 n <= 26, u16 n <= 7658, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 99 terms through n = 9803 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

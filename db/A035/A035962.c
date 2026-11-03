@@ -10,12 +10,14 @@
  *            16 modulo 17
  * Range:     u8 n <= 23, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     if (dp == NULL || n > max_n) {
         /* Allocate a new array large enough for indices 0..n. */
         idx_t new_size = n + 1;
-        seq_t *new_dp = (seq_t *)malloc((size_t)new_size * sizeof(seq_t));
+        seq_t *new_dp = mem_new(seq_t, (size_t)new_size);
         if (!new_dp) return (seq_t)0;  /* Allocation failure – return 0 as a fallback. */
 
         /* Initialise all entries to zero.  We treat seq_t as assignable from the integer literal 0. */
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
         }
 
         /* Replace the old table with the new one. */
-        free(dp);
+        mem_free(dp);
         dp = new_dp;
         max_n = n;
     }

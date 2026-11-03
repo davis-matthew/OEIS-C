@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 216, u64 n <= 216, u128 n <= 216,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* --------------  Globals -------------- */
 static size_t repLimit = 0;                 /* current maximum value for precomputation */
@@ -92,7 +94,7 @@ static void add_cache(seq_t val)
 {
     if (cacheCount >= cacheSize) {
         size_t newSize = cacheSize ? cacheSize * 2 : 16;
-        seq_t *newCache = (seq_t *)realloc(cache, newSize * sizeof(seq_t));
+        seq_t *newCache = mem_resize(seq_t, cache, newSize);
         if (!newCache) exit(EXIT_FAILURE);
         cache = newCache;
         cacheSize = newSize;

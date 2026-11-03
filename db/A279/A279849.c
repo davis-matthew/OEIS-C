@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 768, u16 n <= 768, u32 n <= 768, u64 n <= 768,
  *            u128 n <= 768, big any n
- * Helpers:   none
+ * Validated: full, pass, 768 terms through n = 768 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Data structure to store one 4 × 4 Latin square */
 typedef struct {
@@ -97,7 +99,7 @@ static void build_sequence(seq_t *seq)
     backtrack(0);
 
     /* sort the 48 squares */
-    qsort(squares, square_count, sizeof(Square), cmp_squares);
+    mem_qsort(squares, square_count, sizeof(Square), cmp_squares);
 
     /* flatten into seq */
     size_t idx = 0;
@@ -117,7 +119,7 @@ seq_t a(idx_t n)
 
     if (!ready) {
         /* Allocate static array */
-        seq = (seq_t *)malloc(TERMS * sizeof(seq_t));
+        seq = mem_new(seq_t, TERMS);
         if (seq == NULL) {              /* allocation failure – abort */
             for (;;) ;                   /* safe‑guard for compilation */
         }

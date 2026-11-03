@@ -9,7 +9,8 @@
  *            is a prime number
  * Range:     u8 n <= 18, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ----- Miller–Rabin primality test for 64‑bit numbers ----- */
 static inline bool is_prime_uint64(uint64_t n)
@@ -81,7 +83,7 @@ static void ensure_terms_capacity(size_t min_cap)
     if (terms_cap >= min_cap) return;
     size_t new_cap = terms_cap ? terms_cap << 1 : 16;
     if (new_cap < min_cap) new_cap = min_cap;
-    seq_t *new_arr = (seq_t *)realloc(terms, new_cap * sizeof *terms);
+    seq_t *new_arr = mem_resize(seq_t, terms, (new_cap * sizeof *terms) / sizeof(seq_t));
     if (!new_arr) abort();
     terms = new_arr;
     terms_cap = new_cap;

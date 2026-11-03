@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 186, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   free_seq_buf
+ * Validated: standard, pass, 74 terms through n = 897 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,16 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/free_seq_buf.h"
+
+/* Allocate / deallocate a seq_t array, usable with both C and C++. */
+static void free_seq_buf(seq_t *p)
+{
+#ifdef __cplusplus
+    delete[] p;
+#else
+    free(p);
+#endif
+}
 
 /* Forward declarations for helper functions from the utilities library. */
 static void free_seq_buf(seq_t *p);

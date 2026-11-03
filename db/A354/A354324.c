@@ -11,13 +11,15 @@
  *            allocates the cache lazily and grows it as ne...
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 19, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
         size_t new_cap = (cap == 0) ? 2 : cap * 2;
         if (new_cap <= (size_t)n) new_cap = (size_t)n + 1;
 
-        seq_t *tmp_seq = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp_seq = mem_resize(seq_t, cache, new_cap);
         if (!tmp_seq) return 0;   /* allocation failure → return 0 */
         bool *tmp_bool = (bool *)realloc(computed, new_cap * sizeof(bool));
         if (!tmp_bool) return 0;

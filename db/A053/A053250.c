@@ -10,7 +10,8 @@
  *            sequence of the mock‑theta function φ(q)
  * Range:     i8 n <= 148, i16 n <= 470, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 106 terms through n = 968 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
    with N = n, which is below the 2‑second limit for n ≤ 10000.  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache of previously computed values */
@@ -32,7 +34,7 @@ seq_t a(idx_t n) {
     if (n >= cache_size) {
         /* extend cache to size n+1 */
         size_t new_size = (size_t)(n + 1);
-        seq_t *new_cache = (seq_t *)calloc(new_size, sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_size);
         if (!new_cache) return (seq_t)0;   /* memory failure, return 0 */
 
         /* compute all values up to n */
@@ -42,20 +44,20 @@ seq_t a(idx_t n) {
         size_t size = (size_t)(N + 1);
 
         /* arrays for dynamic programming */
-        seq_t *even = (seq_t *)calloc(size, sizeof(seq_t));
-        seq_t *odd  = (seq_t *)calloc(size, sizeof(seq_t));
+        seq_t *even = mem_new(seq_t, size);
+        seq_t *odd  = mem_new(seq_t, size);
         if (!even || !odd) {
-            free(even); free(odd); free(new_cache);
+            mem_free(even); mem_free(odd); mem_free(new_cache);
             return (seq_t)0;
         }
         even[0] = 1;   /* partition of 0 with 0 parts (even) */
 
         /* tables for counts A027358 and A027357 */
-        seq_t *cnt358 = (seq_t *)calloc(size, sizeof(seq_t));
-        seq_t *cnt357 = (seq_t *)calloc(size, sizeof(seq_t));
+        seq_t *cnt358 = mem_new(seq_t, size);
+        seq_t *cnt357 = mem_new(seq_t, size);
         if (!cnt358 || !cnt357) {
-            free(even); free(odd); free(cnt358); free(cnt357);
-            free(new_cache);
+            mem_free(even); mem_free(odd); mem_free(cnt358); mem_free(cnt357);
+            mem_free(new_cache);
             return (seq_t)0;
         }
 
@@ -92,13 +94,13 @@ seq_t a(idx_t n) {
         }
 
         /* clean up temporary arrays */
-        free(even);
-        free(odd);
-        free(cnt358);
-        free(cnt357);
+        mem_free(even);
+        mem_free(odd);
+        mem_free(cnt358);
+        mem_free(cnt357);
 
         /* replace old cache */
-        free(a_cache);
+        mem_free(a_cache);
         a_cache = new_cache;
         cache_size = new_size;
     }

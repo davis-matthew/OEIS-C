@@ -9,13 +9,27 @@
  *            with c = (20,231,411,72,29,-36,4,-2)
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   a564_c6, a564_term
+ * Validated: partial, pass, 25 terms through n = 30 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a564_c6.h"
-#include "../utils/a564_term.h"
+static seq_t a564_c6(idx_t m) {
+	seq_t r = 1;
+	idx_t i;
+	if (m < 6) return 0;
+	for (i = 0; i < 6; i++) {
+		r = r * (seq_t)(m - i);
+		r = r / (seq_t)(i + 1);
+	}
+	return r;
+}
+
+static seq_t a564_term(idx_t n, idx_t k) {
+	if (n < k + 6) return 0;
+	return a564_c6(n - k);
+}
 
 seq_t a(idx_t n) {
 	seq_t result = 0;

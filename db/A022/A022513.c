@@ -10,7 +10,8 @@
  *            append the decimal count followed by the digit
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 6, u128 n <= 9,
  *            big any n
- * Helpers:   bitlen_seq_t, seq_from_str, seq_to_str
+ * Validated: partial, pass, 10 terms through n = 9 (2026-11-03)
+ * Helpers:   bit_length, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,40 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/seq_from_str.h"
-#include "../utils/seq_to_str.h"
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include <string.h>
+#include "../utils/bit_length.h"
+#include "../utils/mem.h"
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
+
+/* convert a seq_t value to a decimal string */
+static void seq_to_str(seq_t v, char *buf, size_t *len)
+{
+    if (v == 0) {
+        buf[0] = '0';
+        *len = 1;
+        return;
+    }
+    char tmp[64];
+    int pos = 0;
+    seq_t ten = (seq_t)10;
+    while (v != 0) {
+        tmp[pos++] = '0' + (int)(v % ten);
+        v /= ten;
+    }
+    for (int i = 0; i < pos; ++i)
+        buf[i] = tmp[pos - 1 - i];
+    *len = pos;
+}
 
 seq_t a(idx_t n)
 {
@@ -32,7 +64,7 @@ seq_t a(idx_t n)
     /* Initialize cache on first call */
     if (cache_cap == 0) {
         cache_cap = 1;
-        cache     = (seq_t*)malloc(sizeof(seq_t));
+        cache     = mem_new(seq_t, 1);
         cache[0]  = (seq_t)9;            /* a(0) = 9 */
         cache_max = 0;
     }
@@ -44,7 +76,7 @@ seq_t a(idx_t n)
     /* Ensure cache array large enough for n+1 entries */
     if ((size_t)n + 1 > cache_cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cache_cap = new_cap;
     }
@@ -54,7 +86,7 @@ seq_t a(idx_t n)
         seq_t prev = cache[idx];
 
         /* Buffer for string representation of prev */
-        size_t bitlen = bitlen_seq_t(prev);
+        size_t bitlen = bit_length(prev);
         size_t est_digits = (bitlen * 301 + 99) / 100 + 2;  /* safety margin */
         char *buf = (char*)malloc(est_digits + 1);
         size_t len = 0;

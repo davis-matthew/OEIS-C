@@ -11,13 +11,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Recurrence: a(1)=1; for n>1, a(n)=max_{i=1..n-1} (#occurrences of the maximum value in a[i..n-1]) */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,8 +36,8 @@ seq_t a(idx_t n)
     if (cap <= (size_t)n + 1) {
         size_t new_cap = cap ? cap : 16;
         while (new_cap <= (size_t)n + 1) new_cap <<= 1;
-        seq     = (seq_t*)realloc(seq,     new_cap * sizeof(seq_t));
-        max_val = (seq_t*)realloc(max_val, new_cap * sizeof(seq_t));
+        seq     = mem_resize(seq_t, seq, new_cap);
+        max_val = mem_resize(seq_t, max_val, new_cap);
         cnt     = (idx_t*)realloc(cnt,     new_cap * sizeof(idx_t));
         cap = new_cap;
     }

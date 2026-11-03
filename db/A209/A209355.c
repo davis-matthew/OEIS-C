@@ -12,13 +12,20 @@
  *            that length). The block k covers exactly...
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   C_block
+ * Validated: standard, pass, 121 terms through n = 9554 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/C_block.h"
+
+static inline unsigned __int128 C_block(idx_t k) {
+    /* cumulative number of positions up to and including block k:
+       C(k) = k*(k+1)*(k+2)/3  (product is divisible by 3)        */
+    unsigned __int128 kk = k;
+    return kk * (kk + 1) * (kk + 2) / 3;
+}
 
 seq_t a(idx_t n) {
     /* n>=1; return the n-th term (0 or 1) of A209355 */

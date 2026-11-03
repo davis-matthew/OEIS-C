@@ -9,13 +9,15 @@
  *            (7*k*(k+1))/2 + 1 (centred heptagonal numbers)
  * Range:     u8 n <= 30, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* initialise on first call */
     if (dp == NULL) {
         dp_size = 1;
-        dp = (seq_t*)malloc(dp_size * sizeof(seq_t));
+        dp = mem_new(seq_t, dp_size);
         if (dp == NULL) return (seq_t)0;   /* out‑of‑memory guard */
         dp[0] = (seq_t)1;                 /* a(0) = 1 */
     }
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* grow the table up to n if necessary */
     if ((size_t)n >= dp_size) {
         size_t new_size = (size_t)n + 1;
-        seq_t *tmp = (seq_t*)realloc(dp, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, new_size);
         if (tmp == NULL) return (seq_t)0;   /* out‑of‑memory guard */
         dp = tmp;
 

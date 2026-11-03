@@ -11,13 +11,19 @@
  *            n * t = n - d(d+1)/2 (0 ≤ t ≤ d) * r = d - t (row index)...
  * Range:     u8 n <= 40, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   binom4
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom4.h"
+
+static inline seq_t binom4(unsigned long long m)
+{
+    if (m < 4) return 0;
+    return ((seq_t)m * (m-1) * (m-2) * (m-3)) / 24;
+}
 
 seq_t a(idx_t n)
 {

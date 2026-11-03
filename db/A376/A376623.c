@@ -9,6 +9,7 @@
  *            as the convolution of 1 + 2*x^(2k-1) + x^(4k-2)
  * Range:     u8 n <= 79, u16 n <= 223, u32 n <= 700, u64 n <= 2399,
  *            u128 n <= 8734, big any n
+ * Validated: standard, pass, 88 terms through n = 9849 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

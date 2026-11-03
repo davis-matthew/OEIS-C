@@ -10,13 +10,19 @@
  *            row‑wise
  * Range:     u8 n <= 9, u16 n <= 13, u32 n <= 14, u64 n <= 20, u128 n <= 27,
  *            big any n
- * Helpers:   offset
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/offset.h"
+
+/* offset of the first element of row r (1‑based) in the 1‑D array */
+static inline idx_t offset(idx_t r)
+{
+    return r * (r - 1) / 2;
+}
 
 /* -------------------------------------------------------------- */
 /* static storage for the triangular array                         */

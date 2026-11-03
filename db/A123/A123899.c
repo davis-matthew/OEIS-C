@@ -9,7 +9,8 @@
  *            k!/i!)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 19, u128 n <= 20,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,9 +32,9 @@ seq_t a(idx_t n)
     /* --- Initial allocation and first element (k = 0) --------------------------- */
     if (!g_arr) {
         size_t init_cap = 1;
-        g_arr     = (seq_t*)calloc(init_cap, sizeof(seq_t));
-        rem_arr   = (seq_t*)calloc(init_cap, sizeof(seq_t));
-        fact_arr  = (seq_t*)calloc(init_cap, sizeof(seq_t));
+        g_arr     = mem_new(seq_t, init_cap);
+        rem_arr   = mem_new(seq_t, init_cap);
+        fact_arr  = mem_new(seq_t, init_cap);
         if (!g_arr || !rem_arr || !fact_arr)
             exit(1);                       /* allocation failed */
 
@@ -50,9 +52,9 @@ seq_t a(idx_t n)
         /*--- enlarge storage if needed ----------------------------------------*/
         size_t cap = max_computed ? max_computed : 1;
         while (cap <= target) cap <<= 1;                       /* double capacity */
-        g_arr     = (seq_t*)realloc(g_arr,     cap * sizeof(seq_t));
-        rem_arr   = (seq_t*)realloc(rem_arr,   cap * sizeof(seq_t));
-        fact_arr  = (seq_t*)realloc(fact_arr,  cap * sizeof(seq_t));
+        g_arr     = mem_resize(seq_t, g_arr, cap);
+        rem_arr   = mem_resize(seq_t, rem_arr, cap);
+        fact_arr  = mem_resize(seq_t, fact_arr, cap);
         if (!g_arr || !rem_arr || !fact_arr)
             exit(1);                                          /* allocation failed */
 

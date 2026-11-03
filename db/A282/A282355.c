@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 110, u16 n <= 110, u32 n <= 110, u64 n <= 110,
  *            u128 n <= 110, big any n
- * Helpers:   build_primes_upto, build_spf, is_prime_small
+ * Validated: partial, pass, 111 terms through n = 110 (2026-11-01)
+ * Helpers:   build_primes_upto, build_spf, is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,9 @@
 #include <stdlib.h>
 
 /* Utilities provided by the build system */
-#include "../utils/is_prime_small.h"       /* bool is_prime_small(unsigned int n); */
-#include "../utils/build_primes_upto.h"    /* void build_primes_upto(idx_t limit, uint64_t **p_out, size_t *cnt_out); */
-#include "../utils/build_spf.h"            /* void build_spf(idx_t limit, idx_t **spf_out); */
+#include "../utils/build_primes_upto.h"
+#include "../utils/build_spf.h"
+#include "../utils/is_prime_seq.h"
 
 static uint64_t *g_primes = NULL;          /* primes up to current max n */
 static size_t     g_prime_cnt = 0;
@@ -51,7 +52,7 @@ static void ensure_tables(idx_t n)
     /* build allowed primes: those whose 1‑based index is prime */
     g_allowed_cnt = 0;
     for (size_t i = 1; i <= g_prime_cnt; ++i) {
-        if (is_prime_small((unsigned int)i)) g_allowed_cnt++;
+        if (is_prime_seq((unsigned int)i)) g_allowed_cnt++;
     }
     if (g_allowed_cnt) {
         g_allowed = (uint64_t *)malloc(g_allowed_cnt * sizeof(uint64_t));
@@ -60,7 +61,7 @@ static void ensure_tables(idx_t n)
     }
     size_t pos = 0;
     for (size_t i = 1; i <= g_prime_cnt; ++i) {
-        if (is_prime_small((unsigned int)i)) {
+        if (is_prime_seq((unsigned int)i)) {
             g_allowed[pos++] = g_primes[i-1];
         }
     }
@@ -74,7 +75,7 @@ static bool is_semiprime(uint64_t x)
     idx_t p = g_spf[x];               /* smallest prime factor (0 if x is prime) */
     if (p == 0) return false;         /* x is prime, cannot be semiprime */
     uint64_t q = x / p;
-    return is_prime_small((unsigned int)q);
+    return is_prime_seq((unsigned int)q);
 }
 
 /* public function required by the problem statement */

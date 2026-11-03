@@ -10,13 +10,15 @@
  *            floor(√(5*(n+1-i)²)) ) / 2 )
  * Range:     u8 n <= 9, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Integer square root: floor(√x) for 0 ≤ x < 2⁶⁴ */
 static uint64_t floor_sqrt_u64(uint64_t x)
@@ -52,7 +54,7 @@ static void ensure_wythoff(idx_t n)
 {
     if (Wythoff_len >= n) return;
     size_t new_len = n + 1;
-    seq_t *tmp = (seq_t*)realloc(Wythoff, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, Wythoff, new_len);
     if (!tmp) abort();
     Wythoff = tmp;
     for (idx_t i = Wythoff_len + 1; i <= n; ++i)
@@ -65,7 +67,7 @@ static void ensure_a(idx_t n)
 {
     if (A_cache_len >= n) return;
     size_t new_len = n + 1;
-    seq_t *tmp = (seq_t*)realloc(A_cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, A_cache, new_len);
     if (!tmp) abort();
     A_cache = tmp;
 

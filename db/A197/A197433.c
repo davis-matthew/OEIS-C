@@ -8,13 +8,16 @@
  * Keywords:  easy, nonn
  * Formula:   a(n) = Σ_{k≥0} bit_k(n) * Catalan(k+1) (bit_k(n) = 1 iff the
  *            k‑th binary digit of n is 1. )
- * Range:     u8 n <= 31, u16 n <= 1090, u32 n <= 8191, u64 n <= 8191,
+ * Range:     u8 n <= 63, u16 n <= 1487, u32 n <= 8191, u64 n <= 8191,
  *            u128 n <= 8191, big any n
+ * Validated: standard, pass, 80 terms through n = 7369 (2026-11-01)
  * Helpers:   catalan
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/catalan.h"
 
 seq_t a(idx_t n)

@@ -11,8 +11,8 @@
  *            odd
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 24, u64 n <= 48, u128 n <= 96,
  *            big any n
- * Helpers:   a1674_add, a1674_atan_inv, a1674_cmp, a1674_divs, a1674_iszero,
- *            a1674_mulfix, a1674_muls, a1674_shl, a1674_sub
+ * Validated: standard, pass, 46 terms through n = 455 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,15 +20,105 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a1674_add.h"
-#include "../utils/a1674_atan_inv.h"
-#include "../utils/a1674_cmp.h"
-#include "../utils/a1674_divs.h"
-#include "../utils/a1674_iszero.h"
-#include "../utils/a1674_mulfix.h"
-#include "../utils/a1674_muls.h"
-#include "../utils/a1674_shl.h"
-#include "../utils/a1674_sub.h"
+
+static void a1674_add(uint32_t *a, const uint32_t *b, size_t len) {
+    uint64_t carry = 0;
+    size_t i;
+    for (i = 0; i < len; i++) {
+        uint64_t cur = (uint64_t)a[i] + b[i] + carry;
+        a[i] = (uint32_t)cur;
+        carry = cur >> 32;
+    }
+}
+
+static void a1674_divs(uint32_t *x, size_t len, uint32_t d) {
+    uint64_t rem = 0;
+    size_t i = len;
+    while (i > 0) {
+        i--;
+        uint64_t cur = (rem << 32) | x[i];
+        x[i] = (uint32_t)(cur / d);
+        rem = cur % d;
+    }
+}
+
+static int a1674_iszero(const uint32_t *x, size_t len) {
+    size_t i;
+    for (i = 0; i < len; i++) if (x[i]) return 0;
+    return 1;
+}
+
+static void a1674_sub(uint32_t *a, const uint32_t *b, size_t len) {
+    int64_t borrow = 0;
+    size_t i;
+    for (i = 0; i < len; i++) {
+        int64_t cur = (int64_t)a[i] - (int64_t)b[i] - borrow;
+        if (cur < 0) { cur += (int64_t)1 << 32; borrow = 1; } else borrow = 0;
+        a[i] = (uint32_t)cur;
+    }
+}
+
+/* out = atan(1/x) in fixed point */
+static void a1674_atan_inv(uint32_t *out, uint32_t x, size_t L, size_t F,
+                           uint32_t *t, uint32_t *s) {
+    uint32_t k = 0;
+    memset(out, 0, L * sizeof(uint32_t));
+    memset(t, 0, L * sizeof(uint32_t));
+    t[F] = 1;
+    a1674_divs(t, L, x);
+    while (!a1674_iszero(t, L)) {
+        memcpy(s, t, L * sizeof(uint32_t));
+        a1674_divs(s, L, 2 * k + 1);
+        if (k & 1) a1674_sub(out, s, L); else a1674_add(out, s, L);
+        a1674_divs(t, L, x);
+        a1674_divs(t, L, x);
+        k++;
+    }
+}
+
+static int a1674_cmp(const uint32_t *a, const uint32_t *b, size_t len) {
+    size_t i = len;
+    while (i > 0) {
+        i--;
+        if (a[i] != b[i]) return a[i] < b[i] ? -1 : 1;
+    }
+    return 0;
+}
+
+/* out = a*b in fixed point with F fractional limbs, length L */
+static void a1674_mulfix(uint32_t *out, const uint32_t *a, const uint32_t *b,
+                         size_t L, size_t F, uint32_t *t) {
+    size_t i, j;
+    memset(t, 0, 2 * L * sizeof(uint32_t));
+    for (i = 0; i < L; i++) {
+        uint64_t carry = 0;
+        if (a[i] == 0) continue;
+        for (j = 0; j < L; j++) {
+            uint64_t cur = (uint64_t)a[i] * b[j] + t[i + j] + carry;
+            t[i + j] = (uint32_t)cur;
+            carry = cur >> 32;
+        }
+        t[i + L] = (uint32_t)carry;
+    }
+    for (j = 0; j < L; j++) out[j] = t[F + j];
+}
+
+static void a1674_muls(uint32_t *x, size_t len, uint32_t m) {
+    uint64_t carry = 0;
+    size_t i;
+    for (i = 0; i < len; i++) {
+        uint64_t cur = (uint64_t)x[i] * m + carry;
+        x[i] = (uint32_t)cur;
+        carry = cur >> 32;
+    }
+}
+
+static void a1674_shl(uint32_t *x, size_t len, unsigned s) {
+    size_t i;
+    for (i = len - 1; i > 0; i--)
+        x[i] = (x[i] << s) | (x[i - 1] >> (32 - s));
+    x[0] <<= s;
+}
 
 seq_t a(idx_t n) {
     uint64_t bitsInt = (uint64_t)n * 1326 / 1000 + 8;

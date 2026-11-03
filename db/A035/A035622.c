@@ -9,6 +9,7 @@
  *            least one part of each type. (OEIS A035622)
  * Range:     u8 n <= 33, u16 n <= 87, u32 n <= 255, u64 n <= 833,
  *            u128 n <= 2000, big any n
+ * Validated: standard, pass, 87 terms through n = 1808 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

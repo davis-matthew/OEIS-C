@@ -8,6 +8,7 @@
  *            n*(n+1)*(n+2)*(n+3)*(n+4)*(48-100*n-89*n^2+160*n^3+140*n^4+36*n^5+3*n^6)/23760
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 15, u64 n <= 125, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 41 terms through n = 966 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

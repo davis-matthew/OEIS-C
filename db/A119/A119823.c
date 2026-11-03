@@ -10,13 +10,15 @@
  *            so that calls can be made in any order
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 70 terms through n = 69 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Count the number of distinct decimal digits in a value.
    Works for any unsigned integer type seq_t, including arbitrary‑precision
@@ -53,7 +55,7 @@ seq_t a(idx_t n) {
     /* Initialize cache on first call. */
     if (cache == NULL) {
         cache_size = 1;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (cache == NULL) {
             /* Out‑of‑memory: return 0 as a safe fallback. */
             return (seq_t)0;
@@ -71,7 +73,7 @@ seq_t a(idx_t n) {
         size_t new_size = cache_size;
         while ((size_t)n >= new_size)
             new_size <<= 1;                 /* double until large enough */
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (tmp == NULL) {
             /* Out‑of‑memory: return 0 as a safe fallback. */
             return (seq_t)0;

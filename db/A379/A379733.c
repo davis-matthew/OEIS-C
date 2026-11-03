@@ -9,7 +9,8 @@
  *            parts is a multiple of n
  * Range:     u8 n <= 35, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   expo_cap, is_prime
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,13 +21,25 @@
 
 /* Add helper from utils */
 #include "../utils/is_prime.h"
-#include "../utils/expo_cap.h"
+#include "../utils/mem.h"
+
+/* Helper to compute exponent of p in number x, capped to max_exp */
+static inline int expo_cap(uint64_t x, uint64_t p, int max_exp) {
+    int exp = 0;
+    while (x % p == 0) {
+        ++exp;
+        if (exp == max_exp) return exp;
+        x /= p;
+    }
+    return exp;
+}
 
 typedef idx_t idx_t;  /* defined by build, just for clarity */
 typedef seq_t seq_t;  /* defined by build */
 
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)0;   /* for safety; sequence is defined for n>=1 */
+    if (n == 1) return (seq_t)1;   /* {1}; n has no prime factors to track */
 
     /* 1. Factor n into distinct primes and their exponents */
     uint64_t primes[10];
@@ -65,7 +78,7 @@ seq_t a(idx_t n) {
 
     /* 3. DP array: dp[s][state] -> count */
     size_t dp_rows = (n + 1) * total_states;
-    seq_t *dp = (seq_t *)calloc(dp_rows, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, dp_rows);
     if (!dp) return (seq_t)0;       /* allocation failure fallback */
     dp[0] = (seq_t)1;               /* empty partition */
 
@@ -107,6 +120,6 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = dp[n * total_states + target_state];
-    free(dp);
+    mem_free(dp);
     return result;
 }

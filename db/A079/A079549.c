@@ -9,12 +9,14 @@
  *            coordinates of the nth term read by antidiagonals of the array
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   phi
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/phi.h"
+#include <stdint.h>
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -37,9 +39,9 @@ seq_t a(idx_t n)
     idx_t n_prime = offset + 1;
 
     /* Compute the value using the totient function from utils/phi.h. */
-    seq_t phi_n    = phi((idx_t)n_prime);          /* phi(n')   */
+    seq_t phi_n    = totient((idx_t)n_prime);          /* phi(n')   */
     idx_t prod     = m * n_prime;                 /* m*n'      */
-    seq_t phi_mn   = phi(prod);                   /* phi(m*n') */
+    seq_t phi_mn   = totient(prod);                   /* phi(m*n') */
     seq_t result   = (seq_t)m * phi_n - phi_mn;   /* T(m,n')   */
 
     return result;

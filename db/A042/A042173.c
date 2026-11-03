@@ -11,13 +11,15 @@
  *            a(n-28) for n > 27
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 26, u64 n <= 49, u128 n <= 97,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper: multiply two seq_t values safely using 128‑bit arithmetic if needed */
 static inline seq_t mul_seq_t(seq_t x, seq_t y)
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call */
     if (cache == NULL) {
         cap = 32;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) return 0;     /* out of memory, but unlikely */
         cache[0] = (seq_t)1;     /* a(0) */
         size = 1;
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
             /* Ensure capacity */
             if (i >= cap) {
                 size_t newcap = cap * 2;
-                seq_t *newptr = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+                seq_t *newptr = mem_resize(seq_t, cache, newcap);
                 if (!newptr) return 0;  /* memory error */
                 cache = newptr;
                 cap = newcap;

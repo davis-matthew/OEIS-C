@@ -8,7 +8,8 @@
  *            equivalent to a(n+1) = 1 + Σ_{j=1}^n (C(n+1,j)-1)·a(j).)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 18, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 410 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Global cache ---------------------------------------------------------- */
 static seq_t *a_cache = NULL;  /* computed terms a[0..] */
@@ -31,7 +33,7 @@ static void ensure_cache(idx_t n)
     size_t new_cap = a_cap ? a_cap << 1 : 4; /* start with 4 or double */
     while ((idx_t)new_cap <= n) new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
     if (!tmp) { abort(); }                  /* unrecoverable allocation failure */
     a_cache = tmp;
     a_cap   = new_cap;
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
 {
     /* Initialise cache on first call. */
     if (!a_cache) {
-        a_cache = (seq_t *)malloc(sizeof(seq_t));
+        a_cache = mem_new(seq_t, 1);
         if (!a_cache) { abort(); }
         a_cache[0] = (seq_t)1;     /* a(0) = 1 */
         a_cap   = 1;

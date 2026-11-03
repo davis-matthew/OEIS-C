@@ -12,17 +12,60 @@
  *            x-function of X_0...
  * Range:     i8 n <= 18, i16 n <= 48, i32 n <= 48, i64 n <= 48, i128 n <= 48,
  *            big any n
- * Helpers:   alloc_zero, div_eta, mul_eta, release
+ * Validated: partial, pass, 51 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
-#include "../utils/div_eta.h"
-#include "../utils/mul_eta.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
+
+/* s <- s / Prod_{k>=1} (1 - q^(st*k)), over seq_t */
+static void div_eta(seq_t *s, long long L, long long st) {
+    for (long long k = 0; k < L; k++) {
+        seq_t acc = s[k];
+        for (long long m = 1;; m++) {
+            long long g1 = st * (m * (3 * m - 1) / 2);
+            long long g2 = st * (m * (3 * m + 1) / 2);
+            if (g1 > k) break;
+            if (m & 1) acc += s[k - g1]; else acc -= s[k - g1];
+            if (g2 <= k) {
+                if (m & 1) acc += s[k - g2]; else acc -= s[k - g2];
+            }
+        }
+        s[k] = acc;
+    }
+}
+
+/* s <- s * Prod_{k>=1} (1 - q^(st*k)), native integers */
+static void mul_eta(long long *s, long long L, long long st) {
+    for (long long k = L - 1; k >= 0; k--) {
+        long long acc = s[k];
+        for (long long m = 1;; m++) {
+            long long g1 = st * (m * (3 * m - 1) / 2);
+            long long g2 = st * (m * (3 * m + 1) / 2);
+            if (g1 > k) break;
+            if (m & 1) acc -= s[k - g1]; else acc += s[k - g1];
+            if (g2 <= k) {
+                if (m & 1) acc -= s[k - g2]; else acc += s[k - g2];
+            }
+        }
+        s[k] = acc;
+    }
+}
 
 seq_t a(idx_t n) {
     static seq_t *X = NULL;

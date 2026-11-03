@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 37, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Standard comparator for qsort.  Works for both integer and
    arbitrary‑precision seq_t types that provide operator<. */
@@ -105,7 +107,7 @@ static void generate_length(idx_t L)
     }
 
     /* sort the numbers of this length and append them to the global cache */
-    qsort(local, local_len, sizeof(seq_t), cmp_seq);
+    mem_qsort(local, local_len, sizeof(seq_t), cmp_seq);
     for (size_t i = 0; i < local_len && cache_len < MAX_CACHE; ++i)
         cache[cache_len++] = local[i];
 }

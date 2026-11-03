@@ -9,12 +9,13 @@
  *            a(0)=0, a(1)=0, a(2)=1
  * Range:     u8 n <= 10, u16 n <= 14, u32 n <= 30, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   reverse_seq
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-01)
+ * Helpers:   reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/reverse_seq.h"
+#include "../utils/reverse_digits.h"
 /* Turn a seq_t integer into its decimal digit reversal */
 
 /* ==================================================================== */
@@ -33,9 +34,9 @@ seq_t a(idx_t n)
 
     /* Compute a(3) .. a(n).  Since n is unsigned we use idx_t. */
     for (idx_t k = 3; k <= n; ++k) {
-        seq_t rev_a_m3 = reverse_seq(a_minus3);
+        seq_t rev_a_m3 = reverse_digits(a_minus3);
         seq_t sum = rev_a_m3 + a_minus2 + a_minus1;
-        current = reverse_seq(sum);
+        current = reverse_digits(sum);
 
         /* Slide the window. */
         a_minus3 = a_minus2;

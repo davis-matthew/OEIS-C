@@ -8,7 +8,8 @@
  *            a(0)=1
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 13, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #ifdef __cplusplus
 # include <new>
 #endif
+#include "../utils/mem.h"
 
 /* static cache for sequence values */
 static seq_t *cache = NULL;
@@ -36,12 +38,12 @@ static void ensure_capacity(seq_t **arr, size_t *cap, size_t needed)
 {
     if (needed <= *cap)
         return;
-    seq_t *tmp = (seq_t *)realloc(*arr, needed * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *arr, needed);
     if (!tmp)
         return;  /* allocation failed – program will crash on next use */
 #ifdef __cplusplus
     for (size_t i = *cap; i < needed; ++i)
-        ::new(&tmp[i]) seq_t(); /* default–construct new elements */
+        *(&tmp[i]) = (seq_t)0; /* default–construct new elements */
 #endif
     *arr = tmp;
     *cap = needed;

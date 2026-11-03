@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 8883, u16 n <= 8883, u32 n <= 8883, u64 n <= 8883,
- *            u128 n <= 8883, big any n
- * Helpers:   none
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 8883 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Internal arrays: N (low 64 bits of numerator), E (denominator exponent),
    and cache of the returned 2‑adic valuations. */
@@ -43,7 +45,7 @@ ensure_up_to(idx_t N)
         size_t new_cap = (size_t)(N + 1);
         g_num = (uint64_t *)realloc(g_num, new_cap * sizeof(uint64_t));
         g_exp = (size_t   *)realloc(g_exp, new_cap * sizeof(size_t));
-        a_cache = (seq_t  *)realloc(a_cache, new_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_cap);
         capacity = new_cap;
     }
 

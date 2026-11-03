@@ -7,13 +7,14 @@
  * Formula:   a(n) = (1/5) * Sum_{d | (5*n-1), d ≡ 4 (mod 5)} (d + 1)
  * Range:     u8 n <= 46, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   int_sqrt
+ * Validated: standard, pass, 93 terms through n = 9880 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/int_sqrt.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
@@ -21,7 +22,7 @@ seq_t a(idx_t n)
         return 0;            /* offset 1, only used for safety */
 
     uint64_t m = 5 * n - 1;   /* m = 5*n - 1  */
-    uint64_t sqrt_m = int_sqrt(m);
+    uint64_t sqrt_m = isqrt(m);
     seq_t sum = 0;
 
     for (uint64_t d = 1; d <= sqrt_m; ++d)

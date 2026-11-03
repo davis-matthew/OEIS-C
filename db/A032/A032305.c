@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 17, u32 n <= 30, u64 n <= 55, u128 n <= 105,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 992 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
    O(n) memory and runs in O(n²) time, which is easily fast enough
    for n up to about 10 000.  No additional libraries are used.  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *aVals = NULL;      /* aVals[i] = a(i) for i ≥ 1   */
 static size_t a_size = 0;
@@ -39,13 +41,13 @@ static idx_t max_computed = 0;   /* maximum n for which aVals is valid */
 static void recompute_upto(idx_t n)
 {
     size_t newSize = n + 1;                 /* indices 0 … n   */
-    seq_t *newa  = (seq_t*)calloc(newSize, sizeof(seq_t));
+    seq_t *newa  = mem_new(seq_t, newSize);
     if (!newa) return;                     /* out of memory – should never happen */
 
     newa[1] = 1;                            /* a(1) = 1 */
 
-    seq_t *coeff = (seq_t*)calloc(n, sizeof(seq_t)); /* coefficients of g(x) */
-    if (!coeff) { free(newa); return; }
+    seq_t *coeff = mem_new(seq_t, n); /* coefficients of g(x) */
+    if (!coeff) { mem_free(newa); return; }
 
     coeff[0] = 1;                           /* g(0) = 1 */
 
@@ -60,8 +62,8 @@ static void recompute_upto(idx_t n)
     }
 
     /* free old memory and store new array */
-    free(aVals);
-    free(coeff);
+    mem_free(aVals);
+    mem_free(coeff);
     aVals      = newa;
     a_size     = newSize;
     max_computed = n;

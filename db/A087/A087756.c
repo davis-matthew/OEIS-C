@@ -10,13 +10,14 @@
  *            except for the first
  * Range:     u8 n <= 14, u16 n <= 30, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
+ * Validated: partial, pass, 41 terms through n = 40 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/pow2.h"   /* provides seq_t pow2(idx_t exp) */
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {

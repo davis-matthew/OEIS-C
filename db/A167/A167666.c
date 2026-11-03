@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 98, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 99 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
  *   and col = n - r*(r+1)/2.
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache of computed rows */
 static seq_t **rows = NULL;    /* pointer to array of row pointers   */
@@ -47,7 +49,7 @@ static void ensure_rows_capacity(size_t needed)
 static void add_row(size_t idx)
 {
     size_t len = idx + 1;
-    seq_t *row = (seq_t*)malloc(len * sizeof(seq_t));
+    seq_t *row = mem_new(seq_t, len);
     if (!row) return;  /* allocation failure – silently ignore */
 
     if (idx == 0) {

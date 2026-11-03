@@ -11,7 +11,8 @@
  *            and after the last digit) in the decimal representation of n
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   isPrime
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/isPrime.h"
+#include "../utils/is_prime.h"
 
 /* External types provided by the build system */
 extern uint64_t *_prime_cache(void);   /* dummy to silence unused warning */
@@ -57,7 +58,7 @@ seq_t a(idx_t n)
         uint64_t val = strtoull(t, NULL, 10);
 
         /* Skip non-primes */
-        if (!isPrime(val))
+        if (!is_prime(val))
             continue;
 
         /* Skip duplicates */

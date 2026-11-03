@@ -11,14 +11,45 @@
  *            16 is the tangent number); for q = 2,3 (mod 4):...
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 38, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   a488_base, a488_jacobi
+ * Validated: standard, pass, 41 terms through n = 923 (2026-11-01)
+ * Helpers:   jacobi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a488_base.h"
-#include "../utils/a488_jacobi.h"
+#include "../utils/jacobi.h"
+
+static __int128 a488_base(uint64_t q)
+{
+    if (q == 1) return 8;
+    if (q % 4 == 1) {
+        __int128 Q = (__int128)q, U = 0;
+        uint64_t r;
+        int psi2 = (q % 8 == 1 || q % 8 == 7) ? 1 : -1;
+        for (r = 1; r < q; r++) {
+            int s = jacobi(r, q);
+            __int128 R, R2, R4, t;
+            if (!s) continue;
+            R = (__int128)r; R2 = R * R; R4 = R2 * R2;
+            t = 2 * R4 * R2 - 6 * Q * R4 * R + 5 * Q * Q * R4 - Q * Q * Q * Q * R2;
+            if (s > 0) U += t; else U -= t;
+        }
+        return (__int128)8 * (64 - psi2) * U / (3 * Q);
+    } else {
+        __int128 A = (__int128)q, A2 = A * A, S = 0;
+        uint64_t c;
+        for (c = 1; c < 2 * q; c += 2) {
+            int s = jacobi(q, c);
+            __int128 b, b2, P;
+            if (!s) continue;
+            b = A - (__int128)c; b2 = b * b;
+            P = b2 * b2 * b - 10 * A2 * b2 * b + 25 * A2 * A2 * b;
+            if (s > 0) S += P; else S -= P;
+        }
+        return S / 2;
+    }
+}
 
 seq_t a(idx_t n)
 {
@@ -45,7 +76,7 @@ seq_t a(idx_t n)
         for (j = 0; j < 5 * fe[i]; j++) f5 *= pp;
         for (j = 0; j < 6 * (fe[i] - 1); j++) p6 *= pp;
         term = p6 * pp * pp * pp * pp * pp * pp;
-        if (fp[i] != 2) term -= (__int128)a488_jacobi(q, fp[i]) * p6;
+        if (fp[i] != 2) term -= (__int128)jacobi(q, fp[i]) * p6;
         res = res * f5 * term;
     }
 

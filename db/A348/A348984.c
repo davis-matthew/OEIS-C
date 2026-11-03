@@ -8,8 +8,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = gcd(sigma(n), A325973(n)) where A325973(n) = ( sum of
  *            squarefree divisors + sum of unitary divisors ) / 2
- * Range:     u8 n <= 16, u16 n <= 2212, u32 n <= 9058, u64 n <= 9058,
- *            u128 n <= 9058, big any n
+ * Range:     u8 n <= 16, u16 n <= 2212, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 101 terms through n = 9058 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

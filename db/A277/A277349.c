@@ -8,13 +8,15 @@
  *            congruent to 1 modulo 6 (i.e., 7, 13, 19, ...)
  * Range:     u8 n <= 149, u16 n <= 339, u32 n <= 900, u64 n <= 2736,
  *            u128 n <= 3000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 117 terms through n = 2869 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are provided by the build system.  */
 seq_t a(idx_t n)
@@ -28,9 +30,9 @@ seq_t a(idx_t n)
     if (dp == NULL || n > dp_max_n) {
         /* Free old cache if present. */
         if (dp != NULL)
-            free(dp);
+            mem_free(dp);
         /* Allocate new cache large enough for indices 0..n. */
-        dp = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+        dp = mem_new(seq_t, (size_t)(n + 1));
         if (dp == NULL) {
             /* Allocation failed; in this context we return 0. */
             return (seq_t)0;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper comparator for qsort on seq_t values.
    seq_t may be any unsigned integer type (including __int128). */
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
             divisors[div_count++] = prod;
         }
         /* sort the divisor list */
-        qsort(divisors, div_count, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(divisors, div_count, sizeof(seq_t), cmp_seq_t);
         initialized = 1;
     }
 

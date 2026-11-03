@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 71, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 71 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_size = 0;
@@ -40,13 +42,13 @@ init_base(void)
     const idx_t base_limit = 34;
     /* Ensure cache can hold up to base_limit. */
     if (cache_size <= base_limit) {
-        seq_t *tmp = (seq_t *)realloc(cache, (base_limit+1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (base_limit+1));
         if (!tmp) return;
         cache = tmp;
         cache_size = base_limit + 1;
     }
     /* Initialize all entries to 0. */
-    memset(cache, 0, cache_size * sizeof(seq_t));
+    mem_set(cache, 0, cache_size * sizeof(seq_t));
     cache[0] = 1;
     const idx_t parts[] = {6,8,9,12};
     for (size_t p = 0; p < sizeof(parts)/sizeof(parts[0]); ++p) {
@@ -63,7 +65,7 @@ static void
 extend_cache(idx_t n)
 {
     if (n < cache_size) return;
-    seq_t *tmp = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
     if (!tmp) return;
     cache = tmp;
     cache_size = n + 1;

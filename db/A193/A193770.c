@@ -11,12 +11,15 @@
  *            offset = n - t // m = offset l = k - m // n = k - offset
  * Range:     u8 n <= 13, u16 n <= 34, u32 n <= 133, u64 n <= 433,
  *            u128 n <= 1651, big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 70 terms through n = 5014 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     /* Find diagonal k such that k*(k+1)/2 <= n < (k+1)*(k+2)/2 */
@@ -33,8 +36,8 @@ seq_t a(idx_t n) {
     idx_t m = offset;
     idx_t l = k - offset;
 
-    seq_t five_power = big_pow((seq_t)5, (seq_t)m);
-    seq_t three_power = big_pow((seq_t)3, (seq_t)l);
+    seq_t five_power = ipow((seq_t)5, (seq_t)m);
+    seq_t three_power = ipow((seq_t)3, (seq_t)l);
     seq_t sum = five_power + three_power;
     return sum / (seq_t)2;
 }

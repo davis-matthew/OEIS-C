@@ -9,12 +9,14 @@
  *            remainders of n mod k, k=1..n)
  * Range:     u8 n <= 19, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *sigma_arr = NULL;       /* sigma[0..current_max] */
 static seq_t *cum_sigma_arr = NULL;   /* cum_sigma[0..current_max] */
@@ -26,12 +28,12 @@ static void ensure_cache(idx_t N)
     if (N <= cache_size) return;
 
     /* free old arrays if any */
-    if (sigma_arr) free(sigma_arr);
-    if (cum_sigma_arr) free(cum_sigma_arr);
+    if (sigma_arr) mem_free(sigma_arr);
+    if (cum_sigma_arr) mem_free(cum_sigma_arr);
 
     /* allocate new arrays */
-    sigma_arr = (seq_t *)malloc((N + 1) * sizeof(seq_t));
-    cum_sigma_arr = (seq_t *)malloc((N + 1) * sizeof(seq_t));
+    sigma_arr = mem_new(seq_t, (N + 1));
+    cum_sigma_arr = mem_new(seq_t, (N + 1));
     if (!sigma_arr || !cum_sigma_arr) {
         /* Allocation failed – in a real build you might abort or set an error flag */
         exit(1);

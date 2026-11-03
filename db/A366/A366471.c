@@ -9,7 +9,8 @@
  *            p^(k-1)⌋
  * Range:     u8 n <= 21, u16 n <= 359, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   calc_phi, floor_log2_uint64, pow_uint
+ * Validated: standard, pass, 77 terms through n = 710 (2026-11-01)
+ * Helpers:   ilog2, ipow_u64_idx, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,9 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/floor_log2_uint64.h"
-#include "../utils/calc_phi.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ilog2.h"
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/totient_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -32,17 +33,17 @@ seq_t a(idx_t n)
         return result;
 
     /* Maximum possible length of a GP in {1,…,n} is 1+⌊log₂ n⌋ */
-    idx_t kmax = 1 + floor_log2_uint64(n);
+    idx_t kmax = 1 + ilog2(n);
 
     for (idx_t k = 2; k <= kmax; ++k) {
         idx_t exp = k - 1;               /* exponent in p^(k-1)          */
         for (idx_t p = 2; ; ++p) {
             /* Compute p^(k-1); stop when the power exceeds n */
-            seq_t power = pow_uint(p, exp);
+            seq_t power = ipow_u64_idx(p, exp);
             if (power > (seq_t)n)
                 break;
             /* φ(p) is computed using the provided function  */
-            seq_t phi = calc_phi((seq_t)p);
+            seq_t phi = totient_seq((seq_t)p);
             /* floor(n / p^(k-1)) is an integer division of seq_t types */
             seq_t term = phi * (((seq_t)n) / power);
             result += term;

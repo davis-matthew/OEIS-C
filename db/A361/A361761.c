@@ -8,6 +8,7 @@
  *            from the nth prime to the next prime)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 29, u128 n <= 98,
  *            big any n
+ * Validated: standard, pass, 42 terms through n = 9904 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

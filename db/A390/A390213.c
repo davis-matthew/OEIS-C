@@ -7,19 +7,23 @@
  * Formula:   a(n) = #{ d | d divides n, d^(n/d) ≡ d (mod n/d) }
  * Range:     u8 n <= 88, u16 n <= 88, u32 n <= 88, u64 n <= 88, u128 n <= 88,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 88 terms through n = 88 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/powmod.h"
 
 static inline bool test_divisor(idx_t d, idx_t m)
 {
     seq_t base = (seq_t)d;
     seq_t mod = (seq_t)m;
-    seq_t val = mod_pow(base, m, mod);          /* d^m mod m */
+    seq_t val = powmod(base, m, mod);          /* d^m mod m */
     seq_t rem = (seq_t)(d % m);                /* d mod m  */
     return val == rem;
 }

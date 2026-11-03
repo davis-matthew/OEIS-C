@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   has_adjacent_45_in_base7
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,23 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_adjacent_45_in_base7.h"
+#include "../utils/mem.h"
+
+/* Return true if the base‑7 representation of x contains
+   the adjacent digits 4 and 5 in either order. */
+static bool has_adjacent_45_in_base7(seq_t x)
+{
+    seq_t prev = 10;                /* sentinel ∉ {0,…,6} */
+    while (x > 0)
+    {
+        seq_t d = x % 7;
+        if ((d == 4 && prev == 5) || (d == 5 && prev == 4))
+            return true;
+        prev = d;
+        x /= 7;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -36,7 +53,7 @@ seq_t a(idx_t n)
         if (size == cap)
         {
             size_t newcap = (cap ? cap << 1 : 16);
-            seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, newcap);
             if (!tmp) return 0;   /* allocation failure → undefined result */
             cache = tmp;
             cap   = newcap;

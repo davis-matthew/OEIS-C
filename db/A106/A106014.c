@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 371, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 62 terms through n = 9527 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"          /* provides bool is_prime(uint64_t n) */
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 /* Static cache for computed terms */
 static seq_t *seq_cache = NULL;   /* array of a(k) values */
@@ -32,7 +35,7 @@ static void ensure_seq_cap(idx_t min_cap)
         idx_t new_cap = seq_cap ? seq_cap * 2 : 32;
         if (new_cap < min_cap)
             new_cap = min_cap;
-        seq_t *new_ptr = (seq_t *)realloc(seq_cache, sizeof(seq_t) * new_cap);
+        seq_t *new_ptr = mem_resize(seq_t, seq_cache, new_cap);
         if (!new_ptr) /* allocation failure */
             exit(EXIT_FAILURE);
         seq_cache = new_ptr;
@@ -72,12 +75,12 @@ seq_t a(idx_t n)
         }
 
         /* Test candidate for primality */
-        if (is_prime(next_candidate))
+        if (is_prime_u64(next_candidate))
         {
             uint64_t aux1 = factor * next_candidate - 3ULL;
             uint64_t aux2 = factor * next_candidate + 3ULL;
 
-            if (is_prime(aux1) && is_prime(aux2))
+            if (is_prime_u64(aux1) && is_prime_u64(aux2))
             {
                 /* Store the prime in the cache */
                 push_seq_val((seq_t)next_candidate);

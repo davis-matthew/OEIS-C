@@ -10,7 +10,8 @@
  *            ordering of all such differences, without duplication
  * Range:     u8 n <= 12, u16 n <= 40, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
    sort guarantees correctness for any seq_t type. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static int seqcmp(const void *a, const void *b)
 {
@@ -42,7 +44,7 @@ static void generate_cache(void)
 
     /* Rough upper bound: roughly 2000 values. */
     cache_cap = 2000;
-    cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     if (cache == NULL) return; /* allocation failed – should never happen */
 
     /* Compute 5^i for i = 0..40, stop on overflow of seq_t */
@@ -77,15 +79,14 @@ static void generate_cache(void)
             if (cache_len >= cache_cap)
             {
                 cache_cap *= 2;
-                cache = (seq_t *)realloc(cache,
-                                         cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = diff;
         }
     }
 
     /* Sort the array and remove (unlikely) duplicates. */
-    qsort(cache, cache_len, sizeof(seq_t), seqcmp);
+    mem_qsort(cache, cache_len, sizeof(seq_t), seqcmp);
 
     size_t uniq = 0;
     for (size_t k = 0; k < cache_len; ++k)

@@ -10,14 +10,35 @@
  *            base‑8 representation of k‑1 does not contain that substring
  * Range:     u8 n <= 8, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   has_juxp
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_juxp.h"
+#include "../utils/mem.h"
+
+/* Helper: test whether the octal representation of x contains
+   the adjacent digits 3 and 5 in any order. */
+static inline bool has_juxp(idx_t x)
+{
+    /* Need at least two octal digits to form a pair. */
+    if (x < 8)
+        return false;
+
+    uint8_t prev = x % 8;
+    x /= 8;
+    while (x) {
+        uint8_t cur = x % 8;
+        if ((prev == 3 && cur == 5) || (prev == 5 && cur == 3))
+            return true;
+        prev = cur;
+        x /= 8;
+    }
+    return false;
+}
 
 /* The main sequence function. */
 seq_t a(idx_t n)
@@ -35,7 +56,7 @@ seq_t a(idx_t n)
             /* Grow cache if necessary. */
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap ? 2 * cache_cap : 8;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp)
                     abort();           /* unable to allocate more memory */
                 cache = tmp;

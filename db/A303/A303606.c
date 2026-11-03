@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 38, u32 n <= 2796, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   isCompositeSquarefree
+ * Validated: standard, pass, 63 terms through n = 9097 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,42 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/isCompositeSquarefree.h"
+#include "../utils/mem.h"
+
+/* Check whether n is composite and square‑free (no repeated prime factors) */
+static bool isCompositeSquarefree(uint64_t n)
+{
+    if (n < 6)               /* 6 is the first composite square‑free number */
+        return false;
+
+    uint64_t t = n;
+    int primes = 0;
+
+    /* factor 2 */
+    if (t % 2 == 0) {
+        primes++;
+        t /= 2;
+        if (t % 2 == 0)      /* exponent > 1 -> not square‑free */
+            return false;
+    }
+
+    /* odd factors */
+    for (uint64_t p = 3; p * p <= t; p += 2) {
+        if (t % p == 0) {
+            primes++;
+            t /= p;
+            if (t % p == 0)  /* repeated prime → not square‑free */
+                return false;
+            while (t % p == 0)
+                t /= p;
+        }
+    }
+
+    if (t > 1)               /* remaining prime factor */
+        primes++;
+
+    return primes >= 2;     /* composite & at least two distinct primes */
+}
 
 /* Heap node */
 typedef struct {
@@ -51,7 +87,7 @@ static void heap_push(seq_t val, uint64_t base, uint8_t exp)
 {
     if (heap_size == heap_cap) {
         size_t new_cap = heap_cap ? heap_cap * 2 : 16;
-        HeapNode *new_heap = (HeapNode *)realloc(heap, new_cap * sizeof(HeapNode));
+        HeapNode *new_heap = mem_resize(HeapNode, heap, new_cap);
         heap = new_heap;
         heap_cap = new_cap;
     }
@@ -141,7 +177,7 @@ seq_t a(idx_t n)
         /* Store in cache */
         if (cache_size == cache_cap) {
             size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-            seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
             cache = new_cache;
             cache_cap = new_cap;
         }

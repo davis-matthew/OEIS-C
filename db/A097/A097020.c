@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 9, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Maximum integer for which sigma modulo 6 is pre–computed.
    This must be large enough to contain the 10 000th sequence term.
@@ -71,7 +73,7 @@ static void ensure_terms_capacity(size_t need)
     size_t new_cap = seq_cap ? seq_cap * 2 : 8;
     while (new_cap < need)
         new_cap <<= 1;
-    seq_terms = (seq_t *)realloc(seq_terms, new_cap * sizeof(seq_t));
+    seq_terms = mem_resize(seq_t, seq_terms, new_cap);
     if (!seq_terms)
         exit(EXIT_FAILURE);
     seq_cap = new_cap;

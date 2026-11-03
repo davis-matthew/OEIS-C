@@ -12,12 +12,14 @@
  *            a(10)=4692, a(11)=10385, a(12)=22939, a(13)=50685 (Offset...
  * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 27, u64 n <= 55, u128 n <= 111,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[14] = {
     0,      /* dummy for a(0) */
@@ -38,10 +40,9 @@ seq_t a(idx_t n)
         idx_t new_size = n + 1;
         if (new_size < 16) new_size = 16;          /* avoid tiny allocations */
         if (cache == NULL) {
-            cache = (seq_t *)calloc((size_t)new_size, sizeof(seq_t));
+            cache = mem_new(seq_t, (size_t)new_size);
         } else {
-            cache = (seq_t *)realloc((void *)cache,
-                                      (size_t)new_size * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, (size_t)new_size);
         }
         cache_size = new_size;
     }

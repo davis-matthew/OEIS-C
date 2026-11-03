@@ -11,7 +11,8 @@
  *            a(i) * a(j) * C4(m) = Σ_{i+j=m} C2(i) * C2(j)
  * Range:     i8 n <= 3, i16 n <= 6, i32 n <= 11, i64 n <= 21, i128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Allocation helpers for the cached sequences */
 static seq_t *a_array = NULL;      /* a(n) values */
@@ -35,9 +37,9 @@ static void ensure_cap(idx_t n)
         return;
 
     size_t new_cap = needed;
-    seq_t *na = (seq_t *)realloc(a_array, new_cap * sizeof(seq_t));
-    seq_t *nc2 = (seq_t *)realloc(c2_array, new_cap * sizeof(seq_t));
-    seq_t *nc4 = (seq_t *)realloc(c4_array, new_cap * sizeof(seq_t));
+    seq_t *na = mem_resize(seq_t, a_array, new_cap);
+    seq_t *nc2 = mem_resize(seq_t, c2_array, new_cap);
+    seq_t *nc4 = mem_resize(seq_t, c4_array, new_cap);
     if (!na || !nc2 || !nc4) {
         /* allocation failed – abort */
         abort();

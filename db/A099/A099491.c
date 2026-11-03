@@ -8,12 +8,14 @@
  *            a(0)=1, a(1)=0, a(2)=0, a(3)=1, a(4)=-1, a(5)=-2
  * Range:     i8 n <= 20, i16 n <= 40, i32 n <= 52, i64 n <= 52, i128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_size = 0;  // number of terms stored
@@ -23,7 +25,7 @@ static void init_cache(void)
 {
     /* allocate initial capacity */
     cache_cap = 64;
-    cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     if (!cache) return; /* allocation failure, caller will get 0 */
 
     /* base terms */
@@ -41,7 +43,7 @@ static void ensure_capacity(idx_t n)
 {
     if (n < cache_cap) return;
     while (cache_cap <= n) cache_cap <<= 1;
-    cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, cache_cap);
 }
 
 static void compute_terms_up_to(idx_t n)

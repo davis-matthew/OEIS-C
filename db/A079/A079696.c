@@ -7,14 +7,16 @@
  * Formula:   a(n) = A002808(n) + 1
  * Range:     u8 n <= 199, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   isPrime
+ * Validated: standard, pass, 86 terms through n = 9992 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/isPrime.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Cache of composite numbers (sequence A002808). */
 static seq_t *composites = NULL;
@@ -26,7 +28,7 @@ static idx_t next_candidate = 4;     /* next integer to test for composite */
 static void grow_composites(void)
 {
     size_t new_cap = comp_cap ? comp_cap * 2 : 16;
-    seq_t *tmp = (seq_t *)realloc(composites, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, composites, new_cap);
     if (!tmp) exit(EXIT_FAILURE);   /* abort on OOM */
     composites = tmp;
     comp_cap = new_cap;
@@ -36,7 +38,7 @@ static void grow_composites(void)
 static void ensure_cache(idx_t n)
 {
     while (comp_len < n) {
-        if (!isPrime(next_candidate)) {   /* use the provided primality test */
+        if (!is_prime(next_candidate)) {   /* use the provided primality test */
             if (comp_len == comp_cap) grow_composites();
             composites[comp_len++] = (seq_t)next_candidate;
         }

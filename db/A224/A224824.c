@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   fib, fib_u64
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   fibonacci_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,19 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/fib.h"
-#include "../utils/fib_u64.h"
+#include "../utils/fibonacci_idx.h"
+#include "../utils/mem.h"
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
 
 static seq_t *cache = NULL;     /* cache[n] = a(n), 1‑based; cache[0] unused */
 static idx_t   cache_n = 0;     /* highest n for which cache[n] is valid */
@@ -44,7 +56,7 @@ static bool fib_ge_pow(idx_t m, idx_t n)
 {
     /* --------------- small m (exact) --------------- */
     if (m <= FIB_MAX_64) {
-        uint64_t fibm = fib_u64(m);
+        uint64_t fibm = fibonacci_idx(m);
 
         /* compute m^n with early exit if it exceeds fibm */
         uint64_t power = 1;
@@ -73,9 +85,9 @@ seq_t a(idx_t n)
     if (n > cache_n) {
         idx_t new_size = n + 1;   /* 1‑based indexing */
         if (cache == NULL) {
-            cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+            cache = mem_new(seq_t, new_size);
         } else {
-            cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_size);
         }
         if (!cache) return 0;     /* allocation failure propagates 0 */
         /* compute new entries */

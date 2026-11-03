@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   prime_has_representation, uint64_sqrt
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,8 +29,29 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/prime_has_representation.h"
-#include "../utils/uint64_sqrt.h"
+#include "../utils/isqrt_u64.h"
+
+/* Test whether a prime p can be written as (4a+3)^2 + (4b)^2   (a,b>=0) */
+static bool prime_has_representation(seq_t p)
+{
+    uint64_t x = (uint64_t)p;          /* safe for x < 2^64 (the needed range) */
+
+    for (uint64_t a = 0;; ++a) {
+        uint64_t t   = 4*a + 3;        /* 4a+3 */
+        uint64_t a2  = t*t;            /* (4a+3)^2 */
+        if (a2 > x) break;
+
+        uint64_t rem = x - a2;         /* p - (4a+3)^2 */
+        if (rem & 0xFULL) continue;    /* remainder not divisible by 16 */
+
+        uint64_t b2 = rem >> 4;        /* rem / 16 = b^2 */
+        uint64_t b  = isqrt_u64(b2);
+        if (b*b == b2) {
+            return true;               /* representation found */
+        }
+    }
+    return false;
+}
 
 /* ------------------------------------------------------------------ */
 

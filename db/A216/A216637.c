@@ -9,13 +9,15 @@
  *            {112,121,122,211,212,221} are labeled 1,2,3,4,5,6 respectively
  * Range:     u8 n <= 130, u16 n <= 130, u32 n <= 130, u64 n <= 130,
  *            u128 n <= 130, big any n
- * Helpers:   none
+ * Validated: partial, pass, 130 terms through n = 130 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Mapping of a 3‑bit pattern (1 if the symbol is 2, 0 otherwise)
    to the label of the corresponding 3‑word.  The index is the
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
 
     /* We need the first 3·n symbols of the Kolakoski sequence. */
     idx_t len = n * 3;
-    seq_t *s = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *s = mem_new(seq_t, len);
     if (!s)
         return 0;          /* allocation failure – unlikely for tested sizes */
 
@@ -65,6 +67,6 @@ seq_t a(idx_t n)
     /* map to label 1..6; _label[0] and _label[7] are never used. */
     seq_t result = _label[bits];
 
-    free(s);
+    mem_free(s);
     return result;
 }

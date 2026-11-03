@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 7, u64 n <= 18, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* The build supplies the following typedefs:
    typedef <unsigned integer of appropriate width> seq_t;
@@ -138,8 +140,8 @@ static void build_adjacency(void)
 /* Allocate DP buffers. */
 static void init_dp_buffers(void)
 {
-    dp_cur  = (seq_t *)malloc((size_t)N_ROWS * sizeof(seq_t));
-    dp_next = (seq_t *)malloc((size_t)N_ROWS * sizeof(seq_t));
+    dp_cur  = mem_new(seq_t, (size_t)N_ROWS);
+    dp_next = mem_new(seq_t, (size_t)N_ROWS);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -168,7 +170,7 @@ seq_t a(idx_t n)
     /* perform n transitions : produce an (n+1)×5 array */
     for (idx_t step = 0; step < n; ++step) {
         /* clear dp_next */
-        memset(dp_next, 0, (size_t)N_ROWS * sizeof(seq_t));
+        mem_set(dp_next, 0, (size_t)N_ROWS * sizeof(seq_t));
 
         for (size_t i = 0; i < (size_t)N_ROWS; ++i) {
             seq_t val = dp_cur[i];

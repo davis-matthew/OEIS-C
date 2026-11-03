@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 1720, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 91 terms through n = 9529 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
  *   The function below returns the n‑th smallest element (n >= 1).
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*------------------ internal heap for the pending elements ------------------*/
 static seq_t *heap = NULL;            /* heap array (0‑based)                */
@@ -30,7 +32,7 @@ static size_t heap_cap = 0;            /* allocated capacity of heap          */
 static void heap_grow(void)
 {
     size_t new_cap = heap_cap ? heap_cap << 1 : 4;
-    seq_t *new_heap = (seq_t *)realloc(heap, new_cap * sizeof(seq_t));
+    seq_t *new_heap = mem_resize(seq_t, heap, new_cap);
     if (!new_heap) return;            /* allocation failure – ignore      */
     heap = new_heap;
     heap_cap = new_cap;
@@ -80,7 +82,7 @@ static seq_t last_val = 0;             /* last generated value (for dup canceler
 static void cache_grow(void)
 {
     size_t new_cap = cache_cap ? cache_cap << 1 : 4;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) return;            /* allocation failure – ignore      */
     cache = new_cache;
     cache_cap = new_cap;

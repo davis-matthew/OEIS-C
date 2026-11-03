@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 76, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   digits_unique
+ * Validated: partial, pass, 77 terms through n = 76 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,21 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/digits_unique.h"
+#include "../utils/mem.h"
+
+/* test whether all decimal digits of v are distinct */
+static bool digits_unique(seq_t v)
+{
+    unsigned int mask = 0;
+    if (v == (seq_t)0) return true;
+    while (v != (seq_t)0) {
+        unsigned int d = (unsigned int)(v % (seq_t)10);
+        if (mask & (1U << d)) return false;
+        mask |= (1U << d);
+        v = v / (seq_t)10;
+    }
+    return true;
+}
 
 /* Dynamic cache for the sequence */
 static seq_t *seq_cache = NULL;
@@ -39,10 +54,10 @@ static void ensure_seq_capacity(size_t n)
     size_t new_cap = seq_cap ? seq_cap : 4;
     while (new_cap <= n) new_cap <<= 1;
     if (seq_cache == NULL) {
-        seq_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, new_cap);
         if (!seq_cache) abort();
     } else {
-        seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
         if (!tmp) abort();
         seq_cache = tmp;
     }

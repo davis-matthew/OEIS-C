@@ -10,7 +10,8 @@
  *            unique integer with 2^p < n-1 ≤ 2^(p+1)
  * Range:     u8 n <= 46, u16 n <= 217, u32 n <= 1842, u64 n <= 8193,
  *            u128 n <= 8193, big any n
- * Helpers:   floor_log2_uint64
+ * Validated: standard, pass, 65 terms through n = 7771 (2026-11-03)
+ * Helpers:   ilog2, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 /* helper provided by the build */
-# include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include "../utils/ilog2.h"
+#include "../utils/mem.h"
 
 /* cache of computed values, 1‑based */
 static seq_t *cache      = NULL;
@@ -32,7 +35,7 @@ static void ensure_cache_cap(idx_t need)
     if (need < cache_cap) return;
     idx_t new_cap = need + 1;
     if (new_cap < 4) new_cap = 4;           /* at least enough for a(1..3) */
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     /* if realloc fails, abort – build guarantees enough memory */
     if (!new_cache) abort();
     /* initialise new elements to zero to avoid garbage */
@@ -50,7 +53,7 @@ static void compute_up_to(idx_t n)
             val = (seq_t)1;
         } else {
             /* p = floor_log2(i-2) */
-            idx_t p = floor_log2_uint64(i-2);
+            idx_t p = ilog2(i-2);
             idx_t m = (i-1) - ((idx_t)1 << p);
             val = cache[i-1] + cache[m];
         }

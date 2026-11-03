@@ -10,6 +10,7 @@
  *            largest integer with (843*n + 1 - 2*k)^2 >= 710645*n^2
  * Range:     u8 n <= 0, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
+ * Validated: partial, pass, 42 terms through n = 41 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

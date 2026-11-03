@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 10, u64 n <= 20, u128 n <= 40,
  *            big any n
- * Helpers:   compute_row_valid
+ * Validated: standard, pass, 34 terms through n = 208 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,29 @@
  */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/compute_row_valid.h"
+
+/* Test whether a row satisfies the adjacency rule
+ * given up and down neighbour rows. */
+static bool compute_row_valid(uint8_t row, uint8_t up, uint8_t down)
+{
+    for (int p = 0; p < 4; ++p) {
+        if ((row >> p) & 1) {
+            int cnt = 0;
+            /* up */
+            cnt += (up >> p) & 1;
+            /* left */
+            if (p > 0) cnt += (row >> (p - 1)) & 1;
+            /* right */
+            if (p < 3) cnt += (row >> (p + 1)) & 1;
+            /* down */
+            cnt += (down >> p) & 1;
+            if (cnt == 2) return false;      /* forbidden */
+            /* allowed counts are 0,1,3,4 only */
+            if (cnt > 4) return false;
+        }
+    }
+    return true;
+}
 
 /* Pre‑computed tables for 4‑bit rows */
 static bool row_valid[16][16][16];

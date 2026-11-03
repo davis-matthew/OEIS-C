@@ -13,14 +13,17 @@
  *            if k is even. (k!! is the double factorial)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 8, u64 n <= 13, u128 n <= 25,
  *            big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 35 terms through n = 99 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t   *cache = NULL;      /* cached terms  */
 static size_t  cache_cap = 0;       /* capacity of cache   */
@@ -33,7 +36,7 @@ static void ensure_cache_space(void)
 {
     if (cache_len == cache_cap) {
         size_t new_cap = cache_cap ? cache_cap << 1 : 16;
-        seq_t *newp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *newp = mem_resize(seq_t, cache, new_cap);
         if (!newp) abort();          /* out of memory */
         cache = newp;
         cache_cap = new_cap;

@@ -11,7 +11,8 @@
  *            arithmetic
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 34,
  *            big any n
- * Helpers:   build_spf
+ * Validated: standard, pass, 35 terms through n = 84 (2026-11-03)
+ * Helpers:   build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/build_spf.h"
+#include "../utils/mem.h"
 
 /* cached smallest prime factor and bigomega tables */
 static idx_t *spf = NULL;
@@ -60,7 +62,7 @@ static void ensure_facts(idx_t n)
     /* initialise storage if it doesn't exist yet */
     if (facts_cap == 0) {
         facts_cap = 2;
-        facts = (seq_t*)malloc(facts_cap * sizeof(seq_t));
+        facts = mem_new(seq_t, facts_cap);
         if (!facts) exit(1);
         facts[0] = 1;            /* 0! = 1 */
         facts[1] = 1;            /* 1! = 1 */
@@ -72,7 +74,7 @@ static void ensure_facts(idx_t n)
         idx_t new_cap = facts_cap;
         while (new_cap <= n)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(facts, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, facts, new_cap);
         if (!tmp) exit(1);
         facts = tmp;
         facts_cap = new_cap;

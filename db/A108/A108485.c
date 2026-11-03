@@ -8,12 +8,14 @@
  *            a(3)=32
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 15, u64 n <= 30, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 929 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Memoisation table for the sequence */
 static seq_t *dp = NULL;
@@ -24,7 +26,7 @@ static void init_seq(void)
 {
     if (dp == NULL) {
         dp_cap = 4;
-        dp = (seq_t *)calloc(dp_cap, sizeof(seq_t));
+        dp = mem_new(seq_t, dp_cap);
         if (!dp) exit(EXIT_FAILURE);
         dp[0] = 1;
         dp[1] = 2;
@@ -39,7 +41,7 @@ static void ensure_capacity(idx_t n)
     if (dp_cap <= n) {
         idx_t new_cap = dp_cap ? dp_cap * 2 : 4;
         while (new_cap <= n) new_cap <<= 1;
-        seq_t *newp = (seq_t *)realloc(dp, new_cap * sizeof(seq_t));
+        seq_t *newp = mem_resize(seq_t, dp, new_cap);
         if (!newp) exit(EXIT_FAILURE);
         dp = newp;
         dp_cap = new_cap;

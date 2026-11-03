@@ -8,12 +8,14 @@
  *            row index) k = n - r*(r+1)/2 (the column index within that row)
  * Range:     u8 n <= 5, u16 n <= 20, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes the n-th term of A073218.
    n is given as idx_t (uint64_t).  The result is returned as seq_t. */
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     idx_t k = n - tri;
 
     /* 3. Compute powers of 7 up to 7^r. */
-    seq_t *p = (seq_t *)malloc((size_t)(r + 1) * sizeof(seq_t));
+    seq_t *p = mem_new(seq_t, (size_t)(r + 1));
     if (!p) return 0;      /* allocation failure – return 0 as a safe default */
 
     p[0] = 1;
@@ -40,6 +42,6 @@ seq_t a(idx_t n)
     seq_t result = (p[r] + p[(size_t)k]) / 2;
 
     /* 5. Clean up and return. */
-    free(p);
+    mem_free(p);
     return result;
 }

@@ -7,7 +7,8 @@
  * Formula:   a(n) = coefficient of x^n/n! in tanh(x)*exp(tanh(x))
  * Range:     i8 n <= 6, i16 n <= 8, i32 n <= 14, i64 n <= 21, i128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>   /* malloc, realloc, free */
 #include <stdint.h>   /* idx_t is provided by the build system */
 #include <stddef.h>   /* size_t */
+#include "../utils/mem.h"
 
 /* Grow or allocate a dynamic array of seq_t values. */
 static void ensure_capacity(seq_t **arr, size_t *cap, size_t need)
@@ -33,7 +35,7 @@ static void ensure_capacity(seq_t **arr, size_t *cap, size_t need)
     size_t newcap = (*cap == 0) ? 1 : (*cap << 1);
     while (newcap < need)
         newcap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(*arr, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *arr, newcap);
     *arr  = tmp;
     *cap  = newcap;
 }

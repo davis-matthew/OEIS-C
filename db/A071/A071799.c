@@ -8,14 +8,16 @@
  * Formula:   a(n) = binomial(4*n, 2*n) - binomial(2*n, n)^2
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 19,
  *            big any n
- * Helpers:   binomial, binomial_uint128
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include <stdbool.h>
-#include "../utils/binomial_uint128.h"
 
 /* Helper for the C implementation (idx_t is unsigned 64‑bit integer). */
 #ifndef __cplusplus
@@ -37,8 +39,8 @@ seq_t a(idx_t n)
     idx_t two_n = 2 * n;
     idx_t four_n = 4 * n;
 
-    seq_t binom1 = binomial_uint128(four_n, two_n);
-    seq_t binom2 = binomial_uint128(two_n, n);
+    seq_t binom1 = binomial(four_n, two_n);
+    seq_t binom2 = binomial(two_n, n);
 
     __uint128_t sq = (__uint128_t)binom2 * (__uint128_t)binom2;
     __int128_t diff = ( __int128_t)binom1 - (__int128_t)sq;

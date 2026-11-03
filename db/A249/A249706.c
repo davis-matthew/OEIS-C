@@ -13,13 +13,15 @@
  *            (states of size 8³=512)
  * Range:     u8 none, u16 n <= 5, u32 n <= 16, u64 n <= 37, u128 n <= 81,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static bool valid[8][8][8][8] = {0};
 
@@ -75,7 +77,7 @@ static void init_static(void)
     for (int i = 0; i < 512; ++i) sum += dp_cur[i];
 
     results_size = 2;                      /* need indices 0 and 1 */
-    results = (seq_t *)calloc(results_size, sizeof(seq_t));
+    results = mem_new(seq_t, results_size);
     results[1] = sum;                      /* a(1) */
 
     initialized = true;
@@ -106,8 +108,7 @@ static void compute_up_to(idx_t target_n)
         seq_t sum = 0;
         for (int i = 0; i < 512; ++i) sum += dp_next[i];
 
-        results = (seq_t *)realloc(results,
-                                   (results_size + 1) * sizeof(seq_t));
+        results = mem_resize(seq_t, results, (results_size + 1));
         results[results_size] = sum;   /* store a(new n) */
 
         /* prepare for next iteration */

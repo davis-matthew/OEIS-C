@@ -12,13 +12,15 @@
  *            a(a(n-1)-1)
  * Range:     u8 n <= 510, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 99 terms through n = 9703 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static tables holding the sequence and bookkeeping data.  */
 static seq_t  *seq          = NULL;  /* a[0..] */
@@ -41,7 +43,7 @@ static void ensure_capacity(idx_t need)
         idx_t newcap = seq_cap ? seq_cap << 1 : 1;
         while (newcap < need + 1) newcap <<= 1;
 
-        seq       = (seq_t *)realloc(seq,       newcap * sizeof(seq_t));
+        seq       = mem_resize(seq_t, seq, newcap);
         used      = (bool  *)realloc(used,      newcap * sizeof(bool));
         next_occ  = (idx_t *)realloc(next_occ,  newcap * sizeof(idx_t));
 

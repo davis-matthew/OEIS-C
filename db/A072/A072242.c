@@ -9,7 +9,8 @@
  *            any order of n are fast
  * Range:     u8 none, u16 n <= 1, u32 n <= 1, u64 n <= 2, u128 n <= 4,
  *            big any n
- * Helpers:   digit_frequencies
+ * Validated: partial, pass, 5 terms through n = 5 (2026-11-03)
+ * Helpers:   digit_frequencies, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/digit_frequencies.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +37,7 @@ seq_t a(idx_t n)
     /* Ensure cache is large enough for requested index n. */
     if (cap <= (size_t)n) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return (seq_t)0;   /* allocation failure */
         for (size_t i = cap; i < new_cap; ++i)
             tmp[i] = (seq_t)0;
@@ -51,7 +54,7 @@ seq_t a(idx_t n)
         do {                                      \
             if (cap < (min_needed)) {             \
                 size_t new_cap = (min_needed);    \
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t)); \
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap); \
                 if (!tmp) return (seq_t)0;        \
                 for (size_t i = cap; i < new_cap; ++i) \
                     tmp[i] = (seq_t)0;            \

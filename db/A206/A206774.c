@@ -9,8 +9,9 @@
  *            16, 32, 48, 80, 96, …) - a(64*(2n+1)) = −6 (indices 64, 192,
  *            320, 448, …) Otherwise a(n) = 0 (including the special case n =
  *            1 → 0). A042968(n) denotes the positive integers...
- * Range:     i8 n <= 9964, i16 n <= 9964, i32 n <= 9964, i64 n <= 9964,
- *            i128 n <= 9964, big any n
+ * Range:     i8 n <= 16383, i16 n <= 16383, i32 n <= 16383, i64 n <= 16383,
+ *            i128 n <= 16383, big any n
+ * Validated: standard, pass, 121 terms through n = 9964 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

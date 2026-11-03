@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 90, u16 n <= 9473, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   base9_digit_sum
+ * Validated: standard, pass, 82 terms through n = 8913 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,18 @@
 /* Search algorithm: numbers divisible by the sum of their base‑9 digits (9‑Harshad numbers) */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/base9_digit_sum.h"
+#include "../utils/mem.h"
+
+/* Compute the sum of the base‑9 digits of x */
+static seq_t base9_digit_sum(seq_t x)
+{
+    seq_t sum = 0;
+    while (x > 0) {
+        sum += x % 9;
+        x   /= 9;
+    }
+    return sum;
+}
 
 /* Static cache for memoisation */
 static seq_t *cache = NULL;          /* stored sequence values */
@@ -32,7 +44,7 @@ static void ensure_cache_capacity(size_t need)
     if (new_cap < need)
         new_cap = need;
     /* realloc works in C and can be cast safely in C++ */
-    seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         abort();
     cache = tmp;

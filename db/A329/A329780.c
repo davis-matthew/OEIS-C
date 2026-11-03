@@ -9,6 +9,7 @@
  *            {1,2,3,5,7,8,9,11,12,13,14,15,17,18,19,20,21,23,24,25,27,29,30,31}
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -14,13 +14,15 @@
  *            column contains one or two distinct colors
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 19 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,8 +33,8 @@ seq_t a(idx_t n)
 
     /* dp0[k] – last column has one distinct color (f = 1)
        dp1[k] – last column has two distinct colors (f = 2) */
-    seq_t *dp0 = (seq_t *)calloc((size_t)(maxK + 1), sizeof(seq_t));
-    seq_t *dp1 = (seq_t *)calloc((size_t)(maxK + 1), sizeof(seq_t));
+    seq_t *dp0 = mem_new(seq_t, (size_t)(maxK + 1));
+    seq_t *dp1 = mem_new(seq_t, (size_t)(maxK + 1));
 
     /* initial column (j = 1) */
     dp0[1] = (seq_t)1;      /* both cells are the same color 0 */
@@ -40,8 +42,8 @@ seq_t a(idx_t n)
 
     for (idx_t col = 2; col <= n; ++col) {
         /* next arrays for column 'col' */
-        seq_t *next0 = (seq_t *)calloc((size_t)(maxK + 1), sizeof(seq_t));
-        seq_t *next1 = (seq_t *)calloc((size_t)(maxK + 1), sizeof(seq_t));
+        seq_t *next0 = mem_new(seq_t, (size_t)(maxK + 1));
+        seq_t *next1 = mem_new(seq_t, (size_t)(maxK + 1));
 
         /* maximum k that can appear after previous column */
         idx_t maxPrevK = 2 * (col - 1) + 1;
@@ -96,8 +98,8 @@ seq_t a(idx_t n)
             }
         }
 
-        free(dp0);
-        free(dp1);
+        mem_free(dp0);
+        mem_free(dp1);
         dp0 = next0;
         dp1 = next1;
     }
@@ -109,7 +111,7 @@ seq_t a(idx_t n)
         result += dp1[k];
     }
 
-    free(dp0);
-    free(dp1);
+    mem_free(dp0);
+    mem_free(dp1);
     return result;
 }

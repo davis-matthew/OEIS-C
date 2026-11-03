@@ -11,13 +11,17 @@
  *            rows
  * Range:     u8 n <= 14, u16 n <= 30, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /* cache of computed rows; _rows[0] is unused */
 static seq_t **_rows = NULL;
@@ -37,7 +41,7 @@ static void _ensure_rows(idx_t n)
     /* compute each new row sequentially */
     for (idx_t i = _rows_cap + 1; i <= n; ++i)
     {
-        seq_t *row = (seq_t *)malloc((i + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (i + 1));
         if (!row) continue;           /* skip if allocation fails */
         _rows[i] = row;
 
@@ -50,7 +54,7 @@ static void _ensure_rows(idx_t n)
 
         seq_t prev = (seq_t)(i - 1);  /* (n-1) as seq_t */
         /* diagonal entry */
-        row[i] = big_pow(prev, prev);
+        row[i] = ipow(prev, prev);
 
         /* other entries using recurrence */
         seq_t *prev_row = _rows[i - 1];

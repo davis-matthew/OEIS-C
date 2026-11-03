@@ -7,12 +7,14 @@
  * Formula:   a(n) = A000166(n-1) * n * (n-1)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *der_cache = NULL;    /* derangement values */
 static size_t der_alloc  = 0;      /* allocated size of der_cache */
@@ -27,7 +29,7 @@ static void ensure_der_up_to(idx_t m)
         return;
 
     /* Reallocate array to the required size */
-    seq_t *tmp = (seq_t *)realloc(der_cache, need * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, der_cache, need);
     if (!tmp) {
         /* Allocation failed – abort the program (expected to never happen) */
         abort();

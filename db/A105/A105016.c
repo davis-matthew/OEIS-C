@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 none, u16 n <= 89, u32 n <= 89, u64 n <= 89, u128 n <= 89,
- *            big any n
- * Helpers:   int_sqrt, is_prime
+ * Range:     u8 none, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 106 terms through n = 9208 (2026-11-03)
+ * Helpers:   is_prime_u64, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,15 +29,16 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_prime.h"
-#include "../utils/int_sqrt.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/isqrt.h"
 
 #define PRIME_LIMIT 10000000ULL   /* 1e7 threshold for the difference a^2 - n */
 
 seq_t a(idx_t n)
 {
     idx_t n_val = n;                 /* copy into local idx_t for clarity */
-    idx_t root   = int_sqrt(n_val);   /* floor(sqrt(n)) */
+    idx_t root   = isqrt(n_val);   /* floor(sqrt(n)) */
     seq_t a_start = (seq_t)root + 1;  /* smallest a with a^2 > n */
     seq_t a_val   = a_start;
 
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
         else
         {
             /* test primality using the utility function */
-            if (is_prime(diff))
+            if (is_prime_u64(diff))
                 return a_val;   /* found minimal a */
         }
 

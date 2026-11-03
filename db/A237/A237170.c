@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 6, u64 n <= 14, u128 n <= 29,
  *            big any n
- * Helpers:   diff_of_block
+ * Validated: standard, pass, 31 terms through n = 202 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,21 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>   /* for uint8_t */
-#include "../utils/diff_of_block.h"
+
+/* Return (max – lower median) of the four numbers a,b,c,d */
+static inline int diff_of_block(int a, int b, int c, int d)
+{
+    int v[4] = {a, b, c, d};
+    for (int i = 0; i < 4; ++i)
+        for (int j = i + 1; j < 4; ++j)
+            if (v[i] > v[j]) {
+                int t = v[i];
+                v[i] = v[j];
+                v[j] = t;
+            }
+    /* v[3] is max; v[1] is lower median (the second smallest) */
+    return v[3] - v[1];
+}
 
 /* Pre‑computed adjacency lists for each difference d */
 static int next_rows[4][64][64];

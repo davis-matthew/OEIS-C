@@ -8,13 +8,17 @@
  *            factors of n
  * Range:     u8 n <= 16, u16 n <= 256, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factorize, phi
+ * Validated: standard, pass, 73 terms through n = 8964 (2026-11-01)
+ * Helpers:   factorize, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/phi.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factorize.h"
+#include "../utils/totient.h"
 
 static seq_t sopf(idx_t n)
 {
@@ -33,6 +37,6 @@ static seq_t sopf(idx_t n)
 seq_t a(idx_t n)
 {
     seq_t sum_primes = sopf(n);
-    seq_t phi_val    = phi(n);
+    seq_t phi_val    = totient(n);
     return sum_primes * phi_val;
 }

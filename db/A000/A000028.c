@@ -11,7 +11,8 @@
  *            trial-division factoring of k = 2, 3, 4, ... and memoized
  * Range:     u8 n <= 125, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_term
+ * Validated: standard, pass, 83 terms through n = 9995 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,21 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_term.h"
+
+static bool is_term(unsigned long long k)
+{
+    int bits = 0;
+    unsigned long long p;
+    for (p = 2; p * p <= k; p += (p == 2 ? 1 : 2)) {
+        if (k % p == 0) {
+            unsigned long long e = 0;
+            while (k % p == 0) { k /= p; e++; }
+            while (e) { bits += (int)(e & 1); e >>= 1; }
+        }
+    }
+    if (k > 1) bits += 1;
+    return (bits & 1) != 0;
+}
 
 static unsigned long long *terms = NULL;
 static size_t terms_cnt = 0, terms_cap = 0;

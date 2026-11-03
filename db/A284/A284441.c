@@ -10,16 +10,24 @@
  *            column * index p (0‑based) satisfying * n = (r+1)(r+2)/2 + p , 0
  *            ≤ p ≤ r * a(n) equals the number of times the base‑3 string of
  *            index p occurs as * a scattered (subsequence)...
- * Range:     u8 n <= 9479, u16 n <= 9479, u32 n <= 9479, u64 n <= 9479,
- *            u128 n <= 9479, big any n
- * Helpers:   reverse_uint8
+ * Range:     u8 n <= 29645, u16 n <= 29645, u32 n <= 29645, u64 n <= 29645,
+ *            u128 n <= 29645, big any n
+ * Validated: standard, pass, 137 terms through n = 9479 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
 #include <stddef.h>
-#include "../utils/reverse_uint8.h"
+
+static void reverse_uint8(uint8_t *a, size_t len) {
+    for (size_t i = 0; i < len / 2; ++i) {
+        uint8_t t = a[i];
+        a[i] = a[len - 1 - i];
+        a[len - 1 - i] = t;
+    }
+}
 
 seq_t a(idx_t n) {
     /* special case for the first entry (row 0) */

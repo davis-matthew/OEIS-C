@@ -8,6 +8,7 @@
  *            NOT congruent to 2 modulo 3 (i.e. not of the form 3*k-1)
  * Range:     u8 n <= 52, u16 n <= 9076, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 73 terms through n = 9687 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

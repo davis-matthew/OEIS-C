@@ -10,13 +10,15 @@
  *            dynamic‑programming recurrence with memoisation
  * Range:     u8 n <= 12, u16 n <= 23, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 38 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* The sequence is defined for n >= 0; a(0) = 1 (empty composition).  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,10 +33,10 @@ seq_t a(idx_t n)
     {
         /* newcap = 1 for n == 0; for larger n allocation will be done later */
         idx_t newcap = (n > 0) ? (n + 1) : 1;
-        total = (seq_t*)malloc(newcap * sizeof(seq_t));
-        f[0]   = (seq_t*)malloc(newcap * sizeof(seq_t));
-        f[1]   = (seq_t*)malloc(newcap * sizeof(seq_t));
-        f[2]   = (seq_t*)malloc(newcap * sizeof(seq_t));
+        total = mem_new(seq_t, newcap);
+        f[0]   = mem_new(seq_t, newcap);
+        f[1]   = mem_new(seq_t, newcap);
+        f[2]   = mem_new(seq_t, newcap);
 
         /* initialise the base case: a(0) = 1; no ending residue for empty comp. */
         total[0] = (seq_t)1;
@@ -50,10 +52,10 @@ seq_t a(idx_t n)
     if (n > max_n)
     {
         idx_t newcap = n + 1;          /* indices 0 .. n inclusive */
-        total = (seq_t*)realloc(total, newcap * sizeof(seq_t));
-        f[0]   = (seq_t*)realloc(f[0],   newcap * sizeof(seq_t));
-        f[1]   = (seq_t*)realloc(f[1],   newcap * sizeof(seq_t));
-        f[2]   = (seq_t*)realloc(f[2],   newcap * sizeof(seq_t));
+        total = mem_resize(seq_t, total, newcap);
+        f[0]   = mem_resize(seq_t, f[0], newcap);
+        f[1]   = mem_resize(seq_t, f[1], newcap);
+        f[2]   = mem_resize(seq_t, f[2], newcap);
 
         /* Compute values from max_n+1 up to n.  */
         for (idx_t i = max_n + 1; i <= n; ++i)

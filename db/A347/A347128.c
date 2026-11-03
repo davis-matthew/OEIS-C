@@ -7,8 +7,9 @@
  * Keywords:  nonn, mult, look
  * Formula:   a(n) = A018804(n) / A003557(n) Multiplicative with a(p^e) =
  *            ((p-1)*e + p)
- * Range:     u8 n <= 65, u16 n <= 4289, u32 n <= 9960, u64 n <= 9960,
- *            u128 n <= 9960, big any n
+ * Range:     u8 n <= 65, u16 n <= 4289, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 92 terms through n = 9960 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

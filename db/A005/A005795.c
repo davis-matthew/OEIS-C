@@ -10,13 +10,24 @@
  *            (roots generated from the E_7 Cartan matrix)
  * Range:     u8 n <= 7, u16 n <= 7, u32 n <= 7, u64 n <= 7, u128 n <= 7,
  *            big any n
- * Helpers:   find_root
+ * Validated: full, pass, 7 terms through n = 7 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <string.h>
-#include "../utils/find_root.h"
+
+static int find_root(int roots[][7], int cnt, const int *v)
+{
+    int r, j;
+    for (r = 0; r < cnt; r++) {
+        for (j = 0; j < 7; j++)
+            if (roots[r][j] != v[j]) break;
+        if (j == 7) return 1;
+    }
+    return 0;
+}
 
 static int built = 0;
 static int degs[8];

@@ -10,16 +10,18 @@
  *            is generated in increasing order
  * Range:     u8 n <= 36, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   digit_sum, digits_seq, mulmod
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-01)
+ * Helpers:   digit_sum, mulmod_seq, num_digits_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
 #include "../utils/digit_sum.h"
-#include "../utils/digits_seq.h"
-#include "../utils/mulmod.h"
+#include "../utils/mulmod_seq.h"
+#include "../utils/num_digits_seq.h"
 
 seq_t a(idx_t n) {
     static idx_t found = 0;       /* how many terms have been found so far */
@@ -30,15 +32,15 @@ seq_t a(idx_t n) {
         ++cur;                    /* start from 1, then 2, 3, ... */
 
         seq_t s = digit_sum(cur);           /* sum of digits of cur */
-        idx_t d = (idx_t)digits_seq(cur);   /* number of decimal digits */
+        idx_t d = (idx_t)num_digits_seq(cur);   /* number of decimal digits */
 
         /* compute 10^d mod cur - do not overflow */
         seq_t pow10_mod = 1;
         for (idx_t i = 0; i < d; ++i)
-            pow10_mod = mulmod(pow10_mod, 10, cur);
+            pow10_mod = mulmod_seq(pow10_mod, 10, cur);
 
         /* a divides s*10^d iff (s*pow10_mod) mod cur == 0 */
-        seq_t prod_mod = mulmod(s % cur, pow10_mod, cur);
+        seq_t prod_mod = mulmod_seq(s % cur, pow10_mod, cur);
         if (prod_mod == 0) {
             ++found;
             if (found == n)

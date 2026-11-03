@@ -8,7 +8,8 @@
  * Formula:   a(n) = denominator of b(n); b(1)=1, b(n+1)=∑_{k|n} 1/b(k)
  * Range:     u8 n <= 8, u16 n <= 12, u32 n <= 15, u64 n <= 21, u128 n <= 26,
  *            big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 38 terms through n = 68 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
    using exact arithmetic provided by the build.                                       */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 typedef struct { seq_t num; seq_t den; } frac_t;
 
@@ -51,7 +54,7 @@ static void ensure_b_capacity(idx_t n) {
     if (b_cap > n) return;
     size_t new_cap = (b_cap == 0) ? 64 : b_cap * 2;
     while (new_cap <= (size_t)n) new_cap *= 2;
-    b_arr = (frac_t *)realloc(b_arr, (new_cap + 1) * sizeof(frac_t));
+    b_arr = mem_resize(frac_t, b_arr, (new_cap + 1));
     b_cap = new_cap;
 }
 

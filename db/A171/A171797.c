@@ -7,8 +7,9 @@
  * Keywords:  nonn, base, easy, look
  * Formula:   a(n) = concatenation of (number of digits in n) (number of even
  *            digits) (number of odd digits)
- * Range:     u8 n <= 99, u16 n <= 9255, u32 n <= 9255, u64 n <= 9255,
- *            u128 n <= 9255, big any n
+ * Range:     u8 n <= 99, u16 n <= 25000, u32 n <= 25000, u64 n <= 25000,
+ *            u128 n <= 25000, big any n
+ * Validated: standard, pass, 68 terms through n = 9255 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

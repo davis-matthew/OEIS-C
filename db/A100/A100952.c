@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 21, u32 n <= 21, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   is_prime, isqrt
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-03)
+ * Helpers:   is_prime_u64, isqrt_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/is_prime.h"
-#include "../utils/isqrt.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/isqrt_seq.h"
+#include "../utils/mem.h"
 
 /* ---------- prime sieve ------------------------------------- */
 #define SIEVE_LIMIT 2000000  /* sufficient for a(n) up to n ≈ 10 000 */
@@ -34,32 +37,32 @@ static void generate_primes(void)
 {
     if (prime_buf != NULL) return;
 
-    char *is_prime = (char *)malloc(SIEVE_LIMIT + 1);
-    if (!is_prime) abort();
+    char *is_prime_u64 = (char *)malloc(SIEVE_LIMIT + 1);
+    if (!is_prime_u64) abort();
 
-    for (size_t i = 0; i <= SIEVE_LIMIT; ++i) is_prime[i] = 1;
-    is_prime[0] = is_prime[1] = 0;
+    for (size_t i = 0; i <= SIEVE_LIMIT; ++i) is_prime_u64[i] = 1;
+    is_prime_u64[0] = is_prime_u64[1] = 0;
 
     for (uint64_t i = 2; i * i <= SIEVE_LIMIT; ++i)
     {
-        if (is_prime[i])
+        if (is_prime_u64[i])
             for (uint64_t j = i * i; j <= SIEVE_LIMIT; j += i)
-                is_prime[j] = 0;
+                is_prime_u64[j] = 0;
     }
 
     /* count primes */
     prime_count = 0;
     for (uint64_t i = 2; i <= SIEVE_LIMIT; ++i)
-        if (is_prime[i]) ++prime_count;
+        if (is_prime_u64[i]) ++prime_count;
 
     prime_buf = (uint64_t *)malloc(prime_count * sizeof(uint64_t));
     if (!prime_buf) abort();
 
     size_t pos = 0;
     for (uint64_t i = 2; i <= SIEVE_LIMIT; ++i)
-        if (is_prime[i]) prime_buf[pos++] = i;
+        if (is_prime_u64[i]) prime_buf[pos++] = i;
 
-    free(is_prime);
+    free(is_prime_u64);
 }
 
 /* ---------- check whether X has a representation p*q+r ---------- */
@@ -68,7 +71,7 @@ static bool has_representation(seq_t X)
     if (X < 11) return false;            /* all numbers < 11 are non‑representable */
 
     uint64_t x   = (uint64_t)X;
-    uint64_t root = (uint64_t)isqrt(X); /* floor(sqrt(x)) */
+    uint64_t root = (uint64_t)isqrt_seq(X); /* floor(sqrt(x)) */
 
     /* iterate over pairs p < q of distinct primes */
     for (size_t i = 0; i < prime_count && prime_buf[i] <= root; ++i)
@@ -83,7 +86,7 @@ static bool has_representation(seq_t X)
             uint64_t r = x - prod;
             if (r == p || r == q) continue;   /* primes must be distinct */
 
-            if (is_prime(r)) return true;
+            if (is_prime_u64(r)) return true;
         }
     }
     return false;
@@ -100,7 +103,7 @@ static void ensure_seq_capacity(size_t needed)
     if (needed <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 128;
     while (new_cap < needed) new_cap *= 2;
-    seq_buf = (seq_t *)realloc(seq_buf, new_cap * sizeof(seq_t));
+    seq_buf = mem_resize(seq_t, seq_buf, new_cap);
     if (!seq_buf) abort();
     seq_cap = new_cap;
 }

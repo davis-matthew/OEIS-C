@@ -11,13 +11,15 @@
  *            repeated value and any earlier occurrence * is unique
  * Range:     u8 n <= 76, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 76 terms through n = 76 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* dynamic array helpers */
 static void ensure_seq_cap(void);
@@ -72,7 +74,7 @@ static void ensure_seq_cap(void)
 {
     if (seq_len == seq_cap) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 16;
-        seq_arr = (seq_t*)realloc(seq_arr, new_cap * sizeof(seq_t));
+        seq_arr = mem_resize(seq_t, seq_arr, new_cap);
         seq_cap = new_cap;
     }
 }
@@ -80,7 +82,7 @@ static void ensure_pos_cap(void)
 {
     if (pos_len == pos_cap) {
         size_t new_cap = pos_cap ? pos_cap * 2 : 16;
-        pos_diff = (seq_t*)realloc(pos_diff, new_cap * sizeof(seq_t));
+        pos_diff = mem_resize(seq_t, pos_diff, new_cap);
         pos_cap = new_cap;
     }
 }
@@ -88,7 +90,7 @@ static void ensure_neg_cap(void)
 {
     if (neg_len == neg_cap) {
         size_t new_cap = neg_cap ? neg_cap * 2 : 16;
-        neg_diff = (seq_t*)realloc(neg_diff, new_cap * sizeof(seq_t));
+        neg_diff = mem_resize(seq_t, neg_diff, new_cap);
         neg_cap = new_cap;
     }
 }
@@ -96,7 +98,7 @@ static void ensure_gap_cap(void)
 {
     if (used_len == used_cap) {
         size_t new_cap = used_cap ? used_cap * 2 : 16;
-        used_gaps = (seq_t*)realloc(used_gaps, new_cap * sizeof(seq_t));
+        used_gaps = mem_resize(seq_t, used_gaps, new_cap);
         used_cap = new_cap;
     }
 }
@@ -104,7 +106,7 @@ static void ensure_val_cap(void)
 {
     if (val_cnt == val_cap) {
         size_t new_cap = val_cap ? val_cap * 2 : 16;
-        val_arr  = (seq_t*)realloc(val_arr,  new_cap * sizeof(seq_t));
+        val_arr  = mem_resize(seq_t, val_arr, new_cap);
         last_arr = (idx_t*)realloc(last_arr, new_cap * sizeof(idx_t));
         val_cap = new_cap;
     }

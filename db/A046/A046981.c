@@ -7,6 +7,7 @@
  * Formula:   a(n) = n! / 2^[n/2] for n ≢ 2 (mod 4); a(4k+2) = 1
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 14, u64 n <= 23, u128 n <= 38,
  *            big any n
+ * Validated: standard, pass, 42 terms through n = 96 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

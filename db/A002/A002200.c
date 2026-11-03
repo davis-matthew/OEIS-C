@@ -11,7 +11,8 @@
  *            is fully factored
  * Range:     u8 n <= 22, u16 n <= 87, u32 n <= 355, u64 n <= 1398,
  *            u128 n <= 5653, big any n
- * Helpers:   a2200_bitlen, a2200_smallprime
+ * Validated: standard, pass, 68 terms through n = 9278 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,19 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/a2200_bitlen.h"
-#include "../utils/a2200_smallprime.h"
+#include "../utils/is_prime_u64.h"
+
+static int a2200_bitlen(const uint64_t *x, int w)
+{
+    for (int i = w - 1; i >= 0; i--)
+        if (x[i]) {
+            int b = 0;
+            uint64_t v = x[i];
+            while (v) { b++; v >>= 1; }
+            return 64 * i + b;
+        }
+    return 0;
+}
 
 #define A2200_MAXK 72
 typedef unsigned __int128 a2200_u128;
@@ -249,7 +261,7 @@ static void a2200_layer(int L)
             for (int i = 0; i < s; i++) h *= 5;
             h <<= q;
             x[0] = h + 1;
-            ok = a2200_smallprime(h + 1);
+            ok = is_prime_u64(h + 1);
         } else {
             const uint16_t *rs = a2200_pres + (size_t)pi * nsp;
             const uint16_t *tw = a2200_p2 + (size_t)q * nsp;

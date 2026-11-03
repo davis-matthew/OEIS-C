@@ -7,13 +7,15 @@
  * Formula:   a(n) = Sum_{d|n} d * 4^(d-1)
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -25,12 +27,12 @@ seq_t a(idx_t n)
             idx_t d1 = i;
             idx_t d2 = n / i;
 
-            seq_t pow1 = big_pow((seq_t)4, (seq_t)(d1 - 1));
+            seq_t pow1 = ipow((seq_t)4, (seq_t)(d1 - 1));
             total += (seq_t)d1 * pow1;
 
             if (d1 != d2)
             {
-                seq_t pow2 = big_pow((seq_t)4, (seq_t)(d2 - 1));
+                seq_t pow2 = ipow((seq_t)4, (seq_t)(d2 - 1));
                 total += (seq_t)d2 * pow2;
             }
         }

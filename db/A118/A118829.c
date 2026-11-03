@@ -11,12 +11,30 @@
  *            A080277(n)=n+2*A080277(n/2)
  * Range:     i8 n <= 63, i16 n <= 77, i32 n <= 77, i64 n <= 77, i128 n <= 77,
  *            big any n
- * Helpers:   A080277
+ * Validated: partial, pass, 77 terms through n = 77 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/A080277.h"
+static seq_t A080277(idx_t n)
+{
+    /* Recurrence: a(n) = n + 2*a(floor(n/2)), a(0)=0      */
+    if (n == 0)
+        return 0;
+    seq_t sum   = 0;
+    seq_t power = 1;
+    idx_t m = n;
+    while (m > 1)
+    {
+        sum   += power * (seq_t)m;
+        m >>= 1;      /* m = floor(m/2)   */
+        power <<= 1;  /* power *= 2       */
+    }
+    /* now m == 1 */
+    sum += power * (seq_t)1;
+    return sum;
+}
 
 seq_t a(idx_t n)
 {

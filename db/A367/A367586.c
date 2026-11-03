@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 58, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   build_spf, is_valid_even
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,31 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "../utils/build_spf.h"
-#include "../utils/is_valid_even.h"
+#include "../utils/mem.h"
+
+/* test whether an even number n satisfies the definition */
+static bool is_valid_even(uint64_t n, idx_t *spf_arr)
+{
+    if ((n & 1) == 1)          /* must be even */
+        return false;
+
+    uint64_t temp = n;
+    int g = 0;                 /* common exponent */
+
+    while (temp > 1) {
+        uint64_t p = spf_arr[(idx_t)temp];
+        int e = 0;
+        while (temp % p == 0) {
+            temp /= p;
+            e++;
+        }
+        if (g == 0)
+            g = e;
+        else if (e != g)
+            return false;      /* exponents not all equal */
+    }
+    return g > 0;              /* g > 0 automatically because n is even */
+}
 
 static seq_t *cache = NULL;       /* sequence terms      */
 static size_t cache_len = 0;      /* how many terms stored */
@@ -57,7 +82,7 @@ static void extend_cache(idx_t target_n)
             /* ensure cache capacity */
             if (cache_len == cache_cap) {
                 cache_cap = cache_cap ? cache_cap * 2 : 16;
-                cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = (seq_t)last_checked;
         }
@@ -71,7 +96,7 @@ seq_t a(idx_t n)
     /* initialise on first call */
     if (!cache) {
         cache_cap = 16;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = (seq_t)1;          /* first term */
         cache_len = 1;
         last_checked = 1;

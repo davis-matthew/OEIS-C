@@ -10,6 +10,7 @@
  *            2p+1 is also prime
  * Range:     u8 n <= 83, u16 n <= 7745, u32 n <= 7745, u64 n <= 7745,
  *            u128 n <= 7745, big any n
+ * Validated: standard, pass, 67 terms through n = 7726 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,7 +18,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"   /* provides: bool is_prime(idx_t n); */
+#include "../utils/is_prime.h"
 
 /* Static cache of Sophie‑Germain primes. */
 static idx_t *sgprimes   = NULL;   /* array of SG primes (p values) */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 struct HeapNode {
     seq_t val;
@@ -47,7 +49,7 @@ static void heap_push(seq_t v, uint8_t d)
 {
     if (heap_size == heap_cap) {
         heap_cap = heap_cap ? heap_cap * 2 : 16;
-        heap = (struct HeapNode *)realloc(heap, heap_cap * sizeof(struct HeapNode));
+        heap = mem_resize(struct HeapNode, heap, heap_cap);
     }
     size_t i = heap_size++;
     heap[i].val = v;
@@ -89,7 +91,7 @@ static void seq_append(seq_t v)
 {
     if (seq_len == seq_cap) {
         seq_cap = seq_cap ? seq_cap * 2 : 64;
-        seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, seq_cap);
     }
     seq[seq_len++] = v;
 }
@@ -99,7 +101,7 @@ seq_t a(idx_t n)
     /* initialise the heap with one‑digit numbers 1..6 (if not yet done) */
     if (!heap) {
         heap_cap = 16;
-        heap = (struct HeapNode *)malloc(heap_cap * sizeof(struct HeapNode));
+        heap = mem_new(struct HeapNode, heap_cap);
         for (int d = 1; d <= 6; ++d)
             heap_push((seq_t)d, (uint8_t)d);
     }

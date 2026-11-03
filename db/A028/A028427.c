@@ -12,13 +12,25 @@
  *            to decimal
  * Range:     u8 n <= 35, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   floor_log6
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/floor_log6.h"
+
+static idx_t floor_log6(idx_t x)
+{
+    /* Return ⌊log₆ x⌋; x ≥ 1. */
+    idx_t e = 0;
+    idx_t p = 1;
+    while (p <= x / 6) {
+        p *= 6;
+        ++e;
+    }
+    return e;
+}
 
 seq_t a(idx_t n)
 {

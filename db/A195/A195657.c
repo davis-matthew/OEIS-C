@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 10, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* array indexed by n, 1‑based */
 static idx_t cache_limit = 0;    /* highest n that has been cached */
@@ -35,9 +37,9 @@ static void ensure_cache(idx_t n)
     /* grow the cache array */
     size_t new_size = (size_t)(n + 1);  /* space for indices 0..n */
     if (cache == NULL)
-        cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+        cache = mem_new(seq_t, new_size);
     else
-        cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
 
     if (!cache)
         exit(EXIT_FAILURE);          /* allocation failure */

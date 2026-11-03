@@ -9,8 +9,9 @@
  *            (including zero). The algorithm enumerates all numbers with
  *            fewer digits and then counts those with the same length by
  *            examining each position with a combinatorial argument
- * Range:     u8 n <= 325, u16 n <= 9886, u32 n <= 9886, u64 n <= 9886,
- *            u128 n <= 9886, big any n
+ * Range:     u8 n <= 325, u16 n <= 25000, u32 n <= 25000, u64 n <= 25000,
+ *            u128 n <= 25000, big any n
+ * Validated: standard, pass, 88 terms through n = 9886 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

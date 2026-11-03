@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 8, u64 n <= 17, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 190 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define WIDTH     6U
 #define NUM_PAT   (1U << WIDTH)          /* 64 */
@@ -93,7 +95,7 @@ seq_t a(idx_t n)
         /* Allocate initial cache */
         if (!seq_cache) {
             cache_cap = 64;
-            seq_cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+            seq_cache = mem_new(seq_t, cache_cap);
         }
 
         /* DP for first row */
@@ -152,7 +154,7 @@ seq_t a(idx_t n)
         if ((idx_t)n >= cache_cap) {
             idx_t new_cap = cache_cap ? cache_cap * 2 : 64;
             while ((idx_t)n >= new_cap) new_cap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
             seq_cache = tmp;
             cache_cap = new_cap;
         }

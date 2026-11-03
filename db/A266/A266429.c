@@ -12,12 +12,14 @@
  *            negative intermediate values
  * Range:     u8 n <= 4, u16 n <= 15, u32 n <= 106, u64 n <= 210,
  *            u128 n <= 210, big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* ---------- initialisation of first 7 terms and difference array ---------- */
     if (cache_size < 7) {
         /* allocate cache for indices 0..7 (index 0 unused) */
-        cache = (seq_t *)malloc((7ULL + 1ULL) * sizeof(seq_t));
+        cache = mem_new(seq_t, (7ULL + 1ULL));
 
         /* first seven values */
         cache[1] = (seq_t)4;
@@ -76,7 +78,7 @@ seq_t a(idx_t n)
     /* ---------- compute values if needed ---------- */
     if (n > cache_size) {
         /* enlarge cache to hold up to index n */
-        cache = (seq_t *)realloc(cache, (n + 1ULL) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (n + 1ULL));
 
         for (idx_t idx = cache_size + 1; idx <= n; ++idx) {
             /* compute next value using current forward differences */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Comparator for qsort on uint64_t values. */
 static int cmp_u64(const void *a, const void *b)
@@ -50,7 +52,7 @@ static void recompute(idx_t limit,
 {
     /* free old array if present */
     if (*pos_out) {
-        free(*pos_out);
+        mem_free(*pos_out);
         *pos_out = NULL;
     }
 
@@ -82,7 +84,7 @@ static void recompute(idx_t limit,
     }
 
     /* allocate array for positions of even sums */
-    seq_t *newpos = (seq_t *)malloc(even_cnt * sizeof(seq_t));
+    seq_t *newpos = mem_new(seq_t, even_cnt);
     if (!newpos) exit(EXIT_FAILURE);
 
     /* fill positions array with 1‑based indices */

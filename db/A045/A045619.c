@@ -8,13 +8,15 @@
  *            integers (computed by a priority‑queue based search)
  * Range:     u8 n <= 4, u16 n <= 312, u32 n <= 2322, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 9319 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Node encodes a running product of consecutive integers
    starting at k, current length l (>=2), and the product itself.
@@ -33,7 +35,7 @@ typedef struct {
 } Heap;
 
 static void heap_init(Heap *h, size_t cap) {
-    h->data = (Node *)malloc(cap * sizeof(Node));
+    h->data = mem_new(Node, cap);
     h->size = 0;
     h->cap  = cap;
 }
@@ -41,7 +43,7 @@ static void heap_init(Heap *h, size_t cap) {
 static void heap_push(Heap *h, Node node) {
     if (h->size == h->cap) {
         h->cap *= 2;
-        h->data = (Node *)realloc(h->data, h->cap * sizeof(Node));
+        h->data = mem_resize(Node, h->data, (h->cap * sizeof(Node)) / sizeof(Node));
     }
     size_t i = h->size++;
     while (i > 0) {
@@ -119,6 +121,6 @@ seq_t a(idx_t n) {
         heap_push(&h, nxt);
     }
 
-    free(h.data);
+    mem_free(h.data);
     return result;
 }

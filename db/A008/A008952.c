@@ -5,8 +5,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, base
  * Formula:   a(n) = floor(10^{fractional part of n*log10(2)})
- * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 9986,
- *            u128 n <= 9986, big any n
+ * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 112 terms through n = 9986 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

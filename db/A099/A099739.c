@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=1..n} k!*mu(k)
  * Range:     i8 n <= 5, i16 n <= 9, i32 n <= 12, i64 n <= 20, i128 n <= 33,
  *            big any n
- * Helpers:   mobius
+ * Validated: standard, pass, 36 terms through n = 378 (2026-11-03)
+ * Helpers:   mem, mobius
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
 /*  The implementation uses a static cache to store previously computed */
 #include <stddef.h>      /* size_t */
 #include <stdlib.h>     /* malloc, realloc */
-#include "../utils/mobius.h"  /* seq_t mobius(idx_t m) */
+#include <stdint.h>
+#include "../utils/mobius.h"
+#include "../utils/mem.h"
 
 /*  Cached values:  sums[i]  =  a(i)   (1‑based),  sums[0] = 0.   */
 static seq_t  *sums        = NULL;   /* cache array (1‑based) */
@@ -30,7 +33,7 @@ seq_t a(idx_t n)
     /*  Initialise cache on first call                                   */
     if (sums == NULL) {
         cap   = (size_t)n + 1;
-        sums  = (seq_t *)malloc(cap * sizeof(seq_t));
+        sums  = mem_new(seq_t, cap);
         if (sums == NULL) return 0;                      /* allocation failed */
         sums[0] = 0;                                       /* a(0) unused          */
         max_computed = 0;                                  /* no terms computed yet*/
@@ -40,7 +43,7 @@ seq_t a(idx_t n)
     /*  Grow the array if necessary                                     */
     if ((size_t)n + 1 > cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(sums, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, sums, new_cap);
         if (tmp == NULL) return 0;                         /* allocation failed */
         sums = tmp;
         cap = new_cap;

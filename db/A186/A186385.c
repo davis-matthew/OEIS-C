@@ -9,7 +9,8 @@
  * Formula:   a(n) = n + ⌊(⌊√(40*n + 1)⌋ – 1)/2⌋
  * Range:     u8 n <= 6, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   bitlen_seq_t
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
    where ties are resolved by putting the triangular number before 5*i. */
 
 #include <stddef.h>                 /* for size_t */
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
 
 /* Integer square‑root floor for seq_t */
 static seq_t isqrt_floor(seq_t x)
@@ -26,7 +28,7 @@ static seq_t isqrt_floor(seq_t x)
     if (x == (seq_t)0) {
         return (seq_t)0;
     }
-    size_t bits = bitlen_seq_t(x);
+    size_t bits = bit_length(x);
     seq_t low  = (seq_t)0;
     seq_t high = (seq_t)1 << ((bits + 1) / 2);   /* 2^(ceil(bits/2)) >= sqrt(x) */
 

@@ -12,12 +12,14 @@
  *            -2*a(n-6)+2*a(n-7)-2*a(n-8)+2*a(n-9)-a(n-10)
  * Range:     u8 n <= 47, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes the n-th term of OEIS sequence A313295. */
 seq_t a(idx_t n)
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     /* initialise the cache the first time a(n) for n ≥ 11 is requested */
     if (cache == NULL) {
         size_t start_cap = 16;                  /* arbitrary starting size   */
-        cache = (seq_t *)malloc(start_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, start_cap);
         cap   = start_cap;
         /* copy the known initial terms */
         for (size_t i = 0; i < 11; ++i) {
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     if (ui >= cap) {
         size_t new_cap = cap;
         while (new_cap <= ui) new_cap <<= 1;    /* double until big enough */
-        seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
         cache = new_ptr;
         cap   = new_cap;
     }

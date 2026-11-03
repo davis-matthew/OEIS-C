@@ -12,13 +12,30 @@
  *            parity test allows the * sequence to be compu...
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   in_A003159
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/in_A003159.h"
+
+/* Compute whether n belongs to A003159 */
+static bool in_A003159(idx_t n)
+{
+    /* Odd numbers are never in A003159 */
+    if (n & 1ULL) return false;
+
+    /* Count trailing zeros (the 2‑adic valuation) */
+    unsigned v = 0;
+    idx_t t = n;
+    while ((t & 1ULL) == 0) {
+        t >>= 1;
+        ++v;
+    }
+    /* In A003159 iff the valuation is odd */
+    return (v & 1U) != 0;
+}
 
 seq_t a(idx_t n)
 {

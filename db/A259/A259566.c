@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   base3_no_zero
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,19 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/base3_no_zero.h"
+#include "../utils/mem.h"
+
+/* Test whether a non‑negative integer has no zero in base‑3.  */
+static bool base3_no_zero(idx_t x)
+{
+    while (x > 0)
+    {
+        if (x % 3 == 0)
+            return false;
+        x /= 3;
+    }
+    return true;
+}
 
 /* Static cache storing computed terms of the sequence.  */
 static seq_t *cache = NULL;       /* array of computed a(n) values   */
@@ -40,7 +53,7 @@ seq_t a(idx_t n)
     if (cache == NULL)
     {
         cache_cap = 128;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL)
             return 0;            /* allocation failure – unlikely      */
         cache_len = 0;
@@ -59,7 +72,7 @@ seq_t a(idx_t n)
             if (cache_len + 1 > cache_cap)
             {
                 size_t new_cap = cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (tmp == NULL)
                     return 0;      /* allocation failure – unlikely      */
                 cache = tmp;

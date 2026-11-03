@@ -9,13 +9,15 @@
  *            (a(2) is the first term)
  * Range:     u8 n <= 22, u16 n <= 84, u32 n <= 84, u64 n <= 84, u128 n <= 84,
  *            big any n
- * Helpers:   is_prime_generic
+ * Validated: partial, pass, 83 terms through n = 84 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_prime_generic.h"
+#include <stdint.h>
+#include "../utils/is_prime.h"
 
 seq_t a(idx_t n)
 {
@@ -33,8 +35,8 @@ seq_t a(idx_t n)
         idx_t minus = Tidx - kidx;
         idx_t plus  = Tidx + kidx;
         if (minus >= 2 &&
-            is_prime_generic(minus) &&
-            is_prime_generic(plus))
+            is_prime(minus) &&
+            is_prime(plus))
             return k;
     }
 

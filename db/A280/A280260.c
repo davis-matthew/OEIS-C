@@ -8,7 +8,8 @@
  *            (Product of totatives of d)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 8, u64 n <= 10, u128 n <= 14,
  *            big any n
- * Helpers:   _gcd_idx
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-03)
+ * Helpers:   gcd_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,9 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/_gcd_idx.h"
+#include <stdbool.h>
+#include "../utils/gcd_idx.h"
+#include "../utils/mem.h"
 
 /* Euclidean GCD for idx_t values. */
 
@@ -39,33 +42,33 @@ static void ensure_size(size_t newN)
 
     /* Allocate or grow the pxi array. */
     if (pxi == NULL) {
-        pxi = (seq_t *)calloc(newN + 1, sizeof(seq_t));
+        pxi = mem_new(seq_t, newN + 1);
     } else {
-        pxi = (seq_t *)realloc(pxi, (newN + 1) * sizeof(seq_t));
-        memset(pxi + maxN + 1, 0, (newN - maxN) * sizeof(seq_t));
+        pxi = mem_resize(seq_t, pxi, (newN + 1));
+        mem_set(pxi + maxN + 1, 0, (newN - maxN) * sizeof(seq_t));
     }
 
     /* Allocate or grow the a258 array. */
     if (a258 == NULL) {
-        a258 = (seq_t *)calloc(newN + 1, sizeof(seq_t));
+        a258 = mem_new(seq_t, newN + 1);
     } else {
-        a258 = (seq_t *)realloc(a258, (newN + 1) * sizeof(seq_t));
-        memset(a258 + maxN + 1, 0, (newN - maxN) * sizeof(seq_t));
+        a258 = mem_resize(seq_t, a258, (newN + 1));
+        mem_set(a258 + maxN + 1, 0, (newN - maxN) * sizeof(seq_t));
     }
 
     /* Allocate or grow the ans array. */
     if (ans == NULL) {
-        ans = (seq_t *)calloc(newN + 1, sizeof(seq_t));
+        ans = mem_new(seq_t, newN + 1);
     } else {
-        ans = (seq_t *)realloc(ans, (newN + 1) * sizeof(seq_t));
-        memset(ans + maxN + 1, 0, (newN - maxN) * sizeof(seq_t));
+        ans = mem_resize(seq_t, ans, (newN + 1));
+        mem_set(ans + maxN + 1, 0, (newN - maxN) * sizeof(seq_t));
     }
 
     /* Compute pxi(m) for new indices m = maxN+1 .. newN. */
     for (size_t m = maxN + 1; m <= newN; ++m) {
         seq_t prod = 1;
         for (idx_t k = 1; k <= (idx_t)m; ++k) {
-            if (_gcd_idx(k, (idx_t)m) == 1)
+            if (gcd_idx(k, (idx_t)m) == 1)
                 prod *= (seq_t)k;
         }
         pxi[m] = prod;

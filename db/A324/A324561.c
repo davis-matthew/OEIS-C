@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  * as larger numbers are requested.  */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------- */
 /*  Sieve and lookup tables                                            */
@@ -116,8 +118,7 @@ static void ensure_terms(idx_t n)
             if (has_good_prime_index(next_candidate)) {
                 if (cache_len == cache_cap) {          /* grow cache */
                     cache_cap = cache_cap ? cache_cap * 2 : 16;
-                    cache_vals = (seq_t*)realloc(cache_vals,
-                                                 cache_cap * sizeof(seq_t));
+                    cache_vals = mem_resize(seq_t, cache_vals, cache_cap);
                     if (!cache_vals) exit(1);
                 }
                 cache_vals[cache_len++] = (seq_t)next_candidate;

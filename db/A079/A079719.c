@@ -7,7 +7,8 @@
  * Formula:   a(n) = n + floor(Sum_{k<n} a(k)/2), a(0)=0
  * Range:     u8 n <= 12, u16 n <= 25, u32 n <= 53, u64 n <= 107,
  *            u128 n <= 216, big any n
- * Helpers:   none
+ * Validated: standard, pass, 56 terms through n = 946 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #if defined(__cplusplus)
 #include <type_traits>
 #endif
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -42,11 +44,11 @@ seq_t a(idx_t n)
     size_t needed = (size_t)(n + 1);
 
     if (cache == NULL) {
-        cache = (seq_t *)malloc(needed * sizeof(seq_t));
+        cache = mem_new(seq_t, needed);
         assert(cache != NULL);
         cap   = needed;
     } else if (needed > cap) {
-        seq_t *tmp = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, needed);
         assert(tmp != NULL);
         cache = tmp;
         cap   = needed;

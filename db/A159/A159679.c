@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 9, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 350 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* A159679:  a(n+3) = 255*(a(n+2)-a(n+1)) + a(n),  a(1)=0, a(2)=32, a(3)=8160 */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;        /* 1‑based index cache */
 static size_t cache_cap = 0;       /* allocated size (excluding index 0) */
@@ -26,7 +28,7 @@ static void ensure_cache(size_t n) {
     if (n <= cache_cap) return;
     size_t new_cap = cache_cap == 0 ? 4 : cache_cap;
     while (new_cap < n) new_cap <<= 1;          /* grow exponentially */
-    seq_t *new_cache = (seq_t *)realloc(cache, (new_cap + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (new_cap + 1));
     if (!new_cache) abort();                    /* out of memory */
     /* initialize newly allocated slots to 0 */
     for (size_t i = cache_cap + 1; i <= new_cap; ++i) new_cache[i] = 0;

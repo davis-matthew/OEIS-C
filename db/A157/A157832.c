@@ -13,13 +13,15 @@
  *            for...
  * Range:     i8 n <= 6, i16 n <= 14, i32 n <= 20, i64 n <= 29, i128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Global cache of rows and powers of 5.  */
 static seq_t **rows = NULL;      /* rows[0] .. rows[r] are pointers to arrays of length r+1 */
@@ -43,7 +45,7 @@ static void ensure_pow5_capacity(idx_t new_cap) {
     if (new_cap <= pow5_cap) return;
     idx_t new_size = pow5_cap ? pow5_cap * 2 : 4;
     if (new_size < new_cap) new_size = new_cap;
-    pow5 = (seq_t *)realloc(pow5, new_size * sizeof(seq_t));
+    pow5 = mem_resize(seq_t, pow5, new_size);
     pow5_cap = new_size;
 }
 
@@ -54,7 +56,7 @@ static void compute_rows_up_to(idx_t up_to) {
         ensure_rows_capacity(rows_len + 1);
 
         /* Allocate storage for the new row. */
-        seq_t *row = (seq_t *)malloc((cur + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (cur + 1));
         if (cur == 0) {
             row[0] = (seq_t)1;   /* base case */
         } else {

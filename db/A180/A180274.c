@@ -9,12 +9,14 @@
  *            = 1022, a(9) = 1546, a(10) = 1786, a(11) = 2702, a(12) = 4250
  * Range:     u8 n <= 4, u16 n <= 19, u32 n <= 48, u64 n <= 106, u128 n <= 222,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 892 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* 1‑indexed array of known terms */
 static idx_t  cache_size = 0;        /* actual size of cache (index 0 unused) */
@@ -25,7 +27,7 @@ static void ensure_cache(idx_t upto)
     if (cache == NULL) {
         /* allocate space for indices 0..12 (index 0 unused) */
         cache_size = 13;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         /* initialise the first 12 values */
         const seq_t init[12] = {70, 106, 158, 182, 274, 430,
                                 650, 1022, 1546, 1786, 2702, 4250};
@@ -36,7 +38,7 @@ static void ensure_cache(idx_t upto)
     if (upto >= cache_size) {
         /* enlarge the cache to include 'upto' */
         size_t new_size = upto + 1;    /* indices 0..upto */
-        cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
         /* compute new terms using the recurrence */
         for (idx_t i = cache_size; i <= upto; ++i)
             cache[i] = 10 * cache[i-6] - cache[i-12];

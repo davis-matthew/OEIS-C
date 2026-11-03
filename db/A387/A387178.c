@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* a(n) ------------------------------------------------------------ */
 seq_t a(idx_t n)
@@ -50,12 +52,12 @@ seq_t a(idx_t n)
     }
 
     /* ---------- 2: bounded coin‑change DP -------------------------------- */
-    seq_t *dp_prev = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
-    seq_t *dp_cur  = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *dp_prev = mem_new(seq_t, (size_t)(n + 1));
+    seq_t *dp_cur  = mem_new(seq_t, (size_t)(n + 1));
     if (!dp_prev || !dp_cur) {
         free(dist);
-        free(dp_prev);
-        free(dp_cur);
+        mem_free(dp_prev);
+        mem_free(dp_cur);
         return (seq_t)0;
     }
     dp_prev[0] = (seq_t)1;   /* base: one way to form 0 */
@@ -91,8 +93,8 @@ seq_t a(idx_t n)
 
     /* clean up */
     free(dist);
-    free(dp_prev);
-    free(dp_cur);
+    mem_free(dp_prev);
+    mem_free(dp_cur);
 
     return result;
 }

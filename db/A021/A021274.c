@@ -9,12 +9,14 @@
  *            a(n)=22*a(n-1)-147*a(n-2)+302*a(n-3)-176*a(4-n) for n>3
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 8, u64 n <= 17, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
 
     /* Extend the cache to hold n+1 entries. */
     size_t new_size = idx + 1;
-    cache = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_size);
 
     /* Compute any new entries.  cache_size contains the first unused index. */
     for (size_t i = cache_size; i <= idx; ++i)

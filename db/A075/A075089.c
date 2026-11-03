@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 37, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ---------- Miller–Rabin primality test (deterministic for 64‑bit) ---------- */
 
@@ -92,8 +94,8 @@ static void ensure_capacity(size_t need)
     if (need <= comp_cap) return;
     size_t new_cap = comp_cap ? comp_cap * 2 : 128;
     while (new_cap < need) new_cap *= 2;
-    composites = (seq_t *)realloc(composites, new_cap * sizeof(seq_t));
-    results   = (seq_t *)realloc(results,   new_cap * sizeof(seq_t));
+    composites = mem_resize(seq_t, composites, new_cap);
+    results   = mem_resize(seq_t, results, new_cap);
     comp_cap = new_cap;
 }
 

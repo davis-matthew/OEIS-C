@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  base, nonn
  * Formula:   not stated
- * Range:     u8 n <= 16, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
- *            big any n
- * Helpers:   is_prime_ull
+ * Range:     u8 n <= 16, u16 n <= 3232, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 69 terms through n = 9705 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,9 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime_ull.h"
+#include <stdlib.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 /* Helper: number of decimal digits in x (x>=1) */
 static inline idx_t num_digits(idx_t x) {
@@ -75,9 +78,9 @@ static void ensure_capacity(idx_t needed) {
     while (seen_cap < needed)
         seen_cap <<= 1;          /* double until enough */
     if (!seen)
-        seen = (seq_t*)malloc(seen_cap * sizeof(seq_t));
+        seen = mem_new(seq_t, seen_cap);
     else
-        seen = (seq_t*)realloc(seen, seen_cap * sizeof(seq_t));
+        seen = mem_resize(seq_t, seen, seen_cap);
 }
 
 /* Main sequence generator */
@@ -96,7 +99,7 @@ seq_t a(idx_t n) {
         if ((next_candidate & 1ULL) && (next_candidate % 5ULL)) {
             idx_t d = num_digits(next_candidate);
             uint64_t val = 10000ULL * pow10_table[d] + next_candidate;
-            if (is_prime_ull(val)) {
+            if (is_prime_u64(val)) {
                 seen[seen_size++] = (seq_t)next_candidate;
             }
         }

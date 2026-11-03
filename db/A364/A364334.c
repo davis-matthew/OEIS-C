@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 112, u16 n <= 112, u32 n <= 112, u64 n <= 112,
  *            u128 n <= 112, big any n
- * Helpers:   int_sqrt, is_prime
+ * Validated: partial, pass, 111 terms through n = 112 (2026-11-03)
+ * Helpers:   is_prime, isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,10 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/is_prime.h"
-#include "../utils/int_sqrt.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 /* Memoisation cache: cache[n] holds a(n) for n ≥ 2.
    cache_len is the number of slots currently allocated. */
@@ -39,7 +42,7 @@ static void ensure_cache(idx_t n)
     if (new_len < needed)
         new_len = needed;
 
-    seq_t *tmp = (seq_t*)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_len);
     if (!tmp)
         abort();                 /* allocation failure – interrupt program */
 
@@ -76,7 +79,7 @@ seq_t a(idx_t n)
         else   /* composite or even > 2 */
         {
             seq_t mx = (seq_t)0;
-            idx_t r = int_sqrt(i);
+            idx_t r = isqrt(i);
             for (idx_t d = 2; d <= r; ++d)
             {
                 if (i % d == 0)

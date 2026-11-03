@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 856, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime, is_semiprime_uint64
+ * Validated: standard, pass, 65 terms through n = 9795 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,13 +19,33 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"
-#include "../utils/is_semiprime_uint64.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+/* true if x is the product of exactly two primes (possibly the same) */
+static bool is_semiprime_uint64(uint64_t x)
+{
+    if (x < 4)
+        return false;
+    uint64_t d = 0;
+    if (x % 2 == 0)
+        d = 2;
+    else {
+        for (uint64_t dd = 3; dd <= x / dd; dd += 2) {
+            if (x % dd == 0) {
+                d = dd;
+                break;
+            }
+        }
+    }
+    if (d == 0)
+        return false;                      /* x is prime */
+    uint64_t second = x / d;
+    return is_prime_u64(second);
+}
 
 /* seq_t and idx_t are provided by the build system. */
-extern void *malloc(size_t);
-extern void *realloc(void *, size_t);
-extern void free(void *);
 
 static seq_t *seq = NULL;          /* array of found terms */
 static size_t seq_cap = 0;         /* allocated capacity of seq */
@@ -38,9 +59,9 @@ static uint64_t prev_semiprime = 0; /* last semiprime encountered */
 static void seq_grow(void) {
     if (seq_len == seq_cap) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 64;
-        seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq, new_cap);
         if (!tmp) { /* allocation failed, abort */
-            free(seq);
+            mem_free(seq);
             seq = NULL;
             seq_cap = 0;
             seq_len = 0;
@@ -74,7 +95,7 @@ seq_t a(idx_t n)
                 /* (q + r) must be even to have an integer average */
                 if (((q + r) & 1ULL) == 0ULL) {
                     uint64_t mid = (q + r) >> 1;
-                    if (is_prime(mid)) {
+                    if (is_prime_u64(mid)) {
                         seq_add((seq_t)mid);
                     }
                 }

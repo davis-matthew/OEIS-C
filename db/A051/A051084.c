@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd64, mod_mul64
+ * Validated: standard, pass, 72 terms through n = 883 (2026-11-01)
+ * Helpers:   gcd_u64, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,8 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/gcd64.h"
-#include "../utils/mod_mul64.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/mulmod.h"
 
 /* 64‑bit modular exponentiation (binary powering) */
 static uint64_t mod_pow64(uint64_t base, uint64_t exp, uint64_t mod)
@@ -28,8 +29,8 @@ static uint64_t mod_pow64(uint64_t base, uint64_t exp, uint64_t mod)
     while (exp)
     {
         if (exp & 1ULL)
-            res = mod_mul64(res, base, mod);
-        base = mod_mul64(base, base, mod);
+            res = mulmod(res, base, mod);
+        base = mulmod(base, base, mod);
         exp >>= 1;
     }
     return res;
@@ -56,7 +57,7 @@ static bool satisfies(uint64_t p)
     if (p == 2ULL)
         return true;                 /* 0^30 ≡ -2 (mod 2) */
     uint64_t base = p - 2ULL;        /* (-2) mod p */
-    uint64_t d    = gcd64(30ULL, p - 1ULL);
+    uint64_t d    = gcd_u64(30ULL, p - 1ULL);
     uint64_t exp  = (p - 1ULL) / d;
     return mod_pow64(base, exp, p) == 1ULL;
 }

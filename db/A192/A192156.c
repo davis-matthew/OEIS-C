@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 31, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  *              offset 1.
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static int seq_compare(const void *p, const void *q)
 {
@@ -39,8 +41,8 @@ seq_t a(idx_t n)
     {
         /* Pre‑allocate enough space for 0 … 40 */
         const idx_t MAX_I = 40;
-        seq_t *pow8  = (seq_t *)malloc((MAX_I + 1) * sizeof(seq_t));
-        seq_t *pow3  = (seq_t *)malloc((MAX_I + 1) * sizeof(seq_t));
+        seq_t *pow8  = mem_new(seq_t, (MAX_I + 1));
+        seq_t *pow3  = mem_new(seq_t, (MAX_I + 1));
 
         /* Compute powers of 8 up to 8^40 or until overflow */
         size_t max_i = 0;
@@ -79,7 +81,7 @@ seq_t a(idx_t n)
         }
 
         /* Collect all differences */
-        seq_t *diffs = (seq_t *)malloc(total_pairs * sizeof(seq_t));
+        seq_t *diffs = mem_new(seq_t, total_pairs);
         size_t pos = 0;
         for (size_t i = 0; i <= max_i; ++i)
         {
@@ -88,7 +90,7 @@ seq_t a(idx_t n)
         }
 
         /* Sort the differences */
-        qsort(diffs, total_pairs, sizeof(seq_t), seq_compare);
+        mem_qsort(diffs, total_pairs, sizeof(seq_t), seq_compare);
 
         /* Count unique values */
         uniq_len = 1;
@@ -97,7 +99,7 @@ seq_t a(idx_t n)
                 ++uniq_len;
 
         /* Store unique values in cache */
-        uniq = (seq_t *)malloc(uniq_len * sizeof(seq_t));
+        uniq = mem_new(seq_t, uniq_len);
         uniq[0] = diffs[0];
         size_t out = 1;
         for (size_t k = 1; k < total_pairs; ++k)
@@ -105,9 +107,9 @@ seq_t a(idx_t n)
                 uniq[out++] = diffs[k];
 
         /* Free temporary arrays */
-        free(diffs);
-        free(pow8);
-        free(pow3);
+        mem_free(diffs);
+        mem_free(pow8);
+        mem_free(pow3);
     }
 
     if (n == 0) return (seq_t)0;            /* undefined for offset 0 */

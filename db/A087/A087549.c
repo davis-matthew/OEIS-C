@@ -9,7 +9,8 @@
  *            the number of divisors of n
  * Range:     u8 n <= 11, u16 n <= 19, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static cache for computed terms */
 static seq_t *seq_cache  = NULL; /* cache[0] unused; cache[1].. cache[max_computed] valid */
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     /* Ensure cache can hold indices up to n (plus index 2 for safety) */
     size_t required = (size_t)(n + 2);
     if (cache_size < required) {
-        seq_t *tmp = (seq_t *)realloc(seq_cache, required * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, required);
         if (!tmp) return 0;              /* allocation failed – return 0 as a fallback */
         seq_cache   = tmp;
         cache_size = required;

@@ -7,7 +7,8 @@
  * Formula:   a(n) = 2^(prime(n) + 1) + 1
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 18, u128 n <= 20,
  *            big any n
- * Helpers:   is_prime, pow2
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-03)
+ * Helpers:   is_prime_u64, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,9 @@
 /* The function returns the n‑th term of OEIS sequence A101304. */
 
 #include <stdint.h>
-#include "../utils/is_prime.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 #include "../utils/pow2.h"
 
 /* Compute the n-th term of the sequence. */
@@ -28,7 +31,7 @@ seq_t a(idx_t n) {
 
     /* Find the n‑th prime by trial using the supplied is_prime function. */
     while (count < n) {
-        if (is_prime(candidate)) {
+        if (is_prime_u64(candidate)) {
             ++count;
             if (count == n) {
                 prime_val = candidate;

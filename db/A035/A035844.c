@@ -8,12 +8,14 @@
  *            is the index (a(0)=1)
  * Range:     u8 n <= 0, u16 n <= 2, u32 n <= 6, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -34,9 +36,9 @@ seq_t a(idx_t n)
     for (idx_t d = 1; d <= 18; ++d)
     {
         /* C(19,d) * C(n-1,d-1) */
-        seq_t term = (seq_t)C19[d] * binom(n - 1, d - 1);
+        seq_t term = (seq_t)C19[d] * binomial(n - 1, d - 1);
         /* * C(18-d+n, n) */
-        term *= binom(18 - d + n, n);
+        term *= binomial(18 - d + n, n);
         sum += term;
     }
     return sum;

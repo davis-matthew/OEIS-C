@@ -9,13 +9,23 @@
  *            for i≠j
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 12, u128 n <= 20,
  *            big any n
- * Helpers:   deallocate_seq_array
+ * Validated: standard, pass, 33 terms through n = 35 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/deallocate_seq_array.h"
+
+/* deallocate an array of seq_t */
+static void deallocate_seq_array(seq_t *ptr)
+{
+#if defined(__cplusplus)
+    delete[] ptr;
+#else
+    free(ptr);
+#endif
+}
 
 static seq_t *e = NULL;          /* elementary symmetric sums */
 static seq_t *fact = NULL;       /* factorials */

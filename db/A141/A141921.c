@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 300, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   primetest_u64
+ * Validated: standard, pass, 60 terms through n = 942 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/primetest_u64.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 /* ---------- local helpers ---------- */
 
@@ -38,14 +40,14 @@ static void grow_cache(idx_t n)
     while (cache_len < n)
     {
         /* Test whether the current candidate is prime. */
-        if (primetest_u64(next_candidate))
+        if (is_prime_u64(next_candidate))
         {
             /* Grow the array if needed. */
             if (cache_len >= cache_cap)
             {
                 size_t new_cap = (cache_cap == 0) ? 64 : cache_cap * 2;
                 /* Realloc with explicit cast for C++ compliance. */
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) abort();
                 cache   = tmp;
                 cache_cap = new_cap;

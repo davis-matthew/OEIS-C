@@ -12,7 +12,8 @@
  *            auxiliary array satisfies the update rule: w_k(n+1)...
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 17, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_arr = NULL;      /* 0‑unused, a_arr[1] = a(1) ...      */
 static seq_t *w_arr = NULL;      /* 0‑unused, w_arr[1] = 1 at start   */
@@ -33,7 +35,7 @@ static idx_t  max_computed = 0;  /* highest n for which a_arr[n] known */
 static void grow_array(seq_t **arr, size_t *len, size_t newlen)
 {
     if (*len >= newlen) return;
-    seq_t *tmp = (seq_t *)realloc(*arr, newlen * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *arr, newlen);
     if (!tmp) abort();                      /* out of memory */
     /* zero the newly allocated part */
     for (size_t i = *len; i < newlen; ++i) tmp[i] = 0;

@@ -10,7 +10,8 @@
  *            sequence of those palindromic products
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 3, u64 n <= 4, u128 n <= 4,
  *            big any n
- * Helpers:   is_palindrome_seq
+ * Validated: partial, pass, 4 terms through n = 4 (2026-11-03)
+ * Helpers:   is_palindrome, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_palindrome_seq.h"
+#include "../utils/is_palindrome.h"
+#include "../utils/mem.h"
 
 /* Cache for already computed terms. */
 static seq_t *cache = NULL;
@@ -32,7 +34,7 @@ static void ensure_cache_cap(size_t need)
     if (need <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 64;
     while (new_cap < need) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) exit(1);                /* allocation failure */
     cache = tmp;
     cache_cap = new_cap;
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
         val = val * ((seq_t)3 * N + (seq_t)1);        /* N^2 * (3N+1) */
         val = val / (seq_t)2;                        /* divide by 2 */
 
-        if (is_palindrome_seq(val)) {
+        if (is_palindrome(val)) {
             ensure_cache_cap(cache_len + 1);
             cache[cache_len++] = val;
         }

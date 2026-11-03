@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 43, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   reverse_decimal
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/reverse_decimal.h"
+#include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* Ensure capacity for the requested index */
     if ((size_t)n > cap) {
         size_t new_cap = (size_t)n;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp && new_cap > 0)
             abort();               /* allocation failed */
         cache = tmp;
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
 
     /* Compute terms up to n (ignoring any already computed) */
     for (idx_t i = last_computed + 1; i <= n; ++i) {
-        cache[i - 1] = reverse_decimal(cache[i - 2]) + (seq_t)56;
+        cache[i - 1] = reverse_digits(cache[i - 2]) + (seq_t)56;
     }
 
     last_computed = n;

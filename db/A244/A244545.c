@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 24, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   _modinv_small
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,14 @@
  */
 
 #include <stdbool.h>
-#include "../utils/_modinv_small.h"
+
+/* Compute the modulus inverse of a modulo p  (p is prime, 1 <= a < p) */
+static int _modinv_small(int a, int p) {
+    for (int x = 1; x < p; ++x) {
+        if ((a * x) % p == 1) return x;
+    }
+    return 1;   /* never reached for valid inputs */
+}
 
 /* Prime divisors to test against */
 static const int _primes[5] = {7, 13, 31, 37, 43};

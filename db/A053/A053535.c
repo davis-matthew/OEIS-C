@@ -7,12 +7,14 @@
  * Formula:   a(n) = 6*a(n-1) + 27*a(n-2), a(0) = 1, a(1) = 6
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 989 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;   /* cache of computed terms  */
 static size_t a_cache_size = 0; /* number of terms currently stored */
@@ -31,7 +33,7 @@ static void ensure_cache(idx_t n)
     while (a_cache_cap <= (size_t)n) {
         a_cache_cap <<= 1;
     }
-    a_cache = (seq_t *)realloc(a_cache, a_cache_cap * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, a_cache_cap);
 
     /* Fill cache up to n */
     for (size_t i = a_cache_size; i <= (size_t)n; ++i) {

@@ -14,14 +14,20 @@
  *            each n...
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   pow2_128
+ * Validated: partial, pass, 64 terms through n = 63 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow2_128.h"
+
+/* Utility: 2^exp as unsigned __int128 (exp < 128) */
+static inline unsigned __int128 pow2_128(int exp)
+{
+    return (unsigned __int128)1 << exp;
+}
 
 seq_t a(idx_t n)
 {

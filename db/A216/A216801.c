@@ -10,7 +10,8 @@
  *            a(3)=-117, a(4)=-468, a(5)=-1755, a(6)=-6513
  * Range:     i8 n <= 3, i16 n <= 7, i32 n <= 15, i64 n <= 31, i128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 931 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static cache for memoisation */
 static seq_t *cache = NULL;        /* 1‑based indexing, cache[0] unused   */
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     /* Initialise the cache if this is the first call */
     if (!cache) {
         /* Allocate space for indices 0 … 6   (unused index 0) */
-        cache = (seq_t*)malloc((size_t)7 * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)7);
         if (!cache) abort();
         cache[1] = 2;
         cache[2] = -22;
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
     /* Allocate more space if necessary */
     if (n > cache_size) {
         size_t new_cap = (size_t)(n + 1);   /* we keep index 0 unused */
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();
         cache = tmp;
         /* Compute values that are not yet cached */

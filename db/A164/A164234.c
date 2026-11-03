@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 33, u64 n <= 65, u128 n <= 130,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 453 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,11 +38,11 @@ seq_t a(idx_t n)
     const idx_t state_cnt  = 16;  /* 4-bit suffix */
 
     /* Allocate DP tables, cast to seq_t* for C++ */
-    seq_t *cur  = (seq_t *)calloc(state_cnt * diff_span, sizeof(seq_t));
-    seq_t *next = (seq_t *)calloc(state_cnt * diff_span, sizeof(seq_t));
+    seq_t *cur  = mem_new(seq_t, state_cnt * diff_span);
+    seq_t *next = mem_new(seq_t, state_cnt * diff_span);
     if (!cur || !next) {
-        free(cur);
-        free(next);
+        mem_free(cur);
+        mem_free(next);
         return 0;
     }
 
@@ -101,8 +103,8 @@ seq_t a(idx_t n)
         result += cur[IDX(s, offset)];
     }
 
-    free(cur);
-    free(next);
+    mem_free(cur);
+    mem_free(next);
 
     return result;
 }

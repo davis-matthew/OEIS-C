@@ -9,7 +9,8 @@
  *            floor(sqrt(i)) / 10^{digits(floor(sqrt(i)))} is an integer
  * Range:     u8 n <= 19, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   digits_of
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem, num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/digits_of.h"
+#include "../utils/num_digits_idx.h"
+#include "../utils/mem.h"
 
 static const seq_t POW10[21] = {
     1ULL, 10ULL, 100ULL, 1000ULL, 10000ULL, 100000ULL, 1000000ULL,
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
     /* grow the terms array if required -------------------------- */
     if (sz + 1 > cap) {
         size_t new_cap = (cap == 0) ? 64 : cap << 1;
-        seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
         if (!tmp) return 0;          /* allocation failed */
         terms = tmp;
         cap = new_cap;
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
         }
 
         /* determine digits of current floor sqrt */
-        int digits = digits_of(curr_sqrt);
+        int digits = num_digits_idx(curr_sqrt);
 
         /* if a longer digit length now appears, increase base and rescale */
         if (digits > digits_max) {

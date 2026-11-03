@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 168, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 86 terms through n = 9476 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,9 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* Return true iff m satisfies the defining property. */
 static bool is_candidate(uint64_t m)
@@ -36,13 +39,13 @@ static bool is_candidate(uint64_t m)
     for (uint64_t d = 2ULL; d * d <= m; ++d) {
         if (m % d == 0ULL) {
             /* Test divisor d */
-            if (mod_pow((seq_t)d, d, (seq_t)m) == (seq_t)d) {
+            if (powmod((seq_t)d, d, (seq_t)m) == (seq_t)d) {
                 return true;
             }
             /* Test conjugate divisor e=m/d */
             uint64_t e = m / d;
             if (e != d && e > 1ULL && e < m) {
-                if (mod_pow((seq_t)e, e, (seq_t)m) == (seq_t)e) {
+                if (powmod((seq_t)e, e, (seq_t)m) == (seq_t)e) {
                     return true;
                 }
             }
@@ -60,7 +63,7 @@ static void add_term(seq_t v)
 {
     if (terms_len == terms_cap) {
         size_t new_cap = terms_cap ? terms_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
         if (!tmp) exit(1);          /* Out of memory: abort */
         terms = tmp;
         terms_cap = new_cap;

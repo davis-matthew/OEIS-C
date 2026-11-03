@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 76, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_two_digit_factor
+ * Validated: standard, pass, 79 terms through n = 9185 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,24 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/has_two_digit_factor.h"
+#include "../utils/mem.h"
+
+/* Return true if x has a proper divisor that has exactly two digits
+   (i.e. lies in the range [10,99] and is not equal to x itself). */
+static bool has_two_digit_factor(seq_t x)
+{
+    /* 1–9 are always admissible */
+    if (x < 10) return false;
+
+    /* Check all two‑digit numbers; skip d == x. */
+    for (int d = 10; d <= 99; ++d)
+    {
+        seq_t dd = (seq_t)d;
+        if (x == dd) continue;          /* skip the trivial divisor x itself */
+        if ((x % dd) == 0) return true; /* found a proper two‑digit divisor */
+    }
+    return false; /* no such divisor found */
+}
 
 /* Main sequence function. */
 seq_t a(idx_t n)
@@ -35,7 +53,7 @@ seq_t a(idx_t n)
     /* Grow the array when required. */
     if (terms_cap == 0) {
         terms_cap = 8;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
         if (!terms) exit(EXIT_FAILURE);
     }
 
@@ -49,7 +67,7 @@ seq_t a(idx_t n)
             /* Ensure capacity. */
             if (terms_count == terms_cap) {
                 size_t new_cap = terms_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, new_cap);
                 if (!tmp) exit(EXIT_FAILURE);
                 terms = tmp;
                 terms_cap = new_cap;

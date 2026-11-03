@@ -10,21 +10,22 @@
  *            from 0
  * Range:     u8 n <= 58, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   bitlen_seq_t
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/bitlen_seq_t.h"
+#include "../utils/bit_length.h"
 
 static inline bool suffix_is_necklace(seq_t m)
 {
     /* Determine whether the binary suffix of m (obtained by
        deleting the most significant bit) is lexicographically
        minimal among all its cyclic rotations. */
-    unsigned int T = bitlen_seq_t(m);           /* total bits of m, 0 for m==0 */
+    unsigned int T = bit_length(m);           /* total bits of m, 0 for m==0 */
     if (T <= 1)            /* 0 or 1 has empty suffix, considered a necklace */
         return true;
 

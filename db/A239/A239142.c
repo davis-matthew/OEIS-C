@@ -9,19 +9,21 @@
  *            A000009(n) is the number of strict (distinct) partitions of n
  * Range:     u8 n <= 29, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate array for strict partition counts up to n. */
     size_t size = (size_t)n + 1;
-    seq_t *part = (seq_t *)calloc(size, sizeof(seq_t));
+    seq_t *part = mem_new(seq_t, size);
     if (!part) return 0;          /* allocation failure yields 0 */
 
     part[0] = 1;                  /* empty partition */
@@ -40,6 +42,6 @@ seq_t a(idx_t n)
 
     seq_t result = part[n] - bad;             /* required value */
 
-    free(part);
+    mem_free(part);
     return result;
 }

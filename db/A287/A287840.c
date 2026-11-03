@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- sieve helpers ---------- */
 static uint64_t *spf = NULL;        /* smallest prime factor array */
@@ -147,7 +149,7 @@ static void term_ensure_cap(size_t need)
     if (term_cap >= need) return;
     size_t new_cap = term_cap ? term_cap * 2 : 16;
     if (new_cap < need) new_cap = need;
-    seq_t *ptr = (seq_t*)realloc(term_cache, new_cap * sizeof(seq_t));
+    seq_t *ptr = mem_resize(seq_t, term_cache, new_cap);
     term_cache = ptr;
     term_cap = new_cap;
 }
@@ -161,7 +163,7 @@ seq_t a(idx_t n)
     static bool init_once = false;
     if (!init_once) {
         extend_sieve(1000);        /* small start */
-        term_cache = (seq_t*)malloc(16 * sizeof(seq_t));
+        term_cache = mem_new(seq_t, 16);
         term_cap   = 16;
         term_len   = 0;
         checked_until = 0;

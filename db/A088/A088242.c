@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9007, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 109 terms through n = 9780 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static inline idx_t isqrt_u64(idx_t n)
 {
@@ -101,13 +103,13 @@ seq_t a(idx_t n)
         /* Store result in cache, reallocating if needed */
         if (cache_len == 0)
         {
-            cache = (seq_t *)malloc(64 * sizeof(seq_t));
+            cache = mem_new(seq_t, 64);
             if (!cache)
                 abort();   /* allocation failure */
         }
         else if (cache_len % 64 == 0)
         {
-            seq_t *tmp = (seq_t *)realloc(cache, (cache_len + 64) * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, (cache_len + 64));
             if (!tmp)
                 abort();
             cache = tmp;

@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1455, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_fd_prime
+ * Validated: standard, pass, 121 terms through n = 9683 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,29 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_fd_prime.h"
+
+/* Test whether a 64‑bit integer is a Fermi‑Dirac prime
+   (i.e., p^(2^k) with p prime, k≥0). */
+static bool is_fd_prime(uint64_t x) {
+    if (x <= 1) return false;
+    uint64_t d = 2;
+    while (d * d <= x) {
+        if (x % d == 0) {
+            /* d is a prime divisor of x.  Verify that it is the only one. */
+            uint64_t base = d;
+            unsigned exp = 0;
+            while (x % d == 0) {
+                x /= d;
+                ++exp;
+            }
+            if (x != 1) return false;          /* more than one distinct prime */
+            return (exp & (exp - 1)) == 0;     /* exponent is a power of two */
+        }
+        ++d;
+    }
+    /* x itself is prime; exponent 1 is a power of two. */
+    return true;
+}
 
 /* Integer square root for unsigned 64‑bit numbers.  */
 static inline idx_t isqrt_u64(idx_t n) {

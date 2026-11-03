@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 37, u16 n <= 38, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* Helper to grow the array when needed. */
     if (terms_len == terms_cap) {
         size_t new_cap = terms_cap ? (terms_cap << 1) : 8;
-        seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
         if (!tmp) return 0; /* allocation failure: return 0 */
         terms = tmp;
         terms_cap = new_cap;
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
         if (sum <= k) {
             if (terms_len == terms_cap) {
                 size_t new_cap = terms_cap ? (terms_cap << 1) : 8;
-                seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, new_cap);
                 if (!tmp) return 0; /* allocation failure */
                 terms = tmp;
                 terms_cap = new_cap;

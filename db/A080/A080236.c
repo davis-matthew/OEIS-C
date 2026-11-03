@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 65, i16 n <= 65, i32 n <= 65, i64 n <= 65, i128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -37,6 +38,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Triangle stored in a flat array. Index of element (r, k) is
    offset(r) + k, where offset(r) = r*(r+1)/2. */
@@ -53,7 +55,7 @@ ensure_triangle(long long needed_row)
 
     /* Allocate a new flat array big enough for all rows up to needed_row. */
     size_t new_size = (size_t)(needed_row + 1) * (needed_row + 2) / 2;
-    seq_t *tmp = (seq_t *)realloc(triangle, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, triangle, new_size);
     if (!tmp)
         abort();         /* allocation failed */
     triangle = tmp;

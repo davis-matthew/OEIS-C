@@ -10,13 +10,15 @@
  *            upper left element is zero
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 24, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Helper: check if a given row satisfies the adjacency constraint,
    given its above and below neighbours (if any). */
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
     /* DP tables for states (prev2, prev1), 16x16 matrix */
     static seq_t dp[16][16];
     static seq_t ndp[16][16];
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
 
     /* Initialise first two rows */
     for (uint8_t r1 = 0; r1 < 16; ++r1) {
@@ -82,7 +84,7 @@ seq_t a(idx_t n)
 
     /* Process rows 3 .. n (if any) */
     for (idx_t row = 3; row <= n; ++row) {
-        memset(ndp, 0, sizeof(ndp));
+        mem_set(ndp, 0, sizeof(ndp));
         for (int b = 0; b < 16; ++b) {
             for (int c = 0; c < 16; ++c) {
                 seq_t cnt = dp[b][c];
@@ -94,7 +96,7 @@ seq_t a(idx_t n)
             }
         }
         /* swap dp and ndp */
-        memcpy(dp, ndp, sizeof(dp));
+        mem_copy(dp, ndp, sizeof(dp));
     }
 
     /* Final check for the bottom row (no below neighbours) */

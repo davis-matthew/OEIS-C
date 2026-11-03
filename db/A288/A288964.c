@@ -9,7 +9,8 @@
  *            number 1 + 1/2 + ... + 1/n)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 11, u64 n <= 19, u128 n <= 31,
  *            big any n
- * Helpers:   scalar_compute
+ * Validated: standard, pass, 38 terms through n = 79 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,7 +35,25 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <assert.h>
-#include "../utils/scalar_compute.h"
+#include "../utils/mem.h"
+
+/* Compute a(n) when seq_t is a small integral type (<= 8 bytes). */
+static seq_t scalar_compute(idx_t n)
+{
+    if (n == 0 || n == 1) return 0;
+
+    /* Use 128‑bit intermediates to avoid overflow for n <= 19.  */
+    unsigned __int128 fact = 1;
+    for (idx_t i = 2; i <= n; ++i) fact *= (unsigned __int128)i;
+
+    unsigned __int128 harmonic = 0;
+    for (idx_t k = 1; k <= n; ++k) harmonic += fact / (unsigned __int128)k;
+
+    unsigned __int128 res = (unsigned __int128)2 * (n + 1) * harmonic -
+                            (unsigned __int128)4 * n * fact;
+
+    return (seq_t)res;
+}
 
 /* Static cache used only when seq_t is not a small builtin type. */
 static seq_t *cache = NULL;
@@ -46,7 +65,7 @@ static void ensure_cache(idx_t n)
     if ((idx_t)cache_cap > n) return;
 
     size_t new_cap = (size_t)n + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     assert(tmp);
     cache = tmp;
 

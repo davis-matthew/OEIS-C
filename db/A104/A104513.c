@@ -8,8 +8,9 @@
  * Formula:   a(n) = maximum k ≥ 2 such that n = k·a + k(k−1)/2 with a ≥ 1, *
  *            else 0. This k is the length of the longest run of consecutive
  *            positive * integers that sums to n
- * Range:     u8 n <= 9927, u16 n <= 9927, u32 n <= 9927, u64 n <= 9927,
- *            u128 n <= 9927, big any n
+ * Range:     u8 n <= 16416, u16 n <= 16416, u32 n <= 16416, u64 n <= 16416,
+ *            u128 n <= 16416, big any n
+ * Validated: standard, pass, 116 terms through n = 9927 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

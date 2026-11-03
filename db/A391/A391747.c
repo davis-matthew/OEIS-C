@@ -7,8 +7,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   not stated
- * Range:     u8 n <= 9784, u16 n <= 9784, u32 n <= 9784, u64 n <= 9784,
- *            u128 n <= 9784, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9784 (2026-11-01)
  * Helpers:   build_primes_upto, build_spf
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -29,8 +30,9 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/build_spf.h"
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/build_spf.h"
 
 /* Static state for lazy table allocation */
 static idx_t      *spf         = NULL;   /* smallest prime factor of each number  */

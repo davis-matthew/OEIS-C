@@ -7,8 +7,9 @@
  * Keywords:  sign, easy
  * Formula:   a(0)=1, a(1)=0; For n>1: a(n)=2 if n is a power of 2, -1 if n is
  *            odd, 1 otherwise
- * Range:     i8 n <= 8892, i16 n <= 8892, i32 n <= 8892, i64 n <= 8892,
- *            i128 n <= 8892, big any n
+ * Range:     i8 n <= 65536, i16 n <= 65536, i32 n <= 65536, i64 n <= 65536,
+ *            i128 n <= 65536, big any n
+ * Validated: standard, pass, 97 terms through n = 8892 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,12 +10,15 @@
  *            the * Cartesian product of two complete graphs K_n × K_n
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 2, u64 n <= 3, u128 n <= 3,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 4 terms through n = 5 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -27,15 +30,15 @@ seq_t a(idx_t n)
     /* (4*n - 4)^(n^2*(n-2)) */
     seq_t base1 = 4 * m - 4;
     seq_t exp1  = m * m * (m - 2);          /* n^2 * (n-2) */
-    seq_t t1    = big_pow(base1, exp1);
+    seq_t t1    = ipow(base1, exp1);
 
     /* 2^((n-1)^2) */
     seq_t exp2  = (m - 1) * (m - 1);       /* (n-1)^2 */
-    seq_t t2    = big_pow((seq_t)2, exp2);
+    seq_t t2    = ipow((seq_t)2, exp2);
 
     /* n^(n^2-3) */
     seq_t exp3  = m * m - (seq_t)3;        /* n^2 - 3 */
-    seq_t t3    = big_pow(m, exp3);
+    seq_t t3    = ipow(m, exp3);
 
     /* Combine the factors and divide by (n-1) */
     seq_t result = t1;

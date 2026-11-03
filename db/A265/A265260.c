@@ -11,12 +11,14 @@
  *            dynamic-programming sieve over square parts
  * Range:     u8 n <= 267, u16 n <= 831, u32 n <= 831, u64 n <= 831,
  *            u128 n <= 831, big any n
- * Helpers:   none
+ * Validated: standard, pass, 122 terms through n = 801 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;          /* cached array of partitions into squares */
 static idx_t dp_cap = 0;          /* allocated size of dp */
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* rebuild dp if necessary */
     if (dp_cap <= m) {
         idx_t cap = m + 1;
-        seq_t *new_dp = (seq_t *)calloc((size_t)cap, sizeof(seq_t));
+        seq_t *new_dp = mem_new(seq_t, (size_t)cap);
         if (!new_dp)               /* out of memory – abort (no alternative) */
             exit(EXIT_FAILURE);
         new_dp[0] = 1;              /* base case: empty partition of 0 */
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
             }
         }
 
-        free(dp);                  /* discard old cache */
+        mem_free(dp);                  /* discard old cache */
         dp     = new_dp;
         dp_cap = cap;
     }

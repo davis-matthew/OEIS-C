@@ -10,6 +10,7 @@
  *            binary encoding of the prime factors of the squarefree part of n
  * Range:     u8 n <= 22, u16 n <= 58, u32 n <= 136, u64 n <= 312,
  *            u128 n <= 726, big any n
+ * Validated: standard, pass, 82 terms through n = 4908 (2026-11-01)
  * Helpers:   build_primes_upto, factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,8 +19,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "../utils/factor_u64.h"          /* factor_u64 */
-#include "../utils/build_primes_upto.h"  /* build_primes_upto */
+#include <stdbool.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/factor_u64.h"
 
 static uint64_t *prime_cache = NULL; /* sorted primes up to cache_cap */
 static size_t   prime_cache_cnt = 0;

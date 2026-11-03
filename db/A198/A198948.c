@@ -8,18 +8,19 @@
  *            the sum of fifth powers of all divisors of n
  * Range:     i8 n <= 1, i16 n <= 3, i32 n <= 31, i64 n <= 31, i128 n <= 31,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 /* sum of fifth powers of divisors of p^e */
 static seq_t sigma_prime_power(seq_t p, int e)
 {
-    seq_t p_pow5 = pow_seq(p, 5);
+    seq_t p_pow5 = ipow_i32(p, 5);
     seq_t sum = 1;           /* term for exponent 0 */
     seq_t term = 1;
     for (int i = 0; i < e; ++i) {

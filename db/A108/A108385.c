@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 36, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   add_prime, isPrime64
+ * Validated: standard, pass, 54 terms through n = 945 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,21 @@
    add_prime: appends a prime to a dynamic uint64_t array.
    isPrime64 : Miller–Rabin primality test for 64‑bit integers (deterministic).
 -------------------------------------------------------------------------------*/
-#include "../utils/add_prime.h"    /* uint64_t **arr, size_t *cap, size_t *cnt, uint64_t val */
-#include "../utils/isPrime64.h"    /* bool isPrime64(uint64_t n) */
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+
+/* Dynamically grow the array of found primes */
+static void add_prime(uint64_t **arr, size_t *cap, size_t *cnt, uint64_t val)
+{
+    if (*cnt >= *cap) {
+        size_t new_cap = (*cap == 0) ? 16 : (*cap << 1);
+        uint64_t *tmp = (uint64_t *)realloc(*arr, new_cap * sizeof(**arr));
+        if (!tmp) return;           /* allocation failed – caller will free on exit */
+        *arr = tmp;
+        *cap = new_cap;
+    }
+    (*arr)[(*cnt)++] = val;
+}
 
 /* Static state used by a() ------------------------------------------------------
    prime_buf   : dynamic array of found primes
@@ -45,7 +59,7 @@ gen_len_rec(int pos, int len, uint64_t val, int mask)
 {
     /* When all positions are filled, check the digits mask and primality. */
     if (pos == len) {
-        if (mask == 7 && isPrime64(val)) {
+        if (mask == 7 && is_prime_u64(val)) {
             add_prime(&prime_buf, &prime_cap, &prime_cnt, val);
         }
         return;

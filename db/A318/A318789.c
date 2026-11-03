@@ -10,8 +10,9 @@
  *            definition “a(n) = n-1 plus the alternating sum of all
  *            consecutive prime gaps between odd primes ≤ n”. The function
  *            computes this directly for any n ≥ 3
- * Range:     u8 n <= 288, u16 n <= 9954, u32 n <= 9954, u64 n <= 9954,
- *            u128 n <= 9954, big any n
+ * Range:     u8 n <= 288, u16 n <= 10002, u32 n <= 10002, u64 n <= 10002,
+ *            u128 n <= 10002, big any n
+ * Validated: standard, pass, 89 terms through n = 9954 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

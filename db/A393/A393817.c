@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 9, u32 n <= 21, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   baker_next, gcd, visited_get, visited_set
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,9 +24,28 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/gcd.h"
-#include "../utils/baker_next.h"
-#include "../utils/visited_get.h"
-#include "../utils/visited_set.h"
+
+/* Apply the baker's map to the single index `idx` in a n×n grid. */
+static inline idx_t baker_next(idx_t idx, idx_t n) {
+    idx_t i   = idx / n;
+    idx_t j   = idx % n;
+    idx_t i1  = i >> 1;                  /* floor(i/2) */
+    idx_t j1  = (j << 1) + (i & 1);      /* 2*j + i mod 2 */
+
+    if (j1 < n) {
+        return i1 * n + j1;              /* (i1, j1) */
+    } else {
+        return (n - 1 - i1) * n + ((2 * n - 1) - j1);
+    }
+}
+
+static inline bool visited_get(const uint8_t *v, idx_t i) {
+    return v[i >> 3] & (1U << (i & 7));
+}
+
+static inline void visited_set(uint8_t *v, idx_t i) {
+    v[i >> 3] |= (1U << (i & 7));
+}
 
 /* Return the exponent of the baker's map on an n×n grid. */
 seq_t a(idx_t n) {

@@ -8,6 +8,7 @@
  * Formula:   a(1)=1; for n>=2, a(n)=a(n-1)+n^4 if n odd, a(n-1)+n^2 if n even
  * Range:     u8 n <= 4, u16 n <= 14, u32 n <= 132, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 49 terms through n = 961 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

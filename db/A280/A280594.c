@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 39, u32 n <= 723, u64 n <= 723,
  *            u128 n <= 723, big any n
- * Helpers:   compare_seq_t
+ * Validated: full, pass, 723 terms through n = 723 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,15 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/compare_seq_t.h"
+
+static int compare_seq_t(const void *a, const void *b)
+{
+    const seq_t *x = (const seq_t *)a;
+    const seq_t *y = (const seq_t *)b;
+    if (*x < *y) return -1;
+    if (*x > *y) return 1;
+    return 0;
+}
 #endif
 
 /* Neighbor lists for digits 0‑9 on the keypad.  Adjacent keys (up,down,left,right). */

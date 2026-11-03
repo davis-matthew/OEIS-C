@@ -10,7 +10,8 @@
  *            term is 26
  * Range:     u8 n <= 8, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 900 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* static storage for computed values */
 static int    _a137263_initialized = 0;
@@ -70,7 +72,7 @@ static void _a137263_init(void)
     _sieve_primes(LIMIT, &primes, &primes_cnt);
 
     /* Allocate space for all possible midpoints (≤ primes_cnt) */
-    seq_t *vals = (seq_t*)malloc(primes_cnt * sizeof(seq_t));
+    seq_t *vals = mem_new(seq_t, primes_cnt);
     if (!vals) abort();
     size_t v = 0;
 
@@ -84,7 +86,7 @@ static void _a137263_init(void)
     }
 
     /* Shrink to actual size */
-    seq_t *tmp = (seq_t*)realloc(vals, v * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, vals, v);
     if (tmp) vals = tmp;
 
     /* Free primes array */

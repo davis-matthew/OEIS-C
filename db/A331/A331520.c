@@ -8,13 +8,15 @@
  * Formula:   a(0) = a(1) = 1; a(n) = Sum_{k=0..n-2} (C(n-2,k) mod 2) * a(k)
  * Range:     u8 n <= 16, u16 n <= 36, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* memoized values */
 static idx_t size   = 0;      /* number of values stored (next free index) */
@@ -25,7 +27,7 @@ static void ensure_cache_size(idx_t n)
 {
     if (cache == NULL) {
         cap   = 4;
-        cache = (seq_t*)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         /* initialize first two terms */
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)1;
@@ -34,7 +36,7 @@ static void ensure_cache_size(idx_t n)
     if (n + 1 <= cap) return;
     idx_t newcap = cap ? cap * 2 : 4;
     while (newcap < n + 1) newcap <<= 1;
-    cache = (seq_t*)realloc(cache, newcap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, newcap);
     if (cache == NULL) { /* allocation failed; terminate program */
         abort();
     }

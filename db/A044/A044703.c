@@ -8,15 +8,43 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   contains78, seq_realloc
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_realloc.h"
-#include "../utils/contains78.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
+
+/* Return true if v expressed in base 9 contains the consecutive digits
+   7 followed by 8.  Digits are examined from least‑significant to
+   most‑significant; we keep track of the previous digit (prev) and
+   look for the pair 7 (current) and 8 (previous). */
+static bool contains78(idx_t v)
+{
+    if (v == 0) return false;
+    int prev = -1;
+    while (v > 0) {
+        int d = v % 9;
+        v    /= 9;
+        if (d == 7 && prev == 8) return true;
+        prev = d;
+    }
+    return false;
+}
 
 /* Computes a(n): the nth integer whose base‑9 representation contains
    the substring "78" while the following integer does not. */

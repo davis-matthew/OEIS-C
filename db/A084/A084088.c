@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 54, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   v2_even
+ * Validated: standard, pass, 69 terms through n = 9760 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,18 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/v2_even.h"
+#include "../utils/mem.h"
+
+/* Returns true iff the 2‑adic valuation of x is even. */
+static bool v2_even(seq_t x)
+{
+    bool even = true;                    /* exponent 0 ⇒ even */
+    while ((x & 1) == 0) {
+        even = !even;                    /* toggle parity each shift */
+        x >>= 1;
+    }
+    return even;
+}
 
 /* --- Cached values --------------------------------------------- */
 static seq_t *cache = NULL;      /* array of found numbers */
@@ -35,7 +47,7 @@ static void grow_cache(idx_t needed)
     if (cache_cap >= needed) return;
     idx_t new_cap = cache_cap == 0 ? 128 : cache_cap * 2;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *new_arr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, cache, new_cap);
     if (!new_arr) {                    /* allocation failed */
         exit(1);
     }

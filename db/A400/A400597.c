@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 126, u32 n <= 126, u64 n <= 126,
  *            u128 n <= 126, big any n
- * Helpers:   count_distinct_primes
+ * Validated: full, pass, 126 terms through n = 126 (2026-11-02)
+ * Helpers:   omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/count_distinct_primes.h"
+#include "../utils/omega.h"
 
 #define MAX_NUM 100000          /* enough to contain all visited squares */
 #define R 160                    /* coordinate offset: 2*R+1 = 321  */
@@ -110,7 +111,7 @@ static void init_sequence(void)
                 int cand = grid[grid_index(nx, ny)];
                 if (cand == 0) continue;
                 if (visited[cand]) continue;
-                int cnt = count_distinct_primes((uint64_t)cand);
+                int cnt = omega((uint64_t)cand);
                 if (cnt > bestCnt || (cnt == bestCnt && cand < bestNum)) {
                     bestCnt = cnt;
                     bestNum = (uint32_t)cand;

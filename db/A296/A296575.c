@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 17, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper: test whether the current row 'curr' is valid when its upper
    neighbour is 'prev' (or absent if hasPrev==false) and its lower
@@ -104,7 +106,7 @@ seq_t a(idx_t n)
        processed (prev = row i‑2, curr = row i‑1). */
     static seq_t dp[32][32];
     static seq_t ndp[32][32];
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
 
     /* Initialise with all valid first‑row/second‑row pairs. */
     for (int prev = 0; prev < 32; ++prev) {
@@ -115,7 +117,7 @@ seq_t a(idx_t n)
 
     /* Process rows 3 … n */
     for (idx_t row = 3; row <= n; ++row) {
-        memset(ndp, 0, sizeof(ndp));
+        mem_set(ndp, 0, sizeof(ndp));
         for (int prev = 0; prev < 32; ++prev) {
             for (int curr = 0; curr < 32; ++curr) {
                 seq_t val = dp[prev][curr];
@@ -126,7 +128,7 @@ seq_t a(idx_t n)
                     ndp[curr][cand[k]] += val;
             }
         }
-        memcpy(dp, ndp, sizeof(dp));
+        mem_copy(dp, ndp, sizeof(dp));
     }
 
     /* Sum over states where the last row is valid. */

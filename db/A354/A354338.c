@@ -11,15 +11,38 @@
  *            intermediate products, so it works correctly on 64...
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 21, u128 n <= 22,
  *            big any n
- * Helpers:   seq_alloc_new_array, seq_free_array, term
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/seq_free_array.h"
-#include "../utils/term.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
+
+/* --------------------------------------------------------------------
+ *  Compute A087906(k) for a single divisor d of k.
+ *  term(d,k) = k! / ( d * (k/d)! ) = (product_{i=k/d+1}^{k} i) / d
+ * -------------------------------------------------------------------- */
+static seq_t term(idx_t d, idx_t k)
+{
+    idx_t start = k / d + 1;          /* first factor in the product */
+    unsigned __int128 prod = 1;        /* 128‑bit accumulator */
+    for (idx_t i = start; i <= k; ++i)
+        prod *= (unsigned __int128)i;  /* product of the range */
+
+    prod /= d;                        /* division is exact */
+    return (seq_t)prod;                /* truncate to seq_t type */
+}
 
 static seq_t *b       = NULL;   /* cache for A087906(k), 1 ≤ k ≤ cap-1 */
 static size_t b_cap   = 0;       /* current allocated size */

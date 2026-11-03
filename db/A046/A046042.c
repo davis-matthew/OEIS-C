@@ -11,13 +11,15 @@
  *            correctness for arbitrary precision seq_t
  * Range:     u8 n <= 626, u16 n <= 3544, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 118 terms through n = 8709 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *dp          = NULL;   /* dp[i] = a(i) */
 static idx_t  dp_size     = 0;      /* number of elements, i.e. dp_size = max_n + 1 */
@@ -26,7 +28,7 @@ static idx_t  dp_size     = 0;      /* number of elements, i.e. dp_size = max_n 
 static void extend(idx_t new_n)
 {
     /* Allocate space for dp[0..new_n] */
-    seq_t *new_dp = (seq_t *)realloc(dp, (new_n + 1) * sizeof(seq_t));
+    seq_t *new_dp = mem_resize(seq_t, dp, (new_n + 1));
     if (!new_dp) abort();          /* allocation failed */
     dp = new_dp;
     dp_size = new_n + 1;

@@ -8,6 +8,7 @@
  * Formula:   a(n) = A007318(n) - A197870(n+1)
  * Range:     i8 n <= 58, i16 n <= 65, i32 n <= 65, i64 n <= 65, i128 n <= 65,
  *            big any n
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

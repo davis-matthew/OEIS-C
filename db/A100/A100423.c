@@ -8,14 +8,16 @@
  *            {1,7,11,13,17,19,29} are all prime
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 28, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   is_prime_uint64
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime_uint64.h"
+#include <stdlib.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
         for (int i = 0; i < 7; ++i)
         {
             uint64_t v = k * 30ULL + (uint64_t)offsets[i];
-            if (!is_prime_uint64(v))
+            if (!is_prime_u64(v))
             {
                 all_prime = false;
                 break;

@@ -7,15 +7,17 @@
  * Keywords:  nonn
  * Formula:   a(n) = n - A007913(n), where * A007913(n) = product of the prime
  *            divisors of n whose exponent is odd
- * Range:     u8 n <= 274, u16 n <= 8336, u32 n <= 8336, u64 n <= 8336,
- *            u128 n <= 8336, big any n
- * Helpers:   _smallest_prime_factor
+ * Range:     u8 n <= 274, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 121 terms through n = 8336 (2026-11-01)
+ * Helpers:   smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_smallest_prime_factor.h"
+#include <stddef.h>
+#include "../utils/smallest_prime_factor.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     idx_t m   = n;
 
     while (m > 1) {
-        uint64_t p   = _smallest_prime_factor(m);
+        uint64_t p   = smallest_prime_factor(m);
         int      odd = 0;                 /* e mod 2 for prime p */
 
         /* Count exponent of p in m, toggling parity */

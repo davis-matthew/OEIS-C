@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 22, u32 n <= 33, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   digit_counts, fib
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-03)
+ * Helpers:   digit_counts, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,20 @@
 #include <stdint.h>
 
 /* Utility helpers supplied by the build environment. */
-#include "../utils/fib.h"
+#include <stddef.h>
 #include "../utils/digit_counts.h"
+#include "../utils/mem.h"
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
 
 /* Cache of zero‑free Fibonacci numbers. */
 static seq_t *zero_free_cache = NULL;   /* array of seq_t values */
@@ -39,9 +52,9 @@ static void ensure_cache_capacity(size_t min_cap)
     while (new_cap < min_cap)
         new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(zero_free_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, zero_free_cache, new_cap);
     if (!tmp) {                         /* allocation failure – reset cache */
-        free(zero_free_cache);
+        mem_free(zero_free_cache);
         zero_free_cache = NULL;
         cache_cap = 0;
         cache_len = 0;

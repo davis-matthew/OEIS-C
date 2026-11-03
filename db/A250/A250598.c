@@ -12,14 +12,38 @@
  *            independent subgrids (induced by i mod 3 and j mod...
  * Range:     u8 none, u16 none, u32 n <= 2, u64 n <= 9, u128 n <= 20,
  *            big any n
- * Helpers:   generate_sequences
+ * Validated: standard, pass, 20 terms through n = 20 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/generate_sequences.h"
+
+/* Helper: generate all nondecreasing sequences of length len, values 0..2.
+   The sequences are encoded as base-3 integers (least significant digit is first element). */
+static void generate_sequences(int len, int* seqs, int* count)
+{
+    int max_seq = 1;
+    for (int i = 0; i < len; ++i) max_seq *= 3;
+    int idx = 0;
+    for (int v = 0; v < max_seq; ++v)
+    {
+        int x = v;
+        int prev = -1;
+        bool ok = true;
+        for (int i = 0; i < len; ++i)
+        {
+            int d = x % 3;
+            x /= 3;
+            if (prev > d) { ok = false; break; }
+            prev = d;
+        }
+        if (ok) seqs[idx++] = v;
+    }
+    *count = idx;
+}
 
 /* Forward declaration of seq_t, idx_t supplied by build. */
 typedef idx_t              idx_t;   /* integer type for indices */

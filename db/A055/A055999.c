@@ -7,6 +7,7 @@
  * Formula:   a(n) = n * (n + 7) / 2 (offset 0)
  * Range:     u8 n <= 19, u16 n <= 358, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 68 terms through n = 4982 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

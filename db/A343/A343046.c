@@ -10,8 +10,9 @@
  *            product in primorial base. This implementation computes a(n) by
  *            determining the pair (i,j) of indices from the antidiagonal
  *            order and then evaluating the lunar product of i a...
- * Range:     u8 n <= 262, u16 n <= 9081, u32 n <= 9081, u64 n <= 9081,
- *            u128 n <= 9081, big any n
+ * Range:     u8 n <= 262, u16 n <= 10010, u32 n <= 10010, u64 n <= 10010,
+ *            u128 n <= 10010, big any n
+ * Validated: standard, pass, 94 terms through n = 9081 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

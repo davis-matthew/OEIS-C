@@ -11,7 +11,8 @@
  *            set of representable differences
  * Range:     u8 n <= 22, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     if (max_n == (idx_t)-1) {
         /* just one triangular number: 0 */
         tri_cap = 1;
-        tri = (seq_t *)malloc(tri_cap * sizeof(seq_t));
+        tri = mem_new(seq_t, tri_cap);
         tri[0] = 0;
         tri_len = 1;
 
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
 
         /* cache for a(0) */
         a_cap = 1;
-        a_cache = (seq_t *)malloc(a_cap * sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_cap);
         a_cache[0] = count;
         max_n = 0;
     }
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
         if (a_cap <= (size_t)n) {
             size_t new_cap = a_cap ? a_cap : 1;
             while (new_cap <= (size_t)n) new_cap <<= 1;
-            a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+            a_cache = mem_resize(seq_t, a_cache, new_cap);
             a_cap = new_cap;
         }
 
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
             /* ensure capacity for triangular numbers */
             if (tri_len == tri_cap) {
                 size_t new_cap = tri_cap ? tri_cap * 2 : 1;
-                tri = (seq_t *)realloc(tri, new_cap * sizeof(seq_t));
+                tri = mem_resize(seq_t, tri, new_cap);
                 tri_cap = new_cap;
             }
             tri[tri_len++] = T_k;

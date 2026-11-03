@@ -9,6 +9,7 @@
  *            all set partitions of [n]
  * Range:     u8 n <= 10, u16 n <= 12, u32 n <= 16, u64 n <= 24, u128 n <= 41,
  *            big any n
+ * Validated: standard, pass, 33 terms through n = 398 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -23,7 +24,7 @@
 #  define FREE_SEQ_T(ptr)    delete[] (ptr)
 #else
 #  define ALLOC_SEQ_T(count) ((seq_t*)calloc((size_t)(count), sizeof(seq_t)))
-#  define FREE_SEQ_T(ptr)    free((void*)(ptr))
+#  define FREE_SEQ_T(ptr)    free((ptr))
 #endif
 
 seq_t a(idx_t n) {

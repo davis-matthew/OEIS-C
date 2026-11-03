@@ -9,13 +9,16 @@
  *            number of divisors)
  * Range:     u8 n <= 79, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   isqrt
+ * Validated: standard, pass, 80 terms through n = 9467 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/isqrt.h"   /* Provides _floor_isqrt_u64 */
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/isqrt_u64.h"
 
 seq_t a(idx_t n)
 {

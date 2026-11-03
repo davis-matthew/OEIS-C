@@ -11,13 +11,15 @@
  *            and x² + y² ≤ r
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   int_sqrt_floor
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/int_sqrt_floor.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 static seq_t *f_cache = NULL;            /* prefix counts of primitive vectors   */
 static idx_t f_cache_size = 0;            /* number of elements in f_cache       */
@@ -37,13 +39,13 @@ static inline idx_t int_gcd(idx_t a, idx_t b)
 static void build_f_cache(idx_t rmax)
 {
     idx_t sz = rmax + 1;
-    f_cache = (seq_t *)realloc(f_cache, sz * sizeof(seq_t));
+    f_cache = mem_resize(seq_t, f_cache, sz);
     if (!f_cache) abort();
     for (idx_t k = 0; k < sz; ++k) f_cache[k] = 0;
 
-    idx_t max_x = int_sqrt_floor(rmax);
+    idx_t max_x = isqrt(rmax);
     for (idx_t x = 0; x <= max_x; ++x) {
-        idx_t max_y = int_sqrt_floor(rmax - x * x);
+        idx_t max_y = isqrt(rmax - x * x);
         for (idx_t y = 0; y <= max_y; ++y) {
             if (x == 0 && y == 0) continue;
             if (int_gcd(x, y) == 1) {

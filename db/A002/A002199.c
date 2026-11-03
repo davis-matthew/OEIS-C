@@ -8,7 +8,8 @@
  *            such that prime(n) - k is a primitive root mod prime(n)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a2199_powmod
+ * Validated: standard, pass, 119 terms through n = 9471 (2026-11-01)
+ * Helpers:   powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a2199_powmod.h"
+#include "../utils/powmod_u64.h"
 
 static uint64_t *a2199_primes = NULL;
 static uint64_t a2199_count = 0;
@@ -66,7 +67,7 @@ seq_t a(idx_t n) {
         uint64_t g = p - k;
         bool ok = true;
         for (i = 0; i < nf; i++) {
-            if (a2199_powmod(g, phi / fac[i], p) == 1) { ok = false; break; }
+            if (powmod_u64(g, phi / fac[i], p) == 1) { ok = false; break; }
         }
         if (ok) return (seq_t)k;
     }

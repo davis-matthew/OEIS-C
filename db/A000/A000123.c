@@ -7,7 +7,8 @@
  * Keywords:  nonn, easy, core, nice
  * Formula:   a(n) = a(n-1) + a(floor(n/2)), a(0) = 1
  * Range:     u8 n <= 17, u16 n <= 78, u32 n <= 561, u64 n <= 7862,
- *            u128 n <= 9693, big any n
+ *            u128 n <= 65536, big any n
+ * Validated: standard, pass, 67 terms through n = 9693 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

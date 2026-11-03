@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 8, u64 n <= 13, u128 n <= 18,
  *            big any n
- * Helpers:   mul_or_cancel
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,30 @@
  * For odd n an additional term ((n-1)!)/2 is added.
  */
 #include <stdint.h>
-#include "../utils/mul_or_cancel.h"
+
+/* Helper: multiply by i, cancelling factors of i from denom whenever possible. */
+static void mul_or_cancel(seq_t *res, seq_t *denom, idx_t i)
+{
+    idx_t x = i;
+    for (idx_t p = 2; p * p <= x; ++p) {
+        if (x % p == 0) {
+            idx_t cnt = 0;
+            while (x % p == 0) { x /= p; ++cnt; }
+            for (idx_t k = 0; k < cnt; ++k) {
+                if (*denom % (seq_t)p == 0)
+                    *denom /= (seq_t)p;
+                else
+                    *res   *= (seq_t)p;
+            }
+        }
+    }
+    if (x > 1) {                         /* remaining prime factor */
+        if (*denom % (seq_t)x == 0)
+            *denom /= (seq_t)x;
+        else
+            *res   *= (seq_t)x;
+    }
+}
 
 seq_t a(idx_t n)
 {

@@ -10,13 +10,24 @@
  *            definition of sequence A285054
  * Range:     u8 n <= 73, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   digit_sum_mod10
+ * Validated: partial, pass, 73 terms through n = 73 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/digit_sum_mod10.h"
+#include "../utils/mem.h"
+
+/* Helper: digit sum modulo 10 of a seq_t value. */
+static unsigned digit_sum_mod10(seq_t x) {
+    unsigned sum = 0;
+    while (x > 0) {
+        sum += (unsigned)(x % 10);
+        x /= 10;
+    }
+    return sum % 10;
+}
 
 /* Static cache of already computed terms, plus next candidate per residue. */
 static seq_t *cache = NULL;
@@ -51,9 +62,9 @@ seq_t a(idx_t n) {
 
         /* Store it into the cache. */
         if (cache == NULL) {
-            cache = (seq_t *)malloc(sizeof(seq_t));
+            cache = mem_new(seq_t, 1);
         } else {
-            cache = (seq_t *)realloc(cache, (cache_len + 1) * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, (cache_len + 1));
         }
         cache[cache_len] = val;
         ++cache_len;

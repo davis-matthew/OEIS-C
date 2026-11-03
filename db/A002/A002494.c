@@ -11,14 +11,15 @@
  *            arithmetic and combined by CRT. Cycles of length 1 an...
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 11, u64 n <= 14, u128 n <= 19,
  *            big any n
- * Helpers:   a2494_gcd
+ * Validated: standard, pass, 36 terms through n = 72 (2026-11-01)
+ * Helpers:   gcd_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/a2494_gcd.h"
+#include "../utils/gcd_i32.h"
 
 typedef unsigned long long a2494_u64;
 
@@ -104,7 +105,7 @@ static void a2494_rec(int k, int r, long long c, int lvl, int d, int tot, int e)
         long long g = 0;
         a2494_u64 *cur = a2494_buf + (size_t)(lvl + 1) * K;
         const a2494_u64 *ik = a2494_invk + (size_t)k * K;
-        for (t = 0; t < d; t++) g += (long long)a2494_mult[t] * a2494_gcd(k, a2494_part[t]);
+        for (t = 0; t < d; t++) g += (long long)a2494_mult[t] * gcd_i32(k, a2494_part[t]);
         for (m = 1; (long long)m * k <= r; m++) {
             long long cm;
             if (m == 1) {

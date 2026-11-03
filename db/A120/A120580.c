@@ -7,6 +7,7 @@
  * Formula:   a(n) = 2*a(n-1) - 4*a(n-2), a(0)=1, a(1)=0
  * Range:     i8 n <= 7, i16 n <= 16, i32 n <= 31, i64 n <= 40, i128 n <= 40,
  *            big any n
+ * Validated: partial, pass, 41 terms through n = 40 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

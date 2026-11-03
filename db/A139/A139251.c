@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabf, look
  * Formula:   not stated
- * Range:     u8 n <= 61, u16 n <= 4087, u32 n <= 9923, u64 n <= 9923,
- *            u128 n <= 9923, big any n
- * Helpers:   seq_alloc_array, seq_free_array
+ * Range:     u8 n <= 61, u16 n <= 4087, u32 n <= 65535, u64 n <= 65535,
+ *            u128 n <= 65535, big any n
+ * Validated: standard, pass, 91 terms through n = 9923 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,19 @@
 
 #include <stdlib.h>
 
-#include "../utils/seq_alloc_array.h"
-#include "../utils/seq_free_array.h"
+#include <stdint.h>
+#include <string.h>
+#include <stddef.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 /* Return the n‑th term of the sequence (offset 0). */
 seq_t a(idx_t n)

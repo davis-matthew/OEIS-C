@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 28, u64 n <= 59, u128 n <= 122,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 968 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    generating function 1/((1+x)*(2*x+1)*(-1+2*x)^2). */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* Ensure base values are initialised. */
     if (cache_len == 0) {
         /* Allocate space for first four terms. */
-        cache = (seq_t *)malloc(4 * sizeof(seq_t));
+        cache = mem_new(seq_t, 4);
         if (!cache) return (seq_t)0;          /* allocation failed */
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)1;
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
         while (new_cap <= n)
             new_cap <<= 1;
 
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) return (seq_t)0;      /* allocation failed */
         cache = new_cache;
         /* Compute terms from cache_len to n (inclusive). */

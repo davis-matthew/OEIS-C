@@ -11,15 +11,71 @@
  *            parts)
  * Range:     u8 n <= 85, u16 n <= 85, u32 n <= 85, u64 n <= 85, u128 n <= 85,
  *            big any n
- * Helpers:   _cost_of_composition, _generate_compositions_rev
+ * Validated: partial, pass, 86 terms through n = 85 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_cost_of_composition.h"
-#include "../utils/_generate_compositions_rev.h"
+
+static seq_t _cost_of_composition(const idx_t parts[], idx_t len)
+{
+    idx_t sum = 0;
+    for (idx_t i = 0; i < len; ++i) sum += parts[i];
+
+    /* the list is initially (1,2,3,…,sum) */
+    idx_t list[30];                     /* 30 > maximum possible sum (≤14) */
+    for (idx_t i = 0; i < sum; ++i) list[i] = i + 1;
+
+    seq_t cost = 0;
+    for (idx_t i = 0; i < len; ++i) {
+        idx_t val = parts[i];
+
+        /* find position of val (0‑based) */
+        idx_t pos = 0;
+        while (list[pos] != val) ++pos;
+
+        cost += (seq_t)(pos + 1);      /* 1‑based position is the cost */
+
+        /* move-to-front */
+        if (pos > 0) {
+            idx_t tmp = list[pos];
+            for (idx_t j = pos; j > 0; --j) list[j] = list[j - 1];
+            list[0] = tmp;
+        }
+    }
+    return cost;
+}
+
+/* Generate all compositions of 'rem' with the first part in descending
+   order, recursing for the remainder.  When the target composition
+   number is reached, store its cost in *output. */
+static bool _generate_compositions_rev(idx_t rem,
+                                       idx_t depth,
+                                       idx_t *parts,
+                                       idx_t target,
+                                       idx_t *counter,
+                                       seq_t *output)
+{
+    if (rem == 0) {
+        (*counter)++;
+        if (*counter == target) {
+            *output = _cost_of_composition(parts, depth);
+            return true;
+        }
+        return false;
+    }
+
+    for (idx_t part = rem; part > 0; --part) {
+        parts[depth] = part;
+        if (_generate_compositions_rev(rem - part, depth + 1,
+                                       parts, target, counter, output))
+            return true;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

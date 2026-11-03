@@ -9,13 +9,15 @@
  *            2 such that the largest part occurs at least three times
  * Range:     u8 n <= 19, u16 n <= 40, u32 n <= 100, u64 n <= 281,
  *            u128 n <= 887, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 2350 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* the type seq_t/idx_t is supplied by the build system */
 static seq_t *seqA = NULL;          /* array of a(n) values, 1‑based */
@@ -28,7 +30,7 @@ static void compute_up_to(idx_t N)
         return;                       /* already computed up to N */
 
     /* free previous array */
-    free(seqA);
+    mem_free(seqA);
     seqA = NULL;
 
     /* limits */
@@ -37,14 +39,14 @@ static void compute_up_to(idx_t N)
 
     /* dynamic array dp[s] = number of partitions of s with parts ≤ current L */
     size_t dpSize = (size_t)maxM + 1;
-    seq_t *dp = (seq_t*)calloc(dpSize, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, dpSize);
     if (!dp) return;                  /* allocation failed – unlikely in judge environment */
     dp[0] = (seq_t)1;                 /* one way to partition 0 */
 
     /* temporary array for the a(n) values */
     size_t aSize = (size_t)N + 1;
-    seq_t *newA = (seq_t*)calloc(aSize, sizeof(seq_t));
-    if (!newA) { free(dp); return; }
+    seq_t *newA = mem_new(seq_t, aSize);
+    if (!newA) { mem_free(dp); return; }
 
     /* Main loop over the largest part value L */
     for (idx_t L = 2; L <= Lmax; ++L) {
@@ -72,7 +74,7 @@ static void compute_up_to(idx_t N)
     computed_N = (size_t)N;
 
     /* Free the temporary dp array */
-    free(dp);
+    mem_free(dp);
 }
 
 /* required external function */

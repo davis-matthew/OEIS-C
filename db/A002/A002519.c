@@ -12,16 +12,43 @@
  *            9472*T^3*U^4 + 96256*T^4*U^3 - 393216*T^5*U^2 + 2097...
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 9, u64 n <= 50, u128 n <= 1520,
  *            big any n
- * Helpers:   a2519_mul_P, a2519_mul_t3, alloc_zero, release
+ * Validated: standard, pass, 35 terms through n = 1941 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
-#include "../utils/a2519_mul_P.h"
-#include "../utils/a2519_mul_t3.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
+
+static void a2519_mul_P(seq_t *v, idx_t N) {
+    for (idx_t ii = N; ii-- > 0;) {
+        seq_t s = v[ii];
+        for (idx_t m = 1; m * (m + 1) <= ii; m++)
+            s += v[ii - m * (m + 1)];
+        v[ii] = s;
+    }
+}
+
+static void a2519_mul_t3(seq_t *v, idx_t N) {
+    for (idx_t ii = N; ii-- > 0;) {
+        seq_t s = v[ii];
+        for (idx_t m = 1; m * m <= ii; m++)
+            s += v[ii - m * m] * 2u;
+        v[ii] = s;
+    }
+}
 
 static seq_t *a2519_U[8];   /* a2519_U[k] = theta3^(4k), k = 1..7 */
 static seq_t *a2519_P[7];   /* a2519_P[j] = P^(4j),      j = 1..6 */

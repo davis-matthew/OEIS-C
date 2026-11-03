@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 11, u32 n <= 26, u64 n <= 55, u128 n <= 112,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 181 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    for n > 19, with initial values a(1) … a(19) below.
 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[19] = {
     3ULL,      37ULL,     57ULL,     152ULL,     306ULL,
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (cache == NULL) {
         cache_cap = 32;                          /* initial capacity */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) return (seq_t)0;      /* give up on allocation failure */
         for (size_t i = 0; i < 19; ++i)
             cache[i] = init_vals[i];
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
     while (cache_len < (size_t)n) {
         if (cache_len + 1 > cache_cap) {
             size_t new_cap = cache_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (tmp == NULL) return (seq_t)0;   /* allocation failure */
             cache = tmp;
             cache_cap = new_cap;

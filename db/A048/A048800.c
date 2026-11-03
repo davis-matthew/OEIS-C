@@ -7,12 +7,14 @@
  * Formula:   a(n) = n!*A000110(n-1) (n>0), a(0)=1
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 14, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -22,13 +24,13 @@ seq_t a(idx_t n)
     /* Compute the (n‑1)th Bell number B_{n-1} using Bell’s triangle.
        Two rows of size n are sufficient. */
     idx_t max_size = n;                 /* enough to hold the largest row */
-    seq_t *prev = (seq_t*)malloc(max_size * sizeof(seq_t));
-    seq_t *cur  = (seq_t*)malloc(max_size * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, max_size);
+    seq_t *cur  = mem_new(seq_t, max_size);
 
     if (!prev || !cur)           /* allocation failure: return 0 */
     {
-        if (prev) free(prev);
-        if (cur)  free(cur);
+        if (prev) mem_free(prev);
+        if (cur)  mem_free(cur);
         return (seq_t)0;
     }
 
@@ -51,8 +53,8 @@ seq_t a(idx_t n)
 
     seq_t bell = prev[0];      /* B_{n-1} */
 
-    free(cur);
-    free(prev);
+    mem_free(cur);
+    mem_free(prev);
 
     /* Compute n! */
     seq_t fact = (seq_t)1;

@@ -7,12 +7,14 @@
  * Formula:   a(n) = 32*a(n-1) - 1922*(n-1)*a(n-2) a(0)=1, a(1)=32
  * Range:     i8 n <= 1, i16 n <= 2, i32 n <= 5, i64 n <= 9, i128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 367 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -22,14 +24,14 @@ seq_t a(idx_t n)
     /* Initialisation: store the two seed values */
     if (cache_len == 0) {
         cache_len = 2;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_len);
+        cache = mem_new(seq_t, cache_len);
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)32;
     }
 
     /* Extend cache up to the requested index */
     if (n >= cache_len) {
-        seq_t *new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * (n + 1));
+        seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
         if (!new_cache) {
             /* Allocation failed – this should not happen under normal limits */
             return (seq_t)0;

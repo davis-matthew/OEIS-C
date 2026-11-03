@@ -9,21 +9,40 @@
  *            permanent equals its trace and whose four entries are distinct
  * Range:     u8 n <= 59, u16 n <= 4929, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   forbidden_pairs
+ * Validated: standard, pass, 67 terms through n = 9416 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/forbidden_pairs.h"
+#include "../utils/mem.h"
+
+/* Count the ordered pairs (b,c) with product R and one entry equal to v. */
+static inline seq_t forbidden_pairs(idx_t v, idx_t R, idx_t n)
+{
+    if (v == 0) {
+        /* For zero we need product zero: one entry is 0, the other is
+           any non‑zero value ≤ n. */
+        if (R == 0) return (seq_t)2 * (seq_t)n;
+        return (seq_t)0;
+    } else {
+        if (R % v == 0) {
+            idx_t c = R / v;
+            /* c must be different from v and ≤ n. */
+            if (c <= n && c != v) return (seq_t)2;    /* (v,c) and (c,v) */
+        }
+        return (seq_t)0;
+    }
+}
 
 seq_t a(idx_t n)
 {
     /* Pre‑compute the number of distinct ordered pairs (b,c)
        with product R (0 ≤ R ≤ n). */
     size_t N = (size_t)n + 1;
-    seq_t *T = (seq_t *)malloc(N * sizeof(seq_t));
+    seq_t *T = mem_new(seq_t, N);
     if (!T) return (seq_t)0;                     /* allocation failure */
     T[0] = (seq_t)2 * (seq_t)n;                  /* pairs with product 0 */
 
@@ -117,6 +136,6 @@ seq_t a(idx_t n)
         }
     }
 
-    free(T);
+    mem_free(T);
     return result;
 }

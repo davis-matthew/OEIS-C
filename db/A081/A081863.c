@@ -8,6 +8,7 @@
  * Formula:   a(n) = 2^(3+v₂(n)) * ∏{q prime, (q-1) | 2n, q > 2} q
  * Range:     u8 n <= 3, u16 n <= 17, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

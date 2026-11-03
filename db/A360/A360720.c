@@ -9,7 +9,8 @@
  *            with exponent >1)
  * Range:     u8 n <= 224, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: standard, pass, 97 terms through n = 9898 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,10 @@
    product above. */
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +43,7 @@ seq_t a(idx_t n)
         if (e > 1)
         {
             /* Compute p^e in arbitrary‑precision type seq_t */
-            seq_t p_pow = big_pow((seq_t)primes[i], (seq_t)e);
+            seq_t p_pow = ipow((seq_t)primes[i], (seq_t)e);
             prod *= (p_pow + (seq_t)1);
         }
     }

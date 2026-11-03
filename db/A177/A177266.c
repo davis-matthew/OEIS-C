@@ -10,7 +10,8 @@
  *            triangular enumeration with offset 1
  * Range:     u8 n <= 83, u16 n <= 83, u32 n <= 83, u64 n <= 83, u128 n <= 83,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 83 terms through n = 83 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*--- Local cache of semiprimes ---------------------------------------*/
 static seq_t *semiprimes = NULL;  /* array of computed semiprimes   */
@@ -67,15 +69,14 @@ static void ensure_semiprimes(size_t need)
     /* Allocate or grow the storage as needed */
     if (semiprime_cap == 0) {
         semiprime_cap = 128;
-        semiprimes = (seq_t *)malloc(semiprime_cap * sizeof(seq_t));
+        semiprimes = mem_new(seq_t, semiprime_cap);
     }
     while (semiprime_cnt < need) {
         ++last_checked;
         if (is_semiprime(last_checked)) {
             if (semiprime_cnt == semiprime_cap) {
                 semiprime_cap *= 2;
-                semiprimes = (seq_t *)realloc(semiprimes,
-                                              semiprime_cap * sizeof(seq_t));
+                semiprimes = mem_resize(seq_t, semiprimes, semiprime_cap);
             }
             semiprimes[semiprime_cnt++] = (seq_t)last_checked;
         }

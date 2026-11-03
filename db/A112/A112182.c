@@ -10,13 +10,15 @@
  *            divisible by 5. a(n) = the coefficient of x^n in this product
  * Range:     i8 n <= 42, i16 n <= 121, i32 n <= 380, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 972 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build. */
 
@@ -27,7 +29,7 @@ static idx_t   max_N = 0;     /* maximum index that has been computed */
 static void compute_up_to(idx_t N)
 {
     /* Allocate new array */
-    seq_t *new_coeff = (seq_t *)malloc((N + 1) * sizeof(seq_t));
+    seq_t *new_coeff = mem_new(seq_t, (N + 1));
     if (!new_coeff) return;            /* allocation failure: propagate NULL */
 
     /* Initialize to zero */
@@ -54,7 +56,7 @@ static void compute_up_to(idx_t N)
     }
 
     /* Replace old array with new one */
-    free(coeff);
+    mem_free(coeff);
     coeff = new_coeff;
     max_N  = N;
 }

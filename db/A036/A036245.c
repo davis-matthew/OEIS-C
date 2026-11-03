@@ -8,12 +8,14 @@
  * Formula:   a(n) = n^2 * a(n-1) + a(n-2) for n > 2 a(1) = 1, a(2) = 4
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 12, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 250 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 seq_t a(idx_t n)
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* Ensure capacity for at least n+1 elements (indices 0..n) */
     if (cache_cap <= n) {
         idx_t new_cap = (n + 1) * 2;          /* grow factor */
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();                   /* memory failure */
         /* zero‑initialize newly allocated slots */
         for (idx_t i = cache_cap; i < new_cap; ++i)

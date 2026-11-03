@@ -10,6 +10,7 @@
  *            running prefix sums
  * Range:     u8 n <= 3, u16 n <= 11, u32 n <= 60, u64 n <= 1045,
  *            u128 n <= 2000, big any n
+ * Validated: standard, pass, 50 terms through n = 1917 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

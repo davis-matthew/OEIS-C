@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 50, u16 n <= 1791, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 8216 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    order of calls works.  The algorithm is O(n) in the number of terms
    required and uses only integer arithmetic on the native idx_t type. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,9 +37,9 @@ seq_t a(idx_t n)
                 capacity <<= 1;      /* double until enough */
 
         if (cache == NULL)
-            cache = (seq_t *)malloc(capacity * sizeof(seq_t));
+            cache = mem_new(seq_t, capacity);
         else
-            cache = (seq_t *)realloc(cache, capacity * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, capacity);
 
         if (cache == NULL)
             abort();  /* allocation failed */

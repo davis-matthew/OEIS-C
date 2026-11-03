@@ -8,6 +8,7 @@
  * Formula:   a(n) = n*(n-1)*(8*n^4-16*n^3-9*n^2+17*n+8)/12
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 27, u64 n <= 27, u128 n <= 27,
  *            big any n
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

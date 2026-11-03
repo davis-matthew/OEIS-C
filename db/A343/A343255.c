@@ -9,12 +9,15 @@
  *            each 2 replaced by n
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 static seq_t eval_h(idx_t m, seq_t base)
 {
@@ -35,7 +38,7 @@ static seq_t eval_h(idx_t m, seq_t base)
         if (t & 1ULL)
         {
             seq_t exp = eval_h(pos, base);   // value of the exponent pos
-            seq_t term = big_pow(base, exp); // base^exp
+            seq_t term = ipow(base, exp); // base^exp
             sum += term;
         }
         t >>= 1;

@@ -5,15 +5,17 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  easy, nonn
  * Formula:   a(n) = binomial(n,2)*Bell(n-2) (OEIS A105479)
- * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 15, u64 n <= 24, u128 n <= 24,
+ * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 15, u64 n <= 25, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 495 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static data shared by all calls */
 static seq_t *Bell      = NULL;   /* holds Bell[0..Belllen-1] */
@@ -32,8 +34,8 @@ seq_t a(idx_t n)
 
     /* initialise static storage on first call */
     if (Belllen == 0) {
-        Bell   = (seq_t*)malloc(sizeof(seq_t));
-        prevS  = (seq_t*)malloc(sizeof(seq_t));
+        Bell   = mem_new(seq_t, 1);
+        prevS  = mem_new(seq_t, 1);
         if (!Bell || !prevS)
             return (seq_t)0;   /* allocation failure */
 
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
     if (needed > maxComp) {
         for (idx_t m = maxComp + 1; m <= needed; ++m) {
             idx_t rowSize = m + 1;
-            seq_t *currS = (seq_t*)malloc(sizeof(seq_t) * rowSize);
+            seq_t *currS = mem_new(seq_t, rowSize);
             if (!currS)
                 return (seq_t)0;   /* allocation failure */
 
@@ -68,9 +70,9 @@ seq_t a(idx_t n)
                 sum += currS[k];
 
             /* store Bell(m) */
-            seq_t *tmp = (seq_t*)realloc(Bell, sizeof(seq_t) * (Belllen + 1));
+            seq_t *tmp = mem_resize(seq_t, Bell, (Belllen + 1));
             if (!tmp) {
-                free(currS);
+                mem_free(currS);
                 return (seq_t)0;
             }
             Bell = tmp;
@@ -78,7 +80,7 @@ seq_t a(idx_t n)
             ++Belllen;
 
             /* prepare for next iteration */
-            free(prevS);
+            mem_free(prevS);
             prevS    = currS;
             prevSize = rowSize;
         }

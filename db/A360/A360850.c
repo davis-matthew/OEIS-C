@@ -13,13 +13,14 @@
  *            arith...
  * Range:     u8 n <= 17, u16 n <= 48, u32 n <= 112, u64 n <= 311,
  *            u128 n <= 799, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 71 terms through n = 1123 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -48,8 +49,8 @@ seq_t a(idx_t n)
         fact *= (seq_t)j;            /* fact = j!          */
         seq_t fj   = fact;           /* j!                */
         seq_t term = fj * fj;        /* j!²              */
-        term *= binom(m, j);         /* × C(m,j)         */
-        term *= binom(k, j);         /* × C(k,j)         */
+        term *= binomial(m, j);         /* × C(m,j)         */
+        term *= binomial(k, j);         /* × C(k,j)         */
         /* The constant factor (1 + (m+k)/2 - j) = (m + k - 2j + 2)/2 */
         seq_t num = (seq_t)(m + k - 2 * j + 2);   /* numerator */
         term *= num;                 /* multiply by num   */

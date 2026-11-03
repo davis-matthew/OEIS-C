@@ -5,13 +5,15 @@
  * Offset:    17    (a(17) is the first term)
  * Keywords:  easy, nonn
  * Formula:   a(n) = C(n,9) - C(n,7)
- * Range:     u8 none, u16 none, u32 n <= 42, u64 n <= 43, u128 n <= 43,
+ * Range:     u8 none, u16 n <= 19, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
+ * Validated: partial, pass, 27 terms through n = 43 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n) {

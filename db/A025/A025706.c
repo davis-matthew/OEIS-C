@@ -8,6 +8,7 @@
  * Formula:   a(n) = 1 + n + Σ_{k=1..n} ⌊k * log_4(5)⌋
  * Range:     u8 n <= 20, u16 n <= 335, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 73 terms through n = 9364 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

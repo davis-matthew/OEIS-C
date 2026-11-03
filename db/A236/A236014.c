@@ -8,7 +8,8 @@
  * Formula:   Empirical recurrence (OEIS A236014)
  * Range:     u8 none, u16 n <= 3, u32 n <= 14, u64 n <= 35, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 201 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static const idx_t CACHE_LIMIT = 20000;      /* safe for n up to ~10000 */
 
@@ -35,9 +37,9 @@ static void ensure_cache(idx_t n)
 
     seq_t *tmp = NULL;
     if (cache == NULL)
-        tmp = (seq_t *)malloc(sizeof(seq_t) * desired);
+        tmp = mem_new(seq_t, desired);
     else
-        tmp = (seq_t *)realloc(cache, sizeof(seq_t) * desired);
+        tmp = mem_resize(seq_t, cache, desired);
 
     if (tmp == NULL) {
         /* Allocation failure – aborting is acceptable for this build. */
@@ -46,7 +48,7 @@ static void ensure_cache(idx_t n)
 
     /* Zero the newly allocated part. */
     if (desired > cache_capacity)
-        memset(tmp + cache_capacity, 0, sizeof(seq_t) * (desired - cache_capacity));
+        mem_set(tmp + cache_capacity, 0, sizeof(seq_t) * (desired - cache_capacity));
 
     cache = tmp;
     cache_capacity = desired;

@@ -10,7 +10,8 @@
  *            semiprime
  * Range:     u8 none, u16 none, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   cmp_seq_t, factor_u64
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,8 +32,19 @@
 #include <string.h>
 #include <stdio.h>
 
-#include "../utils/factor_u64.h"     /* factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt) */
-#include "../utils/cmp_seq_t.h"     /* int cmp_seq_t(const void *, const void *) */
+#include <stddef.h>
+#include "../utils/factor_u64.h"
+#include "../utils/mem.h"
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
 
 #define MAX_BUF     500000   /* upper bound for raw derivatives collected */
 #define MAX_TERMS   12000    /* number of terms that must be precomputed */
@@ -83,7 +95,7 @@ static void init_sequence(void)
     if (initialized) return;
     initialized = true;
 
-    seq_t *buf = (seq_t *)malloc(sizeof(seq_t) * MAX_BUF);
+    seq_t *buf = mem_new(seq_t, MAX_BUF);
     if (!buf) return;          /* out of memory – should not happen here */
     size_t buf_used = 0;
 
@@ -102,18 +114,18 @@ static void init_sequence(void)
         ++x;
     }
     /* Sort and unique the raw list */
-    qsort(buf, buf_used, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(buf, buf_used, sizeof(seq_t), cmp_seq_t);
 
     seq_count = 0;
-    seq_vals = (seq_t *)malloc(sizeof(seq_t) * MAX_TERMS);
-    if (!seq_vals) { free(buf); return; }
+    seq_vals = mem_new(seq_t, MAX_TERMS);
+    if (!seq_vals) { mem_free(buf); return; }
 
     for (size_t i = 0; i < buf_used && seq_count < MAX_TERMS; ++i) {
         if (i == 0 || buf[i] != buf[i - 1]) {
             seq_vals[seq_count++] = buf[i];
         }
     }
-    free(buf);
+    mem_free(buf);
 }
 
 /*======================================================================

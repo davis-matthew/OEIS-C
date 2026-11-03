@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 49, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static state for memoised values */
 static idx_t curMaxS = 0;          /* largest diagonal already computed   */
@@ -46,8 +48,8 @@ static void ensure_up_to(idx_t s)
         return;
 
     /* free previous data */
-    free(table);
-    free(part);
+    mem_free(table);
+    mem_free(part);
 
     curMaxS = s;
     curCols  = s;        /* columns 0..s-1 */
@@ -55,8 +57,8 @@ static void ensure_up_to(idx_t s)
     /* allocate table: (s+1) rows × s columns */
     size_t rows = (size_t)(s + 1);
     size_t cols = (size_t)s;
-    table = (seq_t *)calloc(rows * cols, sizeof(seq_t));
-    part  = (seq_t *)calloc(rows, sizeof(seq_t));
+    table = mem_new(seq_t, rows * cols);
+    part  = mem_new(seq_t, rows);
 
     /* compute partition numbers p[0..s] */
     compute_partitions(s, part);

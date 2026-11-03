@@ -11,17 +11,25 @@
  *            The sequence a(n) is the antidiagonal reading of T(n,k): a(n) =
  *            T(i,k) where i = n - d(d+1)/2, k = d - i and d is the unique
  *            integer with d(d+1)/2 ≤ n < (d+1)(d+2)/2
- * Range:     u8 n <= 13, u16 n <= 33, u32 n <= 87, u64 n <= 247,
+ * Range:     u8 n <= 17, u16 n <= 33, u32 n <= 87, u64 n <= 247,
  *            u128 n <= 731, big any n
- * Helpers:   binom, seq_mul, seq_pow
+ * Validated: standard, pass, 71 terms through n = 7156 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/binom.h"
-#include "../utils/seq_mul.h"
-#include "../utils/seq_pow.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -45,9 +53,9 @@ seq_t a(idx_t n)
     seq_t sum = 0;
     for (idx_t j = 0; j <= i; ++j) {
         idx_t exp = i - j;                        /* exponent of k */
-        seq_t pow_k = seq_pow((seq_t)k, exp);      /* k^(i-j) */
-        seq_t b1 = binom(2 * j, j);               /* binom(2j, j) */
-        seq_t b2 = binom(2 * i, 2 * j);           /* binom(2i, 2j) */
+        seq_t pow_k = ipow_idx((seq_t)k, exp);      /* k^(i-j) */
+        seq_t b1 = binomial(2 * j, j);               /* binom(2j, j) */
+        seq_t b2 = binomial(2 * i, 2 * j);           /* binom(2i, 2j) */
         seq_t prod = seq_mul(pow_k, seq_mul(b1, b2));
         sum += prod;                              /* addition of seq_t */
     }

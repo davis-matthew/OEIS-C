@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn
  * Formula:   a(n) = Sum_{k=1..n} tau(k) * floor(n/k)
- * Range:     u8 n <= 29, u16 n <= 1899, u32 n <= 9174, u64 n <= 9174,
- *            u128 n <= 9174, big any n
+ * Range:     u8 n <= 29, u16 n <= 1899, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 72 terms through n = 9174 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

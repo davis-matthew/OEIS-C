@@ -9,6 +9,7 @@
  * Formula:   a(n) = n*(n-1)^3/2 for n >= 5; a(3)=2, a(4)=45
  * Range:     u8 n <= 4, u16 n <= 16, u32 n <= 304, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 52 terms through n = 999 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

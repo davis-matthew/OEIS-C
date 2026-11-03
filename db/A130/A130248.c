@@ -9,12 +9,14 @@
  *            maximal m with Lucas(m) <= k < Lucas(m+1)
  * Range:     u8 n <= 46, u16 n <= 4403, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 4999 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* initialise lucas array on first use */
     if (lucas == NULL) {
         lucas_len = 3;
-        lucas = (seq_t *)malloc(lucas_len * sizeof(seq_t));
+        lucas = mem_new(seq_t, lucas_len);
         if (!lucas) return 0; /* out of memory – unlikely in this context */
         lucas[0] = (seq_t)2;  /* L(0) */
         lucas[1] = (seq_t)1;  /* L(1) */
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
 
     /* extend a_cache if needed */
     if (n > a_size) {
-        a_cache = (seq_t *)realloc(a_cache, (n + 1) * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, (n + 1));
         if (!a_cache) return 0; /* out of memory */
         if (a_size == 0) a_cache[0] = (seq_t)0; /* initialise base case */
 
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
                 /* ensure lucas[cur_k+1] exists */
                 while (cur_k + 1 >= lucas_len) {
                     seq_t next = lucas[lucas_len - 1] + lucas[lucas_len - 2];
-                    lucas = (seq_t *)realloc(lucas, (lucas_len + 1) * sizeof(seq_t));
+                    lucas = mem_resize(seq_t, lucas, (lucas_len + 1));
                     if (!lucas) return 0; /* out of memory */
                     lucas[lucas_len] = next;
                     ++lucas_len;
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
                     /* need to extend lucas if cur_k+1 is now out of bounds */
                     if (cur_k + 1 >= lucas_len) {
                         seq_t next = lucas[lucas_len - 1] + lucas[lucas_len - 2];
-                        lucas = (seq_t *)realloc(lucas, (lucas_len + 1) * sizeof(seq_t));
+                        lucas = mem_resize(seq_t, lucas, (lucas_len + 1));
                         if (!lucas) return 0; /* out of memory */
                         lucas[lucas_len] = next;
                         ++lucas_len;

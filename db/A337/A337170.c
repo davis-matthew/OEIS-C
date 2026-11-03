@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 144, u16 n <= 343, u32 n <= 343, u64 n <= 343,
  *            u128 n <= 343, big any n
- * Helpers:   board_number, hash64
+ * Validated: full, pass, 343 terms through n = 343 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,28 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/board_number.h"
-#include "../utils/hash64.h"
+
+/* Board numbering: anti‑diagonal scheme.
+ * Parameters are signed to allow negative intermediate values. */
+static inline seq_t board_number(int64_t x, int64_t y)
+{
+    /* x,y ≥ 1 when called */
+    idx_t d = (idx_t)(x + y - 1);        /* diagonal index, d ≥ 1 */
+    idx_t t = (d - 1) * d / 2;           /* numbers before this diagonal */
+
+    if (d & 1) {                         /* odd diagonal – numbers increase with y */
+        return (seq_t)t + (seq_t)(d - x + 1);
+    } else {                             /* even diagonal – numbers increase with x */
+        return (seq_t)t + (seq_t)x;
+    }
+}
+
+static inline size_t hash64(uint64_t key, size_t cap)
+{
+    key ^= key >> 33;
+    key ^= key >> 17;
+    return key & (cap - 1);
+}
 
 /* Simple open‑addressing hash table for 64‑bit keys,
  * used to remember visited board coordinates. */

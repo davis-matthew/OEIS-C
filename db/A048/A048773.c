@@ -7,11 +7,13 @@
  * Formula:   a(n) = 2*a(n-1)+a(n-2)+9; a(0)=1, a(1)=11
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 23, u64 n <= 28, u128 n <= 28,
  *            big any n
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include <stddef.h>
 
 /* Compile‑time type aliases are supplied by the build system. */

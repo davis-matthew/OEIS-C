@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 37, u16 n <= 2531, u32 n <= 7669, u64 n <= 7669,
  *            u128 n <= 7669, big any n
- * Helpers:   none
+ * Validated: full, pass, 7669 terms through n = 7669 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *primeTimes = NULL;   /* array of primes that are valid times */
 static size_t primeTimesCount = 0; /* number of entries in primeTimes */
@@ -66,7 +68,7 @@ static void init_prime_times(void)
     }
 
     /* Allocate storage for the resulting list. */
-    primeTimes = (seq_t *)malloc(cnt * sizeof(seq_t));
+    primeTimes = mem_new(seq_t, cnt);
     if (!primeTimes) {
         free(isPrime);
         return; /* allocation failed */

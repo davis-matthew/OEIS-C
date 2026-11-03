@@ -12,7 +12,8 @@
  *            and memory for any n, with out‑of‑order queries supported
  * Range:     u8 n <= 71, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *seq      = NULL;   /* memoised values                         */
 static size_t seq_len  = 0;       /* number of computed terms (a(1) .. a(n)) */
@@ -66,7 +68,7 @@ static void ensure_seq_capacity(size_t n)
     if (n <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap << 1 : 128;
     while (new_cap < n) new_cap <<= 1;
-    seq_t *tmp = (seq_t*)realloc(seq, new_cap * sizeof *seq);
+    seq_t *tmp = mem_resize(seq_t, seq, (new_cap * sizeof *seq) / sizeof(seq_t));
     if (!tmp) abort();
     seq = tmp;
     seq_cap = new_cap;
@@ -80,7 +82,7 @@ seq_t a(idx_t n)
     /* initialise on first call */
     if (seq == NULL) {
         seq_cap = 128;
-        seq = (seq_t*)malloc(seq_cap * sizeof *seq);
+        seq = mem_new(seq_t, (seq_cap * sizeof *seq) / sizeof(seq_t));
         if (!seq) abort();
 
         used_cap = 128;

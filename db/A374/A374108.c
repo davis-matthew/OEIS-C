@@ -11,8 +11,9 @@
  *            is * Σ_{p odd} (exp(p) mod 2) * (Fib(p) mod 2) (mod 2) * where
  *            Fib(p) is odd iff p % 3 != 0. * * A328845 is the Fibonacci‐based
  *            arithmetic derivative. * If n = 2^e₂ · m...
- * Range:     u8 n <= 69, u16 n <= 9843, u32 n <= 9843, u64 n <= 9843,
- *            u128 n <= 9843, big any n
+ * Range:     u8 n <= 69, u16 n <= 12000, u32 n <= 12000, u64 n <= 12000,
+ *            u128 n <= 12000, big any n
+ * Validated: standard, pass, 86 terms through n = 9843 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

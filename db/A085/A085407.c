@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 88, u16 n <= 97, u32 n <= 97, u64 n <= 97, u128 n <= 97,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 97 terms through n = 97 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -37,6 +38,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Global storage for the concatenated sequence and block lengths. */
 static seq_t *seq      = NULL;   /* concatenation of all S(k) seen so far */
@@ -53,7 +55,7 @@ static void ensure_seq_capacity(size_t n)
     if (seq_len + n > seq_cap) {
         size_t new_cap = seq_cap ? seq_cap << 1 : 64;
         while (seq_len + n > new_cap) new_cap <<= 1;
-        seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, new_cap);
         seq_cap = new_cap;
     }
 }
@@ -112,7 +114,7 @@ seq_t a(idx_t n)
 
             /* Build the new block by copying the prefix that excludes S(k‑1). */
             size_t new_block_len = seq_len - (size_t)prev_len;  /* sum of lengths S(1)…S(k‑2) */
-            seq_t *new_block = (seq_t *)malloc(new_block_len * sizeof(seq_t));
+            seq_t *new_block = mem_new(seq_t, new_block_len);
             if (!new_block) exit(1);  /* allocation failure */
 
             for (size_t i = 0; i < new_block_len; ++i)
@@ -129,7 +131,7 @@ seq_t a(idx_t n)
 
             /* Append the new block to the global sequence. */
             append_seq(new_block, new_block_len);
-            free(new_block);
+            mem_free(new_block);
 
             /* Record the length of this block. */
             len_arr[len_cnt++] = (idx_t)new_block_len;

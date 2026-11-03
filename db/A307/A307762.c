@@ -9,7 +9,8 @@
  *            coefficient of x^n in P(x)=∏_{j≥1}(1 + x^j/(1+x))
  * Range:     i8 n <= 6, i16 n <= 14, i32 n <= 30, i64 n <= 34, i128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* It works for any seq_t/idx_t types defined in the build. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) {
@@ -27,12 +29,12 @@ seq_t a(idx_t n) {
     size_t sz = N + 1;
 
     /* Allocate arrays for the product coefficients f, alternating prefix sums, and a. */
-    seq_t *p  = (seq_t *)malloc(sz * sizeof(seq_t));
-    seq_t *alt = (seq_t *)malloc(sz * sizeof(seq_t));
-    seq_t *a_arr = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *p  = mem_new(seq_t, sz);
+    seq_t *alt = mem_new(seq_t, sz);
+    seq_t *a_arr = mem_new(seq_t, sz);
     if (!p || !alt || !a_arr) {
         /* on allocation failure, return 0 */
-        free(p); free(alt); free(a_arr);
+        mem_free(p); mem_free(alt); mem_free(a_arr);
         return 0;
     }
 
@@ -70,8 +72,8 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = a_arr[N];
-    free(p);
-    free(alt);
-    free(a_arr);
+    mem_free(p);
+    mem_free(alt);
+    mem_free(a_arr);
     return result;
 }

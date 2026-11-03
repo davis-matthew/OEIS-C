@@ -8,7 +8,8 @@
  *            exactly twice
  * Range:     u8 none, u16 none, u32 n <= 4, u64 n <= 4, u128 n <= 4,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 4 terms through n = 4 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *table = NULL;
@@ -27,7 +29,7 @@ seq_t a(idx_t n) {
     /* Generate the table once */
     if (!table) {
         size = 0; cap = 4;
-        table = (seq_t *)malloc(cap * sizeof(seq_t));
+        table = mem_new(seq_t, cap);
         if (!table) return 0;  /* allocation failure, return zero */
 
         const idx_t LIMIT = 200000;  /* sufficient to cover all known solutions */
@@ -54,7 +56,7 @@ seq_t a(idx_t n) {
             if (ok) {
                 if (size >= cap) {
                     cap <<= 1;
-                    table = (seq_t *)realloc(table, cap * sizeof(seq_t));
+                    table = mem_resize(seq_t, table, cap);
                     if (!table) return 0; /* allocation failure */
                 }
                 table[size++] = (seq_t)k;

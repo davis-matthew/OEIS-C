@@ -8,13 +8,15 @@
  *            n >= 9 (OEIS A237718 – 9‑distance Pell numbers)
  * Range:     u8 n <= 32, u16 n <= 59, u32 n <= 115, u64 n <= 225,
  *            u128 n <= 447, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 901 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>   /* size_t */
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     if (last == (idx_t)-1) {
         /* start with capacity for 9 elements (indices 0..8) */
         cap = 9;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) abort();  /* fatal error */
 
         for (idx_t i = 0; i < 9; ++i)
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     if ((size_t)n + 1 > cap) {
         size_t new_cap = cap ? cap * 2 : 1;
         while (new_cap <= (size_t)n) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();
         cache = tmp;
         cap   = new_cap;

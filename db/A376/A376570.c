@@ -11,8 +11,9 @@
  *            least m (1 ≤ m ≤ k) such that the points (m,p(m)), (k,p(k)),
  *            (n,p(n)) are collinear. The sequence is read row‑wise starting
  *            with n = 2
- * Range:     u8 n <= 9271, u16 n <= 9271, u32 n <= 9271, u64 n <= 9271,
- *            u128 n <= 9271, big any n
+ * Range:     u8 n <= 10012, u16 n <= 10012, u32 n <= 10012, u64 n <= 10012,
+ *            u128 n <= 10012, big any n
+ * Validated: standard, pass, 107 terms through n = 9271 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

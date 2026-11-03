@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    a(n) returns the number of terms in the nth group.  */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are supplied by the build system.  They are unsigned integer
    types of appropriate size (e.g. uint64_t, unsigned __int128, or arbitrary
@@ -116,10 +118,10 @@ static void ensure_a_cap(size_t need)
 {
     if (acap == 0) {
         acap = (need > 64) ? need : 64;
-        aseq = (seq_t *)malloc(acap * sizeof(seq_t));
+        aseq = mem_new(seq_t, acap);
     } else if (need > acap) {
         acap *= 2;
-        aseq = (seq_t *)realloc(aseq, acap * sizeof(seq_t));
+        aseq = mem_resize(seq_t, aseq, acap);
     }
 }
   

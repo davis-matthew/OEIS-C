@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 7, u32 n <= 7, u64 n <= 7, u128 n <= 7,
  *            big any n
- * Helpers:   factorial, gcd
+ * Validated: full, pass, 7 terms through n = 7 (2026-11-02)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,18 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/factorial.h"
 #include "../utils/gcd.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 static void gen_parts_rec(int remaining, int max_part, int *parts, int depth,
                           seq_t target, seq_t *result, seq_t fact7)

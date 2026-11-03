@@ -12,13 +12,15 @@
  *            a(8)=54721, a(9)=78121
  * Range:     u8 n <= 1, u16 n <= 8, u32 n <= 143, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 996 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;   /* array of computed terms */
 static idx_t seq_len   = 0;       /* number of terms currently stored (size) */
@@ -32,7 +34,7 @@ static void ensure_capacity(idx_t n)
     size_t new_cap = seq_cap ? seq_cap : 10UL;
     while (new_cap <= (size_t)n)
         new_cap <<= 1;
-    seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_cache = mem_resize(seq_t, seq_cache, new_cap);
     seq_cap   = new_cap;
 }
 
@@ -42,7 +44,7 @@ static void init_cache(void)
     if (seq_cache != NULL)
         return;
     seq_cap   = 10UL;
-    seq_cache = (seq_t *)calloc(seq_cap, sizeof(seq_t));
+    seq_cache = mem_new(seq_t, seq_cap);
     seq_cache[0] = (seq_t)1;
     seq_cache[1] = (seq_t)41;
     seq_cache[2] = (seq_t)457;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 50, u16 n <= 2805, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_even_base5_digits
+ * Validated: standard, pass, 76 terms through n = 9341 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,18 @@
  */
 
 #include <stdbool.h>
-#include "../utils/has_even_base5_digits.h"
+
+/* Return true iff all base‑5 digits of x are even. */
+static bool has_even_base5_digits(seq_t x)
+{
+    while (x > 0) {
+        seq_t d = x % 5;
+        if (d & 1)          /* odd digit */
+            return false;
+        x /= 5;
+    }
+    return true;            /* the number 0 has the single even digit 0 */
+}
 
 /* a(n) : nth term of the sequence (n >= 1). */
 seq_t a(idx_t n)

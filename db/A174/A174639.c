@@ -11,7 +11,8 @@
  *            rows, * with offset 0
  * Range:     u8 n <= 15, u16 n <= 37, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #else
 # define RECAST(type, ptr) ((type)(ptr))
 #endif
+#include "../utils/mem.h"
 
 /* Bell number cache. */
 static seq_t *bell = NULL;   /* Bell[0..] */
@@ -38,7 +40,7 @@ static void ensure_bell_cap(size_t need)
     if (need < bell_cap) return;
     size_t new_cap = bell_cap ? bell_cap << 1 : 1;
     while (new_cap <= need) new_cap <<= 1;
-    seq_t *tmp = RECAST(seq_t *, realloc(bell, new_cap * sizeof(seq_t)));
+    seq_t *tmp = RECAST(seq_t *, mem_resize(seq_t, bell, new_cap));
     bell = tmp;
     bell_cap = new_cap;
 }

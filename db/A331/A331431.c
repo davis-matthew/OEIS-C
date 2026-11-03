@@ -9,6 +9,7 @@
  *            by rows
  * Range:     i8 n <= 7, i16 n <= 24, i32 n <= 97, i64 n <= 341,
  *            i128 n <= 1309, big any n
+ * Validated: standard, pass, 61 terms through n = 1248 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 #include <math.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 static seq_t safe_mul(seq_t a, seq_t b, bool *overflow)

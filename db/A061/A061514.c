@@ -11,14 +11,44 @@
  *            "12")
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 12, u64 n <= 16, u128 n <= 18,
  *            big any n
- * Helpers:   inc_by3
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/inc_by3.h"
+#include "../utils/mem.h"
+
+/* Helper: apply the digit‑increment rule once. */
+static seq_t inc_by3(seq_t x)
+{
+    /* Special case for 0 – its decimal digit "0" becomes "3". */
+    if (x == (seq_t)0)
+        return (seq_t)3;
+
+    seq_t result = (seq_t)0;
+    seq_t pow10  = (seq_t)1;
+    while (x != (seq_t)0) {
+        seq_t d     = x % (seq_t)10;
+        x          /= (seq_t)10;
+        seq_t nv    = d + (seq_t)3;
+        if (nv < (seq_t)10) {
+            result += nv * pow10;
+            pow10   *= (seq_t)10;
+        } else {
+            /* nv is 10…12 – write two digits. */
+            seq_t low  = nv % (seq_t)10;
+            seq_t high = nv / (seq_t)10;
+            result += low * pow10;
+            pow10   *= (seq_t)10;
+            result += high * pow10;
+            pow10   *= (seq_t)10;
+        }
+    }
+    return result;
+}
 
 /* Cache the sequence values to allow random access and reuse. */
 static seq_t *cache = NULL;
@@ -33,7 +63,7 @@ static void maybe_grow(size_t needed)
     size_t new_cap = (cache_cap == 0) ? 1 : cache_cap * 2;
     while (new_cap < needed)
         new_cap *= 2;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     cache          = new_cache;
     cache_cap      = new_cap;
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 15, u32 n <= 157, u64 n <= 200,
  *            u128 n <= 200, big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    Computation: bounded knapsack DP over the six coefficients. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,15 +30,15 @@ seq_t a(idx_t n)
     const size_t len   = (size_t)(target + 1);   /* array dimension */
 
     /* dp[j] = number of ways to obtain sum j using processed coefficients */
-    seq_t *dp = (seq_t *)calloc(len, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, len);
     if (!dp)
         return 0;
     dp[0] = 1;                                   /* empty combination */
 
     for (idx_t coeff = 1; coeff <= 6; ++coeff)
     {
-        seq_t *next = (seq_t *)calloc(len, sizeof(seq_t));
-        if (!next) { free(dp); return 0; }
+        seq_t *next = mem_new(seq_t, len);
+        if (!next) { mem_free(dp); return 0; }
 
         /* process each residue class modulo coeff */
         for (idx_t r = 0; r < coeff; ++r)
@@ -56,11 +58,11 @@ seq_t a(idx_t n)
             }
         }
 
-        free(dp);
+        mem_free(dp);
         dp = next;
     }
 
     seq_t result = dp[(size_t)target];
-    free(dp);
+    mem_free(dp);
     return result;
 }

@@ -7,7 +7,8 @@
  * Formula:   a(1) = 1; a(n > 1) = Sum_{d|(n-1)} d * a((n-1)/d) (OEIS A038046)
  * Range:     u8 n <= 14, u16 n <= 58, u32 n <= 438, u64 n <= 6548,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 9767 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #ifdef __cplusplus
 #include <new>
 #endif
+#include "../utils/mem.h"
 
 /* The array is indexed from 1.  cache[0] is unused. */
 static seq_t *cache = NULL;
@@ -32,14 +34,14 @@ ensure_cache(idx_t n)
     /* First allocation ---------------------------------------------------- */
     if (!cache) {
         size_t new_cap = (size_t)(n + 1);   /* indices 0..n */
-        cache = (seq_t*)malloc(new_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, new_cap);
         if (!cache)
             return;   /* out of memory: caller will see 0 */
 
 #ifdef __cplusplus
         /* construct all seq_t objects */
         for (size_t i = 0; i < new_cap; ++i)
-            new (&cache[i]) seq_t();
+            *(&cache[i]) = (seq_t)0;
 #endif
         /* initialise */
         cache[0] = (seq_t)0;          /* unused slot */
@@ -50,14 +52,14 @@ ensure_cache(idx_t n)
     else if (cache_cap < n) {
         size_t old_cap = cache_cap + 1;          /* allocated size */
         size_t new_cap = (size_t)(n + 1);        /* new size needed */
-        cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         if (!cache)
             return;   /* out of memory: caller will see 0 */
 
 #ifdef __cplusplus
         /* construct new seq_t objects beyond the previous capacity */
         for (idx_t i = cache_cap + 1; i <= n; ++i)
-            new (&cache[i]) seq_t();
+            *(&cache[i]) = (seq_t)0;
 #endif
     }
 

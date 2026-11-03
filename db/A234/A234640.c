@@ -8,7 +8,8 @@
  *            is odd, where sigma is the sum of divisors function
  * Range:     u8 n <= 3, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 /* The following utility provides a fast prime generator. */
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 /* ---------- Precomputed data ---------- */
 
@@ -41,7 +43,7 @@ static uint64_t sigma_uint64(uint64_t n)
     /* initialise prime table and sigma cache lazily */
     if (sigma_cache == NULL) {
         /* allocate and compute sigma cache */
-        sigma_cache = (seq_t *)calloc((size_t)PRECOMP_LIMIT + 1, sizeof(seq_t));
+        sigma_cache = mem_new(seq_t, (size_t)PRECOMP_LIMIT + 1);
         if (!sigma_cache) abort();  /* out of memory */
         for (idx_t i = 1; i <= PRECOMP_LIMIT; ++i)
             for (idx_t j = i; j <= PRECOMP_LIMIT; j += i)

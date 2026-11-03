@@ -11,7 +11,8 @@
  *            c_0..c_{floor(n/2)} (common denominator of G_n)
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 12, u64 n <= 18, u128 n <= 30,
  *            big any n
- * Helpers:   c2680_fac
+ * Validated: standard, pass, 31 terms through n = 30 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,20 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/c2680_fac.h"
+
+static int c2680_fac(idx_t q, const uint32_t *spf, const int *pidx, int *fi, int *fe)
+{
+    int c = 0;
+    while (q > 1) {
+        uint32_t p = spf[q];
+        int ex = 0;
+        while (q % p == 0) { q /= p; ex++; }
+        fi[c] = pidx[p];
+        fe[c] = ex;
+        c++;
+    }
+    return c;
+}
 
 typedef struct { uint32_t *d; size_t len, cap; int neg; } c2680_bn;
 

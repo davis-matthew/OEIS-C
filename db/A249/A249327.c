@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 58, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   _floor_isqrt_u64
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 static seq_t *squarefree_values = NULL;  /* zero‑based: squarefree_values[0] = 1 */
 static size_t squarefree_len   = 0;       /* number of values stored */
@@ -46,7 +48,7 @@ static void ensure_squarefree(size_t need)
     sqfree[0] = 0;                     /* 0 is not used */
 
     /* Mark numbers divisible by a square */
-    size_t sqrt_limit = _floor_isqrt_u64(limit);
+    size_t sqrt_limit = isqrt(limit);
     for (size_t p = 2; p <= sqrt_limit; ++p) {
         size_t sq = p * p;
         for (size_t j = sq; j <= limit; j += sq)
@@ -54,7 +56,7 @@ static void ensure_squarefree(size_t need)
     }
 
     /* Reallocate array to hold up to 'need' values */
-    seq_t *new_vals = (seq_t*)realloc(squarefree_values, need * sizeof(seq_t));
+    seq_t *new_vals = mem_resize(seq_t, squarefree_values, need);
     if (!new_vals)
         abort();
     squarefree_values = new_vals;
@@ -83,7 +85,7 @@ seq_t a(idx_t n)
     /* Find the diagonal 'd' such that d*(d-1)/2 >= n.   */
     uint64_t n64 = (uint64_t)n;
     uint64_t disc = 1 + 8 * n64;
-    uint64_t sqrt_disc = _floor_isqrt_u64(disc);
+    uint64_t sqrt_disc = isqrt(disc);
 
     uint64_t d = (1 + sqrt_disc) / 2;
     /* Correct small rounding errors. */

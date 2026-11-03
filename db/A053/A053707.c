@@ -8,7 +8,8 @@
  *            powers of a prime but not prime (1 included)
  * Range:     u8 none, u16 none, u32 n <= 57, u64 n <= 10000, u128 n <= 10000,
  *            big any n
- * Helpers:   build_primes, mul_small
+ * Validated: standard, pass, 76 terms through n = 9742 (2026-11-03)
+ * Helpers:   build_primes, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,22 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/mul_small.h"
+#include <stdint.h>
 #include "../utils/build_primes.h"
+#include "../utils/mem.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 /* Node for the min‑heap – current prime power and its base prime */
 typedef struct {
@@ -78,7 +93,7 @@ static void heap_push(Node node)
 {
     if (heap.size == heap.cap) {
         size_t new_cap = heap.cap ? (heap.cap << 1) : 16;
-        Node *tmp = (Node *)realloc(heap.data, new_cap * sizeof(Node));
+        Node *tmp = mem_resize(Node, heap.data, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         heap.data = tmp;
         heap.cap = new_cap;
@@ -123,7 +138,7 @@ seq_t a(idx_t n)
         /* Allocate array for A025475 values */
         powers.cap = 128;
         powers.len = 1;                  /* powers[0] = 1 */
-        powers.data = (seq_t *)malloc(powers.cap * sizeof(seq_t));
+        powers.data = mem_new(seq_t, powers.cap);
         if (!powers.data) exit(EXIT_FAILURE);
         powers.data[0] = (seq_t)1;
 
@@ -144,7 +159,7 @@ seq_t a(idx_t n)
         if (powers.len == powers.cap) {
             powers.cap <<= 1;
             if (powers.cap == 0) powers.cap = 16;
-            seq_t *tmp = (seq_t *)realloc(powers.data, powers.cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, powers.data, powers.cap);
             if (!tmp) exit(EXIT_FAILURE);
             powers.data = tmp;
         }

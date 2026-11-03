@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 5000, i16 n <= 5000, i32 n <= 5000, i64 n <= 5000,
  *            i128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 111 terms through n = 4922 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,13 +37,13 @@ seq_t a(idx_t n)
     if ((size_t)n > prefix_cap) {
         /* free old cache */
         if (prefix) {
-            free(prefix);
+            mem_free(prefix);
             prefix = NULL;
         }
 
         /* allocate new cache */
         size_t cap = (size_t)n + 1;          /* include index 0 */
-        prefix = (seq_t *)malloc(cap * sizeof(seq_t));
+        prefix = mem_new(seq_t, cap);
         if (!prefix) {                       /* malloc failed */
             return 0;
         }
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
         bool *isComp   = (bool *)calloc(cap, sizeof(bool));
         uint8_t *parity = (uint8_t *)calloc(cap, sizeof(uint8_t));
         if (!isComp || !parity) {
-            free(prefix);
+            mem_free(prefix);
             free(isComp);
             free(parity);
             return 0;

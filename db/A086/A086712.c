@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 893, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   upper_bound_uint64
+ * Validated: standard, pass, 96 terms through n = 9868 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,7 +37,20 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/upper_bound_uint64.h"
+
+/* upper_bound: first index > val in a sorted array of size n. */
+static size_t upper_bound_uint64(const uint64_t *arr, size_t n, uint64_t val)
+{
+    size_t lo = 0, hi = n;
+    while (lo < hi) {
+        size_t mid = (lo + hi) >> 1;
+        if (arr[mid] <= val)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo;
+}
 
 /*
  * Arbitrary-precision or 64‑bit builds supply their own seq_t and idx_t.

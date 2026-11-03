@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 33, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 917 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
  */
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,14 +35,14 @@ seq_t a(idx_t n)
     size_t off = n;                      /* index representing difference 0 */
 
     /* allocate zero‑initialized arrays for current and next state */
-    seq_t *S0 = (seq_t *)calloc(sz, sizeof(seq_t)); /* last letter ≠ 1, diff d */
-    seq_t *S1 = (seq_t *)calloc(sz, sizeof(seq_t)); /* last letter  = 1, diff d */
-    seq_t *T0 = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *T1 = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *S0 = mem_new(seq_t, sz); /* last letter ≠ 1, diff d */
+    seq_t *S1 = mem_new(seq_t, sz); /* last letter  = 1, diff d */
+    seq_t *T0 = mem_new(seq_t, sz);
+    seq_t *T1 = mem_new(seq_t, sz);
 
     if (!S0 || !S1 || !T0 || !T1) {
         /* allocation failed – return 0 (should not happen for the test range) */
-        free(S0); free(S1); free(T0); free(T1);
+        mem_free(S0); mem_free(S1); mem_free(T0); mem_free(T1);
         return (seq_t)0;
     }
 
@@ -50,8 +52,8 @@ seq_t a(idx_t n)
 
     for (idx_t pos = 1; pos < n; ++pos) {
         /* clear next‑state arrays */
-        memset(T0, 0, sz * sizeof(seq_t));
-        memset(T1, 0, sz * sizeof(seq_t));
+        mem_set(T0, 0, sz * sizeof(seq_t));
+        mem_set(T1, 0, sz * sizeof(seq_t));
 
         /* current range of reachable differences |d| ≤ pos-1 */
         size_t range = (size_t)pos - 1;
@@ -85,10 +87,10 @@ seq_t a(idx_t n)
     seq_t result = S0[off] + S1[off];
 
     /* free allocated memory */
-    free(S0);
-    free(S1);
-    free(T0);
-    free(T1);
+    mem_free(S0);
+    mem_free(S1);
+    mem_free(T0);
+    mem_free(T1);
 
     return result;
 }

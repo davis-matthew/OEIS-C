@@ -7,7 +7,8 @@
  * Formula:   a(0) = 1; a(n) = 2*a(n-1) + Σ_{k=1..n} C(n-1,k-1)*4^k*a(n-k)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 15, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    It works for all provided seq_t/idx_t types, including arbitrary‑precision
    integer classes.  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* make sure an array of at least “needed” elements exists */
 static void ensure_cap(idx_t needed, seq_t **arr, idx_t *cap)
@@ -23,7 +25,7 @@ static void ensure_cap(idx_t needed, seq_t **arr, idx_t *cap)
     if (needed <= *cap) return;
     idx_t new_cap = (*cap) ? (*cap << 1) : 8;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
     if (!tmp) abort();
     *arr = tmp;
     *cap = new_cap;

@@ -7,12 +7,14 @@
  * Formula:   a(n) = 3*a(n-2)+7 ; a(1)=4, a(2)=7
  * Range:     u8 n <= 7, u16 n <= 17, u32 n <= 38, u64 n <= 78, u128 n <= 158,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 983 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     idx_t need = (n > 2) ? n + 1 : 3;  /* at least indices 1 and 2 */
     if (n > cache_size)
     {
-        seq_t *tmp = (seq_t *)realloc(cache, need * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, need);
         if (!tmp) abort();           /* memory allocation failure */
         cache = tmp;
 

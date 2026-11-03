@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 125, u32 n <= 135, u64 n <= 135,
  *            u128 n <= 135, big any n
- * Helpers:   floor_sqrt
+ * Validated: partial, pass, 135 terms through n = 135 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,27 @@
     up to the requested index and memoises the results. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/floor_sqrt.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* ----------  internal state  ---------- */
 static bool      init          = false;      /* tables already initialised? */
@@ -45,13 +66,13 @@ static void rebuild_tables(idx_t need)
     /* free old tables if they exist */
     free(u_of);
     free(v_of);
-    free(a_cache);
+    mem_free(a_cache);
     free(a_seen);
 
     /* allocate new tables (+1 for 1‑based indexing) */
     u_of  = (idx_t *)malloc((new_max + 1) * sizeof(idx_t));
     v_of  = (idx_t *)malloc((new_max + 1) * sizeof(idx_t));
-    a_cache = (seq_t *)malloc((new_max + 1) * sizeof(seq_t));
+    a_cache = mem_new(seq_t, (new_max + 1));
     a_seen   = (uint8_t *)malloc((new_max + 1) * sizeof(uint8_t));
 
     for (idx_t i = 0; i <= new_max; ++i) {

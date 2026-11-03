@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 35, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   valid_next
+ * Validated: full, pass, 36 terms through n = 36 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,29 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/valid_next.h"
+
+/* Check that a candidate does not share any digit with the previous term
+   and has no repeated digits of its own.  prevSeen holds the digits used
+   by a(n-1). */
+static bool valid_next(seq_t cand, const bool *prevSeen)
+{
+    bool seen[10] = {0};
+    seq_t x = cand;
+
+    if (x == 0) {
+        /* Digit 0 must not have appeared in the previous term */
+        return !prevSeen[0];
+    }
+
+    while (x > 0) {
+        unsigned d = (unsigned)(x % 10);
+        if (prevSeen[d]) return false;   /* digit used previously */
+        if (seen[d])      return false;   /* repeated in this term  */
+        seen[d] = true;
+        x /= 10;
+    }
+    return true;
+}
 
 /* Maximum number of terms that this implementation can cache.
    The sequence grows slowly; 200 000 is more than enough for

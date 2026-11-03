@@ -14,7 +14,8 @@
  *            triangle read by rows
  * Range:     u8 n <= 24, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   twice
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,10 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/twice.h"
+#include "../utils/mem.h"
+
+/* Multiply by 2 in the generic seq_t domain. */
+static inline seq_t twice(seq_t x) { return x * ((seq_t)2); }
 
 /* Maximum index that can be queried.  n <= 10000 ⇒ row <= 150. */
 #define MAX_INDEX 20000
@@ -67,8 +71,8 @@ seq_t a(idx_t n)
            but zeroing the bytes results in a zero value for arithmetic
            types and is safe for big‑int classes that treat all‑zero
            as zero. */
-        memset(new_even, 0, sizeof(new_even));
-        memset(new_odd,  0, sizeof(new_odd));
+        mem_set(new_even, 0, sizeof(new_even));
+        mem_set(new_odd, 0, sizeof(new_odd));
 
         for (size_t k = 1; k <= cur_row; ++k) {
             seq_t e = even[k];

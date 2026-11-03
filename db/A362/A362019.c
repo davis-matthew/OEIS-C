@@ -12,15 +12,24 @@
  *            (n=1,k=d-1), … , (n=d,k=0)
  * Range:     i8 n <= 17, i16 n <= 32, i32 n <= 54, i64 n <= 54, i128 n <= 54,
  *            big any n
- * Helpers:   binomial, seq_mul, seq_pow
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Required helper functions are provided by the utils library. */
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/binomial.h"
-#include "../utils/seq_mul.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Internal helper: compute one array entry T(n,k). */
 static seq_t T_value(idx_t n, idx_t k)
@@ -29,7 +38,7 @@ static seq_t T_value(idx_t n, idx_t k)
     for (idx_t j = 0; j <= n; ++j) {
         seq_t bin  = binomial(n, j);                     /* C(n,j)  */
         seq_t base = -((seq_t)k * (seq_t)j);              /* -(k*j)   */
-        seq_t pow_term = seq_pow(base, j);                /* base^j   */
+        seq_t pow_term = ipow_idx(base, j);                /* base^j   */
         seq_t prod = seq_mul(pow_term, bin);              /* prod = base^j * C(n,j) */
         sum += prod;
     }

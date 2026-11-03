@@ -7,8 +7,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base, easy
  * Formula:   a(n) = largest k such that (k+1)! divides n
- * Range:     u8 n <= 5249, u16 n <= 9525, u32 n <= 9525, u64 n <= 9525,
- *            u128 n <= 9525, big any n
+ * Range:     u8 n <= 5249, u16 n <= 10080, u32 n <= 10080, u64 n <= 10080,
+ *            u128 n <= 10080, big any n
+ * Validated: standard, pass, 102 terms through n = 9525 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,14 +10,29 @@
  *            A039178)
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   has_equal_27
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/has_equal_27.h"
+#include "../utils/mem.h"
+
+/* Helper: test whether num has equal count of 2's and 7's in base 11 */
+static int has_equal_27(seq_t num)
+{
+    int cnt2 = 0, cnt7 = 0;
+    seq_t x = num;
+    while (x > (seq_t)0) {
+        seq_t digit = x % (seq_t)11;
+        if (digit == (seq_t)2) cnt2++;
+        else if (digit == (seq_t)7) cnt7++;
+        x = x / (seq_t)11;
+    }
+    return cnt2 == cnt7;
+}
 
 static seq_t *cache = NULL;      /* store found terms */
 static size_t cache_size = 0;    /* number of terms stored */
@@ -33,7 +48,7 @@ static void ensure_cache(idx_t n)
             /* grow cache if necessary */
             if (cache_size >= cache_cap) {
                 size_t new_cap = cache_cap == 0 ? 16 : cache_cap * 2;
-                seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
                 cache = new_cache;
                 cache_cap = new_cap;
             }

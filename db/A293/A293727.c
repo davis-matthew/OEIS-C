@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 231, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   big_add_uint32, big_cmp, big_shift_left, big_subtract
+ * Validated: standard, pass, 83 terms through n = 9886 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,10 +29,89 @@
 #include <stddef.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/big_add_uint32.h"
-#include "../utils/big_cmp.h"
-#include "../utils/big_shift_left.h"
-#include "../utils/big_subtract.h"
+
+static void big_add_uint32(uint32_t *a, size_t *lena, uint32_t val)
+{
+    uint64_t sum = (uint64_t)a[0] + val;
+    a[0] = (uint32_t)sum;
+    uint32_t carry = sum >> 32;
+    size_t i = 1;
+    while (carry && i < *lena) {
+        uint64_t s = (uint64_t)a[i] + carry;
+        a[i] = (uint32_t)s;
+        carry = s >> 32;
+        ++i;
+    }
+    if (carry) {
+        a[*lena] = carry;
+        ++(*lena);
+    }
+}
+
+static int big_cmp(const uint32_t *a, size_t lena,
+                   const uint32_t *b, size_t lenb)
+{
+    if (lena != lenb)
+        return (lena > lenb) ? 1 : -1;
+    for (size_t i = lena; i-- > 0; ) {
+        if (a[i] != b[i])
+            return (a[i] > b[i]) ? 1 : -1;
+    }
+    return 0;
+}
+
+static void big_shift_left(const uint32_t *src, size_t src_len, int shift,
+                           uint32_t *dst, size_t *dst_len)
+{
+    int sw = shift >> 5;          /* whole‑limb shift */
+    int sb = shift & 31;          /* intra‑limb shift */
+    size_t i, j;
+    uint64_t carry = 0, val;
+
+    for (i = 0; i < src_len; ++i) {
+        val = ((uint64_t)src[i] << sb) | carry;
+        dst[i + sw] = (uint32_t)val;
+        carry = val >> 32;
+    }
+    if (sb > 0) {
+        dst[i + sw] = (uint32_t)carry;
+        ++i;
+    }
+    for (j = 0; j < sw; ++j)
+        dst[j] = 0;
+
+    *dst_len = i + sw;
+    while (*dst_len > 0 && dst[*dst_len - 1] == 0)
+        --(*dst_len);
+}
+
+static void big_subtract(uint32_t *a, size_t *lena,
+                        const uint32_t *b, size_t lenb)
+{
+    uint32_t borrow = 0;
+    size_t i;
+    for (i = 0; i < lenb; ++i) {
+        uint32_t bi = b[i];
+        if (a[i] < bi + borrow) {
+            a[i] = a[i] - bi - borrow;
+            borrow = 1;
+        } else {
+            a[i] = a[i] - bi - borrow;
+            borrow = 0;
+        }
+    }
+    for (; borrow && i < *lena; ++i) {
+        if (a[i] == 0) {
+            a[i] = 0xFFFFFFFF;
+            borrow = 1;
+        } else {
+            a[i]--;
+            borrow = 0;
+        }
+    }
+    while (*lena > 0 && a[*lena - 1] == 0)
+        --(*lena);
+}
 
 #define MAX_BITS    50000                       /* safety margin for n≈10000 */
 #define LIMB_MAX   ((MAX_BITS + 31) / 32 + 2)   /* 32‑bit limbs */

@@ -11,7 +11,8 @@
  *            ≡ 1 (mod 512))
  * Range:     u8 none, u16 n <= 24, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   is_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,9 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"   /* is_prime(idx_t n) */
-#include "../utils/mod_pow.h"    /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod) */
+#include <string.h>
+#include "../utils/is_prime.h"
+#include "../utils/powmod.h"
 
 static uint64_t *primes1 = NULL;   /* array of primes ≡ 1 (mod 512) */
 static size_t primes_len = 0;      /* number of primes stored */
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
 
     /* Search for the minimal k with k^256 ≡ -1 (mod p) */
     for (idx_t k = 1; ; ++k) {
-        seq_t pow = mod_pow((seq_t)k, 256ULL, mod);
+        seq_t pow = powmod((seq_t)k, 256ULL, mod);
         if (pow == target)
             return (seq_t)k;   /* cast back to seq_t */
     }

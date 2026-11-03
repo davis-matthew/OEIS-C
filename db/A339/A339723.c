@@ -14,126 +14,85 @@
  *            positive integer not yet in the sequence
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   bitlen_seq_t
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-03)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+/* A339723: a(1) = 1; k = the run lengths of a(n-1) in binary, each written in
+ * binary and concatenated; a(n) = k unless k already occurred, else the
+ * smallest number not yet in the sequence. Generated in order with exact
+ * 64-bit values (k has at most as many bits as a(n-1)) and a hash set of the
+ * values used. */
+
+#include <stdint.h>
 #include <stdlib.h>
-#include <stdbool.h>
-#include "../utils/bitlen_seq_t.h"
 
-/* -------------  static state  ---------------------------------- */
-static seq_t   *seq          = NULL;      /* sequence values        */
-static idx_t   seq_cap       = 0;         /* capacity of seq        */
-static idx_t   seq_len       = 0;         /* number of terms stored */
+static uint64_t *terms = NULL;
+static size_t term_len = 0, term_cap = 0;
+static uint64_t *hs = NULL;               /* open addressing; 0 = empty (values are >= 1) */
+static size_t hcap = 0, hcnt = 0;
+static uint64_t smallest = 1;
 
-static bool    *used         = NULL;      /* table of used numbers  */
-static idx_t   used_cap      = 0;         /* capacity of used table */
-static idx_t   next_missing  = 1;         /* smallest unused integer */
+static size_t slot(uint64_t v) { return (size_t)((v * UINT64_C(0x9E3779B97F4A7C15)) >> 7) & (hcap - 1); }
 
-/* -------------  helper to grow the used table  ------------------ */
-static void ensure_used_cap(idx_t need)
-/* enlarge used[] so that it may index up to 'need' */
+static int has(uint64_t v)
 {
-    if (need < used_cap) return;
-    idx_t new_cap = used_cap ? used_cap * 2 : 16;
-    while (new_cap <= need) new_cap *= 2;
-    bool *tmp = (bool *)realloc(used, new_cap * sizeof(bool));
-    if (!tmp) exit(1);                     /* fatal error */
-    for (idx_t i = used_cap; i < new_cap; ++i) tmp[i] = false;
-    used      = tmp;
-    used_cap  = new_cap;
+    for (size_t i = slot(v);; i = (i + 1) & (hcap - 1)) {
+        if (hs[i] == v) return 1;
+        if (!hs[i]) return 0;
+    }
 }
 
-/* -------------  helper to grow the sequence array  --------------- */
-static void ensure_seq_cap(idx_t need)
-/* enlarge seq[] so that it may store 'need' elements           */
+static void add(uint64_t v)
 {
-    if (need < seq_cap) return;
-    idx_t new_cap = seq_cap ? seq_cap * 2 : 8;
-    while (new_cap <= need) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
-    if (!tmp) exit(1);
-    seq   = tmp;
-    seq_cap = new_cap;
+    if (2 * (hcnt + 1) > hcap) {
+        uint64_t *old = hs;
+        size_t oc = hcap;
+        hcap = hcap ? 2 * hcap : 1024;
+        hs = (uint64_t *)calloc(hcap, sizeof *hs);
+        if (!hs) abort();
+        hcnt = 0;
+        for (size_t i = 0; i < oc; ++i) if (old[i]) add(old[i]);
+        free(old);
+    }
+    size_t i = slot(v);
+    while (hs[i]) i = (i + 1) & (hcap - 1);
+    hs[i] = v;
+    ++hcnt;
 }
 
-/* -------------  main sequence function  ------------------------ */
+static uint64_t runs_code(uint64_t x)
+{
+    int bits = 64 - __builtin_clzll(x), i = bits - 1;
+    uint64_t k = 0;
+    while (i >= 0) {
+        int b = (x >> i) & 1, r = 0;
+        while (i >= 0 && (int)((x >> i) & 1) == b) { ++r; --i; }
+        int rb = 32 - __builtin_clz((unsigned)r);
+        k = (k << rb) | (uint64_t)r;
+    }
+    return k;
+}
+
 seq_t a(idx_t n)
 {
-    /* initialise on first call */
-    if (seq == NULL) {
-        seq_cap = 8;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
-        if (!seq) exit(1);
-        seq[0] = (seq_t)1;          /* a(1) = 1 */
-        seq_len = 1;
-
-        used_cap = 32;
-        used = (bool *)calloc(used_cap, sizeof(bool));
-        if (!used) exit(1);
-        used[1] = true;             /* 1 is used */
-        next_missing = 2;
-    }
-
-    /* generate the sequence up to n */
-    while (seq_len < n) {
-        seq_t prev = seq[seq_len - 1];
-
-        /* build k by concatenating run‑lengths of prev */
-        seq_t k = (seq_t)0;
-        idx_t bl = (idx_t)bitlen_seq_t(prev);
-        if (bl == 0) bl = 1;                   /* safety – never true */
-        idx_t msb = bl - 1;
-        bool cur_bit = ((prev >> msb) & (seq_t)1) != 0;
-        idx_t run_len = 1;
-
-        for (idx_t pos = msb; pos > 0; --pos) {
-            bool bit = ((prev >> (pos - 1)) & (seq_t)1) != 0;
-            if (bit == cur_bit) {
-                ++run_len;
-            } else {
-                idx_t lenbits = (idx_t)bitlen_seq_t((seq_t)run_len);
-                k = (k << lenbits) | (seq_t)run_len;
-                cur_bit = bit;
-                run_len = 1;
-            }
+    if (n < 1) return (seq_t)0;
+    while (term_len < (size_t)n) {
+        uint64_t v = term_len ? runs_code(terms[term_len - 1]) : 1;
+        if (term_len && has(v)) {
+            while (has(smallest)) ++smallest;
+            v = smallest;
         }
-        /* last run */
-        idx_t lenbits = (idx_t)bitlen_seq_t((seq_t)run_len);
-        k = (k << lenbits) | (seq_t)run_len;
-
-        /* decide the term */
-        bool seen = false;
-        for (idx_t i = 0; i < seq_len; ++i)
-            if (seq[i] == k) { seen = true; break; }
-
-        seq_t term;
-        if (!seen) {                      /* k is new */
-            term = k;
-        } else {                          /* find missing integer */
-            idx_t cand = next_missing;
-            while (1) {
-                ensure_used_cap(cand);
-                if (!used[cand]) break;
-                ++cand;
-            }
-            term = cand;
-            ++next_missing;                /* advance for next search */
+        add(v);
+        if (term_len == term_cap) {
+            term_cap = term_cap ? 2 * term_cap : 1024;
+            uint64_t *t = (uint64_t *)realloc(terms, term_cap * sizeof *t);
+            if (!t) abort();
+            terms = t;
         }
-
-        /* store the new term */
-        ensure_seq_cap(seq_len + 1);
-        seq[seq_len++] = term;
-
-        /* mark the term as used */
-        ensure_used_cap((idx_t)term);
-        used[(idx_t)term] = true;
-
-        /* adjust next_missing if it was just consumed */
-        while (used[next_missing]) ++next_missing;
+        terms[term_len++] = v;
     }
-
-    return seq[n - 1];
+    return (seq_t)terms[n - 1];
 }

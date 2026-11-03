@@ -11,15 +11,25 @@
  *            digits of base
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 10, u64 n <= 18, u128 n <= 21,
  *            big any n
- * Helpers:   digits, pow10
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-01)
+ * Helpers:   num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow10.h"
-#include "../utils/digits.h"
+#include "../utils/num_digits_idx.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;
@@ -31,7 +41,7 @@ seq_t a(idx_t n) {
     idx_t repeat = (n + 1) / 2;
 
     /* number of decimal digits of base */
-    int d = digits((idx_t)base);
+    int d = num_digits_idx((idx_t)base);
 
     /* 10^d as seq_t */
     seq_t pow10d = pow10(d);

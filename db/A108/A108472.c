@@ -7,14 +7,17 @@
  * Formula:   a(n) = n such that 4*prime(n)+prime(n+1) is prime
  * Range:     u8 n <= 41, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 72 terms through n = 991 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -45,7 +48,7 @@ seq_t a(idx_t n)
 
         /* Ensure we have the primes up to tested_up_to+1 (indices are 1‑based) */
         while (primes_size < (size_t)(tested_up_to + 1)) {
-            if (is_prime(prime_candidate)) {
+            if (is_prime_u64(prime_candidate)) {
                 if (primes_size == PRIMES_CAP)
                     abort();               /* buffer overflow unlikely for n<=10000 */
                 primes[primes_size++] = prime_candidate;
@@ -58,7 +61,7 @@ seq_t a(idx_t n)
                        + primes[(size_t)tested_up_to];
 
         /* If result is prime, record the current index */
-        if (is_prime(val)) {
+        if (is_prime_u64(val)) {
             if (cache_size == CACHE_CAP)
                 abort();                   /* buffer overflow unlikely for n<=10000 */
             cache[cache_size++] = (seq_t)tested_up_to;

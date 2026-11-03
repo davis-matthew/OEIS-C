@@ -7,7 +7,8 @@
  * Formula:   a(n) = (3/2) * ((2*(-1)^n - 3) * (-3)^⌊n/2⌋ - 3*(-1)^n)
  * Range:     i8 n <= 6, i16 n <= 16, i32 n <= 36, i64 n <= 76, i128 n <= 158,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 50 terms through n = 914 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,8 @@
 /*      n ≥ 1; a(1) = -3, a(2) = 0, a(3) = 27, ... */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"   /* defines seq_t big_pow(seq_t base, seq_t exp) */
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     idx_t half_exp = n / 2;
 
     /* (-3)^⌊n/2⌋ using arbitrary precision if needed */
-    seq_t pow_neg3 = big_pow((seq_t)-3, (seq_t)half_exp);
+    seq_t pow_neg3 = ipow((seq_t)-3, (seq_t)half_exp);
 
     /* (2*(-1)^n - 3) */
     seq_t term1 = 2 * sign_n - (seq_t)3;

@@ -7,7 +7,8 @@
  * Formula:   a(n) = the larger member of the n‑th twin prime pair (p, p+2)
  * Range:     i8 n <= 9, i16 n <= 60, i32 n <= 60, i64 n <= 60, i128 n <= 60,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* Cached sequence values */
 static size_t cache_size = 0;    /* Number of stored values    */
@@ -31,14 +33,14 @@ static void ensure_capacity(size_t needed)
     if (new_cap < needed)
         new_cap = needed;
 
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache)
         abort();          /* Out of memory */
 
     if (cache) {
         for (size_t i = 0; i < cache_size; ++i)
             new_cache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
 
     cache = new_cache;

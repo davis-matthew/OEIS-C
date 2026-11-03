@@ -8,13 +8,17 @@
  * Formula:   a(n) = 2*n! * Σ_{k=0..⌊n/3⌋} (k+2)^(n-2k-1) / (k! (n-3k)!)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 19,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,11 +33,11 @@ seq_t a(idx_t n)
     /* Enlarge the factorial cache if necessary. */
     if (fact_cap <= (size_t)n) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *new_fact = (seq_t *)realloc(fact, new_cap * sizeof(seq_t));
+        seq_t *new_fact = mem_resize(seq_t, fact, new_cap);
         if (!new_fact)
             return (seq_t)0; /* out‑of‑memory sentinel */
 
-        /* If this is the first allocation, initialise fact[0] = 1. */
+        /* If this is the first allocation, initialise new_fact[0] = 1. */
         if (fact == NULL) {
             new_fact[0] = (seq_t)1;
             fact_cap = 1;
@@ -53,7 +57,7 @@ seq_t a(idx_t n)
 
     for (idx_t k = 0; k <= maxk; ++k) {
         idx_t exp = n - 2 * k - 1;                      /* exponent ≥ 0 for n ≥ 1 */
-        seq_t pow_term = big_pow((seq_t)(k + 2), (seq_t)exp);
+        seq_t pow_term = ipow((seq_t)(k + 2), (seq_t)exp);
 
         /* multinomial coefficient: n! / (k! (n-3k)!) */
         seq_t term_coef = fact_n / fact[k];

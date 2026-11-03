@@ -8,7 +8,8 @@
  *            composite number (offset 1)
  * Range:     u8 n <= 12, u16 n <= 226, u32 n <= 2500, u64 n <= 2500,
  *            u128 n <= 2500, big any n
- * Helpers:   gcd, is_prime
+ * Validated: standard, pass, 65 terms through n = 2417 (2026-11-03)
+ * Helpers:   gcd, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include "../utils/gcd.h"
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *comp_cache = NULL;       /* array of previously found composites */
 static size_t comp_cap = 0;            /* allocated capacity of comp_cache   */
@@ -33,7 +35,7 @@ static void comp_grow(size_t needed)
     while (comp_cap < needed) {
         comp_cap <<= 1;
     }
-    comp_cache = (seq_t *)realloc(comp_cache, comp_cap * sizeof(seq_t));
+    comp_cache = mem_resize(seq_t, comp_cache, comp_cap);
     /* in a library build realloc failure would be handled elsewhere */
 }
 

@@ -9,7 +9,8 @@
  *            divisors τ(k) does not divide the sum of divisors σ(k)
  * Range:     u8 n <= 17, u16 n <= 794, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 9325 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /*** static data ********************************************/
 
@@ -54,7 +56,7 @@ static void grow_seq_cache(size_t new_cap)
     size_t cap = seq_cache_cap ? seq_cache_cap * 2 : 4;
     while (cap < new_cap)
         cap <<= 1;
-    seq_t *tmp = (seq_t*)realloc(seq_cache, cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, cap);
     if (!tmp && cap > 0)
         exit(EXIT_FAILURE);
     seq_cache = tmp;

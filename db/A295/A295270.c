@@ -11,15 +11,28 @@
  *            a(7)=99245, a(8)=492401, a(9)=2443097, * a(10)=12121712
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 13, u64 n <= 27, u128 n <= 55,
  *            big any n
- * Helpers:   free_seq, seq_alloc_new_array
+ * Validated: standard, pass, 37 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/seq_alloc_new_array.h"   /* provides seq_alloc_new_array() */
-#include "../utils/free_seq.h"              /* provides free_seq() */
+#include <string.h>
+#include <stddef.h>
+#include <math.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+/* Helper: free an array allocated by alloc_seq. */
+static void free_seq(seq_t *p)
+{
+    mem_free(p);
+}
 
 /* Cache for memoisation – index 0 is unused. */
 static seq_t *cache      = NULL;

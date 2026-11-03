@@ -9,7 +9,8 @@
  *            partitions of n into distinct partial sums of primes
  * Range:     u8 n <= 110, u16 n <= 110, u32 n <= 110, u64 n <= 110,
  *            u128 n <= 110, big any n
- * Helpers:   next_prime
+ * Validated: partial, pass, 111 terms through n = 110 (2026-11-03)
+ * Helpers:   mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 /* static cache of partial sums of primes (stored as idx_t to avoid overflow) */
 static idx_t  *sums = NULL;        /* array of cumulative prime sums */
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
 
     /* Allocate DP array of size n+1, zero‑initialised.  */
     size_t dp_size = (size_t)(n + 1);
-    seq_t *dp = (seq_t *)calloc(dp_size, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, dp_size);
     if (dp == NULL) abort();
 
     dp[0] = 1;   /* empty subset */
@@ -77,6 +79,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

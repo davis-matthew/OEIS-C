@@ -11,7 +11,8 @@
  *            4x^21 - 4x^22 + 2x^23 + 2x^24 - 3x^25 + x^26)
  * Range:     u8 n <= 10, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 44 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 /* This sequence satisfies a linear recurrence of order 26 derived from the denominator polynomial. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     /* Initialise the cache on the first call. */
     if (cache_len == 0) {
         cache_len = 128; /* start with some capacity */
-        cache     = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache     = mem_new(seq_t, cache_len);
         cache[0] = 1;            /* a(0) = 1 */
         cache_used = 1;          /* one value computed */
     }
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     if ((size_t)n + 1 > cache_len) {
         size_t new_len = (size_t)(n + 1);
         if (new_len < cache_len * 2) new_len = cache_len * 2; /* growth factor 2 */
-        seq_t *new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_len);
         if (new_cache) {
             cache = new_cache;
             cache_len = new_len;

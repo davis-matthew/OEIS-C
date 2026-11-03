@@ -7,6 +7,7 @@
  * Formula:   a(n) = floor(10^n / 3^n)
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 18, u64 n <= 36, u128 n <= 73,
  *            big any n
+ * Validated: standard, pass, 41 terms through n = 975 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

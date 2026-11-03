@@ -11,15 +11,31 @@
  *            incrementally and memoizes the sequence
  * Range:     u8 n <= 9, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   divisor_count_u64, sigma_of
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/divisor_count_u64.h"
-#include "../utils/sigma_of.h"
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 seq_t a(idx_t n)
 {
@@ -32,14 +48,14 @@ seq_t a(idx_t n)
         uint64_t m = tested;
 
         /* tau(m) = number of divisors of m */
-        unsigned tau_m = divisor_count_u64(m);
+        unsigned tau_m = num_divisors(m);
 
         /* sigma(m) = sum of divisors of m */
         seq_t sigma_m_seq = sigma_of(m);
         uint64_t sigma_m   = (uint64_t)sigma_m_seq;  /* sigma(m) <= 2m, fits in 64 bits */
 
         /* tau( sigma(m) ) */
-        unsigned tau_sigma = divisor_count_u64(sigma_m);
+        unsigned tau_sigma = num_divisors(sigma_m);
 
         /* sigma( tau(m) ) */
         seq_t sigma_tau_seq = sigma_of(tau_m);
@@ -48,7 +64,7 @@ seq_t a(idx_t n)
         if ((m % tau_sigma == 0) && (m % sigma_tau == 0)) {
             if (terms_len == terms_cap) {
                 terms_cap = terms_cap ? terms_cap * 2 : 4;
-                terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
             }
             terms[terms_len++] = (seq_t)m;
         }

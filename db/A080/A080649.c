@@ -8,7 +8,8 @@
  *            divisors)
  * Range:     u8 n <= 288, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sum_distinct_prime_factors
+ * Validated: standard, pass, 100 terms through n = 8749 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,23 @@
    formula, and then factors σ(n) again to add its distinct prime divisors. */
 
 #include <stdint.h>
-#include "../utils/sum_distinct_prime_factors.h"
+
+/* ----- Helper: sum of distinct prime factors of a number --------------- */
+static idx_t sum_distinct_prime_factors(idx_t v)
+{
+    if (v < 2) return 0;
+    idx_t sum = 0;
+    idx_t m = v;
+
+    for (idx_t p = 2; p <= m / p; ++p) {
+        if (m % p == 0) {
+            sum += p;
+            while (m % p == 0) m /= p;
+        }
+    }
+    if (m > 1) sum += m;
+    return sum;
+}
 
 /* ----- Helper: compute σ(n) ------------------------------------------- */
 static idx_t sigma_of(idx_t n)

@@ -8,8 +8,9 @@
  *            observing the parity of n and n mod 4: let base = 6*n; switch (n
  *            mod 4) 0 -> a = (base - 4) / 4 1 -> a = (base - 6) / 4 2 -> a =
  *            base / 4 3 -> a = (base - 2) / 4
- * Range:     u8 n <= 42, u16 n <= 9600, u32 n <= 9600, u64 n <= 9600,
- *            u128 n <= 9600, big any n
+ * Range:     u8 n <= 42, u16 n <= 10010, u32 n <= 10010, u64 n <= 10010,
+ *            u128 n <= 10010, big any n
+ * Validated: standard, pass, 83 terms through n = 9600 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

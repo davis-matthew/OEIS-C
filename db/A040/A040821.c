@@ -8,12 +8,14 @@
  *            sqrt(851) (a(0) = ⌊√851⌋, a(1..) repeat every period)
  * Range:     u8 none, u16 n <= 89, u32 n <= 89, u64 n <= 89, u128 n <= 89,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 90 terms through n = 89 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
         /* build the period using the standard recurrence for sqrt(N) */
         const seq_t N = 851;
         size_t cap = 32;
-        period = (seq_t *)malloc(cap * sizeof(seq_t));
+        period = mem_new(seq_t, cap);
         size_t len = 0;
 
         seq_t m = 0;
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
             /* store current a_cur (this is the next continued‑fraction term) */
             if (len >= cap) {
                 cap *= 2;
-                period = (seq_t *)realloc(period, cap * sizeof(seq_t));
+                period = mem_resize(seq_t, period, cap);
             }
             period[len++] = a_cur;
 

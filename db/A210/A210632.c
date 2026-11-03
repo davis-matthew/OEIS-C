@@ -9,12 +9,14 @@
  *            (x^2-x+1) * (x^2+1)^2 * (x^2+x+1)^3 * (x^4+x^3+x^2+x+1))
  * Range:     u8 n <= 40, u16 n <= 60, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 68 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* the first non‑zero term occurs at index 30 */
@@ -26,8 +28,8 @@ seq_t a(idx_t n) {
      * ten copies of 1/(1-x^k) for k = 1,2,2,2,3,3,4,4,5,6.
      */
     idx_t m = n - 30;               /* maximum exponent to compute */
-    seq_t *dp      = (seq_t *)malloc((m + 1) * sizeof(seq_t));
-    seq_t *dp_next = (seq_t *)malloc((m + 1) * sizeof(seq_t));
+    seq_t *dp      = mem_new(seq_t, (m + 1));
+    seq_t *dp_next = mem_new(seq_t, (m + 1));
     for (idx_t i = 0; i <= m; ++i) dp[i] = 0;
     dp[0] = 1;                      /* coefficient of x^0 is 1 */
 
@@ -52,7 +54,7 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = dp[m];
-    free(dp);
-    free(dp_next);
+    mem_free(dp);
+    mem_free(dp_next);
     return result;
 }

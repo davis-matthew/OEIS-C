@@ -11,13 +11,15 @@
  *            caching factorials
  * Range:     u8 n <= 21, u16 n <= 36, u32 n <= 78, u64 n <= 171,
  *            u128 n <= 435, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 5011 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *fact = NULL;
 static size_t fact_cap = 0;
@@ -26,7 +28,7 @@ static void ensure_factorial(size_t n)
 {
     if (n + 1 <= fact_cap) return;
     size_t new_cap = n + 1;
-    seq_t *new_fact = (seq_t *)realloc(fact, new_cap * sizeof(seq_t));
+    seq_t *new_fact = mem_resize(seq_t, fact, new_cap);
     if (!new_fact) exit(1); /* allocation failure */
 
     if (!fact) {

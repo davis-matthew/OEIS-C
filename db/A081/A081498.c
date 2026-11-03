@@ -9,6 +9,7 @@
  * Formula:   a(n) = n*(1 + 6*n - n*n)/6 (OEIS A081498)
  * Range:     i8 n <= 11, i16 n <= 60, i32 n <= 2346, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 64 terms through n = 9518 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

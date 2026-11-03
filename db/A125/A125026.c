@@ -10,18 +10,20 @@
  *            n, col(n) = n – r*(r-1)/2
  * Range:     u8 n <= 31, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   binom, int_sqrt
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-01)
+ * Helpers:   binomial, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
-#include "../utils/int_sqrt.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
     /* compute the row number r */
-    idx_t s = int_sqrt(8 * n + 1);      /* floor(sqrt(8n+1)) */
+    idx_t s = isqrt(8 * n + 1);      /* floor(sqrt(8n+1)) */
     idx_t r = (s - 1) / 2;              /* floor((sqrt(8n+1)-1)/2) */
     if (r * (r + 1) / 2 < n)
         r++;                            /* adjust if needed */
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     idx_t k = n - (r * (r - 1) / 2);
 
     /* compute binomial(r,k) */
-    seq_t bin1 = binom(r, k);
+    seq_t bin1 = binomial(r, k);
 
     /* term = k * binom(r,k) + binom(r-1,k) */
     seq_t term = (seq_t)k * bin1;

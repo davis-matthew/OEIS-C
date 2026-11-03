@@ -9,13 +9,15 @@
  *            is the ordinary partition function
  * Range:     u8 n <= 4, u16 n <= 11, u32 n <= 33, u64 n <= 108, u128 n <= 374,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 991 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* List all needed indices and partition numbers up to the highest 2*n requested.
    Because the function may be called with arbitrary n order, we cache the
@@ -37,7 +39,7 @@ static void ensure_partitions(idx_t max_n)
 
     /* Grow the array. */
     size_t new_len = (size_t)max_n + 1;
-    seq_t *tmp = (seq_t *)realloc(p_arr, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, p_arr, new_len);
     if (!tmp) return;  /* allocation failed; caller will see all entries missing (undefined) */
     p_arr = tmp;
 

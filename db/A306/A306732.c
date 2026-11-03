@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 33, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,8 +32,8 @@ seq_t a(idx_t n)
        accumulated answer.  Use malloc and initialise all elements to 0
        so that any seq_t default constructor is invoked via the
        assignment. */
-    seq_t *dp   = (seq_t*)malloc((N + 1) * sizeof(seq_t));
-    seq_t *poly = (seq_t*)malloc((N + 1) * sizeof(seq_t));
+    seq_t *dp   = mem_new(seq_t, (N + 1));
+    seq_t *poly = mem_new(seq_t, (N + 1));
     if (!dp || !poly) { abort(); }
     for (size_t i = 0; i <= N; ++i) { dp[i] = 0; poly[i] = 0; }
 
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
-    free(poly);
+    mem_free(dp);
+    mem_free(poly);
     return result;
 }

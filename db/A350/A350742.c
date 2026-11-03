@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 252, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 7850 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
  *              where k^2 is the smallest unused square (1²,2²,3²,…). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     /* first call: allocate cache and set a(1)=1 */
     if (cache == NULL) {
         cap = 16;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cap);
+        cache = mem_new(seq_t, cap);
         if (cache == NULL) return (seq_t)0;   /* allocation failure */
         cache[0] = (seq_t)1;
         max_cached = 1;
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
         /* ensure enough room in the cache */
         if (i - 1 >= cap) {
             cap <<= 1;  /* double the capacity */
-            seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * cap);
+            seq_t *tmp = mem_resize(seq_t, cache, cap);
             if (tmp == NULL) return prev;   /* allocation failure – return last computed */
             cache = tmp;
         }

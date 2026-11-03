@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 12, u32 n <= 12, u64 n <= 12, u128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 12 terms through n = 12 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* helper: shift a bitset left by s bits and OR into dst (in place) */
 static void shift_or(uint64_t *dst, const uint64_t *src, size_t words, size_t s)
@@ -125,7 +127,7 @@ seq_t a(idx_t n)
             shift_or(reach6, prev, words, cubes[ci]);
 
         /* allocate prefix array */
-        prefix = (seq_t *)calloc(MAX_N + 1, sizeof(seq_t));
+        prefix = mem_new(seq_t, MAX_N + 1);
         if (!prefix)
             return (seq_t)0;
 

@@ -12,7 +12,8 @@
  *            k^2*T(n-1,k)
  * Range:     u8 n <= 12, u16 n <= 18, u32 n <= 48, u64 n <= 111,
  *            u128 n <= 285, big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 9906 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -44,8 +46,8 @@ seq_t a(idx_t n)
 
     /* Build the triangle up to row r using two temporary rows. */
     size_t sz = (size_t)(r + 1);     /* allocate indices 0..r */
-    seq_t *prev = (seq_t*)calloc(sz, sizeof(seq_t));
-    seq_t *curr = (seq_t*)calloc(sz, sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, sz);
+    seq_t *curr = mem_new(seq_t, sz);
     if (!prev || !curr)
         return 0; /* allocation failure, return 0 as fallback */
 
@@ -53,8 +55,8 @@ seq_t a(idx_t n)
     prev[1] = 1;
     if (r == 1) {
         seq_t result = prev[(size_t)k];
-        free(prev);
-        free(curr);
+        mem_free(prev);
+        mem_free(curr);
         return result;
     }
 
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = prev[(size_t)k];
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
     return result;
 }

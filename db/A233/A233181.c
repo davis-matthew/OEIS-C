@@ -7,7 +7,8 @@
  * Formula:   Sequence of highly composite numbers that can be written as
  * Range:     u8 n <= 5, u16 n <= 6, u32 n <= 6, u64 n <= 6, u128 n <= 6,
  *            big any n
- * Helpers:   divisor_count_u64, factor_u64
+ * Validated: full, pass, 6 terms through n = 6 (2026-11-03)
+ * Helpers:   factor_u64, mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#include "../utils/divisor_count_u64.h"
 #include "../utils/factor_u64.h"
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
 
 static seq_t *terms = NULL;    /* cache of sequence values */
 static size_t terms_len  = 0;   /* number of cached terms       */
@@ -33,7 +35,7 @@ static void grow_terms(void)
 {
     if (terms_len == terms_cap) {
         size_t new_cap = terms_cap ? terms_cap * 2 : 8;
-        seq_t *p = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *p = mem_resize(seq_t, terms, new_cap);
         if (!p) abort();           /* out‑of‑memory */
         terms   = p;
         terms_cap = new_cap;
@@ -51,7 +53,7 @@ static void build_terms(void)
     size_t   cnt;
 
     for (uint64_t n = 1; n <= MAX_LIMIT; ++n) {
-        seq_t dk  = divisor_count_u64(n);
+        seq_t dk  = num_divisors(n);
         uint64_t d = (uint64_t)dk;
 
         if (d > max_divisors) {          /* n is a new highly composite number */

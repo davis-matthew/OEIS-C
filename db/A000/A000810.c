@@ -9,13 +9,15 @@
  *            c(n) = 1 if n mod 4 in {0,1}, else -1; a(0) = 1, a(1) = 1
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
 	static seq_t *f = NULL;
@@ -25,10 +27,10 @@ seq_t a(idx_t n) {
 	if (n >= cap) {
 		idx_t nc = cap ? cap : 64;
 		while (nc <= n) nc *= 2;
-		f = (seq_t *)realloc(f, nc * sizeof(seq_t));
-		row = (seq_t *)realloc(row, nc * sizeof(seq_t));
-		memset((void *)(f + cap), 0, (nc - cap) * sizeof(seq_t));
-		memset((void *)(row + cap), 0, (nc - cap) * sizeof(seq_t));
+		f = mem_resize(seq_t, f, nc);
+		row = mem_resize(seq_t, row, nc);
+		mem_set((f + cap), 0, (nc - cap) * sizeof(seq_t));
+		mem_set((row + cap), 0, (nc - cap) * sizeof(seq_t));
 		cap = nc;
 	}
 

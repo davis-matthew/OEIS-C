@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 none, u64 n <= 4500, u128 n <= 4500,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 4412 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Comparator for qsort, required for all seq_t variants. */
 static int cmp_seq_t(const void *p, const void *q)
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
         const idx_t new_B = B + 256;
 
         /*  Pre‑compute fourth powers up to new_B.  */
-        seq_t *pow4 = (seq_t *)malloc((size_t)(new_B + 1) * sizeof(seq_t));
+        seq_t *pow4 = mem_new(seq_t, (size_t)(new_B + 1));
         if (!pow4) return 0;   /* memory failure – unlikely in tests */
 
         for (idx_t i = 1; i <= new_B; ++i)
@@ -70,8 +72,8 @@ seq_t a(idx_t n)
 
         /*  Generate all sums j^4 + k^4 with 0 < j < k ≤ new_B.  */
         const size_t pair_cnt = (size_t)new_B * (new_B - 1) / 2;
-        seq_t *all = (seq_t *)malloc(pair_cnt * sizeof(seq_t));
-        if (!all) { free(pow4); return 0; }
+        seq_t *all = mem_new(seq_t, pair_cnt);
+        if (!all) { mem_free(pow4); return 0; }
 
         size_t idx = 0;
         for (idx_t j = 1; j < new_B; ++j)
@@ -81,11 +83,11 @@ seq_t a(idx_t n)
         }
 
         /*  Sort the sums so equal values become adjacent.  */
-        qsort(all, pair_cnt, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(all, pair_cnt, sizeof(seq_t), cmp_seq_t);
 
         /*  Extract sums that appear exactly once.  */
-        seq_t *uniq = (seq_t *)malloc(pair_cnt * sizeof(seq_t));
-        if (!uniq) { free(all); free(pow4); return 0; }
+        seq_t *uniq = mem_new(seq_t, pair_cnt);
+        if (!uniq) { mem_free(all); mem_free(pow4); return 0; }
 
         size_t uniq_cnt = 0;
         for (size_t i = 0; i < pair_cnt; )
@@ -101,13 +103,13 @@ seq_t a(idx_t n)
         /*  Replace the cache with the freshly computed list of unique
          *  sums.  Earlier cache is discarded; it is no longer needed
          *  because all earlier terms are included in the new list.  */
-        free(cache);
+        mem_free(cache);
         cache = uniq;
         cache_len = uniq_cnt;
 
         /*  Clean up temporary arrays and prepare for the next iteration.  */
-        free(all);
-        free(pow4);
+        mem_free(all);
+        mem_free(pow4);
         B = new_B;
     }
 

@@ -12,13 +12,14 @@
  *            2k): a(p^e) = p^(3k−1) * (p^(k+1)+ p^k − 1)
  * Range:     u8 n <= 15, u16 n <= 191, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow_uint_val
+ * Validated: standard, pass, 66 terms through n = 9190 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_uint_val.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;               /* not used but safe */
@@ -36,27 +37,27 @@ seq_t a(idx_t n) {
         if (p == 2) {
             if (exp & 1) {               /* odd exponent: e = 2k-1 */
                 idx_t k = (exp + 1) / 2;
-                seq_t t1 = pow_uint_val((seq_t)2, 3 * k - 1);
-                seq_t t2 = pow_uint_val((seq_t)2, k);
+                seq_t t1 = ipow_idx((seq_t)2, 3 * k - 1);
+                seq_t t2 = ipow_idx((seq_t)2, k);
                 apow = t1 * (t2 - 1);
             } else {                     /* even exponent: e = 2k */
                 idx_t k = exp / 2;
-                seq_t t1 = pow_uint_val((seq_t)2, 3 * k);
-                seq_t t2 = pow_uint_val((seq_t)2, k + 1);
+                seq_t t1 = ipow_idx((seq_t)2, 3 * k);
+                seq_t t2 = ipow_idx((seq_t)2, k + 1);
                 apow = t1 * (t2 - 1);
             }
         } else {                       /* odd prime */
             if (exp & 1) {               /* odd exponent: e = 2k-1 */
                 idx_t k = (exp + 1) / 2;
-                seq_t t1 = pow_uint_val((seq_t)p, 3 * k - 2);
-                seq_t t2 = pow_uint_val((seq_t)p, k);
-                seq_t t3 = pow_uint_val((seq_t)p, k - 1);
+                seq_t t1 = ipow_idx((seq_t)p, 3 * k - 2);
+                seq_t t2 = ipow_idx((seq_t)p, k);
+                seq_t t3 = ipow_idx((seq_t)p, k - 1);
                 apow = t1 * (t2 + t3 - 1);
             } else {                     /* even exponent: e = 2k */
                 idx_t k = exp / 2;
-                seq_t t1 = pow_uint_val((seq_t)p, 3 * k - 1);
-                seq_t t2 = pow_uint_val((seq_t)p, k + 1);
-                seq_t t3 = pow_uint_val((seq_t)p, k);
+                seq_t t1 = ipow_idx((seq_t)p, 3 * k - 1);
+                seq_t t2 = ipow_idx((seq_t)p, k + 1);
+                seq_t t3 = ipow_idx((seq_t)p, k);
                 apow = t1 * (t2 + t3 - 1);
             }
         }
@@ -69,14 +70,14 @@ seq_t a(idx_t n) {
         seq_t apow;
         if (p == 2) {
             /* exponent = 1 = 2*1-1 => k=1 */
-            seq_t t1 = pow_uint_val((seq_t)2, 3 * 1 - 1);   /* 2^2 = 4 */
-            seq_t t2 = pow_uint_val((seq_t)2, 1);          /* 2^1 = 2 */
+            seq_t t1 = ipow_idx((seq_t)2, 3 * 1 - 1);   /* 2^2 = 4 */
+            seq_t t2 = ipow_idx((seq_t)2, 1);          /* 2^1 = 2 */
             apow = t1 * (t2 - 1);                          /* 4*(2-1)=4 */
         } else {
             /* exponent = 1 = 2*1-1 => k=1 */
-            seq_t t1 = pow_uint_val((seq_t)p, 3 * 1 - 2);   /* p^1 = p */
-            seq_t t2 = pow_uint_val((seq_t)p, 1);          /* p^1 = p */
-            seq_t t3 = pow_uint_val((seq_t)p, 0);          /* p^0 = 1 */
+            seq_t t1 = ipow_idx((seq_t)p, 3 * 1 - 2);   /* p^1 = p */
+            seq_t t2 = ipow_idx((seq_t)p, 1);          /* p^1 = p */
+            seq_t t3 = ipow_idx((seq_t)p, 0);          /* p^0 = 1 */
             apow = t1 * (t2 + t3 - 1);                     /* p*(p+1-1)=p^2 */
         }
         result *= apow;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 15, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   binomial, pow_uint
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-01)
+ * Helpers:   binomial, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,10 @@
         j = n - i*(i+1)/2
    and return T(i,j). */
 #include <math.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -37,6 +40,6 @@ seq_t a(idx_t n)
 
     /* Compute the term binomial(i,j) * 8^i. */
     seq_t bin = binomial(i, j);
-    seq_t pow = pow_uint(8, i);
+    seq_t pow = ipow_u64_idx(8, i);
     return bin * pow;
 }

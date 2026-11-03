@@ -8,15 +8,18 @@
  *            Catalan(k)/4^k
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 31, u128 n <= 63,
  *            big any n
- * Helpers:   catalan, pow2
+ * Validated: standard, pass, 42 terms through n = 957 (2026-11-03)
+ * Helpers:   catalan, mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/catalan.h"   /* seq_t catalan(idx_t k); */
-#include "../utils/pow2.h"      /* seq_t pow2(idx_t exp); */
+#include <stdbool.h>
+#include "../utils/catalan.h"
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache for computed terms */
@@ -34,10 +37,10 @@ seq_t a(idx_t n) {
     /* Extend cache to size n+1 */
     size_t new_len = (size_t)(n + 1);
     if (cache == NULL) {
-        cache = (seq_t *)malloc(new_len * sizeof(seq_t));
+        cache = mem_new(seq_t, new_len);
         if (!cache) return (seq_t)0;   /* out‑of‑memory guard */
     } else {
-        cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_len);
         if (!cache) return (seq_t)0;
     }
 

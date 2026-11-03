@@ -7,12 +7,14 @@
  * Formula:   a(n) = a(n-1) + 2*a(n-2) + 4*a(n-3), a(1)=1, a(2)=7, a(3)=13
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 24, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* cache[0] unused; cache[i] = a(i) */
 static idx_t   cache_size = 0;       /* highest index currently computed */
@@ -23,9 +25,9 @@ static void ensure_cache(idx_t n) {
     if (n < cache_size) return;        /* already have them */
     idx_t new_size = n + 1;             /* indices 0..n inclusive */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(sizeof(seq_t) * new_size);
+        cache = mem_new(seq_t, new_size);
     } else {
-        cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_size);
+        cache = mem_resize(seq_t, cache, new_size);
     }
     /* Initialise any newly allocated entries that are not yet computed */
     if (cache == NULL) {

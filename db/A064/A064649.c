@@ -7,13 +7,15 @@
  * Formula:   a(n) = Sum_{d|n} phi(n/d) * (n/d)^d * d!
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper: integer power (seq_t base)^exp */
 static seq_t pow_seq(seq_t base, idx_t exp)
@@ -56,7 +58,7 @@ static void ensure_factorial_cache(idx_t limit)
         return;
 
     /* allocate new array of size limit+1 */
-    seq_t *new_cache = (seq_t *)malloc((limit + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, (limit + 1));
     if (!new_cache) {
         /* allocation failed – aborting with zero (undefined behaviour in the build) */
         exit(EXIT_FAILURE);
@@ -76,7 +78,7 @@ static void ensure_factorial_cache(idx_t limit)
         new_cache[i] = new_cache[i - 1] * (seq_t)i;
 
     /* replace old cache */
-    free(factorial_cache);
+    mem_free(factorial_cache);
     factorial_cache = new_cache;
     factorial_cache_max = limit;
 }

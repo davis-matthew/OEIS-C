@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 123, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 9623 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    (a(1) = 0).  It builds a static cache of all qualifying numbers
    up to the requested index.  The cache is grown by realloc.  */
 #include <stdlib.h>   /* malloc, realloc, abort */
+#include "../utils/mem.h"
 
 /* Helper to grow the cache when needed.  */
 static void grow_cache(size_t cap_needed, seq_t **cache, size_t *cap)
@@ -25,7 +27,7 @@ static void grow_cache(size_t cap_needed, seq_t **cache, size_t *cap)
     if (*cap >= cap_needed) return;
     size_t new_cap = (*cap) ? (*cap) * 2 : 16;
     if (new_cap < cap_needed) new_cap = cap_needed;
-    seq_t *tmp = (seq_t *)realloc(*cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *cache, new_cap);
     if (!tmp) abort();                 /* memory exhaustion */
     *cache = tmp;
     *cap = new_cap;

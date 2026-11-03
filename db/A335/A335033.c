@@ -8,9 +8,10 @@
  * Formula:   a(1) = 0. For n > 1, a(n) = smallest m > a(n‑1) such that m has
  *            a binary 1‑bit at an exponent k that is not in {a(1),…,a(n‑1)}.
  *            This is the greedy construction of sequence A335033
- * Range:     u8 n <= 225, u16 n <= 9782, u32 n <= 9782, u64 n <= 9782,
- *            u128 n <= 9782, big any n
- * Helpers:   none
+ * Range:     u8 n <= 225, u16 n <= 65025, u32 n <= 65536, u64 n <= 65536,
+ *            u128 n <= 65536, big any n
+ * Validated: standard, pass, 75 terms through n = 9782 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* dynamic bitset holding the set of exponents that have appeared in the sequence */
 static unsigned char *used_bitmap = NULL;   /* one bit per exponent */
@@ -79,7 +81,7 @@ seq_t a(idx_t n)
 
     /* initialize on first call */
     if (seq_vals == NULL) {
-        seq_vals = (seq_t *)malloc(sizeof(seq_t));
+        seq_vals = mem_new(seq_t, 1);
         if (!seq_vals) exit(1);
         seq_vals[0] = (seq_t)0;         /* a(1) = 0 */
         seq_len = 1;
@@ -88,7 +90,7 @@ seq_t a(idx_t n)
 
     /* reserve space for the needed terms */
     if (seq_len < (size_t)n) {
-        seq_t *tmp = (seq_t *)realloc(seq_vals, sizeof(seq_t) * (size_t)n);
+        seq_t *tmp = mem_resize(seq_t, seq_vals, (size_t)n);
         if (!tmp) exit(1);
         seq_vals = tmp;
     }

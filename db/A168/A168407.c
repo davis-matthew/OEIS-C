@@ -9,14 +9,19 @@
  *            numbers of the second kind
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 7, u128 n <= 11,
  *            big any n
- * Helpers:   pow2, seq_one
+ * Validated: partial, pass, 12 terms through n = 11 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/pow2.h"   /* seq_t pow2(idx_t exp); */
-#include "../utils/seq_one.h"    /* seq_t seq_one(void); */
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
 
 seq_t a(idx_t n)
 {
@@ -25,7 +30,7 @@ seq_t a(idx_t n)
         return seq_one();
 
     /* Allocate array for Stirling numbers: s[k] holds S2(current_row, k) */
-    seq_t *s = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
+    seq_t *s = mem_new(seq_t, (size_t)n + 1);
     if (!s)
         return (seq_t)0;
 
@@ -54,12 +59,12 @@ seq_t a(idx_t n)
                 if (k > 0)
                     sum = sum + s[k] * power;
             }
-            free(s);
+            mem_free(s);
             return sum;
         }
     }
 
     /* Should never reach here, but free memory just in case */
-    free(s);
+    mem_free(s);
     return (seq_t)0;
 }

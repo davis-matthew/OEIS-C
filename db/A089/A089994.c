@@ -8,7 +8,8 @@
  *            where the n‑th semiprime = smaller_factor(n) * larger_factor(n)
  * Range:     u8 n <= 915, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 100 terms through n = 9728 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Types provided by the build environment */
 extern seq_t a(idx_t n);
@@ -130,7 +132,7 @@ static void build_semiprime_values(void)
     qsort(semis, semis_cnt, sizeof(struct semiprime_s), compare_semiprime);
 
     /* Allocate array for a(n) values */
-    values = (seq_t *)malloc(semis_cnt * sizeof(seq_t));
+    values = mem_new(seq_t, semis_cnt);
     if (!values) { free(semis); exit(EXIT_FAILURE); }
 
     /* Compute a(n) for each semiprime */

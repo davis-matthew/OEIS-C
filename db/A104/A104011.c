@@ -9,13 +9,14 @@
  *            prime factors (with multiplicity) of A005904(n)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_prime_factors
+ * Validated: standard, pass, 116 terms through n = 9435 (2026-11-01)
+ * Helpers:   bigomega_u64_to_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/count_prime_factors.h"
+#include "../utils/bigomega_u64_to_u32.h"
 
 /* External linkage function expected by the build system. */
 seq_t a(idx_t n)
@@ -33,7 +34,7 @@ seq_t a(idx_t n)
 
     unsigned int omega = 0;
     if (m > 1) {
-        omega = count_prime_factors(m);
+        omega = bigomega_u64_to_u32(m);
     }
 
     return (seq_t)omega;

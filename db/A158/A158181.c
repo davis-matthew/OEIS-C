@@ -12,13 +12,15 @@
  *            23 the inner sum contains all partitions of n...
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 43, u64 n <= 132, u128 n <= 199,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define PART_MAX 48   /* maximum parts to consider (0..47) */
 
@@ -33,7 +35,7 @@ static void ensure_dp(idx_t nmax)
         return;
 
     size_t new_size = (size_t)(nmax + 1) * PART_MAX;
-    seq_t *newdp = (seq_t *)realloc(dp, new_size * sizeof(seq_t));
+    seq_t *newdp = mem_resize(seq_t, dp, new_size);
     if (!newdp)
         exit(1);                  /* out of memory */
 

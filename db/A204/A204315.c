@@ -7,8 +7,9 @@
  * Formula:   Let f(x) = (4*x^3 + 15*x^2 + 26*x)/3 (integer). For a given n,
  *            let k be the smallest x with f(x) ≥ n. Then a(n) = (k+1)^4 - 1 -
  *            k * (f(k) - n)
- * Range:     u8 n <= 48, u16 n <= 5755, u32 n <= 9602, u64 n <= 9602,
- *            u128 n <= 9602, big any n
+ * Range:     u8 n <= 48, u16 n <= 5755, u32 n <= 11115, u64 n <= 11115,
+ *            u128 n <= 11115, big any n
+ * Validated: standard, pass, 80 terms through n = 9602 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 28, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
-#include "../utils/binom.h"   /* provides seq_t binom(idx_t n, idx_t k); */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* row‑major array of T(n,k)   */
 static idx_t cache_len = 0;          /* number of entries in cache  */
@@ -39,8 +41,8 @@ static void recompute(idx_t nmax)
     idx_t total = (rows_needed + 1) * (rows_needed + 2) / 2;
 
     /* Free previous cache if any */
-    if (cache) free(cache);
-    cache = (seq_t *)malloc((size_t)total * sizeof(seq_t));
+    if (cache) mem_free(cache);
+    cache = mem_new(seq_t, (size_t)total);
     cache_len = total;
 
     /* Allocate a table of unsigned Stirling numbers of the first kind
@@ -49,7 +51,7 @@ static void recompute(idx_t nmax)
        out‑of‑bounds read for S[r-1][r] when r=1. */
     seq_t **S = (seq_t **)malloc((size_t)(rows_needed + 1) * sizeof(seq_t *));
     for (idx_t r = 0; r <= rows_needed; ++r) {
-        S[r] = (seq_t *)calloc((size_t)(r + 2), sizeof(seq_t));
+        S[r] = mem_new(seq_t, (size_t)(r + 2));
     }
 
     S[0][0] = 1;  /* base case: s(0,0) = 1 */
@@ -73,7 +75,7 @@ static void recompute(idx_t nmax)
             seq_t pow_term = 1;   /* (k+2)^0 */
             for (idx_t j = 0; j <= r - k; ++j) {
                 if (j > 0) pow_term *= (seq_t)(k + 2);
-                seq_t coeff = binom(j + k, k);
+                seq_t coeff = binomial(j + k, k);
                 seq_t term  = coeff * S[r][j + k];
                 term *= pow_term;
                 val += term;
@@ -84,7 +86,7 @@ static void recompute(idx_t nmax)
     }
 
     /* Release the Stirling table. */
-    for (idx_t r = 0; r <= rows_needed; ++r) free(S[r]);
+    for (idx_t r = 0; r <= rows_needed; ++r) mem_free(S[r]);
     free(S);
 }
 

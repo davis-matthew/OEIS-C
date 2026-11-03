@@ -12,13 +12,15 @@
  *            whose subsequent elements are cumulative sums of...
  * Range:     u8 n <= 18, u16 n <= 32, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -53,14 +55,14 @@ seq_t a(idx_t n)
                 row_cap = 1;
                 rows = (seq_t **)realloc(rows, sizeof(seq_t *));
             }
-            seq_t *row0 = (seq_t *)malloc(sizeof(seq_t));
+            seq_t *row0 = mem_new(seq_t, 1);
             row0[0] = (seq_t)1;
             rows[0] = row0;
         } else {
             /* Create row `row_count` from previous row `row_count-1`. */
             size_t prev_len = (size_t)row_count;          /* length of prev row */
             seq_t *prev  = rows[idx - 1];
-            seq_t *cur   = (seq_t *)malloc(sizeof(seq_t) * (row_count + 1));
+            seq_t *cur   = mem_new(seq_t, (row_count + 1));
 
             cur[0] = (seq_t)0;   /* first element of the new row */
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 96, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   good_s
+ * Validated: standard, pass, 71 terms through n = 9322 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,16 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/good_s.h"
+#include "../utils/mem.h"
+
+/* Test whether s satisfies that s^2+3 is of the form 4^a(8b+7).   */
+static inline bool good_s(idx_t s)
+{
+    idx_t v = s * s + 3;             /* s^2 + 3 */
+    while ((v & 3) == 0)             /* strip factors of 4 */
+        v >>= 2;
+    return (v % 8) == 7;             /* remaining part congruent to 7 mod 8 */
+}
 
 static seq_t *cache      = NULL;    /* stored terms a(0)…a(k) */
 static size_t  cache_cap = 0;       /* allocated capacity */
@@ -33,7 +43,7 @@ static inline void ensure_cache(idx_t n)
 {
     if (cache_cap == 0) {            /* first time: set up a(0) */
         cache_cap = 1;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = 0;                /* a(0) = 0 */
     }
 
@@ -44,7 +54,7 @@ static inline void ensure_cache(idx_t n)
             /* need space for a(new_term) at index term_cnt+1 */
             if (term_cnt + 2 > cache_cap) {
                 cache_cap = cache_cap ? cache_cap * 2 : 2;
-                cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             seq_t val = ((seq_t)last_checked * last_checked) - 1;
             cache[term_cnt + 1] = val;

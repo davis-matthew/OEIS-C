@@ -11,13 +11,15 @@
  *            T(n,m) = T(n,m-1) + Σ_{k=0..⌊(n-1)/2⌋} T(2k,m-1) * T(n-1-2k,m)
  * Range:     u8 n <= 46, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t **T = NULL;          /* 2‑D table T[n][m] */
 static idx_t last_size = 0;       /* current dimension of T */
@@ -40,7 +42,7 @@ static void build_table(idx_t size)
 {
     seq_t **tab = (seq_t **)malloc(size * sizeof(seq_t *));
     for (idx_t i = 0; i < size; ++i)
-        tab[i] = (seq_t *)calloc(size, sizeof(seq_t)); /* init to 0 */
+        tab[i] = mem_new(seq_t, size); /* init to 0 */
 
     /* base cases */
     for (idx_t n = 0; n < size; ++n) tab[n][0] = 1;          /* T(n,0)=1 */
@@ -59,7 +61,7 @@ static void build_table(idx_t size)
 
     /* free old table */
     if (T != NULL) {
-        for (idx_t i = 0; i < last_size; ++i) free(T[i]);
+        for (idx_t i = 0; i < last_size; ++i) mem_free(T[i]);
         free(T);
     }
     T = tab;

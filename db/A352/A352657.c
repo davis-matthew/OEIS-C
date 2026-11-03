@@ -11,7 +11,8 @@
  *            S(m) = ∏_{k=0}^{m-1} k! (superfactorial)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 5, u128 n <= 7,
  *            big any n
- * Helpers:   exponent_in_S, seq_pow
+ * Validated: partial, pass, 11 terms through n = 10 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,25 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/seq_pow.h"
-#include "../utils/exponent_in_S.h"
+#include "../utils/ipow_idx.h"
+
+/* exponent of prime p in S(m) = ∏_{k=0}^{m-1} k! */
+static unsigned long long exponent_in_S(uint64_t p, uint64_t m)
+{
+    if (m == 0) return 0ULL;
+    unsigned long long ex = 0ULL;
+    uint64_t M = m - 1;
+    uint64_t d = p;
+    while (d <= M) {
+        uint64_t q = M / d;
+        uint64_t r = M % d;
+        ex += q * (q - 1ULL) * d / 2ULL;
+        ex += q * (r + 1ULL);
+        if (d > M / p) break;
+        d *= p;
+    }
+    return ex;
+}
 
 static uint64_t *primes = NULL;
 static size_t    primes_count = 0;
@@ -77,7 +95,7 @@ seq_t a(idx_t n)
         e -= exponent_in_S(p, 2ULL * (uint64_t)n);
         e -= 2ULL * exponent_in_S(p, 4ULL * (uint64_t)n);
         if (e == 0ULL) continue;
-        seq_t pw = seq_pow((seq_t)p, (idx_t)e);
+        seq_t pw = ipow_idx((seq_t)p, (idx_t)e);
         result *= pw;
     }
     return result;

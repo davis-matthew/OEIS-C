@@ -9,14 +9,15 @@
  *            (-3,7) vectors of length 10*n)
  * Range:     u8 none, u16 n <= 1, u32 n <= 1, u64 n <= 3, u128 n <= 6,
  *            big any n
- * Helpers:   binom, pow2
+ * Validated: standard, pass, 23 terms through n = 45 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)
@@ -32,8 +33,8 @@ seq_t a(idx_t n)
         idx_t w = 3 * (n - m);            /* count of weight 49 (= (7,7)) */
         idx_t t = 7 * n - 4 * m;          /* count of weight -21 (= (-3,7) or (7,-3)) */
 
-        seq_t term = binom(total, x);
-        term *= binom(total - x, w);
+        seq_t term = binomial(total, x);
+        term *= binomial(total - x, w);
         term *= pow2(t);
 
         sum += term;

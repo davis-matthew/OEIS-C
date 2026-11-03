@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   build_primes, build_spf
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   build_primes, build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,6 +34,7 @@
 /* Helper functions from the utils directory */
 #include "../utils/build_primes.h"
 #include "../utils/build_spf.h"
+#include "../utils/mem.h"
 
 static idx_t current_limit = 0;           /* size of arrays currently in use   */
 static idx_t *spf = NULL;                 /* smallest prime factor table        */
@@ -146,7 +148,7 @@ static void append_uniform(idx_t val)
 {
     if (uniform_len == uniform_cap) {
         size_t newcap = uniform_cap ? uniform_cap << 1 : 16;
-        uniform_vals = (seq_t *)realloc(uniform_vals, newcap * sizeof(seq_t));
+        uniform_vals = mem_resize(seq_t, uniform_vals, newcap);
         uniform_cap = newcap;
     }
     uniform_vals[uniform_len++] = (seq_t)val;

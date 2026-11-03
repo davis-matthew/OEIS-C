@@ -7,7 +7,8 @@
  * Formula:   a(n) = n - floor( sqrt( prime(n) ) )
  * Range:     u8 n <= 74, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   estimate_prime_upper_bound, int_sqrt_idx
+ * Validated: partial, pass, 74 terms through n = 74 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,18 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/estimate_prime_upper_bound.h"
-#include "../utils/int_sqrt_idx.h"
+#include <stdint.h>
+#include <math.h>
+#include "../utils/isqrt.h"
+
+/* -------------------------------------------------------------------- */
+static uint64_t estimate_prime_upper_bound(idx_t n)
+{
+    if (n < 6) return 15;  /* covers first 6 primes                        */
+    double nn    = (double)n;
+    double bound = nn * (log(nn) + log(log(nn)));
+    return (uint64_t)(bound + 3.0);  /* safety margin                         */
+}
 
 /* Cached prime array */
 static uint64_t *prime_cache = NULL;
@@ -84,6 +95,6 @@ seq_t a(idx_t n)
 
     ensure_primes(n);                     /* guarantees prime_cache[n-1] exists */
     uint64_t prime = prime_cache[n - 1];   /* nth prime (1‑based) */
-    idx_t root = int_sqrt_idx(prime);      /* floor sqrt of the prime */
+    idx_t root = isqrt(prime);      /* floor sqrt of the prime */
     return (seq_t)n - (seq_t)root;        /* compute a(n) in seq_t */
 }

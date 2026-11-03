@@ -11,12 +11,14 @@
  *            a(0)=1, * where S(k)=Σ_{d|k} d·c(d)
  * Range:     i8 n <= 35, i16 n <= 90, i32 n <= 90, i64 n <= 90, i128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* period‑36 sequence c(k), indices 0..35 corresponding to d=1..36 */
 static const seq_t period[36] = {
@@ -44,10 +46,10 @@ static void ensure_capacity(size_t need)
         new_cap *= 2;
 
     /* realloc a_cache and s_cache with explicit cast – works in C and C++ */
-    a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, new_cap);
     if (!a_cache)
         exit(1);
-    s_cache = (seq_t *)realloc(s_cache, new_cap * sizeof(seq_t));
+    s_cache = mem_resize(seq_t, s_cache, new_cap);
     if (!s_cache)
         exit(1);
 

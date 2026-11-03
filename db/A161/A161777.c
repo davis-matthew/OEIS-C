@@ -7,7 +7,8 @@
  * Formula:   a(n) = n‑th_nonprime * (n‑th_nonprime - 1) / 2
  * Range:     u8 n <= 14, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* ---------- static cache of n‑th non‑primes ---------- */
 static seq_t *nonprimes = NULL;       /* array of discovered non‑prime values   */
@@ -30,7 +32,7 @@ static void ensure_nonprimes(idx_t target)
 {
     if (nonprimes == NULL) {
         cap_nonprimes = 16;          /* initial capacity guess */
-        nonprimes = (seq_t *)malloc(cap_nonprimes * sizeof(seq_t));
+        nonprimes = mem_new(seq_t, cap_nonprimes);
         if (!nonprimes) abort();
     }
 
@@ -38,7 +40,7 @@ static void ensure_nonprimes(idx_t target)
         /* enlarge array if necessary */
         if (count_nonprimes >= cap_nonprimes) {
             cap_nonprimes <<= 1;        /* double the capacity */
-            seq_t *tmp = (seq_t *)realloc(nonprimes, cap_nonprimes * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, nonprimes, cap_nonprimes);
             if (!tmp) abort();
             nonprimes = tmp;
         }

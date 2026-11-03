@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 794, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 61 terms through n = 9203 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 /* Using the provided primality test from the utils package. */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 /* Integer square root (floor) for uint64_t.  This implementation is
    self-contained and does not rely on external libraries. */
@@ -85,7 +88,7 @@ seq_t a(idx_t n)
             next_candidate += 2;
 
         /* Test primality. */
-        if (!is_prime(candidate))
+        if (!is_prime_u64(candidate))
             continue;
 
         /* Test representation. */
@@ -96,7 +99,7 @@ seq_t a(idx_t n)
         if (size == cap)
         {
             cap = cap ? cap * 2 : 16;
-            terms = (seq_t *)realloc(terms, cap * sizeof(seq_t));
+            terms = mem_resize(seq_t, terms, cap);
         }
         terms[size++] = (seq_t)candidate;
     }

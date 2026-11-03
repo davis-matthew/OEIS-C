@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 9802 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Maximum number of terms we will store in the static tables. Adjust
    if larger sequences are needed; 200 000 covers thousands of terms
@@ -71,7 +73,7 @@ static void rebuild(idx_t max_val)
     }
 
     /* Sort and deduplicate into the values table. */
-    qsort(tmp_vals, tmp_len, sizeof(seq_t), cmp_seq);
+    mem_qsort(tmp_vals, tmp_len, sizeof(seq_t), cmp_seq);
 
     values_len = 0;
     for (size_t i = 0; i < tmp_len; ++i) {

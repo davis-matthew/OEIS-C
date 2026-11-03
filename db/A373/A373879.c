@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   gcd_uint64
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   gcd_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/gcd_uint64.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/mem.h"
 
 /* gcd for 64‑bit unsigned integers */
 
@@ -54,7 +56,7 @@ static bool pollard_rho_fails(uint64_t n) {
         x = f_mod(x, n);
         y = f_mod(f_mod(y, n), n);
         uint64_t diff = x > y ? x - y : y - x;
-        d = gcd_uint64(diff, n);
+        d = gcd_u64(diff, n);
     }
     /* d == n or d == 1 means the algorithm did not find a proper factor */
     return (d == n) || (d == 1);
@@ -71,7 +73,7 @@ static void ensure_cap(size_t need) {
     if (need <= seq_cap) return;
     size_t newcap = seq_cap == 0 ? 128 : seq_cap * 2;
     while (newcap < need) newcap *= 2;
-    seq_t *tmp = (seq_t *)realloc(seq_terms, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_terms, newcap);
     seq_terms = tmp;
     seq_cap = newcap;
 }

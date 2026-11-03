@@ -6,8 +6,9 @@
  * Keywords:  sign
  * Formula:   a(n) = Σ_{d|n, d is a prime power} (-1)^{n/d+1} (equivalently
  *            add +1 if (n/d) is odd, otherwise add -1)
- * Range:     i8 n <= 8536, i16 n <= 8536, i32 n <= 8536, i64 n <= 8536,
- *            i128 n <= 8536, big any n
+ * Range:     i8 n <= 65537, i16 n <= 65537, i32 n <= 65537, i64 n <= 65537,
+ *            i128 n <= 65537, big any n
+ * Validated: standard, pass, 111 terms through n = 8536 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

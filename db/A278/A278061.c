@@ -9,13 +9,15 @@
  *            > 9
  * Range:     u8 n <= 386, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 9958 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* 1‑indexed array of computed values   */
 static size_t current_max = 0;       /* highest index that has been computed */
@@ -30,11 +32,11 @@ static void ensure_cache(idx_t n)
     /* Grow the cache if necessary */
     if (need > old_max) {
         size_t new_cap = need + 1;   /* +1 for 1‑based indexing */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();          /* memory allocation failure */
         cache = tmp;
         /* Zero the new part to avoid garbage */
-        memset(&cache[old_max + 1], 0, (new_cap - old_max - 1) * sizeof(seq_t));
+        mem_set(&cache[old_max + 1], 0, (new_cap - old_max - 1) * sizeof(seq_t));
 
         /* Initialise base values */
         if (old_max < 9) {

@@ -8,14 +8,17 @@
  *            = Sum_{d|n} φ(d) * d^(n/d)
  * Range:     u8 n <= 11, u16 n <= 29, u32 n <= 59, u64 n <= 119,
  *            u128 n <= 242, big any n
- * Helpers:   big_pow, calc_phi
+ * Validated: standard, pass, 62 terms through n = 4734 (2026-11-01)
+ * Helpers:   ipow, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Required utility functions */
-#include "../utils/calc_phi.h"   /* seq_t calc_phi(seq_t m); */
-#include "../utils/big_pow.h"    /* seq_t big_pow(seq_t base, seq_t exp); */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/totient_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -25,14 +28,14 @@ seq_t a(idx_t n)
             /* divisor d1 = i */
             idx_t d1 = i;
             seq_t d1_t = (seq_t)d1;
-            seq_t term1 = calc_phi(d1_t) * big_pow(d1_t, (seq_t)(n / d1));
+            seq_t term1 = totient_seq(d1_t) * ipow(d1_t, (seq_t)(n / d1));
             sum += term1;
 
             /* divisor d2 = n / i, if distinct from d1 */
             idx_t d2 = n / i;
             if (d2 != d1) {
                 seq_t d2_t = (seq_t)d2;
-                seq_t term2 = calc_phi(d2_t) * big_pow(d2_t, (seq_t)(n / d2));
+                seq_t term2 = totient_seq(d2_t) * ipow(d2_t, (seq_t)(n / d2));
                 sum += term2;
             }
         }

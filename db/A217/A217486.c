@@ -8,12 +8,14 @@
  *            and for n≥1, t(n)=∑_{k=1}^{n} binom(n,k)*t(n–k)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 14, u128 n <= 25,
  *            big any n
+ * Validated: standard, pass, 34 terms through n = 199 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 #define MAX_PRECOMP 20000   /* enough for n up to about 10000 */

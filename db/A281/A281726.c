@@ -10,8 +10,9 @@
  * Formula:   a(n) = 1 + gcd(r-1, c-1) where r, c are defined by * n =
  *            r*(r-1)/2 + c, 1 ≤ c ≤ r * (the sequence is the flattening of
  *            the triangular array T(n,k) = 1 + gcd(n-1,k-1) by rows)
- * Range:     u8 n <= 9379, u16 n <= 9379, u32 n <= 9379, u64 n <= 9379,
- *            u128 n <= 9379, big any n
+ * Range:     u8 n <= 20100, u16 n <= 20100, u32 n <= 20100, u64 n <= 20100,
+ *            u128 n <= 20100, big any n
+ * Validated: standard, pass, 107 terms through n = 9379 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

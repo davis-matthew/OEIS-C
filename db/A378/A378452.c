@@ -6,9 +6,10 @@
  * Keywords:  sign
  * Formula:   a(n) = -Sum_{d|n, d<n} A007875(n/d) * a(d), where A007875(n) =
  *            φ(2^ω(n)). a(1) = 1
- * Range:     i8 n <= 8658, i16 n <= 8658, i32 n <= 8658, i64 n <= 8658,
- *            i128 n <= 8658, big any n
- * Helpers:   count_distinct_primes
+ * Range:     i8 n <= 20000, i16 n <= 20000, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 116 terms through n = 8658 (2026-11-03)
+ * Helpers:   mem, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/count_distinct_primes.h"
+#include "../utils/omega.h"
+#include "../utils/mem.h"
 
 static seq_t *A = NULL;           /* cached a(n) values (1‑indexed)   */
 static bool   *computed = NULL;   /* true if A[i] already computed   */
@@ -27,7 +29,7 @@ static idx_t   max_computed = 0;  /* highest n that has been computed */
 static inline seq_t g_val(idx_t n)
 {
     if (n <= 1u) return (seq_t)1;
-    int r = count_distinct_primes((uint64_t)n);
+    int r = omega((uint64_t)n);
     if (r <= 0) return (seq_t)1;          /* n==1, theoretically not reached */
     return ((seq_t)1 << (r - 1));          /* φ(2^r) = 2^{r-1} for r>=1      */
 }
@@ -37,7 +39,7 @@ static void ensure_capacity(idx_t n)
 {
     if (cap < n + 1) {
         size_t new_cap = (size_t)(n + 1);
-        seq_t *newA = (seq_t*)realloc(A, new_cap * sizeof(seq_t));
+        seq_t *newA = mem_resize(seq_t, A, new_cap);
         bool  *newC = (bool*)realloc(computed, new_cap * sizeof(bool));
         if (!newA || !newC) {
             /* allocation failure – terminate */

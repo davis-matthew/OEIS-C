@@ -7,15 +7,29 @@
  * Formula:   a(n) = Fibonacci(n^n) mod n
  * Range:     u8 n <= 256, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd_uint64, prime_pisano
+ * Validated: standard, pass, 97 terms through n = 8938 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Computes the nth term of OEIS A354443.  */
 #include <stdint.h>
-#include "../utils/gcd_uint64.h"
-#include "../utils/prime_pisano.h"
+#include "../utils/gcd_u64.h"
+
+/* compute Pisano period for a prime p (p>=3, p!=5) by brute force */
+static uint64_t prime_pisano(uint64_t p)
+{
+    uint64_t a = 0, b = 1;
+    for (uint64_t t = 1; ; ++t) {
+        uint64_t c = a + b;
+        if (c >= p) c -= p;
+        a = b;
+        b = c;
+        if (a == 0 && b == 1)
+            return t;
+    }
+}
 
 /* small utility: integer gcd */
 
@@ -79,12 +93,12 @@ static uint64_t pisano_period(uint64_t n)
                 ++exp;
             }
             uint64_t period = prime_power_pisano(p, exp);
-            lcm_val = lcm_val / gcd_uint64(lcm_val, period) * period;
+            lcm_val = lcm_val / gcd_u64(lcm_val, period) * period;
         }
     }
     if (k > 1ULL) { /* remaining prime factor */
         uint64_t period = prime_power_pisano(k, 1ULL);
-        lcm_val = lcm_val / gcd_uint64(lcm_val, period) * period;
+        lcm_val = lcm_val / gcd_u64(lcm_val, period) * period;
     }
     return lcm_val;
 }

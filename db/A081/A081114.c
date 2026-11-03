@@ -12,13 +12,15 @@
  *            arithmetic is done in the type seq_t, which may...
  * Range:     u8 n <= 14, u16 n <= 35, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,12 +37,12 @@ seq_t a(idx_t n)
         /* row 0 : T(0,0) = 0 */
         values_cap = 1;
         values_len = 1;
-        values = (seq_t *)malloc(values_cap * sizeof(seq_t));
+        values = mem_new(seq_t, values_cap);
         values[0] = (seq_t)0;
 
         /* previous row is the same as the first row */
         prev_len = 1;
-        prev_row = (seq_t *)malloc(prev_len * sizeof(seq_t));
+        prev_row = mem_new(seq_t, prev_len);
         prev_row[0] = (seq_t)0;
     }
 
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
         size_t cur_len    = cur_row + 1;       /* number of elements in this row */
 
         /* allocate memory for the new row */
-        seq_t *cur = (seq_t *)malloc(cur_len * sizeof(seq_t));
+        seq_t *cur = mem_new(seq_t, cur_len);
         if (!cur) return (seq_t)0; /* if malloc fails, return 0 (unlikely) */
 
         /* compute the new row */
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
         if (values_len + cur_len > values_cap) {
             size_t new_cap = values_cap > 0 ? values_cap : 1;
             while (new_cap < values_len + cur_len) new_cap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(values, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, values, new_cap);
             if (!tmp) return (seq_t)0; /* realloc failure */
             values = tmp;
             values_cap = new_cap;
@@ -76,7 +78,7 @@ seq_t a(idx_t n)
         }
 
         /* free the old row and replace with the new one */
-        free(prev_row);
+        mem_free(prev_row);
         prev_row = cur;
         prev_len = cur_len;
     }

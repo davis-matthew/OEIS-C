@@ -8,6 +8,7 @@
  * Formula:   a(n) = sum_{k=0..n, (n & k) == 0} k
  * Range:     u8 n <= 31, u16 n <= 511, u32 n <= 8191, u64 n <= 8191,
  *            u128 n <= 8191, big any n
+ * Validated: standard, pass, 84 terms through n = 7675 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

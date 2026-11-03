@@ -7,7 +7,8 @@
  * Formula:   a(n) = ∏_{k=1..n} (binomial(k-1,4) + binomial(n-k,4))
  * Range:     u8 n <= 7, u16 n <= 7, u32 n <= 8, u64 n <= 11, u128 n <= 15,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *binom4 = NULL;
 static idx_t  binom_cap = 0;
@@ -25,7 +27,7 @@ static void ensure_binom4(idx_t n)
     if (n < binom_cap) return;
     idx_t old_cap = binom_cap;
     idx_t new_cap = n + 1;
-    seq_t *new_arr = (seq_t *)realloc(binom4, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, binom4, new_cap);
     if (!new_arr) exit(1);          /* out of memory */
     binom4 = new_arr;
     for (idx_t i = old_cap; i <= n; ++i) {

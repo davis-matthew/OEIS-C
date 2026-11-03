@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 129, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 9261 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    The implementation performs a linear search, caching results between calls. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cap   = 0;
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
         if (cap < needed) {
             size_t newcap = cap ? cap * 2 : 1;
             if (newcap < needed) newcap = needed;
-            seq_t *p = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+            seq_t *p = mem_resize(seq_t, cache, newcap);
             if (!p) abort();      /* memory allocation failure */
             cache = p;
             cap   = newcap;

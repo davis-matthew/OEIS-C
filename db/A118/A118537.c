@@ -8,19 +8,22 @@
  * Formula:   a(n) = (n-1)^n + (-1)^n*(n-1)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 27,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 33 terms through n = 97 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
     if (n < 2)
         return 0;
     seq_t nm1 = (seq_t)n - 1;           /* (n-1) as seq_t */
-    seq_t p = seq_pow(nm1, n);           /* (n-1)^n  */
+    seq_t p = ipow_idx(nm1, n);           /* (n-1)^n  */
     if ((n & 1u) == 0)                   /* n even  */
         return p + nm1;                  /* + (n-1) */
     else                                 /* n odd   */

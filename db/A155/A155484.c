@@ -7,16 +7,19 @@
  * Formula:   a(n) = 3169^(2n + 1)
  * Range:     u8 none, u16 n <= 0, u32 n <= 0, u64 n <= 2, u128 n <= 5,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 22 terms through n = 94 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
     idx_t exp_idx = n * (idx_t)2 + (idx_t)1;
     seq_t exp = (seq_t)exp_idx;
-    return big_pow((seq_t)3169, exp);
+    return ipow((seq_t)3169, exp);
 }

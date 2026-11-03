@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   gpf, is_prime, mod_pow
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   is_prime, largest_prime_factor, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,11 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <string.h>
 #include "../utils/is_prime.h"
-#include "../utils/gpf.h"
-#include "../utils/mod_pow.h"
+#include "../utils/largest_prime_factor.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* Cached sequence values */
 static seq_t *terms = NULL;      /* dynamically grown array of terms */
@@ -38,10 +41,10 @@ static void grow_terms(void)
 {
     if (terms_cap == 0) {
         terms_cap = 16;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
     } else if (terms_sz >= terms_cap) {
         terms_cap <<= 1;
-        terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, terms_cap);
     }
 }
 
@@ -67,12 +70,12 @@ seq_t a(idx_t n)
 
         /* Compute largest prime factor x of (p-1) */
         uint64_t p = next_candidate;
-        uint64_t x = gpf(p - 1);
+        uint64_t x = largest_prime_factor(p - 1);
         uint64_t m = (p - 1) / x;
 
         /* Check if p | 2^m - 1 using modular exponentiation */
         seq_t mod = (seq_t)p;
-        seq_t r   = mod_pow((seq_t)2, m, mod);
+        seq_t r   = powmod((seq_t)2, m, mod);
 
         if (r == (seq_t)1) {
             append_term(mod);

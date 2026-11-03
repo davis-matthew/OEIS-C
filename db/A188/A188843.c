@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 68, u32 n <= 233, u64 n <= 746,
  *            u128 n <= 1741, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 74 terms through n = 1602 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,8 @@
     The helper “binom” is provided by ../utils/binom.h.  */
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/binom.h"      /* provides static seq_t binom(idx_t a, idx_t b) */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* find smallest s such that (s-1)*s/2 ≥ n  (s is the diagonal index) */
 static idx_t find_diag(idx_t n)
@@ -43,7 +45,7 @@ static seq_t compute_T(idx_t rows, idx_t cols)
 {
     if (cols == 0) return 1;
     /* dynamic array for current row values T(rows,0..cols) */
-    seq_t *row = (seq_t *)malloc((size_t)(cols + 1) * sizeof(seq_t));
+    seq_t *row = mem_new(seq_t, (size_t)(cols + 1));
     if (!row) return 0;                /* allocation failure – unlikely */
     row[0] = 1;                         /* T(rows,0) = 1 */
 
@@ -53,7 +55,7 @@ static seq_t compute_T(idx_t rows, idx_t cols)
         seq_t pos = 0, neg = 0;         /* accumulate positive/negative parts */
         for (idx_t t = 1; t <= max_t; ++t) {
             if (k < t) break;           /* early termination */
-            seq_t bin = binom(rows + 2 - t, t);
+            seq_t bin = binomial(rows + 2 - t, t);
             seq_t prod = bin * row[k - t];
             if (t & 1ULL) pos += prod;   /* t odd → + sign   */
             else        neg += prod;     /* t even → – sign  */
@@ -62,7 +64,7 @@ static seq_t compute_T(idx_t rows, idx_t cols)
     }
 
     seq_t res = row[cols];
-    free(row);
+    mem_free(row);
     return res;
 }
 

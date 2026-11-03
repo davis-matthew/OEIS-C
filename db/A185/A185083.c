@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 27, u32 n <= 80, u64 n <= 266,
  *            u128 n <= 946, big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 957 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Check whether a part size is forbidden modulo 32.
    Forbidden residues are 0, 2, 12, 14, 16, 18, 20, 30. */
@@ -48,12 +50,12 @@ seq_t a(idx_t n)
     if (n > max_n) {
         /* Rebuild the DP table up to the new n.  Old table is freed. */
         if (dp != NULL)
-            free(dp);
+            mem_free(dp);
 
         max_n = n;
         max_s = 2ULL * max_n;
 
-        dp = (seq_t *)malloc((size_t)(max_s + 1) * sizeof(seq_t));
+        dp = mem_new(seq_t, (size_t)(max_s + 1));
         if (!dp)
             return (seq_t)0;   /* allocation failure – should not occur */
 

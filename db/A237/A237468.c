@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 5, u64 n <= 14, u128 n <= 30,
  *            big any n
- * Helpers:   compute_s, decode4, encode4
+ * Validated: standard, pass, 30 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,9 +24,33 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/compute_s.h"
-#include "../utils/decode4.h"
-#include "../utils/encode4.h"
+#include "../utils/mem.h"
+
+/* ------------------------------------------------------------------ */
+static inline uint8_t compute_s(uint8_t a, uint8_t b, uint8_t c, uint8_t d)
+{
+    uint8_t v[4] = {a, b, c, d};
+    /* insertion sort for 4 small integers (0..2) */
+    if (v[1] < v[0]) { uint8_t t = v[0]; v[0] = v[1]; v[1] = t; }
+    if (v[3] < v[2]) { uint8_t t = v[2]; v[2] = v[3]; v[3] = t; }
+    if (v[2] < v[0]) { uint8_t t = v[0]; v[0] = v[2]; v[2] = t; }
+    if (v[3] < v[1]) { uint8_t t = v[1]; v[1] = v[3]; v[3] = t; }
+    if (v[2] < v[1]) { uint8_t t = v[1]; v[1] = v[2]; v[2] = t; }
+    return v[3] + v[1] - v[2];
+}
+
+static inline void decode4(uint8_t code, uint8_t out[4])
+{
+    out[3] = code % 3;  code /= 3;
+    out[2] = code % 3;  code /= 3;
+    out[1] = code % 3;  code /= 3;
+    out[0] = code;
+}
+
+static inline uint8_t encode4(uint8_t a, uint8_t b, uint8_t c, uint8_t d)
+{
+    return (((a * 3 + b) * 3 + c) * 3 + d);
+}
 
 /* 3^5 possible 5‑digit rows, 3^4 possible 4‑digit patterns.  */
 #define ROWS     243       /* 3^5 */
@@ -151,8 +176,8 @@ seq_t a(idx_t n)
     if (n == 0) return 0;          /* offset 1 – not used by OEIS tests */
 
     /* clear current and next state arrays */
-    memset(dp_cur, 0, sizeof(dp_cur));
-    memset(dp_nxt, 0, sizeof(dp_nxt));
+    mem_set(dp_cur, 0, sizeof(dp_cur));
+    mem_set(dp_nxt, 0, sizeof(dp_nxt));
 
     /*  initial state: all pairs of first two rows */
     for (uint16_t r0 = 0; r0 < ROWS; ++r0) {
@@ -188,8 +213,8 @@ seq_t a(idx_t n)
             }
         }
         /* swap current and next for next iteration */
-        memcpy(dp_cur, dp_nxt, sizeof(dp_cur));
-        memset(dp_nxt, 0, sizeof(dp_nxt));
+        mem_copy(dp_cur, dp_nxt, sizeof(dp_cur));
+        mem_set(dp_nxt, 0, sizeof(dp_nxt));
     }
 
     /* sum all states to compute the final answer */

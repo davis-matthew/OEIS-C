@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 34, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   append_candidate, gcd, is_prime, mod_pow
+ * Validated: standard, pass, 72 terms through n = 897 (2026-11-03)
+ * Helpers:   gcd, is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,10 +27,29 @@
 #include <stdbool.h>  /* bool */
 #include <stdint.h>   /* uint64_t */
 
-#include "../utils/gcd.h"        /* gcd_int() – used only for small ints */
-#include "../utils/mod_pow.h"    /* mod_pow() – modular exponentiation */
-#include "../utils/append_candidate.h" /* append_candidate() */
-#include "../utils/is_prime.h"   /* is_prime() – primality test for uint64_t */
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/gcd.h"
+#include "../utils/is_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
 
 static seq_t *prime_vals = NULL;      /* cached qualifying primes   */
 static size_t prime_cnt  = 0;          /* number stored             */
@@ -54,7 +74,7 @@ static void build_until(idx_t n) {
             idx_t g = gcd_u64(50, p_minus_1);
             idx_t e = p_minus_1 / g;
 
-            seq_t pow_res = mod_pow((seq_t)2, e, (seq_t)next_trial);
+            seq_t pow_res = powmod((seq_t)2, e, (seq_t)next_trial);
 
             if (pow_res != (seq_t)1)
                 append_candidate(&prime_vals, &prime_cnt, &prime_cap,

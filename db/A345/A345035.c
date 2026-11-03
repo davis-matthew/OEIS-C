@@ -7,19 +7,21 @@
  * Formula:   a(n) = Sum_{k=1..n} (-3)^(floor(n/k)-1)
  * Range:     i8 n <= 5, i16 n <= 10, i32 n <= 20, i64 n <= 40, i128 n <= 81,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 1826 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)0;          /* safety for indexes below offset */
 
     /* Allocate an array of powers of -3 up to exponent n-1 */
     size_t sz = (size_t)n;                /* for n up to about 10 000 this is safe */
-    seq_t *powers = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *powers = mem_new(seq_t, sz);
     if (!powers) return (seq_t)0;          /* fallback on allocation failure */
 
     /* powers[0] = (-3)^0 = 1 ; powers[i] = (-3)^i */
@@ -37,6 +39,6 @@ seq_t a(idx_t n) {
         sum += powers[exp_idx];
     }
 
-    free(powers);
+    mem_free(powers);
     return sum;
 }

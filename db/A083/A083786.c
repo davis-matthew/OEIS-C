@@ -7,13 +7,15 @@
  * Formula:   a(n) = A002808(n) mod 10 (nth composite number modulo 10)
  * Range:     u8 n <= 5000, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 4843 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Global state for memoisation and prime generation */
 static seq_t *cache   = NULL;      /* cached values of a(1)…a(n) */
@@ -76,7 +78,7 @@ seq_t a(idx_t n)
     /* Expand cache if needed. */
     if ((size_t)n > cache_len) {
         size_t new_len = (size_t)n;
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) abort();
         cache = tmp;
         cache_len = new_len;

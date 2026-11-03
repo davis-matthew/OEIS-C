@@ -10,12 +10,14 @@
  *            a(7)=6721
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* Initial population of the cache */
     if (cache_len == 0) {
         cache_len = 7;
-        cache = (seq_t*)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         cache[0] = 1; cache[1] = 1; cache[2] = 1; cache[3] = 1;
         cache[4] = 49; cache[5] = 241; cache[6] = 721;
     }
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
         return cache[(size_t)n];
 
     /* Grow the cache up to n */
-    cache = (seq_t*)realloc(cache, ((size_t)n + 1) * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, ((size_t)n + 1));
     for (size_t i = cache_len; i <= (size_t)n; ++i) {
         if (i < 7) continue;              /* should not occur */
         seq_t sn = (seq_t)i;

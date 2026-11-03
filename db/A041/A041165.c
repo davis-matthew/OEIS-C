@@ -9,13 +9,15 @@
  *            50642, 112799, 163441, 276240
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 23, u64 n <= 47, u128 n <= 92,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 156 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Raw initial values stored as 64‑bit constants so that the compiler
    does not overflow when building for small seq_t sizes.  They are
@@ -41,7 +43,7 @@ static void ensure_cache(idx_t n)
     /* Allocate or grow the cache if necessary. */
     if (cache == NULL) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) exit(EXIT_FAILURE);
 
         /* Copy the 16 initial terms into the cache. */
@@ -55,7 +57,7 @@ static void ensure_cache(idx_t n)
         size_t new_cap = cache_cap * 2;
         if (new_cap < (size_t)(n + 1))
             new_cap = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) exit(EXIT_FAILURE);
         cache = tmp;
         cache_cap = new_cap;

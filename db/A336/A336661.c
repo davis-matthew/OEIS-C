@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 15, u32 n <= 127, u64 n <= 141,
  *            u128 n <= 141, big any n
- * Helpers:   cmp_vals
+ * Validated: standard, pass, 73 terms through n = 137 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,17 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/cmp_vals.h"
+#include "../utils/mem.h"
+
+/* comparator for qsort */
+static int cmp_vals(const void *p, const void *q)
+{
+    seq_t a = *(const seq_t *)p;
+    seq_t b = *(const seq_t *)q;
+    if (a < b) return -1;
+    if (a > b) return  1;
+    return 0;
+}
 
 /* successor table: succ[d][k] = (3*d + k) mod 10, k=0..2 */
 static const int succ[10][3] = {
@@ -50,7 +61,7 @@ static void push_value(seq_t v)
 {
     if (values_len == values_cap) {
         size_t new_cap = (values_cap == 0) ? 16 : values_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(values, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, values, new_cap);
         if (tmp == NULL) abort();    /* memory failure */
         values = tmp;
         values_cap = new_cap;
@@ -98,7 +109,7 @@ static void generate_all(void)
         /* cycles of length ≥2 starting from d (d is maximum) */
         dfs_cycles(d, d, 1u << d, (seq_t)d, 1);
     }
-    qsort(values, values_len, sizeof(seq_t), cmp_vals);
+    mem_qsort(values, values_len, sizeof(seq_t), cmp_vals);
 }
 
 /* public function returning the nth term.  n is 1‑based. */

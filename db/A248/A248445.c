@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 7, u64 n <= 20, u128 n <= 47,
  *            big any n
- * Helpers:   has_equal_sum_matching, populate_counts
+ * Validated: standard, pass, 33 terms through n = 208 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,8 +28,46 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/has_equal_sum_matching.h"
-#include "../utils/populate_counts.h"
+
+/* Return true iff the multiset can be partitioned into 3 pairs with the
+ * same sum.  The necessary and sufficient condition is that for some
+ * sum s (0..10) all counts of x and s-x match (and are even when x==s-x). */
+static bool
+has_equal_sum_matching(const unsigned char counts[6])
+{
+    for (int s = 0; s <= 10; ++s) {
+        bool ok = true;
+        for (int x = 0; x <= 5; ++x) {
+            int y = s - x;
+            if (y < 0 || y > 5) {
+                if (counts[x]) { ok = false; break; }
+                continue;
+            }
+            if (x < y) {
+                if (counts[x] != counts[y]) { ok = false; break; }
+            } else if (x == y) {
+                if (counts[x] & 1) { ok = false; break; }  /* odd count unusable */
+            }
+            /* x > y already handled when pair (y,x) was processed */
+        }
+        if (ok) return true;   /* found forbidden matching */
+    }
+    return false;
+}
+
+/* Build counts of the 6‑term multiset {a,b,c,d,e,v}. */
+static void
+populate_counts(unsigned char counts[6], unsigned char a, unsigned char b,
+                unsigned char c, unsigned char d, unsigned char e, unsigned char v)
+{
+    for (int i = 0; i < 6; ++i) counts[i] = 0;
+    ++counts[a];
+    ++counts[b];
+    ++counts[c];
+    ++counts[d];
+    ++counts[e];
+    ++counts[v];
+}
 
 #define STATE_COUNT 7776
 

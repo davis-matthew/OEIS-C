@@ -7,6 +7,7 @@
  * Formula:   a(n) = floor(sqrt(n)) / gcd(n, floor(sqrt(n)))
  * Range:     u8 n <= 2981, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 120 terms through n = 9813 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
    n / floor(sqrt(n)).  It works for any seq_t/idx_t pair
    supported by the build and requires no external tables. */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 /* Compute floor(sqrt(n)) for an unsigned 64‑bit integer n.

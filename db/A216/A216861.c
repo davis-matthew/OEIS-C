@@ -10,12 +10,14 @@
  *            a(3)=-9, a(4)=-44, a(5)=-215, a(6)=-1001
  * Range:     i8 n <= 4, i16 n <= 8, i32 n <= 16, i64 n <= 32, i128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 944 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache   = NULL;
 static size_t cache_cap = 0;   /* allocated size */
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* First time: allocate and initialise the buffer */
     if (!initialized) {
         cache_cap = (need < 6) ? 6 : need;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) {
             return 0;   /* allocation failure – return a safe value */
         }
@@ -51,14 +53,14 @@ seq_t a(idx_t n)
         while (new_cap < need) {
             new_cap <<= 1;   /* double until big enough */
         }
-        seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (new_cache == NULL) {
             return 0;   /* allocation failure */
         }
         for (size_t i = 0; i < cache_cap; ++i) {
             new_cache[i] = cache[i];            /* copy existing terms */
         }
-        free(cache);
+        mem_free(cache);
         cache      = new_cache;
         cache_cap  = new_cap;
     }

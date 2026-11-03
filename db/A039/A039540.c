@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   equal_fives_eights_base12
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,22 @@
 */
 
 #include <stdbool.h>
-#include "../utils/equal_fives_eights_base12.h"
+
+/* Helper: does v have equal non‑zero counts of 5 and 8 in base 12? */
+static bool equal_fives_eights_base12(seq_t v)
+{
+    int count5 = 0, count8 = 0;
+    while (v > 0) {
+        int digit = (int)(v % 12);
+        if (digit == 5) {
+            count5++;
+        } else if (digit == 8) {
+            count8++;
+        }
+        v /= 12;
+    }
+    return (count5 > 0) && (count8 > 0) && (count5 == count8);
+}
 
 seq_t a(idx_t n)
 {

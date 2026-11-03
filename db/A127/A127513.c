@@ -9,7 +9,8 @@
  *            distinct prime factors. a(0)=0
  * Range:     i8 n <= 9, i16 n <= 16, i32 n <= 32, i64 n <= 64, i128 n <= 128,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 910 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* state kept across calls */
@@ -46,10 +48,10 @@ seq_t a(idx_t n) {
 
         /* enlarge the cumulative array */
         if (a_arr == NULL) {
-            a_arr = (seq_t *)calloc(n + 1, sizeof(seq_t)); /* a_arr[0] = 0 */
+            a_arr = mem_new(seq_t, n + 1); /* a_arr[0] = 0 */
             if (!a_arr) exit(1);
         } else {
-            seq_t *tmp = (seq_t *)realloc(a_arr, (n + 1) * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, a_arr, (n + 1));
             if (!tmp) exit(1);
             a_arr = tmp;
         }

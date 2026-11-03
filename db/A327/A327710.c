@@ -9,7 +9,8 @@
  *            of partitions of m into at most k parts
  * Range:     u8 n <= 20, u16 n <= 46, u32 n <= 114, u64 n <= 304,
  *            u128 n <= 854, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 8782 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *cache_a = NULL;      /* array of a(n) values */
 static size_t cache_cap = 0;       /* current capacity of cache_a */
@@ -31,20 +33,20 @@ seq_t a(idx_t n)
         size_t Kmax = (size_t)sqrt((double)new_limit);
 
         /* Allocate and zero-initialize temporary arrays */
-        seq_t *dp = (seq_t *)calloc(new_limit + 1, sizeof(seq_t));   /* partitions array */
-        seq_t *factorial = (seq_t *)calloc(Kmax + 1, sizeof(seq_t)); /* factorial array */
+        seq_t *dp = mem_new(seq_t, new_limit + 1);   /* partitions array */
+        seq_t *factorial = mem_new(seq_t, Kmax + 1); /* factorial array */
         if (dp == NULL || factorial == NULL) {
             /* Allocation failure – return 0 as a safe fallback */
-            free(dp);
-            free(factorial);
+            mem_free(dp);
+            mem_free(factorial);
             return (seq_t)0;
         }
 
         /* New cache for a(n) */
-        seq_t *new_cache = (seq_t *)calloc(new_limit + 1, sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_limit + 1);
         if (new_cache == NULL) {
-            free(dp);
-            free(factorial);
+            mem_free(dp);
+            mem_free(factorial);
             return (seq_t)0;
         }
 
@@ -71,13 +73,13 @@ seq_t a(idx_t n)
         }
 
         /* Release old cache and replace */
-        free(cache_a);
+        mem_free(cache_a);
         cache_a = new_cache;
         cache_cap = new_limit + 1;
 
         /* Free temporary arrays */
-        free(dp);
-        free(factorial);
+        mem_free(dp);
+        mem_free(factorial);
     }
 
     /* Return cached value */

@@ -11,7 +11,8 @@
  *            such number with offset 1
  * Range:     u8 none, u16 n <= 7, u32 n <= 7, u64 n <= 7, u128 n <= 7,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 7 terms through n = 7 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* comparison function for qsort */
 static int cmp_seq_t(const void *a, const void *b)
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         /* allocate buffer for candidates */
         size_t cap = 64;
-        seq_t *buf = (seq_t *)malloc(cap * sizeof(seq_t));
+        seq_t *buf = mem_new(seq_t, cap);
         size_t len = 0;
 
         /* generate all 3024 permutations of 4 distinct digits 1–9 */
@@ -86,7 +88,7 @@ seq_t a(idx_t n)
                         /* store k */
                         if (len == cap) {
                             cap <<= 1;
-                            buf = (seq_t *)realloc(buf, cap * sizeof(seq_t));
+                            buf = mem_resize(seq_t, buf, cap);
                         }
                         buf[len++] = (seq_t)k;
                     }
@@ -95,7 +97,7 @@ seq_t a(idx_t n)
         }
 
         /* sort the candidates */
-        qsort(buf, len, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(buf, len, sizeof(seq_t), cmp_seq_t);
 
         /* keep cache */
         cache = buf;

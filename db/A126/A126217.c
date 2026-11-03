@@ -11,14 +11,16 @@
  *            n-k) / (n+1))^2 for floor((n+1)/2) ≤ k ≤ n * = 0 otherwise * *
  *            The rows are indexed from 0 and each row has length n+1. * * The
  *            function locates the row r and its column offset...
- * Range:     u8 n <= 39, u16 n <= 84, u32 n <= 242, u64 n <= 760,
+ * Range:     u8 n <= 40, u16 n <= 84, u32 n <= 242, u64 n <= 760,
  *            u128 n <= 2592, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 107 terms through n = 9015 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
         return (seq_t)0;                /* outside the non‑zero range */
 
     /* binomial(r+1, k+1) == C(r+1, r-k)       */
-    seq_t bin = binom((idx_t)(r + 1), (idx_t)(k + 1));
+    seq_t bin = binomial((idx_t)(r + 1), (idx_t)(k + 1));
 
     /* (2*k - r + 1) is guaranteed ≥ 1 in this range */
     seq_t factor = (seq_t)( (seq_t)(2 * k - r + 1) );

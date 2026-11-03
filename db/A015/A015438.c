@@ -7,15 +7,18 @@
  * Formula:   a(n) = ∏_{i=1..12} ((-13)^(n-i+1)-1)/((-13)^i-1)
  * Range:     u8 n <= 12, u16 n <= 12, u32 n <= 12, u64 n <= 13, u128 n <= 14,
  *            big any n
- * Helpers:   gcd, seq_pow
+ * Validated: standard, pass, 22 terms through n = 80 (2026-11-01)
+ * Helpers:   gcd, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /*          Gaussian binomial coefficient [n,12] for q=-13, offset 12 */
 
-#include "../utils/gcd.h"     /* provides seq_t gcd(seq_t a, seq_t b) */
-#include "../utils/seq_pow.h" /* provides seq_t seq_pow(seq_t base, idx_t exp) */
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/gcd.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +30,7 @@ seq_t a(idx_t n)
        i we use |(-13)^i-1| = 13^i+1, for even i we use |(-13)^i-1| = 13^i-1. */
     seq_t den[12];
     for (idx_t i = 1; i <= 12; ++i) {
-        seq_t p = seq_pow((seq_t)13, i);          /* 13^i   */
+        seq_t p = ipow_idx((seq_t)13, i);          /* 13^i   */
         den[i - 1] = (i & 1) ? (p + 1) : (p - 1); /* 13^i±1 */
     }
 
@@ -35,7 +38,7 @@ seq_t a(idx_t n)
 
     for (idx_t i = 1; i <= 12; ++i) {
         idx_t exp = n - i + 1;                     /* exponent for the numerator */
-        seq_t p   = seq_pow((seq_t)13, exp);        /* 13^exp */
+        seq_t p   = ipow_idx((seq_t)13, exp);        /* 13^exp */
         seq_t num = (exp & 1) ? (p + 1) : (p - 1); /* |(-13)^exp-1| */
 
         /* Cancel common factors with the remaining denominators. */

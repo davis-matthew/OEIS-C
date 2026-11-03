@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- Modular arithmetic for 64‑bit numbers ---------- */
 static uint64_t mod_mul_uint64(uint64_t a, uint64_t b, uint64_t mod) {
@@ -100,7 +102,7 @@ static void ensure_terms(idx_t n) {
 
             if (seq_size == seq_cap) {
                 size_t new_cap = seq_cap ? seq_cap * 2 : 4;
-                seq_t *tmp = (seq_t*)realloc(seq_cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
                 if (!tmp) abort();               /* allocation failed */
                 seq_cache = tmp; seq_cap = new_cap;
             }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 8, u32 n <= 15, u64 n <= 32, u128 n <= 57,
  *            big any n
- * Helpers:   build_primes_upto, seq_gcd
+ * Validated: standard, pass, 40 terms through n = 1182 (2026-11-03)
+ * Helpers:   build_primes_upto, gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,10 +21,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/build_primes_upto.h"   /* build_primes_upto(idx_t limit,
-                                            uint64_t **primes_out,
-                                            size_t *cnt_out)           */
-#include "../utils/seq_gcd.h"             /* seq_t seq_gcd(seq_t a, seq_t b) */
+#include "../utils/build_primes_upto.h"
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* Compare two seq_t values for qsort. */
 static int cmp_seq(const void *p1, const void *p2)
@@ -62,7 +62,7 @@ static void ensure_terms(idx_t n)
 
         /* Generate all semiprimes p*q with p <= q and p*q <= target_limit. */
         size_t cap = primes_cnt * 2 + 10;
-        seq_t *tmp = (seq_t *)malloc(cap * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, cap);
         size_t tmp_len = 0;
         for (size_t i = 0; i < primes_cnt; ++i) {
             uint64_t p = primes_u[i];
@@ -73,7 +73,7 @@ static void ensure_terms(idx_t n)
                     break;
                 if (tmp_len == cap) {
                     cap *= 2;
-                    tmp = (seq_t *)realloc(tmp, cap * sizeof(seq_t));
+                    tmp = mem_resize(seq_t, tmp, cap);
                 }
                 tmp[tmp_len++] = (seq_t)prod;
             }
@@ -81,10 +81,10 @@ static void ensure_terms(idx_t n)
         free(primes_u);
 
         /* Sort the semiprimes. */
-        qsort(tmp, tmp_len, sizeof(seq_t), cmp_seq);
+        mem_qsort(tmp, tmp_len, sizeof(seq_t), cmp_seq);
 
         /* Replace old list. */
-        free(semis);
+        mem_free(semis);
         semis = tmp;
         semis_len = tmp_len;
         current_limit = target_limit;
@@ -94,10 +94,10 @@ static void ensure_terms(idx_t n)
     }
 
     /* Recompute lcm list up to semis_len. */
-    seq_t *new_lcm = (seq_t *)realloc(lcmlist, semis_len * sizeof(seq_t));
+    seq_t *new_lcm = mem_resize(seq_t, lcmlist, semis_len);
     seq_t cur_lcm = (seq_t)1;
     for (size_t i = 0; i < semis_len; ++i) {
-        seq_t g = seq_gcd(cur_lcm, semis[i]);
+        seq_t g = gcd(cur_lcm, semis[i]);
         cur_lcm = (cur_lcm / g) * semis[i];
         new_lcm[i] = cur_lcm;
     }

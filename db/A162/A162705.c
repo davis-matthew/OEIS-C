@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 115, u64 n <= 115, u128 n <= 115,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 114 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Helper: reverse the decimal representation of a 64‑bit unsigned int */
@@ -112,13 +114,13 @@ static void recompute_up_to(idx_t n_needed)
         build_primes_upto(prime_limit, &prime_list, &prime_cnt);
         if (prime_cnt < 2) {
             result_cnt = 0;
-            free(result_seq);
+            mem_free(result_seq);
             result_seq = NULL;
             break;
         }
 
         size_t sum_cnt = prime_cnt - 1;
-        seq_t *sums = (seq_t *)malloc(sum_cnt * sizeof(seq_t));
+        seq_t *sums = mem_new(seq_t, sum_cnt);
         if (!sums) break;   /* allocation failure – unlikely for limits we use */
         for (size_t i = 0; i < sum_cnt; ++i) {
             seq_t r1 = (seq_t)rev_uint64(prime_list[i]);
@@ -127,7 +129,7 @@ static void recompute_up_to(idx_t n_needed)
         }
 
         /* Sort sums to detect duplicates easily */
-        qsort(sums, sum_cnt, sizeof(seq_t), cmp_seq);
+        mem_qsort(sums, sum_cnt, sizeof(seq_t), cmp_seq);
 
         /* Collect distinct sums that appear at least twice */
         seq_t *tmp = NULL;
@@ -138,14 +140,14 @@ static void recompute_up_to(idx_t n_needed)
             if (j - i >= 2) {                   /* at least two occurrences */
                 if (tmpc == tmpsize) {
                     tmpsize = tmpsize ? tmpsize * 2 : 8;
-                    tmp = (seq_t *)realloc(tmp, tmpsize * sizeof(seq_t));
+                    tmp = mem_resize(seq_t, tmp, tmpsize);
                 }
                 tmp[tmpc++] = sums[i];
             }
             i = j;
         }
-        free(sums);
-        free(result_seq);
+        mem_free(sums);
+        mem_free(result_seq);
         result_seq = tmp;
         result_cnt = tmpc;
 

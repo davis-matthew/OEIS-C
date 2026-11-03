@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = (6^n - 1)/5 mod n (OEIS A094921)
- * Range:     u8 n <= 263, u16 n <= 8976, u32 n <= 8976, u64 n <= 8976,
- *            u128 n <= 8976, big any n
+ * Range:     u8 n <= 263, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 104 terms through n = 8976 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

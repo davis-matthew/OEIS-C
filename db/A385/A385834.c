@@ -7,13 +7,15 @@
  * Formula:   a(n) = Sum_{k=0..n-1} (1 + k^6) * a(k) * a(n-1-k)
  * Range:     u8 n <= 3, u16 n <= 3, u32 n <= 5, u64 n <= 7, u128 n <= 10,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 13 terms through n = 12 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>   /* for size_t */
 #include <stdlib.h>   /* for malloc, realloc, free */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     /* Ensure cache[0] is initialized to 1 */
     if (cache_cap == 0) {
         cache_cap = 1;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         /* If allocation fails, return 0 (undefined behavior otherwise) */
         if (cache == NULL) return 0;
         cache[0] = (seq_t)1;
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* Grow cache if necessary */
     if ((size_t)n + 1 > cache_cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (new_cache == NULL) return 0;        /* allocation failure */
         /* Zero-initialize newly allocated slots */
         for (size_t i = cache_cap; i < new_cap; ++i)

@@ -9,14 +9,20 @@
  *            contiguous initial set {0,1,…,k} of digits, for some k
  * Range:     u8 n <= 9, u16 n <= 449, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_contiguous
+ * Validated: standard, pass, 61 terms through n = 9384 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_contiguous.h"
+
+/* Return true if mask is of the form (1<<(m+1))-1 for some m (i.e., all
+   lower bits are set). */
+static inline bool is_contiguous(unsigned int mask) {
+    return (mask & (mask + 1)) == 0;
+}
 
 #define MASK_SIZE 1024
 #define MAXLEN 120

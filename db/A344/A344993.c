@@ -8,7 +8,8 @@
  * Formula:   a(n) = 2*n*(n+1) + 2*Sum_{i=2..n} (n+1-i)*(2*n+2-i)*phi(i)
  * Range:     u8 n <= 4, u16 n <= 20, u32 n <= 343, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   seq_alloc
+ * Validated: standard, pass, 59 terms through n = 9854 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,15 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/seq_alloc.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
 
 static seq_t *phi_cache = NULL;           /* phi_cache[i] = φ(i) for 0 <= i < phi_len */
 static size_t phi_len = 0;                /* current length of phi_cache */

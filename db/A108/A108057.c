@@ -10,12 +10,14 @@
  *            a(4)=7, a(5)=-9, a(6)=10, a(7)=-11, a(8)=13, a(9)=-16
  * Range:     i8 n <= 69, i16 n <= 69, i32 n <= 69, i64 n <= 69, i128 n <= 69,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 70 terms through n = 69 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_memo = NULL;
 static idx_t a_memo_size = 0;
@@ -26,7 +28,7 @@ static void a_ensure_cap(idx_t needed)
     if (a_memo_cap < needed) {
         idx_t new_cap = a_memo_cap ? a_memo_cap << 1 : 16;
         if (new_cap < needed) new_cap = needed;
-        seq_t *tmp = (seq_t *)realloc(a_memo, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_memo, new_cap);
         a_memo = tmp;
         a_memo_cap = new_cap;
     }

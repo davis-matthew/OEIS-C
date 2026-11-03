@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
    10 000. */
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Hash table for memoisation of p_{≤k}(m).  The key is a 32‑bit word
    formed by (m << 16) | k.  Only m ≤ 10000 and k ≤ 3334 are needed,
@@ -45,7 +47,7 @@ static int     hash_inited = 0;
 
 static void init_hash(void) {
     hash_keys = (uint32_t *)malloc(HASH_CAP * sizeof(uint32_t));
-    hash_vals = (seq_t   *)malloc(HASH_CAP * sizeof(seq_t));
+    hash_vals = mem_new(seq_t, HASH_CAP);
     for (size_t i = 0; i < HASH_CAP; ++i)
         hash_keys[i] = EMPTY_KEY;
     hash_inited = 1;

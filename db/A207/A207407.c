@@ -10,7 +10,8 @@
  *            vertically
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 22, u64 n <= 137, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static int Vlist[128];           /* valid 7‑bit columns */
 static int Vsize;                /* number of valid columns */
@@ -100,13 +102,13 @@ static void init(void)
     free(curr);
 
     /* 3. Allocate DP buffers. */
-    dp_cur  = (seq_t*)calloc(numStates, sizeof(seq_t));
-    dp_next = (seq_t*)calloc(numStates, sizeof(seq_t));
+    dp_cur  = mem_new(seq_t, numStates);
+    dp_next = mem_new(seq_t, numStates);
 
     /* 4. Allocate cache for sequence terms. */
     term_cache_cap = 256;
     term_cache_size = 0;
-    term_cache = (seq_t*)malloc(term_cache_cap * sizeof(seq_t));
+    term_cache = mem_new(seq_t, term_cache_cap);
 
     initialized = true;
 }
@@ -134,7 +136,7 @@ seq_t a(idx_t n)
     /* Extend cache up to requested n. */
     while (term_cache_size < (size_t)n) {
         /* Clear dp_next buffer */
-        memset(dp_next, 0, numStates * sizeof(seq_t));
+        mem_set(dp_next, 0, numStates * sizeof(seq_t));
 
         /* Perform transitions from dp_cur to dp_next */
         for (size_t s = 0; s < numStates; ++s) {
@@ -157,8 +159,7 @@ seq_t a(idx_t n)
         /* Store the newly computed term. */
         if (term_cache_size >= term_cache_cap) {
             term_cache_cap *= 2;
-            term_cache = (seq_t*)realloc(term_cache,
-                                         term_cache_cap * sizeof(seq_t));
+            term_cache = mem_resize(seq_t, term_cache, term_cache_cap);
         }
         term_cache[term_cache_size++] = sum;
 

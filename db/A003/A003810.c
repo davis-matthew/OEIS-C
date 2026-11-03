@@ -7,6 +7,7 @@
  * Formula:   a(n) = q^15*(q^2-1)*(q^3-1)*(q^4-1)*(q^5-1)*(q^6-1)/gcd(6,q-1),
  *            q = A000961(n+1) (n-th prime power > 1)
  * Range:     u8 none, u16 none, u32 none, u64 n <= 2, u128 n <= 9, big any n
+ * Validated: partial, pass, 9 terms through n = 9 (2026-11-01)
  * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/gcd_u64.h"
 
 static bool is_prime_power(uint64_t m) {

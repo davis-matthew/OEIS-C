@@ -9,7 +9,8 @@
  *            powers (including 1)
  * Range:     u8 n <= 67, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 61 terms through n = 90 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 /* --- Static data used for memoisation ----------------------------------- */
 static idx_t max_stored = 0;                 /* highest n that has been built   */
@@ -32,7 +35,7 @@ static void rebuild(idx_t new_max)
 
     /* free old tables */
     for (k = 0; k <= 7; ++k) {
-        if (dp[k]) free(dp[k]);
+        if (dp[k]) mem_free(dp[k]);
         dp[k] = NULL;
     }
     if (prime_powers) free(prime_powers);
@@ -41,7 +44,7 @@ static void rebuild(idx_t new_max)
 
     /* allocate fresh DP tables (size new_max+1, zeroed) */
     for (k = 0; k <= 7; ++k) {
-        dp[k] = (seq_t *)calloc((size_t)new_max + 1, sizeof(seq_t));
+        dp[k] = mem_new(seq_t, (size_t)new_max + 1);
         if (!dp[k]) return;   /* allocation failure – leave NULL tables */
     }
 

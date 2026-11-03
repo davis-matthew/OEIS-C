@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* external integer types */
 typedef uint64_t idx_t;
@@ -36,13 +38,13 @@ seq_t a(idx_t n)
     const size_t maxHalf = N / 2;           /* maximum number of parts needed */
 
     /* Allocate working arrays.  All arrays are of size N+1. */
-    seq_t *prev = (seq_t*)malloc((N + 1) * sizeof(seq_t));
-    seq_t *curr = (seq_t*)malloc((N + 1) * sizeof(seq_t));
-    seq_t *ans  = (seq_t*)malloc((N + 1) * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, (N + 1));
+    seq_t *curr = mem_new(seq_t, (N + 1));
+    seq_t *ans  = mem_new(seq_t, (N + 1));
 
     /* If the allocation failed, return 0 (no value). */
     if (!prev || !curr || !ans) {
-        free(prev); free(curr); free(ans);
+        mem_free(prev); mem_free(curr); mem_free(ans);
         return 0;
     }
 
@@ -87,9 +89,9 @@ seq_t a(idx_t n)
     seq_t result = ans[N];
 
     /* Free dynamically allocated memory. */
-    free(prev);
-    free(curr);
-    free(ans);
+    mem_free(prev);
+    mem_free(curr);
+    mem_free(ans);
 
     return result;
 }

@@ -9,14 +9,16 @@
  *            row‑major flattening of the triangle T(r,k) = 15^(r-k)*C(r,k)
  * Range:     u8 n <= 5, u16 n <= 14, u32 n <= 44, u64 n <= 152, u128 n <= 560,
  *            big any n
- * Helpers:   binomial, pow_seq
+ * Validated: standard, pass, 61 terms through n = 1292 (2026-11-01)
+ * Helpers:   binomial, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     idx_t k = n - row_start;
 
     /* Compute 15^(r-k) and binomial(r,k) and multiply */
-    seq_t pow15 = pow_seq((seq_t)15, (int)(r - k));
+    seq_t pow15 = ipow_i32((seq_t)15, (int)(r - k));
     seq_t bin = binomial(r, k);
     return pow15 * bin;
 }

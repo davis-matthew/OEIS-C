@@ -12,12 +12,14 @@
  *            partition numbers
  * Range:     u8 n <= 21, u16 n <= 50, u32 n <= 146, u64 n <= 460,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 1000 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* calloc, free */
+#include "../utils/mem.h"
 
 static idx_t computed_max = 0;   /* largest n for which tables are filled */
 static seq_t *f = NULL;          /* partial partition counts (parts ≤ current m) */
@@ -29,11 +31,11 @@ seq_t a(idx_t n)
 
     if (n > computed_max) {
         /* Recompute tables up to n (inclusive) */
-        seq_t *new_f = (seq_t*)calloc(n + 1, sizeof(seq_t));
-        seq_t *new_ans = (seq_t*)calloc(n + 1, sizeof(seq_t));
+        seq_t *new_f = mem_new(seq_t, n + 1);
+        seq_t *new_ans = mem_new(seq_t, n + 1);
         if (!new_f || !new_ans) {  /* allocation failure: return 0 */
-            free(new_f);
-            free(new_ans);
+            mem_free(new_f);
+            mem_free(new_ans);
             return (seq_t)0;
         }
 
@@ -58,8 +60,8 @@ seq_t a(idx_t n)
         }
 
         /* Replace old tables with the new ones */
-        free(f);
-        free(ans);
+        mem_free(f);
+        mem_free(ans);
         f = new_f;
         ans = new_ans;
         computed_max = n;

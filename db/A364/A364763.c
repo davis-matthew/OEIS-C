@@ -8,12 +8,14 @@
  *            binomial(5*k,n-k)
  * Range:     i8 n <= 3, i16 n <= 7, i32 n <= 14, i64 n <= 25, i128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Multiplicative binomial: C(a,b) */
 static seq_t binom(idx_t a, idx_t b)
@@ -39,7 +41,7 @@ static void ensure_cache(idx_t n)
     /* Lazy allocation */
     if (cache == NULL) {
         cache_cap  = 16;
-        cache      = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache      = mem_new(seq_t, cache_cap);
         /* cache[0] = 1 */
         cache[0] = (seq_t)1;
         cache_size = 1;
@@ -53,7 +55,7 @@ static void ensure_cache(idx_t n)
         idx_t new_cap = cache_cap ? cache_cap * (idx_t)2 : (idx_t)8;
         while (new_cap < n + (idx_t)1)
             new_cap *= (idx_t)2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cache_cap = new_cap;
     }
@@ -95,7 +97,7 @@ seq_t a(idx_t n)
     /* Lazy allocation */
     if (cache == NULL) {
         cache_cap  = 16;
-        cache      = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache      = mem_new(seq_t, cache_cap);
         cache[0] = (seq_t)1;
         cache_size = 1;
     }
@@ -108,7 +110,7 @@ seq_t a(idx_t n)
         idx_t new_cap = cache_cap ? cache_cap * (idx_t)2 : (idx_t)8;
         while (new_cap < n + (idx_t)1)
             new_cap *= (idx_t)2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cache_cap = new_cap;
     }

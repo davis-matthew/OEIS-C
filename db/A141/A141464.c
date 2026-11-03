@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 8, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 8 terms through n = 8 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static idx_t cur_limit = 0;          /* current sieve limit                 */
 static uint8_t *rep = NULL;          /* representable bitmap                */
@@ -46,8 +48,8 @@ static void rebuild(idx_t N) {
     }
 
     /* collect non‑representable values into terms array   */
-    if (terms) free(terms);
-    terms = (seq_t*)malloc(sizeof(seq_t) * ((size_t)N + 1));
+    if (terms) mem_free(terms);
+    terms = mem_new(seq_t, ((size_t)N + 1));
     size_t pos = 0;
     for (idx_t v = 1; v <= N; ++v) {
         if (!rep[v]) {

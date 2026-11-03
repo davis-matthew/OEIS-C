@@ -8,7 +8,8 @@
  * Formula:   a(n) = floor(4^(n+2)/63)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 32, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 974 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
  *   (indices are 1‑based as specified in the OEIS entry) */
 
 #include <stdlib.h>   /* for malloc, realloc */
+#include "../utils/mem.h"
 
 /* static cache for memoisation */
 static seq_t *cache = NULL;     /* stores a(1) … a(current size) */
@@ -33,7 +35,7 @@ static void grow_cache(idx_t need)
     while (newcap < need) newcap <<= 1;
 
     /* reallocate and cast the void* returned by realloc */
-    seq_t *tmp = (seq_t*)realloc(cache, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, newcap);
     cache = tmp;
     cap   = newcap;
 }

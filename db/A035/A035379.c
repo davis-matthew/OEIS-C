@@ -8,13 +8,15 @@
  *            Computation: dynamic programming (unbounded coin change)
  * Range:     u8 n <= 69, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 74 terms through n = 74 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* Allocate or resize table if needed, then rebuild it from scratch */
     if (n > cur_max) {
         idx_t new_size = n + 1;          /* need indices 0..n */
-        seq_t *tmp = (seq_t *)realloc(dp, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, new_size);
         if (!tmp) return 0;              /* allocation failure */
         dp = tmp;
 

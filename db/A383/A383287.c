@@ -9,8 +9,9 @@
  *            are the exponents of 2, 3, 5 in the prime factorisation of n.
  *            This follows from A276075(n) being additive with
  *            a(p)=PrimePi(p)!, and only primes 2,3,5 contribute modulo 4
- * Range:     u8 n <= 9449, u16 n <= 9449, u32 n <= 9449, u64 n <= 9449,
- *            u128 n <= 9449, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 137 terms through n = 9449 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 54, u16 n <= 6543, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   estimate_upper_for_n
+ * Validated: standard, pass, 82 terms through n = 9781 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,15 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <math.h>
-#include "../utils/estimate_upper_for_n.h"
+
+/* Estimate an upper bound for the n-th prime using Rosser's theorem. */
+static size_t estimate_upper_for_n(size_t n)
+{
+    if (n < 6) return 15;
+    double dn = (double)n;
+    double est = dn * (log(dn) + log(log(dn)));
+    return (size_t)(est) + 10;
+}
 
 /* Static state for prime generation */
 static uint32_t *prime_list = NULL;   /* prime_list[0] = 2, last element = prime_n */

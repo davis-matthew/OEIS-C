@@ -8,6 +8,7 @@
  *            = n*k + 0^k, where 0^0 = 1 and 0^k = 0 for k > 0
  * Range:     u8 n <= 543, u16 n <= 1325, u32 n <= 1325, u64 n <= 1325,
  *            u128 n <= 1325, big any n
+ * Validated: standard, pass, 107 terms through n = 1285 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

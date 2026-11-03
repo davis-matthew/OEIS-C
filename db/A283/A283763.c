@@ -7,8 +7,9 @@
  * Keywords:  nonn, changed
  * Formula:   a(n) = number of representations n = d + a with d a deficient
  *            number (A005100) and a an abundant number (A005101)
- * Range:     u8 n <= 1050, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
- *            u128 n <= 10000, big any n
+ * Range:     u8 n <= 95, u16 n <= 95, u32 n <= 95, u64 n <= 95, u128 n <= 95,
+ *            big any n
+ * Validated: partial, pass, 96 terms through n = 95 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

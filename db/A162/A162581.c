@@ -8,16 +8,40 @@
  * Formula:   a(0)=1; for n≥1, a(n)=a(n-1)+∑_{i=0}^{⌊n/2⌋} a(i)*a(⌊n/2⌋-i)
  * Range:     u8 n <= 7, u16 n <= 21, u32 n <= 62, u64 n <= 200, u128 n <= 692,
  *            big any n
- * Helpers:   seq_alloc, seq_one, seq_realloc
+ * Validated: standard, pass, 53 terms through n = 996 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Derived from the functional equation A(x)=(1+x)A(x²)²/(1-x). */
 
-#include "../utils/seq_alloc.h"
-#include "../utils/seq_realloc.h"
-#include "../utils/seq_one.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <stddef.h>
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
 #include <stddef.h>
 
 seq_t a(idx_t n)

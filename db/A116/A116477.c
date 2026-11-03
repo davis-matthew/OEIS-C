@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{1<=k<=n, gcd(k,n)=1} floor(n/k)
  * Range:     u8 n <= 60, u16 n <= 7252, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 79 terms through n = 9685 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

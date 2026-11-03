@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 12, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *pow2_arr = NULL;
 static seq_t *t_arr    = NULL;
@@ -47,24 +49,24 @@ static void ensure_up_to(idx_t limit)
     idx_t new_size = limit + 1;
 
     /* allocate new arrays */
-    seq_t *new_pow2 = (seq_t*)calloc(new_size, sizeof(seq_t));
-    seq_t *new_t    = (seq_t*)calloc(new_size, sizeof(seq_t));
-    seq_t *new_c    = (seq_t*)calloc(new_size, sizeof(seq_t));
-    seq_t *new_b    = (seq_t*)calloc(new_size, sizeof(seq_t));
+    seq_t *new_pow2 = mem_new(seq_t, new_size);
+    seq_t *new_t    = mem_new(seq_t, new_size);
+    seq_t *new_c    = mem_new(seq_t, new_size);
+    seq_t *new_b    = mem_new(seq_t, new_size);
 
     /* copy existing data */
     if (cur_size > 0) {
-        memcpy(new_pow2, pow2_arr, cur_size * sizeof(seq_t));
-        memcpy(new_t,    t_arr,    cur_size * sizeof(seq_t));
-        memcpy(new_c,    c_arr,    cur_size * sizeof(seq_t));
-        memcpy(new_b,    b_arr,    cur_size * sizeof(seq_t));
+        mem_copy(new_pow2, pow2_arr, cur_size * sizeof(seq_t));
+        mem_copy(new_t, t_arr, cur_size * sizeof(seq_t));
+        mem_copy(new_c, c_arr, cur_size * sizeof(seq_t));
+        mem_copy(new_b, b_arr, cur_size * sizeof(seq_t));
     }
 
     /* free old arrays */
-    free(pow2_arr);
-    free(t_arr);
-    free(c_arr);
-    free(b_arr);
+    mem_free(pow2_arr);
+    mem_free(t_arr);
+    mem_free(c_arr);
+    mem_free(b_arr);
 
     /* reassign */
     pow2_arr = new_pow2;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 51, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   multiplicative_root
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,26 @@
  */
 
 #include <stdlib.h>
-#include "../utils/multiplicative_root.h"
+#include "../utils/mem.h"
+
+static seq_t multiplicative_root(seq_t n)
+{
+    if (n == 0)
+        return 0;
+
+    while (n >= 10) {
+        seq_t prod = 1;
+        seq_t m = n;
+        while (m > 0) {
+            seq_t d = m % 10;
+            if (d != 0)
+                prod *= d;
+            m = m / 10;
+        }
+        n = prod;
+    }
+    return n;
+}
 
 /* Cached sequence values and state for incremental generation */
 static seq_t *cache = NULL;
@@ -38,7 +58,7 @@ static void ensure_cache_capacity(size_t required)
     size_t new_cap = cache_capacity ? cache_capacity * 2 : 128;
     while (new_cap < required)
         new_cap *= 2;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) {
         /* In a real environment we would handle allocation failure;
            here we simply abort because the environment provides enough memory. */

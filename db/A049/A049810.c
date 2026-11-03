@@ -8,7 +8,8 @@
  * Formula:   a(n) = 1 + Σ_{q=1..n} Σ_{d|q} μ(d) * ⌊⌊q/6⌋ / d⌋
  * Range:     u8 n <= 59, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   _mu_sieve
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,40 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/_mu_sieve.h"
+
+/* fast generation of μ[1..N] (linear sieve) */
+static void _mu_sieve(idx_t N, int8_t **mu_out, size_t *size_out)
+{
+    /* allocate new buffer */
+    int8_t *mu = (int8_t *)malloc((N + 1) * sizeof(int8_t));
+    uint8_t *is_comp = (uint8_t *)calloc((N + 1), sizeof(uint8_t));
+    int *primes = (int *)malloc((N + 1) * sizeof(int));
+    size_t pc = 0;
+    mu[0] = 0;
+    mu[1] = 1;
+    for (idx_t i = 2; i <= N; ++i) {
+        if (!is_comp[i]) {
+            primes[pc++] = (int)i;
+            mu[i] = -1;
+        }
+        for (size_t k = 0; k < pc; ++k) {
+            int p = primes[k];
+            idx_t v = i * (idx_t)p;
+            if (v > N) break;
+            is_comp[v] = 1;
+            if (i % p == 0) {
+                mu[v] = 0;
+                break;
+            } else {
+                mu[v] = -mu[i];
+            }
+        }
+    }
+    free(is_comp);
+    free(primes);
+    *mu_out = mu;
+    *size_out = N + 1;
+}
 
 /* static cache for μ to avoid recomputation */
 static int8_t *mu_cache = NULL;

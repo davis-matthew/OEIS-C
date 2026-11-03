@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = floor((n+2)*sqrt(2)) - floor(n*sqrt(2)) - 2
- * Range:     u8 n <= 9965, u16 n <= 9965, u32 n <= 9965, u64 n <= 9965,
- *            u128 n <= 9965, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 144 terms through n = 9965 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

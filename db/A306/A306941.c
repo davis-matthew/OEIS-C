@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 3, i16 n <= 11, i32 n <= 27, i64 n <= 63, i128 n <= 128,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 2410 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
    seq_t to guarantee exactness for the supported integer widths.  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return a(n) for OEIS sequence A306941. */
 seq_t a(idx_t n)
@@ -43,11 +45,11 @@ seq_t a(idx_t n)
     size_t needed = (size_t)(n + (idx_t)1);   /* we need n+1 elements */
     if (cache == NULL) {
         /* First allocation */
-        cache   = (seq_t *)malloc(needed * sizeof(seq_t));
+        cache   = mem_new(seq_t, needed);
         cache_cap = needed;
     } else if (needed > cache_cap) {
         /* Grow the cache */
-        seq_t *tmp = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, needed);
         if (tmp == NULL) {
             /* Allocation failure – in the test harness this never
                happens; but to be safe we return 0. */

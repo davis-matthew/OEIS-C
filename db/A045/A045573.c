@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   is_allowed_digit
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,16 @@
    0, 1, 2, 5, 6, 8, 9, and having no trailing zero.
    They are returned in increasing order; a(1) = 1. */
 #include <stdbool.h>
-#include "../utils/is_allowed_digit.h"
+
+static inline bool is_allowed_digit(int d) {
+    /* digits: 0,1,2,5,6,8,9 are allowed; others are not */
+    switch (d) {
+        case 0: case 1: case 2: case 5: case 6: case 8: case 9:
+            return true;
+        default:
+            return false;
+    }
+}
 
 static inline bool valid_seq(seq_t x) {
     /* Reject numbers ending in zero. */

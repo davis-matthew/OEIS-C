@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 39 terms through n = 38 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
  */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"   /* provides bool is_prime(idx_t) */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static seq_t nearest_prime(idx_t n)
 {
@@ -46,7 +48,7 @@ static void ensure_cached(idx_t n)
 
     if (a_cache == NULL) {
         a_cache_cap = 2;           /* store a(0) and a(1) */
-        a_cache = (seq_t *)malloc(a_cache_cap * sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_cache_cap);
         a_cache[0] = (seq_t)0;
         a_cache[1] = (seq_t)1;
         max_computed = 1;
@@ -56,7 +58,7 @@ static void ensure_cached(idx_t n)
         size_t new_cap = a_cache_cap * 2;
         while (new_cap <= (size_t)(n + 1))
             new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
         a_cache = tmp;
         a_cache_cap = new_cap;
     }

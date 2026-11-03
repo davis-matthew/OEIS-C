@@ -10,12 +10,14 @@
  *            a(5)=1925, a(6)=4396 Computed via a memoized recurrence
  * Range:     u8 n <= 3, u16 n <= 10, u32 n <= 74, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 966 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;      /* memoized sequence values */
@@ -29,7 +31,7 @@ seq_t a(idx_t n) {
     if (n >= used) {
         if (cache == NULL) {
             cap = 16;
-            cache = (seq_t *)malloc(cap * sizeof(seq_t));
+            cache = mem_new(seq_t, cap);
         }
         while (used <= n) {
             seq_t val;
@@ -50,7 +52,7 @@ seq_t a(idx_t n) {
             }
             if (used == cap) {
                 cap *= 2;
-                cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cap);
             }
             cache[used] = val;
             used++;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Comparator for qsort on seq_t values. */
 static int cmp_seq(const void *a, const void *b)
@@ -41,14 +43,14 @@ static void build_upto(idx_t limit)
 {
     /* Free any previous cache. */
     if (cache != NULL) {
-        free(cache);
+        mem_free(cache);
         cache = NULL;
         cachelen = 0;
     }
 
     /* Temporary storage for raw candidates. */
     size_t cap = 1024;
-    seq_t *cand = (seq_t *)malloc(cap * sizeof(seq_t));
+    seq_t *cand = mem_new(seq_t, cap);
     size_t cand_cnt = 0;
 
     /* Enumerate all x,y pairs with 3x²+4y² ≤ limit. */
@@ -63,7 +65,7 @@ static void build_upto(idx_t limit)
 
             if (cand_cnt == cap) {
                 cap <<= 1;
-                cand = (seq_t *)realloc(cand, cap * sizeof(seq_t));
+                cand = mem_resize(seq_t, cand, cap);
             }
             cand[cand_cnt++] = val;
         }
@@ -71,13 +73,13 @@ static void build_upto(idx_t limit)
 
     /* Sort and deduplicate. */
     if (cand_cnt == 0) {
-        free(cand);
+        mem_free(cand);
         return;
     }
 
-    qsort(cand, cand_cnt, sizeof(seq_t), cmp_seq);
+    mem_qsort(cand, cand_cnt, sizeof(seq_t), cmp_seq);
 
-    seq_t *uniq = (seq_t *)malloc(cand_cnt * sizeof(seq_t));
+    seq_t *uniq = mem_new(seq_t, cand_cnt);
     size_t uniq_cnt = 0;
     for (size_t i = 0; i < cand_cnt; ++i) {
         if (uniq_cnt == 0 || cand[i] != uniq[uniq_cnt - 1]) {
@@ -85,7 +87,7 @@ static void build_upto(idx_t limit)
         }
     }
 
-    free(cand);
+    mem_free(cand);
     cache = uniq;
     cachelen = uniq_cnt;
     cache_limit = limit;

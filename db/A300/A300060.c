@@ -7,9 +7,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = Number of domino tilings of the Young diagram of the
  *            integer partition whose Heinz number is n
- * Range:     u8 n <= 1680, u16 n <= 7920, u32 n <= 9369, u64 n <= 9369,
- *            u128 n <= 9369, big any n
- * Helpers:   factor_u64
+ * Range:     u8 n <= 1680, u16 n <= 7920, u32 n <= 44520, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 122 terms through n = 9369 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* prime handling ----------------------------------------------------------- */
 static int primes[1500];
@@ -103,13 +105,13 @@ seq_t a(idx_t n)
 
     int maxHeight = (int)part_cnt;          /* number of rows */
     size_t masks = 1ULL << maxHeight;
-    seq_t *cur = (seq_t *)calloc(masks, sizeof(seq_t));
-    seq_t *nxt = (seq_t *)calloc(masks, sizeof(seq_t));
+    seq_t *cur = mem_new(seq_t, masks);
+    seq_t *nxt = mem_new(seq_t, masks);
     cur[0] = (seq_t)1;
 
     for (int col = 0; col < width; ++col) {
         int h = heights[col];
-        memset(nxt, 0, masks * sizeof(seq_t));
+        mem_set(nxt, 0, masks * sizeof(seq_t));
 
         for (size_t mask = 0; mask < masks; ++mask) {
             seq_t ways = cur[mask];
@@ -124,7 +126,7 @@ seq_t a(idx_t n)
     seq_t result = cur[0];   /* must end with no pending horizontal domino */
 
     free(heights);
-    free(cur);
-    free(nxt);
+    mem_free(cur);
+    mem_free(nxt);
     return result;
 }

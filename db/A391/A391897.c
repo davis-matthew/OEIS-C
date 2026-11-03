@@ -10,7 +10,8 @@
  *            = p if e==1, p^(e-2) * (p^2-1) if e>=2
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 21, u128 n <= 34,
  *            big any n
- * Helpers:   build_spf
+ * Validated: standard, pass, 39 terms through n = 447 (2026-11-03)
+ * Helpers:   build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/build_spf.h"          /* build_spf() */
+#include "../utils/build_spf.h"
+#include "../utils/mem.h"
 
 static seq_t *prod_cache = NULL;   /* partial products, 1‑based */
 static size_t prod_cap   = 0;        /* allocated size */
@@ -84,7 +86,7 @@ seq_t a(idx_t n)
     /* Extend cache if needed. */
     if (n >= prod_cap) {
         size_t new_cap = (size_t)n + 1;         /* indices 0..n inclusive */
-        seq_t *tmp = (seq_t *)realloc(prod_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, prod_cache, new_cap);
         if (!tmp) abort();                     /* out of memory */
         prod_cache = tmp;
         prod_cap   = new_cap;

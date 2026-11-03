@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 33, u16 n <= 6817, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   iteration_limit, sum_prime_factor_contributions
+ * Validated: standard, pass, 70 terms through n = 8779 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,37 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/iteration_limit.h"
-#include "../utils/sum_prime_factor_contributions.h"
+
+/* For example 2^3 * 5 → 2*3 + 5*1 = 11.                           */
+static uint64_t sum_prime_factor_contributions(uint64_t n)
+{
+    uint64_t sum = 0;
+    uint64_t tmp = n;
+    for (uint64_t p = 2; p * p <= tmp; ++p) {
+        if (tmp % p == 0) {
+            uint64_t exp = 0;
+            while (tmp % p == 0) {
+                tmp /= p;
+                ++exp;
+            }
+            sum += p * exp;
+        }
+    }
+    if (tmp > 1)                    /* remaining prime factor */
+        sum += tmp;                  /* exponent = 1 */
+    return sum;
+}
+
+/* Iterate until a fixed point is reached.                       */
+static uint64_t iteration_limit(uint64_t n)
+{
+    uint64_t cur = n;
+    for (;;) {
+        uint64_t next = sum_prime_factor_contributions(cur);
+        if (next == cur) return cur;
+        cur = next;
+    }
+}
 
 /* ---------- utilities for the sequence ---------- */
 static bool is_composite(uint64_t m)

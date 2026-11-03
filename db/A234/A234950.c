@@ -7,8 +7,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 9, u16 n <= 35, u32 n <= 108, u64 n <= 333,
+ * Range:     u8 n <= 14, u16 n <= 37, u32 n <= 108, u64 n <= 333,
  *            u128 n <= 1146, big any n
+ * Validated: standard, pass, 61 terms through n = 7363 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -25,6 +26,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* Greatest common divisor for seq_t values */

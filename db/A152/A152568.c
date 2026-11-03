@@ -12,11 +12,13 @@
  *            this triangle
  * Range:     i8 n <= 35, i16 n <= 63, i32 n <= 63, i64 n <= 63, i128 n <= 63,
  *            big any n
+ * Validated: partial, pass, 64 terms through n = 63 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 /* Find the row r such that r(r+1)/2 <= n < (r+1)(r+2)/2.

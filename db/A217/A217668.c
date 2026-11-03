@@ -5,16 +5,17 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{d|n} binomial(n/d, d-1) for n>0, a(0)=1
- * Range:     u8 n <= 39, u16 n <= 139, u32 n <= 441, u64 n <= 1000,
+ * Range:     u8 n <= 47, u16 n <= 139, u32 n <= 479, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 84 terms through n = 937 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -24,9 +25,9 @@ seq_t a(idx_t n)
         if (n % i == 0) {
             idx_t d1 = i;
             idx_t d2 = n / i;
-            sum += binom(n / d1, d1 - 1);
+            sum += binomial(n / d1, d1 - 1);
             if (d1 != d2) {
-                sum += binom(n / d2, d2 - 1);
+                sum += binomial(n / d2, d2 - 1);
             }
         }
     }

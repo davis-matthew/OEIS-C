@@ -11,13 +11,18 @@
  *            : a(n) = n >> 1; else : a(n) = n | (1ULL << (len-2));
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   bitlen_uint64
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/bitlen_uint64.h"
+
+static inline uint64_t bitlen_uint64(uint64_t n) {
+    /* n > 0 */
+    return 64 - __builtin_clzll(n);
+}
 
 seq_t a(idx_t n) {
     if (n == 1)

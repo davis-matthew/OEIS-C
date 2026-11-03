@@ -10,16 +10,17 @@
  *            according to the sequence indexing. The sequence skips row r = 2
  *            of Pascal's triangle. The first two terms are a(1)=1 (r=0) and
  *            a(2)=1 (r=1). For n ≥ 3, let r start at 3 an...
- * Range:     u8 n <= 20, u16 n <= 90, u32 n <= 306, u64 n <= 1156,
+ * Range:     u8 n <= 30, u16 n <= 90, u32 n <= 306, u64 n <= 1156,
  *            u128 n <= 4356, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 80 terms through n = 9681 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 /* External linkage – required by the framework */
 seq_t a(idx_t n)
@@ -47,7 +48,7 @@ seq_t a(idx_t n)
             idx_t j = remaining - 1;
             /* Column index k for binomial coefficient */
             idx_t k = (r / 2) + 1 + j;
-            return binom(r, k);
+            return binomial(r, k);
         }
 
         remaining -= l;

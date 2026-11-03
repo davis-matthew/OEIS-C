@@ -7,6 +7,7 @@
  * Formula:   a(n) = product over prime powers p^e || n of p^{ceil(e/4)}
  * Range:     u8 n <= 256, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 92 terms through n = 9640 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   a(n) = largest palindromic prime divisor of the n‑th semiprime
  * Range:     u8 n <= 98, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   _smallest_prime_factor, is_palindrome, is_prime
+ * Validated: partial, pass, 98 terms through n = 98 (2026-11-01)
+ * Helpers:   is_palindrome_base, is_prime, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,11 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "../utils/_smallest_prime_factor.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/is_palindrome_base.h"
 #include "../utils/is_prime.h"
-#include "../utils/is_palindrome.h"
+#include "../utils/smallest_prime_factor.h"
 
 /* Cache of semiprimes as uint64_t.  The array holds at least the
    first `semiprime_count` semiprimes. */
@@ -37,7 +40,7 @@ static void ensure_semiprimes(size_t need)
         return;
 
     while (semiprime_count < need) {
-        uint64_t p = _smallest_prime_factor(next_candidate);
+        uint64_t p = smallest_prime_factor(next_candidate);
         if (p != next_candidate) {
             uint64_t q = next_candidate / p;
             if (is_prime(q)) {
@@ -67,12 +70,12 @@ seq_t a(idx_t n)
     uint64_t semi = semiprime_cache[(size_t)n - 1];
 
     seq_t best = 0;
-    uint64_t p = _smallest_prime_factor(semi);
+    uint64_t p = smallest_prime_factor(semi);
     uint64_t q = semi / p;
 
-    if (is_palindrome((seq_t)p, 10))
+    if (is_palindrome_base((seq_t)p, 10))
         best = (seq_t)p;
-    if (is_palindrome((seq_t)q, 10) && ((seq_t)q > best))
+    if (is_palindrome_base((seq_t)q, 10) && ((seq_t)q > best))
         best = (seq_t)q;
 
     return best;

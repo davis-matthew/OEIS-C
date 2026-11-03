@@ -9,7 +9,8 @@
  *            > floor( sqrt(2*n^2 / p) )
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_sqrt_div_uint64
+ * Validated: standard, pass, 116 terms through n = 9848 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,23 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/floor_sqrt_div_uint64.h"
+
+/* fast integer square root of num/den: floor( sqrt(num/den) ) */
+static uint64_t floor_sqrt_div_uint64(uint64_t num, uint64_t den)
+{
+    uint64_t lo = 0;
+    uint64_t hi = num / den + 1;      /* safe upper bound */
+
+    while (lo < hi) {
+        uint64_t mid = (lo + hi + 1) >> 1;
+        __uint128_t prod = (__uint128_t)mid * mid * den;
+        if (prod <= (__uint128_t)num)
+            lo = mid;
+        else
+            hi = mid - 1;
+    }
+    return lo;
+}
 
 /* very small primality test: works fast for the usually small primes needed. */
 static bool is_prime_simple(uint64_t p)

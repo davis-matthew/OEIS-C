@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 25, u64 n <= 52, u128 n <= 117,
  *            big any n
- * Helpers:   big_pow, binomial, idx_to_coords
+ * Validated: standard, pass, 52 terms through n = 1174 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,9 +28,25 @@
  */
 
 #include <stdbool.h>
-#include "../utils/big_pow.h"    /* seq_t big_pow(seq_t base, seq_t exp); */
-#include "../utils/binomial.h"   /* seq_t binomial(idx_t n, idx_t k); */
-#include "../utils/idx_to_coords.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow.h"
+
+/* map global index N to the anti‑diagonal coordinates (n,k) */
+static void idx_to_coords(idx_t N, idx_t *n, idx_t *k)
+{
+    idx_t d = 1;   /* diagonal number (1‑based) */
+    while (true) {
+        idx_t sum_prev = (d - 1) * d / 2;
+        if (N < sum_prev + d) break;
+        ++d;
+    }
+    idx_t sum_prev = (d - 1) * d / 2;
+    idx_t p        = N - sum_prev;      /* position on diagonal, 0‑based */
+    *n = p;                            /* transient count */
+    *k = d - p;                        /* absorbing labelled states */
+}
 
 #define MAX_NK 200          /* sufficient for n,k up to ~150 (index<10 000) */
 
@@ -56,7 +73,7 @@ static seq_t get_T(idx_t n, idx_t k)
     for (idx_t i = 0; i < n; ++i) {
         seq_t bin   = binomial(n, i);                     /* binomial(n,i) */
         seq_t expct = (seq_t) (3 * (n - i));              /* 3*(n-i)   */
-        seq_t pw    = big_pow((seq_t)(i + k), expct);
+        seq_t pw    = ipow((seq_t)(i + k), expct);
         seq_t term  = bin * pw;
         term *= get_T(i, k);
 

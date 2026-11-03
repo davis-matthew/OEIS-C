@@ -8,6 +8,7 @@
  *            12⌋ (Sequence: expansion of (1+x⁷)/((1‑x)(1‑x²)(1‑x³)))
  * Range:     u8 n <= 39, u16 n <= 627, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 75 terms through n = 847 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

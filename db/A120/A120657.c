@@ -10,12 +10,14 @@
  *            11*a(n-2) - 27*a(n-3) - 10*a(n-4) + 24*a(n-5)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 13, u64 n <= 29, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 1000 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The function is required to have external linkage */
 seq_t a(idx_t n)
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* If caching is empty, initialise it for indices 0..4 */
     if (cached_max == (idx_t)(-1)) {
         /* Allocate storage for at least 5 indices (0..4) */
-        cache = (seq_t *)malloc(5 * sizeof(seq_t));
+        cache = mem_new(seq_t, 5);
         for (idx_t i = 0; i < 5; ++i)
             cache[i] = init[i];
         cached_max = 4;
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     if (n > cached_max) {
         idx_t new_max = n;
         /* Resize the cache */
-        seq_t *tmp = (seq_t *)realloc(cache, (new_max + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (new_max + 1));
         if (!tmp)          /* allocation failure – abort the program */
             abort();
         cache = tmp;

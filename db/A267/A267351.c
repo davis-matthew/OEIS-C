@@ -10,12 +10,14 @@
  *            a(0)=1, a(1)=5, a(2)=14, a(3)=119, a(4)=56, a(5)=2015, a(6)=224
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 32, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 825 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper to compute a recurrence term safely.
    If seq_t is 64‑bit or smaller, use a 128‑bit intermediate
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
         }
         if (new_cap < n + 1) new_cap = n + 1;
 
-        seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (!new_cache) {
             /* Out of memory – give up; application may abort */
             return (seq_t)0;
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
         for (size_t i = cache_cap; i < new_cap; ++i)
             new_cache[i] = (seq_t)0;
         /* Free old cache */
-        if (cache) free(cache);
+        if (cache) mem_free(cache);
         cache = new_cache;
         cache_cap = new_cap;
     }

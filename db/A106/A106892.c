@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 884, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 62 terms through n = 9193 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_prime.h"   /* provides bool is_prime(uint64_t) */
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 static int cmp_uint64(const void *a, const void *b)
 {
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
                 uint64_t val = (uint64_t)val128;
                 if (val <= last_limit) continue;   /* already processed */
                 if (val < 3) continue;             /* skip 0,1,2 */
-                if (is_prime(val))
+                if (is_prime_u64(val))
                 {
                     if (buf_cnt == buf_cap)
                     {

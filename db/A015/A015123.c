@@ -9,13 +9,15 @@
  *            T(n,k)=T(n-1,k-1)+(-10)^k*T(n-1,k)
  * Range:     i8 n <= 10, i16 n <= 16, i32 n <= 29, i64 n <= 38, i128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,8 +31,8 @@ seq_t a(idx_t n)
     idx_t c = n - start;
 
     /* Allocate two rows of length r+1 */
-    seq_t *prev = (seq_t*)malloc((r + 1) * sizeof(seq_t));
-    seq_t *curr = (seq_t*)malloc((r + 1) * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, (r + 1));
+    seq_t *curr = mem_new(seq_t, (r + 1));
     if (!prev || !curr) {
         /* Allocation failure – abort */
         abort();
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
 
     seq_t result = prev[c];
 
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
     return result;
 }

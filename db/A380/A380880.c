@@ -8,15 +8,19 @@
  * Formula:   a(n) = 3 * Σ_{k=1..n} k^(n-k) * (3n+3)^(k-1) * binomial(n,k)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 17,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   binomial, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/binomial.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,15 +30,15 @@ seq_t a(idx_t n)
     /* Grow cache if necessary */
     if (n >= cache_len) {
         idx_t new_len = n + 1;
-        seq_t *new_cache = (seq_t *)malloc((size_t)new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, (size_t)new_len);
         if (!new_cache) return (seq_t)0;            /* allocation failed */
 
         /* copy old values */
         if (cache_len > 0)
-            memcpy(new_cache, cache, (size_t)cache_len * sizeof(seq_t));
+            mem_copy(new_cache, cache, (size_t)cache_len * sizeof(seq_t));
 
         /* free old cache */
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_len = new_len;
 
@@ -49,8 +53,8 @@ seq_t a(idx_t n)
             seq_t base_3n3 = (seq_t)3 * (seq_t)i + (seq_t)3;
 
             for (idx_t k = 1; k <= i; ++k) {
-                seq_t pow1 = big_pow((seq_t)k, (seq_t)(i - k));          /* k^(i-k)   */
-                seq_t pow2 = big_pow(base_3n3, (seq_t)(k - 1));           /* (3i+3)^(k-1) */
+                seq_t pow1 = ipow((seq_t)k, (seq_t)(i - k));          /* k^(i-k)   */
+                seq_t pow2 = ipow(base_3n3, (seq_t)(k - 1));           /* (3i+3)^(k-1) */
                 seq_t bin  = binomial(i, k);                               /* binomial(i,k) */
 
                 seq_t term = pow1 * pow2 * bin;      /* k^(i-k) * (3i+3)^(k-1) * binomial(i,k) */

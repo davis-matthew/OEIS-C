@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6929, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 111 terms through n = 9328 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* internal state for memoisation */
 static idx_t        max_n        = 0;     /* largest n for which we have data   */
@@ -38,14 +40,14 @@ static void extend(idx_t new_n)
 {
     /* allocate new arrays */
     bool *      new_prime_power = (bool *)calloc(new_n + 1, sizeof(bool));
-    seq_t *     new_count_cache = (seq_t *)calloc(new_n + 1, sizeof(seq_t));
+    seq_t *     new_count_cache = mem_new(seq_t, new_n + 1);
     if (!new_prime_power || !new_count_cache) { /* insufficient memory – abort gracefully */
         /* in a production environment we would handle this, but for the
            purposes of the sequence generator we simply return without
            changing the cache.  The caller will receive 0 for all future
            indices that were not computed. */
         free(new_prime_power);
-        free(new_count_cache);
+        mem_free(new_count_cache);
         return;
     }
 
@@ -53,7 +55,7 @@ static void extend(idx_t new_n)
     char * is_composite = (char *)calloc(new_n + 1, sizeof(char));
     if (!is_composite) {
         free(new_prime_power);
-        free(new_count_cache);
+        mem_free(new_count_cache);
         return;
     }
     for (idx_t i = 2; i * i <= new_n; ++i) {
@@ -89,7 +91,7 @@ static void extend(idx_t new_n)
 
     /* --- 4. Replace old data -------------------------------------------- */
     free(prime_power);
-    free(count_cache);
+    mem_free(count_cache);
     free(is_composite);
     prime_power = new_prime_power;
     count_cache = new_count_cache;

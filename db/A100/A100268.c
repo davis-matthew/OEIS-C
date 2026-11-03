@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 1, u16 n <= 12, u32 n <= 13, u64 n <= 33, u128 n <= 33,
- *            big any n
- * Helpers:   isprime_big, pow4
+ * Range:     u8 n <= 1, u16 n <= 12, u32 n <= 245, u64 n <= 1000,
+ *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 49 terms through n = 938 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,14 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/isprime_big.h"
-#include "../utils/pow4.h"
+#include "../utils/is_prime_seq.h"
+
+/* Compute a^4 in seq_t arithmetic. */
+static inline seq_t pow4(uint64_t a)
+{
+    seq_t t = (seq_t)a * a;   /* a^2 */
+    return t * t;             /* (a^2)^2 = a^4 */
+}
 
 /* Helper pair (x,y) – only POD, safe for malloc. */
 typedef struct { unsigned x; unsigned y; } XY;
@@ -106,9 +113,9 @@ seq_t a(idx_t n)
             seq_t p = x4 + y4;
 
             /* Test the three primality conditions. */
-            if (isprime_big(p) &&
-                isprime_big((seq_t)cur.x * cur.x + (seq_t)cur.y * cur.y) &&
-                isprime_big((seq_t)(cur.x + cur.y))) {
+            if (is_prime_seq(p) &&
+                is_prime_seq((seq_t)cur.x * cur.x + (seq_t)cur.y * cur.y) &&
+                is_prime_seq((seq_t)(cur.x + cur.y))) {
                 ++count;
                 result = p;
                 if (count == n)

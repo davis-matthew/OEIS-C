@@ -12,14 +12,27 @@
  *            O(n) space overall. It works for all build‐time...
  * Range:     u8 n <= 26, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   fib
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/fib.h"
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
 
 static seq_t *cache = NULL;
 static size_t cache_len = 0;
@@ -36,7 +49,7 @@ static void ensure_cache(idx_t n)
     if (required <= cache_len)
         return;
 
-    seq_t *new_cache = (seq_t *)realloc(cache, required * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, required);
     if (!new_cache) abort();
 
     size_t old_len = cache_len;

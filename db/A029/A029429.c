@@ -9,7 +9,8 @@
  *            + 10c + 12d = n
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 73 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,13 +18,14 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Compute the nth term of A029429. */
 seq_t a(idx_t n)
 {
     /* Allocate an array of size n+1 and initialise to zero. */
     size_t len = (size_t)n + 1;
-    seq_t *dp = (seq_t*)calloc(len, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, len);
     if (!dp) return 0;          /* memory failure – not expected */
 
     dp[0] = (seq_t)1;           /* base case: one way to make zero */
@@ -42,6 +44,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

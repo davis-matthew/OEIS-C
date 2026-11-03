@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 113, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_sum, gcd
+ * Validated: standard, pass, 77 terms through n = 9647 (2026-11-03)
+ * Helpers:   digit_sum, gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,10 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/gcd.h"
+#include <stdint.h>
 #include "../utils/digit_sum.h"
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;
 static size_t seq_cache_cap = 0;
@@ -29,7 +32,7 @@ static void ensure_cache_capacity(size_t needed)
     if (seq_cache_cap < needed) {
         size_t new_cap = seq_cache_cap ? seq_cache_cap * 2 : 64;
         if (new_cap < needed) new_cap = needed;
-        seq_t *new_cache = (seq_t*)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, seq_cache, new_cap);
         seq_cache = new_cache;
         seq_cache_cap = new_cap;
     }

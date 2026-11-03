@@ -7,13 +7,15 @@
  * Formula:   numbers k such that ceil(sqrt(k))^2 – k is a square
  * Range:     u8 n <= 67, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Integer square root of a 64‑bit value, without overflow. */
 /* Returns floor(sqrt(n)). */
@@ -45,7 +47,7 @@ static void ensure_capacity(size_t need) {
     if (terms_cap < need) {
         size_t new_cap = terms_cap == 0 ? 64 : terms_cap;
         while (new_cap < need) new_cap <<= 1;
-        terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, new_cap);
         terms_cap = new_cap;
     }
 }

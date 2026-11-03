@@ -9,7 +9,8 @@
  *            representation
  * Range:     u8 n <= 31, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   has_no_2_in_ternary
+ * Validated: partial, pass, 56 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,18 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/has_no_2_in_ternary.h"
+#include "../utils/mem.h"
+
+/* Test whether m has no '2' digit in its base‑3 representation. */
+static bool has_no_2_in_ternary(idx_t m)
+{
+    while (m) {
+        if ((m % 3) == 2)
+            return false;
+        m /= 3;
+    }
+    return true;
+}
 
 /* Static cache and part list */
 static seq_t *dp = NULL;            /* DP table */
@@ -50,11 +62,11 @@ static void ensure_parts(idx_t n)
 static void compute_dp(idx_t n)
 {
     if (dp_size <= n) {
-        dp = (seq_t *)realloc(dp, (n + 1) * sizeof(seq_t));
+        dp = mem_resize(seq_t, dp, (n + 1));
         dp_size = n + 1;
     }
     /* initialise dp[0..n] */
-    memset(dp, 0, dp_size * sizeof(seq_t));
+    mem_set(dp, 0, dp_size * sizeof(seq_t));
     dp[0] = 1;
 
     for (idx_t pi = 0; pi < parts_cnt; ++pi) {

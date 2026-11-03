@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 26, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   _floor_isqrt_u64
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,7 @@
     the cube has radius n.  a(n) counts the points inside the cube but
     outside the sphere.  */
 #include <stdint.h>
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
@@ -47,7 +48,7 @@ seq_t a(idx_t n)
                 continue;
 
             idx_t rem = n_sq - sum_xy;              /* remaining for z² */
-            idx_t zmax = _floor_isqrt_u64(rem);     /* largest |z| satisfying z² ≤ rem */
+            idx_t zmax = isqrt(rem);     /* largest |z| satisfying z² ≤ rem */
             if (zmax > n_minus_1)
                 zmax = n_minus_1;
             idx_t zcount = zmax + 1;                /* number of non‑negative z values */

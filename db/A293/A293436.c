@@ -10,8 +10,9 @@
  *            sequence up to n‑1 and sums the ones that divide n. Uniqueness
  *            is maintained by generating the Fibonacci numbers 1, 2, 3, 5,
  *            ... (skipping the duplicate initial 1). The routine...
- * Range:     u8 n <= 753, u16 n <= 9765, u32 n <= 9765, u64 n <= 9765,
- *            u128 n <= 9765, big any n
+ * Range:     u8 n <= 753, u16 n <= 10946, u32 n <= 10946, u64 n <= 10946,
+ *            u128 n <= 10946, big any n
+ * Validated: standard, pass, 121 terms through n = 9765 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

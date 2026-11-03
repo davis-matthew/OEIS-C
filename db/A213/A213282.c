@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{k=0..n} binomial(n+2*k-1,n-k) *
  *            binomial(3*k,k)/(2*k+1)
- * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 11, u64 n <= 22, u128 n <= 42,
+ * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 22, u128 n <= 42,
  *            big any n
+ * Validated: standard, pass, 39 terms through n = 190 (2026-11-01)
  * Helpers:   binomial, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/gcd.h"
 

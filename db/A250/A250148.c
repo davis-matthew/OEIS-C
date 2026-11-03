@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 5, u32 n <= 17, u64 n <= 42, u128 n <= 91,
  *            big any n
- * Helpers:   encode6, next_state
+ * Validated: standard, pass, 39 terms through n = 207 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,20 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/encode6.h"
-#include "../utils/next_state.h"
+
+/* encode 6 digits (most significant first) into base‑3 number */
+static inline int encode6(const int *digits)
+{
+    int s = 0;
+    for (int i = 0; i < 6; ++i) s = s * 3 + digits[i];
+    return s;
+}
+
+/* shift a 6‑tuple left (drop most significant digit) and append v */
+static inline int next_state(int state, int v)
+{
+    return (state % 243) * 3 + v;   /* 243 = 3^5 */
+}
 
 /* precomputed table: for every 6‑digit state (0..3^6-1)
    and every new digit v in {0,1,2} whether the resulting

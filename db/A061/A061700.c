@@ -8,13 +8,15 @@
  *            (C(n,k))^3 * a(n-k) * where C(n,k) is the binomial coefficient
  * Range:     u8 n <= 5, u16 n <= 6, u32 n <= 8, u64 n <= 13, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     /* initialise cache with a(0)=1 */
     if (cache == NULL) {
         cache_len = 1;
-        cache = (seq_t *)calloc(cache_len, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         if (cache == NULL) return (seq_t)0;   /* allocation failure */
         cache[0] = (seq_t)1;
     }
@@ -32,10 +34,10 @@ seq_t a(idx_t n)
     /* extend cache up to n, if necessary */
     if (n >= cache_len) {
         /* reallocate to store a(0)…a(n) */
-        seq_t *tmp = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
         if (tmp == NULL) return (seq_t)0;     /* allocation failure */
         /* zero any newly allocated entries */
-        memset(tmp + cache_len, 0, (n + 1 - cache_len) * sizeof(seq_t));
+        mem_set(tmp + cache_len, 0, (n + 1 - cache_len) * sizeof(seq_t));
         cache = tmp;
 
         /* compute all new values in increasing order */

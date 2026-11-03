@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     i8 n <= 9, i16 n <= 18, i32 n <= 24, i64 n <= 31, i128 n <= 31,
  *            big any n
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -36,7 +37,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/gcd.h"   /*  seq_t gcd(seq_t a, seq_t b)   */
+#include "../utils/gcd.h"
 
 static seq_t
 binomial(idx_t n, idx_t k)

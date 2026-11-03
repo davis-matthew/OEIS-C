@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 none, u64 n <= 1000, u128 n <= 1000,
  *            big any n
- * Helpers:   isqrt_seq, sigma_of
+ * Validated: standard, pass, 88 terms through n = 974 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,39 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/sigma_of.h"
-#include "../utils/isqrt_seq.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
+
+/* Integer square root (floor) of a non‑negative seq_t value. */
+static seq_t isqrt_seq(seq_t v)
+{
+    seq_t lo = 0, hi = v;
+    while (lo <= hi) {
+        seq_t mid = lo + ((hi - lo) >> 1);
+        seq_t sq  = mid * mid;
+        if (sq == v) return mid;
+        if (sq < v) {
+            lo = mid + 1;
+        } else {
+            hi = mid - 1;
+        }
+    }
+    return hi;
+}
 
 /* Cache of σ(i) values.  Index 0 holds 0 for convenience. */
 static seq_t *sigma_cache = NULL;   /* array of σ(i) */
@@ -38,7 +70,7 @@ static void ensure_sigma(size_t up_to)
     if (up_to + 1 > sigma_cap) {
         size_t new_cap = sigma_cap ? sigma_cap << 1 : 16;
         if (new_cap <= up_to + 1) new_cap = up_to + 1;
-        seq_t *tmp = (seq_t *)realloc(sigma_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, sigma_cache, new_cap);
         if (!tmp) return;                    /* allocation failed – caller will bail */
         sigma_cache = tmp;
         sigma_cap   = new_cap;

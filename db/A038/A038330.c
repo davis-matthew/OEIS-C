@@ -8,11 +8,13 @@
  *            n < (i+1)*(i+2)/2 j = n - i*(i+1)/2 (column within row i)
  * Range:     u8 n <= 5, u16 n <= 14, u32 n <= 44, u64 n <= 154, u128 n <= 565,
  *            big any n
+ * Validated: standard, pass, 49 terms through n = 9648 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

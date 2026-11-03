@@ -13,16 +13,32 @@
  *            call...
  * Range:     u8 n <= 11, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   compute_pi, grow_seq, is_prime
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   is_prime, mem, prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/compute_pi.h"   /* provides compute_pi(idx_t) */
-#include "../utils/is_prime.h"     /* provides is_prime(idx_t) */
-#include "../utils/grow_seq.h"     /* provides grow_seq(seq_t **, size_t *, size_t) */
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/is_prime.h"
+#include "../utils/prime_pi.h"
+#include "../utils/mem.h"
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
 
 seq_t a(idx_t n)
 {
@@ -57,7 +73,7 @@ seq_t a(idx_t n)
         if (is_prime((idx_t)cur_sum))
         {
             /* a(n) = prime index of S(m) = π(S(m)) */
-            seq_t term = compute_pi((idx_t)cur_sum);
+            seq_t term = prime_pi((idx_t)cur_sum);
 
             /* Ensure capacity for the new term */
             if (cache_len == cache_cap)

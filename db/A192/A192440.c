@@ -5,14 +5,16 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = Σ_{k=0}^{⌊⌊n/2⌋/3⌋} binom(n, k) * binom(n-k, ⌊n/2⌋-3k)
- * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 29, u64 n <= 57, u128 n <= 110,
+ * Range:     u8 n <= 9, u16 n <= 15, u32 n <= 29, u64 n <= 57, u128 n <= 110,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 51 terms through n = 190 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
 
     for (idx_t k = 0; k <= kmax; ++k) {
         idx_t j = m - 3 * k;               /* amount of x's */
-        seq_t term = binom(n, k) * binom(n - k, j);
+        seq_t term = binomial(n, k) * binomial(n - k, j);
         sum += term;
     }
 

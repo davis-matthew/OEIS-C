@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 21, u128 n <= 34,
  *            big any n
- * Helpers:   build_primes, pow_int, seq_mul, seq_one
+ * Validated: standard, pass, 36 terms through n = 445 (2026-11-01)
+ * Helpers:   build_primes, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,10 +17,19 @@
 /* OEIS A118455: a(1) = 1, a(n) = Π_{k=2..n} largest_prime_leq(k) */
 
 #include <stdlib.h>
-#include "../utils/seq_one.h"
-#include "../utils/seq_mul.h"
-#include "../utils/pow_int.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include <stddef.h>
 #include "../utils/build_primes.h"
+#include "../utils/ipow_idx.h"
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -39,7 +49,7 @@ seq_t a(idx_t n)
         idx_t next_p  = (i + 1 < prime_cnt) ? primes[i + 1] : n + 1;
         idx_t exp     = (next_p <= n) ? next_p - p : n + 1 - p;
 
-        seq_t term = pow_int((seq_t)p, exp);
+        seq_t term = ipow_idx((seq_t)p, exp);
         result = seq_mul(result, term);
     }
 

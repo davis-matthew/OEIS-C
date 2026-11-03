@@ -7,7 +7,8 @@
  * Formula:   Number of Fibonacci numbers ≤ n (counting 0 and the duplicate 1)
  * Range:     u8 n <= 676, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 9981 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *fib_arr = NULL;   /* array of Fibonacci numbers */
 static idx_t fib_cap = 0;       /* allocated capacity */
@@ -27,7 +29,7 @@ static void ensure_fib_capacity(idx_t min_cap)
 {
     if (fib_cap >= min_cap) return;
     while (fib_cap < min_cap) fib_cap = fib_cap ? fib_cap * 2 : 4;
-    seq_t *tmp = (seq_t *)realloc(fib_arr, fib_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, fib_arr, fib_cap);
     if (!tmp) exit(EXIT_FAILURE);
     fib_arr = tmp;
 }
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     /* Lazy initialization of Fibonacci array */
     if (!fib_arr) {
         fib_cap = 4;
-        fib_arr = (seq_t *)malloc(fib_cap * sizeof(seq_t));
+        fib_arr = mem_new(seq_t, fib_cap);
         if (!fib_arr) exit(EXIT_FAILURE);
         fib_arr[0] = (seq_t)0;   /* F0 */
         fib_arr[1] = (seq_t)1;   /* F1 */

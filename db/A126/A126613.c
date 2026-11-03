@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_vals    = NULL;   /* 1‑based array of terms */
 static uint8_t *prime_pow = NULL;   /* 1 if term is a prime power */
@@ -62,7 +64,7 @@ static void ensure_capacity(idx_t n)
     size_t new_cap = (capacity == 0) ? 2 : capacity * 2;
     while (new_cap < (size_t)n) new_cap <<= 1;
 
-    seq_t *new_seq = (seq_t *)realloc(seq_vals, (new_cap + 1) * sizeof(seq_t));
+    seq_t *new_seq = mem_resize(seq_t, seq_vals, (new_cap + 1));
     uint8_t *new_pp = (uint8_t *)realloc(prime_pow,
                                          (new_cap + 1) * sizeof(uint8_t));
     if (!new_seq || !new_pp) abort();  /* allocation failure */

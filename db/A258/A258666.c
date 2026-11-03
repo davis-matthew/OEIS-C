@@ -13,15 +13,23 @@
  *            n >= 5
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 14, u64 n <= 22, u128 n <= 24,
  *            big any n
- * Helpers:   binomial, seq_mul
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/binomial.h"
-#include "../utils/seq_mul.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -31,7 +39,7 @@ seq_t a(idx_t n)
 
     /* factorials up to n-1: (n-k-1)! is needed for all k */
     idx_t max_fact = n - 1;
-    seq_t *fact = (seq_t *)malloc((size_t)(max_fact + 1) * sizeof(seq_t));
+    seq_t *fact = mem_new(seq_t, (size_t)(max_fact + 1));
     if (!fact)
         return (seq_t)0;               /* allocation failure */
 
@@ -70,7 +78,7 @@ seq_t a(idx_t n)
             neg += term;
     }
 
-    free(fact);
+    mem_free(fact);
 
     /* pos >= neg is guaranteed by the combinatorial formula */
     seq_t result = pos - neg;

@@ -9,12 +9,14 @@
  *            a(n)=4*a(n‑1)−2*a(n‑2)+2*a(n‑3)−6*a(n‑4)−4*a(n‑5) for n>6
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 19, u64 n <= 37, u128 n <= 73,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache of already computed terms.  cache[0] is unused.  */
 static seq_t *cache = NULL;          /* cache[0] unused, cache[1..] holds a(1)..  */
@@ -30,7 +32,7 @@ static void ensure_cache(idx_t n)
         required = 7U;
 
     if (!cache || cache_cap < required) {
-        seq_t *tmp = (seq_t *)realloc(cache, required * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, required);
         if (!tmp) abort();                   /* allocation failed               */
         cache = tmp;
         cache_cap = required;

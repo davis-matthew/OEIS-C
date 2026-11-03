@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 2441, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 9190 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Prime list used for trial division and for factoring.  */
 static uint64_t *primes = NULL;
@@ -63,7 +65,7 @@ static void ensure_cache_cap(size_t needed)
     while (new_cap < needed)
         new_cap *= 2;
 
-    void *tmp = realloc(cache, new_cap * sizeof(seq_t));
+    void *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();
     cache = (seq_t *)tmp;
     cache_cap = new_cap;

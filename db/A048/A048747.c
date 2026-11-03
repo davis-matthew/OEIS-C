@@ -10,7 +10,8 @@
  *            and has not been seen before
  * Range:     u8 n <= 7, u16 n <= 121, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, grow_seq, seq_pow
+ * Validated: standard, pass, 73 terms through n = 9893 (2026-11-03)
+ * Helpers:   factor_u64, ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,23 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_pow.h"
-#include "../utils/grow_seq.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
 
 static void compute_sigma_d(idx_t n, seq_t *sigma, seq_t *dd)
 {
@@ -35,7 +50,7 @@ static void compute_sigma_d(idx_t n, seq_t *sigma, seq_t *dd)
     for (size_t i = 0; i < cnt; ++i) {
         seq_t p = (seq_t)primes[i];
         idx_t e = (idx_t)exps[i];
-        seq_t p_pow = seq_pow(p, e + 1);          /* p^(e+1) */
+        seq_t p_pow = ipow_idx(p, e + 1);          /* p^(e+1) */
         seq_t term = (p_pow - (seq_t)1) / (p - (seq_t)1); /* (p^(e+1)-1)/(p-1) */
         s = s * term;
         d = d * ((seq_t)(e + 1));

@@ -10,7 +10,8 @@
  *            e1 >= e2 >= ...). The value is d(p1^e1 * p2^e2 * ...) = Π (ei+1)
  * Range:     u8 n <= 16, u16 n <= 72, u32 n <= 1988, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto
+ * Validated: standard, pass, 90 terms through n = 7933 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #ifndef BUCKET_BITS
 #  define BUCKET_BITS 15
 #endif
+#include "../utils/mem.h"
 #define BUCKET_SIZE (1U << BUCKET_BITS)
 #define MAX_SIG_LEN 32
 
@@ -130,7 +132,7 @@ static void add_and_push(const uint8_t* exps, uint8_t len, seq_t val)
 static void init_globals(void)
 {
     /* Allocate visited structures */
-    visited = (SigEntry*) malloc(sizeof(SigEntry) * visited_cap);
+    visited = mem_new(SigEntry, visited_cap);
     next_in_bucket = (size_t*) malloc(sizeof(size_t) * visited_cap);
     for (size_t i = 0; i < BUCKET_SIZE; ++i)
         bucket_head[i] = (size_t)-1;
@@ -144,7 +146,7 @@ static void init_globals(void)
 
     /* Allocate values array */
     vals_cap = 200000;   /* sufficient for n up to about 100k */
-    vals = (seq_t*) malloc(sizeof(seq_t) * (vals_cap + 1));
+    vals = mem_new(seq_t, (vals_cap + 1));
 
     /* Insert the initial signature: empty exponents, value 1 */
     uint8_t empty_exp[1] = {0};

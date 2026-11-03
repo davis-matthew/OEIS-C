@@ -8,7 +8,8 @@
  *            by n!
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,15 +18,16 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)1;
 
     /* Allocate arrays for intermediate values */
     idx_t N = n;
-    seq_t *a_arr = (seq_t*)malloc((N + 1) * sizeof(seq_t));
-    seq_t *D     = (seq_t*)malloc((N + 1) * sizeof(seq_t));
-    seq_t *T     = (seq_t*)malloc((N + 1) * sizeof(seq_t));
+    seq_t *a_arr = mem_new(seq_t, (N + 1));
+    seq_t *D     = mem_new(seq_t, (N + 1));
+    seq_t *T     = mem_new(seq_t, (N + 1));
     if (!a_arr || !D || !T) return (seq_t)0; /* allocation failure */
 
     /* 1. Compute the integer coefficients a_k of the series
@@ -73,9 +75,9 @@ seq_t a(idx_t n) {
 
     seq_t result = D[N] / (seq_t)2;   /* a(n) = D[n]/2  (D[n] is even) */
 
-    free(a_arr);
-    free(D);
-    free(T);
+    mem_free(a_arr);
+    mem_free(D);
+    mem_free(T);
 
     return result;
 }

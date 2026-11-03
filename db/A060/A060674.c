@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 184, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 9847 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The types seq_t and idx_t are supplied by the build system.  */
 typedef seq_t seq_t;
@@ -68,9 +70,9 @@ static void build_terms(idx_t limit, size_t want)
         new_cap <<= 1;
 
     if (seq_array && new_cap > seq_count)
-        seq_array = (seq_t *)realloc(seq_array, new_cap * sizeof(seq_t));
+        seq_array = mem_resize(seq_t, seq_array, new_cap);
     else if (!seq_array)
-        seq_array = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_array = mem_new(seq_t, new_cap);
     if (!seq_array) {      /* allocation failure – give up silently   */
         free(phi);
         free(cnt);
@@ -81,7 +83,7 @@ static void build_terms(idx_t limit, size_t want)
         if (cnt[k] == 11) {
             if (seq_count >= new_cap) {
                 new_cap <<= 1;
-                seq_array = (seq_t *)realloc(seq_array, new_cap * sizeof(seq_t));
+                seq_array = mem_resize(seq_t, seq_array, new_cap);
                 if (!seq_array) break;   /* allocation failure – stop filling   */
             }
             seq_array[seq_count++] = (seq_t)k;

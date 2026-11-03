@@ -13,13 +13,20 @@
  *            (i·j) mod r, with 1 ≤ i < r, 1 ≤ j ≤ i. The cod...
  * Range:     u8 n <= 121, u16 n <= 121, u32 n <= 121, u64 n <= 121,
  *            u128 n <= 121, big any n
- * Helpers:   S128
+ * Validated: partial, pass, 120 terms through n = 121 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/S128.h"
+
+/* Number of entries up to and including row r:
+   S(r) = r(r‑1)(r+1)/6  (valid for r ≥ 1) */
+static inline __int128 S128(idx_t r)
+{
+    return (__int128)r * (r - 1) * (r + 1) / 6;
+}
 
 /* Triangular numbers: T(i) = i(i+1)/2 */
 static inline idx_t triangular(idx_t i)

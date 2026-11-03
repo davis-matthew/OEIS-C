@@ -9,7 +9,8 @@
  * Formula:   a(n) = A000120(n)! * (1 + A000120(n))^(A023416(n) + 1)
  * Range:     u8 n <= 18, u16 n <= 134, u32 n <= 2558, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 69 terms through n = 8932 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 /*          a(0) = 1                                                */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 static inline idx_t bitlen_u64(idx_t n)
 {
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     /* (1 + pop)^(zeros + 1)  */
     const seq_t base = (seq_t)(pop + 1);
     const seq_t exp  = (seq_t)(zeros + 1);
-    const seq_t power = big_pow(base, exp);
+    const seq_t power = ipow(base, exp);
 
     return fact * power;
 }

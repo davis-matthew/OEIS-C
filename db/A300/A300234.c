@@ -8,14 +8,16 @@
  * Keywords:  nonn
  * Formula:   a(n) = number of subtraction steps of Euclid's algorithm for
  *            gcd(n,phi(n)), i.e. a(n) = A285721(n,phi(n))
- * Range:     u8 n <= 255, u16 n <= 9748, u32 n <= 9748, u64 n <= 9748,
- *            u128 n <= 9748, big any n
- * Helpers:   phi
+ * Range:     u8 n <= 255, u16 n <= 65535, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9748 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/phi.h"
+#include <stdint.h>
+#include "../utils/totient.h"
 
 /* compute number of subtraction steps until two numbers are equal */
 static seq_t sub_steps(seq_t a, seq_t b)
@@ -52,6 +54,6 @@ static seq_t sub_steps(seq_t a, seq_t b)
 seq_t a(idx_t n)
 {
     if (n == 0) return 0;          /* offset starts at 1, but handle 0 safely */
-    seq_t phi_n = phi(n);
+    seq_t phi_n = totient(n);
     return sub_steps((seq_t)n, phi_n);
 }

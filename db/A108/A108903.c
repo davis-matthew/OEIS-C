@@ -8,6 +8,7 @@
  * Formula:   a(n) = 10 * a(n-1) - 31, a(1) = 959
  * Range:     u8 none, u16 n <= 2, u32 n <= 7, u64 n <= 16, u128 n <= 16,
  *            big any n
+ * Validated: partial, pass, 16 terms through n = 16 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

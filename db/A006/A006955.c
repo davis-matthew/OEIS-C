@@ -11,14 +11,15 @@
  *            the primes dividing 2n+1)
  * Range:     u8 n <= 11, u16 n <= 29, u32 n <= 89, u64 n <= 419,
  *            u128 n <= 1000, big any n
- * Helpers:   a006955_isprime
+ * Validated: standard, pass, 71 terms through n = 998 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/a006955_isprime.h"
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)1;
@@ -29,10 +30,10 @@ seq_t a(idx_t n) {
         if (m % d != 0) continue;
         uint64_t e = m / d;
         uint64_t p = d + 1;
-        if (a006955_isprime(p) && odd % p != 0) r *= (seq_t)p;
+        if (is_prime_u64(p) && odd % p != 0) r *= (seq_t)p;
         if (e != d) {
             p = e + 1;
-            if (a006955_isprime(p) && odd % p != 0) r *= (seq_t)p;
+            if (is_prime_u64(p) && odd % p != 0) r *= (seq_t)p;
         }
     }
     return r;

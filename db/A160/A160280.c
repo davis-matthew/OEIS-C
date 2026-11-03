@@ -8,12 +8,14 @@
  *            is the integer numerator of Hermite(n,18/29))
  * Range:     i8 n <= 1, i16 n <= 2, i32 n <= 5, i64 n <= 9, i128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 361 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for previously computed values  */
 static seq_t *cache      = NULL;   /* allocated array a[0 … cached_max]   */
@@ -26,7 +28,7 @@ static void ensure_cached(idx_t n)
     /* Initialise the cache on the first call. */
     if (cache == NULL) {
         cache_cap   = 2;
-        cache       = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache       = mem_new(seq_t, cache_cap);
         if (cache == NULL) abort();            /* out of memory */
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)36;
@@ -40,7 +42,7 @@ static void ensure_cached(idx_t n)
     if (cache_cap < need) {
         size_t new_cap = cache_cap;
         while (new_cap < need) new_cap <<= 1;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         if (cache == NULL) abort();
         cache_cap = new_cap;
     }

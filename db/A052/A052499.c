@@ -10,13 +10,15 @@
  *            increasing order
  * Range:     u8 n <= 34, u16 n <= 1868, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 9488 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Min‑heap for seq_t values. */
 typedef struct {
@@ -31,7 +33,7 @@ static void heap_ensure_cap(Heap *h, size_t min_cap)
     if (h->cap >= min_cap) return;
     size_t new_cap = h->cap ? h->cap * 2 : 4;
     while (new_cap < min_cap) new_cap <<= 1;
-    h->data = (seq_t*)realloc(h->data, new_cap * sizeof(seq_t));
+    h->data = mem_resize(seq_t, h->data, new_cap);
     h->cap = new_cap;
 }
 
@@ -103,7 +105,7 @@ static void ensure_precomputed(idx_t n)
         heap_ensure_cap(&seq_heap, 4);
         heap_push(&seq_heap, (seq_t)1);          /* seed value a(0)=1 */
         seq_cap = 4;
-        seq_arr = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+        seq_arr = mem_new(seq_t, seq_cap);
         seq_cnt = 0;
     }
 
@@ -113,7 +115,7 @@ static void ensure_precomputed(idx_t n)
 
         if (seq_cnt >= seq_cap) {
             seq_cap <<= 1;
-            seq_arr = (seq_t*)realloc(seq_arr, seq_cap * sizeof(seq_t));
+            seq_arr = mem_resize(seq_t, seq_arr, seq_cap);
         }
         seq_arr[seq_cnt++] = val;
 

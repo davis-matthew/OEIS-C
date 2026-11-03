@@ -8,7 +8,8 @@
  *            digits of m! is a triangular number (1, 3, 6, 10, …). Offset: 0
  * Range:     u8 n <= 19, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Integer square‑root for 64‑bit values. */
 static inline uint64_t isqrt_u64(uint64_t n)
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first use. */
     if (qual == NULL) {
         qual_cap = 64;
-        qual = (seq_t *)malloc(qual_cap * sizeof(seq_t));
+        qual = mem_new(seq_t, qual_cap);
         if (!qual) abort();              /* allocation failure */
         /* 0! = 1, 1 digit -> triangular, so a(0)=0 */
         qual[0] = (seq_t)0;
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
             /* Grow cache if necessary. */
             if (qual_len == qual_cap) {
                 qual_cap = qual_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(qual, qual_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, qual, qual_cap);
                 if (!tmp) abort();
                 qual = tmp;
             }

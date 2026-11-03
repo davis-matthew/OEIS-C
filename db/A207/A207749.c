@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 13, u64 n <= 28, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,13 +24,14 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of the equivalent of seq_alloc_new_array:
    returns a pointer to an array of seq_t of length n, zero‑initialized */
 static seq_t *seq_alloc_new_array(size_t n)
 {
     if (n == 0) return NULL;
-    seq_t *p = (seq_t*)calloc(n, sizeof(seq_t));
+    seq_t *p = mem_new(seq_t, n);
     return p;
 }
 
@@ -94,7 +96,7 @@ static void init(void)
     /* Initialise cache */
     cache_cap = 0;
     cached_n  = 0;
-    free(cache);
+    mem_free(cache);
     cache = NULL;
 }
 
@@ -104,11 +106,10 @@ static void ensure_cache_capacity(size_t needed)
     if (needed <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 64;
     if (new_cap < needed) new_cap = needed;
-    seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort(); /* allocation failure */
     /* zero any newly allocated entries */
-    if (new_cap > cache_cap) memset(tmp + cache_cap, 0,
-                                    (new_cap - cache_cap) * sizeof(seq_t));
+    if (new_cap > cache_cap) mem_set(tmp + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
     cache = tmp;
     cache_cap = new_cap;
 }
@@ -141,7 +142,7 @@ seq_t a(idx_t n)
         } else {
             size_t sz = (size_t)V * (size_t)V;
             /* zero dp_next */
-            memset(dp_next, 0, sz * sizeof(seq_t));
+            mem_set(dp_next, 0, sz * sizeof(seq_t));
 
             /* Transition from rows i-2,i-1 to i-1,i */
             for (int p2 = 0; p2 < V; ++p2) {

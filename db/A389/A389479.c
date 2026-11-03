@@ -9,7 +9,8 @@
  *            A024619(n)
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 14, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   binomial, factor_u64
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   binomial, factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/factor_u64.h"
 #include "../utils/binomial.h"
+#include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
         size_t new_cap = cache_cap ? cache_cap << 1 : 16;
         while (new_cap < (size_t)n) new_cap <<= 1;
         m_cache = (idx_t *)realloc(m_cache, new_cap * sizeof(idx_t));
-        a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_cap);
         cache_cap = new_cap;
     }
 

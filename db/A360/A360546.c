@@ -7,13 +7,16 @@
  * Keywords:  nonn, tabl
  * Formula:   T(n,m) = (n+1-m)*C(2*n+2-m, m)*C(3*n-3*m+2, n-m+1)/(2*n-m+2)
  *            Sequence a(n) is the triangle read by rows, starting with a(0)=1
- * Range:     u8 n <= 5, u16 n <= 14, u32 n <= 44, u64 n <= 44, u128 n <= 44,
+ * Range:     u8 n <= 5, u16 n <= 20, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
  * Helpers:   binomial, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/gcd.h"
 

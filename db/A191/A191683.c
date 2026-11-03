@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define MAX_SP 10000000U           // maximal number to be sieved
 #define TARGET_TERMS 30000         // precompute this many terms
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
         /* allocate sequence array */
         seq_len = 0;
         size_t seq_cap = 1024;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         if (!seq) abort();
 
         /* scan composites and build the sequence */
@@ -103,7 +105,7 @@ seq_t a(idx_t n)
                 /* store the value */
                 if (seq_len == seq_cap) {
                     seq_cap <<= 1;
-                    seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+                    seq = mem_resize(seq_t, seq, seq_cap);
                     if (!seq) abort();
                 }
                 seq[seq_len++] = (seq_t)num;

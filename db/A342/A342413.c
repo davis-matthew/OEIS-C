@@ -8,9 +8,10 @@
  * Formula:   a(n) = gcd(phi(n), arithmetic_derivative(n)) for n ≥ 1.
  *            Arithmetic derivative is computed by prime factorization: d(n) =
  *            n * Σ (e_i / p_i) where n = Π p_i^e_i
- * Range:     u8 n <= 510, u16 n <= 8997, u32 n <= 8997, u64 n <= 8997,
- *            u128 n <= 8997, big any n
- * Helpers:   factor_u64, gcd, phi
+ * Range:     u8 n <= 510, u16 n <= 12500, u32 n <= 12500, u64 n <= 12500,
+ *            u128 n <= 12500, big any n
+ * Validated: standard, pass, 116 terms through n = 8997 (2026-11-01)
+ * Helpers:   factor_u64, gcd, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,10 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/gcd.h"
-#include "../utils/phi.h"
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     }
 
     /* Compute φ(n). */
-    seq_t phi_val = phi(n);
+    seq_t phi_val = totient(n);
 
     /* Return gcd(φ(n), d(n)). */
     return gcd(phi_val, deriv);

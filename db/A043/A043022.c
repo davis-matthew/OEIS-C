@@ -8,13 +8,20 @@
  *            the digit 2
  * Range:     u8 n <= 10, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   pow8_uint64
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/pow8_uint64.h"
+
+/* Helper: compute 8^exp  using idx_t (unsigned 64‑bit).  */
+static idx_t pow8_uint64(idx_t exp) {
+    idx_t r = 1;
+    while (exp--) r *= (idx_t)8;
+    return r;
+}
 
 /* Count how many base‑8 palindromes starting with 2 of a given length. */
 static idx_t count_len(idx_t len) {

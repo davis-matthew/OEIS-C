@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 320, u16 n <= 8955, u32 n <= 8955, u64 n <= 8955,
- *            u128 n <= 8955, big any n
- * Helpers:   none
+ * Range:     u8 n <= 320, u16 n <= 15127, u32 n <= 15127, u64 n <= 15127,
+ *            u128 n <= 15127, big any n
+ * Validated: standard, pass, 129 terms through n = 8955 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* a(n) = largest Lucas number that divides n */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (lucas_len == 0) {
         lucas_cap = 8;                          /* arbitrary start size */
-        lucas = (seq_t *)malloc(lucas_cap * sizeof(seq_t));
+        lucas = mem_new(seq_t, lucas_cap);
         if (lucas == NULL) return 0;            /* allocation failure unlikely */
         lucas[0] = 2;  /* L0 */
         lucas[1] = 1;  /* L1 */
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
         /* make space for the next Lucas number */
         if (lucas_len == lucas_cap) {
             size_t new_cap = lucas_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(lucas, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, lucas, new_cap);
             if (tmp == NULL) return 0;           /* allocation failure */
             lucas = tmp;
             lucas_cap = new_cap;

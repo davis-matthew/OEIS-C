@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 82, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   pow_seq8
+ * Validated: standard, pass, 52 terms through n = 882 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,13 @@
  * The sequence is produced in increasing decimal order.
  * The implementation runs in O(1) per call for n up to at least 10000. */
 #include <stdint.h>      /* for uint64_t, if used in the build */
-#include "../utils/pow_seq8.h"
+
+static seq_t pow_seq8(unsigned int exp)
+{
+    seq_t p = (seq_t)1;
+    while (exp--) p *= (seq_t)8;
+    return p;
+}
 
 seq_t a(idx_t n)
 {

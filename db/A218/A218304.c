@@ -9,13 +9,16 @@
  *            for n > 0
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 16,
  *            big any n
- * Helpers:   binomial, pow_seq
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-01)
+ * Helpers:   binomial, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-# include "../utils/binomial.h"   /* provides seq_t binomial(idx_t, idx_t) */
-# include "../utils/pow_seq.h"     /* provides seq_t pow_seq(seq_t, int) */
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +33,7 @@ seq_t a(idx_t n)
 
     for (idx_t k = 0; k <= n; ++k) {
         seq_t base = (seq_t)(2 * k + 3);
-        seq_t pw   = pow_seq(base, exp);   /* (2k+3)^(n-1) */
+        seq_t pw   = ipow_i32(base, exp);   /* (2k+3)^(n-1) */
         sum += binom * pw;
 
         /* Prepare binomial(n, k+1) for next iteration */

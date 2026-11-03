@@ -8,12 +8,14 @@
  *            n - 2^(n-1) with Catalan C(0) = 1, C(k+1) = C(k)*2*(2k+1)/(k+2)
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 20, u64 n <= 37, u128 n <= 70,
  *            big any n
- * Helpers:   A001832_pow2
+ * Validated: standard, pass, 44 terms through n = 945 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/A001832_pow2.h"
+#include <stdint.h>
+#include "../utils/pow2.h"
 
 static seq_t seq_gcd(seq_t x, seq_t y) {
     while (y != 0) {
@@ -36,6 +38,6 @@ seq_t a(idx_t n) {
         c = (c / g) * (num / d);
     }
     seq_t result = c + (seq_t)n;
-    result -= A001832_pow2(n - 1);
+    result -= pow2(n - 1);
     return result;
 }

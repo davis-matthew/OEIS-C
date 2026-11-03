@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 2664, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, sum_div_lower
+ * Validated: standard, pass, 73 terms through n = 8619 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,43 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include "../utils/factor_u64.h"
-#include "../utils/sum_div_lower.h"
+#include "../utils/mem.h"
+
+/* Recursively sum all divisors of the number whose prime factorisation
+   is given by arrays pr[0..cnt-1] and ex[0..cnt-1].  Only divisors
+   strictly less than the abundance value 'a' contribute to the sum
+   pointed to by 'sum'.  If during accumulation the partial sum
+   exceeds 'a', the flag pointed to by 'stop' is set to true, enabling
+   early termination. */
+static void sum_div_lower(const uint64_t *pr, const uint64_t *ex, size_t cnt,
+                          size_t pos, uint64_t cur, uint64_t a,
+                          uint64_t *sum, bool *stop)
+{
+    if (*stop) return;
+    if (pos == cnt) {
+        if (cur < a) {
+            *sum += cur;
+            if (*sum > a) *stop = true;
+        }
+        return;
+    }
+    /* If current partial divisor already >= a, further multiplication
+       can only increase it; prune. */
+    if (cur >= a) return;
+
+    uint64_t val = cur;
+    for (size_t e = 0; e <= ex[pos]; ++e) {
+        sum_div_lower(pr, ex, cnt, pos + 1, val, a, sum, stop);
+        if (*stop) return;
+        if (e == ex[pos]) break;
+        /* Multiply by the next prime factor; guard against overflow. */
+        if (val > UINT64_MAX / pr[pos]) {
+            *stop = true;
+            return;
+        }
+        val *= pr[pos];
+    }
+}
 
 /* Main sequence generator. */
 seq_t a(idx_t n)
@@ -64,7 +101,7 @@ seq_t a(idx_t n)
                 /* Store the term. */
                 if (terms_len + 1 > terms_cap) {
                     size_t newcap = terms_cap == 0 ? 16 : terms_cap * 2;
-                    seq_t *tmp = (seq_t *)realloc(terms, newcap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, terms, newcap);
                     if (!tmp) { /* allocation failed – abort silently */ }
                     terms = tmp;
                     terms_cap = newcap;

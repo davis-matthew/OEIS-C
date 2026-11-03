@@ -7,12 +7,14 @@
  * Formula:   a(n) = a(n-1) + a(floor(sqrt(n))), a(1) = 1
  * Range:     u8 n <= 46, u16 n <= 982, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 8446 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Integer floor square root for idx_t (unsigned 64‑bit). */
 static idx_t floor_sqrt(idx_t n)
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     /* Expand cache if needed. */
     if (n > cache_len) {
         idx_t new_len = n;
-        seq_t *new_cache = (seq_t*)realloc(cache, (new_len + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (new_len + 1));
         if (!new_cache) {
             /* malloc failure – fallback to recomputation each call */
             retreac: ;

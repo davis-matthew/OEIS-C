@@ -8,15 +8,49 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 4, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   concat_parts, floor_cube_root
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Search: a(n) = the nth integer such that floor(n^(3/2)) is a concatenation of two successive integers. */
 #include <stdbool.h>
-#include "../utils/concat_parts.h"
-#include "../utils/floor_cube_root.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+
+static seq_t concat_parts(idx_t a, idx_t b)
+{
+    seq_t part_a = (seq_t)a;
+    seq_t part_b = (seq_t)b;
+    seq_t pow = 1;
+    seq_t tmp = part_b;
+    /* pow = 10^(number of decimal digits of b) */
+    while (tmp > 0) {
+        pow *= 10;
+        tmp /= 10;
+    }
+    return part_a * pow + part_b;
+}
+
+/* Floor cube root by binary search */
+static inline seq_t floor_cube_root(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    /* raise hi until hi^3 > x */
+    while (ipow_i32(hi, 3) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid3 = ipow_i32(mid, 3);
+        if (mid3 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 seq_t a(idx_t target)
 {

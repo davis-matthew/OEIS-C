@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mulmod_uint64
+ * Validated: standard, pass, 69 terms through n = 992 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,7 +33,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/mulmod_uint64.h"
+#include "../utils/mulmod.h"
 
 /* ---------- small prime table for factoring and primality testing ---------- */
 static uint64_t *small_primes = NULL;   /* array of primes up to LIMIT */
@@ -74,8 +75,8 @@ static uint64_t modpow_uint64(uint64_t base, uint64_t exp, uint64_t mod)
     uint64_t result = 1 % mod;
     base %= mod;
     while (exp) {
-        if (exp & 1) result = mulmod_uint64(result, base, mod);
-        base = mulmod_uint64(base, base, mod);
+        if (exp & 1) result = mulmod(result, base, mod);
+        base = mulmod(base, base, mod);
         exp >>= 1;
     }
     return result;

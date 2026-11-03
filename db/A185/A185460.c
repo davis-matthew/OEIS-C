@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 20, u64 n <= 43, u128 n <= 90,
  *            big any n
- * Helpers:   det_pair
+ * Validated: standard, pass, 41 terms through n = 197 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,19 @@
 /* Recurrence: a(1)=34, a(2)=92, ...; computable via DP over 3‑bit rows. */
 
 #include <stdint.h>
-#include "../utils/det_pair.h"
+
+static inline void det_pair(idx_t a, idx_t b, int *dl, int *dr)
+{
+    int a0 = (int)((a >> 0) & 1);
+    int a1 = (int)((a >> 1) & 1);
+    int a2 = (int)((a >> 2) & 1);
+    int b0 = (int)((b >> 0) & 1);
+    int b1 = (int)((b >> 1) & 1);
+    int b2 = (int)((b >> 2) & 1);
+
+    *dl = a0 * b1 - a1 * b0; /* determinant of columns 0‑1 */
+    *dr = a1 * b2 - a2 * b1; /* determinant of columns 1‑2 */
+}
 
 seq_t a(idx_t n)
 {

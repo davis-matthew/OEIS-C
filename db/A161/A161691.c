@@ -8,7 +8,8 @@
  *            x)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   alloc_seq_array
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,15 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/alloc_seq_array.h"  /* provided helper */
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 seq_t a(idx_t n)
 {
@@ -63,9 +72,9 @@ seq_t a(idx_t n)
     seq_t result = f[n];
 
     /* free temporary arrays */
-    free(cum);
-    free(g);   /* g contains the old f */
-    free(f);   /* f is no longer needed */
+    mem_free(cum);
+    mem_free(g);   /* g contains the old f */
+    mem_free(f);   /* f is no longer needed */
 
     return result;
 }

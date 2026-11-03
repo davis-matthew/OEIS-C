@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 215, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _mod_pow
+ * Validated: standard, pass, 59 terms through n = 9954 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,9 @@
        pos   = (n-1) % 16
        a(n)  = residues[pos] + group * 4913
 */
-#include "../utils/_mod_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +36,7 @@ seq_t a(idx_t n)
     if (!done) {
         idx_t count = 0;
         for (seq_t x = 1; x < (seq_t)4913; ++x) {
-            if (_mod_pow(x, 16, (seq_t)4913) == (seq_t)1) {
+            if (powmod(x, 16, (seq_t)4913) == (seq_t)1) {
                 residues[count++] = x;
                 if (count == 16) break;
             }

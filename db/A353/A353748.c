@@ -10,8 +10,9 @@
  *            over the prime factorization n = Π p^e. The function below uses
  *            only integer arithmetic and trial‑division factorization. For
  *            n≤10000 the algorithm runs well under a second
- * Range:     u8 n <= 375, u16 n <= 8752, u32 n <= 8752, u64 n <= 8752,
- *            u128 n <= 8752, big any n
+ * Range:     u8 n <= 375, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 111 terms through n = 8752 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

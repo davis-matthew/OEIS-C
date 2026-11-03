@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Sequence: divisors of 5040 in ascending order, a(1)=1, a(60)=5040. */
 #include <stdbool.h>
 #include <stdlib.h>  /* qsort */
+#include "../utils/mem.h"
 
 static bool init = false;
 static seq_t divisors[60];
@@ -50,7 +52,7 @@ static void init_divisors(void)
         divisors[idx++] = pow2[i] * pow3[j] * pow5[k] * pow7[l];
     }
 
-    qsort(divisors, 60, sizeof(seq_t), cmp_seq);
+    mem_qsort(divisors, 60, sizeof(seq_t), cmp_seq);
     init = true;
 }
 

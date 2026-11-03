@@ -7,13 +7,16 @@
  * Formula:   a(n) = Catalan(n+1) * Bell(n)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 16, u128 n <= 29,
  *            big any n
- * Helpers:   catalan
+ * Validated: standard, pass, 37 terms through n = 423 (2026-11-03)
+ * Helpers:   catalan, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stddef.h>
 #include "../utils/catalan.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,11 +30,11 @@ seq_t a(idx_t n)
     /* --- initialise on first call ------------------------------------- */
     if (bell_cache == NULL) {
         bell_cap = 1;
-        bell_cache = (seq_t*)malloc(sizeof(seq_t) * bell_cap);
+        bell_cache = mem_new(seq_t, bell_cap);
         bell_cache[0] = (seq_t)1;          /* Bell(0) = 1 */
 
         prev_len   = 1;
-        prev_row   = (seq_t*)malloc(sizeof(seq_t) * prev_len);
+        prev_row   = mem_new(seq_t, prev_len);
         prev_row[0] = (seq_t)1;            /* first Bell triangle row       */
 
         bell_max = 0;
@@ -40,7 +43,7 @@ seq_t a(idx_t n)
     /* --- grow cache array if necessary --------------------------------- */
     if ((idx_t)n >= (idx_t)bell_cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t*)realloc(bell_cache, sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_resize(seq_t, bell_cache, new_cap);
         if (!tmp) {
             /* allocation failed – abort (not expected in tests) */
             abort();
@@ -53,7 +56,7 @@ seq_t a(idx_t n)
     if (n > bell_max) {
         for (idx_t k = bell_max + 1; k <= n; ++k) {
             size_t cur_len = (size_t)k + 1;
-            seq_t *cur_row = (seq_t*)malloc(sizeof(seq_t) * cur_len);
+            seq_t *cur_row = mem_new(seq_t, cur_len);
             if (!cur_row) abort();
 
             /* first entry of the new row is the last entry of the previous row */
@@ -68,7 +71,7 @@ seq_t a(idx_t n)
             bell_cache[k] = cur_row[0];
 
             /* advance to next row */
-            free(prev_row);
+            mem_free(prev_row);
             prev_row = cur_row;
             prev_len = cur_len;
             bell_max = k;

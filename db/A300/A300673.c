@@ -10,13 +10,16 @@
  *            a(n-k) (n>=1)
  * Range:     i8 n <= 7, i16 n <= 11, i32 n <= 17, i64 n <= 29, i128 n <= 48,
  *            big any n
- * Helpers:   mobius
+ * Validated: standard, pass, 43 terms through n = 573 (2026-11-03)
+ * Helpers:   mem, mobius
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/mobius.h"
+#include "../utils/mem.h"
 
 /* Static cache of computed terms */
 static seq_t *a_cache = NULL;
@@ -31,7 +34,7 @@ static void expand_a_cache(idx_t n)
     size_t new_cap = a_cache_cap ? a_cache_cap * 2u : 16u;
     while ((size_t)(n + 1u) > new_cap)
         new_cap <<= 1u;   /* double until large enough */
-    seq_t *tmp = (seq_t*)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
     if (!tmp)
         abort();
     a_cache = tmp;

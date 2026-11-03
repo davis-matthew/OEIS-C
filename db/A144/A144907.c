@@ -8,7 +8,8 @@
  * Formula:   a(n) = 1 if n is prime, 2*rad(n) if 4 | n, rad(n) otherwise
  * Range:     u8 n <= 257, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime, rad
+ * Validated: standard, pass, 98 terms through n = 9127 (2026-11-01)
+ * Helpers:   is_prime, radical
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,14 +18,14 @@
 
 #include <stdbool.h>
 #include "../utils/is_prime.h"
-#include "../utils/rad.h"
+#include "../utils/radical.h"
 
 seq_t a(idx_t n)
 {
     if (is_prime(n))
         return (seq_t)1;
 
-    seq_t r = rad(n);
+    seq_t r = radical(n);
 
     /* Four divides n iff (n & 3) == 0. */
     if ((n & 3) == 0)

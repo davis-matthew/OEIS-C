@@ -10,7 +10,8 @@
  *            for i >= 2, b(i) = 2 * b(i-1) + (-1)^{a(i)}
  * Range:     u8 n <= 0, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 71 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>   /* for memset */
+#include "../utils/mem.h"
 
 /* Static state for memoization */
 static idx_t          computed   = 0;     /* number of A values computed so far */
@@ -56,7 +58,7 @@ static void ensure_a_cap(size_t need)
     size_t new_cap = a_cap ? a_cap << 1 : 256;
     while (new_cap <= need)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(a_vals, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_vals, new_cap);
     if (!tmp)
         abort();
     a_vals = tmp;

@@ -10,7 +10,8 @@
  *            P), then set P(y) := y^5 * P(c + 1/y)
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 21, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   bitlen_u64
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-01)
+ * Helpers:   bit_length_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/bitlen_u64.h"
+#include "../utils/bit_length_u64.h"
 
 static uint64_t *pbuf = 0;
 static uint64_t *cp[6];
@@ -98,7 +99,7 @@ static void big_mulsmall(uint64_t *x, uint64_t m) {
 /* true iff the unique real root of the current polynomial exceeds t */
 static int root_gt(uint64_t t) {
     int j;
-    ensure_room((size_t)(5 * bitlen_u64(t) + 8));
+    ensure_room((size_t)(5 * bit_length_u64(t) + 8));
     memcpy(ptmp, cp[5], sizeof(uint64_t) * L);
     for (j = 4; j >= 0; j--) {
         big_mulsmall(ptmp, t);
@@ -138,7 +139,7 @@ static void next_term(void) {
         c = lo;
     }
     if (c > 0) {
-        ensure_room((size_t)(5 * bitlen_u64(c + 1) + 8));
+        ensure_room((size_t)(5 * bit_length_u64(c + 1) + 8));
         for (i = 0; i < 5; i++)
             for (j = 4; j >= i; j--)
                 big_addmul(cp[j], cp[j + 1], c);

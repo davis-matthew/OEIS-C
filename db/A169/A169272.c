@@ -9,7 +9,8 @@
  *            17*a(n-1)+17*a(n-2)+...+17*a(n-28)-153*a(n-29) for n ≥ 29
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   pow18
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,16 @@
    generating function given in the OEIS entry. */
 
 #include <stdlib.h>          /* for malloc/realloc */
-#include "../utils/pow18.h"
+#include "../utils/mem.h"
+
+/* auxiliary routine: compute 18^exp as a seq_t value (exp ≤ 27) */
+static seq_t pow18(idx_t exp) {
+    seq_t r = (seq_t)1;
+    for (idx_t i = 0; i < exp; ++i) {
+        r *= (seq_t)18;
+    }
+    return r;
+}
 
 /* static cache for memoisation */
 static seq_t *cache   = NULL;
@@ -30,7 +40,7 @@ static size_t cache_cap = 0;         /* allocated capacity */
 static void ensure_capacity(idx_t upto) {
     if ((size_t)(upto + 1) <= cache_cap) return;
     size_t newcap = (size_t)(upto + 1) * 2;
-    seq_t *p = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+    seq_t *p = mem_resize(seq_t, cache, newcap);
     /* If realloc fails we simply leave cache as NULL; the caller
        will never receive a value for that n. */
     cache = p;

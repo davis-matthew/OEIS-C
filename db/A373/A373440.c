@@ -8,7 +8,8 @@
  *            of n
  * Range:     u8 n <= 8, u16 n <= 48, u32 n <= 4023, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd, pow_uint
+ * Validated: standard, pass, 101 terms through n = 9891 (2026-11-01)
+ * Helpers:   gcd, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/gcd.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 /* Helper that processes one prime factor p^e and updates the running
    numerator and denominator of the sum. */
@@ -26,8 +27,8 @@ process_prime(seq_t *num, seq_t *den, uint64_t p, size_t e)
     size_t f = e / 2;                       /* floor(e/2) */
     idx_t exp2 = 2 * (f + 1);               /* exponent for p^{2*(f+1)} */
 
-    seq_t p_pow = pow_uint(p, exp2);        /* p^{2*(f+1)}   */
-    seq_t p2    = pow_uint(p, 2);           /* p^2           */
+    seq_t p_pow = ipow_u64_idx(p, exp2);        /* p^{2*(f+1)}   */
+    seq_t p2    = ipow_u64_idx(p, 2);           /* p^2           */
     seq_t temp1 = p_pow - 1;                /* p_pow - 1     */
     seq_t temp2 = p2 - 1;                   /* p2   - 1     */
     seq_t S_num = p2 * temp1;               /* numerator of S_i */

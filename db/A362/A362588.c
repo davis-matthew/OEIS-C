@@ -9,14 +9,27 @@
  *            flattening of this triangle by rows (offset 0)
  * Range:     u8 n <= 17, u16 n <= 25, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   binomial, factorial, int_sqrt
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
+ * Helpers:   binomial, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/factorial.h"
-#include "../utils/int_sqrt.h"
+#include "../utils/isqrt.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 seq_t a(idx_t n)
 {
@@ -26,7 +39,7 @@ seq_t a(idx_t n)
         return (seq_t)1;   /* row 0, col 0 */
 
     /* 8*n+1 fits in idx_t for all n up to 2^63/8. */
-    idx_t sq = int_sqrt(8*n + 1);
+    idx_t sq = isqrt(8*n + 1);
     idx_t r = (sq - 1) / 2;          /* floor((-1+sqrt(8n+1))/2) */
 
     /* Adjust for any rounding errors (safe for all sizes). */

@@ -9,7 +9,8 @@
  *            a(n-1)+5 otherwise
  * Range:     u8 n <= 56, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;           /* cache of sequence values               */
 static size_t seq_cap = 0, seq_len = 0;
@@ -36,11 +38,11 @@ static void ensure_cache(size_t n) {
     if (!initialized) {
         seq_cap = 64;
         seq_len = 0;
-        seq = (seq_t *)malloc(seq_cap * sizeof *seq);
+        seq = mem_new(seq_t, (seq_cap * sizeof *seq) / sizeof(seq_t));
 
         seen_cap = 32;
         seen_len = 0;
-        seen = (seq_t *)malloc(seen_cap * sizeof *seen);
+        seen = mem_new(seq_t, (seen_cap * sizeof *seen) / sizeof(seq_t));
 
         /* first term a(1) = 1 */
         seq[seq_len++] = (seq_t)1;
@@ -50,7 +52,7 @@ static void ensure_cache(size_t n) {
     if (seq_len < n) {
         size_t new_cap = seq_cap;
         while (new_cap < n) new_cap <<= 1;
-        seq = (seq_t *)realloc(seq, new_cap * sizeof *seq);
+        seq = mem_resize(seq_t, seq, (new_cap * sizeof *seq) / sizeof(seq_t));
         seq_cap = new_cap;
     }
 }
@@ -78,7 +80,7 @@ static void seen_insert(seq_t v) {
     /* lo is insertion point */
     if (seen_len == seen_cap) {
         size_t new_cap = seen_cap << 1;
-        seen = (seq_t *)realloc(seen, new_cap * sizeof *seen);
+        seen = mem_resize(seq_t, seen, (new_cap * sizeof *seen) / sizeof(seq_t));
         seen_cap = new_cap;
     }
     for (size_t i = seen_len; i > lo; --i) seen[i] = seen[i-1];

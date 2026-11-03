@@ -8,7 +8,8 @@
  * Formula:   a(n) = n! * Sum_{k=0..n} (n+1)^(k-1) * binomial(n+2*k+1, n-k)/k!
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Cache for factorials */
 static seq_t *fact = NULL;
@@ -31,8 +33,8 @@ static void ensure_capacity(idx_t n)
     /* Expand factorial cache if needed */
     if ((size_t)n >= fact_cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = fact ? (seq_t *)realloc(fact, new_cap * sizeof(seq_t))
-                          : (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *tmp = fact ? mem_resize(seq_t, fact, new_cap)
+                          : mem_new(seq_t, new_cap);
         if (!tmp) abort();
         fact = tmp;
         /* Compute missing factorials */
@@ -48,8 +50,8 @@ static void ensure_capacity(idx_t n)
     /* Expand a(n) cache if needed */
     if ((size_t)n >= cache_cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = cache ? (seq_t *)realloc(cache, new_cap * sizeof(seq_t))
-                          : (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *tmp = cache ? mem_resize(seq_t, cache, new_cap)
+                          : mem_new(seq_t, new_cap);
         if (!tmp) abort();
         /* Zero‑initialize new slots */
         for (size_t i = cache_cap; i < new_cap; ++i)

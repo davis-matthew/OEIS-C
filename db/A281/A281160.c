@@ -12,13 +12,45 @@
  *            element (top‑left) is 0. The DP counts each array exactly once
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 15, u64 n <= 34, u128 n <= 75,
  *            big any n
- * Helpers:   violations_row
+ * Validated: standard, pass, 39 terms through n = 199 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/violations_row.h"
+
+/* Count how many cells of "curr" violate the rule, given the masks of
+   the previous, current, and next rows.
+   has_prev / has_next indicate whether the corresponding row exists.   */
+static inline int violations_row(uint8_t prev_mask, uint8_t curr_mask,
+                                 uint8_t next_mask, bool has_prev,
+                                 bool has_next)
+{
+    int total = 0;
+    for (int col = 0; col < 3; ++col) {
+        int val = (curr_mask >> col) & 1;
+        int same = 0;
+
+        if (has_prev) {
+            if (((prev_mask >> col) & 1) == val) ++same;
+            if (col > 0 && ((prev_mask >> (col - 1)) & 1) == val) ++same;
+            if (col < 2 && ((prev_mask >> (col + 1)) & 1) == val) ++same;
+        }
+
+        if (col > 0 && ((curr_mask >> (col - 1)) & 1) == val) ++same;
+        if (col < 2 && ((curr_mask >> (col + 1)) & 1) == val) ++same;
+
+        if (has_next) {
+            if (((next_mask >> col) & 1) == val) ++same;
+            if (col > 0 && ((next_mask >> (col - 1)) & 1) == val) ++same;
+            if (col < 2 && ((next_mask >> (col + 1)) & 1) == val) ++same;
+        }
+
+        if (same > 3) ++total;
+    }
+    return total;
+}
 
 seq_t a(idx_t n)
 {

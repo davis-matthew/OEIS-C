@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 25, u64 n <= 52, u128 n <= 104,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 983 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Recurrence: a(n) = 3*a(n-1) - 2*a(n-2) + a(n-3) for n >= 5
    Initial values: a(0)=2, a(1)=3, a(2)=6, a(3)=16, a(4)=38 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *s_cache = NULL;
 static size_t s_cache_len = 0;
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
         const size_t init_len = 5;
         if (s_cache_cap < init_len) {
             s_cache_cap = init_len;
-            s_cache = (seq_t *)realloc(s_cache, s_cache_cap * sizeof(seq_t));
+            s_cache = mem_resize(seq_t, s_cache, s_cache_cap);
         }
         s_cache[0] = (seq_t)2;
         s_cache[1] = (seq_t)3;
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
             size_t new_cap = s_cache_cap ? s_cache_cap * 2 : 16;
             if (new_cap < idx + 1) new_cap = idx + 1;
             s_cache_cap = new_cap;
-            s_cache = (seq_t *)realloc(s_cache, s_cache_cap * sizeof(seq_t));
+            s_cache = mem_resize(seq_t, s_cache, s_cache_cap);
         }
         /* compute missing terms using the recurrence */
         for (idx_t i = (idx_t)s_cache_len; i <= n; ++i) {

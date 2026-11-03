@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 103, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   _hash_seq_t
+ * Validated: standard, pass, 79 terms through n = 9995 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,28 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_hash_seq_t.h"
+#include "../utils/mem.h"
+
+/*--- hashing for the set of visited values -----------------------------------*/
+static inline uint64_t _hash_seq_t(seq_t x)
+{
+#if defined(__SIZEOF_INT128__)
+    unsigned __int128 u = (unsigned __int128)x;
+    uint64_t low  = (uint64_t)u;
+    uint64_t high = (uint64_t)(u >> 64);
+    uint64_t h = low ^ high;
+#else
+    uint64_t h = (uint64_t)x;
+#endif
+    /* splitmix64 hash */
+    h += 0x9e3779b97f4a7c15ULL;
+    h ^= h >> 30;
+    h *= 0xbf58476d1ce4e5b9ULL;
+    h ^= h >> 27;
+    h *= 0x94d049bb133111ebULL;
+    h ^= h >> 31;
+    return h;
+}
 
 static seq_t *hash_keys = NULL;
 static bool   *hash_used = NULL;
@@ -37,7 +59,7 @@ static void _hash_rehash(idx_t new_cap)
 {
     idx_t cap = 1;
     while (cap < new_cap) cap <<= 1;
-    seq_t *new_keys = (seq_t *)malloc(cap * sizeof(seq_t));
+    seq_t *new_keys = mem_new(seq_t, cap);
     bool   *new_used = (bool   *)calloc(cap, 1);
     unsigned long long new_mask = cap - 1;
     if (!new_keys || !new_used) abort();
@@ -49,7 +71,7 @@ static void _hash_rehash(idx_t new_cap)
         new_used[h] = true;
         new_keys[h] = v;
     }
-    free(hash_keys);
+    mem_free(hash_keys);
     free(hash_used);
     hash_keys = new_keys;
     hash_used = new_used;
@@ -115,7 +137,7 @@ static void _seq_ensure_capacity(idx_t needed)
     if (seq_cap < needed) {
         idx_t new_cap = seq_cap ? seq_cap * 2 : 8;
         if (new_cap < needed) new_cap = needed;
-        seq_t *tmp = (seq_t *)realloc(seq_vals, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_vals, new_cap);
         if (!tmp) abort();
         seq_vals = tmp;
         seq_cap  = new_cap;

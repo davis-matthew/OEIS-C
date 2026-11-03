@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 256, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   cmp_ratio
+ * Validated: standard, pass, 97 terms through n = 8730 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,17 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/cmp_ratio.h"
+
+/* Compare fractions b1/c1 and b2/c2.
+   Return -1 if b1/c1 < b2/c2, 0 if equal, 1 if greater. */
+static inline int cmp_ratio(idx_t b1, idx_t c1, idx_t b2, idx_t c2)
+{
+    unsigned __int128 left  = (unsigned __int128)b1 * c2;
+    unsigned __int128 right = (unsigned __int128)b2 * c1;
+    if (left < right)  return -1;
+    if (left > right)  return  1;
+    return 0;
+}
 
 /* Small helper: greatest common divisor for unsigned 64‑bit integers. */
 static inline idx_t gcd_idx(idx_t a, idx_t b)

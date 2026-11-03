@@ -12,14 +12,15 @@
  *            * symmetric sum of the first r Bell numbers B_1,…...
  * Range:     i8 n <= 11, i16 n <= 23, i32 n <= 33, i64 n <= 41, i128 n <= 41,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
-
+#include <sys/types.h>
+#include "../utils/binomial.h"
 
 #define MAX_R 2000   /* sufficient for n up to ~10⁵ (r ≈ 450) */
 
@@ -50,7 +51,7 @@ seq_t a(idx_t n)
             seq_t sum = 0;
             idx_t N = i;          /* compute B_{i+1} */
             for (idx_t k = 0; k <= N; ++k) {
-                sum += binom(N, k) * B[k];
+                sum += binomial(N, k) * B[k];
             }
             B[i + 1] = sum;
         }

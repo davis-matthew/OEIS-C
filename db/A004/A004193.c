@@ -9,8 +9,9 @@
  *            numbers (1, 2, 16, 272, ...), computed by the Brent-Harvey
  *            recurrence: T(1) = 1, T(k) = (k-1)*T(k-1), then for k = 2..N, j
  *            = k..N: T(j) = (j-k)*T(j-1) + (j-k+2)*T(j). Exact mu...
- * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 8, u64 n <= 12, u128 n <= 17,
+ * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 8, u64 n <= 12, u128 n <= 19,
  *            big any n
+ * Validated: standard, pass, 33 terms through n = 98 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 124, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   no_common_digit
+ * Validated: standard, pass, 86 terms through n = 1968 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,25 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/no_common_digit.h"
+
+/* test whether x and 2*x share any decimal digit */
+static bool no_common_digit(uint64_t x)
+{
+    unsigned mask_x = 0, mask_y = 0;
+    uint64_t y = x * 2ULL;
+
+    /* digits of x */
+    if (x == 0) mask_x |= 1U << 0;
+    for (uint64_t t = x; t > 0; t /= 10)
+        mask_x |= 1U << (unsigned)(t % 10);
+
+    /* digits of y (i.e., 2*x) */
+    if (y == 0) mask_y |= 1U << 0;
+    for (uint64_t t = y; t > 0; t /= 10)
+        mask_y |= 1U << (unsigned)(t % 10);
+
+    return (mask_x & mask_y) == 0;
+}
 
 /* Maximum number of terms that can be stored; the tests only go up to ~10 000,
    so 200 000 is more than enough. */

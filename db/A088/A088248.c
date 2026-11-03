@@ -10,7 +10,8 @@
  *            min‑heap and caches the results
  * Range:     u8 none, u16 none, u32 n <= 37, u64 n <= 10000, u128 n <= 10000,
  *            big any n
- * Helpers:   is_prime, pow_uint
+ * Validated: standard, pass, 55 terms through n = 8173 (2026-11-03)
+ * Helpers:   ipow_u64_idx, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/pow_uint.h"   /* seq_t pow_uint(uint64_t base, idx_t exp); */
-#include "../utils/is_prime.h"   /* bool is_prime(idx_t n); */
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Min‑heap node holding a prime power value, its base prime and
    current exponent (k ≥ 3). */
@@ -107,13 +109,13 @@ seq_t a(idx_t n) {
     if (!heap) {
         init_primes();
         heap_cap = prime_count;
-        heap = (node_t *)malloc(heap_cap * sizeof(node_t));
+        heap = mem_new(node_t, heap_cap);
         heap_sz = 0;
         for (size_t i = 0; i < prime_count; ++i) {
             node_t nd;
             nd.prime = prime_list[i];
             nd.exp   = 3;
-            nd.val   = pow_uint(nd.prime, (idx_t)nd.exp);
+            nd.val   = ipow_u64_idx(nd.prime, (idx_t)nd.exp);
             heap_push(heap, &heap_sz, heap_cap, nd);
         }
     }
@@ -128,7 +130,7 @@ seq_t a(idx_t n) {
             /* Append to cache. */
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 64;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 cache = tmp;
                 cache_cap = new_cap;
             }
@@ -137,7 +139,7 @@ seq_t a(idx_t n) {
 
         /* Push the next power of the same prime onto the heap. */
         int next_exp = cur.exp + 1;
-        seq_t next_val = pow_uint(cur.prime, (idx_t)next_exp);
+        seq_t next_val = ipow_u64_idx(cur.prime, (idx_t)next_exp);
         /* For fixed‑width types guard against wrap‑around; unneeded for bigint. */
         if (next_val > cur.val) {
             node_t nxt;

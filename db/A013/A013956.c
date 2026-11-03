@@ -8,15 +8,17 @@
  *            p^(2*8) + ... + p^(e*8))
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 15, u64 n <= 255,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: standard, pass, 41 terms through n = 9111 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/factor_u64.h"   /* fact_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt) */
-#include "../utils/big_pow.h"     /* seq_t big_pow(seq_t base, seq_t exp) */
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < cnt; ++i)
     {
         seq_t p   = (seq_t)primes[i];
-        seq_t p8  = big_pow(p, (seq_t)8);   /* p^8 */
+        seq_t p8  = ipow(p, (seq_t)8);   /* p^8 */
         seq_t term = (seq_t)1;              /* 1 + p^8 + ... */
         seq_t pow   = (seq_t)1;             
 

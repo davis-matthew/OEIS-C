@@ -10,14 +10,15 @@
  *            remainder are self numbers
  * Range:     u8 n <= 29, u16 n <= 6413, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_sum_u64
+ * Validated: standard, pass, 72 terms through n = 8300 (2026-11-01)
+ * Helpers:   digit_sum_u64_to_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/digit_sum_u64.h"
+#include "../utils/digit_sum_u64_to_i32.h"
 
 seq_t a(idx_t n) {
     uint64_t max_k = n * 11 + 100;
@@ -32,7 +33,7 @@ seq_t a(idx_t n) {
     }
     
     for (uint64_t m = 1; m <= max_k; m++) {
-        int ds = digit_sum_u64(m);
+        int ds = digit_sum_u64_to_i32(m);
         uint64_t k = m + ds;
         if (k <= max_k) {
             is_self[k] = false;

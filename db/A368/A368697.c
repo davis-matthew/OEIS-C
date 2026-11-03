@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 5, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   bitlen_seq_t, factor_u64, seq_alloc_new_array
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   bit_length, factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,13 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
+#include "../utils/bit_length.h"
 #include "../utils/factor_u64.h"
-#include "../utils/bitlen_seq_t.h"
-#include "../utils/seq_alloc_new_array.h"
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
 
 /* test if a 64‑bit integer satisfies the defining properties.  The
    arithmetic derivative of n is Σ e_i * n/p_i, where n = Π p_i^{e_i}. */
@@ -55,7 +60,7 @@ static bool satisfies_uint64(uint64_t n) {
     if ((der & 3) != 2) return false;
 
     /* derivative must be squarefree */
-    if (bitlen_seq_t(der) > 63) return false;          /* too large to factor */
+    if (bit_length(der) > 63) return false;          /* too large to factor */
     uint64_t d = (uint64_t)der;
     factor_u64(d, primes, exps, &pf_cnt);
     for (size_t i = 0; i < pf_cnt; ++i)
@@ -71,8 +76,8 @@ static void ensure_capacity(size_t need, size_t *cap, seq_t **ptr) {
     while (newcap < need) newcap <<= 1;
     seq_t *newp = seq_alloc_new_array(newcap);
     if (*ptr) {
-        memcpy(newp, *ptr, (*cap) * sizeof(seq_t));
-        free(*ptr);
+        mem_copy(newp, *ptr, (*cap) * sizeof(seq_t));
+        mem_free(*ptr);
     }
     *ptr = newp;
     *cap = newcap;

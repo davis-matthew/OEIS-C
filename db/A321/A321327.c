@@ -8,13 +8,15 @@
  *            n even 0 if n odd } Then a(n) = b(n) – b(n‑1)
  * Range:     i8 n <= 25, i16 n <= 53, i32 n <= 53, i64 n <= 53, i128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static cache for previously computed terms. */
 static seq_t *cache = NULL;
@@ -30,13 +32,13 @@ ensure_cache(idx_t n)
     size_t new_cap = cache_alloc ? cache_alloc : 1;
     while (new_cap <= (size_t)n)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, new_cap);
     if (!tmp) return;              /* allocation failure; keep 0 cache */
     if (cache) {
         /* copy old data */
         for (idx_t i = 0; i < computed; ++i)
             tmp[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
     cache = tmp;
     cache_alloc = new_cap;

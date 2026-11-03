@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 11, u32 n <= 11, u64 n <= 11, u128 n <= 11,
  *            big any n
- * Helpers:   dfs_cycle, is_realizable
+ * Validated: full, pass, 11 terms through n = 11 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,44 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/dfs_cycle.h"
-#include "../utils/is_realizable.h"
+
+/*  Recursive back‑tracking that tests whether a multiset of interval
+    values can be arranged into a 12‑tone cycle that visits each
+    residue 0…11 exactly once.  The multiset is supplied as an array
+    cnt[1…11] (cnt[0] ignored).  The routine returns true as soon
+    as a valid ordering is found.  */
+static bool dfs_cycle(int used, int residue, int mask, int *rem)
+{
+    if (used == 12)                /* all 12 steps placed */
+        return true;
+
+    for (int d = 1; d <= 11; ++d)
+    {
+        if (rem[d] > 0)
+        {
+            int next = residue + d;
+            if (next >= 12) next -= 12;
+            int bit  = 1 << next;
+            if (mask & bit) continue;          /* residue already visited */
+
+            rem[d]--;
+            if (dfs_cycle(used + 1, next, mask | bit, rem))
+            {
+                rem[d]++;                       /* restore before returning */
+                return true;
+            }
+            rem[d]++;                           /* restore for other branches */
+        }
+    }
+    return false;
+}
+
+static bool is_realizable(const int cnt[12])
+{
+    int rem[12];
+    for (int i = 1; i <= 11; ++i) rem[i] = cnt[i];  /* copy multiset */
+    return dfs_cycle(1, 0, 1, rem);                 /* start at residue 0 */
+}
 
 /* size of the table of precomputed values */
 #define MAX_N 11

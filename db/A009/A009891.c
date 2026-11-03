@@ -11,7 +11,8 @@
  *            x^4 + x^5 + x^6))
  * Range:     u8 n <= 10, u16 n <= 174, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 937 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    to the recurrence coefficients
    q = {1,0,1,-1,0,-2,0,-2,1,-1,2,0,2,0,1,-1,0,-1}  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const int8_t q[18] = {1,0,1,-1,0,-2,0,-2,1,-1,2,0,2,0,1,-1,0,-1};
 static const seq_t init[18] = {
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
 
     /* Allocate or grow cache */
     if (cache_len < need) {
-        seq_t *tmp = (seq_t*)realloc(cache, need * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, need);
         if (!tmp) return 0;          /* allocation failure, return 0 */
         cache = tmp;
         /* Initialize first 18 terms if not already */

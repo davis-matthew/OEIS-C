@@ -13,6 +13,7 @@
  *            common denominator 4 147 200
  * Range:     u8 n <= 26, u16 n <= 88, u32 n <= 850, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 69 terms through n = 9987 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

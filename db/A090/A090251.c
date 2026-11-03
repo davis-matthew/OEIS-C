@@ -5,21 +5,23 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  easy, nonn
  * Formula:   a(n) = 29*a(n-1) - a(n-2), a(0)=2, a(1)=29
- * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 none,
+ * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 seq_t a(idx_t n)
 {
     /* Dynamically grow the cache to cover index n */
-    size_t needed = (size_t)n + 1;
+    size_t needed = (size_t)n + 1 < 2 ? 2 : (size_t)n + 1;   /* the base cases need 2 */
     static seq_t *cache = NULL;
     static size_t cache_capacity = 0;
     static size_t cached_len = 0;
@@ -28,14 +30,14 @@ seq_t a(idx_t n)
         size_t new_cap = cache_capacity ? cache_capacity * 2 : needed;
         if (new_cap < needed) new_cap = needed;
 
-        seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, new_cap);
         if (!tmp) return 0;                     /* allocation failed */
 
         /* Copy existing terms */
         for (size_t i = 0; i < cached_len; ++i) tmp[i] = cache[i];
 
         /* Replace old array */
-        free(cache);
+        mem_free(cache);
         cache = tmp;
         cache_capacity = new_cap;
     }

@@ -7,12 +7,14 @@
  * Formula:   a(n) = n-th number that is the sum of 5 positive 7th powers
  * Range:     u8 none, u16 none, u32 n <= 2424, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 9153 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cached_sums = NULL;
 static idx_t cached_count = 0;
@@ -26,7 +28,7 @@ static int cmp_seq_t(const void *a, const void *b) {
 }
 
 static void generate_sums(int limit) {
-    seq_t *temp = (seq_t *)malloc(500000 * sizeof(seq_t));
+    seq_t *temp = mem_new(seq_t, 500000);
     idx_t count = 0;
     
     for (int a = 1; a <= limit; a++) {
@@ -46,9 +48,9 @@ static void generate_sums(int limit) {
         }
     }
     
-    qsort(temp, count, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(temp, count, sizeof(seq_t), cmp_seq_t);
     
-    seq_t *dedup = (seq_t *)malloc(count * sizeof(seq_t));
+    seq_t *dedup = mem_new(seq_t, count);
     idx_t dedup_count = 0;
     seq_t last = (seq_t)(-1);
     for (idx_t i = 0; i < count; i++) {
@@ -58,8 +60,8 @@ static void generate_sums(int limit) {
         }
     }
     
-    free(temp);
-    if (cached_sums) free(cached_sums);
+    mem_free(temp);
+    if (cached_sums) mem_free(cached_sums);
     cached_sums = dedup;
     cached_count = dedup_count;
 }

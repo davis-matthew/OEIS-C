@@ -8,6 +8,7 @@
  * Formula:   a(n) = Σ_{k=1..⌈n/3⌉} (-1)^{k-1} * ∏_{i=3(k-1)+1}^{min(3k,n)} i
  * Range:     i8 n <= 8, i16 n <= 41, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
+ * Validated: standard, pass, 57 terms through n = 888 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

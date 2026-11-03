@@ -9,13 +9,15 @@
  *            floor(i^2/3)+floor(j^2/3)+floor(k^2/3) = n
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 103 terms through n = 9632 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Shared state, initialized on first use */
 static seq_t *counter = (seq_t*)NULL;     /* array a[0..MAX]          */
@@ -27,7 +29,7 @@ static void init_counts(void) {
         return;
 
     /* allocate array of seq_t for indices up to MAX */
-    counter = (seq_t*)calloc((size_t)(MAX + 1), sizeof(seq_t));
+    counter = mem_new(seq_t, (size_t)(MAX + 1));
     if (counter == NULL)
         abort();
     counter_size = (size_t)(MAX + 1);

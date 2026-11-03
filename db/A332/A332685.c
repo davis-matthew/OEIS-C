@@ -7,11 +7,13 @@
  * Formula:   a(n) = Sum_{k=1..n} mu(k/gcd(n,k))
  * Range:     i8 n <= 299, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 86 terms through n = 8212 (2026-11-01)
  * Helpers:   mobius
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/mobius.h"
 
 /* Euclidean algorithm for unsigned 64‑bit integers (works in C and C++). */

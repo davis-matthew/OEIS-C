@@ -7,13 +7,15 @@
  * Formula:   a(n) = n + A007947(n) (squarefree kernel of n)
  * Range:     u8 n <= 128, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 9469 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static state for incremental sieve */
 static seq_t *rad = NULL;      /* rad[i] = product of distinct primes dividing i */
@@ -31,10 +33,10 @@ static void ensure_precompute(idx_t n)
     while (newsize <= n) newsize <<= 1;
 
     /* allocate new arrays */
-    seq_t *newrad = (seq_t*)malloc((newsize + 1) * sizeof(seq_t));
+    seq_t *newrad = mem_new(seq_t, (newsize + 1));
     uint32_t *newspf = (uint32_t*)malloc((newsize + 1) * sizeof(uint32_t));
     if (!newrad || !newspf) {                /* allocation failed – keep old state */
-        free(newrad); free(newspf);
+        mem_free(newrad); free(newspf);
         return;
     }
 
@@ -66,7 +68,7 @@ static void ensure_precompute(idx_t n)
     }
 
     /* replace old arrays */
-    free(rad);
+    mem_free(rad);
     free(spf);
     rad = newrad;
     spf = newspf;

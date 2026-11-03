@@ -13,7 +13,8 @@
  *            a(22)=1, a(23)=2, a(24)=4, a(25)=6, a(26)=11. (Val...
  * Range:     u8 n <= 95, u16 n <= 95, u32 n <= 95, u64 n <= 95, u128 n <= 95,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 96 terms through n = 95 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     if (seq == NULL) {
         /* we need at least 27 terms (indices 0..26) */
         seq_cap = 27 * 9;           /* 27 matrices of 9 values each, sufficient capacity */
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         if (!seq) {
             /* if allocation fails, return 0 (should never happen in contest) */
             return (seq_t)0;
@@ -93,7 +95,7 @@ seq_t a(idx_t n)
         /* ensure capacity */
         if (seq_len == seq_cap) {
             size_t new_cap = seq_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq, new_cap);
             if (!tmp) {
                 /* on allocation failure just return 0 (should not happen) */
                 return (seq_t)0;

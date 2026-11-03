@@ -13,12 +13,14 @@
  *            a(9) = 5, a(10) = 6, a(11) = 7
  * Range:     u8 n <= 22, u16 n <= 39, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;
 static size_t seq_cache_size = 0;
@@ -26,10 +28,10 @@ static size_t seq_cache_cap  = 0;
 
 static inline void ensure_seq_cache_cap(size_t new_cap) {
     if (new_cap <= seq_cache_cap) return;
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (seq_cache) {
         for (size_t i = 0; i < seq_cache_size; ++i) new_cache[i] = seq_cache[i];
-        free(seq_cache);
+        mem_free(seq_cache);
     }
     seq_cache = new_cache;
     seq_cache_cap = new_cap;

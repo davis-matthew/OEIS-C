@@ -8,13 +8,15 @@
  * Formula:   a(n) = -sum_{k=1}^{n-1} a(k) * S(n, k) * 2^(n-k-1), a(1) = 1
  * Range:     i8 n <= 6, i16 n <= 8, i32 n <= 11, i64 n <= 16, i128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 
 static seq_t *cache = NULL;
@@ -28,7 +30,7 @@ seq_t a(idx_t n) {
     // Initialize cache on first use
     if (cache == NULL) {
         cache_size = 1024;
-        cache = (seq_t *)calloc(cache_size, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache) return 0;
         cache[1] = 1;
         cache_computed = 1;
@@ -37,9 +39,9 @@ seq_t a(idx_t n) {
     // Extend cache if necessary
     while (n >= cache_size) {
         idx_t new_size = cache_size * 2;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (!new_cache) return 0;
-        memset(new_cache + cache_size, 0, (new_size - cache_size) * sizeof(seq_t));
+        mem_set(new_cache + cache_size, 0, (new_size - cache_size) * sizeof(seq_t));
         cache = new_cache;
         cache_size = new_size;
     }
@@ -50,11 +52,11 @@ seq_t a(idx_t n) {
     // Compute up to n
     for (idx_t m = cache_computed + 1; m <= n; m++) {
         // Stirling numbers of second kind S(i, k)
-        seq_t *s_prev = (seq_t *)calloc(m + 1, sizeof(seq_t));
-        seq_t *s_curr = (seq_t *)calloc(m + 1, sizeof(seq_t));
+        seq_t *s_prev = mem_new(seq_t, m + 1);
+        seq_t *s_curr = mem_new(seq_t, m + 1);
         if (!s_prev || !s_curr) {
-            free(s_prev);
-            free(s_curr);
+            mem_free(s_prev);
+            mem_free(s_curr);
             return 0;
         }
         
@@ -82,8 +84,8 @@ seq_t a(idx_t n) {
         }
         
         cache[m] = result;
-        free(s_prev);
-        free(s_curr);
+        mem_free(s_prev);
+        mem_free(s_curr);
     }
     
     cache_computed = n;

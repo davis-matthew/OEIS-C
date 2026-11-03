@@ -10,7 +10,8 @@
  *            Miller-Rabin
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 14, u64 n <= 19, u128 n <= 20,
  *            big any n
- * Helpers:   seq_is_big, small_index_ok
+ * Validated: standard, pass, 28 terms through n = 28 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,25 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/seq_is_big.h"
-#include "../utils/small_index_ok.h"
+
+static int seq_is_big(void)
+{
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 130; i++) x = x * 2;
+    return !(x == 0);
+}
+
+static bool small_index_ok(uint64_t k) {
+    uint64_t i;
+    if (k == 0) return true;
+    if ((k & (k - 1)) == 0) return true;      /* power of 2 */
+    if (k < 2) return false;
+    if (k % 2 == 0) return false;
+    for (i = 3; i * i <= k; i += 2)
+        if (k % i == 0) return false;
+    return true;
+}
 
 static uint64_t *idx_list = NULL;
 static idx_t idx_count = 0;

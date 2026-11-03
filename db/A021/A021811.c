@@ -7,7 +7,8 @@
  * Formula:   a(n) = n-th decimal digit of 1/807 (a(0) = 0)
  * Range:     u8 n <= 98, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 99 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static cache: digits of the expansion have been computed up to index
  *   cache_len-1.  cache_cap is the allocated capacity.  rem holds the
@@ -38,9 +40,9 @@ seq_t a(idx_t n)
 
         seq_t *new_ptr;
         if (cache == NULL) {
-            new_ptr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+            new_ptr = mem_new(seq_t, new_cap);
         } else {
-            new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            new_ptr = mem_resize(seq_t, cache, new_cap);
         }
         if (new_ptr == NULL) {
             /* Out of memory – in this contest harness this case is

@@ -8,14 +8,29 @@
  *            with E_4 = 1 + 240*Sum_{k>=1} sigma_3(k) q^k)
  * Range:     i8 n <= 0, i16 n <= 1, i32 n <= 3, i64 n <= 8, i128 n <= 16,
  *            big any n
- * Helpers:   a001028_grow
+ * Validated: standard, pass, 28 terms through n = 380 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/a001028_grow.h"
+#include <stddef.h>
+#include "../utils/mem.h"
+
+static seq_t *a001028_z(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static seq_t *a001028_grow(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = a001028_z(newlen);
+    for (idx_t i = 0; i < oldlen; i++) p[i] = old[i];
+    if (old) mem_free(old);
+    return p;
+}
 
 static seq_t *a001943_R = 0;
 static idx_t a001943_len = 0;

@@ -8,14 +8,43 @@
  *            no digit 0
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   grow_seq, no_zero_digit
+ * Validated: partial, pass, 9 terms through n = 9 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/grow_seq.h"
-#include "../utils/no_zero_digit.h"
+#include <stddef.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
+
+/* Return true iff x has no zero digit in base‑10 */
+static bool no_zero_digit(seq_t x)
+{
+    if ((seq_t)0 == x)
+        return false;           /* 0 contains a zero */
+    while (x != (seq_t)0) {
+        if ((x % (seq_t)10) == (seq_t)0)
+            return false;
+        x = x / (seq_t)10;
+    }
+    return true;
+}
 
 /* Cache of sequence terms (0‑indexed).  cache_len holds the number of valid terms stored. */
 static seq_t *cache      = NULL;   /* array of terms */

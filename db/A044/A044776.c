@@ -9,14 +9,33 @@
  *            representation of n but not of n+1
  * Range:     u8 n <= 2, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   contains63
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/contains63.h"
+
+static bool contains63(seq_t x)
+{
+    if (x == 0)
+        return false;
+    seq_t prev = 0;
+    bool first = true;
+    while (x > 0) {
+        seq_t d = x % 10;
+        if (!first) {
+            if (prev == 3 && d == 6)
+                return true;
+        }
+        first = false;
+        prev = d;
+        x = x / 10;
+    }
+    return false;
+}
 
 #define CACHE_CAP 200000
 

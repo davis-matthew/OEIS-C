@@ -7,6 +7,7 @@
  * Formula:   a(n) = (1-5*(-1)^n)/2 for n>0, a(0)=0
  * Range:     i8 n <= 79, i16 n <= 79, i32 n <= 79, i64 n <= 79, i128 n <= 79,
  *            big any n
+ * Validated: partial, pass, 80 terms through n = 79 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

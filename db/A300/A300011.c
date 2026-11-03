@@ -8,7 +8,8 @@
  * Formula:   a(n) = Sum_{k=1..n} phi(k) * binomial(n-1,k-1) * a(n-k)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 14, u64 n <= 23, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 454 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Cache for totient values (uint64_t) up to a given index. */
 static uint64_t *phi_cache_u64 = NULL;
@@ -55,7 +57,7 @@ static void ensure_a_cache_upto(idx_t N)
 {
     if (a_cache_size > N) return;
 
-    seq_t *new_cache = (seq_t *)realloc(a_cache, (N + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, a_cache, (N + 1));
     if (!new_cache) abort();
     a_cache = new_cache;
 

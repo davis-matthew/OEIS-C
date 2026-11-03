@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   pow_int_seq, reverse_digits
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-01)
+ * Helpers:   ipow_idx, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,16 +27,17 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#include "../utils/reverse_digits.h"   /* seq_t reverse_digits(seq_t x); */
-#include "../utils/pow_int_seq.h"      /* seq_t pow_int_seq(seq_t base, idx_t exp); */
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/reverse_digits.h"
 
 /* Return true iff n satisfies rev(n³)=rev(n)³. */
 static bool good(seq_t n)
 {
     seq_t rev_n   = reverse_digits(n);
-    seq_t cube    = pow_int_seq(n, (idx_t)3);
+    seq_t cube    = ipow_idx(n, (idx_t)3);
     seq_t rev_cube= reverse_digits(cube);
-    seq_t revn_cube= pow_int_seq(rev_n, (idx_t)3);
+    seq_t revn_cube= ipow_idx(rev_n, (idx_t)3);
     return rev_cube == revn_cube;
 }
 

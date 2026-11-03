@@ -12,7 +12,8 @@
  *            T(r,k)=A(min(k,r−k))
  * Range:     u8 n <= 683, u16 n <= 8000, u32 n <= 8000, u64 n <= 8000,
  *            u128 n <= 8000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 107 terms through n = 7808 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 /* Standard includes */
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ----------  Memoised computation of A(n)  ---------- */
 static seq_t *A = NULL;    /* values of A(n)                */
@@ -36,8 +38,8 @@ static void ensure_A(size_t needed)
     while (new_cap < needed) new_cap *= 2;
 
     /* Reallocate the arrays. */
-    seq_t *new_A = (seq_t*)realloc(A, new_cap * sizeof(seq_t));
-    seq_t *new_P = (seq_t*)realloc(P, new_cap * sizeof(seq_t));
+    seq_t *new_A = mem_resize(seq_t, A, new_cap);
+    seq_t *new_P = mem_resize(seq_t, P, new_cap);
     if (!new_A || !new_P) exit(1);          /* allocation error */
 
     A = new_A;

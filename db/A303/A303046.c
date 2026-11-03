@@ -8,6 +8,7 @@
  *            (4k+3) * a(6k+3) = 9 * a(6k+4) = (6k+4) * 2 * a(6k+5) = (6k+5)^2
  * Range:     u8 n <= 12, u16 n <= 36, u32 n <= 200, u64 n <= 200,
  *            u128 n <= 200, big any n
+ * Validated: standard, pass, 73 terms through n = 195 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

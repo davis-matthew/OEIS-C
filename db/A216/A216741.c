@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 37, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   ensure_capacity_uint64, gcd64, is_prime_small, mod_pow
+ * Validated: standard, pass, 71 terms through n = 944 (2026-11-01)
+ * Helpers:   gcd_u64, is_prime_seq, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,10 +19,26 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"   /* bool is_prime_small(seq_t) */
-#include "../utils/mod_pow.h"          /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod) */
-#include "../utils/ensure_capacity_uint64.h"
-#include "../utils/gcd64.h"
+#include <string.h>
+#include "../utils/gcd_u64.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/powmod.h"
+
+/* Dynamic array helpers for uint64_t (primes that satisfy the condition) */
+static void ensure_capacity_uint64(uint64_t **array, size_t *cap, size_t needed)
+{
+    if (*cap < needed) {
+        size_t newcap = (*cap == 0) ? 8 : *cap * 2;
+        while (newcap < needed) newcap *= 2;
+        uint64_t *tmp = (uint64_t *)realloc(*array, newcap * sizeof(uint64_t));
+        if (!tmp) {
+            /* Allocation failed; terminate the program - this is fatal */
+            abort();
+        }
+        *array = tmp;
+        *cap = newcap;
+    }
+}
 
 /* Global state for on‑demand generation */
 static uint64_t *good = NULL;    /* primes satisfying the property */
@@ -35,11 +52,11 @@ static void ensure_good_count(size_t needed)
     while (good_cnt < needed) {
         uint64_t p = next_candidate;
         /* test primality */
-        if (is_prime_small((seq_t)p)) {
+        if (is_prime_seq((seq_t)p)) {
             /* compute condition: (-2)^((p-1)/gcd(p-1,20)) mod p */
-            uint64_t g = gcd64(p - 1, 20ULL);
+            uint64_t g = gcd_u64(p - 1, 20ULL);
             uint64_t exp = (p - 1) / g;
-            seq_t r = mod_pow((seq_t)(p - 2ULL), exp, (seq_t)p);
+            seq_t r = powmod((seq_t)(p - 2ULL), exp, (seq_t)p);
             if (r != 1) {
                 /* store good prime */
                 ensure_capacity_uint64(&good, &good_cap, good_cnt + 1);

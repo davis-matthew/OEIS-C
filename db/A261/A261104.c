@@ -7,9 +7,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 9913, u16 n <= 9913, u32 n <= 9913, u64 n <= 9913,
- *            u128 n <= 9913, big any n
- * Helpers:   none
+ * Range:     u8 n <= 10080, u16 n <= 10080, u32 n <= 10080, u64 n <= 10080,
+ *            u128 n <= 10080, big any n
+ * Validated: standard, pass, 138 terms through n = 9913 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    Formula: a(0)=0; for n≥1, a(n)=1+a(n-A070319(n)),
    where A070319(n)=max{τ(k):1≤k≤n} and τ(k) is the number of divisors of k. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache of computed values */
 static seq_t  *a_cache   = NULL;   /* a values, size a_cap */
@@ -42,7 +44,7 @@ static void extend(idx_t new_cap)
     for (idx_t i = 1; i < new_cap; ++i)
         dmax[i] = (tau[i] > dmax[i-1]) ? tau[i] : dmax[i-1];
 
-    seq_t *a = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *a = mem_new(seq_t, new_cap);
     if (!a) abort();
     a[0] = (seq_t)0;
     for (idx_t i = 1; i < new_cap; ++i) {
@@ -51,7 +53,7 @@ static void extend(idx_t new_cap)
     }
 
     /* free old tables */
-    free(a_cache);
+    mem_free(a_cache);
     free(tau_cache);
     free(dmax_cache);
 

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 13, u32 n <= 16, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static const idx_t LIMIT = 8749;          /* A175607(4) -- maximal k */
 static seq_t *cache = NULL;              /* cached sequence values   */
@@ -46,7 +48,7 @@ static bool is_valid(idx_t k)
 static void init_cache(void)
 {
     size_t cap = 16; /* upper bound on number of terms */
-    cache = (seq_t *)malloc(cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cap);
     if (!cache) return; /* allocation failure; silently ignore */
 
     for (idx_t k = 2; k <= LIMIT; ++k) {
@@ -54,7 +56,7 @@ static void init_cache(void)
             /* Append k to cache */
             if (cache_len >= cap) {
                 cap *= 2;
-                seq_t *tmp = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, cap);
                 if (!tmp) return; /* allocation failure; stop adding */
                 cache = tmp;
             }

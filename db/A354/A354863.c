@@ -7,7 +7,8 @@
  * Formula:   a(n) = n! * Σ_{d|n} (n/d) / d! (offset 1)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 19, u128 n <= 21,
  *            big any n
- * Helpers:   factorial_idx
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,17 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/factorial_idx.h"
+
+/* If the build provides a factorial utility, use it;
+   otherwise compute factorial(n) ourselves.  */
+static seq_t factorial_idx(idx_t m)
+{
+    /* Computes m! iteratively; works for any seq_t (built‑in or big) */
+    seq_t f = (seq_t)1;
+    for (idx_t i = 1; i <= m; ++i)
+        f *= (seq_t)i;
+    return f;
+}
 
 /* Compute the n-th term of sequence A354863.
    n is 1‑based; behaviour for n < 1 is undefined. */

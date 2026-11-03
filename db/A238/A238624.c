@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 43, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *part = NULL;        /* partition numbers cache */
 static idx_t max_n = 0;           /* highest n for which part[0..max_n] are valid */
@@ -35,7 +37,7 @@ ensure_partitions(idx_t n)
         return;
 
     /* Allocate a zeroed array of size n+1 */
-    seq_t *new_part = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *new_part = mem_new(seq_t, (size_t)(n + 1));
     if (!new_part)
         abort();                 /* memory allocation failed */
 
@@ -48,7 +50,7 @@ ensure_partitions(idx_t n)
         }
     }
 
-    free(part);
+    mem_free(part);
     part = new_part;
     max_n = n;
 }

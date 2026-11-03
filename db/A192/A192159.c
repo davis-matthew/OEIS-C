@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 31, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    ascending and then answering the n‑th term on demand. */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static int cmp_seq_t(const void *a, const void *b)
 {
@@ -71,7 +73,7 @@ seq_t a(idx_t n)
         }
 
         /* sort and deduplicate the collected values */
-        qsort(stored, count, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(stored, count, sizeof(seq_t), cmp_seq_t);
 
         size_t uniq = 0;
         for (size_t i = 0; i < count; ++i) {

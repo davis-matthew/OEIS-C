@@ -9,16 +9,17 @@
  *            number of divisors of k. This code builds the divisor‑count
  *            array up to n for each call, resetting it before recomputing. It
  *            works for any seq_t (arbitrary precision or unsigned integer)
- * Range:     u8 n <= 5687, u16 n <= 8827, u32 n <= 8827, u64 n <= 8827,
- *            u128 n <= 8827, big any n
- * Helpers:   gcd_uint64
+ * Range:     u8 n <= 5687, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 121 terms through n = 8827 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/gcd_uint64.h"
+#include "../utils/gcd_u64.h"
 
 /* ---------- local gcd for uint64_t --------------------------------- */
 
@@ -69,7 +70,7 @@ seq_t a(idx_t n)
     uint64_t nn = (uint64_t)n;
 
     for (size_t k = 1; k <= sn; ++k)
-        if (gcd_uint64(nn, (uint64_t)k) == tau_arr[k])
+        if (gcd_u64(nn, (uint64_t)k) == tau_arr[k])
             ++count;
 
     return (seq_t)count;

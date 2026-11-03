@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 965, i16 n <= 4672, i32 n <= 9981, i64 n <= 9981,
  *            i128 n <= 9981, big any n
- * Helpers:   kmax_of
+ * Validated: standard, pass, 97 terms through n = 9656 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,7 +33,22 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/kmax_of.h"
+#include "../utils/mem.h"
+
+/* Calculate the largest k such that k*(k+1)/2 ≤ n.  */
+static inline idx_t kmax_of(idx_t n)
+{
+    idx_t low = 0, high = n;                     /* k never exceeds n */
+    while (low <= high) {
+        idx_t mid = (low + high) >> 1;
+        __uint128_t val = (__uint128_t)mid * (mid + 1) / 2;
+        if (val <= n)
+            low = mid + 1;
+        else
+            high = mid - 1;
+    }
+    return high;
+}
 
 /* Return the n‑th term of sequence A291954.  */
 seq_t a(idx_t n)
@@ -54,7 +70,7 @@ seq_t a(idx_t n)
         row_start[0] = 0;            /* first row starts at linear index 0 */
 
         data_cap   = 16;
-        data       = (seq_t *)malloc(data_cap * sizeof(seq_t));
+        data       = mem_new(seq_t, data_cap);
         if (!data) return (seq_t)0;
     }
 
@@ -74,7 +90,7 @@ seq_t a(idx_t n)
         /* Ensure data array has enough space for new values */
         if (data_count + (size_t)len > data_cap) {
             data_cap = (data_count + (size_t)len) * 2;
-            seq_t *new_data = (seq_t *)realloc(data, data_cap * sizeof(seq_t));
+            seq_t *new_data = mem_resize(seq_t, data, data_cap);
             if (!new_data) return (seq_t)0;
             data = new_data;
         }

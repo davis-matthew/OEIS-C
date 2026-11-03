@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 3, u32 n <= 3, u64 n <= 3, u128 n <= 3,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 4 terms through n = 3 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Count the decimal digits of v into cnt[0..9].  v is assumed non‑zero. */
 static inline void count_digits(seq_t v, unsigned char *cnt)
@@ -59,7 +61,7 @@ static void grow_cache(size_t needed, seq_t **cache, size_t *cap)
             if (*cap == 0) *cap = 16; /* guard for overflow */
         }
     }
-    seq_t *tmp = (seq_t *)realloc(*cache, *cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *cache, (*cap * sizeof(seq_t)) / sizeof(seq_t));
     if (tmp == NULL) {
         /* Allocation failure – terminate. */
         abort();

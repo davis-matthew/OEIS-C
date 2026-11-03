@@ -8,12 +8,14 @@
  *            a(1)=1,a(2)=3,a(3)=1,a(4)=-3, a(5)=-5,a(6)=-7,a(7)=-1,a(8)=7
  * Range:     i8 n <= 64, i16 n <= 64, i32 n <= 64, i64 n <= 64, i128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t* seq_cache = NULL;
 static idx_t  seq_len   = 0;
@@ -30,7 +32,7 @@ static void ensure_seq_cache(idx_t n)
     if (new_len < n) new_len = n;
     while (new_len < n) new_len <<= 1;
     /* cast is required for C++ compatibility */
-    seq_t* tmp = (seq_t*)realloc(seq_cache, new_len * sizeof(seq_t));
+    seq_t* tmp = mem_resize(seq_t, seq_cache, new_len);
     if (!tmp) abort();
     seq_cache = tmp;
     for (idx_t i = seq_len; i < new_len; ++i) {

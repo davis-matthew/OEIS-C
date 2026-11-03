@@ -14,13 +14,31 @@
  *            removes all zeros
  * Range:     u8 n <= 11, u16 n <= 35, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   sort_and_remove_zeros
+ * Validated: standard, pass, 63 terms through n = 976 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/sort_and_remove_zeros.h"
+#include "../utils/mem.h"
+
+static seq_t sort_and_remove_zeros(seq_t val)
+{
+    int cnt[10] = {0};
+    seq_t t = val;
+    while (t > 0) {
+        int d = (int)(t % 10);
+        if (d != 0)
+            ++cnt[d];
+        t /= 10;
+    }
+    seq_t res = 0;
+    for (int d = 1; d <= 9; ++d)
+        for (int k = 0; k < cnt[d]; ++k)
+            res = res * 10 + d;
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -33,7 +51,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         const seq_t init_vals[7] = {0, 1, 1, 2, 4, 8, 16};
         cap = 16;                     /* start with room for 16 terms */
-        cache = (seq_t*)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) abort();          /* fatal error if memory cannot be allocated */
 
         for (size_t i = 0; i < 7; ++i)
@@ -52,7 +70,7 @@ seq_t a(idx_t n)
             size_t newcap = cap * 2;
             if ((size_t)(i + 1) > newcap)
                 newcap = i + 1;
-            seq_t *tmp = (seq_t*)realloc(cache, newcap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, newcap);
             if (!tmp) abort();
             cache = tmp;
             cap = newcap;

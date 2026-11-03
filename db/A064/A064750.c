@@ -7,7 +7,8 @@
  * Formula:   a(n) = n*12^n + 1
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 16, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 145 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    (all arithmetic is performed modulo the width of seq_t) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached sequence values */
 static seq_t *a_cache = NULL;         /* array of computed terms */
@@ -30,7 +32,7 @@ static void ensure_and_compute(idx_t n) {
     if (cache_capacity <= (size_t)n) {
         idx_t new_cap = cache_capacity > 0 ? cache_capacity : 3;
         while (new_cap <= n) new_cap *= 2;
-        a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_cap);
         cache_capacity = new_cap;
     }
 

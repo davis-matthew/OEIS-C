@@ -10,12 +10,14 @@
  *            x^n in 1/(1 - Σ_{i=1}^k i x^i)
  * Range:     u8 n <= 24, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache for all computed triangle values.  Tcache[r][k] holds T(r,k). */
 static seq_t **Tcache   = NULL;   /* array of row pointers            */
@@ -33,9 +35,9 @@ static void rebuild_triangle(idx_t maxR)
 
     /* Allocate each row and zero it. */
     for (idx_t r = 0; r <= maxR; ++r) {
-        newCache[r] = (seq_t *)calloc(newWidth, sizeof(seq_t));
+        newCache[r] = mem_new(seq_t, newWidth);
         if (!newCache[r]) {                   /* allocation failure        */
-            for (idx_t j = 0; j < r; ++j) free(newCache[j]);
+            for (idx_t j = 0; j < r; ++j) mem_free(newCache[j]);
             free(newCache);
             return;
         }
@@ -60,7 +62,7 @@ static void rebuild_triangle(idx_t maxR)
 
     /* Free old cache if it existed. */
     if (Tcache) {
-        for (idx_t r = 0; r <= Tmax; ++r) free(Tcache[r]);
+        for (idx_t r = 0; r <= Tmax; ++r) mem_free(Tcache[r]);
         free(Tcache);
     }
 

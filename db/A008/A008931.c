@@ -8,14 +8,17 @@
  *            a(n) = a(n-1) * 6*(18*n^2-21*n+5) / (n*(3*n+1)) (n>=1)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 14, u128 n <= 26,
  *            big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 34 terms through n = 581 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *CACHE = NULL;   /* cache of computed terms */
 static size_t CAP    = 0;     /* current cache size */
@@ -25,7 +28,7 @@ seq_t a(idx_t n)
 {
     /* Ensure cache exists and has a(0)=1 */
     if (CAP == 0) {
-        CACHE = (seq_t*)malloc(sizeof(seq_t));
+        CACHE = mem_new(seq_t, 1);
         if (!CACHE) return (seq_t)0;
         CAP   = 1;
         CACHE[0] = (seq_t)1;
@@ -37,7 +40,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= CAP) {
         size_t newcap = CAP ? CAP : 1;
         while (newcap <= (size_t)n) newcap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(CACHE, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, CACHE, newcap);
         if (!tmp) return (seq_t)0;
         CACHE = tmp;
         CAP   = newcap;

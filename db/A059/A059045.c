@@ -9,6 +9,7 @@
  *            d*(d+1)/2, and T(n,k) = 1 + 2k + 3k^2 + … + n*k^(n‑1)
  * Range:     u8 n <= 37, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
+ * Validated: partial, pass, 71 terms through n = 70 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

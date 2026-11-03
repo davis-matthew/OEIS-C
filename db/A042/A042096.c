@@ -9,12 +9,14 @@
  *            164737
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 11, u64 n <= 27, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
         return init[n];
 
     /* Allocate an array to hold all computed terms up to n */
-    seq_t *arr = (seq_t*)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, (size_t)(n + 1));
     if (arr == NULL) /* allocation failed – return 0 as a fallback */
         return (seq_t)0;
 
@@ -42,6 +44,6 @@ seq_t a(idx_t n)
         arr[i] = (seq_t)574 * arr[i - 4] - arr[i - 8];
 
     seq_t result = arr[n];
-    free(arr);
+    mem_free(arr);
     return result;
 }

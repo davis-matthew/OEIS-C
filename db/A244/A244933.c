@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 64, u128 n <= 129,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 183 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Integer square root for 64‑bit unsigned values */
 static inline uint64_t isqrt_u64(uint64_t x)
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     if (n == 0) return 0;           /* offset is 1; n>=1 for the sequence */
 
     /* dp arrays for the previous prefix length */
-    seq_t *dp_prev = (seq_t *)calloc(1, sizeof(seq_t));
+    seq_t *dp_prev = mem_new(seq_t, 1);
     if (!dp_prev) return 0;
     dp_prev[0] = 1;                 /* one empty array with sum 0 */
 
@@ -59,8 +61,8 @@ seq_t a(idx_t n)
 
         /* array for the new prefix length */
         size_t next_size = (size_t)k + 1;
-        seq_t *dp_next = (seq_t *)calloc(next_size, sizeof(seq_t));
-        if (!dp_next) { free(dp_prev); return 0; }
+        seq_t *dp_next = mem_new(seq_t, next_size);
+        if (!dp_next) { mem_free(dp_prev); return 0; }
 
         for (size_t s = low; s <= high; ++s) {
             seq_t cnt0 = (s < k) ? dp_prev[s] : (seq_t)0;
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
             dp_next[s] = cnt0 + cnt1;
         }
 
-        free(dp_prev);
+        mem_free(dp_prev);
         dp_prev = dp_next;
     }
 
@@ -84,6 +86,6 @@ seq_t a(idx_t n)
     for (size_t s = low_n; s <= high_n; ++s)
         result += dp_prev[s];
 
-    free(dp_prev);
+    mem_free(dp_prev);
     return result;
 }

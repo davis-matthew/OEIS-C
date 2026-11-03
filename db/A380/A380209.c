@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..n} 3^k * 2^(n-k) * Stirling1(n,k) * Bell(k)
  * Range:     i8 n <= 3, i16 n <= 6, i32 n <= 12, i64 n <= 19, i128 n <= 22,
  *            big any n
- * Helpers:   seq_realloc_zero
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,22 @@
    precision integer types. */
 
 #include <stdlib.h>
-#include "../utils/seq_realloc_zero.h"
+#include "../utils/mem.h"
+
+/* Helper: realloc an array of seq_t, increasing its capacity from
+   old_cap to new_cap (number of elements).  New entries are zeroed. */
+static void *seq_realloc_zero(void *ptr, size_t old_cap, size_t new_cap)
+{
+    /* typed: raw realloc must not move seq_t under big */
+    seq_t *new_ptr = mem_resize(seq_t, (seq_t *)ptr, new_cap);
+    if (!new_ptr) abort();
+    if (new_cap > old_cap) {
+        seq_t *arr = (seq_t *)new_ptr;
+        for (size_t i = old_cap; i < new_cap; ++i)
+            arr[i] = 0;
+    }
+    return new_ptr;
+}
 
 seq_t a(idx_t n)
 {

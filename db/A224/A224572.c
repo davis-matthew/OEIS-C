@@ -12,12 +12,14 @@
  *            +2*a(n-13) -2*a(n-14) +2*a(n-15) -a(n-16) Initial values (n...
  * Range:     u8 none, u16 n <= 16, u32 n <= 60, u64 n <= 149, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 188 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t base_vals[21] = {
     16696ul, 5696ul, 5896ul, 6659ul, 7295ul,
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     idx_t idx = n - 1;               /* zero‑based index */
     size_t len = (size_t)idx + 1;    /* number of terms needed */
 
-    seq_t *arr = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, len);
     if (!arr) return 0;              /* allocation failure – unlikely */
 
     /* initialise known initial values */
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = arr[idx];
-    free(arr);
+    mem_free(arr);
 
     return result;
 }

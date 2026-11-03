@@ -9,8 +9,9 @@
  * Formula:   a(n) = Σ_{i≥0} [d_i(n) == 1] * 2^i where d_i(n) is the i‑th
  *            digit (0‑based, least significant first) of the factorial base
  *            representation of n
- * Range:     u8 n <= 9617, u16 n <= 9617, u32 n <= 9617, u64 n <= 9617,
- *            u128 n <= 9617, big any n
+ * Range:     u8 n <= 40320, u16 n <= 40320, u32 n <= 40320, u64 n <= 40320,
+ *            u128 n <= 40320, big any n
+ * Validated: standard, pass, 125 terms through n = 9617 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

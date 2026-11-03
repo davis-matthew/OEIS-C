@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   encode_key, pent_val
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,20 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/encode_key.h"
-#include "../utils/pent_val.h"
+#include "../utils/mem.h"
+
+/* encode state indices into a 64‑bit key: 16 bits per index */
+static inline uint64_t encode_key(idx_t i, idx_t j, idx_t k, idx_t l) {
+    return ((uint64_t)i << 48) | ((uint64_t)j << 32) |
+           ((uint64_t)k << 16) | (uint64_t)l;
+}
+
+/* ----- helper implementations ----- */
+static seq_t pent_val(idx_t i)
+{
+    seq_t a = (seq_t)i;
+    return a * (a + 1) * (a + 2) * (a + 3) / 24;
+}
 
 /* Forward declarations of helper functions */
 static seq_t pent_val(idx_t i);
@@ -57,10 +70,10 @@ static void ensure_pent(idx_t m)
         seq_t val = pent_val(max_pent_idx + 1);
         if (pent_cap == 0) {
             pent_cap = 64;
-            pent = (seq_t *)malloc(pent_cap * sizeof(seq_t));
+            pent = mem_new(seq_t, pent_cap);
         } else if (pent_cap <= max_pent_idx + 1) {
             pent_cap <<= 1;
-            pent = (seq_t *)realloc(pent, pent_cap * sizeof(seq_t));
+            pent = mem_resize(seq_t, pent, pent_cap);
         }
         pent[++max_pent_idx] = val;
     }
@@ -88,7 +101,7 @@ static void heap_push(idx_t i, idx_t j, idx_t k, idx_t l, seq_t sum)
 {
     if (heap_size == heap_cap) {
         heap_cap = heap_cap ? heap_cap << 1 : 128;
-        heap = (struct HeapNode *)realloc(heap, heap_cap * sizeof(struct HeapNode));
+        heap = mem_resize(struct HeapNode, heap, heap_cap);
     }
     size_t pos = heap_size++;
     while (pos) {
@@ -131,7 +144,7 @@ seq_t a(idx_t n)
     if (results_size == 0) {
         /* allocate initial storage */
         results_cap = 128;
-        results = (seq_t *)malloc(results_cap * sizeof(seq_t));
+        results = mem_new(seq_t, results_cap);
 
         /* seed pent array up to 4 for the first state */
         ensure_pent(4);
@@ -151,7 +164,7 @@ seq_t a(idx_t n)
         if (results_size == 0 || cur_sum != results[results_size - 1]) {
             if (results_size == results_cap) {
                 results_cap <<= 1;
-                results = (seq_t *)realloc(results, results_cap * sizeof(seq_t));
+                results = mem_resize(seq_t, results, results_cap);
             }
             results[results_size++] = cur_sum;
         }

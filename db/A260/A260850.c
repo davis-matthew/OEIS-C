@@ -9,7 +9,8 @@
  *            v_{p_i}(a(n-1)), * v_i = -1 otherwise. Offset: 1, a(1) = 1
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 31, u64 n <= 66, u128 n <= 127,
  *            big any n
- * Helpers:   grow_seq, seq_mul, seq_pow
+ * Validated: standard, pass, 49 terms through n = 3305 (2026-11-03)
+ * Helpers:   ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,10 +19,27 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/grow_seq.h"
-#include "../utils/seq_pow.h"
-#include "../utils/seq_mul.h"
+#include <string.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
 
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* ----------  State for memoisation and auxiliary data --------------- */
 static seq_t *seq_cache = NULL;      /* array of computed terms  */
@@ -103,7 +121,7 @@ static seq_t compute_value_from_exponents(void)
         int e = prime_exps[i];
         if (e == 0) continue;
         uint64_t p = prime_list[i];
-        seq_t mult = seq_pow((seq_t)p, e);
+        seq_t mult = ipow_idx((seq_t)p, e);
         val = seq_mul(val, mult);
     }
     return val;

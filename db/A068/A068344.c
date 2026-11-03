@@ -9,13 +9,33 @@
  *            uses only integer arithmetic
  * Range:     i8 n <= 101, i16 n <= 101, i32 n <= 101, i64 n <= 101,
  *            i128 n <= 101, big any n
- * Helpers:   find_t
+ * Validated: partial, pass, 102 terms through n = 101 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/find_t.h"
+
+static idx_t find_t(idx_t n)
+{
+    /* Find t by doubling then binary search.  The condition
+     *   t(t+1)/2 <= n
+     * is monotonic in t. */
+    idx_t lo = 0, hi = 1;
+    while ((( __int128)hi * (hi + 1)) / 2 <= n) {
+        lo = hi;
+        hi <<= 1;
+    }
+    while (hi - lo > 1) {
+        idx_t mid = lo + (hi - lo) / 2;
+        if ((( __int128)mid * (mid + 1)) / 2 <= n)
+            lo = mid;
+        else
+            hi = mid;
+    }
+    return lo;
+}
 
 seq_t a(idx_t n)
 {

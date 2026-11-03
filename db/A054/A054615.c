@@ -7,13 +7,15 @@
  * Formula:   a(n) = Sum_{d|n} phi(d)*8^(n/d)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 21, u128 n <= 42,
  *            big any n
- * Helpers:   phi, pow_uint
+ * Validated: standard, pass, 36 terms through n = 938 (2026-11-01)
+ * Helpers:   ipow_u64_idx, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/phi.h"      /* static seq_t phi(idx_t m); */
-#include "../utils/pow_uint.h" /* seq_t pow_uint(uint64_t base, idx_t exp); */
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -29,15 +31,15 @@ seq_t a(idx_t n)
             idx_t d2 = n / d;
 
             /* term for divisor d */
-            seq_t phi_d   = phi(d);
-            seq_t pow_d2  = pow_uint(8, d2);
+            seq_t phi_d   = totient(d);
+            seq_t pow_d2  = ipow_u64_idx(8, d2);
             sum += phi_d * pow_d2;
 
             if (d2 != d)
             {
                 /* term for paired divisor d2 */
-                seq_t phi_d2  = phi(d2);
-                seq_t pow_d   = pow_uint(8, d);
+                seq_t phi_d2  = totient(d2);
+                seq_t pow_d   = ipow_u64_idx(8, d);
                 sum += phi_d2 * pow_d;
             }
         }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 206, u64 n <= 525, u128 n <= 525,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 525 terms through n = 525 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static int cmp_seq_t(const void *p1, const void *p2)
 {
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
         /* Estimate a small initial capacity; the actual count is
            well below a few thousand. */
         size_t cap = 128;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) return 0;
         cache_size = 0;
 
@@ -73,8 +75,8 @@ seq_t a(idx_t n)
                         /* Ensure capacity. */
                         if (cache_size == cap) {
                             cap *= 2;
-                            seq_t *tmp = (seq_t *)realloc(cache, cap * sizeof(seq_t));
-                            if (!tmp) { free(cache); return 0; }
+                            seq_t *tmp = mem_resize(seq_t, cache, cap);
+                            if (!tmp) { mem_free(cache); return 0; }
                             cache = tmp;
                         }
                         cache[cache_size++] = val;
@@ -84,7 +86,7 @@ seq_t a(idx_t n)
         }
 
         /* Sort numerically. */
-        qsort(cache, cache_size, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(cache, cache_size, sizeof(seq_t), cmp_seq_t);
 
         /* Remove duplicates (unlikely but safe). */
         size_t unique_size = 0;

@@ -9,8 +9,9 @@
  * Formula:   a(n) is the smallest prime divisor of n that is larger than *
  *            (the smallest prime divisor of n)^2; returns 1 if no such prime
  *            exists. * a(1) = 1
- * Range:     u8 n <= 22, u16 n <= 9920, u32 n <= 9920, u64 n <= 9920,
- *            u128 n <= 9920, big any n
+ * Range:     u8 n <= 22, u16 n <= 10001, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 127 terms through n = 9920 (2026-11-01)
  * Helpers:   factorize
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,7 +19,9 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/factorize.h"   /* factorize(uint64_t n, uint64_t *, int *) */
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/factorize.h"
 
 seq_t a(idx_t n) {
     /* n should be at least 1.  For n = 1 by definition a(1) = 1. */

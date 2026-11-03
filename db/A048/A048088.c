@@ -9,7 +9,8 @@
  *            floor((n+3)/3), 3k)
  * Range:     u8 n <= 11, u16 n <= 19, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 /* Sum over all subset sizes m=5k where 2k <= floor((n+3)/3) and 3k <= n - floor((n+3)/3). */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -34,8 +35,8 @@ seq_t a(idx_t n)
 
     seq_t result = 0;
     for (idx_t k = 1; k <= maxK; ++k) {
-        seq_t c1 = binom(A, 2 * k);
-        seq_t c2 = binom(B, 3 * k);
+        seq_t c1 = binomial(A, 2 * k);
+        seq_t c2 = binomial(B, 3 * k);
         result += c1 * c2;
     }
     return result;

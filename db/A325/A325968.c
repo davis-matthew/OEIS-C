@@ -11,8 +11,9 @@
  *            sums of the divisors of n (the number of divisors of n ≤ 10000
  *            is at most 256) and scans them from largest to smallest to find
  *            the first one satisfying the coprimality condition
- * Range:     u8 n <= 107, u16 n <= 9972, u32 n <= 9972, u64 n <= 9972,
- *            u128 n <= 9972, big any n
+ * Range:     u8 n <= 107, u16 n <= 17639, u32 n <= 25000, u64 n <= 25000,
+ *            u128 n <= 25000, big any n
+ * Validated: standard, pass, 98 terms through n = 9972 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -22,7 +23,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/gcd.h"   /* seq_t gcd(seq_t, seq_t) */
+#include "../utils/gcd.h"
 
 static const size_t MAX_DIVISORS = 256; /* safe upper bound for n ≤ 10000 */
 

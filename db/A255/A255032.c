@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 42, u64 n <= 106, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* cache[1] corresponds to a(1); cache[0] is unused */
 static seq_t *cache = NULL;
@@ -36,7 +38,7 @@ static void ensure_cache_size(idx_t n)
     if (n <= cache_size) return;
     idx_t new_size = (cache_size == 0) ? 32 : cache_size * 2;
     while (new_size < n) new_size <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, (size_t)(new_size + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, (size_t)(new_size + 1));
     cache = tmp;
     cache_size = new_size;
 }

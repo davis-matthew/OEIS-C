@@ -10,7 +10,8 @@
  *            searching)
  * Range:     u8 n <= 46, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   factor_u64, seq_pow
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   factor_u64, ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
 
 static bool cond(idx_t n)
 {
@@ -44,7 +46,7 @@ static bool cond(idx_t n)
                 prod *= (uint64_t)(exps[i] + 1);    /* exponent may be e */
         }
 
-        seq_t term = seq_pow((seq_t)2, (idx_t)prod);    /* 2^prod */
+        seq_t term = ipow_idx((seq_t)2, (idx_t)prod);    /* 2^prod */
         if (__builtin_popcountll(mask) % 2 == 0)
             total += term;
         else
@@ -63,7 +65,7 @@ static void cache_append(uint64_t value)
 {
     if (cache_len == cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 64;
-        seq_t *new_arr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, cache, new_cap);
         cache = new_arr;
         cache_cap = new_cap;
     }

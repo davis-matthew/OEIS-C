@@ -8,7 +8,8 @@
  *            [is_prime(m)] is 1 if m is prime, else 0)
  * Range:     i8 n <= 10, i16 n <= 22, i32 n <= 38, i64 n <= 38, i128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- Prime sieve helper ---------- */
 static bool *prime_cache      = NULL; /* prime_cache[i] == true ⇔ i is prime */
@@ -54,7 +56,7 @@ static void ensure_cached(idx_t n)
     size_t old_sz = seq_cache_sz;
     size_t new_sz = target_idx + 1;           /* include target_idx */
 
-    seq_t *tmp = (seq_t*)realloc(seq_cache, new_sz * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, new_sz);
     if (!tmp && new_sz > 0) exit(1);
     seq_cache = tmp;
     seq_cache_sz = new_sz;

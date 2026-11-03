@@ -11,7 +11,8 @@
  *            (2k)! / (4^k (k!)^2 (2k+1)). The implementation compu...
  * Range:     i8 n <= 2, i16 n <= 3, i32 n <= 6, i64 n <= 10, i128 n <= 13,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 14 terms through n = 13 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;          /* computed a values */
 static size_t a_cache_size = 0;        /* allocated size of a_cache */
@@ -112,23 +114,23 @@ seq_t a(idx_t n)
     /* recompute tables if needed */
     if (N + 1 > a_cache_size) {
         /* free old arrays */
-        free(a_cache);
-        free(fac);
-        free(pow4);
-        free(num);
-        free(den);
+        mem_free(a_cache);
+        mem_free(fac);
+        mem_free(pow4);
+        mem_free(num);
+        mem_free(den);
 
         /* allocate new ones */
         a_cache_size = N + 1;
-        a_cache     = (seq_t*)malloc(a_cache_size * sizeof(seq_t));
+        a_cache     = mem_new(seq_t, a_cache_size);
         fac_size    = 2 * N + 1;
-        fac          = (seq_t*)malloc(fac_size * sizeof(seq_t));
+        fac          = mem_new(seq_t, fac_size);
         pow4_size   = N + 1;
-        pow4         = (seq_t*)malloc(pow4_size * sizeof(seq_t));
+        pow4         = mem_new(seq_t, pow4_size);
         num_size    = N + 1;
-        num          = (seq_t*)malloc(num_size * sizeof(seq_t));
+        num          = mem_new(seq_t, num_size);
         den_size    = N + 1;
-        den          = (seq_t*)malloc(den_size * sizeof(seq_t));
+        den          = mem_new(seq_t, den_size);
     }
 
     /* factorials */

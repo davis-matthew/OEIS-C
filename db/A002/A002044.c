@@ -10,17 +10,39 @@
  *            Product_{i>=4} 1/(1-x^i)^binomial(i+1,2)
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   a2044_big, a2044_g, a2044_next, alloc_zero
+ * Validated: partial, pass, 34 terms through n = 36 (2026-11-03)
+ * Helpers:   gcd_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/a2044_big.h"
-#include "../utils/a2044_g.h"
-#include "../utils/a2044_next.h"
+#include "../utils/gcd_idx.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static int a2044_big(void) {
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 200; i++) x *= 2;
+    return x != 0;
+}
+
+/* given prev = C(num-1+..., k-1) style term, return prev * num / k exactly */
+static seq_t a2044_next(seq_t prev, idx_t num, idx_t k) {
+    idx_t g = gcd_idx(num, k);
+    num /= g;
+    k /= g;
+    prev /= k;
+    prev *= num;
+    return prev;
+}
 
 static seq_t *a2044_P = 0;
 static idx_t a2044_cap = 0;

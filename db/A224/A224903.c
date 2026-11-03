@@ -7,7 +7,8 @@
  * Formula:   a(n) = sigma(2*n^4) - sigma(n^4) (OEIS A224903)
  * Range:     u8 n <= 3, u16 n <= 10, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,12 +21,13 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/seq_pow.h"   /* seq_pow(seq_t, idx_t) */
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 
 /* sigma(p^k) = (p^(k+1)-1)/(p-1)  */
 static inline seq_t sigma_prime_power(seq_t p, idx_t exp)
 {
-    seq_t numerator = seq_pow(p, exp + (idx_t)1) - (seq_t)1;
+    seq_t numerator = ipow_idx(p, exp + (idx_t)1) - (seq_t)1;
     seq_t denom     = p - (seq_t)1;
     return numerator / denom;
 }

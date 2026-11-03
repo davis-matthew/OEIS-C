@@ -7,8 +7,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = A047994(n) / A345044(n) (OEIS A345045)
- * Range:     u8 n <= 678, u16 n <= 9934, u32 n <= 9934, u64 n <= 9934,
- *            u128 n <= 9934, big any n
+ * Range:     u8 n <= 678, u16 n <= 9934, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9934 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

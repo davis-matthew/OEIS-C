@@ -8,12 +8,15 @@
  * Formula:   a(n) = 2^(n-2) + (1/(4n)) * Sum_{d|n} phi(2d)*2^(n/d)
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 33, u64 n <= 65, u128 n <= 129,
  *            big any n
- * Helpers:   pw2
+ * Validated: standard, pass, 49 terms through n = 972 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pw2.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/pow2.h"
 
 static unsigned long long totient(unsigned long long n) {
     unsigned long long result = n;
@@ -61,5 +64,5 @@ seq_t a(idx_t n) {
                 add_term(&Q, &R, M, totient(2 * d2), n / d2);
         }
     }
-    return pw2(n - 2) + Q + (seq_t)(R / M);
+    return pow2(n - 2) + Q + (seq_t)(R / M);
 }

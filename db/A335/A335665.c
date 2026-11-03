@@ -7,6 +7,7 @@
  * Formula:   a(n) = ∏_{d|n, d is refactorable} d
  * Range:     u8 n <= 17, u16 n <= 35, u32 n <= 215, u64 n <= 719,
  *            u128 n <= 3599, big any n
+ * Validated: standard, pass, 96 terms through n = 9192 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 /* Recursively enumerate all divisors of n.

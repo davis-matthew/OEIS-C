@@ -10,7 +10,8 @@
  *            The sequence is 1‑based; a(1) = 53
  * Range:     u8 none, u16 n <= 14, u32 n <= 3000, u64 n <= 3000,
  *            u128 n <= 3000, big any n
- * Helpers:   is_prime, next_prime
+ * Validated: standard, pass, 67 terms through n = 2911 (2026-11-03)
+ * Helpers:   is_prime, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "../utils/next_prime.h"
 #include "../utils/is_prime.h"
+#include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 /* Dynamic storage for the sequence values. */
 static seq_t *seq_vals   = NULL;
@@ -41,7 +43,7 @@ static void grow_seq(size_t needed)
 {
     if (needed <= seq_cap) return;
     seq_cap = needed > seq_cap ? needed * 2 : 2;
-    seq_vals = (seq_t *)realloc(seq_vals, seq_cap * sizeof(seq_t));
+    seq_vals = mem_resize(seq_t, seq_vals, seq_cap);
 }
 
 /* ------------------------------------------------------------------ */

@@ -9,7 +9,8 @@
  *            2^(e+1) : 0]
  * Range:     i8 n <= 215, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   a_prime_pow
+ * Validated: standard, pass, 98 terms through n = 973 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,36 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/a_prime_pow.h"
+
+/* Compute a(p^e) for a prime p and exponent e. */
+static seq_t a_prime_pow(uint64_t p, uint64_t e)
+{
+    /* t = floor((e+3)/3) */
+    idx_t t = (e + 3) / 3;
+
+    /* Compute 1 + p^3 + p^6 + ... (t terms) */
+    seq_t sum = (seq_t)1;
+    seq_t term = (seq_t)1;
+    seq_t p3 = (seq_t)p * (seq_t)p * (seq_t)p;
+    for (idx_t i = 1; i < t; ++i) {   /* first term already 1 */
+        term *= p3;
+        sum += term;
+    }
+
+    /* Sign factor: -1 for p==2, +1 otherwise */
+    seq_t part = sum * ((p == 2) ? (seq_t)-1 : (seq_t)1);
+
+    /* Extra term for p==2 and e divisible by 3 */
+    if ((p == 2) && ((e % 3) == 0)) {
+        seq_t extra = (seq_t)1;
+        for (uint64_t i = 0; i < e + 1; ++i) {
+            extra *= (seq_t)2;
+        }
+        part += extra;
+    }
+
+    return part;
+}
 
 seq_t a(idx_t n)
 {

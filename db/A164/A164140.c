@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 35, u64 n <= 67, u128 n <= 132,
  *            big any n
- * Helpers:   one_bit_prev, two_bits_prev
+ * Validated: standard, pass, 51 terms through n = 440 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,19 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/one_bit_prev.h"
-#include "../utils/two_bits_prev.h"
+#include "../utils/mem.h"
+
+static int
+one_bit_prev(int state)
+{
+    return state & 1;
+}
+
+static int
+two_bits_prev(int state)
+{
+    return (state >> 1) & 1;
+}
 
 /* --- Private helpers ------------------------------------------------- */
 
@@ -61,7 +73,7 @@ a(idx_t n)
     /* Allocate initial cache for n=0..2 */
     if (cache_len == 0) {
         cache_len = 3;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_len);
+        cache = mem_new(seq_t, cache_len);
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)2;
         cache[2] = (seq_t)4;
@@ -79,7 +91,7 @@ a(idx_t n)
         int offset = 0;
         size_t sz = 1;
         for (int s = 0; s < 4; ++s) {
-            dp_cur[s] = (seq_t *)malloc(sizeof(seq_t) * sz);
+            dp_cur[s] = mem_new(seq_t, sz);
             dp_cur[s][0] = (seq_t)1;
         }
     }
@@ -99,7 +111,7 @@ a(idx_t n)
         /* Allocate arrays for next DP stage and zero them */
         seq_t *dp_next[4];
         for (int s = 0; s < 4; ++s) {
-            dp_next[s] = (seq_t *)calloc(size_new, sizeof(seq_t));
+            dp_next[s] = mem_new(seq_t, size_new);
         }
 
         /* Transition from dp_cur to dp_next */
@@ -125,7 +137,7 @@ a(idx_t n)
         }
 
         /* Free old DP arrays */
-        for (int s = 0; s < 4; ++s) free(dp_cur[s]);
+        for (int s = 0; s < 4; ++s) mem_free(dp_cur[s]);
 
         /* Adopt new DP arrays */
         for (int s = 0; s < 4; ++s) dp_cur[s] = dp_next[s];
@@ -140,7 +152,7 @@ a(idx_t n)
         /* Extend cache if necessary */
         if (cache_len <= (size_t)target) {
             size_t new_cache_size = target + 1;
-            cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_cache_size);
+            cache = mem_resize(seq_t, cache, new_cache_size);
             cache_len = new_cache_size;
         }
         cache[target] = sum;

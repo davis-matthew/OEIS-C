@@ -8,13 +8,15 @@
  *            a(2k)=a[(k+1)/2]+a[k]
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 86 terms through n = 86 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Breadth‑first labels of the random Fibonacci tree with pair (1,1). */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
 
     /* allocate space for indices 1..n */
     size_t sz = (size_t)(n + 1);
-    seq_t *val = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *val = mem_new(seq_t, sz);
     if (!val) return 0;                         /* allocation failure */
 
     val[1] = 1;                                  /* root */
@@ -49,6 +51,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = val[n];
-    free(val);
+    mem_free(val);
     return result;
 }

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 81, u16 n <= 106, u32 n <= 106, u64 n <= 106,
  *            u128 n <= 106, big any n
- * Helpers:   none
+ * Validated: partial, pass, 107 terms through n = 106 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,6 +35,7 @@
  */
 
 #include <stdlib.h>   /* malloc, realloc, abort */
+#include "../utils/mem.h"
 
 static seq_t **T = NULL;      /* T[i][d] – row i, difference d = k-i (0…6) */
 static idx_t max_i = 0;       /* largest row that has been initialised */
@@ -45,7 +47,7 @@ static void ensure_rows(idx_t required_i)
     if (T == NULL) {
         T = (seq_t **)malloc(sizeof(seq_t *));
         if (!T) abort();
-        T[0] = (seq_t *)malloc(7 * sizeof(seq_t));
+        T[0] = mem_new(seq_t, 7);
         if (!T[0]) abort();
         for (idx_t d = 0; d < 7; ++d) T[0][d] = (seq_t)1;
         max_i = 0;
@@ -59,7 +61,7 @@ static void ensure_rows(idx_t required_i)
 
     /* Compute new rows */
     for (idx_t r = max_i + 1; r <= required_i; ++r) {
-        T[r] = (seq_t *)malloc(7 * sizeof(seq_t));
+        T[r] = mem_new(seq_t, 7);
         if (!T[r]) abort();
 
         if (r == 0) {

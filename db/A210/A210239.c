@@ -13,7 +13,8 @@
  *            with T(n,k)=0 if k<0 or k>n. See OEIS A210239
  * Range:     u8 n <= 30, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   row_offset
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem, triangular
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/row_offset.h"
+#include "../utils/triangular.h"
+#include "../utils/mem.h"
 
 /* Helper to compute the row r such that r*(r+1)/2 <= n < (r+1)*(r+2)/2 */
 static idx_t
@@ -47,7 +49,7 @@ ensure_rows(idx_t r)
 {
     if (max_row_done == (idx_t)-1) {
         /* initialize empty table */
-        triangle = (seq_t *)realloc(triangle, sizeof(seq_t));
+        triangle = mem_resize(seq_t, triangle, 1);
         triangle_cap = 1;
         max_row_done = 0;
         triangle[0] = (seq_t)1; /* T(0,0) */
@@ -57,13 +59,13 @@ ensure_rows(idx_t r)
     /* Allocate storage for all needed rows */
     size_t new_size = (size_t)(r + 1) * (size_t)(r + 2) / 2;
     if (new_size > triangle_cap) {
-        triangle = (seq_t *)realloc(triangle, new_size * sizeof(seq_t));
+        triangle = mem_resize(seq_t, triangle, new_size);
         triangle_cap = new_size;
     }
 
     /* Build rows from (max_row_done+1) up to r */
     for (idx_t cur = max_row_done + 1; cur <= r; ++cur) {
-        idx_t offset_cur = row_offset(cur);
+        idx_t offset_cur = triangular(cur);
         if (cur == 0) {
             triangle[0] = (seq_t)1;
         } else if (cur == 1) {
@@ -91,7 +93,7 @@ seq_t
 a(idx_t n)
 {
     idx_t r = compute_row(n);
-    idx_t c = n - row_offset(r);
+    idx_t c = n - triangular(r);
     ensure_rows(r);
-    return triangle[row_offset(r) + c];
+    return triangle[triangular(r) + c];
 }

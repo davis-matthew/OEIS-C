@@ -12,7 +12,8 @@
  *            element fixed to 0
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* helper: check a row for the adjacency rule                         */
@@ -104,7 +106,7 @@ seq_t a(idx_t n)
 
     static seq_t dp[128][128];
     static seq_t newdp[128][128];
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
 
     /* initialise with the first two rows */
     for (int r1 = 0; r1 < 128; ++r1) {
@@ -118,7 +120,7 @@ seq_t a(idx_t n)
 
     /* add rows 3 … n */
     for (idx_t step = 3; step <= n; ++step) {
-        memset(newdp, 0, sizeof(newdp));
+        mem_set(newdp, 0, sizeof(newdp));
         for (int prev = 0; prev < 128; ++prev) {
             for (int cur = 0; cur < 128; ++cur) {
                 seq_t val = dp[prev][cur];
@@ -131,7 +133,7 @@ seq_t a(idx_t n)
             }
         }
         /* copy newdp back to dp for next iteration */
-        memcpy(dp, newdp, sizeof(dp));
+        mem_copy(dp, newdp, sizeof(dp));
     }
 
     /* final row has no lower neighbour */

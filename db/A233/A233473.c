@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 0, u16 n <= 18, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,27 @@
    classes) and with idx_t = uint64_t. */
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/floor_sqrt.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* ---------- cache for computed a(n) ----------------------------------- */
 static seq_t *aVals = NULL;   /* aVals[n] = answer for n */
@@ -40,7 +61,7 @@ static void grow_cache(size_t new_len)
     size_t newSize = aSize ? aSize * 2 : 1;
     if (newSize < new_len)
         newSize = new_len;
-    seq_t *tmp = (seq_t *)realloc(aVals, newSize * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, aVals, newSize);
     if (!tmp)
         abort();                /* memory exhausted */
     aVals  = tmp;
@@ -51,7 +72,7 @@ static void grow_cache(size_t new_len)
 static void init_cache(void)
 {
     if (aVals == NULL) {
-        aVals = (seq_t *)malloc(sizeof(seq_t));
+        aVals = mem_new(seq_t, 1);
         if (!aVals)
             abort();
         aVals[0] = (seq_t)0;  /* a(0) = 0 by definition */

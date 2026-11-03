@@ -7,15 +7,16 @@
  * Keywords:  nonn
  * Formula:   a(n) = Σ_{k=1..n} C(d(k), n‑k) where d(k) is the number of
  *            divisors of k (OEIS A000005)
- * Range:     u8 n <= 52, u16 n <= 246, u32 n <= 1273, u64 n <= 5000,
+ * Range:     u8 n <= 52, u16 n <= 246, u32 n <= 1274, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   _binom_choose
+ * Validated: standard, pass, 80 terms through n = 4850 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/_binom_choose.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +37,7 @@ seq_t a(idx_t n)
     for (idx_t k = 1; k <= n; ++k) {
         idx_t r = n - k;               /* choose r = n‑k  */
         if (d[k] >= r) {
-            seq_t term = _binom_choose(d[k], r);
+            seq_t term = binomial(d[k], r);
             result += term;
         }
     }

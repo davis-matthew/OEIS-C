@@ -11,7 +11,8 @@
  *            (summed over cycle types, weighted by class size n!/z_lambda)
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 2, u64 n <= 3, u128 n <= 4,
  *            big any n
- * Helpers:   a1331_add, a1331_div, a1331_gcd, a1331_mul, a1331_pow
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,11 +20,63 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a1331_add.h"
-#include "../utils/a1331_div.h"
-#include "../utils/a1331_gcd.h"
-#include "../utils/a1331_mul.h"
-#include "../utils/a1331_pow.h"
+#include "../utils/gcd_u64.h"
+
+static void a1331_add(uint32_t *a, size_t *alen, const uint32_t *b, size_t blen)
+{
+    uint64_t c = 0;
+    size_t i, L = *alen > blen ? *alen : blen;
+    for (i = 0; i < L; i++) {
+        uint64_t av = i < *alen ? a[i] : 0;
+        uint64_t bv = i < blen ? b[i] : 0;
+        c += av + bv;
+        a[i] = (uint32_t)c;
+        c >>= 32;
+    }
+    if (c) a[L++] = (uint32_t)c;
+    *alen = L;
+}
+
+static void a1331_div(uint32_t *x, size_t *len, uint32_t d)
+{
+    uint64_t r = 0;
+    size_t i = *len;
+    while (i > 0) {
+        uint64_t cur;
+        i--;
+        cur = (r << 32) | x[i];
+        x[i] = (uint32_t)(cur / d);
+        r = cur % d;
+    }
+    while (*len > 0 && x[*len - 1] == 0) (*len)--;
+}
+
+static void a1331_mul(uint32_t *x, size_t *len, uint32_t m)
+{
+    uint64_t c = 0;
+    size_t i;
+    for (i = 0; i < *len; i++) {
+        c += (uint64_t)x[i] * m;
+        x[i] = (uint32_t)c;
+        c >>= 32;
+    }
+    if (c) x[(*len)++] = (uint32_t)c;
+}
+
+static void a1331_pow(uint32_t *x, size_t *len, uint64_t s, uint64_t e)
+{
+    uint64_t acc = 1, i;
+    if (s <= 1) return;
+    for (i = 0; i < e; i++) {
+        if (acc * s > 0xFFFFFFFFULL) {
+            a1331_mul(x, len, (uint32_t)acc);
+            acc = s;
+        } else {
+            acc *= s;
+        }
+    }
+    if (acc > 1) a1331_mul(x, len, (uint32_t)acc);
+}
 
 typedef struct {
     idx_t n;
@@ -53,9 +106,9 @@ static void a1331_leaf(a1331_ctx *c)
         for (j = 0; j < k; j++)
             for (t = 0; t < k; t++) {
                 uint64_t p1 = c->ls[i], p2 = c->ls[j], p3 = c->ls[t];
-                uint64_t g = a1331_gcd(a1331_gcd(p1, p2), p3);
-                uint64_t L12 = p1 / a1331_gcd(p1, p2) * p2;
-                uint64_t L = L12 / a1331_gcd(L12, p3) * p3;
+                uint64_t g = gcd_u64(gcd_u64(p1, p2), p3);
+                uint64_t L12 = p1 / gcd_u64(p1, p2) * p2;
+                uint64_t L = L12 / gcd_u64(L12, p3) * p3;
                 uint64_t s = 0, e;
                 for (u = 0; u < k; u++)
                     if (L % c->ls[u] == 0) s += c->ls[u] * m[c->ls[u]];

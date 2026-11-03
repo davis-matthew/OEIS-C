@@ -9,7 +9,8 @@
  *            substring “45” but the representation of k‑1 does not
  * Range:     u8 n <= 3, u16 n <= 890, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 9154 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static bool has45(seq_t v)
 {
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
         if (condition) {
             if (len == cap) {
                 size_t new_cap = cap ? cap * 2 : 4;
-                seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, new_cap);
                 if (!tmp) abort();
                 terms = tmp;
                 cap = new_cap;

@@ -9,14 +9,16 @@
  *            Σ_{k=0}^{n-1} (-4)^(n-k) * binomial(2*n,2*k) * a(k)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 10, u128 n <= 15,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/binomial.h"   /* binomial(idx_t n, idx_t k) -> seq_t */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *a_cache      = NULL;
 static seq_t *pow9_cache   = NULL;
@@ -32,10 +34,10 @@ static void ensure_cache(idx_t n)
     size_t new_size = (size_t)n + 1;   /* indices 0..n inclusive */
 
     /* Reallocate all arrays */
-    a_cache     = (seq_t *)realloc(a_cache,     new_size * sizeof(seq_t));
-    pow9_cache  = (seq_t *)realloc(pow9_cache,  new_size * sizeof(seq_t));
-    pow25_cache = (seq_t *)realloc(pow25_cache, new_size * sizeof(seq_t));
-    pow4_cache  = (seq_t *)realloc(pow4_cache,  new_size * sizeof(seq_t));
+    a_cache     = mem_resize(seq_t, a_cache, new_size);
+    pow9_cache  = mem_resize(seq_t, pow9_cache, new_size);
+    pow25_cache = mem_resize(seq_t, pow25_cache, new_size);
+    pow4_cache  = mem_resize(seq_t, pow4_cache, new_size);
 
     /* First-time initialization */
     if (cache_size == 0) {

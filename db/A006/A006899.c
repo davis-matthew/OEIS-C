@@ -8,6 +8,7 @@
  *            = 2^0 = 3^0 counted once; a(1) = 1
  * Range:     u8 n <= 13, u16 n <= 26, u32 n <= 52, u64 n <= 104,
  *            u128 n <= 208, big any n
+ * Validated: standard, pass, 57 terms through n = 493 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

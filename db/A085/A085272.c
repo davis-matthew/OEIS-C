@@ -7,7 +7,8 @@
  * Formula:   a(n) = lcm_{k=1..n} (prime(k)+1) (index offset 1)
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 20, u64 n <= 39, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 1448 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /*  File‑scope cache for primes and the corresponding lcm values.        */
@@ -65,7 +67,7 @@ static void ensure_capacity(idx_t n)
     {
         cache_cap = 64;
         prime_cache = (idx_t*)malloc(cache_cap * sizeof(idx_t));
-        lcm_cache   = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        lcm_cache   = mem_new(seq_t, cache_cap);
         if (!prime_cache || !lcm_cache)
             abort();
     }
@@ -88,7 +90,7 @@ static void ensure_capacity(idx_t n)
         {
             cache_cap <<= 1;
             prime_cache = (idx_t*)realloc(prime_cache, cache_cap * sizeof(idx_t));
-            lcm_cache   = (seq_t*)realloc(lcm_cache, cache_cap * sizeof(seq_t));
+            lcm_cache   = mem_resize(seq_t, lcm_cache, cache_cap);
             if (!prime_cache || !lcm_cache)
                 abort();
         }

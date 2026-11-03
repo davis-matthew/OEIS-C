@@ -7,6 +7,7 @@
  * Formula:   a(n) = (floor(3^(n+1)/26) - floor((n+1)/3))/2
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 22, u64 n <= 30, u128 n <= 30,
  *            big any n
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-01)
  * Helpers:   pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,7 @@
 
 /* For small integer seq_t, compute by recurrence to avoid overflow.
    For large / arbitrary‑precision seq_t, use the closed form. */
+#include <stdint.h>
 #include "../utils/pow3.h"
 
 seq_t a(idx_t n)

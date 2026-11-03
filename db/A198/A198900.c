@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 18, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     if (cache_len < 3)
     {
         cache_len = 3;
-        cache = (seq_t *)malloc((cache_len + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (cache_len + 1));
         /* cache[0] is unused to keep indices 1‑based */
         cache[0] = 0;
         cache[1] = (seq_t)1;
@@ -46,8 +48,8 @@ seq_t a(idx_t n)
     if (n > cache_len)
     {
         /* Allocate a larger array */
-        seq_t *new_cache = (seq_t *)malloc((n + 1) * sizeof(seq_t));
-        memcpy(new_cache, cache, (cache_len + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, (n + 1));
+        mem_copy(new_cache, cache, (cache_len + 1) * sizeof(seq_t));
 
         /* Compute terms from cache_len+1 … n */
         for (idx_t i = cache_len + 1; i <= n; ++i)
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
         }
 
         /* Replace old cache */
-        free(cache);
+        mem_free(cache);
         cache     = new_cache;
         cache_len = n;
     }

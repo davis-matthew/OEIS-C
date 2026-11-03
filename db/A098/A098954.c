@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 42, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   has_desc_adj_idx
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,24 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/has_desc_adj_idx.h"
+
+/* Test whether an unsigned integer contains a descending
+ * consecutive adjacent pair of digits.  Operates on idx_t,
+ * which is guaranteed to hold values large enough for all
+ * required terms (uint64_t on typical builds). */
+static inline bool has_desc_adj_idx(idx_t x)
+{
+    if (x < 10) return false;          /* single‑digit numbers cannot fit */
+    idx_t prev = x % (idx_t)10;        /* least significant digit */
+    x /= (idx_t)10;
+    while (x > 0) {
+        idx_t cur = x % (idx_t)10;     /* next more significant digit */
+        if (cur > (idx_t)0 && cur - (idx_t)1 == prev) return true;
+        prev = cur;
+        x /= (idx_t)10;
+    }
+    return false;
+}
 
 /* Main sequence accessor.
  * N is 1‑based; a(1) = 10, a(2) = 21, etc. */

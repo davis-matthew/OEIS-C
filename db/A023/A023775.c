@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 32, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 32 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    (offset 1).  For n beyond the finite sequence the result is 0. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* compare function for qsort */
 static int seq_cmp(const void *p1, const void *p2)
@@ -57,7 +59,7 @@ static void init_values(void)
     }
 
     /* sort the generated values */
-    qsort(tmp, idx, sizeof(seq_t), seq_cmp);
+    mem_qsort(tmp, idx, sizeof(seq_t), seq_cmp);
 
     /* copy into the static array */
     for (size_t i = 0; i < idx; ++i) {

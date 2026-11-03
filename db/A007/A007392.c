@@ -9,12 +9,14 @@
  *            a(n-9), with initial values a(1) through a(12)
  * Range:     u8 n <= 26, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_size = 0;
@@ -31,7 +33,7 @@ seq_t a(idx_t n) {
     if (cache == NULL) {
         // Initialize cache
         idx_t initial_size = (n + 1) < 1000 ? 1000 : (n + 1) * 2;
-        cache = (seq_t *)malloc(sizeof(seq_t) * initial_size);
+        cache = mem_new(seq_t, initial_size);
         cache_size = initial_size;
         
         // Initialize first 13 elements
@@ -43,7 +45,7 @@ seq_t a(idx_t n) {
     } else if (n >= cache_size) {
         // Resize cache
         idx_t new_size = n * 2;
-        seq_t *new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_size);
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         cache = new_cache;
         cache_size = new_size;
     }

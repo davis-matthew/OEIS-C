@@ -10,7 +10,8 @@
  *            number (n ≥ 1)
  * Range:     u8 n <= 96, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   contains_substring, u64_to_str
+ * Validated: standard, pass, 78 terms through n = 9642 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,40 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/contains_substring.h"
-#include "../utils/u64_to_str.h"
+#include "../utils/mem.h"
+
+/* Return true if needle occurs as a contiguous substring of hay. */
+static bool contains_substring(const char *hay, const char *needle)
+{
+    if (*needle == '\0')
+        return true;
+    for (const char *p = hay; *p; ++p) {
+        const char *h = p;
+        const char *n = needle;
+        while (*h && *n && *h == *n) {
+            ++h; ++n;
+        }
+        if (*n == '\0')
+            return true;
+    }
+    return false;
+}
+
+/* convert an unsigned 64‑bit integer to a decimal string.
+   buf must have space for at least 32 bytes (including null). */
+static int u64_to_str(uint64_t x, char *buf)
+{
+    char tmp[32];
+    int i = 0;
+    do {
+        tmp[i++] = '0' + (x % 10);
+        x /= 10;
+    } while (x > 0);
+    for (int j = 0; j < i; ++j)
+        buf[j] = tmp[i - 1 - j];
+    buf[i] = '\0';
+    return i;
+}
 
 /* ------------------------------------------------------------ */
 /* Prime list and sieve (up to a fixed limit)                  */
@@ -123,8 +156,7 @@ seq_t a(idx_t n)
             /* append to seq_arr */
             if (seq_len >= seq_cap) {
                 seq_cap = seq_cap ? seq_cap * 2 : 4;
-                seq_arr = (seq_t *)realloc(seq_arr,
-                            sizeof(seq_t) * seq_cap);
+                seq_arr = mem_resize(seq_t, seq_arr, seq_cap);
             }
             seq_arr[seq_len++] = (seq_t)last_checked;
         }

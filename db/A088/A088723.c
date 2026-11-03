@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 55, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 9973 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 /* compile‑time includes that are valid in both C11 and C++17 */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /*  Static data shared by a() and its helper                            */
@@ -58,7 +60,7 @@ static void rebuild_cache(uint64_t limit)
         if (mark[i]) ++count;
 
     /* Allocate the new cache and fill it */
-    seq_t *new_cache = (seq_t*)malloc((size_t)count * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, (size_t)count);
     if (!new_cache)
     {
         free(mark);
@@ -70,7 +72,7 @@ static void rebuild_cache(uint64_t limit)
         if (mark[i]) new_cache[pos++] = (seq_t)i;
 
     /* Replace the old cache */
-    if (cache) free(cache);
+    if (cache) mem_free(cache);
     cache      = new_cache;
     cache_len  = count;
 

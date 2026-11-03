@@ -11,14 +11,15 @@
  *            among the * 8 columns
  * Range:     u8 none, u16 none, u32 n <= 5, u64 n <= 24, u128 n <= 136,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 32 terms through n = 124 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -47,7 +48,7 @@ seq_t a(idx_t n)
 
     for (int i = 0; i < 3; ++i) {
         for (int j = 0; j < 3; ++j) {
-            seq_t term = binom(r[i] + c[j], r[i]); /* binomial coefficient */
+            seq_t term = binomial(r[i] + c[j], r[i]); /* binomial coefficient */
             res *= term;
         }
     }

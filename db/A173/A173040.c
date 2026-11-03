@@ -11,7 +11,8 @@
  *            primes not marked
  * Range:     u8 n <= 4, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Build the first NMAX such primes once and keep them statically. */
 static const idx_t NMAX = 4000000;                     /* bound for m */
@@ -103,7 +105,7 @@ static void init_sequence(void)
 
     /* Collect primes that are not marked. */
     size_t cap = 1024;
-    seq_vals = (seq_t*)malloc(cap * sizeof(seq_t));
+    seq_vals = mem_new(seq_t, cap);
     if (!seq_vals) abort();
     seq_count = 0;
 
@@ -111,14 +113,14 @@ static void init_sequence(void)
         if (isprime[p] && !marked[p]) {
             if (seq_count == cap) {
                 cap *= 2;
-                seq_vals = (seq_t*)realloc(seq_vals, cap * sizeof(seq_t));
+                seq_vals = mem_resize(seq_t, seq_vals, cap);
                 if (!seq_vals) abort();
             }
             seq_vals[seq_count++] = (seq_t)p;
         }
     }
     /* Shrink to real size. */
-    seq_vals = (seq_t*)realloc(seq_vals, seq_count * sizeof(seq_t));
+    seq_vals = mem_resize(seq_t, seq_vals, seq_count);
 
     /* Free temporary arrays. */
     free(dcount);

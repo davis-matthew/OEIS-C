@@ -8,13 +8,15 @@
  * Formula:   a(n) = sum_{k=0}^{⌊n/3⌋} (C(n,3k+1)*C(n,3k))/n with a(0)=0
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 18, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 /* Return the n-th term of sequence A119366 */
 seq_t a(idx_t n)
@@ -30,8 +32,8 @@ seq_t a(idx_t n)
         idx_t j   = 3 * k;           /* 3k */
         idx_t jp1 = j + 1;           /* 3k+1 */
 
-        seq_t c_j   = binom(n, j);
-        seq_t c_jp1 = binom(n, jp1);
+        seq_t c_j   = binomial(n, j);
+        seq_t c_jp1 = binomial(n, jp1);
 
         /* product divided by n, exact division */
         seq_t prod = c_j * c_jp1;

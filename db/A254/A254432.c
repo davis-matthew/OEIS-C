@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 17, u32 n <= 27, u64 n <= 28, u128 n <= 28,
  *            big any n
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-01)
  * Helpers:   pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -22,7 +23,8 @@
 */
 
 #include <stddef.h>                /* for size_t */
-#include "../utils/pow3.h"          /* provides seq_t pow3(idx_t ex); */
+#include <stdint.h>
+#include "../utils/pow3.h"
 
 seq_t a(idx_t n)
 {

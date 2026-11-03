@@ -11,7 +11,8 @@
  *            bit-length(t)
  * Range:     u8 n <= 27, u16 n <= 1092, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   bitlen_uint64, is_prime_uint64
+ * Validated: standard, pass, 77 terms through n = 7954 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,12 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-#include "../utils/is_prime_uint64.h"   /* use the provided uint64 tester */
-#include "../utils/bitlen_uint64.h"
+#include "../utils/is_prime_u64.h"
+
+static inline int bitlen_uint64(uint64_t x) {
+    /* returns number of bits needed to represent x (x > 0) */
+    return 64 - __builtin_clzll(x);
+}
 
 seq_t a(idx_t n) {
     /* This function satisfies the external linkage requirement. */
@@ -42,7 +47,7 @@ seq_t a(idx_t n) {
     uint64_t step = 1ULL << ell;
 
     uint64_t candidate = t;
-    while (!is_prime_uint64(candidate)) {
+    while (!is_prime_u64(candidate)) {
         candidate += step;
     }
 

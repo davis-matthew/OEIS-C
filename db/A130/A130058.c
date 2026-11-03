@@ -8,7 +8,8 @@
  *            (3^(529*m‑1)-2^(529*m‑1))
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* array of found m's (as seq_t) */
 static size_t cache_len = 0;     /* number of terms stored */
@@ -27,7 +30,7 @@ static idx_t last_checked = 0;  /* last m examined */
 static void grow_cache(void)
 {
     size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-    seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
     if (!new_ptr) abort();   /* memory exhausted */
     cache = new_ptr;
     cache_cap = new_cap;
@@ -41,8 +44,8 @@ static bool good_m(idx_t m)
     /* exponent exp = k-1, stored as idx_t (fits for the intended n). */
     idx_t exp = (idx_t)(k - (seq_t)1);
 
-    seq_t a3 = mod_pow((seq_t)3, exp, k);
-    seq_t a2 = mod_pow((seq_t)2, exp, k);
+    seq_t a3 = powmod((seq_t)3, exp, k);
+    seq_t a2 = powmod((seq_t)2, exp, k);
     seq_t diff = a3 - a2;
     if (a3 < a2) diff += k;    /* adjust for unsigned underflow */
 

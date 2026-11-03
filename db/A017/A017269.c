@@ -8,12 +8,14 @@
  *            a(2)=133
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 23, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 174 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h> /* malloc, realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     /* Initialize base values once */
     if (last_computed == (idx_t)-1) {
         if (cap < 3) {
-            seq_t *tmp = (seq_t *)realloc(cache, 3 * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, 3);
             cache = tmp != NULL ? tmp : cache;
             cap = 3;
         }
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
 
     /* Ensure the cache can hold up to index n */
     if ((size_t)n >= cap) {
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)(n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)(n + 1));
         /* Assume allocation succeeds as per problem guarantees */
         cache = tmp != NULL ? tmp : cache;
         cap = (size_t)(n + 1);

@@ -7,13 +7,15 @@
  * Formula:   a(n) = A000219(n)^2 (square of the plane‑partition number)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 19, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Static cache for plane partition numbers a(n) */
 static seq_t *pp_arr   = NULL;
@@ -34,7 +36,7 @@ ensure_capacity(idx_t target, seq_t **arr, size_t *cap, seq_t zero_val)
 {
     if (*cap < (size_t)(target + 1)) {
         size_t new_cap = (size_t)(target + 1);
-        seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         *arr = tmp;
         for (size_t i = *cap; i < new_cap; ++i)

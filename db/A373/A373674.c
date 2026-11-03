@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   seq_t_compare
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,15 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_t_compare.h"
+#include "../utils/mem.h"
+
+/* Comparator for qsort on seq_t */
+static int seq_t_compare(const void *a, const void *b)
+{
+    seq_t va = *(const seq_t *)a;
+    seq_t vb = *(const seq_t *)b;
+    return (va > vb) - (va < vb);
+}
 
 /* Simple sieve – returns array of primes ≤ limit, and the count */
 static void generate_primes_upto(size_t limit, uint64_t **out, size_t *cnt)
@@ -68,7 +77,7 @@ static void recompute_runs(size_t needed)
 
         /* Build array of all prime powers ≤ new_limit (including 1) */
         size_t pow_cap = primes_cnt * 5 + 1;
-        seq_t *powers = (seq_t *)malloc(pow_cap * sizeof(seq_t));
+        seq_t *powers = mem_new(seq_t, pow_cap);
         size_t pws = 0;
         powers[pws++] = (seq_t)1;              /* include 1 */
         seq_t lim_seq = (seq_t)new_limit;
@@ -79,7 +88,7 @@ static void recompute_runs(size_t needed)
             while (pp <= lim_seq) {
                 if (pws >= pow_cap) {
                     pow_cap <<= 1;               /* double capacity */
-                    powers = (seq_t *)realloc(powers, pow_cap * sizeof(seq_t));
+                    powers = mem_resize(seq_t, powers, pow_cap);
                 }
                 powers[pws++] = pp;
                 if (pp > lim_seq / base) break;   /* would overflow / exceed limit */
@@ -88,11 +97,11 @@ static void recompute_runs(size_t needed)
         }
 
         /* Sort the powers (they are not globally sorted yet) */
-        qsort(powers, pws, sizeof(seq_t), seq_t_compare);
+        mem_qsort(powers, pws, sizeof(seq_t), seq_t_compare);
 
         /* Compute run ends: last element of each maximal run */
-        free(runs);                             /* free old run list if any */
-        runs = (seq_t *)malloc((pws + 1) * sizeof(seq_t));
+        mem_free(runs);                             /* free old run list if any */
+        runs = mem_new(seq_t, (pws + 1));
         runs_len = 0;
         for (size_t i = 0; i < pws; ++i) {
             if (i > 0 && powers[i] != powers[i - 1] + (seq_t)1)
@@ -103,7 +112,7 @@ static void recompute_runs(size_t needed)
             runs[runs_len++] = powers[pws - 1];
 
         /* Clean up */
-        free(powers);
+        mem_free(powers);
         free(primes);
         current_limit = new_limit;
     }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 29, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static bool _precomp_done = false;
 static int _horiz[8][3];
@@ -92,8 +94,8 @@ seq_t a(idx_t n)
        the last two rows are (p, c).  All rows up to row `p` have already
        satisfied their constraints. */
     static seq_t dp_prev[8][8], dp_next[8][8];
-    memset(dp_prev, 0, sizeof(dp_prev));
-    memset(dp_next, 0, sizeof(dp_next));
+    mem_set(dp_prev, 0, sizeof(dp_prev));
+    mem_set(dp_next, 0, sizeof(dp_next));
 
     /* initialise for first two rows */
     for (int p = 0; p < 8; ++p)
@@ -102,7 +104,7 @@ seq_t a(idx_t n)
 
     /* process rows 3 .. n */
     for (idx_t step = 3; step <= n; ++step) {
-        memset(dp_next, 0, sizeof(dp_next));
+        mem_set(dp_next, 0, sizeof(dp_next));
         for (int p = 0; p < 8; ++p) {
             for (int c = 0; c < 8; ++c) {
                 seq_t cur = dp_prev[p][c];
@@ -113,7 +115,7 @@ seq_t a(idx_t n)
                 }
             }
         }
-        memcpy(dp_prev, dp_next, sizeof(dp_prev));
+        mem_copy(dp_prev, dp_next, sizeof(dp_prev));
     }
 
     /* final column: last row must have no bottom neighbour */

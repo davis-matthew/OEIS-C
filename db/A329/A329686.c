@@ -12,12 +12,14 @@
  *            O(sqrt(n)) precomputation for all required values
  * Range:     u8 n <= 22, u16 n <= 38, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cat_cache = NULL;         /* array storing Catalan numbers C(0)...C(k) */
 static size_t cat_cache_size = 0;       /* number of elements currently stored */
@@ -27,14 +29,14 @@ static size_t cat_cache_size = 0;       /* number of elements currently stored *
 static seq_t get_cat(idx_t k)
 {
     if (cat_cache == NULL) {
-        cat_cache = (seq_t*)malloc(sizeof(seq_t));
+        cat_cache = mem_new(seq_t, 1);
         if (!cat_cache) return (seq_t)0;           /* allocation failure – unlikely */
         cat_cache[0] = (seq_t)1;                 /* C(0) = 1 */
         cat_cache_size = 1;
     }
     if (cat_cache_size <= k) {
         size_t new_size = (size_t)(k + 1);
-        seq_t *tmp = (seq_t*)realloc(cat_cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cat_cache, new_size);
         if (!tmp) return (seq_t)0;                 /* allocation failure – unlikely */
         cat_cache = tmp;
         for (size_t i = cat_cache_size; i < new_size; ++i) {

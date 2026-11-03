@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 444, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 997 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Ensure capacity is at least 'need' elements.  Used internally only. */
 static void ensure_seq_capacity(seq_t **buf, size_t *cap, size_t need)
@@ -30,7 +32,7 @@ static void ensure_seq_capacity(seq_t **buf, size_t *cap, size_t need)
     if (*cap < need) {
         size_t newcap = *cap ? *cap << 1 : 16;
         while (newcap < need) newcap <<= 1;
-        seq_t *p = (seq_t *)realloc(*buf, newcap * sizeof(seq_t));
+        seq_t *p = mem_resize(seq_t, *buf, newcap);
         *buf = p;
         *cap = newcap;
     }

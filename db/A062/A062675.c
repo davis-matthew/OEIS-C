@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 3373, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_digit_7
+ * Validated: standard, pass, 70 terms through n = 8231 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,18 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has_digit_7.h"
+#include "../utils/mem.h"
+
+/* true if x contains the digit 7 */
+static bool has_digit_7(uint64_t x)
+{
+    while (x > 0) {
+        if (x % 10ULL == 7ULL)
+            return true;
+        x /= 10ULL;
+    }
+    return false;
+}
 
 /* ---------- helpers ---------- */
 
@@ -51,7 +63,7 @@ static bool good(uint64_t m, const uint32_t *spf, size_t limit)
     }
 
     /* enumerate all divisors via a rolling list */
-    uint64_t divs[1 << 20];    /* enough for numbers up to our limit                */
+    static uint64_t divs[1 << 20];    /* 8 MB: not on the stack */
     size_t   dlen = 1;
     divs[0] = 1ULL;
 
@@ -127,8 +139,7 @@ seq_t a(idx_t n)
         }
 
         /* add candidate to cache */
-        seq_t *tmp = (seq_t *)realloc(cache,
-                                      (cache_size + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (cache_size + 1));
         if (!tmp) {
             abort();
         }

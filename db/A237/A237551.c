@@ -13,14 +13,37 @@
  *            subblock in columns 1–2. An array is valid iff...
  * Range:     u8 none, u16 n <= 4, u32 n <= 10, u64 n <= 24, u128 n <= 51,
  *            big any n
- * Helpers:   diff_four
+ * Validated: standard, pass, 35 terms through n = 187 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/diff_four.h"
+
+/* Return max – upper median for four values in 0..2. */
+static uint8_t diff_four(uint8_t a, uint8_t b, uint8_t c, uint8_t d)
+{
+    uint8_t max1 = 0, max2 = 0;
+    uint8_t v = a;
+    if (v > max1) { max2 = max1; max1 = v; }
+    else if (v > max2) { max2 = v; }
+
+    v = b;
+    if (v > max1) { max2 = max1; max1 = v; }
+    else if (v > max2) { max2 = v; }
+
+    v = c;
+    if (v > max1) { max2 = max1; max1 = v; }
+    else if (v > max2) { max2 = v; }
+
+    v = d;
+    if (v > max1) { max2 = max1; max1 = v; }
+    else if (v > max2) { max2 = v; }
+
+    return max1 - max2;   /* values 0..2 */
+}
 
 #define NUM_ROWS 27
 

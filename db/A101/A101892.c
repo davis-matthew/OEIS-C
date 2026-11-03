@@ -10,13 +10,15 @@
  *            O(n) time with memoization
  * Range:     u8 n <= 8, u16 n <= 14, u32 n <= 27, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     if (seq_size == 0) {
         /* store terms 0..3 */
         seq_size = 4;
-        seq = (seq_t *)malloc(seq_size * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_size);
         if (!seq) return 0;      /* allocation failed; return 0 as safe value */
         seq[0] = (seq_t)0;
         seq[1] = (seq_t)0;
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     /* extend the table if requested n is beyond current size       */
     if (n >= seq_size) {
         idx_t new_size = n + 1;
-        seq_t *new_seq = (seq_t *)realloc(seq, new_size * sizeof(seq_t));
+        seq_t *new_seq = mem_resize(seq_t, seq, new_size);
         if (!new_seq) return 0;   /* allocation failed; return 0 as safe value */
         seq = new_seq;
         /* compute missing values using the recurrence                */

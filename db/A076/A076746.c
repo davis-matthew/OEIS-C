@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 142, u32 n <= 142, u64 n <= 142,
  *            u128 n <= 142, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 65 terms through n = 126 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"   /* bool is_prime(idx_t n); */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static seq_t   *terms   = NULL;   /* dynamically growing array of results   */
 static size_t   terms_len = 0;    /* number of terms currently stored      */
@@ -34,7 +36,7 @@ static void grow_terms(size_t need)
     if (terms_cap >= need) return;
     size_t new_cap = terms_cap ? terms_cap * 2 : 64;
     while (new_cap < need) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, terms, new_cap);
     if (!tmp) abort();             /* unrecoverable memory error            */
     terms = tmp;
     terms_cap = new_cap;
@@ -46,7 +48,7 @@ static void ensure_terms(idx_t n)
     if (n == 0) return;            /* offset is 1; a(0) is undefined      */
     if (terms == NULL) {           /* first call: allocate initial memory  */
         terms_cap = 64;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
         if (!terms) abort();       /* unrecoverable                            */
     }
     while (terms_len < (size_t)n) {

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 30, i16 n <= 69, i32 n <= 158, i64 n <= 414,
  *            i128 n <= 1138, big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 94 terms through n = 1194 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
    (row,col) derived from the antidiagonal index. */
 
 #include <math.h>               /* sqrt, for anti‑diagonal mapping */
-#include "../utils/big_pow.h"   /* big_pow(seq_t base, seq_t exp) */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 /* triangular number: T(d) = d*(d+1)/2 */
 static inline idx_t tri(idx_t d) { return d * (d + 1) / 2; }
@@ -47,14 +50,14 @@ seq_t a(idx_t n)
     for (idx_t t = 1; t * t <= row; ++t) {
         if (row % t == 0) {
             /* divisor t */
-            seq_t pow_t  = big_pow((seq_t)t, (seq_t)col);
+            seq_t pow_t  = ipow((seq_t)t, (seq_t)col);
             seq_t sign   = (((row / t + 1) & 1) ? (seq_t)(-1) : (seq_t)1);
             result += pow_t * sign;
 
             /* partner divisor row / t, if distinct */
             idx_t partner = row / t;
             if (partner != t) {
-                seq_t pow_p  = big_pow((seq_t)partner, (seq_t)col);
+                seq_t pow_p  = ipow((seq_t)partner, (seq_t)col);
                 seq_t sign_p = (((row / partner + 1) & 1) ? (seq_t)(-1) : (seq_t)1);
                 result += pow_p * sign_p;
             }

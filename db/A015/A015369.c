@@ -7,15 +7,17 @@
  * Formula:   a(n) = Product_{i=1..8} ((-12)^(n-i+1)-1)/((-12)^i-1)
  * Range:     u8 none, u16 none, u32 n <= 8, u64 n <= 10, u128 n <= 12,
  *            big any n
- * Helpers:   big_pow, gcd
+ * Validated: standard, pass, 23 terms through n = 90 (2026-11-01)
+ * Helpers:   gcd, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Computes Gaussian binomial coefficient [n,8] for q = -12, for n >= 8. */
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     /* ------------------------------------------------------------------ */
     /* Step 1: Prepare magnitudes of numerators and denominators.         */
     /* ------------------------------------------------------------------ */
-    seq_t pow_n = big_pow((seq_t)12, (seq_t)n);   /* 12^n               */
+    seq_t pow_n = ipow((seq_t)12, (seq_t)n);   /* 12^n               */
     seq_t numer_mag[8];
     bool numer_neg[8] = {0};
 

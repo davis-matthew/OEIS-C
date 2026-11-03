@@ -10,14 +10,15 @@
  *            sbox[0]) == n } (0 ≤ n ≤ 16, a(n) = 0 for n > 16)
  * Range:     u8 n <= 16, u16 n <= 16, u32 n <= 16, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   popcount_byte
+ * Validated: full, pass, 17 terms through n = 16 (2026-11-02)
+ * Helpers:   popcount_u8
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/popcount_byte.h"
+#include "../utils/popcount_u8.h"
 
 /* The AES (Rijndael) S‑box */
 static const uint8_t sbox[256] = {
@@ -51,8 +52,8 @@ seq_t a(idx_t n)
     const uint8_t ref_val = sbox[0];
 
     for (idx_t i = 0; i < 256; ++i) {
-        unsigned dist = popcount_byte((uint8_t)i) +
-                        popcount_byte(sbox[i] ^ ref_val);
+        unsigned dist = popcount_u8((uint8_t)i) +
+                        popcount_u8(sbox[i] ^ ref_val);
         if (dist == (unsigned)n) {
             count += (seq_t)1;
         }

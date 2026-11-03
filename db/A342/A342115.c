@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 99, u16 n <= 9999, u32 n <= 9999, u64 n <= 9999,
  *            u128 n <= 9999, big any n
- * Helpers:   key_of_number
+ * Validated: standard, pass, 84 terms through n = 9505 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,43 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/key_of_number.h"
+#include "../utils/mem.h"
+
+/* Helper: compute the sorted frequency vector of digits of n
+   and pack it into a 40‑bit key (10 × 4‑bit counts). */
+static uint64_t key_of_number(idx_t n)
+{
+    unsigned char cnt[10] = {0};
+
+    if (n == 0) {
+        cnt[0] = 1;
+    } else {
+        idx_t tmp = n;
+        while (tmp > 0) {
+            unsigned d = (unsigned)tmp % 10;
+            cnt[d]++;
+            tmp /= 10;
+        }
+    }
+
+    /* sort counts */
+    unsigned char sorted[10];
+    for (int i = 0; i < 10; ++i)
+        sorted[i] = cnt[i];
+    for (int i = 0; i < 10; ++i)
+        for (int j = i + 1; j < 10; ++j)
+            if (sorted[i] > sorted[j]) {
+                unsigned char t = sorted[i];
+                sorted[i] = sorted[j];
+                sorted[j] = t;
+            }
+
+    /* pack into key */
+    uint64_t key = 0;
+    for (int i = 0; i < 10; ++i)
+        key = (key << 4) | sorted[i];
+    return key;
+}
 
 /* The types seq_t and idx_t are defined by the build. */
 extern seq_t a(idx_t n);  /* forward declaration for the compiler */
@@ -73,7 +110,7 @@ static void build_mapping(void)
     if (mapping != NULL)
         return;                       /* already built */
 
-    mapping = (seq_t *)malloc(LIMIT * sizeof(seq_t));
+    mapping = mem_new(seq_t, LIMIT);
     if (!mapping)
         abort();
 

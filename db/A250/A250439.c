@@ -12,7 +12,8 @@
  *            nondecreasing) * and each row is component‑wise...
  * Range:     u8 none, u16 n <= 2, u32 n <= 7, u64 n <= 33, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Max n expected in the tests (≈10000) */
 #define MAX_N 10000
@@ -97,8 +99,8 @@ initialize(void)
     }
 
     /* 3. allocate DP arrays */
-    dp_prev = (seq_t*)calloc(G, sizeof(seq_t));
-    dp_curr = (seq_t*)calloc(G, sizeof(seq_t));
+    dp_prev = mem_new(seq_t, G);
+    dp_curr = mem_new(seq_t, G);
     if (!dp_prev || !dp_curr) abort(); /* out of memory */
 
     /* 4. compute chain counts for all lengths up to MAX_M */

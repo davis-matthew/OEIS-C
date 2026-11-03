@@ -10,14 +10,18 @@
  *            divisor of n
  * Range:     u8 n <= 111, u16 n <= 111, u32 n <= 111, u64 n <= 111,
  *            u128 n <= 111, big any n
- * Helpers:   factor_u64, mod_pow
+ * Validated: partial, pass, 111 terms through n = 111 (2026-11-01)
+ * Helpers:   factor_u64, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
 
 static int cmp_uint64(const void *a, const void *b)
 {
@@ -80,7 +84,7 @@ seq_t a(idx_t n)
     qsort(divs, tau, sizeof(uint64_t), cmp_uint64);
 
     uint64_t k = divs[pos_in_row];
-    seq_t result = mod_pow((seq_t)(row / k), (uint64_t)(k - 1), (seq_t)k);
+    seq_t result = powmod((seq_t)(row / k), (uint64_t)(k - 1), (seq_t)k);
 
     free(divs);
     return result;

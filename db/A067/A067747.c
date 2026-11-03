@@ -10,7 +10,8 @@
  *            composite number
  * Range:     u8 n <= 108, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 960 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>   /* malloc, realloc, NULL, size_t */
 #include <stdint.h>   /* uint64_t, size_t */
+#include "../utils/mem.h"
 
 /* Forward declarations of the helper functions. */
 static int is_prime_simple(uint64_t n);
@@ -62,7 +64,7 @@ static int is_prime_simple(uint64_t n)
 static void grow_primes(void)
 {
     size_t newcap = primes_cap ? primes_cap * 2 : 16;
-    seq_t *tmp = (seq_t *)realloc(primes, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, primes, newcap);
     if (!tmp) { /* allocation failed – aborting */
         abort();
     }
@@ -74,7 +76,7 @@ static void grow_primes(void)
 static void grow_composites(void)
 {
     size_t newcap = composites_cap ? composites_cap * 2 : 16;
-    seq_t *tmp = (seq_t *)realloc(composites, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, composites, newcap);
     if (!tmp) abort();
     composites = tmp;
     composites_cap = newcap;

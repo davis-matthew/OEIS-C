@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 23, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -37,6 +38,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*  Compute a(n) where n >= 1  */
 seq_t a(idx_t n)
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
             size_t new_cap = cache_cap > 0 ? cache_cap : 16;
             while (new_cap < (size_t)(n + 1))
                 new_cap <<= 1;
-            cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_cap);
             cache_cap = new_cap;
         }
 
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
             /* Row r = 1 : T(1,1) = 1, T(1,2) = 1 */
             current_row = 1;
             prev_len = 3;                /* indices 0 .. 2*1 */
-            prev = (seq_t *)malloc(prev_len * sizeof(seq_t));
+            prev = mem_new(seq_t, prev_len);
             prev[0] = 0;                 /* unused but convenient  */
             prev[1] = 1;
             prev[2] = 1;
@@ -84,7 +86,7 @@ seq_t a(idx_t n)
             idx_t r = current_row + 1;      /* next row number */
             idx_t row_size = 2 * r + 1;     /* allocate 0 .. 2r */
 
-            seq_t *curr = (seq_t *)malloc(row_size * sizeof(seq_t));
+            seq_t *curr = mem_new(seq_t, row_size);
             curr[0] = 0;                    /* unused placeholder */
 
             for (idx_t k = 1; k <= 2 * r; ++k) {
@@ -113,7 +115,7 @@ seq_t a(idx_t n)
                 size_t new_cap = cache_cap > 0 ? cache_cap : 16;
                 while (new_cap < (size_t)(total_indices + 2 * r))
                     new_cap <<= 1;
-                cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, new_cap);
                 cache_cap = new_cap;
             }
 
@@ -122,7 +124,7 @@ seq_t a(idx_t n)
             }
 
             /* Prepare for next iteration. */
-            free(prev);
+            mem_free(prev);
             prev = curr;
             prev_len = row_size;
             current_row = r;

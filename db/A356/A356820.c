@@ -7,14 +7,18 @@
  * Formula:   a(n) = Sum_{k=0..n} (-1)^k * (3*k)^(n-k) * binomial(n,k)
  * Range:     i8 n <= 4, i16 n <= 7, i32 n <= 11, i64 n <= 18, i128 n <= 20,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   binomial, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/binomial.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +29,7 @@ seq_t a(idx_t n)
 
     /* Expand cache if necessary. */
     if (n + 1 > cache_cap) {
-        cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (n + 1));
         cache_cap = n + 1;
     }
 
@@ -44,7 +48,7 @@ seq_t a(idx_t n)
                     else
                         powv = (seq_t)0;   /* 0^e , e>0, is 0 */
                 } else {
-                    powv = big_pow((seq_t)(3 * k), (seq_t)(i - k));
+                    powv = ipow((seq_t)(3 * k), (seq_t)(i - k));
                 }
 
                 seq_t bin = binomial(i, k);

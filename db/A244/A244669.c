@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 23, u32 n <= 59, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   factor_u64, seq_pow
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,10 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 /* Euclidean algorithm for seq_t values */
 static seq_t seq_gcd(seq_t a, seq_t b)
@@ -50,7 +53,7 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < cnt; ++i) {
         uint64_t e = exps[i];
         uint64_t exp_val = e * (uint64_t)d / 2;
-        prod = prod * seq_pow((seq_t)primes[i], (idx_t)exp_val);
+        prod = prod * ipow_idx((seq_t)primes[i], (idx_t)exp_val);
     }
 
     /* sum of divisors σ(n) = ∏ (p_i^{e_i+1}-1)/(p_i-1) */
@@ -58,7 +61,7 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < cnt; ++i) {
         uint64_t p = primes[i];
         uint64_t e = exps[i];
-        seq_t numerator   = seq_pow((seq_t)p, (idx_t)(e + 1)) - (seq_t)1;
+        seq_t numerator   = ipow_idx((seq_t)p, (idx_t)(e + 1)) - (seq_t)1;
         seq_t denominator = (seq_t)(p - 1);
         sigma = sigma * (numerator / denominator);
     }

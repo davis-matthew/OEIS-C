@@ -10,6 +10,7 @@
  *            0, a(9) = 1, a(10) = 1, * a(n) = 0 for all n > 10
  * Range:     i8 n <= 10, i16 n <= 10, i32 n <= 10, i64 n <= 10, i128 n <= 10,
  *            big any n
+ * Validated: full, pass, 11 terms through n = 10 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

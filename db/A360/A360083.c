@@ -7,11 +7,14 @@
  * Formula:   a(n) = Sum_{k=0..n} binomial(5*k,n-k)*Catalan(k)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 24, u128 n <= 47,
  *            big any n
+ * Validated: standard, pass, 39 terms through n = 964 (2026-11-01)
  * Helpers:   binomial, catalan
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/catalan.h"
 

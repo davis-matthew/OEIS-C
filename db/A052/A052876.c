@@ -8,12 +8,14 @@
  *            the second kind
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,17 +31,17 @@ seq_t a(idx_t n)
 
     /* first initialisation */
     if (A == NULL) {
-        A = (seq_t *)malloc(sizeof(seq_t));
+        A = mem_new(seq_t, 1);
         if (!A) abort();
         A[0] = 0;
         A_size = 1;
 
-        fact = (seq_t *)malloc(sizeof(seq_t));
+        fact = mem_new(seq_t, 1);
         if (!fact) abort();
         fact[0] = 1;
         fact_size = 1;
 
-        prevS = (seq_t *)malloc(sizeof(seq_t));
+        prevS = mem_new(seq_t, 1);
         if (!prevS) abort();
         prevS[0] = 1;
         prevS_size = 1;
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
 
         /* factorial for m */
         if (fact_size <= (size_t)m) {
-            fact = (seq_t *)realloc(fact, (m + 1) * sizeof(seq_t));
+            fact = mem_resize(seq_t, fact, (m + 1));
             if (!fact) abort();
             fact_size = (size_t)m + 1;
         }
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
 
         /* allocate current Stirling row */
         if (curS_size <= (size_t)m) {
-            curS = (seq_t *)realloc(curS, (m + 1) * sizeof(seq_t));
+            curS = mem_resize(seq_t, curS, (m + 1));
             if (!curS) abort();
             curS_size = (size_t)m + 1;
         }
@@ -82,7 +84,7 @@ seq_t a(idx_t n)
         }
 
         /* store a(m) */
-        A = (seq_t *)realloc(A, (A_size + 1) * sizeof(seq_t));
+        A = mem_resize(seq_t, A, (A_size + 1));
         if (!A) abort();
         A[(size_t)A_size] = sum;
         ++A_size;

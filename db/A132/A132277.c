@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 37, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
  */
 
 #include <stdlib.h>   /* malloc, calloc, realloc */
+#include "../utils/mem.h"
 
 /* forward declaration of the sequence function */
 seq_t a(idx_t n);
@@ -79,7 +81,7 @@ ensure_polys(idx_t upto)
         poly_len = (size_t *)malloc(poly_cap * sizeof(size_t));
 
         /* Row 0: C_0(t) = 1 */
-        poly[0] = (seq_t *)malloc(sizeof(seq_t));
+        poly[0] = mem_new(seq_t, 1);
         poly[0][0] = (seq_t)1;
         poly_len[0] = 1;
         poly_count = 1;
@@ -95,7 +97,7 @@ ensure_polys(idx_t upto)
     /* Compute missing rows, one at a time */
     for (size_t cur = poly_count; cur <= (size_t)upto; ++cur) {
         size_t cur_len = cur + 1;
-        seq_t *cur_poly = (seq_t *)calloc(cur_len, sizeof(seq_t));
+        seq_t *cur_poly = mem_new(seq_t, cur_len);
         poly[cur] = cur_poly;
         poly_len[cur] = cur_len;
 

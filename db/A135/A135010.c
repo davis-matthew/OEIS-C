@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabf
  * Formula:   not stated
- * Range:     u8 n <= 2456, u16 n <= 9907, u32 n <= 9907, u64 n <= 9907,
- *            u128 n <= 9907, big any n
- * Helpers:   find_partitions
+ * Range:     u8 n <= 2456, u16 n <= 10206, u32 n <= 10206, u64 n <= 10206,
+ *            u128 n <= 10206, big any n
+ * Validated: standard, pass, 121 terms through n = 9907 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,37 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/find_partitions.h"
+#include "../utils/mem.h"
+
+/* recursive partition generator:
+   sum   – remaining sum to partition
+   min   – smallest part allowed (>=2)
+   parts – buffer holding current partition parts
+   depth – current depth in parts array
+   rem   – pointer to remaining position in flattened sequence
+   out   – return partition part when a target position is found
+*/
+static bool find_partitions(idx_t *rem, seq_t *out,
+                            int sum, int min_part,
+                            int *parts, int depth)
+{
+    if (sum == 0) {
+        /* we have a complete partition; emit its parts */
+        for (int i = 0; i < depth; ++i) {
+            if (--(*rem) == 0) {
+                *out = (seq_t)parts[i];
+                return true;
+            }
+        }
+        return false;
+    }
+    for (int part = min_part; part <= sum; ++part) {
+        parts[depth] = part;
+        if (find_partitions(rem, out, sum - part, part, parts, depth + 1))
+            return true;
+    }
+    return false;
+}
 
 /* forward declarations of helper */
 static bool find_partitions(idx_t *rem, seq_t *out,
@@ -40,7 +71,7 @@ static void ensure_partitions(idx_t limit)
     if (limit < 200) limit = 200;
     if (p_parts && p_size > limit) return;
 
-    seq_t *new_table = (seq_t*)realloc(p_parts, (limit + 1) * sizeof(seq_t));
+    seq_t *new_table = mem_resize(seq_t, p_parts, (limit + 1));
     if (!new_table) abort();          /* allocation failure */
     p_parts = new_table;
     p_size = limit + 1;

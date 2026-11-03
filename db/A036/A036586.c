@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 98, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 99 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* initialise the seed word "a" mapped to the value 2 */
     if (seq == NULL)
     {
-        seq = (seq_t *)malloc(sizeof(seq_t));
+        seq = mem_new(seq_t, 1);
         if (!seq) return (seq_t)0; /* fallback – should not happen */
         seq[0] = 2;
         len   = 1;
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     {
         /* the maximal growth factor of one expansion step is 3 */
         size_t new_cap = len * 3;
-        seq_t *next = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *next = mem_new(seq_t, new_cap);
         if (!next) return (seq_t)0; /* fallback – should not happen */
 
         size_t dst = 0;
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
             }
         }
 
-        free(seq);           /* discard the previous prefix   */
+        mem_free(seq);           /* discard the previous prefix   */
         seq = next;          /* keep the expanded prefix      */
         len = dst;           /* the new length of the prefix  */
     }

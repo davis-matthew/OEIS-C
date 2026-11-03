@@ -8,7 +8,8 @@
  *            Σ_{d=1..n, d not prime} a(n-d), a(0) = 1
  * Range:     u8 n <= 15, u16 n <= 28, u32 n <= 54, u64 n <= 107,
  *            u128 n <= 211, big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 4563 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* --- Dependencies --------------------------------------------------- */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --- Static state ---------------------------------------------------- */
 static seq_t *A = NULL;          /* a(n) values */
@@ -37,8 +39,8 @@ static void ensure_capacity(idx_t needed)
     size_t new_cap = capacity ? capacity << 1 : 16;
     while (new_cap < needed_cap)
         new_cap <<= 1;
-    seq_t *tmpA = (seq_t *)realloc(A, new_cap * sizeof(seq_t));
-    seq_t *tmpS = (seq_t *)realloc(S, new_cap * sizeof(seq_t));
+    seq_t *tmpA = mem_resize(seq_t, A, new_cap);
+    seq_t *tmpS = mem_resize(seq_t, S, new_cap);
     if (!tmpA || !tmpS) /* memory allocation failed */
         abort();
     A = tmpA;

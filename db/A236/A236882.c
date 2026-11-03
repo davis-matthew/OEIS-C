@@ -11,7 +11,8 @@
  *            largest values of each block is a constant)
  * Range:     u8 none, u16 n <= 1, u32 n <= 5, u64 n <= 13, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 188 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define STATE_COUNT 2187           /* 3^7 possible rows */
 #define MAX_CONST 7               /* possible constants 0..6 */
@@ -113,8 +115,8 @@ seq_t a(idx_t n)
 
     /* Allocate DP arrays on first call. */
     if (!dp) {
-        dp = (seq_t*)malloc(STATE_COUNT * sizeof(seq_t));
-        newdp = (seq_t*)malloc(STATE_COUNT * sizeof(seq_t));
+        dp = mem_new(seq_t, STATE_COUNT);
+        newdp = mem_new(seq_t, STATE_COUNT);
     }
 
     seq_t result = (seq_t)0;

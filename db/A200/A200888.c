@@ -9,6 +9,7 @@
  *            (valid for n ≥ 1, offset 1)
  * Range:     u8 none, u16 n <= 4, u32 n <= 97, u64 n <= 210, u128 n <= 210,
  *            big any n
+ * Validated: standard, pass, 50 terms through n = 185 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

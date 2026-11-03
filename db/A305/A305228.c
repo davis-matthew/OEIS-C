@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 7, u32 n <= 16, u64 n <= 33, u128 n <= 66,
  *            big any n
- * Helpers:   mul_word
+ * Validated: standard, pass, 39 terms through n = 210 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,13 @@
  */
 
 #include <stddef.h>
-#include "../utils/mul_word.h"
+
+static inline seq_t mul_word(seq_t x, unsigned int m)
+{
+    seq_t r = 0;
+    while (m--) r += x;
+    return r;
+}
 
 /* Compute a(n).  Assumes idx_t is an unsigned integer type. */
 seq_t a(idx_t n)

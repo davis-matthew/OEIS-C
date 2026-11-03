@@ -7,13 +7,15 @@
  * Formula:   a(n) = Catalan(n-1) + \sum_{i+j+k = n-1} a(i)a(j)a(k)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* External linkage as required */
 seq_t a(idx_t n) {
@@ -22,12 +24,12 @@ seq_t a(idx_t n) {
     }
 
     /* Allocate storage for a[0..n] and AA[0..n] */
-    seq_t *a_arr = (seq_t *)malloc((n + 1) * sizeof(seq_t));
-    seq_t *AA   = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *a_arr = mem_new(seq_t, (n + 1));
+    seq_t *AA   = mem_new(seq_t, (n + 1));
     if (a_arr == NULL || AA == NULL) {
         /* Allocation failure – return undefined value */
-        free(a_arr);
-        free(AA);
+        mem_free(a_arr);
+        mem_free(AA);
         return (seq_t)0;
     }
 
@@ -64,7 +66,7 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = a_arr[n];
-    free(a_arr);
-    free(AA);
+    mem_free(a_arr);
+    mem_free(AA);
     return result;
 }

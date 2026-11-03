@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 16, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   _spf_uint64
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,16 @@
  */
 
 #include <stdint.h>
-#include "../utils/_spf_uint64.h"
+
+/* return the smallest prime factor of n (n ≥ 2);  
+ * if n is prime, returns n itself. */
+static uint64_t _spf_uint64(uint64_t n)
+{
+    if ((n & 1ULL) == 0) return 2ULL;
+    for (uint64_t d = 3; d * d <= n; d += 2)
+        if (n % d == 0) return d;
+    return n;          /* n is prime */
+}
 
 seq_t a(idx_t n)
 {

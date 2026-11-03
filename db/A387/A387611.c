@@ -8,14 +8,16 @@
  * Formula:   a(n) = 8*n^5/gcd(n,15) (numerator of 8*n^5/15)
  * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   gcd, seq_pow
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-01)
+ * Helpers:   gcd, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/gcd.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
     seq_t nn = (seq_t)n;
 
     /* Compute n^5 */
-    seq_t num = seq_pow(nn, 5);
+    seq_t num = ipow_idx(nn, 5);
 
     /* Compute the gcd of n and 15 */
     seq_t g = gcd(nn, (seq_t)15);

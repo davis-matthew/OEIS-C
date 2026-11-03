@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 18, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   exp_double_fact, exp_factorial
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,38 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <string.h>
-#include "../utils/exp_double_fact.h"
-#include "../utils/exp_factorial.h"
+
+/* Exponent of prime p in n! */
+static int exp_factorial(int n, int p)
+{
+    int exp = 0;
+    while (n) {
+        n /= p;
+        exp += n;
+    }
+    return exp;
+}
+
+/* Exponent of prime p in k!! (double factorial) */
+static int exp_double_fact(int k, int p)
+{
+    if (k <= 0) return 0;
+    if ((k & 1) == 0) {           /* even k: k!! = 2^(k/2) * (k/2)! */
+        int m = k >> 1;
+        if (p == 2)
+            return m + exp_factorial(m, 2);
+        else
+            return exp_factorial(m, p);
+    } else {                      /* odd k: k!! = (2m)! / (2^m m!) where k = 2m-1 */
+        int m = (k + 1) >> 1;     /* m = (k+1)/2 */
+        int exp2 = exp_factorial(2 * m, p);
+        int exp1 = exp_factorial(m, p);
+        if (p == 2)
+            return exp2 - exp1 - m;   /* subtract 2^m factor */
+        else
+            return exp2 - exp1;
+    }
+}
 
 static int primes[25000];
 static int prime_count = 0;

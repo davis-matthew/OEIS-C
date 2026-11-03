@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 35, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    a(0)=1, a(1)=1, a(2)=1, a(3)=1, a(4)=1,
    a(5)=2, a(6)=3, a(7)=5, a(8)=7, a(9)=9  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* first call: allocate cache and copy initial values */
     if (buf_len == 0) {
         buf_len = 10;
-        buf = (seq_t*)malloc(buf_len * sizeof(seq_t));
+        buf = mem_new(seq_t, buf_len);
         if (!buf) abort();
         for (idx_t i = 0; i < buf_len; ++i)
             buf[i] = init[i];
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     /* extend cache if needed and compute new terms */
     if (n + 1 > buf_len) {
         size_t new_len = (size_t)(n + 1);
-        seq_t *tmp = (seq_t*)realloc(buf, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, buf, new_len);
         if (!tmp) abort();
         buf = tmp;
         for (idx_t i = buf_len; i <= n; ++i) {

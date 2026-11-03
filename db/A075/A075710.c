@@ -8,6 +8,7 @@
  * Formula:   a(n) = numerator of ∑_{k=1..n} frac(n/k)
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 24, u64 n <= 46, u128 n <= 95,
  *            big any n
+ * Validated: standard, pass, 45 terms through n = 2254 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 
 /* Implementation: iteratively add each fractional part in lowest terms */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

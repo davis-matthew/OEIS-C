@@ -7,6 +7,7 @@
  * Formula:   a(n) = 6*n*n + 12*n + 3 + 6 * Σ_{k=1}^n ⌊n/k⌋ (OEIS A224525)
  * Range:     u8 n <= 4, u16 n <= 101, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 59 terms through n = 9765 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

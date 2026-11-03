@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   is_palindrome, smallest_prime_factor
+ * Validated: partial, pass, 42 terms through n = 41 (2026-11-03)
+ * Helpers:   gcd_u64, is_palindrome_base, is_prime_u64, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,13 +23,46 @@
 /* Utility includes */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_palindrome.h"
-#include "../utils/smallest_prime_factor.h"
+#include <stddef.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/gcd_u64.h"
+#include "../utils/is_palindrome_base.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mulmod.h"
+
+/* Pollard–Rho: find a non‑trivial divisor of n (n composite) */
+static uint64_t pollard(uint64_t n) {
+    if (n % 2 == 0) return 2;
+    uint64_t c = 1;
+    while (1) {
+        uint64_t x = 2, y = 2, d = 1;
+        while (d == 1) {
+            x = (mulmod(x, x, n) + c) % n;
+            y = (mulmod(y, y, n) + c) % n;
+            y = (mulmod(y, y, n) + c) % n;
+            uint64_t diff = x > y ? x - y : y - x;
+            d = gcd_u64(diff, n);
+        }
+        if (d != n) return d;
+        ++c;  /* try another constant */
+    }
+}
+
+/* recursive smallest prime factor */
+static uint64_t smallest_prime_factor(uint64_t n) {
+    if (n % 2 == 0) return 2;
+    if (is_prime_u64(n)) return n;
+    uint64_t d = pollard(n);
+    uint64_t s1 = smallest_prime_factor(d);
+    uint64_t s2 = smallest_prime_factor(n / d);
+    return (s1 < s2) ? s1 : s2;
+}
 
 /* Test whether a 64‑bit integer is a decimal palindrome. */
 static bool is_pal_uint64(uint64_t x)
 {
-    return is_palindrome((seq_t)x, 10);
+    return is_palindrome_base((seq_t)x, 10);
 }
 
 /* Checks whether the given odd composite number satisfies the
@@ -60,7 +94,7 @@ static bool candidate_ok(uint64_t cand)
     if (factor_count <= 1) return false;
 
     /* Sum of prime factors must also be a palindrome. */
-    return is_palindrome(sum, 10);
+    return is_palindrome_base(sum, 10);
 }
 
 /* Main sequence function. */

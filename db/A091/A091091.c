@@ -11,7 +11,8 @@
  *            2 and base 3
  * Range:     u8 n <= 7, u16 n <= 26, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 /* Basic headers -------------------------------------------------------- */
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------------------------------------------------------------------- */
 /* Constants ------------------------------------------------------------ */
@@ -95,7 +97,7 @@ seq_t a(idx_t n)
     /* initialise cache on first use */
     if (cache_cap == 0) {
         cache_cap = 1024;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* generate terms until we reach the n-th one */
@@ -117,7 +119,7 @@ seq_t a(idx_t n)
             /* store term, expanding cache if needed */
             if (cache_len == cache_cap) {
                 cache_cap *= 2;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = x;
         }

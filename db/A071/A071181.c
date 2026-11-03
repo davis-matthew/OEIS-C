@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 778, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 92 terms through n = 7378 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- small primes for factorising φ(n) (φ(n) ≤ 4000 for n ≤ 10000) ---------- */
 static const int small_primes[25] = {
@@ -55,7 +57,7 @@ static void precompute(void)
     precomp_done = true;
 
     phi_arr = (uint32_t *)malloc(sizeof(uint32_t) * (PRECOMP_LIMIT + 1));
-    cnt_tot = (seq_t *)malloc(sizeof(seq_t) * (PRECOMP_LIMIT + 1));
+    cnt_tot = mem_new(seq_t, (PRECOMP_LIMIT + 1));
     if (!phi_arr || !cnt_tot) return;   /* allocation failure – should not happen */
 
     /* initialise φ values to index */

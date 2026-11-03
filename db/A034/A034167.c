@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,6 +34,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------- */
 /* Main function required by the build system                       */
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
 
         /* Allocate workspace for bases and indices.  The number
            of allowed bases is at most primes_cnt. */
-        bases = (seq_t *)malloc(primes_cnt * sizeof(seq_t));
+        bases = mem_new(seq_t, primes_cnt);
         idx   = (size_t *)calloc(primes_cnt, sizeof(size_t));
         nbases = 0;
 
@@ -91,7 +93,7 @@ seq_t a(idx_t n)
         /* 2. Initialise sequence with the first term 1.           */
         /* --------------------------------------------------------- */
         seq_cap = 16;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         seq[0] = (seq_t)1;
         seq_len = 1;
     }
@@ -105,7 +107,7 @@ seq_t a(idx_t n)
             size_t new_cap = seq_cap ? (seq_cap << 1) : 16;
             while (new_cap < (size_t)n)
                 new_cap <<= 1;
-            seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, new_cap);
             seq_cap = new_cap;
         }
 

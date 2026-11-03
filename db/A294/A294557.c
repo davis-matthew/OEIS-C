@@ -11,7 +11,8 @@
  *            complementary sequences
  * Range:     u8 n <= 6, u16 n <= 18, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* calculate the n-th term of A294557 */
 seq_t a(idx_t n) {
@@ -29,11 +31,11 @@ seq_t a(idx_t n) {
     /* Allocate space for a[0..n] and b[0..n-1] */
     size_t size_a = (size_t)n + 1;
     size_t size_b = (size_t)n;                /* need up to b[n-1] */
-    seq_t *a_arr = (seq_t *)calloc(size_a, sizeof(seq_t));
-    seq_t *b_arr = (seq_t *)calloc(size_b, sizeof(seq_t));
+    seq_t *a_arr = mem_new(seq_t, size_a);
+    seq_t *b_arr = mem_new(seq_t, size_b);
     if (!a_arr || !b_arr) { /* allocation failed */
-        if (a_arr) free(a_arr);
-        if (b_arr) free(b_arr);
+        if (a_arr) mem_free(a_arr);
+        if (b_arr) mem_free(b_arr);
         return (seq_t)0;                     /* undefined, but avoid crash */
     }
 
@@ -47,8 +49,8 @@ seq_t a(idx_t n) {
     size_t max_small = 3 * n + 1000;
     bool *used = (bool *)calloc(max_small + 1, sizeof(bool));
     if (!used) {
-        free(a_arr);
-        free(b_arr);
+        mem_free(a_arr);
+        mem_free(b_arr);
         return (seq_t)0;
     }
     used[1] = true;
@@ -93,8 +95,8 @@ seq_t a(idx_t n) {
     seq_t result = a_arr[n];
 
     /* Clean up */
-    free(a_arr);
-    free(b_arr);
+    mem_free(a_arr);
+    mem_free(b_arr);
     free(used);
 
     return result;

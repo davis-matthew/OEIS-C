@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 42, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -43,13 +45,13 @@ seq_t a(idx_t n)
     seq_t *dp_count[8];
     seq_t *dp_sum[8];
     for (int k = 0; k <= 7; ++k) {
-        dp_count[k] = (seq_t*)calloc(N, sizeof(seq_t));
-        dp_sum[k]   = (seq_t*)calloc(N, sizeof(seq_t));
+        dp_count[k] = mem_new(seq_t, N);
+        dp_sum[k]   = mem_new(seq_t, N);
         if (!dp_count[k] || !dp_sum[k]) {             /* allocation failure */
             free(is_composite);
             for (int t = 0; t <= 7; ++t) {
-                if (dp_count[t]) free(dp_count[t]);
-                if (dp_sum[t])   free(dp_sum[t]);
+                if (dp_count[t]) mem_free(dp_count[t]);
+                if (dp_sum[t])   mem_free(dp_sum[t]);
             }
             return (seq_t)0;
         }
@@ -88,8 +90,8 @@ seq_t a(idx_t n)
        is owned by the caller (it may be stored for later use). */
     free(is_composite);
     for (int k = 0; k <= 7; ++k) {
-        free(dp_count[k]);
-        free(dp_sum[k]);
+        mem_free(dp_count[k]);
+        mem_free(dp_sum[k]);
     }
 
     return result;

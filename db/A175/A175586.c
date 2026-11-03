@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 33, i16 n <= 39, i32 n <= 39, i64 n <= 39, i128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* internal data */
 static bool initialized = false;
@@ -182,7 +184,7 @@ static void init(void)
 
     /* cache for generated terms */
     cache_cap   = 1024;
-    seq_cache   = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    seq_cache   = mem_new(seq_t, cache_cap);
     cache_size  = 0;
 
     initialized = true;
@@ -201,8 +203,7 @@ seq_t a(idx_t n)
 
         if (cache_size == cache_cap) {
             cache_cap = cache_cap ? cache_cap * 2 : 1;
-            seq_cache = (seq_t *)realloc(seq_cache,
-                                         cache_cap * sizeof(seq_t));
+            seq_cache = mem_resize(seq_t, seq_cache, cache_cap);
         }
         seq_cache[cache_size++] = (seq_t)val;
 

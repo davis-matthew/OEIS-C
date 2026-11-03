@@ -13,12 +13,27 @@
  *            in O(1) using integer arithmetic
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   count_5
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/count_5.h"
+static inline idx_t count_5(idx_t n)
+{
+    if (n < 5) return 0;
+    idx_t m = n - 5;          /* offset from first `5` */
+    idx_t q = m / 11;         /* number of complete 11‑step blocks */
+    idx_t r = m % 11;         /* remaining offset within a block   */
+    /* Base offsets within a block: 0,2,6,7 (add 5 to get actual indices) */
+    idx_t limit = 5 + r;      /* maximum index reachable in current block */
+    idx_t extra = 0;
+    if (limit >= 5)  extra++; /* 5   */
+    if (limit >= 7)  extra++; /* 7   */
+    if (limit >= 11) extra++; /* 11  */
+    if (limit >= 12) extra++; /* 12  */
+    return q * 4 + extra;     /* 4 per full block, plus remaining ones   */
+}
 
 seq_t a(idx_t n)
 {

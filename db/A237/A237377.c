@@ -11,17 +11,28 @@
  *            a(2)=344, a(3)=1472, a(4)=6368, a(5)=27280
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 13, u64 n <= 28, u128 n <= 58,
  *            big any n
- * Helpers:   alloc_cache, free_cache
+ * Validated: standard, pass, 37 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>   /* for free() used by free_cache() */
+#include "../utils/mem.h"
 
 /* make sure the helper functions for dynamic allocation are available */
-#include "../utils/alloc_cache.h"   /* provides alloc_cache() */
-#include "../utils/free_cache.h"   /* provides free_cache() */
+
+/* Allocate and free using malloc/free when compiled as C. */
+static seq_t *alloc_cache(idx_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_cache(seq_t *p)
+{
+    mem_free(p);
+}
 
 seq_t a(idx_t n)
 {

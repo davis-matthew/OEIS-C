@@ -8,8 +8,9 @@
  *            0) then a(n) = prime(j+1); otherwise a(n) = 1. (Here prime(k)
  *            denotes the k‑th prime, i.e. 2,3,5,7,11,...) This follows from
  *            the property that a(n) = A014963(A005940(n))
- * Range:     u8 n <= 8541, u16 n <= 8541, u32 n <= 8541, u64 n <= 8541,
- *            u128 n <= 8541, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 8541 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

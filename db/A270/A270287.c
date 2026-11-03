@@ -9,12 +9,15 @@
  * Formula:   a(0)=1, a(1)=4, a(2)=32, a(n)=47*4^(n-2) - 4*2^n + 1 for n>2
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -24,8 +27,8 @@ seq_t a(idx_t n)
     if (n == 2) return (seq_t)32;
 
     /* Compute 4^(n-2) and 2^n using the generic big_pow routine */
-    seq_t pow4 = big_pow((seq_t)4, (seq_t)(n - 2));
-    seq_t pow2 = big_pow((seq_t)2, (seq_t)n);
+    seq_t pow4 = ipow((seq_t)4, (seq_t)(n - 2));
+    seq_t pow2 = ipow((seq_t)2, (seq_t)n);
 
     /* Apply the closed‑form formula */
     seq_t result = (seq_t)47 * pow4 - (seq_t)4 * pow2 + (seq_t)1;

@@ -10,7 +10,8 @@
  *            multiplicity) equal to k. The offset is 0 (a(0)=1)
  * Range:     u8 n <= 37, u16 n <= 105, u32 n <= 348, u64 n <= 1248,
  *            u128 n <= 2500, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 2256 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 /* Necessary headers for integer types and memory allocation */
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of helper function that recomputes the sequence
    up to a maximum index n. */
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
         return (seq_t)0;
     }
     if (cached_a) {
-        free(cached_a);
+        mem_free(cached_a);
     }
     cached_a = new_a;
     cached_max_n = n;
@@ -54,7 +56,7 @@ static seq_t *recompute(idx_t n)
 {
     /* Special case: a(0) = 1 */
     if (n == 0) {
-        seq_t *arr = (seq_t*)calloc(1, sizeof(seq_t));
+        seq_t *arr = mem_new(seq_t, 1);
         if (arr) arr[0] = (seq_t)1;
         return arr;
     }
@@ -96,9 +98,9 @@ static seq_t *recompute(idx_t n)
         return NULL;
     }
     for (uint8_t k = 0; k <= maxOmega; ++k) {
-        dp[k] = (seq_t*)calloc(N + 1, sizeof(seq_t));   /* zero initialisation */
+        dp[k] = mem_new(seq_t, N + 1);   /* zero initialisation */
         if (!dp[k]) {
-            for (uint8_t j = 0; j < k; ++j) free(dp[j]);
+            for (uint8_t j = 0; j < k; ++j) mem_free(dp[j]);
             free(dp); free(spf); free(omega);
             return NULL;
         }
@@ -115,9 +117,9 @@ static seq_t *recompute(idx_t n)
     }
 
     /* ---- 4. Compute final sequence values. ---- */
-    seq_t *a_arr = (seq_t*)calloc(N + 1, sizeof(seq_t));
+    seq_t *a_arr = mem_new(seq_t, N + 1);
     if (!a_arr) {
-        for (uint8_t k = 0; k <= maxOmega; ++k) free(dp[k]);
+        for (uint8_t k = 0; k <= maxOmega; ++k) mem_free(dp[k]);
         free(dp); free(spf); free(omega);
         return NULL;
     }
@@ -133,7 +135,7 @@ static seq_t *recompute(idx_t n)
 
     /* ---- 5. Cleanup temporary memory. ---- */
     for (uint8_t k = 0; k <= maxOmega; ++k) {
-        free(dp[k]);
+        mem_free(dp[k]);
     }
     free(dp);
     free(spf);

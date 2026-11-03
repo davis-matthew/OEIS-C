@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 4552, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 9576 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static data --------------------------------------------------------- */
 static uint64_t *prime_pool    = NULL;   /* array of primes                */
@@ -76,7 +78,7 @@ static void seq_push(seq_t val)
 {
     if (seq_len == seq_cap) {
         seq_cap = seq_cap ? (seq_cap << 1) : 4;
-        seq_storage = (seq_t*)realloc(seq_storage, seq_cap * sizeof(seq_t));
+        seq_storage = mem_resize(seq_t, seq_storage, seq_cap);
         if (!seq_storage) exit(1);
     }
     seq_storage[seq_len++] = val;

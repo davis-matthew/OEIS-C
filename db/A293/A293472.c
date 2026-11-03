@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 28, i16 n <= 54, i32 n <= 54, i64 n <= 54, i128 n <= 54,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,7 +31,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binom.h"   /* seq_t binom(idx_t a, idx_t b); */
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -66,7 +67,7 @@ seq_t a(idx_t n)
         for (idx_t m = cached + 1; m <= r; ++m) {
             seq_t sum = 0;
             for (idx_t kk = 1; kk <= m; ++kk) {
-                seq_t bin = binom(m - 1, kk - 1);
+                seq_t bin = binomial(m - 1, kk - 1);
                 seq_t xk;
                 if (kk <= 2) {
                     xk = (seq_t)1;
@@ -83,5 +84,5 @@ seq_t a(idx_t n)
     }
 
     /* Return the requested triangle entry */
-    return binom(r, k) * t0[r - k];
+    return binomial(r, k) * t0[r - k];
 }

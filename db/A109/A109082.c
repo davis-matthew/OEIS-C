@@ -9,7 +9,8 @@
  *            on‑demand prime table
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 116 terms through n = 9878 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Global state for memoisation and prime handling */
 static seq_t *depth_cache = NULL;
@@ -82,7 +84,7 @@ static void ensure_cache(idx_t n)
 {
     if (n < cache_cap) return;
     size_t new_cap = (size_t)(n + 1);
-    seq_t *new_cache = (seq_t *)realloc(depth_cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, depth_cache, new_cap);
     bool *new_known = (bool *)realloc(depth_known, new_cap * sizeof(bool));
     if (!new_cache || !new_known) exit(1);
     for (size_t i = cache_cap; i < new_cap; ++i)

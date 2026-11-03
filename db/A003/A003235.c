@@ -7,16 +7,45 @@
  * Formula:   a(n) = Sum_{k=0..n} (-1)^(n-k) * C(n,k) * C(k^2,n)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 23,
  *            big any n
- * Helpers:   a3235_bmod, a3235_fixed, a3235_inv
+ * Validated: standard, pass, 34 terms through n = 277 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/a3235_bmod.h"
-#include "../utils/a3235_fixed.h"
-#include "../utils/a3235_inv.h"
+
+static unsigned __int128 a3235_inv(unsigned __int128 x) {
+    unsigned __int128 y = x;
+    int i;
+    for (i = 0; i < 7; i++) y *= (unsigned __int128)2 - x * y;
+    return y;
+}
+
+/* C(m, r) modulo 2^128 */
+static unsigned __int128 a3235_bmod(uint64_t m, uint64_t r) {
+    unsigned __int128 num = 1, den = 1;
+    long e = 0;
+    uint64_t i;
+    if (r > m) return 0;
+    for (i = 0; i < r; i++) {
+        uint64_t x = m - i, y = i + 1;
+        while (!(x & 1)) { x >>= 1; e++; }
+        while (!(y & 1)) { y >>= 1; e--; }
+        num *= x;
+        den *= y;
+    }
+    if (e >= 128) return 0;
+    return (num * a3235_inv(den)) << e;
+}
+
+static int a3235_fixed(void) {
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 130; i++) x *= 2;
+    return x == 0;
+}
 
 seq_t a(idx_t n) {
     idx_t k;

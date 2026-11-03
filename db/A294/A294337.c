@@ -10,9 +10,10 @@
  *            = sum_{d|n} A294336(d). The implementation precomputes A294336
  *            values up to n using the recurrence A(1) = 1 A(m) =
  *            Sum_{t|gcd_of_exponents(m)} A(t) (m > 1). Complexity:...
- * Range:     u8 n <= 7275, u16 n <= 7275, u32 n <= 7275, u64 n <= 7275,
- *            u128 n <= 7275, big any n
- * Helpers:   _add_div_sum, _factorize, build_spf
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 7275 (2026-11-03)
+ * Helpers:   build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,44 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/build_spf.h"
-#include "../utils/_add_div_sum.h"
-#include "../utils/_factorize.h"
+#include "../utils/mem.h"
+
+/* Recursively enumerate all divisors of n (built from primes[]/exps[])
+   and accumulate the sum A(divisor) into *res. */
+static void _add_div_sum(const idx_t primes[], const idx_t exps[],
+                         size_t cnt, size_t pos, idx_t current,
+                         seq_t *res, const seq_t *A) {
+    if (pos == cnt) {
+        *res += A[current];
+        return;
+    }
+    idx_t p = primes[pos];
+    idx_t e = exps[pos];
+    idx_t val = current;
+    for (idx_t j = 0; j <= e; ++j) {
+        _add_div_sum(primes, exps, cnt, pos + 1, val, res, A);
+        val *= p;
+    }
+}
+
+/* factorises n (1 < n) into distinct primes and exponents using spf array.
+   primes[] and exps[] must be large enough (at least log2(n)+1).
+   cnt is output number of distinct prime factors. */
+static size_t _factorize(idx_t n, idx_t primes[], idx_t exps[], const idx_t *spf) {
+    size_t cnt = 0;
+    while (n > 1) {
+        idx_t p = spf[n];
+        idx_t e = 0;
+        while (n % p == 0) {
+            n /= p;
+            ++e;
+        }
+        primes[cnt] = p;
+        exps[cnt]   = e;
+        ++cnt;
+    }
+    return cnt;
+}
 
 /* gcd for idx_t values */
 static idx_t _gcd_idx(idx_t a, idx_t b) {
@@ -44,11 +81,11 @@ seq_t a(idx_t n) {
     /* Recompute cache if needed.  Let build_spf allocate a new spf array
        (it takes care of freeing any previous memory). */
     if (n > maxN) {
-        if (A) free(A);
+        if (A) mem_free(A);
 
         build_spf(n, &spf);          /* spf[0..n] will be available now */
 
-        A = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        A = mem_new(seq_t, (n + 1));
         if (!A) return (seq_t)0;     /* defensive, though allocation should succeed */
         A[0] = (seq_t)0;
         A[1] = (seq_t)1;             /* base case: one trivial tower for 1 */

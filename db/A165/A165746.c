@@ -7,12 +7,14 @@
  * Formula:   a(n) = 3 - 2*3^n Recurrence used: a(0) = 1, a(n) = 3*a(n-1) - 6
  * Range:     i8 n <= 3, i16 n <= 8, i32 n <= 18, i64 n <= 39, i128 n <= 79,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 953 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     /*  Initialise cache with a(0)  */
     if (cache == NULL) {
         cache_cap = 64;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) abort();          /* cannot happen in tests    */
         cache[0] = (seq_t)1;                 /* a(0) = 1                  */
         cache_len = 1;
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     if (n + 1 > cache_cap) {
         idx_t new_cap = cache_cap * 2;
         if (new_cap < n + 1) new_cap = n + 1;
-        seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
         if (new_ptr == NULL) abort();
         cache = new_ptr;
         cache_cap = new_cap;

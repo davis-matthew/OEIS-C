@@ -10,7 +10,8 @@
  *            representation
  * Range:     u8 n <= 54, u16 n <= 7362, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _prime_limit_for_idx, mod_pow
+ * Validated: standard, pass, 101 terms through n = 9820 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,17 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/mod_pow.h"          /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod); */
-#include "../utils/_prime_limit_for_idx.h" /* size_t _prime_limit_for_idx(idx_t n); */
+#include <string.h>
+#include <math.h>
+#include "../utils/powmod.h"
+
+static size_t _prime_limit_for_idx(idx_t n) {
+    /* Rough upper bound for the n-th prime using n*(log n + log log n) + 3 */
+    if (n < 6) return 15; /* first 6 primes < 15 */
+    double nn = (double)n;
+    double bound = nn * (log(nn) + log(log(nn))) + 3.0;
+    return (size_t)bound;
+}
 
 /* Array of primes generated as needed */
 static idx_t *primeArray = NULL;      /* 0‑based array of primes */
@@ -98,7 +108,7 @@ static seq_t order_of_10(idx_t p)
 
             /* Try to divide order by q as many times as possible */
             while (order % q == 0) {
-                seq_t test = mod_pow((seq_t)10,
+                seq_t test = powmod((seq_t)10,
                                     (uint64_t)(order / q),
                                     (seq_t)p);
                 if (test == (seq_t)1)
@@ -113,7 +123,7 @@ static seq_t order_of_10(idx_t p)
     if (temp > 1) {
         idx_t q = temp;
         while (order % q == 0) {
-            seq_t test = mod_pow((seq_t)10,
+            seq_t test = powmod((seq_t)10,
                                 (uint64_t)(order / q),
                                 (seq_t)p);
             if (test == (seq_t)1)

@@ -7,8 +7,9 @@
  * Formula:   a(n) is obtained by concatenating the binary of (n‑1) with the
  *            reversed complement of that binary, then dropping the final bit.
  *            (See the OEIS description of A290254.)
- * Range:     u8 n <= 16, u16 n <= 256, u32 n <= 9808, u64 n <= 9808,
- *            u128 n <= 9808, big any n
+ * Range:     u8 n <= 16, u16 n <= 256, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 67 terms through n = 9808 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

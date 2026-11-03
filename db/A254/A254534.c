@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 18, u64 n <= 35, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* static prime cache ------------------------------------------------------- */
 static uint8_t *prime_cache = NULL;   /* 1 = prime, 0 = composite */
@@ -78,11 +80,11 @@ seq_t a(idx_t n)
 
     /* allocate DP arrays */
     size_t arr_len = (size_t)max_sum + 1;
-    seq_t *dp   = (seq_t *)calloc(arr_len, sizeof(seq_t));
-    seq_t *newdp = (seq_t *)calloc(arr_len, sizeof(seq_t));
+    seq_t *dp   = mem_new(seq_t, arr_len);
+    seq_t *newdp = mem_new(seq_t, arr_len);
     if (!dp || !newdp) {                    /* memory failure: return 0 */
-        free(dp);
-        free(newdp);
+        mem_free(dp);
+        mem_free(newdp);
         return (seq_t)0;
     }
 
@@ -106,7 +108,7 @@ seq_t a(idx_t n)
         seq_t *tmp = dp;
         dp   = newdp;
         newdp = tmp;
-        memset(newdp, 0, arr_len * sizeof(seq_t));
+        mem_set(newdp, 0, arr_len * sizeof(seq_t));
     }
 
     /* sum all counts in dp to obtain total number of valid sequences */
@@ -116,8 +118,8 @@ seq_t a(idx_t n)
     }
 
     /* free temporary arrays */
-    free(dp);
-    free(newdp);
+    mem_free(dp);
+    mem_free(newdp);
 
     return total;
 }

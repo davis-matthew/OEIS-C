@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 120, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   runs_parity
+ * Validated: standard, pass, 76 terms through n = 9981 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,22 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/runs_parity.h"
+#include "../utils/mem.h"
+
+/* Helper: parity of number of runs of 1s */
+static inline int runs_parity(uint64_t x) {
+    int parity = 0;
+    int prev = 0;          /* previous bit (0 = low bit) */
+    /* Process all bits of x */
+    while (x) {
+        int bit = x & 1;
+        if (bit && !prev)
+            parity ^= 1;   /* start of a new run */
+        prev = bit;
+        x >>= 1;
+    }
+    return parity;
+}
 
 /* Helper: parity of popcount */
 static inline int popcount_parity(uint64_t x) {
@@ -52,7 +68,7 @@ static void ensure_cache(idx_t n) {
         /* Expand cache if necessary */
         if (cache_size >= cache_cap) {
             size_t new_cap = (cache_cap == 0) ? 128 : cache_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort(); /* Out of memory */
             cache = tmp;
             cache_cap = new_cap;

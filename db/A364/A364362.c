@@ -10,11 +10,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 1664, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 93 terms through n = 9279 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdio.h>
 /*
  *  OEIS A364362:
  *  a(n) = minimum possible sum of a sequence of distinct nonnegative integers

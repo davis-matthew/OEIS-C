@@ -8,7 +8,8 @@
  * Formula:   a(n) = Sum_{d|n} 2^(d-1) * A349450(n/d)
  * Range:     i8 n <= 7, i16 n <= 11, i32 n <= 17, i64 n <= 36, i128 n <= 68,
  *            big any n
- * Helpers:   mult128, mult_divide, seq_alloc, seq_realloc
+ * Validated: standard, pass, 46 terms through n = 816 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,10 +18,50 @@
    right‑shifted Catalan numbers.  */
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/seq_alloc.h"
-#include "../utils/seq_realloc.h"
-#include "../utils/mult128.h"
-#include "../utils/mult_divide.h"
+#include <stdlib.h>
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
+
+/* Helper: multiply two seq_t using 128‑bit intermediate when the type
+   is 64‑bit; other types are assumed to provide arbitrary precision. */
+static seq_t mult128(seq_t a, seq_t b)
+{
+    if (sizeof(seq_t) == 8) {
+        __int128 prod = (__int128)a * (__int128)b;
+        return (seq_t)prod;
+    }
+    return a * b;
+}
+
+/* Helper: multiply a and b, then divide by a small integer denom.
+   The division is exact in the intended use case. */
+static seq_t mult_divide(seq_t a, seq_t b, idx_t denom)
+{
+    if (sizeof(seq_t) == 8) {
+        __int128 prod = (__int128)a * (__int128)b;
+        return (seq_t)(prod / denom);
+    }
+    return (a * b) / denom;
+}
 
 /* Cached sequences.  Indices are 1‑based for a and g; 0‑based for
    the Catalan numbers (Catalan_0 is stored at c_arr[0]). */

@@ -9,7 +9,8 @@
  * Formula:   a(n) = n^(tpf(n) * dpf(n))
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 23, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: partial, pass, 39 terms through n = 38 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,10 @@
 /*  dpf(n)  – number of distinct prime factors of n                     */
 
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -41,5 +44,5 @@ seq_t a(idx_t n)
     }
 
     unsigned exp = tpf * dpf;
-    return big_pow((seq_t)n, (seq_t)exp);
+    return ipow((seq_t)n, (seq_t)exp);
 }

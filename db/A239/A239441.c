@@ -8,7 +8,8 @@
  *            f(2^e) = 2^(8e-1) f(p^e) = (p-1) * p^(8e-5) * (p^4-1) for odd p
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 16, u64 n <= 256, u128 n <= 1000,
  *            big any n
- * Helpers:   build_primes_upto, seq_pow
+ * Validated: standard, pass, 42 terms through n = 961 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/build_primes_upto.h"   /* builds primes up to a limit */
-#include "../utils/seq_pow.h"             /* seq_pow(base, exp) */
+#include "../utils/build_primes_upto.h"
+#include "../utils/ipow_idx.h"
 
 static uint64_t *primes = NULL;
 static size_t prime_count = 0;
@@ -56,12 +57,12 @@ seq_t a(idx_t n) {
         seq_t local;
         if (p == 2) {
             int exp = 8 * e - 1;
-            local = seq_pow((seq_t)2, (idx_t)exp);
+            local = ipow_idx((seq_t)2, (idx_t)exp);
         } else {
             seq_t p_val = (seq_t)p;
             seq_t term1 = (seq_t)(p - 1);
-            seq_t term2 = seq_pow(p_val, (idx_t)(8 * e - 5));
-            seq_t term3 = seq_pow(p_val, (idx_t)4) - 1;
+            seq_t term2 = ipow_idx(p_val, (idx_t)(8 * e - 5));
+            seq_t term3 = ipow_idx(p_val, (idx_t)4) - 1;
             local = term1 * term2 * term3;
         }
         result *= local;
@@ -74,12 +75,12 @@ seq_t a(idx_t n) {
         seq_t local;
         if (p == 2) {
             int exp = 8 * e - 1;          /* e == 1 */
-            local = seq_pow((seq_t)2, (idx_t)exp);
+            local = ipow_idx((seq_t)2, (idx_t)exp);
         } else {
             seq_t p_val = (seq_t)p;
             seq_t term1 = (seq_t)(p - 1);
-            seq_t term2 = seq_pow(p_val, (idx_t)(8 * e - 5));   /* (8*1-5) = 3 */
-            seq_t term3 = seq_pow(p_val, (idx_t)4) - 1;
+            seq_t term2 = ipow_idx(p_val, (idx_t)(8 * e - 5));   /* (8*1-5) = 3 */
+            seq_t term3 = ipow_idx(p_val, (idx_t)4) - 1;
             local = term1 * term2 * term3;
         }
         result *= local;

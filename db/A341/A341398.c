@@ -9,12 +9,14 @@
  *            9‑tuples (x1,…,x9) with x1²+…+x9² = m, counting signs and order
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Integer square root (floor) for an unsigned 64‑bit integer. */
 static idx_t isqrt_u64(idx_t n)
@@ -37,22 +39,22 @@ static idx_t isqrt_u64(idx_t n)
 seq_t a(idx_t n)
 {
     /* allocate arrays for DP */
-    seq_t *dp   = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
-    seq_t *next = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *dp   = mem_new(seq_t, (size_t)(n + 1));
+    seq_t *next = mem_new(seq_t, (size_t)(n + 1));
     if (!dp || !next)
     {
-        free(dp);
-        free(next);
+        mem_free(dp);
+        mem_free(next);
         return (seq_t)0;
     }
 
     /* weight for each square: 1 for zero, 2 for non‑zero (±i) */
     idx_t maxRoot = isqrt_u64(n);
-    seq_t *weight = (seq_t *)calloc((size_t)(maxRoot + 1), sizeof(seq_t));
+    seq_t *weight = mem_new(seq_t, (size_t)(maxRoot + 1));
     if (!weight)
     {
-        free(dp);
-        free(next);
+        mem_free(dp);
+        mem_free(next);
         return (seq_t)0;
     }
 
@@ -95,8 +97,8 @@ seq_t a(idx_t n)
     for (idx_t i = 0; i <= n; ++i)
         result += dp[i];
 
-    free(dp);
-    free(next);
-    free(weight);
+    mem_free(dp);
+    mem_free(next);
+    mem_free(weight);
     return result;
 }

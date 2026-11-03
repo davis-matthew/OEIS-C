@@ -7,15 +7,17 @@
  * Formula:   a(n) = sum_{i=0}^n p_cubes(i) where p_cubes(m) is the number of
  *            partitions of m into cubes (including 1^3). The generating
  *            function is 1/(1-x) · ∏_{k≥1} 1/(1-x^{k³})
- * Range:     u8 n <= 51, u16 n <= 316, u32 n <= 2540, u64 n <= 9204,
- *            u128 n <= 9204, big any n
- * Helpers:   none
+ * Range:     u8 n <= 51, u16 n <= 316, u32 n <= 2540, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 81 terms through n = 9204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* static tables holding partitions into cubes (dp_)
    and their cumulative sums (cum_) */
@@ -31,8 +33,8 @@ static void recompute(idx_t limit)
 {
     seq_t *new_dp, *new_cum;
 
-    new_dp  = (seq_t*)malloc((size_t)(limit + 1) * sizeof(seq_t));
-    new_cum = (seq_t*)malloc((size_t)(limit + 1) * sizeof(seq_t));
+    new_dp  = mem_new(seq_t, (size_t)(limit + 1));
+    new_cum = mem_new(seq_t, (size_t)(limit + 1));
     if (!new_dp || !new_cum)
         abort();  /* allocation failure */
 
@@ -56,8 +58,8 @@ static void recompute(idx_t limit)
         new_cum[i] = new_cum[i - 1] + new_dp[i];
 
     /* replace old tables */
-    free(dp_);
-    free(cum_);
+    mem_free(dp_);
+    mem_free(cum_);
     dp_  = new_dp;
     cum_ = new_cum;
 

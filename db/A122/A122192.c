@@ -11,12 +11,14 @@
  *            -(759*a(n-2)+2576*a(n-3)+759*a(n-4)+a(n-6))
  * Range:     i8 n <= 1, i16 n <= 3, i32 n <= 6, i64 n <= 13, i128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 468 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
 
     /* Initialisation of known terms */
     if (computed == (idx_t)-1) {
-        buf = (seq_t *)malloc((size_t)6 * sizeof(seq_t));
+        buf = mem_new(seq_t, (size_t)6);
         buf[0] = (seq_t)6;
         buf[1] = (seq_t)0;
         buf[2] = -(seq_t)1518;
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     /* Allocate or grow buffer to accommodate up to n */
     size_t new_size = (size_t)(n + 1);
     if (new_size > (size_t)computed + 1) {
-        buf = (seq_t *)realloc(buf, new_size * sizeof(seq_t));
+        buf = mem_resize(seq_t, buf, new_size);
     }
 
     /* Compute new terms using the recurrence */

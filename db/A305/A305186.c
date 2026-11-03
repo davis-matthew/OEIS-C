@@ -7,15 +7,18 @@
  * Formula:   a(n) = n^16 * ∏_{p|n} (1 – 1/p)(1 – 1/p^2)(1 – 1/p^3)(1 – 1/p^4)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 16, u128 n <= 256,
  *            big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: standard, pass, 32 terms through n = 9813 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -42,7 +45,7 @@ seq_t a(idx_t n)
 
         /* p^(16e‑10) */
         seq_t pow_exp = (seq_t)(16ull * e - 10ull);   /* e ≥ 1 */
-        seq_t pow_term = big_pow(p, pow_exp);
+        seq_t pow_term = ipow(p, pow_exp);
 
         term *= pow_term;
         result *= term;

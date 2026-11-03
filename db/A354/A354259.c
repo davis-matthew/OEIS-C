@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k = 0..n} (3/2)^k * (2*k)! * Stirling1(n, k)/k!
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 16,
  *            big any n
- * Helpers:   alloc_seq
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,16 @@
 /* +, -, *, and assignment.                                                                    */
 
 #include <stdbool.h>
-#include "../utils/alloc_seq.h"
+#include <stdlib.h>
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 /* Maximum number of terms that may be asked for (safe > 10000) */
 #define MAX_CAP 20001

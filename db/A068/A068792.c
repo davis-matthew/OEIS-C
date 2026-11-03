@@ -7,6 +7,7 @@
  * Formula:   a(n) = ((n^(n-1) - 1)/(n-1))^2 (for n >= 2)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 11, u128 n <= 17,
  *            big any n
+ * Validated: standard, pass, 31 terms through n = 197 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

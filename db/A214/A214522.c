@@ -8,13 +8,14 @@
  *            number of 1’s and 5’s (numeric order)
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 28, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +24,7 @@ seq_t a(idx_t n)
     idx_t k = 1;
     seq_t count;
     while (1) {
-        count = binom((idx_t)(2*k), (idx_t)k);
+        count = binomial((idx_t)(2*k), (idx_t)k);
         cumulative += count;
         if (cumulative >= n) break;
         k++;
@@ -42,7 +43,7 @@ seq_t a(idx_t n)
     for (idx_t pos = 0; pos < 2*k; pos++) {
         seq_t count_one = 0;
         if (ones_needed > 0)
-            count_one = binom(rem-1, ones_needed-1);
+            count_one = binomial(rem-1, ones_needed-1);
 
         if (offset < count_one) {
             result = result * 10 + 1;

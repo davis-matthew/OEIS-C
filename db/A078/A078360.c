@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 57, u16 n <= 6871, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 9418 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static storage for the unique‑sums array */
 static seq_t *unique_sums = NULL;   /* array of unique sums */
@@ -33,7 +35,7 @@ static void append_value(seq_t **arr, size_t *len, size_t *cap, seq_t val)
     if (*len == *cap) {
         if (*cap == 0) *cap = 16;
         else           *cap <<= 1;
-        *arr = (seq_t *)realloc(*arr, (*cap) * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, (*cap));
     }
     (*arr)[*len] = val;
     (*len)++;

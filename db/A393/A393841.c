@@ -10,12 +10,14 @@
  *            binomial coefficients
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     for (idx_t m = 2; m <= 9; ++m) {
         for (idx_t k = 2; k <= m; ++k) {
             /* coefficient binomial(m-1, k-1) */
-            seq_t coeff = binom(m-1, k-1);
+            seq_t coeff = binomial(m-1, k-1);
             if (coeff == (seq_t)0)          /* skip zero coeffs (unlikely) */
                 continue;
 
@@ -39,12 +41,12 @@ seq_t a(idx_t n)
             /* Term 1 : n * binom(n-1, n-k-1) */
             if (k <= n-1) {                 /* ensure n-k-1 >= 0 */
                 idx_t r1 = n - k - 1;       /* 0 <= r1 <= n-1 */
-                seq_t term1 = n_seq * binom(n-1, r1);
+                seq_t term1 = n_seq * binomial(n-1, r1);
                 /* Term 2 : (n-1) * binom(n-2, n-k-2) */
                 seq_t term2 = (seq_t)0;
                 if (k <= n-2) {             /* ensure n-k-2 >= 0 */
                     idx_t r2 = n - k - 2;   /* 0 <= r2 <= n-2 */
-                    term2 = n_minus_1 * binom(n-2, r2);
+                    term2 = n_minus_1 * binomial(n-2, r2);
                 }
                 seq_t diff = term1 - term2; /* term1 >= term2 always */
                 add = coeff * diff;

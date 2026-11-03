@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 40, u32 n <= 78, u64 n <= 155,
  *            u128 n <= 309, big any n
- * Helpers:   uses_banned
+ * Validated: standard, pass, 65 terms through n = 4683 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,21 @@
    First 30 terms (n = 0 … 29) are computed by brute force. */
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/uses_banned.h"
+#include "../utils/mem.h"
+
+/* Return true if x contains any digit from the banned mask. */
+static inline bool uses_banned(seq_t x, uint16_t banned)
+{
+    if (x == 0)
+        return (banned & 1);          /* digit 0 */
+    while (x > 0) {
+        int d = (int)(x % 10);
+        if (banned & (1 << d))
+            return true;
+        x /= 10;
+    }
+    return false;
+}
 
 /* Static cache of computed terms. */
 static seq_t *cache = NULL;
@@ -31,7 +46,7 @@ static inline void ensure_cache(size_t up_to)
         return;
     size_t new_cap = (cache_cap == 0) ? 8 : cache_cap;
     while (new_cap <= up_to)  new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     cache = tmp;
     cache_cap = new_cap;

@@ -10,14 +10,16 @@
  *            the k‑th composite number (A002808)
  * Range:     i8 n <= 43, i16 n <= 77, i32 n <= 77, i64 n <= 77, i128 n <= 77,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* cache of composite numbers A002808(k) for 0 ≤ k ≤ current maximum */
 static seq_t *comps = NULL;
@@ -33,7 +35,7 @@ static void ensure_composites(idx_t need)
         idx_t newCap = compsCap ? compsCap : 8;
         while (newCap <= need)
             newCap <<= 1;
-        comps = (seq_t*)realloc(comps, newCap * sizeof(seq_t));
+        comps = mem_resize(seq_t, comps, newCap);
         compsCap = newCap;
     }
 
@@ -44,7 +46,7 @@ static void ensure_composites(idx_t need)
         val = comps[compsSize - 1] + ((seq_t)1); /* start searching above last found */
 
     for (idx_t i = compsSize; i <= need; ++i) {
-        while (is_prime_small(val))
+        while (is_prime_seq(val))
             ++val;                /* skip primes */
         comps[i] = val;
         ++val;

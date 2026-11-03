@@ -8,7 +8,8 @@
  *            solution
  * Range:     u8 n <= 43, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 64 terms through n = 958 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,12 @@
 #include <stddef.h>
 
 /* Uses utility functions provided by the framework */
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/is_prime.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* Compute the n-th term (n ≥ 1) of the sequence. */
 seq_t a(idx_t n)
@@ -51,7 +56,7 @@ seq_t a(idx_t n)
         } else {
             /* p ≡ 1 (mod 5) → need to check exponent. */
             uint64_t exp = (p - 1) / 5;           /* exponent fits in 64‑bit */
-            seq_t r = mod_pow(15, exp, p);        /* compute 15^{exp} mod p */
+            seq_t r = powmod(15, exp, p);        /* compute 15^{exp} mod p */
             include = (r == 1);
         }
 
@@ -59,7 +64,7 @@ seq_t a(idx_t n)
         if (include) {
             if (cache_len + 1 > cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 64;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) return 0;              /* allocation failure: undefined behavior */
                 cache = tmp;
                 cache_cap = new_cap;

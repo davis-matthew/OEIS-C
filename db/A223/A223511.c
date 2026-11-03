@@ -13,13 +13,15 @@
  *            L(r-1,k-1) (1 ≤ k ≤ r) These values produce ex...
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 28, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /*  static cache of the L(r,k) values  */
 static seq_t **L = NULL;          /* array of pointers to rows  */
@@ -41,7 +43,7 @@ static void ensure_precomp(idx_t r)
 
     /*  allocate and compute missing rows  */
     for (idx_t i = precomp + 1; i <= r; ++i) {
-        seq_t *row = (seq_t*)malloc((i + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (i + 1));
         if (row == NULL) return;           /* allocation failure */
 
         row[0] = 0;                        /* unused at index 0 */

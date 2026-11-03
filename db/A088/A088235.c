@@ -9,12 +9,14 @@
  *            floor(log10(x))+1 (digits(0)=1)
  * Range:     u8 n <= 106, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 4639 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*  Cache of previously computed terms: a[0 .. len-1]  */
 static seq_t *cache = NULL;      /*  sequence values  */
@@ -43,10 +45,10 @@ static void ensure_cache_cap(idx_t n)
     idx_t new_cap = (cap == 0) ? 16 : cap * 2;
     if (new_cap <= n + 1) new_cap = n + 1;
 
-    seq_t *new_cache = (seq_t *)malloc(sizeof(seq_t) * new_cap);
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache) return;           /*  allocation failure – caller will get garbage; system values suffice  */
     for (idx_t i = 0; i < len; ++i) new_cache[i] = cache[i];
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
     cap   = new_cap;
 }

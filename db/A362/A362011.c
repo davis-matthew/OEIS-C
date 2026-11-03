@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 134, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd, has_other_prime
+ * Validated: standard, pass, 86 terms through n = 9280 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,28 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/has_other_prime.h"
+
+static bool has_other_prime(seq_t k)
+{
+    seq_t rem = k;
+    seq_t p = (seq_t)2;
+    /* trial division up to sqrt(k) */
+    while (p * p <= rem) {
+        if (rem % p == 0) {
+            if (p != (seq_t)2 && p != (seq_t)5 && p != (seq_t)7)
+                return true;
+            while (rem % p == 0)
+                rem /= p;
+        }
+        ++p;
+    }
+    /* remaining factor, if any */
+    if (rem > 1) {
+        if (rem != (seq_t)2 && rem != (seq_t)5 && rem != (seq_t)7)
+            return true;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

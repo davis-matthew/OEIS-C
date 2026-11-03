@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 44, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 76 terms through n = 76 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /*--------- cumulative sums of Champernowne digits ----------------*/
 static seq_t *cumSum = NULL;   /* cumulative sum up to each digit   */
@@ -55,7 +57,7 @@ static void ensure_digits_up_to(idx_t n)
             /* grow cumSum array if needed */
             if (cumSize >= cumCap) {
                 size_t newCap = cumCap ? cumCap * 2 : 16;
-                seq_t *newC = (seq_t *)realloc(cumSum, newCap * sizeof(seq_t));
+                seq_t *newC = mem_resize(seq_t, cumSum, newCap);
                 if (!newC) abort();
                 cumSum = newC;
                 cumCap = newCap;
@@ -97,7 +99,7 @@ static void ensure_seqA_capacity(size_t n)
     if (n <= aCap) return;
     size_t newCap = aCap ? aCap * 2 : 16;
     while (newCap < n) newCap <<= 1;
-    seq_t *newA = (seq_t *)realloc(seqA, newCap * sizeof(seq_t));
+    seq_t *newA = mem_resize(seq_t, seqA, newCap);
     if (!newA) abort();
     seqA = newA;
     aCap = newCap;

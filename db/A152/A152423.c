@@ -8,14 +8,17 @@
  * Formula:   a(n) = 2*n - 2^ceil(log2(n))
  * Range:     u8 n <= 255, u16 n <= 8192, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   floor_log2_uint64, pow2
+ * Validated: standard, pass, 90 terms through n = 7171 (2026-11-01)
+ * Helpers:   ilog2, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/ilog2.h"
 #include "../utils/pow2.h"
-#include "../utils/floor_log2_uint64.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +27,7 @@ seq_t a(idx_t n)
         return (seq_t)0;
 
     /* m = floor(log2(n)), i.e. largest k with 2^k ≤ n. */
-    idx_t m = floor_log2_uint64(n);
+    idx_t m = ilog2(n);
 
     /* powp = 2^m as seq_t. */
     seq_t powp = pow2(m);

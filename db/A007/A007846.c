@@ -15,7 +15,8 @@
  *            brute-force count of the last 3 growth steps for each class
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   decode, u128_to_seq
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,27 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/u128_to_seq.h"
-#include "../utils/decode.h"
+
+static seq_t u128_to_seq(unsigned __int128 u)
+{
+    seq_t r = 0;
+    int k;
+    for (k = 3; k >= 0; k--) {
+        r = r * 65536ULL;
+        r = r * 65536ULL;
+        r += (seq_t)(uint64_t)(uint32_t)(u >> (32 * k));
+    }
+    return r;
+}
+
+static int decode(uint64_t lo, uint64_t hi, int *xs, int *ys) {
+    int w = (int)(hi >> 58), b, c = 0;
+    for (b = 0; b < 122; b++) {
+        bool set = b < 64 ? ((lo >> b) & 1) != 0 : ((hi >> (b - 64)) & 1) != 0;
+        if (set) { xs[c] = b % w; ys[c] = b / w; c++; }
+    }
+    return c;
+}
 
 #define MAXN 24
 

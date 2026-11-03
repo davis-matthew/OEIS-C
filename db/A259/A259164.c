@@ -10,7 +10,8 @@
  *            using the minimal unit (9,1)
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 2, u64 n <= 4, u128 n <= 8,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 25 terms through n = 191 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
 
         /* allocate cache for first term */
         cache_cap = 4;
-        cache = (seq_t*)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         /* a(1) = 2*3^2 = 18 */
         seq_t t = curr_y * curr_y;
         t = t * (seq_t)2;
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
 
             if (cache_len == cache_cap) {
                 cache_cap = cache_cap ? cache_cap * 2 : 4;
-                cache = (seq_t*)realloc(cache, sizeof(seq_t) * cache_cap);
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = val;
         }

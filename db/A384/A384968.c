@@ -13,13 +13,15 @@
  *            for m>0)
  * Range:     u8 n <= 18, u16 n <= 40, u32 n <= 105, u64 n <= 236,
  *            u128 n <= 642, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 2480 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------ */
 /* Integer square‑root: floor(sqrt(x)) for unsigned 64‑bit x.  */
@@ -51,12 +53,12 @@ seq_t a(idx_t pos)
 
     /* ----- allocate arrays for Stirling numbers S(m, j) ----- */
     size_t sz = (size_t)(m + 1);
-    seq_t *S_prev = (seq_t*)malloc(sz * sizeof(seq_t));
-    seq_t *S_cur  = (seq_t*)malloc(sz * sizeof(seq_t));
+    seq_t *S_prev = mem_new(seq_t, sz);
+    seq_t *S_cur  = mem_new(seq_t, sz);
     if (!S_prev || !S_cur) {
         /* allocation failed – return 0 as a safe fallback */
-        if (S_prev) free(S_prev);
-        if (S_cur)  free(S_cur);
+        if (S_prev) mem_free(S_prev);
+        if (S_cur)  mem_free(S_cur);
         return (seq_t)0;
     }
 
@@ -91,7 +93,7 @@ seq_t a(idx_t pos)
     }
 
     /* ----- clean up and return ----- */
-    free(S_prev);
-    free(S_cur);
+    mem_free(S_prev);
+    mem_free(S_cur);
     return sum;
 }

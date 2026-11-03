@@ -7,13 +7,29 @@
  * Formula:   a(n) = number of divisors of n that are congruent to 4 (mod 10)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_mod10_rec
+ * Validated: standard, pass, 121 terms through n = 8719 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/count_mod10_rec.h"
+
+static void count_mod10_rec(int idx, uint64_t cur,
+                            const uint64_t *primes, const int *exps,
+                            int cnt, uint64_t *result)
+{
+    if (idx == cnt) {
+        if (cur % 10ULL == 4ULL) (*result)++;
+        return;
+    }
+    uint64_t p = primes[idx];
+    uint64_t pow = 1ULL;
+    for (int e = 0; e <= exps[idx]; e++) {
+        count_mod10_rec(idx + 1, cur * pow, primes, exps, cnt, result);
+        pow *= p;
+    }
+}
 
 static void factor_uint64(uint64_t n, uint64_t *primes, int *exps, int *cnt)
 {

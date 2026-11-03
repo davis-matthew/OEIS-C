@@ -7,13 +7,15 @@
  * Formula:   continued fraction terms of sqrt(397)
  * Range:     u8 n <= 0, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 87 terms through n = 86 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* a(0) = 19, with period length 21 thereafter */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *period = NULL;
@@ -27,7 +29,7 @@ seq_t a(idx_t n) {
     if (period == NULL) {
         seq_t m = 0, d = 1, a_val = a0;
         size_t cap = 32;
-        period = (seq_t *)malloc(cap * sizeof(seq_t));
+        period = mem_new(seq_t, cap);
         period_len = 0;
         while (1) {
             /* compute next m, d, a according to the continued‑fraction algorithm */
@@ -36,7 +38,7 @@ seq_t a(idx_t n) {
             a_val = (a0 + m) / d;
             if (period_len == cap) {
                 cap <<= 1;
-                period = (seq_t *)realloc(period, cap * sizeof(seq_t));
+                period = mem_resize(seq_t, period, cap);
             }
             period[period_len++] = a_val;
             if (a_val == 2 * a0)   /* end of the periodic part */

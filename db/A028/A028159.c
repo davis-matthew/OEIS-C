@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 16, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    Recurrence: a(0)=1, a(1)=34, a(2)=740, a(3)=13160,
    a(n)=34*a(n-1)-416*a(n-2)+2144*a(n-3)-3840*a(n-4) */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* stored values a(0)…a(k) */
 static size_t cache_len = 0;    /* number of values currently in cache */
@@ -29,13 +31,13 @@ static void ensure_cache(idx_t upto)
     /* allocate / grow cache */
     if (cache == NULL) {
         cache_cap = 4;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) exit(EXIT_FAILURE);
     }
     while (cache_cap <= (size_t)upto) {
         size_t new_cap = cache_cap * 2;
         if (new_cap == 0) new_cap = 4;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) exit(EXIT_FAILURE);
         cache = tmp;
         cache_cap = new_cap;

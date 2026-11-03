@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 17, u128 n <= 35,
  *            big any n
- * Helpers:   _num_coeff
+ * Validated: standard, pass, 33 terms through n = 433 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,7 +37,18 @@
  */
 
 #include <stdlib.h>
-#include "../utils/_num_coeff.h"
+#include "../utils/mem.h"
+
+static seq_t _num_coeff(idx_t n)
+{
+    if (n == 0)
+        return (seq_t)1;
+    if (n <= 9)
+        return (seq_t)2;
+    if (n == 10)
+        return (seq_t)1;
+    return (seq_t)0;
+}
 
 /* External linkage as required */
 seq_t a(idx_t n)
@@ -55,7 +67,7 @@ seq_t a(idx_t n)
 
     /* grow cache to accommodate up to n */
     idx_t new_size = n + 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_size);
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache)
     {
         /* allocation failed – return 0 (no error handling specified) */

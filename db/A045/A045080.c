@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 30, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    over increasing length, keeping the values in ascending order. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- helper for powers of 4 (idx_t) ---------- */
 static inline idx_t pow4_idx(idx_t e)
@@ -37,7 +39,7 @@ static void push_cache(seq_t val)
 {
     if (cache_len == cache_cap) {
         size_t newcap = cache_cap ? cache_cap * 2 : 64;
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp) exit(1);
         cache = tmp;
         cache_cap = newcap;

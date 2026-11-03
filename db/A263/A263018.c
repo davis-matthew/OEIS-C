@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 43, u32 n <= 97, u64 n <= 211,
  *            u128 n <= 522, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 68 terms through n = 9926 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,8 @@
  *  O(log n) per call (max ~64 iterations).
  */
 
-#include "../utils/binom.h"          /* returns seq_t binom(idx_t a, idx_t b) */
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 static seq_t rank_weight(idx_t n, unsigned int weight)
 /* Rank n among all positive integers with binary weight `weight`
@@ -47,7 +49,7 @@ static seq_t rank_weight(idx_t n, unsigned int weight)
     for (int bit = (int)msb_pos; bit >= 0; --bit) {
         if (n & (((idx_t)1) << bit)) {     /* current bit is 1 */
             if (ones_needed <= remaining_bits) {
-                rank += binom(remaining_bits, ones_needed);
+                rank += binomial(remaining_bits, ones_needed);
             }
             --ones_needed;                /* consume this 1 */
         }
@@ -66,7 +68,7 @@ static seq_t kth_of_weight(unsigned int weight, seq_t kth)
 
     /* Find minimal length L with cumulative + count >= kth. */
     while (1) {
-        seq_t count = binom(L - 1, weight - 1); /* numbers of weight `weight`
+        seq_t count = binomial(L - 1, weight - 1); /* numbers of weight `weight`
                                                   with highest bit at position L-1 */
         if (cumulative + count >= kth) break;
         cumulative += count;
@@ -78,7 +80,7 @@ static seq_t kth_of_weight(unsigned int weight, seq_t kth)
     unsigned int ones_needed = weight - 1;      /* remaining ones to place */
 
     for (int pos = (int)(L - 2); pos >= 0 && ones_needed > 0; --pos) {
-        seq_t cnt = binom(pos, ones_needed);   /* count if this bit is 0 */
+        seq_t cnt = binomial(pos, ones_needed);   /* count if this bit is 0 */
         if (cnt >= k_remain) {
             /* keep bit 0 */
         } else {

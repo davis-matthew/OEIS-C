@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 59, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   in_sequence
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,20 @@
    A(n) is the n‑th positive integer that can be written as 4ᶦ·(8j+7) or 4ᶦ·(3j+1)
    (i,j ≥ 0).  Offset is 1. */
 #include <stdbool.h>
-#include "../utils/in_sequence.h"
+
+static inline bool in_sequence(seq_t x)
+{
+    /* x is 4ᶦ·(8j+7)  or  4ᶦ·(3j+1) ?
+       Remove factors of 4 and test the remaining part. */
+    for (;;)
+    {
+        if ((x % 8) == 7) return true;   /* 8j+7 part */
+        if ((x % 3) == 1) return true;   /* 3j+1 part */
+        if ((x % 4) != 0) break;         /* cannot factor more 4's */
+        x /= 4;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

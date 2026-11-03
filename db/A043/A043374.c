@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   count_ones_base6
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,20 @@
    efficient. */
 
 #include <stdlib.h>
-#include "../utils/count_ones_base6.h"
+#include "../utils/mem.h"
+
+static inline unsigned count_ones_base6(seq_t x)
+{
+    unsigned cnt = 0;
+    while (x != 0) {
+        if ((x % 6) == 1)
+            ++cnt;
+        if (cnt > 2)
+            return cnt;          /* early exit */
+        x = x / 6;
+    }
+    return cnt;
+}
 
 seq_t a(idx_t n)
 {
@@ -31,7 +45,7 @@ seq_t a(idx_t n)
 
     if (csize < n) {
         /* Grow cache to hold n entries. */
-        seq_t *tmp = (seq_t *)realloc(cache, n * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, n);
         if (!tmp)
             abort(); /* allocation failed */
         cache = tmp;

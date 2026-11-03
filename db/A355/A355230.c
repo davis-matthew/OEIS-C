@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 10, u64 n <= 14, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    (recurrence over n with offset 0) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The build supplies the types seq_t (value type) and idx_t (index type). */
 
@@ -39,7 +41,7 @@ static size_t pow2_cap  = 0;
 /* Allocate an array of seq_t of the given length.  */
 static void *alloc_seq_array(size_t n)
 {
-    return malloc(sizeof(seq_t) * n);
+    return mem_new(seq_t, n);        /* (was malloc, then grown by mem_resize) */
 }
 
 /* Ensure that fact[0..n] are available. */
@@ -57,7 +59,7 @@ static void ensure_fact(idx_t n)
     if (fact == NULL) {
         fact = (seq_t *)alloc_seq_array(new_cap);
     } else {
-        seq_t *tmp = (seq_t *)realloc(fact, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fact, new_cap);
         if (!tmp) abort();
         fact = tmp;
     }
@@ -87,7 +89,7 @@ static void ensure_pow2(idx_t n)
     if (pow2 == NULL) {
         pow2 = (seq_t *)alloc_seq_array(new_cap);
     } else {
-        seq_t *tmp = (seq_t *)realloc(pow2, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, pow2, new_cap);
         if (!tmp) abort();
         pow2 = tmp;
     }
@@ -117,7 +119,7 @@ static void ensure_cache(idx_t n)
     if (cache == NULL) {
         cache = (seq_t *)alloc_seq_array(new_cap);
     } else {
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();
         cache = tmp;
     }

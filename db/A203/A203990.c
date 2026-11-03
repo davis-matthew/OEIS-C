@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 263, u16 n <= 5050, u32 n <= 5050, u64 n <= 5050,
  *            u128 n <= 5050, big any n
- * Helpers:   diagonal_sum
+ * Validated: standard, pass, 94 terms through n = 4803 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,31 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/diagonal_sum.h"
+
+/* Find the smallest integer s≥1 such that s*(s-1)/2 ≥ n.
+   This s is the sum i+j of the diagonal that contains the
+   n‑th element (1‑based indexing). */
+static inline idx_t diagonal_sum(idx_t n)
+{
+    if (n <= 1) return 2;           /* diagonal of (1,1) */
+    idx_t low = 1;
+    idx_t high = 1;
+    /* Grow high until it satisfies the inequality.  This loop
+       runs at most O(log n) times. */
+    while ( (unsigned __int128)high * (high - 1) / 2 < n ) {
+        high <<= 1;
+    }
+    /* Binary search for the exact value. */
+    while (low < high) {
+        idx_t mid = low + (high - low) / 2;
+        if ( (unsigned __int128)mid * (mid - 1) / 2 >= n ) {
+            high = mid;
+        } else {
+            low = mid + 1;
+        }
+    }
+    return low;
+}
 
 seq_t a(idx_t n)
 {

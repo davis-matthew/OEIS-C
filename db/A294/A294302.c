@@ -8,6 +8,7 @@
  * Formula:   a(n) = Sum_{i=1}^{⌊(n-1)/2⌋} (i^7 + (n-i)^7)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 21, u64 n <= 332, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 42 terms through n = 937 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

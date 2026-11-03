@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = 1 if n is not a multiple of 4 and its arithmetic
  *            derivative is a multiple of 4, otherwise 0
- * Range:     u8 n <= 9084, u16 n <= 9084, u32 n <= 9084, u64 n <= 9084,
- *            u128 n <= 9084, big any n
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 140 terms through n = 9084 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

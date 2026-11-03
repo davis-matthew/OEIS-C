@@ -7,14 +7,16 @@
  * Formula:   a(n) = Sum_{d|n} phi(d) * 6^(n/d) (offset 0)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 24, u128 n <= 49,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 37 terms through n = 1271 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/big_pow.h"   /* provides seq_t big_pow(seq_t base, seq_t exp) */
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 static void rec_div(uint64_t idx,
                     uint64_t cur_div,
@@ -26,7 +28,7 @@ static void rec_div(uint64_t idx,
                     size_t cnt)
 {
     if (idx == cnt) {
-        seq_t exp_power = big_pow((seq_t)6, (seq_t)(n / cur_div));
+        seq_t exp_power = ipow((seq_t)6, (seq_t)(n / cur_div));
         *sum += (seq_t)cur_phi * exp_power;
         return;
     }

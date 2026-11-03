@@ -8,12 +8,13 @@
  *            number of distinct prime factors of e
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   omega_small
+ * Validated: standard, pass, 102 terms through n = 9909 (2026-11-01)
+ * Helpers:   omega_idx_to_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/omega_small.h"
+#include "../utils/omega_idx_to_u32.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +29,7 @@ seq_t a(idx_t n)
             temp >>= 1;
             ++e;
         }
-        unsigned k = omega_small(e);
+        unsigned k = omega_idx_to_u32(e);
         result *= ((seq_t)1) << k;   /* 2^k */
     }
 
@@ -40,7 +41,7 @@ seq_t a(idx_t n)
                 temp /= d;
                 ++e;
             }
-            unsigned k = omega_small(e);
+            unsigned k = omega_idx_to_u32(e);
             result *= ((seq_t)1) << k;
         }
     }

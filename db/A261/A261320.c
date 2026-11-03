@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 5, i16 n <= 16, i32 n <= 53, i64 n <= 187, i128 n <= 685,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 1919 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    requested.  The routine works for any seq_t (fixed‑size or arbitrary
    precision) and any idx_t.  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static idx_t max_precomputed = 0;
 static seq_t *coeff = NULL;
@@ -29,13 +31,13 @@ static seq_t *coeff = NULL;
 static void compute_all(idx_t N) {
     size_t sz = (size_t)(N + 1);
 
-    if (coeff) free(coeff);
-    coeff = (seq_t*)calloc(sz, sizeof(seq_t));
+    if (coeff) mem_free(coeff);
+    coeff = mem_new(seq_t, sz);
 
-    seq_t *phi  = (seq_t*)calloc(sz, sizeof(seq_t));
-    seq_t *phi3 = (seq_t*)calloc(sz, sizeof(seq_t));
-    seq_t *inv  = (seq_t*)calloc(sz, sizeof(seq_t));
-    seq_t *T    = (seq_t*)calloc(sz, sizeof(seq_t));
+    seq_t *phi  = mem_new(seq_t, sz);
+    seq_t *phi3 = mem_new(seq_t, sz);
+    seq_t *inv  = mem_new(seq_t, sz);
+    seq_t *T    = mem_new(seq_t, sz);
 
     /* phi(q): 1 + 2 Σ_{k≥1} q^{k^2} */
     phi[0] = 1;
@@ -78,10 +80,10 @@ static void compute_all(idx_t N) {
         coeff[m] = sum;
     }
 
-    free(phi);
-    free(phi3);
-    free(inv);
-    free(T);
+    mem_free(phi);
+    mem_free(phi3);
+    mem_free(inv);
+    mem_free(T);
     max_precomputed = N;
 }
 

@@ -8,13 +8,15 @@
  * Formula:   a(n) = T(m,n) where m and n are obtained by reading the triangle
  *            by rows. T(m,n) = \sum_{-m<i<m, -n<j<n, gcd(i,j)=1}
  *            (m-|i|)*(n-|j|)/2 with offset 1; i.e. a(1)=T(1,1)=0
- * Range:     u8 n <= 19, u16 n <= 252, u32 n <= 8364, u64 n <= 8364,
- *            u128 n <= 8364, big any n
+ * Range:     u8 n <= 19, u16 n <= 252, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 82 terms through n = 8364 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

@@ -14,7 +14,8 @@
  *            a(4)=3, a(5)=6, a(6)=2; ... etc
  * Range:     u8 n <= 11, u16 n <= 24, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ---------  helpers for Stirling numbers  --------------------------------- */
 
@@ -42,7 +44,7 @@ static void ensure_S_rows(idx_t maxR)
         S_rows = (seq_t**)realloc(S_rows, sizeof(seq_t*) * (maxR + 1));
     }
     for (idx_t g = S_rows_cnt; g <= maxR; ++g) {
-        seq_t *row = (seq_t*)malloc(sizeof(seq_t) * (g + 1));
+        seq_t *row = mem_new(seq_t, (g + 1));
         if (g == 0) {
             row[0] = (seq_t)1;
         } else {
@@ -93,7 +95,7 @@ static void compute_row(idx_t r)
         a_rows = (seq_t**)realloc(a_rows, sizeof(seq_t*) * (r + 1));
     }
     for (idx_t rr = a_rows_cnt; rr <= r; ++rr) {
-        seq_t *row = (seq_t*)malloc(sizeof(seq_t) * (rr + 1));
+        seq_t *row = mem_new(seq_t, (rr + 1));
         /* Compute Stirling numbers up to rr to use later */
         ensure_S_rows(rr);
 

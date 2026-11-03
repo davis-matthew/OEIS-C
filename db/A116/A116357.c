@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 510, u16 n <= 1692, u32 n <= 7833, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 9276 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static storage for dynamic programming and auxiliary data. */
 static seq_t *dp        = NULL;    /* dp[0..current_max_n]  */
@@ -102,7 +104,7 @@ static void recompute_up_to(idx_t n)
 
     /* Allocate or resize the dp array. */
     if (dp_size < (size_t)(n + 1)) {
-        seq_t *tmp = (seq_t *)realloc(dp, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, (n + 1));
         if (!tmp) exit(1);
         dp = tmp;
         dp_size = n + 1;

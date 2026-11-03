@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 103, u16 n <= 8454, u32 n <= 8454, u64 n <= 8454,
- *            u128 n <= 8454, big any n
- * Helpers:   none
+ * Range:     u8 n <= 103, u16 n <= 10011, u32 n <= 10011, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 82 terms through n = 8454 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static unsigned char *used = NULL;          /* bit array of numbers already used */
 static size_t used_cap = 0;                 /* capacity of 'used' array          */
@@ -51,7 +53,7 @@ static void ensure_seq_capacity(size_t need)
     size_t new_cap = seq_cache_cap ? seq_cache_cap * 2 : 16;
     while (new_cap < need)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(*seq_cache));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
     if (!tmp) abort();
     seq_cache = tmp;
     seq_cache_cap = new_cap;

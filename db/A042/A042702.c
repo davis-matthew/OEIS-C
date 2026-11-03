@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 20, u64 n <= 42, u128 n <= 82,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
                   p_n = a_n * p_{n-1} + p_{n-2},
    where a_n are the partial quotients of the continued fraction of sqrt(881) */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     {
         /* first allocation */
         size_t init_cap = 1024;
-        p = (seq_t *)malloc(init_cap * sizeof(seq_t));
+        p = mem_new(seq_t, init_cap);
         cap = init_cap;
 
         /* initial term p_0 = 29 */
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
         if (size >= cap)
         {
             size_t new_cap = cap * 2;
-            p = (seq_t *)realloc(p, new_cap * sizeof(seq_t));
+            p = mem_resize(seq_t, p, new_cap);
             cap = new_cap;
         }
 

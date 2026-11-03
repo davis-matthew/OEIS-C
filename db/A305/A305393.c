@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   A305393 = A140102(n+1) – A140102(n)
- * Range:     u8 n <= 9742, u16 n <= 9742, u32 n <= 9742, u64 n <= 9742,
- *            u128 n <= 9742, big any n
+ * Range:     u8 n <= 49999, u16 n <= 49999, u32 n <= 49999, u64 n <= 49999,
+ *            u128 n <= 49999, big any n
+ * Validated: standard, pass, 114 terms through n = 9742 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

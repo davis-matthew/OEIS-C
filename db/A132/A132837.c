@@ -13,7 +13,8 @@
  *            of degree n in B(x)^4 computed with only the coeffic...
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static idx_t max_computed = (idx_t)(-1);
 static size_t cap = 0;                       /* current array capacity   */
@@ -38,11 +40,11 @@ static void ensure_capacity(size_t need_n)
     size_t newcap = (cap ? cap << 1 : 1);
     while (newcap <= need_n) newcap <<= 1;
 
-    b          = (seq_t*)realloc(b,          (newcap+1) * sizeof(seq_t));
-    a_vals     = (seq_t*)realloc(a_vals,     (newcap+1) * sizeof(seq_t));
-    P2_arr     = (seq_t*)realloc(P2_arr,     (2*newcap+1) * sizeof(seq_t));
-    P3_arr     = (seq_t*)realloc(P3_arr,     (3*newcap+1) * sizeof(seq_t));
-    a_coeff    = (seq_t*)realloc(a_coeff,    (4*newcap+1) * sizeof(seq_t));
+    b          = mem_resize(seq_t, b, (newcap+1));
+    a_vals     = mem_resize(seq_t, a_vals, (newcap+1));
+    P2_arr     = mem_resize(seq_t, P2_arr, (2*newcap+1));
+    P3_arr     = mem_resize(seq_t, P3_arr, (3*newcap+1));
+    a_coeff    = mem_resize(seq_t, a_coeff, (4*newcap+1));
 
     /* initialise newly allocated slots */
     for (size_t i = cap+1; i <= newcap; ++i) {

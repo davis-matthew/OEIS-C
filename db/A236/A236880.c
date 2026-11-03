@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 3, u32 n <= 8, u64 n <= 18, u128 n <= 38,
  *            big any n
- * Helpers:   sort_four
+ * Validated: standard, pass, 33 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,22 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/sort_four.h"
+#include "../utils/mem.h"
+
+/* utility: compute sorted order of four values (in-place) */
+static void sort_four(unsigned char *a)
+{
+    /* simple insertion sort for four elements */
+    for (int i = 1; i < 4; ++i) {
+        unsigned char key = a[i];
+        int j = i - 1;
+        while (j >= 0 && a[j] > key) {
+            a[j + 1] = a[j];
+            j--;
+        }
+        a[j + 1] = key;
+    }
+}
 
 #define ROWS   243     /* 3^5 possible rows */
 #define COLS   5
@@ -113,7 +129,7 @@ static void init(void)
     /* initialise totals[] for step 0 */
     for (int S = 0; S < MAX_S; ++S) {
         totals[S].cap = 1;
-        totals[S].data = (seq_t*)malloc(sizeof(seq_t)*1);
+        totals[S].data = mem_new(seq_t, 1);
         totals[S].len = 1;
         totals[S].data[0] = ROWS;      /* 243 single-row arrays */
     }
@@ -132,7 +148,7 @@ static void extend_to(idx_t target)
             size_t newcap = totals[S].cap ? totals[S].cap * 2 : 1;
             while (newcap <= target)
                 newcap *= 2;
-            seq_t *tmp = (seq_t*)realloc(totals[S].data, sizeof(seq_t)*newcap);
+            seq_t *tmp = mem_resize(seq_t, totals[S].data, newcap);
             totals[S].data = tmp;
             totals[S].cap = newcap;
         }
@@ -145,7 +161,7 @@ static void extend_to(idx_t target)
             seq_t *cur = dp_cur[S];
 
             /* zero dp_next */
-            memset(dp_next, 0, sizeof(dp_next));
+            mem_set(dp_next, 0, sizeof(dp_next));
 
             for (int src = 0; src < ROWS; ++src) {
                 seq_t val = cur[src];
@@ -166,7 +182,7 @@ static void extend_to(idx_t target)
             totals[S].data[max_precomputed] = sum;
 
             /* copy next to cur for next iteration */
-            memcpy(cur, dp_next, sizeof(dp_next));
+            mem_copy(cur, dp_next, sizeof(dp_next));
         }
     }
 }

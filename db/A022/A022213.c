@@ -7,7 +7,8 @@
  * Formula:   a(n) = Product_{i=1..6} (5^(n-i+1)-1)/(5^i-1)
  * Range:     u8 none, u16 none, u32 n <= 7, u64 n <= 10, u128 n <= 15,
  *            big any n
- * Helpers:   gcd, pow_seq
+ * Validated: standard, pass, 26 terms through n = 198 (2026-11-01)
+ * Helpers:   gcd, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,9 @@
     and is safe for all n ≥ 6 that fit in seq_t.  For native types the
     routine relies on exact cancellations to keep intermediate values
     within range. */
-#include "../utils/pow_seq.h"
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -31,10 +33,10 @@ seq_t a(idx_t n)
        to avoid overflow. */
     for (idx_t i = 1; i <= 6; ++i) {
         /* Numerator 5^(n-i+1) – 1 */
-        seq_t num = pow_seq((seq_t)5, (int)(n - i + 1));
+        seq_t num = ipow_i32((seq_t)5, (int)(n - i + 1));
         num -= 1;
         /* Denominator 5^i – 1 */
-        seq_t den = pow_seq((seq_t)5, (int)i);
+        seq_t den = ipow_i32((seq_t)5, (int)i);
         den -= 1;
 
         /* Cancel common factors between current result and denominator */

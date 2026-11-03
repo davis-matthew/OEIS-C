@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 23, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Sequence A264055  
    Empirical 17‑term linear recurrence, initial values shown. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache      = NULL;     /* array of computed values (1‑based)   */
 static idx_t max_comp    = 0;        /* highest index currently computed    */
@@ -32,11 +34,11 @@ static void ensure_cache(idx_t n)
     if (cache == NULL) {
         if (needed < 18u)
             needed = 18u;
-        cache = (seq_t *)malloc(needed * sizeof(seq_t));
+        cache = mem_new(seq_t, needed);
         if (!cache) exit(EXIT_FAILURE);
         cache_cap = needed;
     } else if (needed > cache_cap) {
-        seq_t *tmp = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, needed);
         if (!tmp) exit(EXIT_FAILURE);
         cache = tmp;
         cache_cap = needed;

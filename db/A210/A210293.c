@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 202 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
         a(1) = 112,  a(2) = 1578,  a(3) = 22212,  a(4) = 312704.    */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Function to compute the n-th term (n≥1).  That is,
    a(1) = 112, a(2) = 1578, …                                         */
@@ -39,13 +41,13 @@ seq_t a(idx_t n)
     /* Allocate / grow the cache to be able to store up to n values.  */
     if (cache == NULL) {
         cap = 128;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cap);
+        cache = mem_new(seq_t, cap);
     }
     while (cap < n) {
         size_t new_cap = cap * 2;
         if (new_cap == 0) new_cap = cap + 64;   /* fallback for very small cap */
         new_cap = (new_cap < n) ? n : new_cap;
-        cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+        cache = mem_resize(seq_t, cache, new_cap);
         cap = new_cap;
     }
 

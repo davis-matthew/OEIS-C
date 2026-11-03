@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  base, easy, nonn
  * Formula:   not stated
- * Range:     u8 n <= 158, u16 n <= 9592, u32 n <= 9592, u64 n <= 9592,
- *            u128 n <= 9592, big any n
- * Helpers:   none
+ * Range:     u8 n <= 158, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 74 terms through n = 9592 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Count decimal digits of v into d[10] (d must be zeroed before calling). */
 static void count_digits(seq_t v, unsigned int d[10]) {
@@ -53,7 +55,7 @@ static void grow_to(idx_t n) {
     if (n <= seq_len) return;
     if (seq_cap == 0) {
         seq_cap = 16;
-        seq_arr = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_arr = mem_new(seq_t, seq_cap);
     }
     while (seq_len < n) {
         seq_t prev;
@@ -69,7 +71,7 @@ static void grow_to(idx_t n) {
             if (r != 0 && digits_subset(r, cand)) {
                 if (seq_len == seq_cap) {
                     seq_cap *= 2;
-                    seq_arr = (seq_t *)realloc(seq_arr, seq_cap * sizeof(seq_t));
+                    seq_arr = mem_resize(seq_t, seq_arr, seq_cap);
                 }
                 seq_arr[seq_len++] = cand;
                 break;

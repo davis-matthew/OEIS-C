@@ -10,13 +10,15 @@
  *            in row N)
  * Range:     u8 n <= 210, u16 n <= 7875, u32 n <= 7875, u64 n <= 7875,
  *            u128 n <= 7875, big any n
- * Helpers:   none
+ * Validated: standard, pass, 96 terms through n = 7690 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Stored totient values and their prefix sums (pref[i] = Σ_{j=1}^i φ(j)). */
 static uint64_t *phi = NULL;          /* φ(i) as 64‑bit unsigned (fits all needed values). */
@@ -30,7 +32,7 @@ static void ensure_upto(size_t max_n)
 
     /* Allocate new arrays. */
     uint64_t *new_phi = (uint64_t*)malloc((max_n + 1) * sizeof(uint64_t));
-    seq_t   *new_pref = (seq_t*)   malloc((max_n + 1) * sizeof(seq_t));
+    seq_t   *new_pref = mem_new(seq_t, (max_n + 1));
     if (!new_phi || !new_pref) return;  /* allocation failed – keep old state. */
 
     /* Initialize φ[i] = i. */
@@ -53,7 +55,7 @@ static void ensure_upto(size_t max_n)
 
     /* Replace old arrays. */
     free(phi);
-    free(pref);
+    mem_free(pref);
     phi = new_phi;
     pref = new_pref;
     limit = max_n;

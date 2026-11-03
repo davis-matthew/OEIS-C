@@ -7,13 +7,15 @@
  * Formula:   a(n) = numerator of the n-th convergent of sqrt(306)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 9, u64 n <= 19, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Compute the n-th term of A041576. */
 seq_t a(idx_t n)
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     /* Initialise on first call.  */
     if (p == NULL) {
         cap = 4;                     /* initial capacity */
-        p = (seq_t *)malloc(cap * sizeof(seq_t));
+        p = mem_new(seq_t, cap);
         if (!p) return 0;            /* allocation failed (unlikely) */
         prevprev = (seq_t)1;          /* p_{-1} = 1  */
         prev     = (seq_t)a0;         /* p_0   = a0  */
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
         /* Ensure capacity.  */
         if (size >= cap) {
             size_t newcap = cap << 1;
-            seq_t *tmp = (seq_t *)realloc(p, newcap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, p, newcap);
             if (!tmp) return 0;          /* allocation failure */
             p = tmp;
             cap = newcap;

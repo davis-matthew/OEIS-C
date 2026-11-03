@@ -8,8 +8,9 @@
  * Formula:   a(n) = maximum k such that k(k+1)(2k+1)/6 <= n and (n -
  *            k(k+1)(2k+1)/6) == 0 or (n - k(k+1)(2k+1)/6) > k (This condition
  *            is equivalent to the OEIS description for A394247.)
- * Range:     u8 n <= 1735, u16 n <= 9955, u32 n <= 9955, u64 n <= 9955,
- *            u128 n <= 9955, big any n
+ * Range:     u8 n <= 1735, u16 n <= 20539, u32 n <= 20539, u64 n <= 20539,
+ *            u128 n <= 20539, big any n
+ * Validated: standard, pass, 124 terms through n = 9955 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

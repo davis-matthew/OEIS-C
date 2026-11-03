@@ -8,7 +8,8 @@
  * Formula:   a(n) = Σ_{j=0}^{n} (-1)^{n-j} * C(n,j) * floor(log(2) * j)
  * Range:     i8 n <= 11, i16 n <= 18, i32 n <= 38, i64 n <= 67, i128 n <= 132,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 /* is performed with the seq_t type provided by the build.                 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Natural logarithm of 2 (double precision).  The values we compute are   */
 /* small enough (< 10 000 * 0.7 ≈ 7 000) so truncating a double to a     */
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     if (n == 0) return (seq_t)0;        /* offset 1: a(1) = f(0) = 0 */
 
     /* Allocate array of size n+1 for the values f(0)…f(n). */
-    seq_t *arr = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, (size_t)(n + 1));
     if (!arr) return (seq_t)0;           /* allocation failure → 0 */
 
     /* Fill arr with f(k) = floor(log(2) * k). */
@@ -50,6 +52,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = arr[0];                      /* a(n) = Δ^n f(0)               */
-    free(arr);
+    mem_free(arr);
     return result;
 }

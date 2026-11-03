@@ -11,14 +11,16 @@
  *            (OEIS A193842)
  * Range:     u8 n <= 17, u16 n <= 50, u32 n <= 165, u64 n <= 616,
  *            u128 n <= 2255, big any n
- * Helpers:   binom, pow3
+ * Validated: standard, pass, 69 terms through n = 5135 (2026-11-01)
+ * Helpers:   binomial, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/binom.h"   /* provides static seq_t binom(idx_t a, idx_t b)   */
-#include "../utils/pow3.h"    /* provides seq_t pow3(idx_t exp)              */
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/pow3.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     for (idx_t i = 0; i <= k; ++i)
     {
         idx_t exp = k - i;                 /* exponent for 3 */
-        seq_t term = binom(r - i, exp);    /* binomial coefficient C(r-i, exp) */
+        seq_t term = binomial(r - i, exp);    /* binomial coefficient C(r-i, exp) */
         term = term * pow3(exp);           /* multiply by 3^exp          */
         sum = sum + term;
     }

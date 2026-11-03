@@ -9,7 +9,8 @@
  *            digital_root(prime(m))
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 9, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   digital_root_seq
+ * Validated: full, pass, 9 terms through n = 9 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,12 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/digital_root_seq.h"
+
+/*----- digital root for positive seq_t values -----*/
+static inline seq_t digital_root_seq(seq_t x)
+{
+    return (seq_t)(1 + (x - 1) % 9);
+}
 
 /*----- dynamic list of primes -----*/
 static uint32_t *primes      = NULL;   /* array of primes, primes[0] = 2   */

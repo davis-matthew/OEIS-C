@@ -10,9 +10,10 @@
  *            of m (divisors in increasing order). Then a(n) = (-1)^(r +
  *            (d_k-1)/2) * d_k, where k is the position of n inside row r. Row
  *            r contains τ(2*r+1) entries (τ = number of d...
- * Range:     i8 n <= 205, i16 n <= 8731, i32 n <= 8731, i64 n <= 8731,
- *            i128 n <= 8731, big any n
- * Helpers:   divisor_count_ll, divisor_k_ll
+ * Range:     i8 n <= 205, i16 n <= 12574, i32 n <= 12574, i64 n <= 12574,
+ *            i128 n <= 12574, big any n
+ * Validated: standard, pass, 102 terms through n = 8731 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,49 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/divisor_count_ll.h"
-#include "../utils/divisor_k_ll.h"
+
+/* Helper: count divisors of m */
+static idx_t divisor_count_ll(uint64_t m)
+{
+    idx_t cnt = 0;
+    for (idx_t d = 1; d <= m / d; ++d)
+    {
+        if (m % d == 0)
+        {
+            ++cnt;
+            if (d * d != m)
+                ++cnt;
+        }
+    }
+    return cnt;
+}
+
+/* Helper: return k-th divisor (0‑based) of m, divisors sorted ascending */
+static uint64_t divisor_k_ll(uint64_t m, idx_t k)
+{
+    /* maximum number of divisors for m <= 2*10^7 is < 256, safe for static array */
+    seq_t divs[256];
+    size_t num = 0;
+    for (uint64_t d = 1; d <= m / d; ++d)
+    {
+        if (m % d == 0)
+        {
+            divs[num++] = (seq_t)d;
+            if (d * d != m)
+                divs[num++] = (seq_t)(m / d);
+        }
+    }
+    /* simple insertion sort */
+    for (size_t i = 0; i < num; ++i)
+        for (size_t j = i + 1; j < num; ++j)
+            if (divs[j] < divs[i])
+            {
+                seq_t tmp = divs[i];
+                divs[i] = divs[j];
+                divs[j] = tmp;
+            }
+    return (uint64_t)divs[k];
+}
 
 /* Static storage for cumulative divisor counts: cum[i] = Σ_{t=0..i} τ(2*t+1) */
 static idx_t *cum = NULL;

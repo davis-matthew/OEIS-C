@@ -9,8 +9,9 @@
  *            o where o is odd, let τ(o²) be the number of divisors of o².
  *            Then a(o) = (τ(o²) – 1) / 2. If m ≤ 2 : a(n) = a(o). If m > 2 :
  *            a(n) = (2m – 3) · a(o) + (m – 2)
- * Range:     u8 n <= 9715, u16 n <= 9715, u32 n <= 9715, u64 n <= 9715,
- *            u128 n <= 9715, big any n
+ * Range:     u8 n <= 18480, u16 n <= 18480, u32 n <= 18480, u64 n <= 18480,
+ *            u128 n <= 18480, big any n
+ * Validated: standard, pass, 118 terms through n = 9715 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,17 +9,19 @@
  *            function, and 2^⌊log₂(n/d)⌋ is the largest power of two ≤ n/d
  *            (A053644). The implementation uses the provided `mobius` and
  *            `floor_log2_uint64` utilities
- * Range:     u8 n <= 511, u16 n <= 9530, u32 n <= 9530, u64 n <= 9530,
- *            u128 n <= 9530, big any n
- * Helpers:   floor_log2_uint64, mobius
+ * Range:     u8 n <= 511, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 110 terms through n = 9530 (2026-11-01)
+ * Helpers:   ilog2, mobius
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stddef.h>
+#include "../utils/ilog2.h"
 #include "../utils/mobius.h"
-#include "../utils/floor_log2_uint64.h"
 
 seq_t a(idx_t n) {
     /* Sum over all divisors d of n. */
@@ -30,7 +32,7 @@ seq_t a(idx_t n) {
             /* First divisor d1 = i */
             idx_t d1 = i;
             idx_t nd1 = n / d1;
-            idx_t lg1 = floor_log2_uint64(nd1);
+            idx_t lg1 = ilog2(nd1);
             seq_t pow1 = (seq_t)1 << lg1;          /* 2^lg1 */
             seq_t mu1  = mobius(d1);
             sum += mu1 * pow1;
@@ -39,7 +41,7 @@ seq_t a(idx_t n) {
             idx_t d2 = n / i;
             if (d2 != d1) {
                 idx_t nd2 = n / d2;                /* same as d1 */
-                idx_t lg2 = floor_log2_uint64(nd2);
+                idx_t lg2 = ilog2(nd2);
                 seq_t pow2 = (seq_t)1 << lg2;      /* 2^lg2 */
                 seq_t mu2  = mobius(d2);
                 sum += mu2 * pow2;

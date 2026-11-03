@@ -11,7 +11,8 @@
  *            ∏_{j≥0} (1 - x^(4j+2))
  * Range:     u8 n <= 31, u16 n <= 69, u32 n <= 179, u64 n <= 521,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 85 terms through n = 935 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,12 +28,12 @@ seq_t a(idx_t n)
     size_t kmax = N / 8;           /* largest k with 8k ≤ n */
 
     /* allocate temporary arrays (calloc gives zeroed memory) */
-    seq_t *poly_prod = (seq_t*)calloc(N + 1, sizeof(seq_t));
-    seq_t *tmp       = (seq_t*)calloc(N + 1, sizeof(seq_t));
-    seq_t *total     = (seq_t*)calloc(N + 1, sizeof(seq_t));
-    seq_t *g2        = (seq_t*)calloc(N + 1, sizeof(seq_t));
+    seq_t *poly_prod = mem_new(seq_t, N + 1);
+    seq_t *tmp       = mem_new(seq_t, N + 1);
+    seq_t *total     = mem_new(seq_t, N + 1);
+    seq_t *g2        = mem_new(seq_t, N + 1);
     if (!poly_prod || !tmp || !total || !g2) {
-        free(poly_prod); free(tmp); free(total); free(g2);
+        mem_free(poly_prod); mem_free(tmp); mem_free(total); mem_free(g2);
         return 0;
     }
 
@@ -82,10 +84,10 @@ seq_t a(idx_t n)
     }
 
     /* free allocations */
-    free(poly_prod);
-    free(tmp);
-    free(total);
-    free(g2);
+    mem_free(poly_prod);
+    mem_free(tmp);
+    mem_free(total);
+    mem_free(g2);
 
     return ans;
 }

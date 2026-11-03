@@ -13,12 +13,14 @@
  *            a(10)=3781186, a(11)=8485355, a(12)=19144607, a(13)=43420578...
  * Range:     u8 none, u16 n <= 5, u32 n <= 18, u64 n <= 45, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc, free */
+#include "../utils/mem.h"
 
 static const seq_t init_vals[13] = {
     526,   2546,   8207,   23404,   60044,
@@ -34,7 +36,7 @@ static size_t cache_len = 0;     /* largest index that has a value stored */
 static void init_cache(void)
 {
     cache_cap = 14;                          /* indices 0 … 13  */
-    cache     = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    cache     = mem_new(seq_t, cache_cap);
     for (size_t i = 0; i < cache_cap; ++i) cache[i] = 0;
     for (size_t i = 1; i <= 13; ++i) cache[i] = init_vals[i - 1];
     cache_len = 13;
@@ -48,7 +50,7 @@ static void ensure_cache(idx_t n)
     if ((idx_t)n >= (idx_t)cache_cap) {
         size_t new_cap = cache_cap;
         while ((idx_t)n >= (idx_t)new_cap) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) { /* allocation failed; terminate */ abort(); }
         cache = tmp;
         for (size_t i = cache_cap; i < new_cap; ++i) cache[i] = 0;

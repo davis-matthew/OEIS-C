@@ -10,15 +10,18 @@
  * Formula:   a(n) = A061395(n) - A061395(A051119(n))
  * Range:     u8 n <= 1618, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   compute_pi, factor_u64
+ * Validated: standard, pass, 99 terms through n = 8541 (2026-11-01)
+ * Helpers:   factor_u64, prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/compute_pi.h"
+#include "../utils/prime_pi.h"
 
 seq_t a(idx_t n)
 {
@@ -34,12 +37,12 @@ seq_t a(idx_t n)
 
     if (cnt == 1)
         /* n is a prime power: return index of its prime factor */
-        return compute_pi(primes[0]);
+        return prime_pi(primes[0]);
 
     /* primes are returned in ascending order.
        The two largest distinct primes are primes[cnt-1] and primes[cnt-2] */
-    seq_t i = compute_pi(primes[cnt - 1]); /* index of largest prime */
-    seq_t j = compute_pi(primes[cnt - 2]); /* index of second largest prime */
+    seq_t i = prime_pi(primes[cnt - 1]); /* index of largest prime */
+    seq_t j = prime_pi(primes[cnt - 2]); /* index of second largest prime */
 
     return i - j;                       /* difference of indices */
 }

@@ -8,14 +8,24 @@
  *            (offset 1)
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   pow11u
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/pow11u.h"
+
+/* Return 11^exp, where 0 ≤ exp ≤ 10.  Use idx_t to keep values small
+   and avoid any dependence on seq_t precision. */
+static idx_t pow11u(idx_t exp)
+{
+    idx_t r = 1;
+    while (exp--)
+        r *= (idx_t)11;
+    return r;
+}
 
 seq_t a(idx_t n)
 {

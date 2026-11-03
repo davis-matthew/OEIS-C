@@ -10,6 +10,7 @@
  *            digits of x is exactly 3. The sequence begins 3, 14, 25,
  * Range:     u8 n <= 26, u16 n <= 3967, u32 n <= 5001, u64 n <= 5001,
  *            u128 n <= 5001, big any n
+ * Validated: standard, pass, 74 terms through n = 4949 (2026-11-01)
  * Helpers:   digit_frequencies
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

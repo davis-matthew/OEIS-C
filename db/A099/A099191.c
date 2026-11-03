@@ -9,14 +9,17 @@
  *            0
  * Range:     u8 n <= 8, u16 n <= 20, u32 n <= 93, u64 n <= 93, u128 n <= 93,
  *            big any n
- * Helpers:   rev
+ * Validated: partial, pass, 93 terms through n = 93 (2026-11-03)
+ * Helpers:   mem, reverse_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/rev.h"
+#include <stdbool.h>
+#include "../utils/reverse_digits_idx.h"
+#include "../utils/mem.h"
 
 static const idx_t PRIME_LIMIT = 200000;          /* bound for prime sieve */
 
@@ -76,7 +79,7 @@ static void ensure_cache_size(idx_t n)
     while (new_cap < needed)
         new_cap <<= 1;
 
-    seq_t *tmp = (seq_t*)realloc(g_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, g_cache, new_cap);
     if (!tmp)
         abort();
 
@@ -103,7 +106,7 @@ static void fill_cache_upto(idx_t n)
     for (size_t k = 0; k < g_prime_cnt; ++k)
     {
         uint64_t p = g_primes[k];
-        idx_t rev_p = rev(p);
+        idx_t rev_p = reverse_digits_idx(p);
         seq_t rev_seq = (seq_t)rev_p;
         seq_t n_seq = two * rev_seq - (seq_t)p;
 

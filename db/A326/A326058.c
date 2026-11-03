@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign
  * Formula:   a(n) = n - sum of square divisors of n
- * Range:     i8 n <= 24, i16 n <= 9993, i32 n <= 9993, i64 n <= 9993,
- *            i128 n <= 9993, big any n
- * Helpers:   build_spf, seq_pow
+ * Range:     i8 n <= 24, i16 n <= 20000, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 100 terms through n = 9993 (2026-11-01)
+ * Helpers:   build_spf, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/build_spf.h"   /* build_spf(idx_t limit, idx_t **spf_out) */
-#include "../utils/seq_pow.h"    /* seq_pow(seq_t base, idx_t exp) */
+#include "../utils/build_spf.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -53,7 +54,7 @@ seq_t a(idx_t n)
         if (k == 0) continue;   /* term is 1, can skip */
 
         seq_t p2 = (seq_t)p * (seq_t)p;                 /* p² */
-        seq_t num = seq_pow(p2, k + 1) - (seq_t)1;      /* p²^(k+1) – 1 */
+        seq_t num = ipow_idx(p2, k + 1) - (seq_t)1;      /* p²^(k+1) – 1 */
         seq_t denom = p2 - (seq_t)1;                    /* p² – 1 */
         seq_t term = num / denom;                       /* exact division */
         sumsq *= term;

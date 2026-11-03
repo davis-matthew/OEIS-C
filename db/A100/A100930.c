@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = (2*A059455(n)^2 - A059455(n) - 1) / 2
- * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 26, u64 n <= 26, u128 n <= 26,
- *            big any n
- * Helpers:   is_prime_uint64
+ * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 82, u64 n <= 1000,
+ *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 42 terms through n = 967 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 /* ------------------------------------------------------------ */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime_uint64.h"
+#include <stdlib.h>
+#include "../utils/is_prime_u64.h"
 
 /* ----------------------------------------------------------------
    The sequence is defined by the primes p satisfying:
@@ -40,15 +42,15 @@ seq_t a(idx_t n)
     idx_t found = 0;
     for (uint64_t p = 5; ; p += 2)            /* only odd candidates */
     {
-        if (!is_prime_uint64(p))
+        if (!is_prime_u64(p))
             continue;                        /* skip non‑prime p */
 
         uint64_t f1 = (p - 1) >> 1;           /* (p-1)/2   */
-        if (!is_prime_uint64(f1))
+        if (!is_prime_u64(f1))
             continue;                        /* q not prime */
 
         uint64_t f2 = (p << 1) + 1;           /* 2p+1      */
-        if (!is_prime_uint64(f2))
+        if (!is_prime_u64(f2))
             continue;                        /* r not prime */
 
         ++found;

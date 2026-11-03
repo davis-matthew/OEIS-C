@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{k=0..min(11,n)} 2^k * binomial(11,k) * binomial(n,k)
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 17, u64 n <= 137, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 41 terms through n = 952 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
    library.  It works for any seq_t type supported by the build. */
 
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* binomial coefficients for 11. These are small enough to fit in every

@@ -15,13 +15,15 @@
  *            T(i‑1,j‑2)+T(i‑1,j)
  * Range:     u8 n <= 70, u16 n <= 208, u32 n <= 702, u64 n <= 2548,
  *            u128 n <= 9694, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 9968 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Integer square root: floor(sqrt(x)) via binary search. */
 static inline idx_t int_sqrt(idx_t x)
@@ -61,7 +63,7 @@ static void ensure_rows(idx_t i)
     for (idx_t k = 0; k <= i; ++k) {
         if (rows[k]) continue;          /* already computed */
         idx_t len = 2 * k + 1;           /* number of elements in row k */
-        seq_t *row = (seq_t *)calloc((size_t)len, sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (size_t)len);
         if (!row) continue;             /* allocation failure */
         /* Boundary values. */
         row[0] = 1;

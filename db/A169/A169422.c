@@ -12,13 +12,15 @@
  *            the sequence satisfies the linear recurrenc...
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>   /* for memcpy, memset */
+#include "../utils/mem.h"
 
 /* helper: compute the first 32 terms by polynomial division */
 static void
@@ -55,14 +57,14 @@ a(idx_t n)
         if (new_size < INIT)
             new_size = INIT;
 
-        seq_t *new_cache = (seq_t *)calloc(new_size, sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_size);
         if (!new_cache) return (seq_t)0;    /* memory failure – not expected */
 
         if (cache)
         {
             /* copy old data into the larger buffer */
-            memcpy(new_cache, cache, cache_size * sizeof(seq_t));
-            free(cache);
+            mem_copy(new_cache, cache, cache_size * sizeof(seq_t));
+            mem_free(cache);
         }
         cache = new_cache;
         cache_size = new_size;

@@ -6,8 +6,9 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = 3 * b(n) where * b(1) = 1, * b(3^e) = 4 (for any e ≥ 1),
  *            * b(p^e) = 1 + p + p^2 + … + p^e for prime p ≠ 3
- * Range:     u8 n <= 39, u16 n <= 6599, u32 n <= 9885, u64 n <= 9885,
- *            u128 n <= 9885, big any n
+ * Range:     u8 n <= 39, u16 n <= 6599, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 77 terms through n = 9885 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

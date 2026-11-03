@@ -10,12 +10,14 @@
  *            a(6)=1024,a(7)=3809,a(8)=13968
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 17, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static array of the first 8 terms. */
 static const seq_t initVals[8] = {
@@ -36,13 +38,13 @@ static void ensure_cache(idx_t n)
 
     /* Allocate new larger buffer. */
     size_t new_cap = (size_t)n;
-    seq_t *new_cache = (seq_t*)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache) return;                  /* allocation failed – unlikely */
 
     /* Copy previously stored terms. */
     if (cache) {
         for (size_t i = 0; i < old_cap; ++i) new_cache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
     cache = new_cache;
     cap   = new_cap;

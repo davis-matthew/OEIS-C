@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 8, u64 n <= 13, u128 n <= 22,
  *            big any n
- * Helpers:   gcd_seq
+ * Validated: standard, pass, 31 terms through n = 98 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,12 +21,14 @@
  */
 
 #include <stdlib.h>
-#include "../utils/gcd_seq.h"   /* provides: seq_t gcd_seq(seq_t, seq_t) */
+#include <stdint.h>
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* Compute lcm(a,b) using the provided gcd_seq. */
 static inline seq_t lcm_seq(seq_t a, seq_t b)
 {
-    seq_t g = gcd_seq(a, b);     /* gcd(a,b) */
+    seq_t g = gcd(a, b);     /* gcd(a,b) */
     return (a / g) * b;          /* lcm = a/g * b; overflow ok for 64‑bit builds */
 }
 
@@ -61,9 +64,9 @@ seq_t a(idx_t n)
         size_t new_size = (size_t)n + 1; /* include index 0 */
         seq_t *tmp;
         if (cache == NULL) {
-            tmp = (seq_t *)calloc(new_size, sizeof(seq_t));
+            tmp = mem_new(seq_t, new_size);
         } else {
-            tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+            tmp = mem_resize(seq_t, cache, new_size);
         }
         if (tmp == NULL && new_size > cache_size) {
             /* Allocation failed – abort.  The build environment will

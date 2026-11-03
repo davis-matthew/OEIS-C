@@ -11,7 +11,8 @@
  *            a(0)=a(1)=0
  * Range:     u8 n <= 12, u16 n <= 18, u32 n <= 30, u64 n <= 58, u128 n <= 106,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 952 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static uint64_t   *primes  = NULL;       /* list of primes up to cached limit */
 static seq_t      *primorials = NULL;   /* product of primes less than primes[i] */
@@ -32,11 +34,11 @@ static void ensure_primes_upto(uint64_t limit)
 
     /* free previous tables */
     free(primes);
-    free(primorials);
+    mem_free(primorials);
 
     size_t sz = (size_t)(limit + 1);
     primes      = (uint64_t *)malloc(sz * sizeof(uint64_t));
-    primorials  = (seq_t   *)malloc(sz * sizeof(seq_t));
+    primorials  = mem_new(seq_t, sz);
     if (!primes || !primorials) return; /* allocation failed: caller may handle */
 
     bool *is_composite = (bool *)calloc(sz, sizeof(bool));

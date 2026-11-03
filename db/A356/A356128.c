@@ -7,13 +7,17 @@
  * Formula:   a(n) = Σ_{d=1..n} d^(n+1) * binomial(floor(n/d)+1, 2)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 15, u128 n <= 26,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: standard, pass, 34 terms through n = 373 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -21,7 +25,7 @@ seq_t a(idx_t n)
     for (idx_t d = 1; d <= n; ++d) {
         idx_t m = n / d;                            /* floor(n/d)   */
         seq_t bin = binomial(m + 1, 2);             /* binom(m+1,2) */
-        seq_t p   = big_pow((seq_t)d, (seq_t)(n + 1)); /* d^(n+1)   */
+        seq_t p   = ipow((seq_t)d, (seq_t)(n + 1)); /* d^(n+1)   */
         result += p * bin;
     }
     return result;

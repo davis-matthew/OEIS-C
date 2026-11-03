@@ -6,16 +6,41 @@
  * Keywords:  easy, sign, tabl
  * Formula:   a(n) = A010054(n) - A379480(n) Equivalent: a(n) = 1 if n =
  *            k(k+3)/2 (k ≥ 0) a(n) = -1 if n = 2k^2 - 1 (k ≥ 1) otherwise 0
- * Range:     i8 n <= 9824, i16 n <= 9824, i32 n <= 9824, i64 n <= 9824,
- *            i128 n <= 9824, big any n
- * Helpers:   is_perfect_square128
+ * Range:     i8 n <= 22154, i16 n <= 22154, i32 n <= 22154, i64 n <= 22154,
+ *            i128 n <= 22154, big any n
+ * Validated: standard, pass, 136 terms through n = 9824 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_perfect_square128.h"
+
+/* Integer square‑root for 128‑bit values.
+   If x is a perfect square, returns true and sets *root to √x.
+   Otherwise returns false. */
+static bool is_perfect_square128(__uint128_t x, uint64_t *root)
+{
+    __uint128_t lo = 0, hi = x;
+    while (lo <= hi) {
+        __uint128_t mid = (lo + hi) >> 1;
+        if (mid == 0) {  /* avoid division by zero */
+            lo = 1;
+            continue;
+        }
+        if (mid <= x / mid)      /* mid^2 ≤ x  */
+            lo = mid + 1;
+        else
+            hi = mid - 1;
+    }
+    uint64_t r = (uint64_t)hi;               /* hi is ⌊√x⌋ */
+    if ((__uint128_t)r * r == x) {
+        *root = r;
+        return true;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

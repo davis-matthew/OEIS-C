@@ -9,12 +9,14 @@
  *            continued fraction convergents to sqrt(689)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 187 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_size = 0;
@@ -22,7 +24,7 @@ static size_t cache_size = 0;
 static void init_cache(void) {
     /* Allocate space for the first four known values */
     cache_size = 4;
-    cache = (seq_t*)malloc(cache_size * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_size);
     cache[0] = (seq_t)26;
     cache[1] = (seq_t)105;
     cache[2] = (seq_t)5486;
@@ -39,7 +41,7 @@ seq_t a(idx_t n) {
 
     /* Grow the cache to accommodate up to index n */
     size_t new_size = (size_t)n + 1;
-    cache = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_size);
 
     /* Compute missing terms using the recurrence */
     for (size_t k = cache_size; k <= (size_t)n; ++k) {

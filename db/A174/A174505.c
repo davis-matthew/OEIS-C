@@ -11,12 +11,14 @@
  *            Lucas(m)=Lucas(m‑1)+Lucas(m‑2)
  * Range:     u8 n <= 14, u16 n <= 32, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *lucas_cache = NULL;        /* stored Lucas numbers */
 static size_t lucas_cache_cap = 0;       /* allocated capacity */
@@ -28,7 +30,7 @@ static void ensure_lucas(idx_t n)
     if (lucas_cache == NULL) {
         /* initialise cache with L(0)=2, L(1)=1 */
         lucas_cache_cap = 2;
-        lucas_cache = (seq_t *)malloc(lucas_cache_cap * sizeof(seq_t));
+        lucas_cache = mem_new(seq_t, lucas_cache_cap);
         lucas_cache[0] = (seq_t)2;
         lucas_cache[1] = (seq_t)1;
         lucas_cache_max = 1;
@@ -37,7 +39,7 @@ static void ensure_lucas(idx_t n)
         if (lucas_cache_cap <= lucas_cache_max + 1) {
             size_t new_cap = lucas_cache_cap * 2;
             if (new_cap == 0) new_cap = 2;
-            lucas_cache = (seq_t *)realloc(lucas_cache, new_cap * sizeof(seq_t));
+            lucas_cache = mem_resize(seq_t, lucas_cache, new_cap);
             lucas_cache_cap = new_cap;
         }
         /* compute next Lucas number */

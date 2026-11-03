@@ -9,12 +9,14 @@
  *            < 4 else 0, and T(j,k) = T(j-1,k-1) + T(j,k-1) for 2 ≤ k ≤ j
  * Range:     u8 n <= 18, u16 n <= 32, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -22,13 +24,13 @@ seq_t a(idx_t n)
         return (seq_t)0;
 
     /* allocate arrays of size n+1 (index 0 unused) */
-    seq_t *a_arr = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
-    seq_t *prev   = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
-    seq_t *curr   = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *a_arr = mem_new(seq_t, (size_t)(n + 1));
+    seq_t *prev   = mem_new(seq_t, (size_t)(n + 1));
+    seq_t *curr   = mem_new(seq_t, (size_t)(n + 1));
 
     if (!a_arr || !prev || !curr) { /* allocation failure */
         /* safe fallback – return 0 */
-        free(prev); free(curr); free(a_arr);
+        mem_free(prev); mem_free(curr); mem_free(a_arr);
         return (seq_t)0;
     }
 
@@ -53,8 +55,8 @@ seq_t a(idx_t n)
 
     seq_t result = a_arr[n];
 
-    free(prev);
-    free(curr);
-    free(a_arr);
+    mem_free(prev);
+    mem_free(curr);
+    mem_free(a_arr);
     return result;
 }

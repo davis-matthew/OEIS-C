@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 88, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   symbol_at
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,37 @@
    (recursively descend the morphism’s tree). */
 
 #include <stddef.h>  /* size_t for static array dimension */
-#include "../utils/symbol_at.h"
+
+static seq_t symbol_at(int depth, int symbol, seq_t pos,
+                       const seq_t (*len)[4])
+{
+    /* Base of the recursion: no replacement left */
+    if (depth == 0) {
+        return (seq_t)symbol;
+    }
+
+    /* Expand the current symbol according to the morphism */
+    switch (symbol) {
+        case 1: {
+            /* 1 → 1 1 3 2 3 1 */
+            static const int ch[6] = {1, 1, 3, 2, 3, 1};
+            for (int i = 0; i < 6; ++i) {
+                seq_t child_len = len[depth - 1][ch[i]];
+                if (pos < child_len) {
+                    return symbol_at(depth - 1, ch[i], pos, len);
+                }
+                pos -= child_len;
+            }
+            break;
+        }
+        case 2:             /* 2 → 3 */
+            return symbol_at(depth - 1, 3, pos, len);
+        case 3:             /* 3 → 1 */
+            return symbol_at(depth - 1, 1, pos, len);
+    }
+    /* Should never be reached */
+    return (seq_t)0;
+}
 
 seq_t a(idx_t n)
 {

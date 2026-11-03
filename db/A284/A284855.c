@@ -9,13 +9,15 @@
  *            T(2*m+1,k) = k^(m+1)
  * Range:     u8 n <= 41, u16 n <= 129, u32 n <= 368, u64 n <= 1064,
  *            u128 n <= 1275, big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 82 terms through n = 1171 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -37,10 +39,10 @@ seq_t a(idx_t n)
 
     if (i & 1) {                     /* odd i: i = 2*m+1, use k^(m+1) */
         idx_t exp = (i + 1) / 2;
-        result = big_pow(k, (seq_t)exp);
+        result = ipow(k, (seq_t)exp);
     } else {                         /* even i: i = 2*m, use (k^(m+1)+k^m)/2 */
         idx_t m   = i / 2;
-        seq_t pow_m   = big_pow(k, (seq_t)m);
+        seq_t pow_m   = ipow(k, (seq_t)m);
         seq_t pow_mp1 = pow_m * k;
         result = (pow_m + pow_mp1) / 2;
     }

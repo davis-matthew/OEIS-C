@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 32, u16 n <= 642, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 958 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* typedefs supplied by the build */
 /* seq_t  : unsigned integer type for sequence values   */
@@ -96,7 +98,7 @@ static void init(void)
 {
     compute_spf(5000000);          /* initial limit large enough for n ≤ 10000 */
     terms_cap = 16;
-    terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+    terms = mem_new(seq_t, terms_cap);
     terms_cnt = 0;
     last_k = 0;
     initialized = true;
@@ -118,7 +120,7 @@ seq_t a(idx_t n)
         if (phi_kp3 != 0 && sigma_k % phi_kp3 == 0) {
             if (terms_cnt >= terms_cap) {
                 terms_cap = terms_cap * 2;
-                terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
             }
             terms[terms_cnt++] = (seq_t)last_k;
         }

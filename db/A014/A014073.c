@@ -8,13 +8,15 @@
  * Formula:   a(n) = sum_{a=1}^{n} \sum_{k=0}^{6} (-1)^k C(6,k) * C(n-a -
  *            k*(a+1) + 5, 5) (with the inner term defined only if n-a -
  *            k*(a+1) >= 0). For n=0 we have a(0)=1
- * Range:     u8 n <= 4, u16 n <= 15, u32 n <= 35, u64 n <= 35, u128 n <= 35,
+ * Range:     u8 n <= 6, u16 n <= 22, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

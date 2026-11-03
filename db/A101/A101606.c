@@ -7,8 +7,9 @@
  * Keywords:  easy, nonn
  * Formula:   a(n) = |{k : e_k ≥ 3}| + (j – 1)·|{k : e_k ≥ 2}| + C(j,3) where
  *            n = ∏ p_k^{e_k} and j is the number of distinct prime factors
- * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
- *            u128 n <= 105, big any n
+ * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 121 terms through n = 9832 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

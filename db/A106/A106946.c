@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 937, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   ensure_seq_array, is_prime
+ * Validated: standard, pass, 62 terms through n = 9792 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,21 @@
 #include <stdbool.h>
 #include <inttypes.h>
 
-#include "../utils/is_prime.h"
-#include "../utils/ensure_seq_array.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+/* Ensure an array of seq_t is large enough to hold indexes [0..min_needed] */
+static void ensure_seq_array(seq_t **arr, size_t *cap, size_t min_needed)
+{
+    if (*cap <= min_needed) {
+        size_t newcap = (*cap) ? (*cap) * 2 : 16;
+        if (newcap <= min_needed) newcap = min_needed + 1;
+        *arr = mem_resize(seq_t, *arr, newcap);
+        for (size_t i = *cap; i < newcap; ++i) (*arr)[i] = 0;
+        *cap = newcap;
+    }
+}
 
 static seq_t *seq = NULL;          /* array of computed terms            */
 static size_t cap = 0;             /* current capacity of the array      */
@@ -91,7 +105,7 @@ seq_t a(idx_t n)
 {
     /* Generate terms until we have at least n of them. */
     while (size < (size_t)n) {
-        if (is_prime(next_candidate) && representable(next_candidate)) {
+        if (is_prime_u64(next_candidate) && representable(next_candidate)) {
             ensure_capacity(size + 1);
             seq[size++] = (seq_t)next_candidate;
         }

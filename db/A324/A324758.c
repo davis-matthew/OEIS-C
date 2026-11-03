@@ -9,7 +9,8 @@
  *            divisor p of n, no prime divisor of the index of p divides n
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define MAXN 400000   /* enough for n up to about 10000 */
 
@@ -105,7 +107,7 @@ static void extend_cache(idx_t wanted)
         if (cache_len >= cache_cap)
         {
             cache_cap = cache_cap ? cache_cap * 2 : 64;
-            seq_t *tmp = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
             cache = tmp;
         }
         cache[cache_len] = (seq_t)next_candidate;

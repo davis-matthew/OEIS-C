@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   has95
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,22 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/has95.h"
+#include "../utils/mem.h"
+
+/* Helper: test whether a decimal number contains the substring 95. */
+static bool has95(seq_t x)
+{
+    seq_t prev = x % (seq_t)10;
+    x /= (seq_t)10;
+    while (x > 0) {
+        seq_t cur = x % (seq_t)10;              /* more significant digit   */
+        if (cur == (seq_t)9 && prev == (seq_t)5) /* digits 9 followed by 5   */
+            return true;
+        prev = cur;
+        x /= (seq_t)10;
+    }
+    return false;
+}
 
 /* The primary function required by the exercise. */
 seq_t a(idx_t n)
@@ -40,7 +56,7 @@ seq_t a(idx_t n)
             /* Resize cache if necessary */
             if (cache_size >= cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 256;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (tmp == NULL) {
                     /* Allocation failed – aborting (cannot return a value) */
                     abort();

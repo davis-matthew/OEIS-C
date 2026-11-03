@@ -10,18 +10,19 @@
  *            where A003056(n) = largest k such that k*(k+1)/2 <= n
  * Range:     u8 n <= 18, u16 n <= 82, u32 n <= 383, u64 n <= 1717,
  *            u128 n <= 7388, big any n
- * Helpers:   A001832_pow2, a000037_isqrt
+ * Validated: standard, pass, 65 terms through n = 9615 (2026-11-01)
+ * Helpers:   isqrt_u64, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/A001832_pow2.h"
-#include "../utils/a000037_isqrt.h"
-
+#include <stdint.h>
+#include "../utils/isqrt_u64.h"
+#include "../utils/pow2.h"
 
 static idx_t A003056(idx_t n) {
     uint64_t disc = 1 + 8 * n;
-    uint64_t sqrt_disc = a000037_isqrt(disc);
+    uint64_t sqrt_disc = isqrt_u64(disc);
     return (sqrt_disc - 1) / 2;
 }
 
@@ -29,7 +30,7 @@ seq_t a(idx_t n) {
     if (n == 0) return 0;
     
     idx_t k = A003056(n);
-    seq_t pow2_k = A001832_pow2(k);
+    seq_t pow2_k = pow2(k);
     seq_t tri = ((seq_t)k * ((seq_t)k - 1)) / 2;
     seq_t coeff = (seq_t)n - 1 - tri;
     

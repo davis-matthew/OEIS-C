@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base, fini
  * Formula:   not stated
- * Range:     u8 none, u16 n <= 9449, u32 n <= 9449, u64 n <= 9449,
- *            u128 n <= 9449, big any n
- * Helpers:   isPrimeTrial
+ * Range:     u8 none, u16 n <= 10643, u32 n <= 32869, u64 n <= 32869,
+ *            u128 n <= 32869, big any n
+ * Validated: standard, pass, 48 terms through n = 9449 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#include "../utils/isPrimeTrial.h"
+#include <stdlib.h>
+#include "../utils/is_prime_seq.h"
 #ifdef __cplusplus
 }
 #endif
@@ -80,7 +82,7 @@ static inline bool has11_nonprime_substrings(uint32_t n)
         uint32_t val = 0;
         for (int j = i; j < len; ++j) {
             val = val * 10 + digits[j];
-            if (!isPrimeTrial((seq_t)val)) {
+            if (!is_prime_seq((seq_t)val)) {
                 ++nonprime;
                 if (nonprime > 11)
                     return false;

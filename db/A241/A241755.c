@@ -12,7 +12,8 @@
  *            when the fraction is fully reduced
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 16,
  *            big any n
- * Helpers:   seq_mul, seq_pow
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,14 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#include "../utils/seq_mul.h"     /* seq_mul(seq_t a, seq_t b) */
-#include "../utils/seq_pow.h"     /* seq_pow(seq_t base, idx_t exp) */
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -96,7 +103,7 @@ seq_t a(idx_t n)
         /* exponent of p in the reduced numerator: 3*(e1 - leg) */
         idx_t exp = 3 * (e1 - leg);
         if (exp > 0) {
-            seq_t pow = seq_pow((seq_t)p, exp);
+            seq_t pow = ipow_idx((seq_t)p, exp);
             res = seq_mul(res, pow);
         }
     }

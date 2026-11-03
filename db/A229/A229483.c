@@ -8,7 +8,8 @@
  *            whose index is the nth lucky number
  * Range:     u8 n <= 32, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   compute_lucky_n
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,46 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/compute_lucky_n.h"
+#include "../utils/mem.h"
+
+/* compute the nth lucky number (1‑based) */
+static seq_t compute_lucky_n(idx_t n)
+{
+    if (n < 1) return (seq_t)0;
+
+    idx_t bound = n * 20 + 20;        /* heuristic upper bound */
+    while (1) {
+        size_t odds_cnt = (bound + 1) / 2;
+        seq_t *arr = mem_new(seq_t, odds_cnt);
+        if (!arr) return (seq_t)0;
+
+        for (size_t i = 0; i < odds_cnt; ++i)
+            arr[i] = (seq_t)(1 + 2 * i);
+
+        size_t curcnt = odds_cnt;
+
+        for (size_t idx = 1; idx < curcnt; ++idx) {
+            size_t step = (size_t)arr[idx];
+            if (step <= 1 || step > curcnt)
+                break;
+            size_t newcnt = 0;
+            for (size_t j = 0; j < curcnt; ++j) {
+                if (((j + 1) % step) != 0)
+                    arr[newcnt++] = arr[j];
+            }
+            curcnt = newcnt;
+        }
+
+        if (curcnt >= (size_t)n) {
+            seq_t result = arr[n - 1];
+            mem_free(arr);
+            return result;
+        }
+
+        mem_free(arr);
+        bound *= 2;   /* increase bound and try again */
+    }
+}
 
 /* ---------- auxiliary data for prime sieve ---------- */
 #define MAX_PRIMES 2000

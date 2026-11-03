@@ -11,13 +11,15 @@
  *            and returns the n‑th symbol. Works for a...
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 9534 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* array of 0/1 symbols */
 static size_t cache_len = 0;    /* current number of stored symbols */
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* Initialise the cache with the starting word "1" on the first call. */
     if (cache_len == 0) {
         cache_len = 1;
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) abort();            /* allocation failure */
         cache[0] = 1;
     }
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
         size_t new_len = zeros + 4 * ones;
 
         /* Allocate memory for the expanded word. */
-        seq_t *new_cache = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_len);
         if (!new_cache) abort();        /* allocation failure */
 
         /* Build the expanded word. */
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
         }
 
         /* Replace the old word by the new word. */
-        free(cache);
+        mem_free(cache);
         cache     = new_cache;
         cache_len = new_len;
     }

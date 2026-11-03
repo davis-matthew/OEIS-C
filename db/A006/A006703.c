@@ -10,6 +10,7 @@
  *            q(k) = c(k)*q(k-1) + q(k-2))
  * Range:     u8 n <= 30, u16 n <= 93, u32 n <= 210, u64 n <= 630,
  *            u128 n <= 2010, big any n
+ * Validated: standard, pass, 95 terms through n = 9812 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

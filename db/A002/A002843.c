@@ -11,13 +11,18 @@
  *            a(0) = 1. Only g(r,2l) with 2l < r is kept;...
  * Range:     u8 n <= 10, u16 n <= 19, u32 n <= 38, u64 n <= 76, u128 n <= 152,
  *            big any n
- * Helpers:   zalloc_arr
+ * Validated: standard, pass, 53 terms through n = 1910 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/zalloc_arr.h"
+#include "../utils/mem.h"
+
+static seq_t *zalloc_arr(idx_t len) {
+    return mem_new(seq_t, (size_t)len);
+}
 
 static seq_t **rows = NULL; /* rows[r][l-1] = g(r, 2l), for 1 <= l <= (r-1)/2 */
 static seq_t *A = NULL;     /* A[r] = a(r) */

@@ -7,15 +7,17 @@
  * Formula:   a(n) = Sum_{d|n} mu(n/d) * 5^(d-1)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 14, u64 n <= 28, u128 n <= 56,
  *            big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: standard, pass, 40 terms through n = 1368 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 static void dfs(const uint64_t *pr, const uint64_t *ex, size_t cnt,
                 size_t idx, uint64_t cur_d, int mu_zero, int mu_parity,
@@ -23,7 +25,7 @@ static void dfs(const uint64_t *pr, const uint64_t *ex, size_t cnt,
 {
     if (idx == cnt) {
         if (mu_zero) return;
-        seq_t pow = big_pow((seq_t)5, (seq_t)cur_d - 1);
+        seq_t pow = ipow((seq_t)5, (seq_t)cur_d - 1);
         if (mu_parity)
             *sum -= pow;
         else

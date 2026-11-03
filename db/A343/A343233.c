@@ -10,17 +10,36 @@
  *            satisfies r(r+1)/2 <= n < (r+1)(r+2)/2. Let c = n - r(r+1)/2 be
  *            the column in that row. Then a(n) = 1 if c == r, a(n) =
  *            -Catalan(r-1-c) otherwise
- * Range:     i8 n <= 20, i16 n <= 54, i32 n <= 54, i64 n <= 54, i128 n <= 54,
+ * Range:     i8 n <= 27, i16 n <= 54, i32 n <= 54, i64 n <= 54, i128 n <= 54,
  *            big any n
- * Helpers:   _riordan_row, catalan, isqrt
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   catalan, isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/isqrt.h"     // provides idx_t _floor_isqrt_u64(idx_t)
-#include "../utils/catalan.h"   // provides seq_t catalan(idx_t)
-#include "../utils/_riordan_row.h"
+#include <stdlib.h>
+#include <stddef.h>
+#include "../utils/catalan.h"
+#include "../utils/isqrt_u64.h"
+
+static idx_t _riordan_row(idx_t n)
+{
+    /* Find r: largest r with r(r+1)/2 <= n.  Binary search using 128-bit
+       arithmetic to avoid overflow. */
+    idx_t low = 0;
+    idx_t high = n;
+    while (low <= high) {
+        idx_t mid = low + ((high - low) >> 1);
+        __uint128_t val = (__uint128_t)mid * (mid + 1) / 2;
+        if (val <= n)
+            low = mid + 1;
+        else
+            high = mid - 1;
+    }
+    return high;   /* r */
+}
 
 seq_t a(idx_t n)
 {

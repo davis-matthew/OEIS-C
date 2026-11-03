@@ -10,12 +10,14 @@
  *            and accumulates the required value
  * Range:     i8 n <= 4, i16 n <= 6, i32 n <= 9, i64 n <= 14, i128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* for malloc, realloc, free */
+#include "../utils/mem.h"
 
 static seq_t *values = NULL;          /* a(0), a(1), ... */
 static idx_t values_cap = 0;          /* allocated size of values */
@@ -29,7 +31,7 @@ static idx_t last_computed = 0;       /* highest n for which a(n) and prev_row a
 /* Ensure the values array can hold at least (cap) elements. */
 static void ensure_values_capacity(idx_t cap) {
     if (values_cap < cap) {
-        void *ptr = realloc(values, cap * sizeof(seq_t));
+        void *ptr = mem_resize(seq_t, values, cap);
         if (!ptr) { /* allocation failed; abort */
             abort();
         }
@@ -41,10 +43,10 @@ static void ensure_values_capacity(idx_t cap) {
 /* Ensure the row buffer can hold at least (cap) elements. */
 static void ensure_row_capacity(idx_t cap) {
     if (row_cap < cap) {
-        void *ptr = realloc(prev_row, cap * sizeof(seq_t));
+        void *ptr = mem_resize(seq_t, prev_row, cap);
         if (!ptr) abort();
         prev_row = (seq_t *)ptr;
-        ptr = realloc(curr_row, cap * sizeof(seq_t));
+        ptr = mem_resize(seq_t, curr_row, cap);
         if (!ptr) abort();
         curr_row = (seq_t *)ptr;
         row_cap = cap;

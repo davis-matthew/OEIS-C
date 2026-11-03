@@ -7,13 +7,15 @@
  * Formula:   a(n) = coefficient of x^n/n! in sinh(tanh(x)+log(1+x))
  * Range:     i8 n <= 4, i16 n <= 7, i32 n <= 12, i64 n <= 19, i128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static storage for memoisation */
 static idx_t cur_max = 0;
@@ -31,12 +33,12 @@ static void ensure_size(idx_t n)
 
     size_t size = (size_t)(n + 1);
 
-    fact  = (seq_t *)realloc(fact,  size * sizeof(seq_t));
-    tanh_arr = (seq_t *)realloc(tanh_arr, size * sizeof(seq_t));
-    b_arr = (seq_t *)realloc(b_arr, size * sizeof(seq_t));
-    c_arr = (seq_t *)realloc(c_arr, size * sizeof(seq_t));
-    d_arr = (seq_t *)realloc(d_arr, size * sizeof(seq_t));
-    a_arr = (seq_t *)realloc(a_arr, size * sizeof(seq_t));
+    fact  = mem_resize(seq_t, fact, size);
+    tanh_arr = mem_resize(seq_t, tanh_arr, size);
+    b_arr = mem_resize(seq_t, b_arr, size);
+    c_arr = mem_resize(seq_t, c_arr, size);
+    d_arr = mem_resize(seq_t, d_arr, size);
+    a_arr = mem_resize(seq_t, a_arr, size);
 
     if (!fact || !tanh_arr || !b_arr || !c_arr || !d_arr || !a_arr)
         abort();                         /* failed allocation */

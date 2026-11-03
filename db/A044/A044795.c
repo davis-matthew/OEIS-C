@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   has82
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,20 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has82.h"
+#include "../utils/mem.h"
+
+/* Helper: test whether seq_t x contains the substring "82" */
+static inline bool has82(seq_t x)
+{
+    if (x == (seq_t)82) return true;
+    const seq_t mod100 = (seq_t)100;
+    while (x >= (seq_t)10)
+    {
+        if (x % mod100 == (seq_t)82) return true;
+        x /= (seq_t)10;
+    }
+    return false;
+}
 
 /* Memoization structures */
 static seq_t *terms = NULL;      /* array of found terms */
@@ -34,7 +48,7 @@ static void grow_terms(size_t needed)
     while (new_cap < needed) new_cap *= 2;
     seq_t *new_terms;
 #ifdef __cplusplus
-    new_terms = reinterpret_cast<seq_t*>(realloc(terms, new_cap * sizeof(seq_t)));
+    new_terms = reinterpret_cast<seq_t*>(mem_resize(seq_t, terms, new_cap));
 #else
     new_terms = (seq_t*)realloc(terms, new_cap * sizeof(seq_t));
 #endif

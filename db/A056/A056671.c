@@ -9,7 +9,8 @@
  *            factors of n with exponent exactly 1
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   power_of_2
+ * Validated: standard, pass, 121 terms through n = 9626 (2026-11-01)
+ * Helpers:   pow2_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,7 @@
    the integer literal 2. */
 
 #include <stdint.h>
-#include "../utils/power_of_2.h"
+#include "../utils/pow2_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -56,5 +57,5 @@ seq_t a(idx_t n)
     if (num > 1)
         ++ones;  /* its exponent is 1 */
 
-    return power_of_2(ones);
+    return pow2_u64(ones);
 }

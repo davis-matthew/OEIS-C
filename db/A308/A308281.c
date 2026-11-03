@@ -9,13 +9,15 @@
  *            row-wise starting at n=1
  * Range:     u8 n <= 6, u16 n <= 15, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binomial.h"  /* seq_t binomial(idx_t a, idx_t b); */
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 static inline idx_t floor_sqrt_u64(idx_t x) {
     idx_t low = 0, high = (idx_t)1 << 32;   /* sqrt(UINT64_MAX) < 2^32 */

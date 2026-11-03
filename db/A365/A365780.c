@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 62, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 80 terms through n = 80 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* helper: check whether a native integer is prime (for small values) */
 static bool is_prime_small(seq_t n)
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
     if (seq == NULL) {
         /* initial allocation */
         cap = 128;
-        seq = (seq_t *)malloc(cap * sizeof(seq_t));
+        seq = mem_new(seq_t, cap);
         len = 0;
 
         /* add the first element (offset 1) */
@@ -89,7 +91,7 @@ seq_t a(idx_t n)
                 /* valid candidate found */
                 if (len == cap) {                       /* extend storage */
                     cap *= 2;
-                    seq = (seq_t *)realloc(seq, cap * sizeof(seq_t));
+                    seq = mem_resize(seq_t, seq, cap);
                 }
                 seq[len++] = cand;
                 found = true;

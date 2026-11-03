@@ -7,6 +7,7 @@
  * Formula:   a(n) = discrete logarithm base 6 of n modulo 229
  * Range:     u8 n <= 228, u16 n <= 228, u32 n <= 228, u64 n <= 228,
  *            u128 n <= 228, big any n
+ * Validated: full, pass, 228 terms through n = 228 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,14 +8,16 @@
  *            p² with p prime ≡ 2 (mod 3); a(n) = 0 otherwise
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   mod_mul
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mod_mul.h"
+#include <stdlib.h>
+#include "../utils/mulmod.h"
 
 /* Integer square‑root of an idx_t: floor(sqrt(n)).  Uses only 128‑bit
    multiplication to avoid overflow. */
@@ -40,8 +42,8 @@ static uint64_t mod_pow(uint64_t a, uint64_t d, uint64_t mod)
     uint64_t res = 1;
     while (d) {
         if (d & 1)
-            res = mod_mul(res, a, mod);
-        a = mod_mul(a, a, mod);
+            res = mulmod(res, a, mod);
+        a = mulmod(a, a, mod);
         d >>= 1;
     }
     return res;
@@ -75,7 +77,7 @@ static bool is_prime_uint64(uint64_t n)
         if (x == 1 || x == n - 1) continue;
         bool composite = true;
         for (int r = 1; r < s; ++r) {
-            x = mod_mul(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) {
                 composite = false;
                 break;

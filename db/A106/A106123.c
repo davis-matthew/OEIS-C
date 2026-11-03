@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 32, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   has_max_digit_gt6, isPrime64
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,8 +30,20 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#include "../utils/isPrime64.h"   /* provides bool isPrime64(uint64_t) */
-#include "../utils/has_max_digit_gt6.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+/* return true if the largest decimal digit of x exceeds 6 */
+static bool has_max_digit_gt6(uint64_t x)
+{
+    while (x > 0) {
+        uint8_t d = (uint8_t)(x % 10);
+        if (d > 6) return true;
+        x /= 10;
+    }
+    return false;
+}
 
 static seq_t *cache = NULL;          /* cached primes of the sequence   */
 static size_t cache_cap = 0;         /* allocated capacity               */
@@ -46,17 +59,17 @@ seq_t a(idx_t n)
         initialized = true;
         cache_cap = 1024;
         cache_size = 0;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         search_start = 2;
     }
 
     /* enlarge cache when necessary */
     while (cache_size < (size_t)n) {
         /* test candidate number */
-        if (isPrime64(search_start) && has_max_digit_gt6(search_start)) {
+        if (is_prime_u64(search_start) && has_max_digit_gt6(search_start)) {
             if (cache_size == cache_cap) {
                 cache_cap *= 2;
-                cache = (seq_t *)realloc(cache, sizeof(seq_t) * cache_cap);
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_size++] = (seq_t)search_start;
         }

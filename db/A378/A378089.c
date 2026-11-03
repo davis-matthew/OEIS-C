@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #ifdef __cplusplus
 #  include <new>
 #endif
+#include "../utils/mem.h"
 
 /* ---------- Static state ---------- */
 static uint32_t *spf            = NULL;   /* smallest prime factor */
@@ -112,7 +114,7 @@ add_term_to_row(size_t r, seq_t k)
     if (row_data[r] == NULL)
     {
         row_cap[r] = 4;
-        row_data[r] = (seq_t *)malloc(row_cap[r] * sizeof(seq_t));
+        row_data[r] = mem_new(seq_t, row_cap[r]);
         if (!row_data[r])
             exit(EXIT_FAILURE);
         /* No need to initialise elements here – they are constructed on use. */
@@ -121,7 +123,7 @@ add_term_to_row(size_t r, seq_t k)
     {
         size_t old_cap = row_cap[r];
         row_cap[r] <<= 1;                 /* double capacity */
-        seq_t *tmp = (seq_t *)realloc(row_data[r], row_cap[r] * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, row_data[r], row_cap[r]);
         if (!tmp)
             exit(EXIT_FAILURE);
         row_data[r] = tmp;
@@ -129,14 +131,14 @@ add_term_to_row(size_t r, seq_t k)
         /* Construct newly allocated elements only in C++ mode. */
 #ifdef __cplusplus
         for (size_t i = old_cap; i < row_cap[r]; ++i)
-            new (&row_data[r][i]) seq_t();
+            *(&row_data[r][i]) = (seq_t)0;
 #endif
     }
 
     /* Construct the new element if it was not yet constructed. */
     size_t idx = row_len[r];
 #ifdef __cplusplus
-    new (&row_data[r][idx]) seq_t(k);
+    *(&row_data[r][idx]) = (seq_t)(k);
 #else
     row_data[r][idx] = k;
 #endif

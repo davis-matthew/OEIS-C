@@ -6,10 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabf, easy
  * Formula:   not stated
- * Range:     u8 n <= 461, u16 n <= 9728, u32 n <= 9728, u64 n <= 9728,
- *            u128 n <= 9728, big any n
- * Helpers:   alloc_seq_array, cmp_seq_t, factor_u64, free_seq_array,
- *            gen_powdiv_rec
+ * Range:     u8 n <= 461, u16 n <= 11445, u32 n <= 11445, u64 n <= 11445,
+ *            u128 n <= 11445, big any n
+ * Validated: standard, pass, 101 terms through n = 9728 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,11 +30,57 @@
 #include <stddef.h>
 
 /* Helper headers (provided by the build system) */
-#include "../utils/factor_u64.h"          /* factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt) */
-#include "../utils/alloc_seq_array.h"     /* seq_t *alloc_seq_array(size_t n) */
-#include "../utils/free_seq_array.h"      /* void free_seq_array(seq_t *p) */
-#include "../utils/cmp_seq_t.h"           /* int cmp_seq_t(const void *p1, const void *p2) */
-#include "../utils/gen_powdiv_rec.h"
+#include "../utils/factor_u64.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
+
+/* Recursively generate powerful divisors of n.
+ * divs should have space for num_powdiv(n) elements. */
+static void gen_powdiv_rec(size_t pos, size_t cnt,
+                           const uint64_t *pr, const uint64_t *ex,
+                           seq_t current, seq_t *divs, size_t *idx)
+{
+    if (pos == cnt) {
+        divs[*idx] = current;
+        ++(*idx);
+        return;
+    }
+
+    /* Option: exponent 0 for this prime */
+    gen_powdiv_rec(pos + 1, cnt, pr, ex, current, divs, idx);
+
+    /* Options: exponent 2..ex[pos] (if ex[pos] ≥ 2) */
+    if (ex[pos] >= 2) {
+        seq_t p_pow = 1;
+        seq_t base = (seq_t)pr[pos];
+        for (uint64_t f = 1; f <= ex[pos]; ++f) {
+            p_pow *= base;
+            if (f >= 2) {
+                seq_t newcur = current * p_pow;
+                gen_powdiv_rec(pos + 1, cnt, pr, ex, newcur, divs, idx);
+            }
+        }
+    }
+}
 
 /* ------------------------------------------------------------------ */
 /* Count powerful divisors of n (n ≥ 1).  Uses factor_u64 to factor n. */
@@ -70,7 +116,7 @@ static seq_t *get_powdivs(uint64_t m, size_t *len_out)
     gen_powdiv_rec(0, cnt, pr, ex, (seq_t)1, arr, &idx);
 
     /* sort ascending */
-    qsort(arr, total, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(arr, total, sizeof(seq_t), cmp_seq_t);
 
     *len_out = total;
     return arr;

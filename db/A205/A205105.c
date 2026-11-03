@@ -8,13 +8,16 @@
  *            with j*(j-1)/2 ≥ n, and i = n - (j-2)*(j-1)/2. (1 ≤ i < j)
  * Range:     u8 n <= 10, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-01)
  * Helpers:   pow2, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow3.h"
+#include <stdbool.h>
+#include <stdint.h>
 #include "../utils/pow2.h"
+#include "../utils/pow3.h"
 
 seq_t a(idx_t n)
 {

@@ -10,9 +10,10 @@
  *            with U = Sum_{k>=1} (N^k/k!)^2 * H_k, V = Sum_{k>=0} (N^k/k!)^2,
  *            error O(exp(-4N)), in fixed-point arithmetic; log(N) for
  *            5-smooth N from log(2) = 2*atanh(1/3), log(3/...
- * Range:     u8 n <= 8637, u16 n <= 8637, u32 n <= 8637, u64 n <= 8637,
- *            u128 n <= 8637, big any n
- * Helpers:   bm_add, bm_atanh, bm_div, bm_divmod, bm_divto, bm_mul
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 115 terms through n = 8637 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,12 +21,121 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/bm_add.h"
-#include "../utils/bm_atanh.h"
-#include "../utils/bm_div.h"
-#include "../utils/bm_divmod.h"
-#include "../utils/bm_divto.h"
-#include "../utils/bm_mul.h"
+
+static void bm_add(uint32_t *x, size_t xlen, const uint32_t *y, size_t ylen) {
+    uint64_t c = 0;
+    size_t i = 0;
+    for (; i < ylen; i++) {
+        uint64_t t = (uint64_t)x[i] + y[i] + c;
+        x[i] = (uint32_t)t;
+        c = t >> 32;
+    }
+    for (; c && i < xlen; i++) {
+        uint64_t t = (uint64_t)x[i] + c;
+        x[i] = (uint32_t)t;
+        c = t >> 32;
+    }
+}
+
+static void bm_div(uint32_t *x, size_t len, uint32_t d) {
+    uint64_t r = 0;
+    for (size_t i = len; i-- > 0;) {
+        uint64_t t = (r << 32) | x[i];
+        x[i] = (uint32_t)(t / d);
+        r = t % d;
+    }
+}
+
+static void bm_divto(uint32_t *dst, const uint32_t *src, size_t len, uint32_t d) {
+    uint64_t r = 0;
+    for (size_t i = len; i-- > 0;) {
+        uint64_t t = (r << 32) | src[i];
+        dst[i] = (uint32_t)(t / d);
+        r = t % d;
+    }
+}
+
+/* out = atanh(1/q), FL fraction limbs, M limbs total */
+static void bm_atanh(uint32_t *out, size_t M, size_t FL, uint32_t q) {
+    uint32_t *t = (uint32_t *)calloc(M, sizeof(uint32_t));
+    uint32_t *u = (uint32_t *)calloc(M, sizeof(uint32_t));
+    memset(out, 0, M * sizeof(uint32_t));
+    t[FL] = 1;
+    bm_div(t, M, q);
+    bm_add(out, M, t, M);
+    size_t hi = M;
+    uint32_t q2 = q * q;
+    for (uint32_t j = 1;; j++) {
+        bm_div(t, hi, q2);
+        while (hi && t[hi - 1] == 0) hi--;
+        if (!hi) break;
+        bm_divto(u, t, hi, 2 * j + 1);
+        bm_add(out, M, u, hi);
+    }
+    free(t);
+    free(u);
+}
+
+/* q = floor(u / v), u has m limbs, v has n limbs, m >= n >= 2, v[n-1] != 0 (Knuth algorithm D) */
+static void bm_divmod(uint32_t *q, const uint32_t *u, size_t m, const uint32_t *v, size_t n) {
+    const uint64_t B32 = (uint64_t)1 << 32;
+    int s = 0;
+    uint32_t x = v[n - 1];
+    while (!(x & 0x80000000u)) { x <<= 1; s++; }
+    uint32_t *vn = (uint32_t *)malloc(n * sizeof(uint32_t));
+    uint32_t *un = (uint32_t *)malloc((m + 1) * sizeof(uint32_t));
+    for (size_t i = n - 1; i > 0; i--)
+        vn[i] = (v[i] << s) | (uint32_t)((uint64_t)v[i - 1] >> (32 - s));
+    vn[0] = v[0] << s;
+    un[m] = (uint32_t)((uint64_t)u[m - 1] >> (32 - s));
+    for (size_t i = m - 1; i > 0; i--)
+        un[i] = (u[i] << s) | (uint32_t)((uint64_t)u[i - 1] >> (32 - s));
+    un[0] = u[0] << s;
+    for (size_t j = m - n;; j--) {
+        uint64_t num = ((uint64_t)un[j + n] << 32) | un[j + n - 1];
+        uint64_t qhat = num / vn[n - 1], rhat = num % vn[n - 1];
+        while (qhat >= B32 || qhat * vn[n - 2] > ((rhat << 32) | un[j + n - 2])) {
+            qhat--;
+            rhat += vn[n - 1];
+            if (rhat >= B32) break;
+        }
+        uint64_t k = 0;
+        int64_t t;
+        for (size_t i = 0; i < n; i++) {
+            uint64_t p = qhat * vn[i];
+            t = (int64_t)un[i + j] - (int64_t)k - (int64_t)(p & 0xFFFFFFFFu);
+            un[i + j] = (uint32_t)t;
+            int64_t hi = (t - (int64_t)(uint32_t)t) / ((int64_t)1 << 32);
+            k = (p >> 32) - (uint64_t)hi;
+        }
+        t = (int64_t)un[j + n] - (int64_t)k;
+        un[j + n] = (uint32_t)t;
+        q[j] = (uint32_t)qhat;
+        if (t < 0) {
+            q[j]--;
+            uint64_t c = 0;
+            for (size_t i = 0; i < n; i++) {
+                uint64_t s2 = (uint64_t)un[i + j] + vn[i] + c;
+                un[i + j] = (uint32_t)s2;
+                c = s2 >> 32;
+            }
+            un[j + n] = (uint32_t)(un[j + n] + c);
+        }
+        if (j == 0) break;
+    }
+    free(vn);
+    free(un);
+}
+
+static uint32_t bm_mul(uint32_t *x, size_t len, uint32_t m) {
+    uint64_t c = 0;
+    for (size_t i = 0; i < len; i++) {
+        uint64_t t = (uint64_t)x[i] * m + c;
+        x[i] = (uint32_t)t;
+        c = t >> 32;
+    }
+    return (uint32_t)c;
+}
 
 static char *g_gdig = NULL;
 static idx_t g_gndig = 0;

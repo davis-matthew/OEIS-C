@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 8754 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const size_t MAX = 20000;          /* enough for n ≤ 10000 */
 static bool initialized = false;
@@ -28,7 +30,7 @@ static seq_t *cache = NULL;              /* cached results, indices 1..MAX */
 static void init(void)
 {
     mu_int = (int *)malloc((MAX + 1) * sizeof(int));
-    cache = (seq_t *)malloc((MAX + 1) * sizeof(seq_t));
+    cache = mem_new(seq_t, (MAX + 1));
     if (!mu_int || !cache) exit(EXIT_FAILURE);
 
     for (size_t i = 0; i <= MAX; ++i) {

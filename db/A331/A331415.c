@@ -7,14 +7,16 @@
  * Formula:   a(n) = Σ_{p^e‖n} e·(p − π(p)) where π(p) is the prime index of p
  * Range:     u8 n <= 330, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   compute_pi
+ * Validated: standard, pass, 94 terms through n = 9612 (2026-11-01)
+ * Helpers:   prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/compute_pi.h"
+#include <stdlib.h>
+#include "../utils/prime_pi.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
             exp++;
         }
         seq_t prime = (seq_t)2;
-        seq_t idx = compute_pi(2);
+        seq_t idx = prime_pi(2);
         sumPrime += prime * exp;
         sumIndex += idx * exp;
     }
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
                 exp++;
             }
             seq_t prime = (seq_t)p;
-            seq_t idx = compute_pi(p);
+            seq_t idx = prime_pi(p);
             sumPrime += prime * exp;
             sumIndex += idx * exp;
         }
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
     /* remaining prime factor > 1 */
     if (m > 1) {
         seq_t prime = (seq_t)m;
-        seq_t idx = compute_pi(m);
+        seq_t idx = prime_pi(m);
         sumPrime += prime;
         sumIndex += idx;
     }

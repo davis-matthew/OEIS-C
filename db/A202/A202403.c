@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 5, u64 n <= 12, u128 n <= 27,
  *            big any n
- * Helpers:   _is_valid_row, _vertical_ok
+ * Validated: standard, pass, 30 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,8 +36,30 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/_is_valid_row.h"
-#include "../utils/_vertical_ok.h"
+#include "../utils/mem.h"
+
+/* test if a 7‑bit word avoids patterns 000 and 010 in a row      */
+static bool _is_valid_row(uint8_t w)
+{
+    for (int i = 0; i <= 4; ++i) {
+        uint8_t t = (w >> i) & 0x7;           /* 3 consecutive bits */
+        if (t == 0x0 || t == 0x2) return false; /* 000 or 010          */
+    }
+    return true;
+}
+
+/* test vertical triples (a,b,c) for all 7 columns                */
+static bool _vertical_ok(uint8_t a, uint8_t b, uint8_t c)
+{
+    for (int k = 0; k < 7; ++k) {
+        int x = (a >> k) & 1;
+        int y = (b >> k) & 1;
+        int z = (c >> k) & 1;
+        if (x == 0 && y == 0 && z == 0) return false; /* 000   */
+        if (x == 0 && y == 1 && z == 0) return false; /* 010   */
+    }
+    return true;
+}
 
 /* ---------- static tables for the DP, built once ---------- */
 static bool _a202403_inited = false;
@@ -112,9 +135,9 @@ seq_t a(idx_t n)
 
     /* DP arrays: one per state */
     size_t states = _A202403_S;
-    seq_t *cur = (seq_t*)calloc(states, sizeof(seq_t));
-    seq_t *nxt = (seq_t*)calloc(states, sizeof(seq_t));
-    if (!cur || !nxt) { free(cur); free(nxt); return (seq_t)0; }
+    seq_t *cur = mem_new(seq_t, states);
+    seq_t *nxt = mem_new(seq_t, states);
+    if (!cur || !nxt) { mem_free(cur); mem_free(nxt); return (seq_t)0; }
 
     /* initialise with all pairs of first two rows */
     for (size_t st = 0; st < states; ++st) cur[st] = (seq_t)1;
@@ -144,7 +167,7 @@ seq_t a(idx_t n)
     seq_t total = (seq_t)0;
     for (size_t i = 0; i < states; ++i) total += cur[i];
 
-    free(cur);
-    free(nxt);
+    mem_free(cur);
+    mem_free(nxt);
     return total;
 }

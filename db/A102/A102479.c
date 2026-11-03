@@ -9,13 +9,17 @@
  *            (1‑based) contains the numbers C(r, k)^(k-1) for 0 ≤ k < r
  * Range:     u8 n <= 18, u16 n <= 26, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   binom, seq_pow
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
-#include "../utils/seq_pow.h"
+#include <sys/types.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +44,7 @@ seq_t a(idx_t n)
     if (k == 1)          /* C(r,1)^(0) == 1 */
         return (seq_t)1;
 
-    seq_t coef = binom(r, k);          /* C(r,k) */
-    seq_t result = seq_pow(coef, k - 1);   /* (C(r,k))^(k-1) */
+    seq_t coef = binomial(r, k);          /* C(r,k) */
+    seq_t result = ipow_idx(coef, k - 1);   /* (C(r,k))^(k-1) */
     return result;
 }

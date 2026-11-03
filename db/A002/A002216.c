@@ -12,7 +12,8 @@
  *            for n>=2, 24*a(n) = 12*g(n-1) - 2*g(n) - 10*...
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 19, u64 n <= 33, u128 n <= 62,
  *            big any n
- * Helpers:   hr_addmul, hr_divs, hr_sub
+ * Validated: standard, pass, 43 terms through n = 196 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,33 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include "../utils/hr_addmul.h"
-#include "../utils/hr_divs.h"
-#include "../utils/hr_sub.h"
+
+static void hr_addmul(uint32_t *acc, const uint32_t *x, size_t L, uint32_t m) {
+    uint64_t c = 0;
+    for (size_t i = 0; i < L; i++) {
+        uint64_t t = (uint64_t)x[i] * m + acc[i] + c;
+        acc[i] = (uint32_t)t;
+        c = t >> 32;
+    }
+}
+
+static void hr_divs(uint32_t *x, size_t L, uint32_t d) {
+    uint64_t r = 0;
+    for (size_t i = L; i-- > 0;) {
+        uint64_t cur = (r << 32) | x[i];
+        x[i] = (uint32_t)(cur / d);
+        r = cur % d;
+    }
+}
+
+static void hr_sub(uint32_t *x, const uint32_t *y, size_t L) {
+    uint64_t borrow = 0;
+    for (size_t i = 0; i < L; i++) {
+        uint64_t t = (uint64_t)x[i] - y[i] - borrow;
+        x[i] = (uint32_t)t;
+        borrow = (t >> 63) & 1;
+    }
+}
 
 seq_t a(idx_t n) {
     if (n < 2) return (seq_t)n;

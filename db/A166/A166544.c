@@ -7,12 +7,14 @@
  * Formula:   a(n) = 7*n - a(n-1), with a(1) = 2, for n ≥ 1
  * Range:     u8 n <= 71, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 955 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache to allow out‑of‑order calls */
 static seq_t *cache = NULL;   /* array of terms, index 0 unused */
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* First call: initialise cache with a(1) = 2 */
     if (cache_len == 0) {
         cache_cap = 2;                 /* need indices 0 and 1 */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return (seq_t)0;   /* safety */
         cache[1] = (seq_t)2;
         cache_len = 1;
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     /* Grow storage if necessary */
     if (limit + 1 > cache_cap) {
         size_t new_cap = limit + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return (seq_t)0;     /* safety */
         cache = tmp;
         cache_cap = new_cap;

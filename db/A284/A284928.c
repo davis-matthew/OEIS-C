@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   alloc_seq_array, build_primes_upto, is_prime
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   build_primes_upto, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,16 @@
 #include <stdlib.h>
 
 /* helper libraries – use the provided utilities */
-#include "../utils/is_prime.h"
+#include <stdint.h>
+#include <stddef.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/alloc_seq_array.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 /* cache of computed sequence values */
 static seq_t *cache = NULL;
@@ -44,8 +52,8 @@ static void cache_grow(size_t needed)
     while (new_cap < needed) new_cap *= 2;
     seq_t *new_cache = alloc_seq_array(new_cap);
     if (cache) {
-        memcpy(new_cache, cache, cache_len * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_cache, cache, cache_len * sizeof(seq_t));
+        mem_free(cache);
     }
     cache = new_cache;
     cache_cap = new_cap;

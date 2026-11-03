@@ -10,13 +10,15 @@
  *            efficiently
  * Range:     u8 n <= 9, u16 n <= 10, u32 n <= 13, u64 n <= 20, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 213 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>  /* for calloc, free */
 #include <stddef.h>  /* for size_t */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     idx_t m = n - 8;
 
     /* allocate f[0..m] */
-    seq_t *f = (seq_t *)calloc((size_t)m + 1U, sizeof(seq_t));
+    seq_t *f = mem_new(seq_t, (size_t)m + 1U);
     if (!f) {
         /* allocation failure; return 0 as fallback */
         seq_t zero = 0;
@@ -48,6 +50,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = f[m];
-    free(f);
+    mem_free(f);
     return result;
 }

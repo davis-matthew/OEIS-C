@@ -9,7 +9,8 @@
  *            (p₁+1)/(p₂+1) where p₁<p₂ are consecutive primes
  * Range:     u8 n <= 31, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/gcd.h"   /* provides seq_t gcd(seq_t, seq_t) */
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* Static state for generating primes and recording denominators. */
 static uint64_t *prime_arr   = NULL;   /* array of generated primes */
@@ -49,7 +51,7 @@ static void ensure_record_cap(void)
 {
     if (record_cnt >= record_cap) {
         size_t ncap = record_cap ? record_cap * 2 : 32;
-        seq_t *tmp = (seq_t *)realloc(record_arr, ncap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, record_arr, ncap);
         record_arr = tmp;
         record_cap = ncap;
     }

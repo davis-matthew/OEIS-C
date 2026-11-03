@@ -11,12 +11,14 @@
  *            a[0..n‑1] that sums to n
  * Range:     u8 n <= 1160, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 103 terms through n = 9838 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;           /* stored terms of the sequence   */
 static idx_t  seq_len = 0;          /* number of terms already computed */
@@ -27,7 +29,7 @@ static void seq_init(void)
 {
     if (seq == NULL) {
         seq_cap = 1;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         if (!seq) exit(EXIT_FAILURE);
         seq[0] = (seq_t)1;          /* a(0) = 1 */
         seq_len = 1;
@@ -71,7 +73,7 @@ seq_t a(idx_t n)
         /* Append the newly found term */
         if (seq_len == seq_cap) {
             seq_cap *= 2;
-            seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, seq_cap);
             if (!seq) exit(EXIT_FAILURE);
         }
         seq[seq_len++] = (seq_t)best;

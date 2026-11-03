@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 6, u64 n <= 7, u128 n <= 8,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 10 terms through n = 10 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    to permit arbitrary call order. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;        /* array of numerators */
 static idx_t cache_size = 0;       /* allocated size */
@@ -36,12 +38,12 @@ seq_t a(idx_t n)
     if (cache_used == 0) {
         /* Initial state: a(1)=6, denominator=5. */
         cache_size = n;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_size);
+        cache = mem_new(seq_t, cache_size);
         cache[0] = num_last;            /* a(1)=6 */
         cache_used = 1;
     } else if (cache_size < n) {
         /* Grow the cache if needed. */
-        cache = (seq_t *)realloc(cache, sizeof(seq_t) * n);
+        cache = mem_resize(seq_t, cache, n);
         cache_size = n;
     }
 

@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base
  * Formula:   Carryless sum of divisors of n in base 10 (OEIS A323394)
- * Range:     u8 n <= 199, u16 n <= 9662, u32 n <= 9662, u64 n <= 9662,
- *            u128 n <= 9662, big any n
+ * Range:     u8 n <= 199, u16 n <= 19999, u32 n <= 19999, u64 n <= 19999,
+ *            u128 n <= 19999, big any n
+ * Validated: standard, pass, 84 terms through n = 9662 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
 
 seq_t a(idx_t n)

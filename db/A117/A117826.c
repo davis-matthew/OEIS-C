@@ -8,12 +8,14 @@
  * Formula:   a(4n-3) = n! ; a(4n-2) = 2*n! ; a(4n-1) = 3*n! ; a(4n) = 4*n!
  * Range:     u8 n <= 18, u16 n <= 29, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,8 +30,7 @@ seq_t a(idx_t n)
 
     if (cached < k) {
         /* Allocate or grow buffer */
-        seq_t *tmp = (seq_t *)realloc(cache,
-                                      sizeof(seq_t) * (k + 1));
+        seq_t *tmp = mem_resize(seq_t, cache, (k + 1));
         if (tmp == NULL) {
             /* Allocation failed: recompute factorial on the fly */
             seq_t f = 1;

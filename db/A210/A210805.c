@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 50, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,12 +37,12 @@ seq_t a(idx_t n)
     idx_t maxlen = r;                  /* maximum array size needed */
 
     /* Allocate two pairs of arrays for rolling calculation.  */
-    seq_t *u_a = (seq_t *)malloc(maxlen * sizeof(seq_t));
-    seq_t *v_a = (seq_t *)malloc(maxlen * sizeof(seq_t));
-    seq_t *u_b = (seq_t *)malloc(maxlen * sizeof(seq_t));
-    seq_t *v_b = (seq_t *)malloc(maxlen * sizeof(seq_t));
+    seq_t *u_a = mem_new(seq_t, maxlen);
+    seq_t *v_a = mem_new(seq_t, maxlen);
+    seq_t *u_b = mem_new(seq_t, maxlen);
+    seq_t *v_b = mem_new(seq_t, maxlen);
     if (!u_a || !v_a || !u_b || !v_b) {
-        free(u_a); free(v_a); free(u_b); free(v_b);
+        mem_free(u_a); mem_free(v_a); mem_free(u_b); mem_free(v_b);
         return 0;                      /* allocation failure – unlikely */
     }
 
@@ -82,7 +84,7 @@ seq_t a(idx_t n)
     seq_t result = u_a[pos_in_row];
 
     /* Clean up. */
-    free(u_a); free(v_a); free(u_b); free(v_b);
+    mem_free(u_a); mem_free(v_a); mem_free(u_b); mem_free(v_b);
 
     return result;
 }

@@ -8,13 +8,25 @@
  *            ... + p^(4e) = (p^(4e+4)-1)/(p^4-1)
  * Range:     u8 n <= 3, u16 n <= 15, u32 n <= 251, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sigma4_prime_power
+ * Validated: standard, pass, 53 terms through n = 9701 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/sigma4_prime_power.h"
+
+static seq_t sigma4_prime_power(idx_t p, idx_t e) {
+    seq_t q = (seq_t)p;
+    seq_t p4 = q * q * q * q;
+    seq_t result = 1;
+    seq_t term = 1;
+    for (idx_t i = 0; i < e; i++) {
+        term *= p4;
+        result += term;
+    }
+    return result;
+}
 
 seq_t a(idx_t n) {
     seq_t result = 1;

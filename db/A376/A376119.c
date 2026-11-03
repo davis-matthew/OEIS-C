@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 none, u64 n <= 10000, u128 n <= 10000,
  *            big any n
- * Helpers:   seq_mul, seq_pow, sigma_of
+ * Validated: standard, pass, 63 terms through n = 9987 (2026-11-03)
+ * Helpers:   ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,29 @@
 #include <stdlib.h>
 
 /* Utilities provided by the build environment */
-#include "../utils/seq_mul.h"    /* seq_t seq_mul(seq_t a, seq_t b) */
-#include "../utils/seq_pow.h"    /* seq_t seq_pow(seq_t base, int exp) */
-#include "../utils/sigma_of.h"  /* seq_t sigma_of(idx_t n) */
+#include <string.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 /* ----------------------------------------------------------------------
    Abundant perfect powers
@@ -57,7 +78,7 @@ static void heap_push(MinHeap* h, HeapNode n)
 {
     if (h->size == h->cap) {
         size_t newcap = h->cap ? h->cap * 2 : 16;
-        h->data = (HeapNode*)realloc(h->data, newcap * sizeof(HeapNode));
+        h->data = mem_resize(HeapNode, h->data, newcap);
         h->cap = newcap;
     }
     h->data[h->size++] = n;
@@ -126,7 +147,7 @@ seq_t a(idx_t n)
         }
 
         results_cap = 64;
-        results     = (seq_t*)malloc(results_cap * sizeof(seq_t));
+        results     = mem_new(seq_t, results_cap);
         results_len = 0;
         max_requested = 0;
 
@@ -143,7 +164,7 @@ seq_t a(idx_t n)
             if (is_abundant((idx_t)node.val)) {
                 if (results_len == results_cap) {
                     results_cap <<= 1;
-                    results = (seq_t*)realloc(results, results_cap * sizeof(seq_t));
+                    results = mem_resize(seq_t, results, results_cap);
                 }
                 results[results_len++] = node.val;
             }

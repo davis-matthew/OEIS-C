@@ -6,14 +6,17 @@
  * Keywords:  nonn
  * Formula:   a(n) = Product over lengths of runs of 1’s in the binary
  *            representation of n of Catalan(length). By convention a(0)=1
- * Range:     u8 n <= 62, u16 n <= 4093, u32 n <= 8192, u64 n <= 8192,
+ * Range:     u8 n <= 126, u16 n <= 4094, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
+ * Validated: standard, pass, 104 terms through n = 8107 (2026-11-01)
  * Helpers:   catalan
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/catalan.h"   /* provides catalan(idx_t) */
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/catalan.h"
 
 seq_t a(idx_t n)
 {

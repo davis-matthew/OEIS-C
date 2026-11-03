@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 22, u128 n <= 42,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 37 terms through n = 346 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
    with a(0) = 1
 */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -27,8 +29,8 @@ seq_t a(idx_t n)
     seq_t sum = (seq_t)0;
     for (idx_t k = 0; k < n; ++k) {
         idx_t m = n - k;                       /* m = n-k  */
-        seq_t bin1 = binom(5 * m, k);          /* C(5m, k) */
-        seq_t bin2 = binom(3 * k, m - 1);      /* C(3k, m-1) */
+        seq_t bin1 = binomial(5 * m, k);          /* C(5m, k) */
+        seq_t bin2 = binomial(3 * k, m - 1);      /* C(3k, m-1) */
 
         /* Compute term = (bin1 * bin2) / m.
            The division is exact by definition of the sequence. */

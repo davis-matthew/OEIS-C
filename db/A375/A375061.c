@@ -11,20 +11,22 @@
  *            where S_k are coefficients of S(x). * S_k are...
  * Range:     i8 n <= 17, i16 n <= 49, i32 n <= 49, i64 n <= 49, i128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     size_t N = (size_t)n;
     /* Allocate coefficient arrays */
-    seq_t *S = (seq_t*)malloc((N + 1) * sizeof(seq_t));
-    seq_t *A = (seq_t*)malloc((N + 1) * sizeof(seq_t));
+    seq_t *S = mem_new(seq_t, (N + 1));
+    seq_t *A = mem_new(seq_t, (N + 1));
     if (!S || !A) { abort(); }
 
     /* Initialize to zero */
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = A[N];
-    free(S);
-    free(A);
+    mem_free(S);
+    mem_free(A);
     return result;
 }

@@ -11,14 +11,46 @@
  *            Q(sqrt(d)), b_j = (W/(2s)) * Sum_{e | ra...
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 17, u64 n <= 544,
  *            u128 n <= 10000, big any n
- * Helpers:   a508_chi, a508_jacobi
+ * Validated: standard, pass, 37 terms through n = 9666 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/a508_chi.h"
-#include "../utils/a508_jacobi.h"
+
+static int a508_jacobi(long long x, long long m)
+{
+    int r = 1;
+    x %= m;
+    if (x < 0) x += m;
+    while (x != 0) {
+        while (x % 2 == 0) {
+            long long t = m % 8;
+            x /= 2;
+            if (t == 3 || t == 5) r = -r;
+        }
+        { long long tmp = x; x = m; m = tmp; }
+        if (x % 4 == 3 && m % 4 == 3) r = -r;
+        x %= m;
+    }
+    return m == 1 ? r : 0;
+}
+
+/* Kronecker symbol (D|n) for a positive fundamental discriminant D, n >= 0 */
+static int a508_chi(long long D, long long n)
+{
+    int r = 1;
+    if (n == 0) return D == 1;
+    if (D == 1) return 1;
+    while (n % 2 == 0) {
+        long long t = D % 8;
+        if (D % 2 == 0) return 0;
+        n /= 2;
+        if (t == 3 || t == 5) r = -r;
+    }
+    return r * a508_jacobi(D, n);
+}
 
 seq_t a(idx_t n)
 {

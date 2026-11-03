@@ -7,15 +7,17 @@
  * Formula:   a(n) = 25^n
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 2, u64 n <= 2, u128 n <= 2,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 3 terms through n = 2 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
     /* The number of possible chmess games after n plies is 25^n. */
-    return pow_uint(25, n);
+    return ipow_u64_idx(25, n);
 }

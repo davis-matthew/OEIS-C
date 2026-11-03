@@ -7,13 +7,15 @@
  * Formula:   a(n) = floor((10^(n+1) · 37)/72) mod 10 (digits of 37/72)
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 87 terms through n = 86 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* initialise on first call */
     if (cache == NULL) {
         cache_len = 1;
-        cache = (seq_t*)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         unsigned long long t = rem * 10ULL;        /* 37*10 */
         cache[0] = (seq_t)(t / 72ULL);             /* first digit is 5 */
         rem = t % 72ULL;                           /* new remainder 10 */
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
 
         if (next_to_compute >= cache_len) {
             cache_len = next_to_compute + 1;
-            cache = (seq_t*)realloc(cache, cache_len * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_len);
         }
         cache[next_to_compute] = digit;
         ++next_to_compute;

@@ -8,12 +8,14 @@
  *            binomial(n-k+1,n-4*k)/(n-k+1)
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 27, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -27,12 +29,12 @@ seq_t a(idx_t n)
         /* First binomial term: C(n-3k-1, k) */
         idx_t a1 = n - 3*k - 1;
         idx_t b1 = k;
-        seq_t t1 = binom(a1, b1);
+        seq_t t1 = binomial(a1, b1);
 
         /* Second binomial term: C(n-k+1, n-4k) */
         idx_t a2 = n - k + 1;
         idx_t b2 = n - 4*k;
-        seq_t t2 = binom(a2, b2);
+        seq_t t2 = binomial(a2, b2);
 
         /* Denominator: (n - k + 1) */
         seq_t denom = a2;

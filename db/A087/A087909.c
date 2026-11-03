@@ -7,6 +7,7 @@
  * Formula:   a(n) = Σ_{d|n} (n/d)^(d-1) (OEIS A087909, offset 1)
  * Range:     u8 n <= 17, u16 n <= 33, u32 n <= 65, u64 n <= 125,
  *            u128 n <= 245, big any n
+ * Validated: standard, pass, 65 terms through n = 6046 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

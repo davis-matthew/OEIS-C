@@ -7,6 +7,7 @@
  * Formula:   a(n) = minimal k ≥ 0 such that n^2 + k(k+1)/2 is triangular
  * Range:     u8 n <= 16, u16 n <= 510, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 85 terms through n = 9959 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

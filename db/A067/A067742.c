@@ -8,14 +8,36 @@
  * Formula:   a(n) = number of divisors d of n with sqrt(n/2) <= d < sqrt(2n)
  * Range:     u8 n <= 16, u16 n <= 6893, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_middle_divisors
+ * Validated: standard, pass, 121 terms through n = 8440 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/count_middle_divisors.h"
+
+/* Recursive helper to count middle divisors */
+static void count_middle_divisors(int pos, seq_t curr,
+                                  const uint64_t *pr, const uint64_t *ex,
+                                  size_t cnt,
+                                  seq_t low2, seq_t high2,
+                                  seq_t *acc)
+{
+    if (pos == (int)cnt) {
+        seq_t sq = curr * curr;
+        if (sq >= low2 && sq < high2) {
+            (*acc)++;
+        }
+        return;
+    }
+    seq_t val = 1;
+    for (uint64_t e = 0; e <= ex[pos]; ++e) {
+        count_middle_divisors(pos + 1, curr * val, pr, ex, cnt,
+                              low2, high2, acc);
+        val *= pr[pos];
+    }
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)

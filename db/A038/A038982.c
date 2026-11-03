@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_mul_uint64
+ * Validated: standard, pass, 61 terms through n = 971 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mod_mul_uint64.h"
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------
    Modular arithmetic helpers
@@ -34,8 +36,8 @@ static uint64_t mod_pow_uint64(uint64_t base, uint64_t exp, uint64_t mod)
     uint64_t b = base % mod;
     while (exp > 0) {
         if (exp & 1)
-            result = mod_mul_uint64(result, b, mod);
-        b = mod_mul_uint64(b, b, mod);
+            result = mulmod(result, b, mod);
+        b = mulmod(b, b, mod);
         exp >>= 1;
     }
     return result;
@@ -51,7 +53,7 @@ static bool miller_rabin_pass(uint64_t d, uint64_t n, uint64_t a)
     if (x == 1 || x == n - 1)
         return true;
     while (d != n - 1) {
-        x = mod_mul_uint64(x, x, n);
+        x = mulmod(x, x, n);
         d <<= 1;
         if (x == n - 1)
             return true;
@@ -124,7 +126,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call */
     if (!initialized) {
         terms_cap = 1;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
         if (!terms)
             return (seq_t)0;           /* allocation failure – unlikely */
         terms[0] = (seq_t)2;             /* first term of the sequence */
@@ -142,7 +144,7 @@ seq_t a(idx_t n)
             /* Ensure capacity */
             if (terms_len == terms_cap) {
                 size_t new_cap = terms_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, new_cap);
                 if (!tmp)
                     return (seq_t)0;   /* allocation failure */
                 terms = tmp;

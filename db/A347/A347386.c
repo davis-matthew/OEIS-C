@@ -6,16 +6,20 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n)=0 if odd_part(n)=1 else 1 + a(psi(odd_part(n)))
- * Range:     u8 n <= 1137, u16 n <= 8987, u32 n <= 8987, u64 n <= 8987,
- *            u128 n <= 8987, big any n
+ * Range:     u8 n <= 1137, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 121 terms through n = 8987 (2026-11-01)
  * Helpers:   factor_u64, odd_part
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/odd_part.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/odd_part.h"
 
 /* Compute Dedekind ψ for an odd 64‑bit integer. */
 static seq_t psi_of_odd_uint64(uint64_t m)

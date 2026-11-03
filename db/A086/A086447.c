@@ -9,13 +9,15 @@
  *            of prime(n)
  * Range:     u8 n <= 7, u16 n <= 23, u32 n <= 3375, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 9490 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Global storage for primes and their cumulative sums
  * primes[0] = 2, primes[1] = 3, ...
@@ -37,7 +39,7 @@ static void grow_primes(size_t need)
     primes = new_primes;
     prime_cap = new_cap;
 
-    seq_t *new_cum = (seq_t *)realloc(cum, (new_cap + 1) * sizeof(seq_t));
+    seq_t *new_cum = mem_resize(seq_t, cum, (new_cap + 1));
     if (!new_cum) abort();
     cum = new_cum;
     cum_cap = new_cap + 1;

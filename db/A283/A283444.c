@@ -7,6 +7,7 @@
  * Formula:   a(n) = (n % 7 == 0) ? n/7 : 7*n; a(0) = 0, a(1) = 7, a(2) = 14,
  * Range:     u8 n <= 36, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 74 terms through n = 999 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

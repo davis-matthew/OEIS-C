@@ -10,12 +10,14 @@
  *            into parts of the specified type (any part or odd part)
  * Range:     u8 n <= 26, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *p_total = NULL;   /* partitions of m (any parts) */
 static size_t total_cap = 0;    /* current array size */
@@ -29,7 +31,7 @@ static void ensure_total(idx_t n)
     if (total_cap > n) return;
 
     size_t new_cap = (size_t)n + 1;
-    seq_t *new_arr = (seq_t *)realloc(p_total, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, p_total, new_cap);
 
     /* Re‑compute from scratch. */
     new_arr[0] = 1;
@@ -51,7 +53,7 @@ static void ensure_odd(idx_t n)
     if (odd_cap > n) return;
 
     size_t new_cap = (size_t)n + 1;
-    seq_t *new_arr = (seq_t *)realloc(p_odd, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, p_odd, new_cap);
 
     /* Re‑compute from scratch. */
     new_arr[0] = 1;

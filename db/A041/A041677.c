@@ -9,12 +9,14 @@
  *            a(7)=6821, a(8)=61209, a(9)=129239, a(10)=1095121, a(11)=1224360
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 15, u64 n <= 31, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 191 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 /* Number of terms we keep in the static cache.
@@ -53,13 +55,13 @@ seq_t a(idx_t n)
        directly in a temporary array.  This path is never hit for
        the problem limits (n ≤ about 10000). */
     if (idx >= MAX_CACHE) {
-        seq_t *tmp = (seq_t*)malloc((idx + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, (idx + 1));
         if (!tmp) abort();
         for (size_t i = 0; i < 12 && i <= idx; ++i) tmp[i] = init[i];
         for (size_t i = 12; i <= idx; ++i)
             tmp[i] = (seq_t)6802 * tmp[i-6] - tmp[i-12];
         seq_t result = tmp[idx];
-        free(tmp);
+        mem_free(tmp);
         return result;
     }
 

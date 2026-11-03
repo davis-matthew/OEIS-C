@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 2, u16 n <= 468, u32 n <= 9969, u64 n <= 9969,
- *            u128 n <= 9969, big any n
- * Helpers:   largest_factorial_divisor
+ * Range:     u8 n <= 2, u16 n <= 468, u32 n <= 25920, u64 n <= 25920,
+ *            u128 n <= 25920, big any n
+ * Validated: standard, pass, 61 terms through n = 9969 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,7 +35,25 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/largest_factorial_divisor.h"
+
+/*  Largest integer m such that (m‑1)! divides x.
+ *  The function returns the m itself; m ≥ 1. */
+static uint64_t largest_factorial_divisor(seq_t x)
+{
+    seq_t f = 1U;          /* (m‑1)!  */
+    uint64_t m = 1U;       /* candidate m  */
+    uint64_t best = 1U;    /* farthest reached  */
+
+    while (true) {
+        if (x % f != 0U) break;
+        best = m;
+        f *= m;           /* now f = m!  */
+        ++m;
+        /* if f > x, the next mod will immediately fail,
+           so the loop stops naturally. */
+    }
+    return best;
+}
 
 /*  Simple primality test for small integers.
  *  m will never exceed a few hundred in all practical ranges,

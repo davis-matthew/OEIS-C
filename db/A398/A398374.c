@@ -8,13 +8,16 @@
  * Formula:   a(n) = a(n-1)*(2*n - 2^ceil(log_2(n))), a(0)=1
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 15, u64 n <= 25, u128 n <= 42,
  *            big any n
- * Helpers:   floor_log2_uint64, pow2
+ * Validated: standard, pass, 43 terms through n = 487 (2026-11-01)
+ * Helpers:   ilog2, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/floor_log2_uint64.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/ilog2.h"
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)
@@ -26,7 +29,7 @@ seq_t a(idx_t n)
         if (i == 1) {
             ceil = 0;
         } else {
-            ceil = floor_log2_uint64(i - 1) + 1;
+            ceil = ilog2(i - 1) + 1;
         }
 
         seq_t two_n = ((seq_t)i) * 2;

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 76, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   composite_at_r
+ * Validated: partial, pass, 76 terms through n = 76 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,35 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/composite_at_r.h"
+
+/* ---------- helper: composite number at a given 1‑based index ---------- */
+static uint64_t composite_at_r(idx_t r)
+{
+    /* count composites starting from 4 */
+    idx_t count = 0;
+    for (uint64_t x = 4; ; ++x) {
+        /* check if x is composite */
+        bool is_comp = false;
+        if ((x % 2) == 0)
+            is_comp = true;
+        else {
+            bool prime = true;
+            for (uint64_t d = 3; d * d <= x; d += 2) {
+                if (x % d == 0) {
+                    prime = false;
+                    break;
+                }
+            }
+            if (!prime)
+                is_comp = true;
+        }
+        if (is_comp) {
+            ++count;
+            if (count == r)
+                return x;
+        }
+    }
+}
 
 /* ---------- helper: gcd for uint64_t ---------- */
 static uint64_t gcd_u64(uint64_t a, uint64_t b)

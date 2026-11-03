@@ -9,6 +9,7 @@
  *            generating function G(x) = (1 - x)/(1 + x + x^2 + 2x^3)
  * Range:     i8 n <= 17, i16 n <= 34, i32 n <= 47, i64 n <= 47, i128 n <= 47,
  *            big any n
+ * Validated: partial, pass, 48 terms through n = 47 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

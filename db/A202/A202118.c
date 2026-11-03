@@ -12,13 +12,15 @@
  *            491661, 1123219, 2566023, 5862189
  * Range:     u8 n <= 4, u16 n <= 11, u32 n <= 24, u64 n <= 51, u128 n <= 105,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 178 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>    /* malloc, realloc, abort */
 #include <stddef.h>    /* size_t */
+#include "../utils/mem.h"
 
 static const seq_t init_vals[17] = {
     (seq_t)5,      (seq_t)19,      (seq_t)57,      (seq_t)127,
@@ -40,7 +42,7 @@ static void ensure_cache(size_t need)
     size_t new_cap = (cache_cap == 0) ? 17 : cache_cap * 2;
     if (new_cap < need)
         new_cap = need;
-    seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (tmp == NULL)
         abort(); /* allocation failed */
     cache = tmp;

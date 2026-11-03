@@ -12,13 +12,15 @@
  *            coefficients. The implementation below memoises te...
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 183 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *f = NULL;          /* memoised values a(0..max_n)          */
 static seq_t *pow11 = NULL;      /* powers of 11 up to used index       */
@@ -34,18 +36,18 @@ static void ensure_capacity(idx_t n)
         size_t newcap = (capacity == 0) ? 1 : (capacity << 1);
         if (newcap <= (size_t)n) newcap = (size_t)n + 1;
 
-        seq_t *new_f   = (seq_t *)malloc(newcap * sizeof(seq_t));
-        seq_t *new_pow = (seq_t *)malloc(newcap * sizeof(seq_t));
+        seq_t *new_f   = mem_new(seq_t, newcap);
+        seq_t *new_pow = mem_new(seq_t, newcap);
         if (!new_f || !new_pow) { /* allocation failed – abort softly */
             return;
         }
 
         /* copy old data if any */
-        if (f)   memcpy(new_f,   f,   oldcap * sizeof(seq_t));
-        if (pow11) memcpy(new_pow, pow11, oldcap * sizeof(seq_t));
+        if (f)   mem_copy(new_f, f, oldcap * sizeof(seq_t));
+        if (pow11) mem_copy(new_pow, pow11, oldcap * sizeof(seq_t));
 
         /* free old buffers */
-        free(f);   free(pow11);
+        mem_free(f);   mem_free(pow11);
 
         f = new_f;   pow11 = new_pow;
         capacity = newcap;

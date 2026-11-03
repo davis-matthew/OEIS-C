@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 49, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   _count_zeros_in_base8
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,22 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_count_zeros_in_base8.h"
+#include "../utils/mem.h"
+
+/* Count how many 0 digits a number has in base 8. */
+static unsigned _count_zeros_in_base8(seq_t x)
+{
+    unsigned zero = 0;
+    while (x) {
+        if ((x & (seq_t)7) == 0) {
+            ++zero;
+            if (zero > 1)
+                return 2;          /* early exit: more than one zero */
+        }
+        x >>= 3;                    /* divide by 8 */
+    }
+    return zero;
+}
 
 /* Ensure the cache has room for at least need elements. */
 static void _ensure_cache(size_t need, seq_t **cache,
@@ -30,7 +46,7 @@ static void _ensure_cache(size_t need, seq_t **cache,
     size_t new_cap = (*cap == 0) ? 16 : (*cap * 2);
     while (new_cap < need)
         new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(*cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *cache, new_cap);
     if (!tmp)
         abort();                 /* out of memory */
     *cache = tmp;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   is_pal_digit
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
+ * Helpers:   is_palindrome_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_pal_digit.h"
+#include "../utils/is_palindrome_u64.h"
 
 /* ------------------------------------------------------------------ */
 /* Small prime sieve (up to 50000) – used for trial division.  The     */
@@ -95,7 +96,7 @@ static void count_pal_divisors(const struct Factor *fac, int faccnt,
                                int idx, uint64_t cur, seq_t *cnt)
 {
     if (idx == faccnt) {
-        if (is_pal_digit(cur)) (*cnt)++;
+        if (is_palindrome_u64(cur)) (*cnt)++;
         return;
     }
     uint64_t p = fac[idx].p;

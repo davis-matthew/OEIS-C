@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   has_35or53
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,24 @@
    This implementation searches sequentially for the n‑th qualifying value. */
 
 #include <stdbool.h>
-#include "../utils/has_35or53.h"
+
+/* Test whether x in base 6 contains the adjacent pair 3–5 or 5–3. */
+static bool has_35or53(seq_t x)
+{
+    if (x == (seq_t)0)
+        return false;
+
+    unsigned int last = (unsigned int)(x % 6);
+    x /= 6;
+    while (x != (seq_t)0) {
+        unsigned int cur = (unsigned int)(x % 6);
+        if ((cur == 3 && last == 5) || (cur == 5 && last == 3))
+            return true;
+        last = cur;
+        x /= 6;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

@@ -10,12 +10,22 @@
  *            a(0)=1, a(1)=a(2)=a(3)=0; a(n) = 0 for n > 14
  * Range:     u8 n <= 3, u16 n <= 14, u32 n <= 14, u64 n <= 14, u128 n <= 14,
  *            big any n
- * Helpers:   a2606_mul
+ * Validated: full, pass, 15 terms through n = 14 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a2606_mul.h"
+static void a2606_mul(long long *p, const long long *f, int fl)
+{
+    long long r[15];
+    int i, j;
+    for (i = 0; i < 15; i++) r[i] = 0;
+    for (i = 0; i < 15; i++)
+        for (j = 0; j < fl && i + j < 15; j++)
+            r[i + j] += p[i] * f[j];
+    for (i = 0; i < 15; i++) p[i] = r[i];
+}
 
 seq_t a(idx_t n)
 {

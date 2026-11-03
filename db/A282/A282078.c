@@ -9,6 +9,7 @@
  *            = ⌊(n+10)/2⌋ is the number of even elements
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 39, u64 n <= 404, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 47 terms through n = 936 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

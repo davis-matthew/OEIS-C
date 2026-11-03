@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   not stated
- * Range:     u8 n <= 51, u16 n <= 9379, u32 n <= 9379, u64 n <= 9379,
- *            u128 n <= 9379, big any n
- * Helpers:   int_sqrt
+ * Range:     u8 n <= 51, u16 n <= 11999, u32 n <= 11999, u64 n <= 11999,
+ *            u128 n <= 11999, big any n
+ * Validated: standard, pass, 71 terms through n = 9379 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/int_sqrt.h"
+#include "../utils/isqrt.h"
 
 /* --- prime list state -------------------------------------------------- */
 static uint32_t *prime_list   = NULL;
@@ -47,7 +48,7 @@ static void ensure_primes_up_to(idx_t limit)
     /* trial‑division sieve from current limit+1 up to 'limit' */
     for (idx_t cand = prime_limit + 1; cand <= limit; ++cand) {
         bool is_prime = true;
-        idx_t root = int_sqrt(cand);
+        idx_t root = isqrt(cand);
         for (size_t i = 0; i < prime_count && prime_list[i] <= root; ++i) {
             if (cand % prime_list[i] == 0) {
                 is_prime = false;
@@ -82,7 +83,7 @@ static bool is_squarefree_composite(idx_t value)
     bool squarefree = true;
     size_t distinct = 0;
 
-    idx_t limit = int_sqrt(tmp);
+    idx_t limit = isqrt(tmp);
     ensure_primes_up_to(limit);
 
     for (size_t i = 0; i < prime_count && (idx_t)prime_list[i] <= limit; ++i) {
@@ -100,7 +101,7 @@ static bool is_squarefree_composite(idx_t value)
             }
             if (!squarefree)
                 return false;
-            limit = int_sqrt(tmp);      /* remaining part may be smaller */
+            limit = isqrt(tmp);      /* remaining part may be smaller */
         }
     }
 

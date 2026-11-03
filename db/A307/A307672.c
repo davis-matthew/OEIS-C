@@ -12,6 +12,7 @@
  *            2→1 2 3, 3→4 3 2, 4→3 4 5, 5→0 5 4
  * Range:     u8 n <= 5000, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 101 terms through n = 4181 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

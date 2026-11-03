@@ -12,14 +12,25 @@
  *            sequence value a(n) is then the sum over the current row w...
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 11, u128 n <= 15,
  *            big any n
- * Helpers:   shift_by
+ * Validated: standard, pass, 32 terms through n = 79 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/shift_by.h"
+#include "../utils/mem.h"
+
+/* Shift left by s places, but return 0 for unsigned integer types
+   when the shift would overflow the width.  For arbitrary‑precision
+   types the built‑in shift operator is assumed to handle any shift. */
+static inline seq_t shift_by(seq_t v, unsigned long long s)
+{
+    if (sizeof(seq_t) <= 8 && s >= (unsigned long long)(sizeof(seq_t) * 8))
+        return (seq_t)0;
+    return v << s;
+}
 
 seq_t a(idx_t n)
 {
@@ -28,12 +39,12 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* Allocate two rows of size n+1 (0‑based indices). */
-    seq_t *prev = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
-    seq_t *cur  = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, (size_t)(n + 1));
+    seq_t *cur  = mem_new(seq_t, (size_t)(n + 1));
     if (!prev || !cur) {
         /* Memory allocation failed; return 0 as a safe fallback. */
-        free(prev);
-        free(cur);
+        mem_free(prev);
+        mem_free(cur);
         return (seq_t)0;
     }
 
@@ -58,8 +69,8 @@ seq_t a(idx_t n)
         }
 
         if (i == n) {
-            free(prev);
-            free(cur);
+            mem_free(prev);
+            mem_free(cur);
             return sum;   /* final result */
         }
 
@@ -70,7 +81,7 @@ seq_t a(idx_t n)
     }
 
     /* The function should never reach here. */
-    free(prev);
-    free(cur);
+    mem_free(prev);
+    mem_free(cur);
     return (seq_t)0;
 }

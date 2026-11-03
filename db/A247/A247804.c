@@ -12,6 +12,7 @@
  *            (trois), 1 (un), 0 (zéro)
  * Range:     u8 n <= 1, u16 n <= 13, u32 n <= 1022, u64 n <= 1023,
  *            u128 n <= 1023, big any n
+ * Validated: full, pass, 1023 terms through n = 1023 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

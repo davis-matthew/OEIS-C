@@ -6,8 +6,9 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = A010873(k) if n is the k-th triangular number (n =
  *            k*(k+1)/2), otherwise a(n) = 4. Here A010873(k) = k mod 4
- * Range:     u8 n <= 9511, u16 n <= 9511, u32 n <= 9511, u64 n <= 9511,
- *            u128 n <= 9511, big any n
+ * Range:     u8 n <= 22155, u16 n <= 22155, u32 n <= 22155, u64 n <= 22155,
+ *            u128 n <= 22155, big any n
+ * Validated: standard, pass, 122 terms through n = 9511 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

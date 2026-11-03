@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 738, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   dr_equal, next_prime
+ * Validated: standard, pass, 58 terms through n = 8964 (2026-11-01)
+ * Helpers:   next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,17 @@
    The digital root of an integer x>0 is 1 + ((x‑1) mod 9), which works
    for any seq_t or uint64_t value. */
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/next_prime.h"
-#include "../utils/dr_equal.h"
+
+static bool dr_equal(idx_t idx, seq_t value)
+{
+    /* digital root of idx (idx>0) */
+    seq_t dr_idx = 1 + ( (seq_t)(idx - 1) % 9 );
+    /* digital root of the prime value (value>0) */
+    seq_t dr_val = 1 + ( (value - 1) % 9 );
+    return dr_idx == dr_val;
+}
 
 seq_t a(idx_t n)
 {

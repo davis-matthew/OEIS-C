@@ -7,9 +7,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 24, u64 n <= 30, u128 n <= 30,
+ * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 24, u64 n <= 45, u128 n <= 88,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 2109 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -42,14 +44,14 @@ seq_t a(idx_t n)
     if (cache_cap <= n) {
         idx_t new_cap = cache_cap? cache_cap*2 : 1;
         while (new_cap <= n) new_cap <<= 1;
-        seq_t *new_cache = (seq_t*)malloc(sizeof(seq_t) * new_cap);
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (!new_cache) return 0;  /* out of memory */
         if (cache) {
-            memcpy(new_cache, cache, sizeof(seq_t) * cache_cap);
-            free(cache);
+            mem_copy(new_cache, cache, sizeof(seq_t) * cache_cap);
+            mem_free(cache);
         }
         cache = new_cache;
-        memset((void*)(cache + cache_cap), 0, sizeof(seq_t)*(new_cap - cache_cap));
+        mem_set((cache + cache_cap), 0, sizeof(seq_t)*(new_cap - cache_cap));
         cache_cap = new_cap;
 
         /* initial value a(0) = 1 */
@@ -64,18 +66,18 @@ seq_t a(idx_t n)
     if (dp_cap < needed_cap) {
         size_t new_cap = dp_cap? dp_cap*2 : needed_cap;
         if (new_cap < needed_cap) new_cap = needed_cap;
-        seq_t *new_dp_cur  = (seq_t*)malloc(sizeof(seq_t) * new_cap);
-        seq_t *new_dp_next = (seq_t*)malloc(sizeof(seq_t) * new_cap);
+        seq_t *new_dp_cur  = mem_new(seq_t, new_cap);
+        seq_t *new_dp_next = mem_new(seq_t, new_cap);
         if (!new_dp_cur || !new_dp_next) return 0; /* out of memory */
-        memset((void*)new_dp_cur,  0, sizeof(seq_t) * new_cap);
-        memset((void*)new_dp_next, 0, sizeof(seq_t) * new_cap);
+        mem_set(new_dp_cur, 0, sizeof(seq_t) * new_cap);
+        mem_set(new_dp_next, 0, sizeof(seq_t) * new_cap);
         if (dp_cur) {
-            memcpy(new_dp_cur,  dp_cur,  sizeof(seq_t) * dp_cap);
-            free(dp_cur);
+            mem_copy(new_dp_cur, dp_cur, sizeof(seq_t) * dp_cap);
+            mem_free(dp_cur);
         }
         if (dp_next) {
-            memcpy(new_dp_next, dp_next, sizeof(seq_t) * dp_cap);
-            free(dp_next);
+            mem_copy(new_dp_next, dp_next, sizeof(seq_t) * dp_cap);
+            mem_free(dp_next);
         }
         dp_cur  = new_dp_cur;
         dp_next = new_dp_next;
@@ -84,7 +86,7 @@ seq_t a(idx_t n)
 
     /* If this is the very first call, initialise the dp array. */
     if (cur_n == 0) {
-        memset((void*)dp_cur, 0, sizeof(seq_t)*dp_cap);
+        mem_set(dp_cur, 0, sizeof(seq_t)*dp_cap);
         dp_cur[2] = (seq_t)1;   /* start at height 2 with probability 1 */
     }
 
@@ -92,7 +94,7 @@ seq_t a(idx_t n)
     for (idx_t step = cur_n + 1; step <= n; ++step) {
         /* zero dp_next up to the maximum possible height for this step */
         size_t max_h = 2 + (size_t)(step - 1);   /* highest height reachable so far */
-        memset((void*)dp_next, 0, sizeof(seq_t) * (max_h + 3));
+        mem_set(dp_next, 0, sizeof(seq_t) * (max_h + 3));
 
         /* propagate from current heights to next heights */
         for (size_t h = 0; h <= max_h; ++h) {

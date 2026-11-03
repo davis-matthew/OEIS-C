@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 194, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 9878 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Computation: a(n) = the nth smallest distinct sum i^3 + j^3 with
    1 ≤ i < j.  The sequence starts with 9, 28, 35, 65, …   */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define MAX_M   2000
 #define MAX_TOTAL ((MAX_M * (MAX_M - 1)) / 2)
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
     }
 
     /* Sort the sums; duplicates will be adjacent. */
-    qsort(sums, pos, sizeof(seq_t), cmp_seq);
+    mem_qsort(sums, pos, sizeof(seq_t), cmp_seq);
 
     /* Scan for the nth distinct value. */
     seq_t last = 0;

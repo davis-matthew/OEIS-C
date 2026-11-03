@@ -11,12 +11,14 @@
  *            rows of this triangle in order
  * Range:     u8 n <= 11, u16 n <= 29, u32 n <= 68, u64 n <= 159,
  *            u128 n <= 443, big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 1200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Sequence entry function */
 seq_t a(idx_t n)
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
         triangle = (seq_t **)realloc(triangle, new_rows * sizeof(seq_t *));
         for (idx_t rr = rows + 1; rr <= r; ++rr) {
             /* Allocate storage for row rr (rr elements) */
-            triangle[rr] = (seq_t *)malloc(sizeof(seq_t) * rr);
+            triangle[rr] = mem_new(seq_t, rr);
 
             for (idx_t kk = 0; kk < rr; ++kk) {
                 seq_t left  = (kk > 0)          ? triangle[rr-1][kk-1] : 0;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 11, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,10 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"       /* provides seq_t mod_pow(seq_t, uint64_t, seq_t) */
+#include <stdint.h>
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +44,7 @@ seq_t a(idx_t n)
         if (cache_len == cache_cap)
         {
             size_t new_cap = (cache_cap == 0) ? 4 : cache_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort();       /* allocation failure */
             cache = tmp;
             cache_cap = new_cap;
@@ -59,7 +63,7 @@ seq_t a(idx_t n)
         uint64_t e = ((uint64_t)k - 1) >> 1;
 
         /* compute 2^e mod m */
-        seq_t val = mod_pow((seq_t)2, e, m);
+        seq_t val = powmod((seq_t)2, e, m);
 
         /* check the congruence */
         if (val == (seq_t)1)

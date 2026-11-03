@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 1000, u64 n <= 1000, u128 n <= 1000,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 905 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    keeps a global sorted unique list.  No closed formula is known.  */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* data structures for the global cache */
 static seq_t *seq_arr    = NULL;   /* sorted unique values */
@@ -43,10 +45,10 @@ static void seq_add(seq_t val)
 {
     if (seq_len == seq_cap) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 64;
-        seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_new(seq_t, new_cap);
         for (size_t i = 0; i < seq_len; ++i)
             new_arr[i] = seq_arr[i];
-        free(seq_arr);
+        mem_free(seq_arr);
         seq_arr = new_arr;
         seq_cap = new_cap;
     }
@@ -102,12 +104,12 @@ static void ensure_terms(idx_t n)
 {
     if (seq_arr == NULL) {                 /* first initialisation      */
         seq_cap = 64;
-        seq_arr = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_arr = mem_new(seq_t, seq_cap);
         /* generate up to length 7 (sufficient for n ≤ 10 000) */
         for (int L = 2; L <= max_gen_len; ++L)
             add_numbers_of_length(L);
 
-        qsort(seq_arr, seq_len, sizeof(seq_t), cmp_seq);
+        mem_qsort(seq_arr, seq_len, sizeof(seq_t), cmp_seq);
 
         size_t uniq = 0;
         for (size_t i = 0; i < seq_len; ++i)
@@ -126,7 +128,7 @@ static void ensure_terms(idx_t n)
         }
         max_gen_len = next_len - 1;
 
-        qsort(seq_arr, seq_len, sizeof(seq_t), cmp_seq);
+        mem_qsort(seq_arr, seq_len, sizeof(seq_t), cmp_seq);
 
         size_t uniq = 0;
         for (size_t i = 0; i < seq_len; ++i)

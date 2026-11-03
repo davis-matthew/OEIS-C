@@ -11,7 +11,8 @@
  *            of unlabeled digraphs)
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 7, u64 n <= 9, u128 n <= 13,
  *            big any n
- * Helpers:   q3085_bl, q3085_fdiv, q3085_fmul, q3085_mu
+ * Validated: standard, pass, 30 terms through n = 62 (2026-11-01)
+ * Helpers:   bit_length_u32, mobius_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,10 +20,33 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/q3085_bl.h"
-#include "../utils/q3085_fdiv.h"
-#include "../utils/q3085_fmul.h"
-#include "../utils/q3085_mu.h"
+#include "../utils/bit_length_u32.h"
+#include "../utils/mobius_idx.h"
+
+static size_t q3085_fdiv(uint32_t *x, size_t len, uint32_t d) {
+    uint64_t rem = 0;
+    size_t t;
+    for (t = len; t-- > 0;) {
+        uint64_t cur = (rem << 32) | x[t];
+        x[t] = (uint32_t)(cur / d);
+        rem = cur % d;
+    }
+    while (len && x[len - 1] == 0) len--;
+    return len;
+}
+
+/* fixed-buffer helpers for the partition DFS */
+static size_t q3085_fmul(uint32_t *x, size_t len, uint32_t m) {
+    uint64_t c = 0;
+    size_t t;
+    for (t = 0; t < len; t++) {
+        c += (uint64_t)x[t] * m;
+        x[t] = (uint32_t)c;
+        c >>= 32;
+    }
+    if (c) x[len++] = (uint32_t)c;
+    return len;
+}
 
 typedef struct { uint32_t *d; size_t n; } q3085_bn;
 
@@ -158,8 +182,8 @@ static q3085_bn q3085_t273(int m) {
     int x, y, k;
     uint32_t *T;
     q3085_bn res;
-    for (x = 2; x <= m; x++) bits += q3085_bl((unsigned)x);
-    bits += 2 * q3085_bl((unsigned)m);
+    for (x = 2; x <= m; x++) bits += bit_length_u32((unsigned)x);
+    bits += 2 * bit_length_u32((unsigned)m);
     CL = (size_t)(bits / 32 + 2);
     q3085_m = m;
     q3085_CL = CL;
@@ -247,7 +271,7 @@ seq_t a(idx_t n) {
             for (k = 1; k <= m; k++) {
                 if (m % k) continue;
                 {
-                    int mu = q3085_mu(m / k);
+                    int mu = mobius_idx(m / k);
                     if (mu == 1) { q3085_bn ns = q3085_add(pos, q3085_C[k]); free(pos.d); pos = ns; }
                     else if (mu == -1) { q3085_bn ns = q3085_add(neg, q3085_C[k]); free(neg.d); neg = ns; }
                 }

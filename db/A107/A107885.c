@@ -8,14 +8,17 @@
  *            (-1)^(n-k+1)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   binom_small
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* This recurrence follows from 1 = Σ_{k≥0} a(k)·x^k·(1-x)^(3 + k(k-1)/2).  */
 #include <stdlib.h>
-#include "../utils/binom_small.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -43,7 +46,7 @@ seq_t a(idx_t n)
                 if (d > E)          /* term is zero */
                     continue;
 
-                seq_t term = array[kk] * binom_small(E, d);
+                seq_t term = array[kk] * binomial(E, d);
 
                 /* sign = (-1)^(d+1) : + if d odd, - if d even */
                 if ((d & 1) == 0)   /* d even → sign –1 */
@@ -61,7 +64,7 @@ seq_t a(idx_t n)
             idx_t new_cap = (cap == 0) ? 4 : cap * 2;
             if (new_cap < size + 1)
                 new_cap = size + 1;
-            seq_t *tmp = (seq_t *)realloc(array, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, array, new_cap);
             if (!tmp)
                 abort();            /* insufficient memory */
             array = tmp;

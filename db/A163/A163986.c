@@ -9,12 +9,14 @@
  *            is the number of integer partitions of m
  * Range:     u8 n <= 9, u16 n <= 26, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *p_cache = NULL;   /* p_cache[i] holds p(i) */
 static idx_t p_cache_size = 0;  /* number of computed values (p_cache_size = N+1) */
@@ -25,7 +27,7 @@ static void ensure_partitions(idx_t N)
 
     /* Grow the cache to fit indices 0..N */
     idx_t new_size = N + 1;
-    seq_t *tmp = (seq_t *)realloc(p_cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, p_cache, new_size);
     if (!tmp) abort();
     p_cache = tmp;
 

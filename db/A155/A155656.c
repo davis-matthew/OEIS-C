@@ -8,19 +8,22 @@
  *            a(n)=16*a(n-1)-63*a(n-2)-48 for n>=2
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 10, u64 n <= 20, u128 n <= 40,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 37 terms through n = 938 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
     /* Compute 9^n and 7^n using the utility big_pow.
        The exponent is passed as seq_t to match big_pow's signature. */
-    seq_t pow9 = big_pow((seq_t)9, (seq_t)n);
-    seq_t pow7 = big_pow((seq_t)7, (seq_t)n);
+    seq_t pow9 = ipow((seq_t)9, (seq_t)n);
+    seq_t pow7 = ipow((seq_t)7, (seq_t)n);
     seq_t sum  = pow9 + pow7;
     return sum - (seq_t)1;
 }

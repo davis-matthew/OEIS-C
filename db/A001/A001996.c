@@ -8,7 +8,8 @@
  *            computed by coin-change DP over parts 2..7
  * Range:     u8 n <= 30, u16 n <= 118, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 985 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     seq_t *dp;
@@ -23,7 +25,7 @@ seq_t a(idx_t n) {
     idx_t i;
     int p;
 
-    dp = (seq_t *)malloc(((size_t)n + 1) * sizeof(seq_t));
+    dp = mem_new(seq_t, ((size_t)n + 1));
     for (i = 0; i <= n; i++) {
         dp[i] = 0;
     }
@@ -36,6 +38,6 @@ seq_t a(idx_t n) {
     }
 
     result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

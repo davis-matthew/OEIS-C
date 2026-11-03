@@ -9,14 +9,17 @@
  * Formula:   Let r,k be such that n = r(r+1)/2 + k, 0 ≤ k ≤ r. Then a(n) =
  *            M(r,k) where M(r,k) = binomial(r,k) * Catalan(k/2) if k is even,
  *            0 otherwise
- * Range:     u8 n <= 39, u16 n <= 127, u32 n <= 366, u64 n <= 1155,
+ * Range:     u8 n <= 50, u16 n <= 127, u32 n <= 366, u64 n <= 1155,
  *            u128 n <= 4058, big any n
+ * Validated: standard, pass, 94 terms through n = 9845 (2026-11-01)
  * Helpers:   binomial, catalan
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/catalan.h"
 

@@ -8,13 +8,15 @@
  *            binomial(n,k) * a(n-k)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 9, u128 n <= 14,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* Compute the n-th term of OEIS A355084.  The sequence is defined
    recursively with a(0)=1.  We memoise the computed terms and the
@@ -31,13 +33,13 @@ seq_t a(idx_t n)
     if ((size_t)n + 1 > cap) {
         size_t new_cap = (size_t)n + 1;
         if (cache == NULL) {
-            cache = (seq_t*)malloc(new_cap * sizeof(seq_t));
-            fact  = (seq_t*)malloc(new_cap * sizeof(seq_t));
-            pow2  = (seq_t*)malloc(new_cap * sizeof(seq_t));
+            cache = mem_new(seq_t, new_cap);
+            fact  = mem_new(seq_t, new_cap);
+            pow2  = mem_new(seq_t, new_cap);
         } else {
-            cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
-            fact  = (seq_t*)realloc(fact,  new_cap * sizeof(seq_t));
-            pow2  = (seq_t*)realloc(pow2,  new_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_cap);
+            fact  = mem_resize(seq_t, fact, new_cap);
+            pow2  = mem_resize(seq_t, pow2, new_cap);
         }
         cap = new_cap;
     }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 13, u64 n <= 25, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    a(0) = 1, a(1) = 1, a(2) = 39, a(3) = 40,
    a(n) = 40*a(n-2) - a(n-4)      for n > 3. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
 
     size_t needed = (size_t)n + 1;
     if (needed > memo_size) {
-        seq_t *tmp = (seq_t *)realloc(memo, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, memo, needed);
         if (!tmp) abort();
         memo = tmp;
         for (size_t i = memo_size; i < needed; ++i) {

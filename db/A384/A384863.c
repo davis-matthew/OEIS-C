@@ -8,12 +8,14 @@
  * Formula:   a(1) = 1; a(n) = 13^13 * a(n-1) mod 2^59
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 1, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 9979 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
 
     if (n > cache_len) {
         /* Increase cache to hold up to term n (index n‑1). */
-        seq_t *tmp = (seq_t*)realloc(cache, n * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, n);
         if (!tmp) abort();       /* allocation failure */
 
         for (idx_t i = cache_len; i < n; ++i) {

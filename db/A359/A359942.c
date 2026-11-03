@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 87, i16 n <= 5954, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 104 terms through n = 8732 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /*  Static helper state                                                  */
@@ -43,14 +45,14 @@ static void compute_c(idx_t n)
 {
     /* Allocate / enlarge storage if needed. */
     if (c_size <= n) {
-        seq_t *tmp = (seq_t *)realloc(c_array, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, c_array, (n + 1));
         if (!tmp) abort();
         c_array = tmp;
         c_size  = n + 1;
     }
 
     /* Zero the array. */
-    memset(c_array, 0, (n + 1) * sizeof(seq_t));
+    mem_set(c_array, 0, (n + 1) * sizeof(seq_t));
 
     /* Sieve: for each d = t^3+1 ≤ n, add d to all multiples of d. */
     for (idx_t t = 0; ; ++t) {
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
 
     /* Allocate / enlarge storage for a_array if needed. */
     if (a_size <= n) {
-        seq_t *tmp = (seq_t *)realloc(a_array, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_array, (n + 1));
         if (!tmp) abort();
         a_array = tmp;
         a_size  = n + 1;

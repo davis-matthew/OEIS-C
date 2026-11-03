@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, floor_isqrt_u64
+ * Validated: standard, pass, 72 terms through n = 9734 (2026-11-03)
+ * Helpers:   build_primes_upto, isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "../utils/floor_isqrt_u64.h"     /* floor_isqrt_u64 */
-#include "../utils/build_primes_upto.h"   /* build_primes_upto */
+#include "../utils/build_primes_upto.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 /* comparison for qsort */
 static int cmp_seq_t(const void *a, const void *b)
@@ -69,11 +71,11 @@ static void ensure_cache(idx_t need)
 
         /* temporary array for possible products */
         size_t alloc = prime_cnt * (prime_cnt + 1) / 2 + 10;
-        seq_t *tmp = (seq_t *)malloc(alloc * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, alloc);
         size_t cnt = 0;
 
         /* pre‑compute floor(sqrt(new_bound)) */
-        uint64_t lim_sq = floor_isqrt_u64(new_bound);
+        uint64_t lim_sq = isqrt(new_bound);
 
         /* collect odd semiprimes <= new_bound */
         for (size_t i = 0; i < prime_cnt; ++i) {
@@ -101,10 +103,10 @@ static void ensure_cache(idx_t need)
         free(primes);
 
         /* sort the new list */
-        qsort(tmp, cnt, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(tmp, cnt, sizeof(seq_t), cmp_seq_t);
 
         /* replace old cache */
-        free(sem_cache);
+        mem_free(sem_cache);
         sem_cache = tmp;
         sem_len   = cnt;
         bound     = new_bound;

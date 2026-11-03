@@ -11,12 +11,24 @@
  *            n%5 == 2 f(n) = 1 if n%5 == 3 f(n) = 3 * ((n/5) % 2) if n%5 == 4
  * Range:     u8 n <= 11, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   _f_n
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/_f_n.h"
+static inline idx_t _f_n(idx_t n) {
+    idx_t q = n / 5;
+    idx_t r = n % 5;
+    switch (r) {
+        case 0: return (q == 0) ? 5 : 0;
+        case 1: return (q & 1) ? 2 : 0;
+        case 2: return 0;
+        case 3: return 1;
+        case 4: return (q & 1) ? 3 : 0;
+    }
+    return 0; /* unreachable */
+}
 
 seq_t a(idx_t n) {
     seq_t nn = (seq_t)n;

@@ -12,13 +12,15 @@
  *            r*(r+1)/2 (the row containing the n-th term). * Let * k =...
  * Range:     u8 n <= 12, u16 n <= 24, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *triangle = NULL;         /* linear storage of the triangle */
 static idx_t   max_row = 0;            /* greatest row that has been computed */
@@ -45,14 +47,14 @@ ensure_triangle(idx_t needed_row)
 
     /* Grow the storage if required. */
     if (triangle == NULL) {
-        triangle = (seq_t *)malloc(sizeof(seq_t));
+        triangle = mem_new(seq_t, 1);
         if (triangle == NULL) return; /* out of memory :-(.  Caller will read garbage. */
         max_row = 0;
     }
 
     /* Allocate enough space for all rows up to needed_row. */
     size_t new_len = (size_t)(needed_row * (needed_row + 1) / 2);
-    triangle = (seq_t *)realloc(triangle, new_len * sizeof(seq_t));
+    triangle = mem_resize(seq_t, triangle, new_len);
     if (triangle == NULL) return; /* out of memory :( */
 
     /* Initialise new entries progressively.  Row 1 is assumed to be already set. */

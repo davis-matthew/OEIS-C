@@ -7,6 +7,7 @@
  * Formula:   a(n) = 2^n - (1 + n + C(n,2) + C(n,3)) - ([n>=4] ? 1 : 0)
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 34, u128 n <= 34,
  *            big any n
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,7 @@
 
 /* This equals the number of binary strings of length n containing at least four 0's but not all zeros. */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

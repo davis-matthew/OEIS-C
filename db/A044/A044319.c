@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   has_75
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,31 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_75.h"
+#include "../utils/mem.h"
+
+/* True if x in base‑9 has the substring 7 followed by 5. */
+static bool has_75(seq_t x)
+{
+    if (x == (seq_t)0)
+        return false;
+
+    /* 128 digits are sufficient for any 128‑bit number. */
+    unsigned digits[128];
+    int len = 0;
+
+    seq_t y = x;
+    while (y != (seq_t)0) {
+        digits[len++] = (unsigned)(y % (seq_t)9);
+        y /= (seq_t)9;
+    }
+
+    /* Check from most significant to least. */
+    for (int i = len - 1; i > 0; --i) {
+        if (digits[i] == 7 && digits[i - 1] == 5)
+            return true;
+    }
+    return false;
+}
 
 /* Return the nth term of the sequence. */
 seq_t a(idx_t n)
@@ -48,7 +73,7 @@ seq_t a(idx_t n)
         /* Grow the cache if needed. */
         if (terms_len == terms_cap) {
             size_t new_cap = terms_cap ? terms_cap * 2 : 16;
-            seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, terms, new_cap);
             if (!tmp) {
                 abort(); /* Allocation failed: caller should not rely on this. */
             }

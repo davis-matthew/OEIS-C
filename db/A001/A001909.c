@@ -7,12 +7,14 @@
  * Formula:   a(n) = n*a(n-1) + (n-4)*a(n-2), a(2) = 0, a(3) = 1
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 13, u64 n <= 20, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;
 static idx_t memo_cap = 0;
@@ -23,7 +25,7 @@ seq_t a(idx_t n) {
     
     if (memo == NULL) {
         memo_cap = 64;
-        memo = (seq_t *)malloc(memo_cap * sizeof(seq_t));
+        memo = mem_new(seq_t, memo_cap);
         for (idx_t i = 0; i < memo_cap; i++) {
             memo[i] = 0;
         }
@@ -38,14 +40,14 @@ seq_t a(idx_t n) {
             while (newcap <= n) {
                 newcap *= 2;
             }
-            seq_t *newmemo = (seq_t *)malloc(newcap * sizeof(seq_t));
+            seq_t *newmemo = mem_new(seq_t, newcap);
             for (idx_t i = 0; i < memo_cap; i++) {
                 newmemo[i] = memo[i];
             }
             for (idx_t i = memo_cap; i < newcap; i++) {
                 newmemo[i] = 0;
             }
-            free(memo);
+            mem_free(memo);
             memo = newmemo;
             memo_cap = newcap;
         }

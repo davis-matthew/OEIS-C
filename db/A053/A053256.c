@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 110, i16 n <= 325, i32 n <= 1051, i64 n <= 3665,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 100 terms through n = 9899 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Integer square‑root (floor) for idx_t. */
 static idx_t int_sqrt(idx_t x)
@@ -54,7 +56,7 @@ static void ensure_cache(idx_t n)
     if (n == cache_n) return;
 
     size_t sz = (size_t)n + 1;
-    seq_t *new_a = (seq_t *)realloc(a_cache, sz * sizeof(seq_t));
+    seq_t *new_a = mem_resize(seq_t, a_cache, sz);
     if (!new_a) abort();
 
     /* Zero all entries and set a(0) = 1. */
@@ -62,7 +64,7 @@ static void ensure_cache(idx_t n)
     new_a[0] = (seq_t)1;
 
     /* Temporary array for the current F_k(m). */
-    seq_t *coeff = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *coeff = mem_new(seq_t, sz);
     if (!coeff) abort();
     coeff[0] = (seq_t)1;   /* F_0(0) = 1 */
 
@@ -79,7 +81,7 @@ static void ensure_cache(idx_t n)
         }
     }
 
-    free(coeff);
+    mem_free(coeff);
 
     a_cache = new_a;
     cache_n  = n;

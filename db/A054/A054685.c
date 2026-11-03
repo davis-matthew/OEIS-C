@@ -9,13 +9,15 @@
  *            is not considered a power)
  * Range:     u8 n <= 53, u16 n <= 168, u32 n <= 636, u64 n <= 2680,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 84 terms through n = 9934 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Memoisation storage for the dynamic‑programming table. */
 static seq_t *dp = NULL;      /* dp[i] holds a(i) for 0 <= i < dp_size */
@@ -25,14 +27,14 @@ static idx_t  dp_size = 0;    /* current maximum index held (exclusive) */
 static void recompute_dp(idx_t limit)
 {
     /* Allocate a new table and set the base case a(0)=1. */
-    seq_t *new_dp = (seq_t*)calloc((size_t)limit + 1, sizeof(seq_t));
+    seq_t *new_dp = mem_new(seq_t, (size_t)limit + 1);
     if (!new_dp) exit(1);
     new_dp[0] = (seq_t)1;               /* a(0) = 1 */
 
     /* Sieve of Eratosthenes to obtain all primes up to limit. */
     size_t m = (size_t)limit;
     bool *is_prime = (bool*)calloc(m + 1, sizeof(bool));
-    if (!is_prime) { free(new_dp); exit(1); }
+    if (!is_prime) { mem_free(new_dp); exit(1); }
     for (size_t i = 0; i <= m; ++i) is_prime[i] = true;
     if (m >= 0) is_prime[0] = false;
     if (m >= 1) is_prime[1] = false;
@@ -61,7 +63,7 @@ static void recompute_dp(idx_t limit)
 
     /* Replace the old table. */
     free(is_prime);
-    free(dp);
+    mem_free(dp);
     dp       = new_dp;
     dp_size  = limit + 1;
 }

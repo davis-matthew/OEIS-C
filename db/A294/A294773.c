@@ -7,12 +7,15 @@
  * Formula:   a(n) = Sum_{d|n} d^(d+n+1)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 9, u128 n <= 15,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 29 terms through n = 205 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -20,10 +23,10 @@ seq_t a(idx_t n)
     for (idx_t i = 1; i <= n / i; ++i) {
         if (n % i == 0) {
             idx_t d1 = i;
-            sum += seq_pow((seq_t)d1, d1 + n + 1);
+            sum += ipow_idx((seq_t)d1, d1 + n + 1);
             if (d1 != n / i) {
                 idx_t d2 = n / i;
-                sum += seq_pow((seq_t)d2, d2 + n + 1);
+                sum += ipow_idx((seq_t)d2, d2 + n + 1);
             }
         }
     }

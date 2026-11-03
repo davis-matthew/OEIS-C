@@ -9,14 +9,14 @@
  *            product of primes p where (p-1) divides 2(n-1)
  * Range:     u8 n <= 6, u16 n <= 18, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_prime.h"
-
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n) {
     if (n == 0) {
@@ -31,11 +31,11 @@ seq_t a(idx_t n) {
     
     for (idx_t d = 1; d * d <= b; d++) {
         if (b % d == 0) {
-            if (is_prime(d + 1)) {
+            if (is_prime_u64(d + 1)) {
                 result *= (seq_t)(d + 1);
             }
             idx_t d2 = b / d;
-            if (d != d2 && is_prime(d2 + 1)) {
+            if (d != d2 && is_prime_u64(d2 + 1)) {
                 result *= (seq_t)(d2 + 1);
             }
         }

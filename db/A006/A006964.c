@@ -9,7 +9,8 @@
  *            A(x^k)/k))
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 24, u128 n <= 45,
  *            big any n
- * Helpers:   acc_term, grow_zero, seq_is_fixed_width
+ * Validated: standard, pass, 39 terms through n = 496 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,71 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/grow_zero.h"
-#include "../utils/seq_is_fixed_width.h"
-#include "../utils/acc_term.h"
+#include <string.h>
+#include "../utils/mem.h"
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
+
+/* Fixed width: add x*y*z to Q*m + R, never forming anything larger than the quotient.
+   Returns 1 on overflow. */
+static int acc_term(seq_t *Q, uint64_t *R, uint64_t m, uint64_t x, seq_t y, seq_t z, seq_t M)
+{
+    seq_t yq = y / m;
+    uint64_t yr = (uint64_t)(long long)(y % m);
+    uint64_t xy = x * yr;
+    seq_t pq, t, zq;
+    uint64_t pr, zr, q2;
+
+    if (yq != 0 && yq > M / x) return 1;
+    pq = yq * x;
+    q2 = xy / m;
+    if (pq > M - q2) return 1;
+    pq += q2;
+    pr = xy % m;
+
+    if (pq != 0 && z > M / pq) return 1;
+    t = pq * z;
+    if (*Q > M - t) return 1;
+    *Q += t;
+
+    zq = z / m;
+    zr = (uint64_t)(long long)(z % m);
+    if (pr != 0) {
+        if (zq > M / pr) return 1;
+        t = zq * pr;
+        if (*Q > M - t) return 1;
+        *Q += t;
+    }
+    *R += pr * zr;
+    if (*R >= m) {
+        q2 = *R / m;
+        if (*Q > M - q2) return 1;
+        *Q += q2;
+        *R %= m;
+    }
+    return 0;
+}
 
 static seq_t *A_ = NULL;   /* A_[1..have] */
 static seq_t *B_ = NULL;   /* B_[k] = b(k), used for the arbitrary-precision build */

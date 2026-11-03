@@ -14,12 +14,14 @@
  *            +6*a(n-16)+4*a(n-17)-1*a(n-18) (o...
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 23, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc, free */
+#include "../utils/mem.h"
 
 static const int REC_COEF[18] = {
     6, 10, -35, -84, -100, 131, 280, 161,
@@ -65,9 +67,9 @@ static void ensure_cache_size(idx_t n)
 
     /* Allocate enough space for n terms.  If upgrading capacity, use realloc. */
     if (cache_cap < (size_t)n) {
-        seq_t *new_ptr = (seq_t *)realloc(num_cache, n * sizeof(seq_t));
+        seq_t *new_ptr = mem_resize(seq_t, num_cache, n);
         if (!new_ptr) {                /* allocation failure – abort */
-            free(num_cache);
+            mem_free(num_cache);
             num_cache = NULL;
             cache_cap = 0;
             cache_size = 0;

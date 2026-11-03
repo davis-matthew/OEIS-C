@@ -10,6 +10,7 @@
  *            the ordered list of all prime powers
  * Range:     u8 n <= 12, u16 n <= 30, u32 n <= 82, u64 n <= 232,
  *            u128 n <= 592, big any n
+ * Validated: standard, pass, 66 terms through n = 9289 (2026-11-01)
  * Helpers:   build_primes_upto, factor_u64, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

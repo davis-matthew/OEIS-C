@@ -12,7 +12,8 @@
  *            factors
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 87 terms through n = 86 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static inline uint8_t bit_parity(uint64_t x)
 {
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
         /* Grow cache array if necessary. */
         size_t req_cap = (size_t)n + 1;
         if (req_cap > cache_cap) {
-            cache = (seq_t *)realloc((void *)cache, req_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, req_cap);
             if (!cache) return (seq_t)0;           /* allocation failed */
             cache_cap = req_cap;
         }

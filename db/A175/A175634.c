@@ -10,7 +10,8 @@
  *            semiprime marking
  * Range:     u8 n <= 53, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 975 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Auxiliary functions provided by the build environment. */
 extern bool is_prime_generic(seq_t n);
@@ -121,7 +123,7 @@ static void ensure_terms(idx_t need)
                     /* Store Chen semiprime. */
                     if (chen_len == chen_cap) {
                         chen_cap = (chen_cap == 0) ? 16 : chen_cap * 2;
-                        chen = (seq_t*)realloc(chen, chen_cap * sizeof(seq_t));
+                        chen = mem_resize(seq_t, chen, chen_cap);
                         if (!chen) abort();
                     }
                     chen[chen_len++] = (seq_t)m;

@@ -7,8 +7,9 @@
  * Keywords:  nonn, look
  * Formula:   a(n) = n / A327501(n) where A327501(n) is the maximum divisor of
  *            n that is 1 or not a perfect power
- * Range:     u8 n <= 511, u16 n <= 9803, u32 n <= 9803, u64 n <= 9803,
- *            u128 n <= 9803, big any n
+ * Range:     u8 n <= 511, u16 n <= 16383, u32 n <= 16383, u64 n <= 16383,
+ *            u128 n <= 16383, big any n
+ * Validated: standard, pass, 102 terms through n = 9803 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

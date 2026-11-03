@@ -7,7 +7,8 @@
  * Formula:   a(0)=0; a(1)=1; a(n+1)=2*a(n)-a(floor(n/2))
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 34, u64 n <= 66, u128 n <= 130,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 851 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    O(1) for subsequent requests.  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* internal cache for already computed terms             */
 static seq_t *cache   = NULL;   /* cache[0..last_computed] */
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
 
     /* resize cache to hold up to idx */
     if (cache == NULL) {
-        cache = (seq_t*)malloc((idx + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (idx + 1));
         if (cache == NULL)
             return (seq_t)0;   /* out of memory – graceful failure */
         /* initialize first two terms */
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
             cache[1] = (seq_t)1;
         max_n = 2;
     } else if ((idx + 1) > max_n) {
-        seq_t *tmp = (seq_t*)realloc(cache, (idx + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (idx + 1));
         if (tmp == NULL)
             return (seq_t)0;   /* out of memory – graceful failure */
         cache = tmp;

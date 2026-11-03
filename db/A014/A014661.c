@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 197, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 87 terms through n = 927 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,9 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* ---------- small prime table (up to 1000) ---------- */
 static bool primes_initialized = false;
@@ -90,7 +93,7 @@ static bool bad_odd(idx_t n)  /* n must be odd and >=3 */
         idx_t q = phi_prims[i];
         while (order % q == 0) {
             idx_t cand = order / q;
-            seq_t r = mod_pow((seq_t)2, cand, (seq_t)n);
+            seq_t r = powmod((seq_t)2, cand, (seq_t)n);
             if (r == (seq_t)1)
                 order = cand;
             else
@@ -101,7 +104,7 @@ static bool bad_odd(idx_t n)  /* n must be odd and >=3 */
     /* if order is even and 2^(order/2) ≡ –1 (mod n) then n is bad */
     if ((order & 1) == 0) {
         idx_t half = order >> 1;
-        seq_t r = mod_pow((seq_t)2, half, (seq_t)n);
+        seq_t r = powmod((seq_t)2, half, (seq_t)n);
         if (r == (seq_t)n - (seq_t)1)
             return true;
     }
@@ -122,7 +125,7 @@ static void ensure_capacity(size_t need)
     size_t new_cap = seq_cap == 0 ? 32 : seq_cap * 2;
     while (new_cap < need)
         new_cap *= 2;
-    seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_cache = mem_resize(seq_t, seq_cache, new_cap);
     seq_cap = new_cap;
 }
 

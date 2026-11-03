@@ -7,14 +7,16 @@
  * Formula:   a(n) = the nth prime congruent to 1 or 2 modulo 7
  * Range:     u8 n <= 17, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 60 terms through n = 906 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;  /* offset is 1, this case should not happen */
@@ -30,7 +32,7 @@ seq_t a(idx_t n) {
         if (sz == 0) {
             if (cap < 1) {
                 cap = 8;
-                vals = (seq_t *)malloc(cap * sizeof(seq_t));
+                vals = mem_new(seq_t, cap);
             }
             vals[0] = (seq_t)2;
             sz = 1;
@@ -40,12 +42,12 @@ seq_t a(idx_t n) {
         /* populate more primes until we have n of them */
         while (sz < n) {
             seq_t cand = (seq_t)next;
-            if ((next % 7 == 1 || next % 7 == 2) && is_prime_small(cand)) {
+            if ((next % 7 == 1 || next % 7 == 2) && is_prime_seq(cand)) {
                 /* ensure space for the new element */
                 if (sz >= cap) {
                     size_t ncap = cap ? cap * 2 : 8;
                     while (ncap <= sz) ncap *= 2;
-                    seq_t *tmp = (seq_t *)realloc(vals, ncap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, vals, ncap);
                     vals = tmp;
                     cap = ncap;
                 }

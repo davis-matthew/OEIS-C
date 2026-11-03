@@ -6,9 +6,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = k where k is the n-th positive integer such that both
  *            k^2-2k+2 and k^2+2k+2 are prime (i.e. k^4+4 is a semiprime)
- * Range:     u8 n <= 7, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
- *            big any n
- * Helpers:   none
+ * Range:     u8 n <= 7, u16 n <= 343, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 62 terms through n = 9145 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* 64‑bit deterministic Miller–Rabin primality test.
    Works for all numbers < 3.4×10^14 (our use‑case is < 10^12). */
@@ -83,7 +85,7 @@ seq_t a(idx_t n)
     if (terms_count < n) {
         if (terms_cap == 0) terms_cap = 16;
         while (terms_cap < n) terms_cap <<= 1;
-        terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, terms_cap);
         if (!terms) exit(EXIT_FAILURE);
 
         /* Generate until we have n terms */

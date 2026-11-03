@@ -5,14 +5,16 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = 1 + ∑_{k=0}^{n-1} (1 + k⁵) · a(k) · a(n-1-k)
- * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 7, u128 n <= 11,
+ * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 7, u128 n <= 1,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 14 terms through n = 13 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 /* static state for memoisation */
@@ -31,7 +33,7 @@ static void ensure_cache(idx_t need)
 {
     if (need < (idx_t)cache_cap) return;
     size_t new_cap = (size_t)need * 2 + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     cache = tmp;
     cache_cap = new_cap;
 }
@@ -41,7 +43,7 @@ static void ensure_weights(idx_t up_to)
 {
     if (up_to <= (idx_t)w_cap) return;
     size_t new_cap = (size_t)up_to + 1;
-    seq_t *tmp = (seq_t *)realloc(w_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, w_cache, new_cap);
     w_cache = tmp;
 
     for (idx_t k = (idx_t)w_cap + 1; k <= up_to; ++k) {
@@ -61,7 +63,7 @@ static void ensure_conv(idx_t max_n)
     /* we need indices up to 2*max_n (for worst case i+i)   */
     if (max_n * 2 + 1 <= conv_cap) return;
     size_t new_cap = (size_t)max_n * 2 + 1;
-    seq_t *tmp = (seq_t *)realloc(conv, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, conv, new_cap);
     conv = tmp;
     conv_cap = new_cap;
 }
@@ -71,15 +73,15 @@ seq_t a(idx_t n)
     /* initialise on first call */
     if (cache == NULL) {
         cache_cap = 1;
-        cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = (seq_t)1;          /* a(0) = 1             */
         cache_used = 0;
 
-        w_cache = (seq_t *)calloc(1, sizeof(seq_t)); /* w[0] = 1 */
+        w_cache = mem_new(seq_t, 1); /* w[0] = 1 */
         w_cache[0] = (seq_t)1;
         w_cap = 0;
 
-        conv = (seq_t *)calloc(1, sizeof(seq_t));    /* conv[0] = 1 */
+        conv = mem_new(seq_t, 1);    /* conv[0] = 1 */
         conv[0] = (seq_t)1;
         conv_cap = 1;
     }

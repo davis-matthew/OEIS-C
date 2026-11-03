@@ -9,7 +9,8 @@
  *            spelling uses exactly n distinct letters)
  * Range:     u8 n <= 14, u16 n <= 14, u32 n <= 14, u64 n <= 14, u128 n <= 14,
  *            big any n
- * Helpers:   word_mask
+ * Validated: partial, pass, 13 terms through n = 14 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,21 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/word_mask.h"
+
+/* Helper: compute bitmask for a lowercase letter string. */
+static uint32_t word_mask(const char *s)
+{
+    uint32_t m = 0;
+    while (*s) {
+        char c = *s;
+        if ('a' <= c && c <= 'z')
+            m |= 1u << (c - 'a');
+        else if ('A' <= c && c <= 'Z')
+            m |= 1u << (c - 'A');
+        ++s;
+    }
+    return m;
+}
 
 /* Masks for atomic French words */
 static uint32_t mask_un, mask_deux, mask_trois, mask_quatre, mask_cinq, mask_six, mask_sept,

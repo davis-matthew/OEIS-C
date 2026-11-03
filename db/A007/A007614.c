@@ -11,14 +11,31 @@
  *            value <= V occurs, and pick the n-th
  * Range:     u8 n <= 495, u16 n <= 9999, u32 n <= 9999, u64 n <= 9999,
  *            u128 n <= 9999, big any n
- * Helpers:   phi_limit
+ * Validated: standard, pass, 88 terms through n = 9292 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/phi_limit.h"
+
+static uint64_t phi_limit(uint64_t V) {
+    static const uint64_t pr[] = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47};
+    uint64_t P = 1, ph = 1, M = 1;
+    int i;
+    for (i = 0; i < 15; i++) {
+        uint64_t Pn, hi;
+        if (ph > V) break;
+        Pn = P * pr[i];
+        hi = V * P / ph;
+        if (hi > Pn - 1) hi = Pn - 1;
+        if (hi > M) M = hi;
+        P = Pn;
+        ph *= pr[i] - 1;
+    }
+    return M;
+}
 
 static uint64_t *cum = NULL;   /* cum[v] = #{m : phi(m) <= v}, valid for v <= cumV */
 static uint64_t cumV = 0;

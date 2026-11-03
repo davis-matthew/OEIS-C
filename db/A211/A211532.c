@@ -12,12 +12,14 @@
  *            a(7)=856
  * Range:     u8 n <= 5, u16 n <= 13, u32 n <= 29, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache of computed terms.  cache[0] is unused; cache[1] = a(1), ... */
 static seq_t *cache = NULL;
@@ -32,7 +34,7 @@ static void ensure_cache(idx_t n)
     /* First time: allocate at least up to index 7 and fill initial values. */
     if (cache == NULL) {
         size_t cap = (size_t) (n > 7 ? n : 7);
-        cache = (seq_t*)calloc(cap + 1, sizeof(seq_t));
+        cache = mem_new(seq_t, cap + 1);
         if (cache == NULL) {
             /* Allocation failed – abort to avoid undefined behaviour. */
             abort();
@@ -50,7 +52,7 @@ static void ensure_cache(idx_t n)
     /* Grow cache if necessary. */
     if ((size_t)n > cached) {
         size_t new_cap = (size_t)n;
-        seq_t *tmp = (seq_t*)realloc(cache, (new_cap + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (new_cap + 1));
         if (tmp == NULL) {
             abort();
         }

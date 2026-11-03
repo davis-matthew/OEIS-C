@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 47, u16 n <= 159, u32 n <= 607, u64 n <= 2239,
  *            u128 n <= 8577, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 9781 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #ifndef SIZE_T
 #define SIZE_T size_t
 #endif
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -43,8 +45,8 @@ seq_t a(idx_t n)
 
     /* Allocate two rows of the triangle.  Rows are 1-indexed. */
     SIZE_T sz = (SIZE_T)r + 1;
-    seq_t *prev = (seq_t*)calloc(sz, sizeof(seq_t));
-    seq_t *cur  = (seq_t*)calloc(sz, sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, sz);
+    seq_t *cur  = mem_new(seq_t, sz);
     if (!prev || !cur) {                       /* allocation failed */
         return (seq_t)0;                       /* fallback; should not happen */
     }
@@ -87,8 +89,8 @@ seq_t a(idx_t n)
     seq_t result = prev[k];
 
     /* Free temporary storage. */
-    free(prev);
-    free(cur);
+    mem_free(prev);
+    mem_free(cur);
 
     return result;
 }

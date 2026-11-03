@@ -9,13 +9,14 @@
  *            * with r = floor((sqrt(8*n+1)-1)/2) and k = n - r*(r+1)/2
  * Range:     u8 n <= 37, u16 n <= 141, u32 n <= 573, u64 n <= 2174,
  *            u128 n <= 5150, big any n
- * Helpers:   binom_128
+ * Validated: standard, pass, 83 terms through n = 4981 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom_128.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -26,12 +27,12 @@ seq_t a(idx_t n)
     idx_t offset = r * (r + 1) / 2;
     idx_t k = n - offset;
 
-    seq_t value = binom_128(r, k);
+    seq_t value = binomial(r, k);
     if (k + 1 <= r) {
-        value += (seq_t)3 * binom_128(r, k + 1);
+        value += (seq_t)3 * binomial(r, k + 1);
     }
     if (k + 2 <= r) {
-        value += (seq_t)2 * binom_128(r, k + 2);
+        value += (seq_t)2 * binomial(r, k + 2);
     }
     return value;
 }

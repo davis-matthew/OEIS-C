@@ -7,8 +7,9 @@
  * Keywords:  nonn, easy
  * Formula:   for n = 1, a(1) = 1; * for n > 1, if n is even, a(n) = 2, *
  *            otherwise a(n) = (n + 3) / 2
- * Range:     u8 n <= 488, u16 n <= 8620, u32 n <= 8620, u64 n <= 8620,
- *            u128 n <= 8620, big any n
+ * Range:     u8 n <= 488, u16 n <= 100000, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 136 terms through n = 8620 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

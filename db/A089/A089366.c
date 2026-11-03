@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 71, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   digit_prod_gt
+ * Validated: partial, pass, 72 terms through n = 71 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,20 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/digit_prod_gt.h"
+
+/* Helper: digit product > limit?  (stop early) */
+static bool digit_prod_gt(uint64_t n, idx_t limit)
+{
+    unsigned __int128 prod = 1;
+    while (n > 0)
+    {
+        prod *= (n % 10);
+        if (prod > limit)
+            return true;
+        n /= 10;
+    }
+    return false;
+}
 
 /* Helper: test if table contains prime <= capacity */
 static bool is_prime_candidate(uint64_t n, uint64_t *primes, size_t len)

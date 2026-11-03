@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 44, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 73 terms through n = 953 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* dynamic array for the sequence values */
 static seq_t *cache      = NULL;
@@ -40,7 +43,7 @@ static void append_cache(seq_t val)
 {
     if (cache_cnt == cache_cap) {
         cache_cap = cache_cap ? cache_cap * 2 : 16;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
     cache[cache_cnt++] = val;
 }
@@ -60,7 +63,7 @@ static bool qualifies(uint64_t p)
 {
     if (p == 2) return true;
     if ((p - 1) % 5 != 0) return true;      /* p ≠ 1 (mod 5) ⇒ always solvable */
-    seq_t pow_val = mod_pow((seq_t)2, (p - 1) / 5, (seq_t)p);
+    seq_t pow_val = powmod((seq_t)2, (p - 1) / 5, (seq_t)p);
     return pow_val == (seq_t)1;
 }
 

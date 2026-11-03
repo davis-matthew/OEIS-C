@@ -10,13 +10,29 @@
  *            k-1 does not. Offset: 1 (a(1) = 23)
  * Range:     u8 n <= 8, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   contains_35
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/contains_35.h"
+
+/* Check whether a number contains the pattern 3,5 in its base‑6 expansion. */
+static bool contains_35(seq_t x)
+{
+    if (x == 0)
+        return false;
+    int prev = -1;            /* digit of lower significance */
+    while (x != 0) {
+        int digit = (int)(x % 6);
+        if (prev != -1 && digit == 3 && prev == 5)
+            return true;
+        prev = digit;
+        x /= 6;
+    }
+    return false;
+}
 
 /* Main sequence function. Returns the nth member of A044125. */
 seq_t a(idx_t n)

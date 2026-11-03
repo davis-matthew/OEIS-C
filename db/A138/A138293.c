@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* a(n) when 0 ≤ n ≤ 10000 (or larger).  The function is safe for
    arbitrary precision types seq_t, but keeps intermediate values
@@ -42,9 +44,9 @@ seq_t a(idx_t n)
     /* Grow cache if necessary */
     if (n >= cache_size) {
         idx_t new_size = (n + 1);
-        a_arr = (seq_t *)realloc(a_arr, new_size * sizeof(seq_t));
-        b_arr = (seq_t *)realloc(b_arr, new_size * sizeof(seq_t));
-        e_arr = (seq_t *)realloc(e_arr, new_size * sizeof(seq_t));
+        a_arr = mem_resize(seq_t, a_arr, new_size);
+        b_arr = mem_resize(seq_t, b_arr, new_size);
+        e_arr = mem_resize(seq_t, e_arr, new_size);
 
         /* Initialise new entries */
         for (idx_t i = cache_size; i <= n; ++i) {

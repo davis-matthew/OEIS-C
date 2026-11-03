@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 968 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Legendre residue table modulo 31.  true if r is a quadratic residue */
 static const bool residue31[31] = {
@@ -77,7 +79,7 @@ static void ensure_cap_filtered(size_t need)
     if (need > filtered_cap) {
         size_t newcap = filtered_cap ? filtered_cap * 2 : 16;
         if (newcap < need) newcap = need;
-        seq_t *p = (seq_t *)realloc(filtered, newcap * sizeof(seq_t));
+        seq_t *p = mem_resize(seq_t, filtered, newcap);
         filtered = p;
         filtered_cap = newcap;
     }

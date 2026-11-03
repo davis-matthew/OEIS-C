@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 40, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   next_prime
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 
 /* Include helper that provides next_prime(uint64_t start) */
 #include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 /* --- modular arithmetic helpers ---------------------------------------- */
 static uint64_t mul_mod64(uint64_t a, uint64_t b, uint64_t mod)
@@ -136,7 +138,7 @@ static void grow_cache(size_t needed)
     if (seq_capacity >= needed)
         return;
     seq_capacity = needed * 2;
-    seq_cache = (seq_t *)realloc(seq_cache, seq_capacity * sizeof(seq_t));
+    seq_cache = mem_resize(seq_t, seq_cache, seq_capacity);
 }
 
 static void append_term(seq_t val)

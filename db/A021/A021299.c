@@ -7,7 +7,8 @@
  * Formula:   a(n) = floor(10^(n+1)/295) mod 10 (decimal digit of 1/295)
  * Range:     u8 n <= 0, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 99 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
  */
 
 #include <stdlib.h>   /* for malloc, free, exit */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* cached digits */
 static idx_t  cache_size = 0;    /* capacity of cache */
@@ -38,13 +40,13 @@ static void ensure_cache(idx_t n)
     if (n + 1 > cache_size)
     {
         idx_t new_size = n + 1;
-        seq_t *tmp = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, new_size);
         if (!tmp) { abort(); }   /* allocation failure */
         if (cache)
         {
             for (idx_t i = 0; i < cache_size; ++i)
                 tmp[i] = cache[i];
-            free(cache);
+            mem_free(cache);
         }
         cache = tmp;
         cache_size = new_size;

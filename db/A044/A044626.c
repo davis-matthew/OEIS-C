@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   has_72
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,27 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/has_72.h"
+#include "../utils/mem.h"
+
+/* Helper: returns true if the octal representation of val contains
+   the consecutive digits 7 followed by 2. */
+static bool has_72(seq_t val) {
+    if (val == 0) return false;
+    seq_t tmp = val;
+    /* Enough for any 64‑bit number, and far more than needed for
+       the first few thousand terms. */
+    uint8_t digits[256];
+    size_t d = 0;
+    while (tmp > 0) {
+        digits[d++] = (uint8_t)(tmp % 8);
+        tmp /= 8;
+    }
+    for (size_t i = d; i > 1; --i) {
+        if (digits[i - 1] == 7 && digits[i - 2] == 2)
+            return true;
+    }
+    return false;
+}
 
 /* Dynamic cache for the sequence values. */
 static seq_t *cache = NULL;
@@ -37,11 +58,11 @@ static void ensure_cache(size_t needed)
     size_t newcap = cache_cap ? cache_cap * 2 : 4;
     while (newcap < needed)
         newcap *= 2;
-    seq_t *newbuf = (seq_t *)malloc(newcap * sizeof(seq_t));
+    seq_t *newbuf = mem_new(seq_t, newcap);
     if (!newbuf) abort();          /* out of memory */
     if (cache) {
-        memcpy(newbuf, cache, cache_len * sizeof(seq_t));
-        free(cache);
+        mem_copy(newbuf, cache, cache_len * sizeof(seq_t));
+        mem_free(cache);
     }
     cache = newbuf;
     cache_cap = newcap;

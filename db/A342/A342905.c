@@ -6,15 +6,16 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, look, tabl
  * Formula:   not stated
- * Range:     u8 n <= 509, u16 n <= 9455, u32 n <= 9455, u64 n <= 9455,
- *            u128 n <= 9455, big any n
- * Helpers:   rad
+ * Range:     u8 n <= 509, u16 n <= 10011, u32 n <= 10011, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 94 terms through n = 9455 (2026-11-01)
+ * Helpers:   radical
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Antidiagonal radical: a(n) = rad(i*j) where i+j minimal s with s*(s-1)/2 >= n */
-#include "../utils/rad.h"
+#include "../utils/radical.h"
 
 seq_t a(idx_t n)
 {
@@ -42,5 +43,5 @@ seq_t a(idx_t n)
     idx_t j = s - i;
 
     idx_t product = i * j;
-    return rad(product);
+    return radical(product);
 }

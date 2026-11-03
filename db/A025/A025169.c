@@ -9,12 +9,14 @@
  *            repeated recomputation and to stay within seq_t bounds
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 22, u64 n <= 45, u128 n <= 91,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* Initialise the Fibonacci cache on the first call. */
     if (fib_len == 0) {
         fib_len = 2;
-        fib_cache = (seq_t *)malloc(fib_len * sizeof(seq_t));
+        fib_cache = mem_new(seq_t, fib_len);
         if (!fib_cache) abort();
         fib_cache[0] = (seq_t)0;
         fib_cache[1] = (seq_t)1;
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     /* Grow the Fibonacci cache to include the desired index, if necessary. */
     if (target >= fib_len) {
         size_t new_len = target + 1;
-        seq_t *tmp = (seq_t *)realloc(fib_cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fib_cache, new_len);
         if (!tmp) abort();
         fib_cache = tmp;
         for (size_t i = fib_len; i <= target; ++i)

@@ -8,7 +8,8 @@
  * Formula:   a(n) = n + floor(n*e/(e-1)) + floor(n*(e+1)/(e-1))
  * Range:     u8 none, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   get_convergent
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,35 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/get_convergent.h"
+
+/* Compute a rational approximation p/q ≈ target with error < 1/(2*MAX_N)
+   The denominators are kept below MAX_DEN to avoid overflow. */
+static void get_convergent(long double target,
+                           unsigned long long *p, unsigned long long *q)
+{
+    const unsigned long long MAX_DEN = 200000;          /* safe for n up to 10^7 */
+    unsigned long long a0 = (unsigned long long)floorl(target);
+    unsigned long long p0 = 0, q0 = 1;                  /* previous convergent */
+    unsigned long long p1 = 1, q1 = 0;                  /* current convergent  */
+    unsigned long long p_next, q_next;
+    long double x = target;
+
+    /* Generate convergents until the denominator would exceed MAX_DEN */
+    while (true) {
+        unsigned long long a = (unsigned long long)floorl(x);
+        p_next = a * p1 + p0;
+        q_next = a * q1 + q0;
+        if (q_next > MAX_DEN)                     /* stop before overflow */
+            break;
+        p0 = p1;  q0 = q1;
+        p1 = p_next;  q1 = q_next;
+        if (x == (long double)a)                  /* exact */
+            break;
+        x = 1.0L / (x - (long double)a);
+    }
+    *p = p1;
+    *q = q1;
+}
 
 seq_t a(idx_t n)
 {

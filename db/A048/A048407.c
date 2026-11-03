@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 34, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Computes A048407: numbers whose consecutive digits differ by 5 */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Returns the nth term of the sequence A048407.
    The sequence is defined as all non‑negative integers whose
@@ -34,7 +36,7 @@ seq_t a(idx_t n) {
     if (seq_len == 0) {
         /* Store a(0)=0. */
         seq_len = 1;
-        seq = (seq_t *)malloc(sizeof(seq_t));
+        seq = mem_new(seq_t, 1);
         seq[0] = (seq_t)0;
 
         /* Insert single‑digit numbers 1..9 into the heap. */
@@ -42,7 +44,7 @@ seq_t a(idx_t n) {
             /* Grow the heap if necessary. */
             if (heap_sz == heap_cap) {
                 heap_cap = heap_cap ? heap_cap * 2 : 4;
-                seq_t *tmp = (seq_t *)realloc(heap, heap_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, heap, heap_cap);
                 heap = tmp;
             }
             heap[heap_sz++] = (seq_t)d;
@@ -68,7 +70,7 @@ seq_t a(idx_t n) {
         }
 
         /* Store the extracted term. */
-        seq = (seq_t *)realloc(seq, (seq_len + 1) * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, (seq_len + 1));
         seq[seq_len++] = cur;
 
         /* Generate successors: append digits differing by 5. */
@@ -78,7 +80,7 @@ seq_t a(idx_t n) {
             /* Grow heap if needed. */
             if (heap_sz == heap_cap) {
                 heap_cap = heap_cap ? heap_cap * 2 : 4;
-                seq_t *tmp = (seq_t *)realloc(heap, heap_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, heap, heap_cap);
                 heap = tmp;
             }
             /* Insert new element and sift up. */
@@ -95,7 +97,7 @@ seq_t a(idx_t n) {
             seq_t nxt = cur * (seq_t)10 + (last - (seq_t)5);
             if (heap_sz == heap_cap) {
                 heap_cap = heap_cap ? heap_cap * 2 : 4;
-                seq_t *tmp = (seq_t *)realloc(heap, heap_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, heap, heap_cap);
                 heap = tmp;
             }
             size_t pos = heap_sz++;

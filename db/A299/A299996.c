@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 89, u32 n <= 89, u64 n <= 89, u128 n <= 89,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 89 terms through n = 89 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;          /* 1‑based array of computed terms      */
 static size_t seq_capacity = 0;    /* allocated size of seq                */
@@ -71,7 +73,7 @@ seq_t a(idx_t n)
     /* Allocate initial space for the sequence array */
     if (!seq) {
         seq_capacity = 4; /* start with room for indices 0..3 */
-        seq = (seq_t *)malloc(seq_capacity * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_capacity);
         seq[0] = 0;                 /* unused */
     }
     /* Compute terms until we reach the desired n */
@@ -86,7 +88,7 @@ seq_t a(idx_t n)
         /* Ensure seq array has enough space */
         if (seq_computed + 1 >= seq_capacity) {
             size_t new_cap = seq_capacity * 2;
-            seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq, new_cap);
             if (!tmp) return 0; /* allocation failure → undefined */
             seq = tmp;
             seq_capacity = new_cap;

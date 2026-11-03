@@ -12,22 +12,24 @@
  *            1, C(m) = Sum_{k=1..m} r(k)*C(m-k)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 17, u64 n <= 37, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 632 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *R = 0, *S = 0, *C = 0, *E2 = 0, *E3 = 0, *A = 0;
 static idx_t done = 0, cap = 0;
 
 static seq_t *grow_arr(seq_t *old, idx_t oldcap, idx_t newcap) {
-    seq_t *p = (seq_t *)calloc((size_t)newcap, sizeof(seq_t));
+    seq_t *p = mem_new(seq_t, (size_t)newcap);
     idx_t i;
     for (i = 0; i < newcap; i++) p[i] = 0;
     for (i = 0; i < oldcap; i++) p[i] = old[i];
-    if (old) free(old);
+    if (old) mem_free(old);
     return p;
 }
 

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 282, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 9891 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define SIEVE_LIMIT 5000000   /* sufficiently large for n up to ~10⁴ */
 
@@ -45,7 +47,7 @@ static void build_safe_primes(void)
 
     /* collect safe primes */
     size_t est_cap = 100;
-    seq_t *sp = (seq_t *)malloc(est_cap * sizeof(seq_t));
+    seq_t *sp = mem_new(seq_t, est_cap);
     if (!sp) { free(is_prime); return; }
 
     size_t cnt = 0;
@@ -55,8 +57,8 @@ static void build_safe_primes(void)
         if (q >= 2 && is_prime[q]) {
             if (cnt == est_cap) {
                 est_cap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(sp, est_cap * sizeof(seq_t));
-                if (!tmp) { free(sp); free(is_prime); return; }
+                seq_t *tmp = mem_resize(seq_t, sp, est_cap);
+                if (!tmp) { mem_free(sp); free(is_prime); return; }
                 sp = tmp;
             }
             sp[cnt++] = (seq_t)p;
@@ -66,7 +68,7 @@ static void build_safe_primes(void)
     free(is_prime);
 
     /* replace previous list */
-    free(safe_primes);
+    mem_free(safe_primes);
     safe_primes = sp;
     safe_cnt    = cnt;
 }
@@ -105,7 +107,7 @@ seq_t a(idx_t n)
                 }
             }
             size_t est_cap = 100;
-            seq_t *sp = (seq_t *)malloc(est_cap * sizeof(seq_t));
+            seq_t *sp = mem_new(seq_t, est_cap);
             if (!sp) { free(is_prime); break; }
             size_t cnt = 0;
             for (size_t p = 3; p <= new_limit; p += 2) {
@@ -114,15 +116,15 @@ seq_t a(idx_t n)
                 if (q >= 2 && is_prime[q]) {
                     if (cnt == est_cap) {
                         est_cap <<= 1;
-                        seq_t *tmp = (seq_t *)realloc(sp, est_cap * sizeof(seq_t));
-                        if (!tmp) { free(sp); free(is_prime); break; }
+                        seq_t *tmp = mem_resize(seq_t, sp, est_cap);
+                        if (!tmp) { mem_free(sp); free(is_prime); break; }
                         sp = tmp;
                     }
                     sp[cnt++] = (seq_t)p;
                 }
             }
             free(is_prime);
-            free(safe_primes);
+            mem_free(safe_primes);
             safe_primes = sp;
             safe_cnt    = cnt;
             if (safe_cnt >= (size_t)need) break;

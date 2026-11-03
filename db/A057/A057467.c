@@ -9,7 +9,8 @@
  *            prime_(k+1) – prime_k (offset 1)
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   _gcd64, _upper_limit_prime_idx, build_primes_upto, gcd
+ * Validated: partial, pass, 104 terms through n = 104 (2026-11-01)
+ * Helpers:   build_primes_upto, gcd, gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,10 +18,22 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdint.h>
-#include "../utils/gcd.h"
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/_gcd64.h"
-#include "../utils/_upper_limit_prime_idx.h"
+#include "../utils/gcd.h"
+#include "../utils/gcd_u64.h"
+
+/* ------------------------------------------------------------------
+ * Return a safe upper bound for the k‑th prime (k ≥ 1).               *
+ * For k < 6 we simply use a small constant.                         *
+ * ------------------------------------------------------------------ */
+static idx_t _upper_limit_prime_idx(idx_t k)
+{
+    if (k < 6) return 15;                    /* 2,3,5,7,11,13 are enough for k = 5 */
+    double dk = (double)k;
+    double ub = dk * (log(dk) + log(log(dk)));
+    return (idx_t)(ub) + 3;                  /* a few safety margins      */
+}
 
 static uint64_t *prime_cache = NULL; /* cached primes (p_0 = 2, p_1 = 3, …) */
 static size_t   prime_count = 0;     /* number of primes currently cached */
@@ -64,6 +77,6 @@ seq_t a(idx_t n)
     uint64_t d1 = prime_cache[idx]     - prime_cache[idx - 1];
     uint64_t d2 = prime_cache[idx + 1] - prime_cache[idx];
 
-    uint64_t g = _gcd64(d1, d2);
+    uint64_t g = gcd_u64(d1, d2);
     return (seq_t)g;                 /* cast to the required seq_t type */
 }

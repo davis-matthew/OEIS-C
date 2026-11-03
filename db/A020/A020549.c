@@ -7,12 +7,14 @@
  * Formula:   a(n) = (n!)^2 + 1
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 12, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 247 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +24,7 @@ seq_t a(idx_t n)
 
     /* Initialise cache for i = 0 */
     if (fac == NULL) {
-        fac = (seq_t *)malloc(sizeof(seq_t));
+        fac = mem_new(seq_t, 1);
         if (fac == NULL) abort();
         fac[0] = (seq_t)1;
         fac_max = 0;
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     if (n > fac_max) {
         /* Allocate space for indices 0 .. n */
         size_t new_cap = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(fac, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fac, new_cap);
         if (tmp == NULL) abort();
         fac = tmp;
         /* Compute missing factorials */

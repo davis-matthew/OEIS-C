@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 33, u16 n <= 87, u32 n <= 255, u64 n <= 833,
  *            u128 n <= 2001, big any n
- * Helpers:   none
+ * Validated: standard, pass, 86 terms through n = 1804 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External function required by the build */
 seq_t a(idx_t n)
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
 
     /* Grow the array if necessary */
     if (m + 1 > part_size) {
-        seq_t *tmp = (seq_t *)realloc(part, (m + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, part, (m + 1));
         part = tmp;
         part_size = m + 1;
     }

@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 33, u16 n <= 4637, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, is_prime, pow_uint
+ * Validated: standard, pass, 87 terms through n = 9520 (2026-11-03)
+ * Helpers:   factor_u64, ipow_u64_idx, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,9 +27,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/is_prime.h"      /* is_prime(uint64_t)            */
-#include "../utils/factor_u64.h"    /* factor_u64(uint64_t, …)      */
-#include "../utils/pow_uint.h"     /* seq_t pow_uint(uint64_t, …)  */
+#include "../utils/factor_u64.h"
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* types supplied by the build environment */
 typedef idx_t idx_t;
@@ -104,7 +106,7 @@ seq_t a(idx_t n)
         if (cache_cap < (size_t)n) {
             size_t new_cap = cache_cap ? cache_cap * 2 : 16;
             if (new_cap < (size_t)n) new_cap = n;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             cache = tmp;
             cache_cap = new_cap;
         }
@@ -119,7 +121,7 @@ seq_t a(idx_t n)
                 seq_t kprime = arith_deriv(k);
                 uint64_t sp = smallest_prime_not_dividing(kprime);
                 unsigned digit = lsd_primorial_digit(kprime);
-                seq_t a399 = pow_uint(sp, digit);
+                seq_t a399 = ipow_u64_idx(sp, digit);
                 ok = (k % a399) == 0;
             }
             if (ok) {

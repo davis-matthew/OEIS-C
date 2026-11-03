@@ -12,11 +12,13 @@
  *            757682*n^2 - 829732*n + 299712)*a(n-3) * - 2*(n-3)^2*(...
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 9, u64 n <= 17, u128 n <= 32,
  *            big any n
+ * Validated: standard, pass, 37 terms through n = 283 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
 #ifdef __cplusplus

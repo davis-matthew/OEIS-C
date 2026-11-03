@@ -8,7 +8,8 @@
  * Formula:   a(n) = round(n^(1/Omega(n)))^Omega(n), a(1)=1
  * Range:     u8 n <= 39, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   bigomega, pow_with_limit
+ * Validated: partial, pass, 73 terms through n = 73 (2026-11-01)
+ * Helpers:   bigomega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,28 @@
 /* Omega(n) = total number of prime factors of n with multiplicity */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/bigomega.h"
-#include "../utils/pow_with_limit.h"
+
+static seq_t pow_with_limit(seq_t base, idx_t exp, seq_t limit)
+{
+    seq_t result = 1;
+    while (exp > 0) {
+        if (exp & 1) {
+            if (base == 0 || result > limit / base)
+                return limit + 1;      /* overflow, treat as > limit */
+            result *= base;
+        }
+        exp >>= 1;
+        if (exp) {
+            if (base == 0 || base > limit / base)
+                base = limit + 1;      /* any further squaring will exceed limit */
+            else
+                base *= base;
+        }
+    }
+    return result;
+}
 
 static seq_t pow_exact(seq_t base, idx_t exp)
 {

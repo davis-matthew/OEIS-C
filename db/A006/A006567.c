@@ -7,14 +7,16 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 979, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 67 terms through n = 9609 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_prime.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 /* Generate emirps: primes p where reverse(p) is prime and reverse(p) != p. */
 
@@ -34,12 +36,12 @@ static seq_t reverse_number(seq_t num) {
 
 seq_t a(idx_t n) {
     while (cache_count < n) {
-        if (is_prime((uint64_t)next_candidate)) {
+        if (is_prime_u64((uint64_t)next_candidate)) {
             seq_t rev = reverse_number(next_candidate);
-            if (rev != next_candidate && is_prime((uint64_t)rev)) {
+            if (rev != next_candidate && is_prime_u64((uint64_t)rev)) {
                 if (cache_count >= cache_capacity) {
                     cache_capacity = cache_capacity == 0 ? 100 : cache_capacity * 2;
-                    cache = (seq_t *)realloc(cache, cache_capacity * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cache_capacity);
                 }
                 cache[cache_count++] = next_candidate;
             }

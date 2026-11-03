@@ -8,6 +8,7 @@
  * Formula:   a(n) = # {p | p is a perfect power >1, p ≤ n, and n–p is prime}
  * Range:     u8 n <= 63, u16 n <= 2639, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 144 terms through n = 9869 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,7 +16,8 @@
 
 #include <stdlib.h>                 /* malloc, realloc, free, qsort */
 #include <stdint.h>                 /* uint64_t, uint32_t */
-#include "../utils/is_prime.h"      /* bool is_prime(idx_t x) */
+#include <stdbool.h>
+#include "../utils/is_prime.h"
 
 /* comparison function for qsort on uint64_t */
 static int cmp_uint64(const void *a, const void *b)

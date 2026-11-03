@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 14, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   cmp_seq_t, floor_sqrt
+ * Validated: standard, pass, 103 terms through n = 9727 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,38 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/cmp_seq_t.h"
-#include "../utils/floor_sqrt.h"
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Pre‑computed table of the first ~98 000 distinct sums of two squares.
  * The array is built once, lazily, the first time a() is called. */
@@ -44,7 +75,7 @@ static void build_sums(void)
     const size_t pair_count = (size_t)(limit + 1) * (size_t)(limit + 1);
 
     /* Allocate temporary array for all i² + j² values.  */
-    seq_t *tmp = (seq_t *)malloc(pair_count * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, pair_count);
     if (!tmp) exit(EXIT_FAILURE);
 
     /* Generate the raw list.  */
@@ -59,10 +90,10 @@ static void build_sums(void)
     }
 
     /* Sort the list.  */
-    qsort(tmp, pair_count, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(tmp, pair_count, sizeof(seq_t), cmp_seq_t);
 
     /* Deduplicate into the static sums array.  */
-    sums = (seq_t *)malloc(pair_count * sizeof(seq_t));
+    sums = mem_new(seq_t, pair_count);
     if (!sums) exit(EXIT_FAILURE);
 
     size_t uniq = 0;
@@ -80,15 +111,15 @@ static void build_sums(void)
         /* In the unlikely event the bound is insufficient, grow
            the table.  This path is extremely unlikely for the
            demanded range. */
-        free(tmp);
-        free(sums);
+        mem_free(tmp);
+        mem_free(sums);
         sums = NULL;
         sums_len = 0;
         built = false;
         return;
     }
 
-    free(tmp);
+    mem_free(tmp);
     built = true;
 }
 

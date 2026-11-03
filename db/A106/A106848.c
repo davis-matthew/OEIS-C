@@ -11,13 +11,14 @@
  *            a(n)=0. For n ending in 0 the value is 1
  * Range:     u8 n <= 28, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   gcd_small
+ * Validated: partial, pass, 90 terms through n = 90 (2026-11-01)
+ * Helpers:   gcd_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/gcd_small.h"
+#include "../utils/gcd_i32.h"
 
 /* Euclidean algorithm for seq_t types                                     */
 static seq_t gcd_seq(seq_t a, seq_t b)
@@ -45,7 +46,7 @@ seq_t a(idx_t n)
 
     /* No solution if 10 and r share a factor (2 or 5).                     */
     seq_t rmod10 = r % (seq_t)10;
-    if (gcd_small((int)rmod10, 10) != 1)
+    if (gcd_i32((int)rmod10, 10) != 1)
         return (seq_t)0;
 
     /* Find the multiplicative order of 10 modulo r.                       */

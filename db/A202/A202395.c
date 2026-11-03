@@ -11,13 +11,15 @@
  *            with T(0,0)=T(1,0)=T(1,1)=1 and T(n,k)=0 for k<0 or k>n
  * Range:     u8 n <= 21, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,12 +40,12 @@ seq_t a(idx_t n)
     /* ----------------- initialise ----------------- */
     if (!initialized) {
         cache_cap   = 64;
-        cache       = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache       = mem_new(seq_t, cache_cap);
         cache[0]    = (seq_t)1;            /* a(0) = T(0,0) */
         cache_len   = 1;
 
         row_len = 1;
-        row     = (seq_t *)malloc(row_len * sizeof(seq_t));
+        row     = mem_new(seq_t, row_len);
         row[0]  = (seq_t)1;                /* row 0 = {T(0,0)} */
 
         prev_len = 0;
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
     /* Generate rows until the cache contains index n */
     while (cache_len <= (size_t)n) {
         size_t new_len = row_len + 1;            /* length of the next row */
-        seq_t *new_row = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_row = mem_new(seq_t, new_len);
 
         /* Special case: first transition from row 0 to row 1 */
         if (row_len == 1 && prev_len == 0) {
@@ -88,7 +90,7 @@ seq_t a(idx_t n)
         if (cache_cap < needed) {
             size_t new_cap = cache_cap ? cache_cap * 2 : 4;
             while (new_cap < needed) new_cap *= 2;
-            cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_cap);
             cache_cap = new_cap;
         }
 
@@ -103,7 +105,7 @@ seq_t a(idx_t n)
         row     = new_row;
         row_len = new_len;
 
-        free(old_prev);   /* old prev is no longer needed */
+        mem_free(old_prev);   /* old prev is no longer needed */
     }
 
     return cache[(size_t)n];

@@ -9,12 +9,14 @@
  *            largest part is congruent to n modulo 2
  * Range:     u8 n <= 33, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp_total = NULL;   /* partitions of each sum (distinct parts) */
 static seq_t *dp_even  = NULL;   /* partitions whose largest part is even   */
@@ -33,13 +35,13 @@ seq_t a(idx_t n)
     if (n > max_n) {
         size_t sz = (size_t)(n + 1);
         /* free previous allocations if any */
-        free(dp_total);
-        free(dp_even);
-        free(dp_odd);
+        mem_free(dp_total);
+        mem_free(dp_even);
+        mem_free(dp_odd);
 
-        dp_total = (seq_t *)calloc(sz, sizeof(seq_t));
-        dp_even  = (seq_t *)calloc(sz, sizeof(seq_t));
-        dp_odd   = (seq_t *)calloc(sz, sizeof(seq_t));
+        dp_total = mem_new(seq_t, sz);
+        dp_even  = mem_new(seq_t, sz);
+        dp_odd   = mem_new(seq_t, sz);
 
         if (!dp_total || !dp_even || !dp_odd) {
             /* allocation failed – return 0; this case is unlikely. */

@@ -7,13 +7,15 @@
  * Formula:   a(n) = floor(a(n-1)^2 / a(n-2) + 1/2), a(0)=10, a(1)=21
  * Range:     u8 n <= 4, u16 n <= 11, u32 n <= 26, u64 n <= 57, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 923 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_len = 0;
@@ -21,7 +23,7 @@ static idx_t cache_len = 0;
 /* initialise the first two terms of the sequence */
 static void init_cache(void) {
     if (cache != NULL) return;
-    cache = (seq_t*)malloc(2 * sizeof(seq_t));
+    cache = mem_new(seq_t, 2);
     cache[0] = 10;
     cache[1] = 21;
     cache_len = 2;
@@ -58,7 +60,7 @@ seq_t a(idx_t n) {
 
     /* grow cache to contain all terms up to n */
     idx_t old_len = cache_len;
-    cache = (seq_t*)realloc(cache, (n + 1) * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, (n + 1));
     if (!cache) return 0;   /* allocation failure, unlikely in tests */
 
     for (idx_t i = old_len; i <= n; ++i) {

@@ -9,14 +9,18 @@
  *            a(0) = 1)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 25,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: standard, pass, 35 terms through n = 287 (2026-11-03)
+ * Helpers:   binomial, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 static idx_t  max_n   = 0;   /* largest n already computed */
 static seq_t *a_cache = NULL;   /* a[0..max_n] */
@@ -35,25 +39,25 @@ seq_t a(idx_t n)
     /* Lazy initialise the caches on the first call */
     if (a_cache == NULL) {
         a_cap = 1;
-        a_cache = (seq_t *)malloc(a_cap * sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_cap);
         a_cache[0] = (seq_t)1;
         max_n = 0;
 
         pow_cap = 1;
-        pow_cache = (seq_t *)malloc(pow_cap * sizeof(seq_t));
+        pow_cache = mem_new(seq_t, pow_cap);
         pow_cache[0] = (seq_t)1;   /* (0+2)^0 = 1 */
     }
 
     /* Expand a_cache if necessary */
     if ((size_t)n + 1 > a_cap) {
         a_cap = ((size_t)n + 1) * 2;
-        a_cache = (seq_t *)realloc(a_cache, a_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, a_cap);
     }
 
     /* Expand pow_cache if necessary */
     if ((size_t)n + 1 > pow_cap) {
         pow_cap = ((size_t)n + 1) * 2;
-        pow_cache = (seq_t *)realloc(pow_cache, pow_cap * sizeof(seq_t));
+        pow_cache = mem_resize(seq_t, pow_cache, pow_cap);
     }
 
     /* Compute terms up to n */
@@ -67,7 +71,7 @@ seq_t a(idx_t n)
                 pow_cache[k] = pow_cache[k] * (seq_t)(k + 2);
             }
             /* Compute the new power for k = curr : (curr+2)^(curr-1) */
-            pow_cache[curr] = big_pow((seq_t)(curr + 2),
+            pow_cache[curr] = ipow((seq_t)(curr + 2),
                                       (seq_t)(curr - 1));
         }
 

@@ -10,15 +10,41 @@
  *            contains the digit n three times consecutively
  * Range:     u8 n <= 9, u16 n <= 9, u32 n <= 9, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   _has_triplet, _multiply_by_three
+ * Validated: full, pass, 10 terms through n = 9 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/_has_triplet.h"
-#include "../utils/_multiply_by_three.h"
+
+static inline bool _has_triplet(const unsigned char *digits, size_t len, unsigned char d)
+{
+    if (len < 3) return false;
+    for (size_t i = 0; i + 2 < len; ++i) {
+        if (digits[i] == d && digits[i + 1] == d && digits[i + 2] == d)
+            return true;
+    }
+    return false;
+}
+
+static inline void _multiply_by_three(unsigned char *digits, size_t *len)
+{
+    int carry = 0;
+    for (size_t i = *len; i-- > 0; ) {
+        int prod = digits[i] * 3 + carry;
+        digits[i] = prod % 10;
+        carry   = prod / 10;
+    }
+    if (carry) {
+        /* shift digits right by one */
+        for (size_t i = *len; i > 0; --i)
+            digits[i] = digits[i - 1];
+        digits[0] = carry;
+        ++*len;
+    }
+}
 
 static bool _computed = false;
 static seq_t _answer[10];

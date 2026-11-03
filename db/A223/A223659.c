@@ -7,6 +7,7 @@
  * Formula:   a(n) = 1 + n*(n+1)*(n^4 + 14*n^3 + 101*n^2 + 304*n + 660)/720
  * Range:     u8 n <= 4, u16 n <= 16, u32 n <= 118, u64 n <= 4863,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 51 terms through n = 9325 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

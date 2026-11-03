@@ -11,12 +11,15 @@
  *            read by rows
  * Range:     u8 n <= 10, u16 n <= 21, u32 n <= 55, u64 n <= 136,
  *            u128 n <= 378, big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 61 terms through n = 1254 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     /* Determine row r and column k from the row‑major index n. */
@@ -30,9 +33,9 @@ seq_t a(idx_t n) {
     idx_t k = n - cum;      /* column index in that row */
 
     /* Compute the three powers using the provided big_pow routine. */
-    seq_t term1 = big_pow((seq_t)(1 + k), (seq_t)k);
-    seq_t term2 = big_pow((seq_t)(1 + r), (seq_t)r);
-    seq_t term3 = big_pow((seq_t)(1 + r - k), (seq_t)(r - k));
+    seq_t term1 = ipow((seq_t)(1 + k), (seq_t)k);
+    seq_t term2 = ipow((seq_t)(1 + r), (seq_t)r);
+    seq_t term3 = ipow((seq_t)(1 + r - k), (seq_t)(r - k));
 
     /* Combine the terms.  All arithmetic is performed in seq_t which is
        unsigned; the sequence guarantees the final result is non‑negative

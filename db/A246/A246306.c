@@ -8,6 +8,7 @@
  * Formula:   Numbers k such that cos(k)>cos(k+1)>cos(k+2)>cos(k+3)<cos(k+4)
  * Range:     u8 n <= 41, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 71 terms through n = 991 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

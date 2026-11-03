@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabf
  * Formula:   not stated
- * Range:     u8 n <= 135, u16 n <= 791, u32 n <= 5944, u64 n <= 9950,
- *            u128 n <= 9950, big any n
- * Helpers:   none
+ * Range:     u8 n <= 135, u16 n <= 791, u32 n <= 5944, u64 n <= 30800,
+ *            u128 n <= 30800, big any n
+ * Validated: standard, pass, 89 terms through n = 9950 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,9 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
-#define MAX_ROW 300                     /* enough for indices up to ~10^4 */
+#define MAX_ROW 1000                    /* rows 1..1000: indices up to about 250000 */
 
 static seq_t **p_leq;                    /* partitions with parts ≤ k (≤ MAX_ROW) */
 static int p_leq_inited = 0;
@@ -35,7 +37,7 @@ static void init_p_leq(void)
 
     p_leq = (seq_t **)malloc((MAX_ROW + 1) * sizeof(seq_t *));
     for (int i = 0; i <= MAX_ROW; ++i) {
-        p_leq[i] = (seq_t *)malloc((MAX_ROW + 1) * sizeof(seq_t));
+        p_leq[i] = mem_new(seq_t, (MAX_ROW + 1));
     }
 
     for (int i = 0; i <= MAX_ROW; ++i) {
@@ -86,7 +88,7 @@ static void cache_grow(size_t needed)
     if (needed <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 8;
     while (new_cap < needed) new_cap *= 2;
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cache_cap = new_cap;
 }
 
@@ -116,5 +118,6 @@ seq_t a(idx_t n)
 {
     if (n == 0) return 0;          /* offset 1 – we ignore n==0 */
     ensure_cache((size_t)n);
+    if ((size_t)n > cache_len) return 0;   /* past row MAX_ROW */
     return cache[(size_t)n - 1];
 }

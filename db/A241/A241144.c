@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper: test whether n and 8*n have a common digit */
 static inline bool share_digit(seq_t n)
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
             /* Grow storage if necessary */
             if (cache_len == cache_cap) {
                 size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-                seq_t *tmp      = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp      = mem_resize(seq_t, cache, new_cap);
                 if (tmp == NULL) exit(EXIT_FAILURE); /* allocation fault */
                 cache  = tmp;
                 cache_cap = new_cap;

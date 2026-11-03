@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    (length 3 to 5) and return the nth value (1‑based). */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Helper: comparison function for qsort */
 static int compare_seq(const void *p, const void *q)
@@ -37,7 +39,7 @@ static void generate_cache(void)
 
     /* Max possible entries: L=3,4,5 with 84 digit sets each */
     const size_t max_cap = 20000;
-    cache = (seq_t*)malloc(max_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, max_cap);
     if (!cache)
         exit(1);                /* allocation failure */
 
@@ -106,7 +108,7 @@ static void generate_cache(void)
             }
 
     /* Sort the generated values */
-    qsort(cache, idx, sizeof(seq_t), compare_seq);
+    mem_qsort(cache, idx, sizeof(seq_t), compare_seq);
     cached_len = idx;
 }
 

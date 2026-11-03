@@ -10,13 +10,15 @@
  *            c_{m-1} * with c_2 = 0. Then a(n) = (n+1)! * c_{n+3} / 2
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static idx_t _c_size = 0;
 static seq_t *_c_values = NULL;
@@ -28,7 +30,7 @@ static void _ensure_c(idx_t m)
     idx_t new_size = (_c_size == 0) ? 8 : _c_size * 2;
     if (new_size <= m)
         new_size = m + 1;
-    seq_t *tmp = (seq_t *)realloc(_c_values, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, _c_values, new_size);
     if (!tmp)
         return; /* allocation failure – caller may handle as zero */
     _c_values = tmp;

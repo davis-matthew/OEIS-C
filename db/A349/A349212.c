@@ -8,8 +8,9 @@
  *            odd, otherwise add 1) Equivalent: a(n) = d_odd * (n + v2(n))
  *            where d_odd is the number of divisors of the odd part of n and
  *            v2(n) is the exponent of 2 in n
- * Range:     u8 n <= 44, u16 n <= 3464, u32 n <= 9892, u64 n <= 9892,
- *            u128 n <= 9892, big any n
+ * Range:     u8 n <= 44, u16 n <= 3464, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 81 terms through n = 9892 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

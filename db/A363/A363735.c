@@ -8,13 +8,15 @@
  * Formula:   a(n) = n^2 + n + (1 - n)*tau(n) for n >= 1, a(0) = 1
  * Range:     u8 n <= 16, u16 n <= 256, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64
+ * Validated: standard, pass, 68 terms through n = 9001 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /*  where tau(n) = number of positive divisors of n  */
-#include "../utils/divisor_count_u64.h"
+#include <stdint.h>
+#include "../utils/num_divisors.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
 
     /* Convert n to a 64‑bit unsigned integer for divisor counting. */
     uint64_t n64 = (uint64_t)n;
-    uint64_t tau64 = divisor_count_u64(n64);
+    uint64_t tau64 = num_divisors(n64);
 
     /* Perform the arithmetic in seq_t.  Overflow will not occur for all
        values that fit in the underlying seq_t type (the test harness

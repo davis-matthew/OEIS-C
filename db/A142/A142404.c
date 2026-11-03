@@ -7,15 +7,24 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 401, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   alloc_seq_array, isPrimeTrial
+ * Validated: standard, pass, 61 terms through n = 910 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Sequence: primes congruent to 19 (mod 48) */
 #include <stdbool.h>
-#include "../utils/isPrimeTrial.h"
-#include "../utils/alloc_seq_array.h"
+#include <stdlib.h>
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 /* Static cache of primes congruent to 19 mod 48 */
 static seq_t *pr19      = NULL;   /* dynamic array of found primes   */
@@ -56,7 +65,7 @@ seq_t a(idx_t n)
         seq_t cand = next_candidate;
         next_candidate += 48;          /* next number of the form 19+48k */
 
-        if (isPrimeTrial(cand)) {      /* test primality of cand */
+        if (is_prime_seq(cand)) {      /* test primality of cand */
             ensure_pr19_capacity(pr19_len + 1);
             pr19[pr19_len++] = cand;
         }

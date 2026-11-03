@@ -9,13 +9,30 @@
  *            has an equal number of digits 7 and 11
  * Range:     u8 n <= 187, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   equal_7_and_11
+ * Validated: standard, pass, 84 terms through n = 960 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/equal_7_and_11.h"
+
+/* Check whether a number has the same count of 7 and 11 in base‑12. */
+static bool equal_7_and_11(seq_t x)
+{
+    idx_t cnt7 = 0, cnt11 = 0;
+    seq_t t = x;
+    while (t > 0) {
+        seq_t d = t % 12;
+        if (d == 7) {
+            ++cnt7;
+        } else if (d == 11) {
+            ++cnt11;
+        }
+        t /= 12;
+    }
+    return cnt7 == cnt11;
+}
 
 /* Return the n-th term (1‑based) of the sequence. */
 seq_t a(idx_t n)

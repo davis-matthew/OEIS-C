@@ -7,6 +7,7 @@
  * Formula:   a(n) is the n‑th prime p (1‑based) such that p | F[(p+1)/2]
  * Range:     u8 n <= 14, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 68 terms through n = 980 (2026-11-01)
  * Helpers:   next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,7 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/next_prime.h"   /* uint64_t next_prime(uint64_t start); */
+#include "../utils/next_prime.h"
 
 /* Fast‑doubling Fibonacci modulo mod.
    Computes F(n) mod mod for n >= 1. */

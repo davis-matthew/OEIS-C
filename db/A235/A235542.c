@@ -13,13 +13,15 @@
  *            –128*a(n‑19); Initial values: a(1)=48, a(2)=222, a(3)=1049, a...
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 15, u64 n <= 35, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Coefficients of the recurrence (a(1) … a(19) are absolute values). */
 static const int coeff[19] = {
@@ -40,7 +42,7 @@ static void init_cache(void)
 
     size = 19;
     cap  = 19;
-    cache = (seq_t *)malloc(cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cap);
     if (!cache) abort();      /* out of memory */
 
     /* initial terms of A235542 */
@@ -73,7 +75,7 @@ static void grow_cache(idx_t needed)
     size_t new_cap = cap ? cap * 2 : 1;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();
     cache = tmp;
     cap   = (idx_t)new_cap;

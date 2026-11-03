@@ -7,11 +7,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 1884, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 107 terms through n = 9993 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <string.h>
 /*
  * Search method: count primes of the form n^2 + s^2 with 1 ≤ s < n.
  * The values are small (≤ 2·10⁸ for n ≤ 10 000) so a simple

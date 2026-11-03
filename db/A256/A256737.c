@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 95, u16 n <= 95, u32 n <= 95, u64 n <= 95, u128 n <= 95,
  *            big any n
- * Helpers:   isPrimeTrial
+ * Validated: partial, pass, 95 terms through n = 95 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/isPrimeTrial.h"
+#include "../utils/is_prime_seq.h"
 
 /* static cache of primes */
 static uint64_t *primes = NULL;   /* array of discovered primes (stored as uint64_t) */

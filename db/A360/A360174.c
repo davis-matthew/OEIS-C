@@ -8,7 +8,8 @@
  *            floor((sqrt(1+8*n)-1)/2) k = n - r*(r+1)/2
  * Range:     u8 n <= 22, u16 n <= 45, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
 
     /* 2. Compute unsigned Stirling numbers of the first kind
          for the row r                                      */
-    seq_t *c = (seq_t *)malloc((size_t)(r + 1) * sizeof(seq_t));
+    seq_t *c = mem_new(seq_t, (size_t)(r + 1));
     if (!c)
         return (seq_t)0;       /* memory allocation failed */
 
@@ -57,6 +59,6 @@ seq_t a(idx_t n)
     seq_t value   = c[k];
     seq_t result  = (seq_t)(k + 1) * value;
 
-    free(c);
+    mem_free(c);
     return result;
 }

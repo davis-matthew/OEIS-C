@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 54, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 96 terms through n = 9264 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ---------- Prime generation (simple sieve) ---------- */
 static uint64_t *primes_arr = NULL;
@@ -61,7 +63,7 @@ static size_t part_cnt = 0;   /* number of partition values stored */
 static void init_partitions(void) {
     if (!partitions) {
         part_capacity = 512;
-        partitions = (seq_t *)malloc(part_capacity * sizeof(seq_t));
+        partitions = mem_new(seq_t, part_capacity);
         partitions[0] = (seq_t)1;   /* p(0) = 1 */
         part_cnt = 1;
     }
@@ -73,7 +75,7 @@ static void compute_next_partition(void) {
 
     if (part_cnt >= part_capacity) {
         part_capacity <<= 1;
-        partitions = (seq_t *)realloc(partitions, part_capacity * sizeof(seq_t));
+        partitions = mem_resize(seq_t, partitions, part_capacity);
     }
 
     int64_t sum = 0;

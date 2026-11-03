@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 9830 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    0 → 11, 1 → 0011 by iteratively expanding the word until the
    requested index is reached and the number of iterations is even. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   // current word
 static idx_t cache_len = 0;   // length of current word
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
 
     /* initialise with the starting word "0" if not yet done */
     if (cache_len == 0) {
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache)
             return (seq_t)0;   /* allocation failed */
         cache[0] = (seq_t)0;
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
                 ++ones;
         }
         idx_t new_len = zeros * (idx_t)2 + ones * (idx_t)4;
-        seq_t *new_cache = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_len);
         if (!new_cache)
             return (seq_t)0;   /* allocation failed */
 
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
             }
         }
 
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_len = new_len;
         ++iter;
@@ -79,7 +81,7 @@ seq_t a(idx_t n)
                 ++ones;
         }
         idx_t new_len = zeros * (idx_t)2 + ones * (idx_t)4;
-        seq_t *new_cache = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_len);
         if (!new_cache)
             return (seq_t)0;   /* allocation failed */
 
@@ -96,7 +98,7 @@ seq_t a(idx_t n)
             }
         }
 
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_len = new_len;
         ++iter;  // now even

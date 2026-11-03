@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 104, u64 n <= 104, u128 n <= 104,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 99 terms through n = 104 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     if (!digits) {
         /* capacity for 64 digits, will grow as needed */
         cap = 64;
-        digits = (seq_t *)malloc(cap * sizeof(seq_t));
+        digits = mem_new(seq_t, cap);
         if (!digits) {
             /* allocation failure – return 0 as a fallback */
             return 0;
@@ -86,7 +88,7 @@ seq_t a(idx_t n)
         /* ensure capacity */
         if (sz >= cap) {
             cap = (cap > 0) ? cap * 2 : 64;
-            seq_t *tmp = (seq_t *)realloc(digits, cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, digits, cap);
             if (!tmp) {
                 /* allocation failure – return 0 as a fallback */
                 return 0;

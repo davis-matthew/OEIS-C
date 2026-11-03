@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
  * (OEIS A080252)
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* external types provided by the build */
 extern int _dummy; /* to avoid unused warning when seq_t/idx_t are macros */
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
         idx_t newsize = cache_size ? cache_size * 2 : 16;
         while (newsize <= n)
             newsize *= 2;
-        cache = (seq_t*)realloc(cache, newsize * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, newsize);
         cache_size = newsize;
     }
 

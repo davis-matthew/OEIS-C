@@ -8,7 +8,8 @@
  * Formula:   a(n) = largest k < A126706(n) such that rad(k) = rad(A126706(n))
  * Range:     u8 n <= 99, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_distinct_primes, factor_u64, rad, seq_alloc, seq_realloc
+ * Validated: standard, pass, 88 terms through n = 9058 (2026-11-03)
+ * Helpers:   factor_u64, mem, omega, radical
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,24 +19,43 @@
 #include <stdbool.h>
 #include <string.h>
 
-#include "../utils/rad.h"
-#include "../utils/count_distinct_primes.h"
 #include "../utils/factor_u64.h"
-#include "../utils/seq_alloc.h"
-#include "../utils/seq_realloc.h"
+#include "../utils/omega.h"
+#include "../utils/radical.h"
+#include "../utils/mem.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 static seq_t *lastRad = NULL;
 static size_t lastRad_size = 0;
 
 /* Extend the radical table so that index rad is valid. */
-static void ensure_rad_size(idx_t rad)
+static void ensure_rad_size(idx_t radical)
 {
-    if (rad < lastRad_size) return;
-    size_t new_size = rad + 1;
-    seq_t *tmp = (seq_t *)realloc(lastRad, new_size * sizeof(seq_t));
+    if (radical < lastRad_size) return;
+    size_t new_size = radical + 1;
+    seq_t *tmp = mem_resize(seq_t, lastRad, new_size);
     if (!tmp) abort();                       /* out of memory */
-    memset(tmp + lastRad_size, 0,
-           (new_size - lastRad_size) * sizeof(seq_t));
+    mem_set(tmp + lastRad_size, 0, (new_size - lastRad_size) * sizeof(seq_t));
     lastRad      = tmp;
     lastRad_size = new_size;
 }
@@ -54,8 +74,8 @@ static void ensure_cache(size_t n)
         ++cur;                                 /* examine next integer */
 
         /* Radical of cur and number of distinct primes. */
-        idx_t   rad_idx = (idx_t)rad(cur);
-        int     distinct = count_distinct_primes(cur);
+        idx_t   rad_idx = (idx_t)radical(cur);
+        int     distinct = omega(cur);
 
         /* Determine if cur is non‑squarefree. */
         bool    repeat = false;

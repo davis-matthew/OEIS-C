@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{d|n} (d^(n+1)-1)/(d-1), with d=1 giving the term n+1
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 26,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 35 terms through n = 322 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 /* External linkage as required */
 seq_t a(idx_t n)
@@ -77,7 +79,7 @@ seq_t a(idx_t n)
         if (d == 1) continue;
 
         seq_t d_seq = (seq_t)d;
-        seq_t pow   = big_pow(d_seq, (seq_t)(n + 1));          /* d^(n+1) */
+        seq_t pow   = ipow(d_seq, (seq_t)(n + 1));          /* d^(n+1) */
         seq_t term  = (pow - (seq_t)1) / ((seq_t)d - (seq_t)1);  /* (d^(n+1)-1)/(d-1) */
         sum += term;
     }

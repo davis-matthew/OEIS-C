@@ -7,7 +7,8 @@
  * Formula:   primes congruent to 1, 2, 3 (mod 5)
  * Range:     u8 n <= 41, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 970 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,31 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 /* Helper to expand a dynamic array of the same type as *arr. */
+#ifdef __cplusplus
+template <class T>
+static void grow_array(T **arr, size_t *cap, size_t new_len, size_t elem_size)
+{
+    if (new_len <= *cap)
+        return;
+    size_t new_cap = *cap ? *cap : 4;
+    while (new_cap < new_len)
+        new_cap <<= 1;
+    T *t = mem_resize(T, *arr, (new_cap * elem_size) / sizeof(T));
+    *arr = t;
+    *cap = new_cap;
+}
+#else
 static void grow_array(void **arr, size_t *cap, size_t new_len, size_t elem_size)
 {
     if (new_len <= *cap)
@@ -28,6 +52,7 @@ static void grow_array(void **arr, size_t *cap, size_t new_len, size_t elem_size
     *arr = t;
     *cap = new_cap;
 }
+#endif
 
 /* Test primality of n by trial division using the primes already found. */
 static bool is_prime_uint64(idx_t n, idx_t *primes, size_t primes_len)
@@ -73,12 +98,12 @@ seq_t a(idx_t n)
 
         /* candidate is prime */
         /* Add to the primes list */
-        grow_array((void **)&pr, &pr_cap, pr_len + 1, sizeof(idx_t));
+        grow_array(OEISC_VPP(&pr), &pr_cap, pr_len + 1, sizeof(idx_t));
         pr[pr_len++] = candidate;
 
         /* If it is congruent to 1,2,3 mod 5, store it in the cache */
         if (candidate % 5 != 0 && candidate % 5 != 4) {
-            grow_array((void **)&qual, &qual_cap, qual_len + 1, sizeof(seq_t));
+            grow_array(OEISC_VPP(&qual), &qual_cap, qual_len + 1, sizeof(seq_t));
             qual[qual_len++] = (seq_t)candidate;
         }
 

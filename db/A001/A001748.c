@@ -6,8 +6,9 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = 3*prime(n), with prime(n) found by trial division and
  *            cached
- * Range:     u8 n <= 23, u16 n <= 2450, u32 n <= 9075, u64 n <= 9075,
- *            u128 n <= 9075, big any n
+ * Range:     u8 n <= 23, u16 n <= 2450, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 70 terms through n = 9075 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

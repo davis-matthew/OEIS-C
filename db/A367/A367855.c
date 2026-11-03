@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 980, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime, smallest_prime_factor
+ * Validated: standard, pass, 76 terms through n = 9908 (2026-11-03)
+ * Helpers:   gcd_u64, is_prime, is_prime_u64, mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,40 @@
 #include <stdlib.h>
 
 /* Utility functions supplied by the project */
-#include "../utils/smallest_prime_factor.h"   /* smallest_prime_factor(uint64_t) */
-#include "../utils/is_prime.h"                /* is_prime(idx_t) */
+#include <string.h>
+#include "../utils/gcd_u64.h"
+#include "../utils/is_prime.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
+
+/* Pollard–Rho: find a non‑trivial divisor of n (n composite) */
+static uint64_t pollard(uint64_t n) {
+    if (n % 2 == 0) return 2;
+    uint64_t c = 1;
+    while (1) {
+        uint64_t x = 2, y = 2, d = 1;
+        while (d == 1) {
+            x = (mulmod(x, x, n) + c) % n;
+            y = (mulmod(y, y, n) + c) % n;
+            y = (mulmod(y, y, n) + c) % n;
+            uint64_t diff = x > y ? x - y : y - x;
+            d = gcd_u64(diff, n);
+        }
+        if (d != n) return d;
+        ++c;  /* try another constant */
+    }
+}
+
+/* recursive smallest prime factor */
+static uint64_t smallest_prime_factor(uint64_t n) {
+    if (n % 2 == 0) return 2;
+    if (is_prime_u64(n)) return n;
+    uint64_t d = pollard(n);
+    uint64_t s1 = smallest_prime_factor(d);
+    uint64_t s2 = smallest_prime_factor(n / d);
+    return (s1 < s2) ? s1 : s2;
+}
 
 /* This function finds the n‑th term of OEIS sequence A367855.
    It searches for the smallest semiprime greater than the
@@ -44,7 +77,7 @@ static void grow_cache(size_t min_cap)
     if (min_cap <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 8;
     while (new_cap < min_cap) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();                /* allocation failure */
     cache      = tmp;
     cache_cap  = new_cap;

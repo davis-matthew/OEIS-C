@@ -10,13 +10,15 @@
  *            / (15*n)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 24, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 907 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc */
 #include <stdint.h>   /* for uint64_t */
+#include "../utils/mem.h"
 
 static seq_t *rec_cache = NULL;
 static size_t   rec_cap   = 0;
@@ -26,7 +28,7 @@ static void ensure_rec_cache(idx_t n)
 {
     if (rec_cache == NULL) {
         size_t init = n < 3 ? 3 : n + 1;
-        rec_cache = (seq_t*)malloc(init * sizeof(seq_t));
+        rec_cache = mem_new(seq_t, init);
         rec_cap   = init;
         rec_cache[0] = (seq_t)1;
         rec_cache[1] = (seq_t)10;
@@ -34,7 +36,7 @@ static void ensure_rec_cache(idx_t n)
         rec_last    = 2;
     } else if ((size_t)n + 1 > rec_cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t*)realloc(rec_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, rec_cache, new_cap);
         rec_cache = tmp;
         rec_cap   = new_cap;
     }

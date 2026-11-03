@@ -6,9 +6,10 @@
  * Keywords:  nonn, tabl, changed
  * Formula:   a(n) = Bell(r - c) * Bell(c) where r = floor((sqrt(8*n+1)-1)/2)
  *            and c = n - r*(r+1)/2
- * Range:     u8 n <= 27, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
- *            big any n
- * Helpers:   none
+ * Range:     u8 n <= 27, u16 n <= 54, u32 n <= 135, u64 n <= 350,
+ *            u128 n <= 945, big any n
+ * Validated: standard, pass, 71 terms through n = 8801 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* static storage for Bell numbers */
 static seq_t *bell = NULL;
@@ -36,7 +38,7 @@ static void ensure_bell(idx_t n)
     while (new_cap <= n)
         new_cap <<= 1;
 
-    seq_t *new_arr = (seq_t *)realloc(bell, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, bell, new_cap);
     if (!new_arr)                    /* memory allocation failure */
         exit(EXIT_FAILURE);
     bell        = new_arr;

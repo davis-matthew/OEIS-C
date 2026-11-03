@@ -9,18 +9,39 @@
  *            floor(sqrt(1+3^n))
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 18, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   floor_sqrt, seq_pow
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-01)
+ * Helpers:   ipow_i32, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
-#include "../utils/floor_sqrt.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/ipow_idx.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 seq_t a(idx_t n)
 {
     /* Compute 3^n */
-    seq_t power = seq_pow((seq_t)3, n);
+    seq_t power = ipow_idx((seq_t)3, n);
 
     /* D = 1 + 3^n */
     seq_t D = power + (seq_t)1;

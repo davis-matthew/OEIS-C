@@ -7,6 +7,7 @@
  * Formula:   a(n) = numerator of the n-th convergent to sqrt(829)
  * Range:     u8 n <= 1, u16 n <= 9, u32 n <= 19, u64 n <= 42, u128 n <= 84,
  *            big any n
+ * Validated: standard, pass, 40 terms through n = 180 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

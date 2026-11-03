@@ -8,16 +8,17 @@
  *            prime (deterministic Miller-Rabin)
  * Range:     u8 n <= 14, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   a002642_isprime, a002642_mulmod, a002642_powmod
+ * Validated: standard, pass, 64 terms through n = 974 (2026-11-03)
+ * Helpers:   is_prime_u64, mulmod, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/a002642_isprime.h"
-#include "../utils/a002642_mulmod.h"
-#include "../utils/a002642_powmod.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mulmod.h"
+#include "../utils/powmod_u64.h"
 
 seq_t a(idx_t n) {
     idx_t count = 0;
@@ -26,7 +27,7 @@ seq_t a(idx_t n) {
 
     for (;;) {
         uint64_t p = (k * k + k + 1) / 13;
-        if (a002642_isprime(p)) {
+        if (is_prime_u64(p)) {
             count++;
             if (count == n) return (seq_t)k;
         }

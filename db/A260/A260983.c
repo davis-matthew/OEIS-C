@@ -9,7 +9,8 @@
  *            (1−q^3)(1−q^6)…(1−q^{3k})
  * Range:     i8 n <= 15, i16 n <= 60, i32 n <= 60, i64 n <= 60, i128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>  /* size_t */
 #include <stdint.h>  /* uint64_t */
 #include <stdlib.h>  /* calloc, free, realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,15 +31,15 @@ seq_t a(idx_t n)
     if (n >= cache_size) {
         /* recompute the whole sequence up to n (inclusive)            */
         idx_t new_size = n + 1;            /* terms 0 .. n */
-        seq_t *new_cache = (seq_t *)calloc((size_t)new_size, sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, (size_t)new_size);
         if (!new_cache) return (seq_t)0;   /* out of memory – return 0 */
 
         new_cache[0] = (seq_t)1;          /* a(0) = 1 */
 
         /* temporary array for DP; size need only up to n                */
-        seq_t *dp = (seq_t *)calloc((size_t)new_size, sizeof(seq_t));
+        seq_t *dp = mem_new(seq_t, (size_t)new_size);
         if (!dp) {
-            free(new_cache);
+            mem_free(new_cache);
             return (seq_t)0;
         }
 
@@ -83,8 +85,8 @@ seq_t a(idx_t n)
             }
         }
 
-        free(dp);
-        free(cache);
+        mem_free(dp);
+        mem_free(cache);
         cache = new_cache;
         cache_size = new_size;
     }

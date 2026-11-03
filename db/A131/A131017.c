@@ -7,6 +7,7 @@
  * Formula:   a(n) = [1, 1, 2, -1, 2, 1][n mod 6]
  * Range:     i8 n <= 116, i16 n <= 116, i32 n <= 116, i64 n <= 116,
  *            i128 n <= 116, big any n
+ * Validated: partial, pass, 117 terms through n = 116 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

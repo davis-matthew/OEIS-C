@@ -7,7 +7,8 @@
  * Formula:   a(n) = the n-th smallest divisor of 552
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 16, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Compare two seq_t values for qsort */
 static int compare_seq(const void *p1, const void *p2)
@@ -41,7 +43,7 @@ static void init_divisors(seq_t *divisors, size_t *count)
         }
     }
     /* idx should be 16 */
-    qsort(temp, idx, sizeof(seq_t), compare_seq);
+    mem_qsort(temp, idx, sizeof(seq_t), compare_seq);
     for (size_t i = 0; i < idx; ++i) {
         divisors[i] = temp[i];
     }

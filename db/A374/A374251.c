@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 84, u16 n <= 84, u32 n <= 84, u64 n <= 84, u128 n <= 84,
  *            big any n
- * Helpers:   dfs_comp
+ * Validated: partial, pass, 84 terms through n = 84 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,33 @@
  *  The routine returns the n‑th term of that stream.
  */
 #include <stddef.h>
-#include "../utils/dfs_comp.h"
+
+static int dfs_comp(idx_t sum, int *parts, idx_t depth, idx_t *cnt,
+                    idx_t target, seq_t *res)
+{
+    if (sum == 0) {                 /* finished one composition */
+        int prev = -1;
+        for (idx_t i = 0; i < depth; ++i) {
+            int p = parts[i];
+            if (prev == -1 || p != prev) { /* new run part */
+                ++(*cnt);
+                if (*cnt == target) {
+                    *res = (seq_t)p;
+                    return 1;
+                }
+                prev = p;
+            }
+        }
+        return 0;
+    }
+
+    for (idx_t p = sum; p >= 1; --p) {
+        parts[depth] = (int)p;
+        if (dfs_comp(sum - p, parts, depth + 1, cnt, target, res))
+            return 1;
+    }
+    return 0;
+}
 
 seq_t a(idx_t n)
 {

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   digit_counts_equal
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,18 @@
    The function enumerates integers in increasing order, keeping a cache of the
    found terms so that subsequent calls (in any order) are fast. */
 #include <stdlib.h>
-#include "../utils/digit_counts_equal.h"
+#include "../utils/mem.h"
+
+static inline int digit_counts_equal(seq_t x) {
+    int c1 = 0, c2 = 0;
+    while (x) {
+        seq_t d = x % (seq_t)11;
+        if (d == (seq_t)1) c1++;
+        else if (d == (seq_t)2) c2++;
+        x /= (seq_t)11;
+    }
+    return c1 == c2;
+}
 
 seq_t a(idx_t n) {
     /* 0‑based arguments are treated as 0, but the OEIS offset is 1.
@@ -38,9 +50,9 @@ seq_t a(idx_t n) {
             /* grow the cache if necessary */
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 4;
-                seq_t *new_arr = (seq_t*)malloc(new_cap * sizeof(seq_t));
+                seq_t *new_arr = mem_new(seq_t, new_cap);
                 for (size_t i = 0; i < cache_len; ++i) new_arr[i] = cache[i];
-                free(cache);
+                mem_free(cache);
                 cache = new_arr;
                 cache_cap = new_cap;
             }

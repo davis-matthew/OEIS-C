@@ -9,14 +9,15 @@
  *            is_prime_small
  * Range:     u8 n <= 2, u16 n <= 268, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 60 terms through n = 962 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 #define CACHE_CAP 20000          /* enough for n up to about 10000 */
 
@@ -33,7 +34,7 @@ static void ensure_cache(idx_t n)
     {
         seq_t candidate = (seq_t)45 * (seq_t)next_k + 41;
         ++next_k;
-        if (is_prime_small(candidate))
+        if (is_prime_seq(candidate))
         {
             if (cache_len < CACHE_CAP)
                 cache[cache_len++] = candidate;

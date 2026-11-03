@@ -7,6 +7,7 @@
  * Formula:   a(n) = digit_{−n−16} of 2418884326502, 0 outside that range
  * Range:     u8 n <= -7, u16 n <= -7, u32 n <= -7, u64 n <= -7, u128 n <= -7,
  *            big any n
+ * Validated: partial, pass, 10 terms through n = -7 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

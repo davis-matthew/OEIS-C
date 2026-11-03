@@ -7,7 +7,8 @@
  * Formula:   a(n) = sum of nonprime digits of the n-th prime (A104251)
  * Range:     u8 n <= 93, u16 n <= 93, u32 n <= 93, u64 n <= 93, u128 n <= 93,
  *            big any n
- * Helpers:   nonprime_digit_sum
+ * Validated: partial, pass, 93 terms through n = 93 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,24 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/nonprime_digit_sum.h"
+
+/* Helper: sum of the non‑prime digits of a prime p */
+static inline seq_t nonprime_digit_sum(uint64_t p)
+{
+    seq_t sum = 0;
+    while (p > 0) {
+        uint64_t d = p % 10ULL;
+        switch (d) {
+            case 0: case 1: case 4: case 6: case 8: case 9:
+                sum += (seq_t)d;
+                break;          /* prime digits (2,3,5,7) are ignored */
+            default:
+                break;
+        }
+        p /= 10ULL;
+    }
+    return sum;
+}
 
 /* Helper: determine if n is prime (trial division, fast enough for n ≤ ~105000) */
 static bool is_prime_uint64(uint64_t n)

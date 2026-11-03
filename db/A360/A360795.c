@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{d|n} d^(n-d) * binomial(d + n/d - 1, d)
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 17, u64 n <= 27, u128 n <= 29,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,10 @@
 /* Required utilities */
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/ipow.h"
 
 /* Recursive helper to generate all divisors from the prime factorisation */
 static void
@@ -73,7 +76,7 @@ seq_t a(idx_t n)
     seq_t sum = 0;
     for (size_t i = 0; i < dcnt; ++i) {
         idx_t d = divs[i];
-        seq_t term1 = big_pow((seq_t)d, (seq_t)(n - d));
+        seq_t term1 = ipow((seq_t)d, (seq_t)(n - d));
         seq_t term2 = binomial(d + n / d - 1, d);
         sum += term1 * term2;
     }

@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{d|n, nonprime d, n/d squarefree} d
- * Range:     u8 n <= 119, u16 n <= 9533, u32 n <= 9533, u64 n <= 9533,
- *            u128 n <= 9533, big any n
+ * Range:     u8 n <= 119, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 90 terms through n = 9533 (2026-11-01)
  * Helpers:   is_prime, is_squarefree
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,8 +18,9 @@
 #include <stdint.h>
 
 /* Helpers from the utility library */
-#include "../utils/is_prime.h"      /* bool is_prime(idx_t x); */
-#include "../utils/is_squarefree.h"/* bool is_squarefree(seq_t x); */
+#include <stdlib.h>
+#include "../utils/is_prime.h"
+#include "../utils/is_squarefree.h"
 
 seq_t a(idx_t n)
 {

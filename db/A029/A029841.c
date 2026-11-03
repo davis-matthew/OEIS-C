@@ -7,11 +7,13 @@
  * Formula:   G.f. = (∏_{k>0} (1+q^(2k-1))/(1+q^(2k)))^4
  * Range:     i8 n <= 12, i16 n <= 38, i32 n <= 134, i64 n <= 484,
  *            i128 n <= 1798, big any n
+ * Validated: standard, pass, 62 terms through n = 9851 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /* The coefficients a(n) are obtained by computing the square root of the
    series A(q^2) and its reciprocal, then using
    A(q) = sqrt(A(q^2)) + 4*q / sqrt(A(q^2))  */

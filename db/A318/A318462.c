@@ -8,8 +8,9 @@
  * Formula:   a(n) = \sum_{d|n,\,d<n/d} (d XOR n/d) +
  *            \begin{cases}\sqrt{n}&\text{if }n\text{ is a perfect
  *            square}\\0&\text{otherwise}\end{cases}
- * Range:     u8 n <= 107, u16 n <= 9753, u32 n <= 9753, u64 n <= 9753,
- *            u128 n <= 9753, big any n
+ * Range:     u8 n <= 107, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 95 terms through n = 9753 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

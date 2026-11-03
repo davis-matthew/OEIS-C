@@ -8,13 +8,15 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Compute OEIS A122772:
    generate all numbers of the form f·2ᵉ, where
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
         /* grow cache if needed */
         if (cache_len == cache_cap) {
             size_t new_cap = cache_cap ? cache_cap * 2 : 64;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort();            /* insufficient memory */
             cache = tmp;
             cache_cap = new_cap;

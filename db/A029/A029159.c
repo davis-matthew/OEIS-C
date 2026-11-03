@@ -8,12 +8,14 @@
  *            Computed by a simple dynamic–programming routine
  * Range:     u8 n <= 59, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Allocate or grow a static DP array the first time it is needed. */
@@ -21,7 +23,7 @@ seq_t a(idx_t n) {
     static idx_t dp_size = 0;
 
     if (n + 1 > dp_size) {
-        seq_t *new_dp = (seq_t *)realloc(dp, (n + 1) * sizeof(seq_t));
+        seq_t *new_dp = mem_resize(seq_t, dp, (n + 1));
         if (!new_dp) return 0;          /* allocation failure – unlikely */
         dp = new_dp;
         dp_size = n + 1;

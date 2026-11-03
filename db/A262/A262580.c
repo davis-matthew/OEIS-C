@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 14, u128 n <= 19,
  *            big any n
- * Helpers:   digits, pow10
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-01)
+ * Helpers:   num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,18 @@
    number obtained by writing the first n terms of this list consecutively. */
 
 #include <stdbool.h>
-#include "../utils/digits.h"
-#include "../utils/pow10.h"
+#include <stdint.h>
+#include "../utils/num_digits_idx.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -38,7 +49,7 @@ seq_t a(idx_t n)
         }
 
         /* factor = 10 ^ digits(i)  (digits(i) is the number of decimal digits of i) */
-        seq_t factor = pow10((idx_t)digits(i));
+        seq_t factor = pow10((idx_t)num_digits_idx(i));
         result = result * factor + i;  /* append i to the right */
         ++count;
         ++i;

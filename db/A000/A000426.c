@@ -9,13 +9,14 @@
  *            updated along k, factorial sum evaluated by Horner's rule
  * Range:     u8 n <= 7, u16 n <= 9, u32 n <= 14, u64 n <= 22, u128 n <= 35,
  *            big any n
- * Helpers:   a426_gcd
+ * Validated: standard, pass, 39 terms through n = 98 (2026-11-01)
+ * Helpers:   gcd_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a426_gcd.h"
+#include "../utils/gcd_idx.h"
 
 seq_t a(idx_t n) {
     if (n < 2) return 0;
@@ -35,7 +36,7 @@ seq_t a(idx_t n) {
             idx_t num = (2 * n - 2 * k) * (2 * n - 2 * k - 1);
             idx_t den = k * (2 * n - k - 1);
             idx_t r = (idx_t)(B % (seq_t)den);
-            idx_t g = a426_gcd(r, den);
+            idx_t g = gcd_idx(r, den);
             B = (B / (seq_t)g) * (seq_t)(num / (den / g));
         }
     }

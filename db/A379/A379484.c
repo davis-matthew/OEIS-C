@@ -7,8 +7,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, mult
  * Formula:   not stated
- * Range:     u8 n <= 8705, u16 n <= 8705, u32 n <= 8705, u64 n <= 8705,
- *            u128 n <= 8705, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 121 terms through n = 8705 (2026-11-01)
  * Helpers:   factor_u64, next_prime, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -21,6 +22,8 @@
 #include <stdint.h>
 
 /* helper routines available in the harness */
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 #include "../utils/next_prime.h"
 #include "../utils/pow3.h"

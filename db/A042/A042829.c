@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 18, u64 n <= 34, u128 n <= 69,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static const idx_t D = 945ULL;          /* the squarefree integer */
 static const idx_t SQRT_D = 30ULL;      /* ⌊√945⌋ */
@@ -42,7 +44,7 @@ static void cache_append(seq_t val)
 {
     if (cache_len == cache_cap) {
         size_t new_cap = cache_cap ? cache_cap << 1 : 8;
-        seq_t *ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *ptr = mem_resize(seq_t, cache, new_cap);
         if (!ptr) {
             /* allocation failed – terminate */
             exit(1);
@@ -58,7 +60,7 @@ static void init(void)
 {
     /* Allocate initial buffer */
     cache_cap = 8;
-    cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     if (!cache) exit(1);
 
     /* Generate q[0] */

@@ -11,13 +11,33 @@
  *            partitions of n correspond to partitions of n/2 into exa...
  * Range:     u8 n <= 32, u16 n <= 210, u32 n <= 8519, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   part_exact4
+ * Validated: standard, pass, 76 terms through n = 8956 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/part_exact4.h"
+
+/* Helper: partitions of m into exactly 4 parts (ordered non‑increasing). */
+static seq_t part_exact4(idx_t m)
+{
+    if (m < 4)
+        return (seq_t)0;
+
+    seq_t total = (seq_t)0;
+    idx_t maxk = m / 4;
+
+    for (idx_t k = (idx_t)1; k <= maxk; ++k)
+    {
+        seq_t hi = (seq_t)(m - 4 * k);      /* n – 4k ≥ 0 */
+        seq_t cnt = ((hi * hi) +
+                     (seq_t)6 * hi +
+                     (seq_t)12) / (seq_t)12;
+        total += cnt;
+    }
+    return total;
+}
 
 /* Public entry point */
 seq_t a(idx_t n)

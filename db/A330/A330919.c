@@ -13,7 +13,8 @@
  *            choose the smallest unused neighbour (dividing or...
  * Range:     u8 n <= 16, u16 n <= 56, u32 n <= 836, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   visited
+ * Validated: standard, pass, 72 terms through n = 9982 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,38 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/visited.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* ---------- utility functions ---------- */
+static inline bool visited(const seq_t *list, size_t cnt, seq_t v)
+{
+    for (size_t i = 0; i < cnt; ++i)
+        if (list[i] == v) return true;
+    return false;
+}
 
 /* ---------- small helper array growth ---------- */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (needed > *cap) {
+        size_t new_cap = (*cap) ? (*cap) * 2 : 16;
+        while (new_cap < needed) new_cap *= 2;
+        T *tmp = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+        *ptr = tmp;
+        *cap = new_cap;
+    }
+}
+#else
 static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
 {
     if (needed > *cap) {
@@ -35,6 +65,7 @@ static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_
         *cap = new_cap;
     }
 }
+#endif
 
 /* ---------- prime generation (sieve up to a fixed limit) ---------- */
 static uint64_t *prime_list = NULL;
@@ -103,7 +134,7 @@ static void remove_prime_from_cur(uint64_t p)
 
 static void add_prime_to_cur(uint64_t p)
 {
-    ensure_capacity(cur_count + 1, &cur_cap, (void **)&cur_factors, sizeof(uint64_t));
+    ensure_capacity(cur_count + 1, &cur_cap, OEISC_VPP(&cur_factors), sizeof(uint64_t));
     cur_factors[cur_count++] = p;
 }
 
@@ -115,7 +146,7 @@ seq_t a(idx_t n)
     /* initialise on first call */
     if (cache_cap == 0) {
         init_primes();
-        ensure_capacity(1, &cache_cap, (void **)&cache, sizeof(seq_t));
+        ensure_capacity(1, &cache_cap, OEISC_VPP(&cache), sizeof(seq_t));
         cache[0] = (seq_t)1;            /* a(1) */
         cache_used = 1;
         cur_val = (seq_t)1;
@@ -179,7 +210,7 @@ seq_t a(idx_t n)
             add_prime_to_cur(best_prime);
 
         /* Store the new term */
-        ensure_capacity(cache_used + 1, &cache_cap, (void **)&cache, sizeof(seq_t));
+        ensure_capacity(cache_used + 1, &cache_cap, OEISC_VPP(&cache), sizeof(seq_t));
         cache[cache_used++] = best_candidate;
     }
 

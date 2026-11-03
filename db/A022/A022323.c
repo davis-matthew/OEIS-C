@@ -7,13 +7,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 19, u32 n <= 42, u64 n <= 88, u128 n <= 181,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 909 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Recurrence: a(n) = a(n-1) + a(n-2) + 1,  a(0) = 1,  a(1) = 9 (offset 0) */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Leibniz cache to compute a(n) for any n≥0 in O(n) time per call.
    The function is thread‑unsafe but satisfies the sequence requirements. */
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* initialise cache with the first two terms if this is the first call */
     if (cache == NULL) {
         cache_size = 2;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)9;
     }
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     size_t new_size = (size_t)n + 1;
 
     /* Expand the cache */
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (new_cache == NULL) {
         /* Allocation failed – in a real program you might handle this gracefully */
         exit(1);

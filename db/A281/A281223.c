@@ -8,14 +8,16 @@
  * Formula:   a(n) = the decimal value of the binary Elias omega code for n
  * Range:     u8 n <= 15, u16 n <= 511, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_log2_uint64, pow2
+ * Validated: standard, pass, 67 terms through n = 9556 (2026-11-01)
+ * Helpers:   ilog2, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include "../utils/ilog2.h"
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)
@@ -30,11 +32,11 @@ seq_t a(idx_t n)
     /* For each step, store the current n
        and its bit-length (1 + floor_log2(n)).   */
     while (n > 1) {
-        idx_t len = floor_log2_uint64(n) + 1;
+        idx_t len = ilog2(n) + 1;
         val_stack[pos] = (seq_t)n;
         len_stack[pos] = len;
         pos++;
-        n = floor_log2_uint64(n);          /* next n = len-1 = floor_log2(n)  */
+        n = ilog2(n);          /* next n = len-1 = floor_log2(n)  */
     }
 
     /* Reconstruct the final value by processing the

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 951 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- global state -------------------------------------------------- */
 
@@ -116,7 +118,7 @@ static void ensure_semiprimes(idx_t required)
         size_t cap = semiprime_cap ? semiprime_cap * 2 : 128;
         if (cap < (size_t)required)
             cap = (size_t)required;
-        seq_t *tmp = (seq_t *)realloc(semiprimes, cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, semiprimes, cap);
         if (!tmp) exit(1);
         semiprimes = tmp;
         semiprime_cap = cap;
@@ -127,7 +129,7 @@ static void ensure_semiprimes(idx_t required)
         size_t cap = cum_cap ? cum_cap * 2 : 128;
         if (cap < (required - 1))
             cap = (required - 1);
-        seq_t *tmp = (seq_t *)realloc(cumulative, cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cumulative, cap);
         if (!tmp) exit(1);
         cumulative = tmp;
         cum_cap = cap;

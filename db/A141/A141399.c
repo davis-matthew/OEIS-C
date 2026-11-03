@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 25, u32 n <= 28, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* ------------------ Sieve of Eratosthenes ----------------------- */
 
@@ -160,7 +162,7 @@ static void ensure_seq_capacity(size_t needed)
     size_t new_cap = SEQ_CAP ? SEQ_CAP << 1 : 128;
     while (new_cap < needed)
         new_cap <<= 1;
-    SEQ = (seq_t *)realloc(SEQ, new_cap * sizeof(seq_t));
+    SEQ = mem_resize(seq_t, SEQ, new_cap);
     if (!SEQ)
         abort();
     SEQ_CAP = new_cap;

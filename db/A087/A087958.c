@@ -10,12 +10,14 @@
  *            a(3)=17
  * Range:     u8 n <= 6, u16 n <= 14, u32 n <= 28, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;   /* dynamic array of computed terms */
@@ -25,7 +27,7 @@ seq_t a(idx_t n) {
     /* Initialisation of base terms */
     if (cache == NULL) {
         cap = 4;
-        cache = (seq_t*)malloc(sizeof(seq_t) * cap);
+        cache = mem_new(seq_t, cap);
         if (cache == NULL) abort();        /* memory exhausted */
 
         cache[0] = (seq_t)1;
@@ -42,7 +44,7 @@ seq_t a(idx_t n) {
         if (new_cap == 0) new_cap = 4;
         while (new_cap <= (idx_t)n) new_cap <<= 1;
 
-        seq_t *tmp = (seq_t*)realloc(cache, sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) abort();          /* memory exhausted */
         cache = tmp;
         cap = new_cap;

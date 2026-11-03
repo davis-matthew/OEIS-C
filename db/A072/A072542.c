@@ -9,7 +9,8 @@
  *            sigma(2) + … + sigma(n) (OEIS A072542)
  * Range:     u8 n <= 17, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Build will supply these types */
 extern seq_t a(idx_t n);
@@ -32,12 +34,12 @@ static void extend_to(size_t limit)
     if (limit <= max_j) return;
 
     /* enlarge the arrays */
-    seq_t *new_sigma = (seq_t*)calloc(limit + 1, sizeof(seq_t));
-    seq_t *new_pref  = (seq_t*)calloc(limit + 1, sizeof(seq_t));
+    seq_t *new_sigma = mem_new(seq_t, limit + 1);
+    seq_t *new_pref  = mem_new(seq_t, limit + 1);
 
     if (max_j > 0) {
-        memcpy(new_sigma, sigma, (max_j + 1) * sizeof(seq_t));
-        memcpy(new_pref,  pref , (max_j + 1) * sizeof(seq_t));
+        mem_copy(new_sigma, sigma, (max_j + 1) * sizeof(seq_t));
+        mem_copy(new_pref, pref, (max_j + 1) * sizeof(seq_t));
     }
 
     /* Add divisor contributions for indices > max_j */
@@ -59,8 +61,8 @@ static void extend_to(size_t limit)
     }
 
     /* replace old tables */
-    free(sigma);
-    free(pref);
+    mem_free(sigma);
+    mem_free(pref);
     sigma = new_sigma;
     pref  = new_pref;
     max_j = limit;

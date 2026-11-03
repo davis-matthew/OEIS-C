@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{d|n} d^(n/d-1) * (n/d)^(d-1)
  * Range:     u8 n <= 11, u16 n <= 19, u32 n <= 44, u64 n <= 101,
  *            u128 n <= 221, big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: standard, pass, 59 terms through n = 4971 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,9 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/ipow.h"
 
 static void gen_divisors_rec(const uint64_t *primes,
                              const uint64_t *exps,
@@ -61,8 +63,8 @@ seq_t a(idx_t n)
         uint64_t d = divisors[i];
         uint64_t nd = n / d;                   /* integer division since d|n */
 
-        seq_t d_pow  = big_pow((seq_t)d, (seq_t)(nd - 1));
-        seq_t nd_pow = big_pow((seq_t)nd, (seq_t)(d - 1));
+        seq_t d_pow  = ipow((seq_t)d, (seq_t)(nd - 1));
+        seq_t nd_pow = ipow((seq_t)nd, (seq_t)(d - 1));
 
         sum += d_pow * nd_pow;                 /* multiplication works for seq_t */
     }

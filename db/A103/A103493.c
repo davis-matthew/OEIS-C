@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   modpow
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-01)
+ * Helpers:   powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
  *  or 0 if no such e exists.
  */
 #include <stdint.h>
-#include "../utils/modpow.h"
+#include "../utils/powmod_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -75,7 +76,7 @@ seq_t a(idx_t n)
         uint64_t d = primes[i];
         while (order % d == 0ULL) {
             uint64_t candidate = order / d;
-            if (modpow(7ULL, candidate, nn) == 1ULL)
+            if (powmod_u64(7ULL, candidate, nn) == 1ULL)
                 order = candidate;
             else
                 break;
@@ -85,7 +86,7 @@ seq_t a(idx_t n)
     /* check if order/2 gives -1 */
     if (order % 2ULL == 0ULL) {
         uint64_t half = order / 2ULL;
-        if (modpow(7ULL, half, nn) == nn - 1ULL)
+        if (powmod_u64(7ULL, half, nn) == nn - 1ULL)
             return (seq_t)half;
     }
 

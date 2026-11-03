@@ -9,12 +9,14 @@
  *            –1, a(6) = 0
  * Range:     i8 n <= 22, i16 n <= 42, i32 n <= 49, i64 n <= 49, i128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;   /* array holding a(0) … a(max_n) */
@@ -23,7 +25,7 @@ seq_t a(idx_t n) {
     /* first call: allocate space for indices 0 … 6 (seven elements) */
     if (cache == NULL) {
         cache_size = 7;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache) abort();
         cache[0] = (seq_t)0;           /* unused dummy for index 0 */
         cache[1] = (seq_t)0;           /* a(1) */
@@ -41,7 +43,7 @@ seq_t a(idx_t n) {
     /* we need to grow the cache to hold indices up to n */
     size_t old_size = cache_size;
     cache_size = (size_t)n + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, cache_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, cache_size);
     if (!tmp) {
         /* on allocation failure we abort – caller can never recover from
            an OOM in this context, but this keeps the implementation simple. */

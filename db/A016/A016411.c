@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 396, i16 n <= 396, i32 n <= 396, i64 n <= 396,
  *            i128 n <= 396, big any n
- * Helpers:   none
+ * Validated: full, pass, 397 terms through n = 396 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *coeff = NULL;   /* cached coefficients up to degree 396 */
 static bool initialized = false;
@@ -32,7 +34,7 @@ static void init_coeff(void)
     const uint64_t q = 23;
     const uint64_t pq = p * q;
 
-    coeff = (seq_t *)malloc((DEGREE + 1) * sizeof(seq_t));
+    coeff = mem_new(seq_t, (DEGREE + 1));
     if (!coeff) return; /* allocation failure – leave uninitialized */
 
     /* a(0) = 1 */

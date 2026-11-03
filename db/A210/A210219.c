@@ -10,12 +10,14 @@
  *            binomial(k,2j) * binomial(r-j,k)
  * Range:     u8 n <= 31, u16 n <= 97, u32 n <= 337, u64 n <= 1248,
  *            u128 n <= 1275, big any n
+ * Validated: standard, pass, 82 terms through n = 1236 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 static idx_t find_row(idx_t pos)

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd, is_prime, mod_pow
+ * Validated: standard, pass, 94 terms through n = 867 (2026-11-03)
+ * Helpers:   gcd, is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,9 +24,11 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "../utils/is_prime.h"   /* bool is_prime(idx_t x); */
-#include "../utils/gcd.h"        /* seq_t gcd(seq_t a, seq_t b); */
-#include "../utils/mod_pow.h"    /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod); */
+#include <string.h>
+#include "../utils/gcd.h"
+#include "../utils/is_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static seq_t *good_primes = NULL;   /* array of qualifying primes   */
 static size_t good_size  = 0;       /* number of stored primes      */
@@ -37,7 +40,7 @@ static void append_good(seq_t p)
 {
     if (good_size == good_cap) {
         size_t nc = good_cap ? good_cap * 2 : 16;
-        seq_t *tmp = (seq_t*)realloc(good_primes, nc * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, good_primes, nc);
         if (!tmp) abort();           /* allocation failure */
         good_primes = tmp;
         good_cap = nc;
@@ -60,7 +63,7 @@ static bool good_prime(idx_t p)
     /* Compute (–2)^((p–1)/g) (mod p) */
     seq_t base = (seq_t)(p - 2);  /* –2 mod p, safe because p≥3 */
     seq_t mod  = (seq_t)p;
-    seq_t r = mod_pow(base, exp, mod);
+    seq_t r = powmod(base, exp, mod);
 
     return r == (seq_t)1;
 }

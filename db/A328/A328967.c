@@ -7,7 +7,8 @@
  * Formula:   a(n+1) = 1 - Σ_{k=1..n} a(floor(n/k)), a(1) = 1
  * Range:     i8 n <= 64, i16 n <= 65, i32 n <= 65, i64 n <= 65, i128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static storage for memoisation (0‑based: cache[0] == a(1)) */
 static seq_t *cache = NULL;   /* 0‑based array of computed values */
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
 
     /* Ensure the cache is large enough for indices 0 … n-1 */
     if ((size_t)n > cap) {
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)n * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)n);
         if (!tmp) abort();   /* out of memory */
         cache = tmp;
         cap = (size_t)n;

@@ -9,7 +9,8 @@
  *            every integer k appears twice, at distance a(k)
  * Range:     u8 n <= 452, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 86 terms through n = 9354 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /*  seq_t and idx_t are defined by the build (e.g. uint64_t, etc.).  */
 
@@ -44,8 +46,8 @@ static void ensure_seq_cap(idx_t cap)
     if (cap <= seq_cap) return;
     idx_t new_cap = seq_cap ? seq_cap * 2 : cap;
     if (new_cap < cap) new_cap = cap;
-    seq = (seq_t *)realloc(seq, (size_t)(new_cap + 1) * sizeof(seq_t));
-    forced = (seq_t *)realloc(forced, (size_t)(new_cap + 1) * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, (size_t)(new_cap + 1));
+    forced = mem_resize(seq_t, forced, (size_t)(new_cap + 1));
     for (idx_t i = seq_cap + 1; i <= new_cap; ++i) {
         seq[i] = 0;
         forced[i] = 0;

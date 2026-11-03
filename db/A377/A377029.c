@@ -10,7 +10,8 @@
  *            0 with "10", * then discarding any leading zeros
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 6, u64 n <= 7, u128 n <= 8,
  *            big any n
- * Helpers:   bitlen_seq_t
+ * Validated: standard, pass, 13 terms through n = 13 (2026-11-03)
+ * Helpers:   bit_length, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/bitlen_seq_t.h"
-
+#include "../utils/bit_length.h"
+#include "../utils/mem.h"
 
 /* Helper that expands a(n-1) to produce a(n). */
 static seq_t next_value(seq_t x)
@@ -30,7 +31,7 @@ static seq_t next_value(seq_t x)
         return (seq_t)2;           /* "10" = 2 */
 
     /* Find the most significant bit index. */
-    idx_t msb = bitlen_seq_t(x) - 1;   /* bitlen_seq_t(x) >= 1 for x>0 */
+    idx_t msb = bit_length(x) - 1;   /* bitlen_seq_t(x) >= 1 for x>0 */
 
     seq_t y = 0;
     int bit;
@@ -68,7 +69,7 @@ static void ensure_cache_capacity(size_t needed)
     while (new_cap < needed)
         new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
     if (!tmp)
         abort();                 /* out of memory */
 

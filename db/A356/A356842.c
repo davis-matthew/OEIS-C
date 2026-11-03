@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 59, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   compose_from_index, not_gapless
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,8 +37,65 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <string.h>
-#include "../utils/compose_from_index.h"
-#include "../utils/not_gapless.h"
+
+/* helper: build the composition for index k into parts[0..len-1]   */
+static void compose_from_index(idx_t k, idx_t parts[65], size_t *len)
+{
+    /* collect positions of 1 bits (bit 1 for LSB) */
+    idx_t pos[65];
+    size_t poscnt = 0;
+    size_t bitpos = 1;
+    idx_t tmp = k;
+
+    while (tmp != 0) {
+        if (tmp & 1ULL)
+            pos[poscnt++] = bitpos;
+        tmp >>= 1;
+        bitpos++;
+    }
+
+    /* prepend 0 implicitly by starting diff from 0 */
+    size_t partslen = poscnt;           /* number of differences */
+    *len = partslen;
+    idx_t prev = 0;
+
+    for (size_t i = 0; i < poscnt; ++i) {
+        parts[i] = pos[i] - prev;       /* first difference */
+        prev = pos[i];
+    }
+
+    /* reverse the differences to obtain the composition */
+    for (size_t i = 0; i < partslen / 2; ++i) {
+        idx_t tmpv = parts[i];
+        parts[i] = parts[partslen - 1 - i];
+        parts[partslen - 1 - i] = tmpv;
+    }
+}
+
+/* helper: test if the part-size set is NOT a contiguous interval */
+static bool not_gapless(const idx_t parts[65], size_t len)
+{
+    if (len == 0) return false;
+
+    idx_t minp = parts[0], maxp = parts[0];
+    for (size_t i = 1; i < len; ++i) {
+        idx_t p = parts[i];
+        if (p < minp) minp = p;
+        if (p > maxp) maxp = p;
+    }
+
+    size_t span = (size_t)(maxp - minp + 1);
+    if (span > 65) return true; /* safety, but not expected */
+
+    bool present[65] = {false};
+    for (size_t i = 0; i < len; ++i)
+        present[parts[i] - minp] = true;
+
+    for (size_t i = 0; i < span; ++i)
+        if (!present[i]) return true;      /* missing integer */
+
+    return false;                          /* contiguous set */
+}
 
 /* the required function */
 seq_t a(idx_t n)

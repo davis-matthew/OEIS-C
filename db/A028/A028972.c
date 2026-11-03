@@ -12,7 +12,8 @@
  *            marking the resulting non‑negative values
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static cache data -------------------------------------------------------*/
 
@@ -34,7 +36,7 @@ static void build_cache(idx_t B)
 {
     /* free previous cache if any */
     if (cache != NULL) {
-        free(cache);
+        mem_free(cache);
         cache = NULL;
     }
 
@@ -75,7 +77,7 @@ static void build_cache(idx_t B)
     for (idx_t i = 0; i <= B; ++i)
         if (present[(size_t)i]) ++count;
 
-    cache = (seq_t*)malloc(count * sizeof(seq_t));
+    cache = mem_new(seq_t, count);
     if (!cache) { free(present); return; }
 
     size_t pos = 0;

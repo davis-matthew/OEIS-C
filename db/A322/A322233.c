@@ -8,7 +8,8 @@
  * Formula:   a(n) = coefficient of x^n in ∏_{k=1..n} (k + x + (n+1-k)·x²)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 9, u64 n <= 16, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 298 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    or an arbitrary‑precision integer class) and any idx_t that
    supports the usual unsigned integer operations. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,11 +31,11 @@ seq_t a(idx_t n)
        reused for each factor in the product. */
     idx_t N = n;
     size_t sz = (size_t)(N + 1);
-    seq_t *coeff = (seq_t*)calloc(sz, sizeof(seq_t));
-    seq_t *next  = (seq_t*)calloc(sz, sizeof(seq_t));
+    seq_t *coeff = mem_new(seq_t, sz);
+    seq_t *next  = mem_new(seq_t, sz);
     if (!coeff || !next) {
-        free(coeff);
-        free(next);
+        mem_free(coeff);
+        mem_free(next);
         return 0;            /* allocation failed */
     }
 
@@ -76,7 +78,7 @@ seq_t a(idx_t n)
     /* The coefficient of xⁿ is now in coeff[N] */
     seq_t result = coeff[(size_t)N];
 
-    free(coeff);
-    free(next);
+    mem_free(coeff);
+    mem_free(next);
     return result;
 }

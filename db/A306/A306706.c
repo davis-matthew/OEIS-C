@@ -9,24 +9,26 @@
  *            Product_{j=1..k} (1 + x^j)^j (OEIS A306706)
  * Range:     i8 n <= 31, i16 n <= 57, i32 n <= 57, i64 n <= 57, i128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* allocate an array of seq_t with n+1 elements */
 static seq_t *alloc_array(idx_t n)
 {
-    return (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    return mem_new(seq_t, (size_t)(n + 1));
 }
 
 /* free an array allocated by alloc_array */
 static void free_array(seq_t *p)
 {
-    free(p);
+    mem_free(p);
 }
 
 /* Recompute a(0..N) and store in cache */

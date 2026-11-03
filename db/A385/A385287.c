@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 13, u64 n <= 21, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    a(0) = 1, a(1) = 0
    a(n) = a(n-2) + Σ_{k=0..n-1} k * a(k) * a(n-1-k)   (n ≥ 2) */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,8 +35,8 @@ seq_t a(idx_t n)
     if (n > last_computed) {
         idx_t new_size = n + 1;
         /* realloc returns void*; cast explicitly to work in C++ */
-        A = (seq_t *)realloc(A, new_size * sizeof(seq_t));
-        C = (seq_t *)realloc(C, new_size * sizeof(seq_t));
+        A = mem_resize(seq_t, A, new_size);
+        C = mem_resize(seq_t, C, new_size);
         if (!A || !C) abort();   /* allocation failure – caller can handle */
 
         /* initialise base indices when not already present */

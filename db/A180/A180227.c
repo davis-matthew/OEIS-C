@@ -8,9 +8,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign, tabl
  * Formula:   not stated
- * Range:     i8 n <= 2274, i16 n <= 8169, i32 n <= 8169, i64 n <= 8169,
- *            i128 n <= 8169, big any n
- * Helpers:   gcd, steps_a_to_b, steps_b_to_a
+ * Range:     i8 n <= 2274, i16 n <= 10011, i32 n <= 10011, i64 n <= 10011,
+ *            i128 n <= 10011, big any n
+ * Validated: standard, pass, 82 terms through n = 8169 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,46 @@
 
 #include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/steps_a_to_b.h"
-#include "../utils/steps_b_to_a.h"
+
+static seq_t steps_a_to_b(idx_t a, idx_t b, idx_t target) {
+    idx_t src = 0, dst = 0;
+    seq_t cnt = 0;
+    while (src != target) {
+        if (src == 0) {
+            src = a;
+            cnt++;
+        } else if (dst == b) {
+            dst = 0;
+            cnt++;
+        } else {
+            idx_t transfer = (src < (b - dst)) ? src : (b - dst);
+            src -= transfer;
+            dst += transfer;
+            cnt++;
+        }
+    }
+    return cnt;
+}
+
+static seq_t steps_b_to_a(idx_t a, idx_t b, idx_t target) {
+    idx_t src = 0, dst = 0;
+    seq_t cnt = 0;
+    while (dst != target) {
+        if (src == 0) {
+            src = b;
+            cnt++;
+        } else if (dst == a) {
+            dst = 0;
+            cnt++;
+        } else {
+            idx_t transfer = (src < (a - dst)) ? src : (a - dst);
+            src -= transfer;
+            dst += transfer;
+            cnt++;
+        }
+    }
+    return cnt;
+}
 
 seq_t a(idx_t n) {
     /* Map index n to (A,B).  A >= B >= 1. */

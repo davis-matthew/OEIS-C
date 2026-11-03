@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 37, u16 n <= 106, u32 n <= 419, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   coeff_row_p
+ * Validated: standard, pass, 78 terms through n = 964 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,32 @@
  */
 
 #include <stdbool.h>
-#include "../utils/coeff_row_p.h"
+
+static seq_t coeff_row_p(idx_t r, idx_t p)
+{
+    /* r >= 2, 0 <= p < r*(r-2)+1 */
+    const idx_t U = r - 2;           /* maximum part value */
+    const idx_t MAX_LEN = 1024;      /* enough for r ≤ 32 (p ≤ 960) */
+    seq_t dp[MAX_LEN];
+    seq_t ndp[MAX_LEN];
+
+    /* initialise */
+    for (idx_t i = 0; i <= p; ++i) dp[i] = 0;
+    dp[0] = 1;
+
+    for (idx_t part = 0; part < r; ++part) {
+        for (idx_t i = 0; i <= p; ++i) ndp[i] = 0;
+        for (idx_t s = 0; s <= p; ++s) {
+            if (dp[s] == 0) continue;
+            for (idx_t v = 0; v <= U; ++v) {
+                idx_t ns = s + v;
+                if (ns <= p) ndp[ns] += dp[s];
+            }
+        }
+        for (idx_t i = 0; i <= p; ++i) dp[i] = ndp[i];
+    }
+    return dp[p];
+}
 
 seq_t a(idx_t n)
 {

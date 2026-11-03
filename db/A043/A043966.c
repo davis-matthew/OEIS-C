@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   has_adj_07
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,20 @@
  * and k+1 does not.  The sequence is indexed with offset 1. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_adj_07.h"
+#include "../utils/mem.h"
+
+/* Check whether a number in base 9 contains an adjacent pair 0↔7. */
+static bool has_adj_07(seq_t x) {
+    seq_t prev = 9;              /* sentinel: no previous digit yet */
+    while (x > 0) {
+        seq_t cur = x % 9;
+        x /= 9;
+        if (prev != 9 && ((cur == 0 && prev == 7) || (cur == 7 && prev == 0)))
+            return true;
+        prev = cur;
+    }
+    return false;
+}
 
 /* a(n) gives the n-th element (n >= 1) of sequence A043966. */
 seq_t a(idx_t n) {
@@ -35,7 +49,7 @@ seq_t a(idx_t n) {
     /* Ensure sufficient space in the cache */
     if (cache_len == cache_cap) {
         size_t new_cap = cache_cap == 0 ? 4 : cache_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) {
             /* Allocation error – abort gracefully (could also set errno) */
             exit(EXIT_FAILURE);

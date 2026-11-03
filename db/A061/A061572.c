@@ -7,12 +7,14 @@
  * Formula:   a(n) = (n^2 + n - 1)*a(n-1) - (n-1)^3*a(n-2), a(1)=1, a(2)=5
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 12, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 93 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes a(n) for OEIS sequence A061572 */
 seq_t a(idx_t n)
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* Lazy initialization of the cache with the first two terms */
     if (!cache) {
         cache_size = 3;                     /* indices 0..2 */
-        cache = (seq_t*)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache)
             abort();
         cache[0] = 0;   /* unused placeholder for index 0 */
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
         idx_t new_size = n + 1;
         if (new_size < 4)
             new_size = 4;                          /* ensure room for loop bounds */
-        seq_t *tmp = (seq_t*)realloc(cache, (size_t)new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_size);
         if (!tmp)
             abort();
         cache = tmp;

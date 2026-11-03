@@ -10,14 +10,39 @@
  *            the nth coordinate read by anti‑diagonals
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   diag_index
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/diag_index.h"
+
+/* ------------------------------------------------------------------
+   Compute the diagonal index `k` such that
+        k*(k+1)/2 <= n < (k+1)*(k+2)/2
+   Uses a binary search with 128‑bit arithmetic to avoid overflow.
+   ------------------------------------------------------------------ */
+static idx_t diag_index(idx_t n)
+{
+    idx_t low   = 0;
+    idx_t high  = ((idx_t)1 << 32);   /* upper bound: sqrt(2^64) ≤ 2^32 */
+    idx_t ans   = 0;
+
+    while (low <= high) {
+        idx_t mid = low + (high - low) / 2;
+        __uint128_t val = (__uint128_t)mid * (mid + 1) / 2;
+        if (val <= n) {
+            ans = mid;
+            low = mid + 1;
+        } else {
+            if (mid == 0) break;
+            high = mid - 1;
+        }
+    }
+    return ans;
+}
 
 /* ------------------------------------------------------------------
    Main sequence function.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 39, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   build_primes_upto, ensure_capacity, free_seq_array, mod_pow
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   build_primes_upto, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,10 +22,49 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stddef.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/ensure_capacity.h"
-#include "../utils/free_seq_array.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#endif
+
+/* Grow a dynamic array when needed.  The pointer is passed as (void **). */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size) /* elem_size: sizeof(T) */
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    T *tmp = mem_resize(T, *ptr, new_cap);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#else
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#endif
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 static bool
 qualifies(uint64_t p, const uint64_t *prime_arr, size_t prime_cnt)
@@ -39,7 +79,7 @@ qualifies(uint64_t p, const uint64_t *prime_arr, size_t prime_cnt)
             while (order % q == 0)
             {
                 uint64_t temp = order / q;
-                if (mod_pow((seq_t)2, temp, (seq_t)p) == (seq_t)1)
+                if (powmod((seq_t)2, temp, (seq_t)p) == (seq_t)1)
                     order = temp;
                 else
                     break;
@@ -78,7 +118,7 @@ seq_t a(idx_t n)
 
             /* Rebuild the prime list up to the new limit */
             if (primes != NULL)
-                free_seq_array((seq_t*)primes);
+                free(primes);          /* a uint64_t array: plain free */
             build_primes_upto(sieve_limit, &primes, &prime_cnt);
             /* next_prime_idx remains valid – the new array contains
                exactly the same primes in the same order as before. */
@@ -89,7 +129,7 @@ seq_t a(idx_t n)
 
         if (qualifies(p, primes, prime_cnt))
         {
-            ensure_capacity(seq_cnt + 1, &seq_cap, (void**)&seq, sizeof(seq_t));
+            ensure_capacity(seq_cnt + 1, &seq_cap, OEISC_VPP(&seq), sizeof(seq_t));
             seq[seq_cnt++] = (seq_t)p;
         }
     }

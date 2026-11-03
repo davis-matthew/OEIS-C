@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 27, u32 n <= 77, u64 n <= 209,
  *            u128 n <= 592, big any n
- * Helpers:   none
+ * Validated: standard, pass, 56 terms through n = 998 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Dynamically enlarge an array of `seq_t` if necessary.              */
@@ -27,7 +29,7 @@ static void ensure_cap(size_t *cap, size_t need, seq_t **arr)
     if (*cap < need) {
         size_t newcap = (*cap == 0) ? 16 : *cap * 2;
         while (newcap < need) newcap <<= 1;
-        *arr = (seq_t *)realloc(*arr, newcap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, newcap);
         *cap = newcap;
     }
 }
@@ -90,7 +92,7 @@ seq_t a(idx_t n)
         }
 
         /* ---- Sort the list and remove duplicates. */
-        qsort(terms, terms_count, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(terms, terms_count, sizeof(seq_t), cmp_seq_t);
         size_t unique = 0;
         for (size_t i = 0; i < terms_count; ++i) {
             if (unique == 0 || terms[i] != terms[unique - 1]) {

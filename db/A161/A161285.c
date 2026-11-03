@@ -9,7 +9,8 @@
  *            where each distinct part appears at least 7 times
  * Range:     u8 n <= 83, u16 n <= 205, u32 n <= 586, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 971 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #ifdef __cplusplus
 #include <new>
 #endif
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,9 +43,9 @@ seq_t a(idx_t n)
     if (!dp || !temp || !pref)
     {
         /* allocation failed – return 0 */
-        if (dp)   { free(dp);   dp = 0; }
-        if (temp) { free(temp); temp = 0; }
-        if (pref) { free(pref); pref = 0; }
+        if (dp)   { mem_free(dp);   dp = 0; }
+        if (temp) { mem_free(temp); temp = 0; }
+        if (pref) { mem_free(pref); pref = 0; }
         return 0;
     }
 

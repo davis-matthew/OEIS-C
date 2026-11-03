@@ -7,14 +7,16 @@
  * Keywords:  nonn, tabf, changed
  * Formula:   a(0)=1, a(1)=3; For n even: a(n)=a(n/2); For n odd :
  *            a(n)=a(n/2)+2*a((n/2)/2)
- * Range:     u8 n <= 254, u16 n <= 9983, u32 n <= 9983, u64 n <= 9983,
- *            u128 n <= 9983, big any n
- * Helpers:   none
+ * Range:     u8 n <= 254, u16 n <= 16383, u32 n <= 16383, u64 n <= 16383,
+ *            u128 n <= 16383, big any n
+ * Validated: standard, pass, 91 terms through n = 9983 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* Ensure cache is large enough */
     if (n >= cache_size) {
         idx_t new_size = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         cache = tmp;
         for (idx_t i = cache_size; i < new_size; ++i) cache[i] = (seq_t)0;
         cache_size = new_size;

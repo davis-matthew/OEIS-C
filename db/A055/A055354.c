@@ -9,6 +9,7 @@
  *            - 630*n^4 + 2205*n^3 - 3374*n^2 + 2296*n - 576) / 14631321600
  * Range:     u8 none, u16 none, u32 none, u64 n <= 16, u128 n <= 28,
  *            big any n
+ * Validated: standard, pass, 28 terms through n = 239 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

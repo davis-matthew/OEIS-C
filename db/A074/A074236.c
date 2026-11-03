@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   _gcd_u64
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   gcd_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/_gcd_u64.h"
+#include <stddef.h>
+#include "../utils/gcd_u64.h"
+#include "../utils/mem.h"
 
 /* Euclidean GCD for 64‑bit unsigned integers.  */
 
@@ -42,7 +45,7 @@ static void _generate_up_to(uint64_t limit)
     for (uint64_t m = 2; m <= m_max; ++m) {
         for (uint64_t n = 1; n < m; ++n) {
             if (((m - n) & 1) == 0) continue;            /* same parity */
-            if (_gcd_u64(m, n) != 1) continue;           /* not coprime */
+            if (gcd_u64(m, n) != 1) continue;           /* not coprime */
 
             seq_t a0 = (seq_t)m * m - (seq_t)n * n;      /* m^2 - n^2 */
             seq_t b0 = (seq_t)2 * m * n;                 /* 2mn */
@@ -70,7 +73,7 @@ static void _generate_up_to(uint64_t limit)
         if (long_flag[i] && hyp_flag[i]) {
             if (cache_len == cache_cap) {
                 cache_cap = cache_cap ? cache_cap * 2 : 8;
-                seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                 if (!tmp) return;                     /* realloc failed */
                 cache = tmp;
             }
@@ -93,7 +96,7 @@ static void _ensure_cache(idx_t need)
 
     while ((idx_t)cache_len < need) {
         /* Invalidate any previous cache. */
-        free(cache);
+        mem_free(cache);
         cache = NULL;
         cache_len = 0;
         cache_cap = 0;

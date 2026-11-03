@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 10, u64 n <= 28, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>   /* memset */
+#include "../utils/mem.h"
 
 /* Compile‑time constants */
 #define STATES 4096  /* 4^6 possible 6‑digit suffixes */
@@ -108,10 +110,10 @@ seq_t a(idx_t n)
 
     /* Ensure the DP arrays are allocated. */
     if (dp_cap < (size_t)STATES) {
-        if (dp_curr) free(dp_curr);
-        if (dp_next) free(dp_next);
-        dp_curr = (seq_t *)malloc(STATES * sizeof(seq_t));
-        dp_next = (seq_t *)malloc(STATES * sizeof(seq_t));
+        if (dp_curr) mem_free(dp_curr);
+        if (dp_next) mem_free(dp_next);
+        dp_curr = mem_new(seq_t, STATES);
+        dp_next = mem_new(seq_t, STATES);
         dp_cap  = STATES;
     }
 

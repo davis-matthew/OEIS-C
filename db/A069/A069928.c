@@ -9,7 +9,8 @@
  * Formula:   a(n) = Card(k: 1<=k<=n : sigma(k) == 0 (mod tau(k)))
  * Range:     u8 n <= 360, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 90 terms through n = 9726 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static cache for cumulative counts (index 0 unused) */
 static seq_t *cum = NULL;
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* extend cache if necessary */
     if (n > max_cached) {
         /* grow array to size n+1 (indices 0..n) */
-        seq_t *new_cum = (seq_t*)realloc(cum, (n + 1) * sizeof(seq_t));
+        seq_t *new_cum = mem_resize(seq_t, cum, (n + 1));
         if (!new_cum) return 0;    /* allocation failed → return 0 */
         cum = new_cum;
 

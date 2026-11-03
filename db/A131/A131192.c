@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 37, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   is_nonintegral
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,13 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_nonintegral.h"
+#include "../utils/mem.h"
+
+/* Return true if n is a term of the sequence (i.e., d(n) is nonintegral). */
+static bool is_nonintegral(idx_t n) {
+    return ((n % 11 == 7) && (n % 121 != 117)) ||
+           ((n % 13 == 11) && (n % 169 != 63));
+}
 
 /* Memoised storage for the sequence values. */
 static seq_t *seq = NULL;        /* array of stored sequence values   */
@@ -43,7 +50,7 @@ seq_t a(idx_t n) {
             /* Ensure capacity for the new element. */
             if (seq_len >= seq_cap) {
                 seq_cap = (seq_cap == 0) ? 4 : seq_cap * 2;
-                seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, seq_cap);
             }
             seq[seq_len++] = (seq_t)next_test;  /* store the term */
         }

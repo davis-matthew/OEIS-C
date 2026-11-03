@@ -10,13 +10,15 @@
  *            past values so that calls can be made in any order
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 12, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined externally by the build system. */
 
@@ -31,11 +33,11 @@ seq_t a(idx_t n)
     /* Allocate or grow the table to hold up to index n */
     if (dp == NULL) {
         capacity = (size_t)n + 1;
-        dp = (seq_t*)malloc(capacity * sizeof(seq_t));
+        dp = mem_new(seq_t, capacity);
         if (dp == NULL) return (seq_t)0;  /* allocation failure – return 0 */
     } else if ((size_t)n + 1 > capacity) {
         capacity = (size_t)n + 1;
-        dp = (seq_t*)realloc(dp, capacity * sizeof(seq_t));
+        dp = mem_resize(seq_t, dp, capacity);
         if (dp == NULL) return (seq_t)0;
     }
 

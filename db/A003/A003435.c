@@ -11,12 +11,14 @@
  *            4*(n-1)*n*(2*n-1)*a(n-2) with a(2) = 8, a(3) = 192
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 10, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 29 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;
 static unsigned char *computed = NULL;
@@ -27,13 +29,13 @@ seq_t a(idx_t n) {
     
     if (memo == NULL) {
         memo_capacity = (n < 1000) ? 1000 : n + 100;
-        memo = (seq_t *)calloc(memo_capacity, sizeof(seq_t));
+        memo = mem_new(seq_t, memo_capacity);
         computed = (unsigned char *)calloc(memo_capacity, sizeof(unsigned char));
     }
     
     if (n >= memo_capacity) {
         idx_t new_capacity = n + 100;
-        memo = (seq_t *)realloc(memo, new_capacity * sizeof(seq_t));
+        memo = mem_resize(seq_t, memo, new_capacity);
         computed = (unsigned char *)realloc(computed, new_capacity * sizeof(unsigned char));
         for (idx_t i = memo_capacity; i < new_capacity; i++) {
             memo[i] = 0;

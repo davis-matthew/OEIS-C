@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 134, u16 n <= 983, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 91 terms through n = 8549 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,13 +19,14 @@
 /*   all a(k)=0 for k<0. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 /* idx_t and seq_t are supplied by the build system.  No other headers are required. */
 
 seq_t a(idx_t n)
 {
     /* Zero‑initialize the DP array with calloc so that all a(k<0)=0. */
     size_t sz = (size_t)n + 1;
-    seq_t *dp = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, sz);
     if (!dp) return (seq_t)0;          /* out of memory – return 0 */
 
     dp[0] = (seq_t)1;                  /* base case */
@@ -53,6 +55,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

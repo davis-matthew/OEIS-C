@@ -8,6 +8,7 @@
  *            Φ₄₉₅(x)
  * Range:     i8 n <= 240, i16 n <= 240, i32 n <= 240, i64 n <= 240,
  *            i128 n <= 240, big any n
+ * Validated: full, pass, 241 terms through n = 240 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

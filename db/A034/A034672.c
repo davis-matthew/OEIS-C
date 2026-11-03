@@ -8,13 +8,15 @@
  *            divisors of 96. For n=0 this is simply the divisor count 12
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 9, u128 n <= 19,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 30 terms through n = 197 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"   /* provides seq_t big_pow(seq_t, seq_t); */
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -22,8 +24,8 @@ seq_t a(idx_t n)
         return (seq_t)12;
 
     /* Compute 2^n and 3^n using arbitrary‑precision power */
-    seq_t two_n  = big_pow((seq_t)2, (seq_t)n);
-    seq_t three_n = big_pow((seq_t)3, (seq_t)n);
+    seq_t two_n  = ipow((seq_t)2, (seq_t)n);
+    seq_t three_n = ipow((seq_t)3, (seq_t)n);
 
     /* Sum over the exponent of 2: a = 0..5  (i.e. 2^0 * 3^b)   */
     seq_t sum2 = (seq_t)1;

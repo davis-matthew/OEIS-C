@@ -7,13 +7,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 1531, u16 n <= 1531, u32 n <= 1531, u64 n <= 1531,
  *            u128 n <= 1531, big any n
- * Helpers:   none
+ * Validated: standard, pass, 101 terms through n = 1347 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Sequence A212810: iterate morphism 1->122, 2->1112 starting with 1 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *word = NULL;
 static size_t word_len = 0;
@@ -27,7 +29,7 @@ static void extend_word(void) {
             next_len += 4;   /* 2 -> 1112 */
     }
 
-    seq_t *next = (seq_t*)malloc(next_len * sizeof(seq_t));
+    seq_t *next = mem_new(seq_t, next_len);
     size_t pos = 0;
     for (idx_t i = 0; i < (idx_t)word_len; ++i) {
         if (word[i] == 1) {
@@ -42,7 +44,7 @@ static void extend_word(void) {
         }
     }
 
-    free(word);
+    mem_free(word);
     word = next;
     word_len = next_len;
 }
@@ -52,7 +54,7 @@ seq_t a(idx_t n) {
         return 0;
 
     if (word == NULL) {
-        word = (seq_t*)malloc(sizeof(seq_t));
+        word = mem_new(seq_t, 1);
         word[0] = (seq_t)1;
         word_len = 1;
     }

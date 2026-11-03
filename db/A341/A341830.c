@@ -11,15 +11,17 @@
  *            all y‑values, sorting them ascending, and concatenating the
  *            rows. The implementation finds the n‑th element by generating
  *            rows one by one until the cumulative count reac...
- * Range:     u8 n <= 1277, u16 n <= 9766, u32 n <= 9766, u64 n <= 9766,
- *            u128 n <= 9766, big any n
- * Helpers:   none
+ * Range:     u8 n <= 1277, u16 n <= 10175, u32 n <= 10175, u64 n <= 10175,
+ *            u128 n <= 10175, big any n
+ * Validated: standard, pass, 93 terms through n = 9766 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Comparator for qsort, working for any unsigned seq_t type. */
 static int seq_cmp(const void *p1, const void *p2)
@@ -80,7 +82,7 @@ static void collect_row(idx_t n, seq_t *vals, size_t *out_cnt)
 
     /* Sort and deduplicate */
     if (cnt > 1) {
-        qsort(tmp, cnt, sizeof(seq_t), seq_cmp);
+        mem_qsort(tmp, cnt, sizeof(seq_t), seq_cmp);
         size_t uniq = 1;
         for (size_t i = 1; i < cnt; ++i) {
             if (tmp[i] != tmp[uniq - 1]) {

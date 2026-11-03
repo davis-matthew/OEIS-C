@@ -7,7 +7,8 @@
  * Formula:   a(n) = "34" written in base (11 - n)
  * Range:     u8 n <= 7, u16 n <= 8, u32 n <= 9, u64 n <= 9, u128 n <= 10,
  *            big any n
- * Helpers:   unary_34
+ * Validated: full, pass, 11 terms through n = 10 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,15 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/unary_34.h"
+
+/* Helper: return 34 represented as a sequence of 34 ones (base 1) */
+static seq_t unary_34(void)
+{
+    seq_t res = 0;
+    for (idx_t i = 0; i < 34; ++i)
+        res = res * 10 + 1;
+    return res;
+}
 
 seq_t a(idx_t n)
 {

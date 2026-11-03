@@ -9,14 +9,15 @@
  *            exists
  * Range:     u8 n <= 2, u16 n <= 20, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   powmod64
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-01)
+ * Helpers:   powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/powmod64.h"    /* powmod64(uint64_t base, uint64_t exp, uint64_t mod) */
+#include "../utils/powmod_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +39,7 @@ seq_t a(idx_t n)
 
         for (idx_t k = 1; k <= LIMIT_K && remaining > 0; ++k) {
             /* 2^k mod k, with k small enough for 64‑bit arithmetic. */
-            uint64_t r64 = powmod64(2ULL, k, k);   /* r < k <= LIMIT_K */
+            uint64_t r64 = powmod_u64(2ULL, k, k);   /* r < k <= LIMIT_K */
             if ((r64 & 1ULL) == 0) {               /* r must be even   */
                 idx_t n_calc = (idx_t)(r64 >> 1);   /* n = r/2         */
                 if (n_calc <= MAX_N && cache[n_calc] == 0) {

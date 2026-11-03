@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 9008 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ----------  Cached data  ---------- */
 static seq_t  *phi       = NULL;    /* Euler's totient values   */
@@ -43,7 +45,7 @@ static void recompute_phi(size_t limit)
 {
     /* Grow the array if necessary */
     if (phi_size <= limit) {
-        seq_t *tmp = (seq_t *)realloc(phi, (limit + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, phi, (limit + 1));
         if (!tmp) exit(EXIT_FAILURE);
         phi = tmp;
         phi_size = limit + 1;
@@ -72,7 +74,7 @@ static void rebuild_valid(size_t limit)
         if ((idx_t)2 * (idx_t)phi[k] > (idx_t)k) ++cnt;
     }
 
-    seq_t *tmp = (cnt ? (seq_t *)realloc(valid, cnt * sizeof(seq_t)) : NULL);
+    seq_t *tmp = (cnt ? mem_resize(seq_t, valid, cnt) : NULL);
     if (!tmp && cnt) exit(EXIT_FAILURE);
     valid = tmp;
     valid_len = cnt;

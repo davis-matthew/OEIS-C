@@ -8,12 +8,14 @@
  *            Lucas(1)=1, Lucas(k)=Lucas(k-1)+Lucas(k-2)
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 20, u64 n <= 43, u128 n <= 89,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 970 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache for Lucas numbers: lucas_cache[i] = L(i)  */
 static seq_t *lucas_cache = NULL;      /* array of Lucas numbers   */
@@ -36,14 +38,14 @@ ensure_lucas(idx_t k)
 
     /* Allocate or reallocate the cache */
     if (!lucas_cache) {
-        lucas_cache = (seq_t*)malloc(new_alloc * sizeof(seq_t));
+        lucas_cache = mem_new(seq_t, new_alloc);
         if (!lucas_cache) abort();          /* fatal error */
         /* Initialise first two Lucas numbers */
         lucas_cache[0] = (seq_t)2;
         lucas_cache[1] = (seq_t)1;
         lucas_cache_size = 2;
     } else if (lucas_cache_alloc < new_alloc) {
-        seq_t *tmp = (seq_t*)realloc(lucas_cache, new_alloc * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, lucas_cache, new_alloc);
         if (!tmp) abort();                  /* fatal error */
         lucas_cache = tmp;
         lucas_cache_alloc = new_alloc;

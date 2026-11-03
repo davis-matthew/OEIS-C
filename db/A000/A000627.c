@@ -12,14 +12,24 @@
  *            r(k)...
  * Range:     u8 n <= 13, u16 n <= 24, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   grow_arr, tri_s
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem, triangular_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/grow_arr.h"
-#include "../utils/tri_s.h"
+#include <stdlib.h>
+#include "../utils/triangular_seq.h"
+#include "../utils/mem.h"
+
+static seq_t *grow_arr(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *r = mem_new(seq_t, newlen);
+    idx_t i;
+    for (i = 0; i < oldlen; i++) r[i] = old[i];
+    if (old) mem_free(old);
+    return r;
+}
 
 static seq_t *R = 0;
 static idx_t Rlen = 0;
@@ -53,7 +63,7 @@ static seq_t m2(idx_t m, idx_t M)
         if (m - i > M) continue;
         v += R[i] * R[m - i];
     }
-    if (m % 2 == 0 && m / 2 <= M) v += tri_s(R[m / 2]);
+    if (m % 2 == 0 && m / 2 <= M) v += triangular_seq(R[m / 2]);
     return v;
 }
 
@@ -86,7 +96,7 @@ seq_t a(idx_t n)
     }
 
     /* bicentroid */
-    if (n % 2 == 0) total += tri_s(R[n / 2]);
+    if (n % 2 == 0) total += triangular_seq(R[n / 2]);
 
     return total;
 }

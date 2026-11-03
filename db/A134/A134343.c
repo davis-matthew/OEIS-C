@@ -10,14 +10,33 @@
  *            1 (mod 8), b(p^e) = (-1)^e · (e + 1) if p ≡ 5 (mod 8)
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   part_value
+ * Validated: standard, pass, 95 terms through n = 981 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/part_value.h"
+
+/* Return the multiplicative contribution of a prime power p^e to b(p^e). */
+static seq_t part_value(uint64_t p, uint64_t e)
+{
+    if (p == 2)                /* b(2^e) = 0 for e > 0 */
+        return 0;
+
+    if (p % 4 == 3) {          /* p ≡ 3 (mod 4) */
+        return ((e & 1) == 0) ? 1 : 0;
+    }
+
+    if (p % 8 == 1) {          /* p ≡ 1 (mod 8) */
+        return (seq_t)(e + 1);
+    }
+
+    /* p % 8 == 5  (p ≡ 5 (mod 8)) */
+    seq_t val = (seq_t)(e + 1);
+    return ((e & 1) == 0) ? val : -val;
+}
 
 /* Factor n into arrays pr[], ex[], with count stored in cnt.
    Arrays should be large enough to hold all prime factors of n.

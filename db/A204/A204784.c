@@ -8,7 +8,8 @@
  * Formula:   a(n) = Σ_{K=1}^{98} Σ_{u,v} (M_K)^n[u][v]
  * Range:     u8 none, u16 n <= 3, u32 n <= 11, u64 n <= 26, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* helper to compute the 64‑bit mask of a 2‑dimensional index */
 static inline unsigned int idx(int a, int b) { return (a << 3) | b; }
@@ -69,7 +71,7 @@ static void extend_to(idx_t n)
 
     /* allocate or grow cache */
     size_t new_size = (size_t)(n + 1);
-    a_cache = (seq_t *)realloc(a_cache, new_size * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, new_size);
     if (precomputed_n + 1 < new_size)
         for (size_t i = precomputed_n + 1; i < new_size; ++i)
             a_cache[i] = (seq_t)0;

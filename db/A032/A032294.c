@@ -12,14 +12,15 @@
  *            + (m/2)(3^(m/2+1)+3^(m/2)) ) / (2m)
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 20, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 static int mu_of(idx_t n) {
     if (n == 1) return 1;
@@ -56,21 +57,21 @@ static seq_t B_of(idx_t m) {
         if (m % i == 0) {
             idx_t d1 = i;
             idx_t d2 = m / i;
-            seq_t pow1 = seq_pow((seq_t)3, m / d1);
+            seq_t pow1 = ipow_idx((seq_t)3, m / d1);
             sum += (seq_t)phi_of(d1) * pow1;
             if (d1 != d2) {
-                seq_t pow2 = seq_pow((seq_t)3, m / d2);
+                seq_t pow2 = ipow_idx((seq_t)3, m / d2);
                 sum += (seq_t)phi_of(d2) * pow2;
             }
         }
     }
     seq_t extra;
     if (m % 2 == 1) {
-        seq_t mid_pow = seq_pow((seq_t)3, (m + 1) / 2);
+        seq_t mid_pow = ipow_idx((seq_t)3, (m + 1) / 2);
         extra = (seq_t)m * mid_pow;
     } else {
-        seq_t half_pow_plus1 = seq_pow((seq_t)3, m / 2 + 1);
-        seq_t half_pow = seq_pow((seq_t)3, m / 2);
+        seq_t half_pow_plus1 = ipow_idx((seq_t)3, m / 2 + 1);
+        seq_t half_pow = ipow_idx((seq_t)3, m / 2);
         extra = (seq_t)(m / 2) * (half_pow_plus1 + half_pow);
     }
     seq_t total = sum + extra;

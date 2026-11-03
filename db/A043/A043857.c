@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 36, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   count_base4_runs
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,18 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/count_base4_runs.h"
+
+static inline uint32_t count_base4_runs(uint64_t x)
+{
+    uint32_t runs = 0;
+    int prev = -1;
+    while (x > 0) {
+        int d = x % 4;
+        if (d != prev) { ++runs; prev = d; }
+        x /= 4;
+    }
+    return runs;
+}
 
 /* memoised storage: idx_t array holding the k values already found */
 static idx_t  *terms   = NULL;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 35, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
      where t = (n-k)/3. */
 #include <stdlib.h>   /* malloc, realloc, NULL */
 #include <stddef.h>   /* size_t */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* initialize on first call */
     if (seq == NULL) {
         cap = 1;
-        seq = (seq_t *)malloc(cap * sizeof(seq_t));
+        seq = mem_new(seq_t, cap);
         if (!seq) return (seq_t)0;   /* allocation failed */
         seq[0] = (seq_t)1;
         last = 0;
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
         if (needed > cap) {
             size_t new_cap = cap * 2;
             if (new_cap < needed) new_cap = needed;
-            seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq, new_cap);
             if (!tmp) return (seq_t)0;   /* allocation failed */
             seq = tmp;
             cap = new_cap;

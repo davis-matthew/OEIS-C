@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 63, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   compute_primes, set_bit, test_bit
+ * Validated: standard, pass, 74 terms through n = 9617 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,42 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/compute_primes.h"
-#include "../utils/set_bit.h"
-#include "../utils/test_bit.h"
+#include "../utils/mem.h"
+
+/* Simple sieve to compute primes up to 'n' (used for totient) */
+static void compute_primes(size_t n, int **primes_out, size_t *cnt_out)
+{
+    size_t i, j;
+    int *isPrime = (int*)malloc((n + 1) * sizeof(int));
+    memset(isPrime, 1, (n + 1) * sizeof(int));
+    isPrime[0] = isPrime[1] = 0;
+    for (i = 2; i * i <= n; ++i)
+        if (isPrime[i])
+            for (j = i * i; j <= n; j += i)
+                isPrime[j] = 0;
+    *cnt_out = 0;
+    for (i = 2; i <= n; ++i)
+        if (isPrime[i])
+            (*cnt_out)++;
+    *primes_out = (int*)malloc((*cnt_out) * sizeof(int));
+    size_t k = 0;
+    for (i = 2; i <= n; ++i)
+        if (isPrime[i])
+            (*primes_out)[k++] = (int)i;
+    free(isPrime);
+}
+
+/* Set bit at index 'idx' */
+static inline void set_bit(uint64_t *bits, size_t idx)
+{
+    bits[idx >> 6] |= (1ULL << (idx & 63));
+}
+
+/* Test if bit at index 'idx' is set */
+static inline int test_bit(const uint64_t *bits, size_t idx)
+{
+    return (bits[idx >> 6] >> (idx & 63)) & 1ULL;
+}
 
 typedef uint64_t idx_t;   /* assumed by the build for indices */
 /* seq_t is defined by the build (8, 16, 32, 64 or 128 bits). */
@@ -69,7 +103,7 @@ static void rebuild(size_t limit)
     if (phi) free(phi);
     if (sigma) free(sigma);
     if (seenBits) free(seenBits);
-    if (seq) free(seq);
+    if (seq) mem_free(seq);
     phi = NULL;
     sigma = NULL;
     seenBits = NULL;
@@ -94,7 +128,7 @@ static void rebuild(size_t limit)
     seenBits = (uint64_t*)calloc(seenBitsSize, sizeof(uint64_t));
 
     seq_capacity = limit; /* at most 'limit' sequence values */
-    seq = (seq_t*)malloc(seq_capacity * sizeof(seq_t));
+    seq = mem_new(seq_t, seq_capacity);
 
     for (size_t k = 1; k <= limit; ++k) {
         uint64_t phiVal = phi[k];

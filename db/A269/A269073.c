@@ -14,13 +14,15 @@
  *            a(7)=2362726...
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 16, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 189 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call */
     if (cache == NULL) {
         cache_len = 14;
-        cache = (seq_t *)malloc((size_t)cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)cache_len);
         for (idx_t i = 0; i < cache_len; ++i)
             cache[i] = init[i];
     }
@@ -66,11 +68,10 @@ seq_t a(idx_t n)
     /* Extend cache to include up to a(n) */
     if (n > cache_len) {
         /* Reallocate to hold n terms */
-        seq_t *newptr = (seq_t *)realloc(cache,
-                                         (size_t)n * sizeof(seq_t));
+        seq_t *newptr = mem_resize(seq_t, cache, (size_t)n);
         if (newptr == NULL) {
             /* Out of memory; return 0 as a safe failure value. */
-            free(cache);
+            mem_free(cache);
             cache = NULL;
             cache_len = 0;
             return 0;

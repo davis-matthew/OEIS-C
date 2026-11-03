@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   build_word
+ * Validated: partial, pass, 90 terms through n = 90 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,48 @@
    is stored as a(n). */
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/build_word.h"
+#include "../utils/mem.h"
+
+/* Build a word large enough to contain at least n+1 symbols 1.
+   The returned buffer must be freed by the caller. */
+static unsigned char *build_word(idx_t n, size_t *out_len)
+{
+    /* Two words of length L produce a word of length 3L, so
+       we stop when the length reaches 3*(n+1) guaranteeing at least
+       n+1 symbols 1. */
+    size_t need_len = 3 * (size_t)(n + 1);
+    size_t cur_len  = 1;
+    unsigned char *word = (unsigned char*)malloc(cur_len);
+    word[0] = 1;                          /* start symbol */
+
+    while (cur_len < need_len) {
+        size_t new_len = cur_len * 3;
+        unsigned char *new_word = (unsigned char*)malloc(new_len);
+        size_t pos = 0;
+        for (size_t i = 0; i < cur_len; ++i) {
+            unsigned char s = word[i];
+            switch (s) {
+                case 1: new_word[pos++] = 1;
+                        new_word[pos++] = 2;
+                        new_word[pos++] = 3;
+                        break;
+                case 2: new_word[pos++] = 2;
+                        new_word[pos++] = 3;
+                        new_word[pos++] = 1;
+                        break;
+                case 3: new_word[pos++] = 3;
+                        new_word[pos++] = 1;
+                        new_word[pos++] = 2;
+                        break;
+            }
+        }
+        free(word);
+        word   = new_word;
+        cur_len = new_len;
+    }
+    *out_len = cur_len;
+    return word;
+}
 
 /* Cache of already computed values a(1)..a(cache_len) */
 static seq_t *cache = NULL;
@@ -36,7 +78,7 @@ seq_t a(idx_t n)
         return cache[(size_t)(n - 1)];
 
     /* Allocate a new cache big enough to hold a(1)..a(n) */
-    seq_t *new_cache = (seq_t*)malloc(sizeof(seq_t) * (size_t)n);
+    seq_t *new_cache = mem_new(seq_t, (size_t)n);
 
     /* Build a word containing at least (n+1) occurrences of the symbol 1. */
     size_t word_len;
@@ -64,7 +106,7 @@ seq_t a(idx_t n)
     free(word);
 
     /* Replace the old cache with the newly computed one. */
-    free(cache);
+    mem_free(cache);
     cache     = new_cache;
     cache_len = n;
 

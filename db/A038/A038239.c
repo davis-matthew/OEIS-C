@@ -9,14 +9,15 @@
  *            i*(i+1)/2 ≤ n and j = n - i*(i+1)/2
  * Range:     u8 n <= 6, u16 n <= 17, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 /* Power of a small integer base to an unsigned exponent.
    Works for any seq_t (fixed‑size or arbitrary‑precision). */
@@ -51,7 +52,7 @@ seq_t a(idx_t n)
     idx_t j = n - tri_i;           /* 0 ≤ j ≤ i */
 
     /* Compute the term: binomial(i, j) * 4^(i-j) * 9^j */
-    seq_t bin = binom(i, j);
+    seq_t bin = binomial(i, j);
     seq_t pow4 = pow_uint((seq_t)4, i - j);
     seq_t pow9 = pow_uint((seq_t)9, j);
     return bin * pow4 * pow9;

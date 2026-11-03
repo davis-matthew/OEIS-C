@@ -9,14 +9,30 @@
  *            contains the same number of digit 3 and digit 8
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   equal3_8
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/equal3_8.h"
+#include "../utils/mem.h"
+
+static bool equal3_8(seq_t x)
+{
+    seq_t t = x;
+    unsigned count3 = 0, count8 = 0;
+    /* Special case: 0 has no 3's or 8's, so it is acceptable. */
+    if (t == 0) return true;
+    while (t > 0) {
+        seq_t d = t % (seq_t)11;
+        if (d == (seq_t)3) ++count3;
+        else if (d == (seq_t)8) ++count8;
+        t = t / (seq_t)11;
+    }
+    return count3 == count8;
+}
 
 seq_t a(idx_t n)
 {
@@ -29,7 +45,7 @@ seq_t a(idx_t n)
     /* Allocate initial cache if needed. */
     if (cache == NULL) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) return 0; /* Allocation failed; return 0 as fallback. */
         cache_cnt = 0;
     }
@@ -40,7 +56,7 @@ seq_t a(idx_t n)
             /* Store the hit.  Grow cache if necessary. */
             if (cache_cnt == cache_cap) {
                 size_t new_cap = cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (tmp == NULL) return 0; /* Allocation failed. */
                 cache = tmp;
                 cache_cap = new_cap;

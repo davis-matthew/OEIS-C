@@ -8,7 +8,8 @@
  *            a(n-2) + 2*a(n-3) - a(n-4)
  * Range:     i8 n <= 15, i16 n <= 27, i32 n <= 44, i64 n <= 44, i128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /*  Generating function: 1/((1-x)(1+2x+x^2-x^3)) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;          /* cache of previously computed terms   */
 static idx_t  memo_size = 0;        /* number of elements stored (max n+1)  */
@@ -27,7 +29,7 @@ static void ensure_cache(idx_t n)
         return;                       /* already computed */
 
     /* allocate new storage */
-    seq_t *new_mem = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *new_mem = mem_new(seq_t, (n + 1));
     if (!new_mem)                     /* out of memory: abort */
         abort();
 
@@ -35,7 +37,7 @@ static void ensure_cache(idx_t n)
     for (idx_t i = 0; i < memo_size; ++i)
         new_mem[i] = memo[i];
 
-    free(memo);
+    mem_free(memo);
     memo = new_mem;
     memo_size = n + 1;
 

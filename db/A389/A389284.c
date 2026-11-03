@@ -11,13 +11,15 @@
  *            * a(k-i) (coefficients of A(x)^2). This implementati...
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 14, u64 n <= 25, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 985 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build system. */
 seq_t a(idx_t n)
@@ -33,16 +35,16 @@ seq_t a(idx_t n)
         size_t new_cap = (cap == 0 ? 1 : cap);
         while (new_cap <= (size_t)n + 1) new_cap <<= 1;
 
-        seq_t *new_A = (seq_t *)malloc(new_cap * sizeof(seq_t));
-        seq_t *new_C = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_A = mem_new(seq_t, new_cap);
+        seq_t *new_C = mem_new(seq_t, new_cap);
         if (!new_A || !new_C) {
             /* Out of memory – return 0 (undefined for this sequence). */
             return (seq_t)0;
         }
 
         /* Copy existing data if any */
-        if (A) memcpy(new_A, A, (size_t)computed * sizeof(seq_t));
-        if (C) memcpy(new_C, C, (size_t)computed * sizeof(seq_t));
+        if (A) mem_copy(new_A, A, (size_t)computed * sizeof(seq_t));
+        if (C) mem_copy(new_C, C, (size_t)computed * sizeof(seq_t));
 
         /* Zero the freshly allocated parts */
         for (size_t i = computed; i < new_cap; ++i) {
@@ -51,8 +53,8 @@ seq_t a(idx_t n)
         }
 
         /* Free old buffers and adopt new ones */
-        if (A) free(A);
-        if (C) free(C);
+        if (A) mem_free(A);
+        if (C) mem_free(C);
         A = new_A;
         C = new_C;
         cap = new_cap;

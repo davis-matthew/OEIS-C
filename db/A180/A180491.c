@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 16, u32 n <= 22, u64 n <= 36, u128 n <= 42,
  *            big any n
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
  * k = 2,3,...,n-1.  If n is composite the product contains a factor
  * n % d = 0 for some divisor d, hence the result is zero.  The
  * function uses the provided is_prime utility. */
+#include <stdbool.h>
 #include "../utils/is_prime.h"
 
 seq_t a(idx_t n)

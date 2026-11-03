@@ -8,15 +8,17 @@
  * Formula:   a(n) = lcm(1,2,…,n) – 2^n (where n* = lcm(1,…,n))
  * Range:     i8 n <= 6, i16 n <= 12, i32 n <= 22, i64 n <= 42, i128 n <= 88,
  *            big any n
- * Helpers:   build_primes_upto, seq_pow
+ * Validated: standard, pass, 44 terms through n = 995 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/build_primes_upto.h"   /* build_primes_upto() */
-#include "../utils/seq_pow.h"            /* seq_pow() */
+#include <stdbool.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/ipow_idx.h"
 
 /* cache of all primes ≤ current prime_limit */
 static uint64_t *prime_cache = NULL;
@@ -54,9 +56,9 @@ seq_t a(idx_t n)
             t *= p;
             ++k;
         }
-        lcm *= seq_pow((seq_t)p, k);
+        lcm *= ipow_idx((seq_t)p, k);
     }
 
-    seq_t two_pow = seq_pow((seq_t)2, n);
+    seq_t two_pow = ipow_idx((seq_t)2, n);
     return lcm - two_pow;
 }

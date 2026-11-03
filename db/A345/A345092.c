@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{d|n} n^(phi(n/d)-1)
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 12, u64 n <= 18, u128 n <= 24,
  *            big any n
- * Helpers:   big_pow, calc_phi, factor_u64
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-01)
+ * Helpers:   factor_u64, ipow, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,9 +16,10 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/calc_phi.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
+#include "../utils/totient_seq.h"
 
 /* Generate all positive divisors of n into divs.  divs must
    be large enough to hold them all, and the number of divisors
@@ -62,9 +64,9 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < divcnt; ++i) {
         uint64_t d  = divs[i];
         uint64_t m  = nn / d;          /* n/d */
-        seq_t phi_m   = calc_phi((seq_t)m);
+        seq_t phi_m   = totient_seq((seq_t)m);
         seq_t exp     = phi_m - 1;     /* phi(m) - 1, fits in seq_t */
-        seq_t term    = big_pow((seq_t)nn, exp);
+        seq_t term    = ipow((seq_t)nn, exp);
         sum += term;
     }
 

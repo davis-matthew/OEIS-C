@@ -12,7 +12,8 @@
  *            digit_i·i! with 0 ≤ digit_i ≤ i
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, factorial_digit_product
+ * Validated: standard, pass, 103 terms through n = 9610 (2026-11-01)
+ * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,26 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/factorial_digit_product.h"
+
+/* Compute the product of (digit_i + 1) over the factorial‑base digits
+   of e.  e is a 64‑bit unsigned integer. */
+static seq_t factorial_digit_product(uint64_t e)
+{
+    seq_t prod = 1;
+    uint64_t t = e;
+    uint64_t i = 1;          /* factorial base position (i!) */
+    while (t > 0) {
+        /* digit in the i! place: 0 ≤ digit ≤ i */
+        uint64_t digit = t % (i + 1);
+        prod *= (digit + 1);
+        t /= (i + 1);
+        ++i;
+    }
+    return prod;
+}
 
 /* Main function for OEIS A376887 */
 seq_t a(idx_t n)

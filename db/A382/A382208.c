@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 62, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   compute_pi, factor_u64
+ * Validated: standard, pass, 75 terms through n = 9273 (2026-11-01)
+ * Helpers:   factor_u64, prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,10 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
 #include "../utils/factor_u64.h"
-#include "../utils/compute_pi.h"
+#include "../utils/prime_pi.h"
 
 /* -------------- static storage ------------------------------------ */
 
@@ -84,7 +87,7 @@ seq_t a(idx_t n)
                 omega_total += (idx_t)exps[i];
 
             /* Compute π(Ω(k)) and compare. */
-            seq_t pi_val = compute_pi((idx_t)omega_total);
+            seq_t pi_val = prime_pi((idx_t)omega_total);
             good = (pi_val == omega_distinct);
         }
 
@@ -111,7 +114,7 @@ seq_t a(idx_t n)
             for (size_t i = 0; i < dcnt; ++i)
                 omega_total += (idx_t)exps[i];
 
-            seq_t pi_val = compute_pi((idx_t)omega_total);
+            seq_t pi_val = prime_pi((idx_t)omega_total);
             good = (pi_val == omega_distinct);
         }
 

@@ -8,7 +8,8 @@
  *            divisor of k} p^d)
  * Range:     u8 n <= 119, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, seq_pow
+ * Validated: standard, pass, 82 terms through n = 9599 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,9 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 #define MAX_EXP 70           /* enough for exponents up to 64‑bit numbers (≤ 2^63) */
 
@@ -58,7 +60,7 @@ static seq_t prime_power_term(uint64_t p, idx_t e)
 
     for (idx_t d = 1; d <= e; ++d) {
         if (marks[e][d]) {
-            pd = seq_pow((seq_t)p, d);   /* given in ../utils/seq_pow.h */
+            pd = ipow_idx((seq_t)p, d);   /* given in ../utils/seq_pow.h */
             sum += pd;
         }
     }

@@ -10,14 +10,17 @@
  *            floor_log2(n-2) Initial values: a(1)=1, a(2)=2, a(3)=2
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   floor_log2_uint64
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-03)
+ * Helpers:   ilog2, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include "../utils/ilog2.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;
@@ -29,8 +32,8 @@ seq_t a(idx_t n) {
     if (n > cap) {
         size_t newcap = cap ? cap * 2 : 16;
         if (newcap < (size_t)n) newcap = (size_t)n;
-        cache   = (seq_t*)realloc(cache,   sizeof(seq_t)*(newcap+1));
-        prefix  = (seq_t*)realloc(prefix,  sizeof(seq_t)*(newcap+1));
+        cache   = mem_resize(seq_t, cache, (newcap+1));
+        prefix  = mem_resize(seq_t, prefix, (newcap+1));
         if (cap == 0) {          /* first allocation */
             prefix[0] = 0;       /* Cumulative sum for 0 terms */
         }
@@ -50,7 +53,7 @@ seq_t a(idx_t n) {
             prefix[i] = prefix[i-1] + cache[i];
         } else {
             /* p = floor_log2(i-2) */
-            idx_t p = floor_log2_uint64(i - 2u);
+            idx_t p = ilog2(i - 2u);
             size_t power = (size_t)1 << p;          /* 2^p */
             idx_t m = (idx_t)(i - 1) - power;       /* n-1-2^p */
             cache[i] = prefix[i-1] - cache[m];

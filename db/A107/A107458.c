@@ -6,8 +6,9 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = a(n-2) + a(n-3) + a(n-4); Initial values: a(0)=1, a(1)=0,
  *            a(2)=0, a(3)=0
- * Range:     u8 n <= 21, u16 n <= 35, u32 n <= 48, u64 n <= 48, u128 n <= 48,
- *            big any n
+ * Range:     u8 n <= 21, u16 n <= 35, u32 n <= 64, u64 n <= 122,
+ *            u128 n <= 238, big any n
+ * Validated: standard, pass, 65 terms through n = 996 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

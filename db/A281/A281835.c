@@ -10,7 +10,8 @@
  *            that every cell has at most four equal king‑move neighbors
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 185 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define STATE_COUNT 4160   // 65 (sentinel + 64) * 64
 
@@ -86,7 +88,7 @@ seq_t a(idx_t n)
             dp[64 * 64 + r] = 1;
 
     for (idx_t row = 1; row < n; ++row) {
-        memset(ndp, 0, sizeof(ndp));
+        mem_set(ndp, 0, sizeof(ndp));
         for (int id = 0; id < STATE_COUNT; ++id) {
             seq_t cnt = dp[id];
             if (!cnt) continue;
@@ -97,7 +99,7 @@ seq_t a(idx_t n)
                 ndp[new_id] += cnt;
             }
         }
-        memcpy(dp, ndp, sizeof(dp));
+        mem_copy(dp, ndp, sizeof(dp));
     }
 
     seq_t ans = 0;

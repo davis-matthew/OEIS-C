@@ -12,7 +12,8 @@
  *            random access
  * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Test whether the integer k satisfies the distinct‑leader property. */
 static bool is_good(uint64_t k)
@@ -82,8 +84,7 @@ seq_t a(idx_t n)
         if (is_good(next_k)) {
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap == 0 ? 16 : cache_cap * 2;
-                seq_t *new_mem = (seq_t *)realloc(
-                                    cache, new_cap * sizeof(seq_t));
+                seq_t *new_mem = mem_resize(seq_t, cache, new_cap);
                 if (!new_mem)
                     abort();               /* memory error */
                 cache = new_mem;

@@ -10,7 +10,8 @@
  *            b(0)=2, b(1)=5; * a and b are increasing complementary sequences
  * Range:     u8 n <= 10, u16 n <= 26, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,8 +29,8 @@ seq_t a(idx_t n)
 
     /* Allocate arrays for a[] and b[] */
     size_t len = (size_t)n + 1;
-    seq_t *A = (seq_t*)malloc(len * sizeof(seq_t));
-    seq_t *B = (seq_t*)malloc(len * sizeof(seq_t));
+    seq_t *A = mem_new(seq_t, len);
+    seq_t *B = mem_new(seq_t, len);
 
     /* Allocate a boolean array marking which integers have been used.
        The smallest unused integer never exceeds 2*n+3, so a size of
@@ -73,8 +75,8 @@ seq_t a(idx_t n)
 
     /* Clean up */
     free(used);
-    free(A);
-    free(B);
+    mem_free(A);
+    mem_free(B);
     #undef MARK_USED
 
     return result;

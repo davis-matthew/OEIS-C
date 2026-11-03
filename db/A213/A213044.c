@@ -11,13 +11,15 @@
  *            a(6)=22, a(7)=34
  * Range:     u8 n <= 11, u16 n <= 22, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static const seq_t INIT[8] = { (seq_t)1, (seq_t)1, (seq_t)2, (seq_t)5,
                                (seq_t)7, (seq_t)12, (seq_t)22, (seq_t)34 };
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     if (!cache) {
         size_t init_cap = 64;
         if (init_cap < 8) init_cap = 8;
-        cache = (seq_t *)malloc(init_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, init_cap);
         cache_cap = init_cap;
         for (idx_t i = 0; i < 8; ++i) cache[i] = INIT[i];
         cache_size = 8;
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     if ((size_t)n + 1 > cache_cap) {
         size_t new_cap = cache_cap;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return (seq_t)0;  /* allocation failure – unlikely for n<10000 */
         cache = tmp;
         cache_cap = new_cap;

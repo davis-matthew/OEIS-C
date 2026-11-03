@@ -7,9 +7,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = number of k with 1 ≤ k ≤ n such that A017666(k) =
  *            A017666(n), where A017666(k) = k / gcd(k, σ(k))
- * Range:     u8 n <= 22, u16 n <= 2094, u32 n <= 9885, u64 n <= 9885,
- *            u128 n <= 9885, big any n
- * Helpers:   gcd
+ * Range:     u8 n <= 22, u16 n <= 2094, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9885 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 typedef uint64_t idx_t;
 
@@ -39,7 +41,7 @@ static void ensure_idx_cache(idx_t n)
 static void ensure_seq_cache(idx_t n)
 {
     if (n <= max_n) return;
-    a_cache = (seq_t*)realloc(a_cache, (n + 1) * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, (n + 1));
     /* we will overwrite new entries after they are computed */
 }
 

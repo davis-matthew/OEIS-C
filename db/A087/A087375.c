@@ -8,13 +8,14 @@
  *            a(n) = A214046(n)^n for n > 1
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 33,
  *            big any n
- * Helpers:   pow_n
+ * Validated: standard, pass, 41 terms through n = 416 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
-#include "../utils/pow_n.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -35,10 +36,10 @@ seq_t a(idx_t n)
     if (r_est < 1) r_est = 1;
 
     /* Refine estimate by checking powers */
-    seq_t pow_val = pow_n((seq_t)r_est, n);
+    seq_t pow_val = ipow_idx((seq_t)r_est, n);
     while (pow_val <= fact) {
         ++r_est;
-        pow_val = pow_n((seq_t)r_est, n);
+        pow_val = ipow_idx((seq_t)r_est, n);
     }
 
     return pow_val;   /* r_est^n is the desired term a(n) */

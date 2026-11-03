@@ -7,7 +7,8 @@
  * Formula:   a(n) = |{ k ≤ n : rad(k) is a primorial }|
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 89 terms through n = 9881 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Forward declaration for the static memory holder */
 static struct {
@@ -90,7 +92,7 @@ static void _ensure_idx(idx_t n)
     }
 
     /* Build cumulative counts */
-    seq_t *new_pref = (seq_t*)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_pref = mem_new(seq_t, new_cap);
     if (!new_pref) exit(EXIT_FAILURE);
     new_pref[0] = (seq_t)0;
     for (idx_t i = 1; i < new_cap; ++i) {
@@ -99,7 +101,7 @@ static void _ensure_idx(idx_t n)
     }
 
     /* Replace old state with the new one */
-    free(_A377028_state.pref);
+    mem_free(_A377028_state.pref);
     _A377028_state.pref = new_pref;
     _A377028_state.cap  = new_cap;
 

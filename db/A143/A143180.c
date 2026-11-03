@@ -10,6 +10,7 @@
  *            floor((sqrt(8*n+1)-1)/2) and k = n - r*(r+1)/2
  * Range:     i8 n <= 14, i16 n <= 527, i32 n <= 1325, i64 n <= 1325,
  *            i128 n <= 1325, big any n
+ * Validated: standard, pass, 82 terms through n = 1277 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

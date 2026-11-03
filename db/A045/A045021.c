@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5115, u32 n <= 9000, u64 n <= 9000,
  *            u128 n <= 9000, big any n
- * Helpers:   has_one_zero_three_ones
+ * Validated: standard, pass, 60 terms through n = 8618 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,24 @@
    successive integers and testing the digit counts in base 4. */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/has_one_zero_three_ones.h"
+
+/* Return true iff x (>=1) written in base 4 contains exactly one digit
+   0 and exactly three digits 1.  The test stops early if a count
+   exceeds the required amount to keep the routine quick. */
+static bool has_one_zero_three_ones(uint64_t x)
+{
+    unsigned cnt0 = 0, cnt1 = 0;
+    while (x > 0) {
+        unsigned d = x & 3U;          /* x % 4 */
+        if (d == 0) {
+            if (++cnt0 > 1) return false;
+        } else if (d == 1) {
+            if (++cnt1 > 3) return false;
+        }
+        x >>= 2;                       /* x /= 4 */
+    }
+    return (cnt0 == 1 && cnt1 == 3);
+}
 
 /* Return the n‑th term (n ≥ 1) of the sequence.  The function scans
    integers from 1 upward, keeps a running counter of numbers that

@@ -5,16 +5,18 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = Sum_{k <= n/2} k * binomial(n-2k, 3k+1)
- * Range:     u8 n <= 9, u16 n <= 19, u32 n <= 38, u64 n <= 38, u128 n <= 38,
+ * Range:     u8 n <= 12, u16 n <= 21, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 39 terms through n = 38 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>            /* for size_t */
 #include <stdlib.h>            /* for malloc, realloc */
-#include "../utils/binomial.h" /* for binomial(idx_t, idx_t) */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* Compute a single term a(n) directly using the definition. */
 static seq_t compute_a(idx_t n)
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     /* Allocate or enlarge the cache if necessary. */
     if (n >= (idx_t)cap) {
         size_t new_cap = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();          /* out of memory */
         cache = tmp;
         cap = new_cap;

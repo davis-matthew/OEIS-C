@@ -12,13 +12,15 @@
  *            are listed row‑wise
  * Range:     u8 n <= 23, u16 n <= 49, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Convert to 1‑based index of the triangle entry */
@@ -38,23 +40,23 @@ seq_t a(idx_t n) {
 
     /* Prepare rows for DP */
     /* row 0 */
-    seq_t *prev2 = (seq_t*)malloc(sizeof(seq_t) * 1);
+    seq_t *prev2 = mem_new(seq_t, 1);
     prev2[0] = 1;
 
     if (r == 1) {        /* row 1 : {1, 1} */
         seq_t res = (k == 0) ? 1 : 1;
-        free(prev2);
+        mem_free(prev2);
         return res;
     }
 
     /* row 1 */
-    seq_t *prev1 = (seq_t*)malloc(sizeof(seq_t) * 2);
+    seq_t *prev1 = mem_new(seq_t, 2);
     prev1[0] = 1;
     prev1[1] = 1;
 
     /* Build rows up to r */
     for (idx_t i = 2; i <= r; ++i) {
-        seq_t *cur = (seq_t*)malloc(sizeof(seq_t) * (i + 1));
+        seq_t *cur = mem_new(seq_t, (i + 1));
 
         /* c_{i,0} */
         if (i == 2) {
@@ -75,14 +77,14 @@ seq_t a(idx_t n) {
         }
 
         /* Rotate rows */
-        free(prev2);
+        mem_free(prev2);
         prev2 = prev1;
         prev1 = cur;
     }
 
     /* prev1 now holds row r */
     seq_t result = prev1[k];
-    free(prev2);
-    free(prev1);
+    mem_free(prev2);
+    mem_free(prev1);
     return result;
 }

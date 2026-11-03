@@ -7,12 +7,14 @@
  * Formula:   a(n) = ⌊10·{10ⁿ/692}⌋ (the nth decimal digit of 1/692, n≥0)
  * Range:     u8 n <= 2, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 99 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,10 +27,10 @@ seq_t a(idx_t n)
         /* Allocate or reallocate the cache */
         seq_t *new_cache = NULL;
         if (cache == NULL) {
-            new_cache = (seq_t*)malloc((size_t)(n + 1) * sizeof(seq_t));
+            new_cache = mem_new(seq_t, (size_t)(n + 1));
             if (!new_cache) return 0;  /* out of memory; return 0 as a safe fallback */
         } else {
-            new_cache = (seq_t*)realloc(cache, (size_t)(n + 1) * sizeof(seq_t));
+            new_cache = mem_resize(seq_t, cache, (size_t)(n + 1));
             if (!new_cache) return 0;  /* out of memory; return 0 as a safe fallback */
         }
         cache = new_cache;

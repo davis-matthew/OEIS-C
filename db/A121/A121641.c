@@ -8,12 +8,14 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 279, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 68 terms through n = 987 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Recurrence: a(0)=1; for n>0: a(n)=a(n-1)+c_n, where c_n is the n‑th positive integer coprime to a(n-1). */
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

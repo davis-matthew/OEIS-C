@@ -12,6 +12,7 @@
  *            smallest primes)
  * Range:     u8 n <= 18, u16 n <= 52, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,7 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/factor_u64.h"   /* factor_u64 */
+#include "../utils/factor_u64.h"
 
 /* fast power for seq_t */
 static seq_t seq_pow(seq_t base, idx_t exp)

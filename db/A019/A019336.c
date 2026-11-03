@@ -9,7 +9,8 @@
  *            prime q dividing p-1 6^((p-1)/q) ≢ 1 (mod p)
  * Range:     u8 n <= 25, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 72 terms through n = 980 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <string.h>
 #include "../utils/is_prime.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* static storage for the computed sequence */
 static seq_t *seq = NULL;      /* array of found terms */
@@ -39,7 +42,7 @@ static uint64_t last_candidate = 1;
 static void grow_seq(void)
 {
     size_t new_cap = (seq_cap == 0) ? 16 : seq_cap << 1;
-    seq_t *tmp = (seq_t*)realloc(seq, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, new_cap);
     if (!tmp) abort();
     seq = tmp;
     seq_cap = new_cap;
@@ -70,7 +73,7 @@ static bool six_is_primitive_root(uint64_t p)
         if (m % q == 0)
         {
             /* if 6^((p-1)/q) ≡ 1 (mod p), then p fails */
-            if (mod_pow((seq_t)6, m / q, (seq_t)p) == (seq_t)1)
+            if (powmod((seq_t)6, m / q, (seq_t)p) == (seq_t)1)
             {
                 ok = false;
                 break;
@@ -81,7 +84,7 @@ static bool six_is_primitive_root(uint64_t p)
     }
     if (ok && tmp > 1)        /* tmp is a prime factor > sqrt(m) */
     {
-        if (mod_pow((seq_t)6, m / tmp, (seq_t)p) == (seq_t)1)
+        if (powmod((seq_t)6, m / tmp, (seq_t)p) == (seq_t)1)
             ok = false;
     }
     return ok;

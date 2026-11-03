@@ -10,6 +10,7 @@
  *            generating function f(-x,-x^7) = Σ_k (-1)^k x^(4k^2-3k)
  * Range:     i8 n <= 10000, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 101 terms through n = 9750 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,7 +10,8 @@
  *            are derangements (d(0)=1,d(1)=0, d(i)=(i-1)*(d(i-1)+d(i-2)))
  * Range:     u8 n <= 14, u16 n <= 28, u32 n <= 62, u64 n <= 130,
  *            u128 n <= 340, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 61 terms through n = 9970 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdbool.h>
 
 /* Binomial coefficient utility */
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* Cached derangement numbers */
 static seq_t *der_cache = NULL;
@@ -34,7 +36,7 @@ static void ensure_derangements(idx_t n)
         return;
 
     size_t new_size = (size_t)n + 1;
-    seq_t *tmp = (seq_t *)realloc(der_cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, der_cache, new_size);
     if (!tmp)
         exit(EXIT_FAILURE);
     der_cache = tmp;
@@ -107,8 +109,8 @@ seq_t a(idx_t n)
     /* Compute T(r,k) by the defining summation */
     seq_t sum = 0;
     for (idx_t j = k; j <= r + 1 - k; ++j) {
-        seq_t t = binom(j - 1, k - 1);
-        t = t * binom(r + 1 - j, k);
+        seq_t t = binomial(j - 1, k - 1);
+        t = t * binomial(r + 1 - j, k);
         t = t * der_cache[r - j];
         sum += t;
     }

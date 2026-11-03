@@ -8,12 +8,14 @@
  *            a(4)=13, a(5)=16, a(6)=19
  * Range:     u8 n <= 13, u16 n <= 29, u32 n <= 62, u64 n <= 128,
  *            u128 n <= 260, big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 975 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build. */
 static seq_t *a_cache   = NULL;    /* memoisation array */
@@ -28,7 +30,7 @@ static void ensure_capacity(idx_t n) {
     size_t new_cap = a_cap ? a_cap : 8;
     while (new_cap < needed) new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     a_cache = tmp;
 
@@ -42,7 +44,7 @@ seq_t a(idx_t n) {
     /* First‑time initialisation. */
     if (!a_cache) {
         a_cap = 8;
-        a_cache = (seq_t *)malloc(a_cap * sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_cap);
         if (!a_cache) exit(EXIT_FAILURE);
         for (size_t i = 0; i < a_cap; ++i) a_cache[i] = 0;
         a_cache[0] = (seq_t)1;

@@ -12,7 +12,8 @@
  *            dp[k][n]
  * Range:     u8 n <= 13, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 /* Static storage used for memoisation. */
 static seq_t *dp[6] = {NULL};          /* dp[0]..dp[5] arrays */
@@ -42,13 +44,13 @@ static void ensure_capacity(idx_t n)
 
     /* Grow each dp array to size n+1. */
     for (int k = 0; k <= 5; k++) {
-        seq_t *newp = (seq_t *)realloc(dp[k], ((size_t)n + 1) * sizeof(seq_t));
+        seq_t *newp = mem_resize(seq_t, dp[k], ((size_t)n + 1));
         if (!newp) abort();           /* allocation failure */
         dp[k] = newp;
     }
 
     /* Initialise dp[0][s] = 0 for new indices; set dp[0][0] = 1. */
-    memset(dp[0] + maxN + 1, 0, ((size_t)n - maxN) * sizeof(seq_t));
+    mem_set(dp[0] + maxN + 1, 0, ((size_t)n - maxN) * sizeof(seq_t));
     dp[0][0] = (seq_t)1;
 
     /* Compute dp values for new indices (old ones retain values). */

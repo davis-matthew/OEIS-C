@@ -7,14 +7,17 @@
  * Formula:   a(n) = numerator of the reduced fraction n^(n-2)/n!
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 12, u64 n <= 18, u128 n <= 22,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* The function factors n, cancels common powers with n! and
    multiplies the remaining prime powers to give the numerator. */
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -49,7 +52,7 @@ seq_t a(idx_t n)
 
             idx_t diff = (exp_num > exp_den) ? (exp_num - exp_den) : 0;
             if (diff)
-                result *= seq_pow((seq_t)p, diff);
+                result *= ipow_idx((seq_t)p, diff);
         }
         ++p;
     }
@@ -71,7 +74,7 @@ seq_t a(idx_t n)
 
         idx_t diff = (exp_num > exp_den) ? (exp_num - exp_den) : 0;
         if (diff)
-            result *= seq_pow((seq_t)p, diff);
+            result *= ipow_idx((seq_t)p, diff);
     }
 
     return result;

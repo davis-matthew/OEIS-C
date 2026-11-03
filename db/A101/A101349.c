@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn
  * Formula:   not stated
- * Range:     u8 n <= 17, u16 n <= 105, u32 n <= 105, u64 n <= 105,
- *            u128 n <= 105, big any n
- * Helpers:   none
+ * Range:     u8 n <= 17, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 121 terms through n = 9468 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static bool initialized = false;
 static idx_t prime_cnt = 0;
@@ -69,7 +71,7 @@ static void init_a_vals(void)
         ++t;
     }
 
-    a_vals = (seq_t*)malloc((prime_cnt - 1) * sizeof(seq_t));
+    a_vals = mem_new(seq_t, (prime_cnt - 1));
     if (!a_vals) abort();
 
     for (idx_t i = 1; i < prime_cnt; ++i) {

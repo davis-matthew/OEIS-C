@@ -11,7 +11,8 @@
  *            8)
  * Range:     u8 n <= 22, u16 n <= 5872, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   my_alloc, my_free
+ * Validated: standard, pass, 70 terms through n = 9995 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,11 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/my_alloc.h"
-#include "../utils/my_free.h"
+#include "../utils/mem.h"
+
+static void* my_alloc(size_t sz) { return malloc(sz); }
+
+static void  my_free (void* p)     { free(p); }
 
 /* Compatibility helpers for C / C++ */
 #ifdef __cplusplus
@@ -47,13 +51,13 @@ static void ensure_cache(size_t need)
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < need) new_cap *= 2;
 
-    seq_t *tmp = (seq_t*)my_alloc(new_cap * sizeof(seq_t));
-    if (!tmp) { my_free(cache); exit(1); }   /* fatal if memory allocation fails */
+    seq_t *tmp = mem_new(seq_t, new_cap);
+    if (!tmp) { mem_free(cache); exit(1); }   /* fatal if memory allocation fails */
     /* copy existing elements */
     for (size_t i = 0; i < cache_len; ++i) tmp[i] = cache[i];
 
     /* free old array */
-    my_free(cache);
+    mem_free(cache);
     cache = tmp;
     cache_cap = new_cap;
 }

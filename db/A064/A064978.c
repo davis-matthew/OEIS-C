@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 17, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <limits.h>
+#include "../utils/mem.h"
 
 /* Miller–Rabin for 64‑bit integers (deterministic for n < 3.4e12) */
 static inline uint64_t mul_mod(uint64_t a, uint64_t b, uint64_t mod) {
@@ -81,7 +83,7 @@ static inline bool candidate_ok(idx_t k) {
 static inline void ensure_capacity(void) {
     if (cache_len == cache_cap) {
         size_t newcap = cache_cap == 0 ? 16 : cache_cap * 2;
-        seq_t *tmp = (seq_t*)realloc(seq_cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, newcap);
         if (!tmp) abort();
         seq_cache = tmp;
         cache_cap = newcap;

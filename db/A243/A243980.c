@@ -7,6 +7,7 @@
  * Formula:   a(n) = 4 * Σ_{k=1..n} σ(k) = 4 * Σ_{d=1..n} d * ⌊n/d⌋
  * Range:     u8 n <= 8, u16 n <= 140, u32 n <= 7342, u64 n <= 7342,
  *            u128 n <= 7342, big any n
+ * Validated: standard, pass, 64 terms through n = 6421 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

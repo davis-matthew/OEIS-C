@@ -9,14 +9,24 @@
  *            digit b-1 }; a(1)=1
  * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_b_minus_one
+ * Validated: standard, pass, 101 terms through n = 9797 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/has_b_minus_one.h"
+
+/* Check whether the base‑b representation of n contains the digit b‑1. */
+static bool has_b_minus_one(idx_t n, idx_t b) {
+    idx_t rem = b - 1;
+    while (n > 0) {
+        if (n % b == rem) return true;
+        n /= b;
+    }
+    return false;
+}
 
 /* Compute floor(sqrt(n)) for idx_t */
 static idx_t floor_sqrt(idx_t n) {

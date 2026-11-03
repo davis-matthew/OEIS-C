@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 20, i16 n <= 40, i32 n <= 52, i64 n <= 52, i128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    a(n) = -∑_{k=0..⌊(n-1)/5⌋} a(k) * a(n-5*k-1)   for n ≥ 1
 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
             if (new_alloc <= n) new_alloc = n + 1;
 
             /* realloc returns void*, cast explicitly for C++ */
-            seq_t *tmp_mem = (seq_t *)realloc(memo, new_alloc * sizeof(*tmp_mem));
+            seq_t *tmp_mem = mem_resize(seq_t, memo, new_alloc);
             unsigned char *tmp_comp = (unsigned char *)realloc(computed,
                                     new_alloc * sizeof(*tmp_comp));
             if (!tmp_mem || !tmp_comp) abort();   /* allocation failed */

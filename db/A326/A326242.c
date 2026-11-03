@@ -7,13 +7,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 21, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 464 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* OEIS A326242: Number of degree‑n odd permutations of order dividing 12 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static memoisation tables for odd and even permutations */
 static seq_t *odd_cache = NULL;
@@ -31,8 +33,8 @@ static void ensure_capacity(idx_t n)
     while (new_cap <= (size_t)n)
         new_cap <<= 1;
 
-    odd_cache  = (seq_t *)realloc(odd_cache,  new_cap * sizeof(seq_t));
-    even_cache = (seq_t *)realloc(even_cache, new_cap * sizeof(seq_t));
+    odd_cache  = mem_resize(seq_t, odd_cache, new_cap);
+    even_cache = mem_resize(seq_t, even_cache, new_cap);
 
     for (size_t i = cache_capacity; i < new_cap; ++i) {
         odd_cache[i] = 0;

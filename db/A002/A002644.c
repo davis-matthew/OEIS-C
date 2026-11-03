@@ -8,7 +8,8 @@
  *            (Miller-Rabin)
  * Range:     u8 n <= 14, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   s2644_isprime, s2644_mulmod, s2644_powmod
+ * Validated: standard, pass, 67 terms through n = 963 (2026-11-03)
+ * Helpers:   is_prime_u64, mulmod, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/s2644_isprime.h"
-#include "../utils/s2644_mulmod.h"
-#include "../utils/s2644_powmod.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mulmod.h"
+#include "../utils/powmod_u64.h"
 
 static uint64_t *cache = NULL;
 static idx_t cache_len = 0;
@@ -31,7 +32,7 @@ seq_t a(idx_t n) {
         uint64_t p = (k * k + k + 1) / 21;
         /* k mod 21 alternates 4, 16: steps +12, +9 */
         next_k += (k % 21 == 4) ? 12 : 9;
-        if (s2644_isprime(p)) {
+        if (is_prime_u64(p)) {
             if (cache_len == cache_cap) {
                 idx_t nc = cache_cap ? cache_cap * 2 : 1024;
                 cache = (uint64_t *)realloc(cache, (size_t)nc * sizeof(uint64_t));

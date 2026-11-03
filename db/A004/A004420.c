@@ -10,12 +10,26 @@
  *            h = 1
  * Range:     i8 n <= 1, i16 n <= 3, i32 n <= 8, i64 n <= 24, i128 n <= 74,
  *            big any n
- * Helpers:   grow_zero
+ * Validated: standard, pass, 34 terms through n = 8959 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/grow_zero.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/mem.h"
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
 
 static seq_t *L[20];
 static idx_t have = 0;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 50, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   prime_small
+ * Validated: standard, pass, 74 terms through n = 988 (2026-11-03)
+ * Helpers:   is_prime_u32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/prime_small.h"
+#include "../utils/is_prime_u32.h"
+#include "../utils/mem.h"
 
 /* --------------- Main sequence function --------------------------------- */
 seq_t a(idx_t n) {
@@ -34,7 +36,7 @@ seq_t a(idx_t n) {
     /* initialization */
     if (!initialized) {
         terms_cap = 64;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
 
         fact_cap = 64;
         fact = (unsigned char *)malloc(fact_cap * sizeof(unsigned char));
@@ -51,7 +53,7 @@ seq_t a(idx_t n) {
             digit_sum += fact[i];
 
         /* 2. test if digit_sum + 1 is prime */
-        if (prime_small(digit_sum + 1))
+        if (is_prime_u32(digit_sum + 1))
             terms[terms_len++] = (seq_t)current_k;
 
         /* 3. advance to next factorial */
@@ -76,7 +78,7 @@ seq_t a(idx_t n) {
         /* ensure terms array capacity */
         if (terms_len == terms_cap) {
             terms_cap *= 2;
-            terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+            terms = mem_resize(seq_t, terms, terms_cap);
         }
     }
 

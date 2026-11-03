@@ -12,7 +12,8 @@
  *            0≤ki≤3} n!/(k1!…km!) row by row
  * Range:     u8 n <= 14, u16 n <= 26, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Small helper: binomial coefficient C(n,k) for non‑negative n,k. */
 static inline seq_t binom_idx(idx_t n, idx_t k)
@@ -66,11 +68,11 @@ static seq_t T_of_m_k(idx_t m, idx_t k)
     if (m == 0) return (k == 0) ? (seq_t)1 : (seq_t)0;
 
     /* DP array of size k+1, initialized to 0. */
-    seq_t *dp = (seq_t *)malloc((size_t)(k + 1) * sizeof(seq_t));
-    seq_t *dp_next = (seq_t *)malloc((size_t)(k + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(k + 1));
+    seq_t *dp_next = mem_new(seq_t, (size_t)(k + 1));
     if (!dp || !dp_next) {
         /* Allocation failure; return 0 (should not happen for small k). */
-        free(dp); free(dp_next);
+        mem_free(dp); mem_free(dp_next);
         return (seq_t)0;
     }
     for (idx_t i = 0; i <= k; ++i) dp[i] = dp_next[i] = (seq_t)0;
@@ -95,7 +97,7 @@ static seq_t T_of_m_k(idx_t m, idx_t k)
     }
 
     seq_t result = dp[k];
-    free(dp); free(dp_next);
+    mem_free(dp); mem_free(dp_next);
     return result;
 }
 

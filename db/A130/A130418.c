@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 76, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   triangular_prefix
+ * Validated: partial, pass, 76 terms through n = 76 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,12 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/triangular_prefix.h"
+
+/* Return r*(r-1)/2. */
+static idx_t triangular_prefix(idx_t r)
+{
+    return (r * (r - 1)) / 2;
+}
 
 /* G‑lobal cache of primes up to the largest limit requested. */
 static uint32_t *g_primes   = NULL;

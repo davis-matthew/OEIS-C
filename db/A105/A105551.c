@@ -8,7 +8,8 @@
  *            of n^3 + n^2 + 71)
  * Range:     u8 n <= 5, u16 n <= 41, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   count_distinct_prime_factors
+ * Validated: standard, pass, 102 terms through n = 929 (2026-11-01)
+ * Helpers:   omega_u64_to_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#include "../utils/count_distinct_prime_factors.h"   /* provides: size_t count_distinct_prime_factors(uint64_t) */
+#include "../utils/omega_u64_to_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -36,6 +37,6 @@ seq_t a(idx_t n)
     }
 
     uint64_t v64 = (uint64_t)val128;
-    size_t   cnt = count_distinct_prime_factors(v64);
+    size_t   cnt = omega_u64_to_u64(v64);
     return (seq_t)cnt;
 }

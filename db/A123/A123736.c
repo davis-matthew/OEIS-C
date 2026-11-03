@@ -8,7 +8,8 @@
  * Formula:   T(n,k) = sum_{j=0..⌊k/2⌋} binomial(n-j-1, k-2*j); a(n) is the
  *            nth term when the triangle T is read row‑by‑row
  * Range:     u8 n <= 115, u16 n <= 351, u32 n <= 1275, u64 n <= 4588,
- *            u128 n <= 9524, big any n
+ *            u128 n <= 10100, big any n
+ * Validated: standard, pass, 107 terms through n = 9524 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

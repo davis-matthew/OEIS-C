@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Configuration: pre‑compute up to this many k’s initially. */
 #define INIT_KMAX 400000UL      /* enough to cover many terms (≈100 M of work) */
@@ -73,7 +75,7 @@ static void init_sequence(void)
 
     /* Build the terms array. */
     g_termcnt = 0;
-    g_terms = (seq_t*)malloc(g_kmax * sizeof(seq_t));
+    g_terms = mem_new(seq_t, g_kmax);
     if (!g_terms) return;
 
     for (idx_t k = 1; k <= g_kmax; ++k) {
@@ -102,7 +104,7 @@ seq_t a(idx_t n)
 
         dfs(1, 0, 0, 2, 2 * new_kmax, new_counts, new_kmax);
 
-        seq_t *new_terms = (seq_t*)malloc(new_kmax * sizeof(seq_t));
+        seq_t *new_terms = mem_new(seq_t, new_kmax);
         if (!new_terms) { free(new_counts); break; }
 
         idx_t new_termcnt = 0;
@@ -112,7 +114,7 @@ seq_t a(idx_t n)
 
         /* Replace old data. */
         free(g_counts);
-        free(g_terms);
+        mem_free(g_terms);
         g_counts   = new_counts;
         g_terms    = new_terms;
         g_kmax     = new_kmax;

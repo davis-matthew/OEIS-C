@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base, easy
  * Formula:   not stated
- * Range:     u8 n <= 12, u16 n <= 738, u32 n <= 9654, u64 n <= 9654,
- *            u128 n <= 9654, big any n
- * Helpers:   none
+ * Range:     u8 n <= 12, u16 n <= 738, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 75 terms through n = 9654 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
     terms that have been generated so far, allowing calls in any order. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Test whether integer v starts and ends with its digital root. */
 static bool is_valid(idx_t v)
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
         if (is_valid(next_num)) {
             if (len == cap) {        /* grow cache if needed */
                 size_t new_cap = cap ? cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) abort();
                 cache = tmp;
                 cap   = new_cap;

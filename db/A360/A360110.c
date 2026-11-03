@@ -7,9 +7,10 @@
  * Formula:   a(n) is the n‑th positive integer that is not divisible by 4 and
  *            whose arithmetic derivative is a multiple of 4. (computed by
  *            inspecting each integer and memoising results)
- * Range:     u8 n <= 26, u16 n <= 8119, u32 n <= 9863, u64 n <= 9863,
- *            u128 n <= 9863, big any n
- * Helpers:   none
+ * Range:     u8 n <= 26, u16 n <= 8119, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 79 terms through n = 9863 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static cache of computed terms */
 static seq_t *terms      = NULL;
@@ -28,7 +30,7 @@ static uint64_t last_tested = 0;
 /* add a new term into the cache */
 static void add_term(uint64_t val)
 {
-    seq_t *tmp = (seq_t *)realloc(terms, (terms_cnt + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, terms, (terms_cnt + 1));
     if (!tmp) exit(EXIT_FAILURE);
     terms = tmp;
     terms[terms_cnt++] = (seq_t)val;

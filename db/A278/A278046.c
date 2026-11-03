@@ -12,14 +12,16 @@
  *            computes intermediate values iteratively and mem...
  * Range:     u8 n <= 6, u16 n <= 26, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   igcd
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   gcd_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/igcd.h"
+#include "../utils/gcd_idx.h"
+#include "../utils/mem.h"
 
 /* idx_t and seq_t are supplied by the build. Keep them generic. */
 static seq_t *a_cache = NULL;      /* memoised sequence values */
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
 
     /* ensure cache contains at least a[1] */
     if (cache_max < 1) {
-        a_cache = (seq_t *)malloc(2 * sizeof(seq_t)); /* indices 0 and 1 */
+        a_cache = mem_new(seq_t, 2); /* indices 0 and 1 */
         a_cache[0] = 0;
         a_cache[1] = (seq_t)1;                       /* a(1) = 1 */
         cache_max = 1;
@@ -41,13 +43,13 @@ seq_t a(idx_t n)
 
     /* extend cache up to requested n */
     if (n > cache_max) {
-        a_cache = (seq_t *)realloc(a_cache, (size_t)(n + 1) * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, (size_t)(n + 1));
         for (idx_t m = cache_max + 1; m <= n; ++m) {
             seq_t sum_sq = 0;      /* Σ k² over coprime k */
             idx_t  phi   = 0;      /* φ(m) */
 
             for (idx_t k = 1; k < m; ++k) {
-                if (igcd(k, m) == 1) {
+                if (gcd_idx(k, m) == 1) {
                     ++phi;
                     /* k² fits in seq_t comfortably (k ≤ 1e4). */
                     sum_sq += (seq_t)k * (seq_t)k;

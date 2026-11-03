@@ -7,13 +7,15 @@
  * Formula:   a(n) = 4*a(n-2)+2 (n≥3), a(0)=1, a(1)=0, a(2)=1
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 33, u64 n <= 65, u128 n <= 129,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 970 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* This implementation uses memoisation to compute each term only once. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* initialisation */
     if (cache == NULL) {
         capacity = 16;                    /* initial arbitrary size */
-        cache = (seq_t *)malloc(sizeof(seq_t) * capacity);
+        cache = mem_new(seq_t, capacity);
         if (cache == NULL) {
             /* out of memory – terminate the program, as later use would be unsound */
             abort();
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     /* ensure cache large enough for the requested index */
     if (n >= capacity) {
         while (capacity <= n) capacity <<= 1;                 /* grow by factor 2 */
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * capacity);
+        seq_t *tmp = mem_resize(seq_t, cache, capacity);
         if (tmp == NULL) abort();
         cache = tmp;
     }

@@ -8,8 +8,9 @@
  * Keywords:  sign, base
  * Formula:   a(n) = Σ_{m≥0} (-1)^m * 2^m * bit_{2m}(n) (real part of f(n)
  *            where f(n) = Σ b_k * i^k * 2^⌊k/2⌋)
- * Range:     i8 n <= 7994, i16 n <= 7994, i32 n <= 7994, i64 n <= 7994,
- *            i128 n <= 7994, big any n
+ * Range:     i8 n <= 16383, i16 n <= 16383, i32 n <= 16383, i64 n <= 16383,
+ *            i128 n <= 16383, big any n
+ * Validated: standard, pass, 92 terms through n = 7994 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

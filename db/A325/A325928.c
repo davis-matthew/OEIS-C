@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 14, u32 n <= 25, u64 n <= 46, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 998 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define MAX_N 10000                     /* assumed maximal n needed     */
 #define ALT_CAP (MAX_N + 2)             /* altitude array size          */
@@ -47,10 +49,10 @@ seq_t a(idx_t n)
 {
     /* initialise the DP once */
     if (!initialized) {
-        memset(dp, 0, sizeof(dp));
+        mem_set(dp, 0, sizeof(dp));
         dp[0][0][idx_state(0, 0, 0)] = (seq_t)1;   /* start state */
         cache[0] = (seq_t)0;
-        memset(cache + 1, 0, (MAX_N) * sizeof(seq_t));
+        mem_set(cache + 1, 0, (MAX_N) * sizeof(seq_t));
         initialized = true;
     }
 
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
 
         /* zero the next layer for all altitudes that can be reached */
         for (idx_t alt = 0; alt <= step + 1; ++alt) {
-            memset(dp[nxt][alt], 0, STATE_SIZE * sizeof(seq_t));
+            mem_set(dp[nxt][alt], 0, STATE_SIZE * sizeof(seq_t));
         }
 
         /* transition from dp[cur] to dp[nxt] */

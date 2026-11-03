@@ -6,8 +6,9 @@
  * Keywords:  nonn, cofr, easy
  * Formula:   a(0)=9; for n>0 a(n)=period[(n-1)%11] where
  *            period={1,5,1,1,1,1,1,1,5,1,18}
- * Range:     u8 n <= 8102, u16 n <= 8102, u32 n <= 8102, u64 n <= 8102,
- *            u128 n <= 8102, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 94 terms through n = 8102 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

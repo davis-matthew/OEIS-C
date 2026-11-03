@@ -11,6 +11,7 @@
  *            T(1,1), then T(1,2), T(2,1), T(1,3), T(2,2), T(3,1),
  * Range:     u8 n <= 149, u16 n <= 9870, u32 n <= 9870, u64 n <= 9870,
  *            u128 n <= 9870, big any n
+ * Validated: standard, pass, 83 terms through n = 8727 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

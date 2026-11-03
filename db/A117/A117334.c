@@ -12,12 +12,14 @@
  *            T(i-1,k-1) for k>0
  * Range:     i8 n <= 28, i16 n <= 56, i32 n <= 63, i64 n <= 63, i128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External linkage function required by the build */
 seq_t a(idx_t n)
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     if (tri == NULL) {
         tri = (seq_t**)malloc(sizeof(seq_t*));
         if (!tri) return 0; /* out of memory – unlikely for given limits  */
-        seq_t *row0 = (seq_t*)malloc(sizeof(seq_t));
+        seq_t *row0 = mem_new(seq_t, 1);
         if (!row0) return 0;
         row0[0] = 1;                            /* T(0,0)=1                 */
         tri[0] = row0;
@@ -49,11 +51,11 @@ seq_t a(idx_t n)
         idx_t cur = max_row + 1;                /* index of new row to build */
 
         /* Allocate array for the new row (length cur+1). */
-        seq_t *rowArr = (seq_t*)malloc((cur + 1) * sizeof(seq_t));
+        seq_t *rowArr = mem_new(seq_t, (cur + 1));
         if (!rowArr) return 0;                  /* out of memory */
 
         /* Binomial coefficients C(cur,i) for i=0..cur. */
-        seq_t *bin = (seq_t*)malloc((cur + 1) * sizeof(seq_t));
+        seq_t *bin = mem_new(seq_t, (cur + 1));
         if (!bin) return 0;
         bin[0] = 1;
         for (idx_t i = 1; i <= cur; ++i) {
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
             rowArr[k] = sum;
         }
 
-        free(bin);
+        mem_free(bin);
 
         /* Expand the triangle pointer array and store the new row. */
         seq_t **new_tri = (seq_t**)realloc(tri, (cur + 1) * sizeof(seq_t*));

@@ -10,7 +10,8 @@
  *            b(0)=3 and a(n),b(n) increasing complementary sequences
  * Range:     u8 n <= 25, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static helper functions for the used bitset */
 static unsigned long long *used_bits = NULL;   /* bitset words */
@@ -50,22 +52,22 @@ static void ensure_a_capacity(idx_t need) {
     if (need <= a_alloc) return;
     idx_t cap = a_alloc ? a_alloc * 2 : 4;
     while (cap < need) cap *= 2;
-    a_vals = (seq_t *)realloc(a_vals, cap * sizeof(seq_t));
+    a_vals = mem_resize(seq_t, a_vals, cap);
     a_alloc = cap;
 }
 static void ensure_b_capacity(idx_t need) {
     if (need <= b_alloc) return;
     idx_t cap = b_alloc ? b_alloc * 2 : 4;
     while (cap < need) cap *= 2;
-    b_vals = (seq_t *)realloc(b_vals, cap * sizeof(seq_t));
+    b_vals = mem_resize(seq_t, b_vals, cap);
     b_alloc = cap;
 }
 
 /* initialization of the static state */
 static void init_state(void) {
     /* allocate arrays */
-    a_alloc = 4; a_vals = (seq_t *)malloc(a_alloc * sizeof(seq_t));
-    b_alloc = 4; b_vals = (seq_t *)malloc(b_alloc * sizeof(seq_t));
+    a_alloc = 4; a_vals = mem_new(seq_t, a_alloc);
+    b_alloc = 4; b_vals = mem_new(seq_t, b_alloc);
     a_used = b_used = 0;
 
     /* initial terms */

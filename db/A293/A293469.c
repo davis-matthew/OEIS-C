@@ -7,18 +7,20 @@
  * Formula:   a(n) = Sum_{k=0..n} (2*k-1)!! * binomial(2*n-k, n)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 28,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 37 terms through n = 402 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
     seq_t sum = 0;                      /* running total */
     seq_t f   = 1;                       /* (2*k-1)!!, starts at k = 0 */
-    seq_t B   = binom(2*n, n);           /* C(2n, n), starts at k = 0 */
+    seq_t B   = binomial(2*n, n);           /* C(2n, n), starts at k = 0 */
 
     for (idx_t k = 0; k <= n; ++k) {
         sum += f * B;                    /* add current term */

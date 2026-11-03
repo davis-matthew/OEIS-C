@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _floor_isqrt_u64
+ * Validated: standard, pass, 96 terms through n = 9643 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,7 @@
  */
 
 #include <stdbool.h>
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
@@ -52,7 +53,7 @@ seq_t a(idx_t n)
 
             /* check if r is a generalized pentagonal number */
             idx_t D     = 1 + 24 * r;
-            idx_t sqrtD = _floor_isqrt_u64(D);
+            idx_t sqrtD = isqrt(D);
             if (sqrtD * sqrtD == D) {
                 /* sqrtD ≡ 1 (mod 6)  or  sqrtD ≡ 5 (mod 6)  ⇔ r is pentagonal */
                 if ((sqrtD % 6 == 1) || (sqrtD % 6 == 5))

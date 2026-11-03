@@ -8,20 +8,22 @@
  *            nextPrime(p)
  * Range:     u8 n <= 508, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a000248_pow, is_prime
+ * Validated: standard, pass, 93 terms through n = 9479 (2026-11-03)
+ * Helpers:   ipow_idx, is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/is_prime.h"
-#include "../utils/a000248_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/is_prime_u64.h"
 
 static uint64_t next_prime(uint64_t p) {
     uint64_t q = p + 1;
     if (q == 2) return 2;
     if (q % 2 == 0) q++;
-    while (!is_prime(q)) q += 2;
+    while (!is_prime_u64(q)) q += 2;
     return q;
 }
 
@@ -40,14 +42,14 @@ seq_t a(idx_t n) {
             }
             
             uint64_t q = next_prime(d);
-            seq_t factor = (seq_t)((q - 1) / 2) * a000248_pow((seq_t)((q + 1) / 2), e - 1);
+            seq_t factor = (seq_t)((q - 1) / 2) * ipow_idx((seq_t)((q + 1) / 2), e - 1);
             result *= factor;
         }
     }
     
     if (nn > 1) {
         uint64_t q = next_prime(nn);
-        seq_t factor = (seq_t)((q - 1) / 2) * a000248_pow((seq_t)((q + 1) / 2), 0);
+        seq_t factor = (seq_t)((q - 1) / 2) * ipow_idx((seq_t)((q + 1) / 2), 0);
         result *= factor;
     }
     

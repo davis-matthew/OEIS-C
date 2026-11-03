@@ -8,16 +8,34 @@
  *            binomial(n, k) * Sum_{j=0..k} 2^binomial(k, j)), n > 1
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 7, u64 n <= 8, u128 n <= 9,
  *            big any n
- * Helpers:   a002825_p2, a002825_sadd, a002825_width
+ * Validated: standard, pass, 14 terms through n = 14 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/a002825_p2.h"
-#include "../utils/a002825_sadd.h"
-#include "../utils/a002825_width.h"
+
+static seq_t a002825_p2(uint64_t e, int w) {
+    if (w < 300 && e >= (uint64_t)w) return (seq_t)0;
+    return (seq_t)1 << e;
+}
+
+static uint64_t a002825_sadd(uint64_t x, uint64_t y) {
+    uint64_t s = x + y;
+    return (s < x) ? UINT64_MAX : s;
+}
+
+static int a002825_width(void) {
+    seq_t x = 1;
+    int w = 0;
+    while (x != 0 && w < 300) {
+        x <<= 1;
+        w++;
+    }
+    return w; /* >= 300 means arbitrary precision */
+}
 
 seq_t a(idx_t n) {
     if (n == 1) return (seq_t)1;

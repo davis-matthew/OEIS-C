@@ -9,13 +9,14 @@
  *            a(k))
  * Range:     u8 n <= 31, u16 n <= 518, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gpf
+ * Validated: standard, pass, 93 terms through n = 992 (2026-11-01)
+ * Helpers:   largest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/gpf.h"   /* provides uint64_t gpf(uint64_t) */
+#include "../utils/largest_prime_factor.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +36,7 @@ seq_t a(idx_t n)
         uint64_t sum64 = (uint64_t)sum;
 
         /* Largest prime factor of the current partial sum */
-        uint64_t lp64 = gpf(sum64);
+        uint64_t lp64 = largest_prime_factor(sum64);
 
         /* Convert back to seq_t for storage and further addition */
         seq_t next = (seq_t)lp64;

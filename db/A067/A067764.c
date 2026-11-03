@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 19, u128 n <= 32,
  *            big any n
- * Helpers:   gcd, mul_small
+ * Validated: standard, pass, 38 terms through n = 415 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,22 @@
 
 /* required utilities */
 #include <stdlib.h>
-#include "../utils/gcd.h"          /* seq_t gcd(seq_t a, seq_t b); */
-#include "../utils/mul_small.h"   /* seq_t mul_small(seq_t x, unsigned int m); */
+#include <stdint.h>
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 /* helper: reduce fraction to lowest terms */
 static void reduce(seq_t *num, seq_t *den)
@@ -90,7 +105,7 @@ static seq_t S1_num = 0, S1_den = 1;
 static void init_cache(void)
 {
     if (cache != NULL) return;   /* already initialised */
-    cache = (seq_t *)malloc(sizeof(seq_t));
+    cache = mem_new(seq_t, 1);
     if (!cache) { cache = NULL; return; }
     cached_cap = 1;
     cached_len = 1;
@@ -116,7 +131,7 @@ seq_t a(idx_t n)
         size_t new_cap = cached_cap;
         if (new_cap == 0) new_cap = 1;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return (seq_t)0;          /* allocation failed */
         cache = tmp;
         cached_cap = new_cap;

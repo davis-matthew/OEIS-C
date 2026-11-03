@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 37, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd64
+ * Validated: standard, pass, 72 terms through n = 994 (2026-11-03)
+ * Helpers:   gcd_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/gcd64.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/mem.h"
 
 /* 64‑bit GCD. */
 
@@ -62,10 +64,10 @@ static void ensure_term_cap(void)
 {
     if (term_cap == 0) {
         term_cap = 16;
-        term_arr = (seq_t *)malloc(term_cap * sizeof(seq_t));
+        term_arr = mem_new(seq_t, term_cap);
     } else if (term_cnt == term_cap) {
         term_cap *= 2;
-        term_arr = (seq_t *)realloc(term_arr, term_cap * sizeof(seq_t));
+        term_arr = mem_resize(seq_t, term_arr, term_cap);
     }
 }
 
@@ -102,7 +104,7 @@ static void ensure_terms(idx_t n)
         /* Check the 6th‑power residue condition. */
         if (next_candidate >= 5ULL) {
             uint64_t p = next_candidate;
-            uint64_t g = gcd64(6ULL, p - 1ULL);
+            uint64_t g = gcd_u64(6ULL, p - 1ULL);
             uint64_t exp = (p - 1ULL) / g;
             uint64_t base = (p >= 2ULL) ? (p - 2ULL) : 0ULL;
             uint64_t val = mod_pow_u64(base, exp, p);

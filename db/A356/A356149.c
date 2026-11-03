@@ -8,9 +8,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base, tabf
  * Formula:   not stated
- * Range:     u8 n <= 4108, u16 n <= 9860, u32 n <= 9860, u64 n <= 9860,
- *            u128 n <= 9860, big any n
- * Helpers:   none
+ * Range:     u8 n <= 4108, u16 n <= 26775, u32 n <= 26775, u64 n <= 26775,
+ *            u128 n <= 26775, big any n
+ * Validated: standard, pass, 105 terms through n = 9860 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*------------------------------------------------------------------
    Utility: number of bits needed to represent x (x>0)                */
@@ -43,7 +45,7 @@ static void grow_seq(seq_t **arr, size_t *cap, size_t need)
     if (*cap >= need) return;
     size_t newcap = (*cap == 0) ? 32 : *cap * 2;
     while (newcap < need) newcap *= 2;
-    *arr = (seq_t *)realloc(*arr, newcap * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, newcap);
     *cap = newcap;
 }
 

@@ -7,6 +7,7 @@
  * Formula:   Additive with a(p^e) = p if p = 2 (mod 3), 0 otherwise
  * Range:     u8 n <= 256, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 111 terms through n = 9675 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

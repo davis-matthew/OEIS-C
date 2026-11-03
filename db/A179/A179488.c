@@ -10,20 +10,22 @@
  *            functional equation A(x) = x / (1 – (1‑2x)·A(x/(1‑2x)))
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 14, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate arrays for a(1..n) and ay(1..n‑1) */
     size_t sz = (size_t)(n + 1);
-    seq_t *A  = (seq_t*)malloc(sz * sizeof(seq_t));
-    seq_t *AY = (seq_t*)malloc(sz * sizeof(seq_t));
+    seq_t *A  = mem_new(seq_t, sz);
+    seq_t *AY = mem_new(seq_t, sz);
     if (!A || !AY) return 0;  /* out‑of‑memory protection */
 
     /* initialise to zero */
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     }
 
     if (n == 0) {
-        free(A); free(AY);
+        mem_free(A); mem_free(AY);
         return 0;
     }
 
@@ -78,6 +80,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = A[n];
-    free(A); free(AY);
+    mem_free(A); mem_free(AY);
     return result;
 }

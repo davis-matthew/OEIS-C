@@ -9,6 +9,7 @@
  *            representation of n, with digits 0→2 and 1→3 (a(0)=2)
  * Range:     u8 n <= 4, u16 n <= 31, u32 n <= 1023, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 53 terms through n = 9387 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

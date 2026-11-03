@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 24, u32 n <= 45, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -39,6 +40,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------ */
 /* global data structures                                       */
@@ -147,7 +149,7 @@ static bool is_good_k(idx_t k)
     seq_t divcnt = 1;
 
     /* allocate array of divisor counts for the row */
-    seq_t *divcounts = (seq_t*)malloc((K + 1) * sizeof(seq_t));
+    seq_t *divcounts = mem_new(seq_t, (K + 1));
     divcounts[0] = 1;
 
     /* build row */
@@ -177,7 +179,7 @@ static bool is_good_k(idx_t k)
     }
 
     free(exp);
-    free(divcounts);
+    mem_free(divcounts);
     return good;
 }
 
@@ -194,7 +196,7 @@ static void fill_cache(idx_t n)
             if (cache_size >= cache_capacity)
             {
                 cache_capacity = cache_capacity ? cache_capacity * 2 : 16;
-                cache = (seq_t*)realloc(cache, cache_capacity * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_capacity);
             }
             cache[cache_size++] = (seq_t)next_k;
         }

@@ -8,12 +8,30 @@
  * Formula:   a(n) = Σ_{i=0..n} (-1)^{n-i} * C(n,i) * p(n+i)
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 28, u64 n <= 56, u128 n <= 114,
  *            big any n
- * Helpers:   grow_seq
+ * Validated: standard, pass, 49 terms through n = 3155 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/grow_seq.h"
+#include <stddef.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
 
 static seq_t *part   = NULL;   /* array of partition numbers p(0..)          */
 static size_t part_len = 0;    /* number of values already known           */

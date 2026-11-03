@@ -8,9 +8,10 @@
  * Formula:   a(n) = sum of modified exponential divisors of n Using the
  *            multiplicative definition: for prime powers p^a, a(p^a) =
  *            Σ_{d|a+1} p^{d-1}
- * Range:     u8 n <= 119, u16 n <= 9901, u32 n <= 9901, u64 n <= 9901,
- *            u128 n <= 9901, big any n
- * Helpers:   pow_uint
+ * Range:     u8 n <= 119, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 95 terms through n = 9901 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
    computes the product of the sums for each prime factor. */
 
 #include <stdint.h>          /* for uint64_t */
-#include "../utils/pow_uint.h"   /* seq_t pow_uint(uint64_t base, idx_t exp) */
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -47,7 +48,7 @@ seq_t a(idx_t n)
                 if (rplus % d == 0)
                 {
                     unsigned int s = d - 1;           /* exponent */
-                    sum_term += pow_uint(p, s);
+                    sum_term += ipow_u64_idx(p, s);
                 }
             }
             result *= sum_term;
@@ -67,7 +68,7 @@ seq_t a(idx_t n)
             if (rplus % d == 0)
             {
                 unsigned int s = d - 1;
-                sum_term += pow_uint(p, s);
+                sum_term += ipow_u64_idx(p, s);
             }
         }
         result *= sum_term;

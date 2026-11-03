@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   has_substring_74
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,21 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/has_substring_74.h"
+#include "../utils/mem.h"
+
+/* Return true if 'n' written in base 9 contains the substring 7,4. */
+static bool has_substring_74(seq_t n)
+{
+    bool prev4 = false;
+    while (n != 0) {
+        uint8_t d = (uint8_t)(n % 9);
+        n /= 9;
+        if (prev4 && d == 7)
+            return true;
+        prev4 = (d == 4);
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -39,7 +54,7 @@ seq_t a(idx_t n)
         if (cached == cap) {
             size_t newcap = (cap == 0) ? 16 : cap * 2;
             if (newcap < cap + 1) newcap = cap + 1;
-            seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, newcap);
             if (!tmp) exit(EXIT_FAILURE);  /* allocation failure */
             cache = tmp;
             cap = newcap;

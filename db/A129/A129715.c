@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 17, u32 n <= 39, u64 n <= 83, u128 n <= 174,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 979 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    where F(0)=0, F(1)=1 and F(n)=F(n‑1)+F(n‑2). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* cache for computed a(n) values – expands only upwards */
 static seq_t *a_cache      = NULL;
@@ -38,7 +40,7 @@ ensure_cache(idx_t n)
         return;                 /* already cached */
 
     /* allocate a new, larger array */
-    seq_t *new_cache = (seq_t *)malloc(sizeof(seq_t) * (n + 1));
+    seq_t *new_cache = mem_new(seq_t, (n + 1));
     if (!new_cache)
         abort();        /* OOM – terminate promptly */
 
@@ -46,7 +48,7 @@ ensure_cache(idx_t n)
     if (a_cache) {
         for (idx_t i = 0; i < cache_length; ++i)
             new_cache[i] = a_cache[i];
-        free(a_cache);
+        mem_free(a_cache);
     }
 
     /* compute missing entries from cache_length up to n */

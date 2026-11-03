@@ -10,8 +10,9 @@
  *            binary * words of length k in increasing order. * Example of the
  *            first few blocks: * k = 0: 2 * k = 1: 20, 21 * k = 2: 200, 201,
  *            210, 211 * k = 3: 2000, 2001, 2010, 2011, 2100, 2...
- * Range:     u8 n <= 8439, u16 n <= 8439, u32 n <= 8439, u64 n <= 8439,
- *            u128 n <= 8439, big any n
+ * Range:     u8 n <= 25000, u16 n <= 25000, u32 n <= 25000, u64 n <= 25000,
+ *            u128 n <= 25000, big any n
+ * Validated: standard, pass, 103 terms through n = 8439 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

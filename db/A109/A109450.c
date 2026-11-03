@@ -12,15 +12,28 @@
  *            (3r-3k+2)*binom(3r-k-1,k-1)/(3r-2k+1)
  * Range:     u8 n <= 17, u16 n <= 49, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   binom_nk, catalan
+ * Validated: partial, pass, 60 terms through n = 59 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binom_nk.h"
-#include "../utils/catalan.h"
+#include "../utils/binomial.h"
+
+/* Catalan number C(k) = binom(2k,k)/(k+1) computed multiplicatively */
+static seq_t catalan(idx_t k)
+{
+    seq_t res = (seq_t)1;
+    /* compute binom(2k,k) */
+    for (idx_t i = (idx_t)1; i <= k; ++i) {
+        res = res * (seq_t)(k + i) / (seq_t)i;
+    }
+    /* divide by (k+1) to get Catalan number */
+    res /= (seq_t)(k + 1);
+    return res;
+}
 
 /* Compute the row index r corresponding to the flattened index n. */
 static inline idx_t row_of_index(idx_t n)
@@ -44,7 +57,7 @@ static inline seq_t triangle_T(idx_t r, idx_t k)
 
     /* 0 < k < r */
     seq_t coeff   = (seq_t)(3 * r - 3 * k + 2);
-    seq_t bin     = binom_nk(3 * r - k - 1, k - 1);
+    seq_t bin     = binomial(3 * r - k - 1, k - 1);
     seq_t numerator   = coeff * bin;
     seq_t denominator = (seq_t)(3 * r - 2 * k + 1);
     return numerator / denominator;

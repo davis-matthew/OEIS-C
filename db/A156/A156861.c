@@ -10,18 +10,21 @@
  *            Indexing starts at n = 0
  * Range:     i8 n <= 34, i16 n <= 134, i32 n <= 526, i64 n <= 2078,
  *            i128 n <= 5150, big any n
- * Helpers:   binom, pow2
+ * Validated: standard, pass, 82 terms through n = 4804 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"   /* seq_t binom(idx_t a, idx_t b); */
-#include "../utils/pow2.h"    /* seq_t pow2(idx_t exp); */
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/pow2.h"
 
 #if defined(__cplusplus)
 /* In C++ mode we can directly use the utility binomial function, which
    automatically handles large integers. */
-static inline seq_t binom_small(idx_t n, idx_t k) { return binom(n, k); }
+static inline seq_t binom_small(idx_t n, idx_t k) { return binomial(n, k); }
 #else
 /* In C mode we implement our own binomial for 64‑bit seq_t.  The routine
    uses a 128‑bit intermediate to avoid overflow for the values required

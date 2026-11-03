@@ -10,11 +10,13 @@
  *            smallest prime > x
  * Range:     i8 n <= 11, i16 n <= 603, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 103 terms through n = 9704 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /* minimal includes that are available in both C11 and C++17 */
 #include <stdint.h>
 #include <stddef.h>

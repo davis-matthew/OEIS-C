@@ -9,12 +9,14 @@
  *            the number of partitions of n into exactly k parts
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 45, u64 n <= 178, u128 n <= 268,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 238 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define MAXK 24                           /* maximum number of parts */
 
@@ -32,7 +34,7 @@ static void ensure_partitions(idx_t n)
     idx_t newmax = n;
 
     size_t newbytes = (size_t)(newmax + 1) * (MAXK + 1) * sizeof(seq_t);
-    seq_t *new_ptr = (seq_t *)realloc(partitions, newbytes);
+    seq_t *new_ptr = mem_resize(seq_t, partitions, (newbytes) / sizeof(seq_t));
     if (!new_ptr)
         abort();                          /* out of memory */
     partitions = new_ptr;

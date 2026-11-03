@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 9987, u16 n <= 9987, u32 n <= 9987, u64 n <= 9987,
- *            u128 n <= 9987, big any n
- * Helpers:   none
+ * Range:     u8 n <= 65536, u16 n <= 65536, u32 n <= 65536, u64 n <= 65536,
+ *            u128 n <= 65536, big any n
+ * Validated: standard, pass, 121 terms through n = 9987 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------------------------------------------------------- */
 /* static storage for the computed sequence and primes       */
@@ -97,14 +99,14 @@ static void ensure_cache(idx_t n)
 {
     if (n == 0) return;
     if (!cache) {
-        cache = (seq_t *)calloc(2, sizeof(seq_t));  /* indices 0,1 */
+        cache = mem_new(seq_t, 2);  /* indices 0,1 */
         if (!cache) exit(EXIT_FAILURE);
         cache[1] = (seq_t)1;   /* a(1) = 1 */
         cache_cap = 1;
     }
     if (n <= cache_cap) return;
 
-    cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, (n + 1));
     if (!cache) exit(EXIT_FAILURE);
     for (idx_t i = cache_cap + 1; i <= n; ++i) {
         if (i == 1) { cache[i] = (seq_t)1; continue; }   /* safety */

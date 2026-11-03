@@ -8,7 +8,8 @@
  * Formula:   a(n) = a(n-1) - (n-1) * (a(n-2) + 1), a(1) = 0, a(2) = -1
  * Range:     i8 n <= 7, i16 n <= 13, i32 n <= 20, i64 n <= 23, i128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Computes OEIS A051684 */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     if (!init) {
         init     = true;
         capacity = 10;                  /* small start; will grow as needed */
-        cache    = (seq_t *)malloc(sizeof(seq_t) * capacity);
+        cache    = mem_new(seq_t, capacity);
         if (!cache) abort();            /* allocation failure */
 
         /* set base values */
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     /* Ensure capacity for index n */
     if ((size_t)n + 2 > capacity) {      /* +2 to keep 1‑based index space */
         size_t newcap = (size_t)n + 2;
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * newcap);
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp) abort();              /* allocation failure */
         cache    = tmp;
         capacity = newcap;

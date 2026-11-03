@@ -8,12 +8,14 @@
  *            4)
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 123, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 8858 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 /* Return the n‑th term of A080169 (1‑based). */
 seq_t a(idx_t n)
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     }
     if (cube_list == NULL) {
         cube_cap    = 16;
-        cube_list   = (seq_t *)malloc(cube_cap * sizeof(seq_t));
+        cube_list   = mem_new(seq_t, cube_cap);
     }
 
     /* ---------- Generate primes until we have at least n qualifying ones ---------- */
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
         if ((p & 3U) == 1) {
             if (cube_cnt == cube_cap) {
                 cube_cap <<= 1;
-                cube_list = (seq_t *)realloc(cube_list, cube_cap * sizeof(seq_t));
+                cube_list = mem_resize(seq_t, cube_list, cube_cap);
             }
             seq_t pp  = (seq_t)p * (seq_t)p;
             cube_list[cube_cnt++] = pp * (seq_t)p;

@@ -9,7 +9,8 @@
  *            starts with a(1)=3307, a(2)=4447, …
  * Range:     u8 none, u16 n <= 5, u32 n <= 28, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   is_prime_int
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-01)
+ * Helpers:   is_prime_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "../utils/is_prime_int.h"
+#include "../utils/is_prime_i32.h"
 
 /* ===== State kept between calls ===== */
 static struct {
@@ -54,7 +55,7 @@ static struct {
 /* ---------- Initialize primality table for digit sums ---------- */
 static void init_prime_sum_table(void) {
     for (int i = 0; i < 82; ++i) {
-        S.is_prime_sum[i] = is_prime_int(i);
+        S.is_prime_sum[i] = is_prime_i32(i);
     }
 }
 

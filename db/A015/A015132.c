@@ -7,10 +7,13 @@
  * Formula:   not stated
  * Range:     i8 n <= 3, i16 n <= 10, i32 n <= 22, i64 n <= 33, i128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
+
+#include "../utils/mem.h"
 
 /* Computation of A015132: Triangle of (Gaussian) q‑binomial coefficients for q = -14,
    read by antidiagonals.  For n >= 0,
@@ -55,7 +58,7 @@ static seq_t q_binom(idx_t n, idx_t k)
         k = n - k;
 
     /* Precompute powers of q = -14 up to n */
-    seq_t *pow = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *pow = mem_new(seq_t, (n + 1));
     if (!pow) {
         /* Handle allocation failure gracefully */
         return 0;
@@ -71,6 +74,6 @@ static seq_t q_binom(idx_t n, idx_t k)
         res = res * num / den;   /* Exact division by construction */
     }
 
-    free(pow);
+    mem_free(pow);
     return res;
 }

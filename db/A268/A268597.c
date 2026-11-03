@@ -7,12 +7,13 @@
  * Formula:   a(n) = smallest x ≥ n+1 such that (x-1) mod φ(x) == n
  * Range:     u8 n <= 24, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   phi_clean
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-01)
+ * Helpers:   totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/phi_clean.h"
+#include "../utils/totient_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -21,7 +22,7 @@ seq_t a(idx_t n)
 
     for (seq_t x = start; ; ++x)
     {
-        seq_t phi_val = phi_clean(x);
+        seq_t phi_val = totient_seq(x);
         if ((x - (seq_t)1) % phi_val == target)
             return x;                 /* found the smallest x */
     }

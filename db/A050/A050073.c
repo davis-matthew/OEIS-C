@@ -11,13 +11,21 @@
  *            a(2) = a(3) = 1
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   fl_log2_uint64
+ * Validated: partial, pass, 90 terms through n = 90 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/fl_log2_uint64.h"
+#include "../utils/mem.h"
+
+/* Compute floor(log2(x)) for x > 0 using only integer arithmetic. */
+static inline int fl_log2_uint64(uint64_t x) {
+    int p = 0;
+    while (x >> 1) { x >>= 1; ++p; }
+    return p;
+}
 
 static seq_t *cache = NULL;      /* 1‑based: cache[0] = a(1) */
 static idx_t cache_size = 0;    /* number of terms currently stored */
@@ -29,7 +37,7 @@ seq_t a(idx_t n) {
         size_t capacity = cache_size ? cache_size : 16;
         while (capacity < needed) capacity <<= 1;
 
-        seq_t *new_cache = (seq_t *)realloc(cache, capacity * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, capacity);
         if (!new_cache) { /* allocation failed – abort gracefully */
             return (seq_t)0;
         }

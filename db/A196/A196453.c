@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 21, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 180 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Target values for each symbol */
 static const int T[5]  = {3, 0, 2, 4, 1};
@@ -158,10 +160,10 @@ static void init(void) {
     }
 
     /* Allocate DP buffers */
-    dp      = (seq_t *)malloc(state_cnt * sizeof(seq_t));
-    dp_next = (seq_t *)malloc(state_cnt * sizeof(seq_t));
-    memset(dp, 0, state_cnt * sizeof(seq_t));
-    memset(dp_next, 0, state_cnt * sizeof(seq_t));
+    dp      = mem_new(seq_t, state_cnt);
+    dp_next = mem_new(seq_t, state_cnt);
+    mem_set(dp, 0, state_cnt * sizeof(seq_t));
+    mem_set(dp_next, 0, state_cnt * sizeof(seq_t));
 }
 
 /* Main sequence function */

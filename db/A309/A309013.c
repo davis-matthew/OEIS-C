@@ -10,7 +10,8 @@
  *            * (1‑based) are also squarefree. Computed by greedy construction
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   suffix_has_square
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,25 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/suffix_has_square.h"
+#include "../utils/mem.h"
+
+/* Return true if a square suffix XX occurs in seq[0..len-1] ending at the last element. */
+static inline bool suffix_has_square(const seq_t *seq, size_t len)
+{
+    for (size_t k = 1; k * 2 <= len; ++k) {
+        size_t i_start1 = len - k;
+        size_t i_start0 = len - 2 * k;
+        bool equal = true;
+        for (size_t j = 0; j < k; ++j) {
+            if (seq[i_start0 + j] != seq[i_start1 + j]) {
+                equal = false;
+                break;
+            }
+        }
+        if (equal) return true;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -38,7 +57,7 @@ seq_t a(idx_t n)
             /* ensure capacity for cache */
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 4;
-                seq_t *new_arr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *new_arr = mem_resize(seq_t, cache, new_cap);
                 if (!new_arr) exit(EXIT_FAILURE);
                 cache = new_arr;
                 cache_cap = new_cap;
@@ -52,7 +71,7 @@ seq_t a(idx_t n)
                     /* ensure capacity for even subsequence */
                     if (even_len == even_cap) {
                         size_t new_cap = even_cap ? even_cap * 2 : 4;
-                        seq_t *new_arr = (seq_t *)realloc(even, new_cap * sizeof(seq_t));
+                        seq_t *new_arr = mem_resize(seq_t, even, new_cap);
                         if (!new_arr) exit(EXIT_FAILURE);
                         even = new_arr;
                         even_cap = new_cap;
@@ -63,7 +82,7 @@ seq_t a(idx_t n)
                     /* ensure capacity for odd subsequence */
                     if (odd_len == odd_cap) {
                         size_t new_cap = odd_cap ? odd_cap * 2 : 4;
-                        seq_t *new_arr = (seq_t *)realloc(odd, new_cap * sizeof(seq_t));
+                        seq_t *new_arr = mem_resize(seq_t, odd, new_cap);
                         if (!new_arr) exit(EXIT_FAILURE);
                         odd = new_arr;
                         odd_cap = new_cap;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 131, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   valid_oct_evens
+ * Validated: standard, pass, 77 terms through n = 8804 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,34 @@
    to support nondeterministic order of calls. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/valid_oct_evens.h"
+#include "../utils/mem.h"
+
+/* Return true if every digit at an odd position (counted from the
+   most significant digit, i.e. positions 1,3,5,…) of the base‑8
+   expansion of x is even. */
+static bool valid_oct_evens(seq_t x)
+{
+    /* At most 128 octal digits are needed for all supported seq_t widths. */
+    uint8_t dig[128];
+    size_t len = 0;
+    seq_t t = x;
+
+    /* Extract digits in reverse order: dig[0] is least significant. */
+    do {
+        dig[len++] = (uint8_t)(t % 8);
+        t /= 8;
+    } while (t != 0);
+
+    /* Check odd positions from the left. */
+    for (size_t i = 0; i < len; ++i) {
+        size_t pos_from_left = len - 1 - i;   /* 0‑based index from left */
+        if (pos_from_left & 1U) {             /* odd position? (1,3,5,…) */
+            if (dig[i] & 1U)                  /* digit odd? */
+                return false;
+        }
+    }
+    return true;
+}
 
 /* Cache for previously computed sequence values. */
 static seq_t *cache = NULL;
@@ -33,7 +61,7 @@ static void ensure_cache_capacity(size_t need)
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < need)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) exit(1);                 /* unrecoverable allocation failure */
     cache = tmp;
     cache_cap = new_cap;

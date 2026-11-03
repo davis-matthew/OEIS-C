@@ -12,6 +12,7 @@
  *            The result is square‑free and minimal by construction
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 9, u128 n <= 13,
  *            big any n
+ * Validated: partial, pass, 14 terms through n = 13 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdlib.h>
 #include "../utils/build_primes_upto.h"
 
 /* Helper: linear search for the first prime >= value.  This is fast enough

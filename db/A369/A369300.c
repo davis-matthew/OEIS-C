@@ -8,14 +8,14 @@
  *            binomial(3*n-3*k+1, n-3*k)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 24, u128 n <= 46,
  *            big any n
- * Helpers:   binom, binom_exact
+ * Validated: standard, pass, 39 terms through n = 947 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
-#include "../utils/binom_exact.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -33,8 +33,8 @@ seq_t a(idx_t n)
         __uint128_t sum = 0;
         for (idx_t k = 0; k <= limit; ++k)
         {
-            seq_t b1 = binom_exact(3 * n + k + 2, k);
-            seq_t b2 = binom_exact(3 * n - 3 * k + 1, n - 3 * k);
+            seq_t b1 = binomial(3 * n + k + 2, k);
+            seq_t b2 = binomial(3 * n - 3 * k + 1, n - 3 * k);
             sum += (__uint128_t)b1 * (__uint128_t)b2;
         }
         return (seq_t)(sum / (__uint128_t)(n + 1));
@@ -44,8 +44,8 @@ seq_t a(idx_t n)
         seq_t sum = 0;
         for (idx_t k = 0; k <= limit; ++k)
         {
-            seq_t b1 = binom(3 * n + k + 2, k);
-            seq_t b2 = binom(3 * n - 3 * k + 1, n - 3 * k);
+            seq_t b1 = binomial(3 * n + k + 2, k);
+            seq_t b2 = binomial(3 * n - 3 * k + 1, n - 3 * k);
             sum += b1 * b2;
         }
         return sum / ((seq_t)(n + 1));

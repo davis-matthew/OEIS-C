@@ -9,13 +9,29 @@
  *            "07" but n+1 does not
  * Range:     u8 n <= 2, u16 n <= 38, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   contains07
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/contains07.h"
+
+static bool contains07(seq_t x)
+{
+    /* Return true if the base‑10 representation of x contains the consecutive digits 0 followed by 7. */
+    if (x < 10) return false;      /* single digit cannot contain "07" */
+    seq_t prev = x % 10;
+    x /= 10;
+    while (x > 0)
+    {
+        seq_t cur = x % 10;
+        if (cur == 0 && prev == 7) return true;
+        prev = cur;
+        x /= 10;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

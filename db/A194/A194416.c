@@ -9,13 +9,15 @@
  *            ) = 0, where {x} denotes the fractional part of x
  * Range:     u8 n <= 57, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Integer square root for 64‑bit values.  Works for all arguments
    that will be provided (up to about 3·(10 000)²). */
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     /* Grow the cache if necessary. */
     if (term_count + 1 > capacity) {
         size_t new_cap = capacity > 0 ? capacity << 1 : 8;
-        terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, new_cap);
         capacity = new_cap;
     }
 

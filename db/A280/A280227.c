@@ -11,12 +11,14 @@
  *            a(1)=0, a(2)=4, a(3)=6, a(4)=8, a(5)=14, a(6)=24, a(7)=42
  * Range:     u8 n <= 10, u16 n <= 20, u32 n <= 42, u64 n <= 87, u128 n <= 178,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 202 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache for memoization */
 static seq_t *cache = NULL;
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     if (n > max_computed) {
         idx_t newlen = n;                  /* desired length of cache */
         /* realloc must be cast to the correct pointer type in C++ */
-        seq_t *newc = (seq_t *)realloc(cache, (size_t)newlen * sizeof(seq_t));
+        seq_t *newc = mem_resize(seq_t, cache, (size_t)newlen);
         if (!newc) exit(1);                /* allocation failure */
         cache = newc;
 

@@ -7,6 +7,7 @@
  * Formula:   a(n) = 4 * ((n-1)*(2n-1) + Σ_{i=2}^{n-1} (n-i)*(2n-i)*phi(i))
  * Range:     u8 n <= 4, u16 n <= 18, u32 n <= 289, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 52 terms through n = 937 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

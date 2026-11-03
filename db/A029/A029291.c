@@ -7,7 +7,8 @@
  * Formula:   a(n) = number of partitions of n into parts 3, 5, 11, 12
  * Range:     u8 n <= 129, u16 n <= 904, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 919 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    The table is cached in a static array that grows as needed. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;          /* DP array: dp[i] = a(i) */
 static idx_t dp_size = 0;         /* allocated size of dp (>= n+1) */
@@ -25,7 +27,7 @@ static void ensure_capacity(idx_t n)
 {
     if (dp_size > n) return;                /* already big enough */
 
-    seq_t *new_dp = (seq_t *)realloc(dp, (n + 1) * sizeof(seq_t));
+    seq_t *new_dp = mem_resize(seq_t, dp, (n + 1));
     if (!new_dp) exit(1);                 /* out of memory */
     dp = new_dp;
     dp_size = n + 1;

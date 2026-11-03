@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 5254, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   valid_odd_part
+ * Validated: standard, pass, 69 terms through n = 9806 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,24 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/valid_odd_part.h"
+#include "../utils/mem.h"
+
+/* test whether the odd part m satisfies the exponent condition
+   (each prime exponent is 1 or even).  m is assumed odd and >0. */
+static bool valid_odd_part(uint64_t m)
+{
+    if (m == 1) return true;          /* empty factorization is allowed */
+    for (uint64_t p = 3; p * p <= m; p += 2) {
+        uint32_t cnt = 0;
+        while (m % p == 0) {
+            m /= p;
+            ++cnt;
+        }
+        if (cnt > 1 && (cnt & 1)) return false;   /* odd exponent >1 */
+    }
+    /* any remaining m is an odd prime with exponent 1 – allowed   */
+    return true;
+}
 
 /* cache of already generated terms */
 static seq_t *terms      = NULL;  /* array of seq_t values                */
@@ -32,7 +50,7 @@ static void ensure_terms_capacity(size_t needed)
     if (needed <= terms_cap) return;
     size_t new_cap = terms_cap == 0 ? 16 : terms_cap * 2;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *newp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *newp = mem_resize(seq_t, terms, new_cap);
     if (newp == NULL) exit(1);       /* allocation failure */
     terms      = newp;
     terms_cap  = new_cap;

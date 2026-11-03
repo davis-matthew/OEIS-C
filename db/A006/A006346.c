@@ -9,8 +9,9 @@
  *            ending the sequence shorter. a(n) = |X| for the square created
  *            by the rejected choice (a(1) = 0). For each shift k, keep the
  *            length of the run of positions j with s(j) = s(...
- * Range:     u8 n <= 1139, u16 n <= 9541, u32 n <= 9541, u64 n <= 9541,
- *            u128 n <= 9541, big any n
+ * Range:     u8 n <= 1139, u16 n <= 50000, u32 n <= 50000, u64 n <= 50000,
+ *            u128 n <= 50000, big any n
+ * Validated: standard, pass, 120 terms through n = 9541 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

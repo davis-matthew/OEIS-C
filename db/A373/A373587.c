@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 141, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   odd_parity
+ * Validated: standard, pass, 92 terms through n = 9718 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,34 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/odd_parity.h"
+#include "../utils/mem.h"
+
+/* ---------- parity test for a positive integer ------------------- */
+static bool odd_parity(uint64_t x)
+{
+    /* exponent of 3 (v3) */
+    unsigned v3 = 0;
+    while ((x % 3) == 0) {
+        ++v3;
+        x /= 3;
+    }
+
+    /* count remaining prime factors (omega minus v3) */
+    unsigned omega_rest = 0;
+    uint64_t t = x;
+    for (uint64_t p = 2; p * p <= t; ++p) {
+        while (t % p == 0) {
+            ++omega_rest;
+            t /= p;
+        }
+    }
+    if (t > 1)   /* a prime factor > sqrt(x) */
+        ++omega_rest;
+
+    unsigned parity_omega = (v3 + omega_rest) & 1U;
+    unsigned parity_v3   = v3 & 1U;
+    return parity_omega != parity_v3;  /* parity difference? */
+}
 
 /* External types supplied by the build system */
 typedef uint64_t idx_t;   /* guaranteed unsigned */
@@ -35,7 +63,7 @@ static void ensure_cache_cap(size_t needed)
     size_t new_cap = cache_cap ? (cache_cap << 1) : 16;
     if (new_cap < needed)
         new_cap = needed;
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cache_cap = new_cap;
 }
 

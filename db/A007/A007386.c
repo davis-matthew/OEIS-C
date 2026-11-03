@@ -9,12 +9,14 @@
  *            a(12) = 0, a(13) = 6
  * Range:     u8 n <= 37, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 seq_t a(idx_t n) {
@@ -34,13 +36,13 @@ seq_t a(idx_t n) {
         idx_t new_size = (cache_size == 0) ? 
                          ((n < 1000) ? 1000 : n + 100) :
                          (n + 100);
-        seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_size);
         
         if (cache != NULL) {
             for (idx_t i = 0; i < cache_size; i++) {
                 new_cache[i] = cache[i];
             }
-            free(cache);
+            mem_free(cache);
         } else {
             for (idx_t i = 0; i < 13; i++) {
                 new_cache[i] = base[i];

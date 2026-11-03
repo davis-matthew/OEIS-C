@@ -9,8 +9,9 @@
  *            floor of P's unique real root (found by sign tests), then
  *            replace P(x) by x^3 * P(a(n) + 1/x). All arithmetic uses exact
  *            multiprecision integers
- * Range:     u8 n <= 5, u16 n <= 3242, u32 n <= 9325, u64 n <= 9325,
- *            u128 n <= 9325, big any n
+ * Range:     u8 n <= 5, u16 n <= 3242, u32 n <= 19999, u64 n <= 19999,
+ *            u128 n <= 19999, big any n
+ * Validated: standard, pass, 98 terms through n = 9325 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

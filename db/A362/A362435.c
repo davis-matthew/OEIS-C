@@ -8,12 +8,23 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   first_two_diff
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/first_two_diff.h"
+static seq_t first_two_diff(seq_t x)
+{
+    seq_t t = x;
+    /* Reduce to a two‑digit number */
+    while (t >= (seq_t)100)
+        t /= (seq_t)10;
+    /* t is now between 10 and 99 */
+    seq_t first = t / (seq_t)10;
+    seq_t second = t % (seq_t)10;
+    return first > second ? first - second : second - first;
+}
 /* Recurrence: a(1) = 18; for n>1
    a(n) = a(n-1) + | difference between the first two decimal digits of a(n-1) | */
 

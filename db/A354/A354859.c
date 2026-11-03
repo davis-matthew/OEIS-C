@@ -8,7 +8,8 @@
  * Formula:   a(n) = numerator of ∑_{i=1..n} (n-i+1)/prime(i)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 20,
  *            big any n
- * Helpers:   _prime_limit_for_idx, seq_gcd
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,16 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/_prime_limit_for_idx.h"
-#include "../utils/seq_gcd.h"
+#include <math.h>
+#include "../utils/gcd.h"
+
+static size_t _prime_limit_for_idx(idx_t n) {
+    /* Rough upper bound for the n-th prime using n*(log n + log log n) + 3 */
+    if (n < 6) return 15; /* first 6 primes < 15 */
+    double nn = (double)n;
+    double bound = nn * (log(nn) + log(log(nn))) + 3.0;
+    return (size_t)bound;
+}
 
 /* dynamically grow a list of primes */
 static uint32_t *prime_list = NULL;
@@ -80,6 +89,6 @@ seq_t a(idx_t n)
     }
 
     /* reduce the fraction by GCD of numerator and denominator (prod). */
-    seq_t g = seq_gcd(sum, prod);
+    seq_t g = gcd(sum, prod);
     return sum / g;
 }

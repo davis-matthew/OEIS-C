@@ -10,14 +10,21 @@
  *            as 0 if m<2)
  * Range:     u8 n <= 15, u16 n <= 113, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   binom2_idx
+ * Validated: standard, pass, 66 terms through n = 964 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binom2_idx.h"
+
+static inline seq_t binom2_idx(idx_t m)
+{
+    /* returns C(m,2) = m*(m-1)/2, 0 if m < 2 */
+    if (m < 2) return 0;
+    return (seq_t)m * (m - 1) / 2;
+}
 
 seq_t a(idx_t n)
 {

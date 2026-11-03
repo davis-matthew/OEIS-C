@@ -14,7 +14,8 @@
  *            prime‑power factors of the other * distinct primes in k
  * Range:     u8 n <= 45, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   factor_u64, gcd, mod_pow, seq_alloc, seq_realloc
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-02)
+ * Helpers:   factor_u64, gcd, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,14 +25,31 @@
 #include <stdbool.h>
 
 /* utility headers supplied by the build system */
-#include "../utils/factor_u64.h"      /* void factor_u64(uint64_t n, uint64_t *pr,
-                                       uint64_t *ex, size_t *cnt);          */
-#include "../utils/mod_pow.h"        /* seq_t mod_pow(seq_t base, uint64_t exp,
-                                       seq_t mod);                              */
-#include "../utils/gcd.h"            /* seq_t gcd(seq_t a, seq_t b);             */
-#include "../utils/seq_alloc.h"      /* seq_t *seq_alloc(size_t cap);           */
-#include "../utils/seq_realloc.h"    /* seq_t *seq_realloc(seq_t *old, size_t
-                                       old_cap, size_t new_cap);              */
+#include <string.h>
+#include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
+#include "../utils/powmod.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 /* ----------------------------------------------------------------- */
 /* Helper: Carmichael λ for a prime power p^e */
@@ -78,7 +96,7 @@ static seq_t order_mod(uint64_t a, uint64_t mod)
     for (size_t i = 0; i < faccnt; ++i) {
         uint64_t f = fac[i];
         while (ord % f == 0) {
-            seq_t test = mod_pow(a, (uint64_t)(ord / f), mod);
+            seq_t test = powmod(a, (uint64_t)(ord / f), mod);
             if (test == (seq_t)1) ord /= f;
             else break;
         }

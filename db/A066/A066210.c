@@ -7,12 +7,13 @@
  * Formula:   a(n) = ((2*n)^(2*n+2) - 1)/(4*n^2 - 1)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 7, u128 n <= 12,
  *            big any n
- * Helpers:   pow_seq_t_multiplicative
+ * Validated: standard, pass, 30 terms through n = 98 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_seq_t_multiplicative.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +23,7 @@ seq_t a(idx_t n)
     seq_t base      = (seq_t)(2 * n);
     idx_t exponent  = (idx_t)(2 * (idx_t)n + 2);
 
-    seq_t numerator = pow_seq_t_multiplicative(base, exponent) - (seq_t)1;
+    seq_t numerator = ipow_idx(base, exponent) - (seq_t)1;
 
     seq_t denom = 4 * (seq_t)n * (seq_t)n - (seq_t)1;
 

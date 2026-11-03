@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 n <= 25, u16 n <= 8392, u32 n <= 8392, u64 n <= 8392,
- *            u128 n <= 8392, big any n
- * Helpers:   sum4digits_and_digits
+ * Range:     u8 n <= 25, u16 n <= 12694, u32 n <= 15650, u64 n <= 15650,
+ *            u128 n <= 15650, big any n
+ * Validated: standard, pass, 66 terms through n = 8392 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,21 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/sum4digits_and_digits.h"
+
+/* compute the sum of the digits of x in base 4 and the number of digits
+ * (digits is output).  x is unsigned (idx_t).  Returns the digit sum. */
+static inline int sum4digits_and_digits(idx_t x, int *digits)
+{
+    int sum = 0;
+    int d   = 0;
+    while (x) {
+        sum += (int)(x & 3);   /* lowest base-4 digit */
+        x >>= 2;               /* shift by two bits */
+        ++d;
+    }
+    if (digits) *digits = d;
+    return sum;
+}
 
 /* return the nth term of the sequence */
 seq_t a(idx_t n)

@@ -5,17 +5,35 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = A001221(1+A000203(n))
- * Range:     u8 n <= 1609, u16 n <= 8469, u32 n <= 8469, u64 n <= 8469,
- *            u128 n <= 8469, big any n
- * Helpers:   count_distinct_primes, sigma_of
+ * Range:     u8 n <= 1609, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 8469 (2026-11-01)
+ * Helpers:   omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Number of distinct prime factors of 1 + σ(n) */
 
-#include "../utils/sigma_of.h"
-#include "../utils/count_distinct_primes.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/omega.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 #include <stdint.h>
 
 seq_t a(idx_t n)
@@ -31,7 +49,7 @@ seq_t a(idx_t n)
     uint64_t sum_u64 = (uint64_t)sum;
 
     /* Count distinct prime factors of the 64‑bit integer */
-    int cnt = count_distinct_primes(sum_u64);
+    int cnt = omega(sum_u64);
 
     return (seq_t)cnt;
 }

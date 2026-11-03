@@ -10,6 +10,7 @@
  *            values for n = 1..6: 1388, 2640, 4196, 6476, 11937, 25715
  * Range:     u8 none, u16 n <= 7, u32 n <= 17, u64 n <= 37, u128 n <= 78,
  *            big any n
+ * Validated: standard, pass, 39 terms through n = 190 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

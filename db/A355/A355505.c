@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 173, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_sum_base_n_sq
+ * Validated: standard, pass, 105 terms through n = 9702 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,19 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/digit_sum_base_n_sq.h"
+
+/* Compute sum of the base‑n digits of x².  The result fits in a seq_t. */
+static seq_t digit_sum_base_n_sq(idx_t n, idx_t x)
+{
+    seq_t sn = (seq_t)n;          /* base as seq_t */
+    seq_t sq = (seq_t)x * (seq_t)x;/* x² as seq_t */
+    seq_t sum = 0;
+    while (sq > 0) {
+        sum += sq % sn;
+        sq /= sn;
+    }
+    return sum;
+}
  
 
  

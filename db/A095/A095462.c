@@ -6,12 +6,14 @@
  * Keywords:  nonn
  * Formula:   a(n) = decimal concatenation of the base‑n digits of 35
  * Range:     u8 none, u16 none, u32 none, u64 none, u128 n <= 11, big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 11 terms through n = 11 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
         unsigned int tmp = d;
         do { ++k; tmp /= 10; } while (tmp > 0);
 
-        seq_t pow10k = pow_uint(10, k);
+        seq_t pow10k = ipow_u64_idx(10, k);
         result = result * pow10k + d;
     }
 

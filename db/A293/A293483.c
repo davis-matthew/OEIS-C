@@ -7,8 +7,9 @@
  * Formula:   a(n) = Π_{p^e‖n} f(p^e) where f(2^e) = 1 (e≤3), 2^(e-3) (e≥3)
  *            f(3^e) = 1 (e≤2), 3^(e-2) (e≥2) f(p^e) = φ(p^e)/2 (p≡5 mod 6)
  *            f(p^e) = φ(p^e)/6 (p≡1 mod 6) a(1) = 1
- * Range:     u8 n <= 520, u16 n <= 9652, u32 n <= 9652, u64 n <= 9652,
- *            u128 n <= 9652, big any n
+ * Range:     u8 n <= 520, u16 n <= 10132, u32 n <= 10132, u64 n <= 10132,
+ *            u128 n <= 10132, big any n
+ * Validated: standard, pass, 98 terms through n = 9652 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

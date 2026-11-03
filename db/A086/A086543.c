@@ -8,12 +8,14 @@
  *            p(k) is the ordinary partition function (p(0)=1)
  * Range:     u8 n <= 16, u16 n <= 43, u32 n <= 127, u64 n <= 416,
  *            u128 n <= 1458, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 8982 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *part = NULL;   /* cache of p(0) … p(max_n) */
 static idx_t  part_cap = 0;  /* actual size of the cache (max_n+1) */
@@ -27,7 +29,7 @@ static idx_t  part_cap = 0;  /* actual size of the cache (max_n+1) */
 static void recompute_partitions(idx_t n)
 {
     size_t cap = (size_t)n + 1;
-    seq_t *new_part = (seq_t *)malloc(cap * sizeof(seq_t));
+    seq_t *new_part = mem_new(seq_t, cap);
     if (!new_part)
         return;   /* out‑of‑memory – keep the old cache, if any */
 
@@ -40,7 +42,7 @@ static void recompute_partitions(idx_t n)
             new_part[i] += new_part[i - coin];
 
     if (part)
-        free(part);
+        mem_free(part);
     part     = new_part;
     part_cap = cap;
 }

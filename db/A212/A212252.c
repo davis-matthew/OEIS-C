@@ -8,12 +8,14 @@
  *            Initial values: a(0)=0, a(1)=0, a(2)=0, a(3)=3, a(4)=11, a(5)=24
  * Range:     u8 n <= 10, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;          /* cached values */
@@ -23,7 +25,7 @@ seq_t a(idx_t n) {
     /* Allocate or enlarge cache as needed */
     if (cache == NULL) {
         cache_size = (n < 6 ? 6 : n + 1);
-        cache = (seq_t *)realloc(NULL, sizeof(seq_t) * cache_size);
+        cache = mem_resize(seq_t, NULL, cache_size);
 
         /* initialise the first six terms */
         cache[0] = (seq_t)0;
@@ -35,7 +37,7 @@ seq_t a(idx_t n) {
         computed_max = 5;
     } else if (cache_size < n + 1) {
         cache_size = n + 1;
-        cache = (seq_t *)realloc(cache, sizeof(seq_t) * cache_size);
+        cache = mem_resize(seq_t, cache, cache_size);
         /* The new positions are uninitialised; the base values are already set. */
     }
 

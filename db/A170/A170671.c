@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,6 +36,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External types supplied by the build environment */
 extern seq_t a(idx_t n);
@@ -49,7 +51,7 @@ static void ensure_cache(idx_t n)
     if (cache_len == 0) {
         /* Initial allocation for at least one element */
         cache_len = (n >= 0) ? n + 1 : 1;
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         if (!cache) abort();          /* terminate on allocation failure */
         cache[0] = (seq_t)1;          /* a(0) = 1 */
     }
@@ -57,7 +59,7 @@ static void ensure_cache(idx_t n)
     if (cache_len <= n) {
         /* Resize cache to accommodate n */
         size_t new_len = (size_t)n + 1;
-        cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_len);
         if (!cache) abort();
 
         /* Compute new terms */

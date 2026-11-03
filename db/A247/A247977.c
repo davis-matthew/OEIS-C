@@ -11,16 +11,18 @@
  *            pi(lpf(n)) + 1 for composite n
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   int_sqrt, is_prime, prime_pi
+ * Validated: standard, pass, 141 terms through n = 9064 (2026-11-01)
+ * Helpers:   is_prime, isqrt, prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/is_prime.h"
+#include "../utils/isqrt.h"
 #include "../utils/prime_pi.h"
-#include "../utils/int_sqrt.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
         return 0;          /* prime numbers have value 0 */
 
     /* composite numbers: use the formula */
-    idx_t sqrt_n = int_sqrt(n);               /* floor(sqrt(n))          */
+    idx_t sqrt_n = isqrt(n);               /* floor(sqrt(n))          */
     seq_t pi_sqrt = prime_pi(sqrt_n);         /* pi(floor(sqrt(n)))      */
 
     /* find least prime factor (trial division is fast for our test range) */

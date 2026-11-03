@@ -13,16 +13,36 @@
  *            Initial values: a(1)=60, a(2)=144, …...
  * Range:     u8 n <= 2, u16 n <= 10, u32 n <= 26, u64 n <= 57, u128 n <= 117,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 /* Lightweight version of ensure_capacity if the build does not provide it. */
 #if !defined(ensure_capacity)
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size) {
+    if (needed > *cap) {
+        size_t new_cap = (needed > (*cap << 1)) ? needed : (*cap << 1);
+        *ptr = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+        *cap = new_cap;
+    }
+}
+#else
 static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size) {
     if (needed > *cap) {
         size_t new_cap = (needed > (*cap << 1)) ? needed : (*cap << 1);
@@ -30,6 +50,7 @@ static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_
         *cap = new_cap;
     }
 }
+#endif
 #endif
 
 seq_t a(idx_t n) {
@@ -56,7 +77,7 @@ seq_t a(idx_t n) {
 
     /* Ensure the cache has room for the required index. */
     if (target > cache_len) {
-        ensure_capacity(target, &cache_cap, (void **)&cache, sizeof(seq_t));
+        ensure_capacity(target, &cache_cap, OEISC_VPP(&cache), sizeof(seq_t));
 
         /* Load the known initial terms into the cache if they are not yet present. */
         for (size_t i = cache_len; i < 21 && i < target; ++i)

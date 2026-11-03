@@ -12,7 +12,8 @@
  *            a(n‑1) – a(n‑3) + 2·a(n‑4) – a(n‑5) + a(n‑7...
  * Range:     i8 n <= 2, i16 n <= 41, i32 n <= 41, i64 n <= 41, i128 n <= 41,
  *            big any n
- * Helpers:   seq_alloc_new_array, seq_free_array
+ * Validated: partial, pass, 40 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/seq_free_array.h"
+#include <stdint.h>
+#include <stddef.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 static seq_t *seq = NULL;      /* pointer to computed values */
 static idx_t  seq_len = 0;     /* number of computed values (size of seq array) */
@@ -45,7 +53,7 @@ static void ensure_computed(idx_t n)
 
     /* Copy existing values if any. */
     if (seq) {
-        memcpy(newseq, seq, sizeof(seq_t) * seq_len);
+        mem_copy(newseq, seq, sizeof(seq_t) * seq_len);
         seq_free_array(seq);
     }
 

@@ -11,13 +11,25 @@
  *            if floor(n/3) is even: e = (n%3==1) ? 2 : 1...
  * Range:     u8 n <= 3, u16 n <= 21, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   seq_pow, trailing_ones
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
-#include "../utils/trailing_ones.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
+
+static unsigned trailing_ones(idx_t x)
+{
+    unsigned cnt = 0;
+    while ((x & 1) == 1) {
+        ++cnt;
+        x >>= 1;
+    }
+    return cnt;
+}
 
 seq_t a(idx_t n)
 {
@@ -31,5 +43,5 @@ seq_t a(idx_t n)
         unsigned base = 2 * k + 1;
         e = (r == 1) ? (base + 1) : base;
     }
-    return seq_pow((seq_t)4, (idx_t)e);
+    return ipow_idx((seq_t)4, (idx_t)e);
 }

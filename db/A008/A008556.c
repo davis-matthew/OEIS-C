@@ -9,15 +9,17 @@
  *            C(r-k, k). The row index r is chosen such that the cumulative
  *            number of triangle entries up to row r-1 is ≤ n < those up to
  *            row r. Each row r has floor(r/2)+1 non‑zero entrie...
- * Range:     u8 n <= 5, u16 n <= 19, u32 n <= 80, u64 n <= 258, u128 n <= 934,
+ * Range:     u8 n <= 9, u16 n <= 25, u32 n <= 81, u64 n <= 258, u128 n <= 934,
  *            big any n
+ * Validated: standard, pass, 58 terms through n = 9391 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binomial.h"   /* uses: seq_t binomial(idx_t n, idx_t k); */
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {

@@ -9,9 +9,10 @@
  * Formula:   a(n) is the n-th element of the triangle of distinct integer
  *            partitions of the row index, flattened lexicographically. No
  *            simple closed form is known
- * Range:     u8 n <= 8956, u16 n <= 8956, u32 n <= 8956, u64 n <= 8956,
- *            u128 n <= 8956, big any n
- * Helpers:   none
+ * Range:     u8 n <= 10772, u16 n <= 10772, u32 n <= 10772, u64 n <= 10772,
+ *            u128 n <= 10772, big any n
+ * Validated: standard, pass, 103 terms through n = 8956 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static state for memoisation */
 static seq_t *flat = NULL;          /* flattened sequence */
@@ -35,7 +37,7 @@ static void flat_grow(void)
 {
     if (flat_len == flat_cap) {
         flat_cap = (flat_cap == 0) ? 64 : flat_cap * 2;
-        flat = (seq_t *)realloc(flat, flat_cap * sizeof(seq_t));
+        flat = mem_resize(seq_t, flat, flat_cap);
     }
 }
 
@@ -44,7 +46,7 @@ static void cur_prepare(idx_t n)
 {
     if (cur_cap < (size_t)n) {
         cur_cap = (size_t)n;
-        cur = (seq_t *)realloc(cur, cur_cap * sizeof(seq_t));
+        cur = mem_resize(seq_t, cur, cur_cap);
     }
 }
 

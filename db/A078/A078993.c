@@ -11,15 +11,28 @@
  *            k‑th Fibonacci number (F(0)=0, F(1)=1)
  * Range:     u8 n <= 11, u16 n <= 21, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   fib_seq, pow2
+ * Validated: partial, pass, 41 terms through n = 40 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* The required utility functions are provided in the utils library. */
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
-#include "../utils/fib_seq.h"
+
+/* C++ build: seq_t may be an arbitrary‑precision integer type. */
+static void fib_seq(idx_t n, seq_t *fn, seq_t *fn1)
+{
+    if (n == 0) { *fn = 0; *fn1 = 1; return; }
+    seq_t a, b;
+    fib_seq(n >> 1, &a, &b);
+    seq_t c = a * (b * 2 - a);
+    seq_t d = a * a + b * b;
+    if (n & 1) { *fn = d; *fn1 = c + d; }
+    else { *fn = c; *fn1 = d; }
+}
 
 /* External linkage as required. */
 seq_t a(idx_t n)

@@ -12,15 +12,17 @@
  *            (1 + 2^(r-2)) * binom(r,k), otherwise 1
  * Range:     u8 n <= 23, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   binomial, pow_uint
+ * Validated: partial, pass, 60 terms through n = 59 (2026-11-01)
+ * Helpers:   binomial, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow_uint.h"
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* Interior terms */
-    seq_t pow = pow_uint(2, r - 2);         /* 2^(r-2) */
+    seq_t pow = ipow_u64_idx(2, r - 2);         /* 2^(r-2) */
     seq_t coeff = binomial(r, k);          /* binom(r,k) */
     seq_t factor = pow + (seq_t)1;          /* 1 + 2^(r-2) */
     return coeff * factor;                 /* exact multiplication for seq_t */

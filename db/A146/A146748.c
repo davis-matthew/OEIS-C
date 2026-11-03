@@ -7,7 +7,8 @@
  * Formula:   generates sorted values of j^k * k^j for all integers j,k > 1
  * Range:     u8 n <= 2, u16 n <= 11, u32 n <= 42, u64 n <= 134, u128 n <= 417,
  *            big any n
- * Helpers:   big_pow, seq_from_str, seq_mul
+ * Validated: standard, pass, 46 terms through n = 8337 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,25 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <math.h>
-#include "../utils/big_pow.h"
-#include "../utils/seq_mul.h"
-#include "../utils/seq_from_str.h"
+#include <stdint.h>
+#include <string.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
 
 #define MAX_JK 2048   /* upper bound for j and k in the cache */
 
@@ -75,7 +92,7 @@ static void heapify_down(size_t idx) {
 static void push_node(const Node n) {
     if (heap_len == heap_cap) {
         heap_cap = heap_cap ? heap_cap * 2 : 256;
-        heap = (Node *)realloc(heap, heap_cap * sizeof(Node));
+        heap = mem_resize(Node, heap, heap_cap);
     }
     heap[heap_len++] = n;
     heapify_up(heap_len - 1);
@@ -96,8 +113,8 @@ static size_t cache_len = 0, cache_cap = 0;
 static void build_until(idx_t n) {
     /* initial node (2,2) */
     if (heap_len == 0) {
-        seq_t v = seq_mul(big_pow((seq_t)2, (seq_t)2),
-                          big_pow((seq_t)2, (seq_t)2));
+        seq_t v = seq_mul(ipow((seq_t)2, (seq_t)2),
+                          ipow((seq_t)2, (seq_t)2));
         Node start = { v, 2, 2,
                       2 * log((double)2) + 2 * log((double)2) };
         push_node(start);
@@ -106,7 +123,7 @@ static void build_until(idx_t n) {
 
     if (cache_len == 0) {
         cache_cap = 256;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     while (cache_len < n) {
@@ -116,7 +133,7 @@ static void build_until(idx_t n) {
         if (cache_len == 0 || cache[cache_len - 1] != cur.val) {
             if (cache_len == cache_cap) {
                 cache_cap *= 2;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = cur.val;
         }
@@ -124,8 +141,8 @@ static void build_until(idx_t n) {
         /* successor (j, k+1) */
         if (cur.k + 1 <= MAX_JK && !visited[cur.j][cur.k + 1]) {
             visited[cur.j][cur.k + 1] = 1;
-            seq_t v1 = seq_mul(big_pow((seq_t)cur.j, (seq_t)(cur.k + 1)),
-                               big_pow((seq_t)(cur.k + 1), (seq_t)cur.j));
+            seq_t v1 = seq_mul(ipow((seq_t)cur.j, (seq_t)(cur.k + 1)),
+                               ipow((seq_t)(cur.k + 1), (seq_t)cur.j));
             Node n1 = { v1, cur.j, cur.k + 1,
                         cur.j * log((double)(cur.k + 1))
                         + (cur.k + 1) * log((double)cur.j) };
@@ -136,8 +153,8 @@ static void build_until(idx_t n) {
         if (cur.j + 1 <= cur.k && cur.j + 1 <= MAX_JK &&
             !visited[cur.j + 1][cur.k]) {
             visited[cur.j + 1][cur.k] = 1;
-            seq_t v2 = seq_mul(big_pow((seq_t)(cur.j + 1), (seq_t)cur.k),
-                               big_pow((seq_t)cur.k, (seq_t)(cur.j + 1)));
+            seq_t v2 = seq_mul(ipow((seq_t)(cur.j + 1), (seq_t)cur.k),
+                               ipow((seq_t)cur.k, (seq_t)(cur.j + 1)));
             Node n2 = { v2, cur.j + 1, cur.k,
                         (cur.j + 1) * log((double)cur.k)
                         + cur.k * log((double)(cur.j + 1)) };

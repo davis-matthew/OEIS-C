@@ -8,14 +8,17 @@
  * Formula:   a(n) = ceil( Σ_{i=1}^{k-1} (p_{i+1}-p_i) / (k-1) ) where p_i are
  *            the distinct prime divisors of n (k=#distinct primes). If n has
  *            0 or 1 distinct prime divisor, a(n)=0
- * Range:     u8 n <= 525, u16 n <= 9364, u32 n <= 9364, u64 n <= 9364,
- *            u128 n <= 9364, big any n
+ * Range:     u8 n <= 525, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 110 terms through n = 9364 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 seq_t a(idx_t n)

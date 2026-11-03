@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Sequence A073042 – Numbers of the form 10^s * t^2 or 10^s * t^3 (s, t ≥ 0),
    sorted increasingly. a(1) = 0.  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* comparison function used by qsort */
 static int cmp_seq(const void *a, const void *b)
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
 
         /* temporary storage for all candidate numbers before deduplication */
         const idx_t tmp_capacity = (T_MAX + 1) * 2 * (S_MAX + 1) + 1;
-        seq_t *tmp = (seq_t *)malloc(tmp_capacity * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, tmp_capacity);
         if (!tmp)
             return (seq_t)0;                 /* allocation failure              */
 
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
         }
 
         /* sort all generated values */
-        qsort(tmp, tmp_len, sizeof(seq_t), cmp_seq);
+        mem_qsort(tmp, tmp_len, sizeof(seq_t), cmp_seq);
 
         /* deduplicate in place – compact unique values at the front */
         size_t uniq = 0;
@@ -80,17 +82,17 @@ seq_t a(idx_t n)
         }
 
         /* allocate the final cache of unique terms */
-        cache = (seq_t *)malloc(uniq * sizeof(seq_t));
+        cache = mem_new(seq_t, uniq);
         if (!cache)
         {
-            free(tmp);
+            mem_free(tmp);
             return (seq_t)0;
         }
         for (size_t i = 0; i < uniq; ++i)
             cache[i] = tmp[i];
         cache_size = (idx_t)uniq;
 
-        free(tmp);                         /* free temporary storage          */
+        mem_free(tmp);                         /* free temporary storage          */
     }
 
     /* return the requested term, or 0 if the index is out of bounds    */

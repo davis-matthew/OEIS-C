@@ -13,13 +13,15 @@
  *            used as a u or v; v(k) = u(k) + k. This leads to an O(n) a...
  * Range:     u8 n <= 77, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 77 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     if (!usedU) { free(usedAll); return 0; }
 
     /* Temporary storage for the lower Wythoff numbers (size n is plenty) */
-    seq_t *u = (seq_t*)malloc(cap * sizeof(seq_t));
+    seq_t *u = mem_new(seq_t, cap);
     if (!u) { free(usedAll); free(usedU); return 0; }
 
     idx_t k = 0;  /* count of u values found, starts at 0 */
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
     }
 
     /* Clean up */
-    free(u);
+    mem_free(u);
     free(usedU);
     free(usedAll);
 

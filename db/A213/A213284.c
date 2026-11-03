@@ -9,6 +9,7 @@
  * Formula:   a(n) = n*(94-204*n+155*n^2-45*n^3+6*n^4)/6
  * Range:     u8 n <= 3, u16 n <= 10, u32 n <= 85, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 50 terms through n = 915 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

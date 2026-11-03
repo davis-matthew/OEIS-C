@@ -13,7 +13,8 @@
  *            Equivalently, for all i ≥ 3, a[i‑2]==a[i] && a[i‑1]=...
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 15, u64 n <= 26, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     static seq_t next[8][8][8][8];
 
     /* initialize DP for length 3 sequences */
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
     dp[0][0][0][0] = 1;  /* 0,0,0 */
     dp[0][0][1][1] = 1;  /* 0,0,1 */
     dp[0][1][0][1] = 1;  /* 0,1,0 */
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
 
     /* iterate from length 3 up to n */
     for (idx_t step = 3; step < n; ++step) {
-        memset(next, 0, sizeof(next));
+        mem_set(next, 0, sizeof(next));
 
         for (int a = 0; a < 8; ++a) {
             for (int b = 0; b < 8; ++b) {
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
                 }
             }
         }
-        memcpy(dp, next, sizeof(dp));
+        mem_copy(dp, next, sizeof(dp));
     }
 
     /* sum all states to get the total count */

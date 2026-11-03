@@ -11,13 +11,36 @@
  *            a(m,n) along the diagonals m+n = const with the order...
  * Range:     u8 n <= 55, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   a_func
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a_func.h"
+
+/* Recursive helper for the two‑Dimensional Ackermann function.
+ * The indices m and n are expected to be >= 1.  For m > 1,
+ * all returned values are in [0,4]; for m == 1 they are in [0,5].
+ */
+static seq_t a_func(seq_t m, seq_t n)
+{
+    if (m == 1) {
+        /* Base case: a(1,n) = n mod 6 */
+        return (seq_t)(n % 6);
+    }
+
+    /* If n == 1, use the special initial condition. */
+    if (n == 1) {
+        return a_func(m - 1, 2);
+    }
+
+    /* Recurrence for m > 1, n > 1.  Because a_func(m,n-1)
+     * returns a value in [0,4], the argument to a_func(m-1, …)
+     * stays small, so recursion depth is very shallow. */
+    seq_t prev = a_func(m, n - 1);
+    return a_func(m - 1, prev + 1) % 5;
+}
 
 /* Public function implementing the OEIS sequence A131619. */
 seq_t a(idx_t n)

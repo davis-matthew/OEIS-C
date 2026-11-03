@@ -8,8 +8,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = Number of triples <p,s,t> such that p + F_s + (F_t)^2 =
  *            n, with p odd prime, s,t > 1, and F_s or F_t is odd
- * Range:     u8 n <= 9880, u16 n <= 9880, u32 n <= 9880, u64 n <= 9880,
- *            u128 n <= 9880, big any n
+ * Range:     u8 n <= 50000, u16 n <= 50000, u32 n <= 50000, u64 n <= 50000,
+ *            u128 n <= 50000, big any n
+ * Validated: standard, pass, 66 terms through n = 9880 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,12 +10,14 @@
  *            x^{13k²}/(1 - x^{k²}))
  * Range:     u8 n <= 284, u16 n <= 864, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 127 terms through n = 984 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,12 +28,12 @@ seq_t a(idx_t n)
     size_t N = (size_t)n;
 
     /* Allocate DP arrays.  Use explicit casts to satisfy C++. */
-    seq_t *dp      = (seq_t*)calloc(N + 1, sizeof(seq_t));
-    seq_t *dp_next = (seq_t*)malloc  ((N + 1) * sizeof(seq_t));
+    seq_t *dp      = mem_new(seq_t, N + 1);
+    seq_t *dp_next = mem_new(seq_t, (N + 1));
 
     if (!dp || !dp_next) {
         /* Allocation failed – return 0 (unlikely in tests). */
-        free(dp); free(dp_next);
+        mem_free(dp); mem_free(dp_next);
         return (seq_t)0;
     }
 
@@ -47,9 +49,9 @@ seq_t a(idx_t n)
 
         /* Sum array for residues modulo s.  Allocate once per s. */
         size_t s_sz = (size_t)s;
-        seq_t *sum_by_rem = (seq_t*)calloc(s_sz, sizeof(seq_t));
+        seq_t *sum_by_rem = mem_new(seq_t, s_sz);
         if (!sum_by_rem) {
-            free(dp); free(dp_next);
+            mem_free(dp); mem_free(dp_next);
             return (seq_t)0;
         }
 
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
             dp_next[i] += sum_by_rem[r];
         }
 
-        free(sum_by_rem);
+        mem_free(sum_by_rem);
 
         /* Prepare for next iteration. Swap dp and dp_next pointers. */
         seq_t *tmp = dp;
@@ -79,8 +81,8 @@ seq_t a(idx_t n)
     seq_t result = dp[N];    /* a(n) */
 
     /* Free allocated memory. */
-    free(dp);
-    free(dp_next);
+    mem_free(dp);
+    mem_free(dp_next);
 
     return result;
 }

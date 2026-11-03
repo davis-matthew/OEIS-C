@@ -7,14 +7,25 @@
  * Formula:   a(n) = final non‑zero digit of n! in base 6
  * Range:     u8 n <= 99, u16 n <= 99, u32 n <= 99, u64 n <= 99, u128 n <= 99,
  *            big any n
- * Helpers:   pow2_mod6, pow3_mod6
+ * Validated: partial, pass, 100 terms through n = 99 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow2_mod6.h"
-#include "../utils/pow3_mod6.h"
+
+/* multiply a by a^e modulo 6 where a is 2 or 3 */
+static inline seq_t pow2_mod6(idx_t e)
+{
+    if (e == 0) return (seq_t)1;
+    return (e & 1) ? (seq_t)2 : (seq_t)4;   /* 2^1≡2, 2^2≡4, 2^3≡2, … */
+}
+
+static inline seq_t pow3_mod6(idx_t e)
+{
+    return (e == 0) ? (seq_t)1 : (seq_t)3;   /* 3^k≡3 for k≥1 */
+}
 
 seq_t a(idx_t n)
 {

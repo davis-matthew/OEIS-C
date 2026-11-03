@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 88, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 91 terms through n = 91 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
  *    row and col are ≤ 141, so the routine is fast. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* Dynamic programming for compositions of 'col' with parts ≤ 'row'. */
-    seq_t *dp = (seq_t*)calloc((size_t)(col + 1), sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(col + 1));
     if (!dp) /* defensive, though unlikely */
         return (seq_t)0;
     dp[0] = (seq_t)1;
@@ -59,6 +61,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[col];
-    free(dp);
+    mem_free(dp);
     return result;
 }

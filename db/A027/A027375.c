@@ -8,6 +8,7 @@
  * Formula:   a(n) = Sum_{d|n} mu(d) * 2^(n/d) (OEIS A027375)
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 32, u64 n <= 64, u128 n <= 128,
  *            big any n
+ * Validated: standard, pass, 49 terms through n = 289 (2026-11-01)
  * Helpers:   mobius, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

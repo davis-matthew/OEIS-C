@@ -9,14 +9,28 @@
  * Formula:   a(n) = round(a(n-1)^2 / a(n-2)), a(1) = 10, a(2) = 219
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 7, u64 n <= 14, u128 n <= 28,
  *            big any n
- * Helpers:   seq_is_fixed_width
+ * Validated: standard, pass, 33 terms through n = 674 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_is_fixed_width.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
 
 static seq_t *cache = NULL;
 static idx_t cache_len = 0;
@@ -55,9 +69,9 @@ seq_t a(idx_t n) {
     if (cache_len <= n) {
         idx_t old_len = cache_len;
         idx_t new_len = n + 1;
-        seq_t *nc = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *nc = mem_new(seq_t, new_len);
         for (idx_t i = 0; i < old_len; i++) nc[i] = cache[i];
-        free(cache);
+        mem_free(cache);
         cache = nc;
         cache_len = new_len;
         if (old_len < 3) {

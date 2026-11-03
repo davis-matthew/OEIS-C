@@ -11,7 +11,8 @@
  *            sieve of primes and divisor enumeration are used for performance
  * Range:     u8 none, u16 n <= 29, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   isqrt_with_bound_signed
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,19 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/isqrt_with_bound_signed.h"
+
+/* ---------- integer sqrt for signed __int128 with upper bound ---------- */
+static unsigned long long isqrt_with_bound_signed(__int128 val, uint64_t bound)
+{
+    unsigned long long lo = 0, hi = bound, ans = 0;
+    while (lo <= hi) {
+        unsigned long long mid = (lo + hi) >> 1;
+        __int128 mid2 = (__int128)mid * mid;
+        if (mid2 <= val) { ans = mid; lo = mid + 1; }
+        else hi = mid - 1;
+    }
+    return ans;
+}
 
 /* ---------- prime sieve (up to 100000) ---------- */
 enum { PRIME_LIMIT = 100000, MAX_PRIMES = 9593 }; /* primes <= 100000 */

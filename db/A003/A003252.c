@@ -10,16 +10,29 @@
  *            Theorem 7.15)
  * Range:     u8 n <= 59, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   a3252_B, a3252_U, a3252_isqrt, a3252_lower
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a3252_B.h"
-#include "../utils/a3252_U.h"
-#include "../utils/a3252_isqrt.h"
-#include "../utils/a3252_lower.h"
+#include "../utils/isqrt_u64.h"
+
+/* floor(m*phi) */
+static uint64_t a3252_lower(uint64_t m) {
+    return (m + isqrt_u64(5 * m * m)) / 2;
+}
+
+/* A003231(m) = floor(m*(5+sqrt5)/2) */
+static uint64_t a3252_B(uint64_t m) {
+    return a3252_lower(m) + 2 * m;
+}
+
+/* A001950(m) = floor(m*phi^2) */
+static uint64_t a3252_U(uint64_t m) {
+    return a3252_lower(m) + m;
+}
 
 seq_t a(idx_t n) {
     uint64_t j = 0;

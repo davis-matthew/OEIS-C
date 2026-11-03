@@ -9,12 +9,15 @@
  *            n - r(r+1)/2. Then a(n) = C(r,k) * 2^(r-k) * 3^k
  * Range:     u8 n <= 16, u16 n <= 39, u32 n <= 127, u64 n <= 450,
  *            u128 n <= 1682, big any n
+ * Validated: standard, pass, 62 terms through n = 7526 (2026-11-01)
  * Helpers:   binomial, pow2, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
 #include "../utils/pow3.h"

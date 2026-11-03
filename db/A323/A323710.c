@@ -13,14 +13,16 @@
  *            involution a(n) = g(r(f(n))) from OEIS A323710
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 18, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   pow_seq_large
+ * Validated: standard, pass, 38 terms through n = 38 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/pow_seq_large.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* memoisation array */
 static idx_t  cache_size = 0;        /* current capacity */
@@ -31,7 +33,7 @@ static void ensure_cache(idx_t n)
     if (n + 1 <= cache_size)
         return;
     idx_t new_size = (n + 1) * 2;                /* double to reduce reallocs */
-    seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_size);
     cache = tmp;
     for (idx_t i = cache_size; i < new_size; ++i)
         cache[i] = (seq_t)0;                    /* 0 = not yet computed */
@@ -61,7 +63,7 @@ static seq_t a_rec(idx_t n)
     seq_t right = a_rec(c);                    /* a(c)  */
 
     /* compute 2^{a(k)} and (2·a(c)+1) */
-    seq_t pow2_left = pow_seq_large((seq_t)2, left);
+    seq_t pow2_left = ipow((seq_t)2, left);
     seq_t two_right_plus1 = right * (seq_t)2 + (seq_t)1;
 
     seq_t result = pow2_left * two_right_plus1;

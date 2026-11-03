@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 0, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 188 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* small helper: floor(sqrt(x)) for 64‑bit unsigned integer x */
 static unsigned long long int_sqrt64(unsigned long long x)
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
         p_prevprev = 0;   /* corresponds to p_{-2} */
         p_prev     = 1;   /* corresponds to p_{-1} */
         cache_cap = 32;   /* initial allocation size */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         initialized = 1;
     }
 
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
         /* store the computed value */
         if (cache_len >= cache_cap) {
             cache_cap *= 2;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
         cache[cache_len++] = pk;
 

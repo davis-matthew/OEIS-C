@@ -12,13 +12,15 @@
  *            15, 52, 203, 825, 3442, 14589, 62361, 267663, 1151563,...
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 17, u64 n <= 32, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 976 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static const seq_t init[16] = {
     (seq_t)1,    /* a(0) */
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
 
     if (buf == NULL) {
         buf_len = 16;
-        buf = (seq_t *)malloc(buf_len * sizeof(seq_t));
+        buf = mem_new(seq_t, buf_len);
         if (!buf) return (seq_t)0;
         for (idx_t i = 0; i < 16; ++i) buf[i] = init[i];
         computed_len = 15;
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
     if (n >= buf_len) {
         idx_t new_len = buf_len;
         while (new_len <= n) new_len <<= 1;  /* grow exponentially */
-        seq_t *tmp = (seq_t *)realloc(buf, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, buf, new_len);
         if (!tmp) return (seq_t)0;
         buf = tmp;
         buf_len = new_len;

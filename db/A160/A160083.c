@@ -9,12 +9,14 @@
  *            a_{n-1} (n >= 1) (since 338 = 2 * 13^2, 23 = 13 * 2 * (23/26))
  * Range:     i8 n <= 1, i16 n <= 3, i32 n <= 6, i64 n <= 12, i128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 419 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* Initialise the cache on the first call. */
     if (cache == NULL) {
         cache_cap = 2;                /* space for a[0] and a[1] */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return 0;        /* allocation failure */
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)23;
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     if ((idx_t)cache_cap <= n) {
         size_t new_cap = cache_cap * 2;
         if (new_cap <= n) new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;          /* allocation failure */
         cache = tmp;
         cache_cap = new_cap;

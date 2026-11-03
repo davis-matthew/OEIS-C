@@ -7,8 +7,9 @@
  * Keywords:  nonn, base, easy
  * Formula:   a(n) = A324895(n) mod 360, where A324895(n) is the largest
  *            proper divisor of the primorial base exp-function of n
- * Range:     u8 n <= 24, u16 n <= 9738, u32 n <= 9738, u64 n <= 9738,
- *            u128 n <= 9738, big any n
+ * Range:     u8 n <= 24, u16 n <= 30030, u32 n <= 30030, u64 n <= 30030,
+ *            u128 n <= 30030, big any n
+ * Validated: standard, pass, 91 terms through n = 9738 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

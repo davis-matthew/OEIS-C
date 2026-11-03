@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 3, i16 n <= 7, i32 n <= 15, i64 n <= 25, i128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static cache for numerators and exponent of denominator */
 static seq_t *num_cache   = NULL;   /* numerator of a(n)   */
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     /* grow cache if necessary */
     if ((size_t)n >= cache_size) {
         size_t new_size = (size_t)n + 1;
-        seq_t *tmp_num = (seq_t *)realloc(num_cache, new_size * sizeof(seq_t));
+        seq_t *tmp_num = mem_resize(seq_t, num_cache, new_size);
         if (!tmp_num) abort();
         num_cache = tmp_num;
 

@@ -9,15 +9,27 @@
  *            The function computes it for any n ≥ 1
  * Range:     u8 n <= 6, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   digit_len, is_prime, pow10
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-01)
+ * Helpers:   is_prime, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/is_prime.h"
-#include "../utils/digit_len.h"
-#include "../utils/pow10.h"
+#include "../utils/num_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 static uint64_t next_prime_gt(uint64_t n)
 {
@@ -38,7 +50,7 @@ seq_t a(idx_t n)
     seq_t np_t = (seq_t)np;         /* next prime as seq_t */
 
     /* compute 10^(digit_count(np)) */
-    idx_t exp = (idx_t)digit_len(np_t);   /* digit count of np */
+    idx_t exp = (idx_t)num_digits(np_t);   /* digit count of np */
     seq_t pow10_exp = pow10(exp);
 
     /* concatenate: n * 10^d + nextprime(n) */

@@ -13,12 +13,14 @@
  *            133064181801048, a(9) = 8868465829053416
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 10, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 29 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* cached values of the sequence, 1‑indexed (cache[0] = a(1)) */
 static const seq_t init_vals[9] = {
@@ -44,7 +46,7 @@ static void ensure_cache(size_t n)
     /* initialise cache if not yet done */
     if (cache == NULL) {
         cache_cap = n > 10 ? n : 10;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         /* copy initial terms */
         for (size_t i = 0; i < 9; ++i)
             cache[i] = init_vals[i];
@@ -54,7 +56,7 @@ static void ensure_cache(size_t n)
         size_t new_cap = cache_cap;
         while (new_cap < n)
             new_cap *= 2;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 

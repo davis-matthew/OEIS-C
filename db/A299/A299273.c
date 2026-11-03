@@ -10,7 +10,8 @@
  *            1121
  * Range:     u8 n <= 5, u16 n <= 36, u32 n <= 1495, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 4715 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[10] = {
     (seq_t)1, (seq_t)7, (seq_t)25, (seq_t)62, (seq_t)125,
@@ -33,7 +35,7 @@ seq_t a(idx_t n) {
     /* initialize cache on first call */
     if (!cache) {
         size_t init_cap = 16;
-        cache = (seq_t*)malloc(init_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, init_cap);
         if (!cache) return (seq_t)0;          /* out of memory: fallback */
         cap = init_cap;
         for (idx_t i = 0; i < 10; ++i) cache[i] = init_vals[i];
@@ -48,7 +50,7 @@ seq_t a(idx_t n) {
         /* double the capacity until large enough */
         size_t new_cap = cap ? cap : 16;
         while (new_cap < needed) new_cap <<= 1;
-        void *p = realloc(cache, new_cap * sizeof(seq_t));
+        void *p = mem_resize(seq_t, cache, new_cap);
         if (!p) return (seq_t)0;          /* out of memory: fallback */
         cache = (seq_t*)p;
         cap = new_cap;

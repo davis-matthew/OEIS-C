@@ -12,14 +12,16 @@
  *            enters a cycle of length 36 starting at index 0
  * Range:     u8 none, u16 n <= 38, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   reverse_digits_seq_t
+ * Validated: partial, pass, 39 terms through n = 38 (2026-11-03)
+ * Helpers:   mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/reverse_digits_seq_t.h"
+#include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
 
 /* Return the n‑th term of A118879.  The function lazily builds the
    initial segment until the first repetition, records the cycle
@@ -37,14 +39,14 @@ seq_t a(idx_t n)
     if (len == 0) {
         /* Allocate initial capacity. */
         cap = 64;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         cache[0] = 1016U;          /* a(0) */
         len = 1;
 
         /* Generate terms until a repeated value is seen. */
         while (1) {
             seq_t cur = cache[len - 1];
-            seq_t nxt = reverse_digits_seq_t(cur) + 5U;
+            seq_t nxt = reverse_digits(cur) + 5U;
 
             /* Linear search to detect repetition. */
             idx_t j;
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
             /* Store the new term, expanding cache if necessary. */
             if (len == (idx_t)cap) {
                 cap *= 2;
-                cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cap);
             }
             cache[len++] = nxt;
         }

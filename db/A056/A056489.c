@@ -9,12 +9,14 @@
  *            S2(m,3) = (3^m - 3*2^m + 3) / 6 (Stirling numbers of 2nd kind)
  * Range:     u8 n <= 9, u16 n <= 19, u32 n <= 39, u64 n <= 79, u128 n <= 159,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 913 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* dynamic tables of powers of 2 and 3 */
 static seq_t *pow2 = NULL;
@@ -31,7 +33,7 @@ static void ensure_pow2(size_t upto)
     size_t new_cap = (pow2_cap == 0) ? 1 : pow2_cap;
     while (new_cap <= upto) new_cap <<= 1;
 
-    seq_t *new_pow2 = (seq_t *)realloc(pow2, new_cap * sizeof(seq_t));
+    seq_t *new_pow2 = mem_resize(seq_t, pow2, new_cap);
     if (!new_pow2) abort();
 
     for (size_t i = old_cap; i < new_cap; ++i) {
@@ -49,7 +51,7 @@ static void ensure_pow3(size_t upto)
     size_t new_cap = (pow3_cap == 0) ? 1 : pow3_cap;
     while (new_cap <= upto) new_cap <<= 1;
 
-    seq_t *new_pow3 = (seq_t *)realloc(pow3, new_cap * sizeof(seq_t));
+    seq_t *new_pow3 = mem_resize(seq_t, pow3, new_cap);
     if (!new_pow3) abort();
 
     for (size_t i = old_cap; i < new_cap; ++i) {

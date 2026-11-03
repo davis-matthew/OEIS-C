@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 13, u32 n <= 18, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 18 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <limits.h>
+#include "../utils/mem.h"
 
 /* ----- utilities for comparison ------------------------------------ */
 static inline int compare_seq_t(const void *a, const void *b)
@@ -76,10 +78,10 @@ static void ensure_capacity(seq_vec *v, size_t needed)
     if (v->cap >= needed) return;
     size_t nc = v->cap ? v->cap * 2 : 8;
     if (nc < needed) nc = needed;
-    seq_t *tmp = (seq_t *)malloc(nc * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, nc);
     if (v->data) {
-        memcpy(tmp, v->data, v->len * sizeof(seq_t));
-        free(v->data);
+        mem_copy(tmp, v->data, v->len * sizeof(seq_t));
+        mem_free(v->data);
     }
     v->data = tmp;
     v->cap  = nc;
@@ -137,7 +139,7 @@ static void generate_all(void)
 
     /* sort numbers in ascending order */
     if (numbers.len > 1) {
-        qsort(numbers.data, numbers.len, sizeof(seq_t), compare_seq_t);
+        mem_qsort(numbers.data, numbers.len, sizeof(seq_t), compare_seq_t);
     }
 }
 

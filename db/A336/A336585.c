@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 static seq_t *terms = NULL;     /* stored terms */
 static size_t term_cap = 0;     /* capacity of the array */
@@ -38,9 +40,9 @@ static void ensure_terms_cap(void)
     if (term_cnt < term_cap)
         return;
     term_cap = (term_cap == 0) ? 32 : term_cap << 1;
-    seq_t *tmp = (seq_t *)realloc(terms, term_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, terms, term_cap);
     if (!tmp) {
-        free(terms);
+        mem_free(terms);
         exit(EXIT_FAILURE);
     }
     terms = tmp;
@@ -57,12 +59,12 @@ seq_t a(idx_t n)
         idx_t m = next_m;          /* candidate m */
 
         /* Skip primes – for a prime m the smallest d is 0, not >0. */
-        if (!is_prime_small((seq_t)m)) {
+        if (!is_prime_seq((seq_t)m)) {
             /* Find the smallest positive d with m−d and m+d prime. */
             idx_t d;
             for (d = 1; d <= m - 2; ++d) {   /* m−d must be ≥2 */
-                if (is_prime_small((seq_t)(m - d)) &&
-                    is_prime_small((seq_t)(m + d)))
+                if (is_prime_seq((seq_t)(m - d)) &&
+                    is_prime_seq((seq_t)(m + d)))
                     break;
             }
 

@@ -7,6 +7,7 @@
  * Formula:   a(n) = (n^2-25) / gcd(n^2-25, 25*n^2)
  * Range:     u8 n <= 5, u16 n <= 51, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 65 terms through n = 9183 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,7 @@
 
 /*  a(n) is the numerator of 1/25 - 1/n^2 after reducing to lowest terms.   */
 /*  The recursion is implicit via the gcd computation.                 */
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

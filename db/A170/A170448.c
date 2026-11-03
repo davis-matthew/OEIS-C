@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -40,6 +41,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static cache of already computed terms */
 static seq_t *cache   = NULL;
@@ -52,8 +54,8 @@ static void grow_cache(idx_t needed)
     if (needed <= cache_n) return;
 
     size_t newsize = (size_t)needed;
-    cache   = (seq_t *)realloc(cache,   newsize * sizeof(seq_t));
-    prefix  = (seq_t *)realloc(prefix,  newsize * sizeof(seq_t));
+    cache   = mem_resize(seq_t, cache, newsize);
+    prefix  = mem_resize(seq_t, prefix, newsize);
 
     for (idx_t i = cache_n; i < needed; ++i) {
         seq_t val;

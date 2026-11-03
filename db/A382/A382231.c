@@ -8,7 +8,8 @@
  *            distinct primes
  * Range:     u8 none, u16 n <= 27, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   factor_u64
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 /* The helper that factorises a 64‑bit integer. */
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 static seq_t *terms   = NULL;   /* dynamically grown array of terms */
 static size_t terms_len = 0;    /* number of terms stored */
@@ -29,7 +31,7 @@ static void append_term(seq_t val)
 {
     if (terms_len == terms_cap) {
         size_t new_cap = terms_cap ? terms_cap * 2 : 16;
-        terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, new_cap);
         terms_cap = new_cap;
     }
     terms[terms_len++] = val;

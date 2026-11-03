@@ -10,7 +10,8 @@
  *            itself
  * Range:     u8 n <= 90, u16 n <= 141, u32 n <= 141, u64 n <= 141,
  *            u128 n <= 141, big any n
- * Helpers:   none
+ * Validated: partial, pass, 141 terms through n = 141 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* global dynamic arrays */
 static seq_t *seq     = NULL;     /* the sequence values */
@@ -55,7 +57,7 @@ static void ensure_seq_capacity(size_t n)
     if (n <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 4;
     while (n > new_cap) new_cap *= 2;
-    seq_t *p = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq_t *p = mem_resize(seq_t, seq, new_cap);
     if (!p) exit(1);
     seq = p;
     seq_cap = new_cap;

@@ -11,7 +11,8 @@
  *            even handled separately)
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 12, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *rot_coef_cache  = NULL;     /* c_d for d = 1..max_n    */
 static seq_t (*D_cache)[7]      = NULL;   /* f(m,t) for m ≤ max_n/2   */
@@ -52,7 +54,7 @@ static void precompute(idx_t max_n)
 
     /* -------- Rotation coefficient cache (c_d) -------- */
     size_t rot_cap = (size_t)max_n + 1;
-    seq_t *new_rot = (seq_t *)realloc(rot_coef_cache, rot_cap * sizeof(seq_t));
+    seq_t *new_rot = mem_resize(seq_t, rot_coef_cache, rot_cap);
     if (!new_rot) return;
     rot_coef_cache = new_rot;
     rot_coef_cache[0] = (seq_t)0;          /* unused */
@@ -60,8 +62,7 @@ static void precompute(idx_t max_n)
     /* -------- Diagonal count cache (f(m,t)) -------- */
     size_t max_m = max_n / 2;
     size_t d_rows = (size_t)max_m + 1;
-    seq_t (*new_D)[7] = (seq_t (*)[7])realloc(D_cache,
-                                               d_rows * sizeof(seq_t[7]));
+    seq_t (*new_D)[7] = mem_resize(seq_t[7], D_cache, d_rows);
     if (!new_D) return;
     D_cache = new_D;
     for (size_t r = 0; r < d_rows; ++r)
@@ -70,8 +71,8 @@ static void precompute(idx_t max_n)
 
     /* -------- DP arrays for the generating function (1+x+…+x^6)^m -------- */
     size_t max_range = 6 * max_n + 1;     /* indices for sums -3m..+3m */
-    seq_t *dp_prev = (seq_t *)calloc(max_range, sizeof(seq_t));
-    seq_t *dp_cur  = (seq_t *)calloc(max_range, sizeof(seq_t));
+    seq_t *dp_prev = mem_new(seq_t, max_range);
+    seq_t *dp_cur  = mem_new(seq_t, max_range);
     if (!dp_prev || !dp_cur) return;
     dp_prev[0] = (seq_t)1;               /* m = 0 : one empty sequence with sum 0 */
 
@@ -106,8 +107,8 @@ static void precompute(idx_t max_n)
         dp_cur = tmp;
     }
 
-    free(dp_prev);
-    free(dp_cur);
+    mem_free(dp_prev);
+    mem_free(dp_cur);
     precomp_n = max_n;
 }
 

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 94, u16 n <= 94, u32 n <= 94, u64 n <= 94, u128 n <= 94,
  *            big any n
- * Helpers:   int_sqrt
+ * Validated: partial, pass, 94 terms through n = 94 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,7 @@
  */
 
 #include <stdint.h>
-#include "../utils/int_sqrt.h"          // int_sqrt(idx_t) returns ⌊√x⌋
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +40,7 @@ seq_t a(idx_t n)
         ++r;
         /* kmax is the largest k such that k(k+1)/2 ≤ r */
         idx_t d      = 8 * r + 1;      // d fits in 64‑bit for all intended n
-        idx_t kmax   = (int_sqrt(d) - 1) / 2;
+        idx_t kmax   = (isqrt(d) - 1) / 2;
         prev_cum    = cum;
         cum        += kmax;
     }

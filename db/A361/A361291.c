@@ -7,12 +7,15 @@
  * Formula:   a(n) = ((2*n + 1)^n - 1)/(2*n)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 18,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +42,7 @@ seq_t a(idx_t n)
     /* For larger seq_t types (e.g. big integers) we use the
        provided big_pow routine and ordinary division. */
     seq_t k   = (seq_t)n * 2 + 1;                /* 2*n + 1          */
-    seq_t pow_k_n = big_pow(k, (seq_t)n);        /* k^n              */
+    seq_t pow_k_n = ipow(k, (seq_t)n);        /* k^n              */
     seq_t num   = pow_k_n - 1;                   /* k^n - 1          */
     seq_t den   = (seq_t)n * 2;                  /* 2*n              */
     return num / den;                            /* exact division    */

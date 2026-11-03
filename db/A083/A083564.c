@@ -7,6 +7,7 @@
  * Formula:   a(n) = L(n) * L(2n), where L(k) denotes the k‑th Lucas number
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 30, u128 n <= 61,
  *            big any n
+ * Validated: standard, pass, 38 terms through n = 147 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

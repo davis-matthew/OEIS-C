@@ -11,6 +11,7 @@
  *            Collatz 3x+1 iteration. a(1) = 0 (both counts are 0)
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -27,6 +28,7 @@
    as a seq_t value, and the standard 'gcd' function from the utils
    library is used. */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n) {

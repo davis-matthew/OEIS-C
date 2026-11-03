@@ -12,15 +12,36 @@
  *            division-free product a = Prod_i 1/(1-x^i)^s(i)
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 18, u64 n <= 33, u128 n <= 62,
  *            big any n
- * Helpers:   A_grow, a3430_inv
+ * Validated: standard, pass, 44 terms through n = 924 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/A_grow.h"
-#include "../utils/a3430_inv.h"
+#include "../utils/mem.h"
+
+static seq_t *A_grow(seq_t *old, idx_t oldlen, idx_t newlen)
+{
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    idx_t i;
+    for (i = 0; i < newlen; i++) p[i] = 0;
+    for (i = 0; i < oldlen; i++) p[i] = old[i];
+    if (old) mem_free(old);
+    return p;
+}
+
+static seq_t a3430_inv(seq_t q) {
+    seq_t x = q;
+    int i;
+    for (i = 0; i < 8; i++) {
+        seq_t t = (seq_t)(q * x);
+        seq_t u = (seq_t)((seq_t)2 - t);
+        x = (seq_t)(x * u);
+    }
+    return x;
+}
 
 static int a3430_mode = -1;   /* 1 = fixed width, 0 = arbitrary precision */
 static int a3430_W = 0;

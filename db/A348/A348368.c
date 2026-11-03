@@ -12,13 +12,17 @@
  *            repeated calls with arbitrarily ordered indices a...
  * Range:     u8 n <= 82, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   popcount_seq_t
+ * Validated: standard, pass, 75 terms through n = 9934 (2026-11-03)
+ * Helpers:   mem, popcount_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/popcount_seq_t.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/popcount_seq.h"
+#include "../utils/mem.h"
 
 /* popcount for any unsigned seq_t (works for native and arbitrary‑precision
    types that support &, |, >>, +, -, <, >, == and 0). */
@@ -40,7 +44,7 @@ seq_t a(idx_t n)
         /* Grow the cache if necessary */
         if (seq_len == seq_cap) {
             size_t new_cap = (seq_cap ? seq_cap * 2 : 16);
-            seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
             if (!tmp)
                 abort();          /* allocation failed */
             seq_cache = tmp;
@@ -51,9 +55,9 @@ seq_t a(idx_t n)
            found value (stored in next_k). */
         static seq_t next_k = 1;   /* candidate start after last found */
         for (seq_t k = next_k; ; ++k) {
-            unsigned int w  = popcount_seq_t(k);
+            unsigned int w  = popcount_seq(k);
             seq_t sum       = k + (seq_t)w;
-            unsigned int ws = popcount_seq_t(sum);
+            unsigned int ws = popcount_seq(sum);
             if (ws < w) {           /* k satisfies the condition   */
                 seq_cache[seq_len++] = k;
                 next_k = k + 1;      /* next search starts after k  */

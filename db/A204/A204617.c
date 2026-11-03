@@ -7,8 +7,9 @@
  * Keywords:  nonn, mult
  * Formula:   a(n) = ∏_{p^e||n} p^(e-1) * H(p) where H(2) = 1, H(p) = p-1 if p
  *            ≡ 1 (mod 4), H(p) = p+1 if p ≡ 3 (mod 4)
- * Range:     u8 n <= 188, u16 n <= 9695, u32 n <= 9695, u64 n <= 9695,
- *            u128 n <= 9695, big any n
+ * Range:     u8 n <= 188, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 84 terms through n = 9695 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

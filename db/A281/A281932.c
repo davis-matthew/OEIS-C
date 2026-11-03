@@ -14,14 +14,49 @@
  *            row), so the final * result is divided by tw...
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 18, u128 n <= 37,
  *            big any n
- * Helpers:   bad_in_row
+ * Validated: standard, pass, 33 terms through n = 195 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/bad_in_row.h"
+
+static int bad_in_row(uint8_t prev, uint8_t cur, uint8_t next,
+                      bool has_prev, bool has_next)
+{
+    int bad = 0;
+    for (int c = 0; c < 4; ++c) {
+        int v = (cur >> c) & 1;
+        int same = 0;
+        /* up‑row neighbors */
+        if (has_prev) {
+            for (int dc = -1; dc <= 1; ++dc) {
+                int nc = c + dc;
+                if (nc >= 0 && nc < 4)
+                    same += (((prev >> nc) & 1) == v);
+            }
+        }
+        /* same‑row neighbors (exclude the cell itself) */
+        for (int dc = -1; dc <= 1; ++dc) {
+            if (dc == 0) continue;
+            int nc = c + dc;
+            if (nc >= 0 && nc < 4)
+                same += (((cur >> nc) & 1) == v);
+        }
+        /* down‑row neighbors */
+        if (has_next) {
+            for (int dc = -1; dc <= 1; ++dc) {
+                int nc = c + dc;
+                if (nc >= 0 && nc < 4)
+                    same += (((next >> nc) & 1) == v);
+            }
+        }
+        if (same > 4) bad++;
+    }
+    return bad;
+}
 
 seq_t a(idx_t n)
 {

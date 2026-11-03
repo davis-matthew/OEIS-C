@@ -11,12 +11,14 @@
  *            have appeared, a(n) equals the sum
  * Range:     u8 n <= 54, u16 n <= 79, u32 n <= 79, u64 n <= 79, u128 n <= 79,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 79 terms through n = 79 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;          /* array of computed terms, 0‑based */
 static size_t seq_len = 0;         /* number of terms stored */
@@ -31,7 +33,7 @@ static void ensure_seq_cap(size_t need) {
     if (need <= seq_cap) return;
     size_t newcap = seq_cap ? seq_cap << 1 : 16;
     while (newcap < need) newcap <<= 1;
-    seq = (seq_t *)realloc(seq, newcap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, newcap);
     seq_cap = newcap;
 }
 
@@ -39,7 +41,7 @@ static void ensure_seen_cap(size_t need) {
     if (need <= seen_cap) return;
     size_t newcap = seen_cap ? seen_cap << 1 : 16;
     while (newcap < need) newcap <<= 1;
-    seen = (seq_t *)realloc(seen, newcap * sizeof(seq_t));
+    seen = mem_resize(seq_t, seen, newcap);
     seen_cap = newcap;
 }
 

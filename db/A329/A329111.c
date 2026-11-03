@@ -12,13 +12,15 @@
  *            cache so that the function works correctly for...
  * Range:     u8 n <= 15, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache      = NULL; /* rounded values a(1..n) */
 static double *b_cache     = NULL; /* double values b(1..n)   */
@@ -33,7 +35,7 @@ static void ensure_cache(idx_t n)
     size_t new_cap = cache_cap > 0 ? cache_cap : 2;
     while ((size_t)n >= new_cap) new_cap <<= 1;  /* double until n fits */
 
-    seq_t *a_new  = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *a_new  = mem_resize(seq_t, a_cache, new_cap);
     if (!a_new) return;                         /* allocation failed */
     double *b_new = (double *)realloc(b_cache, new_cap * sizeof(double));
     if (!b_new) return;                         /* allocation failed */

@@ -11,21 +11,23 @@
  *            p(0,0)=1 , p(n,0)=0 (n>0) p(n,r)=0 (n<r) p(n,r)=p(n-1,r-1)...
  * Range:     u8 n <= 32, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate arrays large enough for the requested n */
     idx_t N = n;
-    seq_t *prev = (seq_t *)malloc((N + 1) * sizeof(seq_t));
-    seq_t *curr = (seq_t *)malloc((N + 1) * sizeof(seq_t));
-    seq_t *ans  = (seq_t *)malloc((N + 1) * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, (N + 1));
+    seq_t *curr = mem_new(seq_t, (N + 1));
+    seq_t *ans  = mem_new(seq_t, (N + 1));
     char   *fourth = (char *)calloc((N + 1), sizeof(char));
     if (!prev || !curr || !ans || !fourth) return 0; /* allocation failure */
 
@@ -71,9 +73,9 @@ seq_t a(idx_t n)
     seq_t result = ans[N];
 
     /* free temporary memory */
-    free(prev);
-    free(curr);
-    free(ans);
+    mem_free(prev);
+    mem_free(curr);
+    mem_free(ans);
     free(fourth);
 
     return result;

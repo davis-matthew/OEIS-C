@@ -12,7 +12,8 @@
  *            used. The code works * for any seq_t/idx_t types provided...
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ------------  state  ------------ */
 
@@ -72,7 +74,7 @@ static bool resize_seq_cache(size_t new_cap)
 {
     if (new_cap <= seq_cap) return true;
 
-    seq_t   *tmp_cache  = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t   *tmp_cache  = mem_resize(seq_t, seq_cache, new_cap);
     if (!tmp_cache) return false;
     seq_cache = tmp_cache;
 

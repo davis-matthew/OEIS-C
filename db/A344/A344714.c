@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 13, u16 n <= 1504, u32 n <= 9297, u64 n <= 9297,
- *            u128 n <= 9297, big any n
- * Helpers:   factor_u64
+ * Range:     u8 n <= 13, u16 n <= 1504, u32 n <= 15731, u64 n <= 15731,
+ *            u128 n <= 15731, big any n
+ * Validated: standard, pass, 68 terms through n = 9297 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stddef.h>   /* size_t */
 #include <stdlib.h>   /* malloc, realloc */
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* Memoisation storage for previously found terms */
 static seq_t  *seq_terms   = NULL;   /* dynamically grown array of values */
@@ -39,7 +41,7 @@ ensure_capacity(size_t need)
     size_t newcap = seq_capacity ? seq_capacity << 1 : 16;
     while (newcap < need) newcap <<= 1;
     /* realloc returns void* in C; explicit cast for C++ */
-    seq_terms = (seq_t *)realloc(seq_terms, newcap * sizeof(seq_t));
+    seq_terms = mem_resize(seq_t, seq_terms, newcap);
     seq_capacity = newcap;
 }
 

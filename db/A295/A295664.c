@@ -8,8 +8,9 @@
  * Formula:   a(n) = exponent of the highest power of 2 dividing tau(n) (tau =
  *            number of divisors). Equivalent to sum over prime exponents e of
  *            v₂(e+1)
- * Range:     u8 n <= 9652, u16 n <= 9652, u32 n <= 9652, u64 n <= 9652,
- *            u128 n <= 9652, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 137 terms through n = 9652 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

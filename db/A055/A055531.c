@@ -8,15 +8,19 @@
  * Formula:   a(n) = Sum_{k=1..n-1} binomial(n,k)*(2^(n-k)-1)^k
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 14, u128 n <= 18,
  *            big any n
- * Helpers:   big_pow, binomial, pow2
+ * Validated: partial, pass, 17 terms through n = 18 (2026-11-01)
+ * Helpers:   binomial, ipow, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Required utility headers */
-#include "../utils/binomial.h"   /* provides seq_t binomial(idx_t, idx_t) */
-#include "../utils/pow2.h"       /* provides seq_t pow2(idx_t)       */
-#include "../utils/big_pow.h"    /* provides seq_t big_pow(seq_t, seq_t) */
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow.h"
+#include "../utils/pow2.h"
 
 /* Compute the nth term of A055531 (offset 2). */
 seq_t a(idx_t n)
@@ -37,7 +41,7 @@ seq_t a(idx_t n)
 
         /* compute (2^(n-k) - 1)^k */
         seq_t base = two_pow - (seq_t)1;
-        seq_t power = big_pow(base, (seq_t)k);
+        seq_t power = ipow(base, (seq_t)k);
 
         /* term = bin * power */
         seq_t term = bin * power;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 370, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   append_seq, isPrime, next_prime
+ * Validated: standard, pass, 44 terms through n = 985 (2026-11-03)
+ * Helpers:   is_prime, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,23 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/next_prime.h"   /* uint64_t next_prime(uint64_t start); */
-#include "../utils/isPrime.h"      /* bool isPrime(idx_t n); */
-#include "../utils/append_seq.h"   /* void append_seq(seq_t **arr, size_t *len, size_t *cap, seq_t val); */
+#include <stdlib.h>
+#include "../utils/is_prime.h"
+#include "../utils/next_prime.h"
+#include "../utils/mem.h"
+
+/* Grow an array of seq_t elements. */
+static void append_seq (seq_t **arr, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t new_cap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+        if (!tmp) abort();
+        *arr = tmp;
+        *cap = new_cap;
+    }
+    (*arr)[(*len)++] = val;
+}
 
 seq_t a(idx_t n)
 {
@@ -48,7 +63,7 @@ seq_t a(idx_t n)
         uint64_t prod = prev_prime * curr_prime + 4;
 
         /* Test primality (product fits in 64 bits for n <= 10000, otherwise cast to idx_t) */
-        if (isPrime((idx_t)prod))
+        if (is_prime((idx_t)prod))
             append_seq(&term_cache, &cache_len, &cache_cap, (seq_t)prod);
 
         /* Advance to the next consecutive prime pair */

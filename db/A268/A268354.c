@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy, mult
  * Formula:   a(n) = 7^valuation(n,7) – highest power of 7 dividing n
- * Range:     u8 n <= 342, u16 n <= 9905, u32 n <= 9905, u64 n <= 9905,
- *            u128 n <= 9905, big any n
+ * Range:     u8 n <= 342, u16 n <= 20790, u32 n <= 20790, u64 n <= 20790,
+ *            u128 n <= 20790, big any n
+ * Validated: standard, pass, 121 terms through n = 9905 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,12 +9,14 @@
  * Formula:   a(n) = ((n mod φ(n))+1)-th positive integer coprime to n
  * Range:     u8 n <= 278, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 105 terms through n = 9560 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Uses a simple totient calculation and trial‑division */
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 /* Compute Euler's totient φ(n) for 1 ≤ n ≤ 2^64 (or larger if seq_t can hold it) */

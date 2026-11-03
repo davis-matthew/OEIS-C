@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 20, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -37,6 +38,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* --------- cache for powers of two ---------------------------------- */
 static seq_t *pow2 = NULL;          /* 2^i                           */
@@ -48,7 +50,7 @@ static void ensure_pow2(idx_t n)
     {
         size_t oldlen = pow2_len;
         size_t newlen = (size_t)n + 1;
-        seq_t *tmp = (seq_t*)realloc(pow2, newlen * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, pow2, newlen);
         if (!tmp) exit(1);          /* allocation failure */
         pow2 = tmp;
         if (oldlen == 0)            /* first initialization   */
@@ -75,7 +77,7 @@ static void ensure_u(idx_t max_k)
     {
         size_t newlen = (size_t)max_k + 1;
         if (newlen < 2) newlen = 2;          /* need indices 0 and 1       */
-        seq_t *tmp = (seq_t*)realloc(u_cache, newlen * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, u_cache, newlen);
         if (!tmp) exit(1);
         u_cache = tmp;
         size_t oldlen = u_cache_len;
@@ -107,7 +109,7 @@ static void ensure_f_temp(idx_t max_len)
     if ((size_t)max_len + 1 > f_temp_len)
     {
         size_t newlen = (size_t)max_len + 1;
-        seq_t *tmp = (seq_t*)realloc(f_temp, newlen * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, f_temp, newlen);
         if (!tmp) exit(1);
         f_temp = tmp;
         f_temp_len = newlen;
@@ -128,7 +130,7 @@ static void recompute_a(idx_t max_n)
     ensure_u(max_n / 2);
 
     /* allocate a_cache */
-    a_cache = (seq_t*)realloc(a_cache, (size_t)(max_n + 1) * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, (size_t)(max_n + 1));
     if (!a_cache) exit(1);
     for (size_t i = 0; i <= (size_t)max_n; ++i) a_cache[i] = (seq_t)0;
     a_cache_len = max_n + 1;

@@ -11,7 +11,8 @@
  *            expand the product mod 2^128
  * Range:     i8 n <= 4, i16 n <= 19, i32 n <= 38, i64 n <= 38, i128 n <= 38,
  *            big any n
- * Helpers:   alloc_zero, ex_k, from_i128, grow_zero, seq_is_fixed_width
+ * Validated: partial, pass, 41 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,11 +20,56 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_is_fixed_width.h"
-#include "../utils/from_i128.h"
-#include "../utils/alloc_zero.h"
-#include "../utils/grow_zero.h"
-#include "../utils/ex_k.h"
+#include <string.h>
+#include "../utils/mem.h"
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
+
+static seq_t from_i128(__int128 v)
+{
+    if (v >= -(__int128)4000000000000000000LL && v <= (__int128)4000000000000000000LL)
+        return (seq_t)(long long)v;
+    {
+        __int128 q = v / ((__int128)1 << 32);
+        long long rem = (long long)(v - q * ((__int128)1 << 32));
+        return from_i128(q) * (seq_t)4294967296LL + (seq_t)rem;
+    }
+}
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
+
+static int ex_k(idx_t k) {
+    int e = 1;
+    if (k % 2 == 0) e += 7;
+    if (k % 3 == 0) e += 5;
+    if (k % 6 == 0) e -= 13;
+    return e;
+}
 
 static unsigned __int128 *fw = NULL;
 static idx_t fwlen = 0;

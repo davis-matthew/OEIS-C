@@ -7,12 +7,14 @@
  * Formula:   a(n) = 2^phi(n)
  * Range:     u8 n <= 10, u16 n <= 16, u32 n <= 36, u64 n <= 66, u128 n <= 130,
  *            big any n
+ * Validated: standard, pass, 56 terms through n = 284 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 /* Compute Euler’s totient for an unsigned 64‑bit integer. */

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 45, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   sum_row_lengths
+ * Validated: partial, pass, 71 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,15 +20,22 @@
    T(n,k) by rows, where T(n,k) counts compositions of k into at most
    n parts, each part ≤ n.  */
 #include <stdlib.h>
-#include "../utils/sum_row_lengths.h"
+#include "../utils/mem.h"
+
+static inline seq_t sum_row_lengths(idx_t r)
+{
+    seq_t t = (seq_t)r * (r + 1) * (2 * r + 1) / 6;
+    t += (seq_t)(r + 1);
+    return t;
+}
 
 static void compute_row(idx_t r, seq_t **rows)
 {
     idx_t len = r * r + 1;
-    seq_t *row  = (seq_t*)calloc((size_t)len, sizeof(seq_t));
-    seq_t *dp_prev = (seq_t*)calloc((size_t)len, sizeof(seq_t));
-    seq_t *dp_cur  = (seq_t*)calloc((size_t)len, sizeof(seq_t));
-    seq_t *pref    = (seq_t*)calloc((size_t)len, sizeof(seq_t));
+    seq_t *row  = mem_new(seq_t, (size_t)len);
+    seq_t *dp_prev = mem_new(seq_t, (size_t)len);
+    seq_t *dp_cur  = mem_new(seq_t, (size_t)len);
+    seq_t *pref    = mem_new(seq_t, (size_t)len);
 
     row[0] = 1;
     dp_prev[0] = 1;
@@ -52,9 +60,9 @@ static void compute_row(idx_t r, seq_t **rows)
         dp_cur  = tmp;
     }
 
-    free(dp_cur);
-    free(dp_prev);
-    free(pref);
+    mem_free(dp_cur);
+    mem_free(dp_prev);
+    mem_free(pref);
 
     rows[r] = row;
 }

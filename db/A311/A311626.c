@@ -11,13 +11,15 @@
  *            34, a(8) = 40, a(9) = 44, a(10) = 48, a(11) = 52, a(12) = 56)
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static const seq_t base_vals[13] = {
     1, 4, 8, 12, 18, 24, 28, 34, 40, 44, 48, 52, 56
@@ -34,15 +36,15 @@ static void ensure_capacity(idx_t n)
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap <= (size_t)n)
         new_cap *= 2;
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache)
         exit(EXIT_FAILURE);   /* out of memory */
     if (cache) {
-        memcpy(new_cache, cache, cache_len * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_cache, cache, cache_len * sizeof(seq_t));
+        mem_free(cache);
     } else {
         /* first time: copy base values */
-        memcpy(new_cache, base_vals, sizeof(base_vals));
+        mem_copy(new_cache, base_vals, sizeof(base_vals));
         cache_len = 13;
     }
     cache = new_cache;

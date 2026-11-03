@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 162, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 856 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>   /* malloc, realloc, free, abort */
 #include <stddef.h>   /* size_t */
 #include <string.h>   /* memset */
+#include "../utils/mem.h"
 
 /* static arrays holding the two sequences */
 static seq_t *B = NULL;          /* b(n) values                      */
@@ -72,7 +74,7 @@ static void ensure_B_capacity(size_t cap) {
     if (B_cap >= cap) return;
     size_t new_cap = B_cap ? B_cap : 4;
     while (new_cap < cap) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(B, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, B, new_cap);
     if (!tmp) abort();
     B = tmp;
     B_cap = new_cap;
@@ -84,7 +86,7 @@ static void ensure_A_capacity(size_t cap) {
     if (A_cap >= cap) return;
     size_t new_cap = A_cap ? A_cap : 4;
     while (new_cap < cap) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(A, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, A, new_cap);
     if (!tmp) abort();
     A = tmp;
     A_cap = new_cap;

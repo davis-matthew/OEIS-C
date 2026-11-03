@@ -10,6 +10,7 @@
  *            C(l+2,2) then a(n) = A(n) - A(n-15) (with A(m)=0 for m<0)
  * Range:     u8 n <= 5, u16 n <= 41, u32 n <= 421, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 66 terms through n = 802 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

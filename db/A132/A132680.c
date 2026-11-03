@@ -6,8 +6,9 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = number of 1s in binary representation of the nth odious
  *            number
- * Range:     u8 n <= 9831, u16 n <= 9831, u32 n <= 9831, u64 n <= 9831,
- *            u128 n <= 9831, big any n
+ * Range:     u8 n <= 10001, u16 n <= 10001, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 121 terms through n = 9831 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

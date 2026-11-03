@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 24, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    (derived from the generating function 2·x²/(1–x–6·x²+4·x³)) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static idx_t   max_computed = 0;   /* highest n already filled in cache   */
 static seq_t * cache        = NULL;/* cache[0] unused, cache[n] = a(n)     */
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* enlarge cache if required */
     if (n > max_computed) {
         size_t new_size = (size_t)(n + 1); /* allocate up to index n */
-        cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
         if (!cache) abort(); /* allocation failure */
 
         /* compute values from the next missing index up to n */

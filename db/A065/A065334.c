@@ -7,8 +7,9 @@
  * Formula:   a(n) = A007814(n) * A065333(n) * In terms of the definition of
  *            the sequence: * a(n) = v2(n) if n has no prime factors other
  *            than 2 and 3, * 0 otherwise
- * Range:     u8 n <= 9353, u16 n <= 9353, u32 n <= 9353, u64 n <= 9353,
- *            u128 n <= 9353, big any n
+ * Range:     u8 n <= 16384, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 121 terms through n = 9353 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

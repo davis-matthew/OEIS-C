@@ -7,12 +7,14 @@
  * Formula:   a(0) = 2, a(1) = 5, a(n) = a(n-1)^3 + 3*a(n-1)^2 - 3
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 3, u64 n <= 3, u128 n <= 4,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 6 terms through n = 5 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_capacity = 0;
@@ -24,7 +26,7 @@ seq_t a(idx_t n) {
     
     if (cache == NULL) {
         cache_capacity = 10;
-        cache = (seq_t *)malloc(cache_capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_capacity);
         cache[0] = (seq_t)2;
         cache[1] = (seq_t)5;
         cache_len = 2;
@@ -32,11 +34,11 @@ seq_t a(idx_t n) {
     
     while (n >= cache_capacity) {
         idx_t new_capacity = cache_capacity * 2;
-        seq_t *new_cache = (seq_t *)malloc(new_capacity * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_capacity);
         for (idx_t i = 0; i < cache_len; i++) {
             new_cache[i] = cache[i];
         }
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_capacity = new_capacity;
     }

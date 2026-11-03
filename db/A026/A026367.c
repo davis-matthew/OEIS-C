@@ -8,7 +8,8 @@
  *            k≥1}, a(n)=a(n-1)+1 otherwise
  * Range:     u8 n <= 187, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 9502 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------  Static memoisation state  ------------------ */
 static seq_t *a_values = NULL;   /* array of computed a(n), 1‑based; a_values[0] unused */
@@ -38,7 +40,7 @@ static void ensure_a_cap(size_t need)
     if (a_cap >= need) return;
     size_t new_cap = a_cap ? a_cap : 4;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(a_values, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_values, new_cap);
     if (!tmp) abort();                            /* out‑of‑memory */
     a_values = tmp;
     a_cap = new_cap;
@@ -68,9 +70,9 @@ seq_t a(idx_t n)
 
     /* Initialise static storage on the first call. */
     if (!a_values) {
-        a_values = (seq_t *)malloc(4 * sizeof(seq_t));
+        a_values = mem_new(seq_t, 4);
         if (!a_values) abort();
-        memset(a_values, 0, 4 * sizeof(seq_t));
+        mem_set(a_values, 0, 4 * sizeof(seq_t));
         a_cap = 4;
 
         is_a_value = (unsigned char *)malloc(4);

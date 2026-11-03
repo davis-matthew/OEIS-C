@@ -9,7 +9,8 @@
  *            dividing k, (p-1)*(p+1) divides k
  * Range:     u8 n <= 6, u16 n <= 253, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   factor_u64
+ * Validated: standard, pass, 64 terms through n = 992 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* cached sequence values */
 static size_t cache_len = 0;     /* number of values cached */
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
     /* initialise cache if needed */
     if (cache == NULL) {
         cache_cap = 64;                /* initial capacity */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = 1;                  /* a(1) */
         cache_len = 1;
     }
@@ -78,7 +80,7 @@ seq_t a(idx_t n)
             /* grow cache if necessary */
             if (cache_len == cache_cap) {
                 cache_cap *= 2;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = val;
         }

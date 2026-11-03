@@ -9,7 +9,8 @@
  *            z*(z+1)/2, * with x,y,z ≥ 0 and z or z+1 prime
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _floor_isqrt_u64, is_prime
+ * Validated: standard, pass, 116 terms through n = 9162 (2026-11-01)
+ * Helpers:   is_prime, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,8 @@
  * remaining value is a perfect square. */
 
 #include <stdbool.h>                    /* bool */
-#include "../utils/is_prime.h"          /* is_prime(idx_t) */
-#include "../utils/_floor_isqrt_u64.h"  /* _floor_isqrt_u64(idx_t) */
+#include "../utils/is_prime.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
@@ -46,7 +47,7 @@ seq_t a(idx_t n)
             idx_t rem_xy = rem_z - y_term;
 
             /* check if rem_xy is a perfect square */
-            idx_t s = _floor_isqrt_u64(rem_xy);
+            idx_t s = isqrt(rem_xy);
             if (s * s == rem_xy) ++count; /* found a valid (x,y) pair */
         }
     }

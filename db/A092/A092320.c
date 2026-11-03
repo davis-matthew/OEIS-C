@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 2005, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 9413 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Lengths of the number words used in the conversion.
  * 0 means “no word”.
@@ -134,7 +136,7 @@ seq_t a(idx_t n)
             /* store the term */
             if (count >= capacity) {
                 size_t newcap = capacity == 0 ? 64 : capacity * 2;
-                seq_t *tmp = (seq_t*)realloc(terms, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, newcap);
                 if (!tmp) abort(); /* out of memory */
                 terms = tmp;
                 capacity = newcap;

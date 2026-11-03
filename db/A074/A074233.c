@@ -11,12 +11,14 @@
  *            terms * satisfy 0 ≤ a(n) ≤ 4⁸ − 1 = 65535
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 16, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *terms = NULL;        /* sorted list of valid numbers */
 static size_t  terms_len = 0;      /* number of terms found */
@@ -26,7 +28,7 @@ static void add_term(seq_t v)
 {
     if (terms_len == terms_cap) {
         size_t new_cap = terms_cap ? terms_cap << 1 : 8;
-        seq_t *tmp = (seq_t*)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
         if (!tmp) exit(1);       /* allocation failure: abort */
         terms = tmp;
         terms_cap = new_cap;

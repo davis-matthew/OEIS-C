@@ -7,13 +7,15 @@
  * Formula:   a(1)=1; a(2n)=1+(a(n)&1); a(2n+1)=2*a(2n)+1 (values ∈ {1,2,3,5})
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,8 +28,7 @@ seq_t a(idx_t n)
 
     if (n > cache_size) {                  /* need to fill cache up to n */
         idx_t new_size = n;
-        seq_t *tmp = (seq_t *)realloc(cache,
-                                       (new_size + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (new_size + 1));
         if (!tmp)
             abort();                        /* out of memory */
         cache = tmp;

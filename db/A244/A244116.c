@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 19, i16 n <= 34, i32 n <= 75, i64 n <= 169,
  *            i128 n <= 433, big any n
- * Helpers:   _floor_isqrt_u64, big_pow
+ * Validated: standard, pass, 71 terms through n = 5081 (2026-11-01)
+ * Helpers:   ipow, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,12 +19,13 @@
    T(0,0)=1).  The triangle is read row‑by‑row starting at row 0. */
 
 #include <stdint.h>
-#include "../utils/_floor_isqrt_u64.h"
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n) {
     /* Find the row r such that r(r+1)/2 <= n < (r+1)(r+2)/2 */
-    idx_t t = _floor_isqrt_u64(8*n + 1);
+    idx_t t = isqrt(8*n + 1);
     idx_t r = (t - 1) / 2;
 
     /* Compute the offset within the row */
@@ -38,10 +40,10 @@ seq_t a(idx_t n) {
 
     /* Compute (1-k)^(k-1) * k^(r-k) */
     seq_t base1 = (seq_t)1 - (seq_t)k;
-    seq_t part1 = big_pow(base1, (seq_t)(k - 1));
+    seq_t part1 = ipow(base1, (seq_t)(k - 1));
 
     seq_t base2 = (seq_t)k;
-    seq_t part2 = big_pow(base2, (seq_t)(r - k));
+    seq_t part2 = ipow(base2, (seq_t)(r - k));
 
     return part1 * part2;
 }

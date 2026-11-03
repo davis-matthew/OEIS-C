@@ -14,15 +14,29 @@
  *            rounded up. Offset: index 2 (a(2) is the first term)
  * Range:     u8 n <= 79, u16 n <= 79, u32 n <= 79, u64 n <= 79, u128 n <= 79,
  *            big any n
- * Helpers:   round_mean, seq_mul
+ * Validated: partial, pass, 78 terms through n = 79 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/round_mean.h"
-#include "../utils/seq_mul.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+
+/* Round the average sum/cnt to the nearest integer, ties up. */
+static unsigned long long round_mean(unsigned long long sum, size_t cnt)
+{
+    /* (sum + cnt/2) / cnt  gives the desired rounding. */
+    return (sum + cnt / 2ULL) / cnt;
+}
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Multiply two seq_t values using ordinary unsigned arithmetic.
    Overflow is modulo 2^N, which is fine for unsigned types. */

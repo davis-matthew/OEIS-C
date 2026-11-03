@@ -8,7 +8,8 @@
  *            is the list of c(r,k) read row-wise
  * Range:     u8 n <= 7, u16 n <= 141, u32 n <= 573, u64 n <= 2173,
  *            u128 n <= 5150, big any n
- * Helpers:   floor_sqrt
+ * Validated: standard, pass, 82 terms through n = 5029 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -38,7 +39,25 @@ static inline seq_t binom(idx_t n, idx_t k)
 
 /* Floor square root for a seq_t argument.  We use the existing
    utility, which works for 64‑bit or arbitrary precision values. */
-#include "../utils/floor_sqrt.h"
+#include "../utils/ipow_i32.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 seq_t a(idx_t n)
 {

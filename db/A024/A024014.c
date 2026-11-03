@@ -7,17 +7,18 @@
  * Formula:   a(n) = 2^n - n^4
  * Range:     i8 n <= 3, i16 n <= 16, i32 n <= 31, i64 n <= 63, i128 n <= 127,
  *            big any n
- * Helpers:   pow_int
+ * Validated: standard, pass, 47 terms through n = 231 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
     /* 2^n */
-    seq_t pow2 = pow_int((seq_t)2, n);
+    seq_t pow2 = ipow_idx((seq_t)2, n);
 
     /* n^4 */
     seq_t n_seq = (seq_t)n;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 32, u16 n <= 4486, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _eq012c4
+ * Validated: standard, pass, 72 terms through n = 9875 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,19 @@
     all supported seq_t types (unsigned integers or an arbitrary‑precision
     integer class).  */
 #include <stdbool.h>
-#include "../utils/_eq012c4.h"
+
+/* Test whether the base‑5 representation of x has equal counts of 0,2,4. */
+static bool _eq012c4(seq_t x)
+{
+    unsigned char cnt[5] = {0, 0, 0, 0, 0};
+    seq_t tmp = x;
+    while (tmp > 0) {
+        unsigned d = (unsigned)(tmp % 5);
+        cnt[d]++;
+        tmp /= 5;
+    }
+    return cnt[0] == cnt[2] && cnt[2] == cnt[4];
+}
 
 seq_t a(idx_t n)
 {

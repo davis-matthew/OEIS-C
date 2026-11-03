@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 56, u16 n <= 9913, u32 n <= 9913, u64 n <= 9913,
- *            u128 n <= 9913, big any n
- * Helpers:   none
+ * Range:     u8 n <= 56, u16 n <= 12000, u32 n <= 12000, u64 n <= 12000,
+ *            u128 n <= 12000, big any n
+ * Validated: standard, pass, 85 terms through n = 9913 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* Prime sieve – sufficient for k <= ~10^6 (more than enough for n <= 10000) */
@@ -98,7 +100,7 @@ static void _ensure_cache_capacity(idx_t need)
     if (_cache_cap >= need) return;
     idx_t new_cap = _cache_cap ? _cache_cap * 2 : 16;
     while (new_cap < need) new_cap *= 2;
-    seq_t *new_cache = (seq_t *)realloc(_cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, _cache, new_cap);
     if (!new_cache) { /* critical error – abort */
         abort();
     }

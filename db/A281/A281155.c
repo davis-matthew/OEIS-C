@@ -9,13 +9,15 @@
  *            (∑_{k≥2}x^{k^2})^3 by a double‑summing convolution
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   none
+ * Validated: partial, pass, 106 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are provided by the build system. */
 seq_t a(idx_t n)
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     }
 
     /* conv2[s] = #ordered pairs of squares summing to s */
-    seq_t *conv2 = (seq_t*)calloc((size_t)n + 1, sizeof(seq_t));
+    seq_t *conv2 = mem_new(seq_t, (size_t)n + 1);
     if (!conv2) { free(sqs); return 0; }
 
     for (size_t i = 0; i < m; ++i) {
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
         }
     }
 
-    free(conv2);
+    mem_free(conv2);
     free(sqs);
     return result;
 }

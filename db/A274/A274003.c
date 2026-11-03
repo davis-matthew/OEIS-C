@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 19, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 //  (The definition relies on the known Fermat primes.
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* comparison for qsort of seq_t values */
 static int seq_cmp(const void *a, const void *b)
@@ -76,7 +78,7 @@ seq_t a(idx_t n)
     }
 
     /* sort the generated numbers */
-    qsort(tmp, tmp_cnt, sizeof(seq_t), seq_cmp);
+    mem_qsort(tmp, tmp_cnt, sizeof(seq_t), seq_cmp);
 
     /* filter out terms that are exactly twice a smaller term */
     seq_t terms[max_terms];

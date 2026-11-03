@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 81, u32 n <= 239, u64 n <= 797,
  *            u128 n <= 1325, big any n
- * Helpers:   big_pow, binomial
+ * Validated: standard, pass, 82 terms through n = 1221 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,10 @@
    triangle row by row (row 0, then row 1, etc.). */
 
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     /* find the row r that contains index n */
@@ -37,7 +40,7 @@ seq_t a(idx_t n) {
     }
 
     /* compute powers and binomials */
-    seq_t pow3 = big_pow((seq_t)3, (seq_t)(r / 2));
+    seq_t pow3 = ipow((seq_t)3, (seq_t)(r / 2));
     seq_t bin_n_k   = binomial(r, k);
     seq_t bin_n2_k1 = binomial(r - 2, k - 1);   /* r >= 2 guaranteed here */
 

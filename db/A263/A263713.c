@@ -12,13 +12,15 @@
  *            1024, 1504, 2244, 3408
  * Range:     u8 n <= 11, u16 n <= 25, u32 n <= 52, u64 n <= 107,
  *            u128 n <= 210, big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 187 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 /* Pre‑computed initial terms (index 0 unused). */
 static const seq_t init_vals[19] = {
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     /* Extend cache if necessary. */
     if (n > cache_sz) {
         /* Allocate space for indices 0 .. n (we ignore index 0). */
-        seq_t *new_cache = (seq_t *)realloc(cache, (size_t)(n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (size_t)(n + 1));
         if (!new_cache) {
             /* Allocation failed – abort the program. */
             exit(EXIT_FAILURE);

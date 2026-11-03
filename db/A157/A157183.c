@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 5, u32 n <= 28, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   is_prime, next_prime
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-03)
+ * Helpers:   is_prime, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,10 @@
 /* a(n) is the n-th prime p such that p = m² – 7 is prime and the next prime after p is m² + 1. */
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/is_prime.h"
 #include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 /* static cache for already found terms */
 static seq_t *cache  = NULL;
@@ -32,7 +35,7 @@ static void grow_cache(size_t need)
     size_t new_cap = cache_cap ? cache_cap : 16;
     while (new_cap < need)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     cache = tmp;
     cache_cap = new_cap;
 }

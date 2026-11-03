@@ -10,7 +10,8 @@
  *            with runs strictly increasing from the least significant bit
  * Range:     u8 n <= 25, u16 n <= 169, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 943 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Comparator for qsort (works for arbitrary-precision seq_t as well) */
 static int cmp_seq_t(const void *a, const void *b) {
@@ -41,7 +43,7 @@ static struct {
 static void push_seq(seq_t **arr, size_t *size, size_t *cap, seq_t val) {
     if (*size == *cap) {
         size_t newCap = (*cap == 0) ? 4 : (*cap << 1);
-        seq_t *tmp = (seq_t *)realloc(*arr, newCap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, newCap);
         if (!tmp) exit(1); /* allocation failure */
         *arr = tmp;
         *cap = newCap;
@@ -102,7 +104,7 @@ seq_t a(idx_t n) {
     }
 
     /* Sort the cached values after any new numbers are added */
-    qsort(cache.data, cache.size, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(cache.data, cache.size, sizeof(seq_t), cmp_seq_t);
 
     return cache.data[n - 1];
 }

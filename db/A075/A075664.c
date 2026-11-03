@@ -7,6 +7,7 @@
  * Formula:   a(n) = (n^7 + 4n^5 + 3n^3)/8
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 31, u64 n <= 760,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 46 terms through n = 9553 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

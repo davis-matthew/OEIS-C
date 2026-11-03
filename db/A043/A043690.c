@@ -9,7 +9,8 @@
  *            binary representation has exactly 9 runs
  * Range:     u8 none, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   runs_of_uint64
+ * Validated: standard, pass, 61 terms through n = 982 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,27 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <assert.h>
-#include "../utils/runs_of_uint64.h"
+#include "../utils/mem.h"
+
+/* Count the number of runs of consecutive identical bits in the
+ * binary representation of a 64‑bit unsigned integer.  The count
+ * starts at 1 for any non‑zero value. */
+static int runs_of_uint64(uint64_t x)
+{
+    if (x == 0) return 1;
+    int runs = 1;
+    int last_bit = x & 1U;
+    x >>= 1;
+    while (x) {
+        int bit = x & 1U;
+        if (bit != last_bit) {
+            ++runs;
+            last_bit = bit;
+        }
+        x >>= 1;
+    }
+    return runs;
+}
 
 #ifndef __cplusplus
 /* In C, cast from void* to pointer type is allowed. */
@@ -53,7 +74,7 @@ seq_t a(idx_t n)
         /* Grow the array if necessary. */
         if (cached == cap) {
             size_t new_cap = (cap ? cap << 1 : 1024);
-            seq_t *tmp = CAST_PTR(realloc(cache, new_cap * sizeof(seq_t)), seq_t);
+            seq_t *tmp = CAST_PTR(mem_resize(seq_t, cache, new_cap), seq_t);
             if (!tmp) abort();
             cache = tmp;
             cap = new_cap;

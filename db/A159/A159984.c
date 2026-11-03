@@ -7,13 +7,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Catalan numbers modulo 5.  a(n) = Catalan(n) mod 5.  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute the nth Catalan number modulo 5.  */
 seq_t a(idx_t n)
@@ -25,11 +27,11 @@ seq_t a(idx_t n)
     /* Ensure the cache is allocated and large enough. */
     if (cache == NULL) {
         cache_size = n + 1;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         cache[0] = 1;   /* C_0 = 1 */
     } else if (cache_size <= n) {
         idx_t new_size = n + 1;
-        cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
         /* compute new entries up to n */
         for (idx_t i = cache_size; i <= n; ++i) {
             seq_t sum = 0;

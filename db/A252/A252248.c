@@ -11,7 +11,8 @@
  *            n=1..16 are computed by enumeration
  * Range:     u8 none, u16 n <= 22, u32 n <= 53, u64 n <= 111, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 179 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static unsigned char digits[256][4];
 static bool is_rowcol_ok[10];
@@ -99,8 +101,8 @@ static bool dp_built = false;
 static seq_t compute_dp(idx_t n)
 {
     if (!dp_built) {
-        dp = (seq_t *)malloc(65536 * sizeof(seq_t));
-        dpnxt = (seq_t *)malloc(65536 * sizeof(seq_t));
+        dp = mem_new(seq_t, 65536);
+        dpnxt = mem_new(seq_t, 65536);
         if (!dp || !dpnxt) exit(1);
         dp_built = true;
     }
@@ -113,7 +115,7 @@ static seq_t compute_dp(idx_t n)
     size_t steps = (size_t)n;        /* number of rows to add after the first two */
     for (size_t step = 0; step < steps; ++step) {
         /* clear dpnxt */
-        memset(dpnxt, 0, 65536 * sizeof(seq_t));
+        mem_set(dpnxt, 0, 65536 * sizeof(seq_t));
         for (size_t idx = 0; idx < 65536; ++idx) {
             seq_t cur = dp[idx];
             if (cur == 0) continue;
@@ -147,10 +149,10 @@ static void ensure_cache_capacity(idx_t req)
 {
     if (req <= cache_cap) return;
     idx_t new_cap = req + 1024;          /* a bit more room */
-    seq_t *new_cache = (seq_t *)realloc(cache, (new_cap + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (new_cap + 1));
     if (!new_cache) exit(1);
     /* zero the newly allocated part */
-    memset(new_cache + cache_cap + 1, 0, (new_cap - cache_cap) * sizeof(seq_t));
+    mem_set(new_cache + cache_cap + 1, 0, (new_cap - cache_cap) * sizeof(seq_t));
     cache = new_cache;
     cache_cap = new_cap;
 }
@@ -162,7 +164,7 @@ seq_t a(idx_t n)
 
     if (!cache_init) {
         /* Allocate space for the first 16 terms plus placeholder 0 */
-        cache = (seq_t *)calloc(17, sizeof(seq_t));
+        cache = mem_new(seq_t, 17);
         if (!cache) exit(1);
         cache_cap = 16;
         /* Compute terms 1 … 16 by DP */

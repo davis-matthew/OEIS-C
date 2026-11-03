@@ -7,6 +7,7 @@
  * Formula:   a(n) = A024629(A000079(n))
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 17,
  *            big any n
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,7 +17,8 @@
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/pow2.h"   /* seq_t pow2(idx_t exp); */
+#include <stdbool.h>
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {

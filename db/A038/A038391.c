@@ -10,12 +10,14 @@
  *            a(5)=33, a(6)=48, a(7)=69
  * Range:     u8 n <= 12, u16 n <= 93, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 948 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t base[8] = {1, 4, 7, 13, 23, 33, 48, 69};
 
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     {
         size_t new_len = (size_t)(n + 1);
         /* realloc returns void* in both C and C++; cast to avoid C++ error. */
-        cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_len);
         if (!cache)
             abort();                      /* allocation failure */
 

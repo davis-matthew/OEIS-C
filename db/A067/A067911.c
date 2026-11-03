@@ -11,6 +11,7 @@
  *            (since φ(m) ≤ m ≤ n ≤ 2^64‑1)
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 23, u64 n <= 47, u128 n <= 83,
  *            big any n
+ * Validated: standard, pass, 50 terms through n = 444 (2026-11-01)
  * Helpers:   factor_uint64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

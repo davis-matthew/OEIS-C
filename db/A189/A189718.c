@@ -8,8 +8,9 @@
  *            (base‑3) representation of n. In other words, a(n) flips (0→1,
  *            1→0) for every digit that is 1 or 2 in the base‑3 expansion of
  *            n. a(0) = 0
- * Range:     u8 n <= 8703, u16 n <= 8703, u32 n <= 8703, u64 n <= 8703,
- *            u128 n <= 8703, big any n
+ * Range:     u8 n <= 19682, u16 n <= 19682, u32 n <= 19682, u64 n <= 19682,
+ *            u128 n <= 19682, big any n
+ * Validated: standard, pass, 138 terms through n = 8703 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

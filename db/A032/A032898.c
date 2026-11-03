@@ -10,13 +10,35 @@
  *            d(2) >= d(3) <= … (starting with “>=”)
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   valid_digits
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/valid_digits.h"
+
+/* Check whether the decimal representation of x satisfies
+   d(0) >= d(1) <= d(2) >= d(3) ... */
+static bool valid_digits(seq_t x)
+{
+    seq_t prev = x % 10;   /* d(0) */
+    x /= 10;               /* shift right */
+    int idx = 0;           /* position of prev (starting at 0) */
+
+    while (x > 0) {
+        seq_t curr = x % 10;   /* next digit d(idx+1) */
+        if (idx % 2 == 0) {    /* need prev >= curr */
+            if (prev < curr) return false;
+        } else {               /* need prev <= curr */
+            if (prev > curr) return false;
+        }
+        prev = curr;
+        x /= 10;
+        ++idx;
+    }
+    return true;
+}
 
 /* Return the nth term of A032898 (offset 1). */
 seq_t a(idx_t n)

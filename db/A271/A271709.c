@@ -11,12 +11,14 @@
  *            j = d. * a(n) = 2^(s-d) + 2^d
  * Range:     u8 n <= 35, u16 n <= 135, u32 n <= 527, u64 n <= 2079,
  *            u128 n <= 8255, big any n
+ * Validated: standard, pass, 79 terms through n = 9555 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 static inline idx_t find_diagonal(idx_t n) {

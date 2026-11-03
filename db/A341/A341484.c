@@ -10,7 +10,8 @@
  *            number of ordered k‑tuples of primes summing to s
  * Range:     u8 n <= 8, u16 n <= 17, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   alloc_seq, free_seq_array
+ * Validated: partial, pass, 46 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,19 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/alloc_seq.h"     /* alloc_seq(size_t) */
-#include "../utils/free_seq_array.h"/* free_seq_array(seq_t*) */
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 static seq_t *dp[8] = {NULL};          /* dp[k][s] = #ordered k‑prime tuples summing to s */
 static size_t dp_cap = 0;              /* current allocated size (max sum) + 1 */

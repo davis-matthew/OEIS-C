@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   not stated
- * Range:     u8 n <= 10, u16 n <= 680, u32 n <= 9282, u64 n <= 9282,
- *            u128 n <= 9282, big any n
- * Helpers:   ensure_capacity, is_prime
+ * Range:     u8 n <= 10, u16 n <= 680, u32 n <= 11320, u64 n <= 11320,
+ *            u128 n <= 11320, big any n
+ * Validated: standard, pass, 70 terms through n = 9282 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,41 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/is_prime.h"
-#include "../utils/ensure_capacity.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* Grow a dynamic array when needed.  The pointer is passed as OEISC_VPP(.) */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    T *tmp = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#else
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#endif
 
 /* Helper to compute φ(x) for an unsigned integer x <= 2^64. */
 static seq_t phi_uint64(idx_t x)
@@ -92,7 +127,7 @@ seq_t a(idx_t n)
         if (mobius_uint64((idx_t)phi) == 1) {
             /* store term */
             ensure_capacity(found_len + 1, &found_cap,
-                            (void **)&found, sizeof(seq_t));
+                            OEISC_VPP(&found), sizeof(seq_t));
             found[found_len++] = (seq_t)cand;
         }
     }

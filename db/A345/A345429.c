@@ -9,7 +9,8 @@
  *            minimal integer satisfying 1 = u*x + v*y
  * Range:     u8 n <= 14, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   mod_inv_u64
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,25 @@
    min(inv, b - inv) where inv is the modular inverse of a mod b. */
 
 #include <stdint.h>
-#include "../utils/mod_inv_u64.h"
+
+/* modular inverse of a modulo mod (assumes gcd(a,mod)==1) */
+static seq_t mod_inv_u64(idx_t a, idx_t mod)
+{
+    long long t = 0, newt = 1;
+    long long r = mod, newr = a;
+    while (newr != 0) {
+        long long q = r / newr;
+        long long tmp = newr;
+        newr = r - q * newr;
+        r = tmp;
+        tmp = newt;
+        newt = t - q * newt;
+        t = tmp;
+    }
+    /* r is gcd, should be 1 */
+    if (t < 0) t += mod;
+    return (seq_t)t;
+}
 
 /* fast gcd for unsigned integers */
 static inline idx_t gcd_u64(idx_t a, idx_t b)

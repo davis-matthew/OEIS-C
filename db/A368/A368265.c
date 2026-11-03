@@ -7,12 +7,14 @@
  * Formula:   a(n) = n! * Sum_{k=0..n} (n-k+2)^k / k!
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Integer power for arbitrary‑precision seq_t.
    Computes base^exp using repeated squaring. */
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     if ((size_t)n + 1u > fact_alloc)
     {
         size_t new_fact = (size_t)n + 1u;
-        fact = (seq_t *)realloc(fact, new_fact * sizeof(seq_t));
+        fact = mem_resize(seq_t, fact, new_fact);
         if (!fact)
             return (seq_t)0;   /* allocation failed */
         if (fact_alloc == 0)
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
     if ((size_t)n + 1u > cache_alloc)
     {
         size_t new_cache = (size_t)n + 1u;
-        cache = (seq_t *)realloc(cache, new_cache * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cache);
         if (!cache)
             return (seq_t)0;   /* allocation failed */
         cache_alloc = new_cache;

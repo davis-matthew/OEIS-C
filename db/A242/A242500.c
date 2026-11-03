@@ -9,7 +9,8 @@
  *            + 2(e+1)-1 , 2(e+1)-1 )
  * Range:     u8 n <= 11, u16 n <= 20, u32 n <= 37, u64 n <= 70, u128 n <= 137,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 52 terms through n = 940 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 /* This counts compositions of n whose difference (#odd parts – #even parts) = 2. */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -41,10 +42,10 @@ seq_t a(idx_t n)
         idx_t S = temp / 2;
 
         /* Number of ways to choose which of the k positions are even parts */
-        seq_t comb1 = binom(k, e);
+        seq_t comb1 = binomial(k, e);
 
         /* Number of non‑negative solutions to the remaining sum (S) over k parts */
-        seq_t comb2 = binom(S + k - 1, k - 1);
+        seq_t comb2 = binomial(S + k - 1, k - 1);
 
         total += comb1 * comb2;
     }

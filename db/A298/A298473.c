@@ -7,12 +7,15 @@
  * Formula:   a(n) = n * lambda(n) * 2^omega(n)
  * Range:     i8 n <= 29, i16 n <= 2069, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 76 terms through n = 9577 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     if (n == 1) return (seq_t)1;
@@ -27,7 +30,7 @@ seq_t a(idx_t n) {
         exp++;
     }
     if (exp > 0) {
-        seq_t term = big_pow((seq_t)-((int64_t)2), (seq_t)exp);
+        seq_t term = ipow((seq_t)-((int64_t)2), (seq_t)exp);
         term *= (seq_t)2;
         result *= term;
     }
@@ -39,7 +42,7 @@ seq_t a(idx_t n) {
                 tmp /= p;
                 exp++;
             }
-            seq_t term = big_pow((seq_t)-((int64_t)p), (seq_t)exp);
+            seq_t term = ipow((seq_t)-((int64_t)p), (seq_t)exp);
             term *= (seq_t)2;
             result *= term;
         }
@@ -47,7 +50,7 @@ seq_t a(idx_t n) {
 
     if (tmp > 1) {
         /* remaining prime factor */
-        seq_t term = big_pow((seq_t)-((int64_t)tmp), (seq_t)1);
+        seq_t term = ipow((seq_t)-((int64_t)tmp), (seq_t)1);
         term *= (seq_t)2;
         result *= term;
     }

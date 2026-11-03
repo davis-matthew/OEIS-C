@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 25, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   binom_8
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,15 @@
 */
 
 #include <stdint.h>
-#include "../utils/binom_8.h"
+
+static inline seq_t binom_8(seq_t N) {
+    if (N < 8) return 0;
+    seq_t res = 1;
+    for (int j = 1; j <= 8; ++j) {
+        res = res * (N - j + 1) / j;
+    }
+    return res;
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 28,
  *            big any n
- * Helpers:   catalan, pow_int
+ * Validated: standard, pass, 37 terms through n = 278 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,33 @@
 
 /* Helper functions provided by the build system. */
 #include <stdlib.h>
-#include "../utils/pow_int.h"
-#include "../utils/catalan.h"
+#include <stddef.h>
+#include "../utils/mem.h"
+
+static seq_t pow_int(seq_t base, idx_t exp)
+{
+    seq_t result = 1;
+    while (exp) {
+        if (exp & 1)
+            result *= base;
+        base *= base;
+        exp >>= 1;
+    }
+    return result;
+}
+
+/* multiplicative computation of the k‑th Catalan number */
+static seq_t catalan(idx_t k)
+{
+    seq_t c = (seq_t)1;          /* C(0) = 1 */
+    for (idx_t i = 1; i <= k; ++i) {
+        /* C(i) = C(i-1) * (4*i - 2) / (i + 1) */
+        seq_t num = c * (seq_t)(4 * i - 2);
+        seq_t den = (seq_t)(i + 1);
+        c = num / den;
+    }
+    return c;
+}
 
 static seq_t compute_value(idx_t n)
 {
@@ -54,8 +80,8 @@ seq_t a(idx_t n)
     if (cache_cap < n + 1) {
         size_t needed = (size_t)(n + 1);
         seq_t *newptr = (cache == NULL)
-                        ? (seq_t *)malloc(needed * sizeof(seq_t))
-                        : (seq_t *)realloc(cache, needed * sizeof(seq_t));
+                        ? mem_new(seq_t, needed)
+                        : mem_resize(seq_t, cache, needed);
         if (newptr == NULL) abort();   /* allocation failure */
         cache = newptr;
         cache_cap = (idx_t)needed;

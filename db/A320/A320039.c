@@ -10,20 +10,21 @@
  *            run of identical bits. Example: n = 6 (110₂) → 11101₂ = 29
  * Range:     u8 n <= 17, u16 n <= 297, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   msb_index
+ * Validated: standard, pass, 70 terms through n = 9399 (2026-11-01)
+ * Helpers:   ilog2_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/msb_index.h"
+#include "../utils/ilog2_idx.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return 0;         /* defined only for n >= 1, but guard */
 
     seq_t result = 0;
-    idx_t msb = msb_index(n);    /* position of highest 1‑bit */
+    idx_t msb = ilog2_idx(n);    /* position of highest 1‑bit */
 
     /* The top bit is always 1 */
     idx_t prev = (n >> msb) & 1;

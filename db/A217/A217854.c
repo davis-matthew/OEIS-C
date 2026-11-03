@@ -8,15 +8,18 @@
  *            of n
  * Range:     i8 n <= 5, i16 n <= 11, i32 n <= 23, i64 n <= 59, i128 n <= 179,
  *            big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: standard, pass, 49 terms through n = 8993 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -39,5 +42,5 @@ seq_t a(idx_t n)
 
     /* Compute (-n)^τ(n).  The base is the signed version of n. */
     seq_t base = -( (seq_t)n );
-    return big_pow(base, tau);
+    return ipow(base, tau);
 }

@@ -8,6 +8,7 @@
  *            number of positive divisors of x
  * Range:     u8 n <= 17, u16 n <= 40, u32 n <= 101, u64 n <= 227,
  *            u128 n <= 549, big any n
+ * Validated: standard, pass, 60 terms through n = 908 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/build_primes_upto.h"
 
 static uint64_t *primes = NULL;     /* array of primes up to prime_limit   */

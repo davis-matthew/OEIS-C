@@ -9,13 +9,15 @@
  *            number of distinct prime divisors
  * Range:     u8 n <= 57, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_distinct_primes
+ * Validated: standard, pass, 75 terms through n = 8666 (2026-11-01)
+ * Helpers:   omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/count_distinct_primes.h"
+#include <stdbool.h>
+#include "../utils/omega.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0; /* offset is 1, but undefined for n==0 */
@@ -27,7 +29,7 @@ seq_t a(idx_t n) {
         uint64_t left  = (uint64_t)(cand - 1);
         uint64_t right = (uint64_t)(cand + 1);
 
-        if (count_distinct_primes(left) == count_distinct_primes(right)) {
+        if (omega(left) == omega(right)) {
             found++;
             if (found == n) {
                 return (seq_t)cand;

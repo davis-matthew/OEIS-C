@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 966 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- 64‑bit modular exponentiation ---------- */
 static uint64_t modpow64(uint64_t a, uint64_t e, uint64_t mod)
@@ -131,8 +133,7 @@ static void append_cache(seq_t val)
     if (cache_len == cache_cap)
     {
         cache_cap = (cache_cap ? cache_cap * 2 : 16);
-        seq_cache = (seq_t *)realloc(seq_cache,
-                                     cache_cap * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, cache_cap);
         if (!seq_cache) exit(1);
     }
     seq_cache[cache_len++] = val;

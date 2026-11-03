@@ -11,13 +11,30 @@
  *            each diagonal. * a(1) = M[1][1] = 1, a(2) = M[1][2] = 3,...
  * Range:     u8 n <= 30, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   compute_M
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/compute_M.h"
+
+static seq_t compute_M(idx_t i, idx_t j)
+{
+    idx_t k = (i < j) ? i : j;
+    seq_t ii = (seq_t)i;
+    seq_t jj = (seq_t)j;
+    seq_t kk = (seq_t)k;
+
+    /* numerator = k * (4k^2 - 6(i+j)k + 12ij - 1) */
+    seq_t numer = kk * (
+        (seq_t)4 * kk * kk
+        - (seq_t)6 * (ii + jj) * kk
+        + (seq_t)12 * ii * jj
+        - (seq_t)1);
+
+    return numer / (seq_t)3;
+}
 
 seq_t a(idx_t n)
 {

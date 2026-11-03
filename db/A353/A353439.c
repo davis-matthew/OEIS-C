@@ -11,14 +11,32 @@
  *            and extends it until the requested index is available
  * Range:     u8 n <= 14, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   has_digit_3
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/has_digit_3.h"
+#include "../utils/mem.h"
+
+/* test whether 1/m's decimal expansion contains digit 3 */
+static int has_digit_3(seq_t m)
+{
+    if (m == 0)
+        return 0;
+    seq_t rem = 1 % m;
+    size_t mm = (size_t)m;               /* assume m fits into size_t (true for the n ≤ 10000 range) */
+    for (size_t i = 0; i < mm; ++i) {
+        rem *= 10;
+        seq_t d = rem / m;
+        if (d == 3)
+            return 1;
+        rem %= m;
+    }
+    return 0;
+}
 
 static seq_t *terms = NULL;          /* cache of terms */
 static size_t terms_sz = 0;          /* number of terms stored */
@@ -33,7 +51,7 @@ seq_t a(idx_t n)
             ++next_candidate;
 
         /* append to cache */
-        seq_t *new_terms = (seq_t *)realloc(terms, (terms_sz + 1) * sizeof(seq_t));
+        seq_t *new_terms = mem_resize(seq_t, terms, (terms_sz + 1));
         if (!new_terms) {
             /* allocation failure – propagate 0 (caller must not expect success in this case) */
             return 0;

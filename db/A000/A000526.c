@@ -10,21 +10,34 @@
  *            is the generating function for rooted trees (A000081)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 16, u64 n <= 34, u128 n <= 73,
  *            big any n
- * Helpers:   poly_mult
+ * Validated: standard, pass, 35 terms through n = 194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/poly_mult.h"
+#include "../utils/mem.h"
+
+static seq_t* poly_mult(const seq_t *p, const seq_t *q, long long N) {
+    seq_t *result = mem_new(seq_t, (N + 1));
+    mem_set(result, 0, (N + 1) * sizeof(seq_t));
+    for (long long i = 0; i <= N; i++) {
+        if (p[i] == 0) continue;
+        for (long long j = 0; i + j <= N; j++) {
+            result[i + j] += p[i] * q[j];
+        }
+    }
+    return result;
+}
 
 seq_t a(idx_t n) {
     if (n < 5) return 0;
     
     long long N = (long long)n;
     
-    seq_t *b = (seq_t *)calloc(N + 1, sizeof(seq_t));
+    seq_t *b = mem_new(seq_t, N + 1);
     b[1] = 1;
     
     for (long long i = 2; i <= N; i++) {
@@ -49,8 +62,8 @@ seq_t a(idx_t n) {
     seq_t *b4 = poly_mult(b2, b2, N);
     seq_t *b5 = poly_mult(b4, b, N);
     
-    seq_t *poly_inner = (seq_t *)malloc((N + 1) * sizeof(seq_t));
-    memset(poly_inner, 0, (N + 1) * sizeof(seq_t));
+    seq_t *poly_inner = mem_new(seq_t, (N + 1));
+    mem_set(poly_inner, 0, (N + 1) * sizeof(seq_t));
     poly_inner[0] = 125;
     for (long long i = 0; i <= N; i++) {
         poly_inner[i] -= 204 * b[i];
@@ -60,11 +73,11 @@ seq_t a(idx_t n) {
     
     seq_t *numerator = poly_mult(b5, poly_inner, N);
     
-    seq_t *inv_denom = (seq_t *)calloc(N + 1, sizeof(seq_t));
+    seq_t *inv_denom = mem_new(seq_t, N + 1);
     inv_denom[0] = 1;
     
-    seq_t *bm = (seq_t *)malloc((N + 1) * sizeof(seq_t));
-    memcpy(bm, b, (N + 1) * sizeof(seq_t));
+    seq_t *bm = mem_new(seq_t, (N + 1));
+    mem_copy(bm, b, (N + 1) * sizeof(seq_t));
     
     for (long long m = 1; m <= N; m++) {
         seq_t binom = ((seq_t)(m + 1) * (seq_t)(m + 2) * (seq_t)(m + 3) * 
@@ -76,7 +89,7 @@ seq_t a(idx_t n) {
         
         if (m < N) {
             seq_t *bm_new = poly_mult(bm, b, N);
-            free(bm);
+            mem_free(bm);
             bm = bm_new;
         }
     }
@@ -84,16 +97,16 @@ seq_t a(idx_t n) {
     seq_t *result_poly = poly_mult(numerator, inv_denom, N);
     seq_t result = result_poly[N];
     
-    free(b);
-    free(b2);
-    free(b3);
-    free(b4);
-    free(b5);
-    free(poly_inner);
-    free(numerator);
-    free(inv_denom);
-    free(bm);
-    free(result_poly);
+    mem_free(b);
+    mem_free(b2);
+    mem_free(b3);
+    mem_free(b4);
+    mem_free(b5);
+    mem_free(poly_inner);
+    mem_free(numerator);
+    mem_free(inv_denom);
+    mem_free(bm);
+    mem_free(result_poly);
     
     return result;
 }

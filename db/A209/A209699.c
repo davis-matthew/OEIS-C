@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 42, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return the n-th term of A209699 (1‑based index). */
 seq_t a(idx_t n)
@@ -45,10 +47,10 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* Allocate arrays for the previous and current rows. */
-    seq_t *U_prev = (seq_t *)malloc(r * sizeof(seq_t));
+    seq_t *U_prev = mem_new(seq_t, r);
     if (!U_prev) return (seq_t)0;          /* allocation failure: return 0 */
-    seq_t *V_prev = (seq_t *)malloc(r * sizeof(seq_t));
-    if (!V_prev) { free(U_prev); return (seq_t)0; }
+    seq_t *V_prev = mem_new(seq_t, r);
+    if (!V_prev) { mem_free(U_prev); return (seq_t)0; }
 
     /* Initialize row 1. */
     U_prev[0] = (seq_t)1;
@@ -57,12 +59,12 @@ seq_t a(idx_t n)
     /* Build rows 2 … r. */
     for (idx_t k = 2; k <= r; ++k)
     {
-        seq_t *U_new = (seq_t *)malloc(k * sizeof(seq_t));
-        seq_t *V_new = (seq_t *)malloc(k * sizeof(seq_t));
+        seq_t *U_new = mem_new(seq_t, k);
+        seq_t *V_new = mem_new(seq_t, k);
         if (!U_new || !V_new) {
-            free(U_prev); free(V_prev);
-            if (U_new) free(U_new);
-            if (V_new) free(V_new);
+            mem_free(U_prev); mem_free(V_prev);
+            if (U_new) mem_free(U_new);
+            if (V_new) mem_free(V_new);
             return (seq_t)0;
         }
 
@@ -82,8 +84,8 @@ seq_t a(idx_t n)
         }
 
         /* Free the previous row arrays. */
-        free(U_prev);
-        free(V_prev);
+        mem_free(U_prev);
+        mem_free(V_prev);
 
         /* Promote the new row to be the previous row. */
         U_prev = U_new;
@@ -94,8 +96,8 @@ seq_t a(idx_t n)
     seq_t result = U_prev[col];
 
     /* Clean up. */
-    free(U_prev);
-    free(V_prev);
+    mem_free(U_prev);
+    mem_free(V_prev);
 
     return result;
 }

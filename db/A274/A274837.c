@@ -12,19 +12,21 @@
  *            partitions. * * For each processed element j (1‑based) we...
  * Range:     u8 n <= 13, u16 n <= 19, u32 n <= 28, u64 n <= 43, u128 n <= 69,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 764 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate dp arrays of size n+1.  For n==0 we still allocate 1. */
-    seq_t *dp = (seq_t*)calloc(n + 1, sizeof(seq_t));
-    seq_t *next = (seq_t*)calloc(n + 1, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, n + 1);
+    seq_t *next = mem_new(seq_t, n + 1);
     if (!dp || !next) return (seq_t)0;  /* should never happen */
 
     dp[0] = (seq_t)1;  /* empty set has exactly one partition */
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
         int d = (int)(j & 3);              /* j mod 4 */
 
         /* zero next for indices that will be written (0..i+1) */
-        memset(next, 0, (i + 2) * sizeof(seq_t));
+        mem_set(next, 0, (i + 2) * sizeof(seq_t));
 
         for (idx_t k = 0; k <= i; ++k) {
             seq_t val = dp[k];
@@ -68,8 +70,8 @@ seq_t a(idx_t n)
     }
 
     /* free temporary storage */
-    free(dp);
-    free(next);
+    mem_free(dp);
+    mem_free(next);
 
     return ans;
 }

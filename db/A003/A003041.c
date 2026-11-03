@@ -13,7 +13,8 @@
  *            edg...
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 18, u128 n <= 23,
  *            big any n
- * Helpers:   vt_gcd, vt_mul, vt_pow
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-01)
+ * Helpers:   gcd_i32, mulmod, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/vt_gcd.h"
-#include "../utils/vt_mul.h"
-#include "../utils/vt_pow.h"
+#include "../utils/gcd_i32.h"
+#include "../utils/mulmod.h"
+#include "../utils/powmod_u64.h"
 
 #define VT_MAXN 400
 #define VT_NP 3
@@ -44,7 +45,7 @@ static void vt_leaf(int s, int l) {
     int T = vt_N - s, k, t, i, j;
     for (k = 1; k <= T; k++) {
         int w = 0;
-        for (i = 0; i < l; i++) w += vt_gcd(vt_parts[i], k);
+        for (i = 0; i < l; i++) w += gcd_i32(vt_parts[i], k);
         vt_w[k] = w;
     }
     if (vt_big) {
@@ -70,22 +71,22 @@ static void vt_leaf(int s, int l) {
             int run = 0;
             for (i = 0; i < l; i++) {
                 if (i > 0 && vt_parts[i] == vt_parts[i - 1]) run++; else run = 1;
-                z = vt_mul(z, (uint64_t)vt_parts[i], p);
-                z = vt_mul(z, (uint64_t)run, p);
+                z = mulmod(z, (uint64_t)vt_parts[i], p);
+                z = mulmod(z, (uint64_t)run, p);
             }
-            wt = vt_mul(vt_pow(2, (uint64_t)l, p), vt_pow(z, p - 2, p), p);
-            for (k = 1; k <= T; k++) c[k] = vt_pow(2, (uint64_t)vt_w[k] + 1, p);
+            wt = mulmod(powmod_u64(2, (uint64_t)l, p), powmod_u64(z, p - 2, p), p);
+            for (k = 1; k <= T; k++) c[k] = powmod_u64(2, (uint64_t)vt_w[k] + 1, p);
             vt_PM[0] = 1;
             for (t = 1; t <= T; t++) {
                 uint64_t acc = 0;
                 for (k = 1; k <= t; k++) {
-                    acc += vt_mul(c[k], vt_PM[t - k], p);
+                    acc += mulmod(c[k], vt_PM[t - k], p);
                     if (acc >= p) acc -= p;
                 }
-                vt_PM[t] = vt_mul(acc, vt_inv[j][t], p);
+                vt_PM[t] = mulmod(acc, vt_inv[j][t], p);
             }
             for (t = s; t <= T; t++)
-                vt_rowM[j][t] = (vt_rowM[j][t] + vt_mul(wt, vt_PM[t], p)) % p;
+                vt_rowM[j][t] = (vt_rowM[j][t] + mulmod(wt, vt_PM[t], p)) % p;
         }
     }
 }
@@ -108,7 +109,7 @@ static void vt_build(int N) {
     } else {
         for (j = 0; j < VT_NP; j++) {
             for (t = 0; t <= N; t++) vt_totM[j][t] = 0;
-            for (t = 1; t <= N; t++) vt_inv[j][t] = vt_pow((uint64_t)t, vt_p[j] - 2, vt_p[j]);
+            for (t = 1; t <= N; t++) vt_inv[j][t] = powmod_u64((uint64_t)t, vt_p[j] - 2, vt_p[j]);
         }
     }
     for (s = 0; 2 * s <= N; s++) {
@@ -127,7 +128,7 @@ static void vt_build(int N) {
                 vt_totB[s + t] += b * (idx_t)mult;
             } else {
                 for (j = 0; j < VT_NP; j++)
-                    vt_totM[j][s + t] = (vt_totM[j][s + t] + vt_mul(vt_rowM[j][t], (uint64_t)mult, vt_p[j])) % vt_p[j];
+                    vt_totM[j][s + t] = (vt_totM[j][s + t] + mulmod(vt_rowM[j][t], (uint64_t)mult, vt_p[j])) % vt_p[j];
             }
         }
     }
@@ -162,10 +163,10 @@ seq_t a(idx_t n_idx) {
             if (n >= 1) v += 2 * (p - vt_totM[j][n - 1]);
             r[j] = v % p;
         }
-        k2 = vt_mul((r[1] + p2 - r[0] % p2) % p2, vt_pow(p1 % p2, p2 - 2, p2), p2);
+        k2 = mulmod((r[1] + p2 - r[0] % p2) % p2, powmod_u64(p1 % p2, p2 - 2, p2), p2);
         tt = (r[2] + p3 - r[0] % p3) % p3;
-        tt = (tt + p3 - vt_mul(p1 % p3, k2 % p3, p3)) % p3;
-        k3 = vt_mul(tt, vt_pow(vt_mul(p1 % p3, p2 % p3, p3), p3 - 2, p3), p3);
+        tt = (tt + p3 - mulmod(p1 % p3, k2 % p3, p3)) % p3;
+        k3 = mulmod(tt, powmod_u64(mulmod(p1 % p3, p2 % p3, p3), p3 - 2, p3), p3);
         x = (unsigned __int128)r[0] + (unsigned __int128)p1 * k2
             + (unsigned __int128)p1 * p2 * k3;
         res = (seq_t)(uint64_t)x;

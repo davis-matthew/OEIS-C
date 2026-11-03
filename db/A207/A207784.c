@@ -10,7 +10,8 @@
  *            programming over pairs of rows
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 13, u64 n <= 29, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ---------- parameters ---------- */
 #define MAX_N 10000                    /* maximal n expected */
@@ -118,7 +120,7 @@ static void compute_up_to(idx_t n)
     for (idx_t len = current_len; len < n; ++len) {
         /* compute next layer */
         /* zero dp_next */
-        memset(dp_next, 0, S * sizeof(seq_t));
+        mem_set(dp_next, 0, S * sizeof(seq_t));
         for (int s = 0; s < S; ++s) {
             seq_t val = dp_curr[s];
             if (val == 0) continue;
@@ -131,7 +133,7 @@ static void compute_up_to(idx_t n)
             }
         }
         /* swap dp_curr and dp_next by copying */
-        memcpy(dp_curr, dp_next, S * sizeof(seq_t));
+        mem_copy(dp_curr, dp_next, S * sizeof(seq_t));
 
         /* sum all states for current length */
         seq_t sum = 0;

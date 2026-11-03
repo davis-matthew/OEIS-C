@@ -9,13 +9,15 @@
  *            N_1..N_43 = 2, N_44 = 1, and N_n = 0 for n > 44
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,12 +31,12 @@ seq_t a(idx_t n)
         size_t new_cap = cache_cap ? cache_cap * 2 : 1;
         if (new_cap <= (size_t)n + 1)
             new_cap = (size_t)n + 1;
-        seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (!new_cache) return 0;   /* allocation failed – return 0 as error */
         /* copy old values and zero the rest */
         for (size_t i = 0; i < cache_cap; ++i) new_cache[i] = cache[i];
         for (size_t i = cache_cap; i < new_cap; ++i) new_cache[i] = (seq_t)0;
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_cap = new_cap;
     }

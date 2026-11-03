@@ -7,7 +7,8 @@
  * Formula:   a(n) = 2 * (-1)^(n+1) * (4n-4)! / (n-1)!
  * Range:     i8 n <= 2, i16 n <= 2, i32 n <= 4, i64 n <= 6, i128 n <= 10,
  *            big any n
- * Helpers:   mul_small
+ * Validated: partial, pass, 11 terms through n = 11 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,20 @@
  *  then multiplies by 2 and applies the sign.
  */
 
-#include "../utils/mul_small.h"
+#include <stdlib.h>
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 seq_t a(idx_t n)
 {

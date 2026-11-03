@@ -8,6 +8,7 @@
  * Formula:   a(n) = -12882 + 44604*2^n - 31548*4^n + 21780*n*4^n - 7260*n*2^n
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 7, u64 n <= 18, u128 n <= 18,
  *            big any n
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

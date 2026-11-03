@@ -12,12 +12,14 @@
  *            e_n = 4 + (n even ? 2 : 0) + (n ≡ 0 mod 4 ?...
  * Range:     i8 n <= 6, i16 n <= 19, i32 n <= 338, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 965 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,14 +32,14 @@ seq_t a(idx_t n)
 
     /* Allocate fresh arrays for computation up to n */
     idx_t m, k;
-    seq_t *new_seq = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *new_seq = mem_new(seq_t, (size_t)(n + 1));
     if (new_seq == NULL) return 0;          /* silent failure */
-    seq_t *e = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
-    seq_t *E = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *e = mem_new(seq_t, (size_t)(n + 1));
+    seq_t *E = mem_new(seq_t, (size_t)(n + 1));
     if (e == NULL || E == NULL) {
-        free(new_seq);
-        free(e);
-        free(E);
+        mem_free(new_seq);
+        mem_free(e);
+        mem_free(E);
         return 0;
     }
 
@@ -70,9 +72,9 @@ seq_t a(idx_t n)
     }
 
     /* free old cache */
-    free(seq);
-    free(e);
-    free(E);
+    mem_free(seq);
+    mem_free(e);
+    mem_free(E);
     seq   = new_seq;
     size  = n + 1;
     return seq[n];

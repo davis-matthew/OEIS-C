@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 55, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   ok_binary_indices
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,32 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/ok_binary_indices.h"
+#include "../utils/mem.h"
+
+/* Test whether an integer m satisfies the sequence condition. */
+static bool ok_binary_indices(idx_t m) {
+    idx_t first = 0, last = 0, prev = 0;
+    bool has_prev = false;
+    idx_t v = m;               /* use a copy for bitwise operations */
+    for (idx_t i = 1; v != 0; ++i, v >>= 1) {
+        if (v & 1) {           /* a 1-bit at position i (1‑based) */
+            if (!has_prev) {
+                first = i;
+                prev  = i;
+                has_prev = true;
+            } else {
+                /* consecutive pair: prev and i must not divide each other */
+                if ((prev % i == 0) || (i % prev == 0)) return false;
+                prev = i;
+            }
+            last = i;
+        }
+    }
+    if (!has_prev) return false;                /* may happen only for m==0 */
+    /* circular check: last must not divide first (or vice‑versa) */
+    if ((last % first == 0) || (first % last == 0)) return false;
+    return true;
+}
 
 static seq_t *cache = NULL;           /* memoised sequence values   */
 static size_t cache_cap = 0;          /* current allocation size    */
@@ -31,7 +57,7 @@ static void ensure_cache_space(size_t need) {
     if (need <= cache_cap) return;
     size_t new_cap = (cache_cap == 0) ? 8 : cache_cap;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) { /* Allocation failed – abort. */
         abort();
     }

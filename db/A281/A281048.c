@@ -8,7 +8,8 @@
  *            x)*Product_{k>=0}(1 + x^(2^k) - x^(2^(k+1)))
  * Range:     i8 n <= 100, i16 n <= 100, i32 n <= 100, i64 n <= 100,
  *            i128 n <= 100, big any n
- * Helpers:   none
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* The following static helpers maintain the product polynomial. */
 static seq_t *P = NULL;          /* coefficients of the product polynomial */
@@ -36,7 +38,7 @@ static void ensure_capacity(size_t min_cap) {
     size_t old_cap = P_cap;
     size_t new_cap = P_cap ? P_cap : 1;
     while (new_cap < min_cap) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(P, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, P, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     /* Zero the newly allocated elements */
     for (size_t i = old_cap; i < new_cap; ++i) tmp[i] = 0;

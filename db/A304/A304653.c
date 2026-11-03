@@ -9,14 +9,15 @@
  *            otherwise
  * Range:     i8 n <= 74, i16 n <= 74, i32 n <= 74, i64 n <= 74, i128 n <= 74,
  *            big any n
- * Helpers:   int_gcd
+ * Validated: partial, pass, 74 terms through n = 74 (2026-11-01)
+ * Helpers:   gcd_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/int_gcd.h"
+#include "../utils/gcd_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -37,14 +38,14 @@ seq_t a(idx_t n)
                 ++omega;
             }
             if (g == 0) g = exp;
-            else g = int_gcd(g, exp);
+            else g = gcd_i32(g, exp);
         }
     }
 
     if (k > 1) {                   /* remaining prime factor */
         ++omega;
         if (g == 0) g = 1;
-        else g = int_gcd(g, 1);
+        else g = gcd_i32(g, 1);
     }
 
     if (g > 1) return (seq_t)0;    /* perfect power > 1 */

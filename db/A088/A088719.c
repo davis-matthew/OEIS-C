@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 4, u32 n <= 28, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* pow7(x) computes x^7 using only integer arithmetic */
 static inline seq_t pow7(idx_t x)
@@ -44,10 +46,10 @@ static idx_t build_unique_terms(idx_t limit, seq_t *out, idx_t need)
 
     /* Arrays for the current b index and the sum for each a. */
     idx_t *cur_b = (idx_t *)malloc((limit + 1) * sizeof(idx_t));
-    seq_t *a_pow = (seq_t *)malloc((limit + 1) * sizeof(seq_t));
-    seq_t *sum   = (seq_t *)malloc((limit + 1) * sizeof(seq_t));
+    seq_t *a_pow = mem_new(seq_t, (limit + 1));
+    seq_t *sum   = mem_new(seq_t, (limit + 1));
     if (!cur_b || !a_pow || !sum) {
-        free(cur_b); free(a_pow); free(sum);
+        free(cur_b); mem_free(a_pow); mem_free(sum);
         return 0;
     }
 
@@ -83,7 +85,7 @@ static idx_t build_unique_terms(idx_t limit, seq_t *out, idx_t need)
         sum[best] = a_pow[best] + pow7(cur_b[best]);
     }
 
-    free(cur_b); free(a_pow); free(sum);
+    free(cur_b); mem_free(a_pow); mem_free(sum);
     return count;
 }
 
@@ -106,19 +108,19 @@ static void ensure_terms(idx_t n)
     while (1) {
         /* Allocate temporary output buffer.  The final count cannot exceed n,
            but we allocate a little extra to avoid re‑allocations. */
-        seq_t *tmp = (seq_t *)malloc((n + 10) * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, (n + 10));
         if (!tmp) return;                      /* out of memory – give up */
 
         idx_t tmp_count = build_unique_terms(limit, tmp, n);
         if (tmp_count >= n) {
             /* Enough terms produced.  Replace global cache. */
-            free(global_terms);
+            mem_free(global_terms);
             global_terms = tmp;
             global_count = tmp_count;
             global_limit = limit;
             return;
         }
-        free(tmp);
+        mem_free(tmp);
         /* Not enough – increase the search limit */
         limit <<= 1;
     }

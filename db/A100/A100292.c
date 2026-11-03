@@ -6,9 +6,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = the n‑th distinct integer of the form a^5 + b^2 with
  *            a,b>0 (sorted increasingly)
- * Range:     u8 n <= 28, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
- *            big any n
- * Helpers:   a5_plus_b2
+ * Range:     u8 n <= 28, u16 n <= 1816, u32 n <= 5000, u64 n <= 5000,
+ *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 72 terms through n = 4551 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,19 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stddef.h>
-#include "../utils/a5_plus_b2.h"
+
+/* Compute a^5 + b^2 using seq_t arithmetic to support arbitrary‑precision builds */
+static inline seq_t a5_plus_b2(uint64_t a, uint64_t b)
+{
+    seq_t aa = (seq_t)a;
+    seq_t a5 = aa * aa;      /* a^2   */
+    a5 *= aa;                /* a^3   */
+    a5 *= aa;                /* a^4   */
+    a5 *= aa;                /* a^5   */
+    seq_t bb = (seq_t)b;
+    bb *= bb;                /* b^2   */
+    return a5 + bb;
+}
 
 /* ---------- simple binary min‑heap for (value, a, b) pairs ---------- */
 #define MAX_A   2000         /* maximum a considered (sufficient for n≈10000) */

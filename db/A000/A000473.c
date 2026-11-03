@@ -13,14 +13,22 @@
  *            -...
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 12, u64 n <= 25, u128 n <= 55,
  *            big any n
- * Helpers:   a473_g, a473_p
+ * Validated: standard, pass, 36 terms through n = 473 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a473_g.h"
-#include "../utils/a473_p.h"
+#include "../utils/gcd_u64.h"
+
+static seq_t a473_p(idx_t k, seq_t pw) {
+    /* binomial(k+4,4) * 4^k, pw = 4^k */
+    uint64_t b = (uint64_t)(k + 1) * (k + 2) / 2;
+    b = b * (k + 3) / 3;
+    b = b * (k + 4) / 4;
+    return (seq_t)b * pw;
+}
 
 seq_t a(idx_t n) {
     if (n < 4) return 0;
@@ -29,7 +37,7 @@ seq_t a(idx_t n) {
     seq_t pw = 1, pwprev = 1;
     for (idx_t k = 1; k <= m; k++) {
         uint64_t num = 4 * (uint64_t)k + 18;
-        uint64_t g = a473_g(num, (uint64_t)k);
+        uint64_t g = gcd_u64(num, (uint64_t)k);
         seq_t nq = (q2 / (seq_t)(k / g)) * (seq_t)(num / g);
         q0 = q1; q1 = q2; q2 = nq;
         pwprev = pw;

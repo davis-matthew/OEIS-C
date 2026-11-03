@@ -7,6 +7,7 @@
  * Formula:   a(0)=5, a(1)=21, a(n)=floor(a(n-1)^2 / a(n-2)) for n>=2
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 14, u64 n <= 29, u128 n <= 59,
  *            big any n
+ * Validated: standard, pass, 43 terms through n = 975 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

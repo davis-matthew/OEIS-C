@@ -7,6 +7,7 @@
  * Formula:   a(n) = decimal concatenation of 98 written in base n (for n=1
  *            the digit “1” is repeated 98 times, i.e. 111…111)
  * Range:     u8 none, u16 none, u32 none, u64 none, u128 none, big any n
+ * Validated: partial, pass, 10 terms through n = 10 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

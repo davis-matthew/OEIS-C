@@ -8,8 +8,9 @@
  *            representation of (n−1) with 0→1 and 1→8 (most significant * bit
  *            first). This yields the nth positive integer composed solely *
  *            of the digits 1 and 8, listed in increasing order
- * Range:     u8 n <= 10, u16 n <= 46, u32 n <= 1534, u64 n <= 9788,
- *            u128 n <= 9788, big any n
+ * Range:     u8 n <= 10, u16 n <= 46, u32 n <= 1534, u64 n <= 16382,
+ *            u128 n <= 16382, big any n
+ * Validated: standard, pass, 60 terms through n = 9788 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

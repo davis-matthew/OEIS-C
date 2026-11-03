@@ -9,12 +9,13 @@
  *            64^(n^2))
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 4, u64 n <= 5, u128 n <= 8,
  *            big any n
- * Helpers:   pow_int
+ * Validated: partial, pass, 10 terms through n = 10 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -22,14 +23,14 @@ seq_t a(idx_t n)
     if (n & 1) { /* odd n: n = 2*m-1 */
         idx_t m   = (n + 1) / 2;          /* m = (n+1)/2 */
         idx_t exp = m * (m - 1);          /* exponent = m^2 - m */
-        return pow_int((seq_t)256, exp);
+        return ipow_idx((seq_t)256, exp);
     } else { /* even n: n = 2*m */
         idx_t m  = n / 2;                 /* m = n/2 */
         idx_t m2 = m * m;                 /* m^2 */
 
-        seq_t factor1 = pow_int((seq_t)4, m2 - 1);
-        seq_t term1   = pow_int((seq_t)4, m2);
-        seq_t term2   = pow_int((seq_t)64, m2);
+        seq_t factor1 = ipow_idx((seq_t)4, m2 - 1);
+        seq_t term1   = ipow_idx((seq_t)4, m2);
+        seq_t term2   = ipow_idx((seq_t)64, m2);
 
         seq_t sum = (seq_t)2 + term1 + term2;
         return factor1 * sum;

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 182, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 100 terms through n = 9866 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --- Internal data structures ------------------------------------------- */
 
@@ -115,7 +117,7 @@ static ValueEntry *get_value_entry(seq_t val)
     /* grow the values array if needed */
     if (value_entries_count == value_entries_cap) {
         size_t new_cap = value_entries_cap ? value_entries_cap * 2 : 4;
-        ValueEntry *tmp = (ValueEntry *)realloc(value_entries, new_cap * sizeof(ValueEntry));
+        ValueEntry *tmp = mem_resize(ValueEntry, value_entries, new_cap);
         if (!tmp) abort();
         value_entries = tmp;
         value_entries_cap = new_cap;
@@ -183,7 +185,7 @@ seq_t a(idx_t n)
 
         /* a(n) cache */
         a_cache_cap = 128;
-        a_cache = (seq_t *)malloc(a_cache_cap * sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_cache_cap);
         if (!a_cache) abort();
         a_count = 0;
 
@@ -198,7 +200,7 @@ seq_t a(idx_t n)
 
         /* value entries */
         value_entries_cap = 4;
-        value_entries = (ValueEntry *)malloc(value_entries_cap * sizeof(ValueEntry));
+        value_entries = mem_new(ValueEntry, value_entries_cap);
         if (!value_entries) abort();
         value_entries_count = 0;
     }
@@ -207,7 +209,7 @@ seq_t a(idx_t n)
     if (n >= a_cache_cap) {
         size_t new_cap = a_cache_cap;
         while (new_cap <= n) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
         if (!tmp) abort();
         a_cache = tmp;
         a_cache_cap = new_cap;

@@ -10,7 +10,8 @@
  *            vertex pairs in the tree with Matula number n
  * Range:     u8 n <= 8, u16 n <= 24, u32 n <= 44, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   big_pow, seq_mul
+ * Validated: partial, pass, 44 terms through n = 45 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,14 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
-#include "../utils/seq_mul.h"
+#include <string.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* updated prime data for n <= 10000 --------------------------------------------------- */
 #define MAX_N          10000
@@ -66,9 +73,9 @@ compute_tree(uint64_t n)
     init_primes();               /* ensure primes and indices are ready */
 
     if (n == 1) {                /* leaf */
-        TreeInfo *leaf = (TreeInfo *)malloc(sizeof(TreeInfo));
+        TreeInfo *leaf = mem_new(TreeInfo, 1);
         leaf->max_depth = 0;
-        leaf->depth_counts = (seq_t *)calloc(1, sizeof(seq_t));
+        leaf->depth_counts = mem_new(seq_t, 1);
         leaf->depth_counts[0] = (seq_t)1;   /* only the root */
         leaf->prod_value = (seq_t)1;        /* no pairs */
         return leaf;
@@ -99,9 +106,9 @@ compute_tree(uint64_t n)
         if (child_infos[i]->max_depth > max_child_depth)
             max_child_depth = child_infos[i]->max_depth;
 
-    TreeInfo *root = (TreeInfo *)malloc(sizeof(TreeInfo));
+    TreeInfo *root = mem_new(TreeInfo, 1);
     root->max_depth = max_child_depth + 1;
-    root->depth_counts = (seq_t *)calloc(root->max_depth + 1, sizeof(seq_t));
+    root->depth_counts = mem_new(seq_t, root->max_depth + 1);
     root->depth_counts[0] = (seq_t)1;            /* root itself */
 
     /* start with product of all child products */
@@ -118,7 +125,7 @@ compute_tree(uint64_t n)
 
             seq_t dist = (seq_t)(d + 1);          /* distance from root to node */
             root->prod_value = seq_mul(root->prod_value,
-                                       big_pow(dist, cnt));
+                                       ipow(dist, cnt));
 
             /* add child counts to parent's depth_counts (shifted by 1) */
             size_t nd = d + 1;
@@ -140,7 +147,7 @@ compute_tree(uint64_t n)
                     seq_t dist = (seq_t)(di + dj + 2);          /* through root */
                     seq_t exp  = cnti * cntj;                 /* product fits 64‑bit */
                     root->prod_value =
-                        seq_mul(root->prod_value, big_pow(dist, exp));
+                        seq_mul(root->prod_value, ipow(dist, exp));
                 }
             }
         }
@@ -148,8 +155,8 @@ compute_tree(uint64_t n)
 
     /* free child data */
     for (size_t i = 0; i < child_count; ++i) {
-        free(child_infos[i]->depth_counts);
-        free(child_infos[i]);
+        mem_free(child_infos[i]->depth_counts);
+        mem_free(child_infos[i]);
     }
 
     return root;
@@ -164,7 +171,7 @@ a(idx_t n)
     TreeInfo *root = compute_tree((uint64_t)n);
     seq_t result = root->prod_value;
 
-    free(root->depth_counts);
-    free(root);
+    mem_free(root->depth_counts);
+    mem_free(root);
     return result;
 }

@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 74, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 74 terms through n = 74 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,9 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 typedef struct {
     seq_t *data;  /* array of computed terms */
@@ -41,7 +44,7 @@ static void ensure_capacity(size_t n) {
     if (cache.cap < n) {
         size_t new_cap = cache.cap ? cache.cap * 2 : 16;
         while (new_cap < n) new_cap <<= 1;
-        seq_t *new_data = (seq_t *)realloc(cache.data, new_cap * sizeof(seq_t));
+        seq_t *new_data = mem_resize(seq_t, cache.data, new_cap);
         if (!new_data) abort();      /* allocation failed */
         cache.data = new_data;
         cache.cap  = new_cap;

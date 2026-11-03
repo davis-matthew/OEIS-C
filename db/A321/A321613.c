@@ -9,15 +9,31 @@
  *            multiplicative over coprime factors. See OEIS A321613
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 15, u64 n <= 23, u128 n <= 38,
  *            big any n
- * Helpers:   big_pow, grow_seq
+ * Validated: standard, pass, 40 terms through n = 454 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/big_pow.h"   /* seq_t big_pow(seq_t base, seq_t exp) */
-#include "../utils/grow_seq.h"  /* void grow_seq(seq_t **arr, size_t *cap, size_t need) */
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
 
 /* Helper to compute the smallest prime factor array up to a given limit. */
 static uint64_t *spfNULL = NULL;        /* array of SPF values, index i has SPF(i) */
@@ -106,7 +122,7 @@ seq_t a(idx_t n)
                 ++exp;
             } while (x % p == 0);
 
-            seq_t power = big_pow((seq_t)p, (seq_t)exp);  /* p^exp */
+            seq_t power = ipow((seq_t)p, (seq_t)exp);  /* p^exp */
             uphi = uphi * (power - (seq_t)1);            /* multiply by (p^exp - 1) */
         }
 

@@ -7,6 +7,7 @@
  * Formula:   a(n) = binomial( binomial(n+3,3)+2 , n)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 6, u64 n <= 10, u128 n <= 13,
  *            big any n
+ * Validated: partial, pass, 14 terms through n = 13 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 /* a(0) = 1, a(1) = 6, a(2) = 66, ... (OEIS A126459) */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

@@ -12,13 +12,15 @@
  *            + ⌊(1/φ)(k+1)⌋ = 2 ⌊φ(k+1)⌋ – (k+1)
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 20, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* integer floor square‑root of a 64‑bit unsigned integer */
 static uint64_t int_sqrt_u64(uint64_t x)
@@ -66,7 +68,7 @@ static void ensure_cache(idx_t n)
     {
         size_t new_cap = a_cap ? a_cap * 2 : 8;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_cap);
         a_cap = new_cap;
     }
 

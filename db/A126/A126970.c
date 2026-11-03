@@ -13,12 +13,14 @@
  *            left‑to‑right row by row. Initial values: a(0)=1, a(1)=0,...
  * Range:     u8 n <= 21, u16 n <= 55, u32 n <= 153, u64 n <= 496,
  *            u128 n <= 1274, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 1183 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,14 +37,14 @@ seq_t a(idx_t n)
     /* Compute the triangle rows up to row r.  For each row we
        keep only the previous row in memory.                               */
     size_t prev_len = 1;
-    seq_t *prev = (seq_t *)calloc(prev_len, sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, prev_len);
     if (!prev) return 0;  /* allocation failure, undefined behavior */
     prev[0] = 1;          /* T(0,0) */
 
     for (idx_t i = 1; i <= r; ++i) {
         size_t cur_len = (size_t)i + 1;
-        seq_t *cur = (seq_t *)calloc(cur_len, sizeof(seq_t));
-        if (!cur) { free(prev); return 0; }
+        seq_t *cur = mem_new(seq_t, cur_len);
+        if (!cur) { mem_free(prev); return 0; }
 
         /* T(i,0) = T(i-1,1)  (0 if out of bounds) */
         cur[0] = (prev_len > 1) ? prev[1] : (seq_t)0;
@@ -55,12 +57,12 @@ seq_t a(idx_t n)
             cur[j] = a_val + (seq_t)3 * b_val + c_val;
         }
 
-        free(prev);
+        mem_free(prev);
         prev = cur;
         prev_len = cur_len;
     }
 
     seq_t result = prev[k];
-    free(prev);
+    mem_free(prev);
     return result;
 }

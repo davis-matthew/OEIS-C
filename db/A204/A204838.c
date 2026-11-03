@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 6, u64 n <= 15, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define NUM_ROWS 2187
 #define NUM_P    7
@@ -80,8 +82,8 @@ static void init_tables(void)
     int p_arr[NUM_P] = P_VALUES;
 
     /* allocate dp arrays once */
-    dp_cur   = (seq_t *)malloc(NUM_ROWS * sizeof(seq_t));
-    dp_next  = (seq_t *)malloc(NUM_ROWS * sizeof(seq_t));
+    dp_cur   = mem_new(seq_t, NUM_ROWS);
+    dp_next  = mem_new(seq_t, NUM_ROWS);
 
     for (int pi = 0; pi < NUM_P; ++pi) {
         size_t *rs = (size_t *)malloc((NUM_ROWS + 1) * sizeof(size_t));

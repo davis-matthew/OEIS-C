@@ -8,6 +8,7 @@
  *            partitions * of n of the product of the partition's parts
  * Range:     u8 n <= 8, u16 n <= 18, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

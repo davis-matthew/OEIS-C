@@ -8,12 +8,14 @@
  * Formula:   a(n) = stirling2( floor((n+1)/2), 5 )
  * Range:     u8 n <= 14, u16 n <= 20, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute the sequence A056474.  The result is the Stirling number
  * of the second kind S( ⌊(n+1)/2⌋ , 5 ).
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     {
         /* allocate a minimum size of 16 entries; the first entry (m=0) is 0 */
         cache_len = 16;
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         if (!cache) return 0; /* allocation failed; return 0 as a safe fallback */
         cache[0] = a_vals[5];   /* S(0,5) == 0 */
     }
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
         if (cur_m >= cache_len)
         {
             size_t new_len = cache_len * 2;
-            seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_len);
             if (!tmp) return 0; /* allocation failed; safe fallback */
             cache = tmp;
             cache_len = new_len;

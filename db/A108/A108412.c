@@ -7,12 +7,27 @@
  * Formula:   a(n) = 4*a(n-2) - a(n-4) with a(0)=1, a(1)=1, a(2)=5, a(3)=4
  * Range:     u8 n <= 7, u16 n <= 17, u32 n <= 33, u64 n <= 67, u128 n <= 135,
  *            big any n
- * Helpers:   mul_safe
+ * Validated: standard, pass, 49 terms through n = 998 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/mul_safe.h"
+#include <stdlib.h>
+#include <stdint.h>
+
+/* safe multiplication that does not overflow for unsigned types up to 64 bits */
+static inline seq_t mul_safe(seq_t a, unsigned b)
+{
+    if (sizeof(seq_t) <= sizeof(uint64_t)) {
+        unsigned __int128 tmp = (unsigned __int128)a * b;
+        /* maximum value representable in seq_t */
+        seq_t maxv = (seq_t)(~(seq_t)0);
+        return tmp > maxv ? maxv : (seq_t)tmp;
+    }
+    /* arbitrary‑precision types handle overflow internally */
+    return a * (seq_t)b;
+}
 
 seq_t a(idx_t n)
 {

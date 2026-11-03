@@ -9,7 +9,8 @@
  *            = 1 if d==1, else d*phi(d)/2
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 9, u64 n <= 13, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static idx_t max_n = 0;
 static idx_t *phi_arr = NULL;
@@ -43,8 +45,8 @@ static void compute_phi_upto(idx_t N)
 /* compute s[d] = A023896(d) for all 0..N */
 static void compute_s_upto(idx_t N)
 {
-    if (!s_arr) s_arr = (seq_t*)calloc(N + 1, sizeof(seq_t));
-    else        s_arr = (seq_t*)realloc(s_arr, (N + 1) * sizeof(seq_t));
+    if (!s_arr) s_arr = mem_new(seq_t, N + 1);
+    else        s_arr = mem_resize(seq_t, s_arr, (N + 1));
 
     s_arr[0] = (seq_t)0;
     s_arr[1] = (seq_t)1;                       /* special case */
@@ -57,8 +59,8 @@ static void compute_s_upto(idx_t N)
 /* compute a[n] progressively up to N */
 static void compute_a_upto(idx_t N)
 {
-    if (!a_arr) a_arr = (seq_t*)calloc(N + 1, sizeof(seq_t));
-    else        a_arr = (seq_t*)realloc(a_arr, (N + 1) * sizeof(seq_t));
+    if (!a_arr) a_arr = mem_new(seq_t, N + 1);
+    else        a_arr = mem_resize(seq_t, a_arr, (N + 1));
 
     for (idx_t i = max_n + 1; i <= N; ++i) {
         seq_t prod = (seq_t)1;          /* A280246(i) */

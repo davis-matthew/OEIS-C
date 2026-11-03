@@ -13,15 +13,24 @@
  *            pair (row,col) such that offset_row(row) <= n <
  *            offset_row(row+1) and col = n - offset_row(row). Then a(n) =
  *            T(row,col) where T(R,K) = Σ_{s=1..R} Narayana(R-s,K) * C(2R...
- * Range:     u8 n <= 16, u16 n <= 43, u32 n <= 56, u64 n <= 56, u128 n <= 56,
+ * Range:     u8 n <= 20, u16 n <= 43, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   binom, seq_mul
+ * Validated: partial, pass, 57 terms through n = 56 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"     /* binom(idx_t a, idx_t b) -> seq_t */
-#include "../utils/seq_mul.h"   /* seq_mul(seq_t a, seq_t b) -> seq_t */
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/binomial.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 static seq_t T_row_k(idx_t R, idx_t K)
 {
@@ -39,13 +48,13 @@ static seq_t T_row_k(idx_t R, idx_t K)
             break;
 
         /* Narayana(m, K) = C(m,K) * C(m,K-1) / m */
-        seq_t nar = binom(m, K);
-        nar = seq_mul(nar, binom(m, K - 1));
+        seq_t nar = binomial(m, K);
+        nar = seq_mul(nar, binomial(m, K - 1));
         nar = nar / (seq_t)m;
 
         idx_t b_n = 2 * R - s - K;
         idx_t b_k = s - K;
-        seq_t bin_val = binom(b_n, b_k);
+        seq_t bin_val = binomial(b_n, b_k);
 
         total = total + seq_mul(nar, bin_val);
     }

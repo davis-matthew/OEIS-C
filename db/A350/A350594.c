@@ -8,16 +8,19 @@
  * Formula:   a(n) = Σ_{j=0}^{2i} (-1)^{i+j} * binomial(2i,j)^k, where (i,k)
  *            is the coordinate on the antidiagonal determined by n via n = i
  *            + k + (i+k)(i+k+1)/2
- * Range:     i8 n <= 18, i16 n <= 30, i32 n <= 58, i64 n <= 96, i128 n <= 177,
+ * Range:     i8 n <= 22, i16 n <= 30, i32 n <= 58, i64 n <= 96, i128 n <= 177,
  *            big any n
- * Helpers:   binomial, pow_seq
+ * Validated: standard, pass, 71 terms through n = 1170 (2026-11-01)
+ * Helpers:   binomial, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +40,7 @@ seq_t a(idx_t n)
     idx_t two_i = 2 * i;
     for (idx_t j = 0; j <= two_i; ++j) {
         seq_t bin = binomial(two_i, j);
-        seq_t pow = pow_seq(bin, (int)k);
+        seq_t pow = ipow_i32(bin, (int)k);
         if (((i + j) & 1) == 0)
             result += pow;
         else

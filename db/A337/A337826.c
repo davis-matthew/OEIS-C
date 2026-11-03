@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 17,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 #ifdef __cplusplus
 #include <vector>
@@ -64,7 +65,7 @@ seq_t a(idx_t n)
     for (idx_t i = cache_len + 1; i <= n; ++i) {
         seq_t sum = 0;
         for (idx_t k = 1; k <= i; ++k) {
-            seq_t b = binom(i, k);
+            seq_t b = binomial(i, k);
             seq_t term = b * b;
             seq_t k2 = (seq_t)k * (seq_t)k;
             seq_t k4 = k2 * k2;

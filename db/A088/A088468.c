@@ -7,12 +7,14 @@
  * Formula:   a(0) = 1, a(n) = a(n/2) + a(n/3) for n > 0 (floor division)
  * Range:     u8 n <= 647, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 89 terms through n = 9374 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *memo   = NULL;   /* dynamic array of computed values      */
 static char *filled  = NULL;   /* 1 if memo[i] is valid, 0 otherwise   */
@@ -28,7 +30,7 @@ static void ensure_size(idx_t n)
     idx_t new_size = memo_size ? memo_size << 1 : 16;
     while (new_size <= n) new_size <<= 1;
 
-    void *tmp_memo   = realloc(memo,   new_size * sizeof(seq_t));
+    void *tmp_memo   = mem_resize(seq_t, memo, new_size);
     void *tmp_filled = realloc(filled, new_size * sizeof(char));
     if (!tmp_memo || !tmp_filled) exit(EXIT_FAILURE); /* out of memory */
 

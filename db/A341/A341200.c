@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 34, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   antidiagonal_coords, binomial, seq_mul, seq_pow
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,10 +20,28 @@
  */
 
 #include <stddef.h>               /* for size_t */
-#include "../utils/binomial.h"    /* binomial(idx_t n, idx_t k) */
-#include "../utils/seq_pow.h"     /* seq_pow(seq_t base, idx_t exp) */
-#include "../utils/seq_mul.h"     /* seq_mul(seq_t a, seq_t b) */
-#include "../utils/antidiagonal_coords.h" /* antidiagonal_coords */
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* mapping from linear index n to pair (i,j) on the antidiagonals of T */
+static inline void antidiagonal_coords(idx_t n, idx_t *i, idx_t *j)
+{
+    /* find s such that (s+1)(s+2)/2 <= n < (s+2)(s+3)/2 */
+    idx_t s = 0;
+    while (((s + 1) * (s + 2)) / 2 <= n) ++s;
+    idx_t pos = n - (s * (s + 1)) / 2;  /* 0 <= pos <= s */
+    *i = pos;
+    *j = s - pos;
+}
 
 /* Factorial cache: fact[k] = k! for 0 <= k <= MAX_FACT.
    Max supported n is MAX_FACT (≈10000). */
@@ -52,7 +71,7 @@ seq_t a(idx_t n)
 
     seq_t result = 0;
     for (idx_t t = 0; t <= row; ++t) {
-        seq_t pow_term  = seq_pow((seq_t)t, col);      /* t^col */
+        seq_t pow_term  = ipow_idx((seq_t)t, col);      /* t^col */
         seq_t fact_term = fact[row - t];               /* (row-t)! */
         seq_t bin       = binomial(row, t);            /* C(row,t) */
         seq_t bin_sq    = seq_mul(bin, bin);           /* bin^2 */

@@ -8,8 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 44, u16 n <= 6642, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _prime_limit_for_idx, build_primes_upto, digits_of,
- *            isPrimeGeneric
+ * Validated: standard, pass, 85 terms through n = 9601 (2026-11-03)
+ * Helpers:   build_primes_upto, is_prime_u128, is_prime_u64, num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,10 +21,41 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/_prime_limit_for_idx.h"
+#include <stddef.h>
+#include <limits.h>
+#include <math.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/isPrimeGeneric.h"
-#include "../utils/digits_of.h"
+#include "../utils/is_prime_u128.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/num_digits_idx.h"
+
+static size_t _prime_limit_for_idx(idx_t n) {
+    /* Rough upper bound for the n-th prime using n*(log n + log log n) + 3 */
+    if (n < 6) return 15; /* first 6 primes < 15 */
+    double nn = (double)n;
+    double bound = nn * (log(nn) + log(log(nn))) + 3.0;
+    return (size_t)bound;
+}
+
+/* -----------------  Generic primality test ------------------------ */
+static bool isPrimeGeneric(seq_t n)
+{
+    /* all seq_t are unsigned; use the smallest type that fits */
+    if ((seq_t)(ULLONG_MAX) >= n) {
+        return is_prime_u64((uint64_t)n);
+    }
+#if defined(__SIZEOF_INT128__)
+    return is_prime_u128((__uint128_t)n);
+#else
+    /* fallback: if seq_t > 64‑bit but no 128‑bit support,
+       order the test as simple trial division up to sqrt */
+    seq_t limit = 0;
+    for (seq_t i = 2; i*i <= n; ++i) {
+        if (n % i == 0) return false;
+    }
+    return true;
+#endif
+}
 
 seq_t a(idx_t n)
 {
@@ -46,7 +77,7 @@ seq_t a(idx_t n)
     uint64_t p = prime_list[n - 1];
 
     /* Extract decimal digits of p in most‑significant‑first order */
-    int len   = digits_of(p);
+    int len   = num_digits_idx(p);
     uint8_t digits[20];        /* 20 digits are enough for 64‑bit numbers */
     uint64_t tmp = p;
     for (int i = len - 1; i >= 0; --i) {

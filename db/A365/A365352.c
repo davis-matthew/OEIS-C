@@ -12,13 +12,15 @@
  *            a(16)=1191, a(17)=1515, a(18)=3631, a(19)=5846, a(20)=856...
  * Range:     u8 n <= 13, u16 n <= 24, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Base values for 0 ≤ n < 24. */
 static const seq_t base[24] = {
@@ -44,7 +46,7 @@ static void ensure_cache_cap(idx_t n)
     while (new_cap <= target)
         new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         abort();                    /* allocation failed */
     cache = tmp;

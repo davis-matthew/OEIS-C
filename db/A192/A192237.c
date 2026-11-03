@@ -9,14 +9,21 @@
  *            a(1)=0, a(2)=0, a(3)=1 Computes the OEIS sequence A192237
  * Range:     u8 n <= 8, u16 n <= 13, u32 n <= 24, u64 n <= 45, u128 n <= 86,
  *            big any n
- * Helpers:   seq_alloc_array
+ * Validated: standard, pass, 51 terms through n = 889 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/seq_alloc_array.h"   /* seq_t* seq_alloc_array(size_t n); */
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 seq_t a(idx_t n)
 {
@@ -34,7 +41,7 @@ seq_t a(idx_t n)
         if (cache) {
             /* copy existing values */
             for (size_t i = 0; i < cap; ++i) tmp[i] = cache[i];
-            free(cache);
+            mem_free(cache);
         }
         cache = tmp;
         cap   = newcap;

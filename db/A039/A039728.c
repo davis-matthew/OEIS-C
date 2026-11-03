@@ -9,13 +9,15 @@
  *            Q(k)/2 for each occurrence of an even Q(k)
  * Range:     u8 n <= 76, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 76 terms through n = 76 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Forward declarations of the helper functions used only for memory allocation */
 static void ensure_cap(seq_t **arr, size_t *cap, size_t need)
@@ -24,7 +26,7 @@ static void ensure_cap(seq_t **arr, size_t *cap, size_t need)
         size_t newcap = (*cap) ? (*cap) * 2 : 16;
         while (newcap < need)
             newcap *= 2;
-        *arr = (seq_t *)realloc(*arr, newcap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, newcap);
         *cap = newcap;
     }
 }

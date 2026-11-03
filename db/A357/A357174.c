@@ -7,12 +7,15 @@
  * Formula:   a(n) = n! * Sum_{k=0..floor(n/3)} (n-3k)^n/(n-3k)!
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 17,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -21,7 +24,7 @@ seq_t a(idx_t n)
     idx_t m = n;
     while (1) {
         /* term = (n! / m!) * m^n = part * m^n   where part = Π_{j=m+1}^n j */
-        seq_t powm = big_pow((seq_t)m, (seq_t)n);
+        seq_t powm = ipow((seq_t)m, (seq_t)n);
         res += part * powm;
         if (m < 3) break;
         /* update part for next k: multiply by (m-2)*(m-1)*m  */

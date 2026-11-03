@@ -10,14 +10,33 @@
  *            limit
  * Range:     u8 n <= 6, u16 n <= 19, u32 n <= 19, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   internal_digits_two
+ * Validated: full, pass, 19 terms through n = 19 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/internal_digits_two.h"
+
+static bool internal_digits_two(seq_t x)
+{
+    /* One‑digit or two‑digit numbers automatically satisfy the condition. */
+    if (x < (seq_t)10) return true;
+    if (x < (seq_t)100) return true;
+
+    /* Remove the trailing digit.  The remaining number contains the internal
+       and the most significant digits.  Iterate over the remaining digits
+       from least significant to most significant, stopping before the most
+       significant digit. */
+    seq_t temp = x / (seq_t)10;
+    while (temp >= (seq_t)10) {
+        seq_t d = temp % (seq_t)10;
+        if (d != (seq_t)2) return false;
+        temp /= (seq_t)10;
+    }
+    return true;
+}
 
 /* Cache for the finite set of qualifying triangular numbers. */
 static seq_t cache[200];

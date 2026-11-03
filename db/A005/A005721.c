@@ -9,21 +9,22 @@
  *            ((1+x)*(1+x^2))^(2n) = (1+x+x^2+x^3)^(2n)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 17, u128 n <= 33,
  *            big any n
- * Helpers:   a005721_binom
+ * Validated: standard, pass, 34 terms through n = 569 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a005721_binom.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n) {
     idx_t N = 2 * n;
     idx_t j = (n + 1) / 2;
     idx_t jmax = (3 * n) / 2;
     idx_t k = 3 * n - 2 * j;
-    seq_t cj = a005721_binom(N, j);
-    seq_t ck = a005721_binom(N, k);
+    seq_t cj = binomial(N, j);
+    seq_t ck = binomial(N, k);
     seq_t sum = 0;
 
     for (;;) {

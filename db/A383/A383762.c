@@ -8,14 +8,15 @@
  * Formula:   a(n) = ∏_{p^e‖n} (2 if e is squarefree else 1)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_squarefree_exp
+ * Validated: standard, pass, 103 terms through n = 9921 (2026-11-01)
+ * Helpers:   is_squarefree_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Counts unitary divisors of n that are exponentially squarefree. */
 #include <stdbool.h>
-#include "../utils/is_squarefree_exp.h"
+#include "../utils/is_squarefree_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +35,7 @@ seq_t a(idx_t n)
                 m /= p;
                 ++exp;
             }
-            if (is_squarefree_exp(exp))
+            if (is_squarefree_idx(exp))
                 result *= 2;
         }
         ++p;

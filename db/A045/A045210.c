@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   count_remaining
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,26 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/count_remaining.h"
+
+/* number of ways to place zeros_needed zeros in positions positions
+ * of the remaining (least‑significant) digits, using digits {0,1,2,3}.
+ * All calculations use idx_t to avoid overflow when seq_t is small. */
+static idx_t count_remaining(idx_t positions, idx_t zeros_needed)
+{
+    if (zeros_needed > positions)
+        return 0;                    /* impossible */
+    /* binomial coefficient C(positions, zeros_needed) */
+    idx_t comb = 1;
+    for (idx_t i = 1; i <= zeros_needed; ++i)
+        comb = comb * (positions - zeros_needed + i) / i;
+
+    /* 3 choices for each non‑zero digit */
+    idx_t pow3 = 1;
+    for (idx_t i = 0; i < positions - zeros_needed; ++i)
+        pow3 *= 3ULL;
+
+    return comb * pow3;
+}
 
 /* precomputed digit choices for the most‑significant position and the
    remaining positions */

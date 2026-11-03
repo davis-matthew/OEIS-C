@@ -10,7 +10,8 @@
  *            a(1) = 40, a(2) = 1600, a(3) = 13230,
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 9, u64 n <= 20, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Maximum possible number of admissible rows (≤40).  */
 #define MAX_ROWS   50
@@ -84,7 +86,7 @@ seq_t a(idx_t n)
     /* Dynamic programming over additional rows */
     for (idx_t step = 3; step <= n; ++step) {
         /* Clear target buffer */
-        memset(ndp, 0, sizeof(ndp_mem));
+        mem_set(ndp, 0, sizeof(ndp_mem));
 
         for (int pi = 0; pi < m; ++pi) {
             for (int ci = 0; ci < m; ++ci) {

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 50, u16 n <= 415, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   is_repdigit, reverse
+ * Validated: standard, pass, 82 terms through n = 1824 (2026-11-03)
+ * Helpers:   mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,19 @@
 
 #include <stddef.h>   /* for size_t */
 #include <stdlib.h>   /* for malloc, realloc */
-#include "../utils/is_repdigit.h"
-#include "../utils/reverse.h"
+#include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
+
+static int is_repdigit(seq_t v)
+{
+    if (v == 0) return 0;
+    seq_t d = v % 10;
+    while (v > 0) {
+        if ((v % 10) != d) return 0;
+        v /= 10;
+    }
+    return 1;
+}
 
 seq_t a(idx_t n)
 {
@@ -36,13 +48,13 @@ seq_t a(idx_t n)
     /* make sure we have at least n terms */
     while (terms_len < (size_t)n) {
         seq_t cand = last_cand;
-        seq_t rev = reverse(cand);
+        seq_t rev = reverse_digits(cand);
         seq_t sum = cand + rev;
         if (is_repdigit(sum)) {
             /* append to the array */
             if (terms_len == terms_cap) {
                 size_t new_cap = terms_cap ? terms_cap * 2 : 64;
-                seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, new_cap);
                 if (!tmp) {
                     /* allocation failed – abort */
                     exit(EXIT_FAILURE);

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   log2_floor_u64
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-03)
+ * Helpers:   ilog2_idx_to_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,8 @@
 /* Include standard headers */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/log2_floor_u64.h"
+#include "../utils/ilog2_idx_to_i32.h"
+#include "../utils/mem.h"
 
 /* --------- static cache --------- */
 static seq_t *cache = NULL;     /* array of a(i) values, index 0 => a(1) */
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     if (n <= 3) {
         if (cache == NULL) {
             /* initialise the static cache for the first call */
-            cache = (seq_t*)malloc(3 * sizeof(seq_t));
+            cache = mem_new(seq_t, 3);
             if (cache == NULL) return 0; /* allocation failure */
             cache[0] = (seq_t)1; /* a(1) */
             cache[1] = (seq_t)1; /* a(2) */
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         size_t init_cap = (size_t)4;
         if (init_cap < (size_t)n) init_cap = (size_t)n;
-        cache = (seq_t*)malloc(init_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, init_cap);
         if (cache == NULL) return 0;
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)1;
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
     if ((size_t)n > cap) {
         size_t new_cap = cap ? cap : 4;
         while (new_cap < (size_t)n) new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) return 0;
         cache = tmp;
         cap   = new_cap;
@@ -78,7 +80,7 @@ seq_t a(idx_t n)
     /* compute all missing a(i) up to n */
     for (idx_t i = (idx_t)(max_n + 1); i <= n; ++i) {
         /* current sum of a(1)…a(i-1) is in 'total' */
-        int p = log2_floor_u64(i - 2);               /* i≥4, so i-2≥2 */
+        int p = ilog2_idx_to_i32(i - 2);               /* i≥4, so i-2≥2 */
         seq_t pow2 = ((seq_t)1) << (p + 1);          /* 2ᵖ⁺¹ */
         seq_t m = pow2 + (seq_t)2 - (seq_t)i;        /* m ≥ 1 */
         seq_t val = total - cache[(size_t)(m - 1)];   /* recurrence */

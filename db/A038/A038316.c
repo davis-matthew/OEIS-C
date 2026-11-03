@@ -9,14 +9,16 @@
  *            i*(i+1)/2 is the column position in that row
  * Range:     u8 n <= 5, u16 n <= 14, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   binomial, seq_pow_ll
+ * Validated: partial, pass, 37 terms through n = 36 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/seq_pow_ll.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -32,8 +34,8 @@ seq_t a(idx_t n)
 
     /* Compute the binomial coefficient and the powers. */
     seq_t bin = binomial(r, j);
-    seq_t pow11 = seq_pow_ll((seq_t)11, r - j);
-    seq_t pow2  = seq_pow_ll((seq_t)2,  j);
+    seq_t pow11 = ipow_idx((seq_t)11, r - j);
+    seq_t pow2  = ipow_idx((seq_t)2,  j);
 
     /* Combine the factors. */
     seq_t res = bin * pow11;

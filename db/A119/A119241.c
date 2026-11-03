@@ -12,6 +12,7 @@
  *            square‑free, b³ ≤ x} ⌊ √(x / b³) ⌋
  * Range:     u8 n <= 13, u16 n <= 1893, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 121 terms through n = 9712 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,6 +7,7 @@
  * Formula:   a(n) = binomial( binomial(n,2), floor(n*(n-1)/4) )
  * Range:     u8 n <= 5, u16 n <= 6, u32 n <= 8, u64 n <= 12, u128 n <= 15,
  *            big any n
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,7 +15,6 @@
 
 #include <stdint.h>
 #include "../utils/gcd.h"
-
 
 /* Safe multiplicative binomial using gcd reduction */
 static seq_t binomial_safe(idx_t n, idx_t k)

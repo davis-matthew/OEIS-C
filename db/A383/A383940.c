@@ -8,13 +8,15 @@
  * Formula:   a(1) = 1; a(n) = (25173*a(n-1)+13849) mod 2^16 for n > 1
  * Range:     u8 n <= 1, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 9510 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;
 static size_t cache_capacity = 0;
@@ -30,7 +32,7 @@ static void ensure_capacity(size_t new_cap)
     while (cap < new_cap)
         cap *= 2;
 
-    seq_t *tmp = (seq_t *)realloc(seq_cache, cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, cap);
     if (!tmp)
         abort(); /* memory allocation failed */
 

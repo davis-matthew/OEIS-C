@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 10, u128 n <= 10,
  *            big any n
- * Helpers:   digit_present, proper_subset
+ * Validated: full, pass, 10 terms through n = 10 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,29 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/digit_present.h"
-#include "../utils/proper_subset.h"
+#include "../utils/mem.h"
+
+/* Compute the digit presence array for a number x.
+   present[d] is true if digit d occurs in x. */
+static void digit_present(seq_t x, bool present[10]) {
+    for (int d = 0; d < 10; ++d) present[d] = false;
+    if (x == 0) { present[0] = true; return; }
+    while (x != 0) {
+        int d = (int)(x % 10);
+        present[d] = true;
+        x /= 10;
+    }
+}
+
+/* Return true if setPrev is a proper subset of setCand. */
+static bool proper_subset(const bool setPrev[10], const bool setCand[10]) {
+    bool strict = false;
+    for (int d = 0; d < 10; ++d) {
+        if (setPrev[d] && !setCand[d]) return false;   /* missing digit */
+        if (!setPrev[d] && setCand[d]) strict = true;  /* new digit added */
+    }
+    return strict;
+}
 
 /* Compute a(n). */
 seq_t a(idx_t n) {
@@ -35,7 +57,7 @@ seq_t a(idx_t n) {
     /* Initialise cache with a(1) = 1 if it does not exist yet */
     if (capacity == 0) {
         capacity = 4;
-        cache = (seq_t *)malloc(capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, capacity);
         cache[0] = (seq_t)1;   /* a(1) */
         size = 1;
     }
@@ -56,7 +78,7 @@ seq_t a(idx_t n) {
                 /* Append candidate */
                 if (size >= capacity) {
                     capacity *= 2;
-                    cache = (seq_t *)realloc(cache, capacity * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, capacity);
                 }
                 cache[size] = candidate;
                 ++size;

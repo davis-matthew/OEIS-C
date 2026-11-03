@@ -12,13 +12,31 @@
  *            *...
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 17, u64 n <= 35, u128 n <= 71,
  *            big any n
- * Helpers:   cf_quotient
+ * Validated: standard, pass, 39 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/cf_quotient.h"
+#include "../utils/mem.h"
+
+/* Return the k-th partial quotient of the continued fraction of sqrt(546).
+   k = 0 yields 23; for k >= 1 the sequence repeats 2,1,2,1,2,46. */
+static seq_t cf_quotient(idx_t k)
+{
+    if (k == 0)
+        return (seq_t)23;
+    switch (((idx_t)k - 1) % 6)
+    {
+        case 0: return (seq_t)2;
+        case 1: return (seq_t)1;
+        case 2: return (seq_t)2;
+        case 3: return (seq_t)1;
+        case 4: return (seq_t)2;
+        default: return (seq_t)46;  /* case 5 */
+    }
+}
 
 static seq_t *cache = NULL;      /* memoised numerators */
 static size_t cache_len = 0;     /* number of stored terms */
@@ -29,7 +47,7 @@ seq_t a(idx_t n)
     if (cache_len == 0)
     {
         cache_len = 1;
-        cache = (seq_t *)realloc(NULL, cache_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, cache_len);
         if (!cache) exit(EXIT_FAILURE);
         cache[0] = cf_quotient(0);          /* 23 */
     }
@@ -56,7 +74,7 @@ seq_t a(idx_t n)
 
     /* Grow the cache to hold terms up to n */
     size_t new_len = (size_t)n + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_len);
     if (!tmp) exit(EXIT_FAILURE);
     cache = tmp;
 

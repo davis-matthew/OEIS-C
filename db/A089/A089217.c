@@ -8,7 +8,8 @@
  *            the definition a(n) = A087915(n) + A089193(n) in OEIS
  * Range:     u8 n <= 29, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   is_prime_uint64, mulmod, powmod
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   is_prime_u64, mem, mulmod, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,10 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime_uint64.h"
+#include "../utils/is_prime_u64.h"
 #include "../utils/mulmod.h"
-#include "../utils/powmod.h"
+#include "../utils/powmod_u64.h"
+#include "../utils/mem.h"
 
 /*---  Helper functions for 64‑bit primality testing (deterministic M-R)  ---*/
 
@@ -34,7 +36,7 @@ static void grow_terms(size_t min_cap)
     if (min_cap <= terms_cap) return;
     size_t new_cap = terms_cap > 0 ? terms_cap * 2 : 64;
     while (new_cap < min_cap) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, terms, new_cap);
     if (!tmp) abort();
     terms = tmp;
     terms_cap = new_cap;
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
         do {
             next_prime_candidate++;
             candidate = next_prime_candidate;
-        } while (!is_prime_uint64(candidate));
+        } while (!is_prime_u64(candidate));
 
         /* If prime ≡ 3 (mod 4) store the sequence term. */
         if ((candidate & 3ULL) == 3ULL) {

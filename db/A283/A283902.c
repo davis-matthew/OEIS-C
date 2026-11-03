@@ -9,8 +9,9 @@
  * Formula:   a(n) = a(n-a(n-1)) + a(n-a(n-2)) for n >= -697 initial values:
  *            a(-701)=4, a(-700)=702, a(-699)=4, a(-698)=702, a(n)=0 for n <=
  *            -702. Offset: a(1) is the first term
- * Range:     u8 none, u16 n <= 1455, u32 n <= 9140, u64 n <= 9140,
- *            u128 n <= 9140, big any n
+ * Range:     u8 none, u16 n <= 1455, u32 n <= 11969, u64 n <= 11969,
+ *            u128 n <= 11969, big any n
+ * Validated: full, pass, 11969 terms through n = 11969 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

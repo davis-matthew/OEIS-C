@@ -12,12 +12,14 @@
  *            internal tables as needed
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,12 +43,12 @@ seq_t a(idx_t n)
         /* ---- grow the array of powers of 8 ---- */
         if (pow_len == 0) {
             pow_len = 1;
-            pow8 = (seq_t *)realloc(NULL, pow_len * sizeof(seq_t));
+            pow8 = mem_resize(seq_t, NULL, pow_len);
             pow8[0] = (seq_t)1;
         }
         if (n + 1 > pow_len) {
             size_t new_len = (size_t)(n + 1);
-            seq_t *tmp = (seq_t *)realloc(pow8, new_len * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, pow8, new_len);
             if (!tmp) abort();
             pow8 = tmp;
             for (size_t i = pow_len; i <= (size_t)n; ++i)
@@ -109,7 +111,7 @@ seq_t a(idx_t n)
             }
 
             /* extend value array */
-            seq_t *tmp_vals = (seq_t *)realloc(vals, new_max * sizeof(seq_t));
+            seq_t *tmp_vals = mem_resize(seq_t, vals, new_max);
             if (!tmp_vals) abort();
             vals = tmp_vals;
 

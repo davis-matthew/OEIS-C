@@ -10,12 +10,14 @@
  *            {1,…,n} in which exactly 1/5 of the elements are ≤ (n+2)/3
  * Range:     u8 n <= 11, u16 n <= 20, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -27,8 +29,8 @@ seq_t a(idx_t n)
 
     seq_t result = 0;
     for (idx_t t = 1; t <= t_max; ++t) {
-        seq_t c1 = binom(L, t);                       /* C(L, t)   */
-        seq_t c2 = binom(n - L, 4 * t);               /* C(n−L, 4t)*/
+        seq_t c1 = binomial(L, t);                       /* C(L, t)   */
+        seq_t c2 = binomial(n - L, 4 * t);               /* C(n−L, 4t)*/
         result += c1 * c2;
     }
     return result;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 6697, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd, mod_pow
+ * Validated: standard, pass, 76 terms through n = 8496 (2026-11-01)
+ * Helpers:   gcd, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,11 @@
  */
 
 #include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+#include <stdbool.h>
 #include "../utils/gcd.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
 
 /* Return the n-th term of OEIS sequence A070191. */
 seq_t a(idx_t n)
@@ -31,7 +35,7 @@ seq_t a(idx_t n)
     for (idx_t k = 1; found < n; ++k)
     {
         seq_t mod  = (seq_t)3 * (seq_t)k;      /* 3*k as seq_t */
-        seq_t rem  = mod_pow((seq_t)8, k, mod);/* 8^k mod (3*k) */
+        seq_t rem  = powmod((seq_t)8, k, mod);/* 8^k mod (3*k) */
         seq_t tmp  = rem + (seq_t)1;
         if (tmp >= mod)                       /* ensure (8^k + 1) mod (3*k) */
             tmp -= mod;

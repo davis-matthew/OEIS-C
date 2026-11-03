@@ -15,7 +15,8 @@
  *            -2*a(n-22)-a(n-24)+a(n-26) with initial terms a(1)=0, a(2...
  * Range:     u8 n <= 5, u16 n <= 25, u32 n <= 210, u64 n <= 210,
  *            u128 n <= 210, big any n
- * Helpers:   count_even_n
+ * Validated: standard, pass, 68 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,30 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/count_even_n.h"
+#include "../utils/mem.h"
+
+/* Count the number of solutions for even n ≤ 26 using the derived
+   4-variable formulation.
+   n is even. */
+static seq_t count_even_n(idx_t n)
+{
+    int m = (int)(n / 2);          /* n is even, so m is an integer ≤ 13 */
+    seq_t cnt = 0;
+    for (int x1 = -m; x1 <= m; ++x1)
+        for (int x2 = -m; x2 <= m; ++x2)
+            for (int x3 = -m; x3 <= m; ++x3)
+                for (int x4 = -m; x4 <= m; ++x4)
+                {
+                    int w = -(5 * x1 + 4 * x2 + 3 * x3 + 2 * x4); /* x5 */
+                    if (w < -m || w > m) continue;
+                    int sum4 = x1 + x2 + x3 + x4;
+                    int x6 = -(sum4 + w);
+                    if (x6 < -m || x6 > m) continue;
+                    /* all bounds satisfied */
+                    cnt += 1;
+                }
+    return cnt;
+}
 
 /* Forward declaration – seq_t and idx_t are provided by the build system. */
 extern seq_t a(idx_t n);
@@ -43,7 +67,7 @@ seq_t a(idx_t n)
     if (n + 1 > cap)
     {
         idx_t new_cap = (n + 1) * 2;   /* grow twice to limit reallocs */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;           /* allocation failure → zero */
         cache = tmp;
         /* initialise the new part to zero */

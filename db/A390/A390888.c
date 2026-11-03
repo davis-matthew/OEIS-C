@@ -7,12 +7,14 @@
  * Formula:   a(n) = Sum_{k=0..n} 2^k * 3^(n-k) * Stirling2(n,k)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 18, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 380 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache   = NULL;   /* computed a(0 .. lenA-1) */
 static seq_t *pow3_cache = NULL;  /* 3^i for i = 0 .. lenPow3-1 */
@@ -26,7 +28,7 @@ static void ensure_pow3_up_to(idx_t n)
 
     if (!pow3_cache) {
         pow3_cap = 8;
-        pow3_cache = (seq_t*)malloc(pow3_cap * sizeof(seq_t));
+        pow3_cache = mem_new(seq_t, pow3_cap);
     }
     while (pow3_len <= n) {
         if (pow3_len == 0)
@@ -37,7 +39,7 @@ static void ensure_pow3_up_to(idx_t n)
         ++pow3_len;
         if (pow3_len == pow3_cap) {
             pow3_cap *= 2;
-            pow3_cache = (seq_t*)realloc(pow3_cache, pow3_cap * sizeof(seq_t));
+            pow3_cache = mem_resize(seq_t, pow3_cache, pow3_cap);
         }
     }
 }
@@ -50,7 +52,7 @@ static void compute_a_up_to(idx_t n)
 
     if (!a_cache) {
         a_cap = 8;
-        a_cache = (seq_t*)malloc(a_cap * sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_cap);
     }
 
     ensure_pow3_up_to(n);   /* we need powers up to n-1 */
@@ -80,7 +82,7 @@ static void compute_a_up_to(idx_t n)
         ++a_len;
         if (a_len == a_cap) {
             a_cap *= 2;
-            a_cache = (seq_t*)realloc(a_cache, a_cap * sizeof(seq_t));
+            a_cache = mem_resize(seq_t, a_cache, a_cap);
         }
     }
 }

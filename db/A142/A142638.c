@@ -7,14 +7,16 @@
  * Formula:   a(n) = the nth prime p such that p ≡ 52 (mod 55)
  * Range:     u8 n <= 1, u16 n <= 155, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 57 terms through n = 958 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"   /* provides bool is_prime(idx_t) */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
             if (count + 1 > cap)     /* grow the cache if needed */
             {
                 size_t new_cap = (cap == 0) ? 16 : cap * 2;
-                seq_t *tmp = (seq_t *)realloc(list, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, list, new_cap);
                 if (!tmp)
                     abort();         /* allocation failed */
                 list = tmp;

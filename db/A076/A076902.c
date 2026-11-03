@@ -7,12 +7,14 @@
  * Formula:   a(1) = 1; for n ≥ 2, a(n) = floor(n/2) – a(floor(n/2))
  * Range:     u8 n <= 77, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 77 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
         idx_t new_cap = cap ? cap : 2;   /* at least 2 entries to hold a(1)      */
         while (n + 1 > new_cap)
             new_cap <<= 1;                 /* double until big enough             */
-        seq_t *tmp = (seq_t *)realloc(table, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, table, new_cap);
         table = tmp;
         cap   = new_cap;
     }

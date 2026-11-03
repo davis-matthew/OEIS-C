@@ -7,11 +7,13 @@
  * Formula:   a(n) = 8^(5*n + 4)
  * Range:     u8 none, u16 n <= 0, u32 n <= 1, u64 n <= 3, u128 n <= 7,
  *            big any n
+ * Validated: standard, pass, 25 terms through n = 91 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

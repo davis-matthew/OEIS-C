@@ -11,7 +11,8 @@
  *            a(8)=14745600, a(9)=60702720
  * Range:     u8 none, u16 n <= 4, u32 n <= 12, u64 n <= 28, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 188 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Compute A256764: number of (n+2)×(1+2) 0..1 arrays with no 3×3
    subblock diagonal sum less than the antidiagonal sum. */
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
         return 0; /* undefined for n < 1, but harmless */
     if (nn + 1 > cache_cap) {
         size_t new_cap = nn + 1;
-        seq_t *new_arr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, cache, new_cap);
         if (!new_arr)                /* OOM – terminate */
             abort();
         cache = new_arr;

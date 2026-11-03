@@ -10,7 +10,8 @@
  *            and the three numbers above being prime
  * Range:     u8 n <= 2, u16 n <= 72, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   odd_index
+ * Validated: standard, pass, 53 terms through n = 9579 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,12 @@
 #include <stdbool.h>
 #include <string.h>
 #include <math.h>
-#include "../utils/odd_index.h"
+#include "../utils/mem.h"
+
+/* Helper to compute index of an odd number in the bit array */
+static inline size_t odd_index(idx_t n) {
+    return (n - 3) / 2;
+}
 
 /* Static variables for memoisation */
 static seq_t *terms = NULL;                /* array of terms */
@@ -94,11 +100,11 @@ static inline bool is_prime_number(idx_t n) {
 static void append_term(seq_t val) {
     if (terms_cap == 0) {
         terms_cap = 16;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
         if (!terms) exit(1);
     } else if (terms_len == terms_cap) {
         terms_cap <<= 1;
-        terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, terms_cap);
         if (!terms) exit(1);
     }
     terms[terms_len++] = val;

@@ -7,12 +7,14 @@
  * Formula:   a(1) = 1; a(2) = 1; a(n) = n - a(a(n-1)) - a(n-a(n-1)) for n>2
  * Range:     u8 n <= 506, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 99 terms through n = 9492 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;
 static idx_t cache_cap = 0;
@@ -24,7 +26,7 @@ static void ensure_cache(idx_t n)
     idx_t new_cap = cache_cap ? cache_cap * 2 : 2;
     while (new_cap < n) new_cap <<= 1;  /* double until large enough */
 
-    seq_t *new_cache = (seq_t *)malloc((new_cap + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, (new_cap + 1));
     if (!new_cache) exit(1);
 
     /* copy existing entries */
@@ -35,7 +37,7 @@ static void ensure_cache(idx_t n)
     for (idx_t i = cache_cap + 1; i <= new_cap; ++i)
         new_cache[i] = 0;
 
-    free(seq_cache);
+    mem_free(seq_cache);
     seq_cache = new_cache;
     cache_cap  = new_cap;
 }

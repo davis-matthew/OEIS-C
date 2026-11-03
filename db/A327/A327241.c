@@ -9,8 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 32, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   free_cache, is_prime_small, reverse_base7_uint64,
- *            seq_alloc_new_array
+ * Validated: standard, pass, 88 terms through n = 8726 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,10 +29,41 @@
 
 /* Utility functions and allocation helpers supplied by the build environment */
 
-#include "../utils/is_prime_small.h"          /* bool is_prime_small(idx_t n); */
-#include "../utils/seq_alloc_new_array.h"     /* seq_t *seq_alloc_new_array(size_t n); */
-#include "../utils/free_cache.h"              /* void free_cache(seq_t *p); */
-#include "../utils/reverse_base7_uint64.h"
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void free_cache(seq_t *p)
+{
+    mem_free(p);
+}
+
+/* reverse_base7_uint64: convert a uint64_t value to its base‑7
+   representation written backwards, returned as seq_t. */
+static seq_t reverse_base7_uint64(uint64_t v)
+{
+    uint8_t digits[32];
+    size_t dlen = 0;
+
+    if (v == 0)
+        digits[dlen++] = 0;
+
+    while (v > 0) {
+        digits[dlen++] = v % 7;
+        v /= 7;
+    }
+
+    seq_t res = 0;
+    for (size_t i = 0; i < dlen; ++i)
+        res = res * 7 + digits[i];
+
+    return res;
+}
 
 /* ------------------------------------------------------------------ */
 
@@ -81,15 +112,15 @@ seq_t a(idx_t n)
             continue;
         }
 
-        bool prime_i = is_prime_small((idx_t)i);
+        bool prime_i = is_prime_seq((idx_t)i);
         seq_t prev_val = cache[i - 2];
         uint64_t cand = (uint64_t)prev_val + 1;
 
         if (prime_i) {
-            while (!is_prime_small((idx_t)cand))
+            while (!is_prime_seq((idx_t)cand))
                 ++cand;
         } else {
-            while (cand <= 1 || is_prime_small((idx_t)cand))
+            while (cand <= 1 || is_prime_seq((idx_t)cand))
                 ++cand;
         }
 

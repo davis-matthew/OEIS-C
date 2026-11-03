@@ -9,13 +9,15 @@
  *            2×2 block sum exceeds 6
  * Range:     u8 none, u16 none, u32 n <= 2, u64 n <= 7, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 26 terms through n = 192 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ----- Global data for the transition graph ----- */
 #define STATES (1 << 10)          /* 4^5 = 1024 possible rows */
@@ -84,13 +86,13 @@ seq_t a(idx_t n)
     static int initialized = 0;
     if (!initialized) {
         build_graph();
-        dp_prev = (seq_t*)malloc(STATES * sizeof(seq_t));
-        dp_next = (seq_t*)malloc(STATES * sizeof(seq_t));
+        dp_prev = mem_new(seq_t, STATES);
+        dp_next = mem_new(seq_t, STATES);
         /* Initialize dp_prev to all ones (step 0) */
         for (int i = 0; i < STATES; ++i) dp_prev[i] = (seq_t)1;
         /* Allocate a_vals with capacity 1 (a(0) unused) */
         a_vals_cap = 1;
-        a_vals = (seq_t*)malloc(a_vals_cap * sizeof(seq_t));
+        a_vals = mem_new(seq_t, a_vals_cap);
         a_vals[0] = (seq_t)0;   /* placeholder */
         max_comp = 0;
         initialized = 1;
@@ -100,7 +102,7 @@ seq_t a(idx_t n)
     if ((size_t)(n + 1) > a_vals_cap) {
         size_t new_cap = a_vals_cap * 2;
         if (new_cap < (size_t)(n + 1)) new_cap = n + 1;
-        seq_t *new_arr = (seq_t*)realloc(a_vals, new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, a_vals, new_cap);
         a_vals = new_arr;
         a_vals_cap = new_cap;
     }
@@ -108,7 +110,7 @@ seq_t a(idx_t n)
     /* Compute new terms until we reach n */
     for (idx_t k = max_comp + 1; k <= n; ++k) {
         /* Zero dp_next */
-        memset(dp_next, 0, STATES * sizeof(seq_t));
+        mem_set(dp_next, 0, STATES * sizeof(seq_t));
 
         /* Transition step */
         for (int s = 0; s < STATES; ++s) {

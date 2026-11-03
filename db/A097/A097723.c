@@ -8,14 +8,17 @@
  *            positive divisors of x
  * Range:     u8 n <= 3, u16 n <= 64, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, pow_uint
+ * Validated: standard, pass, 89 terms through n = 9552 (2026-11-01)
+ * Helpers:   factor_u64, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +36,7 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < cnt; ++i) {
         uint64_t p  = primes[i];
         uint64_t e  = exps[i];
-        seq_t term_num = pow_uint(p, e + 1) - (seq_t)1;
+        seq_t term_num = ipow_u64_idx(p, e + 1) - (seq_t)1;
         seq_t term_den = (seq_t)p - (seq_t)1;
         seq_t term = term_num / term_den;
         sigma *= term;

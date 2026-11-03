@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  sign
  * Formula:   not stated
- * Range:     i8 n <= 1619, i16 n <= 8880, i32 n <= 9617, i64 n <= 9617,
- *            i128 n <= 9617, big any n
- * Helpers:   int_cube_root
+ * Range:     i8 n <= 1619, i16 n <= 8880, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 107 terms through n = 9617 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,13 +19,30 @@
 
 /*  Necessary utilities and headers  */
 #include <stdlib.h>                /*  calloc, free  */
-#include "../utils/int_cube_root.h"   /*  int_cube_root  */
+#include <stdint.h>
+#include <limits.h>
+#include "../utils/mem.h"
+
+/* integer cube root: largest k with k³ ≤ x */
+static idx_t int_cube_root(idx_t x)
+{
+    idx_t lo = 0, hi = x;
+    while (lo < hi) {
+        idx_t mid = lo + (hi - lo + 1) / 2;
+        __int128 cube = (__int128)mid * mid * mid;
+        if (cube <= x)
+            lo = mid;
+        else
+            hi = mid - 1;
+    }
+    return lo;
+}
 
 seq_t a(idx_t n)
 {
     /* Allocate dp[0…n] and zero‑initialize it. */
     size_t sz = (size_t)(n + 1);
-    seq_t *dp = (seq_t*)calloc(sz, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, sz);
     if (!dp) return 0;              /*  safety fallback  */
     dp[0] = 1;
 
@@ -38,6 +56,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

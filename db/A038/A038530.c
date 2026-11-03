@@ -8,7 +8,8 @@
  *            composites counted in ascending order starting at 1
  * Range:     u8 n <= 4, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   concat_parts, is_prime
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,20 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
-#include "../utils/concat_parts.h"
+
+static seq_t concat_parts(idx_t a, idx_t b)
+{
+    seq_t part_a = (seq_t)a;
+    seq_t part_b = (seq_t)b;
+    seq_t pow = 1;
+    seq_t tmp = part_b;
+    /* pow = 10^(number of decimal digits of b) */
+    while (tmp > 0) {
+        pow *= 10;
+        tmp /= 10;
+    }
+    return part_a * pow + part_b;
+}
 
 /* Cache for primes and composites */
 static idx_t *prime_cache = NULL;

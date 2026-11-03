@@ -7,13 +7,15 @@
  * Formula:   a(n) is obtained by flattening the 4‑Pascal triangle, whose
  *            entry T(r,k) satisfies T(r,k) = C(r,k) + 2*C(r-2,k-1) (with the
  *            second binomial treated as 0 when indices are invalid)
- * Range:     u8 n <= 39, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
+ * Range:     u8 n <= 58, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
+ * Validated: partial, pass, 75 terms through n = 74 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

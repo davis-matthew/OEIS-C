@@ -7,7 +7,8 @@
  * Formula:   a(n) = n-1 - #{ prime powers p^k ≤ n with k ≥ 2 }
  * Range:     u8 n <= 71, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   isPrime
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,7 @@
 /*   (i.e. count 2..n and subtract composite prime powers) */
 
 #include <stdbool.h>
-#include "../utils/isPrime.h"
+#include "../utils/is_prime.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +26,7 @@ seq_t a(idx_t n)
     /* only primes ≤ √n can have powers ≤ n */
     for (idx_t p = 2; p * p <= n; ++p)
     {
-        if (!isPrime(p))
+        if (!is_prime(p))
             continue;
 
         seq_t val = (seq_t)p * (seq_t)p;          /* start with p² */

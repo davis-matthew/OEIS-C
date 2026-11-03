@@ -7,12 +7,14 @@
  * Formula:   a(n) = A000069(n) - n (equivalently floor(A000069(n)/2-1/2))
  * Range:     u8 n <= 73, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 73 terms through n = 73 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper which returns 1 if a value has an odd number of 1‐bits (odious) */
 static inline int is_odious(seq_t x)
@@ -40,7 +42,7 @@ static void ensure_cache(idx_t needed)
     idx_t new_cap = cache_cap ? cache_cap << 1 : 16;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         exit(1);                 /* allocation failure */
     cache = tmp;

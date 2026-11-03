@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 58, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
- *            big any n
- * Helpers:   odd_part
+ * Range:     u8 n <= 64, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 74 terms through n = 9253 (2026-11-03)
+ * Helpers:   mem, odd_part
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/odd_part.h"
+#include "../utils/mem.h"
 
 /* Memoised storage for generated terms. */
 static seq_t *terms       = NULL;   /* array of terms */
@@ -32,7 +34,7 @@ static void ensure_capacity(idx_t min)
     size_t new_cap = terms_cap ? terms_cap * 2 : 64;
     while (new_cap < (size_t)min)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, terms, new_cap);
     if (!tmp)
         abort();  /* allocation failure */
     terms          = tmp;

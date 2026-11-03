@@ -12,13 +12,15 @@
  *            0 <= k <= r
  * Range:     i8 n <= 2, i16 n <= 9, i32 n <= 27, i64 n <= 44, i128 n <= 44,
  *            big any n
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binomial.h"   /* provides binomial(idx_t,idx_t) */
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 /* Compute the odd double factorial (2*n+1)!! */
 static seq_t odd_double_factorial(idx_t n)

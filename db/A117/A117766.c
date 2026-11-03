@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 7, u64 n <= 8, u128 n <= 8,
  *            big any n
- * Helpers:   digit_sum, is_lucas_uint64
+ * Validated: partial, pass, 11 terms through n = 10 (2026-11-03)
+ * Helpers:   digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,14 +24,27 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include "../utils/digit_sum.h"
-#include "../utils/is_lucas_uint64.h"
+#include "../utils/mem.h"
+
+/* Test whether x is a Lucas number with L(0)=1, L(1)=3. */
+static bool is_lucas_uint64(uint64_t x)
+{
+    if (x == 1 || x == 3) return true;
+    uint64_t a = 1, b = 3;
+    while (b < x) {
+        uint64_t c = a + b;
+        a = b;
+        b = c;
+    }
+    return b == x;
+}
 
 /* Append a value to the dynamic cache array. */
 static void cache_append(seq_t val, seq_t **cache, size_t *len, size_t *cap)
 {
     if (*len >= *cap) {
         size_t newcap = (*cap) ? (*cap) * 2 : 8;
-        seq_t *newp = (seq_t *)realloc(*cache, newcap * sizeof(seq_t));
+        seq_t *newp = mem_resize(seq_t, *cache, newcap);
         *cache = newp;
         *cap   = newcap;
     }

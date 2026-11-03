@@ -9,15 +9,16 @@
  *            into the decimal representation of n at every possible *
  *            position (including at the front). The result counts each prime
  *            * only once, even if it can be produced in more than one way
- * Range:     u8 n <= 60, u16 n <= 9719, u32 n <= 9719, u64 n <= 9719,
- *            u128 n <= 9719, big any n
+ * Range:     u8 n <= 60, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 121 terms through n = 9719 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_prime.h"   /* declares bool is_prime(idx_t) */
+#include "../utils/is_prime.h"
 
 seq_t a(idx_t n)
 {

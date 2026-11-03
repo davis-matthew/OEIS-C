@@ -14,7 +14,8 @@
  *            memoises computed values
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 20, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* memoisation table */
 static size_t cache_size = 0; /* current allocated size */
@@ -49,7 +51,7 @@ static void ensure_cache(idx_t n)
 
     /* Fill any newly allocated slots with zero */
     if (cache_size < newsize)
-        memset(newcache + cache_size, 0, (newsize - cache_size) * sizeof(seq_t));
+        mem_set(newcache + cache_size, 0, (newsize - cache_size) * sizeof(seq_t));
 
     cache    = newcache;
     cache_size = newsize;

@@ -7,6 +7,7 @@
  * Formula:   a(n) is the n-th quadratic residue modulo 82 in increasing order
  * Range:     u8 n <= 42, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
+ * Validated: full, pass, 42 terms through n = 42 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

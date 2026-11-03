@@ -6,14 +6,16 @@
  * Keywords:  nonn, fini, full
  * Formula:   a(n) = the n-th divisor of 11^12 – 1, sorted in ascending order
  *            (OEIS A245028)
- * Range:     u8 n <= 1, u16 n <= 31, u32 n <= 1254, u64 n <= 1920,
+ * Range:     u8 n <= 1, u16 n <= 31, u32 n <= 1250, u64 n <= 1920,
  *            u128 n <= 1920, big any n
- * Helpers:   none
+ * Validated: full, pass, 1920 terms through n = 1920 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Comparator used by qsort */
 static int seq_cmp(const void *a, const void *b)
@@ -59,12 +61,12 @@ seq_t a(idx_t n)
         for (size_t i = 0; i < pcnt; ++i)
             total *= (size_t)(exponents[i] + 1);   /* 1920 divisors */
 
-        divs = (seq_t*)malloc(total * sizeof(seq_t));
+        divs = mem_new(seq_t, total);
 
         size_t idx = 0;
         gen_divs(0, (seq_t)1, primes, exponents, pcnt, divs, &idx);
 
-        qsort(divs, total, sizeof(seq_t), seq_cmp);
+        mem_qsort(divs, total, sizeof(seq_t), seq_cmp);
 
         initialized = 1;
     }

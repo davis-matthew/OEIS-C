@@ -9,14 +9,28 @@
  *            appears in n but does not appear in n+1. (OEIS A044794)
  * Range:     u8 n <= 2, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   has81
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has81.h"
+#include "../utils/mem.h"
+
+/* Check whether decimal representation of x contains the substring "81". */
+static bool has81(seq_t x) {
+    int prev = -1;
+    while (x > 0) {
+        int d = (int)(x % 10);
+        if (d == 8 && prev == 1)
+            return true;
+        prev = d;
+        x = x / 10;
+    }
+    return false;
+}
 
 seq_t a(idx_t n) {
     /* static cache of found terms */
@@ -39,7 +53,7 @@ seq_t a(idx_t n) {
         /* add to cache */
         if (cache_len == cache_cap) {
             size_t new_cap = (cache_cap == 0) ? 4 : cache_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (tmp == NULL) {
                 /* out of memory */
                 exit(EXIT_FAILURE);

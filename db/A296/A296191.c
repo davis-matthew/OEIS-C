@@ -10,15 +10,37 @@
  *            H(n) in lowest terms
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   gcd, sum1_idx, sum2_idx, sum_nd
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-01)
+ * Helpers:   gcd, triangular_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/sum1_idx.h"
-#include "../utils/sum2_idx.h"
-#include "../utils/sum_nd.h"
+#include "../utils/triangular_idx.h"
+
+/* Sum of squares of first m integers: m(m+1)(2m+1)/6 */
+static seq_t sum2_idx(idx_t m)
+{
+    return (seq_t)m * ((seq_t)m + 1) * ((seq_t)(2 * m) + 1) / 6;
+}
+
+/* Sum_{k=L}^{R} (n-k)*(n-d+k) */
+static seq_t sum_nd(idx_t n, idx_t d, idx_t L, idx_t R)
+{
+    if (L > R) return 0;
+    seq_t N = (seq_t)n;
+    seq_t D = (seq_t)d;
+    seq_t len = (seq_t)(R - L + 1);
+
+    seq_t sumk  = triangular_idx(R) - triangular_idx(L - 1);
+    seq_t sumk2 = sum2_idx(R) - sum2_idx(L - 1);
+
+    seq_t term1 = (N - D) * (len * N - sumk);
+    seq_t term2 = N * sumk - sumk2;
+    return term1 + term2;
+}
 
 seq_t a(idx_t n)
 {

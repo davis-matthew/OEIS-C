@@ -10,7 +10,8 @@
  *            the generating function x^12/((1-x)(1-x^2)^2(1-x^3)(1-x^4))
  * Range:     u8 n <= 29, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Computes a(n) with memoisation for arbitrary n. */
 seq_t a(idx_t n)
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     if (!terms) {
         terms_cap = 13;
         terms_len = 13;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
         if (!terms) abort();
 
         /* a(0)..a(11) are 0; a(12) = 1. */
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
     /* Grow the cache if necessary. */
     if (terms_len == terms_cap) {
         terms_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, terms_cap);
         if (!tmp) abort();
         terms = tmp;
     }

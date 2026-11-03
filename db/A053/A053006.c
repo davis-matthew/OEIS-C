@@ -9,7 +9,8 @@
  *            m such that the multiplicative order of 2 mod (2m‑1) is odd
  * Range:     u8 n <= 37, u16 n <= 5601, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 9821 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------ */
 /* modular exponentiation : base^exp mod mod, with 128‑bit  */
@@ -177,7 +179,7 @@ seq_t a(idx_t n)
             /* append m to the cache */
             if (seq_terms_len == seq_terms_cap) {
                 size_t new_cap = seq_terms_cap ? seq_terms_cap << 1 : 16;
-                seq_t *tmp = (seq_t*)realloc(seq_terms, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, seq_terms, new_cap);
                 if (!tmp)       /* allocation failure – abort gracefully */
                     return 0;
                 seq_terms = tmp;

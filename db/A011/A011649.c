@@ -8,7 +8,8 @@
  *            Φ102(x)
  * Range:     i8 n <= 32, i16 n <= 32, i32 n <= 32, i64 n <= 32, i128 n <= 32,
  *            big any n
- * Helpers:   div_minus_one, mul_minus_one
+ * Validated: full, pass, 33 terms through n = 32 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,33 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/div_minus_one.h"
-#include "../utils/mul_minus_one.h"
+
+/* Divide a polynomial by (x^k – 1).  The division is exact. */
+static void div_minus_one(seq_t *poly, size_t *deg, uint64_t k)
+{
+    size_t new_deg = *deg - k;
+    seq_t q[200] = {0};
+    for (size_t i = 0; i <= new_deg; ++i) {
+        seq_t prev = (i >= k ? q[i - k] : 0);
+        q[i] = -(poly[i] - prev);
+    }
+    for (size_t i = 0; i <= new_deg; ++i) poly[i] = q[i];
+    for (size_t i = new_deg + 1; i <= *deg; ++i) poly[i] = 0;
+    *deg = new_deg;
+}
+
+/* Multiply a polynomial by (x^k – 1). */
+static void mul_minus_one(seq_t *poly, size_t *deg, uint64_t k)
+{
+    size_t new_deg = *deg + k;
+    seq_t tmp[200] = {0};
+    for (size_t i = 0; i <= *deg; ++i) {
+        tmp[i] += -poly[i];            /* factor –1  */
+        tmp[i + k] += poly[i];         /* factor x^k */
+    }
+    for (size_t i = 0; i <= new_deg; ++i) poly[i] = tmp[i];
+    *deg = new_deg;
+}
 
 /* Sequence a(n) */
 seq_t a(idx_t n)

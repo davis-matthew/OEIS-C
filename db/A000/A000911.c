@@ -7,6 +7,7 @@
  * Formula:   a(n) = (2n+3)! / (n! * (n+1)!)
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 12, u64 n <= 27, u128 n <= 58,
  *            big any n
+ * Validated: standard, pass, 39 terms through n = 199 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

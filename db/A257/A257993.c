@@ -8,8 +8,9 @@
  * Formula:   a(n) = index of the first prime that does not divide n
  *            (equivalently, the least positive integer not a part of the
  *            partition whose Heinz number is n)
- * Range:     u8 n <= 8980, u16 n <= 8980, u32 n <= 8980, u64 n <= 8980,
- *            u128 n <= 8980, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 112 terms through n = 8980 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

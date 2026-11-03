@@ -10,6 +10,7 @@
  *            Equivalently T(n,k)=binom(n+1,k)*(n-2k)/(k+1)
  * Range:     i8 n <= 57, i16 n <= 195, i32 n <= 678, i64 n <= 2441,
  *            i128 n <= 9101, big any n
+ * Validated: standard, pass, 82 terms through n = 9136 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

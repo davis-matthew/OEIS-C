@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = # of distinct prime divisors of σ(n) that are larger than
  *            the largest prime factor of n; a(1)=0
- * Range:     u8 n <= 9835, u16 n <= 9835, u32 n <= 9835, u64 n <= 9835,
- *            u128 n <= 9835, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9835 (2026-11-01)
  * Helpers:   factor_u64, largest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 #include "../utils/largest_prime_factor.h"
 

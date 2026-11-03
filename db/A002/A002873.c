@@ -11,14 +11,20 @@
  *            exp(y*(e^x-1) + y^2*(e^(2x)-1)/2))
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 21, u128 n <= 35,
  *            big any n
- * Helpers:   zeroed
+ * Validated: standard, pass, 39 terms through n = 470 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/zeroed.h"
+#include "../utils/mem.h"
+
+/* calloc gives zeroed storage, which is a valid zero value for every seq_t build */
+static seq_t *zeroed(idx_t len) {
+    return mem_new(seq_t, (size_t)len);
+}
 
 static seq_t *t_row = 0;   /* t_row[k] = T(t_done, k) */
 static idx_t t_rowcap = 0;

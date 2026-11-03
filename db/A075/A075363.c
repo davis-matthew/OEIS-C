@@ -9,6 +9,7 @@
  *            n and k = n – r(r–1)/2 (1 ≤ k ≤ r)
  * Range:     u8 n <= 9, u16 n <= 26, u32 n <= 54, u64 n <= 135, u128 n <= 377,
  *            big any n
+ * Validated: standard, pass, 71 terms through n = 9864 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

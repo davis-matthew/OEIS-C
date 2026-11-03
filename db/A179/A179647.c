@@ -13,12 +13,14 @@
  *            >= n, pos = n - (m-1)m/2 - 1
  * Range:     u8 n <= 87, u16 n <= 227, u32 n <= 736, u64 n <= 2550,
  *            u128 n <= 9309, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 9054 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t **dp = NULL;          /* dp[j][n] = number of compositions of n with no part j */
 static const idx_t MAXK = 200;     /* maximal row/column needed for n up to ~10000 */
@@ -28,7 +30,7 @@ static void init_dp(void) {
     if (dp) return;
     dp = (seq_t**)malloc((MAXK + 1) * sizeof(seq_t*));
     for (idx_t j = 0; j <= MAXK; ++j) {
-        dp[j] = (seq_t*)malloc((MAXK + 1) * sizeof(seq_t));
+        dp[j] = mem_new(seq_t, (MAXK + 1));
     }
     for (idx_t j = 1; j <= MAXK; ++j) {
         dp[j][0] = 1;                       /* empty composition */

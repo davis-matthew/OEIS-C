@@ -12,13 +12,15 @@
  *            programming over digits
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 12, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* internal state for memoisation -------------------------------------------------- */
 static seq_t dp_prev[22];
@@ -31,7 +33,7 @@ static int initialized = 0;
 /* helper: compute next state indices ---------------------------------------------- */
 static inline void update_dp(void)
 {
-    memset(dp_cur, 0, sizeof(dp_cur));
+    mem_set(dp_cur, 0, sizeof(dp_cur));
 
     for (idx_t i = 0; i < 22; ++i) {
         seq_t cnt = dp_prev[i];
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
 {
     /* initialise static data on first call ------------------------------------ */
     if (!initialized) {
-        memset(dp_prev, 0, sizeof(dp_prev));
+        mem_set(dp_prev, 0, sizeof(dp_prev));
         dp_prev[0] = 1;   /* number 0 (length 0) has mod 0 and even parity */
         cur_len = 0;
         a_cache = NULL;
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
 
     /* extend cache to required n ----------------------------------------- */
     if (n >= cache_size) {
-        seq_t *new_cache = (seq_t *)realloc(a_cache, (n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, a_cache, (n + 1));
         if (new_cache == NULL) {
             /* allocation failed – return 0 to signal error */
             return 0;
@@ -87,7 +89,7 @@ seq_t a(idx_t n)
         a_cache[step] = dp_cur[0] - dp_cur[1];
 
         /* prepare for next iteration */
-        memcpy(dp_prev, dp_cur, sizeof(dp_prev));
+        mem_copy(dp_prev, dp_cur, sizeof(dp_prev));
         /* dp_cur will be overwritten next time */
     }
 

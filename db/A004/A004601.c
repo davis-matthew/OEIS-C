@@ -6,9 +6,10 @@
  * Keywords:  nonn, base, cons, easy
  * Formula:   a(n) = floor(Pi * 2^(n-3)) mod 2; Pi computed in fixed-point
  *            binary by Machin: Pi = 16*arctan(1/5) - 4*arctan(1/239)
- * Range:     u8 n <= 9250, u16 n <= 9250, u32 n <= 9250, u64 n <= 9250,
- *            u128 n <= 9250, big any n
- * Helpers:   fx_divsmall, fx_iszero, fx_mulsmall
+ * Range:     u8 n <= 10001, u16 n <= 10001, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 121 terms through n = 9250 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,32 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/fx_divsmall.h"
-#include "../utils/fx_iszero.h"
-#include "../utils/fx_mulsmall.h"
+
+static void fx_divsmall(uint32_t *a, long long L, uint32_t d) {
+    uint64_t r = 0;
+    long long i;
+    for (i = L - 1; i >= 0; i--) {
+        uint64_t cur = (r << 32) | a[i];
+        a[i] = (uint32_t)(cur / d);
+        r = cur % d;
+    }
+}
+
+static int fx_iszero(const uint32_t *a, long long L) {
+    long long i;
+    for (i = 0; i < L; i++) if (a[i]) return 0;
+    return 1;
+}
+
+static void fx_mulsmall(uint32_t *a, long long L, uint32_t m) {
+    uint64_t c = 0;
+    long long i;
+    for (i = 0; i < L; i++) {
+        uint64_t cur = (uint64_t)a[i] * m + c;
+        a[i] = (uint32_t)cur;
+        c = cur >> 32;
+    }
+}
 
 static uint32_t *P_pi = NULL;
 static long long P_F = 0;   /* fractional bits held */

@@ -8,12 +8,14 @@
  * Formula:   a(n) = 6*a(n-1) - 25*a(n-2) with a(1)=4, a(2)=24 (n ≥ 1)
  * Range:     i8 n <= 3, i16 n <= 7, i32 n <= 13, i64 n <= 23, i128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     if (!cache) {
         /* Initially allocate space for a few terms. */
         cap   = 8;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) return 0;        /* memory failure – return 0 as safe‑fallback */
         /* Initialise first two terms in the cache. */
         cache[1] = (seq_t)4;
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     if (n > cap - 1) {
         size_t new_cap = cap;
         while (new_cap <= n) new_cap = new_cap * 2;          /* grow exponentially */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;          /* memory failure – safe fallback */
         cache = tmp;
         cap   = new_cap;

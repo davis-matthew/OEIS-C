@@ -10,13 +10,15 @@
  *            where T(n,p) = (2*n + p - 2) * binomial(n + p - 3, n - 1) / n
  *            The nth term a(n) is the element read along the antidiagonals of
  *            this array (OEIS A115241)
- * Range:     u8 n <= 49, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
+ * Range:     u8 n <= 58, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

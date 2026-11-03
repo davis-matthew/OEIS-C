@@ -8,14 +8,16 @@
  * Formula:   a(n) = Σ_{k=1}^{min(m, n/3, (n-m)/2)} binom(m, k) * binom(n-m,
  *            2k), where m = ⌊(n-3)/3⌋. Count nonempty subsets of {1,…,n} with
  *            exactly 1/3 of elements ≤ m
- * Range:     u8 n <= 9, u16 n <= 19, u32 n <= 34, u64 n <= 34, u128 n <= 34,
+ * Range:     u8 n <= 11, u16 n <= 19, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -39,8 +41,8 @@ seq_t a(idx_t n)
     seq_t total = 0;
     for (idx_t k = 1; k <= kmax; ++k)
     {
-        seq_t low  = binom(m, k);               /* choose k low elements */
-        seq_t high = binom(n - m, 2 * k);       /* choose 2k high elements */
+        seq_t low  = binomial(m, k);               /* choose k low elements */
+        seq_t high = binomial(n - m, 2 * k);       /* choose 2k high elements */
         total += low * high;
     }
     return total;

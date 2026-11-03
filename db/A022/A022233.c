@@ -7,13 +7,15 @@
  * Formula:   a(n) = ∏_{i=1..4} (7^(n-i+1)-1)/(7^i-1)
  * Range:     u8 n <= 4, u16 n <= 4, u32 n <= 6, u64 n <= 9, u128 n <= 15,
  *            big any n
- * Helpers:   gcd, pow_seq
+ * Validated: standard, pass, 27 terms through n = 184 (2026-11-01)
+ * Helpers:   gcd, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -25,11 +27,11 @@ seq_t a(idx_t n)
 
     for (int i = 1; i <= 4; ++i) {
         /* numerator = 7^(n-i+1) - 1 */
-        seq_t num = pow_seq(q, (int)(n - i + 1));
+        seq_t num = ipow_i32(q, (int)(n - i + 1));
         num -= 1;
 
         /* denominator = 7^i - 1 */
-        seq_t den = pow_seq(q, i) - 1;
+        seq_t den = ipow_i32(q, i) - 1;
 
         /* cancel any common factor in this step */
         seq_t g = gcd(num, den);

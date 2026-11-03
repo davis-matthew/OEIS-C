@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 9948, u16 n <= 9948, u32 n <= 9948, u64 n <= 9948,
- *            u128 n <= 9948, big any n
- * Helpers:   none
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 136 terms through n = 9948 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     if ((size_t)n + 1 > cap) {
         size_t new_cap = cap ? cap * 2 : 8;
         while (new_cap <= (size_t)n + 1) new_cap <<= 1;
-        seq_t *tmp_seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq_t *tmp_seq = mem_resize(seq_t, seq, new_cap);
         if (!tmp_seq) return (seq_t)0; /* allocation failed: return 0 */
         seq = tmp_seq;
         unsigned char *tmp_vis = (unsigned char *)realloc(vis, new_cap * sizeof(unsigned char));

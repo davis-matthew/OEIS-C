@@ -9,16 +9,29 @@
  * Formula:   a(n) = ∏_{p^e∥n} (π(p)!)^e where π(p) = number of primes ≤ p
  * Range:     u8 n <= 12, u16 n <= 22, u32 n <= 40, u64 n <= 72, u128 n <= 148,
  *            big any n
- * Helpers:   build_primes_upto, compute_pi, factorial
+ * Validated: standard, pass, 67 terms through n = 988 (2026-11-01)
+ * Helpers:   build_primes_upto, prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/compute_pi.h"
-#include "../utils/factorial.h"
+#include "../utils/prime_pi.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 static uint64_t *g_primes = NULL;   /* array of primes up to current limit */
 static size_t g_prime_cnt = 0;      /* number of primes in g_primes */
@@ -56,7 +69,7 @@ seq_t a(idx_t n)
                 ++exp;
             }
             /* π(p) and its factorial. */
-            seq_t pi  = compute_pi(p);
+            seq_t pi  = prime_pi(p);
             seq_t fact = factorial((idx_t)pi);
 
             /* Multiply result by fact^exp. */
@@ -69,7 +82,7 @@ seq_t a(idx_t n)
     if (temp > 1)
     {
         uint64_t p = temp;
-        seq_t pi  = compute_pi(p);
+        seq_t pi  = prime_pi(p);
         seq_t fact = factorial((idx_t)pi);
         result *= fact;   /* exponent is 1 */
     }

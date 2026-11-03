@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 2, i16 n <= 4, i32 n <= 6, i64 n <= 10, i128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 218 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Recurrence:
    a(k+4) = -(16*(2k+7)*(2k+5)*(2k+3)*(2k+1)*(k+4)*(k+2)*(k+1)^2*a(k)
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
 
     if (!initialized) {
         cap = 16;
-        mem = (seq_t *)malloc(cap * sizeof(seq_t));
+        mem = mem_new(seq_t, cap);
         if (!mem) abort();
         for (size_t i = 0; i < 4; ++i)
             mem[i] = (seq_t)init_vals[i];
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
             size_t new_cap = cap * 2;
             if (new_cap < size + 8)
                 new_cap = size + 8;
-            seq_t *tmp = (seq_t *)realloc(mem, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, mem, new_cap);
             if (!tmp) abort();
             mem = tmp;
             cap = new_cap;

@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = p such that p is prime and 2*p-5 is prime (OEIS A063909)
- * Range:     u8 n <= 18, u16 n <= 1098, u32 n <= 9563, u64 n <= 9563,
- *            u128 n <= 9563, big any n
- * Helpers:   is_prime_uint64, next_prime
+ * Range:     u8 n <= 18, u16 n <= 1098, u32 n <= 25000, u64 n <= 25000,
+ *            u128 n <= 25000, big any n
+ * Validated: standard, pass, 70 terms through n = 9563 (2026-11-03)
+ * Helpers:   is_prime_u64, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "../utils/next_prime.h"      /* uint64_t next_prime(uint64_t start) */
-#include "../utils/is_prime_uint64.h" /* bool is_prime_uint64(uint64_t n) */
+#include "../utils/is_prime_u64.h"
+#include "../utils/next_prime.h"
 
 static uint64_t *good_primes = NULL; /* cache of found primes          */
 static idx_t      good_count  = 0;    /* number of primes stored       */
@@ -45,7 +46,7 @@ seq_t a(idx_t n)
         last_checked = next_prime(last_checked + 1);
         uint64_t p = last_checked;
         uint64_t q = 2 * p - 5;
-        if (q >= 2 && is_prime_uint64(q)) {
+        if (q >= 2 && is_prime_u64(q)) {
             ensure_good_capacity();
             good_primes[good_count++] = p;
         }

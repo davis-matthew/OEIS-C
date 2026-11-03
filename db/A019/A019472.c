@@ -8,7 +8,8 @@
  * Formula:   a(n) = A000670(n) - n! (weak preference orderings)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 18, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Initial capacity for dynamic arrays. It can grow if needed. */
 #define INITIAL_CAP 16
@@ -32,8 +34,8 @@ static void init(void) {
     if (initialized) return;
     cap = INITIAL_CAP;
     if (cap < 1) cap = 1; /* at least room for dp[0] and fact[0] */
-    dp = (seq_t *)malloc(cap * sizeof(seq_t));
-    fact = (seq_t *)malloc(cap * sizeof(seq_t));
+    dp = mem_new(seq_t, cap);
+    fact = mem_new(seq_t, cap);
     dp[0] = (seq_t)1;
     fact[0] = (seq_t)1;
     computed = 0;
@@ -45,10 +47,10 @@ static void ensure_cap(idx_t n) {
     if ((size_t)(n + 1) <= cap) return;   /* already sufficient */
     size_t new_cap = cap ? cap : 1;
     while ((size_t)(n + 1) > new_cap) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(dp, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, dp, new_cap);
     if (!tmp) abort();          /* allocation failed */
     dp = tmp;
-    tmp = (seq_t *)realloc(fact, new_cap * sizeof(seq_t));
+    tmp = mem_resize(seq_t, fact, new_cap);
     if (!tmp) abort();
     fact = tmp;
     cap = new_cap;

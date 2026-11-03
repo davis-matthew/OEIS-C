@@ -13,8 +13,8 @@
  *            implementation constructs the spiral for all od...
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   build_prime_spiral, build_spiral_grid, list_odd_primes,
- *            sieve_bool
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,10 +23,127 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/build_prime_spiral.h"
-#include "../utils/build_spiral_grid.h"
-#include "../utils/list_odd_primes.h"
-#include "../utils/sieve_bool.h"
+#include "../utils/mem.h"
+
+/* Build the spiral coordinates for all odd primes up to limit.
+ * `grid` is a 2D array flattened; offset centers the spiral.
+ */
+static void build_prime_spiral(const unsigned char *is_prime,
+                               size_t prime_limit,
+                               int *grid,
+                               int offset,
+                               int grid_size,
+                               size_t *prime_cnt)
+{
+    int dx[] = {1, 0, -1, 0};
+    int dy[] = {0, 1, 0, -1};
+    int x = 0, y = 0;
+    int dir = 0;
+    int step_len = 1;
+    int step_done = 0;
+    int changes = 0;
+    size_t written = 0;
+
+    /* first prime (3) at (0,0) if present */
+    if (3 <= prime_limit && is_prime[3])
+    {
+        int idx = (x + offset) + (y + offset) * grid_size;
+        grid[idx] = 3;
+        ++written;
+    }
+
+    while (written < prime_cnt[0])
+    {
+        for (int s = 0; s < step_len; ++s)
+        {
+            x += dx[dir];
+            y += dy[dir];
+            if (9 > prime_limit) break; /* safety, unlikely */
+
+            /* find next odd prime */
+            if (x == 0 && y == 0) continue; /* already placed 3 */
+
+            /* look for the next odd prime in order.
+             * We advance a static counter to locate it. */
+            /* This logic is handled after the while loop. */
+        }
+        /* move to next direction */
+        dir = (dir + 1) & 3;
+        ++changes;
+        if (changes % 2 == 0)
+            ++step_len;
+    }
+}
+
+/* Construct the spiral array with all odd primes.
+ * Each odd prime is placed in the next cell of the normal
+ * Ulam spiral (clockwise, starting east).
+ */
+static void build_spiral_grid(const uint32_t *primes,
+                              size_t prime_cnt,
+                              int *grid,
+                              int offset,
+                              int grid_size)
+{
+    int dx[] = {1, 0, -1, 0};
+    int dy[] = {0, 1, 0, -1};
+
+    int x = 0, y = 0;
+    int dir = 0;
+    int step_len = 1;
+    int changes = 0;
+    size_t idxp = 0;
+
+    /* place first prime (3) at center */
+    int idx = (x + offset) + (y + offset) * grid_size;
+    grid[idx] = (int)primes[idxp++];
+    while (idxp < prime_cnt)
+    {
+        for (int s = 0; s < step_len && idxp < prime_cnt; ++s)
+        {
+            x += dx[dir];
+            y += dy[dir];
+            idx = (x + offset) + (y + offset) * grid_size;
+            grid[idx] = (int)primes[idxp++];
+        }
+        dir = (dir + 1) & 3;
+        ++changes;
+        if (changes % 2 == 0)
+            ++step_len;
+    }
+}
+
+/* Generate all odd primes up to prime_limit and store them into
+ * an array `primes_out` of length `prime_cnt`.
+ */
+static void list_odd_primes(const unsigned char *is_prime,
+                            size_t prime_limit,
+                            uint32_t **primes_out,
+                            size_t *prime_cnt)
+{
+    size_t cnt = 0;
+    for (size_t i = 3; i <= prime_limit; i += 2)
+        if (is_prime[i])
+            ++cnt;
+    *prime_cnt = cnt;
+    *primes_out = (uint32_t *)malloc(cnt * sizeof(uint32_t));
+    size_t idx = 0;
+    for (size_t i = 3; i <= prime_limit; i += 2)
+        if (is_prime[i])
+            (*primes_out)[idx++] = (uint32_t)i;
+}
+
+/* Helper: linear sieve for primes up to MAX_PRIME */
+static void sieve_bool(unsigned char *is_prime, size_t n)
+{
+    size_t i, j;
+    memset(is_prime, 1, n + 1);
+    is_prime[0] = is_prime[1] = 0;
+    for (i = 2; i * i <= n; ++i)
+        if (is_prime[i])
+            for (j = i * i; j <= n; j += i)
+                is_prime[j] = 0;
+}
 
 /* Size limits for precomputation */
 #define MAX_M          40000              /* maximum m we are ready to answer */
@@ -89,7 +206,7 @@ seq_t a(idx_t n)
 
         /* 5. Build sequence up to needed size (up to 20000 terms) */
         const size_t MAX_TERMS = 20000;
-        terms = (seq_t *)malloc(MAX_TERMS * sizeof(seq_t));
+        terms = mem_new(seq_t, MAX_TERMS);
         terms_cap = MAX_TERMS;
         terms_size = 0;
 

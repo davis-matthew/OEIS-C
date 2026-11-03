@@ -9,14 +9,22 @@
  *            p(n,k) is the number of partitions of n into k distinct parts
  * Range:     u8 n <= 14, u16 n <= 31, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   max_k_for_n
+ * Validated: partial, pass, 47 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/max_k_for_n.h"
+#include "../utils/mem.h"
+
+/* compute the largest k such that k*(k+1)/2 ≤ n */
+static idx_t max_k_for_n(idx_t n) {
+    idx_t k = 0;
+    while (((k + 1) * (k + 2)) / 2 <= n) k++;
+    return k;
+}
 
 /* main sequence routine */
 seq_t a(idx_t n) {
@@ -38,7 +46,7 @@ seq_t a(idx_t n) {
         /* allocate new storage */
         size_t rows = (size_t)(new_n + 1);
         size_t cols = new_k + 1;                 /* include 0..k */
-        seq_t *new_dp = (seq_t *)calloc(rows * cols, sizeof(seq_t));
+        seq_t *new_dp = mem_new(seq_t, rows * cols);
         if (!new_dp) return 0; /* out of memory, return 0 as fallback */
 
         /* recurrence for partitions into distinct parts: p[n][k] = p[n-k][k] + p[n-k][k-1] */
@@ -54,9 +62,9 @@ seq_t a(idx_t n) {
         }
 
         /* factorials up to new_k */
-        seq_t *new_fac = (seq_t *)malloc((new_k + 1) * sizeof(seq_t));
+        seq_t *new_fac = mem_new(seq_t, (new_k + 1));
         if (!new_fac) {
-            free(new_dp);
+            mem_free(new_dp);
             return 0; /* out of memory, return 0 as fallback */
         }
         new_fac[0] = 1;
@@ -65,8 +73,8 @@ seq_t a(idx_t n) {
         }
 
         /* replace old tables */
-        if (dp) free(dp);
-        if (fac) free(fac);
+        if (dp) mem_free(dp);
+        if (fac) mem_free(fac);
         dp = new_dp;
         fac = new_fac;
         current_n = new_n;

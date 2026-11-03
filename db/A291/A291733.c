@@ -9,13 +9,15 @@
  *            a(5)=195, a(6)=520
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 23, u64 n <= 48, u128 n <= 99,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 978 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* dynamic cache for computed values */
 static seq_t *cache = NULL;
@@ -31,7 +33,7 @@ static void ensure_capacity(size_t n)
     size_t new_cap = cache_cap > 0 ? cache_cap : 1;
     while (new_cap <= n)
         new_cap <<= 1;                 /* double until big enough */
-    seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)                          /* allocation failure */
         exit(EXIT_FAILURE);
     cache = tmp;

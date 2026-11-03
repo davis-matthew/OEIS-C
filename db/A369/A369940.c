@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 14, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #if defined(__SIZEOF_INT128__)
 #define USE_INT128 1
 #endif
+#include "../utils/mem.h"
 
 #if defined(USE_INT128)
 typedef unsigned __int128  big_t;
@@ -53,7 +55,7 @@ static void ensure_capacity(size_t needed)
     if (needed <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 32;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *p = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *p = mem_resize(seq_t, cache, new_cap);
     if (!p) exit(1);                /* OOM – caller can handle */
     cache = p;
     cache_cap = new_cap;

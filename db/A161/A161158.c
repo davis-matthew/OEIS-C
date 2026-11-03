@@ -8,12 +8,14 @@
  *            values: a(0)=1, a(1)=14, a(2)=161, a(3)=1792
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 18, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 871 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
     /* ensure at least the first four terms are stored */
     if (cache_len == 0) {
         size_t init_len = 4;
-        cache = (seq_t *)realloc(cache, init_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, init_len);
         if (!cache) {
             /* allocation failed – return 0 as a safe fallback */
             return 0;
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     if (new_len < 4) {
         new_len = 4;                /* never shrink below initial size */
     }
-    seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_len);
     if (!tmp) {
         /* allocation failed – return 0 as a safe fallback */
         return 0;

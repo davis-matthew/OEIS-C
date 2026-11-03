@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 19, u128 n <= 19,
+ * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   binom, phi_num
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-01)
+ * Helpers:   binomial, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -51,8 +52,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/binom.h"
-#include "../utils/phi_num.h"
+#include "../utils/binomial.h"
+#include "../utils/totient.h"
 
 /* ---------- number of solutions of 0 ≤ xi ≤ 4, sum = k ---------- */
 static seq_t count_solutions(idx_t d, idx_t k)
@@ -67,8 +68,8 @@ static seq_t count_solutions(idx_t d, idx_t k)
     for (idx_t j = 0; j <= maxj; ++j)
     {
         seq_t term =
-            binom(d, j) *
-            binom(k - 5 * j + d - 1, d - 1);
+            binomial(d, j) *
+            binomial(k - 5 * j + d - 1, d - 1);
         if (j & 1)
             total -= term;
         else
@@ -107,7 +108,7 @@ seq_t a(idx_t n)
         {
             /* divisor d = i */
             idx_t d = i;
-            seq_t ph = phi_num(n / d);                /* φ(n/d) */
+            seq_t ph = totient(n / d);                /* φ(n/d) */
             seq_t Sd = count_solutions(d, 2 * d);      /* coefficient */
             rot_sum += ph * Sd;
 
@@ -115,7 +116,7 @@ seq_t a(idx_t n)
             if (i != n / i)
             {
                 idx_t d2 = n / i;
-                seq_t ph2 = phi_num(n / d2);          /* φ(i) */
+                seq_t ph2 = totient(n / d2);          /* φ(i) */
                 seq_t Sd2 = count_solutions(d2, 2 * d2);
                 rot_sum += ph2 * Sd2;
             }

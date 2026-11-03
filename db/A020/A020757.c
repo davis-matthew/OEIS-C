@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 99, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   not_sum_of_two_triangular
+ * Validated: standard, pass, 78 terms through n = 9207 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,30 @@
  */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/not_sum_of_two_triangular.h"
+
+static bool not_sum_of_two_triangular(uint64_t x)
+{
+    uint64_t m = 4 * x + 1;          /* 4m+1 is the number to test */
+    uint64_t d;
+    uint64_t temp = m;
+
+    for (d = 2; d * d <= temp; ++d) {
+        int exp = 0;
+        while (temp % d == 0) {
+            ++exp;
+            temp /= d;
+        }
+        if (exp && (d & 3) == 3 && (exp & 1)) {
+            /*:\ number has a prime factor p ≡ 3 (mod 4) with odd exponent */
+            return true;
+        }
+    }
+    /* Remaining prime factor (if any) */
+    if (temp > 1 && (temp & 3) == 3) {
+        return true;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

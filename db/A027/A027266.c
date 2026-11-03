@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 21, u64 n <= 45, u128 n <= 93,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 966 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
                 a(n)=12*a(n-2)-36*a(n-4)   (n≥4) */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Internal state for memoisation */
 static seq_t *a_cache = NULL;          /* array of computed terms          */
@@ -31,7 +33,7 @@ static void a_ensure_capacity(size_t needed)
     if (needed <= a_cache_cap) return;
     size_t new_cap = a_cache_cap ? a_cache_cap * 2 : 8;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
     a_cache = tmp;
     a_cache_cap = new_cap;
 }

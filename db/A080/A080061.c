@@ -13,7 +13,8 @@
  *            elements. The index n of this function...
  * Range:     u8 n <= 28, u16 n <= 46, u32 n <= 105, u64 n <= 209,
  *            u128 n <= 209, big any n
- * Helpers:   binomial
+ * Validated: standard, pass, 73 terms through n = 202 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,14 +26,16 @@
 #include <string.h>      /* memset */
 
 /* Include the utilities that are available in the build environment.  */
-#include "../utils/binomial.h"   /* binomial(idx_t n, idx_t k) -> seq_t */
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* -------------  rook number calculation  ---------------- */
 
 static seq_t *alloc_seq_array(size_t n) {
-    seq_t *p = (seq_t*)malloc(n * sizeof(seq_t));
+    seq_t *p = mem_new(seq_t, n);
     if (!p) exit(1);
-    memset(p, 0, n * sizeof(seq_t));
+    mem_set(p, 0, n * sizeof(seq_t));
     return p;
 }
 
@@ -54,7 +57,7 @@ static seq_t *rook_numbers(idx_t n) {
     for (size_t i = 0; i < N; ++i) {        /* process row i */
         /* clear nxt */
         for (int m = 0; m < 8; ++m)
-            memset(nxt[m], 0, (N+1)*sizeof(seq_t));
+            mem_set(nxt[m], 0, (N+1)*sizeof(seq_t));
 
         for (int mask = 0; mask < 8; ++mask) {
             for (size_t k = 0; k <= i; ++k) {
@@ -98,7 +101,7 @@ static seq_t *rook_numbers(idx_t n) {
 
     /* free DP arrays */
     for (int m = 0; m < 8; ++m) {
-        free(cur[m]); free(nxt[m]);
+        mem_free(cur[m]); mem_free(nxt[m]);
     }
     free(cur); free(nxt);
     return rook;
@@ -145,7 +148,7 @@ seq_t a(idx_t n_index) {
     seq_t result = sum_pos - sum_neg;
 
     /* free temporary arrays */
-    free(rook);
-    free(fact);
+    mem_free(rook);
+    mem_free(fact);
     return result;
 }

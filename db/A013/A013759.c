@@ -7,11 +7,13 @@
  * Formula:   a(n) = 16^(3n+2) = 256 * 4096^n = 2^(12n+8)
  * Range:     u8 none, u16 n <= 0, u32 n <= 1, u64 n <= 4, u128 n <= 9,
  *            big any n
+ * Validated: standard, pass, 27 terms through n = 97 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

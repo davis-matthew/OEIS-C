@@ -9,8 +9,9 @@
  * Formula:   a(1) = 1; for n > 1: if μ(n) = -1, a(n) = a(first index where μ
  *            = -1) (which equals that index); else a(n) = n - (# of indices ≤
  *            n with μ = -1) + 1
- * Range:     u8 n <= 364, u16 n <= 9526, u32 n <= 9526, u64 n <= 9526,
- *            u128 n <= 9526, big any n
+ * Range:     u8 n <= 364, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 116 terms through n = 9526 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

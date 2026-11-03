@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 542, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 9931 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *S1_seq = NULL;         /* cached A010062 values */
 static size_t S1_len = 0, S1_cap = 0;
@@ -41,7 +43,7 @@ static void ensure_S1_up_to(seq_t target)
 {
     if (!S1_seq) {
         S1_cap = 16;
-        S1_seq = (seq_t *)malloc(S1_cap * sizeof(seq_t));
+        S1_seq = mem_new(seq_t, S1_cap);
         if (!S1_seq) abort();           /* allocation failure */
         S1_seq[0] = (seq_t)1;
         S1_len = 1;
@@ -51,7 +53,7 @@ static void ensure_S1_up_to(seq_t target)
         seq_t next = last + (seq_t)popcount_seq(last);
         if (S1_len == S1_cap) {
             S1_cap <<= 1;
-            S1_seq = (seq_t *)realloc(S1_seq, S1_cap * sizeof(seq_t));
+            S1_seq = mem_resize(seq_t, S1_seq, S1_cap);
             if (!S1_seq) abort();
         }
         S1_seq[S1_len++] = next;

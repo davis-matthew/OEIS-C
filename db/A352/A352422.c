@@ -8,6 +8,7 @@
  * Formula:   a(n) = (n <= 6) ? (7*n - n*(n-1)/2) : (8*n - 21)
  * Range:     u8 n <= 21, u16 n <= 21, u32 n <= 21, u64 n <= 21, u128 n <= 21,
  *            big any n
+ * Validated: full, pass, 22 terms through n = 21 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

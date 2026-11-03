@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 21, u128 n <= 21,
+ * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   binom, gcd
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-01)
+ * Helpers:   binomial, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,9 @@
    Formula: a(n) = Sum_{k=0..n} binomial(n+2*k+1,k) * binomial(2*n,n-k)/(n+2*k+1) */
 
 /* required integer types are supplied by the build */
-#include "../utils/binom.h" /* seq_t binom(idx_t a, idx_t b) */
-#include "../utils/gcd.h"   /* seq_t gcd(seq_t a, seq_t b) */
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/gcd.h"
 
 /* multiply two seq_t values and divide by d, reducing with gcds first
    to keep intermediate values small.  Works for both built‑in integer
@@ -41,8 +43,8 @@ seq_t a(idx_t n)
     seq_t sum = 0;
     for (idx_t k = 0; k <= n; ++k)
     {
-        seq_t bin1 = binom(n + 2*k + 1, k);      /* C(n+2k+1, k)   */
-        seq_t bin2 = binom(2*n, n - k);          /* C(2n, n-k)     */
+        seq_t bin1 = binomial(n + 2*k + 1, k);      /* C(n+2k+1, k)   */
+        seq_t bin2 = binomial(2*n, n - k);          /* C(2n, n-k)     */
         seq_t denom = (seq_t)(n + 2*k + 1);
         seq_t term = mul_div_exact(bin1, bin2, denom);
         sum += term;

@@ -7,11 +7,13 @@
  * Formula:   a(n) = 11*(n/2) for n even; a(n) = 2^((n+1)/2) - 1 for n odd
  * Range:     u8 n <= 16, u16 n <= 32, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
+ * Validated: partial, pass, 47 terms through n = 46 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

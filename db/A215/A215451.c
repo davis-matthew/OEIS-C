@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 598, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 90 terms through n = 872 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Recurrence: a(0)=1; for n≥1,
    a(n) = (∑_{k=0}^{n-1} a(k)) mod (a(n-1)+n) */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* If we have not computed up to n, extend cache */
     if (n >= cache_len) {
         size_t newlen = (size_t)n + 1;
-        cache = (seq_t *)realloc(cache, newlen * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, newlen);
 
         /* Compute missing terms */
         for (size_t i = cache_len; i <= (size_t)n; ++i) {

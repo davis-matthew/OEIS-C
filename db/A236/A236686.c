@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 15, u32 n <= 15, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 15 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static int cmp_seq(const void *p, const void *q)
 {
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
                 }
             }
         }
-        qsort(values, count, sizeof(seq_t), cmp_seq);
+        mem_qsort(values, count, sizeof(seq_t), cmp_seq);
         ready = true;
     }
 

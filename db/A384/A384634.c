@@ -8,13 +8,15 @@
  *            6*a(n‑2) + 4*a(n‑3) – 2*a(n‑4)
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 22, u64 n <= 45, u128 n <= 89,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 994 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* static state for memoisation */
 static seq_t *cache = NULL;   /* array of computed terms   */
@@ -28,12 +30,12 @@ static void ensure_cache(idx_t n)
     if (needed < 4) needed = 4;               /* keep space for the first four terms */
     if (!cache) {
         /* allocate the array */
-        cache = (seq_t *)malloc(needed * sizeof(seq_t));
+        cache = mem_new(seq_t, needed);
         cache_cap = needed;
         return;
     }
     if (needed > cache_cap) {
-        seq_t *newarr = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+        seq_t *newarr = mem_resize(seq_t, cache, needed);
         cache = newarr;
         cache_cap = needed;
     }

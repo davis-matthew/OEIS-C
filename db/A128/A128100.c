@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 36, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
  *   T(0,0)=T(1,0)=1.
  * a(n) is the element of T at the flat index n. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     /* one‑time allocation and initialization of rows 0 and 1 */
     if (!data) {
         data_cap   = 16;
-        data       = (seq_t *)malloc(data_cap * sizeof(seq_t));
+        data       = mem_new(seq_t, data_cap);
         row_cap    = 16;
         row_start  = (idx_t *)malloc(row_cap * sizeof(idx_t));
 
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
         if (data_len + len > data_cap) {
             size_t new_cap = data_cap ? data_cap : 16;
             while (new_cap < data_len + len) new_cap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(data, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, data, new_cap);
             if (!tmp) abort();
             data     = tmp;
             data_cap = new_cap;

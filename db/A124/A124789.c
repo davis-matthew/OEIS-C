@@ -5,14 +5,16 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  easy, nonn
  * Formula:   a(n) = Sum_{k=0..floor(n/2)} binom(floor(k/2), n-2*k)
- * Range:     u8 n <= 35, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
+ * Range:     u8 n <= 41, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 60 terms through n = 59 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +24,7 @@ seq_t a(idx_t n)
         idx_t a_val = k >> 1;           /* floor(k/2) */
         idx_t b_val = n - (k << 1);     /* n-2*k */
         if (b_val > a_val) continue;    /* binom(a_val,b_val) is 0 in this case */
-        sum += binom(a_val, b_val);
+        sum += binomial(a_val, b_val);
     }
     return sum;
 }

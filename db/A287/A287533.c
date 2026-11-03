@@ -7,13 +7,23 @@
  * Formula:   a(n) = Fibonacci(n) mod 20
  * Range:     u8 n <= 79, u16 n <= 79, u32 n <= 79, u64 n <= 79, u128 n <= 79,
  *            big any n
- * Helpers:   mul_mod20
+ * Validated: partial, pass, 80 terms through n = 79 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/mul_mod20.h"
+
+/* Multiply two seq_t values and take the result modulo 20. */
+static inline seq_t mul_mod20(seq_t x, seq_t y)
+{
+    /* Multiplication is performed in 64‑bit unsigned arithmetic to avoid
+       overflow on small seq_t types (e.g. uint8_t).  The final result is
+       cast back to seq_t. */
+    const unsigned long long MOD = 20ULL;
+    return (seq_t)(((unsigned long long)x * (unsigned long long)y) % MOD);
+}
 
 /* Compute floor(log2) for unsigned 64‑bit integers. */
 static inline int floor_log2_uint64(idx_t v)

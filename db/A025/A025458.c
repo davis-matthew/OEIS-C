@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2943, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 124 terms through n = 9753 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     }
 
     /* Pre‑compute all cubes up to maxk. */
-    seq_t *cubes = (seq_t *)malloc(maxk * sizeof(seq_t));
+    seq_t *cubes = mem_new(seq_t, maxk);
     if (!cubes) {
         /* Allocation failure – return 0 as a safe fallback. */
         return 0;
@@ -91,6 +93,6 @@ seq_t a(idx_t n)
         }
     }
 
-    free(cubes);
+    mem_free(cubes);
     return count;
 }

@@ -11,15 +11,17 @@
  *            OEIS sequence A351425
  * Range:     u8 n <= 127, u16 n <= 4095, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, seq_pow
+ * Validated: standard, pass, 98 terms through n = 9921 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/build_primes_upto.h"  /* provides build_primes_upto() */
-#include "../utils/seq_pow.h"  /* provides seq_pow(seq_t, idx_t) */
+#include <stdlib.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/ipow_idx.h"
 
 static bool primes_initialized = false;
 static uint64_t *primes = NULL;
@@ -67,11 +69,11 @@ seq_t a(idx_t n) {
 
     /* Compute m = orig / (last_p^last_e) */
     seq_t m = (seq_t)orig;
-    seq_t last_power = seq_pow((seq_t)last_p, last_e);
+    seq_t last_power = ipow_idx((seq_t)last_p, last_e);
     m = m / last_power;
 
     /* Compute (last_p + 1)^(last_e - 1) */
-    seq_t term = seq_pow((seq_t)(last_p + 1), last_e > 0 ? last_e - 1 : 0);
+    seq_t term = ipow_idx((seq_t)(last_p + 1), last_e > 0 ? last_e - 1 : 0);
 
     return m * term;
 }

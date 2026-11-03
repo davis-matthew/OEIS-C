@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 983 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    For n >= 4:
      a(n) = a(n-4) - a(n-8) + a(n-12) - a(n-16). */
 #include <stdlib.h>
+#include "../utils/mem.h"
 static seq_t *cache = NULL;
 static idx_t cache_size  = 0;
 static idx_t cache_capacity = 0;
@@ -27,12 +29,12 @@ static void ensure_capacity(idx_t needed)
     if (needed < cache_capacity) return;
     idx_t new_cap = cache_capacity ? cache_capacity * 2 : 32;
     while (new_cap <= needed) new_cap *= 2;
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache) abort();              /* allocation failure – terminate */
     if (cache)
     {
         for (idx_t i = 0; i < cache_size; ++i) new_cache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
     cache = new_cache;
     cache_capacity = new_cap;
@@ -43,7 +45,7 @@ static void init_cache(void)
     if (!cache)
     {
         cache_capacity = 32;
-        cache = (seq_t *)malloc(cache_capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_capacity);
         if (!cache) abort();
         cache[0] = (seq_t)1;   /* a(0) = 1   */
         cache_size  = 1;       /* next index to fill is 1 */

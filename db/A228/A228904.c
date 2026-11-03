@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 39, u64 n <= 54, u128 n <= 54,
+ * Range:     u8 n <= 16, u16 n <= 24, u32 n <= 40, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   binomial, seq_alloc_new_array, seq_free_array
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -41,9 +42,16 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
+#include <stddef.h>
+#include <math.h>
 #include "../utils/binomial.h"
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/seq_free_array.h"
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 /* ---------- triangle rows (E[n][k]) ---------- */
 static seq_t **E_rows = NULL;    /* array of pointers, each pointing to a row of length r+1 */

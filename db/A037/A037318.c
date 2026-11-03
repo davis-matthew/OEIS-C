@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 54, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Uses a search: iterate over integers and test digit sums in base-4 and base-7. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper: compute digit sum of n in given base (small base). */
 static int digit_sum_base(seq_t n, unsigned base)
@@ -41,7 +43,7 @@ static void ensure_cache_cap(size_t need)
     size_t new_cap = cache_cap == 0 ? 128 : cache_cap;
     while (new_cap < need)
         new_cap <<= 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache)
         abort();  /* out of memory */
     cache = new_cache;

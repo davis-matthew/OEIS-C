@@ -10,12 +10,14 @@
  *            number (Bell(0)=1)
  * Range:     u8 n <= 13, u16 n <= 19, u32 n <= 31, u64 n <= 51, u128 n <= 85,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 1109 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache of Bell numbers: bell[i] = Bell(i) for i = 0..bell_max */
 static seq_t *bell   = NULL;
@@ -30,7 +32,7 @@ static void compute_bell_up_to(idx_t max_k)
     /* Resize the array if needed */
     size_t new_size = bell_size ? bell_size : 16;
     while (new_size <= (size_t)max_k) new_size <<= 1;
-    seq_t *tmp = (seq_t *)realloc(bell, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, bell, new_size);
     bell   = tmp;
     bell_size = new_size;
 

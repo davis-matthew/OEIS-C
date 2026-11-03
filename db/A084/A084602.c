@@ -10,11 +10,14 @@
  *            * 3^i where r = ⌊√n⌋ and m = n - r²
  * Range:     u8 n <= 29, u16 n <= 75, u32 n <= 272, u64 n <= 934,
  *            u128 n <= 2600, big any n
+ * Validated: standard, pass, 76 terms through n = 2581 (2026-11-01)
  * Helpers:   binomial, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/pow3.h"
 

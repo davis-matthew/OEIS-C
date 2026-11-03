@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 39, i16 n <= 77, i32 n <= 77, i64 n <= 77, i128 n <= 77,
  *            big any n
- * Helpers:   triangle_row
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,21 @@
    Sequence a(n) is obtained by reading the triangle row‑wise. */
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/triangle_row.h"
+#include "../utils/mem.h"
+
+/* internal helper:  find the row index r such that the
+   n‑th term lies in row r of the triangle. */
+static inline idx_t triangle_row(idx_t n)
+{
+    /* Solve r(r+1)/2 ≤ n < (r+1)(r+2)/2.
+       Using a high‑precision sqrt to avoid overflow. */
+    long double v = (long double)n * 8.0L + 1.0L;
+    idx_t r = ((idx_t)sqrtl(v) - 1) >> 1;
+    /* Correct possible rounding errors. */
+    while ((unsigned __int128)r * (r + 1ULL) / 2 > n) --r;
+    while ((unsigned __int128)(r + 1) * (r + 2ULL) / 2 <= n) ++r;
+    return r;
+}
 
 seq_t a(idx_t n)
 {
@@ -36,8 +51,8 @@ seq_t a(idx_t n)
 
     /* Allocate space for two consecutive rows.  Size r+1 is enough
        for all rows up to r. */
-    seq_t *prev = (seq_t *)malloc((r + 1) * sizeof(seq_t));
-    seq_t *curr = (seq_t *)malloc((r + 1) * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, (r + 1));
+    seq_t *curr = mem_new(seq_t, (r + 1));
     if (!prev || !curr) return 0;  /* memory allocation failed */
 
     /* Initialize the first row (row 0). */
@@ -61,7 +76,7 @@ seq_t a(idx_t n)
     /* The result is in the current 'prev' buffer. */
     seq_t result = prev[k];
 
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
     return result;
 }

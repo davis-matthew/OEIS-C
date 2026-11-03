@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 9927, u16 n <= 9927, u32 n <= 9927, u64 n <= 9927,
- *            u128 n <= 9927, big any n
- * Helpers:   _gcd_idx
+ * Range:     u8 n <= 10080, u16 n <= 10080, u32 n <= 10080, u64 n <= 10080,
+ *            u128 n <= 10080, big any n
+ * Validated: standard, pass, 115 terms through n = 9927 (2026-11-01)
+ * Helpers:   gcd_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/_gcd_idx.h"
+#include <stdbool.h>
+#include "../utils/gcd_idx.h"
 
 /* Euclidean algorithm for idx_t (uint64_t) */
 
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
             idx_t diff = (s > 2 * b) ? (s - 2 * b) : (2 * b - s);
             if (diff == 0) continue;
             if (n % diff != 0) continue;
-            if (_gcd_idx(a_val, b) != 1) continue;
+            if (gcd_idx(a_val, b) != 1) continue;
             ++count;
         }
     }

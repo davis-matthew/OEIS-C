@@ -9,12 +9,13 @@
  *            x*y + n
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   uint128_sqrt
+ * Validated: partial, pass, 68 terms through n = 67 (2026-11-01)
+ * Helpers:   isqrt_u128_to_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/uint128_sqrt.h"
+#include "../utils/isqrt_u128_to_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +27,7 @@ seq_t a(idx_t n)
         if (w2 < n) continue;                     /* w^2 - n would be negative */
         unsigned __int128 M = w2 - n;              /* M = w^2 - n >= 1 */
 
-        uint64_t limit = uint128_sqrt(M);
+        uint64_t limit = isqrt_u128_to_u64(M);
         if (limit > n) limit = n;                  /* we only need divisors <= n */
 
         for (uint64_t d = 1; d <= limit; ++d) {

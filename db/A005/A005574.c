@@ -7,12 +7,14 @@
  * Formula:   compute the n-th positive integer k such that k^2 + 1 is prime
  * Range:     u8 n <= 6, u16 n <= 42, u32 n <= 4790, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 73 terms through n = 9436 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/is_prime.h"
+#include <stdbool.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n) {
     idx_t count = 0;
@@ -21,7 +23,7 @@ seq_t a(idx_t n) {
     while (count < n) {
         k++;
         seq_t k_squared_plus_1 = k * k + 1;
-        if (is_prime((uint64_t)k_squared_plus_1)) {
+        if (is_prime_u64((uint64_t)k_squared_plus_1)) {
             count++;
         }
     }

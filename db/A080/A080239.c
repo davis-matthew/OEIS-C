@@ -8,12 +8,14 @@
  *            otherwise a(n) = a(n−1)+a(n−2)+1
  * Range:     u8 n <= 12, u16 n <= 24, u32 n <= 47, u64 n <= 93, u128 n <= 185,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 957 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;     /* cached values, index 1 .. N */
 static idx_t a_cache_max = 0;     /* maximum n cached so far */
@@ -27,8 +29,7 @@ seq_t a(idx_t n)
     size_t needed = (size_t)n + 1;
     if (needed > a_cache_size) {
         size_t new_size = needed * 2;                 /* double for future growth */
-        seq_t *new_mem = (seq_t *)realloc(a_cache,
-                                          new_size * sizeof(seq_t));
+        seq_t *new_mem = mem_resize(seq_t, a_cache, new_size);
         if (!new_mem) return (seq_t)0; /* allocation failure */
         /* zero new elements (trivial types assumed) */
         if (new_size > a_cache_size)

@@ -7,7 +7,8 @@
  * Formula:   a(n) = the n-th prime p such that p mod 7 ∈ {2,3,6}
  * Range:     u8 n <= 28, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 62 terms through n = 958 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* static state for memoisation */
 static seq_t *cache = NULL;   /* array of found primes (in seq_t) */
@@ -55,13 +57,12 @@ seq_t a(idx_t n)
         /* ensure cache capacity */
         if (cache == NULL)
         {
-            cache = (seq_t *)malloc(16 * sizeof(seq_t));
+            cache = mem_new(seq_t, 16);
             cache_len = 0;
         }
         else if (cache_len % 16 == 0)
         {
-            cache = (seq_t *)realloc(cache,
-                                     (cache_len + 16) * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, (cache_len + 16));
         }
 
         /* store the prime into the cache, cast to seq_t */

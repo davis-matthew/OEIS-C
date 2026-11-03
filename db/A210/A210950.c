@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 74, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 74 terms through n = 74 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* The public function required by the build system. */
 seq_t a(idx_t n)
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
     if (max_row == 0) {
         p = (seq_t **)malloc(sizeof(seq_t *));
         if (!p) return 0;              /* allocation failure – return 0          */
-        p[0] = (seq_t *)calloc(1, sizeof(seq_t));
+        p[0] = mem_new(seq_t, 1);
         if (!p[0]) { free(p); return 0; }
         p[0][0] = (seq_t)1;            /* one way to partition 0               */
     }
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
 
         /* Build each new row i > max_row.                                */
         for (idx_t i = max_row + 1; i <= r; ++i) {
-            p[i] = (seq_t *)calloc((i + 1), sizeof(seq_t));
+            p[i] = mem_new(seq_t, (i + 1));
             if (!p[i]) return 0;      /* allocation failure – return 0         */
 
             for (idx_t j = 1; j <= i; ++j) {

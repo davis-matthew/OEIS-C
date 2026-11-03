@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 7, u32 n <= 7, u64 n <= 7, u128 n <= 7,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 7 terms through n = 7 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 #define MAX_N 5408
 
@@ -81,7 +83,7 @@ static void init_sequence(void)
         return;
     }
 
-    s_values = (seq_t*)malloc(total * sizeof(seq_t));
+    s_values = mem_new(seq_t, total);
     if (!s_values) {
         free(cnt);
         return;

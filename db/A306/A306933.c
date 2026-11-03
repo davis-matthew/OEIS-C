@@ -12,6 +12,7 @@
  *            odd p, a(p^e) = (p^2 - 1) * p^(e-1)
  * Range:     u8 n <= 16, u16 n <= 256, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 75 terms through n = 9145 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -21,6 +22,7 @@
  * computes each prime‑power contribution and keeps the running lcm.
  * It uses the provided gcd(seq_t, seq_t) function. */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

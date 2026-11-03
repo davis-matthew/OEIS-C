@@ -8,6 +8,7 @@
  *            n >= 3
  * Range:     i8 n <= 7, i16 n <= 16, i32 n <= 31, i64 n <= 64, i128 n <= 127,
  *            big any n
+ * Validated: standard, pass, 55 terms through n = 3197 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

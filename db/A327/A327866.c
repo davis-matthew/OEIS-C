@@ -9,9 +9,10 @@
  *            0 otherwise. The derivative D(n) = n * Σ_{p|n} (e_p / p), where
  *            e_p is the exponent of prime p in the factorisation of n. D(n)
  *            can also be computed as Σ_{p^e‖n} e * n / p
- * Range:     u8 n <= 31, u16 n <= 8798, u32 n <= 9296, u64 n <= 9296,
- *            u128 n <= 9296, big any n
- * Helpers:   build_primes_upto, floor_sqrt, int_sqrt
+ * Range:     u8 n <= 31, u16 n <= 8798, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 122 terms through n = 9296 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_i32, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,27 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/int_sqrt.h"
-#include "../utils/floor_sqrt.h"
 #include "../utils/build_primes_upto.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/isqrt.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 static uint64_t *primes = NULL;     /* prime list created on demand */
 static size_t prime_cnt  = 0;        /* number of primes stored */
@@ -58,7 +77,7 @@ seq_t a(idx_t n)
     idx_t m = n;           /* factorised form of n */
 
     /* Ensure we have primes up to sqrt(n). */
-    idx_t sqrt_n = int_sqrt(n);
+    idx_t sqrt_n = isqrt(n);
     ensure_primes(sqrt_n);
 
     /* Factorise n using the prime table. */

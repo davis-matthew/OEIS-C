@@ -11,12 +11,14 @@
  *            large intermediate sums
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     }
 
     /* allocate a circular buffer of size 42 to hold the last 42 values */
-    seq_t *buf = (seq_t *)malloc(42 * sizeof(seq_t));
+    seq_t *buf = mem_new(seq_t, 42);
     if (!buf)   /* sanity check – should never happen in test harness */
         return (seq_t)0;
 
@@ -57,12 +59,12 @@ seq_t a(idx_t n)
 
         if (i == n)
         {
-            free(buf);
+            mem_free(buf);
             return next;
         }
     }
 
     /* unreachable path – to silence compiler warnings */
-    free(buf);
+    mem_free(buf);
     return (seq_t)0;
 }

@@ -12,7 +12,8 @@
  *            unimodal/co‑unimodal test
  * Range:     u8 n <= 43, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   is_valley
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,16 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/is_valley.h"
+#include "../utils/mem.h"
+
+/* Check whether parts[0..len-1] form a co‑unimodal (valley) composition. */
+static bool is_valley(const unsigned int *parts, size_t len)
+{
+    size_t i = 0;
+    while (i + 1 < len && parts[i] >= parts[i + 1]) ++i;
+    while (i + 1 < len && parts[i] <= parts[i + 1]) ++i;
+    return i + 1 == len;
+}
 
 /* floor(log2(x)) for x>0 */
 static inline idx_t floor_log2_uint64(idx_t x)
@@ -91,7 +101,7 @@ seq_t a(idx_t n)
         if (cache_cap <= cache_len) {
             size_t new_cap = cache_cap ? cache_cap << 1 : 1;
             while (new_cap <= cache_len) new_cap <<= 1;
-            seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             cache = tmp;
             cache_cap = new_cap;
         }

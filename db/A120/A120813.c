@@ -9,13 +9,14 @@
  *            * binomial[2n, n-6]
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 14, u64 n <= 28, u128 n <= 58,
  *            big any n
- * Helpers:   binom, gcd
+ * Validated: standard, pass, 39 terms through n = 479 (2026-11-01)
+ * Helpers:   binomial, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 #include "../utils/gcd.h"
 
 /* Multiply two seq_t values while avoiding overflow on integer types.
@@ -51,7 +52,7 @@ seq_t a(idx_t n)
     seq_t denom = mul_seq((seq_t)120, N + (seq_t)7);
 
     /* Binomial coefficient binom(2N, N-6)   (valid because n>=6) */
-    seq_t bin = binom((idx_t)(2 * n), (idx_t)(n - 6));
+    seq_t bin = binomial((idx_t)(2 * n), (idx_t)(n - 6));
 
     /* Reduce common factors first to keep intermediate values small. */
     seq_t g = gcd(bin, denom);

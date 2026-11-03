@@ -9,13 +9,39 @@
  *            recurrence is computed by fast exponentiation
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   lcg_pow_sum
+ * Validated: standard, pass, 52 terms through n = 9780 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>  /* just in case */
-#include "../utils/lcg_pow_sum.h"
+
+static inline void lcg_pow_sum(idx_t k, seq_t *pow, seq_t *sum)
+{
+    const seq_t MOD = 175000;          /* modulus */
+    const seq_t MUL = 2661;           /* multiplier */
+    const seq_t INC = 36979;          /* increment */
+
+    if (k == 0) {
+        *pow = 1;
+        *sum = 0;
+        return;
+    }
+
+    if (k & 1) {                      /* k is odd: compute for k-1 and extend */
+        seq_t p_prev, s_prev;
+        lcg_pow_sum(k - 1, &p_prev, &s_prev);
+        *pow = (p_prev * MUL) % MOD;
+        *sum = (s_prev + (p_prev * INC) % MOD) % MOD;
+    } else {                          /* k is even: split in half */
+        seq_t p_half, s_half;
+        lcg_pow_sum(k >> 1, &p_half, &s_half);
+        *pow = (p_half * p_half) % MOD;
+        seq_t mul = (p_half * s_half) % MOD;
+        *sum = (s_half + mul) % MOD;
+    }
+}
 
 seq_t a(idx_t n)
 {

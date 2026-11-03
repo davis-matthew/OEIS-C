@@ -11,14 +11,18 @@
  *            n T(n,k) = (k+1) – Σ_{j=k+1..n} T(n,j) * C(j,k) * 2^{j-k}
  * Range:     i8 n <= 14, i16 n <= 46, i32 n <= 54, i64 n <= 54, i128 n <= 54,
  *            big any n
- * Helpers:   binom, pow2
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   binomial, mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/binom.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Find the triangle row r and column k for index n. */
@@ -29,7 +33,7 @@ seq_t a(idx_t n) {
     idx_t k = n - r * (r + 1) / 2;
 
     /* Allocate array for the r‑th row. */
-    seq_t *row = (seq_t *)malloc((r + 1) * sizeof(seq_t));
+    seq_t *row = mem_new(seq_t, (r + 1));
     if (row == NULL) return 0;  /* unlikely for small r */
 
     /* Back‑substitution: compute row entries from the top down. */
@@ -37,7 +41,7 @@ seq_t a(idx_t n) {
         seq_t sum = 0;
         for (idx_t j = i + 1; j <= r; ++j) {
             seq_t prod = row[j];
-            prod *= binom(j, i);
+            prod *= binomial(j, i);
             prod *= pow2(j - i);
             sum += prod;
         }
@@ -46,6 +50,6 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = row[k];
-    free(row);
+    mem_free(row);
     return result;
 }

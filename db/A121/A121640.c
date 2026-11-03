@@ -9,7 +9,8 @@
  *            to a(n-1))
  * Range:     u8 n <= 18, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* small prime sieve up to 100000 ------------------------------------ */
@@ -144,11 +146,11 @@ static void ensure_cache_capacity(size_t needed)
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < needed)
         new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) {
         exit(EXIT_FAILURE);
     }
-    memset(tmp + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
+    mem_set(tmp + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
     cache = tmp;
     cache_cap = new_cap;
 }

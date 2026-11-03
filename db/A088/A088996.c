@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 38, u32 n <= 81, u64 n <= 178,
  *            u128 n <= 475, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 1275 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Integer square‑root for uint64_t.
  * Returns floor(√x).  Binary search with division to avoid overflow. */
@@ -57,11 +59,11 @@ seq_t a(idx_t n)
 
     /* Allocate two rows of length r+1 */
     size_t len = (size_t)(r + 1);
-    seq_t *prev = (seq_t *)malloc(len * sizeof(seq_t));
-    seq_t *curr = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, len);
+    seq_t *curr = mem_new(seq_t, len);
     if (!prev || !curr) {
-        if (prev) free(prev);
-        if (curr) free(curr);
+        if (prev) mem_free(prev);
+        if (curr) mem_free(curr);
         return (seq_t)0;               /* fallback on allocation failure */
     }
 
@@ -85,7 +87,7 @@ seq_t a(idx_t n)
     seq_t result = prev[(size_t)k];
 
     /* Cleanup */
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
     return result;
 }

@@ -9,12 +9,33 @@
  *            b(2m+1)=3b(m)-3[m odd]
  * Range:     u8 n <= 38, u16 n <= 1280, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   compute_b
+ * Validated: standard, pass, 74 terms through n = 9340 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/compute_b.h"
+static seq_t compute_b(idx_t n) {
+    if (n == 0) return 1;
+    
+    idx_t m = n / 2;
+    seq_t b_m = compute_b(m);
+    
+    seq_t result;
+    if (n % 2 == 0) {
+        result = 3 * b_m - 2;
+        if (m % 2 == 1) {
+            result -= 3;
+        }
+    } else {
+        result = 3 * b_m;
+        if (m % 2 == 1) {
+            result -= 3;
+        }
+    }
+    
+    return result;
+}
 
 seq_t a(idx_t n) {
     return compute_b(n - 1);

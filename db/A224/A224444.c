@@ -12,11 +12,13 @@
  *            c² ≠ rem, the triple does not satisfy the...
  * Range:     u8 n <= 125, u16 n <= 125, u32 n <= 125, u64 n <= 125,
  *            u128 n <= 125, big any n
+ * Validated: partial, pass, 126 terms through n = 125 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 /* Integer square root for unsigned 64‑bit values (floor). */

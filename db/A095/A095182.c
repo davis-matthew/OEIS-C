@@ -12,7 +12,8 @@
  *            composite (and not divisible by prime(n))
  * Range:     u8 n <= 6, u16 n <= 37, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   mul_mod_64
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mul_mod_64.h"
+#include "../utils/mulmod.h"
 
 /* ------------------------------------------------------------------ */
 /* Prime sieve – sufficient for the first many thousands of primes   */
@@ -60,8 +61,8 @@ static uint64_t mod_pow_uint64(uint64_t base, uint64_t exp, uint64_t mod)
     uint64_t result = 1 % mod;
     uint64_t x = base % mod;
     while (exp) {
-        if (exp & 1ULL) result = mul_mod_64(result, x, mod);
-        x = mul_mod_64(x, x, mod);
+        if (exp & 1ULL) result = mulmod(result, x, mod);
+        x = mulmod(x, x, mod);
         exp >>= 1ULL;
     }
     return result;
@@ -97,7 +98,7 @@ static bool isPrime_uint64(uint64_t n)
         if (x == 1 || x == n - 1) continue;
         bool cont = false;
         for (unsigned int r = 1; r < s; ++r) {
-            x = mul_mod_64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) {
                 cont = true;
                 break;

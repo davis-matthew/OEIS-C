@@ -10,7 +10,8 @@
  *            that is coprime to every sum of any two distinct earlier terms
  * Range:     u8 n <= 32, u16 n <= 3500, u32 n <= 3500, u64 n <= 3500,
  *            u128 n <= 3500, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 3393 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------ */
 /* Constants and global tables -------------------------------- */
@@ -171,7 +173,7 @@ static void init_once(void)
 
     /* Seed sequence with first two terms */
     seq_len = 2;
-    seq = (seq_t *)malloc(seq_len * sizeof(seq_t));
+    seq = mem_new(seq_t, seq_len);
     if (!seq) abort();
     seq[0] = (seq_t)1;
     seq[1] = (seq_t)2;
@@ -193,8 +195,7 @@ seq_t a(idx_t n)
             candidate++;
 
         /* Append the new term to the sequence */
-        seq_t *new_seq = (seq_t *)realloc(seq,
-                                          (seq_len + 1) * sizeof(seq_t));
+        seq_t *new_seq = mem_resize(seq_t, seq, (seq_len + 1));
         if (!new_seq) abort();
         seq = new_seq;
         seq[seq_len] = candidate;

@@ -11,14 +11,16 @@
  *            direction, and walks are pruned by their distance from...
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 14, u64 n <= 14, u128 n <= 14,
  *            big any n
- * Helpers:   f8_abs
+ * Validated: partial, pass, 11 terms through n = 14 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/f8_abs.h"
+
+static int f8_abs(int v) { return v < 0 ? -v : v; }
 
 static int f8_W, f8_off, f8_tot;
 static unsigned char *f8_vis;

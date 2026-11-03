@@ -11,14 +11,17 @@
  *            ; 1,2 ; 6,8,4 ; 54,72,36,8 ; …
  * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: partial, pass, 39 terms through n = 38 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -44,7 +47,7 @@ seq_t a(idx_t n)
     for (idx_t j = 0; j <= r; ++j) {
         seq_t bin_j = binomial(r, j);
         seq_t pow_j = (j == 0) ? (exponent == 0 ? (seq_t)1 : (seq_t)0)
-                               : big_pow((seq_t)j, (seq_t)exponent);
+                               : ipow((seq_t)j, (seq_t)exponent);
         if (bin_j != (seq_t)0 && pow_j != (seq_t)0)
             sum_terms += bin_j * pow_j;
     }

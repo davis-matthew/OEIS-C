@@ -9,7 +9,8 @@
  *            0 if no such m exists (i.e., gcd(12,2n+1) ≠ 1)
  * Range:     u8 n <= 127, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   compute_phi_uint64
+ * Validated: standard, pass, 91 terms through n = 9496 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,16 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/compute_phi_uint64.h"
+
+/* ------------- Euler's totient ---------------------------------------- */
+static uint64_t compute_phi_uint64(uint64_t n, const uint64_t *pr, const uint64_t *exp, size_t cnt)
+{
+    uint64_t phi = n;
+    for (size_t i = 0; i < cnt; ++i) {
+        phi -= phi / pr[i];
+    }
+    return phi;
+}
 
 /* modular exponentiation (assumes mod > 1, exp fits in 64 bits) */
 static uint64_t mod_pow_uint64(uint64_t base, uint64_t exp, uint64_t mod)

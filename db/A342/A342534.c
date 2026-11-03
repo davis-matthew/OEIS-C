@@ -8,14 +8,16 @@
  *            phi(n/d) * phi(d)^2
  * Range:     u8 n <= 16, u16 n <= 256, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd, phi
+ * Validated: standard, pass, 73 terms through n = 9835 (2026-11-01)
+ * Helpers:   gcd, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/phi.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
         /* Compute gcd(k,n) using the helper gcd(a,b) which works on seq_t. */
         seq_t g = gcd((seq_t)k, (seq_t)n);
         /* Convert the gcd back to idx_t for phi. */
-        seq_t pg = phi((idx_t)g);
+        seq_t pg = totient((idx_t)g);
         sum += pg * pg;            /* φ(gcd)^2 */
     }
     return sum;

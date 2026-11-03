@@ -8,6 +8,7 @@
  * Formula:   a(n) = floor( n * (3 + sqrt(2) + sqrt(2*sqrt(2)-1)) / 2 )
  * Range:     u8 none, u16 none, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

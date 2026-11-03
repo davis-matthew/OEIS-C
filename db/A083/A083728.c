@@ -7,6 +7,7 @@
  * Formula:   a(n) = 480 * sigma(n)
  * Range:     u8 n <= 0, u16 n <= 59, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 55 terms through n = 9553 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

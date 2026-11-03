@@ -10,7 +10,8 @@
  * Formula:   a(n) = (2*n - floor((n-1)/2)) * 2^floor((n-1)/2)
  * Range:     u8 n <= 9, u16 n <= 22, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 39 terms through n = 40 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 /* Offset: 2  (a(2) is the first term) */
 
 #include <stdint.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 
 /* Computes a(n) for n >= 2.  For n < 2 the function returns 0. */
 seq_t a(idx_t n)
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
         return (seq_t)0;
 
     idx_t k = (n - 1) / 2;                          /* floor((n-1)/2) */
-    seq_t pow2 = seq_pow((seq_t)2, k);              /* 2^k */
+    seq_t pow2 = ipow_idx((seq_t)2, k);              /* 2^k */
     seq_t coeff = ((seq_t)2 * (seq_t)n) - (seq_t)k; /* 2*n - k   */
     return coeff * pow2;
 }

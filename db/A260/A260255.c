@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 247, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_palindrome, seq_alloc_new_array, seq_free_array
+ * Validated: standard, pass, 129 terms through n = 8548 (2026-11-03)
+ * Helpers:   is_palindrome_base, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,9 +26,16 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "../utils/is_palindrome.h"
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/seq_free_array.h"
+#include <string.h>
+#include <stddef.h>
+#include <math.h>
+#include "../utils/is_palindrome_base.h"
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 /* ---------- static state -------------------------------------------------- */
 static seq_t *seq_array  = NULL;   /* array of reachable numbers             */
@@ -53,7 +61,7 @@ static void recompute(idx_t limit)
     size_t pal_cnt = 0;
 
     for (idx_t i = 0; i <= limit; ++i)
-        if (is_palindrome((seq_t)i, 10))
+        if (is_palindrome_base((seq_t)i, 10))
             pal[pal_cnt++] = i;
 
     /* 2. mark all sums of two palindromes ≤ limit */

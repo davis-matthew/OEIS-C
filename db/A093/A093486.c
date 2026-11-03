@@ -10,15 +10,46 @@
  *            first term
  * Range:     i8 n <= 4, i16 n <= 4, i32 n <= 4, i64 n <= 96, i128 n <= 96,
  *            big any n
- * Helpers:   floor_sqrt, max_k
+ * Validated: partial, pass, 96 terms through n = 96 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/floor_sqrt.h"
-#include "../utils/max_k.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+/* Determine a suitable maximal k to try.  For 8‑byte seq_t we use 20
+   (20! fits in 64 bits).  For 16‑byte seq_t we use 33 (33! fits in 128 bits).
+   Otherwise we allow up to 2000 (arbitrary‑precision seq_t). */
+static size_t max_k(void)
+{
+    size_t sz = sizeof(seq_t);
+    if (sz <= 8)        return 20;
+    if (sz <= 16)       return 33;
+    return 2000;
+}
 
 /* Cache of factorials up to max_k.  The cache is created lazily. */
 static seq_t *fact_cache = NULL;
@@ -29,7 +60,7 @@ static void init_fact_cache(void)
     if (fact_cache) return;
 
     fact_cache_size = max_k();
-    fact_cache = (seq_t*)malloc((fact_cache_size + 1) * sizeof(seq_t));
+    fact_cache = mem_new(seq_t, (fact_cache_size + 1));
     if (!fact_cache) return;            /* allocation failed – abort silently */
 
     fact_cache[0] = (seq_t)1;

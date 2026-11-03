@@ -8,14 +8,15 @@
  *            2)
  * Range:     u8 n <= 259, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd_uint64
+ * Validated: standard, pass, 87 terms through n = 9986 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/gcd_uint64.h"
+#include "../utils/gcd_u64.h"
 
 /* modular exponentiation: base^exp mod mod (mod <= 60000) */
 static uint64_t mod_pow_uint64(uint64_t base, uint64_t exp, uint64_t mod) {
@@ -109,7 +110,7 @@ seq_t a(idx_t n) {
         uint64_t p = primes[i];
         int e = exps[i];
         uint64_t op = order_mod_prime_power(p, e);
-        uint64_t g = gcd_uint64(order, op);
+        uint64_t g = gcd_u64(order, op);
         order = order / g * op;
     }
 

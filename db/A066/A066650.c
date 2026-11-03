@@ -7,7 +7,8 @@
  * Formula:   Numbers not of the form a^2 + b^3 with a,b>0 (OEIS A066650)
  * Range:     u8 n <= 45, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 9971 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* internal helper – generate terms up to a given count */
 static idx_t last_limit = 0;            /* last value of the sieve limit */
@@ -63,7 +65,7 @@ static void ensure_terms(idx_t target)
             if (!present[i]) {
                 if (terms_len == terms_cap) {
                     terms_cap = terms_cap ? terms_cap * 2 : 4;
-                    seq_t *tmp = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, terms, terms_cap);
                     if (!tmp) {          /* out of memory – abort */
                         free(present);
                         return;

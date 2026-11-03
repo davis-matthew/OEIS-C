@@ -8,7 +8,8 @@
  * Formula:   a(n) = smallest m ≥ n whose decimal digits alternate in parity
  * Range:     u8 n <= 231, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   decode_digits, digits_count_idx
+ * Validated: standard, pass, 83 terms through n = 9792 (2026-11-01)
+ * Helpers:   num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,26 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/decode_digits.h"
-#include "../utils/digits_count_idx.h"
+#include "../utils/num_digits_idx.h"
+
+/* Helper: write decimal digits of n into array d[0..L-1] (most significant first) */
+static inline void decode_digits(idx_t n, uint8_t *d, int *L)
+{
+    uint8_t tmp[20];
+    int t = 0;
+    if (n == 0) {
+        tmp[t++] = 0;
+    } else {
+        while (n > 0) {
+            tmp[t++] = (uint8_t)(n % 10);
+            n /= 10;
+        }
+    }
+    *L = t;
+    /* reverse into d */
+    for (int i = 0; i < t; ++i)
+        d[i] = tmp[t - 1 - i];
+}
 
 /* Main function implementing the sequence */
 seq_t a(idx_t n)

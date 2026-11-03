@@ -8,12 +8,14 @@
  *            mod 8
  * Range:     u8 n <= 55, u16 n <= 132, u32 n <= 367, u64 n <= 1157,
  *            u128 n <= 3973, big any n
- * Helpers:   none
+ * Validated: standard, pass, 85 terms through n = 9799 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,9 +27,9 @@ seq_t a(idx_t n)
     if (n + 1 > dp_size) {
         size_t new_size = (size_t)(n + 1);
         if (dp == NULL) {
-            dp = (seq_t *)malloc(new_size * sizeof(seq_t));
+            dp = mem_new(seq_t, new_size);
         } else {
-            dp = (seq_t *)realloc(dp, new_size * sizeof(seq_t));
+            dp = mem_resize(seq_t, dp, new_size);
         }
         /* recompute all coefficients up to n */
         for (size_t i = 0; i < new_size; ++i) {

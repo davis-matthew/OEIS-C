@@ -10,6 +10,7 @@
  * Formula:   a(n) = 8*4^n - 12*3^n + 6*2^n - 1 (offset 1)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 14, u64 n <= 30, u128 n <= 62,
  *            big any n
+ * Validated: standard, pass, 39 terms through n = 199 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

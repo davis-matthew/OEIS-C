@@ -9,6 +9,7 @@
  *            1,2,3,4,5,6,8,10,11 only. For any other n the count is zero
  * Range:     u8 n <= 1, u16 n <= 11, u32 n <= 11, u64 n <= 11, u128 n <= 11,
  *            big any n
+ * Validated: full, pass, 11 terms through n = 11 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -12,7 +12,8 @@
  *            equals the number of subsets * of {m+1,…,5m...
  * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 69 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -44,8 +46,8 @@ seq_t a(idx_t n)
 
     if (dp_cap < n + 1) {
         /* free previous allocation if any */
-        if (dp) free(dp);
-        dp = (seq_t *)calloc(n + 1, sizeof(seq_t));
+        if (dp) mem_free(dp);
+        dp = mem_new(seq_t, n + 1);
         dp_cap = n + 1;
     }
 
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
         }
 
         /* zero dp[1..T] and set dp[0] = 1 */
-        memset(dp, 0, (size_t)(T + 1) * sizeof(seq_t));
+        mem_set(dp, 0, (size_t)(T + 1) * sizeof(seq_t));
         dp[0] = (seq_t)1;
 
         const idx_t k_end = (5 * m - 1 < T) ? (5 * m - 1) : T;

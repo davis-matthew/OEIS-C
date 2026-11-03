@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 47, u16 n <= 154, u32 n <= 574, u64 n <= 2207,
  *            u128 n <= 2650, big any n
- * Helpers:   binom, fib
+ * Validated: standard, pass, 87 terms through n = 2631 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,18 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/fib.h"
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
 
 static seq_t
 compute_T(idx_t n, idx_t k)
@@ -32,7 +43,7 @@ compute_T(idx_t n, idx_t k)
     idx_t i_max = (n + k - 2) / 3;          /* floor((n+k-2)/3) */
     seq_t sum = 0;
     for (idx_t i = i_min; i <= i_max; ++i) {
-        seq_t coeff   = binom(i, k - 1);
+        seq_t coeff   = binomial(i, k - 1);
         idx_t fib_idx = n + k - 3 * i - 1;
         seq_t term = coeff * fib(fib_idx);
         sum += term;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 1000, u64 n <= 1000, u128 n <= 1000,
  *            big any n
- * Helpers:   uint64_isqrt
+ * Validated: standard, pass, 41 terms through n = 834 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/uint64_isqrt.h"
+#include "../utils/isqrt_u64.h"
 
 #define SMALL_LIMIT   1000000ULL      /* limit for base prime sieve   */
 #define SEG_SIZE      (1 << 17)       /* 131 072 numbers per segment */
@@ -75,7 +76,7 @@ seq_t a(idx_t n)
         memset(isComp, 0, SEG_SIZE);
 
         /* sieve the segment using the small primes up to sqrt(high) */
-        uint64_t root = uint64_isqrt(high) + 1;
+        uint64_t root = isqrt_u64(high) + 1;
         for (size_t pi = 0; pi < small_prime_count && small_primes[pi] <= root; ++pi) {
             uint32_t p = small_primes[pi];
             uint64_t start = (low + p - 1) / p * p;

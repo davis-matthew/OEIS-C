@@ -13,7 +13,8 @@
  *            vectors of the rows
  * Range:     u8 none, u16 n <= 1, u32 n <= 5, u64 n <= 14, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 116 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 #define D 3375  /* 15^3 possible difference vectors (a,b,c) in [-7,7] */
 
@@ -42,11 +44,11 @@ static void init(void)
     if (initialized) return;
     initialized = 1;
 
-    dp_prev = (seq_t *)malloc(D * sizeof(seq_t));
-    dp_next = (seq_t *)malloc(D * sizeof(seq_t));
+    dp_prev = mem_new(seq_t, D);
+    dp_next = mem_new(seq_t, D);
 
     a_cache_cap = 2;
-    a_cache = (seq_t *)malloc(a_cache_cap * sizeof(seq_t));
+    a_cache = mem_new(seq_t, a_cache_cap);
     a_cache[0] = 0; /* unused, offsets start at 1 */
 
     /* Build difference vectors and their weights */
@@ -93,7 +95,7 @@ static void ensure_cache(idx_t needed)
     size_t newcap = a_cache_cap * 2;
     if (newcap < (size_t)(needed + 1))
         newcap = needed + 1;
-    seq_t *tmp = (seq_t *)realloc(a_cache, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, newcap);
     if (!tmp) abort();
     a_cache = tmp;
     a_cache_cap = newcap;

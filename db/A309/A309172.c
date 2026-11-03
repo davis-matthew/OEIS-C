@@ -7,12 +7,14 @@
  * Formula:   a(n) = coefficient of x^n in ∏_{k>=1} 1/(1-(1+x+x^2)x^k)
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 34, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,8 +25,8 @@ seq_t a(idx_t n)
 
     /* Allocate (or reallocate) the array.  The cast is required for C++ */
     if (cap < needed) {
-        free(dp);
-        dp = (seq_t*)realloc(NULL, needed * sizeof(seq_t));
+        mem_free(dp);
+        dp = mem_resize(seq_t, NULL, needed);
         cap = needed;
     }
 

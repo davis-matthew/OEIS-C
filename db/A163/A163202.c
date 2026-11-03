@@ -9,12 +9,14 @@
  *            values: a(0)=0, a(1)=-1, a(2)=7, a(3)=-118
  * Range:     i8 n <= 3, i16 n <= 4, i32 n <= 8, i64 n <= 16, i128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 438 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;
 static idx_t a_cache_size = 0;
@@ -26,7 +28,7 @@ static void a_grow_cache(idx_t upto)
         return;  /* already has what we need */
 
     size_t new_size = (size_t)(upto + 1);
-    seq_t *new_cache = (seq_t *)realloc(a_cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, a_cache, new_size);
     if (!new_cache && new_size > 0) {
         /* Allocation failed – abort exercise */
         exit(1);

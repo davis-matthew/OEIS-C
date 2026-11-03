@@ -8,31 +8,33 @@
  *            k!*x^k)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     size_t len = (size_t)n + 1;
 
     /* allocate dp buffers */
-    seq_t *dp      = (seq_t*)malloc(len * sizeof(seq_t));
-    seq_t *dp_next = (seq_t*)malloc(len * sizeof(seq_t));
+    seq_t *dp      = mem_new(seq_t, len);
+    seq_t *dp_next = mem_new(seq_t, len);
     if (!dp || !dp_next) {
-        free(dp); free(dp_next);
+        mem_free(dp); mem_free(dp_next);
         return 0;
     }
     for (size_t i = 0; i < len; ++i) dp[i] = 0;
     dp[0] = 1;
 
     /* pre‑compute factorials up to n */
-    seq_t *fact = (seq_t*)malloc(len * sizeof(seq_t));
+    seq_t *fact = mem_new(seq_t, len);
     if (!fact) {
-        free(dp); free(dp_next);
+        mem_free(dp); mem_free(dp_next);
         return 0;
     }
     fact[0] = 1;
@@ -61,8 +63,8 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[(size_t)n];
-    free(dp);
-    free(dp_next);
-    free(fact);
+    mem_free(dp);
+    mem_free(dp_next);
+    mem_free(fact);
     return result;
 }

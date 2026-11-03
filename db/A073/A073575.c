@@ -6,8 +6,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = ∑_{k ≥ 1, k! | n} k! (sum of factorial numbers dividing
  *            n)
- * Range:     u8 n <= 719, u16 n <= 9858, u32 n <= 9858, u64 n <= 9858,
- *            u128 n <= 9858, big any n
+ * Range:     u8 n <= 719, u16 n <= 10079, u32 n <= 10079, u64 n <= 10079,
+ *            u128 n <= 10079, big any n
+ * Validated: standard, pass, 118 terms through n = 9858 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   a(n) = smallest unused integer not having same length as a(n-1)
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   my_digit_len, pow10_len
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,17 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/my_digit_len.h"
-#include "../utils/pow10_len.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* 10^len as seq_t */
+static seq_t pow10_len(idx_t len)
+{
+    seq_t r = 1;
+    for (idx_t i = 0; i < len; ++i)
+        r *= 10;
+    return r;
+}
 
 /* static storage for the sequence and helper arrays */
 static seq_t *seq_arr  = NULL;          /* sequence values */
@@ -37,7 +47,7 @@ static void grow_seq(idx_t new_cap)
     {
         size_t cap = seq_cap ? seq_cap * 2 : 16;
         while (cap < (size_t)new_cap) cap *= 2;
-        seq_arr = (seq_t*)realloc(seq_arr, cap * sizeof(seq_t));
+        seq_arr = mem_resize(seq_t, seq_arr, cap);
         seq_cap = cap;
     }
 }
@@ -49,8 +59,8 @@ static void grow_len(idx_t new_len)
     {
         size_t cap = len_cap ? len_cap * 2 : 4;
         while (cap <= (size_t)new_len) cap *= 2;
-        cand_len   = (seq_t*)realloc(cand_len,   (cap+1) * sizeof(seq_t));
-        maxv_len   = (seq_t*)realloc(maxv_len,   (cap+1) * sizeof(seq_t));
+        cand_len   = mem_resize(seq_t, cand_len, (cap+1));
+        maxv_len   = mem_resize(seq_t, maxv_len, (cap+1));
         active_len = (unsigned char*)realloc(active_len, (cap+1) * sizeof(unsigned char));
         len_cap = cap;
     }
@@ -78,7 +88,7 @@ static void ensure_terms(idx_t n)
     /* generate terms until index n */
     for (idx_t i = seq_len; i <= n; ++i)
     {
-        int prev_len = my_digit_len(seq_arr[i-1]);
+        int prev_len = num_digits(seq_arr[i-1]);
 
         /* find minimal candidate among active lengths ≠ prev_len */
         idx_t chosen_len = 0;

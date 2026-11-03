@@ -10,6 +10,7 @@
  *            T(m,n) = (m+n-2)* (binomial(m+n-2,m) + binomial(m+n-2,n))
  * Range:     u8 n <= 47, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,6 +21,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* Integer square‑root of an idx_t value (floor).  Uses 128‑bit arithmetic

@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 45, u32 n <= 91, u64 n <= 231,
  *            u128 n <= 630, big any n
+ * Validated: standard, pass, 84 terms through n = 9795 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,6 +21,7 @@
    (nr + N*(nr+N+1)/2). */
 
 #include <math.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 static inline idx_t _diag_of(idx_t k)

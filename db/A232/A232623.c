@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 21, u32 n <= 63, u64 n <= 208, u128 n <= 729,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 9869 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for partition numbers p[0] .. */
 static seq_t *part = NULL;
@@ -36,7 +38,7 @@ ensure_partitions(idx_t N)
         return;
 
     /* Reallocate storage to the needed size. */
-    seq_t *tmp = (seq_t *)realloc(part, need * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, part, need);
     part = tmp;
 
     /* Initialise newly allocated entries to zero. */

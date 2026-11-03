@@ -7,7 +7,8 @@
  * Formula:   a(n) = 10*(10*n-11)/n * a(n-1), a(0)=1, a(1)=1
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 6, u64 n <= 11, u128 n <= 21,
  *            big any n
- * Helpers:   gcd_seq_idx
+ * Validated: standard, pass, 33 terms through n = 174 (2026-11-03)
+ * Helpers:   gcd_idx_to_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,8 @@
 #include <stddef.h>   /* NULL, size_t */
 #include <stdlib.h>   /* malloc, realloc, free */
 #include <stdbool.h>
-#include "../utils/gcd_seq_idx.h"
+#include "../utils/gcd_idx_to_idx.h"
+#include "../utils/mem.h"
 
 /* Euclidean gcd for idx_t */
 static inline idx_t gcd_idx(idx_t a, idx_t b)
@@ -40,7 +42,7 @@ static void ensure_cache(idx_t n)
     if (cache_cap < needed) {
         idx_t new_cap = needed * 2;
         if (new_cap < needed) new_cap = needed;   /* avoid overflow */
-        seq_t *new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (new_cache == NULL) {
             /* In real code we would handle allocation failure. */
             abort();
@@ -86,12 +88,12 @@ seq_t a(idx_t n)
         seq_t prev = cache[i - 1];
 
         /* Reduce denominator with prev. */
-        idx_t g2 = gcd_seq_idx(prev, denom);
+        idx_t g2 = gcd_idx_to_idx(prev, denom);
         seq_t prev_red = prev / g2;
         idx_t denom2 = denom / g2;
 
         /* Reduce numerator with the remaining denominator. */
-        idx_t g3 = gcd_seq_idx(num, denom2);
+        idx_t g3 = gcd_idx_to_idx(num, denom2);
         seq_t num_red = (seq_t)num / g3;
         denom2 /= g3;   /* should now be 1 for exactness */
 

@@ -7,13 +7,16 @@
  * Formula:   a(n) = Sum_{d|n} mu(n/d) * binomial(d, 3)
  * Range:     u8 n <= 5, u16 n <= 5, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-01)
  * Helpers:   binomial, mobius
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/mobius.h"
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mobius.h"
 
 seq_t a(idx_t n)
 {

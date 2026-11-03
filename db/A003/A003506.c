@@ -8,13 +8,14 @@
  * Formula:   T(n,k) = n*binomial(n-1,k-1), 1 <= k <= n, read by rows
  * Range:     u8 n <= 31, u16 n <= 126, u32 n <= 479, u64 n <= 1981,
  *            u128 n <= 7260, big any n
- * Helpers:   a003506_g
+ * Validated: standard, pass, 82 terms through n = 6755 (2026-11-01)
+ * Helpers:   gcd_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a003506_g.h"
+#include "../utils/gcd_idx.h"
 
 seq_t a(idx_t n) {
     idx_t row = 1, cum = 0;
@@ -28,7 +29,7 @@ seq_t a(idx_t n) {
     for (i = 0; i < j; i++) {
         idx_t num = m - i, d = i + 1;
         idx_t rm = (idx_t)(long long)(r % (seq_t)d);
-        idx_t g = a003506_g(rm, d);
+        idx_t g = gcd_idx(rm, d);
         if (g == 0) g = d;
         r /= (seq_t)g;
         d /= g;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 3, u32 n <= 6, u64 n <= 6, u128 n <= 6,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 6 terms through n = 6 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Small prime sieve – we only need primes up to 2000 for the known
@@ -59,7 +61,7 @@ static void _compute_terms(void)
 {
     /* Allocate string large enough to hold all possible terms within
        the bound (worst case 2000 primes → far fewer than 10 terms). */
-    _term_cache = (seq_t *)malloc(16 * sizeof(seq_t));
+    _term_cache = mem_new(seq_t, 16);
     if (!_term_cache) exit(1);
     _term_cnt = 0;
 

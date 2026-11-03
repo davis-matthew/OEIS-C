@@ -7,12 +7,15 @@
  * Formula:   a(n) = (n+1)^n - 2*(n^n) + (n-1)^n
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 16, u128 n <= 19,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -27,9 +30,9 @@ seq_t a(idx_t n)
     seq_t nm1 = (seq_t)(n - 1u);
 
     /* Compute the three power terms */
-    seq_t p1 = big_pow(np1, np);   /* (n+1)^n */
-    seq_t p2 = big_pow(np,  np);   /*  n^n   */
-    seq_t p3 = big_pow(nm1, np);   /* (n-1)^n */
+    seq_t p1 = ipow(np1, np);   /* (n+1)^n */
+    seq_t p2 = ipow(np,  np);   /*  n^n   */
+    seq_t p3 = ipow(nm1, np);   /* (n-1)^n */
 
     /* a(n) = p1 - 2*p2 + p3 */
     seq_t result = p1;

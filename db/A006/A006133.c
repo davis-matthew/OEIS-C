@@ -11,7 +11,8 @@
  *            values where its j-th term equals A003231(j)
  * Range:     u8 n <= 10, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   a6133_c, a6133_hi, a6133_in3234, a6133_isqrt, a6133_lo
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,11 +20,21 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/a6133_c.h"
-#include "../utils/a6133_hi.h"
-#include "../utils/a6133_in3234.h"
-#include "../utils/a6133_isqrt.h"
-#include "../utils/a6133_lo.h"
+#include "../utils/isqrt_u64.h"
+
+/* floor(n*phi) */
+static uint64_t a6133_lo(uint64_t n) { return (n + isqrt_u64(5 * n * n)) / 2; }
+
+/* floor(n*(phi+2)) = A003231 */
+static uint64_t a6133_c(uint64_t n) { return a6133_lo(n) + 2 * n; }
+
+/* floor(n*phi^2) = A001950 */
+static uint64_t a6133_hi(uint64_t n) { return a6133_lo(n) + n; }
+
+static int a6133_in3234(uint64_t m)
+{
+    return a6133_c(a6133_hi(m)) + 1 == a6133_hi(a6133_c(m));
+}
 
 static uint64_t *a6133_res = NULL;
 static idx_t a6133_cnt = 0, a6133_cap = 0;

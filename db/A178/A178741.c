@@ -11,7 +11,8 @@
  *            prime
  * Range:     u8 n <= 19, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* Dynamic cache for the sequence */
 static seq_t *_seq     = NULL;   /* array of computed terms           */
@@ -39,7 +41,7 @@ static void _ensure_capacity(size_t _min_cap)
         new_cap <<= 1;
 
     /* cast the void* return of realloc to seq_t* (needed for C++) */
-    seq_t *tmp = (seq_t *)realloc(_seq, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, _seq, new_cap);
     if (!tmp) abort();          /* on allocation failure */
     _seq   = tmp;
     _cap   = new_cap;

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   a_at
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,24 @@
    a(n) is the a(i,j) that lies on the nth entry in that order. */
 
 #include <stdint.h>
-#include "../utils/a_at.h"
+
+/* Compute the entry a(i,j) defined above. */
+static inline seq_t a_at(idx_t i, idx_t j)
+{
+    if (j == 0)
+        return (seq_t)2;
+    if (j == 1)
+        return (seq_t)(i + 2);
+
+    seq_t v0 = (seq_t)2;
+    seq_t v1 = (seq_t)(i + 2);
+    for (idx_t m = 2; m <= j; ++m) {
+        seq_t v2 = (seq_t)(i + 2) * v1 - v0;
+        v0 = v1;
+        v1 = v2;
+    }
+    return v1;
+}
 
 /* Return the diagonal number k such that k*(k+1)/2 <= n < (k+1)*(k+2)/2. */
 static inline idx_t diag_of(idx_t n)

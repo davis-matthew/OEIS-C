@@ -10,14 +10,41 @@
  *            C(2k,k)
  * Range:     u8 n <= 38, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   binomial, triangular_d
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/triangular_d.h"
+
+/* Find highest integer d with d*(d+1)/2 <= n. */
+static inline idx_t triangular_d(idx_t n)
+{
+    idx_t lo = 0;
+    idx_t hi = 1;
+
+    /* Expand hi until the triangular number exceeds n.  Protect against
+       overflow: if hi would overflow, set it to the maximum idx_t value. */
+    while ((__int128)hi * (hi + 1) / 2 <= n) {
+        if (hi > (idx_t)(-1) / 2) {
+            hi = (idx_t)(-1);
+            break;
+        }
+        hi <<= 1;
+    }
+
+    while (lo < hi) {
+        idx_t mid = lo + (hi - lo + 1) / 2;
+        if ((__int128)mid * (mid + 1) / 2 <= n)
+            lo = mid;
+        else
+            hi = mid - 1;
+    }
+    return lo;
+}
 
 seq_t a(idx_t n)
 {

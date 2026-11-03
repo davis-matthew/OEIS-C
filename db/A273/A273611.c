@@ -10,12 +10,15 @@
  *            a(0)=1, a(1)=4, a(2)=28, a(3)=144, a(4)=652
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 14, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   big_pow, pow2
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-01)
+ * Helpers:   ipow, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/ipow.h"
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)
@@ -29,7 +32,7 @@ seq_t a(idx_t n)
     /* n > 4 */
     idx_t exp4 = 2 * ((idx_t)n - 4);           /* exponent for 4^(n-4) = 2^(2*(n-4)) */
     seq_t pow4 = pow2(exp4);                  /* 4^(n-4) */
-    seq_t pow3 = big_pow((seq_t)3, (seq_t)n - 4); /* 3^(n-4) */
+    seq_t pow3 = ipow((seq_t)3, (seq_t)n - 4); /* 3^(n-4) */
     seq_t pow2n = pow2(n);                    /* 2^n */
 
     seq_t numerator = ((seq_t)2150 * pow4

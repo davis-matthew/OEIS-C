@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 n <= 51, u16 n <= 4574, u32 n <= 8513, u64 n <= 8513,
- *            u128 n <= 8513, big any n
- * Helpers:   digit_sum, is_power_of_two
+ * Range:     u8 n <= 51, u16 n <= 4574, u32 n <= 10535, u64 n <= 10535,
+ *            u128 n <= 10535, big any n
+ * Validated: standard, pass, 80 terms through n = 8513 (2026-11-01)
+ * Helpers:   digit_sum, is_pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,9 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/digit_sum.h"
-#include "../utils/is_power_of_two.h"
+#include "../utils/is_pow2.h"
 
 seq_t a(idx_t n)
 {
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
         /* test next integer */
         ++last_candidate;   /* start from 1 and increase */
 
-        if (is_power_of_two(digit_sum(last_candidate)))
+        if (is_pow2(digit_sum(last_candidate)))
         {
             /* store the new term */
             cache[cache_len++] = last_candidate;

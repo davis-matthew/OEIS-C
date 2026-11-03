@@ -10,18 +10,20 @@
  *            = 36 * sum_{k=1}^{41} a(n-k) - 666 * a(n-42) (for n ≥ 43)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)1;
 
     /* Allocate array for 0..n */
-    seq_t *a_vals = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *a_vals = mem_new(seq_t, (size_t)(n + 1));
     if (!a_vals) return (seq_t)0; /* allocation failure (unlikely) */
 
     a_vals[0] = (seq_t)1;
@@ -43,6 +45,6 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = a_vals[n];
-    free(a_vals);
+    mem_free(a_vals);
     return result;
 }

@@ -9,7 +9,8 @@
  *            <= n, p prime, e>=1} a(n-p^e), with a(0)=1, a(1)=0
  * Range:     u8 n <= 14, u16 n <= 26, u32 n <= 50, u64 n <= 99, u128 n <= 195,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 977 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* auxiliary data */
 static seq_t *dp          = NULL;   /* DP table */
@@ -56,11 +58,11 @@ static void ensure_dp_cap(size_t need)
     if (dp_cap >= need) return;
     size_t new_cap = dp_cap > 0 ? dp_cap << 1 : 8;
     if (new_cap < need) new_cap = need;
-    seq_t *new_dp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_dp = mem_new(seq_t, new_cap);
     if (!new_dp) abort();
     if (dp) {
-        memcpy(new_dp, dp, dp_size * sizeof(seq_t));
-        free(dp);
+        mem_copy(new_dp, dp, dp_size * sizeof(seq_t));
+        mem_free(dp);
     }
     dp = new_dp;
     dp_cap = new_cap;

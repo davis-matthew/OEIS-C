@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..floor(n/2)} (k+1)*binomial(k, n-2*k)^2
  * Range:     u8 n <= 11, u16 n <= 20, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 39 terms through n = 38 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* Simple memoisation cache for correct O(1) retrieval after first calculation */
 static seq_t *cache      = NULL;
@@ -26,7 +28,7 @@ static void ensure_cache(idx_t n)
     if (n < cache_len) return;
 
     idx_t new_len = n + 1U;
-    cache      = (seq_t *)realloc(cache,      new_len * sizeof(seq_t));
+    cache      = mem_resize(seq_t, cache, new_len);
     computed   = (bool *)realloc(computed,   new_len * sizeof(bool));
 
     /* initialise newly allocated slots */

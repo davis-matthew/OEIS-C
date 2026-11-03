@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *sigma_array = NULL;   /* σ values, 1‑based (sigma_array[0] unused) */
 static idx_t sigma_limit = 0;       /* largest n for which sigma_array is filled */
@@ -34,7 +36,7 @@ static void ensure_sigma(idx_t limit)
         return;
 
     /* Allocate a new array large enough for indices 0..limit. */
-    seq_t *new_sigma = (seq_t *)malloc((limit + 1) * sizeof(seq_t));
+    seq_t *new_sigma = mem_new(seq_t, (limit + 1));
     if (!new_sigma)          /* allocation failed – caller will handle failure */
         return;
 
@@ -50,7 +52,7 @@ static void ensure_sigma(idx_t limit)
 
     /* Free old array if it exists. */
     if (sigma_array)
-        free(sigma_array);
+        mem_free(sigma_array);
 
     sigma_array = new_sigma;
     sigma_limit = limit;

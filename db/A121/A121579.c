@@ -14,12 +14,14 @@
  *            computed entries. The algorithm is O(max_row^2) where max...
  * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -46,10 +48,10 @@ seq_t a(idx_t n)
         /* maximum row length needed for n up to 10000 is 5001 */
         const size_t MAX_LEN = 6000;     /* a small safety margin */
 
-        A1 = (seq_t*)malloc(MAX_LEN * sizeof(seq_t));
-        A2 = (seq_t*)malloc(MAX_LEN * sizeof(seq_t));
-        B1 = (seq_t*)malloc(MAX_LEN * sizeof(seq_t));
-        B2 = (seq_t*)malloc(MAX_LEN * sizeof(seq_t));
+        A1 = mem_new(seq_t, MAX_LEN);
+        A2 = mem_new(seq_t, MAX_LEN);
+        B1 = mem_new(seq_t, MAX_LEN);
+        B2 = mem_new(seq_t, MAX_LEN);
         if (!A1 || !A2 || !B1 || !B2) return 0;  /* out of memory */
 
         A_prev = A1;  B_prev = B1;
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
 
         /* flat[0] is unused; make room for at least one element  */
         flat_cap = 16;
-        flat = (seq_t*)calloc(flat_cap + 1, sizeof(seq_t));
+        flat = mem_new(seq_t, flat_cap + 1);
         if (!flat) return 0;
         flat[1] = 1;
         flat_len = 1;
@@ -114,7 +116,7 @@ seq_t a(idx_t n)
                 size_t new_cap = flat_cap * 2;
                 if (new_cap < flat_len + newA_len)
                     new_cap = flat_len + newA_len;
-                seq_t *tmp = (seq_t*)realloc(flat, (new_cap + 1) * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, flat, (new_cap + 1));
                 if (!tmp) return 0;
                 flat = tmp;
                 flat_cap = new_cap;

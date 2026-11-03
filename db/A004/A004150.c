@@ -9,13 +9,16 @@
  *            a(2k) * a(n-1-2k)
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 15, u64 n <= 23, u128 n <= 24,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
 #include <stdlib.h>
+#include "../utils/binomial.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t reverse_digits(seq_t num) {
     seq_t reversed = 0;
@@ -34,12 +37,12 @@ seq_t a(idx_t n) {
         idx_t new_len = 1;
         while (new_len <= n) new_len *= 2;
         
-        seq_t *new_euler = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_euler = mem_new(seq_t, new_len);
         if (euler != NULL) {
             for (idx_t i = 0; i < euler_len; i++) {
                 new_euler[i] = euler[i];
             }
-            free(euler);
+            mem_free(euler);
         }
         euler = new_euler;
         
@@ -53,7 +56,7 @@ seq_t a(idx_t n) {
         for (idx_t i = start; i <= n; i++) {
             seq_t sum = 0;
             for (idx_t k = 0; k * 2 <= i - 1; k++) {
-                seq_t binom_coeff = binom(i - 1, 2 * k);
+                seq_t binom_coeff = binomial(i - 1, 2 * k);
                 seq_t euler_product = euler[2 * k] * euler[i - 1 - 2 * k];
                 sum += binom_coeff * euler_product;
             }

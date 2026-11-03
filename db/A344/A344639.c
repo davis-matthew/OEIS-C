@@ -12,14 +12,16 @@
  *            i>0, j>0). This implementation memoises the whol...
  * Range:     u8 n <= 20, u16 n <= 44, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/binomial.h"   /* seq_t binomial(idx_t n, idx_t k); */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *tbl = NULL;   /* flattened table, size = tbl_size × tbl_size */
 static idx_t  tbl_size = 0; /* current number of rows/columns stored */
@@ -39,14 +41,14 @@ seq_t a(idx_t n)
     if (tbl_size <= d) {
         idx_t new_size = d + 1;                    /* new dimension */
         size_t cells   = (size_t)new_size * new_size;
-        seq_t *new_tbl = (seq_t *)malloc(cells * sizeof(seq_t));
+        seq_t *new_tbl = mem_new(seq_t, cells);
         if (!new_tbl) return (seq_t)0;             /* allocation failure */
 
         /* Pre‑compute factorials up to new_size‑1 to avoid repeated
            expensive calls.  seq_t can be big‑int so multiplication is
            exact. */
-        seq_t *fact = (seq_t *)malloc(new_size * sizeof(seq_t));
-        if (!fact) { free(new_tbl); return (seq_t)0; }
+        seq_t *fact = mem_new(seq_t, new_size);
+        if (!fact) { mem_free(new_tbl); return (seq_t)0; }
         fact[0] = (seq_t)1;
         for (idx_t i = 1; i < new_size; ++i)
             fact[i] = fact[i - 1] * (seq_t)i;
@@ -76,8 +78,8 @@ seq_t a(idx_t n)
             }
         }
 
-        free(fact);
-        free(tbl);          /* free old table if any */
+        mem_free(fact);
+        mem_free(tbl);          /* free old table if any */
         tbl = new_tbl;
         tbl_size = new_size;
     }

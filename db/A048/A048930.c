@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 1094, u32 n <= 1094, u64 n <= 1094,
  *            u128 n <= 1094, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 945 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -79,15 +81,14 @@ seq_t a(idx_t n)
 
         /* 3.  collect terms where exactly two representations exist */
         cap = 1024;
-        terms = (seq_t *)malloc(cap * sizeof(seq_t));
+        terms = mem_new(seq_t, cap);
         if (!terms) abort();
 
         for (idx_t s = 1; s <= LIMIT; ++s) {
             if (dp[6 * COLUMNS + (size_t)s] == 2) {
                 if (count == cap) {               /* grow array */
                     cap <<= 1;
-                    seq_t *tmp = (seq_t *)realloc(terms,
-                                                  cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, terms, cap);
                     if (!tmp) abort();
                     terms = tmp;
                 }

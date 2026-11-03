@@ -8,6 +8,7 @@
  * Formula:   a(n) = numerator of product_{d|n} sigma(d)/d
  * Range:     u8 n <= 7, u16 n <= 29, u32 n <= 99, u64 n <= 399,
  *            u128 n <= 1799, big any n
+ * Validated: standard, pass, 67 terms through n = 8925 (2026-11-01)
  * Helpers:   factor_u64, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,8 +19,8 @@
 #include <stdlib.h>
 #include <stdint.h>    /* for uint64_t */
 #include <stdbool.h>
-#include "../utils/gcd.h"          /* seq_t gcd(seq_t a, seq_t b); */
-#include "../utils/factor_u64.h"   /* void factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt); */
+#include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
 
 /* ------------------------------------------------------------------ */
 /* Helper: compute sigma(n) (sum of divisors of n) */

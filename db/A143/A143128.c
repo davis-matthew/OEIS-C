@@ -8,6 +8,7 @@
  *            divisors of k
  * Range:     u8 n <= 7, u16 n <= 48, u32 n <= 1985, u64 n <= 4267,
  *            u128 n <= 4267, big any n
+ * Validated: standard, pass, 56 terms through n = 3835 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,7 +10,8 @@
  *            and * caches the results
  * Range:     u8 n <= 20, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   mul_mod64
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mul_mod64.h"   /* provides mul_mod64(uint64_t, uint64_t, uint64_t) */
+#include <stddef.h>
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 /* Helper: modular exponentiation for 64‑bit numbers */
 static uint64_t mod_pow_uint64(uint64_t a, uint64_t e, uint64_t mod)
@@ -26,8 +29,8 @@ static uint64_t mod_pow_uint64(uint64_t a, uint64_t e, uint64_t mod)
     uint64_t res = 1 % mod;
     a %= mod;
     while (e) {
-        if (e & 1ULL) res = mul_mod64(res, a, mod);
-        a = mul_mod64(a, a, mod);
+        if (e & 1ULL) res = mulmod(res, a, mod);
+        a = mulmod(a, a, mod);
         e >>= 1ULL;
     }
     return res;
@@ -67,7 +70,7 @@ static bool is_prime_uint64(uint64_t n)
         if (x == 1 || x == n - 1) continue;
         bool cont = false;
         for (uint64_t r = 1; r < s; ++r) {
-            x = mul_mod64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) {
                 cont = true;
                 break;
@@ -90,7 +93,7 @@ static void ensure_cache(size_t need)
     if (need <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 64;
     while (new_cap < need) new_cap *= 2;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) exit(EXIT_FAILURE);   /* out of memory */
     cache = new_cache;
     cache_cap = new_cap;

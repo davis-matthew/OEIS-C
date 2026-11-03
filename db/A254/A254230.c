@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 8, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 29 terms through n = 361 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    initial values: a(1)=1, a(2)=4141, a(3)=85285, a(4)=429332905, a(5)=8842505113 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     if (n <= cache_len) return cache[n-1];
 
     /* Expand the cache to hold n terms. */
-    cache = (seq_t*)realloc(cache, sizeof(seq_t) * n);
+    cache = mem_resize(seq_t, cache, n);
     if (!cache) return 0;           /* allocation failed */
 
     cache_len = n;

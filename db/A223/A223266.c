@@ -13,12 +13,14 @@
  *            a(5)=1771674009600, a(6)=534392715870208
  * Range:     u8 none, u16 n <= 1, u32 n <= 3, u64 n <= 7, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 27 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t c448          = (seq_t)448;
 static const seq_t c46080        = (seq_t)46080;
@@ -46,7 +48,7 @@ ensure_terms(idx_t required)
 
     /* Grow the array to 'required' elements */
     idx_t new_size = required;
-    seq_t *new_cache = (seq_t *)realloc(cache, (size_t)new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (size_t)new_size);
     if (!new_cache) {
         exit(EXIT_FAILURE);   /* cannot proceed without memory */
     }

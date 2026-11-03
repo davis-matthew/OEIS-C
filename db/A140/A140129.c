@@ -12,15 +12,17 @@
  *            numerator as an exact seq_t value
  * Range:     u8 n <= 66, u16 n <= 1896, u32 n <= 8191, u64 n <= 8191,
  *            u128 n <= 8191, big any n
- * Helpers:   floor_log2_uint64, gcd
+ * Validated: standard, pass, 111 terms through n = 8133 (2026-11-01)
+ * Helpers:   gcd, ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /*--------------------------------- Includes ---------------------------------*/
 #include <stdint.h>
+#include <stddef.h>
 #include "../utils/gcd.h"
-#include "../utils/floor_log2_uint64.h"
+#include "../utils/ilog2.h"
 
 /*--------------------------------- Types -------------------------------------*/
 typedef struct {
@@ -54,7 +56,7 @@ static fraction_t get_fraction(idx_t n)
     }
 
     /* Compute based on the recurrence */
-    idx_t k        = floor_log2_uint64(n);          /* ⌊log₂ n⌋  */
+    idx_t k        = ilog2(n);          /* ⌊log₂ n⌋  */
     idx_t power2   = (idx_t)1 << k;                 /* 2^k       */
     idx_t thr      = 3 * ((idx_t)1 << (k - 1));     /* 3·2^{k-1} */
 

@@ -7,6 +7,7 @@
  * Formula:   a(n) = C(6n, n-11) = Product_{i=1..n-11} (5n+11+i)/i
  * Range:     u8 n <= 12, u16 n <= 13, u32 n <= 17, u64 n <= 25, u128 n <= 28,
  *            big any n
+ * Validated: partial, pass, 18 terms through n = 28 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

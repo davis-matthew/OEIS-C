@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 6, u32 n <= 6, u64 n <= 6, u128 n <= 6,
  *            big any n
- * Helpers:   concat_primes
+ * Validated: full, pass, 7 terms through n = 6 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,23 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/concat_primes.h"
+
+/* concatenate primes[0..cnt-1] in decimal order to form the next number.
+   The result is stored in *out, which is of type seq_t. */
+static void concat_primes(const uint64_t *primes, int cnt, seq_t *out)
+{
+    seq_t res = 0;
+    for (int i = 0; i < cnt; ++i) {
+        seq_t mult = 10;
+        seq_t p = (seq_t)primes[i];
+        while (p >= 10) {
+            p /= 10;
+            mult *= 10;
+        }
+        res = res * mult + (seq_t)primes[i];
+    }
+    *out = res;
+}
 
 /* return number of decimal digits of a non‑zero seq_t value */
 static int digit_len_seq(seq_t x)

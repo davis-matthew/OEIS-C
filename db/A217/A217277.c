@@ -10,14 +10,17 @@
  *            primes that follow the longest consecutive block
  * Range:     u8 n <= 3, u16 n <= 13, u32 n <= 30, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 static uint64_t *primes = NULL;
 static size_t primes_cnt = 0;
@@ -47,7 +50,7 @@ static void ensure_terms_cap(size_t needed)
     {
         size_t new_cap = terms_cap ? terms_cap * 2UL : 16UL;
         while (new_cap < needed) new_cap <<= 1;
-        seq_t *ptr = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *ptr = mem_resize(seq_t, terms, new_cap);
         if (!ptr) exit(1);                 /* out of memory */
         terms = ptr;
         terms_cap = new_cap;

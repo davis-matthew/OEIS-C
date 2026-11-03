@@ -8,8 +8,9 @@
  * Formula:   a(n) = floor(r * sqrt(2 / prime(k))) where (r,k) are the row and
  *            column of the triangle entry for the index n. Equivalent integer
  *            formula: a(n) = floor_sqrt( (2*r^2) / prime(k) )
- * Range:     u8 n <= 59, u16 n <= 9929, u32 n <= 9929, u64 n <= 9929,
- *            u128 n <= 9929, big any n
+ * Range:     u8 n <= 59, u16 n <= 10126, u32 n <= 10126, u64 n <= 10126,
+ *            u128 n <= 10126, big any n
+ * Validated: standard, pass, 120 terms through n = 9929 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

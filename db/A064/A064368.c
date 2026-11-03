@@ -8,13 +8,15 @@
  * Formula:   a(n) = n + 1 + 2 * Σ_{d=1}^{⌊√n⌋} φ(d) * ⌊ n / d² ⌋
  * Range:     u8 n <= 53, u16 n <= 8575, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   phi
+ * Validated: standard, pass, 74 terms through n = 9715 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* The totient helper is supplied by the build system in utils/phi.h   */
-#include "../utils/phi.h"
+#include <stdint.h>
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     for (idx_t d = 1; d <= sq; ++d)
     {
         idx_t cnt = n / (d * d);             /* ⌊ n / d² ⌋   */
-        seq_t phi_d = phi(d);                /* φ(d)         */
+        seq_t phi_d = totient(d);                /* φ(d)         */
         sum += phi_d * (seq_t)cnt;
     }
 

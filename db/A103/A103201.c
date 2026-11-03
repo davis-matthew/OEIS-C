@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 20, u64 n <= 42, u128 n <= 84,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 986 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
         x*(11+19*x+x^2-x^3)/(1-8*x^2+x^4). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     idx_t oldbuflen = buflen;
     if (n > buflen)
     {
-        seq_t *newbuf = (seq_t *)realloc(buf, n * sizeof(seq_t));
+        seq_t *newbuf = mem_resize(seq_t, buf, n);
         if (!newbuf) /* memory allocation failed */
             return (seq_t)0;
         buf = newbuf;

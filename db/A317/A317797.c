@@ -10,14 +10,17 @@
  *            (p^(2e+2)-1)/(p^2-1) if p ≡ 3 (mod 4)
  * Range:     u8 n <= 6, u16 n <= 18, u32 n <= 1712, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: standard, pass, 66 terms through n = 9854 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -44,15 +47,15 @@ seq_t a(idx_t n)
 
         if (p == 2ULL) {
             /* a(2^e) = 2^(2e+1) - 1 */
-            seq_t pow = big_pow((seq_t)2ULL, (seq_t)(2ULL * e + 1ULL));
+            seq_t pow = ipow((seq_t)2ULL, (seq_t)(2ULL * e + 1ULL));
             part = pow - (seq_t)1;
         } else if ((p & 3U) == 1U) {
             /* f(p,e) = sigma(p^e)^2 where sigma(p^e) = (p^(e+1)-1)/(p-1) */
-            seq_t sigma = (big_pow((seq_t)p, (seq_t)(e + 1ULL)) - (seq_t)1) / (seq_t)(p - 1);
+            seq_t sigma = (ipow((seq_t)p, (seq_t)(e + 1ULL)) - (seq_t)1) / (seq_t)(p - 1);
             part = sigma * sigma;
         } else { /* p % 4 == 3 */
             /* f(p,e) = sigma_2(p^e) = (p^(2e+2)-1)/(p^2-1) */
-            seq_t numerator = big_pow((seq_t)p, (seq_t)(2ULL * e + 2ULL)) - (seq_t)1;
+            seq_t numerator = ipow((seq_t)p, (seq_t)(2ULL * e + 2ULL)) - (seq_t)1;
             seq_t denom     = ((seq_t)p * (seq_t)p) - (seq_t)1;
             part = numerator / denom;
         }

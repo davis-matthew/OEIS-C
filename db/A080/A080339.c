@@ -8,17 +8,18 @@
  * Formula:   a(n) = 1 if n == 1 or n is prime, else 0 (for n >= 1)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   isPrime
+ * Validated: standard, pass, 120 terms through n = 9829 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/isPrime.h"
+#include "../utils/is_prime.h"
 
 seq_t a(idx_t n)
 {
     if (n == 1)
         return (seq_t)1;
-    return isPrime(n) ? (seq_t)1 : (seq_t)0;
+    return is_prime(n) ? (seq_t)1 : (seq_t)0;
 }

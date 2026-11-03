@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 11, u32 n <= 11, u64 n <= 11, u128 n <= 11,
  *            big any n
- * Helpers:   add_fraction, gcd_seq
+ * Validated: full, pass, 11 terms through n = 11 (2026-11-02)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,17 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/add_fraction.h"
-#include "../utils/gcd_seq.h"
+#include "../utils/gcd.h"
+
+/* Add the fraction 1/deni to the fraction num/den (in place). */
+static void add_fraction(seq_t *num, seq_t *den, seq_t deni)
+{
+    seq_t new_num = *num * deni + *den;
+    seq_t new_den = *den * deni;
+    seq_t g = gcd(new_num, new_den);
+    *num = new_num / g;
+    *den = new_den / g;
+}
 
 /* Euclidean algorithm for gcd, works for any unsigned seq_t */
 

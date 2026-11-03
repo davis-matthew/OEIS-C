@@ -6,15 +6,26 @@
  * Keywords:  nonn, base
  * Formula:   a(n) = smallest perfect square that has n² as a non‑trivial
  *            prefix in base 10 (i.e., at least one digit appended)
- * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 35, u64 n <= 35, u128 n <= 35,
+ * Range:     u8 n <= 2, u16 n <= 25, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   pow10, sqrt_floor
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-01)
+ * Helpers:   isqrt_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/sqrt_floor.h"
-#include "../utils/pow10.h"
+#include <stdint.h>
+#include "../utils/isqrt_seq.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -32,7 +43,7 @@ seq_t a(idx_t n)
         seq_t high = (base + (seq_t)1) * pow10k - (seq_t)1;
 
         /* smallest integer whose square is >= low */
-        seq_t root = sqrt_floor(low);
+        seq_t root = isqrt_seq(low);
         if (root * root < low)
             ++root;
 

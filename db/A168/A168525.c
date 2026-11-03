@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 16, u32 n <= 48, u64 n <= 142, u128 n <= 416,
  *            big any n
- * Helpers:   _col_from_index, big_pow
+ * Validated: standard, pass, 61 terms through n = 1300 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -39,8 +40,13 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/big_pow.h"
-#include "../utils/_col_from_index.h"
+#include "../utils/ipow.h"
+
+/* ---- helper: column from flattened index and row --------------------- */
+static inline idx_t _col_from_index(idx_t n, idx_t r)
+{
+    return n - r * (r + 1) / 2;
+}
 
 /* ---- helper: row from flattened index --------------------------------- */
 static inline idx_t _row_from_index(idx_t n)
@@ -91,7 +97,7 @@ seq_t a(idx_t n)
     for (idx_t t = 0; t <= max_tS; ++t) {
         idx_t m = k - t;                     /* m = k-t */
         seq_t base = 2 * m + 1;              /* integer base */
-        seq_t pwr = big_pow((seq_t)base, (seq_t)r);
+        seq_t pwr = ipow((seq_t)base, (seq_t)r);
         seq_t term = binom_sp * pwr;
         if (sign > 0) S += term; else S -= term;
         /* update binomial for next t */
@@ -108,7 +114,7 @@ seq_t a(idx_t n)
     idx_t max_tU = k < r + 2 ? k : r + 2;
     for (idx_t t = 0; t <= max_tU; ++t) {
         idx_t p = k - t + 1;               /* base for power */
-        seq_t pwr = big_pow((seq_t)p, (seq_t)(r + 1));
+        seq_t pwr = ipow((seq_t)p, (seq_t)(r + 1));
         seq_t term = binom_up * pwr;
         if (sign > 0) U += term; else U -= term;
         /* update binomial for next t */

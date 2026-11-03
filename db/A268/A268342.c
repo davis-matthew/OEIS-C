@@ -7,16 +7,18 @@
  * Formula:   a(n) = n*phi(n) if n even, (n-1)*phi(n)/2 if n odd
  * Range:     u8 n <= 25, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   phi
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/phi.h"  /* declares seq_t phi(idx_t) */
+#include <stdint.h>
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
-    seq_t phi_n = phi(n);
+    seq_t phi_n = totient(n);
     if ((n & 1) == 0) {
         /* n is even: a(n) = n * phi(n) */
         return (seq_t)n * phi_n;

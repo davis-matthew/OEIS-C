@@ -9,8 +9,9 @@
  * Formula:   a(n) = T(row,column) where T(row,col) = col if row==1 else = row
  *            if row>col else row-1. The sequence is obtained by enumerating
  *            the infinite square array along antidiagonals starting at (1,1)
- * Range:     u8 n <= 9923, u16 n <= 9923, u32 n <= 9923, u64 n <= 9923,
- *            u128 n <= 9923, big any n
+ * Range:     u8 n <= 10440, u16 n <= 10440, u32 n <= 10440, u64 n <= 10440,
+ *            u128 n <= 10440, big any n
+ * Validated: standard, pass, 107 terms through n = 9923 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

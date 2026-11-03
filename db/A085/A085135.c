@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 none, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   seq_all_rotations_smooth, seq_is_7_smooth, seq_num_digits
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,9 +32,51 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/seq_all_rotations_smooth.h"
-#include "../utils/seq_is_7_smooth.h"
-#include "../utils/seq_num_digits.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/*  Helper: test whether a seq_t is 7‑smooth
+ *  (its prime factors are only 2,3,5,7)
+ */
+static bool seq_is_7_smooth(seq_t x) {
+    if (x <= 1) return true;
+    while ((x & (seq_t)1) == 0) x /= (seq_t)2;
+    while (x % (seq_t)3 == 0) x /= (seq_t)3;
+    while (x % (seq_t)5 == 0) x /= (seq_t)5;
+    while (x % (seq_t)7 == 0) x /= (seq_t)7;
+    return x == (seq_t)1;
+}
+
+/*  Helper: test whether *every* cyclic rotation of a seq_t
+ *  is 7‑smooth
+ */
+static bool seq_all_rotations_smooth(seq_t x) {
+    /* gather digits (most significant first) */
+    uint8_t digs[64];          /* enough for 7‑smooth numbers up to 1e15 */
+    int len = 0;
+    seq_t tmp = x;
+    if (tmp == 0) return false;    /* 0 never appears in the sequence */
+
+    while (tmp) {
+        digs[len++] = (uint8_t)(tmp % (seq_t)10);
+        tmp /= (seq_t)10;
+    }
+    for (int i = 0; i < len/2; ++i) {          /* reverse to msd first */
+        uint8_t t = digs[i];
+        digs[i] = digs[len-1-i];
+        digs[len-1-i] = t;
+    }
+
+    /* test all rotations */
+    for (int shift = 0; shift < len; ++shift) {
+        seq_t v = (seq_t)0;
+        for (int i = 0; i < len; ++i) {
+            v = v * (seq_t)10 + (seq_t)digs[(shift + i) % len];
+        }
+        if (!seq_is_7_smooth(v)) return false;
+    }
+    return true;
+}
 
 /* ------------------------------------------------------------ */
 
@@ -101,7 +144,7 @@ static void init_terms(void)
 
     /* ----- allocate storage for terms ------------------------------ */
     terms_cap = 1 << 20;          /* start with a million slots */
-    terms     = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+    terms     = mem_new(seq_t, terms_cap);
     if (!terms) abort();
 
     /* ----- enumerate all 7‑smooth numbers <= B --------------------- */
@@ -121,7 +164,7 @@ static void init_terms(void)
                     /* store v */
                     if (terms_cnt == terms_cap) {
                         terms_cap <<= 1;
-                        seq_t *tmp = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                        seq_t *tmp = mem_resize(seq_t, terms, terms_cap);
                         if (!tmp) abort();
                         terms = tmp;
                     }
@@ -132,7 +175,7 @@ static void init_terms(void)
     }
 
     /* ----- sort the list in increasing order --------------------- */
-    qsort(terms, terms_cnt, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(terms, terms_cnt, sizeof(seq_t), cmp_seq_t);
 
     init_done = true;
 }

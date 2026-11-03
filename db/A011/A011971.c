@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 51, u32 n <= 128, u64 n <= 339,
  *            u128 n <= 937, big any n
- * Helpers:   alloc_seq
+ * Validated: standard, pass, 71 terms through n = 8588 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,15 @@
    a(0)=1, a(1)=1, a(2)=2, a(3)=2, a(4)=3, a(5)=5, … */
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/alloc_seq.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 static seq_t **_rows = NULL;      /* cached rows of the triangle */
 static idx_t  _row_cnt = 0;       /* number of rows stored */

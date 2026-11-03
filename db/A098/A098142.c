@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 34, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_primes_upto, mod_mul
+ * Validated: standard, pass, 73 terms through n = 970 (2026-11-03)
+ * Helpers:   build_primes_upto, mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/mod_mul.h"
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 /* 64‑bit modular multiplication using 128‑bit arithmetic. */
 
@@ -34,8 +36,8 @@ static uint64_t mod_pow(uint64_t base, uint64_t exp, uint64_t mod)
     uint64_t res = 1;
     while (exp) {
         if (exp & 1)
-            res = mod_mul(res, base, mod);
-        base = mod_mul(base, base, mod);
+            res = mulmod(res, base, mod);
+        base = mulmod(base, base, mod);
         exp >>= 1;
     }
     return res;
@@ -71,7 +73,7 @@ static bool is_prime_uint64(uint64_t n)
             continue;
         bool composite = true;
         for (uint64_t r = 1; r < s; ++r) {
-            x = mod_mul(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) {
                 composite = false;
                 break;
@@ -131,7 +133,7 @@ seq_t a(idx_t n)
         if (is_prime_uint64(E)) {
             if (vals_cnt == vals_cap) {
                 size_t new_cap = vals_cap == 0 ? 16 : vals_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(vals, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, vals, new_cap);
                 if (!tmp) {
                     /* Allocation failed – abort with zero (unlikely for this
                        problem size). */

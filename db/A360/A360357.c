@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 5325, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 9733 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- Prime sieve up to MAX_LIMIT --------------------------------- */
 #define MAX_LIMIT 5000000UL          /* upper bound for prime searching */
@@ -115,7 +117,7 @@ static void grow_seq(size_t new_needed)
     while (new_cap < new_needed) new_cap <<= 1;
 
     /* realloc must be cast explicitly in C++ */
-    seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, new_cap);
     if (!tmp) exit(1);                /* abort on allocation failure */
     seq = tmp;
     seq_cap = new_cap;

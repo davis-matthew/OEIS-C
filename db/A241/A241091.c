@@ -9,13 +9,15 @@
  *            max(part) <= 1 + 2*(number of parts)
  * Range:     u8 n <= 44, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of helper */
 static void build_sequence(idx_t max_n, seq_t *a);
@@ -33,7 +35,7 @@ static void build_sequence(idx_t max_n, seq_t *a)
 
     size_t stride = (size_t)(max_n + 1);
     /* dp[k][sum] flattened as dp[k*stride + sum] */
-    seq_t *dp = (seq_t*)calloc((size_t)(kmax + 1) * stride, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(kmax + 1) * stride);
     if (!dp) abort();
     dp[0 * stride + 0] = 1;              /* empty set */
 
@@ -61,7 +63,7 @@ static void build_sequence(idx_t max_n, seq_t *a)
         }
     }
 
-    free(dp);
+    mem_free(dp);
 }
 
 /* Public function required by the interface */
@@ -72,10 +74,10 @@ seq_t a(idx_t n)
 
     if (n + 1 > a_size) {
         size_t new_size = (size_t)(n + 1);
-        seq_t *new_a = (seq_t*)calloc(new_size, sizeof(seq_t));
+        seq_t *new_a = mem_new(seq_t, new_size);
         if (!new_a) abort();
         build_sequence(n, new_a);
-        if (a_vals) free(a_vals);
+        if (a_vals) mem_free(a_vals);
         a_vals = new_a;
         a_size = (idx_t)new_size;
     }

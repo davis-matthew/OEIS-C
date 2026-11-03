@@ -12,12 +12,14 @@
  *            lists the entries row by row
  * Range:     u8 n <= 73, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*--- internal storage for triangle rows ---------------------------------*/
 static seq_t **_rows = NULL;     /* pointer array: _rows[r] -> array of length r */
@@ -40,7 +42,7 @@ static void _ensure_rows(idx_t n)
 
     /* compute missing rows */
     for (idx_t r = _rows_cnt + 1; r <= n; ++r) {
-        seq_t *row = (seq_t *)malloc((size_t)r * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (size_t)r);
         if (!row) exit(EXIT_FAILURE);
 
         if (r == 1) {

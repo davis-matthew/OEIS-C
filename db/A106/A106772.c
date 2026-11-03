@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 9, u32 n <= 4500, u64 n <= 4500,
  *            u128 n <= 4500, big any n
- * Helpers:   digit_sum_uint64, ensure_seq_array, is_prime_uint64
+ * Validated: standard, pass, 49 terms through n = 4127 (2026-11-03)
+ * Helpers:   digit_sum_u64, is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,22 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/is_prime_uint64.h"
-#include "../utils/digit_sum_uint64.h"
-#include "../utils/ensure_seq_array.h"
+#include <stdlib.h>
+#include "../utils/digit_sum_u64.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+/* Ensure an array of seq_t is large enough to hold indexes [0..min_needed] */
+static void ensure_seq_array(seq_t **arr, size_t *cap, size_t min_needed)
+{
+    if (*cap <= min_needed) {
+        size_t newcap = (*cap) ? (*cap) * 2 : 16;
+        if (newcap <= min_needed) newcap = min_needed + 1;
+        *arr = mem_resize(seq_t, *arr, newcap);
+        for (size_t i = *cap; i < newcap; ++i) (*arr)[i] = 0;
+        *cap = newcap;
+    }
+}
 
 /* a(n) returns the n‑th prime whose decimal digit sum is 38
    (OEIS A106772).  The first term is a(1)=39989.  The function
@@ -36,11 +50,11 @@ seq_t a(idx_t n)
     while (size < n) {
         /* Find the next odd prime */
         uint64_t p = last_checked;
-        while (!is_prime_uint64(p))
+        while (!is_prime_u64(p))
             p += 2;
 
         /* Check the digit sum */
-        if (digit_sum_uint64(p) == 38) {
+        if (digit_sum_u64(p) == 38) {
             /* Ensure storage space and store */
             if (size >= cap)
                 ensure_seq_array(&primes, &cap, size + 1);

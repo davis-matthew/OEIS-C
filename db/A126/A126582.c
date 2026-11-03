@@ -9,7 +9,8 @@
  *            n, interpreted as a Roman numeral if valid, otherwise 0
  * Range:     u8 n <= 1, u16 n <= 20, u32 n <= 20, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   append_roman_from_word, canonical_roman
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,56 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <ctype.h>
-#include "../utils/append_roman_from_word.h"
-#include "../utils/canonical_roman.h"
+
+/* Append only Roman letters from a word into buf. */
+static void append_roman_from_word(const char *w, char *buf, size_t *len)
+{
+    for (; *w; ++w) {
+        char c = *w;
+        if ('a' <= c && c <= 'z')
+            c -= 'a' - 'A';
+        switch (c) {
+            case 'I': case 'V': case 'X':
+            case 'L': case 'C': case 'D':
+            case 'M':
+                buf[(*len)++] = c;
+                break;
+            default:
+                break;
+        }
+    }
+}
+
+/* Build canonical Roman string for a value (ascending, no subtractive check needed). */
+static void canonical_roman(seq_t val, char *buf, size_t *len)
+{
+    size_t pos = 0;
+
+    /* Threes of 1000 as Ms. */
+    while (val >= 1000) {
+        buf[pos++] = 'M';
+        val -= 1000;
+    }
+
+    /* Standard table. */
+    static const struct { seq_t v; const char *s; } tbl[] = {
+        {900, "CM"}, {500, "D"}, {400, "CD"},
+        {100, "C"},  {90, "XC"},  {50, "L"},
+        {40, "XL"},  {10, "X"},   {9, "IX"},
+        {5, "V"},    {4, "IV"},   {1, "I"}
+    };
+
+    for (size_t i = 0; i < sizeof(tbl)/sizeof(tbl[0]); ++i) {
+        while (val >= tbl[i].v) {
+            const char *s = tbl[i].s;
+            for (size_t k = 0; s[k]; ++k)
+                buf[pos++] = s[k];
+            val -= tbl[i].v;
+        }
+    }
+    buf[pos] = '\0';
+    *len = pos;
+}
 
 /* Roman letter values */
 static int roman_value(char c)

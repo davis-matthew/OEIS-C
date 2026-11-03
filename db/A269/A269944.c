@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 28, u32 n <= 55, u64 n <= 105,
  *            u128 n <= 253, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 9406 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdlib.h>   /* malloc, realloc */
 #include <stddef.h>   /* size_t */
+#include "../utils/mem.h"
 
 static seq_t **triangle = NULL;  /* triangle[row] points to array of T(row,0..row) */
 static size_t rows_allocated = 0;/* number of rows already built */
@@ -38,7 +40,7 @@ static void ensure_rows(idx_t max_row)
     size_t new_rows = (size_t)(max_row + 1);
     triangle = (seq_t **)realloc(triangle, new_rows * sizeof *triangle);
     for (size_t r = rows_allocated; r < new_rows; ++r) {
-        triangle[r] = (seq_t *)malloc((r + 1) * sizeof *triangle[r]);
+        triangle[r] = mem_new(seq_t, ((r + 1) * sizeof *triangle[r]) / sizeof(seq_t));
         for (size_t k = 0; k <= r; ++k) {
             if (r == 0) {                     /* only element in row 0 */
                 triangle[r][k] = (seq_t)1;

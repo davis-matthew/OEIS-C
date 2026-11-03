@@ -10,7 +10,8 @@
  *            iterations, k itself not being a palindrome
  * Range:     u8 none, u16 n <= 197, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   reverse_digits
+ * Validated: standard, pass, 77 terms through n = 876 (2026-11-03)
+ * Helpers:   mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
 
 static bool is_pal(seq_t x)
 {
@@ -52,7 +55,7 @@ seq_t a(idx_t n)
         if (cache_cap == 0)
         {
             cache_cap = 16;
-            cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+            cache = mem_new(seq_t, cache_cap);
         }
         while (cache_len < n)
         {
@@ -65,7 +68,7 @@ seq_t a(idx_t n)
             if (cache_len == cache_cap)
             {
                 cache_cap *= 2;
-                cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = (seq_t)next_test;
             ++next_test;

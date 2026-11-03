@@ -9,7 +9,8 @@
  *            to reach a fixed point (a number of the form 2^k-1)
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   bitlen_ull, left_rot, right_rot
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-01)
+ * Helpers:   bit_length_u64_to_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,22 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/bitlen_ull.h"
-#include "../utils/left_rot.h"
-#include "../utils/right_rot.h"
+#include "../utils/bit_length_u64_to_u32.h"
+
+/* left rotation of x (x>0).  Length = bitlen(x) */
+static unsigned long long left_rot(unsigned long long x) {
+    unsigned L = bit_length_u64_to_u32(x);
+    unsigned long long mask = (1ULL << L) - 1ULL;
+    return ((x << 1) & mask) | 1ULL;
+}
+
+/* right rotation of x (x>0).  Length = bitlen(x) */
+static unsigned long long right_rot(unsigned long long x) {
+    unsigned L = bit_length_u64_to_u32(x);
+    unsigned long long lsb = x & 1ULL;
+    unsigned long long y = (x >> 1) | (lsb << (L - 1));
+    return y;
+}
 
 /* maximal node value needed for n up to around 10000.
    2^15-1 = 32767 is more than enough. */

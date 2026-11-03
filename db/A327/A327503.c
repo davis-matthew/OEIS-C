@@ -9,17 +9,20 @@
  * Formula:   a(n) = number of steps required to reach 1 by repeatedly *
  *            dividing n by the maximal divisor of n that is 1 or not a
  *            perfect power
- * Range:     u8 n <= 7171, u16 n <= 9241, u32 n <= 9241, u64 n <= 9241,
- *            u128 n <= 9241, big any n
- * Helpers:   factor_u64, u64_gcd
+ * Range:     u8 n <= 7171, u16 n <= 65536, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9241 (2026-11-01)
+ * Helpers:   factor_u64, gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/u64_gcd.h"
+#include "../utils/gcd_u64.h"
 
 /* Euclidean gcd for 64‑bit integers. */
 
@@ -45,7 +48,7 @@ seq_t a(idx_t n)
            power and the next value becomes 1. */
         uint64_t g = exps[0];
         for (size_t i = 1; i < cnt; ++i)
-            g = u64_gcd(g, exps[i]);
+            g = gcd_u64(g, exps[i]);
 
         if (g == 1) {
             /* Not a perfect power – one step reaches 1. */
@@ -65,11 +68,11 @@ seq_t a(idx_t n)
         uint64_t prefix[64], suffix[64];
         prefix[0] = exps[0];
         for (size_t i = 1; i < cnt; ++i)
-            prefix[i] = u64_gcd(prefix[i-1], exps[i]);
+            prefix[i] = gcd_u64(prefix[i-1], exps[i]);
 
         suffix[cnt-1] = exps[cnt-1];
         for (size_t i = cnt-2; ; --i) {
-            suffix[i] = u64_gcd(suffix[i+1], exps[i]);
+            suffix[i] = gcd_u64(suffix[i+1], exps[i]);
             if (i == 0) break;
         }
 
@@ -81,14 +84,14 @@ seq_t a(idx_t n)
             else if (i == cnt-1)
                 g_other = prefix[cnt-2];
             else
-                g_other = u64_gcd(prefix[i-1], suffix[i+1]);
+                g_other = gcd_u64(prefix[i-1], suffix[i+1]);
 
             uint64_t e = exps[i];
             uint64_t r_min = 0;  /* minimal decrement needed */
 
             /* Search for minimal r such that gcd(e - r, g_other) == 1. */
             for (uint64_t r = 1; r < e; ++r) {
-                if (u64_gcd(e - r, g_other) == 1) {
+                if (gcd_u64(e - r, g_other) == 1) {
                     r_min = r;
                     break;
                 }

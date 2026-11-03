@@ -8,7 +8,8 @@
  *            = b(k-1) + b(k - 2^{⌊log₂ k⌋}) (with b(0) = 1)
  * Range:     u8 n <= 13, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,8 +28,8 @@ seq_t a(idx_t n)
 
     if (n >= cap) {
         idx_t new_cap = n + 1;
-        seq_t *diff_new = (seq_t *)realloc(diff, new_cap * sizeof(seq_t));
-        seq_t *psum_new = (seq_t *)realloc(psum, new_cap * sizeof(seq_t));
+        seq_t *diff_new = mem_resize(seq_t, diff, new_cap);
+        seq_t *psum_new = mem_resize(seq_t, psum, new_cap);
         if (!diff_new || !psum_new) {
             /* Allocation failure – terminate. */
             /* In production code you might return an error code instead. */

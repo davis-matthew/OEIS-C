@@ -8,12 +8,14 @@
  * Formula:   a(n) = Product_{i=1..n} A000030(i) (initial digit of i)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 31, u64 n <= 48, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 899 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return the most significant decimal digit of x (x >= 1). */
 static seq_t first_digit(idx_t x)
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     if (prod == NULL) {           /* first invocation, prepare array */
         cap = 128;
         sz  = 0;
-        prod = (seq_t *)malloc(cap * sizeof(seq_t));
+        prod = mem_new(seq_t, cap);
         if (!prod) return (seq_t)0;   /* allocation failure */
         prod[0] = (seq_t)1;           /* a(0) = 1 for convenient recurrence */
     }
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
         idx_t newcap = cap;
         while (n >= newcap)
             newcap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(prod, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, prod, newcap);
         if (!tmp) return (seq_t)0;   /* allocation failure */
         prod = tmp;
         cap  = newcap;

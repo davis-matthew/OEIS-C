@@ -9,14 +9,16 @@
  *            a(n-k-1) with a(0) = 1
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 10, u128 n <= 16,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/binomial.h"   /* provides: seq_t binomial(idx_t n, idx_t k); */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;   /* cache of computed values a(0)…a(n) */
 static idx_t  a_cache_size = 0; /* number of cached entries */
@@ -31,7 +33,7 @@ static void ensure_cache(idx_t nmax)
     size_t new_size_t = (size_t)new_size;
 
     /* Reallocate the cache (NULL pointer is allowed for realloc). */
-    a_cache = (seq_t *)realloc(a_cache, new_size_t * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, new_size_t);
     if (!a_cache)
         abort();               /* avoid failure shadowing the function */
 

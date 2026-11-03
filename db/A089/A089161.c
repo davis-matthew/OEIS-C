@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 52, u16 n <= 4928, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_mul
+ * Validated: standard, pass, 75 terms through n = 9508 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mod_mul.h"
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 /* ---------- Miller–Rabin for 64‑bit integers ---------- */
 
@@ -33,8 +35,8 @@ static uint64_t mod_pow(uint64_t base, uint64_t exp, uint64_t mod)
     uint64_t result = 1;
     uint64_t cur = base % mod;
     while (exp) {
-        if (exp & 1) result = mod_mul(result, cur, mod);
-        cur = mod_mul(cur, cur, mod);
+        if (exp & 1) result = mulmod(result, cur, mod);
+        cur = mulmod(cur, cur, mod);
         exp >>= 1;
     }
     return result;
@@ -76,7 +78,7 @@ static bool is_prime_u64(uint64_t n)
         if (x == 1 || x == n-1) continue;
         bool composite = true;
         for (int r = 1; r < s; ++r) {
-            x = mod_mul(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n-1) { composite = false; break; }
         }
         if (composite) return false;
@@ -95,7 +97,7 @@ static void cache_append(seq_t val)
 {
     if (cache_len == cache_cap) {
         size_t new_cap = (cache_cap == 0) ? 32 : cache_cap * 2;
-        seq_t *newp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *newp = mem_resize(seq_t, cache, new_cap);
         if (!newp) abort();  /* memory exhausted */
         cache = newp;
         cache_cap = new_cap;

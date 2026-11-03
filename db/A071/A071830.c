@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 127, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gpf
+ * Validated: standard, pass, 84 terms through n = 9377 (2026-11-01)
+ * Helpers:   largest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,14 +17,14 @@
 /* Computes A071830: the smallest integer k > n such that gpf(n) = gpf(k) */
 /* Searchforward with a direct factorisation routine. */
 #include <stdint.h>
-#include "../utils/gpf.h"
+#include "../utils/largest_prime_factor.h"
 
 seq_t a(idx_t n)
 {
     if (n < 2) return (seq_t)0;            /* undefined for n < 2 */
 
     uint64_t n64 = (uint64_t)n;
-    uint64_t g   = gpf(n64);
+    uint64_t g   = largest_prime_factor(n64);
 
     /* Prime or power of two → next multiple is 2*n. */
     if (g == n64 || g == 2) return (seq_t)(n64 * 2);
@@ -31,7 +32,7 @@ seq_t a(idx_t n)
     /* Search forward for the next integer with the same greatest prime factor. */
     uint64_t k = n64 + 1;
     for (;;) {
-        if (gpf(k) == g) return (seq_t)k;
+        if (largest_prime_factor(k) == g) return (seq_t)k;
         ++k;
     }
 }

@@ -8,12 +8,14 @@
  *            all non‑prime integers in increasing order
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Uses the provided is_prime() utility */
+#include <stdbool.h>
 #include "../utils/is_prime.h"
 
 /* helper: number of decimal digits of a non‑negative integer */

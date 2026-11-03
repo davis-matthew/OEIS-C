@@ -8,7 +8,8 @@
  *            every 2×2 permanent is equal to a common value
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 18, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
 
     /* Initialise for sequences of length 2 (n=1).  Each ordered pair
        of rows that yields a common permanent C contributes one matrix. */
-    memset(dp_cur, 0, sizeof(dp_cur));
+    mem_set(dp_cur, 0, sizeof(dp_cur));
     for (int r = 0; r < 27; ++r) {
         for (int s = 0; s < 27; ++s) {
             int8_t c = allowed[r][s];
@@ -80,7 +82,7 @@ seq_t a(idx_t n)
 
     /* Extend the sequences one row at a time until we have n+1 rows. */
     for (idx_t step = 3; step <= n + 1; ++step) {
-        memset(dp_next, 0, sizeof(dp_next));
+        mem_set(dp_next, 0, sizeof(dp_next));
 
         for (int r = 0; r < 27; ++r) {
             for (int c = 0; c < 9; ++c) {
@@ -95,7 +97,7 @@ seq_t a(idx_t n)
             }
         }
         /* Move dp_next into dp_cur for the next iteration. */
-        memcpy(dp_cur, dp_next, sizeof(dp_cur));
+        mem_copy(dp_cur, dp_next, sizeof(dp_cur));
     }
 
     /* Sum all counts for the final length n+1. */

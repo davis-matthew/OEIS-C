@@ -7,8 +7,9 @@
  * Formula:   a(n) = 4 * b(n) where b is multiplicative with * b(2^e) =
  *            (1+(-1)^e)*3/4 (e≥1), * b(3^e) = 1, * b(p^e) = (1+(-1)^e)/2 when
  *            p≡5 (mod 6), * b(p^e) = e+1 when p≡1 (mod 6). * a(0) = 1
- * Range:     u8 n <= 9881, u16 n <= 9881, u32 n <= 9881, u64 n <= 9881,
- *            u128 n <= 9881, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 119 terms through n = 9881 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,9 +10,10 @@
  *            multiplicity of n. The prime shadow of n is obtained by
  *            replacing each exponent e_i in the prime factorisation of n
  *            by...
- * Range:     u8 n <= 9984, u16 n <= 9984, u32 n <= 9984, u64 n <= 9984,
- *            u128 n <= 9984, big any n
- * Helpers:   seq_multiply
+ * Range:     u8 n <= 10079, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 118 terms through n = 9984 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,9 @@
    All arithmetic uses the seq_t type provided by the build system. */
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/seq_multiply.h"
+
+/* Helper: multiply two seq_t values safely (use built‑in operators). */
+static inline seq_t seq_multiply(seq_t a, seq_t b) { return a * b; }
 
 static const int primes[] = {
     2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,

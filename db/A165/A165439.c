@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 44, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digit_sum, grow_seq_array, is_prime, seq_alloc_array
+ * Validated: standard, pass, 73 terms through n = 960 (2026-11-03)
+ * Helpers:   digit_sum, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,10 +19,28 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"        /* bool is_prime(idx_t); */
-#include "../utils/digit_sum.h"      /* seq_t digit_sum(seq_t); */
-#include "../utils/grow_seq_array.h" /* void grow_seq_array(seq_t **, size_t *, size_t); */
-#include "../utils/seq_alloc_array.h"/* seq_t *seq_alloc_array(size_t); */
+#include <stdlib.h>
+#include "../utils/digit_sum.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
+
+/* Helper to grow a sequence array of type seq_t. */
+static void grow_seq_array(seq_t **arr, size_t *size, size_t new_len)
+{
+    if (*size >= new_len) return;
+    size_t new_cap = (*size > 0) ? (*size << 1) : 16;
+    while (new_cap < new_len) new_cap <<= 1;
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+    if (!tmp) abort();
+    *arr = tmp;
+    *size = new_cap;
+}
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 /* Return the nth term of A165439 (1‑based index). */
 seq_t a(idx_t n)

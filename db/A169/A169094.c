@@ -12,12 +12,14 @@
  *            – 496*a(n-25), for n ≥ 25
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,8 +31,8 @@ seq_t a(idx_t n)
 
     /* Allocate initial space for index 0 */
     if (cap == 0) {
-        a_cache = (seq_t *)malloc(sizeof(seq_t));
-        pref_cache = (seq_t *)malloc(sizeof(seq_t));
+        a_cache = mem_new(seq_t, 1);
+        pref_cache = mem_new(seq_t, 1);
         if (!a_cache || !pref_cache) {
             return 0; /* allocation failed */
         }
@@ -47,11 +49,11 @@ seq_t a(idx_t n)
             new_cap <<= 1;           /* double until enough space */
         }
 
-        seq_t *a_tmp = (seq_t *)realloc(a_cache, (new_cap + 1) * sizeof(seq_t));
-        seq_t *pref_tmp = (seq_t *)realloc(pref_cache, (new_cap + 1) * sizeof(seq_t));
+        seq_t *a_tmp = mem_resize(seq_t, a_cache, (new_cap + 1));
+        seq_t *pref_tmp = mem_resize(seq_t, pref_cache, (new_cap + 1));
         if (!a_tmp || !pref_tmp) {
-            free(a_cache);
-            free(pref_cache);
+            mem_free(a_cache);
+            mem_free(pref_cache);
             return 0;
         }
         a_cache = a_tmp;

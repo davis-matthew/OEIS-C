@@ -8,12 +8,14 @@
  *            Initial values: a(0)=3, a(1)=-7, a(2)=11, a(3)=233, a(4)=-3357
  * Range:     i8 n <= 2, i16 n <= 5, i32 n <= 11, i64 n <= 21, i128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     if (n == 4) return (seq_t)-3357;
 
     /* Allocate space for the terms up to n */
-    seq_t *v = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *v = mem_new(seq_t, (n + 1));
     if (!v) abort();          /* out of memory */
 
     /* Initialize the first five terms */
@@ -45,6 +47,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = v[n];
-    free(v);
+    mem_free(v);
     return result;
 }

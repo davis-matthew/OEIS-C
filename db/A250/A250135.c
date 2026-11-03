@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 18, u64 n <= 43, u128 n <= 93,
  *            big any n
- * Helpers:   _median3, _tidx
+ * Validated: standard, pass, 40 terms through n = 210 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,8 +29,20 @@
  * (the recurrence is linear in the number of triples).
  */
 #include <stdbool.h>
-#include "../utils/_median3.h"
-#include "../utils/_tidx.h"
+
+/* median of three integers 0..3 */
+static int _median3(int x, int y, int z)
+{
+    if (x > y) { int t = x; x = y; y = t; }
+    if (y > z) { int t = y; y = z; z = t; }
+    if (x > y) { int t = x; x = y; y = t; }
+    return y;
+}
+
+/* triple to a compact index 0..63: (a<<4)|(b<<2)|c  (a,b,c in 0..3) */
+static inline int _tidx(int a, int b, int c) {
+    return (a << 4) | (b << 2) | c;
+}
 
 static bool _adj_built = false;
 static int  _neigh_cnt[64];

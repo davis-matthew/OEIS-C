@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..n} p(n,k) * 8^(n-k)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 21, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* for n ≥ 0. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
 
     size_t needed_len = (size_t)n + 1;
     if (needed_len > coeff_len) {
-        seq_t *new_coeff = (seq_t *)calloc(needed_len, sizeof(seq_t));
+        seq_t *new_coeff = mem_new(seq_t, needed_len);
         if (!new_coeff) return 0;             /* allocation failure, return 0 */
         new_coeff[0] = 1;                     /* a(0) = 1 */
 
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
             w = w * (seq_t)8;                  /* next power of 8 */
         }
 
-        free(coeff);
+        mem_free(coeff);
         coeff     = new_coeff;
         coeff_len = needed_len;
     }

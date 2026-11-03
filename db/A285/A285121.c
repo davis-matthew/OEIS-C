@@ -9,7 +9,8 @@
  *            are the divisors of n*(n+1)*(n+2)/6
  * Range:     u8 n <= 10, u16 n <= 639, u32 n <= 2150, u64 n <= 9998,
  *            u128 n <= 9998, big any n
- * Helpers:   factor_u64
+ * Validated: standard, pass, 84 terms through n = 8418 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 static int seq_compare(const void *p1, const void *p2)
 {
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
 
     /* Generate all divisors of m */
     const size_t MAX_DIVS = 20000;  /* > divisor count for m ≤ 1e12 */
-    seq_t *divs = (seq_t *)malloc(MAX_DIVS * sizeof(seq_t));
+    seq_t *divs = mem_new(seq_t, MAX_DIVS);
     if (!divs) return 0;  /* allocation failure */
 
     size_t divs_cnt = 1;
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
             p_pow *= (seq_t)p;                /* p^exp */
             for (size_t j = 0; j < prev_cnt; ++j) {
                 if (divs_cnt == MAX_DIVS) {   /* safety check */
-                    free(divs);
+                    mem_free(divs);
                     return 0;
                 }
                 divs[divs_cnt++] = divs[j] * p_pow;
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
     }
 
     /* Sort divisors to enable mirrored pairing */
-    qsort(divs, divs_cnt, sizeof(seq_t), seq_compare);
+    mem_qsort(divs, divs_cnt, sizeof(seq_t), seq_compare);
 
     /* Compute the minimum mirrored difference */
     seq_t min_diff = divs[divs_cnt - 1] - divs[0];
@@ -83,6 +85,6 @@ seq_t a(idx_t n)
         if ((seq_t)0 < min_diff) min_diff = 0;
     }
 
-    free(divs);
+    mem_free(divs);
     return min_diff;
 }

@@ -12,14 +12,25 @@
  *            1
  * Range:     u8 n <= 40, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   allocate_seq_row
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/allocate_seq_row.h"
+
+/* Allocate an array of r seq_t values.
+   In C++ this uses constructor; in C it uses calloc (zero initialization). */
+static inline seq_t *allocate_seq_row(idx_t r)
+{
+#ifdef __cplusplus
+    return new seq_t[r];
+#else
+    return (seq_t*)calloc((size_t)r, sizeof(seq_t));
+#endif
+}
 
 static seq_t **u_rows = NULL;     /* u_rows[r][i] = coefficient of x^i in u(r,x) */
 static seq_t **v_rows = NULL;     /* v_rows[r][i] = coefficient of x^i in v(r,x) */

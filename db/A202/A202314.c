@@ -11,7 +11,8 @@
  *            consecutive rows)
  * Range:     u8 none, u16 n <= 1, u32 n <= 5, u64 n <= 13, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Global static data (initialized lazily) */
 static bool _init_done = false;
@@ -133,8 +135,8 @@ static void _init_sequences(void) {
     free(deg);
 
     /* --------- 6. Allocate DP arrays ---------------------------------- */
-    _dp_arr    = (seq_t *)calloc(_pair_count, sizeof(seq_t));
-    _newdp_arr = (seq_t *)calloc(_pair_count, sizeof(seq_t));
+    _dp_arr    = mem_new(seq_t, _pair_count);
+    _newdp_arr = mem_new(seq_t, _pair_count);
     if (!_dp_arr || !_newdp_arr) abort();
 }
 
@@ -156,7 +158,7 @@ seq_t a(idx_t n) {
 
     /* ---------- 7. Initialise DP with all pairs of first two rows -------- */
     /* reset dp array to zero */
-    memset(_dp_arr, 0, _pair_count * sizeof(seq_t));
+    mem_set(_dp_arr, 0, _pair_count * sizeof(seq_t));
     for (int i = 0; i < _legal_count; ++i) {
         for (int j = 0; j < _legal_count; ++j) {
             int pid = _pair_id[_legal_rows[i]][_legal_rows[j]];
@@ -167,7 +169,7 @@ seq_t a(idx_t n) {
     /* ---------- 8. Add remaining rows one by one ------------------------ */
     size_t steps = rows > 2 ? rows - 2 : 0;     /* number of new rows to add */
     for (size_t step = 0; step < steps; ++step) {
-        memset(_newdp_arr, 0, _pair_count * sizeof(seq_t));
+        mem_set(_newdp_arr, 0, _pair_count * sizeof(seq_t));
         for (int s = 0; s < _pair_count; ++s) {
             seq_t val = _dp_arr[s];
             if (val == 0) continue;

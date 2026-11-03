@@ -7,12 +7,14 @@
  * Formula:   a(n) = (n-1)*(2n-1) + Sum_{i=2..n-1} (n-i)*(2n-i)*phi(i)
  * Range:     u8 n <= 6, u16 n <= 25, u32 n <= 410, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   phi
+ * Validated: standard, pass, 55 terms through n = 708 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/phi.h"
+#include <stdint.h>
+#include "../utils/totient.h"
 
 /* Computes a(n) for the OEIS sequence A115005. */
 seq_t a(idx_t n)
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* Sum over i = 2 .. n-1 */
     for (idx_t i = 2; i < n; ++i) {
         const seq_t I = (seq_t)i;
-        seq_t term = (N - I) * (twoN - I) * phi(i);
+        seq_t term = (N - I) * (twoN - I) * totient(i);
         result += term;
     }
 

@@ -12,12 +12,14 @@
  *            binomial and pre‑computed powers of 3
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static storage for intermediate values */
 static seq_t *U_arr = NULL;      /* U(m) values */
@@ -37,7 +39,7 @@ static void ensure_cap(seq_t **arr, size_t *cap, size_t needed, size_t elem_size
     if (*cap <= needed) {
         size_t new_cap = *cap ? *cap << 1 : 4;
         while (new_cap <= needed) new_cap <<= 1;
-        *arr = (seq_t *)realloc(*arr, new_cap * elem_size);
+        *arr = mem_resize(seq_t, *arr, (new_cap * elem_size) / sizeof(seq_t));
         *cap = new_cap;
     }
 }
@@ -49,7 +51,7 @@ static void ensure_pow3_cap(size_t n)
     if (pow3_cap <= n) {
         size_t new_cap = pow3_cap ? pow3_cap << 1 : 4;
         while (new_cap <= n) new_cap <<= 1;
-        pow3_arr = (seq_t *)realloc(pow3_arr, new_cap * sizeof(seq_t));
+        pow3_arr = mem_resize(seq_t, pow3_arr, new_cap);
         for (size_t j = 0; j < new_cap; ++j) {
             if (j == 0)
                 pow3_arr[0] = (seq_t)1;

@@ -7,8 +7,9 @@
  * Keywords:  nonn, look
  * Formula:   a(n) = minimal prime factor of n, or 1 if n is 1 or n is prime;
  *            a(0)=0
- * Range:     u8 n <= 7173, u16 n <= 7173, u32 n <= 7173, u64 n <= 7173,
- *            u128 n <= 7173, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 116 terms through n = 7173 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

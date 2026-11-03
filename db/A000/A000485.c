@@ -12,13 +12,18 @@
  *            Sum_{k=1..m-1} (Sum_{d|k} d*b(d)) * b(m-k)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 18, u64 n <= 37, u128 n <= 77,
  *            big any n
- * Helpers:   zarr
+ * Validated: standard, pass, 38 terms through n = 967 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/zarr.h"
+#include "../utils/mem.h"
+
+static seq_t *zarr(idx_t len) {
+    return mem_new(seq_t, (size_t)len);
+}
 
 static seq_t *cacheA = NULL;
 static idx_t cacheN = 0; /* cacheA valid for indices 0..cacheN-1 */
@@ -81,8 +86,8 @@ static void build(idx_t len) {
         A[i] = sum;
     }
 
-    free(b); free(s); free(h); free(h2); free(h3); free(q); free(r);
-    if (cacheA) free(cacheA);
+    mem_free(b); mem_free(s); mem_free(h); mem_free(h2); mem_free(h3); mem_free(q); mem_free(r);
+    if (cacheA) mem_free(cacheA);
     cacheA = A;
     cacheN = len;
 }

@@ -10,12 +10,14 @@
  *            dynamic programming array that is re‑used across calls
  * Range:     u8 n <= 24, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* make sure we have room for indices 0..n */
     if (n + 1 > cap) {
         idx_t new_cap = n + 1;
-        dp = (seq_t *)realloc(dp, new_cap * sizeof(seq_t));
+        dp = mem_resize(seq_t, dp, new_cap);
         if (dp == NULL) abort();   /* allocation error */
         cap = new_cap;
     }

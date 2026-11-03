@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 255, u16 n <= 8191, u32 n <= 8191, u64 n <= 8191,
  *            u128 n <= 8191, big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 83 terms through n = 7633 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
  * This implementation evaluates the above directly. */
 
 #include <stdbool.h>
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
 
 /* floor(log2(n)) for n > 0  (idx_t is uint64_t) */
 static inline unsigned floor_log2_uint64(idx_t n)
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
     idx_t e = (idx_t)(Ln - Lb - 1);          /* exponent (always non‑negative) */
 
     seq_t odd = (seq_t)(2 * b + 1);           /* always odd */
-    seq_t pow2 = pow_uint((uint64_t)2, e);    /* 2^e in seq_t */
+    seq_t pow2 = ipow_u64_idx((uint64_t)2, e);    /* 2^e in seq_t */
 
     return odd * pow2;
 }

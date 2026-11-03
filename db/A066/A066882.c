@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 119, u16 n <= 629, u32 n <= 4619, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_uint64
+ * Validated: standard, pass, 115 terms through n = 9683 (2026-11-03)
+ * Helpers:   factor_uint64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/factor_uint64.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     if (cnt == 0) return 0;     /* should not happen for n>1 */
 
     size_t size = (size_t)u + 1;
-    seq_t *dp = (seq_t *)calloc(size, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, size);
     if (!dp) return 0;          /* memory allocation failure */
 
     dp[0] = 1;
@@ -48,6 +50,6 @@ seq_t a(idx_t n)
     }
 
     seq_t res = dp[u];
-    free(dp);
+    mem_free(dp);
     return res;
 }

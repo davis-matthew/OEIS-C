@@ -6,8 +6,9 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = floor(log_{3/2}(n+1)) - floor(log_{3/2}(n))
  *            (equivalently, a(n)=1 iff n = ⌊(3/2)^k⌋ for some k≥0)
- * Range:     u8 n <= 9452, u16 n <= 9452, u32 n <= 9452, u64 n <= 9452,
- *            u128 n <= 9452, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 106 terms through n = 9452 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

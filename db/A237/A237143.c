@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 4, u32 n <= 10, u64 n <= 22, u128 n <= 46,
  *            big any n
- * Helpers:   lower_median_plus_max, mat_copy, mat_identity, mat_zero
+ * Validated: standard, pass, 34 terms through n = 187 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,10 +32,37 @@
  */
 
 #include <stdbool.h>
-#include "../utils/lower_median_plus_max.h"
-#include "../utils/mat_copy.h"
-#include "../utils/mat_identity.h"
-#include "../utils/mat_zero.h"
+
+static int lower_median_plus_max(int a, int b, int c, int d) {
+    int arr[4] = { a, b, c, d };
+    /* Simple insertion sort for 4 elements */
+    for (int i = 0; i < 3; ++i)
+        for (int j = 0; j < 3 - i; ++j)
+            if (arr[j] > arr[j + 1]) {
+                int t = arr[j];
+                arr[j] = arr[j + 1];
+                arr[j + 1] = t;
+            }
+    return arr[1] + arr[3];   /* lower median + maximum */
+}
+
+static void mat_copy(const seq_t src[16][16], seq_t dst[16][16]) {
+    for (idx_t i = 0; i < 16; ++i)
+        for (idx_t j = 0; j < 16; ++j)
+            dst[i][j] = src[i][j];
+}
+
+static void mat_identity(seq_t I[16][16]) {
+    for (idx_t i = 0; i < 16; ++i)
+        for (idx_t j = 0; j < 16; ++j)
+            I[i][j] = (i == j) ? 1 : 0;
+}
+
+static void mat_zero(seq_t M[16][16]) {
+    for (idx_t i = 0; i < 16; ++i)
+        for (idx_t j = 0; j < 16; ++j)
+            M[i][j] = 0;
+}
 
 /* -----------------  Auxiliary matrix routines  ----------------- */
 

@@ -10,7 +10,8 @@
  *            divide that product
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define LIMIT 2000000   /* large enough to cover composites up to n ~ 10000 */
 
@@ -36,13 +38,13 @@ seq_t a(idx_t n)
     /* ---------- allocate initial cache ------------------------ */
     if (!cache_cap) {
         cache_cap = 1;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* ---------- ensure cache has enough capacity ------------- */
     if (cache_size + 1 > cache_cap) {
         cache_cap <<= 1;
-        cache = (seq_t *)realloc(cache, sizeof(seq_t) * cache_cap);
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 
     /* ---------- initialization -------------------------------- */
@@ -97,7 +99,7 @@ seq_t a(idx_t n)
         /* store the new term, resize cache if needed */
         if (cache_size >= cache_cap) {
             cache_cap <<= 1;
-            cache = (seq_t *)realloc(cache, sizeof(seq_t) * cache_cap);
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
         cache[cache_size] = current_val;
         ++cache_size;

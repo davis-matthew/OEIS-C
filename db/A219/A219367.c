@@ -14,7 +14,8 @@
  *            84*a(n‑6) + 36*a(n‑7) – 9*a(n‑8) + a(n‑9)
  * Range:     u8 n <= 4, u16 n <= 11, u32 n <= 51, u64 n <= 210, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Compute the n-th term of OEIS sequence A219367. */
 seq_t a(idx_t n)
@@ -36,9 +38,9 @@ seq_t a(idx_t n)
     /* Ensure enough space. */
     if (!cache) {
         cap = 16;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) return (seq_t)0;  /* allocation failed */
-        memset(cache, 0, cap * sizeof(seq_t));
+        mem_set(cache, 0, cap * sizeof(seq_t));
         /* initial 9 values */
         static const uint64_t init_vals[9] = {
             4ULL, 13ULL, 60ULL, 193ULL, 514ULL,
@@ -52,10 +54,10 @@ seq_t a(idx_t n)
     if (target > cap) {
         size_t new_cap = cap ? cap : 1;
         while (new_cap < target) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return (seq_t)0;          /* allocation failed */
         /* zero the newly allocated part */
-        memset(tmp + cap, 0, (new_cap - cap) * sizeof(seq_t));
+        mem_set(tmp + cap, 0, (new_cap - cap) * sizeof(seq_t));
         cache = tmp;
         cap = new_cap;
     }

@@ -12,13 +12,15 @@
  *            equal residues modulo n
  * Range:     u8 n <= 73, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 73 terms through n = 73 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static data for prime generation – they are retained across calls. */
 static seq_t *odd_primes = NULL;          /* array of odd primes (s(k))   */
@@ -37,7 +39,7 @@ static void grow_seq_arr(seq_t **arr, size_t *cap, size_t need)
     if (*cap < need) {
         size_t new_cap = (*cap == 0) ? 16 : (*cap << 1);
         if (new_cap < need) new_cap = need;
-        seq_t *tmp = (seq_t*)realloc(*arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
         if (!tmp) exit(1);                /* out of memory */
         *arr = tmp;
         *cap = new_cap;

@@ -8,13 +8,16 @@
  *            n^(n-2k)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 26,
  *            big any n
- * Helpers:   big_pow, binom
+ * Validated: standard, pass, 36 terms through n = 363 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -25,9 +28,9 @@ seq_t a(idx_t n)
     idx_t half = n / 2;
     for (idx_t k = 0; k <= half; ++k)
     {
-        seq_t term = binom(n, k);
-        term *= binom(n - k, n - 2 * k);
-        term *= big_pow((seq_t)n, (seq_t)(n - 2 * k));
+        seq_t term = binomial(n, k);
+        term *= binomial(n - k, n - 2 * k);
+        term *= ipow((seq_t)n, (seq_t)(n - 2 * k));
         result += term;
     }
     return result;

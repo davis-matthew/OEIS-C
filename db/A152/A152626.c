@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 103, u16 n <= 103, u32 n <= 103, u64 n <= 103,
  *            u128 n <= 103, big any n
- * Helpers:   none
+ * Validated: partial, pass, 103 terms through n = 103 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* -------------------------------------------------------------------------- */
 /* Static state:                                      */
@@ -87,7 +89,7 @@ static void ensure_digits(idx_t n)
         /* ------------------------------------------------------------------ */
         uint64_t *sum = (uint64_t *)calloc(current_limit + 1, sizeof(uint64_t));
         if (!sum) { /* allocation failed – abort gracefully */
-            free(digit_buffer);
+            mem_free(digit_buffer);
             digit_buffer = NULL;
             digit_buffer_len = 0;
             return;
@@ -115,7 +117,7 @@ static void ensure_digits(idx_t n)
                     if (!tmp) { /* realloc failed – clean up */
                         free(sum);
                         free(pairs);
-                        free(digit_buffer);
+                        mem_free(digit_buffer);
                         digit_buffer = NULL;
                         digit_buffer_len = 0;
                         return;
@@ -147,11 +149,11 @@ static void ensure_digits(idx_t n)
         /* ------------------------------------------------------------------ */
         /* 5. Build the new digit buffer (overwrites old buffer if any)          */
         /* ------------------------------------------------------------------ */
-        seq_t *newbuf = (seq_t *)calloc(total_digits, sizeof(seq_t));
+        seq_t *newbuf = mem_new(seq_t, total_digits);
         if (!newbuf) { /* allocation failed – clean up */
             free(sum);
             free(pairs);
-            free(digit_buffer);
+            mem_free(digit_buffer);
             digit_buffer = NULL;
             digit_buffer_len = 0;
             return;
@@ -166,7 +168,7 @@ static void ensure_digits(idx_t n)
         /* ------------------------------------------------------------------ */
         /* 6. Swap buffers and free temporary structures                       */
         /* ------------------------------------------------------------------ */
-        free(digit_buffer);
+        mem_free(digit_buffer);
         free(sum);
         free(pairs);
 

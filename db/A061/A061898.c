@@ -9,15 +9,17 @@
  *            via prime sieve and factorization using the
  *            smallest‑prime‑factor table. The sequence is multiplicative:
  *            a(∏pᵉᵢ)=∏q(pᵢ)ᵉᵢ, where q(p) is the neighbor of p
- * Range:     u8 n <= 63, u16 n <= 2047, u32 n <= 9223, u64 n <= 9223,
- *            u128 n <= 9223, big any n
- * Helpers:   none
+ * Range:     u8 n <= 63, u16 n <= 2047, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 85 terms through n = 9223 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build system. */
 #ifndef IDX_T_DEFINED
@@ -56,7 +58,7 @@ static void init(void)
     /* allocate arrays */
     PRIMES = (idx_t *)malloc((LIMIT + 1) * sizeof(idx_t));
     SPF    = (idx_t *)calloc((LIMIT + 1), sizeof(idx_t));
-    NEIGH  = (seq_t *)calloc((LIMIT + 1), sizeof(seq_t));
+    NEIGH  = mem_new(seq_t, (LIMIT + 1));
 
     /* sieve – generate primes and smallest prime factor table */
     for (idx_t i = 2; i <= LIMIT; ++i) {

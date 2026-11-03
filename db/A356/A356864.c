@@ -8,6 +8,7 @@
  * Formula:   a(n) = |{p prime < n : q = 2n − p prime and r = p*q + 2n prime}|
  * Range:     u8 n <= 15, u16 n <= 1576, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 115 terms through n = 9960 (2026-11-01)
  * Helpers:   build_primes_upto, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,8 +16,9 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include <stdint.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/is_prime.h"
 
 /* Computes the nth term of OEIS A356864. */
 seq_t a(idx_t n)

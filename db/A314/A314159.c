@@ -12,13 +12,15 @@
  *            a(7)=38, a(8)=44, a(9)=50, a(10)=55, a(11)=61, a(12)=66
  * Range:     u8 n <= 46, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* cache of computed terms */
 static size_t cached_len = 0;        /* number of terms stored (>=0) */
@@ -37,7 +39,7 @@ static void ensure_cache(idx_t n)
     if (cache_cap < need) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 64;
         if (new_cap < need) new_cap = need;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
     if (cached_len < 13) {

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 24, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 978 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define MAX_TERMS  25000          /* enough for n ≤ 10000 */
 #define SIEVE_LIMIT  60000000U    /* primes up to this give >MAX_TERMS   */
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     if (!cache) {
         /* allocate cache array */
 #if defined(__cplusplus)
-        cache = reinterpret_cast<seq_t *>(malloc(MAX_TERMS * sizeof(seq_t)));
+        cache = mem_new(seq_t, MAX_TERMS);
         is_prime = reinterpret_cast<unsigned char *>(
                         malloc(SIEVE_LIMIT + 1));
 #else

@@ -12,19 +12,21 @@
  *            a(n)
  * Range:     i8 n <= 0, i16 n <= 1, i32 n <= 4, i64 n <= 17, i128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate arrays for divisor sums and intermediate coefficients */
     size_t N = (size_t)n + 1;
-    seq_t *sigma1 = (seq_t*)calloc(N, sizeof(seq_t));
-    seq_t *sigma5 = (seq_t*)calloc(N, sizeof(seq_t));
+    seq_t *sigma1 = mem_new(seq_t, N);
+    seq_t *sigma5 = mem_new(seq_t, N);
     if (!sigma1 || !sigma5) return 0;                 /* sanity check */
 
     /* Compute σ₁ and σ₅ by a divisor‑sum sieve */
@@ -40,8 +42,8 @@ seq_t a(idx_t n)
     }
 
     /* Compute the coefficients of E₂·E₆: F[n] */
-    seq_t *F = (seq_t*)calloc(N, sizeof(seq_t));
-    if (!F) { free(sigma1); free(sigma5); return 0; }
+    seq_t *F = mem_new(seq_t, N);
+    if (!F) { mem_free(sigma1); mem_free(sigma5); return 0; }
     F[0] = (seq_t)1;
     const seq_t C24  = (seq_t)24;
     const seq_t C504 = (seq_t)504;
@@ -58,8 +60,8 @@ seq_t a(idx_t n)
     }
 
     /* Compute (E₂·E₆)²: convolution of F with itself */
-    seq_t *A = (seq_t*)calloc(N, sizeof(seq_t));
-    if (!A) { free(sigma1); free(sigma5); free(F); return 0; }
+    seq_t *A = mem_new(seq_t, N);
+    if (!A) { mem_free(sigma1); mem_free(sigma5); mem_free(F); return 0; }
 
     for (idx_t i = 0; i <= n; ++i) {
         seq_t fi = F[(size_t)i];
@@ -72,10 +74,10 @@ seq_t a(idx_t n)
     seq_t result = A[(size_t)n];
 
     /* Free all auxiliary memory */
-    free(sigma1);
-    free(sigma5);
-    free(F);
-    free(A);
+    mem_free(sigma1);
+    mem_free(sigma5);
+    mem_free(F);
+    mem_free(A);
 
     return result;
 }

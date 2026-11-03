@@ -8,12 +8,13 @@
  * Formula:   a(n) = Sum_{d|n, d odd square} sqrt(d)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   seq_pow_u64
+ * Validated: standard, pass, 103 terms through n = 9469 (2026-11-01)
+ * Helpers:   ipow_u64_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow_u64.h"
+#include "../utils/ipow_u64_u32.h"
 
 seq_t a(idx_t n)
 {
@@ -41,7 +42,7 @@ seq_t a(idx_t n)
         }
 
         unsigned half = exp / 2;          /* floor(e/2) */
-        seq_t pow_val = seq_pow_u64(p, half + 1); /* p^(half+1) */
+        seq_t pow_val = ipow_u64_u32(p, half + 1); /* p^(half+1) */
         seq_t term = (pow_val - 1) / ((seq_t)(p - 1)); /* (p^{half+1}-1)/(p-1) */
 
         result *= term;

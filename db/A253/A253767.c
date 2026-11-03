@@ -11,13 +11,15 @@
  *            b(n) for n ≥ 1 The function below implemen...
  * Range:     u8 n <= 8, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper arrays for memoisation.  They grow as large as needed. */
 static seq_t *b_cache   = NULL;   // cache for b(n)
@@ -32,7 +34,7 @@ static void ensure_b_cache(idx_t n)
 {
     if (n < b_cap) return;
     size_t new_cap = (size_t)n + 1;
-    b_cache = (seq_t*)realloc(b_cache, new_cap * sizeof(seq_t));
+    b_cache = mem_resize(seq_t, b_cache, new_cap);
     b_used  = (bool *)realloc(b_used,  new_cap * sizeof(bool));
     if (b_used) {
         for (size_t i = b_cap; i < new_cap; ++i) b_used[i] = false;
@@ -44,7 +46,7 @@ static void ensure_a_cache(idx_t n)
 {
     if (n < a_cap) return;
     size_t new_cap = (size_t)n + 1;
-    a_cache = (seq_t*)realloc(a_cache, new_cap * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, new_cap);
     a_used  = (bool *)realloc(a_used,  new_cap * sizeof(bool));
     if (a_used) {
         for (size_t i = a_cap; i < new_cap; ++i) a_used[i] = false;

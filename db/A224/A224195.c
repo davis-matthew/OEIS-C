@@ -9,12 +9,14 @@
  *            (t^2+3t+4)/2 - n, * t = floor(( -1 + sqrt(8n-7) ) / 2) (n ≥ 1)
  * Range:     u8 n <= 28, u16 n <= 120, u32 n <= 496, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 71 terms through n = 997 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow2.h"   /* pow2(idx_t) → seq_t */
+#include <stdbool.h>
+#include "../utils/pow2.h"
 
 /* integer square root for 64‑bit unsigned integers, floor(sqrt(x)) */
 static inline idx_t floor_sqrt_u64(idx_t x)

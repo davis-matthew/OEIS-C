@@ -8,14 +8,43 @@
  *            a(n-k); (n ≥ 1)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 16,
  *            big any n
- * Helpers:   binomial, pow3
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>                     /* malloc, free */
-#include "../utils/binomial.h"          /* binomial(n, k)     */
-#include "../utils/pow3.h"              /* pow3(exp)          */
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* Compute binomial coefficient n choose k multiplicatively.
+   This works for any seq_t that supports + - * / % with integer constants. */
+static seq_t binomial(idx_t n, idx_t k)
+{
+    if (k > n)
+        return 0;
+    if (k > n - k)      /* use symmetry */
+        k = n - k;
+    seq_t res = 1;
+    for (idx_t i = 1; i <= k; ++i) {
+        res = res * (seq_t)(n - k + i);
+        res = res / (seq_t)i;
+    }
+    return res;
+}
+
+static seq_t pow3(idx_t exp)
+{
+    seq_t result = 1;
+    seq_t base   = 3;
+    while (exp) {
+        if (exp & 1) result *= base;
+        base *= base;
+        exp >>= 1;
+    }
+    return result;
+}
 
 seq_t a(idx_t n)
 {
@@ -28,14 +57,14 @@ seq_t a(idx_t n)
     if (n >= cap) {
         /* Create a new bigger array */
         idx_t new_cap = n + 1;
-        seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (!new_cache) return 0;           /* allocation failure */
 
         /* Copy existing values, if any */
         if (cache) {
             for (i = 0; i < cap; ++i)
                 new_cache[i] = cache[i];
-            free(cache);
+            mem_free(cache);
         } else {
             /* First allocation: initialise a(0) */
             new_cache[0] = (seq_t)1;

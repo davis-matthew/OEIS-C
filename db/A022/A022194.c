@@ -7,6 +7,7 @@
  * Formula:   a(n) = Gaussian binomial coefficient [n,11] for q = 2
  * Range:     u8 n <= 11, u16 n <= 12, u32 n <= 13, u64 n <= 16, u128 n <= 22,
  *            big any n
+ * Validated: standard, pass, 27 terms through n = 187 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,7 @@
 
 /* a(n) = ∏_{i=1..11} (2^(n-i+1)-1)/(2^i-1). */
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

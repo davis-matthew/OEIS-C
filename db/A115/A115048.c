@@ -7,12 +7,14 @@
  * Formula:   a(n) = a(n-1)-(a(n-1) mod n), a(1)=100
  * Range:     u8 n <= 17, u16 n <= 17, u32 n <= 17, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 17 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* first call – allocate the buffer and set a(1) */
     if (buf == NULL) {
         cap = 8;                                   /* arbitrary small start */
-        buf = (seq_t *)malloc(cap * sizeof(seq_t));
+        buf = mem_new(seq_t, cap);
         if (!buf) return (seq_t)0;                  /* allocation failed */
         buf[0] = (seq_t)100;                       /* a(1) */
         k = 1;
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
         if (n > cap) {
             idx_t new_cap = cap;
             while (new_cap < n) new_cap *= 2;
-            seq_t *tmp = (seq_t *)realloc(buf, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, buf, new_cap);
             if (!tmp) return (seq_t)0;              /* allocation failed */
             buf = tmp;
             cap = new_cap;

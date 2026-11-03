@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 10, u32 n <= 10, u64 n <= 10, u128 n <= 10,
  *            big any n
- * Helpers:   largest_noncomposite_divisor
+ * Validated: full, pass, 10 terms through n = 10 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,32 @@
  */
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/largest_noncomposite_divisor.h"
+
+static seq_t largest_noncomposite_divisor(seq_t m)
+{
+    /* m is small (≤ 2*prev+1 for the relevant prev), safe to cast to uint64_t */
+    uint64_t val = (uint64_t)m;
+    if (val <= 2) return (seq_t)1;
+
+    /* check primeness */
+    bool isPrime = true;
+    for (uint64_t d = 2; d * d <= val; ++d) {
+        if (val % d == 0) { isPrime = false; break; }
+    }
+    if (isPrime) return (seq_t)1;
+
+    /* composite: find largest prime factor */
+    uint64_t largest = 1;
+    uint64_t n = val;
+    for (uint64_t d = 2; d * d <= n; ++d) {
+        if (n % d == 0) {
+            largest = d;
+            while (n % d == 0) n /= d;
+        }
+    }
+    if (n > 1) largest = n;
+    return (seq_t)largest;
+}
 
 static seq_t next_term(seq_t prev)
 {

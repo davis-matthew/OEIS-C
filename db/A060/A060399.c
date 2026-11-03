@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   containsDigit, isPrimeUInt64, nextPrimeUInt64_gt
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   is_prime_u64, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,9 +24,20 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/containsDigit.h"
-#include "../utils/isPrimeUInt64.h"
-#include "../utils/nextPrimeUInt64_gt.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/next_prime.h"
+#include "../utils/mem.h"
+
+/* ---------- check if decimal representation of x contains digit d ---------- */
+static int containsDigit(uint64_t x, int d)
+{
+    if (x == 0) return d == 0;
+    while (x) {
+        if ((int)(x % 10) == d) return 1;
+        x /= 10;
+    }
+    return 0;
+}
 
 /* ---------- cache for computed sequence values ---------- */
 static seq_t *cache = NULL;
@@ -39,7 +51,7 @@ static void ensure_cache(size_t needed)
     if (needed <= cache_cap) return;
     size_t newcap = cache_cap ? cache_cap * 2 : 8;
     while (newcap < needed) newcap *= 2;
-    seq_t *newptr = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+    seq_t *newptr = mem_resize(seq_t, cache, newcap);
     cache = newptr;
     cache_cap = newcap;
 }
@@ -58,9 +70,9 @@ seq_t a(idx_t n)
         if (d == 10) d = 0;                   /* cycle 1..9,0 */
 
         /* find next prime containing digit d */
-        uint64_t cand = nextPrimeUInt64_gt(lastPrime);
+        uint64_t cand = next_prime(lastPrime);
         while (!containsDigit(cand, d))
-            cand = nextPrimeUInt64_gt(cand);
+            cand = next_prime(cand);
 
         /* store result in cache */
         ensure_cache((size_t)cache_size + 1);

@@ -7,7 +7,8 @@
  * Formula:   a(n) = k‑th integer k satisfying φ(σ(k)) < φ(k)
  * Range:     u8 n <= 45, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 73 terms through n = 73 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static const idx_t LIMIT = 2000000;          /* enough for n up to ~10⁴ */
 static seq_t *phi = NULL;
@@ -58,8 +60,8 @@ static void init(void)
     if (initialized) return;
 
     /* allocate arrays */
-    phi   = (seq_t *)malloc((LIMIT + 1) * sizeof(seq_t));
-    sigma = (seq_t *)malloc((LIMIT + 1) * sizeof(seq_t));
+    phi   = mem_new(seq_t, (LIMIT + 1));
+    sigma = mem_new(seq_t, (LIMIT + 1));
     spf   = (uint32_t *)malloc((LIMIT + 1) * sizeof(uint32_t));
 
     /* sufficient space for primes (≈ LIMIT / log LIMIT) */
@@ -117,7 +119,7 @@ static void append_res(seq_t v)
 {
     if (res_len + 1 > res_cap) {
         size_t new_cap = res_cap ? res_cap * 2 : 128;
-        seq_t *tmp = (seq_t *)realloc(res_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, res_cache, new_cap);
         if (!tmp) exit(1);           /* allocation failed */
         res_cache = tmp;
         res_cap = new_cap;

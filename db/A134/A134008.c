@@ -7,12 +7,15 @@
  * Formula:   a(n) = 1^n + 3^n + 5^n + 7^n + 9^n + 11^n
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 9, u64 n <= 18, u128 n <= 37,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 34 terms through n = 292 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -20,11 +23,11 @@ seq_t a(idx_t n)
     seq_t sum = 1;
 
     /* Compute each odd base raised to the power n and accumulate. */
-    sum += seq_pow((seq_t)3,  n);
-    sum += seq_pow((seq_t)5,  n);
-    sum += seq_pow((seq_t)7,  n);
-    sum += seq_pow((seq_t)9,  n);
-    sum += seq_pow((seq_t)11, n);
+    sum += ipow_idx((seq_t)3,  n);
+    sum += ipow_idx((seq_t)5,  n);
+    sum += ipow_idx((seq_t)7,  n);
+    sum += ipow_idx((seq_t)9,  n);
+    sum += ipow_idx((seq_t)11, n);
 
     return sum;
 }

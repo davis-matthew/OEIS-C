@@ -12,7 +12,8 @@
  *            of r into parts {1,2,4,8,10}
  * Range:     u8 n <= 20, u16 n <= 97, u32 n <= 728, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   a001365_f
+ * Validated: standard, pass, 60 terms through n = 900 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,11 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/a001365_f.h"
+
+static seq_t a001365_f(idx_t m) {
+    idx_t k = m / 2;
+    return (seq_t)(k + 1) * (seq_t)(m + 1 - k);
+}
 
 seq_t a(idx_t n) {
     idx_t R = n / 6;

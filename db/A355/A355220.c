@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    a(n)=3^n + Σ_{k=1..n} binomial(n,k)*4^k*a(n-k) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Function to return the n-th term of sequence A355220
  * (the function must have external linkage). */
@@ -31,11 +33,11 @@ seq_t a(idx_t n) {
     /* first call: initialize cache for a(0) and 3^0 */
     if (a_cap == 0) {
         a_cap = 1;
-        a_cache = (seq_t *)malloc(sizeof(seq_t) * a_cap);
+        a_cache = mem_new(seq_t, a_cap);
         a_cache[0] = (seq_t)1;            /* a(0) = 1 */
 
         pow3_cap = 1;
-        pow3_cache = (seq_t *)malloc(sizeof(seq_t) * pow3_cap);
+        pow3_cache = mem_new(seq_t, pow3_cap);
         pow3_cache[0] = (seq_t)1;          /* 3^0 = 1 */
     }
 
@@ -44,8 +46,8 @@ seq_t a(idx_t n) {
         size_t new_cap = (size_t)n + 1;
 
         /* grow the cache arrays */
-        a_cache = (seq_t *)realloc(a_cache, sizeof(seq_t) * new_cap);
-        pow3_cache = (seq_t *)realloc(pow3_cache, sizeof(seq_t) * new_cap);
+        a_cache = mem_resize(seq_t, a_cache, new_cap);
+        pow3_cache = mem_resize(seq_t, pow3_cache, new_cap);
 
         /* compute new powers of 3 if needed */
         for (size_t i = pow3_cap; i < new_cap; ++i) {

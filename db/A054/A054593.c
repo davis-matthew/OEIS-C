@@ -11,15 +11,38 @@
  *            simply the sum of the above terms
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 6, u64 n <= 9, u128 n <= 12,
  *            big any n
- * Helpers:   binom, pow2
+ * Validated: standard, pass, 28 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/binom.h"
-#include "../utils/pow2.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Compute binomial coefficient C(a,b) using multiplicative formula. */
+static seq_t binom(idx_t a, idx_t b) {
+    if (b > a) return 0;
+    if (b > a - b) b = a - b;          /* use symmetry */
+    seq_t res = 1;
+    for (idx_t i = 1; i <= b; ++i) {
+        res *= (seq_t)(a - b + i);
+        res /= (seq_t)i;
+    }
+    return res;
+}
+
+/* Compute 2^exp for any exponent that may not fit in the bit width of seq_t. */
+static seq_t pow2(idx_t exp)
+{
+    seq_t res = (seq_t)1;
+    for (idx_t i = 0; i < exp; ++i)
+        res *= (seq_t)2;
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -36,9 +59,9 @@ seq_t a(idx_t n)
     /* ++ ensure capacity for indices up to n ---------------------------- */
     if ((size_t)n + 1 > cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *new_pow   = (seq_t *)realloc(pow_cache, new_cap * sizeof(seq_t));
-        seq_t *new_conn  = (seq_t *)realloc(connected, new_cap * sizeof(seq_t));
-        seq_t *new_dis   = (seq_t *)realloc(disconnected, new_cap * sizeof(seq_t));
+        seq_t *new_pow   = mem_resize(seq_t, pow_cache, new_cap);
+        seq_t *new_conn  = mem_resize(seq_t, connected, new_cap);
+        seq_t *new_dis   = mem_resize(seq_t, disconnected, new_cap);
         if (!new_pow || !new_conn || !new_dis) {
             #ifdef __STDC_NO_VLA__ /* if VLA not available, use error handling */
             /* allocation failure – return 0 for the test harness */

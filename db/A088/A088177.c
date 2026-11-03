@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 599, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   hash_value
+ * Validated: standard, pass, 94 terms through n = 9702 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,19 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/hash_value.h"
+#include "../utils/mem.h"
+
+/* 64‑bit split‑mix hash of a seq_t value.  */
+static inline size_t hash_value(seq_t x)
+{
+    uint64_t h = (uint64_t)x;          /* discards higher bits if any */
+    h ^= h >> 33;
+    h *= 0xff51afd7ed558ccdULL;
+    h ^= h >> 33;
+    h *= 0xc4ceb9fe1a85ec53ULL;
+    h ^= h >> 33;
+    return h;
+}
 
 /* ------------------------------------------------------------------ */
 /* Dynamic array for the sequence ------------------------------------ */
@@ -38,7 +51,7 @@ static void ensure_seq_capacity(size_t need)
     if (need <= seq_cap) return;
     size_t newcap = seq_cap ? seq_cap * 2 : 8;
     while (newcap < need) newcap <<= 1;
-    seq_t *newptr = (seq_t *)realloc(seq_arr, newcap * sizeof(seq_t));
+    seq_t *newptr = mem_resize(seq_t, seq_arr, newcap);
     if (!newptr) abort();
     seq_arr = newptr;
     seq_cap = newcap;
@@ -55,7 +68,7 @@ static void prod_hash_init(void)
 {
     if (prod_hash) return;
     hash_mask = 15; /* table size 16 */
-    prod_hash = (seq_t *)calloc(hash_mask + 1, sizeof(seq_t));
+    prod_hash = mem_new(seq_t, hash_mask + 1);
     if (!prod_hash) abort();
     hash_cnt = 0;
 }
@@ -71,7 +84,7 @@ static void prod_hash_insert(seq_t value)
         size_t new_cap  = old_cap << 1;
         size_t new_mask = new_cap - 1;
 
-        seq_t *new_tab = (seq_t *)calloc(new_cap, sizeof(seq_t));
+        seq_t *new_tab = mem_new(seq_t, new_cap);
         if (!new_tab) abort();
 
         /* Rehash existing entries. */
@@ -83,7 +96,7 @@ static void prod_hash_insert(seq_t value)
             new_tab[pos] = v;
         }
 
-        free(prod_hash);
+        mem_free(prod_hash);
         prod_hash = new_tab;
         hash_mask  = new_mask;
     }

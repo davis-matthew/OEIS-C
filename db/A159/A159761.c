@@ -7,7 +7,8 @@
  * Formula:   a(n+2) = 22*a(n+1) - 882*(n+1)*a(n), a(0)=1, a(1)=22
  * Range:     i8 n <= 1, i16 n <= 2, i32 n <= 5, i64 n <= 10, i128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 378 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     if (n == 0) {
         if (allocated == 0) {
             /* allocate and set a(0) */
-            buf = (seq_t *)realloc(NULL, sizeof(seq_t));
+            buf = mem_resize(seq_t, NULL, 1);
             if (!buf) return 0;
             buf[0] = (seq_t)1;
             allocated = 1;
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
         if (allocated < 2) {
             /* allocate or grow to hold a(1) */
             idx_t new_size = 2;
-            seq_t *tmp = (seq_t *)realloc(buf, new_size * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, buf, new_size);
             if (!tmp) return 0;
             buf = tmp;
             if (allocated == 0) {
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
     if (allocated <= n) {
         idx_t old_alloc = allocated;
         idx_t new_size = n + 1;
-        seq_t *tmp = (seq_t *)realloc(buf, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, buf, new_size);
         if (!tmp) return 0;      /* allocation failed – safe fallback */
         buf = tmp;
         allocated = new_size;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 9, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   sum_digits_seq_t
+ * Validated: standard, pass, 51 terms through n = 953 (2026-11-03)
+ * Helpers:   digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,8 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/sum_digits_seq_t.h"
+#include "../utils/digit_sum.h"
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* Helper: number of decimal digits of a seq_t value                   */
@@ -52,7 +54,7 @@ static void cache_append(seq_t val)
 {
     if (cache_len + 1 > cache_cap) {
         size_t new_cap = cache_cap == 0 ? 4 : cache_cap * 2;
-        seq_t *new_buf = (seq_t *)realloc(term_cache, new_cap * sizeof(seq_t));
+        seq_t *new_buf = mem_resize(seq_t, term_cache, new_cap);
         if (!new_buf) return;        /* allocation failure – give up silently */
         term_cache = new_buf;
         cache_cap  = new_cap;
@@ -105,7 +107,7 @@ seq_t a(idx_t n)
         seq_t first  = tri / pow10[k];
         seq_t second = tri % pow10[k];
 
-        if (sum_digits_seq_t(first) == sum_digits_seq_t(second)) {
+        if (digit_sum(first) == digit_sum(second)) {
             cache_append(tri);                 /* store the term */
         }
     }

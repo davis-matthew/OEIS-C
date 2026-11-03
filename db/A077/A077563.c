@@ -10,6 +10,7 @@
  *            factorizations of i and j are different
  * Range:     u8 n <= 576, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 93 terms through n = 9380 (2026-11-01)
  * Helpers:   build_spf
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,7 +19,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/build_spf.h"   /* provides void build_spf(idx_t limit, idx_t **spf_out); */
+#include "../utils/build_spf.h"
 
 static idx_t *g_spf = NULL;          /* smallest prime factor table               */
 static idx_t  g_spf_lim = 0;         /* maximum index the table covers           */

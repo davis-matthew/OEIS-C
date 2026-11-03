@@ -12,12 +12,14 @@
  *            Σ_{i=n-42}^{n-1} a(i) - 190 * a(n-43) *...
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 14, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache   = NULL; /* array of a(i) values */
 static seq_t *cum_cache = NULL; /* cumulative sums of a(i) */
@@ -32,13 +34,13 @@ static void ensure_cache(idx_t n)
     /* Allocate or grow the cache */
     if (cache_cap == 0) {
         cache_cap = 16;                 /* initial capacity */
-        a_cache   = (seq_t *)malloc(cache_cap * sizeof(seq_t));
-        cum_cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        a_cache   = mem_new(seq_t, cache_cap);
+        cum_cache = mem_new(seq_t, cache_cap);
     }
     while (cache_cap <= n) {
         cache_cap *= 2;
-        a_cache   = (seq_t *)realloc(a_cache,   cache_cap * sizeof(seq_t));
-        cum_cache = (seq_t *)realloc(cum_cache, cache_cap * sizeof(seq_t));
+        a_cache   = mem_resize(seq_t, a_cache, cache_cap);
+        cum_cache = mem_resize(seq_t, cum_cache, cache_cap);
     }
 
     /* Compute terms from cache_len up to n */

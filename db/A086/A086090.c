@@ -7,17 +7,19 @@
  * Formula:   a(n) = 2^n + n*3^n
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 17, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   pow_int_seq
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_int_seq.h"
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
-    seq_t pow2 = pow_int_seq((seq_t)2, n);   /* 2^n */
-    seq_t pow3 = pow_int_seq((seq_t)3, n);   /* 3^n */
+    seq_t pow2 = ipow_idx((seq_t)2, n);   /* 2^n */
+    seq_t pow3 = ipow_idx((seq_t)3, n);   /* 3^n */
     seq_t res  = pow2 + (seq_t)n * pow3;     /* 2^n + n*3^n */
     return res;
 }

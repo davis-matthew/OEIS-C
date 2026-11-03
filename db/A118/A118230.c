@@ -9,13 +9,15 @@
  *            gcd(k,n)=1} a(k) where δ_{n,4} = 1 if n = 4 else 0
  * Range:     i8 n <= 90, i16 n <= 90, i32 n <= 90, i64 n <= 90, i128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 90 terms through n = 90 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* idx_t and seq_t are defined by the build environment. */
 static seq_t *cache = NULL;          /* dynamic array of sequence values */
@@ -39,7 +41,7 @@ static void ensure_cache(idx_t n)
     if (n < cache_size) return;
     idx_t new_size = cache_size ? cache_size * 2 : 1;
     while (new_size <= n) new_size <<= 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache) { /* allocation failed, abort */
         abort();
     }

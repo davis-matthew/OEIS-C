@@ -9,13 +9,15 @@
  *            a(0)=1,a(1)=2,a(2)=5,a(3)=14,a(4)=46,a(5)=156,a(6)=561
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 18, u64 n <= 34, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 176 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,11 +30,11 @@ seq_t a(idx_t n)
         size_t newcap = (cap == 0) ? 8 : cap;
         while (newcap <= (size_t)n)
             newcap *= 2;
-        seq_t *tmp = (seq_t *)malloc(newcap * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, newcap);
         if (!tmp) exit(EXIT_FAILURE);
         if (cache) {
-            memcpy(tmp, cache, cache_len * sizeof(seq_t));
-            free(cache);
+            mem_copy(tmp, cache, cache_len * sizeof(seq_t));
+            mem_free(cache);
         }
         cache = tmp;
         cap   = newcap;

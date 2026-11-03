@@ -7,7 +7,8 @@
  * Formula:   a(n) = the nth prime p such that p ≡ 1, 2, or 3 (mod 13)
  * Range:     u8 n <= 13, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   isPrimeTrial
+ * Validated: standard, pass, 68 terms through n = 926 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/isPrimeTrial.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,10 +40,9 @@ seq_t a(idx_t n)
             }
 
             /* Test for primality. */
-            if (isPrimeTrial((seq_t)candidate)) {
+            if (is_prime_seq((seq_t)candidate)) {
                 /* Grow the cache for the new entry. */
-                seq_t *tmp = (seq_t *)realloc(cache,
-                                               (cache_len + 1) * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, (cache_len + 1));
                 if (!tmp) {
                     /* Allocation failed – signal an error through a
                        suitable return.  The caller is not expected to

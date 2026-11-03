@@ -8,7 +8,8 @@
  *            1)^{μ(330/d)}
  * Range:     i8 n <= 80, i16 n <= 80, i32 n <= 80, i64 n <= 80, i128 n <= 80,
  *            big any n
- * Helpers:   mul_by_factor_int64
+ * Validated: full, pass, 81 terms through n = 80 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,20 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/mul_by_factor_int64.h"
+
+/* multiply poly by (x^d – 1) with int64_t coefficients to avoid overflow */
+static void mul_by_factor_int64(int64_t *poly, size_t *deg, size_t d)
+{
+    size_t new_deg = (*deg) + d;
+    int64_t tmp[500] = {0};
+    for (size_t i = 0; i <= *deg; ++i) {
+        tmp[i]     += -poly[i];
+        tmp[i + d] +=  poly[i];
+    }
+    for (size_t i = 0; i <= new_deg; ++i)
+        poly[i] = tmp[i];
+    *deg = new_deg;
+}
 
 seq_t a(idx_t n)
 {

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 35, u64 n <= 71, u128 n <= 144,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    a(n)=a(n-1)+2*a(n-3)+2*a(n-4)-a(n-6)-a(n-7)   for n>=11   */
 #include <stdlib.h>
 #include <stddef.h>   /* for size_t */
+#include "../utils/mem.h"
 
 static seq_t *cache = (seq_t *)NULL;    /* array holding a(1)..a(k) */
 static size_t capacity = 0;              /* allocated size of the array     */
@@ -32,12 +34,12 @@ static void ensure_capacity(idx_t n)
     size_t new_cap = capacity ? capacity : 16;
     while (new_cap < (size_t)n) new_cap <<= 1;   /* double until large enough */
 
-    seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, new_cap);
     if (!tmp) return;                            /* allocation failed – caller will handle */
 
     if (cache) {
         for (size_t i = 0; i < capacity; ++i) tmp[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
     cache = tmp;
     capacity = new_cap;

@@ -8,12 +8,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 57, u16 n <= 9999, u32 n <= 9999, u64 n <= 9999,
  *            u128 n <= 9999, big any n
+ * Validated: standard, pass, 77 terms through n = 9841 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Sequence A392375: numbers k such that k is coprime to each of its digits and to the sum of its digits. */
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/gcd.h"
 #include <stdbool.h>
 

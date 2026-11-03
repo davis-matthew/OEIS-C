@@ -7,13 +7,22 @@
  * Formula:   Divisors of 2^39 - 1, where 2^39 - 1 = 7 × 79 × 8191 × 121369
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 13, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   cmp_seq
+ * Validated: full, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/cmp_seq.h"
+#include "../utils/mem.h"
+
+static int cmp_seq(const void *a, const void *b) {
+    seq_t x = *(const seq_t *)a;
+    seq_t y = *(const seq_t *)b;
+    if (x < y) return -1;
+    if (x > y) return 1;
+    return 0;
+}
 
 seq_t a(idx_t n) {
     if (n < 1 || n > 16) return 0;
@@ -32,7 +41,7 @@ seq_t a(idx_t n) {
         divisors[mask] = d;
     }
     
-    qsort(divisors, 16, sizeof(seq_t), cmp_seq);
+    mem_qsort(divisors, 16, sizeof(seq_t), cmp_seq);
     
     return divisors[n - 1];
 }

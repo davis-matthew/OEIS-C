@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 6542, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 9994 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* 2) Static state used by the function.  */
 static idx_t   current_limit = 0;   /* maximum k processed so far.    */
@@ -60,7 +62,7 @@ static void extend_up_to(idx_t new_limit)
     }
 
     /* Allocate space for the sequence.  */
-    seq_t *new_seq = (seq_t *)realloc(seq, count * sizeof(seq_t));
+    seq_t *new_seq = mem_resize(seq_t, seq, count);
     if (!new_seq) abort();
     seq = new_seq;
 

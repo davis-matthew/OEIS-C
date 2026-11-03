@@ -10,14 +10,25 @@
  *            (Pochhammer(n,6)=n*(n+1)*...*(n+5))
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 20, u64 n <= 257, u128 n <= 1000,
  *            big any n
- * Helpers:   divide_common
+ * Validated: standard, pass, 43 terms through n = 987 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/divide_common.h"
+
+/* helper that divides *val by prime p as long as both *val and *rem have a factor p */
+static void divide_common(seq_t *val, uint64_t *rem, uint8_t p, uint8_t times)
+{
+    for (uint8_t i = 0; i < times; ++i) {
+        if (*rem % p != 0) break;
+        if (*val % p != 0) break;
+        *val /= p;
+        *rem /= p;
+    }
+}
 
 seq_t a(idx_t n)
 {

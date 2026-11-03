@@ -10,14 +10,24 @@
  *            pentagonal theorem)
  * Range:     u8 n <= 11, u16 n <= 33, u32 n <= 107, u64 n <= 372,
  *            u128 n <= 1000, big any n
- * Helpers:   alloc_series
+ * Validated: standard, pass, 61 terms through n = 929 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/alloc_series.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_series(size_t sz)
+{
+    seq_t *p = mem_new(seq_t, sz);
+    size_t i;
+    for (i = 0; i < sz; i++) p[i] = 0;
+    return p;
+}
 
 static seq_t *P_tab = 0;
 static seq_t *S_tab = 0;

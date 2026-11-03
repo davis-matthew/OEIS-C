@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..n} (-1)^(n-k)*binomial(n, k)*E1(n, k)
  * Range:     i8 n <= 4, i16 n <= 7, i32 n <= 11, i64 n <= 18, i128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Here E1(n,k) are the standard first‑order Eulerian numbers. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static state for memoisation */
 static seq_t *a_cache = NULL;            /* cache of computed a(n) values      */
@@ -28,11 +30,11 @@ static size_t row_capacity = 0;          /* current allocated capacity of rows*/
 static void initialise(void) {
     /* initialise caches for n = 0 */
     cache_capacity = 1;
-    a_cache = (seq_t*)malloc(cache_capacity * sizeof(seq_t));
+    a_cache = mem_new(seq_t, cache_capacity);
     a_cache[0] = (seq_t)1;               /* a(0) = 1 */
 
     row_capacity = 1;
-    prev_row = (seq_t*)malloc(row_capacity * sizeof(seq_t));
+    prev_row = mem_new(seq_t, row_capacity);
     prev_row[0] = (seq_t)1;              /* Eulerian numbers for n = 0: A(0,0) = 1 */
     cur_row = NULL;                      /* will be allocated on first use    */
 }
@@ -44,15 +46,15 @@ static void compute_up_to(idx_t n) {
     /* extend caches if necessary */
     if (cache_capacity <= (size_t)n) {
         cache_capacity = n + 1;
-        a_cache = (seq_t*)realloc(a_cache, cache_capacity * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, cache_capacity);
     }
 
     /* generate Eulerian numbers row by row */
     for (idx_t curr = max_cached + 1; curr <= n; ++curr) {
         /* ensure we have enough space for the new row */
         if (row_capacity < (size_t)(curr + 1)) {
-            prev_row = (seq_t*)realloc(prev_row, (curr + 1) * sizeof(seq_t));
-            cur_row  = (seq_t*)realloc(cur_row,  (curr + 1) * sizeof(seq_t));
+            prev_row = mem_resize(seq_t, prev_row, (curr + 1));
+            cur_row  = mem_resize(seq_t, cur_row, (curr + 1));
             row_capacity = curr + 1;
         }
 

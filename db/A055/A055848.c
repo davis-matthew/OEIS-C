@@ -7,6 +7,7 @@
  * Formula:   a(n) = (2*n+3)*C(n+8,8)/3
  * Range:     u8 n <= 1, u16 n <= 7, u32 n <= 27, u64 n <= 27, u128 n <= 27,
  *            big any n
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

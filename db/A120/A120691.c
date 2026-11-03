@@ -7,6 +7,7 @@
  * Formula:   a(3*n-1)=2*n-1, a(3*n)=1-2*n, a(3*n+1)=0, a(0)=2, a(1)=-1
  * Range:     i8 n <= 179, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
+ * Validated: standard, pass, 77 terms through n = 975 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

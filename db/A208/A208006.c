@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 10, u64 n <= 22, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Coefficients of the recurrence (a(n‑1) … a(n‑17)) */
 static const long long COEFFS[17] = {
@@ -99,14 +101,14 @@ static void init_sequence(void) {
     initA[2] = (seq_t)V * (seq_t)V;
 
     size_t states = V * V;
-    dp_cur = (seq_t*)malloc(states * sizeof(seq_t));
-    dp_next = (seq_t*)malloc(states * sizeof(seq_t));
+    dp_cur = mem_new(seq_t, states);
+    dp_next = mem_new(seq_t, states);
 
-    memset(dp_cur, 0, states * sizeof(seq_t));
+    mem_set(dp_cur, 0, states * sizeof(seq_t));
     for (size_t s = 0; s < states; ++s) dp_cur[s] = 1;    /* all pairs allowed for n=2 */
 
     for (int n = 3; n <= 18; ++n) {
-        memset(dp_next, 0, states * sizeof(seq_t));
+        mem_set(dp_next, 0, states * sizeof(seq_t));
         for (size_t s = 0; s < states; ++s) {
             seq_t val = dp_cur[s];
             if (!val) continue;

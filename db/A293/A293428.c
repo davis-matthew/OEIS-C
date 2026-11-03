@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 64, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_squarefree
+ * Validated: standard, pass, 100 terms through n = 9674 (2026-11-03)
+ * Helpers:   is_squarefree, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/is_squarefree.h"   /* provides: bool is_squarefree(seq_t x) */
+#include "../utils/is_squarefree.h"
+#include "../utils/mem.h"
 
 /* Retrieve a(n) for any n >= 0 */
 seq_t a(idx_t n)
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     if (cache_cap == 0) {
         /* start with a modest capacity */
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL)
             abort();              /* failure to allocate */
         cache[0] = (seq_t)1U;      /* a(0) = 1 */
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
         size_t new_cap = cache_cap ? cache_cap : 16;
         while (new_cap < required_cap)   /* double until sufficient */
             new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL)
             abort();
         cache = tmp;

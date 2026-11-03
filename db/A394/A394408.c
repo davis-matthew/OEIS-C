@@ -11,7 +11,8 @@
  *            element of each adjacent pair whose elements are coprime
  * Range:     u8 n <= 5, u16 n <= 6, u32 n <= 9, u64 n <= 13, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 23 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* initialise the list S (first element is 1) */
     if (S == NULL) {
         S_cap = 64;
-        S = (seq_t *)malloc(S_cap * sizeof(seq_t));
+        S = mem_new(seq_t, S_cap);
         if (!S) return (seq_t)0;   /* out–of–memory fallback */
         S_len = 1;
         S[0] = ((seq_t)1);
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     /* initialise the sequence A */
     if (A == NULL) {
         A_cap = 32;
-        A = (seq_t *)malloc(A_cap * sizeof(seq_t));
+        A = mem_new(seq_t, A_cap);
         if (!A) return (seq_t)0;
     }
 
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
         /* ensure capacity in S */
         if (S_len == S_cap) {
             S_cap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(S, S_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, S, S_cap);
             if (!tmp) return (seq_t)0;
             S = tmp;
         }
@@ -87,7 +89,7 @@ seq_t a(idx_t n)
             if (!(both_even || both_five)) {   /* gcd(prev,curr)==1 */
                 if (A_len == A_cap) {
                     A_cap <<= 1;
-                    seq_t *tmp = (seq_t *)realloc(A, A_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, A, A_cap);
                     if (!tmp) return (seq_t)0;
                     A = tmp;
                 }

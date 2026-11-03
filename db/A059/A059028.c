@@ -8,14 +8,43 @@
  * Formula:   a(n) = Sum_{m=1..n} (lcm(n,m)/n + lcm(n,m)/m - 1)
  * Range:     u8 n <= 16, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   gen_divs_phi
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/gen_divs_phi.h"
+
+/* Recursively generate all divisors of n together with their φ values. */
+static void
+gen_divs_phi(const unsigned *primes, const unsigned *exps, size_t pcnt,
+             size_t idx, uint64_t cur, uint64_t cur_phi,
+             uint64_t *divs, uint64_t *phis, size_t *cnt)
+{
+    if (idx == pcnt) {
+        divs[(*cnt)]   = cur;
+        phis[(*cnt)]   = cur_phi;
+        ++(*cnt);
+        return;
+    }
+    unsigned p   = primes[idx];
+    unsigned emax = exps[idx];
+    uint64_t pow   = 1;
+    for (unsigned e = 0; e <= emax; ++e) {
+        if (e == 0) {
+            gen_divs_phi(primes, exps, pcnt, idx+1, cur, cur_phi,
+                         divs, phis, cnt);
+        } else {
+            pow *= p;                         /* p^e */
+            uint64_t phi_contrib = pow / p * (p - 1);   /* p^e - p^(e-1) */
+            gen_divs_phi(primes, exps, pcnt, idx+1,
+                         cur * pow, cur_phi * phi_contrib,
+                         divs, phis, cnt);
+        }
+    }
+}
 
 /* Small prime table sufficient for n <= 10 000 */
 static const unsigned prime_list[] =

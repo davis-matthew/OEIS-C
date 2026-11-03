@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 957, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   int_cube_root, is_prime, seq_alloc_array, seq_free_array
+ * Validated: standard, pass, 66 terms through n = 876 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,10 +21,36 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_prime.h"      /* bool is_prime(idx_t x); */
-#include "../utils/int_cube_root.h"/* idx_t int_cube_root(idx_t n); */
-#include "../utils/seq_alloc_array.h"/* seq_t* seq_alloc_array(size_t n); */
-#include "../utils/seq_free_array.h"  /* void seq_free_array(seq_t*); */
+#include <stdint.h>
+#include <limits.h>
+#include <string.h>
+#include <stddef.h>
+#include <math.h>
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
+
+/* integer cube root: largest k with k³ ≤ x */
+static idx_t int_cube_root(idx_t x)
+{
+    idx_t lo = 0, hi = x;
+    while (lo < hi) {
+        idx_t mid = lo + (hi - lo + 1) / 2;
+        __int128 cube = (__int128)mid * mid * mid;
+        if (cube <= x)
+            lo = mid;
+        else
+            hi = mid - 1;
+    }
+    return lo;
+}
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 /* cache of found terms */
 static seq_t *cache          = NULL;

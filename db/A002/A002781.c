@@ -11,14 +11,40 @@
  *            carries: 10^d + 1; 10^d + 10^(d/2) + 1 (d even); and...
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 18, u128 n <= 49,
  *            big any n
- * Helpers:   a002781_ok4, a002781_p10
+ * Validated: standard, pass, 36 terms through n = 76 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/a002781_ok4.h"
-#include "../utils/a002781_p10.h"
+
+static bool a002781_ok4(idx_t d, idx_t j)
+{
+    idx_t e[4];
+    idx_t s[64];
+    int i, k, l, cnt = 0;
+    e[0] = 0; e[1] = j; e[2] = d - j; e[3] = d;
+    for (i = 0; i < 4; i++)
+        for (k = 0; k < 4; k++)
+            for (l = 0; l < 4; l++)
+                s[cnt++] = e[i] + e[k] + e[l];
+    for (i = 0; i < 64; i++) {
+        int c = 0;
+        for (k = 0; k < 64; k++)
+            if (s[k] == s[i]) c++;
+        if (c > 9) return false;
+    }
+    return true;
+}
+
+static seq_t a002781_p10(idx_t e)
+{
+    seq_t r = 1;
+    idx_t i;
+    for (i = 0; i < e; i++) r *= 10;
+    return r;
+}
 
 seq_t a(idx_t n)
 {

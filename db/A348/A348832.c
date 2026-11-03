@@ -11,7 +11,8 @@
  *            not 4. The terms are produced in ascending o...
  * Range:     u8 none, u16 none, u32 none, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   digit_len, pow10, seq_mul
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,25 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_mul.h"     /* seq_t seq_mul(seq_t, seq_t) */
-#include "../utils/pow10.h"       /* seq_t pow10(idx_t) */
-#include "../utils/digit_len.h"   /* int digit_len(seq_t) */
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 static seq_t *cache      = NULL;
 static size_t cache_len  = 0;
@@ -34,7 +51,7 @@ static void ensure_cache_cap(size_t need)
     if (cache_cap < need) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
         while (new_cap < need) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) { exit(1); }
         cache = tmp;
         cache_cap = new_cap;
@@ -68,7 +85,7 @@ seq_t a(idx_t n)
         }
 
         /* Determine the number of decimal digits of the square. */
-        int D = digit_len(sq);
+        int D = num_digits(sq);
         if (D < 4) { /* too short to have four leading digits; skip */
             cur = cur + 1;
             next_scan = cur;

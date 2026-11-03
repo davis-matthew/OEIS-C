@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 13, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,9 +36,9 @@ seq_t a(idx_t n)
     /* Initialise on first call. */
     if (E == NULL) {
         /* Allocate minimal arrays of size 1. */
-        E     = (seq_t *)calloc(1, sizeof(seq_t));
-        pow3  = (seq_t *)calloc(1, sizeof(seq_t));
-        aseq  = (seq_t *)calloc(1, sizeof(seq_t));
+        E     = mem_new(seq_t, 1);
+        pow3  = mem_new(seq_t, 1);
+        aseq  = mem_new(seq_t, 1);
         if (E == NULL || pow3 == NULL || aseq == NULL) {
             return (seq_t)0;
         }
@@ -53,9 +55,9 @@ seq_t a(idx_t n)
 
     /* Extend arrays up to n. */
     size_t newSize = (size_t)n + 1;
-    E    = (seq_t *)realloc(E,    newSize * sizeof(seq_t));
-    pow3 = (seq_t *)realloc(pow3, newSize * sizeof(seq_t));
-    aseq = (seq_t *)realloc(aseq, newSize * sizeof(seq_t));
+    E    = mem_resize(seq_t, E, newSize);
+    pow3 = mem_resize(seq_t, pow3, newSize);
+    aseq = mem_resize(seq_t, aseq, newSize);
     if (E == NULL || pow3 == NULL || aseq == NULL) {
         return (seq_t)0;
     }

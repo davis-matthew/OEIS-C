@@ -10,13 +10,15 @@
  *            This implements the OEIS entry A116703
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 25, u64 n <= 50, u128 n <= 99,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 980 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* initialise base cases (a(1),a(2),a(3)) */
     if (cache_len <= 3) {
         idx_t needed = 4;                 /* indices 0 … 3 */
-        seq_t *tmp = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, needed);
         if (!tmp) { cache = NULL; return 0; } /* allocation failure */
         cache = tmp;
         cache_len = needed;
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     if (n < cache_len) return cache[n];
 
     /* grow cache to hold up to a(n) */
-    seq_t *tmp = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
     if (!tmp) { cache = NULL; return 0; }   /* allocation failure */
     cache = tmp;
 

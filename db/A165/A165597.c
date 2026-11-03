@@ -9,9 +9,10 @@
  *            a(n)=∑_{k=1}^{n} s(k). The sign sequence is periodic with period
  *            59881. The implementation pre‑computes one period of cumulative
  *            sums and then uses it to answer any query in O(1)
- * Range:     i8 n <= 0, i16 n <= 8525, i32 n <= 8525, i64 n <= 8525,
- *            i128 n <= 8525, big any n
- * Helpers:   mod_pow
+ * Range:     i8 n <= 0, i16 n <= 59880, i32 n <= 59881, i64 n <= 59881,
+ *            i128 n <= 59881, big any n
+ * Validated: standard, pass, 92 terms through n = 8525 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include "../utils/powmod.h"
 
 #define PERIOD 59881U            /* 233 × 257 */
 
@@ -32,7 +34,7 @@ static seq_t period_sum = 0;     /* sum over one full period */
 static inline int legendre(seq_t n, seq_t p, idx_t exp)
 {
     if (n == 0) return 0;
-    seq_t v = mod_pow(n, exp, p);   /* n^((p-1)/2) mod p */
+    seq_t v = powmod(n, exp, p);   /* n^((p-1)/2) mod p */
     if (v == 1)  return 1;
     if (v == p-1) return -1;
     return 0;

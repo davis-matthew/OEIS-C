@@ -8,12 +8,14 @@
  *            a(n-10)
  * Range:     u8 n <= 14, u16 n <= 23, u32 n <= 39, u64 n <= 71, u128 n <= 135,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 921 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Recursive 9th-order Fibonacci sequence (A127193). */
 seq_t a(idx_t n)
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* Initialise cache with the first 10 terms. */
     if (!cache) {
         /* Allocate space for indices 0..10 (11 elements). */
-        cache = (seq_t *)malloc((size_t)(11) * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)(11));
         for (idx_t i = 1; i <= 9; ++i) cache[i] = (seq_t)1;
         cache[10] = (seq_t)9;
         cache_cap = 11;
@@ -36,9 +38,9 @@ seq_t a(idx_t n)
     /* Grow cache if necessary. */
     if ((idx_t)(n + 1) > cache_cap) {
         size_t new_cap = (size_t)(n + 1);
-        seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         for (idx_t i = 1; i <= cached_n; ++i) new_cache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_cap = (idx_t)new_cap;
     }

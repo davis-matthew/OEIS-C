@@ -9,14 +9,23 @@
  *            v_p((2m+1)!) - v_p(m!) - v_p((m+2)!) for odd primes p
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 33, u64 n <= 65, u128 n <= 129,
  *            big any n
- * Helpers:   legendre
+ * Validated: standard, pass, 54 terms through n = 3028 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/legendre.h"
+
+static uint64_t legendre(uint64_t x, uint64_t p) {
+    uint64_t e = 0;
+    while (x) {
+        x /= p;
+        e += x;
+    }
+    return e;
+}
 
 seq_t a(idx_t n) {
     idx_t m = n / 2;

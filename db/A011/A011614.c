@@ -9,13 +9,26 @@
  *            quadratic residues, -1 for nonresidues
  * Range:     i8 n <= 10000, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   pow_mod_small
+ * Validated: standard, pass, 97 terms through n = 9172 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_mod_small.h"
+
+/* fast exponentiation modulo a small prime */
+static uint64_t pow_mod_small(uint64_t base, uint64_t exp, uint64_t mod) {
+    uint64_t result = 1 % mod;
+    uint64_t b = base % mod;
+    while (exp) {
+        if (exp & 1ULL)
+            result = (result * b) % mod;
+        b = (b * b) % mod;
+        exp >>= 1ULL;
+    }
+    return result;
+}
 
 seq_t a(idx_t n) {
     uint64_t nmod = (uint64_t)n % 157ULL;

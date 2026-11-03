@@ -7,8 +7,9 @@
  * Formula:   sieve -- 1 is in the set, and if m is in it so are 2m, 3m+2 and
  *            6m+3; a(n) is the n-th smallest member (the sieve limit doubles
  *            until n members are found)
- * Range:     u8 n <= 126, u16 n <= 9699, u32 n <= 9699, u64 n <= 9699,
- *            u128 n <= 9699, big any n
+ * Range:     u8 n <= 126, u16 n <= 15889, u32 n <= 15889, u64 n <= 15889,
+ *            u128 n <= 15889, big any n
+ * Validated: standard, pass, 82 terms through n = 9699 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

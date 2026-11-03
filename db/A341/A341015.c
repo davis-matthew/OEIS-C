@@ -8,13 +8,15 @@
  *            duplicates removed
  * Range:     u8 n <= 13, u16 n <= 25, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
         val5 = 1;
         inserted4 = false;
         list_cap = 64;
-        list = (seq_t*)malloc(list_cap * sizeof(seq_t));
+        list = mem_new(seq_t, list_cap);
         if (!list) abort();
         list_len = 0;
         initialized = true;
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
         if (list_len == 0 || candidate != list[list_len - 1]) {
             if (list_len >= list_cap) {
                 list_cap *= 2;
-                list = (seq_t*)realloc(list, list_cap * sizeof(seq_t));
+                list = mem_resize(seq_t, list, list_cap);
                 if (!list) abort();
             }
             list[list_len++] = candidate;

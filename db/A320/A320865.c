@@ -6,6 +6,7 @@
  * Keywords:  base, nonn
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 none, u64 n <= 2, u128 n <= 5, big any n
+ * Validated: standard, pass, 23 terms through n = 144 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 
 #include <stdlib.h>
 #include <math.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 /* high‑precision constants */

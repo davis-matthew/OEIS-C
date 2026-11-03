@@ -11,13 +11,15 @@
  *            odd, -1 for k even). Then a(0) = 0 a(n) = B_...
  * Range:     u8 n <= 11, u16 n <= 32, u32 n <= 104, u64 n <= 362,
  *            u128 n <= 1333, big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 9789 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* external integer types supplied by the build */
 extern seq_t a(idx_t n);
@@ -40,11 +42,11 @@ seq_t a(idx_t n)
         /* Allocate new arrays.  Size = n+1 to store indices 0..n. */
         size_t N = (size_t)n + 1;
 
-        seq_t *new_a = (seq_t *)calloc(N, sizeof(seq_t));
-        seq_t *new_b = (seq_t *)calloc(N, sizeof(seq_t));
+        seq_t *new_a = mem_new(seq_t, N);
+        seq_t *new_b = mem_new(seq_t, N);
 
         if (!new_a || !new_b) {          /* allocation failure */
-            free(new_a); free(new_b);
+            mem_free(new_a); mem_free(new_b);
             return (seq_t)0;             /* safe fallback */
         }
 
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
         int *new_pv = (int *)malloc(estimated * sizeof(int));
         int *new_ps = (int *)malloc(estimated * sizeof(int));
         if (!new_pv || !new_ps) {           /* allocation failure */
-            free(new_a); free(new_b);
+            mem_free(new_a); mem_free(new_b);
             free(new_pv); free(new_ps);
             return (seq_t)0;
         }
@@ -115,7 +117,7 @@ seq_t a(idx_t n)
         }
 
         /* Free previous static arrays (may be NULL on first run). */
-        free(a_arr); free(b_arr);
+        mem_free(a_arr); mem_free(b_arr);
         free(pent_val); free(pent_sign);
 
         /* Store new arrays and meta‑data. */

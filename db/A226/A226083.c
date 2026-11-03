@@ -8,7 +8,8 @@
  * Formula:   a(n) = smallest largest prime power dividing C(2*n,n)
  * Range:     u8 n <= 533, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow, build_primes_upto
+ * Validated: standard, pass, 116 terms through n = 9753 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,9 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 static uint64_t *prime_cache = NULL;      /* primes up to current limit   */
 static size_t prime_cnt = 0;              /* number of primes in cache    */
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
         }
         if (exp == 0) continue;         /* should not happen, skip if so */
 
-        seq_t pow = big_pow((seq_t)p, (seq_t)exp);
+        seq_t pow = ipow((seq_t)p, (seq_t)exp);
 
         if (best == 0 || pow < best) best = pow;
     }

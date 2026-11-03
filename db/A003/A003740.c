@@ -11,8 +11,8 @@
  *            first s terms are computed by iterating T. A...
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 3, u64 n <= 6, u128 n <= 12,
  *            big any n
- * Helpers:   alloc_zero, charpoly_mod, fnd, grow_zero, mrp, mulm, powm,
- *            release, subm
+ * Validated: standard, pass, 25 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,15 +21,137 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/grow_zero.h"
-#include "../utils/release.h"
-#include "../utils/charpoly_mod.h"
-#include "../utils/fnd.h"
-#include "../utils/mrp.h"
-#include "../utils/mulm.h"
-#include "../utils/powm.h"
-#include "../utils/subm.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
+
+static uint64_t mulm(uint64_t a, uint64_t b, uint64_t m)
+{
+    return (uint64_t)((unsigned __int128)a * b % m);
+}
+
+static uint64_t powm(uint64_t b, uint64_t e, uint64_t m)
+{
+    uint64_t r = 1 % m;
+    b %= m;
+    while (e) {
+        if (e & 1) r = mulm(r, b, m);
+        b = mulm(b, b, m);
+        e >>= 1;
+    }
+    return r;
+}
+
+static uint64_t subm(uint64_t a, uint64_t b, uint64_t m)
+{
+    return (a + m - b) % m;
+}
+
+static void charpoly_mod(int s, const long long *A, uint64_t p, uint64_t *out)
+{
+    uint64_t *H = (uint64_t *)malloc(sizeof(uint64_t) * (size_t)s * s);
+    for (int i = 0; i < s * s; i++) H[i] = (uint64_t)A[i] % p;
+    for (int j = 0; j < s - 2; j++) {
+        int piv = -1;
+        for (int i = j + 1; i < s; i++)
+            if (H[i * s + j]) { piv = i; break; }
+        if (piv < 0) continue;
+        if (piv != j + 1) {
+            for (int k = 0; k < s; k++) {
+                uint64_t tmp = H[piv * s + k];
+                H[piv * s + k] = H[(j + 1) * s + k];
+                H[(j + 1) * s + k] = tmp;
+            }
+            for (int k = 0; k < s; k++) {
+                uint64_t tmp = H[k * s + piv];
+                H[k * s + piv] = H[k * s + j + 1];
+                H[k * s + j + 1] = tmp;
+            }
+        }
+        uint64_t inv = powm(H[(j + 1) * s + j], p - 2, p);
+        for (int i = j + 2; i < s; i++) {
+            uint64_t u = mulm(H[i * s + j], inv, p);
+            if (!u) continue;
+            for (int k = 0; k < s; k++)
+                H[i * s + k] = subm(H[i * s + k], mulm(u, H[(j + 1) * s + k], p), p);
+            for (int k = 0; k < s; k++)
+                H[k * s + j + 1] = (H[k * s + j + 1] + mulm(u, H[k * s + i], p)) % p;
+        }
+    }
+    int w = s + 1;
+    uint64_t *P = (uint64_t *)calloc((size_t)w * w, sizeof(uint64_t));
+    P[0] = 1;
+    for (int k = 1; k <= s; k++) {
+        uint64_t *Pk = P + (size_t)k * w;
+        const uint64_t *Pq = P + (size_t)(k - 1) * w;
+        uint64_t h = H[(k - 1) * s + (k - 1)];
+        for (int d = 0; d <= k; d++) {
+            uint64_t v = d > 0 ? Pq[d - 1] : 0;
+            if (d < k) v = subm(v, mulm(h, Pq[d], p), p);
+            Pk[d] = v;
+        }
+        uint64_t t = 1;
+        for (int i = 1; i < k; i++) {
+            t = mulm(t, H[(k - i) * s + (k - i - 1)], p);
+            uint64_t c = mulm(t, H[(k - i - 1) * s + (k - 1)], p);
+            if (!c) continue;
+            const uint64_t *Pr = P + (size_t)(k - i - 1) * w;
+            for (int d = 0; d <= k - i - 1; d++)
+                Pk[d] = subm(Pk[d], mulm(c, Pr[d], p), p);
+        }
+    }
+    memcpy(out, P + (size_t)s * w, sizeof(uint64_t) * (size_t)w);
+    free(P);
+    free(H);
+}
+
+static int fnd(int *p, int x)
+{
+    while (p[x] != x) x = p[x];
+    return x;
+}
+
+static bool mrp(uint64_t n)
+{
+    static const uint64_t B[12] = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37};
+    if (n < 2) return false;
+    for (int i = 0; i < 12; i++)
+        if (n % B[i] == 0) return n == B[i];
+    uint64_t d = n - 1;
+    int r = 0;
+    while (!(d & 1)) { d >>= 1; r++; }
+    for (int i = 0; i < 12; i++) {
+        uint64_t x = powm(B[i], d, n);
+        if (x == 1 || x == n - 1) continue;
+        bool comp = true;
+        for (int k = 1; k < r; k++) {
+            x = mulm(x, x, n);
+            if (x == n - 1) { comp = false; break; }
+        }
+        if (comp) return false;
+    }
+    return true;
+}
 
 #define NV 5
 #define MAXS 256

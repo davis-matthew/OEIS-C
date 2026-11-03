@@ -8,7 +8,8 @@
  *            p+q‑r is prime
  * Range:     u8 n <= 23, u16 n <= 1295, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime, next_prime
+ * Validated: standard, pass, 77 terms through n = 8858 (2026-11-03)
+ * Helpers:   is_prime, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,9 @@
 #include <stdlib.h>
 #include <limits.h>
 
-#include "../utils/next_prime.h"   // declares uint64_t next_prime(uint64_t start);
-#include "../utils/is_prime.h"     // declares bool is_prime(idx_t x);
+#include "../utils/is_prime.h"
+#include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
 
         /* allocate initial cache */
         cap = 16; /* arbitrary small start, will grow as needed */
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) {
             /* out of memory; return zero on failure – caller should handle */
             return (seq_t)0;
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
             if (sz == cap) {
                 /* grow cache */
                 size_t new_cap = cap * 2;
-                seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
                 if (!new_cache) {
                     /* out of memory; return zero on failure – caller should handle */
                     return (seq_t)0;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 981 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Static state retained between calls ---------------------------------- */
 static uint64_t *prime_list = NULL;   /* primes found so far                  */
@@ -47,7 +49,7 @@ static void enlarge_primes(void)
 static void enlarge_seq(void)
 {
     size_t new_cap = seq_cap ? seq_cap * 2 : 16;
-    seq_t *tmp = (seq_t*)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
     if (!tmp) abort();                 /* out of memory */
     seq_cache = tmp;
     seq_cap   = new_cap;

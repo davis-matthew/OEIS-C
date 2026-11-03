@@ -11,15 +11,25 @@
  *            build: sum 2^E*(m!/z_j), then divide by m!. Fixed build: each...
  * Range:     u8 n <= 8, u16 n <= 10, u32 n <= 14, u64 n <= 19, u128 n <= 26,
  *            big any n
- * Helpers:   a2785_gcd, a2785_inv
+ * Validated: standard, pass, 39 terms through n = 99 (2026-11-01)
+ * Helpers:   gcd_i64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/a2785_gcd.h"
-#include "../utils/a2785_inv.h"
+#include "../utils/gcd_i64.h"
+
+static seq_t a2785_inv(seq_t o) {
+    seq_t inv = o;
+    for (int i = 0; i < 8; i++) {
+        seq_t t = o * inv;
+        t = 2 - t;
+        inv *= t;
+    }
+    return inv;
+}
 
 static int g_big;
 static int g_W;
@@ -56,7 +66,7 @@ static void a2785_rec(long long rem, long long maxk, long long E,
     for (; k >= 1; k -= 2) {
         long long cross = 0;
         for (int i = 0; i < g_depth; i++)
-            cross += 2 * a2785_gcd(g_pk[i], k) * g_pc[i];
+            cross += 2 * gcd_i64(g_pk[i], k) * g_pc[i];
         seq_t zb = zbig, zo = zodd;
         long long vv = v;
         for (long long c = 1; c * k <= rem; c++) {

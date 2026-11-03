@@ -10,7 +10,8 @@
  *            parts * (+ for even number of parts, – for odd)
  * Range:     i8 n <= 75, i16 n <= 229, i32 n <= 738, i64 n <= 2504,
  *            i128 n <= 9080, big any n
- * Helpers:   is_squarefree
+ * Validated: standard, pass, 92 terms through n = 9272 (2026-11-03)
+ * Helpers:   is_squarefree, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "../utils/is_squarefree.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* memoised coefficients */
 static idx_t cache_size = 0;     /* current allocated size (number of slots) */
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* If the cache is too small, recompute all terms up to n. */
     if (n + 1 > cache_size) {
         idx_t size = n + 1;                  /* number of array elements */
-        seq_t *new_cache = (seq_t *)realloc(cache, size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, size);
         if (!new_cache) return (seq_t)0;     /* allocation failure (unlikely) */
         cache = new_cache;
 

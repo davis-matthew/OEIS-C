@@ -9,7 +9,8 @@
  *            sinh(x)) )
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 16, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* Cached values of the sequence */
 static seq_t *cache = NULL;          /* array of computed terms          */
@@ -31,7 +33,7 @@ static void ensure_cache_size(idx_t n)
     size_t new_cap = cap ? cap << 1 : 1;
     while (new_cap <= n)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) {
         /* Allocation failure – abort; the test harness assumes success on a
            small capacity. */

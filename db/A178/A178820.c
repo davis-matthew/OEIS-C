@@ -8,14 +8,15 @@
  *            (largest integer with r*(r+1)/2 <= n) and k = n - r*(r+1)/2
  * Range:     u8 n <= 15, u16 n <= 59, u32 n <= 309, u64 n <= 1454,
  *            u128 n <= 5150, big any n
- * Helpers:   binomial_opt
+ * Validated: standard, pass, 71 terms through n = 4735 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binomial_opt.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +34,7 @@ seq_t a(idx_t n)
     seq_t row_coeff = ((seq_t)(r + 3) * (r + 2) * (r + 1)) / (seq_t)6;
 
     /* Compute C(r,k). */
-    seq_t k_coeff = binomial_opt(r, k);
+    seq_t k_coeff = binomial(r, k);
 
     return row_coeff * k_coeff;
 }

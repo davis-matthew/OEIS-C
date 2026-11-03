@@ -9,13 +9,14 @@
  *            corresponding x value
  * Range:     u8 n <= 9, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   isprime
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/isprime.h"
+#include "../utils/is_prime_u64.h"
 
 static seq_t isqrt_seq(seq_t x) {
     if (x == 0) return 0;
@@ -33,7 +34,7 @@ seq_t a(idx_t n) {
     uint64_t p = 2;
     
     while (count < (uint64_t)n) {
-        if (isprime(p)) {
+        if (is_prime_u64(p)) {
             int mod5 = p % 5;
             if (mod5 == 0 || mod5 == 1 || mod5 == 4) {
                 count++;

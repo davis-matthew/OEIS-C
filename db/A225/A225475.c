@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 27, u32 n <= 65, u64 n <= 154,
  *            u128 n <= 412, big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 1303 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,6 +34,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -56,8 +58,8 @@ seq_t a(idx_t n)
      * ∏_{i=0}^{r-1} (x + (2i+1)).  We use two alternating buffers
      * to avoid repeated allocations. */
     size_t len = (size_t)r;
-    seq_t *a_buf = (seq_t*)malloc((len + 1) * sizeof(seq_t));
-    seq_t *b_buf = (seq_t*)malloc((len + 1) * sizeof(seq_t));
+    seq_t *a_buf = mem_new(seq_t, (len + 1));
+    seq_t *b_buf = mem_new(seq_t, (len + 1));
     if (!a_buf || !b_buf)
         return 0;        /* In a real program we would handle this error. */
 
@@ -86,7 +88,7 @@ seq_t a(idx_t n)
 
     seq_t result = a_buf[k] * fact;
 
-    free(a_buf);
-    free(b_buf);
+    mem_free(a_buf);
+    mem_free(b_buf);
     return result;
 }

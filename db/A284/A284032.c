@@ -8,24 +8,27 @@
  *            40824*5^n - 5796*4^n + 254*3^n - 2^n
  * Range:     u8 n <= 0, u16 n <= 2, u32 n <= 6, u64 n <= 15, u128 n <= 35,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 34 terms through n = 1028 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
     /* Compute all powers once */
-    seq_t pow9 = big_pow((seq_t)9, (seq_t)n);
-    seq_t pow8 = big_pow((seq_t)8, (seq_t)n);
-    seq_t pow7 = big_pow((seq_t)7, (seq_t)n);
-    seq_t pow6 = big_pow((seq_t)6, (seq_t)n);
-    seq_t pow5 = big_pow((seq_t)5, (seq_t)n);
-    seq_t pow4 = big_pow((seq_t)4, (seq_t)n);
-    seq_t pow3 = big_pow((seq_t)3, (seq_t)n);
-    seq_t pow2 = big_pow((seq_t)2, (seq_t)n);
+    seq_t pow9 = ipow((seq_t)9, (seq_t)n);
+    seq_t pow8 = ipow((seq_t)8, (seq_t)n);
+    seq_t pow7 = ipow((seq_t)7, (seq_t)n);
+    seq_t pow6 = ipow((seq_t)6, (seq_t)n);
+    seq_t pow5 = ipow((seq_t)5, (seq_t)n);
+    seq_t pow4 = ipow((seq_t)4, (seq_t)n);
+    seq_t pow3 = ipow((seq_t)3, (seq_t)n);
+    seq_t pow2 = ipow((seq_t)2, (seq_t)n);
 
     /* Accumulate contributions */
     seq_t pos = 0;

@@ -10,7 +10,8 @@
  *            primes)
  * Range:     u8 n <= 65, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 986 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     /* one‑time initialization */
     if (!cum) {
         cum_cap  = 128;
-        cum      = (seq_t *)malloc(cum_cap * sizeof(seq_t));
+        cum      = mem_new(seq_t, cum_cap);
         cum[0] = (seq_t)0;
         cum_size = 1;
     }
@@ -87,7 +89,7 @@ seq_t a(idx_t n)
                 /* grow cumulative array if needed */
                 if (cum_size >= cum_cap) {
                     cum_cap = cum_cap ? cum_cap * 2 : 128;
-                    cum = (seq_t *)realloc(cum, cum_cap * sizeof(seq_t));
+                    cum = mem_resize(seq_t, cum, cum_cap);
                 }
                 seq_t last = cum[cum_size - 1];
                 cum[cum_size++] = last + (seq_t)digits[i];

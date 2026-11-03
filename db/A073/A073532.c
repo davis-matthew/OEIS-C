@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   gen_distinct_digits, is_prime_u32, mulmod32, powmod32
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
+ * Helpers:   is_prime_u32, mulmod_u32, powmod_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,10 +22,27 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/gen_distinct_digits.h"
 #include "../utils/is_prime_u32.h"
-#include "../utils/mulmod32.h"
-#include "../utils/powmod32.h"
+#include "../utils/mulmod_u32.h"
+#include "../utils/powmod_u32.h"
+
+/* Recursively generate all distinct‑digit numbers of a given length. */
+static void gen_distinct_digits(unsigned len, unsigned pos,
+                                uint16_t used, uint32_t num,
+                                seq_t *cnt)
+{
+    if (pos == len) {
+        if (is_prime_u32(num)) cnt[len - 1]++;   /* length is len */
+        return;
+    }
+    for (unsigned d = 0; d < 10; ++d) {
+        if (pos == 0 && d == 0) continue;     /* no leading zero */
+        if (used & (1U << d)) continue;        /* digit already used */
+        gen_distinct_digits(len, pos + 1,
+                            used | (1U << d),
+                            num * 10 + d, cnt);
+    }
+}
 
 /* Pre‑compute the counts for lengths 1…9. */
 static void precompute(seq_t *cnt)

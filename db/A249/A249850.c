@@ -13,12 +13,14 @@
  *            a(4)=1234328, a(5)=10653298, a(6)=63374127, a(7)=2893726...
  * Range:     u8 none, u16 n <= 1, u32 n <= 4, u64 n <= 84, u128 n <= 152,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 149 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /*  Helper: compute a(n) for 1 ≤ n ≤ 11 using the closed‐form polynomial  */
@@ -71,7 +73,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* Allocate just enough for the first 12 values (a(1)..a(11) + 1 reserve) */
         cap = 12;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         for (idx_t i = 1; i <= 11; ++i)
             cache[i - 1] = base_value(i);
         size = 11;
@@ -80,7 +82,7 @@ seq_t a(idx_t n)
     /* Grow cache if requested n is beyond current capacity */
     if (n > cap) {
         idx_t new_cap = n;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) /* allocation failed – leave old cache as is */
             return 0;
         cache = tmp;

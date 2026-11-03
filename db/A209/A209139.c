@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -48,22 +50,22 @@ seq_t a(idx_t n)
     }
 
     /* allocate the first two rows */
-    seq_t *row_prevprev = (seq_t*)malloc(sizeof(seq_t));
+    seq_t *row_prevprev = mem_new(seq_t, 1);
     if (!row_prevprev) return (seq_t)0;
     row_prevprev[0] = (seq_t)1;
 
-    seq_t *row_prev = (seq_t*)calloc(2, sizeof(seq_t));
-    if (!row_prev) { free(row_prevprev); return (seq_t)0; }
+    seq_t *row_prev = mem_new(seq_t, 2);
+    if (!row_prev) { mem_free(row_prevprev); return (seq_t)0; }
     row_prev[0] = (seq_t)2;
     row_prev[1] = (seq_t)1;
 
     /* build rows 3 … r */
     for (idx_t cur = 3; cur <= r; ++cur) {
         size_t sz = (size_t)cur;
-        seq_t *row_cur = (seq_t*)calloc(sz, sizeof(seq_t));
+        seq_t *row_cur = mem_new(seq_t, sz);
         if (!row_cur) {
-            free(row_prevprev);
-            free(row_prev);
+            mem_free(row_prevprev);
+            mem_free(row_prev);
             return (seq_t)0;
         }
         for (idx_t k = 0; k < cur; ++k) {
@@ -74,13 +76,13 @@ seq_t a(idx_t n)
             if (k >= 2)             val += row_prevprev[(size_t)(k-2)];
             row_cur[(size_t)k] = val;
         }
-        free(row_prevprev);
+        mem_free(row_prevprev);
         row_prevprev = row_prev;
         row_prev = row_cur;
     }
 
     seq_t result = row_prev[(size_t)pos];
-    free(row_prevprev);
-    free(row_prev);
+    mem_free(row_prevprev);
+    mem_free(row_prev);
     return result;
 }

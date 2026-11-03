@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
    For m ≥ 0 and 1 ≤ k ≤ 2^m,
      a(2^m + k) = |{ j : 1 ≤ j < 2^m + k  ∧  gcd(a(j), a(k)) = 1 }|   */
 #include <stdlib.h>
-#include "../utils/gcd.h"          /* extern seq_t gcd(seq_t a, seq_t b); */
+#include <stdint.h>
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;       /* 1‑based sequence, stored 0‑based */
 static size_t cache_size = 0;     /* number of terms already computed */
@@ -30,7 +33,7 @@ static void ensure_capacity(size_t needed) {
     size_t new_cap = cache_cap ? cache_cap * 2 : 64;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();              /* out of memory */
     cache = tmp;
     cache_cap = new_cap;

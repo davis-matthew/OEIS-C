@@ -8,6 +8,7 @@
  *            (1+x+...+x^{2i-1})
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 17, u64 n <= 102, u128 n <= 342,
  *            big any n
+ * Validated: full, pass, 343 terms through n = 342 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

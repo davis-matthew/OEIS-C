@@ -11,6 +11,7 @@
  *            of (1−x^3)(1−x^6)…(1−x^30)/(1−x)^10
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 33, u64 n <= 155, u128 n <= 155,
  *            big any n
+ * Validated: full, pass, 156 terms through n = 155 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

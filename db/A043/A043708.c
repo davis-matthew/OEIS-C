@@ -8,13 +8,15 @@
  *            of runs
  * Range:     u8 n <= 129, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 84 terms through n = 9566 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Test if a number in base 5 has an odd number of runs (changes of digit). */
 static bool odd_runs(seq_t x)
@@ -53,8 +55,7 @@ seq_t a(idx_t n)
         if (odd_runs(last_checked)) {
             if (cached_size >= cache_cap) {   /* grow allocation */
                 size_t new_cap = cache_cap ? cache_cap * 2 : 64;
-                seq_t *tmp = (seq_t *)realloc(cache,
-                                              new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) abort();            /* allocation failure */
                 cache = tmp;
                 cache_cap = new_cap;

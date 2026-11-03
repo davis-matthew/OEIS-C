@@ -10,7 +10,8 @@
  *            larger n is requested
  * Range:     u8 n <= 72, u16 n <= 7500, u32 n <= 7500, u64 n <= 7500,
  *            u128 n <= 7500, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 7071 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* array of computed terms, sorted, 0‑based */
 static size_t cached_len = 0;   /* number of terms stored */
@@ -61,14 +63,14 @@ static void ensure_cache(size_t needed)
 
         if (count >= needed) {
             /* build the cache array in sorted order */
-            seq_t *new_cache = (seq_t*)malloc(count * sizeof(seq_t));
+            seq_t *new_cache = mem_new(seq_t, count);
             if (!new_cache) abort();
             size_t pos = 0;
             for (size_t i = 0; i <= bound; ++i)
                 if (mark[i]) new_cache[pos++] = (seq_t)i;
 
             free(mark);
-            free(cache);
+            mem_free(cache);
             cache = new_cache;
             cached_len = count;
             break;

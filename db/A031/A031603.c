@@ -11,7 +11,8 @@
  *            period, the two central terms are both 15
  * Range:     u8 none, u16 n <= 36, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Integer square‑root (floor) using binary search */
 static idx_t isqrt(idx_t n)
@@ -88,7 +90,7 @@ seq_t a(idx_t n)
 
     if (!list) {
         list_cap = 64;
-        list = (seq_t *)malloc(sizeof(seq_t) * list_cap);
+        list = mem_new(seq_t, list_cap);
     }
 
     while (list_len < n) {
@@ -97,7 +99,7 @@ seq_t a(idx_t n)
 
         if (list_len == list_cap) {
             list_cap <<= 1;
-            list = (seq_t *)realloc(list, sizeof(seq_t) * list_cap);
+            list = mem_resize(seq_t, list, list_cap);
         }
         list[list_len++] = (seq_t)cur_k;
         cur_k++;

@@ -8,12 +8,14 @@
  *            (n+1-2*i)*(n+1-i)*phi(i)
  * Range:     u8 n <= 8, u16 n <= 35, u32 n <= 578, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   phi
+ * Validated: standard, pass, 54 terms through n = 9888 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/phi.h"
+#include <stdint.h>
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
         seq_t i_seq = (seq_t)i;
         seq_t term1 = (N + 1 - (i_seq << 1));   /* n+1-2*i  */
         seq_t term2 = (N + 1 - i_seq);          /* n+1-i    */
-        seq_t phi_i = phi(i);                   /* phi(i)   */
+        seq_t phi_i = totient(i);                   /* phi(i)   */
         /* Multiply all three terms and add to result */
         result += 2 * (term1 * term2 * phi_i);
     }

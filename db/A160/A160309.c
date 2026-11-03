@@ -7,12 +7,14 @@
  * Formula:   a(n+2) = 22*a(n+1) - 1922*(n+1)*a(n), a(0)=1, a(1)=22
  * Range:     i8 n <= 1, i16 n <= 2, i32 n <= 5, i64 n <= 10, i128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 352 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (cache == NULL) {
         cache_size = 2;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache) return 0;            /* allocation failed – return 0 */
         cache[0] = 1;
         cache[1] = 22;
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* extend cache if necessary */
     if ((idx_t)n > computed_max) {
         size_t new_size = (size_t)n + 1;
-        void *tmp = realloc(cache, new_size * sizeof(seq_t));
+        void *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) return 0;              /* allocation failed – return 0 */
         cache = (seq_t *)tmp;
         cache_size = new_size;

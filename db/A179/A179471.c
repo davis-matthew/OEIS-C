@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 11, u128 n <= 15,
  *            big any n
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -29,7 +30,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "../utils/pow2.h"   /* seq_t pow2(idx_t exp) */
+#include "../utils/pow2.h"
 
 #ifdef __cplusplus
 #include <vector>

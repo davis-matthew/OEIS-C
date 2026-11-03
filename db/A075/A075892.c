@@ -6,8 +6,9 @@
  * Offset:    2    (a(2) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = (prime(n+1)^2 + prime(n)^2)/2 (offset 2)
- * Range:     u8 n <= 6, u16 n <= 54, u32 n <= 6542, u64 n <= 9932,
- *            u128 n <= 9932, big any n
+ * Range:     u8 n <= 6, u16 n <= 54, u32 n <= 6542, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 56 terms through n = 9932 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

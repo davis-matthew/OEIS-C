@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  base, easy, nonn, tabl, look
  * Formula:   not stated
- * Range:     u8 n <= 104, u16 n <= 738, u32 n <= 3376, u64 n <= 9261,
- *            u128 n <= 9261, big any n
- * Helpers:   dfs_gen
+ * Range:     u8 n <= 104, u16 n <= 738, u32 n <= 3376, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 82 terms through n = 9261 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,30 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/dfs_gen.h"
+
+/* Recursive helper that builds numbers of length l with the current
+ * position `pos` (0‑based), remaining digit sum `rem`,
+ * current numeric value `cur`, and fills into `row` until `target`
+ * numbers are collected. */
+static void dfs_gen(int l, int pos, idx_t rem, seq_t cur,
+                    int *cnt, int target, seq_t *row)
+{
+    if (*cnt >= target) return;
+    if (pos == l) {                 /* one candidate finished */
+        if (rem == 0) {
+            row[(*cnt)++] = cur;
+        }
+        return;
+    }
+    int min_d = (pos == 0) ? 1 : 0; /* first digit may not be zero */
+    for (int d = min_d; d <= 9 && (idx_t)d <= rem; ++d) {
+        seq_t next = cur * 10 + (seq_t)d;
+        int remaining_positions = l - pos - 1;
+        if ((idx_t)(rem - d) > (idx_t)(9 * remaining_positions)) continue;
+        dfs_gen(l, pos + 1, rem - d, next, cnt, target, row);
+        if (*cnt >= target) return;
+    }
+}
 
 /* Maximum row we pre‑compute.  For n ≤ 10⁴ this is far more than needed. */
 #define MAX_R 1000

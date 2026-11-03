@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   binom, triangle_terms_until
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,14 @@
  *        T(r,k) = Σ_{p=0}^{r-k} binom(k+p-1,p) * 2^p * binom(k+r-k-p, r-k-p)
  */
 
-#include "../utils/binom.h"
-#include "../utils/triangle_terms_until.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+
+static inline idx_t triangle_terms_until(idx_t r)
+{
+    /* Return the number of triangle elements up to and including row r */
+    return (idx_t)((__int128)(r + 1) * (r + 2) / 2);
+}
 
 seq_t a(idx_t n)
 {
@@ -53,7 +60,7 @@ seq_t a(idx_t n)
     seq_t sum = 0;
     seq_t pow2 = 1;                     /* 2^p */
     seq_t c1   = 1;                     /* binom(k+p-1,p) for current p */
-    seq_t c2   = binom(k + m, m);       /* binom(k+q,q) for current q = m-p */
+    seq_t c2   = binomial(k + m, m);       /* binom(k+q,q) for current q = m-p */
 
     for (idx_t p = 0; p <= m; ++p) {
         sum += c1 * pow2 * c2;

@@ -8,13 +8,15 @@
  *            pairs (i,j) of positive cubes with i^3 + j^3 = t
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 113 terms through n = 9680 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Static cache for f(t) and a(n). */
 static seq_t *f_cache   = NULL;   /* f(t) values */
@@ -41,20 +43,20 @@ seq_t a(idx_t n)
         /* Extend f_cache */
         if (f_cache == NULL || (idx_t)(max_n + 1) < n + 1)
         {
-            seq_t *new_f = (seq_t *)realloc(f_cache, (size_t)(n + 1) * sizeof(seq_t));
+            seq_t *new_f = mem_resize(seq_t, f_cache, (size_t)(n + 1));
             if (new_f == NULL) abort();
             f_cache = new_f;
         }
         /* Extend a_cache */
         if (a_cache == NULL || (idx_t)(max_n + 1) < n + 1)
         {
-            seq_t *new_a = (seq_t *)realloc(a_cache, (size_t)(n + 1) * sizeof(seq_t));
+            seq_t *new_a = mem_resize(seq_t, a_cache, (size_t)(n + 1));
             if (new_a == NULL) abort();
             a_cache = new_a;
         }
 
         /* Re‑compute f(t) for 0 ≤ t ≤ n */
-        memset(f_cache, 0, (size_t)(n + 1) * sizeof(seq_t));
+        mem_set(f_cache, 0, (size_t)(n + 1) * sizeof(seq_t));
         idx_t K = floor_cube_root(n);
         for (idx_t i = 1; i <= K; ++i)
         {
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
         }
 
         /* Compute a(n) via convolution of f with itself */
-        memset(a_cache, 0, (size_t)(n + 1) * sizeof(seq_t));
+        mem_set(a_cache, 0, (size_t)(n + 1) * sizeof(seq_t));
         for (idx_t t = 0; t <= n; ++t)
         {
             seq_t ft = f_cache[t];

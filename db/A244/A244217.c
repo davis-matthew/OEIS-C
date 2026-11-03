@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 64, u16 n <= 6917, u32 n <= 6918, u64 n <= 6918,
+ * Range:     u8 n <= 188, u16 n <= 6918, u32 n <= 6918, u64 n <= 6918,
  *            u128 n <= 6918, big any n
- * Helpers:   catalan
+ * Validated: standard, pass, 83 terms through n = 6881 (2026-11-03)
+ * Helpers:   catalan, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/catalan.h"
+#include "../utils/mem.h"
 
 static seq_t *starts = NULL;      /* start of each block (Catalan number)   */
 static idx_t *cum    = NULL;      /* cumulative count up to that block      */
@@ -38,7 +40,7 @@ ensure_precomputed(idx_t a_limit)
     if (len == 0) {
         /* initialise first block: C0 = 1 */
         cap = 8;
-        starts = (seq_t *)malloc(cap * sizeof(seq_t));
+        starts = mem_new(seq_t, cap);
         cum    = (idx_t *)malloc(cap * sizeof(idx_t));
         if (!starts || !cum) abort();        /* memory failure */
         starts[0] = (seq_t)1;
@@ -68,7 +70,7 @@ ensure_precomputed(idx_t a_limit)
         /* expand storage if needed */
         if (len >= cap) {
             cap = cap * 2;
-            starts = (seq_t *)realloc(starts, cap * sizeof(seq_t));
+            starts = mem_resize(seq_t, starts, cap);
             cum    = (idx_t *)realloc(cum,    cap * sizeof(idx_t));
             if (!starts || !cum) abort();
         }

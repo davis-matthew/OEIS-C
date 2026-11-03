@@ -7,13 +7,28 @@
  * Formula:   a(n) = σ( A005117(n) ) = σ( the n-th squarefree number )
  * Range:     u8 n <= 84, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   sigma_of_squarefree
+ * Validated: standard, pass, 81 terms through n = 979 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/sigma_of_squarefree.h"
+
+/* Helper: compute σ(n) = ∏_{p|n} (p+1) over distinct prime factors p */
+static seq_t sigma_of_squarefree(idx_t n)
+{
+    seq_t res = 1;
+    idx_t m = n;
+    for (idx_t p = 2; p * p <= m; ++p) {
+        if (m % p == 0) {
+            res *= (seq_t)(p + 1);
+            while (m % p == 0) m /= p;
+        }
+    }
+    if (m > 1) res *= (seq_t)(m + 1);
+    return res;
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)

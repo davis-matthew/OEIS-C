@@ -10,7 +10,8 @@
  *            prime p
  * Range:     i8 n <= 12, i16 n <= 1513, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   _floor_isqrt_u64, big_pow, build_primes_upto, jacobi_symbol
+ * Validated: standard, pass, 81 terms through n = 9204 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,10 +19,33 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
-#include "../utils/jacobi_symbol.h"
-#include "../utils/_floor_isqrt_u64.h"
 #include "../utils/build_primes_upto.h"
+#include "../utils/ipow.h"
+#include "../utils/isqrt.h"
+
+/* Jacobi symbol (a|n) for odd positive n <= 2^64-1.
+   Returns 1, 0, or -1. */
+static int jacobi_symbol(uint64_t a, uint64_t n) {
+    if (n == 0) return 0;
+    a %= n;
+    if (a == 0) return 0;
+    int res = 1;
+    while (a != 0) {
+        while ((a & 1) == 0) {
+            a >>= 1;
+            uint64_t n_mod8 = n & 7;
+            if (n_mod8 == 3 || n_mod8 == 5)
+                res = -res;
+        }
+        uint64_t tmp = a;
+        a = n;
+        n = tmp;
+        if ((a & 3) == 3 && (n & 3) == 3)
+            res = -res;
+        a %= n;
+    }
+    return (n == 1) ? res : 0;
+}
 
 /* Global cache of primes for factorisation */
 static uint64_t *prime_cache = NULL; /* array of primes up to prime_limit */
@@ -48,7 +72,7 @@ static seq_t prime_contrib(uint64_t p, unsigned int e)
 {
     int kr = jacobi_symbol(12, p);        /* (12|p) in {-1,0,1} */
     seq_t base = (seq_t)p * (seq_t)kr;    /* base = p*kr  (may be negative) */
-    seq_t num  = big_pow(base, (seq_t)(e + 1)) - 1; /* (base)^(e+1) - 1 */
+    seq_t num  = ipow(base, (seq_t)(e + 1)) - 1; /* (base)^(e+1) - 1 */
     seq_t den  = base - 1;                /* base - 1 */
     return num / den;                     /* exact division */
 }
@@ -68,7 +92,7 @@ seq_t a(idx_t n)
     idx_t m = n >> __builtin_ctzll(n);
 
     /* factor the odd part */
-    idx_t sqrt_m = _floor_isqrt_u64(m);
+    idx_t sqrt_m = isqrt(m);
     ensure_primes_upto(sqrt_m);
 
     for (size_t i = 0; i < prime_count && prime_cache[i] * prime_cache[i] <= m; ++i)

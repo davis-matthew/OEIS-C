@@ -7,12 +7,14 @@
  * Formula:   a(n) = (4*3^n + (-7)^n)/5
  * Range:     i8 n <= 3, i16 n <= 6, i32 n <= 11, i64 n <= 23, i128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 260 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     /* Initialize cache on first call. */
     if (cache == NULL) {
         cache_cap   = 8;
-        cache       = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache       = mem_new(seq_t, cache_cap);
         cache[0] = 1;
         cache[1] = 1;
         cache_size  = 2;
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     while (cache_size <= n) {
         if (cache_size == cache_cap) {
             cache_cap *= 2;
-            cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
 
         seq_t prev1 = cache[cache_size - 1];

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   has_adjacent_zero_and_four
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,26 @@
  * the adjacency property by successive division by 7.
  */
 #include <stdbool.h>
-#include "../utils/has_adjacent_zero_and_four.h"
+
+static bool has_adjacent_zero_and_four(seq_t x)
+/* Return true if the base‑7 representation of x contains 0 and 4
+   as adjacent digits (either "04" or "40"). */
+{
+    if (x < (seq_t)7)   /* less than two digits, cannot have adjacency */
+        return false;
+
+    seq_t prev = x % (seq_t)7;
+    x /= (seq_t)7;
+    while (x > 0) {
+        seq_t cur = x % (seq_t)7;
+        if ((cur == (seq_t)0 && prev == (seq_t)4) ||
+            (cur == (seq_t)4 && prev == (seq_t)0))
+            return true;
+        prev = cur;
+        x /= (seq_t)7;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 /* Return a(n) for the OEIS sequence A043914. */

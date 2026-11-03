@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 42, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   pandigital10
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,20 @@
  * indices (in A050278) of those whose double is also a pandigital number. */
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/pandigital10.h"
+
+static bool pandigital10(unsigned long long x)
+{
+    /* Must be a 10‑digit number containing each digit 0‑9 exactly once. */
+    if (x < 1023456789ULL || x > 9876543210ULL) return false;
+    unsigned int mask = 0;
+    for (int i = 0; i < 10; ++i) {
+        unsigned int d = (unsigned int)(x % 10);
+        if (mask & (1u << d)) return false;
+        mask |= (1u << d);
+        x /= 10;
+    }
+    return x == 0;
+}
 
 static bool next_perm(int *a, int n)
 {

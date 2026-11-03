@@ -10,13 +10,25 @@
  *            by a single 0 and skipping the four input symbols
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   thue_morse_bit
+ * Validated: standard, pass, 102 terms through n = 8951 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/thue_morse_bit.h"
+
+static inline seq_t thue_morse_bit(idx_t i)
+{
+    /* parity of set bits in i (0 for even parity, 1 for odd). */
+    i ^= i >> 32;
+    i ^= i >> 16;
+    i ^= i >> 8;
+    i ^= i >> 4;
+    i ^= i >> 2;
+    i ^= i >> 1;
+    return (seq_t)(i & 1);
+}
 
 seq_t a(idx_t n)
 {

@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = n + floor((4*n^2 + 1/2)^(1/3))
- * Range:     u8 n <= 1, u16 n <= 7, u32 n <= 31, u64 n <= 100, u128 n <= 100,
- *            big any n
- * Helpers:   int_floor_cuberoot
+ * Range:     u8 n <= 7, u16 n <= 100, u32 n <= 100, u64 n <= 100,
+ *            u128 n <= 100, big any n
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-01)
+ * Helpers:   icbrt_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 /* The +1/2 has no effect on the integer part, so we use floor(cuberoot(4*n^2)). */
 
 #include <stdint.h>
-#include "../utils/int_floor_cuberoot.h"
+#include "../utils/icbrt_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -26,6 +27,6 @@ seq_t a(idx_t n)
 
     seq_t sn = (seq_t)n;
     seq_t val = sn * sn * (seq_t)4;          /* 4 * n^2 */
-    seq_t rc = int_floor_cuberoot(val);      /* floor(cuberoot(4*n^2)) */
+    seq_t rc = icbrt_seq(val);      /* floor(cuberoot(4*n^2)) */
     return sn + rc;
 }

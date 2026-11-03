@@ -10,13 +10,16 @@
  *            is_prime routine
  * Range:     u8 n <= 50, u16 n <= 7035, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 72 terms through n = 8042 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/is_prime.h"   /* declares bool is_prime(idx_t) */
+#include <stdbool.h>
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Cache of found terms.  All indices and counts use idx_t, values are seq_t. */
 static seq_t *cache = NULL;      /* array of k values  */
@@ -29,7 +32,7 @@ static void grow_cache(void)
 {
     if (cache_len >= cache_cap) {
         idx_t new_cap = cache_cap ? cache_cap << 1 : 64;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp)
             exit(EXIT_FAILURE);   /* allocation failed */
         cache = tmp;

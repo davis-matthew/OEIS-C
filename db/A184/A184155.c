@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 45, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   seq_push_back
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,19 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_push_back.h"
+#include "../utils/mem.h"
+
+/* --------------------------------------------------------------------- */
+static void
+seq_push_back(seq_t **arr, size_t *cap, size_t *len, seq_t val)
+{
+    if (*len >= *cap) {
+        *cap = (*cap == 0) ? 1 : (*cap << 1);
+        *arr = mem_resize(seq_t, *arr, (*cap * sizeof(seq_t)) / sizeof(seq_t));
+    }
+    (*arr)[*len] = val;
+    (*len)++;
+}
 
 /* Static state variables used by the sequence generator  */
 static seq_t *seq_arr      = NULL;   /* sorted list of valid numbers */
@@ -45,7 +58,7 @@ build_sequence(idx_t lim)
 {
     /* Free previous data (if any) */
     if (seq_arr) {
-        free(seq_arr);
+        mem_free(seq_arr);
         seq_arr   = NULL;
         seq_cap   = 0;
         seq_len   = 0;

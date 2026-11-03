@@ -9,12 +9,14 @@
  *            (k*(k+1)/2 + x) / (1 + k*(k+1)/2*x)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 10, u64 n <= 16, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 253 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute OEIS sequence A230740 */
 seq_t a(idx_t n)
@@ -23,12 +25,12 @@ seq_t a(idx_t n)
     size_t size = (size_t)n + 1;
 
     /* Allocate working arrays */
-    seq_t *a_pos = (seq_t*)calloc(size, sizeof(seq_t));
-    seq_t *a_neg = (seq_t*)calloc(size, sizeof(seq_t));
-    seq_t *r_pos = (seq_t*)calloc(size, sizeof(seq_t));
-    seq_t *r_neg = (seq_t*)calloc(size, sizeof(seq_t));
-    seq_t *new_pos = (seq_t*)calloc(size, sizeof(seq_t));
-    seq_t *new_neg = (seq_t*)calloc(size, sizeof(seq_t));
+    seq_t *a_pos = mem_new(seq_t, size);
+    seq_t *a_neg = mem_new(seq_t, size);
+    seq_t *r_pos = mem_new(seq_t, size);
+    seq_t *r_neg = mem_new(seq_t, size);
+    seq_t *new_pos = mem_new(seq_t, size);
+    seq_t *new_neg = mem_new(seq_t, size);
 
     if (!a_pos || !a_neg || !r_pos || !r_neg || !new_pos || !new_neg)
         return 0;   /* allocation failed; return zero as a conservative value */
@@ -84,9 +86,9 @@ seq_t a(idx_t n)
     seq_t result = a_pos[n] - a_neg[n];
 
     /* Free allocated memory */
-    free(a_pos); free(a_neg);
-    free(r_pos); free(r_neg);
-    free(new_pos); free(new_neg);
+    mem_free(a_pos); mem_free(a_neg);
+    mem_free(r_pos); mem_free(r_neg);
+    mem_free(new_pos); mem_free(new_neg);
 
     return result;
 }

@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 8816, u16 n <= 8816, u32 n <= 8816, u64 n <= 8816,
- *            u128 n <= 8816, big any n
- * Helpers:   none
+ * Range:     u8 n <= 17711, u16 n <= 17711, u32 n <= 17711, u64 n <= 17711,
+ *            u128 n <= 17711, big any n
+ * Validated: standard, pass, 103 terms through n = 8816 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    between seq_t and idx_t.  All counts are held in the cache array of seq_t. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= cache_cap) {
         /* enlarge the cache to accommodate index n */
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;          /* allocation failed */
         cache = tmp;
         for (size_t i = cache_cap; i < new_cap; ++i) cache[i] = 0;

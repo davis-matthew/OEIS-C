@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 46, i16 n <= 164, i32 n <= 644, i64 n <= 1325,
  *            i128 n <= 1325, big any n
- * Helpers:   binomial
+ * Validated: standard, pass, 82 terms through n = 1298 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,7 +32,23 @@
  */
 
 #include <stdint.h>
-#include "../utils/binomial.h"
+#include <stdlib.h>
+
+/* Compute binomial coefficient n choose k multiplicatively.
+   This works for any seq_t that supports + - * / % with integer constants. */
+static seq_t binomial(idx_t n, idx_t k)
+{
+    if (k > n)
+        return 0;
+    if (k > n - k)      /* use symmetry */
+        k = n - k;
+    seq_t res = 1;
+    for (idx_t i = 1; i <= k; ++i) {
+        res = res * (seq_t)(n - k + i);
+        res = res / (seq_t)i;
+    }
+    return res;
+}
 
 /* Integer square‑root of a 64‑bit unsigned integer (floor).  Uses 128‑bit
  * arithmetic to avoid overflow.  The result is guaranteed to be ≤ 2^32. */

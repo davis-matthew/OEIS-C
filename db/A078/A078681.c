@@ -10,7 +10,8 @@
  *            until a prime occurs. The steps counter is returned
  * Range:     u8 n <= 84, u16 n <= 84, u32 n <= 84, u64 n <= 84, u128 n <= 84,
  *            big any n
- * Helpers:   mod_pow_uint128, mul_mod_uint128
+ * Validated: partial, pass, 84 terms through n = 84 (2026-11-01)
+ * Helpers:   mulmod_u128
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,22 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/mod_pow_uint128.h"
-#include "../utils/mul_mod_uint128.h"
+#include "../utils/mulmod_u128.h"
+
+/* Compute (base^exp) mod mod using repeated squaring. */
+static unsigned __int128 mod_pow_uint128(unsigned __int128 base,
+                                         unsigned __int128 exp,
+                                         unsigned __int128 mod)
+{
+    unsigned __int128 result = 1;
+    while (exp) {
+        if (exp & 1U)
+            result = mulmod_u128(result, base, mod);
+        base = mulmod_u128(base, base, mod);
+        exp >>= 1U;
+    }
+    return result;
+}
 
 /* Deterministic Miller–Rabin bases sufficient for all 128‑bit numbers. */
 static const unsigned long long MR_BASES[] = {
@@ -58,7 +73,7 @@ static bool is_prime_u128(unsigned __int128 x)
             continue;
         bool composite = true;
         for (unsigned int r = 1; r < s; ++r) {
-            y = mul_mod_uint128(y, y, x);
+            y = mulmod_u128(y, y, x);
             if (y == x - 1) {
                 composite = false;
                 break;

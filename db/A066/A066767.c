@@ -9,12 +9,14 @@
  *            sigma(1) = 1 a(n) = 2 * a(n-1) + sigma(n) (n >= 2)
  * Range:     u8 n <= 6, u16 n <= 14, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Predicate: seq_t and idx_t types are supplied by the build. */
 
@@ -27,8 +29,8 @@ static idx_t  current_max = 0;
 static void recompute(idx_t new_max)
 {
     /* Allocate arrays of size new_max+1 (index 0 unused) */
-    sigma_arr = (seq_t *)realloc(sigma_arr, (size_t)(new_max + 1) * sizeof(seq_t));
-    a_arr     = (seq_t *)realloc(a_arr,     (size_t)(new_max + 1) * sizeof(seq_t));
+    sigma_arr = mem_resize(seq_t, sigma_arr, (size_t)(new_max + 1));
+    a_arr     = mem_resize(seq_t, a_arr, (size_t)(new_max + 1));
 
     /* Initialize sigma to 0 */
     for (idx_t i = 1; i <= new_max; ++i) {

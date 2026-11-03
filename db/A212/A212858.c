@@ -10,7 +10,8 @@
  *            for all n >= 2
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 7, u128 n <= 11,
  *            big any n
- * Helpers:   binomial, seq_alloc_new_array, seq_pow
+ * Validated: standard, pass, 29 terms through n = 116 (2026-11-03)
+ * Helpers:   binomial, ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,14 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/seq_pow.h"
+#include <string.h>
+#include <math.h>
 #include "../utils/binomial.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
 
 static seq_t *cache = NULL;      /* cache of computed a(n) values */
 static size_t cache_cap = 0;     /* capacity of cache array */
@@ -57,7 +63,7 @@ seq_t a(idx_t n)
         seq_t *new_cache = seq_alloc_new_array(new_cap);
         /* copy old values */
         for (size_t i = 0; i < cache_len; ++i) new_cache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_cap = new_cap;
     }
@@ -76,7 +82,7 @@ seq_t a(idx_t n)
         for (idx_t s = 1; s < k; ++s) {
             /* Update binom to binom(k, s) */
             binom = (binom * (seq_t)(k - s + 1)) / (seq_t)s;
-            seq_t binom_pow5 = seq_pow(binom, (idx_t)5);
+            seq_t binom_pow5 = ipow_idx(binom, (idx_t)5);
             seq_t prod = cache[s] * binom_pow5;
 
             if (((k - s - 1) & 1) == 0)

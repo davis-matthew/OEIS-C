@@ -14,14 +14,15 @@
  *            * every n ≥ 2
  * Range:     u8 n <= 5, u16 n <= 15, u32 n <= 15, u64 n <= 15, u128 n <= 16,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 32 terms through n = 989 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 /* Evaluate t in hereditary base `old_base`, then interpret the
  * expression in base `new_base`.  The result fits in seq_t. */
@@ -55,7 +56,7 @@ static seq_t eval_hereditary(seq_t t, idx_t old_base, idx_t new_base)
     seq_t exp_val = eval_hereditary((seq_t)k, old_base, new_base);
 
     /* Compute new_base^exp_val, then multiply by the coefficient. */
-    seq_t term = big_pow((seq_t)new_base, exp_val);
+    seq_t term = ipow((seq_t)new_base, exp_val);
     term = term * coeff;
 
     /* Recursively evaluate the remainder r. */

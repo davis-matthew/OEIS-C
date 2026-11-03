@@ -9,7 +9,8 @@
  *            prime‑power parts in all partitions of n)
  * Range:     u8 n <= 17, u16 n <= 41, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,13 +20,14 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     if (n < 1) return 0;
 
     /* Partition numbers p[0..n] */
-    seq_t *p = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *p = mem_new(seq_t, (n + 1));
     if (!p) return 0;
     for (idx_t i = 0; i <= n; ++i) p[i] = 0;
     p[0] = 1;
@@ -40,11 +42,11 @@ seq_t a(idx_t n)
     uint64_t *primes = NULL;
     size_t prime_cnt = 0;
     build_primes_upto(n, &primes, &prime_cnt);
-    if (!primes) { free(p); return 0; }
+    if (!primes) { mem_free(p); return 0; }
 
     /* Collect all proper prime powers t = p^i, i >= 2, <= n */
     idx_t *prpow = (idx_t *)malloc((n + 1) * sizeof(idx_t));
-    if (!prpow) { free(p); free(primes); return 0; }
+    if (!prpow) { mem_free(p); free(primes); return 0; }
     size_t prpow_cnt = 0;
 
     for (size_t pi = 0; pi < prime_cnt; ++pi) {
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
     }
 
     /* Clean up */
-    free(p);
+    mem_free(p);
     free(prpow);
     free(primes);
     return ans;

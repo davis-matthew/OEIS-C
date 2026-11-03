@@ -10,13 +10,15 @@
  *            above)
  * Range:     i8 n <= 6, i16 n <= 9, i32 n <= 13, i64 n <= 20, i128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* External integer types provided by the build */
 typedef uint64_t idx_t;
@@ -43,16 +45,16 @@ static void ensure_up_to(idx_t n)
     /* Allocate or grow caches as necessary */
     if (a_cache == NULL) {
         a_cap = 128;
-        a_cache = (seq_t*)malloc(a_cap * sizeof(seq_t));
-        b_cache = (seq_t*)malloc(a_cap * sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_cap);
+        b_cache = mem_new(seq_t, a_cap);
         a_cache[0] = 0;
         b_cache[0] = 0;
     }
     if ((size_t)(n + 1) > a_cap) {
         size_t new_cap = a_cap;
         while ((size_t)(n + 1) > new_cap) new_cap <<= 1;
-        a_cache = (seq_t*)realloc(a_cache, new_cap * sizeof(seq_t));
-        b_cache = (seq_t*)realloc(b_cache, new_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_cap);
+        b_cache = mem_resize(seq_t, b_cache, new_cap);
         a_cap = b_cap = new_cap;
     }
 

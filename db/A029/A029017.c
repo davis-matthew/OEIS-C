@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 42, u16 n <= 312, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 978 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    (a(k) = 0 for k < 0).   This is the partition count with parts
    1, 2, 6 and 7, i.e. the OEIS sequence A029017. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
 
     /* first call: create the array and initialise base case */
     if (dp == NULL) {
-        dp = (seq_t *)malloc(sizeof(seq_t));
+        dp = mem_new(seq_t, 1);
         if (!dp) return (seq_t)0;  /* allocation failed */
         dp[0] = (seq_t)1;          /* a(0) = 1 */
         max_n = 0;
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
 
     /* enlarge the cache to contain up to n */
     size_t new_size = (size_t)(n + 1);
-    seq_t *tmp = (seq_t *)realloc(dp, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, dp, new_size);
     if (!tmp) return (seq_t)0;  /* reallocation failed */
     dp = tmp;
 

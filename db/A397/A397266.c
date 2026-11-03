@@ -10,13 +10,15 @@
  *            (0,1,1,1,6,6,8,13,17,17,28,28)
  * Range:     u8 n <= 33, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static const seq_t init[12] = {
     0ULL, 1ULL, 1ULL, 1ULL, 6ULL,
@@ -33,9 +35,9 @@ seq_t a(idx_t n)
     /* initialise buffer with the first 12 terms if not yet done */
     if (buf_len == 0) {
         buf_len = 12;
-        buf = (seq_t *)malloc((size_t)buf_len * sizeof(seq_t));
+        buf = mem_new(seq_t, (size_t)buf_len);
         if (buf == NULL) { exit(1); }
-        memcpy(buf, init, (size_t)buf_len * sizeof(seq_t));
+        mem_copy(buf, init, (size_t)buf_len * sizeof(seq_t));
     }
 
     /* grow the buffer to include n */
@@ -62,8 +64,7 @@ seq_t a(idx_t n)
         }
 
         /* append val to the buffer, extending it by 1 element */
-        seq_t *new_buf = (seq_t *)realloc(buf,
-                                          (size_t)(buf_len + 1) * sizeof(seq_t));
+        seq_t *new_buf = mem_resize(seq_t, buf, (size_t)(buf_len + 1));
         if (new_buf == NULL) { exit(1); }
         buf = new_buf;
         buf[buf_len] = val;

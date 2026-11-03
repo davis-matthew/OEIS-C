@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabf
  * Formula:   not stated
- * Range:     u8 n <= 8756, u16 n <= 8756, u32 n <= 8756, u64 n <= 8756,
- *            u128 n <= 8756, big any n
- * Helpers:   none
+ * Range:     u8 n <= 12242, u16 n <= 12242, u32 n <= 12242, u64 n <= 12242,
+ *            u128 n <= 12242, big any n
+ * Validated: standard, pass, 123 terms through n = 8756 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Global storage for the triangle values. */
 static seq_t *seq   = NULL;   /* flattened triangle */
@@ -36,7 +38,7 @@ static void ensure_seq_cap(size_t need)
     if (seq_cap < need) {
         size_t new_cap = seq_cap ? seq_cap << 1 : 16;
         while (new_cap < need) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq, new_cap);
         if (!tmp) abort();  /* out of memory */
         seq = tmp;
         seq_cap = new_cap;

@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..n} 2^k * 5^(n-k) * Stirling2(n,k)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 16, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 428 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /*--- internal cache for a(n) values ----------------------------------------*/
 static seq_t *a_cache = NULL;   /* allocated array of a(0)...a(N) */
@@ -33,7 +35,7 @@ static void ensure_a_cap(size_t needed)
     if (a_cap < needed) {
         size_t new_cap = (a_cap == 0) ? 16 : a_cap << 1;
         if (new_cap < needed) new_cap = needed;
-        seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
         if (!tmp) exit(1);          /* allocation failed */
         a_cache = tmp;
         a_cap   = new_cap;
@@ -47,7 +49,7 @@ static void ensure_pow5_cap(size_t needed)
     if (pow5_cap < needed) {
         size_t new_cap = (pow5_cap == 0) ? 16 : pow5_cap << 1;
         if (new_cap < needed) new_cap = needed;
-        seq_t *tmp = (seq_t *)realloc(pow5_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, pow5_cache, new_cap);
         if (!tmp) exit(1);
         pow5_cache = tmp;
         pow5_cap   = new_cap;

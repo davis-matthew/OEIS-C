@@ -11,7 +11,8 @@
  *            non‐increasing sequence
  * Range:     u8 n <= 4, u16 n <= 38, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static size_t max_size = 0;          /* current maximum sum computed */
 static seq_t *cum = NULL;            /* cumulative counts up to each sum */
@@ -35,7 +38,7 @@ static void prepare_up_to(size_t newS)
     /* allocate cumulative array */
     seq_t *newcum = NULL;
     if (newS > 0) {
-        newcum = (seq_t *)realloc(cum, (newS + 1) * sizeof(seq_t));
+        newcum = mem_resize(seq_t, cum, (newS + 1));
         if (!newcum) abort();
     }
     cum = newcum;
@@ -52,7 +55,7 @@ static void prepare_up_to(size_t newS)
     for (size_t i = 0; i <= newS; ++i) {
         seq_t *row = NULL;
         if (newS > 0) {
-            row = (seq_t *)realloc(dp2[i], (newS + 1) * sizeof(seq_t));
+            row = mem_resize(seq_t, dp2[i], (newS + 1));
             if (!row) abort();
         }
         dp2[i] = row;

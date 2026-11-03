@@ -7,14 +7,41 @@
  * Formula:   a(n) = (Σ_{i=0..⌊(n-3)/4⌋} (-1)^i * 4^(2i+1)/(2i+1)) mod 2^n
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   modinv_odd
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* includes */
 #include <stdlib.h>
-#include "../utils/modinv_odd.h"
+#include "../utils/mem.h"
+
+/* Modular inverse of an odd integer a modulo 2^n (n >= 1).
+   Uses Newton iteration: inv_{k+1} = inv_k * (2 - a*inv_k) mod 2^{k+1}. */
+static seq_t modinv_odd(seq_t a, idx_t n)
+{
+    seq_t mod = (seq_t)2;          /* current modulus = 2^1 */
+    seq_t inv = (seq_t)1;          /* inverse modulo 2^1 (a is odd => a ≡ 1 mod 2) */
+
+    for (idx_t step = 1; step < n; ++step)
+    {
+        seq_t next_mod = mod * (seq_t)2;                 /* 2^(step+1) */
+
+        /* Compute (2 - a * inv) modulo next_mod */
+        seq_t prod = a * inv;
+        seq_t rem  = prod % next_mod;
+        /* (2 - rem) mod next_mod without negatives */
+        seq_t mult = (next_mod - rem) + (seq_t)2;
+        if (mult >= next_mod)
+            mult -= next_mod;                            /* now mult < next_mod */
+
+        inv = (inv * mult) % next_mod;
+        mod = next_mod;
+    }
+
+    return inv;   /* inv ≡ a⁻¹ mod 2^n */
+}
 
 /* Forward declaration of helper: modular inverse of an odd integer modulo 2^n */
 static seq_t modinv_odd(seq_t a, idx_t n);
@@ -37,7 +64,7 @@ seq_t a(idx_t n)
 
     /* Precompute powers of two up to shift_max */
     size_t pow_len = (size_t)(shift_max + 1);
-    seq_t *pow2 = (seq_t *)malloc(pow_len * sizeof(seq_t));
+    seq_t *pow2 = mem_new(seq_t, pow_len);
     if (!pow2)
         return (seq_t)0;                       /* fallback on allocation failure */
 
@@ -62,6 +89,6 @@ seq_t a(idx_t n)
             sum = (sum + (mod - term)) % mod;
     }
 
-    free(pow2);
+    mem_free(pow2);
     return sum;
 }

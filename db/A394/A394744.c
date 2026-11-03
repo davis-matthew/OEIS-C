@@ -9,6 +9,7 @@
  *            Fibonacci numbers such that x^2 + y*z = n and y < z
  * Range:     u8 n <= 20, u16 n <= 85, u32 n <= 85, u64 n <= 85, u128 n <= 85,
  *            big any n
+ * Validated: partial, pass, 86 terms through n = 85 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

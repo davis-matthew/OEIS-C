@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 10, u64 n <= 22, u128 n <= 47,
  *            big any n
- * Helpers:   build_cols, build_transition
+ * Validated: standard, pass, 35 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,103 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/build_cols.h"
-#include "../utils/build_transition.h"
+#include "../utils/mem.h"
+
+/* Build the list of admissible 7‑bit columns (vertical constraints). */
+static void build_cols(uint8_t **cols_out, size_t *S_out)
+{
+    uint8_t tmp[128];
+    size_t ct = 0;
+
+    for (uint32_t col = 0; col < (1u << 7); ++col) {
+        bool bad = false;
+        for (int i = 0; i <= 4; ++i) {
+            uint8_t b0 = (col >> i) & 1u;
+            uint8_t b1 = (col >> (i + 1)) & 1u;
+            uint8_t b2 = (col >> (i + 2)) & 1u;
+            if ((b0 == 0u && b1 == 0u && b2 == 1u) ||
+                (b0 == 0u && b1 == 1u && b2 == 0u)) {
+                bad = true;
+                break;
+            }
+        }
+        if (!bad) tmp[ct++] = (uint8_t)col;
+    }
+
+    *S_out = ct;
+    *cols_out = (uint8_t *)malloc(ct * sizeof(uint8_t));
+    for (size_t i = 0; i < ct; ++i) (*cols_out)[i] = tmp[i];
+}
+
+/* Precompute, for each pair of columns (a,b), the list of columns c
+ * that together with a and b satisfy the horizontal constraints.          */
+static void build_transition(const uint8_t *cols, size_t S,
+                             uint32_t **adj_start_out, uint8_t **next_col_out,
+                             size_t *total_edges_out)
+{
+    size_t num_pairs = S * S;
+    size_t *outdeg = (size_t *)malloc(num_pairs * sizeof(size_t));
+    size_t total_edges = 0;
+
+    /* First pass: count outdegrees. */
+    for (size_t a = 0; a < S; ++a) {
+        for (size_t b = 0; b < S; ++b) {
+            size_t idx = a * S + b;
+            size_t cnt = 0;
+            for (size_t c = 0; c < S; ++c) {
+                bool ok = true;
+                for (int r = 0; r < 7; ++r) {
+                    uint8_t x = (cols[a] >> r) & 1u;
+                    uint8_t y = (cols[b] >> r) & 1u;
+                    uint8_t z = (cols[c] >> r) & 1u;
+                    if ((x == 0u && y == 0u && z == 0u) ||
+                        (x == 1u && y == 0u && z == 1u)) {
+                        ok = false;
+                        break;
+                    }
+                }
+                if (ok) ++cnt;
+            }
+            outdeg[idx] = cnt;
+            total_edges += cnt;
+        }
+    }
+
+    /* Allocate adjacency array. */
+    uint32_t *adj_start = (uint32_t *)malloc((num_pairs + 1) * sizeof(uint32_t));
+    uint8_t *next_col   = (uint8_t *)malloc(total_edges * sizeof(uint8_t));
+
+    /* Second pass: fill adjacency. */
+    adj_start[0] = 0;
+    size_t pos = 0;
+    for (size_t a = 0; a < S; ++a) {
+        for (size_t b = 0; b < S; ++b) {
+            size_t idx = a * S + b;
+            for (size_t c = 0; c < S; ++c) {
+                bool ok = true;
+                for (int r = 0; r < 7; ++r) {
+                    uint8_t x = (cols[a] >> r) & 1u;
+                    uint8_t y = (cols[b] >> r) & 1u;
+                    uint8_t z = (cols[c] >> r) & 1u;
+                    if ((x == 0u && y == 0u && z == 0u) ||
+                        (x == 1u && y == 0u && z == 1u)) {
+                        ok = false;
+                        break;
+                    }
+                }
+                if (ok) {
+                    next_col[pos++] = (uint8_t)c;
+                }
+            }
+            adj_start[idx + 1] = (uint32_t)pos;
+        }
+    }
+
+    *adj_start_out = adj_start;
+    *next_col_out   = next_col;
+    *total_edges_out = total_edges;
+    free(outdeg);
+}
 
 /* Main sequence function. */
 seq_t a(idx_t n)
@@ -51,8 +147,8 @@ seq_t a(idx_t n)
 
         /* Allocate DP arrays. */
         dp_size = S * S;
-        dp_prev = (seq_t *)malloc(dp_size * sizeof(seq_t));
-        dp_next = (seq_t *)malloc(dp_size * sizeof(seq_t));
+        dp_prev = mem_new(seq_t, dp_size);
+        dp_next = mem_new(seq_t, dp_size);
 
         init = true;
     }

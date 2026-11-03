@@ -12,23 +12,25 @@
  *            Sequence a(n) is the triangle flattened row‑wise
  * Range:     u8 n <= 77, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Row 0 */
-    seq_t *row_prevprev = (seq_t *)malloc(sizeof(seq_t));
+    seq_t *row_prevprev = mem_new(seq_t, 1);
     if (!row_prevprev) return 0;
     row_prevprev[0] = 1;
 
     /* Row 1 */
-    seq_t *row_prev = (seq_t *)malloc(2 * sizeof(seq_t));
-    if (!row_prev) { free(row_prevprev); return 0; }
+    seq_t *row_prev = mem_new(seq_t, 2);
+    if (!row_prev) { mem_free(row_prevprev); return 0; }
     row_prev[0] = 2;
     row_prev[1] = 2;
 
@@ -37,8 +39,8 @@ seq_t a(idx_t n)
     /* Check row 0 */
     if (n < start + 1) {
         seq_t result = row_prevprev[0];
-        free(row_prevprev);
-        free(row_prev);
+        mem_free(row_prevprev);
+        mem_free(row_prev);
         return result;
     }
     start += 1;   /* after row 0 */
@@ -46,8 +48,8 @@ seq_t a(idx_t n)
     /* Check row 1 */
     if (n < start + 2) {
         seq_t result = row_prev[n - start];
-        free(row_prevprev);
-        free(row_prev);
+        mem_free(row_prevprev);
+        mem_free(row_prev);
         return result;
     }
     start += 2;   /* after row 1 */
@@ -55,8 +57,8 @@ seq_t a(idx_t n)
     /* Generate rows from 2 onwards */
     for (idx_t r = 2; ; ++r) {
         size_t len = (size_t)(r + 1);
-        seq_t *row_cur = (seq_t *)malloc(len * sizeof(seq_t));
-        if (!row_cur) { free(row_prevprev); free(row_prev); return 0; }
+        seq_t *row_cur = mem_new(seq_t, len);
+        if (!row_cur) { mem_free(row_prevprev); mem_free(row_prev); return 0; }
 
         /* borders */
         if ((r & 1) == 0) {           /* even row */
@@ -79,14 +81,14 @@ seq_t a(idx_t n)
         /* Does the requested index fall in this row? */
         if (n < start + (idx_t)len) {
             seq_t result = row_cur[n - start];
-            free(row_prevprev);
-            free(row_prev);
-            free(row_cur);
+            mem_free(row_prevprev);
+            mem_free(row_prev);
+            mem_free(row_cur);
             return result;
         }
 
         /* shift rows for next iteration */
-        free(row_prevprev);
+        mem_free(row_prevprev);
         row_prevprev = row_prev;
         row_prev = row_cur;
         start += (idx_t)len;

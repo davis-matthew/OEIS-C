@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 14, u32 n <= 24, u64 n <= 41, u128 n <= 70,
  *            big any n
- * Helpers:   alloc_buffer
+ * Validated: standard, pass, 47 terms through n = 983 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,18 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/alloc_buffer.h"
+#include "../utils/mem.h"
+
+/* Auxiliary function to allocate a new buffer for a given parity. */
+static seq_t *alloc_buffer(idx_t n, idx_t *len)
+{
+    size_t size = (size_t)(n + 1);          /* need indices 0..n */
+    seq_t *buf = mem_new(seq_t, size);
+    if (!buf) return NULL;
+    for (size_t i = 0; i < size; ++i) buf[i] = (seq_t)0;
+    *len = size;
+    return buf;
+}
 
 /* seq_t and idx_t are provided by the build environment. */
 static bool initialized = false;
@@ -52,7 +64,7 @@ seq_t a(idx_t n)
         arr[1][1] = (seq_t)1;
 
         /* Allocate a_vals with room for a(0) and a(1). */
-        a_vals = (seq_t *)malloc(2 * sizeof(seq_t));
+        a_vals = mem_new(seq_t, 2);
         if (!a_vals) return (seq_t)0;
         a_vals[0] = (seq_t)1;
         a_vals[1] = (seq_t)1;
@@ -66,7 +78,7 @@ seq_t a(idx_t n)
      * ----------------------------------------------------------------- */
     if ((idx_t)a_cap <= n) {
         size_t new_cap = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(a_vals, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_vals, new_cap);
         if (!tmp) return (seq_t)0;
         for (size_t i = a_cap; i < new_cap; ++i) tmp[i] = (seq_t)0;
         a_vals = tmp;
@@ -89,7 +101,7 @@ seq_t a(idx_t n)
         size_t prev_len = arr_size[parity];              /* should be (cur-2)+1 */
 
         /* Allocate a new buffer for Ach(cur,k). */
-        seq_t *cur_buf = (seq_t *)malloc((size_t)(cur + 1) * sizeof(seq_t));
+        seq_t *cur_buf = mem_new(seq_t, (size_t)(cur + 1));
         if (!cur_buf) return (seq_t)0;
         for (size_t i = 0; i < (size_t)(cur + 1); ++i) cur_buf[i] = (seq_t)0;
 
@@ -112,7 +124,7 @@ seq_t a(idx_t n)
         a_vals[cur] = sum;
 
         /* Replace the old buffer for this parity with the new one. */
-        free(prev_buf);
+        mem_free(prev_buf);
         arr[parity]   = cur_buf;
         arr_size[parity] = (size_t)(cur + 1);
     }

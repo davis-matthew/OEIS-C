@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 21, u32 n <= 38, u64 n <= 72, u128 n <= 140,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 874 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    These values are taken directly from OEIS A135619. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* cache[0] unused; cache[i] = a(i) */
 static idx_t cache_size = 0;     /* highest index cached (0 if none) */
@@ -29,9 +31,9 @@ static void ensure_cache(idx_t n)
     /* Allocate or grow the cache.  Works for both C and C++ because
        seq_t is an arithmetic type (or a trivial class). */
     if (cache_size == 0) {
-        cache = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)(n + 1));
     } else {
-        cache = (seq_t *)realloc(cache, (size_t)(n + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (size_t)(n + 1));
     }
     /* If allocation fails we simply leave cache as NULL; further
        calls will crash, but this scenario is not expected in the test. */

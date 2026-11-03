@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 7919, u16 n <= 7919, u32 n <= 7919, u64 n <= 7919,
  *            u128 n <= 7919, big any n
+ * Validated: standard, pass, 121 terms through n = 7805 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
    a(n) = final 0 or 1 obtained by repeatedly replacing r with
    r mod (largest prime ≤ r), starting from r = n. */
 
+#include <stdbool.h>
 #include "../utils/is_prime.h"
 
 seq_t a(idx_t n)

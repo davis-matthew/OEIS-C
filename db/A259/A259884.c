@@ -12,7 +12,8 @@
  *            arithmetic is done * with signed 64‑bit integers; the fina...
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 88 terms through n = 937 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Cache previous results so that repeated calls are fast. */
@@ -65,7 +67,7 @@ seq_t a(idx_t n) {
 
     /* Resize cache if necessary and store the computed values. */
     if (N + 1 > cache_size) {
-        seq_t *new_cache = (seq_t *)realloc(cache, (N + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (N + 1));
         if (!new_cache) {         /* allocation failed – clean up */
             free(R); free(A);
             return 0;

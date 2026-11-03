@@ -13,12 +13,14 @@
  *            T(k+j,k). Initial rows: T(0,0)=1, T(1,0)=1, T(1,1)=1
  * Range:     u8 n <= 14, u16 n <= 35, u32 n <= 90, u64 n <= 230,
  *            u128 n <= 702, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 1154 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *tri_data = NULL;   /* contiguous storage of all rows   */
 static idx_t  data_cap = 0;      /* allocated capacity of tri_data   */
@@ -50,7 +52,7 @@ static void ensure_rows(idx_t r)
         if (data_len + len > data_cap) {
             idx_t new_cap = data_cap ? data_cap * 2 : 128;
             if (new_cap < data_len + len) new_cap = data_len + len;
-            seq_t *tmp = (seq_t *)realloc(tri_data, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, tri_data, new_cap);
             if (!tmp) abort();
             tri_data = tmp;
             data_cap = new_cap;

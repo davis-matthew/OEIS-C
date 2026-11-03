@@ -9,7 +9,8 @@
  *            of sqrt(1 + Σ_{k≥1} 4 x^{k²})
  * Range:     i8 n <= 5, i16 n <= 10, i32 n <= 19, i64 n <= 28, i128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*  External types supplied by the build  */
 extern seq_t a(idx_t n);
@@ -63,7 +65,7 @@ ensure_cache(idx_t n)
     if (needed <= cache_cap) return;
 
     if (cache == NULL) {
-        cache = (seq_t *)malloc(needed * sizeof(seq_t));
+        cache = mem_new(seq_t, needed);
         if (!cache) abort();
         cache[0] = (seq_t)1;                     /* a(0)=1 */
         for (size_t i = 1; i < needed; ++i)
@@ -71,7 +73,7 @@ ensure_cache(idx_t n)
         cache_cap = needed;
         last_computed = 0;                       /* a[0] already computed */
     } else {
-        seq_t *tmp = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, needed);
         if (!tmp) abort();
         cache = tmp;
         for (size_t i = cache_cap; i < needed; ++i)

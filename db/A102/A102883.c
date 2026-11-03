@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 71, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd64
+ * Validated: standard, pass, 73 terms through n = 9976 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/gcd64.h"
+#include "../utils/gcd_u64.h"
 
 /*  Compute the n-th term of the sequence. */
 seq_t a(idx_t n)
@@ -43,7 +44,7 @@ seq_t a(idx_t n)
         }
 
         uint64_t s = sum + (uint64_t)m;          /* m + small divisors */
-        uint64_t g = gcd64((uint64_t)m, s);      /* gcd(m, s) */
+        uint64_t g = gcd_u64((uint64_t)m, s);      /* gcd(m, s) */
 
         if (g > 1) {                              /* qualifies */
             ++found;

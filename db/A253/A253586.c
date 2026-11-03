@@ -11,8 +11,9 @@
  *            ≥ 0. Sequence a(n) is the array read by antidiagonals: * a(n) =
  *            A(i,j) where i = n - d*(d+1)/2 and j = d - i * with d the unique
  *            integer such that d*(d+1)/2 ≤ n < (d+1)*(d+2)/2
- * Range:     u8 n <= 9636, u16 n <= 9636, u32 n <= 9636, u64 n <= 9636,
- *            u128 n <= 9636, big any n
+ * Range:     u8 n <= 20300, u16 n <= 20300, u32 n <= 20300, u64 n <= 20300,
+ *            u128 n <= 20300, big any n
+ * Validated: standard, pass, 107 terms through n = 9636 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

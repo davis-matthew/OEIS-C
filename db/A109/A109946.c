@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   is_prime, push_seq
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,22 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
-#include "../utils/push_seq.h"
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+/* Dynamic array helpers. */
+static void push_seq(seq_t **arr, idx_t *cap, idx_t *size, seq_t val)
+{
+    if (*size >= *cap) {
+        size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+        *arr = mem_resize(seq_t, *arr, new_cap);
+        *cap = new_cap;
+    }
+    (*arr)[*size] = val;
+    (*size)++;
+}
 
 /* --- cached sequence data ------------------------------------------ */
 static seq_t *seq_vals  = NULL;   /* array of sequence values           */
@@ -33,19 +48,19 @@ static seq_t  next_candidate = 2; /* next integer to test as a prime   */
 static bool chain_plus(seq_t p) {
     /* chain with 2p+1 :  p -> q -> r */
     seq_t q = 2 * p + 1;
-    if (!is_prime((uint64_t)q)) return false;
+    if (!is_prime_u64((uint64_t)q)) return false;
 
     seq_t r = 2 * q + 1;
-    if (!is_prime((uint64_t)r)) return false;
+    if (!is_prime_u64((uint64_t)r)) return false;
 
     /* no predecessor via +1 */
     if ((p & 1) != 0) {                     /* p odd */
         seq_t prev = (p - 1) >> 1;          /* (p-1)/2 */
-        if (is_prime((uint64_t)prev)) return false;
+        if (is_prime_u64((uint64_t)prev)) return false;
     }
     /* chain must end after r */
     seq_t next = 2 * r + 1;
-    if (is_prime((uint64_t)next)) return false;
+    if (is_prime_u64((uint64_t)next)) return false;
 
     return true;
 }
@@ -53,21 +68,21 @@ static bool chain_plus(seq_t p) {
 static bool chain_minus(seq_t p) {
     /* chain with 2p-1 :  p -> q -> r */
     seq_t q = 2 * p - 1;
-    if (!is_prime((uint64_t)q)) return false;
+    if (!is_prime_u64((uint64_t)q)) return false;
 
     seq_t r = 2 * q - 1;
-    if (!is_prime((uint64_t)r)) return false;
+    if (!is_prime_u64((uint64_t)r)) return false;
 
     /* no predecessor via -1 */
     if (p == 2) {
         /* special case – 2 has no integer predecessor via 2x-1 */
     } else {
         seq_t prev = (p + 1) >> 1;          /* (p+1)/2 */
-        if (is_prime((uint64_t)prev)) return false;
+        if (is_prime_u64((uint64_t)prev)) return false;
     }
     /* chain must end after r */
     seq_t next = 2 * r - 1;
-    if (is_prime((uint64_t)next)) return false;
+    if (is_prime_u64((uint64_t)next)) return false;
 
     return true;
 }
@@ -77,7 +92,7 @@ seq_t a(idx_t n) {
     while (seq_size < n) {
         seq_t p = next_candidate;
         /* find next prime ≥ next_candidate */
-        while (!is_prime((uint64_t)p)) {
+        while (!is_prime_u64((uint64_t)p)) {
             p++;
         }
 

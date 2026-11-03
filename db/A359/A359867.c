@@ -9,7 +9,8 @@
  *            a(n-1-k) + a(n-1). Initial values: a(0)=0,a(1)=0,a(2)=0
  * Range:     u8 n <= 1160, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 99 terms through n = 8286 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>   /* size_t, NULL */
 #include <stdlib.h>   /* malloc, realloc, abort */
 #include <string.h>   /* memcpy */
+#include "../utils/mem.h"
 
 /* Static memoisation cache */
 static seq_t *cache = NULL;     /* holds a(0), a(1), … */
@@ -28,7 +30,7 @@ static void ensure_capacity(idx_t n)
 {
     if ((size_t)cap > n) return;          /* already large enough */
     size_t newcap = (size_t)(n + 1);
-    seq_t *newcache = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+    seq_t *newcache = mem_resize(seq_t, cache, newcap);
     if (!newcache) abort();               /* out of memory – stop the program */
     cache = newcache;
     cap   = newcap;

@@ -10,12 +10,14 @@
  *            5, with initial terms: a(0)=1, a(1)=4, a(2)=12, a(3)=28, a(4)=64
  * Range:     u8 n <= 5, u16 n <= 12, u32 n <= 25, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;   /* cache of computed terms */
 static idx_t seq_cache_size = 0;  /* number of terms stored in the cache */
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* Initialize the cache with the first five terms if necessary. */
     if (seq_cache == NULL) {
         seq_cache_size = 5;
-        seq_cache = (seq_t *)malloc(seq_cache_size * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, seq_cache_size);
         if (seq_cache == NULL) return 0;            /* allocation failure */
         seq_cache[0] = (seq_t)1;
         seq_cache[1] = (seq_t)4;
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     idx_t old_size = seq_cache_size;
     if (n + 1 > old_size) {
         idx_t new_size = n + 1;
-        seq_t *tmp = (seq_t *)realloc(seq_cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, new_size);
         if (tmp == NULL) return 0;           /* allocation failure */
         seq_cache = tmp;
         seq_cache_size = new_size;

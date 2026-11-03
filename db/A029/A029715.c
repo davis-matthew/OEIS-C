@@ -8,13 +8,15 @@
  * Formula:   a(n) = Sum_{k | 2^n} S(k) where S is the Kempner function
  * Range:     u8 n <= 19, u16 n <= 357, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 9283 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static cache to store computed a(n) values.  They are built
    incrementally; a_cache[0] = 1 (since S(1) = 1).  For n > 0 we
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     /* initialisation on first call */
     if (!initialized) {
         a_capacity = 1;
-        a_cache = (seq_t *)malloc(sizeof(seq_t));
+        a_cache = mem_new(seq_t, 1);
         if (a_cache == NULL) abort();        /* allocation failed */
         a_cache[0] = 1;                      /* a(0) = S(1) = 1 */
         a_max = 0;
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
     /* Ensure cache has enough space for indices up to n */
     if ((idx_t)a_capacity <= n) {
         size_t new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
         if (tmp == NULL) abort();            /* reallocation failed */
         a_cache = tmp;
         a_capacity = new_cap;

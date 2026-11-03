@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 8720 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    calls are fast, even if the indices are not requested
    in increasing order. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Ensure the static cache can hold at least n bits.
    The cache is expanded by repeatedly applying the
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
 
     /* initialise the cache with the seed word "00" */
     if (seq == NULL) {
-        seq = (seq_t *)malloc(2 * sizeof(seq_t));
+        seq = mem_new(seq_t, 2);
         seq[0] = 0;
         seq[1] = 0;
         len   = 2;
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
         }
 
         /* Allocate a new array of the computed size */
-        seq_t *next = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *next = mem_new(seq_t, new_len);
         size_t j = 0;
         i = 0;
         while (i < len) {
@@ -79,7 +81,7 @@ seq_t a(idx_t n)
         }
 
         /* Replace the old cache with the newly expanded one */
-        free(seq);
+        mem_free(seq);
         seq = next;
         len = new_len;
     }

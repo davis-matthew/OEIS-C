@@ -12,15 +12,20 @@
  *            corresponding to a linear index `m` are obtained...
  * Range:     u8 n <= 16, u16 n <= 38, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   binom, pow_seq, signed_to_seq
+ * Validated: partial, pass, 52 terms through n = 51 (2026-11-01)
+ * Helpers:   binomial, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"   /* seq_t binom(idx_t a, idx_t b) */
-#include "../utils/pow_seq.h" /* seq_t pow_seq(seq_t a, int k) */
-#include "../utils/signed_to_seq.h"
+#include "../utils/binomial.h"
+#include "../utils/ipow_i32.h"
+
+static inline seq_t signed_to_seq(__int128 v)
+{
+    return (seq_t)v;             /* works for unsigned and arbitrary-precision */
+}
 
 seq_t a(idx_t n)
 {
@@ -38,10 +43,10 @@ seq_t a(idx_t n)
     for (idx_t m = 0; m <= c; ++m)
     {
         idx_t mu   = c - m;        /* power of (-m)   */
-        seq_t  bin = binom(r, mu); /* binomial coefficient C(r,mu) */
+        seq_t  bin = binomial(r, mu); /* binomial coefficient C(r,mu) */
 
         /* (1+m)^{r-mu}  */
-        seq_t pow1 = pow_seq((seq_t)(1 + m), (int)(r - mu));
+        seq_t pow1 = ipow_i32((seq_t)(1 + m), (int)(r - mu));
 
         /* m^{mu} and the sign from (-m)^{mu} */
         seq_t pow2 = 0;
@@ -49,7 +54,7 @@ seq_t a(idx_t n)
             pow2 = 1;
         else
         {
-            pow2 = pow_seq((seq_t)m, (int)mu);
+            pow2 = ipow_i32((seq_t)m, (int)mu);
             if (mu & 1)          /* odd power → negative */
                 pow2 = -pow2;
         }
@@ -64,16 +69,16 @@ seq_t a(idx_t n)
         for (idx_t m = 0; m <= c - 1; ++m)
         {
             idx_t mu   = c - 1 - m;
-            seq_t  bin = binom(r, mu);
+            seq_t  bin = binomial(r, mu);
 
-            seq_t pow1 = pow_seq((seq_t)(1 + m), (int)(r - mu));
+            seq_t pow1 = ipow_i32((seq_t)(1 + m), (int)(r - mu));
 
             seq_t pow2 = 0;
             if (mu == 0)
                 pow2 = 1;
             else
             {
-                pow2 = pow_seq((seq_t)m, (int)mu);
+                pow2 = ipow_i32((seq_t)m, (int)mu);
                 if (mu & 1)
                     pow2 = -pow2;
             }
@@ -85,7 +90,7 @@ seq_t a(idx_t n)
 
     /* Compute T(r,c) and then the sequence element */
     __int128 first_part = 5 * (S1 - S2);
-    seq_t   bin_nk      = binom(r, c);
+    seq_t   bin_nk      = binomial(r, c);
     __int128 final_val  = first_part - 4 * (__int128)bin_nk;
 
     /* final_val is guaranteed non‑negative for this sequence */

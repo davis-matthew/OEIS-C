@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1392, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 9761 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  *   (offset 1).  The serie is generated lazily and memoised.
  *******************************************************************************/
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return the nth term (n >= 1).  Behaviour for n < 1 is unspecified.
  * The function builds a cache of the first n terms on demand and re‑uses
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
                 /* grow cache if full */
                 if (len == cap) {
                     size_t newcap = cap ? (cap << 1) : 16;
-                    seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, newcap);
                     if (!tmp) return 0;        /* allocation failure → return 0 */
                     cache = tmp;
                     cap   = newcap;

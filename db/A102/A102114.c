@@ -9,13 +9,16 @@
  *            R = digit reversal (A004086)
  * Range:     u8 n <= 11, u16 n <= 19, u32 n <= 35, u64 n <= 65, u128 n <= 123,
  *            big any n
- * Helpers:   rev
+ * Validated: standard, pass, 51 terms through n = 935 (2026-11-03)
+ * Helpers:   mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/rev.h"
+#include <stdbool.h>
+#include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* cache of computed terms */
 static idx_t cache_len = 0;   /* number of cached terms (non‑negative) */
@@ -31,7 +34,7 @@ static void grow_cache(idx_t needed)
     while (new_cap < (size_t)needed)
         new_cap *= 2;
 
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cache_cap = new_cap;
 }
 
@@ -50,7 +53,7 @@ seq_t a(idx_t n)
         else if (i == 2)
             cache[i] = 1;
         else {
-            seq_t rev_prev = rev(cache[i - 1]);   /* digit reversal of a(i-1) */
+            seq_t rev_prev = reverse_digits(cache[i - 1]);   /* digit reversal of a(i-1) */
             cache[i] = rev_prev + cache[i - 2] + cache[i - 3];
         }
     }

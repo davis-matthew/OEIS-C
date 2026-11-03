@@ -9,13 +9,26 @@
  *            (OEIS A052316)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 14, u128 n <= 17,
  *            big any n
- * Helpers:   mul_big
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/mul_big.h"
+
+/* auxiliary: multiply two seq_t values safely. For 64‑bit builds it uses 128‑bit
+   intermediate to avoid overflow; otherwise it falls back to the normal *
+   operator of the arbitrary‑precision type. */
+static inline seq_t mul_big(seq_t a, seq_t b)
+{
+#if defined(__SIZEOF_INT128__) && !defined(_WIN32)
+    __uint128_t tmp = (__uint128_t)a * (__uint128_t)b;
+    return (seq_t)tmp;
+#else
+    return a * b;
+#endif
+}
 
 /* fast exponentiation returning a seq_t. */
 static seq_t pow_seq(idx_t base_int, idx_t exponent)

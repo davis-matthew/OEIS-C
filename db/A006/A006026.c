@@ -11,7 +11,8 @@
  *            f_{j+1} = (5j+m) f_j - (7(j-1)+2m) f_{j-1} + (...
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 14, u64 n <= 27, u128 n <= 51,
  *            big any n
- * Helpers:   a_conv, seq_is_fixed_width
+ * Validated: standard, pass, 40 terms through n = 994 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,39 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_is_fixed_width.h"
-#include "../utils/a_conv.h"
+#include "../utils/mem.h"
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
+
+static seq_t a_conv(idx_t m) {
+    seq_t *c = mem_new(seq_t, (size_t)(m + 1));
+    seq_t *s2 = mem_new(seq_t, (size_t)(m + 1));
+    idx_t k, i;
+    seq_t r;
+    for (k = 0; k <= m; k++) { c[k] = 0; s2[k] = 0; }
+    c[1] = 1;
+    for (k = 2; k <= m; k++) {
+        seq_t t2 = 0, t3 = 0;
+        for (i = 1; i < k; i++) t2 += c[i] * c[k - i];
+        s2[k] = t2;
+        for (i = 1; i + 2 <= k; i++) t3 += c[i] * s2[k - i];
+        c[k] = 3 * t2 - 2 * c[k - 1] - t3;
+    }
+    r = c[m];
+    mem_free(c);
+    mem_free(s2);
+    return r;
+}
 
 seq_t a(idx_t n) {
     idx_t m = n + 1;

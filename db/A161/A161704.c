@@ -7,6 +7,7 @@
  * Formula:   a(n) = (3*n^5 - 35*n^4 + 145*n^3 - 235*n^2 + 152*n + 30)/30
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 136, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 52 terms through n = 985 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

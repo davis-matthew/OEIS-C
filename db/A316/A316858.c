@@ -10,13 +10,29 @@
  *            implements the triangular array described in OEIS A316858
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   _row_for_n
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_row_for_n.h"
+
+/* minimal k such that k(k+1)/2 ≥ n (binary search) */
+static idx_t _row_for_n(idx_t n)
+{
+    idx_t low = 1;
+    idx_t high = (n <= UINT64_MAX / 2) ? 2 * n : UINT64_MAX;
+    while (low < high) {
+        idx_t mid = low + (high - low) / 2;
+        __int128 t = (__int128)mid * (mid + 1) / 2;
+        if (t >= n)
+            high = mid;
+        else
+            low = mid + 1;
+    }
+    return low;
+}
 
 /* least prime factor for small odd numbers (n ≥ 2) */
 static seq_t _lpf_uint64(uint64_t n)

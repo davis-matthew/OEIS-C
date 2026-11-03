@@ -9,7 +9,8 @@
  *            (counts each representation once)
  * Range:     u8 n <= 93, u16 n <= 93, u32 n <= 93, u64 n <= 93, u128 n <= 93,
  *            big any n
- * Helpers:   build_primes_upto, sqrt_floor
+ * Validated: partial, pass, 93 terms through n = 93 (2026-11-01)
+ * Helpers:   build_primes_upto, isqrt_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,7 @@
 #include <math.h>
 /* ---- helper includes from the utils library ---- */
 #include "../utils/build_primes_upto.h"
-#include "../utils/sqrt_floor.h"
+#include "../utils/isqrt_seq.h"
 
 /* ---- static storage for prime generation ---- */
 static uint64_t *primes     = NULL;   /* array of primes */
@@ -102,12 +103,12 @@ b_of(uint64_t k)
     seq_t val = r2 / 8;           /* integer division truncates */
 
     /* special cases: squares and twice squares */
-    seq_t sq   = sqrt_floor((seq_t)k);
+    seq_t sq   = isqrt_seq((seq_t)k);
     if (sq * sq == (seq_t)k)      /* k = a^2 + 0^2 */
         val++;
     if ((k & 1ULL) == 0)          /* k even: check k = a^2 + a^2  */
     {
-        seq_t half = sqrt_floor((seq_t)(k / 2));
+        seq_t half = isqrt_seq((seq_t)(k / 2));
         if (half * half == (seq_t)(k / 2))
             val++;
     }

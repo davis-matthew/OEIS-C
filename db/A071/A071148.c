@@ -8,13 +8,15 @@
  * Formula:   a(n) = sum of the first n odd primes (3,5,7,…)
  * Range:     u8 n <= 12, u16 n <= 156, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 9933 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ----------------- static state --------------------------------- */
 static seq_t *primes = NULL;     /* odd primes themselves       */
@@ -31,8 +33,8 @@ static void grow_arrays(idx_t new_cap)
     idx_t new_capacity = (capacity == 0) ? 16 : capacity * 2;
     while (new_capacity < new_cap)
         new_capacity <<= 1;          /* double until large enough */
-    primes = (seq_t *)realloc(primes, new_capacity * sizeof(seq_t));
-    sums   = (seq_t *)realloc(sums,   new_capacity * sizeof(seq_t));
+    primes = mem_resize(seq_t, primes, new_capacity);
+    sums   = mem_resize(seq_t, sums, new_capacity);
     capacity = new_capacity;
 }
 

@@ -12,7 +12,8 @@
  *            sums
  * Range:     u8 n <= 14, u16 n <= 25, u32 n <= 42, u64 n <= 103,
  *            u128 n <= 264, big any n
- * Helpers:   binom_small, seq_pow_seq
+ * Validated: standard, pass, 56 terms through n = 3260 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,19 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/binom_small.h"   /* binom_small(int n, int k) -> seq_t */
-#include "../utils/seq_pow_seq.h"   /* seq_pow_seq(seq_t base, idx_t exp) */
+#include "../utils/ipow_idx.h"
+
+/* compute C(n,k) for small n (n <= 63) as seq_t */
+static seq_t binom_small(int n, int k) {
+    if (k < 0 || k > n) return (seq_t)0;
+    if (k > n - k) k = n - k;
+    seq_t res = (seq_t)1;
+    for (int i = 1; i <= k; ++i) {
+        res = res * ((seq_t)(n - k + i));
+        res = res / (seq_t)i;
+    }
+    return res;
+}
 
 static seq_t binom_or_zero(int n, int k)
 {
@@ -49,7 +61,7 @@ static seq_t a_at(idx_t p, idx_t i)
         int bb1_n = (int)(i - 2 * (int)k + 4);
         int bb1_k = (int)(i - 2 * (int)k + 1);
         seq_t base1 = binom_or_zero(bb1_n, bb1_k);
-        seq_t pow1 = seq_pow_seq(base1, p - 1);   /* (p‑1) ≥ 0 */
+        seq_t pow1 = ipow_idx(base1, p - 1);   /* (p‑1) ≥ 0 */
         seq_t term1 = c1 * pow1;
 
         int a2 = a1;                /* same as a1 */
@@ -59,7 +71,7 @@ static seq_t a_at(idx_t p, idx_t i)
         int bb2_n = (int)(i - 2 * (int)k + 3);
         int bb2_k = (int)(i - 2 * (int)k);
         seq_t base2 = binom_or_zero(bb2_n, bb2_k);
-        seq_t pow2 = seq_pow_seq(base2, p - 1);
+        seq_t pow2 = ipow_idx(base2, p - 1);
         seq_t term2 = c2 * pow2;
 
         sum += term1;

@@ -8,8 +8,9 @@
  * Formula:   a(n) = 1 + n - F_k where F_k is the largest Fibonacci number ≤
  *            n. The sequence is the natural fractal sequence of the Fibonacci
  *            numbers
- * Range:     u8 n <= 864, u16 n <= 9047, u32 n <= 9047, u64 n <= 9047,
- *            u128 n <= 9047, big any n
+ * Range:     u8 n <= 864, u16 n <= 17710, u32 n <= 17710, u64 n <= 17710,
+ *            u128 n <= 17710, big any n
+ * Validated: standard, pass, 104 terms through n = 9047 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

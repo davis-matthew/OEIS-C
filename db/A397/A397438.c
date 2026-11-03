@@ -9,12 +9,14 @@
  *            a(0)=1, a(1)=7, a(2)=27, a(3)=82, a(4)=226
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 21, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* cached terms */
 static size_t cache_cap = 0;     /* capacity of cache array */
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* Extend the cache to hold index n. */
     size_t needed = (size_t)(n + 1);
     if (needed > cache_cap) {
-        seq_t *tmp = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, needed);
         if (!tmp) { abort(); }
         cache     = tmp;
         cache_cap = needed;

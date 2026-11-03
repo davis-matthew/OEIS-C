@@ -11,12 +11,14 @@
  *            a(7)=2886016
  * Range:     u8 none, u16 n <= 3, u32 n <= 26, u64 n <= 210, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* initialize base values on the first call */
     if (cur == 0) {
         cur = 7;
-        cache = (seq_t *)malloc(cur * sizeof(seq_t));
+        cache = mem_new(seq_t, cur);
         cache[0] = 466;
         cache[1] = 7138;
         cache[2] = 43068;
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
 
     /* extend the cache up to request n */
     if (n > cur) {
-        cache = (seq_t *)realloc(cache, n * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, n);
         for (idx_t i = cur; i < n; ++i) {
             /* recurrence: a(i+1) = ... where i indexes 0-based cache */
             seq_t t1 = (seq_t)7 * cache[i-1];

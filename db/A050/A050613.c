@@ -8,7 +8,8 @@
  * Formula:   a(n) = ∏_{i=0..⌊log₂(n+1)⌋} L(2^i)^{bit(n,i)}
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 38 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static inline idx_t floor_log2_idx(idx_t v)
 {
@@ -47,9 +49,9 @@ seq_t a(idx_t n)
     if (lucas_cache_size <= max_pow) {
         idx_t new_size = max_pow + 1;
         if (lucas_cache == NULL) {
-            lucas_cache = (seq_t*)malloc(new_size * sizeof(seq_t));
+            lucas_cache = mem_new(seq_t, new_size);
         } else {
-            lucas_cache = (seq_t*)realloc(lucas_cache, new_size * sizeof(seq_t));
+            lucas_cache = mem_resize(seq_t, lucas_cache, new_size);
         }
         /* Initialize newly added entries */
         if (lucas_cache_size == 0) {

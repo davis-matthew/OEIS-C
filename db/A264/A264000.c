@@ -11,13 +11,15 @@
  *            six initial values are required to start the recurrence)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,12 +31,12 @@ seq_t a(idx_t n)
     /* Ensure we have at least 7 slots (indices 0‑6) to store the initial 6 terms */
     if (memo == NULL || memo_cap < 7) {
         size_t new_cap = (memo_cap < 7) ? 7 : memo_cap;
-        seq_t *tmp = (seq_t *)realloc(memo, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, memo, new_cap);
         if (!tmp) exit(EXIT_FAILURE); /* allocation failure */
         memo = tmp;
         if (memo_cap < 7) {
             /* zero‑initialize any newly allocated entries */
-            memset(memo + memo_cap, 0, (new_cap - memo_cap) * sizeof(seq_t));
+            mem_set(memo + memo_cap, 0, (new_cap - memo_cap) * sizeof(seq_t));
         }
         memo_cap = new_cap;
 
@@ -58,10 +60,10 @@ seq_t a(idx_t n)
     if (n >= memo_cap) {
         idx_t new_cap = memo_cap * 2;
         if (new_cap <= n) new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(memo, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, memo, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         /* Zero any newly added slots */
-        memset(tmp + memo_cap, 0, (new_cap - memo_cap) * sizeof(seq_t));
+        mem_set(tmp + memo_cap, 0, (new_cap - memo_cap) * sizeof(seq_t));
         memo = tmp;
         memo_cap = new_cap;
     }

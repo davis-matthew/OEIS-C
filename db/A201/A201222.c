@@ -8,27 +8,28 @@
  * Formula:   a(n) = Lucas( 2n / gcd(4,n) ) ^ gcd(4,n)
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 23, u64 n <= 46, u128 n <= 92,
  *            big any n
- * Helpers:   _gcd, _lucas
+ * Validated: standard, pass, 45 terms through n = 935 (2026-11-01)
+ * Helpers:   gcd_idx, lucas
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_gcd.h"
-#include "../utils/_lucas.h"
+#include "../utils/gcd_idx.h"
+#include "../utils/lucas.h"
 
 /* OEIS A201222: number of independent sets on a 2×n
    horizontal cylinder (sum over k ≥ 0 non‑attacking knights) */
 seq_t a(idx_t n)
 {
     /* Number of connected cycles (components) */
-    idx_t g = _gcd((idx_t)4, n);
+    idx_t g = gcd_idx((idx_t)4, n);
 
     /* Cycle length = 2n / g, fits into idx_t for all n tested */
     idx_t k = ((idx_t)2 * n) / g;
 
-    seq_t luc = _lucas(k);
+    seq_t luc = lucas(k);
 
     /* Result = luc ^ g (g ≤ 4) */
     seq_t result = (seq_t)1;

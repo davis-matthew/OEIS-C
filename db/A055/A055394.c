@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 37, u16 n <= 5420, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   recompute_terms
+ * Validated: standard, pass, 75 terms through n = 8764 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,7 +32,46 @@
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/recompute_terms.h"
+#include "../utils/mem.h"
+
+/* Helper: recompute the list of terms up to newLimit.  */
+static void recompute_terms(seq_t newLimit,
+                            seq_t **cache, size_t *cacheSize)
+{
+    /* Bit array for marking representable numbers.  */
+    unsigned char *present = (unsigned char *)
+        calloc((size_t)(newLimit + 1), 1);
+    if (present == NULL) return;   /* allocation failure */
+
+    /* Generate all sums i^2 + j^3 ≤ newLimit.  */
+    for (seq_t j = 1;; ++j) {
+        seq_t cube = j * j * j;
+        if (cube > newLimit) break;
+        for (seq_t i = 1;; ++i) {
+            seq_t square = i * i;
+            if (square > newLimit - cube) break;
+            seq_t val = cube + square;
+            present[(size_t)val] = 1;
+        }
+    }
+
+    /* Count distinct results and allocate cache.  */
+    size_t cnt = 0;
+    for (size_t v = 1; v <= (size_t)newLimit; ++v)
+        if (present[v]) ++cnt;
+
+    seq_t *newCache = mem_new(seq_t, cnt);
+    size_t pos = 0;
+    for (size_t v = 1; v <= (size_t)newLimit; ++v)
+        if (present[v]) newCache[pos++] = (seq_t)v;
+
+    free(present);
+
+    /* Replace old cache.  */
+    mem_free(*cache);
+    *cache     = newCache;
+    *cacheSize = cnt;
+}
 
 /* Public routine required by the framework.  */
 seq_t a(idx_t n)

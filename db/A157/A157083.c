@@ -12,14 +12,25 @@
  *            function generates the list on the first call and then re...
  * Range:     u8 none, u16 n <= 112, u32 n <= 309, u64 n <= 309, u128 n <= 309,
  *            big any n
- * Helpers:   pattern_ok
+ * Validated: standard, pass, 49 terms through n = 307 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/pattern_ok.h"
+
+/* Check the digit pattern d1 > d2 > d3 < d4 < d5. */
+static bool pattern_ok(seq_t n)
+{
+    int d1 = (int)(n / 10000);
+    int d2 = (int)((n / 1000) % 10);
+    int d3 = (int)((n / 100) % 10);
+    int d4 = (int)((n / 10) % 10);
+    int d5 = (int)(n % 10);
+    return d1 > d2 && d2 > d3 && d3 < d4 && d4 < d5;
+}
 
 #define MIN 10000
 #define MAX 99999

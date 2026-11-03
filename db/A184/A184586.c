@@ -7,13 +7,14 @@
  * Formula:   a(n) = floor((n-1/2)*sqrt(5))
  * Range:     u8 n <= 4, u16 n <= 57, u32 n <= 120, u64 n <= 120,
  *            u128 n <= 120, big any n
- * Helpers:   _isqrt_seq_t
+ * Validated: partial, pass, 120 terms through n = 120 (2026-11-01)
+ * Helpers:   isqrt_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_isqrt_seq_t.h"
+#include "../utils/isqrt_seq.h"
 
 seq_t a(idx_t n) {
     /* n is 1‑based; compute m = 2n-1 (odd) */
@@ -23,6 +24,6 @@ seq_t a(idx_t n) {
     seq_t K = (seq_t)5 * (seq_t)m * (seq_t)m;
 
     /* floor(sqrt(K)) / 2 gives a(n) */
-    seq_t s = _isqrt_seq_t(K);
+    seq_t s = isqrt_seq(K);
     return s >> 1;
 }

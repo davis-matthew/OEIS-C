@@ -7,8 +7,9 @@
  * Formula:   a(n) = Legendre symbol (n,65537) = n^32768 (mod 65537). Returns
  *            0 if n ≡ 0 (mod 65537), 1 if n is a quadratic residue, -1 if n
  *            is a non‑residue
- * Range:     i8 n <= 8635, i16 n <= 8635, i32 n <= 8635, i64 n <= 8635,
- *            i128 n <= 8635, big any n
+ * Range:     i8 n <= 65537, i16 n <= 65537, i32 n <= 65537, i64 n <= 65537,
+ *            i128 n <= 65537, big any n
+ * Validated: standard, pass, 98 terms through n = 8635 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

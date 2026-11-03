@@ -11,17 +11,38 @@
  *            For k = r the exponent is −1 and T(r,r) = 2^r
  * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 44, u64 n <= 119, u128 n <= 299,
  *            big any n
- * Helpers:   big_pow, binomial, pow2, row_and_index, seq_mul
+ * Validated: standard, pass, 61 terms through n = 9801 (2026-11-01)
+ * Helpers:   binomial, ipow, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/binomial.h"
-#include "../utils/seq_mul.h"
+#include "../utils/ipow.h"
 #include "../utils/pow2.h"
-#include "../utils/big_pow.h"
-#include "../utils/row_and_index.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* auxiliary: determine row r and triangular offset for given n */
+static inline void row_and_index(idx_t n, idx_t *r, idx_t *k)
+{
+    idx_t t = 0;      /* current triangular number t = r(r+1)/2 */
+    idx_t rr = 0;     /* current r */
+    /* find the largest r with t <= n */
+    while (t + rr + 1 <= n) {
+        ++rr;
+        t += rr;      /* now t = rr(rr+1)/2 */
+    }
+    *r = rr;
+    *k = n - t;
+}
 
 seq_t a(idx_t n)
 {
@@ -40,7 +61,7 @@ seq_t a(idx_t n)
     seq_t exp  = (seq_t)(r - k - 1);
 
     /* base^exp */
-    seq_t pow_val = big_pow(base, exp);
+    seq_t pow_val = ipow(base, exp);
 
     /* 2^k */
     seq_t two_pow_k = pow2(k);

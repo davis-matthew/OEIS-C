@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 1000 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache of the filtered primes */
 static seq_t *good_primes = NULL;
@@ -46,7 +48,7 @@ static void build_good_primes(size_t limit)
 
     /* Allocate an estimated capacity; grow as needed. */
     size_t cap   = limit / 10 + 10;
-    seq_t *vec   = (seq_t *)malloc(cap * sizeof(seq_t));
+    seq_t *vec   = mem_new(seq_t, cap);
     if (!vec) abort();
 
     size_t cnt   = 0;
@@ -56,7 +58,7 @@ static void build_good_primes(size_t limit)
         if (r == 1 || r == 2 || r == 3 || r == 5) {
             if (cnt == cap) {                /* enlarge storage */
                 cap <<= 1;                    /* double capacity */
-                seq_t *tmp = (seq_t *)realloc(vec, cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, vec, cap);
                 if (!tmp) abort();
                 vec = tmp;
             }
@@ -65,7 +67,7 @@ static void build_good_primes(size_t limit)
     }
 
     free(comp);
-    if (good_primes) free(good_primes);
+    if (good_primes) mem_free(good_primes);
     good_primes = vec;
     good_cnt    = cnt;
     sieve_lim   = limit;

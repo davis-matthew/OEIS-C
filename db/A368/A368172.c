@@ -11,14 +11,21 @@
  *            1 * a(p^e) = e otherwise
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   local_contribution
+ * Validated: standard, pass, 103 terms through n = 9903 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/local_contribution.h"
+
+static seq_t local_contribution(uint64_t e)
+{
+    if (e <= 2) return (seq_t)1;
+    if (e & 1ULL) return (seq_t)(e + 1);
+    return (seq_t)e;
+}
 
 seq_t a(idx_t n)
 {

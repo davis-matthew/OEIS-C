@@ -10,14 +10,27 @@
  *            offset 1
  * Range:     u8 n <= 5050, u16 n <= 5050, u32 n <= 5050, u64 n <= 5050,
  *            u128 n <= 5050, big any n
- * Helpers:   euclid_steps, triangular
+ * Validated: standard, pass, 118 terms through n = 5042 (2026-11-01)
+ * Helpers:   triangular
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/euclid_steps.h"
 #include "../utils/triangular.h"
+
+static inline seq_t euclid_steps(seq_t a, seq_t b)
+{
+    seq_t steps = 0;
+    while (b != 0)
+    {
+        seq_t r = a % b;
+        a = b;
+        b = r;
+        steps++;
+    }
+    return steps - 1;
+}
 
 seq_t a(idx_t n)
 {

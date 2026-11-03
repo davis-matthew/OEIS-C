@@ -9,7 +9,8 @@
  *            with memoisation
  * Range:     u8 n <= 26, u16 n <= 542, u32 n <= 1511, u64 n <= 1511,
  *            u128 n <= 1511, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 76 terms through n = 1390 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 /* Utility header for prime testing */
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* ---------- Types from the build ---------- */
 /* No definitions of seq_t or idx_t – supplied by the driver code. */
@@ -58,7 +60,7 @@ static void grow_bdp_list(size_t needed)
     if (bdp_cap >= needed) return;
     size_t new_cap = bdp_cap ? bdp_cap * 2 : 16;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *new_ptr = (seq_t*)realloc(bdp_list, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, bdp_list, new_cap);
     if (!new_ptr) abort();   /* no memory – give up */
     bdp_list = new_ptr;
     bdp_cap = new_cap;

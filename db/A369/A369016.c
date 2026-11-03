@@ -9,14 +9,17 @@
  *            k-1) * (k-1)^(k-1) * (n-k) * (n-k+1)^(n-k-1)
  * Range:     u8 n <= 15, u16 n <= 28, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/ipow.h"
 
 /* Integer square root of x: floor(sqrt(x)) */
 static idx_t int_sqrt(idx_t x)
@@ -44,11 +47,11 @@ seq_t a(idx_t n)
     if (c == 0 || c == r) return 0; /* ends of the row are always zero */
 
     seq_t bin = binomial(r - 1, c - 1);
-    seq_t pow1 = big_pow((seq_t)(c - 1), (seq_t)(c - 1));
+    seq_t pow1 = ipow((seq_t)(c - 1), (seq_t)(c - 1));
     seq_t lhs = bin * pow1;
     seq_t mult2 = (seq_t)(r - c);
     idx_t exp2 = r - c - 1;
-    seq_t pow2 = big_pow((seq_t)(r - c + 1), (seq_t)exp2);
+    seq_t pow2 = ipow((seq_t)(r - c + 1), (seq_t)exp2);
 
     return lhs * mult2 * pow2;
 }

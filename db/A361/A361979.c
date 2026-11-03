@@ -7,7 +7,8 @@
  * Formula:   a(0) = 1 For n ≥ 1: a(n) = –∑_{k≥1 , k(2k−1)≤n} a(n – k(2k–1))
  * Range:     i8 n <= 27, i16 n <= 53, i32 n <= 53, i64 n <= 53, i128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #endif
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache of computed terms */
 static seq_t *cache   = NULL;
@@ -37,7 +39,7 @@ static void ensure_cache_capacity(idx_t needed)
     while (new_cap <= needed)
         new_cap <<= 1U;
     /* realloc and cast for both C and C++ */
-    seq_t *new_cache = seq_cast(realloc(cache, (size_t)new_cap * sizeof(seq_t)));
+    seq_t *new_cache = seq_cast(mem_resize(seq_t, cache, (size_t)new_cap));
     if (!new_cache)
         abort();          /* fatal: out of memory */
     cache = new_cache;

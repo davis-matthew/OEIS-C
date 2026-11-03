@@ -9,6 +9,7 @@
  *            = binom(2k, k)/(k+1) is the k‑th Catalan number
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 33, u64 n <= 42, u128 n <= 42,
  *            big any n
+ * Validated: partial, pass, 43 terms through n = 42 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,13 +9,16 @@
  *            factors)
  * Range:     u8 n <= 42, u16 n <= 2626, u32 n <= 2626, u64 n <= 2626,
  *            u128 n <= 2626, big any n
- * Helpers:   count_prime_factors
+ * Validated: standard, pass, 72 terms through n = 2539 (2026-11-03)
+ * Helpers:   bigomega_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/count_prime_factors.h"
+#include <stdint.h>
+#include "../utils/bigomega_seq.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +36,7 @@ seq_t a(idx_t n)
         /* allocate initial cache if necessary */
         if (cap == 0) {
             cap = 128;
-            cache = (seq_t *)malloc(cap * sizeof(seq_t));
+            cache = mem_new(seq_t, cap);
             if (!cache)
                 abort();
         }
@@ -44,11 +47,11 @@ seq_t a(idx_t n)
             /* only even numbers can have 3 prime factors in this sequence */
             if ((cand & 1ull) == 0ull) {
                 /* n has exactly three prime factors (with multiplicity) ? */
-                if (count_prime_factors((seq_t)cand) == (seq_t)3) {
+                if (bigomega_seq((seq_t)cand) == (seq_t)3) {
                     /* enlarge cache if necessary */
                     if (len >= cap) {
                         cap <<= 1;
-                        seq_t *tmp = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                        seq_t *tmp = mem_resize(seq_t, cache, cap);
                         if (!tmp)
                             abort();
                         cache = tmp;

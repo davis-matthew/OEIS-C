@@ -7,7 +7,8 @@
  * Formula:   a(n) = 2^(2*p_n - 1) - 1 (where p_n is the n-th prime)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 11, u128 n <= 18,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 30 terms through n = 199 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"   /* for big_pow(seq_t, seq_t) */
+#include "../utils/ipow.h"
 
 static uint64_t *prime_list = NULL;   /* dynamic array of primes */
 static size_t prime_cnt   = 0;        /* number of primes stored */
@@ -67,7 +68,7 @@ seq_t a(idx_t n)
 
     uint64_t p = prime_list[n - 1];          /* the n-th prime */
     seq_t exp = (seq_t)2 * (seq_t)p - (seq_t)1;   /* exponent = 2*p - 1 */
-    seq_t val = big_pow((seq_t)2, exp);          /* 2^(2p-1) */
+    seq_t val = ipow((seq_t)2, exp);          /* 2^(2p-1) */
     val -= (seq_t)1;                            /* minus 1 */
     return val;
 }

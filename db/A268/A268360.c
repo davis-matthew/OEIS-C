@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   count4_digits
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,18 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/count4_digits.h"
+#include "../utils/mem.h"
+
+/* how many times digit 4 appears when m is written in base b (b ≥ 5) */
+static inline int count4_digits(idx_t m, idx_t b)
+{
+    int cnt = 0;
+    while (m) {
+        if (m % b == 4) ++cnt;
+        m /= b;
+    }
+    return cnt;
+}
 
 /* integer square root for 64‑bit values – binary search algorithm */
 static inline idx_t int_sqrt(idx_t n)
@@ -122,9 +134,9 @@ static void grow_terms(size_t new_cap)
     size_t old_cap = terms_cap;
     terms_cap = new_cap;
     if (terms == NULL)
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
     else
-        terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, terms_cap);
     if (terms == NULL) exit(EXIT_FAILURE);
 }
 

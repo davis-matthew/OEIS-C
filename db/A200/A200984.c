@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 35, u32 n <= 210, u64 n <= 210,
  *            u128 n <= 210, big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -39,6 +40,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static int bitcount(int x) {
     int c = 0;
@@ -56,12 +58,12 @@ seq_t a(idx_t n) {
 
     /* allocate temporary DP arrays of size n+1 */
     size_t sz = (size_t)(n + 1);
-    seq_t *dp_cur = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *dp_next = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *prefix = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *dp_cur = mem_new(seq_t, sz);
+    seq_t *dp_next = mem_new(seq_t, sz);
+    seq_t *prefix = mem_new(seq_t, sz);
     if (!dp_cur || !dp_next || !prefix) {
         /* allocation failed – return 0 as a safe fallback */
-        free(dp_cur); free(dp_next); free(prefix);
+        mem_free(dp_cur); mem_free(dp_next); mem_free(prefix);
         return (seq_t)0;
     }
 
@@ -115,8 +117,8 @@ seq_t a(idx_t n) {
         /* dp_next will be overwritten in next value iteration, no need to clear */
     }
 
-    free(dp_cur);
-    free(dp_next);
-    free(prefix);
+    mem_free(dp_cur);
+    mem_free(dp_next);
+    mem_free(prefix);
     return result;
 }

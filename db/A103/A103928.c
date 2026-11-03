@@ -11,12 +11,14 @@
  *            type as an unlimited coin. The table dp[n] holds a(n)
  * Range:     u8 n <= 8, u16 n <= 23, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 38 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;       /* dynamic table of a(n) */
 static idx_t  max_n   = 0;     /* largest n already computed */
@@ -26,7 +28,7 @@ static idx_t  max_n   = 0;     /* largest n already computed */
 static void recompute(idx_t N)
 {
     /* allocate a fresh table */
-    seq_t *newdp = (seq_t*)malloc((N + 1) * sizeof(seq_t));
+    seq_t *newdp = mem_new(seq_t, (N + 1));
     if (!newdp) return;                 /* a memory error – leave old table */
 
     /* initialise to zero */
@@ -50,7 +52,7 @@ static void recompute(idx_t N)
     }
 
     /* replace the old table */
-    free(dp);
+    mem_free(dp);
     dp     = newdp;
     max_n  = N;
 }

@@ -8,7 +8,8 @@
  *            those with exactly one odd prime index (A349158)
  * Range:     u8 n <= 1, u16 n <= 19, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- global data ---------- */
 static bool *prime_flags   = NULL;
@@ -57,7 +59,7 @@ static void ensure_even_cap(size_t min_cap) {
     size_t new_cap = even_cap ? even_cap : 4;
     while (new_cap < min_cap) new_cap <<= 1;
     even_cap = new_cap;
-    even_seq = (seq_t*)realloc(even_seq, even_cap * sizeof(seq_t));
+    even_seq = mem_resize(seq_t, even_seq, even_cap);
 }
 
 static void ensure_union_cap(size_t min_cap) {
@@ -65,7 +67,7 @@ static void ensure_union_cap(size_t min_cap) {
     size_t new_cap = union_cap ? union_cap : 4;
     while (new_cap < min_cap) new_cap <<= 1;
     union_cap = new_cap;
-    union_seq = (seq_t*)realloc(union_seq, union_cap * sizeof(seq_t));
+    union_seq = mem_resize(seq_t, union_seq, union_cap);
 }
 
 static void heap_swap(size_t i, size_t j) {
@@ -144,12 +146,12 @@ static void sequence_init(void) {
 
     /* Even products E */
     even_cap = 4;
-    even_seq = (seq_t*)malloc(even_cap * sizeof(seq_t));
+    even_seq = mem_new(seq_t, even_cap);
     even_seq[0] = (seq_t)1;
     even_len  = 1;
 
     even_ptrs = (size_t*)calloc(even_prime_cnt, sizeof(size_t));
-    even_cand = (seq_t*)calloc(even_prime_cnt, sizeof(seq_t));
+    even_cand = mem_new(seq_t, even_prime_cnt);
     for (size_t i = 0; i < even_prime_cnt; ++i)
         even_cand[i] = (seq_t)even_primes[i] * even_seq[0];
 
@@ -157,14 +159,14 @@ static void sequence_init(void) {
     odd_ptrs = (size_t*)calloc(odd_prime_cnt, sizeof(size_t));
 
     /* Heap for odd×E */
-    heap = (struct HeapNode*)malloc(odd_prime_cnt * sizeof(struct HeapNode));
+    heap = mem_new(struct HeapNode, odd_prime_cnt);
     heap_n = 0;
     for (size_t i = 0; i < odd_prime_cnt; ++i)
         heap_push((seq_t)odd_primes[i] * even_seq[0], i);
 
     /* Union sequence */
     union_cap = 4;
-    union_seq = (seq_t*)malloc(union_cap * sizeof(seq_t));
+    union_seq = mem_new(seq_t, union_cap);
     union_len = 0;
     even_merge_idx = 0;
 

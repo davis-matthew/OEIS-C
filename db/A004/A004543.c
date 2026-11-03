@@ -8,7 +8,8 @@
  *            digit-by-digit square-root algorithm applied to 2 (memoized)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a4543_cmp
+ * Validated: standard, pass, 115 terms through n = 9936 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,15 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/a4543_cmp.h"
+
+static int a4543_cmp(const uint64_t *a, const uint64_t *b, size_t len) {
+    size_t i = len;
+    while (i > 0) {
+        i--;
+        if (a[i] != b[i]) return a[i] > b[i] ? 1 : -1;
+    }
+    return 0;
+}
 
 #define A4543_LB 60466176ULL /* 6^10, limb base */
 

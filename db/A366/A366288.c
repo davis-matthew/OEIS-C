@@ -9,14 +9,22 @@
  *            prime square factor or divisibility by 3
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   has_square_factor
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/has_square_factor.h"
+
+static bool has_square_factor(uint64_t k)
+{
+    for (uint64_t p = 2; p * p <= k; ++p)
+        if (k % (p * p) == 0)
+            return true;
+    return false;
+}
 
 seq_t a(idx_t n)
 {

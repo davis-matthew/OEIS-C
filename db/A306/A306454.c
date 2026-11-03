@@ -10,13 +10,39 @@
  *            as described
  * Range:     u8 n <= 75, u16 n <= 1363, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   largest_odd_square_odd_part
+ * Validated: standard, pass, 108 terms through n = 8853 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/largest_odd_square_odd_part.h"
+
+/* Return the largest odd square dividing the 64‑bit unsigned integer x. */
+static seq_t largest_odd_square_odd_part(uint64_t x)
+{
+    /* Remove all factors of 2 – they never contribute to an odd square. */
+    while ((x & 1ULL) == 0)
+        x >>= 1;
+
+    seq_t result = 1;
+
+    /* Factor x and keep the even part of each exponent. */
+    for (uint64_t p = 3; p * p <= x; p += 2) {
+        if (x % p == 0) {
+            uint64_t exp = 0;
+            while (x % p == 0) {
+                x /= p;
+                exp++;
+            }
+            uint64_t even_exp = (exp / 2) * 2;   /* largest even ≤ exp */
+            for (uint64_t i = 0; i < even_exp; ++i)
+                result *= (seq_t)p;
+        }
+    }
+    /* Any remaining odd prime factor has exponent 1; its even part is 0. */
+    return result;
+}
 
 seq_t a(idx_t n)
 {

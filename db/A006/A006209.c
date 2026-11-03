@@ -11,16 +11,53 @@
  *            (power sums of the roots of x^9-2*x^7-1)
  * Range:     u8 n <= 23, u16 n <= 40, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   mobius_u64, seq_is_fixed_width, u128_to_seq
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/u128_to_seq.h"
-#include "../utils/seq_is_fixed_width.h"
-#include "../utils/mobius_u64.h"
+#include <stdlib.h>
+
+static seq_t u128_to_seq(unsigned __int128 u)
+{
+    seq_t r = 0;
+    int k;
+    for (k = 3; k >= 0; k--) {
+        r = r * 65536ULL;
+        r = r * 65536ULL;
+        r += (seq_t)(uint64_t)(uint32_t)(u >> (32 * k));
+    }
+    return r;
+}
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
+
+static int mobius_u64(uint64_t m) {
+  int r = 1;
+  uint64_t q;
+  for (q = 2; q * q <= m; q++) {
+    if (m % q == 0) {
+      m /= q;
+      if (m % q == 0) return 0;
+      r = -r;
+    }
+  }
+  if (m > 1) r = -r;
+  return r;
+}
 
 /* 192-bit unsigned helpers (three 64-bit limbs, little-endian) */
 static void w_add(uint64_t *x, const uint64_t *y) {

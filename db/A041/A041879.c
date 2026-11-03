@@ -9,7 +9,8 @@
  *            standard continued‑fraction recurrence
  * Range:     u8 n <= 4, u16 n <= 11, u32 n <= 17, u64 n <= 41, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      // array of stored a(n)
 static idx_t cache_len = 0;      // number of elements currently stored
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         /* Allocate initial space, at least enough for the first term. */
         cache_cap = (n < 64 ? 64 : n + 1);
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return (seq_t)0;   /* failure: fall back to zero */
 
         /* Initial values for k = -2, -1 (needed for recurrence) */
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
         /* Ensure enough capacity */
         if (n + 1 > cache_cap) {
             cache_cap = (cache_cap * 2 > n + 1) ? cache_cap * 2 : n + 1;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
             if (!cache) return (seq_t)0;   /* failure: return zero */
         }
 

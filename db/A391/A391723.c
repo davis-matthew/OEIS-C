@@ -9,11 +9,15 @@
  *            binomial(2*k,2*(n-3*k))
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 23, u64 n <= 47, u128 n <= 101,
  *            big any n
+ * Validated: standard, pass, 46 terms through n = 975 (2026-11-01)
  * Helpers:   binomial, pow2, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
 #include "../utils/pow3.h"

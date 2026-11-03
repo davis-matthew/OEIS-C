@@ -12,7 +12,8 @@
  *            the sum runs over signed cycle types of B_n (cl...
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 6, u64 n <= 7, u128 n <= 8,
  *            big any n
- * Helpers:   a610_div, a610_gcd, a610_mul
+ * Validated: partial, pass, 10 terms through n = 9 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,19 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a610_div.h"
-#include "../utils/a610_gcd.h"
-#include "../utils/a610_mul.h"
+#include "../utils/gcd_u64.h"
+
+static void a610_div(uint32_t *a, size_t L, uint32_t d)
+{
+    uint64_t r = 0; size_t i = L;
+    while (i-- > 0) { r = (r << 32) | a[i]; a[i] = (uint32_t)(r / d); r %= d; }
+}
+
+static void a610_mul(uint32_t *a, size_t L, uint32_t m)
+{
+    uint64_t c = 0; size_t i;
+    for (i = 0; i < L; i++) { c += (uint64_t)a[i] * m; a[i] = (uint32_t)c; c >>= 32; }
+}
 
 typedef struct { uint64_t len, cnt; } a610_cyc;
 
@@ -63,7 +74,7 @@ static int a610_combine(const a610_cyc *D, int dn, const a610_cyc *B, int bn, a6
     int m = 0, i, j, t;
     for (i = 0; i < dn; i++)
         for (j = 0; j < bn; j++) {
-            uint64_t g = a610_gcd(D[i].len, B[j].len);
+            uint64_t g = gcd_u64(D[i].len, B[j].len);
             uint64_t l = D[i].len / g * B[j].len, c = D[i].cnt * B[j].cnt * g;
             for (t = 0; t < m && out[t].len != l; t++) ;
             if (t == m) { out[m].len = l; out[m].cnt = 0; m++; }

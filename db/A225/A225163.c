@@ -13,14 +13,17 @@
  *            then a(n) is the numerator of the fraction b(n) in lowest terms
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 6, u128 n <= 7,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 8 terms through n = 8 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* External linkage function required by OEIS */
 seq_t a(idx_t n);
@@ -39,8 +42,8 @@ static void ensure_capacity(idx_t need)
         return;
 
     /* Allocate new arrays.  Cast the result of malloc for C++ compatibility. */
-    seq_t *new_p = (seq_t*)malloc((need + 1) * sizeof(seq_t));
-    seq_t *new_q = (seq_t*)malloc((need + 1) * sizeof(seq_t));
+    seq_t *new_p = mem_new(seq_t, (need + 1));
+    seq_t *new_q = mem_new(seq_t, (need + 1));
     if (!new_p || !new_q)
         return;  /* allocation failed – caller will see uninitialized data */
 
@@ -51,8 +54,8 @@ static void ensure_capacity(idx_t need)
     }
 
     /* Free old storage (free(NULL) is safe). */
-    free(p_arr);
-    free(q_arr);
+    mem_free(p_arr);
+    mem_free(q_arr);
 
     p_arr = new_p;
     q_arr = new_q;

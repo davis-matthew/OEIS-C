@@ -12,13 +12,15 @@
  *            admissible k
  * Range:     i8 n <= 74, i16 n <= 203, i32 n <= 638, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 85 terms through n = 987 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;   /* cached coefficients           */
 static idx_t a_cache_len = 0;   /* number of cached entries      */
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
 {
     if (n >= a_cache_len) { /* grow cache to include n           */
         size_t needed = (size_t)(n + 1);
-        seq_t *new_cache = (seq_t*)malloc(needed * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, needed);
         if (!new_cache) exit(1);                    /* allocation failure */
 
         /* initialise */
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
                 new_cache[i] -= new_cache[i - k];
         }
 
-        free(a_cache);
+        mem_free(a_cache);
         a_cache = new_cache;
         a_cache_len = n + 1;
     }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 59, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   valid_base7
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,34 @@
  */
 
 #include <stdbool.h>
-#include "../utils/valid_base7.h"
+
+static bool valid_base7(seq_t x)
+{
+    /* Reject 0 although never used in a() */
+    if (x == 0) return false;
+
+    /* Extract base‑7 digits into an array (least‑significant first). */
+    seq_t tmp   = x;
+    int   digs[64];
+    int   L = 0;
+
+    while (tmp != 0)
+    {
+        digs[L++] = (int)(tmp % 7);
+        tmp      /= 7;
+    }
+
+    /* Check the parity condition. */
+    for (int j = 0; j < L; ++j)
+    {
+        /* digit is required odd iff (j ^ (L-1)) is odd. */
+        if ( ((j ^ (L - 1)) & 1) != 0 )
+        {
+            if ( (digs[j] & 1) == 0 ) return false;  /* even digit fails */
+        }
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {

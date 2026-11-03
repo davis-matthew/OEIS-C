@@ -7,14 +7,15 @@
  * Formula:   a(n) = phi(n) - lambda(n)
  * Range:     u8 n <= 261, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd_local
+ * Validated: standard, pass, 106 terms through n = 9634 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Compute a(n) for n >= 1 */
 #include <stdint.h>
-#include "../utils/gcd_local.h"
+#include "../utils/gcd.h"
 
 /* Carmichael lambda is the lcm of p^(e-1)*(p-1) over all prime powers
    p^e || n.  For p = 2 we use the special cases:
@@ -45,7 +46,7 @@ seq_t a(idx_t n)
         else if (e == 2)     part = 2;
         else                 part = ((seq_t)1) << (e - 2);
 
-        seq_t g = gcd_local(lambda, part);
+        seq_t g = gcd(lambda, part);
         lambda = lambda / g * part;
     }
 
@@ -66,7 +67,7 @@ seq_t a(idx_t n)
             seq_t part = p_seq - 1;
             for (unsigned i = 1; i < e; ++i) part *= p_seq;
 
-            seq_t g = gcd_local(lambda, part);
+            seq_t g = gcd(lambda, part);
             lambda = lambda / g * part;
         }
     }
@@ -79,7 +80,7 @@ seq_t a(idx_t n)
         phi = phi / p_seq * (p_seq - 1);
 
         seq_t part = p_seq - 1;       /* e = 1 */
-        seq_t g = gcd_local(lambda, part);
+        seq_t g = gcd(lambda, part);
         lambda = lambda / g * part;
     }
 

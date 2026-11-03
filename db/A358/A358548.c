@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_primes_upto
+ * Validated: standard, pass, 95 terms through n = 837 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 static seq_t *diffs      = NULL;   /* array of differences */
 static size_t diff_cap   = 0;       /* allocated capacity for `diffs` */
@@ -59,8 +62,7 @@ static void ensure_available(idx_t need)
                 /* Grow the array if necessary. */
                 if ((size_t)diff_cnt == diff_cap) {
                     size_t new_cap = (diff_cap == 0) ? 8 : diff_cap << 1;
-                    seq_t *tmp_arr = (seq_t *)realloc(diffs,
-                                                      new_cap * sizeof(seq_t));
+                    seq_t *tmp_arr = mem_resize(seq_t, diffs, new_cap);
                     if (!tmp_arr)
                         exit(EXIT_FAILURE);
                     diffs = tmp_arr;

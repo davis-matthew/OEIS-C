@@ -7,7 +7,8 @@
  * Formula:   a(n) = the n-th prime of the form 7*k^3 + 4 (OEIS A201185)
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 55, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   mul_mod
+ * Validated: standard, pass, 42 terms through n = 1792 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mul_mod.h"
+#include "../utils/mulmod.h"
 
 /* 128‑bit modular multiplication using a 128‑bit intermediate */
 
@@ -26,8 +27,8 @@ static uint64_t pow_mod(uint64_t a, uint64_t e, uint64_t mod)
     while (e > 0)
     {
         if (e & 1U)
-            r = mul_mod(r, a, mod);
-        a = mul_mod(a, a, mod);
+            r = mulmod(r, a, mod);
+        a = mulmod(a, a, mod);
         e >>= 1U;
     }
     return r;
@@ -75,7 +76,7 @@ static bool is_prime_uint64(uint64_t n)
         uint64_t r;
         for (r = 1ULL; r < s; ++r)
         {
-            x = mul_mod(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1)
             {
                 composite = false;

@@ -7,15 +7,26 @@
  * Formula:   a(n) = Bitwise XNOR of prime(n) and prime(n + 1)
  * Range:     u8 n <= 54, u16 n <= 6542, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _prime_limit_for_idx, bitlen_seq_t, build_primes_upto
+ * Validated: standard, pass, 74 terms through n = 8623 (2026-11-01)
+ * Helpers:   bit_length, build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/_prime_limit_for_idx.h"   /* idx_t _prime_limit_for_idx(idx_t n); */
-#include "../utils/build_primes_upto.h"      /* void build_primes_upto(idx_t limit, uint64_t **primes_out, size_t *cnt_out); */
-#include "../utils/bitlen_seq_t.h"          /* unsigned bitlen_seq_t(seq_t x); */
+#include <stdint.h>
+#include <math.h>
+#include <stdbool.h>
+#include "../utils/bit_length.h"
+#include "../utils/build_primes_upto.h"
+
+static size_t _prime_limit_for_idx(idx_t n) {
+    /* Rough upper bound for the n-th prime using n*(log n + log log n) + 3 */
+    if (n < 6) return 15; /* first 6 primes < 15 */
+    double nn = (double)n;
+    double bound = nn * (log(nn) + log(log(nn))) + 3.0;
+    return (size_t)bound;
+}
 
 /* Computes the nth term of OEIS A334172 (1‑indexed). */
 seq_t a(idx_t n)
@@ -38,7 +49,7 @@ seq_t a(idx_t n)
 
     /* Bitwise XNOR: ~(p1 ^ p2) masked to the width of the larger prime. */
     seq_t xor_val = p1 ^ p2;
-    idx_t bitlen  = (idx_t)bitlen_seq_t(p1 | p2);  /* max bitwidth of p1 and p2 */
+    idx_t bitlen  = (idx_t)bit_length(p1 | p2);  /* max bitwidth of p1 and p2 */
 
     seq_t mask;
     if (bitlen == (idx_t)(sizeof(seq_t) * 8))

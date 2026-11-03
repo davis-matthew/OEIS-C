@@ -14,13 +14,15 @@
  *            15896, 248392, 3889612, 60868362, 953231848, * 1492...
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t _a205603_init[15] = {
     0ULL,
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first use */
     if (_a205603_cache == NULL) {
         _a205603_cache_len = 15;
-        _a205603_cache = (seq_t *)malloc(_a205603_cache_len * sizeof(seq_t));
+        _a205603_cache = mem_new(seq_t, _a205603_cache_len);
         for (idx_t i = 1; i <= 14; ++i)
             _a205603_cache[i] = _a205603_init[(size_t)i];
         _a205603_cache[0] = 0;
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
     /* Grow cache to hold up to n */
     if ((size_t)(n + 1) > _a205603_cache_len) {
         size_t new_len = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(_a205603_cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, _a205603_cache, new_len);
         if (tmp == NULL) { /* allocation failed, return 0 as fallback */
             return 0;
         }

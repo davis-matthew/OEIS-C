@@ -7,13 +7,15 @@
  * Formula:   a(0) = 1 a(1) = 2 a(n) = 2*a(n-1) + a(n-2)*((22^(n-1)) - 1)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 7, u128 n <= 10,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 28 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* cache for a(n) */
@@ -32,7 +34,7 @@ seq_t a(idx_t n) {
 
     /* initialize caches if first call */
     if (a_cache == NULL) {
-        a_cache = (seq_t*)malloc(2 * sizeof(seq_t));
+        a_cache = mem_new(seq_t, 2);
         if (!a_cache) return 0;        /* out of memory */
         a_cache[0] = 1;
         a_cache[1] = 2;
@@ -40,7 +42,7 @@ seq_t a(idx_t n) {
         a_last = 1;
     }
     if (pow_cache == NULL) {
-        pow_cache = (seq_t*)malloc(2 * sizeof(seq_t));
+        pow_cache = mem_new(seq_t, 2);
         if (!pow_cache) return 0;      /* out of memory */
         pow_cache[0] = 1;
         pow_cache[1] = 22;
@@ -51,7 +53,7 @@ seq_t a(idx_t n) {
     /* enlarge a_cache if needed */
     if (a_cap < (size_t)(n + 1)) {
         size_t new_cap = (size_t)(n + 1);
-        seq_t *tmp = (seq_t*)realloc(a_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
         if (!tmp) return 0;           /* out of memory */
         a_cache = tmp;
         a_cap = new_cap;
@@ -60,7 +62,7 @@ seq_t a(idx_t n) {
     /* enlarge pow_cache if needed (we need indices up to n) */
     if (pow_cap < (size_t)(n + 1)) {
         size_t new_cap = (size_t)(n + 1);
-        seq_t *tmp = (seq_t*)realloc(pow_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, pow_cache, new_cap);
         if (!tmp) return 0;           /* out of memory */
         pow_cache = tmp;
         pow_cap = new_cap;

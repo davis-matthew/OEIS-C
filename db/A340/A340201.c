@@ -12,14 +12,15 @@
  *            3, for n >= 3
  * Range:     u8 none, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 26,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: standard, pass, 32 terms through n = 656 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -28,10 +29,10 @@ seq_t a(idx_t n)
 
     int e = (int)(n - 2);          /* exponent fits in int for expected n */
 
-    seq_t p31 = pow_seq((seq_t)31, e);
-    seq_t p15 = pow_seq((seq_t)15, e);
-    seq_t p7  = pow_seq((seq_t)7,  e);
-    seq_t p3  = pow_seq((seq_t)3,  e);
+    seq_t p31 = ipow_i32((seq_t)31, e);
+    seq_t p15 = ipow_i32((seq_t)15, e);
+    seq_t p7  = ipow_i32((seq_t)7,  e);
+    seq_t p3  = ipow_i32((seq_t)3,  e);
 
     seq_t result = (seq_t)225 * p31
                  - (seq_t)357 * p15

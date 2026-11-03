@@ -10,12 +10,14 @@
  *            ((n+1)/2+1)! (i.e. k!*(k+2)! with n=2k+1)
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 15, u64 n <= 24, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 493 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>    /* for malloc, realloc */
+#include "../utils/mem.h"
 
 static seq_t *fact_cache = NULL;   /* factorial cache: fact_cache[i] = i!  */
 static size_t fact_cache_len = 0;  /* number of computed factorials  */
@@ -26,7 +28,7 @@ static void ensure_fact(idx_t m) {
     size_t needed = (size_t)m + 1;          /* need indices 0..m inclusive */
     if (fact_cache == NULL) {               /* first time: allocate minimal */
         fact_cache_cap = 8;
-        fact_cache = (seq_t *)malloc(fact_cache_cap * sizeof(seq_t));
+        fact_cache = mem_new(seq_t, fact_cache_cap);
         if (!fact_cache) {                  /* allocation failed, abort */
             abort();
         }
@@ -36,7 +38,7 @@ static void ensure_fact(idx_t m) {
     if (fact_cache_cap < needed) {
         size_t new_cap = fact_cache_cap;
         while (new_cap < needed) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(fact_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fact_cache, new_cap);
         if (!tmp) { abort(); }
         fact_cache = tmp;
         fact_cache_cap = new_cap;

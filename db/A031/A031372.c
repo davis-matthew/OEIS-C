@@ -7,6 +7,7 @@
  * Formula:   a(n) = prime(6*n-1) (the (6n‑1)-th prime)
  * Range:     u8 n <= 9, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 61 terms through n = 965 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,7 +20,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/build_primes_upto.h"   /* build_primes_upto() */
+#include "../utils/build_primes_upto.h"
 
 /* Static cache */
 static uint64_t *prime_list = NULL;   /* array of primes */

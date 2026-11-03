@@ -8,14 +8,16 @@
  *            Where Bell(k) are the Bell numbers
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 29,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 37 terms through n = 97 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 #ifdef __cplusplus
 #include <vector>
@@ -41,7 +43,7 @@ static void ensure_bell(idx_t n) {
     for (size_t k = bell.size(); k <= (size_t)n; ++k) {
         seq_t sum = (seq_t)0;
         for (size_t j = 0; j < k; ++j)
-            sum += binom((idx_t)(k - 1), (idx_t)j) * bell[j];
+            sum += binomial((idx_t)(k - 1), (idx_t)j) * bell[j];
         bell.push_back(sum);
     }
 }
@@ -67,7 +69,7 @@ static void ensure_bell(idx_t n) {
     for (size_t k = bell_len; k <= (size_t)n; ++k) {
         seq_t sum = (seq_t)0;
         for (size_t j = 0; j < k; ++j)
-            sum += binom((idx_t)(k - 1), (idx_t)j) * bell[j];
+            sum += binomial((idx_t)(k - 1), (idx_t)j) * bell[j];
         bell[k] = sum;
     }
     bell_len = n + 1;

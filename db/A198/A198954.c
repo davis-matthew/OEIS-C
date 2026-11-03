@@ -7,8 +7,9 @@
  * Keywords:  nonn, tabl, easy
  * Formula:   a(n) = 0 if n is not a triangular number; * otherwise a(n) =
  *            sqrt(1 + 8*n) which equals 2*k + 1 where * k(k+1)/2 = n
- * Range:     u8 n <= 8255, u16 n <= 8265, u32 n <= 8265, u64 n <= 8265,
- *            u128 n <= 8265, big any n
+ * Range:     u8 n <= 8255, u16 n <= 10011, u32 n <= 10011, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 115 terms through n = 8265 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

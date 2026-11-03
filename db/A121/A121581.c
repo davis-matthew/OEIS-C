@@ -15,14 +15,62 @@
  *            (r-1)!·∑_{i=1}^{r-1} s^i where R_{r-1}(s)=Q(r-1,s,...
  * Range:     u8 n <= 22, u16 n <= 46, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   a_compute_row
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/a_compute_row.h"
+#include "../utils/mem.h"
+
+static seq_t a_compute_row(idx_t r) {
+    /* returns pointer to array of T(r,k) for k=0..r-1 and sets global len.  */
+    /* We compute P and R iteratively; only current row needed. */
+    size_t P_len = 1;                       /* P length = r  */
+    seq_t *P = NULL;
+    P = mem_new(seq_t, P_len);
+    P[0] = (seq_t)1;                       /* P_1(s)=1 */
+
+    size_t R_len = 2;                       /* R length = r+1  */
+    seq_t *R = mem_new(seq_t, R_len);
+    R[0] = (seq_t)0;                       /* R_1(t)=t  => coeff[0]=0, coeff[1]=1 */
+    R[1] = (seq_t)1;
+
+    seq_t fact = (seq_t)1;                  /* fact = (current row)!  */
+    /* Build rows up to r */
+    for (idx_t i = 2; i <= r; ++i) {
+        /* New P */
+        size_t new_P_len = (size_t)i;
+        seq_t *new_P = mem_new(seq_t, new_P_len);
+        for (size_t j = 0; j < new_P_len; ++j) new_P[j] = 0;
+
+        /* add old P */
+        for (size_t j = 0; j < P_len; ++j) new_P[j] += P[j];
+        /* add (i-1)*old R */
+        seq_t mult = (seq_t)(i - 1);
+        for (size_t j = 0; j < R_len; ++j) new_P[j] += mult * R[j];
+
+        /* New R */
+        size_t new_R_len = (size_t)(i + 1);
+        seq_t *new_R = mem_new(seq_t, new_R_len);
+        for (size_t j = 0; j < new_R_len; ++j) new_R[j] = 0;
+        /* shift old R */
+        for (size_t j = 0; j < R_len; ++j) new_R[j + 1] += R[j];
+        /* add (i-1)! * ∑_{m=1}^{i-1} s^m */
+        for (size_t m = 1; m <= (size_t)(i - 1); ++m) new_R[m] += fact;
+
+        /* free old arrays */
+        mem_free(P); mem_free(R);
+
+        /* update for next iteration */
+        P = new_P; P_len = new_P_len;
+        R = new_R; R_len = new_R_len;
+        fact *= (seq_t)i;                  /* fact becomes i! for next loop */
+    }
+    return (*P);  /* we will free outside after copying needed element */
+}
 
 seq_t a(idx_t n) {
     /* Find row r and column k from linear index n (1‑based). */
@@ -34,14 +82,14 @@ seq_t a(idx_t n) {
 
     /* Compute row r */
     size_t P_len = (size_t)r;
-    seq_t *P = (seq_t *)malloc(sizeof(seq_t) * P_len);
+    seq_t *P = mem_new(seq_t, P_len);
     /* Build rows up to r */
     size_t P_cur_len = 1;
-    seq_t *P_cur = (seq_t *)malloc(sizeof(seq_t));
+    seq_t *P_cur = mem_new(seq_t, 1);
     P_cur[0] = (seq_t)1;                           /* P_1(s)=1 */
 
     size_t R_len = 2;
-    seq_t *R_cur = (seq_t *)malloc(sizeof(seq_t) * 2);
+    seq_t *R_cur = mem_new(seq_t, 2);
     R_cur[0] = (seq_t)0;
     R_cur[1] = (seq_t)1;
 
@@ -49,7 +97,7 @@ seq_t a(idx_t n) {
 
     for (idx_t i = 2; i <= r; ++i) {
         size_t new_P_len = (size_t)i;
-        seq_t *new_P = (seq_t *)malloc(sizeof(seq_t) * new_P_len);
+        seq_t *new_P = mem_new(seq_t, new_P_len);
         for (size_t j = 0; j < new_P_len; ++j) new_P[j] = 0;
 
         /* add old P */
@@ -60,7 +108,7 @@ seq_t a(idx_t n) {
 
         /* New R */
         size_t new_R_len = (size_t)(i + 1);
-        seq_t *new_R = (seq_t *)malloc(sizeof(seq_t) * new_R_len);
+        seq_t *new_R = mem_new(seq_t, new_R_len);
         for (size_t j = 0; j < new_R_len; ++j) new_R[j] = 0;
         /* shift old R */
         for (size_t j = 0; j < R_len; ++j) new_R[j + 1] += R_cur[j];
@@ -68,7 +116,7 @@ seq_t a(idx_t n) {
         for (size_t m = 1; m <= (size_t)(i - 1); ++m) new_R[m] += fact;
 
         /* free old arrays */
-        free(P_cur); free(R_cur);
+        mem_free(P_cur); mem_free(R_cur);
 
         /* update for next iteration */
         P_cur = new_P; P_cur_len = new_P_len;
@@ -77,6 +125,6 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = P_cur[k];
-    free(P_cur); free(R_cur);
+    mem_free(P_cur); mem_free(R_cur);
     return result;
 }

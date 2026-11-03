@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 41, u16 n <= 476, u32 n <= 476, u64 n <= 476,
  *            u128 n <= 476, big any n
- * Helpers:   ensure_records_cap
+ * Validated: standard, pass, 73 terms through n = 435 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,17 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/ensure_records_cap.h"
+
+/* helper: ensure records array capacity */
+static void ensure_records_cap(size_t required_cap, idx_t **rec, size_t *cap) {
+    if (required_cap <= *cap) return;
+    size_t new_cap = (*cap) ? (*cap) * 2 : 8;
+    while (new_cap < required_cap) new_cap *= 2;
+    idx_t *tmp = (idx_t *)realloc(*rec, new_cap * sizeof(idx_t));
+    if (!tmp) { free(*rec); *rec = NULL; *cap = 0; return; }
+    *rec = tmp;
+    *cap = new_cap;
+}
 
 /* helper: extend an array of digits if needed */
 static void ensure_digits_cap(size_t required_cap, uint8_t **digits, size_t *cap) {

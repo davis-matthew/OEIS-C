@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 801, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 8374 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* integer square root for uint64_t using 128‑bit arithmetic */
 static uint64_t isqrt64(uint64_t n)
@@ -95,7 +97,7 @@ seq_t a(idx_t n)
         }
 
         /* allocate storage for the sequence */
-        seq = (seq_t *)malloc(REQUIRED_TERMS * sizeof(seq_t));
+        seq = mem_new(seq_t, REQUIRED_TERMS);
         if (!seq) exit(EXIT_FAILURE);
         seq_size = 0;
 

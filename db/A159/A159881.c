@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 23, i16 n <= 58, i32 n <= 141, i64 n <= 359,
  *            i128 n <= 1001, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 4621 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    a(n) is the triangle read by rows: a = [T(0,0),T(1,0),T(1,1),T(2,0),T(2,1),T(2,2), …] */
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*--- helper: find the row containing the flattened index n ----------------*/
 static idx_t
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
 
         /* compute new rows only once */
         for (size_t i = rows_cached; i < needed; ++i) {
-            seq_t *row_arr = (seq_t*)malloc((i + 1) * sizeof(seq_t));
+            seq_t *row_arr = mem_new(seq_t, (i + 1));
             if (!row_arr)
                 abort();   /* allocation failure */
 

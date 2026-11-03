@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   bitlen_seq_t
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   bit_length, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
+#include "../utils/mem.h"
 
 /* Return the minimal number of deletions needed in the binary
    representation of x to obtain a palindrome.  The algorithm
@@ -29,7 +32,7 @@
    need to know whether the result equals 5. */
 static int min_del_to_pal(seq_t x)
 {
-    size_t len = (size_t)bitlen_seq_t(x);
+    size_t len = (size_t)bit_length(x);
     if (len <= 1)
         return 0;
 
@@ -99,7 +102,7 @@ seq_t a(idx_t n)
             /* Resize cache if needed. */
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap == 0 ? 8 : cache_cap * 2;
-                seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
                 if (!new_cache)   /* allocation failure; fallback */
                     return 0;
                 cache = new_cache;

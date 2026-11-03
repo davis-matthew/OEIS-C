@@ -7,12 +7,14 @@
  * Formula:   a(n) = coefficient of x^n in (∑_{k≥0} x^{2^k})^9
  * Range:     u8 n <= 13, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 44 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache and working arrays */
 static seq_t *answers = NULL;
@@ -32,9 +34,9 @@ static void recompute(idx_t target)
     seq_t *old_dp_curr = dp_curr;
 
     /* Allocate new arrays */
-    answers   = (seq_t*)malloc((new_max + 1) * sizeof(seq_t));
-    dp_prev   = (seq_t*)malloc((new_max + 1) * sizeof(seq_t));
-    dp_curr   = (seq_t*)malloc((new_max + 1) * sizeof(seq_t));
+    answers   = mem_new(seq_t, (new_max + 1));
+    dp_prev   = mem_new(seq_t, (new_max + 1));
+    dp_curr   = mem_new(seq_t, (new_max + 1));
 
     /* Initialise dp_prev */
     for (idx_t i = 0; i <= new_max; ++i) dp_prev[i] = (seq_t)0;
@@ -70,9 +72,9 @@ static void recompute(idx_t target)
     for (idx_t i = 0; i <= new_max; ++i) answers[i] = dp_prev[i];
 
     /* Free old arrays */
-    free(old_answers);
-    free(old_dp_prev);
-    free(old_dp_curr);
+    mem_free(old_answers);
+    mem_free(old_dp_prev);
+    mem_free(old_dp_curr);
 
     max_n = new_max;
 }

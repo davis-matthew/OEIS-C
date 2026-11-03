@@ -10,7 +10,8 @@
  *            arrays)
  * Range:     u8 n <= 11, u16 n <= 11, u32 n <= 11, u64 n <= 11, u128 n <= 11,
  *            big any n
- * Helpers:   a7496_mul, a7496_nozero
+ * Validated: full, pass, 11 terms through n = 11 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,27 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a7496_mul.h"
-#include "../utils/a7496_nozero.h"
+
+static int a7496_mul(unsigned char *d, int len, int m) {
+    int i, carry = 0;
+    for (i = 0; i < len; i++) {
+        int v = d[i] * m + carry;
+        d[i] = (unsigned char)(v % 10);
+        carry = v / 10;
+    }
+    while (carry > 0) {
+        d[len++] = (unsigned char)(carry % 10);
+        carry /= 10;
+    }
+    return len;
+}
+
+static bool a7496_nozero(const unsigned char *d, int len) {
+    int i;
+    for (i = 0; i < len; i++)
+        if (d[i] == 0) return false;
+    return true;
+}
 
 #define A7496_LIMIT 4000
 #define A7496_MAXD 2900

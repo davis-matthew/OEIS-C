@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   powmod64
+ * Validated: standard, pass, 69 terms through n = 959 (2026-11-01)
+ * Helpers:   powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdbool.h>
-#include "../utils/powmod64.h"   /* for uint64_t powmod64(uint64_t base, uint64_t exp, uint64_t mod) */
+#include "../utils/powmod_u64.h"
 
 static void grow_uint64(uint64_t **arr, size_t *cnt, size_t *cap)
 {
@@ -88,7 +89,7 @@ seq_t a(idx_t n)
                 /* Test the OEIS condition: 2^k mod cand == 1, where k is odd part of cand-1 */
                 uint64_t k = cand - 1;
                 while ((k & 1ULL) == 0) k >>= 1;      /* odd part of cand-1 */
-                if (powmod64(2ULL, k, cand) == 1ULL) {
+                if (powmod_u64(2ULL, k, cand) == 1ULL) {
                     add_good_prime(cand);
                 }
                 last_checked = cand;

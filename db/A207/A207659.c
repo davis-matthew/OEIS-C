@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 11, u64 n <= 25, u128 n <= 51,
  *            big any n
- * Helpers:   build_allowed_table, build_row_table
+ * Validated: standard, pass, 35 terms through n = 181 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,64 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/build_allowed_table.h"
-#include "../utils/build_row_table.h"
+
+/* Build the allowed triple table: allowed[a][b][c] == true if
+   patterns a,b,c are consistent with vertical restriction.  */
+static void build_allowed_table(const uint8_t *rows,
+                                size_t R,
+                                bool allowed[26][26][26])
+{
+    for (size_t a = 0; a < R; ++a) {
+        for (size_t b = 0; b < R; ++b) {
+            for (size_t c = 0; c < R; ++c) {
+                bool ok = true;
+                for (int col = 0; col < 6 && ok; ++col) {
+                    int a_bit = (rows[a] >> col) & 1;
+                    int b_bit = (rows[b] >> col) & 1;
+                    int c_bit = (rows[c] >> col) & 1;
+                    if ((a_bit == 0 && b_bit == 0 && c_bit == 1) ||
+                        (a_bit == 1 && b_bit == 0 && c_bit == 0))
+                        ok = false;
+                }
+                allowed[a][b][c] = ok;
+            }
+        }
+    }
+}
+
+/* Build the list of admissible 6‑bit rows and a pattern→index map.
+   pattern_to_idx[64] contains 255 for invalid patterns.  rows[26] holds
+   the valid 6‑bit patterns.  ROWS is set to the count (26). */
+static void build_row_table(uint8_t *pattern_to_idx,
+                            uint8_t *rows,
+                            size_t *cnt)
+{
+    uint8_t idx[64];
+    for (int i = 0; i < 64; ++i) idx[i] = 255;
+    size_t r = 0;
+    for (int pat = 0; pat < 64; ++pat) {
+        int last = pat & 1;
+        int run = 1;
+        bool ok = true;
+        for (int k = 1; k < 6 && ok; ++k) {
+            int bit = (pat >> k) & 1;
+            if (bit == last) {
+                ++run;
+                if (run >= 3) ok = false;
+            } else {
+                last = bit;
+                run = 1;
+            }
+        }
+        if (ok) {
+            rows[r] = (uint8_t)pat;
+            idx[pat] = (uint8_t)r;
+            ++r;
+        }
+    }
+    *cnt = r;
+    for (int i = 0; i < 64; ++i) pattern_to_idx[i] = idx[i];
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)

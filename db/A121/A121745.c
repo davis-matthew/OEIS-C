@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 47, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 static seq_t **rows = NULL;   /* rows[i] points to array of length i+1 */
 static size_t rows_size = 0;  /* number of rows currently allocated */
@@ -42,10 +44,10 @@ static void ensure_rows(size_t n)
         /* initialise row 0 and row 1 */
         rows_size = 2;
         rows = (seq_t**)malloc(rows_size * sizeof(seq_t*));
-        rows[0] = (seq_t*)malloc(sizeof(seq_t));
+        rows[0] = mem_new(seq_t, 1);
         rows[0][0] = (seq_t)1;            /* T(0,0)=1 */
 
-        rows[1] = (seq_t*)malloc(2 * sizeof(seq_t));
+        rows[1] = mem_new(seq_t, 2);
         rows[1][0] = (seq_t)0;            /* T(1,0)=0 */
         rows[1][1] = (seq_t)1;            /* T(1,1)=1 */
     }
@@ -65,7 +67,7 @@ static void ensure_rows(size_t n)
         seq_t *b = rows[r-2];           /* length r-1 */
 
         /* allocate current row array of size r+1 */
-        seq_t *c = (seq_t*)calloc(r+1, sizeof(seq_t));   /* initialise to 0 */
+        seq_t *c = mem_new(seq_t, r+1);   /* initialise to 0 */
 
         /* helper constants */
         seq_t ff = (seq_t)((r-1)/2) + (seq_t)1;          /* (floor((r-1)/2)+1) */

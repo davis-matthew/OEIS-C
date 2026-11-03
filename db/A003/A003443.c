@@ -11,15 +11,16 @@
  *            triangulated flaps)
  * Range:     u8 n <= 8, u16 n <= 11, u32 n <= 19, u64 n <= 34, u128 n <= 66,
  *            big any n
- * Helpers:   a3443_binom, a3443_catalan, a3443_g
+ * Validated: standard, pass, 39 terms through n = 197 (2026-11-01)
+ * Helpers:   binomial, catalan, gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a3443_binom.h"
-#include "../utils/a3443_catalan.h"
-#include "../utils/a3443_g.h"
+#include "../utils/binomial.h"
+#include "../utils/catalan.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n) {
     uint64_t P, rB, small;
@@ -29,11 +30,11 @@ seq_t a(idx_t n) {
     sn = (seq_t)n;
     if (sn == 0) return 0;
     P = (uint64_t)(n - 3) * (uint64_t)(n - 4) / 2;
-    B = a3443_binom(2 * n - 6, n - 5);
+    B = binomial(2 * n - 6, n - 5);
     qB = B / sn;
     rB = (uint64_t)(B % sn);
     if (n % 5 == 0) {
-        seq_t C = a3443_catalan(n / 5 - 1);
+        seq_t C = catalan(n / 5 - 1);
         uint64_t c5 = (uint64_t)(C % 5);
         Q = (C / 5) * 4 + (seq_t)((c5 * 4) / 5);
         R = (c5 * 4) % 5;

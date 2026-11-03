@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 135, u16 n <= 5150, u32 n <= 5150, u64 n <= 5150,
  *            u128 n <= 5150, big any n
- * Helpers:   find_diagonal
+ * Validated: standard, pass, 94 terms through n = 5002 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,18 @@
     Then a(n) = T(r,c) = r*(r+c) = r*d.
 */
 #include <math.h>   /* sqrtl */
-#include "../utils/find_diagonal.h"
+
+static inline idx_t find_diagonal(idx_t n)
+{
+    /* solve d(d+1)/2 ≤ n < (d+1)(d+2)/2   (d is the diagonal index) */
+    long double d_est = (sqrtl((long double)n * 8.0L + 1.0L) - 1.0L) / 2.0L;
+    idx_t d = (idx_t)d_est;                     /* floor of estimate */
+
+    /* correct possible floor/ceil errors using 128‑bit arithmetic */
+    while ((unsigned __int128)d * (d + 1) / 2 > n) --d;
+    while ((unsigned __int128)(d + 1) * (d + 2) / 2 <= n) ++d;
+    return d;
+}
 
 seq_t a(idx_t n)
 {

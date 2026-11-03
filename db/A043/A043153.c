@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   has_adj_oct
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,22 @@
    the adjacent pattern 0 and 2 (either '02' or '20') and the representation of k‑1
    does not. */
 #include <stdbool.h>
-#include "../utils/has_adj_oct.h"
+
+/* Return true if x's octal digits contain a 0 next to a 2, in either order. */
+static bool has_adj_oct(seq_t x)
+{
+    if (x == 0) return false;
+    seq_t temp = x;
+    int prev = -1;
+    while (temp > 0) {
+        int d = (int)(temp % 8);
+        if (prev != -1 && ((prev == 0 && d == 2) || (prev == 2 && d == 0)))
+            return true;
+        prev = d;
+        temp /= 8;
+    }
+    return false;
+}
 
 /* Return the n‑th element of the sequence. */
 seq_t a(idx_t n)

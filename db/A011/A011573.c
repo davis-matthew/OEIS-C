@@ -7,7 +7,8 @@
  * Formula:   a(n) = S(24,n) (Stirling numbers of the second kind)
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 2, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   mul_small
+ * Validated: full, pass, 24 terms through n = 24 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,20 @@
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/mul_small.h"   /* seq_t mul_small(seq_t x, unsigned int m) */
+#include <stdlib.h>
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 /* Cache for S(24,k) where k ranges from 0..24.  cache[0] is unused for k≥1. */
 static seq_t cache[25] = {0};

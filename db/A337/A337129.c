@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 42, u32 n <= 118, u64 n <= 432,
  *            u128 n <= 1325, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 1255 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,6 +35,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Internal cache for the g(k) sequence */
 static seq_t *g_arr = NULL;   /* 1‑based indices, g_arr[0] unused */
@@ -56,7 +58,7 @@ static void ensure_g(idx_t k)
 
     /* Allocate or grow the array */
     size_t new_cap = (size_t)k;
-    seq_t *new_arr = (seq_t *)realloc(g_arr, (new_cap + 1) * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, g_arr, (new_cap + 1));
     if (!new_arr) exit(1);  /* memory allocation failure */
 
     if (g_cap == 0) {
@@ -65,7 +67,7 @@ static void ensure_g(idx_t k)
         if (new_cap >= 1) new_arr[1] = (seq_t)3;
         if (new_cap >= 2) new_arr[2] = (seq_t)16;
     } else {
-        /* We already have g_arr[1] (and maybe g_arr[2]) */
+        /* We already have new_arr[1] (and maybe new_arr[2]) */
         /* If new_cap reaches 2 and we haven't set it yet, do so */
         if (g_cap < 2 && new_cap >= 2)
             new_arr[2] = (seq_t)16;

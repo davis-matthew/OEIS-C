@@ -8,12 +8,14 @@
  *            a(1)=1, a(2)=2, a(3)=6
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 26, u64 n <= 51, u128 n <= 101,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 963 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, calloc, realloc, abort */
+#include "../utils/mem.h"
 
 /* Cached sequence values */
 static seq_t *cache = NULL;
@@ -24,7 +26,7 @@ static idx_t cache_size = 0;
 static void ensure_cache(idx_t n)
 {
     if (n + 1 > cache_size) {
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * (size_t)(n + 1));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)(n + 1));
         if (!tmp && n + 1 > 0) abort();
         cache = tmp;
         /* zero initialise new slots (safe for built‑in and arbitrary types) */
@@ -37,7 +39,7 @@ static void ensure_cache(idx_t n)
 static void init_cache(void)
 {
     if (!cache) {
-        cache = (seq_t *)calloc(4, sizeof(seq_t));
+        cache = mem_new(seq_t, 4);
         if (!cache) abort();
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)1;

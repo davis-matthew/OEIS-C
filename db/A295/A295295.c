@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy, mult
  * Formula:   a(n) = Π_{p^e‖n} (p+1) for e>1 (otherwise 1)
- * Range:     u8 n <= 9102, u16 n <= 9102, u32 n <= 9102, u64 n <= 9102,
- *            u128 n <= 9102, big any n
+ * Range:     u8 n <= 16384, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 121 terms through n = 9102 (2026-11-01)
  * Helpers:   build_spf
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

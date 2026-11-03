@@ -9,6 +9,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 33, u16 n <= 129, u32 n <= 514, u64 n <= 2112,
  *            u128 n <= 6906, big any n
+ * Validated: standard, pass, 82 terms through n = 6523 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -27,7 +28,7 @@
  */
 
 #include <stdint.h>
-#include "../utils/gcd.h"   /* provides:  seq_t gcd(seq_t a, seq_t b); */
+#include "../utils/gcd.h"
 
 static seq_t binomial_idx(idx_t n, idx_t k)
 {

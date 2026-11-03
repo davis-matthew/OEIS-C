@@ -7,13 +7,17 @@
  * Formula:   a(n) = number of partitions of n into parts k^k for k>0
  * Range:     u8 n <= 26, u16 n <= 2073, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 94 terms through n = 9913 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +27,7 @@ seq_t a(idx_t n)
     /* Extend storage if necessary.  */
     size_t need = (size_t)n + 1;
     if (need > cap) {
-        seq_t *tmp = (seq_t*)realloc(dp, need * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, need);
         if (!tmp) abort();                 /* allocation failure is fatal */
         dp  = tmp;
         cap = need;
@@ -35,7 +39,7 @@ seq_t a(idx_t n)
 
     /* Coin‑change DP over part values k^k.  */
     for (idx_t k = 1; ; ++k) {
-        seq_t val = big_pow((seq_t)k, k);   /* k^k */
+        seq_t val = ipow((seq_t)k, k);   /* k^k */
         if (val > (seq_t)n) break;
         idx_t part = (idx_t)val;            /* part <= n */
         for (size_t i = part; i <= (size_t)n; ++i) {

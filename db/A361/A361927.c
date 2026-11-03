@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* --- static state --------------------------------------------------- */
 static seq_t *flat = NULL;          /* flattened permutation */
@@ -62,7 +64,7 @@ static void ensure_flat(size_t new_cap) {
     if (new_cap > flat_cap) {
         size_t cap = flat_cap ? flat_cap : 64;
         while (cap < new_cap) cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(flat, cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, flat, cap);
         if (!tmp) abort();
         flat = tmp;
         flat_cap = cap;
@@ -73,9 +75,9 @@ static void ensure_row(size_t idx) {
     if (idx >= first_row_cap) {
         size_t cap = first_row_cap ? first_row_cap : 64;
         while (cap <= idx) cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(first_row, cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, first_row, cap);
         if (!tmp) abort();
-        memset(tmp + first_row_cap, 0, (cap - first_row_cap) * sizeof(seq_t));
+        mem_set(tmp + first_row_cap, 0, (cap - first_row_cap) * sizeof(seq_t));
         first_row = tmp;
         first_row_cap = cap;
     }
@@ -85,9 +87,9 @@ static void ensure_col(size_t idx) {
     if (idx >= first_col_cap) {
         size_t cap = first_col_cap ? first_col_cap : 64;
         while (cap <= idx) cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(first_col, cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, first_col, cap);
         if (!tmp) abort();
-        memset(tmp + first_col_cap, 0, (cap - first_col_cap) * sizeof(seq_t));
+        mem_set(tmp + first_col_cap, 0, (cap - first_col_cap) * sizeof(seq_t));
         first_col = tmp;
         first_col_cap = cap;
     }
@@ -111,7 +113,7 @@ static seq_t next_unused(void) {
 static void init(void) {
     /* flat array */
     flat_cap = 64;
-    flat = (seq_t *)malloc(flat_cap * sizeof(seq_t));
+    flat = mem_new(seq_t, flat_cap);
     if (!flat) abort();
     flat[0] = (seq_t)1;
     flat_len = 1;
@@ -124,12 +126,12 @@ static void init(void) {
 
     /* first row and first column */
     first_row_cap = 64;
-    first_row = (seq_t *)calloc(first_row_cap, sizeof(seq_t));
+    first_row = mem_new(seq_t, first_row_cap);
     if (!first_row) abort();
     first_row[1] = (seq_t)1;   /* A(1,1) */
 
     first_col_cap = 64;
-    first_col = (seq_t *)calloc(first_col_cap, sizeof(seq_t));
+    first_col = mem_new(seq_t, first_col_cap);
     if (!first_col) abort();
     first_col[1] = (seq_t)1;   /* A(1,1) */
 

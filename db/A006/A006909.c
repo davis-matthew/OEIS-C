@@ -9,8 +9,9 @@
  *            E8/2E8 and r_i the classes of A2/2A2. So a(n) = Sum_{j+k=n}
  *            A(j)*B(k) + 3*Sum_{j+k=n} C(j)*D(k), where A(j) = [j even] *
  *            (j==0 ? 1 : 240*sigma_3(j/2)), B(k) = [4|k] * r_A2(k/4...
- * Range:     u8 n <= 1, u16 n <= 7, u32 n <= 123, u64 n <= 9969,
- *            u128 n <= 9969, big any n
+ * Range:     u8 n <= 1, u16 n <= 7, u32 n <= 123, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 42 terms through n = 9969 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

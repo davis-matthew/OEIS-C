@@ -8,13 +8,16 @@
  * Formula:   a(n) = ((1 << (floor_log2(n)+1)) - 1) & ~((1 << ctz(n)) - 1)
  * Range:     u8 n <= 255, u16 n <= 8192, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   floor_log2_uint64
+ * Validated: standard, pass, 83 terms through n = 6819 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Computes the run of 1‑bits from the most significant to the least significant 1 in n. */
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/ilog2.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +26,7 @@ seq_t a(idx_t n)
     }
 
     /* position of the highest set bit in n */
-    unsigned msb = floor_log2_uint64(n);
+    unsigned msb = ilog2(n);
     /* position of the lowest set bit in n */
     unsigned lsb = (unsigned)__builtin_ctzll(n);
 

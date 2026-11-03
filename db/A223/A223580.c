@@ -8,12 +8,15 @@
  *            a(n)=4096·50^(n‑2) for n≥3)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 22,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 30 terms through n = 185 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -21,6 +24,6 @@ seq_t a(idx_t n)
     if (n == 2) return (seq_t)4096;
     seq_t base = (seq_t)4096;
     seq_t exp  = (seq_t)(n - 2);
-    seq_t pow  = big_pow((seq_t)50, exp);
+    seq_t pow  = ipow((seq_t)50, exp);
     return base * pow;
 }

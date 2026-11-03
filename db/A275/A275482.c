@@ -9,9 +9,10 @@
  *            integer not yet present such that the divisor (last digit of
  *            a(n‑1) + first digit of a(n)) divides the concatenation of
  *            a(n‑1) and a(n)
- * Range:     u8 n <= 4, u16 n <= 69, u32 n <= 9850, u64 n <= 9850,
- *            u128 n <= 9850, big any n
- * Helpers:   digit_len, pow10
+ * Range:     u8 n <= 4, u16 n <= 69, u32 n <= 13981, u64 n <= 13981,
+ *            u128 n <= 13981, big any n
+ * Validated: standard, pass, 108 terms through n = 9850 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,18 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/pow10.h"      /* seq_t pow10(idx_t) */
-#include "../utils/digit_len.h" /* int digit_len(seq_t) */
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* -------------------- bitmap helpers -------------------- */
 static uint64_t *used_bitmap   = NULL;
@@ -62,10 +73,10 @@ static void large_grow(void)
 {
     if (large_cap == 0) {
         large_cap = 8;
-        used_large = (seq_t *)calloc(large_cap, sizeof(seq_t));
+        used_large = mem_new(seq_t, large_cap);
     } else {
         large_cap <<= 1;
-        used_large = (seq_t *)realloc(used_large, large_cap * sizeof(seq_t));
+        used_large = mem_resize(seq_t, used_large, large_cap);
     }
     if (!used_large) abort();
 }
@@ -93,8 +104,7 @@ static void used_large_insert(seq_t v)
     }
     if (large_len + 1 > large_cap) large_grow();
     if (lo < large_len)
-        memmove(&used_large[lo + 1], &used_large[lo],
-                (large_len - lo) * sizeof(seq_t));
+        mem_move(&used_large[lo + 1], &used_large[lo], (large_len - lo) * sizeof(seq_t));
     used_large[lo] = v;
     ++large_len;
 }
@@ -122,7 +132,7 @@ static void grow_seq(size_t new_cap)
     if (new_cap <= seq_cap) return;
     size_t cap = seq_cap ? seq_cap * 2 : 8;
     while (cap < new_cap) cap <<= 1;
-    seq_t *p = (seq_t *)realloc(seq, cap * sizeof(seq_t));
+    seq_t *p = mem_resize(seq_t, seq, cap);
     if (!p) abort();
     seq = p;
     seq_cap = cap;
@@ -132,7 +142,7 @@ static void grow_seq(size_t new_cap)
 static int first_digit(seq_t v)
 {
     if (v == 0) return 0;
-    int d = digit_len(v);
+    int d = num_digits(v);
     seq_t p = pow10(d - 1);
     return (int)(v / p);
 }
@@ -146,7 +156,7 @@ static int last_digit(seq_t v)
 /* Concatenate decimal representations of `a` and `b`. */
 static seq_t concat(seq_t a, seq_t b)
 {
-    int db = digit_len(b);
+    int db = num_digits(b);
     seq_t p = pow10(db);
     return a * p + b;
 }

@@ -10,7 +10,8 @@
  *            by a * smaller digit
  * Range:     u8 n <= 158, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_dp
+ * Validated: standard, pass, 86 terms through n = 9937 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,24 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/build_dp.h"
+
+/* DP: f[r][prev] = number of ways to append r digits after a previous digit
+ * 'prev' (0..9).  r ranges from 0 to MAX_LEN.  Counts fit in idx_t. */
+static void build_dp(idx_t rem, idx_t f[][10]) {
+    /* r = 0: only the empty suffix */
+    for (int d = 0; d < 10; ++d) f[0][d] = 1;
+    /* r >= 1 */
+    for (idx_t r = 1; r <= rem; ++r) {
+        for (int prev = 0; prev < 10; ++prev) {
+            idx_t sum = 0;
+            for (int d = 0; d < 10; ++d) {
+                if ((d & 1) == 0 && d <= prev) continue;   /* even digit must be larger than prev */
+                sum += f[r - 1][d];
+            }
+            f[r][prev] = sum;
+        }
+    }
+}
 
 #define MAX_LEN 32                       /* sufficient for n up to at least 1e4 */
 

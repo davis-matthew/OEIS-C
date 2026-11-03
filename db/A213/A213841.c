@@ -10,14 +10,26 @@
  *            progression 4*n-3,4*n+1,…; terms are taken in antidiagonal order
  * Range:     u8 n <= 15, u16 n <= 253, u32 n <= 253, u64 n <= 253,
  *            u128 n <= 253, big any n
- * Helpers:   find_diag
+ * Validated: standard, pass, 65 terms through n = 244 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <math.h>
-#include "../utils/find_diag.h"
+
+static inline uint64_t find_diag(uint64_t n)
+{
+    /* Find smallest s with s*(s-1)/2 >= n.  Use double for a quick
+       approximation and adjust.  Works for all n that fit in uint64_t. */
+    uint64_t s = (uint64_t)(sqrt((double)n * 2.0) + 1.0);
+    /* Adjust upward */
+    while ((__int128)s * (s - 1) / 2 < n) ++s;
+    /* Adjust downward (if overestimated) */
+    while (s > 2 && (__int128)(s - 1) * (s - 2) / 2 >= n) --s;
+    return s;
+}
 
 static inline seq_t T(idx_t r, idx_t k)
 {

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 37, u16 n <= 99, u32 n <= 99, u64 n <= 99, u128 n <= 99,
  *            big any n
- * Helpers:   is_prime_big, is_prime_small
+ * Validated: partial, pass, 99 terms through n = 99 (2026-11-03)
+ * Helpers:   is_prime_seq, is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,63 @@
 #include <stdint.h>
 
 /* Primality tests for 64‑bit and arbitrary‑precision integers. */
-#include "../utils/is_prime_small.h"
-#include "../utils/is_prime_big.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
+#include "../utils/is_prime_u64.h"
+
+/* Miller–Rabin primality test for seq_t (supports 8/16/32/64/128/ arbitrary-precision) */
+/* n fits in uint64_t (n >= 0 here) */
+static bool is_prime_big_fits_u64(seq_t v)
+{
+    if (sizeof(seq_t) <= 8) return true;
+    return !((seq_t)UINT64_MAX < v);
+}
+
+static bool is_prime_big(seq_t n) {
+    if (n < 2) return false;
+    /* exact in 64 bits when n fits: the seq_t products below overflow at
+       u64/i64 once n passes 2^32, and are slow under big */
+    if (is_prime_big_fits_u64(n)) return is_prime_u64((uint64_t)n);
+    if (n == 2 || n == 3) return true;
+    if ((n & 1) == 0) return false;
+
+    /* write n-1 as d * 2^s with d odd */
+    seq_t d = n - 1;
+    unsigned s = 0;
+    while ((d & 1) == 0) {
+        d >>= 1;
+        s++;
+    }
+
+    /* deterministic bases covering 128‑bit values */
+    static const int base_list[] = {2,3,5,7,11,13,17,19,23,29,31,37};
+    const int num_bases = sizeof(base_list)/sizeof(base_list[0]);
+
+    for (int i = 0; i < num_bases; i++) {
+        seq_t a = (seq_t)base_list[i];
+        if (a >= n) continue;
+
+        /* compute a^d mod n */
+        seq_t x = 1;
+        seq_t pow = a % n;
+        seq_t exp = d;
+        while (exp > 0) {
+            if (exp & 1) x = (x * pow) % n;
+            pow = (pow * pow) % n;
+            exp >>= 1;
+        }
+
+        if (x == 1 || x == n-1) continue;
+
+        bool cont = false;
+        for (unsigned r = 1; r < s; r++) {
+            x = (x * x) % n;
+            if (x == n-1) { cont = true; break; }
+        }
+        if (!cont) return false;
+    }
+    return true;
+}
 
 static seq_t *a_vals          = NULL;   /* a(1) … a(computed)         */
 static uint64_t *pref64       = NULL;   /* pref[0]=0, pref[i]=sum a(1) … a(i) for 8‑bit case */
@@ -44,7 +100,7 @@ static void ensure(idx_t n)
     /* Initial allocation */
     if (!a_vals) {
         size_t init = 16;
-        a_vals = (seq_t*)malloc(init * sizeof(seq_t));
+        a_vals = mem_new(seq_t, init);
         cap_a  = init;
 
         if (sizeof(seq_t) <= 8) {                 /* 8‑bit and smaller */
@@ -52,7 +108,7 @@ static void ensure(idx_t n)
             pref64[0] = 0ull;
             cap_pref64 = init + 1;
         } else {                                  /* larger types */
-            pref_seq = (seq_t*)malloc((init + 1) * sizeof(seq_t));
+            pref_seq = mem_new(seq_t, (init + 1));
             pref_seq[0] = 0;
             cap_pref_seq = init + 1;
         }
@@ -63,7 +119,7 @@ static void ensure(idx_t n)
         /* Grow a_vals if necessary */
         if (computed >= cap_a) {
             size_t new_cap = cap_a * 2;
-            a_vals = (seq_t*)realloc(a_vals, new_cap * sizeof(seq_t));
+            a_vals = mem_resize(seq_t, a_vals, new_cap);
             cap_a = new_cap;
         }
 
@@ -77,7 +133,7 @@ static void ensure(idx_t n)
         } else {
             if (computed + 1 >= cap_pref_seq) {
                 size_t new_cap = cap_pref_seq * 2;
-                pref_seq = (seq_t*)realloc(pref_seq, new_cap * sizeof(seq_t));
+                pref_seq = mem_resize(seq_t, pref_seq, new_cap);
                 cap_pref_seq = new_cap;
             }
         }
@@ -90,7 +146,7 @@ static void ensure(idx_t n)
                 bool ok = true;
                 for (idx_t j = 0; j < computed; ++j) {
                     uint64_t r = (uint64_t)cand + (sum_prev - pref64[j]);
-                    if (is_prime_small(r)) { ok = false; break; }
+                    if (is_prime_seq(r)) { ok = false; break; }
                 }
                 if (ok) break;
                 ++cand;   /* increment until all sums are composite */

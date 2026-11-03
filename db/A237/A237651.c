@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 39, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    This implementation builds the sequence up to n in O(n²/8) time. */
 
 #include <stdlib.h>  /* malloc, calloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
 
     /* size of array needed */
     size_t N = (size_t)n + 1;
-    seq_t *a = (seq_t *)calloc(N, sizeof(seq_t));
+    seq_t *a = mem_new(seq_t, N);
     if (a == NULL) return 0;  /* out of memory; caller may check */
 
     /* initial value */
@@ -61,6 +63,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = a[n];
-    free(a);
+    mem_free(a);
     return result;
 }

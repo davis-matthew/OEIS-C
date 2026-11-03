@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   has_adj_35
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,22 @@
  * the base‑8 representation of k but not in the base‑8 representation
  * of k+1. */
 #include <stdbool.h>
-#include "../utils/has_adj_35.h"
+
+static inline bool has_adj_35(seq_t x)
+{
+    /* Returns true if base‑8 digits of *x* contain 3 and 5 adjacent. */
+    int prev = -1;
+    while (x) {
+        int d = (int)(x % 8);
+        if (prev >= 0) {
+            if ((d == 3 && prev == 5) || (d == 5 && prev == 3))
+                return true;
+        }
+        prev = d;
+        x /= 8;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

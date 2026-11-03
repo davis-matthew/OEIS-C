@@ -11,13 +11,23 @@
  *            a(n)), i.e. when x^2 - x*d - d^2 > 0 with...
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 32, u64 n <= 62, u128 n <= 122,
  *            big any n
- * Helpers:   seq_is_big
+ * Validated: standard, pass, 52 terms through n = 948 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/seq_is_big.h"
+#include <stdlib.h>
+#include <stdint.h>
+
+static int seq_is_big(void)
+{
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 130; i++) x = x * 2;
+    return !(x == 0);
+}
 
 /* Returns true if x^2 - x*d - d^2 > 0 (x > 0, d >= 0), without overflowing. */
 static bool norm_positive(seq_t x, seq_t d) {

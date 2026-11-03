@@ -10,13 +10,25 @@
  *            dynamic‑programming sieve
  * Range:     u8 n <= 39, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   seq_malloc
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/seq_malloc.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* helper to allocate an array of seq_t that works in both C and C++ */
+static inline seq_t *seq_malloc(idx_t n)
+{
+#ifdef __cplusplus
+    return mem_new(seq_t, n);
+#else
+    return (seq_t *)malloc(n * sizeof(seq_t));
+#endif
+}
 
 seq_t a(idx_t n)
 {
@@ -50,6 +62,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);                          /* release temporary array */
+    mem_free(dp);                          /* release temporary array */
     return result;
 }

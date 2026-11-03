@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _floor_isqrt_u64
+ * Validated: standard, pass, 95 terms through n = 998 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,18 +24,18 @@
    square.  For k = 1 we only count solutions with y ≤ x to avoid
    double counting.  Complexity is O(n). */
 #include <stdbool.h>
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n) {
     if (n < 1) return (seq_t)0;
     seq_t total = 0;
     for (idx_t k = 1; k < n; ++k) {
         if (k > n) break;                  // safety; k < n anyway
-        idx_t max_y = _floor_isqrt_u64(n / k);
+        idx_t max_y = isqrt(n / k);
         for (idx_t y = 1; y <= max_y; ++y) {
             idx_t rem = n - k * y * y;
             if (rem == 0) continue;        // requires x > 0
-            idx_t x = _floor_isqrt_u64(rem);
+            idx_t x = isqrt(rem);
             if ((seq_t)x * (seq_t)x == rem) {
                 if (k == 1 && y > x) continue; // unordered for k=1
                 ++total;

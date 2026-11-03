@@ -10,7 +10,8 @@
  *            pairs
  * Range:     u8 n <= 32, u16 n <= 5682, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 9643 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static caching ----------------------------------------------------------------*/
 
@@ -42,7 +44,7 @@ static void build_sequence(idx_t bound)
 {
     /* free any previous cache */
     if (seq_cache) {
-        free(seq_cache);
+        mem_free(seq_cache);
         seq_cache = NULL;
         seq_len   = 0;
     }
@@ -63,7 +65,7 @@ static void build_sequence(idx_t bound)
 
     /* store values --------------------------------------------------------*/
     size_t capacity = (size_t)(bound / 2 + 20);
-    seq_t  *tmp     = (seq_t *)malloc(capacity * sizeof(seq_t));
+    seq_t  *tmp     = mem_new(seq_t, capacity);
     if (!tmp) { free(is_prime); return; }
     size_t len = 0;
 
@@ -76,8 +78,8 @@ static void build_sequence(idx_t bound)
             if (!has_twin) {
                 if (len == capacity) {
                     capacity <<= 1;
-                    seq_t *t2 = (seq_t *)realloc(tmp, capacity * sizeof(seq_t));
-                    if (!t2) { free(tmp); free(is_prime); return; }
+                    seq_t *t2 = mem_resize(seq_t, tmp, capacity);
+                    if (!t2) { mem_free(tmp); free(is_prime); return; }
                     tmp = t2;
                 }
                 /* cast to seq_t: guaranteed to fit (p ≤ bound) */
@@ -92,8 +94,8 @@ static void build_sequence(idx_t bound)
             seq_t val = (seq_t)(p + 1);            /* (p + (p+2)) / 2 = p+1 */
             if (len == capacity) {
                 capacity <<= 1;
-                seq_t *t2 = (seq_t *)realloc(tmp, capacity * sizeof(seq_t));
-                if (!t2) { free(tmp); free(is_prime); return; }
+                seq_t *t2 = mem_resize(seq_t, tmp, capacity);
+                if (!t2) { mem_free(tmp); free(is_prime); return; }
                 tmp = t2;
             }
             tmp[len++] = val;
@@ -103,7 +105,7 @@ static void build_sequence(idx_t bound)
     free(is_prime);
 
     /* sort the collected values ------------------------------------------*/
-    qsort(tmp, len, sizeof(seq_t), cmp_seq);
+    mem_qsort(tmp, len, sizeof(seq_t), cmp_seq);
 
     /* store result --------------------------------------------------------*/
     seq_cache     = tmp;

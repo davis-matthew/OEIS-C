@@ -12,13 +12,15 @@
  *            n up to 10 000
  * Range:     u8 n <= 106, u16 n <= 310, u32 n <= 1038, u64 n <= 3876,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 93 terms through n = 4802 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
     free(is_composite);   /* sieve array no longer needed */
 
     /* ---------- 2. DP: count partitions using allowed primes ---------- */
-    seq_t *dp = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1));
     if (dp == NULL) {
         free(primes);
         return (seq_t)0;
@@ -76,7 +78,7 @@ seq_t a(idx_t n)
     seq_t result = dp[n];
 
     /* ---------- 3. Clean up and return ---------- */
-    free(dp);
+    mem_free(dp);
     free(primes);
     return result;
 }

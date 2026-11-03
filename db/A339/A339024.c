@@ -11,9 +11,10 @@
  *            appearing in the sequence whose binary representation starts
  *            with the binary representation of w. This code does not use a
  *            closed formula but generates the sequence on demand and memo...
- * Range:     u8 n <= 165, u16 n <= 9952, u32 n <= 9952, u64 n <= 9952,
- *            u128 n <= 9952, big any n
- * Helpers:   alloc_seq_array, seq_free_array
+ * Range:     u8 n <= 165, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 84 terms through n = 9952 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,17 @@
 #include <stdbool.h>
 
 /* utilities that are provided by the build system */
-#include "../utils/alloc_seq_array.h"
-#include "../utils/seq_free_array.h"
+#include <string.h>
+#include <stddef.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 /* helper: number of set bits in a 64‑bit integer */
 static inline unsigned popcount64(uint64_t x)

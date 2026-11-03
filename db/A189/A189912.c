@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 22, u64 n <= 42, u128 n <= 83,
  *            big any n
+ * Validated: standard, pass, 45 terms through n = 825 (2026-11-01)
  * Helpers:   catalan
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,8 @@
                 binomial(k,⌊k/2⌋) if k odd
    (C(k) is OEIS A057977(k)) */
 #include <stdint.h>
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/catalan.h"
 
 seq_t a(idx_t n)

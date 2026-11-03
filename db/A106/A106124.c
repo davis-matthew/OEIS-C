@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 37, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   has_digit_8_or_9, mul64_mod, pow64_mod
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-01)
+ * Helpers:   mulmod, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,9 +25,22 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/has_digit_8_or_9.h"
-#include "../utils/mul64_mod.h"
-#include "../utils/pow64_mod.h"
+#include <stdlib.h>
+#include "../utils/mulmod.h"
+#include "../utils/powmod_u64.h"
+
+/* Return true if the decimal representation of x contains a digit ≥ 8. */
+static bool has_digit_8_or_9(uint64_t x)
+{
+    while (x)
+    {
+        uint8_t d = (uint8_t)(x % 10);
+        if (d >= 8)
+            return true;
+        x /= 10;
+    }
+    return false;
+}
 
 /* Multiply a and b modulo mod using 128‑bit arithmetic (sufficient
    for 64‑bit operands). */
@@ -65,13 +79,13 @@ static bool is_prime_uint64(uint64_t n)
         uint64_t a = bases[i];
         if (a % n == 0)
             continue;
-        uint64_t x = pow64_mod(a, d, n);
+        uint64_t x = powmod_u64(a, d, n);
         if (x == 1 || x == n - 1)
             continue;
         bool composite = true;
         for (uint64_t r = 1; r < s; ++r)
         {
-            x = mul64_mod(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1)
             {
                 composite = false;

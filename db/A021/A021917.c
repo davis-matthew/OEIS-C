@@ -7,12 +7,14 @@
  * Formula:   a(n) = nth decimal digit of 1/913 after the decimal point
  * Range:     u8 n <= 98, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 99 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     /* initialize storage */
     if (digits == NULL) {
         capacity = 256;
-        digits = (seq_t*)malloc(sizeof(seq_t) * capacity);
+        digits = mem_new(seq_t, capacity);
         if (!digits) return (seq_t)0; /* fallback, should not happen */
     }
 
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= capacity) {
         size_t new_cap = capacity;
         while ((size_t)n >= new_cap) new_cap *= 2;
-        seq_t *tmp = (seq_t*)realloc(digits, sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_resize(seq_t, digits, new_cap);
         if (!tmp) return (seq_t)0; /* fallback, should not happen */
         digits = tmp;
         capacity = new_cap;

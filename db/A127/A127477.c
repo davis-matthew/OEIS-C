@@ -9,7 +9,8 @@
  *            Euler’s totient function
  * Range:     u8 n <= 94, u16 n <= 94, u32 n <= 94, u64 n <= 94, u128 n <= 94,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 94 terms through n = 94 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /*  Ensure that the array phi[] contains φ(x) for 0 ≤ x ≤ N.  */
 static seq_t *phi = NULL;
@@ -28,7 +30,7 @@ static void ensure_phi(idx_t N)
         return;
 
     /* Reallocate and recompute φ up to N using a linear sieve. */
-    seq_t *new_phi = (seq_t *)realloc(phi, (N + 1) * sizeof(seq_t));
+    seq_t *new_phi = mem_resize(seq_t, phi, (N + 1));
     if (!new_phi) exit(1);
     phi = new_phi;
 

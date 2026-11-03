@@ -9,13 +9,16 @@
  *            number of distinct prime factors (count_distinct_primes)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_distinct_primes
+ * Validated: standard, pass, 103 terms through n = 8703 (2026-11-01)
+ * Helpers:   omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Required helper */
-#include "../utils/count_distinct_primes.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/omega.h"
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -34,7 +37,7 @@ seq_t a(idx_t n)
         uint64_t minus = N - (uint64_t)k;
 
         /* count_distinct_primes returns an int; compare directly */
-        if (count_distinct_primes(plus) == count_distinct_primes(minus))
+        if (omega(plus) == omega(minus))
             return k;            /* found the minimal k */
 
         ++k;                     /* try next k   */

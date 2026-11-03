@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 6, u64 n <= 13, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 191 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return the n-th term of the sequence.  */
 seq_t a(idx_t n)
@@ -79,8 +81,8 @@ seq_t a(idx_t n)
 
         /* Dynamic programming for n columns */
         size_t sc = (size_t)stateCnt;
-        seq_t *dp_prev = (seq_t *)malloc(sc * sizeof(seq_t));
-        seq_t *dp_next = (seq_t *)malloc(sc * sizeof(seq_t));
+        seq_t *dp_prev = mem_new(seq_t, sc);
+        seq_t *dp_next = mem_new(seq_t, sc);
         if (!dp_prev || !dp_next) { free(data); return 0; }
 
         /* first column: each state occurs once */
@@ -92,8 +94,8 @@ seq_t a(idx_t n)
         /* Initialize cache up to term 13 */
         cache_cap = 14;          /* indices 0..13 */
         cache_len = 13;
-        cache     = (seq_t *)malloc(cache_cap * sizeof(seq_t));
-        if (!cache) { free(data); free(dp_prev); free(dp_next); return 0; }
+        cache     = mem_new(seq_t, cache_cap);
+        if (!cache) { free(data); mem_free(dp_prev); mem_free(dp_next); return 0; }
         cache[1] = total / 6;    /* a(1) */
 
         /* compute a(2) … a(13) */
@@ -117,8 +119,8 @@ seq_t a(idx_t n)
             seq_t *tmp = dp_prev; dp_prev = dp_next; dp_next = tmp;
         }
 
-        free(dp_prev);
-        free(dp_next);
+        mem_free(dp_prev);
+        mem_free(dp_next);
         /* keep stateColors data allocated for future calls */
     }
 
@@ -127,7 +129,7 @@ seq_t a(idx_t n)
         /* Ensure capacity. */
         if ((size_t)n + 1 > cache_cap) {
             size_t new_cap = (size_t)n + 1;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) return 0; /* allocation failure */
             cache = tmp;
             cache_cap = new_cap;

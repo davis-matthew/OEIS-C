@@ -13,7 +13,8 @@
  *            or, for interior cells, 8.) * * Recurrence: dynamic...
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 19, u128 n <= 38,
  *            big any n
- * Helpers:   valid_row_around
+ * Validated: standard, pass, 34 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,60 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/valid_row_around.h"
+#include "../utils/mem.h"
+
+static inline int valid_row_around(int above, int cur, int below,
+                                   int has_above, int has_below)
+{
+    /* For each cell in 'cur', count how many neighboring cells equal the
+     * cell's own value.  Reject if the count is 1 or (for interior cells)
+     * 8.  `above` and `below` are the masks of the rows above and below
+     * (0 if such a row does not exist). */
+    for (int c = 0; c < 4; ++c) {
+        int cell = (cur >> c) & 1;          /* value of current cell */
+        int sum_bits = 0;                   /* neighbor bits equal to 1 */
+
+        /* above neighbors */
+        if (has_above) {
+            if (c > 0) sum_bits += (above >> (c - 1)) & 1; /* up‑left   */
+            sum_bits += (above >> c) & 1;                 /* up        */
+            if (c < 3) sum_bits += (above >> (c + 1)) & 1;/* up‑right  */
+        }
+
+        /* same‑row neighbors */
+        if (c > 0) sum_bits += (cur >> (c - 1)) & 1;  /* left  */
+        if (c < 3) sum_bits += (cur >> (c + 1)) & 1;  /* right */
+
+        /* below neighbors */
+        if (has_below) {
+            if (c > 0) sum_bits += (below >> (c - 1)) & 1; /* down‑left  */
+            sum_bits += (below >> c) & 1;                 /* down       */
+            if (c < 3) sum_bits += (below >> (c + 1)) & 1;/* down‑right */
+        }
+
+        /* total number of potential neighbours for this cell */
+        int total = 0;
+        if (c > 0) total++;            /* left   */
+        if (c < 3) total++;            /* right  */
+        if (has_above) {
+            if (c > 0) total++;        /* up‑left  */
+            total++;                   /* up       */
+            if (c < 3) total++;        /* up‑right */
+        }
+        if (has_below) {
+            if (c > 0) total++;        /* down‑left  */
+            total++;                   /* down       */
+            if (c < 3) total++;        /* down‑right */
+        }
+
+        /* neighbour count equal to the cell's value */
+        int equal = (cell == 1) ? sum_bits : (total - sum_bits);
+
+        /* disallowed counts: 1 for any cell, and 8 for interior cells */
+        if (equal == 1 || equal == 8) return 0;
+    }
+    return 1;
+}
 
 seq_t a(idx_t n)
 {
@@ -47,7 +101,7 @@ seq_t a(idx_t n)
      * prev = first row.                                                 */
     static seq_t dp_prev[16][16];
     static seq_t dp_curr[16][16];
-    memset(dp_prev, 0, sizeof(dp_prev));
+    mem_set(dp_prev, 0, sizeof(dp_prev));
 
     for (int r1 = 0; r1 < 16; ++r1) {
         if ((r1 & 1) == 0)                /* top‑left zero for first row */
@@ -57,7 +111,7 @@ seq_t a(idx_t n)
     /* Process rows 2 … n.  On step r (2‑based index) we add row r,
      * validate row r‑1, whose above row exists only if r > 2.          */
     for (idx_t r = 2; r <= n; ++r) {
-        memset(dp_curr, 0, sizeof(dp_curr));
+        mem_set(dp_curr, 0, sizeof(dp_curr));
         int has_above = (r > 2);          /* above row exists? */
         for (int pre = 0; pre < 16; ++pre) {
             for (int prev = 0; prev < 16; ++prev) {
@@ -69,7 +123,7 @@ seq_t a(idx_t n)
                 }
             }
         }
-        memcpy(dp_prev, dp_curr, sizeof(dp_curr));
+        mem_copy(dp_prev, dp_curr, sizeof(dp_curr));
     }
 
     /* After all rows are processed, validate the last row (cur) with

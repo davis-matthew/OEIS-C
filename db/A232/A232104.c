@@ -8,7 +8,8 @@
  *            index of prime(k) in the ordered list of all primes)
  * Range:     u8 none, u16 n <= 5, u32 n <= 5839, u64 n <= 5839,
  *            u128 n <= 5839, big any n
- * Helpers:   build_primes_upto, int_sqrt
+ * Validated: standard, pass, 47 terms through n = 5631 (2026-11-01)
+ * Helpers:   build_primes_upto, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,8 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/int_sqrt.h"
 #include "../utils/build_primes_upto.h"
+#include "../utils/isqrt.h"
 
 #define SEG_SIZE   (1ULL << 20)       /* 1 MiB sieve segment */
 #define MAX_MATCHES 200000            /* enough for n up to ~10 000 in tests */
@@ -49,7 +50,7 @@ static void init_static(void)
 static void process_segment(void)
 {
     /* build base primes up to sqrt(seg_high) */
-    idx_t sq = int_sqrt(seg_high);
+    idx_t sq = isqrt(seg_high);
     uint64_t *tmp_bp = NULL;
     size_t    tmp_bc = 0;
     build_primes_upto(sq, &tmp_bp, &tmp_bc);

@@ -10,13 +10,38 @@
  *            algorithm (Knuth's Algorithm B) required to compute gcd(n,k))
  * Range:     u8 n <= 70, u16 n <= 7432, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bin_gcd_iterations
+ * Validated: standard, pass, 78 terms through n = 9495 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/bin_gcd_iterations.h"
+
+/* Count the number of loop iterations of Knuth's binary GCD (Algorithm B)
+ * for the pair (a,b), where 0 < a,b.
+ */
+static inline seq_t bin_gcd_iterations(idx_t a, idx_t b)
+{
+    /* Strip common factors of 2.  a and b are >0 here. */
+    uint64_t ua = a >> __builtin_ctzll(a);
+    uint64_t ub = b >> __builtin_ctzll(b);
+    seq_t cnt = 0;
+
+    while (ua != ub) {
+        /* Ensure ua <= ub. */
+        if (ua > ub) {
+            uint64_t tmp = ua;
+            ua = ub;
+            ub = tmp;
+        }
+        ub -= ua;
+        /* Remove trailing zeros from ub. */
+        ub >>= __builtin_ctzll(ub);
+        ++cnt;
+    }
+    return cnt;
+}
 
 seq_t a(idx_t n)
 {

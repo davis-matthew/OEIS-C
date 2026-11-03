@@ -7,9 +7,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 140, u16 n <= 9979, u32 n <= 9979, u64 n <= 9979,
- *            u128 n <= 9979, big any n
- * Helpers:   inverse_cantor
+ * Range:     u8 n <= 140, u16 n <= 44099, u32 n <= 99999, u64 n <= 99999,
+ *            u128 n <= 99999, big any n
+ * Validated: standard, pass, 87 terms through n = 9979 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,19 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/inverse_cantor.h"
+#include "../utils/mem.h"
+
+static inline void inverse_cantor(uint64_t n, uint64_t *r, uint64_t *c)
+{
+    /* Compute s = floor((sqrt(8n+1)-1)/2) */
+    long double d = (long double)n;
+    uint64_t s = (uint64_t)((sqrtl(8.0L * d + 1.0L) - 1.0L) / 2.0L);
+    while ((unsigned __int128)s * (s + 1) / 2 > n) s--;
+    while ((unsigned __int128)(s + 1) * (s + 2) / 2 <= n) s++;
+
+    *r = n - (unsigned __int128)s * (s + 1) / 2;
+    *c = s - *r;
+}
 
 /* --- Utility: integer sqrt (floor) for 64‑bit unsigned integers --- */
 static inline uint64_t isqrt_u64(uint64_t x)
@@ -142,7 +155,7 @@ static void path_state_init(void)
     path_state.cap = 64;
     path_state.size = 0;
     path_state.path = (uint64_t *)malloc(path_state.cap * sizeof(uint64_t));
-    path_state.cache = (seq_t *)malloc(path_state.cap * sizeof(seq_t));
+    path_state.cache = mem_new(seq_t, path_state.cap);
 }
 
 static void path_state_push(uint64_t board, seq_t val)
@@ -150,7 +163,7 @@ static void path_state_push(uint64_t board, seq_t val)
     if (path_state.size == path_state.cap) {
         size_t new_cap = path_state.cap << 1;
         uint64_t *new_path = (uint64_t *)realloc(path_state.path, new_cap * sizeof(uint64_t));
-        seq_t    *new_cache = (seq_t *)realloc(path_state.cache, new_cap * sizeof(seq_t));
+        seq_t    *new_cache = mem_resize(seq_t, path_state.cache, new_cap);
         path_state.path  = new_path;
         path_state.cache = new_cache;
         path_state.cap   = new_cap;

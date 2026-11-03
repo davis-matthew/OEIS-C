@@ -8,8 +8,9 @@
  * Formula:   a(n) = the n‑th integer composed only of primes ≡1 (mod 3) whose
  *            total number of prime factors (with multiplicity) is a multiple
  *            of 3. Computed by linear search with trial division
- * Range:     u8 n <= 1, u16 n <= 442, u32 n <= 9210, u64 n <= 9210,
- *            u128 n <= 9210, big any n
+ * Range:     u8 n <= 1, u16 n <= 442, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 70 terms through n = 9210 (2026-11-01)
  * Helpers:   build_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/build_primes.h"
 
 static idx_t *primes = NULL;

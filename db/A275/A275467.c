@@ -11,14 +11,17 @@
  *            on demand and memoizes them. It works for any n≥1
  * Range:     u8 n <= 50, u16 n <= 6491, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   next_prime
+ * Validated: standard, pass, 68 terms through n = 9877 (2026-11-03)
+ * Helpers:   mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 /* static cache of already computed terms */
 static seq_t *cache = NULL;         /* array of a(i), 1‑based indexing stored 0‑based */
@@ -37,7 +40,7 @@ seq_t a(idx_t n)
         /* double the capacity to amortize realloc cost */
         if (new_cap < 16) new_cap = 16;
         while (new_cap < (size_t)n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0; /* allocation failure (unlikely in tests) */
         cache = tmp;
         cache_cap = new_cap;

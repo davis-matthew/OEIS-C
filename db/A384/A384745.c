@@ -8,12 +8,14 @@
  * Formula:   a(n) = (5^17 * a(n-1) + 1) mod 2^48, a(1) = 1
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 1, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 9105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,12 +29,12 @@ seq_t a(idx_t n)
 
     if (cached < n) {
         /* allocate or grow cache */
-        seq_t *new_cache = (seq_t*)malloc((size_t)n * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, (size_t)n);
         if (!new_cache) abort();   /* out of memory */
 
         /* copy existing values */
         for (idx_t i = 0; i < cached; ++i) new_cache[i] = cache[i];
-        if (cache) free(cache);
+        if (cache) mem_free(cache);
         cache = new_cache;
 
         /* initialize first term if the cache was empty */

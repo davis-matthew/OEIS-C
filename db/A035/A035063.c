@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 26, u32 n <= 26, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 #define BASE 1000000000ULL          /* 10^9, used for the big‑integer base */
 
@@ -55,7 +57,7 @@ static void ensure_exp_capacity(size_t needed)
     if (needed > exponents_cap) {
         size_t new_cap = exponents_cap ? exponents_cap * 2 : 8;
         while (new_cap < needed) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(exponents, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, exponents, new_cap);
         if (!tmp) abort();               /* allocation failure */
         exponents = tmp;
         exponents_cap = new_cap;

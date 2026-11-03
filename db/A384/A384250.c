@@ -12,6 +12,7 @@
  *            direct enumeration of k
  * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 85 terms through n = 8599 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -29,7 +30,8 @@
 #include <stddef.h>            /* for size_t */
 #include <stdint.h>            /* for uint64_t */
 #include <stdbool.h>
-#include "../utils/factor_u64.h"   /* factor_u64(n, primes, exps, &cnt) */
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
 
 static seq_t a_prime_power(uint64_t p, idx_t e)
 {

@@ -8,7 +8,8 @@
  *            divisors of n)
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   proper_divisors
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,32 @@
    value. */
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/proper_divisors.h"
+#include "../utils/mem.h"
+
+/* Compute the number of proper divisors of m (τ(m)-1).  For m=1 the
+   result is 0.  The function works for any idx_t that fits in the
+   native unsigned integer type. */
+static idx_t proper_divisors(idx_t m)
+{
+    if (m <= 1) return 0;
+
+    idx_t tmp = m;
+    idx_t tau = 1;          /* multiplicative totma of divisor count */
+    for (idx_t p = 2; p * p <= tmp; ++p) {
+        if (tmp % p == 0) {
+            idx_t exp = 0;
+            while (tmp % p == 0) {
+                tmp /= p;
+                ++exp;
+            }
+            tau *= (exp + 1);
+        }
+    }
+    if (tmp > 1)    /* remaining prime factor */
+        tau *= 2;
+
+    return tau - 1;   /* proper divisors exclude the number itself */
+}
 
 /* Main sequence routine.  The first time it is called the internal
    static storage is allocated on demand. */
@@ -47,7 +73,7 @@ seq_t a(idx_t n)
         /* Ensure capacity */
         if (cache_len == cache_cap) {
             cache_cap = cache_cap == 0 ? 64 : cache_cap * 2;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
         cache[cache_len++] = val;
     }

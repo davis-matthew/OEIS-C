@@ -7,7 +7,8 @@
  * Formula:   a(n) = (4^n - 2^n) / Clausen(n, 1)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   pow2, pow2_modp
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,19 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include "../utils/pow2.h"
-#include "../utils/pow2_modp.h"
+
+/* 2^n mod p (p <= 10001), n fits in idx_t */
+static uint64_t pow2_modp(idx_t n, uint64_t p)
+{
+    uint64_t res = 1 % p;
+    uint64_t base = 2 % p;
+    while (n) {
+        if (n & 1) res = (res * base) % p;
+        base = (base * base) % p;
+        n >>= 1;
+    }
+    return res;
+}
 
 /* Precompute all primes up to 10001 (maximum n + 1). */
 static const idx_t MAX_N = 10000;

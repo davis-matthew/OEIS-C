@@ -12,14 +12,16 @@
  *            binomial(2k, j) · (k – j)^(2·m). (This is T(m,k)...
  * Range:     u8 n <= 8, u16 n <= 17, u32 n <= 32, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   binomial, pow_uint
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-01)
+ * Helpers:   binomial, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 static seq_t compute_T(idx_t m, idx_t k)
 {
@@ -32,7 +34,7 @@ static seq_t compute_T(idx_t m, idx_t k)
     {
         seq_t bin  = binomial(two_k, j);      // (2k choose j)
         idx_t abs_base = (k >= j) ? (k - j) : (j - k);   // |k - j|
-        seq_t powv  = pow_uint((uint64_t)abs_base, exp);  // (|k-j|)^(2m)
+        seq_t powv  = ipow_u64_idx((uint64_t)abs_base, exp);  // (|k-j|)^(2m)
         seq_t term  = bin * powv;                 // term = bin * power
 
         if (j & 1)         // odd j → negative contribution

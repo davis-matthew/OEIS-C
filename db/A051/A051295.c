@@ -11,12 +11,14 @@
  *            call in roughly Σ_{i=1..n} i operations, which stays far...
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 13, u64 n <= 21, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 424 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* cached values of a[0..cached_n] and factorials fac[0..cached_n] */
 static seq_t *a_cache   = NULL;
@@ -32,8 +34,8 @@ static void ensure_capacity(idx_t new_size)          /* new_size = needed index 
 
     /* grow – a bit beyond the strictly needed size for future calls */
     idx_t new_len = new_size + 16;
-    a_cache   = (seq_t *)realloc(a_cache,   new_len * sizeof(seq_t));
-    fac_cache = (seq_t *)realloc(fac_cache, new_len * sizeof(seq_t));
+    a_cache   = mem_resize(seq_t, a_cache, new_len);
+    fac_cache = mem_resize(seq_t, fac_cache, new_len);
 
     /* set new slots to zero – more than enough for subsequent init */
     for (idx_t i = cache_len; i < new_len; ++i) {

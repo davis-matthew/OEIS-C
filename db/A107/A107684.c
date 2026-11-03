@@ -7,6 +7,7 @@
  * Formula:   a(n) = if n <= 2 then n else 2^(floor(n/3)+1) + n mod 3 - 1
  * Range:     u8 n <= 21, u16 n <= 45, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
+ * Validated: partial, pass, 49 terms through n = 48 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

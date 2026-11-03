@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..n} binomial(n,k) * Bell(2*n-k) * n^k
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 10, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 249 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Computation uses a cached table of Bell numbers up to 2*n. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *bell_cache = NULL;   /* Cached Bell numbers B[0..max] */
 static size_t bell_cap   = 0;      /* Allocated size of bell_cache      */
@@ -28,7 +30,7 @@ static void ensure_bell_up_to(idx_t N)
 
     /* Allocate memory if this is the first call. */
     if (bell_cache == NULL) {
-        bell_cache = (seq_t *)malloc(needed * sizeof(seq_t));
+        bell_cache = mem_new(seq_t, needed);
         if (bell_cache == NULL) return;   /* allocation failed */
         bell_cap   = needed;
         bell_cache[0] = 1;              /* B0 = 1   */
@@ -36,7 +38,7 @@ static void ensure_bell_up_to(idx_t N)
     }
     /* Grow the array if required. */
     else if (needed > bell_cap) {
-        seq_t *tmp = (seq_t *)realloc(bell_cache, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, bell_cache, needed);
         if (tmp == NULL) return;        /* realloc failed */
         bell_cache = tmp;
         bell_cap   = needed;

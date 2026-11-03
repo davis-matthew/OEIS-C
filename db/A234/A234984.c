@@ -15,7 +15,8 @@
  *            cache has been extended to...
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 12, u64 n <= 27, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* 0‑based array storing a(1) at cache[0] */
 static idx_t cache_len = 0;   /* number of terms currently cached */
@@ -37,7 +39,7 @@ static void init_cache(void)
     /* allocate capacity for at least 8 terms */
     cache_cap = 8;
     cache_len  = 8;
-    cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+    cache = mem_new(seq_t, cache_cap);
     static const seq_t init[8] = {
         (seq_t)90,
         (seq_t)370,
@@ -48,7 +50,7 @@ static void init_cache(void)
         (seq_t)762002,
         (seq_t)3554334
     };
-    memcpy(cache, init, sizeof(init));
+    mem_copy(cache, init, sizeof(init));
 }
 
 /* enlarge cache to at least new_cap */
@@ -57,10 +59,10 @@ static void ensure_capacity(idx_t new_cap)
     if (new_cap <= cache_cap)
         return;
     idx_t alloc = new_cap < (cache_cap << 1) ? (cache_cap << 1) : new_cap;
-    seq_t *new_cache = (seq_t *)malloc(sizeof(seq_t) * alloc);
+    seq_t *new_cache = mem_new(seq_t, alloc);
     if (cache_len > 0)
-        memcpy(new_cache, cache, sizeof(seq_t) * cache_len);
-    free(cache);
+        mem_copy(new_cache, cache, sizeof(seq_t) * cache_len);
+    mem_free(cache);
     cache = new_cache;
     cache_cap = alloc;
 }

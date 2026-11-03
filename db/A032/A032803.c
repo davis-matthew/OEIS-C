@@ -7,7 +7,8 @@
  * Formula:   a(n) = coefficient of x^n in 1/(1 - x*Theta3(x))
  * Range:     u8 n <= 8, u16 n <= 15, u32 n <= 31, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* where t_0 = 1, t_j = 2 if j is a perfect square > 0, otherwise 0 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;           /* array of computed terms */
 static idx_t  cache_size = 0;         /* number of terms currently stored (cache_size == number of valid indices = size) */
@@ -24,13 +26,13 @@ seq_t a(idx_t n)
 {
     /* Expand cache if necessary */
     if (cache_size == 0) {
-        cache = (seq_t*)malloc((size_t)(n + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)(n + 1));
         cache_size = 0;
     }
     if (cache_size <= n) {
         size_t old_size = cache_size;
         cache_size = (size_t)(n + 1);
-        cache = (seq_t*)realloc(cache, cache_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_size);
         /* compute new entries */
         for (size_t i = old_size; i <= (size_t)n; ++i) {
             if (i == 0) {

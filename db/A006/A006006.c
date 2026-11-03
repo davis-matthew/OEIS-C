@@ -10,14 +10,35 @@
  *            2^29 - 2 - 2*Sum_{h} A_{64-2^(6-h)}; all other terms are 0
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 16, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   rm2_count, u128_to_seq
+ * Validated: full, pass, 17 terms through n = 16 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/u128_to_seq.h"
-#include "../utils/rm2_count.h"
+#include <stdlib.h>
+
+static seq_t u128_to_seq(unsigned __int128 u)
+{
+    seq_t r = 0;
+    int k;
+    for (k = 3; k >= 0; k--) {
+        r = r * 65536ULL;
+        r = r * 65536ULL;
+        r += (seq_t)(uint64_t)(uint32_t)(u >> (32 * k));
+    }
+    return r;
+}
+
+static unsigned long long rm2_count(int m, int h) {
+    unsigned long long num = 1ULL << (h * (h + 1));
+    unsigned long long den = 1;
+    int i;
+    for (i = 0; i < 2 * h; i++) num *= ((1ULL << (m - i)) - 1);
+    for (i = 1; i <= h; i++) den *= ((1ULL << (2 * i)) - 1);
+    return num / den;
+}
 
 seq_t a(idx_t n) {
     const int m = 7;

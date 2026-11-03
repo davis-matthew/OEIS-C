@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 15, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 188 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t C[6] = {(seq_t)6, (seq_t)15, (seq_t)40, (seq_t)90,
                            (seq_t)144, (seq_t)120};
@@ -37,7 +39,7 @@ static const seq_t C[6] = {(seq_t)6, (seq_t)15, (seq_t)40, (seq_t)90,
 seq_t a(idx_t n)
 {
     /* Allocate array for a[0] … a[n] */
-    seq_t *a_arr = (seq_t *)malloc(((size_t)(n + 1)) * sizeof(seq_t));
+    seq_t *a_arr = mem_new(seq_t, ((size_t)(n + 1)));
     if (!a_arr) return 0;      /* In practice this never happens for n ≤ 10000 */
 
     a_arr[0] = (seq_t)1;       /* a(0) = 1 */
@@ -64,6 +66,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = a_arr[n];
-    free(a_arr);
+    mem_free(a_arr);
     return result;
 }

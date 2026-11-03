@@ -7,7 +7,8 @@
  * Formula:   a(n) = least k*n with k>0 such that k*n ∈ A126684
  * Range:     u8 n <= 10, u16 n <= 58, u32 n <= 3070, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   in_A126684
+ * Validated: standard, pass, 71 terms through n = 9633 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,30 @@
    all set bits at positions of the same parity (either all even
    or all odd). */
 #include <stdbool.h>
-#include "../utils/in_A126684.h"
+
+/* Return true if m belongs to A126684.
+   Zero is considered to belong to the sequence. */
+static bool in_A126684(seq_t m)
+{
+    if (m == (seq_t)0)
+        return true;
+
+    seq_t x = m;
+    int pos = 0;          /* bit position, least significant = 0 */
+    int parity = -1;      /* parity of the first set bit */
+
+    while (x != (seq_t)0) {
+        if (x & (seq_t)1) {          /* check the current bit */
+            if (parity == -1)        /* first set bit */
+                parity = pos & 1;
+            else if ((pos & 1) != parity)
+                return false;        /* mismatching parity */
+        }
+        x >>= 1;                     /* shift right by one bit */
+        pos++;
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {

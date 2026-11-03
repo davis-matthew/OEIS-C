@@ -9,14 +9,26 @@
  *            generating function G(x) = x/(1-4x)² + 1/√(1-4x)
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 30, u128 n <= 62,
  *            big any n
- * Helpers:   binom, pow4
+ * Validated: standard, pass, 41 terms through n = 878 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
-#include "../utils/pow4.h"
+#include "../utils/binomial.h"
+
+static inline seq_t pow4(idx_t exp) {
+    seq_t result = 1;
+    seq_t base   = 4;
+    idx_t e = exp;
+    while (e) {
+        if (e & 1) result *= base;
+        base *= base;
+        e >>= 1;
+    }
+    return result;
+}
 
 seq_t a(idx_t n)
 {
@@ -25,7 +37,7 @@ seq_t a(idx_t n)
     }
 
     /* binomial(2n, n) */
-    seq_t bin = binom(2 * n, n);
+    seq_t bin = binomial(2 * n, n);
 
     /* 4^(n-1) */
     seq_t pow4_val = pow4(n - 1);

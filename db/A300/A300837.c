@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{d|n} A007895(d), where A007895(d) counts the number
  *            of 1‑digits in the Zeckendorf representation of d
- * Range:     u8 n <= 9218, u16 n <= 9218, u32 n <= 9218, u64 n <= 9218,
- *            u128 n <= 9218, big any n
+ * Range:     u8 n <= 10946, u16 n <= 10946, u32 n <= 10946, u64 n <= 10946,
+ *            u128 n <= 10946, big any n
+ * Validated: standard, pass, 121 terms through n = 9218 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

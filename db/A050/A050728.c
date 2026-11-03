@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 12, u32 n <= 12, u64 n <= 12, u128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 13 terms through n = 12 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* The build supplies the types seq_t and idx_t.  They are unsigned. */
 seq_t a(idx_t n) {
@@ -55,7 +57,7 @@ seq_t a(idx_t n) {
         digit_len = 1;
 
         v_capacity = 16;
-        valid = (seq_t *)malloc(v_capacity * sizeof(seq_t));
+        valid = mem_new(seq_t, v_capacity);
         valid[0] = 0;                  /* exponent 0 is valid */
         v_count = 1;
 
@@ -94,7 +96,7 @@ seq_t a(idx_t n) {
         if (ok) {          /* this exponent satisfies the condition */
             if (v_count == v_capacity) {
                 v_capacity <<= 1;            /* double capacity */
-                valid = (seq_t *)realloc(valid, v_capacity * sizeof(seq_t));
+                valid = mem_resize(seq_t, valid, v_capacity);
             }
             valid[v_count++] = (seq_t)current_exp;
         }

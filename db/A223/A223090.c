@@ -12,14 +12,29 @@
  *            entry
  * Range:     u8 n <= 1, u16 n <= 12, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   rev_oct
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/rev_oct.h"
+#include "../utils/mem.h"
+
+/* For any seq_t type, the following helper computes the base‑8
+   reversal of k.  It works for 8, 16, 32, 64‑bit unsigned types and
+   for arbitrary‑precision unsigned integers. */
+static inline seq_t rev_oct (seq_t k)
+{
+    seq_t rev = 0;
+    seq_t t   = k;
+    while (t > 0) {
+        rev = (rev << 3) | (t & 7);
+        t >>= 3;
+    }
+    return rev;
+}
 
 /* a(n) ------------------------------------------------------------*/
 
@@ -34,7 +49,7 @@ seq_t a (idx_t n)
     /* initialise the dynamic array on first call */
     if (terms == NULL) {
         cap   = 128;
-        terms = (seq_t*)malloc(cap * sizeof(seq_t));
+        terms = mem_new(seq_t, cap);
     }
 
     /* generate terms up to the requested index */
@@ -47,7 +62,7 @@ seq_t a (idx_t n)
             /* add the term to the cache */
             if (size == cap) {
                 cap <<= 1;
-                terms = (seq_t*)realloc(terms, cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, cap);
             }
             terms[size++] = last;
         }

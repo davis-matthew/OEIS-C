@@ -9,7 +9,8 @@
  *            (u odd) ? (u+1)/2 : -(u/2)
  * Range:     u8 n <= 22, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   alt_sum_signed, is_prime
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,13 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
-#include "../utils/alt_sum_signed.h"
+
+/* Helper to compute A001057(u) as a signed 64‑bit integer.  */
+static inline int64_t alt_sum_signed(idx_t u)
+{
+    /* (u odd) => (u+1)/2, (u even) => -(u/2) */
+    return (u & 1) ? (int64_t)(u + 1) / 2 : -((int64_t)(u / 2));
+}
 
 /* ----------  Storage for the first element of each twin prime pair  ---------- */
 static uint64_t *twin_primes = NULL;   /* array of first elements of twin pairs  */

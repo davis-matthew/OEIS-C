@@ -9,15 +9,18 @@
  *            binary‑decimal number (decimal digits are the bits of n)
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   factor_u64, pow_uint
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-01)
+ * Helpers:   factor_u64, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 /* Compute the sum of divisors of a 64‑bit integer.
    Returns the result as seq_t. */
@@ -30,7 +33,7 @@ static seq_t sigma_uint64(uint64_t n)
     for (size_t i = 0; i < cnt; ++i)
     {
         seq_t term =
-            (pow_uint(primes[i], (idx_t)(exps[i] + 1)) - 1) /
+            (ipow_u64_idx(primes[i], (idx_t)(exps[i] + 1)) - 1) /
             ((seq_t)(primes[i] - 1));
         result *= term;
     }

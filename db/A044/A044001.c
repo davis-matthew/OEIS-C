@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   has_adjacent_zero_six
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,31 @@
    subsequent calls are efficient. */
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/has_adjacent_zero_six.h"
+
+/* Return true if x contains the substring "06" or "60" in its base‑10
+   representation.  The digits are inspected from least‑significant to
+   most‑significant. */
+static inline bool has_adjacent_zero_six(seq_t x)
+{
+    if (x < 10)            /* single digit → no adjacency */
+        return false;
+
+    seq_t prev = x % 10;   /* least‑significant digit */
+    x /= 10;
+    while (x > 0) {
+        seq_t curr = x % 10;   /* next more‑significant digit */
+        /*
+         * Check both possible orders:
+         *   curr=0, prev=6  → substring "06"
+         *   curr=6, prev=0  → substring "60"
+         */
+        if ((curr == 0 && prev == 6) || (curr == 6 && prev == 0))
+            return true;
+        prev = curr;
+        x /= 10;
+    }
+    return false;
+}
 
 /* Cache for the discovered terms.  100 000 slots comfortably cover
    all test cases up to n ≈ 10 000. */

@@ -8,14 +8,16 @@
  *            such that (p-1)/2 is also prime (i.e. p = 2q+1 where q is prime)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 121 terms through n = 9424 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"   // provides bool is_prime(idx_t)
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* compute a(n) */
 seq_t a(idx_t n)
@@ -29,13 +31,13 @@ seq_t a(idx_t n)
 
     /* allocate or grow cache array if needed */
     if (cache == NULL) {
-        cache = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)(n + 1));
         /* calloc zeroes the array, so cache[i] = 0 for all i */
         cache_max = 0;
         cache[0] = 0;    /* as defined by the sequence */
     } else if (n > cache_max) {
         /* extend the cache */
-        seq_t *new_cache = (seq_t *)realloc(cache, (size_t)(n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (size_t)(n + 1));
         if (new_cache == NULL) {      /* allocation failed */
             return 0;
         }

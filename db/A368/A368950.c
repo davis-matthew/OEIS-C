@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 18, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   mul_small, next_prime, pow_int
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-03)
+ * Helpers:   ipow_idx, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,9 +31,23 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/pow_int.h"
-#include "../utils/mul_small.h"
+#include <stdbool.h>
+#include "../utils/ipow_idx.h"
 #include "../utils/next_prime.h"
+#include "../utils/mem.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 typedef struct { seq_t val; uint64_t prime; } Node;
 
@@ -50,7 +65,7 @@ static void heap_push(Node **heapP, size_t *sizeP, size_t *capP, Node key)
 
     if (size == cap) {
         cap = cap ? cap << 1 : 64;
-        heap = (Node *)realloc(heap, cap * sizeof(Node));
+        heap = mem_resize(Node, heap, cap);
         *heapP = heap; *capP = cap;
     }
 
@@ -100,7 +115,7 @@ seq_t a(idx_t n)
     size_t heap_size = 0, heap_cap = 0;
 
     /* insert first prime 3 */
-    seq_t p10 = pow_int((seq_t)3, 10);          /* 3^10 */
+    seq_t p10 = ipow_idx((seq_t)3, 10);          /* 3^10 */
     heap_push(&heap, &heap_size, &heap_cap, (Node){p10, 3});
 
     uint64_t next_prime_val = next_prime(3);    /* next prime after 3 */
@@ -110,7 +125,7 @@ seq_t a(idx_t n)
         Node cur = heap_pop(&heap, &heap_size);
         ++count;
         if (count == n) {
-            free(heap);
+            mem_free(heap);
             return cur.val;
         }
 
@@ -120,7 +135,7 @@ seq_t a(idx_t n)
 
         /* add new primes while their p^10 would appear before the current minimum */
         while (heap_size > 0) {
-            seq_t cand = pow_int((seq_t)next_prime_val, 10);
+            seq_t cand = ipow_idx((seq_t)next_prime_val, 10);
             if (cand <= heap[0].val) {
                 heap_push(&heap, &heap_size, &heap_cap, (Node){cand, next_prime_val});
                 next_prime_val = next_prime(next_prime_val);
@@ -128,6 +143,6 @@ seq_t a(idx_t n)
         }
     }
     /* should never reach here */
-    free(heap);
+    mem_free(heap);
     return 0;
 }

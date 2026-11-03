@@ -11,15 +11,49 @@
  *            builds use the equivalent multiset product...
  * Range:     u8 n <= 10, u16 n <= 16, u32 n <= 28, u64 n <= 53, u128 n <= 106,
  *            big any n
- * Helpers:   tr_binrow, tr_inv, tr_width
+ * Validated: standard, pass, 47 terms through n = 199 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/tr_binrow.h"
-#include "../utils/tr_inv.h"
-#include "../utils/tr_width.h"
+
+static seq_t tr_inv(seq_t q) { /* inverse of odd q modulo 2^w */
+    seq_t x = q;
+    int i;
+    for (i = 0; i < 8; i++) x = x * (2 - q * x);
+    return x;
+}
+
+/* bin[m] = binomial(a0+m-1, m) mod 2^w, m = 0..M */
+static void tr_binrow(seq_t a0, idx_t M, seq_t *bin, int w) {
+    idx_t j;
+    seq_t u = 1;
+    long e = 0;
+    int bad = 0;
+    bin[0] = 1;
+    for (j = 1; j <= M; j++) {
+        seq_t num = a0 + (seq_t)(j - 1);
+        idx_t d = j;
+        if (num == 0) bad = 1;
+        if (bad) { bin[j] = 0; continue; }
+        while ((num & 1) == 0) { num >>= 1; e++; }
+        u *= num;
+        while ((d & 1) == 0) { d >>= 1; e--; }
+        u *= tr_inv((seq_t)d);
+        if (e >= w) bin[j] = 0;
+        else if (e <= 0) bin[j] = u;
+        else bin[j] = (seq_t)(u << e);
+    }
+}
+
+static int tr_width(void) {
+    seq_t x = 1;
+    int w = 0;
+    while (w < 300 && x != 0) { x <<= 1; w++; }
+    return w < 300 ? w : 0; /* 0 => arbitrary precision */
+}
 
 #define TR_MAXB 10001
 #define TR_MAXF 300

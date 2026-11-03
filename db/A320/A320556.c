@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 21, u64 n <= 40, u128 n <= 79,
  *            big any n
- * Helpers:   calloc_seq, realloc_seq
+ * Validated: standard, pass, 40 terms through n = 925 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,20 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/calloc_seq.h"
-#include "../utils/realloc_seq.h"
+#include "../utils/mem.h"
+
+/* Create/zero an array of seq_t. */
+static seq_t *calloc_seq(size_t count)
+{
+    return mem_new(seq_t, count);
+}
+
+/* Create/expand an array of seq_t, casting the void* properly so that
+   the code compiles both in C and C++ (where seq_t may be a class). */
+static seq_t *realloc_seq(seq_t *p, size_t count)
+{
+    return mem_resize(seq_t, p, count);
+}
 
 /* DP state sizes */
 #define W6 6

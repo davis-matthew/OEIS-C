@@ -7,7 +7,8 @@
  * Formula:   a(n) = 2*v3(n) + (2*digit_sum_base3(n) - digit_sum_base3(2*n))/2
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_sum_base3, v3_idx
+ * Validated: standard, pass, 112 terms through n = 9520 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,24 @@
 /* digit_sum_base3(x) = sum of the base‑3 digits of x                */
 
 #include <stdint.h>
-#include "../utils/digit_sum_base3.h"
-#include "../utils/v3_idx.h"
+
+static inline seq_t digit_sum_base3(idx_t n) {
+    seq_t sum = 0;
+    while (n > 0) {
+        sum += n % 3;
+        n /= 3;
+    }
+    return sum;
+}
+
+static inline seq_t v3_idx(idx_t n) {
+    seq_t cnt = 0;
+    while (n % 3 == 0) {
+        ++cnt;
+        n /= 3;
+    }
+    return cnt;
+}
 
 seq_t a(idx_t n) {
     if (n == 0)   /* not used, but define for safety */

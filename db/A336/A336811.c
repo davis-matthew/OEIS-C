@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabf
  * Formula:   not stated
- * Range:     u8 n <= 265, u16 n <= 8915, u32 n <= 8915, u64 n <= 8915,
- *            u128 n <= 8915, big any n
- * Helpers:   none
+ * Range:     u8 n <= 265, u16 n <= 11732, u32 n <= 11732, u64 n <= 11732,
+ *            u128 n <= 11732, big any n
+ * Validated: standard, pass, 113 terms through n = 8915 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    (i.e., the smallest s with p(s-1) ≥ k). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Partition numbers p(m), m ≥ 0, with p(0) = 1, stored as seq_t. */
 static seq_t *part = NULL;
@@ -37,7 +39,7 @@ static void ensure_partition(idx_t N)
     if (size_part + 1 > cap_part) {
         size_t newcap = cap_part ? (size_t)cap_part * 2 : 16;
         while (newcap <= (size_t)N + 1) newcap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(part, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, part, newcap);
         if (!tmp) abort();
         part = tmp;
         cap_part = (idx_t)newcap;
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
     if (!part) {
         cap_part   = 16;
         size_part  = 1;                  /* p(0) will be stored */
-        part        = (seq_t *)malloc(cap_part * sizeof(seq_t));
+        part        = mem_new(seq_t, cap_part);
         if (!part) abort();
         part[0] = (seq_t)1;              /* p(0) = 1 */
     }

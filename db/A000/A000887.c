@@ -13,15 +13,16 @@
  *            The sum runs over the cycle types of S_n
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 3, u64 n <= 4, u128 n <= 5,
  *            big any n
- * Helpers:   a887_gcd, a887_pw2
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-01)
+ * Helpers:   gcd_u64, pow2_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/a887_gcd.h"
-#include "../utils/a887_pw2.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/pow2_u64.h"
 
 static int G_ncls = 0;
 static int G_lg[128][85];
@@ -84,12 +85,12 @@ static void a887_leaf(const int *parts, int k)
     uint64_t L = 1, d, e;
     uint64_t *cyc;
     int i, cl;
-    for (i = 0; i < k; i++) L = L / a887_gcd(L, (uint64_t)parts[i]) * (uint64_t)parts[i];
+    for (i = 0; i < k; i++) L = L / gcd_u64(L, (uint64_t)parts[i]) * (uint64_t)parts[i];
     cyc = (uint64_t *)calloc((size_t)(L + 1), sizeof(uint64_t));
     for (d = 1; d <= L; d++) {
         uint64_t c = 0, s;
         if (L % d) continue;
-        for (i = 0; i < k; i++) c += a887_gcd((uint64_t)parts[i], d);
+        for (i = 0; i < k; i++) c += gcd_u64((uint64_t)parts[i], d);
         s = (uint64_t)1 << c;
         for (e = 1; e < d; e++) if (d % e == 0) s -= e * cyc[e];
         cyc[d] = s / d;
@@ -126,7 +127,7 @@ static void a887_leaf(const int *parts, int k)
                 if (l < 0) { ok = 0; break; }
                 E += cyc[d] * (uint64_t)l;
             }
-            if (ok) sub += (seq_t)G_cnt[cl] * a887_pw2(E);
+            if (ok) sub += (seq_t)G_cnt[cl] * pow2_u64(E);
         }
         i = 0;
         while (i < k) {

@@ -9,6 +9,7 @@
  *            horizontally and 0 0 0 and 1 1 1 vertically
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 12, u64 n <= 28, u128 n <= 59,
  *            big any n
+ * Validated: standard, pass, 36 terms through n = 185 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

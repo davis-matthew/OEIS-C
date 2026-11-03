@@ -13,14 +13,18 @@
  *            any seq_t supported by the build (8‑ to 128‑...
  * Range:     u8 none, u16 none, u32 n <= 1, u64 n <= 3, u128 n <= 5,
  *            big any n
- * Helpers:   big_pow, mod_pow
+ * Validated: standard, pass, 23 terms through n = 60 (2026-11-01)
+ * Helpers:   ipow, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/big_pow.h"
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/ipow.h"
+#include "../utils/powmod.h"
 
 static uint64_t *prime_list   = NULL; /* primes discovered so far        */
 static size_t    prime_cnt    = 0;
@@ -98,7 +102,7 @@ static int is_full_reptend(uint64_t p)
     /* Primitive‑root test: 10^(m/q) mod p should not be 1 for any prime q | m. */
     for (size_t i = 0; i < fcnt; ++i) {
         uint64_t q = factors[i];
-        seq_t r = mod_pow((seq_t)10, (uint64_t)(m / q), (seq_t)p);
+        seq_t r = powmod((seq_t)10, (uint64_t)(m / q), (seq_t)p);
         if (r == (seq_t)1) return 0;
     }
     return 1;
@@ -131,7 +135,7 @@ seq_t a(idx_t n)
     ensure_reptend_count(n);
 
     uint64_t p = reptend_list[n - 1];            /* A001913(n) */
-    seq_t pow10 = big_pow((seq_t)10, (seq_t)(p - 1)); /* 10^(p-1) */
+    seq_t pow10 = ipow((seq_t)10, (seq_t)(p - 1)); /* 10^(p-1) */
     seq_t num   = pow10 - (seq_t)1;              /* 10^(p-1) - 1 */
     seq_t res   = num / (seq_t)p;                /* division by p */
     return res;

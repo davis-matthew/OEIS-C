@@ -9,7 +9,8 @@
  *            3^n * n!)), using 9*(2k-1)^2 - 4 = (6k-5)*(6k-1)
  * Range:     u8 n <= 8, u16 n <= 11, u32 n <= 16, u64 n <= 24, u128 n <= 38,
  *            big any n
- * Helpers:   a002514_div, a002514_mul
+ * Validated: standard, pass, 40 terms through n = 435 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,33 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a002514_div.h"
-#include "../utils/a002514_mul.h"
+
+static size_t a002514_div(uint32_t *x, size_t len, uint32_t d) {
+    uint64_t rem = 0;
+    size_t i;
+    for (i = len; i-- > 0;) {
+        uint64_t cur = (rem << 32) | x[i];
+        x[i] = (uint32_t)(cur / d);
+        rem = cur % d;
+    }
+    while (len > 1 && x[len - 1] == 0) len--;
+    return len;
+}
+
+static size_t a002514_mul(uint32_t *x, size_t len, uint32_t m) {
+    uint64_t c = 0;
+    size_t i;
+    for (i = 0; i < len; i++) {
+        uint64_t t = (uint64_t)x[i] * m + c;
+        x[i] = (uint32_t)t;
+        c = t >> 32;
+    }
+    while (c) {
+        x[len++] = (uint32_t)c;
+        c >>= 32;
+    }
+    return len;
+}
 
 seq_t a(idx_t n) {
     size_t cap = 2 * (size_t)n + 8;

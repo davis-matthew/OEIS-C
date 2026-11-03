@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 31, u32 n <= 98, u64 n <= 343,
  *            u128 n <= 1000, big any n
- * Helpers:   r_coef
+ * Validated: standard, pass, 61 terms through n = 888 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,18 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/r_coef.h"
+#include "../utils/mem.h"
+
+/* r(k) — coefficient of q^k in the rational factor of the generating function */
+static inline idx_t
+r_coef(idx_t k)
+{
+    if (k < 2) return 0;
+    idx_t val = (k >= 3) ? ((k - 3) / 2 + 1) : 0;
+    if ((k % 2) == 0) ++val;
+    if ((k % 3) == 0 && k >= 3) --val;
+    return val;
+}
 
 static seq_t *partitions = NULL;   /* p[0..N]   */
 static idx_t  part_size   = 0;     /* current number of stored entries */
@@ -39,7 +51,7 @@ ensure_partitions(idx_t N)
 
     /* Expand array to N+1 entries */
     size_t new_size = (size_t)N + 1;
-    seq_t *tmp = (seq_t *)realloc(partitions, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, partitions, new_size);
     if (!tmp) abort();          /* allocation failure */
     partitions = tmp;
 

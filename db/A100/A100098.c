@@ -8,7 +8,8 @@
  *            special term binomial(n,n/2) added when n is even
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 24, u64 n <= 49, u128 n <= 97,
  *            big any n
- * Helpers:   binomial, seq_malloc, seq_pow, seq_realloc
+ * Validated: standard, pass, 45 terms through n = 997 (2026-11-03)
+ * Helpers:   binomial, ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,10 +18,31 @@
    using the binomial recurrence to avoid large intermediate products.  */
 
 #include <stddef.h>            /* for size_t */
-#include "../utils/binomial.h" /* seq_t binomial(idx_t N, idx_t K) */
-#include "../utils/seq_pow.h"  /* seq_t seq_pow(seq_t base, idx_t exp) */
-#include "../utils/seq_malloc.h" /* seq_t *seq_malloc(idx_t n) */
-#include "../utils/seq_realloc.h"/* seq_t *seq_realloc(seq_t *p, idx_t n) */
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
+
+/* helper to allocate an array of seq_t that works in both C and C++ */
+static inline seq_t *seq_malloc(idx_t n)
+{
+#ifdef __cplusplus
+    return mem_new(seq_t, n);
+#else
+    return (seq_t *)malloc(n * sizeof(seq_t));
+#endif
+}
+
+static inline seq_t *seq_realloc(seq_t *p, idx_t n)
+{
+#ifdef __cplusplus
+    return mem_resize(seq_t, p, n);
+#else
+    return (seq_t *)realloc(p, n * sizeof(seq_t));
+#endif
+}
 
 seq_t a(idx_t n)
 {
@@ -57,7 +79,7 @@ seq_t a(idx_t n)
                     sum += bin;
                 } else {
                     idx_t shift = i - 2 * k - 1;       /* exponent of 2  */
-                    seq_t pow2 = seq_pow((seq_t)2, shift);
+                    seq_t pow2 = ipow_idx((seq_t)2, shift);
                     sum += bin * pow2;
                 }
 

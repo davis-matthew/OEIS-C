@@ -8,6 +8,7 @@
  *            |p‑q| < n
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
+ * Validated: partial, pass, 90 terms through n = 90 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,7 +19,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/build_primes_upto.h"   /* assumed to be available */
+#include "../utils/build_primes_upto.h"
 
 static idx_t      max_sieve_limit = 0;
 static uint64_t  *prime_list       = NULL;

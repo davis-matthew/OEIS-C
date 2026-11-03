@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 9851 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -42,6 +43,7 @@
 #define ALLOC(type, n) ((type*)calloc((n), sizeof(type)))
 #define FREE(ptr) free(ptr)
 #endif
+#include "../utils/mem.h"
 
 /* internal structure for sortable items */
 typedef struct {
@@ -99,7 +101,7 @@ static void init_sequence(void)
     }
 
     /* sort by sigma */
-    qsort(items, (size_t)INIT_LIMIT, sizeof(sigma_item_t), cmp_sigma);
+    mem_qsort(items, (size_t)INIT_LIMIT, sizeof(sigma_item_t), cmp_sigma);
 
     /* mark duplicates */
     for (idx_t i = 1; i < INIT_LIMIT; ++i) {

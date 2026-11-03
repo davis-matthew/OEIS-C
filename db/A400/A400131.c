@@ -12,7 +12,8 @@
  *            any order
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   floor_pow_limit, narc_in_base
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,54 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/floor_pow_limit.h"
-#include "../utils/narc_in_base.h"
+#include "../utils/mem.h"
+
+/* largest b such that b^exp <= limit */
+static uint64_t floor_pow_limit(uint64_t limit, uint64_t exp)
+{
+    if (exp == 0) return limit;
+    uint64_t lo = 1, hi = limit;
+    while (lo < hi) {
+        uint64_t mid = (lo + hi + 1) >> 1;
+        __int128 p = 1;
+        for (uint64_t i = 0; i < exp; ++i) {
+            p *= mid;
+            if (p > limit) break;
+        }
+        if (p <= limit)
+            lo = mid;
+        else
+            hi = mid - 1;
+    }
+    return lo;
+}
+
+/* test whether k is narcissistic in base b with length l */
+static bool narc_in_base(uint64_t k, uint64_t b, uint64_t l)
+{
+    uint64_t temp = k;
+    uint64_t sum = 0;
+    uint64_t len = 0;
+    while (temp > 0) {
+        uint64_t digit = temp % b;
+        uint64_t pow = 1;
+        if (digit != 0) {
+            for (uint64_t j = 0; j < l; ++j) {
+                if (pow > k / digit) { pow = k + 1; break; }
+                pow *= digit;
+            }
+        } else {
+            pow = 0;
+        }
+        if (pow > k) { sum = k + 1; break; }
+        sum += pow;
+        if (sum > k) break;
+        temp /= b;
+        ++len;
+    }
+    if (len != l) return false;
+    return sum == k;
+}
 
 /* integer square root, floor */
 static uint64_t isqrt_uint64(uint64_t x)
@@ -93,7 +140,7 @@ seq_t a(idx_t n)
     if (terms_cap < terms_len + n) {
         size_t new_cap = terms_cap ? terms_cap * 2 : 16;
         while (new_cap < terms_len + n) new_cap *= 2;
-        seq_t *new_terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *new_terms = mem_resize(seq_t, terms, new_cap);
         if (!new_terms) abort();
         terms = new_terms;
         terms_cap = new_cap;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   int_sqrt
+ * Validated: standard, pass, 60 terms through n = 913 (2026-11-03)
+ * Helpers:   isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/int_sqrt.h"            /* int_sqrt(idx_t) */
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 static seq_t *cache    = NULL;          /* cached sequence terms          */
 static size_t cache_len = 0;            /* number of cached terms          */
@@ -35,7 +37,7 @@ static void ensure_cache_capacity(size_t need)
     if (need > cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 4;
         if (new_cap < need) new_cap = need;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 }
@@ -76,7 +78,7 @@ static bool is_prime_uint64(uint64_t p)
     if (p < 2) return false;
     if (p == 2) return true;
     if ((p & 1ULL) == 0) return false;
-    uint64_t lim = int_sqrt(p);
+    uint64_t lim = isqrt(p);
     for (size_t i = 0; i < prime_len && prime_list[i] <= lim; ++i)
         if (p % prime_list[i] == 0) return false;
     return true;

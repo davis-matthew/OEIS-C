@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 69, u32 n <= 197, u64 n <= 680,
  *            u128 n <= 2376, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 82 terms through n = 4846 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
     T(n,k) = Σ_{j=0..n} C(j, n-k) * C(j, k) * (-1)^(n-j)
     a(n) = the (n)-th element of that triangle (row‐major order).
 */
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -40,8 +42,8 @@ seq_t a(idx_t n)
     seq_t sum = 0;
 
     for (idx_t j = 0; j <= r; ++j) {
-        seq_t term = binom(j, r - c);
-        term *= binom(j, c);
+        seq_t term = binomial(j, r - c);
+        term *= binomial(j, c);
         if ((r - j) & 1)
             sum -= term;
         else

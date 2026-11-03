@@ -13,14 +13,28 @@
  *            T(n,0)=n+T(n-1,0)-n*T(n-2,0), T(n,1)=T(n-1,1)-n*T(n...
  * Range:     i8 n <= 29, i16 n <= 65, i32 n <= 65, i64 n <= 65, i128 n <= 65,
  *            big any n
- * Helpers:   _row_and_col
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/_row_and_col.h"
+#include "../utils/mem.h"
+
+/* Helper to locate the row and column of index n in the flattened array */
+static void _row_and_col(idx_t n, idx_t *row, idx_t *col)
+{
+    idx_t r = 0;
+    idx_t cum = 1;                    /* elements up to and incl. row r */
+    while (cum <= n) {
+        ++r;
+        cum += r + 1;                 /* next row has r+1 elements */
+    }
+    *row = r;
+    *col = n - (r * (r + 1)) / 2;     /* start index of row r is r(r+1)/2 */
+}
 
 /* Cached rows of the triangle: rows[i] points to an array of length i+1.
    Memory grows as needed.  The array of pointers itself is also grown. */
@@ -40,7 +54,7 @@ static void _ensure_rows(idx_t up)
 
     for (idx_t n = _max_row + 1; n <= up; ++n) {
         /* Allocate storage for row n */
-        seq_t *row_n = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+        seq_t *row_n = mem_new(seq_t, (n + 1));
         if (n == 0) {
             row_n[0] = (seq_t)1;
         } else if (n == 1) {

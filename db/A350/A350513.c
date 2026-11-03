@@ -9,12 +9,15 @@
  *            3^floor(3*n/2)) / 4 for n > 2 Special cases: a(1)=3, a(2)=21
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 14, u128 n <= 27,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 34 terms through n = 480 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     /* Handle the two known special terms */
@@ -31,10 +34,10 @@ seq_t a(idx_t n) {
     seq_t exp4 = (seq_t)((3 * n) / 2);         /* floor(3*n/2) (i.e. 3*n/2 integer div) */
 
     /* Compute the powers of 3 */
-    seq_t p1 = big_pow(three, exp1);
-    seq_t p2 = big_pow(three, exp2);
-    seq_t p3 = big_pow(three, exp3);
-    seq_t p4 = big_pow(three, exp4);
+    seq_t p1 = ipow(three, exp1);
+    seq_t p2 = ipow(three, exp2);
+    seq_t p3 = ipow(three, exp3);
+    seq_t p4 = ipow(three, exp4);
 
     /* Sum and divide by 4 (the numerator is always divisible by 4) */
     seq_t sum = p1 + p2 + p3 + p4;

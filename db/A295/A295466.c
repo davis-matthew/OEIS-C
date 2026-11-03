@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 2, u64 n <= 5, u128 n <= 10,
  *            big any n
- * Helpers:   fact_prime_exponent
+ * Validated: partial, pass, 12 terms through n = 11 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,17 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/fact_prime_exponent.h"
+
+/* Helper: exponent of prime p in m! */
+static inline idx_t fact_prime_exponent(idx_t m, idx_t p)
+{
+    idx_t e = 0;
+    while (m) {
+        m /= p;
+        e += m;
+    }
+    return e;
+}
 
 seq_t a(idx_t n)
 {

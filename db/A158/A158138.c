@@ -10,6 +10,7 @@
  *            (⌊n/2⌋+1)(⌊n/2⌋-1) + 2*⌊(n^2+6n+12)/12⌋
  * Range:     u8 n <= 23, u16 n <= 395, u32 n <= 999, u64 n <= 999,
  *            u128 n <= 999, big any n
+ * Validated: standard, pass, 71 terms through n = 992 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

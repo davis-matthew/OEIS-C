@@ -9,6 +9,7 @@
  *            binomial(2n-3m-1, n-m-1)/(n-m), T(n,n) = 1
  * Range:     i8 n <= 15, i16 n <= 45, i32 n <= 231, i64 n <= 703,
  *            i128 n <= 2485, big any n
+ * Validated: standard, pass, 82 terms through n = 4577 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

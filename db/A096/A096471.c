@@ -11,7 +11,8 @@
  *            (n-3)*(n³-9*n²+22*n-7)*a(n-4) + (n-3)*(n-4)*(n-5)²*a(n-5)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 20, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 402 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <string.h>
 #include <limits.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache   = NULL;      /* array holding computed values */
 static size_t  a_cap    = 0;          /* current capacity of a_cache   */
@@ -32,13 +34,13 @@ static void ensure_a(idx_t needed)
         return;
 
     size_t new_cap = (size_t)needed + 1;
-    seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
     if (!tmp)
         abort();                      /* out of memory */
 
     /* zero-initialize the newly allocated part */
     if (a_cap < new_cap) {
-        memset(tmp + a_cap, 0, (new_cap - a_cap) * sizeof(seq_t));
+        mem_set(tmp + a_cap, 0, (new_cap - a_cap) * sizeof(seq_t));
     }
     a_cache = tmp;
     a_cap   = new_cap;

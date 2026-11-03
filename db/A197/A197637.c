@@ -7,13 +7,15 @@
  * Formula:   a(n) = π(n) - (# of Wilson primes ≤ n)
  * Range:     u8 n <= 1636, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   compute_pi
+ * Validated: standard, pass, 116 terms through n = 9986 (2026-11-01)
+ * Helpers:   prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/compute_pi.h"
+#include <stdlib.h>
+#include "../utils/prime_pi.h"
 
 /* Known Wilson primes (currently 5, 13, 563).  The list is sorted. */
 static const idx_t WILSON_PRIMES[] = {5, 13, 563};
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     }
 
     /* Number of primes ≤ n. */
-    seq_t prime_cnt = compute_pi(n);
+    seq_t prime_cnt = prime_pi(n);
 
     /* The sequence value is the number of primes minus the number
        of Wilson primes counted. */

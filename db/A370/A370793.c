@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 143, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 84 terms through n = 9938 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* global storage for the sequence and a bitset of used integers */
 static seq_t *seq = NULL;       /* array of already generated terms */
@@ -36,7 +38,7 @@ static void ensure_seq_cap(size_t cap)
     if (cap <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap : 64;
     while (new_cap < cap) new_cap <<= 1;
-    seq_t *new_seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq_t *new_seq = mem_resize(seq_t, seq, new_cap);
     if (!new_seq) abort();          /* allocation failure */
     seq = new_seq;
     seq_cap = new_cap;

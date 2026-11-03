@@ -8,14 +8,15 @@
  * Formula:   a(n) = v₂(σ(n)) + 1 where σ(n) is the sum of divisors of n
  * Range:     u8 n <= 18, u16 n <= 3948, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 136 terms through n = 9908 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +32,7 @@ seq_t a(idx_t n)
 
     /* contribution from the power of two */
     if (e2 > 0) {
-        seq_t t = pow_uint(2ULL, (idx_t)(e2 + 1)) - 1;    /* 2^(e2+1)-1 */
+        seq_t t = ipow_u64_idx(2ULL, (idx_t)(e2 + 1)) - 1;    /* 2^(e2+1)-1 */
         sigma *= t;
     }
 
@@ -43,7 +44,7 @@ seq_t a(idx_t n)
                 ++e;
                 temp /= p;
             }
-            seq_t t1 = pow_uint(p, (idx_t)(e + 1));         /* p^(e+1) */
+            seq_t t1 = ipow_u64_idx(p, (idx_t)(e + 1));         /* p^(e+1) */
             seq_t term = (t1 - 1) / (p - 1);               /* geometric sum */
             sigma *= term;
         }
@@ -51,7 +52,7 @@ seq_t a(idx_t n)
 
     /* remaining prime factor if any */
     if (temp > 1) {
-        seq_t t1 = pow_uint(temp, 2) - 1;                 /* p^2-1 */
+        seq_t t1 = ipow_u64_idx(temp, 2) - 1;                 /* p^2-1 */
         seq_t term = t1 / (temp - 1);
         sigma *= term;
     }

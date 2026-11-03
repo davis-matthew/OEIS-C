@@ -7,16 +7,28 @@
  * Formula:   a(n) = the n-th prime congruent to 1 mod 120 (search/sieve)
  * Range:     u8 n <= 1, u16 n <= 193, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   is_prime_small, seq_alloc_array, seq_free_array
+ * Validated: standard, pass, 57 terms through n = 4762 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
-#include "../utils/seq_alloc_array.h"
-#include "../utils/seq_free_array.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 static seq_t *cache = NULL;
 static size_t cache_len = 0;
@@ -53,7 +65,7 @@ seq_t a(idx_t n)
     while (cache_len < (size_t)n)
     {
         /* Find the next prime of the form 120*k + 1. */
-        while (!is_prime_small((seq_t)next_candidate))
+        while (!is_prime_seq((seq_t)next_candidate))
             next_candidate += 120;
 
         ensure_cache_capacity(cache_len + 1);

@@ -15,12 +15,33 @@
  *            by expanding each P(x,m) into its coefficient list...
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   coeff_m_i
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/coeff_m_i.h"
+static inline seq_t coeff_m_i(idx_t m, idx_t i)
+{
+    /* Special rows */
+    if (m == 0)
+        return (seq_t)((i == 0) ? 1 : 0);       /* P(x,0)=1 */
+    if (m == 1)
+        return (seq_t)0;                       /* P(x,1)=0 */
+
+    /* General case */
+    if ((m & 3) == 0) {          /* m divisible by 4: x^m */
+        return (seq_t)((i == m) ? 1 : 0);
+    } else if ((m & 1) == 1) {   /* m odd: (m-1)*x^m */
+        return (seq_t)((i == m) ? ((seq_t)m - 1) : 0);
+    } else {                     /* m even but not div by 4: (m/2)*x^(m-2)+x^m */
+        if (i == m)
+            return (seq_t)1;
+        if (i == m - 2)
+            return (seq_t)(m / 2);
+        return (seq_t)0;
+    }
+}
 
 seq_t a(idx_t n)
 {

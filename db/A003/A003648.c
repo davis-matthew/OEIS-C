@@ -12,15 +12,22 @@
  *            indefinite forms and counting their cycles under...
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   a3648_gcd, a3648_sqfree
+ * Validated: partial, pass, 104 terms through n = 105 (2026-11-01)
+ * Helpers:   is_squarefree_i64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/a3648_gcd.h"
-#include "../utils/a3648_sqfree.h"
+#include "../utils/is_squarefree_i64.h"
+
+static long long a3648_gcd(long long x, long long y) {
+    if (x < 0) x = -x;
+    if (y < 0) y = -y;
+    while (y) { long long t = x % y; x = y; y = t; }
+    return x;
+}
 
 static long long *a3648_ms = 0;
 static size_t a3648_mcount = 0, a3648_mcap = 0;
@@ -29,7 +36,7 @@ static long long a3648_last = 1;
 static long long a3648_nth_m(size_t k) {
     while (a3648_mcount <= k) {
         long long m = a3648_last + 1;
-        while (!((m % 4 == 2 || m % 4 == 3) && a3648_sqfree(m))) m++;
+        while (!((m % 4 == 2 || m % 4 == 3) && is_squarefree_i64(m))) m++;
         a3648_last = m;
         if (a3648_mcount == a3648_mcap) {
             size_t nc = a3648_mcap ? 2 * a3648_mcap : 1024;

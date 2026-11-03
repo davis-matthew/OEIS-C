@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 199, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, pow_uint
+ * Validated: standard, pass, 96 terms through n = 9590 (2026-11-02)
+ * Helpers:   factor_u64, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,9 +24,9 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/factor_u64.h"   /* factor_u64(uint64_t n, uint64_t *pr,
-                                    uint64_t *ex, size_t *cnt) */
-#include "../utils/pow_uint.h"    /* pow_uint(uint64_t base, idx_t exp) */
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n) {
     /* n ≥ 1 (offset 1).  Return 1 for n == 1. */
@@ -51,7 +52,7 @@ seq_t a(idx_t n) {
         while (exp_bits) {
             if (exp_bits & 1ULL) {
                 /* p^(2^k) + 1 */
-                seq_t term = pow_uint(p, ((idx_t)1) << k) + 1;
+                seq_t term = ipow_u64_idx(p, ((idx_t)1) << k) + 1;
                 f *= term;
             }
             exp_bits >>= 1;

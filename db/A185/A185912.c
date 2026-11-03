@@ -9,6 +9,7 @@
  *            T(row,col) from A185910
  * Range:     u8 n <= 33, u16 n <= 653, u32 n <= 1275, u64 n <= 1275,
  *            u128 n <= 1275, big any n
+ * Validated: standard, pass, 108 terms through n = 1140 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

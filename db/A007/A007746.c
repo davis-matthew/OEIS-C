@@ -10,13 +10,22 @@
  *            with P(n) = n^4+20*n^3+107*n^2-107*n+15
  * Range:     u8 none, u16 n <= 7, u32 n <= 13, u64 n <= 28, u128 n <= 50,
  *            big any n
- * Helpers:   cancel_a7746, gcd_a7746
+ * Validated: standard, pass, 37 terms through n = 49 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/cancel_a7746.h"
-#include "../utils/gcd_a7746.h"
+#include "../utils/gcd.h"
+
+/* remove from d every factor it shares with *x */
+static void cancel_a7746(seq_t *x, seq_t *d) {
+  seq_t g;
+  while (*d != 1 && (g = gcd(*x, *d)) != 1) {
+    *x /= g;
+    *d /= g;
+  }
+}
 
 seq_t a(idx_t n) {
   seq_t m = (seq_t)n;

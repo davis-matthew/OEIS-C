@@ -7,12 +7,14 @@
  * Formula:   a(n) = (n-1)! * Sum_{k=0..floor((n-3)/5)} a(n-5*k-3)/(n-5*k-3)!
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 15, u64 n <= 22, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;          /* memoised a(i) values */
@@ -22,7 +24,7 @@ seq_t a(idx_t n) {
     /* Allocate and initialise cache for a(0) on first call */
     if (cache == NULL) {
         size_t init_cap = 1;
-        cache = (seq_t*)malloc(init_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, init_cap);
         if (!cache) return 0;
         cap = init_cap;
         cache[0] = (seq_t)1;             /* a(0) = 1 */
@@ -33,7 +35,7 @@ seq_t a(idx_t n) {
     if ((idx_t)cap <= n) {
         size_t new_cap = cap;
         while ((idx_t)new_cap <= n) new_cap *= 2;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;
         cache = tmp;
         for (size_t i = cap; i < new_cap; ++i) cache[i] = 0;

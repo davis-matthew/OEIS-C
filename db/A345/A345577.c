@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 9244 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
  
 /* Seq_t and idx_t are supplied by the build system */
 extern seq_t a(idx_t n);   /* forward declaration for the build system */
@@ -87,17 +89,17 @@ static void build_sequence(void)
     dfs(0, 0, 0);
  
     /* collect terms with at least two representations */
-    if (terms) free(terms);
+    if (terms) mem_free(terms);
     terms = NULL;
     terms_cap = 256;
-    terms = (seq_t*)malloc(terms_cap * sizeof(seq_t));
+    terms = mem_new(seq_t, terms_cap);
     if (!terms) exit(EXIT_FAILURE);
     terms_len = 0;
     for (idx_t s = 1; s <= limit; ++s) {
         if (cnt[s] >= 2) {
             if (terms_len >= terms_cap) {
                 terms_cap <<= 1;
-                terms = (seq_t*)realloc(terms, terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
                 if (!terms) exit(EXIT_FAILURE);
             }
             terms[terms_len++] = (seq_t)s;

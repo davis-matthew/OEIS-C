@@ -7,6 +7,7 @@
  * Formula:   a(n) = 1 + (3 + 10*floor(n/3)) * (1 - ((n-1)^2 mod 3))
  * Range:     u8 n <= 78, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
+ * Validated: partial, pass, 82 terms through n = 81 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

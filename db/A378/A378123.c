@@ -9,7 +9,8 @@
  *            primes
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   build_primes_upto, count_distinct_primes
+ * Validated: partial, pass, 86 terms through n = 86 (2026-11-01)
+ * Helpers:   build_primes_upto, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,9 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/count_distinct_primes.h"
+#include "../utils/omega.h"
 
 /*  Computes a(n) ; external linkage required */
 seq_t a(idx_t n) {
@@ -61,7 +63,7 @@ seq_t a(idx_t n) {
     }
 
     /*--- Count distinct prime divisors of the sum ----------------------*/
-    int distinct = count_distinct_primes(sum64);
+    int distinct = omega(sum64);
 
     return (seq_t)distinct;
 }

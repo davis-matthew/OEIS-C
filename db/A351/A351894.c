@@ -7,14 +7,16 @@
  * Keywords:  nonn, base
  * Formula:   a(n) = number whose factorial-base representation uses only odd
  *            digits
- * Range:     u8 n <= 12, u16 n <= 272, u32 n <= 9983, u64 n <= 9983,
- *            u128 n <= 9983, big any n
- * Helpers:   none
+ * Range:     u8 n <= 12, u16 n <= 272, u32 n <= 18056, u64 n <= 18056,
+ *            u128 n <= 18056, big any n
+ * Validated: standard, pass, 66 terms through n = 9983 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute the nth term of OEIS A351894. */
 seq_t a(idx_t n)
@@ -40,9 +42,9 @@ seq_t a(idx_t n)
     /* Allocate temporary arrays for prefix products of counts and factorials. */
     size_t sz = (size_t)(len + 1);
     idx_t *pref = (idx_t *)malloc(sz * sizeof(idx_t));
-    seq_t *fact = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *fact = mem_new(seq_t, sz);
     if (!pref || !fact) { /* allocation failed; unlikely but guard against it */
-        free(pref); free(fact);
+        free(pref); mem_free(fact);
         return 0;
     }
 
@@ -66,6 +68,6 @@ seq_t a(idx_t n)
     }
 
     free(pref);
-    free(fact);
+    mem_free(fact);
     return value;
 }

@@ -7,7 +7,8 @@
  * Formula:   a(n) = largest prime < A005218[prime(n)]
  * Range:     u8 n <= 46, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Static state ----------------------------------------------------- */
 static uint32_t *primes        = NULL;   /* primes list  */
@@ -71,12 +73,12 @@ ensure_sieve(size_t limit)
     for (size_t i = 1; i <= limit; ++i)
         if (!is_prime_arr[i])
             ++nc;
-    seq_t *new_nonpr = (seq_t *)malloc(nc * sizeof(seq_t));
+    seq_t *new_nonpr = mem_new(seq_t, nc);
     size_t nidx = 0;
     for (size_t i = 1; i <= limit; ++i)
         if (!is_prime_arr[i])
             new_nonpr[nidx++] = (seq_t)i;
-    free(nonprimes);
+    mem_free(nonprimes);
     nonprimes = new_nonpr;
     nonprime_count = nc;
 }

@@ -11,13 +11,14 @@
  *            a(1)=T(1,1), a(2)=T(2,1), a(3)=T(2,2), ... Offset: 1
  * Range:     u8 n <= 17, u16 n <= 59, u32 n <= 180, u64 n <= 646,
  *            u128 n <= 1275, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 82 terms through n = 1143 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 /* compute a single triangular entry T(n,k) with q = 2.
    n and k are 1‑based; 1 <= k <= n.   */
@@ -27,8 +28,8 @@ static seq_t tri_T(idx_t n, idx_t k)
           binom(n+1,k)*binom(n-1,k-1)/(n+1)
         = binom(n,k-1)*binom(n-1,k-1)/k
      which is an integer. */
-    seq_t a = binom(n, k - 1);        /* binom(n , k-1) */
-    seq_t b = binom(n - 1, k - 1);    /* binom(n-1 , k-1) */
+    seq_t a = binomial(n, k - 1);        /* binom(n , k-1) */
+    seq_t b = binomial(n - 1, k - 1);    /* binom(n-1 , k-1) */
     seq_t prod = a * b;               /* exact for the build type */
     seq_t y = prod / (seq_t)k;        /* integer division – exact */
 

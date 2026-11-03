@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 17, u32 n <= 17, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 17 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Helper: reverse a sub‑array perm[l .. r] (inclusive) */
 static void reverse_bits(int *perm, int l, int r)
@@ -101,7 +103,7 @@ seq_t a(idx_t n)
                         /* store k if not already reserved */
                         if (terms_len == terms_cap) {
                             terms_cap = (terms_cap == 0) ? 16 : terms_cap * 2;
-                            terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                            terms = mem_resize(seq_t, terms, terms_cap);
                         }
                         terms[terms_len++] = (seq_t)k;
                     }
@@ -111,7 +113,7 @@ seq_t a(idx_t n)
 
         /* Sort and deduplicate the collected terms */
         if (terms_len > 1) {
-            qsort(terms, terms_len, sizeof(seq_t), seq_cmp);
+            mem_qsort(terms, terms_len, sizeof(seq_t), seq_cmp);
             size_t uniq = 1;
             for (size_t i = 1; i < terms_len; ++i) {
                 if (terms[i] != terms[uniq - 1]) {

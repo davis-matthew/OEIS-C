@@ -7,13 +7,15 @@
  * Formula:   a(n) = n! * Sum_{k=1..n} 1/⌊n/k⌋ (OEIS A345683)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 19, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 442 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---- factorial cache ---------------------------------------------------- */
 static seq_t *fact_cache = NULL;   /* array of factorials 0! .. n!   */
@@ -29,7 +31,7 @@ static void ensure_factorial_cache(idx_t max_n)
     if (new_size < needed)
         new_size = needed;
 
-    seq_t *tmp = (seq_t *)realloc(fact_cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, fact_cache, new_size);
     if (!tmp)
         abort();                          /* allocation failed            */
 

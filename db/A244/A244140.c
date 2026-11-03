@@ -9,13 +9,15 @@
  *            T(1,1)=-1, and for k>1, T(n,k)=(-1)^k * k * (k-2)^(n-2)
  * Range:     i8 n <= 19, i16 n <= 42, i32 n <= 76, i64 n <= 185,
  *            i128 n <= 433, big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 82 terms through n = 5040 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     /* Find the row r and column c corresponding to index n. */
@@ -39,7 +41,7 @@ seq_t a(idx_t n) {
     /* General case: k > 1. */
     seq_t base = (seq_t)(c - 2);
     seq_t exp  = (seq_t)(r - 2);  /* r ≥ 2 here, so exp ≥ 0 */
-    seq_t pow_val = big_pow(base, exp);   /* (c-2)^(r-2) */
+    seq_t pow_val = ipow(base, exp);   /* (c-2)^(r-2) */
 
     seq_t c_seq = (seq_t)c;
     seq_t sign  = (c & 1) ? -(seq_t)1 : (seq_t)1;  /* (-1)^c */

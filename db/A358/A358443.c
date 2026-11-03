@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 11, u32 n <= 11, u64 n <= 11, u128 n <= 11,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 11 terms through n = 11 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Helper: gcd for unsigned long long                                  */
@@ -58,7 +60,7 @@ static void aensure_seq_cap(size_t need)
     if (need <= a_cap) return;
     size_t new_cap = (a_cap == 0) ? 16 : a_cap;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *newptr = (seq_t *)realloc(aseq, new_cap * sizeof(seq_t));
+    seq_t *newptr = mem_resize(seq_t, aseq, new_cap);
     aseq = newptr;
     a_cap = new_cap;
 }
@@ -70,7 +72,7 @@ static void used_ensure_cap(size_t need)
     size_t new_cap = (used_cap == 0) ? 256 : used_cap;
     while (new_cap < need) new_cap <<= 1;
     unsigned char *newptr = (unsigned char *)realloc(used, new_cap);
-    memset((void *)(newptr + used_cap), 0, new_cap - used_cap);
+    memset((newptr + used_cap), 0, new_cap - used_cap);
     used = newptr;
     used_cap = new_cap;
 }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 45, u64 n <= 148, u128 n <= 509,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 992 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 /* Necessary headers */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of helper functions for memory handling. */
 static void *grow(void *ptr, size_t *cap, size_t need, size_t elem_size);
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     /* ---- Initialisation ---- */
     if (part == NULL) {
         part_cap = 32;
-        part = (seq_t *)malloc(part_cap * sizeof(seq_t));
+        part = mem_new(seq_t, part_cap);
         if (!part) abort();
         part[0] = (seq_t)1;          /* p(0) = 1 */
         part_len = 1;                /* we have p[0] only so far */
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
 
     if (res == NULL) {
         res_cap = 32;
-        res = (seq_t *)malloc(res_cap * sizeof(seq_t));
+        res = mem_new(seq_t, res_cap);
         if (!res) abort();
         res_len = 0;
     }
@@ -86,7 +88,7 @@ seq_t a(idx_t n)
         if (cur >= part_cap) {
             part_cap = part_cap * 2 + 1;
             while (cur >= part_cap) part_cap <<= 1;
-            part = (seq_t *)realloc(part, part_cap * sizeof(seq_t));
+            part = mem_resize(seq_t, part, part_cap);
             if (!part) abort();
         }
         part[cur] = val;
@@ -97,7 +99,7 @@ seq_t a(idx_t n)
             if (res_len >= res_cap) {
                 res_cap = res_cap * 2 + 1;
                 while (res_len >= res_cap) res_cap <<= 1;
-                res = (seq_t *)realloc(res, res_cap * sizeof(seq_t));
+                res = mem_resize(seq_t, res, res_cap);
                 if (!res) abort();
             }
             res[res_len] = val;

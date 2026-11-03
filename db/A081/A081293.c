@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*--- memoised tables -----------------------------------------------*/
 static seq_t *C_arr = NULL;   /* Catalan numbers */
@@ -46,11 +48,11 @@ seq_t a(idx_t n)
         size_t init_cap = n + 1;
         if (init_cap < 2) init_cap = 2;            /* at least 2 slots */
 
-        C_arr = (seq_t *)malloc(init_cap * sizeof(seq_t));
-        B_arr = (seq_t *)malloc(init_cap * sizeof(seq_t));
+        C_arr = mem_new(seq_t, init_cap);
+        B_arr = mem_new(seq_t, init_cap);
         if (!C_arr || !B_arr) {                    /* allocation failed */
-            free(C_arr);
-            free(B_arr);
+            mem_free(C_arr);
+            mem_free(B_arr);
             C_arr = B_arr = NULL;
             cap = 0;
             return (seq_t)0;
@@ -68,11 +70,11 @@ seq_t a(idx_t n)
         size_t new_cap = cap * 2;
         if (new_cap <= (size_t)n) new_cap = n + 1;   /* ensure space for n */
 
-        seq_t *tmpC = (seq_t *)realloc(C_arr, new_cap * sizeof(seq_t));
-        seq_t *tmpB = (seq_t *)realloc(B_arr, new_cap * sizeof(seq_t));
+        seq_t *tmpC = mem_resize(seq_t, C_arr, new_cap);
+        seq_t *tmpB = mem_resize(seq_t, B_arr, new_cap);
         if (!tmpC || !tmpB) {                      /* allocation failed */
-            free(tmpC);
-            free(tmpB);
+            mem_free(tmpC);
+            mem_free(tmpB);
             return (seq_t)0;
         }
         C_arr = tmpC;

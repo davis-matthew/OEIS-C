@@ -12,7 +12,8 @@
  *            with memoised recurrence)
  * Range:     i8 n <= 47, i16 n <= 60, i32 n <= 60, i64 n <= 60, i128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* first time: allocate enough space (at least 6 terms) */
     if (size == 0) {
         size_t init = (size_t)((n >= 6) ? n + 1 : 6);
-        cache = (seq_t *)malloc(init * sizeof(seq_t));
+        cache = mem_new(seq_t, init);
         if (cache == NULL)
             return 0; /* out of memory – return 0 as fallback */
 
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     /* expand cache if needed */
     if (n >= size) {
         size_t newsize = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(cache, newsize * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newsize);
         if (tmp == NULL)
             return 0; /* out of memory – fallback */
         cache = tmp;

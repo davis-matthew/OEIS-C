@@ -13,6 +13,7 @@
  *            Stirling subset numbers of the second kind. * For n...
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 1, u64 n <= 1, u128 n <= 3,
  *            big any n
+ * Validated: standard, pass, 22 terms through n = 64 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

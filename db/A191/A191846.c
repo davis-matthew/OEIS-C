@@ -8,7 +8,8 @@
  * Formula:   a(n) = 2*F(i)+3*F(j) for i,j >= 1, sorted ascending, distinct
  * Range:     u8 n <= 62, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 
 static struct Node {
@@ -66,7 +68,7 @@ static void ensure_fib(idx_t need) {
     while (fib_size <= need) {
         if (fib_size >= fib_cap) {
             fib_cap = fib_cap ? fib_cap * 2 : 4;
-            fib_cache = (seq_t *)realloc(fib_cache, fib_cap * sizeof(seq_t));
+            fib_cache = mem_resize(seq_t, fib_cache, fib_cap);
         }
         fib_cache[fib_size] = fib_cache[fib_size - 1] + fib_cache[fib_size - 2];
         fib_size++;
@@ -81,7 +83,7 @@ static inline seq_t get_fib(idx_t k) {
 /* Min‑heap --------------------------------------------------------------*/
 static void heap_init(void) {
     heap_cap = 4;
-    heap = (struct Node *)malloc(heap_cap * sizeof(*heap));
+    heap = mem_new(struct Node, heap_cap);
     heap_size = 0;
 }
 
@@ -123,7 +125,7 @@ static void heap_percolate_down(size_t idx) {
 static void heap_push(seq_t val, idx_t i, idx_t j) {
     if (heap_size >= heap_cap) {
         heap_cap <<= 1;
-        heap = (struct Node *)realloc(heap, heap_cap * sizeof(*heap));
+        heap = mem_resize(struct Node, heap, heap_cap);
     }
     heap[heap_size].val = val;
     heap[heap_size].i = i;
@@ -142,7 +144,7 @@ static struct Node heap_pop(void) {
 static inline void ensure_cache_cap(size_t need) {
     while (cache_cap < need) {
         cache_cap = cache_cap ? cache_cap * 2 : 8;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 }
 
@@ -152,7 +154,7 @@ seq_t a(idx_t n) {
     if (!init) {
         /* Fibonacci cache: 0 = 0, 1 = 1 */
         fib_cap = 4;
-        fib_cache = (seq_t *)malloc(fib_cap * sizeof(seq_t));
+        fib_cache = mem_new(seq_t, fib_cap);
         fib_cache[0] = 0;
         fib_cache[1] = 1;
         fib_size = 2;

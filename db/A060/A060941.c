@@ -7,16 +7,18 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nice, nonn
  * Formula:   a(n) = Sum_{i=0..n} 1/(5*n+i+1) * C(5*n+1, n-i) * C(5*n+2*i, i)
- * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 28,
+ * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 15, u128 n <= 28,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 35 terms through n = 499 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Implements the binomial‑coefficient summation with exact integer division. */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 /* gcd for arbitrary seq_t types (supports operator%). */
 static seq_t gcd_seq_t(seq_t a, seq_t b)
@@ -38,9 +40,9 @@ seq_t a(idx_t n)
 
     for (idx_t i = (idx_t)0; i <= n; ++i) {
         /* Binomial coefficients */
-        seq_t B = binom(N1_base, n - i);                       /* C(5*n+1, n-i) */
+        seq_t B = binomial(N1_base, n - i);                       /* C(5*n+1, n-i) */
         idx_t N2 = 5 * n + (idx_t)2 * i;                      /* 5*n + 2*i */
-        seq_t C = binom(N2, i);                                 /* C(5*n+2*i, i) */
+        seq_t C = binomial(N2, i);                                 /* C(5*n+2*i, i) */
 
         /* Denominator (5*n + i + 1) computed in idx_t to avoid overflow in small seq_t. */
         idx_t denom_idx = (idx_t)5 * n + i + (idx_t)1;

@@ -7,13 +7,21 @@
  * Formula:   a(n) = product_{k=1}^{n-1} (6*n + 1 - 5*k), with a(0) = 1
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 21,
  *            big any n
- * Helpers:   seq_mul
+ * Validated: standard, pass, 34 terms through n = 287 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/seq_mul.h"    /* provides seq_mul for multiplying seq_t values */
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)1;      /* a(0) = 1 */

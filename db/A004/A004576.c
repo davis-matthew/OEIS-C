@@ -9,7 +9,8 @@
  *            to base 9
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a004576_addbit
+ * Validated: standard, pass, 121 terms through n = 9366 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,17 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a004576_addbit.h"
+
+static void a004576_addbit(uint32_t *x, size_t L, size_t b) {
+    size_t i = b / 32;
+    uint64_t c = (uint64_t)1 << (b % 32);
+    while (c && i < L) {
+        uint64_t s = (uint64_t)x[i] + c;
+        x[i] = (uint32_t)s;
+        c = s >> 32;
+        i++;
+    }
+}
 
 static unsigned char *a004576_dig = NULL;
 static idx_t a004576_ndig = 0;

@@ -11,7 +11,8 @@
  *            the fundamental unit has norm +1
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   isqrt64
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
+ * Helpers:   isqrt_i64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/isqrt64.h"
+#include "../utils/isqrt_i64.h"
 
 static uint64_t *dlist = 0;
 static size_t dlen = 0, dcap = 0;
@@ -51,7 +52,7 @@ static int64_t pmod(int64_t x, int64_t m) {
 }
 
 static int64_t classno(int64_t D) {
-    int64_t s = isqrt64(D);
+    int64_t s = isqrt_i64(D);
     size_t cnt = 0, cap = 256;
     int64_t *FA = (int64_t *)malloc(cap * sizeof(int64_t));
     int64_t *FB = (int64_t *)malloc(cap * sizeof(int64_t));

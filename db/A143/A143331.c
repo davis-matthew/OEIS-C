@@ -8,8 +8,9 @@
  * Formula:   a(n) = A026465(2n-1) – run lengths of successive 0's in the
  *            Thue–Morse sequence, computed by iterating the parity of the
  *            binary representation of indices
- * Range:     u8 n <= 9600, u16 n <= 9600, u32 n <= 9600, u64 n <= 9600,
- *            u128 n <= 9600, big any n
+ * Range:     u8 n <= 10923, u16 n <= 10923, u32 n <= 10923, u64 n <= 10923,
+ *            u128 n <= 10923, big any n
+ * Validated: standard, pass, 121 terms through n = 9600 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

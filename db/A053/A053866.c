@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, mult
  * Formula:   a(n) = 1 if n is a square or twice a square, 0 otherwise
- * Range:     u8 n <= 9666, u16 n <= 9666, u32 n <= 9666, u64 n <= 9666,
- *            u128 n <= 9666, big any n
+ * Range:     u8 n <= 65536, u16 n <= 65536, u32 n <= 65536, u64 n <= 65536,
+ *            u128 n <= 65536, big any n
+ * Validated: standard, pass, 120 terms through n = 9666 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

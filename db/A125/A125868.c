@@ -9,7 +9,8 @@
  *            integer divisible by 5. (φ is Euler’s totient)
  * Range:     u8 n <= 29, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static bool primes_initialized = false;
 static uint32_t *prime_list = NULL;
@@ -88,9 +90,9 @@ static unsigned long long last_checked = 3;   /* next odd integer to test */
 static void cache_append(seq_t val)
 {
     if (cache_len == 0) {
-        seq_cache = (seq_t*)malloc(sizeof(seq_t) * 64);
+        seq_cache = mem_new(seq_t, 64);
     } else {
-        seq_cache = (seq_t*)realloc(seq_cache, sizeof(seq_t) * (cache_len + 64));
+        seq_cache = mem_resize(seq_t, seq_cache, (cache_len + 64));
     }
     seq_cache[cache_len++] = val;
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    value type (uint8_t … uint64_t or arbitrary‑precision). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* first call – allocate and initialise a(1) --------------------- */
     if (seq == NULL) {
         /* Allocate room for indices 0..2 (use index 0 as unused) */
-        seq = (seq_t *)malloc(sizeof(seq_t) * 3);
+        seq = mem_new(seq_t, 3);
         if (!seq) return (seq_t)0;          /* allocation failure – unlikely */
         max_n = 3;                          /* storage for indices 0,1,2 */
         seq[1] = (seq_t)1;                  /* a(1) is fixed to 1 */
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
         if (n + 2 > max_n) {               /* extra slots to avoid frequent reallocs */
             idx_t new_cap = max_n * 2;
             if (new_cap < n + 2) new_cap = n + 2;
-            seq = (seq_t *)realloc(seq, sizeof(seq_t) * new_cap);
+            seq = mem_resize(seq_t, seq, new_cap);
             if (!seq) return (seq_t)0;      /* allocation failure */
             max_n = new_cap;
         }

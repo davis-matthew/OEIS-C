@@ -10,12 +10,14 @@
  *            sequence (L_0=2, L_1=1, L_m=L_{m-1}+L_{m-2})
  * Range:     u8 n <= 12, u16 n <= 23, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 32 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static idx_t lucas_max = 0;      /* number of cached values (>=2 once allocated) */
 static seq_t *lucas_cache = NULL;
@@ -26,8 +28,7 @@ static void ensure_lucas(idx_t n)
     if (lucas_max > 0 && lucas_max - 1 >= n) return; /* already enough */
 
     idx_t new_max = n + 1;                         /* indices 0 … n */
-    seq_t *tmp = (seq_t *)realloc(lucas_cache,
-                                  new_max * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, lucas_cache, new_max);
     if (!tmp) abort();           /* allocation failed */
     lucas_cache = tmp;
 

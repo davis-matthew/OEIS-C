@@ -7,7 +7,8 @@
  * Formula:   a(n) = p^2 + p - 1, where p is prime and a(n) itself is prime
  * Range:     u8 n <= 5, u16 n <= 23, u32 n <= 1059, u64 n <= 1200,
  *            u128 n <= 1200, big any n
- * Helpers:   is_prime64, sieve_primes
+ * Validated: standard, pass, 52 terms through n = 1119 (2026-11-03)
+ * Helpers:   is_prime_u64, mem, sieve_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/is_prime64.h"
+#include "../utils/is_prime_u64.h"
 #include "../utils/sieve_primes.h"
+#include "../utils/mem.h"
 
 /* Main sequence function */
 seq_t a(idx_t n) {
@@ -45,20 +47,20 @@ seq_t a(idx_t n) {
         seq_t *new_terms = NULL;
 
         /* Reserve enough space: worst case every prime yields term */
-        new_terms = (seq_t*)realloc(new_terms, prime_count * sizeof(seq_t));
+        new_terms = mem_resize(seq_t, new_terms, prime_count);
         if (!new_terms) break; /* allocation failure, abort */
 
         for (size_t i = 0; i < prime_count; ++i) {
             idx_t p = prime_cache[i];
             unsigned __int128 v = (unsigned __int128)p * p + p - 1;
             uint64_t v64 = (uint64_t)v; /* v fits in 64 bits for our limits */
-            if (is_prime64(v64)) {
+            if (is_prime_u64(v64)) {
                 new_terms[new_term_count++] = (seq_t)v;
             }
         }
 
         /* Replace old caches */
-        if (term_cache) free(term_cache);
+        if (term_cache) mem_free(term_cache);
         term_cache = new_terms;
         term_count = new_term_count;
     }

@@ -8,14 +8,17 @@
  *            d-1)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 16, u128 n <= 18,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +34,7 @@ seq_t a(idx_t n)
             /* first divisor d1, j = n/d1 = d2 */
             {
                 idx_t j = d2;
-                seq_t term = big_pow((seq_t)j, (seq_t)n) *
+                seq_t term = ipow((seq_t)j, (seq_t)n) *
                             binomial(d1 + j - 2, d1 - 1);
                 if (d1 & 1)
                     sum_pos += term;
@@ -43,7 +46,7 @@ seq_t a(idx_t n)
             if (d1 != d2) {
                 idx_t d  = d2;
                 idx_t j  = d1;
-                seq_t term = big_pow((seq_t)j, (seq_t)n) *
+                seq_t term = ipow((seq_t)j, (seq_t)n) *
                             binomial(d + j - 2, d - 1);
                 if (d & 1)
                     sum_pos += term;

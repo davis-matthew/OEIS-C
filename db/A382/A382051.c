@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/is_prime_small.h"   /* provides bool is_prime_small(uint64_t n); */
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* -------------------------------------------------------------------- */
 /* static state                                                  */
@@ -46,7 +48,7 @@ static long double prev_f          = 0.0L; /* f(k-1) for last processed k */
 static void grow_term_cache(void)
 {
     size_t new_cap = term_cache_cap ? term_cache_cap * 2 : 64;
-    seq_t *new_ptr = (seq_t *)realloc(term_cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, term_cache, new_cap);
     if (!new_ptr) abort();
     term_cache = new_ptr;
     term_cache_cap = new_cap;
@@ -72,7 +74,7 @@ static void ensure_primes_of_index(idx_t k_needed)
     while (prime_cnt < k_needed)
     {
         uint64_t candidate = last_checked_prime + 1;
-        while (!is_prime_small(candidate))
+        while (!is_prime_seq(candidate))
             ++candidate;
 
         if (prime_cnt == prime_cap) grow_prime_arr();
@@ -90,7 +92,7 @@ static void ensure_terms(idx_t n)
     if (!term_cache)
     {
         term_cache_cap = 64;
-        term_cache = (seq_t *)calloc(term_cache_cap, sizeof(seq_t));
+        term_cache = mem_new(seq_t, term_cache_cap);
         if (!term_cache) abort();
     }
     if (!prime_arr)

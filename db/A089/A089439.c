@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 1624, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mul_mod64
+ * Validated: standard, pass, 71 terms through n = 9735 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/mul_mod64.h"
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 /* 64‑bit modular multiplication using a 128‑bit intermediate.  The
    compiler for the test harness supports the unsigned __int128 type. */
@@ -30,8 +32,8 @@ static inline uint64_t pow_mod64(uint64_t a, uint64_t d, uint64_t mod)
     uint64_t res = 1;
     while (d) {
         if (d & 1U)
-            res = mul_mod64(res, a, mod);
-        a = mul_mod64(a, a, mod);
+            res = mulmod(res, a, mod);
+        a = mulmod(a, a, mod);
         d >>= 1U;
     }
     return res;
@@ -73,7 +75,7 @@ static inline bool isPrime64(uint64_t n)
             continue;
         bool composite = true;
         for (uint64_t r = 1U; r < s; ++r) {
-            x = mul_mod64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) {
                 composite = false;
                 break;
@@ -95,7 +97,7 @@ static void add_special(seq_t val)
 {
     if (special_len == special_cap) {
         size_t new_cap = (special_cap == 0) ? 16U : (special_cap << 1);
-        seq_t *tmp = (seq_t *)realloc(special, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, special, new_cap);
         if (!tmp)
             abort();                       /* allocation failure */
         special = tmp;

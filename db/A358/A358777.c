@@ -9,9 +9,10 @@
  * Formula:   a(1) = 1, and for n>1 a(n) = - Σ_{d|n, d<n} A353557(n/d) * a(d),
  *            where A353557(m) = 1 if m is odd and ω(m) (prime factor count
  *            with multiplicity) is even, otherwise 0
- * Range:     i8 n <= 9971, i16 n <= 9971, i32 n <= 9971, i64 n <= 9971,
- *            i128 n <= 9971, big any n
- * Helpers:   none
+ * Range:     i8 n <= 100000, i16 n <= 100000, i32 n <= 100000,
+ *            i64 n <= 100000, i128 n <= 100000, big any n
+ * Validated: standard, pass, 151 terms through n = 9971 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static cache for the sequence values */
 static seq_t *a_cache      = NULL;   /* holds a(i+1) */
@@ -76,7 +78,7 @@ static void ensure_cache(idx_t need)
     size_t new_cap = a_cache_cap ? a_cache_cap : 1;
     while (new_cap < (size_t)need) new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     a_cache = tmp;
     a_cache_cap = new_cap;

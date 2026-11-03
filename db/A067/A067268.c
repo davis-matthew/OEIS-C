@@ -8,7 +8,8 @@
  * Formula:   Search integers k and record those with omega(k) = omega(k^2+1)
  * Range:     u8 n <= 73, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 9850 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #ifndef SPF_LIMIT
 #define SPF_LIMIT 10000000u
 #endif
+#include "../utils/mem.h"
 
 /*--- Prime‑factor sieve -------------------------------------------*/
 static uint32_t *spf     = NULL;   /* smallest prime factor table */
@@ -102,7 +104,7 @@ static inline void push_k(uint64_t k)
 {
     if (seq_cnt >= seq_cap) {
         size_t new_cap = seq_cap ? seq_cap << 1 : 16;
-        seq_t *tmp = (seq_t*)realloc(seq_vals, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_vals, new_cap);
         if (!tmp) exit(1);
         seq_vals = tmp;
         seq_cap  = new_cap;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 67, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a000037_isqrt
+ * Validated: standard, pass, 77 terms through n = 9788 (2026-11-03)
+ * Helpers:   isqrt_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/a000037_isqrt.h"
+#include <stdint.h>
+#include "../utils/isqrt_u64.h"
+#include "../utils/mem.h"
 
 static bool isNotSumOfThree(seq_t num) {
     uint64_t n = (uint64_t)num;
@@ -26,7 +29,7 @@ static bool isNotSumOfThree(seq_t num) {
         for (uint64_t y = 1; x_sq + y * y + 1 <= n; y++) {
             uint64_t y_sq = y * y;
             uint64_t remainder = n - x_sq - y_sq;
-            uint64_t z = a000037_isqrt(remainder);
+            uint64_t z = isqrt_u64(remainder);
             if (z * z == remainder) {
                 return false;
             }
@@ -46,7 +49,7 @@ seq_t a(idx_t n) {
     
     if (cache == NULL) {
         cache_size = 1000;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
     }
     
     seq_t num = (cached_count == 0) ? 1 : cache[cached_count - 1] + 1;
@@ -54,7 +57,7 @@ seq_t a(idx_t n) {
     while (cached_count < n) {
         if (cached_count >= cache_size) {
             cache_size = cache_size * 2;
-            cache = (seq_t *)realloc(cache, cache_size * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_size);
         }
         
         if (isNotSumOfThree(num)) {

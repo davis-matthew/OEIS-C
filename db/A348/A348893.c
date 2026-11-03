@@ -7,12 +7,14 @@
  * Formula:   a(n) = 840*(2*n)!/((n + 4)!*n!)
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 21, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static inline seq_t mul_div(seq_t x, unsigned long long num, unsigned long long den)
 {
@@ -31,14 +33,14 @@ seq_t a(idx_t n)
     /* initialize cache with a(0) */
     if (cache_len == 0) {
         cache_len = 1;
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         cache[0] = (seq_t)35;  /* a(0) */
     }
 
     /* extend cache if necessary */
     if (n >= cache_len) {
         /* increase to n+1 entries */
-        cache = (seq_t *)realloc(cache, sizeof(seq_t) * (n + 1));
+        cache = mem_resize(seq_t, cache, (n + 1));
         while (cache_len <= n) {
             idx_t i = cache_len - 1;                     /* current index */
             unsigned long long num = 2ULL * (2ULL * i + 1ULL); /* 2*(2*i+1) */

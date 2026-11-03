@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   mult_overflow
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,20 @@
 /* Compute a(n) by iterating over blocks defined by base‑8 block lengths. */
 #include <stdint.h>
 #include <limits.h>
-#include "../utils/mult_overflow.h"
+
+/* Return true if a*b overflows unsigned long long.
+   If it does not overflow, *res is set to the product. */
+static int mult_overflow(unsigned long long a, unsigned long long b,
+                         unsigned long long *res) {
+    if (a == 0 || b == 0) {
+        *res = 0;
+        return 0;
+    }
+    if (ULLONG_MAX / a < b)
+        return 1;          /* overflow */
+    *res = a * b;
+    return 0;
+}
 
 seq_t a(idx_t n) {
     unsigned long long idx = (unsigned long long)n;   /* digit index */

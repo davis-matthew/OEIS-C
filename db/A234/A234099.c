@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/is_prime_small.h"
+#include <stdbool.h>
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* Comparison function for qsort */
 static int seq_cmp(const void *p1, const void *p2)
@@ -49,14 +52,14 @@ seq_t a(idx_t n)
     uint64_t primes[PRIME_LIMIT / 2 + 1];  /* a small upper bound array */
     size_t primes_cnt = 0;
     for (uint64_t cand = 3; cand <= PRIME_LIMIT; cand += 2) {
-        if (is_prime_small((seq_t)cand)) {
+        if (is_prime_seq((seq_t)cand)) {
             primes[primes_cnt++] = cand;
         }
     }
 
     /* Total number of distinct triples */
     const size_t total = primes_cnt * (primes_cnt - 1) * (primes_cnt - 2) / 6;
-    cache = (seq_t *)malloc(total * sizeof(seq_t));
+    cache = mem_new(seq_t, total);
     if (!cache) return 0;  /* allocation failure */
 
     /* Compute (p*q*r - 1)/2 for all distinct triples. */
@@ -74,7 +77,7 @@ seq_t a(idx_t n)
     }
 
     /* Sort so that a(1) <= a(2) <= ... */
-    qsort(cache, total, sizeof(seq_t), seq_cmp);
+    mem_qsort(cache, total, sizeof(seq_t), seq_cmp);
     cache_len = total;
 
     /* Return the requested term. */

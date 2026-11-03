@@ -9,25 +9,27 @@
  *            the digits of k is greater than k
  * Range:     u8 none, u16 n <= 3, u32 n <= 8, u64 n <= 13, u128 n <= 13,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 12 terms through n = 13 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
     if (n < 2) return 0;          /* sequence is defined for n ≥ 2 */
 
     /* Precompute 9^n and d^n for d = 1..9. */
-    seq_t pow9 = pow_uint(9, n);
+    seq_t pow9 = ipow_u64_idx(9, n);
 
     seq_t pow_d[10];
     pow_d[0] = 0;
     pow_d[1] = 1;                 /* 1^n = 1 */
     for (int d = 2; d <= 9; ++d)
-        pow_d[d] = pow_uint(d, n);
+        pow_d[d] = ipow_u64_idx(d, n);
 
     seq_t sum9 = 0;                /* running sum of c * 9^n */
     seq_t pow10 = 1;               /* 10^c, starting with 10^0 */

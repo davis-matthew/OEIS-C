@@ -12,15 +12,47 @@
  *            The inver...
  * Range:     u8 n <= 84, u16 n <= 84, u32 n <= 84, u64 n <= 84, u128 n <= 84,
  *            big any n
- * Helpers:   index_of, negabinary_value
+ * Validated: partial, pass, 85 terms through n = 84 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
 #include <stdint.h>
-#include "../utils/index_of.h"
-#include "../utils/negabinary_value.h"
+
+/* Invert: given an integer x, return the index k such that
+   negabinary_value(k) == x.  The result is always non‑negative. */
+static inline idx_t index_of(long long x)
+{
+    idx_t index = 0;
+    int pos = 0;
+    while (x != 0) {
+        long long r = x % -2;
+        x /= -2;
+        if (r < 0) {           /* adjust negative remainder */
+            r += 2;
+            x += 1;
+        }
+        if (r) index |= ((idx_t)1 << pos);
+        pos++;
+    }
+    return index;
+}
+
+/* Compute value of index k in base -2 (may be negative). */
+static inline long long negabinary_value(idx_t k)
+{
+    long long val = 0;
+    long long pow = 1;          /* (-2)^0 */
+    idx_t mask = 1;
+    while (mask <= k) {
+        if (k & mask) val += pow;
+        pow *= -2;
+        mask <<= 1;
+    }
+    return val;
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)

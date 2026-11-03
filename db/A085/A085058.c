@@ -7,8 +7,9 @@
  * Formula:   a(n) = number of divisors of (2n+2) that are powers of two =
  *            v2(n+1) + 2, where v2(x) is the exponent of 2 in the
  *            factorisation of x
- * Range:     u8 n <= 9639, u16 n <= 9639, u32 n <= 9639, u64 n <= 9639,
- *            u128 n <= 9639, big any n
+ * Range:     u8 n <= 16383, u16 n <= 16383, u32 n <= 16383, u64 n <= 16383,
+ *            u128 n <= 16383, big any n
+ * Validated: standard, pass, 121 terms through n = 9639 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

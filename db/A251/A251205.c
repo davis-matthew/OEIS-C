@@ -12,7 +12,8 @@
  *            consecutive rows. * • a(n) = 1ᵀ Mⁿ 1 (walks of length n...
  * Range:     u8 none, u16 n <= 2, u32 n <= 7, u64 n <= 15, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static bool init_done = false;
 static unsigned char M[81][81];
@@ -62,7 +64,7 @@ static void grow_totals(size_t needed)
     if (totals_cap >= needed) return;
     size_t new_cap = totals_cap ? totals_cap : 8;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t*)realloc(totals, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, totals, new_cap);
     if (!tmp) abort();
     totals = tmp;
     totals_cap = new_cap;
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
     if (!init_done) init();
 
     while (totals_size < (size_t)n) {
-        memset(next_arr, 0, sizeof next_arr);
+        mem_set(next_arr, 0, sizeof next_arr);
 
         /* next_arr[j] = Σ_i cur[i] * M[i][j] */
         for (int i = 0; i < 81; ++i) {
@@ -91,7 +93,7 @@ seq_t a(idx_t n)
         totals[totals_size] = sum;
         ++totals_size;
 
-        memcpy(cur, next_arr, sizeof cur);
+        mem_copy(cur, next_arr, sizeof cur);
     }
 
     return totals[n - 1];

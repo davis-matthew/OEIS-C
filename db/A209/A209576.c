@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,18 +39,18 @@ seq_t a(idx_t n)
     if (r == 1) return (seq_t)1;
 
     /* Arrays for the previous row (u,v of degree r-2). */
-    seq_t *U_prev = (seq_t *)malloc(sizeof(seq_t) * 1);
-    seq_t *V_prev = (seq_t *)malloc(sizeof(seq_t) * 1);
+    seq_t *U_prev = mem_new(seq_t, 1);
+    seq_t *V_prev = mem_new(seq_t, 1);
     if (!U_prev || !V_prev) return 0;
     U_prev[0] = (seq_t)1;
     V_prev[0] = (seq_t)1;
 
     /* Build rows 2..r. */
     for (idx_t curr = 2; curr <= r; ++curr) {
-        seq_t *U_cur = (seq_t *)malloc(sizeof(seq_t) * curr);
-        seq_t *V_cur = (seq_t *)malloc(sizeof(seq_t) * curr);
+        seq_t *U_cur = mem_new(seq_t, curr);
+        seq_t *V_cur = mem_new(seq_t, curr);
         if (!U_cur || !V_cur) {
-            free(U_prev); free(V_prev);
+            mem_free(U_prev); mem_free(V_prev);
             return 0;
         }
 
@@ -67,14 +69,14 @@ seq_t a(idx_t n)
             V_cur[j] = prev_U * ((seq_t)2) + prev_V * ((seq_t)2);
         }
 
-        free(U_prev);
-        free(V_prev);
+        mem_free(U_prev);
+        mem_free(V_prev);
         U_prev = U_cur;
         V_prev = V_cur;
     }
 
     seq_t result = V_prev[c - 1];    /* coefficient at column c (1‑based) */
-    free(U_prev);
-    free(V_prev);
+    mem_free(U_prev);
+    mem_free(V_prev);
     return result;
 }

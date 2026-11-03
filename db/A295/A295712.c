@@ -10,13 +10,15 @@
  *            programming over rows
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 17, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Pre‑computed horizontal neighbour counts for each 4‑bit pattern.  */
 static unsigned char hcnt[16][4];
@@ -75,14 +77,14 @@ seq_t a(idx_t n)
     /* dp[a*16 + b] holds number of ways to reach a state where
      * the last two rows are: previous previous = a, previous = b.   */
     static seq_t dp[256], ndp[256];
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
 
     /* Initialise with first row (prevPrev = 0). */
     for (int pat = 0; pat < 16; ++pat) dp[pat] = 1;
 
     /* Process remaining rows 2 … n. */
     for (idx_t row = 2; row <= n; ++row) {
-        memset(ndp, 0, sizeof(ndp));
+        mem_set(ndp, 0, sizeof(ndp));
 
         for (int a = 0; a < 16; ++a)           /* prevPrev */
             for (int b = 0; b < 16; ++b) {      /* prev      */
@@ -93,7 +95,7 @@ seq_t a(idx_t n)
                     ndp[b * 16 + c] += ways;
                 }
             }
-        memcpy(dp, ndp, sizeof(dp));
+        mem_copy(dp, ndp, sizeof(dp));
     }
 
     /* Final validation: last row has no below neighbour. */

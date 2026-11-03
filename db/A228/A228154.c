@@ -13,7 +13,8 @@
  *            Count(r,c−1), * where Count(r,k) counts strings with long...
  * Range:     u8 n <= 10, u16 n <= 21, u32 n <= 46, u64 n <= 136,
  *            u128 n <= 378, big any n
- * Helpers:   count_leq_run
+ * Validated: standard, pass, 61 terms through n = 9459 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,58 @@
 /*  Standard headers */
 #include <stdio.h>
 #include <stdlib.h>
-#include "../utils/count_leq_run.h"
+#include "../utils/mem.h"
+
+/*  A helper routine that counts the number of strings of length n
+ *  over an n‑letter alphabet whose longest run is at most maxRun.
+ *  maxRun == 0 returns 0.  */
+static seq_t
+count_leq_run(idx_t n, idx_t maxRun)
+{
+    if (maxRun == 0)
+        return 0;
+
+    /*  Allocate arrays for DP.  */
+    size_t m = (size_t)maxRun + 1;             /* 1…maxRun, index 0 unused */
+    seq_t *prev = mem_new(seq_t, m);
+    seq_t *cur  = mem_new(seq_t, m);
+    if (!prev || !cur) {
+        /*  Memory failure – return 0.  */
+        mem_free(prev);
+        mem_free(cur);
+        return 0;
+    }
+
+    prev[1] = (seq_t)n;          /*  length = 1, run = 1 */
+
+    for (idx_t pos = 2; pos <= n; ++pos) {
+        seq_t sum = 0;
+        for (size_t l = 1; l < m; ++l)
+            sum += prev[l];
+
+        cur[1] = (seq_t)(n - 1) * sum;   /*  choose a different symbol   */
+
+        for (size_t l = 2; l < m; ++l)
+            cur[l] = prev[l - 1];         /*  extend existing run        */
+
+        /*  Swap buffers :  cur → prev  */
+        seq_t *tmp = prev;
+        prev = cur;
+        cur  = tmp;
+
+        /*  Zero new cur for next iteration.  */
+        for (size_t l = 1; l < m; ++l)
+            cur[l] = 0;
+    }
+
+    seq_t total = 0;
+    for (size_t l = 1; l < m; ++l)
+        total += prev[l];
+
+    mem_free(prev);
+    mem_free(cur);
+    return total;
+}
 
 /*  The triangle entry T(n,k).  */
 static seq_t

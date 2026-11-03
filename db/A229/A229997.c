@@ -9,7 +9,8 @@
  *            are the unitary divisors of n
  * Range:     u8 n <= 5, u16 n <= 37, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static int cmp_seq(const void *a, const void *b) {
     seq_t va = *(const seq_t *)a;
@@ -46,19 +48,19 @@ static seq_t *unitary_divisors(uint64_t n, size_t *cnt_out) {
 
     /* start with divisor 1 */
     size_t div_cnt = 1;
-    seq_t *divs = (seq_t *)malloc(sizeof(seq_t));
+    seq_t *divs = mem_new(seq_t, 1);
     divs[0] = 1;
 
     for (size_t i = 0; i < pp_cnt; ++i) {
         seq_t pp = prime_powers[i];
         size_t cur = div_cnt;
-        divs = (seq_t *)realloc(divs, sizeof(seq_t) * (div_cnt + cur));
+        divs = mem_resize(seq_t, divs, (div_cnt + cur));
         for (size_t j = 0; j < cur; ++j) {
             divs[div_cnt++] = divs[j] * pp;
         }
     }
 
-    qsort(divs, div_cnt, sizeof(seq_t), cmp_seq);
+    mem_qsort(divs, div_cnt, sizeof(seq_t), cmp_seq);
     *cnt_out = div_cnt;
     return divs;
 }
@@ -91,6 +93,6 @@ seq_t a(idx_t n) {
         add_fraction(&num, &den, N, d_sq);
     }
 
-    free(divs);
+    mem_free(divs);
     return num;
 }

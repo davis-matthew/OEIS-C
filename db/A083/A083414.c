@@ -9,11 +9,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 839, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   gcd_int
+ * Validated: standard, pass, 100 terms through n = 1796 (2026-11-02)
+ * Helpers:   gcd_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <string.h>
 /*  A083414:
  *  a(n) = min_{1≤k≤n, gcd(k,n)=1} (# of primes in the k-th column of the n×n array
  *  formed by writing 1,2,…,n² consecutively in rows).  The routine sieves all
@@ -27,7 +29,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/gcd_int.h"
+#include "../utils/gcd_i32.h"
 
 /*----------- static context for incremental sieve -----------*/
 static unsigned char *isComposite = NULL;   /* 0 = prime, 1 = composite */
@@ -121,7 +123,7 @@ seq_t a(idx_t n)
     int best = n;                              /* upper bound */
     for (int k = 1; k <= (int)n; ++k)
     {
-        if (gcd_int(k, (int)n) == 1)
+        if (gcd_i32(k, (int)n) == 1)
         {
             int val = counts[k - 1];
             if (val < best) best = val;

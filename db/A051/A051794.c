@@ -8,12 +8,14 @@
  * Formula:   a(n) = Sum_{i=n-6..n-1} (-1)^i * a(i), a(1)=…=a(6)=1
  * Range:     i8 n <= 60, i16 n <= 112, i32 n <= 208, i64 n <= 402,
  *            i128 n <= 788, big any n
- * Helpers:   none
+ * Validated: standard, pass, 90 terms through n = 929 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
         while (new_size < (size_t)n)
             new_size *= 2;
         /* Allocate or grow the array. */
-        void *tmp = realloc(cache, new_size * sizeof(seq_t));
+        void *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) abort();               /* out of memory */
         cache = (seq_t*)tmp;             /* explicit cast for C++ */
         cache_size = new_size;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, powmod64
+ * Validated: standard, pass, 62 terms through n = 919 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,10 @@
 #include <stdbool.h>
 #include <stdlib.h>
 /* utilities for primality testing and modular exponentiation */
+#include <stdint.h>
 #include "../utils/is_prime.h"
-#include "../utils/powmod64.h"
+#include "../utils/powmod_u64.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -42,7 +45,7 @@ seq_t a(idx_t n)
             ok = true;
         } else {
             /* Jacobi symbol (55|p) is 1 iff 55^((p-1)/2) ≡ 1 (mod p) */
-            uint64_t leg = powmod64(55ULL, ((uint64_t)p - 1) >> 1, (uint64_t)p);
+            uint64_t leg = powmod_u64(55ULL, ((uint64_t)p - 1) >> 1, (uint64_t)p);
             ok = (leg == 1);
         }
 
@@ -52,7 +55,7 @@ seq_t a(idx_t n)
                 size_t new_cap = cache_cap ? cache_cap * 2 : 16;
                 if (new_cap < cache_size + 1)
                     new_cap = cache_size + 1;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 cache = tmp;
                 cache_cap = new_cap;
             }

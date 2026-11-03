@@ -2,19 +2,44 @@
  * A112141  Product of the first n semiprimes.
  * https://oeis.org/A112141
  *
- * Offset:    1    (a(1) is the first term)
+ * Offset:    0    (a(0) is the first term)
  * Keywords:  easy, nonn
  * Formula:   a(n) = product of the first n semiprimes (A001358)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 15, u128 n <= 26,
  *            big any n
- * Helpers:   is_semiprime_uint64
+ * Validated: standard, pass, 36 terms through n = 89 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/is_semiprime_uint64.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/is_prime_u64.h"
+
+/* true if x is the product of exactly two primes (possibly the same) */
+static bool is_semiprime_uint64(uint64_t x)
+{
+    if (x < 4)
+        return false;
+    uint64_t d = 0;
+    if (x % 2 == 0)
+        d = 2;
+    else {
+        for (uint64_t dd = 3; dd <= x / dd; dd += 2) {
+            if (x % dd == 0) {
+                d = dd;
+                break;
+            }
+        }
+    }
+    if (d == 0)
+        return false;                      /* x is prime */
+    uint64_t second = x / d;
+    return is_prime_u64(second);
+}
 
 #ifdef __cplusplus
 #include <new>
@@ -24,13 +49,13 @@
 #include <string.h>
 #endif
 
-/* Computes a(n) = Π_{i=1..n} A001358(i), where A001358(i)
+/* Computes a_old(n) = Π_{i=1..n} A001358(i), where A001358(i)
  * is the i-th semiprime (a number with exactly two prime factors,
  * counted with multiplicity). The function caches results and
  * works correctly for any order of calls. */
 
 /* static cache of computed products */
-static seq_t *cache = NULL;   /* 1‑based indexing: cache[1] = a(1) */
+static seq_t *cache = NULL;   /* 1‑based indexing: cache[1] = a_old(1) */
 static idx_t cache_cap = 0;   /* allocated capacity (number of elements) */
 static idx_t cache_last = 0;  /* highest n that has been computed */
 
@@ -62,7 +87,7 @@ static void ensure_capacity(idx_t n)
     cache_cap = new_cap;
 }
 
-seq_t a(idx_t n)
+seq_t a_old(idx_t n)
 {
     if (n == 0) return (seq_t)0;   /* undefined for 0, return 0 */
 
@@ -87,4 +112,11 @@ seq_t a(idx_t n)
 
     cache_last = n;
     return cache[n];
+}
+
+/* the OEIS now has offset 0, with a(0) = 1 the empty product (this code
+   was written for offset 1) */
+seq_t a(idx_t n)
+{
+    return n == 0 ? (seq_t)1 : a_old(n);
 }

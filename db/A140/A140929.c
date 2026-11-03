@@ -8,15 +8,28 @@
  * Keywords:  nonn, more
  * Formula:   a(n) = ∏_{i=0}^{5} binomial(n+15, n+i) * i! / (n+15-i)^(5-i)
  * Range:     u8 none, u16 none, u32 none, u64 n <= 7, u128 n <= 8, big any n
- * Helpers:   binomial, factorial, seq_gcd, seq_pow
+ * Validated: partial, pass, 9 terms through n = 8 (2026-11-01)
+ * Helpers:   binomial, gcd, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
+#include <stdint.h>
 #include "../utils/binomial.h"
-#include "../utils/factorial.h"
-#include "../utils/seq_pow.h"
-#include "../utils/seq_gcd.h"
+#include "../utils/gcd.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 seq_t a(idx_t n)
 {
@@ -36,19 +49,19 @@ seq_t a(idx_t n)
         seq_t num = bin;
         num *= fact;                                   /* numerator */
 
-        seq_t den = seq_pow((seq_t)(s - i), r - i - 1); /* denominator */
+        seq_t den = ipow_idx((seq_t)(s - i), r - i - 1); /* denominator */
 
         /* Reduce the fraction of this term */
-        seq_t g = seq_gcd(num, den);
+        seq_t g = gcd(num, den);
         num /= g;
         den /= g;
 
         /* Cross‑reduce with the accumulated numerator/denominator */
-        g = seq_gcd(num, res_den);
+        g = gcd(num, res_den);
         num /= g;
         res_den /= g;
 
-        g = seq_gcd(res_num, den);
+        g = gcd(res_num, den);
         res_num /= g;
         den /= g;
 

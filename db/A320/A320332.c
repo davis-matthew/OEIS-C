@@ -10,13 +10,15 @@
  *            + k²))
  * Range:     u8 n <= 89, u16 n <= 89, u32 n <= 89, u64 n <= 89, u128 n <= 89,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 90 terms through n = 89 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Integer square root: floor(sqrt(n)) for unsigned n. */
 static idx_t isqrt(idx_t n)
@@ -36,7 +38,7 @@ static idx_t isqrt(idx_t n)
 seq_t a(idx_t n)
 {
     /* Allocate DP array of size n+1 */
-    seq_t *dp = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (n + 1));
     if (!dp)
         return (seq_t)0;                  /* allocation failure – unlikely */
 
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
     idx_t lim = isqrt(n);
     idx_t *sq = (idx_t *)malloc((lim + 1) * sizeof(idx_t));
     if (!sq) {
-        free(dp);
+        mem_free(dp);
         return (seq_t)0;
     }
     for (idx_t i = 0; i <= lim; ++i)
@@ -73,6 +75,6 @@ seq_t a(idx_t n)
     seq_t result = dp[n];
 
     free(sq);
-    free(dp);
+    mem_free(dp);
     return result;
 }

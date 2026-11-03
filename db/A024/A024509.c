@@ -11,7 +11,8 @@
  *            number * has multiple such pairs
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Comparator for qsort over seq_t */
 static int cmp_seq(const void *p, const void *q)
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
         /* Allocate a buffer large enough for the expected number of pairs.
          * We grow it dynamically as needed. */
         size_t cap = (size_t)(0.4 * limit) + 10;   /* 0.4 is an upper bound */
-        seq_t *sums = (seq_t *)malloc(cap * sizeof(seq_t));
+        seq_t *sums = mem_new(seq_t, cap);
         if (!sums)
             return 0;                     /* allocation failure */
 
@@ -69,9 +71,9 @@ seq_t a(idx_t n)
                 /* Grow buffer if needed */
                 if (cnt == cap) {
                     cap <<= 1;
-                    seq_t *tmp = (seq_t *)realloc(sums, cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, sums, cap);
                     if (!tmp) {
-                        free(sums);
+                        mem_free(sums);
                         return 0;
                     }
                     sums = tmp;
@@ -82,14 +84,14 @@ seq_t a(idx_t n)
 
         if (cnt >= n) {
             /* Sort and pick the nth element (1‑based). */
-            qsort(sums, cnt, sizeof(seq_t), cmp_seq);
+            mem_qsort(sums, cnt, sizeof(seq_t), cmp_seq);
             seq_t result = sums[n - 1];
-            free(sums);
+            mem_free(sums);
             return result;
         }
 
         /* Not enough terms: double the search limit and retry. */
-        free(sums);
+        mem_free(sums);
         limit <<= 1;
     }
 }

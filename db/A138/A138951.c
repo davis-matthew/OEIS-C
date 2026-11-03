@@ -11,13 +11,33 @@
  *            0 returns 1 (constant term of the GF)
  * Range:     i8 n <= 10000, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   prime_power_b
+ * Validated: standard, pass, 93 terms through n = 9565 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/prime_power_b.h"
+
+static inline seq_t prime_power_b(uint64_t p, idx_t e)
+{
+    if (p == 2ULL)          /* 2^e, e>0 */
+        return -1;
+    if (p == 3ULL) {
+        if ((e & 1ULL) == 0)   /* even exponent */
+            return 1;          /* -1 + 2*1 = 1 */
+        else
+            return -3;         /* -1 + 2*(-1) = -3 */
+    }
+    uint64_t mod12 = p % 12ULL;
+    if (mod12 == 1ULL || mod12 == 5ULL)
+        return (seq_t)(e + 1);   /* e+1 */
+    /* mod12 7 or 11 */
+    if ((e & 1ULL) == 0)     /* even exponent */
+        return 1;           /* (1+1)/2 = 1 */
+    else
+        return 0;           /* (1-1)/2 = 0 */
+}
 
 seq_t a(idx_t n)
 {

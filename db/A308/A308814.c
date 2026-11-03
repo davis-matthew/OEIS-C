@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{d|n} n^(d-1)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 27,
  *            big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: standard, pass, 36 terms through n = 360 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,10 @@
 #include <stdint.h>      /* uint64_t */
 
 /* Provided utilities */
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 /* Recursive helper to enumerate all divisors of n and add
    n^(d-1) for each divisor d to the running total. */
@@ -26,7 +29,7 @@ static void _enum_divisors(idx_t pos, idx_t cur, const uint64_t *pr, const uint6
 {
     if (pos == cnt) {
         seq_t exp = (seq_t)(cur - 1);
-        seq_t term = big_pow(base, exp);
+        seq_t term = ipow(base, exp);
         *total += term;
         return;
     }

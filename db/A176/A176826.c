@@ -8,7 +8,8 @@
  * Formula:   a(0)=1, a(1)=1; for n≥1 a(n+1)=∑_{p=0..n} a(p)*a(n-p)+n
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 18, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* buffer for computed terms      */
 static size_t buffer_size = 0;   /* allocated slots                */
@@ -30,7 +32,7 @@ static void ensure_capacity(idx_t n)
     if (buffer_size < needed) {
         size_t new_size = (buffer_size == 0) ? 16 : buffer_size * 2;
         if (new_size < needed) new_size = needed;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) abort();     /* allocation failure */
         cache = tmp;
         buffer_size = new_size;

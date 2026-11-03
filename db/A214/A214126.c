@@ -7,12 +7,14 @@
  * Formula:   a(0)=a(1)=1; a(2*n)=a(n-1)+a(n); a(2*n+1)=a(n+1)
  * Range:     u8 n <= 3063, u16 n <= 8192, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   none
+ * Validated: standard, pass, 92 terms through n = 7613 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     if (n >= capacity) {
         size_t newcap = capacity ? capacity * 2 : 1;
         while (newcap <= n) newcap <<= 1;
-        seq_t *tmp_cache   = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp_cache   = mem_resize(seq_t, cache, newcap);
         unsigned char *tmp_computed = (unsigned char *)realloc(computed, newcap * sizeof(unsigned char));
         if (!tmp_cache || !tmp_computed) exit(EXIT_FAILURE);
         for (size_t i = capacity; i < newcap; ++i) tmp_computed[i] = 0;

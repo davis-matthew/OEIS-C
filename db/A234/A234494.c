@@ -13,7 +13,8 @@
  *            A state is * represented by such a vector tha...
  * Range:     u8 none, u16 none, u32 n <= 4, u64 n <= 13, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 127 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static bool _init_done = false;
 static idx_t _states_cnt = 0;          /* number of non‑zero weight states */
@@ -82,7 +84,7 @@ static void _init_once(void)
     for (idx_t i = 0; i < DIFF_SPACE; ++i)
         if (diff_counts[i] != 0) _states_cnt++;
 
-    _w = (seq_t *)malloc(_states_cnt * sizeof(seq_t));
+    _w = mem_new(seq_t, _states_cnt);
     _diffs = (int (*)[4])malloc(_states_cnt * sizeof(int[4]));
     _state_from_diff = (int *)malloc(DIFF_SPACE * sizeof(int));
     if (!_w || !_diffs || !_state_from_diff) exit(1);
@@ -170,15 +172,15 @@ static void _init_once(void)
     free(deg);
 
     /* ---------- initialize DP vectors ---------- */
-    _dp_cur = (seq_t *)calloc(_states_cnt, sizeof(seq_t));
-    _dp_next = (seq_t *)calloc(_states_cnt, sizeof(seq_t));
+    _dp_cur = mem_new(seq_t, _states_cnt);
+    _dp_next = mem_new(seq_t, _states_cnt);
     if (!_dp_cur || !_dp_next) exit(1);
     for (size_t i = 0; i < _states_cnt; ++i)
         _dp_cur[i] = _w[i];
 
     /* ---------- prepare cache for a(n) ---------- */
     _a_seq_cap = 16;
-    _a_seq = (seq_t *)calloc(_a_seq_cap, sizeof(seq_t));
+    _a_seq = mem_new(seq_t, _a_seq_cap);
     if (!_a_seq) exit(1);
     /* index 0 unused, a_seq[1] will be filled first time */
     _max_n_cached = 0;
@@ -189,7 +191,7 @@ static void _ensure_a_cache(idx_t n)
     if ((size_t)n < _a_seq_cap) return;
     size_t new_cap = _a_seq_cap;
     while ((size_t)n >= new_cap) new_cap <<= 1;
-    _a_seq = (seq_t *)realloc(_a_seq, new_cap * sizeof(seq_t));
+    _a_seq = mem_resize(seq_t, _a_seq, new_cap);
     if (!_a_seq) exit(1);
     for (size_t i = _a_seq_cap; i < new_cap; ++i) _a_seq[i] = (seq_t)0;
     _a_seq_cap = new_cap;
@@ -206,7 +208,7 @@ seq_t a(idx_t n)
         for (idx_t step = _max_n_cached + 1; step <= n; ++step)
         {
             /* compute dp_next from dp_cur */
-            memset(_dp_next, 0, _states_cnt * sizeof(seq_t));
+            mem_set(_dp_next, 0, _states_cnt * sizeof(seq_t));
 
             for (size_t i = 0; i < _states_cnt; ++i)
             {

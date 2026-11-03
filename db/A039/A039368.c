@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 8513, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   grow_seq_array, has_equal_ones_fives
+ * Validated: standard, pass, 69 terms through n = 9727 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,36 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/grow_seq_array.h"
-#include "../utils/has_equal_ones_fives.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* Helper to grow a sequence array of type seq_t. */
+static void grow_seq_array(seq_t **arr, size_t *size, size_t new_len)
+{
+    if (*size >= new_len) return;
+    size_t new_cap = (*size > 0) ? (*size << 1) : 16;
+    while (new_cap < new_len) new_cap <<= 1;
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+    if (!tmp) abort();
+    *arr = tmp;
+    *size = new_cap;
+}
+
+/* true iff x has the same non‑zero number of 1’s and 5’s in base 9 */
+static bool has_equal_ones_fives(seq_t x)
+{
+    unsigned cnt1 = 0, cnt5 = 0;
+    seq_t tmp = x;
+    while (tmp != 0)
+    {
+        unsigned d = (unsigned)(tmp % 9);
+        if (d == 1)         cnt1++;
+        else if (d == 5)    cnt5++;
+        tmp = tmp / 9;
+    }
+    return cnt1 > 0 && cnt1 == cnt5;
+}
 
 static seq_t *cache = NULL;      /* found terms */
 static size_t cache_len = 0;     /* number stored so far */

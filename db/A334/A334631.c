@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   letter_count
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,50 @@
           in the sum of all previous terms:
           a(n) = letter_count(∑_{i=1}^{n-1} a(i)) */
 #include <stdlib.h>
-#include "../utils/letter_count.h"
+#include "../utils/mem.h"
+
+/* Count letters in the English word of an integer x
+   (US English, no spaces or hyphens). */
+static int letter_count(seq_t x)
+{
+    static const int ones_len[10]  = {0,3,3,5,4,4,3,5,5,4};
+    static const int teens_len[10] = {3,6,6,8,8,7,7,9,8,8};
+    static const int tens_len[10]  = {0,0,6,6,5,5,5,7,6,6};
+
+    int total = 0;
+    if (x >= 1000000000ULL) {            /* billions */
+        seq_t q = x / 1000000000ULL;
+        x   %= 1000000000ULL;
+        total += letter_count(q) + 7;    /* "billion" */
+    }
+    if (x >= 1000000ULL) {               /* millions */
+        seq_t q = x / 1000000ULL;
+        x   %= 1000000ULL;
+        total += letter_count(q) + 7;    /* "million" */
+    }
+    if (x >= 1000ULL) {                  /* thousands */
+        seq_t q = x / 1000ULL;
+        x   %= 1000ULL;
+        total += letter_count(q) + 8;    /* "thousand" */
+    }
+    if (x >= 100ULL) {                   /* hundreds */
+        seq_t q = x / 100ULL;
+        x   %= 100ULL;
+        total += letter_count(q) + 7;    /* "hundred" */
+    }
+    if (x >= 20ULL) {                    /* tens */
+        total += tens_len[(int)(x / 10ULL)];
+        x %= 10ULL;
+        if (x > 0)
+            total += ones_len[(int)x];
+    } else if (x >= 10ULL) {             /* teens */
+        total += teens_len[(int)(x - 10ULL)];
+    } else if (x >= 1ULL) {              /* ones */
+        total += ones_len[(int)x];
+    }
+    /* x == 0 contributes 0 letters */
+    return total;
+}
 
 seq_t a(idx_t n)
 {
@@ -37,8 +81,8 @@ seq_t a(idx_t n)
             new_cap <<= 1;
         new_cap++;                      /* one more slot for 1‑based indexing */
 
-        seq_t *new_arr = (seq_t *)realloc(arr, new_cap * sizeof(seq_t));
-        seq_t *new_cum = (seq_t *)realloc(cum, new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, arr, new_cap);
+        seq_t *new_cum = mem_resize(seq_t, cum, new_cap);
         if (!new_arr || !new_cum) {
             /* Allocation failed – terminate the program. */
             exit(1);

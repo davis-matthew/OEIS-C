@@ -9,14 +9,46 @@
  *            where o is odd
  * Range:     u8 n <= 141, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _is_seq_term
+ * Validated: standard, pass, 81 terms through n = 9857 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/_is_seq_term.h"
+#include "../utils/mem.h"
+
+/* Check whether x is a member of the sequence. */
+static bool _is_seq_term(seq_t x)
+{
+    /* Count power of two factor. */
+    seq_t tmp = x;
+    idx_t a = 0;
+    while ((tmp & (seq_t)1) == 0) {
+        tmp >>= 1;
+        a++;
+    }
+
+    /* m = a + 1; odd numbers correspond to m = 1. */
+    idx_t m = a + 1;
+    if (m == 1)                 /* all odd numbers belong. */
+        return (tmp & (seq_t)1) != 0;
+
+    /* Find integer d such that d^m == tmp. */
+    seq_t d = 1;
+    while (1) {
+        seq_t prod = 1;
+        for (idx_t i = 0; i < m; ++i) {
+            prod *= d;
+            if (prod > tmp) break;       /* early exit if already exceeded */
+        }
+        if (prod == tmp) return true;
+        if (prod > tmp) break;
+        d++;
+    }
+    return false;
+}
 
 /* Cached sequence values. */
 static seq_t  *_cache   = NULL;
@@ -30,7 +62,7 @@ static void _ensure_capacity(idx_t need)
     if (_cap >= need) return;
     idx_t newcap = _cap ? _cap << 1 : 64;
     while (newcap < need) newcap <<= 1;
-    _cache = (seq_t *)realloc(_cache, newcap * sizeof(seq_t));
+    _cache = mem_resize(seq_t, _cache, newcap);
     if (!_cache) abort();
     _cap   = newcap;
 }

@@ -9,13 +9,15 @@
  *            C(2r-2c-2j, r-c) * c^(r-c-2j)
  * Range:     i8 n <= 16, i16 n <= 37, i32 n <= 65, i64 n <= 65, i128 n <= 65,
  *            big any n
- * Helpers:   binom_small, pow_seq
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom_small.h"
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -35,9 +37,9 @@ seq_t a(idx_t n)
 
     seq_t sum = 0;
     for (idx_t j = 0; j <= diff / 2; ++j) {
-        seq_t term = binom_small(diff, j);
-        term *= binom_small(2 * r - 2 * c - 2 * j, diff);
-        seq_t pw = pow_seq((seq_t)c, diff - 2 * j);
+        seq_t term = binomial(diff, j);
+        term *= binomial(2 * r - 2 * c - 2 * j, diff);
+        seq_t pw = ipow_idx((seq_t)c, diff - 2 * j);
         term *= pw;
         if (j & 1)
             sum -= term;

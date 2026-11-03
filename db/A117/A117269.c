@@ -12,13 +12,15 @@
  *            T(r,k) = left_edge[r‑k] * binomial(r,k), where left_e...
  * Range:     u8 n <= 14, u16 n <= 27, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Check that the type seq_t provides the usual arithmetic operators
    and the EOF.  It is supplied by the build system.                */
@@ -45,7 +47,7 @@ static void ensure_left(idx_t max)
     if (left_edge == NULL) {
         /* initial allocation */
         left_cap = (max < 4 ? 8 : (idx_t)1 << 3);   /* at least 8 elements */
-        left_edge = (seq_t*)malloc(sizeof(seq_t) * left_cap);
+        left_edge = mem_new(seq_t, left_cap);
         if (!left_edge) abort();
         left_edge[0] = (seq_t)1;   /* T(0,0)  */
         left_edge[1] = (seq_t)1;   /* T(1,0)  */
@@ -56,7 +58,7 @@ static void ensure_left(idx_t max)
         if (left_cap <= max) {
             while (left_cap <= max)
                 left_cap <<= 1;
-            seq_t *tmp = (seq_t*)realloc(left_edge, sizeof(seq_t) * left_cap);
+            seq_t *tmp = mem_resize(seq_t, left_edge, left_cap);
             if (!tmp) abort();
             left_edge = tmp;
         }

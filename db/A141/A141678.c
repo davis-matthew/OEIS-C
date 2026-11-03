@@ -12,12 +12,24 @@
  *            * This implements the symmetric triangle of coeffici...
  * Range:     u8 n <= 21, u16 n <= 78, u32 n <= 276, u64 n <= 1081,
  *            u128 n <= 4279, big any n
- * Helpers:   fib
+ * Validated: standard, pass, 71 terms through n = 5081 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/fib.h"  /* provides seq_t fib(idx_t n) */
+#include <stdbool.h>
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;           /* undefined for n<1, return 0 as safe value */

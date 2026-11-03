@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 59, u32 n <= 197, u64 n <= 771,
  *            u128 n <= 3649, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 7651 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     if (arr == NULL) {
         /* Allocate a small initial buffer and seed known values */
         arr_len = 16;
-        arr = (seq_t *)calloc(arr_len, sizeof(seq_t));
+        arr = mem_new(seq_t, arr_len);
         if (!arr) exit(EXIT_FAILURE);
         arr[1] = (seq_t)1;
         arr[2] = (seq_t)3;
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= arr_len) {
         size_t new_len = arr_len;
         while (new_len <= (size_t)n) new_len <<= 1;
-        seq_t *tmp = (seq_t *)realloc(arr, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, arr, new_len);
         if (!tmp) exit(EXIT_FAILURE);
         /* Newly allocated elements get default constructed value (e.g. 0) */
         for (size_t i = arr_len; i < new_len; ++i) tmp[i] = (seq_t)0;

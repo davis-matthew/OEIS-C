@@ -7,6 +7,7 @@
  * Formula:   a(n) = ((concat of (3n-2),(3n-1),(3n)))/3
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 333, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 50 terms through n = 861 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 0, i16 n <= 1, i32 n <= 5, i64 n <= 68, i128 n <= 1000,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 959 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
  * where σ₉(n) = Σ_{d|n} d⁹
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t* sigma9 = NULL;   /* cached values of σ₉ */
 static size_t sigma9_cap = 0;  /* current capacity of the cache */
@@ -45,7 +47,7 @@ static void ensure_sigma9(idx_t n)
     while (newcap <= (size_t)n) newcap <<= 1;
 
     /* reallocate and initialize the new part */
-    sigma9 = (seq_t*)realloc(sigma9, newcap * sizeof(seq_t));
+    sigma9 = mem_resize(seq_t, sigma9, newcap);
     for (size_t i = sigma9_cap; i < newcap; ++i) sigma9[i] = 0;
 
     /* recompute σ₉ for all indices up to newcap */

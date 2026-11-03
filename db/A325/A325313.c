@@ -7,8 +7,9 @@
  * Keywords:  sign
  * Formula:   a(n) = ∏_{p|n, p prime} (1 + p) – n (sum of squarefree divisors
  *            of n minus n)
- * Range:     i8 n <= 137, i16 n <= 8989, i32 n <= 8989, i64 n <= 8989,
- *            i128 n <= 8989, big any n
+ * Range:     i8 n <= 137, i16 n <= 16384, i32 n <= 16384, i64 n <= 16384,
+ *            i128 n <= 16384, big any n
+ * Validated: standard, pass, 102 terms through n = 8989 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

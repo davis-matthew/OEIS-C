@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 52, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_bin_pal, rev_bits
+ * Validated: standard, pass, 75 terms through n = 883 (2026-11-03)
+ * Helpers:   is_binary_palindrome, mem, reverse_bits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,9 @@
 #include <stddef.h>   /* for NULL, size_t */
 #include <stdlib.h>   /* for malloc, realloc */
 #include <stdbool.h>  /* for bool */
-#include "../utils/is_bin_pal.h"
-#include "../utils/rev_bits.h"
+#include "../utils/is_binary_palindrome.h"
+#include "../utils/reverse_bits.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     /* initializer */
     if (terms == NULL) {
         capacity = 128;
-        terms = (seq_t *)malloc(capacity * sizeof(seq_t));
+        terms = mem_new(seq_t, capacity);
         if (terms == NULL) return 0;  /* allocation failure */
     }
 
@@ -47,18 +49,18 @@ seq_t a(idx_t n)
         seq_t k = (seq_t)next_num;
 
         /* skip if k is already a palindrome */
-        if (is_bin_pal(k)) continue;
+        if (is_binary_palindrome(k)) continue;
 
-        seq_t r   = rev_bits(k);
+        seq_t r   = reverse_bits(k);
         seq_t sum = k + r;
 
         /* accept only if sum is a palindrome (and k is not) */
-        if (!is_bin_pal(sum)) continue;
+        if (!is_binary_palindrome(sum)) continue;
 
         /* store the new term */
         if (count == capacity) {
             capacity *= 2;
-            seq_t *tmp = (seq_t *)realloc(terms, capacity * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, terms, capacity);
             if (tmp == NULL) return 0; /* allocation failure */
             terms = tmp;
         }

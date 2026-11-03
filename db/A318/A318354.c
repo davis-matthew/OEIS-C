@@ -13,7 +13,8 @@
  *            yields the triangle in the OEIS entry A318354.)
  * Range:     u8 n <= 21, u16 n <= 55, u32 n <= 120, u64 n <= 276,
  *            u128 n <= 703, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 9695 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *tri_rows[200];          /* pointers to rows of the triangle   */
 static size_t tri_len = 0;           /* number of rows currently computed */
@@ -32,14 +34,14 @@ static void ensure_rows_to(size_t need) {
         size_t prev_len = tri_len;                /* length of previous row   */
         size_t next_len = prev_len + 1;           /* length of new row        */
 
-        seq_t *next_row = (seq_t *)malloc(sizeof(seq_t) * next_len);
+        seq_t *next_row = mem_new(seq_t, next_len);
         if (!next_row) { abort(); }              /* allocation failed       */
 
         if (tri_len == 0) {                      /* base row (n = 1)        */
             next_row[0] = (seq_t)1;
         } else {
             /* Prefix sums of previous row for fast range sums */
-            seq_t *prefix = (seq_t *)malloc(sizeof(seq_t) * (prev_len + 1));
+            seq_t *prefix = mem_new(seq_t, (prev_len + 1));
             if (!prefix) { abort(); }
             prefix[0] = (seq_t)0;
             for (size_t i = 1; i <= prev_len; ++i) {
@@ -58,7 +60,7 @@ static void ensure_rows_to(size_t need) {
                     next_row[k-1] = prefix[k-1];
                 }
             }
-            free(prefix);
+            mem_free(prefix);
         }
 
         /* Store the new row */

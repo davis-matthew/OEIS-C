@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 31, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
    where r = ⌈(√(8n+1)-1)/2⌉ and k = n - r*(r-1)/2 - 1 (0‑based). */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t **s_rows = NULL;   /* pointers to each row (0‑based) */
 static size_t    s_num  = 0;     /* number of rows currently cached */
@@ -70,7 +72,7 @@ static void ensure_rows(size_t need)
     /* Build new rows one by one. */
     for (; s_num < need; ++s_num) {
         size_t len = s_num + 1;               /* length of this row */
-        seq_t *row = (seq_t *)malloc(len * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, len);
         if (!row)
             abort();                          /* allocation failure */
 

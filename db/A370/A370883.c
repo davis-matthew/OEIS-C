@@ -11,9 +11,10 @@
  *            reverse lexicographic order corresponds to the integer * x =
  *            (2^r - 1) - i. Interpret x in binary with '(' for 0 and ')' for
  *            * 1. Count the number of unmatched right paren...
- * Range:     u8 n <= 8826, u16 n <= 8826, u32 n <= 8826, u64 n <= 8826,
- *            u128 n <= 8826, big any n
- * Helpers:   is_log2
+ * Range:     u8 n <= 16382, u16 n <= 16382, u32 n <= 16382, u64 n <= 16382,
+ *            u128 n <= 16382, big any n
+ * Validated: standard, pass, 104 terms through n = 8826 (2026-11-01)
+ * Helpers:   ilog2_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,12 +22,12 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/is_log2.h"
+#include "../utils/ilog2_idx.h"
 
 seq_t a(idx_t n) {
     /* Determine the row r and the position i within that row. */
     idx_t m = n + 1;                       /* m = n+1 >= 1 */
-    idx_t r = is_log2(m);                  /* 2^r <= m < 2^(r+1) */
+    idx_t r = ilog2_idx(m);                  /* 2^r <= m < 2^(r+1) */
     idx_t shift = 1ULL << r;               /* 2^r */
     idx_t start = shift - 1;               /* starting index of row r */
     idx_t i = n - start;                   /* 0 <= i < 2^r */

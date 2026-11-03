@@ -9,7 +9,8 @@
  *            of k
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 101 terms through n = 9051 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static idx_t  cached_n = 0;               /* largest n for which we have computed */
 static uint32_t *tau    = NULL;           /* τ values for 1 .. cached_n   */
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
 
     /* Reallocate the τ array.  The cast is required for C++ compliance. */
     uint32_t *new_tau  = (uint32_t*)realloc(tau, newsize * sizeof(uint32_t));
-    seq_t   *new_cummax = (seq_t*)realloc(cummax, newsize * sizeof(seq_t));
+    seq_t   *new_cummax = mem_resize(seq_t, cummax, newsize);
     if (!new_tau || !new_cummax) {      /* allocation failed */
         return 0;
     }

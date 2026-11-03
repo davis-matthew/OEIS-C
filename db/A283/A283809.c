@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 32, u16 n <= 2194, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime, is_squarefree
+ * Validated: standard, pass, 80 terms through n = 9776 (2026-11-03)
+ * Helpers:   is_prime, is_squarefree, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,9 @@
 #include <stdlib.h>
 
 /* Helper functions provided by the build system */
-#include "../utils/is_prime.h"       /* bool is_prime(idx_t x) */
-#include "../utils/is_squarefree.h" /* bool is_squarefree(seq_t x) */
+#include "../utils/is_prime.h"
+#include "../utils/is_squarefree.h"
+#include "../utils/mem.h"
 
 /* Static state used to cache sequence values independently of call order */
 static seq_t *seq_cache   = NULL; /* array of term values          */
@@ -36,7 +38,7 @@ static void ensure_cache_capacity(size_t new_cap)
     if (new_cap <= cache_cap) return;
     size_t new_size = cache_cap ? cache_cap << 1 : 128;
     if (new_size < new_cap) new_size = new_cap;
-    seq_t *tmp = (seq_t *)realloc(seq_cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, new_size);
     if (!tmp) abort();              /* out of memory: terminate */
     seq_cache = tmp;
     cache_cap = new_size;

@@ -8,13 +8,15 @@
  *            else 3
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 
 static uint8_t *t_word   = NULL;   /* current tribonacci word symbols {0,1,2} */
@@ -73,10 +75,10 @@ static void ensure_a(size_t needed)
 
     size_t new_len = needed + 1;
     if (a_arr == NULL) {
-        a_arr = (seq_t *)malloc(new_len * sizeof(seq_t));
+        a_arr = mem_new(seq_t, new_len);
         a_len = 0;                  /* will be updated after init */
     } else if (new_len > a_len) {
-        a_arr = (seq_t *)realloc(a_arr, new_len * sizeof(seq_t));
+        a_arr = mem_resize(seq_t, a_arr, new_len);
     }
 
     size_t old_len = a_len;          /* number of values already stored */

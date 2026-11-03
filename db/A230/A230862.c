@@ -13,14 +13,21 @@
  *            calls is supported
  * Range:     u8 n <= 5, u16 n <= 5, u32 n <= 5, u64 n <= 5, u128 n <= 5,
  *            big any n
- * Helpers:   group_last_letter
+ * Validated: full, pass, 6 terms through n = 5 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/group_last_letter.h"
+#include "../utils/mem.h"
+
+/* last letter for thousand or higher groups: 'd' for 10³, 'n' otherwise */
+static inline char group_last_letter(int group_idx)
+{
+    return (group_idx == 1) ? 'd' : 'n';
+}
 
 /* first/last letters of number words 0–19, tens, and group names */
 static const char FIRST_SMALL[20] = {
@@ -102,9 +109,9 @@ seq_t a(idx_t n)
         size_t new_len = (size_t)(n + 1);
         seq_t *new_cache = NULL;
         if (seq_cache == NULL) {
-            new_cache = (seq_t *)malloc(new_len * sizeof(seq_t));
+            new_cache = mem_new(seq_t, new_len);
         } else if (new_len > seq_cache_len) {
-            new_cache = (seq_t *)realloc(seq_cache, new_len * sizeof(seq_t));
+            new_cache = mem_resize(seq_t, seq_cache, new_len);
         } else {
             new_cache = seq_cache;
         }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 12, u32 n <= 25, u64 n <= 51, u128 n <= 104,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 188 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
         seq_t d   = (seq_t)1;
         seq_t prev = a0;   /* this is a_0 */
         size_t cap = 16;
-        periodic = (seq_t*)malloc(cap * sizeof(seq_t));
+        periodic = mem_new(seq_t, cap);
         size_t cnt = 0;
 
         while (1) {
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
 
             if (cnt >= cap) {
                 cap <<= 1;
-                periodic = (seq_t*)realloc(periodic, cap * sizeof(seq_t));
+                periodic = mem_resize(seq_t, periodic, cap);
             }
             periodic[cnt++] = a_k;
 
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
         while (new_cap <= n) new_cap <<= 1;
 
         if (new_cap > values_cap) {
-            values = (seq_t*)realloc(values, new_cap * sizeof(seq_t));
+            values = mem_resize(seq_t, values, new_cap);
             values_cap = new_cap;
         }
 

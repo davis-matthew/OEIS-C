@@ -11,14 +11,16 @@
  *            Weyl dimension formula for a highest weight λ = a ω₁ + b ω₂ (a,b
  *            ≥ 0) is dim(a,b) = ((a+1)(b+1)(a+b+2)(a+2b+3)(a+3b+4)(2a+3b+5))
  *            / 120 The sequence lists all distinct values of d...
- * Range:     u8 none, u16 none, u32 none, u64 n <= 9521, u128 n <= 9521,
+ * Range:     u8 none, u16 none, u32 none, u64 n <= 20000, u128 n <= 20000,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 9521 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static int cmp_seq(const void *p, const void *q)
 {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
         idx_t pair_count = (maxA + 1) * (maxA + 1);
 
         /* temporary array for all dimensions before deduplication */
-        seq_t *tmp = (seq_t *)malloc(pair_count * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, pair_count);
         idx_t k = 0;
 
         for (idx_t a = 0; a <= maxA; ++a) {
@@ -57,18 +59,18 @@ seq_t a(idx_t n)
         }
 
         /* sort the list */
-        qsort(tmp, k, sizeof(seq_t), cmp_seq);
+        mem_qsort(tmp, k, sizeof(seq_t), cmp_seq);
 
         /* deduplicate */
         seq_len = 1;
-        seq     = (seq_t *)malloc(k * sizeof(seq_t));
+        seq     = mem_new(seq_t, k);
         seq[0]  = tmp[0];
         for (idx_t i = 1; i < k; ++i) {
             if (tmp[i] != tmp[i - 1]) {
                 seq[seq_len++] = tmp[i];
             }
         }
-        free(tmp);
+        mem_free(tmp);
     }
 
     /* n is 1‑based.  The pre‑computed sequence is guaranteed more than long enough. */

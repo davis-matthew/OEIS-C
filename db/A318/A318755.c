@@ -7,13 +7,15 @@
  * Formula:   a(n) = Sum_{k=1..n} tau(k)^3 (OEIS A318755)
  * Range:     u8 n <= 9, u16 n <= 179, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 9586 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Compute the divisor counting function tau(k).  This simple trial
    division is fast enough for n up to 10000 and satisfies all
@@ -49,9 +51,9 @@ static seq_t *resize_cache(idx_t new_cap)
 {
     seq_t *raw = NULL;
     if (a_cache == NULL) {
-        raw = (seq_t *)malloc((size_t)new_cap * sizeof(seq_t));
+        raw = mem_new(seq_t, (size_t)new_cap);
     } else {
-        raw = (seq_t *)realloc(a_cache, (size_t)new_cap * sizeof(seq_t));
+        raw = mem_resize(seq_t, a_cache, (size_t)new_cap);
     }
     if (!raw) abort();          /* out of memory – terminate */
     a_cache = raw;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 103 terms through n = 9425 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,9 +25,32 @@
 /* Standard headers required by the constraints. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 /* Ensure that the array pointed to by *ptr has room for at least NEW
    elements.  The capacity is doubled until it meets or exceeds NEW.  */
+#ifdef __cplusplus
+template <class T>
+static void
+ensure_cap(size_t new_n, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (*cap >= new_n)
+        return;
+    size_t ncap = (*cap == 0) ? 4 : (*cap << 1);
+    while (ncap < new_n)
+        ncap <<= 1;
+    *ptr = mem_resize(T, *ptr, (ncap * elem_size) / sizeof(T));
+    *cap = ncap;
+}
+#else
 static void
 ensure_cap(size_t new_n, size_t *cap, void **ptr, size_t elem_size)
 {
@@ -38,6 +62,7 @@ ensure_cap(size_t new_n, size_t *cap, void **ptr, size_t elem_size)
     *ptr = realloc(*ptr, ncap * elem_size);
     *cap = ncap;
 }
+#endif
 
 /* Return the nth term of the sequence (1‑based). */
 seq_t a(idx_t n)
@@ -50,7 +75,7 @@ seq_t a(idx_t n)
     /* Ensure the first two terms exist.  This also handles the case
        where the very first call is for n=1 or n=2. */
     if (built < 2) {
-        ensure_cap(2, &cap, (void **)&seq, sizeof(seq_t));
+        ensure_cap(2, &cap, OEISC_VPP(&seq), sizeof(seq_t));
         seq[0] = (seq_t)2;
         seq[1] = (seq_t)1;
         built = 2;
@@ -64,7 +89,7 @@ seq_t a(idx_t n)
         for (seq_t cand = 0; ; ++cand) {
             /* Make room for the new value. */
             if (m >= cap)
-                ensure_cap(m + 1, &cap, (void **)&seq, sizeof(seq_t));
+                ensure_cap(m + 1, &cap, OEISC_VPP(&seq), sizeof(seq_t));
 
             seq[m] = cand;           /* tentative assignment */
 

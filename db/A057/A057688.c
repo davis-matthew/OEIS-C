@@ -8,12 +8,14 @@
  *            a(n-1) is odd and divisible by 3 5*a(n-1) + 1 otherwise
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 104 terms through n = 983 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* cache the sequence values up to the largest requested n */
@@ -22,7 +24,7 @@ seq_t a(idx_t n) {
 
     /* initialise cache with a(0) = 5 if it hasn't been done yet */
     if (cached_len == 0) {
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (cache == NULL) return (seq_t)0;      /* fallback for out‑of‑memory */
         cache[0] = (seq_t)5;
         cached_len = 1;
@@ -31,7 +33,7 @@ seq_t a(idx_t n) {
     /* grow cache to cover index n */
     if (n + 1 > cached_len) {
         idx_t new_len = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (tmp == NULL) return (seq_t)0;        /* fallback */
         cache = tmp;
         /* compute new terms up to n */

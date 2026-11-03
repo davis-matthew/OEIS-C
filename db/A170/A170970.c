@@ -11,6 +11,7 @@
  *            possible sum (91). For any n > 91 the result is 0
  * Range:     u8 n <= 91, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
+ * Validated: full, pass, 92 terms through n = 91 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

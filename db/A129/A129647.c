@@ -8,11 +8,13 @@
  * Formula:   a(n) = max_{i=1..n-1} lcm(i, n-i) = max_{i} i*(n-i)/gcd(i, n-i)
  * Range:     u8 n <= 32, u16 n <= 512, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 74 terms through n = 999 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n) {

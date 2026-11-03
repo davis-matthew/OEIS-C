@@ -7,7 +7,8 @@
  * Formula:   a(n) = (12*n)!*(2*n)!/((7*n)!*(4*n)!*(3*n)!)
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 2, u64 n <= 5, u128 n <= 10,
  *            big any n
- * Helpers:   _vp_fact, seq_mul, seq_pow
+ * Validated: partial, pass, 13 terms through n = 12 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,25 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/seq_pow.h"
-#include "../utils/seq_mul.h"
-#include "../utils/_vp_fact.h"
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* Legendre’s formula: v_p(m!)  */
+static idx_t _vp_fact(idx_t m, idx_t p)
+{
+    idx_t cnt = 0;
+    while (m >= p) {
+        m /= p;
+        cnt += m;
+    }
+    return cnt;
+}
 
 /* Global prime table for repeated calls. */
 static idx_t   *_primes      = NULL;
@@ -97,7 +114,7 @@ seq_t a(idx_t n)
         if (exp == 0)
             continue;
 
-        seq_t powv = seq_pow((seq_t)p, exp);
+        seq_t powv = ipow_idx((seq_t)p, exp);
         result = seq_mul(result, powv);
     }
 

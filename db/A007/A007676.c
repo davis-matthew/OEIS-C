@@ -8,12 +8,21 @@
  *            1, 2, 1, 1, 4, 1, 1, 6, 1, 1, 8, ...]
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 22, u64 n <= 40, u128 n <= 70,
  *            big any n
- * Helpers:   cf_e
+ * Validated: standard, pass, 46 terms through n = 981 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/cf_e.h"
+static seq_t cf_e(idx_t n) {
+    if (n == 0) return 2;
+    idx_t m = n - 1;
+    idx_t mod = m % 3;
+    if (mod == 1) {
+        return (seq_t)2 * ((m / 3) + 1);
+    }
+    return 1;
+}
 
 seq_t a(idx_t n) {
     seq_t p_prev2 = 1;

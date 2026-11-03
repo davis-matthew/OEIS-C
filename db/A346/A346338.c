@@ -12,13 +12,15 @@
  *            sums, and returns the nth sum that occurs exactly three times
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 9595 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper: compare two seq_t values for qsort. */
 static int cmp_seq_t(const void *p, const void *q)
@@ -90,7 +92,7 @@ static void initialise_sequence(void)
 
     /* Allocate space for all possible sums. */
     size_t comb = small_binom(MAX_VAL + 9 - 1, 9);  /* C(26,9) = 3,124,550 */
-    all_sums = (seq_t *)malloc(comb * sizeof(seq_t));
+    all_sums = mem_new(seq_t, comb);
     if (all_sums == NULL) {
         /* Allocation failed – abort gracefully. */
         exit(1);
@@ -102,21 +104,21 @@ static void initialise_sequence(void)
 
     /* Sanity check – should equal comb. */
     if (total_sums != comb) {
-        free(all_sums);
+        mem_free(all_sums);
         all_sums = NULL;
         return;
     }
 
     /* Sort the sums to count frequencies. */
-    qsort(all_sums, total_sums, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(all_sums, total_sums, sizeof(seq_t), cmp_seq_t);
 
     /* Count frequencies and collect sums that occur exactly three times. */
     seq_terms = NULL;
     seq_len   = 0;
     size_t cap = 1024;      /* initial capacity, will grow as needed */
-    seq_terms = (seq_t *)malloc(cap * sizeof(seq_t));
+    seq_terms = mem_new(seq_t, cap);
     if (seq_terms == NULL) {
-        free(all_sums);
+        mem_free(all_sums);
         all_sums = NULL;
         exit(1);
     }
@@ -130,9 +132,9 @@ static void initialise_sequence(void)
         if (freq == 3) {
             if (seq_len == cap) {
                 cap *= 2;
-                seq_terms = (seq_t *)realloc(seq_terms, cap * sizeof(seq_t));
+                seq_terms = mem_resize(seq_t, seq_terms, cap);
                 if (seq_terms == NULL) {
-                    free(all_sums);
+                    mem_free(all_sums);
                     all_sums = NULL;
                     exit(1);
                 }
@@ -142,7 +144,7 @@ static void initialise_sequence(void)
         i = j;
     }
 
-    free(all_sums);
+    mem_free(all_sums);
     all_sums = NULL;
 }
 

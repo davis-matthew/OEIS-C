@@ -10,11 +10,13 @@
  * Formula:   a(n) = binomial(2n, n-3) - binomial(2n, n-6) (OEIS A026015)
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 17, u64 n <= 34, u128 n <= 66,
  *            big any n
+ * Validated: standard, pass, 41 terms through n = 977 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 static seq_t binom_local(idx_t n, idx_t k)

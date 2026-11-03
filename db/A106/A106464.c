@@ -7,13 +7,15 @@
  * Formula:   a(n) = Sum_{k=0..⌊n/2⌋} gcd(n-2*k+1, k+1) (OEIS A106464)
  * Range:     u8 n <= 116, u16 n <= 6296, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd_seq
+ * Validated: standard, pass, 77 terms through n = 7882 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/gcd_seq.h"
+#include <stdbool.h>
+#include "../utils/gcd.h"
 
 /* Local Euclidean GCD for seq_t */
 
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     {
         seq_t term_a = (seq_t)n - ((seq_t)k << 1) + 1; /* n - 2*k + 1 */
         seq_t term_b = (seq_t)k + 1;                  /* k + 1       */
-        total += gcd_seq(term_a, term_b);
+        total += gcd(term_a, term_b);
     }
     return total;
 }

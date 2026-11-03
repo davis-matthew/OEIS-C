@@ -7,6 +7,7 @@
  * Formula:   a(n) = (n^3 + 6*n^2 + 36*n + 72 - 9*(n mod 2)*n) / 72
  * Range:     u8 n <= 3, u16 n <= 38, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
+ * Validated: partial, pass, 54 terms through n = 53 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

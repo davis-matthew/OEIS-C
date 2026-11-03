@@ -7,7 +7,8 @@
  * Formula:   primes of the form 3x²+2xy+7y² with x,y≥0 (search / sieve)
  * Range:     u8 n <= 7, u16 n <= 708, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 9350 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* the maximum value to generate – sufficient for the first 10 000 primes */
 #define MAX_VAL 20000000ULL
@@ -113,7 +115,7 @@ static void generate_sequence(void)
     qsort(temp_vals, temp_len, sizeof(uint64_t), cmp_uint64);
 
     /* store into seq_t array */
-    prime_values = (seq_t *)malloc(temp_len * sizeof(seq_t));
+    prime_values = mem_new(seq_t, temp_len);
     for (size_t i = 0; i < temp_len; ++i)
         prime_values[i] = (seq_t)temp_vals[i];
     prime_count = temp_len;

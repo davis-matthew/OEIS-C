@@ -7,16 +7,17 @@
  * Keywords:  nonn
  * Formula:   a(n) = binomial(greatest_prime_factor(n),
  *            smallest_odd_prime_factor(n))
- * Range:     u8 n <= 32, u16 n <= 144, u32 n <= 472, u64 n <= 1816,
+ * Range:     u8 n <= 38, u16 n <= 144, u32 n <= 472, u64 n <= 1816,
  *            u128 n <= 6682, big any n
- * Helpers:   binom, gpf
+ * Validated: standard, pass, 100 terms through n = 9982 (2026-11-01)
+ * Helpers:   binomial, largest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/gpf.h"    /* function: uint64_t gpf(uint64_t x); */
-#include "../utils/binom.h"  /* function: seq_t binom(idx_t n, idx_t k); */
+#include "../utils/binomial.h"
+#include "../utils/largest_prime_factor.h"
 
 /* compute the smallest odd prime factor of n; if none, return 1 */
 static idx_t smallest_odd_prime_factor(idx_t n)
@@ -40,7 +41,7 @@ static idx_t smallest_odd_prime_factor(idx_t n)
 seq_t a(idx_t n)
 {
     if (n == 0) return 0; /* out of range; not used */
-    uint64_t g = gpf(n);          /* greatest prime factor of n (returns 1 for n = 1) */
+    uint64_t g = largest_prime_factor(n);          /* greatest prime factor of n (returns 1 for n = 1) */
     idx_t sop = smallest_odd_prime_factor(n);
-    return binom((idx_t)g, sop);
+    return binomial((idx_t)g, sop);
 }

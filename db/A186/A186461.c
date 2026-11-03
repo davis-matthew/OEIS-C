@@ -11,13 +11,15 @@
  *            5633, 9477, 13245, 20281, 27573, 43177, 62025, 98157
  * Range:     u8 none, u16 n <= 13, u32 n <= 39, u64 n <= 93, u128 n <= 200,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 176 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* storage for computed terms (1‑based) */
 static size_t cap   = 0;             /* allocated capacity */
@@ -35,7 +37,7 @@ static void ensure_capacity(idx_t n)
             cap *= 2;
     }
 
-    seq_t *tmp = (seq_t *)realloc(cache, (cap + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, (cap + 1));
     if (!tmp) exit(EXIT_FAILURE);         /* memory exhaustion */
     cache = tmp;
 }
@@ -54,7 +56,7 @@ static void init_first_terms(void)
 
     ensure_capacity(14);                 /* make room for 1..14 */
 
-    memcpy(&cache[1], first + 1, 14 * sizeof(seq_t));
+    mem_copy(&cache[1], first + 1, 14 * sizeof(seq_t));
     max_n = 14;
 }
 

@@ -8,18 +8,20 @@
  * Formula:   a(n) = binom(n+4,5)*(15*n^3+390*n^2+2285*n+3886)/48
  * Range:     u8 n <= 0, u16 n <= 4, u32 n <= 29, u64 n <= 534, u128 n <= 1000,
  *            big any n
- * Helpers:   binom, seq_gcd
+ * Validated: standard, pass, 44 terms through n = 953 (2026-11-01)
+ * Helpers:   binomial, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
-#include "../utils/seq_gcd.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {
     /* C(n+4,5) */
-    seq_t coef = binom(n + 4, 5);
+    seq_t coef = binomial(n + 4, 5);
 
     /* polynomial part: 15*n^3 + 390*n^2 + 2285*n + 3886 */
     seq_t nn   = (seq_t)n;
@@ -33,13 +35,13 @@ seq_t a(idx_t n)
     seq_t g;
 
     while (denom > 1) {
-        g = seq_gcd(coef, denom);
+        g = gcd(coef, denom);
         if (g > 1) {
             coef /= g;
             denom /= g;
             continue;
         }
-        g = seq_gcd(poly, denom);
+        g = gcd(poly, denom);
         if (g > 1) {
             poly /= g;
             denom /= g;

@@ -12,13 +12,15 @@
  *            those given in the OEIS entry for n ≥ 1
  * Range:     u8 n <= 1, u16 n <= 7, u32 n <= 18, u64 n <= 40, u128 n <= 84,
  *            big any n
- * Helpers:   STATE
+ * Validated: standard, pass, 40 terms through n = 205 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/STATE.h"
+
+static inline int STATE(int prev2, int prev1) { return (prev2 << 3) | prev1; }
 
 static const bool okRow[8] = {
     true,  /* 000 */

@@ -7,14 +7,33 @@
  * Formula:   a(n) = number of knapsack factorizations of n
  * Range:     u8 n <= 2000, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   generate_products
+ * Validated: standard, pass, 101 terms through n = 1993 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/generate_products.h"
+
+/* Recursively build all products of subsets given unique values and
+   their multiplicities.  The results are stored in the array *prods
+   and the index ptr is incremented. */
+static void generate_products(int idx, int uniq, const uint32_t *vals,
+                              const int *freqs, seq_t cur,
+                              idx_t *prods, int *ptr)
+{
+    if (idx == uniq) {
+        prods[*ptr] = (idx_t)cur;
+        (*ptr)++;
+        return;
+    }
+    seq_t prod = cur;
+    for (int c = 0; c <= freqs[idx]; c++) {
+        generate_products(idx + 1, uniq, vals, freqs, prod, prods, ptr);
+        prod = prod * (seq_t)vals[idx];
+    }
+}
 
 /* Comparator for qsort of idx_t values. */
 static int cmp_idx_t(const void *a, const void *b)

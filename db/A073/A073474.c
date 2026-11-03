@@ -10,13 +10,14 @@
  *            Σ_{j=k..r} binomial(j,k) · (r)_j with (r)_j = r·(r–1)…(r–j+1)
  * Range:     u8 n <= 14, u16 n <= 28, u32 n <= 67, u64 n <= 174,
  *            u128 n <= 445, big any n
- * Helpers:   binom_ck
+ * Validated: standard, pass, 61 terms through n = 9822 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom_ck.h"
+#include "../utils/binomial.h"
 
 /* Integer square root for 64‑bit unsigned values.
  * Uses a simple bit‑shift binary search and avoids overflow with __int128. */
@@ -52,7 +53,7 @@ seq_t a(idx_t n) {
 
     for (idx_t j = 0; j <= r; ++j) {
         if (j >= k) {
-            seq_t b = binom_ck(j, k);
+            seq_t b = binomial(j, k);
             result += b * falling;
         }
         if (j < r) {           /* update falling factorial for next j */

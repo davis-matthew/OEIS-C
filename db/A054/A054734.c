@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* helper structure for a heap node --------------------------------------------------- */
 typedef struct {
@@ -94,7 +96,7 @@ seq_t a(idx_t n)
     if (M < 3) M = 3;                     /* at least a few elements */
 
     /* allocate heap */
-    HeapNode *heap = (HeapNode *)malloc((M + 1) * sizeof(HeapNode));
+    HeapNode *heap = mem_new(HeapNode, (M + 1));
     if (!heap) return 0;                  /* unlikely – just a safety fall‑back */
 
     size_t hsize = 0;
@@ -122,7 +124,7 @@ seq_t a(idx_t n)
             ++count;
             last_val = cur.val;
             if (count == n) {
-                free(heap);
+                mem_free(heap);
                 return cur.val;
             }
             first = false;
@@ -140,6 +142,6 @@ seq_t a(idx_t n)
     }
 
     /* unreachable */
-    free(heap);
+    mem_free(heap);
     return last_val;
 }

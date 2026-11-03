@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 36, u16 n <= 4385, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd64, is_prime, mod_pow
+ * Validated: standard, pass, 82 terms through n = 9989 (2026-11-03)
+ * Helpers:   gcd_u64, is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,9 +29,11 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/is_prime.h"   /* bool is_prime(idx_t n); */
-#include "../utils/mod_pow.h"    /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod); */
-#include "../utils/gcd64.h"
+#include <string.h>
+#include "../utils/gcd_u64.h"
+#include "../utils/is_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static cache of qualifying primes. */
@@ -50,18 +53,18 @@ seq_t a(idx_t n) {
         uint64_t p = cand;
 
         /* Determine if 6 is a 6th power mod p. */
-        uint64_t d = gcd64(6ULL, p - 1);
+        uint64_t d = gcd_u64(6ULL, p - 1);
         uint64_t exp = (p - 1) / d;
-        seq_t r = mod_pow((seq_t)6, exp, (seq_t)p);
+        seq_t r = powmod((seq_t)6, exp, (seq_t)p);
 
         /* Store if 6 is not a 6th power residue. */
         if (r != (seq_t)1) {
             if (qcap == 0) {
                 qcap = 16;
-                qual = (seq_t*)malloc(qcap * sizeof(seq_t));
+                qual = mem_new(seq_t, qcap);
             } else if (qcnt >= qcap) {
                 qcap <<= 1;
-                qual = (seq_t*)realloc(qual, qcap * sizeof(seq_t));
+                qual = mem_resize(seq_t, qual, qcap);
             }
             qual[qcnt++] = (seq_t)p;
         }

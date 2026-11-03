@@ -11,12 +11,14 @@
  *            (x+1)·u_{n-1}(x) + 2x·v_{n-1}(x) + 1
  * Range:     u8 n <= 24, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, free */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,13 +26,13 @@ seq_t a(idx_t n)
         return (seq_t)0;   /* out of range, return 0 per convention */
 
     /* Allocate temporary arrays of maximum needed size (row n) */
-    seq_t *u_cur   = (seq_t *)malloc((size_t)n * sizeof(seq_t));
-    seq_t *v_cur   = (seq_t *)malloc((size_t)n * sizeof(seq_t));
-    seq_t *u_next  = (seq_t *)malloc((size_t)n * sizeof(seq_t));
-    seq_t *v_next  = (seq_t *)malloc((size_t)n * sizeof(seq_t));
+    seq_t *u_cur   = mem_new(seq_t, (size_t)n);
+    seq_t *v_cur   = mem_new(seq_t, (size_t)n);
+    seq_t *u_next  = mem_new(seq_t, (size_t)n);
+    seq_t *v_next  = mem_new(seq_t, (size_t)n);
     if (!u_cur || !v_cur || !u_next || !v_next) {
         /* allocation failure – return 0 as a safe fallback */
-        free(u_cur); free(v_cur); free(u_next); free(v_next);
+        mem_free(u_cur); mem_free(v_cur); mem_free(u_next); mem_free(v_next);
         return (seq_t)0;
     }
 
@@ -75,8 +77,8 @@ seq_t a(idx_t n)
     seq_t result = u_cur[offset];
 
     /* Free allocated memory */
-    free(u_cur); free(v_cur);
-    free(u_next); free(v_next);
+    mem_free(u_cur); mem_free(v_cur);
+    mem_free(u_next); mem_free(v_next);
 
     return result;
 }

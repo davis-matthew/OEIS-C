@@ -9,14 +9,16 @@
  * Formula:   a(n) = binom(n,5) * Σ_{j=0..5} Stirling2(5,j) * j^(n-5)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 13, u64 n <= 25, u128 n <= 51,
  *            big any n
- * Helpers:   binomial, seq_pow
+ * Validated: standard, pass, 36 terms through n = 993 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binomial.h"   /* binomial(idx_t a, idx_t b) */
-#include "../utils/seq_pow.h"    /* seq_pow(seq_t base, idx_t exp) */
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     idx_t exp = n - 5;
 
     for (idx_t j = 1; j <= 5; ++j) {
-        seq_t pow = seq_pow((seq_t)j, exp);   /* j^(n-5) */
+        seq_t pow = ipow_idx((seq_t)j, exp);   /* j^(n-5) */
         sum += pow * ST[(size_t)j];
     }
 

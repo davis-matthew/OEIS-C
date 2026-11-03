@@ -8,7 +8,8 @@
  * Formula:   a(n) = exponent of 2 in (A014076(n)+1)
  * Range:     u8 n <= 74, u16 n <= 7740, u32 n <= 7740, u64 n <= 7740,
  *            u128 n <= 7740, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 116 terms through n = 7036 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* helper: compute exponent of 2 dividing v */
 static seq_t exponent_of_two(seq_t v)
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
         if (capacity < n) {
             idx_t new_cap = (capacity == 0) ? 16 : capacity << 1;
             while (new_cap < n) new_cap <<= 1;
-            cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_cap);
             capacity = new_cap;
         }
 

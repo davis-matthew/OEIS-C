@@ -8,12 +8,14 @@
  *            G[n‑k][k] | 1 <= k <= n, k != m }, with G[0][*] = 0
  * Range:     u8 n <= 53, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
 
     if (max_n == 0) {
         /* initialise for n = 0 */
-        a_arr = (seq_t*)malloc(sizeof(seq_t));
+        a_arr = mem_new(seq_t, 1);
         if (!a_arr) return (seq_t)0;
         a_arr[0] = (seq_t)0;
         G = (uint16_t**)malloc(sizeof(uint16_t*));
@@ -33,10 +35,10 @@ seq_t a(idx_t n)
 
     if (n > max_n) {
         /* grow a_arr to length n+1 */
-        seq_t *new_a = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+        seq_t *new_a = mem_new(seq_t, (n + 1));
         if (!new_a) return (seq_t)0;
-        if (a_arr) memcpy(new_a, a_arr, (max_n + 1) * sizeof(seq_t));
-        free(a_arr);
+        if (a_arr) mem_copy(new_a, a_arr, (max_n + 1) * sizeof(seq_t));
+        mem_free(a_arr);
         a_arr = new_a;
 
         /* grow G pointer array */

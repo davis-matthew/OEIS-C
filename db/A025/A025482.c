@@ -9,7 +9,8 @@
  *            a(n) = a(n-1) + 1 otherwise
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 115 terms through n = 9417 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* memoisation table */
 static idx_t cache_len = 0;     /* number of values currently stored */
@@ -36,8 +38,8 @@ seq_t a(idx_t n)
            In C this cast is optional, but it keeps the code valid
            for both languages. */
         p = (cache_len == 0)
-            ? (seq_t*)malloc(new_len * sizeof(seq_t))
-            : (seq_t*)realloc(cache,  new_len * sizeof(seq_t));
+            ? mem_new(seq_t, new_len)
+            : mem_resize(seq_t, cache, new_len);
 
         if (!p)               /* allocation failed – keep the old cache */
             return 0;

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   has_integer_root
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,35 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/has_integer_root.h"
+
+/* Return true if k satisfies the polynomial-root condition. */
+static bool has_integer_root(idx_t k)
+{
+    /* x = 0 gives a root iff the last digit is 0. */
+    if (k % 10 == 0)
+        return true;
+
+    /* Extract decimal digits.  digits[0] = least significant digit. */
+    int digits[32];
+    int len = 0;
+    idx_t t = k;
+    while (t) {
+        digits[len++] = t % 10;
+        t /= 10;
+    }
+    if (len == 0)
+        return true;   /* k == 0, already handled elsewhere */
+
+    /* Test integer roots x = -1 … -9. */
+    for (int x = -1; x >= -9; --x) {
+        long long val = 0;          /* Horner's rule, works for negatives */
+        for (int i = len - 1; i >= 0; --i)
+            val = val * x + digits[i];
+        if (val == 0)
+            return true;
+    }
+    return false;
+}
 
 /* External linkage as requested. */
 seq_t a(idx_t n)

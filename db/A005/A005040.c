@@ -12,7 +12,8 @@
  *            closed forms for big integers; for fixed widths the serie...
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 14, u64 n <= 24, u128 n <= 45,
  *            big any n
- * Helpers:   binom, seq_is_fixed_width, u128_to_seq
+ * Validated: standard, pass, 40 terms through n = 989 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,31 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/binom.h"
-#include "../utils/seq_is_fixed_width.h"
-#include "../utils/u128_to_seq.h"
+#include "../utils/binomial.h"
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
+
+static seq_t u128_to_seq(unsigned __int128 u)
+{
+    seq_t r = 0;
+    int k;
+    for (k = 3; k >= 0; k--) {
+        r = r * 65536ULL;
+        r = r * 65536ULL;
+        r += (seq_t)(uint64_t)(uint32_t)(u >> (32 * k));
+    }
+    return r;
+}
 
 typedef unsigned __int128 u128;
 typedef struct { u128 lo; unsigned hi; } w130;
@@ -84,11 +107,11 @@ static void w_extend(idx_t n) {
 }
 
 static seq_t big_g(idx_t k) {
-    return binom(4 * k, k) / (seq_t)(3 * k + 1);
+    return binomial(4 * k, k) / (seq_t)(3 * k + 1);
 }
 
 static seq_t big_h(idx_t k) {
-    return binom(4 * k + 2, k) / (seq_t)(2 * k + 1);
+    return binomial(4 * k + 2, k) / (seq_t)(2 * k + 1);
 }
 
 seq_t a(idx_t n) {

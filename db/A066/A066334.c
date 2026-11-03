@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 7, i16 n <= 31, i32 n <= 51, i64 n <= 51, i128 n <= 51,
  *            big any n
- * Helpers:   msb_uint64
+ * Validated: partial, pass, 52 terms through n = 51 (2026-11-01)
+ * Helpers:   ilog2_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,7 @@
  */
 
 #include <stdint.h>
-#include "../utils/msb_uint64.h"
+#include "../utils/ilog2_u64.h"
 
 seq_t a(idx_t n) {
     /* Pre‑computed minimal low‑bit patterns (as integer values). */
@@ -49,10 +50,10 @@ seq_t a(idx_t n) {
     /* Find most significant bit of the full integer. */
     int msb;
     if (high != 0) {
-        int msb_high = msb_uint64(high);
+        int msb_high = ilog2_u64(high);
         msb = msb_high + 4;    /* shift of low bits adds 4 positions */
     } else {
-        msb = msb_uint64((uint64_t)pattern);
+        msb = ilog2_u64((uint64_t)pattern);
         if (msb < 0)          /* should not happen, but safety */
             return 0;
     }

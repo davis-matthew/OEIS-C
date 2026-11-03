@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   contains_pair
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,23 @@
    integers sequentially and caching results. */
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/contains_pair.h"
+#include "../utils/mem.h"
+
+/* Return true iff the decimal representation of k contains
+   the adjacent digits 3 and 6 in either order. */
+static bool contains_pair(seq_t k)
+{
+    seq_t prev = k % 10;          /* last digit */
+    k = k / 10;
+    while (k > 0) {
+        seq_t d = k % 10;
+        if ((d == 3 && prev == 6) || (d == 6 && prev == 3))
+            return true;
+        prev = d;
+        k = k / 10;
+    }
+    return false;
+}
 
 /* Cached sequence values.  The cache is expanded as needed. */
 static seq_t *cache = NULL;   /* array of terms */
@@ -34,7 +51,7 @@ static void grow_cache(void)
         cap = 16;
     else
         cap <<= 1;
-    cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, cap);
 }
 
 /* External linkage as required. */

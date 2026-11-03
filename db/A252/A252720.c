@@ -15,13 +15,15 @@
  *            a(9)=432, a(10)=584, a(11)=786, * a(12)=1067, a(13)=14...
  * Range:     u8 n <= 7, u16 n <= 25, u32 n <= 57, u64 n <= 118, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* memoisation cache */
 static seq_t *cache      = NULL;        /* array a[0..max_cache] */
@@ -42,7 +44,7 @@ static void init_cache(void)
         return;
 
     cache_cap = 16;                  /* 0..15 */
-    cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     if (!cache)
         abort();                     /* out of memory */
 
@@ -62,14 +64,14 @@ static void grow_cache(idx_t need)
     while (new_cap <= (size_t)need + 1)
         new_cap <<= 1;
 
-    seq_t *new_cache = (seq_t *)calloc(new_cap, sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache)
         abort();
 
     for (size_t i = 0; i < cache_cap; ++i)
         new_cache[i] = cache[i];
 
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
     cache_cap = new_cap;
 }

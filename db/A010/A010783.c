@@ -7,8 +7,9 @@
  * Formula:   a(n) is the nth element of the flattened triangle * T(r,k) =
  *            floor(r/(r-k+1)), where rows are numbered r = 1,2,3,... * and
  *            columns k = 1,…,r. The terms are listed row‑by‑row
- * Range:     u8 n <= 9289, u16 n <= 9289, u32 n <= 9289, u64 n <= 9289,
- *            u128 n <= 9289, big any n
+ * Range:     u8 n <= 10011, u16 n <= 10011, u32 n <= 10011, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 107 terms through n = 9289 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

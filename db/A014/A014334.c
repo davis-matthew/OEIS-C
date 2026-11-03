@@ -7,12 +7,14 @@
  * Formula:   a(n) = 3*a(n-1) + 2*a(n-2) - 4*a(n-3), a(0)=0, a(1)=0, a(2)=2
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 20, u64 n <= 39, u128 n <= 76,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 964 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache for computed terms. */
 static seq_t *cache = NULL;      /* array holding computed terms              */
@@ -31,7 +33,7 @@ static void ensure_cache(idx_t n)
         new_cap <<= 1;
 
     /* Allocate new array and copy old data. */
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache)
         return; /* allocation failed; caller will handle */
 
@@ -42,7 +44,7 @@ static void ensure_cache(idx_t n)
 
     /* Free old cache if it existed. */
     if (cache)
-        free(cache);
+        mem_free(cache);
 
     cache = new_cache;
     cap   = new_cap;

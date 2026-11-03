@@ -11,14 +11,25 @@
  *            earlier values
  * Range:     u8 n <= 250, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   sum_has9
+ * Validated: standard, pass, 107 terms through n = 1788 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/sum_has9.h"
+
+/* Helper: does a + b contain a digit 9? */
+static bool sum_has9(uint64_t a, idx_t b)
+{
+    uint64_t s = a + (uint64_t)b;
+    while (s > 0) {
+        if (s % 10 == 9) return true;
+        s /= 10;
+    }
+    return false;
+}
 
 #define MAXVAL 300000   /* buffer large enough for n up to ~10000 */
 

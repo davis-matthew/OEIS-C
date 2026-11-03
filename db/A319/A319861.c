@@ -11,14 +11,17 @@
  *            = r(r+1)/2 + k with 0 ≤ k ≤ r, then a(n) = odd_part( C(r,k) ),
  *            where C(r,k) = binomial(r,k) and odd_part(x) removes all factors
  *            of 2
- * Range:     u8 n <= 39, u16 n <= 237, u32 n <= 616, u64 n <= 1325,
+ * Range:     u8 n <= 69, u16 n <= 237, u32 n <= 717, u64 n <= 1325,
  *            u128 n <= 1325, big any n
- * Helpers:   binom, odd_part
+ * Validated: standard, pass, 94 terms through n = 1196 (2026-11-01)
+ * Helpers:   binomial, odd_part
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/binomial.h"
 #include "../utils/odd_part.h"
 
 seq_t a(idx_t n)
@@ -36,6 +39,6 @@ seq_t a(idx_t n)
     idx_t k = n - sum;
 
     /* Binomial coefficient and its odd part. */
-    seq_t val = binom(r, k);
+    seq_t val = binomial(r, k);
     return odd_part(val);
 }

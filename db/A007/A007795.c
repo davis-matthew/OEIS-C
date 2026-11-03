@@ -7,21 +7,21 @@
  * Formula:   Juxtapose the (2n-1)-th and (2n)-th primes as decimal digits
  * Range:     u8 n <= 2, u16 n <= 12, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 52 terms through n = 957 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_prime.h"
-
+#include "../utils/is_prime_u64.h"
 
 static uint64_t nth_prime(idx_t n) {
     if (n == 1) return 2;
     uint64_t count = 1;
     uint64_t p = 3;
     while (count < n) {
-        if (is_prime(p)) count++;
+        if (is_prime_u64(p)) count++;
         if (count < n) p += 2;
     }
     return p;

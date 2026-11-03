@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 90, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_bad_square, isqrt_u64
+ * Validated: standard, pass, 77 terms through n = 8634 (2026-11-03)
+ * Helpers:   isqrt_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,22 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_bad_square.h"
 #include "../utils/isqrt_u64.h"
+#include "../utils/mem.h"
+
+/* Test whether x has a prime square divisor p² with p = 2 or p ≡ 3 (mod 4). */
+static bool has_bad_square(uint64_t x, const uint64_t *primes, size_t primes_cnt)
+{
+    uint64_t sqr = isqrt_u64(x);
+    for (size_t i = 0; i < primes_cnt && primes[i] <= sqr; ++i) {
+        uint64_t p = primes[i];
+        if (p == 2 || (p & 3ULL) == 3ULL) {
+            uint64_t p2 = p * p;
+            if (p2 > 0 && x % p2 == 0) return true;
+        }
+    }
+    return false;
+}
 
 /* Prime generation limit – large enough for the range of values needed
    (several tens of thousands of terms).  The prime sieve is done once. */
@@ -94,7 +109,7 @@ seq_t a(idx_t n)
             /* Grow cache if needed. */
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 128;
-                seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
                 if (!new_cache) abort();   /* out of memory */
                 cache = new_cache;
                 cache_cap = new_cap;

@@ -8,6 +8,7 @@
  * Formula:   a(n) = (n^3 + 5*n)/6 + 2*n^2 - 8 for n > 2 * a(1) = 2, a(2) = 5
  * Range:     u8 n <= 6, u16 n <= 40, u32 n <= 199, u64 n <= 199,
  *            u128 n <= 199, big any n
+ * Validated: standard, pass, 60 terms through n = 196 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

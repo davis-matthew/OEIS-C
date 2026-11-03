@@ -13,7 +13,8 @@
  *            of each height. The sequence begins at a(1). No...
  * Range:     u8 none, u16 n <= 2, u32 n <= 6, u64 n <= 15, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ---------- constants and types ---------------------------------------- */
 #define N_COLS      4                      /* a 3×1 column becomes 4 columns */
@@ -109,14 +111,14 @@ static void init(void)
     }
 
     /* 3. DP buffers. */
-    dp_cur  = (seq_t*)calloc(state_count, sizeof(seq_t));
-    dp_next = (seq_t*)calloc(state_count, sizeof(seq_t));
+    dp_cur  = mem_new(seq_t, state_count);
+    dp_next = mem_new(seq_t, state_count);
 
     /* 4. First row: each state is reachable in one way. */
     for (uint16_t k = 0; k < state_count; ++k) dp_cur[k] = 1;
 
     /* 5. Results buffer (index 0 unused). */
-    results    = (seq_t*)calloc(1, sizeof(seq_t));
+    results    = mem_new(seq_t, 1);
     results_cap = 1;
 
     init_done = true;
@@ -132,15 +134,14 @@ seq_t a(idx_t n)
     if (n > max_precomp) {
         size_t needed_cap = (size_t)n + 1;
         if (needed_cap > results_cap) {
-            seq_t *tmp = (seq_t*)realloc(results,
-                                         needed_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, results, needed_cap);
             results     = tmp;
             results_cap = needed_cap;
         }
 
         for (idx_t cur_n = max_precomp + 1; cur_n <= n; ++cur_n) {
             /* Zero next DP buffer. */
-            memset(dp_next, 0, state_count * sizeof(seq_t));
+            mem_set(dp_next, 0, state_count * sizeof(seq_t));
 
             /* Transition from current row to next row. */
             for (uint16_t i = 0; i < state_count; ++i) {

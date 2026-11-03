@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
     /* 4. Compute the required Fibonacci numbers up to index
      *    m + dabs + 3 (since s[t] = F(t+3)-2). */
     idx_t fib_need = m + dabs + 3;          /* highest Fibonacci index needed */
-    seq_t *fib = (seq_t*)malloc((fib_need + 1) * sizeof(seq_t));
+    seq_t *fib = mem_new(seq_t, (fib_need + 1));
     if (!fib)
         exit(1);   /* minimal error handling */
 
@@ -69,6 +71,6 @@ seq_t a(idx_t n)
         result += s1 * s2;
     }
 
-    free(fib);
+    mem_free(fib);
     return result;
 }

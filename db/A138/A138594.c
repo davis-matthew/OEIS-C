@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 149, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_rep
+ * Validated: standard, pass, 78 terms through n = 9320 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,17 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has_rep.h"
+
+static inline bool has_rep(seq_t sum)
+{
+    /* Test whether 'sum' can be written as k*s + k*(k-1)/2 with k ≥ 6. */
+    for (idx_t k = 6; ; ++k) {
+        seq_t start = (seq_t)k * (k - 1) / 2;
+        if (start > sum) break;
+        if ((sum - start) % k == 0) return true;
+    }
+    return false;
+}
 
 /* The array below is large enough for all required n (up to ~10 000).  */
 #define MAX_CACHE 30000

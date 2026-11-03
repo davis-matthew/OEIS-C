@@ -9,8 +9,9 @@
  *            (non‑square * k only). The table is the list of partial
  *            quotients of the period of * √k (for square k the row is empty).
  *            The offset is 2: a(2) is the first * term of the firs...
- * Range:     u8 n <= 9101, u16 n <= 9101, u32 n <= 9101, u64 n <= 9101,
- *            u128 n <= 9101, big any n
+ * Range:     u8 n <= 10459, u16 n <= 10459, u32 n <= 10459, u64 n <= 10459,
+ *            u128 n <= 10459, big any n
+ * Validated: standard, pass, 114 terms through n = 9101 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

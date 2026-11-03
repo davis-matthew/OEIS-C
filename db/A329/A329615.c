@@ -10,16 +10,61 @@
  *            bitwise AND of suffix sums of the exponents of the prime
  *            factorization of n, where the suffix sum for a prime p is the
  *            sum of the exponents of all primes in n that are >= p
- * Range:     u8 n <= 9947, u16 n <= 9947, u32 n <= 9947, u64 n <= 9947,
- *            u128 n <= 9947, big any n
- * Helpers:   factorize_simple
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9947 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/factorize_simple.h"
+
+/* Factors n into arrays primes[] and exp[].
+   primes[] holds the distinct prime factors in no particular order.
+   exp[] holds their corresponding exponents.
+   The arrays are assumed large enough.  Returns the number of distinct
+   primes found. */
+static size_t factorize_simple(idx_t n, uint64_t primes[], int exp[])
+{
+    size_t cnt = 0;
+    if (n <= 1)
+        return 0;
+
+    /* factor out 2 */
+    int e = 0;
+    while ((n & 1) == 0) {
+        ++e;
+        n >>= 1;
+    }
+    if (e) {
+        primes[cnt] = 2;
+        exp[cnt] = e;
+        ++cnt;
+    }
+
+    /* odd factors */
+    for (idx_t d = 3; d * d <= n; d += 2) {
+        if (n % d == 0) {
+            e = 0;
+            while (n % d == 0) {
+                ++e;
+                n /= d;
+            }
+            primes[cnt] = d;
+            exp[cnt] = e;
+            ++cnt;
+        }
+    }
+
+    if (n > 1) {          /* remaining prime factor */
+        primes[cnt] = n;
+        exp[cnt] = 1;
+        ++cnt;
+    }
+    return cnt;
+}
 
 seq_t a(idx_t n)
 {

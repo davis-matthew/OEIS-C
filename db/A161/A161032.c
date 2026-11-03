@@ -11,7 +11,8 @@
  *            ...).)
  * Range:     u8 n <= 85, u16 n <= 239, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 98 terms through n = 872 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,17 +20,18 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;
 
     /* Allocate DP arrays */
     size_t N = (size_t)n;
-    seq_t *dp = (seq_t *)calloc(N + 1, sizeof(seq_t));
-    seq_t *used = (seq_t *)calloc(N + 1, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, N + 1);
+    seq_t *used = mem_new(seq_t, N + 1);
     if (!dp || !used) { /* allocation failure */
-        if (dp) free(dp);
-        if (used) free(used);
+        if (dp) mem_free(dp);
+        if (used) mem_free(used);
         return 0;
     }
 
@@ -41,7 +43,7 @@ seq_t a(idx_t n) {
     do {
         size_t f = (size_t)f_prev;
         if (f > 0 && f <= N) {
-            memset(used, 0, (N + 1) * sizeof(seq_t));
+            mem_set(used, 0, (N + 1) * sizeof(seq_t));
 
             /* Add the mandatory 8 copies: dp[s - 8F] contributes to used[s] */
             size_t base = 8 * f;
@@ -72,7 +74,7 @@ seq_t a(idx_t n) {
     seq_t result = dp[N];
 
     /* Free memory */
-    free(dp);
-    free(used);
+    mem_free(dp);
+    mem_free(used);
     return result;
 }

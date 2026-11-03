@@ -8,12 +8,14 @@
  *            a(3)=6, a(4)=30
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* for realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* initialise the cache on the first call */
     if (cache == NULL) {
         capacity = n + 1;                 /* sufficient for requested index */
-        cache    = (seq_t *)realloc(cache, capacity * sizeof(seq_t));
+        cache    = mem_resize(seq_t, cache, capacity);
         if (cache == NULL) abort();       /* allocation failure */
         cache[2] = (seq_t)1;
         cache[3] = (seq_t)6;
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     /* if the requested index is beyond current capacity, enlarge the array */
     if (capacity <= n) {
         capacity = n + 1;
-        cache = (seq_t *)realloc(cache, capacity * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, capacity);
         if (cache == NULL) abort();  /* allocation failure */
     }
     /* if already computed, return the cached value */

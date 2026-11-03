@@ -11,23 +11,25 @@
  *            = (-1)^{k/2} * if k odd : c_k = (-1)^{(k−1)/2+2}·2^k
  * Range:     i8 n <= 6, i16 n <= 9, i32 n <= 14, i64 n <= 20, i128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* allocate arrays */
-    seq_t *a_seq = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *a_seq = mem_new(seq_t, (n + 1));
     if (!a_seq) return 0;      /* should not happen */
     a_seq[0] = 1;              /* a(0) = 1 */
 
     /* precompute powers of two up to n */
-    seq_t *pow2 = (seq_t *)malloc((n + 1) * sizeof(seq_t));
-    if (!pow2) { free(a_seq); return 0; }
+    seq_t *pow2 = mem_new(seq_t, (n + 1));
+    if (!pow2) { mem_free(a_seq); return 0; }
     pow2[0] = 1;
     for (idx_t i = 1; i <= n; ++i)
         pow2[i] = pow2[i - 1] * 2;
@@ -71,7 +73,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = a_seq[n];
-    free(a_seq);
-    free(pow2);
+    mem_free(a_seq);
+    mem_free(pow2);
     return result;
 }

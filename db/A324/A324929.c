@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   build_primes_upto, factor_u64
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   build_primes_upto, factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include "../utils/build_primes_upto.h"
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 static const idx_t MAX_PRIME = 200000;          /* limit for the primes table */
 
@@ -57,7 +59,7 @@ static void ensure_initialized(void)
 
     /* Allocate initial cache for the sequence */
     seq_cap   = 1024;
-    seq_cache = (seq_t *)calloc(seq_cap, sizeof(seq_t));
+    seq_cache = mem_new(seq_t, seq_cap);
     seq_len   = 0;
 
     initialized = true;
@@ -68,7 +70,7 @@ static void append_term(seq_t val)
 {
     if (seq_len == seq_cap) {
         seq_cap = seq_cap * 2 + 16;
-        seq_cache = (seq_t *)realloc(seq_cache, seq_cap * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, seq_cap);
     }
     seq_cache[seq_len++] = val;
 }

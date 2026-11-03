@@ -6,9 +6,10 @@
  * Keywords:  nonn, cons
  * Formula:   a(n) = floor(6^(1/3) * 10^(n-1)) mod 10, computed with the
  *            digit-by-digit integer cube-root method
- * Range:     u8 n <= 9342, u16 n <= 9342, u32 n <= 9342, u64 n <= 9342,
- *            u128 n <= 9342, big any n
- * Helpers:   a005486_le
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 103 terms through n = 9342 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,16 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a005486_le.h"
+
+/* returns 1 if t <= R */
+static int a005486_le(const uint64_t *t, const uint64_t *R, size_t L) {
+    size_t i = L;
+    while (i > 0) {
+        i--;
+        if (t[i] != R[i]) return t[i] < R[i];
+    }
+    return 1;
+}
 
 #define A005486_BASE 1000000000ULL
 

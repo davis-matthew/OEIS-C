@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 29, u32 n <= 59, u64 n <= 119,
  *            u128 n <= 239, big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 990 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -42,27 +44,9 @@ seq_t a(idx_t n)
             while (new_cap <= (size_t)n)
                 new_cap <<= 1;
 
-            /* allocation compatible with C and C++ */
-#ifdef __cplusplus
-            /* operator new[] returns a pointer to uninitialised storage */
-            void *tmp = ::operator new(new_cap * sizeof(seq_t));
-#else
-            void *tmp = malloc(new_cap * sizeof(seq_t));
-#endif
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort();      /* out of memory */
-
-            /* move any existing data */
-            if (cache) {
-                /* cast to char* for memcpy */
-                memcpy(tmp, cache, len * sizeof(seq_t));
-#ifdef __cplusplus
-                /* destroy old array */
-                ::operator delete[](cache);
-#else
-                free(cache);
-#endif
-            }
-            cache = (seq_t*)tmp;
+            cache = tmp;
             cap   = new_cap;
         }
 

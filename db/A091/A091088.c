@@ -11,13 +11,40 @@
  *            arbitrary‑precision primality routine
  * Range:     u8 n <= 19, u16 n <= 1426, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_len, isPrimeGeneric
+ * Validated: standard, pass, 118 terms through n = 9269 (2026-11-03)
+ * Helpers:   is_prime_u128, is_prime_u64, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/isPrimeGeneric.h"
-#include "../utils/digit_len.h"
+#include <stddef.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <limits.h>
+#include "../utils/is_prime_u128.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/num_digits.h"
+
+/* -----------------  Generic primality test ------------------------ */
+static bool isPrimeGeneric(seq_t n)
+{
+    /* all seq_t are unsigned; use the smallest type that fits */
+    if ((seq_t)(ULLONG_MAX) >= n) {
+        return is_prime_u64((uint64_t)n);
+    }
+#if defined(__SIZEOF_INT128__)
+    return is_prime_u128((__uint128_t)n);
+#else
+    /* fallback: if seq_t > 64‑bit but no 128‑bit support,
+       order the test as simple trial division up to sqrt */
+    seq_t limit = 0;
+    for (seq_t i = 2; i*i <= n; ++i) {
+        if (n % i == 0) return false;
+    }
+    return true;
+#endif
+}
 
 /* Return the smallest odd number that must be appended to n to form a prime. */
 seq_t a(idx_t n)
@@ -26,7 +53,7 @@ seq_t a(idx_t n)
     for (seq_t k = 1; ; k += 2)               /* iterate over odd candidates. */
     {
         /* Count decimal digits of k. */
-        int d = digit_len(k);
+        int d = num_digits(k);
 
         /* Compute 10^d in seq_t. */
         seq_t pow10 = 1;

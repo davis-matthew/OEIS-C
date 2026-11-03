@@ -7,6 +7,7 @@
  * Formula:   a(n) = the decimal integer obtained by writing 29 in base n and
  *            concatenating the base‑n digits as decimal digits
  * Range:     u8 none, u16 none, u32 none, u64 none, u128 n <= 14, big any n
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

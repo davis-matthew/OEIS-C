@@ -7,7 +7,8 @@
  * Formula:   a(n) = n! * Sum_{k=1..n} Sum_{d|k} 1/(d * (k/d)!)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Sequence: A356009 (offset 1) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache of factorials: fact[i] = i!   (i <= fact_len-1) */
 static seq_t *fact = NULL;
@@ -28,7 +30,7 @@ static void ensure_fact(idx_t n)
         return;
 
     idx_t new_len = n + 1;                    /* need indices 0..n */
-    seq_t *tmp = (seq_t *)realloc(fact, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, fact, new_len);
     if (!tmp)
         return;                               /* allocation failed – caller will crash */
 

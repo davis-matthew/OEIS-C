@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 9, i16 n <= 11, i32 n <= 12, i64 n <= 14, i128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    a(n)=a(n-1)*a(n-2) - (a(n-3)+a(n-4)+...+a(1))   for n>2   */
 
 #include <stdlib.h>   /* malloc, realloc, free */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,8 +33,8 @@ seq_t a(idx_t n)
         size_t newcap = (cap == 0) ? 16 : cap * 2;
         if (newcap < (size_t)(n + 1))
             newcap = n + 1;
-        seq = (seq_t *)realloc(seq, newcap * sizeof(seq_t));
-        sum = (seq_t *)realloc(sum, newcap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, newcap);
+        sum = mem_resize(seq_t, sum, newcap);
         /* initialise base of sum array */
         if (computed == 0)
             sum[0] = 0;

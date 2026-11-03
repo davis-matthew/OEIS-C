@@ -7,12 +7,14 @@
  * Formula:   a(n) = Sum_{ d divides n, d<n} phi(n/d)*a(d), n>1, a(1)=1
  * Range:     u8 n <= 47, u16 n <= 719, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 9512 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static unsigned long long phi(unsigned long long n) {
     unsigned long long result = n;
@@ -39,12 +41,12 @@ seq_t a(idx_t n) {
     
     if (n >= memo_len) {
         idx_t new_len = (n < 100) ? 100 : (n * 3 / 2 + 1);
-        seq_t *new_memo = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_memo = mem_new(seq_t, new_len);
         if (memo) {
             for (idx_t i = 0; i < memo_len; i++) {
                 new_memo[i] = memo[i];
             }
-            free(memo);
+            mem_free(memo);
         }
         for (idx_t i = memo_len; i < new_len; i++) {
             new_memo[i] = 0;

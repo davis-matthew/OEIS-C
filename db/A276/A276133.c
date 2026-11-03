@@ -8,7 +8,8 @@
  * Formula:   a(n) = A007814(A061214(n))
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 95 terms through n = 9598 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static idx_t sieve_limit = 0;        /* current upper bound of sieve          */
 static uint32_t *primes = NULL;      /* list of primes                        */
@@ -60,7 +62,7 @@ static void extend_sieve(idx_t limit)
     }
 
     /* Allocate prefix sum array */
-    seq_t *new_pref = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *new_pref = mem_new(seq_t, sz);
     if (!new_pref) abort();
 
     new_pref[0] = (seq_t)0;
@@ -73,7 +75,7 @@ static void extend_sieve(idx_t limit)
 
     /* Replace global data, freeing old memory. */
     free(primes);
-    free(pref);
+    mem_free(pref);
     free(comp);
 
     primes = new_primes;

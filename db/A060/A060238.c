@@ -7,6 +7,7 @@
  * Formula:   a(n) = n! * Π_{p≤n} (1-p)^{⌊n/p⌋}
  * Range:     i8 n <= 4, i16 n <= 6, i32 n <= 9, i64 n <= 14, i128 n <= 24,
  *            big any n
+ * Validated: standard, pass, 36 terms through n = 195 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

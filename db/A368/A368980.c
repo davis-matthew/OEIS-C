@@ -10,13 +10,34 @@
  *            divisors of k)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   tau_uint32
+ * Validated: standard, pass, 103 terms through n = 9989 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/tau_uint32.h"
+
+/* τ(k) for a small unsigned integer (k ≤ 64). */
+static seq_t tau_uint32(unsigned int k)
+{
+    seq_t res = 1;
+    unsigned int tmp = k;
+    for (unsigned int p = 2; p * p <= tmp; ++p) {
+        if (tmp % p == 0) {
+            unsigned int e = 0;
+            while (tmp % p == 0) {
+                tmp /= p;
+                ++e;
+            }
+            res *= (seq_t)(e + 1);
+        }
+    }
+    if (tmp > 1) {          /* remaining prime factor */
+        res *= 2;
+    }
+    return res;
+}
 
 /* Integer square root: largest u with u*u <= n */
 static inline idx_t isqrt_u64(idx_t n)

@@ -7,12 +7,14 @@
  * Formula:   a(n) = Sum_{d|n} 7^(d-1)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 23, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 968 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* cache for powers of 7: pow7[e] = 7^e  (0‑indexed exponent) */
 static seq_t *pow7 = NULL;
@@ -22,7 +24,7 @@ static void ensure_pow7_cap(idx_t exp) {
     if (exp + 1 <= pow7_cap)
         return;
     idx_t new_cap = exp + 1;
-    seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (pow7) {
         for (idx_t k = 0; k < pow7_cap; ++k)
             new_arr[k] = pow7[k];
@@ -34,7 +36,7 @@ static void ensure_pow7_cap(idx_t exp) {
         else
             new_arr[k] = new_arr[k - 1] * (seq_t)7;
     }
-    free(pow7);
+    mem_free(pow7);
     pow7 = new_arr;
     pow7_cap = new_cap;
 }
@@ -47,14 +49,14 @@ static void ensure_a_cache(idx_t n) {
     if (n <= a_cache_cap)
         return;
     idx_t new_cap = n;
-    seq_t *new_arr = (seq_t *)malloc((new_cap + 1) * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, (new_cap + 1));
     if (a_cache) {
         for (idx_t k = 0; k <= a_cache_cap; ++k)
             new_arr[k] = a_cache[k];
     }
     for (idx_t k = a_cache_cap + 1; k <= new_cap; ++k)
         new_arr[k] = (seq_t)0;
-    free(a_cache);
+    mem_free(a_cache);
     a_cache = new_arr;
     a_cache_cap = new_cap;
 }

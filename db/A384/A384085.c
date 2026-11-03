@@ -8,6 +8,7 @@
  * Formula:   a(n) = (40*a(n-1)+725) mod 729, a(1)=1, periodic with period 729
  * Range:     u8 n <= 2, u16 n <= 729, u32 n <= 729, u64 n <= 729,
  *            u128 n <= 729, big any n
+ * Validated: standard, pass, 70 terms through n = 643 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -12,12 +12,14 @@
  *            x/(1-9x^3)^(1/3)
  * Range:     u8 n <= 8, u16 n <= 13, u32 n <= 22, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* cache of previously computed terms */
 static seq_t *seq = NULL;
@@ -29,14 +31,14 @@ static void ensure_cache(idx_t n)
     if (seq == NULL) {
         /* initialise at least for indices 0..3 */
         size_t init_cap = (n < 4) ? 4 : n + 1;
-        seq = (seq_t *)malloc(init_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, init_cap);
         if (seq == NULL) abort();
         /* base values a(0) .. a(3) = 1 */
         for (idx_t i = 0; i < 4; ++i) seq[i] = (seq_t)1;
         computed_max = 3;
     } else if (computed_max < n) {
         size_t new_cap = (size_t)(n + 1);
-        seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, new_cap);
         if (seq == NULL) abort();
         /* compute all missing terms */
         for (idx_t i = computed_max + 1; i <= n; ++i) {

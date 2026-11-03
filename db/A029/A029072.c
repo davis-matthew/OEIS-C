@@ -9,13 +9,15 @@
  *            partitions, where order of parts does not matter
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Static cache for previously allocated workspace; all entries are
    recomputed every call so that results are independent of previous
@@ -31,7 +33,7 @@ static void ensure_cache(size_t need)
     size_t new_len = cache_len ? cache_len << 1 : 1;
     while (new_len < need)
         new_len <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_len);
     if (!tmp)
         abort();                       /* allocation failure   */
     if (cache_len == 0)                 /* first allocation    */

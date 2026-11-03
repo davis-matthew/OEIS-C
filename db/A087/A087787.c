@@ -11,6 +11,7 @@
  *            per term. All arithmetic is done with the seq_t ty...
  * Range:     u8 n <= 18, u16 n <= 46, u32 n <= 134, u64 n <= 427,
  *            u128 n <= 1478, big any n
+ * Validated: standard, pass, 64 terms through n = 8795 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

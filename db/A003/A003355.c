@@ -9,7 +9,8 @@
  *            doubling the bound as needed
  * Range:     u8 n <= 9, u16 n <= 8283, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a3355_shor
+ * Validated: standard, pass, 68 terms through n = 9733 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,19 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a3355_shor.h"
+
+static void a3355_shor(uint64_t *dst, const uint64_t *src, size_t W, uint64_t s) {
+    size_t ws = (size_t)(s / 64);
+    unsigned b = (unsigned)(s % 64);
+    size_t i;
+    if (ws >= W) return;
+    for (i = W; i-- > ws;) {
+        size_t j = i - ws;
+        uint64_t v = src[j] << b;
+        if (b && j > 0) v |= src[j - 1] >> (64 - b);
+        dst[i] |= v;
+    }
+}
 
 static uint64_t *a3355_terms = NULL;
 static idx_t a3355_cnt = 0;

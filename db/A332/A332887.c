@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 43, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 86 terms through n = 87 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* dynamic array that holds p(0)…p(part_last) */
 static seq_t *part     = NULL;
@@ -33,7 +35,7 @@ static void ensure_part(idx_t n)
     if (n <= part_last) return;                /* already computed */
 
     if (part_cap < (size_t)(n + 1)) {
-        seq_t *tmp = (seq_t *)realloc(part, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, part, (n + 1));
         if (!tmp) exit(EXIT_FAILURE);
         part     = tmp;
         part_cap = (size_t)(n + 1);

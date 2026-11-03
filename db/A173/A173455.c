@@ -7,6 +7,7 @@
  * Formula:   a(n) = sum of proper divisors of n, with a(1) = 1
  * Range:     u8 n <= 143, u16 n <= 4096, u32 n <= 4096, u64 n <= 4096,
  *            u128 n <= 4096, big any n
+ * Validated: standard, pass, 96 terms through n = 3961 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 seq_t a(idx_t n) {

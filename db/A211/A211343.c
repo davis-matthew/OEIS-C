@@ -11,8 +11,9 @@
  *            m(m+1)/2 ≤ r (the number of columns in that row). * For 1 ≤ k ≤
  *            m(r) define * * T(r,k) = { (r - k(k+1)/2)/k + 1 if (r -
  *            k(k+1)/2) % k == 0 * { 0 otherwise } * * The sequenc...
- * Range:     u8 n <= 3608, u16 n <= 9808, u32 n <= 9808, u64 n <= 9808,
- *            u128 n <= 9808, big any n
+ * Range:     u8 n <= 3608, u16 n <= 28864, u32 n <= 28864, u64 n <= 28864,
+ *            u128 n <= 28864, big any n
+ * Validated: standard, pass, 110 terms through n = 9808 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

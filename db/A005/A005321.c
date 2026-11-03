@@ -9,12 +9,14 @@
  *            (-1)^i*Product_{j=i+1..k} (2^j - 1)
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 7, u64 n <= 11, u128 n <= 15,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 32 terms through n = 80 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
             }
         }
         
-        seq_t binom_coeff = binom(n, k);
+        seq_t binom_coeff = binomial(n, k);
         result += binom_coeff * inner_sum;
     }
     

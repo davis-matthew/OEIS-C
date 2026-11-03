@@ -7,8 +7,9 @@
  * Keywords:  nonn, base, easy
  * Formula:   a(n) = Count of distinct prime divisors p of n such that p does
  *            NOT divide A276086(n) (the primorial base exp‑function)
- * Range:     u8 n <= 8162, u16 n <= 8162, u32 n <= 8162, u64 n <= 8162,
- *            u128 n <= 8162, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 8162 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

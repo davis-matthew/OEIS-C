@@ -7,20 +7,22 @@
  * Formula:   a(n) = Sum_{k=0..⌊n/2⌋} C(n+k,k) * C(n+2k+1,n-2k) / (n+1)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 15, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
     seq_t sum = 0;
     idx_t kmax = n >> 1;          /* floor(n/2) */
     for (idx_t k = 0; k <= kmax; ++k) {
-        seq_t term1 = binom(n + k, k);
-        seq_t term2 = binom(n + 2 * k + 1, n - 2 * k);
+        seq_t term1 = binomial(n + k, k);
+        seq_t term2 = binomial(n + 2 * k + 1, n - 2 * k);
         sum += term1 * term2;
     }
     return sum / (seq_t)(n + 1);

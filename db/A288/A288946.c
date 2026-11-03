@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 73, u16 n <= 79, u32 n <= 79, u64 n <= 79, u128 n <= 79,
  *            big any n
- * Helpers:   pow10
+ * Validated: partial, pass, 79 terms through n = 79 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,18 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/pow10.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Return the first (most significant) decimal digit of x */
 static inline int first_digit(seq_t x)
@@ -124,7 +136,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         /* initial allocation */
         size_t init_cap = 128;
-        seq = (seq_t *)malloc(init_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, init_cap);
         if (!seq) abort();
         for (int d = 1; d <= 9; ++d) next_ptr[d] = d;
         seq_len = 0;
@@ -148,7 +160,7 @@ seq_t a(idx_t n)
 
         /* Grow the array if necessary */
         if (seq_len == 0 && !seq) {
-            seq = (seq_t *)malloc(sizeof(seq_t));
+            seq = mem_new(seq_t, 1);
             if (!seq) abort();
         }
         /* Since we never shrink, we just check for potential overflow:

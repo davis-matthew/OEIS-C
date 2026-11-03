@@ -8,7 +8,8 @@
  *            a(0) = 1. Where sigma_k(m) = sum_{d|m} d^k
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 18,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 /* --------------------------------------------- */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/seq_pow.h"   /* provides seq_pow(seq_t, idx_t) */
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
 
 static seq_t compute_sigma_eq(idx_t k)
 {
@@ -31,7 +33,7 @@ static seq_t compute_sigma_eq(idx_t k)
                 n /= p;
                 ++e;
             }
-            seq_t pk = seq_pow((seq_t)p, k);   /* p^k  */
+            seq_t pk = ipow_idx((seq_t)p, k);   /* p^k  */
             seq_t sum = 1;
             seq_t pow = 1;
             for (idx_t j = 1; j <= e; ++j) {
@@ -42,7 +44,7 @@ static seq_t compute_sigma_eq(idx_t k)
         }
     }
     if (n > 1) {  /* remaining prime factor */
-        seq_t pk = seq_pow((seq_t)n, k);
+        seq_t pk = ipow_idx((seq_t)n, k);
         seq_t sum = 1 + pk;
         result *= sum;
     }
@@ -64,13 +66,13 @@ static void ensure_a_cap(idx_t idx)
 {
     if (a_cache_cap <= idx) {
         size_t new_cap = (size_t)(idx + 1);
-        seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (!new_cache) exit(EXIT_FAILURE);
         /* copy existing data */
         for (size_t i = 0; i < a_cache_cap; ++i) new_cache[i] = a_cache[i];
         /* zero new elements */
         for (size_t i = a_cache_cap; i < new_cap; ++i) new_cache[i] = 0;
-        free(a_cache);
+        mem_free(a_cache);
         a_cache      = new_cache;
         a_cache_cap  = new_cap;
     }
@@ -80,11 +82,11 @@ static void ensure_sigma_cap(idx_t idx)
 {
     if (sigma_cache_cap <= idx) {
         size_t new_cap = (size_t)(idx + 1);
-        seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (!new_cache) exit(EXIT_FAILURE);
         for (size_t i = 0; i < sigma_cache_cap; ++i) new_cache[i] = sigma_cache[i];
         for (size_t i = sigma_cache_cap; i < new_cap; ++i) new_cache[i] = 0;
-        free(sigma_cache);
+        mem_free(sigma_cache);
         sigma_cache      = new_cache;
         sigma_cache_cap  = new_cap;
     }

@@ -12,12 +12,14 @@
  *            k = n - r*(r+1)/2 ; then a(n) = T(r,k)
  * Range:     i8 n <= 10, i16 n <= 15, i32 n <= 28, i64 n <= 55, i128 n <= 91,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 1320 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *c_cache = NULL;          /* memoised values of c(n)        */
 static idx_t  c_cache_len  = 0;        /* number of computed elements    */
@@ -33,7 +35,7 @@ ensure_c_cache(idx_t upto)
 
     if (c_cache_len == 0) {            /* initialisation               */
         c_cache_cap = 2;
-        c_cache = (seq_t *)malloc(sizeof(seq_t) * c_cache_cap);
+        c_cache = mem_new(seq_t, c_cache_cap);
         if (!c_cache)
             return;                    /* allocation failure            */
         c_cache[0] = (seq_t)1;         /* c(0) = 1                      */
@@ -46,7 +48,7 @@ ensure_c_cache(idx_t upto)
     while (c_cache_len <= upto) {
         if (c_cache_len >= c_cache_cap) {
             size_t new_cap = c_cache_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(c_cache, sizeof(seq_t) * new_cap);
+            seq_t *tmp = mem_resize(seq_t, c_cache, new_cap);
             c_cache = tmp;
             c_cache_cap = new_cap;
         }

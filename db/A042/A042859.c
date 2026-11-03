@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 11, u64 n <= 21, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 181 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <string.h>   /* for memcpy if needed */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
         if (need < 4) need = 4;              /* at least 4 slots for the initial terms */
 
         /* Allocate (or reallocate) the cache buffer */
-        seq_t *new_cache = (seq_t *)malloc(need * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, need);
         if (new_cache == NULL) {
             /* Allocation failed: fall back to a local temporary array
                and compute the requested value without caching.
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
             new_cache[i] = cache[i];
 
         /* Free old buffer and update pointers */
-        if (cache != NULL) free(cache);
+        if (cache != NULL) mem_free(cache);
         cache      = new_cache;
         cache_len  = need;
 

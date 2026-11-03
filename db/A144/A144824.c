@@ -9,6 +9,7 @@
  *            (column index in that row). μ(x) is the Möbius function
  * Range:     i8 n <= 90, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 82 terms through n = 8998 (2026-11-01)
  * Helpers:   gcd_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

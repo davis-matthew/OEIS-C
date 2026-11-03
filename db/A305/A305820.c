@@ -10,13 +10,15 @@
  *            ≤ n
  * Range:     u8 n <= 94, u16 n <= 94, u32 n <= 94, u64 n <= 94, u128 n <= 94,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 95 terms through n = 94 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *fib = NULL;
 static size_t fib_size  = 0;
@@ -27,7 +29,7 @@ static void ensure_fibs_up_to(seq_t limit)
 {
     if (fib_cap == 0) {
         fib_cap  = 16;
-        fib      = (seq_t *)malloc(fib_cap * sizeof(seq_t));
+        fib      = mem_new(seq_t, fib_cap);
         if (!fib) return;          /* allocation failed – subsequent calls will fail silently */
         fib[0]   = 0;
         fib[1]   = 1;
@@ -39,7 +41,7 @@ static void ensure_fibs_up_to(seq_t limit)
         seq_t next = fib[fib_size - 1] + fib[fib_size - 2];
         if (fib_size >= fib_cap) {
             fib_cap *= 2;
-            seq_t *tmp = (seq_t *)realloc(fib, fib_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, fib, fib_cap);
             if (!tmp) return;      /* allocation failed – leave the array as is */
             fib = tmp;
         }

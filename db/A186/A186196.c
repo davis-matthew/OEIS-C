@@ -7,14 +7,17 @@
  * Formula:   a(n) = (-1)^n * (-2)^{C(n,2)} * A001045(n+1)
  * Range:     i8 n <= 3, i16 n <= 5, i32 n <= 7, i64 n <= 10, i128 n <= 14,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +30,7 @@ seq_t a(idx_t n)
     /* Initial allocation */
     if (A == NULL) {
         A_cap = 3;                   /* indices 0,1,2 */
-        A = (seq_t*)malloc(A_cap * sizeof(seq_t));
+        A = mem_new(seq_t, A_cap);
         A[0] = (seq_t)0;
         A[1] = (seq_t)1;
         A[2] = (seq_t)1;
@@ -35,7 +38,7 @@ seq_t a(idx_t n)
 
     /* Extend the array if necessary */
     if (need >= A_cap) {
-        A = (seq_t*)realloc(A, (need + 1) * sizeof(seq_t));
+        A = mem_resize(seq_t, A, (need + 1));
         for (idx_t k = A_cap; k <= need; ++k) {
             seq_t term = A[k - 1] + A[k - 1];   /* 2 * A[k-1] */
             if (k & 1)                         /* odd k : +1 */
@@ -50,7 +53,7 @@ seq_t a(idx_t n)
     /* --- Compute the main term --------------------------------- */
     seq_t part_val   = A[need];                      /* A001045(n+1)   */
     idx_t  k_idx     = (idx_t)n * ((idx_t)n - 1) / 2;/* C(n,2) as idx_t */
-    seq_t  pow2_k    = big_pow((seq_t)2, (seq_t)k_idx);/* 2^{C(n,2)} */
+    seq_t  pow2_k    = ipow((seq_t)2, (seq_t)k_idx);/* 2^{C(n,2)} */
 
     bool neg = ((n & 1) ^ (k_idx & 1));           /* parity of n + C(n,2) */
     seq_t  result = pow2_k * part_val;

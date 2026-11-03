@@ -8,7 +8,8 @@
  *            (n^(k-1)-1)/(n-1) and gcd(k,n-1)=1, n > 1
  * Range:     u8 none, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd, is_prime, mod_pow_custom
+ * Validated: standard, pass, 88 terms through n = 8853 (2026-11-01)
+ * Helpers:   gcd, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,22 @@
 #include <stdint.h>
 #include "../utils/gcd.h"
 #include "../utils/is_prime.h"
-#include "../utils/mod_pow_custom.h"
+
+/* Fast modular exponentiation for arbitrary-precision seq_t.
+ * Computes base^exp mod mod, where exp fits in uint64_t. */
+static seq_t mod_pow_custom(seq_t base, uint64_t exp, seq_t mod)
+{
+    seq_t result = (seq_t)1;
+    seq_t b = base % mod;
+    while (exp != 0) {
+        if (exp & 1ULL) {
+            result = (result * b) % mod;
+        }
+        b = (b * b) % mod;
+        exp >>= 1;
+    }
+    return result;
+}
 
 seq_t a(idx_t n)
 {

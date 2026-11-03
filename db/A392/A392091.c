@@ -12,7 +12,8 @@
  *            global array, with offset 2 (i.e. a(2) is the fir...
  * Range:     u8 n <= 71, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 70 terms through n = 71 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* helper: floor(log2) for idx_t (non‑zero) */
 static inline int floor_log2_idx(idx_t v)
@@ -68,9 +70,9 @@ static void ensure_omega_capacity(idx_t k)
     /* reallocate sum_arr */
     seq_t *new_sum = NULL;
     if (sum_arr) {
-        new_sum = (seq_t*)realloc(sum_arr, new_cap * sizeof(seq_t));
+        new_sum = mem_resize(seq_t, sum_arr, new_cap);
     } else {
-        new_sum = (seq_t*)calloc(new_cap, sizeof(seq_t));
+        new_sum = mem_new(seq_t, new_cap);
     }
     if (!new_sum) { abort(); }
     sum_arr = new_sum;
@@ -142,7 +144,7 @@ static void extend_to(idx_t n)
         for (int k = 1; k <= L; ++k) {
             if (flat_len == flat_cap) {
                 flat_cap = flat_cap ? flat_cap << 1 : 16;
-                flat = (seq_t*)realloc(flat, flat_cap * sizeof(seq_t));
+                flat = mem_resize(seq_t, flat, flat_cap);
                 if (!flat) { abort(); }
             }
             seq_t term = ((seq_t)(m + 1)) * count_arr[k] - sum_arr[k];

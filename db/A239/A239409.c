@@ -11,7 +11,8 @@
  *            the elements above it, modulo 4
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 181 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --- constants for state handling ------------------------------------ */
 #define MAX_STATE   1024            /* 4^5 possible row–sum states    */
@@ -95,10 +97,9 @@ static void ensure_cache_size(idx_t needed)
 {
     if (needed < a_cache_size) return;
     idx_t new_size = needed + 1;                /* indices 0..needed inclusive */
-    a_cache = (seq_t*)realloc(a_cache, new_size * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, new_size);
     if (!a_cache) abort();                      /* allocation failure */
-    memset(a_cache + a_cache_size, 0,
-           (new_size - a_cache_size) * sizeof(seq_t));
+    mem_set(a_cache + a_cache_size, 0, (new_size - a_cache_size) * sizeof(seq_t));
     a_cache_size = new_size;
 }
 
@@ -113,8 +114,8 @@ seq_t a(idx_t n)
         ensure_cache_size(10000);     /* enough for the common test range */
 
         /* prepare DP tables */
-        dp_old = (seq_t*)calloc(MAX_STATE, sizeof(seq_t));
-        dp_new = (seq_t*)calloc(MAX_STATE, sizeof(seq_t));
+        dp_old = mem_new(seq_t, MAX_STATE);
+        dp_new = mem_new(seq_t, MAX_STATE);
         if (!dp_old || !dp_new) abort();
 
         dp_old[0] = (seq_t)1;         /* 0 columns -> one empty table */
@@ -134,7 +135,7 @@ seq_t a(idx_t n)
         for (idx_t step = a_cache_computed + 1; step <= n; ++step)
         {
             /* zero new distribution */
-            memset(dp_new, 0, MAX_STATE * sizeof(seq_t));
+            mem_set(dp_new, 0, MAX_STATE * sizeof(seq_t));
 
             /* apply one column transformation */
             for (int R = 0; R < MAX_STATE; ++R)

@@ -11,7 +11,8 @@
  *            primality test and sliding‑window scan
  * Range:     u8 none, u16 n <= 9, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdio.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 /* --- small utilities ---------------------------------------------------- */
 
@@ -46,7 +49,7 @@ static inline bool window_good(const uint64_t w[5])
 
     /* all sums must be prime */
     for (int i = 0; i < 5; ++i)
-        if (!is_prime((uint64_t)sums[i]))
+        if (!is_prime_u64((uint64_t)sums[i]))
             return false;
 
     /* sums must be pairwise distinct */
@@ -71,7 +74,7 @@ static void ensure_seq_cap(size_t min_cap)
     size_t new_cap = seq_cap < 8 ? 8 : seq_cap * 2;
     while (new_cap < min_cap)
         new_cap *= 2;
-    seq_ans = (seq_t *)realloc(seq_ans, sizeof(seq_t) * new_cap);
+    seq_ans = mem_resize(seq_t, seq_ans, new_cap);
     seq_cap = new_cap;
 }
 
@@ -118,7 +121,7 @@ static void generate_until(idx_t n)
         if ((next_candidate & 1) == 0)
             next_candidate++;          /* skip even numbers */
 
-        while (!is_prime(next_candidate))
+        while (!is_prime_u64(next_candidate))
             next_candidate += 2;       /* only test odd numbers */
 
         /* next_candidate is prime */

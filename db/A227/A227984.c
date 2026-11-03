@@ -9,13 +9,16 @@
  *            array read by rows, where n = r*(r+1)/2 + k, 0 ≤ k ≤ r
  * Range:     u8 n <= 35, u16 n <= 135, u32 n <= 527, u64 n <= 2079,
  *            u128 n <= 5150, big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 85 terms through n = 5094 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Utility to compute 2^g in seq_t (big_pow expects seq_t exponent). */
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 /* Return row r such that r*(r+1)/2 ≤ n < (r+1)*(r+2)/2. */
 static idx_t row_of(idx_t n)
@@ -56,7 +59,7 @@ seq_t a(idx_t n)
     idx_t m = expN / g;
 
     /* Step size = 2^g. */
-    seq_t step = big_pow((seq_t)2, (seq_t)g);
+    seq_t step = ipow((seq_t)2, (seq_t)g);
 
     /* Compute the numerator as a sum of powers of step. */
     seq_t sum = 0;

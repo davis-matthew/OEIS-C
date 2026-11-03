@@ -9,6 +9,7 @@
  * Formula:   a(0)=8; for n>0, a(n)=4+5*(-1)^n+(4+8*(-1)^n)*n+4*(-1)^n*n^2
  * Range:     i8 n <= 5, i16 n <= 89, i32 n <= 127, i64 n <= 127,
  *            i128 n <= 127, big any n
+ * Validated: standard, pass, 59 terms through n = 121 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

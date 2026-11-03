@@ -9,7 +9,8 @@
  *            2 + floor(2^e/15)
  * Range:     u8 n <= 24, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_primes_upto, gcd, int_sqrt, pow_uint
+ * Validated: standard, pass, 92 terms through n = 996 (2026-11-01)
+ * Helpers:   build_primes_upto, gcd, ipow_u64_idx, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,16 +22,16 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/int_sqrt.h"
 #include "../utils/build_primes_upto.h"
 #include "../utils/gcd.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/isqrt.h"
 
 static seq_t prime_power_val(idx_t p, idx_t e)
 {
     if (p == 2) {
         /* a(2^e) */
-        seq_t pow2e   = pow_uint(2ULL, e);
+        seq_t pow2e   = ipow_u64_idx(2ULL, e);
         seq_t base    = pow2e / 15;            /* floor(2^e / 15) */
         if ((e % 4ULL) == 0ULL)
             return 1 + base;
@@ -42,8 +43,8 @@ static seq_t prime_power_val(idx_t p, idx_t e)
         seq_t a_factor = (seq_t)(p - 1) / g;   /* (p-1)/gcd(p-1,4) */
 
         /* compute p^(e+3) and p^4 - 1 carefully */
-        seq_t pow_p_e4 = pow_uint(p, e + 3);        /* p^(e+3) */
-        seq_t denom    = pow_uint(p, 4) - 1;        /* p^4 - 1 */
+        seq_t pow_p_e4 = ipow_u64_idx(p, e + 3);        /* p^(e+3) */
+        seq_t denom    = ipow_u64_idx(p, 4) - 1;        /* p^4 - 1 */
         seq_t div_up   = pow_p_e4 / denom;          /* floor division */
 
         seq_t term = a_factor * div_up;
@@ -59,7 +60,7 @@ seq_t a(idx_t n)
     seq_t result   = 1;
     idx_t temp_n   = n;
 
-    idx_t sqrt_n   = int_sqrt(n);
+    idx_t sqrt_n   = isqrt(n);
     size_t prime_cnt = 0;
     uint64_t *primes = NULL;
     build_primes_upto(sqrt_n, &primes, &prime_cnt);

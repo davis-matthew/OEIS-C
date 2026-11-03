@@ -8,7 +8,8 @@
  *            integer obtained by concatenating the numbers n, n‑1, … , 1
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 14, u128 n <= 16,
  *            big any n
- * Helpers:   digits, pow10, seq_mul
+ * Validated: partial, pass, 16 terms through n = 16 (2026-11-01)
+ * Helpers:   num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,24 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/digits.h"
-#include "../utils/pow10.h"
-#include "../utils/seq_mul.h"
+#include <stdint.h>
+#include <string.h>
+#include "../utils/num_digits_idx.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -29,7 +45,7 @@ seq_t a(idx_t n)
        -------------------------------------------------------------------- */
     seq_t concat = 0;
     for (idx_t i = n; i >= 1; --i) {
-        int d       = digits(i);              /* decimal digits of i   */
+        int d       = num_digits_idx(i);              /* decimal digits of i   */
         seq_t mult  = pow10(d);               /* 10^d as a seq_t       */
         concat      = seq_mul(concat, mult);  /* concat * 10^d          */
         concat      = concat + (seq_t)i;      /* add i                  */

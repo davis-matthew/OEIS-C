@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 104 terms through n = 9469 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* A minimal pair consisting of the other leg and the hypotenuse */
 typedef struct {
@@ -63,9 +65,9 @@ static void recompute_cache(idx_t max_n)
 {
     /* Allocate new cache array */
     if (cached_values != NULL) {
-        free(cached_values);
+        mem_free(cached_values);
     }
-    cached_values = (seq_t *)calloc(max_n + 1, sizeof(seq_t));
+    cached_values = mem_new(seq_t, max_n + 1);
     if (cached_values == NULL) {
         return;                 /* allocation failed */
     }
@@ -77,7 +79,7 @@ static void recompute_cache(idx_t max_n)
     /* Prepare a list for each possible common side length */
     list_t *lists = (list_t *)calloc(L + 1, sizeof(list_t));
     if (lists == NULL) {
-        free(cached_values);
+        mem_free(cached_values);
         cached_values = NULL;
         cache_max_index = 0;
         return;

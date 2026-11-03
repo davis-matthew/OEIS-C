@@ -14,13 +14,15 @@
  *            2·f_{s-1}[j+1] (j+1 ≤ s-1) *...
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Global static data used by the function and its helpers */
 static seq_t *dp_prev = NULL;   /* distribution for step s‑1 */
@@ -36,8 +38,8 @@ static void grow_dp(idx_t need)
     size_t new_cap = (size_t)need + 1;
     if (new_cap <= dp_size)
         return;
-    seq_t *new_prev = (seq_t *)realloc(dp_prev, new_cap * sizeof(seq_t));
-    seq_t *new_curr = (seq_t *)realloc(dp_curr, new_cap * sizeof(seq_t));
+    seq_t *new_prev = mem_resize(seq_t, dp_prev, new_cap);
+    seq_t *new_curr = mem_resize(seq_t, dp_curr, new_cap);
     if (!new_prev || !new_curr)
         exit(1);
     /* initialise new slots to zero */
@@ -56,7 +58,7 @@ static void grow_cache(idx_t need)
     size_t new_cap = (size_t)need + 1;
     if (new_cap <= cache_cap)
         return;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache)
         exit(1);
     /* initialise new slots to zero */
@@ -72,15 +74,15 @@ seq_t a(idx_t n)
     /* Initialise data structures on first call */
     if (dp_prev == NULL) {
         dp_size = 1;
-        dp_prev = (seq_t *)malloc(dp_size * sizeof(seq_t));
-        dp_curr = (seq_t *)malloc(dp_size * sizeof(seq_t));
+        dp_prev = mem_new(seq_t, dp_size);
+        dp_curr = mem_new(seq_t, dp_size);
         if (!dp_prev || !dp_curr)
             exit(1);
         dp_prev[0] = 1;   /* f_0[0] = 1 */
         dp_curr[0] = 0;
         /* initialise cache */
         cache_cap = 1;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache)
             exit(1);
         cache[0] = 1;     /* a(0) = 1 */

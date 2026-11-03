@@ -12,12 +12,14 @@
  *            read row by row
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 31, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Maximum number of rows we will generate (sufficient for n up to ~10000). */
 #define MAX_ROWS 300
@@ -32,17 +34,17 @@ static void generate_rows_up_to(idx_t n) {
     for (idx_t r = max_computed + 1; r <= n; ++r) {
         /* Base rows */
         if (r == 1) {
-            row_data[1] = (seq_t *)malloc(sizeof(seq_t));
+            row_data[1] = mem_new(seq_t, 1);
             row_data[1][0] = (seq_t)2;
             continue;
         }
         if (r == 2) {
-            row_data[2] = (seq_t *)malloc(2 * sizeof(seq_t));
+            row_data[2] = mem_new(seq_t, 2);
             row_data[2][0] = row_data[2][1] = (seq_t)5040;
             continue;
         }
         if (r == 3) {
-            row_data[3] = (seq_t *)malloc(3 * sizeof(seq_t));
+            row_data[3] = mem_new(seq_t, 3);
             row_data[3][0] = (seq_t)2;
             row_data[3][1] = (seq_t)80636;
             row_data[3][2] = (seq_t)2;
@@ -54,7 +56,7 @@ static void generate_rows_up_to(idx_t n) {
         generate_rows_up_to(r - 2);
 
         size_t len = (size_t)r;
-        row_data[r] = (seq_t *)malloc(len * sizeof(seq_t));
+        row_data[r] = mem_new(seq_t, len);
 
         seq_t coeff = (seq_t)(r + 4) * (seq_t)(r + 3); /* (n+4)*(n+3) */
         for (idx_t k = 1; k <= r; ++k) {

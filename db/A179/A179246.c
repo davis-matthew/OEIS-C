@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   generate_sums
+ * Validated: standard, pass, 67 terms through n = 9843 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,25 @@
 /* Compute the n‑th smallest integer that has exactly 6 terms in its Zeckendorf representation. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/generate_sums.h"
+#include "../utils/mem.h"
+
+/* generate all sums of 6 non‑consecutive Fibonacci numbers,
+   where fib[0]=1, fib[1]=2; M must be large enough so that the
+   output array has at least comb6(M-5) elements. */
+static void generate_sums(idx_t M, const seq_t *fib, seq_t *out)
+{
+    size_t idx = 0;
+    for (idx_t i0 = 0; i0 <= M - 11; ++i0)
+        for (idx_t i1 = i0 + 2; i1 <= M - 9; ++i1)
+            for (idx_t i2 = i1 + 2; i2 <= M - 7; ++i2)
+                for (idx_t i3 = i2 + 2; i3 <= M - 5; ++i3)
+                    for (idx_t i4 = i3 + 2; i4 <= M - 3; ++i4)
+                        for (idx_t i5 = i4 + 2; i5 <= M - 1; ++i5)
+                        {
+                            out[idx++] = fib[i0] + fib[i1] + fib[i2]
+                                         + fib[i3] + fib[i4] + fib[i5];
+                        }
+}
 
 /* comparison function for qsort */
 static int cmp_seqt(const void *a, const void *b)
@@ -52,10 +71,10 @@ static void ensure_precomputed(idx_t n)
     while (comb6(M - 5) < n) M += 5;
 
     /* free previous data if any */
-    if (sums) free(sums);
+    if (sums) mem_free(sums);
 
     /* compute Fibonacci numbers up to M-1 */
-    seq_t *fib = (seq_t *)malloc(M * sizeof(seq_t));
+    seq_t *fib = mem_new(seq_t, M);
     if (!fib) exit(1);
     fib[0] = 1;
     fib[1] = 2;
@@ -64,21 +83,21 @@ static void ensure_precomputed(idx_t n)
 
     /* allocate array for all sums */
     size_t cnt = comb6(M - 5);
-    seq_t *new_sums = (seq_t *)malloc(cnt * sizeof(seq_t));
+    seq_t *new_sums = mem_new(seq_t, cnt);
     if (!new_sums) exit(1);
 
     /* generate sums */
     generate_sums(M, fib, new_sums);
 
     /* sort them */
-    qsort(new_sums, cnt, sizeof(seq_t), cmp_seqt);
+    mem_qsort(new_sums, cnt, sizeof(seq_t), cmp_seqt);
 
     /* store results */
     sums      = new_sums;
     sumcnt    = cnt;
     current_M = M;
 
-    free(fib);
+    mem_free(fib);
 }
 
 /* OEIS entry function */

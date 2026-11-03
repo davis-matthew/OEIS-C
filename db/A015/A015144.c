@@ -10,13 +10,15 @@
  *            k = n – r(r+1)/2
  * Range:     i8 n <= 3, i16 n <= 10, i32 n <= 22, i64 n <= 32, i128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Include standard facilities.  No <math.h> is used.  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Auxiliary: gcd for arbitrary integer type seq_t.  Works for
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
         k = r - k;
 
     /* 2. Pre‑compute powers of q = -19 up to exponent r.  */
-    seq_t *powq = (seq_t *)malloc((r + 1) * sizeof(seq_t));
+    seq_t *powq = mem_new(seq_t, (r + 1));
     if (!powq) return 0;                     /* out‑of‑memory guard */
     powq[0] = 1;
     const seq_t q = -19;
@@ -89,6 +91,6 @@ seq_t a(idx_t n)
         result = tmp;
     }
 
-    free(powq);
+    mem_free(powq);
     return result;
 }

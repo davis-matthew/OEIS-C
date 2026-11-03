@@ -10,7 +10,8 @@
  *            prime(n) with quotient > 1 (t > 1)
  * Range:     u8 n <= 5, u16 n <= 22, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   isPrimeTrial
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/isPrimeTrial.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* ----- global structures ----- */
 static uint32_t *global_primes = NULL;
@@ -51,8 +53,7 @@ static void ensure_sums_capacity(void)
 {
     if (sums_count == sums_cap) {
         size_t new_cap = (sums_cap == 0) ? 16 : sums_cap * 2;
-        seq_t *new_arr = (seq_t *)realloc(global_sums,
-                            new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, global_sums, new_cap);
         if (!new_arr) abort();
         global_sums = new_arr;
         sums_cap = new_cap;
@@ -64,11 +65,10 @@ static void ensure_cache_capacity(size_t new_cap)
     if (new_cap <= a_cache_cap) return;
     size_t cap = (a_cache_cap == 0) ? 16 : a_cache_cap;
     while (cap < new_cap) cap *= 2;
-    seq_t *new_arr = (seq_t *)realloc(a_cache, cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, a_cache, cap);
     if (!new_arr) abort();
     /* initialize new part to 0 */
-    memset((void *)(new_arr + a_cache_cap), 0,
-           (cap - a_cache_cap) * sizeof(seq_t));
+    mem_set((new_arr + a_cache_cap), 0, (cap - a_cache_cap) * sizeof(seq_t));
     a_cache = new_arr;
     a_cache_cap = cap;
 }
@@ -77,7 +77,7 @@ static void ensure_cache_capacity(size_t new_cap)
 static void add_next_prime(void)
 {
     uint32_t cand = (primes_count == 0) ? 2 : global_primes[primes_count - 1] + 1;
-    while (!isPrimeTrial((seq_t)cand)) ++cand;
+    while (!is_prime_seq((seq_t)cand)) ++cand;
 
     /* add prime */
     ensure_primes_capacity();

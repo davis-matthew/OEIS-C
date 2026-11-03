@@ -10,7 +10,8 @@
  *            sequence is * memoised so calls may arrive in any order
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*  --- global memoisation helpers ---------------------------------- */
 static seq_t *seq = NULL;   /* 1‑based array of computed terms */
@@ -29,7 +31,7 @@ static size_t seq_cap = 0;  /* allocated capacity (in terms) */
 static void grow_seq(void)
 {
     size_t new_cap = (seq_cap == 0) ? 2 : seq_cap * 2;
-    seq_t *new_ptr = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, seq, new_cap);
     if (new_ptr == NULL) exit(1);      /* allocation failed */
     seq = new_ptr;
     seq_cap = new_cap;
@@ -41,7 +43,7 @@ static void seq_init(void)
     if (seq_len != 0) return;  /* already initialised */
 
     seq_cap = 2;
-    seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+    seq = mem_new(seq_t, seq_cap);
     if (seq == NULL) exit(1);   /* allocation failed */
     seq[1] = (seq_t)3;
     seq_len = 1;

@@ -9,12 +9,14 @@
  * Formula:   a(n) = 575*(a(n-1)-a(n-2)) + a(n-3), a(1)=0, a(2)=48, a(3)=27600
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 8, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 360 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* Initialize the first three known terms. */
     if (count == 0) {
         count = 3;
-        terms = (seq_t*)malloc(count * sizeof(seq_t));
+        terms = mem_new(seq_t, count);
         if (!terms) return (seq_t)0;
         terms[0] = (seq_t)0;            /* a(1) */
         terms[1] = (seq_t)48;           /* a(2) */
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
         /* Allocate a bit more space to reduce the number of reallocations. */
         idx_t needed = n;
         if (needed < count * 2) needed = count * 2;
-        terms = (seq_t*)realloc(terms, needed * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, needed);
         if (!terms) return (seq_t)0;
         for (idx_t i = count; i < n; ++i) {
             terms[i] = (seq_t)575 * (terms[i-1] - terms[i-2]) + terms[i-3];

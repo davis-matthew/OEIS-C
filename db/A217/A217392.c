@@ -9,13 +9,15 @@
  *            satisfy t(0)=1, t(n)=Σ_{k=0}^{n-1} binom(n,k)*t(k))
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 11, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 192 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Cache for ordered Bell numbers */
 static seq_t *t_cache = NULL;   /* t_cache[i] = t(i)   */
@@ -36,7 +38,7 @@ ensure_t_upto(idx_t n)
             new_cap <<= 1;                 /* double until large enough */
 
         /* realloc returns void*, cast so it compiles in C++ */
-        t_cache = (seq_t *)realloc(t_cache, new_cap * sizeof(seq_t));
+        t_cache = mem_resize(seq_t, t_cache, new_cap);
         t_cap   = new_cap;
     }
 

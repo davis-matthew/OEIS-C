@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 22, u64 n <= 160, u128 n <= 210,
  *            big any n
- * Helpers:   decode_phase, encode_phase
+ * Validated: standard, pass, 40 terms through n = 195 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,23 @@
    antidiagonals unimodal and columns nondecreasing (OEIS A223920). */
 
 #include <stdbool.h>
-#include "../utils/decode_phase.h"
-#include "../utils/encode_phase.h"
+
+/* Decode a 3‑bit phase into three bits. */
+static inline void decode_phase(unsigned char phase,
+                                unsigned char *p1,
+                                unsigned char *p2,
+                                unsigned char *p3) {
+    *p1 = phase & 1;
+    *p2 = (phase >> 1) & 1;
+    *p3 = (phase >> 2) & 1;
+}
+
+/* Encode three 0/1 phase bits into a 3‑bit integer (row 1 first). */
+static inline unsigned char encode_phase(unsigned char p1,
+                                         unsigned char p2,
+                                         unsigned char p3) {
+    return (p1) | (p2 << 1) | (p3 << 2);
+}
 
 /* Number of nondecreasing triples over {0,1,2}.  Row 1 ≤ row 2 ≤ row 3. */
 enum { COL_TYPES = 10, PHASE_COUNT = 8, OLD_R3_COUNT = 3, STATE_COUNT = COL_TYPES * PHASE_COUNT * OLD_R3_COUNT };

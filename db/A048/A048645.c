@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 36, u16 n <= 136, u32 n <= 528, u64 n <= 2080,
  *            u128 n <= 5050, big any n
+ * Validated: standard, pass, 76 terms through n = 5004 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,7 @@
  *  and then pick the appropriate element within that block.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

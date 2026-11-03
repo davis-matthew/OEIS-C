@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 8, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -37,6 +38,7 @@
 
 #include <stddef.h>   /* size_t, NULL */
 #include <stdlib.h>   /* malloc, realloc, abort */
+#include "../utils/mem.h"
 
 /* Prefix values for n = 1 … 13.  Index 0 is unused (value 0). */
 static const seq_t pre[14] = {
@@ -67,7 +69,7 @@ static void ensure_cache_capacity(size_t need)
     if (cache_cap < need) {
         size_t new_cap = need * 2;
         if (new_cap < 16) new_cap = 16;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) abort();            /* out of memory */
         cache = new_cache;
         cache_cap = new_cap;
@@ -87,7 +89,7 @@ seq_t a(idx_t n)
     if (!cache) {
         size_t init_cap = (size_t)n + 1;
         if (init_cap < 14) init_cap = 14;
-        cache = (seq_t *)malloc(init_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, init_cap);
         if (!cache) abort();  /* out of memory */
         /* Copy known prefix. */
         for (size_t i = 0; i <= 13; ++i) cache[i] = pre[i];

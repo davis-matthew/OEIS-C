@@ -9,14 +9,30 @@
  *            equals the number of 7's in its base‑12 representation
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   equal_37
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/equal_37.h"
+#include "../utils/mem.h"
+
+/* Test whether a number has equal counts of digits 3 and 7 in base 12. */
+static bool equal_37(seq_t x) {
+    unsigned count3 = 0, count7 = 0;
+    seq_t y = x;
+    while (y > (seq_t)0) {
+        seq_t d = y % (seq_t)12;
+        if (d == (seq_t)3)
+            count3++;
+        else if (d == (seq_t)7)
+            count7++;
+        y /= (seq_t)12;
+    }
+    return count3 == count7;
+}
 
 static seq_t *cache = NULL;      /* stored terms, zero‑based */
 static size_t cache_size = 0;    /* number of terms stored */
@@ -31,7 +47,7 @@ static void grow_cache(size_t min_needed) {
     while (new_cap < min_needed)
         new_cap *= 2;
     /* realloc may return NULL only if new_cap==0, which cannot happen here. */
-    seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
     cache = new_ptr;
     cache_cap = new_cap;
 }

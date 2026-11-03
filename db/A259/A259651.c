@@ -10,13 +10,15 @@
  *            factors of that number
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   count_distinct_primes
+ * Validated: standard, pass, 102 terms through n = 936 (2026-11-01)
+ * Helpers:   omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/count_distinct_primes.h"
+#include <stdbool.h>
+#include "../utils/omega.h"
 
 seq_t a(idx_t n)
 {
@@ -28,6 +30,6 @@ seq_t a(idx_t n)
     uint64_t nn = n;
     uint64_t pent = nn * (3ULL * nn - 1ULL) / 2ULL;
 
-    int cnt = count_distinct_primes(pent);
+    int cnt = omega(pent);
     return (seq_t)cnt;
 }

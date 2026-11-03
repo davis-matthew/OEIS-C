@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1229, u32 n <= 1229, u64 n <= 1229,
  *            u128 n <= 1229, big any n
- * Helpers:   build_primes_upto, cmp_lex
+ * Validated: full, pass, 1229 terms through n = 1229 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,49 @@
 #include <stdint.h>
 #include <stddef.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/cmp_lex.h"
+#include "../utils/mem.h"
+
+/* Comparator for lexicographic ordering of decimal strings */
+static int cmp_lex(const void *a, const void *b) {
+    uint64_t x = *(const uint64_t *)a;
+    uint64_t y = *(const uint64_t *)b;
+    char bufx[16], bufy[16];
+    int lenx = 0, leny = 0;
+
+    /* convert x to decimal string */
+    uint64_t t = x;
+    do {
+        bufx[lenx++] = '0' + (t % 10);
+        t /= 10;
+    } while (t);
+    for (int i = 0; i < lenx / 2; ++i) {
+        char c = bufx[i];
+        bufx[i] = bufx[lenx - 1 - i];
+        bufx[lenx - 1 - i] = c;
+    }
+
+    /* convert y to decimal string */
+    t = y;
+    do {
+        bufy[leny++] = '0' + (t % 10);
+        t /= 10;
+    } while (t);
+    for (int i = 0; i < leny / 2; ++i) {
+        char c = bufy[i];
+        bufy[i] = bufy[leny - 1 - i];
+        bufy[leny - 1 - i] = c;
+    }
+
+    int i = 0;
+    while (i < lenx && i < leny) {
+        if (bufx[i] != bufy[i])
+            return bufx[i] < bufy[i] ? -1 : 1;
+        ++i;
+    }
+    if (i == lenx && i == leny) return 0;       /* equal */
+    if (i == lenx) return -1;                 /* x shorter → x < y */
+    return 1;                                  /* y shorter → x > y */
+}
 
 /* Build and cache the sorted list of primes below 10000 */
 static void init_cache(seq_t **cache, size_t *len) {
@@ -33,7 +76,7 @@ static void init_cache(seq_t **cache, size_t *len) {
     qsort(primes, pn, sizeof(uint64_t), cmp_lex);
 
     *len = pn;
-    *cache = (seq_t *)malloc(pn * sizeof(seq_t));
+    *cache = mem_new(seq_t, pn);
     for (size_t i = 0; i < pn; ++i)
         (*cache)[i] = (seq_t)primes[i];
 

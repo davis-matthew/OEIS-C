@@ -8,7 +8,8 @@
  *            0's in binary expansion of all divisors of n)
  * Range:     u8 n <= 500, u16 n <= 500, u32 n <= 500, u64 n <= 500,
  *            u128 n <= 500, big any n
- * Helpers:   local_factorize, zeros_in_divisor
+ * Validated: standard, pass, 97 terms through n = 493 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,63 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/local_factorize.h"
-#include "../utils/zeros_in_divisor.h"
+
+/* Factor n into prime factors (primes[i]^exps[i]). */
+static int local_factorize(uint64_t n, uint64_t *primes, int *exps)
+{
+    int cnt = 0;
+    uint64_t tmp = n;
+
+    if (tmp == 0) return 0;          /* guard against zero, though n ≥ 1 */
+
+    /* Handle factor 2 separately to keep loop odd. */
+    if ((tmp & 1ULL) == 0) {
+        int exp = 0;
+        while ((tmp & 1ULL) == 0) {
+            ++exp;
+            tmp >>= 1;
+        }
+        primes[cnt] = 2ULL;
+        exps[cnt]   = exp;
+        ++cnt;
+    }
+
+    /* Odd factors up to sqrt(tmp). */
+    for (uint64_t p = 3; p <= tmp / p; p += 2) {
+        if (tmp % p == 0) {
+            int exp = 0;
+            while (tmp % p == 0) {
+                tmp /= p;
+                ++exp;
+            }
+            primes[cnt] = p;
+            exps[cnt]   = exp;
+            ++cnt;
+        }
+    }
+
+    /* Remaining prime factor > 1. */
+    if (tmp > 1) {
+        primes[cnt] = tmp;
+        exps[cnt]   = 1;
+        ++cnt;
+    }
+
+    return cnt;
+}
+
+/* Count 0's in binary representation of d (uint64_t). */
+static unsigned int zeros_in_divisor(uint64_t d)
+{
+    unsigned int bitlen = 0;
+    uint64_t tmp = d;
+    while (tmp) {
+        ++bitlen;
+        tmp >>= 1;
+    }
+    unsigned int ones = __builtin_popcountll(d);
+    return bitlen - ones;
+}
 
 /* Recursively generate all divisors and accumulate their zero counts. */
 static void gen_divisors(uint64_t current, size_t idx, size_t prime_count,

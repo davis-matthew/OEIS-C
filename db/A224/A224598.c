@@ -12,7 +12,8 @@
  *            22734, 36346, 57712, 91204
  * Range:     u8 n <= 1, u16 n <= 13, u32 n <= 26, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <limits.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[15] = {
     [0] = 0,
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     /* first call: allocate space for 0..14 */
     if (!cache) {
         cap = 15;   /* indices 0..14 inclusive */
-        cache = (seq_t *)realloc(NULL, cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, cap);
         if (!cache) abort();
         for (idx_t i = 1; i <= 14; ++i)
             cache[i] = init_vals[i];
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
     /* extend cache if necessary */
     if ((size_t)n + 1 > cap) {
         size_t newcap = ((size_t)n + 1) * 2;   /* growth factor > 1 */
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp) abort();
         cache = tmp;
         cap = newcap;

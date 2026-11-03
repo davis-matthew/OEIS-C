@@ -8,9 +8,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 118, u16 n <= 9467, u32 n <= 9467, u64 n <= 9467,
- *            u128 n <= 9467, big any n
- * Helpers:   none
+ * Range:     u8 n <= 118, u16 n <= 32758, u32 n <= 50000, u64 n <= 50000,
+ *            u128 n <= 50000, big any n
+ * Validated: standard, pass, 78 terms through n = 9467 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Board size – large enough for n up to about 10 000 in the first quadrant. */
 #define BOARD_SIZE 4000
@@ -92,7 +94,7 @@ static void ensure_knight_cap(size_t need)
     if (knight_cap >= need) return;
     size_t new_cap = knight_cap ? knight_cap * 2 : 16;
     if (new_cap < need) new_cap = need;
-    seq_t *tmp = (seq_t *)realloc(knight_idx, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, knight_idx, new_cap);
     if (!tmp) abort();          /* out of memory – terminate */
     knight_idx = tmp;
     knight_cap = new_cap;

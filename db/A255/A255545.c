@@ -12,7 +12,8 @@
  *            order to produce the sequence
  * Range:     u8 n <= 51, u16 n <= 3447, u32 n <= 5995, u64 n <= 5995,
  *            u128 n <= 5995, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 5584 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #ifndef MAX_REMOVED_PER_ROW
 #define MAX_REMOVED_PER_ROW 200   /* enough for any j appearing in n <= 10000  */
 #endif
+#include "../utils/mem.h"
 
 /* Forward declarations of the required types: the build supplies seq_t,
    idx_t and the related utilities.  They are not defined here. */
@@ -54,8 +56,8 @@ static void ensure_initialized(void) {
     if (list_cur != NULL) return;  /* already initialized */
 
     /* Allocate working lists */
-    list_cur = (seq_t *)malloc(LIST_CAP * sizeof(seq_t));
-    list_next = (seq_t *)malloc(LIST_CAP * sizeof(seq_t));
+    list_cur = mem_new(seq_t, LIST_CAP);
+    list_next = mem_new(seq_t, LIST_CAP);
     if (!list_cur || !list_next) {
         /* Allocation failed: abort silently */
         exit(1);
@@ -69,7 +71,7 @@ static void ensure_initialized(void) {
 
     /* Allocate lucky numbers array */
     lucky_cap = 64;
-    lucky_numbers = (seq_t *)malloc(lucky_cap * sizeof(seq_t));
+    lucky_numbers = mem_new(seq_t, lucky_cap);
     if (!lucky_numbers) exit(1);
 
     /* Allocate removed numbers storage arrays */
@@ -84,7 +86,7 @@ static void ensure_lucky_capacity(size_t needed) {
     if (needed <= lucky_cap) return;
     size_t new_cap = lucky_cap;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(lucky_numbers, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, lucky_numbers, new_cap);
     if (!tmp) exit(1);
     lucky_numbers = tmp;
     lucky_cap = new_cap;
@@ -117,7 +119,7 @@ static void generate_next_stage(void) {
 
     /* Allocate array for removed numbers of this row */
     if (removed_arr[i - 1] == NULL) {
-        removed_arr[i - 1] = (seq_t *)malloc(MAX_REMOVED_PER_ROW * sizeof(seq_t));
+        removed_arr[i - 1] = mem_new(seq_t, MAX_REMOVED_PER_ROW);
         if (!removed_arr[i - 1]) exit(1);
     }
 

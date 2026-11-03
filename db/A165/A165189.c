@@ -12,13 +12,15 @@
  *            - 4*a(n-3) + a(n...
  * Range:     u8 n <= 14, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static const seq_t base_vals[12] = {
     1, 2, 5, 8, 14, 20, 31, 42, 60, 78, 105, 132
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     /* initialise cache with the first 12 terms once */
     if (cache == NULL) {
         cache_len = 12;
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         for (size_t i = 0; i < cache_len; ++i)
             cache[i] = base_vals[i];
     }
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     /* extend cache up to n if necessary */
     if ((idx_t)cache_len < n) {
         size_t new_len = (size_t)n;
-        cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_len);
         /* compute missing terms using the recurrence */
         for (size_t idx = cache_len; idx < new_len; ++idx) {
             /* idx corresponds to a(idx+1) */

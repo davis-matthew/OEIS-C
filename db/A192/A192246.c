@@ -9,12 +9,14 @@
  *            x*(1-4x+12x^2-12x^3+5x^4)/(1-x)/(1-x-x^2)^4
  * Range:     u8 n <= 5, u16 n <= 12, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Function computing A192246. */
 seq_t a(idx_t n)
@@ -23,12 +25,12 @@ seq_t a(idx_t n)
         return 0;
 
     /* Allocate working arrays. */
-    seq_t *g = (seq_t *)malloc((size_t)n * sizeof(seq_t));
-    seq_t *h = (seq_t *)malloc((size_t)n * sizeof(seq_t));
+    seq_t *g = mem_new(seq_t, (size_t)n);
+    seq_t *h = mem_new(seq_t, (size_t)n);
     if (!g || !h) {
         /* Allocation failed – return 0. */
-        if (g) free(g);
-        if (h) free(h);
+        if (g) mem_free(g);
+        if (h) mem_free(h);
         return 0;
     }
 
@@ -67,8 +69,8 @@ seq_t a(idx_t n)
     if (n >= 5) result += (seq_t)5 * h[n - 5];
 
     /* Clean up. */
-    free(g);
-    free(h);
+    mem_free(g);
+    mem_free(h);
 
     return result;
 }

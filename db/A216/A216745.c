@@ -10,7 +10,8 @@
  *            solvability criterion
  * Range:     u8 n <= 37, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 76 terms through n = 922 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,9 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  Helper: GCD for 64‑bit unsigned integers                          */
@@ -79,7 +82,7 @@ static void add_cache(seq_t val)
 {
     if (cacheSize == cacheCap) {
         size_t newCap = cacheCap ? cacheCap * 2 : 8;
-        seq_t *tmp = (seq_t *)realloc(cache, newCap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newCap);
         if (!tmp) exit(1);
         cache = tmp;
         cacheCap = newCap;
@@ -120,7 +123,7 @@ seq_t a(idx_t n)
             uint64_t exp = (p - 1) / d;
 
             seq_t base  = (seq_t)p - (seq_t)2; /* -2 mod p */
-            seq_t power = mod_pow(base, exp, (seq_t)p);
+            seq_t power = powmod(base, exp, (seq_t)p);
 
             if (power != (seq_t)1)     /* no solution, so record p */
                 add_cache((seq_t)p);

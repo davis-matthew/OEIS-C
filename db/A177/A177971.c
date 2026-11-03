@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 23, i16 n <= 47, i32 n <= 54, i64 n <= 54, i128 n <= 54,
  *            big any n
- * Helpers:   binom, pow2, pow_int
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   binomial, ipow_idx, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -40,9 +41,11 @@
  */
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_idx.h"
 #include "../utils/pow2.h"
-#include "../utils/pow_int.h"
-#include "../utils/binom.h"
 
 static seq_t t_row_col(idx_t r, idx_t c)
 {
@@ -50,7 +53,7 @@ static seq_t t_row_col(idx_t r, idx_t c)
     seq_t res = 0;
 
     /* part from (1-2x)^(r+1) * 1  :  C(r+1,c) * (-2)^c  */
-    seq_t bin_a   = binom(r + 1, c);
+    seq_t bin_a   = binomial(r + 1, c);
     seq_t pow2_c  = pow2(c);
     seq_t sign_a  = (c & 1) ? -((seq_t)1) : ((seq_t)1);
     res += bin_a * (sign_a * pow2_c);
@@ -58,8 +61,8 @@ static seq_t t_row_col(idx_t r, idx_t c)
     /* convolution with Σ_{k≥1} 2^(k-1) k^r x^k   */
     for (idx_t k = 1; k <= c; ++k) {
         seq_t coef_pow2   = pow2(k - 1);          /* 2^(k-1)       */
-        seq_t k_pow_r     = pow_int((seq_t)k, r); /* k^r            */
-        seq_t bin          = binom(r + 1, c - k); /* C(r+1,c-k)     */
+        seq_t k_pow_r     = ipow_idx((seq_t)k, r); /* k^r            */
+        seq_t bin          = binomial(r + 1, c - k); /* C(r+1,c-k)     */
         idx_t exp          = c - k;               /* exponent for (-2) */
         seq_t pow2_exp     = pow2(exp);           /* 2^(c-k)        */
         seq_t sign2        = (exp & 1) ? -((seq_t)1) : ((seq_t)1);

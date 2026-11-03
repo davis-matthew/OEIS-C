@@ -8,7 +8,8 @@
  * Formula:   a(n) = ∏_{p≤n} p^{k - v_p(n!)} where k = max_{p≤n} v_p(n!)
  * Range:     u8 n <= 5, u16 n <= 6, u32 n <= 7, u64 n <= 10, u128 n <= 13,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 13 terms through n = 13 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 #define MAX_N 10000
 
@@ -69,7 +70,7 @@ seq_t a(idx_t n)
     for (size_t j = 0; j < i; ++j) {
         idx_t diff = k - exps[j];
         if (diff > 0) {
-            seq_t pow_val = big_pow((seq_t)primes[j], (seq_t)diff);
+            seq_t pow_val = ipow((seq_t)primes[j], (seq_t)diff);
             result *= pow_val;
         }
     }

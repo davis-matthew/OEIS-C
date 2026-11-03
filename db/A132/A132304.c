@@ -10,12 +10,14 @@
  *            [x^k] (1 + x + x^2)^n (OEIS A132304)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 6, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static state for memoisation and dynamic programming   */
@@ -28,7 +30,7 @@ seq_t a(idx_t n) {
     /* basic case: a(0) = 1 */
     if (n == 0) {
         if (a_vals == NULL) {
-            a_vals = (seq_t *)malloc(sizeof(seq_t));
+            a_vals = mem_new(seq_t, 1);
             a_vals[0] = (seq_t)1;
         }
         return a_vals[0];
@@ -36,7 +38,7 @@ seq_t a(idx_t n) {
 
     /* ensure the a_vals array can hold up to n                */
     if (a_vals == NULL || max_n < n) {
-        seq_t *tmp = (seq_t *)realloc(a_vals, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_vals, (n + 1));
         a_vals = tmp;
     }
 
@@ -46,7 +48,7 @@ seq_t a(idx_t n) {
 
     /* initialise the first row (n = 0) if necessary */
     if (prev_row == NULL) {
-        prev_row = (seq_t *)malloc(sizeof(seq_t));  /* one element */
+        prev_row = mem_new(seq_t, 1);  /* one element */
         prev_row[0] = (seq_t)1;                    /* (1 + x + x^2)^0 = 1 */
         prev_len = 1;
     }
@@ -56,7 +58,7 @@ seq_t a(idx_t n) {
         idx_t cur_len = 2 * m + 1;          /* length of row m */
 
         /* resize cur_row to the needed length */
-        cur_row = (seq_t *)realloc(cur_row, cur_len * sizeof(seq_t));
+        cur_row = mem_resize(seq_t, cur_row, cur_len);
 
         /* compute the m‑th row from the (m‑1)‑th row   */
         for (idx_t k = 0; k < cur_len; ++k) {

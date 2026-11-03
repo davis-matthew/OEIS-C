@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 55, u32 n <= 335, u64 n <= 335, u128 n <= 335,
  *            big any n
- * Helpers:   days_from_civil
+ * Validated: standard, pass, 55 terms through n = 296 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,22 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/days_from_civil.h"
+
+/* Number of days from 01‑Jan‑0000 to the given Gregorian date.
+ * All calculations are performed in int64_t and then cast to seq_t. */
+static inline seq_t days_from_civil(int year, unsigned month, unsigned day)
+{
+    int y = year;
+    unsigned m = month;
+    if (m <= 2) { y -= 1; m += 12; }
+
+    int64_t era = (int64_t)((y >= 0 ? y : y-399) / 400);
+    int64_t yoe = (int64_t)y - era * 400;
+    int64_t doy = (int64_t)((153 * (m-3) + 2) / 5 + (int64_t)day - 1);
+    int64_t doe = yoe * 365 + yoe/4 - yoe/100 + yoe/400 + doy;
+    int64_t days = era * 146097 + doe;
+    return (seq_t)days;
+}
 
 /* Return true if y is a Gregorian leap year. */
 static inline bool is_leap_year(int y)

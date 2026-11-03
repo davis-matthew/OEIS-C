@@ -11,13 +11,15 @@
  *            removing duplicates
  * Range:     u8 n <= 10, u16 n <= 20, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *T = NULL;
 static idx_t cnt = 0, cap = 0;
@@ -31,9 +33,9 @@ static const unsigned long long CONSTS[5] = {12ULL, 1152ULL, 51840ULL, 2903040UL
 static void push_val(seq_t v) {
     if (cnt == cap) {
         idx_t nc = cap ? cap * 2 : 64;
-        seq_t *nt = (seq_t *)malloc(nc * sizeof(seq_t));
+        seq_t *nt = mem_new(seq_t, nc);
         for (idx_t i = 0; i < cnt; i++) nt[i] = T[i];
-        if (T) free(T);
+        if (T) mem_free(T);
         T = nt;
         cap = nc;
     }

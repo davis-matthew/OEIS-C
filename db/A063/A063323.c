@@ -10,7 +10,8 @@
  *            a(9)=162, a(10)=184, a(11)=208, a(12)=230, a(13)=253
  * Range:     i8 n <= 7, i16 n <= 49, i32 n <= 49, i64 n <= 49, i128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
     function for dynamic memory.  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*  Static cache of already computed values.  */
 static seq_t *a_cache = NULL;          /* values of the sequence   */
@@ -44,7 +46,7 @@ ensure_capacity(idx_t n)
     while (new_cap <= (size_t)n)
         new_cap <<= 1;
 
-    a_cache = (seq_t*)realloc(a_cache, new_cap * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, new_cap);
     a_comp  = (unsigned char*)realloc(a_comp,  new_cap * sizeof(unsigned char));
 
     /* initialise the new part of the flag array */

@@ -8,12 +8,14 @@
  *            * a(0) = 25 * For n ≥ 1 the period repeats
  * Range:     u8 n <= 0, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 88 terms through n = 87 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -45,8 +47,7 @@ seq_t a(idx_t n)
             /* Store a in the periodic array */
             if (period_len == period_cap) {
                 period_cap = period_cap ? period_cap * 2 : 4;
-                period = (seq_t*)realloc(period,
-                                         period_cap * sizeof(seq_t));
+                period = mem_resize(seq_t, period, period_cap);
             }
             period[period_len++] = a;
         } while (a != 2 * a0);            /* End when the standard symmetry occurs */

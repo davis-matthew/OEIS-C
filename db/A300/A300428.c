@@ -13,14 +13,37 @@
  *            All values a(n) are odd
  * Range:     u8 n <= 73, u16 n <= 8191, u32 n <= 8191, u64 n <= 8191,
  *            u128 n <= 8191, big any n
- * Helpers:   pattern_in_fraction
+ * Validated: standard, pass, 89 terms through n = 7216 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/pattern_in_fraction.h"
+
+/* Return true iff the binary pattern of n (of length L bits, mask=2^L-1)
+   occurs in the binary expansion of 1/k.  */
+static bool pattern_in_fraction(seq_t n, seq_t k, int L, seq_t mask)
+{
+    if (k == 0) return false;          /* never happens, just safe */
+
+    seq_t Q = (seq_t)1 / k;                  /* floor(2^0 / k)  */
+    seq_t R = (seq_t)1 % k;                  /* remainder 1 % k */
+    /* Upper bound for the number of steps: twice the denominator plus
+       a small constant.  This is enough because the period of the
+       expansion of 1/k divides k-1 (for odd k).  */
+    idx_t limit = (idx_t)(2 * ( (seq_t)k + (seq_t)L ) + 10);
+
+    for (idx_t i = 0; i < limit; ++i) {
+        if (Q == n) return true;
+        seq_t t = R << 1;                   /* 2*R   */
+        seq_t carry = t / k;                /* 0 or 1   */
+        R = t % k;
+        Q = ((Q << 1) + carry) & mask;     /* keep only low L bits   */
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

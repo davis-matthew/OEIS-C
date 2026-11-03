@@ -9,6 +9,7 @@
  *            (digit_sum(k))^2 ) == 0
  * Range:     u8 n <= 1, u16 n <= 238, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 60 terms through n = 972 (2026-11-01)
  * Helpers:   digit_sum
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

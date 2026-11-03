@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 72, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 86 terms through n = 8621 (2026-11-01)
  * Helpers:   get_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -22,6 +23,7 @@
 
 /* Utilities from the build.  The header provides a routine that
    extracts the decimal digits of a seq_t value into a buffer. */
+#include <stdint.h>
 #include "../utils/get_digits.h"
 
 /* Check whether the decimal representation of x contains digit d (0‑9). */

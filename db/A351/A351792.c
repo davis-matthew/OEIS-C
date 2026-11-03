@@ -7,13 +7,24 @@
  * Formula:   a(n) = n * Sum_{k=0..n-1} (-3)^{n-1-k} * binomial(n-1,k) * a(k)
  * Range:     i8 n <= 3, i16 n <= 6, i32 n <= 10, i64 n <= 17, i128 n <= 19,
  *            big any n
- * Helpers:   expand
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/expand.h"
+#include "../utils/mem.h"
+
+/* Expand a dynamical array so it can hold at least 'need' elements. */
+static void expand(size_t *cap, seq_t **arr, size_t need)
+{
+    if (need <= *cap) return;
+    size_t newcap = (*cap ? (*cap << 1) : 1);
+    while (newcap < need) newcap <<= 1;
+    *arr = mem_resize(seq_t, *arr, newcap);
+    *cap = newcap;
+}
 
 seq_t a(idx_t n)
 {

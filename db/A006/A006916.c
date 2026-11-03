@@ -9,19 +9,70 @@
  *            Sum_{k>=0} q^(k(k+1)/2), a(n) = [q^n] ( y^13 + 864*y^9*t^2 +
  *            6400*y^7*t^3 + 20736*y^5*t^4 + 20480*y^3*t^5 )
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 33, u64 n <= 1885,
- *            u128 n <= 9242, big any n
- * Helpers:   add_scaled, alloc_zero, mul_p, mul_t, mul_y, release
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 44 terms through n = 9242 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
-#include "../utils/add_scaled.h"
-#include "../utils/mul_p.h"
-#include "../utils/mul_t.h"
-#include "../utils/mul_y.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
+
+static void add_scaled(seq_t *R, const seq_t *Y, seq_t c, long long L)
+{
+    long long i;
+    for (i = 0; i < L; i++)
+        R[i] += Y[i] * c;
+}
+
+/* A *= psi(q^4), in place */
+static void mul_p(seq_t *A, long long L)
+{
+    long long i, k;
+    for (i = L - 1; i >= 0; i--) {
+        seq_t s = A[i];
+        for (k = 1; 2 * k * (k + 1) <= i; k++)
+            s += A[i - 2 * k * (k + 1)];
+        A[i] = s;
+    }
+}
+
+/* A *= t = q*psi(q^4)^2 */
+static void mul_t(seq_t *A, long long L)
+{
+    long long i;
+    mul_p(A, L);
+    mul_p(A, L);
+    for (i = L - 1; i >= 1; i--)
+        A[i] = A[i - 1];
+    A[0] = 0;
+}
+
+/* A *= theta_3(q^2), in place, truncated to length L */
+static void mul_y(seq_t *A, long long L)
+{
+    long long i, k;
+    for (i = L - 1; i >= 0; i--) {
+        seq_t s = A[i];
+        for (k = 1; 2 * k * k <= i; k++) {
+            s += A[i - 2 * k * k];
+            s += A[i - 2 * k * k];
+        }
+        A[i] = s;
+    }
+}
 
 static seq_t *cache = NULL;
 static long long cache_len = 0;

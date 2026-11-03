@@ -8,7 +8,8 @@
  * Formula:   a(n) = ∑_{d|n, gcd(d,n/d)=1} d * ψ(d) (ψ = Dedekind ψ)
  * Range:     u8 n <= 11, u16 n <= 149, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: standard, pass, 69 terms through n = 8390 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,10 @@
 /* a(n) = Π (1 + (p+1) * p^(2e-1))                        */
 #include <stddef.h>      /* size_t */
 #include <stdint.h>      /* uint64_t */
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +42,7 @@ seq_t a(idx_t n)
         uint64_t e   = exps[i];
 
         /* Compute p^(2*e-1) */
-        seq_t pow_term = big_pow(p, (seq_t)(2 * e - 1));
+        seq_t pow_term = ipow(p, (seq_t)(2 * e - 1));
 
         /* term for this prime power: 1 + (p+1) * p^(2e-1) */
         seq_t term = (seq_t)1 + (p + (seq_t)1) * pow_term;

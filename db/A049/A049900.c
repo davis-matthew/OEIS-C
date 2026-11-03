@@ -10,14 +10,17 @@
  *            where * m = 2*n – 3 – 2^(p+1) and * p = floor_log2(n-2)
  * Range:     u8 n <= 10, u16 n <= 19, u32 n <= 35, u64 n <= 67, u128 n <= 132,
  *            big any n
- * Helpers:   floor_log2_uint64
+ * Validated: standard, pass, 53 terms through n = 2988 (2026-11-03)
+ * Helpers:   ilog2, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include "../utils/ilog2.h"
+#include "../utils/mem.h"
 
 static idx_t cap        = 0;      /* highest n already computed */
 static idx_t allocated  = 0;      /* current allocation size (index+1) */
@@ -35,7 +38,7 @@ seq_t a(idx_t n)
     /* ensure the array is large enough */
     if (n + 1 > allocated) {
         size_t newsize = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, newsize * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newsize);
         if (!tmp)        /* allocation failure */
             abort();
         cache = tmp;
@@ -52,7 +55,7 @@ seq_t a(idx_t n)
         } else if (i == 3) {
             val = (seq_t)1;
         } else {
-            idx_t p = floor_log2_uint64(i - 2);        /* p such that 2^p < i-1 ≤ 2^(p+1) */
+            idx_t p = ilog2(i - 2);        /* p such that 2^p < i-1 ≤ 2^(p+1) */
             seq_t pow2p1 = ((seq_t)1) << (p + 1);      /* 2^(p+1) */
             seq_t m = (seq_t)(2 * i - 3) - pow2p1;     /* subject term index */
             val = sum - cache[(idx_t)m];

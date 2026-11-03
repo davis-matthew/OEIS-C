@@ -8,7 +8,8 @@
  *            0)
  * Range:     u8 n <= 3, u16 n <= 548, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   ensure_prime_capacity, insert_prime
+ * Validated: standard, pass, 59 terms through n = 9975 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,37 @@
 #include <string.h>
 #include <inttypes.h>
 #include <math.h>
-#include "../utils/ensure_prime_capacity.h"
-#include "../utils/insert_prime.h"
+
+/* Ensure capacity of a dynamic array of uint64_t */
+static void ensure_prime_capacity(size_t *cnt, size_t *cap, uint64_t **arr)
+{
+    if (*cnt == *cap) {
+        size_t new_cap = (*cap == 0) ? 8 : (*cap << 1);
+        uint64_t *tmp = (uint64_t *)realloc(*arr, new_cap * sizeof(uint64_t));
+        if (!tmp) { free(*arr); exit(1); }
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
+
+/* Insert a prime into a sorted dynamic array (duplicates ignored) */
+static void insert_prime(uint64_t val, uint64_t **primes, size_t *cnt, size_t *cap)
+{
+    size_t lo = 0, hi = *cnt;
+    while (lo < hi) {
+        size_t mid = (lo + hi) >> 1;
+        if ((*primes)[mid] < val)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    if (lo < *cnt && (*primes)[lo] == val) return;  /* already present */
+    ensure_prime_capacity(cnt, cap, primes);
+    if (lo < *cnt)
+        memmove(&(*primes)[lo + 1], &(*primes)[lo], (*cnt - lo) * sizeof(uint64_t));
+    (*primes)[lo] = val;
+    ++(*cnt);
+}
 
 /* 64‑bit modular multiplication using unsigned __int128 */
 static uint64_t modmul64(uint64_t a, uint64_t b, uint64_t mod)

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 67 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    Computed with a simple dynamic‑programming routine. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,9 +29,9 @@ seq_t a(idx_t n)
     if (dp_size <= n) {
         idx_t new_size = n + 1;
         if (dp_size == 0) {
-            dp = (seq_t *)malloc(new_size * sizeof(seq_t));
+            dp = mem_new(seq_t, new_size);
         } else {
-            dp = (seq_t *)realloc(dp, new_size * sizeof(seq_t));
+            dp = mem_resize(seq_t, dp, new_size);
         }
         dp_size = new_size;
     }

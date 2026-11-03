@@ -8,7 +8,8 @@
  * Formula:   a(n) = 2^π(n) - 2^(π(n)-π(floor(n/2)))
  * Range:     u8 n <= 22, u16 n <= 58, u32 n <= 136, u64 n <= 312,
  *            u128 n <= 726, big any n
- * Helpers:   _pow2
+ * Validated: standard, pass, 66 terms through n = 9336 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/_pow2.h"
+#include "../utils/pow2.h"
 
 /* Static sieve data */
 static size_t _max_sieve = 0;          /* largest n that has been sieved */
@@ -77,8 +78,8 @@ seq_t a(idx_t n)
     uint32_t pi_half   = _pi[n / 2];
 
     /* 2^π(n)  and  2^(π(n)-π(n/2)) */
-    seq_t pow_pi_n           = _pow2(pi_n);
-    seq_t pow_pi_diff        = _pow2((idx_t)(pi_n - pi_half));
+    seq_t pow_pi_n           = pow2(pi_n);
+    seq_t pow_pi_diff        = pow2((idx_t)(pi_n - pi_half));
 
     return pow_pi_n - pow_pi_diff;
 }

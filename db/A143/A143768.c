@@ -7,13 +7,16 @@
  * Formula:   a(n) = n! * Sum_{k=0..n} C(k,n-k) * (2*(n-k)+1)^(k-1)/k!
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 26,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 34 terms through n = 326 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* (Implementation uses the equivalent form with r = n‑k) */
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +25,7 @@ seq_t a(idx_t n)
     seq_t f = 1;                     /* f = n! / (0! * n!) initially */
     idx_t limit = n / 2;             /* floor(n/2) */
     for (idx_t r = 0; r <= limit; ++r) {
-        seq_t pow_term = big_pow((seq_t)(2 * r + 1), (seq_t)(n - r - 1));
+        seq_t pow_term = ipow((seq_t)(2 * r + 1), (seq_t)(n - r - 1));
         seq_t term = f * pow_term;
         sum += term;
         if (r == limit) break;       /* no further update needed */

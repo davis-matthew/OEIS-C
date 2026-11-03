@@ -9,6 +9,7 @@
  *            1 in base‑4 representation of n)
  * Range:     i8 n <= 75, i16 n <= 75, i32 n <= 75, i64 n <= 75, i128 n <= 75,
  *            big any n
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

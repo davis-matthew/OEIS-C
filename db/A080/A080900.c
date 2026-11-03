@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 86, u16 n <= 9469, u32 n <= 9469, u64 n <= 9469,
- *            u128 n <= 9469, big any n
- * Helpers:   none
+ * Range:     u8 n <= 86, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 73 terms through n = 9469 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached sequence values, indexed from 0 (a(1) is terms[0]) */
 static seq_t *terms      = NULL;
@@ -42,11 +44,11 @@ static void terms_reserve(size_t N)
     if (terms_cap >= N) return;
     size_t cap = terms_cap ? terms_cap << 1 : 64;
     while (cap < N) cap <<= 1;
-    seq_t *new_terms = (seq_t*)malloc(cap * sizeof(seq_t));
+    seq_t *new_terms = mem_new(seq_t, cap);
     if (!new_terms) abort();
     if (terms) {
         for (size_t i = 0; i < terms_cap; ++i) new_terms[i] = terms[i];
-        free(terms);
+        mem_free(terms);
     }
     terms = new_terms;
     terms_cap = cap;
@@ -58,11 +60,11 @@ static void seen_reserve(size_t N)
     if (seen_cap >= N) return;
     size_t cap = seen_cap ? seen_cap << 1 : 64;
     while (cap < N) cap <<= 1;
-    seq_t *new_seen = (seq_t*)malloc(cap * sizeof(seq_t));
+    seq_t *new_seen = mem_new(seq_t, cap);
     if (!new_seen) abort();
     if (seen) {
         for (size_t i = 0; i < seen_cap; ++i) new_seen[i] = seen[i];
-        free(seen);
+        mem_free(seen);
     }
     seen = new_seen;
     seen_cap = cap;

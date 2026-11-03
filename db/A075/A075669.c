@@ -7,12 +7,20 @@
  * Formula:   a(n) = Sum_{i=n*(n-1)/2+1}^{n*(n-1)/2+n} i^8
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 18, u128 n <= 255,
  *            big any n
- * Helpers:   pow8
+ * Validated: standard, pass, 33 terms through n = 9750 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow8.h"
+static seq_t pow8(seq_t x)
+{
+    /* Compute x^8 using 3 multiplications. */
+    seq_t r = x * x;   /* x² */
+    r = r * r;         /* x⁴ */
+    r = r * r;         /* x⁸ */
+    return r;
+}
 
 seq_t a(idx_t n)
 {

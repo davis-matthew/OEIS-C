@@ -9,12 +9,14 @@
  *            numbers)
  * Range:     u8 n <= 25, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 69 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache to memoize computed terms for all n >= 0 */
 static seq_t *cache = NULL;
@@ -45,8 +47,8 @@ seq_t a(idx_t n)
     }
 
     /* 7‑fold convolution via dynamic programming */
-    seq_t *cur  = (seq_t*)calloc(size, sizeof(seq_t));
-    seq_t *next = (seq_t*)calloc(size, sizeof(seq_t));
+    seq_t *cur  = mem_new(seq_t, size);
+    seq_t *next = mem_new(seq_t, size);
     cur[0] = (seq_t)1;   /* empty sum */
 
     for (int part = 1; part <= 7; ++part) {
@@ -68,18 +70,18 @@ seq_t a(idx_t n)
 
     /* cur now holds the final results up to n */
     /* copy to cache */
-    seq_t *new_cache = (seq_t*)malloc(size * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, size);
     for (idx_t i = 0; i < size; ++i)
         new_cache[i] = cur[i];
 
     /* free old cache if present */
-    if (cache) free(cache);
+    if (cache) mem_free(cache);
     cache = new_cache;
     cache_size = size;
 
     /* release temporary arrays */
-    free(cur);
-    free(next);
+    mem_free(cur);
+    mem_free(next);
     free(oct);
 
     return cache[n];

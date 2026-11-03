@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = 2^k + ((n - 2^k) XOR ⌊2^(k‑1) / 3⌋) where k = ⌊log₂(n)⌋.
  *            This is the OEIS sequence A284120
- * Range:     u8 n <= 255, u16 n <= 9868, u32 n <= 9868, u64 n <= 9868,
- *            u128 n <= 9868, big any n
+ * Range:     u8 n <= 255, u16 n <= 32767, u32 n <= 32767, u64 n <= 32767,
+ *            u128 n <= 32767, big any n
+ * Validated: standard, pass, 63 terms through n = 9868 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

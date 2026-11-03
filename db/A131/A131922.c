@@ -9,17 +9,19 @@
  *            if c==0 else 2*r+1
  * Range:     u8 n <= 77, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   floor_isqrt_u64
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/floor_isqrt_u64.h"
+#include <stdint.h>
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
     /* compute r from the triangular index formula */
-    idx_t t   = floor_isqrt_u64(8 * n + 1);
+    idx_t t   = isqrt(8 * n + 1);
     idx_t r   = (t - 1) / 2;
     idx_t off = r * (r + 1) / 2;
     idx_t c   = n - off;

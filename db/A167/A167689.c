@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
                 isPrime[m] = 0;
 
     /* Array to hold the permuted sequence up to `limit` values. */
-    seq_t *seq = (seq_t*)malloc(limit * sizeof(seq_t));
+    seq_t *seq = mem_new(seq_t, limit);
     if (!seq) { free(isPrime); return (seq_t)0; }
 
     size_t out_count = 0;
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
                 if (isPrime[p])
                     for (size_t m = (p * p > limit/p ? limit : p * p); m <= limit; m += p)
                         isPrime[m] = 0;
-            seq = (seq_t*)realloc(seq, limit * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, limit);
             if (!seq) break;
         }
 
@@ -94,6 +96,6 @@ seq_t a(idx_t n)
 
     seq_t result = seq[n - 1];
     free(isPrime);
-    free(seq);
+    mem_free(seq);
     return result;
 }

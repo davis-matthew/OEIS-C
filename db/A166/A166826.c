@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 12, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
    any order.  All arithmetic is performed on type seq_t as required. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Ensure the cache can hold at least `needed` elements. */
 static void ensure_capacity(size_t needed, size_t *cap, seq_t **ptr)
@@ -33,7 +35,7 @@ static void ensure_capacity(size_t needed, size_t *cap, seq_t **ptr)
     size_t new_cap = (*cap == 0) ? 8 : *cap * 2;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(*ptr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *ptr, new_cap);
     if (!tmp)   /* unrecoverable: abort */
         abort();
     *ptr = tmp;

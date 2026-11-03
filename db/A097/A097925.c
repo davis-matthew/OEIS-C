@@ -9,13 +9,22 @@
  *            a(8)=78, a(9)=142
  * Range:     u8 n <= 9, u16 n <= 19, u32 n <= 20, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   alloc_seq_array
+ * Validated: partial, pass, 17 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/alloc_seq_array.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 static seq_t *memo = NULL;
 static size_t memo_len = 0;    /* next free index */
@@ -30,7 +39,7 @@ seq_t a(idx_t n) {
         /* grow to at least n+1, but also ensure minimum capacity */
         size_t new_cap = (memo_cap < 16) ? 16 : memo_cap;
         while (new_cap < n + 1) new_cap <<= 1;
-        memo = (seq_t *)realloc(memo, new_cap * sizeof(seq_t));
+        memo = mem_resize(seq_t, memo, new_cap);
         memo_cap = new_cap;
     }
 

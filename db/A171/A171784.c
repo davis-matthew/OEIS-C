@@ -6,8 +6,9 @@
  * Offset:    4    (a(4) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = 8 if n is prime; a(4) = 6; otherwise a(n) = 4
- * Range:     u8 n <= 9615, u16 n <= 9615, u32 n <= 9615, u64 n <= 9615,
- *            u128 n <= 9615, big any n
+ * Range:     u8 n <= 10003, u16 n <= 10003, u32 n <= 10003, u64 n <= 10003,
+ *            u128 n <= 10003, big any n
+ * Validated: standard, pass, 121 terms through n = 9615 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

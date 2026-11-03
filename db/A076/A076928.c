@@ -9,7 +9,8 @@
  *            prime divisor of n
  * Range:     u8 n <= 9, u16 n <= 16, u32 n <= 26, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   largest_prime_divisor
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,29 @@
 /* required headers */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/largest_prime_divisor.h"
+#include "../utils/mem.h"
+
+/* Return the largest prime divisor of m (m >= 2). */
+static uint64_t largest_prime_divisor(uint64_t m)
+{
+    uint64_t largest = 0;
+    /* factor 2 */
+    while ((m & 1ULL) == 0) {
+        largest = 2;
+        m >>= 1;
+    }
+    /* odd factors */
+    for (uint64_t f = 3; f <= m / f; f += 2) {
+        if (m % f == 0) {
+            largest = f;
+            while (m % f == 0)
+                m /= f;
+        }
+    }
+    if (m > 1)            /* remaining m is prime */
+        largest = m;
+    return largest;
+}
 
 /* static cache for computed terms */
 static seq_t *cache = NULL;
@@ -36,7 +59,7 @@ seq_t a(idx_t n)
 
         if (cache == NULL) {
             /* first allocation: store a(1) = 1 */
-            new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+            new_cache = mem_new(seq_t, new_size);
             if (!new_cache && new_size > 0)
                 abort();   /* out of memory */
             new_cache[0] = (seq_t)1;
@@ -49,7 +72,7 @@ seq_t a(idx_t n)
             }
         } else {
             /* reallocate and compute new terms */
-            new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+            new_cache = mem_resize(seq_t, cache, new_size);
             if (!new_cache && new_size > 0)
                 abort();   /* out of memory */
             for (size_t i = cache_size; i < new_size; ++i) {

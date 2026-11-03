@@ -7,12 +7,15 @@
  * Formula:   a(n) = floor(n^2 * (n - 1)^(n - 1) / 2)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 18,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +25,7 @@ seq_t a(idx_t n)
 
     seq_t nm   = (seq_t)n;      /* n */
     seq_t nm1  = nm - 1;        /* n-1 */
-    seq_t power = big_pow(nm1, nm1); /* (n-1)^(n-1) */
+    seq_t power = ipow(nm1, nm1); /* (n-1)^(n-1) */
 
     seq_t n2    = nm * nm;      /* n^2 */
     seq_t prod  = n2 * power;   /* n^2 * (n-1)^(n-1) */

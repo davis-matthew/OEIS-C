@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 9, u32 n <= 9, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 9 terms through n = 9 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,29 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 /* ---------- Utility for growing buffers (compatible with C++ and C) ---------- */
+#ifdef __cplusplus
+template <class T>
+static T *grow_buffer(T *ptr, size_t *cap, size_t needed, size_t elem_size)
+{
+    if (*cap >= needed) return ptr;
+    size_t new_cap = (*cap) ? (*cap) * 2 : 16;
+    while (new_cap < needed) new_cap *= 2;
+    T *p = mem_resize(T, ptr, (new_cap * elem_size) / sizeof(T));
+    *cap = new_cap;
+    return p;
+}
+#else
 static void *grow_buffer(void *ptr, size_t *cap, size_t needed, size_t elem_size)
 {
     if (*cap >= needed) return ptr;
@@ -30,6 +52,7 @@ static void *grow_buffer(void *ptr, size_t *cap, size_t needed, size_t elem_size
     *cap = new_cap;
     return p;
 }
+#endif
 
 /* ---------- Data needed for the sequence ---------- */
 static seq_t *seq_vals = NULL;          /* cached sequence values */

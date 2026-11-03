@@ -9,9 +9,10 @@
  *            digit in the primorial base expansion of k is not larger than
  *            the * maximal exponent in its prime factorization. The function
  *            generates * terms by searching successive integers
- * Range:     u8 n <= 62, u16 n <= 2005, u32 n <= 9811, u64 n <= 9811,
- *            u128 n <= 9811, big any n
- * Helpers:   build_primes_upto
+ * Range:     u8 n <= 62, u16 n <= 2005, u32 n <= 28472, u64 n <= 28472,
+ *            u128 n <= 28472, big any n
+ * Validated: standard, pass, 88 terms through n = 9811 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 static uint64_t *primes      = NULL;
 static size_t   prime_cnt    = 0;
@@ -92,8 +94,7 @@ seq_t a(idx_t n)
         if (good_number(cand)) {
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 8;
-                seq_t *tmp = (seq_t *)realloc(cache,
-                                              new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 cache = tmp;
                 cache_cap = new_cap;
             }

@@ -7,6 +7,7 @@
  * Formula:   a(n) = A000032(2*n+1)+1 (Lucas number L(2n+1)+1)
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 22, u64 n <= 45, u128 n <= 91,
  *            big any n
+ * Validated: standard, pass, 46 terms through n = 981 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

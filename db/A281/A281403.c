@@ -14,12 +14,14 @@
  *            440880, 745272
  * Range:     u8 n <= 2, u16 n <= 11, u32 n <= 32, u64 n <= 77, u128 n <= 168,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Shared lookup table for the first 16 terms */
 static const seq_t init[16] = {
@@ -62,14 +64,14 @@ seq_t a(idx_t n)
         idx_t new_size = n;
         seq_t *new_arr;
         if (cache == NULL) {
-            new_arr = (seq_t *)malloc((size_t)new_size * sizeof(seq_t));
+            new_arr = mem_new(seq_t, (size_t)new_size);
             if (!new_arr)
                 return (seq_t)0;           /* allocation failure undefined */
             /* initialise the first 16 terms */
             for (idx_t i = 0u; i < 16u; ++i)
                 new_arr[i] = init[i];
         } else {
-            new_arr = (seq_t *)realloc(cache, (size_t)new_size * sizeof(seq_t));
+            new_arr = mem_resize(seq_t, cache, (size_t)new_size);
             if (!new_arr)
                 return (seq_t)0;           /* allocation failure undefined */
         }

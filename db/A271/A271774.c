@@ -8,12 +8,14 @@
  * Formula:   a(n) = max{ m | 0 < m < n and a(m) divides n }, with a(1) = 1
  * Range:     u8 n <= 257, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 89 terms through n = 9787 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static memoization cache */
@@ -24,9 +26,9 @@ seq_t a(idx_t n) {
     if (n > cache_len) {
         size_t new_len = n;
         if (cache == NULL) {
-            cache = (seq_t *)malloc((new_len + 1) * sizeof(seq_t));
+            cache = mem_new(seq_t, (new_len + 1));
         } else {
-            cache = (seq_t *)realloc(cache, (new_len + 1) * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, (new_len + 1));
         }
         /* Compute new entries */
         for (idx_t cur = cache_len + 1; cur <= new_len; ++cur) {

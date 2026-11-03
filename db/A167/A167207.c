@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 163, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   term_is_valid
+ * Validated: standard, pass, 86 terms through n = 9713 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,21 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/term_is_valid.h"
+
+/* Test whether a number is valid: it must not be divisible by any perfect
+ * square greater than 1 and smaller than itself.  Perfect squares themselves
+ * are considered valid. */
+static bool term_is_valid(seq_t x)
+{
+    idx_t i = 2;
+    for (; (seq_t)i * (seq_t)i <= x; ++i)
+    {
+        seq_t sq = (seq_t)i * (seq_t)i;
+        if (x % sq == 0)
+            return sq == x;   /* valid only if the square equals the number itself */
+    }
+    return true;
+}
 
 /* maximum number of terms we precompute – sufficient for n up to very large values */
 #define MAX_TERMS 200000

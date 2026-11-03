@@ -12,7 +12,8 @@
  *            26685485, 85977789, 238124824
  * Range:     u8 none, u16 n <= 6, u32 n <= 18, u64 n <= 41, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,12 +22,13 @@
 
 #if defined(__cplusplus)
 #include <cstddef>
-#define ALLOC(type, sz) reinterpret_cast<type*>(malloc(sz))
-#define REALLOC(type, ptr, sz) reinterpret_cast<type*>(realloc(ptr, sz))
+#define ALLOC(type, sz) mem_new(type, (sz) / sizeof(type))
+#define REALLOC(type, ptr, sz) mem_resize(type, ptr, (sz) / sizeof(type))
 #else
-#define ALLOC(type, sz) ((type*)malloc(sz))
-#define REALLOC(type, ptr, sz) ((type*)realloc(ptr, sz))
+#define ALLOC(type, sz) (mem_new(type, (sz) / sizeof(type)))
+#define REALLOC(type, ptr, sz) (mem_resize(type, ptr, (sz) / sizeof(type)))
 #endif
+#include "../utils/mem.h"
 
 /* Base values a(1) .. a(15) */
 static const seq_t base_vals[15] = {

@@ -7,7 +7,8 @@
  * Formula:   a(n) = the nth prime p such that p mod 7 ∈ {3,4,6}
  * Range:     u8 n <= 27, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 61 terms through n = 717 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *prime_cache = NULL;
 static size_t cache_cap  = 0;
@@ -25,7 +27,7 @@ static idx_t next_candidate = 3;   /* first integer to examine */
 static void grow_cache(void)
 {
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-    seq_t *tmp = (seq_t *)realloc(prime_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, prime_cache, new_cap);
     if (!tmp) abort();
     prime_cache = tmp;
     cache_cap   = new_cap;

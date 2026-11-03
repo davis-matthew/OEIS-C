@@ -9,12 +9,14 @@
  *            1/(1‑2*x^3+x^4)
  * Range:     i8 n <= 18, i16 n <= 35, i32 n <= 73, i64 n <= 145,
  *            i128 n <= 291, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 884 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* initialise cache once */
     if (max_computed == (idx_t)-1) {
         cache_size = 4;                      /* need indices 0..3 */
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache) return 0;                 /* allocation failure – unlikely in tests */
         cache[0] = 1;                         /* a(0) */
         cache[1] = 0;                         /* a(1) */
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
         idx_t new_size = cache_size;
         while (new_size <= n)
             new_size <<= 1;   /* double until sufficient */
-        cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
         cache_size = new_size;
     }
 

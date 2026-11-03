@@ -8,8 +8,9 @@
  * Formula:   a(n) = (n-1) + Σ_{i=1..⌊log₂ n⌋} (⌊n^{1/i}⌋ - 1) for n ≥ 2 The
  *            sum counts the extra digits contributed by the perfect‑power
  *            bases of n
- * Range:     u8 n <= 120, u16 n <= 9321, u32 n <= 9321, u64 n <= 9321,
- *            u128 n <= 9321, big any n
+ * Range:     u8 n <= 120, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 74 terms through n = 9321 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

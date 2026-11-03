@@ -9,7 +9,8 @@
  *            Molien series generating function is 1/∏_{i=2}^{10} (1‑t^i)
  * Range:     u8 n <= 25, u16 n <= 73, u32 n <= 371, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 988 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,12 +28,12 @@ seq_t a(idx_t n)
 
     /* Allocate space for the DP table: dp[0 … n]. */
     size_t len = (size_t)n + 1;
-    seq_t *dp = (seq_t*)malloc(len * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, len);
     if (!dp)
         return (seq_t)0;      /* Out of memory – unlikely in tests. */
 
     /* Initialize the table. */
-    memset(dp, 0, len * sizeof(seq_t));
+    mem_set(dp, 0, len * sizeof(seq_t));
     dp[0] = (seq_t)1;
 
     /* Classic unbounded‑knapsack DP to count partitions with parts 2–10. */
@@ -42,6 +44,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

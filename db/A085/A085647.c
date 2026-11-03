@@ -8,9 +8,10 @@
  * Formula:   a(n) = the n-th smallest number that is the product of two
  *            distinct primes p and q such that p and q have the same number
  *            of decimal digits. The sequence is sorted increasingly
- * Range:     u8 none, u16 n <= 2, u32 n <= 9748, u64 n <= 9748,
- *            u128 n <= 9748, big any n
- * Helpers:   build_primes_upto, digit_count, seq_mul
+ * Range:     u8 none, u16 n <= 2, u32 n <= 10369, u64 n <= 10369,
+ *            u128 n <= 10369, big any n
+ * Validated: standard, pass, 69 terms through n = 9748 (2026-11-03)
+ * Helpers:   build_primes_upto, mem, num_digits0
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,16 @@
 #include <stdbool.h>
 
 /* Helper functions provided by the infrastructure */
-#include "../utils/digit_count.h"
-#include "../utils/seq_mul.h"
+#include <string.h>
+#include <math.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/num_digits0.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Compare two seq_t values for qsort.  Works for any seq_t type. */
 static int cmp_seq_t(const void *a, const void *b)
@@ -63,8 +71,8 @@ static void ensure_cache(idx_t need)
         for (size_t i = 0; i < cnt; )
         {
             size_t j = i;
-            int d = digit_count(primes[i]);
-            while (j < cnt && digit_count(primes[j]) == d) ++j;
+            int d = num_digits0(primes[i]);
+            while (j < cnt && num_digits0(primes[j]) == d) ++j;
             size_t sz = j - i;
             total += sz * (sz - 1) / 2;
             i = j;
@@ -86,14 +94,14 @@ static void ensure_cache(idx_t need)
     for (size_t i = 0; i < prime_cnt; )
     {
         size_t j = i;
-        int d = digit_count(primes[i]);
-        while (j < prime_cnt && digit_count(primes[j]) == d) ++j;
+        int d = num_digits0(primes[i]);
+        while (j < prime_cnt && num_digits0(primes[j]) == d) ++j;
         size_t sz = j - i;
         prod_cnt += sz * (sz - 1) / 2;
         i = j;
     }
 
-    seq_t *arr = (seq_t *)malloc(prod_cnt * sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, prod_cnt);
     if (!arr)
     {
         free(primes);
@@ -105,8 +113,8 @@ static void ensure_cache(idx_t need)
     for (size_t i = 0; i < prime_cnt; )
     {
         size_t j = i;
-        int d = digit_count(primes[i]);
-        while (j < prime_cnt && digit_count(primes[j]) == d) ++j;
+        int d = num_digits0(primes[i]);
+        while (j < prime_cnt && num_digits0(primes[j]) == d) ++j;
 
         for (size_t p = i; p < j; ++p)
         {
@@ -123,10 +131,10 @@ static void ensure_cache(idx_t need)
     }
 
     /* Sort the product list. */
-    qsort(arr, pos, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(arr, pos, sizeof(seq_t), cmp_seq_t);
 
     /* Replace old cache with the new one. */
-    free(cache);
+    mem_free(cache);
     cache = arr;
     cache_size = pos;
     cache_limit = limit;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 54, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   isPrime
+ * Validated: standard, pass, 72 terms through n = 9952 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/isPrime.h"          /* bool isPrime(idx_t) */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* -----  cache for previously computed terms  ----- */
 static seq_t *cache   = NULL;   /* 0‑based: cache[i] = a(i+1) */
@@ -36,7 +38,7 @@ static void grow_cache(idx_t needed)
     idx_t new_cap = cache_cap ? cache_cap << 1 : 64;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     cache = tmp;
     cache_cap = new_cap;
 }
@@ -50,7 +52,7 @@ static seq_t compute_next(seq_t prev_a)
     for (;; ++t) {
         sum += t;
         seq_t candidate = sum + 1;     /* 1 + Σ_{k=prev_a+1}^{t} k */
-        if (isPrime((idx_t)candidate))
+        if (is_prime((idx_t)candidate))
             return t;
     }
 }

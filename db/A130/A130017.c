@@ -10,13 +10,15 @@
  *            18105
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 27, u64 n <= 65, u128 n <= 140,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 924 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, free */
 #include <stddef.h>   /* size_t */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;        /* array of computed terms, unused index 0 */
 static size_t cache_len = 0;       /* allocated length, includes index 0 */
@@ -37,7 +39,7 @@ static void ensure_cache(idx_t n)
         required = 7;
 
     if (cache == NULL) {
-        cache = (seq_t *)malloc(required * sizeof(seq_t));
+        cache = mem_new(seq_t, required);
         if (cache == NULL) abort();        /* out of memory */
         cache_len = required;
         /* initialize all entries to 0 */
@@ -55,7 +57,7 @@ static void ensure_cache(idx_t n)
 
     if (required > cache_len) {
         /* Allocate a larger array */
-        seq_t *new_cache = (seq_t *)malloc(required * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, required);
         if (new_cache == NULL) abort();
         /* Copy existing values */
         for (size_t i = 0; i < cache_len; ++i)
@@ -63,7 +65,7 @@ static void ensure_cache(idx_t n)
         /* Zero any new slots (only needed for safety) */
         for (size_t i = cache_len; i < required; ++i)
             new_cache[i] = (seq_t)0;
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_len = required;
         /* The initial values 1…6 were already copied; no need to reset. */

@@ -8,7 +8,8 @@
  *            n
  * Range:     u8 n <= 81, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
- * Helpers:   cmp_seq_t, factor_u64, prime_pi
+ * Validated: partial, pass, 81 terms through n = 81 (2026-11-03)
+ * Helpers:   factor_u64, mem, prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,20 @@
 #include <stdlib.h>
 #include <stddef.h>
 
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
 #include "../utils/prime_pi.h"
-#include "../utils/cmp_seq_t.h"
+#include "../utils/mem.h"
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
 
 /* Compute A360679: sum of the right half (inclusive) of the prime indices of n. */
 seq_t a(idx_t n)
@@ -47,7 +59,7 @@ seq_t a(idx_t n)
         return 0;
 
     /* Sort the indices to identify the right half. */
-    qsort(indices, len, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(indices, len, sizeof(seq_t), cmp_seq_t);
 
     /* Sum the right half (inclusive). */
     size_t start = len / 2;     /* ceil(len/2) from the right */

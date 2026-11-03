@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 201, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   has_18_digits
+ * Validated: standard, pass, 55 terms through n = 864 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,19 @@
    contains the substring "18".  The function searches incrementally for
    the next valid multiple until it reaches the requested index. */
 #include <stdbool.h>
-#include "../utils/has_18_digits.h"
+
+static inline bool has_18_digits(seq_t x)
+{
+    seq_t prev = 0;
+    while (x > 0) {
+        seq_t d = x % 10;
+        if (d == 1 && prev == 8)
+            return true;          /* found "18" as consecutive digits */
+        prev = d;
+        x /= 10;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

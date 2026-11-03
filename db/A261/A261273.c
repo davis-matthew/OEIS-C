@@ -9,13 +9,15 @@
  *            diatomic sequence A002487(k)
  * Range:     u8 n <= 1212, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 105 terms through n = 9486 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static uint32_t *primes = NULL;
 static size_t primes_cnt = 0;
@@ -67,7 +69,7 @@ static void ensure_stern(idx_t n)
     if (n <= stern_max) return;
     if (stern_cap < (size_t)(n + 1)) {
         stern_cap = (size_t)(n + 1);
-        seq_t *tmp = (seq_t*)realloc(stern, stern_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, stern, stern_cap);
         if (!tmp) abort();
         stern = tmp;
     }

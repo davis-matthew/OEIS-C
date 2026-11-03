@@ -14,7 +14,8 @@
  *            smallest spiral number. The sequence stops w...
  * Range:     u8 n <= 28, u16 n <= 28, u32 n <= 28, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   spiral_number_from
+ * Validated: full, pass, 28 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,35 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/spiral_number_from.h"
+#include "../utils/mem.h"
+
+/* Convert (x,y) coordinates to the Ulam spiral number. */
+static inline seq_t spiral_number_from(int64_t x, int64_t y)
+{
+    if (x == 0 && y == 0) return (seq_t)1;
+    int64_t k = x >= 0 ? x : -x;
+    if ((y >= 0 ? y : -y) > k) k = y >= 0 ? y : -y;
+    unsigned __int128 t = (unsigned __int128)(2 * (uint64_t)k + 1);
+    unsigned __int128 m = t * t;   /* (2k+1)² */
+
+    if (x ==  k && y == -k) return (seq_t)m;          /* bottom‑right corner */
+
+    if (x ==  k) {                                   /* right side */
+        uint64_t diff = (uint64_t)(6 * k + (k - y));
+        return (seq_t)(m - diff);
+    }
+    if (y == -k) {                                   /* bottom side */
+        uint64_t diff = (uint64_t)(k - x);
+        return (seq_t)(m - diff);
+    }
+    if (x == -k) {                                   /* left side */
+        uint64_t diff = (uint64_t)(3 * k + y);
+        return (seq_t)(m - diff);
+    }
+    /* top side (y == k) */
+    uint64_t diff = (uint64_t)(5 * k + x);
+    return (seq_t)(m - diff);
+}
 
 /* Basic divisor count for 64‑bit numbers. */
 static inline uint64_t divisor_count_u64(uint64_t n)
@@ -58,7 +87,7 @@ static void ensure_nodes_capacity(size_t needed)
     if (nodes_cap >= needed) return;
     size_t new_cap = nodes_cap ? nodes_cap * 2 : 8;
     if (new_cap < needed) new_cap = needed;
-    node_t *tmp = (node_t *)realloc(nodes, new_cap * sizeof(node_t));
+    node_t *tmp = mem_resize(node_t, nodes, new_cap);
     if (!tmp) abort();
     nodes = tmp;
     nodes_cap = new_cap;

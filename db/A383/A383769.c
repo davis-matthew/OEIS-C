@@ -9,11 +9,13 @@
  *            whose Dirichlet convolution with itself yields n^3 (A000578)
  * Range:     u8 n <= 242, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 103 terms through n = 9947 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /* Helper structure: fraction num / 2^den. */
 typedef struct { __int128 num; unsigned int den; } frac;
 

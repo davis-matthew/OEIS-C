@@ -11,6 +11,7 @@
  *            228, -494, -228, -1 for n=0,1,2,3,4. All other n return 0
  * Range:     i8 n <= 0, i16 n <= 4, i32 n <= 4, i64 n <= 4, i128 n <= 4,
  *            big any n
+ * Validated: full, pass, 5 terms through n = 4 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

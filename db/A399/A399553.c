@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 56, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   odd_part
+ * Validated: partial, pass, 57 terms through n = 56 (2026-11-03)
+ * Helpers:   mem, odd_part
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
  * condition (a sieve). */
 
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/odd_part.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Helper: dynamic array of seq_t values */
@@ -33,7 +36,7 @@ static void ensure_terms_cap(size_t new_cap) {
     if (terms.cap >= new_cap) return;
     size_t cap = terms.cap ? terms.cap * 2 : 16;
     if (cap < new_cap) cap = new_cap;
-    terms.data = (seq_t *)realloc(terms.data, cap * sizeof(seq_t));
+    terms.data = mem_resize(seq_t, terms.data, cap);
     terms.cap = cap;
 }
 

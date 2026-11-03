@@ -7,23 +7,24 @@
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{d|n, 2*φ(d) - d > 0} (2*φ(d) - d), where φ = Euler's
  *            totient
- * Range:     u8 n <= 256, u16 n <= 9772, u32 n <= 9772, u64 n <= 9772,
- *            u128 n <= 9772, big any n
- * Helpers:   phi
+ * Range:     u8 n <= 256, u16 n <= 65536, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 112 terms through n = 9772 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/phi.h"
+#include "../utils/totient.h"
 
 /* Return f(d) = 2*φ(d) - d if this value is positive, otherwise 0.
    The computation avoids unsigned underflow by using the equivalent
    expression φ(d) - (d - φ(d)), which is positive iff 2*φ(d) > d. */
 static seq_t positive_f(idx_t d)
 {
-    seq_t phi_val = phi(d);
+    seq_t phi_val = totient(d);
     /* Calculate d - φ(d); this is safe because φ(d) ≤ d. */
     seq_t diff = (seq_t)d - phi_val;
     /* f(d) > 0  ⇔  φ(d) > floor(d/2). */

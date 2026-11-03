@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = coefficient of 1/n^s in ∏_{m≥2} (1 - 1/m^s)^(-d(m))
  *            (d(m)=A000005(m))
- * Range:     u8 n <= 71, u16 n <= 5759, u32 n <= 9604, u64 n <= 9604,
- *            u128 n <= 9604, big any n
+ * Range:     u8 n <= 71, u16 n <= 5759, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 91 terms through n = 9604 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

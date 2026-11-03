@@ -10,7 +10,8 @@
  *            coefficient
  * Range:     i8 none, i16 n <= 54, i32 n <= 65, i64 n <= 65, i128 n <= 65,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 #define MAX_K 200
 
@@ -44,8 +46,8 @@ static seq_t my_gcd(seq_t a, seq_t b)
  * and denominators using the Akiyama–Tanigawa algorithm. */
 static void init_bernoulli(void)
 {
-    seq_t *A_num = (seq_t *)malloc((MAX_K + 1) * sizeof(seq_t));
-    seq_t *A_den = (seq_t *)malloc((MAX_K + 1) * sizeof(seq_t));
+    seq_t *A_num = mem_new(seq_t, (MAX_K + 1));
+    seq_t *A_den = mem_new(seq_t, (MAX_K + 1));
 
     /* Initial values: A[i] = 1/(i+1). */
     for (int i = 0; i <= MAX_K; ++i) {
@@ -83,8 +85,8 @@ static void init_bernoulli(void)
         }
     }
 
-    free(A_num);
-    free(A_den);
+    mem_free(A_num);
+    mem_free(A_den);
 }
 
 /* Convert flattened index n to triangle coordinates (k,m)
@@ -126,7 +128,7 @@ seq_t a(idx_t n)
         return (seq_t)0;
     }
 
-    seq_t C = binom(k, m);
+    seq_t C = binomial(k, m);
 
     seq_t num = Bn * C;
     seq_t den = Bd * (seq_t)t;

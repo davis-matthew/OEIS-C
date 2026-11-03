@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 19, u32 n <= 39, u64 n <= 81, u128 n <= 161,
  *            big any n
- * Helpers:   pow_3
+ * Validated: standard, pass, 51 terms through n = 977 (2026-11-01)
+ * Helpers:   pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
  *   a(even n) = 4 * 3^((n-2)/2)
  */
 #include <stdbool.h>
-#include "../utils/pow_3.h"
+#include "../utils/pow3.h"
 
 seq_t a(idx_t n)
 {
@@ -28,9 +29,9 @@ seq_t a(idx_t n)
 
     if (n & 1) {                 /* odd n */
         idx_t e = (n - 1) / 2;
-        return pow_3(e);
+        return pow3(e);
     } else {                     /* even n */
         idx_t e = (n - 2) / 2;
-        return pow_3(e) * (seq_t)4;
+        return pow3(e) * (seq_t)4;
     }
 }

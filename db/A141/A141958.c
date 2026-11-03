@@ -7,7 +7,8 @@
  * Formula:   a(n) = nth prime ≡ 16 (mod 27) – computed by incremental search
  * Range:     u8 n <= 3, u16 n <= 366, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 61 terms through n = 987 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,8 @@
 #include <stddef.h>   /* for size_t */
 #include <stdbool.h>  /* for bool */
 #include <stdlib.h>   /* for malloc, realloc, free */
-#include "../utils/is_prime.h" /* provides bool is_prime(idx_t) */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static void ensure_cache_size(idx_t needed, seq_t **cache, size_t *cap)
 {
@@ -24,7 +26,7 @@ static void ensure_cache_size(idx_t needed, seq_t **cache, size_t *cap)
     size_t new_cap = (*cap) ? (*cap) * 2 : 16;
     while (new_cap < (size_t)needed)
         new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(*cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *cache, new_cap);
     *cache = tmp;
     *cap = new_cap;
 }

@@ -11,7 +11,8 @@
  *            returns the nth term (1‑based) if it exists, otherwise 0
  * Range:     i8 n <= 8, i16 n <= 8, i32 n <= 8, i64 n <= 8, i128 n <= 8,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 8 terms through n = 8 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static int cmp_seq(const void *a, const void *b) {
     const seq_t *va = (const seq_t *)a;
@@ -53,7 +55,7 @@ static void init_terms(seq_t *terms, size_t *count) {
         }
     }
     *count = t;
-    qsort(terms, t, sizeof(seq_t), cmp_seq);
+    mem_qsort(terms, t, sizeof(seq_t), cmp_seq);
 }
 
 static seq_t *terms_global = NULL;
@@ -62,7 +64,7 @@ static bool terms_ready = false;
 
 static void ensure_terms(void) {
     if (!terms_ready) {
-        terms_global = (seq_t *)malloc(sizeof(seq_t) * 8); /* exactly 8 terms */
+        terms_global = mem_new(seq_t, 8); /* exactly 8 terms */
         init_terms(terms_global, &terms_count);
         terms_ready = true;
     }

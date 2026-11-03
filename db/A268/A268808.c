@@ -10,7 +10,8 @@
  *            adjacent pair (horizontal, vertical or anti‑diagonal) sums to 2
  * Range:     u8 none, u16 n <= 3, u32 n <= 7, u64 n <= 16, u128 n <= 34,
  *            big any n
- * Helpers:   clear_seq_arr, cross_sum, horizontal_sum
+ * Validated: standard, pass, 31 terms through n = 208 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,9 +24,40 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/clear_seq_arr.h"
-#include "../utils/cross_sum.h"
-#include "../utils/horizontal_sum.h"
+
+static void clear_seq_arr(seq_t *arr, int len)
+{
+    for (int i = 0; i < len; ++i) arr[i] = 0;
+}
+
+static inline uint8_t cross_sum(const uint8_t *prev, const uint8_t *curr)
+{
+    uint8_t cnt = 0;
+    /* vertical pairs */
+    for (int j = 0; j < 7; ++j) {
+        if (prev[j] + curr[j] == 2) {
+            if (++cnt > 1) return cnt;
+        }
+    }
+    /* anti‑diagonal pairs (j >= 1) */
+    for (int j = 1; j < 7; ++j) {
+        if (prev[j] + curr[j - 1] == 2) {
+            if (++cnt > 1) return cnt;
+        }
+    }
+    return cnt;
+}
+
+static inline uint8_t horizontal_sum(const uint8_t *d)
+{
+    uint8_t h = 0;
+    for (int j = 1; j < 7; ++j) {
+        if (d[j - 1] + d[j] == 2) {
+            if (++h > 1) return h;
+        }
+    }
+    return h;
+}
 
 #define MAX_STATES 2187                    /* 3^7 */
 

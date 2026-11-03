@@ -9,14 +9,16 @@
  *            sequence a(n) is the triangular array read by rows. a(n) = T(r,
  *            k) where r is the largest integer with r*(r+1)/2 ≤ n and k = n –
  *            r*(r+1)/2
- * Range:     u8 n <= 9, u16 n <= 35, u32 n <= 109, u64 n <= 334,
+ * Range:     u8 n <= 16, u16 n <= 38, u32 n <= 109, u64 n <= 334,
  *            u128 n <= 1146, big any n
+ * Validated: standard, pass, 66 terms through n = 9958 (2026-11-01)
  * Helpers:   binomial, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/gcd.h"
 

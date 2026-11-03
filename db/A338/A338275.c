@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   triple_a, triple_b, triple_c
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -37,9 +38,29 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/triple_a.h"
-#include "../utils/triple_b.h"
-#include "../utils/triple_c.h"
+
+/* ---------- helper functions for triple components ---------- */
+static inline seq_t triple_a(seq_t i, seq_t m, seq_t n)
+{
+    /* a = i * ((m-1)^2 - n^2)/2 + (2*m-1) */
+    seq_t m_minus_1 = m - 1;
+    seq_t diff = m_minus_1 * m_minus_1 - n * n;   /* (m-1)^2 - n^2 */
+    seq_t part = (i * diff) / 2;                 /* integer division */
+    return part + (2 * m - 1);
+}
+
+static inline seq_t triple_b(seq_t i, seq_t m, seq_t n)
+{
+    /* b = n * ( i*(m-1) + 2 ) */
+    seq_t part = i * (m - 1) + 2;
+    return n * part;
+}
+
+static inline seq_t triple_c(seq_t a, seq_t i, seq_t n)
+{
+    /* c = a + i*n^2 */
+    return a + i * n * n;
+}
 
 /* ---------- main sequence function ---------- */
 seq_t a(idx_t n)

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 6, i16 n <= 10, i32 n <= 14, i64 n <= 22, i128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* a[n] values */
 static seq_t *fact  = NULL;          /* (k-1)!   */
@@ -35,8 +37,8 @@ static void ensure_capacity(size_t n) {
     size_t new_len = n + 1;
 
     /* resize caches */
-    cache = (seq_t*)realloc(cache, new_len * sizeof(seq_t));
-    fact  = (seq_t*)realloc(fact,  new_len * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_len);
+    fact  = mem_resize(seq_t, fact, new_len);
 
     /* initialise factorials for indices that were not yet computed */
     for (size_t i = cache_len; i < new_len; ++i) {

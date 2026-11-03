@@ -10,6 +10,7 @@
  *            triangular entry a(row, col)
  * Range:     u8 n <= 23, u16 n <= 39, u32 n <= 70, u64 n <= 126,
  *            u128 n <= 240, big any n
+ * Validated: standard, pass, 77 terms through n = 1262 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 
 #include <stdint.h>
 #include <math.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 /* Compute the triangular entry a(row, col) from the index n.  */

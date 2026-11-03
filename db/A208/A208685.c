@@ -12,6 +12,7 @@
  *            next rows are allowed by the vertical rule. Fin...
  * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 15, u64 n <= 35, u128 n <= 73,
  *            big any n
+ * Validated: standard, pass, 38 terms through n = 200 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

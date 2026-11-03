@@ -7,7 +7,8 @@
  * Formula:   Products of two self numbers (A003052)
  * Range:     u8 none, u16 none, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Compare function for qsort on seq_t values. */
 static int seq_cmp(const void *a, const void *b)
@@ -74,7 +76,7 @@ static void compute_terms(idx_t n)
 
         /* 2. Generate all products self[i] * self[j] with i ≤ j. */
         size_t prod_cap = self_cnt * (self_cnt + 1) / 2;
-        seq_t *prods = (seq_t *)malloc(prod_cap * sizeof(seq_t));
+        seq_t *prods = mem_new(seq_t, prod_cap);
         size_t prod_cnt = 0;
 
         for (size_t i = 0; i < self_cnt; ++i) {
@@ -87,7 +89,7 @@ static void compute_terms(idx_t n)
         free(self);
 
         /* 3. Sort and deduplicate. */
-        qsort(prods, prod_cnt, sizeof(seq_t), seq_cmp);
+        mem_qsort(prods, prod_cnt, sizeof(seq_t), seq_cmp);
 
         size_t uniq_cnt = 0;
         for (size_t i = 0; i < prod_cnt; ++i) {
@@ -98,14 +100,14 @@ static void compute_terms(idx_t n)
 
         if (uniq_cnt >= (size_t)n) {
             /* Store the results. */
-            free(cached_terms);
+            mem_free(cached_terms);
             cached_terms = prods;
             cached_count = uniq_cnt;
             cached_limit = limit;
             break;
         } else {
             /* Not enough terms – enlarge the limit and try again. */
-            free(prods);
+            mem_free(prods);
             limit *= 2;
         }
     }

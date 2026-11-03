@@ -8,13 +8,14 @@
  * Formula:   a(n) = number n such that composite(n) + n is composite
  * Range:     u8 n <= 71, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -30,14 +31,14 @@ seq_t a(idx_t n)
 
         /* generate the m-th composite number */
         while (comp_cnt < m) {
-            while (is_prime_small(cand)) ++cand; /* skip primes */
+            while (is_prime_seq(cand)) ++cand; /* skip primes */
             ++comp_cnt;
             comp_val = cand;
             ++cand; /* next candidate for future iterations */
         }
 
         seq_t sum = comp_val + (seq_t)m;
-        if (!is_prime_small(sum)) {            /* sum is composite */
+        if (!is_prime_seq(sum)) {            /* sum is composite */
             ++found;
             if (found == n) return (seq_t)m;
         }

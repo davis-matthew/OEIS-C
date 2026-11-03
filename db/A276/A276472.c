@@ -13,12 +13,14 @@
  *            T(2,1)=1. The sequence enumerates the triangle r...
  * Range:     u8 n <= 28, u16 n <= 90, u32 n <= 300, u64 n <= 1128,
  *            u128 n <= 4371, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 5046 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,14 +33,14 @@ seq_t a(idx_t n)
     idx_t k = n - prevCount;                  /* column in row r (1‑based) */
 
     /* allocate rows up to r */
-    seq_t *prev = (seq_t *)calloc((size_t)(r + 1), sizeof(seq_t));
-    seq_t *curr = (seq_t *)calloc((size_t)(r + 1), sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, (size_t)(r + 1));
+    seq_t *curr = mem_new(seq_t, (size_t)(r + 1));
 
     /* base row 1 */
     prev[1] = 1;
     if (r == 1) {
-        free(prev);
-        free(curr);
+        mem_free(prev);
+        mem_free(curr);
         return 1;
     }
 
@@ -47,8 +49,8 @@ seq_t a(idx_t n)
     curr[2] = curr[1] + prev[1];   /* 1 + 1 = 2 */
     if (r == 2) {
         seq_t res = (k == 1) ? curr[1] : curr[2];
-        free(prev);
-        free(curr);
+        mem_free(prev);
+        mem_free(curr);
         return res;
     }
 
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = prev[k];
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
     return result;
 }

@@ -7,17 +7,19 @@
  * Formula:   a(n) = ∑_{k=0..⌊n/2⌋} binomial(n,2k) * Catalan(n-2k)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate array for Catalan numbers up to n. */
-    seq_t *cat = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *cat = mem_new(seq_t, (n + 1));
     if (!cat)
         return 0;                       /* allocation failure – return 0 */
 
@@ -37,6 +39,6 @@ seq_t a(idx_t n)
             sum += binom_val * cat[(size_t)(n - k)];
     }
 
-    free(cat);
+    mem_free(cat);
     return sum;
 }

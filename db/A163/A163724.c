@@ -12,12 +12,14 @@
  *            * a(7)=2854, a(8)=6597, a(9)=14839, a(10)=32754, a(11)=71352
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 25, u64 n <= 55, u128 n <= 114,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 934 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static void add_multiple(seq_t *dest, seq_t src, unsigned int mul)
 {
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     if (n > cache_cap)
     {
         /* Extend the cache */
-        cache = (seq_t *)realloc(cache, (size_t)n * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (size_t)n);
 
         /* Compute new terms */
         for (idx_t i = (idx_t)(cache_cap + 1); i <= n; ++i)

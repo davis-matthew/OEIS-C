@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 18, u128 n <= 33,
  *            big any n
- * Helpers:   mul_small_wider
+ * Validated: standard, pass, 34 terms through n = 188 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,23 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/mul_small_wider.h"
+#include "../utils/mem.h"
+
+/* multiply a seq_t by a small integer *mul* using a larger integer type
+ * when seq_t fits in 64 bits, otherwise use normal multiplication.
+ * This helper is not used directly in the implementation – the main
+ * function handles the two cases separately – but it shows the idea
+ * of using a wider type for intermediate values. */
+static inline seq_t mul_small_wider(seq_t a, idx_t mul)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 t = (unsigned __int128)(unsigned long long)a *
+                             (unsigned __int128)(unsigned long long)mul;
+        return (seq_t)t;
+    } else {
+        return a * (seq_t)mul;
+    }
+}
 
 /* compute a(n) */
 seq_t a(idx_t n)
@@ -31,7 +48,7 @@ seq_t a(idx_t n)
     /* ensure cache is large enough */
     if (n >= cache_size) {
         idx_t new_size = n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (!new_cache) exit(EXIT_FAILURE);
         /* initialise newly allocated entries to zero */
         for (idx_t i = cache_size; i < new_size; ++i) new_cache[i] = 0;

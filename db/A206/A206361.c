@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
  */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;      /* array of values, memo[0] unused */
 static idx_t memo_size = 0;     /* largest index currently stored */
@@ -39,7 +41,7 @@ static void ensure_cache(idx_t n)
     /* Lazy initialization: create space for the first 8 terms. */
     if (!memo) {
         size_t init_cap = 9;                 /* indices 0..8 */
-        memo = (seq_t *)malloc(init_cap * sizeof(seq_t));
+        memo = mem_new(seq_t, init_cap);
         if (!memo) return;                    /* OOM: caller may not handle, but sequence build expected to succeed */
 
         /* Initial values for indices 1..8. */
@@ -62,7 +64,7 @@ static void ensure_cache(idx_t n)
     size_t new_cap = (size_t)(n + 1);
     if (new_cap <= memo_size) return; /* should not happen */
 
-    seq_t *new_mem = (seq_t *)realloc(memo, new_cap * sizeof(seq_t));
+    seq_t *new_mem = mem_resize(seq_t, memo, new_cap);
     if (!new_mem) return;                 /* OOM: caller may not handle */
     memo = new_mem;
 

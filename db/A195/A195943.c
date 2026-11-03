@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 4926, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   largest_prime_divisor
+ * Validated: standard, pass, 93 terms through n = 9582 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,29 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/largest_prime_divisor.h"
+#include "../utils/mem.h"
+
+/* Return the largest prime divisor of m (m >= 2). */
+static uint64_t largest_prime_divisor(uint64_t m)
+{
+    uint64_t largest = 0;
+    /* factor 2 */
+    while ((m & 1ULL) == 0) {
+        largest = 2;
+        m >>= 1;
+    }
+    /* odd factors */
+    for (uint64_t f = 3; f <= m / f; f += 2) {
+        if (m % f == 0) {
+            largest = f;
+            while (m % f == 0)
+                m /= f;
+        }
+    }
+    if (m > 1)            /* remaining m is prime */
+        largest = m;
+    return largest;
+}
 
 /* Check whether a decimal representation contains the digit 0. */
 static bool has_zero_digit(uint64_t x)
@@ -67,7 +90,7 @@ seq_t a(idx_t n)
     if (cache_len == 0) {
         /* initialise the cache with the first term 1 */
         cache_cap = 128;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();     /* fatal if we cannot allocate */
         cache[0] = (seq_t)1;
         cache_len = 1;
@@ -85,7 +108,7 @@ seq_t a(idx_t n)
             /* Grow the cache if necessary */
             if (cache_len == cache_cap) {
                 cache_cap <<= 1; /* double capacity */
-                seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                 if (!tmp) abort(); /* fatal if memory cannot be expanded */
                 cache = tmp;
             }

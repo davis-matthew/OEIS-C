@@ -7,7 +7,8 @@
  * Formula:   a(n) = floor((3*3^n - 1)/14) (OEIS A178703)
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 21, u64 n <= 41, u128 n <= 82,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 392 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>         /* for uint64_t */
+#include "../utils/mem.h"
 
 static seq_t *cache   = NULL;   /* cached a(n) values             */
 static idx_t cache_len = 0;     /* number of computed values      */
@@ -34,7 +36,7 @@ static void ensure_cache_capacity(idx_t needed)
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
         if (new_cap < (size_t)needed)
             new_cap = (size_t)needed;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 }
@@ -45,7 +47,7 @@ static void ensure_pow3_capacity(idx_t needed)
         size_t new_cap = pow3_cap ? pow3_cap * 2 : 16;
         if (new_cap < (size_t)needed)
             new_cap = (size_t)needed;
-        pow3_cache = (seq_t *)realloc(pow3_cache, new_cap * sizeof(seq_t));
+        pow3_cache = mem_resize(seq_t, pow3_cache, new_cap);
         pow3_cap = new_cap;
     }
 }

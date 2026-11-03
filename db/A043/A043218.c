@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   has_adjacent_03or30
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,22 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_adjacent_03or30.h"
+#include "../utils/mem.h"
+
+/* helper: does num contain adjacent digits 0 and 3? */
+static bool has_adjacent_03or30(seq_t num)
+{
+    seq_t prev = 10;           /* impossible initial value (since digits 0–9) */
+    while (num > 0)
+    {
+        seq_t digit = num % 10;
+        if (((digit == 0) && (prev == 3)) || ((digit == 3) && (prev == 0)))
+            return true;
+        prev = digit;
+        num /= 10;
+    }
+    return false;
+}
 
 /* static state for memoization */
 static seq_t *terms = NULL;
@@ -35,7 +51,7 @@ static void ensure_capacity(size_t need)
     size_t newcap = term_capacity ? term_capacity * 2 : 64;
     while (newcap < need)
         newcap *= 2;
-    terms = (seq_t *)realloc(terms, newcap * sizeof(seq_t));
+    terms = mem_resize(seq_t, terms, newcap);
     term_capacity = newcap;
 }
 

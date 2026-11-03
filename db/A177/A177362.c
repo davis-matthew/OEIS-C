@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 8, u128 n <= 45,
  *            big any n
- * Helpers:   digit_counts, digit_len, pow10
+ * Validated: standard, pass, 28 terms through n = 9299 (2026-11-03)
+ * Helpers:   digit_counts, mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,9 +29,21 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/digit_len.h"
-#include "../utils/pow10.h"
+#include <stdbool.h>
+#include <stddef.h>
 #include "../utils/digit_counts.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -48,7 +61,7 @@ seq_t a(idx_t n)
     /* ensure the cache is large enough for index n */
     if ((idx_t)n + 1 > cache_cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;               /* allocation failure */
         cache = tmp;
         cache_cap = new_cap;
@@ -71,7 +84,7 @@ seq_t a(idx_t n)
             if (f == 0) continue;         /* skip digits with zero frequency */
 
             seq_t count = (seq_t)f;       /* frequency as seq_t */
-            int   digs   = digit_len(count);   /* decimal length of count */
+            int   digs   = num_digits(count);   /* decimal length of count */
 
             term = term * pow10((idx_t)digs) + count; /* append the count   */
             term = term * (seq_t)10 + (seq_t)d;       /* append the digit d */

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   mult_root
+ * Validated: partial, pass, 80 terms through n = 80 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,30 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mult_root.h"
+#include "../utils/mem.h"
+
+/* Find the multiplicative digital root of x.
+ * If a zero digit occurs during the process the function returns 0.
+ * Otherwise it returns the final single digit (1‑9). */
+static seq_t mult_root(seq_t x)
+{
+    uint64_t cur = (uint64_t)x;        /* the value to work on */
+
+    while (cur >= 10)                 /* not yet a single decimal digit */
+    {
+        uint64_t prod = 1;
+        while (cur > 0)
+        {
+            uint64_t d = cur % 10;
+            if (d == 0)               /* a zero digit forces root 0 */
+                return 0;
+            prod *= d;
+            cur /= 10;
+        }
+        cur = prod;                   /* next value in the chain */
+    }
+    return (seq_t)cur;
+}
 
 /* Cached sequence and auxiliary data */
 static seq_t *cache   = NULL;   /* array of found terms   */
@@ -35,7 +59,7 @@ static void cache_append(seq_t val)
 {
     if (cnt >= cap) {
         size_t new_cap = cap == 0 ? 16 : cap * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();            /* fatal out‑of‑memory */
         cache = tmp;
         cap   = new_cap;

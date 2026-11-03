@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
  */
 
 #include <stdlib.h>   /* malloc, realloc, abort */
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;   /* 1‑based cache of computed terms */
 static size_t cache_cap = 0;      /* allocated capacity (>= needed index + 1) */
@@ -45,7 +47,7 @@ static void ensure_cache(idx_t n)
     size_t needed_cap = n + 1;
     if (needed_cap < 11) needed_cap = 11;
     if (needed_cap > cache_cap) {
-        seq_t *tmp = (seq_t *)realloc(seq_cache, needed_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, needed_cap);
         if (!tmp) abort();  /* out of memory */
         seq_cache = tmp;
         cache_cap = needed_cap;

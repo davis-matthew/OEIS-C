@@ -7,6 +7,7 @@
  * Formula:   a(0) = 1; a(n) = (4/3)*n^4 + (20/3)*n^2 + 2 for n > 0
  * Range:     u8 n <= 3, u16 n <= 14, u32 n <= 237, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 53 terms through n = 9286 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

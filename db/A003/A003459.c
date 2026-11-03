@@ -11,16 +11,56 @@
  *            is the OEIS conjecture
  * Range:     u8 n <= 16, u16 n <= 22, u32 n <= 22, u64 n <= 23, u128 n <= 24,
  *            big any n
- * Helpers:   a3459_absolute, a3459_isprime, a3459_repunit
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/a3459_absolute.h"
-#include "../utils/a3459_isprime.h"
-#include "../utils/a3459_repunit.h"
+#include "../utils/is_prime_u64.h"
+
+static bool a3459_absolute(uint64_t m) {
+    int dg[3], k = 0;
+    uint64_t t = m;
+    while (t > 0) { dg[k++] = (int)(t % 10); t /= 10; }
+    if (k == 1) return is_prime_u64(m);
+    if (k == 2) {
+        return is_prime_u64((uint64_t)(dg[0] * 10 + dg[1])) &&
+               is_prime_u64((uint64_t)(dg[1] * 10 + dg[0]));
+    }
+    {
+        static const int perm[6][3] = {
+            {0,1,2},{0,2,1},{1,0,2},{1,2,0},{2,0,1},{2,1,0}
+        };
+        int p;
+        for (p = 0; p < 6; p++) {
+            uint64_t v = (uint64_t)(dg[perm[p][0]] * 100 + dg[perm[p][1]] * 10 + dg[perm[p][2]]);
+            if (!is_prime_u64(v)) return false;
+        }
+    }
+    return true;
+}
+
+/* R_k computed by binary doubling: R_{a+b} = R_a*10^b + R_b */
+static seq_t a3459_repunit(idx_t k) {
+    seq_t r = 0, p10 = 1;          /* result R_e and 10^e */
+    seq_t br = 1, bp = 10;         /* R_{2^i} and 10^{2^i} */
+    while (k > 0) {
+        if (k & 1) {
+            r = r * bp + br;
+            p10 = p10 * bp;
+        }
+        k >>= 1;
+        if (k > 0) {
+            br = br * bp + br;
+            bp = bp * bp;
+        }
+    }
+    (void)p10;
+    return r;
+}
 
 seq_t a(idx_t n) {
     static uint64_t small[64];

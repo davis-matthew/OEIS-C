@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 33, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
    We find the smallest b(n) > b(n-1) such that 2*b(n)+const ≡ 0 (mod n). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,8 +42,8 @@ seq_t a(idx_t n)
     /* Initialisation */
     if (cur == 0) {
         cap = 4;                               /* small initial size */
-        b  = (seq_t *)malloc(cap * sizeof(seq_t));
-        A  = (seq_t *)malloc(cap * sizeof(seq_t));
+        b  = mem_new(seq_t, cap);
+        A  = mem_new(seq_t, cap);
         if (!b || !A) return (seq_t)0;         /* allocation failure */
         b[1] = (seq_t)1;   /* b(1) = 1 */
         A[1] = (seq_t)1;   /* a(1) = 1 */
@@ -56,8 +58,8 @@ seq_t a(idx_t n)
         if (i >= cap) {
             size_t new_cap = cap * 2;
             if (new_cap <= i) new_cap = i + 1;
-            b = (seq_t *)realloc(b, new_cap * sizeof(seq_t));
-            A = (seq_t *)realloc(A, new_cap * sizeof(seq_t));
+            b = mem_resize(seq_t, b, new_cap);
+            A = mem_resize(seq_t, A, new_cap);
             if (!b || !A) return (seq_t)0;
             cap = new_cap;
         }

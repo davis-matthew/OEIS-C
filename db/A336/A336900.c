@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   build_primes, maybe_update
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-02)
+ * Helpers:   build_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -39,8 +40,25 @@
 #include <stdlib.h>
 
 /* utility functions provided by the AOEIS build */
-#include "../utils/build_primes.h"   /* void build_primes(idx_t limit, idx_t **out, size_t *cnt) */
-#include "../utils/maybe_update.h"
+#include "../utils/build_primes.h"
+
+/* update current best triple lexicographically if the candidate is
+ * earlier.  The candidate must satisfy a ≥ b ≥ c > 0.
+ */
+static void maybe_update(seq_t a, seq_t b, seq_t c,
+                         seq_t *best_a, seq_t *best_b, seq_t *best_c,
+                         bool *found)
+{
+    if (!*found ||
+        a < *best_a || (a == *best_a &&
+        (b < *best_b || (b == *best_b && c < *best_c))))
+    {
+        *best_a = a;
+        *best_b = b;
+        *best_c = c;
+        *found  = true;
+    }
+}
 
 static idx_t *prime_list = NULL;
 static size_t prime_cnt   = 0;
@@ -49,7 +67,7 @@ static idx_t  prime_limit = 0;
 static void ensure_primes(idx_t lim)
 {
     if (prime_limit >= lim) return;
-    if (prime_list != NULL) free((void *)prime_list);
+    if (prime_list != NULL) free(prime_list);
     build_primes(lim, &prime_list, &prime_cnt);
     prime_limit = lim;
 }

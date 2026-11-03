@@ -9,7 +9,8 @@
  *            found values
  * Range:     u8 n <= 24, u16 n <= 2243, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   more_ones_than_threes
+ * Validated: standard, pass, 69 terms through n = 9590 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,22 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/more_ones_than_threes.h"
+#include "../utils/mem.h"
+
+/* Test whether a prime p has more 1's than 3's in its decimal representation. */
+static bool more_ones_than_threes(uint64_t p)
+{
+    unsigned count1 = 0, count3 = 0;
+    while (p > 0) {
+        unsigned d = (unsigned)(p % 10U);
+        if (d == 1U)
+            ++count1;
+        else if (d == 3U)
+            ++count3;
+        p /= 10U;
+    }
+    return count1 > count3;
+}
 
 /* Main sequence function.  Unordered calls are supported by caching. */
 seq_t a(idx_t n)
@@ -82,7 +98,7 @@ seq_t a(idx_t n)
                     cap <<= 1;
                     if (cap == 0)
                         cap = 16;
-                    cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cap);
                 }
                 cache[len++] = (seq_t)cand;
             }

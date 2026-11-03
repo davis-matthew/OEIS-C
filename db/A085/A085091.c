@@ -7,8 +7,9 @@
  * Keywords:  nonn, frac
  * Formula:   a(n) = denominator of sum_{i=2..t} (d(i)/d(i-1)-1), where
  *            d(1)...d(t) are * the sorted divisors of n (d(1)=1, d(t)=n)
- * Range:     u8 n <= 29, u16 n <= 4249, u32 n <= 9596, u64 n <= 9596,
- *            u128 n <= 9596, big any n
+ * Range:     u8 n <= 29, u16 n <= 4249, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 117 terms through n = 9596 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

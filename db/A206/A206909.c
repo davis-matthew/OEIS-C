@@ -12,7 +12,8 @@
  *            the rank of each s_k when it is encountered. I...
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stddef.h>   /* for size_t */
+#include "../utils/mem.h"
 
 static idx_t  cur_limit   = 0;   /* last processed s index      */
 static idx_t  t_next     = 1;   /* next t index to consider    */
@@ -33,10 +35,10 @@ static void ensure_rank_cap(idx_t idx)
     if ((size_t)idx + 1 > rank_cap) {
         size_t new_cap = rank_cap ? rank_cap << 1 : 8;
         while ((size_t)idx + 1 > new_cap) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, new_cap);
         if (!tmp) abort(); /* allocation failed */
-        if (rank_cap) memcpy(tmp, rank_arr, rank_cap * sizeof(seq_t));
-        free(rank_arr);
+        if (rank_cap) mem_copy(tmp, rank_arr, rank_cap * sizeof(seq_t));
+        mem_free(rank_arr);
         rank_arr = tmp;
         rank_cap = new_cap;
     }

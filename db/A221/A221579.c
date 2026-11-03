@@ -8,11 +8,13 @@
  *            sizes s of f(m_s) where f(m) = 10^(m-1) * 9
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 38,
  *            big any n
+ * Validated: standard, pass, 36 terms through n = 496 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /* Compute the number of conjugacy classes in GL(n,10) */
 seq_t a(idx_t n)
 {

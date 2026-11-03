@@ -10,13 +10,15 @@
  *            a(0)=1, a(1)=39, a(2)=1482, a(3)=56316, a(4)=2140008, …
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Includes needed for malloc/realloc */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* Grow storage if necessary */
     if (n >= sz) {
         idx_t new_sz = n + 1;         /* we need indices 0 … n inclusive */
-        seq_t *tmp = (seq_t *)realloc(val, new_sz * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, val, new_sz);
         if (!tmp) abort();           /* allocation failed */
         val = tmp;
         /* Compute missing terms */

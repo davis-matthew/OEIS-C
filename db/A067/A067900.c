@@ -7,12 +7,14 @@
  * Formula:   a(n) = 14*a(n-1) - a(n-2), a(0) = 0, a(1) = 8
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 17, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 809 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* for malloc, realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     /* initialise cache with first two terms */
     if (cache_len == 0) {
         cache_cap = 2;
-        cache = (seq_t*)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return (seq_t)0;  /* allocation failed, return 0 */
 
         cache[0] = (seq_t)0;
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     if (n + 1 > cache_cap) {
         idx_t new_cap = cache_cap * 2;
         if (new_cap < n + 1) new_cap = n + 1;
-        seq_t *new_cache = (seq_t*)realloc(cache, sizeof(seq_t) * new_cap);
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) return (seq_t)0;  /* allocation failed, return 0 */
         cache = new_cache;
         cache_cap = new_cap;

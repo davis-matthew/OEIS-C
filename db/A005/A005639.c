@@ -11,7 +11,8 @@
  *            w(k) = 0 (k odd), k/2 (k == 2 mod 4), (k-2)...
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 10, u64 n <= 14, u128 n <= 19,
  *            big any n
- * Helpers:   bn_divsmall, w_in
+ * Validated: standard, pass, 34 terms through n = 50 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,21 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
-#include "../utils/bn_divsmall.h"
-#include "../utils/w_in.h"
+
+static void bn_divsmall(uint32_t *x, size_t len, uint32_t d) {
+    uint64_t r = 0;
+    for (size_t i = len; i-- > 0;) {
+        uint64_t cur = (r << 32) | x[i];
+        x[i] = (uint32_t)(cur / d);
+        r = cur % d;
+    }
+}
+
+static uint64_t w_in(uint64_t k) {
+    if (k & 1) return 0;
+    if (k % 4 == 2) return k / 2;
+    return (k - 2) / 2;
+}
 
 static uint32_t *g_buf;
 static uint32_t *g_cE;

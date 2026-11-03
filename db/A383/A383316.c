@@ -7,13 +7,15 @@
  * Formula:   a(n) = (4*n-3)*a(n-1) - 2*(n-1)*a(n-2), a(0)=1, a(1)=1
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 14, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* ensure space for the first two elements */
     if (cap == 0) {
         cap = 4;
-        cache = (seq_t*)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) return 0;  /* allocation failed */
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)1;
@@ -40,9 +42,9 @@ seq_t a(idx_t n)
     while (len <= n) {
         if (len >= cap) {
             size_t new_cap = cap * 2;
-            seq_t *new_cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
             if (!new_cache) {
-                free(cache);
+                mem_free(cache);
                 return 0; /* allocation failed */
             }
             cache = new_cache;

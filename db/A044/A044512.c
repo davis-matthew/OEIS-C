@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   contains45_base6
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,22 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/contains45_base6.h"
+#include "../utils/mem.h"
+
+/* test whether a base‑6 representation of x contains the substring "45"
+   (digits 4 followed by 5, in base‑6, more significant first). */
+static inline bool contains45_base6(seq_t x)
+{
+    seq_t prev = 6;               /* value larger than any valid digit */
+    while (x > (seq_t)0) {
+        seq_t d = x % (seq_t)6;  /* current least significant digit */
+        if (d == (seq_t)4 && prev == (seq_t)5)
+            return true;
+        prev = d;
+        x /= (seq_t)6;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -38,7 +54,7 @@ seq_t a(idx_t n)
     /* grow the cache as needed */
     if (cache_size == cache_cap) {
         size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();        /* out of memory */
         cache = tmp;
         cache_cap = new_cap;

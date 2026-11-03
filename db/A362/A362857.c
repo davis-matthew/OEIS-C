@@ -7,12 +7,14 @@
  * Formula:   a(n) = Sum_{k=0..n} (-2)^(n-k) * k^k * binomial(n,k)
  * Range:     i8 n <= 4, i16 n <= 6, i32 n <= 9, i64 n <= 16, i128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 373 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache of k^k values.  pow_cache[i] = i^i  (0^0 = 1).  */
 static seq_t *pow_cache = NULL;
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     if (n >= pow_cap)
     {
         idx_t new_cap = n + 1;
-        seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, new_cap);
         for (idx_t i = 0; i < new_cap; ++i)
         {
             if (i == 0)
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
                 tmp[i] = pow_seq_local((seq_t)i, i); /* i^i */
         }
         if (pow_cache)
-            free(pow_cache);
+            mem_free(pow_cache);
         pow_cache = tmp;
         pow_cap   = new_cap;
     }

@@ -9,7 +9,8 @@
  *            all 0, 1 or 2
  * Range:     u8 n <= 8, u16 n <= 44, u32 n <= 494, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 7112 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 typedef struct {
     seq_t   val;   /* current number (value in base 10) */
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
         return (seq_t)0;
 
     /* allocate queue for BFS, maximum size n (one state per remainder) */
-    Node *queue = (Node*)malloc((size_t)n * sizeof(Node));
+    Node *queue = mem_new(Node, (size_t)n);
     if (!queue) {
         free(visited);
         return (seq_t)0;
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
         idx_t r = (idx_t)d % n;
         seq_t v = (seq_t)d;
         if (r == 0) {
-            free(queue);
+            mem_free(queue);
             free(visited);
             return v;
         }
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
             seq_t next_val = cur.val * (seq_t)10 + (seq_t)d;
             idx_t next_rem = (cur.rem * 10 + (idx_t)d) % n;
             if (next_rem == 0) {
-                free(queue);
+                mem_free(queue);
                 free(visited);
                 return next_val;
             }
@@ -85,7 +87,7 @@ seq_t a(idx_t n)
     }
 
     /* In theory we should never reach this point.  For safety return 0. */
-    free(queue);
+    mem_free(queue);
     free(visited);
     return (seq_t)0;
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Ensure the array has room for at least new_len elements. */
 static void ensure_capacity(seq_t **arr, size_t *cap, size_t new_len)
@@ -29,7 +31,7 @@ static void ensure_capacity(seq_t **arr, size_t *cap, size_t new_len)
     if (*cap >= new_len)
         return;
     size_t new_cap = (*cap > 0) ? (*cap << 1) : 16;
-    seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
     if (!tmp)
         abort();                 /* allocation failure – terminate */
     *arr = tmp;

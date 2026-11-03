@@ -8,12 +8,14 @@
  *            Initial values: a(0)=1, a(1)=3, a(2)=11, a(3)=42, a(4)=171
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 14, u64 n <= 27, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 881 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Returns the nth term of OEIS sequence A393912.
    The function is thread‑safe only for single‑threaded use and
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* Guarantee space for 0..n */
     if (cache == NULL || cap < (size_t)(n + 1)) {
         size_t newcap = (size_t)(n + 1);
-        seq_t *tmp    = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp    = mem_resize(seq_t, cache, newcap);
         if (tmp == NULL) abort();          /* out of memory */
         cache = tmp;
         cap   = newcap;

@@ -9,17 +9,21 @@
  *            is the multiplicative order of k modulo n
  * Range:     u8 n <= 39, u16 n <= 1196, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, gcd, mod_pow, phi
+ * Validated: standard, pass, 75 terms through n = 9447 (2026-11-01)
+ * Helpers:   factor_u64, gcd, powmod, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/gcd.h"
-#include "../utils/phi.h"
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
+#include "../utils/powmod.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n) {
     if (n == 1) {
@@ -27,7 +31,7 @@ seq_t a(idx_t n) {
     }
 
     seq_t n_seq = (seq_t)n;
-    seq_t phi_n = phi(n);          /* φ(n) */
+    seq_t phi_n = totient(n);          /* φ(n) */
 
     /* Factor φ(n).  φ(n) ≤ n ≤ 10000, so 32 prime factors are enough. */
     uint64_t fac_pr[32];
@@ -55,7 +59,7 @@ seq_t a(idx_t n) {
                     break;
                 }
                 seq_t cand = order / (seq_t)p;
-                if (mod_pow((seq_t)k, (uint64_t)cand, n_seq) == (seq_t)1) {
+                if (powmod((seq_t)k, (uint64_t)cand, n_seq) == (seq_t)1) {
                     order = cand;
                 } else {
                     break;

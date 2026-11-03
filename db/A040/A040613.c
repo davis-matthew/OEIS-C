@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 89, u32 n <= 89, u64 n <= 89, u128 n <= 89,
  *            big any n
- * Helpers:   int_floorsqrt_639
+ * Validated: partial, pass, 90 terms through n = 89 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,15 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/int_floorsqrt_639.h"
+
+/* integer floor(sqrt(639)) */
+static seq_t int_floorsqrt_639(void)
+{
+    seq_t r = 0;
+    while ((r + 1) * (r + 1) <= (seq_t)639)
+        ++r;
+    return r;
+}
 
 /* static cache for the period */
 static bool initialized = false;

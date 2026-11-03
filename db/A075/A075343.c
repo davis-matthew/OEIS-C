@@ -11,13 +11,15 @@
  *            composite following a(n‑1)
  * Range:     u8 n <= 19, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Simple primality test for values up to 2⁶⁴-1 (uint64_t). */
 static bool is_prime_simple(idx_t n)
@@ -47,7 +49,7 @@ static void ensure_cache(idx_t n)
     while (cache_cap < n) {
         idx_t new_cap = cache_cap ? cache_cap << 1 : 16;
         if (new_cap < n) new_cap = n;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();              /* out of memory */
         cache = tmp;
         cache_cap = new_cap;
@@ -82,7 +84,7 @@ seq_t a(idx_t n)
     /* Initialise cache once.  */
     if (!cache) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();           /* out of memory */
         cache[0] = (seq_t)1;           /* a(1) = 1 */
         cache_len = 1;

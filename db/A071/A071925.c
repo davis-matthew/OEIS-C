@@ -10,14 +10,15 @@
  *            of 0’s and 1’s and starts with 1
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 175, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   choose_uint64
+ * Validated: standard, pass, 41 terms through n = 1987 (2026-11-01)
+ * Helpers:   binomial_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/choose_uint64.h"
+#include "../utils/binomial_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +30,7 @@ seq_t a(idx_t n)
 
     while (cumulative < (uint64_t)n) {
         ++m;
-        count_len = choose_uint64(2 * m - 1, m - 1);
+        count_len = binomial_u64(2 * m - 1, m - 1);
         cumulative += count_len;
     }
 
@@ -46,7 +47,7 @@ seq_t a(idx_t n)
         uint64_t remaining = len - 1 - pos;              /* positions after current */
         uint64_t count_zero = 0;
         if (ones_needed <= remaining) {
-            count_zero = choose_uint64(remaining, ones_needed);
+            count_zero = binomial_u64(remaining, ones_needed);
         }
         if (r < count_zero) {
             /* bit is 0 */

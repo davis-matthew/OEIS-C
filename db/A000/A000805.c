@@ -11,13 +11,43 @@
  *            i) mod n is in {0..5}. This permanent is found...
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 22, u64 n <= 45, u128 n <= 91,
  *            big any n
- * Helpers:   a805_perm
+ * Validated: standard, pass, 48 terms through n = 979 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a805_perm.h"
+
+/* count permutations s of Z_n with (s(i) - i) mod n in {0..5}; requires n >= 6 */
+static uint64_t a805_perm(unsigned n) {
+    uint64_t total = 0;
+    unsigned S, i, m, c;
+    for (S = 0; S < 32; S++) {
+        uint64_t dp[32], nd[32];
+        for (m = 0; m < 32; m++) dp[m] = 0;
+        dp[S] = 1;
+        for (i = 0; i < n; i++) {
+            unsigned top = i + 5;
+            int blocked = (top >= n) && !((S >> (top - n)) & 1u);
+            for (m = 0; m < 32; m++) nd[m] = 0;
+            for (m = 0; m < 32; m++) {
+                unsigned full;
+                if (!dp[m]) continue;
+                full = m | (blocked ? 32u : 0u);
+                for (c = 0; c < 6; c++) {
+                    unsigned nm;
+                    if ((full >> c) & 1u) continue;
+                    nm = full | (1u << c);
+                    if (nm & 1u) nd[nm >> 1] += dp[m];
+                }
+            }
+            for (m = 0; m < 32; m++) dp[m] = nd[m];
+        }
+        total += dp[31];
+    }
+    return total;
+}
 
 static const int a805_b[15] = {2, 2, 1, 0, -4, -18, -16, -12, -10, -4, 4, 3, 2, 2, 1};
 

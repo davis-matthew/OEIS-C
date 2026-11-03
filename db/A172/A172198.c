@@ -11,14 +11,26 @@
  *            3^j) (empty product for m=0 = 1)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 15, u64 n <= 21, u128 n <= 45,
  *            big any n
- * Helpers:   abs_diff_sgn
+ * Validated: standard, pass, 44 terms through n = 445 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/abs_diff_sgn.h"
+#include "../utils/mem.h"
+
+/* absolute difference of two signed quantities represented by sign (+1/-1)
+   and unsigned magnitude. */
+static seq_t abs_diff_sgn(int s1, seq_t m1, int s2, seq_t m2)
+{
+    if (s1 == s2) {
+        return (m1 > m2) ? (m1 - m2) : (m2 - m1);
+    } else {
+        return m1 + m2;   /* magnitudes always positive */
+    }
+}
 
 /* Entry a(n) of the flattened triangle. */
 seq_t a(idx_t n)
@@ -33,7 +45,7 @@ seq_t a(idx_t n)
     idx_t k = n - cum;             /* column in row r, 0 ≤ k ≤ r */
 
     /* Allocate array of magnitudes |c(m)| for m = 0..r.  */
-    seq_t *mag = (seq_t *)malloc((size_t)(r + 1) * sizeof(seq_t));
+    seq_t *mag = mem_new(seq_t, (size_t)(r + 1));
     if (!mag) return (seq_t)1;     /* unlikely: not expected to run out of memory */
 
     /* mag[0] = 1 (empty product).  */
@@ -60,6 +72,6 @@ seq_t a(idx_t n)
     /* Result = 1 + diff1 * diff2.  */
     seq_t result = diff1 * diff2 + (seq_t)1;
 
-    free(mag);
+    mem_free(mag);
     return result;
 }

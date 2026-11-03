@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 13, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,6 +37,7 @@
  */
 
 #include <stdlib.h>    /* malloc, realloc, abort */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
 
         /* Reallocate memory – cast the result because seq_t may be
            an arbitrary‑precision type in C++ mode. */
-        seq_t *ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *ptr = mem_resize(seq_t, cache, new_cap);
         if (!ptr) abort();          /* allocation failure */
         cache = ptr;
 

@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 46, u16 n <= 79, u32 n <= 79, u64 n <= 79, u128 n <= 79,
  *            big any n
+ * Validated: partial, pass, 79 terms through n = 79 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,7 @@
     for 0 ≤ k ≤ floor(√row); otherwise T(row,k) = 0.          */
 
 #include <stddef.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 static idx_t floor_isqrt(idx_t n) {

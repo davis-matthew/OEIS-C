@@ -9,14 +9,16 @@
  *            sum_{i=0}^{n-k^2} P_exact(i+k,k) * P_exact(n-k^2-i+k,k), and
  *            P_exact(m,k) = number of partitions of m into exactly k parts
  * Range:     u8 n <= 51, u16 n <= 200, u32 n <= 1017, u64 n <= 5900,
- *            u128 n <= 9463, big any n
- * Helpers:   none
+ *            u128 n <= 20615, big any n
+ * Validated: standard, pass, 87 terms through n = 9463 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --- integer square root ------------------------------------------------- */
 static idx_t _floor_isqrt_u64(idx_t n)
@@ -54,6 +56,7 @@ static void _ensure_cumcnt(idx_t n)
 {
     _ensure_cum();
     while (cumcnt[cumsize - 1] < n) {
+        _ensure_cum();                            /* room for one more row */
         idx_t row  = cumsize;                     /* next row number (starting at 1) */
         idx_t kmax = _floor_isqrt_u64(row);
         cumcnt[row] = cumcnt[row - 1] + kmax;
@@ -76,7 +79,7 @@ static void _rebuild_dp(idx_t maxN)
     idx_t Nmax   = maxN;                        /* max n needed          */
     idx_t stride = Nmax + 1;                    /* columns for n 0..Nmax */
     size_t sz = (size_t)(K + 1) * (size_t)stride;
-    seq_t *newdp = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *newdp = mem_new(seq_t, sz);
     if (!newdp) exit(EXIT_FAILURE);
 
     /* base cases: k = 0 */
@@ -97,7 +100,7 @@ static void _rebuild_dp(idx_t maxN)
     }
 
     /* replace old table */
-    if (dp) free(dp);
+    if (dp) mem_free(dp);
     dp = newdp;
     dp_kmax = K;
     dp_nmax = Nmax;

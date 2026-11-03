@@ -7,7 +7,8 @@
  * Formula:   a(n) = (n+1)*sum_{k=1}^{n} p_k (p_k = k-th prime)
  * Range:     u8 n <= 5, u16 n <= 32, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Estimate upper bound for the n-th prime (valid for n >= 6)          */
@@ -80,8 +82,8 @@ static void recompute_primes_and_cum(idx_t lim)
 
     /* ---------- cumulative sums --------------------------------- */
     seq_t *cum = NULL;
-    if (cum_buf) free(cum_buf);
-    cum = (seq_t*)malloc((size_t)(cnt + 1) * sizeof(seq_t));
+    if (cum_buf) mem_free(cum_buf);
+    cum = mem_new(seq_t, (size_t)(cnt + 1));
     if (!cum) exit(EXIT_FAILURE);
 
     cum[0] = (seq_t)0;

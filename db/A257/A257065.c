@@ -11,14 +11,19 @@
  *            efficiently
  * Range:     u8 n <= 8, u16 n <= 59, u32 n <= 210, u64 n <= 210,
  *            u128 n <= 210, big any n
- * Helpers:   resid_allowed
+ * Validated: standard, pass, 60 terms through n = 208 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/resid_allowed.h"
+
+static inline bool resid_allowed(int r)
+{
+    return r == 0 || r == 2 || r == 3 || r == 4;
+}
 
 seq_t a(idx_t n)
 {

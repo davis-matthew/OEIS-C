@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   poly_mul_factor
+ * Validated: standard, pass, 103 terms through n = 955 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,32 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/poly_mul_factor.h"
+
+/* -------------------------------------------------------------------------
+   Helper to multiply a polynomial by (x^k - 1).
+   poly   – array of coefficients, poly[i] is coeff of x^i.
+   deg    – current maximum index with non‑zero coefficient
+   k      – exponent of the factor (x^k - 1)
+   The result replaces poly and updates *deg.
+   -------------------------------------------------------------- */
+static void poly_mul_factor(seq_t *poly, int *deg, int k)
+{
+    int olddeg = *deg;
+    int newdeg = olddeg + k;
+
+    /* tmp must be large enough for olddeg + k + 1 */
+    seq_t tmp[260] = {0};
+
+    for (int i = 0; i <= olddeg; ++i) {
+        tmp[i]       -= poly[i];   /* -poly[i] for the '-1' part      */
+        tmp[i + k]   += poly[i];   /* +poly[i] for the 'x^k' part     */
+    }
+
+    for (int i = 0; i <= newdeg; ++i) {
+        poly[i] = tmp[i];
+    }
+    *deg = newdeg;
+}
 
 /* -------------------------------------------------------------------------
    Exact division of polynomial N(x) by D(x); N and D are modified,

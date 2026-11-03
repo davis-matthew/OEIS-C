@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 21, u32 n <= 38, u64 n <= 85, u128 n <= 169,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 58 terms through n = 7798 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,11 +23,13 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 #ifdef __cplusplus
 #include <vector>
 #endif
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -62,7 +65,7 @@ seq_t a(idx_t n)
         /* Dynamic programming over block sizes 1 .. k-1. */
         for (idx_t i = 1; i < k; ++i) {
             for (idx_t r = maxR; r >= i; --r) {
-                seq_t choose = binom(r, i);
+                seq_t choose = binomial(r, i);
                 dp[r] = dp[r] + dp[r - i] * choose;
             }
         }
@@ -70,13 +73,12 @@ seq_t a(idx_t n)
         /* Append the computed column values to the cache. */
         for (idx_t R = 0; R <= maxR; ++R) {
             idx_t row = k + R;                     /* actual n value */
-            seq_t bin = binom(row, k);              /* choose the max block */
+            seq_t bin = binomial(row, k);              /* choose the max block */
             seq_t val = bin * dp[R];                /* total partitions */
 
             if (cache_size >= cache_cap) {          /* grow cache if needed */
                 size_t new_cap = (cache_cap == 0) ? 4 : 2 * cache_cap;
-                seq_t *tmp = (seq_t *)realloc(cache,
-                                               new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) abort();
                 cache = tmp;
                 cache_cap = new_cap;

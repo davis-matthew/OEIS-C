@@ -7,15 +7,18 @@
  * Formula:   a(n) = 22^(2*n + 1)
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 3, u64 n <= 6, u128 n <= 13,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 29 terms through n = 194 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
     idx_t exp = 2 * n + 1;          /* exponent 2*n+1 */
-    return seq_pow((seq_t)22, exp); /* compute 22^exp */
+    return ipow_idx((seq_t)22, exp); /* compute 22^exp */
 }

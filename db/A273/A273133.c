@@ -9,7 +9,8 @@
  *            divisors of n)
  * Range:     i8 n <= 47, i16 n <= 179, i32 n <= 1259, i64 n <= 7559,
  *            i128 n <= 10000, big any n
- * Helpers:   factor_u64
+ * Validated: standard, pass, 100 terms through n = 9829 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "../utils/factor_u64.h"   /* provides: void factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt); */
+#include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* Local comparator for qsort on seq_t values. */
 static int seq_cmp(const void *a, const void *b)
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
         divisor_cnt *= (size_t)(exps[i] + 1);
 
     /* 3. Allocate array for divisors. */
-    seq_t *divs = (seq_t *)malloc(divisor_cnt * sizeof(seq_t));
+    seq_t *divs = mem_new(seq_t, divisor_cnt);
     if (!divs) return (seq_t)0;    /* allocation failure – fallback */
 
     /* 4. Generate all divisors (sorted later). */
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
     }
 
     /* 5. Sort divisors ascending. */
-    qsort(divs, divisor_cnt, sizeof(seq_t), seq_cmp);
+    mem_qsort(divs, divisor_cnt, sizeof(seq_t), seq_cmp);
 
     /* 6. Compute the bottom entry of the difference table. */
     size_t m = divisor_cnt;
@@ -96,7 +98,7 @@ seq_t a(idx_t n)
         }
     }
 
-    free(divs);
+    mem_free(divs);
 
     /* 7. Return a(n) = n - bottom. */
     return (seq_t)n - bottom;

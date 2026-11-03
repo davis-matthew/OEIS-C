@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 71, u16 n <= 4140, u32 n <= 4140, u64 n <= 4140,
  *            u128 n <= 4140, big any n
- * Helpers:   hit_free
+ * Validated: standard, pass, 98 terms through n = 4109 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,34 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/hit_free.h"
+
+/* Return true if x has no "hits" in its factorial base representation. */
+static bool hit_free(seq_t x)
+{
+    seq_t rem = x;
+    seq_t base = 2;          /* base(i) = i+1, least significant digit position 1 */
+    size_t i = 1;
+    uint8_t digits[256] = {0};
+
+    while (rem > 0) {
+        seq_t digit = rem % base;
+        digits[i] = (uint8_t)digit;
+        rem /= base;
+        ++i;
+        ++base;
+    }
+    size_t len = i - 1;      /* number of digits */
+
+    for (size_t k = 1; k <= len; ++k) {
+        uint8_t d = digits[k];
+        if (d != 0) {
+            size_t j = k - d;
+            if (j >= 1 && j <= len && digits[j] != 0)
+                return false;
+        }
+    }
+    return true;
+}
 
 #if defined(__cplusplus)
 static seq_t *cache = nullptr;

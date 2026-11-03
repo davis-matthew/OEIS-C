@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 30, u128 n <= 51,
  *            big any n
- * Helpers:   big_pow, seq_mul
+ * Validated: standard, pass, 43 terms through n = 705 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,8 +36,14 @@
 #include <stddef.h>
 
 /* helper functions provided by the environment */
-#include "../utils/big_pow.h"
-#include "../utils/seq_mul.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/ipow.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 static bool     primes_ready = false;
 static size_t   prime_count  = 0;
@@ -82,7 +89,7 @@ seq_t a(idx_t n)
     for (idx_t i = 0; i < m; ++i) {
         seq_t prime = (seq_t)primes[i];
         idx_t  exp   = (m - i) + (i < r ? 1 : 0); /* e_i = (m-i+1) + (i ≤ r ? 1 : 0) */
-        seq_t power = big_pow(prime, (seq_t)exp);
+        seq_t power = ipow(prime, (seq_t)exp);
         result = seq_mul(result, power);
     }
 

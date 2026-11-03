@@ -12,13 +12,15 @@
  *            a(n) = (1/n) * sum_{k=1..n} S(k) * a(n-k), where S...
  * Range:     i8 n <= 15, i16 n <= 60, i32 n <= 65, i64 n <= 65, i128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>      /* size_t */
+#include "../utils/mem.h"
 
 static seq_t *series = NULL;   /* a(n) values */
 static size_t series_len = 0;
@@ -47,7 +49,7 @@ static void ensure_arrays(size_t upto)
     /* Ensure S and series have entries up to 'upto' (inclusive) */
     if (S_len <= upto) {
         size_t new_len = upto + 1;
-        S = (seq_t *)realloc(S, new_len * sizeof(seq_t));
+        S = mem_resize(seq_t, S, new_len);
         for (size_t k = S_len; k <= upto; ++k) {
             seq_t sum = 0;
             for (size_t d = 1; d * d <= k; ++d) {
@@ -68,7 +70,7 @@ static void ensure_arrays(size_t upto)
 
     if (series_len <= upto) {
         size_t new_len = upto + 1;
-        series = (seq_t *)realloc(series, new_len * sizeof(seq_t));
+        series = mem_resize(seq_t, series, new_len);
         for (size_t n = series_len; n <= upto; ++n) {
             if (n == 0) {
                 series[0] = 1;

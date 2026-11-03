@@ -8,6 +8,7 @@
  *            2 (derived from the e.g.f. exp(13*x - 64*x^2))
  * Range:     i8 n <= 2, i16 n <= 3, i32 n <= 7, i64 n <= 13, i128 n <= 24,
  *            big any n
+ * Validated: standard, pass, 33 terms through n = 411 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

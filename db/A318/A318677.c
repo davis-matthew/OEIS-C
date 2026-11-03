@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{d|n, odd number of prime factors (with
  *            multiplicity)} d
- * Range:     u8 n <= 167, u16 n <= 8513, u32 n <= 8513, u64 n <= 8513,
- *            u128 n <= 8513, big any n
+ * Range:     u8 n <= 167, u16 n <= 33263, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 103 terms through n = 8513 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,8 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 /* Recursive helper to enumerate divisors from prime factor arrays. */

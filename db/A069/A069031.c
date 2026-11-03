@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 12, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>      /* size_t */
 #include <stdint.h>      /* uint64_t */
 #include <stdlib.h>      /* malloc, realloc */
+#include "../utils/mem.h"
 
 /* The build supplies the types seq_t and idx_t.
  * These may be native unsigned integers or arbitrary‑precision integer
@@ -43,8 +45,7 @@ static void ensure_cache_capacity(void)
 {
     if (cache_len >= cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 4;
-        seq_t *new_vals = (seq_t *)realloc(cache_vals,
-                                            new_cap * sizeof(seq_t));
+        seq_t *new_vals = mem_resize(seq_t, cache_vals, new_cap);
         uint64_t *new_sums = (uint64_t *)realloc(cache_sums,
                                                 new_cap * sizeof(uint64_t));
         if (!new_vals || !new_sums) {

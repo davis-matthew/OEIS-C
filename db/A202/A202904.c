@@ -10,7 +10,8 @@
  *            6-bit masks.)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* State index: (prevMask << 6) | needMask   (prevMask, needMask ∈ [0,63]) */
 #define W 6
@@ -65,8 +67,8 @@ seq_t a(idx_t n)
     init_tables();
 
     /* Allocate two DP arrays of size STATE_COUNT */
-    seq_t *dp     = (seq_t*)calloc(STATE_COUNT, sizeof(seq_t));
-    seq_t *nextdp = (seq_t*)calloc(STATE_COUNT, sizeof(seq_t));
+    seq_t *dp     = mem_new(seq_t, STATE_COUNT);
+    seq_t *nextdp = mem_new(seq_t, STATE_COUNT);
     if (!dp || !nextdp) return 0;           /* allocation failure fallback */
 
     dp[0] = 1;  /* state (prevMask=0, needMask=0) */
@@ -74,7 +76,7 @@ seq_t a(idx_t n)
     /* Process each row */
     for (idx_t i = 0; i < n; ++i) {
         /* zero nextdp */
-        memset(nextdp, 0, STATE_COUNT * sizeof(seq_t));
+        mem_set(nextdp, 0, STATE_COUNT * sizeof(seq_t));
 
         for (int state = 0; state < STATE_COUNT; ++state) {
             seq_t cnt = dp[state];
@@ -100,8 +102,8 @@ seq_t a(idx_t n)
     }
 
     /* free temporary arrays */
-    free(dp);
-    free(nextdp);
+    mem_free(dp);
+    mem_free(nextdp);
 
     return result;
 }

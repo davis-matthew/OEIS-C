@@ -9,7 +9,8 @@
  *            found by a brute‑force search of the multiplier m
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 76 terms through n = 9754 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;
 static size_t a_cache_size = 0;
@@ -27,7 +31,7 @@ static void a_ensure_cache(idx_t n)
 {
     if ((size_t)n + 1 <= a_cache_size) return;
     size_t new_size = (size_t)n + 1;
-    seq_t *new_cache = (seq_t *)realloc(a_cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, a_cache, new_size);
     if (!new_cache) exit(EXIT_FAILURE);          /* out of memory */
     /* Initialise new entries to 0 (uncomputed). */
     for (size_t i = a_cache_size; i < new_size; ++i) new_cache[i] = 0;
@@ -56,7 +60,7 @@ seq_t a(idx_t n)
             /* Exponent: d*m-1.  Use 128-bit arithmetic to avoid overflow. */
             unsigned __int128 prod = (unsigned __int128)d * m;
             uint64_t exponent = (uint64_t)(prod - 1);
-            if (mod_pow(d, exponent, mod) == 1) {
+            if (powmod(d, exponent, mod) == 1) {
                 result = d * (seq_t)m;
                 break;
             }

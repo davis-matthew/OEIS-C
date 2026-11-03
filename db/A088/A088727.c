@@ -9,7 +9,8 @@
  *            powers (n ≥ 2, offset 2)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   pow_seq_t_custom
+ * Validated: partial, pass, 21 terms through n = 22 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/pow_seq_t_custom.h"
+#include "../utils/ipow_idx.h"
 
 /* ------------------------------------------------------------------ */
 
@@ -102,7 +103,7 @@ seq_t a(idx_t n)
     static seq_t pow_arr[513];     /* 513 > expected maximum m (≈200) */
     pow_arr[1] = (seq_t)1;         /* 1^n = 1 */
     for (idx_t i = 2; i <= m; ++i)
-        pow_arr[i] = pow_seq_t_custom((seq_t)i, n);
+        pow_arr[i] = ipow_idx((seq_t)i, n);
 
     /* visited[i][j] tells whether the pair (i,j) has already been pushed.
        Only pairs with i < j are used.  Size 513 × 513 is harmless. */

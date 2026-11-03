@@ -8,12 +8,14 @@
  *            index 5 (i.e. the n-th diagonal of triangle A060058)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 9, u128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 13 terms through n = 12 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* a(n) = A060077(n) */
 seq_t a(idx_t n)
@@ -23,12 +25,12 @@ seq_t a(idx_t n)
 
     /* number of indices needed in the innermost layer */
     size_t size = (size_t)n + 5;          /* index range 0 .. n+4   */
-    seq_t *cur = (seq_t *)malloc(size * sizeof(seq_t));
-    seq_t *tmp = (seq_t *)malloc(size * sizeof(seq_t));
+    seq_t *cur = mem_new(seq_t, size);
+    seq_t *tmp = mem_new(seq_t, size);
     if (!cur || !tmp) {
         /* allocation failed – return 0 (should not happen in usual tests) */
-        free(cur);
-        free(tmp);
+        mem_free(cur);
+        mem_free(tmp);
         return (seq_t)0;
     }
 
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < 6 && i < size; ++i)
         result += cur[i];
 
-    free(cur);
-    free(tmp);
+    mem_free(cur);
+    mem_free(tmp);
     return result;
 }

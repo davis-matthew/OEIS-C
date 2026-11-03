@@ -6,16 +6,18 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, look
  * Formula:   not stated
- * Range:     u8 n <= 69, u16 n <= 9389, u32 n <= 9389, u64 n <= 9389,
- *            u128 n <= 9389, big any n
- * Helpers:   rev
+ * Range:     u8 n <= 69, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 86 terms through n = 9389 (2026-11-01)
+ * Helpers:   reverse_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Computation by brute‑force search of forward Reverse‑and‑Add trajectories up to n */
 #include <stdint.h>
-#include "../utils/rev.h"
+#include <stdbool.h>
+#include "../utils/reverse_digits_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
 
         while (cur < (seq_t)n)
         {
-            idx_t revi = rev((idx_t)cur);
+            idx_t revi = reverse_digits_idx((idx_t)cur);
             cur = cur + (seq_t)revi;
             if (cur == (seq_t)n) return (seq_t)s;
         }

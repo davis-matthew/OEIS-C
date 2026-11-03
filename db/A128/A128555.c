@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 119, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64
+ * Validated: standard, pass, 84 terms through n = 9965 (2026-11-03)
+ * Helpers:   mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,8 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stddef.h>
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
 
 /*--- mutable static state -------------------------------------------------*/
 static seq_t *seq          = NULL;   /* array of computed a(k) values      */
@@ -42,7 +44,7 @@ static void ensure_seq_capacity(size_t new_cap)
     size_t cap = seq_cap ? seq_cap * 2 : 16;
     if (cap < new_cap) cap = new_cap;
 
-    seq_t *tmp = (seq_t*)realloc(seq, cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, cap);
     if (!tmp) exit(EXIT_FAILURE);
     seq = tmp;
     seq_cap = cap;
@@ -91,7 +93,7 @@ seq_t a(idx_t n)
     /* generate terms up to n */
     for (idx_t cur = seq_len + 1; cur <= n; ++cur)
     {
-        uint64_t dn = divisor_count_u64((uint64_t)cur);   /* d(cur)   */
+        uint64_t dn = num_divisors((uint64_t)cur);   /* d(cur)   */
         seq_t mult = (seq_t)dn;                          /* start at dn*1 */
 
         /* find smallest unused multiple of dn */

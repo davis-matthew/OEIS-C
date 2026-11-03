@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 34, u16 n <= 3593, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 6726 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* forward declaration of helper */
 static void _ensure_primes(idx_t n);
@@ -81,7 +83,7 @@ seq_t a(idx_t n)
     /* extend a_cache up to n if necessary */
     if (a_len <= sn) {
         size_t newlen = sn + 1;
-        seq_t *tmp = (seq_t *)realloc(a_cache, newlen * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, newlen);
         if (!tmp) abort();            /* allocation failure */
         a_cache = tmp;
 

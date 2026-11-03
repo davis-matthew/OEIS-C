@@ -12,13 +12,17 @@
  *            OEIS A162623
  * Range:     u8 n <= 7, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   offset128
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/offset128.h"
+
+static inline unsigned __int128 offset128(idx_t r) {
+    return (unsigned __int128)(r - 1) * r / 2 + 1;
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;  /* out‑of‑range safety, not required by OEIS */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 42, u64 n <= 86, u128 n <= 173,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 479 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 enum { MAX_STATES = 15 };
 
@@ -96,7 +98,7 @@ static void init_automaton(void)
     }
 
     /* allocate cache for length 0 */
-    results = (seq_t *)malloc(sizeof(seq_t));
+    results = mem_new(seq_t, 1);
     if (!results) abort();
     results[0] = (seq_t)1;          /* empty string */
     results_size = 1;
@@ -113,7 +115,7 @@ static void ensure_results(size_t n)
     if (n < results_size) return;
     size_t new_size = results_size ? results_size * 2 : 64;
     while (new_size <= n) new_size *= 2;
-    seq_t *tmp = (seq_t *)realloc(results, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, results, new_size);
     if (!tmp) abort();
     results = tmp;
     for (size_t i = results_size; i < new_size; ++i) results[i] = (seq_t)0;

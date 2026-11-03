@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 3, u32 n <= 14, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   apply_perm
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,20 @@
 
 /*  dependencies: seq_t, idx_t are supplied by the build environment.  */
 #include <stdbool.h>
-#include "../utils/apply_perm.h"
+
+static int apply_perm(int idx, int kr, int kc, bool v, bool h, bool d)
+{
+    int r = idx / 6;
+    int c = idx % 6;
+    if (kr) r = (r + kr) % 6;
+    if (kc) c = (c + kc) % 6;
+    if (v)  c = 5 - c;      /* vertical reflection */
+    if (h)  r = 5 - r;      /* horizontal reflection */
+    if (d) {
+        int t = r; r = c; c = t;   /* diagonal reflection */
+    }
+    return r * 6 + c;
+}
 
 static seq_t cache[37];
 static bool ready = false;

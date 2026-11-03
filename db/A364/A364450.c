@@ -7,7 +7,8 @@
  * Formula:   a(n) = Σ_{k ≤ n, k not prime} C(n‑1, k‑1) * a(n‑k)
  * Range:     u8 n <= 8, u16 n <= 12, u32 n <= 18, u64 n <= 29, u128 n <= 47,
  *            big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 44 terms through n = 587 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;   /* memoisation array */
 static idx_t dp_cap = 0;   /* largest index stored (dp_cap ≥ 0) */
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
 {
     /* Initialise cache on first call.  dp[0] = 1. */
     if (dp == NULL) {
-        dp = (seq_t *)malloc(sizeof(seq_t));
+        dp = mem_new(seq_t, 1);
         if (!dp) return 0;            /* allocation failed */
         dp[0] = 1;
         dp_cap = 0;
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     /* Resize the cache to accommodate indices up to n. */
     idx_t old_cap = dp_cap;
     dp_cap = n;
-    seq_t *new_dp = (seq_t *)realloc(dp, (dp_cap + 1) * sizeof(seq_t));
+    seq_t *new_dp = mem_resize(seq_t, dp, (dp_cap + 1));
     if (!new_dp) {
         /* On OOM, keep the array unchanged and return 0. */
         return 0;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 69, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, is_prime_small
+ * Validated: standard, pass, 51 terms through n = 926 (2026-11-01)
+ * Helpers:   is_prime, is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"        /* bool is_prime(idx_t x); */
-#include "../utils/is_prime_small.h" /* bool is_prime_small(uint64_t num); */
+#include "../utils/is_prime.h"
+#include "../utils/is_prime_seq.h"
 
 /* 4th powers of digits 0–9.  Values fit in 16 bits. */
 static const uint32_t POW4[10] = {
@@ -48,7 +49,7 @@ static bool valid_prime(uint64_t p)
         pow4_sum  += POW4[d];
         p /= 10;
     }
-    return (!is_prime_small(digit_sum)) && is_prime_small(pow4_sum);
+    return (!is_prime_seq(digit_sum)) && is_prime_seq(pow4_sum);
 }
 
 /* Compute the nth term of the sequence (1‑based index). */

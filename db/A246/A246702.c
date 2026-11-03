@@ -10,7 +10,8 @@
  *            of 2 modulo m = (2·n−1)²
  * Range:     u8 n <= 8, u16 n <= 236, u32 n <= 1560, u64 n <= 1560,
  *            u128 n <= 1560, big any n
- * Helpers:   factor_u64, gcd, mod_pow, pow_uint
+ * Validated: standard, pass, 100 terms through n = 1286 (2026-11-01)
+ * Helpers:   factor_u64, gcd, ipow_u64_idx, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,10 +19,12 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/factor_u64.h"
-#include "../utils/mod_pow.h"
-#include "../utils/pow_uint.h"
 #include "../utils/gcd.h"
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -42,10 +45,10 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < cnt_m; ++i) {
         uint64_t p  = primes_m[i];
         uint64_t e  = exps_m[i];
-        seq_t mod_pe = pow_uint(p, e);     /* p^e  */
+        seq_t mod_pe = ipow_u64_idx(p, e);     /* p^e  */
 
         /* Euler's totient of p^e: (p−1)·p^(e−1) */
-        seq_t totient = (seq_t)(p - 1) * pow_uint(p, e - 1);
+        seq_t totient = (seq_t)(p - 1) * ipow_u64_idx(p, e - 1);
 
         /* Start with the full totient as the candidate order */
         seq_t order = totient;
@@ -60,7 +63,7 @@ seq_t a(idx_t n)
             uint64_t q = primes_ord[j];
             while ((order % q) == 0) {
                 seq_t cand = order / q;
-                if (mod_pow((seq_t)2, (uint64_t)cand, mod_pe) == (seq_t)1) {
+                if (powmod((seq_t)2, (uint64_t)cand, mod_pe) == (seq_t)1) {
                     order = cand;          /* we can reduce */
                 } else {
                     break;                 /* can't reduce by q any more */

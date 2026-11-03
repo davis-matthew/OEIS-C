@@ -7,12 +7,14 @@
  * Formula:   a(n) = Sum_{k=0..floor(n/3)} Stirling1(n,3*k)
  * Range:     i8 n <= 5, i16 n <= 8, i32 n <= 13, i64 n <= 20, i128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* cache of already computed a(n) */
 static size_t cache_cap = 0;         /* current capacity of the cache */
@@ -26,7 +28,7 @@ static void ensure_cache_cap(size_t needed)
     if (cache_cap < needed) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 1;
         if (new_cap < needed) new_cap = needed;
-        seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
         cache = new_ptr;
         cache_cap = new_cap;
     }

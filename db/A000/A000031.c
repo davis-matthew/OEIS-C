@@ -10,13 +10,32 @@
  * Formula:   a(n) = (1/n)*Sum_{ d divides n } phi(d)*2^(n/d), a(0) = 1
  * Range:     u8 n <= 11, u16 n <= 20, u32 n <= 37, u64 n <= 70, u128 n <= 135,
  *            big any n
- * Helpers:   phi_ull, pow2_divmod
+ * Validated: standard, pass, 52 terms through n = 3197 (2026-11-01)
+ * Helpers:   totient_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/phi_ull.h"
-#include "../utils/pow2_divmod.h"
+#include <stdint.h>
+#include "../utils/totient_u64.h"
+
+/* floor(2^k / m) as seq_t, with remainder in *rem (computed by long division) */
+static seq_t pow2_divmod(unsigned long long k, unsigned long long m, unsigned long long *rem)
+{
+    seq_t q = (seq_t)(1ULL / m);
+    unsigned long long r = 1ULL % m;
+    unsigned long long i;
+    for (i = 0; i < k; i++) {
+        q = q + q;
+        r = r + r;
+        if (r >= m) {
+            r -= m;
+            q += 1;
+        }
+    }
+    *rem = r;
+    return q;
+}
 
 seq_t a(idx_t n)
 {
@@ -30,7 +49,7 @@ seq_t a(idx_t n)
         seq_t q;
         if (nn % d != 0)
             continue;
-        ph = phi_ull(d);
+        ph = totient_u64(d);
         q = pow2_divmod(nn / d, nn, &r);
         /* phi(d) * 2^(n/d) = phi(d)*q*n + phi(d)*r */
         Q += q * (seq_t)ph;

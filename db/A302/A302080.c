@@ -12,7 +12,8 @@
  *            DP
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Transition bitmask: for each pair (prev_row, curr_row) we store a 128‑bit
    mask of all next_row values that make curr_row valid.  The mask is
@@ -82,8 +84,8 @@ seq_t a(idx_t n)
        being prev==p, curr==c. */
     static seq_t dp_prev[128][128];
     static seq_t dp_cur [128][128];
-    memset(dp_prev, 0, sizeof(dp_prev));
-    memset(dp_cur , 0, sizeof(dp_cur ));
+    mem_set(dp_prev, 0, sizeof(dp_prev));
+    mem_set(dp_cur, 0, sizeof(dp_cur ));
 
     /* Handle n == 1 separately */
     if (n == 1) {
@@ -110,7 +112,7 @@ seq_t a(idx_t n)
     /* Process rows 2 .. n-1 */
     for (idx_t row = 2; row < n; ++row) {
         /* clear current DP */
-        memset(dp_cur, 0, sizeof(dp_cur));
+        mem_set(dp_cur, 0, sizeof(dp_cur));
 
         for (int prev = 0; prev < 128; ++prev) {
             for (int cur  = 0; cur  < 128; ++cur) {
@@ -134,7 +136,7 @@ seq_t a(idx_t n)
             }
         }
         /* swap dp_prev and dp_cur */
-        memcpy(dp_prev, dp_cur, sizeof(dp_prev));
+        mem_copy(dp_prev, dp_cur, sizeof(dp_prev));
     }
 
     /* Final row (row n-1) needs bottom boundary check */

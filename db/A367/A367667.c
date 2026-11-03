@@ -8,12 +8,14 @@
  *            a(k) * a(n-3-3k) (n ≥ 3)
  * Range:     u8 n <= 14, u16 n <= 26, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache for memoisation */
 static seq_t *cache = NULL;          /* array of computed values    */
@@ -30,7 +32,7 @@ static void ensure_cache(idx_t n)
     if (new_len < 16)          /* start with a small block              */
         new_len = 16;
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_len);
     if (!tmp)                 /* fatal error – terminate program */
         exit(1);
 

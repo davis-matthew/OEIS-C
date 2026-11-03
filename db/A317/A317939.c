@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign, frac
  * Formula:   not stated
- * Range:     i8 n <= 143, i16 n <= 2303, i32 n <= 9832, i64 n <= 9832,
- *            i128 n <= 9832, big any n
- * Helpers:   add_to_sum, is_prime, reduce_by_two
+ * Range:     i8 n <= 143, i16 n <= 2303, i32 n <= 65537, i64 n <= 65537,
+ *            i128 n <= 65537, big any n
+ * Validated: standard, pass, 115 terms through n = 9832 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,41 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/is_prime.h"
-#include "../utils/add_to_sum.h"
-#include "../utils/reduce_by_two.h"
+#include "../utils/mem.h"
+
+/* Add prod_num/2^prod_exp to the running sum sum_num/2^sum_exp. */
+static void add_to_sum(seq_t *sum_num, idx_t *sum_exp,
+                       seq_t prod_num, idx_t prod_exp)
+{
+    if (*sum_num == 0) {
+        *sum_num = prod_num;
+        *sum_exp = prod_exp;
+        return;
+    }
+    idx_t max_exp = (*sum_exp > prod_exp) ? *sum_exp : prod_exp;
+
+    seq_t adj_sum = *sum_num;
+    if (*sum_exp < max_exp)
+        adj_sum *= ((seq_t)1 << (max_exp - *sum_exp));
+
+    seq_t adj_prod = prod_num;
+    if (prod_exp < max_exp)
+        adj_prod *= ((seq_t)1 << (max_exp - prod_exp));
+
+    *sum_num = adj_sum + adj_prod;
+    *sum_exp = max_exp;
+}
+
+/* Reduce num/2^exp by removing common factors of 2; keeps sign. */
+static void reduce_by_two(seq_t *num, idx_t *exp)
+{
+    while ((*num & 1) == 0 && *exp > 0) {
+        *num >>= 1;
+        (*exp)--;
+    }
+}
 
 /* External types: seq_t … sequence values, idx_t … unsigned indices */
 static seq_t *num_cache = NULL;      /* numerator of f(n) */
@@ -39,7 +72,7 @@ static void ensure_cache(idx_t nmax)
     size_t new_size = (size_t)nmax + 1;           /* indices 0 .. nmax */
 
     if (cache_size == 0) {                       /* first allocation */
-        num_cache = (seq_t*)malloc(new_size * sizeof(seq_t));
+        num_cache = mem_new(seq_t, new_size);
         exp_cache = (idx_t*)malloc(new_size * sizeof(idx_t));
         if (!num_cache || !exp_cache) abort();
         /* base case n = 1 */
@@ -49,7 +82,7 @@ static void ensure_cache(idx_t nmax)
         exp_cache[1] = 0;
         cache_size = 2;                         /* indices 0 and 1 filled */
     } else {                                    /* grow arrays */
-        num_cache = (seq_t*)realloc(num_cache, new_size * sizeof(seq_t));
+        num_cache = mem_resize(seq_t, num_cache, new_size);
         exp_cache = (idx_t*)realloc(exp_cache, new_size * sizeof(idx_t));
         if (!num_cache || !exp_cache) abort();
     }

@@ -7,7 +7,8 @@
  * Formula:   a(n) = lcm{1,…,2n} / binomial(2n,n)
  * Range:     u8 n <= 9, u16 n <= 15, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   pow_uint, seq_mul
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,13 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/pow_uint.h"   /* seq_t pow_uint(uint64_t base, idx_t exp) */
-#include "../utils/seq_mul.h"   /* seq_t seq_mul(seq_t a, seq_t b) */
+#include <string.h>
+#include "../utils/ipow_u64_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* integer square root for small n */
 static idx_t isqrt_u64(idx_t n)
@@ -83,7 +89,7 @@ seq_t a(idx_t n)
         if (diff <= 0)
             continue;
 
-        seq_t mult = pow_uint((uint64_t)p, (idx_t)diff);
+        seq_t mult = ipow_u64_idx((uint64_t)p, (idx_t)diff);
         result = seq_mul(result, mult);
     }
 

@@ -8,12 +8,14 @@
  * Formula:   a(n) = Sum_{k=0..floor(n/5)} binom(2*k,k) * binom(n-2*k,3*k)
  * Range:     u8 n <= 11, u16 n <= 19, u32 n <= 35, u64 n <= 68, u128 n <= 132,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 53 terms through n = 985 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -21,8 +23,8 @@ seq_t a(idx_t n)
     idx_t maxk = n / 5;
     for (idx_t k = 0; k <= maxk; ++k)
     {
-        seq_t c1 = binom(2 * k, k);
-        seq_t c2 = binom(n - 2 * k, 3 * k);
+        seq_t c1 = binomial(2 * k, k);
+        seq_t c2 = binomial(n - 2 * k, 3 * k);
         sum += c1 * c2;
     }
     return sum;

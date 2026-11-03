@@ -8,12 +8,13 @@
  *            equivalently a(n) = (2*n-4)!/(4!*(n-4)!*2^(n-4))
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 11, u64 n <= 18, u128 n <= 29,
  *            big any n
- * Helpers:   a1880_gcd
+ * Validated: standard, pass, 34 terms through n = 98 (2026-11-01)
+ * Helpers:   gcd_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a1880_gcd.h"
+#include "../utils/gcd_idx.h"
 
 seq_t a(idx_t n) {
     seq_t r = 1;
@@ -23,10 +24,10 @@ seq_t a(idx_t n) {
         idx_t d = k - 4;
         idx_t p = k - 2;
         idx_t q = 2 * k - 5;
-        idx_t g = a1880_gcd(p, d);
+        idx_t g = gcd_idx(p, d);
         p /= g;
         d /= g;
-        g = a1880_gcd(q, d);
+        g = gcd_idx(q, d);
         q /= g;
         d /= g;
         /* d now divides r exactly, since d is coprime to p*q */

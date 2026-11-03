@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 11, u32 n <= 11, u64 n <= 11, u128 n <= 11,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 11 terms through n = 11 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Proven upper bound for the sequence (see OEIS comments). */
 #define LIMIT 5408
@@ -73,7 +75,7 @@ static void build_sequence(void)
 
     /* Allocate array and store the numbers. */
     if (seq_cnt > 0) {
-        seq_arr = (seq_t *)malloc(sizeof(seq_t) * seq_cnt);
+        seq_arr = mem_new(seq_t, seq_cnt);
         if (seq_arr) {
             idx_t pos = 0;
             for (idx_t n = 0; n <= LIMIT; ++n)

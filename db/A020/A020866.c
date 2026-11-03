@@ -8,12 +8,14 @@
  *            a(3)=265, a(4)=1697, a(5)=10897
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 23, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 980 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache      = NULL;   /* array of computed values */
 static idx_t  cache_cap  = 0;      /* allocated size (highest index possible) */
@@ -23,7 +25,7 @@ static idx_t  cache_len  = 0;      /* highest index that has been computed */
 static void ensure_capacity(idx_t cap)
 {
     if (cap <= cache_cap) return;
-    seq_t *new_cache = (seq_t *)realloc(cache, (cap + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (cap + 1));
     if (!new_cache) return;             /* allocation failure – leave cached data */
     /* zero new entries */
     for (idx_t i = cache_cap + 1; i <= cap; ++i) new_cache[i] = 0;

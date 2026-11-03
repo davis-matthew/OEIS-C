@@ -10,13 +10,15 @@
  *            positive integer satisfying this property
  * Range:     u8 none, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 // helper: compute alternating sum of digits of n
 static int alt_digit_sum(uint64_t n) {
@@ -49,7 +51,7 @@ seq_t a(idx_t n) {
     while (cache_size < (size_t)n) {
         if (cache_size == cache_cap) {      // allocate / grow
             size_t new_cap = cache_cap == 0 ? 16 : cache_cap * 2;
-            seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
             if (!new_cache) {
                 // allocation failed; abort
                 abort();

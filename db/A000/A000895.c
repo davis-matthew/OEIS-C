@@ -12,7 +12,8 @@
  *            unipotent block keeps a translation part
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 5, u128 n <= 6,
  *            big any n
- * Helpers:   z_deg, z_gcd, z_next_part, z_pmod
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-01)
+ * Helpers:   gcd_u64, ilog2_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,10 +21,26 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/z_deg.h"
-#include "../utils/z_gcd.h"
-#include "../utils/z_next_part.h"
-#include "../utils/z_pmod.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/ilog2_u64.h"
+
+static int z_next_part(int *p, int *len) {
+    int k = *len - 1, rem = 0;
+    while (k >= 0 && p[k] == 1) { rem++; k--; }
+    if (k < 0) return 0;
+    p[k]--; rem++;
+    int v = p[k];
+    *len = k + 1;
+    while (rem > v) { p[(*len)++] = v; rem -= v; }
+    p[(*len)++] = rem;
+    return 1;
+}
+
+static uint64_t z_pmod(uint64_t a, uint64_t f) {
+    int df = ilog2_u64(f), da;
+    while ((da = ilog2_u64(a)) >= df) a ^= f << (da - df);
+    return a;
+}
 
 static int z_n, z_T, z_L, z_ncomp, z_ulen, z_m;
 static int *z_pd; static uint64_t *z_pe;
@@ -134,7 +151,7 @@ static void z_leaf(void) {
     uint64_t el = 1;
     for (int c = 0; c < z_ncomp; c++) {
         if (z_cpart[c][0] > maxp) maxp = z_cpart[c][0];
-        el = el / z_gcd(el, z_ce[c]) * z_ce[c];
+        el = el / gcd_u64(el, z_ce[c]) * z_ce[c];
     }
     for (int ri = -1; ri < z_ulen; ri++) {
         int r, expN; uint64_t fac;

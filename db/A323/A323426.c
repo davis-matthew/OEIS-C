@@ -8,22 +8,33 @@
  * Formula:   a(n) = concatenation of i repeated (n-i+1) times for i = 1..n
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 3, u64 n <= 5, u128 n <= 8,
  *            big any n
- * Helpers:   digits_of, pow10
+ * Validated: partial, pass, 8 terms through n = 8 (2026-11-01)
+ * Helpers:   num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow10.h"
-#include "../utils/digits_of.h"
+#include <stdlib.h>
+#include "../utils/num_digits_idx.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
     seq_t result = (seq_t)0;
     for (idx_t i = n; i > 0; --i)
     {
-        idx_t d = digits_of(i);                 /* number of decimal digits of i */
+        idx_t d = num_digits_idx(i);                 /* number of decimal digits of i */
         seq_t base = pow10(d);                  /* 10^d */
         idx_t m = n - i + 1;                    /* repetition count for i */
         idx_t exp = d * m;                      /* exponent for 10^(d*m) */

@@ -9,6 +9,7 @@
  *            powers /* (i.e. d ≠ p^k for any prime p and integer k ≥ 1)
  * Range:     u8 n <= 23, u16 n <= 41, u32 n <= 119, u64 n <= 239,
  *            u128 n <= 839, big any n
+ * Validated: standard, pass, 93 terms through n = 9661 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

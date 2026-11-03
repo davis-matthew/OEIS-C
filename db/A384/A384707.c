@@ -8,7 +8,8 @@
  * Formula:   a(n) = 71971110957370 * a(n-1) mod (2^47-115); a(1)=1
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 1, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 9404 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #ifdef __cplusplus
 #include <type_traits>
 #endif
+#include "../utils/mem.h"
 
 /* Constants.  The values are small enough to fit in 64 bits.  */
 static const seq_t MUL_CONST = (seq_t)71971110957370ULL;
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
     if (n > last_computed) {
         /* Grow the cache to accommodate index n. */
         idx_t new_size = n + 1;               /* indices 0 … n inclusive */
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp)
             return (seq_t)0;                  /* allocation failure: return 0 */
 

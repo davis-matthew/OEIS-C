@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 74, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   bigomega
+ * Validated: partial, pass, 74 terms through n = 74 (2026-11-03)
+ * Helpers:   bigomega, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/bigomega.h"
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;        /* dynamic array holding the sequence */
 static size_t seq_cap = 0;       /* capacity of the array */
@@ -42,7 +44,7 @@ static void grow_seq(size_t need)
     while (seq_cap < need) {
         newcap <<= 1;
     }
-    seq = (seq_t *)realloc(seq, newcap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, newcap);
     seq_cap = newcap;
 }
 
@@ -52,7 +54,7 @@ static void extend_to(idx_t n)
     if (seq == NULL) {
         /* initialisation: put the value 1 at position 0 (a(1)=1) */
         seq_cap = 128;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         seq[0] = (seq_t)1;
         seq_len = 1;
     }

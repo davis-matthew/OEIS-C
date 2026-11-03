@@ -8,6 +8,7 @@
  * Formula:   a(n) = number of 3‑smooth integers ≤ 10^n
  * Range:     u8 n <= 8, u16 n <= 136, u32 n <= 1999, u64 n <= 1999,
  *            u128 n <= 1999, big any n
+ * Validated: standard, pass, 63 terms through n = 1792 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

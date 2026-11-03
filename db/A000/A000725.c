@@ -12,7 +12,8 @@
  *            even...
  * Range:     u8 n <= 3, u16 n <= 3, u32 n <= 4, u64 n <= 4, u128 n <= 5,
  *            big any n
- * Helpers:   fixexp725, g725, mu725, next725
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-01)
+ * Helpers:   gcd_i64, mobius_i64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,10 +21,30 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/fixexp725.h"
-#include "../utils/g725.h"
-#include "../utils/mu725.h"
-#include "../utils/next725.h"
+#include "../utils/gcd_i64.h"
+#include "../utils/mobius_i64.h"
+
+static int fixexp725(const int *al, int ka, const int *be, int kb, long long d) {
+    int e = 0;
+    for (int i = 0; i < ka; i++) e += (int)gcd_i64(d, al[i]);
+    for (int i = 0; i < kb; i++) {
+        long long g = gcd_i64(d, be[i]);
+        if ((d / g) & 1) return -1;
+        e += (int)g;
+    }
+    return e;
+}
+
+static int next725(int *p, int k) {
+    int rem = 0;
+    while (k > 0 && p[k - 1] == 1) { rem++; k--; }
+    if (k == 0) return 0;
+    int v = --p[k - 1];
+    rem++;
+    while (rem > v) { p[k++] = v; rem -= v; }
+    if (rem > 0) p[k++] = rem;
+    return k;
+}
 
 typedef unsigned __int128 u128_725;
 
@@ -112,7 +133,7 @@ seq_t a(idx_t n) {
         }
         long long L = 1; u128_725 z = 1; int run = 0;
         for (int i = 0; i < k; i++) {
-            L = L / g725(L, p[i]) * p[i];
+            L = L / gcd_i64(L, p[i]) * p[i];
             if (i > 0 && p[i] == p[i - 1]) run++; else run = 1;
             z *= (u128_725)p[i] * (u128_725)run;
         }
@@ -134,8 +155,8 @@ seq_t a(idx_t n) {
             if (bs > 0) { pb[0] = bs; kb = 1; } else kb = 0;
             do {
                 long long L = 1;
-                for (int i = 0; i < ka; i++) L = L / g725(L, pa[i]) * pa[i];
-                for (int i = 0; i < kb; i++) L = L / g725(L, 2LL * pb[i]) * (2LL * pb[i]);
+                for (int i = 0; i < ka; i++) L = L / gcd_i64(L, pa[i]) * pa[i];
+                for (int i = 0; i < kb; i++) L = L / gcd_i64(L, 2LL * pb[i]) * (2LL * pb[i]);
                 int computed = 0;
                 u128_725 csize = 0;
                 for (int s = 0; s < ns; s++) {
@@ -184,7 +205,7 @@ seq_t a(idx_t n) {
             long long sum = 0;
             for (long long e = 1; e <= d; e++) {
                 if (d % e) continue;
-                int m = mu725(d / e);
+                int m = mobius_i64(d / e);
                 if (m == 0 || fx[e] < 0) continue;
                 sum += (long long)m * (1LL << fx[e]);
             }

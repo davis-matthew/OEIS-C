@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, easy
  * Formula:   not stated
- * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 28, u128 n <= 28,
+ * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 19, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 */
 
 #include <stdlib.h>
-#include "../utils/binom.h"   /* static seq_t binom(idx_t a, idx_t b); */
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -33,8 +35,8 @@ seq_t a(idx_t n)
     seq_t sum = 0;
 
     for (idx_t k = 0; k <= maxk; ++k) {
-        seq_t t1 = binom(m + k, m);          /* binomial((n-1)+k, n-1) */
-        seq_t t2 = binom(2 * m - 3 * k, m);  /* binomial(2*(n-1)-3k, n-1) */
+        seq_t t1 = binomial(m + k, m);          /* binomial((n-1)+k, n-1) */
+        seq_t t2 = binomial(2 * m - 3 * k, m);  /* binomial(2*(n-1)-3k, n-1) */
         seq_t term = t1 * t2;
         if (k & 1)
             sum -= term;   /* (-1)^k with k odd */

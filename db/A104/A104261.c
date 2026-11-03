@@ -7,7 +7,8 @@
  * Formula:   a(n) = A007605(n) - A104260(n)
  * Range:     u8 n <= 102, u16 n <= 102, u32 n <= 102, u64 n <= 102,
  *            u128 n <= 102, big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 102 terms through n = 102 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 static idx_t *primes = NULL;
 static idx_t primes_count = 0;
@@ -44,7 +46,7 @@ static void ensure_n_primes(idx_t n)
         ++candidate;
 
     while (primes_count < n) {
-        if (is_prime(candidate)) {
+        if (is_prime_u64(candidate)) {
             if (primes_count == primes_cap) {
                 primes_cap *= 2;
                 primes = (idx_t *)realloc(primes, primes_cap * sizeof(idx_t));

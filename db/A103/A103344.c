@@ -8,14 +8,27 @@
  * Keywords:  nonn
  * Formula:   a(n) = number of distinct subsets of the Fibonacci‑type sequence
  *            (1,4,5,9,14,23,…) that sum to n. Computed by dynamic programming
- * Range:     u8 n <= 2281, u16 n <= 9938, u32 n <= 9938, u64 n <= 9938,
- *            u128 n <= 9938, big any n
- * Helpers:   seq_malloc
+ * Range:     u8 n <= 2281, u16 n <= 19308, u32 n <= 19308, u64 n <= 19308,
+ *            u128 n <= 19308, big any n
+ * Validated: standard, pass, 117 terms through n = 9938 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_malloc.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* helper to allocate an array of seq_t that works in both C and C++ */
+static inline seq_t *seq_malloc(idx_t n)
+{
+#ifdef __cplusplus
+    return mem_new(seq_t, n);
+#else
+    return (seq_t *)malloc(n * sizeof(seq_t));
+#endif
+}
 #include <stdlib.h>
 
 seq_t a(idx_t n)
@@ -48,6 +61,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

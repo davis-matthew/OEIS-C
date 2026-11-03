@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 4, u32 n <= 10, u64 n <= 22, u128 n <= 46,
  *            big any n
- * Helpers:   init_sMap
+ * Validated: standard, pass, 34 terms through n = 177 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,27 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/init_sMap.h"
+#include "../utils/mem.h"
+
+static void init_sMap(int sMap[16][16]) {
+    for (int r1 = 0; r1 < 16; ++r1) {
+        int a = r1 >> 2, b = r1 & 3;
+        for (int r2 = 0; r2 < 16; ++r2) {
+            int c = r2 >> 2, d = r2 & 3;
+            int vals[4] = {a, b, c, d};
+            /* sort the 4 values */
+            for (int i = 0; i < 4; ++i)
+                for (int j = i + 1; j < 4; ++j)
+                    if (vals[i] > vals[j]) {
+                        int t = vals[i];
+                        vals[i] = vals[j];
+                        vals[j] = t;
+                    }
+            int s = vals[3] + vals[2] + vals[1] - vals[0]; /* 0..9 */
+            sMap[r1][r2] = s;
+        }
+    }
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)0;   /* undefined for n=0 */
@@ -62,7 +83,7 @@ seq_t a(idx_t n) {
                 total += dp_cur[i][j];
 
         values_cap = 16; /* initial capacity */
-        values = (seq_t *)malloc(values_cap * sizeof(seq_t));
+        values = mem_new(seq_t, values_cap);
         if (!values) exit(1);
         values[0] = total;
         values_len = 1;
@@ -100,7 +121,7 @@ seq_t a(idx_t n) {
         if (values_len == values_cap) {
             size_t new_cap = values_cap * 2;
             if (new_cap == 0) new_cap = 16;
-            seq_t *tmp = (seq_t *)realloc(values, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, values, new_cap);
             if (!tmp) exit(1);
             values = tmp;
             values_cap = new_cap;

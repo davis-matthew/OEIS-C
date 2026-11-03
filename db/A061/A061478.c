@@ -11,14 +11,42 @@
  *            finding the next * such integer greater than the previous one
  * Range:     u8 n <= 7, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   alt_sum_is_9
+ * Validated: standard, pass, 68 terms through n = 999 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/alt_sum_is_9.h"
+#include "../utils/mem.h"
+
+/* Test whether the alternating sum of decimal digits of x equals 9.
+ * Alternating sum:   d1 - d2 + d3 - d4 + …   (d1 is the most significant digit). */
+static inline bool alt_sum_is_9(seq_t x)
+{
+    if (x == (seq_t)0)
+        return false;
+
+    /* A 64‑bit unsigned value has at most 20 decimal digits;
+     * allocate a small buffer that also works for the
+     * arbitrary‑precision build. */
+    unsigned char digits[32];
+    int len = 0;
+    seq_t t = x;
+    while (t != (seq_t)0) {
+        digits[len++] = (unsigned char)(t % (seq_t)10);
+        t /= (seq_t)10;
+    }
+
+    int sum  = 0;
+    int sign = 1;          /* start with + for the most significant digit */
+    for (int i = len - 1; i >= 0; --i) {
+        sum  += sign * digits[i];
+        sign  = -sign;
+    }
+    return sum == 9;
+}
 
 /* Static cache of computed terms. */
 static seq_t *cache          = NULL;
@@ -34,7 +62,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call. */
     if (cache == NULL) {
         cache_capacity = 128;
-        cache          = (seq_t *)malloc(sizeof(seq_t) * cache_capacity);
+        cache          = mem_new(seq_t, cache_capacity);
         cache_size     = 0;
     }
 
@@ -54,7 +82,7 @@ seq_t a(idx_t n)
         /* Resize cache if necessary. */
         if (cache_size == cache_capacity) {
             cache_capacity *= 2;
-            cache = (seq_t *)realloc(cache, sizeof(seq_t) * cache_capacity);
+            cache = mem_resize(seq_t, cache, cache_capacity);
         }
 
         cache[cache_size++] = cand;

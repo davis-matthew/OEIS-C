@@ -8,7 +8,8 @@
  * Formula:   a(n) = ∑_{k=1..⌊n/2⌋} [σ(k) = σ(n-k)]
  * Range:     u8 n <= 94, u16 n <= 94, u32 n <= 94, u64 n <= 94, u128 n <= 94,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 94 terms through n = 94 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>   /* size_t */
 #include <stdlib.h>   /* malloc, realloc, free */
 #include <string.h>   /* memset */
+#include "../utils/mem.h"
 
 extern seq_t a(idx_t n);
 
@@ -36,8 +38,7 @@ seq_t a(idx_t n)
        realloc because seq_t may be a class type. */
     if (n > current_max)
     {
-        seq_t *new_cache = (seq_t *)realloc(sigma_cache,
-                                            (size_t)(n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, sigma_cache, (size_t)(n + 1));
         if (new_cache == NULL)
             return (seq_t)0;  /* allocation failure – unlikely */
 

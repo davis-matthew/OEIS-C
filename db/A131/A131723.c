@@ -7,6 +7,7 @@
  * Formula:   a(2*n) = -(n*(n+2)), a(2*n+1) = n*(n+1)
  * Range:     i8 n <= 20, i16 n <= 360, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 67 terms through n = 9681 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

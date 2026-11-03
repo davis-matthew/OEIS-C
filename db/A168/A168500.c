@@ -9,7 +9,8 @@
  *            two‑digit primes with 98>p>q>r>10
  * Range:     u8 none, u16 none, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   cmp_seq_generic, is_prime_small
+ * Validated: full, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,14 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/is_prime_small.h"
-#include "../utils/cmp_seq_generic.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
+
+static int cmp_seq_generic(const void *p1, const void *p2) {
+    seq_t a = *(const seq_t *)p1;
+    seq_t b = *(const seq_t *)p2;
+    return (a > b) - (a < b);
+}
 
 static seq_t *cache = NULL;
 static size_t cache_len = 0;
@@ -29,7 +36,7 @@ static void build_cache(void) {
     uint64_t two[25];
     size_t two_len = 0;
     for (seq_t x = 11; x < 100; ++x) {
-        if (is_prime_small((seq_t)x))
+        if (is_prime_seq((seq_t)x))
             two[two_len++] = (uint64_t)x;
     }
 
@@ -43,10 +50,10 @@ static void build_cache(void) {
                 seq_t val = (seq_t)10000 * (seq_t)two[i]
                           + (seq_t)100   * (seq_t)two[j]
                           +                (seq_t)two[k];
-                if (is_prime_small(val)) {
+                if (is_prime_seq(val)) {
                     if (len == cap) {
                         cap = cap ? cap * 2 : 8;
-                        arr = (seq_t *)realloc(arr, cap * sizeof(seq_t));
+                        arr = mem_resize(seq_t, arr, cap);
                     }
                     arr[len++] = val;
                 }
@@ -55,10 +62,10 @@ static void build_cache(void) {
     }
 
     /* sort ascending */
-    qsort(arr, len, sizeof(seq_t), cmp_seq_generic);
+    mem_qsort(arr, len, sizeof(seq_t), cmp_seq_generic);
 
     /* store in static cache */
-    free(cache);
+    mem_free(cache);
     cache = arr;
     cache_len = len;
     initialized = true;

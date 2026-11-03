@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,6 +36,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
 
         for (size_t m = old_cap + 1; m <= rows_cap; ++m) {
             size_t sz = m;                      /* number of coefficients */
-            seq_t *row = (seq_t*)malloc(sz * sizeof(seq_t));
+            seq_t *row = mem_new(seq_t, sz);
             if (!row) return (seq_t)0;          /* allocation failure */
 
             if (m == 1) {

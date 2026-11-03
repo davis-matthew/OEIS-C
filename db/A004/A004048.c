@@ -10,14 +10,26 @@
  *            (series in powers of q with q = norm/2)
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 21, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   from_i128
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/from_i128.h"
+#include <string.h>
+
+static seq_t from_i128(__int128 v)
+{
+    if (v >= -(__int128)4000000000000000000LL && v <= (__int128)4000000000000000000LL)
+        return (seq_t)(long long)v;
+    {
+        __int128 q = v / ((__int128)1 << 32);
+        long long rem = (long long)(v - q * ((__int128)1 << 32));
+        return from_i128(q) * (seq_t)4294967296LL + (seq_t)rem;
+    }
+}
 
 static __int128 *F = NULL;
 static idx_t cap = 0; /* F valid for indices 0..cap-1 */

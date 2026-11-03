@@ -8,12 +8,14 @@
  * Formula:   a(n) = 2*3^n + 12*2^n - 19, for n >= 3. a(1) = 1, a(2) = 16
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 19, u64 n <= 39, u128 n <= 80,
  *            big any n
+ * Validated: standard, pass, 43 terms through n = 988 (2026-11-01)
  * Helpers:   pow2, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 #include "../utils/pow3.h"
 

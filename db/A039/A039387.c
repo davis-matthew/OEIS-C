@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 7662, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_equal_nonzero_5_6
+ * Validated: standard, pass, 66 terms through n = 9988 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,19 @@
    that satisfy the digit property. */
 
 #include <stdbool.h>
-#include "../utils/has_equal_nonzero_5_6.h"
+
+/* Test whether x has the same positive number of 5's and 6's in base 9. */
+static bool has_equal_nonzero_5_6(seq_t x)
+{
+    unsigned cnt5 = 0, cnt6 = 0;
+    while (x > 0) {
+        int d = (int)(x % 9);
+        if (d == 5) ++cnt5;
+        else if (d == 6) ++cnt6;
+        x /= 9;
+    }
+    return cnt5 > 0 && cnt5 == cnt6;
+}
 
 /* Return the n-th term of sequence A039387 (n >= 1). */
 seq_t a(idx_t n)

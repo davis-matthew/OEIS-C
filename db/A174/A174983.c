@@ -7,12 +7,14 @@
  * Formula:   a(n) = 132498*a(n-1) - a(n-2), a(1) = 0, a(2) = 9100
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 4, u128 n <= 8,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 25 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
         if (cap > 0 && new_cap < cap * 2) new_cap = cap * 2;
 
         /*  realloc requires a cast when building under C++   */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return (seq_t)0;   /* allocation failure: return 0 */
 
         cache = tmp;

@@ -8,27 +8,29 @@
  *            a(k)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 16, u128 n <= 27,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 36 terms through n = 372 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_size = 0;
 
 seq_t a(idx_t n) {
     if (cache_size == 0) {
-        cache = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (n + 1));
         cache[0] = 1;
         
         for (idx_t i = 1; i <= n; i++) {
             seq_t term1 = (seq_t)i * cache[i - 1];
             seq_t sum = 0;
             for (idx_t k = 0; k < i; k++) {
-                sum = sum + binom(i, k) * cache[k];
+                sum = sum + binomial(i, k) * cache[k];
             }
             cache[i] = term1 + sum;
         }
@@ -41,13 +43,13 @@ seq_t a(idx_t n) {
         return cache[n];
     }
     
-    cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, (n + 1));
     
     for (idx_t i = cache_size; i <= n; i++) {
         seq_t term1 = (seq_t)i * cache[i - 1];
         seq_t sum = 0;
         for (idx_t k = 0; k < i; k++) {
-            sum = sum + binom(i, k) * cache[k];
+            sum = sum + binomial(i, k) * cache[k];
         }
         cache[i] = term1 + sum;
     }

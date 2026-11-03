@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 18, u64 n <= 45, u128 n <= 97,
  *            big any n
- * Helpers:   horiz_ok
+ * Validated: standard, pass, 39 terms through n = 204 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,20 @@
 
 /* required external types */
 #include <stdbool.h>
-#include "../utils/horiz_ok.h"
+
+/* test whether three consecutive columns a,b,c violate a horizontal pattern
+   on any row (forbidden patterns 000 or 011) */
+static inline bool horiz_ok(uint8_t a, uint8_t b, uint8_t c)
+{
+    for (int r = 0; r < 5; ++r) {
+        int b0 = (a >> r) & 1;
+        int b1 = (b >> r) & 1;
+        int b2 = (c >> r) & 1;
+        if (b0 == 0 && b1 == 0 && b2 == 0) return false;   /* 000 */
+        if (b0 == 0 && b1 == 1 && b2 == 1) return false;   /* 011 */
+    }
+    return true;
+}
 
 #define NUM_COLS 14
 #define COL_MASK 0x1F     /* 5 bits */

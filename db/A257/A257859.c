@@ -7,13 +7,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 17, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Recurrence: a(n) = (2*n-1)*a(n-1) - a(n-2); a(0)=2, a(1)=1 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* previously computed values, length = cache_len */
 static size_t cache_len = 0;    /* number of valid entries in cache */
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* Resize the cache if necessary.  After reallocation we initialise
        the base values, which are constant. */
     if (cache_len < needed) {
-        seq_t *tmp = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, needed);
         if (!tmp) abort();          /* allocation error – terminate */
         cache = tmp;
         if (needed > 0) cache[0] = (seq_t)2;

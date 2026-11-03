@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   is_incomplete
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,35 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_incomplete.h"
+
+/* Test whether the multiset of part indices (with multiplicities)
+   fails to generate all integers from 0 up to the sum of the parts. */
+static bool is_incomplete(unsigned *idxs, unsigned *exps, size_t cnt)
+{
+    unsigned sum = 0;
+    for (size_t i = 0; i < cnt; ++i) sum += idxs[i] * exps[i];
+
+    bool *dp = (bool *)calloc(sum + 1, sizeof(bool));
+    dp[0] = true;
+
+    for (size_t i = 0; i < cnt; ++i) {
+        unsigned idx = idxs[i];
+        unsigned e   = exps[i];
+        for (unsigned k = 0; k < e; ++k) {
+            for (int s = (int)sum; s >= (int)idx; --s) {
+                if (dp[s - (int)idx]) dp[s] = true;
+            }
+        }
+    }
+
+    bool incomplete = false;
+    for (unsigned s = 1; s <= sum; ++s) {
+        if (!dp[s]) { incomplete = true; break; }
+    }
+
+    free(dp);
+    return incomplete;
+}
 
 /* ------------------------------------------------------------------ */
 /*  Prime infrastructure                                              */

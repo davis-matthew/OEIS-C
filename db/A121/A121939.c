@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 42, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_len, digit_sum, pow10
+ * Validated: standard, pass, 60 terms through n = 9910 (2026-11-03)
+ * Helpers:   digit_sum, mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,20 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/pow10.h"          /* seq_t pow10(idx_t e); */
-#include "../utils/digit_sum.h"       /* seq_t digit_sum(seq_t v); */
-#include "../utils/digit_len.h"       /* size_t digit_len(seq_t v); */
+#include <stdint.h>
+#include "../utils/digit_sum.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Build a palindrome of total length 'len' from the left half 'half'.
    For odd 'len', the middle digit is the last digit of 'half'.
@@ -44,8 +56,8 @@ static inline bool contains_sum_subseq(seq_t v)
     seq_t sum = digit_sum(v);
 
     /* get digit lengths */
-    size_t vlen = digit_len(v);
-    size_t slen = digit_len(sum);
+    size_t vlen = num_digits(v);
+    size_t slen = num_digits(sum);
     if (slen == 0) return false;
 
     /* extract digits of v (reversed) */
@@ -97,7 +109,7 @@ static void cache_add(seq_t val)
 {
     if (cache_len == cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-        seq_t *new_vec = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_vec = mem_resize(seq_t, cache, new_cap);
         if (!new_vec) abort(); /* out of memory */
         cache = new_vec;
         cache_cap = new_cap;
@@ -133,7 +145,7 @@ seq_t a(idx_t n)
     }
     if (!cache) {
         cache_cap = 16;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort(); /* out of memory */
     }
 

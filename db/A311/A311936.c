@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
     efficiency. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t _a_init[24] = {
     1, 4, 8, 13, 17, 22, 26, 31, 36, 40,
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     /* initialise buffer on first use */
     if (!buf) {
         buf_len = (n + 1 > 24) ? n + 1 : 24;
-        buf = (seq_t *)malloc(buf_len * sizeof(seq_t));
+        buf = mem_new(seq_t, buf_len);
         if (!buf) {                 /* out of memory; give up */
             return 0;
         }
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
     if (n + 1 > buf_len) {
         idx_t old_len = buf_len;
         buf_len = n + 1;
-        seq_t *tmp = (seq_t *)realloc(buf, buf_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, buf, buf_len);
         if (!tmp) {                 /* out of memory */
             return 0;
         }

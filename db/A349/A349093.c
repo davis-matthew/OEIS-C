@@ -12,7 +12,8 @@
  *            case n=1 returns 1
  * Range:     u8 n <= 58, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   build_primes_upto, int_sqrt
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-01)
+ * Helpers:   build_primes_upto, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,8 @@
 #include <math.h>   /* for sqrt, but we will use int_sqrt from utils */
 #include <stdbool.h>
 
-#include "../utils/int_sqrt.h"   /* int_sqrt(idx_t) */
-#include "../utils/build_primes_upto.h"  /* build_primes_upto(idx_t, uint64_t **, size_t *) */
+#include "../utils/build_primes_upto.h"
+#include "../utils/isqrt.h"
 
 /* static holders for primes */
 static uint64_t *prime_list = NULL;
@@ -73,7 +74,7 @@ seq_t a(idx_t n)
 
     /* factor n */
     uint64_t nn = (uint64_t)n;
-    idx_t sqrt_n = int_sqrt(n);
+    idx_t sqrt_n = isqrt(n);
     ensure_primes(sqrt_n);
 
     seq_t result = 0;    /* will store maximum value */

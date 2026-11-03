@@ -8,12 +8,14 @@
  *            of k)
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *sigma_cache = NULL; /* sigma[1..N] */
 static idx_t sigma_len   = 0;      /* current size of sigma_cache (max precomputed n) */
@@ -22,7 +24,7 @@ static idx_t sigma_len   = 0;      /* current size of sigma_cache (max precomput
 static void recompute_sigma(idx_t max_n)
 {
     /* allocate new array of size max_n + 1 */
-    seq_t *new_sigma = (seq_t*)malloc((max_n + 1) * sizeof(seq_t));
+    seq_t *new_sigma = mem_new(seq_t, (max_n + 1));
     if (!new_sigma) return; /* allocation failed; leave cache unchanged */
 
     /* initialize to zero */
@@ -36,7 +38,7 @@ static void recompute_sigma(idx_t max_n)
     }
 
     /* free old cache and replace */
-    free(sigma_cache);
+    mem_free(sigma_cache);
     sigma_cache = new_sigma;
     sigma_len   = max_n;
 }

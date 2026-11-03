@@ -8,6 +8,7 @@
  * Formula:   a(n) = n / gcd(n, 1 + Sum_{k=1..n} gcd(k, n))
  * Range:     u8 n <= 59, u16 n <= 8191, u32 n <= 8191, u64 n <= 8191,
  *            u128 n <= 8191, big any n
+ * Validated: standard, pass, 104 terms through n = 7297 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

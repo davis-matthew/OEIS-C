@@ -11,21 +11,28 @@
  *            step by step with gcd cancellation
  * Range:     u8 n <= 10, u16 n <= 16, u32 n <= 29, u64 n <= 58, u128 n <= 116,
  *            big any n
- * Helpers:   alloc_zero, gcd_seq
+ * Validated: standard, pass, 48 terms through n = 191 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/gcd_seq.h"
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
 
 static seq_t *T[6];
 static idx_t cap = 0;
 
 static void build(idx_t N) {
     for (int h = 0; h <= 5; h++) {
-        if (T[h]) free(T[h]);
+        if (T[h]) mem_free(T[h]);
         T[h] = alloc_zero(N + 1);
     }
     T[0][1] = 1;
@@ -42,7 +49,7 @@ static void build(idx_t N) {
             for (idx_t i = 0; i < M; i++) {
                 seq_t r = mc[i];
                 seq_t d = (seq_t)(i + 1);
-                seq_t g = gcd_seq(r % d, d);
+                seq_t g = gcd(r % d, d);
                 mc[i + 1] = (r / g) * ((c + (seq_t)i) / (d / g));
             }
             for (idx_t j = N - 1; j >= s; j--) {
@@ -57,8 +64,8 @@ static void build(idx_t N) {
         }
         for (idx_t j = 1; j <= N; j++) T[h][j] = P[j - 1];
     }
-    free(P);
-    free(mc);
+    mem_free(P);
+    mem_free(mc);
     cap = N;
 }
 

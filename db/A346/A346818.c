@@ -10,13 +10,15 @@
  *            of partitions of s into distinct parts (p_d[0]=1). a(0)=6
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 21, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 483 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 
 static const unsigned char p_distinct[9] = {1,1,1,2,2,3,4,5,6};
@@ -35,7 +37,7 @@ static void ensure_a(size_t n)
 {
     if (n < a_cap) return;
     size_t new_cap = n + 1;
-    seq_t *new_arr = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, a_cache, new_cap);
     if (!new_arr) abort();
     /* zero new entries to be safe */
     for (size_t i = a_cap; i < new_cap; ++i) new_arr[i] = 0;
@@ -47,7 +49,7 @@ static void ensure_B(size_t n)
 {
     if (n < B_cap) return;
     size_t new_cap = n + 1;
-    seq_t *new_arr = (seq_t *)realloc(B_cache, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, B_cache, new_cap);
     if (!new_arr) abort();
     for (size_t i = B_cap; i < new_cap; ++i) new_arr[i] = 0;
     B_cache = new_arr;
@@ -73,17 +75,17 @@ static void ensure_rows(size_t n)
     size_t new_cap = n + 1;
     seq_t *new_prev, *new_curr;
     if (row_prev == NULL) {
-        new_prev = (seq_t *)malloc(new_cap * sizeof(seq_t));
-        new_curr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        new_prev = mem_new(seq_t, new_cap);
+        new_curr = mem_new(seq_t, new_cap);
         if (!new_prev || !new_curr) abort();
     } else {
-        new_prev = (seq_t *)realloc(row_prev, new_cap * sizeof(seq_t));
-        new_curr = (seq_t *)realloc(row_curr, new_cap * sizeof(seq_t));
+        new_prev = mem_resize(seq_t, row_prev, new_cap);
+        new_curr = mem_resize(seq_t, row_curr, new_cap);
         if (!new_prev || !new_curr) abort();
     }
     /* zero new elements beyond old capacity */
-    if (row_prev) memset(new_prev + row_cap, 0, (new_cap - row_cap) * sizeof(seq_t));
-    if (row_curr) memset(new_curr + row_cap, 0, (new_cap - row_cap) * sizeof(seq_t));
+    if (row_prev) mem_set(new_prev + row_cap, 0, (new_cap - row_cap) * sizeof(seq_t));
+    if (row_curr) mem_set(new_curr + row_cap, 0, (new_cap - row_cap) * sizeof(seq_t));
     row_prev = new_prev;
     row_curr = new_curr;
     row_cap  = new_cap;

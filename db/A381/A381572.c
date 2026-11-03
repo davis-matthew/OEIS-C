@@ -7,15 +7,70 @@
  * Formula:   A(x) = 1/(1 - x*A(x*A(x)))^2 (OEIS A381572)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 18, u128 n <= 21,
  *            big any n
- * Helpers:   poly_compose, poly_mul_trunc
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/poly_compose.h"
-#include "../utils/poly_mul_trunc.h"
+#include "../utils/mem.h"
+
+/* Helper: compose series a ∘ b (i.e., a(b(x))) up to degree N */
+static void poly_compose(const seq_t *a, const seq_t *b, seq_t *c, idx_t N)
+{
+    for (idx_t i = 0; i <= N; ++i) c[i] = 0;
+
+    seq_t *power = mem_new(seq_t, N + 1);
+    seq_t *tmp   = mem_new(seq_t, N + 1);
+    power[0]     = 1;                    /* power = b^0 = 1 */
+
+    for (idx_t k = 0; k <= N; ++k)
+    {
+        if (a[k])
+        {
+            for (idx_t i = 0; i <= N; ++i)
+            {
+                if (!power[i]) continue;
+                c[i] += a[k] * power[i];
+            }
+        }
+        if (k == N) break;
+
+        /* tmp = power * b (truncated) */
+        for (idx_t i = 0; i <= N; ++i) tmp[i] = 0;
+        for (idx_t i = 0; i <= N; ++i)
+        {
+            if (!power[i]) continue;
+            for (idx_t j = 0; j <= N - i; ++j)
+            {
+                if (!b[j]) continue;
+                tmp[i + j] += power[i] * b[j];
+            }
+        }
+        /* copy tmp back to power */
+        for (idx_t i = 0; i <= N; ++i) power[i] = tmp[i];
+    }
+
+    mem_free(power);
+    mem_free(tmp);
+}
+
+/* Helper: multiply two series a and b, store truncated result in c (degree <= N) */
+static void poly_mul_trunc(const seq_t *a, const seq_t *b, seq_t *c, idx_t N)
+{
+    for (idx_t i = 0; i <= N; ++i) c[i] = 0;
+    for (idx_t i = 0; i <= N; ++i)
+    {
+        if (!a[i]) continue;
+        for (idx_t j = 0; j <= N - i; ++j)
+        {
+            if (!b[j]) continue;
+            c[i + j] += a[i] * b[j];
+        }
+    }
+}
 
 /* Main sequence generator */
 seq_t a(idx_t n)
@@ -28,13 +83,13 @@ seq_t a(idx_t n)
 
     idx_t N = n;
     /* Allocate working arrays */
-    seq_t *old    = (seq_t *)calloc(N + 1, sizeof(seq_t));
-    seq_t *new_arr = (seq_t *)calloc(N + 1, sizeof(seq_t));
-    seq_t *g     = (seq_t *)calloc(N + 1, sizeof(seq_t));
-    seq_t *f_of_g = (seq_t *)calloc(N + 1, sizeof(seq_t));
-    seq_t *u      = (seq_t *)calloc(N + 1, sizeof(seq_t));
-    seq_t *power  = (seq_t *)calloc(N + 1, sizeof(seq_t));
-    seq_t *temp   = (seq_t *)calloc(N + 1, sizeof(seq_t));
+    seq_t *old    = mem_new(seq_t, N + 1);
+    seq_t *new_arr = mem_new(seq_t, N + 1);
+    seq_t *g     = mem_new(seq_t, N + 1);
+    seq_t *f_of_g = mem_new(seq_t, N + 1);
+    seq_t *u      = mem_new(seq_t, N + 1);
+    seq_t *power  = mem_new(seq_t, N + 1);
+    seq_t *temp   = mem_new(seq_t, N + 1);
 
     old[0] = 1;   /* a(0) = 1 */
 
@@ -100,12 +155,12 @@ seq_t a(idx_t n)
     }
 
     /* Store result in cache */
-    if (cache) free(cache);
+    if (cache) mem_free(cache);
     cache = old;
     cache_size = N + 1;
 
     /* Clean up */
-    free(new_arr); free(g); free(f_of_g); free(u); free(power); free(temp);
+    mem_free(new_arr); mem_free(g); mem_free(f_of_g); mem_free(u); mem_free(power); mem_free(temp);
 
     return cache[n];
 }

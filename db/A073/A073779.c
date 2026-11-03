@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 54, u16 n <= 6791, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 121 terms through n = 9929 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 /* Computes the number of zeros in the base‑3 representation of the n‑th prime. */
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 
 static uint64_t *prime_cache = NULL;   /* array of all primes found so far   */

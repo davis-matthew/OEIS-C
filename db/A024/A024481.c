@@ -9,6 +9,7 @@
  *            s(i)=p(i-1) (primes), and t(i)=F(i+1) (Fibonacci, F1=1)
  * Range:     u8 n <= 8, u16 n <= 19, u32 n <= 29, u64 n <= 29, u128 n <= 29,
  *            big any n
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

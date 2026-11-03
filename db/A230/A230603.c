@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   init_len_tab
+ * Validated: partial, pass, 81 terms through n = 80 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,25 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/init_len_tab.h"
+
+static void init_len_tab(idx_t max_n, idx_t *len, size_t *cnt)
+{
+    static const size_t MAX_LEN = 93; /* F(93) > 2^64, so safe for 64‑bit indices */
+    static bool initialized = false;
+
+    if (!initialized) {
+        len[0] = 1; /* |S(0)| = 1 */
+        len[1] = 3; /* |S(1)| = 3 */
+        *cnt = 2;
+        initialized = true;
+    }
+
+    /* grow the table until it exceeds max_n */
+    while (*cnt < MAX_LEN && len[*cnt - 1] <= max_n) {
+        len[*cnt] = len[*cnt - 1] + len[*cnt - 2];
+        (*cnt)++;
+    }
+}
 
 seq_t a(idx_t n)
 {

@@ -10,19 +10,21 @@
  *            unordered pairs once
  * Range:     u8 n <= 13, u16 n <= 71, u32 n <= 999, u64 n <= 999,
  *            u128 n <= 999, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 997 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     if (n <= 1) return 0;          /* a(1)=0, no x values for n=1 */
     /* frequency of unordered pairs (i,j) with i <= j, 1 <= i,j <= n-1 */
     idx_t npairs = (n - 1) * (n - 2) / 2 + (n - 1); /* not used, just reference */
-    seq_t *freq = (seq_t *)malloc(sizeof(seq_t) * (size_t)n);
+    seq_t *freq = mem_new(seq_t, (size_t)n);
     if (!freq) return 0;           /* allocation failure */
 
     /* initialize to zero */
@@ -48,6 +50,6 @@ seq_t a(idx_t n)
         }
     }
 
-    free(freq);
+    mem_free(freq);
     return result;
 }

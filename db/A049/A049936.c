@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 16, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   floor_log2_uint64
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-03)
+ * Helpers:   ilog2, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,10 @@
    The routine memoises values and works for any order of calls. */
 
 #include <stdlib.h>
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/ilog2.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,8 +43,8 @@ seq_t a(idx_t n)
         size_t new_cap = (cap ? cap * 2 : 4);
         while (new_cap < (size_t)(n + 1)) new_cap <<= 1;
 
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
-        seq_t *new_pref  = (seq_t *)realloc(pref,  new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
+        seq_t *new_pref  = mem_resize(seq_t, pref, new_cap);
         if (!new_cache || !new_pref) return (seq_t)0; /* allocation failure */
 
         cache = new_cache;
@@ -57,7 +61,7 @@ seq_t a(idx_t n)
         else {
             /* Determine 2^p where 2^p < i-1 <= 2^{p+1} */
             idx_t x   = i - 2;                           /* n-2 >= 1 for i>=4 */
-            unsigned p = floor_log2_uint64(x);           /* p = ⌊log₂(x)⌋ */
+            unsigned p = ilog2(x);           /* p = ⌊log₂(x)⌋ */
             idx_t pow = (idx_t)1 << p;                   /* 2^p */
             idx_t e   = pow << 1;                        /* 2^{p+1} */
 

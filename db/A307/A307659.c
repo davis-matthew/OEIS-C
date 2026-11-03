@@ -12,7 +12,8 @@
  *            ((1+x^k)/(1−x^k))^(μ(k)·k)
  * Range:     i8 n <= 5, i16 n <= 18, i32 n <= 44, i64 n <= 44, i128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Compute the sequence value a(n). */
 seq_t a(idx_t n)
@@ -56,8 +58,8 @@ seq_t a(idx_t n)
     }
 
     /* Allocate arrays for S(k) and the sequence a(k). */
-    seq_t *S   = (seq_t*)malloc(N * sizeof(seq_t));
-    seq_t *arr = (seq_t*)malloc(N * sizeof(seq_t));
+    seq_t *S   = mem_new(seq_t, N);
+    seq_t *arr = mem_new(seq_t, N);
 
     /* Compute S(k) = Σ_{d|k, (k/d) odd} μ(d) * d². */
     for (idx_t i = 0; i < N; ++i) S[i] = 0;
@@ -88,8 +90,8 @@ seq_t a(idx_t n)
     free(mu);
     free(pr);
     free(iscomp);
-    free(S);
-    free(arr);
+    mem_free(S);
+    mem_free(arr);
 
     return result;
 }

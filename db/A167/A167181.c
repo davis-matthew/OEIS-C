@@ -9,7 +9,8 @@
  *            eagerly and cached so that any order of calls works
  * Range:     u8 n <= 49, u16 n <= 8270, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 9676 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>    /* for size_t */
+#include "../utils/mem.h"
 
 /* static cache for the sequence: 1‑based index, cache_len == number
    of stored terms.  It grows as needed. */
@@ -37,7 +39,7 @@ static void ensure_cache_capacity(size_t needed)
     if (new_cap < needed) new_cap = needed;
 
     /* realloc returns void*, so cast explicitly to support C++. */
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) return;          /* allocation failed – keep old cache */
 
     cache  = tmp;

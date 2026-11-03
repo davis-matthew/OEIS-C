@@ -14,12 +14,14 @@
  *            sequence is obtained by reading the triangle row‑by‑row
  * Range:     u8 n <= 36, u16 n <= 68, u32 n <= 171, u64 n <= 435,
  *            u128 n <= 1178, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 1241 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
  
 seq_t a(idx_t n)
 {
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
         for (idx_t m = rows; m <= r; ++m) {
             /* Allocate space for row m */
             triangle = (seq_t **)realloc(triangle, (size_t)(m + 1) * sizeof(seq_t *));
-            triangle[m] = (seq_t *)malloc((size_t)(m + 1) * sizeof(seq_t));
+            triangle[m] = mem_new(seq_t, (size_t)(m + 1));
  
             for (idx_t k = 0; k <= m; ++k) {
                 /* Base cases */

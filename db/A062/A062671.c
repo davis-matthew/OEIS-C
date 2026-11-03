@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 2950, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   contains5
+ * Validated: standard, pass, 67 terms through n = 9572 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,7 +31,18 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/contains5.h"
+#include "../utils/mem.h"
+
+/* ---------- Helper to test whether a decimal representation contains 5 */
+static inline bool contains5(seq_t x)
+{
+    while (x != (seq_t)0) {
+        if ((x % (seq_t)10) == (seq_t)5)
+            return true;
+        x /= (seq_t)10;
+    }
+    return false;
+}
 
 /* ---------- Sieve of Eratosthenes for primes up to 2 000 000 */
 #define PRIME_SIEVE_LIMIT 2000000U
@@ -157,7 +169,7 @@ static void append_term(seq_t val)
 {
     if (terms_n == terms_cap) {
         terms_cap = terms_cap ? terms_cap * 2 : 16;
-        seq_t *new_arr = (seq_t*)realloc(terms, terms_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, terms, terms_cap);
         if (!new_arr) exit(1);
         terms = new_arr;
     }

@@ -7,7 +7,8 @@
  * Formula:   a(n) = the nth prime p for which p mod 13 ∈ {2,3,4,6}
  * Range:     u8 n <= 19, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 977 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Caching of found primes */
 static seq_t *prime_cache = NULL;   /* array of cached primes */
@@ -46,7 +48,7 @@ static void build_cache(idx_t need) {
     if (prime_cap < (size_t)need) {
         size_t new_cap = prime_cap == 0 ? 16 : prime_cap * 2;
         while (new_cap < (size_t)need) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(prime_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, prime_cache, new_cap);
         if (!tmp) abort();                          /* allocation failed */
         prime_cache = tmp;
         prime_cap = new_cap;

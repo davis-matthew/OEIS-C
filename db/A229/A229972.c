@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 8410, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64, floor_cube_root, is_prime
+ * Validated: standard, pass, 71 terms through n = 9932 (2026-11-03)
+ * Helpers:   ipow_i32, is_prime, mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,30 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
 #include "../utils/is_prime.h"
-#include "../utils/floor_cube_root.h"
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
+
+/* Floor cube root by binary search */
+static inline seq_t floor_cube_root(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    /* raise hi until hi^3 > x */
+    while (ipow_i32(hi, 3) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid3 = ipow_i32(mid, 3);
+        if (mid3 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* static cache for computed terms */
 static seq_t *term_cache = NULL;
@@ -34,7 +56,7 @@ static void append_term(seq_t v)
 {
     if (term_cache_len == term_cache_cap) {
         size_t new_cap = term_cache_cap ? term_cache_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(term_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, term_cache, new_cap);
         if (!tmp) abort();
         term_cache = tmp;
         term_cache_cap = new_cap;
@@ -60,7 +82,7 @@ seq_t a(idx_t n)
             continue;
         }
         if (is_prime(m)) continue;               /* skip primes */
-        if (is_cube(m) || (divisor_count_u64((uint64_t)m) % 3 == 2))
+        if (is_cube(m) || (num_divisors((uint64_t)m) % 3 == 2))
             append_term((seq_t)m);
     }
     return term_cache[n - 1];

@@ -12,7 +12,8 @@
  *            A161643)
  * Range:     u8 n <= 30, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   _smallest_prime_factor, is_prime, largest_prime_factor
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-01)
+ * Helpers:   is_prime, largest_prime_factor, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include "../utils/is_prime.h"
-#include "../utils/_smallest_prime_factor.h"
 #include "../utils/largest_prime_factor.h"
+#include "../utils/smallest_prime_factor.h"
 
 /* Static storage for the list of composite numbers computed so far. */
 static uint64_t *composites = NULL;
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
     uint64_t c = nth_composite(n);
 
     /* Obtain its smallest and largest prime factors. */
-    uint64_t spf = _smallest_prime_factor(c);
+    uint64_t spf = smallest_prime_factor(c);
     uint64_t lpf = largest_prime_factor(c);
 
     /* Compute sum of consecutive integers from spf to lpf. */

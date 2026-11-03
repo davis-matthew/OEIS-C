@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{d|n} d^(sigma(d) - 1) (OEIS A348350)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 11, u128 n <= 15,
  *            big any n
- * Helpers:   big_pow, factor_u64, sigma_of
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,24 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#include "../utils/big_pow.h"
-#include "../utils/sigma_of.h"
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
+#include "../utils/ipow.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 /* --------------------------------------------------------------- */
 /* Main function computing a(n)                                 */
@@ -77,7 +93,7 @@ seq_t a(idx_t n)
         seq_t d    = (seq_t)divs[i];
         seq_t sig = sigma_of((idx_t)divs[i]);   /* sigma(d) as seq_t   */
         seq_t exp = sig - (seq_t)1;             /* sigma(d)-1          */
-        seq_t term = big_pow(d, exp);
+        seq_t term = ipow(d, exp);
         total += term;
     }
 

@@ -13,7 +13,8 @@
  *            a(7)=242728633,...
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 16, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* 13‑term recurrence is used only for n > 14.
  * Store the first 14 values (indices 1..14 correspond to cache[0..13]).
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
     if (!cache) {
         /* Ensure at least 14 slots to avoid frequent reallocations for small n. */
         idx_t needed = (n > 14) ? n : 14;
-        cache = (seq_t *)calloc((size_t)needed, sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)needed);
         if (!cache) return 0; /* allocation failed */
 
         /* Copy the initial values up to the smaller of 14 and n */
@@ -75,7 +77,7 @@ seq_t a(idx_t n)
     /* Expand the cache to size n (or larger if desired) */
     if (cache_len < n) {
         idx_t new_size = n;
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_size);
         if (!tmp) return 0; /* realloc failed; keep the old cache */
         cache = tmp;
         /* No need to initialize newly allocated tail; we will compute values. */

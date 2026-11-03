@@ -9,14 +9,16 @@
  *            5, 7, 10, 13, 17, 21, … defined recursively by i₁ = 2, i_{k+1} =
  *            i_k + ceil((k+1)/2), otherwise d(n) = 1. Then a(n) = a(n‑1) +
  *            d(n)
- * Range:     u8 n <= 196, u16 n <= 9958, u32 n <= 9958, u64 n <= 9958,
- *            u128 n <= 9958, big any n
- * Helpers:   none
+ * Range:     u8 n <= 196, u16 n <= 10001, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 99 terms through n = 9958 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
 
     /* Ensure a(0) is available */
     if (cap == 0) {
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) return (seq_t)0;        /* allocation failure */
         cache[0] = (seq_t)1;
         cap  = 1;
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     /* Grow cache up to index n if necessary */
     if (n >= cap) {
         idx_t new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return (seq_t)0;          /* allocation failure */
         cache = tmp;
         for (idx_t i = last + 1; i < new_cap; ++i) {

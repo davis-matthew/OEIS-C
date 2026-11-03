@@ -9,14 +9,20 @@
  *            from the prime factorization of the reduced fraction
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 18, u128 n <= 34,
  *            big any n
- * Helpers:   a001796_vfact
+ * Validated: standard, pass, 35 terms through n = 802 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a001796_vfact.h"
+
+static unsigned long long a001796_vfact(unsigned long long m, unsigned long long p) {
+    unsigned long long e = 0;
+    while (m) { m /= p; e += m; }
+    return e;
+}
 
 seq_t a(idx_t n) {
     unsigned long long N = (unsigned long long)n;

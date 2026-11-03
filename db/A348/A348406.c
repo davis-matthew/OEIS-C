@@ -6,16 +6,23 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = 1 + |{d : d divides n, sqrt(n/2) ≤ d < sqrt(2n)}|
- * Range:     u8 n <= 9165, u16 n <= 9165, u32 n <= 9165, u64 n <= 9165,
- *            u128 n <= 9165, big any n
- * Helpers:   middle_divisor
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9165 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/middle_divisor.h"
+
+static inline bool middle_divisor(idx_t d, idx_t n)
+{
+    /* use 128‑bit arithmetic to avoid overflow on very large n */
+    __int128 dd = (__int128)d * d;
+    return (dd * 2 >= n) && (dd < (__int128)2 * n);
+}
 
 seq_t a(idx_t n)
 {

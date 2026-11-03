@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 9771 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
  * a(2n+1) = a(n)
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* array holding computed values */
 static idx_t cache_nmax = 0;    /* highest index currently cached (inclusive) */
@@ -27,7 +29,7 @@ static void extend_cache(idx_t n)
 {
     if (cache == NULL) {
         /* First allocation */
-        cache = (seq_t *)malloc(sizeof(seq_t) * ((size_t)n + 1));
+        cache = mem_new(seq_t, ((size_t)n + 1));
         if (cache == NULL) return;   /* allocation failed */
         for (idx_t i = 0; i <= n; ++i) {
             if (i == 0) {
@@ -44,8 +46,7 @@ static void extend_cache(idx_t n)
         cache_nmax = n;
     } else if (n > cache_nmax) {
         /* Grow the array */
-        seq_t *tmp = (seq_t *)realloc(cache,
-                                      sizeof(seq_t) * ((size_t)n + 1));
+        seq_t *tmp = mem_resize(seq_t, cache, ((size_t)n + 1));
         if (tmp == NULL) return;   /* reallocation failed */
         cache = tmp;
         for (idx_t i = cache_nmax + 1; i <= n; ++i) {

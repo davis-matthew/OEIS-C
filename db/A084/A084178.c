@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 9, i16 n <= 17, i32 n <= 33, i64 n <= 34, i128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 /* use standard integer types */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are provided by the build; do NOT redefine them. */
 extern seq_t a(idx_t n);
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* initialise cache for first three terms on first call */
     if (cache_len == 0) {
         cache_len = 3;
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         if (!cache) return 0;        /* insufficient memory – fallback */
         cache[0] = 0;                /* a(0) */
         cache[1] = 1;                /* a(1) */
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     /* if requested term not yet computed, extend cache */
     if (n >= cache_len) {
         idx_t new_len = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) return 0;           /* memory fault – safe return */
         cache = tmp;
         for (idx_t i = cache_len; i <= n; ++i) {

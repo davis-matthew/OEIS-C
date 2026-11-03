@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign
  * Formula:   a(1) = 1; for n > 1, a(n) = -∑_{d|n, d<n} (1+ω(n/d))·a(d)
- * Range:     i8 n <= 359, i16 n <= 8957, i32 n <= 8957, i64 n <= 8957,
- *            i128 n <= 8957, big any n
- * Helpers:   count_distinct_primes
+ * Range:     i8 n <= 359, i16 n <= 20000, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 107 terms through n = 8957 (2026-11-03)
+ * Helpers:   mem, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
    simple O(√n) loop. */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/count_distinct_primes.h"
+#include <stdbool.h>
+#include "../utils/omega.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,9 +34,9 @@ seq_t a(idx_t n)
         seq_t *new_cache = NULL;
         if (cache == NULL) {
             /* first allocation; also reserve index 0 unused */
-            new_cache = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+            new_cache = mem_new(seq_t, (n + 1));
         } else {
-            new_cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+            new_cache = mem_resize(seq_t, cache, (n + 1));
         }
         cache = new_cache;
 
@@ -54,13 +57,13 @@ seq_t a(idx_t n)
                     /* d is a divisor of m */
                     if (d < m) {
                         idx_t q = m / d;                /* n/d  */
-                        seq_t f = 1 + (seq_t)count_distinct_primes((uint64_t)q);
+                        seq_t f = 1 + (seq_t)omega((uint64_t)q);
                         sum += f * cache[d];
                     }
                     idx_t d2 = m / d;
                     if (d2 != d && d2 < m) {
                         idx_t q2 = m / d2;
-                        seq_t f2 = 1 + (seq_t)count_distinct_primes((uint64_t)q2);
+                        seq_t f2 = 1 + (seq_t)omega((uint64_t)q2);
                         sum += f2 * cache[d2];
                     }
                 }

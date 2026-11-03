@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 40, u32 n <= 95, u64 n <= 96, u128 n <= 96,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 96 terms through n = 96 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    and contain at least three digits. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Compare two seq_t values for qsort.  Works for any unsigned integer
    type declared as seq_t. */
@@ -41,7 +43,7 @@ static void generate_sequence(void)
     if (seq_cache != NULL) return;   /* already built */
 
     size_t capacity = 64;            /* initial capacity */
-    seq_cache = (seq_t *)malloc(capacity * sizeof(seq_t));
+    seq_cache = mem_new(seq_t, capacity);
     seq_len   = 0;
 
     for (idx_t len = 3; len <= 10; ++len) {
@@ -61,7 +63,7 @@ static void generate_sequence(void)
 
                 if (seq_len == capacity) {
                     capacity <<= 1;
-                    seq_cache = (seq_t *)realloc(seq_cache, capacity * sizeof(seq_t));
+                    seq_cache = mem_resize(seq_t, seq_cache, capacity);
                 }
                 seq_cache[seq_len++] = num;
             }
@@ -69,8 +71,8 @@ static void generate_sequence(void)
     }
 
     /* Resize to actual size and sort numerically. */
-    seq_cache = (seq_t *)realloc(seq_cache, seq_len * sizeof(seq_t));
-    qsort(seq_cache, seq_len, sizeof(seq_t), seq_cmp);
+    seq_cache = mem_resize(seq_t, seq_cache, seq_len);
+    mem_qsort(seq_cache, seq_len, sizeof(seq_t), seq_cmp);
 }
 
 /* External function required by the tests. */

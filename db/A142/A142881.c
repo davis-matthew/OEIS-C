@@ -11,6 +11,7 @@
  *            = 2*a(n-1) + a(n-2)
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 35, u64 n <= 70, u128 n <= 120,
  *            big any n
+ * Validated: standard, pass, 51 terms through n = 120 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

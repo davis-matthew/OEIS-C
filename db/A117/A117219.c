@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 16, u32 n <= 409, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_len
+ * Validated: standard, pass, 50 terms through n = 9730 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,10 @@
 /* Sequence: cubes divisible by their number of digits.
    Computed by brute‑force search. */
 #include <stdlib.h>
-#include "../utils/digit_len.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache for memoization */
@@ -27,7 +31,7 @@ seq_t a(idx_t n) {
     /* initial allocation */
     if (cache == NULL) {
         cap = 128;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         filled = 0;
         m = 0;
         if (cache == NULL) return 0; /* fallback on allocation failure */
@@ -38,14 +42,14 @@ seq_t a(idx_t n) {
         seq_t val = (seq_t)m * (seq_t)m * (seq_t)m;
 
         /* number of decimal digits */
-        int d = digit_len(val);
+        int d = num_digits(val);
 
         /* check divisibility */
         if (val % (seq_t)d == 0) {
             /* expand cache if necessary */
             if (filled == cap) {
                 cap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, cap);
                 if (tmp == NULL) return 0; /* fallback on realloc failure */
                 cache = tmp;
             }

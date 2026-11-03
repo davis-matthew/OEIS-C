@@ -6,15 +6,18 @@
  * Keywords:  nonn, base, easy
  * Formula:   a(n) is the n‑th positive integer m such that gcd(m,
  *            floor(m/16)) > 1
- * Range:     u8 n <= 110, u16 n <= 8874, u32 n <= 8874, u64 n <= 8874,
- *            u128 n <= 8874, big any n
- * Helpers:   gcd
+ * Range:     u8 n <= 110, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 78 terms through n = 8874 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +38,7 @@ seq_t a(idx_t n)
             if (cache_len == cache_cap)
             {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) abort();          /* allocation failure */
                 cache = tmp;
                 cache_cap = new_cap;

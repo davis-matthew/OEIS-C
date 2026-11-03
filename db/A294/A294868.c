@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -40,6 +41,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --------------- internal types and storage -------------------------- */
 static struct Interval {
@@ -61,12 +63,12 @@ seq_t a(idx_t n)
     /* --------- lazy static initialization --------------------------- */
     if (!initialized) {
         a_cap = 4;
-        a_seq = (seq_t*)malloc(a_cap * sizeof(seq_t));
+        a_seq = mem_new(seq_t, a_cap);
         b_cap = 4;
-        b_seq = (seq_t*)malloc(b_cap * sizeof(seq_t));
+        b_seq = mem_new(seq_t, b_cap);
 
         intervals_cap = 4;
-        intervals = (struct Interval*)malloc(intervals_cap * sizeof(struct Interval));
+        intervals = mem_new(struct Interval, intervals_cap);
 
         /* initial values */
         a_seq[0] = (seq_t)1;
@@ -92,14 +94,14 @@ seq_t a(idx_t n)
         size_t new_cap = a_cap ? a_cap : 4;
         while (new_cap < (size_t)(n + 1))
             new_cap <<= 1;
-        a_seq = (seq_t*)realloc(a_seq, new_cap * sizeof(seq_t));
+        a_seq = mem_resize(seq_t, a_seq, new_cap);
         a_cap = new_cap;
     }
     if (b_cap < (size_t)n) {           /* b holds one element less than a    */
         size_t new_cap = b_cap ? b_cap : 4;
         while (new_cap < (size_t)n)
             new_cap <<= 1;
-        b_seq = (seq_t*)realloc(b_seq, new_cap * sizeof(seq_t));
+        b_seq = mem_resize(seq_t, b_seq, new_cap);
         b_cap = new_cap;
     }
 
@@ -131,8 +133,7 @@ seq_t a(idx_t n)
                     size_t new_cap = intervals_cap ? intervals_cap : 4;
                     while (new_cap <= intervals_len)
                         new_cap <<= 1;
-                    intervals = (struct Interval*)realloc(intervals,
-                            new_cap * sizeof(struct Interval));
+                    intervals = mem_resize(struct Interval, intervals, new_cap);
                     intervals_cap = new_cap;
                 }
                 intervals[intervals_len].l = gap_start;

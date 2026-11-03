@@ -9,12 +9,14 @@
  *            a(1)=1, a(2)=1
  * Range:     u8 n <= 8996, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 98 terms through n = 9338 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc, abort */
+#include "../utils/mem.h"
 
 static void
 ensure_capacity(idx_t min_cap, seq_t **arr, size_t *cap)
@@ -23,7 +25,7 @@ ensure_capacity(idx_t min_cap, seq_t **arr, size_t *cap)
     size_t new_cap = (*cap == 0) ? 1 : *cap;
     while (new_cap < (size_t)min_cap) new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
     if (!tmp) abort();                 /* out of memory */
     *arr = tmp;
     *cap = new_cap;

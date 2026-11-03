@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 78, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 872 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Grow dynamic array up to at least new_len elements */
 static void grow_seq_array(seq_t **arr, size_t *size, size_t new_len)
@@ -32,7 +34,7 @@ static void grow_seq_array(seq_t **arr, size_t *size, size_t new_len)
     if (*size >= new_len)
         return;
     size_t new_size = new_len;
-    seq_t *tmp = (seq_t *)realloc(*arr, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *arr, new_size);
     if (!tmp)
         abort();          /* out of memory */
     *arr   = tmp;

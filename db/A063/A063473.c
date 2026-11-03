@@ -9,12 +9,14 @@
  *            Σ_{k=1..n} μ(k), μ = Moebius function
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 105 terms through n = 925 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,13 +29,13 @@ seq_t a(idx_t n)
     unsigned char *is_comp = (unsigned char *)calloc(size, sizeof(unsigned char));
     if (!is_comp) return 0;              /* allocation failed */
 
-    seq_t *mu      = (seq_t *)calloc(size, sizeof(seq_t));
+    seq_t *mu      = mem_new(seq_t, size);
     if (!mu) { free(is_comp); return 0; }
 
     /* primes array: enough space for all primes up to target
        (<= target/2 for target>3) */
     idx_t *primes = (idx_t *)malloc((size_t)(size / 2 + 1) * sizeof(idx_t));
-    if (!primes) { free(is_comp); free(mu); return 0; }
+    if (!primes) { free(is_comp); mem_free(mu); return 0; }
 
     size_t prime_cnt = 0;
 
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
 
     /* free temporary memory */
     free(is_comp);
-    free(mu);
+    mem_free(mu);
     free(primes);
 
     return sum;

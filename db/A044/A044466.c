@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   has13_base5
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,19 @@
  */
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/has13_base5.h"
+
+/*  Check whether a base‑5 number has the substring 1 followed by 3
+ *  (digits in normal order, most significant first).  */
+static bool has13_base5(idx_t x)
+{
+    /* Scan two consecutive digits at a time – no extra storage needed */
+    while (x >= 5) {
+        if ((x % 5) == 3 && ((x / 5) % 5) == 1)
+            return true;
+        x /= 5;
+    }
+    return false;
+}
 
 /*  Public interface ----------------------------------------------------- */
 seq_t a(idx_t n)

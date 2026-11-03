@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, cons, easy
  * Formula:   not stated
- * Range:     u8 n <= 8974, u16 n <= 8974, u32 n <= 8974, u64 n <= 8974,
- *            u128 n <= 8974, big any n
- * Helpers:   none
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 115 terms through n = 8974 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /*------------------------------------------------------------*/
 /* Big integer helpers – base 10 digits, little endian      */
@@ -146,7 +148,7 @@ seq_t a(idx_t n)
         bi_need(&R, 1); R.d[0] = 5; R.len = 1;          /* 30-25 = 5 */
 
         digits_cap = 16;
-        digits = (seq_t*)malloc(digits_cap*sizeof(seq_t));
+        digits = mem_new(seq_t, digits_cap);
         digits[0] = 5; digits_len = 1;
     }
 
@@ -156,7 +158,7 @@ seq_t a(idx_t n)
         if (target > digits_cap) {
             size_t newcap = digits_cap;
             while (newcap < target) newcap <<= 1;
-            digits = (seq_t*)realloc(digits, newcap*sizeof(seq_t));
+            digits = mem_resize(seq_t, digits, newcap);
             digits_cap = newcap;
         }
 

@@ -7,12 +7,14 @@
  * Formula:   a(n) = 2*a(n-6) + a(n-12), a(0..11) = 0,1,1,0,0,1,1,1,2,1,1,2
  * Range:     u8 n <= 43, u16 n <= 79, u32 n <= 156, u64 n <= 307,
  *            u128 n <= 607, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 984 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init[12] = {
     (seq_t)0, (seq_t)1, (seq_t)1, (seq_t)0, (seq_t)0,
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* Allocate at least 12 slots.  */
         cache_size = (i < 12 ? 12 : i + 1);
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache) return (seq_t)0;   /* allocation failure – give up */
 
         /* Copy the first 12 known terms.  */
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
     /* Grow the cache if necessary. */
     if (i >= cache_size) {
         size_t new_size = i + 1;
-        seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_size);
         if (!new_cache) return (seq_t)0;   /* allocation failure – give up */
 
         /* Copy existing values. */
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
         for (size_t j = cache_size; j < new_size; ++j)
             new_cache[j] = (seq_t)0;
 
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_size = new_size;
     }

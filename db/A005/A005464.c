@@ -9,12 +9,14 @@
  *            114, 1452, 4400, 3708, 720 are the second-order Eulerian numbers
  * Range:     u8 n <= 6, u16 n <= 7, u32 n <= 11, u64 n <= 17, u128 n <= 30,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 34 terms through n = 437 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 static const unsigned int e2_row6[6] = { 720u, 3708u, 4400u, 1452u, 114u, 1u };
 
@@ -25,7 +27,7 @@ seq_t a(idx_t n) {
 
     seq_t s2 = 0;
     for (idx_t j = 0; j < 6; j++) {
-        s2 += (seq_t)e2_row6[j] * binom(m + j, 12);
+        s2 += (seq_t)e2_row6[j] * binomial(m + j, 12);
     }
 
     seq_t factorial = 1;

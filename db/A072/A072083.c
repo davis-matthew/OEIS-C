@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 12, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 862 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper: compute the sum of decimal digits of an unsigned long long. */
 static unsigned int digit_sum_ull(unsigned long long x)
@@ -41,7 +43,7 @@ static void ensure_terms_cap(size_t need)
     if (need > terms_cap) {
         size_t new_cap = terms_cap ? terms_cap * 2 : 64;
         if (new_cap < need) new_cap = need;
-        seq_t *new_terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *new_terms = mem_resize(seq_t, terms, new_cap);
         terms = new_terms;
         terms_cap = new_cap;
     }

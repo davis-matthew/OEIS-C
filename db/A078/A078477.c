@@ -12,12 +12,15 @@
  *            big_pow to compute 2^exponent exactly
  * Range:     u8 n <= 19, u16 n <= 35, u32 n <= 67, u64 n <= 131,
  *            u128 n <= 259, big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 59 terms through n = 979 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     /* Handle undefined or offset terms */
@@ -32,14 +35,14 @@ seq_t a(idx_t n) {
     seq_t val;
     switch (rem) {
         case 0: /* n = 4k,  k ≥ 2 */
-            val = big_pow((seq_t)2, (seq_t)(2 * k - 1));
+            val = ipow((seq_t)2, (seq_t)(2 * k - 1));
             return val - 2;
         case 1: /* n = 4k+1, k ≥ 1 */
-            val = big_pow((seq_t)2, (seq_t)(2 * k - 1));
+            val = ipow((seq_t)2, (seq_t)(2 * k - 1));
             return val - 1;
         case 2: /* n = 4k+2 */
         case 3: /* n = 4k+3 */
-            val = big_pow((seq_t)2, (seq_t)(2 * k));
+            val = ipow((seq_t)2, (seq_t)(2 * k));
             return val - 1;
         default:
             return 0; /* unreachable */

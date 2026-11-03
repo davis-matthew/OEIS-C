@@ -7,14 +7,16 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 181, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 58 terms through n = 1000 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Find the nth prime ≡ 36 (mod 37) by linear search.
    Uses the helper is_prime_small(seq_t) from the utils library. */
-#include "../utils/is_prime_small.h"
+#include <stdbool.h>
+#include "../utils/is_prime_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     idx_t   count    = 0;
 
     while (1) {
-        if (is_prime_small(candidate)) {
+        if (is_prime_seq(candidate)) {
             count++;
             if (count == n)
                 return candidate;

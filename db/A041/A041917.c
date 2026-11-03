@@ -9,12 +9,14 @@
  *            a(7)=5302
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 29, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 183 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Base values for the first eight terms */
@@ -36,7 +38,7 @@ seq_t a(idx_t n) {
     /* Allocate or grow the cache if necessary. */
     if (n + 1 > capacity) {
         idx_t new_capacity = n + 1;
-        seq_t *new_cache = (seq_t *)malloc(new_capacity * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_capacity);
         if (!new_cache) {
             /* Allocation failed – return 0 as a failure indicator */
             return (seq_t)0;
@@ -47,7 +49,7 @@ seq_t a(idx_t n) {
             for (idx_t i = 0; i < capacity; ++i) {
                 new_cache[i] = cache[i];
             }
-            free(cache);
+            mem_free(cache);
         }
 
         /* Ensure the first eight terms are available in the new array. */

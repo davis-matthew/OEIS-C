@@ -12,7 +12,8 @@
  *            formed by rows a,b. The number a(n) is the tota...
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 8, u64 n <= 17, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define ALPHA 27          /* number of possible 3‑tuple symbols (-1,0,1)^3 */
 #define ROWS 16           /* number of possible 4‑bit rows */
@@ -111,8 +113,8 @@ seq_t a(idx_t n)
     if (!initialized) {
         build_automaton();
         /* Allocate DP arrays (fixed size MAX_STATES works for all cases). */
-        dp_cur  = (seq_t *)malloc(MAX_STATES * sizeof(seq_t));
-        dp_next = (seq_t *)malloc(MAX_STATES * sizeof(seq_t));
+        dp_cur  = mem_new(seq_t, MAX_STATES);
+        dp_next = mem_new(seq_t, MAX_STATES);
         initialized = true;
     }
 

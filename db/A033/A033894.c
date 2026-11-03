@@ -9,7 +9,8 @@
  *            of x in ascending order
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   sorted_digits
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,30 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/sorted_digits.h"
+#include "../utils/mem.h"
+
+/* Return the number obtained by sorting the decimal digits of x in ascending order. */
+static seq_t sorted_digits(seq_t x)
+{
+    /* Count digits 0–9.  For any unsigned type seq_t, division and modulo are
+       defined and work as expected. */
+    unsigned cnt[10] = {0};
+    seq_t tmp = x;
+    while (tmp != 0) {
+        unsigned d = (unsigned)(tmp % 10);
+        cnt[d]++;
+        tmp /= 10;
+    }
+
+    /* Rebuild the number from the sorted digits. */
+    seq_t res = 0;
+    for (int d = 0; d < 10; ++d) {
+        for (unsigned i = 0; i < cnt[d]; ++i) {
+            res = res * 10 + d;
+        }
+    }
+    return res;
+}
 
 /* Cache for previously computed terms. */
 static seq_t *cache = NULL;
@@ -32,7 +56,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call. */
     if (cache == NULL) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) abort();
         cache[0] = (seq_t)5;  /* a(1) = 5 */
         cache_max = 1;
@@ -47,7 +71,7 @@ seq_t a(idx_t n)
         /* Grow the cache if necessary. */
         if (cache_max == cache_cap) {
             size_t new_cap = cache_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (tmp == NULL) abort();
             cache = tmp;
             cache_cap = new_cap;

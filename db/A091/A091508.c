@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 91 terms through n = 9742 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,10 +23,14 @@
  * mechanism ensures each a(n) is computed only once, giving
  * O(total steps) overall for repeated calls. */
 
+#include <stdint.h>
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/gcd.h"
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* cached values for a(1), a(2), …  (cache_len == number of
  * initialized entries */
@@ -47,9 +52,9 @@ seq_t a(idx_t n)
         size_t new_len = (size_t)n;                      /* new size in bytes */
         seq_t *tmp = NULL;
         if (cache_len == 0) {
-            tmp = (seq_t *)malloc(new_len * sizeof(seq_t));
+            tmp = mem_new(seq_t, new_len);
         } else {
-            tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+            tmp = mem_resize(seq_t, cache, new_len);
         }
         if (!tmp) return (seq_t)0;   /* allocation failed */
         cache = tmp;

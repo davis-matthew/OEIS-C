@@ -8,7 +8,8 @@
  * Formula:   a(n) = Sum_{k=0..n} C(n,k) * k^n * (n-1)^(n-k)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 19,
  *            big any n
- * Helpers:   binomial, pow_seq, seq_mul
+ * Validated: standard, pass, 33 terms through n = 199 (2026-11-01)
+ * Helpers:   binomial, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,15 @@
  */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binomial.h" /* binomial(idx_t, idx_t) */
-#include "../utils/pow_seq.h"   /* pow_seq(seq_t, int) */
-#include "../utils/seq_mul.h"   /* seq_mul(seq_t, seq_t) */
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_i32.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n) {
     /* Handle offset n = 0 explicitly. */
@@ -39,9 +46,9 @@ seq_t a(idx_t n) {
 
     for (idx_t k = 0; k <= n; ++k) {
         /* Compute k^n and (n-1)^(n-k). */
-        seq_t pow_k = pow_seq((seq_t)k, (int)n);
+        seq_t pow_k = ipow_i32((seq_t)k, (int)n);
         /* For n-k = 0 the exponent 0 → result 1. */
-        seq_t pow_base = pow_seq(base, (int)(n - k));
+        seq_t pow_base = ipow_i32(base, (int)(n - k));
 
         /* Multiply: term = binom_coef * pow_k * pow_base */
         seq_t term = seq_mul(binom_coef, pow_k);

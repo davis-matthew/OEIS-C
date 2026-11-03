@@ -9,6 +9,7 @@
  *            This follows from 1/Φ_1403(x) = (1‑x⁻¹)(1‑x²³)(1‑x⁶¹)/(1‑x¹⁴⁰³)
  * Range:     i8 n <= 2000, i16 n <= 2000, i32 n <= 2000, i64 n <= 2000,
  *            i128 n <= 2000, big any n
+ * Validated: standard, pass, 95 terms through n = 1907 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

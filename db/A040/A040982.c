@@ -9,15 +9,19 @@
  *            (mod 19), the prime 19 must be accepted separately
  * Range:     u8 n <= 45, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 64 terms through n = 999 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
+#include <string.h>
 #include "../utils/is_prime.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static seq_t *prime_cache = NULL;     /* primes satisfying the condition */
 static size_t cache_len   = 0;         /* number of primes stored */
@@ -29,7 +33,7 @@ static void grow_cache(void)
 {
     if (cache_len == cache_cap) {
         cache_cap = (cache_cap == 0) ? 4 : cache_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(prime_cache, cache_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, prime_cache, cache_cap);
         if (tmp == NULL) exit(1);          /* fatal allocation failure */
         prime_cache = tmp;
     }
@@ -51,7 +55,7 @@ seq_t a(idx_t n)
                 uint64_t g = ((next_candidate - 1) % 5ULL == 0ULL) ? 5ULL : 1ULL;
                 uint64_t exp = (next_candidate - 1) / g;
                 seq_t mod  = (seq_t)next_candidate;
-                seq_t res  = mod_pow((seq_t)19, exp, mod);
+                seq_t res  = powmod((seq_t)19, exp, mod);
                 ok = (res == (seq_t)1);
             }
 

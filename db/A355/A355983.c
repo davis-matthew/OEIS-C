@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   is_prime, rev
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   is_prime, mem, reverse_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,10 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/is_prime.h"
-#include "../utils/rev.h"
+#include "../utils/reverse_digits_idx.h"
+#include "../utils/mem.h"
 
 static seq_t *terms = NULL;      /* cached terms */
 static size_t terms_len = 0;     /* number of cached terms */
@@ -37,7 +40,7 @@ static void ensure_terms_cap(size_t need)
     size_t newcap = terms_cap ? terms_cap * 2 : 16;
     while (newcap < need)
         newcap <<= 1;
-    terms = (seq_t *)realloc(terms, newcap * sizeof(seq_t));
+    terms = mem_resize(seq_t, terms, newcap);
     terms_cap = newcap;
 }
 
@@ -66,7 +69,7 @@ seq_t a(idx_t n)
         /* Scan odd numbers, testing primality and the reversal property */
         for (;;) {
             if (is_prime((idx_t)candidate)) {
-                if (((rev((idx_t)candidate) & 3ULL) == 0)) {
+                if (((reverse_digits_idx((idx_t)candidate) & 3ULL) == 0)) {
                     /* Prime whose reverse is divisible by 4: store it */
                     ensure_terms_cap(terms_len + 1);
                     terms[terms_len++] = (seq_t)candidate;

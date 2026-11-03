@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 161, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 9206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,8 +31,8 @@ seq_t a(idx_t n)
     if (cnt_sz <= n || aCnt_sz <= n) {
         idx_t new_cap = n;
         /* resize and recompute cnt array */
-        seq_t *new_cnt = (seq_t *)malloc((new_cap + 1) * sizeof(seq_t));
-        memset(new_cnt, 0, (new_cap + 1) * sizeof(seq_t));
+        seq_t *new_cnt = mem_new(seq_t, (new_cap + 1));
+        mem_set(new_cnt, 0, (new_cap + 1) * sizeof(seq_t));
 
         /* enumerate all integer triples (d,c,b) up to new_cap */
         int dmax = 0;
@@ -61,9 +63,9 @@ seq_t a(idx_t n)
         }
 
         /* resize and recompute aCnt array */
-        seq_t *new_aCnt = (seq_t *)calloc(new_cap + 1, sizeof(seq_t));
+        seq_t *new_aCnt = mem_new(seq_t, new_cap + 1);
         if (!new_aCnt) {
-            free(new_cnt);
+            mem_free(new_cnt);
             return 0; /* memory failure – unlikely in contest environment */
         }
         new_aCnt[0] = 1;
@@ -74,8 +76,8 @@ seq_t a(idx_t n)
         }
 
         /* free old caches if any */
-        if (cnt) free(cnt);
-        if (aCnt) free(aCnt);
+        if (cnt) mem_free(cnt);
+        if (aCnt) mem_free(aCnt);
 
         cnt   = new_cnt;
         aCnt  = new_aCnt;

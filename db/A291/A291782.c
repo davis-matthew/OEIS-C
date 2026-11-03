@@ -8,12 +8,14 @@
  * Formula:   a(n) = n * φ(n) * φ(φ(n)) * … until 1 is reached
  * Range:     u8 n <= 10, u16 n <= 28, u32 n <= 136, u64 n <= 1096,
  *            u128 n <= 10000, big any n
- * Helpers:   phi
+ * Validated: standard, pass, 60 terms through n = 9904 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/phi.h"
+#include <stdint.h>
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -21,7 +23,7 @@ seq_t a(idx_t n)
     seq_t v    = (seq_t)n;   /* current totient value */
 
     while (v > 1) {
-        v = phi((idx_t)v);   /* φ(v) */
+        v = totient((idx_t)v);   /* φ(v) */
         prod *= v;           /* multiply this totient in the product */
     }
     return prod;

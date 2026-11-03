@@ -7,12 +7,13 @@
  * Formula:   a(n) = lcm(n, n - phi(n))
  * Range:     u8 n <= 29, u16 n <= 434, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   phi_seq
+ * Validated: standard, pass, 79 terms through n = 9195 (2026-11-01)
+ * Helpers:   totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/phi_seq.h"
+#include "../utils/totient_seq.h"
 /* Compute a(n) = lcm(n, n - phi(n)) for n ≥ 1
  *  seq_t and idx_t are defined by the build environment.
  *  The routine is self‑contained and does not depend on external
@@ -37,7 +38,7 @@ seq_t a(idx_t n)
         return (seq_t)0;
 
     seq_t sn = (seq_t)n;                 /* index to sequence type   */
-    seq_t phi_val = phi_seq(sn);          /* Euler's totient          */
+    seq_t phi_val = totient_seq(sn);          /* Euler's totient          */
     seq_t cot = sn - phi_val;             /* cototient                */
     seq_t g = gcd_seq(sn, cot);           /* gcd(sn, cot)             */
     seq_t res = (sn / g) * cot;           /* lcm(sn, cot)             */

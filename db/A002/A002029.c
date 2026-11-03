@@ -14,15 +14,20 @@
  *            transform)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 10, u128 n <= 16,
  *            big any n
- * Helpers:   a2029_two_pow, zalloc_arr
+ * Validated: standard, pass, 32 terms through n = 50 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/zalloc_arr.h"
-#include "../utils/a2029_two_pow.h"
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
+
+static seq_t *zalloc_arr(idx_t len) {
+    return mem_new(seq_t, (size_t)len);
+}
 
 static seq_t *a2029_A = NULL;    /* a(m) */
 static seq_t *a2029_B4 = NULL;   /* 4-colored graphs */
@@ -34,7 +39,7 @@ static idx_t a2029_cap = 0;
 static seq_t *a2029_regrow(seq_t *old, idx_t oldlen, idx_t newlen) {
     seq_t *p = zalloc_arr(newlen);
     for (idx_t i = 0; i < oldlen; i++) p[i] = old[i];
-    if (old) free(old);
+    if (old) mem_free(old);
     return p;
 }
 
@@ -66,12 +71,12 @@ seq_t a(idx_t n) {
         /* 2-colored graphs */
         seq_t c = 0;
         for (idx_t j = 0; j <= m; j++)
-            c += a2029_row[j] * a2029_two_pow(j * (m - j));
+            c += a2029_row[j] * pow2(j * (m - j));
         a2029_B2[m] = c;
         /* 4-colored graphs: split colors into {1,2} and {3,4} */
         seq_t b = 0;
         for (idx_t k = 0; k <= m; k++)
-            b += a2029_row[k] * a2029_two_pow(k * (m - k)) * a2029_B2[k] * a2029_B2[m - k];
+            b += a2029_row[k] * pow2(k * (m - k)) * a2029_B2[k] * a2029_B2[m - k];
         a2029_B4[m] = b;
         if (m == 0) a2029_A[m] = 1;
         else a2029_A[m] = b - s;

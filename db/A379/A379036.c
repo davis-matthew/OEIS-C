@@ -12,7 +12,8 @@
  *            impl...
  * Range:     u8 n <= 59, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   int_sqrt
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,13 +23,14 @@
 #include <stdlib.h>
 #include <math.h>
 #include <assert.h>
-#include "../utils/int_sqrt.h"   /* provides idx_t int_sqrt(idx_t n) */
+#include "../utils/isqrt.h"
 
 #ifndef BUILDING_ARBITRARY_SUPERINT
 /* If an arbitrary‑precision integer type is in use, this macro is defined
  * and the cast operations below will use seq_t appropriately.  The code
  * is otherwise agnostic to the exact size of seq_t. */
 #endif
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     /* ----- Initialise arrays on the first call ----- */
     if (zeros_cap == 0) {
         zeros_cap = 16;
-        zero_pos = (seq_t *)malloc(zeros_cap * sizeof(seq_t));
+        zero_pos = mem_new(seq_t, zeros_cap);
         assert(zero_pos != NULL);
     }
     if (primes_cap == 0) {
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
         /* ---------- Check if next_candidate is prime ----------
            We use a simple trial‑division by previously found primes.  */
         bool is_prime = true;
-        uint64_t lim = (uint64_t)int_sqrt((idx_t)next_candidate);  /* sqrt */
+        uint64_t lim = (uint64_t)isqrt((idx_t)next_candidate);  /* sqrt */
         for (size_t i = 0; i < primes_len && primes[i] <= lim; ++i) {
             if (next_candidate % primes[i] == 0) {
                 is_prime = false;
@@ -86,7 +88,7 @@ seq_t a(idx_t n)
                 if (!bit) {  /* zero bit found */
                     if (zeros_len == zeros_cap) {
                         zeros_cap *= 2;
-                        seq_t *tmp = (seq_t *)realloc(zero_pos, zeros_cap * sizeof(seq_t));
+                        seq_t *tmp = mem_resize(seq_t, zero_pos, zeros_cap);
                         assert(tmp != NULL);
                         zero_pos = tmp;
                     }

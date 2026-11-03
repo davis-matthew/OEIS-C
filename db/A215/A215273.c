@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   next_prime
+ * Validated: standard, pass, 65 terms through n = 936 (2026-11-03)
+ * Helpers:   mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include <stdbool.h>
 #include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +42,7 @@ seq_t a(idx_t n)
             if (count == capacity)
             {
                 capacity = capacity == 0 ? 16 : capacity * 2;
-                seq_t *tmp = (seq_t *)realloc(primes, capacity * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, primes, capacity);
                 if (!tmp)
                     abort();   /* allocation failure */
                 primes = tmp;

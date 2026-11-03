@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 3, u64 n <= 3, u128 n <= 4,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 7 terms through n = 7 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper: integer cube root floor for a seq_t value. */
 static seq_t floor_cube_root(seq_t x)
@@ -55,8 +57,8 @@ static idx_t   cache_size = 0;
 static void grow_cache(void)
 {
     size_t new_cap = (cache_cap == 0) ? 8 : cache_cap * 2;
-    seq_t *tmp   = (seq_t *)realloc(seq_cache, sizeof(seq_t) * new_cap);
-    seq_t *rtmp  = (seq_t *)realloc(root_cache, sizeof(seq_t) * new_cap);
+    seq_t *tmp   = mem_resize(seq_t, seq_cache, new_cap);
+    seq_t *rtmp  = mem_resize(seq_t, root_cache, new_cap);
     if (!tmp || !rtmp) {   /* allocation failed – abort further growth */
         return;
     }

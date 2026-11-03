@@ -8,7 +8,8 @@
  *            2n)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 23,
  *            big any n
- * Helpers:   seq_one, seq_pow
+ * Validated: standard, pass, 32 terms through n = 86 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,10 @@
 
 /* required utility headers */
 #include <stdint.h>
-#include "../utils/seq_one.h"
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
 
 seq_t a(idx_t n)
 {
@@ -39,7 +42,7 @@ seq_t a(idx_t n)
             temp >>= 1;
             ++e;
         }
-        seq_t pk = seq_pow((seq_t)2, n);   /* 2^n */
+        seq_t pk = ipow_idx((seq_t)2, n);   /* 2^n */
         seq_t sum = seq_one();             /* 1 */
         seq_t term = seq_one();            /* 1 */
         for (idx_t i = 1; i <= e; ++i) {
@@ -57,7 +60,7 @@ seq_t a(idx_t n)
                 temp /= p;
                 ++e;
             }
-            seq_t pk = seq_pow((seq_t)p, n); /* p^n */
+            seq_t pk = ipow_idx((seq_t)p, n); /* p^n */
             seq_t sum = seq_one();          /* 1 */
             seq_t term = seq_one();         /* 1 */
             for (idx_t i = 1; i <= e; ++i) {
@@ -71,7 +74,7 @@ seq_t a(idx_t n)
     /* remaining prime factor > sqrt(temp), if any */
     if (temp > 1) {
         /* exponent e is 1 */
-        seq_t pk = seq_pow((seq_t)temp, n); /* prime^n */
+        seq_t pk = ipow_idx((seq_t)temp, n); /* prime^n */
         seq_t sum = seq_one() + pk;         /* 1 + p^n */
         result *= sum;
     }

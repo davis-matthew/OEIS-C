@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 685, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factorize_odd
+ * Validated: standard, pass, 118 terms through n = 9275 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,30 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/factorize_odd.h"
+
+/* Prime factorisation of an odd integer x (x ≥ 1) using trial division.
+ * The arrays `primes` and `exps` must have enough space (≤ 32 elements). */
+static void
+factorize_odd(idx_t x, idx_t *primes, int *exps, int *cnt)
+{
+    *cnt = 0;
+    if (x <= 1) return;
+    for (idx_t p = 3; p * p <= x; p += 2) {
+        if (x % p == 0) {
+            int e = 0;
+            while (x % p == 0) {
+                x /= p;
+                ++e;
+            }
+            primes[(*cnt)++] = p;
+            exps[(*cnt) - 1] = e;
+        }
+    }
+    if (x > 1) {
+        primes[(*cnt)++] = x;
+        exps[(*cnt) - 1] = 1;
+    }
+}
 
 /* -------------------------------------------------------------------------- */
 /* Utility: modular exponentiation for uint64_t arguments (safe from overflow) */

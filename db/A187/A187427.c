@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 11, i16 n <= 33, i32 n <= 111, i64 n <= 387,
  *            i128 n <= 1404, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 2421 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,12 +23,13 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* ---------- 1. Build A(x) = Π_{s≠0 (mod3)} (1 - x^s)^3 ---------- */
     size_t N = (size_t)n;
-    seq_t *A = (seq_t*)calloc(N + 1, sizeof(seq_t));
+    seq_t *A = mem_new(seq_t, N + 1);
     if (!A) return 0;               /* memory error */
     A[0] = (seq_t)1;                /* A(0)=1 */
 
@@ -47,8 +49,8 @@ seq_t a(idx_t n)
 
     /* ---------- 2. Partition numbers p[0..⌊n/3⌋] using Euler's recurrence ---------- */
     size_t M = N / 3;
-    seq_t *P = (seq_t*)calloc(M + 1, sizeof(seq_t));
-    if (!P) { free(A); return 0; }
+    seq_t *P = mem_new(seq_t, M + 1);
+    if (!P) { mem_free(A); return 0; }
     P[0] = (seq_t)1;
     for (size_t i = 1; i <= M; ++i)
     {
@@ -72,14 +74,14 @@ seq_t a(idx_t n)
     }
 
     /* ---------- 3. B(x) = Σ_{t≥0} p(t) x^{3t} ---------- */
-    seq_t *B = (seq_t*)calloc(N + 1, sizeof(seq_t));
-    if (!B) { free(A); free(P); return 0; }
+    seq_t *B = mem_new(seq_t, N + 1);
+    if (!B) { mem_free(A); mem_free(P); return 0; }
     for (size_t t = 0; t <= M; ++t)
         B[3 * t] = P[t];
 
     /* ---------- 4. Convolution A * B (only j multiple of 3) ---------- */
-    seq_t *C = (seq_t*)calloc(N + 1, sizeof(seq_t));
-    if (!C) { free(A); free(P); free(B); return 0; }
+    seq_t *C = mem_new(seq_t, N + 1);
+    if (!C) { mem_free(A); mem_free(P); mem_free(B); return 0; }
 
     for (size_t i = 0; i <= N; ++i)
     {
@@ -95,10 +97,10 @@ seq_t a(idx_t n)
     seq_t result = C[N];
 
     /* ---------- 5. Clean up ------------------------------------------- */
-    free(A);
-    free(P);
-    free(B);
-    free(C);
+    mem_free(A);
+    mem_free(P);
+    mem_free(B);
+    mem_free(C);
 
     return result;
 }

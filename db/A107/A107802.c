@@ -13,7 +13,8 @@
  *            th...
  * Range:     u8 n <= 29, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static const uint32_t SIEVE_LIMIT = 5000000;   /* enough for n up to ~10 000 */
 static uint64_t *primes = NULL;
@@ -94,7 +96,7 @@ static void init(void) {
 
     /* initialise sequence with first term a(1)=3 */
     seq_cap = 256;
-    seq = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+    seq = mem_new(seq_t, seq_cap);
     seq_len = 0;
     /* locate prime 3 */
     size_t idx3 = 1; /* primes[1]==3 with 2 as first prime */
@@ -138,7 +140,7 @@ static void prepare(idx_t n) {
         used[best_idx] = true;
         if (seq_cap <= seq_len + 1) {
             seq_cap = seq_cap ? seq_cap * 2 : 128;
-            seq = (seq_t*)realloc(seq, seq_cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, seq_cap);
         }
         seq[seq_len++] = best_p;
         last_mask = prime_mask[best_idx];

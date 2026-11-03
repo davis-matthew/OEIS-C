@@ -9,14 +9,16 @@
  *            2*i)*(2*j+1) - 2*i - 2*j
  * Range:     u8 n <= 11, u16 n <= 38, u32 n <= 126, u64 n <= 509,
  *            u128 n <= 2043, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 66 terms through n = 9717 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* The function uses the supplied binom(a,b) routine from "../utils/binom.h". */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     idx_t j      = s - k;                    /* column index                 */
 
     /* Compute T(i,j) = binom(2*i + 2*j + 1, 2*i) * (2*j + 1) - (2*i + 2*j) */
-    seq_t val = binom(2 * i + 2 * j + 1, 2 * i);
+    seq_t val = binomial(2 * i + 2 * j + 1, 2 * i);
     val = val * (seq_t)(2 * j + 1);
     val = val - (seq_t)(2 * i + 2 * j);
 

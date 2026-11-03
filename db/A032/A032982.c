@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #if defined(__cplusplus)
 #include <new>
 #endif
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build system. */
 typedef idx_t idx_t;
@@ -49,7 +51,7 @@ struct node {
 static inline void set_seq_val(seq_t *p, seq_t v)
 {
 #if defined(__cplusplus)
-    new (p) seq_t(v);
+    *(p) = (seq_t)(v);
 #else
     *p = v;
 #endif
@@ -61,15 +63,15 @@ seq_t a(idx_t n)
     size_t capacity = 16;
     size_t qsize = 0;     /* current number of nodes in queue    */
     size_t front = 0;     /* index of next node to pop           */
-    struct node *q = (struct node *)malloc(capacity * sizeof(*q));
+    struct node *q = mem_new(struct node, capacity);
     if (!q) return (seq_t)0; /* allocation failure */
 
     /* Macro to push a new node onto the queue. */
     #define PUSH(v, l) do {                                           \
         if (qsize == capacity) {                                      \
             capacity <<= 1;                                            \
-            struct node *newq = (struct node *)realloc(q, capacity * sizeof(*q)); \
-            if (!newq) { free(q); return (seq_t)0; }                  \
+            struct node *newq = mem_resize(struct node, q, capacity); \
+            if (!newq) { mem_free(q); return (seq_t)0; }                  \
             q = newq;                                                 \
         }                                                              \
         set_seq_val(&q[qsize].val, (v));                               \
@@ -90,7 +92,7 @@ seq_t a(idx_t n)
         ++count;
         if (count == n) {
             /* Clean up allocated memory. */
-            free(q);
+            mem_free(q);
             return cur.val;
         }
 
@@ -104,6 +106,6 @@ seq_t a(idx_t n)
     }
 
     /* Should never reach here for valid n. */
-    free(q);
+    mem_free(q);
     return (seq_t)0;
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   mul9_mod
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,18 @@
    representation of x as a base‑9 number yields a multiple of x. */
 
 #include <stdint.h>
-#include "../utils/mul9_mod.h"
+
+/* Helper: (v * 9) mod mod_n, using addition to avoid overflow */
+static seq_t mul9_mod(seq_t v, seq_t mod_n)
+{
+    seq_t res = 0;
+    for (int i = 0; i < 9; ++i) {
+        res += v;
+        if (res >= mod_n)
+            res -= mod_n;
+    }
+    return res;
+}
 
 /* Maximum number of terms we will store.
    300 000 comfortably covers all n up to about 10 000. */

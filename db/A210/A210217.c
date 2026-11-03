@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 33, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
  *  in row‑major order for n = 1,2,3,…  (no simple closed form). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Find the row r (1‑based) such that r(r+1)/2 ≥ n. */
@@ -32,15 +34,15 @@ seq_t a(idx_t n) {
     idx_t pos = n - (idx_t)(((seq_t)(r - 1) * r) / 2) - 1;
 
     /* Allocate arrays for u and v coefficients of the current row. */
-    seq_t *u = (seq_t*)malloc(sizeof(seq_t));
-    seq_t *v = (seq_t*)malloc(sizeof(seq_t));
+    seq_t *u = mem_new(seq_t, 1);
+    seq_t *v = mem_new(seq_t, 1);
     u[0] = 1;
     v[0] = 1;
 
     /* Generate rows 2 … r (inclusive). */
     for (idx_t i = 2; i <= r; ++i) {
-        seq_t *new_u = (seq_t*)calloc(i, sizeof(seq_t));
-        seq_t *new_v = (seq_t*)calloc(i, sizeof(seq_t));
+        seq_t *new_u = mem_new(seq_t, i);
+        seq_t *new_v = mem_new(seq_t, i);
 
         /* Constant terms. */
         new_u[0] = v[0] + 1;
@@ -56,14 +58,14 @@ seq_t a(idx_t n) {
             new_v[k] = term_v_cur;
         }
 
-        free(u);
-        free(v);
+        mem_free(u);
+        mem_free(v);
         u = new_u;
         v = new_v;
     }
 
     seq_t result = u[pos];
-    free(u);
-    free(v);
+    mem_free(u);
+    mem_free(v);
     return result;
 }

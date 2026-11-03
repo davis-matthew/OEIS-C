@@ -10,14 +10,16 @@
  *            non‑composite)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _smallest_prime_factor
+ * Validated: standard, pass, 121 terms through n = 9314 (2026-11-01)
+ * Helpers:   smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/_smallest_prime_factor.h"   /* provides _smallest_prime_factor(uint64_t) */
+#include <stddef.h>
+#include "../utils/smallest_prime_factor.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     uint64_t m = (uint64_t)n;          /* work on a 64‑bit copy for factorisation */
 
     while (m > 1) {
-        uint64_t p = _smallest_prime_factor(m); /* smallest prime factor of m */
+        uint64_t p = smallest_prime_factor(m); /* smallest prime factor of m */
         uint64_t exp = 0;
 
         /* count the exponent of p in the prime factorisation of m */
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
         } while (m % p == 0);
 
         /* add the exponent if it is 1 or a prime */
-        if (exp == 1 || _smallest_prime_factor(exp) == exp)
+        if (exp == 1 || smallest_prime_factor(exp) == exp)
             result += (seq_t)exp;
     }
 

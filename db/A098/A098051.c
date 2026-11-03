@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 26, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,6 +35,7 @@
 #ifndef idx_t
 /* placeholder: the build will supply idx_t */
 #endif
+#include "../utils/mem.h"
 
 static const seq_t base_terms[8] = {1, 1, 1, 2, 4, 8, 16, 32};
 
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
     /* initialise memoisation array on first call */
     if (memo == NULL) {
         memo_size = 8;                                  /* store 0..7 */
-        memo = (seq_t*)malloc(memo_size * sizeof(seq_t));
+        memo = mem_new(seq_t, memo_size);
         for (size_t i = 0; i < memo_size; ++i) {
             memo[i] = base_terms[i];
         }
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= memo_size) {
         size_t old_size = memo_size;
         memo_size = (size_t)n + 1;                      /* include n */
-        memo = (seq_t*)realloc(memo, memo_size * sizeof(seq_t));
+        memo = mem_resize(seq_t, memo, memo_size);
 
         for (size_t i = old_size; i < memo_size; ++i) {
             /* compute a(i) using the recurrence */

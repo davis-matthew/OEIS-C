@@ -12,7 +12,8 @@
  *            zeros and three twos
  * Range:     u8 none, u16 n <= 1560, u32 n <= 1560, u64 n <= 1560,
  *            u128 n <= 1560, big any n
- * Helpers:   none
+ * Validated: standard, pass, 56 terms through n = 1261 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Return the n-th member of OEIS sequence A045007.  The function
  * retains a cache of all terms found so far, so repeated calls with
@@ -69,8 +71,7 @@ seq_t a(idx_t n)
                 /* Ensure the cache has space for another term. */
                 if (cache_len == cache_cap) {
                     size_t new_cap = cache_cap ? cache_cap * 2 : 64;
-                    seq_t *tmp = (seq_t *)realloc(cache,
-                                                  new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                     if (!tmp)  /* allocation failure – return 0 as sentinel */
                         return 0;
                     cache = tmp;

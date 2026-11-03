@@ -7,7 +7,8 @@
  * Formula:   a(n) = number of odd coefficients in (1+x+x^3+x^4)^n
  * Range:     u8 n <= 126, u16 n <= 8191, u32 n <= 8191, u64 n <= 8191,
  *            u128 n <= 8191, big any n
- * Helpers:   shift_or_xor
+ * Validated: standard, pass, 77 terms through n = 6756 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,26 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/shift_or_xor.h"
+#include "../utils/mem.h"
+
+/* XOR a shifted copy of src into dst.  shift is in [0,63]. */
+static void shift_or_xor(const uint64_t *src, uint64_t *dst,
+                         size_t src_words, size_t dst_words, unsigned shift)
+{
+    if (shift == 0) {
+        for (size_t i = 0; i < src_words; ++i)
+            dst[i] ^= src[i];
+        return;
+    }
+    unsigned lsh = shift;
+    unsigned rsh = 64 - lsh;
+    for (size_t i = 0; i < src_words; ++i) {
+        uint64_t val = src[i];
+        dst[i] ^= val << lsh;
+        if (i + 1 < dst_words)
+            dst[i + 1] ^= val >> rsh;
+    }
+}
 
 seq_t a(idx_t n)
 {
@@ -31,7 +51,7 @@ seq_t a(idx_t n)
     /* initialization -------------------------------------------------- */
     if (cache_size == 0) {
         /* cache for a(0) */
-        cache = (seq_t*)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) return (seq_t)0;          /* unlikely, but safe */
         cache[0] = 0;                         /* will be overwritten below */
         cache_size = 1;
@@ -55,7 +75,7 @@ seq_t a(idx_t n)
     /* enlarge cache if necessary ------------------------------------- */
     if (cache_size <= (size_t)n) {
         size_t new_size = (size_t)n + 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) return (seq_t)0;
         cache = tmp;
         cache_size = new_size;

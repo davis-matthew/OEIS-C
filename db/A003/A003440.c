@@ -8,12 +8,13 @@
  *            with a(0)=1
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 24, u64 n <= 48, u128 n <= 94,
  *            big any n
- * Helpers:   a3440_binom
+ * Validated: standard, pass, 46 terms through n = 994 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a3440_binom.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 1;
@@ -23,8 +24,8 @@ seq_t a(idx_t n) {
     seq_t sum = 0;
     idx_t odd = 0;
     for (idx_t k = 0; k <= n; k++) {
-        seq_t t = a3440_binom(k, n - k);
-        if (k < n) t += a3440_binom(k + 1, n - k - 1);
+        seq_t t = binomial(k, n - k);
+        if (k < n) t += binomial(k + 1, n - k - 1);
         if (t == 0) continue;
         if ((t & 1) == 0) {
             sum += (t / 2) * t;

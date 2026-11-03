@@ -7,18 +7,21 @@
  * Formula:   a(n) = (a(n-2) XOR A030101(a(n-1))) + 1 a(0) = 0, a(1) = 1
  * Range:     u8 n <= 281, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bitlen_seq_t
+ * Validated: standard, pass, 87 terms through n = 9782 (2026-11-03)
+ * Helpers:   bit_length, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
+#include "../utils/mem.h"
 
 /* Bit‑reversal of a seq_t value. */
 static seq_t bitrev(seq_t x)
 {
-    unsigned len = bitlen_seq_t(x);   /* minimal number of bits to represent x */
+    unsigned len = bit_length(x);   /* minimal number of bits to represent x */
     seq_t rev = 0;
     for (unsigned i = 0; i < len; ++i)
     {
@@ -43,7 +46,7 @@ seq_t a(idx_t n)
     if (cache_size == 0)
     {
         cache_cap   = 2;
-        cache       = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache       = mem_new(seq_t, cache_cap);
         cache[0]    = (seq_t)0;
         cache[1]    = (seq_t)1;
         cache_size  = 2;
@@ -55,7 +58,7 @@ seq_t a(idx_t n)
         size_t new_cap = cache_cap;
         while (new_cap <= (size_t)n) new_cap <<= 1;
 
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) abort();   /* allocation failure */
         cache = tmp;
         cache_cap = new_cap;

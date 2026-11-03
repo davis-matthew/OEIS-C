@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   ensure_cap_seqt, mod_pow
+ * Validated: standard, pass, 60 terms through n = 984 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,19 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/mod_pow.h"
-#include "../utils/ensure_cap_seqt.h"
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
+
+static void ensure_cap_seqt(size_t needed, size_t *cap, seq_t **ptr)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 8 : (*cap << 1);
+    if (new_cap < needed) new_cap = needed;
+    seq_t *new_ptr = mem_resize(seq_t, *ptr, new_cap);
+    *ptr = new_ptr;
+    *cap = new_cap;
+}
 
 /* Ensure a dynamic array has the required capacity. */
 static void ensure_cap_uint64(size_t needed, size_t *cap, uint64_t **ptr)
@@ -66,7 +78,7 @@ static bool good_prime(uint64_t p)
     uint64_t d = (rem == 0) ? 6 : (rem == 3) ? 3 : 2;
 
     idx_t exp = (idx_t)((p - 1) / d);
-    seq_t val = mod_pow((seq_t)5, exp, (seq_t)p);
+    seq_t val = powmod((seq_t)5, exp, (seq_t)p);
     return val == (seq_t)1;
 }
 

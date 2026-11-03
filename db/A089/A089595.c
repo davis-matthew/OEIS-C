@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 100, i16 n <= 100, i32 n <= 100, i64 n <= 100,
  *            i128 n <= 100, big any n
- * Helpers:   floor_tri_root
+ * Validated: partial, pass, 101 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -42,7 +43,25 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/floor_tri_root.h"
+#include "../utils/mem.h"
+
+static inline idx_t floor_tri_root(idx_t n)
+{
+    idx_t lo = 0, hi = 1;
+    /* Expand hi until it exceeds the bound */
+    while (( __int128)hi * (hi + 1) / 2 <= n) {
+        if (hi > ((idx_t)-1) / 2) { hi = (idx_t)-1; break; }
+        hi <<= 1;
+    }
+    while (lo < hi) {
+        idx_t mid = (lo + hi + 1) >> 1;
+        if (( __int128)mid * (mid + 1) / 2 <= n)
+            lo = mid;
+        else
+            hi = mid - 1;
+    }
+    return lo;
+}
 
 /* ---------- helper: integer triangular root -------------------------------- */
 
@@ -59,7 +78,7 @@ static inline void ensure_stern_upto(idx_t upto)
         if (needed > stern_cap) {
             size_t new_cap = stern_cap ? stern_cap : 1;
             while (new_cap < needed) new_cap <<= 1;
-            stern = (seq_t *)realloc(stern, new_cap * sizeof(seq_t));
+            stern = mem_resize(seq_t, stern, new_cap);
             stern_cap = new_cap;
         }
         for (size_t i = stern_len; i <= (size_t)upto; ++i) {
@@ -87,7 +106,7 @@ static inline void ensure_t0_upto(idx_t upto)
         if (needed > t0_cap) {
             size_t new_cap = t0_cap ? t0_cap : 1;
             while (new_cap < needed) new_cap <<= 1;
-            t0 = (seq_t *)realloc(t0, new_cap * sizeof(seq_t));
+            t0 = mem_resize(seq_t, t0, new_cap);
             t0_cap = new_cap;
         }
         for (size_t i = t0_len; i <= (size_t)upto; ++i) {

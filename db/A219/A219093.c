@@ -10,12 +10,14 @@
  *            search, τ(n) = number of divisors
  * Range:     u8 n <= 6774, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 103 terms through n = 9552 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>          /* for size_t */
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

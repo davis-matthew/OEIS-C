@@ -7,7 +7,8 @@
  * Formula:   a(n+1) = Fibonacci(n+1)*a(n)^2 + a(n), a(0) = 1
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 5, u128 n <= 6,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 9 terms through n = 8 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache      = NULL;
 static idx_t  a_cache_len  = 0;   /* number of filled entries */
@@ -32,7 +34,7 @@ static void ensure_fib(idx_t n)
         idx_t init_cap = 2;
         fib_cap = init_cap;
         fib_len = 2;
-        fib_cache = (seq_t*)malloc(sizeof(seq_t) * fib_cap);
+        fib_cache = mem_new(seq_t, fib_cap);
         fib_cache[0] = (seq_t)0;
         fib_cache[1] = (seq_t)1;
     }
@@ -41,9 +43,9 @@ static void ensure_fib(idx_t n)
     if (fib_cap <= n) {
         idx_t new_cap = fib_cap ? fib_cap << 1 : 2;
         while (new_cap <= n) new_cap <<= 1;
-        seq_t *tmp = (seq_t*)malloc(sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_new(seq_t, new_cap);
         for (idx_t i = 0; i < fib_len; ++i) tmp[i] = fib_cache[i];
-        free(fib_cache);
+        mem_free(fib_cache);
         fib_cache = tmp;
         fib_cap = new_cap;
     }
@@ -62,7 +64,7 @@ static void ensure_a_cache(idx_t n)
         /* initialise a(0)=1 */
         a_cache_cap = 1;
         a_cache_len = 1;
-        a_cache = (seq_t*)malloc(sizeof(seq_t) * a_cache_cap);
+        a_cache = mem_new(seq_t, a_cache_cap);
         a_cache[0] = (seq_t)1;
     }
 
@@ -70,9 +72,9 @@ static void ensure_a_cache(idx_t n)
     if (a_cache_cap <= n) {
         idx_t new_cap = a_cache_cap ? a_cache_cap << 1 : 1;
         while (new_cap <= n) new_cap <<= 1;
-        seq_t *tmp = (seq_t*)malloc(sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_new(seq_t, new_cap);
         for (idx_t i = 0; i < a_cache_len; ++i) tmp[i] = a_cache[i];
-        free(a_cache);
+        mem_free(a_cache);
         a_cache = tmp;
         a_cache_cap = new_cap;
     }

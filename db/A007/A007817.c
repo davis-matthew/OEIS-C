@@ -11,15 +11,17 @@
  *            2*(29*n^3-77*n^2+106*n-88)*binomial(2*n-5,n-1)/((n-3)*(n+1)*(n+2))
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 18, u64 n <= 33, u128 n <= 65,
  *            big any n
- * Helpers:   binom, gcd_u64, pw2
+ * Validated: standard, pass, 43 terms through n = 150 (2026-11-01)
+ * Helpers:   binomial, gcd_u64, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
-#include "../utils/pw2.h"
+#include <stdlib.h>
+#include "../utils/binomial.h"
 #include "../utils/gcd_u64.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n) {
     /* small native factors (fit easily for n up to ~1e5) */
@@ -29,9 +31,9 @@ seq_t a(idx_t n) {
     f /= g;
     d /= g;
     /* now gcd(f, d) = 1 and d | f*C, so d | C exactly */
-    seq_t c = binom(2 * n - 5, n - 1);
+    seq_t c = binomial(2 * n - 5, n - 1);
     seq_t q = c / (seq_t)d;
     seq_t second = q * (seq_t)f;
-    seq_t pow4 = pw2(2 * (n - 1));
+    seq_t pow4 = pow2(2 * (n - 1));
     return pow4 - second;
 }

@@ -10,14 +10,20 @@
  *            a(n) is the n-th smallest sum
  * Range:     u8 n <= 1, u16 n <= 65, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a3388_cmp
+ * Validated: standard, pass, 57 terms through n = 9757 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/a3388_cmp.h"
+
+static int a3388_cmp(const void *p, const void *q)
+{
+    uint64_t x = *(const uint64_t *)p, y = *(const uint64_t *)q;
+    return (x > y) - (x < y);
+}
 
 static uint64_t *a3388_vals = 0;
 static size_t a3388_nvals = 0, a3388_cap = 0;

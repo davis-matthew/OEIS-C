@@ -9,13 +9,14 @@
  *            a(2)=9, ...)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 9, u64 n <= 17, u128 n <= 18,
  *            big any n
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/gcd.h"   /* provides static seq_t gcd(seq_t a, seq_t b) */
+#include "../utils/gcd.h"
 
 static uint64_t gcd_u64(uint64_t x, uint64_t y)
 {

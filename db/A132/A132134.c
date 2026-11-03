@@ -12,7 +12,8 @@
  *            does not appear as a substring earlier in that string
  * Range:     u8 n <= 46, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of seq_t and idx_t are given by the compiler. */
 
@@ -95,7 +97,7 @@ static size_t p_sz  = 0;
 static void p_grow(void) {
     size_t new_cap = p_cap * 2;
     if (new_cap == 0) new_cap = 64;
-    seq_t *new_arr = (seq_t *)realloc(punctual, sizeof(seq_t) * new_cap);
+    seq_t *new_arr = mem_resize(seq_t, punctual, new_cap);
     if (!new_arr) { exit(1); }
     punctual = new_arr;
     p_cap = new_cap;

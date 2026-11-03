@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 26, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,26 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/floor_sqrt.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 seq_t a(idx_t n) {
     /* Memoisation cache */
@@ -58,9 +78,9 @@ seq_t a(idx_t n) {
 
         /* Ensure capacity for the period array */
         if (period_cap < 64) {
-            free(period);
+            mem_free(period);
             period_cap = 64;
-            period = (seq_t*)malloc(period_cap * sizeof(seq_t));
+            period = mem_new(seq_t, period_cap);
             if (!period) exit(1);
         }
 
@@ -73,7 +93,7 @@ seq_t a(idx_t n) {
             /* Grow period array if needed */
             if (period_len == period_cap) {
                 size_t new_cap = period_cap * 2;
-                seq_t *tmp = (seq_t*)realloc(period, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, period, new_cap);
                 if (!tmp) exit(1);
                 period = tmp;
                 period_cap = new_cap;
@@ -91,7 +111,7 @@ seq_t a(idx_t n) {
                 /* Store k in the cache */
                 if (cache_size == cache_cap) {
                     size_t new_cap = cache_cap ? cache_cap * 2 : 8;
-                    seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                     if (!tmp) exit(1);
                     cache = tmp;
                     cache_cap = new_cap;

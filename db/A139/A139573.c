@@ -6,14 +6,18 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = prime(n)^40 (n ≥ 1)
  * Range:     u8 none, u16 none, u32 none, u64 n <= 2, u128 n <= 4, big any n
- * Helpers:   big_pow, build_primes
+ * Validated: standard, pass, 21 terms through n = 969 (2026-11-01)
+ * Helpers:   build_primes, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
 #include "../utils/build_primes.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 static idx_t *prime_cache = NULL;   /* array of primes */
 static size_t prime_cache_cnt = 0;  /* number of primes stored */
@@ -50,5 +54,5 @@ a(idx_t n)
     ensure_prime_cache(n);
 
     idx_t p = prime_cache[n - 1];          /* nth prime (1‑based indexing) */
-    return big_pow((seq_t)p, (seq_t)40);   /* compute p^40 */
+    return ipow((seq_t)p, (seq_t)40);   /* compute p^40 */
 }

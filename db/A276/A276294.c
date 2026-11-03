@@ -13,7 +13,8 @@
  *            * * The algorithm uses dynamic program...
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 15, u64 n <= 30, u128 n <= 61,
  *            big any n
- * Helpers:   next_unused_colour
+ * Validated: standard, pass, 38 terms through n = 207 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,13 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/next_unused_colour.h"
+
+/* ------------------------------------------------------------------ */
+static int next_unused_colour(int mask) {
+    for (int col = 0; col < 3; ++col)
+        if (!(mask & (1 << col))) return col;
+    return 3;   /* should never happen: mask == 0b111 */
+}
 
 #define PATCNT 12   /* number of admissible row patterns */
 

@@ -9,8 +9,9 @@
  *            primorial base * (base of successive primes) and subtracting 1
  *            from each * non‑zero digit. The effect is to subtract the weight
  *            of * every prime position whose digit is non‑zero
- * Range:     u8 n <= 503, u16 n <= 9362, u32 n <= 9362, u64 n <= 9362,
- *            u128 n <= 9362, big any n
+ * Range:     u8 n <= 503, u16 n <= 30030, u32 n <= 30030, u64 n <= 30030,
+ *            u128 n <= 30030, big any n
+ * Validated: standard, pass, 108 terms through n = 9362 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

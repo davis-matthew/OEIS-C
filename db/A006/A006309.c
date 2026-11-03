@@ -11,6 +11,7 @@
  *            1+h1+h2 == 0 (mod p^2)}; N is counted using the T...
  * Range:     i8 n <= 7, i16 n <= 26, i32 n <= 26, i64 n <= 26, i128 n <= 26,
  *            big any n
+ * Validated: partial, pass, 25 terms through n = 26 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

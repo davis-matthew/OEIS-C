@@ -7,12 +7,14 @@
  * Formula:   a(n)=12*a(n-1)-15*a(n-2)+2*a(n-3), a(1)=0, a(2)=1, a(3)=13
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 11, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* cache[0] is unused, cache[1] = a(1) */
 static idx_t  max_cached = 0;   /* largest index already computed */
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* Ensure cache large enough for indices 0..n. */
     size_t needed = (size_t)n + 1;            /* indices 0..n inclusive */
     if (!cache || needed > (size_t)(max_cached + 1)) {
-        seq_t *tmp = (seq_t*)realloc(cache, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, needed);
         cache = tmp;
         /* No need to initialise new elements – they will be set below. */
     }

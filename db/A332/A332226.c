@@ -5,15 +5,17 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = k such that sigma(k) ≡ 2 (mod 8)
- * Range:     u8 n <= 34, u16 n <= 4782, u32 n <= 9805, u64 n <= 9805,
- *            u128 n <= 9805, big any n
- * Helpers:   none
+ * Range:     u8 n <= 34, u16 n <= 4782, u32 n <= 25000, u64 n <= 25000,
+ *            u128 n <= 25000, big any n
+ * Validated: standard, pass, 83 terms through n = 9805 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* External types: seq_t is the sequence element type, idx_t the index type */
 static seq_t *cache      = NULL;    /* Cached sequence values */
@@ -31,7 +33,7 @@ static void ensure_cache(size_t needed)
     if (needed <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 1024;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();
     cache = tmp;
     cache_cap = new_cap;

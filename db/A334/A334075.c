@@ -9,7 +9,8 @@
  *            that do NOT divide C(2n,n)
  * Range:     u8 n <= 12, u16 n <= 22, u32 n <= 40, u64 n <= 86, u128 n <= 158,
  *            big any n
- * Helpers:   _exponent_in_binom, build_primes_upto, gcd
+ * Validated: standard, pass, 57 terms through n = 3302 (2026-11-01)
+ * Helpers:   build_primes_upto, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,23 @@
 /* Includes for utilities used */
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/gcd.h"
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/_exponent_in_binom.h"
+#include "../utils/gcd.h"
+
+/* Helper: Legendre exponent of prime p in C(2n,n) */
+static idx_t _exponent_in_binom(idx_t n, uint64_t p)
+{
+    idx_t e = 0;
+    idx_t power = p;
+    while (power <= 2 * n)
+    {
+        e += (2 * n) / power - 2 * (n / power);
+        if (power > (2 * n) / p) break;
+        power *= p;
+    }
+    return e;
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)

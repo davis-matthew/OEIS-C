@@ -7,15 +7,18 @@
  * Formula:   a(n) = Sum_{d|n} (n^d)', arithmetic derivative
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 20,
  *            big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/ipow.h"
 
 /* Compute the arithmetic derivative of n:  n' = Σ e_i * (n / p_i)  */
 static seq_t derivative_of_uint64(uint64_t n)
@@ -40,7 +43,7 @@ static void recurse_divisors(size_t idx, uint64_t cur,
                              size_t cnt, seq_t n_val, seq_t *sum)
 {
     if (idx == cnt) {
-        seq_t pow = big_pow(n_val, (idx_t)(cur - 1));
+        seq_t pow = ipow(n_val, (idx_t)(cur - 1));
         seq_t term = (seq_t)cur * pow;
         *sum += term;
         return;

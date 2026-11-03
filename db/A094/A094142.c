@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 34, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* compute gcd of two uint64_t values */
 static uint64_t gcd_u64(uint64_t a, uint64_t b)
@@ -82,7 +84,7 @@ static void init_sequence(void)
 
             if (pairs_len == pairs_cap) {
                 pairs_cap = pairs_cap ? pairs_cap * 2 : 1024;
-                pairs = (Pair *)realloc(pairs, pairs_cap * sizeof(Pair));
+                pairs = mem_resize(Pair, pairs, pairs_cap);
             }
             pairs[pairs_len].d = d;
             pairs[pairs_len].s = s;
@@ -91,7 +93,7 @@ static void init_sequence(void)
     }
 
     /* sort by difference */
-    qsort(pairs, pairs_len, sizeof(Pair), cmp_pairs);
+    mem_qsort(pairs, pairs_len, sizeof(Pair), cmp_pairs);
 
     /* count distinct differences to size cache */
     size_t distinct = 0;
@@ -99,7 +101,7 @@ static void init_sequence(void)
         if (i == 0 || pairs[i].d != pairs[i - 1].d) ++distinct;
     }
 
-    cache = (seq_t *)malloc(distinct * sizeof(seq_t));
+    cache = mem_new(seq_t, distinct);
     cache_len = 0;
 
     /* scan sorted pairs, retain minimal s for each distinct d */
@@ -116,7 +118,7 @@ static void init_sequence(void)
     }
     if (pairs_len > 0) cache[cache_len++] = min_s;  /* last group */
 
-    free(pairs);
+    mem_free(pairs);
     initialized = true;
 }
 

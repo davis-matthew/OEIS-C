@@ -8,6 +8,7 @@
  * Formula:   a(2k) = k*(k+1)*(k-1); a(2k+1) = k*(k+1)*(2k+1)
  * Range:     u8 n <= 10, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
+ * Validated: partial, pass, 45 terms through n = 47 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

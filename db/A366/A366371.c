@@ -8,8 +8,9 @@
  * Formula:   a(n) = sum_{p odd prime | n} exp_p * (e0 ≥ 1 ? 2 : 1) where n =
  *            2^e0 * ∏ p_i^{exp_i}. This counts all divisors of n that are
  *            either an odd prime power > 1 or twice such a number
- * Range:     u8 n <= 9853, u16 n <= 9853, u32 n <= 9853, u64 n <= 9853,
- *            u128 n <= 9853, big any n
+ * Range:     u8 n <= 16384, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 121 terms through n = 9853 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   cmp_seq_t, min_k_next
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,8 +30,38 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "../utils/cmp_seq_t.h"
-#include "../utils/min_k_next.h"
+#include <stddef.h>
+#include "../utils/mem.h"
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
+
+/* compute minimal k that can appear for a given y  (y >= 1) */
+static seq_t min_k_next(idx_t y)
+{
+    unsigned __int128 yy = (unsigned __int128)y * y;
+    unsigned __int128 limit = (unsigned __int128)77 * yy;
+
+    /* integer square root of limit */
+    double sqrt_val = sqrt((double)limit);
+    unsigned long long dmax = (unsigned long long)sqrt_val;
+    while ((unsigned __int128)(dmax + 1) * (dmax + 1) <= limit) dmax++;
+    while ((unsigned __int128)dmax * dmax > limit) dmax--;
+
+    /* adjust parity to match y */
+    unsigned long long parity = y & 1ULL;
+    if ((dmax & 1ULL) != parity) dmax--;
+
+    unsigned __int128 k128 = (limit - (unsigned __int128)dmax * dmax) / 4;
+    return (seq_t)k128;
+}
 
 static seq_t *cache = NULL;      /* sorted unique k-values */
 static size_t cache_len = 0;     /* number of stored values */
@@ -39,7 +70,7 @@ static size_t cache_len = 0;     /* number of stored values */
 static void build_cache(idx_t Ymax)
 {
     size_t cap = 128;
-    seq_t *raw = (seq_t *)malloc(cap * sizeof(seq_t));
+    seq_t *raw = mem_new(seq_t, cap);
     size_t cnt = 0;
 
     for (idx_t y = 1; y <= Ymax; ++y) {
@@ -62,14 +93,14 @@ static void build_cache(idx_t Ymax)
 
             if (cnt == cap) {
                 cap <<= 1;
-                raw = (seq_t *)realloc(raw, cap * sizeof(seq_t));
+                raw = mem_resize(seq_t, raw, cap);
             }
             raw[cnt++] = k;
         }
     }
 
     /* sort the raw list */
-    qsort(raw, cnt, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(raw, cnt, sizeof(seq_t), cmp_seq_t);
 
     /* remove duplicates */
     size_t uniq = 0;
@@ -80,8 +111,8 @@ static void build_cache(idx_t Ymax)
     }
 
     /* reallocate cache with the exact size */
-    seq_t *tmp = (seq_t *)realloc(raw, uniq * sizeof(seq_t));
-    free(cache);
+    seq_t *tmp = mem_resize(seq_t, raw, uniq);
+    mem_free(cache);
     cache = tmp;
     cache_len = uniq;
 }

@@ -7,12 +7,14 @@
  * Formula:   a(n) = Lucas(2*n+3) - (6*n+4)
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 21, u64 n <= 44, u128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 524 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for Lucas numbers: L0 = 2, L1 = 1. */
 static seq_t *luc_cache = NULL;   /* array of Lucas numbers */
@@ -25,7 +27,7 @@ static void ensure_luc_capacity(idx_t need)
     if (need <= luc_cap) return;
     idx_t new_cap = luc_cap ? luc_cap << 1 : 8;
     if (new_cap < need) new_cap = need;
-    seq_t *new_ptr = (seq_t*)realloc(luc_cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, luc_cache, new_cap);
     if (!new_ptr) abort();          /* terminate on allocation failure */
     luc_cache = new_ptr;
     luc_cap = new_cap;

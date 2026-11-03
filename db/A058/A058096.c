@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 27, i16 n <= 99, i32 n <= 342, i64 n <= 1224,
  *            i128 n <= 4545, big any n
- * Helpers:   seq_alloc_new_array, seq_free_array
+ * Validated: standard, pass, 80 terms through n = 4843 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,8 +28,15 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/seq_free_array.h"
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 static size_t cache_cap = 0;
 static seq_t *p_arr = NULL;     /* coefficients of P,   p[0] = 1  */

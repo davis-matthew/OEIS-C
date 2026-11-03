@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,9 @@
 #include <stdbool.h>
 
 /* Utility: build a list of primes up to a given limit */
+#include <stdint.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 typedef struct {
     idx_t val;   /* odd prime power (fits in idx_t) */
@@ -115,7 +118,7 @@ static void ensure_precomputed(void)
     std::sort(tmp.begin(), tmp.end(),
               [](const PrimePower &a, const PrimePower &b) { return a.val < b.val; });
     cache_size = tmp.size();
-    cache = (PrimePower *)malloc(cache_size * sizeof(PrimePower));
+    cache = mem_new(PrimePower, cache_size);
     if (!cache) { tmp.clear(); return; }
     for (size_t i = 0; i < cache_size; ++i) cache[i] = tmp[i];
     tmp.clear();

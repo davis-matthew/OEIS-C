@@ -9,13 +9,15 @@
  *            a(n‑1))
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 31, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Greatest‑common divisor for generic seq_t type.
    Works for built‑in integer types as well as arbitrary‑precision classes
@@ -44,9 +46,9 @@ seq_t a(idx_t n)
     if (n > cached_n) {
         size_t needed = (size_t)(n + 1);
         if (cache == NULL) {
-            cache = (seq_t *)malloc(needed * sizeof(seq_t));
+            cache = mem_new(seq_t, needed);
         } else {
-            cache = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, needed);
         }
 
         /* Initialise the first term if this is the first call. */

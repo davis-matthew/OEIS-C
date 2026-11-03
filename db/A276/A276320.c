@@ -10,13 +10,14 @@
  *            divisors of x
  * Range:     u8 n <= 243, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   divisor_count_u64
+ * Validated: standard, pass, 84 terms through n = 926 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +38,7 @@ seq_t a(idx_t n)
                                   (unsigned __int128)t2;
         uint64_t B = (uint64_t)(prod2 >> 1);                /* divide by 2 */
 
-        if (divisor_count_u64(A) == divisor_count_u64(B))
+        if (num_divisors(A) == num_divisors(B))
             return (seq_t)k;          /* k is the least such integer */
     }
 }

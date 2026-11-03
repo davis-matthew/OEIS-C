@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 92, u16 n <= 92, u32 n <= 92, u64 n <= 92, u128 n <= 92,
  *            big any n
- * Helpers:   id_of_digit
+ * Validated: partial, pass, 93 terms through n = 92 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,16 @@
    This function returns the n‑th term (0‑based) of A362189. */
 
 #include <stdlib.h>
-#include "../utils/id_of_digit.h"
+
+static inline int id_of_digit(int d) {
+    switch (d) {
+        case 1: return 0;
+        case 2: return 1;
+        case 4: return 2;
+        case 6: return 3;
+        default: return -1; /* should never happen */
+    }
+}
 
 static const int map_len[4] = {1, 1, 2, 2};
 static const int map_digits[4][2] = {

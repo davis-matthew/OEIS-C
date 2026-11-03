@@ -8,8 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 17, u128 n <= 34,
  *            big any n
- * Helpers:   valid_cell, valid_row_bottom, valid_row_middle,
- *            valid_row_single, valid_row_top
+ * Validated: standard, pass, 32 terms through n = 195 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,11 +25,54 @@
 
 #include <stdbool.h>
 #include <stddef.h>    /* for NULL */
-#include "../utils/valid_cell.h"
-#include "../utils/valid_row_bottom.h"
-#include "../utils/valid_row_middle.h"
-#include "../utils/valid_row_single.h"
-#include "../utils/valid_row_top.h"
+
+/* helper: check a single cell given up and/or down neighbours (possibly NULL) */
+static bool valid_cell(const unsigned char *row, const unsigned char *up, const unsigned char *down, int c)
+{
+    int sum = row[c];
+    int cnt = 1;                       /* the cell itself */
+    if (c > 0) { sum += row[c-1]; cnt++; }
+    if (c < 2) { sum += row[c+1]; cnt++; }
+    if (up)    { sum += up[c];    cnt++; }
+    if (down)  { sum += down[c];  cnt++; }
+    return sum != cnt;                 /* average must not be 1 */
+}
+
+/* check bottom row (no down neighbour) */
+static bool valid_row_bottom(const unsigned char *up, const unsigned char *row)
+{
+    for (int c = 0; c < 3; ++c)
+        if (!valid_cell(row, up, NULL, c))
+            return false;
+    return true;
+}
+
+/* check middle row (has both up and down neighbours) */
+static bool valid_row_middle(const unsigned char *up, const unsigned char *row, const unsigned char *down)
+{
+    for (int c = 0; c < 3; ++c)
+        if (!valid_cell(row, up, down, c))
+            return false;
+    return true;
+}
+
+/* helper: single row with no up/down neighbours (n == 1 case) */
+static bool valid_row_single(const unsigned char *row)
+{
+    for (int c = 0; c < 3; ++c)
+        if (!valid_cell(row, NULL, NULL, c))
+            return false;
+    return true;
+}
+
+/* check top row (no up neighbour) */
+static bool valid_row_top(const unsigned char *row, const unsigned char *below)
+{
+    for (int c = 0; c < 3; ++c)
+        if (!valid_cell(row, NULL, below, c))
+            return false;
+    return true;
+}
 
 /* all possible 3‑column rows over {0,1,2} */
 static const unsigned char rows[27][3] = {

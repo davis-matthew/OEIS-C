@@ -9,7 +9,8 @@
  *            p^e if e is squarefree, and 1 otherwise.)
  * Range:     u8 n <= 256, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, is_sqfree_uint64
+ * Validated: standard, pass, 84 terms through n = 9612 (2026-11-01)
+ * Helpers:   factor_u64, is_squarefree_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/is_sqfree_uint64.h"
+#include "../utils/is_squarefree_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < cnt; ++i) {
         uint64_t p = primes[i];
         uint64_t e = exps[i];
-        if (is_sqfree_uint64(e)) {
+        if (is_squarefree_u64(e)) {
             seq_t term = 1;
             for (uint64_t k = 0; k < e; ++k) {
                 term *= (seq_t)p;           /* p^e, e ≤ 63 for 64-bit n */

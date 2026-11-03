@@ -8,17 +8,20 @@
  *            p) / (p^2 - 1) , * where s = r if r is odd, and s = r-1 if r is
  *            even. * This equals the sum of divisors of n whose prime
  *            exponents are all odd
- * Range:     u8 n <= 6, u16 n <= 40, u32 n <= 6386, u64 n <= 9691,
- *            u128 n <= 9691, big any n
- * Helpers:   big_pow, factor_u64
+ * Range:     u8 n <= 6, u16 n <= 40, u32 n <= 6386, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 86 terms through n = 9691 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     /* Handle the first term n==1 separately */
@@ -41,7 +44,7 @@ seq_t a(idx_t n) {
         seq_t s   = (r & 1) ? r : r - 1;        /* s = r if odd, else r-1 */
         seq_t exp = s + 2;                     /* exponent for p^(s+2) */
 
-        seq_t pow_val = big_pow(p, exp);
+        seq_t pow_val = ipow(p, exp);
         seq_t numerator   = pow_val - p;
         seq_t denominator = p * p - 1;
 

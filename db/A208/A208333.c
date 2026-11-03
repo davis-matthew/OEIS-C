@@ -11,13 +11,15 @@
  *            T(n,k)=0 if k<0 or k>n
  * Range:     u8 n <= 26, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* integer square root for 128‑bit numbers (returns floor(sqrt(x))) */
 static inline unsigned long long isqrt_u128(__int128 x) {
@@ -53,7 +55,7 @@ static void ensure_rows(idx_t r) {
 
     /* compute missing rows from triangle_cap up to r */
     for (idx_t i = (idx_t)triangle_cap; i <= r; ++i) {
-        seq_t *row = (seq_t *)malloc((size_t)(i + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (size_t)(i + 1));
         if (!row)
             exit(1);
         new_tri[(size_t)i] = row;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   count_friday_13s, is_friday_13th
+ * Validated: standard, pass, 59 terms through n = 997 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,33 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/count_friday_13s.h"
-#include "../utils/is_friday_13th.h"
+#include "../utils/mem.h"
+
+/*  Utility: check whether the 13th of a given month falls on Friday
+   GB: Zeller's congruence for Gregorian calendar
+   h = 0 -> Saturday, … , 6 -> Friday                                         */
+static inline bool is_friday_13th(int year, int month)
+{
+    if (month < 3) {
+        month += 12;
+        year -= 1;
+    }
+    int k = year % 100;
+    int j = year / 100;
+    int h = (13 + (13*(month+1))/5 + k + k/4 + j/4 + 5*j) % 7;
+    return h == 6;                /* 6 = Friday */
+}
+
+/* Count how many months in the given year have Friday on the 13th. */
+static inline int count_friday_13s(int year)
+{
+    int cnt = 0;
+    for (int m = 1; m <= 12; ++m) {
+        if (is_friday_13th(year, m))
+            ++cnt;
+    }
+    return cnt;
+}
 
 /* ------------------------------------------------------------ */
 
@@ -40,7 +66,7 @@ static void expand_cache(size_t needed)
     size_t newcap = cache_cap ? cache_cap * 2 : 16;
     while (newcap < needed)
         newcap *= 2;
-    seq_t *tmp = (seq_t *)realloc(year_cache, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, year_cache, newcap);
     year_cache = tmp;
     cache_cap = newcap;
 }

@@ -9,7 +9,8 @@
  *            d^2 as a string occurs as a contiguous substring of n³
  * Range:     u8 n <= 2, u16 n <= 9, u32 n <= 134, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   big_pow, digit_len, seq_to_str
+ * Validated: standard, pass, 68 terms through n = 944 (2026-11-01)
+ * Helpers:   ipow, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,30 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/big_pow.h"
-#include "../utils/seq_to_str.h"
-#include "../utils/digit_len.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/ipow.h"
+#include "../utils/num_digits.h"
+
+/* convert a seq_t value to a decimal string */
+static void seq_to_str(seq_t v, char *buf, size_t *len)
+{
+    if (v == 0) {
+        buf[0] = '0';
+        *len = 1;
+        return;
+    }
+    char tmp[64];
+    int pos = 0;
+    seq_t ten = (seq_t)10;
+    while (v != 0) {
+        tmp[pos++] = '0' + (int)(v % ten);
+        v /= ten;
+    }
+    for (int i = 0; i < pos; ++i)
+        buf[i] = tmp[pos - 1 - i];
+    *len = pos;
+}
 
 seq_t a(idx_t n)
 {
@@ -35,10 +57,10 @@ seq_t a(idx_t n)
     for (;;) {
         cand = cand + 1;                       /* test next integer */
 
-        seq_t cube = big_pow(cand, 3);         /* cand³ */
+        seq_t cube = ipow(cand, 3);         /* cand³ */
 
         /* convert cube to a null‑terminated decimal string */
-        size_t cube_digits = digit_len(cube);
+        size_t cube_digits = num_digits(cube);
         char *cube_str = (char *)malloc(cube_digits + 1);
         if (!cube_str) {
             return (seq_t)0;                   /* out of memory: abort */

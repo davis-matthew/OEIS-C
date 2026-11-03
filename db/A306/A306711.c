@@ -10,7 +10,8 @@
  *            the found terms; no explicit * formula is known
  * Range:     u8 n <= 34, u16 n <= 9375, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, gcd
+ * Validated: standard, pass, 77 terms through n = 9415 (2026-11-03)
+ * Helpers:   build_primes_upto, gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,10 @@
 #include <stdlib.h>     /* malloc, realloc, abort */
 #include <stdint.h>     /* uint64_t */
 #include <stddef.h>     /* size_t */
-#include "../utils/gcd.h"
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static uint64_t *prime_arr = NULL; /* primes up to PRIMELIMIT */
 static size_t   prime_cnt = 0;
@@ -75,7 +78,7 @@ seq_t a(idx_t n)
             /* Grow the cache if necessary. */
             if (len == cap) {
                 size_t new_cap = cap ? cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, new_cap);
                 if (!tmp) abort();   /* allocation failure */
                 terms = tmp;
                 cap   = new_cap;

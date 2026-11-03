@@ -8,13 +8,15 @@
  * Formula:   a(n) = permanent of the n×n matrix with (i+j-1) mod 3
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ---------- cached factorials ---------- */
 static seq_t *fact_cache = NULL;   /* factorials 0! … m!   */
@@ -25,7 +27,7 @@ static void ensure_factorial(idx_t m)
     if (m <= fact_cap) return;
 
     /* extend the cache to hold up to m */
-    seq_t *tmp = (seq_t *)realloc(fact_cache, (m + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, fact_cache, (m + 1));
     if (!tmp) exit(1);
     fact_cache = tmp;
 

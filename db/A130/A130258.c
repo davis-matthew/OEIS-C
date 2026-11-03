@@ -8,7 +8,8 @@
  *            smallest m such that Fib(2m-1) ≥ n
  * Range:     u8 n <= 51, u16 n <= 2500, u32 n <= 2500, u64 n <= 2500,
  *            u128 n <= 2500, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 2413 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    new Fibonacci numbers as needed.                     */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *odd_fibs = NULL;           /* Fib(1), Fib(3), Fib(5), …   */
 static idx_t odd_fibs_count = 0;
@@ -43,7 +45,7 @@ static void init_odd_fibs(idx_t max_n)
 {
     if (!odd_fibs) {
         odd_fibs_cap = 64;
-        odd_fibs = (seq_t *)malloc(odd_fibs_cap * sizeof(seq_t));
+        odd_fibs = mem_new(seq_t, odd_fibs_cap);
         if (!odd_fibs) { odd_fibs_cap = 0; return; }
     }
 
@@ -55,8 +57,7 @@ static void init_odd_fibs(idx_t max_n)
 
         if (odd_fibs_count == odd_fibs_cap) {
             odd_fibs_cap <<= 1;
-            odd_fibs = (seq_t *)realloc(odd_fibs,
-                                         odd_fibs_cap * sizeof(seq_t));
+            odd_fibs = mem_resize(seq_t, odd_fibs, odd_fibs_cap);
             if (!odd_fibs) { odd_fibs_cap = 0; return; }
         }
         odd_fibs[odd_fibs_count++] = val;

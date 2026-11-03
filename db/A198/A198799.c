@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 16, u64 n <= 30, u128 n <= 70,
  *            big any n
- * Helpers:   big_pow, seq_mul
+ * Validated: standard, pass, 44 terms through n = 987 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,10 +34,15 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "../utils/big_pow.h"   /* seq_t big_pow(seq_t base, seq_t exp)   */
+#include <string.h>
+#include "../utils/ipow.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 /* seq_mul is provided by the utilities; it works for both built‑in
  * integer types and the arbitrary‑precision class. */
-#include "../utils/seq_mul.h"   /* seq_t seq_mul(seq_t a, seq_t b)        */
 
 #define PRIMES_1MOD3_COUNT 122
 static const uint64_t primes1mod3[PRIMES_1MOD3_COUNT] = {
@@ -73,7 +79,7 @@ static void dfs_prime(uint64_t idx, uint64_t rem, uint64_t prev,
     for (uint64_t e = max_e; e >= 1; --e) {
         if (rem % (e + 1) != 0) continue;
 
-        seq_t p_pow = big_pow((seq_t)primes1mod3[idx], (seq_t)e);
+        seq_t p_pow = ipow((seq_t)primes1mod3[idx], (seq_t)e);
         seq_t next = seq_mul(cur, p_pow);   /* next = cur * primes[idx]^e */
 
         if (*found && next >= *best) continue;  /* prune larger values */

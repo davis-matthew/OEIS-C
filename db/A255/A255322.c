@@ -7,6 +7,7 @@
  * Formula:   a(n) = Product_{k=0..n} (k^2)!
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 3, u64 n <= 3, u128 n <= 4,
  *            big any n
+ * Validated: standard, pass, 13 terms through n = 12 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

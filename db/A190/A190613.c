@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{k=1..n} (-1)^(n-floor(n/k)) * floor(n/k)
  * Range:     i8 n <= 46, i16 n <= 8398, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 90 terms through n = 9812 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   a(n) = coefficient of q^n in φ(-q)^2 * φ(-q^9) / φ(-q^3)
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 114 terms through n = 881 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static const int binom[5][5] = {
     {1,0,0,0,0},
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
 
     if ((size_t)n + 1 > cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(series, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, series, new_cap);
         if (!tmp) abort();          /* allocation failure */
         series = tmp;
 

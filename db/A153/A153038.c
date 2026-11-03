@@ -9,6 +9,7 @@
  * Formula:   a(n) = ∏_{p^r‖n} ∏_{j=1..r} (1 - p^j)
  * Range:     i8 n <= 15, i16 n <= 63, i32 n <= 255, i64 n <= 2047,
  *            i128 n <= 8191, big any n
+ * Validated: standard, pass, 90 terms through n = 7083 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

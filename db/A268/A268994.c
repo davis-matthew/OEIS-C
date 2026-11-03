@@ -10,7 +10,8 @@
  *            horizontally or antidiagonally adjacent
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 27,
  *            big any n
- * Helpers:   popcount_uint
+ * Validated: standard, pass, 31 terms through n = 197 (2026-11-03)
+ * Helpers:   mem, popcount_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,13 +28,14 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/popcount_uint.h"
+#include "../utils/popcount_u32.h"
 
 #if defined(__GNUC__) || defined(__clang__)
 
 #else
 
 #endif
+#include "../utils/mem.h"
 
 /* maximum number of 7‑bit masks */
 #define MAX_MASKS 128
@@ -54,7 +56,7 @@ static void init_tables(void)
     nv = 0;
     for (int m = 0; m < MAX_MASKS; ++m)
     {
-        int hc = popcount_uint((unsigned int)(m & (m >> 1)));
+        int hc = popcount_u32((unsigned int)(m & (m >> 1)));
         if (hc > 1) continue;            /* reject masks with >1 horizontal pair */
         valid_masks[nv] = m;
         hcnt[nv]       = hc;
@@ -66,7 +68,7 @@ static void init_tables(void)
     {
         for (int j = 0; j < (int)nv; ++j)
         {
-            acnt[i][j] = popcount_uint(valid_masks[i] & (valid_masks[j] >> 1));
+            acnt[i][j] = popcount_u32(valid_masks[i] & (valid_masks[j] >> 1));
         }
     }
 }
@@ -82,15 +84,15 @@ seq_t a(idx_t n)
 
     const size_t dp_size = nv * 2;      /* two flags: 0=unused, 1=used */
 
-    seq_t *dp_cur  = (seq_t*)malloc(dp_size * sizeof(seq_t));
-    seq_t *dp_next = (seq_t*)malloc(dp_size * sizeof(seq_t));
+    seq_t *dp_cur  = mem_new(seq_t, dp_size);
+    seq_t *dp_next = mem_new(seq_t, dp_size);
     if (!dp_cur || !dp_next) {
         exit(EXIT_FAILURE);
     }
     /* zero initialise (works for unsigned integer types and for most
        arbitrary‑precision integer clones that provide value‑semantics) */
-    memset(dp_cur, 0, dp_size * sizeof(seq_t));
-    memset(dp_next, 0, dp_size * sizeof(seq_t));
+    mem_set(dp_cur, 0, dp_size * sizeof(seq_t));
+    mem_set(dp_next, 0, dp_size * sizeof(seq_t));
 
     /* initialise for the first row (n = 1) */
     for (size_t i = 0; i < nv; ++i)
@@ -105,7 +107,7 @@ seq_t a(idx_t n)
     for (idx_t row = 1; row < n; ++row)
     {
         /* clear next‑row buffer */
-        memset(dp_next, 0, dp_size * sizeof(seq_t));
+        mem_set(dp_next, 0, dp_size * sizeof(seq_t));
 
         /* transitions from every previous mask to every current mask */
         for (int pi = 0; pi < (int)nv; ++pi)
@@ -149,7 +151,7 @@ seq_t a(idx_t n)
         total += dp_cur[i * 2 + 1];
     }
 
-    free(dp_cur);
-    free(dp_next);
+    mem_free(dp_cur);
+    mem_free(dp_next);
     return total;
 }

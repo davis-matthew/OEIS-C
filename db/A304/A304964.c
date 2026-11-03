@@ -9,7 +9,8 @@
  *            integers whose product is k)
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   binom, build_spf
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-03)
+ * Helpers:   binomial, build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/binomial.h"
 #include "../utils/build_spf.h"
-#include "../utils/binom.h"
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;    /* a values */
 static seq_t *d4_cache = NULL;   /* d4 values */
@@ -42,7 +44,7 @@ static seq_t d4_value(idx_t k)
             ++e;
             m /= p;
         }
-        prod = prod * binom(e + 3, 3);
+        prod = prod * binomial(e + 3, 3);
     }
     return prod;
 }
@@ -52,8 +54,8 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (cap == 0) {
         cap = 1;
-        a_cache  = (seq_t *)malloc(sizeof(seq_t) * cap);
-        d4_cache = (seq_t *)malloc(sizeof(seq_t) * cap);
+        a_cache  = mem_new(seq_t, cap);
+        d4_cache = mem_new(seq_t, cap);
         a_cache[0] = (seq_t)1;
         d4_cache[0] = (seq_t)0;   /* unused */
     }
@@ -61,8 +63,8 @@ seq_t a(idx_t n)
     /* Expand cache if needed */
     if (n + 1 > cap) {
         size_t new_cap = (size_t)(n + 1);
-        a_cache  = (seq_t *)realloc(a_cache,  new_cap * sizeof(seq_t));
-        d4_cache = (seq_t *)realloc(d4_cache, new_cap * sizeof(seq_t));
+        a_cache  = mem_resize(seq_t, a_cache, new_cap);
+        d4_cache = mem_resize(seq_t, d4_cache, new_cap);
         cap = (idx_t)new_cap;
     }
 

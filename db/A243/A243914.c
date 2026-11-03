@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 4, u64 n <= 4, u128 n <= 4,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 4 terms through n = 4 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t  *g_terms   = NULL;   /* array of sequence values */
 static size_t  g_nterms  = 0;      /* number of terms stored   */
@@ -88,7 +90,7 @@ static void build_sequence(void)
     /* 4.  Build sequence terms: 4*(p+1) for eligible twin starts      */
     /* --------------------------------------------------------------- */
     size_t terms_cap = 1024;
-    g_terms = (seq_t*)malloc(terms_cap * sizeof(seq_t));
+    g_terms = mem_new(seq_t, terms_cap);
     if (!g_terms) { free(is_prime); free(twin_start); free(possible); return; }
 
     for (size_t i = 0; i < twin_cnt; ++i) {
@@ -97,7 +99,7 @@ static void build_sequence(void)
             seq_t val = (seq_t)(p + 1ULL) * (seq_t)4;
             if (g_nterms == terms_cap) {
                 terms_cap *= 2;
-                seq_t *tmp = (seq_t*)realloc(g_terms, terms_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, g_terms, terms_cap);
                 if (!tmp) continue;               /* unlikely, skip this term */
                 g_terms = tmp;
             }

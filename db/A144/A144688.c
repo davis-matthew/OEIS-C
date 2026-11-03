@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  base, easy, nonn, fini, full
  * Formula:   not stated
- * Range:     u8 n <= 82, u16 n <= 1046, u32 n <= 9917, u64 n <= 8384,
- *            u128 n <= 8384, big any n
- * Helpers:   none
+ * Range:     u8 n <= 82, u16 n <= 1046, u32 n <= 9917, u64 n <= 20379,
+ *            u128 n <= 20457, big any n
+ * Validated: full, pass, 20457 terms through n = 20457 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------ */
 /* Utility: count decimal digits of a seq_t value                */
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
     if (!cache)
     {
         cache_cap = 21000;                        /* more than the 20457 terms */
-        cache     = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache     = mem_new(seq_t, cache_cap);
         if (!cache) return 0;                     /* failure, unlikely */
 
         /* seed: the single‑digit magic numbers 0 … 9 */
@@ -109,8 +111,8 @@ seq_t a(idx_t n)
                     if (cache_len == cache_cap)            /* grow cache if full */
                     {
                         cache_cap *= 2;
-                        seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
-                        if (!tmp) { free(cache); return 0; }
+                        seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
+                        if (!tmp) { mem_free(cache); return 0; }
                         cache = tmp;
                     }
                     cache[cache_len++] = child;           /* append child */

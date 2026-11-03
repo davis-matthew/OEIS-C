@@ -7,6 +7,7 @@
  * Formula:   a(n) = 2 * Σ_{i≥0} ((n-1)>>i & 1) * 10^i
  * Range:     u8 n <= 8, u16 n <= 32, u32 n <= 1024, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 56 terms through n = 8517 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   a(n) = number of partitions of n into distinct squarefree parts
  * Range:     u8 n <= 43, u16 n <= 121, u32 n <= 377, u64 n <= 1277,
  *            u128 n <= 4592, big any n
- * Helpers:   alloc_memory, free_memory
+ * Validated: standard, pass, 79 terms through n = 9946 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,23 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/alloc_memory.h"
-#include "../utils/free_memory.h"
+
+/* ---------- dynamic allocation helpers (C / C++) ---------- */
+static void *alloc_memory(size_t sz) {
+#ifdef __cplusplus
+    return ::operator new(sz);
+#else
+    return malloc(sz);
+#endif
+}
+
+static void free_memory(void *p) {
+#ifdef __cplusplus
+    ::operator delete(p);
+#else
+    free(p);
+#endif
+}
 
 /* ---------- DP cache ---------- */
 static seq_t *dp_cache = NULL;   /* DP array */

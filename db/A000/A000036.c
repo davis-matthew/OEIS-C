@@ -13,7 +13,8 @@
  *            beats the previous record, round(P(m)) is the next ter...
  * Range:     i8 n <= 69, i16 n <= 200, i32 n <= 200, i64 n <= 200,
  *            i128 n <= 200, big any n
- * Helpers:   isr
+ * Validated: standard, pass, 75 terms through n = 198 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/isr.h"
+#include "../utils/isqrt_u64.h"
 
 typedef unsigned __int128 u128_t;
 typedef __int128 s128_t;
@@ -49,7 +50,7 @@ static void run_block(void)
 {
     const u128_t PI64 = ((u128_t)3 << 64) | (u128_t)0x243F6A8885A308D3ULL;
     uint64_t L = st_L;
-    uint64_t B = 2 * isr(L);
+    uint64_t B = 2 * isqrt_u64(L);
     uint64_t H, i, k;
     if (B < 65536) B = 65536;
     if (st_bufcap < B) {
@@ -64,7 +65,7 @@ static void run_block(void)
         if (i2 >= L) j = 0;
         else {
             uint64_t d = L - i2;
-            j = isr(d);
+            j = isqrt_u64(d);
             if (j * j < d) j++;
         }
         for (; i2 + j * j < H; j++) st_buf[i2 + j * j - L]++;

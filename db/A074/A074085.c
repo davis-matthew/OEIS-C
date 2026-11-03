@@ -10,6 +10,7 @@
  *            nu(n)=2*nu(n-1)+(1+q+...+q^(n-2))*nu(n-2) (for n≥2)
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 23, u64 n <= 27, u128 n <= 27,
  *            big any n
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

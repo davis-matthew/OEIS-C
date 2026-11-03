@@ -9,7 +9,8 @@
  *            a(n‑1) < n, otherwise a(n‑1) – n
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 68 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache for computed values.  The array grows geometrically on demand. */
 static seq_t *cache      = NULL;
@@ -34,7 +36,7 @@ static void ensure_cache(idx_t n)
     while (new_size <= n)
         new_size <<= 1;
 
-    seq_t *tmp  = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp  = mem_resize(seq_t, cache, new_size);
     if (!tmp) abort();
     cache = tmp;
 

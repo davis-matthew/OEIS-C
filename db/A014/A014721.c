@@ -12,13 +12,14 @@
  *            down to 0. The * sequence is the square of each o...
  * Range:     u8 n <= 12, u16 n <= 30, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -43,6 +44,6 @@ seq_t a(idx_t n)
     idx_t k = k_start - (p - 1);    /* k >= 0 guaranteed */
 
     /* Compute the square of the coefficient. */
-    seq_t coeff = binom(r, k);
+    seq_t coeff = binomial(r, k);
     return coeff * coeff;
 }

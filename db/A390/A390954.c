@@ -8,7 +8,8 @@
  *            f(p^3) = -p^3, f(p^e) = 0 for e > 3
  * Range:     i8 n <= 48, i16 n <= 1368, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   prime_val
+ * Validated: standard, pass, 76 terms through n = 9768 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,23 @@
    for the required range (up to ~10 000).  No external helper
    libraries are required. */
 #include <stdint.h>
-#include "../utils/prime_val.h"
+
+static seq_t prime_val(uint64_t p, int e)
+{
+    seq_t sp = (seq_t)p;
+    if (e == 1)          return -sp;
+    if (e == 2) {
+        seq_t p2 = sp * sp;
+        seq_t p3 = p2 * sp;
+        return p3 - p2 + sp;
+    }
+    if (e == 3) {
+        seq_t p2 = sp * sp;
+        seq_t p3 = p2 * sp;
+        return -p3;
+    }
+    return 0;            /* e > 3, handled by caller */
+}
 
 seq_t a(idx_t n)
 {

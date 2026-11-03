@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 62 terms through n = 1000 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,11 @@
    5 itself is excluded because 19 is a fifth‑power residue mod 5. */
 #include <stdlib.h>
 #include <stdint.h>
+#include <string.h>
+#include <stdbool.h>
 #include "../utils/is_prime.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache of found terms */
@@ -45,13 +49,13 @@ seq_t a(idx_t n) {
         uint64_t exp = (p - 1) / 5;
 
         /* Compute 19^exp (mod p) */
-        seq_t val = mod_pow((seq_t)19, exp, (seq_t)p);
+        seq_t val = powmod((seq_t)19, exp, (seq_t)p);
 
         if (val != (seq_t)1) {
             /* store the prime in the cache */
             if (cacheSize == cacheCap) {
                 size_t newCap = cacheCap ? cacheCap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(cache, newCap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, newCap);
                 if (!tmp) abort();
                 cache = tmp;
                 cacheCap = newCap;

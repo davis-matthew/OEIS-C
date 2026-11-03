@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 96, u16 n <= 96, u32 n <= 96, u64 n <= 96, u128 n <= 96,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 97 terms through n = 96 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Interpret seq_t and idx_t as per build. */
 
@@ -48,7 +50,7 @@ static void ensure_rows_up_to(idx_t r)
 
     /* initialise row 0 if not done yet */
     if (max_row == (idx_t)-1) {
-        rows[0] = (seq_t *)malloc(sizeof(seq_t));
+        rows[0] = mem_new(seq_t, 1);
         rows[0][0] = 1;
         max_row = 0;
     }
@@ -65,7 +67,7 @@ static void ensure_rows_up_to(idx_t r)
         }
 
         /* allocate and compute this new row */
-        seq_t *arr = (seq_t *)malloc((new_row + 1) * sizeof(seq_t));
+        seq_t *arr = mem_new(seq_t, (new_row + 1));
         for (idx_t k = 0; k <= new_row; ++k) {
             seq_t left  = 0;
             seq_t right = 0;

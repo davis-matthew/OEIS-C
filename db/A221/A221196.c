@@ -10,13 +10,15 @@
  *            2*a(n-3) for n ≥ 4
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 15, u64 n <= 29, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cap   = 0;   /* allocated array size (excluding unused index 0) */
@@ -28,11 +30,11 @@ static void grow_cache(size_t needed)
     if (needed <= cap) return;
     size_t newcap = cap < 3 ? 3 : cap * 2;
     while (newcap < needed) newcap <<= 1;
-    seq_t *newcache = (seq_t *)malloc((newcap + 1) * sizeof(seq_t));
+    seq_t *newcache = mem_new(seq_t, (newcap + 1));
     if (cache) {
         /* copy existing values, skip unused index 0 */
-        memcpy(newcache + 1, cache + 1, cap * sizeof(seq_t));
-        free(cache);
+        mem_copy(newcache + 1, cache + 1, cap * sizeof(seq_t));
+        mem_free(cache);
     }
     cache = newcache;
     cap   = newcap;

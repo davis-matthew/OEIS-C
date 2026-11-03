@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 12, u32 n <= 25, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>    /* ptrdiff_t */
+#include "../utils/mem.h"
 
 static seq_t *h_cache = NULL;         /* cache of Collatz lengths */
 static bool   *h_cached = NULL;       /* flags for cached entries */
@@ -37,7 +39,7 @@ static void ensure_h_capacity(idx_t idx)
     size_t new_cap = h_capacity ? h_capacity << 1 : 64;
     if (new_cap <= (size_t)idx) new_cap = (size_t)idx + 1;
 
-    seq_t *tmp = (seq_t *)realloc(h_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, h_cache, new_cap);
     if (!tmp) abort();
     bool *tmpb = (bool *)realloc(h_cached, new_cap * sizeof(bool));
     if (!tmpb) abort();
@@ -45,7 +47,7 @@ static void ensure_h_capacity(idx_t idx)
 #ifdef __cplusplus
     /* default‑construct the new seq_t objects */
     for (size_t i = h_capacity; i < new_cap; ++i)
-        ::new (&tmp[i]) seq_t();
+        *(&tmp[i]) = (seq_t)0;
 #endif
     /* new cached flags are false */
     for (size_t i = h_capacity; i < new_cap; ++i)
@@ -123,14 +125,14 @@ static void ensure_ans_capacity(idx_t idx)   /* idx is 1‑based */
     size_t new_cap = ans_capacity ? ans_capacity << 1 : 64;
     if (new_cap < (size_t)idx) new_cap = (size_t)idx;
 
-    seq_t *tmp = (seq_t *)realloc(answers, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, answers, new_cap);
     if (!tmp) abort();
     bool *tmpb = (bool *)realloc(computed, new_cap * sizeof(bool));
     if (!tmpb) abort();
 
 #ifdef __cplusplus
     for (size_t i = ans_capacity; i < new_cap; ++i)
-        ::new (&tmp[i]) seq_t();
+        *(&tmp[i]) = (seq_t)0;
 #endif
     for (size_t i = ans_capacity; i < new_cap; ++i)
         tmpb[i] = false;

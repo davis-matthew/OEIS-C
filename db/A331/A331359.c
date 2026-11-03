@@ -9,13 +9,39 @@
  *            + 16*n^20 + n^32) / 384
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 2, u64 n <= 4, u128 n <= 12,
  *            big any n
- * Helpers:   compute_big
+ * Validated: partial, pass, 12 terms through n = 12 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/compute_big.h"
+
+static seq_t compute_big(idx_t n)
+{
+    seq_t N = (seq_t)n;
+    seq_t n2 = N * N;
+    seq_t n4 = n2 * n2;
+    seq_t n6 = n4 * n2;
+    seq_t n8 = n4 * n4;
+    seq_t n12 = n8 * n4;
+    seq_t n16 = n8 * n8;
+    seq_t n18 = n16 * n2;
+    seq_t n20 = n16 * n4;
+    seq_t n32 = n16 * n16;
+
+    seq_t numerator =
+          (seq_t)48 * n4
+        + (seq_t)64 * n6
+        + (seq_t)164 * n8
+        + (seq_t)32 * n12
+        + (seq_t)35 * n16
+        + (seq_t)24 * n18
+        + (seq_t)16 * n20
+        + n32;
+
+    return numerator / (seq_t)384;
+}
 
 static seq_t compute_small(idx_t n)
 {

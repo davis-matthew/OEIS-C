@@ -11,13 +11,15 @@
  *            a(11)=1853, a(12)=2391, a(13)=3026, a(14)=3734,...
  * Range:     u8 n <= 5, u16 n <= 36, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 946 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* cached sequence values          */
 static size_t capacity = 0;          /* allocated array size            */
@@ -36,7 +38,7 @@ static void ensure_capacity(size_t needed)
         /* grow in chunks to reduce realloc frequency */
         size_t new_cap = capacity ? capacity * 2 : 64;
         if (new_cap < needed) new_cap = needed;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         capacity = new_cap;
     }

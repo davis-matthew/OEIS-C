@@ -9,12 +9,14 @@
  *            0 Initial terms: a(0)=1, a(1)=0, a(2)=1, a(3)=2
  * Range:     i8 n <= 4, i16 n <= 10, i32 n <= 23, i64 n <= 34, i128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* memoisation array */
 static idx_t cache_size = 0;     /* allocated size of cache */
@@ -28,7 +30,7 @@ static void extend_cache(idx_t n)
     idx_t old_size = cache_size;
     idx_t new_size = n + 1;
 
-    seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_size);
     if (!new_cache) return;              /* allocation failed – silently abort */
 
     /* copy existing cached values */
@@ -39,7 +41,7 @@ static void extend_cache(idx_t n)
     for (idx_t i = old_size; i < new_size; ++i)
         new_cache[i] = (seq_t)0;
 
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
     cache_size = new_size;
 

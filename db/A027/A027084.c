@@ -8,13 +8,15 @@
  *            with t(1)=1, t(2)=1, t(3)=2
  * Range:     u8 n <= 8, u16 n <= 17, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 32 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Trivial cache of Tribonacci values.  t[1]..t[trib_filled] are valid. */
 static seq_t *t_cache = NULL;   /* dynamic array of tribonacci numbers */
@@ -32,7 +34,7 @@ static void ensure_trib(idx_t need)
     while (new_cap <= need)
         new_cap <<= 1;
 
-    seq_t *new_arr = (seq_t *)realloc(t_cache, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, t_cache, new_cap);
     if (!new_arr)
         abort();                 /* allocation failed */
 

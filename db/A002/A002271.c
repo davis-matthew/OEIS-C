@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 16, u32 n <= 16, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   a2271_gcd, a2271_isprime, a2271_ok
+ * Validated: full, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   gcd_u64, is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,15 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/a2271_gcd.h"
-#include "../utils/a2271_isprime.h"
-#include "../utils/a2271_ok.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/is_prime_u64.h"
+
+static bool a2271_ok(uint64_t m) {
+    for (uint64_t k = 3; k < m; k += 2)
+        if (gcd_u64(k, m) == 1 && !is_prime_u64(k))
+            return false;
+    return true;
+}
 
 seq_t a(idx_t n) {
     idx_t count = 0;

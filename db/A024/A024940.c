@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 303, u16 n <= 1106, u32 n <= 4959, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 119 terms through n = 9983 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,13 +20,14 @@
    in a seq_t value.  The algorithm runs in O(n·√n) time and O(n) memory. */
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* allocate array dp[0..n] */
-    seq_t *dp = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (n + 1));
     if (!dp) return 0;            /* out of memory – unlikely for n ≤ 10000 */
-    memset(dp, 0, (n + 1) * sizeof(seq_t));
+    mem_set(dp, 0, (n + 1) * sizeof(seq_t));
     dp[0] = 1;                    /* empty sum */
 
     /* iterate over triangular numbers t = k*(k+1)/2 while t ≤ n */
@@ -42,6 +44,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

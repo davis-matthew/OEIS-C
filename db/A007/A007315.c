@@ -12,18 +12,57 @@
  *            r(m+1-k); power coefficients via P(0) = 1, P(k) = (...
  * Range:     i8 n <= 9, i16 n <= 15, i32 n <= 28, i64 n <= 32, i128 n <= 32,
  *            big any n
- * Helpers:   alloc_zero, from_i128, mconv, release, seq_is_big
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/seq_is_big.h"
-#include "../utils/from_i128.h"
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
-#include "../utils/mconv.h"
+#include <string.h>
+#include "../utils/mem.h"
+
+static int seq_is_big(void)
+{
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 130; i++) x = x * 2;
+    return !(x == 0);
+}
+
+static seq_t from_i128(__int128 v)
+{
+    if (v >= -(__int128)4000000000000000000LL && v <= (__int128)4000000000000000000LL)
+        return (seq_t)(long long)v;
+    {
+        __int128 q = v / ((__int128)1 << 32);
+        long long rem = (long long)(v - q * ((__int128)1 << 32));
+        return from_i128(q) * (seq_t)4294967296LL + (seq_t)rem;
+    }
+}
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
+
+/* Sum_{j=lo..hi} x[j]*y[m-j] mod p (all primes < 2^61, so 16 products fit) */
+static uint64_t mconv(const uint64_t *x, const uint64_t *y, idx_t lo, idx_t hi, idx_t m, uint64_t p) {
+    unsigned __int128 s = 0;
+    int c = 0;
+    for (idx_t j = lo; j <= hi; j++) {
+        s += (unsigned __int128)x[j] * y[m - j];
+        if (++c == 16) { s %= p; c = 0; }
+    }
+    return (uint64_t)(s % p);
+}
 
 static const uint64_t PR[5] = {2305843009213693951ULL, 2147483647ULL, 998244353ULL,
                                1000000007ULL, 1000000009ULL};

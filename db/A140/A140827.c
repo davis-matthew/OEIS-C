@@ -9,13 +9,15 @@
  *            listed in the OEIS entry (offset 0)
  * Range:     u8 n <= 13, u16 n <= 25, u32 n <= 51, u64 n <= 101,
  *            u128 n <= 202, big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 980 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;           /* Cached values of the sequence. */
 static idx_t cached_size = 0;         /* Number of valid entries in cache. */
@@ -32,7 +34,7 @@ static void ensure_cache_for(idx_t n)
         new_cap <<= 1;
     }
 
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) {
         /* In a real program we might handle allocation failure.  Here we
            simply abort since the exercise guarantees memory is available. */

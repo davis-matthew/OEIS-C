@@ -9,13 +9,25 @@
  *            a(n) is the linearisation of this triangle by rows, offset 0
  * Range:     i8 n <= 79, i16 n <= 278, i32 n <= 1083, i64 n <= 4280,
  *            i128 n <= 5150, big any n
- * Helpers:   fib
+ * Validated: standard, pass, 82 terms through n = 5063 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/fib.h"
+#include <stdbool.h>
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
 
 /* Find the row index r such that r*(r+1)/2 <= n < (r+1)*(r+2)/2. */
 static inline idx_t row_for_index(idx_t n)

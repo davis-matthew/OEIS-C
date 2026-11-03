@@ -9,13 +9,14 @@
  *            T(n,0) = 1 if n==1 else 0, by antidiagonals upwards
  * Range:     u8 n <= 38, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 69 terms through n = 68 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 static seq_t T_nk(idx_t row, idx_t col)
 {
@@ -28,7 +29,7 @@ static seq_t T_nk(idx_t row, idx_t col)
         return (seq_t)0;
     }
     /* k > 0 and n > 0: T(n,k) = n * k^(n-1). */
-    seq_t pow = pow_uint((uint64_t)col, row - 1);
+    seq_t pow = ipow_u64_idx((uint64_t)col, row - 1);
     return (seq_t)row * pow;
 }
 

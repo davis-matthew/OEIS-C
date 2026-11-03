@@ -9,16 +9,45 @@
  *            powers)
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   integer_root_uint64, pow_exact_uint64, pow_le_uint64
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
+ * Helpers:   ipow_u64_to_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/integer_root_uint64.h"
-#include "../utils/pow_exact_uint64.h"
-#include "../utils/pow_le_uint64.h"
+#include "../utils/ipow_u64_to_u64.h"
+
+/* Compute integer exponent with 128‑bit accumulation.
+   Returns true if base^exp <= limit, else false (overflow or > limit). */
+static bool pow_le_uint64(uint64_t base, uint64_t exp, uint64_t limit)
+{
+    if (exp == 0) return 1 <= limit;
+    if (base == 0) return 0 <= limit;
+    unsigned __int128 prod = 1;
+    while (exp--)
+    {
+        prod *= base;
+        if (prod > limit) return false;
+    }
+    return true;
+}
+
+/* Integer root: greatest r such that r^exp <= n. */
+static uint64_t integer_root_uint64(uint64_t n, uint64_t exp)
+{
+    uint64_t low = 1, high = n;
+    while (low < high)
+    {
+        uint64_t mid = (low + high + 1) >> 1;
+        if (pow_le_uint64(mid, exp, n))
+            low = mid;
+        else
+            high = mid - 1;
+    }
+    return low;
+}
 
 /* Test whether x is a perfect power (>=1). 1 is considered a perfect power. */
 static bool is_perfect_power_uint64(uint64_t x)
@@ -28,8 +57,8 @@ static bool is_perfect_power_uint64(uint64_t x)
     {
         uint64_t base = integer_root_uint64(x, exp);
         /* Check base and base+1 (due to rounding). */
-        if (pow_exact_uint64(base, exp) == x) return true;
-        if (base > 0 && pow_exact_uint64(base + 1, exp) == x) return true;
+        if (ipow_u64_to_u64(base, exp) == x) return true;
+        if (base > 0 && ipow_u64_to_u64(base + 1, exp) == x) return true;
     }
     return false;
 }

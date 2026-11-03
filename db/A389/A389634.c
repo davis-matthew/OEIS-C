@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 4455, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   meets_abundance, sigma_of_k
+ * Validated: standard, pass, 84 terms through n = 9450 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,42 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/meets_abundance.h"
-#include "../utils/sigma_of_k.h"
+#include "../utils/mem.h"
+
+/* Helper: compute σ(k) for a 64‑bit integer k. This uses a simple
+   trial‑division factorisation that is fast enough for the sizes
+   required by the tests. */
+static seq_t sigma_of_k(idx_t k) {
+    idx_t n = k;
+    seq_t sum = 1;               /* product of (p^(e+1)-1)/(p-1) for each prime factor */
+    idx_t d = 2;
+    while ((seq_t)d * (seq_t)d <= (seq_t)n) {
+        if (n % d == 0) {
+            seq_t term = 1;      /* 1 + d + d^2 + ... + d^e */
+            seq_t power = 1;
+            while (n % d == 0) {
+                n /= d;
+                power *= d;
+                term += power;
+            }
+            sum *= term;
+        }
+        d = (d == 2 ? 3 : d + 2);   /* 2, then odd numbers only */
+    }
+    if (n > 1) {
+        /* remaining prime factor exponent = 1 */
+        sum *= ((seq_t)n + 1);
+    }
+    return sum;
+}
+
+/* Helper: test whether σ(k)/k ≥ 4/3 */
+static bool meets_abundance(idx_t k) {
+    seq_t sigma = sigma_of_k(k);
+    seq_t left  = sigma * (seq_t)3;
+    seq_t right = ((seq_t)k) * (seq_t)4;
+    return left >= right;
+}
 
 /* static cache of computed sequence values */
 static seq_t *values = NULL;
@@ -40,7 +75,7 @@ static void ensure_capacity_seq(size_t needed) {
     if (needed <= values_cap) return;
     size_t new_cap = values_cap ? values_cap * 2 : 16;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *tmp = (seq_t*)realloc(values, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, values, new_cap);
     if (!tmp) abort();  /* allocation failed */
     values = tmp;
     values_cap = new_cap;

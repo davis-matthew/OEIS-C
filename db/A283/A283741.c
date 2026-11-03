@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 35, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   row_of_m
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -47,7 +48,30 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/row_of_m.h"
+#include "../utils/mem.h"
+
+static inline int row_of_m(uint64_t m)
+{
+    /* Rational approximation φ = A/B with F_50/F_49 */
+    static const uint64_t A = 12586269025ULL;  /* numerator      */
+    static const uint64_t B = 7778742049ULL;   /* denominator    */
+
+    /* Compute (m*A) mod B using 128‑bit arithmetic to avoid overflow   */
+    __uint128_t prod = (__uint128_t)m * A;
+    uint64_t num   = (uint64_t)(prod % B);          /* fractional numerator   */
+    uint64_t t_num = B - num;                       /* 1 - fractional part   */
+
+    /* Determine k such that B/(2^(k+1)) < t_num < B/(2^k) */
+    int k = 0;
+    while (true) {
+        __uint128_t left = (__uint128_t)t_num << (k + 1);
+        if (left <= ( __uint128_t) B)
+            ++k;
+        else
+            break;
+    }
+    return k;
+}
 
 seq_t a(idx_t n)
 {
@@ -73,7 +97,7 @@ seq_t a(idx_t n)
     /* Allocate per-row storage with exact capacity                      */
     for (idx_t k = 0; k <= kmax; ++k) {
         if (need[k] > 0)
-            rows[k] = (seq_t*)calloc((size_t)need[k], sizeof(seq_t));
+            rows[k] = mem_new(seq_t, (size_t)need[k]);
     }
 
     /* Fill rows until every required element has been produced          */
@@ -112,7 +136,7 @@ seq_t a(idx_t n)
 
 cleanup:
     for (idx_t k = 0; k <= kmax; ++k) {
-        free(rows[k]);
+        mem_free(rows[k]);
     }
     free(rows);
     free(size);

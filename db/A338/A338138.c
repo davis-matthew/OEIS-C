@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 47, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   floor_cube_root
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,27 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/floor_cube_root.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor cube root by binary search */
+static inline seq_t floor_cube_root(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    /* raise hi until hi^3 > x */
+    while (ipow_i32(hi, 3) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid3 = ipow_i32(mid, 3);
+        if (mid3 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* dynamic array for a(n), 1‑indexed */
 static seq_t *a_vals = NULL;
@@ -43,11 +64,11 @@ static void a_ensure_capacity(idx_t n)
 {
     if (a_vals == NULL) {
         a_cap = 128;
-        a_vals = (seq_t *)calloc(a_cap, sizeof(seq_t));
+        a_vals = mem_new(seq_t, a_cap);
     }
     while ((size_t)n + 1 > a_cap) {
         a_cap <<= 1;
-        a_vals = (seq_t *)realloc(a_vals, a_cap * sizeof(seq_t));
+        a_vals = mem_resize(seq_t, a_vals, a_cap);
     }
 }
 
@@ -56,11 +77,11 @@ static void used_ensure_capacity(void)
 {
     if (used_b == NULL) {
         used_cap = 128;
-        used_b = (seq_t *)calloc(used_cap, sizeof(seq_t));
+        used_b = mem_new(seq_t, used_cap);
     }
     if (used_last >= used_cap) {
         used_cap <<= 1;
-        used_b = (seq_t *)realloc(used_b, used_cap * sizeof(seq_t));
+        used_b = mem_resize(seq_t, used_b, used_cap);
     }
 }
 

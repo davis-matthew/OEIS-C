@@ -9,16 +9,29 @@
  *            = 2^Sum_{i, j, k>=1} (i*j*k*s_i*s_j*s_k/lcm(i, j, k))
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 3, u64 n <= 4, u128 n <= 5,
  *            big any n
- * Helpers:   gcdll, inv_odd_w, mulw
+ * Validated: standard, pass, 15 terms through n = 15 (2026-11-01)
+ * Helpers:   gcd_i64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/gcdll.h"
-#include "../utils/inv_odd_w.h"
-#include "../utils/mulw.h"
+#include "../utils/gcd_i64.h"
+
+static seq_t mulw(seq_t x, seq_t y)
+{
+    return (seq_t)((x * 1u) * y);
+}
+
+static seq_t inv_odd_w(seq_t q)
+{
+    seq_t r = q;
+    int i;
+    for (i = 0; i < 8; i++)
+        r = mulw(r, (seq_t)(2u - mulw(q, r)));
+    return r;
+}
 
 static int w_bits = 0;              /* width of seq_t in bits, or -1 if arbitrary precision */
 static long long *pd = 0, *pm = 0;  /* current partition: part sizes and multiplicities */
@@ -32,9 +45,9 @@ static void evaluate(void)
     int a, b, d;
     for (a = 0; a < np; a++)
         for (b = 0; b < np; b++) {
-            long long l1 = pd[a] / gcdll(pd[a], pd[b]) * pd[b];
+            long long l1 = pd[a] / gcd_i64(pd[a], pd[b]) * pd[b];
             for (d = 0; d < np; d++) {
-                long long l = l1 / gcdll(l1, pd[d]) * pd[d];
+                long long l = l1 / gcd_i64(l1, pd[d]) * pd[d];
                 c += pm[a] * pm[b] * pm[d] * ((pd[a] * pd[b] * pd[d]) / l);
             }
         }

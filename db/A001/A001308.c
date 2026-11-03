@@ -8,24 +8,26 @@
  *            1)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 8,
  *            big any n
- * Helpers:   a000740_pow2
+ * Validated: standard, pass, 20 terms through n = 20 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a000740_pow2.h"
+#include <stdint.h>
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n) {
     seq_t result = 1;
     
     idx_t exp1 = n * (n - 1);
-    result = a000740_pow2(exp1);
+    result = pow2(exp1);
     
-    seq_t term = a000740_pow2(n) - 1;
+    seq_t term = pow2(n) - 1;
     result = result * term;
     
     for (idx_t i = 1; i < n; i++) {
-        seq_t power = a000740_pow2(2 * i) - 1;
+        seq_t power = pow2(2 * i) - 1;
         result = result * power;
     }
     

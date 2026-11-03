@@ -8,7 +8,8 @@
  *            Product_{i>0} (1-x^prime(i))/(1-x^i)
  * Range:     u8 n <= 29, u16 n <= 75, u32 n <= 210, u64 n <= 647,
  *            u128 n <= 2145, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 4796 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 
 seq_t a(idx_t n) {
@@ -38,7 +40,7 @@ seq_t a(idx_t n) {
     }
     
     /* Allocate DP array */
-    seq_t *dp = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1));
     if (!dp) {
         free(is_prime);
         return 0;
@@ -60,7 +62,7 @@ seq_t a(idx_t n) {
     }
     
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     free(is_prime);
     return result;
 }

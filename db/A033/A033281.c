@@ -8,11 +8,13 @@
  * Formula:   a(n) = binomial(n+6,6)*binomial(2*n+8,n)/(n+1)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 9, u64 n <= 21, u128 n <= 21,
  *            big any n
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 static seq_t binom_multiplicative(idx_t n, idx_t k)

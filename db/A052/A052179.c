@@ -10,12 +10,14 @@
  *            T(n,k)=T(n-1,k-1)+4*T(n-1,k)+T(n-1,k+1) (1 ≤ k ≤ n)
  * Range:     u8 n <= 9, u16 n <= 35, u32 n <= 104, u64 n <= 377,
  *            u128 n <= 1378, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 4715 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Internal cache of triangle rows.
    rows[i] points to an array of length i+1 containing T(i,0..i).  */
@@ -37,7 +39,7 @@ static void ensure_rows(size_t up_to)
     /* Fill in new rows from (max_row) to up_to */
     for (size_t r = max_row; r <= up_to; ++r) {
         size_t len = r + 1;
-        seq_t *curr = (seq_t *)malloc(len * sizeof(seq_t));
+        seq_t *curr = mem_new(seq_t, len);
         if (r == 0) {                     /* base case */
             curr[0] = (seq_t)1;
         } else {

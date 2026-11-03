@@ -11,7 +11,8 @@
  *            which * has no other proper divisor that is such a palindrome
  * Range:     u8 none, u16 n <= 46, u32 n <= 212, u64 n <= 212, u128 n <= 212,
  *            big any n
- * Helpers:   is_pal_ge2_uint64
+ * Validated: standard, pass, 56 terms through n = 212 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,19 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_pal_ge2_uint64.h"
+#include "../utils/mem.h"
+
+/* Return true if x is a palindrome in base 10 and has ≥ 2 digits. */
+static bool is_pal_ge2_uint64(uint64_t x)
+{
+    if (x < 10u) return false;               /* fewer than 2 digits */
+    uint64_t rev = 0, t = x;
+    while (t > 0) {
+        rev = rev * 10u + (t % 10u);
+        t   = t / 10u;
+    }
+    return rev == x;
+}
 
 /* Test whether n satisfies the definition of A074889.  n is assumed
  * to fit in a 64‑bit unsigned integer. */
@@ -84,7 +97,7 @@ static void ensure_n_terms(idx_t n)
         if (candidate_ok(last_checked)) {
             if (terms_len == terms_cap) {
                 size_t new_cap = terms_cap ? terms_cap << 1 : 128;
-                seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, new_cap);
                 if (!tmp) exit(1);               /* memory allocation failed */
                 terms = tmp;
                 terms_cap = new_cap;

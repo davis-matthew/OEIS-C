@@ -12,14 +12,17 @@
  *            arithmetic. The triangular table is traversed row‑wise.)
  * Range:     u8 n <= 10, u16 n <= 30, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   binom, pow2, pow3
+ * Validated: partial, pass, 60 terms through n = 59 (2026-11-01)
+ * Helpers:   binomial, pow2, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow3.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
-#include "../utils/binom.h"
+#include "../utils/pow3.h"
 
 seq_t a(idx_t n)
 {
@@ -46,7 +49,7 @@ seq_t a(idx_t n)
         return edge_val;
 
     /* Interior elements.  Compute floor(((3^r)/(2^r))*binom(r,c))+1. */
-    seq_t bin = binom(r, c);
+    seq_t bin = binomial(r, c);
     seq_t prod = pow3_val * bin;              /* (3^r) * binom(r,c) */
     seq_t val  = (prod / pow2_val) + 1;        /* floor division + 1 */
 

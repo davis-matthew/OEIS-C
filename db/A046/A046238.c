@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 12, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   is_palindrome_base7
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,29 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/is_palindrome_base7.h"
+
+/* Check whether a number is a palindrome in base 7. */
+static bool is_palindrome_base7(seq_t x)
+{
+    /* A cube of a 16‑digit decimal number has at most ~48 base‑7 digits,
+       well below 512. */
+    uint8_t digits[512];
+    size_t len = 0;
+
+    if (x == (seq_t)0)
+        return true;
+
+    while (x != (seq_t)0) {
+        digits[len++] = (uint8_t)(x % (seq_t)7);
+        x = x / (seq_t)7;
+    }
+
+    for (size_t i = 0; i < len / 2; ++i)
+        if (digits[i] != digits[len - 1 - i])
+            return false;
+
+    return true;
+}
 
 #if defined(__cplusplus)
   // C++ allocator for class type seq_t

@@ -9,7 +9,8 @@
  *            (n>3) Initial values: a(0)=1, a(1)=1, a(2)=0, a(3)=-2
  * Range:     i8 n <= 6, i16 n <= 9, i32 n <= 14, i64 n <= 22, i128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* Necessary includes for both C11 and C++17 compilations */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 #ifdef __cplusplus
 #include <type_traits>
@@ -45,7 +47,7 @@ seq_t a(idx_t n) {
     /* Lazy initialisation with the first four terms */
     if (!cache) {
         cache_cap  = 8;                     /* at least large enough for 4 terms */
-        cache      = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+        cache      = mem_new(seq_t, cache_cap);
         if (!cache) return 0;               /* allocation failed */
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)1;
@@ -62,7 +64,7 @@ seq_t a(idx_t n) {
         size_t new_cap = cache_cap ? cache_cap : 8;
         while (new_cap <= (size_t)(n + 1))
             new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0; /* allocation failed */
         cache = tmp;
         cache_cap = new_cap;

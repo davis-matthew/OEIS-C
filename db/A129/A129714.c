@@ -14,14 +14,21 @@
  *            T(2,1) = 1 , T(2,2) = 2 and for n >= 3 T(n,k) = T(n...
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   row_cumulative
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/row_cumulative.h"
+#include "../utils/mem.h"
+
+static inline idx_t row_cumulative(idx_t r)
+{
+    /* return (r+1)*(r+2)/2 without overflow (use 128‑bit). */
+    return (idx_t)(((__uint128_t)(r + 1) * (r + 2)) >> 1);
+}
 
 /* ----- helper functions ----- */
 
@@ -71,7 +78,7 @@ static void ensure_rows(idx_t needed)
         if (rows[n]) continue;     /* already computed */
 
         idx_t size = n + 1;
-        seq_t *row = (seq_t*)malloc(size * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, size);
         if (!row) abort();
 
         if (n == 0)

@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..n} (k+1) * 4^k * binomial(5*n+2, n-k)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 17, u128 n <= 19,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
  * and increases the power of 4 each step.
  * Requires the helper function binom from ../utils/binom.h.
  */
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
 
     seq_t sum  = 0;          /* accumulated result */
     seq_t pow4 = 1;          /* 4^k for current k; starts with 4^0 */
-    seq_t bin  = binom(m, n);/* binomial(m, n) for k = 0 */
+    seq_t bin  = binomial(m, n);/* binomial(m, n) for k = 0 */
     idx_t  r   = n;          /* current r = n - k */
 
     for (idx_t k = 0; k <= n; ++k) {

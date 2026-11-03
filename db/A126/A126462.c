@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 12, u128 n <= 14,
  *            big any n
- * Helpers:   compute_pk
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,15 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/compute_pk.h"
+#include "../utils/mem.h"
+
+static seq_t compute_pk(idx_t k)
+{
+    // p_k = ((k^2 + 9*k + 20) * k) / 6
+    seq_t kk = (seq_t)k;
+    seq_t pk = ((kk * kk + (seq_t)9 * kk + 20) * kk) / 6;
+    return pk;
+}
 
 static seq_t *a_cache = NULL;
 static seq_t *bin_cache = NULL;
@@ -37,9 +46,9 @@ static void ensure_cache_size(idx_t n)
     {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
         if (new_cap < (size_t)n + 1) new_cap = (size_t)n + 1;
-        a_cache  = (seq_t *)realloc(a_cache,  new_cap * sizeof(seq_t));
-        bin_cache = (seq_t *)realloc(bin_cache, new_cap * sizeof(seq_t));
-        p_cache  = (seq_t *)realloc(p_cache,  new_cap * sizeof(seq_t));
+        a_cache  = mem_resize(seq_t, a_cache, new_cap);
+        bin_cache = mem_resize(seq_t, bin_cache, new_cap);
+        p_cache  = mem_resize(seq_t, p_cache, new_cap);
         cache_cap = new_cap;
     }
 }

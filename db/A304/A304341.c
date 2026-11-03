@@ -10,12 +10,14 @@
  *            a(6)=284
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 21, u64 n <= 42, u128 n <= 84,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 188 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     }
 
     /* Allocate space for terms 1..n. */
-    seq_t *const arr = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *const arr = mem_new(seq_t, (size_t)(n + 1));
     if (!arr) return 0;                           /* allocation failed */
 
     /* Seed the recurrence. */
@@ -45,6 +47,6 @@ seq_t a(idx_t n)
                   8 * arr[i - 5];
 
     seq_t result = arr[n];
-    free(arr);
+    mem_free(arr);
     return result;
 }

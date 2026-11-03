@@ -10,11 +10,14 @@
  *            idx_t b) and catalan(idx_t k) from utils
  * Range:     u8 n <= 10, u16 n <= 16, u32 n <= 30, u64 n <= 56, u128 n <= 106,
  *            big any n
+ * Validated: standard, pass, 51 terms through n = 972 (2026-11-01)
  * Helpers:   binomial, catalan
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/catalan.h"
 

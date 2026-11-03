@@ -8,6 +8,7 @@
  * Formula:   a(n) = \sum_{blocks} (-1)^k * \prod_{i=1}^{r_k} (start_k + i)
  * Range:     i8 n <= 5, i16 n <= 7, i32 n <= 17, i64 n <= 143, i128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 43 terms through n = 998 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

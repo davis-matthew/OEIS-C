@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_sum, merge_sorted
+ * Validated: standard, pass, 74 terms through n = 9841 (2026-11-03)
+ * Helpers:   digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,23 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/digit_sum.h"          /* seq_t digit_sum(seq_t x); */
-#include "../utils/merge_sorted.h"
+#include "../utils/digit_sum.h"
+#include "../utils/mem.h"
+
+/* Merge two sorted arrays (old_vals[0..old_len-1] and new_vals[0..new_len-1]).
+   Returns a freshly allocated sorted array of size old_len + new_len. */
+static seq_t *merge_sorted(const seq_t *old_vals, size_t old_len,
+                           const seq_t *new_vals, size_t new_len)
+{
+    seq_t *merged = mem_new(seq_t, (old_len + new_len));
+    size_t i = 0, j = 0, k = 0;
+    while (i < old_len && j < new_len) {
+        merged[k++] = (old_vals[i] <= new_vals[j]) ? old_vals[i++] : new_vals[j++];
+    }
+    while (i < old_len) merged[k++] = old_vals[i++];
+    while (j < new_len) merged[k++] = new_vals[j++];
+    return merged;
+}
 
 /* Global storage for the accumulated sorted values */
 static seq_t *sorted_vals = NULL;
@@ -43,19 +59,19 @@ static void ensure_terms(idx_t n)
     /* Initial population if this is the first call. */
     if (sorted_vals == NULL) {
         size_t temp_len = BATCH;
-        seq_t *temp = (seq_t *)malloc(temp_len * sizeof(seq_t));
+        seq_t *temp = mem_new(seq_t, temp_len);
         for (uint64_t k = 1; k <= BATCH; ++k) {
             temp[k - 1] = (seq_t)k * digit_sum((seq_t)k);
         }
-        qsort(temp, temp_len, sizeof(seq_t), cmp_seq);
+        mem_qsort(temp, temp_len, sizeof(seq_t), cmp_seq);
 
         /* Reserve space for 0 as the first term. */
-        sorted_vals = (seq_t *)malloc((temp_len + 1) * sizeof(seq_t));
+        sorted_vals = mem_new(seq_t, (temp_len + 1));
         sorted_vals[0] = (seq_t)0;                /* a(1) = 0 */
         for (size_t i = 0; i < temp_len; ++i) {
             sorted_vals[i + 1] = temp[i];
         }
-        free(temp);
+        mem_free(temp);
 
         sorted_len = temp_len + 1;
         max_k_generated = BATCH;
@@ -76,20 +92,20 @@ static void ensure_terms(idx_t n)
         /* Generate next batch of k values. */
         size_t new_k_start = max_k_generated + 1;
         size_t new_k_end   = max_k_generated + BATCH;
-        seq_t *new_vals = (seq_t *)malloc(BATCH * sizeof(seq_t));
+        seq_t *new_vals = mem_new(seq_t, BATCH);
 
         for (uint64_t k = new_k_start; k <= new_k_end; ++k) {
             new_vals[k - new_k_start] = (seq_t)k * digit_sum((seq_t)k);
         }
 
-        qsort(new_vals, BATCH, sizeof(seq_t), cmp_seq);
+        mem_qsort(new_vals, BATCH, sizeof(seq_t), cmp_seq);
 
         /* Merge with existing sorted values. */
         seq_t *merged = merge_sorted(sorted_vals, sorted_len,
                                      new_vals, BATCH);
 
-        free(sorted_vals);
-        free(new_vals);
+        mem_free(sorted_vals);
+        mem_free(new_vals);
 
         sorted_vals = merged;
         sorted_len += BATCH;

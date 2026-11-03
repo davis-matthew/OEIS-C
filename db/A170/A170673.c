@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*  External integer types supplied by the build system  */
 extern seq_t a(idx_t n);
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     /* Allocate/resize cache if necessary   */
     if (n + 1 > cache_len) {
         /* use realloc with explicit cast so it compiles in both C and C++ */
-        seq_t *new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * (n + 1));
+        seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
         if (!new_cache) abort();          /* out of memory – terminate */
         cache = new_cache;
 

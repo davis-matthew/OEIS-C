@@ -8,15 +8,16 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = Sum_{k=⌊(n+2)/3⌋ .. ⌊n/2⌋} binomial(n,k) * binomial(k,
  *            3*k-n)
- * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 25, u64 n <= 31, u128 n <= 31,
+ * Range:     u8 n <= 8, u16 n <= 14, u32 n <= 25, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -27,9 +28,9 @@ seq_t a(idx_t n)
     seq_t sum = (seq_t)0;
     for (idx_t k = k_min; k <= k_max; ++k)
     {
-        seq_t term1 = binom(n, k);
+        seq_t term1 = binomial(n, k);
         idx_t inner = 3 * k - n;
-        seq_t term2 = binom(k, inner);
+        seq_t term2 = binomial(k, inner);
         sum += term1 * term2;
     }
     return sum;

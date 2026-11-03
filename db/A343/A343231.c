@@ -11,6 +11,7 @@
  *            representation of n equals +1 or –1
  * Range:     u8 n <= 3280, u16 n <= 6561, u32 n <= 6561, u64 n <= 6561,
  *            u128 n <= 6561, big any n
+ * Validated: standard, pass, 85 terms through n = 6535 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

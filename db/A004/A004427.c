@@ -6,8 +6,9 @@
  * Keywords:  nonn, base
  * Formula:   a(n) = ceiling(A007953(n)/A055642(n)), where A007953 is sum of
  *            digits and A055642 is count of digits
- * Range:     u8 n <= 9531, u16 n <= 9531, u32 n <= 9531, u64 n <= 9531,
- *            u128 n <= 9531, big any n
+ * Range:     u8 n <= 25000, u16 n <= 25000, u32 n <= 25000, u64 n <= 25000,
+ *            u128 n <= 25000, big any n
+ * Validated: standard, pass, 124 terms through n = 9531 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

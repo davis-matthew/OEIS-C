@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 18, u64 n <= 36, u128 n <= 73,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 202 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
    a(12)=2045926. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* start with a modest capacity; will grow as needed */
         cache_cap = 32;
-        cache = (seq_t *)malloc(sizeof(seq_t) * (cache_cap + 1)); /* +1 so index == cache_cap is valid */
+        cache = mem_new(seq_t, (cache_cap + 1)); /* +1 so index == cache_cap is valid */
         if (!cache) return 0;          /* out of memory – caller should handle */
         /* initialise whole array to zero first */
         for (size_t i = 0; i <= cache_cap; ++i) cache[i] = 0;
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
     if (needed > cache_cap) {
         size_t new_cap = cache_cap * 2;
         while (new_cap < needed) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * (new_cap + 1));
+        seq_t *tmp = mem_resize(seq_t, cache, (new_cap + 1));
         if (!tmp) return 0;          /* out of memory – caller should handle */
         /* initialise the newly allocated part */
         for (size_t i = cache_cap + 1; i <= new_cap; ++i) tmp[i] = 0;

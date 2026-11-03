@@ -12,12 +12,14 @@
  *            cache of Fibonacci numbers; Lucas(n) = F(n-1)+F(n+1)
  * Range:     u8 n <= 6, u16 n <= 17, u32 n <= 40, u64 n <= 86, u128 n <= 178,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 887 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
 
     if (required > fib_len) {
         /* Allocate (or grow) the array.  The cast is required for C++ */
-        seq_t *newfib = (seq_t *)realloc(fib, required * sizeof(seq_t));
+        seq_t *newfib = mem_resize(seq_t, fib, required);
         if (newfib == NULL) abort();
         fib = newfib;
 

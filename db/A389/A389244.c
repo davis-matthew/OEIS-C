@@ -7,7 +7,8 @@
  * Formula:   a(n) = A057521(n*(n+1))
  * Range:     u8 n <= 7, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   build_primes_upto, floor_sqrt, pow_uint
+ * Validated: partial, pass, 77 terms through n = 77 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_i32, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,9 +16,28 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/floor_sqrt.h"
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/ipow_u64_idx.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 seq_t a(idx_t n) {
     seq_t prod = (seq_t)n * ((seq_t)n + 1);
@@ -46,7 +66,7 @@ seq_t a(idx_t n) {
             ++exp;
         }
         if (exp >= 2) {
-            seq_t part = pow_uint(p, (idx_t)exp);
+            seq_t part = ipow_u64_idx(p, (idx_t)exp);
             res *= part;
         }
     }

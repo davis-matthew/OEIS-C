@@ -7,14 +7,22 @@
  * Formula:   a(n) = Sum_{k=1..n} rad(k) * rad(n+1-k) where rad is A007947
  * Range:     u8 n <= 12, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   build_spf, seq_alloc_array
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/build_spf.h"
-#include "../utils/seq_alloc_array.h"
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 /* Smallest prime factor table: spf[i] gives the least prime dividing i.
    The table is allocated up to index _spf_cap-1. */
@@ -47,7 +55,7 @@ static void _ensure_rad(idx_t limit)
 
     idx_t new_cap = limit + 1;
     if (_rad_cache != NULL) {
-        free(_rad_cache);
+        mem_free(_rad_cache);
         _rad_cache = NULL;
     }
     _rad_cache = seq_alloc_array(new_cap);

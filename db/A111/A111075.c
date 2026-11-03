@@ -11,13 +11,14 @@
  *            d(n) is the number of divisors of n
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 47, u64 n <= 93, u128 n <= 185,
  *            big any n
+ * Validated: standard, pass, 55 terms through n = 3991 (2026-11-01)
  * Helpers:   fib_fast
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/fib_fast.h"   /* provides void fib_fast(idx_t n, seq_t *f, seq_t *f_next); */
+#include "../utils/fib_fast.h"
 
 seq_t a(idx_t n)
 {

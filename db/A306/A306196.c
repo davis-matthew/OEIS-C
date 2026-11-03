@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 81, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 80 terms through n = 81 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ----------------- prime sieve (smallest prime factor) ----------------- */
 
@@ -75,7 +77,7 @@ static void cache_grow(size_t needed)
     while (new_cap < needed)
         new_cap <<= 1;   /* double until we have enough space */
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         abort();                     /* out of memory */
     cache = tmp;
@@ -110,7 +112,7 @@ seq_t a(idx_t n)
 
         /* Prepare a temporary buffer for the row */
         idx_t row_capacity = 2 * r - 3;          /* maximum possible entries */
-        seq_t *row_buf = (seq_t *)malloc(row_capacity * sizeof(seq_t));
+        seq_t *row_buf = mem_new(seq_t, row_capacity);
         if (!row_buf)
             abort();                        /* out of memory */
 
@@ -150,14 +152,14 @@ seq_t a(idx_t n)
 
         /* Sort the row if it contains more than one element. */
         if (row_len > 1)
-            qsort(row_buf, row_len, sizeof(seq_t), cmp_seq);
+            mem_qsort(row_buf, row_len, sizeof(seq_t), cmp_seq);
 
         /* Append the row to the cache. */
         cache_grow(next_index + row_len);
         for (size_t i = 0; i < row_len; ++i)
             cache[next_index++] = row_buf[i];
 
-        free(row_buf);
+        mem_free(row_buf);
     }
 
     /* Update global state. */

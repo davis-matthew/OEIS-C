@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 7, i16 n <= 15, i32 n <= 31, i64 n <= 63, i128 n <= 127,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 3163 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Sequence A078043
    Recurrence: a(0)=1, a(1)=-2, a(2)=3, a(n) = -a(n-1) + a(n-2) - 2*a(n-3)  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache for previously computed terms */
@@ -25,7 +27,7 @@ seq_t a(idx_t n) {
     /* initialise the cache lazily with the first 3 terms */
     if (len == 0) {
         cap = 4;                     /* start with a bit more than 3 */
-        cache = (seq_t*)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)-2;
         cache[2] = (seq_t)3;
@@ -41,7 +43,7 @@ seq_t a(idx_t n) {
     if ((idx_t)(n + 1) > cap) {
         idx_t new_cap = cap;
         while ((idx_t)(n + 1) > new_cap) new_cap *= 2;
-        cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cap = new_cap;
     }
 

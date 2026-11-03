@@ -11,7 +11,8 @@
  *            programming over column masks
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Constants */
 #define HEIGHT          7
@@ -55,11 +57,11 @@ static void init_once(void)
     }
 
     /* Allocate DP arrays. */
-    dp_prev = (seq_t *)malloc(valid_count * sizeof(seq_t));
-    dp_curr = (seq_t *)malloc(valid_count * sizeof(seq_t));
+    dp_prev = mem_new(seq_t, valid_count);
+    dp_curr = mem_new(seq_t, valid_count);
     if (dp_prev && dp_curr) {
-        memset(dp_prev, 0, valid_count * sizeof(seq_t));
-        memset(dp_curr, 0, valid_count * sizeof(seq_t));
+        mem_set(dp_prev, 0, valid_count * sizeof(seq_t));
+        mem_set(dp_curr, 0, valid_count * sizeof(seq_t));
     }
 }
 
@@ -69,14 +71,14 @@ static void ensure_cache(idx_t n)
     if (cache_size >= (size_t)(n + 1)) return;
 
     size_t new_size = (size_t)(n + 1);
-    seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_size);
     if (!new_cache) return;   /* allocation failure – unlikely for n ≤ 10000 */
 
-    memset(new_cache, 0, new_size * sizeof(seq_t));
+    mem_set(new_cache, 0, new_size * sizeof(seq_t));
 
     if (cache) {
-        memcpy(new_cache, cache, cache_size * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_cache, cache, cache_size * sizeof(seq_t));
+        mem_free(cache);
     }
 
     cache      = new_cache;

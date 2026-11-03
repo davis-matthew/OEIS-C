@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 36, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
                  a(10)=36, a(11)=75
    This follows from the rational generating function given in OEIS. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,8 +37,8 @@ seq_t a(idx_t n)
     if (cache == NULL || cap <= idx) {
         /* need to grow the cache */
         size_t new_cap = idx + 1;
-        seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
-        if (cache) free(cache);
+        seq_t *new_cache = mem_new(seq_t, new_cap);
+        if (cache) mem_free(cache);
         cache = new_cache;
         cap   = new_cap;
 

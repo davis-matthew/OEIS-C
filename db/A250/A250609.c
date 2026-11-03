@@ -11,12 +11,14 @@
  *            a(n)=196*2^(n-1)+99*n^2+177*n+30.)
  * Range:     u8 none, u16 n <= 9, u32 n <= 25, u64 n <= 57, u128 n <= 121,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 153 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     {
         /* allocate at least up to max(n,4) for initial values */
         size_t max = (size_t)n > 4 ? (size_t)n : 4;
-        cache = (seq_t *)malloc((max + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (max + 1));
         cap = max;
         /* initialise first four terms */
         cache[1] = (seq_t)502;
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     {
         /* enlarge cache to include index n */
         size_t new_cap = (size_t)n;
-        seq_t *new_cache = (seq_t *)realloc(cache, (new_cap + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (new_cap + 1));
         /* realloc might fail; however for contest purposes we ignore that */
         cache = new_cache;
         /* compute missing terms */

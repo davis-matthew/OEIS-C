@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 411, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_of_form
+ * Validated: standard, pass, 58 terms through n = 9729 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,24 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/is_of_form.h"
+#include "../utils/mem.h"
+
+static bool is_of_form(uint64_t p)
+{
+    uint64_t max_x = (uint64_t)sqrt((long double)p / 7.0L);
+    for (uint64_t x = 0; x <= max_x; ++x) {
+        uint64_t term = 7ULL * x * x;
+        if (term > p) break;
+        uint64_t rem = p - term;
+        if (rem % 12ULL != 0) continue;
+        uint64_t y2 = rem / 12ULL;
+        uint64_t y = (uint64_t)sqrt((long double)y2);
+        while (y * y > y2) --y;
+        while ((y + 1) * (y + 1) <= y2) ++y;
+        if (y * y == y2) return true;
+    }
+    return false;
+}
 
 /* --------------------------------------------------------------------- */
 /*  Deterministic Miller–Rabin primality test for 64‑bit unsigned integers
@@ -98,7 +116,7 @@ seq_t a(idx_t n)
         if (isPrime_uint64(p) && is_of_form(p)) {
             if (count == capacity) {
                 capacity = capacity ? capacity * 2 : 8;
-                seq = (seq_t *)realloc(seq, capacity * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, capacity);
             }
             seq[count++] = (seq_t)p;
         }

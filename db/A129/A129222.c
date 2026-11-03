@@ -7,6 +7,7 @@
  * Formula:   a(0) = 4, a(n) = (a(n-1)^2 - 2) mod 131071 (n ≥ 1)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 15, u128 n <= 15,
  *            big any n
+ * Validated: full, pass, 16 terms through n = 15 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

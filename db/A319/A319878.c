@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /*  The sieve covers indices for primes up to SIEVE_LIMIT.  It must be large
     enough to generate the required number of terms.  20 000 000 works for
@@ -83,7 +85,7 @@ static void cache_ensure(size_t needed)
     size_t new_cap = seq_cap ? seq_cap * 2 : 16;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_t *new_buf = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *new_buf = mem_resize(seq_t, seq_cache, new_cap);
     if (!new_buf)
         exit(EXIT_FAILURE);
     seq_cache = new_buf;
@@ -163,7 +165,7 @@ seq_t a(idx_t n)
     build_sieve();
 
     if (seq_cache == NULL) {
-        seq_cache = (seq_t *)malloc(16 * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, 16);
         if (!seq_cache)
             exit(EXIT_FAILURE);
         seq_len = 0;

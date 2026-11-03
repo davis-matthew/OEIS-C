@@ -8,7 +8,8 @@
  *            divisor-count function d(n)
  * Range:     u8 n <= 7559, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 9737 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    is the largest n requested, which is easily fast enough for n≤10000. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Forward declaration – the calling environment provides `seq_t` and `idx_t`. */
 extern seq_t a(idx_t n);
@@ -35,7 +37,7 @@ static void ensure_cache(idx_t n) {
 
     /* Allocate space for new cache entries. */
     size_t new_size = (size_t)(n + 1);
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     uint64_t *new_d = (uint64_t *)realloc(div_count, new_size * sizeof(uint64_t));
     if (!new_cache || !new_d) {
         /* Out of memory – abort; the contest infrastructure treats this

@@ -14,13 +14,15 @@
  *            + y v' = x with initial values x=y=z=t=u=v = 1....
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 15, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Compute the n‑th term of OEIS A069009.  */
 seq_t a(idx_t n) {
@@ -34,7 +36,7 @@ seq_t a(idx_t n) {
     /* initialise on first call */
     if (!initialized) {
         cache_cap = 16;                    /* start with some capacity */
-        t_cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        t_cache = mem_new(seq_t, cache_cap);
         if (!t_cache) {
             /* in a real program we would handle allocation failure */
             while (true);                 /* halt execution */
@@ -62,7 +64,7 @@ seq_t a(idx_t n) {
         /* append the new t value */
         if (cache_len >= cache_cap) {
             size_t new_cap = cache_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(t_cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, t_cache, new_cap);
             if (!tmp) {
                 while (true);                 /* halt on OOM */
             }

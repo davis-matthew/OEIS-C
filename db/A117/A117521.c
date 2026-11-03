@@ -8,12 +8,14 @@
  * Formula:   a(1) = 1; for n > 1, a(n) = reverse_decimal(a(n-1)) + 2
  * Range:     u8 n <= 16, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   reverse_decimal
+ * Validated: standard, pass, 118 terms through n = 963 (2026-11-01)
+ * Helpers:   reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/reverse_decimal.h"
+#include <stdlib.h>
+#include "../utils/reverse_digits.h"
 
 static seq_t cache[10001];
 static idx_t cache_size = 0;
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* compute missing terms up to n */
     for (idx_t i = cache_size + 1; i <= n; ++i) {
         seq_t prev = cache[cache_size - 1];
-        seq_t next = reverse_decimal(prev) + (seq_t)2;
+        seq_t next = reverse_digits(prev) + (seq_t)2;
         cache[cache_size] = next;
         ++cache_size;
     }

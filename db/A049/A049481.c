@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 37, u16 n <= 2354, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 9686 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static state used to build the sieve and cache the results. */
 static uint8_t *is_prime = NULL;      /* sieve bitmap */
@@ -75,9 +77,9 @@ static void rebuild_sieve(size_t need)
             }
 
         /* Build list of special primes (p and p+30 both prime). */
-        free(special_list);
+        mem_free(special_list);
         size_t special_cap = new_limit / 20 + 50;
-        special_list = (seq_t *)malloc(special_cap * sizeof(seq_t));
+        special_list = mem_new(seq_t, special_cap);
         if (!special_list) abort();
         special_cnt = 0;
         for (size_t i = 0; i < prime_cnt; ++i)
@@ -89,7 +91,7 @@ static void rebuild_sieve(size_t need)
                 if (special_cnt == special_cap)
                 {
                     special_cap <<= 1;
-                    special_list = (seq_t *)realloc(special_list, special_cap * sizeof(seq_t));
+                    special_list = mem_resize(seq_t, special_list, special_cap);
                     if (!special_list) abort();
                 }
                 special_list[special_cnt++] = (seq_t)p;

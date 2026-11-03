@@ -11,15 +11,32 @@
  *            self-conjugate lambda splits into two of degree f/2....
  * Range:     u8 n <= 14, u16 n <= 14, u32 n <= 14, u64 n <= 14, u128 n <= 14,
  *            big any n
- * Helpers:   a003863_cmp, a003863_conj
+ * Validated: full, pass, 14 terms through n = 14 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/a003863_cmp.h"
-#include "../utils/a003863_conj.h"
+
+static int a003863_cmp(const void *x, const void *y)
+{
+    long long u = *(const long long *)x, v = *(const long long *)y;
+    return (u > v) - (u < v);
+}
+
+static void a003863_conj(const int *p, int len, int *c, int *clen)
+{
+    int j, i;
+    *clen = (len > 0) ? p[0] : 0;
+    for (j = 0; j < *clen; j++) {
+        int k = 0;
+        for (i = 0; i < len; i++)
+            if (p[i] > j) k++;
+        c[j] = k;
+    }
+}
 
 #define A003863_N 8
 

@@ -7,13 +7,15 @@
  * Formula:   Search for primes p such that p % 7 == 0 or p % 7 == 3
  * Range:     u8 n <= 11, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 955 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *mod_primes = NULL;      /* primes congruent to 0 or 3 modulo 7 */
 static size_t mod_count = 0, mod_cap = 0;
@@ -28,7 +30,7 @@ static idx_t candidate = 2;
 static void add_all_prime(seq_t p) {
     if (all_count == all_cap) {
         size_t new_cap = all_cap ? (all_cap << 1) : 16;
-        all_primes = (seq_t *)realloc(all_primes, new_cap * sizeof(seq_t));
+        all_primes = mem_resize(seq_t, all_primes, new_cap);
         all_cap = new_cap;
     }
     all_primes[all_count++] = p;
@@ -38,7 +40,7 @@ static void add_all_prime(seq_t p) {
 static void add_mod_prime(seq_t p) {
     if (mod_count == mod_cap) {
         size_t new_cap = mod_cap ? (mod_cap << 1) : 16;
-        mod_primes = (seq_t *)realloc(mod_primes, new_cap * sizeof(seq_t));
+        mod_primes = mem_resize(seq_t, mod_primes, new_cap);
         mod_cap = new_cap;
     }
     mod_primes[mod_count++] = p;

@@ -7,7 +7,8 @@
  * Formula:   a(n) = floor((3^n - 1)/n)
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 43, u128 n <= 83,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 45 terms through n = 253 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -55,7 +56,7 @@ seq_t a(idx_t n)
          * operators are expected to be overloaded for that type by
          * the utilities supplied in the build.
          */
-        seq_t pow3 = big_pow((seq_t)3, n);
+        seq_t pow3 = ipow((seq_t)3, n);
         pow3 -= (seq_t)1;
         return pow3 / (seq_t)n;
     }

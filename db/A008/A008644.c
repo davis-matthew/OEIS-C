@@ -10,18 +10,20 @@
  *            simple dynamic‑programming coin‑change routine
  * Range:     u8 n <= 35, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 65 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* allocate array for DP, size n+1 (<= 10001 for typical tests) */
     size_t sz = (size_t)(n + 1);
-    seq_t *dp = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, sz);
     if (dp == NULL) return 0; /* memory allocation failure */
 
     /* initialise */
@@ -40,6 +42,6 @@ seq_t a(idx_t n)
     }
 
     seq_t ans = dp[n];
-    free(dp);
+    mem_free(dp);
     return ans;
 }

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   square_spiral_value
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,37 @@
  * (A214251 applied to the data of the square spiral A214526). */
 
 #include <stdint.h>
-#include "../utils/square_spiral_value.h"
+
+static seq_t square_spiral_value(int64_t x, int64_t y)
+{
+    /* compute radius r = max(|x|,|y|) */
+    int64_t ax = x < 0 ? -x : x;
+    int64_t ay = y < 0 ? -y : y;
+    int64_t r = ax > ay ? ax : ay;
+
+    if (r == 0)
+        return (seq_t)1;
+
+    /* previous ring max value = (2r-1)^2 */
+    seq_t two_r_minus_one = (seq_t)(2 * r - 1);
+    seq_t prev_max = two_r_minus_one * two_r_minus_one;
+
+    seq_t start = prev_max + 1;        /* first value of this ring */
+
+    seq_t offset;
+
+    if (x == r && y >= -(r - 1) && y <= r) {          /* right side */
+        offset = (seq_t)(y + (r - 1));
+    } else if (y == r && x >= -r && x <= r - 1) {      /* top side */
+        offset = (seq_t)(2 * r) + (seq_t)((r - 1) - x);
+    } else if (x == -r && y >= -r && y <= r - 1) {     /* left side */
+        offset = (seq_t)(4 * r) + (seq_t)((r - 1) - y);
+    } else {                                           /* bottom side */
+        offset = (seq_t)(6 * r) + (seq_t)(x + (r - 1));
+    }
+
+    return start + offset;
+}
 
 seq_t a(idx_t n)
 {

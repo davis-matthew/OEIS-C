@@ -12,6 +12,7 @@
  *            (position inside the diagonal) * k = t (incre...
  * Range:     u8 n <= 27, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
+ * Validated: partial, pass, 60 terms through n = 59 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,7 @@
 
 #include <stdint.h>
 #include <math.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 /* Integer square root of a 64‑bit unsigned integer (floor). */

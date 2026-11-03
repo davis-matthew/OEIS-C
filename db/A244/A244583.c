@@ -8,7 +8,8 @@
  *            sigma(k) is the sum of the divisors of k
  * Range:     u8 n <= 7, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* ---------- Prime generation ---------- */
 static uint64_t *prime_list   = NULL;   /* 0‑based array of primes       */
@@ -78,12 +80,12 @@ static void ensure_sigma_upto(uint64_t max_value)
     if (max_value <= sigma_limit_max)
         return;    /* already computed */
 
-    free(sigma_table);
-    free(prefix_sigma);
+    mem_free(sigma_table);
+    mem_free(prefix_sigma);
 
     /* Allocate zeroed memory */
-    sigma_table  = (seq_t *)calloc((size_t)(max_value + 1), sizeof(seq_t));
-    prefix_sigma = (seq_t *)calloc((size_t)(max_value + 1), sizeof(seq_t));
+    sigma_table  = mem_new(seq_t, (size_t)(max_value + 1));
+    prefix_sigma = mem_new(seq_t, (size_t)(max_value + 1));
     if (!sigma_table || !prefix_sigma)
         exit(EXIT_FAILURE);
 

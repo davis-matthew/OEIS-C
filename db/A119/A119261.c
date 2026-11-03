@@ -9,12 +9,14 @@
  *            a(n) is the nth term (1‑based)
  * Range:     u8 n <= 6, u16 n <= 30, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static table containing all 31 terms of the sequence. */
 static seq_t seq[31];
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
             seq[count++] = val;
         }
         table_size = count;
-        qsort(seq, (size_t)count, sizeof(seq_t), cmp_seq);
+        mem_qsort(seq, (size_t)count, sizeof(seq_t), cmp_seq);
         initialized = 1;
     }
 

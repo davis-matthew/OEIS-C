@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 532, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 116 terms through n = 9949 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,15 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 /* ---------- dynamic arrays for primes and cumulative sums ---------- */
 static uint64_t   *prime_arr   = NULL;   /* list of primes, 2,3,5,... */
@@ -41,6 +51,17 @@ static size_t     sum_cnt    = 0;          /* number of sums stored          */
 static size_t     sum_cap    = 0;          /* allocated sum capacity          */
 
 /* Extend capacity of an array (used for both prime_arr and sum_arr) */
+#ifdef __cplusplus
+template <class T>
+static void grow_array(T **ptr, size_t *cap, size_t *cnt, size_t elem_size)
+{
+    if (*cnt >= *cap) {
+        size_t new_cap = (*cap == 0) ? 16 : *cap << 1;
+        *ptr = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+        *cap   = new_cap;
+    }
+}
+#else
 static void grow_array(void **ptr, size_t *cap, size_t *cnt, size_t elem_size)
 {
     if (*cnt >= *cap) {
@@ -49,6 +70,7 @@ static void grow_array(void **ptr, size_t *cap, size_t *cnt, size_t elem_size)
         *cap   = new_cap;
     }
 }
+#endif
 
 /* Simple deterministic primality test using the current prime list */
 static bool is_prime_simple(uint64_t n)
@@ -70,7 +92,7 @@ static void append_next_prime(void)
         ++candidate;
 
     /* grow prime array if needed */
-    grow_array((void **)&prime_arr, &prime_cap, &prime_cnt,
+    grow_array(OEISC_VPP(&prime_arr), &prime_cap, &prime_cnt,
                sizeof(uint64_t));
     prime_arr[prime_cnt++] = candidate;
 
@@ -80,7 +102,7 @@ static void append_next_prime(void)
                         sum_arr[sum_cnt - 1] + (seq_t)candidate;
 
     /* grow sum array if needed */
-    grow_array((void **)&sum_arr, &sum_cap, &sum_cnt,
+    grow_array(OEISC_VPP(&sum_arr), &sum_cap, &sum_cnt,
                sizeof(seq_t));
     sum_arr[sum_cnt++] = new_sum;
 }

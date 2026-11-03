@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 9, u32 n <= 10, u64 n <= 11, u128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 13 terms through n = 13 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 */
 
 #include <stdlib.h>   /* for malloc, realloc, free */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;        /* 1‑based cache; cache[0] unused          */
 static size_t cache_cap = 0;       /* current capacity of cache (elements)   */
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     /* Ensure we can address cache[n]; enlarge if necessary. */
     size_t needed = (size_t)n + 1;        /* include index 0 */
     if (needed > cache_cap) {
-        void *tmp = realloc(cache, needed * sizeof(seq_t));
+        void *tmp = mem_resize(seq_t, cache, needed);
         if (!tmp) {
             /* Allocation failed – return zero (failing case not exercised). */
             return (seq_t)0;

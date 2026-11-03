@@ -11,13 +11,15 @@
  *            p(4)=-6
  * Range:     i8 n <= 6, i16 n <= 67, i32 n <= 2500, i64 n <= 2500,
  *            i128 n <= 2500, big any n
- * Helpers:   none
+ * Validated: standard, pass, 85 terms through n = 2440 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* computed a(0..len-1) */
 static idx_t cache_len = 0;      /* current size of cache (len) */
@@ -39,12 +41,12 @@ seq_t a(idx_t n)
     /* extend cache if needed */
     if (n >= cache_len) {
         idx_t new_len = n + 1;
-        seq_t *new_cache = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_len);
         if (!new_cache) return 0; /* allocation failed */
 
         /* compute s(k) for k = 1..new_len-1 */
-        seq_t *s = (seq_t *)malloc(new_len * sizeof(seq_t));
-        if (!s) { free(new_cache); return 0; }
+        seq_t *s = mem_new(seq_t, new_len);
+        if (!s) { mem_free(new_cache); return 0; }
         for (idx_t i = 0; i < new_len; ++i) s[i] = 0;
 
         for (idx_t d = 1; d < new_len; ++d) {
@@ -64,8 +66,8 @@ seq_t a(idx_t n)
         }
 
         /* free old cache and temporary arrays, replace with new_cache */
-        free(cache);
-        free(s);
+        mem_free(cache);
+        mem_free(s);
         cache = new_cache;
         cache_len = new_len;
     }

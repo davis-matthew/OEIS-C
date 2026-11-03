@@ -8,14 +8,41 @@
  * Formula:   a(n) = (curling number of (a(1),...,a(n-1))) mod 2; a(1)=0
  * Range:     u8 n <= 150, u16 n <= 150, u32 n <= 150, u64 n <= 150,
  *            u128 n <= 150, big any n
- * Helpers:   curling
+ * Validated: partial, pass, 150 terms through n = 150 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/curling.h"
+#include "../utils/mem.h"
+
+/* compute the curling number of the first 'len' terms in 'a'.
+   'len' is guaranteed to be >= 1 and refers to a[0..len-1]. */
+static seq_t curling(const seq_t *a, idx_t len)
+{
+    seq_t maxk = 1;                      /* at least 1 always exists */
+    for (idx_t d = 1; d <= len; ++d) {    /* length of the repeating block */
+        idx_t pos = len - d;              /* start of the last block */
+        seq_t k = 1;
+        /* try to extend the number of repetitions */
+        while (pos >= d) {
+            bool same = true;
+            for (idx_t i = 0; i < d; ++i) {
+                if (a[pos - d + i] != a[pos + i]) {
+                    same = false;
+                    break;
+                }
+            }
+            if (!same) break;
+            ++k;
+            pos -= d;
+        }
+        if (k > maxk) maxk = k;
+    }
+    return maxk;
+}
 
 /* static cache of already computed terms */
 static seq_t *seq_cache = NULL;
@@ -27,7 +54,7 @@ static void ensure_cache(idx_t n)
 {
     if (n <= cache_cap) return;
     idx_t new_cap = n;
-    seq_t *new_mem = (seq_t *)realloc(seq_cache, (size_t)new_cap * sizeof(seq_t));
+    seq_t *new_mem = mem_resize(seq_t, seq_cache, (size_t)new_cap);
     if (!new_mem && new_cap > 0) abort();   /* memory exhausted */ 
     seq_cache = new_mem;
     cache_cap = new_cap;

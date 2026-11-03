@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    a(n) = n*a(n-1) + Σ_{k=1..n} 4^(k-1)*(k-1)!*binomial(n,k)*a(n-k)   */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,10 +34,10 @@ seq_t a(idx_t n)
         idx_t new_size = n + 1;
 
         /* realloc returns void* – cast in both C and C++ */
-        cache_a    = (seq_t*)realloc(cache_a,    new_size * sizeof(seq_t));
-        cache_pow4 = (seq_t*)realloc(cache_pow4, new_size * sizeof(seq_t));
-        cache_fact = (seq_t*)realloc(cache_fact, new_size * sizeof(seq_t));
-        cache_g    = (seq_t*)realloc(cache_g,    new_size * sizeof(seq_t));
+        cache_a    = mem_resize(seq_t, cache_a, new_size);
+        cache_pow4 = mem_resize(seq_t, cache_pow4, new_size);
+        cache_fact = mem_resize(seq_t, cache_fact, new_size);
+        cache_g    = mem_resize(seq_t, cache_g, new_size);
 
         /* Initialise new entries */
         for (idx_t i = cache_size; i < new_size; ++i) {

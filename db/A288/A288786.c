@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{j=0}^{n-4} binomial(n,j) * Bell(j) (OEIS A288786)
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 15, u64 n <= 25, u128 n <= 42,
  *            big any n
- * Helpers:   binomial
+ * Validated: standard, pass, 38 terms through n = 573 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *bell = NULL;     /* Cached Bell numbers B(0) .. B(m) */
 static idx_t bell_size = 0;    /* Largest index computed so far */
@@ -25,7 +27,7 @@ static void ensure_bell(idx_t need)
     /* Allocate at least Bell(0) if it hasn't been done yet. */
     if (bell == NULL) {
         size_t init_cap = 1;
-        bell = (seq_t *)malloc(init_cap * sizeof(seq_t));
+        bell = mem_new(seq_t, init_cap);
         bell[0] = (seq_t)1;
         bell_size = 0;
     }
@@ -39,7 +41,7 @@ static void ensure_bell(idx_t need)
         cap <<= 1;
 
     /* Reallocate the array. */
-    seq_t *tmp = (seq_t *)realloc(bell, cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, bell, cap);
     if (tmp == NULL) {
         /* In practice we never expect allocation failures here. */
         exit(EXIT_FAILURE);

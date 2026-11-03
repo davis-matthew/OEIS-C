@@ -8,6 +8,7 @@
  * Formula:   a(n) = ∏_{p^e‖n} (p+1)·p^(e - (1 - e mod 2))
  * Range:     u8 n <= 13, u16 n <= 185, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 69 terms through n = 9618 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,8 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 /* compute p^e for an unsigned integer exponent, result in seq_t */

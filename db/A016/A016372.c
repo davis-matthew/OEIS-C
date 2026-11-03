@@ -8,12 +8,14 @@
  *            Φ_285(x)
  * Range:     i8 n <= 144, i16 n <= 144, i32 n <= 144, i64 n <= 144,
  *            i128 n <= 144, big any n
- * Helpers:   none
+ * Validated: full, pass, 145 terms through n = 144 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 typedef struct {
     size_t deg;
@@ -24,13 +26,13 @@ static poly *poly_new(size_t deg)
 {
     poly *p = (poly *)malloc(sizeof(poly));
     p->deg = deg;
-    p->coeffs = (seq_t *)calloc(deg + 1, sizeof(seq_t));
+    p->coeffs = mem_new(seq_t, deg + 1);
     return p;
 }
 
 static void poly_free(poly *p)
 {
-    free(p->coeffs);
+    mem_free(p->coeffs);
     free(p);
 }
 
@@ -48,7 +50,7 @@ static poly *poly_divide(const poly *numer, const poly *den)
 {
     size_t degq = numer->deg - den->deg;
     poly *q = poly_new(degq);
-    seq_t *temp = (seq_t *)malloc((numer->deg + 1) * sizeof(seq_t));
+    seq_t *temp = mem_new(seq_t, (numer->deg + 1));
     for (size_t i = 0; i <= numer->deg; ++i)
         temp[i] = numer->coeffs[i];
 
@@ -62,7 +64,7 @@ static poly *poly_divide(const poly *numer, const poly *den)
             }
         }
     }
-    free(temp);
+    mem_free(temp);
     return q;
 }
 

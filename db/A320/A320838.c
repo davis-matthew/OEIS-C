@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 89, u16 n <= 89, u32 n <= 89, u64 n <= 89, u128 n <= 89,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 90 terms through n = 89 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    a(n) = #{x : x < n, a(x) = a(n-1) and no y : x<y<n with a(y) > a(n-1)} */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---- Helper structures for memoisation ---- */
 typedef struct {
@@ -48,7 +50,7 @@ static void ensure_seq_capacity(size_t need)
     if (seq_cap >= need) return;
     size_t newcap = seq_cap ? seq_cap * 2 : 4;
     while (newcap < need) newcap <<= 1;
-    seq            = (seq_t*)realloc(seq, newcap * sizeof(seq_t));
+    seq            = mem_resize(seq_t, seq, newcap);
     prevGreater    = (idx_t*)realloc(prevGreater, newcap * sizeof(idx_t));
     seq_cap = newcap;
 }
@@ -80,7 +82,7 @@ static size_t find_value_index(seq_t v)
     /* not found -> create new entry */
     if (values_len >= values_cap) {
         size_t newcap = values_cap ? values_cap * 2 : 4;
-        values = (value_info*)realloc(values, newcap * sizeof(value_info));
+        values = mem_resize(value_info, values, newcap);
         values_cap = newcap;
     }
     values[values_len].val = v;
@@ -131,7 +133,7 @@ seq_t a(idx_t n)
 
         /* initialise value list */
         values_cap = 4;
-        values = (value_info*)malloc(values_cap * sizeof(value_info));
+        values = mem_new(value_info, values_cap);
         values_len = 0;
         add_position((seq_t)0, 0);
     }

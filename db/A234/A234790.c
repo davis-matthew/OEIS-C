@@ -12,13 +12,15 @@
  *            a(5)=3479085232, a(6)=118012659040
  * Range:     u8 none, u16 n <= 1, u32 n <= 5, u64 n <= 11, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Cached array for memoization: a[0] unused. */
 static seq_t *cache = NULL;
@@ -44,7 +46,7 @@ static void ensure_cache(idx_t n)
 
     if (cache == NULL) {
         /* First allocation. */
-        cache = (seq_t *)malloc(need * sizeof(seq_t));
+        cache = mem_new(seq_t, need);
         if (cache == NULL) exit(EXIT_FAILURE);
         cap = need;
         /* Populate initial entries. */
@@ -55,7 +57,7 @@ static void ensure_cache(idx_t n)
         max_computed = 6; /* all initial values computed */
     } else if (need > cap) {
         /* Grow the array. */
-        seq_t *tmp = (seq_t *)realloc(cache, need * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, need);
         if (tmp == NULL) exit(EXIT_FAILURE);
         cache = tmp;
         cap = need;

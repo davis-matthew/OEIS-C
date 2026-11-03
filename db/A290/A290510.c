@@ -12,12 +12,14 @@
  *            a(15)=538102
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 25, u64 n <= 50, u128 n <= 100,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 180 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_values[16] = {
     /* 0 unused                                        */
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
         idx_t i;
         idx_t old_size = cached_size;
         idx_t new_size = n; /* we need indices 0..n inclusive */
-        seq_t *tmp = (seq_t *)realloc(cache, (new_size + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (new_size + 1));
         if (!tmp) {
             /* allocation failed: return 0 (caller must handle error) */
             return (seq_t)0;

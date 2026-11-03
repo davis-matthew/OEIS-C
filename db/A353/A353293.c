@@ -9,12 +9,20 @@
  * Formula:   not stated
  * Range:     u8 n <= 7163, u16 n <= 7163, u32 n <= 7163, u64 n <= 7163,
  *            u128 n <= 7163, big any n
- * Helpers:   count_common_bits
+ * Validated: standard, pass, 96 terms through n = 6351 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/count_common_bits.h"
+/* Helper: count how many k ≤ m share a 1‑bit with m. */
+static inline seq_t count_common_bits(idx_t m) {
+    seq_t c = 0;
+    for (idx_t k = 1; k <= m; ++k) {
+        if (k & m) ++c;
+    }
+    return c;
+}
 /* Computes OEIS A353293: the n-th term read row‑wise from the irregular
    table T(n,k), where
         T(n,1) = lowest one‑bit of n  (A006519(n))

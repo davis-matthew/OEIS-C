@@ -10,15 +10,18 @@
  *            prime power values
  * Range:     u8 n <= 89, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, pow_uint
+ * Validated: standard, pass, 80 terms through n = 9889 (2026-11-01)
+ * Helpers:   factor_u64, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t
 a(idx_t n)
@@ -44,13 +47,13 @@ a(idx_t n)
 
         if (p == 3) {
             /* 2 * 3^e */
-            term = 2 * pow_uint(3, (idx_t)e);
+            term = 2 * ipow_u64_idx(3, (idx_t)e);
         } else if (p % 3 == 1) {
             /* (p-1) * p^(e-1) */
-            term = (seq_t)(p - 1) * pow_uint(p, (idx_t)(e - 1));
+            term = (seq_t)(p - 1) * ipow_u64_idx(p, (idx_t)(e - 1));
         } else { /* p % 3 == 2 */
             /* (p+1) * p^(e-1) */
-            term = (seq_t)(p + 1) * pow_uint(p, (idx_t)(e - 1));
+            term = (seq_t)(p + 1) * ipow_u64_idx(p, (idx_t)(e - 1));
         }
 
         result *= term;

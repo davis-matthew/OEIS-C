@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 6, u32 n <= 283, u64 n <= 1000, u128 n <= 1000,
  *            big any n
- * Helpers:   floor_cube_root
+ * Validated: standard, pass, 47 terms through n = 998 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,28 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/floor_cube_root.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor cube root by binary search */
+static inline seq_t floor_cube_root(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    /* raise hi until hi^3 > x */
+    while (ipow_i32(hi, 3) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid3 = ipow_i32(mid, 3);
+        if (mid3 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Count decimal digits of x.  Works for any non‑negative seq_t. */
 static int digits(seq_t x)
@@ -77,10 +99,10 @@ static void cache_append(seq_t v)
     if (cache_size == cache_cap)
     {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-        seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_new(seq_t, new_cap);
         if (cache)
-            memcpy(new_arr, cache, cache_size * sizeof(seq_t));
-        free(cache);
+            mem_copy(new_arr, cache, cache_size * sizeof(seq_t));
+        mem_free(cache);
         cache = new_arr;
         cache_cap = new_cap;
     }

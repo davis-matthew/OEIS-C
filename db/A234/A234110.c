@@ -13,7 +13,8 @@
  *            pre‑computed adjacency table
  * Range:     u8 none, u16 n <= 3, u32 n <= 10, u64 n <= 22, u128 n <= 45,
  *            big any n
- * Helpers:   iabs
+ * Validated: standard, pass, 34 terms through n = 206 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/iabs.h"
+
+/* Absolute value for int. */
+static inline int iabs(int x) { return x < 0 ? -x : x; }
 
 /* Number of 5‑digit rows in base‑5 (5^5 = 3125). */
 #define M 3125

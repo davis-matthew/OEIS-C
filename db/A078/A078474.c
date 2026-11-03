@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 77, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 77 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
  *************************************************************/
 
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 /* Static storage for memoised values */
 static seq_t *a_arr   = NULL;   /* 1‑indexed array of computed terms */
@@ -30,7 +32,7 @@ static void ensure_capacity(idx_t n)
     if ((idx_t)n + 1 > arr_cap) {       /* arrays are 1‑based */
         idx_t new_cap = arr_cap ? arr_cap * 2 : 4;
         while ((idx_t)n + 1 > new_cap) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(a_arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_arr, new_cap);
         a_arr = tmp;
         arr_cap = new_cap;
     }
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     /* first call – initialise array and first three terms */
     if (a_arr == NULL) {
         arr_cap = 4;                     /* 0..3 will exist */
-        a_arr = (seq_t *)malloc(arr_cap * sizeof(seq_t));
+        a_arr = mem_new(seq_t, arr_cap);
         a_arr[0] = (seq_t)0;             /* unused */
         a_arr[1] = a_arr[2] = a_arr[3] = (seq_t)1;
         computed = 3;

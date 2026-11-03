@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 5, u128 n <= 5,
  *            big any n
- * Helpers:   cmp_seq_t, floor_sqrt, seq_from_str, seq_mul
+ * Validated: partial, pass, 5 terms through n = 5 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,10 +19,53 @@
 #include <stddef.h>
 
 /* External utilities provided by the build environment */
-#include "../utils/seq_mul.h"
-#include "../utils/floor_sqrt.h"
-#include "../utils/seq_from_str.h"
-#include "../utils/cmp_seq_t.h"
+#include <stdint.h>
+#include <string.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
 
 /* Forward declarations for helper functions */
 static void push_square(seq_t val);
@@ -42,7 +86,7 @@ static void push_square(seq_t val)
 {
     if (squares_len == squares_cap) {
         size_t new_cap = squares_cap ? squares_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(squares, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, squares, new_cap);
         if (!tmp) abort();      /* unrecoverable allocation failure */
         squares = tmp;
         squares_cap = new_cap;
@@ -106,7 +150,7 @@ seq_t a(idx_t n)
 
     /* Sort once after new elements are added */
     if (squares_unsorted) {
-        qsort(squares, squares_len, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(squares, squares_len, sizeof(seq_t), cmp_seq_t);
         squares_unsorted = false;
     }
 

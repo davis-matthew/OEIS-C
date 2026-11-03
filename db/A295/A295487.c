@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 5, u32 n <= 5, u64 n <= 5, u128 n <= 5,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 5 terms through n = 5 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static bool init_done = false;
 static seq_t *seq_vals  = NULL;
@@ -51,7 +53,7 @@ static void init_sequence(void)
     /* Build the list of integers with exactly four representations. */
     /* Start with a reasonable capacity and grow as needed. */
     size_t cap = 128;
-    seq_vals = (seq_t *)malloc(cap * sizeof(seq_t));
+    seq_vals = mem_new(seq_t, cap);
     seq_len  = 0;
 
     for (idx_t n = 1; n <= MAX_N; ++n) {
@@ -62,7 +64,7 @@ static void init_sequence(void)
         if (total == 4) {
             if (seq_len == cap) {
                 cap <<= 1;
-                seq_vals = (seq_t *)realloc(seq_vals, cap * sizeof(seq_t));
+                seq_vals = mem_resize(seq_t, seq_vals, cap);
             }
             seq_vals[seq_len++] = (seq_t)n;
         }

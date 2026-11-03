@@ -8,7 +8,8 @@
  *            i*j*k = n, and a(0) is defined as 1
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_cbrt_u64
+ * Validated: standard, pass, 101 terms through n = 9484 (2026-11-01)
+ * Helpers:   icbrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/floor_cbrt_u64.h"
+#include "../utils/icbrt.h"
 
 /* ---------- Integer square‑root for 64‑bit numbers ---------- */
 static idx_t floor_sqrt_u64(idx_t n)
@@ -53,7 +54,7 @@ seq_t a(idx_t n)
         return (seq_t)0;
 
     seq_t count = 0;
-    idx_t max_i = floor_cbrt_u64(n);
+    idx_t max_i = icbrt(n);
 
     for (idx_t i = 1; i <= max_i; ++i) {
         if (n % i != 0) continue;

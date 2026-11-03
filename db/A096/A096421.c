@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 12, u32 n <= 22, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   _gcd_idx
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-03)
+ * Helpers:   gcd_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_gcd_idx.h"
+#include "../utils/gcd_idx.h"
+#include "../utils/mem.h"
 
 /* Static cache for sequence values */
 static seq_t *cache = NULL;          /* cache[1] .. cache[computed] */
@@ -37,7 +39,7 @@ static void ensure_cache(idx_t n) {
     if (cache_size <= (size_t)n) {
         size_t newsize = cache_size ? cache_size * 2 : 8;
         while (newsize <= (size_t)n) newsize <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, newsize * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newsize);
         cache = tmp;
         cache_size = newsize;
     }
@@ -48,7 +50,7 @@ static void compute_up_to(idx_t n) {
     if (n <= computed_up_to) return;
 
     if (cache == NULL) {                /* first time */
-        cache = (seq_t *)malloc(8 * sizeof(seq_t));
+        cache = mem_new(seq_t, 8);
         cache_size = 8;
         cache[0] = 0;                   /* unused */
         cache[1] = 1;                   /* a(1) = 1 */
@@ -60,7 +62,7 @@ static void compute_up_to(idx_t n) {
     for (idx_t i = computed_up_to + 1; i <= n; ++i) {
         seq_t sum = 0;
         for (idx_t j = 1; j <= i / 2; ++j) {
-            if (_gcd_idx(j, i) == 1) {
+            if (gcd_idx(j, i) == 1) {
                 seq_t prod = cache[j] * cache[i - j];
                 if (j < i - j)
                     sum += prod * 2;      /* counts j and i-j separately */

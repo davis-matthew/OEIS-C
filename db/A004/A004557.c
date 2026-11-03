@@ -8,7 +8,8 @@
  *            digit-by-digit binary square root of 5
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a004557_cmp, a004557_shl, a004557_sub
+ * Validated: standard, pass, 115 terms through n = 9078 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,41 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a004557_cmp.h"
-#include "../utils/a004557_shl.h"
-#include "../utils/a004557_sub.h"
+
+static int a004557_cmp(const uint32_t *x, const uint32_t *y, size_t L) {
+    size_t i = L;
+    while (i > 0) {
+        i--;
+        if (x[i] != y[i]) return x[i] > y[i] ? 1 : -1;
+    }
+    return 0;
+}
+
+static void a004557_shl(uint32_t *dst, const uint32_t *src, size_t L, int s) {
+    uint32_t carry = 0;
+    size_t i;
+    for (i = 0; i < L; i++) {
+        uint32_t v = src[i];
+        dst[i] = (v << s) | carry;
+        carry = v >> (32 - s);
+    }
+}
+
+static void a004557_sub(uint32_t *x, const uint32_t *y, size_t L) {
+    uint64_t borrow = 0;
+    size_t i;
+    for (i = 0; i < L; i++) {
+        uint64_t xi = x[i];
+        uint64_t yi = (uint64_t)y[i] + borrow;
+        if (xi >= yi) {
+            x[i] = (uint32_t)(xi - yi);
+            borrow = 0;
+        } else {
+            x[i] = (uint32_t)(xi + 0x100000000ULL - yi);
+            borrow = 1;
+        }
+    }
+}
 
 static unsigned char *a004557_dig = NULL;
 static idx_t a004557_have = 0;

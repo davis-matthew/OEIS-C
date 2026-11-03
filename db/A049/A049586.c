@@ -7,13 +7,15 @@
  * Formula:   a(n) = gcd( A051953(n+1), A051953(n+2) )
  * Range:     u8 n <= 1497, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   calc_phi, gcd
+ * Validated: standard, pass, 121 terms through n = 4919 (2026-11-01)
+ * Helpers:   gcd, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/calc_phi.h"
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/totient_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -23,8 +25,8 @@ seq_t a(idx_t n)
     seq_t m2 = (seq_t)n + 2;   /* n+2   */
 
     /* Compute φ for each of the two numbers. */
-    seq_t phi1 = calc_phi(m1);
-    seq_t phi2 = calc_phi(m2);
+    seq_t phi1 = totient_seq(m1);
+    seq_t phi2 = totient_seq(m2);
 
     /* Cototient is defined as m – φ(m). */
     seq_t cot1 = m1 - phi1;   /* cot(n+1) */

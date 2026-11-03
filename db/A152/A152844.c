@@ -10,6 +10,7 @@
  *            coefficients (A007318) * with each row repeated six times
  * Range:     u8 n <= 398, u16 n <= 1017, u32 n <= 3795, u64 n <= 7649,
  *            u128 n <= 7649, big any n
+ * Validated: standard, pass, 119 terms through n = 6883 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

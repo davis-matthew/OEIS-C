@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   build_primes, is_prime_small
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   build_primes, is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,11 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
+#include <stddef.h>
 #include "../utils/build_primes.h"
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* Sequence entry function */
 seq_t a(idx_t n)
@@ -55,10 +59,10 @@ seq_t a(idx_t n)
 
             if (avg % 15 == 0) {
                 seq_t prod = avg / 15;
-                if (is_prime_small((idx_t)prod)) { /* prod must be prime */
+                if (is_prime_seq((idx_t)prod)) { /* prod must be prime */
                     if (cache_len >= cache_cap) {
                         size_t new_cap = (cache_cap == 0) ? 16 : cache_cap << 1;
-                        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                         if (!tmp) return 0;              /* allocation failure */
                         cache = tmp;
                         cache_cap = new_cap;

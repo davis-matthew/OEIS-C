@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8798, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 116 terms through n = 9983 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /*  seq_t and idx_t are supplied by the build.  An unsigned integer of
     8, 16, 32, 64 or 128 bits, or an arbitrary-precision class.  */
@@ -41,14 +43,14 @@ seq_t a(idx_t n)
     if (cache_len == 0) {
         /* row 0: [1, 0] */
         prev_len = 2;
-        prev_row = (seq_t *)malloc(sizeof(seq_t) * prev_len);
+        prev_row = mem_new(seq_t, prev_len);
         if (!prev_row) abort();
         prev_row[0] = (seq_t)1;
         prev_row[1] = (seq_t)0;
 
         /* initialise cache to fit the first row */
         cache_cap = 2;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();
         cache[0] = prev_row[0];
         cache[1] = prev_row[1];
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
         size_t L = (size_t)prev_len;          /* length of previous row   */
         size_t new_len = 2 * L - 1;           /* length of new row       */
 
-        seq_t *new_row = (seq_t *)malloc(sizeof(seq_t) * new_len);
+        seq_t *new_row = mem_new(seq_t, new_len);
         if (!new_row) abort();
 
         /* Fill the new row:
@@ -85,17 +87,17 @@ seq_t a(idx_t n)
         /* Ensure the cache has room for the new terms. */
         if (cache_len + new_len > cache_cap) {
             cache_cap = cache_len + new_len;
-            seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * cache_cap);
+            seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
             if (!tmp) abort();
             cache = tmp;
         }
 
         /* Append the new row to the global cache. */
-        memcpy(cache + cache_len, new_row, new_len * sizeof(seq_t));
+        mem_copy(cache + cache_len, new_row, new_len * sizeof(seq_t));
         cache_len += new_len;
 
         /* Free the old row and prepare for the next iteration. */
-        free(prev_row);
+        mem_free(prev_row);
         prev_row = new_row;
         prev_len = (idx_t)new_len;
         ++current_row;

@@ -10,13 +10,15 @@
  *            with parts ≥ 6, then subtracting the trivial one‑part partition
  * Range:     u8 n <= 43, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *dp_cache = NULL;          /* dynamic programming table */
 static idx_t  dp_cache_size = 0;        /* size of dp_cache (indexes 0..size-1) */
@@ -24,11 +26,11 @@ static idx_t  dp_cache_size = 0;        /* size of dp_cache (indexes 0..size-1) 
 /* recompute the DP table up to index n (inclusive) */
 static void compute_dp_up_to(idx_t n) {
     size_t newSize = (size_t)(n + 1);
-    seq_t *new_cache = (seq_t*)malloc(newSize * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, newSize);
     if (!new_cache) abort();          /* allocation failure */
 
     /* initialise all entries to 0 and set dp[0] = 1 (empty partition) */
-    memset(new_cache, 0, newSize * sizeof(seq_t));
+    mem_set(new_cache, 0, newSize * sizeof(seq_t));
     new_cache[0] = (seq_t)1;
 
     /* classic coin‑change DP: parts (coins) start from 6 */
@@ -39,7 +41,7 @@ static void compute_dp_up_to(idx_t n) {
     }
 
     /* replace old cache (if any) */
-    free(dp_cache);
+    mem_free(dp_cache);
     dp_cache = new_cache;
     dp_cache_size = newSize;
 }

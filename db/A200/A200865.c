@@ -10,14 +10,27 @@
  *            a(3)=77, a(4)=163 (valid for all n ≥ 1)
  * Range:     u8 n <= 4, u16 n <= 12, u32 n <= 26, u64 n <= 56, u128 n <= 116,
  *            big any n
- * Helpers:   ensure_capacity
+ * Validated: standard, pass, 44 terms through n = 207 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/ensure_capacity.h"
+#include <stdbool.h>
+
+/* Grow a dynamic array when needed.  The pointer is passed as (void **). */
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
 
 static seq_t *cache = NULL;        /* cache[0] unused, cache[1] holds a(1) */
 static size_t cache_size = 0;      /* allocated array size in elements */

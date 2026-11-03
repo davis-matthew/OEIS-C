@@ -8,7 +8,8 @@
  *            1000)
  * Range:     u8 n <= 43, u16 n <= 159, u32 n <= 159, u64 n <= 159,
  *            u128 n <= 159, big any n
- * Helpers:   none
+ * Validated: full, pass, 159 terms through n = 159 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
         for (int v = 0; v < 1000; ++v)
             if (seen[v]) ++count;
 
-        cache = (seq_t *)malloc(sizeof(seq_t) * count);
+        cache = mem_new(seq_t, count);
 
         /* Fill the cache in sorted order (increasing residues). */
         size_t pos = 0;

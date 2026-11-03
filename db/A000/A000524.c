@@ -11,19 +11,24 @@
  *            B*(1+D): d(n) = b(n) + Sum_{k=1..n-1} b(k)*d(n-k)....
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 40, u128 n <= 80,
  *            big any n
- * Helpers:   zalloc_arr
+ * Validated: standard, pass, 40 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/zalloc_arr.h"
+#include "../utils/mem.h"
+
+static seq_t *zalloc_arr(idx_t len) {
+    return mem_new(seq_t, (size_t)len);
+}
 
 static seq_t *B = 0, *C = 0, *D = 0, *D2 = 0, *D3 = 0;
 static idx_t cap = 0; /* arrays are valid for indices 0..cap */
 
 static void build(idx_t N) {
-    if (B) { free(B); free(C); free(D); free(D2); free(D3); }
+    if (B) { mem_free(B); mem_free(C); mem_free(D); mem_free(D2); mem_free(D3); }
     B = zalloc_arr(N + 2);
     C = zalloc_arr(N + 2);
     D = zalloc_arr(N + 2);

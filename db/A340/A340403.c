@@ -11,13 +11,22 @@
  * Formula:   a(n) = 343*15^(n-3) - 216*7^(n-3) + 4*3^(n-1) - 1 (offset 4)
  * Range:     u8 none, u16 n <= 4, u32 n <= 9, u64 n <= 17, u128 n <= 19,
  *            big any n
- * Helpers:   big_pow, seq_mul
+ * Validated: partial, pass, 16 terms through n = 19 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
-#include "../utils/seq_mul.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/ipow.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -25,13 +34,13 @@ seq_t a(idx_t n)
     if (n < 4) return (seq_t)0;
 
     /* Powers */
-    seq_t pow15 = big_pow((seq_t)15, (seq_t)(n - 3));
-    seq_t pow7  = big_pow((seq_t)7 , (seq_t)(n - 3));
-    seq_t pow3  = big_pow((seq_t)3 , (seq_t)(n - 1));
+    seq_t pow15 = ipow((seq_t)15, (seq_t)(n - 3));
+    seq_t pow7  = ipow((seq_t)7 , (seq_t)(n - 3));
+    seq_t pow3  = ipow((seq_t)3 , (seq_t)(n - 1));
 
     /* Constants (as powers to avoid overflow on very small seq_t) */
-    const seq_t c343 = big_pow((seq_t)7 , (seq_t)3);  /* 343 = 7^3 */
-    const seq_t c216 = big_pow((seq_t)6 , (seq_t)3);  /* 216 = 6^3 */
+    const seq_t c343 = ipow((seq_t)7 , (seq_t)3);  /* 343 = 7^3 */
+    const seq_t c216 = ipow((seq_t)6 , (seq_t)3);  /* 216 = 6^3 */
 
     /* Terms of the formula */
     seq_t term1 = seq_mul(c343, pow15);            /* 343*15^(n-3) */

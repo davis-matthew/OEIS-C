@@ -9,26 +9,28 @@
  *            n^32) / 384
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 2, u64 n <= 4, u128 n <= 18,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 28 terms through n = 864 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return (seq_t)0;          /* below offset, value is arbitrary */
     seq_t N = (seq_t)n;
 
-    seq_t n4  = big_pow(N, (seq_t)4);
-    seq_t n8  = big_pow(N, (seq_t)8);
-    seq_t n12 = big_pow(N, (seq_t)12);
-    seq_t n16 = big_pow(N, (seq_t)16);
-    seq_t n18 = big_pow(N, (seq_t)18);
-    seq_t n20 = big_pow(N, (seq_t)20);
-    seq_t n32 = big_pow(N, (seq_t)32);
+    seq_t n4  = ipow(N, (seq_t)4);
+    seq_t n8  = ipow(N, (seq_t)8);
+    seq_t n12 = ipow(N, (seq_t)12);
+    seq_t n16 = ipow(N, (seq_t)16);
+    seq_t n18 = ipow(N, (seq_t)18);
+    seq_t n20 = ipow(N, (seq_t)20);
+    seq_t n32 = ipow(N, (seq_t)32);
 
     seq_t pos =      ((seq_t)48) * n4
                    + ((seq_t)32) * n12

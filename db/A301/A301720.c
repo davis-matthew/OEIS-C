@@ -11,12 +11,14 @@
  *            function (x^6+6x^5+9x^4+16x^3+9x^2+6x+1)/(1-2x^3+x^6)
  * Range:     u8 n <= 44, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 877 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* dynamic array of computed terms   */
 static idx_t  cache_cap = 0;         /* number of elements cache can contain   */
@@ -28,7 +30,7 @@ static void init_cache(idx_t needed) {
         /* Allocate enough space for at least needed+1 elements. */
         cache_cap = needed + 1;
         if (cache_cap < 7) cache_cap = 7;      /* at least 7 for the base terms */
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) return;             /* allocation failure – unlikely for test data */
 
         /* Base terms of the sequence */
@@ -43,7 +45,7 @@ static void init_cache(idx_t needed) {
     } else if (needed + 1 > cache_cap) {
         /* Grow the cache if the new needed index exceeds current capacity. */
         cache_cap = needed + 1;
-        seq_t *new_ptr = (seq_t *)realloc(cache, sizeof(seq_t) * cache_cap);
+        seq_t *new_ptr = mem_resize(seq_t, cache, cache_cap);
         if (new_ptr != NULL) cache = new_ptr;  /* keep old data */
     }
 }

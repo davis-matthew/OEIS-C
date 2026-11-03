@@ -10,13 +10,15 @@
  *            the OEIS entry
  * Range:     i8 none, i16 none, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 9896 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* compare function for qsort */
 static int cmp_seq(const void *a, const void *b)
@@ -38,7 +40,7 @@ static void init_pp(void)
 
     /* provisional capacity */
     size_t cap = 4096;
-    pp = (seq_t *)malloc(cap * sizeof(seq_t));
+    pp = mem_new(seq_t, cap);
     if (!pp) exit(1);   /* out of memory */
     pp_len = 0;
 
@@ -56,7 +58,7 @@ static void init_pp(void)
         while (val <= MAX_VAL) {
             if (pp_len == cap) {
                 cap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(pp, cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, pp, cap);
                 if (!tmp) exit(1);
                 pp = tmp;
             }
@@ -68,7 +70,7 @@ static void init_pp(void)
     }
 
     /* sort and remove duplicates */
-    qsort(pp, pp_len, sizeof(seq_t), cmp_seq);
+    mem_qsort(pp, pp_len, sizeof(seq_t), cmp_seq);
     size_t uniq = 0;
     for (size_t i = 0; i < pp_len; ++i) {
         if (uniq == 0 || pp[i] != pp[uniq - 1]) {
@@ -76,7 +78,7 @@ static void init_pp(void)
         }
     }
     pp_len = uniq;
-    pp = (seq_t *)realloc(pp, pp_len * sizeof(seq_t));
+    pp = mem_resize(seq_t, pp, pp_len);
 }
 
 /* sequence A376559: second differences of consecutive perfect powers */

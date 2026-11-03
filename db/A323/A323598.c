@@ -12,24 +12,26 @@
  *            programming counting subsequences
  * Range:     u8 n <= 9, u16 n <= 16, u32 n <= 30, u64 n <= 59, u128 n <= 116,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Allocate DP array: dp[i] = number of ways y[0..i-1] appears in processed part of x */
-    seq_t *dp = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (n + 1));
     if (!dp) abort();
     for (idx_t i = 0; i <= n; ++i) dp[i] = 0;
     dp[0] = 1;  /* empty pattern matches in exactly one way */
 
     /* Pre‑compute the first n bits of the Thue–Morse sequence (y) */
     bool *y = (bool *)malloc(n * sizeof(bool));
-    if (!y) { free(dp); abort(); }
+    if (!y) { mem_free(dp); abort(); }
     for (idx_t i = 0; i < n; ++i)
         y[i] = __builtin_parity((unsigned long long)i);
 
@@ -44,7 +46,7 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     free(y);
     return result;
 }

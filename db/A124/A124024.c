@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 3, i16 n <= 8, i32 n <= 16, i64 n <= 25, i128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Recurrence: a(n) + 2*a(n-1) – 9*a(n-2) – 10*a(n-3) + 5*a(n-4) = 0
    for n ≥ 4, with a(0)=1, a(1)=-2, a(2)=13, a(3)=-34. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache    = NULL;   /* memoised values          */
 static idx_t  cache_sz = 0;      /* number of stored values  */
@@ -26,7 +28,7 @@ static void enlarge(idx_t new_cap)
     if (new_cap <= cache_cap)
         return;
     size_t new_bytes = (size_t)new_cap * sizeof(seq_t);
-    seq_t *tmp = (seq_t *)realloc(cache, new_bytes);
+    seq_t *tmp = mem_resize(seq_t, cache, (new_bytes) / sizeof(seq_t));
     cache = tmp;
     cache_cap = new_cap;
 }

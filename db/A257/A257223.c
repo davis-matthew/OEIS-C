@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 59, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   has_digit6_uint64, has_divisor_with_digit6
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,38 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/has_digit6_uint64.h"
-#include "../utils/has_divisor_with_digit6.h"
+#include "../utils/mem.h"
+
+/* whether an unsigned 64‑bit integer contains the character '6' */
+static inline bool has_digit6_uint64(uint64_t x)
+{
+    while (x > 0) {
+        if (x % 10 == 6)
+            return true;
+        x /= 10;
+    }
+    return false;
+}
+
+/* test whether an integer k has a divisor containing digit 6 */
+static inline bool has_divisor_with_digit6(idx_t k)
+{
+    /* k itself may contain 6 */
+    if (has_digit6_uint64((uint64_t)k))
+        return true;
+
+    /* test proper divisors up to sqrt(k) */
+    for (idx_t d = 1; d <= k / d; ++d) {
+        if (k % d == 0) {
+            if (has_digit6_uint64((uint64_t)d))
+                return true;
+            idx_t e = k / d;
+            if (e != d && has_digit6_uint64((uint64_t)e))
+                return true;
+        }
+    }
+    return false;
+}
 
 /* sequence function */
 seq_t a(idx_t n)
@@ -39,7 +70,7 @@ seq_t a(idx_t n)
         /* ensure enough room */
         if (cache_size == cache_cap) {
             size_t new_cap = cache_cap ? cache_cap << 1 : 64;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort();          /* unrecoverable memory error */
             cache     = tmp;
             cache_cap = new_cap;

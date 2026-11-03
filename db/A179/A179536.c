@@ -8,22 +8,24 @@
  *            * (-324)^k
  * Range:     i8 n <= 1, i16 n <= 3, i32 n <= 5, i64 n <= 10, i128 n <= 13,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 14 terms through n = 13 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n) {
     seq_t sum = 0;
     seq_t power = 1;
     idx_t max_k = n / 2;
     for (idx_t k = 0; k <= max_k; ++k) {
-        seq_t Cnk = binom(n, k);
+        seq_t Cnk = binomial(n, k);
         seq_t term = Cnk;
         term *= Cnk;                // (binomial(n,k))^2
-        seq_t Dk = binom(n - k, k);
+        seq_t Dk = binomial(n - k, k);
         term *= Dk;                  // * binomial(n-k,k)
         term *= Dk;                  // * binomial(n-k,k)
         term *= power;               // * (-324)^k

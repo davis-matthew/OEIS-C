@@ -9,7 +9,8 @@
  *            index 1 for the prime 2)
  * Range:     u8 n <= 94, u16 n <= 94, u32 n <= 94, u64 n <= 94, u128 n <= 94,
  *            big any n
- * Helpers:   build_primes
+ * Validated: partial, pass, 94 terms through n = 94 (2026-11-03)
+ * Helpers:   build_primes, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/build_primes.h"   /* build_primes(idx_t limit, idx_t **out, size_t *cnt) */
+#include <stddef.h>
+#include "../utils/build_primes.h"
+#include "../utils/mem.h"
 
 static idx_t  max_limit   = 0;      /* largest number for which primes are known   */
 static idx_t *prime_list = NULL;   /* list of primes (0‑based)                    */
@@ -76,7 +79,7 @@ seq_t a(idx_t n)
     /* Grow the memoisation table if we have not yet computed up to `n`. */
     if (n > max_n_computed) {
         size_t new_size = (size_t)(n + 1);
-        seq_t *new_memo = (seq_t*)realloc(memo, new_size * sizeof(seq_t));
+        seq_t *new_memo = mem_resize(seq_t, memo, new_size);
         if (!new_memo)
             return (seq_t)0;   /* allocation failed – return zero as fallback */
 

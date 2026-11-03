@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 32, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External function that returns a(n) for any n ≥ 0.
  * seq_t and idx_t are provided by the build. */
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* Allocate array for the terms up to n. */
-    seq_t *seq = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *seq = mem_new(seq_t, (n + 1));
     if (!seq)
         return (seq_t)0;       /* allocation failure – unlikely in tests */
 
@@ -75,6 +77,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = seq[n];
-    free(seq);
+    mem_free(seq);
     return result;
 }

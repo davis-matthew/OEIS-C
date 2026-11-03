@@ -11,17 +11,18 @@
  *            row r we take the m‑th positive integer coprime to r; the term
  *            equals the difference between successive such integers (first
  *            term is always 1). This implementation foll...
- * Range:     u8 none, u16 n <= 105, u32 n <= 105, u64 n <= 105, u128 n <= 105,
- *            big any n
- * Helpers:   calc_phi, plain_gcd
+ * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
+ *            u128 n <= 105, big any n
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
+ * Helpers:   gcd_idx, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/calc_phi.h"
-#include "../utils/plain_gcd.h"
+#include "../utils/gcd_idx.h"
+#include "../utils/totient_seq.h"
 
 static idx_t *prefix = NULL;          /* cumulative φ(1..i) */
 static idx_t  max_row = 0;            /* highest row pre‑computed */
@@ -48,7 +49,7 @@ static void extend_rows(idx_t up_to)
 
     idx_t cumulative = (old == 0) ? 0 : prefix[old];
     for (idx_t r = old + 1; r <= max_row; ++r) {
-        seq_t phi_val = calc_phi((seq_t)r);   /* φ(r) */
+        seq_t phi_val = totient_seq((seq_t)r);   /* φ(r) */
         cumulative += (idx_t)phi_val;
         prefix[r] = cumulative;
     }
@@ -87,7 +88,7 @@ seq_t a(idx_t n)
     idx_t count = 1;          /* we already have the first coprime: 1 */
     idx_t prev = 1;
     for (idx_t x = 2; x <= row; ++x) {
-        if (plain_gcd(row, x) == 1) {
+        if (gcd_idx(row, x) == 1) {
             ++count;
             if (count == m)
                 return (seq_t)(x - prev);

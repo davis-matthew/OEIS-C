@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 31, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   cmp_seq_custom, copy_seq
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,20 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/cmp_seq_custom.h"
-#include "../utils/copy_seq.h"
+#include "../utils/mem.h"
+
+/* Comparator used by qsort / bsearch for seq_t values. */
+static int cmp_seq_custom(const void *a, const void *b) {
+    const seq_t *x = (const seq_t *)a;
+    const seq_t *y = (const seq_t *)b;
+    if (*x < *y) return -1;
+    if (*x > *y) return 1;
+    return 0;
+}
+
+static void copy_seq(seq_t *dst, const seq_t *src, size_t len) {
+    for (size_t i = 0; i < len; ++i) dst[i] = src[i];
+}
 
 /* ------------------------------------------------------------------ */
 /* Auxiliary routines for memory handling that work in both C11 and C++17. */
@@ -106,7 +119,7 @@ static void recompute_pair_sums_if_needed(void) {
     }
     pair_len = idx;
 
-    qsort(new_ps, pair_len, sizeof(seq_t), cmp_seq_custom);
+    mem_qsort(new_ps, pair_len, sizeof(seq_t), cmp_seq_custom);
 
     /* remove duplicates: one pass over sorted array */
     size_t uniq = 0;

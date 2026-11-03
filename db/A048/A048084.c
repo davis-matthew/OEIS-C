@@ -10,12 +10,14 @@
  *            {1,…,n} whose two‑thirds of elements lie in the low part {1,…,L}
  * Range:     u8 n <= 13, u16 n <= 24, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -30,8 +32,8 @@ seq_t a(idx_t n)
 
     for (idx_t h = 1; h <= hmax; ++h) {
         idx_t low = 2 * h;              /* 2h ≤ L by construction   */
-        seq_t lowCnt  = binom(L, low);  /* C(L, 2h)                    */
-        seq_t highCnt = binom(H, h);    /* C(H,  h)                    */
+        seq_t lowCnt  = binomial(L, low);  /* C(L, 2h)                    */
+        seq_t highCnt = binomial(H, h);    /* C(H,  h)                    */
         result += lowCnt * highCnt;     /* term contribution            */
     }
 

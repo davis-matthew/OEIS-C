@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 47, u16 n <= 726, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 9371 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -45,8 +47,8 @@ seq_t a(idx_t n)
     const size_t nd = sizeof(divisors) / sizeof(divisors[0]);
 
     /* allocate temporary arrays */
-    seq_t *seq = (seq_t*)malloc((n + 1) * sizeof(seq_t));
-    seq_t *tmp = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+    seq_t *seq = mem_new(seq_t, (n + 1));
+    seq_t *tmp = mem_new(seq_t, (n + 1));
 
     /* initialise with the identity element of convolution */
     for (idx_t i = 0; i <= n; ++i) seq[i] = 0;
@@ -78,8 +80,8 @@ seq_t a(idx_t n)
     }
 
     /* free the old cache (if any) and replace it */
-    free(cache);
-    free(tmp);
+    mem_free(cache);
+    mem_free(tmp);
     cache = seq;
     cache_limit = n + 1;
 

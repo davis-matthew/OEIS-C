@@ -12,12 +12,14 @@
  *            by row (constant term first)
  * Range:     u8 n <= 17, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* -------------------------------------------------------------------------- */
 /*  Static storage for the computed rows of the polynomials u and v. */
@@ -52,8 +54,8 @@ static void ensure_rows_to(idx_t desired)
     /* Create the first row if this is the very first call. */
     if (rows_used == 0) {
         ensure_rows_cap(2);          /* indices 0 and 1 are needed */
-        u_rows[1] = (seq_t *)malloc(sizeof *u_rows[1]); /* len = 1 */
-        v_rows[1] = (seq_t *)malloc(sizeof *v_rows[1]);
+        u_rows[1] = mem_new(seq_t, (sizeof *u_rows[1]) / sizeof(seq_t)); /* len = 1 */
+        v_rows[1] = mem_new(seq_t, (sizeof *v_rows[1]) / sizeof(seq_t));
         u_rows[1][0] = (seq_t)1;
         v_rows[1][0] = (seq_t)1;
         rows_used = 1;
@@ -65,8 +67,8 @@ static void ensure_rows_to(idx_t desired)
         size_t len_prev = cur - 1;   /* previous row length */
         size_t len_curr = cur;       /* current row length */
 
-        u_rows[cur] = (seq_t *)malloc(len_curr * sizeof *u_rows[cur]);
-        v_rows[cur] = (seq_t *)malloc(len_curr * sizeof *v_rows[cur]);
+        u_rows[cur] = mem_new(seq_t, (len_curr * sizeof *u_rows[cur]) / sizeof(seq_t));
+        v_rows[cur] = mem_new(seq_t, (len_curr * sizeof *v_rows[cur]) / sizeof(seq_t));
 
         /* k = 0 */
         u_rows[cur][0] = u_rows[cur-1][0] + (seq_t)1;

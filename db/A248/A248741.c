@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 7, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   big_pow, prime_factor_product
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-01)
+ * Helpers:   ipow, radical_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,8 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
-#include "../utils/prime_factor_product.h"
+#include "../utils/ipow.h"
+#include "../utils/radical_idx.h"
 
 #define KMAX 12   /* enough to generate the first 10 000 terms */
 
@@ -70,8 +71,8 @@ seq_t a(idx_t n) {
     /* initialise heap with the first valid value for each k (k≥2) */
     heap_sz = 0;
     for (idx_t k = 2; k <= KMAX; ++k) {
-        idx_t step = prime_factor_product(k);   /* minimal m divisor */
-        seq_t val = big_pow((seq_t)step, (seq_t)k);
+        idx_t step = radical_idx(k);   /* minimal m divisor */
+        seq_t val = ipow((seq_t)step, (seq_t)k);
         val /= (seq_t)k;                         /* (step^k)/k */
         heap_push((Node){.val = val, .k = k, .m = step, .step = step});
     }
@@ -86,7 +87,7 @@ seq_t a(idx_t n) {
         if (cur.val == prev_val) {
             heap_pop();
             cur.m += cur.step;                     /* advance to next base */
-            cur.val = big_pow((seq_t)cur.m, (seq_t)cur.k);
+            cur.val = ipow((seq_t)cur.m, (seq_t)cur.k);
             cur.val /= (seq_t)cur.k;
             heap_push(cur);
             continue;
@@ -100,7 +101,7 @@ seq_t a(idx_t n) {
 
         /* advance this k to the next base and push back */
         cur.m += cur.step;
-        cur.val = big_pow((seq_t)cur.m, (seq_t)cur.k);
+        cur.val = ipow((seq_t)cur.m, (seq_t)cur.k);
         cur.val /= (seq_t)cur.k;
         heap_push(cur);
     }

@@ -7,13 +7,14 @@
  * Formula:   a(n) = Sum_{k=0..floor(n/6)} C(n-3k,3k) * 2^(n-6k)
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 26, u64 n <= 51, u128 n <= 102,
  *            big any n
+ * Validated: standard, pass, 47 terms through n = 1000 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow2.h"   /* provides seq_t pow2(idx_t) */
+#include "../utils/pow2.h"
 
 static const seq_t base[6] = {1,2,4,8,16,32};
 

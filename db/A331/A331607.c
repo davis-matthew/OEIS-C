@@ -8,7 +8,8 @@
  *            Initial values: a(0)=1, a(1)=1
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /*=== Helper to grow a dynamic array =====================*/
 static void grow_cache(seq_t **ptr, size_t *cap, size_t needed)
@@ -25,7 +27,7 @@ static void grow_cache(seq_t **ptr, size_t *cap, size_t needed)
     if (needed <= *cap) return;
     size_t new_cap = (*cap == 0) ? 1 : *cap << 1;
     if (new_cap < needed) new_cap = needed;
-    seq_t *tmp = (seq_t *)realloc(*ptr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *ptr, new_cap);
     if (!tmp) abort();
     *ptr = tmp;
     *cap = new_cap;

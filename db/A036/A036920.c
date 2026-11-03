@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   factor_u64
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 /* Utility to factor a 64‑bit integer and return primes, exponents and count. */
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* Compute digit sum of a 64‑bit integer.  Result fits in any seq_t. */
 static seq_t digit_sum_uint64(uint64_t x)
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
     /* Allocate initial cache space. */
     if (cache == NULL) {
         cache_cap = 1024;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache_len = 0;
     }
 
@@ -108,7 +110,7 @@ seq_t a(idx_t n)
             /* Store the term in the cache. */
             if (cache_len == cache_cap) {
                 cache_cap <<= 1;
-                cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = (seq_t)cand;
         }

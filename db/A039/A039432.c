@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   has_equal_nonzero_6_and_7
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,20 @@
    with a(1)=67, a(2)=76, … */
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has_equal_nonzero_6_and_7.h"
+#include "../utils/mem.h"
+
+/* Test whether a number has the same non‑zero number of 6’s and 7’s. */
+static bool has_equal_nonzero_6_and_7(seq_t x)
+{
+    unsigned int cnt6 = 0, cnt7 = 0;
+    while (x != (seq_t)0) {
+        unsigned int d = (unsigned int)(x % (seq_t)10);
+        if (d == 6)  ++cnt6;
+        else if (d == 7) ++cnt7;
+        x /= (seq_t)10;
+    }
+    return (cnt6 == cnt7 && cnt6 > 0);
+}
 
 /* Cache for the sequence terms.  cache[i] holds a(i+1).  We also
    remember the next integer to test so that the search continues
@@ -34,7 +48,7 @@ static void ensure_cache_capacity(size_t need)
     if (need <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < need) new_cap *= 2;
-    seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     /* In the OEIS environment we assume memory allocation succeeds. */
     cache     = tmp;
     cache_cap = new_cap;

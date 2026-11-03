@@ -12,13 +12,18 @@
  *            (even diagonals: bottom‑to‑top, odd diagonals: top‑to‑bottom)
  * Range:     u8 n <= 9455, u16 n <= 9455, u32 n <= 9455, u64 n <= 9455,
  *            u128 n <= 9455, big any n
- * Helpers:   sumsq
+ * Validated: standard, pass, 107 terms through n = 9249 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/sumsq.h"
+
+static inline idx_t sumsq(idx_t k) {
+    /* sum of squares 1² + … + k², computed in 128‑bit to avoid overflow */
+    return (idx_t)((__int128)k * (k + 1) * (2 * k + 1) / 6);
+}
 
 seq_t a(idx_t n) {
     if (n < 1) return (seq_t)0;      /* undefined for n < 1, but safe guard */

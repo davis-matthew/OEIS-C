@@ -8,11 +8,13 @@
  *            a(0) = -1. For n ≥ 1, a(n) = (n² - 16) / gcd(n² - 16, 16·n²)
  * Range:     i8 n <= 2, i16 n <= 45, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 78 terms through n = 9978 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n) {

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External integer types are defined by the build system. */
 extern seq_t a(idx_t n);          /* declared here for completeness */
@@ -48,11 +50,11 @@ static void ensure_capacity(idx_t n)
     size_t new_size = (size_t)(n + 1);
 
     /* Reallocate all arrays. */
-    a_arr  = (seq_t*)realloc(a_arr,  new_size * sizeof(seq_t));
-    b_arr  = (seq_t*)realloc(b_arr,  new_size * sizeof(seq_t));
-    c2_arr = (seq_t*)realloc(c2_arr, new_size * sizeof(seq_t));
-    c3_arr = (seq_t*)realloc(c3_arr, new_size * sizeof(seq_t));
-    c4_arr = (seq_t*)realloc(c4_arr, new_size * sizeof(seq_t));
+    a_arr  = mem_resize(seq_t, a_arr, new_size);
+    b_arr  = mem_resize(seq_t, b_arr, new_size);
+    c2_arr = mem_resize(seq_t, c2_arr, new_size);
+    c3_arr = mem_resize(seq_t, c3_arr, new_size);
+    c4_arr = mem_resize(seq_t, c4_arr, new_size);
 
     /* If this is the first allocation, initialise the base case. */
     if (cache_n == 0) {

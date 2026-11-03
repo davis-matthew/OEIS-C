@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 75, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, mod_mult_uint64
+ * Validated: standard, pass, 73 terms through n = 8045 (2026-11-03)
+ * Helpers:   factor_u64, mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,7 +31,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/mod_mult_uint64.h"
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 /* return sigma(m) mod m for  m >= 1.  For m == 1 the result is 0. */
 static uint64_t sigma_mod_u64(uint64_t m)
@@ -54,10 +56,10 @@ static uint64_t sigma_mod_u64(uint64_t m)
         for (uint64_t k = 0; k <= e; ++k)
         {
             term = (term + power) % m;
-            power = mod_mult_uint64(power, p, m);
+            power = mulmod(power, p, m);
         }
 
-        sigma_mod = mod_mult_uint64(sigma_mod, term, m);
+        sigma_mod = mulmod(sigma_mod, term, m);
     }
     return sigma_mod % m;
 }
@@ -90,7 +92,7 @@ seq_t a(idx_t n)
             if (terms_len == terms_cap)
             {
                 terms_cap = terms_cap ? terms_cap * 2 : 8;
-                terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
             }
             terms[terms_len++] = val;
         }

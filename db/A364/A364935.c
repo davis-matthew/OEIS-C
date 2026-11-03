@@ -14,7 +14,8 @@
  *            + k. Then a(n) = digit_sum(a(n-1)) + digit_sum(L) + digit_sum(R)
  * Range:     u8 n <= 3363, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 90 terms through n = 9303 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* compute the sum of the decimal digits of a value of type seq_t */
 static inline seq_t digit_sum_local(seq_t v) {
@@ -53,13 +55,13 @@ seq_t a(idx_t n) {
     /* initialise on first call */
     if (cache_len == 0) {
         cache_cap = 4;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         /* store a(1) */
         cache[1] = (seq_t)1;
         cache_len = 1;
 
         uniq_cap = 4;
-        uniq_vals = (seq_t *)malloc(uniq_cap * sizeof(seq_t));
+        uniq_vals = mem_new(seq_t, uniq_cap);
         uniq_cnts = (unsigned *)malloc(uniq_cap * sizeof(unsigned));
         uniq_vals[0] = (seq_t)1;
         uniq_cnts[0] = 1;
@@ -102,7 +104,7 @@ seq_t a(idx_t n) {
             if (cache_len + 1 >= cache_cap) {
                 size_t newcap = cache_cap ? cache_cap * 2 : 4;
                 while (newcap <= cache_len + 1) newcap *= 2;
-                cache = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, newcap);
                 cache_cap = newcap;
             }
 
@@ -121,7 +123,7 @@ seq_t a(idx_t n) {
             if (!found) {
                 if (uniq_len >= uniq_cap) {
                     size_t newcap = uniq_cap ? uniq_cap * 2 : 4;
-                    uniq_vals = (seq_t *)realloc(uniq_vals, newcap * sizeof(seq_t));
+                    uniq_vals = mem_resize(seq_t, uniq_vals, newcap);
                     uniq_cnts = (unsigned *)realloc(uniq_cnts, newcap * sizeof(unsigned));
                     uniq_cap = newcap;
                 }

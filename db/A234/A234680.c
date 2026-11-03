@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 14, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 29 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
  * a(17)=85169950456, a(18)=270999391544. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Initial 18 terms (1‑based indices). */
 static const seq_t init[18] = {
@@ -58,7 +60,7 @@ seq_t a(idx_t n) {
     /* Grow the cache if needed. */
     if (n > computed) {
         size_t newSize = (size_t)n;
-        seq_t *newCache = (seq_t *)realloc(cache, newSize * sizeof(seq_t));
+        seq_t *newCache = mem_resize(seq_t, cache, newSize);
         if (!newCache)   /* out of memory – return 0 as a sentinel */
             return 0;
         cache = newCache;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 203, u16 n <= 2664, u32 n <= 2664, u64 n <= 2664,
  *            u128 n <= 2664, big any n
- * Helpers:   none
+ * Validated: full, pass, 2664 terms through n = 2664 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Nonresidues of k^5 modulo 3331, sorted (OEIS A184987) */
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute the nth nonresidue of k^5 modulo 3331.
    The sequence is finite: there are 2664 nonresidues
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
             if (!residues[i]) ++nonres_len;
         }
         /* allocate array for nonresidues */
-        nonres = (seq_t*)malloc(nonres_len * sizeof(seq_t));
+        nonres = mem_new(seq_t, nonres_len);
         /* fill array in ascending order */
         size_t idx = 0;
         for (unsigned i = 0; i < p; ++i) {

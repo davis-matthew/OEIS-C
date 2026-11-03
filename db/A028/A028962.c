@@ -11,7 +11,8 @@
  *            problem statement
  * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /*  The maximum value up to which we pre‑compute representable numbers.
     For n ≤ 10000 this bound is more than sufficient (≈ 40000 means more
@@ -86,7 +88,7 @@ seq_t a(idx_t n)
 
         /* Allocate an array of the representable numbers in
            ascending order.                                          */
-        terms = (seq_t *)malloc((size_t)term_count * sizeof(seq_t));
+        terms = mem_new(seq_t, (size_t)term_count);
         if (!terms) return 0;  /* fallback */
 
         idx_t pos = 0;

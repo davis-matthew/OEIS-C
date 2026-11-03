@@ -9,6 +9,7 @@
  *            2^k + 1 (k ≥ 1), -- a(1) = 1
  * Range:     u8 n <= 116, u16 n <= 116, u32 n <= 116, u64 n <= 116,
  *            u128 n <= 116, big any n
+ * Validated: partial, pass, 116 terms through n = 116 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

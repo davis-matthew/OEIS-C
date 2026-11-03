@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign, frac
  * Formula:   not stated
- * Range:     i8 n <= 15, i16 n <= 5053, i32 n <= 8988, i64 n <= 8988,
- *            i128 n <= 8988, big any n
- * Helpers:   gcd
+ * Range:     i8 n <= 15, i16 n <= 5053, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 94 terms through n = 8988 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t abs_seq(seq_t x) { return x < 0 ? -x : x; }
 
@@ -31,10 +33,10 @@ static void g_prime_power(uint64_t p, uint64_t k,
                           seq_t *out_num, seq_t *out_den)
 {
     size_t sz = (size_t)k + 1;
-    seq_t *fnum = (seq_t *)malloc(sz * sizeof(seq_t));
-    seq_t *fden = (seq_t *)malloc(sz * sizeof(seq_t));
-    seq_t *gnum = (seq_t *)malloc(sz * sizeof(seq_t));
-    seq_t *gden = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *fnum = mem_new(seq_t, sz);
+    seq_t *fden = mem_new(seq_t, sz);
+    seq_t *gnum = mem_new(seq_t, sz);
+    seq_t *gden = mem_new(seq_t, sz);
     if (!fnum || !fden || !gnum || !gden) {
         /* fallback: return 0 on allocation failure */
         *out_num = 0;
@@ -97,10 +99,10 @@ static void g_prime_power(uint64_t p, uint64_t k,
     *out_num = gnum[k];
     *out_den = gden[k];
 
-    free(fnum);
-    free(fden);
-    free(gnum);
-    free(gden);
+    mem_free(fnum);
+    mem_free(fden);
+    mem_free(gnum);
+    mem_free(gden);
 }
 
 seq_t a(idx_t n)

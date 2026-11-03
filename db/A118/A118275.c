@@ -13,13 +13,15 @@
  *            a(0)..a(n-1), counting overlapping occurrences
  * Range:     u8 n <= 169, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 86 terms through n = 9832 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* ---------- internal state ---------- */
 static seq_t *a_cache = NULL;       /* memoised sequence values             */
@@ -38,7 +40,7 @@ static void ensure_seq_cache(size_t needed)
     size_t new_cap = a_cache_cap ? a_cache_cap << 1 : 16;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
     a_cache = tmp ? tmp : a_cache;
     a_cache_cap = new_cap;
 }

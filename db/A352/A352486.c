@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <math.h>        /* for sqrt() */
+#include "../utils/mem.h"
 
 static uint32_t *g_primes          = NULL;  /* prime list   */
 static size_t    g_prime_count     = 0;     /* number of primes stored   */
@@ -182,7 +184,7 @@ static void grow_cache(size_t required)
     if (required <= g_cache_cap) return;
     size_t new_cap = g_cache_cap ? g_cache_cap * 2 : 8;
     while (new_cap < required) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(g_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, g_cache, new_cap);
     if (!tmp) abort();
     g_cache     = tmp;
     g_cache_cap = new_cap;

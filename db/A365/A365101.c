@@ -8,7 +8,8 @@
  *            size of the image of the n-th power map on ℤ/(n⁴)ℤ)
  * Range:     u8 n <= 4, u16 n <= 16, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   pow2, seq_gcd, seq_pow
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-01)
+ * Helpers:   gcd, ipow_idx, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,9 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/seq_gcd.h"
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/gcd.h"
+#include "../utils/ipow_idx.h"
 #include "../utils/pow2.h"
 
 /* Size of the image of the exponentiation map x↦x^n on the unit
@@ -31,22 +33,22 @@ static seq_t image_units_size(idx_t n, uint64_t p, idx_t m)
 
         if (m == 2U) {     /* U(4) ≅ C₂ */
             seq_t phi = (seq_t)2;
-            seq_t d = seq_gcd(phi, (seq_t)n);
+            seq_t d = gcd(phi, (seq_t)n);
             return phi / d;
         }
 
         /* m ≥ 3:  U(2^m) ≅ C₂ × C_{2^{m‑2}}  */
         seq_t sizeC2 = ((n & 1U) == 0) ? (seq_t)1 : (seq_t)2;
         seq_t exp_part = pow2((idx_t)(m - 2));  /* 2^(m‑2)  */
-        seq_t d = seq_gcd(exp_part, (seq_t)n);
+        seq_t d = gcd(exp_part, (seq_t)n);
         seq_t sizeC = exp_part / d;
         return sizeC2 * sizeC;
     }
 
     /* p is an odd prime: U(p^m) is cyclic of order φ = p^{m‑1}(p‑1) */
-    seq_t pow_part = seq_pow((seq_t)p, (idx_t)m - 1U);   /* p^{m‑1}  */
+    seq_t pow_part = ipow_idx((seq_t)p, (idx_t)m - 1U);   /* p^{m‑1}  */
     seq_t phi = pow_part * (seq_t)(p - 1U);
-    seq_t d = seq_gcd(phi, (seq_t)n);
+    seq_t d = gcd(phi, (seq_t)n);
     return phi / d;
 }
 

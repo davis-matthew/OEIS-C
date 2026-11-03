@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 9652 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the test harness */
 seq_t a(idx_t n)
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
         /* ------------------------------------------------------------------ */
         /* 2) compute σ(x) for 1 ≤ x ≤ P_LIMIT                               */
         /* ------------------------------------------------------------------ */
-        seq_t *sigma = (seq_t*)calloc(P_LIMIT + 1, sizeof(seq_t));
+        seq_t *sigma = mem_new(seq_t, P_LIMIT + 1);
         for (int d = 1; d <= P_LIMIT; ++d) {
             for (int m = d; m <= P_LIMIT; m += d)
                 sigma[m] += (seq_t)d;
@@ -74,7 +76,7 @@ seq_t a(idx_t n)
         /* ------------------------------------------------------------------ */
         /* 3) count x by the rank of σ(x) – 1                                 */
         /* ------------------------------------------------------------------ */
-        seq_t *cnt = (seq_t*)calloc(MAX_N + 2, sizeof(seq_t)); /* cnt[rank]   */
+        seq_t *cnt = mem_new(seq_t, MAX_N + 2); /* cnt[rank]   */
         seq_t baseCount = 0;                                   /* x with v==0 */
 
         for (int x = 1; x <= P_LIMIT; ++x) {
@@ -93,7 +95,7 @@ seq_t a(idx_t n)
         /* ------------------------------------------------------------------ */
         /* 4) build prefix table a(t+1) = baseCount + Σ_{k≤t} cnt[k]          */
         /* ------------------------------------------------------------------ */
-        pref = (seq_t*)calloc(MAX_N + 1, sizeof(seq_t));
+        pref = mem_new(seq_t, MAX_N + 1);
         pref[0] = baseCount;              /* a(1) = baseCount */
         for (int t = 1; t <= MAX_N; ++t)
             pref[t] = pref[t-1] + cnt[t];
@@ -101,8 +103,8 @@ seq_t a(idx_t n)
         /* clean up temporary arrays */
         free(isPrime);
         free(primeRank);
-        free(sigma);
-        free(cnt);
+        mem_free(sigma);
+        mem_free(cnt);
 
         init = 1;
     }

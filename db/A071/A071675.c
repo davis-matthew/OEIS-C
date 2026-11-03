@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 84, u16 n <= 265, u32 n <= 884, u64 n <= 1274,
  *            u128 n <= 1274, big any n
+ * Validated: standard, pass, 103 terms through n = 1240 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -29,7 +30,8 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/binomial.h"    /* provides seq_t binomial(idx_t, idx_t) */
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 /* Find the largest integer s such that s*(s+1)/2 ≤ n.
  * n is an idx_t (unsigned 64‑bit).  The result fits in idx_t. */

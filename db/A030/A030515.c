@@ -9,7 +9,8 @@
  *            and * A054753
  * Range:     u8 none, u16 none, u32 n <= 1000, u64 n <= 1000, u128 n <= 1000,
  *            big any n
- * Helpers:   build_primes
+ * Validated: standard, pass, 71 terms through n = 882 (2026-11-03)
+ * Helpers:   build_primes, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 /* The utilities provided by the build environment. */
 #include "../utils/build_primes.h"
+#include "../utils/mem.h"
 
 /* Helper: compute p⁵ with seq_t arithmetic. */
 static inline seq_t pow5(uint64_t p)
@@ -80,14 +82,14 @@ static inline void heap_init(size_t capacity)
 {
     heap_cap = capacity;
     heap_size = 0;
-    heap = (QCand *)malloc(sizeof(QCand) * heap_cap);
+    heap = mem_new(QCand, heap_cap);
 }
 
 static inline void heap_push(QCand cand)
 {
     if (heap_size == heap_cap) {
         heap_cap *= 2;
-        heap = (QCand *)realloc(heap, sizeof(QCand) * heap_cap);
+        heap = mem_resize(QCand, heap, heap_cap);
     }
     heap[heap_size++] = cand;
     sift_up(heap_size - 1);
@@ -133,7 +135,7 @@ static void grow_seq_cache(size_t needed)
     while (seq_cap < needed) {
         seq_cap = seq_cap == 0 ? 128 : seq_cap << 1;
     }
-    seq_cache = (seq_t *)realloc(seq_cache, sizeof(seq_t) * seq_cap);
+    seq_cache = mem_resize(seq_t, seq_cache, seq_cap);
 }
 
 /* Helper: push the next candidate for a given q_idx. */

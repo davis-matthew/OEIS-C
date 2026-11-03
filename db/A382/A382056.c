@@ -9,8 +9,9 @@
  * Formula:   a(n) = concatenate the digits of n in original order after *
  *            removing all occurrences of the largest digit; if no digits
  *            remain, * return 0
- * Range:     u8 n <= 2566, u16 n <= 9778, u32 n <= 9778, u64 n <= 9778,
- *            u128 n <= 9778, big any n
+ * Range:     u8 n <= 2566, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 104 terms through n = 9778 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

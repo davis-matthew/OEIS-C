@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    for any build type of seq_t and idx_t. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *terms = NULL;      /* stored values of the sequence */
 static size_t terms_len  = 0;    /* number of terms currently stored */
@@ -39,7 +41,7 @@ static void grow_terms(size_t min_cap)
     if (min_cap <= terms_cap) return;
     size_t new_cap = terms_cap ? terms_cap * 2 : 64;
     while (new_cap < min_cap) new_cap <<= 1;
-    seq_t *new_terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *new_terms = mem_resize(seq_t, terms, new_cap);
     if (!new_terms) abort();
     terms = new_terms;
     terms_cap = new_cap;

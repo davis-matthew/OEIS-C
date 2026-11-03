@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   has_sub_32
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,24 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has_sub_32.h"
+#include "../utils/mem.h"
+
+/* Helper: test whether x contains the digit pattern 3,2 (more‑significant
+   3 followed by 2) in its base‑10 representation. */
+static bool has_sub_32(seq_t x)
+{
+    static const seq_t TEN = (seq_t)10;
+    seq_t temp = x;
+    int prev = -1;                         /* previous (lower) digit */
+    while (temp > (seq_t)0) {
+        int d = (int)(temp % TEN);         /* current least‑significant digit */
+        temp /= TEN;
+        if (prev == 2 && d == 3)           /* found "3" followed by "2" */
+            return true;
+        prev = d;
+    }
+    return false;
+}
 
 /* Simple cache for generated terms.  It is expanded on demand. */
 static seq_t *CACHE   = NULL;   /* array of found terms            */
@@ -39,7 +57,7 @@ static void ensure_cache(idx_t n)
                 /* Store cand.  Grow the array if necessary. */
                 if (SIZE == CAP) {
                     CAP = CAP ? CAP * 2 : 16;
-                    CACHE = (seq_t *)realloc(CACHE, CAP * sizeof(seq_t));
+                    CACHE = mem_resize(seq_t, CACHE, CAP);
                 }
                 CACHE[SIZE++] = cand;
                 break;                     /* proceed to next term */

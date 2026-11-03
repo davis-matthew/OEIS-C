@@ -8,12 +8,14 @@
  *            a(n)=a(n-6)+a(n-7)+a(n-8) for n>8
  * Range:     u8 n <= 46, u16 n <= 82, u32 n <= 152, u64 n <= 292,
  *            u128 n <= 573, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 972 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
     if (n + 1 > cache_len) {
         idx_t new_len = n + 1;
         /* realloc casted for C and C++ compatibility */
-        seq_t *tmp = (seq_t*)realloc((void*)cache, (size_t)new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_len);
         if (!tmp)          /* allocation failure: return 0 (unlikely) */
             return (seq_t)0;
 

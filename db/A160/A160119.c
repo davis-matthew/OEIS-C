@@ -12,12 +12,14 @@
  *            of 1‑bits in the binary representation of k
  * Range:     u8 n <= 5, u16 n <= 31, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static unsigned int popcount64(idx_t x) {
     unsigned int c = 0;
@@ -43,7 +45,7 @@ seq_t a(idx_t n) {
     if (max_k < 1) max_k = 1;     /* safety */
 
     /* Allocate cumulative array B[k] = Σ_{i=1}^{k} 7^{wt(i)-1} */
-    seq_t *B = (seq_t *)malloc((max_k + 1) * sizeof(seq_t));
+    seq_t *B = mem_new(seq_t, (max_k + 1));
     if (!B) return (seq_t)0;     /* malloc failure – unlikely */
 
     B[0] = (seq_t)0;
@@ -67,6 +69,6 @@ seq_t a(idx_t n) {
         result += (seq_t)208 * s;   /* 8 + 200 = 208 */
     }
 
-    free(B);
+    mem_free(B);
     return result;
 }

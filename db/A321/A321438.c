@@ -7,14 +7,16 @@
  * Formula:   a(n) = Sum_{d|n} (-1)^(n/d+1) * d^n
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 16, u128 n <= 26,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 36 terms through n = 382 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 /* Recursively enumerate all divisors of a number given its prime factorisation.
    For each divisor d, add or subtract d^n to the running total. */
@@ -23,7 +25,7 @@ static void rec_divs(const uint64_t *primes, const int *exps, size_t total,
 {
     if (idx == total) {
         /* current is a divisor d */
-        seq_t term = big_pow(current, (seq_t)n);
+        seq_t term = ipow(current, (seq_t)n);
         /* sign depends on (n/d) parity: +1 if odd, -1 if even */
         if (((n / (idx_t)current) & 1U) == 1U)
             *acc += term;

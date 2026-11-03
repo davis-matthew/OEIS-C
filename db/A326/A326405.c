@@ -7,8 +7,9 @@
  * Keywords:  sign, tabl
  * Formula:   a(n) = -1 if n is prime; otherwise the number of primes in the 8
  *            adjacent cells of the 2‑D antidiagonal grid
- * Range:     i8 n <= 9805, i16 n <= 9805, i32 n <= 9805, i64 n <= 9805,
- *            i128 n <= 9805, big any n
+ * Range:     i8 n <= 11325, i16 n <= 11325, i32 n <= 11325, i64 n <= 11325,
+ *            i128 n <= 11325, big any n
+ * Validated: standard, pass, 94 terms through n = 9805 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

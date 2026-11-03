@@ -8,9 +8,10 @@
  * Formula:   a(n) = T(r,c) where r,c are determined by n = r*(r+1)/2 + c (0 ≤
  *            c ≤ r); T(r,c) = r(r−c) * C(r,c), r(m) = A005043(m) (Riordan
  *            numbers)
- * Range:     u8 n <= 20, u16 n <= 54, u32 n <= 235, u64 n <= 748,
+ * Range:     u8 n <= 35, u16 n <= 92, u32 n <= 235, u64 n <= 748,
  *            u128 n <= 2570, big any n
- * Helpers:   binomial, catalan
+ * Validated: standard, pass, 94 terms through n = 8825 (2026-11-03)
+ * Helpers:   binomial, catalan, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include "../utils/binomial.h"
 #include "../utils/catalan.h"
+#include "../utils/mem.h"
 
 /* cache for Riordan numbers r[0..] */
 static seq_t *riordan      = NULL;
@@ -36,7 +38,7 @@ static void ensure_riordan_upto(idx_t n)
     while (new_cap <= n) new_cap <<= 1;
 
     /* reallocate storage; cast to correct type for C/C++ */
-    seq_t *tmp = (seq_t *)realloc(riordan, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, riordan, new_cap);
     if (!tmp) exit(1);              /* allocation failed */
 
     riordan      = tmp;

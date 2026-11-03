@@ -8,12 +8,14 @@
  *            Prod_{j=1..k} (1 + x^j)^2
  * Range:     u8 n <= 36, u16 n <= 105, u32 n <= 339, u64 n <= 1180,
  *            u128 n <= 4331, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 9381 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,9 +26,9 @@ seq_t a(idx_t n)
     /* recompute if requested index is beyond the cached range */
     if (n >= cache_len) {
         size_t N = (size_t)n + 1;
-        seq_t *newA   = (seq_t *)calloc(N, sizeof(seq_t));
-        seq_t *Q_cur  = (seq_t *)calloc(N, sizeof(seq_t));
-        seq_t *Q_next = (seq_t *)calloc(N, sizeof(seq_t));
+        seq_t *newA   = mem_new(seq_t, N);
+        seq_t *Q_cur  = mem_new(seq_t, N);
+        seq_t *Q_next = mem_new(seq_t, N);
         Q_cur[0] = 1;                     /* Q_0(x) = 1 */
 
         idx_t k = 0;
@@ -68,9 +70,9 @@ seq_t a(idx_t n)
             T = T_new;
         }
 
-        free(Q_cur);
-        free(Q_next);
-        free(cache);                           /* free previous cache if any */
+        mem_free(Q_cur);
+        mem_free(Q_next);
+        mem_free(cache);                           /* free previous cache if any */
         cache = newA;
         cache_len = n + 1;
     }

@@ -8,6 +8,7 @@
  *            6σ₀(n))/6 (σ_k = sum of k‑th powers of divisors)
  * Range:     u8 n <= 3, u16 n <= 35, u32 n <= 1796, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 62 terms through n = 9061 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

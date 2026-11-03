@@ -7,7 +7,8 @@
  * Formula:   Numbers k such that Carmichael lambda(k) = 12
  * Range:     u8 none, u16 n <= 84, u32 n <= 84, u64 n <= 84, u128 n <= 84,
  *            big any n
- * Helpers:   gcd_uint64
+ * Validated: full, pass, 84 terms through n = 84 (2026-11-02)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
    n‑th element on demand. */
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/gcd_uint64.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -50,13 +51,13 @@ seq_t a(idx_t n)
                             uint64_t lam13 = (e13 == 0) ? 1ULL : 12ULL;
                             /* lcm of the five λ-values */
                             uint64_t lcm = lam2;
-                            uint64_t g   = gcd_uint64(lcm, lam3);
+                            uint64_t g   = gcd_u64(lcm, lam3);
                             lcm = lcm / g * lam3;
-                            g   = gcd_uint64(lcm, lam5);
+                            g   = gcd_u64(lcm, lam5);
                             lcm = lcm / g * lam5;
-                            g   = gcd_uint64(lcm, lam7);
+                            g   = gcd_u64(lcm, lam7);
                             lcm = lcm / g * lam7;
-                            g   = gcd_uint64(lcm, lam13);
+                            g   = gcd_u64(lcm, lam13);
                             lcm = lcm / g * lam13;
                             if (lcm == 12ULL) {
                                 uint64_t val = pow2[e2] * pow3[e3]

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 9933 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 /*  []  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_buf = NULL;      /* cache of generated symbols   */
 static idx_t  a_len = 0;         /* current length of a_buf       */
@@ -29,7 +31,7 @@ ensure_generated(idx_t n)
 {
     /* initialise the cache with the starting word "00" */
     if (a_len == 0) {
-        a_buf = (seq_t *)malloc(2 * sizeof(seq_t));
+        a_buf = mem_new(seq_t, 2);
         if (!a_buf) abort();          /* out‑of‑memory abort */
         a_buf[0] = 0;
         a_buf[1] = 0;
@@ -42,7 +44,7 @@ ensure_generated(idx_t n)
            Each input symbol expands to at most 2 output symbols,
            so a len * 3 is safely large.                 */
         size_t new_cap = (size_t)a_len * 3 + 10;
-        seq_t *new_buf = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_buf = mem_new(seq_t, new_cap);
         if (!new_buf) abort();
 
         size_t new_len = 0;
@@ -68,7 +70,7 @@ ensure_generated(idx_t n)
             }
         }
 
-        free(a_buf);
+        mem_free(a_buf);
         a_buf = new_buf;
         a_len = new_len;
     }

@@ -11,7 +11,8 @@
  *            O(m) in the largest m computed so far and work...
  * Range:     u8 n <= 6, u16 n <= 20, u32 n <= 43, u64 n <= 142, u128 n <= 463,
  *            big any n
- * Helpers:   grow_if_needed
+ * Validated: standard, pass, 50 terms through n = 9844 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,41 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/grow_if_needed.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/*---------------------------------------------------------------*/
+#ifdef __cplusplus
+template <class T>
+static T *grow_if_needed(T *ptr, size_t *cap, size_t need, size_t elem)
+{
+    if (need <= *cap) return ptr;
+    size_t new_cap = *cap ? *cap * 2 : 1;
+    while (new_cap < need) new_cap *= 2;
+    ptr = mem_resize(T, ptr, (new_cap * elem) / sizeof(T));
+    if (!ptr) exit(1);                     /* abort on allocation failure */
+    *cap = new_cap;
+    return ptr;
+}
+#else
+static void *grow_if_needed(void *ptr, size_t *cap, size_t need, size_t elem)
+{
+    if (need <= *cap) return ptr;
+    size_t new_cap = *cap ? *cap * 2 : 1;
+    while (new_cap < need) new_cap *= 2;
+    ptr = realloc(ptr, new_cap * elem);
+    if (!ptr) exit(1);                     /* abort on allocation failure */
+    *cap = new_cap;
+    return ptr;
+}
+#endif
 
 /* Forward declarations of the public and static functions. */
 seq_t a(idx_t n);
@@ -104,7 +139,7 @@ seq_t a(idx_t n)
 
     /* Initialisation on first call.  p(0) = 1, mod 3 = 1. */
     if (!part_cache) {
-        part_cache  = (seq_t*)  malloc(sizeof(seq_t));
+        part_cache  = mem_new(seq_t, 1);
         part_cap    = 1;
         part_cache[0] = (seq_t)1;
         part_max     = 0;
@@ -113,7 +148,7 @@ seq_t a(idx_t n)
         mod3_cap    = 1;
         mod3_cache[0] = 1 % 3;
 
-        a_cache = (seq_t*)malloc(sizeof(seq_t));
+        a_cache = mem_new(seq_t, 1);
         a_cap   = 0;
         a_len   = 0;
     }

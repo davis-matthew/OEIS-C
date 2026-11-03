@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 225, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   int_sqrt
+ * Validated: standard, pass, 81 terms through n = 830 (2026-11-03)
+ * Helpers:   isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/int_sqrt.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 #define MAXS 50000   /* upper bound for precomputed sums */
 
@@ -32,7 +34,7 @@ static void build_sequence(void)
     built = true;
 
     dp[0][0] = 1;
-    unsigned int maxV = (unsigned int)int_sqrt((idx_t)MAXS);
+    unsigned int maxV = (unsigned int)isqrt((idx_t)MAXS);
 
     for (unsigned int v = 1; v <= maxV; ++v) {
         unsigned int val = v * v;
@@ -49,7 +51,7 @@ static void build_sequence(void)
         }
     }
 
-    seq = (seq_t *)malloc((MAXS + 1) * sizeof(seq_t));
+    seq = mem_new(seq_t, (MAXS + 1));
     if (!seq) return;  /* allocation failure, but unlikely */
 
     for (unsigned int s = 1; s <= MAXS; ++s) {

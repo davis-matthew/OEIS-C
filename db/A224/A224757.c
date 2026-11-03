@@ -11,7 +11,8 @@
  *            leading_digit(9·P + d) = d; then a(n) = 9·P + d
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 27,
  *            big any n
- * Helpers:   digit_len, pow10, seq_from_str, seq_pow
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-03)
+ * Helpers:   ipow_idx, mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,10 +24,31 @@
 #include <stdbool.h>
 
 /* fetch helper from utils */
-#include "../utils/seq_pow.h"
-#include "../utils/seq_from_str.h"
-#include "../utils/digit_len.h"
-#include "../utils/pow10.h"
+#include <stdint.h>
+#include <string.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Forward declaration of helper that computes the next term */
 static seq_t _next_value(seq_t prev)
@@ -35,7 +57,7 @@ static seq_t _next_value(seq_t prev)
     for (int d = 1; d <= 9; ++d)
     {
         seq_t m   = X + (seq_t)d;
-        int   dig = digit_len(m);          /* number of decimal digits of m */
+        int   dig = num_digits(m);          /* number of decimal digits of m */
         seq_t pow = pow10((idx_t)(dig - 1)); /* 10^(dig-1) */
         seq_t ld  = m / pow;               /* leading digit of m */
         if (ld == (seq_t)d)
@@ -57,7 +79,7 @@ seq_t a(idx_t n)
     /* grow cache if needed */
     if (n > cache_len)
     {
-        seq_t *tmp = (seq_t*)realloc(cache, sizeof(seq_t) * (n + 1));
+        seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
         if (!tmp)
             abort();                   /* memory allocation failed */
         cache = tmp;

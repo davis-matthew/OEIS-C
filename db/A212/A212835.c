@@ -12,13 +12,22 @@
  *            by listing all pairs (i,k) in order of * increasi...
  * Range:     u8 n <= 17, u16 n <= 49, u32 n <= 129, u64 n <= 367,
  *            u128 n <= 1021, big any n
- * Helpers:   smallest_s
+ * Validated: standard, pass, 68 terms through n = 9715 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>          /* for size_t */
-#include "../utils/smallest_s.h"
+
+static idx_t smallest_s(idx_t n)                /* smallest s≥2 with (s-1)*s/2 ≥ n */
+{
+    idx_t s = 2;
+    for (;; ++s) {
+        idx_t cnt = (s - 1) * s / 2;
+        if (cnt >= n) return s;
+    }
+}
 
 seq_t a(idx_t n)
 {

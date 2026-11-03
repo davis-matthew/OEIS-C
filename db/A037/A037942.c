@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
  * a(1) = 1.  The function returns the nth term for n >= 1. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 static inline idx_t count_leq(seq_t M)

@@ -8,12 +8,14 @@
  * Formula:   a(n) = (-2)^{∑_{k=1}^{n-1} popcount(k)}
  * Range:     i8 n <= 6, i16 n <= 10, i32 n <= 15, i64 n <= 23, i128 n <= 23,
  *            big any n
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 /* popcount for a 64‑bit unsigned integer, using only integer ops. */

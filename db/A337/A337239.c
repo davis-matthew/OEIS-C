@@ -8,13 +8,24 @@
  *            least one digit 7. Offset 1 (a(1) = 7)
  * Range:     u8 n <= 60, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has7
+ * Validated: standard, pass, 76 terms through n = 9287 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/has7.h"
+
+/* Return true if x has the digit 7 in base 8. */
+static bool has7(seq_t x)
+{
+    while (x > (seq_t)0) {
+        if ((x % (seq_t)8) == (seq_t)7)
+            return true;
+        x /= (seq_t)8;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

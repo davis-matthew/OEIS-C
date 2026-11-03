@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 30, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #ifdef __cplusplus
 #include <type_traits>
 #endif
+#include "../utils/mem.h"
 
 /* Forward declaration of helper */
 static seq_t compute_term(idx_t i);
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
         size_t required = (size_t)n + 1;
 
         if (cache == NULL) {
-            cache = (seq_t *)calloc(required, sizeof(seq_t));
+            cache = mem_new(seq_t, required);
             if (!cache) abort();
             cache_cap = required;
         } else if (required > cache_cap) {
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
             size_t new_cap = cache_cap;
             if (new_cap == 0) new_cap = 1;
             while (new_cap < required) new_cap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort();
             /* Zero the newly allocated part */
             if (new_cap > cache_cap)

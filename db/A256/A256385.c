@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 58, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* static cache for already found terms */
 static seq_t *cache = NULL;
@@ -31,7 +33,7 @@ static void ensure_cache_capacity(size_t sz) {
     if (sz <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < sz) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();          /* out of memory */
     cache = tmp;
     cache_cap = new_cap;
@@ -39,7 +41,7 @@ static void ensure_cache_capacity(size_t sz) {
 
 /* Test whether a 64‑bit value is composite. */
 static inline bool composite(uint64_t v) {
-    return v > 1 && !is_prime_small(v);
+    return v > 1 && !is_prime_seq(v);
 }
 
 /* Generate the next qualifying n and store it in cache. */

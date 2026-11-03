@@ -7,14 +7,25 @@
  * Formula:   a(n) = (A341683(n+1) - A341683(n))/7^n
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   count7_factors
+ * Validated: standard, pass, 107 terms through n = 859 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/count7_factors.h"
+
+/* Helper: count factors of 7 in k (k>0). */
+static uint64_t count7_factors(uint64_t k)
+{
+    uint64_t c = 0;
+    while (k % 7 == 0) {
+        k /= 7;
+        ++c;
+    }
+    return c;
+}
 
 /* Compute the n‑th digit (base‑7) of the 7‑adic sum Σ k! . */
 seq_t a(idx_t n)

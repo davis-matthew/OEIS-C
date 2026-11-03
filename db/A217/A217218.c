@@ -7,13 +7,24 @@
  * Formula:   not stated
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   A006368_func
+ * Validated: standard, pass, 112 terms through n = 980 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/A006368_func.h"
+#include "../utils/mem.h"
+
+static seq_t A006368_func(seq_t k) {
+    if ((k & 1) == 0) {               /* even */
+        return k + k / 2;
+    }
+    if ((k & 3) == 1) {               /* odd, k % 4 == 1 */
+        return k - k / 4;
+    }
+    return k - (k + 3) / 4;            /* odd, k % 4 == 3 */
+}
 
 /* Recurrence: a(1)=44; a(n+1)=f(a(n))
    where f(k)=k + k/2 for even k;
@@ -34,7 +45,7 @@ seq_t a(idx_t n) {
         if ((size_t)n > cache_cap) {
             size_t new_cap = cache_cap ? cache_cap * 2 : 1;
             while (new_cap < (size_t)n) new_cap *= 2;
-            seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort();
             cache = tmp;
             cache_cap = new_cap;

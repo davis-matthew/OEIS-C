@@ -9,12 +9,14 @@
  *            A102221(0)=1, A102221(n)=Σ_{k=0..n-1} C(n,k)^2 * A102221(k)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 11, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,12 +29,12 @@ seq_t a(idx_t n)
     if (n + 1 > sz) {
         idx_t new_sz = n + 1;
         if (v == NULL) {
-            v   = (seq_t*)malloc(new_sz * sizeof(seq_t));
-            arr = (seq_t*)malloc(new_sz * sizeof(seq_t));
+            v   = mem_new(seq_t, new_sz);
+            arr = mem_new(seq_t, new_sz);
             if (v == NULL || arr == NULL) abort();
         } else {
-            v   = (seq_t*)realloc(v,   new_sz * sizeof(seq_t));
-            arr = (seq_t*)realloc(arr, new_sz * sizeof(seq_t));
+            v   = mem_resize(seq_t, v, new_sz);
+            arr = mem_resize(seq_t, arr, new_sz);
             if (v == NULL || arr == NULL) abort();
         }
         /* initialise the new entries */

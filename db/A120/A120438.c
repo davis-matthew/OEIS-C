@@ -9,7 +9,8 @@
  *            the residue is taken modulo 10 in the range –5…5
  * Range:     i8 n <= 111, i16 n <= 111, i32 n <= 111, i64 n <= 111,
  *            i128 n <= 111, big any n
- * Helpers:   none
+ * Validated: partial, pass, 111 terms through n = 111 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static idx_t cur_limit = 0;       /* current upper bound of the sieve                      */
 static uint8_t *sieve = NULL;    /* 0 = prime, 1 = composite (size cur_limit+1)          */
@@ -53,7 +55,7 @@ static void rebuild(idx_t limit)
     }
 
     /* allocate new residue array */
-    seq_t *new_res = (seq_t*)malloc(cnt * sizeof(seq_t));
+    seq_t *new_res = mem_new(seq_t, cnt);
     if (!new_res) exit(1);
 
     /* fill residue array */
@@ -68,7 +70,7 @@ static void rebuild(idx_t limit)
     }
 
     /* replace old cache */
-    free(residues);
+    mem_free(residues);
     residues = new_res;
     twin_count = cnt;
     cur_limit = limit;

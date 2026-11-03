@@ -7,7 +7,8 @@
  * Formula:   a(n) = coefficient of x^n in ∏_{k≥0} (1 - x^(7k+5))
  * Range:     i8 n <= 215, i16 n <= 580, i32 n <= 1753, i64 n <= 5772,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 98 terms through n = 9958 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    recomputed only when a larger n is requested.       */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,13 +33,13 @@ seq_t a(idx_t n)
         seq_t *new_coeff = NULL;
 
         if (coeff == NULL)
-            new_coeff = (seq_t *)malloc(new_size * sizeof(seq_t));
+            new_coeff = mem_new(seq_t, new_size);
         else
-            new_coeff = (seq_t *)realloc(coeff, new_size * sizeof(seq_t));
+            new_coeff = mem_resize(seq_t, coeff, new_size);
 
         if (!new_coeff)          /* allocation failed → safe fallback */
         {
-            if (coeff) free(coeff);
+            if (coeff) mem_free(coeff);
             coeff = NULL;
             coeff_size = 0;
             return (seq_t)0;

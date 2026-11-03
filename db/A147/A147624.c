@@ -10,7 +10,8 @@
  *            A001221, the number of distinct prime factors.)
  * Range:     u8 n <= 59, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   count_distinct_primes
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   mem, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/count_distinct_primes.h"
+#include "../utils/omega.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------ */
 /*  Auxiliary data and functions                                 */
@@ -75,7 +77,7 @@ static void ensure_cache_capacity(void)
 {
     if (seq_cache_size >= seq_cache_cap) {
         size_t new_cap = seq_cache_cap == 0 ? 64 : seq_cache_cap << 1;
-        seq_t *new_ptr = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *new_ptr = mem_resize(seq_t, seq_cache, new_cap);
         if (new_ptr) {
             seq_cache = new_ptr;
             seq_cache_cap = new_cap;
@@ -92,7 +94,7 @@ static void generate_until(size_t target)
         unsigned d = digit_len_uint64(cand);     /* number of decimal digits */
         if (d < 2) continue;                    /* need at least two digits for a split */
 
-        uint64_t omega_c = (uint64_t)count_distinct_primes(cand);
+        uint64_t omega_c = (uint64_t)omega(cand);
 
         /* try every possible split position */
         for (unsigned k = 1; k < d; ++k) {
@@ -105,8 +107,8 @@ static void generate_until(size_t target)
             /* b must have exactly len_b digits (no leading zero) */
             if (b < pow10[len_b - 1]) continue;
 
-            uint64_t omega_a = (uint64_t)count_distinct_primes(a);
-            uint64_t omega_b = (uint64_t)count_distinct_primes(b);
+            uint64_t omega_a = (uint64_t)omega(a);
+            uint64_t omega_b = (uint64_t)omega(b);
 
             if (omega_c == omega_a * omega_b) {
                 /* found a term */

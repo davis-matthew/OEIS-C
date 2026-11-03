@@ -9,7 +9,8 @@
  *            - x^{1+2^j}))
  * Range:     i8 n <= 23, i16 n <= 51, i32 n <= 109, i64 n <= 226,
  *            i128 n <= 459, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 4648 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* helper: test if an unsigned 64‑bit integer is a power of two */
 static inline int is_power_of_two_idx(idx_t v) {
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
 
     /* Allocate cache on first use. */
     if (a_cache == NULL) {
-        a_cache = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        a_cache = mem_new(seq_t, (n + 1));
         if (!a_cache) return (seq_t)0;                /* OOM guard */
         a_cache[0] = 0;
         cache_size = 0;
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
 
     /* Grow cache if necessary. */
     if (n > cache_size) {
-        seq_t *tmp = (seq_t *)realloc(a_cache, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, (n + 1));
         if (!tmp) return (seq_t)0;                /* OOM guard */
         a_cache = tmp;
 

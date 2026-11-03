@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, look
  * Formula:   not stated
- * Range:     u8 n <= 1298, u16 n <= 9976, u32 n <= 9976, u64 n <= 9976,
- *            u128 n <= 9976, big any n
- * Helpers:   none
+ * Range:     u8 n <= 1298, u16 n <= 17711, u32 n <= 17711, u64 n <= 17711,
+ *            u128 n <= 17711, big any n
+ * Validated: standard, pass, 88 terms through n = 9976 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -39,6 +40,7 @@
  */
 
 #include <stdlib.h>   /* size_t, calloc, free */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -49,13 +51,13 @@ seq_t a(idx_t n)
 
     /* Allocate arrays of size n+1.  Use calloc so they are zeroed. */
     size_t size = (size_t)n + 1;
-    seq_t *cnt   = (seq_t *)calloc(size, sizeof(seq_t));
-    seq_t *parts = (seq_t *)calloc(size, sizeof(seq_t));
+    seq_t *cnt   = mem_new(seq_t, size);
+    seq_t *parts = mem_new(seq_t, size);
 
     if (!cnt || !parts) {
         /* allocation failed – clean up and return 0 */
-        free(cnt);
-        free(parts);
+        mem_free(cnt);
+        mem_free(parts);
         return (seq_t)0;
     }
 
@@ -89,7 +91,7 @@ seq_t a(idx_t n)
 
     seq_t result = parts[n];
 
-    free(cnt);
-    free(parts);
+    mem_free(cnt);
+    mem_free(parts);
     return result;
 }

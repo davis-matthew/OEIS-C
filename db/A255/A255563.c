@@ -7,6 +7,7 @@
  * Formula:   a(n) = -3 * n / 4 if n % 4 == 0, otherwise a(n) = -(-1)^n * n
  * Range:     i8 n <= 127, i16 n <= 2500, i32 n <= 2500, i64 n <= 2500,
  *            i128 n <= 2500, big any n
+ * Validated: standard, pass, 76 terms through n = 2302 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

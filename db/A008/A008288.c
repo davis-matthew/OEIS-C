@@ -12,12 +12,14 @@
  *            Σ_{d=0..min(i,j)} binomial(i,d) * binomial(j,d) * 2^d
  * Range:     u8 n <= 39, u16 n <= 125, u32 n <= 417, u64 n <= 1455,
  *            u128 n <= 5150, big any n
+ * Validated: standard, pass, 89 terms through n = 4731 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 static seq_t delannoy(idx_t n, idx_t k)

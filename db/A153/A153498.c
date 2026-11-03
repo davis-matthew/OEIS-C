@@ -9,12 +9,14 @@
  *            + 1010000*a(n-5) - 1000000*a(n-6)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 10, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 496 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
 
     /* enlarge cache to hold terms up to n */
     idx_t new_sz = n;
-    cache = (seq_t *)realloc(cache, new_sz * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_sz);
     if (!cache) return 0; /* allocation failed */
 
     for (idx_t i = sz + 1; i <= new_sz; ++i) {

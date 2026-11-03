@@ -8,6 +8,7 @@
  * Formula:   a(n) = (9*n^2+22*n+8)/8 for n even, (9*n^2+20*n+3)/8 for n odd
  * Range:     u8 n <= 13, u16 n <= 240, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 66 terms through n = 963 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

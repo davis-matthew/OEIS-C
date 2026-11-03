@@ -9,12 +9,14 @@
  *            index)
  * Range:     u8 n <= 9, u16 n <= 22, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Compute the nth term of OEIS A099394 (flattened triangle T) */
 seq_t a(idx_t n)
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* Compute Stirling numbers of the second kind S(row+1, c+1)
        using a 1‑D DP array.  Size is small (r <= ~140 for n <= 10000). */
     idx_t sz = r + 2;                    /* We need indices up to r+1 */
-    seq_t *S = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *S = mem_new(seq_t, sz);
     if (!S) return 0;                    /* out of memory – should not happen */
 
     S[0] = (seq_t)1;
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
         S[0] = 0;                         /* for the next iteration */
     }
     seq_t stirling = S[c + 1];
-    free(S);
+    mem_free(S);
 
     /* factorial of c: c! */
     seq_t fact = (seq_t)1;

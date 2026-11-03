@@ -10,12 +10,14 @@
  *            a[n]·p[n−1] + p[n−2] (p[−1]=1)
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 18, u64 n <= 38, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *p_cache = NULL;      /* cache of computed numerators */
 static idx_t cache_size = 0;       /* current length of cache (number of valid entries) */
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     /* Ensure the cache contains the first two terms */
     if (cache_size == 0u) {
         cache_size = 2u;                      /* indices 0 and 1 known */
-        p_cache = (seq_t *)malloc(2u * sizeof(seq_t));
+        p_cache = mem_new(seq_t, 2u);
         if (!p_cache)                         /* allocation failure */
             return (seq_t)0;
         p_cache[0u] = (seq_t)20;
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
         return p_cache[n];
 
     /* Grow the cache to accommodate index n */
-    seq_t *new_cache = (seq_t *)realloc(p_cache, (n + 1u) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, p_cache, (n + 1u));
     if (!new_cache)                           /* allocation failure */
         return (seq_t)0;
     p_cache = new_cache;

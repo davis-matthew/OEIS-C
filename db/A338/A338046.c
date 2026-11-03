@@ -7,12 +7,21 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 39, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   binomial_n_plus_2_c3
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binomial_n_plus_2_c3.h"
+static inline seq_t binomial_n_plus_2_c3(idx_t n)
+{
+    /* Compute (n+2 choose 3) = (n+2)*(n+1)*n / 6  */
+    seq_t t = (seq_t)(n + 2);
+    t *= (seq_t)(n + 1);
+    t *= (seq_t)n;
+    t /= 6;
+    return t;
+}
 /* 
  * Sequence A338046:
  * a(1) = 1

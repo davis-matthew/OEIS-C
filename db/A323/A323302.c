@@ -11,6 +11,7 @@
  *            and * equal column‑sums
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
  * Helpers:   build_primes_upto, factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -22,8 +23,9 @@
 #include <string.h>
 
 /* Utilities used by the project */
-#include "../utils/factor_u64.h"
+#include <stdlib.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/factor_u64.h"
 
 /* Global storage for the list of primes up to 10000. */
 static uint64_t *PRIME_LIST = NULL;

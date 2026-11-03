@@ -7,12 +7,14 @@
  * Formula:   a(n) = a(n-1) - a(n-2) - 2*a(n-3), with a(0)=1, a(1)=1, a(2)=0
  * Range:     i8 n <= 12, i16 n <= 23, i32 n <= 48, i64 n <= 97, i128 n <= 196,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 939 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -22,9 +24,9 @@ seq_t a(idx_t n)
     size_t need = (size_t)n + 1;    /* size required to store a[0..n] */
 
     if (data == NULL) {
-        data = (seq_t *)malloc(need * sizeof(seq_t));
+        data = mem_new(seq_t, need);
     } else if (len < need) {
-        data = (seq_t *)realloc(data, need * sizeof(seq_t));
+        data = mem_resize(seq_t, data, need);
     } else {
         /* already have enough space */
         return data[n];

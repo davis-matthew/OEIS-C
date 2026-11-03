@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 35, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
     rows of this triangle from top to bottom.
 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -46,11 +48,11 @@ seq_t a(idx_t n)
     }
 
     /* Generate rows up to r */
-    seq_t *prev = (seq_t *)malloc(sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, 1);
     prev[0] = (seq_t)1;          /* row 0 */
 
     for (idx_t i = 1; i <= r; ++i) {
-        seq_t *cur = (seq_t *)malloc((i + 1) * sizeof(seq_t));
+        seq_t *cur = mem_new(seq_t, (i + 1));
         /* first element of the row */
         cur[0] = prev[i - 1] * (seq_t)2;
 
@@ -61,16 +63,16 @@ seq_t a(idx_t n)
 
         if (i == r) {
             seq_t result = cur[col];
-            free(cur);
-            free(prev);
+            mem_free(cur);
+            mem_free(prev);
             return result;
         }
 
-        free(prev);
+        mem_free(prev);
         prev = cur;
     }
 
     /* Should never reach here */
-    free(prev);
+    mem_free(prev);
     return (seq_t)0;
 }

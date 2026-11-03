@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     i8 n <= 24, i16 n <= 113, i32 n <= 113, i64 n <= 113,
  *            i128 n <= 113, big any n
+ * Validated: partial, pass, 113 terms through n = 113 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,7 @@
  *        m = n - r*(r-1)/2 - 1   (0 ≤ m < r).  
  *  If m = 0 the term is defined to be -1. */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 static inline idx_t row_from_index(idx_t n) {

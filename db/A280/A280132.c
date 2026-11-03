@@ -7,14 +7,16 @@
  * Formula:   a(n) = ∏_{i=1..n} A029940(i) (A029940(i) = ∏_{d|i} φ(d))
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 13, u64 n <= 19, u128 n <= 22,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   ipow_u64_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/mem.h"
 
 /* Factorization of n (n ≤ 10000 is assumed).  Result stored in primes[] and
    exps[], number of distinct primes returned in *count.  Arrays large
@@ -61,8 +63,8 @@ static seq_t phi_product(idx_t n)
         idx_t mult = D / (exps[i] + 1);
         idx_t exp1 = exps[i] * mult;                         /* exponent of (p-1) */
         idx_t exp2 = (exps[i] * (exps[i] - 1) / 2) * mult;   /* exponent of p   */
-        seq_t t1 = pow_uint((uint64_t)(primes[i] - 1), exp1);
-        seq_t t2 = pow_uint((uint64_t)primes[i], exp2);
+        seq_t t1 = ipow_u64_idx((uint64_t)(primes[i] - 1), exp1);
+        seq_t t2 = ipow_u64_idx((uint64_t)primes[i], exp2);
         res *= t1;
         res *= t2;
     }
@@ -77,14 +79,14 @@ static idx_t cum_limit = 0;
 static void ensure_cum(idx_t n)
 {
     if (cum_cache == NULL) {
-        cum_cache = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+        cum_cache = mem_new(seq_t, (n + 1));
         if (!cum_cache) exit(EXIT_FAILURE);
         cum_cache[0] = (seq_t)1;
         cum_limit = 0;
     }
     if (n <= cum_limit) return;
     if (cum_cache && n > cum_limit) {
-        seq_t *tmp = (seq_t*)realloc(cum_cache, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cum_cache, (n + 1));
         if (!tmp) exit(EXIT_FAILURE);
         cum_cache = tmp;
     }

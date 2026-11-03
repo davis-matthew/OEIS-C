@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 23, u64 n <= 52, u128 n <= 112,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /*  Helper: per‑column vertical feasibility.
     There are 2^5 = 32 possible 5‑bit columns. */
@@ -82,7 +84,7 @@ static idx_t cache_cap = 0;
 /*  Allocates an array of size new_cap (zeroed).  */
 static seq_t *alloc_cache(idx_t new_cap)
 {
-    seq_t *p = (seq_t*)calloc((size_t)new_cap, sizeof(seq_t));
+    seq_t *p = mem_new(seq_t, (size_t)new_cap);
     return p;
 }
 
@@ -99,7 +101,7 @@ seq_t a(idx_t n)
         if (cache != NULL) {
             /* preserve existing cached values */
             for (idx_t i = 0; i < cache_cap; ++i) new_cache[i] = cache[i];
-            free(cache);
+            mem_free(cache);
         }
         cache = new_cache;
         cache_cap = new_cap;

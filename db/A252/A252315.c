@@ -12,7 +12,8 @@
  *            programming
  * Range:     u8 none, u16 n <= 7, u32 n <= 18, u64 n <= 40, u128 n <= 84,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* global data */
 static bool initialized = false;
@@ -137,8 +139,8 @@ static void init_tables(void)
     free(deg);
 
     /* allocate vectors and active lists */
-    prev_vec      = (seq_t*)malloc(65536 * sizeof(seq_t));
-    next_vec      = (seq_t*)malloc(65536 * sizeof(seq_t));
+    prev_vec      = mem_new(seq_t, 65536);
+    next_vec      = mem_new(seq_t, 65536);
     active        = (uint16_t*)malloc(65536 * sizeof(uint16_t));
     next_active   = (uint16_t*)malloc(65536 * sizeof(uint16_t));
 }

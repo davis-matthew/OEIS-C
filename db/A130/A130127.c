@@ -8,13 +8,15 @@
  *            integer with r(r+1)/2 ≥ n and k = n − r(r−1)/2 (1 ≤ k ≤ r)
  * Range:     u8 n <= 44, u16 n <= 152, u32 n <= 560, u64 n <= 2144,
  *            u128 n <= 5050, big any n
+ * Validated: standard, pass, 94 terms through n = 4181 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>            /* for uint64_t if needed */
-#include "../utils/pow2.h"     /* seq_t pow2(idx_t) */
+#include <stdbool.h>
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {

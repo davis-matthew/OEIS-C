@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 612, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   compare_ui32
+ * Validated: standard, pass, 60 terms through n = 9428 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "../utils/compare_ui32.h"
+#include "../utils/mem.h"
+
+/* Helper for qsort: compare unsigned 32-bit integers. */
+static int compare_ui32(const void *a, const void *b)
+{
+    uint32_t ua = *(const uint32_t *)a;
+    uint32_t ub = *(const uint32_t *)b;
+    return (ua > ub) - (ua < ub);
+}
 
 /* Compute the n‑th prime of the form 4*x² + x*y + 5*y². */
 seq_t a(idx_t n)
@@ -105,9 +114,9 @@ seq_t a(idx_t n)
         cand_used = unique_cnt;
 
         /* Build the prime list from the unique candidates. */
-        if (prime_list) free(prime_list);
+        if (prime_list) mem_free(prime_list);
         prime_cap = (size_t)(n > 10000 ? n : 10000); /* minimum capacity */
-        prime_list = (seq_t *)malloc(prime_cap * sizeof(seq_t));
+        prime_list = mem_new(seq_t, prime_cap);
         if (!prime_list) abort();
         prime_cnt = 0;
         for (size_t i = 0; i < cand_used && prime_cnt < prime_cap; ++i) {

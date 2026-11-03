@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 256, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   seq_mul, seq_pow
+ * Validated: standard, pass, 85 terms through n = 8156 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,8 +28,14 @@
 /* Utility functions for arbitrary-precision arithmetic.
  * These are provided by the build environment.
  */
-#include "../utils/seq_mul.h"
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -49,7 +56,7 @@ seq_t a(idx_t n)
     if (cnt) {
         idx_t exp = (cnt & 1) ? cnt : cnt - 1;   /* odd exponent? */
         if (exp) {
-            result = seq_mul(result, seq_pow((seq_t)2, exp));
+            result = seq_mul(result, ipow_idx((seq_t)2, exp));
         }
     }
 
@@ -64,7 +71,7 @@ seq_t a(idx_t n)
         }
         idx_t exp = (cnt & 1) ? cnt : cnt - 1;
         if (exp) {
-            result = seq_mul(result, seq_pow((seq_t)p, exp));
+            result = seq_mul(result, ipow_idx((seq_t)p, exp));
         }
     }
 

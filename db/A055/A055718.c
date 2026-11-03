@@ -7,7 +7,8 @@
  * Formula:   a(n) = π(n) – π(⌊n/2⌋), except a(3)=1 (erroneous version)
  * Range:     i8 n <= 98, i16 n <= 98, i32 n <= 98, i64 n <= 98, i128 n <= 98,
  *            big any n
- * Helpers:   build_primes_upto, primes_upto
+ * Validated: partial, pass, 98 terms through n = 98 (2026-11-01)
+ * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,18 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/primes_upto.h"
+
+/* retrieve number of primes ≤ x using the globally cached prime list */
+static inline size_t primes_upto(size_t x, const uint64_t *primes, size_t pcnt)
+{
+    size_t lo = 0, hi = pcnt;
+    while (lo < hi) {
+        size_t mid = (lo + hi) / 2;
+        if (primes[mid] <= x) lo = mid + 1;
+        else hi = mid;
+    }
+    return lo; /* number of primes ≤ x */
+}
 
 seq_t a(idx_t n)
 {

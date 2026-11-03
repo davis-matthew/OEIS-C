@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 3235, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_mul
+ * Validated: standard, pass, 70 terms through n = 9672 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/mod_mul.h"
+#include "../utils/mulmod.h"
 
 static bool isResidue11(uint64_t p)
 {
@@ -29,8 +30,8 @@ static bool isResidue11(uint64_t p)
     uint64_t result = 1 % p;
     while (exp > 0) {
         if (exp & 1)
-            result = mod_mul(result, base, p);
-        base = mod_mul(base, base, p);
+            result = mulmod(result, base, p);
+        base = mulmod(base, base, p);
         exp >>= 1;
     }
     return result == 1;

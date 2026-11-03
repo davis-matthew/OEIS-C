@@ -8,14 +8,15 @@
  * Formula:   a(n) = (1/n) * Σ_{k=0}^5 Σ_{d|gcd(n,k)} μ(d) * C(n/d, k/d)
  * Range:     u8 n <= 10, u16 n <= 25, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   mul_binom_small
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* μ(1)=1, μ(2)=-1, μ(3)=-1, μ(4)=0, μ(5)=-1 */
 #include <stdint.h>
-#include "../utils/mul_binom_small.h"
+#include "../utils/binomial.h"
 
 /* local signed gcd for idx_t */
 static idx_t gcd_idx(idx_t a, idx_t b) {
@@ -72,7 +73,7 @@ seq_t a(idx_t n) {
                     idx_t n2 = n / d;
                     idx_t k2 = k / d;
                     seq_t c = (n2 <= MAXBINOM) ?
-                              binom_tbl[n2][k2] : mul_binom_small(n2, k2);
+                              binom_tbl[n2][k2] : binomial(n2, k2);
                     sum_k += (int64_t)mu_d * (int64_t)c;
                 }
                 /* complementary divisor g/d if distinct */
@@ -83,7 +84,7 @@ seq_t a(idx_t n) {
                         idx_t n2 = n / d2;
                         idx_t k2 = k / d2;
                         seq_t c = (n2 <= MAXBINOM) ?
-                                  binom_tbl[n2][k2] : mul_binom_small(n2, k2);
+                                  binom_tbl[n2][k2] : binomial(n2, k2);
                         sum_k += (int64_t)mu_d2 * (int64_t)c;
                     }
                 }

@@ -8,7 +8,8 @@
  * Formula:   a(n) = Fib( max(k-1,1) ) * Padovan(n-k), * where n = r*(r+1)/2 +
  *            k, 0 ≤ k ≤ r
  * Range:     u8 n <= 134, u16 n <= 376, u32 n <= 1273, u64 n <= 4654,
- *            u128 n <= 9635, big any n
+ *            u128 n <= 11475, big any n
+ * Validated: standard, pass, 101 terms through n = 9635 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

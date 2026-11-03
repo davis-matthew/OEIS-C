@@ -10,7 +10,8 @@
  *            recurrence is evaluated lazily and cached
  * Range:     u8 n <= 1, u16 n <= 9999, u32 n <= 9999, u64 n <= 9999,
  *            u128 n <= 9999, big any n
- * Helpers:   digit_len, digit_product, digit_sum, ensure_cache, pow10
+ * Validated: standard, pass, 60 terms through n = 9025 (2026-11-03)
+ * Helpers:   digit_product, digit_sum, mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,11 +19,49 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/digit_sum.h"
+#include <stdlib.h>
 #include "../utils/digit_product.h"
-#include "../utils/digit_len.h"
-#include "../utils/pow10.h"
-#include "../utils/ensure_cache.h"
+#include "../utils/digit_sum.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
+
+/* Make sure the cache is large enough */
+static void ensure_cache(idx_t n, seq_t **cache_ptr, size_t *cap_ptr) {
+    seq_t *cache = *cache_ptr;
+    size_t cap = *cap_ptr;
+    if (cap <= (size_t)n) {
+        size_t new_cap = cap ? (cap << 1) : 16;
+        while (new_cap <= (size_t)n)
+            new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
+        if (!tmp && new_cap > 0) {
+            /* Allocation failed – abort the program. */
+            exit(1);
+        }
+        if (tmp) {
+            /* Initialize newly allocated slots to zero. */
+            if (!cache) {
+                for (size_t i = 0; i < new_cap; ++i)
+                    tmp[i] = 0;
+            } else {
+                for (size_t i = cap; i < new_cap; ++i)
+                    tmp[i] = 0;
+            }
+            *cache_ptr = tmp;
+            *cap_ptr = new_cap;
+        }
+    }
+}
 
 /* Return the n-th term (n >= 0).  The function keeps a static cache
    of previously computed terms so that calls with arbitrary n do not
@@ -53,7 +92,7 @@ seq_t a(idx_t n)
         seq_t prod = digit_product(prev);
 
         /* Number of decimal digits of the product. */
-        int prod_len = digit_len(prod);
+        int prod_len = num_digits(prod);
 
         /* Concatenate sum and product: sum * 10^prod_len + prod. */
         seq_t pow10v = pow10((idx_t)prod_len);

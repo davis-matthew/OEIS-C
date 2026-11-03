@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 231, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 9959 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define PRIME_LIMIT 100000   /* sufficient for the expected input range */
 
@@ -120,7 +122,7 @@ static void ensure_cache_capacity(size_t need)
     if (need <= cache.cap) return;
     size_t new_cap = cache.cap ? cache.cap * 2 : 4;
     while (new_cap < need) new_cap *= 2;
-    seq_t *new_data = (seq_t *)realloc(cache.data, new_cap * sizeof(seq_t));
+    seq_t *new_data = mem_resize(seq_t, cache.data, new_cap);
     if (!new_data) abort();
     cache.data = new_data;
     cache.cap = new_cap;

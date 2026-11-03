@@ -6,8 +6,9 @@
  * Keywords:  easy, nonn
  * Formula:   a(n) = Sum_{i=1..n} A000213(i)^2 (sum of squares of the
  *            Tribonacci numbers)
- * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 20, u64 n <= 26, u128 n <= 26,
+ * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 20, u64 n <= 38, u128 n <= 74,
  *            big any n
+ * Validated: standard, pass, 42 terms through n = 971 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

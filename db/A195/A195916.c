@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache      = NULL;   /* cached a‑values */
 static size_t a_cache_len  = 0;      /* number of cached values   */
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
         idx_t r = current_row;
 
         /* allocate storage for row r (indices 0 … r)             */
-        seq_t *row = (seq_t *)malloc((r + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (r + 1));
         if (!row) abort();          /* memory exhausted */
 
         row[0] = 0;                 /* T(n,0) = 0, not stored in a() */
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
             if (a_cache_len == a_cache_cap)
             {
                 size_t new_cap = (a_cache_cap == 0) ? 16 : a_cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
                 if (!tmp) abort();
                 a_cache = tmp;
                 a_cache_cap = new_cap;
@@ -79,7 +81,7 @@ seq_t a(idx_t n)
         }
 
         /* release previous row and keep the current one   */
-        if (prev_row) free(prev_row);
+        if (prev_row) mem_free(prev_row);
         prev_row = row;
         prev_len = r;
     }

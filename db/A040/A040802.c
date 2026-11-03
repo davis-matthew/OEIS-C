@@ -10,13 +10,15 @@
  *            2*a0)
  * Range:     u8 n <= 88, u16 n <= 88, u32 n <= 88, u64 n <= 88, u128 n <= 88,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 89 terms through n = 88 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
         uint64_t a = tmp_a0;
 
         size_t cap = 16;
-        terms = (seq_t*)malloc(cap * sizeof(seq_t));
+        terms = mem_new(seq_t, cap);
         if (!terms) return 0;          /* allocation failed */
 
         size_t len = 0;
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
 
             if (len == cap) {
                 cap *= 2;
-                seq_t *tmp = (seq_t*)realloc(terms, cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, cap);
                 if (!tmp) return 0;
                 terms = tmp;
             }

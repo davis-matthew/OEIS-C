@@ -7,6 +7,7 @@
  * Formula:   a(n) = number of permutations p of 1..n with i-8 <= p(i) <= i+3
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 34, u128 n <= 67,
  *            big any n
+ * Validated: standard, pass, 41 terms through n = 394 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

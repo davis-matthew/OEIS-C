@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static bool _in_prime_triple(idx_t p)
 {
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
             /* store the prime */
             if (_seq_len == _seq_cap) {
                 size_t new_cap = _seq_cap ? _seq_cap << 1 : 8;
-                seq_t *tmp = (seq_t *)realloc(_seq_buf, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, _seq_buf, new_cap);
                 if (!tmp) return (seq_t)0; /* allocation failure */
                 _seq_buf = tmp;
                 _seq_cap = new_cap;

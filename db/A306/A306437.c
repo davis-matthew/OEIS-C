@@ -9,14 +9,16 @@
  * Formula:   a(n) = T(r,c), where T(r,c)=binomial(r,r/c)/(r-r/c+1) if c|r
  *            else 0. r is the smallest integer with r*(r+1)/2 >= n, and c = n
  *            - r*(r-1)/2, read row‑wise
- * Range:     u8 n <= 29, u16 n <= 105, u32 n <= 105, u64 n <= 105,
+ * Range:     u8 n <= 67, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

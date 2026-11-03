@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,6 +37,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* maximum n that the program is expected to handle */
 #define GLOBAL_MAX_N 10000   /* adjust if a larger n is needed */
@@ -61,15 +63,15 @@ static void init_tables(void)
 {
     size_t arrlen = 2 * GLOBAL_MAX_N + 1;
 
-    f1_prev = (seq_t *)calloc(arrlen, sizeof(seq_t));
-    f2_prev = (seq_t *)calloc(arrlen, sizeof(seq_t));
-    fN_prev = (seq_t *)calloc(arrlen, sizeof(seq_t));
+    f1_prev = mem_new(seq_t, arrlen);
+    f2_prev = mem_new(seq_t, arrlen);
+    fN_prev = mem_new(seq_t, arrlen);
 
-    f1_curr = (seq_t *)calloc(arrlen, sizeof(seq_t));
-    f2_curr = (seq_t *)calloc(arrlen, sizeof(seq_t));
-    fN_curr = (seq_t *)calloc(arrlen, sizeof(seq_t));
+    f1_curr = mem_new(seq_t, arrlen);
+    f2_curr = mem_new(seq_t, arrlen);
+    fN_curr = mem_new(seq_t, arrlen);
 
-    a_cache = (seq_t *)calloc(GLOBAL_MAX_N + 1, sizeof(seq_t));
+    a_cache = mem_new(seq_t, GLOBAL_MAX_N + 1);
 
     /* base case n = 0 */
     a_cache[0] = (seq_t)1;

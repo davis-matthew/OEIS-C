@@ -7,6 +7,7 @@
  * Formula:   a(n) = a(n-4) + 12, with a(1)=0, a(2)=4, a(3)=7, a(4)=11
  * Range:     u8 n <= 85, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 76 terms through n = 9081 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

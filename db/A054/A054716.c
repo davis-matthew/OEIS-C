@@ -7,12 +7,17 @@
  * Formula:   a(n) = ceil(v2(n)/4) + ord_{odd_part(n)}(16)
  * Range:     u8 n <= 521, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 110 terms through n = 9816 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -65,7 +70,7 @@ seq_t a(idx_t n)
         for (size_t i = 0; i < pcnt; ++i) {
             idx_t p = primes[i];
             while ((o % p) == 0) {
-                seq_t val = mod_pow((seq_t)16, o / p, (seq_t)odd);
+                seq_t val = powmod((seq_t)16, o / p, (seq_t)odd);
                 if (val == (seq_t)1) {
                     o /= p;
                 } else {

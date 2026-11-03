@@ -9,12 +9,14 @@
  *            n*L(n+2) - L(n+3) + 4
  * Range:     u8 n <= 6, u16 n <= 15, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static caches for Lucas numbers and a(n) values */
 static seq_t *Lucas = NULL;     /* Lucas numbers, indices 0.. */
@@ -30,7 +32,7 @@ static void ensureLucas(idx_t need)
         return;
 
     idx_t new_len = need;
-    seq_t *tmp = (seq_t *)realloc(Lucas, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, Lucas, new_len);
     if (!tmp) abort();          /* out of memory */
     Lucas = tmp;
 
@@ -57,7 +59,7 @@ static void ensureA(idx_t need)
         return;
 
     idx_t new_len = need;
-    seq_t *tmp = (seq_t *)realloc(A, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, A, new_len);
     if (!tmp) abort();
     A = tmp;
 

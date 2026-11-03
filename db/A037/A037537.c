@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Recurrence: a(0)=0 (unused), a(1)=1. For n>1
    a(n)=4*a(n-1)+d where d cycles 1,2,1 with period 3.  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached values of the sequence. */
 static seq_t *cache = NULL;
@@ -31,7 +33,7 @@ seq_t a(idx_t n) {
     /* Allocate more space if needed. */
     if (cache == NULL || cap <= (size_t)n) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *new_cache = (seq_t*)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (new_cache == NULL) {
             /* Allocation failed – return 0.  (Should not happen in tests.) */
             return 0;
@@ -41,7 +43,7 @@ seq_t a(idx_t n) {
             for (idx_t i = 0; i <= max_computed; ++i) {
                 new_cache[i] = cache[i];
             }
-            free(cache);
+            mem_free(cache);
         }
         cache = new_cache;
         cap = new_cap;

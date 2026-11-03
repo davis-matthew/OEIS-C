@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   has62
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,24 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has62.h"
+#include "../utils/mem.h"
+
+/* Helper: does x contain the adjacent digits 6 followed by 2 in base 7? */
+static bool has62(seq_t x)
+{
+    if (x == 0)
+        return false;
+
+    int prev = -1;          /* previous (less significant) digit */
+    while (x > 0) {
+        int cur = (int)(x % 7);   /* current (more significant) digit */
+        if (prev != -1 && cur == 6 && prev == 2)
+            return true;
+        prev = cur;
+        x /= 7;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -38,8 +56,7 @@ seq_t a(idx_t n)
                 /* Grow the cache if necessary.  */
                 if (count >= cap) {
                     size_t new_cap = (cap == 0 ? 16 : cap * 2);
-                    seq_t *new_cache = (seq_t *)realloc(cache,
-                                                        new_cap * sizeof(seq_t));
+                    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
                     cache = new_cache;
                     cap = new_cap;
                 }

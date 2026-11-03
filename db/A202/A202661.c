@@ -9,13 +9,15 @@
  *            fourth * differences all lie in {-5..5}
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 14, u64 n <= 32, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define S_MIN       -5
 #define S_MAX        5
@@ -44,8 +46,8 @@ static void init_static(void)
     initialized = true;
 
     /* allocate mutable DP buffers (shared across calls) */
-    dp  = (seq_t*)malloc(STATES * sizeof(seq_t));
-    dpn = (seq_t*)malloc(STATES * sizeof(seq_t));
+    dp  = mem_new(seq_t, STATES);
+    dpn = mem_new(seq_t, STATES);
 
     /* Precompute transitions and initial 4‑tuple validity */
     for (int t0 = S_MIN; t0 <= S_MAX; ++t0) {
@@ -119,8 +121,8 @@ seq_t a(idx_t n)
     static bool initialized = false;
     if (!initialized) {
         /* allocate DP buffers */
-        dp  = (seq_t*)malloc(STATES * sizeof(seq_t));
-        dpn = (seq_t*)malloc(STATES * sizeof(seq_t));
+        dp  = mem_new(seq_t, STATES);
+        dpn = mem_new(seq_t, STATES);
 
         /* Precompute transitions */
         for (int t0 = S_MIN; t0 <= S_MAX; ++t0) {

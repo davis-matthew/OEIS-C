@@ -11,15 +11,27 @@
  *            value 6*n+1 for palindromicity
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 28, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   is_palindrome, pow10, reverse_decimal
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-01)
+ * Helpers:   is_palindrome_base, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/pow10.h"
-#include "../utils/reverse_decimal.h"
-#include "../utils/is_palindrome.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/is_palindrome_base.h"
+#include "../utils/reverse_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t target) {
     if (target == 0) return 0;   /* offset is 1; n = 0 is undefined */
@@ -39,14 +51,14 @@ seq_t a(idx_t target) {
             seq_t n;
             if (is_even) {
                 /* Even length: palindrome = left * 10^half + reverse_decimal(left) */
-                n = left * mult + reverse_decimal(left);
+                n = left * mult + reverse_digits(left);
             } else {
                 /* Odd length: palindrome = left * 10^(half-1) + reverse_decimal(left/10) */
-                n = left * mult + reverse_decimal(left / 10);
+                n = left * mult + reverse_digits(left / 10);
             }
 
             seq_t m = n * 6 + 1;                      /* candidate value */
-            if (is_palindrome(m, 10)) {
+            if (is_palindrome_base(m, 10)) {
                 ++count;
                 if (count == target) return m;
             }

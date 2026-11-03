@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 287, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 9961 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,13 +23,14 @@
 
 /* Standard library for memory allocation and abort on failure. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper that appends a value to a dynamic array. */
 static void push_seq(seq_t **seqp, size_t *lenp, size_t *capp, seq_t val)
 {
     if (*lenp == *capp) {
         size_t new_cap = (*capp == 0) ? 16 : (*capp << 1);
-        seq_t *tmp = (seq_t *)realloc(*seqp, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *seqp, new_cap);
         if (!tmp) abort();                  /* out of memory */
         *seqp = tmp;
         *capp = new_cap;

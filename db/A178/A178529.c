@@ -8,14 +8,17 @@
  * Formula:   a(n) = 4^n/(n!)^2 * Product_{k=0..n-1} (8k+1)*(8k+3)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 9, u128 n <= 17,
  *            big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 29 terms through n = 188 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;       /* cached values */
 static idx_t cache_len = 0;       /* number of values stored (next to compute) */
@@ -32,7 +35,7 @@ static void extend_cache(idx_t n)
     while (new_cap <= (size_t)n)
         new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         abort();
     cache = tmp;

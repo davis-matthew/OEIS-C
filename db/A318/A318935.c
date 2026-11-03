@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy, mult
  * Formula:   a(n) = Sum_{2^m divides n} 2^(3*m) = (8^(v2(n)+1)-1)/7
- * Range:     u8 n <= 3, u16 n <= 31, u32 n <= 2047, u64 n <= 9472,
- *            u128 n <= 9472, big any n
+ * Range:     u8 n <= 3, u16 n <= 31, u32 n <= 2047, u64 n <= 16383,
+ *            u128 n <= 16383, big any n
+ * Validated: standard, pass, 96 terms through n = 9472 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

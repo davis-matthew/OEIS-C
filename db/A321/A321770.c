@@ -15,6 +15,7 @@
  *            2a-b+2c, 2a-2b+3c) * B : (a,b,c) → (a+2b+2c, 2a+b+2c, 2...
  * Range:     u8 n <= 17, u16 n <= 485, u32 n <= 9841, u64 n <= 9841,
  *            u128 n <= 9841, big any n
+ * Validated: standard, pass, 70 terms through n = 9799 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

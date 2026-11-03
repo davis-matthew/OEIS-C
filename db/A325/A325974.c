@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = (A048146(n)+A162296(n))/2
- * Range:     u8 n <= 143, u16 n <= 9050, u32 n <= 9050, u64 n <= 9050,
- *            u128 n <= 9050, big any n
+ * Range:     u8 n <= 143, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 115 terms through n = 9050 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 static void dfs(size_t pos, seq_t cur_val, int unitary_flag, int squarefree_flag,

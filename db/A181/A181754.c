@@ -10,7 +10,8 @@
  *            where F(n) is the nth Fibonacci number
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 7, u64 n <= 8, u128 n <= 10,
  *            big any n
- * Helpers:   pow10, seq_from_str, seq_mul
+ * Validated: partial, pass, 11 terms through n = 11 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,33 @@
 #include <stdbool.h>
 
 /*  Utility headers that provide the required big‑integer operations.  */
-#include "../utils/pow10.h"          /* seq_t pow10(idx_t e); */
-#include "../utils/seq_from_str.h"   /* seq_t seq_from_str(const char *s); */
-#include "../utils/seq_mul.h"        /* seq_t seq_mul(seq_t a, seq_t b); */
+#include <string.h>
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /*  Cache for previously computed terms.  */
 static seq_t *cache = NULL;          /* elements 0..n  */
@@ -65,13 +90,13 @@ static void ensure_cache(idx_t n)
         return;                                      /* already large enough */
 
     size_t new_len = (size_t)n + 1;                  /* include index 0 */
-    seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_len);
     if (!tmp)
         exit(EXIT_FAILURE);
     /* Zero initialise the newly allocated part (only works if seq_t is trivially
        constructible – see assumptions in the problem statement).  */
     if (new_len > cache_len)
-        memset(tmp + cache_len, 0, (new_len - cache_len) * sizeof(seq_t));
+        mem_set(tmp + cache_len, 0, (new_len - cache_len) * sizeof(seq_t));
     cache = tmp;
     cache_len = new_len;
 

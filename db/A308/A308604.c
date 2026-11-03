@@ -8,6 +8,7 @@
  * Formula:   a(1)=2, a(2)=5, a(3)=10, a(4)=17; a(n)=7*n^2-38*n+49 for n>4
  * Range:     u8 n <= 8, u16 n <= 99, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 63 terms through n = 989 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

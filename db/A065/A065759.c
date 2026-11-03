@@ -13,6 +13,7 @@
  *            multiplying the value 5 indices earlier by 10
  * Range:     u8 n <= 1, u16 n <= 12, u32 n <= 36, u64 n <= 47, u128 n <= 47,
  *            big any n
+ * Validated: standard, pass, 47 terms through n = 47 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

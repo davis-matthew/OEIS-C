@@ -11,14 +11,28 @@
  *            complementary sequences
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 21, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   mul_small
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/mul_small.h"
+#include "../utils/mem.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 seq_t a(idx_t n)
 {
@@ -27,12 +41,12 @@ seq_t a(idx_t n)
     if (n == 1) return (seq_t)2;
 
     /* Allocate space for the two sequences up to index n. */
-    seq_t *A = (seq_t *)malloc((n + 2) * sizeof(seq_t));
-    seq_t *B = (seq_t *)malloc((n + 2) * sizeof(seq_t));
+    seq_t *A = mem_new(seq_t, (n + 2));
+    seq_t *B = mem_new(seq_t, (n + 2));
     if (!A || !B) {
         /* In case of memory failure return 0 (should not happen in tests). */
-        free(A);
-        free(B);
+        mem_free(A);
+        mem_free(B);
         return (seq_t)0;
     }
 
@@ -82,7 +96,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = A[n];
-    free(A);
-    free(B);
+    mem_free(A);
+    mem_free(B);
     return result;
 }

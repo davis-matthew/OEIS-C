@@ -7,20 +7,23 @@
  * Formula:   a(n) = (16*2^n - 45*3^n + 49*7^n)/20
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 9, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   pow2, pow3, pow_int
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-01)
+ * Helpers:   ipow_idx, pow2, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 #include "../utils/pow2.h"
 #include "../utils/pow3.h"
-#include "../utils/pow_int.h"
 
 seq_t a(idx_t n)
 {
     seq_t pow2_n = pow2(n);
     seq_t pow3_n = pow3(n);
-    seq_t pow7_n = pow_int((seq_t)7, n);
+    seq_t pow7_n = ipow_idx((seq_t)7, n);
 
     seq_t num = pow2_n * (seq_t)16;
     num += pow7_n * (seq_t)49;

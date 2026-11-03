@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 18, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
       a(12)=1924
 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* array of computed terms, 0‑based index a(n-1) */
 static size_t cache_cap = 0;  /* allocated capacity of cache */
@@ -38,9 +40,9 @@ static void init_base(void)
         size_t newcap = needed > 8 ? needed : 8;
         seq_t *tmp = NULL;
         if (cache)
-            tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+            tmp = mem_resize(seq_t, cache, newcap);
         else
-            tmp = (seq_t *)malloc(newcap * sizeof(seq_t));
+            tmp = mem_new(seq_t, newcap);
         if (!tmp) /* out of memory : terminate program */
             exit(1);
         cache = tmp;
@@ -70,7 +72,7 @@ static void expand_cache(idx_t n)
     size_t newcap = cache_cap ? cache_cap << 1 : 8;
     if (newcap < (size_t)n)
         newcap = (size_t)n;
-    seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, newcap);
     if (!tmp) /* out of memory */
         exit(1);
     cache = tmp;

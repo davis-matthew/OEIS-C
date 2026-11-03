@@ -7,7 +7,8 @@
  * Formula:   a(n) = (3*n + 1)!/(n!)^3
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 485 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* a(0) = 1;  for n > 0:  a(n) = a(n-1) * (3n+1) * 3 * (3n‑1) / (n*n)   */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,9 +30,9 @@ seq_t a(idx_t n)
         size_t new_cap = (size_t)n + 1;
         seq_t *p = NULL;
         if (cache == NULL)
-            p = (seq_t *)malloc(new_cap * sizeof(seq_t));
+            p = mem_new(seq_t, new_cap);
         else
-            p = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            p = mem_resize(seq_t, cache, new_cap);
         if (p == NULL) abort();
         cache = p;
         cap   = new_cap;

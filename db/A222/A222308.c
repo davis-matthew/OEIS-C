@@ -9,6 +9,7 @@
  * Formula:   a(n) = n^4/2 - 5*n^3/24 - 11*n/48 + (-1)^n*n/16
  * Range:     u8 n <= 4, u16 n <= 19, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,16 +8,29 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 1001, u32 n <= 1001, u64 n <= 1001,
  *            u128 n <= 1001, big any n
- * Helpers:   divisor_count_u64, free_seq_array, seq_alloc_new_array
+ * Validated: standard, pass, 64 terms through n = 867 (2026-11-03)
+ * Helpers:   mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* A128513:  a(1)=2, a(n)=1 + smallest integer > a(n-1) having the same divisor count as a(n-1) */
 #include <stddef.h>
-#include "../utils/divisor_count_u64.h"
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/free_seq_array.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include <stdbool.h>
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 static seq_t *cache      = NULL;   /* 0‑based array: cache[i] = a(i+1) */
 static size_t cache_len  = 0;      /* number of values stored */
@@ -61,11 +74,11 @@ seq_t a(idx_t n)
         ensure_capacity(idx);
         for (size_t i = cache_len; i < idx; ++i) {
             seq_t prev = cache[i - 1];
-            uint64_t dprev = divisor_count_u64((uint64_t)prev);
+            uint64_t dprev = num_divisors((uint64_t)prev);
 
             /* find the smallest integer > prev with dprev divisors */
             uint64_t cand = (uint64_t)prev + 1;
-            while (divisor_count_u64(cand) != dprev)
+            while (num_divisors(cand) != dprev)
                 ++cand;
 
             cache[i] = (seq_t)(cand + 1);

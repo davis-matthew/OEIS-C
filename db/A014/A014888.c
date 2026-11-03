@@ -10,12 +10,14 @@
  *            integers, storing solutions until the required index is reached
  * Range:     u8 none, u16 none, u32 n <= 11, u64 n <= 11, u128 n <= 11,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 11 terms through n = 11 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *solutions = NULL;
 static size_t sol_cap = 0;
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
         if (total_f == (seq_t)last_i) {
             if (sol_count == sol_cap) {
                 sol_cap = sol_cap ? sol_cap * 2 : 16;
-                solutions = (seq_t *)realloc(solutions, sol_cap * sizeof(seq_t));
+                solutions = mem_resize(seq_t, solutions, sol_cap);
             }
             solutions[sol_count++] = (seq_t)last_i;
         }

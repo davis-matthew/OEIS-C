@@ -7,7 +7,8 @@
  * Formula:   a(n) = number of solutions to φ(m) = 4*n
  * Range:     u8 n <= 6479, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 110 terms through n = 9840 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Utility: ensure this array is at least size 'needed'.  Recompute phi if
    necessary. */
@@ -60,9 +62,9 @@ static void recompute_counts(size_t target_k)
     if (target_k + 1 <= count_cap) return; /* already computed */
 
     /* Allocate or grow count array */
-    count_arr = (seq_t *)realloc(count_arr, (target_k + 1) * sizeof(seq_t));
+    count_arr = mem_resize(seq_t, count_arr, (target_k + 1));
     if (!count_arr) exit(1);
-    memset(count_arr, 0, (target_k + 1) * sizeof(seq_t));
+    mem_set(count_arr, 0, (target_k + 1) * sizeof(seq_t));
     count_cap = target_k + 1;
 
     /* Count phi values */

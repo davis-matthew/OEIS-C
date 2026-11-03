@@ -10,13 +10,33 @@
  *            (1+√5)/2
  * Range:     u8 n <= 8, u16 n <= 26, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   upper_wythoff
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/upper_wythoff.h"
+
+/* Compute the upper Wythoff number t(i) = ⌊i·φ²⌋.
+   We use the identity φ² = φ + 1, so t(i) = i + ⌊i·φ⌋.
+   ⌊i·φ⌋ is evaluated by integer arithmetic using a high‑precision
+   rational approximation of φ. */
+static inline seq_t upper_wythoff(idx_t i)
+{
+    /* φ ≈ 1.618033988749894848204586834...  */
+    /* Use the fraction 16180339887498948/10000000000000000 ≈ φ. */
+    static const idx_t P = 16180339887498948ULL;
+    static const idx_t Q = 10000000000000000ULL;
+
+    /* Compute floor(i*φ) using 128‑bit arithmetic. */
+    __int128 prod = (__int128)P * i;
+    idx_t fl_phi = (idx_t)(prod / Q);
+
+    /* t(i) = i + floor(i*φ)  */
+    seq_t res = (seq_t)i + (seq_t)fl_phi;
+    return res;
+}
 
 /* The main sequence function. */
 seq_t a(idx_t n)

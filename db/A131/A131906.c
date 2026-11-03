@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 3, u32 n <= 39, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  Sieve for smallest prime factors (spf).  m is assumed to fit in
@@ -114,7 +116,7 @@ static size_t cache_size = 0;
 static void cache_push(seq_t val) {
     if (cache_size == cache_cap) {
         size_t new_cap = (cache_cap == 0) ? 8 : cache_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cache_cap = new_cap;
     }
@@ -132,8 +134,8 @@ seq_t a(idx_t n) {
         uint64_t init_lim = 5000000ULL;
         extend_sieve(init_lim);
 
-        hash_keys = (seq_t *)calloc(HASH_SIZE, sizeof(seq_t));
-        hash_vals = (seq_t *)calloc(HASH_SIZE, sizeof(seq_t));
+        hash_keys = mem_new(seq_t, HASH_SIZE);
+        hash_vals = mem_new(seq_t, HASH_SIZE);
 
         cache = NULL;
         cache_cap = 0;

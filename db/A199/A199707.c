@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 145, u64 n <= 200, u128 n <= 200,
  *            big any n
- * Helpers:   block_weights
+ * Validated: standard, pass, 47 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,18 +23,33 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/block_weights.h"
+#include "../utils/mem.h"
+
+/* Helper to compute block weights from equality mask */
+static inline void block_weights(int mask, int *weights, int *klen) {
+    int i = 0, len = 0;
+    while (i < 5) {
+        int w = 1;
+        while (i < 4 && ((mask >> i) & 1)) {
+            ++i;
+            ++w;
+        }
+        weights[len++] = w;
+        ++i;
+    }
+    *klen = len;
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)0;   /* offset is 1, but guard anyway */
 
     idx_t target = 5 * n;          /* maximum weighted sum (5n) */
     /* allocate DP arrays */
-    seq_t *dp = (seq_t *)calloc((size_t)(target + 1), sizeof(seq_t));
-    seq_t *ndp = (seq_t *)calloc((size_t)(target + 1), sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(target + 1));
+    seq_t *ndp = mem_new(seq_t, (size_t)(target + 1));
     if (!dp || !ndp) {
         /* allocation failed – fall back to zero (shouldn't happen in tests) */
-        free(dp); free(ndp);
+        mem_free(dp); mem_free(ndp);
         return (seq_t)0;
     }
 
@@ -43,7 +59,7 @@ seq_t a(idx_t n) {
     for (int mask = 0; mask < 16; ++mask) {
         /* reset dp to initial state: only sum 0 reachable with first variable */
         dp[0] = (seq_t)1;
-        if (target > 0) memset(dp + 1, 0, (size_t)target * sizeof(seq_t));
+        if (target > 0) mem_set(dp + 1, 0, (size_t)target * sizeof(seq_t));
 
         int weights[5], wlen;
         block_weights(mask, weights, &wlen);
@@ -55,7 +71,7 @@ seq_t a(idx_t n) {
         for (int bi = 0; bi < wlen; ++bi) {
             int w = weights[bi];
             /* zero ndp */
-            memset(ndp, 0, (size_t)(target + 1) * sizeof(seq_t));
+            mem_set(ndp, 0, (size_t)(target + 1) * sizeof(seq_t));
 
             /* sliding window over each remainder class modulo w */
             for (int r = 0; r < w; ++r) {
@@ -87,8 +103,8 @@ seq_t a(idx_t n) {
         }
     }
 
-    free(dp);
-    free(ndp);
+    mem_free(dp);
+    mem_free(ndp);
 
     /* final result: pos - neg (guaranteed non‑negative) */
     return pos - neg;

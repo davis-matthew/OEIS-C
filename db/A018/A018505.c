@@ -7,13 +7,15 @@
  * Formula:   a(n) = nth divisor of 532, sorted in increasing order
  * Range:     u8 n <= 4, u16 n <= 12, u32 n <= 12, u64 n <= 12, u128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 12 terms through n = 12 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static int seq_compare(const void *p1, const void *p2) {
     const seq_t *x = (const seq_t *)p1;
@@ -68,7 +70,7 @@ static void compute_divisors(seq_t out[], size_t *len) {
     }
 
     /* Sort the divisors. */
-    qsort(out, *len, sizeof(seq_t), seq_compare);
+    mem_qsort(out, *len, sizeof(seq_t), seq_compare);
 }
 
 seq_t a(idx_t n) {

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 44, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   binary_search, is_prime
+ * Validated: standard, pass, 74 terms through n = 917 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,20 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "../utils/is_prime.h"          /* bool is_prime(idx_t); */
-#include "../utils/binary_search.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
+
+static inline int binary_search(const uint64_t *arr, size_t len, uint64_t key)
+{
+    size_t lo = 0, hi = len;
+    while (lo < hi) {
+        size_t mid = lo + (hi - lo) / 2;
+        if (arr[mid] == key) return (int)mid;
+        if (arr[mid] < key) lo = mid + 1;
+        else hi = mid;
+    }
+    return -1;
+}
 
 seq_t a(idx_t n)
 {
@@ -46,7 +59,7 @@ seq_t a(idx_t n)
     /* Initialise on first invocation */
     if (seq_len == 0) {
         seq_cap = 64;
-        seq = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         seq[0] = (seq_t)2;
         seq_len = 1;
 
@@ -113,7 +126,7 @@ seq_t a(idx_t n)
                     /* Accept candidate: store it and update data. */
                     if (seq_cap <= seq_len) {
                         seq_cap = seq_cap * 2 + 1;
-                        seq = (seq_t*)realloc(seq, seq_cap * sizeof(seq_t));
+                        seq = mem_resize(seq_t, seq, seq_cap);
                     }
                     seq[seq_len++] = (seq_t)cand;
 

@@ -8,6 +8,7 @@
  * Formula:   a(n) = 11/2*3^(n-1) - 2^n - 1/2 (for n > 0), a(0)=0
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 19, u64 n <= 27, u128 n <= 27,
  *            big any n
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-01)
  * Helpers:   pow2, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,8 @@
 
 /* Computation uses the helper functions pow2 and pow3 from the utils library */
 
+#include <stdbool.h>
+#include <stdint.h>
 #include "../utils/pow2.h"
 #include "../utils/pow3.h"
 

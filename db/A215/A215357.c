@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 67 terms through n = 952 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* cached terms a(1)..a(k) */
 static size_t cache_cap = 0;         /* capacity of the cache array */
@@ -35,7 +37,7 @@ static void cache_ensure(size_t needed)
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < needed)
         new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     cache = tmp;
     cache_cap = new_cap;
 }
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
                 next_candidate = 2;
             uint8_t r = (uint8_t)(next_candidate % 19ULL);
             if (r == 0 || r == 2 || r == 3 || r == 4 || r == 5) {
-                if (is_prime_small((seq_t)next_candidate)) {
+                if (is_prime_seq((seq_t)next_candidate)) {
                     cache_ensure(cache_len + 1);
                     cache[cache_len++] = (seq_t)next_candidate;
                     ++next_candidate;    /* move past this prime */

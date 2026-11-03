@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 90 terms through n = 90 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* helper: floor(log2(x)) for x>=1 */
 static inline int floor_log2_uint64(uint64_t x)
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     /* initialise base values */
     if (cache_size < 3) {
         size_t init_cap = 8;
-        cache = (seq_t *)realloc(cache, init_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, init_cap);
         cache[1] = (seq_t)1;
         cache[2] = (seq_t)2;
         cache[3] = (seq_t)3;
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
     size_t new_cap = cache_size > 0 ? 2 * cache_size : 8;
     while (new_cap < (size_t)n + 1)
         new_cap <<= 1;
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
 
     /* compute terms up to n */
     for (idx_t i = (idx_t)cache_size + 1; i <= n; ++i) {

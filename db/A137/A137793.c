@@ -9,7 +9,8 @@
  *            prime gaps in their factorization
  * Range:     u8 n <= 32, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,12 +40,12 @@ seq_t a(idx_t n)
     if (n > max_n) {
         /* Free previous dp if it exists */
         if (dp != NULL) {
-            free(dp);
+            mem_free(dp);
             dp = NULL;
         }
 
         /* Allocate dp array */
-        dp = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        dp = mem_new(seq_t, (n + 1));
         if (dp == NULL) return 0; /* allocation failure (should not happen) */
 
         /* Base case */

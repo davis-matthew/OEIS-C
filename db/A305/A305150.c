@@ -10,9 +10,10 @@
  *            enumerates all admissible factor lists using recursion and
  *            builds a list of divisors of n. It is valid C11 and C++17, uses
  *            only integer arithmetic, and works for arbitrary sized seq...
- * Range:     u8 n <= 9938, u16 n <= 9938, u32 n <= 9938, u64 n <= 9938,
- *            u128 n <= 9938, big any n
- * Helpers:   rec_factor
+ * Range:     u8 n <= 16384, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 121 terms through n = 9938 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,44 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/rec_factor.h"
+
+/* Recursive helper: count admissible factorizations of 'remain'.
+   'start' is the index in 'divs' from which to try new factors.
+   'selected' holds the factors already chosen (length selcnt).
+   'cnt' accumulates the number of valid factorizations. */
+static void rec_factor(uint64_t remain,
+                       size_t start,
+                       uint64_t *selected,
+                       size_t selcnt,
+                       const uint64_t *divs,
+                       size_t dcnt,
+                       seq_t *cnt)
+{
+    if (remain == 1) {
+        ++(*cnt);              /* found a valid factorization */
+        return;
+    }
+
+    for (size_t i = start; i < dcnt; ++i) {
+        uint64_t d = divs[i];
+        if (d > remain) break;
+        if (remain % d != 0) continue;
+
+        /* ensure pairwise indivisibility with already chosen factors */
+        bool ok = true;
+        for (size_t j = 0; j < selcnt; ++j) {
+            if (d % selected[j] == 0 || selected[j] % d == 0) {
+                ok = false;
+                break;
+            }
+        }
+        if (!ok) continue;
+
+        selected[selcnt] = d;
+        rec_factor(remain / d, i + 1, selected, selcnt + 1,
+                   divs, dcnt, cnt);
+    }
+}
 
 /* Comparator for qsort when sorting uint64_t values */
 static int cmp_uint64(const void *a, const void *b)

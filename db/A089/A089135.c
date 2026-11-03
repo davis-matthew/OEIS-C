@@ -9,12 +9,14 @@
  *            a(9)=9, a(10)=-11 The recurrence holds for all n ≥ 11
  * Range:     i8 n <= 16, i16 n <= 32, i32 n <= 43, i64 n <= 43, i128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache for previously computed terms */
@@ -43,12 +45,12 @@ seq_t a(idx_t n) {
     /* enlarge cache as needed */
     if (cache == NULL) {
         cap = 16;  /* initial capacity, arbitrary */
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
     } else if (n + 1 > cap) {
         /* double until we have enough room */
         while (n + 1 > cap)
             cap <<= 1;  /* multiply by 2 */
-        cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cap);
     }
 
     /* compute missing terms up to n */

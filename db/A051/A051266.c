@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 98, u16 n <= 161, u32 n <= 161, u64 n <= 161,
  *            u128 n <= 161, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 161 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ----------  global data  ---------- */
 static uint32_t *PRIMES     = NULL;   /* array of primes */
@@ -78,9 +80,9 @@ static void init_primes(void)
 static void append_seq(seq_t value)
 {
     if (SEQ_CNT == 0) {
-        SEQ_TERMS = (seq_t *)malloc(1024 * sizeof(seq_t));
+        SEQ_TERMS = mem_new(seq_t, 1024);
     } else {
-        SEQ_TERMS = (seq_t *)realloc(SEQ_TERMS, (SEQ_CNT + 1) * sizeof(seq_t));
+        SEQ_TERMS = mem_resize(seq_t, SEQ_TERMS, (SEQ_CNT + 1));
     }
     SEQ_TERMS[SEQ_CNT++] = value;
 }

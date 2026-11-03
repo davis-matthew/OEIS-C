@@ -8,6 +8,7 @@
  *            2671*n^4 - 2805*n^3 - 14735*n^2 - 14445*n - 2466) / 5443200
  * Range:     i8 none, i16 none, i32 n <= 12, i64 n <= 88, i128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 39 terms through n = 943 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

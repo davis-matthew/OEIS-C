@@ -9,6 +9,7 @@
  *            (n-1)%14+1, and T(n,k) = 19*n^2 + 10*k^2 - (n-1)*(20*(k-1)+10)
  * Range:     u8 n <= 4, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

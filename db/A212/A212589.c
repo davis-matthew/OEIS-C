@@ -11,12 +11,14 @@
  *            a(n-2) – a(n-3)+2 a(n-4) – 2 a(n-5)+a(n-6)
  * Range:     u8 n <= 7, u16 n <= 17, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache to store already-computed terms */
@@ -28,7 +30,7 @@ seq_t a(idx_t n) {
         /* enlarge if necessary */
         idx_t newsize = n + 1;
         if (newsize < 8) newsize = 8;           /* at least store first 8 terms */
-        seq_t *newcache = (seq_t *)realloc(cache, newsize * sizeof(seq_t));
+        seq_t *newcache = mem_resize(seq_t, cache, newsize);
         if (!newcache) {abort();}               /* allocation failure */
         cache = newcache;
 

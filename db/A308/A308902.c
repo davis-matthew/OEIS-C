@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 35, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Static scratch space shared between calls. */
 static idx_t          dp_size      = 0;          /* current DP size   */
@@ -60,14 +62,14 @@ static void
 reinit_dp(idx_t n)
 {
     for (int parts = 0; parts <= 6; ++parts) {
-        seq_t *arr = (seq_t *)realloc(dp[parts], (n + 1) * sizeof(seq_t));
+        seq_t *arr = mem_resize(seq_t, dp[parts], (n + 1));
         if (!arr) exit(1);
         dp[parts] = arr;
     }
 
     /* Zero everything, then set dp[0][0] = 1. */
     for (int parts = 0; parts <= 6; ++parts)
-        memset(dp[parts], 0, (n + 1) * sizeof(seq_t));
+        mem_set(dp[parts], 0, (n + 1) * sizeof(seq_t));
     dp[0][0] = 1;
     dp_size = n;
 }

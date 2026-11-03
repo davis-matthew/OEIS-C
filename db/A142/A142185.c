@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 416, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   to_size
+ * Validated: standard, pass, 63 terms through n = 993 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,12 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/to_size.h"
+#include "../utils/mem.h"
+
+/* Helper: convert from idx_t to size_t safely.
+   Assumes idx_t is an unsigned integer type.
+*/
+static inline size_t to_size(idx_t n) { return (size_t)n; }
 
 /* Cache of computed terms */
 static seq_t *term_cache = NULL; /* dynamically resized array of seq_t */
@@ -51,7 +57,7 @@ seq_t a(idx_t n)
            LIMIT / log(LIMIT) primes ≈ 320 000, so about 20 000 relevant
            primes.  Allocate slightly more. */
         size_t initial_cap = 30000;
-        term_cache = (seq_t *)malloc(initial_cap * sizeof(seq_t));
+        term_cache = mem_new(seq_t, initial_cap);
         if (!term_cache) { free(sieve); return 0; }
         term_count = 0;
 
@@ -62,7 +68,7 @@ seq_t a(idx_t n)
                     if (term_count == initial_cap) {
                         /* Grow cache if needed */
                         size_t new_cap = initial_cap * 2;
-                        seq_t *tmp = (seq_t *)realloc(term_cache, new_cap * sizeof(seq_t));
+                        seq_t *tmp = mem_resize(seq_t, term_cache, new_cap);
                         if (!tmp) break;           /* stop on allocation failure */
                         term_cache = tmp;
                         initial_cap = new_cap;

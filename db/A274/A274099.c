@@ -8,12 +8,17 @@
  *            (coefficient of x^(n*(n-1)/2) in 1/((1-x)(1-x^2)(1-x^3)(1-x^4)))
  * Range:     u8 n <= 8, u16 n <= 20, u32 n <= 131, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   f3
+ * Validated: standard, pass, 54 terms through n = 945 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/f3.h"
+static inline seq_t f3(seq_t x)
+{
+    /* partitions of x using parts <= 3 */
+    return (x * x + (seq_t)6 * x + 12) / 12;
+}
 
 seq_t a(idx_t n)
 {

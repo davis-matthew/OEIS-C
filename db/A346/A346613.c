@@ -10,15 +10,18 @@
  *            if e is even
  * Range:     u8 n <= 12, u16 n <= 4855, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: standard, pass, 88 terms through n = 9778 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -46,13 +49,13 @@ seq_t a(idx_t n)
             k = (seq_t)(e / 2);
 
         seq_t kp1 = k + (seq_t)1;              /* k + 1 */
-        seq_t p_kp1 = big_pow(p, kp1);         /* p^(k+1)                     */
+        seq_t p_kp1 = ipow(p, kp1);         /* p^(k+1)                     */
         seq_t term = (p_kp1 - (seq_t)1) * (seq_t)2;  /* 2*(p^(k+1)-1)            */
         seq_t denom = p - (seq_t)1;                 /* p-1                       */
         term /= denom;                            /* integer division          */
 
         if (e & 1) { /* odd */
-            seq_t p_k = big_pow(p, k); /* p^k */
+            seq_t p_k = ipow(p, k); /* p^k */
             term -= p_k;
             term -= (seq_t)1;
         } else { /* even */

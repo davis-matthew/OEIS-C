@@ -9,12 +9,14 @@
  *            n)
  * Range:     u8 n <= 767, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 95 terms through n = 9733 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static inline int v2(idx_t n)
 {
@@ -37,13 +39,13 @@ seq_t a(idx_t n)
 
         if (cache == NULL) {
             /* first allocation up to n */
-            cache = (seq_t *)malloc(sizeof(seq_t) * (n + 1));
+            cache = mem_new(seq_t, (n + 1));
             cache[0] = (seq_t)0;
             cache_size = 1;
             old_size   = 1;
         } else {
             /* extend existing cache */
-            cache = (seq_t *)realloc(cache, sizeof(seq_t) * (n + 1));
+            cache = mem_resize(seq_t, cache, (n + 1));
             cache_size = n + 1;
         }
 

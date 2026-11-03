@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 4073, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 9419 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* In all builds seq_t and idx_t are defined by the build system.
    This file implements an independent, memoised function.   */
@@ -66,7 +68,7 @@ static void compute_table(idx_t limit)
     }
 
     /* Build the output list of sums with exactly two representations */
-    seq_t *new_terms = (seq_t*)malloc((size_t)(limit + 1) * sizeof(seq_t));
+    seq_t *new_terms = mem_new(seq_t, (size_t)(limit + 1));
     if (!new_terms) abort();
     size_t new_cnt = 0;
     for (idx_t s = 0; s <= limit; ++s) {
@@ -81,7 +83,7 @@ static void compute_table(idx_t limit)
     }
 
     /* Replace old list */
-    free(terms);
+    mem_free(terms);
     terms     = new_terms;
     term_cnt  = new_cnt;
     cur_limit = limit;

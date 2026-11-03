@@ -7,6 +7,7 @@
  * Formula:   a(n) = prime(n) - hyperfactorial(prime(n)-1) mod prime(n)
  * Range:     u8 n <= 55, u16 n <= 6545, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 81 terms through n = 9078 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 /* Uses a simple sieve cache of the first primes and modular exponentiation.  */
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 
 /* generic modular exponentiation using 128‑bit intermediate products */

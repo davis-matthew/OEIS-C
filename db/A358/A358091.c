@@ -9,6 +9,7 @@
  * Formula:   not stated
  * Range:     i8 n <= 7, i16 n <= 18, i32 n <= 36, i64 n <= 36, i128 n <= 36,
  *            big any n
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-01)
  * Helpers:   gcd, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,8 +21,9 @@
  * The term a(N) is found by locating the Nth entry in row‑major order.
  */
 #include <stdbool.h>
-#include "../utils/pow2.h"   /* seq_t pow2(idx_t) */
-#include "../utils/gcd.h"    /* seq_t gcd(seq_t,a,seq_t) */
+#include <stdint.h>
+#include "../utils/gcd.h"
+#include "../utils/pow2.h"
 
 static seq_t abs_seq(seq_t x) { return x < (seq_t)0 ? -x : x; }
 

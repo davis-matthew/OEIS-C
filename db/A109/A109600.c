@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  base, easy, nonn
  * Formula:   not stated
- * Range:     u8 n <= 53, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
- *            big any n
- * Helpers:   digits_of
+ * Range:     u8 n <= 53, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
+ *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 74 terms through n = 995 (2026-11-03)
+ * Helpers:   mem, num_digits_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/digits_of.h"
+#include "../utils/num_digits_u64.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*---  Helper functions ------------------------------------------------- */
@@ -88,10 +90,10 @@ static bool good_value(uint64_t val)
             tmp /= p;
             ++cnt;
         }
-        if (cnt) digitSum += cnt * digits_of(p);
+        if (cnt) digitSum += cnt * num_digits_u64(p);
     }
     if (tmp > 1)                     /* remaining prime factor */
-        digitSum += digits_of(tmp);
+        digitSum += num_digits_u64(tmp);
 
     return target == digitSum;
 }
@@ -117,7 +119,7 @@ seq_t a(idx_t n)
             if (seq_cap == seq_size)
             {
                 seq_cap = seq_cap ? seq_cap * 2 : 16;
-                seq_t *tmp = (seq_t *) realloc(seq_arr, seq_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, seq_arr, seq_cap);
                 if (!tmp) exit(EXIT_FAILURE);
                 seq_arr = tmp;
             }

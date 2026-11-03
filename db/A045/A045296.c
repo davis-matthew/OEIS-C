@@ -9,7 +9,8 @@
  *            digit 3 and no digit 4
  * Range:     u8 n <= 53, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Recursive helper: builds numbers of exact length `len`. */
 static void build_len(size_t pos, size_t len, seq_t val, uint8_t count3,
@@ -26,7 +28,7 @@ static void build_len(size_t pos, size_t len, seq_t val, uint8_t count3,
         if (count3 == 1) {
             if (*sz == *cap) {
                 size_t newcap = (*cap > 0) ? (*cap << 1) : 64;
-                seq_t *tmp = (seq_t *)realloc(*arr, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, *arr, newcap);
                 *arr = tmp;
                 *cap = newcap;
             }

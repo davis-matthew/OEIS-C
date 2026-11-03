@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 3806, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   calloc_uc
+ * Validated: standard, pass, 70 terms through n = 9586 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,7 +35,13 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/calloc_uc.h"
+
+/* Helper to allocate an array of unsigned char initialized to zero */
+static unsigned char *calloc_uc(size_t n)
+{
+    unsigned char *p = (unsigned char *)calloc(n, sizeof(unsigned char));
+    return p;
+}
 
 seq_t a(idx_t n)
 {

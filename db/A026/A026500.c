@@ -12,7 +12,8 @@
  *            maintains a bitset of all sums of two squares of already...
  * Range:     u8 n <= 9, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>    /* for size_t */
+#include "../utils/mem.h"
 
 #define BIT_CAP (200000000U)     /* 200 million bits (~25 MB) */
 
@@ -44,7 +46,7 @@ static void ensure_seq_cap(size_t need) {
     if (seq_cap >= need) return;
     size_t new_cap = seq_cap ? seq_cap << 1 : 16;
     while (new_cap < need) new_cap <<= 1;
-    seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, new_cap);
     seq_cap = new_cap;
 }
 

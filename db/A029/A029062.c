@@ -7,13 +7,23 @@
  * Formula:   a(n) = number of partitions of n into parts 1, 3, 11 and 12
  * Range:     u8 n <= 71, u16 n <= 524, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   alloc_seq
+ * Validated: standard, pass, 73 terms through n = 857 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/alloc_seq.h"
+#include <stddef.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 seq_t a(idx_t n)
 {
@@ -42,7 +52,7 @@ seq_t a(idx_t n)
         }
 
         /* Replace old cache. */
-        free(dp);
+        mem_free(dp);
         dp = new_dp;
         max_computed = n;
     }

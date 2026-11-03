@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 317, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes, factor_u64, isqrt_seq
+ * Validated: standard, pass, 119 terms through n = 9476 (2026-11-01)
+ * Helpers:   build_primes, factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,26 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-#include "../utils/factor_u64.h"
+#include <stdint.h>
 #include "../utils/build_primes.h"
-#include "../utils/isqrt_seq.h"
+#include "../utils/factor_u64.h"
+
+/* Integer square root (floor) of a non‑negative seq_t value. */
+static seq_t isqrt_seq(seq_t v)
+{
+    seq_t lo = 0, hi = v;
+    while (lo <= hi) {
+        seq_t mid = lo + ((hi - lo) >> 1);
+        seq_t sq  = mid * mid;
+        if (sq == v) return mid;
+        if (sq < v) {
+            lo = mid + 1;
+        } else {
+            hi = mid - 1;
+        }
+    }
+    return hi;
+}
 
 /* Compute the smallest prime factor of x, returning 0 if x ≤ 1. */
 static seq_t _spf_big(seq_t x)

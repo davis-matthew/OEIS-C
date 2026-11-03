@@ -9,13 +9,28 @@
  *            contains an equal nonzero number of digits 2 and 9
  * Range:     u8 n <= 5, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   has_equal_2_and_9
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/has_equal_2_and_9.h"
+
+/* Counts whether a number x has the same non‑zero number of 2’s and 9’s
+   in its base‑11 representation.  Returns 1 if true, otherwise 0. */
+static int has_equal_2_and_9(seq_t x)
+{
+    int count2 = 0, count9 = 0;
+    seq_t t = x;
+    while (t > (seq_t)0) {
+        int d = (int)(t % (seq_t)11);
+        if (d == 2)   ++count2;
+        else if (d == 9) ++count9;
+        t /= (seq_t)11;
+    }
+    return (count2 == count9) && (count2 > 0);
+}
 
 /* Returns the nth term (1‑based) of the sequence.  The routine scans
    integers in increasing order and counts those that satisfy the

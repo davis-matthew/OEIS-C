@@ -9,14 +9,16 @@
  *            in the string formed by concatenating 1,2,…,n-1
  * Range:     u8 n <= 101, u16 n <= 101, u32 n <= 101, u64 n <= 101,
  *            u128 n <= 101, big any n
- * Helpers:   digits_of
+ * Validated: partial, pass, 101 terms through n = 101 (2026-11-01)
+ * Helpers:   num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/digits_of.h"
+#include <stdbool.h>
+#include "../utils/num_digits_idx.h"
 
 /* Return the number of decimal digits of x (x>0). */
 
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     /* Compute total length of the concatenation of 1 … n-1. */
     size_t total_len = 0;
     for (idx_t i = 1; i < n; ++i)
-        total_len += (size_t)digits_of(i);
+        total_len += (size_t)num_digits_idx(i);
 
     if (total_len == 0 || pat_len > (int)total_len)
         return 0;

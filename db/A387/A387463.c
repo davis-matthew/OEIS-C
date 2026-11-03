@@ -7,7 +7,8 @@
  * Formula:   a(n) = ∑_{d | n} (# of decimal digit 3’s in d)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count3
+ * Validated: standard, pass, 115 terms through n = 9241 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,17 @@
 /*  Implementation uses a simple divisor loop up to ⌊√n⌋; no external helpers required.  */
 
 #include <stdint.h>
-#include "../utils/count3.h"
+
+/* Count digit 3’s in a uint64_t *d* (treated as uint64_t input). */
+static inline seq_t count3(idx_t d)
+{
+    seq_t ct = 0;
+    while (d > 0) {
+        if ((d % 10) == 3) ++ct;
+        d /= 10;
+    }
+    return ct;
+}
 
 /* Main sequence function. */
 seq_t a(idx_t n)

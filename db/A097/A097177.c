@@ -9,12 +9,14 @@
  *            10^k
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 18, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 899 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +24,7 @@ seq_t a(idx_t n)
     idx_t m = (n + 1) >> 1;
 
     /* Allocate array C[0..m] to hold binomial(m, r) */
-    seq_t *C = (seq_t *)malloc((m + 1) * sizeof(seq_t));
+    seq_t *C = mem_new(seq_t, (m + 1));
     if (!C) return 0;            /* In case of allocation failure */
 
     /* Initialize C[0] = 1, others 0 */
@@ -48,6 +50,6 @@ seq_t a(idx_t n)
         pow10 = pow10 * 10;
     }
 
-    free(C);
+    mem_free(C);
     return result;
 }

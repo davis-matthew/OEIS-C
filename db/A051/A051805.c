@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   md_root
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,26 @@
    extends it on demand until the requested index is present. */
 
 #include <stdlib.h>
-#include "../utils/md_root.h"
+#include "../utils/mem.h"
+
+static seq_t md_root(seq_t n)
+{
+    if (n == 0)
+        return 0;
+    seq_t res;
+    /* repeat until a single digit is left */
+    while (n >= 10) {
+        res = 1;
+        while (n > 0) {
+            seq_t d = n % 10;
+            if (d != 0)
+                res *= d;
+            n /= 10;
+        }
+        n = res;
+    }
+    return n;
+}
 
 seq_t a(idx_t n)
 {
@@ -38,7 +58,7 @@ seq_t a(idx_t n)
         if (md_root(next_num) == 3) {
             if (cache_len == cache_cap) {   /* grow capacity */
                 cache_cap = cache_cap ? cache_cap * 2 : 8;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = next_num;
         }

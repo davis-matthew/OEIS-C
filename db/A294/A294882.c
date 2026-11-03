@@ -8,9 +8,10 @@
  * Formula:   a(n) = Σ_{d|n, d<n} (1 – A091225(d)) A091225(d) = 1 iff the
  *            binary representation of d is an irreducible polynomial over
  *            GF(2), otherwise 0
- * Range:     u8 n <= 9844, u16 n <= 9844, u32 n <= 9844, u64 n <= 9844,
- *            u128 n <= 9844, big any n
- * Helpers:   bitlen_uint32, poly_remainder
+ * Range:     u8 n <= 21845, u16 n <= 21845, u32 n <= 21845, u64 n <= 21845,
+ *            u128 n <= 21845, big any n
+ * Validated: standard, pass, 121 terms through n = 9844 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,27 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/bitlen_uint32.h"
-#include "../utils/poly_remainder.h"
+
+/* integer bit-length (degree+1) */
+static inline unsigned int bitlen_uint32(uint32_t x)
+{
+    unsigned int len = 0;
+    while (x) { ++len; x >>= 1; }
+    return len;
+}
+
+/* polynomial division remainder (mod 2), f and h are bit-encoded polynomials */
+static unsigned int poly_remainder(unsigned int f, unsigned int h,
+                                   unsigned int deg_f, unsigned int deg_h)
+{
+    while (f && deg_f >= deg_h) {
+        unsigned int shift = deg_f - deg_h;
+        f ^= h << shift;
+        if (!f) break;
+        deg_f = bitlen_uint32(f) - 1;
+    }
+    return f;
+}
 
 /* ---------- helpers ---------- */
 

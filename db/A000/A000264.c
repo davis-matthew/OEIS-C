@@ -11,16 +11,42 @@
  *            [x^k] (B(x) - Sum_{j<k} a(j)*C(x)^j)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 23, u128 n <= 42,
  *            big any n
- * Helpers:   inv_odd_mod, is_fixed, zalloc_s
+ * Validated: standard, pass, 37 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/inv_odd_mod.h"
-#include "../utils/is_fixed.h"
-#include "../utils/zalloc_s.h"
+#include "../utils/mem.h"
+
+static seq_t inv_odd_mod(seq_t q)
+{
+    seq_t x = q;
+    int i;
+    for (i = 0; i < 8; i++) {
+        seq_t t = q * x;
+        t = (seq_t)2 - t;
+        x = x * t;
+    }
+    return x;
+}
+
+static int is_fixed(void)
+{
+    seq_t m1 = 0;
+    m1 = m1 - 1;
+    return m1 > (seq_t)0;
+}
+
+static seq_t *zalloc_s(idx_t n)
+{
+    seq_t *p = mem_new(seq_t, (size_t)n);
+    idx_t i;
+    for (i = 0; i < n; i++) p[i] = 0;
+    return p;
+}
 
 static seq_t *A_memo = 0;
 static idx_t A_N = 0;
@@ -94,8 +120,8 @@ static void build(idx_t N)
         }
     }
 
-    free(b); free(d); free(c); free(S); free(P); free(T);
-    if (A_memo) free(A_memo);
+    mem_free(b); mem_free(d); mem_free(c); mem_free(S); mem_free(P); mem_free(T);
+    if (A_memo) mem_free(A_memo);
     A_memo = a;
     A_N = N;
 }

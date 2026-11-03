@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 28, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   compare_seq, power5
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,32 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/power5.h"
-#include "../utils/compare_seq.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+static inline seq_t power5(idx_t exp)
+{
+    seq_t result = 1;
+    seq_t base   = 5;
+    while (exp)
+    {
+        if (exp & 1)
+            result *= base;
+        base *= base;
+        exp >>= 1;
+    }
+    return result;
+}
+
+static int compare_seq(const void *a, const void *b)
+{
+    const seq_t *x = (const seq_t *)a;
+    const seq_t *y = (const seq_t *)b;
+    if (*x < *y) return -1;
+    if (*x > *y) return 1;
+    return 0;
+}
 
 seq_t a(idx_t n)
 {
@@ -50,10 +75,10 @@ seq_t a(idx_t n)
     idx_t pair_count = pow_len * (pow_len + 1) / 2; /* #pairs (m,k) with m≥k */
 
     /* allocate temporary arrays */
-    seq_t *powers = (seq_t *)malloc(sizeof(seq_t) * pow_len);
+    seq_t *powers = mem_new(seq_t, pow_len);
     if (!powers) abort();
 
-    seq_t *pairs  = (seq_t *)malloc(sizeof(seq_t) * pair_count);
+    seq_t *pairs  = mem_new(seq_t, pair_count);
     if (!pairs) abort();
 
     /* compute powers of 5 */
@@ -69,15 +94,15 @@ seq_t a(idx_t n)
     }
 
     /* sort the terms */
-    qsort(pairs, pair_count, sizeof(seq_t), compare_seq);
+    mem_qsort(pairs, pair_count, sizeof(seq_t), compare_seq);
 
     /* replace cached array with the new sorted list */
-    if (terms) free(terms);
+    if (terms) mem_free(terms);
     terms = pairs;
     cached = pair_count;
 
     /* free temporary powers array */
-    free(powers);
+    mem_free(powers);
 
     return terms[required - 1];
 }

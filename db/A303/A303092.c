@@ -9,13 +9,16 @@
  *            sides are equal)
  * Range:     u8 n <= 1, u16 n <= 38, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* -------------------------------------------------------------------------- */
 /*  Dynamic array holding the balanced primes ending in 1                     */
@@ -38,7 +41,7 @@ static int   initialized     = 0;    /* 0 → first call                    */
 static void expand_balanced(size_t new_cap)
 {
     if (new_cap > balanced_cap) {
-        balanced = (seq_t *)realloc(balanced, new_cap * sizeof(seq_t));
+        balanced = mem_resize(seq_t, balanced, new_cap);
         balanced_cap = new_cap;
     }
 }

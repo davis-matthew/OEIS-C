@@ -11,12 +11,14 @@
  *            m_{k+1} = d_k * a_k - m_k , d_{k+1} = (S - m_{...
  * Range:     u8 n <= 1, u16 n <= 9, u32 n <= 22, u64 n <= 41, u128 n <= 81,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 172 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     if (last == (idx_t)-1) {
         if (cap < 1) {
             cap = 1;
-            denoms = (seq_t*)malloc(cap * sizeof(seq_t));
+            denoms = mem_new(seq_t, cap);
         }
         sequence_denom: /* compute for n = 0 */
         seq_t a_val = a0;                /* a_0 = 25 */
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
         idx_t cur = last + 1;
         if (last + 2 > cap) {      /* grow cache */
             size_t newcap = cap ? cap << 1 : 1;
-            seq_t *tmp = (seq_t*)realloc(denoms, newcap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, denoms, newcap);
             denoms = tmp;
             cap = newcap;
         }

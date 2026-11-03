@@ -9,7 +9,8 @@
  *            odd or a(L) already defined, otherwise a(L)=n
  * Range:     u8 n <= 127, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 9530 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of helper.  Its definition follows after `a`. */
 static void ensure_cache(idx_t need);
@@ -35,12 +37,11 @@ ensure_cache(idx_t need)
     if (need < cache_size) return;          /* already large enough */
 
     idx_t new_size = need + 1;               /* indices 0..need inclusive */
-    seq_t *new_cache = (seq_t *)realloc(seq_cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, seq_cache, new_size);
     if (!new_cache) exit(EXIT_FAILURE);     /* OOM */
 
     /* Zero‑initialise the newly added part. */
-    memset(new_cache + cache_size, 0,
-           (new_size - cache_size) * sizeof(seq_t));
+    mem_set(new_cache + cache_size, 0, (new_size - cache_size) * sizeof(seq_t));
 
     seq_cache = new_cache;
     cache_size = new_size;

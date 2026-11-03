@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 4, u64 n <= 11, u128 n <= 25,
  *            big any n
- * Helpers:   t_from_block
+ * Validated: standard, pass, 30 terms through n = 170 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,19 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/t_from_block.h"
+
+/* Compute the integer value of a 2×2 block from its four entries
+   sorted so that v[0] ≤ v[1] ≤ v[2] ≤ v[3].  Returns
+   max + min – lower median = v[3] + v[0] – v[1].           */
+static inline int t_from_block(int v[4]) {
+    int i, j;
+    for (i = 0; i < 3; ++i)
+        for (j = i + 1; j < 4; ++j)
+            if (v[i] > v[j]) {
+                int tmp = v[i]; v[i] = v[j]; v[j] = tmp;
+            }
+    return v[3] + v[0] - v[1];
+}
 
 #ifndef seq_t
 /* seq_t and idx_t are defined by the build system. */

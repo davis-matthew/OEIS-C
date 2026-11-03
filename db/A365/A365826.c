@@ -11,12 +11,14 @@
  *            the formula
  * Range:     u8 n <= 29, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *Q_cache = NULL;   /* Q_cache[i] = Q(i) */
 static idx_t Q_cache_len = 0;   /* number of elements stored (max n + 1) */
@@ -24,7 +26,7 @@ static idx_t Q_cache_len = 0;   /* number of elements stored (max n + 1) */
 /* Recompute Q(0..N) using the standard distinct-part DP (O(N^2)). */
 static void recompute_Q_upto(idx_t N)
 {
-    seq_t *new_cache = (seq_t *)realloc(Q_cache, (size_t)(N + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, Q_cache, (size_t)(N + 1));
     if (!new_cache) exit(1);
     Q_cache = new_cache;
     Q_cache_len = N + 1;

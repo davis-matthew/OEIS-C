@@ -9,13 +9,15 @@
  *            a(7)=2557, a(8)=3825, a(9)=6382, a(10)=10207, a(11)=26796
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 19, u64 n <= 38, u128 n <= 76,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* first 12 terms, used for n < 12 and to bootstrap the cache */
 static const seq_t init[12] = {
@@ -33,7 +35,7 @@ static void ensure_capacity(size_t needed)
         return;
 
     size_t new_size = needed + 64;   /* small extra slack */
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     cache = new_cache;
     cache_size = new_size;
 }

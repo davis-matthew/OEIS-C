@@ -8,6 +8,7 @@
  * Formula:   a(n) = Sum_{d|n and d^2 <= n} (1 + [d^2 < n]) * (2*d - 1)
  * Range:     u8 n <= 335, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 90 terms through n = 9779 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 17, u64 n <= 32, u128 n <= 61,
  *            big any n
- * Helpers:   rep_digit
+ * Validated: standard, pass, 42 terms through n = 285 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,7 +33,14 @@
  */
 
 #include <stdint.h>
-#include "../utils/rep_digit.h"
+
+static inline seq_t rep_digit(uint8_t d, idx_t k)
+{
+    seq_t val = 0;
+    for (idx_t i = 0; i < k; ++i)
+        val = val * 10 + d;
+    return val;
+}
 
 seq_t a(idx_t n)
 {

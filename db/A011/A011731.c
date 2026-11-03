@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 81 terms through n = 80 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
  *   * All operations respect the allowed list of operators.
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The bit-length of the LFSR. */
 #define PERIOD 262143   /* 2^18 - 1 */
@@ -40,7 +42,7 @@ static void init_cache(void)
 
     /* Allocate and zero-initialise the cache. */
     size_t size = (size_t)PERIOD + 1U;        /* indices 0 .. PERIOD */
-    cache = (seq_t *)calloc(size, sizeof(seq_t));
+    cache = mem_new(seq_t, size);
     if (!cache)                      /* allocation failure */
         abort();
 

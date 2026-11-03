@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   cmp_pair
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,52 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/cmp_pair.h"
+#include "../utils/mem.h"
+
+/* comparison of r = (A + sqrt(A^2+4B))/2.
+   Returns <0 if pair1 < pair2, 0 if equal, >0 if pair1 > pair2.  */
+static int cmp_pair(uint64_t A1, uint64_t B1,
+                    uint64_t A2, uint64_t B2)
+{
+    /* values needed for comparison */
+    unsigned __int128 D1 = (unsigned __int128)A1 * A1 + (unsigned __int128)4 * B1;
+    unsigned __int128 D2 = (unsigned __int128)A2 * A2 + (unsigned __int128)4 * B2;
+
+    /* the difference A2-A1 */
+    int64_t diffA = (int64_t)A2 - (int64_t)A1;
+    if (diffA < 0) {
+        /* swap roles but negate the result */
+        return -cmp_pair(A2, B2, A1, B1);
+    }
+    if (diffA == 0) {
+        /* same A: compare D */
+        if (D1 < D2) return -1;
+        if (D1 > D2) return 1;
+        /* equal r → tie by sqrt(A^2+B^2) */
+        unsigned __int128 X1 = (unsigned __int128)A1 * A1 + (unsigned __int128)B1 * B1;
+        unsigned __int128 X2 = (unsigned __int128)A2 * A2 + (unsigned __int128)B2 * B2;
+        if (X1 < X2) return -1;
+        if (X1 > X2) return 1;
+        return 0;
+    }
+    /* diffA > 0 : compare r1 vs r2 using exact arithmetic */
+    signed __int128 L = (signed __int128)D1 - (signed __int128)D2 -
+                        (signed __int128)diffA * diffA;
+    if (L < 0) return -1;  /* r1 < r2 */
+    /* L >= 0 : check L^2 against 4*diffA^2*D2 */
+    unsigned __int128 left  = (unsigned __int128)L * (unsigned __int128)L;
+    unsigned __int128 right = (unsigned __int128)4 *
+                              (unsigned __int128)diffA * (unsigned __int128)diffA *
+                              D2;
+    if (left < right) return -1;   /* r1 < r2 */
+    if (left > right) return 1;    /* r1 > r2 */
+    /* r1 == r2 → tie by sqrt(A^2+B^2) */
+    unsigned __int128 X1 = (unsigned __int128)A1 * A1 + (unsigned __int128)B1 * B1;
+    unsigned __int128 X2 = (unsigned __int128)A2 * A2 + (unsigned __int128)B2 * B2;
+    if (X1 < X2) return -1;
+    if (X1 > X2) return 1;
+    return 0;
+}
 
 /* node representing a candidate pair (A,B) */
 typedef struct {
@@ -114,7 +160,7 @@ static void cache_ensure(size_t need)
     if (need <= cache.cap) return;
     size_t newcap = cache.cap ? cache.cap * 2 : 64;
     while (newcap < need) newcap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache.data, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache.data, newcap);
     if (!tmp) abort();
     cache.data = tmp;
     cache.cap = newcap;

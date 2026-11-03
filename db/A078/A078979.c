@@ -9,8 +9,9 @@
  *            (number of trailing zero bits of n/6 modulo 3) if n ≡ 3 (mod 6)
  *            → a(n) = 2 if n ≡ 2 or 5 (mod 6)→ a(n) = 1 if n ≡ 1 or 4 (mod
  *            6)→ a(n) = 0 where v₂(x) is the exponent of 2 i...
- * Range:     u8 n <= 9330, u16 n <= 9330, u32 n <= 9330, u64 n <= 9330,
- *            u128 n <= 9330, big any n
+ * Range:     u8 n <= 12288, u16 n <= 12288, u32 n <= 12288, u64 n <= 12288,
+ *            u128 n <= 12288, big any n
+ * Validated: standard, pass, 121 terms through n = 9330 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

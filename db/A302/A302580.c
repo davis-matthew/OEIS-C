@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Internal state ---------------------------------------------------------*/
 static idx_t               max_k_global   = 50000;   /* current exponent bound   */
@@ -43,12 +45,12 @@ static void build_sequence(void)
     free(coeff);
     free(H_old);
     free(H_new);
-    free(seq_zero);
+    mem_free(seq_zero);
 
     coeff   = (intmax_t *)malloc((k + 1) * sizeof(intmax_t));
     H_old   = (intmax_t *)malloc((k + 1) * sizeof(intmax_t));
     H_new   = (intmax_t *)malloc((k + 1) * sizeof(intmax_t));
-    seq_zero = (seq_t  *)malloc((k + 1) * sizeof(seq_t));
+    seq_zero = mem_new(seq_t, (k + 1));
 
     if (!coeff || !H_old || !H_new || !seq_zero) {
         exit(EXIT_FAILURE); /* allocation failed */

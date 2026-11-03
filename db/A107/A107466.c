@@ -5,14 +5,16 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = n-th smallest of {5^i * 13^j : i,j ≥ 0}
- * Range:     u8 n <= 6, u16 n <= 21, u32 n <= 35, u64 n <= 35, u128 n <= 35,
+ * Range:     u8 n <= 6, u16 n <= 21, u32 n <= 72, u64 n <= 262, u128 n <= 999,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 9522 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
 
     /* Initialise the sequence with the first term */
     if (seq == NULL) {
-        seq = (seq_t *)malloc(sizeof(seq_t));
+        seq = mem_new(seq_t, 1);
         seq[0] = (seq_t)1;      /* a(1) = 1 */
         len   = 1;
     }
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
         if (next13 <= next5) i13++;
 
         /* Grow the array to hold the new term */
-        seq = (seq_t *)realloc(seq, sizeof(seq_t) * (len + 1));
+        seq = mem_resize(seq_t, seq, (len + 1));
         seq[len] = next;
         len++;
     }

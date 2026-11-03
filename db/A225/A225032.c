@@ -9,12 +9,14 @@
  *            = 55, a(3) = 493, a(4) = 5029, a(5) = 57379, a(6) = 716443
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 9, u64 n <= 17, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 99 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* compute a(n) as defined in OEIS A225032 */
 seq_t a(idx_t n)
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
         /* start with a modest capacity */
         cap = 64;
         if (cap < 8) cap = 8;
-        cache = (seq_t*)calloc(cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (cache == NULL) return (seq_t)0;   /* allocation failure – abort */
 
         /* store the first seven values */
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
             newcap = newcap * 2;
             if (newcap < 8) newcap = 8;
         }
-        seq_t *tmp = (seq_t*)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (tmp == NULL) return (seq_t)0;   /* allocation failure – abort */
         cache = tmp;
         cap   = newcap;

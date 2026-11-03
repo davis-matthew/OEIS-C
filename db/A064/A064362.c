@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 175, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   divides_lucas, seq_alloc_new_array
+ * Validated: standard, pass, 81 terms through n = 1000 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,8 +28,37 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/divides_lucas.h"
+#include <string.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+/* Test whether k divides any Lucas number.  Return true if it does. */
+static bool divides_lucas(idx_t k)
+{
+    if (k == 1)                 /* 1 divides every Lucas number      */
+        return true;
+
+    /* Work mod k, using uint64_t because k fits in uint64_t. */
+    uint64_t a = 2 % k;         /* L0 mod k */
+    uint64_t b = 1 % k;         /* L1 mod k */
+    const uint64_t init_a = a, init_b = b;
+
+    /* Iterate Lucas sequence L(n+1) = L(n) + L(n-1) modulo k. */
+    for (;;) {
+        uint64_t c = a + b;
+        if (c >= k) c -= k;    /* mod k */
+        a = b;
+        b = c;
+        if (c == 0)            /* found a Lucas multiple of k      */
+            return true;
+        if (a == init_a && b == init_b) /* period completed */
+            break;
+    }
+    return false;               /* k never divides a Lucas number   */
+}
 
 static bool *good = NULL;     /* true -> good (no Lucas divisor)      */
 static seq_t *seq  = NULL;    /* array of sequence values             */

@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 62, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"   /* provides bool is_prime(idx_t) */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static bool is_gaussian_prime(int64_t x, int64_t y)
 {
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         initialized = true;
         capacity = 16;
-        indices = (seq_t *)malloc(sizeof(seq_t) * capacity);
+        indices = mem_new(seq_t, capacity);
         if (indices == NULL) exit(EXIT_FAILURE);
         indices[0] = (seq_t)0;     /* zero cell has index 0 */
         count = 1;
@@ -83,7 +85,7 @@ seq_t a(idx_t n)
         if (is_gaussian_prime(x, y)) {
             if (count == capacity) {
                 capacity *= 2;
-                seq_t *tmp = (seq_t *)realloc(indices, sizeof(seq_t) * capacity);
+                seq_t *tmp = mem_resize(seq_t, indices, capacity);
                 if (tmp == NULL) exit(EXIT_FAILURE);
                 indices = tmp;
             }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 171, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   reverse_uint
+ * Validated: standard, pass, 81 terms through n = 8274 (2026-11-03)
+ * Helpers:   mem, reverse_digits_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/reverse_uint.h"
+#include "../utils/reverse_digits_u64.h"
+#include "../utils/mem.h"
 
 static const seq_t unit_len[10] = {
     4, /* zero   */
@@ -114,7 +116,7 @@ static void seq_ensure_capacity(void)
 {
     if (seq_len >= seq_cap) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 8;
-        seq_arr = (seq_t *)realloc(seq_arr, new_cap * sizeof(seq_t));
+        seq_arr = mem_resize(seq_t, seq_arr, new_cap);
         seq_cap = new_cap;
     }
 }
@@ -124,7 +126,7 @@ seq_t a(idx_t n)
     /* Initialise the sequence on the first call. */
     if (seq_len == 0) {
         seq_cap = 8;
-        seq_arr = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_arr = mem_new(seq_t, seq_cap);
         seq_arr[0] = 0;        /* a(0) = 0 */
         seq_len = 1;
         next_candidate = 1;    /* start searching from 1 */
@@ -134,7 +136,7 @@ seq_t a(idx_t n)
     while (seq_len <= (size_t)n) {
         uint64_t cand = next_candidate++;
         seq_t len_cand = english_len(cand);
-        uint64_t rev = reverse_uint(cand);
+        uint64_t rev = reverse_digits_u64(cand);
         seq_t len_rev = english_len(rev);
         if (len_cand == len_rev) {
             seq_ensure_capacity();

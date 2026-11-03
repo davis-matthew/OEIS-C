@@ -7,12 +7,14 @@
  * Formula:   a(n) = (n+2)! - 2*(n+1)! - 3*n! == n! * (n² + n - 3)
  * Range:     i8 n <= 3, i16 n <= 6, i32 n <= 10, i64 n <= 18, i128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached factorials: fact_cache[k] = k!  (fact_cache[0] = 1) */
 static seq_t *fact_cache = NULL;
@@ -29,7 +31,7 @@ static void ensure_fact(idx_t idx)
     idx_t new_cap = fact_capacity ? fact_capacity : 8;
     while (new_cap <= idx) new_cap <<= 1;   /* double until large enough */
 
-    seq_t *tmp = (seq_t *)realloc(fact_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, fact_cache, new_cap);
     if (!tmp) abort();                      /* out of memory */
     fact_cache   = tmp;
     fact_capacity = new_cap;

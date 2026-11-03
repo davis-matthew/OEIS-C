@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = sum_{d|n} lpd(d), where lpd(d) = (d==1 ? 1 : d / spf(d))
- * Range:     u8 n <= 179, u16 n <= 9614, u32 n <= 9614, u64 n <= 9614,
- *            u128 n <= 9614, big any n
+ * Range:     u8 n <= 179, u16 n <= 35279, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 96 terms through n = 9614 (2026-11-01)
  * Helpers:   build_spf
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/build_spf.h"
 
 static idx_t *spf_cache = NULL;

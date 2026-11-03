@@ -11,7 +11,8 @@
  *            the product. Build each permutation from the las...
  * Range:     u8 n <= 25, u16 n <= 173, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   z_cmp, z_push
+ * Validated: standard, pass, 69 terms through n = 9361 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,20 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/z_cmp.h"
-#include "../utils/z_push.h"
+
+static int z_cmp(const void *x, const void *y) {
+    uint64_t u = *(const uint64_t *)x, v = *(const uint64_t *)y;
+    return (u > v) - (u < v);
+}
+
+static void z_push(uint64_t **arr, size_t *n, size_t *cap, uint64_t v) {
+    if (*n == *cap) {
+        size_t nc = *cap ? *cap * 2 : 1024;
+        *arr = (uint64_t *)realloc(*arr, nc * sizeof(uint64_t));
+        *cap = nc;
+    }
+    (*arr)[(*n)++] = v;
+}
 
 static uint64_t *z_terms = NULL;
 static size_t z_nterms = 0, z_cap = 0;

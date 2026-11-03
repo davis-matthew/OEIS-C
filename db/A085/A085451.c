@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 52, u16 n <= 101, u32 n <= 101, u64 n <= 101,
  *            u128 n <= 101, big any n
- * Helpers:   distinct_digits
+ * Validated: full, pass, 101 terms through n = 101 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,33 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/distinct_digits.h"
+
+/* Check that the decimal digits of n and prime are pairwise distinct. */
+static bool distinct_digits(idx_t n, uint64_t prime) {
+    uint16_t mask = 0;
+
+    /* digits of n */
+    idx_t v = n;
+    do {
+        uint8_t d = v % 10;
+        uint16_t bit = 1u << d;
+        if (mask & bit) return false;
+        mask |= bit;
+        v /= 10;
+    } while (v);
+
+    /* digits of prime */
+    uint64_t w = prime;
+    do {
+        uint8_t d = w % 10;
+        uint16_t bit = 1u << d;
+        if (mask & bit) return false;
+        mask |= bit;
+        w /= 10;
+    } while (w);
+
+    return true;
+}
 
 seq_t a(idx_t n) {
     static bool initialized = false;

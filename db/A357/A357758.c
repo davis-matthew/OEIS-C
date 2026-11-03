@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   local_bitlen_seq_t
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,20 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/local_bitlen_seq_t.h"
+#include "../utils/mem.h"
+
+/* Determine the length of the binary representation of x.
+   For x = 0 the length is 1 (representing the single bit "0"). */
+static unsigned local_bitlen_seq_t(seq_t x)
+{
+    unsigned len = 0;
+    seq_t y = x;
+    while (y) {
+        len++;
+        y >>= 1;
+    }
+    return len ? len : 1;
+}
 
 /* ----- local utilities ---------------------------------------------------- */
 
@@ -78,7 +92,7 @@ static seq_t next_to_check = 0;    /* next candidate to test */
 static void grow_cache(void)
 {
     size_t new_cap = cache_cap ? cache_cap * 2 : 64;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();          /* unrecoverable failure */
     cache = tmp;
     cache_cap = new_cap;

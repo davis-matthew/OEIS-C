@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 14, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -37,6 +38,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *a_seq = NULL;   /* a[0..]            */
 static seq_t *c_seq = NULL;   /* C[0..]             */
@@ -55,11 +57,11 @@ static void grow_capacity(size_t need)
     while (newCap <= need)
         newCap <<= 1;
 
-    seq_t *newA = (seq_t*)malloc(newCap * sizeof(seq_t));
-    seq_t *newC = (seq_t*)malloc(newCap * sizeof(seq_t));
-    seq_t *newH = (seq_t*)malloc(newCap * sizeof(seq_t));
+    seq_t *newA = mem_new(seq_t, newCap);
+    seq_t *newC = mem_new(seq_t, newCap);
+    seq_t *newH = mem_new(seq_t, newCap);
     if (!newA || !newC || !newH) {
-        free(newA); free(newC); free(newH);
+        mem_free(newA); mem_free(newC); mem_free(newH);
         exit(1);
     }
 
@@ -76,7 +78,7 @@ static void grow_capacity(size_t need)
         newH[i] = (seq_t)0;
     }
 
-    free(a_seq); free(c_seq); free(h_seq);
+    mem_free(a_seq); mem_free(c_seq); mem_free(h_seq);
     a_seq = newA; c_seq = newC; h_seq = newH;
     capacity = newCap;
 }

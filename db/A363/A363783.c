@@ -9,12 +9,14 @@
  *            of x^n in log( Sum_{k>=0} x^(k^3) )
  * Range:     i8 n <= 31, i16 n <= 66, i32 n <= 137, i64 n <= 285,
  *            i128 n <= 575, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 933 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     }
 
     /* Q[k] will hold coeff of x^k in S'(x)/S(x), 0 <= k < N */
-    seq_t *Q = (seq_t*)malloc(N * sizeof(seq_t));
+    seq_t *Q = mem_new(seq_t, N);
     if (!Q) { free(cubes); return 0; }
 
     for (idx_t k = 0; k < N; ++k) {
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = Q[n - 1];
-    free(Q);
+    mem_free(Q);
     free(cubes);
     return result;
 }

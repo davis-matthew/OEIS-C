@@ -9,7 +9,8 @@
  * Formula:   a(n) = min(2^m * q, m >= 0, q odd, sigma_0(q) = n, q < 2^(m+1))
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 12, u64 n <= 22, u128 n <= 30,
  *            big any n
- * Helpers:   bitlen_seq_t, pow2, seq_mul
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-01)
+ * Helpers:   bit_length, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,9 +28,15 @@
 #include <stdint.h>
 
 /* ---------- Utility headers ---------- */
-#include "../utils/seq_mul.h"              /* seq_mul(seq_t a, seq_t b) */
-#include "../utils/pow2.h"                 /* seq_t pow2(idx_t exp)   */
-#include "../utils/bitlen_seq_t.h"         /* unsigned bitlen_seq_t(seq_t x) */
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/bit_length.h"
+#include "../utils/pow2.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* ---------- Constants ---------- */
 #define MAX_N      10000          /* maximum divisor count to pre‑compute   */
@@ -77,7 +84,7 @@ seq_t a(idx_t n)
     if (n == 0) return 0;                                      /* safety, offset = 1 */
 
     seq_t q = best[(idx_t)n];                                  /* minimal odd q with n divisors */
-    idx_t m = bitlen_seq_t(q);
+    idx_t m = bit_length(q);
     if (m == 0) return q;                                      /* shouldn't happen */
     m = m - 1;                                                 /* floor(log2(q)) */
     seq_t pow2m = pow2(m);

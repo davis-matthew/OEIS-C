@@ -9,12 +9,14 @@
  *            a(0)=0)
  * Range:     u8 n <= 11, u16 n <= 189, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 9857 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache of cumulative sums of Euler's totient function φ.  */
 static seq_t *phi_sum_cache = NULL;   /* phi_sum_cache[i] = Σ_{k=1}^{i} φ(k) */
@@ -28,14 +30,14 @@ static void ensure_phi_sum(idx_t n)
 
     /* Reallocate cache to the new size.  realloc() frees the old
        block automatically, so we must not free it again. */
-    seq_t *new_cache = (seq_t *)realloc(phi_sum_cache, (n + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, phi_sum_cache, (n + 1));
     if (!new_cache)      /* memory allocation failure – keep old cache */
         return;
 
     phi_sum_cache = new_cache;         /* point to the (possibly new) cache */
 
     /* Allocate temporary array for φ values.  */
-    seq_t *phi = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *phi = mem_new(seq_t, (n + 1));
     if (!phi) {                         /* allocation failed – clean up */
         /* We cannot free phi_sum_cache here because it is still valid. */
         return;
@@ -61,7 +63,7 @@ static void ensure_phi_sum(idx_t n)
     for (idx_t i = phi_precomputed + 1; i <= n; ++i)
         phi_sum_cache[i] = phi_sum_cache[i - 1] + phi[i];
 
-    free(phi);
+    mem_free(phi);
     phi_precomputed = n;
 }
 

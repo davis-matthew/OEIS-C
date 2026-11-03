@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ----- global data for prime tables ----- */
 static const idx_t LIMIT = 5000000ULL;          /* upper bound for sieve */
@@ -125,7 +127,7 @@ seq_t a(idx_t n)
     /* grow cache as needed */
     if (cache_len >= cache_cap) {
         cache_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-        seq_cache = (seq_t *)realloc(seq_cache, cache_cap * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, cache_cap);
         if (!seq_cache) exit(1);
     }
 
@@ -137,7 +139,7 @@ seq_t a(idx_t n)
             if (cache_len == n) return seq_cache[n - 1];
             if (cache_len >= cache_cap) {
                 cache_cap = cache_cap * 2;
-                seq_cache = (seq_t *)realloc(seq_cache, cache_cap * sizeof(seq_t));
+                seq_cache = mem_resize(seq_t, seq_cache, cache_cap);
                 if (!seq_cache) exit(1);
             }
         }

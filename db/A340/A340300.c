@@ -13,7 +13,8 @@
  *            are all divisors of k (m even)
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Compare function for qsort on seq_t values */
 static int cmp_seq(const void *a, const void *b) {
@@ -57,7 +59,7 @@ static seq_t middle_divisor_sum(uint64_t n) {
     /* Generate divisors */
     size_t cap = 64;
     size_t len = 1;
-    seq_t *divs = (seq_t *)malloc(cap * sizeof(seq_t));
+    seq_t *divs = mem_new(seq_t, cap);
     divs[0] = 1;
 
     for (int i = 0; i < pf; ++i) {
@@ -70,7 +72,7 @@ static seq_t middle_divisor_sum(uint64_t n) {
             for (size_t j = 0; j < old_len; ++j) {
                 if (len >= cap) {
                     cap *= 2;
-                    divs = (seq_t *)realloc(divs, cap * sizeof(seq_t));
+                    divs = mem_resize(seq_t, divs, cap);
                 }
                 divs[len++] = divs[j] * p_pow;
             }
@@ -78,13 +80,13 @@ static seq_t middle_divisor_sum(uint64_t n) {
     }
 
     /* Sort divisors */
-    qsort(divs, len, sizeof(seq_t), cmp_seq);
+    mem_qsort(divs, len, sizeof(seq_t), cmp_seq);
 
     /* m is even by definition for k % 3 == 2 */
     size_t mid1 = len / 2 - 1;
     size_t mid2 = len / 2;
     seq_t sum = divs[mid1] + divs[mid2];
-    free(divs);
+    mem_free(divs);
     return sum / 3u;
 }
 

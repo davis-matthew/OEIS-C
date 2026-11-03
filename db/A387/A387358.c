@@ -7,12 +7,14 @@
  * Formula:   a(n) = \sum_{k=0}^n \binom{n}{k} \binom{3k}{\,n-k\,}
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 13, u64 n <= 28, u128 n <= 55,
  *            big any n
+ * Validated: standard, pass, 41 terms through n = 883 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* Compute A387358(a(n)) for n >= 0.  Does not use static data and

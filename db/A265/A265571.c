@@ -7,14 +7,41 @@
  * Formula:   a(n) = smallest base-8 palindrome m >= n, written in base-8
  * Range:     u8 n <= 77, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   digits_ge, to_base8
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/digits_ge.h"
-#include "../utils/to_base8.h"
+
+/* compare two digit arrays lexicographically (both same length) */
+static int digits_ge(const idx_t *a, const idx_t *b, idx_t len) {
+    for (idx_t i = 0; i < len; ++i) {
+        if (a[i] > b[i]) return 1;
+        if (a[i] < b[i]) return 0;
+    }
+    return 1;  /* equal */
+}
+
+/* convert n to its base-8 digits, most significant first */
+static void to_base8(idx_t n, idx_t *digits, idx_t *len) {
+    idx_t tmp = n;
+    idx_t rev[64];
+    idx_t revlen = 0;
+    if (tmp == 0) {
+        *len = 1;
+        digits[0] = 0;
+        return;
+    }
+    while (tmp) {
+        rev[revlen++] = tmp % 8;
+        tmp /= 8;
+    }
+    *len = revlen;
+    for (idx_t i = 0; i < revlen; ++i)
+        digits[i] = rev[revlen - 1 - i];
+}
 
 /* find next base-8 palindrome >= digits (original n digits) */
 static void next_palindrome(const idx_t *orig, idx_t len, idx_t *pal, idx_t *pallen) {

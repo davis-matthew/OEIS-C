@@ -9,17 +9,18 @@
  *            T(r,k) with m = r*(r+1)/2 + k, 0 <= k <= r
  * Range:     u8 n <= 69, u16 n <= 197, u32 n <= 646, u64 n <= 2376,
  *            u128 n <= 8841, big any n
- * Helpers:   a000037_isqrt, pascal_gcd
+ * Validated: standard, pass, 94 terms through n = 9477 (2026-11-01)
+ * Helpers:   gcd, isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a000037_isqrt.h"
-#include "../utils/pascal_gcd.h"
+#include "../utils/gcd.h"
+#include "../utils/isqrt_u64.h"
 
 seq_t a(idx_t n) {
-    idx_t r = (a000037_isqrt(1 + 8 * n) - 1) / 2;
+    idx_t r = (isqrt_u64(1 + 8 * n) - 1) / 2;
     while ((r + 1) * (r + 2) / 2 <= n)
         r++;
     while (r > 0 && r * (r + 1) / 2 > n)
@@ -34,7 +35,7 @@ seq_t a(idx_t n) {
         seq_t den = (seq_t)(i + 1);
         if (den == 0)
             break; /* only reachable when the value cannot fit in seq_t */
-        seq_t g = pascal_gcd(result, den);
+        seq_t g = gcd(result, den);
         seq_t d = den / g;
         result = (result / g) * ((seq_t)(r - i) / d);
     }

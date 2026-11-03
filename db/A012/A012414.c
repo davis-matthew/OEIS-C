@@ -7,7 +7,8 @@
  * Formula:   a(n) = n! * coeff of x^n in arcsinh(arctan(x)*exp(x))
  * Range:     i8 n <= 5, i16 n <= 8, i32 n <= 12, i64 n <= 19, i128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
  * repeated calls with arbitrary ordering are fast. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static idx_t cache_size = 0;
 
@@ -40,17 +42,17 @@ static void ensure_capacity(idx_t n)
     /* allocate space for (n+1) elements of each array */
     seq_t *tmp;
 
-    tmp = (seq_t*)realloc(fact_arr,   (n + 1) * sizeof(seq_t));
+    tmp = mem_resize(seq_t, fact_arr, (n + 1));
     fact_arr   = tmp;
-    tmp = (seq_t*)realloc(atan_fact, (n + 1) * sizeof(seq_t));
+    tmp = mem_resize(seq_t, atan_fact, (n + 1));
     atan_fact  = tmp;
-    tmp = (seq_t*)realloc(U_fact,    (n + 1) * sizeof(seq_t));
+    tmp = mem_resize(seq_t, U_fact, (n + 1));
     U_fact     = tmp;
-    tmp = (seq_t*)realloc(V_fact,    (n + 1) * sizeof(seq_t));
+    tmp = mem_resize(seq_t, V_fact, (n + 1));
     V_fact     = tmp;
-    tmp = (seq_t*)realloc(R_fact,    (n + 1) * sizeof(seq_t));
+    tmp = mem_resize(seq_t, R_fact, (n + 1));
     R_fact     = tmp;
-    tmp = (seq_t*)realloc(u2_fact,   (n + 1) * sizeof(seq_t));
+    tmp = mem_resize(seq_t, u2_fact, (n + 1));
     u2_fact    = tmp;
 
     /* compute factorials */

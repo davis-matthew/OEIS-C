@@ -11,13 +11,15 @@
  *            a(10)=224
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 34, u64 n <= 66, u128 n <= 130,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 895 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Standard header for dynamic allocation */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     /* Initialize the table on the first call */
     if (!table) {
         table_size = 11;                     /* indices 0 … 10 are valid */
-        table = (seq_t *)malloc(table_size * sizeof(seq_t));
+        table = mem_new(seq_t, table_size);
         if (!table) return 0;                /* allocation failure – fallback to 0 */
 
         /* set unused indices to 0 for safety */
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
     }
 
     /* Grow the table to store values up to index n */
-    seq_t *new_tbl = (seq_t *)realloc(table, (n + 1) * sizeof(seq_t));
+    seq_t *new_tbl = mem_resize(seq_t, table, (n + 1));
     if (!new_tbl) {
         /* reallocation failed – return 0; the test suite never relies on
            values that would trigger this path. */

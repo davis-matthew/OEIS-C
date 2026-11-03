@@ -7,13 +7,15 @@
  * Formula:   a(n) = ((3*n-1)*a(n-1) - (n-1)*n*a(n-2))/2, a(1)=0, a(2)=1
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 21, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Computes A059371 for n ≥ 2.  Results are memoised in a static array. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /*  Allocate or enlarge the cache as needed. */
     if (capacity <= n) {
         idx_t new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;                /* out‑of‑memory: return 0 (failsafe) */
         cache = tmp;
         capacity = new_cap;

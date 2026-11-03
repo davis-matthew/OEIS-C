@@ -10,13 +10,15 @@
  *            values: a(1)=516, a(2)=9207, a(3)=161631, a(4)=2826144
  * Range:     u8 none, u16 n <= 2, u32 n <= 6, u64 n <= 14, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Weak static memoisation table */
 static seq_t *cache      = NULL;   /* cache[0] unused; indices start at 1 */
@@ -34,7 +36,7 @@ static void ensure_cache(idx_t needed)
     if (new_cap < needed)
         new_cap = needed;
 
-    seq_t *new_cache = (seq_t *)malloc(sizeof(seq_t) * (new_cap + 1ULL));
+    seq_t *new_cache = mem_new(seq_t, (new_cap + 1ULL));
     if (!new_cache) {
         /* In a real project we would handle out‑of‑memory here; for the
            competition environment we simply abort. */
@@ -42,8 +44,8 @@ static void ensure_cache(idx_t needed)
     }
 
     if (cache) {
-        memcpy(new_cache, cache, (cache_cap + 1ULL) * sizeof(seq_t));
-        free((void *)cache);
+        mem_copy(new_cache, cache, (cache_cap + 1ULL) * sizeof(seq_t));
+        mem_free(cache);
     }
 
     cache      = new_cache;

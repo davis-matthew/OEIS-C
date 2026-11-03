@@ -12,13 +12,28 @@
  *            satisfies the equality
  * Range:     u8 n <= 4, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   has_equal_4_7_base11
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/has_equal_4_7_base11.h"
+
+/* Helper: test whether x has equal non‑zero counts of 4 and 7 in base‑11. */
+static int has_equal_4_7_base11(seq_t x)
+{
+    seq_t t = x;
+    int cnt4 = 0;
+    int cnt7 = 0;
+    while (t > 0) {
+        int d = (int)(t % 11);
+        if (d == 4) cnt4++;
+        else if (d == 7) cnt7++;
+        t /= 11;
+    }
+    return (cnt4 == cnt7 && cnt4 > 0) ? 1 : 0;
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)

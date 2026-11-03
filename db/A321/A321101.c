@@ -11,12 +11,14 @@
  *            the recurrence with memoisation
  * Range:     u8 n <= 200, u16 n <= 200, u32 n <= 200, u64 n <= 200,
  *            u128 n <= 200, big any n
- * Helpers:   none
+ * Validated: partial, pass, 201 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* memoised values */
 static idx_t cache_cap = 0;      /* number of entries stored */
@@ -26,7 +28,7 @@ static void ensure_cache(idx_t n)
     if (n + 1 <= cache_cap) return;
     idx_t new_cap = (cache_cap == 0) ? 1 : cache_cap * 2;
     while (new_cap <= n) new_cap <<= 1;   /* grow until enough */
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) abort();              /* allocation failure */
     cache = new_cache;
     /* initialise new slots with a sentinel value (3) */

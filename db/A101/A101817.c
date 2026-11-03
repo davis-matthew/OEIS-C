@@ -11,14 +11,17 @@
  *            Stirling numbers of the second kind
  * Range:     u8 n <= 11, u16 n <= 24, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/binom.h"
+#include <sys/types.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* Dynamic table for Stirling numbers: S[n][k] = S(n,k) */
 static seq_t **S = NULL;          /* rows of Stirling numbers */
@@ -37,7 +40,7 @@ static void ensure_stirling_up_to(idx_t n)
 
     /* Allocate new rows and initialise them */
     for (idx_t i = old_rows; i < S_rows; ++i) {
-        S[i] = (seq_t *)malloc((i + 1) * sizeof(seq_t));
+        S[i] = mem_new(seq_t, (i + 1));
         if (!S[i]) exit(1);
         for (idx_t j = 0; j <= i; ++j) {
             if (i == 0 && j == 0)
@@ -83,7 +86,7 @@ seq_t a(idx_t n)
         fact *= (seq_t)i;
 
     /* Binomial coefficient C(r,h). */
-    seq_t bin = binom(r, h);
+    seq_t bin = binomial(r, h);
 
     /* Stirling number S(r,h). */
     seq_t stir = S[r][h];

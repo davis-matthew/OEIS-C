@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static bool qualifies(idx_t n)
 {
@@ -40,7 +43,7 @@ static bool qualifies(idx_t n)
     seq_t sum_mod = 0;                    /* running sum modulo n */
 
     for (idx_t x = 0; x < n; ++x) {
-        seq_t r = mod_pow((seq_t)x, n, modN);  /* x^n mod n */
+        seq_t r = powmod((seq_t)x, n, modN);  /* x^n mod n */
 
         if (!seen[(size_t)r]) {          /* new distinct residue */
             seen[(size_t)r] = 1;
@@ -66,8 +69,7 @@ seq_t a(idx_t n)
         /* Grow cache if necessary. */
         if (cache_cap < n * 2) {
             idx_t new_cap = n * 2;
-            seq_t *new_cache = (seq_t *)realloc(cache,
-                                            (size_t)new_cap * sizeof(seq_t));
+            seq_t *new_cache = mem_resize(seq_t, cache, (size_t)new_cap);
             if (!new_cache)
                 return (seq_t)0;          /* allocation failure */
             cache = new_cache;

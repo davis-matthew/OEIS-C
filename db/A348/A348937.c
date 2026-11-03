@@ -7,18 +7,21 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = A003961(n) - A003415(n)
- * Range:     u8 n <= 47, u16 n <= 1535, u32 n <= 9951, u64 n <= 9951,
- *            u128 n <= 9951, big any n
- * Helpers:   factor_u64, next_prime, pow_seq
+ * Range:     u8 n <= 47, u16 n <= 1535, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 92 terms through n = 9951 (2026-11-01)
+ * Helpers:   factor_u64, ipow_i32, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/ipow_i32.h"
 #include "../utils/next_prime.h"
-#include "../utils/pow_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -44,7 +47,7 @@ seq_t a(idx_t n)
         uint64_t np = next_prime(p);
 
         /* Multiply shift by np^ep. */
-        seq_t powp = pow_seq((seq_t)np, (int)ep);
+        seq_t powp = ipow_i32((seq_t)np, (int)ep);
         shift = shift * powp;
 
         /* Derivative contribution: ep * (N/p). */

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 9459 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    1‑based indexing: a(1) is the first such number. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static helper to compare seq_t values for qsort  */
 static int cmp_seq_t(const void *p1, const void *p2)
@@ -38,7 +40,7 @@ static bool precomputed   = false;
 static size_t generate_with_B(idx_t B, seq_t **storage)
 {
     /* pre‑compute fifth powers of 1..B */
-    seq_t *base = (seq_t *)malloc((B + 1) * sizeof(seq_t));
+    seq_t *base = mem_new(seq_t, (B + 1));
     if (!base) exit(1);
     for (idx_t i = 1; i <= B; ++i) {
         seq_t val = (seq_t)i;
@@ -51,8 +53,8 @@ static size_t generate_with_B(idx_t B, seq_t **storage)
     for (int i = 1; i <= 6; ++i)
         Ncomb = Ncomb * (B + 5 - (i - 1)) / i;
 
-    seq_t *sums = (seq_t *)malloc(Ncomb * sizeof(seq_t));
-    if (!sums) { free(base); exit(1); }
+    seq_t *sums = mem_new(seq_t, Ncomb);
+    if (!sums) { mem_free(base); exit(1); }
 
     size_t idx = 0;
     for (idx_t a1 = 1; a1 <= B; ++a1)
@@ -64,13 +66,13 @@ static size_t generate_with_B(idx_t B, seq_t **storage)
                             sums[idx++] = base[a1] + base[a2] + base[a3] +
                                           base[a4] + base[a5] + base[a6];
 
-    free(base);
+    mem_free(base);
     /* sort all sums */
-    qsort(sums, Ncomb, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(sums, Ncomb, sizeof(seq_t), cmp_seq_t);
 
     /* extract sums that occur exactly once */
-    seq_t *tmp = (seq_t *)malloc(Ncomb * sizeof(seq_t));
-    if (!tmp) { free(sums); exit(1); }
+    seq_t *tmp = mem_new(seq_t, Ncomb);
+    if (!tmp) { mem_free(sums); exit(1); }
 
     size_t uniq = 0;
     for (size_t i = 0; i < Ncomb; ) {
@@ -79,13 +81,13 @@ static size_t generate_with_B(idx_t B, seq_t **storage)
         if (j - i == 1) tmp[uniq++] = sums[i];
         i = j;
     }
-    free(sums);
+    mem_free(sums);
 
     /* shrink array to needed size */
-    seq_t *res = (seq_t *)malloc(uniq * sizeof(seq_t));
-    if (!res) { free(tmp); exit(1); }
+    seq_t *res = mem_new(seq_t, uniq);
+    if (!res) { mem_free(tmp); exit(1); }
     for (size_t i = 0; i < uniq; ++i) res[i] = tmp[i];
-    free(tmp);
+    mem_free(tmp);
     *storage = res;
     return uniq;
 }
@@ -102,14 +104,14 @@ static void ensure_precomputed(idx_t need)
         size_t cnt = generate_with_B(B, &tmp);
         if (cnt >= (size_t)need) {
             /* success – store the new results */
-            free(unique_vals);
+            mem_free(unique_vals);
             unique_vals = tmp;
             unique_len  = cnt;
             precomputed = true;
             return;
         }
         /* not enough – clean up and try a larger B */
-        free(tmp);
+        mem_free(tmp);
         B *= 2;
         if (B > 100) { /* safety limit – should never happen for n≤10000 */
             break;

@@ -14,13 +14,15 @@
  *            a(n) = a(n-1)
  * Range:     i8 n <= 10000, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 88 terms through n = 9794 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* ensure capacity */
     if (seq == NULL) {
         alloc = 16;
-        seq   = (seq_t *)malloc(alloc * sizeof(seq_t));
+        seq   = mem_new(seq_t, alloc);
         if (seq == NULL) abort();    /* out of memory */
     }
 
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
         /* grow array if needed */
         if ((size_t)k >= alloc) {
             alloc *= 2;
-            seq = (seq_t *)realloc(seq, alloc * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, alloc);
             if (seq == NULL) abort();
         }
 

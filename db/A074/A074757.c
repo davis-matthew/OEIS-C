@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   estimate_limit
+ * Validated: standard, pass, 68 terms through n = 986 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,14 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/estimate_limit.h"
+#include "../utils/mem.h"
+
+/* Rougher heuristic: the ratio of a(n) to n seems to be about 35.
+ * We add a margin so the sieve size is comfortably larger than needed. */
+static inline idx_t estimate_limit(idx_t n_needed)
+{
+    return (n_needed * 35ULL) + 1000ULL;
+}
 
 /* Static storage for the divisor counts and the resulting sequence */
 static uint32_t *tau      = NULL;          /* divisor counts, size = limit+2 */
@@ -73,7 +81,7 @@ static void ensure_sequence(idx_t n_needed)
         /* Ensure the sequence array can hold all candidates. */
         if (seq_cap < (size_t)(limit + 2)) {
             seq_cap = (size_t)(limit + 2);
-            seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, seq_cap);
         }
 
         /* Scan integers from 2 upwards; τ(0) is undefined so we skip 1. */

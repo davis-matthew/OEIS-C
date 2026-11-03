@@ -12,14 +12,45 @@
  *            term)
  * Range:     u8 n <= 100, u16 n <= 3395, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_practical_local
+ * Validated: standard, pass, 116 terms through n = 8413 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_practical_local.h"
+
+/* practical-number test (m ≥ 2) */
+static inline bool is_practical_local(idx_t m)
+{
+    if (m < 2u) return false;
+    idx_t temp = m;
+    idx_t sigma = 1;
+    if (temp % 2u != 0u) return false;
+    int e = 0;
+    while (temp % 2u == 0u) { temp /= 2u; ++e; }
+    idx_t pow2 = 1;
+    for (int k = 0; k < e + 1; ++k) pow2 *= 2u;
+    sigma *= (pow2 - 1u);
+    for (idx_t p = 3; p * p <= temp; p += 2u) {
+        if (temp % p == 0u) {
+            if (p > sigma + 1u) return false;
+            e = 0;
+            while (temp % p == 0u) { temp /= p; ++e; }
+            idx_t powp = 1;
+            for (int k = 0; k < e + 1; ++k) powp *= p;
+            idx_t sig = (powp - 1u) / (p - 1u);
+            sigma *= sig;
+        }
+    }
+    if (temp > 1u) {
+        if (temp > sigma + 1u) return false;
+        idx_t sig = (temp * temp - 1u) / (temp - 1u);
+        sigma *= sig;
+    }
+    return true;
+}
 
 /* integer square root for seq_t values */
 static inline int isqrt_seq(seq_t x)

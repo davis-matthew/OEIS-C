@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 72, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
+ * Validated: full, pass, 73 terms through n = 73 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

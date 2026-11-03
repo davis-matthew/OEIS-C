@@ -10,7 +10,8 @@
  *            its multiplicity)
  * Range:     u8 n <= 46, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 #define MAX_SIEVE       5000000   /* sieve limit: large enough for n <= 10000 */
 #define MAX_SEQ_TERMS   20000     /* space for stored terms              */
@@ -112,7 +113,7 @@ static bool satisfies_property(idx_t k)
 
         uint32_t idx = prime_to_index[p];
         seq_t ps_idx = prime_shadow_value(idx);
-        prod_idx_ps *= seq_pow(ps_idx, exp);
+        prod_idx_ps *= ipow_idx(ps_idx, exp);
     }
     return ps_k == prod_idx_ps;
 }

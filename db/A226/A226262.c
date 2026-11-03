@@ -8,6 +8,7 @@
  * Formula:   a(n) = 2^(7*n) - 7*2^(6*n-2) + 7*2^(5*n-3) - 2^(4*n-3)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 9, u128 n <= 18,
  *            big any n
+ * Validated: standard, pass, 30 terms through n = 94 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

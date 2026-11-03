@@ -11,12 +11,14 @@
  *            a(1)=1, a(2)=2, a(3)=4
  * Range:     u8 n <= 8, u16 n <= 15, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper: floor(log₂(x)) for x > 0, x is uint64_t */
 static unsigned floor_log2_idx(idx_t x)
@@ -39,8 +41,8 @@ static void ensure_capacity(idx_t need)
     idx_t new_size = (N_cached == 0) ? 8 : N_cached * 2;
     while (new_size < need) new_size <<= 1;
 
-    A_vals   = (seq_t*)realloc(A_vals,   new_size * sizeof(seq_t));
-    prefix   = (seq_t*)realloc(prefix,   new_size * sizeof(seq_t));
+    A_vals   = mem_resize(seq_t, A_vals, new_size);
+    prefix   = mem_resize(seq_t, prefix, new_size);
 
     /* Initialise the first three terms on first allocation */
     if (N_cached == 0) {

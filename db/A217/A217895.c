@@ -8,14 +8,39 @@
  * Formula:   a(n) = sum_{d|n} d / Gpf(d), with Gpf(1)=1
  * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _sum_div_gpf
+ * Validated: standard, pass, 93 terms through n = 9709 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/_sum_div_gpf.h"
+
+/* recursively enumerate all divisors of n, accumulating the sum of
+   divisor / greatest prime factor of the divisor.  cur is the current
+   divisor, cur_max is the largest prime factor encountered so far. */
+static seq_t
+_sum_div_gpf(const uint64_t *pf, const uint64_t *ef, size_t cnt,
+             size_t idx, uint64_t cur, uint64_t cur_max)
+{
+    if (idx == cnt)                      /* all prime factors processed */
+        return (seq_t)(cur / cur_max);
+
+    seq_t s = 0;
+
+    /* exponent 0 for this prime factor */
+    s += _sum_div_gpf(pf, ef, cnt, idx + 1, cur, cur_max);
+
+    /* positive exponents */
+    uint64_t prod = cur;
+    for (uint64_t e = 1; e <= ef[idx]; ++e) {
+        prod *= pf[idx];                 /* multiply by next power of the prime  */
+        uint64_t newmax = pf[idx] > cur_max ? pf[idx] : cur_max;
+        s += _sum_div_gpf(pf, ef, cnt, idx + 1, prod, newmax);
+    }
+    return s;
+}
 
 /* a(n) = sum of d / Gpf(d) over all divisors d of n  (1‑based indexing) */
 seq_t a(idx_t n)

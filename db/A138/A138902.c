@@ -9,19 +9,21 @@
  *            multiplication to avoid large constant literals
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_count
+ * Validated: standard, pass, 119 terms through n = 9411 (2026-11-01)
+ * Helpers:   num_digits0
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/digit_count.h"
+#include <math.h>
+#include "../utils/num_digits0.h"
 
 seq_t a(idx_t n)
 {
     /* Get the number of decimal digits of n.
        The provided digit_count routine returns 1 for n == 0. */
-    unsigned int d = (unsigned int)digit_count((uint64_t)n);
+    unsigned int d = (unsigned int)num_digits0((uint64_t)n);
 
     /* Compute factorial(d) in type seq_t.  For d <= 20 this is safe
        for all supported seq_t sizes; for smaller seq_t types the

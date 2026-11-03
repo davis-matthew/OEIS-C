@@ -8,7 +8,8 @@
  *            binomial(k,n-k)/(n+4*k+1)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 19, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
     giving the recurrence a(0)=1, a(n)=coeff_{n-1} A^5 + coeff_{n-2} A^6. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache for coefficients of A(x) and of its powers A^k (k=1..6). */
 static seq_t *a_seq = NULL;      /* a_seq[n] = a(n)                          */
@@ -33,9 +35,9 @@ static void ensure_capacity(idx_t n)
     idx_t newcap = cap ? cap : 1;
     while (newcap <= n) newcap <<= 1;
 
-    a_seq = (seq_t *)realloc(a_seq, newcap * sizeof(seq_t));
+    a_seq = mem_resize(seq_t, a_seq, newcap);
     for (int k = 1; k <= 6; ++k)
-        B[k] = (seq_t *)realloc(B[k], newcap * sizeof(seq_t));
+        B[k] = mem_resize(seq_t, B[k], newcap);
 
     /* Initialise the very first coefficient. */
     if (cap == 0) {

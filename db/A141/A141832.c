@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 112, u16 n <= 4398, u32 n <= 4398, u64 n <= 4398,
  *            u128 n <= 4398, big any n
- * Helpers:   cf_bounded_two
+ * Validated: standard, pass, 80 terms through n = 4329 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,23 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/cf_bounded_two.h"
+#include "../utils/mem.h"
+
+/* Test whether the continued fraction of p/n has all quotients ≤ 2. */
+static bool cf_bounded_two(idx_t p, idx_t n)
+{
+    idx_t a = n;
+    idx_t b = p;
+    while (b) {
+        idx_t q = a / b;
+        if (q > 2U)
+            return false;
+        idx_t r = a % b;
+        a = b;
+        b = r;
+    }
+    return true;
+}
 
 /* Euclidean gcd for uint64_t, used only by the test function. */
 static inline idx_t gcd_idx(idx_t a, idx_t b)
@@ -76,7 +93,7 @@ seq_t a(idx_t n)
         if (seq_len == seq_cap) {
             size_t new_cap = (seq_cap == 0) ? 8 : seq_cap * 2;
             /* realloc returns void* – cast explicitly for C/C++ compatibility. */
-            seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
             seq_cache = tmp;
             seq_cap   = new_cap;
         }

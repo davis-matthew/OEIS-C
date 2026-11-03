@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 37, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 /* Computes the n‑th term of OEIS A045113: numbers whose base‑4
    representation contains no digit 1 and exactly four 3's.  The terms
    are listed in increasing numerical order. */
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 static seq_t choose(idx_t n, idx_t k)

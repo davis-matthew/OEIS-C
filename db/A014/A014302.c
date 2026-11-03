@@ -7,6 +7,7 @@
  * Formula:   a(n) = prime(n)*(prime(n-1)-1)/2
  * Range:     u8 n <= 9, u16 n <= 72, u32 n <= 6719, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 60 terms through n = 9865 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,8 @@
 
 #include <stdlib.h>
 #include <math.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 
 static inline idx_t prime_upper_bound(idx_t n) {

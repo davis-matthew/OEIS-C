@@ -10,13 +10,15 @@
  *            * g[m-k] Then a(n) = g[N]
  * Range:     i8 n <= 3, i16 n <= 4, i32 n <= 8, i64 n <= 14, i128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 300 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* compute s(k) = Σ_{d|k} (-1)^{d+1}  for 1 ≤ k ≤ N
    using a divisor sieve.  s is a signed 64 bit integer array. */
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     }
 
     /* 3. Recurrence for g[0..N]  (g[0] = N!) */
-    seq_t *g = (seq_t *)malloc((N + 1) * sizeof(seq_t));
+    seq_t *g = mem_new(seq_t, (N + 1));
     g[0] = factN;
     for (idx_t m = 1; m <= N; ++m) {
         seq_t sum = 0;
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = g[N];
-    free(g);
+    mem_free(g);
     free(s);
     return result;
 }

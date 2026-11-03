@@ -7,6 +7,7 @@
  * Formula:   a(n) = coefficient of x^n in Π_{k=1..9} (1 + x + … + x^{2k-1})
  * Range:     u8 n <= 3, u16 n <= 11, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
+ * Validated: full, pass, 82 terms through n = 81 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

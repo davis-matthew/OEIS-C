@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 63, u16 n <= 5727, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 9691 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    computes terms by direct search, caching results for subsequent calls. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper: reverse decimal digits of a number. */
 static seq_t reverse_digits(seq_t v) {
@@ -50,7 +52,7 @@ seq_t a(idx_t n) {
     /* Initialise storage on first call. */
     if (terms == NULL) {
         cap   = 64;
-        terms = (seq_t *)malloc(cap * sizeof(seq_t));
+        terms = mem_new(seq_t, cap);
     }
 
     /* Generate terms until we have at least n of them. */
@@ -61,7 +63,7 @@ seq_t a(idx_t n) {
         if (g > (seq_t)1) {
             if (len == cap) {
                 cap *= 2;
-                terms = (seq_t *)realloc(terms, cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, cap);
             }
             terms[len++] = k;
         }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 45, u16 n <= 189, u32 n <= 250, u64 n <= 250,
  *            u128 n <= 250, big any n
- * Helpers:   ensure_seq_cap_idx_t, ensure_seq_cap_seq_t
+ * Validated: standard, pass, 77 terms through n = 241 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,33 @@
 
 #include <stddef.h>   /* for size_t */
 #include <stdlib.h>   /* for malloc, free, realloc */
-#include "../utils/ensure_seq_cap_idx_t.h"
-#include "../utils/ensure_seq_cap_seq_t.h"
+#include "../utils/mem.h"
+
+/* ----- Helper: ensure capacity for an array of idx_t ----- */
+static void ensure_seq_cap_idx_t(size_t *cap, size_t need, idx_t **ptr)
+{
+    if (need <= *cap) return;
+    size_t new_cap = *cap ? *cap * 2 : 8;
+    while (new_cap < need) new_cap *= 2;
+    idx_t *tmp = (idx_t *)realloc(*ptr, new_cap * sizeof(idx_t));
+    if (tmp) {
+        *ptr = tmp;
+        *cap = new_cap;
+    }
+}
+
+/* ----- Helper: ensure capacity for an array of seq_t ----- */
+static void ensure_seq_cap_seq_t(size_t *cap, size_t need, seq_t **ptr)
+{
+    if (need <= *cap) return;
+    size_t new_cap = *cap ? *cap * 2 : 8;
+    while (new_cap < need) new_cap *= 2;
+    seq_t *tmp = mem_resize(seq_t, *ptr, new_cap);
+    if (tmp) {
+        *ptr = tmp;
+        *cap = new_cap;
+    }
+}
 
 /* Forward declarations for dynamic array helpers */
 static void ensure_seq_cap_seq_t(size_t *cap, size_t need, seq_t **ptr);
@@ -45,7 +71,7 @@ seq_t a(idx_t n)
     if (!Q_cap) {
         /* Allocate initial capacity for Q (at least 8 elements) */
         Q_cap = 8;
-        Q = (seq_t *)malloc(Q_cap * sizeof(seq_t));
+        Q = mem_new(seq_t, Q_cap);
         if (!Q) return 0;          /* allocation failed – return 0 as sentinel */
 
         /* Q[0] is unused, set to 0 for safety */

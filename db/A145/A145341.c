@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  base, nonn
  * Formula:   a(n) = reverse(binary(2*n-1)) (OEIS A145341)
- * Range:     u8 n <= 128, u16 n <= 9539, u32 n <= 9539, u64 n <= 9539,
- *            u128 n <= 9539, big any n
+ * Range:     u8 n <= 128, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 82 terms through n = 9539 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

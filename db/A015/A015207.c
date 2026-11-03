@@ -8,12 +8,14 @@
  *            for n >= 2
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 7, u128 n <= 11,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 29 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;     /* stores a(n) values */
 static seq_t *pow_cache = NULL;     /* stores 17^n values */
@@ -31,8 +33,8 @@ seq_t a(idx_t n)
     if (!seq_cache) {
         /* Ensure initial capacity for indices 0 and 1 */
         cache_cap = 2;
-        seq_cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
-        pow_cache  = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, cache_cap);
+        pow_cache  = mem_new(seq_t, cache_cap);
         seq_cache[0] = (seq_t)1;
         seq_cache[1] = (seq_t)2;
         pow_cache[0] = (seq_t)1;
@@ -46,8 +48,8 @@ seq_t a(idx_t n)
         while (new_cap <= (size_t)n) {
             new_cap <<= 1;
         }
-        seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
-        pow_cache  = (seq_t *)realloc(pow_cache,  new_cap * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, new_cap);
+        pow_cache  = mem_resize(seq_t, pow_cache, new_cap);
         cache_cap = new_cap;
 
         /* Compute new terms up to n */

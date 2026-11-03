@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 126, u32 n <= 324, u64 n <= 729,
  *            u128 n <= 1485, big any n
- * Helpers:   build_near_repdigit
+ * Validated: standard, pass, 68 terms through n = 8947 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,18 @@
    first all k = 1 terms, then all k = 2 terms, etc. */
 
 #include <stdint.h>
-#include "../utils/build_near_repdigit.h"
+
+static inline seq_t build_near_repdigit(idx_t k, int d, int m)
+{
+    seq_t n = 0;
+    /* left part: k copies of d */
+    for (idx_t i = 0; i < k; ++i) n = n * 10 + d;
+    /* middle digit */
+    n = n * 10 + m;
+    /* right part: k copies of d */
+    for (idx_t i = 0; i < k; ++i) n = n * 10 + d;
+    return n;
+}
 
 seq_t a(idx_t n)
 {

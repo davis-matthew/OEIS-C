@@ -14,13 +14,15 @@
  *            10572, 104815, 982206, 8921869, * 79152992, 690169163, 59369...
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 20, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>   /* for size_t */
 #include <stdlib.h>   /* for malloc, free, abort */
+#include "../utils/mem.h"
 
 static const seq_t init_vals[13] = {
     (seq_t)1,
@@ -48,7 +50,7 @@ static void ensure_capacity(size_t n)
     if (n <= cache_cap)
         return;
 
-    seq_t *new_cache = (seq_t *)malloc(n * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, n);
     if (!new_cache)
         abort();  /* memory allocation failure */
 
@@ -62,7 +64,7 @@ static void ensure_capacity(size_t n)
 
     /* discard old cache */
     if (cache)
-        free(cache);
+        mem_free(cache);
 
     cache = new_cache;
     cache_cap = n;

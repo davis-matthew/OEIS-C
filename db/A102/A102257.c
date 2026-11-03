@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 /* Example: a(1)=3, a(2)=6; 6*2=12 → a(3)=1, a(4)=2; 1*2=2 → a(5)=2, etc. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;      /* array of computed terms */
 static idx_t  len = 0;         /* number of terms stored */
@@ -33,7 +35,7 @@ static void ensure_capacity(idx_t new_len)
     idx_t new_cap = cap ? cap << 1 : 64;
     while (new_cap < new_len)
         new_cap <<= 1;
-    seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, new_cap);
     cap = new_cap;
 }
 

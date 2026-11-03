@@ -7,8 +7,9 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = 32 + 66*a(n-2) - a(n-4) for n > 4, with initial values
  *            a(1)=0, a(2)=0, a(3)=8, a(4)=24
- * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 21, u128 n <= 21,
+ * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 23, u128 n <= 44,
  *            big any n
+ * Validated: standard, pass, 37 terms through n = 994 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

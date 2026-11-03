@@ -9,16 +9,28 @@
  *            Return n^k (as seq_t) or 0 if no such k exists
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 10, u64 n <= 11, u128 n <= 71,
  *            big any n
- * Helpers:   big_pow, digits_of, pow10
+ * Validated: standard, pass, 42 terms through n = 976 (2026-11-01)
+ * Helpers:   ipow, num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/pow10.h"
-#include "../utils/big_pow.h"
-#include "../utils/digits_of.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/ipow.h"
+#include "../utils/num_digits_idx.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 static bool visited[1000001] = {0};
 
@@ -27,7 +39,7 @@ seq_t a(idx_t n)
     if (n < 2) return (seq_t)0;   /* safety for unexpected calls */
 
     /* number of decimal digits of n */
-    int d = digits_of(n);
+    int d = num_digits_idx(n);
     seq_t mod = pow10(d);                     /* 10^d */
     seq_t n_seq = (seq_t)n;
     seq_t target = n_seq;
@@ -46,7 +58,7 @@ seq_t a(idx_t n)
     for (;; ++k) {
         if (r == target) {
             /* found smallest k, compute the full power */
-            return big_pow(n_seq, (seq_t)k);
+            return ipow(n_seq, (seq_t)k);
         }
         size_t idx = (size_t)r;
         if (idx >= mod_sz)   /* should not happen for valid n */

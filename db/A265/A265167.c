@@ -9,7 +9,8 @@
  * Formula:   a(n) = Sum_{k=0..n} (-1)^k * (2*n-2*k-1)!! * A046741(n,k)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 17, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,22 +29,22 @@ seq_t a(idx_t n)
     size_t N = (size_t)n;
 
     /* Pre‑compute double‑factorials (2*m-1)!! for m = 0..N. */
-    seq_t *df = (seq_t*)calloc(N + 1, sizeof(seq_t));
+    seq_t *df = mem_new(seq_t, N + 1);
     df[0] = 1;
     for (size_t m = 1; m <= N; ++m) {
         df[m] = df[m - 1] * (seq_t)(2 * m - 1);
     }
 
     /* DP arrays for the four possible frontier masks. */
-    seq_t *dp0 = (seq_t*)calloc(N + 1, sizeof(seq_t));
-    seq_t *dp1 = (seq_t*)calloc(N + 1, sizeof(seq_t));
-    seq_t *dp2 = (seq_t*)calloc(N + 1, sizeof(seq_t));
-    seq_t *dp3 = (seq_t*)calloc(N + 1, sizeof(seq_t));
+    seq_t *dp0 = mem_new(seq_t, N + 1);
+    seq_t *dp1 = mem_new(seq_t, N + 1);
+    seq_t *dp2 = mem_new(seq_t, N + 1);
+    seq_t *dp3 = mem_new(seq_t, N + 1);
 
-    seq_t *next0 = (seq_t*)calloc(N + 1, sizeof(seq_t));
-    seq_t *next1 = (seq_t*)calloc(N + 1, sizeof(seq_t));
-    seq_t *next2 = (seq_t*)calloc(N + 1, sizeof(seq_t));
-    seq_t *next3 = (seq_t*)calloc(N + 1, sizeof(seq_t));
+    seq_t *next0 = mem_new(seq_t, N + 1);
+    seq_t *next1 = mem_new(seq_t, N + 1);
+    seq_t *next2 = mem_new(seq_t, N + 1);
+    seq_t *next3 = mem_new(seq_t, N + 1);
 
     /* Starting state: no pending edges, 0 edges used. */
     dp0[0] = 1;
@@ -123,9 +125,9 @@ seq_t a(idx_t n)
     }
 
     /* Free all allocated memory. */
-    free(df);
-    free(dp0); free(dp1); free(dp2); free(dp3);
-    free(next0); free(next1); free(next2); free(next3);
+    mem_free(df);
+    mem_free(dp0); mem_free(dp1); mem_free(dp2); mem_free(dp3);
+    mem_free(next0); mem_free(next1); mem_free(next2); mem_free(next3);
 
     return result;
 }

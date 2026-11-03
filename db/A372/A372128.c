@@ -11,9 +11,10 @@
  *            satisfying the recurrence. The sequence is built incrementally:
  *            for each n ≥ 1, * a(2n) is the smallest unused integer c such
  *            that (c | a(n)) is unused and ≠ c; * a(2n+1) = a(2n) | a(n)
- * Range:     u8 n <= 149, u16 n <= 8413, u32 n <= 8413, u64 n <= 8413,
- *            u128 n <= 8413, big any n
- * Helpers:   none
+ * Range:     u8 n <= 149, u16 n <= 10001, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 83 terms through n = 8413 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static storage for the sequence values, allocated as needed. */
 static seq_t *seq_arr  = NULL;   /* indexed from 1 */
@@ -40,7 +42,7 @@ static void grow_seq_arr(size_t need)
     if (need <= seq_cap) return;
     size_t new_cap = seq_cap > 0 ? seq_cap : 8;
     while (new_cap < need) new_cap <<= 1;
-    seq_arr = (seq_t *)realloc(seq_arr, (new_cap + 1) * sizeof(seq_t));
+    seq_arr = mem_resize(seq_t, seq_arr, (new_cap + 1));
     if (!seq_arr) exit(EXIT_FAILURE);
     seq_cap = new_cap;
 }

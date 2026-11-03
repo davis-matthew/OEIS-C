@@ -8,13 +8,27 @@
  *            contains exactly three digits equal to 4
  * Range:     u8 n <= 1, u16 n <= 38, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   count_4_in_base6
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/count_4_in_base6.h"
+#include "../utils/mem.h"
+
+/* Count the number of 4’s in the base‑6 representation of x.
+   Returns 0..3 and may stop early if more than 3. */
+static int count_4_in_base6(seq_t x)
+{
+    int cnt = 0;
+    while (x > 0 && cnt <= 3) {
+        if ((x % 6) == 4)
+            ++cnt;
+        x /= 6;
+    }
+    return cnt;
+}
 
 static seq_t *cache = NULL;          /* cached terms          */
 static idx_t cache_size = 0;         /* number of cached terms */
@@ -29,12 +43,12 @@ static void ensure_cache(idx_t required)
     /* first allocation */
     if (cache_cap == 0) {
         cache_cap = 16;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
     /* grow capacity if necessary */
     while (cache_cap < required)
         cache_cap <<= 1;
-    cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, cache_cap);
 
     /* generate terms until we reach the required count */
     while (cache_size < required) {

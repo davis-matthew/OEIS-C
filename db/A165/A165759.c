@@ -7,6 +7,7 @@
  * Formula:   a(n) = 7*a(n-1) - 14, a(0) = 1
  * Range:     i8 n <= 2, i16 n <= 5, i32 n <= 10, i64 n <= 22, i128 n <= 45,
  *            big any n
+ * Validated: standard, pass, 37 terms through n = 465 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

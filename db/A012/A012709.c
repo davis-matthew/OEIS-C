@@ -11,13 +11,15 @@
  *            required values for all n ≥ 0
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Note: seq_t and idx_t are supplied by the build system.
  * They may be standard integer types or an arbitrary precision class
@@ -36,16 +38,16 @@ static void ensure_up_to(idx_t n)
     /* Grow the storage if required. */
     if (allocated < (size_t)(n + 1)) {
         size_t new_cap = (size_t)(n + 1);
-        seq_t *new_a = (seq_t *)malloc(new_cap * sizeof(seq_t));
-        seq_t *new_g = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_a = mem_new(seq_t, new_cap);
+        seq_t *new_g = mem_new(seq_t, new_cap);
         if (allocated > 0) {
             /* Copy existing values (operator= works for POD and C++ big‑int). */
             for (idx_t i = 0; i <= computed; ++i) {
                 new_a[i] = a_tbl[i];
                 new_g[i] = g_tbl[i];
             }
-            free(a_tbl);
-            free(g_tbl);
+            mem_free(a_tbl);
+            mem_free(g_tbl);
         } else {
             /* First time: set the base values a(0)=1 and g(0)=0. */
             new_a[0] = (seq_t)1;

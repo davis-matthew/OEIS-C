@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 36, u16 n <= 62, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 110 terms through n = 9553 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Implementation depends on the types defined by the build system.  */
 extern int main();  /* The build system supplies seq_t and idx_t */
@@ -51,7 +53,7 @@ static void append_orbit(seq_t val)
 {
     if (orbit_size >= orbit_cap) {
         size_t new_cap = orbit_cap ? orbit_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(orbit, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, orbit, new_cap);
         if (!tmp) abort();              /* unrecoverable allocation failure */
         orbit = tmp;
         orbit_cap = new_cap;

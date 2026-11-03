@@ -11,13 +11,15 @@
  *            a(8)=38438400. This recurrence yields exactly the OEIS se...
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 17, u64 n <= 332, u128 n <= 1000,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 968 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     /* Allocate an array of length n+1 (size_t is safe for the allocation
        size since n is non-negative). */
     size_t len = (size_t)n + 1u;
-    seq_t *arr = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, len);
     if (arr == NULL) { /* Fallback for OOM: return 0 */
         return (seq_t)0;
     }
@@ -65,6 +67,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = arr[n];
-    free(arr);
+    mem_free(arr);
     return result;
 }

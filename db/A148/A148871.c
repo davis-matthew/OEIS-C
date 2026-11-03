@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   next_capacity
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,16 @@
  
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/next_capacity.h"
+#include "../utils/mem.h"
+
+/* helper to compute the next table capacity given a desired estimate */
+static size_t next_capacity(size_t estimate)
+{
+    size_t cap = 1;
+    while (cap <= estimate * 4)   /* keep load factor below 0.25 */
+        cap <<= 1;
+    return cap;
+}
 
 typedef struct {
     uint64_t key;   /* packed coordinates (x,y,z) */
@@ -73,7 +83,7 @@ seq_t a(idx_t n)
 
     /* initial table with the single state (0,0,0) */
     size_t cur_cap = next_capacity(1);
-    Entry *cur = (Entry *)calloc(cur_cap, sizeof(Entry));
+    Entry *cur = mem_new(Entry, cur_cap);
     cur[0].used = 1;
     cur[0].key  = 0;
     cur[0].val  = (seq_t)1;
@@ -81,7 +91,7 @@ seq_t a(idx_t n)
 
     for (idx_t step = 0; step < n; ++step) {
         size_t nxt_cap = next_capacity(cur_used);
-        Entry *nxt = (Entry *)calloc(nxt_cap, sizeof(Entry));
+        Entry *nxt = mem_new(Entry, nxt_cap);
         size_t nxt_used = 0;
 
         for (size_t i = 0; i < cur_cap; ++i) {
@@ -104,7 +114,7 @@ seq_t a(idx_t n)
             }
         }
 
-        free(cur);
+        mem_free(cur);
         cur = nxt;
         cur_cap = nxt_cap;
 
@@ -121,6 +131,6 @@ seq_t a(idx_t n)
         if (cur[i].used)
             ans += cur[i].val;
 
-    free(cur);
+    mem_free(cur);
     return ans;
 }

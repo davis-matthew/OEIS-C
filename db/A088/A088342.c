@@ -8,7 +8,8 @@
  * Formula:   a(n) = sum_{k=1}^{n} k^(k-1) * a(n-k) with a(0)=1
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 20,
  *            big any n
- * Helpers:   big_pow, ensure_arr
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,23 @@
 /* Sequence A088342 – forests of rooted trees with interval components. */
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/big_pow.h"
-#include "../utils/ensure_arr.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
+
+/* --------------------------------------------------------------------- */
+static void
+ensure_arr(idx_t n, seq_t **arr, size_t *cap)
+{
+    if ((idx_t)*cap <= n) {
+        size_t new_cap = (*cap > 0) ? (*cap << 1) : 16;
+        while (new_cap <= (size_t)n) new_cap <<= 1;
+        /* cast the result of realloc to the proper pointer type. */
+        *arr = mem_resize(seq_t, *arr, new_cap);
+        *cap = new_cap;
+    }
+}
 
 /* --------------------------------------------------------------------- */
 /* Memoisation tables: the largest n for which the values are known.      */
@@ -55,7 +71,7 @@ a(idx_t n)
         seq_t sum = (seq_t)0;
         for (idx_t k = 1; k <= i; ++k) {
             if (T_cache[k] == (seq_t)0)                /* not yet known */
-                T_cache[k] = big_pow((seq_t)k, (seq_t)(k - 1));
+                T_cache[k] = ipow((seq_t)k, (seq_t)(k - 1));
             sum += T_cache[k] * a_cache[i - k];
         }
         a_cache[i] = sum;

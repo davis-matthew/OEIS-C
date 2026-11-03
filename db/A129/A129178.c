@@ -14,11 +14,13 @@
  *            accumulating row lengths
  * Range:     u8 n <= 28, u16 n <= 100, u32 n <= 398, u64 n <= 1434,
  *            u128 n <= 6783, big any n
+ * Validated: standard, pass, 76 terms through n = 8338 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include <stddef.h>
 #ifdef __cplusplus
 #include <vector>

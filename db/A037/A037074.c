@@ -7,6 +7,7 @@
  * Formula:   a(n) is the product of the n‑th twin prime pair (p, p+2)
  * Range:     u8 n <= 3, u16 n <= 17, u32 n <= 860, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 50 terms through n = 9439 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,7 +20,8 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"   /* is_prime(idx_t) returns bool */
+#include <stdbool.h>
+#include "../utils/is_prime.h"
 
 seq_t a(idx_t n)
 {

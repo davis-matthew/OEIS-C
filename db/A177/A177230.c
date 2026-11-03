@@ -8,12 +8,15 @@
  * Formula:   a(n) = (-1)^(n-1)*(n+1)*(2*n+1)*n^(n-2)*((n+2)^n - n^n)/12
  * Range:     i8 n <= 1, i16 n <= 3, i32 n <= 5, i64 n <= 9, i128 n <= 15,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 30 terms through n = 198 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -26,11 +29,11 @@ seq_t a(idx_t n)
     seq_t term3 = ((seq_t)n + 1) * ((((seq_t)n) * 2) + 1);
 
     /* n^(n-2) */
-    seq_t npow = big_pow((seq_t)n, (seq_t)(n - 2));
+    seq_t npow = ipow((seq_t)n, (seq_t)(n - 2));
 
     /* (n+2)^n - n^n */
-    seq_t pow_n_plus2 = big_pow((seq_t)n + 2, (seq_t)n);
-    seq_t pow_n      = big_pow((seq_t)n, (seq_t)n);
+    seq_t pow_n_plus2 = ipow((seq_t)n + 2, (seq_t)n);
+    seq_t pow_n      = ipow((seq_t)n, (seq_t)n);
     seq_t diff       = pow_n_plus2 - pow_n;
 
     /* Assemble */

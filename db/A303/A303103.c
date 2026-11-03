@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 24, u128 n <= 47,
  *            big any n
- * Helpers:   valid_col_mid
+ * Validated: standard, pass, 36 terms through n = 206 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,37 @@
     Computation is done by a transfer‑matrix dynamic programme over columns. */
 
 #include <stdbool.h>
-#include "../utils/valid_col_mid.h"
+
+/* Return true iff all cells in the middle column 'mid' satisfy the rule
+   when the left neighbour column exists if left_exist is true, and
+   the right neighbour column exists if right_exist is true.                */
+static inline bool valid_col_mid(uint8_t mid, uint8_t left,
+                                 uint8_t right,
+                                 bool left_exist, bool right_exist)
+{
+    for (int r = 0; r < 3; ++r) {
+        int v = (mid >> r) & 1;
+        int cnt = 0;
+
+        /* horizontal neighbours */
+        if (left_exist  && ((left  >> r) & 1) == v) cnt++;
+        if (right_exist && ((right >> r) & 1) == v) cnt++;
+
+        /* diagonal neighbours */
+        if (r > 0) {
+            if (left_exist  && ((left  >> (r-1)) & 1) == v) cnt++;
+            if (right_exist && ((right >> (r-1)) & 1) == v) cnt++;
+        }
+        if (r < 2) {
+            if (left_exist  && ((left  >> (r+1)) & 1) == v) cnt++;
+            if (right_exist && ((right >> (r+1)) & 1) == v) cnt++;
+        }
+
+        if (!(cnt == 1 || cnt == 2 || cnt == 3 || cnt == 4 || cnt == 6))
+            return false;
+    }
+    return true;
+}
 
 #define MAX_STATES 8   /* 3‑bit column patterns: 0..7 */
 

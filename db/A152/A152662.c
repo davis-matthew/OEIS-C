@@ -13,13 +13,15 @@
  *            binomial(m,k) For row r = 2m+1 (odd, r≥3): T(r,k) = m * k! *...
  * Range:     u8 n <= 14, u16 n <= 28, u32 n <= 62, u64 n <= 130,
  *            u128 n <= 340, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 9530 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ---------- factorial cache ---------- */
 static seq_t *fact_cache = NULL;
@@ -30,7 +32,7 @@ static void ensure_factorial(idx_t up)
 {
     if (up < fact_len) return;
     idx_t new_len = up + 1;
-    seq_t *new_cache = (seq_t *)realloc(fact_cache, sizeof(seq_t) * new_len);
+    seq_t *new_cache = mem_resize(seq_t, fact_cache, new_len);
     if (!new_cache) abort();                /* allocation failure */
 
     if (fact_len == 0) {                    /* first allocation */

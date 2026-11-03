@@ -12,13 +12,39 @@
  *            is obtained by reading the rows one after another
  * Range:     u8 n <= 17, u16 n <= 37, u32 n <= 79, u64 n <= 206,
  *            u128 n <= 573, big any n
- * Helpers:   entry_row_pos
+ * Validated: standard, pass, 62 terms through n = 1097 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/entry_row_pos.h"
+
+/* Helper: compute the value of the entry at (row r, position pos),
+   where pos is zero‑based (0 ≤ pos < w(r)). */
+static seq_t
+entry_row_pos(idx_t r, idx_t pos)
+{
+    idx_t w  = r - __builtin_popcountll(r-1);          /* number of entries in row r */
+    idx_t j  = w - 1 - pos;                            /* exponent of 2 to divide by */
+
+    seq_t  res = 1;               /* (r‑1)! divided by 2^j */
+    idx_t  need = j;              /* how many 2‑factors still to cancel */
+
+    for (idx_t i = 1; i < r; ++i) {
+        idx_t twos = __builtin_ctzll(i);             /* powers of 2 in i */
+        idx_t use  = (need < twos) ? need : twos;    /* cancel as many as needed */
+        need -= use;
+        twos -= use;
+
+        /* multiply by the remaining part of i (after removing 'use' twos) */
+        res = res * (seq_t)(i >> use);
+        /* the leftover 'twos' (if any) are part of the factorial and
+           remain multiplied into 'res' implicitly by the (i >> use) term. */
+    }
+
+    return res;
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)

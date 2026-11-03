@@ -7,6 +7,7 @@
  * Formula:   a(n) = floor(n * phi^12), where phi^12 = 161 + 72*sqrt(5)
  * Range:     u8 n <= 0, u16 n <= 203, u32 n <= 1721, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 50 terms through n = 9018 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,8 +8,9 @@
  * Formula:   The sequence is the row‑wise enumeration of the triangle a(m,n)
  *            = m^2 - n^2 for 2 ≤ m , 1 ≤ n ≤ m-1. The offset is 2, so a(2) is
  *            the first term (m=2,n=1)
- * Range:     u8 n <= 121, u16 n <= 9428, u32 n <= 9428, u64 n <= 9428,
- *            u128 n <= 9428, big any n
+ * Range:     u8 n <= 121, u16 n <= 32641, u32 n <= 79801, u64 n <= 79801,
+ *            u128 n <= 79801, big any n
+ * Validated: standard, pass, 71 terms through n = 9428 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

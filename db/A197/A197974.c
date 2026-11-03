@@ -7,12 +7,14 @@
  * Formula:   a(n) = ceil((n + 1/5)^n)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 25,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: standard, pass, 34 terms through n = 290 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -42,8 +44,8 @@ seq_t a(idx_t n)
     } else {
         /* seq_t is large (e.g., arbitrary‑precision).  Use pow_seq. */
         seq_t base = (seq_t)5 * (seq_t)n + (seq_t)1;
-        seq_t num = pow_seq(base, (int)n);
-        seq_t den = pow_seq((seq_t)5, (int)n);
+        seq_t num = ipow_i32(base, (int)n);
+        seq_t den = ipow_i32((seq_t)5, (int)n);
         seq_t result = (num + den - (seq_t)1) / den;
         return result;
     }

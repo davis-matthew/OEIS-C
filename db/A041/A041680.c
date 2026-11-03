@@ -8,7 +8,8 @@
  *            (continued fraction)
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 11, u64 n <= 25, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for computed numerators */
 static seq_t *p_cache   = NULL;   /* array of numerators p[n]   */
@@ -37,7 +39,7 @@ ensure_terms(idx_t n)
 {
     if (!initialized) { /* first call – initialise cache */
         cache_cap = 8;               /* initial capacity */
-        p_cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        p_cache = mem_new(seq_t, cache_cap);
         if (!p_cache) exit(EXIT_FAILURE);
         p_cache[0] = (seq_t)a0;      /* p(0) = a0 */
         max_n = 0;
@@ -64,7 +66,7 @@ ensure_terms(idx_t n)
         /* expand cache if necessary */
         if (max_n + 1 >= cache_cap) {
             size_t new_cap = cache_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(p_cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, p_cache, new_cap);
             if (!tmp) exit(EXIT_FAILURE);
             p_cache = tmp;
             cache_cap = new_cap;

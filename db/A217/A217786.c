@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 11, i16 n <= 35, i32 n <= 112, i64 n <= 385,
  *            i128 n <= 1000, big any n
- * Helpers:   s_of_d
+ * Validated: standard, pass, 59 terms through n = 900 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,22 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/s_of_d.h"
+#include "../utils/mem.h"
+
+/* return s(d) for d ≥ 1 : period 6 sequence [-2, 2, 0, 2, -2, 0] */
+static int s_of_d(idx_t d)
+{
+    switch (d % 6) {
+        case 1:  return -2;
+        case 2:  return  2;
+        case 3:  return  0;
+        case 4:  return  2;
+        case 5:  return -2;
+        case 0:  return  0;
+    }
+    /* unreachable */
+    return 0;
+}
 
 static seq_t *a_cache = NULL;     /* stored a(n) values */
 static size_t a_cap = 0;          /* capacity of a_cache */
@@ -45,7 +61,7 @@ static void ensure_cache(idx_t n)
         /* grow a_cache */
         size_t new_a_cap = a_cap == 0 ? 1 : a_cap;
         while (new_a_cap < needed) new_a_cap <<= 1;
-        a_cache = (seq_t*)realloc(a_cache, new_a_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_a_cap);
         if (a_cache == NULL) { abort(); }
 
         /* grow c_cache */

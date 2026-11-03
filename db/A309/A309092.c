@@ -9,13 +9,15 @@
  *            run of zeros of prime length
  * Range:     u8 none, u16 n <= 480, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 1907 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* small helper: test primality of an unsigned integer up to a few hundred */
 static bool is_prime_len(unsigned int m)
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
         if (cached_len >= cached_cap)
         {
             size_t new_cap = cached_cap == 0 ? 16 : cached_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(cached, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cached, new_cap);
             if (!tmp) return 0;  /* allocation failure (unlikely) */
             cached = tmp;
             cached_cap = new_cap;

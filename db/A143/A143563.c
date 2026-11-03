@@ -8,20 +8,22 @@
  *            a(1)=1
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 11, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate temporary arrays of length n+1 */
-    seq_t *a_arr  = (seq_t*)malloc((n + 1) * sizeof(seq_t));
-    seq_t *c2     = (seq_t*)malloc((n + 1) * sizeof(seq_t));
-    seq_t *c4     = (seq_t*)malloc((n + 1) * sizeof(seq_t));
-    seq_t *q_arr  = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+    seq_t *a_arr  = mem_new(seq_t, (n + 1));
+    seq_t *c2     = mem_new(seq_t, (n + 1));
+    seq_t *c4     = mem_new(seq_t, (n + 1));
+    seq_t *q_arr  = mem_new(seq_t, (n + 1));
 
     /* Initial values */
     a_arr[0] = 1;
@@ -64,9 +66,9 @@ seq_t a(idx_t n)
 
     seq_t result = a_arr[n];
 
-    free(a_arr);
-    free(c2);
-    free(c4);
-    free(q_arr);
+    mem_free(a_arr);
+    mem_free(c2);
+    mem_free(c4);
+    mem_free(q_arr);
     return result;
 }

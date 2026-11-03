@@ -11,13 +11,27 @@
  *            T(0,0) = 0. Thus a(0)=0, a(1)=0, a(2)=1, a(3)=0, a(4)=2, …
  * Range:     u8 n <= 15, u16 n <= 29, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   gcd, range_prod
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/range_prod.h"
+
+/* Product of integers from start to end inclusive; returns 1 if start > end. */
+static seq_t range_prod(idx_t start, idx_t end)
+{
+    if (start > end)
+        return (seq_t)1;
+    seq_t prod = 1;
+    for (idx_t k = start; k <= end; ++k)
+    {
+        prod = prod * (seq_t)k;
+    }
+    return prod;
+}
 
 /* Binomial coefficient C(n,k) computed with cancellation to avoid overflow. */
 static seq_t binom_calc(idx_t n, idx_t k)

@@ -8,9 +8,10 @@
  * Keywords:  sign
  * Formula:   a(n) is the minimal k such that 2^k * n is abundant, or -1 if n
  *            is a power of two. Abundant means σ(m) > 2m
- * Range:     i8 n <= 12, i16 n <= 486, i32 n <= 8620, i64 n <= 8620,
- *            i128 n <= 8620, big any n
- * Helpers:   factor_u64, is_power_of_two, seq_pow
+ * Range:     i8 n <= 12, i16 n <= 486, i32 n <= 65536, i64 n <= 65537,
+ *            i128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 8620 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx, is_pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,16 +29,17 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/is_power_of_two.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/is_pow2.h"
 
 seq_t a(idx_t n)
 {
     seq_t xn = (seq_t)n;
 
     /* Case n is a power of two: no abundant multiple exists. */
-    if (is_power_of_two(xn))
+    if (is_pow2(xn))
         return (seq_t)-1;
 
     /* Count the exponent a of 2 in n. */
@@ -62,9 +64,9 @@ seq_t a(idx_t n)
             continue; /* skip the power of two part */
 
         /* p^e */
-        seq_t pow_pe = seq_pow((seq_t)p, (int)e);
+        seq_t pow_pe = ipow_idx((seq_t)p, (int)e);
         /* p^(e+1) */
-        seq_t pow_pe1 = seq_pow((seq_t)p, (int)(e + 1));
+        seq_t pow_pe1 = ipow_idx((seq_t)p, (int)(e + 1));
 
         M *= pow_pe;
 

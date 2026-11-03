@@ -7,8 +7,9 @@
  * Keywords:  nonn, look
  * Formula:   a(n) = 1 for noncomposite n, a(n) = n - previousprime(n) + 1 for
  *            composite n
- * Range:     u8 n <= 9451, u16 n <= 9451, u32 n <= 9451, u64 n <= 9451,
- *            u128 n <= 9451, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 98 terms through n = 9451 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

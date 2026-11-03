@@ -7,12 +7,14 @@
  * Formula:   a(1) = 1; for n ≥ 2, a(n) = Σ_{i=1}^{⌊log₂(n)⌋} a(n-i)
  * Range:     u8 n <= 12, u16 n <= 21, u32 n <= 37, u64 n <= 70, u128 n <= 135,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 3231 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 /* The following type aliases are provided by the build system: */
 /* - idx_t  : unsigned 64‑bit integer (e.g. uint64_t) */
 /* - seq_t  : unsigned integer of 8, 16, 32, 64 or 128 bits, */
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
         while (new_cap < (size_t)n)
             new_cap <<= 1;
         /* Cast is required for C++ compatibility. */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof *tmp);
+        seq_t *tmp = mem_resize(seq_t, cache, (new_cap * sizeof *tmp) / sizeof(seq_t));
         cache = tmp;
         cap = new_cap;
     }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 17, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    occurs, and returns the difference when a residue repeats
    for the first time. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* idx_t and seq_t are provided by the build. */
 seq_t a(idx_t n)
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
 
     /* ensure s_cache has values for m = 1 and 2 at start */
     if (s_cap < 2) {
-        s_cache = (seq_t *)realloc(s_cache, sizeof(seq_t) * 2);
+        s_cache = mem_resize(seq_t, s_cache, 2);
         if (!s_cache) return 0;
         s_cache[0] = 0;              /* unused */
         s_cache[1] = (seq_t)1;       /* s(1) = 1 */
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
         if (next >= s_cap) {
             size_t new_cap = s_cap * 2;
             if (new_cap <= (size_t)next) new_cap = (size_t)next + 1;
-            seq_t *tmp = (seq_t *)realloc(s_cache, sizeof(seq_t) * new_cap);
+            seq_t *tmp = mem_resize(seq_t, s_cache, new_cap);
             if (!tmp) {
                 free(first);
                 return 0;

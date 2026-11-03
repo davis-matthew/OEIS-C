@@ -11,13 +11,26 @@
  *            increasing order until the n‑th such number is found
  * Range:     u8 n <= 5, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   has_substring_64
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/has_substring_64.h"
+
+static inline bool has_substring_64(seq_t x)
+{
+    int prev = -1;                /* previous (less significant) digit */
+    while (x > 0) {
+        int d = (int)(x % 7);     /* current least significant digit */
+        if (prev == 4 && d == 6)  /* pattern 6 followed by 4 in most‑significant order */
+            return true;
+        prev = d;
+        x /= 7;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

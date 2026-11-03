@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 56, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /*  static state holding already computed terms  */
 static seq_t *terms = NULL;
@@ -62,7 +64,7 @@ compute_until(size_t target_n)
                 /*  Append k to the new list  */
                 if (new_len == new_cap) {
                     size_t new_cap_val = (new_cap == 0) ? 16U : new_cap * 2U;
-                    seq_t *tmp = (seq_t *)realloc(new_terms, new_cap_val * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, new_terms, new_cap_val);
                     if (!tmp) abort();
                     new_terms = tmp;
                     new_cap   = new_cap_val;
@@ -74,7 +76,7 @@ compute_until(size_t target_n)
         /*  Release old storage and adopt the new list  */
         free(sigma);
         free(tau);
-        free(terms);
+        mem_free(terms);
         terms = new_terms;
         terms_len = new_len;
         current_limit = limit;

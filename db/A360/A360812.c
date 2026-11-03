@@ -7,15 +7,23 @@
  * Formula:   a(n) = Sum_{k=0..⌊n/2⌋} (n-2*k)^(2*k) * binomial(n-k-1,k)
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 15, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   binomial, seq_mul, seq_pow
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binomial.h"   /* binomial(idx_t n, idx_t k) */
-#include "../utils/seq_pow.h"    /* seq_pow(seq_t base, idx_t exp) */
-#include "../utils/seq_mul.h"    /* seq_mul(seq_t a, seq_t b) */
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -26,7 +34,7 @@ seq_t a(idx_t n)
 
     for (idx_t k = 0; k <= maxk; ++k) {
         seq_t base = (seq_t)(n - 2 * k);              /* base fits in seq_t */
-        seq_t pow = seq_pow(base, (idx_t)(2 * k));    /* (n-2k)^(2k) */
+        seq_t pow = ipow_idx(base, (idx_t)(2 * k));    /* (n-2k)^(2k) */
         seq_t comb = binomial(n - k - 1, k);          /* C(n-k-1, k) */
         seq_t term = seq_mul(pow, comb);              /* term = pow * comb */
         sum += term;

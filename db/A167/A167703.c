@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 189, u16 n <= 534, u32 n <= 534, u64 n <= 534,
  *            u128 n <= 534, big any n
- * Helpers:   none
+ * Validated: full, pass, 534 terms through n = 534 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *table = NULL;
 static idx_t table_size = 0;
@@ -51,7 +53,7 @@ static void init_sequence(void)
     }
 
     /* collect all numbers that are NOT representable, starting from 2 */
-    seq_t *tmp = (seq_t *)malloc((MAXM + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, (MAXM + 1));
     idx_t cnt = 0;
     for (idx_t m = 2; m <= MAXM; ++m) {
         if (!rep[m]) {
@@ -60,14 +62,14 @@ static void init_sequence(void)
     }
 
     /* allocate final static table */
-    table = (seq_t *)malloc((cnt + 1) * sizeof(seq_t));
+    table = mem_new(seq_t, (cnt + 1));
     table[0] = 0;                 /* unused, keep 0 for safety */
     for (idx_t i = 0; i < cnt; ++i)
         table[i + 1] = tmp[i];
 
     table_size = cnt;
 
-    free(tmp);
+    mem_free(tmp);
     free(rep);
 }
 

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 25, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    11,2,4,11,4,2,22,2,4,11,4,2,22,… and satisfy
    p[n] = a[n] * p[n-1] + p[n-2]  (p[−1] = 1, p[0] = 11).  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
 
     /* initialise on first call */
     if (!p) {
-        p = (seq_t *)malloc(sizeof(seq_t));
+        p = mem_new(seq_t, 1);
         if (!p) return (seq_t)0;     /* out of memory, unlikely */
         p[0] = a0;                   /* a(0) = 11 */
         len = 1;
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
         else                    /* p[i] = a_i * p[i-1] + p[i-2] */
             val = (seq_t)a_next * p[i-1] + p[i-2];
 
-        seq_t *tmp = (seq_t *)realloc(p, (i + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, p, (i + 1));
         if (!tmp) return (seq_t)0;  /* out of memory */
         p = tmp;
         p[i] = val;

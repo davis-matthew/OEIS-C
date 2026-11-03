@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 23, i16 n <= 59, i32 n <= 129, i64 n <= 342,
  *            i128 n <= 934, big any n
- * Helpers:   binom, seq_pow_int
+ * Validated: standard, pass, 82 terms through n = 9171 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,8 @@
  */
 
 #include <stdint.h>            /* for uint64_t, etc. */
-#include "../utils/binom.h"    /* declares binom(idx_t a, idx_t b) */
-#include "../utils/seq_pow_int.h"
+#include "../utils/binomial.h"
+#include "../utils/ipow_idx.h"
 
  
 
@@ -41,8 +42,8 @@ static seq_t compute_T(idx_t n, idx_t k)
         if (j > 0)
             pow_term *= base;    /* incrementally compute (k-1)^j */
 
-        seq_t bin1 = binom(n + 1, j);       /* C(n+1,j)   */
-        seq_t bin2 = binom(n + 1, j + 1);   /* C(n+1,j+1) */
+        seq_t bin1 = binomial(n + 1, j);       /* C(n+1,j)   */
+        seq_t bin2 = binomial(n + 1, j + 1);   /* C(n+1,j+1) */
 
         sum += pow_term * bin1 * bin2;
     }

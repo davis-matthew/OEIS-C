@@ -8,6 +8,7 @@
  * Formula:   a(n) = 4 * prime(n) for n >= 2, a(1) = 4 (the first term)
  * Range:     u8 n <= 18, u16 n <= 1900, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 69 terms through n = 9696 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

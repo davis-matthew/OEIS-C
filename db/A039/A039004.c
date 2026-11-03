@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 70, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   fair
+ * Validated: standard, pass, 75 terms through n = 9315 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,20 @@
  * and returns the n‑th such number (1‑based index). */
 
 #include <stdbool.h>
-#include "../utils/fair.h"
+
+/* Return true if x has equal counts of digits '1' and '2' in base 4. */
+static inline bool fair(seq_t x)
+{
+    seq_t cnt1 = 0, cnt2 = 0;
+    while (x)
+    {
+        seq_t d = x % 4;
+        if (d == 1) ++cnt1;
+        else if (d == 2) ++cnt2;
+        x /= 4;
+    }
+    return cnt1 == cnt2;
+}
 
 /* a(n) – 1‑based index of the nth number with equal numbers of 1’s
  * and 2’s in its base‑4 representation. */

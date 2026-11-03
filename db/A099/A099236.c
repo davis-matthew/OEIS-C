@@ -7,12 +7,14 @@
  * Formula:   a(n) = sum_{j=0..n} sum_{k=0..n-j} binomial(j*(n-j-k), k)
  * Range:     u8 n <= 8, u16 n <= 13, u32 n <= 21, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
         idx_t kmax = numer / denom;      /* inclusive upper limit on k */
         idx_t m = numer;                 /* m = j*t   (i.e., j*(t-0)) */
         for (idx_t k = 0; k <= kmax; ++k) {
-            res += binom(m, k);          /* binomial(j*(t-k), k) */
+            res += binomial(m, k);          /* binomial(j*(t-k), k) */
             m -= j;                      /* decrement m for next k */
         }
     }

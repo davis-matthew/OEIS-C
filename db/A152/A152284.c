@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
  */
 
 #include <stdlib.h>  /* malloc, free, calloc */
+#include "../utils/mem.h"
 
 /* The types seq_t and idx_t are supplied by the build environment. */
 
@@ -39,12 +41,12 @@ seq_t a(idx_t n)
     /* Allocate arrays for the current polynomial, a temporary array
        and for prefix sums.  All arrays have size n+1. */
     size_t size = (size_t)n + 1;
-    seq_t *poly = (seq_t *)calloc(size, sizeof(seq_t));
+    seq_t *poly = mem_new(seq_t, size);
     if (!poly) return (seq_t)0;
-    seq_t *new_poly = (seq_t *)calloc(size, sizeof(seq_t));
-    if (!new_poly) { free(poly); return (seq_t)0; }
-    seq_t *pref   = (seq_t *)calloc(size, sizeof(seq_t));
-    if (!pref)    { free(poly); free(new_poly); return (seq_t)0; }
+    seq_t *new_poly = mem_new(seq_t, size);
+    if (!new_poly) { mem_free(poly); return (seq_t)0; }
+    seq_t *pref   = mem_new(seq_t, size);
+    if (!pref)    { mem_free(poly); mem_free(new_poly); return (seq_t)0; }
 
     /* initialise polynomial to the empty product: P_0(x) = 1 */
     poly[0] = (seq_t)1;
@@ -90,9 +92,9 @@ seq_t a(idx_t n)
     }
 
     /* Clean up temporary storage. */
-    free(poly);
-    free(new_poly);
-    free(pref);
+    mem_free(poly);
+    mem_free(new_poly);
+    mem_free(pref);
 
     return acc;
 }

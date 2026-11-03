@@ -10,7 +10,8 @@
  *            computed by keeping a forward demand table of required digits
  * Range:     u8 n <= 25, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   ensure_capacity
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,42 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/ensure_capacity.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* Grow a dynamic array when needed.  The pointer is passed as OEISC_VPP(.) */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    T *tmp = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#else
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#endif
 
 static seq_t      *a_vals   = NULL;   /* array of computed values            */
 static size_t     a_cap    = 0;       /* capacity of a_vals                  */
@@ -56,7 +92,7 @@ seq_t a(idx_t n)
 
     /* Grow a_vals so it can hold target terms */
     if (a_cap < target) {
-        ensure_capacity(target, &a_cap, (void **)&a_vals, sizeof(seq_t));
+        ensure_capacity(target, &a_cap, OEISC_VPP(&a_vals), sizeof(seq_t));
     }
 
     /* Lazy initialization of first term and its demand */
@@ -66,7 +102,7 @@ seq_t a(idx_t n)
 
         /* a(1) ends with digit 1 → constraint on a(3) (index 2) */
         if (dem_cap < 3u) {
-            ensure_capacity(3u, &dem_cap, (void **)&dem_mask, sizeof(uint16_t));
+            ensure_capacity(3u, &dem_cap, OEISC_VPP(&dem_mask), sizeof(uint16_t));
             for (size_t i = 0; i < dem_cap; ++i)
                 dem_mask[i] = 0;
         }
@@ -94,7 +130,7 @@ seq_t a(idx_t n)
 
         if (dem_cap <= future_idx) {
             size_t new_cap = future_idx + 20u;
-            ensure_capacity(new_cap, &dem_cap, (void **)&dem_mask,
+            ensure_capacity(new_cap, &dem_cap, OEISC_VPP(&dem_mask),
                             sizeof(uint16_t));
             for (size_t i = dem_len; i < dem_cap; ++i)
                 dem_mask[i] = 0;

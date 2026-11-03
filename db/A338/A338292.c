@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 103 terms through n = 9904 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 typedef struct {
     idx_t start;      /* 1‑based start index of the tuple */
@@ -42,7 +44,7 @@ static void ensure_a_cap(size_t needed)
     if (needed <= a_cap) return;
     size_t new_cap = a_cap ? a_cap * 2 : 16;
     while (new_cap < needed) new_cap *= 2;
-    a_arr = (seq_t *)realloc(a_arr, new_cap * sizeof(seq_t));
+    a_arr = mem_resize(seq_t, a_arr, new_cap);
     a_cap = new_cap;
 }
 

@@ -9,7 +9,8 @@
  *            primes are required
  * Range:     u8 n <= 2, u16 n <= 11, u32 n <= 267, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_primes, mod_pow
+ * Validated: standard, pass, 52 terms through n = 967 (2026-11-01)
+ * Helpers:   build_primes, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,10 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include <string.h>
+#include <stdbool.h>
 #include "../utils/build_primes.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
 
 static idx_t *prime_list = NULL;   /* array of primes up to prime_limit */
 static size_t prime_cnt   = 0;      /* number of primes in prime_list */
@@ -62,5 +65,5 @@ seq_t a(idx_t n)
     /* exponent = 2p - 2 */
     idx_t exp = 2ULL * (idx_t)p - 2ULL;
 
-    return mod_pow((seq_t)2, exp, mod);
+    return powmod((seq_t)2, exp, mod);
 }

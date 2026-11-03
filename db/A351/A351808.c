@@ -11,7 +11,8 @@
  *            (A007954)
  * Range:     u8 n <= 10, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   digit_product
+ * Validated: partial, pass, 73 terms through n = 73 (2026-11-03)
+ * Helpers:   digit_product, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include <stdbool.h>
 #include "../utils/digit_product.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -45,7 +48,7 @@ seq_t a(idx_t n)
                 if (sz == cap)            /* grow array when needed   */
                 {
                     size_t new_cap = (cap == 0) ? 16 : cap * 2;
-                    seq_t *tmp = (seq_t*)realloc(ratios, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, ratios, new_cap);
                     if (!tmp)
                         abort();           /* allocation failed       */
                     ratios = tmp;

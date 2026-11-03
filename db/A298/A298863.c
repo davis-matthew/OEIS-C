@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 183, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 975 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>   /* uint64_t */
 #include <stdlib.h>   /* malloc, calloc, realloc, free, abort */
 #include <math.h>     /* log */
+#include "../utils/mem.h"
 
 static uint8_t  *sieve     = NULL;   /* 0: composite, 1: potential prime   */
 static size_t    sieve_size = 0;     /* number of entries in sieve         */
@@ -50,7 +52,7 @@ static void build_sieve(size_t limit)
 {
     free(sieve);
     free(primes);
-    free(pi_arr);
+    mem_free(pi_arr);
 
     sieve = (uint8_t*)malloc((limit + 1) * sizeof(uint8_t));
     if (!sieve) abort();
@@ -75,7 +77,7 @@ static void build_sieve(size_t limit)
 
     /* pi array */
     pi_cap = limit + 1;
-    pi_arr = (seq_t*)malloc(pi_cap * sizeof(seq_t));
+    pi_arr = mem_new(seq_t, pi_cap);
     if (!pi_arr) abort();
 
     seq_t cnt = 0;

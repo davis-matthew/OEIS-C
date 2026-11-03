@@ -7,12 +7,15 @@
  * Formula:   a(1)=1, a(2)=2; for n>2, a(n)=3*2^floor_log2(n-1)-(n-1)
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   floor_log2_uint64
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/ilog2.h"
 
 seq_t a(idx_t n)
 {
@@ -20,7 +23,7 @@ seq_t a(idx_t n)
     if (n == 2) return (seq_t)2;
 
     idx_t y = n - 1;
-    idx_t h = floor_log2_uint64(y);     /* ⌊log₂(n‑1)⌋ */
+    idx_t h = ilog2(y);     /* ⌊log₂(n‑1)⌋ */
     idx_t p = (idx_t)1 << h;            /* 2^h */
     idx_t pow2 = p << 1;                /* 2^(h+1) */
     idx_t diff = y - p;                 /* (n‑1) – 2^h */

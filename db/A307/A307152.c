@@ -8,13 +8,15 @@
  *            n‑th prime congruent to 1 (mod 4)
  * Range:     u8 n <= 24, u16 n <= 4222, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 9172 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Prime storage for all primes found so far. */
 static seq_t *primes = NULL;      /* array of all primes */
@@ -34,7 +36,7 @@ static void ensure_primes_cap(size_t need) {
     if (need > primes_cap) {
         size_t new_cap = primes_cap ? primes_cap * 2 : 64;
         while (new_cap < need) new_cap *= 2;
-        seq_t *tmp = (seq_t*)realloc(primes, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, primes, new_cap);
         if (!tmp && new_cap) abort();
         primes = tmp;
         primes_cap = new_cap;
@@ -46,7 +48,7 @@ static void ensure_primes1_cap(size_t need) {
     if (need > primes1_cap) {
         size_t new_cap = primes1_cap ? primes1_cap * 2 : 64;
         while (new_cap < need) new_cap *= 2;
-        seq_t *tmp = (seq_t*)realloc(primes1, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, primes1, new_cap);
         if (!tmp && new_cap) abort();
         primes1 = tmp;
         primes1_cap = new_cap;
@@ -58,14 +60,14 @@ static void generate_primes_until(size_t target) {
     /* First call: initialise prime tables. */
     if (primes == NULL) {
         primes_cap = 64;
-        primes = (seq_t*)malloc(primes_cap * sizeof(seq_t));
+        primes = mem_new(seq_t, primes_cap);
         if (!primes) abort();
         primes[0] = (seq_t)2;
         primes[1] = (seq_t)3;
         primes_cnt = 2;
 
         primes1_cap = 64;
-        primes1 = (seq_t*)malloc(primes1_cap * sizeof(seq_t));
+        primes1 = mem_new(seq_t, primes1_cap);
         if (!primes1) abort();
         primes1_cnt = 0;
     }

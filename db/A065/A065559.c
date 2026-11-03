@@ -8,13 +8,14 @@
  *            count)
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   tau64
+ * Validated: standard, pass, 115 terms through n = 944 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/tau64.h"
+#include "../utils/num_divisors.h"
 
 /* --------------------------------------------------------------------
    Main sequence function.
@@ -30,7 +31,7 @@ seq_t a(idx_t n)
     for (;; ++k)
     {
         idx_t nk = n + k;
-        if (tau64(nk) == tau64(k))
+        if (num_divisors(nk) == num_divisors(k))
             return (seq_t)k;
     }
 }

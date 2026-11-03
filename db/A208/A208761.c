@@ -12,15 +12,31 @@
  *            (for n ≥ 3, 1 ≤ k ≤ n). * * The sequence a(n) li...
  * Range:     u8 n <= 24, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   alloc_seq_row, free_seq_row
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/alloc_seq_row.h"
-#include "../utils/free_seq_row.h"
+
+/* Cross‑language allocator for a row of seq_t values. */
+static inline seq_t *alloc_seq_row(idx_t len) {
+#ifdef __cplusplus
+    return new seq_t[len];
+#else
+    return (seq_t *)malloc((size_t)len * sizeof(seq_t));
+#endif
+}
+
+static inline void free_seq_row(seq_t *p) {
+#ifdef __cplusplus
+    delete[] p;
+#else
+    free(p);
+#endif
+}
 
 /* The cached triangle data. */
 static idx_t          g_maxrow   = 0;   /* largest computed row index (≥0) */

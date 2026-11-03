@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 18,
  *            big any n
- * Helpers:   binomial, seq_pow
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   binomial, ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,10 @@
    Formula: a(n) = n! * Sum_{k=0..n} (k+1)^(k-1) * binomial(2*k+1, n-k) / k!   */
 
 #include <stdlib.h>
-#include "../utils/binomial.h"   /* binomial(idx_t n, idx_t k) */
-#include "../utils/seq_pow.h"    /* seq_pow(seq_t base, idx_t exp) */
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,20 +35,20 @@ seq_t a(idx_t n)
     /*------------------ increase cache size if needed ----------------------*/
     if (n >= cache_len) {
         idx_t new_cap = n + 1;
-        cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         if (!cache) abort();             /* allocation failed */
 
         /* extend Kpow array */
         if (Kpow_len <= n) {
             idx_t old_len = Kpow_len;
             idx_t new_K_cap = n + 1;
-            Kpow = (seq_t*)realloc(Kpow, new_K_cap * sizeof(seq_t));
+            Kpow = mem_resize(seq_t, Kpow, new_K_cap);
             if (!Kpow) abort();          /* allocation failed */
             for (idx_t k = old_len; k <= n; ++k) {
                 if (k == 0)
                     Kpow[0] = (seq_t)1;
                 else
-                    Kpow[k] = seq_pow((seq_t)(k + 1), (idx_t)(k - 1));
+                    Kpow[k] = ipow_idx((seq_t)(k + 1), (idx_t)(k - 1));
             }
             Kpow_len = new_K_cap;
         }

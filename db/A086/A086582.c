@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 49, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 70 terms through n = 69 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
         a[m + i] = Σ_{j=0}^{i} a[j] * a[i – j]   for 0 ≤ i < m. */
 
 #include <stdlib.h>   /* malloc, realloc, abort */
+#include "../utils/mem.h"
 
 /* Static memoisation cache.  The build system supplies the
    integer types:  seq_t  (value type) and  idx_t  (unsigned index). */
@@ -41,7 +43,7 @@ static void ensure_cap(idx_t needed)
         new_cap <<= 1;
 
     /* C++ requires a cast from void* to the desired pointer type. */
-    seq_t *new_buf = (seq_t*)realloc(cache, (size_t)new_cap * sizeof(seq_t));
+    seq_t *new_buf = mem_resize(seq_t, cache, (size_t)new_cap);
     if (!new_buf) {
         /* Allocation failed – terminate the program. */
         abort();

@@ -7,12 +7,14 @@
  * Formula:   a(n) = 4^(n-1) - (n+1)*2^(n-2) for n >= 2, a(0)=0, a(1)=0
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 33, u128 n <= 65,
  *            big any n
+ * Validated: standard, pass, 41 terms through n = 904 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   build_primes_upto, factor_u64, partitions_of_block
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-03)
+ * Helpers:   build_primes_upto, factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,9 +28,59 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/factor_u64.h"
+#include <stdlib.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/partitions_of_block.h"
+#include "../utils/factor_u64.h"
+#include "../utils/mem.h"
+
+/* Block DP: compute number of partitions of a block of consecutive
+   indices with counts 'cnt[0..len-1]'.  The result is the number of
+   ways to use all copies, expressed as a seq_t. */
+static seq_t partitions_of_block(const unsigned int *cnt, int len)
+{
+    /* maximum total number of copies in this block */
+    int max_copies = 0;
+    for (int i = 0; i < len; i++)
+        max_copies += cnt[i];
+
+    /* dp_prev and dp_next hold counts for the number of open
+       intervals after processing each index.  The number of open
+       intervals never exceeds max_copies. */
+    seq_t dp_prev[max_copies + 1];
+    seq_t dp_next[max_copies + 1];
+    mem_set(dp_prev, 0, sizeof(dp_prev));
+    dp_prev[0] = (seq_t)1;
+    int current_max = 0;              /* maximum open intervals seen so far */
+
+    for (int idx = 0; idx < len; idx++) {
+        int ci = cnt[idx];
+        int new_max = current_max + ci;   /* max possible after this index */
+        mem_set(dp_next, 0, sizeof(seq_t) * (new_max + 1));
+
+        for (int kPrev = 0; kPrev <= current_max; kPrev++) {
+            seq_t ways = dp_prev[kPrev];
+            if (ways == 0) continue;
+            int new_j = ci - kPrev;          /* new intervals started at this index */
+            if (new_j < 0) continue;         /* cannot use all copies with current open intervals */
+
+            /* After this index we may have from 0 up to kPrev + new_j
+               open intervals, depending on how many of the old and
+               new intervals continue.  Since intervals are
+               indistinguishable, every choice of the number of
+               continuing intervals is a single possibility. */
+            int max_t_next = kPrev + new_j;
+            for (int tNext = 0; tNext <= max_t_next; tNext++) {
+                dp_next[tNext] += ways;
+            }
+        }
+        current_max = new_max;
+        /* Copy dp_next to dp_prev for next iteration */
+        for (int i = 0; i <= current_max; i++)
+            dp_prev[i] = dp_next[i];
+    }
+    /* All intervals must be closed after the last index */
+    return dp_prev[0];
+}
 
 seq_t a(idx_t n)
 {

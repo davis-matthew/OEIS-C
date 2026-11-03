@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 34, u32 n <= 103, u64 n <= 375,
  *            u128 n <= 1323, big any n
- * Helpers:   pow5_u
+ * Validated: standard, pass, 67 terms through n = 9660 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,16 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/pow5_u.h"
+#include "../utils/mem.h"
+
+/*  Helper: compute 5^exp                     */
+static seq_t pow5_u(idx_t exp)
+{
+    seq_t r = (seq_t)1;
+    for (idx_t i = 0; i < exp; ++i)
+        r = r * (seq_t)5;
+    return r;
+}
 
 /* ------------------------------------------------------------------ */
 
@@ -68,7 +78,7 @@ seq_t a(idx_t n)
     /* initialise storage if first call */
     if (tri == NULL) {
         tri_sz = 1;
-        tri = (seq_t*)malloc(tri_sz * sizeof(seq_t));
+        tri = mem_new(seq_t, tri_sz);
         if (tri == NULL) abort();
         tri[0] = (seq_t)0;       /* T(0,0) = 0 */
         cur_row = 0;
@@ -82,7 +92,7 @@ seq_t a(idx_t n)
 
             if (needed_sz > tri_sz) {
                 tri_sz = needed_sz;
-                seq_t *tmp = (seq_t*)realloc(tri, tri_sz * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, tri, tri_sz);
                 if (tmp == NULL) abort();
                 tri = tmp;
             }

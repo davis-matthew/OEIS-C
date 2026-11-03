@@ -7,12 +7,14 @@
  * Formula:   a(n) = 4*a(n-1) - 4, a(0) = 3
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 31, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 989 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +24,7 @@ seq_t a(idx_t n)
 
     /* Initialise for the first call. */
     if (cache_len == 0) {
-        cache = (seq_t*)malloc(sizeof(seq_t));  /* space for a(0) */
+        cache = mem_new(seq_t, 1);  /* space for a(0) */
         cache[0] = (seq_t)3;                   /* a(0) = 3       */
         cache_len = 1;
     }
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* Extend the cache up to n if necessary. */
     if (cache_len <= n) {
         idx_t old_len = cache_len;
-        cache = (seq_t*)realloc(cache, (n + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (n + 1));
         for (idx_t i = old_len; i <= n; ++i) {
             cache[i] = cache[i - 1] * (seq_t)4 - (seq_t)4;
         }

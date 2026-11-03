@@ -10,13 +10,15 @@
  *            a(5)=112828, a(6)=1159416, a(7)=11869768, a(8)=121668290
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 982 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;       /* cache of computed values   */
 static size_t memo_cap = 0;      /* allocated elements         */
@@ -32,7 +34,7 @@ static void ensure_memo_size(size_t n)
     size_t new_cap = memo_cap ? memo_cap : 1;
     while (new_cap <= need) new_cap <<= 1;   /* grow to the next power of two */
 
-    seq_t *tmp = (seq_t *)realloc(memo, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, memo, new_cap);
     memo = tmp;
     memo_cap = new_cap;
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 8, u32 n <= 26, u64 n <= 63, u128 n <= 137,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
    produced exactly once. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t a_initial[15] = {                           /* 1‑based */
     0,      /* unused index 0 */
@@ -56,7 +58,7 @@ static void a_init_cache(void)
     if (a_cache != NULL) return;                 /* already initialised */
 
     const size_t cap = 15;                       /* indices 0..14 */
-    a_cache = (seq_t*)malloc(cap * sizeof(seq_t));
+    a_cache = mem_new(seq_t, cap);
     if (!a_cache) exit(1);
     for (size_t i = 0; i < cap; ++i) a_cache[i] = 0;
 
@@ -70,7 +72,7 @@ static void a_grow_cache(idx_t new_cap)
     if (a_cache_max >= new_cap) return;          /* already sufficient */
 
     size_t cap = (size_t)new_cap + 1;            /* include index 0 */
-    seq_t *tmp = (seq_t*)realloc(a_cache, cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, cap);
     if (!tmp) exit(1);
     a_cache = tmp;
     /* initialise newly allocated slots to 0 */

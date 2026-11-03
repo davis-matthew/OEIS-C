@@ -9,7 +9,8 @@
  *            returns 0 for simplicity
  * Range:     u8 n <= 61, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 65 terms through n = 70 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     }
 
     /* Clear DP table */
-    memset(dp, 0, 7 * cap_needed * sizeof(seq_t));
+    mem_set(dp, 0, 7 * cap_needed * sizeof(seq_t));
     /* Base: dp[0][0] = 1 */
     dp[0] = 1;
 

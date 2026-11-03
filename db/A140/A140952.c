@@ -9,12 +9,14 @@
  *            1/((1‑x²)(1‑x³)(1‑x⁵)(1‑x⁷)(1‑x¹¹))
  * Range:     u8 n <= 47, u16 n <= 231, u32 n <= 3914, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 9556 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* DP array keeps the partition counts up to the largest index seen so far. */
 static seq_t *dp   = NULL;         /* dp[i] = a(i) for i < dp_size */
@@ -33,7 +35,7 @@ static void ensure_size(idx_t n)
     if (dp_size >= new_size) return;      /* already large enough */
 
     /* Allocate (or grow) the array. */
-    seq_t *tmp = (seq_t *)realloc(dp, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, dp, new_size);
     if (!tmp) exit(1);
     dp = tmp;
 

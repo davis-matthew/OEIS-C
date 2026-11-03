@@ -9,6 +9,7 @@
  *            sin(k+2) > sin(k+3) < sin(k+4)
  * Range:     u8 n <= 41, u16 n <= 987, u32 n <= 987, u64 n <= 987,
  *            u128 n <= 987, big any n
+ * Validated: standard, pass, 71 terms through n = 914 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 37, u32 n <= 110, u64 n <= 373,
  *            u128 n <= 1351, big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 8234 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
  *  without order.
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*  seq_t and idx_t are supplied by the build system (unsigned integer types or
  *  arbitrary‑precision integer class).  No prototypes for these types are
@@ -84,7 +86,7 @@ static void init_seq(idx_t n_needed)
     def_max = limit;
 
     /* Allocate dp array and compute partitions using all deficient numbers as coins */
-    dp = (seq_t *)calloc((size_t)(limit + 1), sizeof(seq_t));
+    dp = mem_new(seq_t, (size_t)(limit + 1));
     if (!dp) {
         free(def_nums);
         def_nums = NULL;

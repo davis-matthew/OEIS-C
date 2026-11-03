@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 88, u16 n <= 9999, u32 n <= 9999, u64 n <= 9999,
  *            u128 n <= 9999, big any n
- * Helpers:   is_palindrome
+ * Validated: standard, pass, 105 terms through n = 9738 (2026-11-01)
+ * Helpers:   is_palindrome_base
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
  */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_palindrome.h"
+#include "../utils/is_palindrome_base.h"
 
 static const seq_t ONE = (seq_t)1;
 
@@ -54,7 +55,7 @@ seq_t a(idx_t n)
     seq_t seq_n = (seq_t)n;
 
     /* u = 0 is always a palindrome (binary "0") */
-    if (is_palindrome(seq_n, 2))
+    if (is_palindrome_base(seq_n, 2))
         ++count;
     if (n == 0)
         return count;
@@ -83,7 +84,7 @@ seq_t a(idx_t n)
             if (u > seq_n)
                 break;
             seq_t diff = seq_n - u;
-            if (is_palindrome(diff, 2))
+            if (is_palindrome_base(diff, 2))
                 ++count;
         }
     }

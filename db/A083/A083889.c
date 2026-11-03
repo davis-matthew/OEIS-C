@@ -8,13 +8,30 @@
  *            largest digit equal to 2
  * Range:     u8 n <= 9123, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   largest_digit_is_two
+ * Validated: standard, pass, 121 terms through n = 9795 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/largest_digit_is_two.h"
+
+/* Helper: return true iff the largest decimal digit of x equals 2. */
+static inline bool largest_digit_is_two(seq_t x)
+{
+    if (x == 0) return false;          /* 0 is not a divisor of any n>=1 */
+    seq_t tmp = x;
+    int maxd = 0;
+    while (tmp != 0) {
+        int d = (int)(tmp % 10);       /* decimal digit 0-9 */
+        if (d > maxd) {
+            maxd = d;
+            if (maxd > 2) return false;/* early exit if a larger digit appears */
+        }
+        tmp /= 10;
+    }
+    return maxd == 2;
+}
 
 /* Main sequence function.  External linkage. */
 seq_t a(idx_t n)

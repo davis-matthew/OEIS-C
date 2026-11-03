@@ -6,8 +6,9 @@
  * Offset:    2    (a(2) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 49, u16 n <= 9784, u32 n <= 9784, u64 n <= 9784,
- *            u128 n <= 9784, big any n
+ * Range:     u8 n <= 49, u16 n <= 23002, u32 n <= 23002, u64 n <= 23002,
+ *            u128 n <= 23002, big any n
+ * Validated: standard, pass, 85 terms through n = 9784 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,7 +21,8 @@
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/gcd.h"           /* gcd(seq_t, seq_t) */
+#include <stdint.h>
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {

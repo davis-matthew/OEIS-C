@@ -9,13 +9,16 @@
  *            row‑wise: a(0)=T(0,0), a(1)=T(1,0), a(2)=T(1,1), a(3)=T(2,0),
  * Range:     u8 n <= 6, u16 n <= 16, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   binomial, pow_uint
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-01)
+ * Helpers:   binomial, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 /* Compute the nth term of OEIS A038253 */
 seq_t a(idx_t n)
@@ -41,7 +44,7 @@ seq_t a(idx_t n)
 
     /* Triangle entry T(i,j) = binomial(i,j) * 5^(i-j) * 11^j */
     seq_t val = binomial(i, j);
-    val *= pow_uint(5ULL, i - j);
-    val *= pow_uint(11ULL, j);
+    val *= ipow_u64_idx(5ULL, i - j);
+    val *= ipow_u64_idx(11ULL, j);
     return val;
 }

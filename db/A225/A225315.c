@@ -16,13 +16,44 @@
  *            +a(n-21)+a(n-23)+2a(n-24)+a(n-25)...
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 32, u64 n <= 210, u128 n <= 210,
  *            big any n
- * Helpers:   compute_base
+ * Validated: standard, pass, 42 terms through n = 163 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/compute_base.h"
+#include "../utils/mem.h"
+
+/* DP base case computation: a(k) for 1 ≤ k ≤ 36. */
+static void compute_base(seq_t *cache)
+{
+    static seq_t dp[649], next[649];   /* maximum sum = 18*36 = 648 */
+    for (idx_t k = 1; k <= 36; ++k) {
+        int max_sum = (int)(18 * k);
+        /* initialise dp */
+        for (int s = 0; s <= max_sum; ++s) dp[s] = 0;
+        dp[0] = 1;
+        /* iterate rows i = 1..8 */
+        for (int i = 1; i <= 8; ++i) {
+            int weight = i;
+            /* zero next */
+            for (int s = 0; s <= max_sum; ++s) next[s] = 0;
+            /* try all t_i in [0, k] */
+            for (int t = 0; t <= (int)k; ++t) {
+                int shift = weight * t;
+                int limit = max_sum - shift;
+                for (int s = 0; s <= limit; ++s) {
+                    if (dp[s] != 0)
+                        next[s + shift] += dp[s];
+                }
+            }
+            /* swap dp and next */
+            for (int s = 0; s <= max_sum; ++s) dp[s] = next[s];
+        }
+        cache[k - 1] = dp[max_sum];   /* sum = 18*k */
+    }
+}
 
 static const size_t shifts[] = {
     1, 2, 5, 7, 9, 11, 12, 13, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25,
@@ -45,7 +76,7 @@ seq_t a(idx_t n)
     /* Initialise cache if first call. */
     if (cache == NULL) {
         capacity = 36;                 /* at least up to 36 for recurrence */
-        cache = (seq_t *)malloc(capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, capacity);
         compute_base(cache);           /* fill a(1) … a(36) */
         cached_n = 36;
     }
@@ -54,7 +85,7 @@ seq_t a(idx_t n)
     if (n > capacity) {
         size_t new_cap = capacity * 2;
         if (new_cap < (size_t)n) new_cap = (size_t)n;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         capacity = new_cap;
     }
 

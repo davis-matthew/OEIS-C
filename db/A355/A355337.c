@@ -8,12 +8,14 @@
  *            binomial(n-1,k-1)*a(n-k)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 23, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 523 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache   = NULL;   /* cache of computed a(n) values   */
 static size_t a_cap    = 0;        /* allocated capacity of a_cache  */
@@ -31,7 +33,7 @@ static void ensure_binom(int k)
 
     if (binom == NULL) {
         size_t cap = 4;
-        binom = (seq_t *)malloc(cap * sizeof(seq_t));
+        binom = mem_new(seq_t, cap);
         binom_cap = cap;
         binom[0] = 1;          /* C(0,0) */
         binom_k = 0;
@@ -42,12 +44,14 @@ static void ensure_binom(int k)
         if ((size_t)cur >= binom_cap) {
             size_t new_cap = binom_cap * 2;
             while (new_cap <= (size_t)cur + 1) new_cap *= 2;
-            seq_t *tmp = (seq_t *)realloc(binom, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, binom, new_cap);
             binom = tmp;
             binom_cap = new_cap;
         }
 
-        /* Update to next row of Pascal triangle */
+        /* Update to next row of Pascal triangle (binom[cur] was read
+           before it was set: zero in C++, whatever realloc left in C) */
+        binom[cur] = 0;
         for (int j = cur; j >= 1; --j) {
             binom[j] = binom[j] + binom[j - 1];
         }
@@ -62,7 +66,7 @@ seq_t a(idx_t n)
     if (a_cap <= n) {
         size_t new_cap = (a_cap == 0 ? 4 : a_cap * 2);
         while (new_cap <= n) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
         a_cache = tmp;
         a_cap = new_cap;
     }
@@ -93,6 +97,6 @@ seq_t a(idx_t n)
         a_cache[i] = term + sum;
     }
 
-    a_size = n + 1;
+    if (n + 1 > a_size) a_size = n + 1;
     return a_cache[n];
 }

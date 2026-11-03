@@ -8,7 +8,8 @@
  *            (n+2)-th and n-th 3‑almost primes)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 8725 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *three_almost = NULL;
 static size_t three_len = 0;
@@ -52,7 +54,7 @@ static void build_up_to(idx_t need) {
             omega[i] = 1 + omega[i / spf[i]];
 
         /* collect numbers with exactly 3 prime factors (with multiplicity) */
-        seq_t *tmp = (seq_t *)malloc((limit + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, (limit + 1));
         size_t tmp_len = 0;
         for (size_t i = 2; i <= limit; ++i)
             if (omega[i] == 3)
@@ -62,13 +64,13 @@ static void build_up_to(idx_t need) {
         free(omega);
 
         if (tmp_len >= (size_t)need + 2) {
-            if (three_almost) free(three_almost);
+            if (three_almost) mem_free(three_almost);
             three_almost = tmp;
             three_len = tmp_len;
             current_limit = limit;
             break;                          /* sufficient data obtained */
         } else {
-            free(tmp);
+            mem_free(tmp);
             limit *= 2;                      /* increase limit and try again */
         }
     }

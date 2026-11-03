@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 959 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Detect whether a number contains "05" or "50" as adjacent base‑8 digits. */
 static bool has05(seq_t v)
@@ -57,7 +59,7 @@ static void ensure_cache(size_t new_cap)
     if (new_cap <= cache_cap) return;
     size_t grow = cache_cap ? cache_cap * 2 : 16;
     while (grow < new_cap) grow <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, grow * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, grow);
     cache = tmp;
     cache_cap = grow;
 }

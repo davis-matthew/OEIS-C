@@ -7,9 +7,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 9, u16 n <= 18, u32 n <= 33, u64 n <= 33, u128 n <= 33,
+ * Range:     u8 n <= 9, u16 n <= 18, u32 n <= 34, u64 n <= 66, u128 n <= 131,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 3127 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,12 +24,23 @@
  *  Binomial coefficients are updated iteratively:
  *      b_{k+1} = b_k * (n-2k)*(n-2k-1) / ((n-k)*(k+1))
  *  All arithmetic is performed in the unlimited-precision type
- *  seq_t.  For safety we use unsigned __int128 for intermediate
+ *  seq_t.  For safety we use wide_u for intermediate
  *  multiplications to avoid overflow for the 64‑bit build.
  */
 
 #include <stdlib.h>   /* malloc, realloc */
 #include <stdint.h>   /* uint64_t, etc. */
+#include "../utils/mem.h"
+
+/* intermediate type: 128 bits at the fixed widths, seq_t for big (where
+   __int128 would truncate) */
+#ifdef __cplusplus
+typedef seq_t wide_u;
+typedef seq_t wide_s;
+#else
+typedef unsigned __int128 wide_u;
+typedef __int128 wide_s;
+#endif
 
 static seq_t *a_vals = NULL;   /* memoised values of the sequence  */
 static idx_t a_size = 0;       /* number of stored values (>= a_size-1) */
@@ -41,7 +53,7 @@ static void compute_up_to(idx_t n)
 
     /* Allocate (or reallocate) enough space. */
     size_t new_size = (size_t)(n + 1);
-    seq_t *new_arr = (seq_t*)realloc(a_vals, new_size * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, a_vals, new_size);
     if (new_arr == NULL)
         abort();              /* unrecoverable failure */
     a_vals = new_arr;
@@ -59,7 +71,7 @@ static void compute_up_to(idx_t n)
 
         for (idx_t k = 0; k <= maxk; ++k) {
             /* sum += binom * a_vals[k]  */
-            unsigned __int128 tmp_term = (unsigned __int128)binom * (unsigned __int128)a_vals[k];
+            wide_u tmp_term = (wide_u)binom * (wide_u)a_vals[k];
             sum += (seq_t)tmp_term;
 
             if (k == maxk)
@@ -72,8 +84,8 @@ static void compute_up_to(idx_t n)
             seq_t d1 = (seq_t)(i - k);
             seq_t d2 = (seq_t)(k + 1);
 
-            unsigned __int128 numerator   = (unsigned __int128)binom * (unsigned __int128)n1 * (unsigned __int128)n2;
-            unsigned __int128 denominator = (unsigned __int128)d1 * (unsigned __int128)d2;
+            wide_u numerator   = (wide_u)binom * (wide_u)n1 * (wide_u)n2;
+            wide_u denominator = (wide_u)d1 * (wide_u)d2;
             binom = (seq_t)(numerator / denominator);
         }
 

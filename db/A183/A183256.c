@@ -8,13 +8,24 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 20, u32 n <= 37, u64 n <= 71, u128 n <= 139,
  *            big any n
- * Helpers:   free_seq_arr
+ * Validated: standard, pass, 51 terms through n = 172 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/free_seq_arr.h"
+#include <stddef.h>
+#include <stdint.h>
+
+static inline void free_seq_arr(seq_t* p)
+{
+#if defined(__cplusplus)
+    delete[] p;
+#else
+    free(p);
+#endif
+}
 
 /* Recurrence: f(1)=2*x, f(2)=x^3+x^2+2*x, f(n)=(1-x^3)*f(n-2)+(x+x^2)*f(n-1).
    a(n) is the coefficient of x^n in f(n). */

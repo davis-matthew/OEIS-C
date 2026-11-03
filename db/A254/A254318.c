@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 143, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_counts, factor_u64
+ * Validated: standard, pass, 80 terms through n = 9386 (2026-11-03)
+ * Helpers:   digit_counts, factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/factor_u64.h"
 #include "../utils/digit_counts.h"
+#include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* Helper: determine if a 64‑bit integer is a hyper equidigital number. */
 static bool is_hyper_equidigital(uint64_t n)
@@ -82,7 +84,7 @@ seq_t a(idx_t n)
             if (cache_len == cache_cap) {
                 size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
                 /* Cast for C++ compatibility. */
-                cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, new_cap);
                 cache_cap = new_cap;
             }
             /* Store the candidate (promoted to seq_t). */

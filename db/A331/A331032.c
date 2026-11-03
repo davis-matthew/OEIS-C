@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 262, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gpf
+ * Validated: standard, pass, 92 terms through n = 9559 (2026-11-01)
+ * Helpers:   largest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/gpf.h"
+#include "../utils/largest_prime_factor.h"
 
 static idx_t *orbit   = NULL;  /* increasing list of orbit values      */
 static size_t orb_size = 0;     /* number of elements stored            */
@@ -44,7 +45,7 @@ static void ensure_orbit_upto(idx_t limit)
 
     /* grow the orbit as needed */
     while (orbit[orb_size - 1] < limit) {
-        idx_t next = orbit[orb_size - 1] + gpf(orbit[orb_size - 1]);
+        idx_t next = orbit[orb_size - 1] + largest_prime_factor(orbit[orb_size - 1]);
 
         if (orb_size == orb_cap) {
             size_t new_cap = orb_cap * 2;
@@ -83,7 +84,7 @@ seq_t a(idx_t n)
         return steps;
 
     for (;;) {
-        cur += gpf(cur);        /* one iteration of the rule        */
+        cur += largest_prime_factor(cur);        /* one iteration of the rule        */
         ++steps;
         ensure_orbit_upto(cur);
         if (on_orbit(cur))

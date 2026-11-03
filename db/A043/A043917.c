@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   has12_adjacent
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,26 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/has12_adjacent.h"
+
+/* Return true if the base‑7 representation of x contains adjacent digits
+   1 and 2 (in either order) */
+static bool has12_adjacent(idx_t x)
+{
+    if (x == 0)                 /* single digit; cannot have adjacency */
+        return false;
+
+    idx_t lower = x % 7;         /* least significant digit */
+    x /= 7;
+    while (x > 0) {
+        idx_t higher = x % 7;    /* next more significant digit */
+        if ((higher == 1 && lower == 2) ||
+            (higher == 2 && lower == 1))
+            return true;
+        lower = higher;
+        x /= 7;
+    }
+    return false;
+}
 
 /* Return the n‑th term of the sequence (a(1) is the first term). */
 seq_t a(idx_t n)

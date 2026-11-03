@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 179, u16 n <= 719, u32 n <= 2519, u64 n <= 9806,
- *            u128 n <= 9806, big any n
- * Helpers:   none
+ * Range:     u8 n <= 179, u16 n <= 719, u32 n <= 2519, u64 n <= 15119,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 118 terms through n = 9806 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --- auxiliary functions -------------------------------------------------- */
 
@@ -75,7 +77,7 @@ seq_t a(idx_t n)
     /* --------------------------------------------------------------------- */
 
     /* Allocate one contiguous block: (n+1) * dcnt entries */
-    seq_t *dp = (seq_t*)calloc((size_t)(n + 1) * (size_t)dcnt, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1) * (size_t)dcnt);
     if (!dp) return 0; /* allocation failure, should not happen */
 
     /* initial state: empty subset has sum 0 and lcm 1 */
@@ -105,7 +107,7 @@ seq_t a(idx_t n)
     /* answer: number of subsets summing to n with lcm exactly n */
     seq_t result = dp[n * dcnt + idx_of[n]];
 
-    free(dp);
+    mem_free(dp);
     free(idx_of);
     return result;
 }

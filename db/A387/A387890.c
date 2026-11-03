@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 12, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /*---------------------------------------------------------------------*/
 /*           Heap of next perfect powers (unique values).             */
@@ -50,7 +52,7 @@ static void ensure_heap_capacity(void)
 {
     if (heap_sz >= heap_cap) {
         heap_cap = heap_cap ? heap_cap * 2 : 4;
-        heap = (Node *)realloc(heap, heap_cap * sizeof(Node));
+        heap = mem_resize(Node, heap, heap_cap);
     }
 }
 
@@ -114,11 +116,11 @@ static void extend_sequence(idx_t n)
 {
     if (!heap_initialized) {
         heap_cap = (size_t)4;
-        heap     = (Node *)malloc(heap_cap * sizeof(Node));
+        heap     = mem_new(Node, heap_cap);
         heap_sz  = 0;
 
         diffs_cap = (size_t)64;
-        diffs     = (seq_t *)malloc(diffs_cap * sizeof(seq_t));
+        diffs     = mem_new(seq_t, diffs_cap);
         diffs_sz  = 0;
 
         prev_exists = false;
@@ -167,7 +169,7 @@ static void extend_sequence(idx_t n)
             seq_t diff = val - prev_cp;
             if (diffs_sz == diffs_cap) {
                 diffs_cap *= 2;
-                diffs = (seq_t *)realloc(diffs, diffs_cap * sizeof(seq_t));
+                diffs = mem_resize(seq_t, diffs, diffs_cap);
             }
             diffs[diffs_sz++] = diff;
         }

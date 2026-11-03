@@ -8,8 +8,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 23, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
+ * Range:     u8 n <= 38, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,7 @@
    read by rows, where T(r,k)=binomial(2*r-2*floor(k/2),k) with r = floor
   ((sqrt(8*n+1)-3)/2) and k = n - r*(r+1)/2. */
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* seq_t and idx_t are provided by the build. */

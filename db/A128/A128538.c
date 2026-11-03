@@ -8,7 +8,8 @@
  *            lucky number A000959(n)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   prime_factor_count
+ * Validated: standard, pass, 121 terms through n = 9960 (2026-11-01)
+ * Helpers:   bigomega_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/prime_factor_count.h"
+#include "../utils/bigomega_u64.h"
 
 /* external linkage as requested */
 seq_t a(idx_t n);
@@ -88,5 +89,5 @@ seq_t a(idx_t n)
 
     ensure_lucky(n);
     uint64_t lucky_no = lucky[n - 1];   /* nth lucky number (1‑based) */
-    return prime_factor_count(lucky_no);
+    return bigomega_u64(lucky_no);
 }

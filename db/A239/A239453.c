@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 4, u32 n <= 15, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ensure that the cache and its “computed” flag array are large enough
    to hold indices up to 'need' (inclusive) */
@@ -41,7 +43,7 @@ static void ensure_cap(idx_t need, seq_t **arr, unsigned char **flag, size_t *ca
     size_t new_cap = (*cap > 0) ? (*cap) * 2 : 16;
     while (new_cap <= (size_t)need)
         new_cap <<= 1;
-    *arr   = (seq_t*)realloc(*arr, new_cap * sizeof(seq_t));
+    *arr   = mem_resize(seq_t, *arr, new_cap);
     *flag  = (unsigned char*)realloc(*flag, new_cap * sizeof(unsigned char));
     *cap   = new_cap;
 }

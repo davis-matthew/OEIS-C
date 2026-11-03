@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 16, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   digit_len, ensure_capacity, pow10, pow_seq, pow_uint
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-01)
+ * Helpers:   ipow_i32, ipow_u64_idx, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,11 +22,33 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/pow_seq.h"
-#include "../utils/pow_uint.h"
-#include "../utils/ensure_capacity.h"
-#include "../utils/digit_len.h"
-#include "../utils/pow10.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/num_digits.h"
+
+/* Grow a dynamic array when needed.  The pointer is passed as (void **). */
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* ----------  Helper: test if a seq_t value is a non‑zero fifth power ----------
    Returns true if x = k^5 for some integer k>0.  Uses binary search on the
@@ -36,13 +59,13 @@ static bool is_fifth_power_big(seq_t x)
     if (x == 1) return true;        /* 1 = 1^5 */
 
     /* Compute an upper bound for the fifth root: 10^((digits+4)/5) */
-    unsigned char d = digit_len(x);
+    unsigned char d = num_digits(x);
     seq_t lo = 1;
     seq_t hi = pow10((idx_t)((d + 4) / 5));
 
     while (lo <= hi) {
         seq_t mid = lo + (hi - lo) / 2;
-        seq_t mid5 = pow_seq(mid, 5);
+        seq_t mid5 = ipow_i32(mid, 5);
 
         if (mid5 == x) return true;
         if (mid5 < x)
@@ -58,7 +81,7 @@ static bool is_fifth_power_big(seq_t x)
    the last k digits of m^5 form a non‑zero fifth power. */
 static bool has_good_suffix(idx_t m)
 {
-    seq_t m5 = pow_seq((seq_t)m, 5);
+    seq_t m5 = ipow_i32((seq_t)m, 5);
     seq_t mod = 10;            /* 10^1 */
 
     /* Iterate over suffix lengths from 1 up to digits(m5)-1 */
@@ -88,7 +111,7 @@ seq_t a(idx_t n)
             ++next_m;
 
         /* Compute the term and store it. */
-        seq_t term = pow_seq((seq_t)next_m, 5);
+        seq_t term = ipow_i32((seq_t)next_m, 5);
 
         if (cache_len == cache_cap)
             ensure_capacity(cache_len + 1, &cache_cap,

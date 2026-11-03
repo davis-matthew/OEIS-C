@@ -7,14 +7,17 @@
  * Keywords:  nonn, mult
  * Formula:   a(n) = ∏_{p^e‖n} p^(e - A000265(e)) where A000265(e) =
  *            odd_part(e)
- * Range:     u8 n <= 2303, u16 n <= 9939, u32 n <= 9939, u64 n <= 9939,
- *            u128 n <= 9939, big any n
+ * Range:     u8 n <= 2303, u16 n <= 20736, u32 n <= 20736, u64 n <= 20736,
+ *            u128 n <= 20736, big any n
+ * Validated: standard, pass, 121 terms through n = 9939 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 seq_t a(idx_t n)

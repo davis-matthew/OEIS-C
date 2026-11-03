@@ -13,13 +13,25 @@
  *            programming over the sequence of rows
  * Range:     u8 none, u16 n <= 3, u32 n <= 9, u64 n <= 20, u128 n <= 42,
  *            big any n
- * Helpers:   calc_f
+ * Validated: standard, pass, 34 terms through n = 207 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/calc_f.h"
+
+static inline uint8_t calc_f(uint8_t a0, uint8_t a1, uint8_t b0, uint8_t b1)
+{
+    uint8_t v[4] = {a0,a1,b0,b1};
+    uint8_t t;
+    if (v[0] > v[1]) { t=v[0]; v[0]=v[1]; v[1]=t; }
+    if (v[2] > v[3]) { t=v[2]; v[2]=v[3]; v[3]=t; }
+    if (v[0] > v[2]) { t=v[0]; v[0]=v[2]; v[2]=t; }
+    if (v[1] > v[3]) { t=v[1]; v[1]=v[3]; v[3]=t; }
+    if (v[1] > v[2]) { t=v[1]; v[1]=v[2]; v[2]=t; }
+    return v[3] + v[0] - v[1];
+}
 
 static const uint8_t ROWS[16][2] = {
     {0,0},{0,1},{0,2},{0,3},

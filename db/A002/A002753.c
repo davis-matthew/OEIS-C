@@ -11,20 +11,22 @@
  *            comes from y'' = (1+m)*y + 2*m*y^3 and (y')^2 = (1+y^2)...
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 11, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 96 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     idx_t N = n, E = n / 2, W = E + 1, I = N + 1;
     size_t sz = (size_t)(I * W), t;
-    seq_t *cur = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *nx = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *cur = mem_new(seq_t, sz);
+    seq_t *nx = mem_new(seq_t, sz);
     seq_t res;
     idx_t s, i, e;
 
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
     }
     res = cur[E];
     for (t = 0; t < sz; t++) { cur[t] = 0; nx[t] = 0; }
-    free(cur);
-    free(nx);
+    mem_free(cur);
+    mem_free(nx);
     return res;
 }

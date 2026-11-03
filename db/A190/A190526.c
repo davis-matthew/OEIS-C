@@ -8,13 +8,14 @@
  * Formula:   a(n) = Sum_{i=0..⌈n/2⌉} (n-1)^(n-i) * binomial(n-i+1, i)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 16, u128 n <= 26,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 36 terms through n = 187 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 /* Compute base^exp for arbitrary integer types */
 static seq_t pow_seq(seq_t base, idx_t exp) {
@@ -40,7 +41,7 @@ seq_t a(idx_t n) {
 
     for (idx_t i = 0; i <= max_i; ++i) {
         /* binomial(n-i+1, i) */
-        seq_t bin = binom(n - i + 1, i);
+        seq_t bin = binomial(n - i + 1, i);
         /* (n-1)^(n-i) */
         seq_t power = pow_seq((seq_t)(n - 1), n - i);
         total += bin * power;

@@ -11,12 +11,15 @@
  *            A286919 (triangle read by rows)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 19, u128 n <= 34,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 44 terms through n = 596 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -31,8 +34,8 @@ seq_t a(idx_t n)
     idx_t nm = r * m;                       // product n*m
 
     seq_t base8   = (seq_t)8;
-    seq_t pow_nm   = big_pow(base8, (seq_t)nm);
-    seq_t pow_half = big_pow(base8, (seq_t)(nm / 2));
+    seq_t pow_nm   = ipow(base8, (seq_t)nm);
+    seq_t pow_half = ipow(base8, (seq_t)(nm / 2));
 
     seq_t sum = pow_nm;
 
@@ -41,23 +44,23 @@ seq_t a(idx_t n)
             sum += pow_half * (seq_t)3;
         } else {                            // even, odd
             idx_t exp = (nm + r) / 2;
-            seq_t pow_exp = big_pow(base8, (seq_t)exp);
+            seq_t pow_exp = ipow(base8, (seq_t)exp);
             sum += pow_exp;
             sum += pow_half * (seq_t)2;
         }
     } else {                                // r odd
         if ((m & 1UL) == 0) {               // odd, even
             idx_t exp = (nm + m) / 2;
-            seq_t pow_exp = big_pow(base8, (seq_t)exp);
+            seq_t pow_exp = ipow(base8, (seq_t)exp);
             sum += pow_exp;
             sum += pow_half * (seq_t)2;
         } else {                            // odd, odd
             idx_t exp1 = (nm + r) / 2;
             idx_t exp2 = (nm + m) / 2;
             idx_t exp3 = (nm + 1) / 2;
-            seq_t pow1 = big_pow(base8, (seq_t)exp1);
-            seq_t pow2 = big_pow(base8, (seq_t)exp2);
-            seq_t pow3 = big_pow(base8, (seq_t)exp3);
+            seq_t pow1 = ipow(base8, (seq_t)exp1);
+            seq_t pow2 = ipow(base8, (seq_t)exp2);
+            seq_t pow3 = ipow(base8, (seq_t)exp3);
             sum += pow1 + pow2 + pow3;
         }
     }

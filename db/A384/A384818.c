@@ -8,11 +8,13 @@
  * Formula:   a(n) = denominator of Σ_{k=1..⌊√n⌋} ⌊n/k^2⌋ / k^2
  * Range:     u8 n <= 11, u16 n <= 35, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 /* Integer square root of an unsigned 64-bit integer. */

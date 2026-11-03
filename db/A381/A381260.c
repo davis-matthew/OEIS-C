@@ -10,13 +10,15 @@
  *            functional equation
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache for computed values */
@@ -30,9 +32,9 @@ seq_t a(idx_t n) {
     /* initialise with term a(0)=1, e(0)=1 (a0*a0), c(0)=0 (unused) */
     if (!initialized) {
         cache_size = 4;   /* initial capacity, enough for a few terms */
-        a_cache = (seq_t*)malloc(cache_size * sizeof(seq_t));
-        e_cache = (seq_t*)malloc(cache_size * sizeof(seq_t));
-        c_cache = (seq_t*)malloc(cache_size * sizeof(seq_t));
+        a_cache = mem_new(seq_t, cache_size);
+        e_cache = mem_new(seq_t, cache_size);
+        c_cache = mem_new(seq_t, cache_size);
         a_cache[0] = (seq_t)1;
         e_cache[0] = (seq_t)1;   /* a0 * a0 */
         c_cache[0] = (seq_t)0;   /* unused */
@@ -43,9 +45,9 @@ seq_t a(idx_t n) {
     /* enlarge cache if necessary */
     if (n + 2 > cache_size) {   /* reserve space for indices up to n+1 */
         idx_t new_cap = n + 4;
-        a_cache = (seq_t*)realloc(a_cache, new_cap * sizeof(seq_t));
-        e_cache = (seq_t*)realloc(e_cache, new_cap * sizeof(seq_t));
-        c_cache = (seq_t*)realloc(c_cache, new_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_cap);
+        e_cache = mem_resize(seq_t, e_cache, new_cap);
+        c_cache = mem_resize(seq_t, c_cache, new_cap);
         cache_size = new_cap;
     }
 

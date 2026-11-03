@@ -13,7 +13,8 @@
  *            o...
  * Range:     u8 n <= 37, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   is_squarefree
+ * Validated: partial, pass, 59 terms through n = 58 (2026-11-03)
+ * Helpers:   is_squarefree, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_squarefree.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,8 +32,8 @@ seq_t a(idx_t n)
     size_t total = 5 * sz;             /* 0..4 parts, each with sz sums     */
 
     /* Allocate and zero-initialise DP tables. */
-    seq_t *dp = (seq_t *)calloc(total, sizeof(seq_t));
-    seq_t *w  = (seq_t *)calloc(total, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, total);
+    seq_t *w  = mem_new(seq_t, total);
     if (!dp || !w) {                   /* allocation failure – return 0       */
         return 0;
     }
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
 
     seq_t result = w[4 * sz + N];   /* smallest‑part sum for 4 parts. */
 
-    free(dp);
-    free(w);
+    mem_free(dp);
+    mem_free(w);
     return result;
 }

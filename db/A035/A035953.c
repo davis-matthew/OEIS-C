@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    when a larger n is requested.  The array dp[0..max] is kept
    between calls so that smaller queries are answered in O(1). */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,9 +37,9 @@ seq_t a(idx_t n)
     if (n > max_computed) {
         /* allocate or resize the dp array */
         if (dp == NULL) {
-            dp = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+            dp = mem_new(seq_t, (size_t)(n + 1));
         } else {
-            dp = (seq_t *)realloc(dp, sizeof(seq_t) * (size_t)(n + 1));
+            dp = mem_resize(seq_t, dp, (size_t)(n + 1));
             /* zero the new entries that will be recomputed */
             for (idx_t i = max_computed + 1; i <= n; ++i) dp[i] = 0;
         }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 77, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 9492 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    ends in 6 or 8.  The function returns the n-th such k (n >= 1). */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;    /* stored sequence values */
 static size_t cache_size = 0;  /* number of values stored */
@@ -49,7 +51,7 @@ static const bool good_mod20[20] = {
 static void grow_cache(void)
 {
     size_t new_cap = cache_cap ? cache_cap * 2 : 1;
-    seq_t *new_buf = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_buf = mem_resize(seq_t, cache, new_cap);
     if (!new_buf) exit(EXIT_FAILURE); /* allocation failure */
     cache = new_buf;
     cache_cap = new_cap;

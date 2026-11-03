@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 14, u64 n <= 23, u128 n <= 37,
  *            big any n
- * Helpers:   ensure_table_size
+ * Validated: standard, pass, 39 terms through n = 113 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,7 +36,22 @@
  */
 
 #include <stdlib.h>
-#include "../utils/ensure_table_size.h"
+#include "../utils/mem.h"
+
+/* Ensure that the array '*a' has length >= n+1, expanding if needed.
+ * New elements are zero‑initialized.                                                             */
+static void ensure_table_size(seq_t **a, size_t *cap, idx_t n)
+{
+    if (*cap <= (size_t)n) {
+        size_t new_cap = *cap ? *cap * 2 : 1;
+        while (new_cap <= (size_t)n) new_cap *= 2;
+        seq_t *tmp = mem_resize(seq_t, *a, new_cap);
+        if (!tmp) abort();                /* unrecoverable */
+        for (size_t i = *cap; i < new_cap; ++i) tmp[i] = (seq_t)0;
+        *a = tmp;
+        *cap = new_cap;
+    }
+}
 
 /*------------------------------------------------------------------------------*/
 
@@ -55,9 +71,9 @@ seq_t a(idx_t n)
         col_cap   = 1;
         cache_cap = 1;
 
-        row_sum = (seq_t*)malloc(row_cap * sizeof(seq_t));
-        col_sum = (seq_t*)malloc(col_cap * sizeof(seq_t));
-        cache   = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        row_sum = mem_new(seq_t, row_cap);
+        col_sum = mem_new(seq_t, col_cap);
+        cache   = mem_new(seq_t, cache_cap);
         if (!row_sum || !col_sum || !cache) abort();
 
         row_sum[0] = (seq_t)1;      /* a(0) = 1 in row 0 */

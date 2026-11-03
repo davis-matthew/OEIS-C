@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Static storage for the triangle: triangle[r][k] with 1‑based indices */
 static seq_t **triangle = NULL;   /* pointer array, index 0 unused */
@@ -51,7 +53,7 @@ static void ensure_triangle_up_to(idx_t row)
     for (idx_t r = triangle_rows + 1; r <= row; ++r)
     {
         /* Allocate current row (indices 0..r; index 0 unused) */
-        seq_t *cur = (seq_t *)malloc((r + 1) * sizeof(seq_t));
+        seq_t *cur = mem_new(seq_t, (r + 1));
         if (cur == NULL)
             return; /* allocation failure */
 
@@ -67,10 +69,10 @@ static void ensure_triangle_up_to(idx_t row)
             idx_t prev_len = r - 1;
 
             /* Build cumulative sums of previous row from the end. */
-            seq_t *cum = (seq_t *)malloc((prev_len + 1) * sizeof(seq_t));
+            seq_t *cum = mem_new(seq_t, (prev_len + 1));
             if (cum == NULL)
             {
-                free(cur);
+                mem_free(cur);
                 return; /* allocation failure */
             }
             seq_t s = (seq_t)0;
@@ -88,7 +90,7 @@ static void ensure_triangle_up_to(idx_t row)
                 seq_t mm  = (seq_t)m;
                 cur[m] = mm * mm * sum;
             }
-            free(cum);
+            mem_free(cum);
         }
 
         triangle[r] = cur;

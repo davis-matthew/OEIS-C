@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 51, u32 n <= 125, u64 n <= 303,
  *            u128 n <= 859, big any n
- * Helpers:   none
+ * Validated: standard, pass, 116 terms through n = 4957 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stddef.h>   /* size_t, NULL */
 #include <stdlib.h>   /* malloc, calloc, realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     if (rows == NULL) {
         rows = (seq_t **)malloc(sizeof(seq_t *));
         rowlen = (size_t *)malloc(sizeof(size_t));
-        rows[0] = (seq_t *)calloc(1, sizeof(seq_t));
+        rows[0] = mem_new(seq_t, 1);
         rowlen[0] = 1;
         rows[0][0] = (seq_t)1;   /* coefficient of x^0 in empty product */
         max_cached = 0;
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
 
         for (idx_t cur = max_cached + 1; cur <= r; ++cur) {
             size_t cur_len = 2 * (size_t)cur + 1;
-            rows[cur] = (seq_t *)calloc(cur_len, sizeof(seq_t));
+            rows[cur] = mem_new(seq_t, cur_len);
             rowlen[cur] = cur_len;
 
             /*  The convolution of previous row with [cur, 1, cur]  */

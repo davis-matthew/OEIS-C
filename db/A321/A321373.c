@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 42, i16 n <= 65, i32 n <= 65, i64 n <= 65, i128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 
 #include <stddef.h>   /* size_t */
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 static seq_t *cache      = NULL;   /* a(n) values */
 static size_t cache_cap  = 0;
@@ -50,10 +52,10 @@ static void ensure_arrays(size_t kmax)
     size_t new_cap = kmax + 1;
 
     /* Reallocate arrays */
-    pow2_arr     = (seq_t *)realloc(pow2_arr,     new_cap * sizeof(seq_t));
-    pow_neg2_arr = (seq_t *)realloc(pow_neg2_arr, new_cap * sizeof(seq_t));
-    A001045_arr  = (seq_t *)realloc(A001045_arr,  new_cap * sizeof(seq_t));
-    A140966_arr  = (seq_t *)realloc(A140966_arr,  new_cap * sizeof(seq_t));
+    pow2_arr     = mem_resize(seq_t, pow2_arr, new_cap);
+    pow_neg2_arr = mem_resize(seq_t, pow_neg2_arr, new_cap);
+    A001045_arr  = mem_resize(seq_t, A001045_arr, new_cap);
+    A140966_arr  = mem_resize(seq_t, A140966_arr, new_cap);
 
     /* Build values from current_cap up to new_cap-1 */
     for (size_t i = pow_cap; i < new_cap; ++i) {
@@ -79,7 +81,7 @@ static void ensure_cache(idx_t n)
     /* Grow cache to at least n+1 */
     size_t new_cap = cache_cap;
     while (new_cap <= (size_t)n) new_cap = (new_cap == 0) ? 8 : new_cap * 2;
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cache_cap = new_cap;
 
     /* Determine the maximum column index needed for new entries */

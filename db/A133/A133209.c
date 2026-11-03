@@ -9,13 +9,15 @@
  *            a(n)=4a(n-1)-6a(n-2)+4a(n-3)
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache      = NULL; /* Cached values of the sequence */
 static idx_t cache_len   = 0;    /* Number of cached terms (highest index + 1)   */
@@ -28,7 +30,7 @@ static void ensure_cache(idx_t upto)
         size_t cap = 8;
         while (cap <= (size_t)upto)
             cap <<= 1;                         /* make a power‑of‑two size */
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         cache_cap = cap;
         cache[0] = (seq_t)3;
         cache[1] = (seq_t)2;
@@ -41,10 +43,10 @@ static void ensure_cache(idx_t upto)
         size_t newcap = cache_cap;
         while (newcap <= (size_t)upto)
             newcap <<= 1;
-        seq_t *newcache = (seq_t *)malloc(newcap * sizeof(seq_t));
+        seq_t *newcache = mem_new(seq_t, newcap);
         for (idx_t i = 0; i < cache_len; ++i)
             newcache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
         cache = newcache;
         cache_cap = newcap;
     }

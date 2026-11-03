@@ -9,7 +9,8 @@
  *            prime‑count array up to the current maximum limit
  * Range:     u8 n <= 2373, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 9401 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static state for the sieve */
 static idx_t     _max_sieved = 0;
@@ -33,7 +35,7 @@ static void _ensure_sieve(idx_t limit)
     idx_t   sz = limit + 1;
     bool   *new_is_prime = (bool *)realloc(_is_prime, sz * sizeof(bool));
     if (new_is_prime == NULL) abort();
-    seq_t   *new_pi      = (seq_t *)realloc(_pi_arr,   sz * sizeof(seq_t));
+    seq_t   *new_pi      = mem_resize(seq_t, _pi_arr, sz);
     if (new_pi == NULL) abort();
 
     /* Initialise all entries as potential primes */

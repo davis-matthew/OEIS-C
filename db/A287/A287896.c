@@ -8,13 +8,15 @@
  *            where fusc is Stern's diatomic series
  * Range:     u8 n <= 2645, u16 n <= 8192, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   none
+ * Validated: standard, pass, 105 terms through n = 8109 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Static cache for fusc values (indexed by idx_t). */
 static seq_t *fusc_cache = NULL;
@@ -30,10 +32,9 @@ static void fusc_ensure(idx_t n)
     while (new_cap <= n)
         new_cap <<= 1;
 
-    fusc_cache = (seq_t *)realloc(fusc_cache, new_cap * sizeof(seq_t));
+    fusc_cache = mem_resize(seq_t, fusc_cache, new_cap);
     if (new_cap > fusc_cap)
-        memset(fusc_cache + fusc_cap, 0,
-               (new_cap - fusc_cap) * sizeof(seq_t));
+        mem_set(fusc_cache + fusc_cap, 0, (new_cap - fusc_cap) * sizeof(seq_t));
 
     fusc_cap = new_cap;
 }

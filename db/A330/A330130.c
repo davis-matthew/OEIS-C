@@ -10,13 +10,15 @@
  *            52
  * Range:     u8 n <= 35, u16 n <= 107, u32 n <= 250, u64 n <= 537,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 911 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static const seq_t init[16] = {
     1, 2, 4, 8, 12, 18, 26, 28,
@@ -33,9 +35,9 @@ static void ensure_cache(idx_t max_needed) {
     if (cache_len == 0) {
         /* Initial allocation and fill with first 16 values */
         cache_cap = 16;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return; /* out of memory, caller will get garbage */
-        memcpy(cache, init, 16 * sizeof(seq_t));
+        mem_copy(cache, init, 16 * sizeof(seq_t));
         cache_len = 16;
     }
 
@@ -47,7 +49,7 @@ static void ensure_cache(idx_t max_needed) {
         new_cap = new_cap ? new_cap * 2 : 16;
     }
     if (new_cap != cache_cap) {
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return; /* out of memory, caller will get garbage */
         cache = tmp;
         cache_cap = new_cap;

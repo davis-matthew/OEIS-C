@@ -7,7 +7,8 @@
  * Formula:   a(n) = 1 + sum of anti‑divisors of n
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   factor_odd
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,32 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/factor_odd.h"
+
+/* factor an odd number < 2^32.
+ * pr[0..cnt-1] receive the distinct odd prime factors,
+ * exp[0..cnt-1] receive their exponents.
+ */
+static void factor_odd(uint32_t n, uint32_t *pr, uint32_t *exp, size_t *cnt)
+{
+    *cnt = 0;
+    for (uint32_t p = 3; (uint64_t)p * p <= n; p += 2) {
+        if (n % p == 0) {
+            uint32_t e = 0;
+            while (n % p == 0) {
+                n /= p;
+                ++e;
+            }
+            pr[(*cnt)]   = p;
+            exp[(*cnt)]  = e;
+            ++(*cnt);
+        }
+    }
+    if (n > 1) {                 /* remaining prime factor */
+        pr[(*cnt)]   = n;
+        exp[(*cnt)]  = 1;
+        ++(*cnt);
+    }
+}
 
 /* recursive generator of all divisors of the number represented by
  * the prime factorisation pr[0..cnt-1] with exponents exp[0..cnt-1].

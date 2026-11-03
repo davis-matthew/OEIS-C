@@ -7,8 +7,9 @@
  * Formula:   First eight terms are 0, 1, 2, 8, 3, 1, 1, 1; then a(8k)=k,
  *            a(8k+1)=7, a(8k+2)=1, a(8k+3)=k, a(8k+4)=2, a(8k+5)=1,
  *            a(8k+6)=1, a(8k+7)=1
- * Range:     u8 n <= 2047, u16 n <= 9159, u32 n <= 9159, u64 n <= 9159,
- *            u128 n <= 9159, big any n
+ * Range:     u8 n <= 2047, u16 n <= 19999, u32 n <= 19999, u64 n <= 19999,
+ *            u128 n <= 19999, big any n
+ * Validated: standard, pass, 118 terms through n = 9159 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,17 +7,18 @@
  * Formula:   a(n) = ∑_{i=1}^{⌊√n⌋} ⌊n/i⌋ + ⌊n/(⌊√n⌋+1)⌋·(⌊n/(⌊√n⌋+1)⌋+1)/2
  * Range:     u8 n <= 80, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   isqrt_uint64
+ * Validated: standard, pass, 78 terms through n = 9602 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/isqrt_uint64.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return 0;                 /* safety for offset */
-    idx_t m = isqrt_uint64(n);             /* floor(sqrt(n)) */
+    idx_t m = isqrt(n);             /* floor(sqrt(n)) */
     seq_t sum = 0;
 
     for (idx_t i = 1; i <= m; ++i) {

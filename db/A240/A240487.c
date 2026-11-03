@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 47, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
  * definition of OEIS A240487. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes a(n) with static memoisation of the helper arrays. */
 seq_t a(idx_t n) {
@@ -30,7 +32,7 @@ seq_t a(idx_t n) {
     /* Allocate / recompute dp_excl2 up to n if necessary. */
     if (n + 1 > dp_size) {
         idx_t new_size = n + 1;
-        seq_t *new_dp = (seq_t*)calloc(new_size, sizeof(seq_t));
+        seq_t *new_dp = mem_new(seq_t, new_size);
         if (!new_dp) return 0;          /* allocation failed */
         new_dp[0] = 1;                  /* empty partition */
 
@@ -41,7 +43,7 @@ seq_t a(idx_t n) {
             }
         }
 
-        if (dp_excl2) free(dp_excl2);
+        if (dp_excl2) mem_free(dp_excl2);
         dp_excl2 = new_dp;
         dp_size = new_size;
     }

@@ -8,13 +8,15 @@
  *            floor((sqrt(8*n+1)-1)/2), j = n - i*(i+1)/2
  * Range:     u8 n <= 5, u16 n <= 15, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   binom, pow2
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include <stdbool.h>
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     idx_t j = n - (idx_t)((__int128)i * (i + 1) / 2);
 
     /* Compute the binomial coefficient C(i,j). */
-    seq_t comb = binom(i, j);
+    seq_t comb = binomial(i, j);
 
     /* 8^(i-j) * 4^j = 2^(3*i - j). */
     idx_t exp = 3 * i - j;

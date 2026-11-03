@@ -9,7 +9,8 @@
  *            * Sum_{p <= n, p prime} p
  * Range:     u8 n <= 9, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Sieve data cached between calls. */
 static size_t _limit = 0;
@@ -43,8 +45,7 @@ static void _ensure_limit(idx_t need)
     if (!tmp_pi) exit(1);
     _pi_count = tmp_pi;
 
-    seq_t *tmp_sum  = (seq_t*)realloc(_sum_prime,
-                        new_limit * sizeof(seq_t));
+    seq_t *tmp_sum  = mem_resize(seq_t, _sum_prime, new_limit);
     if (!tmp_sum) exit(1);
     _sum_prime = tmp_sum;
 

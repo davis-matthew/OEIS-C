@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   has_equal_2_6
+ * Validated: standard, pass, 66 terms through n = 966 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,19 @@
 */
 
 #include <stdbool.h>
-#include "../utils/has_equal_2_6.h"
+
+/* Return true if v has the same positive number of 2’s and 6’s in base‑11. */
+static bool has_equal_2_6(seq_t v)
+{
+    int c2 = 0, c6 = 0;
+    while (v > 0) {
+        int d = (int)(v % 11);
+        if (d == 2)   ++c2;
+        else if (d == 6) ++c6;
+        v /= 11;
+    }
+    return (c2 > 0 && c2 == c6);
+}
 
 /* Sequence accessor */
 seq_t a(idx_t n)

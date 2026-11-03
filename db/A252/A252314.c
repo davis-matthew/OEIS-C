@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 7, u32 n <= 22, u64 n <= 52, u128 n <= 108,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 174 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>  /* memset */
+#include "../utils/mem.h"
 
 /* ---------- constants ---------- */
 #define DIGITS 3                  /* width of the array */
@@ -151,8 +153,8 @@ static void init(void)
     free(idx_counter);
 
     /* --- allocate DP arrays --- */
-    dp_cur = (seq_t*)calloc(S, sizeof(seq_t));
-    dp_nxt = (seq_t*)calloc(S, sizeof(seq_t));
+    dp_cur = mem_new(seq_t, S);
+    dp_nxt = mem_new(seq_t, S);
 
     /* initialise dp_cur with all pairs of allowed rows (height=2) */
     for (size_t a = 0; a < allowed_cnt; ++a) {
@@ -162,7 +164,7 @@ static void init(void)
     }
 
     /* --- allocate terms array --- */
-    terms = (seq_t*)calloc(MAX_N + 1, sizeof(seq_t));  /* terms[0] unused */
+    terms = mem_new(seq_t, MAX_N + 1);  /* terms[0] unused */
     terms[0] = 0;
     terms_computed = 0;
     current_level = 2;   /* dp_cur represents height=2 rows */
@@ -178,7 +180,7 @@ seq_t a(idx_t n)
     /* compute terms up to requested n */
     while (terms_computed < n) {
         /* transition from current to next level (add one row) */
-        memset(dp_nxt, 0, S * sizeof(seq_t));
+        mem_set(dp_nxt, 0, S * sizeof(seq_t));
 
         for (size_t s = 0; s < S; ++s) {
             seq_t val = dp_cur[s];

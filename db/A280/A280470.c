@@ -7,15 +7,18 @@
  * Formula:   a(n) = Sum_{k=0..c} binomial(c,k) * Catalan(r-k), where r
  *            satisfies r*(r+1)/2 ≤ n < (r+1)*(r+2)/2 and c = n - r*(r+1)/2 (0
  *            ≤ c ≤ r)
- * Range:     u8 n <= 20, u16 n <= 54, u32 n <= 59, u64 n <= 59, u128 n <= 59,
+ * Range:     u8 n <= 23, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
+ * Validated: partial, pass, 60 terms through n = 59 (2026-11-01)
  * Helpers:   binomial, catalan
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/catalan.h"
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/catalan.h"
 
 seq_t a(idx_t n) {
     /* Find the row r such that triangular number r*(r+1)/2 ≤ n < (r+1)*(r+2)/2 */

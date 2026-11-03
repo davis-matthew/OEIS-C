@@ -7,13 +7,15 @@
  * Formula:   a(n) = number of partitions of 2*n into prime parts
  * Range:     u8 n <= 19, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,11 +35,11 @@ seq_t a(idx_t n)
     if (target > current_max_sum)
     {
         /* Free previous arrays if they exist. */
-        if (dp) free(dp);
+        if (dp) mem_free(dp);
         if (primes) free(primes);
 
         /* Allocate DP array for the new range, initialise to 0. */
-        dp = (seq_t *)calloc((size_t)target + 1, sizeof(seq_t));
+        dp = mem_new(seq_t, (size_t)target + 1);
         dp[0] = (seq_t)1;   /* one way to partition 0 */
 
         /* Sieve of Eratosthenes up to target. */

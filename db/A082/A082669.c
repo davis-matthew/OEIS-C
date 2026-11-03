@@ -8,7 +8,8 @@
  * Formula:   a(n) = A006512(n)*(A006512(n)-1)/2
  * Range:     u8 n <= 4, u16 n <= 21, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/is_prime_small.h"  /* is_prime_small(uint64_t) */
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 static seq_t *twin_cache = NULL;        /* 1‑based upper twin primes */
 static idx_t  twin_cache_used = 0;
@@ -34,14 +36,14 @@ static void grow_twin_cache_to(idx_t target)
         return;
 
     /* Allocate more cache space if necessary. */
-    if (twin_cache_cap < (size_t)target) {
+    if (twin_cache_cap < (size_t)target + 1) {     /* 1-based: index target is used */
         twin_cache_cap = target * 2 + 10;          /* buffer */
-        seq_t *new_cache = (seq_t *)malloc(twin_cache_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, twin_cache_cap);
         if (!new_cache)
             exit(EXIT_FAILURE);
         if (twin_cache) {
-            memcpy(new_cache, twin_cache, twin_cache_used * sizeof(seq_t));
-            free(twin_cache);
+            mem_copy(new_cache, twin_cache, (twin_cache_used + 1) * sizeof(seq_t));
+            mem_free(twin_cache);
         }
         twin_cache = new_cache;
     }
@@ -50,7 +52,7 @@ static void grow_twin_cache_to(idx_t target)
     while (twin_cache_used < target) {
         uint64_t lower = twin_candidate;
         twin_candidate += 2;                      /* only odd candidates */
-        if (is_prime_small(lower) && is_prime_small(lower + 2)) {
+        if (is_prime_seq(lower) && is_prime_seq(lower + 2)) {
             twin_cache[twin_cache_used + 1] = (seq_t)(lower + 2);  /* 1‑based */
             ++twin_cache_used;
         }

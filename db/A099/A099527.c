@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -37,7 +38,9 @@
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* 1. Find the row R such that n lies in row R */
@@ -59,19 +62,19 @@ seq_t a(idx_t n) {
 
     if (pow2 == NULL) {
         pow2_cap = 1;
-        pow2 = (seq_t *)malloc(pow2_cap * sizeof(seq_t));
+        pow2 = mem_new(seq_t, pow2_cap);
         pow2[0] = (seq_t)1;
     }
     if (pow3 == NULL) {
         pow3_cap = 1;
-        pow3 = (seq_t *)malloc(pow3_cap * sizeof(seq_t));
+        pow3 = mem_new(seq_t, pow3_cap);
         pow3[0] = (seq_t)1;
     }
 
     while (pow2_cap <= (size_t)m) {
         size_t new_cap = pow2_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(pow2, new_cap * sizeof(seq_t));
-        if (!tmp) { free(pow2); free(pow3); return 0; }
+        seq_t *tmp = mem_resize(seq_t, pow2, new_cap);
+        if (!tmp) { mem_free(pow2); mem_free(pow3); return 0; }
         pow2 = tmp;
         for (size_t i = pow2_cap; i < new_cap; i++) {
             pow2[i] = pow2[i - 1] * (seq_t)2;
@@ -80,8 +83,8 @@ seq_t a(idx_t n) {
     }
     while (pow3_cap <= (size_t)K) {
         size_t new_cap = pow3_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(pow3, new_cap * sizeof(seq_t));
-        if (!tmp) { free(pow2); free(pow3); return 0; }
+        seq_t *tmp = mem_resize(seq_t, pow3, new_cap);
+        if (!tmp) { mem_free(pow2); mem_free(pow3); return 0; }
         pow3 = tmp;
         for (size_t i = pow3_cap; i < new_cap; i++) {
             pow3[i] = pow3[i - 1] * (seq_t)3;

@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 none, u16 n <= 2, u32 n <= 39, u64 n <= 39, u128 n <= 39,
+ * Range:     u8 none, u16 none, u32 n <= 146, u64 n <= 403, u128 n <= 403,
  *            big any n
- * Helpers:   get_digits
+ * Validated: standard, pass, 55 terms through n = 384 (2026-11-03)
+ * Helpers:   get_digits, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/get_digits.h"
+#include "../utils/mem.h"
 
 typedef struct {
     seq_t val;          /* current value m^k */
@@ -34,12 +36,12 @@ typedef struct {
 /* ---------- digit mask helper ------------------------------------ */
 static inline unsigned digit_mask_seq(seq_t x)
 {
+    /* digit by digit (a buffer of 128 digits was too short for big) */
     unsigned mask = 0;
-    uint8_t buf[128];
-    size_t len;
-    get_digits(x, buf, &len);
-    for (size_t i = 0; i < len; ++i)
-        mask |= 1u << buf[i];
+    do {
+        mask |= 1u << (unsigned)(x % (seq_t)10);
+        x = x / (seq_t)10;
+    } while (x > (seq_t)0);
     return mask;
 }
 
@@ -49,7 +51,7 @@ static void heap_push(node_t **pheap, size_t *plen, size_t *pcap, node_t val)
     node_t *heap = *pheap;
     if (*plen == *pcap) {
         size_t new_cap = (*pcap == 0) ? 64 : (*pcap << 1);
-        node_t *tmp = (node_t *)realloc(heap, new_cap * sizeof(node_t));
+        node_t *tmp = mem_resize(node_t, heap, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         heap = tmp;
         *pheap = heap;
@@ -93,7 +95,7 @@ static inline void rep_push(node_t **arr, size_t *len, size_t *cap, node_t val)
 {
     if (*len == *cap) {
         size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
-        node_t *tmp = (node_t *)realloc(*arr, new_cap * sizeof(node_t));
+        node_t *tmp = mem_resize(node_t, *arr, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         *arr = tmp;
         *cap = new_cap;
@@ -121,14 +123,14 @@ seq_t a(idx_t n)
         /* initialise terms storage once */
         if (terms_cap == 0) {
             terms_cap = 1024;
-            terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+            terms = mem_new(seq_t, terms_cap);
             if (!terms) exit(EXIT_FAILURE);
         }
 
         /* initialise heap once */
         if (heap_cap == 0) {
             heap_cap = 2048;
-            heap = (node_t *)malloc(heap_cap * sizeof(node_t));
+            heap = mem_new(node_t, heap_cap);
             if (!heap) exit(EXIT_FAILURE);
 
             /* push all squares m^2 for m in [2, INITIAL_MAX_BASE] */
@@ -140,18 +142,20 @@ seq_t a(idx_t n)
         }
 
         /* generate terms until we have enough */
+        static uint64_t next_base = INITIAL_MAX_BASE + 1;   /* the first square not pushed */
         while (terms_len < (size_t)n) {
-            if (heap_empty(heap, heap_len)) {
-                /* extend the base range if needed */
-                uint64_t old_limit = INITIAL_MAX_BASE;
-                uint64_t new_limit = old_limit * 2;
-                for (uint64_t m = old_limit + 1; m <= new_limit; ++m) {
-                    seq_t v = (seq_t)m * (seq_t)m;
-                    node_t nd = { v, m, 2 };
-                    heap_push(&heap, &heap_len, &heap_cap, nd);
-                }
-                continue;   /* re‑enter while loop after expansion */
+            /* push the squares that are not above the smallest value in the
+               heap (only those of bases <= 10000 were ever pushed, so the
+               square representations of larger values were missed) */
+            while (heap_empty(heap, heap_len) ||
+                   !(heap[0].val < (seq_t)next_base * (seq_t)next_base)) {
+                seq_t v = (seq_t)next_base * (seq_t)next_base;
+                if (v / (seq_t)next_base != (seq_t)next_base) break;   /* wrapped */
+                node_t nd = { v, next_base, 2 };
+                heap_push(&heap, &heap_len, &heap_cap, nd);
+                ++next_base;
             }
+            if (heap_empty(heap, heap_len)) break;
 
             /* pop smallest value and collect all equal representations */
             node_t first = heap_pop(heap, &heap_len);
@@ -180,7 +184,7 @@ seq_t a(idx_t n)
             if (valid) {
                 if (terms_len == terms_cap) {
                     terms_cap <<= 1;
-                    seq_t *tmp = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, terms, terms_cap);
                     if (!tmp) exit(EXIT_FAILURE);
                     terms = tmp;
                 }
@@ -190,12 +194,14 @@ seq_t a(idx_t n)
             /* push successors of all popped representations */
             for (size_t i = 0; i < repr_len; ++i) {
                 seq_t next_val = repr[i].val * (seq_t)repr[i].base;
-                if (next_val > repr[i].val) { /* no overflow for uint64_t case */
+                if (next_val / (seq_t)repr[i].base == repr[i].val) {   /* did not wrap */
                     node_t nxt = { next_val, repr[i].base, repr[i].exp + 1 };
                     heap_push(&heap, &heap_len, &heap_cap, nxt);
                 }
             }
+            mem_free(repr);
         }
     }
+    if (terms_len < (size_t)n) return (seq_t)0;    /* past what the width holds */
     return terms[n - 1];
 }

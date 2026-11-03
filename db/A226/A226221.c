@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 81, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_power_of_two, mod_pow
+ * Validated: standard, pass, 78 terms through n = 9608 (2026-11-03)
+ * Helpers:   is_pow2, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,11 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
-#include "../utils/is_power_of_two.h"
+#include <stdint.h>
+#include <string.h>
+#include "../utils/is_pow2.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static seq_t *terms = NULL;
 static size_t terms_cap = 0;
@@ -31,7 +35,7 @@ static void add_term(seq_t val)
 {
     if (terms_len == terms_cap) {
         size_t new_cap = terms_cap ? terms_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
         if (!tmp) exit(1);          /* allocation failed */
         terms = tmp;
         terms_cap = new_cap;
@@ -44,8 +48,8 @@ seq_t a(idx_t n)
 {
     while (terms_len < n) {
         idx_t cand = next_candidate++;
-        seq_t modval = mod_pow((seq_t)2, (uint64_t)cand, (seq_t)cand);
-        if (!is_power_of_two(modval))
+        seq_t modval = powmod((seq_t)2, (uint64_t)cand, (seq_t)cand);
+        if (!is_pow2(modval))
             add_term((seq_t)cand);
     }
     return terms[n - 1];

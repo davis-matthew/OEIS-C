@@ -9,12 +9,14 @@
  *            1880)
  * Range:     u8 none, u16 n <= 3, u32 n <= 9, u64 n <= 22, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute the A246478 sequence value using memoised recurrence. */
 seq_t a(idx_t n)
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* First call: allocate 4 slots and initialise */
     if (!cache) {
         cache_len = 4;
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         if (!cache)
             return (seq_t)0;          /* allocation failure */
         for (size_t i = 0; i < 4; ++i)
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     /* Grow cache to n terms */
     size_t old_len = cache_len;
     cache_len = (size_t)n;
-    seq_t *tmp = (seq_t *)realloc(cache, cache_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, cache_len);
     if (!tmp)
         return (seq_t)0;               /* allocation failure */
     cache = tmp;

@@ -7,14 +7,14 @@
  * Formula:   Find the n-th number k such that 2*k^2 - 2*k + 19 is composite
  * Range:     u8 n <= 127, u16 n <= 3400, u32 n <= 3400, u64 n <= 3400,
  *            u128 n <= 3400, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 76 terms through n = 3291 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_prime.h"
-
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n) {
     idx_t count = 0;
@@ -24,7 +24,7 @@ seq_t a(idx_t n) {
         k++;
         uint64_t value = 2ULL * (uint64_t)k * (uint64_t)k - 2ULL * (uint64_t)k + 19;
         
-        if (!is_prime(value)) {
+        if (!is_prime_u64(value)) {
             count++;
         }
     }

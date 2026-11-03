@@ -9,13 +9,31 @@
  *            ones/tens/hundreds/thousands words, then counted
  * Range:     u8 n <= 99, u16 n <= 99, u32 n <= 99, u64 n <= 99, u128 n <= 99,
  *            big any n
- * Helpers:   count_letters
+ * Validated: partial, pass, 100 terms through n = 99 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <string.h>
-#include "../utils/count_letters.h"
+
+static int count_letters(const char *word) {
+    int count = 0;
+    int i;
+    for (i = 0; word[i]; i++) {
+        char c = word[i];
+        char d = word[i + 1];
+        if (c == '-') continue;
+        if ((c == 'g' && d == 'y') || (c == 'n' && d == 'y') ||
+            (c == 's' && d == 'z') || (c == 'c' && d == 's') ||
+            (c == 'z' && d == 's') || (c == 'l' && d == 'y') ||
+            (c == 't' && d == 'y')) {
+            i++;
+        }
+        count++;
+    }
+    return count;
+}
 
 /* Accented vowels are written as plain ASCII; each still counts as one letter. */
 static const char *ones[] = {

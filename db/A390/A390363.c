@@ -7,8 +7,9 @@
  * Keywords:  nonn, changed
  * Formula:   Sum of the two greatest prime indices of n, or 0 if n is 1 or a
  *            prime number
- * Range:     u8 n <= 3225, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
- *            u128 n <= 10000, big any n
+ * Range:     u8 n <= 84, u16 n <= 84, u32 n <= 84, u64 n <= 84, u128 n <= 84,
+ *            big any n
+ * Validated: partial, pass, 84 terms through n = 84 (2026-11-01)
  * Helpers:   build_primes, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,8 +19,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/is_prime.h"
 #include "../utils/build_primes.h"
+#include "../utils/is_prime.h"
 
 static idx_t *prime_list = NULL;      /* array of primes (1‑based indices) */
 static size_t prime_cnt   = 0;         /* number of primes stored     */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 988, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   sieve_primes
+ * Validated: standard, pass, 71 terms through n = 928 (2026-11-03)
+ * Helpers:   mem, sieve_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <string.h>
 #include "../utils/sieve_primes.h"
+#include "../utils/mem.h"
 
 /* Global state for caching primes and sequence terms */
 static idx_t *g_primes = NULL;      /* array of primes (idx_t = uint64_t)   */
@@ -45,7 +48,7 @@ static void init_cache(void)
     g_prime_count = cnt;
 
     g_seq_cap = 32;
-    g_seq_cache = (seq_t *)malloc(g_seq_cap * sizeof(seq_t));
+    g_seq_cache = mem_new(seq_t, g_seq_cap);
     g_seq_len = 0;
 }
 
@@ -89,8 +92,7 @@ static void test_next_prime(void)
     if (ok) {
         if (g_seq_len == g_seq_cap) {
             g_seq_cap *= 2;
-            g_seq_cache = (seq_t *)realloc(g_seq_cache,
-                                          g_seq_cap * sizeof(seq_t));
+            g_seq_cache = mem_resize(seq_t, g_seq_cache, g_seq_cap);
         }
         g_seq_cache[g_seq_len++] = (seq_t)g_primes[j];
     }

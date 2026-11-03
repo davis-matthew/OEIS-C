@@ -12,14 +12,15 @@
  *            chosen
  * Range:     u8 n <= 104, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64
+ * Validated: standard, pass, 88 terms through n = 9807 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
 
 /* Helper: recursively generate all unique permutations of the sorted
  * digit array `digits` of length `len`.  `pos` is the current recursion depth,
@@ -29,7 +30,7 @@ static void gen_rec(const uint8_t *digits, bool *used, int len, int pos,
                     uint64_t cur, idx_t *best_d, seq_t *best_val)
 {
     if (pos == len) {
-        idx_t d = divisor_count_u64(cur);
+        idx_t d = num_divisors(cur);
         if (d > *best_d || (d == *best_d && cur < (uint64_t)*best_val)) {
             *best_d = d;
             *best_val = (seq_t)cur;

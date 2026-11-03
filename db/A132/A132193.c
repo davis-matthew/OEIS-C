@@ -7,9 +7,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, look, tabf
  * Formula:   not stated
- * Range:     u8 n <= 410, u16 n <= 9897, u32 n <= 9897, u64 n <= 9897,
- *            u128 n <= 9897, big any n
- * Helpers:   enumerate_parts
+ * Range:     u8 n <= 410, u16 n <= 14175, u32 n <= 14175, u64 n <= 14175,
+ *            u128 n <= 14175, big any n
+ * Validated: standard, pass, 96 terms through n = 9897 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,24 @@
  * This implementation caches rows as they are computed.  */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/enumerate_parts.h"
+#include "../utils/mem.h"
+
+/* Recursive enumeration of partitions of 'rem' using parts <= maxp.
+ * 'sum' accumulates the sum of squares of the chosen parts.
+ * 'seen' marks which sums of squares have already appeared. */
+static void enumerate_parts(idx_t rem, idx_t maxp, seq_t sum, bool *seen)
+{
+    if (rem == 0) {
+        seen[(size_t)sum] = true;
+        return;
+    }
+    for (idx_t part = (rem < maxp ? rem : maxp); part > 0; --part) {
+        enumerate_parts(rem - part,
+                        part,
+                        sum + (seq_t)part * (seq_t)part,
+                        seen);
+    }
+}
 
 /* Cached row data.  row_arrays[i] points to an array of the distinct sums
  * for row i.  row_counts[i] records the length of that array.  */
@@ -53,7 +71,7 @@ static void ensure_rows(idx_t upto)
             if (seen[s]) ++cnt;
 
         /* Allocate the array of sums.  */
-        seq_t *arr = (seq_t*)malloc(cnt * sizeof(seq_t));
+        seq_t *arr = mem_new(seq_t, cnt);
         if (!arr) {
             free(seen);
             return;                               /* out of memory */

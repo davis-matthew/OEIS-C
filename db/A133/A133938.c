@@ -7,8 +7,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 37, u16 n <= 159, u32 n <= 607, u64 n <= 1325,
+ * Range:     u8 n <= 48, u16 n <= 160, u32 n <= 608, u64 n <= 1325,
  *            u128 n <= 1325, big any n
+ * Validated: standard, pass, 94 terms through n = 1297 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 /* Triangle defined by T(r,k) = C(r,k) + ((1+(-1)^k)/2)*C(r,k+1) + C(r,k+2).
    a(n) is obtained by reading the entries row‑wise. */
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 static idx_t isqrt_u64(idx_t x) {

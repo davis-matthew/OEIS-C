@@ -9,14 +9,42 @@
  *            popcount(n) and p(n) = #{ m < n | popcount(m) = w(n) }
  * Range:     u8 n <= 66, u16 n <= 1410, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   binom_small, count_lt
+ * Validated: standard, pass, 81 terms through n = 9256 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom_small.h"
-#include "../utils/count_lt.h"
+
+/* compute C(n,k) for small n (n <= 63) as seq_t */
+static seq_t binom_small(int n, int k) {
+    if (k < 0 || k > n) return (seq_t)0;
+    if (k > n - k) k = n - k;
+    seq_t res = (seq_t)1;
+    for (int i = 1; i <= k; ++i) {
+        res = res * ((seq_t)(n - k + i));
+        res = res / (seq_t)i;
+    }
+    return res;
+}
+
+/* count numbers < n with popcount == w (w is integer >=0) */
+static seq_t count_lt(idx_t n, unsigned int w) {
+    seq_t count = (seq_t)0;
+    /* msb index of n (n >= 1) */
+    int bits = 63 - __builtin_clzll((uint64_t)n);
+    int w_remaining = w;
+    for (int i = bits; i >= 0; --i) {
+        if ((n >> i) & 1ULL) {
+            if (w_remaining > 0)
+                count += binom_small(i, w_remaining);
+            --w_remaining;
+            if (w_remaining < 0) break;
+        }
+    }
+    return count;
+}
 
 seq_t a(idx_t n) {
     unsigned int w = __builtin_popcountll((uint64_t)n);

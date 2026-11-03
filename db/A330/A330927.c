@@ -8,7 +8,8 @@
  *            Niven numbers. Computed by linear scan with memoisation
  * Range:     u8 n <= 18, u16 n <= 686, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 9633 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Check whether x is a Niven number */
 static inline bool is_niven(seq_t x)
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
             /* grow cache if needed */
             if (cache_size == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-                seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 /* In case of allocation failure, abort */
                 if (!tmp) abort();
                 cache = tmp;

@@ -7,13 +7,15 @@
  * Formula:   a(n) = number of partitions of n into 4 distinct nonprime parts
  * Range:     u8 n <= 66, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 78 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Count partitions of n into 4 distinct nonprime parts */
 seq_t a(idx_t n)
@@ -47,9 +49,9 @@ seq_t a(idx_t n)
     /* Dynamic programming: dp[k][s] = #ways to pick k distinct nonprimes summing to s */
     seq_t *dp[5];
     for (int k = 0; k < 5; ++k) {
-        dp[k] = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+        dp[k] = mem_new(seq_t, (size_t)(n + 1));
         if (!dp[k]) {
-            for (int j = 0; j < k; ++j) free(dp[j]);
+            for (int j = 0; j < k; ++j) mem_free(dp[j]);
             free(nonprimes);
             free(is_prime);
             return 0;
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
     seq_t result = dp[4][n];
 
     /* Free allocated memory */
-    for (int k = 0; k < 5; ++k) free(dp[k]);
+    for (int k = 0; k < 5; ++k) mem_free(dp[k]);
     free(nonprimes);
     free(is_prime);
 

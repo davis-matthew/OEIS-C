@@ -9,14 +9,47 @@
  *            king-move neighbors
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 17, u128 n <= 34,
  *            big any n
- * Helpers:   check_triple
+ * Validated: standard, pass, 32 terms through n = 209 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/check_triple.h"
+
+/* Check whether a triple of rows (a,b,c) satisfies the neighbor condition
+   for the middle row b.  Rows are 4‑bit numbers (bits 0..3). */
+static bool check_triple(int a, int b, int c)
+{
+    for (int col = 0; col < 4; ++col) {
+        if ((b >> col) & 1) {            /* cell (b, col) is 1  */
+            int cnt = 0;
+
+            /* up-left */
+            if (col > 0   && ((a >> (col - 1)) & 1)) ++cnt;
+            /* up  */
+            if ((a >> col) & 1)                       ++cnt;
+            /* up-right */
+            if (col < 3   && ((a >> (col + 1)) & 1)) ++cnt;
+
+            /* left */
+            if (col > 0   && ((b >> (col - 1)) & 1)) ++cnt;
+            /* right */
+            if (col < 3   && ((b >> (col + 1)) & 1)) ++cnt;
+
+            /* down-left */
+            if (col > 0   && ((c >> (col - 1)) & 1)) ++cnt;
+            /* down  */
+            if ((c >> col) & 1)                       ++cnt;
+            /* down-right */
+            if (col < 3   && ((c >> (col + 1)) & 1)) ++cnt;
+
+            if (cnt > 4) return false;
+        }
+    }
+    return true;
+}
 
 /* Helper tables ---------------------------------------------------------- */
 

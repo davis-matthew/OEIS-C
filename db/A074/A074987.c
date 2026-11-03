@@ -7,16 +7,21 @@
  * Formula:   not stated
  * Range:     u8 n <= 130, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   phi
+ * Validated: standard, pass, 87 terms through n = 9960 (2026-11-03)
+ * Helpers:   mem, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* a(n): smallest m ≠ n with φ(m) = φ(n) */
 
-#include "../utils/phi.h"
+#include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/totient.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/mem.h"
 
 /* pair holding the two smallest numbers that give the same phi value */
 typedef struct {
@@ -36,13 +41,13 @@ static void init(void)
         return;
 
     /* allocate the map (size LIMIT+1 to index by φ value) */
-    map = (pair_t *)calloc((size_t)LIMIT + 1, sizeof(pair_t));
+    map = mem_new(pair_t, (size_t)LIMIT + 1);
     if (!map) {
         abort();   /* should never happen for the chosen LIMIT */
     }
 
     for (idx_t m = 1; m <= LIMIT; ++m) {
-        seq_t phi_m = phi(m);
+        seq_t phi_m = totient(m);
         idx_t key = (idx_t)phi_m;        /* φ(m) ≤ LIMIT‑1 for m ≤ LIMIT */
 
         pair_t *p = &map[key];
@@ -63,7 +68,7 @@ seq_t a(idx_t n)
     init();
 
     if (n <= LIMIT) {
-        seq_t phi_n = phi(n);
+        seq_t phi_n = totient(n);
         idx_t key   = (idx_t)phi_n;
 
         pair_t *p = &map[key];
@@ -78,11 +83,11 @@ seq_t a(idx_t n)
     }
 
     /* For n beyond the pre‑computed range: brute‑force search */
-    seq_t phi_n = phi(n);
+    seq_t phi_n = totient(n);
     for (idx_t m = 1; ; ++m) {
         if (m == n)
             continue;
-        if (phi(m) == phi_n)
+        if (totient(m) == phi_n)
             return (seq_t)m;
     }
 }

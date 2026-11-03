@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 93, u64 n <= 362, u128 n <= 362,
  *            big any n
- * Helpers:   digit_len, get_digits, seq_mul
+ * Validated: full, pass, 362 terms through n = 362 (2026-11-03)
+ * Helpers:   get_digits, mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,16 +26,22 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include "../utils/get_digits.h"
-#include "../utils/digit_len.h"
-#include "../utils/seq_mul.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Helper: reduce a number by removing duplicate digits.
    The digits are returned by get_digits MSB->LSB, but we
    reconstruct them in the correct order regardless. */
 static seq_t reduce_digits(seq_t x)
 {
-    size_t len = digit_len(x);
+    size_t len = num_digits(x);
     if (len == 0)
         return (seq_t)0;
 
@@ -107,13 +114,13 @@ static void ensure_cache_size(idx_t n)
         return;
 
     size_t new_cap = n * 2;
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache)
         return; /* abort on failure */
 
     if (cache) {
-        memcpy(new_cache, cache, cache_size * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_cache, cache, cache_size * sizeof(seq_t));
+        mem_free(cache);
     }
     cache = new_cache;
     cache_cap = new_cap;

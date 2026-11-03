@@ -7,18 +7,19 @@
  * Formula:   a(n) = (n+1)^n - n^n
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 26,
  *            big any n
- * Helpers:   _pow_seq_t
+ * Validated: standard, pass, 35 terms through n = 377 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/_pow_seq_t.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
     seq_t nn = (seq_t)n;
     seq_t base1 = nn + 1;
-    seq_t p1 = _pow_seq_t(base1, n);
-    seq_t p2 = _pow_seq_t(nn, n);
+    seq_t p1 = ipow_idx(base1, n);
+    seq_t p2 = ipow_idx(nn, n);
     return p1 - p2;
 }

@@ -5,19 +5,21 @@
  * Offset:    3    (a(3) is the first term)
  * Keywords:  nonn, more
  * Formula:   a(n) = C(n+1,4) (with an exception at n = 5 giving 14)
- * Range:     u8 n <= 6, u16 n <= 7, u32 n <= 7, u64 n <= 7, u128 n <= 7,
+ * Range:     u8 n <= 7, u16 n <= 7, u32 n <= 7, u64 n <= 7, u128 n <= 7,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 5 terms through n = 7 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
     if (n < 3) return 0;                     /* undefined below the offset */
-    seq_t val = binom(n + 1, 4);              /* compute C(n+1,4) */
+    seq_t val = binomial(n + 1, 4);              /* compute C(n+1,4) */
     if (n == 5) val -= 1;                    /* 5th entry is 14, not 15 */
     return val;
 }

@@ -9,13 +9,15 @@
  *            offset 0 (a(0)=1)
  * Range:     u8 n <= 19, u16 n <= 35, u32 n <= 71, u64 n <= 139,
  *            u128 n <= 279, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 2320 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static cache for memoisation of final values */
 static seq_t *cache = NULL;
@@ -31,14 +33,14 @@ static void ensure_cache(idx_t n)
     while (new_size <= n)
         new_size <<= 1;          /* double until big enough */
 
-    seq_t *new_cache = (seq_t*)calloc(new_size, sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_size);
     if (!new_cache)
         abort();                /* allocation failed */
 
     if (cache) {
         for (idx_t i = 0; i < cache_size; ++i)
             new_cache[i] = cache[i];
-        free(cache);            /* free old allocation */
+        mem_free(cache);            /* free old allocation */
     }
 
     cache      = new_cache;
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
     }
 
     /* Dynamic programming for compositions using the squares list. */
-    seq_t *dp = (seq_t*)calloc((size_t)n + 1, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)n + 1);
     if (!dp)
         abort();                 /* allocation failed */
     dp[0] = (seq_t)1;
@@ -84,7 +86,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
 
     /* Store in cache for future calls. */
     ensure_cache(n);

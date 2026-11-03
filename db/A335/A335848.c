@@ -7,13 +7,15 @@
  * Formula:   a(n) = Sum_{k=1..n} binomial(n,k) * k!! * a(n-k); a(0) = 1
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static state shared between calls */
 static seq_t *a_cache        = NULL;          /* array of computed a(i) */
@@ -34,16 +36,16 @@ static void ensure_capacity(idx_t n)
     if (new_cap <= cache_cap)
         return;                 /* already large enough */
 
-    seq_t *new_a  = (seq_t *)malloc(new_cap * sizeof(seq_t));
-    seq_t *new_df = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_a  = mem_new(seq_t, new_cap);
+    seq_t *new_df = mem_new(seq_t, new_cap);
 
     if (a_cache) {
         for (size_t i = 0; i < cache_cap; ++i) {
             new_a[i]  = a_cache[i];
             new_df[i] = df_cache[i];
         }
-        free(a_cache);
-        free(df_cache);
+        mem_free(a_cache);
+        mem_free(df_cache);
     }
 
     a_cache = new_a;

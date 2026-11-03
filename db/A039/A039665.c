@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 40, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Dynamically grow a seq_t array to accommodate at least 'need' elements. */
 static void grow_seq(seq_t **arr, size_t *cap, size_t need)
@@ -28,7 +30,7 @@ static void grow_seq(seq_t **arr, size_t *cap, size_t need)
     if (*cap < need) {
         size_t new_cap = (*cap == 0) ? 8 : (*cap << 1);
         if (new_cap < need) new_cap = need;
-        *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, new_cap);
         *cap = new_cap;
     }
 }
@@ -67,7 +69,7 @@ static void precompute(void)
 
     /* Allocate initial capacity for the sequence array. */
     seq_cap = 1024;
-    sequence = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+    sequence = mem_new(seq_t, seq_cap);
     if (!sequence) exit(1);
 
     /* Scan for all overlapping 4‑tuples with equal divisor counts. */

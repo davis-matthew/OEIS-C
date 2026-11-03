@@ -8,13 +8,14 @@
  *            floor((m-1)/2)) + 1 otherwise, where m = n-1; a(1) = 1
  * Range:     u8 n <= 11, u16 n <= 19, u32 n <= 35, u64 n <= 68, u128 n <= 132,
  *            big any n
- * Helpers:   a006481_binom, a006481_gcd
+ * Validated: standard, pass, 45 terms through n = 978 (2026-11-01)
+ * Helpers:   binomial, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a006481_binom.h"
-#include "../utils/a006481_gcd.h"
+#include "../utils/binomial.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n) {
     idx_t m, k;
@@ -22,5 +23,5 @@ seq_t a(idx_t n) {
     m = n - 1;
     if (m % 4 == 0) k = (m - 1) / 2;
     else k = m / 2;
-    return a006481_binom(m, k) + 1;
+    return binomial(m, k) + 1;
 }

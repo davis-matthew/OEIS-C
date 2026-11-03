@@ -12,13 +12,15 @@
  *            generating function * given in the OEIS entry. It...
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External linkage required by the harness. */
 seq_t a(idx_t n)
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* Expand the cache if necessary. */
     if ((size_t)n + 1 > cache_len) {
         /* Allocate or enlarge the array. */
-        values = (seq_t*)realloc(values, ((size_t)n + 1) * sizeof(seq_t));
+        values = mem_resize(seq_t, values, ((size_t)n + 1));
         if (!values) return (seq_t)0; /* allocation failure – unlikely */
 
         /* Initialize any newly allocated elements to zero.   (Unnecessary

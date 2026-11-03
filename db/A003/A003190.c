@@ -11,19 +11,58 @@
  *            Inverse Euler transform: c(k) = k*b(k) - Sum_{i=1..k-1} c(i...
  * Range:     u8 n <= 5, u16 n <= 6, u32 n <= 7, u64 n <= 8, u128 n <= 10,
  *            big any n
- * Helpers:   a3190_f3, a3190_from128, a3190_g2, a3190_gcd, a3190_h, a3190_mu
+ * Validated: partial, pass, 12 terms through n = 12 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/a3190_f3.h"
-#include "../utils/a3190_from128.h"
-#include "../utils/a3190_g2.h"
-#include "../utils/a3190_gcd.h"
-#include "../utils/a3190_h.h"
-#include "../utils/a3190_mu.h"
+#include "../utils/gcd_u64.h"
+
+/* three elements from one cycle of length a */
+static uint64_t a3190_f3(uint64_t a)
+{
+    uint64_t t = a * (a - 1) * (a - 2) / 6;
+    if (a % 3 == 0) t += 2 * (a / 3);
+    return t / a;
+}
+
+static seq_t a3190_from128(unsigned __int128 v)
+{
+    seq_t t32 = (seq_t)65536 * (seq_t)65536;
+    return (seq_t)(uint64_t)v + (seq_t)(uint64_t)(v >> 64) * (t32 * t32);
+}
+
+/* two elements from a cycle of length a, one from a different cycle of length b */
+static uint64_t a3190_g2(uint64_t a, uint64_t b)
+{
+    if (a & 1) return (a - 1) / 2 * gcd_u64(a, b);
+    return (a - 2) / 2 * gcd_u64(a, b) + gcd_u64(a / 2, b);
+}
+
+/* number of cycles on triples taking one element from each of three distinct cycles */
+static uint64_t a3190_h(uint64_t a, uint64_t b, uint64_t c)
+{
+    uint64_t g = gcd_u64(a, b);
+    return g * gcd_u64(a / g * b, c);
+}
+
+static int a3190_mu(uint64_t m)
+{
+    int r = 1;
+    uint64_t p;
+    for (p = 2; p * p <= m; p++) {
+        if (m % p == 0) {
+            m /= p;
+            if (m % p == 0) return 0;
+            r = -r;
+        }
+    }
+    if (m > 1) r = -r;
+    return r;
+}
 
 #define A3190_MAXN 100
 #define A3190_MAXC 161701

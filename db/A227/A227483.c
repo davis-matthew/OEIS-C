@@ -9,18 +9,20 @@
  *            3582801/2)
  * Range:     u8 none, u16 n <= 0, u32 n <= 4, u64 n <= 18, u128 n <= 20,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
     /* Powers of two */
-    seq_t pow2 = pow_uint(2, n);
-    seq_t pow4 = pow_uint(4, n);
+    seq_t pow2 = ipow_u64_idx(2, n);
+    seq_t pow4 = ipow_u64_idx(4, n);
 
     /* Convert index to seq_t once */
     seq_t n_seq = (seq_t)n;

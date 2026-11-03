@@ -7,13 +7,15 @@
  * Formula:   a(0) = 1; a(n) = Σ_{k=1..n} binomial(n,k) * k * (k+1) * a(n-k)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for computed values. */
 static seq_t *cache   = NULL;   /* array of a(i) */
@@ -25,7 +27,7 @@ static void ensure_cache(idx_t n) {
     if (cache == NULL) {
         /* First allocation. */
         size_t init = 4;
-        cache = (seq_t *)malloc(init * sizeof(seq_t));
+        cache = mem_new(seq_t, init);
         if (!cache) abort();
         cache_cap = init;
         for (size_t i = 0; i < cache_cap; ++i) cache[i] = 0;
@@ -36,11 +38,11 @@ static void ensure_cache(idx_t n) {
     /* Grow until capacity > n. */
     while (cache_cap <= (size_t)n) {
         size_t new_cap = cache_cap * 2;
-        seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (!new_cache) abort();
         for (size_t i = 0; i < cache_cap; ++i) new_cache[i] = cache[i];
         for (size_t i = cache_cap; i < new_cap; ++i) new_cache[i] = 0;
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_cap = new_cap;
     }

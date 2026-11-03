@@ -6,9 +6,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = A000010(A001597(n)) (Euler's totient of the n‑th perfect
  *            power)
- * Range:     u8 n <= 1, u16 n <= 56, u32 n <= 2373, u64 n <= 10000, u128 none,
- *            big any n
- * Helpers:   calc_phi
+ * Range:     u8 n <= 1, u16 n <= 298, u32 n <= 2373, u64 n <= 10000,
+ *            u128 none, big any n
+ * Validated: standard, pass, 72 terms through n = 9599 (2026-11-03)
+ * Helpers:   mem, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/calc_phi.h"
+#include "../utils/totient_seq.h"
+#include "../utils/mem.h"
 
 /* Static storage for the list of perfect powers (1‑based). */
 static seq_t *perfect_powers = NULL;   /* 1‑based, perfect_powers[1] = 1 */
@@ -44,7 +46,7 @@ static void build_perfect_powers(void)
     /* Dynamic vector for collected values before sorting. */
     size_t veccap   = 1024;
     size_t veclen   = 0;
-    seq_t *vec      = (seq_t *)malloc(veccap * sizeof(seq_t));
+    seq_t *vec      = mem_new(seq_t, veccap);
     if (!vec) exit(EXIT_FAILURE);
 
     /* Generate all powers base^exp with base ≥ 2, exp ≥ 2, value ≤ LIMIT. */
@@ -59,10 +61,10 @@ static void build_perfect_powers(void)
             if (veclen == veccap)
             {
                 veccap <<= 1;                       /* double capacity */
-                seq_t *newvec = (seq_t *)realloc(vec, veccap * sizeof(seq_t));
+                seq_t *newvec = mem_resize(seq_t, vec, veccap);
                 if (!newvec)
                 {
-                    free(vec);
+                    mem_free(vec);
                     exit(EXIT_FAILURE);
                 }
                 vec = newvec;
@@ -78,13 +80,13 @@ static void build_perfect_powers(void)
     }
 
     /* Sort the vector and remove duplicates. */
-    qsort(vec, veclen, sizeof(seq_t), seq_compare);
+    mem_qsort(vec, veclen, sizeof(seq_t), seq_compare);
 
     /* Count unique entries. */
     size_t uniqcap   = veccap;
     size_t unqlen    = 0;
-    seq_t *uniq      = (seq_t *)malloc(uniqcap * sizeof(seq_t));
-    if (!uniq) { free(vec); exit(EXIT_FAILURE); }
+    seq_t *uniq      = mem_new(seq_t, uniqcap);
+    if (!uniq) { mem_free(vec); exit(EXIT_FAILURE); }
 
     seq_t last = 0;
     bool first = true;
@@ -96,8 +98,8 @@ static void build_perfect_powers(void)
             if (unqlen == uniqcap)
             {
                 uniqcap <<= 1;
-                seq_t *newuniq = (seq_t *)realloc(uniq, uniqcap * sizeof(seq_t));
-                if (!newuniq) { free(vec); free(uniq); exit(EXIT_FAILURE); }
+                seq_t *newuniq = mem_resize(seq_t, uniq, uniqcap);
+                if (!newuniq) { mem_free(vec); mem_free(uniq); exit(EXIT_FAILURE); }
                 uniq = newuniq;
             }
             uniq[unqlen++] = cur;
@@ -105,18 +107,18 @@ static void build_perfect_powers(void)
             first = false;
         }
     }
-    free(vec);
+    mem_free(vec);
 
     /* Allocate final 1‑based array and fill. */
     perfect_count = unqlen + 1;                  /* include 1 */
-    perfect_powers = (seq_t *)malloc(perfect_count * sizeof(seq_t));
-    if (!perfect_powers) { free(uniq); exit(EXIT_FAILURE); }
+    perfect_powers = mem_new(seq_t, perfect_count);
+    if (!perfect_powers) { mem_free(uniq); exit(EXIT_FAILURE); }
 
     perfect_powers[1] = (seq_t)1;                /* first perfect power */
     for (size_t i = 0; i < unqlen; ++i)
         perfect_powers[i + 2] = uniq[i];
 
-    free(uniq);
+    mem_free(uniq);
 }
 
 /* Public function implementing the sequence. */
@@ -129,5 +131,5 @@ seq_t a(idx_t n)
 
     /* Return phi of the n-th perfect power. */
     seq_t pw = perfect_powers[(size_t)n];
-    return calc_phi(pw);
+    return totient_seq(pw);
 }

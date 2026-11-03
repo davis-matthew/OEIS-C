@@ -9,20 +9,22 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   int_sqrt
+ * Validated: standard, pass, 103 terms through n = 9713 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /*  T(n,k) = # of iterations of k → n%k until 0.
     a(m) is the m‑th entry when the triangle T is read by rows.  */
-#include "../utils/int_sqrt.h"
+#include <stdint.h>
+#include "../utils/isqrt.h"
 
 static inline idx_t _row_from_index(idx_t pos)
 {
     /* Find the smallest n such that n*(n+1)/2 >= pos. */
     idx_t t = 1 + 8 * pos;          /* floor sqrt of (1+8*pos) */
-    idx_t r = int_sqrt(t);
+    idx_t r = isqrt(t);
     idx_t n = (r - 1) >> 1;         /* floor of (-1+sqrt)/2 */
 
     /* Adjust if the triangular number is too small. */

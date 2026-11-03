@@ -9,12 +9,14 @@
  *            ((n+1)/2)!*((n-1)/2)!
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 15, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   a000248_pow
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a000248_pow.h"
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n) {
     seq_t result = 0;
@@ -24,7 +26,7 @@ seq_t a(idx_t n) {
     for (idx_t j = 1; j <= n / 2; j++) {
         j_fact *= (seq_t)j;
         idx_t exponent = n - 2*j;
-        seq_t power = a000248_pow((seq_t)j, exponent);
+        seq_t power = ipow_idx((seq_t)j, exponent);
         sum += j_fact * j_fact * power;
     }
     

@@ -7,13 +7,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 27, u64 n <= 54, u128 n <= 109,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 986 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Recurrence: a(0)=3, a(1)=2, a(2)=6; for n>=3, a(n)=2*a(n-1)+a(n-2)-a(n-3) */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
     if (n >= capacity) {
         /* Allocate space for all terms up to n */
         size_t new_capacity = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(cache, new_capacity * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_capacity);
         if (!tmp && new_capacity > 0)
             return 0;           /* allocation failed: return 0 as safe value */
 

@@ -8,8 +8,9 @@
  *            non‑perfect‑powers Computation: iterate over integers, skip
  *            those that are perfect powers, and track the nth and (n+1)‑st
  *            non‑perfect‑powers
- * Range:     u8 n <= 9124, u16 n <= 9124, u32 n <= 9124, u64 n <= 9124,
- *            u128 n <= 9124, big any n
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 128 terms through n = 9124 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

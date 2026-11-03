@@ -6,14 +6,16 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = a(n-1) + a(n-4) - a(n-5) for n > 5 with initial values
  *            a(1)=2, a(2)=3, a(3)=4, a(4)=5, a(5)=8
- * Range:     u8 n <= 170, u16 n <= 9675, u32 n <= 9675, u64 n <= 9675,
- *            u128 n <= 9675, big any n
- * Helpers:   none
+ * Range:     u8 n <= 170, u16 n <= 10015, u32 n <= 10015, u64 n <= 10015,
+ *            u128 n <= 10015, big any n
+ * Validated: standard, pass, 82 terms through n = 9675 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
 
             /* realloc returns void*, cast to the correct pointer type.
                This is valid in both C and C++ (compatible with C++17).   */
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             cache = tmp;
             cache_cap = new_cap;
         }

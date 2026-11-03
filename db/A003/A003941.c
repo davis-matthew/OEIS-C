@@ -7,6 +7,7 @@
  * Formula:   a(n) = b(A000961(n+1), 5) with b(q,5) = q^25 *
  *            (q^2-1)(q^4-1)(q^6-1)(q^8-1)(q^10-1) / gcd(2, q-1)
  * Range:     u8 none, u16 none, u32 none, u64 n <= 1, u128 n <= 4, big any n
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

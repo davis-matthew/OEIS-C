@@ -7,14 +7,43 @@
  * Formula:   a(n) = floor(10 * (n^(1/8) - floor(n^(1/8)))) for n ≥ 1
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   floor_root8_idx, pow8_ui128
+ * Validated: standard, pass, 118 terms through n = 860 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/floor_root8_idx.h"
-#include "../utils/pow8_ui128.h"
+
+/* Compute x^8 using unsigned __int128 to avoid overflow */
+static inline unsigned __int128 pow8_ui128(unsigned int x)
+{
+    unsigned __int128 t = (unsigned __int128)x * x;   /* x^2 */
+    t = t * t;                                        /* x^4 */
+    t = t * t;                                        /* x^8 */
+    return t;
+}
+
+/* Compute floor( n^(1/8) ) for idx_t (uint64_t) inputs */
+static inline idx_t floor_root8_idx(idx_t n)
+{
+    idx_t low = 0, high = 1;
+    /* Find an upper bound */
+    while (pow8_ui128((unsigned int)high) <= (unsigned __int128)n)
+        high <<= 1;               /* high *= 2 */
+
+    low = high >> 1;               /* previous value */
+    /* Binary search */
+    while (low < high)
+    {
+        idx_t mid = low + ((high - low + 1) >> 1);
+        if (pow8_ui128((unsigned int)mid) <= (unsigned __int128)n)
+            low = mid;
+        else
+            high = mid - 1;
+    }
+    return low;
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)

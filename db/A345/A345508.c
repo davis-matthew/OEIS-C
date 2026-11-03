@@ -7,6 +7,7 @@
  * Formula:   a(n) = 10,13,16,18,19,21,22,24,25 for n≤9; a(n) = n + 16 for n≥9
  * Range:     u8 n <= 239, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 81 terms through n = 993 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

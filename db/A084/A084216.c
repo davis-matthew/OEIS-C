@@ -7,14 +7,15 @@
  * Keywords:  nonn
  * Formula:   a(n) = smallest positive integer d such that 2*n+1 = x^2 + d*y^2
  *            for some positive integers x and y
- * Range:     u8 n <= 16, u16 n <= 3737, u32 n <= 10000, u64 n <= 10000,
+ * Range:     u8 n <= 489, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _isqrt
+ * Validated: standard, pass, 100 terms through n = 9047 (2026-11-01)
+ * Helpers:   isqrt_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/_isqrt.h"
+#include "../utils/isqrt_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -23,12 +24,12 @@ seq_t a(idx_t n)
     seq_t target = (seq_t)n * 2 + 1;
 
     for (seq_t d = 1;; ++d) {            /* try d = 1,2,3,… */
-        seq_t d_ymax = _isqrt(target / d);   /* floor(sqrt(target/d)) */
+        seq_t d_ymax = isqrt_seq(target / d);   /* floor(sqrt(target/d)) */
         for (seq_t y = 1; y <= d_ymax; ++y) {
             seq_t rem = target - d * y * y;  /* remainder = x^2 */
             if (rem == 0)                   /* x would be 0 → illegal */
                 continue;
-            seq_t xr = _isqrt(rem);
+            seq_t xr = isqrt_seq(rem);
             if (xr * xr == rem)              /* perfect square found */
                 return d;
         }

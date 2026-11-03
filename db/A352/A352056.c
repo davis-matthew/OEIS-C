@@ -8,7 +8,8 @@
  * Formula:   a(n) = n^10 * Σ_{d|n, d<n, d odd} 1/d^10
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 9, u64 n <= 84, u128 n <= 7131,
  *            big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: standard, pass, 37 terms through n = 9977 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,10 @@
 /* needed types and helpers */
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/big_pow.h"     /* seq_t big_pow(seq_t base, seq_t exp); */
-#include "../utils/factor_u64.h"  /* void factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt); */
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -54,7 +57,7 @@ seq_t a(idx_t n)
         if (d == n)            /* skip the divisor n itself (proper divisors only) */
             continue;
         idx_t t = n / d;       /* t = n/d.  Stored in idx_t to avoid overflow. */
-        seq_t t10 = big_pow((seq_t)t, (seq_t)10); /* compute t^10 in seq_t */
+        seq_t t10 = ipow((seq_t)t, (seq_t)10); /* compute t^10 in seq_t */
         sum += t10;            /* accumulate */
     }
     return sum;

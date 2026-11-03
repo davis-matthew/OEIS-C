@@ -11,15 +11,39 @@
  *            any column). The DP has 10×10 states (10 admissible 4‑bit rows)
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 16, u64 n <= 33, u128 n <= 68,
  *            big any n
- * Helpers:   ok_row, ok_vert
+ * Validated: standard, pass, 39 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/ok_row.h"
-#include "../utils/ok_vert.h"
+#include "../utils/mem.h"
+
+/* Check whether a 4‑bit row satisfies the horizontal rules
+   (no consecutive 000 or 111 in the three‑bit windows). */
+static inline bool ok_row(int r)
+{
+    int m0 = r & 7;          /* bits 0–2 */
+    int m1 = (r >> 1) & 7;   /* bits 1–3 */
+    return !(m0 == 0 || m0 == 7 || m1 == 0 || m1 == 7);
+}
+
+/* Check whether three rows (ra, rb, rc) violate the vertical rule
+   (no 001 or 100 in any column). */
+static inline bool ok_vert(int ra, int rb, int rc)
+{
+    for (int pos = 0; pos < 4; ++pos) {
+        int ba = (ra >> pos) & 1;
+        int bb = (rb >> pos) & 1;
+        int bc = (rc >> pos) & 1;
+        if ((ba == 0 && bb == 0 && bc == 1) ||
+            (ba == 1 && bb == 0 && bc == 0))
+            return false;
+    }
+    return true;
+}
 
 /* ------------------------------------------------------------------ */
 /* Global state – initialized on first call.                          */
@@ -56,7 +80,7 @@ static void init(void)
 
     /* allocate cache and store a(1) and a(2). */
     cache_cap = 3ull;                 /* indices 0,1,2 */
-    cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+    cache = mem_new(seq_t, cache_cap);
     cache[0] = (seq_t)0;
     cache[1] = (seq_t)10;   /* a(1) */
     cache[2] = (seq_t)100;  /* a(2) */
@@ -80,7 +104,7 @@ seq_t a(idx_t n)
     /* enlarge cache if needed */
     if ((idx_t)(cache_cap) <= n) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp)
             return (seq_t)0;          /* allocation failed */
         cache = tmp;

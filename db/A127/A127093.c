@@ -9,8 +9,9 @@
  *            1) / 2) (row index) * k = n - r*(r-1)/2 (column index) * a(n) =
  *            k if r % k == 0, else 0 * This implements OEIS A127093, the
  *            flattened divisor triangle
- * Range:     u8 n <= 9883, u16 n <= 9883, u32 n <= 9883, u64 n <= 9883,
- *            u128 n <= 9883, big any n
+ * Range:     u8 n <= 11325, u16 n <= 11325, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 121 terms through n = 9883 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

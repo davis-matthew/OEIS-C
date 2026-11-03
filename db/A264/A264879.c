@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 14, u32 n <= 26, u64 n <= 49, u128 n <= 96,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /*------------------------------------------------------------------*/
 /* Base values for n = 1 .. 20                                        */
@@ -61,14 +63,13 @@ static void ensure_cache_size(idx_t n)
     /* Allocate the cache if it does not exist yet. */
     if (cache == NULL) {
         cache_cap = 64;                      /* initial capacity */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         /* Copy the known base values. */
         size_t copy_len = (n < 20) ? (size_t)n : 20;
-        memcpy(cache, base_vals, copy_len * sizeof(seq_t));
+        mem_copy(cache, base_vals, copy_len * sizeof(seq_t));
         /* Zero any remaining elements in the initial capacity. */
         if (cache_cap > copy_len)
-            memset(cache + copy_len, 0,
-                   (cache_cap - copy_len) * sizeof(seq_t));
+            mem_set(cache + copy_len, 0, (cache_cap - copy_len) * sizeof(seq_t));
         cache_len = copy_len;
     }
     /* Grow the capacity if required. */
@@ -76,11 +77,9 @@ static void ensure_cache_size(idx_t n)
         size_t new_cap = cache_cap;
         if (new_cap == 0) new_cap = 1;
         while ((size_t)n > new_cap) new_cap <<= 1;
-        seq_t *new_cache = (seq_t *)realloc(cache,
-                                            new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         /* Zero the newly allocated part. */
-        memset(new_cache + cache_cap, 0,
-               (new_cap - cache_cap) * sizeof(seq_t));
+        mem_set(new_cache + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
         cache = new_cache;
         cache_cap = new_cap;
     }

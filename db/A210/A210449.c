@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* The limit must be large enough to contain at least the first 10 000
    terms of the sequence.  200 000 is safe and keeps the runtime
@@ -70,7 +72,7 @@ seq_t a(idx_t n) {
         }
 
         /* 5. Build the list of numbers where parity is 1. */
-        seq_values = (seq_t *)malloc((size_t)(LIMIT + 1) * sizeof(seq_t));
+        seq_values = mem_new(seq_t, (size_t)(LIMIT + 1));
         seq_size   = 0;
         for (idx_t i = 0; i <= LIMIT; ++i) {
             if (parity[(size_t)i]) {

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 209, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 64 terms through n = 961 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 /* #include <stdbool.h> - required for bool, but omitted above as requested. */
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* Return the n‑th term of sequence A158350. */
 seq_t a(idx_t n)
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     /* Expand the found list incrementally until it contains n terms. */
     while (found_len < (size_t)n) {
         /* Find the next prime after last_checked. */
-        if (is_prime_small((seq_t)last_checked)) {
+        if (is_prime_seq((seq_t)last_checked)) {
             if (!first_prime_seen) {
                 /* First prime found (2). */
                 prev_prime       = (idx_t)last_checked;
@@ -48,14 +50,13 @@ seq_t a(idx_t n)
             } else {
                 /* Check the twin‑prime condition for the current prime. */
                 idx_t sum = prev_prime + last_checked;
-                if (is_prime_small((seq_t)(sum - 1)) &&
-                    is_prime_small((seq_t)(sum + 1))) {
+                if (is_prime_seq((seq_t)(sum - 1)) &&
+                    is_prime_seq((seq_t)(sum + 1))) {
                     /* Store current prime. */
                     if (found_len == found_cap) {
                         /* Grow storage. */
                         size_t new_cap = found_cap ? found_cap * 2 : 8;
-                        seq_t *tmp = (seq_t *)realloc(found,
-                                                       new_cap * sizeof(seq_t));
+                        seq_t *tmp = mem_resize(seq_t, found, new_cap);
                         if (!tmp) {
                             /* Allocation failure – abort with 0 (unlikely). */
                             return (seq_t)0;

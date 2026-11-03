@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
  * memoization. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static bool contains_62(seq_t x) {
     seq_t prev = 0;
@@ -41,7 +43,7 @@ seq_t a(idx_t n) {
     /* Ensure cache has been allocated once */
     if (!cache) {
         cap = 16;
-        cache = (seq_t*)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) { /* allocation failed – return 0 as a safe fallback */
             return 0;
         }
@@ -55,7 +57,7 @@ seq_t a(idx_t n) {
             /* Grow cache if necessary */
             if (used == cap) {
                 size_t newcap = cap ? cap * 2 : 16;
-                seq_t *tmp = (seq_t*)realloc(cache, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, newcap);
                 if (!tmp) return 0; /* allocation failed */
                 cache = tmp;
                 cap = newcap;

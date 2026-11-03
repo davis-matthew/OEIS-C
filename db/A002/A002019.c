@@ -7,19 +7,21 @@
  * Formula:   a(n) = a(n-1) - (n-1)(n-2)a(n-2)
  * Range:     i8 n <= 5, i16 n <= 9, i32 n <= 13, i64 n <= 21, i128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 90 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_size = 0;
 
 seq_t a(idx_t n) {
     if (cache_size == 0) {
-        cache = (seq_t *)malloc(sizeof(seq_t) * 2);
+        cache = mem_new(seq_t, 2);
         cache[0] = 1;
         cache[1] = 1;
         cache_size = 2;
@@ -30,11 +32,11 @@ seq_t a(idx_t n) {
         while (new_size <= n) {
             new_size *= 2;
         }
-        seq_t *new_cache = (seq_t *)malloc(sizeof(seq_t) * new_size);
+        seq_t *new_cache = mem_new(seq_t, new_size);
         for (idx_t i = 0; i < cache_size; i++) {
             new_cache[i] = cache[i];
         }
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         
         for (idx_t i = cache_size; i <= n; i++) {

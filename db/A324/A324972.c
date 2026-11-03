@@ -8,15 +8,25 @@
  *            the sorted list of the square‑free values of P(s,n)
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_squarefree, poly_val
+ * Validated: standard, pass, 74 terms through n = 9452 (2026-11-03)
+ * Helpers:   is_squarefree, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_squarefree.h"  /* provides bool is_squarefree(seq_t) */
-#include "../utils/poly_val.h"
+#include "../utils/is_squarefree.h"
+#include "../utils/mem.h"
+
+/* polygonal number P(s,n) with integer arithmetic */
+static inline seq_t poly_val(idx_t s, idx_t n)
+{
+    seq_t nsq = (seq_t)n * (seq_t)n;
+    seq_t part1 = nsq * ((seq_t)s - 2);
+    seq_t part2 = (seq_t)n * ((seq_t)s - 4);
+    return (part1 - part2) / 2;
+}
 
 typedef struct {
     seq_t val;      /* current polygonal value */
@@ -84,7 +94,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         const idx_t INITIAL_S_MAX = 50000;   /* large enough for n≤10000 */
         heap_cap   = (size_t)INITIAL_S_MAX;
-        heap       = (Item *)malloc(heap_cap * sizeof(Item));
+        heap       = mem_new(Item, heap_cap);
         heap_size  = 0;
         s_max      = INITIAL_S_MAX;
 
@@ -101,7 +111,7 @@ seq_t a(idx_t n)
 
         /* storage for the resulting sequence */
         values_cap = 128;
-        values     = (seq_t *)malloc(values_cap * sizeof(seq_t));
+        values     = mem_new(seq_t, values_cap);
 
         initialized = true;
     }
@@ -117,7 +127,7 @@ seq_t a(idx_t n)
         if (is_squarefree(cur.val) && (!have_last || cur.val != last_val)) {
             if (values_cnt == values_cap) {
                 values_cap <<= 1;
-                values = (seq_t *)realloc(values, values_cap * sizeof(seq_t));
+                values = mem_resize(seq_t, values, values_cap);
             }
             values[values_cnt++] = cur.val;
             last_val = cur.val;

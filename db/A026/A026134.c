@@ -9,13 +9,15 @@
  *            Σ_{k=0}^{n-2} M_k*M_{n-2-k}). Thus a(1)=1, a(2)=2, a(3)=6, …
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 22, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 extern seq_t a(idx_t n)
 {
@@ -26,14 +28,14 @@ extern seq_t a(idx_t n)
     /* Allocate arrays for Motzkin numbers (M), pairwise convolution (D),
        triple convolution (c) up to index n. */
     size_t N = (size_t)n + 1;
-    seq_t *M = (seq_t *)malloc(N * sizeof(seq_t));
-    seq_t *D = (seq_t *)malloc(N * sizeof(seq_t));
-    seq_t *c = (seq_t *)malloc(N * sizeof(seq_t));
+    seq_t *M = mem_new(seq_t, N);
+    seq_t *D = mem_new(seq_t, N);
+    seq_t *c = mem_new(seq_t, N);
     if (!M || !D || !c) {
         /* Out of memory; return 0 as a safe default */
-        if (M) free(M);
-        if (D) free(D);
-        if (c) free(c);
+        if (M) mem_free(M);
+        if (D) mem_free(D);
+        if (c) mem_free(c);
         return (seq_t)0;
     }
 
@@ -75,9 +77,9 @@ extern seq_t a(idx_t n)
     }
 
     /* Free allocated memory */
-    free(M);
-    free(D);
-    free(c);
+    mem_free(M);
+    mem_free(D);
+    mem_free(c);
 
     return result;
 }

@@ -12,7 +12,8 @@
  *            removed, * in increasing order
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* -------------------------------------------------------------------------- */
 /* Configuration: the sieve limit is large enough to generate all primes  needed
@@ -87,7 +89,7 @@ static void ensure_a_capacity(size_t needed)
     if (needed <= a_cap) return;
     size_t new_cap = a_cap ? a_cap * 2 : 16;
     if (new_cap < needed) new_cap = needed;
-    seq_t *newp = (seq_t *)realloc(a_vals, new_cap * sizeof(seq_t));
+    seq_t *newp = mem_resize(seq_t, a_vals, new_cap);
     a_vals = newp;
     a_cap  = new_cap;
 }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 44, u16 n <= 107, u32 n <= 287, u64 n <= 350,
  *            u128 n <= 350, big any n
- * Helpers:   allocate_seq_arr, free_seq_arr
+ * Validated: standard, pass, 77 terms through n = 316 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,26 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/allocate_seq_arr.h"
-#include "../utils/free_seq_arr.h"
+#include <stddef.h>
+
+/* Helper to allocate an array of seq_t that works in both C and C++ */
+static seq_t *allocate_seq_arr(size_t len)
+{
+#if defined(__cplusplus)
+    return new seq_t[len];
+#else
+    return (seq_t *)malloc(len * sizeof(seq_t));
+#endif
+}
+
+static inline void free_seq_arr(seq_t* p)
+{
+#if defined(__cplusplus)
+    delete[] p;
+#else
+    free(p);
+#endif
+}
 
 /* Helper to free an array allocated by allocate_seq_arr */
 

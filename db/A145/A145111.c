@@ -12,13 +12,15 @@
  *            obtained by taking A(i,j) with i+j fixed and iterating i from 0
  * Range:     u8 n <= 86, u16 n <= 247, u32 n <= 773, u64 n <= 2620,
  *            u128 n <= 9444, big any n
- * Helpers:   none
+ * Validated: standard, pass, 107 terms through n = 9688 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* compute A(n,k): number of binary strings of length n with
  * fewer than k zeros between consecutive 1s. */
@@ -43,8 +45,8 @@ static seq_t compute_A(idx_t n, idx_t k)
     size_t none = k;                    /* index of the “no previous 1” state */
     size_t block = k + 1;               /* index of the “blocked” state */
 
-    seq_t *cur = (seq_t *)calloc(states, sizeof(seq_t));
-    seq_t *nxt = (seq_t *)calloc(states, sizeof(seq_t));
+    seq_t *cur = mem_new(seq_t, states);
+    seq_t *nxt = mem_new(seq_t, states);
     if (!cur || !nxt) {
         seq_t zero = 0;
         return zero;   /* allocation failed – return 0 */
@@ -91,8 +93,8 @@ static seq_t compute_A(idx_t n, idx_t k)
     for (size_t s = 0; s < states; ++s)
         result += cur[s];
 
-    free(cur);
-    free(nxt);
+    mem_free(cur);
+    mem_free(nxt);
     return result;
 }
 

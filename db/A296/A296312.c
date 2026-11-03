@@ -11,13 +11,15 @@
  *            results for previous values of n
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 18, u64 n <= 34, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 #define MASK_BITS 7
 #define MASK_MAX (1 << MASK_BITS)
@@ -119,8 +121,8 @@ static int initialized = 0;
 
 static void init(void)
 {
-    curr = (seq_t *)calloc(STATE_MAX, sizeof(seq_t));
-    nxt  = (seq_t *)calloc(STATE_MAX, sizeof(seq_t));
+    curr = mem_new(seq_t, STATE_MAX);
+    nxt  = mem_new(seq_t, STATE_MAX);
     if (!curr || !nxt)
         abort();
 
@@ -136,7 +138,7 @@ static void init(void)
 
     /* Initialise memo array */
     memo_cap = 32;
-    memo = (seq_t *)malloc(memo_cap * sizeof(seq_t));
+    memo = mem_new(seq_t, memo_cap);
     if (!memo)
         abort();
 
@@ -225,7 +227,7 @@ seq_t a(idx_t n)
 
         if (memo_len == memo_cap) {
             memo_cap *= 2;
-            memo = (seq_t *)realloc(memo, memo_cap * sizeof(seq_t));
+            memo = mem_resize(seq_t, memo, memo_cap);
             if (!memo)
                 abort();
         }

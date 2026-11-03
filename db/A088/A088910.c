@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -41,6 +42,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static const idx_t MAX_N = 50000;          /* maximum n that is cached      */
 static const int  LIMIT_PRIME = 200;      /* largest prime used            */
@@ -175,7 +177,7 @@ static void init_cache(void)
     }
 
     /* allocate cache for minimal k for each n (0 .. MAX_N) */
-    cache     = (seq_t*)malloc((MAX_N + 1) * sizeof(seq_t));
+    cache     = mem_new(seq_t, (MAX_N + 1));
     cache_cap = MAX_N + 1;
     for (size_t i = 0; i <= MAX_N; ++i) cache[i] = INF_VAL;
 

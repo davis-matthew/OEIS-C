@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 2549, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 80 terms through n = 9403 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,10 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* Memoised array of sequence terms. */
 static seq_t *seq_arr = NULL;
@@ -34,7 +38,7 @@ static idx_t next_candidate = 1;
 static void grow_seq(void)
 {
     size_t new_cap = (seq_cap == 0) ? 16 : seq_cap * 2;
-    seq_t *new_arr = (seq_t*)realloc(seq_arr, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, seq_arr, new_cap);
     if (!new_arr) exit(EXIT_FAILURE);   /* unrecoverable error */
     seq_arr = new_arr;
     seq_cap = new_cap;
@@ -50,7 +54,7 @@ seq_t a(idx_t n)
         seq_t cand = (seq_t)next_candidate;   /* odd integer candidate */
 
         /* Compute 2^cand modulo cand. */
-        seq_t pow_val = mod_pow((seq_t)2, (uint64_t)next_candidate, cand);
+        seq_t pow_val = powmod((seq_t)2, (uint64_t)next_candidate, cand);
 
         /* RHS is 8 mod cand. */
         seq_t rhs = ((seq_t)8) % cand;

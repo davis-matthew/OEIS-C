@@ -8,17 +8,37 @@
  * Keywords:  nonn, mult
  * Formula:   a(n) = A336466(phi(n)) where A336466 is multiplicative with a(p)
  *            = odd_part(p-1)
- * Range:     u8 n <= 869, u16 n <= 8957, u32 n <= 8957, u64 n <= 8957,
- *            u128 n <= 8957, big any n
- * Helpers:   compute_phi_seq, odd_part_seq
+ * Range:     u8 n <= 869, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 121 terms through n = 8957 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/compute_phi_seq.h"
-#include "../utils/odd_part_seq.h"
+
+/* Compute Euler's totient from its prime factorisation. */
+static seq_t compute_phi_seq(uint64_t n, const uint64_t *pr, const uint64_t *ex,
+                             size_t cnt)
+{
+    seq_t res = n;   /* cast to seq_t */
+    for (size_t i = 0; i < cnt; ++i)
+    {
+        seq_t p = pr[i];
+        res = res / p * (p - 1);
+    }
+    return res;
+}
+
+/* odd_part(x) – remove all factors 2. */
+static seq_t odd_part_seq(uint64_t x)
+{
+    while ((x & 1) == 0)
+        x >>= 1;
+    return (seq_t)x;
+}
 
 /* Factorisation of a 64‑bit integer n.
    pr[i] = prime factor, ex[i] = its exponent.  At most 32 distinct primes

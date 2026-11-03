@@ -10,6 +10,7 @@
  *            falling_fact(7*m, 7) where falling_fact(x, k) = x·(x-1)…(x-k+1)
  * Range:     i8 n <= 2, i16 n <= 11, i32 n <= 27, i64 n <= 29, i128 n <= 29,
  *            big any n
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

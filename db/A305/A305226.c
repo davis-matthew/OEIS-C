@@ -10,12 +10,14 @@
  *            a(4)=116, a(5)=253, a(6)=541, a(7)=1248, a(8)=2831, a(9)=6471
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 25, u64 n <= 51, u128 n <= 105,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* cached sequence values, 1-based index */
 static idx_t cached_max = 0;    /* largest n cached so far */
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* Ensure the cache has at least space for indices 1..9. */
         idx_t cap = (n + 1 > 10 ? n + 1 : 10);
-        cache = (seq_t *)malloc(sizeof(seq_t) * (size_t)cap);
+        cache = mem_new(seq_t, (size_t)cap);
         if (!cache) return 0;          /* allocation failure: abort */
         for (idx_t i = 1; i <= 9; ++i)
             cache[i] = init[i];
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
     /* Resize the cache to accommodate up to n. */
     size_t new_cap = (size_t)n + 1;
     if (new_cap > (size_t)(cached_max + 1)) {
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;           /* allocation failure: abort */
         cache = tmp;
     }

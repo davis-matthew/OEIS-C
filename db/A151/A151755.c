@@ -11,15 +11,25 @@
  *            a(n) = 2·a(j) + a(j+1) + 1
  * Range:     u8 n <= 102, u16 n <= 102, u32 n <= 102, u64 n <= 102,
  *            u128 n <= 102, big any n
- * Helpers:   floor_log2u64, seq_alloc
+ * Validated: partial, pass, 103 terms through n = 102 (2026-11-01)
+ * Helpers:   ilog2_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/seq_alloc.h"
-#include "../utils/floor_log2u64.h"
+#include <stdlib.h>
+#include "../utils/ilog2_idx.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
 
 seq_t a(idx_t n)
 {
@@ -50,7 +60,7 @@ seq_t a(idx_t n)
             }
             else
             {
-                idx_t i   = floor_log2u64(k);         /* 2^i ≤ k < 2^(i+1)      */
+                idx_t i   = ilog2_idx(k);         /* 2^i ≤ k < 2^(i+1)      */
                 idx_t pow2 = 1ull << i;              /* 2^i                    */
                 idx_t j   = k - pow2;                /* 0 ≤ j < 2^i            */
 

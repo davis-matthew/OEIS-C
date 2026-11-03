@@ -7,19 +7,22 @@
  * Formula:   a(n) = (n+1)^100 + n^100
  * Range:     u8 n <= 0, u16 n <= 0, u32 n <= 0, u64 n <= 0, u128 n <= 1,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 20 terms through n = 958 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
     /* Convert index to seq_t type for accurate arithmetic */
     seq_t sn  = (seq_t)n;
-    seq_t pow_n  = big_pow(sn,          (seq_t)100);  // n^100
+    seq_t pow_n  = ipow(sn,          (seq_t)100);  // n^100
     seq_t sn1  = sn + 1;
-    seq_t pow_n1 = big_pow(sn1,          (seq_t)100);  // (n+1)^100
+    seq_t pow_n1 = ipow(sn1,          (seq_t)100);  // (n+1)^100
     return pow_n + pow_n1;
 }

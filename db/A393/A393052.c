@@ -10,8 +10,9 @@
  *            compute A276086(d) via its mixed‑radix * representation
  *            (primorial base), take the gcd with d, and count the cases where
  *            the * gcd is > 1
- * Range:     u8 n <= 19, u16 n <= 86, u32 n <= 4553, u64 n <= 9661,
- *            u128 n <= 9661, big any n
+ * Range:     u8 n <= 19, u16 n <= 86, u32 n <= 4553, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9661 (2026-11-01)
  * Helpers:   factor_u64, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -23,8 +24,8 @@
 #include <stdlib.h>
 
 /* External utilities */
-#include "../utils/factor_u64.h"   /* factor_u64 */
-#include "../utils/gcd.h"          /* gcd */
+#include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
 
 /* Prime table needed for the mixed‑radix weights */
 static uint64_t *prime_table = NULL;

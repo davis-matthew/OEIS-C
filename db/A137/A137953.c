@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 16, u64 n <= 30, u128 n <= 56,
  *            big any n
- * Helpers:   seq_binom
+ * Validated: standard, pass, 40 terms through n = 198 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/seq_binom.h"
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* Static cache to store computed terms. */
 static seq_t *cache = NULL;
@@ -30,7 +32,7 @@ static void ensure_cache(idx_t up_to)
     if (cache_len > up_to) return;
 
     idx_t new_len = up_to + 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_len);
     if (!new_cache) abort(); /* allocation failure */
     cache = new_cache;
 
@@ -41,8 +43,8 @@ static void ensure_cache(idx_t up_to)
         seq_t sum = 0;
         for (idx_t k = 0; k < m; ++k) {
             idx_t nk = m - k;                      /* n-k   */
-            seq_t t1 = seq_binom(3 * nk, k);        /* binom(3*(n-k),k) */
-            seq_t t2 = seq_binom(2 * k, nk - 1);    /* binom(2*k,n-k-1) */
+            seq_t t1 = binomial(3 * nk, k);        /* binom(3*(n-k),k) */
+            seq_t t2 = binomial(2 * k, nk - 1);    /* binom(2*k,n-k-1) */
 #if defined(__SIZEOF_INT128__)
             if (sizeof(seq_t) <= 8) {
                 sum += ( (unsigned __int128)t1 * t2 ) / nk;

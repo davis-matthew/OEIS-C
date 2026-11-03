@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = largest m such that m! divides n(n+1)/2
- * Range:     u8 n <= 22, u16 n <= 2623, u32 n <= 9617, u64 n <= 9617,
- *            u128 n <= 9617, big any n
+ * Range:     u8 n <= 22, u16 n <= 2623, u32 n <= 10080, u64 n <= 10080,
+ *            u128 n <= 10080, big any n
+ * Validated: standard, pass, 103 terms through n = 9617 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

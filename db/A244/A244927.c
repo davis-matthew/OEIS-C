@@ -12,15 +12,25 @@
  *            (R_l * 10^t) / n where t = max(a,b)
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 16, u64 n <= 22, u128 n <= 46,
  *            big any n
- * Helpers:   pow10, powmod64
+ * Validated: standard, pass, 50 terms through n = 967 (2026-11-01)
+ * Helpers:   powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow10.h"
-#include "../utils/powmod64.h"
+#include "../utils/powmod_u64.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* multiplicative order of 10 modulo 9*m (m coprime to 10) */
 static uint64_t multiplicative_order(uint64_t m)
@@ -45,14 +55,14 @@ static uint64_t multiplicative_order(uint64_t m)
     for (uint64_t p = 2; p * p <= tmp; ++p) {
         if (tmp % p == 0) {
             while (tmp % p == 0) tmp /= p;
-            while (ord % p == 0 && powmod64(10, ord / p, mod) == 1) {
+            while (ord % p == 0 && powmod_u64(10, ord / p, mod) == 1) {
                 ord /= p;
             }
         }
     }
     if (tmp > 1) {
         uint64_t p = tmp;
-        while (ord % p == 0 && powmod64(10, ord / p, mod) == 1) {
+        while (ord % p == 0 && powmod_u64(10, ord / p, mod) == 1) {
             ord /= p;
         }
     }

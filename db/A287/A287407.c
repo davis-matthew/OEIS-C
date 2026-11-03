@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 9782 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
  * O(n) per distinct n and stays well under 2 s for n up to about 10 000.
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
 
     /* initialise the sequence with the seed "0" if not yet done */
     if (len == 0) {
-        w = (seq_t*)malloc(sizeof(seq_t));
+        w = mem_new(seq_t, 1);
         if (!w)       /* allocation failed */
             return (seq_t)0;
         w[0] = (seq_t)0;
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
         size_t new_len = old_len * 3;
 
         /* realloc may change the address; cast to seq_t* for C++ */
-        seq_t *tmp = (seq_t*)realloc(w, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, w, new_len);
         if (!tmp) {   /* allocation failed */
             return (seq_t)0;
         }

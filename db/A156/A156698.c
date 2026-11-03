@@ -13,13 +13,15 @@
  *            combination of powers of (5-8i) with expone...
  * Range:     i8 n <= 10, i16 n <= 16, i32 n <= 22, i64 n <= 38, i128 n <= 69,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 52 terms through n = 456 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
             e = (seq_t)(r - i);
 
         if (e != 0) {
-            seq_t pow_val = big_pow(base, e);
+            seq_t pow_val = ipow(base, e);
             result *= pow_val;
         }
     }

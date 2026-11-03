@@ -9,13 +9,27 @@
  *            digits 0 and 7 (offset 1: a(1)=1)
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   equal_zero_seven
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/equal_zero_seven.h"
+
+/* Helper to test a number – treat as unsigned integer of sufficiently large range.
+   It is safe for idx_t values used in the loop. */
+static bool equal_zero_seven(idx_t x)
+{
+    int zeros = 0, sevens = 0;
+    while (x > 0) {
+        int d = x % 10;
+        if (d == 0) zeros++;
+        else if (d == 7) sevens++;
+        x /= 10;
+    }
+    return zeros == sevens;
+}
 
 seq_t a(idx_t n)
 {

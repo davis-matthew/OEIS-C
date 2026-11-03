@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 23, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   factor_u64, hash_uint64
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,7 +32,16 @@
 
 /* Helper for integer factorisation */
 #include "../utils/factor_u64.h"
-#include "../utils/hash_uint64.h"
+#include "../utils/mem.h"
+
+/* simple 64‑bit hash */
+static inline uint64_t hash_uint64(uint64_t x) {
+    x ^= x >> 33;
+    x *= 0xff51afd7ed558ccdULL;
+    x ^= x >> 33;
+    x *= 0xc4ceb9fe1a85ec53ULL;
+    return x;
+}
 
 /* ---- Small utility: integer GCD (unsigned long long) */
 static inline unsigned long long gcd64(unsigned long long a,
@@ -184,7 +194,7 @@ static void hit_grow(idx_t needed) {
     if (needed <= hit_cap) return;
     idx_t new_cap = hit_cap ? hit_cap * 2 : 64;
     while (new_cap < needed) new_cap <<= 1;
-    hit_terms = (seq_t *)realloc(hit_terms, new_cap * sizeof(seq_t));
+    hit_terms = mem_resize(seq_t, hit_terms, new_cap);
     hit_cap   = new_cap;
 }
 

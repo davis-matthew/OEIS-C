@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 21, u128 n <= 43,
  *            big any n
- * Helpers:   digits_to_index, index_to_digits
+ * Validated: standard, pass, 35 terms through n = 193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,8 +30,22 @@
 #include <stdbool.h>
 #include <string.h>   /* memset, memcpy */
 #include <stdlib.h>   /* calloc, realloc */
-#include "../utils/digits_to_index.h"
-#include "../utils/index_to_digits.h"
+#include "../utils/mem.h"
+
+/* Convert a 6‑digit base‑3 representation to an index 0..728. */
+static inline int digits_to_index(const int d[6]) {
+    int idx = 0;
+    for (int i = 0; i < 6; ++i) idx = idx * 3 + d[i];
+    return idx;
+}
+
+/* Convert an index 0..728 to a 6‑digit base‑3 array. */
+static inline void index_to_digits(int idx, int d[6]) {
+    for (int i = 5; i >= 0; --i) {
+        d[i] = idx % 3;
+        idx /= 3;
+    }
+}
 
 /* Transition tables */
 #define STATES   729          /* 3^6 possible column‑sum states */
@@ -101,15 +116,15 @@ seq_t a(idx_t n) {
     /* Allocate DP arrays on first call. */
     if (!dp_cur) {
         dp_alloc = STATES;
-        dp_cur   = (seq_t *)calloc(dp_alloc, sizeof(seq_t));
-        dp_nxt   = (seq_t *)calloc(dp_alloc, sizeof(seq_t));
+        dp_cur   = mem_new(seq_t, dp_alloc);
+        dp_nxt   = mem_new(seq_t, dp_alloc);
         dp_cur[0] = 1;  /* empty configuration: all column sums are 0 */
     }
 
     /* Allocate memoization cache on first call. */
     if (!cache) {
         cache_cap = 2;                 /* indices 0 and 1 (unused 0) */
-        cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = 0;                  /* unused */
     }
 
@@ -120,14 +135,14 @@ seq_t a(idx_t n) {
     if (n >= cache_cap) {
         size_t new_cap = cache_cap * 2;
         if (new_cap <= n) new_cap = n + 1;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         /* Preserve existing values; new entries are implicitly zero. */
         cache_cap = new_cap;
     }
 
     /* Compute values incrementally up to n. */
     for (idx_t rows = cache_len + 1; rows <= n; ++rows) {
-        memset(dp_nxt, 0, dp_alloc * sizeof(seq_t));
+        mem_set(dp_nxt, 0, dp_alloc * sizeof(seq_t));
 
         /* Transition from all source states. */
         for (int src = 0; src < STATES; ++src) {

@@ -11,6 +11,7 @@
  *            index n≥2; for n<2 the result is 0. * * The i...
  * Range:     u8 n <= 36, u16 n <= 92, u32 n <= 92, u64 n <= 92, u128 n <= 92,
  *            big any n
+ * Validated: partial, pass, 91 terms through n = 92 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,7 +19,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/gcd.h"   /* seq_t gcd(seq_t a, seq_t b); */
+#include "../utils/gcd.h"
 
 /* Integer square root for unsigned 64-bit values, floor.  Small, fast. */
 static idx_t isqrt_u64(idx_t v)

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   ensure_idx_cap
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,18 @@
    remains efficient. */
 
 #include <stdlib.h>
-#include "../utils/ensure_idx_cap.h"
+#include "../utils/mem.h"
+
+/* Helper: allocate or grow an array of idx_t values */
+static void ensure_idx_cap(idx_t **p, size_t *cap, size_t need) {
+    if (*cap < need) {
+        size_t new_cap = (*cap) ? (*cap) << 1 : 8;
+        if (new_cap < need) new_cap = need;
+        idx_t *q = (idx_t *)realloc(*p, new_cap * sizeof(idx_t));
+        *p = q;
+        *cap = new_cap;
+    }
+}
 
 #ifndef _BITSET_H
 /* Helper: allocate or grow an array of seq_t values */
@@ -29,7 +41,7 @@ static void ensure_seq_cap(seq_t **p, size_t *cap, size_t need) {
     if (*cap < need) {
         size_t new_cap = (*cap) ? (*cap) << 1 : 64;
         if (new_cap < need) new_cap = need;
-        seq_t *q = (seq_t *)realloc(*p, new_cap * sizeof(seq_t));
+        seq_t *q = mem_resize(seq_t, *p, new_cap);
         *p = q;
         *cap = new_cap;
     }

@@ -13,7 +13,8 @@
  *            arithmetic on i...
  * Range:     i8 n <= 2, i16 n <= 4, i32 n <= 7, i64 n <= 10, i128 n <= 17,
  *            big any n
- * Helpers:   bz_alloc, bz_madd, bz_mcmp, bz_mdivmod, bz_msub, bz_norm
+ * Validated: standard, pass, 33 terms through n = 224 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,12 +22,105 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include "../utils/bz_alloc.h"
-#include "../utils/bz_madd.h"
-#include "../utils/bz_mcmp.h"
-#include "../utils/bz_mdivmod.h"
-#include "../utils/bz_msub.h"
-#include "../utils/bz_norm.h"
+
+static uint32_t *bz_alloc(size_t n) {
+    return (uint32_t *)calloc(n ? n : 1, sizeof(uint32_t));
+}
+
+static size_t bz_norm(const uint32_t *d, size_t n) {
+    while (n && d[n - 1] == 0) n--;
+    return n;
+}
+
+static size_t bz_madd(uint32_t *r, const uint32_t *a, size_t an, const uint32_t *b, size_t bn) {
+    size_t i;
+    uint64_t c = 0;
+    if (an < bn) {
+        const uint32_t *sp = a; size_t sl = an;
+        a = b; an = bn; b = sp; bn = sl;
+    }
+    for (i = 0; i < bn; i++) { c += (uint64_t)a[i] + b[i]; r[i] = (uint32_t)c; c >>= 32; }
+    for (; i < an; i++) { c += a[i]; r[i] = (uint32_t)c; c >>= 32; }
+    r[an] = (uint32_t)c;
+    return bz_norm(r, an + 1);
+}
+
+static int bz_mcmp(const uint32_t *a, size_t an, const uint32_t *b, size_t bn) {
+    if (an != bn) return an < bn ? -1 : 1;
+    while (an--) {
+        if (a[an] != b[an]) return a[an] < b[an] ? -1 : 1;
+    }
+    return 0;
+}
+
+/* Knuth algorithm D on magnitudes: m >= n >= 1, v[n-1] != 0.
+   q gets m-n+1 limbs, r gets n limbs. */
+static void bz_mdivmod(const uint32_t *u, size_t m, const uint32_t *v, size_t n,
+                       uint32_t *q, uint32_t *r) {
+    const uint64_t B = (uint64_t)1 << 32;
+    size_t i, j;
+    int s = 0;
+    uint32_t *vn, *un;
+    if (n == 1) {
+        uint64_t rem = 0;
+        for (i = m; i-- > 0;) {
+            rem = (rem << 32) | u[i];
+            q[i] = (uint32_t)(rem / v[0]);
+            rem %= v[0];
+        }
+        r[0] = (uint32_t)rem;
+        return;
+    }
+    while (!((uint32_t)(v[n - 1] << s) & 0x80000000u)) s++;
+    vn = bz_alloc(n);
+    un = bz_alloc(m + 1);
+    for (i = n - 1; i > 0; i--) vn[i] = (v[i] << s) | (s ? v[i - 1] >> (32 - s) : 0);
+    vn[0] = v[0] << s;
+    un[m] = s ? u[m - 1] >> (32 - s) : 0;
+    for (i = m - 1; i > 0; i--) un[i] = (u[i] << s) | (s ? u[i - 1] >> (32 - s) : 0);
+    un[0] = u[0] << s;
+    for (j = m - n + 1; j-- > 0;) {
+        uint64_t num = ((uint64_t)un[j + n] << 32) | un[j + n - 1];
+        uint64_t qhat = num / vn[n - 1], rhat = num % vn[n - 1];
+        int64_t k = 0, t;
+        while (qhat >= B || qhat * vn[n - 2] > ((rhat << 32) | un[j + n - 2])) {
+            qhat--;
+            rhat += vn[n - 1];
+            if (rhat >= B) break;
+        }
+        for (i = 0; i < n; i++) {
+            uint64_t p = qhat * vn[i];
+            t = (int64_t)un[i + j] - k - (int64_t)(p & 0xFFFFFFFFu);
+            un[i + j] = (uint32_t)t;
+            k = (int64_t)(p >> 32) - (t >> 32);
+        }
+        t = (int64_t)un[j + n] - k;
+        un[j + n] = (uint32_t)t;
+        q[j] = (uint32_t)qhat;
+        if (t < 0) {
+            q[j]--;
+            k = 0;
+            for (i = 0; i < n; i++) {
+                t = (int64_t)un[i + j] + vn[i] + k;
+                un[i + j] = (uint32_t)t;
+                k = t >> 32;
+            }
+            un[j + n] = (uint32_t)((int64_t)un[j + n] + k);
+        }
+    }
+    for (i = 0; i < n; i++) r[i] = (un[i] >> s) | (s ? (uint32_t)(un[i + 1] << (32 - s)) : 0);
+    free(vn);
+    free(un);
+}
+
+/* requires |a| >= |b| */
+static size_t bz_msub(uint32_t *r, const uint32_t *a, size_t an, const uint32_t *b, size_t bn) {
+    size_t i;
+    uint64_t br = 0, t;
+    for (i = 0; i < bn; i++) { t = (uint64_t)a[i] - b[i] - br; r[i] = (uint32_t)t; br = (t >> 32) ? 1 : 0; }
+    for (; i < an; i++) { t = (uint64_t)a[i] - br; r[i] = (uint32_t)t; br = (t >> 32) ? 1 : 0; }
+    return bz_norm(r, an);
+}
 
 typedef struct { int neg; size_t n; uint32_t *d; } bz;
 typedef struct { bz p, q; } rq;

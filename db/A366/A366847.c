@@ -9,7 +9,8 @@
  *            greatest common divisor equal to 1 (and the set is nonempty)
  * Range:     u8 n <= 59, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /*---------------------------------------------------------------
   Prime list and utilities
@@ -159,7 +161,7 @@ seq_t a(idx_t n)
         initialized = true;
         extend_primes_to(2);
         seq_cap = 32;
-        seq_cache = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, seq_cap);
         seq_cnt = 0;
         next_candidate = 2;
     }
@@ -173,8 +175,7 @@ seq_t a(idx_t n)
         /* Store the found term. */
         if (seq_cnt == seq_cap) {
             seq_cap <<= 1;
-            seq_cache = (seq_t *)realloc(seq_cache,
-                                         seq_cap * sizeof(seq_t));
+            seq_cache = mem_resize(seq_t, seq_cache, seq_cap);
         }
         seq_cache[seq_cnt++] = (seq_t)next_candidate;
     }

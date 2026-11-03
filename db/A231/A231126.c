@@ -13,7 +13,8 @@
  *            a(7)=924900, a(8)=6862052
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 22, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 201 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Static cache for memoisation */
 static seq_t *cache     = NULL;   /* array of a(0) .. a(max)  */
@@ -37,15 +39,15 @@ static void ensure_computed(idx_t n)
     if (cache == NULL) {
         cache_size = (size_t)n + 1;
         if (cache_size < 16) cache_size = 16;
-        cache = (seq_t *)calloc(cache_size, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache) abort();
     } else if (cache_size <= (size_t)n) {
         size_t new_size = cache_size;
         while (new_size <= (size_t)n) new_size <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) abort();
         /* Zero‑fill new part */
-        memset(tmp + cache_size, 0, (new_size - cache_size) * sizeof(seq_t));
+        mem_set(tmp + cache_size, 0, (new_size - cache_size) * sizeof(seq_t));
         cache = tmp;
         cache_size = new_size;
     }

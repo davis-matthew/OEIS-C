@@ -10,6 +10,7 @@
  *            b(p^(e-1)) * (p + 1) - p * b(p^(e-2)) (e >= 2) a(0) = 1
  * Range:     i8 n <= 9, i16 n <= 1469, i32 n <= 2500, i64 n <= 2500,
  *            i128 n <= 2500, big any n
+ * Validated: standard, pass, 67 terms through n = 2110 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

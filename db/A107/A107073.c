@@ -11,7 +11,8 @@
  *            arbitrary n are answered in O(1) after the initia...
  * Range:     u8 n <= 29, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* deterministic Miller–Rabin for 64‑bit integers */
 static uint64_t mulmod(uint64_t a, uint64_t b, uint64_t mod)
@@ -111,7 +113,7 @@ seq_t a(idx_t n)
             if (sz == cap)
             {
                 cap = cap ? cap * 2 : 4;
-                seq = (seq_t*)realloc(seq, cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, cap);
                 if (!seq) exit(1); /* allocation failure */
             }
             seq[sz++] = (seq_t)last_k;

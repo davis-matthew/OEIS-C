@@ -8,8 +8,9 @@
  * Formula:   a(n) = maximum run-length of the nontrivial divisors of n
  *            (consecutive integers among divisors >1 and <n). By convention
  *            a(1)=1, a(p)=0 for primes
- * Range:     u8 n <= 7983, u16 n <= 7983, u32 n <= 7983, u64 n <= 7983,
- *            u128 n <= 7983, big any n
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 121 terms through n = 7983 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
 
 static int cmp_idx(const void *a, const void *b)

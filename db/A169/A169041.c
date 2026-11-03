@@ -8,7 +8,8 @@
  * Formula:   a(0) = 1; for n > 0, a(n) = 28 * 27^(n‑1)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 15,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
    words in the Coxeter group described. */
 
 #include <stdint.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* compute 27^(n-1) using the provided generic exponentiation,
        then multiply the result by 28.  All operations are performed
        in seq_t so we get exact integers for any supported precision. */
-    seq_t pow = seq_pow((seq_t)27, n - 1);
+    seq_t pow = ipow_idx((seq_t)27, n - 1);
     pow *= (seq_t)28;
     return pow;
 }

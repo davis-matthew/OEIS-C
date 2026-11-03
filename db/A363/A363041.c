@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 48, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------------- */
 /*  Helper: compute Stirling numbers of the second kind up to row n needed   */
@@ -50,7 +52,7 @@ ensure_stirling(idx_t target_n)
     /* Allocate and compute missing rows. */
     for (idx_t n = stirling_max + 1; n <= target_n; ++n) {
         /* Row n needs indices 0..n. */
-        seq_t *row = (seq_t*)malloc(sizeof(seq_t) * (n + 1));
+        seq_t *row = mem_new(seq_t, (n + 1));
         if (!row) abort();
         stirling_cache[n] = row;
 

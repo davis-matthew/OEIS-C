@@ -7,14 +7,23 @@
  * Formula:   Numbers whose base‑15 representation has exactly 7 runs
  * Range:     u8 none, u16 none, u32 n <= 21, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   pow14_7
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/pow14_7.h"
+
+/* compute 14^7 */
+static unsigned long long pow14_7(void)
+{
+    __uint128_t p = 1;
+    for (int i = 0; i < 7; ++i)
+        p *= 14ULL;
+    return (unsigned long long)p;
+}
 
 #define MAX_REM 20      /* maximum digits after the first one */
 

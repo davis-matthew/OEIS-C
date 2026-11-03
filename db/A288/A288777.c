@@ -12,13 +12,15 @@
  *            + 1) * k!
  * Range:     u8 n <= 20, u16 n <= 43, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Helper: find the row r that contains index n (n >= 1) */
 static idx_t row_of(idx_t n) {
@@ -50,7 +52,7 @@ static void ensure_factorial(idx_t k) {
         size_t new_cap = fact_cap ? fact_cap * 2 : 8;
         while (new_cap < needed)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(fact, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fact, new_cap);
         if (!tmp) {
             /* allocation failure – give up */
             exit(EXIT_FAILURE);

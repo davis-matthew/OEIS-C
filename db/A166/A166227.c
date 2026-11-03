@@ -11,15 +11,17 @@
  * Formula:   a(n) = dsf applied iteratively; the orbit has period 40
  * Range:     u8 none, u16 none, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   big_pow, get_digits
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-01)
+ * Helpers:   get_digits, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/get_digits.h"   /* void get_digits(seq_t x, uint8_t *buf, size_t *len); */
-#include "../utils/big_pow.h"      /* seq_t big_pow(seq_t base, seq_t exp); */
+#include <stdint.h>
+#include "../utils/get_digits.h"
+#include "../utils/ipow.h"
 
 #define PERIOD 40
 
@@ -33,7 +35,7 @@ static seq_t dsf(seq_t x)
     seq_t sum = 0;
     for (size_t i = 0; i < len; ++i) {
         seq_t d = (seq_t)buf[i];
-        sum += big_pow(d, d);
+        sum += ipow(d, d);
     }
     return sum;
 }

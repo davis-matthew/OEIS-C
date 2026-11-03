@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 19, u64 n <= 36, u128 n <= 73,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 184 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static const seq_t PERIOD_COEFFS[] = {1,1,1,4,20,4,1,1,1,60};
 static const size_t PERIOD_LEN = sizeof(PERIOD_COEFFS)/sizeof(PERIOD_COEFFS[0]);
@@ -49,11 +51,11 @@ seq_t a(idx_t n)
         /* Allocate or grow cache */
         if (denom == NULL) {
             cap = 16;
-            denom = (seq_t*)malloc(cap * sizeof(seq_t));
+            denom = mem_new(seq_t, cap);
         }
         while (cap <= (size_t)n) { /* ensure cap > n */
             cap <<= 1;
-            denom = (seq_t*)realloc(denom, cap * sizeof(seq_t));
+            denom = mem_resize(seq_t, denom, cap);
         }
 
         /* Compute missing terms */

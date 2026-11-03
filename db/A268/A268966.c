@@ -9,19 +9,22 @@
  * Formula:   a(n) = 2^(n+2) * 3^(n-1) * (2 n + 1)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 10, u64 n <= 22, u128 n <= 46,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 35 terms through n = 210 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
     /* Compute 2^(n+2) */
-    seq_t pow2 = big_pow((seq_t)2, (seq_t)(n + 2));
+    seq_t pow2 = ipow((seq_t)2, (seq_t)(n + 2));
     /* Compute 3^(n-1) */
-    seq_t pow3 = big_pow((seq_t)3, (seq_t)(n - 1));
+    seq_t pow3 = ipow((seq_t)3, (seq_t)(n - 1));
     /* Compute (2 n + 1) */
     seq_t coeff = (seq_t)(2 * n + 1);
     /* Result is pow2 * pow3 * coeff */

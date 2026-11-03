@@ -8,7 +8,8 @@
  *            (5*x+1)/2 if x is odd
  * Range:     u8 n <= 8, u16 n <= 23, u32 n <= 124, u64 n <= 496,
  *            u128 n <= 757, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 9389 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    arbitrary‑precision integer class. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,8 +36,8 @@ seq_t a(idx_t n)
     if (n > cached_up_to) {
         size_t new_size = (size_t)n + 1; /* +1 because we ignore index 0 */
         seq_t *tmp = (cache == NULL) ?
-                     (seq_t*)malloc(new_size * sizeof(seq_t)) :
-                     (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+                     mem_new(seq_t, new_size) :
+                     mem_resize(seq_t, cache, new_size);
         if (!tmp) return 0; /* allocation failed – should not happen   */
         cache = tmp;
 

@@ -9,13 +9,34 @@
  *            utility floor_sqrt
  * Range:     u8 n <= 2, u16 n <= 17, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: partial, pass, 38 terms through n = 37 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/floor_sqrt.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* ---------- Fibonacci cache ---------- */
 static seq_t *fib_cache = NULL;      /* fib_cache[0] = 0, fib_cache[1] = 1 */
@@ -29,7 +50,7 @@ static void ensure_fib(idx_t n)
     if (fib_cache == NULL)                /* first allocation */
     {
         size_t init_cap = (need < 2 ? 2 : need);
-        fib_cache = (seq_t *)malloc(init_cap * sizeof(seq_t));
+        fib_cache = mem_new(seq_t, init_cap);
         if (!fib_cache) exit(1);
         fib_cache[0] = (seq_t)0;
         fib_cache[1] = (seq_t)1;
@@ -41,7 +62,7 @@ static void ensure_fib(idx_t n)
     if (need > fib_cap)
     {
         fib_cap = need * 2;               /* exponential growth */
-        seq_t *tmp = (seq_t *)realloc(fib_cache, fib_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fib_cache, fib_cap);
         if (!tmp) exit(1);
         fib_cache = tmp;
     }

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 42, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* ----------   global sieve state   ---------- */
 static bool *prime_flag = NULL;            /* prime_flag[i] == true <=> i is prime */
@@ -128,8 +130,7 @@ seq_t a(idx_t n)
             if (count_sym_offsets(p, p_idx) >= 4) {
                 if (qual_size == qual_cap) { /* grow cache */
                     size_t new_cap = qual_cap ? qual_cap * 2 : 16;
-                    seq_t *tmp = (seq_t *)realloc(qual_primes,
-                                                  new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, qual_primes, new_cap);
                     if (!tmp) exit(1);
                     qual_primes = tmp;
                     qual_cap = new_cap;

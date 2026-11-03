@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 23, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
+ * Validated: partial, pass, 43 terms through n = 45 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,7 @@
  * position n in the row‑major flattening, then evaluating T(r,k) as above.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

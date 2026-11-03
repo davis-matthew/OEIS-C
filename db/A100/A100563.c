@@ -8,7 +8,8 @@
  *            palindrome in base b
  * Range:     u8 n <= 292, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_pal_base
+ * Validated: standard, pass, 121 terms through n = 926 (2026-11-01)
+ * Helpers:   is_palindrome_base
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_pal_base.h"
+#include "../utils/is_palindrome_base.h"
 
 seq_t a(idx_t n) {
     if (n < 3) return 0;   /* n = 1 or 2 → no bases < √n */
@@ -44,7 +45,7 @@ seq_t a(idx_t n) {
 
     seq_t count = 0;
     for (idx_t base = 2; base <= lim; ++base) {
-        if (is_pal_base(n, base)) {
+        if (is_palindrome_base(n, base)) {
             count++;
         }
     }

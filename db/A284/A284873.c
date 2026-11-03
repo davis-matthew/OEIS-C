@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 98, u32 n <= 315, u64 n <= 932,
  *            u128 n <= 1275, big any n
- * Helpers:   big_pow, phi_int
+ * Validated: standard, pass, 82 terms through n = 1239 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,8 +28,22 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"   // big_pow(seq_t base, seq_t exp)
-#include "../utils/phi_int.h"
+#include "../utils/ipow.h"
+
+/* simple Euler totient for small integers (≤MAX_N) */
+static int phi_int(int m)
+{
+    int result = m;
+    int x = m;
+    for (int p = 2; p * p <= x; ++p) {
+        if (x % p == 0) {
+            while (x % p == 0) x /= p;
+            result -= result / p;
+        }
+    }
+    if (x > 1) result -= result / x;
+    return result;
+}
 
 /* maximum n and k that can occur for a(n) with n up to 10 000
    (satisfies s(s-1)/2 ≥ 10000 → s ≈ 142, hence n,k ≤ 141) */
@@ -49,11 +64,11 @@ static seq_t compute_T(idx_t n, idx_t k)
         seq_t r;
         if ((n & 1) == 0) {                  /* even n = 2d */
             idx_t d = n >> 1;
-            seq_t powv = big_pow((seq_t)k, (seq_t)d);
+            seq_t powv = ipow((seq_t)k, (seq_t)d);
             r = (seq_t)d * ((seq_t)(k + 1) * powv);
         } else {                              /* odd n = 2d+1 */
             idx_t d = (n - 1) / 2;
-            seq_t powv = big_pow((seq_t)k, (seq_t)(d + 1));
+            seq_t powv = ipow((seq_t)k, (seq_t)(d + 1));
             r = (seq_t)n * powv;
         }
 

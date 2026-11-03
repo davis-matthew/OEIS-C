@@ -11,9 +11,10 @@
  *            + j = (j-1)*r + i, where r and k are extracted from n via r = n
  *            - k*(k-1)/2, and k = ceil((sqrt(8*n+1)-1)/2). (r ≤ k) The index
  *            n is 1‑based; a(0) is undefined and returns 0
- * Range:     u8 n <= 35, u16 n <= 1325, u32 n <= 9712, u64 n <= 9712,
- *            u128 n <= 9712, big any n
- * Helpers:   get_k
+ * Range:     u8 n <= 35, u16 n <= 1325, u32 n <= 10011, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 82 terms through n = 9712 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,20 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <math.h>
-#include "../utils/get_k.h"
+
+/*--------------------------------------------------------------------
+ *  Compute the column index k for a given sequence index n
+ *--------------------------------------------------------------------*/
+static inline idx_t get_k(idx_t n)
+{
+    if (n == 0) return 0;
+    /* k satisfies k*(k+1)/2 >= n.  Solve k^2 + k - 2n >= 0. */
+    long double v = 8.0L * (long double)n + 1.0L;
+    long double sqrtv = sqrtl(v);
+    idx_t k = (idx_t)((sqrtv - 1.0L) / 2.0L);   /* floor estimate   */
+    while (((__int128)k * (k + 1)) / 2 < n) ++k;
+    return k;
+}
 
 /*--------------------------------------------------------------------
  *  Helper: integer square root of a 128‑bit value (returns floor(sqrt(x)))

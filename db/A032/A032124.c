@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 21, u64 n <= 41, u128 n <= 81,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 934 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    for n≥4: a(n)=3*a(n‑1)+3*a(n‑2)-9*a(n‑3) */
 
 #include <stdlib.h>   /* malloc, realloc, exit */
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;   /* memoization array */
 static size_t   a_cache_cap = 0;/* allocated size (elements)         */
@@ -26,7 +28,7 @@ static void
 grow_a_to(idx_t n)
 {
     if (a_cache_cap < (size_t)(n + 1)) {
-        seq_t *tmp = (seq_t *)realloc(a_cache, (size_t)(n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, (size_t)(n + 1));
         if (!tmp) exit(EXIT_FAILURE);
         a_cache      = tmp;
         a_cache_cap  = (size_t)(n + 1);

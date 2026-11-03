@@ -7,17 +7,62 @@
  * Keywords:  nonn
  * Formula:   a(n) = number of positive integer solutions (x,y) of x^y = y^(n
  *            x)
- * Range:     u8 n <= 9611, u16 n <= 9611, u32 n <= 9611, u64 n <= 9611,
- *            u128 n <= 9611, big any n
- * Helpers:   is_kth_power, is_power_of_integer
+ * Range:     u8 n <= 16384, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 99 terms through n = 9611 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_kth_power.h"
-#include "../utils/is_power_of_integer.h"
+
+/* test whether val is an exact k‑th power,
+   if so store the root in *root_out and return true */
+static bool is_kth_power(uint64_t val, idx_t k, uint64_t *root_out)
+{
+    if (k == 0)
+        return false;
+    uint64_t a = 2;
+    for (;;) {
+        uint64_t prod = 1;
+        idx_t i;
+        for (i = 0; i < k; ++i) {
+            if (prod > val / a) {          /* would overflow or exceed val */
+                prod = val + 1;
+                break;
+            }
+            prod *= a;
+        }
+        if (prod == val) {
+            *root_out = a;
+            return true;
+        }
+        if (prod > val)
+            break;
+        ++a;
+    }
+    return false;
+}
+
+/* check if a is a perfect power (>1) */
+static bool is_power_of_integer(uint64_t a)
+{
+    if (a <= 1)
+        return false;
+    for (idx_t r = 2; ; ++r) {
+        if (r >= 64)          /* shift of 64 or more UB */
+            break;
+        uint64_t limit = 1ULL << r;
+        if (limit > a)
+            break;
+        uint64_t root;
+        if (is_kth_power(a, r, &root))
+            return true;
+    }
+    return false;
+}
 
 /* integer square root, works for the small values we need */
 static idx_t isqrt_u64(idx_t n)

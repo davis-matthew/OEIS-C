@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 43, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   mul_overflow_check
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,15 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/mul_overflow_check.h"
+
+/* Helper for overflow‑safe multiplication */
+static inline bool mul_overflow_check(uint64_t a, uint64_t b, uint64_t limit, uint64_t *out)
+{
+    if (a == 0) { *out = 0; return true; }
+    if (b > limit / a) return false;
+    *out = a * b;
+    return true;
+}
 
 /* Compute base^exp with an upper bound limit.  Returns false if the result would
    exceed limit. */

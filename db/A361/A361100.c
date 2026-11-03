@@ -5,7 +5,9 @@
  * Offset:    19730    (a(19730) is the first term)
  * Keywords:  nonn, cons, easy, fini, full
  * Formula:   a(n) = the (n-19730)th decimal digit of 2^65536 (0‑based)
- * Range:     u8 none, u16 none, u32 none, u64 none, u128 none, big any n
+ * Range:     u8 n <= 39458, u16 n <= 39458, u32 n <= 39458, u64 n <= 39458,
+ *            u128 n <= 39458, big any n
+ * Validated: full, pass, 19729 terms through n = 39458 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

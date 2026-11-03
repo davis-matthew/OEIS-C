@@ -12,7 +12,8 @@
  *            a(20)=200, a(21)=221, a(22)=242, a(23)=265, a(24)=288
  * Range:     u8 n <= 22, u16 n <= 362, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 971 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #ifdef __cplusplus
 #include <new>
 #endif
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;   /* not used but safe */
@@ -37,13 +39,13 @@ seq_t a(idx_t n) {
 
     /* allocate or grow the cache if necessary */
     if (!cache || req_cap > capacity) {
-        seq_t *tmp = (seq_t *)realloc(cache, req_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, req_cap);
         if (!tmp) return 0;        /* allocation failed */
         cache = tmp;
 #ifdef __cplusplus
         /* construct newly allocated elements (C++ only) */
         for (idx_t i = capacity; i < (idx_t)req_cap; ++i)
-            new (&cache[i]) seq_t();
+            *(&cache[i]) = (seq_t)0;
 #endif
         capacity = req_cap;
     }

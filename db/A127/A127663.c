@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   build_spf
+ * Validated: standard, pass, 69 terms through n = 72 (2026-11-03)
+ * Helpers:   build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -37,6 +38,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include "../utils/build_spf.h"
+#include "../utils/mem.h"
 
 /* Sieve size – enough for the first few thousand terms. */
 #define MAX_LIMIT 5000000
@@ -62,7 +64,7 @@ static void init_globals(void) {
     build_spf(MAX_LIMIT, &spf);
 
     /* Allocate caches. */
-    sigma_cache     = (seq_t *)calloc(MAX_LIMIT + 1, sizeof(seq_t));
+    sigma_cache     = mem_new(seq_t, MAX_LIMIT + 1);
     sigma_computed  = (unsigned char *)calloc(MAX_LIMIT + 1, sizeof(unsigned char));
     is_inf_perfect  = (unsigned char *)calloc(MAX_LIMIT + 1, sizeof(unsigned char));
 }
@@ -159,7 +161,7 @@ seq_t a(idx_t n) {
             /* Ensure storage capacity. */
             if (aspirants_len == aspirants_cap) {
                 aspirants_cap = (aspirants_cap == 0) ? 1024 : aspirants_cap * 2;
-                aspirants = (seq_t *)realloc(aspirants, aspirants_cap * sizeof(seq_t));
+                aspirants = mem_resize(seq_t, aspirants, aspirants_cap);
             }
             aspirants[aspirants_len++] = next_candidate;
         }

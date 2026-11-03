@@ -7,13 +7,16 @@
  * Formula:   a(n) = PROD_{i=1..7} (9^(n-i+1)-1)/(9^i-1)
  * Range:     u8 n <= 7, u16 n <= 7, u32 n <= 8, u64 n <= 9, u128 n <= 12,
  *            big any n
- * Helpers:   big_pow, gcd
+ * Validated: standard, pass, 23 terms through n = 137 (2026-11-01)
+ * Helpers:   gcd, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/gcd.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -27,8 +30,8 @@ seq_t a(idx_t n)
 
     /* compute the numerator and denominator factors */
     for (int i = 1; i <= k; ++i) {
-        numerators[i - 1] = big_pow((seq_t)9, (seq_t)(n - i + 1)) - 1;
-        denominators[i - 1] = big_pow((seq_t)9, (seq_t)i) - 1;
+        numerators[i - 1] = ipow((seq_t)9, (seq_t)(n - i + 1)) - 1;
+        denominators[i - 1] = ipow((seq_t)9, (seq_t)i) - 1;
     }
 
     /* cancel common factors with the denominators */

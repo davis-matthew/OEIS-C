@@ -7,13 +7,15 @@
  * Formula:   a(n) = -2*a(n-1) + 4*a(n-3), a(0)=1, a(1)=0, a(2)=0
  * Range:     i8 n <= 8, i16 n <= 18, i32 n <= 35, i64 n <= 71, i128 n <= 141,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 682 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_len = 0;
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
         return cache[N];
 
     size_t newlen = N + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, newlen * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, newlen);
     if (!tmp)
         abort(); /* memory allocation failed */
 

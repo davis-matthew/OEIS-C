@@ -10,7 +10,8 @@
  *            alternating permutation
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   dfsAlt
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,33 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/dfsAlt.h"
+#include "../utils/mem.h"
+
+/* depth‑first search to build an alternating sequence
+   cnt[ i ] = remaining multiplicity of uniqVals[i]   */
+static bool dfsAlt(int *cnt, int rem, int last, int pos,
+                   int orient, const seq_t *vals, int uniq) {
+    if (rem == 0) return true;   /* full permutation built */
+
+    int nextPos = pos + 1;
+    bool inc = (orient == 0) ? (nextPos % 2 == 1) : (nextPos % 2 == 0);
+
+    for (int i = 0; i < uniq; ++i) {
+        if (cnt[i] == 0) continue;
+        if (inc) {
+            if (!(vals[i] > vals[last])) continue;
+        } else {
+            if (!(vals[i] < vals[last])) continue;
+        }
+        cnt[i]--;
+        if (dfsAlt(cnt, rem - 1, i, nextPos, orient, vals, uniq)) {
+            cnt[i]++;  /* restore before returning */
+            return true;
+        }
+        cnt[i]++;
+    }
+    return false;
+}
 
 /* helper forward declarations */
 static bool hasAlternating(const seq_t *parts, size_t len);
@@ -40,7 +67,7 @@ static idx_t memo_cap = 0;
 static void ensure_capacity(idx_t n) {
     if (n < memo_cap) return;
     idx_t new_cap = n + 1;
-    seq_t *new_memo = (seq_t *)realloc(memo, new_cap * sizeof(seq_t));
+    seq_t *new_memo = mem_resize(seq_t, memo, new_cap);
     bool *new_done = (bool *)realloc(memo_done, new_cap * sizeof(bool));
     if (!new_memo || !new_done) {
         /* allocation failed, abort */

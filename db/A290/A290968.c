@@ -9,13 +9,15 @@
  *            values: a(0)=1, a(1)=1, a(2)=1, a(3)=-1, a(4)=1
  * Range:     i8 n <= 13, i16 n <= 25, i32 n <= 48, i64 n <= 94, i128 n <= 186,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 56 terms through n = 962 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Computes the nth term of OEIS sequence A290968. */
 seq_t a(idx_t n)
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
         /* Ensure capacity at least n+1, but start with a reasonable minimal size. */
         idx_t init_cap = n + 1;
         if (init_cap < 16) init_cap = 16;
-        cache = (seq_t*)malloc(init_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, init_cap);
         if (!cache) return 0; /* allocation failed, fallback to zero */
 
         /* Initialize the first five values. */
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
         /* Grow the cache to accommodate up to index n. */
         idx_t new_cap = cache_cap * 2;
         while (new_cap <= n) new_cap *= 2;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0; /* allocation failed */
         cache = tmp;
         cache_cap = new_cap;

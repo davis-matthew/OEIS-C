@@ -7,13 +7,15 @@
  * Formula:   a(n) = a(n-1) + a(n-3) - 4 (a(0)=7, a(1)=8, a(2)=9)
  * Range:     u8 n <= 12, u16 n <= 26, u32 n <= 55, u64 n <= 113,
  *            u128 n <= 229, big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 825 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     /* Initial allocation and base values */
     if (cache == NULL) {
         cache_size = 3;
-        cache = (seq_t*)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (cache == NULL) return (seq_t)0;       /* out of memory: return 0 */
         cache[0] = (seq_t)7;
         cache[1] = (seq_t)8;
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* Extend cache if necessary */
     if ((size_t)n >= cache_size) {
         size_t new_size = (size_t)n + 1;
-        seq_t *new_cache = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (new_cache == NULL) return (seq_t)0;   /* out of memory: return 0 */
         cache = new_cache;
         /* Compute new terms using the recurrence */

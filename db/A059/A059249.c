@@ -7,8 +7,9 @@
  * Keywords:  nonn, look
  * Formula:   a(n) = interpret in base‑3 the per‑digit sum (mod 3) of n and
  *            n‑1
- * Range:     u8 n <= 242, u16 n <= 9242, u32 n <= 9242, u64 n <= 9242,
- *            u128 n <= 9242, big any n
+ * Range:     u8 n <= 242, u16 n <= 19682, u32 n <= 19682, u64 n <= 19682,
+ *            u128 n <= 19682, big any n
+ * Validated: standard, pass, 88 terms through n = 9242 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

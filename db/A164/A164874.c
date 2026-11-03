@@ -10,11 +10,13 @@
  *            The triangle T(n,k) satisfies T(n,k) = 2^(n+1) - 2^(n-k) - 1
  * Range:     u8 n <= 28, u16 n <= 120, u32 n <= 496, u64 n <= 2016,
  *            u128 n <= 5050, big any n
+ * Validated: standard, pass, 71 terms through n = 4817 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

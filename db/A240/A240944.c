@@ -10,12 +10,14 @@
  *            compositions into square parts with k sorts for part k^2
  * Range:     u8 n <= 13, u16 n <= 26, u32 n <= 50, u64 n <= 98, u128 n <= 194,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 1000 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* assume seq_t and idx_t are defined elsewhere by the build system */
 seq_t a(idx_t n)
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* Ensure the cache can hold indices up to n. */
     if (n >= cache_len) {
         size_t new_len = (size_t)n + 1;               /* number of slots needed */
-        seq_t *tmp = (seq_t*)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) return 0;                          /* out of memory → 0 */
         /* initialize the new slots to 0 */
         for (size_t i = (size_t)cache_len; i < new_len; ++i)

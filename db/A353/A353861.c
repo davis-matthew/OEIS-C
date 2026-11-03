@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 9997, u16 n <= 9997, u32 n <= 9997, u64 n <= 9997,
- *            u128 n <= 9997, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 124 terms through n = 9997 (2026-11-01)
  * Helpers:   build_primes_upto, factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -24,8 +25,8 @@
 #include <stddef.h>
 #include <stdbool.h>
 /* Utility headers provided by the harness */
-#include "../utils/factor_u64.h"         /* factor_u64 */
-#include "../utils/build_primes_upto.h"  /* build_primes_upto */
+#include "../utils/build_primes_upto.h"
+#include "../utils/factor_u64.h"
 
 static uint64_t *prime_list = NULL;      /* cached prime numbers (1‑based) */
 static size_t   prime_cnt   = 0;         /* number of primes cached */

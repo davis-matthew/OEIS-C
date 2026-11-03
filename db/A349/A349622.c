@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Prime utilities – the build supplies seq_t and idx_t */
 static seq_t *primes = NULL;
@@ -59,7 +61,7 @@ static void init_primes(void)
         if (!sieve[i]) ++primes_cnt;
 
     /* Allocate and fill array */
-    primes = (seq_t *)malloc(primes_cnt * sizeof(seq_t));
+    primes = mem_new(seq_t, primes_cnt);
     if (!primes) abort();
 
     size_t idx = 0;
@@ -157,7 +159,7 @@ static void ensure_seq_capacity(size_t needed)
     if (seq_cap >= needed) return;
     size_t new_cap = (seq_cap == 0) ? 8 : seq_cap << 1;
     while (new_cap < needed) new_cap <<= 1;
-    seq_arr = (seq_t *)realloc(seq_arr, new_cap * sizeof(seq_t));
+    seq_arr = mem_resize(seq_t, seq_arr, new_cap);
     seq_cap = new_cap;
 }
 

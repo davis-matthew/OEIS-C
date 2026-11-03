@@ -8,6 +8,7 @@
  *            divisors of n
  * Range:     u8 n <= 36, u16 n <= 88, u32 n <= 250, u64 n <= 820,
  *            u128 n <= 2000, big any n
+ * Validated: standard, pass, 77 terms through n = 1817 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

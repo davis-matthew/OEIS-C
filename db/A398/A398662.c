@@ -9,12 +9,14 @@
  *            a(n-6), with a(0)=0, a(1)=2, a(2)=7, a(3)=17, a(4)=35, a(5)=63
  * Range:     u8 n <= 8, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 44 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* initial values up to a(5) */
 static const seq_t init_vals[6] = {0, 2, 7, 17, 35, 63};
@@ -34,14 +36,14 @@ seq_t a(idx_t n)
     if (cache == NULL) {                         /* first call */
         size_t need = n + 1;                     /* size in elements */
         if (need < 6) need = 6;                 /* at least six */
-        cache = (seq_t *)malloc(need * sizeof(seq_t));
+        cache = mem_new(seq_t, need);
         if (!cache) return 0;                    /* allocation failed */
         for (idx_t i = 0; i < 6; ++i)
             cache[i] = init_vals[i];
         cache_len = 6;                          /* we know indices 0..5 */
     } else if (cache_len <= n) {                 /* must grow */
         size_t need = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, need * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, need);
         if (!tmp) return 0;                     /* allocation failed */
         cache = tmp;
         /* cache_len remains unchanged; we will fill missing terms below */

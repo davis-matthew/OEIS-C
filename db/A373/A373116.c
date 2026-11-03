@@ -8,8 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 8, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   append_candidate, bitlen_seq_t, digit_product, fib, seq_cmp,
- *            seq_pow
+ * Validated: partial, pass, 9 terms through n = 9 (2026-11-03)
+ * Helpers:   bit_length, digit_product, ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,12 +19,49 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/fib.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/bit_length.h"
 #include "../utils/digit_product.h"
-#include "../utils/bitlen_seq_t.h"
-#include "../utils/append_candidate.h"
-#include "../utils/seq_pow.h"
-#include "../utils/seq_cmp.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
+
+static int seq_cmp(const void *p, const void *q)
+{
+    const seq_t *a = (const seq_t *)p;
+    const seq_t *b = (const seq_t *)q;
+    if (*a < *b) return -1;
+    if (*a > *b) return 1;
+    return 0;
+}
 
 /* Test whether x is a perfect power (a^e with e>=2, 1 considered a perfect power). */
 static bool is_perfect_power(seq_t x)
@@ -33,17 +70,17 @@ static bool is_perfect_power(seq_t x)
     static const seq_t one = 1;
     if (seq_cmp(&x, &one) <= 0) return true;  /* x == 1 */
 
-    int max_e = bitlen_seq_t(x);  /* 2^max_e >= x */
+    int max_e = bit_length(x);  /* 2^max_e >= x */
 
     for (int e = 2; e <= max_e; ++e) {
         /* Binary search for integer r such that r^e == x. */
         seq_t low = 2;
         int high_exp = (max_e + e - 1) / e;        /* upper bound for exponent */
-        seq_t high = seq_pow((seq_t)2, (idx_t)high_exp);
+        seq_t high = ipow_idx((seq_t)2, (idx_t)high_exp);
 
         while (seq_cmp(&low, &high) <= 0) {
             seq_t mid = (low + high) / 2;
-            seq_t p = seq_pow(mid, (idx_t)e);
+            seq_t p = ipow_idx(mid, (idx_t)e);
             int cmp = seq_cmp(&p, &x);
             if (cmp == 0) return true;          /* exact match */
             else if (cmp < 0) low = mid + 1;    /* p < x */

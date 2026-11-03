@@ -8,15 +8,28 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 40, u32 n <= 210, u64 n <= 210,
  *            u128 n <= 210, big any n
- * Helpers:   ceil_div_by2, floor_div_by2
+ * Validated: standard, pass, 57 terms through n = 205 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/ceil_div_by2.h"
-#include "../utils/floor_div_by2.h"
+
+/* ceil division by 2, works for negative numbers */
+static inline int64_t ceil_div_by2(int64_t a)
+{
+    return (a >= 0) ? (a + 1) / 2 : a / 2;
+}
+
+/* floor division by 2, works for negative numbers */
+static inline int64_t floor_div_by2(int64_t a)
+{
+    if (a >= 0)
+        return a / 2;
+    return - ((-a + 1) / 2);
+}
 
 /* Algorithm:
    For an integer n ≥ 1 count all 0‑≤a,b,c≤n such that

@@ -13,13 +13,15 @@
  *            seq_t/idx_t sizes, using the provided big_pow helper to co...
  * Range:     u8 n <= 4, u16 n <= 4, u32 n <= 5, u64 n <= 6, u128 n <= 7,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 8 terms through n = 8 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
     }
 
     /* Compute 2^w + 2^p using big_pow (supports large exponents) */
-    seq_t term1 = big_pow((seq_t)2, w);
-    seq_t term2 = big_pow((seq_t)2, p);
+    seq_t term1 = ipow((seq_t)2, w);
+    seq_t term2 = ipow((seq_t)2, p);
     return term1 + term2;
 }

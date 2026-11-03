@@ -7,7 +7,8 @@
  * Formula:   a(n) = sum of isolated positive divisors of n
  * Range:     u8 n <= 107, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   isolated_divisor
+ * Validated: standard, pass, 85 terms through n = 10000 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,29 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/isolated_divisor.h"
+
+static bool isolated_divisor(idx_t n, idx_t d) {
+    /* Handle convention for divisor 1 */
+    if (d == 1u) {
+        /* isolated iff n is odd */
+        return (n & 1u) != 0u;
+    }
+
+    /* If (d-1) divides n, then d is not isolated */
+    if (n % (d - 1u) == 0u) {
+        return false;
+    }
+
+    /* If (d+1) divides n, then d is not isolated.
+       Guard against overflow when d == UINT64_MAX. */
+    if (d < UINT64_MAX) {
+        if (n % (d + 1u) == 0u) {
+            return false;
+        }
+    }
+
+    return true;
+}
 
 seq_t a(idx_t n) {
     if (n < 1u) {

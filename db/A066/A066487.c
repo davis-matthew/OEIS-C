@@ -9,7 +9,8 @@
  *            that is not less than n. Return a(n) for n ≥ 1
  * Range:     u8 n <= 3, u16 n <= 13, u32 n <= 216, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd64, genDivisors, mul64, pollardRho
+ * Validated: standard, pass, 59 terms through n = 9592 (2026-11-01)
+ * Helpers:   gcd_u64, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,17 +18,48 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/gcd64.h"
-#include "../utils/genDivisors.h"
-#include "../utils/mul64.h"
-#include "../utils/pollardRho.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/mulmod.h"
+
+static void genDivisors(const uint64_t *fac, const int *exp,
+                        int depth, uint64_t cur, uint64_t n_val,
+                        uint64_t *min_d)
+{
+    if (cur >= n_val && cur < *min_d) *min_d = cur;
+    if (depth == 0) return;
+    uint64_t p = fac[depth - 1];
+    int e = exp[depth - 1];
+    uint64_t cur_pow = cur;
+    for (int i = 0; i <= e; ++i) {
+        genDivisors(fac, exp, depth - 1, cur_pow, n_val, min_d);
+        cur_pow *= p;
+    }
+}
+
+static uint64_t pollardRho(uint64_t n)
+{
+    if ((n & 1) == 0) return 2;
+    uint64_t c = 1;
+    while (1) {
+        uint64_t x = 2, y = 2, d = 1;
+        while (d == 1) {
+            x = (mulmod(x, x, n) + c) % n;
+            y = (mulmod(y, y, n) + c) % n;
+            y = (mulmod(y, y, n) + c) % n;
+            uint64_t diff = x > y ? x - y : y - x;
+            d = gcd_u64(diff, n);
+        }
+        if (d != n) return d;
+        ++c;
+    }
+}
 
 static uint64_t pow_mod64(uint64_t a, uint64_t e, uint64_t mod)
 {
     uint64_t r = 1;
     while (e) {
-        if (e & 1) r = mul64(r, a, mod);
-        a = mul64(a, a, mod);
+        if (e & 1) r = mulmod(r, a, mod);
+        a = mulmod(a, a, mod);
         e >>= 1;
     }
     return r;
@@ -52,7 +84,7 @@ static bool isPrime64(uint64_t n)
         if (x == 1 || x == n - 1) continue;
         bool comp = true;
         for (uint64_t r = 1; r < s; ++r) {
-            x = mul64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) { comp = false; break; }
         }
         if (comp) return false;

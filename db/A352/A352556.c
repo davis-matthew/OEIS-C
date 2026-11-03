@@ -11,15 +11,23 @@
  *            multiplying the appropriate partition/convolution counts
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   legendre24, pow_mod_ull
+ * Validated: standard, pass, 134 terms through n = 9621 (2026-11-01)
+ * Helpers:   powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/legendre24.h"
-#include "../utils/pow_mod_ull.h"
+#include "../utils/powmod_u64.h"
+
+/* Legendre symbol (24|p) for odd p not dividing 24 */
+static int legendre24(int p)
+{
+    uint64_t ls = powmod_u64(24 % p, (p - 1) / 2, p);
+    if (ls == (uint64_t)p - 1) return -1;      /* inert */
+    return (int)ls;                            /* split (1) */
+}
 
 #define MAX_EXP 20
 static seq_t part[MAX_EXP + 1];

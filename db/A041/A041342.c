@@ -10,6 +10,7 @@
  *            satisfy p[-2]=0, p[-1]=1 and p(k) = c(k)*p(k-1)+p(k-2)
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 19, u64 n <= 44, u128 n <= 89,
  *            big any n
+ * Validated: standard, pass, 44 terms through n = 180 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

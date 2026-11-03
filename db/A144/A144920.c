@@ -7,7 +7,8 @@
  * Formula:   a(n) = the n‑th prime congruent to 5 modulo 6
  * Range:     i8 n <= 15, i16 n <= 55, i32 n <= 55, i64 n <= 55, i128 n <= 55,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* static cache for memoisation */
 static seq_t *prime_cache = NULL;
@@ -30,7 +32,7 @@ static void enlarge_cache(size_t needed)
     while (cache_cap < needed) {
         cache_cap = cache_cap == 0 ? 4 : cache_cap * 2;
     }
-    seq_t *new_cache = (seq_t *)realloc(prime_cache, cache_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, prime_cache, cache_cap);
     if (!new_cache) {
         /* allocation failed – abort (sequence calculation cannot continue) */
         abort();

@@ -10,7 +10,8 @@
  *            4^n + 4*a(2n-1) - a(n) a(2n+1) = 4 * a(2n)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static tables for caching */
 static seq_t *cache   = NULL;   /* a(0)..a(n) */
@@ -36,7 +38,7 @@ static void ensure_pow4(size_t k)
     if (k < pow4_size) return;          /* already present */
 
     size_t new_size = k + 1;             /* need indices 0..k */
-    pow4 = (seq_t *)realloc(pow4, new_size * sizeof(seq_t));
+    pow4 = mem_resize(seq_t, pow4, new_size);
     if (!pow4) { pow4 = NULL; return; } /* allocation failure ignored */
 
     /* fill new entries from current size up to k */
@@ -56,7 +58,7 @@ static void ensure_cache(idx_t n)
     if ((size_t)n < cache_size) return;  /* already computed */
 
     size_t new_size = (size_t)n + 1;
-    cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_size);
     if (!cache) { cache = NULL; return; } /* allocation failure ignored */
 
     /* initialise missing base cases if this is the first time */

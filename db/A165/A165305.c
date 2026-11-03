@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 29, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   compose_num, digit_len
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,20 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/digit_len.h"
-#include "../utils/compose_num.h"
+#include <stdbool.h>
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* compose a number with `len` digits starting at digit `d` in the cycle 1..7 */
+static seq_t compose_num(idx_t d, idx_t len)
+{
+    seq_t result = 0;
+    for (idx_t i = 0; i < len; ++i) {
+        uint8_t digit = (uint8_t)(((d - 1U) + i) % 7U + 1U);
+        result = result * (seq_t)10 + (seq_t)digit;
+    }
+    return result;
+}
 
 /* cache for memoisation */
 static seq_t *cache = NULL;
@@ -42,7 +55,7 @@ static void ensure_cache(idx_t n)
         size_t new_cap = cache_cap ? cache_cap << 1 : 64;
         while (new_cap < (size_t)n)
             new_cap <<= 1;
-        seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
         if (!new_ptr)
             abort();                          /* allocation failed */
         cache = new_ptr;
@@ -62,7 +75,7 @@ static void ensure_cache(idx_t n)
         seq_t val = compose_num(d, cur_len[d]);        /* term value          */
         cache[idx] = val;
 
-        total_digits += digit_len(val);                /* update digit count   */
+        total_digits += num_digits(val);                /* update digit count   */
         ++cur_len[d];                                 /* next length for d    */
     }
     cache_len = (size_t)n;

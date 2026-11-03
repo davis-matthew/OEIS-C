@@ -9,13 +9,15 @@
  *            a(3)=168386, a(4)=18328142, a(5)=1994963186
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 9, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* array storing computed terms, index 0 is unused */
 static size_t cap   = 0;         /* number of free slots in cache (>= last index + 1) */
@@ -25,7 +27,7 @@ static idx_t last_computed = 0;  /* largest n for which cache[n] is valid */
 static void grow_cache(size_t needed)
 {
     if (cap < needed) {
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * needed);
+        seq_t *tmp = mem_resize(seq_t, cache, needed);
         if (tmp == NULL) {
             abort();                     /* out‑of‑memory: terminate program */
         }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 754, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 961 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
  * two 0's and one 2, in ascending order.  The sequence starts
  * with 18, 29, 33, … as in OEIS A045000. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Comparator for qsort used on seq_t objects. */
 static int seq_compare(const void *p1, const void *p2)
@@ -70,7 +72,7 @@ static void generate_length(idx_t len, seq_t *arr, size_t *arr_len)
     }
 
     /* Sort the numbers of this length. */
-    qsort(local, local_len, sizeof(seq_t), seq_compare);
+    mem_qsort(local, local_len, sizeof(seq_t), seq_compare);
 
     /* Append them to the global buffer. */
     for (size_t i = 0; i < local_len; ++i)

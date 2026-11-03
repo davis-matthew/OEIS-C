@@ -11,14 +11,29 @@
  *            sequence is the triangle read by rows
  * Range:     u8 n <= 23, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   binom, floor_sqrt_tri
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"   /* provides binom(idx_t a, idx_t b) */
-#include "../utils/floor_sqrt_tri.h"
+#include "../utils/binomial.h"
+
+static inline idx_t floor_sqrt_tri(idx_t n)
+{
+    /* binary search for r such that r*(r+1)/2 <= n < (r+1)*(r+2)/2 */
+    idx_t low = 0, high = n + 1;        /* high exclusive */
+    while (low + 1 < high) {
+        idx_t mid = low + ((high - low) >> 1);
+        unsigned __int128 tri = (unsigned __int128)mid * (mid + 1) / 2;
+        if (tri <= (unsigned __int128)n)
+            low = mid;
+        else
+            high = mid;
+    }
+    return low;
+}
 
 static seq_t triangle_value(idx_t n, idx_t m)
 {
@@ -27,10 +42,10 @@ static seq_t triangle_value(idx_t n, idx_t m)
         idx_t nk   = n - k;
         idx_t m2k  = m - 2 * k;
         idx_t mk   = m - k;
-        seq_t term = binom(nk, m2k);
-        term *= binom(nk, mk);
-        term *= binom(n, k);
-        seq_t denom = binom(2 * k, k);
+        seq_t term = binomial(nk, m2k);
+        term *= binomial(nk, mk);
+        term *= binomial(n, k);
+        seq_t denom = binomial(2 * k, k);
         term /= denom;           /* division is exact by construction */
         sum += term;
     }

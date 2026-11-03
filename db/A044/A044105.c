@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   has_03
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,24 @@
 /* Implements sequence A044105: numbers k such that the base‑6 representation
    of k contains the substring "03" but the representation of k-1 does not. */
 #include <stdbool.h>
-#include "../utils/has_03.h"
+
+/* test whether a base‑6 number x contains the sub‑string 0 followed by 3
+   (i.e. a more‑significant digit 0 and the immediately following
+   less‑significant digit 3).  The digits are examined from least
+   significant to most significant, so a pattern 0 &gt; 3 is detected as
+   3 already seen (prev==3) followed by a 0 (d==0). */
+static bool has_03(seq_t x)
+{
+    int prev = -1;
+    while (x > 0) {
+        int d = (int)(x % 6);
+        if (prev == 3 && d == 0)
+            return true;
+        prev = d;
+        x = x / 6;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

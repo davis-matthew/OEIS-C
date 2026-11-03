@@ -10,14 +10,27 @@
  *            denotes the binomial coefficient (x choose r)
  * Range:     u8 n <= 18, u16 n <= 179, u32 n <= 1275, u64 n <= 1275,
  *            u128 n <= 1275, big any n
- * Helpers:   binom3_ull, binom4_ull
+ * Validated: standard, pass, 92 terms through n = 1256 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom3_ull.h"
-#include "../utils/binom4_ull.h"
+
+/* Helper: binomial coefficient for r = 3 (returns 0 if x < 3). */
+static inline uint64_t binom3_ull(idx_t x) {
+    if (x < 3) return 0ULL;
+    uint64_t u = (uint64_t)x;
+    return u * (u - 1) * (u - 2) / 6ULL;
+}
+
+/* Helper: binomial coefficient for r = 4 (returns 0 if x < 4). */
+static inline uint64_t binom4_ull(idx_t x) {
+    if (x < 4) return 0ULL;
+    uint64_t u = (uint64_t)x;
+    return u * (u - 1) * (u - 2) * (u - 3) / 24ULL;
+}
 
 /* Find the antidiagonal index s such that (s-1)*s/2 >= n. */
 static inline idx_t find_diagonal(idx_t n) {

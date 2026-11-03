@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 192, u32 n <= 192, u64 n <= 192,
  *            u128 n <= 192, big any n
- * Helpers:   none
+ * Validated: full, pass, 192 terms through n = 192 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static const int nb1[4] = {1, 0, 0, 1};   /* first neighbor of each cell   */
 static const int nb2[4] = {2, 3, 3, 2};   /* second neighbor of each cell  */
@@ -66,7 +68,7 @@ seq_t a(idx_t n) {
 
         /* Allocate final cache */
         cache_len = cnt; /* should be 192 */
-        cache = (seq_t*)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         for (idx_t i = 0; i < cache_len; ++i)
             cache[i] = tmp[i];
     }

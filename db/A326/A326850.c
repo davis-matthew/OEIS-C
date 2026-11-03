@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 47, u16 n <= 107, u32 n <= 299, u64 n <= 300,
  *            u128 n <= 300, big any n
- * Helpers:   none
+ * Validated: standard, pass, 84 terms through n = 268 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    parts all less than m. */
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     }
 
     /* ---- allocation for subset‑sum DP ---- */
-    seq_t *dp = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1));
     seq_t result = 0;
 
     /* ---- process each divisor ---- */
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
         result += dp[target];
     }
 
-    free(dp);
+    mem_free(dp);
     free(divs);
     return result;
 }

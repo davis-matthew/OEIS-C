@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5050, u16 n <= 5050, u32 n <= 5050, u64 n <= 5050,
  *            u128 n <= 5050, big any n
- * Helpers:   none
+ * Validated: standard, pass, 115 terms through n = 4875 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 #else
 #  define MAX_ROW  10000ull
 #endif
+#include "../utils/mem.h"
 
 static seq_t *row_cache[MAX_ROW + 1];
 static size_t prefix_sum[MAX_ROW + 1];   /* prefix_sum[i] = total elements up to row i  */
@@ -97,7 +99,7 @@ static bool build_row_rec(idx_t pos, idx_t n, seq_t *row, bool *used)
    the prefix sums. */
 static void build_row(idx_t n)
 {
-    seq_t *row = (seq_t *)malloc((size_t)n * sizeof(seq_t));
+    seq_t *row = mem_new(seq_t, (size_t)n);
     if (!row) exit(1);
     row[0] = (seq_t)1;
     row[n - 1] = (seq_t)n;

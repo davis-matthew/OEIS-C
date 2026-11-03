@@ -9,7 +9,8 @@
  *            that every leading partial sum is divisible by 2, 3, 5 or 7
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 28,
  *            big any n
- * Helpers:   init_allowed_residues
+ * Validated: standard, pass, 34 terms through n = 85 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,22 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/init_allowed_residues.h"
+
+/* Helper: determine which residues modulo 210 are allowed.
+   Residues that are divisible by 2, 3, 5 or 7. */
+static void init_allowed_residues(bool* inD, int* Dcnt)
+{
+    int cnt = 0;
+    for (int r = 0; r < 210; ++r) {
+        if (r % 2 == 0 || r % 3 == 0 || r % 5 == 0 || r % 7 == 0) {
+            inD[r] = true;
+            ++cnt;
+        } else {
+            inD[r] = false;
+        }
+    }
+    *Dcnt = cnt;
+}
 
 seq_t a(idx_t n)
 {

@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 140, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 65 terms through n = 988 (2026-11-01)
  * Helpers:   digit_product
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -25,6 +26,7 @@
 #include <stdbool.h>
 
 /* Utility to obtain the product of the decimal digits of an integer. */
+#include <stdlib.h>
 #include "../utils/digit_product.h"
 
 #define CACHE_CAP 20000      /* enough for n up to 10000th term */

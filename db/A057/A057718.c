@@ -8,20 +8,22 @@
  *            binomial(2n-2k,n-k)^2
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 9, u64 n <= 17, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     if (n < 1) return 0;
 
     /* Allocate array for C(k) = binomial(2k,k) */
-    seq_t *C = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *C = mem_new(seq_t, (size_t)(n + 1));
     if (!C) return 0;               /* allocation failure -> zero */
 
     /* C[0] = 1. Compute C(k) recursively:
@@ -60,6 +62,6 @@ seq_t a(idx_t n)
     /* Final result: divide remaining rem by 8 (must be zero because sum is divisible by 8) */
     seq_t result = high + (rem >> 3);
 
-    free(C);
+    mem_free(C);
     return result;
 }

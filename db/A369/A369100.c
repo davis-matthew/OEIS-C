@@ -7,8 +7,9 @@
  * Formula:   a(n) = product_{p^e||n} f(p,e) * where f(2,e) = (e^2-5e+2)/2, *
  *            f(p odd,e) = (e+1)*(e+2)/2 * * The sequence is multiplicative
  *            with the above local factors
- * Range:     i8 n <= 2834, i16 n <= 9516, i32 n <= 9516, i64 n <= 9516,
- *            i128 n <= 9516, big any n
+ * Range:     i8 n <= 2834, i16 n <= 20000, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 91 terms through n = 9516 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

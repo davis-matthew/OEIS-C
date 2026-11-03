@@ -12,12 +12,14 @@
  *            sequence a(n) enumerates the triangle row‑by‑...
  * Range:     u8 n <= 17, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of idx_t and seq_t are provided by the build. */
 
@@ -41,7 +43,7 @@ static void flat_grow(size_t needed)
         size_t new_cap = flat_cap ? flat_cap * 2 : 64;
         while (new_cap < flat_len + needed)
             new_cap <<= 1;
-        flat = (seq_t *)realloc(flat, new_cap * sizeof(seq_t));
+        flat = mem_resize(seq_t, flat, new_cap);
         flat_cap = new_cap;
     }
 }
@@ -56,7 +58,7 @@ static void ensure_rows(idx_t n)
         if (rows_built == 0) {
             /* Row 0: T(0,0) = 1. */
             size_t len = 1;
-            seq_t *row = (seq_t *)malloc(len * sizeof(seq_t));
+            seq_t *row = mem_new(seq_t, len);
             row[0] = (seq_t)1;
             flat_grow(len);
             flat[flat_len++] = row[0];
@@ -66,7 +68,7 @@ static void ensure_rows(idx_t n)
         } else if (rows_built == 1) {
             /* Row 1: T(1,0) = 3. */
             size_t len = 1;
-            seq_t *row = (seq_t *)malloc(len * sizeof(seq_t));
+            seq_t *row = mem_new(seq_t, len);
             row[0] = (seq_t)3;
             flat_grow(len);
             flat[flat_len++] = row[0];
@@ -77,7 +79,7 @@ static void ensure_rows(idx_t n)
             /* Build next row r = rows_built (starting with r = 2). */
             size_t r    = rows_built;
             size_t len  = (r / 2) + 1;
-            seq_t *row  = (seq_t *)malloc(len * sizeof(seq_t));
+            seq_t *row  = mem_new(seq_t, len);
             for (size_t k = 0; k < len; ++k) {
                 seq_t term1 = 0;
                 if (k < prev1.len)
@@ -99,7 +101,7 @@ static void ensure_rows(idx_t n)
             prev2.len  = prev1.len;
             prev1.data = row;
             prev1.len  = len;
-            free(old_prev2);
+            mem_free(old_prev2);
 
             rows_built++;
         }

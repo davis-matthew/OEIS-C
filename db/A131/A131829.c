@@ -9,13 +9,15 @@
  *            smallest unused nonnegative integers
  * Range:     u8 n <= 71, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 71 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static state for memoisation and bookkeeping */
 static seq_t *seq_cache = NULL;
@@ -52,7 +54,7 @@ static void ensure_seq_capacity(idx_t len)
     if (len <= seq_cap) return;
     idx_t new_cap = seq_cap ? seq_cap * 2 : 16;
     if (new_cap < len) new_cap = len;
-    seq_t *new_arr = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, seq_cache, new_cap);
     if (!new_arr) abort();          /* allocation failure */
     seq_cache = new_arr;
     seq_cap = new_cap;

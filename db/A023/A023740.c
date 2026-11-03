@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   count_fours_base5
+ * Validated: standard, pass, 56 terms through n = 927 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,18 @@
    values. */
 
 #include <stdlib.h>   /* exit, realloc */
-#include "../utils/count_fours_base5.h"
+
+static int count_fours_base5(seq_t v) {
+    int c = 0;
+    const seq_t five = (seq_t)5;
+    const seq_t four = (seq_t)4;
+    while (v) {
+        if ((v % five) == four)
+            ++c;
+        v /= five;
+    }
+    return c;
+}
 
 static seq_t *cache   = NULL;   /* stored terms   */
 static size_t  cap    = 0;      /* allocated size */

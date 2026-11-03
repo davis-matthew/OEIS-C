@@ -12,12 +12,14 @@
  *            exactly. For built–in unsigned types the values...
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 33, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 810 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc, free */
+#include "../utils/mem.h"
 
 /* static cache of computed terms */
 static seq_t *cache = NULL;
@@ -30,7 +32,7 @@ static void ensure_cache(idx_t n)
     if (needed <= cache_size) return;
 
     /* reallocate to larger size */
-    cache = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, needed);
     if (cache == NULL) {
         /* allocation failed – terminate the program */
         abort();

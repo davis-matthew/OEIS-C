@@ -11,6 +11,7 @@
  *            105 a_{n-6} + 43 a_{n-7} - 10 a_{n-8} + a_{n-9} Initial...
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 19, u64 n <= 42, u128 n <= 88,
  *            big any n
+ * Validated: standard, pass, 41 terms through n = 908 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

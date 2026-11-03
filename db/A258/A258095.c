@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 187, u32 n <= 250, u64 n <= 250,
  *            u128 n <= 250, big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 235 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 enum { PRIME_COUNT = 20 };
 
@@ -68,7 +70,7 @@ static void init_static(void) {
 
     /* Allocate cache */
     cache_cap = 64;
-    cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     if (!cache) return;          /* allocation failure – subsequent uses will fail */
 
     /* Pre‑compute 78557 mod p for each prime */
@@ -84,7 +86,7 @@ static void init_static(void) {
 static void ensure_cache(void) {
     if (cache_len < cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 64;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) return;  /* allocation failure – subsequent uses will fail */
     cache = new_cache;
     cache_cap = new_cap;

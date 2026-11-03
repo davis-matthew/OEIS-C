@@ -11,14 +11,17 @@
  *            e[n] = Σ_{L∈{1,2,4,8}, L≤n} P(n−1, L−1) * e[n−L] + Σ_{...
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 14, u64 n <= 22, u128 n <= 37,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 40 terms through n = 469 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *e = NULL;          /* even‑sign counts */
 static seq_t *o = NULL;          /* odd‑sign counts */
@@ -34,8 +37,8 @@ static void ensure_capacity(idx_t n)
     size_t newCap = cap ? cap : 16;
     while (newCap <= (size_t)n) newCap <<= 1;
 
-    seq_t *newE = (seq_t *)realloc(e, newCap * sizeof(seq_t));
-    seq_t *newO = (seq_t *)realloc(o, newCap * sizeof(seq_t));
+    seq_t *newE = mem_resize(seq_t, e, newCap);
+    seq_t *newO = mem_resize(seq_t, o, newCap);
     if (!newE || !newO) abort();
 
     /* Zero new slots */

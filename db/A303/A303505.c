@@ -8,12 +8,14 @@
  * Formula:   a(n) = Sum_{k=2}^{ceil(n/2)-1} binomial(n,2*k+1)*(2*k)!/2
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 13, u64 n <= 21, u128 n <= 35,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 39 terms through n = 198 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
 
     /* initial k = 2  =>  r = 2*k+1 = 5  */
     int r = 5;
-    seq_t bin = binom(n, (idx_t)r);         /* binomial(n,5)           */
+    seq_t bin = binomial(n, (idx_t)r);         /* binomial(n,5)           */
     seq_t fact = 24;                        /* (2*2)! = 4!             */
     sum += (bin * fact) / (seq_t)2;          /* add first term          */
 

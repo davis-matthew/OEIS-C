@@ -8,12 +8,14 @@
  *            (x^k/k) / product_{d|k} (1 - k*x^d/d)
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 16, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External types provided by the build system */
 extern seq_t a(idx_t n);
@@ -28,8 +30,8 @@ static size_t _poly_size = 0;
 static void _ensure_poly(size_t N)
 {
     if (_poly_size <= N) {
-        free(_poly);
-        _poly = (seq_t*)malloc((N + 1) * sizeof(seq_t));
+        mem_free(_poly);
+        _poly = mem_new(seq_t, (N + 1));
         _poly_size = N + 1;
     }
 }
@@ -40,8 +42,8 @@ static void _compute_to(idx_t N)
     if (_computed_max >= N) return;          /* already computed */
 
     /* Allocate and initialise result array */
-    if (_A) free(_A);
-    _A = (seq_t*)malloc((N + 1) * sizeof(seq_t));
+    if (_A) mem_free(_A);
+    _A = mem_new(seq_t, (N + 1));
     for (idx_t i = 1; i <= N; ++i) _A[i] = 0;
 
     /* Allocate temporary array */

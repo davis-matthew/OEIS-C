@@ -13,7 +13,8 @@
  *            integer arithmetic
  * Range:     i8 n <= 17, i16 n <= 63, i32 n <= 63, i64 n <= 63, i128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,10 +41,10 @@ seq_t a(idx_t n)
     /* Allocate storage for two consecutive rows.
        The maximum row length needed is 2*r + 1. */
     size_t max_len = 2 * r + 1;
-    seq_t *prev = (seq_t *)calloc(max_len, sizeof(seq_t));
-    seq_t *curr = (seq_t *)calloc(max_len, sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, max_len);
+    seq_t *curr = mem_new(seq_t, max_len);
     if (!prev || !curr) {          /* allocation failure – return 0 */
-        free(prev); free(curr);
+        mem_free(prev); mem_free(curr);
         return (seq_t)0;
     }
 
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
     /* Extract the requested entry */
     seq_t result = prev[k];
 
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
     return result;
 }

@@ -11,21 +11,24 @@
  *            2^j (0 ≤ j ≤ r) * T(r,i) = 0 otherwise. * * The sequence a(n)
  *            lists T(r,i) for rows r = 0,1,2,… and * indices i = 0,…,2^r-1 in
  *            lexicographic (row‑major) order. * * Implem...
- * Range:     i8 n <= 29, i16 n <= 509, i32 n <= 8395, i64 n <= 8395,
- *            i128 n <= 8395, big any n
- * Helpers:   floor_log2_uint64, pow2
+ * Range:     i8 n <= 29, i16 n <= 509, i32 n <= 16382, i64 n <= 16382,
+ *            i128 n <= 16382, big any n
+ * Validated: standard, pass, 143 terms through n = 8395 (2026-11-01)
+ * Helpers:   ilog2, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/floor_log2_uint64.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/ilog2.h"
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {
     /* Determine the row r:  indices up to row r-1 total 2^r-1 numbers. */
-    idx_t r   = floor_log2_uint64(n + 1);          /* r ≥ 0,  r ≤ 13 for n ≤ 10000 */
+    idx_t r   = ilog2(n + 1);          /* r ≥ 0,  r ≤ 13 for n ≤ 10000 */
     idx_t start = ((idx_t)1 << r) - 1;             /* first index in row r   */
     idx_t pos   = n - start;                      /* position within row r  */
 
@@ -35,7 +38,7 @@ seq_t a(idx_t n)
         return (seq_t)0;
 
     /* j = log2(diff) */
-    idx_t j = floor_log2_uint64(diff);
+    idx_t j = ilog2(diff);
 
     /* Compute the value: T(r,i) = -2^(2r+1-j) + 3*2^(2*(r-j)) */
     seq_t term1 = pow2(2 * r + 1 - j);

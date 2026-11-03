@@ -11,7 +11,8 @@
  *            neighbouring columns.)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 22, u128 n <= 44,
  *            big any n
- * Helpers:   has_one
+ * Validated: standard, pass, 35 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,11 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/has_one.h"
+#include "../utils/mem.h"
+
+static inline bool has_one(uint8_t mask, unsigned int pos) {
+    return (mask >> pos) & 1;
+}
 
 /* check that every 1 in column cur has 1 or 2 neighbours given
    left column prev and right column next (both 4‑bit patterns) */
@@ -77,13 +82,13 @@ seq_t a(idx_t n) {
 
     /* initialise with the first (leftmost) column.  Dummy left
        column is 0. */
-    memset(dp, 0, sizeof dp);
+    mem_set(dp, 0, sizeof dp);
     for (uint8_t cur = 0; cur < 16; ++cur)
         dp[0][cur] = (seq_t)1;
 
     /* process columns 2..n */
     for (idx_t step = 1; step < n; ++step) {
-        memset(ndp, 0, sizeof ndp);
+        mem_set(ndp, 0, sizeof ndp);
         for (uint8_t prev = 0; prev < 16; ++prev) {
             for (uint8_t cur = 0; cur < 16; ++cur) {
                 seq_t val = dp[prev][cur];
@@ -97,7 +102,7 @@ seq_t a(idx_t n) {
             }
         }
         /* copy ndp back to dp for next step */
-        memcpy(dp, ndp, sizeof dp);
+        mem_copy(dp, ndp, sizeof dp);
     }
 
     /* final step: require that the rightmost column 'cur'

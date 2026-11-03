@@ -12,13 +12,15 @@
  *            any call order
  * Range:     u8 n <= 65, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 91 terms through n = 8941 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Dynamic array for the sequence */
 static seq_t *seq_buf = NULL;
@@ -36,7 +38,7 @@ static void ensure_seq_capacity(size_t new_cap)
     if (new_cap <= seq_cap) return;
     size_t cap = seq_cap > 0 ? seq_cap : 8;
     while (cap < new_cap) cap <<= 1;
-    seq_buf = (seq_t *)realloc(seq_buf, cap * sizeof(seq_t));
+    seq_buf = mem_resize(seq_t, seq_buf, cap);
     seq_cap = cap;
 }
 
@@ -46,7 +48,7 @@ static void ensure_sum_capacity(size_t new_cap)
     if (new_cap <= sum_cap) return;
     size_t cap = sum_cap > 0 ? sum_cap : 8;
     while (cap < new_cap) cap <<= 1;
-    sum_buf = (seq_t *)realloc(sum_buf, cap * sizeof(seq_t));
+    sum_buf = mem_resize(seq_t, sum_buf, cap);
     sum_cap = cap;
 }
 

@@ -8,12 +8,14 @@
  *            case a(n) = 2^r - 1
  * Range:     u8 n <= 44, u16 n <= 152, u32 n <= 560, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 96 terms through n = 992 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

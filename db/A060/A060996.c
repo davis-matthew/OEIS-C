@@ -7,12 +7,14 @@
  * Formula:   a(n) = 3*Bell(n+1) - 1
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 14, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,8 +25,8 @@ seq_t a(idx_t n)
     /* Convert index to size_t for array handling. */
     size_t N = (size_t)n;          /* we need to compute up to row N (i.e., Bell(N+1)) */
     /* Allocate two rows of size N+1 each. */
-    seq_t *prev = (seq_t*)malloc(sizeof(seq_t) * (N + 1));
-    seq_t *cur  = (seq_t*)malloc(sizeof(seq_t) * (N + 1));
+    seq_t *prev = mem_new(seq_t, (N + 1));
+    seq_t *cur  = mem_new(seq_t, (N + 1));
     if (!prev || !cur)
     {
         /* In an actual implementation we would handle allocation failure.
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
     seq_t bell = prev[N];
 
     /* Clean up temporary array (which holds the old prev). */
-    free(cur);
+    mem_free(cur);
 
     /* a(n) = 3*Bell(n+1) - 1 */
     seq_t result = bell * (seq_t)3;

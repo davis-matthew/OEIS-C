@@ -10,7 +10,8 @@
  *            a(1) = 34, a(2) = 46,
  * Range:     u8 n <= 10, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --- internal storage for memoised sequence --- */
 static seq_t *seq_buf = NULL;
@@ -49,7 +51,7 @@ static void ensure_capacity(size_t new_len)
     if (seq_cap < new_len) {
         size_t new_cap = seq_cap ? seq_cap << 1 : 64;
         while (new_cap < new_len) new_cap <<= 1;
-        seq_buf = (seq_t*)realloc(seq_buf, new_cap * sizeof(seq_t));
+        seq_buf = mem_resize(seq_t, seq_buf, new_cap);
         seq_cap = new_cap;
     }
 }

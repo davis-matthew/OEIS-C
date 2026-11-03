@@ -9,12 +9,14 @@
  *            a(4)=2032; a(n) = 10·a(n-1) + a(n-3) – 10·a(n-4) for n≥5
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 19, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* cache[i] == a(i+1) */
 static idx_t cacheSize = 0;   /* number of entries cached */
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* Expand cache if necessary */
     if (n > cacheSize) {
         idx_t newSize = n;
-        seq_t *newCache = (seq_t *)malloc(newSize * sizeof(seq_t));
+        seq_t *newCache = mem_new(seq_t, newSize);
         if (!newCache) abort();      /* out of memory */
 
         /* Copy old cache */
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
         }
 
         /* Replace the old cache */
-        free(cache);
+        mem_free(cache);
         cache = newCache;
         cacheSize = newSize;
     }

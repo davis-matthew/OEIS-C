@@ -10,15 +10,17 @@
  *            column m of the * triangular array: * * r must satisfy:
  *            r*(r+1)/2 ≤ n < (r+1)*(r+2)/2 * m = n - r*(r+1)/2 * * This is
  *            the triangle defined by the OEIS A060098, whose flatte...
- * Range:     u8 n <= 22, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
+ * Range:     u8 n <= 23, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 54 terms through n = 53 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n) {
     /* Find the row r such that r(r+1)/2 <= n < (r+1)(r+2)/2.
@@ -36,8 +38,8 @@ seq_t a(idx_t n) {
     seq_t sum = 0;
 
     for (idx_t j = 0; j <= jmax; ++j) {
-        seq_t part1 = binom(r + m - j, 2 * m);
-        seq_t part2 = binom(m + 1, 2 * j);
+        seq_t part1 = binomial(r + m - j, 2 * m);
+        seq_t part2 = binomial(m + 1, 2 * j);
         sum += part1 * part2;
     }
     return sum;

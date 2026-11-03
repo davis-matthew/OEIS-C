@@ -7,13 +7,15 @@
  * Formula:   a(n) = digital_root( n-th abundant number ) (n≥1)
  * Range:     u8 n <= 58, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache of abundant numbers */
 static seq_t *abundant = NULL;
@@ -27,7 +29,7 @@ static void grow_cache(size_t min_capacity)
     if (abundant_capacity >= min_capacity) return;
     size_t new_cap = abundant_capacity ? abundant_capacity * 2 : 128;
     if (new_cap < min_capacity) new_cap = min_capacity;
-    seq_t *new_arr = (seq_t *)realloc(abundant, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, abundant, new_cap);
     abundant = new_arr;
     abundant_capacity = new_cap;
 }

@@ -8,13 +8,27 @@
  *            a(2)=1, a(3)=2, a(4)=11, a(5)=19
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 23, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   ensure_capacity
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/ensure_capacity.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Grow an array of seq_t elements to at least min_cap elements. */
+static void ensure_capacity(size_t min_cap, seq_t **arr, size_t *cap)
+{
+    if (min_cap <= *cap) return;
+    size_t new_cap = (*cap) ? (*cap) * 2 : 1024;
+    if (new_cap < min_cap) new_cap = min_cap;
+    *arr = mem_resize(seq_t, *arr, new_cap);
+    *cap = new_cap;
+}
 
 seq_t a(idx_t n)
 {

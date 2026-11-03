@@ -8,12 +8,14 @@
  *            (product over divisors d = 1,5,7,35 of the series t2(q^d))
  * Range:     u8 n <= 1316, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 103 terms through n = 9317 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;    /* pre‑computed values */
 static idx_t cache_len = 0;    /* number of entries in cache */
@@ -27,11 +29,11 @@ seq_t a(idx_t n)
         const size_t nd = sizeof(dVal)/sizeof(dVal[0]);
 
         /* Temporary arrays for convolution */
-        seq_t *prev = (seq_t *)calloc(len, sizeof(seq_t));
-        seq_t *cur  = (seq_t *)calloc(len, sizeof(seq_t));
+        seq_t *prev = mem_new(seq_t, len);
+        seq_t *cur  = mem_new(seq_t, len);
         if (!prev || !cur) { /* allocation failure – return 0 */
-            free(prev);
-            free(cur);
+            mem_free(prev);
+            mem_free(cur);
             return (seq_t)0;
         }
         prev[0] = (seq_t)1;   /* start with 1 */
@@ -54,10 +56,10 @@ seq_t a(idx_t n)
         }
 
         /* copy results into cache */
-        seq_t *new_cache = (seq_t *)realloc(cache, len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, len);
         if (!new_cache) {
-            free(prev);   /* prev is the final array (i.e., cur after last swap) */
-            free(cur);    /* cur is the temporary one */
+            mem_free(prev);   /* prev is the final array (i.e., cur after last swap) */
+            mem_free(cur);    /* cur is the temporary one */
             return (seq_t)0;
         }
         cache = new_cache;
@@ -65,8 +67,8 @@ seq_t a(idx_t n)
         cache_len = len;
 
         /* free temporary arrays (cur holds the pre‑final array) */
-        free(prev); /* prev now points to the final result array */
-        free(cur);
+        mem_free(prev); /* prev now points to the final result array */
+        mem_free(cur);
     }
 
     return cache[n];

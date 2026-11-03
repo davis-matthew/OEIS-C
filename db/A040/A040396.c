@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 88, u16 n <= 88, u32 n <= 88, u64 n <= 88, u128 n <= 88,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 89 terms through n = 88 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Return the continued‑fraction term a(n) for sqrt(417). */
 seq_t a(idx_t n)
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
 
         /* --- generate the periodic part --- */
         size_t cap = 32;               /* start with a modest capacity */
-        period = (seq_t *)malloc(cap * sizeof(seq_t));
+        period = mem_new(seq_t, cap);
         size_t len = 0;
 
         seq_t m = 0;                  /* m0 = 0 */
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
 
             if (len == cap) {
                 cap <<= 1;            /* double capacity when needed */
-                period = (seq_t *)realloc(period, cap * sizeof(seq_t));
+                period = mem_resize(seq_t, period, cap);
             }
             period[len++] = a;
         } while (a != (seq_t)(2 * a0));   /* period ends when a == 2*a0 */

@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 3, u32 n <= 10, u64 n <= 22, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 190 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Number of admissible row patterns (a,b,c) with a!=b and b!=c.  */
 #define P 252
@@ -84,8 +86,8 @@ static void init(void)
     }
 
     /* Allocate DP buffers. */
-    dp_prev = (seq_t *)calloc(P, sizeof(seq_t));
-    dp_curr = (seq_t *)calloc(P, sizeof(seq_t));
+    dp_prev = mem_new(seq_t, P);
+    dp_curr = mem_new(seq_t, P);
 
     initialized = 1;
 }

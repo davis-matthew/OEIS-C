@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 48, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Helper to count bits using Kernighan's algorithm */
 static inline unsigned int popcount64(uint64_t x) {
@@ -50,7 +52,7 @@ typedef struct {
 } vec_t;
 
 static void vec_init(vec_t *v, size_t cap) {
-    v->data = (seq_t *)malloc(cap * sizeof(seq_t));
+    v->data = mem_new(seq_t, cap);
     v->size = 0;
     v->capacity = cap;
 }
@@ -58,7 +60,7 @@ static void vec_init(vec_t *v, size_t cap) {
 static void vec_push(vec_t *v, seq_t val) {
     if (v->size == v->capacity) {
         size_t new_cap = v->capacity == 0 ? 4 : v->capacity * 2;
-        seq_t *new_data = (seq_t *)realloc(v->data, new_cap * sizeof(seq_t));
+        seq_t *new_data = mem_resize(seq_t, v->data, new_cap);
         if (!new_data) abort();
         v->data = new_data;
         v->capacity = new_cap;

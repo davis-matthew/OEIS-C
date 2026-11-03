@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 16, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
  * Helpers:   binomial, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,8 +19,9 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
 #include "../utils/gcd.h"
-#include "../utils/binomial.h"    /* provides binomial(idx_t n, idx_t k) */
 
 /* Reduce a fraction <num/den> by multiplying it with the fraction a/b. */
 static void mul_reduce(seq_t *num, seq_t *den, seq_t a, seq_t b)

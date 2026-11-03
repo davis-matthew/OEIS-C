@@ -8,14 +8,16 @@
  * Formula:   a(1) = a(2) = 1; for n≥3, a(n) = gpf(a(n-1)+a(n-2))
  * Range:     u8 n <= 121, u16 n <= 121, u32 n <= 121, u64 n <= 121,
  *            u128 n <= 121, big any n
- * Helpers:   gpf
+ * Validated: partial, pass, 121 terms through n = 121 (2026-11-03)
+ * Helpers:   largest_prime_factor, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/gpf.h"
+#include "../utils/largest_prime_factor.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;              /* cache[1] holds a(1) */
 static size_t cache_cap = 0;            /* allocated capacity (index 0 unused) */
@@ -26,7 +28,7 @@ static void grow_cache(size_t needed)
 {
     if (needed <= cache_cap) return;
     size_t new_cap = needed + 128;      /* reasonable growth factor */
-    seq_t *tmp = (seq_t *)realloc(cache, (new_cap + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, (new_cap + 1));
     cache = tmp;
     cache_cap = new_cap;
 }
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
                 val = (seq_t)1;
             } else {
                 uint64_t sum = (uint64_t)cache[i-1] + (uint64_t)cache[i-2];
-                uint64_t g = gpf(sum);
+                uint64_t g = largest_prime_factor(sum);
                 val = (seq_t)g;
             }
             cache[i] = val;

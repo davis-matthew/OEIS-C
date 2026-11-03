@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _smallest_prime_factor, is_prime, mod_pow
+ * Validated: standard, pass, 72 terms through n = 993 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,12 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <string.h>
+#include <stddef.h>
 #include "../utils/is_prime.h"
-#include "../utils/_smallest_prime_factor.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/smallest_prime_factor.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -61,9 +65,9 @@ seq_t a(idx_t n)
                 uint64_t tmp = cand - 1;
                 /* Factor p-1 and test each distinct prime factor. */
                 while (tmp > 1 && primitive) {
-                    uint64_t spf = _smallest_prime_factor(tmp);
+                    uint64_t spf = smallest_prime_factor(tmp);
                     if (spf == 0) spf = tmp;          /* fallback */
-                    seq_t res = mod_pow((seq_t)69,
+                    seq_t res = powmod((seq_t)69,
                                         (cand-1)/spf,
                                         (seq_t)cand);
                     if (res == (seq_t)1) {
@@ -79,8 +83,7 @@ seq_t a(idx_t n)
                 if (cache_len == cache_cap) {
                     cache_cap = cache_cap ? cache_cap * 2 : 16;
                     /* realloc may return NULL if size is 0.  Safeguard. */
-                    seq_t *new_cache = (seq_t *)realloc(cache,
-                                                        cache_cap * sizeof(seq_t));
+                    seq_t *new_cache = mem_resize(seq_t, cache, cache_cap);
                     if (!new_cache) {
                         /* Out of memory – abort. */
                         abort();

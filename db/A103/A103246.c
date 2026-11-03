@@ -9,9 +9,10 @@
  *            leg of a primitive Pythagorean triple (x,y,z) with x even, y
  *            odd, z odd where all three sides are composite and pairwise
  *            coprime. The terms are listed in increasing order of y
- * Range:     u8 n <= 51, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
- *            big any n
- * Helpers:   isComposite
+ * Range:     u8 n <= 51, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 71 terms through n = 9025 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,21 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/isComposite.h"
+#include "../utils/mem.h"
+
+/* Return true if n is composite (not prime and >1) */
+static inline bool isComposite(uint64_t n)
+{
+    if (n < 4)          /* 1,2,3 are not composite */
+        return false;
+    if ((n & 1ULL) == 0)/* even >2 is composite */
+        return true;
+    for (uint64_t i = 3; i * i <= n; i += 2) {
+        if (n % i == 0)
+            return true;
+    }
+    return false;
+}
 
 /* Euclid's algorithm for gcd on idx_t */
 static inline idx_t gcd_idx(idx_t a, idx_t b)
@@ -46,9 +61,9 @@ static void ensure_capacity(idx_t min_cap)
         return;
     while (capacity < min_cap)
         capacity = (capacity == 0) ? 64 : capacity << 1;
-    seq_t *tmp = (seq_t *)realloc(cache, (size_t)capacity * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, (size_t)capacity);
     if (!tmp && capacity > 0) {
-        free(cache);
+        mem_free(cache);
         cache = NULL;
         capacity = 0;
     }

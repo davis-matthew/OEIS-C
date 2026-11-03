@@ -7,17 +7,19 @@
  * Formula:   a(n) = [x^n] 6*(8*x^3 + 3*x + 1) / (1 - 4*x)^(7/2)
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 10, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Compute g_k = coefficient of x^k in (1-4x)^(-7/2),
        using the recurrence g_{k+1} = (4k+14)/(k+1) * g_k, with g_0 = 1. */
-    seq_t *g = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *g = mem_new(seq_t, (n + 1));
     if (!g) return 0;                      /* allocation failed – return 0 */
 
     g[0] = 1;                              /* g_0 = 1 */
@@ -33,6 +35,6 @@ seq_t a(idx_t n) {
 
     seq_t result = 6 * (gn + 3 * gn1 + 8 * gn3);
 
-    free(g);
+    mem_free(g);
     return result;
 }

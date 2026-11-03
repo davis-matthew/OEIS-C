@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 19, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,8 +38,8 @@ seq_t a(idx_t n)
     /* ------------------------------------------------------------------ */
     /* First time: allocate cache for n = 0                                 */
     if (cur_max == (idx_t)-1) {
-        a_cache  = (seq_t *)calloc(1, sizeof(seq_t));
-        c2_cache = (seq_t *)calloc(1, sizeof(seq_t));
+        a_cache  = mem_new(seq_t, 1);
+        c2_cache = mem_new(seq_t, 1);
         a_cache[0]  = 1;          /* a(0) = 1                         */
         c2_cache[0] = 1;          /* c2[0] = a0*a0 = 1                */
         c2_alloc = 1;
@@ -50,13 +52,12 @@ seq_t a(idx_t n)
         idx_t new_max = n;
 
         /* Grow a_cache */
-        a_cache = (seq_t *)realloc(a_cache, (size_t)(new_max + 1) * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, (size_t)(new_max + 1));
 
         /* Grow c2_cache */
         size_t new_c2_alloc = 2 * new_max + 1;
         if (new_c2_alloc > c2_alloc) {
-            c2_cache = (seq_t *)realloc(c2_cache,
-                                        new_c2_alloc * sizeof(seq_t));
+            c2_cache = mem_resize(seq_t, c2_cache, new_c2_alloc);
             /* Zero any newly allocated portion */
             size_t extra = new_c2_alloc - c2_alloc;
             seq_t *ptr = c2_cache + c2_alloc;

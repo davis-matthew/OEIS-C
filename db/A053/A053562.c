@@ -11,7 +11,8 @@
  *            over i+j+k=n, j≡t (mod 3), k≡s (mod 3)
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 22, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*-------------------------------------------*/
 /*  Helper: Möbius function μ(n)             */
@@ -57,14 +59,13 @@ static void ensure_counts(idx_t n)
 
     size_t old_len = (max_cached_n + 1) * 9;
     size_t new_len = (n + 1) * 9;
-    seq_t *new_counts = (seq_t *)realloc(counts, new_len * sizeof(seq_t));
+    seq_t *new_counts = mem_resize(seq_t, counts, new_len);
     if (!new_counts) exit(1);          /* allocation failed */
     counts = new_counts;
 
     /* zero new entries */
     if (new_len > old_len)
-        memset((void *)(counts + old_len), 0,
-               (new_len - old_len) * sizeof(seq_t));
+        mem_set((counts + old_len), 0, (new_len - old_len) * sizeof(seq_t));
 
     /* base case: M(0,0,0)=1 */
     if (max_cached_n == 0)

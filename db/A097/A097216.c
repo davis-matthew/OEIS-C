@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 57, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   gen_masks_rec
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,23 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/gen_masks_rec.h"
+#include "../utils/mem.h"
+
+/* ---------- recursive enumeration of all divisor masks ---------- */
+static void gen_masks_rec(unsigned depth, unsigned k,
+                          const int *exps, uint32_t mask,
+                          uint32_t *masks, unsigned *cnt)
+{
+    if (depth == k) {
+        masks[(*cnt)++] = mask;
+        return;
+    }
+    for (int e = 0; e <= exps[depth]; ++e) {
+        uint32_t newmask = mask |
+            (((unsigned)e == (unsigned)exps[depth]) ? (1u << depth) : 0);
+        gen_masks_rec(depth + 1, k, exps, newmask, masks, cnt);
+    }
+}
 
 /* ---------- prime sieve (used for factorisation) ---------- */
 static uint32_t *prime_list = NULL;
@@ -156,10 +173,9 @@ seq_t a(idx_t n)
 
     while (cache_len < n) {
         if (property(next_val)) {          /* next important integer */
-            seq_t *tmp = (seq_t *)realloc(seq_cache,
-                                           (cache_len + 1) * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq_cache, (cache_len + 1));
             if (!tmp) {
-                free(seq_cache);
+                mem_free(seq_cache);
                 exit(EXIT_FAILURE);
             }
             seq_cache = tmp;

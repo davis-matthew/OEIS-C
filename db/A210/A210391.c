@@ -13,15 +13,33 @@
  *            -1 , t) * * with the convention that binom(a,b)=0...
  * Range:     u8 n <= 48, u16 n <= 126, u32 n <= 336, u64 n <= 924,
  *            u128 n <= 2669, big any n
- * Helpers:   binom, d_from_n
+ * Validated: standard, pass, 94 terms through n = 9774 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/binom.h"
-#include "../utils/d_from_n.h"
+#include "../utils/binomial.h"
+
+/* Find the diagonal number d such that d(d+1)/2 <= n < (d+1)(d+2)/2  */
+static idx_t d_from_n(idx_t n)
+{
+    idx_t low = 0, high = n;
+    idx_t d = 0;
+    while (low <= high) {
+        idx_t mid = (low + high) >> 1;
+        idx_t cnt = mid * (mid + 1) / 2;
+        if (cnt <= n) {
+            d = mid;
+            low = mid + 1;
+        } else {
+            high = mid - 1;
+        }
+    }
+    return d;
+}
 
 /* Compute A(n,k) using the binomial formula */
 static seq_t A_value(idx_t n, idx_t k)
@@ -36,7 +54,7 @@ static seq_t A_value(idx_t n, idx_t k)
 
     for (idx_t t = 0; 2 * t <= n; ++t) {
         idx_t m = n - 2 * t;     /* m = n - 2t */
-        seq_t term1 = binom(m + k - 1, k - 1);
+        seq_t term1 = binomial(m + k - 1, k - 1);
 
         seq_t term2;
         if (t == 0) {
@@ -45,7 +63,7 @@ static seq_t A_value(idx_t n, idx_t k)
             if (q == 0) {
                 term2 = 0;  /* binom(-1, t) = 0 for t>0 when q=0 */
             } else {
-                term2 = binom(q + t - 1, t);
+                term2 = binomial(q + t - 1, t);
             }
         }
         sum += term1 * term2;

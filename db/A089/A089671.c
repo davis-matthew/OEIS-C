@@ -8,6 +8,7 @@
  * Formula:   a(n) = Sum_{k=0..n} k^3 * (Sum_{j=0..k} binomial(n,j))^3
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 16, u128 n <= 36,
  *            big any n
+ * Validated: standard, pass, 35 terms through n = 910 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

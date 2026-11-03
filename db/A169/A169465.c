@@ -8,16 +8,17 @@
  * Formula:   a(0) = 1; for n > 0, a(n) = 20 * 19^(n-1)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   pow_int
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return (seq_t)1;
-    seq_t pow19 = pow_int((seq_t)19, n - 1);
+    seq_t pow19 = ipow_idx((seq_t)19, n - 1);
     return pow19 * (seq_t)20;
 }

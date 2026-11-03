@@ -13,12 +13,14 @@
  *            584*a(n-4) + 752*a(n-5) - 757*a(n-6) + 592*a(n-7) - 370*a(n-8...
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 13, u64 n <= 25, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 202 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;      /* cache of computed terms, index 0 unused */
 static size_t cache_len = 0;       /* highest index currently stored */
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     /* Grow the cache if necessary. */
     if (nn >= cache_len) {
         size_t new_len = nn + 1;                /* index 0 unused */
-        seq_t *tmp = (seq_t *)realloc(a_cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_len);
         if (!tmp) exit(EXIT_FAILURE);          /* allocation failed */
         a_cache = tmp;
 

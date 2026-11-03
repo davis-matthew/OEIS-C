@@ -8,7 +8,8 @@
  *            triangular number
  * Range:     u8 n <= 18, u16 n <= 150, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_triangular_sum64
+ * Validated: standard, pass, 66 terms through n = 981 (2026-11-01)
+ * Helpers:   is_triangular
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/is_triangular_sum64.h"
+#include "../utils/is_triangular.h"
 
 /* helper: sum of decimal digits of an unsigned 64‑bit integer */
 static unsigned long long digit_sum_uint64(unsigned long long v)
@@ -51,7 +52,7 @@ seq_t a(idx_t n)
                                ((unsigned long long)next_k + 1ULL) / 2ULL;
 
         unsigned long long ds = digit_sum_uint64(T);
-        if (is_triangular_sum64(ds)) {
+        if (is_triangular(ds)) {
             /* store T as seq_t (wrapping is fine – the tests only ask for values
                that fit into seq_t) */
             cache[cache_len++] = (seq_t)T;

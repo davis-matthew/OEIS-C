@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 45, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 993 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper: return the most significant decimal digit of v. */
 static inline seq_t first_digit(seq_t v)
@@ -39,9 +41,9 @@ seq_t a(idx_t n)
         size_t new_len = (size_t)(n + 1);
         /* Reallocate cache if necessary. */
         if (!cache)
-            cache = (seq_t *)malloc(new_len * sizeof(seq_t));
+            cache = mem_new(seq_t, new_len);
         else
-            cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_len);
 
         /* Initialize new entries. */
         if (cache_len == 0)           /* first-call initialization: a(0)=0 */

@@ -8,12 +8,14 @@
  * Formula:   a(n) = a(n-1) + a(n-2) + a([n/3]), a(0)=a(1)=a(2)=1
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 46, u64 n <= 92, u128 n <= 184,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 992 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache holding already computed terms  */
 static seq_t *a_cache = NULL;      /* array a_cache[i] = a(i)   */
@@ -32,7 +34,7 @@ static void ensure_upto(idx_t n)
     /* Need more room for indices 0 .. n */
     size_t need = n + 1;
     if (need > a_len) {
-        seq_t *tmp = (seq_t*)realloc(a_cache, need * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, need);
         if (!tmp) /* allocation failure – leave uncomputed */
             return;
         a_cache = tmp;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 12, u32 n <= 25, u64 n <= 51, u128 n <= 104,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 956 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    Initial values: a(0)=2, a(1)=4, a(2)=9, a(3)=23, a(4)=55 */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* dynamic cache of computed terms */
 static size_t cache_len = 0;          /* allocated length of cache */
@@ -30,7 +32,7 @@ static void ensure_cache_size(size_t needed)
     size_t new_len = cache_len ? cache_len * 2 : 8;
     if (new_len < needed)
         new_len = needed;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_len);
     cache = new_cache;
     cache_len = new_len;
 }

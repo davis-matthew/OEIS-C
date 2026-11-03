@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 7, u64 n <= 17, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define NUM_STATES 3125ULL   /* 5^5 */
 
@@ -102,8 +104,8 @@ static void init_adjacency(void)
                 adj_list[s][pos++] = t;
     }
 
-    dp_cur  = (seq_t*)calloc(NUM_STATES, sizeof(seq_t));
-    dp_next = (seq_t*)calloc(NUM_STATES, sizeof(seq_t));
+    dp_cur  = mem_new(seq_t, NUM_STATES);
+    dp_next = mem_new(seq_t, NUM_STATES);
 
     for (idx_t i = 0; i < NUM_STATES; ++i)
         dp_cur[i] = (seq_t)1;  /* one path ending in state i of length 1 */
@@ -118,18 +120,18 @@ static void ensure_data_upto(idx_t n)
         init_adjacency();
 
     if (ans == NULL) {
-        ans = (seq_t*)calloc(1, sizeof(seq_t));  /* index 0 unused */
+        ans = mem_new(seq_t, 1);  /* index 0 unused */
         cur_max_n = 0;
     }
 
     if (n > cur_max_n) {
-        ans = (seq_t*)realloc(ans, (n + 1) * sizeof(seq_t));
+        ans = mem_resize(seq_t, ans, (n + 1));
         for (idx_t i = cur_max_n + 1; i <= n; ++i)
             ans[i] = (seq_t)0;
 
         /* compute DP from cur_max_n+1 up to n */
         for (idx_t step = cur_max_n + 1; step <= n; ++step) {
-            memset(dp_next, 0, NUM_STATES * sizeof(seq_t));
+            mem_set(dp_next, 0, NUM_STATES * sizeof(seq_t));
 
             for (idx_t s = 0; s < NUM_STATES; ++s) {
                 if (dp_cur[s] == (seq_t)0)

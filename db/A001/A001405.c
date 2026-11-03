@@ -8,13 +8,14 @@
  *            (n-floor(n/2)+i)/i
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 34, u64 n <= 67, u128 n <= 131,
  *            big any n
- * Helpers:   a001405_gcd_u64
+ * Validated: standard, pass, 52 terms through n = 979 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a001405_gcd_u64.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +29,7 @@ seq_t a(idx_t n)
            first so no intermediate value exceeds the new result */
         uint64_t num = (uint64_t)(base + i);
         uint64_t den = (uint64_t)i;
-        uint64_t g = a001405_gcd_u64(num, den);
+        uint64_t g = gcd_u64(num, den);
         num /= g;
         den /= g;
         /* den is coprime to num, so den divides result */

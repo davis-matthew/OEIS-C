@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 53, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _a008784_is_good
+ * Validated: standard, pass, 76 terms through n = 953 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,32 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/_a008784_is_good.h"
+#include "../utils/mem.h"
+
+/* Determine whether a 64‑bit integer satisfies the sequence condition.  */
+static bool _a008784_is_good(uint64_t x)
+{
+    /* Handle the factor 2 – it may occur at most once. */
+    if ((x & 1ULL) == 0) {
+        x >>= 1;                     /* remove one factor of 2   */
+        if ((x & 1ULL) == 0) {        /* more than one factor?    */
+            return false;
+        }
+    }
+
+    /* Now x is odd.  Test all of its prime factors.  */
+    uint64_t t = x;
+    for (uint64_t d = 3; d * d <= t; d += 2) {
+        if (t % d == 0) {
+            if ((d & 3ULL) != 1ULL)   /* d % 4 != 1  →  not allowed */
+                return false;
+            while (t % d == 0) t /= d;
+        }
+    }
+    if (t > 1 && (t & 3ULL) != 1ULL)
+        return false;
+    return true;
+}
 
 /*  a(n) – nth element of A008784, 1‑indexed.  */
 seq_t a(idx_t n)
@@ -36,7 +62,7 @@ seq_t a(idx_t n)
     /* Ensure enough capacity for the cache.  */
     if (cache == NULL) {
         cache_cap = 128;
-        cache     = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache     = mem_new(seq_t, cache_cap);
         if (!cache) exit(1);            /* allocation failed */
     }
     while (cache_len < n) {
@@ -47,7 +73,7 @@ seq_t a(idx_t n)
             /* Grow cache if needed.  */
             if (cache_len == cache_cap) {
                 cache_cap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                 if (!tmp) exit(1);
                 cache = tmp;
             }

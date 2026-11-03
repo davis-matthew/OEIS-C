@@ -12,7 +12,8 @@
  *            factors of m
  * Range:     u8 n <= 203, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 93 terms through n = 8332 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* number of distinct prime factors for a 64‑bit integer */
 static int omega_uint64(uint64_t x)
@@ -85,7 +88,7 @@ seq_t a(idx_t n)
     if (seq_len == 0)
     {
         extend_used_to(3);                     /* indices 0,1,2 */
-        seq = (seq_t*)realloc(seq, 2 * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, 2);
         if (!seq) exit(1);
         seq[0] = (seq_t)1;       /* a(1) */
         seq[1] = (seq_t)2;       /* a(2) */
@@ -101,7 +104,7 @@ seq_t a(idx_t n)
         int    omega_prev  = omega_uint64((uint64_t)prev);
         seq_t  next_val    = compute_next(prev, omega_prev);
 
-        seq = (seq_t*)realloc(seq, (seq_len + 1) * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, (seq_len + 1));
         if (!seq) exit(1);
         seq[seq_len] = next_val;
         ++seq_len;

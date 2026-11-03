@@ -9,14 +9,25 @@
  *            the number of divisors of n
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 21,
  *            big any n
- * Helpers:   divisor_count_u64, factorial
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/factorial.h"
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 seq_t a(idx_t n)
 {
@@ -25,7 +36,7 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* d(n) – number of positive integer divisors of n */
-    seq_t d = (seq_t)divisor_count_u64((uint64_t)n);
+    seq_t d = (seq_t)num_divisors((uint64_t)n);
 
     /* n! – factorial of n */
     seq_t f = factorial(n);

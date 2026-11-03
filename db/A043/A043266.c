@@ -7,7 +7,8 @@
  * Formula:   a(n) = sum of digits of the n-th base 7 palindrome
  * Range:     u8 n <= 74, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   pow7_u64
+ * Validated: partial, pass, 74 terms through n = 74 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,16 @@
 /* Note: the sequence starts at n = 1 with value a(1) = 0. */
 
 #include <stdint.h> /* for UINT64_MAX */
-#include "../utils/pow7_u64.h"
+
+static uint64_t pow7_u64(uint32_t exp)
+{
+    uint64_t r = 1;
+    for (uint32_t i = 0; i < exp; ++i) {
+        if (r > UINT64_MAX / 7ULL) return UINT64_MAX;
+        r *= 7ULL;
+    }
+    return r;
+}
 
 seq_t a(idx_t n)
 {

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gota_realloc
+ * Validated: standard, pass, 116 terms through n = 9575 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,7 +31,12 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/gota_realloc.h"
+
+/* Reallocates an array to at least new_cap elements */
+static void *gota_realloc(void *old, size_t new_cap, size_t elem_size) {
+    void *ptr = realloc(old, new_cap * elem_size);
+    return ptr;  /* caller must check */
+}
 
 /* ---------- static state ---------- */
 static idx_t       max_limit = 0;   /* largest n for which tables are ready */

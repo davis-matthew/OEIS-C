@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 45, u16 n <= 3097, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   ensure_idx_t_capacity, int_sqrt, is_prime
+ * Validated: standard, pass, 73 terms through n = 9603 (2026-11-01)
+ * Helpers:   is_prime, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,9 +24,20 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/is_prime.h"   /* bool is_prime(idx_t x); */
-#include "../utils/int_sqrt.h"   /* idx_t int_sqrt(idx_t n); */
-#include "../utils/ensure_idx_t_capacity.h"
+#include "../utils/is_prime.h"
+#include "../utils/isqrt.h"
+
+/* Ensure that an array of idx_t has at least 'need' slots. */
+static void ensure_idx_t_capacity(idx_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 16 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        idx_t *tmp = (idx_t *)realloc(*arr, new_cap * sizeof(idx_t));
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
 
 /* Local helpers ------------------------------------------------------- */
 
@@ -39,7 +51,7 @@ static void generate_primes(idx_t limit, idx_t **primes, size_t *pcnt, size_t *p
 
     for (idx_t i = 2; i <= limit; ++i) isprime[(size_t)i] = true;
 
-    idx_t root = int_sqrt(limit);
+    idx_t root = isqrt(limit);
     for (idx_t i = 2; i <= root; ++i) {
         if (isprime[(size_t)i]) {
             for (idx_t j = i * i; j <= limit; j += i)

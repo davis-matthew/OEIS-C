@@ -12,14 +12,45 @@
  *            advance cur_m until it satisfies the prime‑factor con...
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_sum_two_squares
+ * Validated: standard, pass, 121 terms through n = 8852 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/is_sum_two_squares.h"
+#include "../utils/mem.h"
+
+/* Test whether x is a sum of two squares.
+   A number is representable iff each prime p ≡ 3 (mod 4) occurs with an even exponent. */
+static int is_sum_two_squares(unsigned long long x)
+{
+    if (x == 0) return 1; /* 0 = 0^2 + 0^2 */
+
+    /* remove prime factor 2 – it never matters */
+    while ((x & 1ULL) == 0)
+        x >>= 1;
+
+    for (unsigned long long p = 3; p * p <= x; p += 2)
+    {
+        if (x % p == 0)
+        {
+            int exp = 0;
+            while (x % p == 0)
+            {
+                x /= p;
+                exp++;
+            }
+            if ((p % 4 == 3) && (exp & 1))
+                return 0;          /* odd exponent of a 3 mod 4 prime */
+        }
+    }
+    if (x > 1)                 /* remaining prime factor > sqrt(original x) */
+        if (x % 4 == 3)
+            return 0;
+    return 1;
+}
 
 static seq_t *cache = NULL;          /* cache of a(i) values */
 static size_t cache_len = 0;         /* number of entries stored */
@@ -34,7 +65,7 @@ static void ensure_cache(size_t need)
     size_t new_alloc = cache_alloc ? cache_alloc * 2 : 16;
     if (new_alloc < need)
         new_alloc = need;
-    seq_t *tmp = (seq_t *)realloc(cache, new_alloc * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_alloc);
     cache = tmp;
     cache_alloc = new_alloc;
 }

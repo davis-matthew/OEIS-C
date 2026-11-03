@@ -8,14 +8,15 @@
  *            divisors of n (A000005)
  * Range:     u8 n <= 35, u16 n <= 2099, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64, gcd
+ * Validated: standard, pass, 81 terms through n = 9880 (2026-11-01)
+ * Helpers:   gcd, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +25,7 @@ seq_t a(idx_t n)
         return 0;
 
     /* Compute d(n).  divisor_count_u64 expects uint64_t, which our idx_t is. */
-    seq_t d = divisor_count_u64((uint64_t)n);
+    seq_t d = num_divisors((uint64_t)n);
 
     /* Compute g = gcd(n, d). */
     seq_t g = gcd((seq_t)n, d);

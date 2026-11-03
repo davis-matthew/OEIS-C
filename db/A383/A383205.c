@@ -8,12 +8,14 @@
  * Formula:   a(n) = Σ_{k=3..n} 2^(n-k) * binomial(k,3) * Stirling2(n,k)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 20, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static state for memoisation */
@@ -28,14 +30,14 @@ seq_t a(idx_t n) {
     /* One‑time initialisation of the arrays */
     if (!initialized) {
         cache_len = 1;
-        a_cache   = (seq_t *)calloc(cache_len, sizeof(seq_t));
+        a_cache   = mem_new(seq_t, cache_len);
         if (!a_cache) return (seq_t)0;
 
         arr_len  = 1;
-        prev = (seq_t *)calloc(arr_len, sizeof(seq_t));
-        cur  = (seq_t *)calloc(arr_len, sizeof(seq_t));
+        prev = mem_new(seq_t, arr_len);
+        cur  = mem_new(seq_t, arr_len);
         if (!prev || !cur) {
-            free(a_cache);
+            mem_free(a_cache);
             return (seq_t)0;
         }
         prev[0] = 1;      /* S(0,0) = 1                           */
@@ -45,7 +47,7 @@ seq_t a(idx_t n) {
     /* Ensure the cache is large enough for index n */
     if (cache_len <= n) {
         idx_t new_len = n + 1;
-        a_cache = (seq_t *)realloc(a_cache, new_len * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_len);
         if (!a_cache) return (seq_t)0;
         for (idx_t i = cache_len; i < new_len; ++i)
             a_cache[i] = 0;
@@ -55,8 +57,8 @@ seq_t a(idx_t n) {
     /* Ensure the Stirling buffers are large enough for the next row */
     if (arr_len <= n) {
         idx_t new_len = n + 1;
-        prev = (seq_t *)realloc(prev, new_len * sizeof(seq_t));
-        cur  = (seq_t *)realloc(cur,  new_len * sizeof(seq_t));
+        prev = mem_resize(seq_t, prev, new_len);
+        cur  = mem_resize(seq_t, cur, new_len);
         if (!prev || !cur) return (seq_t)0;
         arr_len = new_len;
     }

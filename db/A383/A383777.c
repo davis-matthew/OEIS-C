@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   lpf_u64
+ * Validated: standard, pass, 100 terms through n = 9847 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,17 @@
          (x odd>1) x - lpf(x)  */
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/lpf_u64.h"
+
+/* Least prime factor for unsigned 64-bit integers.
+   Works for n >= 2; for n==1 it returns 1 (handled separately). */
+static uint64_t lpf_u64(uint64_t n)
+{
+    if (n % 2ULL == 0ULL) return 2ULL;
+    for (uint64_t d = 3ULL; d * d <= n; d += 2ULL) {
+        if (n % d == 0ULL) return d;
+    }
+    return n; /* n is prime */
+}
 
 seq_t a(idx_t n)
 {

@@ -7,7 +7,8 @@
  * Formula:   a(n) = #{ (a,b,c,d) ∈ ℤ⁴ : a² + b² + 2c² + 12d² = n }
  * Range:     u8 n <= 81, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 9537 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Integer square root for unsigned 64‑bit values, using binary search
  * and 128‑bit arithmetic to avoid overflow for the intermediate product.
@@ -43,7 +45,7 @@ static idx_t isqrt_idx(idx_t n)
 seq_t a(idx_t n)
 {
     /* Allocate array for a² + b² counts */
-    seq_t *ab = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
+    seq_t *ab = mem_new(seq_t, (size_t)n + 1);
     if (!ab) return (seq_t)0;   /* Out of memory – return 0 (adjustable) */
 
     /* Precompute counts of a² + b² up to n */
@@ -72,6 +74,6 @@ seq_t a(idx_t n)
         }
     }
 
-    free(ab);
+    mem_free(ab);
     return total;
 }

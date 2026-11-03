@@ -11,15 +11,16 @@
  *            entry T(r,k) = * gcd(Fibonacci(r), Fibonacci(k)) =
  *            Fibonacci(gcd(r,k))
  * Range:     u8 n <= 104, u16 n <= 324, u32 n <= 1175, u64 n <= 4464,
- *            u128 n <= 9014, big any n
- * Helpers:   fib_u64
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 101 terms through n = 9014 (2026-11-01)
+ * Helpers:   fibonacci
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/fib_u64.h"
+#include "../utils/fibonacci.h"
 
 seq_t a(idx_t n)
 {
@@ -46,5 +47,5 @@ seq_t a(idx_t n)
     idx_t g = a_val;          /* g = gcd(r, k) */
 
     /* Return Fibonacci(g).  fib_u64 returns a seq_t. */
-    return fib_u64(g);
+    return fibonacci(g);
 }

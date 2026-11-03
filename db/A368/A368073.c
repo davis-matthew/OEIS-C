@@ -9,14 +9,20 @@
  *            positive square pyramidal numbers
  * Range:     u8 n <= 80, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   pyramid
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/pyramid.h"
+
+/* Pyramid number: P(k) = k(k+1)(2k+1)/6  (k >= 1) */
+static inline seq_t pyramid(seq_t k)
+{
+    return k * (k + 1) * (2 * k + 1) / 6;
+}
 
 seq_t a(idx_t n)
 {

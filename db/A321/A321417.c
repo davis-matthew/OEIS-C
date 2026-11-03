@@ -9,7 +9,8 @@
  *            with zero sum
  * Range:     u8 n <= 9, u16 n <= 27, u32 n <= 157, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 947 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* Recurrence derived from G.f.: ((2/(1-x^3)-1)/(1-x^2)^3)^2   */
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Rational form G(x) = P(x)/Q(x) with   P(x) = (1-x+x^2)^2,
    Q(x) = (1-x)^8 (1+x)^4 (1+x+x^2)^2.
@@ -45,11 +47,11 @@ static void extend_cache(idx_t n)
     if (n < cache_len) return;                  /* already have enough space */
     size_t new_len = cache_len ? cache_len * 2 : 16;
     while (new_len <= (size_t)n) new_len <<= 1;
-    seq_t *new_cache = (seq_t *)malloc(new_len * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_len);
     if (!new_cache) { abort(); }
     if (cache) {
-        memcpy(new_cache, cache, cache_len * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_cache, cache, cache_len * sizeof(seq_t));
+        mem_free(cache);
     }
     cache = new_cache;
     cache_len = new_len;

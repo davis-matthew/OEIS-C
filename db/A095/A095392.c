@@ -11,7 +11,8 @@
  *            system modulo 210, are prime
  * Range:     u8 n <= 41, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   gcd16
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-01)
+ * Helpers:   gcd_u16
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/gcd16.h"
+#include "../utils/gcd_u16.h"
 
 /*----------------------------- reduced residue set mod 210 -----------------------*/
 #define RESIDUE_COUNT 48
@@ -35,7 +36,7 @@ static void init_residues(void)
         return;
     int cnt = 0;
     for (uint16_t r = 1; r < 210; ++r) {
-        if (gcd16(r, 210) == 1) {
+        if (gcd_u16(r, 210) == 1) {
             residues[cnt++] = r;
         }
     }

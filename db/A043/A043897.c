@@ -11,7 +11,8 @@
  *            by a brute‑ force search and memoised in a static array
  * Range:     u8 n <= 14, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 /* make sure required types are visible when compiling */
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static bool has_02(seq_t x)
 {
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
             /* grow storage if necessary */
             if (list_len == list_cap) {
                 size_t new_cap = list_cap ? (list_cap << 1) : 16;
-                seq_t *tmp = (seq_t *)realloc(list, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, list, new_cap);
                 /* in a production build we would check tmp==NULL here */
                 list = tmp;
                 list_cap = new_cap;

@@ -9,12 +9,14 @@
  *            order
  * Range:     u8 none, u16 n <= 698, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 9923 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
             /* Ensure the cache has room for a new entry. */
             if (sz == cap) {
                 size_t newcap = (cap == 0) ? 16 : cap * 2;
-                seq_t *newbuf = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+                seq_t *newbuf = mem_resize(seq_t, cache, newcap);
                 if (!newbuf) abort();   /* allocation failure – terminate */
                 cache = newbuf;
                 cap   = newcap;

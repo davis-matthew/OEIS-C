@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 9, u64 n <= 28, u128 n <= 64,
  *            big any n
- * Helpers:   window_ok
+ * Validated: standard, pass, 34 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,21 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/window_ok.h"
+#include "../utils/mem.h"
+
+/* test a 6‑tuple for the required property */
+static bool window_ok(const unsigned char d[6])
+{
+    int sum = 0;
+    for (int i = 0; i < 6; ++i) sum += d[i];
+    if (sum & 1) return false;          /* sum must be even */
+    int half = sum >> 1;
+    for (int i = 0; i < 6; ++i)
+        for (int j = i + 1; j < 6; ++j)
+            for (int k = j + 1; k < 6; ++k)
+                if (d[i] + d[j] + d[k] == half) return true;
+    return false;
+}
 
 #define STATE_COUNT 32768       /* 8^5 */
 
@@ -45,8 +60,8 @@ static void init_tables(void)
 {
     if (curr) return;                   /* already initialised */
 
-    curr = (seq_t *)malloc(sizeof(seq_t) * STATE_COUNT);
-    next_arr = (seq_t *)malloc(sizeof(seq_t) * STATE_COUNT);
+    curr = mem_new(seq_t, STATE_COUNT);
+    next_arr = mem_new(seq_t, STATE_COUNT);
     if (!curr || !next_arr) exit(1);
 
     /* clear DP arrays */
@@ -93,7 +108,7 @@ static void init_tables(void)
     seq_t total = 0;
     for (size_t i = 0; i < STATE_COUNT; ++i) total += curr[i];
 
-    memo = (seq_t *)malloc(sizeof(seq_t));
+    memo = mem_new(seq_t, 1);
     if (!memo) exit(1);
     memo[0] = total;
     memo_len = 1;
@@ -125,7 +140,7 @@ static void extend_to(size_t n)
         /* grow memo buffer if needed */
         if (memo_len >= memo_cap) {
             size_t new_cap = memo_cap ? memo_cap * 2 : 16;
-            seq_t *newmem = (seq_t *)realloc(memo, sizeof(seq_t) * new_cap);
+            seq_t *newmem = mem_resize(seq_t, memo, new_cap);
             if (!newmem) exit(1);
             memo = newmem;
             memo_cap = new_cap;

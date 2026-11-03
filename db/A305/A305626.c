@@ -8,7 +8,8 @@
  * Formula:   a(n) = (6! / 2) * (S2(n,6) - S2(ceil(n/2),6))
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 13, u64 n <= 25, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 997 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* S2(n,k) = Stirling numbers of the second kind.            */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Persistent cache of S2(n,6)  for all n up to the largest n
    requested.  The cache is built incrementally so that calls   */
@@ -32,7 +34,7 @@ static seq_t newrow[7];       /* helper for next n */
 static void ensure_S6(idx_t up_to)
 {
     if (S6 == NULL) {                    /* first call */
-        S6 = (seq_t*)malloc((up_to + 1) * sizeof(seq_t));
+        S6 = mem_new(seq_t, (up_to + 1));
         if (S6 == NULL) return;          /* allocation failure – should not happen */
         for (int k = 0; k <= 6; ++k) row[k] = 0;
         row[0] = 1;                      /* S(0,0)=1, all others 0 */
@@ -42,7 +44,7 @@ static void ensure_S6(idx_t up_to)
     if (up_to <= S6_max) return;         /* already computed */
 
     /* enlarge cache if necessary */
-    seq_t *tmp = (seq_t*)realloc(S6, (up_to + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, S6, (up_to + 1));
     if (tmp == NULL) return;            /* allocation failure – should not happen */
     S6 = tmp;
 

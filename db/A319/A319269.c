@@ -11,7 +11,8 @@
  *            distinct factors > 1)
  * Range:     u8 n <= 63, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   factor_u64, floor_sqrt, int_gcd, pow_uint
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
+ * Helpers:   factor_u64, gcd_i32, ipow_i32, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,10 +22,29 @@
 #include <stdbool.h>
 
 /* Utility functions available in the project */
-#include "../utils/factor_u64.h"   /* factor_u64 */
-#include "../utils/floor_sqrt.h"  /* floor_sqrt */
-#include "../utils/pow_uint.h"    /* pow_uint */
-#include "../utils/int_gcd.h"
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+#include "../utils/gcd_i32.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/ipow_u64_idx.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* -------------------------------------------------------------------- */
 /*  Helper: integer gcd of two positive ints                            */
@@ -36,7 +56,7 @@ static uint64_t root_of_n(uint64_t n, const uint64_t *pr, const uint64_t *ex,
     uint64_t m = 1;
     for (size_t i = 0; i < pf_cnt; ++i) {
         uint64_t pow_exp = ex[i] / r;           /* integer division */
-        seq_t pwr = pow_uint(pr[i], pow_exp);   /* seq_t result fits in uint64_t  */
+        seq_t pwr = ipow_u64_idx(pr[i], pow_exp);   /* seq_t result fits in uint64_t  */
         m *= (uint64_t)pwr;                     /* safe: product <= n           */
     }
     return m;
@@ -81,7 +101,7 @@ seq_t a(idx_t n)
     /* GCD of the prime exponents */
     int g = (int)exps[0];
     for (size_t i = 1; i < pf_cnt; ++i)
-        g = int_gcd(g, (int)exps[i]);
+        g = gcd_i32(g, (int)exps[i]);
 
     /* Sum over all divisors d of g */
     seq_t ans = 0;

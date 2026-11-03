@@ -8,14 +8,17 @@
  * Keywords:  nonn, tabl
  * Formula:   read the triangle T(n,k) by rows; T(n,1)=c(n-1),
  *            T(n,k)=c(n-k+1)*c(k-2) for 2≤k≤n, where c(j)=Catalan(j)
- * Range:     u8 n <= 21, u16 n <= 55, u32 n <= 66, u64 n <= 66, u128 n <= 66,
+ * Range:     u8 n <= 28, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
  * Helpers:   catalan
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Function a(n) returns the n-th term of the concatenated rows.   */
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/catalan.h"
 
 seq_t a(idx_t n)

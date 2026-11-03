@@ -8,6 +8,7 @@
  * Formula:   a(4t)=0, a(4t+1)=4t+1, a(4t+2)=-1, a(4t+3)=-(4t+4)
  * Range:     i8 n <= 128, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
+ * Validated: standard, pass, 91 terms through n = 988 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

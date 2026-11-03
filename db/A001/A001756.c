@@ -9,12 +9,13 @@
  * Formula:   a(n) = a(n-1)*n*(2*n-7)/(n-3), a(3) = 15
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 10, u64 n <= 17, u128 n <= 29,
  *            big any n
- * Helpers:   a001756_gcd
+ * Validated: standard, pass, 34 terms through n = 100 (2026-11-01)
+ * Helpers:   gcd_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a001756_gcd.h"
+#include "../utils/gcd_idx.h"
 
 seq_t a(idx_t n) {
     seq_t result = 15;
@@ -22,10 +23,10 @@ seq_t a(idx_t n) {
         idx_t d = i - 3;
         idx_t f1 = i;
         idx_t f2 = 2 * i - 7;
-        idx_t g = a001756_gcd(d, f1);
+        idx_t g = gcd_idx(d, f1);
         d /= g;
         f1 /= g;
-        g = a001756_gcd(d, f2);
+        g = gcd_idx(d, f2);
         d /= g;
         f2 /= g;
         result /= (seq_t)d;

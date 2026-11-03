@@ -12,7 +12,8 @@
  *            values a(0)…a(15) are computed by the same formula
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 8, u64 n <= 46, u128 n <= 948,
  *            big any n
- * Helpers:   binom_15
+ * Validated: standard, pass, 37 terms through n = 986 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,18 @@
    safe for an unsigned seq_t type and for arbitrary‑precision types. */
 
 #include <stdlib.h>
-#include "../utils/binom_15.h"
+
+/* Compute binomial(m, 15) for m >= 15, using multiplicative formula. */
+static seq_t binom_15(idx_t m)
+{
+    seq_t r = (seq_t)1;
+    /* compute product_{j=1}^{15} (m-15+j)/j */
+    for (idx_t j = (idx_t)1; j <= (idx_t)15; ++j) {
+        /* multiply first to keep integer division exact. */
+        r = r * (seq_t)(m - (idx_t)15 + j) / (seq_t)j;
+    }
+    return r;
+}
 
 /* Pre‑computed numerator coefficients. */
 static const seq_t N[11] = {

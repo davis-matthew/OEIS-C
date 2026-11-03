@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define MAX_PRIME_LIMIT 600000   /* enough to cover n ≤ 10000 */
 #define MAX_INV        300000    /* maximum size of inverse table for a prime */
@@ -79,7 +81,7 @@ static void ensure_seq_cap(size_t need)
     if (need <= seq_cap) return;
     size_t newcap = seq_cap ? seq_cap << 1 : 64;
     if (newcap < need) newcap = need;
-    seq_cache = (seq_t*)realloc(seq_cache, newcap * sizeof(seq_t));
+    seq_cache = mem_resize(seq_t, seq_cache, newcap);
     if (!seq_cache) exit(1);
     seq_cap = newcap;
 }

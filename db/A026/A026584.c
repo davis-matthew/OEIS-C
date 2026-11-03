@@ -14,6 +14,7 @@
  *            T(i‑1,j‑1) + T(i‑1,j). * a(1) = T(0,0) = 1; a(n) fo...
  * Range:     u8 n <= 71, u16 n <= 237, u32 n <= 751, u64 n <= 2645,
  *            u128 n <= 9695, big any n
+ * Validated: standard, pass, 97 terms through n = 9481 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

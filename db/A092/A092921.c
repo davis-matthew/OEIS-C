@@ -10,6 +10,7 @@
  *            F(k,n-1)+...+F(k,n-k), F(k,1)=1, F(k,n)=0 for n<=0
  * Range:     u8 n <= 92, u16 n <= 254, u32 n <= 782, u64 n <= 2631,
  *            u128 n <= 9457, big any n
+ * Validated: standard, pass, 107 terms through n = 9648 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

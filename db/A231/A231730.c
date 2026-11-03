@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   seq_alloc_new_array, seq_mul
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,8 +34,19 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/seq_mul.h"
-#include "../utils/seq_alloc_new_array.h"
+#include <string.h>
+#include <stddef.h>
+#include <math.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
 
 /* Static cache of the computed polynomials A_n.  For each n we store
  * an array of length n+1 holding the coefficients of A_n. */

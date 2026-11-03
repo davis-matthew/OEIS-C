@@ -9,7 +9,8 @@
  *            by an incremental sieve testing each candidate integer
  * Range:     u8 n <= 109, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64
+ * Validated: standard, pass, 79 terms through n = 9887 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /*  Determine whether the product of divisors of n is NOT a square.  */
 static bool
@@ -67,7 +69,7 @@ grow_cache(size_t min_cap)
         size_t new_cap = cache_cap ? cache_cap << 1 : 16;
         while (new_cap < min_cap)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp)
             abort();               /* allocation failure */
         cache = tmp;

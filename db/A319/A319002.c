@@ -10,7 +10,8 @@
  *            * (OEIS A319002)
  * Range:     u8 n <= 83, u16 n <= 83, u32 n <= 83, u64 n <= 83, u128 n <= 83,
  *            big any n
- * Helpers:   build_primes_upto, build_spf, gcd
+ * Validated: partial, pass, 83 terms through n = 83 (2026-11-03)
+ * Helpers:   build_primes_upto, build_spf, gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,10 @@
 #include <stdbool.h>
 
 /* utility headers provided by the build */
-#include "../utils/gcd.h"
 #include "../utils/build_primes_upto.h"
 #include "../utils/build_spf.h"
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *dp          = NULL;  /* memoization table */
 static size_t dp_size     = 0;     /* number of entries in dp */
@@ -44,7 +46,7 @@ static void precompute(idx_t up_to)
         return;
 
     /* free existing data */
-    free(dp);
+    mem_free(dp);
     free(prime_index);
     free(spf);
     free(g_of);
@@ -89,7 +91,7 @@ static void precompute(idx_t up_to)
 
     /* ----------------- allocate memoization table ----------------- */
     dp_size = (up_to + 1) * (prime_cnt + 1);
-    dp = (seq_t*)calloc(dp_size, sizeof(seq_t));   /* zeros */
+    dp = mem_new(seq_t, dp_size);   /* zeros */
 
     max_n = up_to;
 }

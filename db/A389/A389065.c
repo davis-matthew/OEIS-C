@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 176, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 9996 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t types are defined by the build system. */
 
@@ -34,12 +36,12 @@ seq_t a(idx_t n)
         /* Ensure the terms array is large enough for all required terms. */
         if (terms == NULL) {
             terms_cap = 256;
-            terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+            terms = mem_new(seq_t, terms_cap);
         } else {
             while (terms_count < n && terms_cap < (terms_count + 128))
                 terms_cap <<= 1;
             if (terms_cap > terms_count)
-                terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
         }
 
         /* Find additional terms until we have at least n of them. */
@@ -86,7 +88,7 @@ seq_t a(idx_t n)
             if (numPrimes >= 2 && hasExpOne) {
                 if (terms_count >= terms_cap) {
                     terms_cap <<= 1;
-                    terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                    terms = mem_resize(seq_t, terms, terms_cap);
                 }
                 terms[terms_count++] = (seq_t)val;
             }

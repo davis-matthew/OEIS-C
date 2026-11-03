@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 12, u32 n <= 2446, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_sqrt, gcd, mod_pow
+ * Validated: standard, pass, 69 terms through n = 9831 (2026-11-03)
+ * Helpers:   gcd, ipow_i32, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,30 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <string.h>
+#include <stdbool.h>
 #include "../utils/gcd.h"
-#include "../utils/floor_sqrt.h"
-#include "../utils/mod_pow.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 seq_t a(idx_t n)
 {
@@ -46,7 +68,7 @@ seq_t a(idx_t n)
         seq_t mod = mm * mm;
 
         /* 2^m mod m²  */
-        seq_t r = mod_pow((seq_t)2, m, mod);
+        seq_t r = powmod((seq_t)2, m, mod);
 
         /* 2^m + 1  (then take mod m² again) */
         r = r + (seq_t)1;
@@ -63,7 +85,7 @@ seq_t a(idx_t n)
             if (term_count == capacity)
             {
                 capacity = capacity ? capacity * 2 : 4;
-                terms = (seq_t *)realloc(terms, capacity * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, capacity);
             }
             terms[term_count++] = mm;
         }

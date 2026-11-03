@@ -7,7 +7,8 @@
  * Formula:   a(n) = p_n^3 + 3^{p_n} (p_n is the n-th prime)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 12, u128 n <= 15,
  *            big any n
- * Helpers:   ipow
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/ipow.h"
+#include "../utils/ipow_idx.h"
 
 /* Static cache for primes (up to about 200 000, enough for n≈10 000) */
 static uint32_t primes[200000];
@@ -83,8 +84,8 @@ seq_t a(idx_t n)
     uint32_t p = primes[n - 1];          /* the n-th prime */
     seq_t p_seq = (seq_t)p;
 
-    seq_t p_cubed = ipow(p_seq, 3);
-    seq_t pow3_p  = ipow((seq_t)3, p);
+    seq_t p_cubed = ipow_idx(p_seq, 3);
+    seq_t pow3_p  = ipow_idx((seq_t)3, p);
 
     return p_cubed + pow3_p;
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 99, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 8759 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- helper: divisor count of unsigned 64‑bit integer ---------- */
 static uint64_t divisor_count_uint64(uint64_t x)
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
     if (!init)
     {
         term_cap = 16;
-        terms = (seq_t *)malloc(term_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, term_cap);
 
         prime_cap = 32;
         primes = (uint64_t *)malloc(prime_cap * sizeof(uint64_t));
@@ -177,7 +179,7 @@ seq_t a(idx_t n)
             if (term_cnt == term_cap)
             {
                 term_cap *= 2;
-                terms = (seq_t *)realloc(terms, term_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, term_cap);
             }
             terms[term_cnt++] = (seq_t)current_k;
         }

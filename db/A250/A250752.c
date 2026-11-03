@@ -10,12 +10,14 @@
  *            294, a(2) = 957, a(3) = 3066
  * Range:     u8 none, u16 n <= 5, u32 n <= 15, u64 n <= 35, u128 n <= 76,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 191 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* Grow the array if necessary.  A guard zone avoids many reallocs. */
     size_t needed = (size_t)n + 4;
     if (needed > cache_cap) {
-        seq_t *tmp = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, needed);
         if (!tmp)                /* allocation failed – give up */
             return 0;
         cache     = tmp;

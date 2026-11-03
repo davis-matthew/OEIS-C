@@ -9,12 +9,14 @@
  *            a(n-2) + a(n-3) – 3*a(n-4) + a(n-5) for n ≥ 6
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 24, u64 n <= 47, u128 n <= 93,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 992 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     if (n + 1 > cap) {
         size_t newcap = (cap == 0) ? 16 : cap * 2;
         while (newcap < n + 1) newcap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(buf, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, buf, newcap);
         buf = tmp;
         cap = newcap;
     }

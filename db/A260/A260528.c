@@ -11,7 +11,8 @@
  *            example, * a(1103) = 4123
  * Range:     u8 n <= 64, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   digit_len, pow10
+ * Validated: partial, pass, 65 terms through n = 64 (2026-11-01)
+ * Helpers:   num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,18 @@
 #include <stdint.h>
 
 /* External helper functions provided by the build system. */
-#include "../utils/pow10.h"
-#include "../utils/digit_len.h"
+#include <stdbool.h>
+#include "../utils/num_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Compute a(n) as defined in OEIS A260528. */
 seq_t a(idx_t n)
@@ -85,7 +96,7 @@ seq_t a(idx_t n)
     for (int d = 9; d >= 0; --d) {
         for (size_t i = 0; i < lens[d]; ++i) {
             seq_t pseq = (seq_t)poslist[d][i];
-            int plen = digit_len(pseq);           /* number of decimal digits of pseq */
+            int plen = num_digits(pseq);           /* number of decimal digits of pseq */
             result = result * pow10((idx_t)plen) + pseq;
         }
     }

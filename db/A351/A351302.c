@@ -7,7 +7,8 @@
  * Formula:   a(n) = n^7 * Product_{p|n} (1 + 1/p^7)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 23, u64 n <= 565,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, pow_uint
+ * Validated: standard, pass, 43 terms through n = 9953 (2026-11-01)
+ * Helpers:   factor_u64, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,11 @@
 /* Multiplicative with a(p^e) = p^(7e) + p^(7e-7) */
 
 #include <stddef.h>              /* size_t */
-#include "../utils/factor_u64.h" /* factor_u64 */
-#include "../utils/pow_uint.h"   /* pow_uint */
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -38,8 +42,8 @@ seq_t a(idx_t n)
         idx_t exp1 = 7 * e;                    /* 7e      */
         idx_t exp2 = 7 * (e - 1);              /* 7(e-1)  */
 
-        seq_t term1 = pow_uint(p,   exp1);     /* p^(7e)   */
-        seq_t term2 = pow_uint(p,   exp2);     /* p^(7e-7) */
+        seq_t term1 = ipow_u64_idx(p,   exp1);     /* p^(7e)   */
+        seq_t term2 = ipow_u64_idx(p,   exp2);     /* p^(7e-7) */
 
         result *= (term1 + term2);            /* combine the two contributions */
     }

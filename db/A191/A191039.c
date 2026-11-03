@@ -7,7 +7,8 @@
  * Formula:   a(n) = the nth prime p (p ≠ 61) such that p³⁰ ≡ 1 (mod 61)
  * Range:     u8 n <= 25, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 70 terms through n = 983 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,9 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/mod_pow.h"
-
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
 
     if (!initialized) {
         res_cap = 64;
-        res = (seq_t*)malloc(res_cap * sizeof(seq_t));
+        res = mem_new(seq_t, res_cap);
         prime_cap = 64;
         prime_list = (uint64_t*)malloc(prime_cap * sizeof(uint64_t));
         initialized = true;
@@ -65,11 +67,11 @@ seq_t a(idx_t n)
             if (candidate % 61 != 0) {
                 seq_t base = (seq_t)(candidate % 61);
                 seq_t mod61 = (seq_t)61;
-                seq_t leg = mod_pow(base, (uint64_t)30, mod61);
+                seq_t leg = powmod(base, (uint64_t)30, mod61);
                 if (leg == (seq_t)1) {
                     if (res_len == res_cap) {
                         res_cap = res_cap * 2 + 16;
-                        res = (seq_t*)realloc(res, res_cap * sizeof(seq_t));
+                        res = mem_resize(seq_t, res, res_cap);
                     }
                     res[res_len++] = (seq_t)candidate;
                 }

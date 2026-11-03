@@ -9,7 +9,8 @@
  *            otherwise
  * Range:     u8 n <= 82, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 9540 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static uint64_t _prv_limit = 200000;            /* upper bound for sieving    */
 static uint32_t * _spf = NULL;                 /* smallest prime factor     */
@@ -52,7 +54,7 @@ static void _init(void) {
     }
 
     /* Build list of semiprimes (numbers with exactly two prime factors) */
-    _semiprimes = (seq_t*)malloc((limit + 1) * sizeof(seq_t));
+    _semiprimes = mem_new(seq_t, (limit + 1));
     if (!_semiprimes) abort();
     for (size_t i = 4; i <= limit; ++i) {
         if (_fac[i] == 2) {

@@ -11,8 +11,9 @@
  *            flattened triangle. It builds rows on demand, memoising the
  *            prefix of the triangle so that any n ≥ 1 can be queried in
  *            O(number of rows)
- * Range:     u8 n <= 190, u16 n <= 9174, u32 n <= 9174, u64 n <= 9174,
- *            u128 n <= 9174, big any n
+ * Range:     u8 n <= 190, u16 n <= 10175, u32 n <= 10175, u64 n <= 10175,
+ *            u128 n <= 10175, big any n
+ * Validated: standard, pass, 99 terms through n = 9174 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

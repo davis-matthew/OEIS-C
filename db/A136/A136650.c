@@ -8,7 +8,8 @@
  *            sum_{k=0..n} b[k] * b[n-k], where * b[k] = 2^{k(k-1)/2}
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 8, u64 n <= 11, u128 n <= 15,
  *            big any n
- * Helpers:   pow2, seq_mul
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,15 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
+#include <string.h>
 #include "../utils/pow2.h"
-#include "../utils/seq_mul.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* static storage for sequence values */
 static seq_t *b_arr = NULL;   /* b[n] = 2^{n(n-1)/2}   */
@@ -32,8 +40,8 @@ seq_t a(idx_t n)
         idx_t start = (max_n == (idx_t)-1) ? 0 : (max_n + 1);
 
         /* reallocate arrays to hold indices up to n */
-        seq_t *b_new = (seq_t *)realloc(b_arr, (n + 1) * sizeof(seq_t));
-        seq_t *a_new = (seq_t *)realloc(a_arr, (n + 1) * sizeof(seq_t));
+        seq_t *b_new = mem_resize(seq_t, b_arr, (n + 1));
+        seq_t *a_new = mem_resize(seq_t, a_arr, (n + 1));
         b_arr = b_new;
         a_arr = a_new;
 

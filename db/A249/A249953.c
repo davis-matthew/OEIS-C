@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 145, u32 n <= 163, u64 n <= 163,
  *            u128 n <= 163, big any n
- * Helpers:   get_digits, next_prime, seq_alloc_new_array
+ * Validated: full, pass, 163 terms through n = 163 (2026-11-03)
+ * Helpers:   get_digits, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,15 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
 #include "../utils/get_digits.h"
 #include "../utils/next_prime.h"
-#include "../utils/seq_alloc_new_array.h"
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
 
 /* Memoisation buffer */
 static seq_t *seq_cache = NULL;

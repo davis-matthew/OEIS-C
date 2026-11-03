@@ -8,7 +8,8 @@
  * Formula:   a(n) = A245790(n) - A245791(n)
  * Range:     u8 n <= 10, u16 n <= 14, u32 n <= 19, u64 n <= 29, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 389 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* External types supplied by the build */
 typedef uint64_t idx_t;
@@ -35,7 +37,7 @@ static void ensure_array(idx_t need, seq_t **arr, size_t *cap, idx_t *max)
     if (*arr == NULL) {                     /* first allocation */
         size_t new_cap = need + 1;
         if (new_cap < 1) new_cap = 1;
-        *arr  = (seq_t *)calloc(new_cap, sizeof(seq_t));
+        *arr  = mem_new(seq_t, new_cap);
         *cap  = new_cap;
         *max  = 0;
         (*arr)[0] = (seq_t)1;               /* base value a(0) = 1 */
@@ -45,7 +47,7 @@ static void ensure_array(idx_t need, seq_t **arr, size_t *cap, idx_t *max)
         size_t new_cap = *cap;
         if (new_cap == 0) new_cap = 1;
         while (new_cap <= (size_t)need) new_cap <<= 1;
-        *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, new_cap);
         for (idx_t i = *max + 1; i <= need; ++i) (*arr)[i] = 0;
         *cap = new_cap;
     }

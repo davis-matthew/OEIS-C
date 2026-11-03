@@ -8,9 +8,10 @@
  * Offset:    2    (a(2) is the first term)
  * Keywords:  nonn, tabl, easy
  * Formula:   not stated
- * Range:     u8 n <= 9, u16 n <= 32, u32 n <= 46, u64 n <= 46, u128 n <= 46,
+ * Range:     u8 n <= 12, u16 n <= 32, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   binomial, count_till
+ * Validated: partial, pass, 45 terms through n = 46 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,12 @@
    k = (n-2) - (r-1)*(r-2)/2 + 1                                   
 */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/count_till.h"
+
+static inline idx_t count_till(idx_t r) {
+    return r * (r - 1) / 2;
+}
 
 seq_t a(idx_t n) {
     if (n < 2) return (seq_t)0;

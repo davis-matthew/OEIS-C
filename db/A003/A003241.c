@@ -11,14 +11,30 @@
  *            sum_{s | n-1} Q(s)*min(2, floor(((n-1)/s - 1)/2))
  * Range:     u8 n <= 12, u16 n <= 34, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   A3241_c2, A_grow
+ * Validated: standard, pass, 56 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/A_grow.h"
-#include "../utils/A3241_c2.h"
+#include "../utils/mem.h"
+
+static seq_t *A_grow(seq_t *old, idx_t oldlen, idx_t newlen)
+{
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    idx_t i;
+    for (i = 0; i < newlen; i++) p[i] = 0;
+    for (i = 0; i < oldlen; i++) p[i] = old[i];
+    if (old) mem_free(old);
+    return p;
+}
+
+static seq_t A3241_c2(seq_t x) {
+    if (x < 2) return 0;
+    if (x % 2 == 0) return (x / 2) * (x - 1);
+    return x * ((x - 1) / 2);
+}
 
 static seq_t *A3241_Q = NULL, *A3241_N = NULL, *A3241_G = NULL;
 static idx_t A3241_cap = 0;

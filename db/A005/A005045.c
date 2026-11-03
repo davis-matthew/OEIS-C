@@ -9,14 +9,30 @@
  *            for m<0): a(n) = S(n-2) + S(n-3) - S(n-5) - S(n-7) + S(n-8)
  * Range:     u8 n <= 15, u16 n <= 73, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   a005045_get, alloc_zero, release
+ * Validated: standard, pass, 63 terms through n = 979 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
-#include "../utils/a005045_get.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
+
+static seq_t a005045_get(seq_t *s, idx_t n, idx_t d) {
+    if (n < d) return 0;
+    return s[n - d];
+}
 
 seq_t a(idx_t n) {
     if (n < 2) return 0;

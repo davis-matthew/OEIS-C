@@ -10,7 +10,8 @@
  *            / 2^n) + (3^n mod 2^n)
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   count_leading_zeros
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,20 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/count_leading_zeros.h"
+
+static inline int count_leading_zeros(uint64_t x) {
+#if defined(__GNUC__) || defined(__clang__)
+    return __builtin_clzll(x);
+#else
+    int c = 0;
+    while ((x >> 31) == 0) { c += 32; x <<= 32; }
+    while ((x >> 15) == 0) { c += 16; x <<= 16; }
+    while ((x >>  7) == 0) { c +=  8; x <<=  7; }
+    while ((x >>  3) == 0) { c +=  4; x <<=  3; }
+    while ((x >>  1) == 0) { c +=  2; x <<=  1; }
+    return c + (x == 0);
+#endif
+}
 
 static const size_t MAX_LIMBS = 300;   /* enough for n up to about 10 000 */
 

@@ -9,6 +9,7 @@
  *            sequence a() is the flattened triangle, indexed from 0
  * Range:     u8 n <= 23, u16 n <= 59, u32 n <= 179, u64 n <= 644,
  *            u128 n <= 1325, big any n
+ * Validated: standard, pass, 82 terms through n = 1215 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

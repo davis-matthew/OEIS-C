@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Triangle of coefficients of u(n,x).  The term a(n) is read row‑by‑row from the triangle. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 extern seq_t a(idx_t n);
 
@@ -33,7 +35,7 @@ ensure_rows(idx_t r_needed)
     while (cached_rows <= r_needed) {
         idx_t          r     = cached_rows;
         size_t         len   = (size_t)r + 1;
-        seq_t          *row   = (seq_t*)calloc(len, sizeof(seq_t));
+        seq_t          *row   = mem_new(seq_t, len);
         if (!row) return;                     /* Allocation failure; caller will get indeterminate result */
 
         if (r == 0) {                         /* First row: u(1,x) = 1,  v(1,x) = 1 */
@@ -42,7 +44,7 @@ ensure_rows(idx_t r_needed)
             u_rows[0] = row;
 
             /* Allocate a separate v array for the first row. */
-            v_curr = (seq_t*)malloc(sizeof(seq_t));
+            v_curr = mem_new(seq_t, 1);
             if (!v_curr) return;
             v_curr[0] = (seq_t)1;
             v_len = 1;
@@ -54,9 +56,9 @@ ensure_rows(idx_t r_needed)
 
             /* Compute u_next and v_next. */
             seq_t *u_next = row;
-            seq_t *v_next = (seq_t*)calloc(len, sizeof(seq_t));
+            seq_t *v_next = mem_new(seq_t, len);
             if (!v_next) {
-                free(row);
+                mem_free(row);
                 return;
             }
 
@@ -78,7 +80,7 @@ ensure_rows(idx_t r_needed)
             u_rows = (seq_t**)realloc(u_rows, (r+1) * sizeof(seq_t*));
             u_rows[r] = u_next;
 
-            free(v_curr);
+            mem_free(v_curr);
             v_curr = v_next;
             v_len  = len;
         }

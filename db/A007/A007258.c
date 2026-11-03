@@ -12,16 +12,42 @@
  *            d*e(d)
  * Range:     i8 n <= 12, i16 n <= 45, i32 n <= 153, i64 n <= 546,
  *            i128 n <= 1000, big any n
- * Helpers:   alloc_zero, e_of, release, seq_is_big
+ * Validated: standard, pass, 65 terms through n = 989 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
-#include "../utils/seq_is_big.h"
-#include "../utils/e_of.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
+
+static int seq_is_big(void)
+{
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 130; i++) x = x * 2;
+    return !(x == 0);
+}
+
+static int e_of(idx_t k) {
+    int r = (int)(k % 6);
+    if (r == 0) return 0;
+    if (r == 3) return 6;
+    if (r % 2 == 0) return 4;
+    return 5;
+}
 
 static seq_t *C = NULL;
 static idx_t L = 0;

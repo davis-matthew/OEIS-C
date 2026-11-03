@@ -12,9 +12,10 @@
  *            of the binary run‑lengths of t equals the set difference R(n) \
  *            R(k). R(m) is the set of partial sums of the run‑lengths of the
  *            binary expansion of m (R(0)=∅). This impl...
- * Range:     u8 n <= 9890, u16 n <= 9890, u32 n <= 9890, u64 n <= 9890,
- *            u128 n <= 9890, big any n
- * Helpers:   build_from_runs, run_and_suffix
+ * Range:     u8 n <= 10010, u16 n <= 10010, u32 n <= 10010, u64 n <= 10010,
+ *            u128 n <= 10010, big any n
+ * Validated: standard, pass, 107 terms through n = 9890 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,63 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/build_from_runs.h"
-#include "../utils/run_and_suffix.h"
+
+/* Build an integer from run lengths (run 0 is a 1‑run).  */
+static idx_t build_from_runs(const idx_t runs[], size_t len)
+{
+    idx_t val = 0;
+    for (size_t i = 0; i < len; ++i) {
+        val <<= runs[i];
+        if ((i & 1) == 0) {          /* 1‑run */
+            idx_t mask = ((idx_t)1 << runs[i]) - 1;
+            val |= mask;
+        }
+    }
+    return val;
+}
+
+/* Return the run‑lengths and their suffix sums for m.  */
+static void run_and_suffix(idx_t m,
+                           idx_t run_len[], size_t *n_run,
+                           idx_t suf_sums[], size_t *n_suf)
+{
+    if (m == 0) {
+        *n_run = *n_suf = 0;
+        return;
+    }
+
+    /* Count run lengths.  */
+    size_t r = 0;
+    idx_t curr_bit = (m >> ((63 - __builtin_clzll(m)))) & 1;
+    idx_t cur_len = 1;
+    for (int i = 63 - __builtin_clzll(m) - 1; i >= 0; --i) {
+        idx_t bit = (m >> i) & 1;
+        if (bit == curr_bit) {
+            ++cur_len;
+        } else {
+            run_len[r++] = cur_len;
+            curr_bit = bit;
+            cur_len = 1;
+        }
+    }
+    run_len[r++] = cur_len;          /* last run */
+    *n_run = r;
+
+    /* Compute suffix sums (descending order).  */
+    if (r == 0) {
+        *n_suf = 0;
+        return;
+    }
+    idx_t total = 0;
+    for (size_t i = 0; i < r; ++i) total += run_len[i];
+    suf_sums[0] = total;
+    idx_t sum = total;
+    for (size_t i = 1; i < r; ++i) {
+        sum -= run_len[i - 1];
+        suf_sums[i] = sum;
+    }
+    *n_suf = r;
+}
 
 /* Check if v is contained in arr[0..len-1].  */
 static bool contains(const idx_t arr[], size_t len, idx_t v)

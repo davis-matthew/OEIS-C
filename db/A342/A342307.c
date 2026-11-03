@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 25, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   factorial_small
+ * Validated: partial, pass, 36 terms through n = 37 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,15 @@
  */
 
 #include <stdint.h>
-#include "../utils/factorial_small.h"
+
+/* compute m! for 0 ≤ m ≤ int limit (no overflow for our use) */
+static seq_t factorial_small(idx_t m)
+{
+    seq_t f = 1;
+    for (idx_t i = 2; i <= m; ++i)
+        f *= i;
+    return f;
+}
 
 /* ---------- small helper functions ---------- */
 

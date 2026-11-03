@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 86 terms through n = 86 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    a(n) is the nth symbol of this infinite word (1‑based). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     if (buf == NULL)
     {
         cap = 64;                                 /* arbitrary initial size          */
-        buf = (seq_t*)malloc(cap * sizeof(seq_t));
+        buf = mem_new(seq_t, cap);
         if (buf == NULL) return 0;                /* out of memory – fallback        */
         len = 0;
     }
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
         {
             size_t new_cap = cap;
             while (new_cap < needed) new_cap *= 2;
-            seq_t *tmp = (seq_t*)realloc(buf, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, buf, new_cap);
             if (tmp == NULL) return 0;      /* memory allocation failed */
             buf = tmp;
             cap = new_cap;

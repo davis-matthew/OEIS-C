@@ -11,12 +11,14 @@
  *            = 55836 a(5) = 317736 a(6) = 1809324
  * Range:     u8 none, u16 n <= 4, u32 n <= 10, u64 n <= 23, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute OEIS sequence A206679 */
 seq_t a(idx_t n)
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* initialise cache with the first six terms */
     if (cache == NULL) {
         cap = 16;   /* initial capacity, will grow as needed */
-        cache = (seq_t*)malloc(sizeof(seq_t) * cap);
+        cache = mem_new(seq_t, cap);
         if (cache == NULL) return 0; /* out of memory: return 0 as fallback */
 
         /* set dummy at index 0 to avoid out‑of‑range when n<1 */
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     if (n >= cap) {
         idx_t newcap = cap * 2;
         if (newcap <= n) newcap = n * 2 + 1;   /* at least enough for n */
-        seq_t *tmp = (seq_t*)realloc(cache, sizeof(seq_t) * newcap);
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (tmp == NULL) return 0; /* out of memory: fallback */
         cache = tmp;
         cap = newcap;

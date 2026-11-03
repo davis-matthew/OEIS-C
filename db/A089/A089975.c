@@ -11,7 +11,8 @@
  *            T(n,k)=T(n,k-1)+n*T(n-1,k-1)+C(n,2)*T(n-2,k-1)
  * Range:     u8 n <= 48, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;
 static size_t dp_rows = 0, dp_cols = 0;
@@ -29,11 +31,11 @@ static void ensure_dp(size_t rows, size_t cols)
         return;
 
     /* free old table */
-    free(dp);
+    mem_free(dp);
 
     dp_rows = rows;
     dp_cols = cols;
-    dp = (seq_t *)malloc(dp_rows * dp_cols * sizeof(seq_t));
+    dp = mem_new(seq_t, dp_rows * dp_cols);
     if (!dp) return;  /* out of memory – caller will crash with segfault */
 
     for (size_t n = 0; n < dp_rows; ++n) {

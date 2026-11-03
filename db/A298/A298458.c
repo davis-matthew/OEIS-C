@@ -11,19 +11,68 @@
  *            rows with pre‑computed transition tables
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 16, u128 n <= 32,
  *            big any n
- * Helpers:   valid_cells, valid_first_row, valid_last_row, valid_middle_row,
- *            valid_single_row
+ * Validated: standard, pass, 33 terms through n = 189 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/valid_cells.h"
-#include "../utils/valid_first_row.h"
-#include "../utils/valid_last_row.h"
-#include "../utils/valid_middle_row.h"
-#include "../utils/valid_single_row.h"
+
+static inline bool valid_cells(int row, bool have_above, int above,
+                               bool have_below, int below)
+{
+    for (int c = 0; c < 5; ++c) {
+        int cur = (row >> c) & 1;
+        int cnt = 0;
+
+        /* same-row neighbours */
+        if (c > 0 && ((row >> (c - 1)) & 1) == cur) ++cnt;
+        if (c < 4 && ((row >> (c + 1)) & 1) == cur) ++cnt;
+
+        /* above neighbours */
+        if (have_above) {
+            if (c > 0 && ((above >> (c - 1)) & 1) == cur) ++cnt;
+            if (((above >> c) & 1) == cur) ++cnt;
+            if (c < 4 && ((above >> (c + 1)) & 1) == cur) ++cnt;
+        }
+
+        /* below neighbours */
+        if (have_below) {
+            if (c > 0 && ((below >> (c - 1)) & 1) == cur) ++cnt;
+            if (((below >> c) & 1) == cur) ++cnt;
+            if (c < 4 && ((below >> (c + 1)) & 1) == cur) ++cnt;
+        }
+
+        if (cnt < 2 || cnt > 6) return false;
+    }
+    return true;
+}
+
+/* a first row has no above neighbours */
+static inline bool valid_first_row(int first, int below)
+{
+    return valid_cells(first, false, 0, true, below);
+}
+
+/* a last row has no below neighbours */
+static inline bool valid_last_row(int above, int cur)
+{
+    return valid_cells(cur, true, above, false, 0);
+}
+
+/* a middle row has both above and below neighbours */
+static inline bool valid_middle_row(int above, int cur, int below)
+{
+    return valid_cells(cur, true, above, true, below);
+}
+
+/* a single row (n = 1) has no neighbours at all */
+static inline bool valid_single_row(int row)
+{
+    return valid_cells(row, false, 0, false, 0);
+}
 
 /* Pre‑computed tables (static to avoid re‑computation). */
 static struct {

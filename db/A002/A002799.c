@@ -11,13 +11,15 @@
  *            n*a(n) = Sum_{k=1..n} b(k)*a(n-k), where b(k) = Sum_{d|k} d*c(d)
  * Range:     u8 n <= 9, u16 n <= 21, u32 n <= 55, u64 n <= 157, u128 n <= 489,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 9473 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static int a2799_fixed_flag = -1;
 
@@ -44,14 +46,14 @@ static seq_t a2799_fixed_calc(idx_t n) {
     idx_t i, k;
     if (N < n + 1) N = n + 1;
     if (N < 64) N = 64;
-    seq_t *f = (seq_t *)calloc((size_t)N, sizeof(seq_t));
+    seq_t *f = mem_new(seq_t, (size_t)N);
     f[0] = 1;
     for (k = 1; k < N; k++) {
       int c = k <= 3 ? (int)k : 4, r;
       for (r = 0; r < c; r++)
         for (i = k; i < N; i++) f[i] += f[i - k];
     }
-    free(a2799_F);
+    mem_free(a2799_F);
     a2799_F = f;
     a2799_Flen = N;
   }
@@ -83,9 +85,9 @@ static seq_t a2799_big_calc(idx_t n) {
     idx_t cap = a2799_Acap * 2;
     if (cap < n + 1) cap = n + 1;
     if (cap < 64) cap = 64;
-    seq_t *na = (seq_t *)calloc((size_t)cap, sizeof(seq_t));
+    seq_t *na = mem_new(seq_t, (size_t)cap);
     for (m = 0; m < a2799_Alen; m++) na[m] = a2799_A[m];
-    free(a2799_A);
+    mem_free(a2799_A);
     a2799_A = na;
     a2799_Acap = cap;
     a2799_make_b(cap);

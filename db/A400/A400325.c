@@ -10,14 +10,27 @@
  *            ? (p - 4) : p
  * Range:     u8 n <= 55, u16 n <= 6543, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _is_prime_uint32
+ * Validated: standard, pass, 76 terms through n = 9677 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/_is_prime_uint32.h"
+
+/* Test if a uint32_t value is prime using the list of known primes. */
+static int _is_prime_uint32(uint32_t n, const uint32_t *prs, size_t cnt)
+{
+    if (n < 2) return 0;
+    for (size_t i = 0; i < cnt; ++i) {
+        uint32_t p = prs[i];
+        uint64_t prod = (uint64_t)p * p;
+        if (prod > n) break;
+        if (n % p == 0) return 0;
+    }
+    return 1;
+}
 
 seq_t a(idx_t n)
 {

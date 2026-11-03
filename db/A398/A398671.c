@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 552, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 88 terms through n = 9258 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    of any prime ≡ 1 (mod 4). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,10 +32,10 @@ seq_t a(idx_t n)
     if (n > cur_limit) {
         /* Allocate new arrays of size n+1 (index 0..n) */
         size_t sz = (size_t)(n + 1);
-        seq_t *new_counts = (seq_t *)malloc(sz * sizeof(seq_t));
+        seq_t *new_counts = mem_new(seq_t, sz);
         unsigned char *new_forbidden = (unsigned char *)calloc(sz, 1); /* zeros */
         if (!new_counts || !new_forbidden) {
-            free(new_counts);
+            mem_free(new_counts);
             free(new_forbidden);
             return (seq_t)0;
         }
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
         /* Sieve of Eratosthenes to find primes up to n */
         unsigned char *is_prime = (unsigned char *)malloc(sz);
         if (!is_prime) {
-            free(new_counts);
+            mem_free(new_counts);
             free(new_forbidden);
             return (seq_t)0;
         }
@@ -75,7 +77,7 @@ seq_t a(idx_t n)
         }
 
         /* Replace old cache with the new one */
-        free(counts);
+        mem_free(counts);
         free(forbidden);
         counts = new_counts;
         forbidden = new_forbidden;

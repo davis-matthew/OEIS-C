@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* a minimal DP helper: does x contain digits 4&6 or 6&4 consecutively? */
 static bool has_pair(seq_t x)
@@ -47,7 +49,7 @@ static void add_term(seq_t val)
     if (seq_len == seq_cap) {
         seq_cap = seq_cap ? seq_cap * 2 : 128;
         /* reallocation needs an explicit cast in C++ */
-        seq_t *tmp = (seq_t *)realloc(seq_cache, seq_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, seq_cap);
         if (!tmp) {
             /* allocation failed – terminate (no exception handling allowed) */
             exit(EXIT_FAILURE);

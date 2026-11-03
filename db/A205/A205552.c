@@ -9,13 +9,15 @@
  *            the position of the nth term when the square array
  *            C(max(2i-2,j-1),min(2i-2,j-1)) (i>=1,j>=1) is read by
  *            antidiagonals starting at the northwest corner
- * Range:     u8 n <= 40, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
+ * Range:     u8 n <= 61, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
+ * Validated: partial, pass, 74 terms through n = 74 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

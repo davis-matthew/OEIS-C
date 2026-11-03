@@ -12,7 +12,8 @@
  *            subsequent calls are fast, independent of the call order
  * Range:     u8 n <= 15, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Return the nth term of the sequence (offset 1). */
 seq_t a(idx_t n)
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
 
             /* if we have enough terms, build the sorted list */
             if (count >= n) {
-                seq_t *new_cache = (seq_t *)malloc(count * sizeof(seq_t));
+                seq_t *new_cache = mem_new(seq_t, count);
                 if (!new_cache)
                     abort();
 
@@ -80,7 +82,7 @@ seq_t a(idx_t n)
                 }
 
                 free(present);
-                free(cache);
+                mem_free(cache);
                 cache     = new_cache;
                 cache_size = count;
                 break;

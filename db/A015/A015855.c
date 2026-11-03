@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  sign, easy, changed
  * Formula:   not stated
- * Range:     i8 n <= 7, i16 n <= 2000, i32 n <= 2000, i64 n <= 2000,
+ * Range:     i8 n <= 0, i16 n <= 2000, i32 n <= 2000, i64 n <= 2000,
  *            i128 n <= 2000, big any n
- * Helpers:   poly_div_xminus1, poly_mul_xminus1
+ * Validated: standard, pass, 97 terms through n = 1981 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,8 +36,45 @@
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/poly_div_xminus1.h"
-#include "../utils/poly_mul_xminus1.h"
+#include "../utils/mem.h"
+
+/* Helper to divide the current polynomial by (x^d – 1) */
+static void poly_div_xminus1(seq_t *coeff, size_t *len, size_t d)
+{
+    /* The divisor always divides exactly for the cyclotomic polynomial construction. */
+    size_t new_len = *len - d;
+    seq_t new_coeff[2000];
+    for (size_t i = 0; i < new_len; ++i) {
+        if (i < d) {
+            new_coeff[i] = -(seq_t)coeff[i];
+        } else {
+            new_coeff[i] = new_coeff[i - d] - coeff[i];
+        }
+    }
+    *len = new_len;
+    for (size_t i = 0; i < new_len; ++i) coeff[i] = new_coeff[i];
+}
+
+/* Helper to multiply the current polynomial by (x^d – 1) */
+static void poly_mul_xminus1(seq_t *coeff, size_t *len, size_t d)
+{
+    size_t new_len = *len + d;
+    seq_t new_coeff[2000];
+    for (size_t i = 0; i < new_len; ++i) {
+        if (i < d) {
+            /* no shifted term */
+            new_coeff[i] = -(seq_t)coeff[i];
+        } else if (i < *len) {
+            /* both terms present */
+            new_coeff[i] = coeff[i] - coeff[i - d];
+        } else {
+            /* only shifted term remains */
+            new_coeff[i] = coeff[i - d];
+        }
+    }
+    *len = new_len;
+    for (size_t i = 0; i < new_len; ++i) coeff[i] = new_coeff[i];
+}
 
 /* Forward declaration: seq_t and idx_t are provided by the build */
 extern seq_t a(idx_t n);
@@ -92,7 +130,7 @@ static void ensure_cache_capacity(size_t needed)
     if (a_cap >= needed) return;
     size_t new_cap = a_cap ? a_cap * 2 : 16;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *new_arr = (seq_t*)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, a_cache, new_cap);
     a_cache = new_arr;
     a_cap = new_cap;
 }

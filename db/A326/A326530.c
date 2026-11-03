@@ -9,7 +9,8 @@
  *            3rd largest part
  * Range:     u8 n <= 25, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -61,8 +63,8 @@ seq_t a(idx_t n)
     const int PARTS = 9;
     size_t stride = (size_t)(N + 1);
     size_t total = (size_t)(PARTS + 1) * stride;   /* indices 0..9 */
-    seq_t *dp_cnt = (seq_t *)calloc(total, sizeof(seq_t));
-    seq_t *dp_sum = (seq_t *)calloc(total, sizeof(seq_t));
+    seq_t *dp_cnt = mem_new(seq_t, total);
+    seq_t *dp_sum = mem_new(seq_t, total);
     if (!dp_cnt || !dp_sum) {
         /* Inadequate memory, return 0 (should not happen in normal tests) */
         free(sq_vals);
@@ -105,8 +107,8 @@ seq_t a(idx_t n)
     seq_t result = dp_sum[PARTS * stride + N];
 
     /* Clean up */
-    free(dp_cnt);
-    free(dp_sum);
+    mem_free(dp_cnt);
+    mem_free(dp_sum);
     free(sq_vals);
     return result;
 }

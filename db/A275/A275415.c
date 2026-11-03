@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 44, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-01)
  * Helpers:   is_prime, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
    a(1)=5, a(2)=3, a(3)=7, a(4)=5, … */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/is_prime.h"
 #include "../utils/next_prime.h"
 

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 67, i16 n <= 80, i32 n <= 80, i64 n <= 80, i128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 81 terms through n = 80 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
    (row 0, then row 1, then row 2, …). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t **triangle = NULL;    /* array of rows */
 static size_t triangle_used = 0;   /* number of rows stored */
@@ -63,7 +65,7 @@ static void ensure_rows(idx_t r)
 
     for (size_t i = triangle_used; i <= (size_t)r; ++i) {
         size_t len = 2 * i + 1;
-        seq_t *row = (seq_t *)malloc(len * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, len);
         if (!row) abort();      /* allocation failed */
         for (size_t j = 0; j < len; ++j)
             row[j] = 0;         /* initialize to zero */

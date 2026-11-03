@@ -10,14 +10,30 @@
  *            most‑significant digit
  * Range:     u8 n <= 19, u16 n <= 536, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   z_of_idx
+ * Validated: standard, pass, 68 terms through n = 9657 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/z_of_idx.h"
+#include "../utils/mem.h"
+
+/* Interpret the digits of m in base 7 as base 49 digits. */
+static inline seq_t z_of_idx(idx_t m)
+{
+    seq_t z = 0;
+    seq_t power = 1;
+    idx_t t = m;
+    while (t) {
+        unsigned d = (unsigned)(t % 7);
+        z += (seq_t)d * power;
+        power *= (seq_t)49;
+        t /= 7;
+    }
+    return z;
+}
 
 seq_t a(idx_t n)
 {
@@ -42,7 +58,7 @@ seq_t a(idx_t n)
     while (used < n) {
         if (used >= cap) {
             size_t newcap = (cap == 0) ? 16 : cap * 2;
-            seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, newcap);
             /* build environment guarantees allocation succeeds */
             cache = tmp;
             cap   = newcap;

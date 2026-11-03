@@ -10,15 +10,18 @@
  *            of d, e+1 is a power of 2
  * Range:     u8 n <= 119, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, pow_uint
+ * Validated: standard, pass, 84 terms through n = 9946 (2026-11-01)
+ * Helpers:   factor_u64, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 static void rec(size_t idx, size_t total, seq_t cur,
                 const uint64_t *primes, const uint64_t *exps,
@@ -32,7 +35,7 @@ static void rec(size_t idx, size_t total, seq_t cur,
     uint64_t maxe  = exps[idx];
     for (uint64_t e = 0; e <= maxe; ++e) {
         if (((e + 1) & e) == 0) {              // e+1 is a power of two
-            seq_t pwr = pow_uint(base, e);
+            seq_t pwr = ipow_u64_idx(base, e);
             rec(idx + 1, total, cur * pwr, primes, exps, sum);
         }
     }

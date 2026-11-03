@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 0, u16 n <= 0, u32 n <= 1, u64 n <= 2, u128 n <= 2,
  *            big any n
- * Helpers:   floor_cube_root, seq_pow
+ * Validated: standard, pass, 6 terms through n = 5 (2026-11-03)
+ * Helpers:   ipow_i32, ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,29 @@
    for the first cube m³ that lies in a range and satisfies m³ > cur·10^t. */
 
 #include <stdlib.h>
-#include "../utils/seq_pow.h"
-#include "../utils/floor_cube_root.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
+
+/* Floor cube root by binary search */
+static inline seq_t floor_cube_root(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    /* raise hi until hi^3 > x */
+    while (ipow_i32(hi, 3) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid3 = ipow_i32(mid, 3);
+        if (mid3 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 static seq_t *cache = NULL;          /* cached terms */
 static size_t cache_cap = 0;          /* allocated capacity */
@@ -50,12 +72,12 @@ static seq_t next_term(seq_t cur)
             seq_t lo = m_start, hi = m_end;
             while (lo < hi) {
                 seq_t mid = (lo + hi) / (seq_t)2;
-                if (seq_pow(mid, 3) < lower)
+                if (ipow_idx(mid, 3) < lower)
                     lo = mid + (seq_t)1;
                 else
                     hi = mid;
             }
-            seq_t cand = seq_pow(lo, 3);
+            seq_t cand = ipow_idx(lo, 3);
             if (cand <= upper && cand > lower)          /* nontrivial cube */
                 return cand;
         }
@@ -71,7 +93,7 @@ seq_t a(idx_t n)
     /* Initialise cache with a(0) if needed */
     if (cache_len == 0) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = (seq_t)8;          /* a(0) = 8 */
         cache_len = 1;
     }
@@ -83,7 +105,7 @@ seq_t a(idx_t n)
 
         if (cache_len == cache_cap) {
             cache_cap = cache_cap * 2;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
         cache[cache_len++] = nxt;
     }

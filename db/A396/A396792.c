@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 82, u32 n <= 82, u64 n <= 82, u128 n <= 82,
  *            big any n
- * Helpers:   gcd_int
+ * Validated: partial, pass, 64 terms through n = 82 (2026-11-01)
+ * Helpers:   gcd_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/gcd_int.h"
+#include <stddef.h>
+#include "../utils/gcd_i32.h"
 
 /* Euclidean GCD for small integers */
 
@@ -29,7 +31,7 @@ seq_t a(idx_t n) {
 
     seq_t best = 0;
     for (int p = 2; p <= (int)n; ++p) {               /* p must be ≥2 */
-        int d = gcd_int(p, 100);
+        int d = gcd_i32(p, 100);
         seq_t pprime = (seq_t)p / d;                 /* p' = p/d  */
         seq_t hundredprime = (seq_t)100 / d;         /* 100' = 100/d */
         seq_t F = hundredprime + (seq_t)(p - 1) * pprime;   /* denominator */

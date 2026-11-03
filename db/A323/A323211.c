@@ -8,13 +8,15 @@
  * Formula:   a(N) = T(n,k) where T(n,k)=1 if n<2 or k==0 else
  *            binomial(n-2,k-1)+1 and the index N is the flattened row‑major
  *            order of the triangle. (See OEIS A323211)
- * Range:     u8 n <= 59, u16 n <= 238, u32 n <= 719, u64 n <= 1325,
+ * Range:     u8 n <= 95, u16 n <= 239, u32 n <= 720, u64 n <= 1325,
  *            u128 n <= 1325, big any n
+ * Validated: standard, pass, 94 terms through n = 1256 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t N)

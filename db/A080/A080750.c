@@ -8,7 +8,8 @@
  * Formula:   a(n) = largest x > a(n-1) such that x = sum_{i=1}^n digits(a(i))
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   compute_val, digit_len_local
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,32 @@
 /*  (digits(a(i)) = number of base‑10 digits of a(i))   */
 
 #include <stdlib.h>
-#include "../utils/compute_val.h"
-#include "../utils/digit_len_local.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+static inline seq_t compute_val(seq_t T)
+{
+    seq_t d = 1;          /* candidate offset */
+    seq_t pow10 = 1;      /* 10^(d-1) */
+    seq_t candidate = 0;
+
+    for (;;) {
+        seq_t a = T + d;          /* candidate value */
+        if (a < pow10)            /* too small for current digit length */
+            break;
+
+        seq_t next_pow10 = pow10 * 10;
+        if (next_pow10 <= pow10)  /* overflow guard */
+            break;
+
+        if (a < next_pow10)       /* a lies in the current digit length band */
+            candidate = a;
+
+        ++d;
+        pow10 = next_pow10;
+    }
+    return candidate;
+}
 
 seq_t a(idx_t n)
 {
@@ -34,8 +59,8 @@ seq_t a(idx_t n)
     if (n == 1) {               /* base case */
         /* ensure at least one element allocated */
         if (tbl_len == 0) {
-            tbl = (seq_t *)malloc(sizeof(seq_t) * 1);
-            cum = (seq_t *)malloc(sizeof(seq_t) * 1);
+            tbl = mem_new(seq_t, 1);
+            cum = mem_new(seq_t, 1);
             tbl_cap = cum_cap = 1;
             tbl_len = cum_len = 1;
             tbl[0] = (seq_t)1;
@@ -48,8 +73,8 @@ seq_t a(idx_t n)
     if ((size_t)n > tbl_cap) {
         size_t new_cap = tbl_cap ? tbl_cap * 2 : 4;
         if (new_cap < (size_t)n) new_cap = n;
-        tbl = (seq_t *)realloc(tbl, sizeof(seq_t) * new_cap);
-        cum = (seq_t *)realloc(cum, sizeof(seq_t) * new_cap);
+        tbl = mem_resize(seq_t, tbl, new_cap);
+        cum = mem_resize(seq_t, cum, new_cap);
         tbl_cap = cum_cap = new_cap;
     }
 
@@ -59,7 +84,7 @@ seq_t a(idx_t n)
         seq_t T = cum[i - 1];                 /* sum of digits of first i terms */
         seq_t val = compute_val(T);           /* a(i+1) */
         tbl[i] = val;
-        int dl = digit_len_local(val);
+        int dl = num_digits(val);
         cum[i] = T + (seq_t)dl;
     }
     tbl_len = cum_len = n;

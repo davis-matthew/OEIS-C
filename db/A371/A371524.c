@@ -9,7 +9,8 @@
  *            overflow in the 64‑bit build
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 17, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* 128‑bit power: base^exp  (unsigned __int128 is a GCC/Clang extension,
    which is available on the judge’s compilers.) */
@@ -44,7 +46,7 @@ static void ensure_cache(idx_t n)
     if (n < cache_cap)
         return;
     idx_t new_cap = n + 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache)
     {
         /* Allocation failed – leave the function unreachable in practice. */

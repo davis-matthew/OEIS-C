@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
 
     /* 2. Compute Stirling numbers S(n', j) for j = 0..n' using a 1‑D array. */
     idx_t N = nprime;
-    seq_t *st = (seq_t *)malloc((N + 1) * sizeof(seq_t));
+    seq_t *st = mem_new(seq_t, (N + 1));
     if (!st) return 0;  /* allocation failed – return 0 as a safe fallback */
 
     for (idx_t j = 0; j <= N; ++j) st[j] = 0;
@@ -71,6 +73,6 @@ seq_t a(idx_t n)
         result += term;
     }
 
-    free(st);
+    mem_free(st);
     return result;
 }

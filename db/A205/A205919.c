@@ -11,12 +11,14 @@
  *            a(3)=1828, a(4)=9144, a(5)=43572, a(6)=215294, a(7)=1035724
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 12, u64 n <= 26, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 201 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Handle indices below offset */
@@ -46,7 +48,7 @@ seq_t a(idx_t n) {
     /* Allocate cache if first call */
     if (!cache) {
         cap = 16; /* start with a small capacity */
-        cache = (seq_t*)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
     }
 
     /* Fill initial cache entries on first use */
@@ -63,7 +65,7 @@ seq_t a(idx_t n) {
         if ((size_t)(n + 1) > cap) {
             size_t newcap = cap;
             while ((size_t)(n + 1) > newcap) newcap <<= 1;
-            seq_t *tmp = (seq_t*)realloc(cache, newcap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, newcap);
             if (!tmp) return (seq_t)0; /* allocation failure – fall back */
             cache = tmp;
             cap = newcap;

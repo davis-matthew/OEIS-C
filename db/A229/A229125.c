@@ -8,7 +8,8 @@
  * Formula:   a(n) = numbers of the form p * m^2, where p is prime, m > 0
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   grow_seq
+ * Validated: standard, pass, 81 terms through n = 9958 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,21 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/grow_seq.h"
+#include <stddef.h>
+#include "../utils/mem.h"
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
 
 typedef struct {
     seq_t val;     /* p * m^2 */
@@ -107,7 +122,7 @@ static size_t cache_cap = 0;
 static void seq_init(void)
 {
     init_primes();
-    heap = (Node *)malloc(prime_count * sizeof(Node));
+    heap = mem_new(Node, prime_count);
     if (!heap) abort();
     for (size_t i = 0; i < prime_count; ++i) {
         heap[i].p = primes[i];

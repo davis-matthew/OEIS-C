@@ -13,13 +13,15 @@
  *            if m is composite
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper: sieve primes up to 'limit', store in array 'primes'.
    The array 'primes' is preallocated with at least 'cap' elements.
@@ -75,7 +77,7 @@ seq_t a(idx_t n)
     }
 
     /* Frequency array for values up to n. */
-    seq_t *freq = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *freq = mem_new(seq_t, (size_t)(n + 1));
     if (!freq) {
         free(primeList);
         return 0;
@@ -97,7 +99,7 @@ seq_t a(idx_t n)
 
     seq_t result = freq[n];
 
-    free(freq);
+    mem_free(freq);
     free(primeList);
     return result;
 }

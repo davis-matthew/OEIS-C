@@ -7,17 +7,19 @@
  * Formula:   a(n) = Sum_{k = 0..n} binomial(n,k)^4
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 18, u128 n <= 34,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 37 terms through n = 722 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n) {
     seq_t result = 0;
     for (idx_t k = 0; k <= n; k++) {
-        seq_t binom_nk = binom(n, k);
+        seq_t binom_nk = binomial(n, k);
         seq_t binom2 = binom_nk * binom_nk;
         seq_t binom4 = binom2 * binom2;
         result += binom4;

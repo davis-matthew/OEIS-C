@@ -11,15 +11,22 @@
  *            T_t = t(t+1)/2 * let r = n – T_{t-1} // row nu...
  * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   decimal_len, pow10_di
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-01)
+ * Helpers:   num_digits_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <math.h>
-#include "../utils/decimal_len.h"
-#include "../utils/pow10_di.h"
+#include "../utils/num_digits_u64.h"
+
+static seq_t pow10_di(int digits) {          /* 10^digits */
+    seq_t res = 1;
+    for (int i = 0; i < digits; ++i)
+        res = res * 10;
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -63,7 +70,7 @@ seq_t a(idx_t n)
     /* append digits from most‑to‑least, concatenating decimal representations */
     for (int i = dcnt - 1; i >= 0; --i) {
         uint64_t digit = digits[i];
-        int len = decimal_len(digit);
+        int len = num_digits_u64(digit);
         seq_t pow10 = pow10_di(len);
         result = result * pow10 + digit;
     }

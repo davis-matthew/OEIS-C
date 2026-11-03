@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 35, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   good_base6
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,21 @@
    with a static cache of already found terms. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/good_base6.h"
+#include "../utils/mem.h"
+
+/* Check whether a number has equal counts of 1, 3 and 5 in base 6. */
+static bool good_base6(seq_t x)
+{
+    int c1 = 0, c3 = 0, c5 = 0;
+    while (x > 0) {
+        int d = (int)(x % 6);
+        if (d == 1) c1++;
+        else if (d == 3) c3++;
+        else if (d == 5) c5++;
+        x = x / 6;
+    }
+    return c1 == c3 && c3 == c5;
+}
 
 static seq_t *cache = NULL;      /* cache of found terms */
 static size_t cache_count = 0;   /* number of terms stored */
@@ -32,7 +47,7 @@ static void grow_cache(size_t need)
     if (need <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     if (new_cap < need) new_cap = need;
-    seq_t *newp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *newp = mem_resize(seq_t, cache, new_cap);
     cache = newp;
     cache_cap = new_cap;
 }

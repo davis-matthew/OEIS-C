@@ -12,7 +12,8 @@
  *            factors 2*m and enumerates its divisors; if any divisor v...
  * Range:     u8 n <= 18, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _check_bad_divisors, _is_prime_basic
+ * Validated: standard, pass, 69 terms through n = 951 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,29 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/_check_bad_divisors.h"
-#include "../utils/_is_prime_basic.h"
+#include "../utils/is_prime_u64.h"
+
+/* recursive check of divisors of n for forbidden prime-1 divisors */
+static void _check_bad_divisors(int idx, uint64_t cur,
+                                const uint64_t *pr, const int *exp,
+                                size_t cnt, int *bad)
+{
+    if (*bad) return;
+    if (idx == cnt) {
+        /* cur is a divisor of 2*m; test cur+1 for primality >5  */
+        if (cur > 1) {
+            uint64_t p = cur + 1;
+            if (p > 5 && is_prime_u64(p))
+                *bad = 1;
+        }
+        return;
+    }
+    uint64_t mult = 1;
+    for (int e = 0; e <= exp[idx]; ++e) {
+        _check_bad_divisors(idx + 1, cur * mult, pr, exp, cnt, bad);
+        mult *= pr[idx];
+    }
+}
 
 /*** small prime sieve for trial division ***/
 #define PRIME_LIMIT 100000            /* sufficient for 2*m up to ~1e10 */

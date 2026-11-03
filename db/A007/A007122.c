@@ -12,7 +12,8 @@
  *            3*(k-1)*A002426(k-2))/k, A002426(0) = A002426(1) = 1
  * Range:     u8 n <= 10, u16 n <= 16, u32 n <= 27, u64 n <= 48, u128 n <= 89,
  *            big any n
- * Helpers:   seq_is_fixed_width
+ * Validated: standard, pass, 46 terms through n = 180 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,18 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_is_fixed_width.h"
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
 
 typedef struct { uint64_t w[3]; } l3;
 

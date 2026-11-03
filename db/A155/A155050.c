@@ -6,8 +6,9 @@
  * Keywords:  easy, nonn, tabl
  * Formula:   a(n) = Catalan( min(j, i-j) ) where n = i(i+1)/2 + j and 0 ≤ j ≤
  *            i
- * Range:     u8 n <= 83, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
+ * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-01)
  * Helpers:   catalan
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,8 @@
 
 /* The Catalan helper is provided by the build. */
 
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/catalan.h"
 
 /* Helper: returns the i-th triangular number i*(i+1)/2 */

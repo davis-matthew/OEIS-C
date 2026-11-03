@@ -8,7 +8,8 @@
  * Formula:   a(n) = the number of non-isolated divisors of n(n+1)
  * Range:     u8 n <= 15, u16 n <= 594, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_non_isolated, factor_u64
+ * Validated: standard, pass, 114 terms through n = 9393 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,46 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/count_non_isolated.h"
+#include "../utils/mem.h"
+
+/* Recursively enumerate all divisors of m and count the non-isolated ones.
+   curr   – current divisor value (uint64_t)
+   idx    – index in the list of prime factors
+   primes – array of prime factors
+   exps   – array of corresponding exponents
+   pf_cnt – number of distinct prime factors
+   m      – n*(n+1) as seq_t, used for divisibility tests
+   cnt    – pointer to counter */
+static void
+count_non_isolated(uint64_t idx, uint64_t curr,
+                   const uint64_t *primes, const uint64_t *exps,
+                   size_t pf_cnt, seq_t m,
+                   uint32_t *cnt)
+{
+    if (idx == pf_cnt) {
+        if (curr == 1) {
+            /* 1 is always non‑isolated, because 2 | n(n+1) 
+               (product of two consecutive numbers is even). */
+            (*cnt)++;
+        } else {
+            seq_t val = (seq_t)curr;
+            seq_t t1 = m % (val - 1);
+            seq_t t2 = m % (val + 1);
+            if (t1 == 0 || t2 == 0)
+                (*cnt)++;
+        }
+        return;
+    }
+    uint64_t p = primes[idx];
+    uint64_t power = 1;
+    for (uint64_t e = 0; e <= exps[idx]; ++e) {
+        count_non_isolated(idx + 1, curr * power, primes, exps,
+                           pf_cnt, m, cnt);
+        power *= p;
+    }
+}
 
 static seq_t *cache = NULL;   /* memoisation table */
 static size_t cache_cap = 0;  /* current capacity of cache */
@@ -33,7 +72,7 @@ seq_t a(idx_t n)
         size_t new_cap = cache_cap == 0 ? 2 : cache_cap;
         while (new_cap < need)
             new_cap <<= 1;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         for (size_t i = cache_cap; i < new_cap; ++i)
             cache[i] = 0;
         cache_cap = new_cap;

@@ -13,7 +13,8 @@
  *            concatenated left‑to‑right
  * Range:     u8 n <= 3129, u16 n <= 7836, u32 n <= 7836, u64 n <= 7836,
  *            u128 n <= 7836, big any n
- * Helpers:   floor_log2_uint64
+ * Validated: standard, pass, 113 terms through n = 6870 (2026-11-03)
+ * Helpers:   ilog2, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/floor_log2_uint64.h"
+#include "../utils/ilog2.h"
+#include "../utils/mem.h"
 
 /* Ensure that the dynamic array *arr has capacity at least 'needed' slots. */
 static void grow_seq(seq_t **arr, size_t *cap, size_t needed)
@@ -29,7 +31,7 @@ static void grow_seq(seq_t **arr, size_t *cap, size_t needed)
     if (needed <= *cap) return;
     size_t new_cap = (*cap == 0) ? 32 : *cap;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
     if (!tmp) return;         /* allocation failure – caller cannot recover */
     *arr = tmp;
     *cap = new_cap;
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
     {
         /* Build the row for k = next_row. */
         uint64_t kval = (uint64_t)next_row;
-        int bitlen = floor_log2_uint64(kval) + 1;  /* number of bits in k */
+        int bitlen = ilog2(kval) + 1;  /* number of bits in k */
 
         /* Temporary buffer for distinct substrings (max 2145 for 64‑bit numbers). */
         seq_t row_vals[2300];

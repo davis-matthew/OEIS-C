@@ -12,12 +12,14 @@
  *            stored in static arrays
  * Range:     i8 n <= 3, i16 n <= 4, i32 n <= 7, i64 n <= 11, i128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 extern seq_t a(idx_t n)
 {
@@ -28,9 +30,9 @@ extern seq_t a(idx_t n)
 
     if (n >= allocated) {
         idx_t new_size = n + 1;
-        u_cache   = (seq_t *)realloc(u_cache,   new_size * sizeof(seq_t));
-        a_cache   = (seq_t *)realloc(a_cache,   new_size * sizeof(seq_t));
-        c2_cache  = (seq_t *)realloc(c2_cache,  new_size * sizeof(seq_t));
+        u_cache   = mem_resize(seq_t, u_cache, new_size);
+        a_cache   = mem_resize(seq_t, a_cache, new_size);
+        c2_cache  = mem_resize(seq_t, c2_cache, new_size);
         idx_t old_size = allocated;
 
         for (idx_t i = old_size; i <= n; ++i) {

@@ -8,13 +8,15 @@
  *            inside the sum is the distance of j to the nearest power of two
  * Range:     u8 n <= 50, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,10 +27,10 @@ seq_t a(idx_t n)
 
     /* Grow cache if necessary */
     if (partial == NULL) {
-        partial = (seq_t *)malloc(n * sizeof(seq_t));
+        partial = mem_new(seq_t, n);
         if (!partial) return 0;                 /* memory failure → return 0 */
     } else if (last < n) {
-        seq_t *tmp = (seq_t *)realloc(partial, n * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, partial, n);
         if (!tmp) return 0;                     /* memory failure */
         partial = tmp;
     }

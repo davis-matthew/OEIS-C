@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn
  * Formula:   a(n) = (prime(2n-2) + prime(2n-1)) / 2 (with prime(1)=2)
- * Range:     u8 n <= 27, u16 n <= 3271, u32 n <= 9245, u64 n <= 9245,
- *            u128 n <= 9245, big any n
+ * Range:     u8 n <= 27, u16 n <= 3271, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 71 terms through n = 9245 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

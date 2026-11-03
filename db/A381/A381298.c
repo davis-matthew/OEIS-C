@@ -9,6 +9,7 @@
  *            1)!*Gamma(n+1/2)^2/(Pi*(n-1)!*(n!)^5) )
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 11, u64 n <= 19, u128 n <= 22,
  *            big any n
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
                                    (2 + v2((4n-1)!)+2v2((2n)!))) */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 static inline idx_t v2_factorial(idx_t m)

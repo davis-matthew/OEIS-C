@@ -7,13 +7,15 @@
  * Formula:   a(n) = 4^(n-2) * (n+1)^(n-4) * (3*n^2 + 13*n + 16)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 7, u64 n <= 12, u128 n <= 21,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 36 terms through n = 310 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -23,10 +25,10 @@ seq_t a(idx_t n)
 
     /* powers with possible negative exponents handled by division */
     seq_t pow4_exp  = (n >= 2) ? (n - 2)     : (2 - n);
-    seq_t pow4      = big_pow(4, (seq_t)pow4_exp);
+    seq_t pow4      = ipow(4, (seq_t)pow4_exp);
 
     seq_t pown1_exp = (n >= 4) ? (n - 4)     : (4 - n);
-    seq_t pown1     = big_pow(n_seq + 1, (seq_t)pown1_exp);
+    seq_t pown1     = ipow(n_seq + 1, (seq_t)pown1_exp);
 
     seq_t result = poly;
     if (n >= 2)

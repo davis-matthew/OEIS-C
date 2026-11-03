@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1486, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_or_power_odd
+ * Validated: standard, pass, 87 terms through n = 9862 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,26 @@
 /* Necessary standard headers */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime_or_power_odd.h"
+#include "../utils/mem.h"
+
+/* ========== Helper: test whether an odd n ≥ 3 is an odd prime or odd prime power ========== */
+static bool is_prime_or_power_odd(idx_t n)
+{
+    /* n is odd and n ≥ 3 */
+    for (idx_t d = 3; d * d <= n; d += 2)
+    {
+        if (n % d == 0)
+        {
+            /* d is the smallest odd divisor; factor out all copies of d */
+            idx_t tmp = n;
+            while (tmp % d == 0)
+                tmp /= d;
+            return tmp == 1;          /* True iff n = d^k */
+        }
+    }
+    /* No divisor found → n is an odd prime */
+    return true;
+}
 
 /* ========== Memoised cache for sequence values ========== */
 static seq_t *cache = NULL;        /* array, 1‑based (cache[0] unused) */
@@ -40,7 +60,7 @@ static void grow_cache(idx_t n)
     while (new_cap < (size_t)(n + 1))
         new_cap <<= 1;
 
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache)
         return;   /* allocation failed – unlikely in normal use */
 
@@ -49,7 +69,7 @@ static void grow_cache(idx_t n)
         new_cache[i] = cache[i];
 
     /* free old cache */
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
     cache_cap = new_cap;
 }

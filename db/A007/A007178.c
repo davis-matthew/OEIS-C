@@ -12,13 +12,20 @@
  *            binomial(r,c) * g(r-c, 2*(s-c)), g(0,0) = 1, g(r,0) = 0 fo...
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 19, u128 n <= 32,
  *            big any n
- * Helpers:   alloc_zero
+ * Validated: standard, pass, 38 terms through n = 296 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/alloc_zero.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
 
 static seq_t **H = NULL;   /* H[r][t] = g(r, 2t), t = 0..r/2 */
 static seq_t **B = NULL;   /* B[r][k] = binomial(r, k) */

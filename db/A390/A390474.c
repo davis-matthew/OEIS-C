@@ -7,11 +7,13 @@
  * Formula:   a(n) = Sum_{k=0..n} binomial(4*n+3*k+2, n-k)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 9, u64 n <= 20, u128 n <= 39,
  *            big any n
+ * Validated: standard, pass, 37 terms through n = 956 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 static seq_t binom_multiplicative(idx_t N, idx_t K)

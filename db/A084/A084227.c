@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 132, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 917 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* ---------- prime generation ---------- */
 static uint64_t *primes = NULL;
@@ -109,7 +111,7 @@ seq_t a(idx_t n)
             if (is_form_uint64(current)) {
                 if (seq_len == seq_cap) {      /* grow the array */
                     seq_cap = seq_cap ? seq_cap * 2 : 64;
-                    seq_arr = (seq_t*)realloc(seq_arr, seq_cap * sizeof(seq_t));
+                    seq_arr = mem_resize(seq_t, seq_arr, seq_cap);
                 }
                 seq_arr[seq_len++] = (seq_t)current;
                 ++current;

@@ -9,7 +9,8 @@
  *            s(2k+1)=s(k)+s(k+1)
  * Range:     i8 n <= 82, i16 n <= 82, i32 n <= 82, i64 n <= 82, i128 n <= 82,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 83 terms through n = 82 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* Computes Stern's sequence on demand and caches it. */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *stern_seq = NULL;   /* cached Stern values */
 static idx_t  stern_len = 0;      /* size of the allocated array */
@@ -34,7 +36,7 @@ static void ensure_stern(idx_t upto)
     while (new_len <= upto + 1)
         new_len <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(stern_seq, (size_t)new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, stern_seq, (size_t)new_len);
     if (!tmp)
         abort();                   /* out of memory */
 

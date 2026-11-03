@@ -9,6 +9,7 @@
  *            x=9/14 multiplied by 7ⁿ, yielding integer numerators
  * Range:     i8 n <= 2, i16 n <= 4, i32 n <= 7, i64 n <= 13, i128 n <= 26,
  *            big any n
+ * Validated: standard, pass, 33 terms through n = 422 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

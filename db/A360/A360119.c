@@ -10,8 +10,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = A060764(n) - A360118(n) (number of divisors not equal to
  *            a difference minus number of differences not equal to a divisor)
- * Range:     u8 n <= 9240, u16 n <= 9240, u32 n <= 9240, u64 n <= 9240,
- *            u128 n <= 9240, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9240 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

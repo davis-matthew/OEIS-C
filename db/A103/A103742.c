@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 7, u32 n <= 7, u64 n <= 7, u128 n <= 7,
  *            big any n
- * Helpers:   utf8_len
+ * Validated: full, pass, 7 terms through n = 7 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,18 @@
    a(n) = number of Unicode codepoints of day_names[(n-1) mod 7]. */
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/utf8_len.h"
+
+static inline seq_t utf8_len(const char *s) {
+    seq_t count = 0;
+    const unsigned char *p = (const unsigned char *)s;
+    while (*p) {
+        if ((*p & 0xC0) != 0x80) {
+            ++count;
+        }
+        ++p;
+    }
+    return count;
+}
 
 static const char *day_names[7] = {
     "Pazartesi",

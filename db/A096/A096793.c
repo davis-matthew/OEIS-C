@@ -8,16 +8,28 @@
  * Formula:   the flattened triangle read by rows of * a(n,k) =
  *            binomial((n+k)/2,(n-k)/2)*binomial((3n-k)/2+1,(n+k)/2)/((3n-k)/2+1).
  *            * The function returns the nth element of that flattened list
- * Range:     u8 n <= 20, u16 n <= 66, u32 n <= 77, u64 n <= 77, u128 n <= 77,
+ * Range:     u8 n <= 28, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   binomial, mul_div
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/mul_div.h"
+
+/* Multiply x and y, then divide by d.  Use a 128‑bit intermediate when
+ * the compiler supports it to avoid overflow on built‑in integer types. */
+static inline seq_t mul_div(seq_t x, seq_t y, seq_t d)
+{
+#if defined(__SIZEOF_INT128__)
+    return (seq_t)((__uint128_t)x * y / d);
+#else
+    return (x * y) / d;
+#endif
+}
 
 /* Compute the triangle entry a(r,k) using the above formula. */
 static inline seq_t triangle_entry(idx_t r, idx_t k)

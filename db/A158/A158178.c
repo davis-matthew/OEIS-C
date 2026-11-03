@@ -12,7 +12,8 @@
  *            2n
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 43, u64 n <= 133, u128 n <= 199,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 192 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define MAX_K 44                                 /* maximal number of parts */
 
@@ -43,10 +45,10 @@ static void init_partitions_upto(idx_t n)
 
     if (part_tbl == NULL) {
         /* first allocation */
-        new_tbl = (seq_t*)calloc(new_size, sizeof(seq_t));
+        new_tbl = mem_new(seq_t, new_size);
     } else {
         /* enlarge existing table */
-        new_tbl = (seq_t*)realloc(part_tbl, new_size * sizeof(seq_t));
+        new_tbl = mem_resize(seq_t, part_tbl, new_size);
         if (new_tbl) {
             /* zero the newly added rows */
             size_t old_size = (size_t)(current_max_n + 1) * (MAX_K + 1);

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   pair_count_for_start, pair_count_for_sum
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,45 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/pair_count_for_start.h"
-#include "../utils/pair_count_for_sum.h"
+
+/* Count of i<j with i,j∈[0,n−1] such that i+j = S.
+   We use unsigned arithmetic because all values are small. */
+static inline seq_t pair_count_for_sum(idx_t n, idx_t S)
+{
+    if (S < 1)
+        return (seq_t)0;
+
+    /* i ranges from max(0, S−(n−1)) to floor((S−1)/2) capped at n−2. */
+    idx_t low  = (S > n - 1) ? (S - (n - 1)) : 0;
+    idx_t high = (S - 1) / 2;
+    if (high > n - 2)
+        high = n - 2;
+
+    if (high >= low)
+        return (seq_t)(high - low + 1);
+    return (seq_t)0;
+}
+
+/* Number of pairs in the sequence a, a+2, …, a+2(n−1).  */
+static inline seq_t pair_count_for_start(idx_t n, long long a)
+{
+    long long smax = 2LL * (long long)n - 3;
+    if (smax < 1)
+        return (seq_t)0;                     /* no possible i+j */
+
+    long long bound = a + smax;                /* largest possible power of two */
+    if (bound < 1)
+        return (seq_t)0;                      /* no power of two reachable */
+
+    seq_t total = (seq_t)0;
+    /* iterate over powers of two 2^k for k ≥ 0 (so sums 2,4,8,…) */
+    for (long long pow = 1; pow <= bound; pow <<= 1) {
+        long long S = pow - a;                 /* a + i + j = pow/2  →  i+j = S  */
+        if (S >= 1 && S <= smax)
+            total += pair_count_for_sum(n, (idx_t)S);
+    }
+    return total;
+}
 
 /* Main sequence function. */
 seq_t a(idx_t n)

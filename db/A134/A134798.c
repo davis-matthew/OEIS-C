@@ -7,7 +7,8 @@
  * Formula:   a(n) is the concatenation of the next n odd isolated primes
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 6, u128 n <= 10,
  *            big any n
- * Helpers:   digit_len, is_prime, pow10, seq_mul
+ * Validated: partial, pass, 10 terms through n = 10 (2026-11-01)
+ * Helpers:   is_prime, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,10 +19,24 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/is_prime.h"   /* bool is_prime(idx_t n); */
-#include "../utils/seq_mul.h"   /* seq_t seq_mul(seq_t a, seq_t b); */
-#include "../utils/pow10.h"     /* seq_t pow10(idx_t e); */
-#include "../utils/digit_len.h" /* int digit_len(seq_t x); */
+#include <string.h>
+#include "../utils/is_prime.h"
+#include "../utils/num_digits.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* --------------------------------------------------------------------- */
 /* Storage for isolated odd primes                                      */
@@ -78,7 +93,7 @@ seq_t a(idx_t n)
     seq_t result = (seq_t)0;
     for (idx_t i = 0; i < n; ++i) {
         seq_t p = (seq_t)isolated_primes[(size_t)first_index + (size_t)i];
-        int d = digit_len(p);
+        int d = num_digits(p);
         seq_t mult = pow10((idx_t)d);
         result = seq_mul(result, mult);
         result = result + p;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 3, i16 n <= 43, i32 n <= 43, i64 n <= 43, i128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* memoisation table   */
 static idx_t  cache_size = 0;    /* allocated size      */
@@ -59,7 +61,7 @@ static void ensure_cache(idx_t n)
     if (cache == NULL) {
         /* initial allocation: at least up to 14 */
         cache_size = (n > 14 ? n + 1 : 15);
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         for (idx_t i = 0; i < cache_size; ++i)
             cache[i] = 0;
         /* copy known values */
@@ -69,7 +71,7 @@ static void ensure_cache(idx_t n)
     } else if (n >= cache_size) {
         /* grow cache */
         size_t new_size = (size_t)n + 1;
-        cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
         for (idx_t i = cache_size; i < new_size; ++i)
             cache[i] = 0;
         cache_size = new_size;

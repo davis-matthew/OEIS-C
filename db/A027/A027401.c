@@ -7,7 +7,8 @@
  * Formula:   a(n) = n! * [x^n] exp( sum_{i=1}^{14} ((1+x)^i-1)/i )
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 184 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Pre‑computed integers d[k] = sum_{i=k}^{14} binom(i-1,k-1)  (1 ≤ k ≤ 14) */
 static seq_t d[15] = {0};
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     init_constants();
 
     /* Allocate array a[0..n] */
-    seq_t *A = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *A = mem_new(seq_t, (n + 1));
     if (!A)
         return (seq_t)0;          /* allocation failure */
 
@@ -71,6 +73,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = A[n];
-    free(A);
+    mem_free(A);
     return result;
 }

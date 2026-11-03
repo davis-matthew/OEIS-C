@@ -8,8 +8,9 @@
  * Formula:   a(n) counts divisors d of n for which either d-1 or d+1 *
  *            divides n-1 or n+1. No direct OEIS formula is available; * we
  *            compute it by enumerating divisors of n
- * Range:     u8 n <= 9296, u16 n <= 9296, u32 n <= 9296, u64 n <= 9296,
- *            u128 n <= 9296, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 103 terms through n = 9296 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

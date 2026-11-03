@@ -8,7 +8,8 @@
  * Formula:   a(n) = n - ∏_{p^e‖n} ( ∑_{d|e, d>0} φ(p^{e−d}) )
  * Range:     u8 n <= 256, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, seq_pow
+ * Validated: standard, pass, 85 terms through n = 8645 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,10 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/factor_u64.h"   /* factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt) */
-#include "../utils/seq_pow.h"     /* seq_pow(seq_t base, idx_t exp) */
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/factor_u64.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -43,7 +46,7 @@ seq_t a(idx_t n)
                 if (exp == 0) {
                     phi = 1;                   /* φ(1) = 1              */
                 } else {
-                    seq_t power = seq_pow((seq_t)p, (idx_t)(exp - 1));
+                    seq_t power = ipow_idx((seq_t)p, (idx_t)(exp - 1));
                     phi = (seq_t)(p - 1) * power;
                 }
                 sum += phi;

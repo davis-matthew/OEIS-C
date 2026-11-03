@@ -9,7 +9,8 @@
  *            than d times
  * Range:     u8 n <= 256, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 99 terms through n = 9215 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --- global cache ----------------------------------------------------- */
 static seq_t *seq = NULL;     /* array of computed terms (0‑based) */
@@ -53,7 +55,7 @@ static void ensure_seq_capacity(size_t need)
     size_t new_cap = seq_cap ? seq_cap * 2 : 128;
     while (new_cap < need)
         new_cap <<= 1;
-    seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, new_cap);
     seq_cap = new_cap;
 }
 

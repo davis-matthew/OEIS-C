@@ -7,7 +7,8 @@
  * Formula:   a(n) = A000040(n)^16 (nth prime raised to the 16th power)
  * Range:     u8 none, u16 none, u32 n <= 2, u64 n <= 6, u128 n <= 54,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 29 terms through n = 984 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 static uint64_t *primes   = NULL;  /* array of known primes          */
 static size_t   primes_len = 0;    /* number of primes currently stored */
@@ -72,5 +73,5 @@ a(idx_t n)
 
     ensure_primes(n);
     seq_t prime = (seq_t)primes[n - 1];
-    return big_pow(prime, (seq_t)16);
+    return ipow(prime, (seq_t)16);
 }

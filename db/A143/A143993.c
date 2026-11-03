@@ -10,7 +10,8 @@
  *            composite number
  * Range:     u8 n <= 5, u16 n <= 116, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   grow_seq, prime_factor_sum_uint64
+ * Validated: standard, pass, 58 terms through n = 978 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,36 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <limits.h>
-#include "../utils/grow_seq.h"
-#include "../utils/prime_factor_sum_uint64.h"
+#include <stddef.h>
+#include "../utils/mem.h"
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
+
+/* Sum of prime factors of n, counting multiplicity */
+static inline seq_t prime_factor_sum_uint64(uint64_t n)
+{
+    uint64_t sum = 0;
+    uint64_t m = n;
+    for (uint64_t d = 2; d <= m / d; ++d) {
+        while ((m % d) == 0) {
+            sum += d;
+            m /= d;
+        }
+    }
+    if (m > 1) sum += m;
+    return (seq_t)sum;
+}
 
 static inline bool is_composite(uint64_t x)
 {

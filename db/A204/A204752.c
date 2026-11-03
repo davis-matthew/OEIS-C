@@ -11,12 +11,14 @@
  *            a(2)=49, a(3)=48, a(4)=53, a(5)=61
  * Range:     u8 none, u16 n <= 21, u32 n <= 44, u64 n <= 90, u128 n <= 183,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 192 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for memoised terms; index 1..count are valid */
 static seq_t *a_cache = NULL;
@@ -31,7 +33,7 @@ static void a_ensure_size(idx_t need)
     size_t new_cap = a_cache_cap ? a_cache_cap * 2 : 8;
     while ((size_t)need + 1 > new_cap) new_cap *= 2;
 
-    a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, new_cap);
     a_cache_cap = new_cap;
 }
 

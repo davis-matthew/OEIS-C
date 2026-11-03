@@ -11,16 +11,27 @@
  *            Sum_{i<j} f(a_i,a_j), where w(a) = (a-1)/2...
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 8, u64 n <= 12, u128 n <= 17,
  *            big any n
- * Helpers:   a2499_f, a2499_gcd, a2499_w
+ * Validated: standard, pass, 31 terms through n = 50 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/a2499_f.h"
-#include "../utils/a2499_gcd.h"
-#include "../utils/a2499_w.h"
+#include "../utils/gcd_u64.h"
+
+static uint64_t a2499_f(idx_t a, idx_t b)
+{
+    uint64_t g = gcd_u64(a, b);
+    return ((a & 1) && (b & 1)) ? g : 2 * g;
+}
+
+static uint64_t a2499_w(idx_t a)
+{
+    if (a & 1) return (a - 1) / 2;
+    return a - 2 + ((a % 4 == 2) ? 2 : 1);
+}
 
 typedef unsigned __int128 a2499_u128;
 

@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base, fini, full, easy
  * Formula:   not stated
- * Range:     u8 n <= 1, u16 n <= 14, u32 n <= 4177, u64 n <= 8191,
+ * Range:     u8 n <= 1, u16 n <= 14, u32 n <= 4103, u64 n <= 8191,
  *            u128 n <= 8191, big any n
- * Helpers:   cmp_seq_t_simple
+ * Validated: full, pass, 8191 terms through n = 8191 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,16 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/cmp_seq_t_simple.h"
+#include "../utils/mem.h"
+
+static int cmp_seq_t_simple(const void *p, const void *q)
+{
+    const seq_t *a = (const seq_t *)p;
+    const seq_t *b = (const seq_t *)q;
+    if (*a < *b) return -1;
+    if (*a > *b) return 1;
+    return 0;
+}
 
 #define TOTAL 8191 /* 2^13 - 1 numbers (including 0) */
 
@@ -43,7 +53,7 @@ seq_t a(idx_t n)
             arr[pos++] = val;
         }
         /* sort the values so that arr[k] = a(k+1) */
-        qsort(arr, TOTAL, sizeof(seq_t), cmp_seq_t_simple);
+        mem_qsort(arr, TOTAL, sizeof(seq_t), cmp_seq_t_simple);
         initialized = true;
     }
 

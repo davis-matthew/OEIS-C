@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 6262, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 93 terms through n = 8246 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    1, q+1, q*(q+1)+1, ... for every prime power base q = p^k. */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static void generate_primes(uint64_t limit, uint64_t **out, size_t *cnt) {
     if (limit < 2) {
@@ -62,7 +64,7 @@ static size_t heap_cap = 0;
 static void heap_push(Node n) {
     if (heap_size == heap_cap) {
         heap_cap = (heap_cap ? heap_cap * 2 : 8);
-        heap = (Node *)realloc(heap, heap_cap * sizeof(Node));
+        heap = mem_resize(Node, heap, heap_cap);
     }
     size_t i = heap_size++;
     heap[i] = n;
@@ -131,11 +133,11 @@ static int initialized = 0;
 static void a_init(void) {
     if (initialized) return;
     seq_cap = 16;
-    seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+    seq = mem_new(seq_t, seq_cap);
     seq[0] = (seq_t)1;              /* a(1) */
     seq_len = 1;
     heap_cap = 8;
-    heap = (Node *)malloc(heap_cap * sizeof(Node));
+    heap = mem_new(Node, heap_cap);
     heap_size = 0;
     current_limit = 0;
     extend_limit(200000); /* initial guess for prime powers */
@@ -157,7 +159,7 @@ seq_t a(idx_t n) {
         if (seq_len == 0 || val != seq[seq_len - 1]) {
             if (seq_len == seq_cap) {
                 seq_cap = seq_cap ? seq_cap * 2 : 16;
-                seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, seq_cap);
             }
             seq[seq_len++] = val;
         }

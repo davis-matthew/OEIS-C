@@ -11,12 +11,14 @@
  *            symmetric sums of f and g. Here f(i)=g(i)=i², so e_k(f)=e_k(g)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 8, u128 n <= 13,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *e   = NULL;   /* elementary symmetric sums of i² up to current n */
 static seq_t *fact;        /* factorials k! up to current n */
@@ -27,8 +29,8 @@ static int initialized = 0;
 static void init_arrays(idx_t n)
 {
     if (!initialized) {                                /* first call */
-        e   = (seq_t*)malloc((size_t)(n + 1) * sizeof(seq_t));
-        fact= (seq_t*)malloc((size_t)(n + 1) * sizeof(seq_t));
+        e   = mem_new(seq_t, (size_t)(n + 1));
+        fact= mem_new(seq_t, (size_t)(n + 1));
         if (!e || !fact) return;
         e[0]    = (seq_t)1;
         fact[0] = (seq_t)1;
@@ -36,8 +38,8 @@ static void init_arrays(idx_t n)
         initialized = 1;
     } else if (n > cur_n) {                            /* extend to larger n */
         size_t new_cap = (size_t)(n + 1);
-        seq_t *e_new    = (seq_t*)realloc(e,    new_cap * sizeof(seq_t));
-        seq_t *fact_new = (seq_t*)realloc(fact, new_cap * sizeof(seq_t));
+        seq_t *e_new    = mem_resize(seq_t, e, new_cap);
+        seq_t *fact_new = mem_resize(seq_t, fact, new_cap);
         if (!e_new || !fact_new) return;
         e    = e_new;
         fact = fact_new;

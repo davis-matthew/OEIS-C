@@ -10,14 +10,16 @@
  *            any Mersenne number 2^k-1 (k≥2)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 17, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_pow.h" /* for seq_pow */
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 
 /* Allowed indices t: all positive integers not divisible by any Mersenne number >=3. */
 static const idx_t mersenne_nums[] = {
@@ -36,7 +38,7 @@ static void init_fermat(void)
     fermat_inited = true;
     for (int i = 0; i < 16; ++i) {
         idx_t exp = 1ULL << i;                /* 2^i */
-        seq_t pow2 = seq_pow((seq_t)2, exp);   /* 2^(2^i) */
+        seq_t pow2 = ipow_idx((seq_t)2, exp);   /* 2^(2^i) */
         fermat[i] = pow2 + (seq_t)1;          /* 2^(2^i)+1 */
     }
 }

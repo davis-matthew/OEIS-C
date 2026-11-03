@@ -7,11 +7,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 40, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 97 terms through n = 957 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <string.h>
 /* Computes the discriminator of the cubic sequence:
    smallest k such that 1^3, 2^3, …, n^3 are pairwise distinct modulo k. */
 

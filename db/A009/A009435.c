@@ -9,13 +9,15 @@
  *            0 (m ≥ 1)
  * Range:     i8 n <= 6, i16 n <= 9, i32 n <= 13, i64 n <= 21, i128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 414 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* internal storage for the sequence values and the auxiliary g array */
 static seq_t *g_arr = NULL;    /* g[0..n]  */
@@ -29,8 +31,8 @@ static void ensure_cap(size_t need)
     if (cap >= need) return;
     size_t new_cap = cap ? cap * 2 : 1;
     while (new_cap < need) new_cap <<= 1;
-    g_arr  = (seq_t *)realloc(g_arr,  new_cap * sizeof(seq_t));
-    a_arr  = (seq_t *)realloc(a_arr,  new_cap * sizeof(seq_t));
+    g_arr  = mem_resize(seq_t, g_arr, new_cap);
+    a_arr  = mem_resize(seq_t, a_arr, new_cap);
     cap = new_cap;
 }
 

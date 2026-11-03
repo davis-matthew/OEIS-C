@@ -7,15 +7,16 @@
  * Keywords:  nonn
  * Formula:   a(n) = number of integers 0 ≤ x ≤ n whose base‑3 representation
  *            contains no digit 0
- * Range:     u8 n <= 3280, u16 n <= 9617, u32 n <= 9617, u64 n <= 9617,
- *            u128 n <= 9617, big any n
- * Helpers:   pow2_seq_t
+ * Range:     u8 n <= 3280, u16 n <= 16383, u32 n <= 16383, u64 n <= 16383,
+ *            u128 n <= 16383, big any n
+ * Validated: standard, pass, 91 terms through n = 9617 (2026-11-01)
+ * Helpers:   pow2_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/pow2_seq_t.h"
+#include "../utils/pow2_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +39,7 @@ seq_t a(idx_t n)
     /* Count all numbers with fewer digits than len. */
     seq_t count = 0;
     if (len > 1)
-        count = pow2_seq_t(len) - 2;        /* sum_{k=1}^{len−1} 2^k */
+        count = pow2_i32(len) - 2;        /* sum_{k=1}^{len−1} 2^k */
 
     /* Count numbers with the same length. */
     for (int pos = len - 1; pos >= 0; --pos) {
@@ -46,7 +47,7 @@ seq_t a(idx_t n)
         if (d == 0)                  /* cannot choose any valid digit here */
             break;
         if (d == 2)
-            count += pow2_seq_t(pos);  /* choose 1 at this digit; rest arbitrary */
+            count += pow2_i32(pos);  /* choose 1 at this digit; rest arbitrary */
         /* if d == 1: must match, continue */
     }
 

@@ -6,15 +6,19 @@
  * Offset:    5    (a(5) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = ((23*n^2-131*n+180)/(4*(2*n-3)*(2*n-5))) * Catalan(n-1)
- * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 18, u64 n <= 29, u128 n <= 29,
+ * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 20, u64 n <= 29, u128 n <= 29,
  *            big any n
+ * Validated: partial, pass, 25 terms through n = 29 (2026-11-01)
  * Helpers:   catalan, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/gcd.h"
+#include <stddef.h>
+#include <stdlib.h>
+#include <stdint.h>
 #include "../utils/catalan.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {

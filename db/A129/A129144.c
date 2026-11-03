@@ -9,7 +9,8 @@
  *            s=sum_{i=1}^{n-1} a(i)
  * Range:     u8 n <= 18, u16 n <= 173, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   floor_sqrt
+ * Validated: standard, pass, 98 terms through n = 1525 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,27 @@
    classes or unsigned integer types) as well as for idx_t=uint64_t. */
 
 #include <stdlib.h>
-#include "../utils/floor_sqrt.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 static seq_t *cache      = NULL; /* memoised values */
 static size_t stored    = 0;      /* number of terms currently stored */
@@ -35,7 +56,7 @@ seq_t a(idx_t n)
     if (stored < 2) {
         size_t need = 2;
         if (capacity < need) {
-            cache = (seq_t *)realloc(cache, need * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, need);
             capacity = need;
         }
         cache[0] = cache[1] = (seq_t)1;
@@ -63,7 +84,7 @@ seq_t a(idx_t n)
         if (stored >= capacity) {
             size_t newcap = capacity ? capacity * 2 : 8;
             while (newcap <= stored) newcap <<= 1;
-            cache = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, newcap);
             capacity = newcap;
         }
 

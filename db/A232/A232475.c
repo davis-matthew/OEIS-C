@@ -7,16 +7,18 @@
  * Keywords:  nonn
  * Formula:   a(n) = Σ_{k=4..n} binomial(n,k) * a(n-k) ; initial values:
  *            a(0)=1, a(1)=a(2)=a(3)=0
- * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 17, u64 n <= 26, u128 n <= 42,
+ * Range:     u8 n <= 9, u16 n <= 12, u32 n <= 17, u64 n <= 26, u128 n <= 42,
  *            big any n
- * Helpers:   binomial
+ * Validated: standard, pass, 43 terms through n = 376 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/binomial.h"    /* binomial(idx_t, idx_t) → seq_t */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,18 +30,18 @@ seq_t a(idx_t n)
     /* Allocate or grow cache to hold indices up to n */
     if ((size_t)n >= capacity) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         unsigned char *new_comp = (unsigned char *)malloc(new_cap * sizeof(unsigned char));
         if (!new_cache || !new_comp) return 0;  /* out of memory, caller handles */
 
         if (cache) {
-            memcpy(new_cache, cache, capacity * sizeof(seq_t));
+            mem_copy(new_cache, cache, capacity * sizeof(seq_t));
             memcpy(new_comp, comp, capacity * sizeof(unsigned char));
         }
-        memset(new_cache + capacity, 0, (new_cap - capacity) * sizeof(seq_t));
+        mem_set(new_cache + capacity, 0, (new_cap - capacity) * sizeof(seq_t));
         memset(new_comp + capacity, 0, (new_cap - capacity) * sizeof(unsigned char));
 
-        free(cache);
+        mem_free(cache);
         free(comp);
         cache = new_cache;
         comp  = new_comp;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 1, i16 n <= 7, i32 n <= 399, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 9327 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static caches for divisor sums (σ) and the sequence values (a). */
 static seq_t *sigma_arr = NULL;   /* sigma_arr[i] = σ(i) */
@@ -37,7 +39,7 @@ static void ensure_sigma(idx_t n)
     if ((size_t)n < sigma_cap) return;          /* already enough */
 
     size_t new_cap = (size_t)n + 1;
-    seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (!new_arr) abort();                      /* out of memory */
 
     /* initialise to zero */
@@ -53,7 +55,7 @@ static void ensure_sigma(idx_t n)
     }
 
     /* replace old array */
-    free(sigma_arr);
+    mem_free(sigma_arr);
     sigma_arr = new_arr;
     sigma_cap = new_cap;
 }
@@ -66,7 +68,7 @@ static void ensure_a(idx_t n)
     if ((size_t)n < a_cap) return;              /* already computed */
 
     size_t new_cap = (size_t)n + 1;
-    seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (!new_arr) abort();                      /* out of memory */
 
     /* copy already known values */
@@ -89,7 +91,7 @@ static void ensure_a(idx_t n)
     }
 
     /* replace old array */
-    free(a_arr);
+    mem_free(a_arr);
     a_arr = new_arr;
     a_cap = new_cap;
 }

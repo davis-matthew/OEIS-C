@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 33, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
    The coefficients are computed in `seq_t`.
 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -53,23 +55,23 @@ seq_t a(idx_t n)
 
     /* row 1 */
     prev_len = 1;
-    u_prev = (seq_t*)malloc(sizeof(seq_t) * prev_len);
-    v_prev = (seq_t*)malloc(sizeof(seq_t) * prev_len);
+    u_prev = mem_new(seq_t, prev_len);
+    v_prev = mem_new(seq_t, prev_len);
     u_prev[0] = 1;
     v_prev[0] = 1;
 
     if (r == 1) {
         seq_t result = u_prev[0];
-        free(u_prev);
-        free(v_prev);
+        mem_free(u_prev);
+        mem_free(v_prev);
         return result;
     }
 
     /* rows 2 .. r */
     for (idx_t row = 2; row <= r; ++row) {
         idx_t cur_len = row;
-        seq_t *u_curr = (seq_t*)malloc(sizeof(seq_t) * cur_len);
-        seq_t *v_curr = (seq_t*)malloc(sizeof(seq_t) * cur_len);
+        seq_t *u_curr = mem_new(seq_t, cur_len);
+        seq_t *v_curr = mem_new(seq_t, cur_len);
 
         u_curr[0] = 1;
         v_curr[0] = 1;
@@ -79,8 +81,8 @@ seq_t a(idx_t n)
             v_curr[i] = 2 * (u_prev[i - 1] + v_prev[i - 1]);
         }
 
-        free(u_prev);
-        free(v_prev);
+        mem_free(u_prev);
+        mem_free(v_prev);
         u_prev = u_curr;
         v_prev = v_curr;
         prev_len = cur_len;
@@ -89,7 +91,7 @@ seq_t a(idx_t n)
     /* result is coefficient at position k in last computed u_prev */
     seq_t result = u_prev[k];
 
-    free(u_prev);
-    free(v_prev);
+    mem_free(u_prev);
+    mem_free(v_prev);
     return result;
 }

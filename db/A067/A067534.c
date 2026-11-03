@@ -7,13 +7,16 @@
  * Formula:   a(n) = (380*4^n - 27*n^4 - 144*n^3 - 360*n^2 - 528*n - 380) / 81
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 11, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -21,7 +24,7 @@ seq_t a(idx_t n)
         return 0;
 
     /* 4^n as a big integer */
-    seq_t pow4 = big_pow((seq_t)4, (seq_t)n);
+    seq_t pow4 = ipow((seq_t)4, (seq_t)n);
 
     /* n, n^2, n^3, n^4 as big integers */
     seq_t n_seq = (seq_t)n;

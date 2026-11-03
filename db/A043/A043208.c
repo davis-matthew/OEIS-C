@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   has_adjacent_4_or_7_in_base9
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,21 @@
    integers and caching the results, allowing calls in arbitrary order. */
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has_adjacent_4_or_7_in_base9.h"
+
+/* Return true if x's base‑9 representation contains adjacent digits
+   4 and 7 in either order. */
+static bool has_adjacent_4_or_7_in_base9(idx_t x)
+{
+    int prev_digit = -1;           /* sentinel for no previous digit */
+    while (x > 0) {
+        int d = (int)(x % 9);       /* current least‑significant digit */
+        if ((prev_digit == 7 && d == 4) || (prev_digit == 4 && d == 7))
+            return true;           /* found adjacency "47" or "74"      */
+        prev_digit = d;
+        x /= 9;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

@@ -7,7 +7,8 @@
  * Formula:   a(n) = denominator of sum_{k=1..n} 1/k^10
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 6, u128 n <= 7,
  *            big any n
- * Helpers:   gcd_any, mul128, pow_seq
+ * Validated: partial, pass, 10 terms through n = 10 (2026-11-01)
+ * Helpers:   gcd, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,9 +16,21 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/gcd_any.h"
-#include "../utils/mul128.h"
-#include "../utils/pow_seq.h"
+#include <stdalign.h>
+#include "../utils/gcd.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication using 128‑bit intermediate when
+   available and seq_t is a built‑in integer.  For arbitrary‑precision
+   types the plain * operator is used. */
+static inline seq_t mul128(seq_t a, seq_t b)
+{
+#if defined(__SIZEOF_INT128__) && !defined(__cplusplus)
+    return (seq_t)((unsigned __int128)(unsigned long long)a * b);
+#else
+    return a * b;
+#endif
+}
 
 seq_t a(idx_t n)
 {
@@ -61,7 +74,7 @@ seq_t a(idx_t n)
         --e; /* e is exponent of p in lcm(1..n) */
         if (e == 0) continue;
         idx_t exp10 = 10 * e; /* exponent of p in lcm(k^10) */
-        seq_t pp = pow_seq((seq_t)p, exp10);
+        seq_t pp = ipow_idx((seq_t)p, exp10);
         L = mul128(L, pp);
     }
     free(primes);
@@ -69,13 +82,13 @@ seq_t a(idx_t n)
     /* ---------- sum of reciprocals using common denominator L ---------- */
     seq_t sum = 0;
     for (idx_t k = 1; k <= n; ++k) {
-        seq_t denom_k10 = pow_seq((seq_t)k, 10);
+        seq_t denom_k10 = ipow_idx((seq_t)k, 10);
         seq_t term = L / denom_k10;   /* exact division */
         sum += term;
     }
 
     /* ---------- reduce fraction sum/L ---------- */
-    seq_t g = gcd_any(sum, L);
+    seq_t g = gcd(sum, L);
     seq_t denom = L / g;
     return denom;
 }

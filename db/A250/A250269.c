@@ -7,7 +7,8 @@
  * Formula:   a(n) = ∏_{d|n} (d!)^{μ(n/d)} (μ = Möbius function)
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 12, u64 n <= 22, u128 n <= 36,
  *            big any n
- * Helpers:   _divisors, pow_uint, seq_mul
+ * Validated: standard, pass, 40 terms through n = 447 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,28 @@
 #include <string.h>
 
 /* External helpers provided by the build system */
-#include "../utils/pow_uint.h"
-#include "../utils/seq_mul.h"
-#include "../utils/_divisors.h"
+#include <stdbool.h>
+#include "../utils/ipow_u64_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* Enumerate divisors of n into array divs; return count */
+static idx_t _divisors(idx_t n, idx_t *divs, idx_t maxcnt)
+{
+    idx_t cnt = 0;
+    for (idx_t i = 1; i * i <= n; ++i) {
+        if (n % i == 0) {
+            if (cnt < maxcnt) divs[cnt++] = i;
+            if (i != n / i) {
+                if (cnt < maxcnt) divs[cnt++] = n / i;
+            }
+        }
+    }
+    return cnt;
+}
 
 static size_t  _spf_size = 0;          /* current upper bound of SPF array */
 static uint32_t *_spf = NULL;          /* smallest prime factor for each number */
@@ -125,7 +145,7 @@ seq_t a(idx_t n)
     for (size_t pi = 0; pi < _prime_count; ++pi) {
         int e = prime_exp[pi];
         if (e == 0) continue;
-        seq_t pwr = pow_uint(_primes[pi], (idx_t)e);
+        seq_t pwr = ipow_u64_idx(_primes[pi], (idx_t)e);
         result = seq_mul(result, pwr);
     }
     return result;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   seq_alloc
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,16 @@
    The sequence consists of all such integers sorted in increasing order.
 */
 #include <stdlib.h>
-#include "../utils/seq_alloc.h"
+#include "../utils/mem.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
 
 static seq_t *a_cache = NULL;
 static const idx_t a_count = 36525;   /* 366*25 + 365*75 */
@@ -67,7 +77,7 @@ static void init_cache(void)
     }
 
     /* Sort the array */
-    qsort(a_cache, (size_t)a_count, sizeof(seq_t), seq_cmp);
+    mem_qsort(a_cache, (size_t)a_count, sizeof(seq_t), seq_cmp);
 }
 
 /* Public function required by the problem statement */

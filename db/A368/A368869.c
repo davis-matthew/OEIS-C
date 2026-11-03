@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 60, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   _floor_isqrt_u64, alloc_seq_array, build_primes_upto
+ * Validated: partial, pass, 71 terms through n = 70 (2026-11-03)
+ * Helpers:   build_primes_upto, isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,13 +18,19 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/_floor_isqrt_u64.h"
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/alloc_seq_array.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 seq_t a(idx_t n) {
     /* Compute floor(sqrt(n)). */
-    idx_t limit = _floor_isqrt_u64(n);
+    idx_t limit = isqrt(n);
 
     /* Build the list of primes ≤ limit. */
     uint64_t *primes = NULL;
@@ -47,7 +54,7 @@ seq_t a(idx_t n) {
     seq_t result = dp[n];
 
     /* Clean up. */
-    free(dp);           /* allocated by alloc_seq_array */
+    mem_free(dp);           /* allocated by alloc_seq_array */
     free(primes);       /* allocated by build_primes_upto */
 
     return result;

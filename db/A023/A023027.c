@@ -9,7 +9,8 @@
  *            unordered parts. If m < 7 then p7(m) = 0
  * Range:     u8 n <= 25, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@ typedef uint64_t idx_t;
 #ifndef seq_t
 /* seq_t is defined by the build; do not redefine it here. */
 #endif
+#include "../utils/mem.h"
 
 /* --------- static cache data --------- */
 static seq_t *exact7_arr = NULL;   /* p7 values up to current max */
@@ -38,17 +40,17 @@ static idx_t mu_max = 0;           /* largest n for which mu_arr is valid */
 static void precompute_exact7(idx_t N)
 {
     /* Allocate new array for p7 values */
-    seq_t *new_arr = (seq_t *)calloc((size_t)(N + 1), sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, (size_t)(N + 1));
     if (!new_arr)
         exit(1);
 
     idx_t limit = (N >= 7) ? N - 7 : 0;          /* value of (m-7) when m runs 7..N */
 
     /* dp[i][k] stored linearly as dp[i*8 + k]   (k = 0..7) */
-    seq_t *dp = (seq_t *)calloc((size_t)(limit + 1) * 8, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(limit + 1) * 8);
     if (!dp)
     {
-        free(new_arr);
+        mem_free(new_arr);
         exit(1);
     }
 
@@ -76,8 +78,8 @@ static void precompute_exact7(idx_t N)
     }
 
     /* Replace old array */
-    free(dp);
-    free(exact7_arr);
+    mem_free(dp);
+    mem_free(exact7_arr);
     exact7_arr = new_arr;
     exact_max = N;
 }

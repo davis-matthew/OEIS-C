@@ -11,12 +11,14 @@
  *            a(7)=1094959, a(8)=7101809
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 23, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 181 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* cache of computed values, 1‑based indexing in terms of n */
 static size_t cap   = 0;      /* allocated size of cache array */
@@ -27,7 +29,7 @@ static void grow_cache(size_t need)
 {
     if (cache == NULL) {
         cap = need > 8 ? need : 8;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) abort();   /* allocation failed – terminate */
         /* initialise with the first 8 terms */
         cache[0] = (seq_t)16;
@@ -43,7 +45,7 @@ static void grow_cache(size_t need)
     if (need > cap) {
         size_t new_cap = cap ? cap * 2 : 8;
         while (new_cap < need) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();   /* allocation failed – terminate */
         cache = tmp;
         cap = new_cap;

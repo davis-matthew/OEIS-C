@@ -13,14 +13,26 @@
  *            sequence is read row‑wise (triangular indexing)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 13, u64 n <= 26, u128 n <= 52,
  *            big any n
- * Helpers:   pow4
+ * Validated: standard, pass, 44 terms through n = 803 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow4.h"          /* seq_t pow4(idx_t exp); */
+
+static inline seq_t pow4(idx_t exp) {
+    seq_t result = 1;
+    seq_t base   = 4;
+    idx_t e = exp;
+    while (e) {
+        if (e & 1) result *= base;
+        base *= base;
+        e >>= 1;
+    }
+    return result;
+}
 
 /* Integer square‑root for unsigned 64‑bit values (no floating point). */
 static inline idx_t isqrt_u64(idx_t x)

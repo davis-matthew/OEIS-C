@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 765, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 8031 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Fast integer square‑root for 64‑bit unsigned */
 static uint64_t floor_sqrt_u64(uint64_t n)
@@ -45,7 +47,7 @@ static void ensure_capacity(size_t *cap, seq_t **ptr, size_t need)
 {
     if (*cap < need) {
         size_t new_cap = (*cap == 0) ? 8 : (*cap << 1);
-        seq_t *tmp = (seq_t *)realloc(*ptr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *ptr, new_cap);
         /* if realloc fails, we terminate silently */
         *ptr = tmp;
         *cap = new_cap;

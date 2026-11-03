@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, mult
  * Formula:   not stated
- * Range:     u8 n <= 15, u16 n <= 1023, u32 n <= 9532, u64 n <= 9532,
- *            u128 n <= 9532, big any n
+ * Range:     u8 n <= 63, u16 n <= 1023, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 96 terms through n = 9532 (2026-11-01)
  * Helpers:   binomial, factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,8 +18,9 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/factor_u64.h"
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/factor_u64.h"
 
 /* Computes the n-th term of sequence A317848.  n is 1‑based. */
 seq_t a(idx_t n)

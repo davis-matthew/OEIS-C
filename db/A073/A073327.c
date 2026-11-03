@@ -10,14 +10,25 @@
  *            b=2, …, z=26). Hyphens and spaces are ignored
  * Range:     u8 n <= 121, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   word_sum
+ * Validated: standard, pass, 73 terms through n = 9538 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <string.h>
-#include "../utils/word_sum.h"
+
+static seq_t word_sum(const char *w)
+{
+    seq_t sum = 0;
+    while (*w) {
+        if (*w >= 'a' && *w <= 'z')
+            sum += (seq_t)(*w - 'a' + 1);
+        w++;
+    }
+    return sum;
+}
 
 /* Names for 0–19 */
 static const char *const small[] = {

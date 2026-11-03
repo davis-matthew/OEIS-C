@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return true iff m is a semiprime (product of exactly two primes,
  * counting multiplicity). */
@@ -86,7 +88,7 @@ seq_t a(idx_t n)
             /* Grow the cache array if necessary. */
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap == 0 ? 4 : cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) {          /* allocation failed */
                     /* In this unlikely event return 0. */
                     return 0;

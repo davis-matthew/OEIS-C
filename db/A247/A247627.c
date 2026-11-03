@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 52, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Count decimal digits of a seq_t value */
 static int seq_digit_len(seq_t x)
@@ -81,7 +83,7 @@ seq_t a(idx_t n)
             /* Ensure capacity for the new term. */
             if (cache_cap <= cache_count) {
                 cache_cap = (cache_cap > 0) ? cache_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(knife_cache, cache_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, knife_cache, cache_cap);
                 if (!tmp) {
                     /* Allocation failed – terminate the program. */
                     exit(EXIT_FAILURE);

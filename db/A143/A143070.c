@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 140, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_power_of_two_zeros
+ * Validated: standard, pass, 84 terms through n = 9423 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,21 @@
  */
 
 #include <stdbool.h>
-#include "../utils/has_power_of_two_zeros.h"
+
+/*  Test whether a binary number has a power‑of‑two number of zeros. */
+static bool has_power_of_two_zeros(seq_t v)
+{
+    unsigned int zeros = 0;
+    seq_t tmp = v;
+
+    while (tmp != 0)
+    {
+        if ((tmp & 1) == 0)   /* least significant bit is 0 */
+            ++zeros;
+        tmp >>= 1;
+    }
+    return zeros > 0 && (zeros & (zeros - 1)) == 0;  /* zeros is power of two */
+}
 
 /* required function */
 seq_t a(idx_t n)

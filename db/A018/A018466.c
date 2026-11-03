@@ -7,13 +7,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 8, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 8 terms through n = 8 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Divisors of 459: a(n) = the n-th divisor of 459 in increasing order. Computed by enumerating prime power combinations. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t divisors[8];
 static int initialized = 0;
@@ -41,7 +43,7 @@ static void init_divisors(void)
             divisors[idx++] = pow3[e3] * pow17[e17];
         }
     }
-    qsort(divisors, 8, sizeof(seq_t), seq_cmp);
+    mem_qsort(divisors, 8, sizeof(seq_t), seq_cmp);
     initialized = 1;
 }
 

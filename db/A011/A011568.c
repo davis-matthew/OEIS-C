@@ -7,6 +7,7 @@
  * Formula:   a(n) = Stirling number of the second kind S(19,n)
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 3, u64 n <= 19, u128 n <= 19,
  *            big any n
+ * Validated: full, pass, 19 terms through n = 19 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

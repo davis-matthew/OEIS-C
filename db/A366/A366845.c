@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 44, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -39,6 +40,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* types provided by the build system */
 typedef uint64_t idx_t;   /* integer index type */
@@ -58,12 +60,12 @@ static idx_t  max_n_seen = 0; /* largest n for which tables are valid */
 static void compute_partitions(size_t limit)
 {
     if (limit + 1 > P_size) {
-        P = (seq_t*)realloc(P, (limit + 1) * sizeof(seq_t));
+        P = mem_resize(seq_t, P, (limit + 1));
         if (!P) exit(EXIT_FAILURE);
         P_size = limit + 1;
     }
     if (limit + 1 > Odd_size) {
-        Odd = (seq_t*)realloc(Odd, (limit + 1) * sizeof(seq_t));
+        Odd = mem_resize(seq_t, Odd, (limit + 1));
         if (!Odd) exit(EXIT_FAILURE);
         Odd_size = limit + 1;
     }

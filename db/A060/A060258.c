@@ -10,7 +10,8 @@
  *            modulo each). (Offset = 1)
  * Range:     u8 n <= 9, u16 n <= 893, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factorize, grow_seq, mod_pow, next_prime
+ * Validated: standard, pass, 71 terms through n = 8828 (2026-11-03)
+ * Helpers:   factorize, mem, next_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,10 +19,25 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/grow_seq.h"
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/factorize.h"
 #include "../utils/next_prime.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
 
 /* Test if a prime p has 10 as a primitive root modulo p. */
 static bool is_full_reptend(uint64_t p)
@@ -37,7 +53,7 @@ static bool is_full_reptend(uint64_t p)
 
     for (int i = 0; i < cnt; ++i) {
         uint64_t q = primes[i];
-        if (mod_pow((seq_t)10, n / q, (seq_t)p) == (seq_t)1) {
+        if (powmod((seq_t)10, n / q, (seq_t)p) == (seq_t)1) {
             return false;                      /* order divides (p-1)/q */
         }
     }

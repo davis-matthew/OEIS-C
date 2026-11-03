@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 253, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 83 terms through n = 9789 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,7 +20,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_prime.h"   /* bool is_prime(idx_t n); */
+#include "../utils/is_prime.h"
 
 static idx_t *perm   = NULL;   /* perm[i] = a(i), 0 means unassigned   */
 static bool  *used   = NULL;   /* used[i] = whether i has already been paired */

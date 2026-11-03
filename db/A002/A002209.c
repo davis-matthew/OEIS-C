@@ -9,6 +9,7 @@
  *            (-1)^k*|Stirling1(n+1,k+1)|*L/(k+1)) / (n!*L), L = lcm(1..n+1)
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 11, u64 n <= 17, u128 n <= 31,
  *            big any n
+ * Validated: standard, pass, 37 terms through n = 97 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

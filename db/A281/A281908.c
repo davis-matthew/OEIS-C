@@ -9,11 +9,13 @@
  *            static tables and works for any n≤10000 in well under 2 s
  * Range:     u8 n <= 263, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 91 terms through n = 991 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
 

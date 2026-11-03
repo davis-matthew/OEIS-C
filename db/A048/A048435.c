@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 29,
  *            big any n
- * Helpers:   digits_in_base3
+ * Validated: standard, pass, 36 terms through n = 185 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,18 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/digits_in_base3.h"
+#include "../utils/mem.h"
+
+/* Count the number of digits of x when written in base 3. */
+static int digits_in_base3(idx_t x)
+{
+    int d = 0;
+    do {
+        x /= 3;
+        d++;
+    } while (x);
+    return d;
+}
 
 static seq_t *cache = NULL;      /* memoised values  */
 static idx_t  cache_cap = 0;     /* current allocated size   */
@@ -39,13 +51,12 @@ static void ensure_cache(idx_t need)
     if (new_cap < need + 1)
         new_cap = need + 1;
 
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache)   /* allocation failed; abort with zero   */
         return;
     /* zero‑init the newly added slots */
     if (new_cap > cache_cap)
-        memset(new_cache + cache_cap, 0,
-               (new_cap - cache_cap) * sizeof(seq_t));
+        mem_set(new_cache + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
 
     cache = new_cache;
     cache_cap = new_cap;
@@ -70,7 +81,7 @@ seq_t a(idx_t n)
     /* initialise cache if required */
     if (!cache) {
         cache_cap = 8;                       /* arbitrary start */
-        cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache)                          /* allocation failure */
             return 0;
         cache[0] = 0;

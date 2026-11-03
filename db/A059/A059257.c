@@ -9,7 +9,8 @@
  *            p)
  * Range:     u8 none, u16 n <= 138, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow, next_prime
+ * Validated: standard, pass, 55 terms through n = 904 (2026-11-03)
+ * Helpers:   mem, next_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/next_prime.h"   /* uint64_t next_prime(uint64_t start); */
-#include "../utils/mod_pow.h"      /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod); */
+#include <string.h>
+#include "../utils/next_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static seq_t *terms = NULL;        /* stored primes that satisfy the condition */
 static size_t terms_sz = 0;        /* number of stored terms     */
@@ -31,7 +34,7 @@ static void grow_terms(size_t needed)
     if (terms_cap >= needed) return;
     size_t new_cap = terms_cap ? terms_cap * 2 : 64;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, terms, new_cap);
     if (!tmp) exit(EXIT_FAILURE);  /* memory exhaustion: abort */
     terms = tmp;
     terms_cap = new_cap;
@@ -48,7 +51,7 @@ static void assure_terms(size_t n)
         if (p % 94ULL != 1ULL) continue;
 
         uint64_t exp = (p - 1ULL) / 47ULL;
-        seq_t v = mod_pow((seq_t)2, exp, (seq_t)p);
+        seq_t v = powmod((seq_t)2, exp, (seq_t)p);
 
         /* Add p if 2 is NOT a 47th power modulo p. */
         if (v != (seq_t)1) {

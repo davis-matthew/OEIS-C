@@ -7,7 +7,8 @@
  * Formula:   a(n) = Catalan(n^2) mod prime(n)
  * Range:     u8 n <= 56, u16 n <= 6618, u32 n <= 7833, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   get_prime, mod_pow
+ * Validated: standard, pass, 89 terms through n = 9658 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,61 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/get_prime.h"
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
+
+/* Return the k‑th prime (k ≥ 1).  On first call the prime list
+   is built incrementally using trial division.  The list is
+   stored in a static array which is expanded as necessary.   */
+static uint32_t get_prime(idx_t k)
+{
+    static uint32_t *pr = NULL;     /* array of primes */
+    static size_t sz   = 0;         /* number of primes stored */
+    static size_t cap  = 0;         /* allocated capacity */
+    static uint32_t cand = 3;       /* candidate after 2 */
+
+    /* initialise the prime table on first use */
+    if (sz == 0) {
+        cap = 8;
+        pr = (uint32_t *)realloc(pr, cap * sizeof(uint32_t));
+        if (!pr) abort();
+        sz = 0;
+    }
+
+    /* grow the array until we have at least k primes */
+    while (sz < (size_t)k) {
+        if (sz == 0) {                /* add the first prime */
+            pr[sz++] = 2;
+            continue;
+        }
+
+        /* find the next prime candidate */
+        uint32_t p = cand;
+        bool ok = true;
+        for (size_t i = 0; i < sz; ++i) {
+            uint32_t prime = pr[i];
+            if ((uint64_t)prime * prime > (uint64_t)p) break;
+            if (p % prime == 0) { ok = false; break; }
+        }
+
+        if (!ok) {                    /* not prime – keep searching */
+            cand += 2;                /* only odd numbers remain */
+            continue;
+        }
+
+        /* prime found – store it, grow table if needed */
+        if (sz == cap) {
+            cap <<= 1;
+            pr = (uint32_t *)realloc(pr, cap * sizeof(uint32_t));
+            if (!pr) abort();
+        }
+        pr[sz++] = p;
+        cand = p + 2;
+    }
+
+    return pr[(size_t)k - 1];
+}
 
 /* Cached factorial tables for the current prime.  Each entry is a (mod p)
    value held in a uint32_t; they are rebuilt when a different prime is
@@ -56,7 +110,7 @@ ensure_prime_tables(uint32_t p)
 
     /* inverse factorials via Fermat's little theorem.  Compute
        invfact[p-1] = fact[p-1]^(p-2) mod p and then back‑fill. */
-    seq_t inv = mod_pow((seq_t)fact_table[p - 1], (uint64_t)(p - 2), (seq_t)p);
+    seq_t inv = powmod((seq_t)fact_table[p - 1], (uint64_t)(p - 2), (seq_t)p);
     invfact_table[p - 1] = (uint32_t)inv;
     for (int i = (int)p - 1; i > 0; --i) {
         invfact_table[i - 1] = (uint32_t)(((uint64_t)invfact_table[i] * (uint64_t)i) % p);

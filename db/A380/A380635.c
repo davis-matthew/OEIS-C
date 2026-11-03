@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   alloc_seq_array, grow_seq_array
+ * Validated: partial, pass, 80 terms through n = 80 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,27 @@
 /* Recurrence: a(1) = 1; a(n+1) = Σ_{d²|n} a(n/d²) */
 #include <stddef.h>
 #include <string.h>
-#include "../utils/alloc_seq_array.h"
-#include "../utils/grow_seq_array.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+/* Helper to grow a sequence array of type seq_t. */
+static void grow_seq_array(seq_t **arr, size_t *size, size_t new_len)
+{
+    if (*size >= new_len) return;
+    size_t new_cap = (*size > 0) ? (*size << 1) : 16;
+    while (new_cap < new_len) new_cap <<= 1;
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+    if (!tmp) abort();
+    *arr = tmp;
+    *size = new_cap;
+}
 
 static seq_t *cache = NULL;
 static size_t  cache_size = 0;
@@ -28,7 +48,7 @@ static void ensure_cache(idx_t n)
     if (!cache) {
         cache = alloc_seq_array((size_t)n + 1);
         cache_size = (size_t)n + 1;
-        memset(cache, 0, cache_size * sizeof(seq_t));
+        mem_set(cache, 0, cache_size * sizeof(seq_t));
     } else {
         size_t old_size = cache_size;
         grow_seq_array(&cache, &cache_size, (size_t)n + 1);

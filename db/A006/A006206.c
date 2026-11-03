@@ -11,6 +11,7 @@
  *            so no intermediate is much larger than a(n)
  * Range:     u8 n <= 17, u16 n <= 30, u32 n <= 54, u64 n <= 101,
  *            u128 n <= 195, big any n
+ * Validated: standard, pass, 58 terms through n = 4954 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  *            bound, keep the primes (A000040 INTERSECTION A003336), sort them
  * Range:     u8 n <= 3, u16 n <= 25, u32 n <= 3368, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   q_cmp, q_isprime, q_mulmod, q_powmod
+ * Validated: standard, pass, 53 terms through n = 9384 (2026-11-03)
+ * Helpers:   is_prime_u64, mulmod, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,10 +17,14 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/q_cmp.h"
-#include "../utils/q_isprime.h"
-#include "../utils/q_mulmod.h"
-#include "../utils/q_powmod.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mulmod.h"
+#include "../utils/powmod_u64.h"
+
+static int q_cmp(const void *p, const void *q) {
+    uint64_t u = *(const uint64_t *)p, v = *(const uint64_t *)q;
+    return (u > v) - (u < v);
+}
 
 static uint64_t *q_cache = NULL;
 static size_t q_len = 0;
@@ -35,7 +40,7 @@ static void q_build(uint64_t limit) {
             uint64_t s = x4 + y * y * y * y;
             if (s > limit) break;
             if (((x + y) & 1) == 0 && !(x == 1 && y == 1)) continue;
-            if (q_isprime(s)) {
+            if (is_prime_u64(s)) {
                 if (len == cap) {
                     cap *= 2;
                     v = (uint64_t *)realloc(v, cap * sizeof(uint64_t));

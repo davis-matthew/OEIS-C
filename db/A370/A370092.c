@@ -12,7 +12,8 @@
  *            operators * on seq_t and an external realloc, malloc and free
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* The sequence values and indices are defined by the build system. */
 extern seq_t    seq_alloc_new(size_t);
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* first initialisation */
         cache_cap  = (n >= 1000) ? n + 1 : 1000;  /* start with a reasonable size */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) abort();           /* allocation failed */
         cache[0] = (seq_t)1;                  /* a(0) = 1           */
         cache_len = 1;
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= cache_cap) {
         size_t new_cap = cache_cap * 2;
         if (new_cap < (size_t)n + 1) new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) abort();
         cache = tmp;
         cache_cap = new_cap;

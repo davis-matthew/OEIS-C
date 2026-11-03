@@ -7,12 +7,24 @@
  * Formula:   a(n) = n*(n+1)*(n+7)*(122+57*n+n^2)/120
  * Range:     u8 n <= 2, u16 n <= 15, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   reduce_factor
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/reduce_factor.h"
+static inline void reduce_factor(seq_t *f, seq_t *d)
+{
+    /* Reduce the common prime factors 2, 3, and 5. */
+    const int primes[] = {2, 3, 5};
+    for (int i = 0; i < 3; ++i) {
+        int p = primes[i];
+        while (( (*d) % (seq_t)p == 0 ) && ( (*f) % (seq_t)p == 0 )) {
+            *f /= (seq_t)p;
+            *d /= (seq_t)p;
+        }
+    }
+}
 
 seq_t a(idx_t n)
 {

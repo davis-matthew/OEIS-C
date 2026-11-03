@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 262, u16 n <= 500, u32 n <= 500, u64 n <= 500,
  *            u128 n <= 500, big any n
+ * Validated: standard, pass, 91 terms through n = 500 (2026-11-01)
  * Helpers:   build_primes, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -27,8 +28,10 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdbool.h>
-#include "../utils/gcd.h"
+#include <stdint.h>
+#include <stddef.h>
 #include "../utils/build_primes.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {

@@ -8,14 +8,40 @@
  *            strings are in nondecreasing order
  * Range:     u8 n <= 9, u16 n <= 10, u32 n <= 10, u64 n <= 10, u128 n <= 10,
  *            big any n
- * Helpers:   nondecreasing_digits
+ * Validated: partial, pass, 10 terms through n = 10 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/nondecreasing_digits.h"
+
+/* Return true if the base‑base representation of x has digits in nondecreasing order. */
+static bool nondecreasing_digits(seq_t x, unsigned base)
+{
+    if (x == (seq_t)0)                /* zero is trivially valid */
+        return true;
+
+    /* Maximum necessary digits: for very large seq_t, 256 is ample. */
+    unsigned char digits[256];
+    size_t len = 0;
+    seq_t tmp = x;
+
+    seq_t sbase = (seq_t)base;        /* promote base to seq_t to avoid mixed‑type ops */
+
+    while (tmp > (seq_t)0) {
+        digits[len++] = (unsigned char)(tmp % sbase);
+        tmp = tmp / sbase;
+    }
+
+    /* digits[0] is the least significant digit; check from most significant toward least. */
+    for (size_t i = 1; i < len; ++i) {
+        if (digits[i] > digits[i - 1])    /* more significant digit > less significant digit */
+            return false;
+    }
+    return true;
+}
 
 /* Return the nth term of OEIS A329294. */
 seq_t a(idx_t n)

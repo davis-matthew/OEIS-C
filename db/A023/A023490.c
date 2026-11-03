@@ -7,7 +7,8 @@
  * Formula:   a(n) = A000045(n + 2) + A090946(n + 2)
  * Range:     u8 n <= 11, u16 n <= 22, u32 n <= 45, u64 n <= 91, u128 n <= 184,
  *            big any n
- * Helpers:   fib
+ * Validated: standard, pass, 55 terms through n = 972 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,18 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/fib.h"
+#include "../utils/mem.h"
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
 
 /* --- Lucas numbers (1‑based: L1 = 1, L2 = 3, Lk = Lk-1 + Lk-2) --- */
 static seq_t *lucas = NULL;
@@ -25,7 +37,7 @@ static void extend_lucas_up_to(seq_t v)
 {
     if (lucas == NULL) {
         lucas_cap = 4;
-        lucas = (seq_t*)malloc(lucas_cap * sizeof(seq_t));
+        lucas = mem_new(seq_t, lucas_cap);
         lucas[0] = (seq_t)1;   /* L1 */
         lucas[1] = (seq_t)3;   /* L2 */
         lucas_len = 2;
@@ -34,7 +46,7 @@ static void extend_lucas_up_to(seq_t v)
         seq_t next = lucas[lucas_len-1] + lucas[lucas_len-2];
         if (lucas_len == lucas_cap) {
             lucas_cap *= 2;
-            lucas = (seq_t*)realloc(lucas, lucas_cap * sizeof(seq_t));
+            lucas = mem_resize(seq_t, lucas, lucas_cap);
         }
         lucas[lucas_len++] = next;
     }
@@ -62,7 +74,7 @@ static void ensure_nonlucas_len(size_t target_len)
 
     if (nonlucas_cap < target_len) {
         nonlucas_cap = target_len;
-        nonlucas = (seq_t*)realloc(nonlucas, nonlucas_cap * sizeof(seq_t));
+        nonlucas = mem_resize(seq_t, nonlucas, nonlucas_cap);
     }
 
     while (nonlucas_len < target_len) {

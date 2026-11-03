@@ -8,17 +8,19 @@
  * Formula:   a(n) is the least k>0 such that the binary expansion of k*n * is
  *            an abelian square (i.e. splits into two halves with the same *
  *            number of ones). The function searches for the first such k
- * Range:     u8 n <= 15, u16 n <= 6063, u32 n <= 10000, u64 n <= 10000,
- *            u128 n <= 10000, big any n
- * Helpers:   bitlen_seq_t, pow2
+ * Range:     u8 n <= 15, u16 n <= 79, u32 n <= 79, u64 n <= 79, u128 n <= 79,
+ *            big any n
+ * Validated: partial, pass, 79 terms through n = 79 (2026-11-01)
+ * Helpers:   bit_length, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/pow2.h"               /* seq_t pow2(idx_t exp) */
-#include "../utils/bitlen_seq_t.h"       /* unsigned bitlen_seq_t(seq_t x) */
+#include <stdint.h>
+#include "../utils/bit_length.h"
+#include "../utils/pow2.h"
 
 static inline int count_ones(seq_t x)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
 
     for (idx_t k = 1; ; ++k) {
         seq_t prod = (seq_t)n * (seq_t)k;
-        unsigned L = bitlen_seq_t(prod);
+        unsigned L = bit_length(prod);
         if ((L & 1) == 0) {                 /* length must be even */
             unsigned m = L >> 1;            /* half length */
             seq_t mask = pow2(m) - 1;       /* lower m bits mask */

@@ -10,12 +10,14 @@
  *            (for n ≥ 9, with initial values a(0)…a(8) given below)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 9, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 456 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Initial 9 terms of the sequence */
 static const seq_t init_vals[9] = {
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     /* Grow cache if necessary */
     if (cache_size <= n) {
         idx_t new_size = n + 1;
-        seq_t *new_buf = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_buf = mem_resize(seq_t, cache, new_size);
         if (!new_buf) exit(1);                 /* allocation failed */
         cache = new_buf;
         /* Initialize newly allocated space with initial values */

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 12, u32 n <= 1381, u64 n <= 1381,
  *            u128 n <= 1381, big any n
- * Helpers:   digits, pow10
+ * Validated: standard, pass, 70 terms through n = 1205 (2026-11-03)
+ * Helpers:   mem, num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,18 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/digits.h"
-#include "../utils/pow10.h"
+#include "../utils/num_digits_idx.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* --- global data ----------------------------------------------------- */
 static seq_t *lucky = NULL;            /* current list of lucky numbers          */
@@ -40,7 +51,7 @@ static void generate_lucky_vector(uint32_t limit)
 {
     /* free previous data, if any */
     if (lucky) {
-        free(lucky);
+        mem_free(lucky);
         lucky = NULL;
     }
 
@@ -80,7 +91,7 @@ static void generate_lucky_vector(uint32_t limit)
 
     /* store result as seq_t array */
     lucky_len = sz;
-    lucky = (seq_t *)malloc(lucky_len * sizeof(seq_t));
+    lucky = mem_new(seq_t, lucky_len);
     if (!lucky) {
         exit(1);
     }
@@ -100,7 +111,7 @@ static void ensure_cache(idx_t n)
 
     while (cache_len < (size_t)n) {
         /* compute 5k5 for current_k */
-        int d = digits(current_k);                       /* digits of k           */
+        int d = num_digits_idx(current_k);                       /* digits of k           */
         seq_t pow = pow10((idx_t)(d + 1));                /* 10^(d+1)             */
         seq_t val = (seq_t)5 * pow + (seq_t)current_k * (seq_t)10 + (seq_t)5;
 
@@ -135,7 +146,7 @@ static void ensure_cache(idx_t n)
             /* append to cache */
             if (cache_len + 1 > cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 8;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp)
                     exit(1);
                 cache = tmp;

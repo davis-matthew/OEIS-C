@@ -12,12 +12,14 @@
  *            with c(h) = 2·n−3+2·h (h≥1)
  * Range:     u8 n <= 15, u16 n <= 91, u32 n <= 435, u64 n <= 820,
  *            u128 n <= 820, big any n
+ * Validated: standard, pass, 70 terms through n = 813 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 /* Compute a(n) for n >= 1.

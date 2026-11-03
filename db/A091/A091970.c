@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3000, u16 n <= 3000, u32 n <= 3000, u64 n <= 3000,
  *            u128 n <= 3000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 115 terms through n = 2969 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* static storage for the sequence and its reverse-prefix-function */
 static seq_t *seq_cache = NULL;         /* a(1) … a(len)  */
@@ -41,7 +43,7 @@ static void ensure_seq_capacity(size_t needed)
     if (needed <= seq_cap) return;
     size_t newcap = seq_cap ? seq_cap * 2 : 16;
     while (newcap < needed) newcap <<= 1;
-    seq_t *tmp = (seq_t*)realloc(seq_cache, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, newcap);
     if (!tmp) abort();           /* memory error */
     seq_cache = tmp;
     seq_cap   = newcap;

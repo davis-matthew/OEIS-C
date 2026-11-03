@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 10, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    • for 1 ≤ n ≤ 36:  a(n) = 10·9^(n‑1)
    • for n ≥ 37:      a(n) = 8·∑_{k=1}^{36} a(n‑k) – 36·a(n‑37) + (n==37?1:0)  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
 
     /* allocate array to hold terms up to n */
     size_t len = (size_t)n + 1;
-    seq_t *a = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *a = mem_new(seq_t, len);
     if (!a) return (seq_t)0;  /* allocation failed */
 
     a[0] = (seq_t)1;
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     if (n <= 36)
     {
         seq_t res = a[n];
-        free(a);
+        mem_free(a);
         return res;
     }
 
@@ -69,6 +71,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = a[n];
-    free(a);
+    mem_free(a);
     return result;
 }

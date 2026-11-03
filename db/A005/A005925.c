@@ -11,14 +11,32 @@
  *            (1/2,1/2,1/2)), scaled by 2)
  * Range:     u8 n <= 1255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a005925_isqrt, a005925_ok
+ * Validated: standard, pass, 84 terms through n = 9526 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a005925_isqrt.h"
-#include "../utils/a005925_ok.h"
+
+static long long a005925_isqrt(long long x) {
+    long long r, lo = 0, hi = 1;
+    if (x < 0) return -1;
+    while (hi * hi <= x) hi *= 2;
+    while (lo < hi) {
+        r = (lo + hi + 1) / 2;
+        if (r * r <= x) lo = r; else hi = r - 1;
+    }
+    return lo;
+}
+
+static int a005925_ok(long long u, long long v, long long w) {
+    long long pu = u & 1, pv = v & 1, pw = w & 1;
+    long long s = ((u + v + w) % 4 + 4) % 4;
+    if (pu != pv || pv != pw) return 0;
+    if (pu == 0) return s == 0;
+    return s == 3;
+}
 
 seq_t a(idx_t n) {
     long long N = (long long)n;

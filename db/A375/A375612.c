@@ -10,14 +10,26 @@
  *            implements the triangle read by rows from OEIS A375612
  * Range:     u8 n <= 8, u16 n <= 19, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   binom, factorial, pow_uint
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
+ * Helpers:   binomial, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/factorial.h"
-#include "../utils/binom.h"
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_u64_idx.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 seq_t a(idx_t n)
 {
@@ -33,9 +45,9 @@ seq_t a(idx_t n)
     seq_t sum_neg = 0;   /* odd j terms */
 
     for (idx_t j = 0; j <= k; ++j) {
-        seq_t term = binom(k, j);
+        seq_t term = binomial(k, j);
         term = term * factorial(r - j);
-        term = term * pow_uint(4, k - j);
+        term = term * ipow_u64_idx(4, k - j);
         if ((j & 1) == 0)
             sum_pos += term;
         else

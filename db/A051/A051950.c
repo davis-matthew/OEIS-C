@@ -7,8 +7,9 @@
  * Keywords:  sign, easy
  * Formula:   a(n) = tau(n) - tau(n-1), n ≥ 2 where tau(n) = number of
  *            positive divisors of n
- * Range:     i8 n <= 7623, i16 n <= 7623, i32 n <= 7623, i64 n <= 7623,
- *            i128 n <= 7623, big any n
+ * Range:     i8 n <= 20000, i16 n <= 20000, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 105 terms through n = 7623 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

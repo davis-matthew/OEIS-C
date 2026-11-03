@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   num_coef, seq_alloc_array, seq_free_array
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,9 +25,27 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/seq_alloc_array.h"
-#include "../utils/seq_free_array.h"
-#include "../utils/num_coef.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
+
+/* Coefficient of t^n in the numerator polynomial */
+static inline seq_t num_coef(idx_t n)
+{
+    if (n == 0)          return (seq_t)1;
+    if (n <= 47)         return (seq_t)2;
+    if (n == 48)         return (seq_t)1;
+    return (seq_t)0;
+}
 
 /* Static cache for previously computed terms */
 static seq_t *cache      = NULL;
@@ -53,7 +72,7 @@ seq_t a(idx_t n)
 
     /* Copy old values into the new cache */
     if (old_size > 0)
-        memcpy(new_cache, cache, old_size * sizeof(seq_t));
+        mem_copy(new_cache, cache, old_size * sizeof(seq_t));
 
     /* Free the old cache */
     if (cache)

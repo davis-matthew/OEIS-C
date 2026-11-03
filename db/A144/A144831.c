@@ -7,12 +7,14 @@
  * Formula:   a(n) = (n+1)^2 - next_prime(n^2) (with smallest prime > n^2)
  * Range:     u8 n <= 15, u16 n <= 1111, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 83 terms through n = 9279 (2026-11-01)
  * Helpers:   next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/next_prime.h"
 
 seq_t a(idx_t n)

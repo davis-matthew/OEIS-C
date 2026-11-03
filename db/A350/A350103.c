@@ -10,8 +10,9 @@
  * Formula:   For index n, let r be the unique integer such that r*(r+1)/2 ≤ n
  *            < (r+1)*(r+2)/2. Let c = n - r*(r+1)/2. Then the triangle entry
  *            is a(n) = 1 if c ≤ 1 floor((r-1)/(c-1)) otherwise
- * Range:     u8 n <= 9137, u16 n <= 9137, u32 n <= 9137, u64 n <= 9137,
- *            u128 n <= 9137, big any n
+ * Range:     u8 n <= 11324, u16 n <= 11324, u32 n <= 11324, u64 n <= 11324,
+ *            u128 n <= 11324, big any n
+ * Validated: standard, pass, 107 terms through n = 9137 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

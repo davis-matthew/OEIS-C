@@ -12,15 +12,24 @@
  *            arbitrary‑precision integers the addition and modulo...
  * Range:     u8 n <= 8, u16 n <= 19, u32 n <= 42, u64 n <= 88, u128 n <= 181,
  *            big any n
- * Helpers:   digsum, free_cache_ptr
+ * Validated: standard, pass, 54 terms through n = 866 (2026-11-01)
+ * Helpers:   digit_sum
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/digsum.h"
-#include "../utils/free_cache_ptr.h"
+#include "../utils/digit_sum.h"
+
+static void free_cache_ptr(seq_t *p)
+{
+#if defined(__cplusplus)
+    delete[] p;
+#else
+    free(p);
+#endif
+}
 
 /* Cached values of the sequence. */
 static seq_t *cache = NULL;
@@ -67,7 +76,7 @@ static void ensure_cache(idx_t n)
     if (cache_len <= (size_t)n) {
         for (size_t i = cache_len; i <= (size_t)n; ++i) {
             cache[i] = cache[i-1] + cache[i-2]
-                     + digsum(cache[i-1]) + digsum(cache[i-2]);
+                     + digit_sum(cache[i-1]) + digit_sum(cache[i-2]);
         }
         cache_len = (size_t)n + 1;
     }

@@ -12,6 +12,7 @@
  *            195*a(n-2) + a(n-3) follows from * this closed form
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 8, u128 n <= 16,
  *            big any n
+ * Validated: standard, pass, 29 terms through n = 429 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

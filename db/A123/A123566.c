@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 39, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,9 @@
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -44,14 +47,14 @@ seq_t a(idx_t n)
 
     if (needed > curSize) {
         size_t newSize = needed;
-        seq_t *newTable = (seq_t *)malloc(newSize * newSize * sizeof(seq_t));
+        seq_t *newTable = mem_new(seq_t, newSize * newSize);
         if (!newTable)
             return (seq_t)0;   /* out‑of‑memory – unlikely */
         /* copy existing cells into new layout */
         for (size_t i = 0; i < curSize; ++i)
             for (size_t j = 0; j < curSize; ++j)
                 newTable[i * newSize + j] = table[i * curSize + j];
-        free(table);
+        mem_free(table);
         table   = newTable;
         curSize = newSize;
     }

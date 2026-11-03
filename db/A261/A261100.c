@@ -10,8 +10,9 @@
  *            count of those ≤ n, i.e. the left‑inverse of that sequence. *
  *            The implementation builds a dynamic table of HCNs up to the
  *            largest n * seen so far, and then performs a bina...
- * Range:     u8 n <= 9804, u16 n <= 9804, u32 n <= 9804, u64 n <= 9804,
- *            u128 n <= 9804, big any n
+ * Range:     u8 n <= 10080, u16 n <= 10080, u32 n <= 10080, u64 n <= 10080,
+ *            u128 n <= 10080, big any n
+ * Validated: standard, pass, 136 terms through n = 9804 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 17, u64 n <= 125, u128 n <= 1000,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 949 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,6 +36,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t Ncoeff[25] = {
     1, 0,           /* x^0, x^1 */
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
     /* Allocate array [0..n] of seq_t values.  The size is at most 10000,
        so a simple malloc is acceptable.  The array is freed before return. */
     size_t len = (size_t)n + 1;
-    seq_t *buf = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *buf = mem_new(seq_t, len);
     if (!buf) return (seq_t)0;            /* allocation failed */
 
     /* Main loop.  We build the sequence sequentially, using the
@@ -90,6 +92,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = buf[(size_t)n];
-    free(buf);
+    mem_free(buf);
     return result;
 }

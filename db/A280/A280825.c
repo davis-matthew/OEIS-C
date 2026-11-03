@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 46, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   digit_counts, digit_len
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-01)
+ * Helpers:   digit_counts, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,13 +17,16 @@
 /* Computation: brute‑force search for the n‑th integer with an odd number of decimal digits and an even number of distinct decimal digits. */
 
 #include <stdbool.h>
-#include "../utils/digit_len.h"
+#include <stdint.h>
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/digit_counts.h"
+#include "../utils/num_digits.h"
 
 /* Return true if x has an odd number of digits and an even number of distinct digits. */
 static bool satisfies(seq_t x)
 {
-    int len = digit_len(x);               /* number of decimal digits */
+    int len = num_digits(x);               /* number of decimal digits */
     if ((len & 1) == 0) return false;     /* need odd length */
 
     unsigned char cnt[10] = {0};

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   floor_isqrt_u64, powmod64
+ * Validated: standard, pass, 61 terms through n = 1000 (2026-11-03)
+ * Helpers:   isqrt, mem, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "../utils/powmod64.h"         /* uint64_t powmod64(uint64_t a, uint64_t exp, uint64_t mod) */
-#include "../utils/floor_isqrt_u64.h"   /* idx_t floor_isqrt_u64(idx_t n) */
+#include "../utils/isqrt.h"
+#include "../utils/powmod_u64.h"
+#include "../utils/mem.h"
 
 /* Memoised sequence storage */
 static seq_t *terms   = NULL;   /* cached terms */
@@ -40,7 +42,7 @@ static void ensure_terms_capacity(size_t need)
     if (terms_cap >= need) return;
     size_t new_cap = terms_cap ? terms_cap * 2 : 16;
     if (new_cap < need) new_cap = need;
-    seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, terms, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     terms = tmp;
     terms_cap = new_cap;
@@ -62,7 +64,7 @@ static void ensure_prime_capacity(size_t need)
 static int is_prime(uint64_t n)
 {
     if (n < 2) return 0;
-    idx_t sq = floor_isqrt_u64(n);
+    idx_t sq = isqrt(n);
     for (size_t i = 0; i < prime_len; ++i) {
         uint64_t p = prime_list[i];
         if (p > sq) break;
@@ -113,7 +115,7 @@ seq_t a(idx_t n)
         if (p == 3 || p == 17) continue;
 
         /* Legendre symbol (51|p) via Euler's criterion */
-        uint64_t leg = powmod64(51ULL % p, (p - 1) / 2, p);
+        uint64_t leg = powmod_u64(51ULL % p, (p - 1) / 2, p);
         if (leg == p - 1) {           /* Legendre symbol = -1 → non‑residue */
             ensure_terms_capacity(terms_len + 1);
             terms[terms_len++] = (seq_t)p;

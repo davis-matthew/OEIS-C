@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* --- Hash table for counting occurrences --------------------------------------------------- */
 #define HASH_TABLE_SIZE (1U << 23)          /* 8,388,608 entries, power of two */
@@ -44,7 +46,7 @@ static void init_hash(void)
 {
     if (hash_key) return;                  /* already initialised */
     hash_mask  = HASH_TABLE_SIZE - 1;
-    hash_key   = (seq_t *)        malloc(HASH_TABLE_SIZE * sizeof(seq_t));
+    hash_key   = mem_new(seq_t, HASH_TABLE_SIZE);
     hash_cnt   = (uint8_t *)     malloc(HASH_TABLE_SIZE * sizeof(uint8_t));
     if (!hash_key || !hash_cnt) exit(1);
     /* set counts to 0; key values are irrelevant until used */
@@ -67,7 +69,7 @@ static void ensure_incidents_cap(void)
 {
     if (incidents_size >= incidents_cap) {
         incidents_cap = incidents_cap == 0 ? 128 : incidents_cap * 2;
-        seq_t *newp = (seq_t *)realloc(incidents, incidents_cap * sizeof(seq_t));
+        seq_t *newp = mem_resize(seq_t, incidents, incidents_cap);
         if (!newp) exit(1);
         incidents = newp;
     }

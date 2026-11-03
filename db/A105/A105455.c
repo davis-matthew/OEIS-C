@@ -11,7 +11,8 @@
  *            call order and is efficient for n up to ~10 000
  * Range:     u8 n <= 19, u16 n <= 2273, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   isPrime64
+ * Validated: standard, pass, 74 terms through n = 9611 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "../utils/isPrime64.h"
+#include "../utils/is_prime_u64.h"
 
 /* ---------- Prime management ---------- */
 static uint64_t *primes_arr = NULL;   /* 1‑based: primes_arr[0] = 2   */
@@ -41,7 +42,7 @@ static void ensure_prime_count(size_t needed)
     }
 
     while (primes_size < needed) {
-        while (!isPrime64(next_prime_candidate))
+        while (!is_prime_u64(next_prime_candidate))
             next_prime_candidate += 2;
 
         if (primes_size >= primes_cap) {
@@ -84,7 +85,7 @@ static void extend_sequence(idx_t target)
         /* The sum is comfortably < 2^64 for the intended range. */
         uint64_t sum64 = (uint64_t)s128;
 
-        if (isPrime64(sum64)) {
+        if (is_prime_u64(sum64)) {
             if (seq_size == seq_cap) {
                 size_t new_cap = seq_cap ? seq_cap * 2 : 4;
                 uint64_t *tmp = (uint64_t*)realloc(seq_vals, new_cap * sizeof(uint64_t));

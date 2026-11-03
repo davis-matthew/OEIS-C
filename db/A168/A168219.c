@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 55, u16 n <= 1139, u32 n <= 1139, u64 n <= 1139,
  *            u128 n <= 1139, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 1072 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- 64‑bit deterministic Miller–Rabin primality test ---------- */
 static uint64_t mul_mod(uint64_t a, uint64_t b, uint64_t mod)
@@ -89,14 +91,14 @@ static void ensure_capacity(void)
     if (cache == NULL)
     {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
     else if (cache_len == cache_cap)
     {
         size_t new_cap = cache_cap << 1;
-        seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         for (size_t i = 0; i < cache_len; ++i) new_cache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_cap = new_cap;
     }

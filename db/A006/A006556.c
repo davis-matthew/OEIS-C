@@ -9,21 +9,21 @@
  *            ord_p(10)
  * Range:     u8 n <= 627, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 115 terms through n = 989 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_prime.h"
-
+#include "../utils/is_prime_u64.h"
 
 static uint64_t nth_prime_excluding_2_5(uint64_t n) {
     uint64_t count = 0;
     uint64_t candidate = 3;
     
     while (true) {
-        if (is_prime(candidate) && candidate != 2 && candidate != 5) {
+        if (is_prime_u64(candidate) && candidate != 2 && candidate != 5) {
             count++;
             if (count == n) {
                 return candidate;

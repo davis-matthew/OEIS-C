@@ -10,14 +10,19 @@
  *            (1‑based)
  * Range:     u8 n <= 55, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   triangular_value
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/triangular_value.h"
+
+static inline idx_t triangular_value(idx_t r)
+{
+    return (r - 1) * r / 2;
+}
 
 static inline idx_t triangular_row(idx_t n)
 {

@@ -9,6 +9,7 @@
  *            consisting of k=0…r
  * Range:     u8 n <= 1274, u16 n <= 1274, u32 n <= 1274, u64 n <= 1274,
  *            u128 n <= 1274, big any n
+ * Validated: standard, pass, 121 terms through n = 1270 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

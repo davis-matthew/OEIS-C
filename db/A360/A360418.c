@@ -8,9 +8,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   not stated
- * Range:     u8 n <= 23, u16 n <= 362, u32 n <= 9872, u64 n <= 9872,
- *            u128 n <= 9872, big any n
- * Helpers:   none
+ * Range:     u8 n <= 23, u16 n <= 362, u32 n <= 14142, u64 n <= 14142,
+ *            u128 n <= 14142, big any n
+ * Validated: standard, pass, 77 terms through n = 9872 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
 
 #include <stdlib.h>  /* malloc, realloc, abort */
 #include <stddef.h>  /* size_t */
+#include "../utils/mem.h"
 
 /* Cached values for the sequence, 0‑based (cache[0] = a(1)). */
 static seq_t *cache = NULL;
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
     /* Grow the cache if required. */
     if (idx > cache_len) {
         /* Resize the buffer. */
-        seq_t *tmp = (seq_t *)realloc(cache, idx * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, idx);
         if (!tmp) abort();                /* allocation failure */
         cache = tmp;
 

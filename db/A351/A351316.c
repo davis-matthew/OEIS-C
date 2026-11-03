@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{d^2|n} (d^2)^10
  * Range:     u8 n <= 3, u16 n <= 3, u32 n <= 15, u64 n <= 99, u128 n <= 7224,
  *            big any n
+ * Validated: standard, pass, 63 terms through n = 9485 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,8 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 seq_t a(idx_t n)

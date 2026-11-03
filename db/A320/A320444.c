@@ -8,7 +8,8 @@
  *            a(0)=a(1)=a(2)=1
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 17, u128 n <= 28,
  *            big any n
- * Helpers:   build_primes_upto, seq_pow
+ * Validated: standard, pass, 37 terms through n = 384 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 /* --------------------------------------------------------------------- */
 /* Prime list utilities (thread‑safe, lazily constructed).              */
@@ -69,7 +70,7 @@ static seq_t ratio_factorial(idx_t m, idx_t d)
                 - exponent_in_factorial(d, p)
                 - exponent_in_factorial(m / d, p);
         if (e > 0) {
-            prod *= seq_pow((seq_t)p, e);
+            prod *= ipow_idx((seq_t)p, e);
         }
     }
     return prod;
@@ -102,8 +103,8 @@ seq_t a(idx_t n)
             seq_t term = ratio_factorial(m, d);
 
             if (k > 0) {
-                seq_t num = seq_pow((seq_t)n, k);   /* n^k  */
-                seq_t den = seq_pow((seq_t)d, k);   /* d^k  */
+                seq_t num = ipow_idx((seq_t)n, k);   /* n^k  */
+                seq_t den = ipow_idx((seq_t)d, k);   /* d^k  */
                 term = term * num / den;            /* exact division    */
             }
             sum += term;
@@ -118,8 +119,8 @@ seq_t a(idx_t n)
             seq_t term = ratio_factorial(m, d2);
 
             if (k > 0) {
-                seq_t num = seq_pow((seq_t)n, k);
-                seq_t den = seq_pow((seq_t)d2, k);
+                seq_t num = ipow_idx((seq_t)n, k);
+                seq_t den = ipow_idx((seq_t)d2, k);
                 term = term * num / den;
             }
             sum += term;

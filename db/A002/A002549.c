@@ -11,7 +11,8 @@
  *            one prime at a time
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 14, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   a2549_add, a2549_div, a2549_mod, a2549_mul, a2549_trim
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,11 +20,59 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a2549_add.h"
-#include "../utils/a2549_div.h"
-#include "../utils/a2549_mod.h"
-#include "../utils/a2549_mul.h"
-#include "../utils/a2549_trim.h"
+
+static size_t a2549_add(uint32_t *s, size_t sl, const uint32_t *t, size_t tl) {
+    uint64_t c = 0;
+    size_t i, mx = sl > tl ? sl : tl;
+    for (i = 0; i < mx; i++) {
+        uint64_t v = c;
+        if (i < sl) v += s[i];
+        if (i < tl) v += t[i];
+        s[i] = (uint32_t)v;
+        c = v >> 32;
+    }
+    if (c) s[mx++] = (uint32_t)c;
+    return mx;
+}
+
+static size_t a2549_trim(const uint32_t *x, size_t len) {
+    while (len > 0 && x[len - 1] == 0) len--;
+    return len;
+}
+
+static size_t a2549_div(uint32_t *x, size_t len, uint32_t d) {
+    uint64_t r = 0;
+    size_t i = len;
+    while (i > 0) {
+        i--;
+        r = (r << 32) | x[i];
+        x[i] = (uint32_t)(r / d);
+        r %= d;
+    }
+    return a2549_trim(x, len);
+}
+
+static uint32_t a2549_mod(const uint32_t *x, size_t len, uint32_t d) {
+    uint64_t r = 0;
+    size_t i = len;
+    while (i > 0) {
+        i--;
+        r = ((r << 32) | x[i]) % d;
+    }
+    return (uint32_t)r;
+}
+
+static size_t a2549_mul(uint32_t *x, size_t len, uint32_t m) {
+    uint64_t c = 0;
+    size_t i;
+    for (i = 0; i < len; i++) {
+        uint64_t t = (uint64_t)x[i] * m + c;
+        x[i] = (uint32_t)t;
+        c = t >> 32;
+    }
+    if (c) x[len++] = (uint32_t)c;
+    return len;
+}
 
 seq_t a(idx_t n) {
     size_t cap = (size_t)(n / 8) + 16;

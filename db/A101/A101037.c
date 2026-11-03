@@ -10,8 +10,9 @@
  *            closed form is: * * T(n,k) = n - 2*k + 2 if 2*k < n+1 * T(n,k) =
  *            2 if n is odd and 2*k == n+1 * T(n,k) = 2*k - n otherwise * *
  *            The sequence a(n) is the triangle read by r...
- * Range:     u8 n <= 9187, u16 n <= 9187, u32 n <= 9187, u64 n <= 9187,
- *            u128 n <= 9187, big any n
+ * Range:     u8 n <= 10011, u16 n <= 10011, u32 n <= 10011, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 121 terms through n = 9187 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

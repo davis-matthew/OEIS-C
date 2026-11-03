@@ -12,14 +12,41 @@
  *            the spiral number
  * Range:     u8 n <= 210, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   ring_of_n
+ * Validated: standard, pass, 84 terms through n = 9735 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/ring_of_n.h"
+
+static idx_t ring_of_n(idx_t n)
+{
+    /* minimal k such that (2k+1)^2 >= n */
+    if (n <= 1)
+        return 0;
+    idx_t low = 0, high = 1;
+    while (true)
+    {
+        unsigned __int128 side = ((unsigned __int128)high)*2 + 1;
+        unsigned __int128 max_val = side * side;
+        if (max_val >= (unsigned __int128)n)
+            break;
+        high <<= 1;
+    }
+    while (low < high)
+    {
+        idx_t mid = low + (high - low) / 2;
+        unsigned __int128 side = ((unsigned __int128)mid)*2 + 1;
+        unsigned __int128 max_val = side * side;
+        if (max_val >= (unsigned __int128)n)
+            high = mid;
+        else
+            low = mid + 1;
+    }
+    return low;
+}
 
 static void n_to_xy(idx_t n, int64_t *x, int64_t *y)
 {

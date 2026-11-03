@@ -9,7 +9,8 @@
  *            representation ends with a positive term
  * Range:     u8 n <= 63, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 914 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* -------------  Function prototype provided by the build --------- */
 seq_t a(idx_t n);
@@ -38,11 +40,11 @@ static void compute_fibs(idx_t LIMIT)
 {
     /* we generate until fib > 2*LIMIT to be safe */
     if (fib_arr) {
-        free(fib_arr);
+        mem_free(fib_arr);
         fib_arr = NULL;
     }
     fib_cnt = 0;
-    fib_arr = (seq_t *)malloc(64 * sizeof(seq_t));
+    fib_arr = mem_new(seq_t, 64);
     if (!fib_arr) return;           /* not expected to happen */
 
     fib_arr[0] = (seq_t)1;
@@ -60,7 +62,7 @@ static void compute_fibs(idx_t LIMIT)
 static void compute_sequence(idx_t LIMIT)
 {
     /* free old data if any */
-    if (seq_values) free(seq_values);
+    if (seq_values) mem_free(seq_values);
     seq_values = NULL;
     seq_len   = 0;
 
@@ -122,7 +124,7 @@ static void compute_sequence(idx_t LIMIT)
     }
 
     /* Allocate space for sequence values */
-    seq_values = (seq_t *)malloc((LIMIT + 1) * sizeof(seq_t));
+    seq_values = mem_new(seq_t, (LIMIT + 1));
     if (!seq_values) {
         /* free DP arrays */
         free(even_cur); free(odd_cur); free(even_next); free(odd_next);

@@ -10,11 +10,13 @@
  *            starting from a(n)^2 up to a(2), then add a(1))
  * Range:     u8 n <= 4, u16 n <= 4, u32 n <= 4, u64 n <= 5, u128 n <= 5,
  *            big any n
+ * Validated: partial, pass, 5 terms through n = 5 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <string.h>
 #ifdef __cplusplus
 #include <vector>
 #else

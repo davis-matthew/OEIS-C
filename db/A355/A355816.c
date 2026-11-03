@@ -7,9 +7,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = 1 if n has at least two distinct prime factors and
  *            gcd(n,σ(n)) = 1; otherwise 0
- * Range:     u8 n <= 2048, u16 n <= 9296, u32 n <= 9296, u64 n <= 9296,
- *            u128 n <= 9296, big any n
- * Helpers:   count_distinct_primes, gcd, sigma_of
+ * Range:     u8 n <= 2048, u16 n <= 100000, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 136 terms through n = 9296 (2026-11-01)
+ * Helpers:   gcd, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,24 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "../utils/count_distinct_primes.h"
-#include "../utils/sigma_of.h"
+#include <stdlib.h>
 #include "../utils/gcd.h"
+#include "../utils/omega.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 seq_t a(idx_t n)
 {
@@ -27,7 +43,7 @@ seq_t a(idx_t n)
         return 0;                         /* undefined for n < 1, defined as 0 */
 
     /* n must have at least two distinct prime factors */
-    if (count_distinct_primes((uint64_t)n) < 2)
+    if (omega((uint64_t)n) < 2)
         return 0;
 
     /* Compute σ(n) */

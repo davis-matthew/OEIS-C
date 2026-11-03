@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 134, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   kaprekar
+ * Validated: standard, pass, 115 terms through n = 940 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,50 @@
    transform until a previously seen value repeats; the index of the first
    occurrence of that repeated value is the preperiodic length. */
 #include <stddef.h>
-#include "../utils/kaprekar.h"
+#include "../utils/mem.h"
+
+/* Helper: Kaprekar transform of a non‑negative integer x. */
+static seq_t kaprekar(seq_t x)
+{
+    const seq_t TEN = (seq_t)10;
+    unsigned char digits[256];
+    size_t len = 0;
+    seq_t tmp = x;
+
+    /* Extract digits of x in reverse order. */
+    if (tmp == (seq_t)0) {
+        digits[0] = 0;
+        len = 1;
+    } else {
+        while (tmp != (seq_t)0) {
+            digits[len++] = (unsigned char)(tmp % TEN);
+            tmp /= TEN;
+        }
+    }
+
+    /* Sort digits ascending. */
+    for (size_t i = 0; i + 1 < len; ++i) {
+        for (size_t j = i + 1; j < len; ++j) {
+            if (digits[j] < digits[i]) {
+                unsigned char tmpc = digits[i];
+                digits[i] = digits[j];
+                digits[j] = tmpc;
+            }
+        }
+    }
+
+    seq_t asc = (seq_t)0;
+    for (size_t i = 0; i < len; ++i) {
+        asc = asc * TEN + (seq_t)digits[i];
+    }
+
+    seq_t desc = (seq_t)0;
+    for (int i = (int)len - 1; i >= 0; --i) {
+        desc = desc * TEN + (seq_t)digits[i];
+    }
+
+    return desc - asc;
+}
 
 /* Main function requested by the sequence specification. */
 seq_t a(idx_t n)
@@ -48,7 +92,7 @@ seq_t a(idx_t n)
             visited[visited_count++] = nxt;
         } else {
             /* Safe guard: allocate a new array if overflow occurs. */
-            seq_t *buf = (seq_t *)malloc((visited_count + 64) * sizeof(seq_t));
+            seq_t *buf = mem_new(seq_t, (visited_count + 64));
             if (!buf) return (seq_t)0;          /* out of memory; return 0 */
             for (size_t j = 0; j < visited_count; ++j) buf[j] = visited[j];
             visited_count += 0; /* keep pointer to old array unchanged */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 33, u16 n <= 7905, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_sum8
+ * Validated: standard, pass, 72 terms through n = 8287 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,17 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include "../utils/digit_sum8.h"
+#include "../utils/mem.h"
+
+static seq_t digit_sum8(seq_t x)
+{
+    seq_t s = 0;
+    while (x > (seq_t)0) {
+        s += x % (seq_t)8;
+        x /= (seq_t)8;
+    }
+    return s;
+}
 
 seq_t a(idx_t n)
 {
@@ -70,7 +81,7 @@ seq_t a(idx_t n)
             /* Grow the array of self numbers if needed. */
             if ((size_t)self_count == self_cap) {
                 size_t new_cap = self_cap ? self_cap * 2 : 64;
-                seq_t *tmp = (seq_t *)realloc(self_vals, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, self_vals, new_cap);
                 if (!tmp) abort();
                 self_vals = tmp;
                 self_cap = new_cap;

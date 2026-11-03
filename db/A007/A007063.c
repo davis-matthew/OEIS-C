@@ -9,8 +9,9 @@
  *            x(k,1), x(k,2k), x(k,2k+1), ... so position j of row k+1 comes
  *            from row k at k+m if j=2m-1<=2(k-1), at k-m if j=2m<=2(k-1),
  *            else at j+1. Row 1 is x(1,j)=j; a(n) = x(n,n)
- * Range:     u8 n <= 92, u16 n <= 9780, u32 n <= 9780, u64 n <= 9780,
- *            u128 n <= 9780, big any n
+ * Range:     u8 n <= 92, u16 n <= 21914, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 85 terms through n = 9780 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

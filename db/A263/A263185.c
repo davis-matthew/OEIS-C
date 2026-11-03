@@ -12,16 +12,20 @@
  *            The recurrence follows from the identities * S' = (1+S²...
  * Range:     i8 n <= 3, i16 n <= 4, i32 n <= 6, i64 n <= 9, i128 n <= 15,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /*  Include the binom utility to compute binomial coefficients.
     It returns a seq_t value. */
-#include "../utils/binom.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* External linkage: the build supplies seq_t and idx_t. */
 seq_t a(idx_t n)
@@ -30,8 +34,8 @@ seq_t a(idx_t n)
         return 0;          /* the sequence is defined only for n >= 1 */
 
     /* Allocate arrays for B and G.  G[0] is unused. */
-    seq_t *B = (seq_t *)malloc(n * sizeof(seq_t));
-    seq_t *G = (seq_t *)malloc(n * sizeof(seq_t));
+    seq_t *B = mem_new(seq_t, n);
+    seq_t *G = mem_new(seq_t, n);
     if (!B || !G) return 0;  /* allocation failed */
 
     B[0] = 1;   /* a(1) = 1 */
@@ -45,7 +49,7 @@ seq_t a(idx_t n)
         seq_t Gn = 0;
         for (idx_t i = 0; i < m; ++i)
         {
-            seq_t term = binom(twom, 2 * i + 1);
+            seq_t term = binomial(twom, 2 * i + 1);
             term *= B[i];
             term *= B[m - 1 - i];
             Gn += term;
@@ -58,7 +62,7 @@ seq_t a(idx_t n)
         {
             seq_t term = B[m - k];
             term *= G[k];
-            term *= binom(twom, 2 * k);
+            term *= binomial(twom, 2 * k);
             Q += term;
         }
 
@@ -70,7 +74,7 @@ seq_t a(idx_t n)
     seq_t result = B[n - 1];
 
     /* Free allocated memory */
-    free(B);
-    free(G);
+    mem_free(B);
+    mem_free(G);
     return result;
 }

@@ -6,8 +6,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, base, easy
  * Formula:   a(n) = A327860(n) mod 360
- * Range:     u8 n <= 10, u16 n <= 8473, u32 n <= 8473, u64 n <= 8473,
- *            u128 n <= 8473, big any n
+ * Range:     u8 n <= 10, u16 n <= 30030, u32 n <= 30030, u64 n <= 30030,
+ *            u128 n <= 30030, big any n
+ * Validated: standard, pass, 89 terms through n = 8473 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

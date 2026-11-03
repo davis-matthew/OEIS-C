@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   contains_03
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,22 @@
    substring “03” whereas the base‑6 representation of the successor
    does not.  The function computes terms by brute‑force scanning. */
 #include <stdbool.h>
-#include "../utils/contains_03.h"
+
+/* Return true if x in base 6 contains the consecutive digits 0 followed by 3. */
+static bool contains_03(seq_t x)
+{
+    seq_t prev = 0;
+    seq_t y = x;
+    while (y > 0) {
+        seq_t digit = y % 6;
+        if (prev == 3 && digit == 0) {
+            return true;
+        }
+        prev = digit;
+        y /= 6;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

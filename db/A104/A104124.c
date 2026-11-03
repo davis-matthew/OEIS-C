@@ -8,8 +8,9 @@
  * Formula:   a(n) counts representations of n as (2m-1)^2 * k with m ≥ k. For
  *            each odd divisor O such that O² divides n, let k = n / O². Count
  *            O when k ≤ (O+1)/2
- * Range:     u8 n <= 8729, u16 n <= 9887, u32 n <= 9887, u64 n <= 9887,
- *            u128 n <= 9887, big any n
+ * Range:     u8 n <= 8729, u16 n <= 65536, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9887 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

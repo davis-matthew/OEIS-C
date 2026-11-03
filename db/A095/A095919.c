@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 35, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper tables for digit factorials */
 static seq_t fact_table[10];
@@ -74,7 +76,7 @@ static void init_terms(void)
 {
     if (terms != NULL) return;
     term_capacity = 16;
-    terms = (seq_t *)malloc(term_capacity * sizeof(seq_t));
+    terms = mem_new(seq_t, term_capacity);
     term_count = 0;
     next_candidate = 1;
 }
@@ -84,7 +86,7 @@ static void append_term(seq_t k)
 {
     if (term_count == term_capacity) {
         term_capacity *= 2;
-        terms = (seq_t *)realloc(terms, term_capacity * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, term_capacity);
     }
     terms[term_count++] = k;
 }

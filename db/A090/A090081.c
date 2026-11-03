@@ -9,7 +9,8 @@
  *            exceed the integer cube root of k (OEIS A090081)
  * Range:     u8 n <= 28, u16 n <= 3462, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   int_cube_root, largest_prime_factor
+ * Validated: standard, pass, 71 terms through n = 9438 (2026-11-03)
+ * Helpers:   largest_prime_factor, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,24 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/largest_prime_factor.h"   /* uint64_t largest_prime_factor(uint64_t) */
-#include "../utils/int_cube_root.h"          /* idx_t int_cube_root(idx_t) */
+#include <limits.h>
+#include "../utils/largest_prime_factor.h"
+#include "../utils/mem.h"
+
+/* integer cube root: largest k with k³ ≤ x */
+static idx_t int_cube_root(idx_t x)
+{
+    idx_t lo = 0, hi = x;
+    while (lo < hi) {
+        idx_t mid = lo + (hi - lo + 1) / 2;
+        __int128 cube = (__int128)mid * mid * mid;
+        if (cube <= x)
+            lo = mid;
+        else
+            hi = mid - 1;
+    }
+    return lo;
+}
 
 /* Return the n‑th cube‑root‑smooth number. */
 seq_t a(idx_t n)
@@ -54,7 +71,7 @@ seq_t a(idx_t n)
         /* Grow the cache if necessary. */
         if (len == cap) {
             size_t newcap = cap ? cap * 2 : 16;
-            seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, newcap);
             if (!tmp) abort();
             cache = tmp;
             cap   = newcap;

@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 16, u32 n <= 16, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   digit_len, factor_u64, is_prime_small, pow10
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-01)
+ * Helpers:   factor_u64, is_prime_seq, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,9 +26,18 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/is_prime_small.h"
-#include "../utils/digit_len.h"
-#include "../utils/pow10.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/num_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 static void gen_divs(int idx, uint64_t curr, uint64_t m,
                      uint64_t p[], uint64_t e[], size_t pcnt,
@@ -62,10 +72,10 @@ seq_t a(idx_t n)
     for (int iter = 0; iter < 1000; ++iter) {
         if (m == 1)
             return 1;
-        if (digit_len(m) > 90)
+        if (num_digits(m) > 90)
             return 0;
         uint64_t m64 = (uint64_t)m;
-        if (m <= (seq_t)UINT64_MAX && is_prime_small(m64)) /* fits 64‑bit */
+        if (m <= (seq_t)UINT64_MAX && is_prime_seq(m64)) /* fits 64‑bit */
             return m;
 
         /* factor m (m fits in uint64_t for n up to 10000) */
@@ -91,7 +101,7 @@ seq_t a(idx_t n)
         seq_t result = 0;
         for (size_t i = 0; i < dcnt; ++i) {
             seq_t d = (seq_t)divs[i];
-            result = result * pow10(digit_len(d)) + d;
+            result = result * pow10(num_digits(d)) + d;
         }
         m = result;
     }

@@ -12,12 +12,14 @@
  *            using bit‑shift to evaluate 2^{d}·x – x efficient...
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 10, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
  
 seq_t a(idx_t n) {
     /* convert n to a signed int for loop indices (n <= 10000 is safe) */
@@ -27,7 +29,7 @@ seq_t a(idx_t n) {
     }
  
     /* Allocate array of powers of two (2^i) */
-    seq_t *pow2 = (seq_t *)malloc((N + 1) * sizeof(seq_t));
+    seq_t *pow2 = mem_new(seq_t, (N + 1));
     if (!pow2) return (seq_t)0;   /* allocation failure handling omitted */
     pow2[0] = (seq_t)1;
     for (int i = 1; i <= N; ++i) {
@@ -61,6 +63,6 @@ seq_t a(idx_t n) {
         binom_next = binom_k;
     }
  
-    free(pow2);
+    mem_free(pow2);
     return sum;
 }

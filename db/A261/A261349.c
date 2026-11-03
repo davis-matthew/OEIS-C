@@ -7,9 +7,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, look, tabf, easy
  * Formula:   not stated
- * Range:     u8 n <= 511, u16 n <= 9476, u32 n <= 9476, u64 n <= 9476,
- *            u128 n <= 9476, big any n
- * Helpers:   my_floor_log2_uint64
+ * Range:     u8 n <= 511, u16 n <= 16382, u32 n <= 16382, u64 n <= 16382,
+ *            u128 n <= 16382, big any n
+ * Validated: standard, pass, 92 terms through n = 9476 (2026-11-01)
+ * Helpers:   ilog2_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,12 +26,12 @@
 */
 
 #include <stdint.h>
-#include "../utils/my_floor_log2_uint64.h"
+#include "../utils/ilog2_idx.h"
 
 seq_t a(idx_t n)
 {
     /* row number r = floor(log2(n+1)) */
-    idx_t r = my_floor_log2_uint64(n + (idx_t)1);
+    idx_t r = ilog2_idx(n + (idx_t)1);
 
     /* offset within row: k = n - (2^r - 1) */
     idx_t offset = n - (((idx_t)1 << r) - 1);

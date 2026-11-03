@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 1142, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_spf
+ * Validated: standard, pass, 60 terms through n = 9900 (2026-11-03)
+ * Helpers:   build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 /* #include build_spf utility */
 #include "../utils/build_spf.h"
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /*  Static state and helpers                                               */
@@ -78,7 +80,7 @@ static void
 grow_cache(void)
 {
     size_t new_cap = cache_cap ? cache_cap * 2 : 64;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache)
         abort();                  /* unrecoverable             */
     cache     = new_cache;

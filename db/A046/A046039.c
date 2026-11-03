@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, fini
  * Formula:   not stated
- * Range:     u8 n <= 248, u16 n <= 9385, u32 n <= 9385, u64 n <= 9385,
- *            u128 n <= 9385, big any n
- * Helpers:   none
+ * Range:     u8 n <= 248, u16 n <= 58296, u32 n <= 60000, u64 n <= 60000,
+ *            u128 n <= 60000, big any n
+ * Validated: standard, pass, 87 terms through n = 9385 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -102,7 +104,7 @@ seq_t a(idx_t n)
         }
 
         /* Allocate array exactly of needed size. */
-        missing = (seq_t *)malloc(cnt * sizeof(seq_t));
+        missing = mem_new(seq_t, cnt);
         missing_len = cnt;
 
         /* -----------------------------------------------------------------

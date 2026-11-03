@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 68, i16 n <= 1902, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 9375 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* table of binomial coefficients C(k,j) for 0 ≤ k ≤ 7 */
 static const unsigned char C[8][8] = {
@@ -50,9 +52,9 @@ static void ensure_capacity(idx_t n)
     size_t new_bytes = new_cap * sizeof(seq_t);
     seq_t *newp;
     if (!cache) {
-        newp = (seq_t *)malloc(new_bytes);
+        newp = mem_new(seq_t, (new_bytes) / sizeof(seq_t));
     } else {
-        newp = (seq_t *)realloc(cache, new_bytes);
+        newp = mem_resize(seq_t, cache, (new_bytes) / sizeof(seq_t));
     }
     if (!newp) {
         /* allocation failed – terminate program (allowed in tests) */
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
     /* initialisation on first call */
     if (!cache) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();
         cache[0] = 0;
         cache[1] = 1;

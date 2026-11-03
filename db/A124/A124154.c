@@ -7,7 +7,8 @@
  * Formula:   a(n) = the nth even integer k such that 1 + k + k³ + k⁵ is prime
  * Range:     u8 n <= 31, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 982 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --- small‑primality helper for 128‑bit integers -------------------------------- */
 static inline unsigned __int128 mulmod128(unsigned __int128 a,
@@ -134,7 +136,7 @@ seq_t a(idx_t n)
     if (!cache)
     {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* maximum value representable in seq_t */
@@ -164,10 +166,10 @@ seq_t a(idx_t n)
                 if (cache_size >= cache_cap)
                 {
                     cache_cap *= 2;
-                    seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                     if (!tmp)
                     {
-                        free(cache);
+                        mem_free(cache);
                         return 0;   /* allocation failure, unlikely in tests */
                     }
                     cache = tmp;

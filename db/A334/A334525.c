@@ -6,8 +6,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = 4*n + 1
- * Range:     u8 n <= 41, u16 n <= 5340, u32 n <= 9498, u64 n <= 9498,
- *            u128 n <= 9498, big any n
+ * Range:     u8 n <= 41, u16 n <= 5340, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 74 terms through n = 9498 (2026-11-01)
  * Helpers:   build_spf
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/build_spf.h"
 
 /* Static SPF array for numbers up to the current limit */

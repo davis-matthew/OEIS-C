@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd_uint64
+ * Validated: standard, pass, 73 terms through n = 987 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/gcd_uint64.h"
+#include "../utils/gcd_u64.h"
 
 /* ---------- Local helpers --------------------------------------------- */
 
@@ -68,7 +69,7 @@ static void add_prime(uint32_t p) {
 /* ---- Condition tester ------------------------------------------------- */
 static bool satisfies_prime(uint32_t p) {
     if (p == 2) return true; /* 0^44 ≡ 0 ≡ -2 (mod 2) */
-    uint64_t g  = gcd_uint64(44ULL, (uint64_t)p - 1ULL);
+    uint64_t g  = gcd_u64(44ULL, (uint64_t)p - 1ULL);
     uint64_t exp = ((uint64_t)p - 1ULL) / g;
     uint64_t base = (uint64_t)p - 2ULL;
     return mod_pow(base, exp, p) == 1ULL;

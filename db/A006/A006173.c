@@ -7,28 +7,30 @@
  * Formula:   inverse Somos transform of A000108 shifted left: Product_{i>=1}
  *            1/(1 - a(i)*x^i) = Sum_{n>=0} A000108(n+1)*x^n, so a(n) =
  *            A000108(n+1) - [x^n] Product_{i=1..n-1} 1/(1 - a(i)*x^i)
- * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 14, u64 n <= 25, u128 n <= 25,
+ * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 17, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;
 static idx_t memo_cap = 0;
 
 static seq_t catalan(idx_t m) {
     /* C(m) = binom(2m, m) - binom(2m, m+1) */
-    return binom(2 * m, m) - binom(2 * m, m + 1);
+    return binomial(2 * m, m) - binomial(2 * m, m + 1);
 }
 
 static void build(idx_t N) {
-    seq_t *P = (seq_t *)malloc((size_t)(N + 1) * sizeof(seq_t));
-    seq_t *res = (seq_t *)malloc((size_t)(N + 1) * sizeof(seq_t));
+    seq_t *P = mem_new(seq_t, (size_t)(N + 1));
+    seq_t *res = mem_new(seq_t, (size_t)(N + 1));
     idx_t i, j;
     P[0] = 1;
     for (j = 1; j <= N; j++) P[j] = 0;
@@ -39,8 +41,8 @@ static void build(idx_t N) {
         /* multiply P by 1/(1 - ai*x^i), truncated at degree N */
         for (j = i; j <= N; j++) P[j] += ai * P[j - i];
     }
-    free(P);
-    if (memo) free(memo);
+    mem_free(P);
+    if (memo) mem_free(memo);
     memo = res;
     memo_cap = N;
 }

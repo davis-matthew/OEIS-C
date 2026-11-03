@@ -7,6 +7,7 @@
  * Formula:   G.f. = b(2)*b(6)/(x^6-x^4+x^2-2*x+1), b(k) = (1-x^k)/(1-x)
  * Range:     u8 n <= 9, u16 n <= 22, u32 n <= 50, u64 n <= 105, u128 n <= 215,
  *            big any n
+ * Validated: standard, pass, 55 terms through n = 926 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

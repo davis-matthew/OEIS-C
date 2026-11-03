@@ -11,7 +11,8 @@
  *            numeric order and returned by index
  * Range:     u8 none, u16 n <= 6, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
- * Helpers:   add_result
+ * Validated: full, pass, 8 terms through n = 8 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,22 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/add_result.h"
+#include "../utils/mem.h"
+
+/* Add a value to a dynamic array of seq_t.
+   Assumes seqp points to a (possibly NULL) pointer to the array. */
+static void add_result(seq_t **seqp, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *seqp, newcap);
+        if (!tmp) exit(1);               /* out of memory */
+        *seqp = tmp;
+        *cap = newcap;
+    }
+    (*seqp)[*len] = val;
+    (*len)++;
+}
 
 /* Recursive generator that builds numbers of a fixed length.
    Parameters:
@@ -95,7 +111,7 @@ seq_t a(idx_t n)
                     &seq, &seq_len, &seq_cap);
 
         /* Sort the results ascending */
-        qsort(seq, seq_len, sizeof(seq_t), cmp_seq);
+        mem_qsort(seq, seq_len, sizeof(seq_t), cmp_seq);
         initialized = true;
     }
 

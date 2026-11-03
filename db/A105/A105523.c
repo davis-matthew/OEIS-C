@@ -10,6 +10,7 @@
  *            (m>=0) This follows from C(n+1)=(2(2n+1)/ (n+2))*C(n)
  * Range:     i8 n <= 12, i16 n <= 22, i32 n <= 34, i64 n <= 72, i128 n <= 138,
  *            big any n
+ * Validated: standard, pass, 57 terms through n = 912 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

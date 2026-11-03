@@ -8,13 +8,15 @@
  *            defined as 1
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 59 terms through n = 923 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include "../utils/ipow.h"
 
 /* Compute the sum of each decimal digit raised to its own power.
    0^0 is treated as 1. */
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         powValues[0] = (seq_t)1;                /* 0^0 = 1 */
         for (int d = 1; d <= 9; ++d)
-            powValues[d] = big_pow((seq_t)d, (seq_t)d);
+            powValues[d] = ipow((seq_t)d, (seq_t)d);
         initialized = true;
     }
 

@@ -8,14 +8,17 @@
  * Formula:   a(n) = denominator of BernoulliB(n-1)/((n-1)*n!)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 18, u128 n <= 25,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* Rational number in lowest terms (sign stored separately). */
 typedef struct {
@@ -85,7 +88,7 @@ static void ensure_bernoulli(idx_t m)
     if (B_size > m) return;  /* already available */
 
     size_t new_size = (size_t)(m + 1);
-    B = (Rat *)realloc(B, new_size * sizeof(Rat));
+    B = mem_resize(Rat, B, new_size);
     if (!B) exit(1);         /* allocation failed */
 
     for (idx_t i = B_size; i <= m; ++i) {

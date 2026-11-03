@@ -12,7 +12,8 @@
  *            A056282
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 16, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* We assume that seq_t and idx_t are supplied by the build environment. */
 seq_t a(idx_t n) {
@@ -42,13 +44,13 @@ seq_t a(idx_t n) {
         idx_t new_max = n;
         size_t new_size = new_max + 1;
 
-        seq_t *newS = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *newS = mem_new(seq_t, new_size);
         if (!newS) abort();
 
         /* Copy existing entries that are already computed. */
         if (S) {
-            memcpy(newS, S, (S_max + 1) * sizeof(seq_t));
-            free(S);
+            mem_copy(newS, S, (S_max + 1) * sizeof(seq_t));
+            mem_free(S);
         }
         /* Initialise the new entries to zero. */
         for (idx_t i = S_max + 1; i <= new_max; ++i)
@@ -82,14 +84,14 @@ seq_t a(idx_t n) {
         idx_t new_max = n;
         size_t new_size = new_max + 1;
 
-        seq_t *newA   = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *newA   = mem_new(seq_t, new_size);
         bool   *newD  = (bool  *)malloc(new_size * sizeof(bool ));
         if (!newA || !newD) abort();
 
         if (A) {
-            memcpy(newA,  A, (A_max + 1) * sizeof(seq_t));
+            mem_copy(newA, A, (A_max + 1) * sizeof(seq_t));
             memcpy(newD, A_done, (A_max + 1) * sizeof(bool));
-            free(A);
+            mem_free(A);
             free(A_done);
         }
         for (idx_t i = A_max + 1; i <= new_max; ++i) {

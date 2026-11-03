@@ -9,6 +9,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 105, u32 n <= 435, u64 n <= 1275,
  *            u128 n <= 1275, big any n
+ * Validated: standard, pass, 94 terms through n = 1033 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,7 @@
     a(n) is the sequence obtained by reading the triangle row‑wise.
     The function computes a(n) for any n ≥ 1. */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n) {

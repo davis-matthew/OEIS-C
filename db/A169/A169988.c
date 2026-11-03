@@ -7,6 +7,7 @@
  * Formula:   a(n) = number of subsets of {1,3,5,7,9} whose sum is n
  * Range:     u8 n <= 25, u16 n <= 25, u32 n <= 25, u64 n <= 25, u128 n <= 25,
  *            big any n
+ * Validated: full, pass, 26 terms through n = 25 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

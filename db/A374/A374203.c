@@ -9,8 +9,9 @@
  *            the p‑th Fibonacci number, using the recurrence
  *            D(ab)=aD(b)+bD(a)). The 3‑adic valuation is the maximum exponent
  *            t such that 3ᵗ divides D(n)
- * Range:     u8 n <= 1942, u16 n <= 9517, u32 n <= 9517, u64 n <= 9517,
- *            u128 n <= 9517, big any n
+ * Range:     u8 n <= 1942, u16 n <= 99999, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 123 terms through n = 9517 (2026-11-01)
  * Helpers:   factorize
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdlib.h>
 #include "../utils/factorize.h"
 
 /* multiply modulo mod, safe for 64‑bit and 128‑bit seq_t */

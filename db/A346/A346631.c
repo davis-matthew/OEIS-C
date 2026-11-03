@@ -8,7 +8,8 @@
  * Formula:   a(n) = n! * ((1+sqrt(2))^(n-1) - (1-sqrt(2))^(n-1)) / sqrt(2)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 6, u64 n <= 6, u128 n <= 6,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 5 terms through n = 6 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /*    = 2 * n! * P_{n-1} where P_k are Pell numbers (P_0=0, P_1=1, P_k=2P_{k-1}+P_{k-2}) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static caches for factorials and Pell numbers */
 static seq_t *fact_cache = NULL;
@@ -32,8 +34,8 @@ seq_t a(idx_t n)
     /* grow caches if necessary */
     if (n + 1 > cache_size) {
         size_t new_size = (size_t)(n + 1);
-        fact_cache = (seq_t *)realloc(fact_cache, new_size * sizeof(seq_t));
-        pell_cache = (seq_t *)realloc(pell_cache, new_size * sizeof(seq_t));
+        fact_cache = mem_resize(seq_t, fact_cache, new_size);
+        pell_cache = mem_resize(seq_t, pell_cache, new_size);
         cache_size = new_size;
 
         /* initialise base values if not yet initialised */

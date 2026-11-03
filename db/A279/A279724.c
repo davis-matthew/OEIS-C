@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   pow_of_three
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,18 @@
 
 #include <stdint.h>
 #include <math.h>
-#include "../utils/pow_of_three.h"
+
+static seq_t pow_of_three(idx_t exp)
+{
+    seq_t result = 1;
+    seq_t base   = 3;
+    while (exp) {
+        if (exp & 1) result *= base;
+        exp >>= 1;
+        if (exp) base *= base;
+    }
+    return result;
+}
 
 seq_t a(idx_t n)
 {

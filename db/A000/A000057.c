@@ -9,7 +9,8 @@
  *            Fibonacci((p+1)/q) != 0 (mod p) for every prime q dividing p + 1
  * Range:     u8 n <= 13, u16 n <= 1284, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a57_fibmod, a57_ok
+ * Validated: standard, pass, 68 terms through n = 9691 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,42 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/a57_fibmod.h"
-#include "../utils/a57_ok.h"
+
+/* Fibonacci(k) mod p by fast doubling; p < 2^32 */
+static uint64_t a57_fibmod(uint64_t k, uint64_t p)
+{
+    uint64_t a = 0, b = 1; /* F(j), F(j+1) */
+    int i;
+    for (i = 63; i >= 0; i--) {
+        uint64_t c = a * ((2 * b + p - a) % p) % p;
+        uint64_t d = (a * a + b * b) % p;
+        if ((k >> i) & 1) {
+            a = d;
+            b = (c + d) % p;
+        } else {
+            a = c;
+            b = d;
+        }
+    }
+    return a;
+}
+
+static bool a57_ok(uint64_t p)
+{
+    uint64_t m, r, q;
+    if (p == 2 || p == 3) return true;
+    if (p % 5 != 2 && p % 5 != 3) return false;
+    m = p + 1;
+    r = m;
+    for (q = 2; q * q <= r; q++) {
+        if (r % q == 0) {
+            if (a57_fibmod(m / q, p) == 0) return false;
+            while (r % q == 0) r /= q;
+        }
+    }
+    if (r > 1 && a57_fibmod(m / r, p) == 0) return false;
+    return true;
+}
 
 static uint64_t *a57_terms = NULL;
 static size_t a57_cnt = 0, a57_cap = 0;

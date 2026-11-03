@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   is_palindrome
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
+ * Helpers:   is_palindrome_base
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
    property until the requested index is reached.
    The search stops as soon as `n` terms have been found. */
 #include <stdbool.h>
-#include "../utils/is_palindrome.h"
+#include "../utils/is_palindrome_base.h"
 
 static bool divisors_palindromic(idx_t x)
 {
@@ -26,10 +27,10 @@ static bool divisors_palindromic(idx_t x)
 
     for (idx_t d = 1; d * d <= x; ++d) {
         if (x % d == 0) {
-            if (d < x && !is_palindrome((seq_t)d, 10))
+            if (d < x && !is_palindrome_base((seq_t)d, 10))
                 return false;
             idx_t e = x / d;
-            if (e != d && e < x && !is_palindrome((seq_t)e, 10))
+            if (e != d && e < x && !is_palindrome_base((seq_t)e, 10))
                 return false;
         }
     }

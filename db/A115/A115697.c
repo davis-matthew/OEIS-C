@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 42, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   floor_sqrt, is_palindrome, rev_decimal, seq_realloc
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-01)
+ * Helpers:   ipow_i32, is_palindrome_base, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,10 +24,40 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-#include "../utils/rev_decimal.h"
-#include "../utils/floor_sqrt.h"
-#include "../utils/is_palindrome.h"
-#include "../utils/seq_realloc.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/is_palindrome_base.h"
+#include "../utils/reverse_digits.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 /* Return true if n is a powerful number, i.e. every prime exponent
    in the factorisation of n is at least 2. */
@@ -60,13 +91,13 @@ static bool is_powerful(seq_t n)
    two palindromes (each > 1). */
 static bool rev_palindrome_product(seq_t m)
 {
-    seq_t rev = rev_decimal(m);
+    seq_t rev = reverse_digits(m);
     seq_t lim = floor_sqrt(rev);
     for (seq_t p = 2; p <= lim; ++p) {
         if (rev % p != 0)
             continue;
         seq_t q = rev / p;
-        if (p > 1 && q > 1 && is_palindrome(p, 10) && is_palindrome(q, 10))
+        if (p > 1 && q > 1 && is_palindrome_base(p, 10) && is_palindrome_base(q, 10))
             return true;
     }
     return false;

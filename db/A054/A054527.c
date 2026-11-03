@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 7875, i16 n <= 7875, i32 n <= 7875, i64 n <= 7875,
  *            i128 n <= 7875, big any n
- * Helpers:   int_sqrt, mobius
+ * Validated: standard, pass, 109 terms through n = 7642 (2026-11-01)
+ * Helpers:   isqrt, mobius
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,13 +21,13 @@
    Then k = n - (R-1)*R/2 and a(n) = μ(k). */
 
 #include <stdint.h>
-#include "../utils/int_sqrt.h"
+#include "../utils/isqrt.h"
 #include "../utils/mobius.h"
 
 seq_t a(idx_t n)
 {
     /* Find the row R that contains position n. */
-    idx_t sq = int_sqrt(1 + 8 * n);          /* floor sqrt(1+8n)   */
+    idx_t sq = isqrt(1 + 8 * n);          /* floor sqrt(1+8n)   */
     idx_t R  = (sq - 1) / 2;                 /* floor estimate     */
     if (R * (R + 1) / 2 < n)                 /* adjust to ceil     */
         R++;

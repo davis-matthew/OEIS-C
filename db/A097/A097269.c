@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   odd_good
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,33 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/odd_good.h"
+#include "../utils/mem.h"
+
+/* Test whether an odd integer m is expressible as the sum of two
+   non‑zero squares.  This is equivalent to saying that every prime
+   factor p ≡ 3 (mod 4) appears to an even exponent. */
+static bool odd_good(idx_t m)
+{
+    if (m == 1)
+        return true;
+
+    idx_t temp = m;
+    for (idx_t p = 3; p <= temp / p; p += 2) {
+        if (temp % p == 0) {
+            int exp = 0;
+            while (temp % p == 0) {
+                temp /= p;
+                ++exp;
+            }
+            if ((p & 3) == 3 && (exp & 1) != 0)
+                return false;
+        }
+    }
+    /* Remaining prime factor larger than sqrt(m) */
+    if (temp > 1 && (temp & 3) == 3)
+        return false;
+    return true;
+}
 
 seq_t a(idx_t n)
 {
@@ -37,7 +64,7 @@ seq_t a(idx_t n)
 
     if (!cache) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* Extend the cache until it contains at least n terms. */
@@ -61,7 +88,7 @@ seq_t a(idx_t n)
 
         if (cache_len >= cache_cap) {
             cache_cap <<= 1;                /* double size */
-            cache = (seq_t *)realloc(cache, sizeof(seq_t) * cache_cap);
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
         cache[cache_len++] = val;
     }

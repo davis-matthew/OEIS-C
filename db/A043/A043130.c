@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   has_adj_base6
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,24 @@
    The function returns the n‑th such number (1‑based index). */
 
 #include <stdbool.h>
-#include "../utils/has_adj_base6.h"
+
+/* Return true iff the base‑6 representation of k contains
+   either the substring "45" or the substring "54". */
+static bool has_adj_base6(idx_t k)
+{
+    if (k < 6) return false;
+    idx_t prev = k % 6;
+    k /= 6;
+    while (k)
+    {
+        idx_t cur = k % 6;
+        if ((prev == 4 && cur == 5) || (prev == 5 && cur == 4))
+            return true;
+        prev = cur;
+        k /= 6;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

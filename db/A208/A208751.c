@@ -12,13 +12,15 @@
  *            T(2,1)=2, and T(m,k)=0 if k<0 or k>=m
  * Range:     u8 n <= 24, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Standard headers */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Internal storage for triangle rows.  rows[n] holds T(n,k) for 0<=k<n.  */
 static seq_t **rows = NULL;      /* rows[1..] (rows[0] unused) */
@@ -46,7 +48,7 @@ static void ensure_rows_to(size_t r_needed)
     /* Build rows incrementally. */
     while (max_rows <= r_needed) {
         size_t cur = max_rows + 1;       /* next row index (1‑based) */
-        seq_t *row = (seq_t *)malloc(cur * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, cur);
         if (!row)
             abort();
 

@@ -10,12 +10,14 @@
  *            search
  * Range:     u8 n <= 3, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Ensure the cache array has at least `needed` elements. */
 static seq_t *grow_cache(seq_t *p, size_t *cap, size_t needed)
@@ -23,7 +25,7 @@ static seq_t *grow_cache(seq_t *p, size_t *cap, size_t needed)
     if (*cap < needed) {
         size_t newcap = (*cap ? *cap * 2 : 4);
         if (needed > newcap) newcap = needed;
-        p = (seq_t *)realloc(p, newcap * sizeof(seq_t));
+        p = mem_resize(seq_t, p, newcap);
         *cap = newcap;
     }
     return p;

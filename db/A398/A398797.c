@@ -9,7 +9,8 @@
  *            where p and 32768-p are prime
  * Range:     u8 none, u16 none, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Comparator for qsort: sorts seq_t values in ascending order. */
 static int cmp_seq(const void *a, const void *b) {
@@ -59,7 +61,7 @@ static void init_seq(void) {
     }
 
     /* Sort the list */
-    qsort(seq_vals, seq_len, sizeof(seq_t), cmp_seq);
+    mem_qsort(seq_vals, seq_len, sizeof(seq_t), cmp_seq);
 }
 
 /* Public function required by the harness */

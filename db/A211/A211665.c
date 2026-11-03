@@ -8,6 +8,7 @@
  * Formula:   a(n) = minimal number of real log10 iterations until result < 1
  * Range:     u8 n <= 125, u16 n <= 125, u32 n <= 125, u64 n <= 125,
  *            u128 n <= 125, big any n
+ * Validated: partial, pass, 125 terms through n = 125 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

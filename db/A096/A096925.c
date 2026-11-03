@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 /* ------------------------------------------------------------ */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 void abort(void);                     /* declaration used for abort() */
 
 /* ------------------------------------------------------------ */
@@ -74,7 +76,7 @@ static void ensure_terms_capacity(size_t new_cap)
     if (new_cap <= terms_cap) return;
     size_t cap = terms_cap ? terms_cap : 1;
     while (cap < new_cap) cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(terms, cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, terms, cap);
     if (!tmp) abort();
     terms    = tmp;
     terms_cap = cap;

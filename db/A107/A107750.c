@@ -11,12 +11,28 @@
  *            a(n-1)
  * Range:     u8 n <= 192, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   zeros_count
+ * Validated: standard, pass, 88 terms through n = 9540 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/zeros_count.h"
+/* Count the number of zeros in the binary representation of x.  */
+static inline idx_t zeros_count(seq_t x)
+{
+    if (x == 0)               /* "0" has one zero bit. */
+        return 1;
+    idx_t len = 0;
+    idx_t pop = 0;
+    seq_t tmp = x;
+    while (tmp) {
+        len++;
+        if (tmp & 1)
+            pop++;
+        tmp >>= 1;
+    }
+    return len - pop;
+}
 
 seq_t a(idx_t n)
 {

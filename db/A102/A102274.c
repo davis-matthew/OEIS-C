@@ -9,14 +9,16 @@
  *            (-3/p)=(-7/p)=-1)
  * Range:     u8 n <= 7, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
             continue;                                            /* not in the required classes */
 
         /* Primality test – the util function is efficient enough for the range we need */
-        if (is_prime(last_candidate))
+        if (is_prime_u64(last_candidate))
         {
             primes_found++;                                       /* a new qualifying prime */
         }

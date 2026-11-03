@@ -11,7 +11,8 @@
  *            occurring in a(1)..a(n-1)
  * Range:     u8 n <= 566, u16 n <= 6000, u32 n <= 6000, u64 n <= 6000,
  *            u128 n <= 6000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 92 terms through n = 5559 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --- static data ---------------------------------------------- */
 static seq_t *a_arr   = NULL;   /* sequence values (1‑based)          */
@@ -41,8 +43,8 @@ static void ensure_capacity(idx_t n)
     while (new_cap <= (size_t)n + 1)
         new_cap <<= 1;
 
-    seq_t *new_a = (seq_t *)realloc(a_arr, new_cap * sizeof(seq_t));
-    seq_t *new_c = (seq_t *)realloc(cand_arr, new_cap * sizeof(seq_t));
+    seq_t *new_a = mem_resize(seq_t, a_arr, new_cap);
+    seq_t *new_c = mem_resize(seq_t, cand_arr, new_cap);
     if (!new_a || !new_c)
         abort();
 

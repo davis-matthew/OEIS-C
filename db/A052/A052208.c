@@ -7,13 +7,15 @@
  * Formula:   a(n) = Pell(n) * Pell(2*n) / 2
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 17, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute Pell numbers P(0)=0, P(1)=1, P(k)=2*P(k-1)+P(k-2) */
 /* The array pell[] stores Pell values up to the largest index needed. */
@@ -27,7 +29,7 @@ static void ensure_pell(size_t idx)
     if (pell_len > idx) return;          /* already computed */
 
     /* Resize the array to accommodate indices 0..idx inclusive. */
-    seq_t *tmp = (seq_t *)realloc(pell, (idx + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, pell, (idx + 1));
     pell = tmp;
     if (pell == NULL) return;            /* allocation failed; will crash on use */
 

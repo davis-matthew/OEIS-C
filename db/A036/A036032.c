@@ -14,13 +14,15 @@
  *            Allowed residue classes: 1,3,4,5,8,9,11,12,13,15,16,19,20,21,23
  * Range:     u8 n <= 23, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Allowed part sizes modulo 24. */
 static const idx_t residues[15] = {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
 
     /* Allocate an array of n+1 cells, initialized to 0. */
     size_t N = (size_t)n + 1;
-    seq_t *dp = (seq_t *)calloc(N, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, N);
     if (!dp)            /* allocation failed – oops but not expected. */
         return (seq_t)0;
 
@@ -51,6 +53,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[(size_t)n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

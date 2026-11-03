@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* This function returns the n-th such integer, i.e., a(n). */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* helper: modular exponentiation (base^exp mod mod) */
 static uint64_t powmod64(uint64_t base, uint64_t exp, uint64_t mod)
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
             if (terms_len == terms_cap)
             {
                 size_t new_cap = terms_cap ? terms_cap * 2 : 16;
-                seq_t *new_terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                seq_t *new_terms = mem_resize(seq_t, terms, new_cap);
                 if (!new_terms) return 0; /* allocation failure, return 0 as fallback */
                 terms = new_terms;
                 terms_cap = new_cap;

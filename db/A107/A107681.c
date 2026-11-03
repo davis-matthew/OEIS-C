@@ -12,6 +12,7 @@
  *            contain no digit 2”
  * Range:     u8 n <= 101, u16 n <= 3326, u32 n <= 8190, u64 n <= 8190,
  *            u128 n <= 8190, big any n
+ * Validated: standard, pass, 92 terms through n = 7622 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

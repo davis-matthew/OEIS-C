@@ -7,17 +7,20 @@
  * Formula:   a(n) = 21^(5*n + 1)
  * Range:     u8 n <= 0, u16 n <= 0, u32 n <= 1, u64 n <= 2, u128 n <= 5,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 25 terms through n = 49 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
     /* Compute the exponent 5*n + 1 in seq_t */
     seq_t exp = (seq_t)n * 5 + 1;
     /* Return 21 raised to that exponent */
-    return big_pow((seq_t)21, exp);
+    return ipow((seq_t)21, exp);
 }

@@ -8,7 +8,8 @@
  * Formula:   a(n) = binom(16,2*n)
  * Range:     u8 n <= 1, u16 n <= 8, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
- * Helpers:   binom_small
+ * Validated: full, pass, 9 terms through n = 8 (2026-11-02)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 /* Return the n‑th term of the weight enumerator of the [16,15,2] even
    weight code (Reed-Muller RM(3,4)) sequence.
    a(n) = C(16,2*n) for n = 0 .. 8, and a(n) = 0 for n > 8. */
-#include "../utils/binom_small.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -28,5 +30,5 @@ seq_t a(idx_t n)
     /* Compute C(16, 2*n) directly. Since n <= 8, 2*n fits safely in
        idx_t and binom_small implements the multiplicative method. */
     idx_t k = 2 * n;
-    return binom_small(16, k);
+    return binomial(16, k);
 }

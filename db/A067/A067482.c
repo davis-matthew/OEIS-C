@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 7, u128 n <= 10,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 27 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
 #ifdef __cplusplus
 #  include <cstddef>
 #endif
+#include "../utils/mem.h"
 
 /* Long‑double logs of 4 and 5 (in base 10). */
 static const long double LOG10_4 = 0.60205999132796246261L;
@@ -58,7 +60,7 @@ ensure_cache_cap(size_t needed)
     while (new_cap < needed)
         new_cap <<= 1;
     exp_cache = (idx_t *)realloc(exp_cache, new_cap * sizeof(idx_t));
-    val_cache = (seq_t *)realloc(val_cache, new_cap * sizeof(seq_t));
+    val_cache = mem_resize(seq_t, val_cache, new_cap);
     cache_cap = new_cap;
 }
 

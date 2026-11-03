@@ -9,6 +9,7 @@
  *            a(4)=52, a(5)=53, a(6)=36, a(7)=37
  * Range:     u8 none, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
+ * Validated: partial, pass, 64 terms through n = 65 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

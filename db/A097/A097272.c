@@ -5,16 +5,17 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = least integer with the same “mod 2 prime signature” as n
- * Range:     u8 n <= 255, u16 n <= 9964, u32 n <= 9964, u64 n <= 9964,
- *            u128 n <= 9964, big any n
- * Helpers:   _pow_uint
+ * Range:     u8 n <= 255, u16 n <= 65535, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 100 terms through n = 9964 (2026-11-01)
+ * Helpers:   ipow_u64_to_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/_pow_uint.h"
+#include "../utils/ipow_u64_to_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -66,12 +67,12 @@ seq_t a(idx_t n)
     seq_t result = 1;
 
     /* multiply by 2^e0 */
-    result *= _pow_uint(2, e0);
+    result *= ipow_u64_to_seq(2, e0);
 
     /* multiply by odd primes raised to the sorted exponents */
     for (size_t i = 0; i < odd_cnt; ++i) {
         if (i >= ODD_PRIMES_COUNT) break;     /* safety – should not occur for n ≤ 10 000 */
-        result *= _pow_uint(ODD_PRIMES[i], odd_exp[i]);
+        result *= ipow_u64_to_seq(ODD_PRIMES[i], odd_exp[i]);
     }
 
     return result;

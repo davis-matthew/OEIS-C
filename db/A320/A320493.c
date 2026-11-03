@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 45, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 997 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* memoized values */
 static size_t cache_cap = 0;         /* allocated size of cache */
@@ -37,7 +39,7 @@ static void ensure_n(idx_t n) {
         size_t needed = N + 1;
         if (needed < 9) needed = 9;          /* need base values up to a(8) */
         cache_cap = needed;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return;                  /* allocation failure – caller will see 0 */
         /* initialise to zero */
         for (size_t i = 0; i < cache_cap; ++i) cache[i] = 0;
@@ -51,7 +53,7 @@ static void ensure_n(idx_t n) {
     else if (N + 1 > cache_cap) {
         size_t new_cap = cache_cap * 2;
         if (new_cap < N + 1) new_cap = N + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return;                      /* reallocation failure – caller will see 0 */
         for (size_t i = cache_cap; i < new_cap; ++i) tmp[i] = 0;
         cache = tmp;

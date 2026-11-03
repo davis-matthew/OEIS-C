@@ -7,13 +7,18 @@
  * Formula:   a(n) = smallest k such that digit_sum(4*k) = n
  * Range:     u8 n <= 6, u16 n <= 27, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   ceil_div9
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/ceil_div9.h"
+
+/* helper: compute integer ceil division for 64‑bit numbers */
+static inline idx_t ceil_div9(idx_t x) {
+    return (x + 8) / 9;
+}
 
 /* sequence types */
 typedef seq_t seq_t;

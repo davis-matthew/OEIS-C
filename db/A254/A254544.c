@@ -9,13 +9,15 @@
  *            to a prime
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 49, u64 n <= 210, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,11 +37,11 @@ seq_t a(idx_t n)
                 is_prime[q] = false;
 
     /* DP arrays */
-    seq_t *cnt     = (seq_t*)calloc((size_t)max_sum + 1, sizeof(seq_t));
-    seq_t *new_cnt = (seq_t*)calloc((size_t)max_sum + 1, sizeof(seq_t));
+    seq_t *cnt     = mem_new(seq_t, (size_t)max_sum + 1);
+    seq_t *new_cnt = mem_new(seq_t, (size_t)max_sum + 1);
     if (!cnt || !new_cnt) {
         free(is_prime);
-        free(cnt); free(new_cnt);
+        mem_free(cnt); mem_free(new_cnt);
         return (seq_t)0;
     }
     cnt[0] = (seq_t)1;          /* empty prefix sum */
@@ -75,8 +77,8 @@ seq_t a(idx_t n)
 
     /* Clean up */
     free(is_prime);
-    free(cnt);
-    free(new_cnt);
+    mem_free(cnt);
+    mem_free(new_cnt);
 
     return ans;
 }

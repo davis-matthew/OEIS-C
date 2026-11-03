@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 72 terms through n = 874 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static uint64_t _smallest_prime_factor(uint64_t n)
 {
@@ -78,7 +80,7 @@ seq_t a(idx_t n)
             /* Grow the cache array if necessary. */
             if (ncache == 0 || ncache % 128 == 0) {
                 size_t newcap = (ncache == 0) ? 128 : ncache * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, newcap);
                 if (!tmp) abort();
                 cache = tmp;
             }

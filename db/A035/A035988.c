@@ -13,18 +13,20 @@
  *            allowed part size
  * Range:     u8 n <= 16, u16 n <= 45, u32 n <= 138, u64 n <= 460,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 992 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate an array of dp values: dp[j] = partitions of j.  */
     size_t len = (size_t)n + 1;
-    seq_t *dp = (seq_t *)calloc(len, sizeof(seq_t));  /* calloc is OK in both C and C++ */
+    seq_t *dp = mem_new(seq_t, len);  /* calloc is OK in both C and C++ */
     if (!dp) return (seq_t)0;  /* in the unlikely event of allocation failure */
 
     dp[0] = (seq_t)1;  /* one way to partition 0: use no parts */
@@ -41,6 +43,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[(size_t)n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

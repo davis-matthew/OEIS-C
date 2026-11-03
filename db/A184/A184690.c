@@ -12,12 +12,14 @@
  *            447784*a(n‑5) - 778496*a(n‑6) + 649216*a(n‑7) -...
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 8, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 28 terms through n = 146 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
 
     /* Ensure cache capacity */
     if (cached == NULL || cap < n) {
-        cached = (seq_t *)realloc(cached, n * sizeof(seq_t));
+        cached = mem_resize(seq_t, cached, n);
         cap = n;
     }
 

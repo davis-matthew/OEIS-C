@@ -10,7 +10,8 @@
  *            no adjacent equal elements)
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*  ----------------------------------------------------------------
  *  Utilities used in this implementation
@@ -95,7 +97,7 @@ static void ensure_sep_capacity(size_t needed)
     if (needed <= sep_cap) return;
     size_t new_cap = (sep_cap == 0) ? 16 : sep_cap * 2;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *new_arr = (seq_t *)realloc(sep, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, sep, new_cap);
     sep = new_arr;
     sep_cap = new_cap;
 }

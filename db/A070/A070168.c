@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 248, u16 n <= 7727, u32 n <= 7727, u64 n <= 7727,
  *            u128 n <= 7727, big any n
- * Helpers:   none
+ * Validated: standard, pass, 106 terms through n = 6524 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  * with the iterates of that index under T until the value 1 is reached. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache for the already computed terms */
 static seq_t *cache = NULL;       /* pointer to cached values      */
@@ -31,7 +33,7 @@ static void grow_cache(idx_t min_cap) {
     if (min_cap <= cache_cap) return;
     if (cache_cap == 0) cache_cap = 128;
     while (cache_cap < min_cap) cache_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
     cache = tmp;
 }
 
@@ -62,7 +64,7 @@ seq_t a(idx_t n) {
     if (n == 0) return 0;          /* undefined, but harmless */
     if (cache == NULL) {           /* initialise cache once */
         cache_cap = 128;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
     extend_cache(n);                /* ensure the n-th term is known */
     return cache[n - 1];            /* array is 0‑based, sequence is 1‑based */

@@ -9,11 +9,13 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 5, u64 n <= 12, u128 n <= 26,
  *            big any n
+ * Validated: standard, pass, 30 terms through n = 171 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /*  OEIS sequence A237571
  *  Count of (n+1)×4 arrays over {0,1,2,3} such that for every 2×2 subblock
  *  the difference (upper median – lower median) differs from its

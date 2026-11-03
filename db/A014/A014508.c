@@ -7,13 +7,15 @@
  * Formula:   a(n) = floor(n! / e)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 20, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 97 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute floor(n! / e) for n >= 1.
    Uses the derangement recurrence !n = n*!(n-1) + (-1)^n.
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
 
     if (!der) {                     /* first call: allocate minimal space */
         cap = 2;                    /* we need indices 0 and 1 at least */
-        der = (seq_t *)malloc(cap * sizeof(seq_t));
+        der = mem_new(seq_t, cap);
         if (!der) return 0;         /* memory allocation failed – return 0 */
         der[0] = 1;                 /* !0 = 1 */
         der[1] = 0;                 /* !1 = 0 */
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
         size_t newcap = cap;
         while (n >= newcap)
             newcap = newcap * 2 + 1;          /* grow geometrically */
-        seq_t *tmp = (seq_t *)realloc(der, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, der, newcap);
         if (!tmp) return 0;                  /* allocation failed */
         der = tmp;
         cap = newcap;

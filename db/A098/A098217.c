@@ -12,7 +12,8 @@
  *            that calls to `a` with arbitrary indices are answ...
  * Range:     u8 n <= 30, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   calc_phi
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   mem, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/calc_phi.h"
+#include "../utils/totient_seq.h"
+#include "../utils/mem.h"
 
 /* Test whether x is a decimal repdigit (all digits equal). */
 static bool is_repdigit(seq_t x)
@@ -56,16 +58,16 @@ seq_t a(idx_t n)
     while (cache_len < (size_t)n) {
         uint64_t m = processed + 1;               /* m to test */
         seq_t  mseq = (seq_t)m;                   /* cast to seq_t */
-        seq_t phi  = calc_phi(mseq);              /* φ(m)       */
+        seq_t phi  = totient_seq(mseq);              /* φ(m)       */
         seq_t cot  = mseq - phi;                  /* cototient  */
 
         if (is_repdigit(cot)) {
             /* Grow the cache if necessary. */
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) {
-                    free(cache);
+                    mem_free(cache);
                     exit(EXIT_FAILURE);
                 }
                 cache = tmp;

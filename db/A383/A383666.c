@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 220, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_zero_bits
+ * Validated: standard, pass, 81 terms through n = 9960 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,28 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/count_zero_bits.h"
+#include "../utils/mem.h"
+
+/* Count the number of zero bits in the binary representation of x.  */
+static size_t count_zero_bits(seq_t x)
+{
+    size_t len = 0;
+    seq_t temp = x;
+    while (temp > 0) {
+        ++len;
+        temp >>= 1;
+    }
+
+    /* count zeros within the representation length */
+    size_t zero = 0;
+    temp = x;
+    for (size_t i = 0; i < len; ++i) {
+        if ((temp & (seq_t)1) == 0)
+            ++zero;
+        temp >>= 1;
+    }
+    return zero;
+}
 
 static seq_t *cache = NULL;      /* array of accumulated terms      */
 static size_t cache_size = 0;    /* number of stored terms          */
@@ -39,14 +61,14 @@ static void ensure_cache_capacity(size_t need)
     if (new_cap < need)
         new_cap = need;
 
-    seq_t *new_cache = (seq_t *)malloc(sizeof(seq_t) * new_cap);
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache)
         abort();   /* allocation failure */
 
     for (size_t i = 0; i < cache_size; ++i)
         new_cache[i] = cache[i];
 
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
     cache_cap = new_cap;
 }

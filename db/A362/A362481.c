@@ -11,13 +11,15 @@
  *            values for all k. The required power is evaluat...
  * Range:     i8 n <= 4, i16 n <= 6, i32 n <= 10, i64 n <= 16, i128 n <= 19,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)1;
@@ -29,7 +31,7 @@ seq_t a(idx_t n) {
     for (idx_t k = 0; k <= kmax; ++k) {
         idx_t exp = n - 2 * k - 1;   /* exponent for (3k+1) */
         seq_t base = (seq_t)(3 * k + 1);
-        seq_t powv = seq_pow(base, exp);
+        seq_t powv = ipow_idx(base, exp);
         seq_t term = C * powv;
 
         if (k & 1)

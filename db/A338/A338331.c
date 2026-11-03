@@ -12,7 +12,8 @@
  *            fixed limit (10 000 000) which is sufficient for the...
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---- utility: gcd for 32‑bit integers ----------------------------------- */
 static uint32_t gcd32(uint32_t a, uint32_t b)
@@ -120,7 +122,7 @@ static void ensure_sequence(idx_t n)
 
     if (seq_vals == NULL) {
         seq_cap = 128;
-        seq_vals = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+        seq_vals = mem_new(seq_t, seq_cap);
         seq_len = 0;
     }
 
@@ -129,7 +131,7 @@ static void ensure_sequence(idx_t n)
             if (good_candidate((uint64_t)next_candidate)) {
                 if (seq_len >= seq_cap) {
                     seq_cap *= 2;
-                    seq_vals = (seq_t*)realloc(seq_vals, seq_cap * sizeof(seq_t));
+                    seq_vals = mem_resize(seq_t, seq_vals, seq_cap);
                 }
                 seq_vals[seq_len++] = (seq_t)next_candidate;
                 next_candidate++;

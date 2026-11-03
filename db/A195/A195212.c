@@ -11,14 +11,17 @@
  *            them
  * Range:     u8 n <= 25, u16 n <= 1213, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   largest_prime_factor
+ * Validated: standard, pass, 71 terms through n = 9106 (2026-11-03)
+ * Helpers:   largest_prime_factor, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/largest_prime_factor.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static idx_t next_m = 1;          /* next integer to test */
@@ -42,7 +45,7 @@ seq_t a(idx_t n) {
             if ((exp & 1ULL) == 0) {
                 if (terms == capacity) {
                     size_t new_cap = capacity ? capacity * 2 : 4;
-                    seq_t *new_seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+                    seq_t *new_seq = mem_resize(seq_t, seq, new_cap);
                     if (!new_seq) abort();
                     seq = new_seq;
                     capacity = new_cap;

@@ -6,14 +6,15 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  frac, nonn
  * Formula:   a(n) = denominator of the unitary harmonic mean of n
- * Range:     u8 n <= 41, u16 n <= 82, u32 n <= 82, u64 n <= 82, u128 n <= 82,
- *            big any n
- * Helpers:   gcd_any
+ * Range:     u8 n <= 41, u16 n <= 9164, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 98 terms through n = 9832 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/gcd_any.h"
+#include "../utils/gcd.h"
 /* For n = ∏ p_i^{e_i}:  a(n) = (∏(p_i^{e_i}+1))/gcd(n·2^k,∏(p_i^{e_i}+1)),
    where k is the number of distinct primes. */
 
@@ -48,6 +49,6 @@ seq_t a(idx_t n)
     seq_t numerator = (seq_t)n * two_pow_k;
 
     /* reduce fraction to obtain the denominator */
-    seq_t g = gcd_any(numerator, divisor);
+    seq_t g = gcd(numerator, divisor);
     return divisor / g;
 }

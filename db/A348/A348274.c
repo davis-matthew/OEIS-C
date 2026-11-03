@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 7, u32 n <= 2933, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_spf, seq_pow, sigma_of
+ * Validated: standard, pass, 66 terms through n = 9914 (2026-11-03)
+ * Helpers:   build_spf, ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,9 +24,24 @@
 #include <stdbool.h>
 
 /* utilities supplied by the build system */
-#include "../utils/seq_pow.h"        /* seq_pow(base, exp)         */
-#include "../utils/build_spf.h"      /* build_spf(limit, &spfs)    */
-#include "../utils/sigma_of.h"       /* sigma_of(n)                */
+#include "../utils/build_spf.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 /* static state */
 static idx_t max_limit  = 0;         /* highest n that has been
@@ -42,7 +58,7 @@ static void grow_terms(void)
 {
     if (terms_len == terms_cap) {
         terms_cap = (terms_cap == 0) ? 1024 : terms_cap * 2;
-        terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, terms_cap);
     }
 }
 
@@ -56,7 +72,7 @@ static void extend_to(idx_t new_limit)
     if (!spf) return;              /* allocation error – abort quietly */
 
     /* enlarge σ_inf array */
-    seq_t *tmp = (seq_t *)realloc(sigma_inf, (new_limit + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, sigma_inf, (new_limit + 1));
     if (!tmp) return;              /* allocation error – abort quietly */
     sigma_inf = tmp;
     sigma_inf[1] = (seq_t)1;      /* σ_inf(1) = 1 */
@@ -81,7 +97,7 @@ static void extend_to(idx_t new_limit)
             idx_t bit = 0, exp = e;
             while (exp != 0) {
                 if (exp & 1u) {
-                    seq_t pw = seq_pow((seq_t)p, (idx_t)1ULL << bit);
+                    seq_t pw = ipow_idx((seq_t)p, (idx_t)1ULL << bit);
                     factor_inf *= (pw + (seq_t)1);
                 }
                 ++bit;
@@ -90,7 +106,7 @@ static void extend_to(idx_t new_limit)
             prod_inf *= factor_inf;
 
             /* contribution to σ (ordinary sum of divisors) */
-            seq_t pw = seq_pow((seq_t)p, e + 1);
+            seq_t pw = ipow_idx((seq_t)p, e + 1);
             seq_t prime_sigma = (pw - (seq_t)1) / ((seq_t)p - (seq_t)1);
             total *= prime_sigma;
         }

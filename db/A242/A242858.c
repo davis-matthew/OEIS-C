@@ -11,7 +11,8 @@
  *            T_n[m-1] ), m ≥ 1 * and set T_{n+1}[0] = 0. * T...
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 18, u128 n <= 19,
  *            big any n
- * Helpers:   alloc_seq_array, free_seq_array
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,19 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 /* Static storage for values and cache */
 static seq_t *T = NULL;          /* T[m] = m! * S(n, m) for current n */
@@ -39,9 +51,9 @@ static void resize_to(idx_t n)
     seq_t *new_a = alloc_seq_array(new_cap);
 
     if (T)
-        memcpy(new_T, T, capacity * sizeof(seq_t));
+        mem_copy(new_T, T, capacity * sizeof(seq_t));
     if (a_cache)
-        memcpy(new_a, a_cache, capacity * sizeof(seq_t));
+        mem_copy(new_a, a_cache, capacity * sizeof(seq_t));
 
     /* initialise any new entries to zero (already zero for <capacity) */
     for (size_t i = capacity; i < new_cap; ++i) {

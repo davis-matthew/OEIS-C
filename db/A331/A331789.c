@@ -14,15 +14,17 @@
  *            (zero‑based). - Find the smallest d ≥ 3 such t...
  * Range:     u8 n <= 45, u16 n <= 153, u32 n <= 561, u64 n <= 2145,
  *            u128 n <= 7627, big any n
- * Helpers:   big_pow, gcd
+ * Validated: standard, pass, 94 terms through n = 7241 (2026-11-01)
+ * Helpers:   gcd, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
 #include "../utils/gcd.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
     seq_t gcd_val   = gcd(t_seq, b_minus1);
     seq_t num_factor = (seq_t)2 * t_seq - gcd_val + (seq_t)1;
 
-    seq_t pow_val   = big_pow(b_seq, (seq_t)s);
+    seq_t pow_val   = ipow(b_seq, (seq_t)s);
 
     seq_t result = pow_val * num_factor - (seq_t)1;
     return result;

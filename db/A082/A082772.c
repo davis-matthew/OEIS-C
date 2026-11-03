@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 90, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 9839 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    divisor search. */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *terms = NULL;          /* dynamic array of found terms */
 static size_t term_cap = 0;          /* current capacity of 'terms' */
@@ -29,7 +31,7 @@ static void add_term(seq_t val)
 {
     if (term_len >= term_cap) {
         size_t new_cap = term_cap ? term_cap << 1 : 64;
-        seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
         if (!tmp) abort();          /* allocation failed */
         terms = tmp;
         term_cap = new_cap;

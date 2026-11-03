@@ -12,14 +12,29 @@
  *            a(1)=1
  * Range:     u8 n <= 200, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   revbits_uint64
+ * Validated: standard, pass, 84 terms through n = 9847 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/revbits_uint64.h"
+
+/* Reverse the binary representation of an unsigned 64‑bit integer.
+   Handles 0 and the special case p==2. */
+static inline seq_t revbits_uint64(uint64_t x)
+{
+    if (x == 0) return (seq_t)0;
+    if (x == 2) return (seq_t)2;
+
+    seq_t rev = 0;
+    while (x != 0) {
+        rev = (rev << 1) | (x & 1);
+        x >>= 1;
+    }
+    return rev;
+}
 
 /* Completely multiplicative sequence A235027. */
 seq_t a(idx_t n)

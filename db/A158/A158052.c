@@ -9,15 +9,16 @@
  * Formula:   a(n) = m * (-1)^{pi(k)-pi(k-1)}, where m is the largest exponent
  *            such that n = k^m, and the sign is negative iff k is prime
  *            (i.e., n is a perfect power of a prime). a(1)=0
- * Range:     i8 n <= 9721, i16 n <= 9721, i32 n <= 9721, i64 n <= 9721,
- *            i128 n <= 9721, big any n
- * Helpers:   mygcd_idx_t
+ * Range:     i8 n <= 100000, i16 n <= 100000, i32 n <= 100000,
+ *            i64 n <= 100000, i128 n <= 100000, big any n
+ * Validated: standard, pass, 104 terms through n = 9721 (2026-11-01)
+ * Helpers:   gcd_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/mygcd_idx_t.h"
+#include "../utils/gcd_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -41,7 +42,7 @@ seq_t a(idx_t n)
             if (m == 0)
                 m = exp;
             else
-                m = mygcd_idx_t(m, exp);
+                m = gcd_idx(m, exp);
         }
     }
     if (tmp > 1) {   /* remaining prime factor */
@@ -50,7 +51,7 @@ seq_t a(idx_t n)
         if (m == 0)
             m = exp;
         else
-            m = mygcd_idx_t(m, exp);
+            m = gcd_idx(m, exp);
     }
 
     if (m == 0)   /* safety for n=1, already handled, but keep */

@@ -9,8 +9,9 @@
  *            the Tribonacci representation of n, T_i is the Tribonacci
  *            sequence (T0=0,T1=0,T2=1,Tn=T_{n-1}+T_{n-2}+T_{n-3}), k = max{i
  *            | T_i <= n}. The bits are generated greedily
- * Range:     u8 n <= 40, u16 n <= 9609, u32 n <= 9609, u64 n <= 9609,
- *            u128 n <= 9609, big any n
+ * Range:     u8 n <= 40, u16 n <= 10532, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 83 terms through n = 9609 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

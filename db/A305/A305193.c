@@ -8,9 +8,10 @@
  *            generating all multiplicative partitions of n and testing
  *            connectivity of the graph G(S) built from prime divisibility of
  *            the factors
- * Range:     u8 n <= 5183, u16 n <= 9558, u32 n <= 9558, u64 n <= 9558,
- *            u128 n <= 9558, big any n
- * Helpers:   factor_u64, find_root, is_connected
+ * Range:     u8 n <= 5183, u16 n <= 20736, u32 n <= 20736, u64 n <= 20736,
+ *            u128 n <= 20736, big any n
+ * Validated: standard, pass, 121 terms through n = 9558 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,52 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/find_root.h"
-#include "../utils/is_connected.h"
+#include "../utils/mem.h"
+
+/* DSU find with path compression */
+static size_t find_root(size_t *p, size_t i)
+{
+    while (p[i] != i) {
+        p[i] = p[p[i]];
+        i = p[i];
+    }
+    return i;
+}
+
+/* test whether the factor multiset is connected */
+static bool is_connected(const uint64_t *f,
+                         size_t len,
+                         const uint64_t *primes,
+                         size_t pcnt)
+{
+    if (len == 0) return false;        /* empty factor set never occurs */
+    size_t parent[32];
+    uint32_t mask[32];
+
+    for (size_t i = 0; i < len; ++i) {
+        parent[i] = i;
+        uint32_t m = 0;
+        for (size_t j = 0; j < pcnt; ++j) {
+            if (f[i] % primes[j] == 0) m |= (1u << j);
+        }
+        mask[i] = m;
+    }
+
+    for (size_t i = 0; i < len; ++i) {
+        for (size_t j = i + 1; j < len; ++j) {
+            if (mask[i] & mask[j]) {
+                size_t ri = find_root(parent, i);
+                size_t rj = find_root(parent, j);
+                if (ri != rj) parent[rj] = ri;
+            }
+        }
+    }
+
+    size_t root0 = find_root(parent, 0);
+    for (size_t i = 1; i < len; ++i)
+        if (find_root(parent, i) != root0) return false;
+    return true;
+}
 
 /* cache of already computed results */
 static seq_t *cache = NULL;
@@ -32,7 +77,7 @@ static void ensure_cache_capacity(idx_t n)
 {
     if (n >= cache_cap) {
         idx_t new_cap = n + 1;
-        cache  = (seq_t *)realloc(cache,  new_cap * sizeof(seq_t));
+        cache  = mem_resize(seq_t, cache, new_cap);
         cached = (unsigned char *)realloc(cached, new_cap * sizeof(unsigned char));
         for (idx_t i = cache_cap; i < new_cap; ++i) cached[i] = 0;
         cache_cap = new_cap;

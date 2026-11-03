@@ -7,6 +7,7 @@
  * Formula:   a(n) = Prime(17*n) (offset 1)
  * Range:     u8 n <= 3, u16 n <= 384, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 60 terms through n = 8783 (2026-11-01)
  * Helpers:   sieve_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,10 @@
 
 #include <stddef.h>
 #include <math.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/sieve_primes.h"
 
 static idx_t *prime_cache = NULL;   /* cached primes, 0‑indexed */

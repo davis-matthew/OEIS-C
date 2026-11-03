@@ -10,12 +10,14 @@
  *            a(3)=120, a(4)=304, a(5)=600, a(6)=1056, a(7)=1708, a(8)=2560)
  * Range:     u8 n <= 3, u16 n <= 23, u32 n <= 200, u64 n <= 200,
  *            u128 n <= 200, big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *table = NULL;   /* cache of computed terms, 1‑based */
 static idx_t  computed = 0;   /* highest n for which table[n] is valid */
@@ -25,7 +27,7 @@ static void init_cache(idx_t n)
 {
     idx_t need = (n > 8 ? n : 8) + 1;               /* +1 for unused 0 slot */
     if (table == NULL) {
-        table = (seq_t *)malloc(need * sizeof(seq_t));
+        table = mem_new(seq_t, need);
         if (table == NULL) abort();
 
         /* seed the first eight terms */
@@ -39,7 +41,7 @@ static void init_cache(idx_t n)
         table[8] = 2560;
         computed = 8;
     } else if (need > computed + 1) {
-        seq_t *newtab = (seq_t *)realloc(table, need * sizeof(seq_t));
+        seq_t *newtab = mem_resize(seq_t, table, need);
         if (newtab == NULL) abort();
         table = newtab;
         /* keep already known terms; computed stays unchanged */

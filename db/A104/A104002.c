@@ -11,12 +11,15 @@
  *            reads the triangle T(r,k) = (r-k+1)*k^(r-k) in row-major order
  * Range:     u8 n <= 24, u16 n <= 59, u32 n <= 142, u64 n <= 386,
  *            u128 n <= 1091, big any n
- * Helpers:   int_sqrt_idx
+ * Validated: standard, pass, 75 terms through n = 9847 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/int_sqrt_idx.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/isqrt.h"
 
 /* Fast exponentiation for seq_t values. */
 static seq_t pow_seq(seq_t base, idx_t exp)
@@ -41,7 +44,7 @@ seq_t a(idx_t n)
     idx_t m = n - 2;
 
     /* find row r: smallest r with r(r+1)/2 > m */
-    idx_t tmp = int_sqrt_idx(8 * m + 1);     /* floor(sqrt(8m+1)) */
+    idx_t tmp = isqrt(8 * m + 1);     /* floor(sqrt(8m+1)) */
     idx_t r   = (tmp + 1) / 2;               /* ceil((sqrt(8m+1)+1)/2) */
 
     /* column k (1‑based) */

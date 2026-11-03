@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 1049, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   isPrime, next_prime
+ * Validated: standard, pass, 72 terms through n = 1850 (2026-11-03)
+ * Helpers:   is_prime, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/isPrime.h"
+#include "../utils/is_prime.h"
 #include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 /* Return the n‑th term (1‑based) of A074781 */
 seq_t a(idx_t n)
@@ -46,11 +48,11 @@ seq_t a(idx_t n)
         while ((odd & 1ULL) == 0ULL) odd >>= 1;
 
         /* Condition: odd part is 1 (p‑1 is a power of 2) or odd part is prime */
-        if (odd == 1ULL || isPrime((idx_t)odd)) {
+        if (odd == 1ULL || is_prime((idx_t)odd)) {
             /* Grow cache if necessary */
             if (cache_len == cache_cap) {
                 cache_cap = cache_cap ? cache_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                 if (!tmp) { /* Allocation failure – terminate abruptly */
                     abort();
                 }

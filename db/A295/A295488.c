@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 7, u32 n <= 7, u64 n <= 7, u128 n <= 7,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 7 terms through n = 7 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 #define MAX_N 10000    /* safe limit > 5408, all values of the sequence lie below this */
 
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
 
         if (cnt > 0) {
             /* allocate array for terms */
-            terms = (seq_t *)malloc(cnt * sizeof(seq_t));
+            terms = mem_new(seq_t, cnt);
             if (!terms) return 0; /* allocation failure – return 0 */
             size_t pos = 0;
             for (m = 1; m <= MAX_N; ++m) {

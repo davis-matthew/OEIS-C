@@ -9,7 +9,8 @@
  *            the same nonzero number of 2's and 5's
  * Range:     u8 n <= 12, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Count all decimal digits of x into cnt[0..9].  The count may
    exceed 255, but for the purposes of this sequence only the values
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
     if (!cache)
     {
         cache_cap = 64;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* Generate terms until we have at least n elements. */
@@ -75,7 +77,7 @@ seq_t a(idx_t n)
         if (cache_len >= cache_cap)
         {
             size_t new_cap = cache_cap * 2;
-            seq_t *new_buf = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *new_buf = mem_resize(seq_t, cache, new_cap);
             if (!new_buf)   /* allocation failure: abort */
                 abort();
             cache = new_buf;

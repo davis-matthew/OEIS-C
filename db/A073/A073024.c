@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   primes p such that p-1 has a prime factor q > p^(2/3)
- * Range:     u8 none, u16 n <= 10, u32 n <= 993, u64 n <= 9586,
- *            u128 n <= 9586, big any n
- * Helpers:   floor_cube_root
+ * Range:     u8 none, u16 n <= 10, u32 n <= 993, u64 n <= 27449,
+ *            u128 n <= 27449, big any n
+ * Validated: standard, pass, 70 terms through n = 9586 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,27 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/floor_cube_root.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor cube root by binary search */
+static inline seq_t floor_cube_root(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    /* raise hi until hi^3 > x */
+    while (ipow_i32(hi, 3) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid3 = ipow_i32(mid, 3);
+        if (mid3 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 static idx_t sieve_limit = 0;
 static uint32_t *spf = NULL;
@@ -115,8 +136,7 @@ seq_t a(idx_t n)
             if (max_factor > thr) {
                 if (found_cnt == found_cap) {
                     found_cap = found_cap ? found_cap * 2 : 4;
-                    found = (seq_t *)realloc(found,
-                                             found_cap * sizeof(seq_t));
+                    found = mem_resize(seq_t, found, found_cap);
                 }
                 found[found_cnt++] = (seq_t)p;
             }

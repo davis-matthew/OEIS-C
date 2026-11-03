@@ -9,12 +9,14 @@
  *            if all binomial coefficients on that row are squarefree
  * Range:     u8 n <= 12, u16 n <= 22, u32 n <= 46, u64 n <= 142,
  *            u128 n <= 670, big any n
+ * Validated: standard, pass, 82 terms through n = 9779 (2026-11-01)
  * Helpers:   is_squarefree
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/is_squarefree.h"
 
 seq_t a(idx_t n)

@@ -8,7 +8,8 @@
  * Formula:   a(n) satisfies the recurrence
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 /*   (t^26 + 2t^25 + … + 2t + 1) / (703t^26 – 37t^25 – … – 37t + 1)   */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache for memoization */
@@ -31,7 +33,7 @@ seq_t a(idx_t n) {
     /* init cache with a(0) = 1 */
     if (cache_len == 0) {
         cache_capacity = 1;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_capacity);
+        cache = mem_new(seq_t, cache_capacity);
         cache[0] = (seq_t)1;
         cache_len = 1;
     }
@@ -41,7 +43,7 @@ seq_t a(idx_t n) {
         size_t new_len = (size_t)n + 1;
         if (new_len > cache_capacity) {
             cache_capacity = new_len;
-            cache = (seq_t *)realloc(cache, cache_capacity * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_capacity);
         }
 
         for (idx_t m = cache_len; m <= n; ++m) {

@@ -12,13 +12,68 @@
  *            +36*a(n-7)-9*a(n-8)+10*a(n-9)-a(n-10)+a(n-11)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 31, u128 n <= 63,
  *            big any n
- * Helpers:   compute_initial_terms
+ * Validated: standard, pass, 39 terms through n = 197 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/compute_initial_terms.h"
+
+/* compute the first 11 terms by dynamic programming */
+static void compute_initial_terms(seq_t *out)
+{
+    const int D = 6;               /* values 0..5 */
+    seq_t dp[D][D], ndp[D][D];
+    int i, j;
+
+    out[0] = (seq_t)1;            /* a(1) */
+
+    for (int len = 2; len <= 11; ++len) {
+        /* initial pairs for length=2 with endpoint condition */
+        for (i = 0; i < D; ++i)
+            for (j = 0; j < D; ++j)
+                dp[i][j] = 0;
+        for (i = 0; i < D; ++i) {
+            for (j = 0; j < D; ++j) {
+                if (i != 0 && i > j) continue;   /* a1 <= a2 unless 0 */
+                dp[i][j] += (seq_t)1;
+            }
+        }
+
+        /* extend to desired length */
+        for (int pos = 3; pos <= len; ++pos) {
+            for (i = 0; i < D; ++i)
+                for (j = 0; j < D; ++j)
+                    ndp[i][j] = 0;
+
+            for (int prevprev = 0; prevprev < D; ++prevprev) {
+                for (int prev = 0; prev < D; ++prev) {
+                    seq_t cnt = dp[prevprev][prev];
+                    if (cnt == 0) continue;
+                    for (int cur = 0; cur < D; ++cur) {
+                        if (prev != 0 && prev > prevprev && prev > cur) continue;
+                        ndp[prev][cur] += cnt;
+                    }
+                }
+            }
+
+            for (i = 0; i < D; ++i)
+                for (j = 0; j < D; ++j)
+                    dp[i][j] = ndp[i][j];
+        }
+
+        /* final endpoint check */
+        seq_t sum = 0;
+        for (int prevprev = 0; prevprev < D; ++prevprev) {
+            for (int prev = 0; prev < D; ++prev) {
+                if (prev != 0 && prev > prevprev) continue;
+                sum += dp[prevprev][prev];
+            }
+        }
+        out[len - 1] = sum;
+    }
+}
 
 seq_t a(idx_t n)
 {

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   mod_pow2_exp
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,27 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/mod_pow2_exp.h"
+
+/* 2^exp mod mod, where exp is at most the current index k-2
+   and mod is a small positive number (the current k).  The
+   exponent is passed as idx_t and the modulus as seq_t. */
+static inline seq_t mod_pow2_exp(idx_t exp, seq_t mod)
+{
+    if (mod == (seq_t)1)
+        return (seq_t)0;                   /* mod 1 → 0 */
+
+    seq_t result = ((seq_t)1) % mod;
+    seq_t base   = ((seq_t)2) % mod;
+
+    while (exp)
+    {
+        if (exp & (idx_t)1U)
+            result = (result * base) % mod;
+        base = (base * base) % mod;
+        exp >>= 1;
+    }
+    return result;
+}
 
 /* Global state for memoization (keeps the sequence state between calls) */
 static seq_t prev2 = (seq_t)1;   /* b(1) */

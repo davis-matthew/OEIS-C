@@ -9,7 +9,8 @@
  *            decreasing first quotients
  * Range:     u8 n <= 41, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   hash_keys
+ * Validated: partial, pass, 60 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,15 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/hash_keys.h"
+#include "../utils/mem.h"
+
+/* Simple 64‑bit mix – works for the 64‑bit idx_t */
+static inline idx_t hash_keys(idx_t a, idx_t b, idx_t c) {
+    uint64_t h = a;
+    h = h * 1000003u + b;
+    h = h * 1000033u + c;
+    return (idx_t)h;
+}
 
 /* ---- Simple hash map for memoisation of (rem,prev,curr) -> seq_t -------- */
 
@@ -35,7 +44,7 @@ static size_t map_size = 0;
 /* Initialise the hash table */
 static void init_map(void) {
     if (map_entries != NULL) return;
-    map_entries = (MapEntry *)malloc(MAP_CAP * sizeof(MapEntry));
+    map_entries = mem_new(MapEntry, MAP_CAP);
     for (size_t i = 0; i < MAP_CAP; ++i) map_entries[i].rem = EMPTY_KEY;
 }
 

@@ -7,7 +7,8 @@
  * Formula:   a(n) = n! * [coeff. of x^n in tan(x)*cosh(log(1+x))]
  * Range:     i8 n <= 5, i16 n <= 8, i32 n <= 12, i64 n <= 20, i128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
    or an arbitrary-precision integer type provided by the build. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;
 static seq_t *b_cache = NULL;
@@ -35,7 +37,7 @@ static void ensure_cache(idx_t n)
 {
     if (b_size <= n) {
         idx_t new_size = n + 1;
-        seq_t *new_b = (seq_t *)realloc(b_cache, new_size * sizeof(seq_t));
+        seq_t *new_b = mem_resize(seq_t, b_cache, new_size);
         if (!new_b) exit(1);
         b_cache = new_b;
         /* initialize new entries */
@@ -61,7 +63,7 @@ static void ensure_cache(idx_t n)
     }
     if (a_size <= n) {
         idx_t new_size = n + 1;
-        seq_t *new_a = (seq_t *)realloc(a_cache, new_size * sizeof(seq_t));
+        seq_t *new_a = mem_resize(seq_t, a_cache, new_size);
         if (!new_a) exit(1);
         a_cache = new_a;
         /* initialize new entries */

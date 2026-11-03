@@ -11,7 +11,8 @@
  *            sums until the required n is reached
  * Range:     u8 n <= 32, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
         if (size >= cap) {
             size_t newcap = (cap == 0) ? 16 : cap * 2;
             uint64_t *ncomp = (uint64_t *)realloc(comp, newcap * sizeof(uint64_t));
-            seq_t    *ncum  = (seq_t     *)realloc(cum,  newcap * sizeof(seq_t));
+            seq_t    *ncum  = mem_resize(seq_t, cum, newcap);
             if (!ncomp || !ncum) abort();
             comp = ncomp;
             cum  = ncum;

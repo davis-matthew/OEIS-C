@@ -10,12 +10,14 @@
  *            a(9)=13, a(10)=15, a(11)=16, a(12)=18, a(13)=19, a(14)=21
  * Range:     u8 n <= 30, u16 n <= 30, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_cap = 0;
@@ -26,7 +28,7 @@ static void ensure_cache_size(idx_t need)
     size_t new_cap = (size_t)need + 1;      /* include index 0 */
     if (new_cap > cache_cap)
     {
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();
         for (size_t i = cache_cap; i < new_cap; ++i)
             tmp[i] = 0;                     /* unused entries start at 0 */

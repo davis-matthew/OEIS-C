@@ -7,6 +7,7 @@
  * Formula:   a(n) = p^2*(p^2+2*p-1)/2, where p = prime(n)
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 62, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 51 terms through n = 816 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 #include <stddef.h>
 #include <math.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 
 /* Cache for the first primes needed by the sequence. */

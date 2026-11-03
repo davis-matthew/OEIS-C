@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 40, u128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
    (valid for n ≥ 9) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static inline seq_t mul_small(seq_t x, unsigned int m)
 {
@@ -43,14 +45,14 @@ static void ensure_cache(idx_t n)
     idx_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap <= n)
         new_cap <<= 1;
-    seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (!new_arr)
         abort();
     if (cache)
     {
         for (idx_t i = 0; i < cache_cap; ++i)
             new_arr[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
     cache = new_arr;
     cache_cap = new_cap;

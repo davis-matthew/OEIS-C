@@ -10,14 +10,15 @@
  *            divisors exist
  * Range:     u8 n <= 23, u16 n <= 59, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   _prime_uint32
+ * Validated: partial, pass, 72 terms through n = 71 (2026-11-01)
+ * Helpers:   is_prime_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/_prime_uint32.h"
+#include "../utils/is_prime_u32.h"
 
 seq_t a(idx_t n)
 {
@@ -31,13 +32,13 @@ seq_t a(idx_t n)
 
         /* d is a proper divisor >1 < n */
         uint32_t val = (uint32_t)(d + 1);
-        if (_prime_uint32(val))
+        if (is_prime_u32(val))
             prod *= (seq_t)val;
 
         idx_t other = n / d;
         if (other != d) {                 /* avoid double‑counting a square root */
             val = (uint32_t)(other + 1);
-            if (_prime_uint32(val))
+            if (is_prime_u32(val))
                 prod *= (seq_t)val;
         }
     }

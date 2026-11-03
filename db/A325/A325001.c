@@ -8,15 +8,16 @@
  * Keywords:  nonn, tabl
  * Formula:   a(n) = binom(j+1,i+1) - binom(j-i+1,i+1) where j =
  *            ceil((sqrt(8n+1)-1)/2), i = n - j(j-1)/2
- * Range:     u8 n <= 23, u16 n <= 158, u32 n <= 575, u64 n <= 1275,
+ * Range:     u8 n <= 47, u16 n <= 159, u32 n <= 576, u64 n <= 1275,
  *            u128 n <= 1275, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 82 terms through n = 1196 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -30,8 +31,8 @@ seq_t a(idx_t n)
     idx_t i = n - ((j - 1) * j) / 2;  /* 1 <= i <= j */
 
     /* A(i,k) with k = j - i + 1 is binom(j+1,i+1) - binom(j-i+1,i+1) */
-    seq_t term1 = binom(j + 1, i + 1);
-    seq_t term2 = binom(j - i + 1, i + 1);
+    seq_t term1 = binomial(j + 1, i + 1);
+    seq_t term2 = binomial(j - i + 1, i + 1);
 
     return term1 - term2;
 }

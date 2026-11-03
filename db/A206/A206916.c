@@ -9,14 +9,25 @@
  *            palindrome ≥ n)
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   reverse_bits_uint64
+ * Validated: partial, pass, 71 terms through n = 70 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/reverse_bits_uint64.h"
+
+static inline uint64_t reverse_bits_uint64(uint64_t x, unsigned bits)
+{
+    uint64_t r = 0;
+    while (bits--)
+    {
+        r = (r << 1) | (x & 1ULL);
+        x >>= 1;
+    }
+    return r;
+}
 
 seq_t a(idx_t n)
 {

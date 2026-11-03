@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 18, u32 n <= 18, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 18 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,15 +33,15 @@ seq_t a(idx_t n)
         size_t small_cap = 16, large_cap = 16;
         size_t small_cnt = 0, large_cnt = 0;
 
-        seq_t *small = (seq_t *)malloc(small_cap * sizeof(seq_t));
-        seq_t *large = (seq_t *)malloc(large_cap * sizeof(seq_t));
+        seq_t *small = mem_new(seq_t, small_cap);
+        seq_t *large = mem_new(seq_t, large_cap);
 
         for (uint64_t i = 1; i * i <= base; ++i) {
             if (base % i == 0) {
                 /* add i to the small (ascending) list */
                 if (small_cnt >= small_cap) {
                     small_cap *= 2;
-                    small = (seq_t *)realloc(small, small_cap * sizeof(seq_t));
+                    small = mem_resize(seq_t, small, small_cap);
                 }
                 small[small_cnt++] = (seq_t)i;
 
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
                     /* add j to the large (descending) list */
                     if (large_cnt >= large_cap) {
                         large_cap *= 2;
-                        large = (seq_t *)realloc(large, large_cap * sizeof(seq_t));
+                        large = mem_resize(seq_t, large, large_cap);
                     }
                     large[large_cnt++] = (seq_t)j;
                 }
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
 
         /* total number of divisors */
         divc = small_cnt + large_cnt;
-        divs = (seq_t *)malloc(divc * sizeof(seq_t));
+        divs = mem_new(seq_t, divc);
 
         /* copy small (already ascending) */
         for (size_t i = 0; i < small_cnt; ++i)
@@ -67,8 +69,8 @@ seq_t a(idx_t n)
         for (size_t i = 0; i < large_cnt; ++i)
             divs[small_cnt + i] = large[large_cnt - 1 - i];
 
-        free(small);
-        free(large);
+        mem_free(small);
+        mem_free(large);
     }
 
     if (n == 0 || n > divc)

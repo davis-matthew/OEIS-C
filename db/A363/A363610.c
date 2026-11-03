@@ -7,12 +7,24 @@
  * Formula:   a(n) = Sum_{d|n} binomial(d-1,2)
  * Range:     u8 n <= 23, u16 n <= 299, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   binom2minus
+ * Validated: standard, pass, 72 terms through n = 9061 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom2minus.h"
+static inline seq_t binom2minus(idx_t d) {
+    if (d < 3) return 0;
+    idx_t a = d - 1;
+    idx_t b = d - 2;
+    /* divide by 2 early to avoid overflow */
+    if ((a & 1) == 0) {
+        a /= 2;
+    } else {
+        b /= 2;
+    }
+    return (seq_t)a * (seq_t)b;
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;

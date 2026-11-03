@@ -8,15 +8,18 @@
  *            divisors of d
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 23, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 /* Recursive helper to enumerate all divisors of n and accumulate the sum. */
 static void rec_sum(size_t idx,
@@ -27,7 +30,7 @@ static void rec_sum(size_t idx,
     if (idx == cnt) {
         /* For divisor curd, tau(curd) = curtau.
            Add curd^(curtau - 1) to the sum. */
-        seq_t term = big_pow(curd, curtau - 1);
+        seq_t term = ipow(curd, curtau - 1);
         *sum += term;
         return;
     }

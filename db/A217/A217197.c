@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 667, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _floor_isqrt_u64
+ * Validated: standard, pass, 64 terms through n = 946 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
 
 static uint64_t *primes   = NULL;   /* array of discovered primes   */
 static size_t   primes_n = 0;       /* number of primes             */
@@ -64,7 +65,7 @@ static void add_term(uint64_t v)
 static bool is_prime(uint64_t n)
 {
     if (n < 2) return false;
-    uint64_t r = _floor_isqrt_u64(n);
+    uint64_t r = isqrt(n);
     for (size_t i = 0; i < primes_n && primes[i] <= r; ++i) {
         if (n % primes[i] == 0) return false;
     }
@@ -75,12 +76,12 @@ static bool is_prime(uint64_t n)
 static bool is_semiprime(uint64_t x)
 {
     if (x < 2) return false;
-    uint64_t r = _floor_isqrt_u64(x);
+    uint64_t r = isqrt(x);
     for (size_t i = 0; i < primes_n && primes[i] <= r; ++i) {
         uint64_t p = primes[i];
         if (x % p == 0) {
             uint64_t q = x / p;
-            uint64_t r2 = _floor_isqrt_u64(q);
+            uint64_t r2 = isqrt(q);
             bool qprime = true;
             for (size_t j = 0; j < primes_n && primes[j] <= r2; ++j) {
                 if (q % primes[j] == 0) { qprime = false; break; }

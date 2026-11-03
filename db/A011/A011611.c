@@ -9,12 +9,17 @@
  *            n ≥ 139
  * Range:     i8 n <= 3, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 97 terms through n = 9458 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +29,7 @@ seq_t a(idx_t n)
         return (seq_t)0;
 
     /* Compute r^69 mod 139 in a few multiplications. */
-    seq_t v = mod_pow(r, 69ULL, (seq_t)139);
+    seq_t v = powmod(r, 69ULL, (seq_t)139);
 
     /* The result v is either 1 or 138 (= -1 modulo 139). */
     if (v == (seq_t)1)

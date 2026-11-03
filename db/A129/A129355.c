@@ -8,7 +8,8 @@
  * Formula:   a(n) = coefficient of x^n in ∏_{m≥1} (1-(m+1)x^m + m x^(m+1))
  * Range:     i8 n <= 10, i16 n <= 27, i32 n <= 40, i64 n <= 40, i128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,12 +19,13 @@
    overflows handled automatically by the underlying type. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External linkage required by the judge. */
 seq_t a(idx_t n)
 {
     /* Allocate coefficient array for degrees 0..n. */
-    seq_t *coeff = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *coeff = mem_new(seq_t, (size_t)(n + 1));
     if (!coeff)
         return 0;                    /* Allocation failure → 0 (unlikely) */
 
@@ -50,6 +52,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = coeff[n];
-    free(coeff);
+    mem_free(coeff);
     return result;
 }

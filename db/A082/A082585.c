@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 14, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    (equivalent to a(n)=ceil(r5*a(n-1)) where r5=(5+√29)/2) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache for memoisation */
@@ -28,7 +30,7 @@ seq_t a(idx_t n) {
     /* initialise cache and base values on first call */
     if (cache_len == 0) {
         cache_len = 6; /* at least indices 1..5 needed on first expansion */
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         if (!cache) exit(EXIT_FAILURE);
         /* base values (indices 1..3) */
         cache[1] = (seq_t)1;
@@ -43,7 +45,7 @@ seq_t a(idx_t n) {
     /* extend cache to hold up to n */
     if (n + 1 > cache_len) {          /* +1 to keep 1-indexed array */
         idx_t new_len = (n + 1);
-        seq_t *new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_len);
         if (!new_cache) exit(EXIT_FAILURE);
         cache = new_cache;
         cache_len = new_len;

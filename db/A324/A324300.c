@@ -11,14 +11,23 @@
  *            The inner sum yields b(m,k); a(n) is the sum...
  * Range:     i8 n <= 19, i16 n <= 58, i32 n <= 193, i64 n <= 723,
  *            i128 n <= 2701, big any n
- * Helpers:   binom, seq_mul
+ * Validated: standard, pass, 137 terms through n = 8599 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/binom.h"
-#include "../utils/seq_mul.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/binomial.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -49,8 +58,8 @@ seq_t a(idx_t n)
         seq_t inner = 0;
 
         for (idx_t a = 0; a <= min_a; ++a) {
-            seq_t c1 = binom(m, a);
-            seq_t c2 = binom(m + k - a, k - a);
+            seq_t c1 = binomial(m, a);
+            seq_t c2 = binomial(m + k - a, k - a);
             seq_t term = seq_mul(c1, c2);
 
             idx_t exp = (k - a) + (m + k - 2 * a) / 2;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 32, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,8 @@
 /* Sequence A364034: a(n) = Sum_{d|n, d odd} 2^((d-1)/2) */
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 /* Recursively enumerate all odd divisors of the odd part of n.
    primes[] and exps[] store the odd prime factors and their exponents.
@@ -29,7 +31,7 @@ static void dfs_divisors(const uint64_t primes[], const uint8_t exps[],
 {
     if (pos == pc) {
         seq_t exp = ((seq_t)cur - 1) >> 1;          /* (cur-1)/2 */
-        seq_t term = big_pow((seq_t)2, exp);        /* 2^exp */
+        seq_t term = ipow((seq_t)2, exp);        /* 2^exp */
         *sum_out += term;
         return;
     }

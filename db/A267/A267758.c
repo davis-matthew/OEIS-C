@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 107, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   isPrimeGeneric
+ * Validated: standard, pass, 82 terms through n = 910 (2026-11-03)
+ * Helpers:   is_prime_u128, is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,30 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/isPrimeGeneric.h"
+#include <limits.h>
+#include "../utils/is_prime_u128.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+/* -----------------  Generic primality test ------------------------ */
+static bool isPrimeGeneric(seq_t n)
+{
+    /* all seq_t are unsigned; use the smallest type that fits */
+    if ((seq_t)(ULLONG_MAX) >= n) {
+        return is_prime_u64((uint64_t)n);
+    }
+#if defined(__SIZEOF_INT128__)
+    return is_prime_u128((__uint128_t)n);
+#else
+    /* fallback: if seq_t > 64‑bit but no 128‑bit support,
+       order the test as simple trial division up to sqrt */
+    seq_t limit = 0;
+    for (seq_t i = 2; i*i <= n; ++i) {
+        if (n % i == 0) return false;
+    }
+    return true;
+#endif
+}
 
 /* --------------------   hash‑set for 64‑bit values -------------------- */
 static size_t used_hash_cap   = 16;   /* always a power of two   */
@@ -94,15 +118,14 @@ static size_t used_big_len  = 0;
 
 static void used_big_init(void)
 {
-    used_big_vals = (seq_t*)calloc(used_big_cap, sizeof(seq_t));
+    used_big_vals = mem_new(seq_t, used_big_cap);
 }
 
 static void used_big_insert(seq_t v)
 {
     if (used_big_len >= used_big_cap) {
         used_big_cap *= 2;
-        used_big_vals = (seq_t*)realloc(used_big_vals,
-                        used_big_cap * sizeof(seq_t));
+        used_big_vals = mem_resize(seq_t, used_big_vals, used_big_cap);
     }
     used_big_vals[used_big_len++] = v;
 }
@@ -146,7 +169,7 @@ seq_t a(idx_t n)
     /* one‑time initialisation */
     if (seq == NULL) {
         seq_cap = 16;
-        seq = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         /* a(0)=0, a(1)=1 */
         seq[0] = 0;
         seq[1] = 1;
@@ -195,7 +218,7 @@ seq_t a(idx_t n)
             /* store forced value */
             if (seq_len >= seq_cap) {
                 seq_cap *= 2;
-                seq = (seq_t*)realloc(seq, seq_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, seq_cap);
             }
             seq[seq_len++] = forced;
             used_insert(forced);
@@ -230,7 +253,7 @@ seq_t a(idx_t n)
         /* store chosen candidate */
         if (seq_len >= seq_cap) {
             seq_cap *= 2;
-            seq = (seq_t*)realloc(seq, seq_cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, seq_cap);
         }
         seq[seq_len++] = candidate;
         used_insert(candidate);

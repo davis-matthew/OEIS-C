@@ -11,7 +11,8 @@
  *            a(n) = E_n + n*E_{n-1} for n≥1, and a(0)=1. * The r...
  * Range:     i8 n <= 5, i16 n <= 9, i32 n <= 14, i64 n <= 23, i128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 479 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #ifndef SEQ_TYPE_DEFINED
 /* seq_t and idx_t are supplied by the build environment. */
 #endif
+#include "../utils/mem.h"
 
 /* Dynamic storage for Euler numbers E_n  (0 ≤ n ≤ cached_n). */
 static seq_t *euler = NULL;   /* array of EulerE[0..] */
@@ -38,7 +40,7 @@ static void ensure_euler(idx_t n)
     if (required > euler_cap) {
         size_t newcap = euler_cap ? euler_cap * 2 : 16;
         if (newcap < required) newcap = required;
-        euler = (seq_t *)realloc(euler, newcap * sizeof(seq_t));
+        euler = mem_resize(seq_t, euler, newcap);
         euler_cap = newcap;
     }
 

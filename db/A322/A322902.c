@@ -9,7 +9,8 @@
  *            a(1) = 1, a(2) = 2, a(3) = 3, a(4) = 4, a(5) = 5, a(6) = 7, …
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ----------  Configuration ---------- */
 #define SIEVE_LIMIT_INITIAL 3000000ULL   /* should cover 10 000th term with high probability */
@@ -192,7 +194,7 @@ static void ensure_cache(size_t n)
         if (is_good(last_tested)) {
             if (cache_len == cache_cap) {
                 cache_cap = (cache_cap ? cache_cap * 2 : 32);
-                term_cache = (seq_t *)realloc(term_cache, cache_cap * sizeof(seq_t));
+                term_cache = mem_resize(seq_t, term_cache, cache_cap);
             }
             term_cache[cache_len++] = (seq_t)last_tested;
         }

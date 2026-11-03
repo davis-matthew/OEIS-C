@@ -11,15 +11,31 @@
  *            x^n in Sum_{d>0} phi(d)*log((1-x^d)/(1-...
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 26, u64 n <= 50, u128 n <= 96,
  *            big any n
- * Helpers:   phi_ull, rat_coef
+ * Validated: standard, pass, 49 terms through n = 190 (2026-11-01)
+ * Helpers:   totient_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/phi_ull.h"
-#include "../utils/rat_coef.h"
+#include <stdint.h>
+#include "../utils/totient_u64.h"
+
+static seq_t rat_coef(idx_t n) {
+    seq_t r0 = (seq_t)2, r1 = (seq_t)2, r2 = (seq_t)4;
+    idx_t j;
+    if (n == 0) return r0;
+    if (n == 1) return r1;
+    if (n == 2) return r2;
+    for (j = 3; j <= n; j++) {
+        seq_t t = r2 * (seq_t)2;
+        if (j == 3) t += (seq_t)1;
+        t -= r0;
+        r0 = r1; r1 = r2; r2 = t;
+    }
+    return r2;
+}
 
 seq_t a(idx_t n) {
     long long m;
@@ -53,7 +69,7 @@ seq_t a(idx_t n) {
             cq = nq; cr = nr;
         }
         if (n % k == 0) {
-            long long ph = (long long)phi_ull((unsigned long long)(n / k));
+            long long ph = (long long)totient_u64((unsigned long long)(n / k));
             Q += cq * (seq_t)ph;
             R += ph * (cr - 1);
         }

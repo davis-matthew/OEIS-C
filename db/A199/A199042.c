@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 5, i16 n <= 7, i32 n <= 12, i64 n <= 19, i128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 409 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
  * (derived from (1+2x+2x²)f' = f for f(x)=exp(arctan(1+2x)-π/4))
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static state for memoisation */
@@ -27,7 +29,7 @@ seq_t a(idx_t n) {
     /* initialise the first two terms if needed */
     if (size == 0) {
         size = 2;
-        A = (seq_t*)malloc(2 * sizeof(seq_t));
+        A = mem_new(seq_t, 2);
         if (!A) return (seq_t)0;  /* fallback on allocation failure */
         A[0] = (seq_t)1;
         A[1] = (seq_t)1;
@@ -35,7 +37,7 @@ seq_t a(idx_t n) {
 
     /* extend array until it contains a(n) */
     if (n >= size) {
-        A = (seq_t*)realloc(A, (n + 1) * sizeof(seq_t));
+        A = mem_resize(seq_t, A, (n + 1));
         if (!A) return (seq_t)0;  /* fallback on allocation failure */
         for (idx_t i = size; i <= n; ++i) {
             /* recurrence applies only for i≥2 */

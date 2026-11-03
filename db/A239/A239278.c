@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = smallest k>1 such that n*(n+1)*...*(n+k-1) /
  *            (n+(n+1)+...+(n+k-1)) is an integer
- * Range:     u8 n <= 9012, u16 n <= 9012, u32 n <= 9012, u64 n <= 9012,
- *            u128 n <= 9012, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 116 terms through n = 9012 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

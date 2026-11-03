@@ -10,15 +10,40 @@
  *            c(k)*f(m-k), c(k) = -12*(sigma(k) - 3*sigma(k/3))
  * Range:     i8 n <= 2, i16 n <= 9, i32 n <= 33, i64 n <= 129, i128 n <= 453,
  *            big any n
- * Helpers:   from_i128, seq_is_fixed_width
+ * Validated: standard, pass, 43 terms through n = 904 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_is_fixed_width.h"
-#include "../utils/from_i128.h"
+#include <stdint.h>
+#include <string.h>
+#include "../utils/mem.h"
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
+
+static seq_t from_i128(__int128 v)
+{
+    if (v >= -(__int128)4000000000000000000LL && v <= (__int128)4000000000000000000LL)
+        return (seq_t)(long long)v;
+    {
+        __int128 q = v / ((__int128)1 << 32);
+        long long rem = (long long)(v - q * ((__int128)1 << 32));
+        return from_i128(q) * (seq_t)4294967296LL + (seq_t)rem;
+    }
+}
 
 static idx_t *C = NULL;
 static seq_t *F = NULL;
@@ -50,9 +75,9 @@ static void ensure(idx_t need, bool fixed) {
             G[m] = sum / m;
         }
     } else {
-        seq_t *f = (seq_t *)malloc((size_t)nl * sizeof(seq_t));
+        seq_t *f = mem_new(seq_t, (size_t)nl);
         for (idx_t i = 0; i < len; i++) f[i] = F[i];
-        free(F);
+        mem_free(F);
         F = f;
         if (len == 0) F[0] = 1;
         for (idx_t m = (len ? len : 1); m < nl; m++) {

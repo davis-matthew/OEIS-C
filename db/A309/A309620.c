@@ -9,9 +9,10 @@
  * Formula:   a(1) = 5; for n>1, a(n) = a(n-1) + 2*d if d (the n‑th decimal
  *            digit of the whole sequence) is prime, a(n) = a(n-1) - 1 - d if
  *            d is not prime
- * Range:     i8 n <= 178, i16 n <= 9311, i32 n <= 9311, i64 n <= 9311,
- *            i128 n <= 9311, big any n
- * Helpers:   none
+ * Range:     i8 n <= 178, i16 n <= 65531, i32 n <= 65531, i64 n <= 65531,
+ *            i128 n <= 65531, big any n
+ * Validated: standard, pass, 96 terms through n = 9311 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Global state: memoised terms and the digit stream. */
 static seq_t *seq     = NULL;   /* seq[i] holds a(i+1) */
@@ -36,7 +38,7 @@ static void ensure_seq_cap(size_t need)
     if (need <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap << 1 : 4;
     while (new_cap < need) new_cap <<= 1;
-    seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, new_cap);
     seq_cap = new_cap;
 }
 
@@ -93,7 +95,7 @@ seq_t a(idx_t n)
     /* Initialise storage on first call. */
     if (seq == NULL) {
         seq_cap = 4;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         seq[0] = (seq_t)5;                      /* a(1) */
         seq_len = 1;
 

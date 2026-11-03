@@ -11,12 +11,14 @@
  *            or p > q * T(p,q) = T(p-2,q) + T(p-1,q-1...
  * Range:     u8 n <= 43, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 75 terms through n = 74 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t **tri_rows = NULL;      /* array of pointers to rows 0..R */
 static size_t   tri_cap  = 0;        /* number of allocated rows */
@@ -24,7 +26,7 @@ static size_t   tri_cap  = 0;        /* number of allocated rows */
 static void compute_row(idx_t q)
 {
     size_t i = (size_t)q;
-    seq_t *row = (seq_t*)calloc(i + 1, sizeof(seq_t));
+    seq_t *row = mem_new(seq_t, i + 1);
     /* Row 0 special case: T(0,0)=1 */
     if (i == 0) {
         row[0] = (seq_t)1;

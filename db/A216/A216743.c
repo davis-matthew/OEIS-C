@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 43, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 79 terms through n = 860 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include "../utils/powmod.h"
 
 /* ---- small helper: gcd for uint64_t ---------------------------------- */
 static inline uint64_t gcd_uint64(uint64_t a, uint64_t b)
@@ -65,7 +67,7 @@ static bool no_solution(uint64_t p)
     uint64_t d = gcd_uint64(24ULL, p - 1ULL);
     uint64_t exp = (p - 1ULL) / d;
     uint64_t a = p - 2ULL;                       /* -2 mod p, p>2 */
-    seq_t res = mod_pow((seq_t)a, exp, (seq_t)p);
+    seq_t res = powmod((seq_t)a, exp, (seq_t)p);
     return res != (seq_t)1;
 }
 

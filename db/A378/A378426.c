@@ -7,14 +7,16 @@
  * Keywords:  nonn
  * Formula:   a(n) = (1/(n+1)) * Sum_{k=0..⌊n/2⌋} binomial(n+1,k) *
  *            binomial(n+k+1, n-2k)
- * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 19, u64 n <= 35, u128 n <= 66,
+ * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 19, u64 n <= 35, u128 n <= 66,
  *            big any n
+ * Validated: standard, pass, 44 terms through n = 296 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* Compute a(n) for the OEIS sequence A378426 */

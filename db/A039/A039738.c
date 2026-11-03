@@ -7,7 +7,8 @@
  * Formula:   a(n) = number of primes q<p_n such that p_n mod q == 4
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   sieve_first_n_primes
+ * Validated: partial, pass, 90 terms through n = 90 (2026-11-03)
+ * Helpers:   mem, sieve_first_n_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <string.h>
+#include <math.h>
 #include "../utils/sieve_first_n_primes.h"
+#include "../utils/mem.h"
 
 /* Cache of the first primes needed so far */
 static uint32_t *prime_ints = NULL;   /* array of first primes, 32‑bit */
@@ -37,7 +41,7 @@ ensure_a_capacity(size_t needed)
     while (new_cap < needed)
         new_cap = new_cap * 3 / 2 + 1;   /* grow factor */
 
-    seq_t *tmp = (seq_t *)realloc(a_vals, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_vals, new_cap);
     if (!tmp)
         abort();                /* allocation failure: terminate */
     a_vals = tmp;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   isPrimeGeneric
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   is_prime_u128, is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,31 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/isPrimeGeneric.h"
+#include <stddef.h>
+#include <limits.h>
+#include "../utils/is_prime_u128.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+/* -----------------  Generic primality test ------------------------ */
+static bool isPrimeGeneric(seq_t n)
+{
+    /* all seq_t are unsigned; use the smallest type that fits */
+    if ((seq_t)(ULLONG_MAX) >= n) {
+        return is_prime_u64((uint64_t)n);
+    }
+#if defined(__SIZEOF_INT128__)
+    return is_prime_u128((__uint128_t)n);
+#else
+    /* fallback: if seq_t > 64‑bit but no 128‑bit support,
+       order the test as simple trial division up to sqrt */
+    seq_t limit = 0;
+    for (seq_t i = 2; i*i <= n; ++i) {
+        if (n % i == 0) return false;
+    }
+    return true;
+#endif
+}
 
 /* ---------- cache for discovered primes ---------- */
 static seq_t *prime_cache   = NULL;      /* array of discovered primes   */
@@ -34,7 +59,7 @@ static void ensure_prime_capacity(size_t min_cap) {
     size_t new_cap = (prime_cap < 8) ? 8 : prime_cap * 2;
     while (new_cap < min_cap)
         new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(prime_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, prime_cache, new_cap);
     if (!tmp)
         abort();
     prime_cache = tmp;
@@ -77,7 +102,7 @@ static void expand_cache(idx_t new_limit) {
 
     /* Sort the cache if needed. */
     if (prime_len > 1)
-        qsort(prime_cache, prime_len, sizeof(seq_t), cmp_seq);
+        mem_qsort(prime_cache, prime_len, sizeof(seq_t), cmp_seq);
 
     /* Deduplicate successive equal values. */
     if (prime_len > 1) {

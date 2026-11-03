@@ -9,7 +9,8 @@
  *            >= a(n) + n + 1 c(n) = a(n) + b(n) The function returns c(n)
  * Range:     u8 n <= 48, u16 n <= 1001, u32 n <= 1001, u64 n <= 1001,
  *            u128 n <= 1001, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 990 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /*--- Variable-length bitset for used numbers ---------------------------------*/
 static uint8_t *used_bits = NULL;      /* each byte holds 8 booleans */
@@ -62,7 +64,7 @@ static void ensure_cache_capacity(size_t size)
     if (size <= c_capacity) return;
     size_t new_cap = c_capacity ? c_capacity * 2u : 16u;
     while (new_cap < size) new_cap *= 2u;
-    seq_t *new_cache = (seq_t*)realloc(c_cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, c_cache, new_cap);
     if (!new_cache) abort();             /* out‑of‑memory */
     c_cache     = new_cache;
     c_capacity  = new_cap;

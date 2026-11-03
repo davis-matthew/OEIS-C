@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 13, u32 n <= 34, u64 n <= 79, u128 n <= 170,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 170 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
  *  a(10)=14084, a(11)=23379. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;      /* array holding computed values */
 static idx_t seq_max   = 0;          /* highest n computed (1‑based) */
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
         /* Allocate enough space for the requested n, but at least 13
            entries (index 0 unused). */
         seq_cap = (n > 12 ? n + 1 : 13);
-        seq_cache = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, seq_cap);
         /* Initialize the cache with the 11 known values. */
         seq_cache[0] = 0;                /* unused */
         seq_cache[1] = 0;
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
     /* Resize the cache if the requested n exceeds the current capacity. */
     else if ((idx_t)seq_cap <= n) {
         seq_cap = (size_t)(n + 1);
-        seq_cache = (seq_t *)realloc(seq_cache, seq_cap * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, seq_cap);
     }
 
     /* If we already have the value, return it immediately. */

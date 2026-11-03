@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 13, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* For use by the build system:
  *  typedef  <definition of idx_t>  idx_t;
@@ -48,37 +50,37 @@ ensure_capacity(size_t new_cap)
         return;
 
     /* Allocate new arrays, zero‑initialised. */
-    seq_t *ng  = (seq_t*)calloc(new_cap, sizeof(seq_t));
-    seq_t *n2  = (seq_t*)calloc(new_cap, sizeof(seq_t));
-    seq_t *n3  = (seq_t*)calloc(new_cap, sizeof(seq_t));
-    seq_t *n4  = (seq_t*)calloc(new_cap, sizeof(seq_t));
-    seq_t *n5  = (seq_t*)calloc(new_cap, sizeof(seq_t));
-    seq_t *n6  = (seq_t*)calloc(new_cap, sizeof(seq_t));
+    seq_t *ng  = mem_new(seq_t, new_cap);
+    seq_t *n2  = mem_new(seq_t, new_cap);
+    seq_t *n3  = mem_new(seq_t, new_cap);
+    seq_t *n4  = mem_new(seq_t, new_cap);
+    seq_t *n5  = mem_new(seq_t, new_cap);
+    seq_t *n6  = mem_new(seq_t, new_cap);
 
     /* Copy old data into the new arrays and free the old ones. */
     if (g != NULL) {
-        memcpy(ng, g,  capacity * sizeof(seq_t));
-        free(g);
+        mem_copy(ng, g, capacity * sizeof(seq_t));
+        mem_free(g);
     }
     if (pow2 != NULL) {
-        memcpy(n2, pow2, capacity * sizeof(seq_t));
-        free(pow2);
+        mem_copy(n2, pow2, capacity * sizeof(seq_t));
+        mem_free(pow2);
     }
     if (pow3 != NULL) {
-        memcpy(n3, pow3, capacity * sizeof(seq_t));
-        free(pow3);
+        mem_copy(n3, pow3, capacity * sizeof(seq_t));
+        mem_free(pow3);
     }
     if (pow4 != NULL) {
-        memcpy(n4, pow4, capacity * sizeof(seq_t));
-        free(pow4);
+        mem_copy(n4, pow4, capacity * sizeof(seq_t));
+        mem_free(pow4);
     }
     if (pow5 != NULL) {
-        memcpy(n5, pow5, capacity * sizeof(seq_t));
-        free(pow5);
+        mem_copy(n5, pow5, capacity * sizeof(seq_t));
+        mem_free(pow5);
     }
     if (pow6 != NULL) {
-        memcpy(n6, pow6, capacity * sizeof(seq_t));
-        free(pow6);
+        mem_copy(n6, pow6, capacity * sizeof(seq_t));
+        mem_free(pow6);
     }
 
     g    = ng;

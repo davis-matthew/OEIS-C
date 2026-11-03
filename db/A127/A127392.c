@@ -11,12 +11,14 @@
  *            sequence [-2, 4, -2, 0], multiplied by 2
  * Range:     i8 n <= 4, i16 n <= 14, i32 n <= 38, i64 n <= 38, i128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,8 +26,8 @@ seq_t a(idx_t n)
     if (n == 0) return (seq_t)2;
 
     idx_t N = n;                     /* local copy for array sizes      */
-    seq_t *s = (seq_t*)calloc((size_t)(N + 1), sizeof(seq_t));
-    seq_t *g = (seq_t*)malloc((size_t)(N + 1) * sizeof(seq_t));
+    seq_t *s = mem_new(seq_t, (size_t)(N + 1));
+    seq_t *g = mem_new(seq_t, (size_t)(N + 1));
 
     /* Compute s[m] = ∑_{d|m} d * a_d, where a_d follows the period‑4 pattern:
      *   d≡0 (mod 4) → a_d = 0
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
 
     seq_t result = g[N] * 2;
 
-    free(s);
-    free(g);
+    mem_free(s);
+    mem_free(g);
     return result;
 }

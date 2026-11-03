@@ -13,7 +13,8 @@
  *            downwards, starting with (0,0)
  * Range:     u8 n <= 22, u16 n <= 47, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define NMAX 200   /* sufficient for n up to about 10^7 (diagonals up to ~141) */
 
@@ -33,7 +35,7 @@ static seq_t *_stirling = NULL;   /* array of size NMAX*NMAX */
    the first kind (signless) */
 static void _init_tables(void)
 {
-    _stirling = (seq_t *)malloc(NMAX * NMAX * sizeof(seq_t));
+    _stirling = mem_new(seq_t, NMAX * NMAX);
     for (idx_t i = 0; i < NMAX; ++i)
         for (idx_t j = 0; j < NMAX; ++j)
             _stirling[i * NMAX + j] = 0;

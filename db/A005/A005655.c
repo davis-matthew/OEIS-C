@@ -10,13 +10,16 @@
  *            term = C(2n-1,n) + C(n-1, floor((n-1)/2)); a(0) = 1
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 34, u128 n <= 66,
  *            big any n
- * Helpers:   tot
+ * Validated: standard, pass, 43 terms through n = 190 (2026-11-01)
+ * Helpers:   totient_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/tot.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/totient_u64.h"
 
 static uint64_t gcd_u(uint64_t x, uint64_t y)
 {
@@ -52,7 +55,7 @@ seq_t a(idx_t n)
     s = 0;
     for (d = 1; d <= n; d++) {
         if (n % d == 0) {
-            s += (seq_t)tot(n / d) * bin(2 * d - 1, d);
+            s += (seq_t)totient_u64(n / d) * bin(2 * d - 1, d);
         }
     }
     neck = s / (seq_t)n;

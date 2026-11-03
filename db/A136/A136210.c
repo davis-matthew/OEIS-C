@@ -7,13 +7,15 @@
  * Formula:   a(1)=1, a(2)=3; a(2n-1)=a(2n-2)+a(2n-3); a(2n)=3*a(2n-1)+a(2n-2)
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 29, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first use */
     if (!cache) {
         /* Allocate room for indices 0..2 inclusive (index 0 unused) */
-        cache = (seq_t *)calloc(3, sizeof(seq_t));
+        cache = mem_new(seq_t, 3);
         if (!cache) abort();   /* cannot happen in normal use */
         cache[0] = 0;          /* unused */
         cache[1] = 1;
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     /* Extend the cache if required */
     if (n > cached_max) {
         size_t new_size = (size_t)n + 1;   /* to hold indices 0..n */
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) abort();
         cache = tmp;
 

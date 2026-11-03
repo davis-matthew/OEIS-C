@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=1..n} Fibonacci(floor(n/k))
  * Range:     u8 n <= 13, u16 n <= 24, u32 n <= 47, u64 n <= 93, u128 n <= 186,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 500 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Fibonacci is defined by F(0)=0, F(1)=1, F(m)=F(m-1)+F(m-2). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* handle trivial case */
@@ -23,7 +25,7 @@ seq_t a(idx_t n) {
     }
 
     /* Allocate array for Fibonacci numbers up to F(n) */
-    seq_t *fib = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *fib = mem_new(seq_t, (n + 1));
     if (!fib) {
         /* In a real project we might handle out‑of‑memory more gracefully */
         return 0;
@@ -49,6 +51,6 @@ seq_t a(idx_t n) {
         }
     }
 
-    free(fib);
+    mem_free(fib);
     return sum;
 }

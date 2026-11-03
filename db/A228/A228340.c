@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 45, u32 n <= 92, u64 n <= 231,
  *            u128 n <= 630, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 7125 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t **triangle = NULL;   /* triangle[i] points to row i, rows 1..max_row */
 static size_t  max_row   = 0;     /* highest row currently stored */
@@ -52,7 +54,7 @@ ensure_rows(idx_t r)
 
     /* Allocate and compute the missing rows */
     for (size_t i = max_row + 1; i <= (size_t)r; ++i) {
-        seq_t *row = (seq_t*)malloc(i * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, i);
         if (row == NULL)          /* allocation failed – leave state as is */
             return;
 

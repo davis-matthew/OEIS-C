@@ -11,7 +11,8 @@
  *            Σ_{i=0}^{q-1} (prefix_i)/(suffix_{i+1}) is an integer)
  * Range:     u8 n <= 23, u16 n <= 26, u32 n <= 26, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   digit_len, gcd, pow10
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   gcd, mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,9 +29,19 @@
 #include <stdlib.h>
 #include <stddef.h>
 
-#include "../utils/gcd.h"          /* gcd(seq_t, seq_t) */
-#include "../utils/pow10.h"        /* pow10(idx_t) returning seq_t */
-#include "../utils/digit_len.h"    /* digit_len(seq_t) */
+#include "../utils/gcd.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* --------------------------------------------------------------------- */
 static bool has_zero(uint64_t x)
@@ -68,7 +79,7 @@ static bool qualifies(uint64_t k)
     seq_t num = 0;        /* numerator of the sum */
     seq_t den = 1;        /* denominator of the sum */
 
-    int total_digits = digit_len((seq_t)k);
+    int total_digits = num_digits((seq_t)k);
 
     for (int i = 0; i <= total_digits - 2; ++i) {
         /* build next prefix digit */
@@ -100,7 +111,7 @@ static void cache_add(seq_t val)
 {
     if (cache_len == cache_cap) {                     /* grow cache    */
         size_t newcap = cache_cap == 0 ? 4 : cache_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp) exit(1);                           /* allocation fail */
         cache = tmp;
         cache_cap = newcap;

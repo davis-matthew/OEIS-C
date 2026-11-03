@@ -12,7 +12,8 @@
  *            * (r1→r2) exists with label P if the perma...
  * Range:     u8 none, u16 n <= 3, u32 n <= 9, u64 n <= 22, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static bool initialized = false;
 static seq_t dp_prev[33][125];
@@ -65,10 +67,10 @@ static void init(void)
     for (int p = 0; p < 33; p++)
         for (int r = 0; r < 125; r++)
             dp_prev[p][r] = 1;
-    memset(dp_next, 0, sizeof(dp_next));
+    mem_set(dp_next, 0, sizeof(dp_next));
 
     /* Allocate cache and set base size to 0. */
-    cache = (seq_t*)calloc(2, sizeof(seq_t));   /* indices 0 and 1 at start */
+    cache = mem_new(seq_t, 2);   /* indices 0 and 1 at start */
     cache_size = 0;                              /* a(1) will be computed on demand */
     initialized = true;
 }
@@ -80,7 +82,7 @@ seq_t a(idx_t n)
 
     if (n > cache_size) {
         /* Grow cache to accommodate new values. */
-        seq_t *new_cache = (seq_t*)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
         if (!new_cache) return 0;   /* allocation failure */
         cache = new_cache;
 
@@ -92,8 +94,8 @@ seq_t a(idx_t n)
                 dp_next[e->label][e->to] += dp_prev[e->label][e->from];
             }
             /* swap and clear for next iteration */
-            memcpy(dp_prev, dp_next, sizeof(dp_prev));
-            memset(dp_next, 0, sizeof(dp_next));
+            mem_copy(dp_prev, dp_next, sizeof(dp_prev));
+            mem_set(dp_next, 0, sizeof(dp_next));
 
             /* sum over all non‑zero common permanents */
             seq_t total = 0;

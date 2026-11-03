@@ -9,12 +9,14 @@
  *            a(4) = 18643968, a(5) = 2363741512, a(6) = 299675376000
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 9, u128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 12 terms through n = 12 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t base[] = {8, 1152, 147000, 18643968, 2363741512, 299675376000};
 static seq_t *cache = NULL;
@@ -27,7 +29,7 @@ seq_t a(idx_t n) {
     
     if (cache == NULL) {
         idx_t initial_size = (n > 1000 ? n : 1000) + 100;
-        cache = (seq_t *)malloc(initial_size * sizeof(seq_t));
+        cache = mem_new(seq_t, initial_size);
         
         for (idx_t i = 0; i < 6; i++) {
             cache[i] = base[i];
@@ -36,7 +38,7 @@ seq_t a(idx_t n) {
         max_computed = 6;
     } else if (n > max_computed) {
         idx_t new_size = n + 100;
-        cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
     }
     
     for (idx_t i = max_computed + 1; i <= n; i++) {

@@ -10,19 +10,21 @@
  *            produces the two‑term sign alternation seen in the data
  * Range:     i8 n <= 1, i16 n <= 3, i32 n <= 6, i64 n <= 11, i128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 186 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* ---------- compute even Euler numbers up to index floor(n/2) ---------- */
     idx_t half = n / 2;
-    seq_t *euler = (seq_t *)malloc((half + 1) * sizeof(seq_t));
+    seq_t *euler = mem_new(seq_t, (half + 1));
     if (!euler)
         return 0;                         /* allocation failure: return 0 */
 
@@ -77,6 +79,6 @@ seq_t a(idx_t n)
     if (n & 1)
         sum = -sum;
 
-    free(euler);
+    mem_free(euler);
     return sum;
 }

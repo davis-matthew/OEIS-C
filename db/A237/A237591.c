@@ -15,14 +15,23 @@
  *            second term where the numerator may be * negative
  * Range:     u8 n <= 1600, u16 n <= 1600, u32 n <= 1600, u64 n <= 1600,
  *            u128 n <= 1600, big any n
- * Helpers:   ceil_div_signed
+ * Validated: standard, pass, 122 terms through n = 1589 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/ceil_div_signed.h"
+
+/* Signed ceil division: ceil(num / den) for den > 0. */
+static inline int64_t ceil_div_signed(int64_t num, int64_t den)
+{
+    if (num >= 0)
+        return (num + den - 1) / den;    /* positive numerator */
+    else
+        return num / den;                /* negative numerator – truncates toward zero, which is ceil */
+}
 
 /* Integer square root: floor(sqrt(x)) for 0 ≤ x < 2^64. */
 static inline idx_t floor_sqrt_u64(idx_t x)

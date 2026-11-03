@@ -12,6 +12,7 @@
  *            the digits in the even positions (0‑based)
  * Range:     u8 n <= 147, u16 n <= 147, u32 n <= 147, u64 n <= 147,
  *            u128 n <= 147, big any n
+ * Validated: partial, pass, 148 terms through n = 147 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

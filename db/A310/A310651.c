@@ -12,12 +12,14 @@
  *            a(14)=62, a(15)=74
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Note: The sequence is linear for n > 15, so unsigned computation
    will not underflow or overflow for n up to 10,000. */
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     /* Ensure the cache holds at least indices up to n. */
     if (cap <= n) {
         idx_t newcap = n + 1;
-        seq_t *newcache = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *newcache = mem_resize(seq_t, cache, newcap);
         if (!newcache) abort();        /* memory failure */
         cache = newcache;
 

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 14, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@ seq_t a(idx_t n);
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define NUM_COLS 81  /* 3^4 possible columns */
 
@@ -160,7 +162,7 @@ seq_t a(idx_t n)
     }
 
     /* --- Initialize DP for the first two columns --------------------------------- */
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
 
     for (int col0 = 0; col0 < NUM_COLS; ++col0) {
         if (col_val[col0][0] != 0) continue;      /* first cell must be 0 */
@@ -185,7 +187,7 @@ seq_t a(idx_t n)
 
     /* --- Process columns 3..n ---------------------------------------------------- */
     for (int col_index = 2; col_index < n; ++col_index) {
-        memset(next_dp, 0, sizeof(next_dp));
+        mem_set(next_dp, 0, sizeof(next_dp));
 
         for (int left = 0; left < NUM_COLS; ++left) {
             for (int mid = 0; mid < NUM_COLS; ++mid) {
@@ -204,7 +206,7 @@ seq_t a(idx_t n)
                 }
             }
         }
-        memcpy(dp, next_dp, sizeof(dp));
+        mem_copy(dp, next_dp, sizeof(dp));
     }
 
     /* --- Sum over final states: last column must be valid with its left neighbour

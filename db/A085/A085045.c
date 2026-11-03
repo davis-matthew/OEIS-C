@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 239, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   divisor_count_u64
+ * Validated: standard, pass, 86 terms through n = 944 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
    where tau is the divisor function.  Return 0 if no such k exists. */
 
 #include <stdint.h>
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;  /* undefined for n < 1, but guard anyway */
@@ -30,8 +31,8 @@ seq_t a(idx_t n) {
         uint64_t n_plus_k  = (uint64_t)n + (uint64_t)k;
         uint64_t n_times_k = (uint64_t)n * (uint64_t)k;
 
-        seq_t tau1 = divisor_count_u64(n_plus_k);
-        seq_t tau2 = divisor_count_u64(n_times_k);
+        seq_t tau1 = num_divisors(n_plus_k);
+        seq_t tau2 = num_divisors(n_times_k);
 
         if (tau1 == tau2) return (seq_t)k;
     }

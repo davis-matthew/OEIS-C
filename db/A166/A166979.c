@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 22, u32 n <= 57, u64 n <= 139,
  *            u128 n <= 325, big any n
- * Helpers:   seq_alloc_array, seq_one
+ * Validated: standard, pass, 62 terms through n = 311 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,16 @@
  */
 
 #include <stdlib.h>
-#include "../utils/seq_one.h"
-#include "../utils/seq_alloc_array.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 /* Triangle stored as an array of pointers; row r has r entries (1‑based). */
 static seq_t **triangle = NULL;

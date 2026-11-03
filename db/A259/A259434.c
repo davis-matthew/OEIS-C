@@ -13,14 +13,25 @@
  *            obtained by concatenating these rows one...
  * Range:     u8 n <= 91, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   digits, pow10
+ * Validated: partial, pass, 91 terms through n = 91 (2026-11-01)
+ * Helpers:   num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/digits.h"
-#include "../utils/pow10.h"
+#include <stdint.h>
+#include "../utils/num_digits_idx.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -33,7 +44,7 @@ seq_t a(idx_t n)
 
     for (idx_t m = 1; ; ++m)
     {
-        idx_t d = digits(m);          /* number of decimal digits of m */
+        idx_t d = num_digits_idx(m);          /* number of decimal digits of m */
         if (cumulative + d >= n)      /* m contains the desired index */
         {
             idx_t j = n - cumulative; /* j = 1 … d */

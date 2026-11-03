@@ -9,7 +9,8 @@
  * Formula:   a(n) = ∏_{k=1}^{d(n)-1} gcd(b_k , b_{k+1})
  * Range:     u8 n <= 31, u16 n <= 71, u32 n <= 215, u64 n <= 719,
  *            u128 n <= 796, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 85 terms through n = 723 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static int cmp_seq(const void *a, const void *b)
 {
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
         dcount *= (size_t)(exps[i] + 1);
 
     /* ---------- generate all divisors ---------- */
-    seq_t *divs = (seq_t *)malloc(dcount * sizeof(seq_t));
+    seq_t *divs = mem_new(seq_t, dcount);
     if (!divs) return (seq_t)1;               /* unlikely */
 
     size_t sz = 1;
@@ -94,13 +96,13 @@ seq_t a(idx_t n)
     }
 
     /* ---------- sort divisors ---------- */
-    qsort(divs, dcount, sizeof(seq_t), cmp_seq);
+    mem_qsort(divs, dcount, sizeof(seq_t), cmp_seq);
 
     /* ---------- product of consecutive gcds ---------- */
     seq_t result = (seq_t)1;
     for (size_t i = 1; i < dcount; ++i)
         result *= gcd(divs[i-1], divs[i]);
 
-    free(divs);
+    mem_free(divs);
     return result;
 }

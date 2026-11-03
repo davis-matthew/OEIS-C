@@ -8,6 +8,7 @@
  *            a(n-5), with a(0)=1, a(1)=-1, a(2)=4, a(3)=-1, a(4)=11
  * Range:     i8 n <= 7, i16 n <= 15, i32 n <= 29, i64 n <= 33, i128 n <= 33,
  *            big any n
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

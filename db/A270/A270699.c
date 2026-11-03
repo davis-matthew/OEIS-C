@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 36, u16 n <= 3377, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 9058 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static inline uint64_t mul_mod(uint64_t a, uint64_t b, uint64_t mod) {
     return (unsigned __int128)a * b % mod;
@@ -76,7 +78,7 @@ static void ensure_size(idx_t need) {
         if (prod == 0) {                         /* 2*n | P_n*P_{n+1}  */
             if (seq_vals_len == seq_vals_cap) {
                 size_t new_cap = seq_vals_cap ? seq_vals_cap * 2 : 32;
-                seq_t *new_vals = (seq_t *)realloc(seq_vals, new_cap * sizeof(seq_t));
+                seq_t *new_vals = mem_resize(seq_t, seq_vals, new_cap);
                 seq_vals = new_vals;
                 seq_vals_cap = new_cap;
             }

@@ -11,13 +11,15 @@
  *            171*a(n‑8) + b(n) where b(n)=1 for n=8, b(n)=0 otherwise
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_len = 0;
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
         return cache[n];
 
     size_t new_len = (size_t)(n + 1);
-    seq_t *new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_len);
     if (!new_cache)        /* memory allocation failed – return 0 */
         return (seq_t)0;
     cache = new_cache;

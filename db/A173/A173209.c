@@ -6,8 +6,9 @@
  * Keywords:  base, easy, nonn
  * Formula:   a(n) = sum_{k=1..n} A000069(k) -- the sum of the first n odious
  *            numbers (numbers with an odd -- number of 1‑bits in binary)
- * Range:     u8 n <= 16, u16 n <= 256, u32 n <= 9321, u64 n <= 9321,
- *            u128 n <= 9321, big any n
+ * Range:     u8 n <= 16, u16 n <= 256, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 67 terms through n = 9321 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
+ * Validated: partial, pass, 85 terms through n = 86 (2026-11-01)
  * Helpers:   is_prime, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,8 +18,8 @@
    odd prime divisor.  For n≥2 the answer is always a prime ≥3. */
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/pow2.h"      /* seq_t pow2(idx_t exp) */
-#include "../utils/is_prime.h"  /* bool is_prime(idx_t n) */
+#include "../utils/is_prime.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {

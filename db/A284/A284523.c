@@ -9,13 +9,15 @@
  *            for n > 3
  * Range:     u8 n <= 653, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 9566 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     if ((size_t)n + 1 > cap) {
         size_t newcap = cap ? cap * 2 : 8;
         while (newcap <= (size_t)n + 1) newcap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp) return (seq_t)0;          /* memory error */
         /* initialise new entries to zero (sentinel for "uncomputed") */
         for (size_t i = cap; i < newcap; ++i) tmp[i] = (seq_t)0;
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
         if (j1 >= cap) {                           /* extend if needed */
             size_t newcap = cap ? cap * 2 : 8;
             while (newcap <= (size_t)j1 + 1) newcap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, newcap);
             if (!tmp) return (seq_t)0;
             for (size_t k = cap; k < newcap; ++k) tmp[k] = (seq_t)0;
             cache = tmp;
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
         if (j2 >= cap) {
             size_t newcap = cap ? cap * 2 : 8;
             while (newcap <= (size_t)j2 + 1) newcap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, newcap);
             if (!tmp) return (seq_t)0;
             for (size_t k = cap; k < newcap; ++k) tmp[k] = (seq_t)0;
             cache = tmp;

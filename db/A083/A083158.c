@@ -9,14 +9,16 @@
  *            arithmetic mean of two distinct palindromes (base 10)
  * Range:     u8 n <= 32, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   is_palindrome
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   is_palindrome_base, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_palindrome.h"
+#include "../utils/is_palindrome_base.h"
+#include "../utils/mem.h"
 
 /* dynamic array of previously seen palindromes (ascending) */
 static seq_t *pal_arr = NULL;
@@ -34,7 +36,7 @@ static void grow_array(seq_t **arr, size_t *size, size_t *cap)
 {
     if (*size == *cap) {
         size_t newcap = (*cap == 0) ? 4 : (*cap << 1);
-        seq_t *tmp = (seq_t *)realloc(*arr, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, newcap);
         if (!tmp) abort();        /* memory error, terminate */
         *arr = tmp;
         *cap = newcap;
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
         seq_t cur_seq = (seq_t)last_cur;
 
         /* skip non‑palindromes */
-        if (!is_palindrome(cur_seq, (idx_t)10))
+        if (!is_palindrome_base(cur_seq, (idx_t)10))
             continue;
 
         /* check if cur_seq can be written as (p + q)/2 with distinct palindromes p,q */
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
             seq_t p = pal_arr[i];
             /* b = 2*cur - p */
             seq_t b = sum - p;
-            if (b != p && is_palindrome(b, (idx_t)10)) {
+            if (b != p && is_palindrome_base(b, (idx_t)10)) {
                 found = 1;
                 break;
             }

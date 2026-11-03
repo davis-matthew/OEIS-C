@@ -8,7 +8,8 @@
  * Formula:   a(n) = denominator of (2+3*n)/2^(n+2) = 2^(n+2 - v2(3n+2))
  * Range:     u8 n <= 6, u16 n <= 14, u32 n <= 30, u64 n <= 62, u128 n <= 126,
  *            big any n
- * Helpers:   exp2_3n2, pow2
+ * Validated: standard, pass, 50 terms through n = 2757 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,20 @@
 /* seq_t and idx_t are defined elsewhere by the build system. */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
-#include "../utils/exp2_3n2.h"
+
+/* Count the exponent of 2 dividing 3*n+2, using 128-bit arithmetic to avoid overflow. */
+static inline unsigned int exp2_3n2(idx_t n)
+{
+    unsigned __int128 val = (unsigned __int128)3 * n + 2; /* compute 3n+2 safely */
+    unsigned int v = 0;
+    while ((val & 1) == 0 && v < 128) { /* enough for idx_t up to 64 bits */
+        v++;
+        val >>= 1;
+    }
+    return v;
+}
 
 seq_t a(idx_t n)
 {

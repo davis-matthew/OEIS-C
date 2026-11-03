@@ -10,7 +10,8 @@
  *            and gcd(r,s)=1, returned in increasing order
  * Range:     u8 none, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   cmp_seq, gcd64
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   gcd_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,19 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/cmp_seq.h"
-#include "../utils/gcd64.h"
+#include <stdbool.h>
+#include "../utils/gcd_u64.h"
+#include "../utils/mem.h"
+
+/* Comparator for qsort on seq_t values. */
+static int cmp_seq(const void *a, const void *b)
+{
+    const seq_t *x = (const seq_t *)a;
+    const seq_t *y = (const seq_t *)b;
+    if (*x < *y) return -1;
+    if (*x > *y) return 1;
+    return 0;
+}
 
 /* ------------------------------------------------------------------
  * Simple Euclidean gcd for 64‑bit unsigned integers.
@@ -41,7 +53,7 @@ static void append_val(seq_t v)
 {
     if (vals_size == vals_cap) {
         size_t new_cap = vals_cap ? vals_cap * 2 : 8;
-        seq_t *tmp = (seq_t *)realloc(vals, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, vals, new_cap);
         if (!tmp) exit(1);           /* allocation failure */
         vals = tmp;
         vals_cap = new_cap;
@@ -61,7 +73,7 @@ static void generate_to(idx_t new_max)
 {
     for (idx_t r = max_r_processed + 1; r <= new_max; ++r) {
         for (idx_t s = r + 1; s < 2 * r; ++s) {
-            if (gcd64((uint64_t)r, (uint64_t)s) != 1)
+            if (gcd_u64((uint64_t)r, (uint64_t)s) != 1)
                 continue;
 
             /* Compute s^2 - r^2 using 128‑bit arithmetic to avoid overflow. */
@@ -92,7 +104,7 @@ static void ensure_n(idx_t n)
         /* Sort and deduplicate the entire array. */
         if (!vals_sorted) {
             if (vals_size > 0) {
-                qsort(vals, vals_size, sizeof(seq_t), cmp_seq);
+                mem_qsort(vals, vals_size, sizeof(seq_t), cmp_seq);
                 /* Deduplicate in place. */
                 size_t uniq = 1;
                 for (size_t i = 1; i < vals_size; ++i) {

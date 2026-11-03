@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 39, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   grow_idx
+ * Validated: standard, pass, 63 terms through n = 991 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,20 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/grow_idx.h"
+#include "../utils/mem.h"
+
+/* Dynamically grow an idx_t array */
+static void grow_idx(idx_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap > 0) ? (*cap << 1) : 16;
+        while (new_cap < need) new_cap <<= 1;
+        idx_t *new_arr = (idx_t *)realloc(*arr, new_cap * sizeof(idx_t));
+        if (!new_arr) exit(EXIT_FAILURE);   /* abort on allocation failure */
+        *arr = new_arr;
+        *cap = new_cap;
+    }
+}
 
 /* The build supplies the types seq_t and idx_t. */
 
@@ -37,7 +51,7 @@ static void grow_seq(seq_t **arr, size_t *cap, size_t need)
     if (*cap < need) {
         size_t new_cap = (*cap > 0) ? (*cap << 1) : 16;
         while (new_cap < need) new_cap <<= 1;
-        seq_t *new_arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, *arr, new_cap);
         if (!new_arr) exit(EXIT_FAILURE);
         *arr = new_arr;
         *cap = new_cap;

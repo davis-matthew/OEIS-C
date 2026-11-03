@@ -8,13 +8,15 @@
  *            a(1)=0. Here ((2*n-3)!!) = product_{k=1}^{n-1} (2*k-1)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 10, u128 n <= 13,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 14 terms through n = 13 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;   /* a values */
 static seq_t *B_cache = NULL;   /* B[n] = (2*n-3)!! */
@@ -28,8 +30,8 @@ static void ensure_idx(idx_t n)
     idx_t new_len = n + 1;
     size_t new_size = new_len * sizeof(seq_t);
 
-    a_cache = (seq_t *)realloc(a_cache, new_size);
-    B_cache = (seq_t *)realloc(B_cache, new_size * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, (new_size) / sizeof(seq_t));
+    B_cache = mem_resize(seq_t, B_cache, new_size);
 
     /* In case of allocation failure, abort (build system guarantees success). */
     if (!a_cache || !B_cache) abort();

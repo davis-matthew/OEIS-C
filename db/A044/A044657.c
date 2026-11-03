@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 40, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   has27
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,25 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has27.h"
+#include "../utils/mem.h"
+
+/* Check whether the base‑9 representation of x contains the substring "27". */
+static bool has27(seq_t x)
+{
+    /* maximum digits for 128‑bit numbers is comfortably below 200 */
+    unsigned char digits[200];
+    int len = 0;
+    while (x > 0) {
+        digits[len++] = (unsigned char)(x % 9);
+        x /= 9;
+    }
+    /* scan from most significant to least significant digit */
+    for (int i = len - 1; i > 0; --i) {
+        if (digits[i] == 2 && digits[i - 1] == 7)
+            return true;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -36,9 +55,9 @@ seq_t a(idx_t n)
     size_t new_cap = cache_len ? (size_t)(cache_len * 2) : 16;
     if (new_cap < (size_t)n) new_cap = (size_t)n * 2;
     if (!cache) {
-        cache = (seq_t *)malloc(sizeof(seq_t) * new_cap);
+        cache = mem_new(seq_t, new_cap);
     } else if (new_cap > (size_t)cache_len) {
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();          /* out of memory */
         cache = tmp;
     }

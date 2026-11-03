@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 48, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 76 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* external types supplied by the build environment */
 extern seq_t a(idx_t n);   /* declaration for compiler consistency */
@@ -47,7 +49,7 @@ static void ensure_data_capacity(size_t min_cap)
     size_t new_cap = data_cap ? data_cap : 64;
     while (new_cap < min_cap)
         new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(data, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, data, new_cap);
     if (!tmp)
         abort(); /* allocation failure */
     data = tmp;
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
         int next_row = last_row + 1;           /* compute row i = next_row */
         size_t row_len = (size_t)(next_row + 2); /* length of the row */
 
-        seq_t *new_row = (seq_t *)malloc(row_len * sizeof(seq_t));
+        seq_t *new_row = mem_new(seq_t, row_len);
         if (!new_row)
             abort();
 
@@ -103,7 +105,7 @@ seq_t a(idx_t n)
             data[data_len++] = new_row[i];
 
         /* ----- advance state ----- */
-        free(prev_row);
+        mem_free(prev_row);
         prev_row = new_row;
         prev_len = row_len;
         last_row = next_row;

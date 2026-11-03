@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 4052, u32 n <= 5853, u64 n <= 5853,
  *            u128 n <= 5853, big any n
- * Helpers:   ensure_capacity, is_prime_small, next_prime, prime_digit_count
+ * Validated: standard, pass, 73 terms through n = 5760 (2026-11-03)
+ * Helpers:   is_prime_seq, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,10 +22,56 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#include "../utils/is_prime_small.h"   /* is_prime_small(seq_t) */
-#include "../utils/next_prime.h"       /* next_prime(uint64_t) */
-#include "../utils/ensure_capacity.h"  /* ensure_capacity(size_t, size_t*, void**, size_t) */
-#include "../utils/prime_digit_count.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/next_prime.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* Grow a dynamic array when needed.  The pointer is passed as OEISC_VPP(.) */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    T *tmp = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#else
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#endif
+
+/* helper: count how many prime digits a 64‑bit integer has */
+static int prime_digit_count(uint64_t x)
+{
+    int cnt = 0;
+    while (x) {
+        unsigned d = (unsigned)(x % 10);
+        if (d == 2 || d == 3 || d == 5 || d == 7)
+            ++cnt;
+        x /= 10;
+    }
+    return cnt;
+}
 
 /* cache of qualifying primes */
 static seq_t *qual_primes = NULL;     /* array of seq_t */
@@ -49,10 +96,10 @@ seq_t a(idx_t n)
         int cnt = prime_digit_count(last_checked);
 
         /* If that count itself is prime, store the prime */
-        if (is_prime_small((seq_t)cnt)) {
+        if (is_prime_seq((seq_t)cnt)) {
             if (qual_size == qual_cap) {
                 size_t new_cap = qual_cap ? qual_cap * 2 : 128;
-                ensure_capacity(new_cap, &qual_cap, (void **)&qual_primes,
+                ensure_capacity(new_cap, &qual_cap, OEISC_VPP(&qual_primes),
                                 sizeof(seq_t));
             }
             qual_primes[qual_size++] = (seq_t)last_checked;

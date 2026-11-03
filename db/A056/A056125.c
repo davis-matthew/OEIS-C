@@ -8,12 +8,14 @@
  *            10*binomial(n+8,8) - 9*binomial(n+7,7)
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 41, u64 n <= 719, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 47 terms through n = 951 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* We use the provided binomial helper defined in the utils package. */
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

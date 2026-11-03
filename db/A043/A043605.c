@@ -11,13 +11,15 @@
  *            so that repeated or arbitrary calls are efficient
  * Range:     u8 none, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 9563 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -50,8 +52,7 @@ seq_t a(idx_t n)
             if (len + 1 > cap) {
                 size_t newcap = cap ? cap * 2 : 8;
 #ifdef __cplusplus
-                cache = reinterpret_cast<seq_t*>(realloc(cache,
-                                                          newcap * sizeof(seq_t)));
+                cache = reinterpret_cast<seq_t*>(mem_resize(seq_t, cache, newcap));
 #else
                 cache = (seq_t*)realloc(cache,
                                          newcap * sizeof(seq_t));

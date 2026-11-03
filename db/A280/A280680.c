@@ -11,7 +11,8 @@
  *            sorted by the largest radius a
  * Range:     u8 none, u16 n <= 218, u32 n <= 3000, u64 n <= 3000,
  *            u128 n <= 3000, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 82 terms through n = 2993 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/gcd.h"   /* seq_t gcd(seq_t a, seq_t b); */
+#include <stdint.h>
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* Structure to hold a single triple (a,b,c). */
 typedef struct {
@@ -46,7 +49,7 @@ static triple_t *generate_triples(idx_t max_b, size_t *cnt)
 {
     /* Rough upper bound on number of triples for allocation. */
     size_t est_cap = (size_t)(max_b * max_b / 8);
-    triple_t *array = (triple_t *)malloc(est_cap * sizeof(triple_t));
+    triple_t *array = mem_new(triple_t, est_cap);
     if (!array) return NULL;
     size_t capacity = est_cap;
     size_t count = 0;
@@ -64,8 +67,8 @@ static triple_t *generate_triples(idx_t max_b, size_t *cnt)
             if (g != 1) continue;      /* primitive triple */
             if (count == capacity) {
                 capacity *= 2;
-                triple_t *tmp = (triple_t *)realloc(array, capacity * sizeof(triple_t));
-                if (!tmp) { free(array); return NULL; }
+                triple_t *tmp = mem_resize(triple_t, array, capacity);
+                if (!tmp) { mem_free(array); return NULL; }
                 array = tmp;
             }
             array[count].a = a;
@@ -100,13 +103,13 @@ seq_t a(idx_t n)
         }
 
         /* Sort triples by a ascending. */
-        qsort(triples, triple_cnt, sizeof(triple_t), cmp_triple_by_a);
+        mem_qsort(triples, triple_cnt, sizeof(triple_t), cmp_triple_by_a);
 
         /* Flatten into a single array of values (a,b,c). */
         values_cnt = triple_cnt * 3;
-        values = (seq_t *)malloc(values_cnt * sizeof(seq_t));
+        values = mem_new(seq_t, values_cnt);
         if (!values) {
-            free(triples);
+            mem_free(triples);
             return (seq_t)0;
         }
         for (size_t i = 0; i < triple_cnt; ++i) {
@@ -114,7 +117,7 @@ seq_t a(idx_t n)
             values[3*i + 1] = triples[i].b;
             values[3*i + 2] = triples[i].c;
         }
-        free(triples);
+        mem_free(triples);
     }
 
     /* Return the requested term.  n is 1‑based. */

@@ -12,7 +12,8 @@
  *            (5*(m/2) + 3) / 2, m even * * The function retu...
  * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 31, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,12 +30,12 @@ seq_t a(idx_t n)
 
     /* Allocate two arrays of size n+1 */
     size_t sz = (size_t)n + 1;
-    seq_t *dp = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *newdp = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, sz);
+    seq_t *newdp = mem_new(seq_t, sz);
     if (!dp || !newdp) {
         /* memory allocation failed; return 0 as safe fallback */
-        free(dp);
-        free(newdp);
+        mem_free(dp);
+        mem_free(newdp);
         return (seq_t)0;
     }
 
@@ -91,7 +93,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[(size_t)n];
-    free(dp);
-    free(newdp);
+    mem_free(dp);
+    mem_free(newdp);
     return result;
 }

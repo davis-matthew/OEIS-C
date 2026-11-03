@@ -7,12 +7,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   _binom_uint64
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-01)
+ * Helpers:   binomial_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/_binom_uint64.h"
+#include "../utils/binomial_u64.h"
 /* This function generates the OEIS sequence A031447
    (numbers whose binary representation has 4 more 0’s than 1’s) by
    iterating over the possible bit‑lengths and counting the numbers
@@ -32,7 +33,7 @@ seq_t a(idx_t n) {
        (including the leading 1) */
     for (uint64_t k = 1; ; ++k) {
         uint64_t L = 2 * k + 4;                     /* total bit length   */
-        uint64_t block = _binom_uint64(L - 1, k - 1); /* how many numbers of this length */
+        uint64_t block = binomial_u64(L - 1, k - 1); /* how many numbers of this length */
 
         if (cumulative + block >= n) {
             uint64_t rank = n - cumulative - 1;     /* 0‑based rank within the block */
@@ -43,7 +44,7 @@ seq_t a(idx_t n) {
                combinatorial number system; iterate over positions
                from the highest down to 0. */
             for (int64_t pos = (int64_t)L - 2; pos >= 0 && rem > 0; --pos) {
-                uint64_t cnt0 = _binom_uint64(pos, rem);
+                uint64_t cnt0 = binomial_u64(pos, rem);
                 if (rank >= cnt0) {
                     mask |= ((seq_t)1 << pos);
                     rank -= cnt0;

@@ -11,17 +11,42 @@
  *            T_{h-1}*R_{h-1} (at least two branches of heigh...
  * Range:     u8 n <= 9, u16 n <= 15, u32 n <= 26, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   from_w, mc_fixed, smul, zarr_s
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem, multichoose
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/from_w.h"
-#include "../utils/mc_fixed.h"
-#include "../utils/smul.h"
-#include "../utils/zarr_s.h"
+#include "../utils/multichoose.h"
+#include "../utils/mem.h"
+
+static seq_t from_w(unsigned __int128 w)
+{
+    seq_t r = 0;
+    int i;
+    for (i = 3; i >= 0; i--) {
+        r = r * 65536u;
+        r = r * 65536u;
+        r += (seq_t)(uint32_t)(w >> (32 * i));
+    }
+    return r;
+}
+
+/* product without signed-int promotion overflow for narrow types */
+static seq_t smul(seq_t x, seq_t y)
+{
+    return (seq_t)(x * 1u * y);
+}
+
+static seq_t *zarr_s(idx_t len)
+{
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    idx_t i;
+    for (i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
 
 static int fixed_flag = -1;
 static int fixed_s(void)
@@ -46,7 +71,7 @@ static void euler(const seq_t *R, seq_t *E, seq_t *c, seq_t *M, idx_t L)
             idx_t J;
             if (R[k] == 0) continue;
             J = (L - 1) / k;
-            for (j = 1; j <= J; j++) M[j] = mc_fixed(R[k], j);
+            for (j = 1; j <= J; j++) M[j] = multichoose(R[k], j);
             for (m = L - 1; m >= k; m--) {
                 seq_t s = 0;
                 for (j = 1; j * k <= m; j++) s += smul(M[j], E[m - j * k]);
@@ -108,7 +133,7 @@ static void compute(idx_t N, seq_t *ans)
 
         tmp = A; A = B; B = C; C = tmp;
     }
-    free(A); free(B); free(C); free(E); free(c); free(M); free(T);
+    mem_free(A); mem_free(B); mem_free(C); mem_free(E); mem_free(c); mem_free(M); mem_free(T);
 }
 
 static seq_t *cache = 0;
@@ -126,7 +151,7 @@ seq_t a(idx_t n)
         if (fixed_s() && N > 200) N = (n > 200) ? n : 200;
         ans = zarr_s(N + 1);
         compute(N, ans);
-        if (cache) free(cache);
+        if (cache) mem_free(cache);
         cache = ans;
         cacheN = N;
     }

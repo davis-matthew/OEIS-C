@@ -6,16 +6,18 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = Sum_{k=0..floor((n-5)/4)} binomial(n,4*k+5) * a(n-4*k-5).
  *            Initial values: a(0)=1, a(1)=a(2)=a(3)=a(4)=0
- * Range:     u8 n <= 9, u16 n <= 14, u32 n <= 19, u64 n <= 29, u128 n <= 31,
+ * Range:     u8 n <= 13, u16 n <= 14, u32 n <= 19, u64 n <= 29, u128 n <= 31,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/binomial.h"   /* provides seq_t binomial(idx_t a, idx_t b); */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,11 +28,10 @@ seq_t a(idx_t n)
     if ((size_t)(n + 1) > capacity) {
         size_t new_cap = (n + 1) * 2;
         if (new_cap < 16) new_cap = 16;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();          /* out of memory */
         /* zero‑initialize the new part */
-        memset(tmp + capacity, 0,
-               (new_cap - capacity) * sizeof(seq_t));
+        mem_set(tmp + capacity, 0, (new_cap - capacity) * sizeof(seq_t));
         cache = tmp;
         capacity = new_cap;
     }

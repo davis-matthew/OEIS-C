@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 1757, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   append_candidate, valid_value
+ * Validated: standard, pass, 66 terms through n = 9663 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,8 +28,45 @@
 #pragma once
 
 /*  The helper used to grow the cache  */
-#include "../utils/append_candidate.h"
-#include "../utils/valid_value.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
+
+/*  Test whether a number satisfies the digit‑sets condition  */
+static bool valid_value(seq_t x)
+{
+    unsigned mask = 0;            /* 10‑bit mask of used digits */
+    seq_t t = x;
+    if (t == (seq_t)0)            /* 0 has digit {0} but complement has {9} */
+        return false;
+    while (t != (seq_t)0) {
+        unsigned d = (unsigned)(t % (seq_t)10);
+        mask |= 1U << d;
+        t /= (seq_t)10;
+    }
+    for (int d = 0; d <= 9; ++d) {
+        bool a = (mask >> d) & 1U;
+        bool b = (mask >> (9 - d)) & 1U;
+        if (a != b) return false;
+    }
+    return true;
+}
 
 /*  Cache of sequence values (1‑based offset: cache[0] = a(1))  */
 static seq_t *cache       = NULL;

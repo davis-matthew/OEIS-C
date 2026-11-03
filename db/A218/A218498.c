@@ -8,14 +8,17 @@
  * Formula:   a(n) = Sum_{j=0..n} 6 * (n-j+6)^(n-j-1) * C(n,j)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 14, u128 n <= 25,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 35 terms through n = 138 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* This implements the 6th iteration of the hyperbinomial transform on the constant 1-sequence. */
 
-#include "../utils/big_pow.h"   /* seq_t big_pow(seq_t base, seq_t exp); */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +35,7 @@ seq_t a(idx_t n)
             /* (i+6)^(i-1) = 6^-1, 6 * 6^-1 = 1, so term = comb = 1 */
             term = comb;               /* = 1 */
         } else {
-            seq_t power = big_pow((seq_t)(i + 6), (seq_t)(i - 1));
+            seq_t power = ipow((seq_t)(i + 6), (seq_t)(i - 1));
             /* term = 6 * comb * power */
             term = comb;
             term = term * six;

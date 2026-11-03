@@ -10,13 +10,14 @@
  *            from the utils library
  * Range:     u8 n <= 22, u16 n <= 58, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   divisor_count_u64
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
 
 seq_t a(idx_t n)
 {
@@ -28,8 +29,8 @@ seq_t a(idx_t n)
         if (prod1 > (unsigned __int128)UINT64_MAX) return 0;
         unsigned __int128 prod2 = prod1 + (unsigned __int128)k;  /* k*(n+1) = prod1 + k */
 
-        uint64_t d1 = divisor_count_u64((uint64_t)prod1);
-        uint64_t d2 = divisor_count_u64((uint64_t)prod2);
+        uint64_t d1 = num_divisors((uint64_t)prod1);
+        uint64_t d2 = num_divisors((uint64_t)prod2);
 
         if (d1 == d2) return (seq_t)k;
     }

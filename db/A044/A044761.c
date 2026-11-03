@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   contains48
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,22 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/contains48.h"
+#include "../utils/mem.h"
+
+/* Check whether the decimal representation of x contains the substring "48". */
+static bool contains48(idx_t x)
+{
+    if (x < 48) return false;            /* fast check for small numbers */
+    idx_t prev = 10;                     /* sentinel value > 9 */
+    while (x > 0)
+    {
+        idx_t d = x % 10;
+        if (prev == 8 && d == 4) return true;  /* pattern "48" found */
+        prev = d;
+        x /= 10;
+    }
+    return false;
+}
 
 /* Cache of found terms: cache[0] = a(1), cache[1] = a(2), ... */
 static seq_t *cache   = NULL;
@@ -34,7 +50,7 @@ static void ensure_capacity(void)
 {
     if (len < cap) return;
     size_t new_cap = cap ? cap * 2 : 32;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) abort();   /* unrecoverable memory allocation error */
     cache = new_cache;
     cap   = new_cap;

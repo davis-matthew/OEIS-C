@@ -8,6 +8,7 @@
  * Formula:   a(n) = smallest prime divisor of 5*n*(n+1) + 1
  * Range:     u8 n <= 6, u16 n <= 113, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 69 terms through n = 983 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

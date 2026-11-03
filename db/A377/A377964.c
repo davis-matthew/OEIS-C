@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 18, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 447 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
               +(n-2)*(9*n-4)*a(n-3)
               +4*(n-3)*(n-2)*n*a(n-4) */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* cache of computed terms */
 static seq_t *cache = NULL;
@@ -34,10 +36,10 @@ seq_t a(idx_t n)
     /* Ensure the array is large enough */
     idx_t need = n + 1;
     if (cache == NULL) {
-        cache = (seq_t*)malloc(need * sizeof(seq_t));
+        cache = mem_new(seq_t, need);
         if (!cache) exit(1);
     } else if (need > cache_used) {
-        seq_t *tmp = (seq_t*)realloc(cache, need * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, need);
         if (!tmp) exit(1);
         cache = tmp;
     }

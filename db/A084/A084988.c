@@ -9,7 +9,8 @@
  *            sum is nonprime
  * Range:     u8 n <= 46, u16 n <= 3250, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   digit_sum, get_digits, isPrimeTrial
+ * Validated: standard, pass, 62 terms through n = 4570 (2026-11-03)
+ * Helpers:   digit_sum, get_digits, is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,11 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/get_digits.h"
+#include <stddef.h>
 #include "../utils/digit_sum.h"
-#include "../utils/isPrimeTrial.h"
+#include "../utils/get_digits.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* Table of allowed digits: 0,1,4,6,8,9 are true; others false. */
 static const bool allowed[10] = {
@@ -50,14 +53,14 @@ static void ensure_capacity(size_t need)
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < need)
         new_cap *= 2;
-    seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (!new_arr) { /* keep old cache on allocation failure */
         return;
     }
     for (size_t i = 0; i < cache_len; ++i)
         new_arr[i] = cache[i];
     if (cache)
-        free(cache);
+        mem_free(cache);
     cache = new_arr;
     cache_cap = new_cap;
 }
@@ -83,7 +86,7 @@ static bool is_good(seq_t x)
     }
 
     seq_t s = digit_sum(x);
-    return !isPrimeTrial(s); /* true when digit sum is not prime */
+    return !is_prime_seq(s); /* true when digit sum is not prime */
 }
 
 /* Generate terms until at least n terms are stored. */

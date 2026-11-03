@@ -9,7 +9,8 @@
  *            composite number (4,6,8,9,10,12,...)
  * Range:     u8 n <= 10, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static storage for composite numbers and primes used for primality tests */
 static seq_t *composites = NULL;
@@ -69,8 +71,7 @@ static void ensure_composites(idx_t n)
             /* Store composite */
             if (comp_len == comp_cap) {
                 comp_cap = comp_cap ? comp_cap * 2 : 4;
-                seq_t *tmp = (seq_t *)realloc(composites,
-                               comp_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, composites, comp_cap);
                 composites = tmp;
             }
             composites[comp_len++] = (seq_t)num_checked;

@@ -7,6 +7,7 @@
  * Formula:   a(n) = binomial(n+6,6) mod 6
  * Range:     u8 n <= 3, u16 n <= 10, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 121 terms through n = 986 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -11,7 +11,8 @@
  *            real row) is all zeros
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 23, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* The types seq_t and idx_t are supplied by the build. */
 /* ============================= Helper ============================= */
@@ -83,8 +85,8 @@ seq_t a(idx_t n)
     static idx_t cur_n = 0;               /* number of rows processed so far */
 
     if (!init_done) {
-        dp_cur = (seq_t*)malloc(sizeof(seq_t) * STATE_CNT);
-        dp_nxt = (seq_t*)malloc(sizeof(seq_t) * STATE_CNT);
+        dp_cur = mem_new(seq_t, STATE_CNT);
+        dp_nxt = mem_new(seq_t, STATE_CNT);
         if (!dp_cur || !dp_nxt) return 0; /* allocation failure – graceful exit */
 
         /* initialise for n = 1 : prev row = all zeros, curr row = any pattern */

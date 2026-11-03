@@ -8,6 +8,7 @@
  * Formula:   a(n) = product_{k=1..n} (7*k+9), a(0) = 1
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 11, u128 n <= 20,
  *            big any n
+ * Validated: standard, pass, 30 terms through n = 321 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

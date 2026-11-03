@@ -8,13 +8,14 @@
  *            A000108(n-1)*2*(2n-1)/(n+1), A000108(0) = 1
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 19, u64 n <= 35, u128 n <= 69,
  *            big any n
- * Helpers:   small_gcd_u64
+ * Validated: standard, pass, 45 terms through n = 964 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/small_gcd_u64.h"
+#include "../utils/gcd_u64.h"
 
 static seq_t catalan(idx_t n) {
     seq_t c = 1;
@@ -22,7 +23,7 @@ static seq_t catalan(idx_t n) {
     for (k = 1; k <= n; k++) {
         uint64_t t = 2 * (2 * (uint64_t)k - 1);
         uint64_t d = (uint64_t)k + 1;
-        uint64_t g = small_gcd_u64(t, d);
+        uint64_t g = gcd_u64(t, d);
         t /= g;
         d /= g;
         /* d is coprime to t and divides c*t, so d divides c exactly */

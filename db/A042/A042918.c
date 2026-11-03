@@ -7,13 +7,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 18, u64 n <= 34, u128 n <= 76,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 191 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Numerators of continued fraction convergents to sqrt(991) */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* Cache of computed numerators */
 static size_t  cap   = 0;        /* Allocated capacity of the cache */
@@ -38,7 +40,7 @@ static void grow_cache(size_t need)
     size_t newcap = cap ? cap * 2 : 16;
     while (newcap < need)
         newcap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, newcap);
     if (!tmp) return; /* allocation failure silently ignored */
     cache = tmp;
     cap = newcap;

@@ -7,15 +7,16 @@
  * Formula:   a(n) = Sum_{d|n} phi(d^phi(d))
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 21,
  *            big any n
- * Helpers:   calc_phi, seq_pow
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-01)
+ * Helpers:   ipow_idx, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/seq_pow.h"
-#include "../utils/calc_phi.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/totient_seq.h"
 
 /* Compute the n-th term of sequence A179117.  The function may be
    called in any order; it is thread‑safe for the single–threaded
@@ -28,18 +29,18 @@ seq_t a(idx_t n) {
     for (uint64_t d = 1; d * d <= un; ++d) {
         if (un % d == 0) {
             /* ----- divisor d ----- */
-            seq_t phi_d = calc_phi((seq_t)d);
+            seq_t phi_d = totient_seq((seq_t)d);
             idx_t   exp_d = (idx_t)(phi_d - 1);  /* phi_d fits in 64‑bit */
-            seq_t   pow_d = seq_pow((seq_t)d, exp_d);
+            seq_t   pow_d = ipow_idx((seq_t)d, exp_d);
             seq_t   term_d = phi_d * pow_d;      /* phi(d) * d^(phi(d)-1) */
             sum += term_d;
 
             /* ----- paired divisor n/d (if distinct) ----- */
             uint64_t d2 = un / d;
             if (d2 != d) {
-                seq_t phi_d2 = calc_phi((seq_t)d2);
+                seq_t phi_d2 = totient_seq((seq_t)d2);
                 idx_t   exp_d2 = (idx_t)(phi_d2 - 1);
-                seq_t   pow_d2 = seq_pow((seq_t)d2, exp_d2);
+                seq_t   pow_d2 = ipow_idx((seq_t)d2, exp_d2);
                 seq_t   term_d2 = phi_d2 * pow_d2;
                 sum += term_d2;
             }

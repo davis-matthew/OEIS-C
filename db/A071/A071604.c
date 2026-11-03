@@ -8,6 +8,7 @@
  *            the form 2^x·3^y·5^z·7^u with x,y,z,u ≥ 0)
  * Range:     u8 n <= 4499, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 88 terms through n = 9682 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

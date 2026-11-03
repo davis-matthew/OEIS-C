@@ -11,9 +11,10 @@
  *            k. The matrix is symmetric (T(k,n)=T(n,k)), and the sequence
  *            a(n) is the result of reading T along anti‑diagonals. Initial
  *            values: a(1)=1, a(2)=1, a(3)=1, a(4)=1, a(5)=-1,
- * Range:     i8 n <= 9968, i16 n <= 9968, i32 n <= 9968, i64 n <= 9968,
- *            i128 n <= 9968, big any n
- * Helpers:   getT_linear
+ * Range:     i8 n <= 22155, i16 n <= 22155, i32 n <= 22155, i64 n <= 22155,
+ *            i128 n <= 22155, big any n
+ * Validated: standard, pass, 107 terms through n = 9968 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,14 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/getT_linear.h"
+#include "../utils/mem.h"
+
+/* Linear access to a matrix with a given stride */
+static inline seq_t getT_linear(const seq_t *data, idx_t stride, idx_t i, idx_t j)
+{
+    if (i < j) { idx_t t = i; i = j; j = t; }
+    return data[i * stride + j];
+}
 
 /* Cache for the upper‑triangular matrix T */
 static seq_t *T_data = NULL;
@@ -40,7 +48,7 @@ static void ensure_size(idx_t need)
     if (need <= width) return;
 
     idx_t new_width = need;
-    seq_t *new_data = (seq_t*)malloc((new_width + 1) * (new_width + 1) * sizeof(seq_t));
+    seq_t *new_data = mem_new(seq_t, (new_width + 1) * (new_width + 1));
     if (!new_data) exit(1);  /* out of memory */
 
     /* initialise new matrix to 0 */
@@ -54,7 +62,7 @@ static void ensure_size(idx_t need)
                 new_data[i * (new_width + 1) + j] = T_data[i * (width + 1) + j];
             }
         }
-        free(T_data);
+        mem_free(T_data);
     }
 
     /* compute missing rows */

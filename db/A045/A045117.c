@@ -10,7 +10,8 @@
  *            base‑4 length 10, sort them, and return the n-th (1‑based) value
  * Range:     u8 none, u16 none, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Comparator for seq_t values.  Works for integral or arbitrary‑precision seq_t. */
 static int seq_t_cmp(const void *a, const void *b)
@@ -103,7 +105,7 @@ static void build_sequence(void)
     }
 
     /* sort the generated terms */
-    qsort(seq_cache, seq_cache_len, sizeof(seq_t), seq_t_cmp);
+    mem_qsort(seq_cache, seq_cache_len, sizeof(seq_t), seq_t_cmp);
     seq_cache_built = true;
 }
 

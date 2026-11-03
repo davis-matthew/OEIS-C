@@ -10,14 +10,15 @@
  *            triangular number exists
  * Range:     u8 n <= 5, u16 n <= 18, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: partial, pass, 47 terms through n = 46 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 /* Helper: test a divisor m of N and update the best triangular found. */
 static inline void consider_m(idx_t m, idx_t N, bool *found, seq_t *best)
@@ -27,7 +28,7 @@ static inline void consider_m(idx_t m, idx_t N, bool *found, seq_t *best)
     /* Case 1: N = m * (p*m + 1)  →  p = (t - 1) / m */
     if ((t - 1) % m == 0) {
         idx_t p = (t - 1) / m;
-        if (p > 1 && is_prime_small((seq_t)p)) {
+        if (p > 1 && is_prime_seq((seq_t)p)) {
             idx_t k = p * m;            /* k satisfies k(k+1) = p*N */
             seq_t T = (seq_t)k * (k + 1) / 2;
             if (!*found || T < *best) {
@@ -40,7 +41,7 @@ static inline void consider_m(idx_t m, idx_t N, bool *found, seq_t *best)
     /* Case 2: N = m * (p*m - 1)  →  p = (t + 1) / m */
     if ((t + 1) % m == 0) {
         idx_t p = (t + 1) / m;
-        if (p > 1 && is_prime_small((seq_t)p)) {
+        if (p > 1 && is_prime_seq((seq_t)p)) {
             idx_t k = p * m - 1;
             if (k == 0) return;          /* skip non‑positive k */
             seq_t T = (seq_t)k * (k + 1) / 2;

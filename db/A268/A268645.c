@@ -9,7 +9,8 @@
  *            numbers n! (n≥1) and double factorial numbers n!! (n≥1)
  * Range:     u8 n <= 10, u16 n <= 16, u32 n <= 29, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   seq_alloc_new_array, seq_free_array
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,15 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/seq_free_array.h"
+#include <string.h>
+#include <stddef.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 /* cache of the merged sequence */
 static seq_t *cache      = NULL;

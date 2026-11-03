@@ -7,11 +7,14 @@
  * Formula:   a(n) = binomial(n, sum_digits(n))
  * Range:     u8 n <= 12, u16 n <= 18, u32 n <= 46, u64 n <= 98, u128 n <= 588,
  *            big any n
+ * Validated: standard, pass, 55 terms through n = 8939 (2026-11-01)
  * Helpers:   digit_sum, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/digit_sum.h"
 #include "../utils/gcd.h"
 

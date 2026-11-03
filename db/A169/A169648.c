@@ -12,6 +12,7 @@
  *            8 * if j = 2^(k-1): a(3·2^(k-1)) = 3 a(...
  * Range:     u8 n <= 30, u16 n <= 549, u32 n <= 549, u64 n <= 549,
  *            u128 n <= 549, big any n
+ * Validated: standard, pass, 77 terms through n = 527 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

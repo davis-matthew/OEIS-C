@@ -12,13 +12,31 @@
  *            s is (s-1)*s/2, so the desired diagonal s is...
  * Range:     u8 n <= 66, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   anti_diagonal_of
+ * Validated: standard, pass, 121 terms through n = 9877 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/anti_diagonal_of.h"
+
+/* Find the anti‑diagonal index s such that the cumulative count up to
+   s is >= n.  The function runs in O(log n) time. */
+static idx_t anti_diagonal_of(idx_t n)
+{
+    idx_t lo = 1;
+    idx_t hi = n + 1;              /* s cannot exceed n+1 */
+    while (lo < hi)
+    {
+        idx_t mid = lo + (hi - lo) / 2;
+        /* Use 128‑bit to avoid overflow in mid*(mid-1)/2.          */
+        if ((unsigned __int128)mid * (mid - 1) / 2 >= n)
+            hi = mid;
+        else
+            lo = mid + 1;
+    }
+    return lo;
+}
 
 /* Return the nth term of OEIS A185869 (offset 1). */
 seq_t a(idx_t n)

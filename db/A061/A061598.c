@@ -13,7 +13,8 @@
  *            exponents are ≤ the original ones. The firs...
  * Range:     u8 n <= 73, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   factor_exp
+ * Validated: partial, pass, 73 terms through n = 73 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,20 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/factor_exp.h"
+
+static void factor_exp(int *spf, int *prime_idx, int value, int sign, long long *exp)
+{
+    while (value > 1) {
+        int p = spf[value];
+        int cnt = 0;
+        while (value % p == 0) {
+            value /= p;
+            ++cnt;
+        }
+        int idx = prime_idx[p];
+        exp[idx] += (long long)sign * cnt;
+    }
+}
 
 seq_t a(idx_t n)
 {

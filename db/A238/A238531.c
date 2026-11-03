@@ -7,6 +7,7 @@
  * Formula:   a(n) = (n^2 - n + 4)/2 for n ≥ 2, a(0) = 1, a(1) = 1
  * Range:     u8 n <= 15, u16 n <= 325, u32 n <= 2500, u64 n <= 2500,
  *            u128 n <= 2500, big any n
+ * Validated: standard, pass, 70 terms through n = 2468 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

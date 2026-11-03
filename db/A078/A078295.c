@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 49, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   matches_cyclic_pattern
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,7 +34,35 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/matches_cyclic_pattern.h"
+
+/* Test whether the frequency table cnt of a number with 'len' digits
+ * matches any of the 10 possible digit-frequency patterns of the
+ * repeating 0…9 string of the same length. */
+static bool matches_cyclic_pattern(const unsigned int cnt[10], unsigned int len)
+{
+    unsigned int base = len / 10;          /* base count for each digit */
+    unsigned int rem  = len % 10;          /* first 'rem' digits get +1 */
+
+    /* Base pattern: each digit occurs 'base' times */
+    unsigned int basecnt[10];
+    for (int i = 0; i < 10; ++i)
+        basecnt[i] = base;
+
+    /* Try all 10 possible starting positions */
+    for (int s = 0; s < 10; ++s) {
+        unsigned int pat[10];
+        memcpy(pat, basecnt, sizeof(pat));
+        for (unsigned int i = 0; i < rem; ++i)
+            pat[(s + i) % 10] += 1;
+
+        /* Compare */
+        bool eq = true;
+        for (int d = 0; d < 10; ++d)
+            if (pat[d] != cnt[d]) { eq = false; break; }
+        if (eq) return true;
+    }
+    return false;
+}
 
 /* Count decimal digits of x, storing frequency in cnt[10].
  *  cnt must be large enough; size is sizeof(cnt) / sizeof(cnt[0]).

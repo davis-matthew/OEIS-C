@@ -10,13 +10,18 @@
  *            representation contains at least two adjacent 1's
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   has_adjacent_ones
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/has_adjacent_ones.h"
+
+static inline bool has_adjacent_ones(idx_t x)
+{
+    return (x & (x >> 1)) != 0;
+}
 
 seq_t a(idx_t n)
 {

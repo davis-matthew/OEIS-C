@@ -9,14 +9,25 @@
  *            distinct lower powers of 10
  * Range:     u8 none, u16 none, u32 none, u64 n <= 10000, u128 n <= 10000,
  *            big any n
- * Helpers:   binomial, pow10
+ * Validated: standard, pass, 34 terms through n = 9934 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow10.h"
+#include <stdlib.h>
 #include "../utils/binomial.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Convert rank k(1‑based) to a 12‑digit number with the highest
    exponent fixed at N and the remaining 11 exponents chosen from

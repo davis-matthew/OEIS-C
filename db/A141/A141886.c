@@ -7,7 +7,8 @@
  * Formula:   a(n) gives the n-th prime congruent to 17 mod 20
  * Range:     u8 n <= 6, u16 n <= 825, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 64 terms through n = 985 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* <utils> functions used: is_prime(idx_t), allocate_seq_array,
    free */ 
@@ -35,13 +37,13 @@ seq_t a(idx_t n)
     /* allocate or grow cache if needed */
     if (!initialized) {
         cache_cap = 64;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache_size = 0;
         initialized = true;
     } else if (cache_cap < n) {
         size_t new_cap = cache_cap;
         while (new_cap < n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort(); /* memory error */
         cache = tmp;
         cache_cap = new_cap;

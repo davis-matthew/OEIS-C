@@ -10,12 +10,14 @@
  *            their minimal representation via Lucas numbers divides k
  * Range:     u8 n <= 89, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 9864 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /*--- Initialise Lucas array once ------------------------------------- */
     if (luca_len == 0) {
         luca_cap = 16;
-        luca = (seq_t *)malloc(luca_cap * sizeof(seq_t));
+        luca = mem_new(seq_t, luca_cap);
         luca[0] = (seq_t)2;   /* L0 = 2 */
         luca[1] = (seq_t)1;   /* L1 = 1 */
         luca_len = 2;
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     /*--- Initialise storage for Lucas‑Niven numbers ---------------------- */
     if (niven_cap == 0) {
         niven_cap = 16;
-        niven = (seq_t *)malloc(niven_cap * sizeof(seq_t));
+        niven = mem_new(seq_t, niven_cap);
     }
 
     /*--- Generate terms until we have at least n of them ---------------- */
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
                 seq_t next = luca[luca_len - 1] + luca[luca_len - 2];
                 if (luca_len == luca_cap) {
                     luca_cap *= 2;
-                    luca = (seq_t *)realloc(luca, luca_cap * sizeof(seq_t));
+                    luca = mem_resize(seq_t, luca, luca_cap);
                 }
                 luca[luca_len++] = next;
             }
@@ -76,7 +78,7 @@ seq_t a(idx_t n)
                 /* Append to the list */
                 if (niven_len == niven_cap) {
                     niven_cap *= 2;
-                    niven = (seq_t *)realloc(niven, niven_cap * sizeof(seq_t));
+                    niven = mem_resize(seq_t, niven, niven_cap);
                 }
                 niven[niven_len++] = cand;
                 last_niven = cand;

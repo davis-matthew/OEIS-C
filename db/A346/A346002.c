@@ -13,7 +13,8 @@
  *            A346002
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ---------- Internal structures and state ---------- */
 
@@ -87,7 +89,7 @@ static void ensure_cache(idx_t n)
 {
     if (cache == NULL) { /* first initialisation */
         cache_cap = 16;
-        cache = (CodeWord *)malloc(cache_cap * sizeof(CodeWord));
+        cache = mem_new(CodeWord, cache_cap);
         cache_sz = 0;
 
         /* first term a(1) = 0 (base‑3 word “0”) */
@@ -133,8 +135,7 @@ static void ensure_cache(idx_t n)
             /* store into cache, grow if necessary */
             if (cache_sz >= cache_cap) {
                 cache_cap *= 2;
-                cache = (CodeWord *)realloc(cache,
-                                            cache_cap * sizeof(CodeWord));
+                cache = mem_resize(CodeWord, cache, cache_cap);
             }
             cache[cache_sz] = cand;
             ++cache_sz;

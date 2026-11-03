@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 40, u16 n <= 7549, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 9962 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Upper limit for precomputation – enough to cover n up to ~10000. */
 #define LIMIT 1048576UL   /* 2^20 */
@@ -40,9 +42,9 @@ static void init(void) {
     /* Allocate sieve structures. */
     spf = (uint32_t*)malloc((LIMIT + 1UL) * sizeof(uint32_t));
     if (!spf) return;
-    is_semiprime = (seq_t*)malloc((LIMIT + 1UL) * sizeof(seq_t));
+    is_semiprime = mem_new(seq_t, (LIMIT + 1UL));
     if (!is_semiprime) return;
-    prefix = (seq_t*)malloc((LIMIT + 1UL) * sizeof(seq_t));
+    prefix = mem_new(seq_t, (LIMIT + 1UL));
     if (!prefix) return;
 
     /* Smallest prime factor sieve. */
@@ -77,7 +79,7 @@ static void init(void) {
     }
 
     /* Allocate best array and fill minimal x for each reachable n. */
-    best = (seq_t*)calloc((size_t)(max_n + 1), sizeof(seq_t));
+    best = mem_new(seq_t, (size_t)(max_n + 1));
     if (!best) return;
     for (idx_t x = 1; x <= LIMIT; ++x) {
         seq_t diff = prefix[x] - prefix[x / 2];

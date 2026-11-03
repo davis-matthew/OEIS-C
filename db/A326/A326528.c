@@ -12,7 +12,8 @@
  *            square‑free parts and keeps track of the number...
  * Range:     u8 n <= 28, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,8 +40,8 @@ seq_t a(idx_t n)
     if (!cnt || !sum) return 0;          /* allocation failure */
 
     for (int k = 0; k < 10; ++k) {
-        cnt[k] = (seq_t*)calloc(SZ, sizeof(seq_t));
-        sum[k] = (seq_t*)calloc(SZ, sizeof(seq_t));
+        cnt[k] = mem_new(seq_t, SZ);
+        sum[k] = mem_new(seq_t, SZ);
         if (!cnt[k] || !sum[k]) return 0; /* allocation failure */
     }
 
@@ -90,8 +92,8 @@ seq_t a(idx_t n)
 
     /* ------- clean up ----------------------------------------------- */
     for (int k = 0; k < 10; ++k) {
-        free(cnt[k]);
-        free(sum[k]);
+        mem_free(cnt[k]);
+        mem_free(sum[k]);
     }
     free(cnt);
     free(sum);

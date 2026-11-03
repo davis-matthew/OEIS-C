@@ -7,8 +7,9 @@
  * Keywords:  nonn, tabl, easy
  * Formula:   a(n) = T(row,col) where T(n,k)=n*k*(3+n*k)/2, read by
  *            antidiagonals of the infinite array
- * Range:     u8 n <= 58, u16 n <= 759, u32 n <= 9314, u64 n <= 9314,
- *            u128 n <= 9314, big any n
+ * Range:     u8 n <= 58, u16 n <= 759, u32 n <= 10152, u64 n <= 10152,
+ *            u128 n <= 10152, big any n
+ * Validated: standard, pass, 82 terms through n = 9314 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

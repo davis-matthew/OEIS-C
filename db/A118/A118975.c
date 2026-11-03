@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 35, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   farey_row_value, gcd
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,35 @@
     with M = lcm(1,2,…,n).
     This implementation evaluates the required term directly, using
     only integer arithmetic. */
+#include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/farey_row_value.h"
+
+/* Return the offset‑th term (1‑based) of row r. */
+static seq_t farey_row_value(idx_t r, idx_t offset, seq_t M)
+{
+    idx_t a = 0, b = 1;
+    idx_t c = 1, d = r;          /* first fraction after 0/1 */
+    idx_t k = 1;                  /* 1‑based count of produced terms */
+
+    /* If the first fraction is the desired one. */
+    if (offset == 1)
+        return (M / (seq_t)d) * (seq_t)c;
+
+    while (!(c == 1 && d == 1))
+    {
+        /* advance to next Farey fraction */
+        idx_t t = (r + b) / d;
+        idx_t e = t * c - a;
+        idx_t f = t * d - b;
+        a = c;  b = d;  c = e;  d = f;
+        ++k;
+
+        if (k == offset)
+            return (M / (seq_t)d) * (seq_t)c;
+    }
+    /* Should never reach here for valid offsets. */
+    return 0;
+}
 
 /* Trial‑division φ(r) for small arguments (r ≤ 1000). */
 static idx_t phi_uint64(idx_t r)

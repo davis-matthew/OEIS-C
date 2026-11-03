@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 8 terms through n = 8 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* global storage for the precomputed list */
 static seq_t *g_terms = NULL;
@@ -83,7 +85,7 @@ static void build_sequence(void)
 
     /* collect terms */
     size_t terms_cap = 1024;
-    seq_t *terms = (seq_t*)malloc(terms_cap * sizeof(seq_t));
+    seq_t *terms = mem_new(seq_t, terms_cap);
     if (!terms) {
         free(is_comp); free(phi); free(omega); free(primes);
         return;
@@ -101,7 +103,7 @@ static void build_sequence(void)
         if (left == right) {
             if (terms_len == terms_cap) {
                 terms_cap *= 2;
-                seq_t *tmp = (seq_t*)realloc(terms, terms_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, terms_cap);
                 if (!tmp) break; /* out of memory */
                 terms = tmp;
             }
@@ -113,7 +115,7 @@ static void build_sequence(void)
     free(is_comp); free(phi); free(omega); free(primes);
 
     /* replace global list with the new one */
-    free(g_terms);
+    mem_free(g_terms);
     g_terms = terms;
     g_terms_len = terms_len;
 }

@@ -10,7 +10,8 @@
  *            a(n‑3) + a(n‑4) ‑ a(n‑5) + 2*a(n‑6) ‑ a(n‑7) for n>9
  * Range:     u8 n <= 5, u16 n <= 20, u32 n <= 49, u64 n <= 107, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    are computed on demand and cached for subsequent calls. */
 
 #include <stddef.h>
+#include "../utils/mem.h"
 
 #define MAX_N 20000   /* safety limit; supports n up to 20 000 */
 
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
         size_t new_cap = (size_t)n + 1;
         if (new_cap > (size_t)MAX_N) {
             /* Allocate a new larger array and copy existing data */
-            seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+            seq_t *new_cache = mem_new(seq_t, new_cap);
             if (!new_cache) abort();   /* unrecoverable error */
             for (size_t i = 0; i <= cached_max; ++i)
                 new_cache[i] = cache[i];

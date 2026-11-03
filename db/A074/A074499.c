@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* comparison function for qsort on seq_t */
 static int cmp_seq_t(const void *a, const void *b)
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     {
         /* ---- generate all perfect powers <= limit ---- */
         size_t pow_cap = 16;
-        seq_t *powers = (seq_t *)malloc(pow_cap * sizeof(seq_t));
+        seq_t *powers = mem_new(seq_t, pow_cap);
         if (!powers) return 0;
         size_t pow_len = 0;
 
@@ -69,8 +71,8 @@ seq_t a(idx_t n)
                     if (pow_len == pow_cap)
                     {
                         pow_cap <<= 1;
-                        seq_t *tmp = (seq_t *)realloc(powers, pow_cap * sizeof(seq_t));
-                        if (!tmp) { free(powers); return 0; }
+                        seq_t *tmp = mem_resize(seq_t, powers, pow_cap);
+                        if (!tmp) { mem_free(powers); return 0; }
                         powers = tmp;
                     }
                     powers[pow_len++] = val;
@@ -82,11 +84,11 @@ seq_t a(idx_t n)
         }
 
         /* sort the list of powers so that later loops can break early */
-        qsort(powers, pow_len, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(powers, pow_len, sizeof(seq_t), cmp_seq_t);
 
         /* ---- mark all sums of three perfect powers ---- */
         bool *marked = (bool *)calloc((size_t)(limit + 1), sizeof(bool));
-        if (!marked) { free(powers); return 0; }
+        if (!marked) { mem_free(powers); return 0; }
 
         for (size_t i = 0; i < pow_len; ++i)
         {
@@ -115,15 +117,15 @@ seq_t a(idx_t n)
                 if (seq_len == seq_cap)
                 {
                     seq_cap = seq_cap ? seq_cap << 1 : 16;
-                    seq_t *tmp = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
-                    if (!tmp) { free(powers); free(marked); return 0; }
+                    seq_t *tmp = mem_resize(seq_t, seq, seq_cap);
+                    if (!tmp) { mem_free(powers); free(marked); return 0; }
                     seq = tmp;
                 }
                 seq[seq_len++] = (seq_t)v;
             }
         }
 
-        free(powers);
+        mem_free(powers);
         free(marked);
 
         /* if still not enough terms, enlarge the bound and retry */

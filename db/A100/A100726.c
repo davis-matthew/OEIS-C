@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 54, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 /* Count the number of runs in the binary representation of x.
    A run is a maximal block of consecutive equal bits.  */
@@ -56,7 +59,7 @@ seq_t a(idx_t n)
     /* Initialize on first call. */
     if (list == NULL) {
         cap = 128;
-        list = (seq_t *)malloc(cap * sizeof(seq_t));
+        list = mem_new(seq_t, cap);
         next_candidate = 2;          /* start from the first prime */
     }
 
@@ -64,12 +67,12 @@ seq_t a(idx_t n)
     while (cnt < (size_t)n) {
         uint64_t x = next_candidate;
 
-        if (x >= 2 && is_prime(x)) {
+        if (x >= 2 && is_prime_u64(x)) {
             if (count_runs(x) <= 7) {
                 /* Ensure capacity. */
                 if (cnt >= cap) {
                     cap *= 2;
-                    seq_t *tmp = (seq_t *)realloc(list, cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, list, cap);
                     if (tmp == NULL) abort();
                     list = tmp;
                 }

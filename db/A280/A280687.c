@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = n divided by the largest Fibonacci number < n that
  *            divides n. For n = 1 the value is defined to be 1
- * Range:     u8 n <= 255, u16 n <= 9964, u32 n <= 9964, u64 n <= 9964,
- *            u128 n <= 9964, big any n
+ * Range:     u8 n <= 255, u16 n <= 10946, u32 n <= 10946, u64 n <= 10946,
+ *            u128 n <= 10946, big any n
+ * Validated: standard, pass, 116 terms through n = 9964 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

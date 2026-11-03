@@ -10,13 +10,15 @@
  *            (indices start at 1)
  * Range:     u8 n <= 31, u16 n <= 69, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     {
         if (m % d == 0)
         {
-            seq_t val = seq_pow((seq_t)d, k); /* d^k */
+            seq_t val = ipow_idx((seq_t)d, k); /* d^k */
 
             /* Sign of this term: (+) if (m - d) is even, otherwise (-). */
             if (((m - d) & 1) == 0)
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
             idx_t e = m / d;
             if (e != d)
             {
-                seq_t val2 = seq_pow((seq_t)e, k); /* e^k */
+                seq_t val2 = ipow_idx((seq_t)e, k); /* e^k */
 
                 if (((m - e) & 1) == 0)
                     pos += val2;

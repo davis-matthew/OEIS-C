@@ -8,7 +8,8 @@
  *            5 and A007618(n+1) - A007618(n) = a(n)
  * Range:     u8 n <= 28, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   digit_sum
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/digit_sum.h"   /* provides digit_sum(seq_t) */
+#include "../utils/digit_sum.h"
+#include "../utils/mem.h"
 
 static seq_t *s_values = NULL;   /* stores A007618(n), 1‑based index -> array[0] = n=1 */
 static size_t s_len  = 0;        /* current number of stored terms (len >= 1 if initialized) */
@@ -30,7 +32,7 @@ static void extend_to(idx_t n)
     /* First‑time initialization, set s(1)=5. */
     if (s_len == 0) {
         s_cap = 4;
-        s_values = (seq_t *)malloc(s_cap * sizeof(seq_t));
+        s_values = mem_new(seq_t, s_cap);
         if (!s_values) abort();               /* allocation failure */
         s_values[0] = (seq_t)5;                /* A007618(1) */
         s_len = 1;
@@ -43,7 +45,7 @@ static void extend_to(idx_t n)
 
         if (s_len == s_cap) {                /* grow buffer if needed */
             s_cap *= 2;
-            s_values = (seq_t *)realloc(s_values, s_cap * sizeof(seq_t));
+            s_values = mem_resize(seq_t, s_values, s_cap);
             if (!s_values) abort();
         }
         s_values[s_len] = next;

@@ -8,12 +8,14 @@
  * Formula:   a(n) = 7*a(n-1) - 14*a(n-2) + 7*a(n-3); a(0)=0, a(1)=7, a(2)=35
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 32, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 966 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute a(n) from the linear recurrence a(n) = 7*a(n-1) - 14*a(n-2) + 7*a(n-3)   */
 /* Handles out‑of‑order calls by caching previously computed terms. */
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
        initialise the known seed values. */
     if (cache == NULL) {
         size_t init_size = 4;                     /* includes indices 0..3 */
-        cache = (seq_t *)calloc(init_size, sizeof(seq_t));
+        cache = mem_new(seq_t, init_size);
         if (!cache) abort();                     /* allocation failed */
         cache[0] = (seq_t)0;
         cache[1] = (seq_t)7;
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
         size_t new_cap = ((size_t)n + 1) * 2;
         if (new_cap < (size_t)n + 1) new_cap = (size_t)n + 1; /* overflow guard */
 
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();                       /* allocation failed */
         /* Zero any new entries to avoid garbage. */
         for (size_t i = cache_size; i < new_cap; ++i)

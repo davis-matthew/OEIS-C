@@ -5,8 +5,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = PrimePi(2*n+1), the number of primes ≤ 2*n+1
- * Range:     u8 n <= 808, u16 n <= 9814, u32 n <= 9814, u64 n <= 9814,
- *            u128 n <= 9814, big any n
+ * Range:     u8 n <= 808, u16 n <= 49999, u32 n <= 49999, u64 n <= 49999,
+ *            u128 n <= 49999, big any n
+ * Validated: standard, pass, 90 terms through n = 9814 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

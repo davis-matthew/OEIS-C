@@ -12,12 +12,14 @@
  *            for all subsequent calls. It works for any seq_...
  * Range:     u8 n <= 6, u16 n <= 15, u32 n <= 36, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t **triangle = NULL;      /* triangle[row][col], 1‑based rows/cols */
 static idx_t  max_row = 0;           /* highest row computed so far */
@@ -33,7 +35,7 @@ static void ensure_rows(idx_t up_to)
 
     for (idx_t r = max_row + 1; r <= up_to; ++r) {
         /* allocate r+1 elements (indices 0..r) */
-        triangle[r] = (seq_t*)malloc((size_t)(r + 1) * sizeof(seq_t));
+        triangle[r] = mem_new(seq_t, (size_t)(r + 1));
         triangle[r][0] = 0;               /* a(r,0) = 0 */
 
         if (r == 1) {                     /* first row */

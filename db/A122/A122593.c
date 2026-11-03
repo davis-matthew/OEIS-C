@@ -9,12 +9,14 @@
  *            a(n-3))^2, with a(1) = a(2) = a(3) = 1
  * Range:     i8 n <= 8, i16 n <= 9, i32 n <= 10, i64 n <= 11, i128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 17 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;   /* array of computed terms, index 1..n */
 static size_t cache_alloc = 0;    /* number of allocated elements */
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
         size_t needed = 4;                 /* indices 0..3, index 0 unused */
         if (cache_alloc < needed)
         {
-            seq_t *tmp = (seq_t *)realloc(seq_cache, needed * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq_cache, needed);
             seq_cache = tmp;
             cache_alloc = needed;
         }
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
         size_t newsize = (size_t)n + 1;
         if (newsize < 16) newsize = 16;
         if (newsize < cache_alloc * 2) newsize = cache_alloc * 2;
-        seq_t *tmp = (seq_t *)realloc(seq_cache, newsize * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, newsize);
         seq_cache = tmp;
         cache_alloc = newsize;
     }

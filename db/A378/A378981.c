@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = (A003961(n)-σ(n)) mod (A003961(n)-2*n)
- * Range:     u8 n <= 16, u16 n <= 1128, u32 n <= 9140, u64 n <= 9140,
- *            u128 n <= 9140, big any n
- * Helpers:   factor_u64, next_prime, pow_uint
+ * Range:     u8 n <= 16, u16 n <= 1128, u32 n <= 32768, u64 n <= 32768,
+ *            u128 n <= 32768, big any n
+ * Validated: standard, pass, 111 terms through n = 9140 (2026-11-01)
+ * Helpers:   factor_u64, ipow_u64_idx, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,9 +27,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "../utils/next_prime.h"
-#include "../utils/pow_uint.h"
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/next_prime.h"
 
 /* Compute A003961(n) from a prime factorisation. */
 static seq_t
@@ -42,7 +44,7 @@ A003961_from_factorisation(const uint64_t *fprimes,
         uint64_t p   = fprimes[i];
         uint64_t e   = fexps[i];
         uint64_t np  = next_prime(p);
-        seq_t part   = pow_uint(np, e);
+        seq_t part   = ipow_u64_idx(np, e);
         val *= part;
     }
     return val;
@@ -59,7 +61,7 @@ sigma_from_factorisation(const uint64_t *fprimes,
     {
         uint64_t p = fprimes[i];
         uint64_t e = fexps[i];
-        seq_t numer = pow_uint(p, e + 1) - 1;
+        seq_t numer = ipow_u64_idx(p, e + 1) - 1;
         seq_t denom = (seq_t)(p - 1);
         seq_t term  = numer / denom;          /* exact division */
         val *= term;

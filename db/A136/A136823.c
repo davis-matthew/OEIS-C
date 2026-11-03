@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 20, u32 n <= 160, u64 n <= 1355,
  *            u128 n <= 1355, big any n
- * Helpers:   digit_allowed, sq_digits_allowed
+ * Validated: standard, pass, 83 terms through n = 1176 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,26 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/digit_allowed.h"
-#include "../utils/sq_digits_allowed.h"
+#include "../utils/mem.h"
+
+/* test whether a single decimal digit is allowed */
+static bool digit_allowed(int d)
+{
+    return d == 0 || d == 1 || d == 2 || d == 5 || d == 6;
+}
+
+/* test whether all decimal digits of x belong to the allowed set */
+static bool sq_digits_allowed(seq_t x)
+{
+    if (x == 0) return true;            /* zero has digit 0 which is allowed */
+    while (x > 0) {
+        int d = (int)(x % 10);
+        if (!digit_allowed(d))
+            return false;
+        x /= 10;
+    }
+    return true;
+}
 
 /* allowed decimal digits */
 static const int allowed_digits[5] = {0, 1, 2, 5, 6};
@@ -40,7 +59,7 @@ static void add_term(seq_t v)
 {
     if (SEQ_SIZE == SEQ_CAP) {
         SEQ_CAP = SEQ_CAP * 2 + 16;
-        SEQ_CACHE = (seq_t *)realloc(SEQ_CACHE, SEQ_CAP * sizeof(seq_t));
+        SEQ_CACHE = mem_resize(seq_t, SEQ_CACHE, SEQ_CAP);
     }
     SEQ_CACHE[SEQ_SIZE++] = v;
 }
@@ -50,7 +69,7 @@ static void init_cache(void)
 {
     if (SEQ_CACHE == NULL) {
         SEQ_CAP = 16;
-        SEQ_CACHE = (seq_t *)malloc(SEQ_CAP * sizeof(seq_t));
+        SEQ_CACHE = mem_new(seq_t, SEQ_CAP);
         if (SEQ_CACHE == NULL) return;      /* allocation failure, abort silently */
         SEQ_CACHE[0] = (seq_t)0;
         SEQ_SIZE = 1;

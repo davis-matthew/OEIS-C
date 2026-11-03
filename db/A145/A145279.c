@@ -10,14 +10,35 @@
  *            value is 0
  * Range:     u8 n <= 103, u16 n <= 103, u32 n <= 103, u64 n <= 103,
  *            u128 n <= 103, big any n
- * Helpers:   fib_u128, has_zero_digits
+ * Validated: partial, pass, 104 terms through n = 103 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/fib_u128.h"
-#include "../utils/has_zero_digits.h"
+
+static unsigned __int128 fib_u128(idx_t n)
+{
+    unsigned __int128 f0 = 0, f1 = 1;
+    if (n == 0) return f0;
+    for (idx_t i = 1; i <= n; ++i) {
+        unsigned __int128 f2 = f0 + f1;
+        f0 = f1;
+        f1 = f2;
+    }
+    return f0;
+}
+
+static bool has_zero_digits(unsigned __int128 x)
+{
+    if (x == 0) return true;
+    while (x > 0) {
+        if ((x % 10) == 0) return true;
+        x /= 10;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

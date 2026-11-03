@@ -7,12 +7,14 @@
  * Formula:   a(n) = sum_{k=1}^{n-1} a(k)*a(n-k), with a(1)=a(2)=a(3)=1
  * Range:     u8 n <= 8, u16 n <= 12, u32 n <= 22, u64 n <= 39, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 1613 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;
 static idx_t cache_cap = 0;
@@ -21,7 +23,7 @@ static void grow_cache(idx_t n_needed) {
     if (cache_cap >= n_needed + 1) return;
     idx_t new_cap = (cache_cap == 0) ? 4 : cache_cap * 2;
     while (new_cap <= n_needed) new_cap *= 2;
-    seq_t *new_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, seq_cache, new_cap);
     for (idx_t i = cache_cap; i < new_cap; ++i) new_cache[i] = 0;
     seq_cache = new_cache;
     cache_cap = new_cap;

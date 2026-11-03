@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   has_one0_and_one3
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,20 @@
 /* Numbers whose base-5 representation contains exactly one 0 and one 3 (search) */
 #include <stdlib.h>   /* malloc, realloc, free */
 #include <stdint.h>   /* uint64_t, etc. */
-#include "../utils/has_one0_and_one3.h"
+#include "../utils/mem.h"
+
+/* test if x has exactly one 0 digit and exactly one 3 digit in base 5 */
+static inline int has_one0_and_one3(seq_t x)
+{
+    int cnt0 = 0, cnt3 = 0;
+    while (x != 0) {
+        int d = (int)(x % (seq_t)5);
+        if (d == 0) ++cnt0;
+        else if (d == 3) ++cnt3;
+        x /= (seq_t)5;
+    }
+    return (cnt0 == 1 && cnt3 == 1);
+}
 
 static seq_t *cache = NULL;    /* store generated terms */
 static size_t  cache_len = 0;  /* number of terms stored */
@@ -31,7 +45,7 @@ static inline void ensure_cache_capacity(size_t needed)
     size_t new_cap = (cache_cap) ? cache_cap << 1 : 16;
     if (new_cap < needed)
         new_cap = needed;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) {
         /* out of memory – abort silently (not desired in contest setting) */
         abort();

@@ -10,6 +10,7 @@
  *            = 1023 terms; all are generated once and then indexed
  * Range:     u8 n <= 10, u16 n <= 62, u32 n <= 1022, u64 n <= 1023,
  *            u128 n <= 1023, big any n
+ * Validated: full, pass, 1023 terms through n = 1023 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

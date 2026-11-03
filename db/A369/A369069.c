@@ -7,8 +7,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign
  * Formula:   a(n) = Sum_{d|n} λ(n/d) * (d' / gcd(d,d'))
- * Range:     i8 n <= 63, i16 n <= 9826, i32 n <= 9826, i64 n <= 9826,
- *            i128 n <= 9826, big any n
+ * Range:     i8 n <= 63, i16 n <= 16383, i32 n <= 16384, i64 n <= 16384,
+ *            i128 n <= 16384, big any n
+ * Validated: standard, pass, 110 terms through n = 9826 (2026-11-01)
  * Helpers:   factor_u64, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,8 +17,11 @@
 
 /* where λ is Liouville's λ function and d' is the arithmetic derivative of d */
 
-#include "../utils/gcd.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
 
 static uint64_t prime_factors[64];
 static uint64_t exponents[64];

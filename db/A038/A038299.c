@@ -8,16 +8,23 @@
  *            = n - e*(e+1)/2
  * Range:     u8 n <= 5, u16 n <= 15, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   binomial, pow_int, seq_mul
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_int.h"
-#include "../utils/seq_mul.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -41,6 +48,6 @@ seq_t a(idx_t n)
 
     /* a(n) = binomial(e,k) * 9^e. */
     seq_t coeff = binomial(e, k);
-    seq_t pow9  = pow_int(9, e);
+    seq_t pow9  = ipow_idx(9, e);
     return seq_mul(coeff, pow9);
 }

@@ -9,7 +9,8 @@
  *            primes. The sequence is generated on demand
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 86 terms through n = 86 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Memoised run‑sums cache */
 static seq_t *run_sums = NULL;          /* array of computed values */
@@ -44,7 +46,7 @@ static void append_run_sum(seq_t val)
 {
     if (run_sums_len == run_sums_cap) {
         run_sums_cap = run_sums_cap ? run_sums_cap * 2 : 4;
-        run_sums = (seq_t *)realloc(run_sums, run_sums_cap * sizeof(seq_t));
+        run_sums = mem_resize(seq_t, run_sums, run_sums_cap);
     }
     run_sums[run_sums_len++] = val;
 }
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
     /* Allocate cache on first call */
     if (run_sums == NULL) {
         run_sums_cap = 4;
-        run_sums = (seq_t *)malloc(run_sums_cap * sizeof(seq_t));
+        run_sums = mem_new(seq_t, run_sums_cap);
     }
 
     /* Generate primes and process runs until we have at least n terms */

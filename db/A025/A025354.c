@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _floor_isqrt_u64
+ * Validated: standard, pass, 65 terms through n = 9066 (2026-11-03)
+ * Helpers:   isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 /* static state ------------------------------------------------------------ */
 static seq_t *terms     = NULL;   /* stored terms in ascending order   */
@@ -46,7 +48,7 @@ static void recompute_terms(idx_t needed)
         if (!cnt)
             return;                                   /* allocation failure */
 
-        idx_t max_i = _floor_isqrt_u64(lim);
+        idx_t max_i = isqrt(lim);
         for (idx_t a = 1; a <= max_i; ++a) {
             seq_t a2 = (seq_t)a * a;
             for (idx_t b = a + 1; b <= max_i; ++b) {
@@ -63,7 +65,7 @@ static void recompute_terms(idx_t needed)
         }
 
         /* --- rebuild the terms array from the counts --- */
-        free(terms);
+        mem_free(terms);
         terms = NULL;
         terms_len = 0;
         terms_cap = 0;
@@ -72,7 +74,7 @@ static void recompute_terms(idx_t needed)
             if (cnt[(size_t)s] >= 8) {
                 if (terms_len == terms_cap) {
                     terms_cap = terms_cap ? terms_cap * 2 : 64;
-                    seq_t *tmp = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, terms, terms_cap);
                     if (!tmp) { free(cnt); return; }
                     terms = tmp;
                 }

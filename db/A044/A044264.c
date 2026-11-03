@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 40, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   alloc_seq_array, free_seq_array, has_14_in_base9
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,9 +24,34 @@
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
-#include "../utils/has_14_in_base9.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
+
+/* Return true if the base‑9 representation of v contains the adjacent digits
+ * 1 followed by 4.  v is an idx_t (uint64_t). */
+static bool has_14_in_base9(idx_t v)
+{
+    int prev = -1;                 /* lower digit, -1 means none yet */
+    while (v > 0) {
+        int d = v % 9;             /* current higher digit */
+        if (d == 1 && prev == 4)
+            return true;
+        prev = d;
+        v /= 9;
+    }
+    return false;
+}
 
 /* Memoisation data ------------------------------------------------------- */
 static seq_t *cache = NULL;        /* array of found terms */

@@ -9,7 +9,8 @@
  *            9, 16, 25, 27, 32, 36, 49, ... )
  * Range:     u8 n <= 11, u16 n <= 57, u32 n <= 982, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 9941 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,15 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 /* Node stored in the heap */
 typedef struct {
@@ -54,6 +64,17 @@ static size_t processed = 0;
 static uint64_t next_base = 2;
 
 /* Helper to grow a heap or a table ----------------------------------- */
+#ifdef __cplusplus
+template <class T>
+static void grow_array(T **ptr, size_t *cap, size_t elem_size)
+{
+    size_t new_cap = (*cap == 0) ? 128 : (*cap << 1);
+    T *tmp = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+    if (!tmp) exit(1); /* allocation error */
+    *ptr  = tmp;
+    *cap  = new_cap;
+}
+#else
 static void grow_array(void **ptr, size_t *cap, size_t elem_size)
 {
     size_t new_cap = (*cap == 0) ? 128 : (*cap << 1);
@@ -62,12 +83,13 @@ static void grow_array(void **ptr, size_t *cap, size_t elem_size)
     *ptr  = tmp;
     *cap  = new_cap;
 }
+#endif
 
 /* Heap operations ----------------------------------------------------- */
 static void heap_push(seq_t val, uint64_t base, uint8_t exp)
 {
     if (heap_size == heap_cap) {
-        grow_array((void**)&heap, &heap_cap, sizeof(hp_node_t));
+        grow_array(OEISC_VPP(&heap), &heap_cap, sizeof(hp_node_t));
     }
     heap[heap_size].val  = val;
     heap[heap_size].base = base;
@@ -108,7 +130,7 @@ seq_t a(idx_t n)
 {
     /* Ensure tables are allocated */
     if (abs_cap == 0) {
-        grow_array((void**)&abs_sum_table, &abs_cap, sizeof(seq_t));
+        grow_array(OEISC_VPP(&abs_sum_table), &abs_cap, sizeof(seq_t));
         abs_len = 0;
     }
 
@@ -119,7 +141,7 @@ seq_t a(idx_t n)
         processed = 1;
         neg_sum += val1;               /* index 1 is odd (negative sign) */
         seq_t diff = (pos_sum >= neg_sum) ? (pos_sum - neg_sum) : (neg_sum - pos_sum);
-        if (abs_len == abs_cap) grow_array((void**)&abs_sum_table, &abs_cap, sizeof(seq_t));
+        if (abs_len == abs_cap) grow_array(OEISC_VPP(&abs_sum_table), &abs_cap, sizeof(seq_t));
         abs_sum_table[abs_len++] = diff;
     }
 
@@ -150,7 +172,7 @@ seq_t a(idx_t n)
 
             seq_t diff = (pos_sum >= neg_sum) ? (pos_sum - neg_sum)
                                                : (neg_sum - pos_sum);
-            if (abs_len == abs_cap) grow_array((void**)&abs_sum_table, &abs_cap, sizeof(seq_t));
+            if (abs_len == abs_cap) grow_array(OEISC_VPP(&abs_sum_table), &abs_cap, sizeof(seq_t));
             abs_sum_table[abs_len++] = diff;
         }
     }

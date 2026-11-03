@@ -9,6 +9,7 @@
  *            11250*a(n-4) + 22500*a(n-5) - 18750*a(n-6) otherwise
  * Range:     i8 n <= 5, i16 n <= 6, i32 n <= 10, i64 n <= 17, i128 n <= 25,
  *            big any n
+ * Validated: standard, pass, 26 terms through n = 25 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

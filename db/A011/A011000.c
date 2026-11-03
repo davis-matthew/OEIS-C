@@ -7,13 +7,14 @@
  * Formula:   a(n) = binomial(n,47)
  * Range:     u8 n <= 48, u16 n <= 50, u32 n <= 55, u64 n <= 72, u128 n <= 145,
  *            big any n
- * Helpers:   ugcd64
+ * Validated: standard, pass, 37 terms through n = 989 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/ugcd64.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +36,7 @@ seq_t a(idx_t n)
         for (idx_t j = 0; j < K; ++j) {
             if (denominators[i] == 1)
                 break;
-            unsigned long long g = ugcd64((unsigned long long)numerators[j],
+            unsigned long long g = gcd_u64((unsigned long long)numerators[j],
                                           (unsigned long long)denominators[i]);
             if (g > 1) {
                 numerators[j] /= g;

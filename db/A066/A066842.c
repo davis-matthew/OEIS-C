@@ -8,15 +8,41 @@
  * Formula:   a(n) = Product_{k|n} k^k
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 11, u128 n <= 19,
  *            big any n
- * Helpers:   _factor, big_pow
+ * Validated: standard, pass, 31 terms through n = 100 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/big_pow.h"
-#include "../utils/_factor.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
+
+/* Helper to factor n into primes (pr) and exponents (ex).  */
+static void
+_factor(uint64_t n, uint64_t *pr, int *ex, size_t *cnt)
+{
+    size_t c = 0;
+    for (uint64_t p = 2; p * p <= n; ++p) {
+        if (n % p == 0) {
+            int e = 0;
+            while (n % p == 0) {
+                n /= p;
+                ++e;
+            }
+            pr[c] = p;
+            ex[c] = e;
+            ++c;
+        }
+    }
+    if (n > 1) {
+        pr[c] = n;
+        ex[c] = 1;
+        ++c;
+    }
+    *cnt = c;
+}
 
 /* Recursively generate all divisors of n.  For each divisor d,
    multiply the running product by d^d. */
@@ -30,7 +56,7 @@ _gen_divs(size_t idx,
 {
     if (idx == cnt) {
         seq_t val   = (seq_t)cur;      /* divisor d as seq_t   */
-        seq_t pow   = big_pow(val, val); /* d^d                 */
+        seq_t pow   = ipow(val, val); /* d^d                 */
         *res        = (*res) * pow;
         return;
     }

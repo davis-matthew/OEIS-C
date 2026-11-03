@@ -11,6 +11,7 @@
  *            index(3)=2, …)
  * Range:     u8 n <= 18, u16 n <= 52, u32 n <= 130, u64 n <= 310,
  *            u128 n <= 718, big any n
+ * Validated: standard, pass, 80 terms through n = 1871 (2026-11-01)
  * Helpers:   build_primes_upto, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 
+#include <stdbool.h>
+#include <stdint.h>
 #include "../utils/build_primes_upto.h"
 #include "../utils/pow2.h"
 

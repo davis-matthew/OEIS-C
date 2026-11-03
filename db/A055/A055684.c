@@ -7,13 +7,15 @@
  * Formula:   a(n) = number of integers x with 2 ≤ x ≤ ⌊(n-1)/2⌋ such that
  *            gcd(x , n) = 1 (equivalently, the number of coprime unordered
  *            pairs (x, n−x) adding to n, with x > 1 and n−x > 1)
- * Range:     u8 n <= 519, u16 n <= 9812, u32 n <= 9812, u64 n <= 9812,
- *            u128 n <= 9812, big any n
+ * Range:     u8 n <= 519, u16 n <= 10002, u32 n <= 10002, u64 n <= 10002,
+ *            u128 n <= 10002, big any n
+ * Validated: standard, pass, 92 terms through n = 9812 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

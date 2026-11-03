@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 134, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   add_runs, runlen_rightmost
+ * Validated: standard, pass, 97 terms through n = 9797 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,69 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/add_runs.h"
-#include "../utils/runlen_rightmost.h"
+#include "../utils/mem.h"
+
+/* add all runs of value v to the counts table */
+static void add_runs(seq_t v, uint64_t *counts, size_t *cap)
+{
+    if (v == (seq_t)0) {
+        if (1 >= *cap) {
+            size_t newcap = (*cap) * 2 < 2 ? 2 : (*cap) * 2;
+            uint64_t *nc = (uint64_t *)realloc(counts, newcap * sizeof(uint64_t));
+            memset(nc + *cap, 0, (newcap - *cap) * sizeof(uint64_t));
+            counts = nc;
+            *cap = newcap;
+        }
+        counts[1] += 1;
+        return;
+    }
+    bool cur = (bool)(v & (seq_t)1);
+    size_t runlen = 1;
+    seq_t t = v >> 1;
+    while (t != (seq_t)0) {
+        bool next = (bool)(t & (seq_t)1);
+        if (next == cur) {
+            ++runlen;
+        } else {
+            if (runlen >= *cap) {
+                size_t newcap = (*cap) * 2;
+                if (newcap <= runlen) newcap = runlen + 1;
+                uint64_t *nc = (uint64_t *)realloc(counts, newcap * sizeof(uint64_t));
+                memset(nc + *cap, 0, (newcap - *cap) * sizeof(uint64_t));
+                counts = nc;
+                *cap = newcap;
+            }
+            ++counts[runlen];
+            cur = next;
+            runlen = 1;
+        }
+        t >>= 1;
+    }
+    if (runlen >= *cap) {
+        size_t newcap = (*cap) * 2;
+        if (newcap <= runlen) newcap = runlen + 1;
+        uint64_t *nc = (uint64_t *)realloc(counts, newcap * sizeof(uint64_t));
+        memset(nc + *cap, 0, (newcap - *cap) * sizeof(uint64_t));
+        counts = nc;
+        *cap = newcap;
+    }
+    ++counts[runlen];
+}
+
+/* compute rightmost run length of binary representation of v */
+static size_t runlen_rightmost(seq_t v)
+{
+    if (v == (seq_t)0) return 1;
+    bool b = (bool)(v & (seq_t)1);
+    size_t l = 1;
+    seq_t t = v >> 1;
+    while (t != (seq_t)0) {
+        if ((bool)(t & (seq_t)1) != b) break;
+        ++l;
+        t >>= 1;
+    }
+    return l;
+}
 
 /* main sequence function */
 seq_t a(idx_t n)
@@ -39,7 +101,7 @@ seq_t a(idx_t n)
     /* initialise once */
     if (!seq) {
         seq_cap = 4;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         seq_len = 1;
         seq[0] = (seq_t)0;
 
@@ -71,7 +133,7 @@ seq_t a(idx_t n)
             if ((size_t)i >= seq_cap) {
                 size_t newcap = seq_cap * 2;
                 if (newcap <= (size_t)i) newcap = (size_t)i + 1;
-                seq = (seq_t *)realloc(seq, newcap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, newcap);
                 seq_cap = newcap;
             }
             seq[i] = val;

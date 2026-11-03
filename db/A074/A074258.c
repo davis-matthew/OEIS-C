@@ -11,7 +11,8 @@
  *            resizable table, and returns table[n-1] for any n≥1
  * Range:     u8 n <= 237, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   isPrime64
+ * Validated: standard, pass, 83 terms through n = 826 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/isPrime64.h"   /* isPrime64(uint64_t) – fast 64‑bit primality test */
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Dynamic gap storage (static across calls) */
@@ -46,7 +48,7 @@ static void ensure_gap_capacity(size_t need)
     size_t new_cap = (gap_capacity == 0) ? 128 : gap_capacity * 2;
     if (new_cap < need) new_cap = need;
 
-    seq_t *new_table = (seq_t *)realloc(gap_table, new_cap * sizeof(seq_t));
+    seq_t *new_table = mem_resize(seq_t, gap_table, new_cap);
     if (!new_table) {                 /* allocation failure – abort silently */
         exit(1);
     }
@@ -62,7 +64,7 @@ static void generate_gaps_until(size_t n)
     while (gap_count < n) {
         /* Find next prime p */
         for (;;) {
-            if (isPrime64(next_p)) break;
+            if (is_prime_u64(next_p)) break;
             ++next_p;
         }
 
@@ -71,7 +73,7 @@ static void generate_gaps_until(size_t n)
 
         /* Check whether 2p-1 is prime.  Use 128‑bit to avoid overflow. */
         idx_t q = (idx_t)(((unsigned __int128)p << 1) - 1);
-        if (!isPrime64(q)) continue;       /* not a qualifying prime          */
+        if (!is_prime_u64(q)) continue;       /* not a qualifying prime          */
 
         /* Record the gap if we already have a preceding special prime. */
         if (last_special != 0) {

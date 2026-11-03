@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 62, u32 n <= 200, u64 n <= 200,
  *            u128 n <= 200, big any n
- * Helpers:   seqlen
+ * Validated: standard, pass, 60 terms through n = 193 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,22 @@
  * uses only the digits 1 and 3 (each digit is either 1 or 3).
  * The function enumerates the numbers by length and by binary pattern. */
 #include <stdint.h>
-#include "../utils/seqlen.h"
+
+static idx_t seqlen(idx_t n)
+{
+    /* Find the length L of the base‑11 representation (number of digits).
+       For length L there are 2^L numbers. The cumulative count up to
+       length L is 2^(L+1) – 2. We need the smallest L such that
+       2^(L+1) – 2 ≥ n.
+       Equivalent to finding the smallest L such that 2^(L+1) ≥ n+2.  */
+    if (n > UINT64_MAX - 2)                /* handle overflow of n+2 */
+        return 63;                          /* maximum possible length */
+
+    uint64_t x = n + 2;                    /* x ≥ 3, safe */
+    /* ceil(log2(x)) = 64 - clz(x-1) for x>1 */
+    int bits = 64 - __builtin_clzll(x - 1);
+    return (idx_t)(bits - 1);              /* length = ceil(log2(x)) - 1 */
+}
 
 /* Compute the nth term (n >= 1). */
 seq_t a(idx_t n)

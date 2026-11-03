@@ -7,7 +7,8 @@
  * Formula:   a(n) = reverse(4 * a(n-1)), a(1) = 1
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 20, u128 n <= 39,
  *            big any n
- * Helpers:   reverse
+ * Validated: standard, pass, 37 terms through n = 836 (2026-11-03)
+ * Helpers:   mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,8 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/reverse.h"
+#include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* Initial allocation and first element. */
     if (cache == NULL) {
         size_t init_cap = 2;                           /* index 0 unused, index 1 stored */
-        cache = (seq_t *)malloc(init_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, init_cap);
         if (cache == NULL) return 0;                 /* allocation failure: signal error */
         cache[0] = (seq_t)0;
         cache[1] = (seq_t)1;
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     /* Extend cache if required. */
     if ((size_t)n >= cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) return 0;                  /* allocation failure: signal error */
         cache = tmp;
         cap   = new_cap;
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     /* Compute values that are still missing, iteratively. */
     for (idx_t i = cached_n + 1; i <= n; ++i) {
         seq_t prod = cache[i - 1] * (seq_t)4;
-        cache[i] = reverse(prod);
+        cache[i] = reverse_digits(prod);
     }
     cached_n = n;
 

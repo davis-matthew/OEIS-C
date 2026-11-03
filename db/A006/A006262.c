@@ -7,12 +7,14 @@
  * Formula:   a(n) = Product k^(2^(k-2)), k = 2..n
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 5, u128 n <= 6,
  *            big any n
- * Helpers:   A001832_pow2
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/A001832_pow2.h"
+#include <stdint.h>
+#include "../utils/pow2.h"
 
 static seq_t power_seq(seq_t base, seq_t exp) {
     seq_t result = 1;
@@ -27,7 +29,7 @@ static seq_t power_seq(seq_t base, seq_t exp) {
 seq_t a(idx_t n) {
     seq_t result = 1;
     for (idx_t k = 2; k <= n; k++) {
-        seq_t exp = A001832_pow2(k - 2);
+        seq_t exp = pow2(k - 2);
         seq_t term = power_seq((seq_t)k, exp);
         result *= term;
     }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 9504 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* Generate the English name of a non‑negative integer, without spaces
@@ -26,7 +28,7 @@
 static char *eng_name(idx_t n)
 {
     if (n == 0) {
-        return strdup("zero");
+        return mem_strdup("zero");
     }
 
     /* Temporary buffer – large enough for numbers up to several million. */
@@ -125,7 +127,7 @@ static void extend_cache(idx_t n)
     if (g_names == NULL) {
         size_t new_cap = (size_t)n + 1;
         g_names    = (char **)malloc(new_cap * sizeof(*g_names));
-        g_a_cache  = (seq_t *)malloc(new_cap * sizeof(*g_a_cache));
+        g_a_cache  = mem_new(seq_t, new_cap);
         if (!g_names || !g_a_cache) abort();
         g_names[0]    = eng_name(0);          /* "zero" */
         g_a_cache[0]  = (seq_t)0;             /* a(0) = 0 */
@@ -139,7 +141,7 @@ static void extend_cache(idx_t n)
     /* Resize the arrays. */
     size_t new_cap = (size_t)n + 1;
     char **tmp_names = (char **)realloc(g_names, new_cap * sizeof(*g_names));
-    seq_t *tmp_cache = (seq_t *)realloc(g_a_cache, new_cap * sizeof(*g_a_cache));
+    seq_t *tmp_cache = mem_resize(seq_t, g_a_cache, new_cap);
     if (!tmp_names || !tmp_cache) abort();
     g_names   = tmp_names;
     g_a_cache = tmp_cache;

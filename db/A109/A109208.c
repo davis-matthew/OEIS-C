@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   digit_sum_uint64, is_prime, make_pal, seq_to_dec_string
+ * Validated: standard, pass, 49 terms through n = 54 (2026-11-03)
+ * Helpers:   digit_sum_u64, is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,10 +24,54 @@
 #include <inttypes.h>
 #include <stdio.h>
 
-#include "../utils/digit_sum_uint64.h"
-#include "../utils/is_prime.h"   /* provides bool is_prime(uint64_t) */
-#include "../utils/seq_to_dec_string.h"   /* seq_to_dec_string(seq_t, char*, size_t) */
-#include "../utils/make_pal.h"
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/digit_sum_u64.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+/* Convert a seq_t value to a decimal string.  The buffer must be
+   large enough to hold the result.  */
+static void seq_to_dec_string(seq_t val, char *buf, size_t buflen)
+{
+    seq_t v = val;
+    if (v == 0) {
+        if (buflen >= 2) {
+            buf[0] = '0';
+            buf[1] = '\0';
+        }
+        return;
+    }
+    size_t pos = 0;
+    /* Extract digits in reverse order. */
+    while (v != 0 && pos + 1 < buflen) {
+        seq_t d = v % 10;
+        v = v / 10;
+        buf[pos++] = (char)('0' + (int)d);
+    }
+    /* Null‑terminate and reverse the string. */
+    if (pos >= buflen) pos = buflen - 1;
+    buf[pos] = '\0';
+    for (size_t i = 0; i < pos / 2; ++i) {
+        char tmp = buf[i];
+        buf[i] = buf[pos - 1 - i];
+        buf[pos - 1 - i] = tmp;
+    }
+}
+
+/* Build a palindrome from its left half.
+   For even length we mirror all digits of half.
+   For odd length we skip the middle digit of half when mirroring. */
+static inline uint64_t make_pal(uint64_t half, int len) {
+    uint64_t pal = half;
+    uint64_t x   = half;
+    if (len & 1) x /= 10U;          /* drop middle digit when odd */
+    while (x > 0) {
+        pal = pal * 10U + (x % 10U);
+        x  /= 10U;
+    }
+    return pal;
+}
 
 /* ----- helpers ----------------------------------------------------- */
 
@@ -38,7 +83,7 @@ static inline uint64_t pow10_uint64(int exp) {
 
 /* Test whether the decimal digit sum of p appears as a substring in p. */
 static bool has_sum_substring(uint64_t p) {
-    uint64_t sum = digit_sum_uint64(p);
+    uint64_t sum = digit_sum_u64(p);
     char pbuf[64];
     char sbuf[32];
     seq_to_dec_string((seq_t)p, pbuf, sizeof(pbuf));
@@ -65,17 +110,17 @@ static void generate_until(size_t target) {
     /* Allocate cache lazily */
     if (cache == NULL) {
         cache_capacity = 1024;
-        cache = (seq_t *)malloc(cache_capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_capacity);
     }
 
     /* Generate terms until we have enough */
     while (cache_size < target) {
         uint64_t pal = make_pal(cur_half, cur_len);
-        if (is_prime(pal) && has_sum_substring(pal)) {
+        if (is_prime_u64(pal) && has_sum_substring(pal)) {
             /* Grow cache if necessary */
             if (cache_size >= cache_capacity) {
                 cache_capacity *= 2;
-                cache = (seq_t *)realloc(cache, cache_capacity * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_capacity);
             }
             cache[cache_size++] = (seq_t)pal;
         }

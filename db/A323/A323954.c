@@ -10,6 +10,7 @@
  *            + Sum_{i=1..floor(n/(k+1))} n*binomial(n-i*k-1,i-1)/i
  * Range:     u8 n <= 28, u16 n <= 136, u32 n <= 528, u64 n <= 1275,
  *            u128 n <= 1275, big any n
+ * Validated: standard, pass, 94 terms through n = 1176 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 
 /* Utility: binomial coefficients (passed through the utils directory) */
 #include <math.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* Computes a(n) for n >= 1.  Returns 0 for n == 0 (not part of the range). */

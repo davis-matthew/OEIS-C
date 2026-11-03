@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 63, u16 n <= 1116, u32 n <= 1116, u64 n <= 1116,
  *            u128 n <= 1116, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 1113 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 typedef struct { size_t size, cap; uint32_t *v; } BigInt;
 
@@ -218,7 +220,7 @@ seq_t a(idx_t n)
         if (bit_r && bit_s) {
             if (cache_cap <= cache_size) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-                cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, new_cap);
                 cache_cap = new_cap;
             }
             cache[cache_size++] = (seq_t)(current_k + 1);

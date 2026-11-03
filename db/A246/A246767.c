@@ -7,6 +7,7 @@
  * Formula:   a(n) = (n-1)^4 - 2*(n-1) (with offset 1)
  * Range:     i8 n <= 4, i16 n <= 14, i32 n <= 39, i64 n <= 39, i128 n <= 39,
  *            big any n
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

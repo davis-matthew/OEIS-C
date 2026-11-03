@@ -11,13 +11,15 @@
  *            arbitrary‑precision builds seq_t is a big‑integ...
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 9682 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------
  *   Lightweight big‑integer helper (32‑bit words) – used only for the
@@ -160,12 +162,12 @@ static void ensure_digits(size_t need) {
 
     if (dig_arr == NULL) {
         dig_cap = (need > 32 ? need : 32);
-        dig_arr = (seq_t *)malloc(dig_cap * sizeof(seq_t));
+        dig_arr = mem_new(seq_t, dig_cap);
         if (!dig_arr) abort();
     } else if (dig_cap < need) {
         size_t newcap = dig_cap * 2;
         if (newcap < need) newcap = need;
-        seq_t *tmp = (seq_t *)realloc(dig_arr, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dig_arr, newcap);
         if (!tmp) abort();
         dig_arr = tmp;
         dig_cap = newcap;

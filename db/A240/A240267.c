@@ -14,14 +14,27 @@
  *            sequence starts with a(1)=10
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 31, u128 n <= 63,
  *            big any n
- * Helpers:   pack_state
+ * Validated: standard, pass, 38 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/pack_state.h"
+#include "../utils/mem.h"
+
+/* Helper for packing state components into a single integer in the range [0,4095]  */
+static inline unsigned int pack_state(unsigned int cs0, unsigned int cs1, unsigned int cs2,
+                                      unsigned int pr0, unsigned int pr1, unsigned int pp0)
+{
+    unsigned int v = cs0;          /* 0..3  */
+    v = (v << 2) | cs1;            /* 0..15 */
+    v = (v << 2) | cs2;            /* 0..63 */
+    v = (v << 4) | (pr0 << 2) | pr1; /* 0..4095 */
+    v = (v << 2) | pp0;
+    return v;
+}
 
 /* Number of states: 3 columns for column sums, 2 columns for previous row,
    and one column for the row before that. */
@@ -114,8 +127,8 @@ seq_t a(idx_t n)
     init_transitions();
 
     /* DP arrays.  */
-    seq_t *dp = (seq_t *)calloc(STATE_COUNT, sizeof(seq_t));
-    seq_t *dp_next = (seq_t *)calloc(STATE_COUNT, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, STATE_COUNT);
+    seq_t *dp_next = mem_new(seq_t, STATE_COUNT);
 
     /* Initial state: all column sums zero, previous row all zero, previous‑prev zero. */
     unsigned int init_state = pack_state(0,0,0, 0,0,0);
@@ -144,8 +157,8 @@ seq_t a(idx_t n)
         answer += dp[i];
 
     /* Clean up.  */
-    free(dp);
-    free(dp_next);
+    mem_free(dp);
+    mem_free(dp_next);
     /* If you want to free the transitions after all calls, uncomment next line. */
     /* free_transitions(); */
 

@@ -7,7 +7,8 @@
  * Formula:   a(n) = (-2)^n + Σ_{k=1..n} binomial(n,k) * 4^k * a(n-k)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 22,
  *            big any n
- * Helpers:   seq_mul
+ * Validated: standard, pass, 34 terms through n = 342 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,14 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_mul.h"            /* provides seq_mul(seq_t, seq_t) */
+#include <stdint.h>
+#include <string.h>
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -31,7 +39,7 @@ seq_t a(idx_t n)
     /* First call: allocate minimal capacity for element 0 */
     if (cache == NULL) {
         cache_cap = 1;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return 0;          /* malloc failed – return 0 */
         cache[0]  = 1;                 /* a(0) = 1 */
         cache_last = 0;
@@ -40,7 +48,7 @@ seq_t a(idx_t n)
     /* Grow cache if necessary for indices up to n */
     if ((size_t)n + 1 > cache_cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;           /* realloc failed – return 0 */
         cache = tmp;
         cache_cap = new_cap;

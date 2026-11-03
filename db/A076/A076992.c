@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 11, u32 n <= 40, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
  */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Return the n‑th term of sequence A076992.  */
 seq_t a(idx_t n)
@@ -53,8 +55,8 @@ seq_t a(idx_t n)
         used_small[1] = true;                          /* a(1) = 1 is already used       */
 
         cap = 16;
-        seq  = (seq_t *)malloc(cap * sizeof(seq_t));
-        pref = (seq_t *)malloc((cap + 1) * sizeof(seq_t));
+        seq  = mem_new(seq_t, cap);
+        pref = mem_new(seq_t, (cap + 1));
         if (!seq || !pref) exit(EXIT_FAILURE);
         pref[0] = 0;
 
@@ -69,11 +71,11 @@ seq_t a(idx_t n)
     while (len < n) {
         if (len == cap) {                           /* grow if full */
             size_t new_cap = cap * 2;
-            seq_t *new_seq  = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+            seq_t *new_seq  = mem_resize(seq_t, seq, new_cap);
             if (!new_seq) exit(EXIT_FAILURE);
             seq = new_seq;
 
-            seq_t *new_pref = (seq_t *)realloc(pref, (new_cap + 1) * sizeof(seq_t));
+            seq_t *new_pref = mem_resize(seq_t, pref, (new_cap + 1));
             if (!new_pref) exit(EXIT_FAILURE);
             pref = new_pref;
 

@@ -7,12 +7,14 @@
  * Formula:   a(n) = n^n - (n-2)^n
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 16, u128 n <= 18,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -20,7 +22,7 @@ seq_t a(idx_t n)
         return (seq_t)2;        /* special case – 1^1 - (-1)^1 = 2 */
 
     /* pow_seq(base, exponent) : base is seq_t, exponent is int   */
-    seq_t p1 = pow_seq((seq_t)n, (int)n);                 /* n^n */
-    seq_t p2 = pow_seq((seq_t)(n - 2), (int)n);           /* (n-2)^n */
+    seq_t p1 = ipow_i32((seq_t)n, (int)n);                 /* n^n */
+    seq_t p2 = ipow_i32((seq_t)(n - 2), (int)n);           /* (n-2)^n */
     return p1 - p2;
 }

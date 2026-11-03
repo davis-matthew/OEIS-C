@@ -13,14 +13,26 @@
  *            binomial(idx_t n, idx_t k) from the utils...
  * Range:     u8 n <= 31, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   binomial, cum_rows
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/cum_rows.h"
+
+/* total number of terms up to and including row r */
+static inline idx_t cum_rows(idx_t r)
+{
+    if (r == 0) return 0;
+    idx_t t = r >> 1;                     /* floor(r/2)           */
+    __uint128_t tt = (__uint128_t)t * t;   /* t² in 128 bits       */
+    if ((r & 1) == 0)                     /* r even   -> r + t²   */
+        return r + (idx_t)tt;
+    else                                  /* r odd    -> r + t² + t */
+        return r + (idx_t)tt + t;
+}
 
 seq_t a(idx_t n)
 {

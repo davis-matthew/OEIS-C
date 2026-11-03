@@ -8,13 +8,15 @@
  * Formula:   a(n) = 5*a(n-1) + 8*a(n-2), with a(0)=0, a(1)=1
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 25, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 998 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute sequence A015544 (Lucas sequence U(5,-8)). */
 seq_t a(idx_t n)
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     if (cache == NULL)
     {
         cache_cap = (size_t)2;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL)      /* allocation failed – return 0 as a safe fallback */
             return (seq_t)0;
         cache[0] = (seq_t)0;
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     size_t needed = (size_t)(n + 1);
     if (needed > cache_cap)
     {
-        seq_t *tmp = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, needed);
         if (tmp == NULL)
             return (seq_t)0;                   /* allocation failed – return 0 */
         cache = tmp;

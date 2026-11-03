@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 13, i16 n <= 31, i32 n <= 63, i64 n <= 127,
  *            i128 n <= 255, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 900 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
  *   G(x) = (1+3*x^2)/((1-x)*(1+x+2*x^2)*(1-x+2*x^2)).
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static storage for memoization of computed terms */
@@ -31,7 +33,7 @@ seq_t a(idx_t n) {
     /* Initial initialization on first call */
     if (dp == NULL) {
         dp_cap = 8;          /* start with small capacity */
-        dp = (seq_t *)malloc(dp_cap * sizeof(seq_t));
+        dp = mem_new(seq_t, dp_cap);
         if (dp == NULL) return 0;   /* allocation failure, return 0 as fallback */
 
         /* initial 5 terms of the sequence */
@@ -48,7 +50,7 @@ seq_t a(idx_t n) {
         size_t new_cap = dp_cap;
         while (n >= new_cap)
             new_cap = new_cap ? new_cap * 2 : 8;
-        seq_t *new_dp = (seq_t *)realloc(dp, new_cap * sizeof(seq_t));
+        seq_t *new_dp = mem_resize(seq_t, dp, new_cap);
         if (new_dp == NULL)
             return 0; /* allocation failure, fallback */
         dp = new_dp;

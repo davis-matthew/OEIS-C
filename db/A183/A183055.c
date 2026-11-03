@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 10, u32 n <= 10, u64 n <= 10, u128 n <= 10,
  *            big any n
- * Helpers:   is_palindrome
+ * Validated: partial, pass, 10 terms through n = 10 (2026-11-03)
+ * Helpers:   is_palindrome_base, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/is_palindrome.h"
+#include "../utils/is_palindrome_base.h"
+#include "../utils/mem.h"
 
 /* Expand a dynamic array of seq_t elements to accommodate at least `needed`
    elements.  `curr` is updated only when a new element is appended by the
@@ -30,7 +32,7 @@ static void ensure_cap(seq_t **ptr, size_t *cap, size_t *curr, size_t needed)
     if (needed <= *cap) return;
     size_t new_cap = (*cap) ? (*cap << 1) : 64;
     if (new_cap < needed) new_cap = needed;
-    seq_t *tmp = (seq_t *)realloc(*ptr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *ptr, new_cap);
     if (!tmp) { *ptr = NULL; *cap = 0; *curr = 0; return; }
     *ptr = tmp; *cap = new_cap;
 }
@@ -67,7 +69,7 @@ static void ensure_partition(idx_t n)
         part[part_sz++] = val;
 
         /* add to palindromic list if appropriate */
-        if (is_palindrome(val, 10)) {
+        if (is_palindrome_base(val, 10)) {
             ensure_cap(&pal, &pal_cap, &pal_sz, pal_sz + 1);
             if (!pal) return;
             pal[pal_sz++] = val;

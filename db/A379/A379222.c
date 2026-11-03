@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = number of trailing 1‑bits in σ((2*n‑1)^2)
- * Range:     u8 n <= 1111, u16 n <= 9176, u32 n <= 9176, u64 n <= 9176,
- *            u128 n <= 9176, big any n
+ * Range:     u8 n <= 1111, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 121 terms through n = 9176 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

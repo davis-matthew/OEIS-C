@@ -8,13 +8,15 @@
  *            A100854)
  * Range:     u8 n <= 14, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   none
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for cubes */
 static seq_t *cubes = NULL;
@@ -30,7 +32,7 @@ static void ensure_cubes(seq_t target)
 
     if (cube_capacity == 0) {
         cube_capacity = 64;
-        cubes = (seq_t *)malloc(cube_capacity * sizeof(seq_t));
+        cubes = mem_new(seq_t, cube_capacity);
     }
 
     while (1) {
@@ -40,7 +42,7 @@ static void ensure_cubes(seq_t target)
 
         if (cube_count >= cube_capacity) {
             cube_capacity *= 2;
-            cubes = (seq_t *)realloc(cubes, cube_capacity * sizeof(seq_t));
+            cubes = mem_resize(seq_t, cubes, cube_capacity);
         }
         cubes[cube_count++] = cube;
         last_cube_root = root;

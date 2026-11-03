@@ -13,6 +13,7 @@
  *            a_k(n)=3*a_k(n‑1)-2*a_k(n‑2)-a_k(n‑3)+a_k(n‑4)...
  * Range:     u8 n <= 21, u16 n <= 153, u32 n <= 820, u64 n <= 1104,
  *            u128 n <= 1104, big any n
+ * Validated: standard, pass, 70 terms through n = 1082 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

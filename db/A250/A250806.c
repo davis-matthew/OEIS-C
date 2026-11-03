@@ -11,7 +11,8 @@
  *            99*2^n + 20)/2)
  * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 16, u64 n <= 36, u128 n <= 76,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* The following static variables keep a memoization table so that
    calls to a() in any order remain fast. */
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call.  Store the first three terms. */
     if (cache == NULL) {
         cache_cap = 4; /* small initial capacity */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = (seq_t)100;   /* a(1) */
         cache[1] = (seq_t)379;   /* a(2) */
         cache[2] = (seq_t)1315;  /* a(3) */
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
         /* Ensure we have room for the new term. */
         if (cache_len >= cache_cap) {
             cache_cap *= 2;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
 
         cache[cache_len] = next;

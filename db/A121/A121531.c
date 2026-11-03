@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   add_to_array
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,7 +36,22 @@
 */
 
 #include <stdlib.h>
-#include "../utils/add_to_array.h"
+#include "../utils/mem.h"
+
+/* Add a shifted, scaled contribution from src to dest.
+   dest is of length dest_len, src of length src_len.
+   j = i + shift; only positions j<dest_len are processed. */
+static void add_to_array(seq_t *dest, idx_t dest_len,
+                         const seq_t *src, idx_t src_len,
+                         idx_t shift, seq_t scale)
+{
+    for (idx_t i = 0; i < src_len; ++i) {
+        idx_t j = i + shift;
+        if (j < dest_len) {
+            dest[j] += src[i] * scale;
+        }
+    }
+}
 
 /* The types seq_t and idx_t are supplied by the build environment.  They
    represent arbitrary‑precision unsigned integers and 64‑bit indices,
@@ -65,7 +81,7 @@ static void compute_next_row(idx_t n)
 {
     ensure_rows_capacity(n);
     idx_t len = (n + 1) >> 1;                   /* ceil(n/2) */
-    rows[n]   = (seq_t *)calloc(len, sizeof(seq_t));
+    rows[n]   = mem_new(seq_t, len);
     row_len[n] = len;
 
     /* Base rows */
@@ -87,7 +103,7 @@ static void compute_next_row(idx_t n)
     const idx_t  len6 = (a6) ? row_len[n-6] : 0;
 
     seq_t *res   = rows[n];           /* positive contributions */
-    seq_t *neg   = (seq_t *)calloc(len, sizeof(seq_t)); /* negative contributions */
+    seq_t *neg   = mem_new(seq_t, len); /* negative contributions */
 
     /* Positive terms: 2·T(n-1,k)  + 4·T(n-2,k-1)  + T(n-6,k-3) */
     add_to_array(res, len, a1, len1, 0, 2);
@@ -112,7 +128,7 @@ static void compute_next_row(idx_t n)
     for (idx_t j = 0; j < len; ++j) {
         res[j] -= neg[j];
     }
-    free(neg);
+    mem_free(neg);
 }
 
 /* Ensure that rows up to the required flattened index are computed. */

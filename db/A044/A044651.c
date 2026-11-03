@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 40, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   has21_in_base9
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,21 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/has21_in_base9.h"
+
+/* Helper: does x (in base 9) contain the substring 2 1 ? */
+static bool has21_in_base9(seq_t x)
+{
+    int prev = -1;                 /* previous digit, -1 means “none yet”   */
+    while (x > (seq_t)0)
+    {
+        int digit = (int)(x % (seq_t)9);
+        if (digit == 2 && prev == 1)
+            return true;          /* found 2 followed by 1 (most→least)   */
+        prev = digit;
+        x /= (seq_t)9;
+    }
+    return false;
+}
 
 /* Main function required by the build system */
 seq_t a(idx_t n)

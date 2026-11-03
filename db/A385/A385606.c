@@ -8,11 +8,13 @@
  * Formula:   a(n) = Sum_{k=0..⌊n/3⌋} (n+2k)!/(k!^5 * (n-3k)!)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 18, u128 n <= 21,
  *            big any n
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 static seq_t next_term(idx_t n, idx_t k, seq_t term) {

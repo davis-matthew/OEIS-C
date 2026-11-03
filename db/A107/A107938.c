@@ -7,9 +7,10 @@
  * Keywords:  nonn, base
  * Formula:   a(n) = the n-th positive integer m such that m and the m‑th
  *            prime share exactly one common digit, which is 7
- * Range:     u8 n <= 8, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
- *            big any n
- * Helpers:   digit_mask_uint64
+ * Range:     u8 n <= 8, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
+ *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 69 terms through n = 986 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,19 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/digit_mask_uint64.h"
+
+/* ---- helper: compute digit mask of a 64‑bit integer ---- */
+static uint16_t digit_mask_uint64(uint64_t x)
+{
+    uint16_t mask = 0;
+    if (x == 0) return 1u << 0;
+    while (x)
+    {
+        mask |= 1u << (unsigned)(x % 10);
+        x /= 10;
+    }
+    return mask;
+}
 
 /* ---- constants ---- */
 #define LIMIT           2000000   /* sieve limit – sufficient for n up to ~10000 */

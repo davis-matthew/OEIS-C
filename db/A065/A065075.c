@@ -7,7 +7,8 @@
  * Formula:   a(n) = sum of digits of (a(1)+...+a(n-1))
  * Range:     u8 n <= 30, u16 n <= 3658, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_sum
+ * Validated: standard, pass, 92 terms through n = 8357 (2026-11-03)
+ * Helpers:   digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/digit_sum.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;
@@ -30,7 +33,7 @@ seq_t a(idx_t n) {
     if (cache == NULL) {
         /* At least two entries to support a(2) */
         cap = (n > 2) ? n : 2;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         cache[0] = 1;
         if (cap > 1) cache[1] = 1;
         sum = (cap > 1) ? (seq_t)2 : (seq_t)1;
@@ -46,9 +49,9 @@ seq_t a(idx_t n) {
     if (cap < n) {
         size_t new_cap = cap * 2;
         if (new_cap < n) new_cap = n;
-        seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         for (size_t i = 0; i < len; ++i) new_cache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cap = new_cap;
     }

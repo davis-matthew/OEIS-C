@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 6, u128 n <= 9,
  *            big any n
- * Helpers:   digit_len, mul_small, pow10
+ * Validated: partial, pass, 10 terms through n = 9 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,15 +23,37 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/pow10.h"
-#include "../utils/mul_small.h"
-#include "../utils/digit_len.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 /* Append one run (count followed by digit) to the current number. */
 static seq_t append_run(seq_t cur, seq_t count, seq_t digit)
 {
     /* number of decimal digits of count */
-    idx_t k = (idx_t)digit_len(count) + 1;      /* +1 for the digit itself   */
+    idx_t k = (idx_t)num_digits(count) + 1;      /* +1 for the digit itself   */
     seq_t mult = pow10(k);                     /* 10^k                       */
     seq_t part = mul_small(count, 10) + digit; /* count*10 + digit           */
     return cur * mult + part;
@@ -76,7 +99,7 @@ seq_t a(idx_t n)
     /* initialize cache with a(0) */
     if (cache_len == 0) {
         cache_cap = 1;
-        cache = (seq_t*)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = 8;
         cache_len = 1;
     }
@@ -85,7 +108,7 @@ seq_t a(idx_t n)
     if (n >= cache_len) {
         idx_t new_cap = cache_cap;
         while (new_cap <= n) new_cap <<= 1;  /* grow geometrically */
-        seq_t *new_cache = (seq_t*)realloc(cache, sizeof(seq_t) * new_cap);
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         cache = new_cache;
         cache_cap = new_cap;
         for (idx_t i = cache_len; i <= n; ++i) {

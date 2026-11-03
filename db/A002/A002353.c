@@ -10,7 +10,8 @@
  *            quotient (starting from x^3 - 3) and substituting x = c + 1/y
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 18, u64 n <= 40, u128 n <= 79,
  *            big any n
- * Helpers:   a2353_sext
+ * Validated: standard, pass, 44 terms through n = 997 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a2353_sext.h"
+
+static uint32_t a2353_sext(const uint32_t *c, size_t idx) {
+    return (c[idx] >> 31) ? 0xFFFFFFFFu : 0u;
+}
 
 static uint32_t *a2353_C[4];
 static uint32_t *a2353_tmp;

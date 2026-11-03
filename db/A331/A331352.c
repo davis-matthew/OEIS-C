@@ -10,12 +10,14 @@
  *            30240*C(n,10)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 14, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"  /* Provides int binom(idx_t a, idx_t b); */
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 static const seq_t coeffs[9] = {
     (seq_t)6,
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
 {
     seq_t result = 0;
     for (idx_t k = 2; k <= 10 && k <= n; ++k) {
-        seq_t c = binom(n, k);
+        seq_t c = binomial(n, k);
         result += coeffs[k - 2] * c;
     }
     return result;

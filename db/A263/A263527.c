@@ -12,12 +12,14 @@
  *            coefficients of * phi(-x³) * f(-x⁶)³ / f(-x²)
  * Range:     i8 n <= 23, i16 n <= 811, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 92 terms through n = 996 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
         }
 
         /* Reallocate cache to new size */
-        seq_t *new_cache = (seq_t *)realloc(cache, new_sz * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_sz);
         if (new_cache == NULL)
         {
             free(c);

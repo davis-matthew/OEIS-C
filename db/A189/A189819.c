@@ -9,13 +9,15 @@
  *            memoisation
  * Range:     u8 n <= 677, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 120 terms through n = 9758 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* array of computed values     */
 static unsigned char *comp = NULL;   /* array of flags (0=unknown)   */
@@ -30,19 +32,19 @@ ensure_cache_size(idx_t n)
     size_t new_cap = cap ? cap : 1;
     while (new_cap <= (size_t)n) new_cap <<= 1;
 
-    seq_t  *new_cache = (seq_t*)malloc(new_cap * sizeof(seq_t));
+    seq_t  *new_cache = mem_new(seq_t, new_cap);
     unsigned char *new_comp =
         (unsigned char*)malloc(new_cap * sizeof(unsigned char));
-    if (!new_cache || !new_comp) { free(new_cache); free(new_comp); exit(1); }
+    if (!new_cache || !new_comp) { mem_free(new_cache); free(new_comp); exit(1); }
 
     if (cache) {
-        memcpy(new_cache, cache, cap * sizeof(seq_t));
+        mem_copy(new_cache, cache, cap * sizeof(seq_t));
         memcpy(new_comp, comp, cap * sizeof(unsigned char));
     }
-    memset(new_cache + cap, 0, (new_cap - cap) * sizeof(seq_t));
+    mem_set(new_cache + cap, 0, (new_cap - cap) * sizeof(seq_t));
     memset(new_comp + cap, 0, (new_cap - cap) * sizeof(unsigned char));
 
-    free(cache); free(comp);
+    mem_free(cache); free(comp);
     cache = new_cache; comp = new_comp; cap = new_cap;
 
     /* base case a(0) = 0 */

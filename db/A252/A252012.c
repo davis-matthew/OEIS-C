@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 6, u32 n <= 19, u64 n <= 45, u128 n <= 97,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
             46626322ULL, 122075402ULL, 213680482ULL
         };
         cache_size = 17;                     /* indices 0 … 16 */
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache) abort();                 /* OOM → hard fail */
         for (idx_t i = 0; i < cache_size; ++i)
             cache[i] = init_vals[i];
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     if ((idx_t)n + 1 > cache_size) {
         idx_t old_size = cache_size;
         idx_t new_size = (idx_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) abort();                  /* OOM → hard fail */
         /* initialise newly allocated slots */
         for (idx_t i = old_size; i < new_size; ++i)

@@ -12,14 +12,25 @@
  *            construction of A276795
  * Range:     u8 n <= 8, u16 n <= 128, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   reverse_bits_k
+ * Validated: standard, pass, 63 terms through n = 9900 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/reverse_bits_k.h"
+
+/* reverse the lowest k bits of x */
+static inline seq_t reverse_bits_k(seq_t x, unsigned k)
+{
+    seq_t rev = 0;
+    for (unsigned i = 0; i < k; ++i) {
+        if ((x >> i) & 1)
+            rev |= ((seq_t)1 << (k - 1 - i));
+    }
+    return rev;
+}
 
 seq_t a(idx_t n)
 {

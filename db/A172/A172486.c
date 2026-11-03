@@ -10,6 +10,7 @@
  *            are n = 1, 3, 9, 13, 15, 19. For all other n, a(n) = 0
  * Range:     u8 n <= 19, u16 n <= 19, u32 n <= 19, u64 n <= 19, u128 n <= 19,
  *            big any n
+ * Validated: full, pass, 20 terms through n = 19 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

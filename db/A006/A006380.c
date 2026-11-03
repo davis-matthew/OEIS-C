@@ -9,13 +9,15 @@
  *            x)^2*(1 + x^2)*(1 + x + x^2)^2)
  * Range:     u8 n <= 6, u16 n <= 21, u32 n <= 122, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 912 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 
 seq_t a(idx_t n) {
@@ -31,16 +33,16 @@ seq_t a(idx_t n) {
     
     if (cache == NULL) {
         cache_len = 100;
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
-        memset(cache, 0, cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
+        mem_set(cache, 0, cache_len * sizeof(seq_t));
         cache[0] = 1;
     }
     
     // Expand cache if needed
     if (n >= cache_len) {
         idx_t new_len = n + 100;
-        cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
-        memset(cache + cache_len, 0, (new_len - cache_len) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_len);
+        mem_set(cache + cache_len, 0, (new_len - cache_len) * sizeof(seq_t));
         cache_len = new_len;
     }
     

@@ -13,12 +13,14 @@
  *            values so that any call a(n) runs in O(n) time...
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 14, u64 n <= 23, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached values of a(n) up to the largest n computed.  */
 static seq_t *a_cache   = NULL;
@@ -40,7 +42,7 @@ static void ensure_fib(idx_t n)
 {
     if (fib_cache_cap <= n) {
         idx_t new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(fib_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fib_cache, new_cap);
         if (!tmp) abort();
         fib_cache = tmp;
         fib_cache_cap = new_cap;
@@ -71,7 +73,7 @@ static void ensure_a_capacity(idx_t n)
 {
     if (a_cache_cap <= n) {
         idx_t new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
         if (!tmp) abort();
         a_cache = tmp;
         a_cache_cap = new_cap;
@@ -93,7 +95,7 @@ seq_t a(idx_t n)
     /* Construct rows from the first missing index up to n.  */
     for (idx_t m = a_cache_len; m <= n; ++m) {
         idx_t len = m + 1;
-        seq_t *cur = (seq_t *)malloc(len * sizeof(seq_t));
+        seq_t *cur = mem_new(seq_t, len);
         if (!cur) abort();
 
         /* Value b(m) used in the transform; override the erroneous 2nd
@@ -118,7 +120,7 @@ seq_t a(idx_t n)
         }
 
         /* Update the cached row for the next iteration.  */
-        free(row_prev);
+        mem_free(row_prev);
         row_prev      = cur;
         row_prev_len  = len;
         a_cache_len   = m + 1;

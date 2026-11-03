@@ -8,8 +8,9 @@
  * Formula:   a(n) = C(k-1, p-1) * (2^k - 1) * where k = floor_log2(n) + 1 is
  *            the number of bits of n (for n > 0) * and p = popcount(n) is the
  *            number of 1‑bits in n
- * Range:     u8 n <= 32, u16 n <= 518, u32 n <= 9613, u64 n <= 9613,
- *            u128 n <= 9613, big any n
+ * Range:     u8 n <= 32, u16 n <= 518, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 73 terms through n = 9613 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

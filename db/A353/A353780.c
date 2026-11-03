@@ -12,111 +12,66 @@
  *            digit with a(n‑1)
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-03)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include <stddef.h>
+/* A353780: a(1) = 1; a(n) is the smallest number not yet used that is coprime
+ * to a(n-1), is not a(n-1) + 1, and shares no digit with a(n-1). Generated in
+ * order and cached. */
+
 #include <stdint.h>
 #include <stdlib.h>
-#include <string.h>
-#include "../utils/gcd.h"
 
-seq_t a(idx_t n) {
-    /* static storage for the sequence and a bitmap of used values */
-    static seq_t *seq = NULL;
-    static size_t seq_cap = 0, seq_len = 0;
-    static uint8_t *used = NULL;          /* bitmap: used[i] == 1  ⇒ i already used */
-    static size_t used_cap = 0;           /* capacity of `used` in bytes */
+static uint64_t *terms = NULL;
+static size_t term_len = 0, term_cap = 0;
+static unsigned char *used = NULL;
+static uint64_t ucap = 0, smallest = 1;
 
-    /* grow the sequence array to at least `n` elements */
-    if (seq_len < (size_t)n) {
-        if (seq_cap < (size_t)n) {
-            size_t new_cap = seq_cap ? seq_cap * 2 : 1;
-            while (new_cap < (size_t)n) new_cap *= 2;
-            seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
-            if (!tmp) exit(1);
-            seq = tmp;
-            seq_cap = new_cap;
-        }
-        /* initialise a(1) if the sequence is empty */
-        if (seq_len == 0) {
-            seq[0] = (seq_t)1;
-            seq_len = 1;
+static uint64_t gcd64(uint64_t a, uint64_t b) { while (b) { uint64_t t = a % b; a = b; b = t; } return a; }
+static unsigned digits(uint64_t v) { unsigned m = 0; do { m |= 1u << (v % 10); v /= 10; } while (v); return m; }
+static int is_prime2(unsigned v) { if (v < 2) return 0; for (unsigned d = 2; d * d <= v; ++d) if (v % d == 0) return 0; return 1; }
+static unsigned first_digit(uint64_t v) { while (v >= 10) v /= 10; return (unsigned)v; }
 
-            /* initialise used bitmap for value 1 */
-            if (used_cap <= 1) {
-                size_t new_cap = used_cap ? used_cap * 2 : 1;
-                while (new_cap <= 1) new_cap *= 2;
-                uint8_t *tmp = (uint8_t *)realloc(used, new_cap);
-                if (!tmp) exit(1);
-                if (tmp != used) memset(tmp + used_cap, 0, new_cap - used_cap);
-                used = tmp;
-                used_cap = new_cap;
-            }
-            used[1] = 1;
-        }
-
-        /* generate terms until we reach the requested index */
-        while (seq_len < (size_t)n) {
-            seq_t prev = seq[seq_len - 1];
-
-            /* digit mask of previous term */
-            unsigned prev_mask = 0;
-            seq_t p = prev;
-            if (p == 0) {
-                prev_mask |= 1U;
-            } else {
-                while (p > 0) {
-                    prev_mask |= 1U << (uint32_t)(p % 10);
-                    p /= 10;
-                }
-            }
-
-            seq_t candidate = 0;
-            for (candidate = 1; ; ++candidate) {
-                uint64_t idx = (uint64_t)candidate;
-                if (idx < used_cap && used[idx]) continue;          /* already used */
-
-                if (gcd(prev, candidate) != (seq_t)1) continue;    /* not coprime */
-
-                if (candidate == prev + 1) continue;                /* consecutive */
-
-                /* digit mask of candidate */
-                unsigned cand_mask = 0;
-                seq_t t = candidate;
-                if (t == 0) {
-                    cand_mask |= 1U;
-                } else {
-                    while (t > 0) {
-                        cand_mask |= 1U << (uint32_t)(t % 10);
-                        t /= 10;
-                    }
-                }
-                if (prev_mask & cand_mask) continue;                /* digit clash */
-
-                break;                                             /* candidate found */
-            }
-
-            /* append the new term */
-            seq[seq_len++] = candidate;
-
-            /* enlarge used bitmap if necessary and mark the candidate as used */
-            uint64_t cand_idx = (uint64_t)candidate;
-            if (cand_idx >= used_cap) {
-                size_t new_cap = used_cap ? used_cap * 2 : 1;
-                while (new_cap <= cand_idx) new_cap *= 2;
-                uint8_t *tmp = (uint8_t *)realloc(used, new_cap);
-                if (!tmp) exit(1);
-                if (tmp != used)
-                    memset(tmp + used_cap, 0, new_cap - used_cap);
-                used = tmp;
-                used_cap = new_cap;
-            }
-            used[cand_idx] = 1;
-        }
+static void mark(uint64_t v)
+{
+    if (v >= ucap) {
+        uint64_t c = ucap ? ucap : 1024;
+        while (c <= v) c *= 2;
+        unsigned char *u = (unsigned char *)realloc(used, (size_t)c);
+        if (!u) abort();
+        for (uint64_t i = ucap; i < c; ++i) u[i] = 0;
+        used = u;
+        ucap = c;
     }
+    used[v] = 1;
+}
 
-    return seq[n - 1];
+static int is_used(uint64_t v) { return v < ucap && used[v]; }
+
+seq_t a(idx_t n)
+{
+    if (n < 1) return (seq_t)0;
+    while (term_len < (size_t)n) {
+        uint64_t v;
+        if (!term_len) v = 1;
+        else {
+            uint64_t p = terms[term_len - 1];
+            unsigned dp = digits(p);
+            while (is_used(smallest)) ++smallest;
+            for (v = smallest;; ++v)
+                if (!is_used(v) && v != p + 1 && gcd64(v, p) == 1 && !(digits(v) & dp)) break;
+        }
+        mark(v);
+        if (term_len == term_cap) {
+            term_cap = term_cap ? 2 * term_cap : 1024;
+            uint64_t *t = (uint64_t *)realloc(terms, term_cap * sizeof *t);
+            if (!t) abort();
+            terms = t;
+        }
+        terms[term_len++] = v;
+    }
+    return (seq_t)terms[n - 1];
 }

@@ -7,11 +7,13 @@
  * Formula:   a(n) = number of divisors of n that are ≡ 6 (mod 10)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 121 terms through n = 8845 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /* The implementation uses simple trial‑division factorisation and a
  * depth‑first search over the divisor tree, keeping only the
  * divisor modulo 10 at each step.  This is fast for the required

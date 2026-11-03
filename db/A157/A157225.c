@@ -10,8 +10,9 @@
  *            p a prime ≡5 (mod 6) and x, y ≥1. The routine enumerates all
  *            admissible pairs (x, y) and checks the resulting p for primality
  *            and congruence
- * Range:     u8 n <= 1983, u16 n <= 8925, u32 n <= 8925, u64 n <= 8925,
- *            u128 n <= 8925, big any n
+ * Range:     u8 n <= 1983, u16 n <= 199999, u32 n <= 200000, u64 n <= 200000,
+ *            u128 n <= 200000, big any n
+ * Validated: standard, pass, 66 terms through n = 8925 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

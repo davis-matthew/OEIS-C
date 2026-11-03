@@ -8,7 +8,8 @@
  * Formula:   a(n) = Sum_{j=1..floor((n+1)/2)} A023531(j) * Fibonacci(n-j+1)
  * Range:     u8 n <= 13, u16 n <= 25, u32 n <= 48, u64 n <= 94, u128 n <= 186,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 1000 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 /* Computes the n-th term of OEIS sequence A024318. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *fib = NULL;      /* 1‑indexed Fibonacci array (fib[1]=fib[2]=1) */
 static idx_t fib_len = 0;      /* highest index that has been initialized */
@@ -29,7 +31,7 @@ static void ensure_fib(idx_t n)
 
     idx_t needed = n;
     size_t new_size = (size_t)needed + 1;          /* include index 0 */
-    seq_t *tmp = (seq_t *)realloc(fib, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, fib, new_size);
     if (!tmp)
         abort();
 

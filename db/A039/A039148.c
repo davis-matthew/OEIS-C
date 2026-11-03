@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-01)
  * Helpers:   digit_counts
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,6 +21,8 @@
 /* Needed helper: digit_counts(seq_t x, unsigned char cnt[10]) is provided by the build system. */
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include <stddef.h>
 #include "../utils/digit_counts.h"
 
 /* Helper: true if the number has the same number of 5's and 8's. */

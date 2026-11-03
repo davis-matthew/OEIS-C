@@ -11,6 +11,7 @@
  *            M(j,c) = (j-1)*n + c (the n×n matrix filled row‑wise with 1…n²)
  * Range:     i8 n <= 5, i16 n <= 6, i32 n <= 8, i64 n <= 11, i128 n <= 17,
  *            big any n
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 43, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 64 terms through n = 902 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,11 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
 #include "../utils/is_prime.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static seq_t *primes = NULL;       /* cached primes in the sequence   */
 static size_t primes_len = 0;      /* number of primes cached         */
@@ -37,7 +41,7 @@ static void ensure_capacity(size_t needed)
     if (needed <= primes_cap) return;
     size_t new_cap = primes_cap ? primes_cap * 2 : 8;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(primes, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, primes, new_cap);
     if (!tmp) abort();              /* fallback on allocation failure */
     primes = tmp;
     primes_cap = new_cap;
@@ -81,7 +85,7 @@ seq_t a(idx_t n)
         else
         {
             /* We need to test 21^((p-1)/5) ≡ 1 (mod p). */
-            seq_t val = mod_pow((seq_t)21,
+            seq_t val = powmod((seq_t)21,
                                 (next_candidate - 1) / 5,
                                 (seq_t)next_candidate);
             if (val == (seq_t)1) include = true;

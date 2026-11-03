@@ -10,15 +10,17 @@
  *            at offset 1 (a(1) = 1)
  * Range:     u8 n <= 29, u16 n <= 81, u32 n <= 195, u64 n <= 473,
  *            u128 n <= 1283, big any n
- * Helpers:   build_primes, seq_pow
+ * Validated: standard, pass, 83 terms through n = 1754 (2026-11-01)
+ * Helpers:   build_primes, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/build_primes.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 /* Cached list of primes. */
 static idx_t *primes      = NULL;
@@ -78,7 +80,7 @@ pow_free_divisor(idx_t m, idx_t np)
         if (exp == 0)
             continue;
 
-        seq_t pp = seq_pow((seq_t)p, exp);
+        seq_t pp = ipow_idx((seq_t)p, exp);
         result *= pp;
     }
     return result;

@@ -8,13 +8,15 @@
  *            a(n)=23*a(n-1)-132*a(n-2)+((9^(n+1)-5^(n+1))/4), n>=2
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper to grow a dynamic array of seq_t to at least new_cap elements */
 static inline void grow_size(size_t *cap, seq_t **buf, size_t new_cap)
@@ -22,7 +24,7 @@ static inline void grow_size(size_t *cap, seq_t **buf, size_t new_cap)
     if (*cap >= new_cap) return;
     size_t new_capacity = (*cap > 0) ? (*cap << 1) : 2;
     if (new_capacity < new_cap) new_capacity = new_cap;
-    seq_t *tmp = (seq_t *)realloc(*buf, new_capacity * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *buf, new_capacity);
     if (!tmp) abort();            /* terminate on allocation failure */
     *buf = tmp;
     *cap = new_capacity;

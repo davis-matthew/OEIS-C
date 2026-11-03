@@ -7,15 +7,17 @@
  * Formula:   a(n) = gcdₖ=1…n−1 binomial(2*n, 2*k)
  * Range:     u8 n <= 14, u16 n <= 198, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, is_power_of_two
+ * Validated: standard, pass, 82 terms through n = 9981 (2026-11-01)
+ * Helpers:   build_primes_upto, is_pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/build_primes_upto.h"           /* build_primes_upto */
-#include "../utils/is_power_of_two.h"            /* is_power_of_two */
+#include <stdint.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/is_pow2.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = (seq_t)1;
-    if (n > 1 && is_power_of_two((seq_t)n))
+    if (n > 1 && is_pow2((seq_t)n))
         result *= (seq_t)2;                     /* 2‑factor */
 
     seq_t two_n = (seq_t)2 * n;

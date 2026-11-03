@@ -11,6 +11,7 @@
  *            that n < Σ_{i=0}^{r} (⌊i/2⌋+1). The array is read by rows
  * Range:     u8 n <= 15, u16 n <= 24, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
+ * Validated: partial, pass, 49 terms through n = 48 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* Product of the odd squares used in T(r,k). */

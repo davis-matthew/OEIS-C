@@ -9,7 +9,8 @@
  *            with p-1 squarefree (OEIS A089188)
  * Range:     u8 n <= 9, u16 n <= 381, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime, is_squarefree
+ * Validated: standard, pass, 62 terms through n = 9945 (2026-11-03)
+ * Helpers:   is_prime, is_squarefree, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include "../utils/is_prime.h"
 #include "../utils/is_squarefree.h"
+#include "../utils/mem.h"
 
 /* Static cache: holds all terms computed so far.
  * cache_len is the number of stored terms, cache_cap is the allocated size. */
@@ -35,7 +37,7 @@ static void ensure_cache(idx_t n)
     /* If the cache is empty, seed it with the first term. */
     if (cache_len == 0) {
         cache_cap = 16;                     /* initial capacity */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();                /* out of memory */
         cache[0] = (seq_t)3;                /* a(1) = 3 */
         cache_len = 1;
@@ -56,7 +58,7 @@ static void ensure_cache(idx_t n)
                 /* Append this term to the cache. */
                 if (cache_len == cache_cap) {
                     cache_cap *= 2;
-                    seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                     if (!tmp) abort();        /* out of memory */
                     cache = tmp;
                 }

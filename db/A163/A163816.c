@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 997 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  Prime sieve – static, full of 9592 primes up to 100000 (≈10⁵).   */
@@ -91,11 +93,11 @@ static void expand_cache(idx_t need)
         if (tau_of(next_candidate) == 100) {
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap << 1 : 16;
-                seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_new(seq_t, new_cap);
                 if (!tmp) exit(1);   /* out of memory */
                 for (size_t i = 0; i < cache_len; ++i)
                     tmp[i] = term_cache[i];
-                free(term_cache);
+                mem_free(term_cache);
                 term_cache = tmp;
                 cache_cap = new_cap;
             }

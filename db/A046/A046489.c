@@ -7,12 +7,14 @@
  * Formula:   a(n) = sum of the first (n+1) base‑10 palindromes
  * Range:     u8 n <= 13, u16 n <= 117, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_palindrome
+ * Validated: standard, pass, 65 terms through n = 896 (2026-11-01)
+ * Helpers:   is_palindrome_base
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/is_palindrome.h"
+#include <stdbool.h>
+#include "../utils/is_palindrome_base.h"
 
 /* Compute the sum of the first (n+1) palindromes. */
 seq_t a(idx_t n)
@@ -22,7 +24,7 @@ seq_t a(idx_t n)
 
     for (idx_t i = 1; ; ++i)
     {
-        if (is_palindrome((seq_t)i, 10))
+        if (is_palindrome_base((seq_t)i, 10))
         {
             sum += (seq_t)i;
             ++count;

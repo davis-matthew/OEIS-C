@@ -9,6 +9,7 @@
  *            two consecutive positive integers
  * Range:     u8 none, u16 none, u32 n <= 250, u64 n <= 250, u128 n <= 250,
  *            big any n
+ * Validated: standard, pass, 103 terms through n = 240 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

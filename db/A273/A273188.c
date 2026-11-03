@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 8189, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 74 terms through n = 9723 (2026-11-01)
  * Helpers:   digit_sum
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 /* Algorithm: a(n) is the nth non‑negative integer whose digit sum is
    divisible by 8 (the numbers listed in the OEIS b‑file). */
 
+#include <stdbool.h>
 #include "../utils/digit_sum.h"
 
 seq_t a(idx_t n)

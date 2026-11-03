@@ -9,14 +9,16 @@
  * Formula:   a(n) = T1(r, c) where r(c) is the row and column extracted from
  *            the linear index n. T1(r, c) counts bracelets of length 2r+1
  *            with c white beads
- * Range:     u8 n <= 9, u16 n <= 33, u32 n <= 63, u64 n <= 63, u128 n <= 63,
+ * Range:     u8 n <= 13, u16 n <= 43, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"   /* binom(idx_t a, idx_t b) */
+#include <stdint.h>
+#include "../utils/binomial.h"
 #include <stdint.h>
 
 /* Compute Euler's totient function φ(x).  x ≤ 20000 here, so
@@ -66,7 +68,7 @@ static seq_t compute_T1(idx_t row, idx_t col)
         if (col % t1 == 0) {
             idx_t cycles = L / t1;          /* number of cycles */
             idx_t ones   = col / t1;          /* ones per cycle */
-            seq_t bin    = binom(cycles, ones);
+            seq_t bin    = binomial(cycles, ones);
             seq_t phi    = phi_u64(t1);
             rotation_sum += phi * bin;
         }
@@ -78,7 +80,7 @@ static seq_t compute_T1(idx_t row, idx_t col)
             if (col % t2 == 0) {
                 idx_t cycles = L / t2;
                 idx_t ones   = col / t2;
-                seq_t bin    = binom(cycles, ones);
+                seq_t bin    = binomial(cycles, ones);
                 seq_t phi    = phi_u64(t2);
                 rotation_sum += phi * bin;
             }
@@ -89,9 +91,9 @@ static seq_t compute_T1(idx_t row, idx_t col)
        each with one fixed bead and (L-1)/2 pairs. */
     seq_t even_part = 0, odd_part = 0;
     if ((col & 1) == 0) {                 /* m even */
-        even_part = binom(n_half, col / 2);
+        even_part = binomial(n_half, col / 2);
     } else {                               /* m odd */
-        odd_part = binom(n_half, (col - 1) / 2);
+        odd_part = binomial(n_half, (col - 1) / 2);
     }
     seq_t reflection_sum = (seq_t)L * (even_part + odd_part);
 

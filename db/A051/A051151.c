@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 6, i16 n <= 15, i32 n <= 35, i64 n <= 35, i128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*   Static state for memoisation                                    */
@@ -54,7 +56,7 @@ static void ensure_up_to(idx_t n)
         size_t r_size = (size_t)r;
 
         /* allocate array for current row */
-        seq_t *curr = (seq_t *)malloc(r_size * sizeof(seq_t));
+        seq_t *curr = mem_new(seq_t, r_size);
         if (!curr)
             return; // allocation failure – leave incomplete
 
@@ -88,10 +90,10 @@ static void ensure_up_to(idx_t n)
             size_t new_cap = seq_cap ? seq_cap * 2 : 64;
             while (new_cap < needed)
                 new_cap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq, new_cap);
             if (!tmp)
             {
-                free(curr);
+                mem_free(curr);
                 return; /* allocation failure */
             }
             seq = tmp;
@@ -103,7 +105,7 @@ static void ensure_up_to(idx_t n)
             seq[seq_len + i] = curr[i];
 
         seq_len += r_size;                 /* update terms count        */
-        free(prev_row);                    /* drop old row              */
+        mem_free(prev_row);                    /* drop old row              */
         prev_row = curr;                   /* keep current row for next  */
         prev_row_size = r_size;
         computed_row = r;                  /* remember last row processed */

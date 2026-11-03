@@ -8,13 +8,15 @@
  *            = 3, a(2) = 7
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 23, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Persistent cache for computed values */
 static seq_t *cache = NULL;      /* dynamic array of a(i) values */
@@ -27,16 +29,16 @@ static void ensure_capacity(idx_t n)
     if ((size_t)n < cache_cap) return;
 
     size_t new_cap = n + 1;            /* exact size needed */
-    seq_t *new_cache = (seq_t*)malloc(sizeof(seq_t) * new_cap);
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache) exit(1);           /* allocation failed */
 
     if (cache) {
-        memcpy(new_cache, cache, sizeof(seq_t) * cache_cap);
-        free(cache);
+        mem_copy(new_cache, cache, sizeof(seq_t) * cache_cap);
+        mem_free(cache);
     }
     /* zero‑initialize new slots */
     if (new_cap > cache_cap)
-        memset(new_cache + cache_cap, 0, sizeof(seq_t) * (new_cap - cache_cap));
+        mem_set(new_cache + cache_cap, 0, sizeof(seq_t) * (new_cap - cache_cap));
 
     cache = new_cache;
     cache_cap = new_cap;

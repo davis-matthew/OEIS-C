@@ -8,7 +8,8 @@
  *            by dynamic programming
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)0; /* Undefined for n = 0, harmless */
@@ -46,7 +48,7 @@ seq_t a(idx_t n) {
     /* ----- initialise winners list -------------------------------- */
     if (wcap == 0) {
         wcap = 64;
-        winners = (seq_t *)malloc(wcap * sizeof(seq_t));
+        winners = mem_new(seq_t, wcap);
     }
 
     /* ----- compute until we have at least n winning positions ----- */
@@ -98,7 +100,7 @@ seq_t a(idx_t n) {
         if (win_this) {
             if (wcnt >= wcap) {
                 size_t new_cap = wcap * 2;
-                winners = (seq_t *)realloc(winners, new_cap * sizeof(seq_t));
+                winners = mem_resize(seq_t, winners, new_cap);
                 wcap = new_cap;
             }
             winners[wcnt++] = (seq_t)computed;

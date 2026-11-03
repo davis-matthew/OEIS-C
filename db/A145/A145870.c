@@ -10,7 +10,8 @@
  *            Catalan(ceil((j+1)/2)) * Motzkin(n-j)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 15, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  * across calls.  They are recomputed only when a larger index is
  * required. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *catalan_cache = NULL;
 static size_t catalan_cap   = 0;   /* number of stored Catalan values */
@@ -32,7 +34,7 @@ static void ensure_catalan(idx_t needed)
     if (needed + 1 <= catalan_cap) return;          /* already sufficient */
 
     size_t new_cap = (size_t)(needed + 1);
-    seq_t *new_arr = (seq_t *)realloc(catalan_cache, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, catalan_cache, new_cap);
     if (!new_arr) return;                          /* allocation failed */
 
     /* Initialise from scratch if empty. */
@@ -60,7 +62,7 @@ static void ensure_motzkin(idx_t needed)
     if (needed + 1 <= motzkin_cap) return;          /* already sufficient */
 
     size_t new_cap = (size_t)(needed + 1);
-    seq_t *new_arr = (seq_t *)realloc(motzkin_cache, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, motzkin_cache, new_cap);
     if (!new_arr) return;                          /* allocation failed */
 
     /* Initialise from scratch if empty. */

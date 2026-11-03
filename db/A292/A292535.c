@@ -11,13 +11,15 @@
  *            All arithmetic is performed using the native seq_t type,...
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 13, u64 n <= 27, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 930 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static cache: cache[i] holds a(i) once computed.  Uninitialised
    entries are zero (the sequence never contains 0). */
@@ -35,7 +37,7 @@ static void ensure_cache(idx_t n)
     if (new_cap < (size_t)(n + 1))
         new_cap = (size_t)(n + 1);
 
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache) {
         abort();                     /* memory allocation failed */
     }
@@ -44,7 +46,7 @@ static void ensure_cache(idx_t n)
     if (cache) {
         for (size_t i = 0; i < cache_cap; ++i)
             new_cache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
 
     /* Initialise the newly allocated slots to zero. */

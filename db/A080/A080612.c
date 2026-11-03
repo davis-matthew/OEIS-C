@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 31, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 88 terms through n = 886 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*------------------------------------------------------------------*/
 /*  Prime generation – simple incremental sieve                     */
@@ -71,7 +73,7 @@ static void append_term(seq_t val)
 {
     if (a_size == a_cap) {
         size_t new_cap = a_cap ? a_cap << 1 : 4;
-        seq_t *tmp = (seq_t *)realloc(a_terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_terms, new_cap);
         a_terms = tmp;
         a_cap   = new_cap;
     }

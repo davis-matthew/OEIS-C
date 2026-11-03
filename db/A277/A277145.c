@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 9334, u16 n <= 9334, u32 n <= 9334, u64 n <= 9334,
- *            u128 n <= 9334, big any n
- * Helpers:   causes_7_4_power
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 136 terms through n = 9334 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,38 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/causes_7_4_power.h"
+#include "../utils/mem.h"
+
+/* Test whether appending <cand> at position <pos> would create a
+   7/4‑power.  The check examines all possible block lengths *k* such
+   that 7*k* fits in the current (potential) sequence. */
+static bool causes_7_4_power(const seq_t *seq, size_t pos, seq_t cand)
+{
+    /* Length after adding the candidate */
+    size_t new_len = pos + 1;
+    for (size_t k = 1; 7 * k <= new_len; ++k) {
+        size_t start = new_len - 7 * k;          /* block start index */
+
+        /* Quick rejection: the last element of the 3k‑block must equal
+           the candidate, otherwise the pattern cannot match. */
+        if (seq[start + 3 * k - 1] != cand)
+            continue;
+
+        /* Compare the first 3k elements of the block with the tail
+           of the next 4k elements (subtracting the added candidate). */
+        bool ok = true;
+        for (size_t i = 0; i < 3 * k; ++i) {
+            seq_t val = (i == 3 * k - 1) ? cand : seq[start + 4 * k + i];
+            if (seq[start + i] != val) {
+                ok = false;
+                break;
+            }
+        }
+        if (ok)
+            return true;   /* would create a forbidden 7/4‑power */
+    }
+    return false;          /* candidate is safe */
+}
 
 /* Static storage for the sequence, shared across calls */
 static seq_t  *seq_cache    = NULL;
@@ -31,7 +63,7 @@ seq_t a(idx_t n)
     /* Initialise the cache lazily */
     if (seq_len == 0) {
         seq_capacity = 1024;
-        seq_cache    = (seq_t*)malloc(seq_capacity * sizeof(seq_t));
+        seq_cache    = mem_new(seq_t, seq_capacity);
         seq_cache[0] = 0;      /* a(0) = 0 */
         seq_len      = 1;
     }
@@ -39,7 +71,7 @@ seq_t a(idx_t n)
     /* Grow the cache if needed */
     while ((size_t)n + 1 > seq_capacity) {
         seq_capacity *= 2;
-        seq_cache = (seq_t*)realloc(seq_cache, seq_capacity * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, seq_capacity);
     }
 
     /* Compute the sequence up to index n */

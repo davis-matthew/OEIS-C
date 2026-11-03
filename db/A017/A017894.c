@@ -10,12 +10,14 @@
  *            implements the recurrence with memoization
  * Range:     u8 n <= 49, u16 n <= 83, u32 n <= 151, u64 n <= 287,
  *            u128 n <= 559, big any n
- * Helpers:   none
+ * Validated: standard, pass, 89 terms through n = 925 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* first call – initialise cache for indices 0..18 */
     if (cache_size == 0) {
         cache_size = 19;   /* covers 0 through 18 inclusive */
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache) abort();   /* simple error handling */
 
         /* a(0) = 1, a(1..9) = 0, a(10..18) = 1 */
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
 
     /* need to expand cache up to n */
     idx_t new_size = n + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_size);
     if (!tmp) abort();   /* simple error handling */
     cache = tmp;
 

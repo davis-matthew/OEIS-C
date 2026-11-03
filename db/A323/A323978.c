@@ -9,6 +9,7 @@
  * Formula:   a(n) = coefficient of q^n in (1-q^2)^12 (1-q^3)^16 (1-q^4)^18
  * Range:     i8 n <= 3, i16 n <= 12, i32 n <= 38, i64 n <= 144, i128 n <= 144,
  *            big any n
+ * Validated: full, pass, 145 terms through n = 144 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,13 +8,16 @@
  * Formula:   a(n) = ((2*n)!/(2^n*n!) * (3^(n+1)-1))/(2*(n+1))
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 16,
  *            big any n
- * Helpers:   big_pow, gcd
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-01)
+ * Helpers:   gcd, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/gcd.h"
+#include "../utils/ipow.h"
 
 /* Return the n-th term of A069736 (total number of Eulerian circuits in
    labeled multigraphs with n edges).  */
@@ -27,7 +30,7 @@ seq_t a(idx_t n)
     }
 
     /* 3^(n+1) - 1 */
-    seq_t pow3 = big_pow(3, (seq_t)(n + 1));
+    seq_t pow3 = ipow(3, (seq_t)(n + 1));
     seq_t B = pow3 - 1;
 
     /* denominator = 2*(n+1) */

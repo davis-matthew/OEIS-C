@@ -7,13 +7,15 @@
  * Formula:   a(n) = n! - 2^n
  * Range:     i8 n <= 5, i16 n <= 7, i32 n <= 12, i64 n <= 20, i128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 433 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,8 +28,8 @@ seq_t a(idx_t n)
     /* Initialise caches on first call */
     if (capacity == 0) {
         capacity = 1;
-        fact = (seq_t*)malloc(sizeof(seq_t) * capacity);
-        pow2 = (seq_t*)malloc(sizeof(seq_t) * capacity);
+        fact = mem_new(seq_t, capacity);
+        pow2 = mem_new(seq_t, capacity);
         if (fact == NULL || pow2 == NULL) {
             /* Allocation failed – give a sensible default */
             return (seq_t)0;
@@ -42,8 +44,8 @@ seq_t a(idx_t n)
         /* Ensure enough space */
         if (last + 1 >= capacity) {
             size_t new_cap = capacity * 2;
-            seq_t *new_fact = (seq_t*)realloc(fact, sizeof(seq_t) * new_cap);
-            seq_t *new_pow2 = (seq_t*)realloc(pow2, sizeof(seq_t) * new_cap);
+            seq_t *new_fact = mem_resize(seq_t, fact, new_cap);
+            seq_t *new_pow2 = mem_resize(seq_t, pow2, new_cap);
             if (new_fact == NULL || new_pow2 == NULL) {
                 /* Allocation failed – fall back */
                 return (seq_t)0;

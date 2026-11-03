@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 255, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   factor_u64, gcd, is_power_of_two, mod_pow
+ * Validated: standard, pass, 101 terms through n = 968 (2026-11-01)
+ * Helpers:   factor_u64, gcd, is_pow2, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,10 +21,12 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_power_of_two.h"
-#include "../utils/mod_pow.h"
-#include "../utils/gcd.h"
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
+#include "../utils/is_pow2.h"
+#include "../utils/powmod.h"
 
 /* Compute Euler's totient φ(n) for a 64‑bit unsigned integer n.
    Uses factor_u64 to factor n into primes, then applies the product
@@ -66,13 +69,13 @@ static seq_t tower_mod_rec(idx_t start, idx_t end, idx_t mod)
     }
 
     /* exp now fits into a 64‑bit value (it is < 2*φ(mod) ≤ 2*mod). */
-    return mod_pow((seq_t)start, (uint64_t)exp, (seq_t)mod);
+    return powmod((seq_t)start, (uint64_t)exp, (seq_t)mod);
 }
 
 /* Public sequence function. */
 seq_t a(idx_t n)
 {
     if (n < 2) return 0;                        /* sequence defined for n ≥ 2 */
-    if (is_power_of_two((seq_t)n)) return (seq_t)n;
+    if (is_pow2((seq_t)n)) return (seq_t)n;
     return tower_mod_rec((idx_t)2, n, n);
 }

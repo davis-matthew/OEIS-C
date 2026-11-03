@@ -8,7 +8,8 @@
  *            n‑th cubefree natural number
  * Range:     u8 n <= 150, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 96 terms through n = 9937 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---- helper: test if an integer is cube-free -------------------------------- */
 static bool is_cubefree(uint64_t n)
@@ -102,7 +104,7 @@ static void ensure_cache(idx_t n)
     /* grow arrays if necessary */
     if (cached_cap < n) {
         size_t new_cap = (size_t)n;
-        seq_t *new_vals = (seq_t *)realloc(cached_vals, new_cap * sizeof(seq_t));
+        seq_t *new_vals = mem_resize(seq_t, cached_vals, new_cap);
         if (!new_vals) abort();
         cached_vals = new_vals;
         uint64_t *new_nums = (uint64_t *)realloc(cached_nuc, new_cap * sizeof(uint64_t));

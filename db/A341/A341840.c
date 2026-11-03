@@ -13,9 +13,10 @@
  *            definition: - R(m) is the set of suffix sums of the binary
  *            run‑lengths of m. - T(i, j) is the unique number whose R(t)
  *            equals the intersection R(i) ∩ R(j). The sequence a i...
- * Range:     u8 n <= 9877, u16 n <= 9877, u32 n <= 9877, u64 n <= 9877,
- *            u128 n <= 9877, big any n
- * Helpers:   get_suffix_sums
+ * Range:     u8 n <= 10010, u16 n <= 10010, u32 n <= 10010, u64 n <= 10010,
+ *            u128 n <= 10010, big any n
+ * Validated: standard, pass, 107 terms through n = 9877 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,53 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/get_suffix_sums.h"
+
+/* Return the set of suffix sums of the binary run‐lengths of m.
+   The vector 'sums' receives the sorted ascending values and
+   *cnt receives the number of elements.               */
+static void get_suffix_sums(idx_t m, idx_t *sums, size_t *cnt)
+{
+    if (m == 0) {
+        *cnt = 0;
+        return;
+    }
+
+    /* find position of the most significant bit */
+    idx_t msb = 0;
+    idx_t tmp = m;
+    while (tmp >> 1) {
+        ++msb;
+        tmp >>= 1;
+    }
+
+    /* run lengths */
+    idx_t runs[64];
+    size_t runcnt = 0;
+    idx_t prev_bit = 1;
+    idx_t cur_len = 0;
+
+    for (idx_t s = msb; ; --s) {
+        idx_t bit = (m >> s) & 1;
+        if (bit == prev_bit) {
+            ++cur_len;                  /* continue current run   */
+        } else {
+            runs[runcnt++] = cur_len;   /* end previous run       */
+            prev_bit = bit;
+            cur_len = 1;                /* start new run          */
+        }
+        if (s == 0) break;
+    }
+    runs[runcnt++] = cur_len;           /* store last run          */
+
+    /* suffix sums in ascending order */
+    idx_t acc = 0;
+    size_t scnt = 0;
+    for (size_t i = runcnt; i > 0; --i) {
+        acc += runs[i - 1];
+        sums[scnt++] = acc;
+    }
+    *cnt = scnt;
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)

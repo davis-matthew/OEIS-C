@@ -9,14 +9,16 @@
  *            binom(n-1,k-1) * a(k) * f(n-k) (n≥2) where f(k) = (k+1)^(2k)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 9, u128 n <= 15,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: partial, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
 
 static seq_t *f_cache = NULL;   /* f(k) = (k+1)^(2k) */
 static seq_t *a_cache = NULL;   /* a(k) values */
@@ -31,8 +33,8 @@ static void ensure_cache(idx_t n)
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     if (new_cap < needed) new_cap = needed;
 
-    f_cache = (seq_t *)realloc(f_cache, new_cap * sizeof(seq_t));
-    a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    f_cache = mem_resize(seq_t, f_cache, new_cap);
+    a_cache = mem_resize(seq_t, a_cache, new_cap);
 
     /* Base value: f(0) = 1. a(0) is unused. */
     f_cache[0] = (seq_t)1;
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     for (idx_t cur = 1; cur <= n; ++cur)
     {
         /* f(cur) = (cur+1)^(2*cur) */
-        f_cache[cur] = pow_seq((seq_t)(cur + 1), (int)(2 * cur));
+        f_cache[cur] = ipow_i32((seq_t)(cur + 1), (int)(2 * cur));
 
         if (cur == 1)
         {

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* static state – grows the sieve and Pi array as needed */
 static size_t sieve_limit = 0;                 /* largest n that has been sieved */
@@ -52,7 +54,7 @@ ensure_sieve(idx_t n)
                 is_composite[j] = 1;
 
     /* resize/rebuild pi_arr */
-    seq_t *tmp_pi = (seq_t *)realloc(pi_arr, (new_limit + 1) * sizeof(seq_t));
+    seq_t *tmp_pi = mem_resize(seq_t, pi_arr, (new_limit + 1));
     if (!tmp_pi) abort();
     pi_arr = tmp_pi;
     pi_arr[0] = 0;

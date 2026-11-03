@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 40, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   has_single_prime_factor
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,31 @@
    until the required number of terms has been found. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_single_prime_factor.h"
+#include "../utils/mem.h"
+
+/* Helper: test whether a 64‑bit unsigned integer is a prime power of a single prime.
+   We only need to know if the number has exactly one distinct prime factor. */
+static bool has_single_prime_factor(uint64_t n)
+{
+    uint64_t temp = n;
+    uint64_t prime = 0;
+    int count = 0;
+    for (uint64_t p = 3; p * p <= temp; p += 2)
+    {
+        if (temp % p == 0)
+        {
+            if (prime != 0)   /* already found a prime factor */
+                return false;
+            prime = p;
+            count = 1;
+            while (temp % p == 0)
+                temp /= p;
+        }
+    }
+    if (temp > 1)          /* remaining prime factor */
+        count++;
+    return count == 1;
+}
 
 /* Helper: determine whether the odd integer n has at least one prime divisor ≡ 1 (mod 4)
    and at least two distinct prime divisors. */
@@ -88,11 +113,11 @@ seq_t a(idx_t n)
         if (cache_len == cache_cap)
         {
             size_t new_cap = cache_cap == 0 ? 64 : cache_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp)
             {
                 /* Allocation failed – return 0 as a safe fallback */
-                free(cache);
+                mem_free(cache);
                 cache = NULL;
                 cache_len = cache_cap = 0;
                 return (seq_t)0;

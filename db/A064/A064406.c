@@ -7,7 +7,8 @@
  * Formula:   a(n) = (n+1)(n+2)/2 – 2 * Σ_{k=0..n} 2^{popcount(k)}
  * Range:     i8 n <= 34, i16 n <= 69, i32 n <= 69, i64 n <= 69, i128 n <= 69,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 70 terms through n = 69 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Thread‑local cache of prefix sums Σ_{k=0..i} 2^{popcount(k)} */
 static seq_t *pref   = NULL;
@@ -30,13 +32,13 @@ static void ensure_pref(idx_t n)
     /* Grow allocation if necessary */
     if (pref == NULL) {
         pref_cap = need > 1 ? need : 1;
-        pref     = (seq_t *)malloc(pref_cap * sizeof(seq_t));
+        pref     = mem_new(seq_t, pref_cap);
         if (!pref) abort();
         pref[0]    = (seq_t)1;        /* 2^{popcount(0)} = 1 */
         pref_len   = 1;
     } else if (pref_cap < need) {
         pref_cap = need > pref_cap * 2 ? need : pref_cap * 2;
-        pref = (seq_t *)realloc(pref, pref_cap * sizeof(seq_t));
+        pref = mem_resize(seq_t, pref, pref_cap);
         if (!pref) abort();
     }
 

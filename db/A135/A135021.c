@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 36, u32 n <= 67, u64 n <= 137,
  *            u128 n <= 327, big any n
- * Helpers:   big_pow, binomial, seq_one
+ * Validated: standard, pass, 82 terms through n = 1295 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,13 @@
    a(n) is the flattening of this triangle by rows.
 */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/seq_one.h"
+#include "../utils/ipow.h"
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
 
 seq_t a(idx_t n)
 {
@@ -46,6 +51,6 @@ seq_t a(idx_t n)
                - (seq_t)r * (seq_t)r
                + (seq_t)2 * (seq_t)r;
     idx_t exp = m - r - 1;               // Non‑negative here
-    seq_t pow_val = big_pow(base, (seq_t)exp);
+    seq_t pow_val = ipow(base, (seq_t)exp);
     return bin * pow_val;
 }

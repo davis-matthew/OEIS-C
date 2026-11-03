@@ -11,13 +11,15 @@
  *            binomial transform of that triangle
  * Range:     i8 n <= 54, i16 n <= 54, i32 n <= 54, i64 n <= 54, i128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     idx_t d    = r - c;
 
     /* Precompute powers of 2: pow2[t] = 2^t  for 0 <= t <= d */
-    seq_t *pow2 = (seq_t *)malloc((d + 1) * sizeof(seq_t));
+    seq_t *pow2 = mem_new(seq_t, (d + 1));
     if (!pow2)
         return 0;   /* fallback if allocation fails */
 
@@ -60,6 +62,6 @@ seq_t a(idx_t n)
             bin = bin * (seq_t)(r - m) / (seq_t)(m + 1);
     }
 
-    free(pow2);
+    mem_free(pow2);
     return sum;
 }

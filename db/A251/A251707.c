@@ -8,12 +8,14 @@
  *            values: a(0)=0, a(1)=0, a(2)=0, a(3)=1, a(4)=0, a(5)=0
  * Range:     u8 n <= 14, u16 n <= 22, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* initialise cache if this is the first call */
     if (cache == NULL) {
         cap = 64;                          /* initial capacity          */
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         /* seed the first six values                     */
         cache[0] = 0; cache[1] = 0; cache[2] = 0;
         cache[3] = 1; cache[4] = 0; cache[5] = 0;
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     /* extend the allocated array if necessary */
     while ((size_t)n + 1 > cap) {
         size_t new_cap = cap * 2;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cap = new_cap;
     }
 

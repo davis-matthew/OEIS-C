@@ -10,7 +10,8 @@
  *            a(n) and * memoises results in a static table
  * Range:     u8 n <= 3, u16 n <= 133, u32 n <= 350, u64 n <= 350,
  *            u128 n <= 350, big any n
- * Helpers:   digit_product
+ * Validated: standard, pass, 65 terms through n = 329 (2026-11-03)
+ * Helpers:   digit_product, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include "../utils/digit_product.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,13 +39,13 @@ seq_t a(idx_t n)
     if (!initialized) {
         /* prime list */
         prime_cap = 16;
-        primes = (seq_t *)malloc(prime_cap * sizeof(seq_t));
+        primes = mem_new(seq_t, prime_cap);
         primes[0] = 2;
         prime_cnt = 1;
 
         /* cache for a(n) values */
         cache_cap = 16;
-        cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
 
         initialized = true;
     }
@@ -53,8 +55,8 @@ seq_t a(idx_t n)
         size_t new_cap = cache_cap;
         while ((idx_t)n >= new_cap)
             new_cap <<= 1;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
-        memset(cache + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
+        mem_set(cache + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
         cache_cap = new_cap;
     }
 
@@ -87,7 +89,7 @@ seq_t a(idx_t n)
                 /* Append new prime to the list */
                 if (prime_cnt == prime_cap) {
                     prime_cap <<= 1;
-                    primes = (seq_t *)realloc(primes, prime_cap * sizeof(seq_t));
+                    primes = mem_resize(seq_t, primes, prime_cap);
                 }
                 primes[prime_cnt++] = cand;
 
@@ -122,10 +124,8 @@ seq_t a(idx_t n)
                                 size_t new_cap = cache_cap;
                                 while ((idx_t)val_n >= new_cap)
                                     new_cap <<= 1;
-                                cache = (seq_t *)realloc(cache,
-                                                        new_cap * sizeof(seq_t));
-                                memset(cache + cache_cap, 0,
-                                       (new_cap - cache_cap) * sizeof(seq_t));
+                                cache = mem_resize(seq_t, cache, new_cap);
+                                mem_set(cache + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
                                 cache_cap = new_cap;
                             }
                             if (cache[val_n] == 0)

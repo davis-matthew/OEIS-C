@@ -9,9 +9,10 @@
  * Formula:   Greedy construction of A386950. At each step choose the k∈[0,9]
  *            that minimises (c(k)+1)/p(k) where c(k) are previous counts and
  *            p(k) are the probabilities (H(10)-H(k))/10
- * Range:     u8 n <= 9167, u16 n <= 9167, u32 n <= 9167, u64 n <= 9167,
- *            u128 n <= 9167, big any n
- * Helpers:   none
+ * Range:     u8 n <= 25200, u16 n <= 25200, u32 n <= 25200, u64 n <= 25200,
+ *            u128 n <= 25200, big any n
+ * Validated: standard, pass, 103 terms through n = 9167 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* The 10 probability numerators (denominator 25200) for k=0..9 */
 static const uint64_t PNUM[10] = {
@@ -39,7 +41,7 @@ static void ensure_capacity(idx_t need)
     if (need <= CAP) return;
     idx_t new_cap = CAP ? CAP : 8;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *new_vals = (seq_t*)realloc(VALUES, new_cap * sizeof(seq_t));
+    seq_t *new_vals = mem_resize(seq_t, VALUES, new_cap);
     if (!new_vals) exit(EXIT_FAILURE); /* allocation failed */
     VALUES = new_vals;
     CAP    = new_cap;

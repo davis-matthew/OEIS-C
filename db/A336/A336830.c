@@ -13,15 +13,17 @@
  *            >= n), prev / n (if n | prev) } * if any candidate in
  *            candidates1 has not appeared before, a(n) = min of those * else
  *            * candidates2 = { prev + n, prev * n } * if any can...
- * Range:     u8 n <= 29, u16 n <= 346, u32 n <= 8329, u64 n <= 8329,
- *            u128 n <= 8329, big any n
- * Helpers:   none
+ * Range:     u8 n <= 29, u16 n <= 346, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 79 terms through n = 8329 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static cache for computed sequence values */
 static seq_t *seq_cache = NULL;      /* array of seq_t values */
@@ -37,7 +39,7 @@ static void ensure_cache_upto(idx_t n)
     {
         size_t new_cap = cache_cap ? cache_cap : 128;
         while (new_cap <= (size_t)(n + 1)) new_cap <<= 1;
-        seq_t *new_arr = (seq_t*)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, seq_cache, new_cap);
         if (!new_arr) abort(); /* memory allocation failure */
         seq_cache = new_arr;
         cache_cap = new_cap;

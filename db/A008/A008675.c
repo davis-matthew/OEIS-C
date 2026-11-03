@@ -7,13 +7,15 @@
  * Formula:   a(n) = number of partitions of n into parts 1, 3, 5, 7, 9, 11
  * Range:     u8 n <= 33, u16 n <= 134, u32 n <= 1380, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 9740 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     if (dp == NULL || n > max_n)
     {
         size_t new_size = (size_t)(n + 1);
-        seq_t *newdp = (seq_t *)realloc(dp, new_size * sizeof(seq_t));
+        seq_t *newdp = mem_resize(seq_t, dp, new_size);
         if (!newdp)
             return 0;                 /* allocation failed */
         dp = newdp;

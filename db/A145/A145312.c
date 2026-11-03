@@ -9,12 +9,14 @@
  *            the cubes of the divisors of m
  * Range:     u8 none, u16 n <= 1, u32 n <= 24, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --------------  Memoised σ₃ table  -------------- */
 static seq_t *sigma3_tbl = NULL;   /* stored σ₃ values */
@@ -26,7 +28,7 @@ static void ensure_sigma3(idx_t need)
     if (need <= sigma3_max) return;               /* already ready */
 
     /* Allocate a new table */
-    seq_t *new_tbl = (seq_t *)malloc((need + 1) * sizeof(seq_t));
+    seq_t *new_tbl = mem_new(seq_t, (need + 1));
     if (!new_tbl) exit(EXIT_FAILURE);            /* cannot allocate */
 
     /* initialise to zero */
@@ -41,7 +43,7 @@ static void ensure_sigma3(idx_t need)
     }
 
     /* replace old table */
-    if (sigma3_tbl) free(sigma3_tbl);
+    if (sigma3_tbl) mem_free(sigma3_tbl);
     sigma3_tbl = new_tbl;
     sigma3_max = need;
 }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 68, u16 n <= 6847, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 9738 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static uint64_t isqrt_u64(uint64_t n)
 {
@@ -75,7 +77,7 @@ static void ensure_cache_cap(size_t needed, seq_t **buf, size_t *cap)
     size_t new_cap = (*cap == 0) ? 8 : (*cap << 1);
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(*buf, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *buf, new_cap);
     if (!tmp)
         abort();
     *buf = tmp;

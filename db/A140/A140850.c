@@ -7,13 +7,14 @@
  * Formula:   a(n) = the nth prime p such that p % 210 == 47 (offset 1)
  * Range:     u8 n <= 1, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 /* Return the nth prime of the form 210k + 47.
    a(1) = 47, a(2) = 257, ...
@@ -30,7 +31,7 @@ seq_t a(idx_t n)
         /* Candidate value: 47 + 210*k.  Cast k to seq_t to avoid overflowing idx_t. */
         seq_t candidate = 47 + (seq_t)210 * (seq_t)k;
 
-        if (is_prime_small(candidate)) {
+        if (is_prime_seq(candidate)) {
             ++count;
             if (count == n)
                 return candidate;

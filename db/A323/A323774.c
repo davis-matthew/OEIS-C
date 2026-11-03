@@ -6,8 +6,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{d|n} binomial(tau(d) + n/d - 1, n/d)
- * Range:     u8 n <= 35, u16 n <= 215, u32 n <= 1679, u64 n <= 9771,
- *            u128 n <= 9771, big any n
+ * Range:     u8 n <= 35, u16 n <= 215, u32 n <= 1679, u64 n <= 13679,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 84 terms through n = 9771 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

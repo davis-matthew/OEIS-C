@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    sequentially scanning integers and storing found terms in a static
    cache so that repeated calls are efficient. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* Helper to grow the cache */
     if (cache == NULL) {
         cache_capacity = 128;
-        cache = (seq_t *)malloc(cache_capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_capacity);
     }
     while (cache_size < n) {
         /* Find the next number satisfying the condition */
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
             /* store the term in the cache */
             if (cache_size == cache_capacity) {
                 cache_capacity *= 2;
-                cache = (seq_t *)realloc(cache, cache_capacity * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_capacity);
             }
             cache[cache_size++] = next;
         }

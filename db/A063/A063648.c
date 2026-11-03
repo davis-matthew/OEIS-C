@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   dfs_max_div
+ * Validated: partial, pass, 57 terms through n = 58 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,26 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/dfs_max_div.h"
+
+/* recursive helper: find the largest divisor of n² that is < n */
+static void dfs_max_div(size_t idx, seq_t cur, const idx_t *pr, const int *exp,
+                        size_t npr, const seq_t n, seq_t *best)
+{
+    if (idx == npr) {
+        if (cur < n && cur > *best)
+            *best = cur;
+        return;
+    }
+
+    seq_t val = cur;
+    int maxe = exp[idx] * 2;              /* exponent of this prime in n² */
+    for (int e = 0; e <= maxe; ++e) {
+        if (val >= n)              /* further exponents only enlarge val */
+            break;
+        dfs_max_div(idx + 1, val, pr, exp, npr, n, best);
+        val *= pr[idx];             /* next exponent for the same prime */
+    }
+}
 
 seq_t a(idx_t n)
 {

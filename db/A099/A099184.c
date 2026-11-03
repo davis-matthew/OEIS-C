@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 42, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 816 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Limit of the sieve – enough for ~10 000 heavy primes. */
 static const size_t SIEVE_LIMIT = 500000;
@@ -81,7 +83,7 @@ static void cache_append(seq_t val)
 {
     if (heavy_len == heavy_cap) {
         size_t new_cap = (heavy_cap == 0) ? 16 : heavy_cap * 2;
-        seq_t *tmp = (seq_t*)realloc(heavy_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, heavy_cache, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         heavy_cache = tmp;
         heavy_cap = new_cap;

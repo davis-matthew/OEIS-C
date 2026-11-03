@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 16, u32 n <= 16, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   compare_seq
+ * Validated: full, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,17 @@
 /* Sequence: Divisors of 1000 sorted in ascending order (finite list of 16 terms). */
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/compare_seq.h"
+#include <string.h>
+#include "../utils/mem.h"
+
+static int compare_seq(const void *a, const void *b)
+{
+    const seq_t *x = (const seq_t *)a;
+    const seq_t *y = (const seq_t *)b;
+    if (*x < *y) return -1;
+    if (*x > *y) return 1;
+    return 0;
+}
 
 /* Comparator for qsort on seq_t. */
 
@@ -38,7 +49,7 @@ seq_t a(idx_t n)
             }
         }
         /* Sort the divisors in ascending order. */
-        qsort(divisors, 16, sizeof(seq_t), compare_seq);
+        mem_qsort(divisors, 16, sizeof(seq_t), compare_seq);
         initialized = 1;
     }
     if (n == 0 || n > 16) {

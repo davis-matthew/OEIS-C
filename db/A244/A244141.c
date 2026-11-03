@@ -11,11 +11,13 @@
  *            binomial(r,k) if k > 1
  * Range:     i8 n <= 18, i16 n <= 33, i32 n <= 72, i64 n <= 163,
  *            i128 n <= 396, big any n
+ * Validated: standard, pass, 71 terms through n = 4567 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 static seq_t ipow(seq_t base, idx_t exp)

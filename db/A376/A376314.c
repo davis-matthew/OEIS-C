@@ -9,7 +9,8 @@
  *            and testing the contiguous‑digit‑sum property of each k
  * Range:     u8 n <= 22, u16 n <= 501, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   get_digits
+ * Validated: standard, pass, 64 terms through n = 8726 (2026-11-03)
+ * Helpers:   get_digits, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <stddef.h>
 #include "../utils/get_digits.h"
+#include "../utils/mem.h"
 
 #define MAX_DIGITS 200     /* enough for any term needed in the tests */
 #define MAX_SUM    2000    /* largest digit sum we consider */
@@ -80,7 +83,7 @@ seq_t a(idx_t n)
         if (is_good_k(next_k)) {
             if (cache_sz == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 8;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp)
                     return 0;   /* allocation failure – unlikely in tests */
                 cache = tmp;

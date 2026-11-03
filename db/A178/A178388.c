@@ -8,13 +8,15 @@
  *            n primes, interpreted as a decimal integer
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 8, u128 n <= 13,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 28 terms through n = 172 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
 
     /* ensure cache large enough for up to n */
     if (cache_size < n) {
-        seq_cache = (seq_t*)realloc(seq_cache, n * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, n);
         /* new slots are zero‑initialized by realloc when expanding */
         cache_size = n;
     }

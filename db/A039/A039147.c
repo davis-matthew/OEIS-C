@@ -8,14 +8,29 @@
  * Formula:   not stated
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   equal_fives_sevens
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Numbers whose base-10 representation has equal number of 5's and 7's */
 #include <stdbool.h>
-#include "../utils/equal_fives_sevens.h"
+
+static inline bool equal_fives_sevens(seq_t x)
+{
+    seq_t c5 = 0;
+    seq_t c7 = 0;
+    while (x > 0) {
+        seq_t d = x % 10;
+        if (d == 5)
+            ++c5;
+        else if (d == 7)
+            ++c7;
+        x = x / 10;
+    }
+    return c5 == c7;
+}
 
 seq_t a(idx_t n)
 {

@@ -9,13 +9,15 @@
  *            patterns 1234 and 4321
  * Range:     u8 n <= 5, u16 n <= 113, u32 n <= 113, u64 n <= 113,
  *            u128 n <= 113, big any n
- * Helpers:   none
+ * Validated: partial, pass, 114 terms through n = 113 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return 1 if perm[0..n-1] contains an increasing or decreasing
  * subsequence of length 4, otherwise return 0. */
@@ -60,14 +62,14 @@ static void permute(idx_t n, seq_t *perm, unsigned char *used,
 static seq_t count_avoiding(idx_t n)
 {
     if (n <= 1) return (seq_t)1; /* a(0)=1, a(1)=1 */
-    seq_t *perm = (seq_t*)malloc((size_t)n * sizeof(seq_t));
+    seq_t *perm = mem_new(seq_t, (size_t)n);
     if (!perm) return 0;
     unsigned char *used = (unsigned char*)malloc((size_t)n * sizeof(unsigned char));
-    if (!used){ free(perm); return 0; }
+    if (!used){ mem_free(perm); return 0; }
     for(idx_t i=0;i<n;i++) used[i] = 0;
     seq_t counter = 0;
     permute(n, perm, used, 0, &counter);
-    free(perm);
+    mem_free(perm);
     free(used);
     return counter;
 }

@@ -7,19 +7,21 @@
  * Formula:   a(n) = 9^n - 4^n
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 40,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: standard, pass, 39 terms through n = 850 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
     /* Compute 9^n and 4^n using the provided pow_seq routine
        (exponent fits in a signed 32‑bit int for n ≤ 10000). */
     int exp = (int)n;
-    seq_t pow9 = pow_seq((seq_t)9, exp);
-    seq_t pow4 = pow_seq((seq_t)4, exp);
+    seq_t pow9 = ipow_i32((seq_t)9, exp);
+    seq_t pow4 = ipow_i32((seq_t)4, exp);
     return pow9 - pow4;
 }

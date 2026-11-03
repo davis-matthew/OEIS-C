@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_primes, factor_u64, mod_pow
+ * Validated: standard, pass, 73 terms through n = 921 (2026-11-03)
+ * Helpers:   build_primes, factor_u64, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,9 +34,12 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "../utils/build_primes.h"   /* build_primes */
-#include "../utils/mod_pow.h"        /* mod_pow */
-#include "../utils/factor_u64.h"     /* factor_u64 */
+#include <string.h>
+#include <stddef.h>
+#include "../utils/build_primes.h"
+#include "../utils/factor_u64.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* Static state -------------------------------------------------------- */
 
@@ -54,7 +58,7 @@ static void rebuild(idx_t limit)
     /* Free any previous dynamic data --------------------------------- */
 
     free(prime_list);
-    free(roots);
+    mem_free(roots);
 
     /* Build all primes ≤ limit -------------------------------------- */
 
@@ -63,7 +67,7 @@ static void rebuild(idx_t limit)
     /* Prepare storage for the roots ---------------------------------- */
 
     roots_cap = (prime_cnt > 1024) ? prime_cnt : 1024;
-    roots = (seq_t *)malloc(roots_cap * sizeof(seq_t));
+    roots = mem_new(seq_t, roots_cap);
     roots_cnt = 0;
 
     /* Examine each prime -------------------------------------------- */
@@ -82,7 +86,7 @@ static void rebuild(idx_t limit)
         if (p == 2ULL) {
             if (roots_cnt == roots_cap) {
                 roots_cap <<= 1;
-                roots = (seq_t *)realloc(roots, roots_cap * sizeof(seq_t));
+                roots = mem_resize(seq_t, roots, roots_cap);
             }
             roots[roots_cnt++] = (seq_t)p;
             continue;
@@ -102,7 +106,7 @@ static void rebuild(idx_t limit)
             }
 
             /* Test Euler criterion for each divisor q ----------------- */
-            seq_t r = mod_pow((seq_t)73, (p - 1) / pr[j], (seq_t)p);
+            seq_t r = powmod((seq_t)73, (p - 1) / pr[j], (seq_t)p);
             if ((uint64_t)r == 1ULL) {
                 primitive = false;
             }
@@ -111,7 +115,7 @@ static void rebuild(idx_t limit)
         if (primitive) {
             if (roots_cnt == roots_cap) {
                 roots_cap <<= 1;
-                roots = (seq_t *)realloc(roots, roots_cap * sizeof(seq_t));
+                roots = mem_resize(seq_t, roots, roots_cap);
             }
             roots[roots_cnt++] = (seq_t)p;
         }

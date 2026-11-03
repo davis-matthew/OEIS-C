@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 53, u16 n <= 4209, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 93 terms through n = 8765 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Global state --------------------------------------------------- */
 
@@ -53,7 +55,7 @@ static bool seq_contains(const seq_t *arr, idx_t len, seq_t val) {
 static void grow_sequence(void) {
     if (seq_len == seq_cap) {
         seq_cap = (seq_cap == 0) ? 64 : seq_cap * 2;
-        sequence = (seq_t*)realloc(sequence, seq_cap * sizeof(seq_t));
+        sequence = mem_resize(seq_t, sequence, seq_cap);
     }
 }
 
@@ -61,7 +63,7 @@ static void grow_sequence(void) {
 static void heap_push(seq_t val) {
     if (heap_len == heap_cap) {
         heap_cap = (heap_cap == 0) ? 64 : heap_cap * 2;
-        heap = (seq_t*)realloc(heap, heap_cap * sizeof(seq_t));
+        heap = mem_resize(seq_t, heap, heap_cap);
     }
     size_t i = heap_len++;
     while (i > 0) {
@@ -97,12 +99,12 @@ static seq_t heap_pop(void) {
 static void ensure_sequence(idx_t n) {
     if (sequence == NULL) {
         seq_cap = 64;
-        sequence = (seq_t*)calloc(seq_cap, sizeof(seq_t));
+        sequence = mem_new(seq_t, seq_cap);
         seq_len = 0;
     }
     if (heap == NULL) {
         heap_cap = 64;
-        heap = (seq_t*)calloc(heap_cap, sizeof(seq_t));
+        heap = mem_new(seq_t, heap_cap);
         heap_len = 0;
     }
 

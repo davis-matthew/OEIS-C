@@ -11,14 +11,49 @@
  *            coincide with the OEIS b‑file
  * Range:     u8 n <= 5, u16 n <= 12, u32 n <= 20, u64 n <= 40, u128 n <= 81,
  *            big any n
- * Helpers:   init_first_36
+ * Validated: standard, pass, 45 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/init_first_36.h"
+#include "../utils/mem.h"
+
+/* Helper that fills the first 36 denominators using the simple
+   continued‑fraction algorithm for sqrt(951).  The result is stored
+   in 'cache' which must be pre‑allocated with size at least 36. */
+static void init_first_36(seq_t *cache)
+{
+    const uint64_t D  = 951;      /* D = 951 */
+    const uint64_t a0 = 30;      /* floor(sqrt(951)) = 30 */
+
+    uint64_t m = 0;
+    uint64_t d = 1;
+    uint64_t a_cur = a0;
+
+    seq_t q_prev_prev = 0;   /* q_{-1} */
+    seq_t q_prev      = 1;   /* q_0   */
+    seq_t q_curr;
+
+    cache[0] = 1;            /* a(0) = q_0 */
+
+    for (idx_t i = 1; i < 36; ++i)
+    {
+        /* update the continued‑fraction parameters */
+        m = d * a_cur - m;
+        d = (D - m * m) / d;
+        a_cur = (a0 + m) / d;
+
+        /* compute the next convergent denominator */
+        q_curr = a_cur * q_prev + q_prev_prev;
+        cache[i] = q_curr;
+
+        q_prev_prev = q_prev;
+        q_prev      = q_curr;
+    }
+}
 
 seq_t a(idx_t n)
 {
@@ -31,7 +66,7 @@ seq_t a(idx_t n)
     if (!cache)
     {
         cache_cap  = 36;
-        cache      = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache      = mem_new(seq_t, cache_cap);
         init_first_36(cache);
         cache_size = 36;
     }
@@ -43,7 +78,7 @@ seq_t a(idx_t n)
         if ((size_t)(n + 1) > cache_cap)
         {
             cache_cap = (size_t)(n + 1);
-            cache     = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache     = mem_resize(seq_t, cache, cache_cap);
         }
 
         /* compute missing terms */

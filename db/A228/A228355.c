@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2000, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 103 terms through n = 1977 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- internal helpers ---------- */
 static seq_t *digit_cache = NULL;          /* concatenated reversed digits of primes */
@@ -33,7 +35,7 @@ static void ensure_digit_cap(size_t need)
     if (need <= digit_cap) return;
     size_t new_cap = digit_cap ? digit_cap * 2 : 64;
     if (new_cap < need) new_cap = need;
-    seq_t *tmp = (seq_t *)realloc(digit_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, digit_cache, new_cap);
     digit_cache = tmp;
     digit_cap = new_cap;
 }

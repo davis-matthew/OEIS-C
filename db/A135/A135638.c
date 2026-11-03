@@ -10,20 +10,22 @@
  *            output the z‑coordinate of each solution in that order
  * Range:     u8 none, u16 n <= 13, u32 n <= 13, u64 n <= 13, u128 n <= 13,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 13 terms through n = 13 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Grow a dynamic array. */
-static void grow_cache(size_t needed, size_t *cap, void **ptr)
+static void grow_cache(size_t needed, size_t *cap, seq_t **ptr)
 {
     if (needed <= *cap) return;
     size_t newcap = (*cap) ? (*cap) << 1 : 8;
     if (newcap < needed) newcap = needed;
-    seq_t *tmp = (seq_t *)realloc(*ptr, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *ptr, newcap);
     if (!tmp) abort();        /* malloc failure */
     *ptr = tmp;
     *cap = newcap;
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
                     seq_t z = rem / 17;
 
                     /* Ensure space for the new value. */
-                    grow_cache(cache_len + 1, &cache_cap, (void **)&cache);
+                    grow_cache(cache_len + 1, &cache_cap, &cache);
                     cache[cache_len++] = z;
                 }
             }

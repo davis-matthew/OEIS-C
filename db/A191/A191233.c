@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 60, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 4641 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper: binary length of a non‑zero uint64_t. */
 static inline int bitlen_uint64(uint64_t x)
@@ -56,8 +58,8 @@ static void expand_capacity(size_t need)
     if (newCap < need) newCap = need;
 
     primes     = (uint64_t *)realloc(primes,     newCap * sizeof(uint64_t));
-    prefixLen  = (seq_t   *)realloc(prefixLen,  newCap * sizeof(seq_t));
-    prefixOnes = (seq_t   *)realloc(prefixOnes, newCap * sizeof(seq_t));
+    prefixLen  = mem_resize(seq_t, prefixLen, newCap);
+    prefixOnes = mem_resize(seq_t, prefixOnes, newCap);
     primesCap  = newCap;
 }
 

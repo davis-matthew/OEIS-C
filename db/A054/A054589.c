@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 30, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    a[r][k]. */
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
             rows = (seq_t**)malloc(rows_cap * sizeof(seq_t*));
             if (!rows) exit(1);
         }
-        rows[1] = (seq_t*)malloc(sizeof(seq_t));
+        rows[1] = mem_new(seq_t, 1);
         if (!rows[1]) exit(1);
         rows[1][0] = 1;
         rows_used = 1;
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
             rows_cap = new_cap;
         }
 
-        seq_t *next = (seq_t*)malloc(new_len * sizeof(seq_t));
+        seq_t *next = mem_new(seq_t, new_len);
         if (!next) exit(1);
 
         seq_t rseq = (seq_t)curr;   /* n in the recurrence for pₙ₊₁ */

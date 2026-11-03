@@ -10,18 +10,20 @@
  *            1 or 12 modulo 13 (i.e., parts with size ≡ 2‥11 (mod 13))
  * Range:     u8 n <= 23, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute a(n) for any n ≥ 1.  Uses an O(n²) DP over the allowed part sizes. */
 seq_t a(idx_t n)
 {
     /* Allocate temporary array of size n+1 */
-    seq_t *dp = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1));
     if (!dp) return 0;          /* allocation failure – unlikely */
 
     /* initialise dp array to 0 */
@@ -41,6 +43,6 @@ seq_t a(idx_t n)
     }
 
     seq_t ans = dp[n];
-    free(dp);
+    mem_free(dp);
     return ans;
 }

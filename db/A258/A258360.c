@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 19, u32 n <= 51, u64 n <= 410, u128 n <= 1000,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 990 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*  One-time initialization of the first N primes.  The array
     `prime_list` holds primes in ascending order;
@@ -87,7 +89,7 @@ seq_t a(idx_t n)
     if (!dp)
         abort();
     for (int t = 0; t <= 5; ++t) {
-        dp[t] = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
+        dp[t] = mem_new(seq_t, (size_t)n + 1);
         if (!dp[t])
             abort();
     }
@@ -111,7 +113,7 @@ seq_t a(idx_t n)
 
     /* Free memory */
     for (int t = 0; t <= 5; ++t)
-        free(dp[t]);
+        mem_free(dp[t]);
     free(dp);
 
     return result;

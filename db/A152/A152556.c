@@ -7,12 +7,15 @@
  * Formula:   a(n) = 2 * (2*n + 2) ^ floor((n-1)/2)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 14, u64 n <= 24, u128 n <= 40,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 40 terms through n = 622 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -21,7 +24,7 @@ seq_t a(idx_t n)
 
     seq_t base = (seq_t)(2 * n + 2);
     idx_t  exp  = (n - 1) >> 1;          /* floor((n-1)/2) */
-    seq_t  pow  = big_pow(base, (seq_t)exp);
+    seq_t  pow  = ipow(base, (seq_t)exp);
 
     return pow * (seq_t)2;
 }

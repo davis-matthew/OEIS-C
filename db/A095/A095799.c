@@ -7,7 +7,8 @@
  * Formula:   a(n) = Σ_{k=col}^{row} M[row][k] * M[k][col]
  * Range:     u8 n <= 10, u16 n <= 21, u32 n <= 48, u64 n <= 121,
  *            u128 n <= 329, big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 935 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Static cache for the Bell triangle rows */
 static seq_t **Bell = NULL;
@@ -28,7 +30,7 @@ static void ensure_bell_row(idx_t r)
     if (r <= Bell_max) return;
     Bell = (seq_t**)realloc(Bell, r * sizeof(seq_t*));
     for (idx_t i = Bell_max + 1; i <= r; ++i) {
-        Bell[i-1] = (seq_t*)malloc(sizeof(seq_t) * i);
+        Bell[i-1] = mem_new(seq_t, i);
         if (i == 1) {
             /* First row */
             Bell[0][0] = (seq_t)1;

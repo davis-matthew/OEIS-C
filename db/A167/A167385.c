@@ -8,6 +8,7 @@
  *            = 1, a(1) = 3, a(2) = 5, a(3) = 8
  * Range:     u8 n <= 13, u16 n <= 33, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

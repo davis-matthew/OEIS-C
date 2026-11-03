@@ -12,7 +12,8 @@
  *            rotation of th...
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 24, u128 n <= 44,
  *            big any n
- * Helpers:   a2709_add_fact, a2709_add_int, a2709_div3
+ * Validated: standard, pass, 41 terms through n = 499 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,45 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/a2709_add_fact.h"
-#include "../utils/a2709_add_int.h"
-#include "../utils/a2709_div3.h"
+
+static void a2709_add_fact(long *e, const unsigned char *comp, idx_t x, long s)
+{
+    for (idx_t p = 2; p <= x; p++) {
+        if (comp[p]) continue;
+        idx_t q = x;
+        long c = 0;
+        while (q) { q /= p; c += (long)q; }
+        e[p] += s * c;
+    }
+}
+
+static void a2709_add_int(long *e, idx_t x, long s)
+{
+    for (idx_t p = 2; p * p <= x; p++)
+        while (x % p == 0) { e[p] += s; x /= p; }
+    if (x > 1) e[x] += s;
+}
+
+/* Product P of p^e[p]: returns Q = floor(P/3), *r = P mod 3 (no overflow beyond P/3). */
+static seq_t a2709_div3(const long *e, idx_t N, uint64_t *r)
+{
+    seq_t q = 0;
+    uint64_t rr = 1, m = 1;
+    for (idx_t p = 2; p <= N; p++) {
+        for (long j = 0; j < e[p]; j++) {
+            if (m > 0xFFFFFFFFull / p) {
+                q = q * m + (rr * m) / 3;
+                rr = (rr * m) % 3;
+                m = 1;
+            }
+            m *= p;
+        }
+    }
+    q = q * m + (rr * m) / 3;
+    rr = (rr * m) % 3;
+    *r = rr;
+    return q;
+}
 
 seq_t a(idx_t n)
 {

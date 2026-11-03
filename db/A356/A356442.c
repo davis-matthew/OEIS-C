@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 342, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 1910 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build. */
 static size_t global_limit = 0;          /* current maximal k processed   */
@@ -118,7 +120,7 @@ static void recompute_counts(idx_t new_limit)
     while (sz <= 2 * new_limit) sz <<= 1;
 
     /* Temporary array for counts */
-    seq_t *temp_counts = (seq_t *)calloc((size_t)new_limit + 1, sizeof(seq_t));
+    seq_t *temp_counts = mem_new(seq_t, (size_t)new_limit + 1);
     if (!temp_counts) return; /* allocation failure */
 
     /* Residues corresponding to prime endings:
@@ -132,7 +134,7 @@ static void recompute_counts(idx_t new_limit)
         /* Allocate FFT array */
         cplx *f = (cplx *)calloc(sz, sizeof(cplx));
         if (!f) {
-            free(temp_counts);
+            mem_free(temp_counts);
             return;
         }
 
@@ -176,7 +178,7 @@ static void recompute_counts(idx_t new_limit)
 
     /* Replace global counts array */
     if (global_counts) {
-        free(global_counts);
+        mem_free(global_counts);
     }
     global_counts = temp_counts;
     global_limit = new_limit;

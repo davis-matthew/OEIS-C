@@ -7,11 +7,15 @@
  * Formula:   a(n) = a(n-1) + a(n-2) + a(n-3), a(0) = 1, a(1) = a(2) = 3
  * Range:     u8 n <= 8, u16 n <= 18, u32 n <= 36, u64 n <= 72, u128 n <= 145,
  *            big any n
+ * Validated: standard, pass, 51 terms through n = 3686 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#ifdef __cplusplus
+#include <vector>
+#endif
 #include <stdlib.h>  /* malloc, realloc */
 
 #ifndef __cplusplus

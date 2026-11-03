@@ -6,13 +6,15 @@
  * Keywords:  sign, easy
  * Formula:   a(n) = Sum_{d|n} ((-1)^(n/d + d) * binomial(d, n/d) +
  *            binomial(n/d - 1, d - 1)), with a(0) = 1
- * Range:     i8 n <= 23, i16 n <= 103, i32 n <= 428, i64 n <= 1000,
+ * Range:     i8 n <= 26, i16 n <= 104, i32 n <= 428, i64 n <= 1000,
  *            i128 n <= 1000, big any n
+ * Validated: standard, pass, 77 terms through n = 983 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

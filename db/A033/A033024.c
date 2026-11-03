@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 214, u32 n <= 1300, u64 n <= 1300,
  *            u128 n <= 1300, big any n
- * Helpers:   valid_base11
+ * Validated: standard, pass, 57 terms through n = 1246 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,30 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/valid_base11.h"
+#include "../utils/mem.h"
+
+/* Test whether a number has no singleton runs in base‑11. */
+static bool valid_base11(seq_t x)
+{
+    seq_t v = x;
+    int prev = -1;           /* sentinel for "no previous digit" */
+    int run  = 0;            /* length of current run */
+
+    while (v > 0) {
+        uint64_t d = (uint64_t)(v % 11);   /* next digit */
+        v = v / 11;
+
+        if (prev == -1 || d != prev) {     /* start of a new run */
+            if (run > 0 && run < 2)        /* short run finished */
+                return false;
+            prev = (int)d;
+            run  = 1;
+        } else {                           /* extend current run */
+            ++run;
+        }
+    }
+    return run >= 2;                     /* last run must be ≥ 2 */
+}
 
 /* Return the nth term (1‑based index). */
 seq_t a(idx_t n)
@@ -44,7 +68,7 @@ seq_t a(idx_t n)
         if (valid_base11(cur)) {
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap << 1 : 64;
-                seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) exit(EXIT_FAILURE);
                 cache    = tmp;
                 cache_cap = new_cap;

@@ -12,15 +12,36 @@
  *            factors of D (number of genera = 2^(w-1))
  * Range:     u8 n <= 99, u16 n <= 99, u32 n <= 99, u64 n <= 99, u128 n <= 99,
  *            big any n
- * Helpers:   omega_odd, sqfree_odd
+ * Validated: partial, pass, 99 terms through n = 99 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/omega_odd.h"
-#include "../utils/sqfree_odd.h"
+
+static int omega_odd(int64_t m) {
+    int cnt = 0;
+    for (int64_t p = 3; p * p <= m; p += 2) {
+        if (m % p == 0) {
+            cnt++;
+            while (m % p == 0) m /= p;
+        }
+    }
+    if (m > 1) cnt++;
+    return cnt;
+}
+
+static bool sqfree_odd(int64_t m) {
+    for (int64_t p = 3; p * p <= m; p += 2) {
+        if (m % p == 0) {
+            m /= p;
+            if (m % p == 0) return false;
+        }
+    }
+    return true;
+}
 
 static int64_t class_number(int64_t D) {
     /* reduced forms (a,b,c), b^2 - 4ac = -D, |b| <= a <= c,

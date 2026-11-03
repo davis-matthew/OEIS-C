@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 600, u32 n <= 600, u64 n <= 600,
  *            u128 n <= 600, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 568 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    successive k with the pentagonal number recurrence.  */
 
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,14 +39,14 @@ seq_t a(idx_t n)
     /* initialise storage on first call */
     if (p_mod32 == NULL) {
         cap_p = 256;
-        p_mod32 = (seq_t *)malloc(cap_p * sizeof(seq_t));
+        p_mod32 = mem_new(seq_t, cap_p);
         if (!p_mod32) return (seq_t)0;
         p_mod32[0] = (seq_t)1; /* p(0) = 1 */
         max_k = 0;
     }
     if (sol == NULL) {
         sol_cap = 256;
-        sol = (seq_t *)malloc(sol_cap * sizeof(seq_t));
+        sol = mem_new(seq_t, sol_cap);
         if (!sol) return (seq_t)0;
         sol_len = 0;
     }
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
             size_t new_cap = cap_p * 2;
             if (new_cap < (size_t)(max_k + 1))
                 new_cap = (size_t)(max_k + 1);
-            seq_t *tmp = (seq_t *)realloc(p_mod32, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, p_mod32, new_cap);
             if (!tmp) return (seq_t)0;
             p_mod32 = tmp;
             cap_p = new_cap;
@@ -84,7 +86,7 @@ seq_t a(idx_t n)
                 size_t new_cap = sol_cap * 2;
                 if (new_cap < sol_len + 1)
                     new_cap = sol_len + 1;
-                seq_t *tmp = (seq_t *)realloc(sol, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, sol, new_cap);
                 if (!tmp) return (seq_t)0;
                 sol = tmp;
                 sol_cap = new_cap;

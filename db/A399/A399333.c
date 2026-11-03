@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 14, i16 n <= 65, i32 n <= 65, i64 n <= 65, i128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -38,6 +39,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- Prime table -------------------------------------------------- */
 static seq_t *prime_tbl = NULL;   /* 0‑based: prime_tbl[0] = 1, primed[1] = 2, ... */
@@ -64,7 +66,7 @@ static void init_prime_tbl(void)
     for (idx_t i = 2; i <= PRIME_LIMIT; ++i)
         if (is_prime[i]) ++prime_cnt;
 
-    prime_tbl = (seq_t *)malloc(prime_cnt * sizeof(seq_t));
+    prime_tbl = mem_new(seq_t, prime_cnt);
     if (!prime_tbl) {
         free(is_prime);
         return;

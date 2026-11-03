@@ -11,7 +11,8 @@
  *            (Recurrence valid for n≥7)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 15, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* The function depends on the compile‑time definition of seq_t and idx_t.
    For small integer types (uint8_t … uint64_t) the computation uses a
@@ -41,16 +43,16 @@ seq_t a(idx_t n)
     /* First allocation. */
     if (cache == NULL) {
         capacity = 8;                       /* at least enough for init   */
-        cache = (seq_t *)malloc(capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, capacity);
         if (!cache) return (seq_t)0;        /* allow graceful failure      */
-        memcpy(cache, init, sizeof(init));
+        mem_copy(cache, init, sizeof(init));
     }
 
     /* Grow cache if needed. */
     if (n + 1 > capacity) {
         idx_t new_cap = capacity;
         while (new_cap <= n) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return (seq_t)0;          /* graceful failure           */
         cache   = tmp;
         capacity = new_cap;

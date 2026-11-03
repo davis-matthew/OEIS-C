@@ -11,13 +11,15 @@
  *            and caches the values
  * Range:     u8 n <= 60, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 9216 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Cache of computed terms. */
 static seq_t *seq_cache   = NULL;   /* array holding the terms */
@@ -30,7 +32,7 @@ static void ensure_cache_capacity(idx_t new_cap)
 {
     if (new_cap <= cache_cap)
         return;
-    seq_t *new_buf = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *new_buf = mem_resize(seq_t, seq_cache, new_cap);
     if (!new_buf)
         abort();                     /* fatal if memory allocation fails */
     seq_cache = new_buf;

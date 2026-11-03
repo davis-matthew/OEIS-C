@@ -7,7 +7,8 @@
  * Formula:   a(n) = denominator of sum_{i=1}^{n-1} 1 / i^(2*n-1)
  * Range:     u8 n <= 3, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 8,
  *            big any n
- * Helpers:   big_pow, build_primes_upto, floor_log_u64, mod_pow, seq_mul
+ * Validated: standard, pass, 27 terms through n = 35 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,11 +16,26 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/big_pow.h"
-#include "../utils/mod_pow.h"
-#include "../utils/seq_mul.h"
-#include "../utils/floor_log_u64.h"
+#include "../utils/ipow.h"
+#include "../utils/powmod.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+static uint64_t floor_log_u64(uint64_t x, uint64_t p)
+{
+    if (p <= 1) return 0;
+    uint64_t c = 0;
+    while (x >= p) {
+        x /= p;
+        ++c;
+    }
+    return c;
+}
 
 static uint64_t pow_uint64(uint64_t base, uint32_t exp)
 {
@@ -80,15 +96,15 @@ seq_t a(idx_t n)
                 if (qi == pi) continue;
                 uint64_t q = primes[qi];
                 uint64_t exp = mod2n1 * max_log[qi];
-                Z = (Z * (seq_t)mod_pow((seq_t)q, exp, mod)) % mod;
+                Z = (Z * (seq_t)powmod((seq_t)q, exp, mod)) % mod;
             }
 
             /* Sum over t */
             seq_t sum = (seq_t)0;
             for (uint64_t t = 1; t <= limit_t; ++t) {
                 if (t % p == 0) continue;      /* t must be coprime to p */
-                seq_t t_pow = (seq_t)mod_pow((seq_t)t, mod2n1, mod);
-                seq_t inv = (seq_t)mod_pow(t_pow, phi_minus1, mod);
+                seq_t t_pow = (seq_t)powmod((seq_t)t, mod2n1, mod);
+                seq_t inv = (seq_t)powmod(t_pow, phi_minus1, mod);
                 seq_t term = (Z * inv) % mod;
                 sum += term;
                 if (sum >= mod) sum -= mod;
@@ -102,7 +118,7 @@ seq_t a(idx_t n)
         }
 
         /* Remaining exponent in denominator after cancelling gcd */
-        seq_t pow_rem = big_pow((seq_t)p, (seq_t)(E_p - v_p));
+        seq_t pow_rem = ipow((seq_t)p, (seq_t)(E_p - v_p));
         result = seq_mul(result, pow_rem);
     }
 

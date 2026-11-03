@@ -9,7 +9,8 @@
  *            whose cycle lengths avoid primes
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 13, u64 n <= 21, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 442 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *perm_cache = NULL;      /* a[n] values */
 static idx_t   cache_size = 0;        /* number of cached results */
@@ -60,7 +62,7 @@ static void extend_cache(idx_t n)
     ensure_prime_sieve(n);
 
     /* Grow cache array */
-    seq_t *new_cache = (seq_t *)realloc(perm_cache, (n + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, perm_cache, (n + 1));
     if (!new_cache)                   /* allocation failure – let caller fail later */
         return;
     perm_cache = new_cache;

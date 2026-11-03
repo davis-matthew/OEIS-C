@@ -11,14 +11,28 @@
  *            Stirling numbers of the second kind
  * Range:     u8 n <= 13, u16 n <= 26, u32 n <= 54, u64 n <= 79, u128 n <= 79,
  *            big any n
- * Helpers:   factorial, seq_pow
+ * Validated: partial, pass, 79 terms through n = 79 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* utility prototypes */
-#include "../utils/seq_pow.h"   /* seq_pow(seq_t base, idx_t exp) */
-#include "../utils/factorial.h" /* factorial(idx_t n) */
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow_idx.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 #include <stdbool.h>
 
@@ -84,7 +98,7 @@ seq_t a(idx_t n)
     idx_t prev = t[r - 1];
     idx_t k = n - prev;   /* column index, 1 ≤ k ≤ r */
 
-    seq_t power = seq_pow((seq_t)k, r);          /* k^r */
+    seq_t power = ipow_idx((seq_t)k, r);          /* k^r */
     seq_t denom = fact[k] * S[r][k];
     seq_t numer = power - denom;
 

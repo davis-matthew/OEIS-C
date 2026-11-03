@@ -10,7 +10,8 @@
  *            number of solutions to x^2 ≡ -1 (mod n)
  * Range:     u8 n <= 897, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _solutions_x2eq1, _solutions_x2eqm1
+ * Validated: standard, pass, 114 terms through n = 9125 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,68 @@
 /* Value type aliases (supplied by the build) */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_solutions_x2eq1.h"
-#include "../utils/_solutions_x2eqm1.h"
+
+/* Count solutions to x^2 ≡ 1 (mod n)  (A060594) */
+static seq_t _solutions_x2eq1(uint64_t n) {
+    uint64_t temp = n;
+    int e_pow2 = 0;
+    while (temp % 2 == 0) {
+        temp /= 2;
+        e_pow2++;
+    }
+
+    /* factor base contributed by the 2-adic part */
+    uint64_t base;
+    if (e_pow2 <= 1)          base = 1ULL;   /* e = 0 or 1 */
+    else if (e_pow2 == 2)     base = 2ULL;   /* e = 2   */
+    else                      base = 4ULL;   /* e ≥ 3   */
+
+    /* count distinct odd prime factors */
+    uint64_t odd = temp;
+    int t = 0;
+    uint64_t odd_tmp = odd;
+    for (uint64_t p = 3; p * p <= odd_tmp; p += 2) {
+        if (odd_tmp % p == 0) {
+            t++;
+            while (odd_tmp % p == 0) odd_tmp /= p;
+        }
+    }
+    if (odd_tmp > 1) t++;          /* remaining prime factor */
+
+    return base * ((uint64_t)1 << t);
+}
+
+/* Count solutions to x^2 ≡ -1 (mod n)  (A000089) */
+static seq_t _solutions_x2eqm1(uint64_t n) {
+    /* No solutions when 4 | n */
+    if (n % 4 == 0) return (seq_t)0;
+
+    /* strip factor 2 (at most one) */
+    uint64_t odd = n;
+    while (odd % 2 == 0) odd /= 2;
+
+    /* n == 1 or 2 -> exactly one solution (x ≡ 1) */
+    if (odd == 1) return (seq_t)1;
+
+    /* Check every odd prime factor */
+    int t = 0;          /* count of distinct primes ≡ 1 (mod 4) */
+    bool bad = false;   /* flag if any prime ≡ 3 (mod 4) appears */
+    uint64_t odd_tmp = odd;
+    for (uint64_t p = 3; p * p <= odd_tmp; p += 2) {
+        if (odd_tmp % p == 0) {
+            if (p % 4 == 3) { bad = true; break; }
+            t++;
+            while (odd_tmp % p == 0) odd_tmp /= p;
+        }
+    }
+    if (!bad && odd_tmp > 1) {
+        if (odd_tmp % 4 == 3) bad = true;
+        else t++;
+    }
+
+    if (bad) return (seq_t)0;
+    return ((uint64_t)1 << t);
+}
 
 /* Small helper: compute phi(n) efficiently */
 static seq_t _phi_uint64(uint64_t n) {

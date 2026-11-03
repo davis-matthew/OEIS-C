@@ -10,13 +10,15 @@
  *            a(1)=8, a(2)=27, a(3)=52, a(4)=89
  * Range:     u8 n <= 7, u16 n <= 120, u32 n <= 145, u64 n <= 145,
  *            u128 n <= 145, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 143 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* array of computed values, indices 0..n */
 static idx_t max_cached = 0;         /* largest n that has been computed */
@@ -27,7 +29,7 @@ static void init_cache(void)
 {
     if (initialized) return;
     size_t sz = 5; /* indices 0..4, 0 unused */
-    cache = (seq_t*)malloc(sz * sizeof(seq_t));
+    cache = mem_new(seq_t, sz);
     if (!cache) abort();
     for (idx_t i = 0; i < 5; ++i) cache[i] = 0;
     cache[1] = (seq_t)8;
@@ -43,7 +45,7 @@ static void extend_cache(idx_t n)
 {
     if (n <= max_cached) return;
     size_t new_size = (size_t)(n + 1);          /* need indices 0..n */
-    seq_t *tmp = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_size);
     if (!tmp) abort();
     cache = tmp;
     for (idx_t i = max_cached + 1; i <= n; ++i) {

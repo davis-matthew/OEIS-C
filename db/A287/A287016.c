@@ -9,14 +9,35 @@
  *            perfect square. The n-th odd composite is A071904(n)
  * Range:     u8 n <= 14, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   floor_sqrt, isPrimeTrial
+ * Validated: partial, pass, 77 terms through n = 77 (2026-11-01)
+ * Helpers:   ipow_i32, is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/isPrimeTrial.h"
-#include "../utils/floor_sqrt.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/is_prime_seq.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Returns the n-th odd composite number. */
 static seq_t nth_odd_composite(idx_t n) {
@@ -25,7 +46,7 @@ static seq_t nth_odd_composite(idx_t n) {
     if (n == 1) return odd;
     while (count < n) {
         odd += 2;           /* only odd numbers */
-        if (!isPrimeTrial(odd)) {
+        if (!is_prime_seq(odd)) {
             ++count;
         }
     }

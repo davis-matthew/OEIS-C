@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 49, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 */
 
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,8 +38,8 @@ seq_t a(idx_t n)
     /* recompute all values up to n if we do not have them yet */
     if (current_max == (idx_t)-1 || n > current_max) {
         /* allocate arrays for the new range [0..n] */
-        dp  = (seq_t *)realloc(dp, (n + 1) * sizeof(seq_t));
-        res = (seq_t *)realloc(res, (n + 1) * sizeof(seq_t));
+        dp  = mem_resize(seq_t, dp, (n + 1));
+        res = mem_resize(seq_t, res, (n + 1));
 
         /* initialise */
         dp[0] = 1;

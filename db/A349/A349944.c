@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   has_desc_triple
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,14 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/has_desc_triple.h"
+
+static bool has_desc_triple(const uint8_t *digits, size_t len)
+{
+    for (size_t i = 0; i + 2 < len; ++i)
+        if (digits[i] > digits[i + 1] && digits[i + 1] > digits[i + 2])
+            return true;
+    return false;
+}
 
 /* ---------- helper: digit handling ----------------------------------- */
 static void get_digits(seq_t v, uint8_t *buf, size_t *len)

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 32, u16 n <= 79, u32 n <= 173, u64 n <= 362,
  *            u128 n <= 737, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 872 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    a(n) = floor((53 + Σ_{i=1}^{n‑1} a(i)) / 8)   for n ≥ 2   (OEIS A120199) */
 
 #include <stdlib.h>    /* for malloc, realloc */
+#include "../utils/mem.h"
 
 static seq_t *values = NULL;         /* values[0] = a(1) */
 static idx_t   cached  = 0;          /* number of values currently stored */
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
         while (new_cap < n) new_cap *= 2;
 
         if (new_cap > cached) {
-            values = (seq_t *)realloc(values, new_cap * sizeof(seq_t));
+            values = mem_resize(seq_t, values, new_cap);
         }
 
         for (idx_t i = cached; i < n; ++i) {

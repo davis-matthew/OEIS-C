@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 2500, u32 n <= 2500, u64 n <= 2500,
  *            u128 n <= 2500, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 1916 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    so after precomputing all qualifying k ≤ 1428 we can answer any n in O(1). */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *pre = NULL;             /* array of early terms (k ≤ 1428)   */
 static size_t pre_len = 0;             /* number of terms stored           */
@@ -32,7 +34,7 @@ static void init_pre(void)
     int pi_cnt = 0;
     long double H = 0.0L;              /* harmonic number H_k  */
     size_t alloc = MAX_K + 1;          /* worst‑case size                     */
-    pre = (seq_t *)malloc(alloc * sizeof(seq_t));
+    pre = mem_new(seq_t, alloc);
     pre_len = 0;
 
     /* trivial sieve up to MAX_K */

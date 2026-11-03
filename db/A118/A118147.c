@@ -8,13 +8,15 @@
  * Formula:   a(1) = 1, for n > 1: a(n) = reverse_decimal(a(n-1)) + 50
  * Range:     u8 n <= 4, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   reverse_decimal
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/reverse_decimal.h"
+#include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,12 +30,12 @@ seq_t a(idx_t n)
     /* Allocate or grow the cache if necessary */
     if (cache == NULL) {
         cap = 16;                     /* initial capacity */
-        cache = (seq_t *)calloc(cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
     }
     if ((idx_t)cap < n) {
         size_t newcap = cap;
         while ((idx_t)newcap < n) newcap <<= 1;   /* double until enough   */
-        cache = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, newcap);
         cap = newcap;
     }
 
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
             next = 1;                 /* a(1) = 1 */
         } else {
             seq_t prev = cache[i-2];   /* a(i-1) already computed */
-            next = reverse_decimal(prev) + (seq_t)50;
+            next = reverse_digits(prev) + (seq_t)50;
         }
         cache[i-1] = next;
     }

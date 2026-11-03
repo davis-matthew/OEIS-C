@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 9, u32 n <= 15, u64 n <= 23, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 497 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* external types provided by the build */
 extern seq_t a(idx_t n);
@@ -48,14 +50,14 @@ static void ensure_size(idx_t new_n, int new_k)
 
     /* allocate fresh table */
     size_t sz = (size_t)(new_n + 1) * (new_k + 1);
-    seq_t *new_table = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *new_table = mem_new(seq_t, sz);
     if (!new_table) return;           /* allocation failure – caller will fail */
 
     /* clear */
     for (size_t i = 0; i < sz; ++i) new_table[i] = (seq_t)0;
 
     /* free old table if any */
-    if (table) free(table);
+    if (table) mem_free(table);
 
     table = new_table;
     max_n = new_n;

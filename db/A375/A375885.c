@@ -9,12 +9,14 @@
  * Formula:   a(0) = 0, a(1) = 1, a(n) = 2*a(n‑1) - 16*a(n‑2) for n >= 2
  * Range:     i8 n <= 5, i16 n <= 8, i32 n <= 17, i64 n <= 25, i128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* first call: initialise the cache with the two base cases */
     if (cache_len == 0) {
         cache_len = 2;
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         if (cache == NULL) abort();      /* out of memory */
         cache[0] = (seq_t)0;
         cache[1] = (seq_t)1;
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     /* extend the cache so that it can hold index n */
     size_t needed = (size_t)n + 1;
     if (needed > cache_len) {
-        cache = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, needed);
         if (cache == NULL) abort();      /* out of memory */
         /* compute the new terms using the recurrence */
         for (size_t i = cache_len; i < needed; ++i) {

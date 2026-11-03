@@ -12,14 +12,15 @@
  *            K‑palindromic compositions of N, computed by the closed fo...
  * Range:     u8 n <= 261, u16 n <= 757, u32 n <= 1275, u64 n <= 1275,
  *            u128 n <= 1275, big any n
- * Helpers:   mu_small
+ * Validated: standard, pass, 94 terms through n = 1251 (2026-11-01)
+ * Helpers:   mobius_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mu_small.h"
+#include "../utils/mobius_idx.h"
 
 /* helper: Euclidean gcd for idx_t (uint64_t) */
 static idx_t gcd_idx(idx_t a, idx_t b)
@@ -90,7 +91,7 @@ seq_t a(idx_t n)
 
     for (idx_t d = 1; d <= g; ++d) {
         if (g % d != 0) continue;
-        int mu = mu_small(d);
+        int mu = mobius_idx(d);
         if (mu == 0) continue;
 
         idx_t r_d = r / d;

@@ -8,7 +8,8 @@
  *            d^10
  * Range:     i8 n <= 2, i16 n <= 2, i32 n <= 8, i64 n <= 78, i128 n <= 6654,
  *            big any n
- * Helpers:   factor_u64, pow_seq
+ * Validated: standard, pass, 42 terms through n = 9811 (2026-11-01)
+ * Helpers:   factor_u64, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,10 @@
    with a(2^e) = 1. */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -48,7 +51,7 @@ seq_t a(idx_t n)
            happens when the final a(p^e) does not fit in seq_t,
            which is acceptable because those values are not
            part of the 64‑bit test set. */
-        seq_t p10 = pow_seq((seq_t)p, 10);
+        seq_t p10 = ipow_i32((seq_t)p, 10);
 
         /* Compute the local sum for p^e */
         seq_t term = 1;   /* p^{10·0} */

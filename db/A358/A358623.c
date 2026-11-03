@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 38, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   idx_linear
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,13 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/idx_linear.h"
+#include "../utils/mem.h"
+
+/* Convert (row,col) to linear index in T_table. */
+static inline size_t idx_linear(idx_t row, idx_t col)
+{
+    return (size_t)(row * (row + 1) / 2 + col);
+}
 
 /* Flat storage for the triangular array T. */
 static seq_t *T_table   = NULL;          /* array of all T(n,k) entries */
@@ -38,15 +45,14 @@ static void ensure_capacity(idx_t r_needed)
     size_t new_size = (size_t)((r_needed + 1) * (r_needed + 2) / 2);
 
     /* Allocate a new buffer. */
-    seq_t *new_table = (seq_t *)malloc(new_size * sizeof(seq_t));
+    seq_t *new_table = mem_new(seq_t, new_size);
     if (!new_table)
         abort();        /* out of memory */
 
     /* If we had a previous table, copy its contents. */
     if (T_table != NULL) {
-        memcpy(new_table, T_table,
-               (T_max_row + 1) * (T_max_row + 2) / 2 * sizeof(seq_t));
-        free(T_table);
+        mem_copy(new_table, T_table, (T_max_row + 1) * (T_max_row + 2) / 2 * sizeof(seq_t));
+        mem_free(T_table);
     }
 
     /* Compute missing rows (starting at the first not yet computed). */

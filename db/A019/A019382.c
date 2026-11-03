@@ -7,7 +7,8 @@
  * Formula:   a(n) = the nth prime p for which 58 is a primitive root modulo p
  * Range:     u8 n <= 24, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_primes_upto, is_prime, mod_pow
+ * Validated: standard, pass, 72 terms through n = 986 (2026-11-01)
+ * Helpers:   build_primes_upto, is_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,10 @@
 #include <stdlib.h>
 
 /* Required utilities */
-#include "../utils/is_prime.h"
-#include "../utils/mod_pow.h"
+#include <string.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/is_prime.h"
+#include "../utils/powmod.h"
 
 static unsigned *prime_factors = NULL;
 static size_t      prime_factors_cnt = 0;
@@ -63,7 +65,7 @@ static bool is_primitive_root(uint64_t p)
         if (tmp % q == 0)
         {
             uint64_t exp = phi / q;
-            seq_t r = mod_pow((seq_t)58, exp, (seq_t)p);
+            seq_t r = powmod((seq_t)58, exp, (seq_t)p);
             if (r == (seq_t)1) return false;
 
             /* Remove all copies of q from tmp.  */
@@ -75,7 +77,7 @@ static bool is_primitive_root(uint64_t p)
     if (tmp > 1)
     {
         uint64_t exp = phi / tmp;
-        seq_t r = mod_pow((seq_t)58, exp, (seq_t)p);
+        seq_t r = powmod((seq_t)58, exp, (seq_t)p);
         if (r == (seq_t)1) return false;
     }
 

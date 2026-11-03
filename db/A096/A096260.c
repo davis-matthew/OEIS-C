@@ -9,7 +9,8 @@
  * Formula:   a(n) = A096227(n) + A097405(n) + 1
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 18, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    a(n) = 30*a(n-2) - 280*a(n-4) + 960*a(n-6) - 1024*a(n-8)   */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,14 +39,14 @@ seq_t a(idx_t n)
     /* Allocate initial cache if this is the first call */
     if (cache_len == 0) {
         cache_len = 12;
-        cache = (seq_t*)malloc(sizeof(seq_t) * cache_len);
+        cache = mem_new(seq_t, cache_len);
         for (idx_t i = 0; i < 12; ++i)
             cache[i] = init[i];
     }
 
     /* Extend cache up to requested n */
     if (cache_len <= n) {
-        seq_t *new_cache = (seq_t*)realloc(cache, sizeof(seq_t) * (n + 1));
+        seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
         if (!new_cache) return 0; /* allocation failure – unlikely in tests */
         cache = new_cache;
 

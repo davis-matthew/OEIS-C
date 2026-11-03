@@ -8,7 +8,8 @@
  *            (π(x) is the prime-counting function; a(1) = 1)
  * Range:     u8 n <= 95, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd, is_prime
+ * Validated: standard, pass, 77 terms through n = 8974 (2026-11-03)
+ * Helpers:   gcd, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include "../utils/gcd.h"
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;         /* array of found terms */
 static size_t seq_len = 0;          /* number of terms stored */
@@ -31,7 +33,7 @@ static void push_term(idx_t val)
 {
     if (seq_len == seq_cap) {
         size_t new_cap = seq_cap == 0 ? 16 : seq_cap * 2;
-        seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, new_cap);
         seq_cap = new_cap;
     }
     seq[seq_len++] = (seq_t)val;

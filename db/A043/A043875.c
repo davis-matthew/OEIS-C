@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 30, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   a043875_runs_in_base4
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,22 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/a043875_runs_in_base4.h"
+
+/* Count runs in base‑4 representation of k. */
+static int a043875_runs_in_base4(seq_t k)
+{
+    int runs = 0;
+    seq_t prev = 4;     /* a value outside [0,3] to trigger first run */
+    while (k > 0) {
+        seq_t d = k % 4;
+        if (d != prev) {
+            ++runs;
+            prev = d;
+        }
+        k /= 4;
+    }
+    return runs;
+}
 
 #ifndef MAX_A043875_TERMS
 /* enough for n up to about 10000 (density ≈ 1/10 of all integers). */

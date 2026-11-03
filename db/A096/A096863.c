@@ -9,7 +9,8 @@
  *            n under the iteration x → sigma(phi(x))
  * Range:     u8 n <= 100, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   calc_phi, grow_seq, sigma_of
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,39 @@
  * (zero‑based), which equals the count of transient terms.  */
 
 #include <stddef.h>
-#include "../utils/calc_phi.h"   /* calc_phi(seq_t m)          */
-#include "../utils/sigma_of.h"  /* seq_t sigma_of(idx_t n);   */
-#include "../utils/grow_seq.h"  /* void grow_seq(seq_t **, size_t *, size_t); */
+#include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/totient_seq.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
 
 seq_t a(idx_t n)
 {
@@ -48,7 +79,7 @@ seq_t a(idx_t n)
 
         /* --- record current value and iterate --------------------- */
         seen[len++] = cur;
-        seq_t phi = calc_phi(cur);
+        seq_t phi = totient_seq(cur);
         /* phi is known to fit into idx_t for all tested n; cast safely. */
         cur = sigma_of((idx_t) phi);
     }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 42, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 9251 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- Prime sieve (up to 1 000 000) ---------- */
 #define PRIME_LIMIT 1000000
@@ -132,7 +134,7 @@ seq_t a(idx_t n)
         if (is_abundant(cand) && is_deficient(reverse_uint64(cand))) {
             if (cache_len + 1 > cache_cap) {             /* grow cache */
                 size_t new_cap = cache_cap == 0 ? 64 : cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) exit(EXIT_FAILURE);            /* allocation failed */
                 cache = tmp;
                 cache_cap = new_cap;

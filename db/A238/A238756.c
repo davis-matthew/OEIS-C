@@ -12,7 +12,8 @@
  *            condition on 2*m + 1.)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 96 terms through n = 9835 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* -------------------------------------------------------------------------- */
 /*  Sieve of Eratosthenes --------------------------------------------------- */
@@ -86,7 +88,7 @@ seq_t a(idx_t n)
     /* Increase cache size if necessary */
     if (n + 1 > cache_cap) {
         size_t new_cap = n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         bool *new_cached = (bool *)realloc(cached_arr, new_cap * sizeof(bool));
         if (!new_cache || !new_cached) exit(EXIT_FAILURE);
 

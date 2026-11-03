@@ -8,8 +8,9 @@
  * Formula:   multiplicative Dirichlet inverse of A046897. a(2^e) = -3 *
  *            (-2)^(e-1) a(p) = -(p+1) (odd prime) a(p^2) = p a(p^e) = 0 for e
  *            ≥ 3 (odd prime) a(1) = 1
- * Range:     i8 n <= 59, i16 n <= 9915, i32 n <= 9915, i64 n <= 9915,
- *            i128 n <= 9915, big any n
+ * Range:     i8 n <= 59, i16 n <= 12179, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 88 terms through n = 9915 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

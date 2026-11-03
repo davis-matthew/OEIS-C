@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 6, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Initial 13 terms of the sequence */
 static const seq_t init_vals[13] = {
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
     /* Ensure enough capacity */
     if (cache_cap < idx) {
         size_t new_cap = (idx > 20 ? idx : 20);
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) {                              /* allocation failed – give up */
             /* In a real implementation we would handle this more gracefully */
             return (seq_t)0;

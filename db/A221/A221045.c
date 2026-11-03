@@ -8,12 +8,15 @@
  * Formula:   a(n) = (3/2)-3^(n-1)*53+3^(2*n-2)*(64*n^2-148*n)+(97/6)*3^(2*n)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 6, u64 n <= 16, u128 n <= 18,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -21,9 +24,9 @@ seq_t a(idx_t n)
     seq_t N = (seq_t)n;
 
     /* Compute powers of 3 needed in the formula */
-    seq_t pow3_n_minus1  = seq_pow((seq_t)3, n - 1);          /* 3^(n-1) */
-    seq_t pow3_2n_minus2 = seq_pow((seq_t)3, 2 * n - 2);      /* 3^(2n-2) */
-    seq_t pow3_2n        = seq_pow((seq_t)3, 2 * n);          /* 3^(2n) */
+    seq_t pow3_n_minus1  = ipow_idx((seq_t)3, n - 1);          /* 3^(n-1) */
+    seq_t pow3_2n_minus2 = ipow_idx((seq_t)3, 2 * n - 2);      /* 3^(2n-2) */
+    seq_t pow3_2n        = ipow_idx((seq_t)3, 2 * n);          /* 3^(2n) */
 
     /* 6 * a(n)  -> all integer arithmetic */
     seq_t term1 = (seq_t)9;                                 /* 3/2 * 6 */

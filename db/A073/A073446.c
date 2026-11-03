@@ -10,12 +10,14 @@
  *            computed terms to answer calls in any order
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 40, u128 n <= 81,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 955 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;    /* memoisation table */
 static idx_t cache_size = 0;   /* number of elements stored (max index + 1) */
@@ -27,7 +29,7 @@ static void ensure_cache(idx_t n)
     if (cache == NULL) {
         /* initialise with first six terms */
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = (seq_t)6;
         cache[1] = (seq_t)1;
         cache[2] = (seq_t)9;
@@ -40,7 +42,7 @@ static void ensure_cache(idx_t n)
     if (n + 1 > cache_cap) {
         idx_t new_cap = cache_cap;
         while (new_cap < n + 1) new_cap <<= 1;   /* power‑of‑two growth */
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) return;                   /* allocation failed – leave cache as is */
         cache = new_cache;
         cache_cap = new_cap;

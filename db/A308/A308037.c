@@ -7,11 +7,13 @@
  * Formula:   a(n) = Sum_{d|n} Stirling2(n,d)
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 17, u64 n <= 26, u128 n <= 44,
  *            big any n
+ * Validated: standard, pass, 45 terms through n = 429 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>

@@ -9,7 +9,8 @@
  *            such numbers exist, largest is 343867
  * Range:     u8 none, u16 none, u32 n <= 241, u64 n <= 241, u128 n <= 241,
  *            big any n
- * Helpers:   tetrahedral
+ * Validated: standard, pass, 69 terms through n = 240 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,12 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/tetrahedral.h"
+#include "../utils/mem.h"
+
+static seq_t tetrahedral(idx_t k) {
+    seq_t x = (seq_t)k;
+    return x * (x + 1) * (x + 2) / 6;
+}
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;
@@ -28,7 +34,7 @@ seq_t a(idx_t n) {
         
         bool *can_express = (bool *)calloc(MAX_VAL + 1, sizeof(bool));
         
-        seq_t *tet = (seq_t *)malloc(150 * sizeof(seq_t));
+        seq_t *tet = mem_new(seq_t, 150);
         idx_t tet_count = 0;
         for (idx_t k = 0; k < 150; k++) {
             seq_t t = tetrahedral(k);
@@ -53,7 +59,7 @@ seq_t a(idx_t n) {
             }
         }
         
-        cache = (seq_t *)malloc(242 * sizeof(seq_t));
+        cache = mem_new(seq_t, 242);
         idx_t idx = 0;
         for (idx_t cand = 1; cand <= MAX_VAL && idx < 241; cand++) {
             if (!can_express[cand]) {
@@ -63,7 +69,7 @@ seq_t a(idx_t n) {
         cache_size = idx;
         
         free(can_express);
-        free(tet);
+        mem_free(tet);
     }
     
     if (n >= 1 && n <= cache_size) {

@@ -7,14 +7,42 @@
  * Formula:   a(n) = n! * Sum_{k=0..n} (k+1)^(k-1) * binomial(n+2k, n-k) / k!
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 18,
  *            big any n
- * Helpers:   binomial, seq_pow
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/binomial.h"
-#include "../utils/seq_pow.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* Compute binomial coefficient n choose k multiplicatively.
+   This works for any seq_t that supports + - * / % with integer constants. */
+static seq_t binomial(idx_t n, idx_t k)
+{
+    if (k > n)
+        return 0;
+    if (k > n - k)      /* use symmetry */
+        k = n - k;
+    seq_t res = 1;
+    for (idx_t i = 1; i <= k; ++i) {
+        res = res * (seq_t)(n - k + i);
+        res = res / (seq_t)i;
+    }
+    return res;
+}
+
+/* fast exponentiation by squaring: base^exp in seq_t */
+static seq_t seq_pow(seq_t base, idx_t exp) {
+    seq_t result = 1;
+    while (exp > 0) {
+        if (exp & 1) result *= base;
+        exp >>= 1;
+        if (exp) base *= base;
+    }
+    return result;
+}
 
 seq_t a(idx_t n)
 {
@@ -32,7 +60,7 @@ seq_t a(idx_t n)
 
     /* grow factorial array if needed */
     if (fact_size < needed_fact) {
-        fact = (seq_t *)realloc(fact, needed_fact * sizeof(seq_t));
+        fact = mem_resize(seq_t, fact, needed_fact);
         if (!fact) return (seq_t)0; /* allocation failure */
         if (fact_size == 0) {
             fact[0] = (seq_t)1;
@@ -45,7 +73,7 @@ seq_t a(idx_t n)
 
     /* grow power array if needed */
     if (pow_size < needed_pow) {
-        pow_arr = (seq_t *)realloc(pow_arr, needed_pow * sizeof(seq_t));
+        pow_arr = mem_resize(seq_t, pow_arr, needed_pow);
         if (!pow_arr) return (seq_t)0; /* allocation failure */
         if (pow_size == 0)
             pow_arr[0] = (seq_t)1; /* (0+1)^(0-1) treated as 1 */

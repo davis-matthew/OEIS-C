@@ -7,7 +7,8 @@
  * Formula:   a(n) = [x^n y^7] ∏_{k≥1} 1/(1 - y·x^prime(k))
  * Range:     u8 n <= 70, u16 n <= 296, u32 n <= 3382, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 9945 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     /* Allocate / enlarge the table if necessary.  (realloc returns void*,
        so a cast is required for C++.) */
     if (dp_size < total_rows) {
-        seq_t *tmp = (seq_t *)realloc(dp, total_entries * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, total_entries);
         if (!tmp) return 0;                 /* allocation failure */
         dp = tmp;
         /* Zero all newly allocated cells – this also clears everything

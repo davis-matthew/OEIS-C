@@ -7,7 +7,8 @@
  * Formula:   a(n) = sum_{j=0..n} phi(C(n,j)) (C(n,j) = binomial coefficient)
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 34, u64 n <= 66, u128 n <= 130,
  *            big any n
- * Helpers:   pow_int
+ * Validated: standard, pass, 52 terms through n = 195 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>        /* for memset */
-#include "../utils/pow_int.h"   /* pow_int(seq_t base, idx_t exp) */
+#include "../utils/ipow_idx.h"
 
 /* static cache for primes and factorisation helpers */
 static idx_t     _max_n      = 0;               /* largest n handled     */
@@ -140,7 +141,7 @@ seq_t a(idx_t n)
                 if (e == 1) {
                     phi *= (base - (seq_t)1);
                 } else {
-                    seq_t pow_val = pow_int(base, (idx_t)(e - 1));
+                    seq_t pow_val = ipow_idx(base, (idx_t)(e - 1));
                     phi *= pow_val;
                     phi *= (base - (seq_t)1);
                 }

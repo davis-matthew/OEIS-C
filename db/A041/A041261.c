@@ -9,13 +9,15 @@
  *            a(7)=3432 All other terms are computed by the recurrence
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 31, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* Ensure storage for at least max(n,7) + 1 elements */
     idx_t need = (n >= 7 ? n : 7);
     if (!cache || cap <= need) {
-        void *tmp = realloc(cache, (need + 1) * sizeof(seq_t));
+        void *tmp = mem_resize(seq_t, cache, (need + 1));
         if (!tmp) abort();             /* allocation failed */
         cache = (seq_t *)tmp;
         cap   = need + 1;

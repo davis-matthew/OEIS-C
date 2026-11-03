@@ -9,7 +9,8 @@
  *            alphabetical order
  * Range:     u8 n <= 4, u16 n <= 4, u32 n <= 4, u64 n <= 4, u128 n <= 4,
  *            big any n
- * Helpers:   is_alpha_order
+ * Validated: full, pass, 4 terms through n = 4 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,19 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_alpha_order.h"
+
+/* Check if the letters in the buffer are in non‑decreasing ASCII order */
+static bool is_alpha_order(const char *buf, size_t len)
+{
+    if (len == 0) return true;
+    char prev = buf[0];
+    for (size_t i = 1; i < len; ++i) {
+        if (buf[i] < prev)
+            return false;
+        prev = buf[i];
+    }
+    return true;
+}
 
 /* Helper arrays for French word parts */
 static const char *const unit[] = {

@@ -7,7 +7,8 @@
  * Formula:   a(n) = number of cycles of the function f(x) = x^6 mod n
  * Range:     u8 n <= 2585, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow6_mod
+ * Validated: standard, pass, 115 terms through n = 9966 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,15 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/pow6_mod.h"
+
+/* Compute x^6 mod m.  m > 0.  Use 128‑bit arithmetic to avoid overflow. */
+static idx_t pow6_mod(idx_t x, idx_t m)
+{
+    unsigned __int128 t = (unsigned __int128)x * x % m;    /* x² mod m */
+    t = t * t % m;                                         /* x⁴ mod m */
+    t = t * (unsigned __int128)x * x % m;                  /* x⁶ mod m */
+    return (idx_t)t;
+}
 
 /* Return the number of cycles of x ↦ x^6 (mod n), for n ≥ 1. */
 seq_t a(idx_t n)

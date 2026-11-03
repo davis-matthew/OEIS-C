@@ -12,7 +12,8 @@
  *            the complementary property; each integer app...
  * Range:     u8 n <= 413, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 9674 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 /* Note: seq_t and idx_t are defined by the build system. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static cache variables */
 static seq_t *idx_of = NULL;          /* mapping from number to its index */
@@ -46,9 +48,9 @@ static void recompute_upto(idx_t limit)
 {
     /* Allocate new arrays */
     size_t sz = (size_t)limit + 1;          /* +1 to allow 1-based indexing */
-    free(idx_of);
+    mem_free(idx_of);
     free(used);
-    idx_of = (seq_t *)calloc(sz, sizeof(seq_t));
+    idx_of = mem_new(seq_t, sz);
     used   = (unsigned char *)calloc(sz, sizeof(unsigned char));
 
     /* Variables for sequence generation */

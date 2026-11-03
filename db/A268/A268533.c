@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 90, i16 n <= 90, i32 n <= 90, i64 n <= 90, i128 n <= 90,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
     with k = offset/(b+1) and m = offset%(b+1).  */
 
 #include <stddef.h>
-#include "../utils/binom.h"   /* provides seq_t binom(idx_t, idx_t) */
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     seq_t sum = 0;
     idx_t upper = k < m ? k : m;
     for (idx_t i = 0; i <= upper; ++i) {
-        seq_t term = binom(k, i) * binom(b - k, m - i);
+        seq_t term = binomial(k, i) * binomial(b - k, m - i);
         if (i & 1)
             sum -= term;
         else

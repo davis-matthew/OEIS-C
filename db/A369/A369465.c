@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = A003415(A000265(n)) = arithmetic derivative of the odd
  *            part of n
- * Range:     u8 n <= 242, u16 n <= 9674, u32 n <= 9674, u64 n <= 9674,
- *            u128 n <= 9674, big any n
+ * Range:     u8 n <= 242, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 111 terms through n = 9674 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,7 +18,8 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/factor_u64.h"   /* provides factor_u64() */
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
 
 seq_t a(idx_t n)
 {

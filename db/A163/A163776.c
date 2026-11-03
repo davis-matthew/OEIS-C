@@ -7,15 +7,19 @@
  * Formula:   a(n) = 2*A163781(n) (the n-th dS-prime)
  * Range:     u8 n <= 21, u16 n <= 2466, u32 n <= 3612, u64 n <= 3612,
  *            u128 n <= 3612, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 71 terms through n = 3473 (2026-11-01)
+ * Helpers:   is_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/is_prime.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
 
 /* Returns the n-th dS-prime (dual Shuffle prime) a(n). */
 seq_t a(idx_t n)
@@ -34,7 +38,7 @@ seq_t a(idx_t n)
         /* factor 2 from p-1 */
         if ((temp & 1) == 0) {
             idx_t exp = phi >> 1;          /* phi / 2 */
-            if (mod_pow((seq_t)(p - 2), exp, (seq_t)p) == 1)
+            if (powmod((seq_t)(p - 2), exp, (seq_t)p) == 1)
                 ok = false;
             while ((temp & 1) == 0)
                 temp >>= 1;
@@ -46,7 +50,7 @@ seq_t a(idx_t n)
         for (idx_t d = 3; d <= temp / d; d += 2) {
             if (temp % d == 0) {
                 idx_t exp = phi / d;
-                if (mod_pow((seq_t)(p - 2), exp, (seq_t)p) == 1) {
+                if (powmod((seq_t)(p - 2), exp, (seq_t)p) == 1) {
                     ok = false;
                     break;
                 }
@@ -60,7 +64,7 @@ seq_t a(idx_t n)
         /* remaining prime factor > 1 */
         if (temp > 1) {
             idx_t exp = phi / temp;
-            if (mod_pow((seq_t)(p - 2), exp, (seq_t)p) == 1)
+            if (powmod((seq_t)(p - 2), exp, (seq_t)p) == 1)
                 ok = false;
         }
         if (!ok)

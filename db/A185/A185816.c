@@ -8,7 +8,8 @@
  *            Carmichael's lambda function
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, u64_gcd
+ * Validated: standard, pass, 103 terms through n = 9524 (2026-11-03)
+ * Helpers:   factor_u64, gcd_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,10 @@
 #include <stddef.h>
 #include <stdlib.h>
 
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/u64_gcd.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/mem.h"
 
 /* Cache for a(n) values.  Index 0 is unused; a_cache[1] = 0. */
 static seq_t *a_cache = NULL;
@@ -28,7 +31,7 @@ static size_t   cache_cap = 0;
 static void ensure_cap(idx_t n) {
     if ((size_t)n + 1 <= cache_cap) return;
     size_t new_cap = (size_t)n + 1;
-    seq_t *new_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, a_cache, new_cap);
     if (new_cache == NULL) exit(1);  /* allocation failure */
     for (size_t i = cache_cap; i < new_cap; ++i) new_cache[i] = 0;
     a_cache = new_cache;
@@ -63,7 +66,7 @@ static idx_t lambda_uint64(idx_t n) {
             term = (p - 1) * pe;
         }
 
-        uint64_t g = u64_gcd(lcm, term);
+        uint64_t g = gcd_u64(lcm, term);
         lcm = (lcm / g) * term;
     }
     return (idx_t)lcm;

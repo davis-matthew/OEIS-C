@@ -7,13 +7,16 @@
  * Formula:   a(n) = 2^n - 2*n - 1 for n != 4, with a(4) = 9
  * Range:     i8 n <= 7, i16 n <= 15, i32 n <= 31, i64 n <= 33, i128 n <= 33,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -32,6 +35,6 @@ seq_t a(idx_t n)
     }
 
     /* Fallback: arbitrary‑precision (or overflow branch) */
-    seq_t pow = big_pow((seq_t)2, (seq_t)n);        /* 2^n */
+    seq_t pow = ipow((seq_t)2, (seq_t)n);        /* 2^n */
     return pow - (seq_t)2 * (seq_t)n - (seq_t)1;
 }

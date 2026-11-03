@@ -10,13 +10,16 @@
  *            Σ_{k=0}^{n-2} C(3*n-1, k) (OEIS A087809)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 11, u64 n <= 21, u128 n <= 43,
  *            big any n
- * Helpers:   binom, pow2
+ * Validated: standard, pass, 40 terms through n = 984 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
-#include "../utils/binom.h"
 
 seq_t a(idx_t n)
 {

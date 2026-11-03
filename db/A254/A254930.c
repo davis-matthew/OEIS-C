@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   _prime_limit_for_idx, build_primes_upto, floor_sqrt, next_prime
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_i32, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,10 +24,37 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-#include "../utils/floor_sqrt.h"
-#include "../utils/next_prime.h"
+#include <stdlib.h>
+#include <math.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/_prime_limit_for_idx.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/next_prime.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+static size_t _prime_limit_for_idx(idx_t n) {
+    /* Rough upper bound for the n-th prime using n*(log n + log log n) + 3 */
+    if (n < 6) return 15; /* first 6 primes < 15 */
+    double nn = (double)n;
+    double bound = nn * (log(nn) + log(log(nn))) + 3.0;
+    return (size_t)bound;
+}
 
 /* Upper bound on the number of required primes (≈10 000th such prime). */
 #define MAX_PRIMES 20000

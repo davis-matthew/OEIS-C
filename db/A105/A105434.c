@@ -8,9 +8,10 @@
  * Keywords:  nonn
  * Formula:   a(1)=1, a(n+1)=a(n)+|{m≤n : a(m)∈{d(a(1)),…,d(a(n))}|, where
  *            d(k)=number of divisors of k
- * Range:     u8 n <= 47, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
- *            big any n
- * Helpers:   divisor_count, seq_contains
+ * Range:     u8 n <= 47, u16 n <= 4956, u32 n <= 5000, u64 n <= 5000,
+ *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 75 terms through n = 4986 (2026-11-03)
+ * Helpers:   mem, num_divisors_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,11 +30,28 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/divisor_count.h"
-#include "../utils/seq_contains.h"
+#include "../utils/num_divisors_seq.h"
+#include "../utils/mem.h"
+
+/* Binary search on a 1‑based array [1..len] */
+static bool seq_contains(const seq_t *arr, idx_t len, seq_t val)
+{
+    idx_t lo = 1, hi = len;
+    while (lo <= hi) {
+        idx_t mid = lo + (hi - lo) / 2;
+        seq_t midv = arr[mid];
+        if (midv == val)
+            return true;
+        if (midv < val)
+            lo = mid + 1;
+        else
+            hi = mid - 1;
+    }
+    return false;
+}
 
 /* Forward declaration for the divisor‑count helper. */
-static seq_t divisor_count(seq_t x);
+static seq_t num_divisors_seq(seq_t x);
 
 seq_t a(idx_t n)
 {
@@ -53,7 +71,7 @@ seq_t a(idx_t n)
     if (current_n == 0) {
         /* Allocate space for sequence. */
         seq_cap = 4;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         seq[1] = (seq_t)1;            /* a(1)=1 */
         current_n = 1;
 
@@ -71,7 +89,7 @@ seq_t a(idx_t n)
         seq_t new_val = last + (seq_t)inter;
 
         /* Divisor count of the new term. */
-        seq_t d_new = divisor_count(new_val);
+        seq_t d_new = num_divisors_seq(new_val);
         size_t d_idx = (size_t)d_new;
 
         /* Grow Sbool to accommodate d_idx. */
@@ -107,7 +125,7 @@ seq_t a(idx_t n)
         if (current_n + 1 >= seq_cap) {
             size_t new_cap = seq_cap * 2;
             if (new_cap <= current_n + 1) new_cap = current_n + 2;
-            seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq, new_cap);
             if (!tmp) abort();
             seq = tmp;
             seq_cap = new_cap;

@@ -11,15 +11,23 @@
  *            max(1,r) entries
  * Range:     u8 n <= 10, u16 n <= 21, u32 n <= 55, u64 n <= 136,
  *            u128 n <= 378, big any n
- * Helpers:   binomial, seq_mul, seq_pow
+ * Validated: standard, pass, 62 terms through n = 8861 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
 #include "../utils/binomial.h"
-#include "../utils/seq_mul.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Helper: compute S(r,k) for 0 ≤ k ≤ r; returns 0 when k>r. */
 static seq_t S(idx_t r, idx_t k)
@@ -27,21 +35,21 @@ static seq_t S(idx_t r, idx_t k)
     if (k > r)
         return 0;                            /* empty sum */
     if (k == 0)
-        return seq_pow((seq_t)r, r);          /* r^r, works for r=0 as 0^0 = 1 */
+        return ipow_idx((seq_t)r, r);          /* r^r, works for r=0 as 0^0 = 1 */
 
     seq_t sum = 0;
     for (idx_t i = 0; i <= r - k; ++i) {
         seq_t term;
         if (i == 0) {
             /* (r-k)^r */
-            term = seq_pow((seq_t)(r - k), r);
+            term = ipow_idx((seq_t)(r - k), r);
         } else {
             term = binomial(r, i);                          /* C(r,i) */
             term = seq_mul(term, (seq_t)k);                 /* *k      */
             term = seq_mul(term,                   /* *(k+i)^(i-1) */
-                           seq_pow((seq_t)(k + i), i - 1));
+                           ipow_idx((seq_t)(k + i), i - 1));
             term = seq_mul(term,                  /* * (r-k-i)^(r-i) */
-                           seq_pow((seq_t)(r - k - i), r - i));
+                           ipow_idx((seq_t)(r - k - i), r - i));
         }
         sum += term;
     }

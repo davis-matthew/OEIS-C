@@ -7,7 +7,8 @@
  * Formula:   a(n) = the n-th prime p with p mod 17 ∈ {1,2,3,4} (OEIS A215304)
  * Range:     u8 n <= 16, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 993 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* initial sieving limit – enough for n ≈ 10000 (≈4×10000‑th prime ≈ 400 000) */
 static const idx_t INITIAL_LIMIT = 700000;
@@ -44,8 +46,7 @@ static void build_sieve(idx_t limit)
                 ++filtered_count;
         }
 
-    filtered_primes = (seq_t*)realloc(filtered_primes,
-                                      filtered_count * sizeof(seq_t));
+    filtered_primes = mem_resize(seq_t, filtered_primes, filtered_count);
     if (!filtered_primes) {
         free(is_composite);
         return;
@@ -78,7 +79,7 @@ seq_t a(idx_t n)
     if ((idx_t)filtered_count < n) {
         idx_t new_limit = INITIAL_LIMIT * 2;
         while ((idx_t)filtered_count < n) {
-            free(filtered_primes);
+            mem_free(filtered_primes);
             filtered_primes = NULL;
             filtered_count = 0;
             build_sieve(new_limit);

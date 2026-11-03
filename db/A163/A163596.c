@@ -9,13 +9,24 @@
  *            of n in its exact middle. (brute‑force search)
  * Range:     u8 n <= 2, u16 n <= 9, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   pow10
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/pow10.h"      /* pow10(idx_t e) */
+#include <stdint.h>
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 static int digit_len_seq(seq_t x)
 {

@@ -11,7 +11,8 @@
  *            sufficient for the first 10 000 terms
  * Range:     u8 n <= 5, u16 n <= 545, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   sieve_primes
+ * Validated: standard, pass, 62 terms through n = 945 (2026-11-03)
+ * Helpers:   mem, sieve_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,10 @@
 /* External linkage as required */
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/sieve_primes.h"   /* provides sieve_primes */
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/sieve_primes.h"
+#include "../utils/mem.h"
 
 static const idx_t PRECOMPUTE_LIMIT = 2000000ULL;  /* 2 million */
 
@@ -29,7 +33,7 @@ static size_t special_count = 0;      /* number of cached primes */
 /* Helper: allocate array of seq_t, using malloc for wide compatibility */
 static seq_t *alloc_seq_size(size_t n)
 {
-    return n == 0 ? NULL : (seq_t *)malloc(n * sizeof(seq_t));
+    return n == 0 ? NULL : mem_new(seq_t, n);
 }
 
 seq_t a(idx_t n)

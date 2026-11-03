@@ -8,7 +8,8 @@
  * Formula:   a(n) = Sum_{d|n, d>1} A122935(d-1)
  * Range:     u8 n <= 1679, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 95 terms through n = 9357 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* External types: idx_t and seq_t are defined by the build system. */
 
@@ -45,7 +47,7 @@ static void _ensure_divcnt(idx_t limit) {
 static void _ensure_A122(idx_t limit) {
     if (limit < _A122_size) return;
     /* Allocate/resize array */
-    A122 = (seq_t*)realloc(A122, (limit + 1) * sizeof(seq_t));
+    A122 = mem_resize(seq_t, A122, (limit + 1));
     for (idx_t k = _A122_size; k <= limit; ++k) {
         seq_t sum = 0;
         /* iterate over divisors of k */

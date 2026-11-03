@@ -8,7 +8,8 @@
  *            ≥ 1
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 80 terms through n = 80 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 /* Utility for greatest‑common‑divisor on seq_t values */
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* External linkage as required */
 seq_t a(idx_t n);
@@ -41,7 +43,7 @@ static void ensure_cache(idx_t n)
 
     idx_t new_max = n;
     /* Reallocate to hold 'new_max' terms. The cast is needed for C++ */
-    seq_t *new_cache = (seq_t*)realloc(cache, (size_t)new_max * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (size_t)new_max);
     if (!new_cache) {
         abort();                 /* out of memory */
     }

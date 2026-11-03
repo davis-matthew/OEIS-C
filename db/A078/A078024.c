@@ -7,12 +7,14 @@
  * Formula:   a(n) = 2*a(n-2) + a(n-3), with a(0)=1, a(1)=-1, a(2)=2
  * Range:     i8 n <= 13, i16 n <= 25, i32 n <= 48, i64 n <= 94, i128 n <= 186,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 965 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_len = 0;
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
     /* Ensure cache is initialized with the first three terms */
     if (cache == NULL) {
         cache_len = 3;
-        cache = (seq_t *)malloc(3 * sizeof(seq_t));
+        cache = mem_new(seq_t, 3);
         if (!cache) return (seq_t)0;          /* unexpected OOM, just return 0 */
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)-1;
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     if (n + 1 > cache_len) {
         idx_t new_len = cache_len * 2;
         if (new_len < n + 1) new_len = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) return (seq_t)0;                /* unexpected OOM, just return 0 */
         cache = tmp;
         cache_len = new_len;

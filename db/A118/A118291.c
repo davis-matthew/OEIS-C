@@ -11,7 +11,8 @@
  *            a(n-1)=1
  * Range:     u8 n <= 88, u16 n <= 88, u32 n <= 88, u64 n <= 88, u128 n <= 88,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 88 terms through n = 88 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define MAX_N 10000               /* largest n expected in the specification */
 #define MAX_VAL (MAX_N)           /* a(n) <= n-1 <= MAX_N */
@@ -63,7 +65,7 @@ static void ensure_seq_capacity(size_t new_cap) {
     if (seq_cap >= new_cap) return;
     size_t newc = seq_cap > 0 ? seq_cap * 2 : new_cap;
     if (newc < new_cap) newc = new_cap;
-    seq_t *tmp = (seq_t*)realloc(seq_arr, newc * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_arr, newc);
     if (!tmp) abort();
     seq_arr = tmp;
     seq_cap = newc;

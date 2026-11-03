@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t gcd_seq(seq_t a, seq_t b)
 {
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         /* initial capacity for a(1) */
         seq_cap = 2;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         seq[0] = 0;               /* dummy */
         seq[1] = (seq_t)1;        /* a(1) */
         computed = 1;
@@ -59,9 +61,9 @@ seq_t a(idx_t n)
     if ((size_t)n >= seq_cap) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 16;
         if (new_cap <= (size_t)n) new_cap = (size_t)n + 1;
-        seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, new_cap);
         if (seq_cap < new_cap)
-            memset(seq + seq_cap, 0, (new_cap - seq_cap) * sizeof(seq_t));
+            mem_set(seq + seq_cap, 0, (new_cap - seq_cap) * sizeof(seq_t));
         seq_cap = new_cap;
     }
 

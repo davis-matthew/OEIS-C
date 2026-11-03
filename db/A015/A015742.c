@@ -11,12 +11,14 @@
  *            returns the value in O(1)
  * Range:     u8 n <= 38, u16 n <= 89, u32 n <= 253, u64 n <= 817,
  *            u128 n <= 2866, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 9205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;          /* DP table: dp[i] = partitions of i into
                                     distinct parts not using 7      */
@@ -25,7 +27,7 @@ static idx_t  dp_cap = 0;         /* current DP size (dp_cap = max i + 1) */
 /* Rebuild the whole DP table up to `max`.  Complexity O(max²). */
 static void recompute_dp(idx_t max)
 {
-    seq_t *new_dp = (seq_t *)malloc((max + 1) * sizeof(seq_t));
+    seq_t *new_dp = mem_new(seq_t, (max + 1));
     /* initialise entries to 0 */
     for (idx_t i = 0; i <= max; ++i) new_dp[i] = 0;
     new_dp[0] = 1;   /* empty partition */
@@ -39,7 +41,7 @@ static void recompute_dp(idx_t max)
             new_dp[i] += new_dp[i - j];
     }
 
-    free(dp);
+    mem_free(dp);
     dp      = new_dp;
     dp_cap  = max + 1;
 }

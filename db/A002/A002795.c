@@ -11,7 +11,8 @@
  *            gives xi = [b0;b1,b2,...]. q(j) = b(j)*q(j-1) + q(j-...
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 6, u128 n <= 7,
  *            big any n
- * Helpers:   a2795_big, a2795_is_big
+ * Validated: partial, pass, 9 terms through n = 8 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,45 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a2795_big.h"
-#include "../utils/a2795_is_big.h"
+
+static seq_t a2795_big(idx_t n)
+{
+    idx_t need = n + 2;
+    seq_t c = 1, P = 1, Q = 1;
+    idx_t k = 1;
+    for (;;) {
+        seq_t c2 = c * c + c + 1;
+        seq_t P2, Q2;
+        if ((k + 1) % 2 == 0) { P2 = P * c2 - Q; Q2 = P + Q * c2; }
+        else { P2 = P * c2 + Q; Q2 = Q * c2 - P; }
+        {
+            seq_t x0 = P, x1 = Q, y0 = P2, y1 = Q2;
+            seq_t qa = 1, qb = 0;
+            idx_t got = 0;
+            int ok = 1;
+            while (got < need) {
+                seq_t bx, rx, by, ry, t;
+                if (x1 == 0 || y1 == 0) { ok = 0; break; }
+                bx = x0 / x1; rx = x0 % x1;
+                by = y0 / y1; ry = y0 % y1;
+                if (bx != by || rx == 0 || ry == 0) { ok = 0; break; }
+                t = bx * qb + qa; qa = qb; qb = t;
+                x0 = x1; x1 = rx; y0 = y1; y1 = ry;
+                got++;
+            }
+            if (ok) return qb;
+        }
+        c = c2; P = P2; Q = Q2; k++;
+    }
+}
+
+static int a2795_is_big(void)
+{
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 200; i++) x = (seq_t)(x * 2);
+    return x != 0;
+}
 
 #define L2795_N 128
 

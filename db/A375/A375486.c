@@ -8,7 +8,8 @@
  * Formula:   a(n) = number of k in [0,n] such that (n | k) is prime
  * Range:     u8 n <= 382, u16 n <= 8192, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 89 terms through n = 8122 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Compute a(n): number of integers k, 0 ≤ k ≤ n, such that n OR k is prime. */
 seq_t a(idx_t n)
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     if (n >= cache_len) {
         /* Grow the cache to accommodate up to n. */
         idx_t new_len = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) return 0;              /* allocation failure – unlikely */
         cache = tmp;
 

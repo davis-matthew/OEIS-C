@@ -9,13 +9,54 @@
  *            word_length(k)
  * Range:     u8 n <= 31, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   word_len
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/word_len.h"
+#include "../utils/mem.h"
+
+/* Compute the number of letters in the English name of a positive
+   integer x (1 <= x < 10000).  The result is a small number that
+   fits in any unsigned integer type. */
+static seq_t word_len(idx_t x)
+{
+    seq_t len = 0;
+    static const int unit_len[10] = {0, 3, 3, 5, 4, 4, 3, 5, 5, 4};
+    static const int teen_len[10] = {3, 6, 6, 8, 8, 7, 7, 9, 8, 8};
+    static const int tens_len[10] = {0, 0, 6, 6, 5, 5, 5, 7, 6, 6};
+
+    const seq_t len_hundred  = 7;  /* "hundred" */
+    const seq_t len_thousand = 8;  /* "thousand" */
+    const seq_t len_and      = 3;  /* "and" */
+
+    if (x >= 1000) {
+        idx_t thousands = x / 1000;     /* 1 .. 9 for numbers < 10000 */
+        len += unit_len[thousands] + len_thousand;
+        x  %= 1000;
+    }
+    if (x >= 100) {
+        idx_t hundreds = x / 100;
+        len += unit_len[hundreds] + len_hundred;
+        x  %= 100;
+        if (x > 0) len += len_and;
+    }
+    if (x >= 20) {
+        idx_t tens = x / 10;
+        len += tens_len[tens];
+        x  %= 10;
+    }
+    if (x >= 10) {
+        len += teen_len[x - 10];
+        x = 0;
+    }
+    if (x > 0) {
+        len += unit_len[x];
+    }
+    return len;
+}
 
 /* Static cache of the cumulative sums of word lengths.
    sum_arr[0] is always 0; sum_arr[n] holds the value of A067278(n).
@@ -33,7 +74,7 @@ grow_sum_arr(idx_t need)
     idx_t new_cap = capacity ? capacity * 2 : 1;
     while (new_cap <= need)
         new_cap <<= 1;
-    seq_t *new_arr = (seq_t *)realloc(sum_arr, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, sum_arr, new_cap);
     if (!new_arr)   /* allocation failure: leave existing array unchanged */
         return;
     sum_arr = new_arr;

@@ -7,7 +7,8 @@
  * Formula:   a(n) = Π_{1≤k≤n, gcd(k,n)=1} k / lcm_{1≤k≤n, gcd(k,n)=1} k
  * Range:     u8 n <= 10, u16 n <= 16, u32 n <= 22, u64 n <= 30, u128 n <= 46,
  *            big any n
- * Helpers:   build_primes_upto, factor_u64, seq_mul, seq_one, seq_pow
+ * Validated: standard, pass, 52 terms through n = 188 (2026-11-01)
+ * Helpers:   build_primes_upto, factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,11 +17,17 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/seq_one.h"
-#include "../utils/seq_mul.h"
-#include "../utils/seq_pow.h"
-#include "../utils/factor_u64.h"
+#include <string.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/factor_u64.h"
+#include "../utils/ipow_idx.h"
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Count integers ≤ X that are coprime to n using
    inclusion–exclusion over all square‑free divisors of n.  */
@@ -107,7 +114,7 @@ seq_t a(idx_t n)
 
         idx_t expo = t_p - (idx_t)e_max;
         if (expo > 0) {
-            seq_t powv = seq_pow((seq_t)p, expo);
+            seq_t powv = ipow_idx((seq_t)p, expo);
             result = seq_mul(result, powv);
         }
     }

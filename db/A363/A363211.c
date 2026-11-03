@@ -9,7 +9,8 @@
  *            (greatest part)
  * Range:     u8 n <= 17, u16 n <= 43, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,12 +26,13 @@
    DP over the range [m,3m-1] and subtracting the case
    where the part m is not used.  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     idx_t N = n;
 
     /* Partition numbers p(n) */
-    seq_t *dp_part = (seq_t*)malloc((N + 1) * sizeof(seq_t));
+    seq_t *dp_part = mem_new(seq_t, (N + 1));
     if (!dp_part) return 0;
     for (idx_t i = 0; i <= N; ++i) dp_part[i] = 0;
     dp_part[0] = 1;
@@ -40,11 +42,11 @@ seq_t a(idx_t n) {
         }
     }
     seq_t p_n = dp_part[N];
-    free(dp_part);
+    mem_free(dp_part);
 
     /* Count violating partitions */
     seq_t violating = 0;
-    seq_t *dp_range = (seq_t*)malloc((N + 1) * sizeof(seq_t));
+    seq_t *dp_range = mem_new(seq_t, (N + 1));
     if (!dp_range) return p_n; /* safe fallback */
 
     for (idx_t m = 1; m <= N; ++m) {
@@ -73,7 +75,7 @@ seq_t a(idx_t n) {
         seq_t B = P_range_m - P_range_mplus1; /* partitions with min=m and max ≤ 3m-1 */
         violating += B;
     }
-    free(dp_range);
+    mem_free(dp_range);
 
     /* Valid partitions = all partitions – violating partitions */
     return p_n - violating;

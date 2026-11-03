@@ -12,14 +12,32 @@
  *            terms, largest 427), so the search stops at 2000
  * Range:     u8 n <= 15, u16 n <= 18, u32 n <= 18, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   class_number_ll
+ * Validated: full, pass, 18 terms through n = 18 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/class_number_ll.h"
+
+/* Count reduced forms of discriminant -absD:
+   |b| <= a <= c, and b >= 0 when |b| == a or a == c. */
+static long long class_number_ll(long long absD) {
+    long long h = 0;
+    for (long long a = 1; 3 * a * a <= absD; a++) {
+        for (long long b = -a + 1; b <= a; b++) {
+            long long num = b * b + absD;
+            if (((b % 2) + 2) % 2 != absD % 2) continue;
+            if (num % (4 * a) != 0) continue;
+            long long c = num / (4 * a);
+            if (c < a) continue;
+            if (b < 0 && a == c) continue;
+            h++;
+        }
+    }
+    return h;
+}
 
 #define A005847_LIMIT 2000
 

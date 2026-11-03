@@ -7,6 +7,7 @@
  * Formula:   a(n) = n! * Sum_{k=0..floor(n/3)} (k+1)^(n-3k)/(n-3k)!
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 19, u128 n <= 21,
  *            big any n
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

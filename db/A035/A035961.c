@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 47, u32 n <= 146, u64 n <= 491,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 959 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;     /* dp[i] holds a(i) up to the current maximum */
 static idx_t  dp_size = 0;   /* number of entries currently allocated */
@@ -30,7 +32,7 @@ static idx_t  dp_size = 0;   /* number of entries currently allocated */
 /* Recompute dp[0..n] from scratch */
 static void compute_upto(idx_t n)
 {
-    seq_t *new_dp = (seq_t *)realloc(dp, (n + 1) * sizeof(seq_t));
+    seq_t *new_dp = mem_resize(seq_t, dp, (n + 1));
     if (!new_dp) exit(1);
     dp = new_dp;
 

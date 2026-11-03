@@ -10,13 +10,35 @@
  *            sums are * perfect cubes
  * Range:     u8 n <= 3, u16 n <= 3, u32 n <= 6, u64 n <= 6, u128 n <= 6,
  *            big any n
- * Helpers:   floor_cube_root
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/floor_cube_root.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor cube root by binary search */
+static inline seq_t floor_cube_root(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    /* raise hi until hi^3 > x */
+    while (ipow_i32(hi, 3) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid3 = ipow_i32(mid, 3);
+        if (mid3 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 seq_t a(idx_t n) {
     /* Static state to allow arbitrary-order calls. */
@@ -31,7 +53,7 @@ seq_t a(idx_t n) {
     /* Initialise cache on first call. */
     if (!seq) {
         seq_cap = 16;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
     }
 
     /* Generate terms until we have at least n. */
@@ -45,7 +67,7 @@ seq_t a(idx_t n) {
             /* Store the cube root as the next sequence term. */
             if (seq_len == seq_cap) {
                 seq_cap = seq_cap ? seq_cap * 2 : 16;
-                seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, seq_cap);
             }
             seq[seq_len++] = r;
             sum = 0; /* start a new group */

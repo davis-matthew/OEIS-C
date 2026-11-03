@@ -8,7 +8,8 @@
  *            a(2)=0
  * Range:     i8 n <= 11, i16 n <= 26, i32 n <= 50, i64 n <= 103,
  *            i128 n <= 205, big any n
- * Helpers:   none
+ * Validated: standard, pass, 56 terms through n = 946 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_cap = 0;   /* allocated capacity (number of elements) */
@@ -33,7 +35,7 @@ static void ensure_cache(idx_t n)
     if (cache == NULL) {
         cache_cap = 8;
         while (cache_cap <= (size_t)n + 1) cache_cap <<= 1;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) exit(EXIT_FAILURE);
 
         /* initialize first three values */
@@ -48,7 +50,7 @@ static void ensure_cache(idx_t n)
     if (cache_cap <= (size_t)n + 1) {
         size_t new_cap = cache_cap;
         while (new_cap <= (size_t)n + 1) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         cache = tmp;
         cache_cap = new_cap;

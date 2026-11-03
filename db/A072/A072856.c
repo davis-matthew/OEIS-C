@@ -11,6 +11,7 @@
  *            free. O(n·512) time, O(512) memory
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 18, u64 n <= 34, u128 n <= 67,
  *            big any n
+ * Validated: standard, pass, 43 terms through n = 380 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 12, i16 n <= 40, i32 n <= 46, i64 n <= 46, i128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -37,6 +38,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* The integer types seq_t, idx_t are supplied by the build system. */
 extern seq_t a(idx_t n);
@@ -70,8 +72,8 @@ static void build_rows_upto(idx_t target_r)
         idx_t curr_len  = i + 1;
         size_t curr_len_s = (size_t)curr_len;
 
-        seq_t *curr = (seq_t *)calloc(curr_len_s, sizeof(seq_t));
-        seq_t *tmpA = (seq_t *)calloc(curr_len_s, sizeof(seq_t));
+        seq_t *curr = mem_new(seq_t, curr_len_s);
+        seq_t *tmpA = mem_new(seq_t, curr_len_s);
 
         /* Derivative part: g(x) * P_{i-1}'(x) with g(x)=1-x-2x^2 */
         for (idx_t k = 0; k < prev_len - 1; ++k)
@@ -95,7 +97,7 @@ static void build_rows_upto(idx_t target_r)
             curr[j] = tmpA[j] + part;
         }
 
-        free(tmpA);
+        mem_free(tmpA);
 
         /* Ensure the cache can hold row i */
         if (cache_cap <= i)
@@ -123,7 +125,7 @@ seq_t a(idx_t n)
     {
         cache_cap   = 1;
         row_cache   = (seq_t **)malloc(cache_cap * sizeof(seq_t *));
-        seq_t *row0 = (seq_t *)calloc(1, sizeof(seq_t));
+        seq_t *row0 = mem_new(seq_t, 1);
         row0[0]     = 1;          /* P_0(x) = 1 */
         row_cache[0] = row0;
         cache_last  = 0;

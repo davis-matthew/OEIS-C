@@ -7,7 +7,8 @@
  * Formula:   a(n) = (2*n)! * Sum_{k=0..n} Stirling1(n,k)/(2*n-k+1)!
  * Range:     i8 n <= 4, i16 n <= 7, i32 n <= 10, i64 n <= 17, i128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Implements OEIS A367078. Supports 64‑bit and arbitrary‑precision seq_t. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Ensure *arr has capacity for at least needed elements. */
 static void ensure_capacity_seq_t(seq_t **arr, size_t *cap, size_t needed)
@@ -22,7 +24,7 @@ static void ensure_capacity_seq_t(seq_t **arr, size_t *cap, size_t needed)
     if (needed <= *cap) return;
     size_t new_cap = (*cap > 0 ? *cap * 2 : 16);
     if (new_cap < needed) new_cap = needed;
-    *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, new_cap);
     *cap = new_cap;
 }
 

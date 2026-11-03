@@ -8,7 +8,8 @@
  * Formula:   a(n) = a(n‑1) + A000040(n) * (-1)^n (with a(1) = 2)
  * Range:     i8 n <= 50, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 84 terms through n = 993 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- prime generation ------------------------------------------------- */
 static uint64_t *prime_list  = NULL;   /* stored primes */
@@ -74,7 +76,7 @@ seq_t a(idx_t n)
     if ((size_t)n > cache_cap) {
         size_t new_cap = (cache_cap == 0) ? 16 : cache_cap;
         while (new_cap < (size_t)n) new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(cache_data, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache_data, new_cap);
         if (!tmp) exit(1);
         cache_data = tmp;
         cache_cap  = new_cap;

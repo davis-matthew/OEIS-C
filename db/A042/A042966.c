@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 46, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 74 terms through n = 996 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* static storage for primes that satisfy the condition */
 static seq_t *accepted = NULL;
@@ -39,7 +42,7 @@ static void grow_seq_t(seq_t **arr, size_t *cap, size_t needed)
     if (*cap >= needed) return;
     size_t new_cap = *cap ? *cap * 2 : 128;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     *arr = tmp;
     *cap = new_cap;
@@ -92,7 +95,7 @@ static void ensure_accepted(idx_t n)
                 ok = true;
             } else {
                 uint64_t exp = (cand - 1ULL) / 7ULL;
-                seq_t res = mod_pow((seq_t)2, exp, (seq_t)cand);
+                seq_t res = powmod((seq_t)2, exp, (seq_t)cand);
                 if (res == (seq_t)1) ok = true;
             }
             if (ok) {

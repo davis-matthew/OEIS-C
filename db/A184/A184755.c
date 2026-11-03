@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 24, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 188 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache      = NULL; /* 1‑based array, cache[0] unused   */
 static idx_t cache_len   = 0;    /* highest index that has been computed */
@@ -35,13 +37,13 @@ static void grow_cache(idx_t needed)
     while (new_cap < required)
         new_cap <<= 1;
 
-    seq_t *new_buf = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_buf = mem_new(seq_t, new_cap);
     if (!new_buf)
         return; /* allocation failure; caller will handle 0 result */
 
     if (cache) {
-        memcpy(new_buf, cache, (cache_len + 1) * sizeof(seq_t));
-        free((void *)cache);
+        mem_copy(new_buf, cache, (cache_len + 1) * sizeof(seq_t));
+        mem_free(cache);
     }
     cache = new_buf;
     cache_cap = new_cap;

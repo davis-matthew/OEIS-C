@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 27, i16 n <= 50, i32 n <= 50, i64 n <= 50, i128 n <= 50,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
 
 /* Using the relation a(n) = (-4)^(⌊n/8⌋) * a(n mod 8) */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 static const seq_t init[8] = {
     (seq_t) 1,
@@ -41,6 +44,6 @@ seq_t a(idx_t n) {
     if (init[r] == (seq_t)0)
         return (seq_t)0;
 
-    seq_t pow = seq_pow((seq_t)-4, k);   /* (-4)^k */
+    seq_t pow = ipow_idx((seq_t)-4, k);   /* (-4)^k */
     return pow * init[r];
 }

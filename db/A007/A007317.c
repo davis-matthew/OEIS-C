@@ -10,13 +10,23 @@
  *            and *)
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 17, u64 n <= 31, u128 n <= 60,
  *            big any n
- * Helpers:   seq_is_big
+ * Validated: standard, pass, 42 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/seq_is_big.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static int seq_is_big(void)
+{
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 130; i++) x = x * 2;
+    return !(x == 0);
+}
 
 seq_t a(idx_t n) {
     if (n == 1) return (seq_t)1;
@@ -31,7 +41,7 @@ seq_t a(idx_t n) {
         }
         return y;
     } else {
-        seq_t *v = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+        seq_t *v = mem_new(seq_t, (size_t)(n + 1));
         seq_t r;
         idx_t m, i;
         v[1] = 1;
@@ -43,7 +53,7 @@ seq_t a(idx_t n) {
             v[m] = s + 1;
         }
         r = v[n];
-        free(v);
+        mem_free(v);
         return r;
     }
 }

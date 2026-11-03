@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 5, u16 n <= 7588, u32 n <= 8058, u64 n <= 8058,
- *            u128 n <= 8058, big any n
- * Helpers:   none
+ * Range:     u8 n <= 5, u16 n <= 7588, u32 n <= 15416, u64 n <= 15416,
+ *            u128 n <= 15416, big any n
+ * Validated: standard, pass, 69 terms through n = 8058 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* largest cube needed: floor(cuberoot(2243453)) = 130 */
 #define MAX_CUBE     130
@@ -38,7 +40,7 @@ static void grow_seq(seq_t **arr, size_t *len, size_t *cap, seq_t val)
 {
     if (*len == *cap) {
         size_t new_cap = (*cap == 0) ? 4 : (*cap * 2);
-        seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
         if (!tmp) return;         /* allocation failure ignored – caller will get 0 */
         *arr = tmp;
         *cap = new_cap;

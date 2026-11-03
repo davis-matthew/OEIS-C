@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{k=0..n} (k+1)^6 * Stirling1(n,k)
  * Range:     i8 n <= 1, i16 n <= 6, i32 n <= 11, i64 n <= 20, i128 n <= 21,
  *            big any n
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

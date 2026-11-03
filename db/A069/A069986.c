@@ -7,12 +7,14 @@
  * Formula:   a(n) = 2^(12*n + 4 - 3*popcount(n))
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 2, u64 n <= 5, u128 n <= 11,
  *            big any n
+ * Validated: standard, pass, 27 terms through n = 273 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* popcount(n) is the number of 1-bits in the binary representation of n. */
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 static inline idx_t popcount_idx(idx_t x)

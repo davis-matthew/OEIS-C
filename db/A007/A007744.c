@@ -7,13 +7,15 @@
  * Formula:   a(n) = binomial(2n+3, n) * binomial(n+3, 3)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 11, u64 n <= 26, u128 n <= 56,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 39 terms through n = 96 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n) {
-    return binom(2*n+3, n) * binom(n+3, 3);
+    return binomial(2*n+3, n) * binomial(n+3, 3);
 }

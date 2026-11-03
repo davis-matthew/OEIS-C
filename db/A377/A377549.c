@@ -8,7 +8,8 @@
  *            ((2*n+3*k+1)*(n-k)!)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 6, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   big_pow, binomial, factorial
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   binomial, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,21 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
-#include "../utils/factorial.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 static seq_t *fact_arr = NULL;      /* factorials */
 static size_t fact_cap = 0;
@@ -29,7 +42,7 @@ static void ensure_fact_cap(idx_t n)
     if (fact_cap <= (size_t)n) {
         size_t new_cap = fact_cap ? fact_cap : 64;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        fact_arr = (seq_t*)realloc(fact_arr, new_cap * sizeof(seq_t));
+        fact_arr = mem_resize(seq_t, fact_arr, new_cap);
         fact_cap = new_cap;
     }
 }
@@ -55,7 +68,7 @@ seq_t a(idx_t n)
         seq_t falling = fact_n / fact_arr[n - k];
 
         /* k^(n-k) */
-        seq_t pow_term = big_pow((seq_t)k, (seq_t)(n - k));
+        seq_t pow_term = ipow((seq_t)k, (seq_t)(n - k));
 
         /* denominator part */
         idx_t denom_idx = 2*n + 3*k + 1;

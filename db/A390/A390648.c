@@ -8,13 +8,17 @@
  *            Catalan(k)/(n-3*k)!
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 18, u128 n <= 30,
  *            big any n
- * Helpers:   catalan, seq_pow
+ * Validated: standard, pass, 38 terms through n = 294 (2026-11-01)
+ * Helpers:   catalan, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
+#include <stdint.h>
+#include <stddef.h>
 #include "../utils/catalan.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +35,7 @@ seq_t a(idx_t n)
 
         /* term = prod * Catalan(k) * k^exp */
         seq_t term = prod * catalan(k);
-        term *= seq_pow((seq_t)k, exp);
+        term *= ipow_idx((seq_t)k, exp);
 
         sum += term;
     }

@@ -8,13 +8,22 @@
  *            1 <= a <= b <= c, sort, and return the n-th term
  * Range:     u8 none, u16 none, u32 none, u64 n <= 10000, u128 n <= 10000,
  *            big any n
- * Helpers:   cmp_seq_t_values
+ * Validated: standard, pass, 56 terms through n = 9614 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/cmp_seq_t_values.h"
+#include "../utils/mem.h"
+
+static int cmp_seq_t_values(const void *a, const void *b) {
+    seq_t x = *(const seq_t *)a;
+    seq_t y = *(const seq_t *)b;
+    if (x < y) return -1;
+    if (x > y) return 1;
+    return 0;
+}
 
 seq_t a(idx_t n) {
     if (n < 1) return 0;
@@ -26,7 +35,7 @@ seq_t a(idx_t n) {
         int limit = 180;
         
         // Precompute 6th powers
-        seq_t *pow6 = (seq_t *)malloc((limit + 1) * sizeof(seq_t));
+        seq_t *pow6 = mem_new(seq_t, (limit + 1));
         for (int i = 1; i <= limit; i++) {
             seq_t x = (seq_t)i;
             seq_t x3 = x * x * x;
@@ -35,7 +44,7 @@ seq_t a(idx_t n) {
         
         // Allocate space for all sums
         idx_t capacity = (limit + 1) * (limit + 2) * (limit + 3) / 6 + 1000;
-        sums = (seq_t *)malloc(capacity * sizeof(seq_t));
+        sums = mem_new(seq_t, capacity);
         idx_t count = 0;
         
         // Generate all sums a^6 + b^6 + c^6 with 1 <= a <= b <= c <= limit
@@ -48,7 +57,7 @@ seq_t a(idx_t n) {
         }
         
         // Sort all sums
-        qsort(sums, count, sizeof(seq_t), cmp_seq_t_values);
+        mem_qsort(sums, count, sizeof(seq_t), cmp_seq_t_values);
         
         // Remove duplicates while maintaining sorted order
         unique_count = 0;
@@ -61,7 +70,7 @@ seq_t a(idx_t n) {
             }
         }
         
-        free(pow6);
+        mem_free(pow6);
     }
     
     // Return n-th term (1-indexed)

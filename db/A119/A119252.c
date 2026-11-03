@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 30, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
  *  by the build (uint8_t … unsigned __int128, arbitrary‑precision, …).
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static int cmp_seq_t(const void *va, const void *vb)
 {
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
 
         /* The generated numbers are already unique; sort them ascending. */
         if (count == 31) {
-            qsort(values, 31, sizeof(seq_t), cmp_seq_t);
+            mem_qsort(values, 31, sizeof(seq_t), cmp_seq_t);
         }
         initialized = 1;
     }

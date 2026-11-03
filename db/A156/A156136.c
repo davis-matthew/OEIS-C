@@ -10,12 +10,15 @@
  *            floor((sqrt(8*n+1)-1)/2) and c = n - r*(r+1)/2
  * Range:     u8 n <= 16, u16 n <= 39, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   binom, pow2
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
 
 /* Compute the OEIS sequence A156136 at index n (n >= 0). */
@@ -27,8 +30,8 @@ seq_t a(idx_t n) {
 
     idx_t c = n - r * (r + 1) / 2;
 
-    seq_t term1 = binom(r + 1, c + 1);   /* binom(r+1, c+1) */
-    seq_t term2 = binom(r, r - c);        /* binom(r, r-c) */
+    seq_t term1 = binomial(r + 1, c + 1);   /* binom(r+1, c+1) */
+    seq_t term2 = binomial(r, r - c);        /* binom(r, r-c) */
     seq_t two   = pow2(c);                /* 2^c */
 
     seq_t res = term1;

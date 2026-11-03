@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 60, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   valid_run_sequence
+ * Validated: standard, pass, 76 terms through n = 986 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,40 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/valid_run_sequence.h"
+
+static bool valid_run_sequence(seq_t x)
+{
+    if (x == (seq_t)0) return false;
+
+    size_t first_len = 0;     /* length of the first run of 1's */
+    size_t runs      = 0;     /* number of runs of 1's seen */
+
+    seq_t t = x;
+    while (t != (seq_t)0) {
+        /* skip any leading zeros of the current sub‑string */
+        while ((t & (seq_t)1) == (seq_t)0 && t != (seq_t)0)
+            t >>= 1;
+
+        if (t == (seq_t)0)
+            break;                  /* no more runs of 1's */
+
+        /* count the length of this run of 1's */
+        size_t len = 0;
+        while ((t & (seq_t)1) != (seq_t)0) {
+            len++;
+            t >>= 1;
+        }
+
+        if (runs == 0) {
+            first_len = len;        /* first run */
+        } else if (len != first_len) {
+            return false;           /* varying run length */
+        }
+        runs++;
+    }
+
+    return (runs >= (size_t)2);
+}
 
 seq_t a(idx_t n)
 {

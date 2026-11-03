@@ -9,12 +9,14 @@
  *            * [n choose k]_3 is the Gaussian binomial coefficient for q = 3
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 8, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 71 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- Internal state ---------- */
 static seq_t *a_cache      = NULL;  /* memoised a(n) values   */
@@ -30,7 +32,7 @@ static void ensure_a_cache(size_t needed)
     if (a_cache_size <= needed) {
         size_t new_size = a_cache_size ? a_cache_size : 1;
         while (new_size <= needed) new_size <<= 1;
-        seq_t *tmp = (seq_t *)realloc(a_cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_size);
         a_cache = tmp;
         a_cache_size = new_size;
     }
@@ -44,14 +46,14 @@ static void ensure_a_cache(size_t needed)
 static void ensure_pow3(size_t needed)
 {
     if (pow3_size == 0) {                /* first element 3^0 = 1 */
-        pow3 = (seq_t *)malloc(sizeof(seq_t));
+        pow3 = mem_new(seq_t, 1);
         pow3[0] = (seq_t)1;
         pow3_size = 1;
     }
     if (pow3_size <= needed) {
         size_t new_size = pow3_size;
         while (new_size <= needed) new_size <<= 1;
-        seq_t *tmp = (seq_t *)realloc(pow3, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, pow3, new_size);
         for (size_t i = pow3_size; i < new_size; ++i)
             tmp[i] = tmp[i - 1] * (seq_t)3;
         pow3 = tmp;

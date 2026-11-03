@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 11, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    terms so that calls with arbitrary n are fast. */
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Multiply two seq_t values modulo m using the binary method
    (safe for all supported seq_t sizes). */
@@ -83,7 +85,7 @@ seq_t a(idx_t n)
     /* Grow cache when needed */
     if (count >= capacity) {
         size_t new_cap = capacity ? capacity << 1 : 32;
-        seq_t *tmp = (seq_t *)realloc(vals, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, vals, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         vals = tmp;
         capacity = new_cap;
@@ -97,7 +99,7 @@ seq_t a(idx_t n)
         ++next_k;
         if (count >= capacity) {
             size_t new_cap = capacity ? capacity << 1 : 32;
-            seq_t *tmp = (seq_t *)realloc(vals, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, vals, new_cap);
             if (!tmp) exit(EXIT_FAILURE);
             vals = tmp;
             capacity = new_cap;

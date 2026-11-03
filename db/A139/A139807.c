@@ -9,7 +9,8 @@
  *            5, or p+1 where p is a prime (excluding the part 12)
  * Range:     u8 n <= 29, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --------------- static storage for primality ---------------- */
 static uint64_t *primes = NULL;          /* list of primes so far      */
@@ -128,7 +130,7 @@ seq_t a(idx_t n)
 
     /* --------- allocate/expand the dp array --------------------- */
     if ((size_t)n + 1 > dp_size) {
-        dp = (seq_t *)realloc(dp, ((size_t)n + 1) * sizeof(seq_t));
+        dp = mem_resize(seq_t, dp, ((size_t)n + 1));
         dp_size = (size_t)n + 1;
     }
     /* reset dp to zero except dp[0] */

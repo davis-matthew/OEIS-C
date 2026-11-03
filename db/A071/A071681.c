@@ -11,7 +11,8 @@
  *            than p_n
  * Range:     u8 n <= 1857, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime64, sieve_primes
+ * Validated: standard, pass, 100 terms through n = 6697 (2026-11-03)
+ * Helpers:   is_prime_u64, sieve_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,10 @@
 #include <stdbool.h>
 #include <math.h>
 #include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+#include "../utils/is_prime_u64.h"
 #include "../utils/sieve_primes.h"
-#include "../utils/is_prime64.h"
 
 static idx_t *primes = NULL;      /* array of primes, 0-indexed */
 static size_t prime_count = 0;    /* number of primes in the array   */
@@ -73,7 +76,7 @@ seq_t a(idx_t n) {
     for (idx_t i = 0; i + 1 < n; ++i) {
         idx_t p = primes[i];
         idx_t q = target - p;
-        if (q != p && is_prime64(q)) {
+        if (q != p && is_prime_u64(q)) {
             ++count;
         }
     }

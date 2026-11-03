@@ -9,8 +9,9 @@
  * Formula:   a(n) = Fibonacci(gcd(r, c)), where n is the flattened index
  *            (offset 3), r = row (≥ 3), c = column (≥ 3 ≤ r) of the triangle
  *            T(r, c) = gcd(Fibonacci(r), Fibonacci(c)) = Fibonacci(gcd(r, c))
- * Range:     u8 n <= 79, u16 n <= 93, u32 n <= 93, u64 n <= 93, u128 n <= 93,
- *            big any n
+ * Range:     u8 n <= 79, u16 n <= 277, u32 n <= 1082, u64 n <= 1277,
+ *            u128 n <= 1277, big any n
+ * Validated: standard, pass, 107 terms through n = 1275 (2026-11-01)
  * Helpers:   fib_fast
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

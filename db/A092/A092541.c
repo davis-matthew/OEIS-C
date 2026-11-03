@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   _floor_isqrt_u64, is_prime
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-01)
+ * Helpers:   is_prime, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,7 @@
 
 #include <stdbool.h>
 #include "../utils/is_prime.h"
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
 
 /* Return the n-th term of A092541. */
 seq_t a(idx_t n)
@@ -47,7 +48,7 @@ seq_t a(idx_t n)
     seq_t x = (seq_t)X * (seq_t)2;
 
     /* Largest divisor t of X with t ≤ sqrt(X) satisfying a parity condition. */
-    idx_t sqrt_X  = _floor_isqrt_u64(X);
+    idx_t sqrt_X  = isqrt(X);
     idx_t chosen_t = 0;          /* divisor t */
     for (idx_t d = sqrt_X; d >= 1; --d) {
         if (X % d != 0)

@@ -8,6 +8,7 @@
  *            - 65*a(n-2) + 105*a(n-3) - 54*a(n-4)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 40,
  *            big any n
+ * Validated: standard, pass, 35 terms through n = 195 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

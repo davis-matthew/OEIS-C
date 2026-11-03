@@ -11,13 +11,26 @@
  *            rows
  * Range:     u8 none, u16 n <= 1, u32 n <= 5, u64 n <= 12, u128 n <= 25,
  *            big any n
- * Helpers:   block_k
+ * Validated: standard, pass, 30 terms through n = 207 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/block_k.h"
+
+static inline int block_k(uint8_t a0, uint8_t a1, uint8_t b0, uint8_t b1)
+{
+    uint8_t v[4] = {a0, a1, b0, b1};
+    for (int i = 0; i < 3; ++i)
+        for (int j = i + 1; j < 4; ++j)
+            if (v[i] > v[j]) {
+                uint8_t t = v[i];
+                v[i] = v[j];
+                v[j] = t;
+            }
+    return v[3] + v[1] - v[2];   /* 0 .. 3 */
+}
 
 static int initialized = 0;
 static uint8_t row_d[256][4];

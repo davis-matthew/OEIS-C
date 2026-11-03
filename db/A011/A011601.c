@@ -7,12 +7,17 @@
  * Formula:   a(n) = Legendre symbol (n,89)
  * Range:     i8 n <= 10000, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 97 terms through n = 9372 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +28,7 @@ seq_t a(idx_t n)
         return 0;
 
     /* n^{44} (mod 89) gives 1 for residues, 88 for non‑residues. */
-    seq_t rem = mod_pow(r, 44, MOD);
+    seq_t rem = powmod(r, 44, MOD);
 
     return (rem == 1) ? 1 : -1;
 }

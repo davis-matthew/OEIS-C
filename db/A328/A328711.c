@@ -10,7 +10,8 @@
  *            distinct integers k≥2)
  * Range:     u8 n <= 23, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stdlib.h>   /* malloc, free */
 
 /* binom(a,b) is provided in the utils. */
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* cache to allow repeated calls */
 static seq_t *seq_cache = NULL;     /* array of a(0..max_n) */
@@ -30,7 +32,7 @@ static idx_t  cache_max  = 0;       /* maximum n computed */
 static void compute_up_to(idx_t N)
 {
     /* Allocate new buffer for the results (size N+1). */
-    seq_t *new_cache = (seq_t*)malloc((N+1) * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, (N+1));
     if (!new_cache) return;          /* allocation failed */
 
     /* Initialise all entries to 0; a(1)=1 */
@@ -38,12 +40,12 @@ static void compute_up_to(idx_t N)
     new_cache[1] = 1;
 
     /* tmp buffer for convolution */
-    seq_t *tmp = (seq_t*)malloc((N+1) * sizeof(seq_t));
-    if (!tmp) { free(new_cache); return; }
+    seq_t *tmp = mem_new(seq_t, (N+1));
+    if (!tmp) { mem_free(new_cache); return; }
 
     /* Pre‑compute σ(k) for k=1..N (sum of divisors) */
     idx_t *sigma = (idx_t*)malloc((N+1) * sizeof(idx_t));
-    if (!sigma) { free(tmp); free(new_cache); return; }
+    if (!sigma) { mem_free(tmp); mem_free(new_cache); return; }
     for (idx_t i = 0; i <= N; ++i) sigma[i] = 0;
     for (idx_t i = 1; i <= N; ++i)
         for (idx_t j = i; j <= N; j += i)
@@ -61,7 +63,7 @@ static void compute_up_to(idx_t N)
         idx_t power = k;
         idx_t e = 1;
         while (power <= N) {
-            seq_t weight = binom(sigma[k], e);          /* C(σ(k), e) */
+            seq_t weight = binomial(sigma[k], e);          /* C(σ(k), e) */
             /* For every multiple n = power * m  (m≥1), add contribution
                from m using the old cache before this base was processed. */
             for (idx_t m = 1, n = power; n <= N; ++m, n += power) {
@@ -80,8 +82,8 @@ static void compute_up_to(idx_t N)
 
     /* Free temporary buffers and old cache */
     free(sigma);
-    free(tmp);           /* tmp now holds the old cache to be freed */
-    if (seq_cache) free(seq_cache);
+    mem_free(tmp);           /* tmp now holds the old cache to be freed */
+    if (seq_cache) mem_free(seq_cache);
     seq_cache = new_cache;
     cache_max = N;
 }

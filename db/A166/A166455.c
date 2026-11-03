@@ -7,16 +7,18 @@
  * Keywords:  nonn, tabl
  * Formula:   a(n) = 2*binom(r,k) – (binom(r,k) mod 2) where r =
  *            floor((sqrt(8*n+1)-1)/2) and k = n – r*(r+1)/2
- * Range:     u8 n <= 39, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
+ * Range:     u8 n <= 58, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   binom_n_k
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <math.h>
-#include "../utils/binom_n_k.h"
+#include <stdbool.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n) {
     /* find the row r that contains n */
@@ -34,6 +36,6 @@ seq_t a(idx_t n) {
 
     idx_t k = n - (idx_t)tri;
 
-    seq_t c = binom_n_k(r, k);
+    seq_t c = binomial(r, k);
     return (c << 1) - (c & 1);
 }

@@ -12,8 +12,8 @@
  *            reduced by g...
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 22,
  *            big any n
- * Helpers:   a3281_addfac, a3281_bitlen, a3281_div, a3281_mod, a3281_sub,
- *            a3281_trim
+ * Validated: standard, pass, 23 terms through n = 22 (2026-11-01)
+ * Helpers:   bit_length_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,12 +21,59 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/a3281_addfac.h"
-#include "../utils/a3281_bitlen.h"
-#include "../utils/a3281_div.h"
-#include "../utils/a3281_mod.h"
-#include "../utils/a3281_sub.h"
-#include "../utils/a3281_trim.h"
+#include "../utils/bit_length_u64.h"
+
+static void a3281_addfac(long *e, const uint32_t *spf, uint64_t x) {
+    while (x > 1) {
+        uint32_t p = spf[x];
+        e[p]++;
+        x /= p;
+    }
+}
+
+static size_t a3281_trim(const uint64_t *x, size_t len) {
+    while (len && x[len - 1] == 0) len--;
+    return len;
+}
+
+static size_t a3281_div(uint64_t *x, size_t len, uint64_t d) {
+    uint64_t r = 0;
+    size_t i = len;
+    while (i > 0) {
+        uint64_t cur, qh, ql;
+        i--;
+        cur = (r << 32) | (x[i] >> 32);
+        qh = cur / d; r = cur % d;
+        cur = (r << 32) | (x[i] & 0xffffffffULL);
+        ql = cur / d; r = cur % d;
+        x[i] = (qh << 32) | ql;
+    }
+    return a3281_trim(x, len);
+}
+
+static uint64_t a3281_mod(const uint64_t *x, size_t len, uint64_t d) {
+    uint64_t r = 0;
+    size_t i = len;
+    while (i > 0) {
+        i--;
+        r = ((r << 32) | (x[i] >> 32)) % d;
+        r = ((r << 32) | (x[i] & 0xffffffffULL)) % d;
+    }
+    return r;
+}
+
+static size_t a3281_sub(uint64_t *a, size_t la, const uint64_t *b, size_t lb) {
+    uint64_t borrow = 0;
+    size_t i;
+    for (i = 0; i < la; i++) {
+        uint64_t bi = i < lb ? b[i] : 0;
+        uint64_t ai = a[i];
+        if (i >= lb && !borrow) break;
+        a[i] = ai - bi - borrow;
+        borrow = (ai < bi) || (ai == bi && borrow);
+    }
+    return a3281_trim(a, la);
+}
 
 typedef unsigned __int128 a3281_u128;
 
@@ -50,7 +97,7 @@ seq_t a(idx_t n) {
     idx_t k;
     for (k = 1; k < n; k++) {
         uint64_t K = (uint64_t)k;
-        qbits += (uint64_t)a3281_bitlen(16 * K * (K + 1) * (2 * K + 1));
+        qbits += (uint64_t)bit_length_u64(16 * K * (K + 1) * (2 * K + 1));
     }
     size_t cap = (size_t)(qbits / 64 + n / 32 + 16);
 

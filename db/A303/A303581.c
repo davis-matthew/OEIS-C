@@ -9,13 +9,24 @@
  *            is the number of 1-bits in n (Thue‑Morse)
  * Range:     u8 n <= 8192, u16 n <= 8192, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   popcount_parity_u64
+ * Validated: standard, pass, 103 terms through n = 8022 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/popcount_parity_u64.h"
+
+/* parity of popcount of a 64‑bit integer */
+static inline unsigned popcount_parity_u64(uint64_t x) {
+    x ^= x >> 32;
+    x ^= x >> 16;
+    x ^= x >> 8;
+    x ^= x >> 4;
+    x ^= x >> 2;
+    x ^= x >> 1;
+    return (unsigned)(x & 1u);
+}
 
 /* floor(log2(x)) for x > 0  (result 0..63) */
 static inline unsigned floor_log2_u64(uint64_t x) {

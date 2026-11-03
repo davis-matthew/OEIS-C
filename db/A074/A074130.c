@@ -9,11 +9,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 71, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /* Algorithm: Iteratively build consecutive groups of primes.
    Let G_n be the n‑th group.  Add successive primes to G_n until
    the group sum S satisfies S ≡ 0 (mod n).  The sequence value

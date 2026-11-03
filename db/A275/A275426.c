@@ -9,12 +9,14 @@
  *            for n≥1
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 16, u64 n <= 27, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 541 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* small binomial coefficient for fixed k (k ≤ 7) */
 static seq_t binom_small(idx_t N, int k)
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     /* initialise cache with a(0)=1 */
     if (cache == NULL) {
         cache_cap = 1;
-        cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) return (seq_t)0; /* allocation failed */
         cache[0] = (seq_t)1;
         cache_len = 1;
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     if (n >= cache_cap) {
         size_t new_cap = cache_cap;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) return (seq_t)0; /* allocation failed */
         /* zero the newly allocated part */
         for (size_t i = cache_cap; i < new_cap; ++i) tmp[i] = (seq_t)0;

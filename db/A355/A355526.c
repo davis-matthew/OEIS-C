@@ -9,15 +9,18 @@
  *            n is the k‑th prime
  * Range:     u8 n <= 82, u16 n <= 82, u32 n <= 82, u64 n <= 82, u128 n <= 82,
  *            big any n
- * Helpers:   compute_pi, factor_u64
+ * Validated: partial, pass, 81 terms through n = 82 (2026-11-01)
+ * Helpers:   factor_u64, prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/factor_u64.h"   /* Provides factor_u64 */
-#include "../utils/compute_pi.h"   /* Provides compute_pi */
+#include <stddef.h>
+#include <stdbool.h>
+#include "../utils/factor_u64.h"
+#include "../utils/prime_pi.h"
 
 /* Comparator for qsort on idx_t values */
 static int cmp_idx(const void *a, const void *b) {
@@ -42,7 +45,7 @@ seq_t a(idx_t n) {
 
     for (size_t i = 0; i < cnt; ++i) {
         /* index of the prime factor */
-        seq_t pi_val = compute_pi(pr[i]);           /* pi(p), exact value in seq_t */
+        seq_t pi_val = prime_pi(pr[i]);           /* pi(p), exact value in seq_t */
         idx_t idx = (idx_t)pi_val;                  /* cast is safe: pi(p) <= p <= 2^64-1 */
 
         /* repeat according to multiplicity */

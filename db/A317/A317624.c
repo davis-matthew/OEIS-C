@@ -9,7 +9,8 @@
  *            equals n
  * Range:     u8 n <= 59, u16 n <= 119, u32 n <= 335, u64 n <= 359,
  *            u128 n <= 359, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 347 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <string.h>
 #include <limits.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Assuming seq_t and idx_t are defined by the build. */
 extern seq_t gcd(seq_t a, seq_t b); /* we may use from utils, but local gcd below */
@@ -80,7 +82,7 @@ seq_t a(idx_t n)
 
     /* 3. Allocate DP table */
     size_t total = (size_t)(n + 1) * dsize;
-    seq_t *dp = (seq_t *)calloc(total, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, total);
     if (!dp) return 0; /* allocation failure */
 
     dp[0 * dsize + idx1] = 1; /* base case: sum 0 with LCM 1 */
@@ -102,6 +104,6 @@ seq_t a(idx_t n)
     }
 
     seq_t res = dp[(size_t)n * dsize + idxn];
-    free(dp);
+    mem_free(dp);
     return res;
 }

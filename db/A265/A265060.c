@@ -11,12 +11,14 @@
  *            (x+1)^2*(x^2+1)*(x^4+x^3+x^2+x+1)/(x^8-x^5-x^4-x^3+1)
  * Range:     u8 n <= 15, u16 n <= 38, u32 n <= 83, u64 n <= 172,
  *            u128 n <= 352, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 916 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* initial values for n = 0..7 */
 static const seq_t init_vals[8] = {1, 3, 5, 8, 12, 16, 21, 28};
@@ -33,7 +35,7 @@ static void ensure_cache(idx_t n)
     if (cache != NULL && n < cache_size) return;
 
     size_t new_size = (size_t)(n + 1);
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache) exit(1);
 
     if (cache == NULL) {

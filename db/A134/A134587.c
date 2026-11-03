@@ -11,7 +11,8 @@
  *            triple a * Heron triangle
  * Range:     u8 n <= 1, u16 n <= 9, u32 n <= 9, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   toggle_prime
+ * Validated: full, pass, 9 terms through n = 9 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,33 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/toggle_prime.h"
+#include "../utils/mem.h"
+
+/* ---------- prime toggle helper ----------
+   For a given prime p, updates its parity in the temporary arrays. */
+static void toggle_prime(uint32_t p,
+                         uint32_t *primes,
+                         unsigned char *parities,
+                         int *count)
+{
+    int i;
+    for (i = 0; i < *count; ++i) {
+        if (primes[i] == p) break;
+    }
+    if (i < *count) {
+        /* prime already present – flip parity */
+        parities[i] ^= 1;
+        if (!parities[i]) {           /* parity became even – remove */
+            primes[i]      = primes[*count - 1];
+            parities[i]   = parities[*count - 1];
+            (*count)--;
+        }
+    } else {
+        /* new prime – add at the end */
+        primes[(*count)++] = p;
+        parities[(*count) - 1] = 1;
+    }
+}
 
 #ifndef MAX_PRIME_FACTORS
 #define MAX_PRIME_FACTORS 64
@@ -135,7 +162,7 @@ seq_t a(idx_t n)
     /* grow storage as needed */
     if (seq == NULL) {
         seq_cap = 16;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         if (!seq) abort();
     }
 
@@ -167,7 +194,7 @@ seq_t a(idx_t n)
         /* expand the array if needed */
         if ((size_t)seq_len == seq_cap) {
             seq_cap <<= 1;
-            seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, seq_cap);
             if (!seq) abort();
         }
     }

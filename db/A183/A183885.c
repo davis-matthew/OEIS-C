@@ -9,11 +9,13 @@
  *            a(3) = 631
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 17, u64 n <= 37, u128 n <= 62,
  *            big any n
+ * Validated: standard, pass, 39 terms through n = 60 (2026-11-01)
  * Helpers:   pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/pow3.h"
 
 /* Compute term a(n) of OEIS A183885 */

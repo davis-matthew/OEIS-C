@@ -7,7 +7,8 @@
  * Formula:   a(n) = # { 1 <= k <= n | both k*n-1 and k*n+1 are prime }
  * Range:     u8 n <= 2729, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 101 terms through n = 9591 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* The following types are defined by the build system. */
 
@@ -78,7 +80,7 @@ static void ensure_cache(idx_t n)
 
     /* Extend the cache array. */
     idx_t new_cap = n + 1; /* +1 because we use 1‑based indexing */
-    seq_t *new_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, a_cache, new_cap);
     if (!new_cache) { /* In a re‑implementation environment this shouldn't happen. */ }
     a_cache = new_cache;
 

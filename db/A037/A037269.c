@@ -9,12 +9,14 @@
  *            coefficient of x^n in (1+x^30)/((1-x^4)(1-x^5)(1-x^6)(1-x^12))
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached DP table.  */
 static seq_t *dp = NULL;
@@ -25,7 +27,7 @@ static void recompute_dp(idx_t n)
 {
     /* Allocate or extend the table.  */
     if (dp == NULL || dp_size <= n) {
-        seq_t *p = (seq_t *)realloc(dp, sizeof(seq_t) * (n + 1));
+        seq_t *p = mem_resize(seq_t, dp, (n + 1));
         dp = p;
         dp_size = n + 1;
     }

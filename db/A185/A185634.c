@@ -8,14 +8,16 @@
  * Formula:   a(n) = ((n-1)^n + (-1)^n*(n-1))/n (offset 2)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 10, u64 n <= 17, u128 n <= 20,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 19 terms through n = 20 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <assert.h>
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 /* Return the number of n‑length cycles from a point in a complete graph on n nodes.
  * Uses the closed form a(n) = ((n-1)^n + (-1)^n*(n-1))/n.
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     /* 2.  Arbitrary‑precision or 128‑bit seq_t: use big_pow helper */
     /* ------------------------------------------------------------ */
     seq_t m = (seq_t)(n - 1);                     /* base m = n-1 as seq_t */
-    seq_t pow = big_pow(m, (seq_t)n);             /* compute m^n as seq_t */
+    seq_t pow = ipow(m, (seq_t)n);             /* compute m^n as seq_t */
 
     /* Numerator: (n-1)^n + (-1)^n*(n-1) */
     seq_t numer = (n & 1ULL)                       /* odd n → subtract   */

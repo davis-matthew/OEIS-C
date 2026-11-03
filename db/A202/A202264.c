@@ -9,7 +9,8 @@
  *            substrings are noncomposite
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 17, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   isPrimeGeneric
+ * Validated: full, pass, 17 terms through n = 17 (2026-11-03)
+ * Helpers:   is_prime_u128, is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,31 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/isPrimeGeneric.h"
+#include <stddef.h>
+#include <limits.h>
+#include "../utils/is_prime_u128.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+/* -----------------  Generic primality test ------------------------ */
+static bool isPrimeGeneric(seq_t n)
+{
+    /* all seq_t are unsigned; use the smallest type that fits */
+    if ((seq_t)(ULLONG_MAX) >= n) {
+        return is_prime_u64((uint64_t)n);
+    }
+#if defined(__SIZEOF_INT128__)
+    return is_prime_u128((__uint128_t)n);
+#else
+    /* fallback: if seq_t > 64‑bit but no 128‑bit support,
+       order the test as simple trial division up to sqrt */
+    seq_t limit = 0;
+    for (seq_t i = 2; i*i <= n; ++i) {
+        if (n % i == 0) return false;
+    }
+    return true;
+#endif
+}
 
 /* Return the n-th term of A202264 (1‑based).  */
 seq_t a(idx_t n)
@@ -34,7 +59,7 @@ seq_t a(idx_t n)
         /* First call: generate all terms up to SEARCH_LIMIT.  */
         /* Allocate an initial capacity.  */
         seq_cap = 16;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
 
         for (seq_t x = 1; x <= SEARCH_LIMIT; ++x) {
             /* Only consider noncomposite numbers.  */
@@ -80,7 +105,7 @@ seq_t a(idx_t n)
             /* Accept the number into the sequence.  */
             if (seq_len >= seq_cap) {
                 size_t new_cap = seq_cap * 2;
-                seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, new_cap);
                 seq_cap = new_cap;
             }
             seq[seq_len++] = x;

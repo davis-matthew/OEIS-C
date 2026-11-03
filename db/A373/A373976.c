@@ -8,8 +8,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign
  * Formula:   a(n) = bigomega(n) - bigomega(sopfr(n))
- * Range:     i8 n <= 9852, i16 n <= 9852, i32 n <= 9852, i64 n <= 9852,
- *            i128 n <= 9852, big any n
+ * Range:     i8 n <= 65537, i16 n <= 65537, i32 n <= 65537, i64 n <= 65537,
+ *            i128 n <= 65537, big any n
+ * Validated: standard, pass, 117 terms through n = 9852 (2026-11-01)
  * Helpers:   bigomega, factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,8 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/bigomega.h"
 #include "../utils/factor_u64.h"
 

@@ -8,7 +8,8 @@
  *            σ(n)
  * Range:     u8 n <= 51, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 980 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* ---------- helper: integer square root for uint64_t ---------- */
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static idx_t isqrt_u64(idx_t v)
 {
@@ -92,7 +94,7 @@ seq_t a(idx_t n)
 
             if (neg_cnt >= neg_cap) {
                 neg_cap = neg_cap ? (neg_cap << 1) : 16;
-                neg_buf = (seq_t *)realloc(neg_buf, neg_cap * sizeof(seq_t));
+                neg_buf = mem_resize(seq_t, neg_buf, neg_cap);
             }
             neg_buf[neg_cnt++] = diff;
         }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 23, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   floor_cube_root
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,26 @@
 #include <stdbool.h>
 #include <string.h>
 #include <limits.h>
-#include "../utils/floor_cube_root.h"   /* floor_cube_root() for seq_t */
+#include "../utils/ipow_i32.h"
+
+/* Floor cube root by binary search */
+static inline seq_t floor_cube_root(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    /* raise hi until hi^3 > x */
+    while (ipow_i32(hi, 3) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid3 = ipow_i32(mid, 3);
+        if (mid3 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* maximum prime needed: cube root of (k³+1) for the largest k to be
    searched.  k up to ~10⁶ gives k³≈10¹⁸, cube root ≈10⁶.  */

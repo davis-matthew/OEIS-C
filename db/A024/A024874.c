@@ -9,12 +9,14 @@
  *            (standard Fibonacci numbers)
  * Range:     u8 n <= 8, u16 n <= 19, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,9 +37,9 @@ seq_t a(idx_t n)
 
         seq_t *new_ptr = NULL;
         if (fib_cache == NULL) {
-            new_ptr = (seq_t *)malloc(new_size * sizeof(seq_t));
+            new_ptr = mem_new(seq_t, new_size);
         } else {
-            new_ptr = (seq_t *)realloc(fib_cache, new_size * sizeof(seq_t));
+            new_ptr = mem_resize(seq_t, fib_cache, new_size);
         }
         if (new_ptr == NULL)    /* allocation failed */
             abort();

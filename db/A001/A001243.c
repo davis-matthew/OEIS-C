@@ -9,6 +9,7 @@
  *            T(1,1) = 1, T(1,k) = 0 for k > 1 (Eulerian numbers A008292)
  * Range:     u8 n <= 8, u16 n <= 9, u32 n <= 13, u64 n <= 23, u128 n <= 45,
  *            big any n
+ * Validated: standard, pass, 31 terms through n = 886 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -12,7 +12,8 @@
  *            contributions. The implementation keeps * a sm...
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   power_contrib
+ * Validated: standard, pass, 94 terms through n = 978 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,17 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/power_contrib.h"
+
+/* ----------  Prime‑power contribution  ------------------------------ */
+static seq_t power_contrib(uint64_t p, uint64_t e)
+{
+    if (p == 2ULL)            return (seq_t)-1;          /* 2^e → -1  */
+    if (p == 3ULL)            return (seq_t) 1;          /* 3^e →  1  */
+    if ((p & 3ULL) == 1ULL)   /* p ≡ 1 (mod 4)          */
+        return (seq_t)(e + 1ULL);
+    /* p ≡ 3 (mod 4) : even exponent → 1, odd exponent → 0   */
+    return (seq_t)((e & 1ULL) ? 0 : 1);
+}
 
 /* ----------  Small prime sieve  ------------------------------------- */
 #define PRIME_SIEVE_LIMIT   1000000ULL

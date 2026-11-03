@@ -12,13 +12,15 @@
  *            after the first expansion
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /*  Include standard library for memory allocation functions */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Function to test if a number has equal counts of 7 and 10 in base‑12 */
 static int is_good(seq_t m)
@@ -57,7 +59,7 @@ static void ensure_cap(idx_t n)
     if (new_cap < 16)
         new_cap = 16;               /* start with a modest size */
 
-    seq_t *new_cache = (seq_t *)realloc(cache, (size_t)new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (size_t)new_cap);
     if (!new_cache) {              /* allocation failed – abort */
         /* In a contest environment we could exit or set a flag,
            but for simplicity we assume enough memory. */

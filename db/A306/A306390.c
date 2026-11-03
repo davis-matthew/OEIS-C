@@ -9,6 +9,7 @@
  * Formula:   a(n) = 2^(1 + floor(log2((n-1)/3)))
  * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
+ * Validated: partial, pass, 66 terms through n = 68 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

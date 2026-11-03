@@ -9,7 +9,8 @@
  *            j < 2*i (OEIS A302296)
  * Range:     u8 n <= 38, u16 n <= 9529, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   one_factorisation
+ * Validated: standard, pass, 78 terms through n = 9807 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,24 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/one_factorisation.h"
+#include "../utils/mem.h"
+
+/* check whether n has exactly one factorisation i*j*k with i<j<2*i */
+static bool one_factorisation(uint64_t n)
+{
+    int count = 0;
+    for (uint64_t i = 2; i <= n / i; ++i) {          /* i <= sqrt(n)         */
+        if (n % i != 0) continue;
+        uint64_t m1 = n / i;                         /* remaining product    */
+        uint64_t jmax = m1 < 2 * i - 1 ? m1 : 2 * i - 1;
+        for (uint64_t j = i + 1; j <= jmax; ++j) {   /* j in (i, 2*i)        */
+            if (m1 % j != 0) continue;
+            ++count;
+            if (count > 1) return false;            /* more than one found  */
+        }
+    }
+    return count == 1;
+}
 
 /* cached sequence storage */
 static seq_t   *cache = NULL;   /* array of terms */
@@ -31,7 +49,7 @@ static void ensure_capacity(size_t new_cap)
     if (new_cap <= cap) return;
     size_t new_cap_val = new_cap;
     if (new_cap_val == 0) new_cap_val = 16;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap_val * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap_val);
     if (!new_cache) exit(EXIT_FAILURE);
     cache = new_cache;
     cap   = new_cap_val;

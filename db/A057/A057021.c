@@ -8,7 +8,8 @@
  *            the sum of divisors
  * Range:     u8 n <= 18, u16 n <= 2237, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, gcd, sigma_of
+ * Validated: standard, pass, 86 terms through n = 8653 (2026-11-01)
+ * Helpers:   factor_u64, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,26 @@
 /* Utility functions: factor_u64 (for prime factorisation), gcd (greatest common divisor),
    sigma_of (sum of divisors) */
 #include <stddef.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
 #include "../utils/gcd.h"
-#include "../utils/sigma_of.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 /* Compute a(idx_t n) where n ≥ 1.  The function is fully deterministic and
    independent of previous calls. It works for any build of seq_t/idx_t. */

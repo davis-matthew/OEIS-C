@@ -8,7 +8,8 @@
  * Formula:   a(n) = 1/(n+1) * sum_{k=0..n} C(4*n+k+3,k) * C(4*n+k+4,n-k)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 15, u128 n <= 18,
  *            big any n
- * Helpers:   binomial, seq_mul
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,16 @@
 /*              where C(a,b) is binomial(a,b) */
 
 #include <stddef.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/binomial.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 #if defined(__SIZEOF_INT128__) && !defined(__cplusplus)
 /* C implementation – use 128‑bit intermediate to avoid overflow */
@@ -33,7 +43,6 @@ seq_t a(idx_t n)
 }
 #else
 /* C++ (or C) build with generic seq_t – rely on seq_mul for safe multiplication */
-#include "../utils/seq_mul.h"
 
 seq_t a(idx_t n)
 {

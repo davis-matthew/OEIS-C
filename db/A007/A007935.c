@@ -8,15 +8,21 @@
  *            permutation of its digits is prime
  * Range:     u8 n <= 64, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   is_prime, swap_int
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
-#include "../utils/swap_int.h"
+#include "../utils/is_prime_u64.h"
+
+static void swap_int(int *a, int *b) {
+    int temp = *a;
+    *a = *b;
+    *b = temp;
+}
 
 static bool check_perms(int *digits, int len, int start) {
     if (start == len - 1) {
@@ -24,7 +30,7 @@ static bool check_perms(int *digits, int len, int start) {
         for (int i = 0; i < len; i++) {
             num = num * 10 + digits[i];
         }
-        return is_prime(num);
+        return is_prime_u64(num);
     }
     
     for (int i = start; i < len; i++) {
@@ -59,7 +65,7 @@ static bool has_prime_perm(seq_t n) {
 
 static bool is_composite(seq_t n) {
     if (n <= 1) return false;
-    return !is_prime((uint64_t)n);
+    return !is_prime_u64((uint64_t)n);
 }
 
 seq_t a(idx_t n) {

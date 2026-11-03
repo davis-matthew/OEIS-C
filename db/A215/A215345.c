@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 1571, u64 n <= 1571,
  *            u128 n <= 1571, big any n
- * Helpers:   none
+ * Validated: standard, pass, 131 terms through n = 1464 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* The type seq_t and idx_t are provided by the build system. */
 typedef uint64_t idx_t;
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
 
     /* heap of size n+1 (y ranges 0..n) */
     idx_t heap_size = n + 1;
-    Node *h = (Node*)malloc((size_t)heap_size * sizeof(Node));
+    Node *h = mem_new(Node, (size_t)heap_size);
     if (!h)
         return 0;               /* allocation failure – harmless for tests */
 
@@ -89,7 +91,7 @@ seq_t a(idx_t n)
 
         if (count == n) {           /* nth element found */
             seq_t ans = (seq_t)root->y;
-            free(h);
+            mem_free(h);
             return ans;
         }
 
@@ -97,6 +99,6 @@ seq_t a(idx_t n)
         sift_down(h, 0, heap_size);
     }
 
-    free(h);   /* unreachable, but keeps compilers happy */
+    mem_free(h);   /* unreachable, but keeps compilers happy */
     return 0;
 }

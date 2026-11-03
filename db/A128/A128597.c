@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,13 +38,13 @@ seq_t a(idx_t n)
     size_t len    = target + 1;               /* indices 0 … 2n+4 */
 
     /* dp holds coefficients of the product processed so far. */
-    seq_t *dp  = (seq_t*)calloc(len, sizeof(seq_t));
+    seq_t *dp  = mem_new(seq_t, len);
     if (!dp) abort();
     dp[0] = 1;                    /* start with polynomial 1 */
 
     /* Temporary arrays.  They stay the same size for every factor. */
-    seq_t *ndp = (seq_t*)malloc(len * sizeof(seq_t));
-    seq_t *pref = (seq_t*)malloc(len * sizeof(seq_t));
+    seq_t *ndp = mem_new(seq_t, len);
+    seq_t *pref = mem_new(seq_t, len);
     if (!ndp || !pref) abort();
 
     /* Process factors (1 - q^(2j))/(1 - q) for j = 1 … n+2. */
@@ -71,9 +73,9 @@ seq_t a(idx_t n)
     seq_t result = dp[target];
 
     /* Clean up temporary storage. */
-    free(dp);
-    free(ndp);
-    free(pref);
+    mem_free(dp);
+    mem_free(ndp);
+    mem_free(pref);
 
     return result;
 }

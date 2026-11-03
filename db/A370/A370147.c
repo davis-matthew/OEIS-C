@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 1, i16 n <= 3, i32 n <= 6, i64 n <= 12, i128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 396 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,6 +37,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;      /* computed a values */
 static seq_t *b_cache = NULL;      /* computed B values */
@@ -51,8 +53,8 @@ static void grow_cache(idx_t needed)
     idx_t newSize = (cacheSize == 0) ? 1 : cacheSize;
     while (newSize < required) newSize <<= 1;
 
-    seq_t *new_a = (seq_t *)realloc(a_cache, newSize * sizeof(seq_t));
-    seq_t *new_b = (seq_t *)realloc(b_cache, newSize * sizeof(seq_t));
+    seq_t *new_a = mem_resize(seq_t, a_cache, newSize);
+    seq_t *new_b = mem_resize(seq_t, b_cache, newSize);
     if (!new_a || !new_b) return;   /* allocation failed – leave unchanged */
 
     /* initialise new elements to zero */

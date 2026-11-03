@@ -8,8 +8,9 @@
  * Formula:   a(n) = |{ (a,d,k) : k ≥ 3, a ≥ 1, d ≥ 1, k·a + d·k(k−1)/2 = n }|
  *            – computed by brute‑force enumeration over the possible lengths
  *            k and common differences d
- * Range:     u8 n <= 419, u16 n <= 9560, u32 n <= 9560, u64 n <= 9560,
- *            u128 n <= 9560, big any n
+ * Range:     u8 n <= 419, u16 n <= 12580, u32 n <= 12580, u64 n <= 12580,
+ *            u128 n <= 12580, big any n
+ * Validated: standard, pass, 114 terms through n = 9560 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

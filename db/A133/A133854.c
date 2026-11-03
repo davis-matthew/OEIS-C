@@ -12,12 +12,14 @@
  *            produce the initial values
  * Range:     u8 n <= 25, u16 n <= 33, u32 n <= 68, u64 n <= 122,
  *            u128 n <= 232, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 5435 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     if (cap == 0) {
         /* we need at least the first 13 terms */
         idx_t init = n > 13 ? n : 13;
-        cache = (seq_t *)malloc((init + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (init + 1));
         if (!cache)
             exit(EXIT_FAILURE);
         for (idx_t i = 1; i <= 13; ++i)
@@ -44,9 +46,9 @@ seq_t a(idx_t n)
     /* Grow cache if needed, computing missing terms on the fly */
     if (n > cap) {
         idx_t new_cap = n;
-        seq_t *tmp = (seq_t *)realloc(cache, (new_cap + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (new_cap + 1));
         if (!tmp) {
-            free(cache);
+            mem_free(cache);
             exit(EXIT_FAILURE);
         }
         cache = tmp;

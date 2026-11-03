@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 13, u32 n <= 100, u64 n <= 100, u128 n <= 100,
  *            big any n
- * Helpers:   build_primes_upto, extend_capacity_seq
+ * Validated: standard, pass, 50 terms through n = 98 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,20 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/extend_capacity_seq.h"
+#include "../utils/mem.h"
+
+/* Grow a seq_t array to accommodate at least 'needed' elements. */
+static void extend_capacity_seq(seq_t **arr, size_t *cap, size_t needed)
+{
+    if (*cap < needed) {
+        size_t newcap = (*cap == 0) ? 4 : (*cap << 1);
+        while (newcap < needed) newcap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, newcap);
+        if (!tmp) abort();
+        *arr = tmp;
+        *cap = newcap;
+    }
+}
 
 /* Integer square root for unsigned __int128.  Returns floor(sqrt(v)). */
 static unsigned __int128 isqrt128(unsigned __int128 v)

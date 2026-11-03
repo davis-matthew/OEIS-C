@@ -10,10 +10,13 @@
  *            0,2,7 modulo 9
  * Range:     u8 n <= 22, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
+
+#include "../utils/mem.h"
 
 /* Computes a(n) for n >= 1.
    Uses a standard coin‑change DP where the allowed “coins” are all integers
@@ -22,7 +25,7 @@ seq_t a(idx_t n) {
     if (n == 0) return 0;               /* defined only for n >= 1, but handle safely */
 
     /* Allocate DP array of size n+1 */
-    seq_t *dp = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (n + 1));
     if (!dp) return 0;                  /* out of memory – should not happen */
 
     /* Initialise DP */
@@ -39,6 +42,6 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

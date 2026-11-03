@@ -8,7 +8,8 @@
  *            a(n+1) = 20*a(n) - 1682*n*a(n-1) for n ≥ 1
  * Range:     i8 n <= 1, i16 n <= 2, i32 n <= 5, i64 n <= 10, i128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 366 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         cap = (size_t)(n + 1);
         if (cap < 2) cap = 2;
-        cache = (seq_t *)calloc(cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (cache == NULL) abort();   /* out of memory */
         cache[0] = (seq_t)1;
         if (cap > 1) cache[1] = (seq_t)20;
@@ -44,10 +46,10 @@ seq_t a(idx_t n)
     else if ((size_t)n >= cap) {
         size_t new_cap = (size_t)n + 1;
         if (new_cap < cap * 2) new_cap = cap * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) abort();    /* out of memory */
         /* zero the newly allocated part */
-        memset(tmp + cap, 0, (new_cap - cap) * sizeof(seq_t));
+        mem_set(tmp + cap, 0, (new_cap - cap) * sizeof(seq_t));
         cache = tmp;
         cap = new_cap;
     }

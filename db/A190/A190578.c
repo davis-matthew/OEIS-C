@@ -7,6 +7,7 @@
  * Formula:   a(n) = n^7 + n
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 23, u64 n <= 565,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 44 terms through n = 8668 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

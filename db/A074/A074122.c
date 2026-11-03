@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 43, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 76 terms through n = 76 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* global state for incremental computation of the sequence             */
@@ -80,7 +82,7 @@ static void ensure_group_cap(size_t need)
     if (group_cap >= need) return;
     size_t newcap = group_cap ? group_cap * 2 : 16;
     while (newcap < need) newcap *= 2;
-    seq_t *tmp = (seq_t *)realloc(group_len, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, group_len, newcap);
     group_len = tmp;
     group_cap = newcap;
 }

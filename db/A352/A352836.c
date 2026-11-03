@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9999, u16 n <= 9999, u32 n <= 9999, u64 n <= 9999,
  *            u128 n <= 9999, big any n
- * Helpers:   pair_key
+ * Validated: standard, pass, 95 terms through n = 9783 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,15 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/pair_key.h"
+#include "../utils/mem.h"
+
+/* hash key for an unordered pair of ids */
+static inline uint64_t pair_key(uint32_t a, uint32_t b)
+{
+    uint32_t mn = a < b ? a : b;
+    uint32_t mx = a > b ? a : b;
+    return ((uint64_t)mn << 32) | mx;
+}
 
 /* ----------  internal data structures ---------- */
 
@@ -56,11 +65,11 @@ static void init(void)
     initialized = true;
 
     seq_cap   = 128;
-    seq       = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+    seq       = mem_resize(seq_t, seq, seq_cap);
 
     val_cap   = 128;
-    val_array = (seq_t *)realloc(val_array, val_cap * sizeof(seq_t));
-    next_cand = (seq_t *)realloc(next_cand, val_cap * sizeof(seq_t));
+    val_array = mem_resize(seq_t, val_array, val_cap);
+    next_cand = mem_resize(seq_t, next_cand, val_cap);
 
     for (size_t i = 0; i < EDGE_HASH_SIZE; ++i)
         edge_keys[i] = EMPTY_KEY;
@@ -72,7 +81,7 @@ static void ensure_seq_cap(size_t needed)
     if (needed <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 128;
     if (new_cap < needed) new_cap = needed;
-    seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, new_cap);
     seq_cap = new_cap;
 }
 
@@ -82,8 +91,8 @@ static void ensure_val_cap(size_t needed)
     if (needed <= val_cap) return;
     size_t new_cap = val_cap ? val_cap * 2 : 128;
     if (new_cap < needed) new_cap = needed;
-    val_array = (seq_t *)realloc(val_array, new_cap * sizeof(seq_t));
-    next_cand = (seq_t *)realloc(next_cand, new_cap * sizeof(seq_t));
+    val_array = mem_resize(seq_t, val_array, new_cap);
+    next_cand = mem_resize(seq_t, next_cand, new_cap);
     val_cap = new_cap;
 }
 

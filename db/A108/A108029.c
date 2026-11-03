@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 4397, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime64
+ * Validated: standard, pass, 71 terms through n = 9342 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/is_prime64.h"
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache for already found terms */
@@ -37,22 +41,22 @@ seq_t a(idx_t n) {
     /* Allocate or grow cache if needed */
     if (cache == NULL) {
         cap = 1024;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
     }
     while (cached < n) {
         /* Grow cache when full */
         if (cached >= cap) {
             size_t new_cap = cap * 2;
-            seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
-            memcpy(tmp, cache, cached * sizeof(seq_t));
-            free(cache);
+            seq_t *tmp = mem_new(seq_t, new_cap);
+            mem_copy(tmp, cache, cached * sizeof(seq_t));
+            mem_free(cache);
             cache = tmp;
             cap = new_cap;
         }
 
         /* Test current k */
         uint64_t candidate = (149ULL * last_k) + 151ULL;
-        if (is_prime64(candidate)) {
+        if (is_prime_u64(candidate)) {
             cache[cached++] = (seq_t)last_k;
         }
         last_k++;

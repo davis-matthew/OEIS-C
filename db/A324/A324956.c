@@ -12,7 +12,8 @@
  *            a(1)=1
  * Range:     u8 n <= 11, u16 n <= 27, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   seq_alloc_new_array
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,7 +37,13 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/seq_alloc_new_array.h"   /* seq_t allocation helper */
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
 
 static seq_t **row_cache      = NULL;   /* Cached rows, indexed by r (1‑based)   */
 static size_t *row_lengths    = NULL;   /* Length of each cached row             */
@@ -86,7 +93,7 @@ static seq_t *compute_row(idx_t n)
     }
 
     /* free temporary array; cur will be cached */
-    free(next);
+    mem_free(next);
     /* truncate cur to its actual length */
     if (row_lengths[0] != 0 && row_lengths[0] < max_len)
         cur = seq_alloc_new_array(max_len);          /* just for safety, not used */

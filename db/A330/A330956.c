@@ -12,13 +12,28 @@
  *            y)
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   dfs_bits
+ * Validated: partial, pass, 87 terms through n = 86 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/dfs_bits.h"
+
+static void dfs_bits(const uint8_t *bits, idx_t pos, idx_t L,
+                     seq_t x, seq_t y, seq_t *best)
+{
+    if (pos == L) {
+        seq_t m = (x < y) ? x : y;
+        if (m > *best) *best = m;
+        return;
+    }
+    uint8_t b = bits[pos];
+    /* assign current bit to x */
+    dfs_bits(bits, pos + 1, L, (x << 1) + b, y, best);
+    /* assign current bit to y */
+    dfs_bits(bits, pos + 1, L, x, (y << 1) + b, best);
+}
 
 seq_t a(idx_t n)
 {

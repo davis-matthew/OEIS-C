@@ -10,20 +10,22 @@
  *            x^(4k))^2)
  * Range:     i8 n <= 73, i16 n <= 73, i32 n <= 73, i64 n <= 73, i128 n <= 73,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 74 terms through n = 73 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate vector of coefficients 0..n, initialized to 0 */
     seq_t *coeff;
 #ifdef __cplusplus
-    coeff = reinterpret_cast<seq_t*>(calloc((size_t)n + 1, sizeof(seq_t)));
+    coeff = mem_new(seq_t, (size_t)n + 1);
 #else
     coeff = (seq_t*)calloc((size_t)n + 1, sizeof(seq_t));
 #endif
@@ -73,6 +75,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = coeff[n];
-    free(coeff);
+    mem_free(coeff);
     return result;
 }

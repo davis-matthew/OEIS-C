@@ -8,12 +8,14 @@
  *            18 : 41*(n/2) + 90)) / 18
  * Range:     u8 n <= 4, u16 n <= 13, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -21,7 +23,7 @@ seq_t a(idx_t n)
     idx_t k = n >> 1;
 
     /* binomial part */
-    seq_t bin = binom(k + 7, 7);          /* binomial(k+7, 7) */
+    seq_t bin = binomial(k + 7, 7);          /* binomial(k+7, 7) */
 
     /* polynomial part */
     seq_t kseq = (seq_t)k;

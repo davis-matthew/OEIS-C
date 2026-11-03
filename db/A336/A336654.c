@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 94, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, gcd, is_squarefree, seq_pow
+ * Validated: standard, pass, 80 terms through n = 9563 (2026-11-03)
+ * Helpers:   factor_u64, gcd, ipow_idx, is_squarefree, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,10 +21,11 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/gcd.h"          /* seq_t gcd(seq_t a, seq_t b); */
-#include "../utils/is_squarefree.h"/* bool is_squarefree(seq_t x);   */
-#include "../utils/seq_pow.h"      /* seq_t seq_pow(seq_t base, idx_t exp); */
-#include "../utils/factor_u64.h"   /* void factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt); */
+#include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/is_squarefree.h"
+#include "../utils/mem.h"
 
 /* --------------------  static cache data  -------------------------- */
 static uint64_t          next_candidate = 1;   /* next integer to test          */
@@ -58,9 +60,9 @@ static seq_t lambda_from_uint64(uint64_t n)
             else if (e == 2ULL)
                 part = (seq_t)2;
             else
-                part = seq_pow((seq_t)2, (idx_t)(e - 2));  /* 2^(e-2) */
+                part = ipow_idx((seq_t)2, (idx_t)(e - 2));  /* 2^(e-2) */
         } else {
-            part = seq_pow((seq_t)p, (idx_t)(e - 1));
+            part = ipow_idx((seq_t)p, (idx_t)(e - 1));
             part = part * (seq_t)(p - 1);                 /* p^(e-1)*(p-1) */
         }
 
@@ -83,7 +85,7 @@ static void ensure_terms(idx_t n)
         if (is_squarefree(lam)) {
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(term_cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, term_cache, new_cap);
                 if (!tmp) exit(1);                      /* allocation error   */
                 term_cache = tmp;
                 cache_cap   = new_cap;

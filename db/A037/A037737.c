@@ -9,12 +9,14 @@
  *            pattern = {2, 1, 3, 0} (periodic of length 4)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 32, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 989 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* for malloc, realloc, free */
+#include "../utils/mem.h"
 
 static const seq_t pattern[4] = { (seq_t)2, (seq_t)1, (seq_t)3, (seq_t)0 };
 
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* Grow cache if necessary */
     if (cache_cap < n)
     {
-        seq_t *tmp = (seq_t *)realloc(cache, n * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, n);
         if (tmp == NULL)                /* allocation failure – unlikely */
             return (seq_t)0;
         cache     = tmp;

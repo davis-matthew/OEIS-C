@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 14, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 201 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are supplied by the build; do not redeclare them. */
 
@@ -90,7 +92,7 @@ seq_t a(idx_t n)
     /* If the requested n is larger than we have computed, extend. */
     if (n > max_n_computed) {
         /* Reallocate cache to hold up to n */
-        seq_t *new_cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
         if (!new_cache) {
             /* Allocation failed – return zero (should not happen) */
             return 0;
@@ -99,7 +101,7 @@ seq_t a(idx_t n)
 
         /* Initialise DP if this is first run */
         if (!init_done) {
-            memset(dp_cur, 0, sizeof(dp_cur));
+            mem_set(dp_cur, 0, sizeof(dp_cur));
             for (int c = 0; c < 64; ++c) {
                 if (val[c][0] != 0) continue;  /* upper-left must be 0 */
                 int mask = 0;
@@ -124,7 +126,7 @@ seq_t a(idx_t n)
 
         /* Extend DP up to row n */
         for (idx_t row = max_n_computed + 1; row <= n; ++row) {
-            memset(dp_next, 0, sizeof(dp_next));
+            mem_set(dp_next, 0, sizeof(dp_next));
 
             for (int p = 0; p < 64; ++p) {
                 for (int u = 0; u < 8; ++u) {
@@ -141,7 +143,7 @@ seq_t a(idx_t n)
 
             /* swap dp_cur and dp_next */
             for (int c = 0; c < 64; ++c) {
-                memcpy(dp_cur[c], dp_next[c], sizeof(dp_cur[c]));
+                mem_copy(dp_cur[c], dp_next[c], sizeof(dp_cur[c]));
             }
 
             /* compute a(row) */

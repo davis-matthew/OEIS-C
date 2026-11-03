@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   has_both_digits
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,25 @@
    The function scans integers until it finds n such numbers. */
 
 #include <stdbool.h>
-#include "../utils/has_both_digits.h"
+
+/* Helper: checks if a sequence number contains at least one 1
+   and one 2 in its base‑3 representation. */
+static bool has_both_digits(seq_t x)
+{
+    bool has1 = false;
+    bool has2 = false;
+    while (x > 0) {
+        int d = (int)(x % 3);
+        if (d == 1)
+            has1 = true;
+        else if (d == 2)
+            has2 = true;
+        if (has1 && has2)
+            return true;
+        x /= 3;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

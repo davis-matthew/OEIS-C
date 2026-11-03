@@ -8,6 +8,7 @@
  *            (multiplicative)
  * Range:     i8 n <= 29, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 81 terms through n = 9772 (2026-11-01)
  * Helpers:   binomial, factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,8 +16,10 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/factor_u64.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/factor_u64.h"
 
 seq_t a(idx_t n) {
     if (n == 1) return 1;

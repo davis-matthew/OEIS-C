@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 5, i16 n <= 48, i32 n <= 48, i64 n <= 48, i128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *sigma_cache = NULL;   /* array of σ(i) for i = 0..N */
 static idx_t  sigma_cached_size = 0; /* current capacity of sigma_cache */
@@ -36,14 +38,14 @@ static void ensure_sigma(idx_t n)
         return;
 
     size_t new_size = needed + 1;
-    seq_t *new_arr = (seq_t*)malloc(new_size * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_size);
     if (!new_arr) {
         /* In a real system you might handle allocation failure more gracefully */
         exit(EXIT_FAILURE);
     }
 
     /* Initialise to 0 */
-    memset(new_arr, 0, new_size * sizeof(seq_t));
+    mem_set(new_arr, 0, new_size * sizeof(seq_t));
 
     /* Simple divisor sieve to compute σ(i) */
     for (size_t d = 1; d <= needed; ++d) {
@@ -53,7 +55,7 @@ static void ensure_sigma(idx_t n)
     }
 
     /* Replace old cache */
-    free(sigma_cache);
+    mem_free(sigma_cache);
     sigma_cache = new_arr;
     sigma_cached_size = new_size;
 }

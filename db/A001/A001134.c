@@ -10,7 +10,8 @@
  *            (mod p) for every prime q | (p-1)/4
  * Range:     u8 n <= 1, u16 n <= 317, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   s_powmod
+ * Validated: standard, pass, 66 terms through n = 989 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,17 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/s_powmod.h"
+
+static uint64_t s_powmod(uint64_t b, uint64_t e, uint64_t m) {
+    uint64_t r = 1 % m;
+    b %= m;
+    while (e) {
+        if (e & 1) r = r * b % m;
+        b = b * b % m;
+        e >>= 1;
+    }
+    return r;
+}
 
 static uint64_t *s_terms = 0;
 static size_t s_count = 0;

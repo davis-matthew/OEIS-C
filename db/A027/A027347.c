@@ -9,12 +9,14 @@
  *            part ≡ 1 (mod 4)
  * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp1 = NULL;   /* partitions with smallest part ≡ 1 (mod 4) */
 static seq_t *dp3 = NULL;   /* partitions with smallest part ≡ 3 (mod 4) */
@@ -23,8 +25,8 @@ static idx_t max_computed = 0;
 /* recompute DP tables up to 'max' */
 static void recompute(idx_t max) {
     /* allocate or resize arrays */
-    dp1 = (seq_t *)realloc(dp1, (max + 1) * sizeof(seq_t));
-    dp3 = (seq_t *)realloc(dp3, (max + 1) * sizeof(seq_t));
+    dp1 = mem_resize(seq_t, dp1, (max + 1));
+    dp3 = mem_resize(seq_t, dp3, (max + 1));
     if (!dp1 || !dp3) {
         abort(); /* out of memory */
     }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 6, u64 n <= 6, u128 n <= 6,
  *            big any n
- * Helpers:   allowed_digits
+ * Validated: full, pass, 6 terms through n = 6 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,20 @@
  * digits belong only to {0,1,2,4,8}. */
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/allowed_digits.h"
+#include "../utils/mem.h"
+
+/* check that all decimal digits of x are in {0,1,2,4,8} */
+static bool allowed_digits(seq_t x)
+{
+    if (x == 0) return true;
+    while (x > 0) {
+        int d = (int)(x % 10);
+        if (d != 0 && d != 1 && d != 2 && d != 4 && d != 8)
+            return false;
+        x /= 10;
+    }
+    return true;
+}
 
 /* cache of found terms */
 static seq_t *term_cache = NULL;
@@ -34,7 +48,7 @@ static void ensure_cap(size_t need)
     if (term_cap >= need) return;
     size_t new_cap = term_cap ? term_cap << 1 : 16;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *new_cache = (seq_t *)realloc(term_cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, term_cache, new_cap);
     if (!new_cache) return; /* allocation failure will be ignored on tests */
     term_cache = new_cache;
     term_cap   = new_cap;

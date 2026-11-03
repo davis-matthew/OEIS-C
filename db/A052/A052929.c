@@ -7,6 +7,7 @@
  * Formula:   a(n) = 3^n + (1 + (-1)^n)/2; a(0)=2, a(1)=3, a(2)=10
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 40, u128 n <= 80,
  *            big any n
+ * Validated: standard, pass, 45 terms through n = 770 (2026-11-01)
  * Helpers:   pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

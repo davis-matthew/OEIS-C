@@ -7,12 +7,14 @@
  * Formula:   a(n) = (n+1)*(n+2)*(n+3)*(n+4)*(7*n^2 + 20*n + 15)/360
  * Range:     u8 none, u16 n <= 10, u32 n <= 75, u64 n <= 1000, u128 n <= 1000,
  *            big any n
- * Helpers:   gcd_seq_local
+ * Validated: standard, pass, 49 terms through n = 906 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/gcd_seq_local.h"
+#include <stdint.h>
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     while (denom > 1) {
         int changed = 0;
         for (int i = 0; i < 5; ++i) {
-            seq_t g = gcd_seq_local(num[i], denom);
+            seq_t g = gcd(num[i], denom);
             if (g > 1) {
                 num[i] /= g;
                 denom /= g;

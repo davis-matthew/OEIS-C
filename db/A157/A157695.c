@@ -10,13 +10,15 @@
  *            of 3)
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static idx_t sieve_limit = 0;          /* largest number that has been sieved */
 static bool *prime_flags = NULL;       /* sieve flags for 0..sieve_limit */
@@ -56,7 +58,7 @@ static void ensure_sieve(idx_t limit)
         if (!prime_flags[v] && v % 3 != 0) {
             if (comps_cnt == comps_cap) {
                 size_t new_cap = comps_cap ? comps_cap * 2 : 1024;
-                seq_t *tmp = (seq_t*)realloc(comps, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, comps, new_cap);
                 if (!tmp) return; /* allocation failure – should not happen */
                 comps = tmp;
                 comps_cap = new_cap;

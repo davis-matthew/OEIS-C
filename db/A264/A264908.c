@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   is_prime_small, pow2
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   is_prime_seq, mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/is_prime_seq.h"
 #include "../utils/pow2.h"
-#include "../utils/is_prime_small.h"
+#include "../utils/mem.h"
 
 /* Comparator for qsort on arrays of seq_t */
 static int seq_cmp(const void *a, const void *b)
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
 
         if (pair_count > 0)
         {
-            temp = (seq_t *)malloc(pair_count * sizeof(seq_t));
+            temp = mem_new(seq_t, pair_count);
             if (!temp) return 0;         /* out‑of‑memory protection */
 
             seq_t pow_i = pow2(i);       /* 2^i  (seq_t type) */
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
                 for (idx_t k = 1; k < j; ++k)
                 {
                     seq_t val = pow_i + pow_j + pow2(k) - (seq_t)1;
-                    if (is_prime_small(val))
+                    if (is_prime_seq(val))
                     {
                         temp[temp_len++] = val;
                     }
@@ -74,7 +76,7 @@ seq_t a(idx_t n)
 
             if (temp_len > 1)
             {
-                qsort(temp, temp_len, sizeof(seq_t), seq_cmp);
+                mem_qsort(temp, temp_len, sizeof(seq_t), seq_cmp);
             }
         }
 
@@ -85,10 +87,10 @@ seq_t a(idx_t n)
             while (new_cap - primes_len < temp_len)
                 new_cap *= 2;
 
-            seq_t *new_ptr = (seq_t *)realloc(primes, new_cap * sizeof(seq_t));
+            seq_t *new_ptr = mem_resize(seq_t, primes, new_cap);
             if (!new_ptr)
             {
-                free(temp);
+                mem_free(temp);
                 return 0; /* allocation failure */
             }
             primes = new_ptr;
@@ -102,7 +104,7 @@ seq_t a(idx_t n)
         }
         primes_len += temp_len;
 
-        free(temp);
+        mem_free(temp);
         next_i = i;
     }
 

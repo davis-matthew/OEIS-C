@@ -8,12 +8,22 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 2500, u32 n <= 2500, u64 n <= 2500,
  *            u128 n <= 2500, big any n
- * Helpers:   binom_rem
+ * Validated: standard, pass, 62 terms through n = 2147 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom_rem.h"
+/* binomial coefficient C(n, k) for k = 0..3 */
+static seq_t binom_rem(idx_t n, idx_t k)
+{
+    if (k > n)               return 0;
+    if (k == 0)              return 1;
+    if (k == 1)              return (seq_t)n;
+    if (k == 2)              return (seq_t)n * (n - 1) / 2;
+    /* k == 3 */
+    return (seq_t)n * (n - 1) * (n - 2) / 6;
+}
 /* Computation: nth positive integer whose base‑4 representation
    contains no 0's and exactly three 3's (in increasing order). */
 

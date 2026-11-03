@@ -9,7 +9,8 @@
  *            of parts)
  * Range:     u8 n <= 84, u16 n <= 84, u32 n <= 84, u64 n <= 84, u128 n <= 84,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 85 terms through n = 84 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     size_t rows = (size_t)kmax + 1;
     size_t cols = (size_t)n + 1;
     size_t size = rows * cols;
-    seq_t *dp = (seq_t *)malloc(size * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, size);
     if (!dp) return 0;  /* allocation failure, return 0 */
 
     /* Initialize row 0: only partition of 0 */
@@ -68,6 +70,6 @@ seq_t a(idx_t n)
         result += dp[k * cols + m];
     }
 
-    free(dp);
+    mem_free(dp);
     return result;
 }

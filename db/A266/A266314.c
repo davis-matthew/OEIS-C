@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 54, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow, floor_sqrt
+ * Validated: standard, pass, 87 terms through n = 9893 (2026-11-01)
+ * Helpers:   ipow, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,26 @@
  * x exceeds 10000 (in which case 0 is returned). */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
-#include "../utils/floor_sqrt.h"
+#include "../utils/ipow.h"
+#include "../utils/ipow_i32.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* seq_t and idx_t types are provided by the build environment. */
 seq_t a(idx_t n)
@@ -30,7 +49,7 @@ seq_t a(idx_t n)
     /* Outer loop over candidate x */
     for (idx_t x = 1; x <= 10000; ++x) {
         /* m = n + x^7, using arbitrary‑precision arithmetic */
-        seq_t powx = big_pow((seq_t)x, (seq_t)7);
+        seq_t powx = ipow((seq_t)x, (seq_t)7);
         seq_t m = (seq_t)n + powx;
 
         /* Attempt to find positive y,z such that y^2 + z^2 = m */

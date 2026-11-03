@@ -11,11 +11,13 @@
  *            a(12) = 506298625, a(13) = 931299201, a(14) =...
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 15, u64 n <= 262,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 40 terms through n = 9688 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 /* Compute C(n,8) with reduction to avoid overflow */

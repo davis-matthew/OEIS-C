@@ -7,7 +7,8 @@
  * Formula:   a(n) are the primes congruent to 1,2,3,5 (mod 19)
  * Range:     u8 n <= 15, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   isPrimeTrial
+ * Validated: standard, pass, 65 terms through n = 966 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/isPrimeTrial.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* cached sequence values */
 static seq_t *cache      = NULL;
@@ -31,7 +33,7 @@ static void grow_cache(size_t needed)
     if (needed <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap << 1 : 16;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) return;           /* allocation failed – keep old cache */
     cache = tmp;
     cache_cap = new_cap;
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     /* Generate terms until the cache holds at least n elements */
     while (cache_len < (size_t)n) {
         /* Find next prime ≥ current */
-        while (!isPrimeTrial((seq_t)current)) current++;
+        while (!is_prime_seq((seq_t)current)) current++;
 
         /* Accept prime if its residue modulo 19 is 1,2,3,5 */
         uint32_t r = (uint32_t)(current % 19);

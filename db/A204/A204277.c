@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 7, u32 n <= 19, u64 n <= 41, u128 n <= 85,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
    a(15)=84592247, a(16)=205786143.  */
 
 #include <stdlib.h>  /* malloc, realloc, free */
+#include "../utils/mem.h"
 
 /* static cache for computed terms; grows as needed */
 static seq_t *cache = NULL;          /* 1‑based array: cache[n] = a(n) */
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     if (n > max_cached) {
         /* grow cache */
         idx_t new_size = n + 1;            /* 1‑based */
-        seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (!new_cache) abort();          /* out of memory */
         cache = new_cache;
 

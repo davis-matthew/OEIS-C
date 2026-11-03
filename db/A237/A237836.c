@@ -7,7 +7,8 @@
  * Formula:   a(n) = A001175(n^2) – Pisano period of n²
  * Range:     u8 n <= 9, u16 n <= 174, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   fib_pair_u64, gcd
+ * Validated: standard, pass, 66 terms through n = 9512 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,32 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/gcd.h"
-#include "../utils/fib_pair_u64.h"
+
+/* -------------------------------------------------------------------------- */
+static void fib_pair_u64(uint64_t n, uint64_t mod, uint64_t *fn, uint64_t *fn1)
+{
+    if (n == 0) {
+        *fn  = 0;
+        *fn1 = 1;
+        return;
+    }
+    uint64_t a, b;
+    fib_pair_u64(n >> 1, mod, &a, &b);
+
+    /* c = F(2k), d = F(2k+1) */
+    uint64_t two_b_mod = b * 2;
+    if (two_b_mod >= mod) two_b_mod -= mod;
+    uint64_t c = (unsigned __int128)a * ((two_b_mod + mod - a) % mod) % mod;
+    uint64_t d = ((unsigned __int128)a * a + (unsigned __int128)b * b) % mod;
+
+    if (n & 1) {
+        *fn  = d;
+        *fn1 = (c + d) % mod;
+    } else {
+        *fn  = c;
+        *fn1 = d;
+    }
+}
 
 /* compare two uint64_t values for qsort */
 static int cmp_uint64(const void *a, const void *b)

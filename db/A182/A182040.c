@@ -9,9 +9,10 @@
  * Formula:   Enumerates all 6‑digit integers whose decimal representation
  *            contains exactly three distinct digits, one occurring once, one
  *            twice, and one three times (leading zero is forbidden)
- * Range:     u8 none, u16 none, u32 n <= 9501, u64 n <= 9501, u128 n <= 9501,
- *            big any n
- * Helpers:   none
+ * Range:     u8 none, u16 none, u32 n <= 38880, u64 n <= 38880,
+ *            u128 n <= 38880, big any n
+ * Validated: full, pass, 38880 terms through n = 38880 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Static cache of all terms (38880 terms, < 40000).  The array is
    large enough for every possible value of n that the function must
@@ -127,7 +129,7 @@ static void build_cache(void)
     }
 
     /* Sort the list in ascending order. */
-    qsort(cache, cache_size, sizeof(seq_t), seq_cmp);
+    mem_qsort(cache, cache_size, sizeof(seq_t), seq_cmp);
     cache_built = true;
 }
 

@@ -7,8 +7,9 @@
  * Keywords:  sign
  * Formula:   a(n)=1 if n is a perfect square, a(n)=-1 if n=6*k^2 for some k,
  *            a(n)=0 otherwise
- * Range:     i8 n <= 9776, i16 n <= 9776, i32 n <= 9776, i64 n <= 9776,
- *            i128 n <= 9776, big any n
+ * Range:     i8 n <= 65537, i16 n <= 65537, i32 n <= 65537, i64 n <= 65537,
+ *            i128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9776 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

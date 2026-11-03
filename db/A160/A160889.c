@@ -8,15 +8,18 @@
  *            definition)
  * Range:     u8 n <= 11, u16 n <= 149, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   factor_u64, mul_pow_seq_uint
+ * Validated: standard, pass, 65 terms through n = 4884 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/mul_pow_seq_uint.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +43,7 @@ seq_t a(idx_t n)
         if (e > 1)
         {
             idx_t exp = (idx_t)(2 * (e - 1));
-            seq_t powp = mul_pow_seq_uint((seq_t)p, exp);
+            seq_t powp = ipow_idx((seq_t)p, exp);
             part *= powp;
         }
         result *= part;

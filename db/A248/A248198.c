@@ -7,16 +7,41 @@
  * Formula:   a(n) = ceil(n^3 * PI / 2)
  * Range:     u8 none, u16 n <= 1, u32 none, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   digits_of, mul_small, pow10
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-01)
+ * Helpers:   num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Uses a pre‑computed string of PI digits. */
 
-#include "../utils/mul_small.h"
-#include "../utils/pow10.h"
-#include "../utils/digits_of.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/num_digits_idx.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 static const char *pi_digits = 
 "31415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253521170679805645257491928"
@@ -41,7 +66,7 @@ seq_t a(idx_t n)
         return 0;
 
     /* Determine number of digits in n */
-    size_t d = (size_t)digits_of(n);
+    size_t d = (size_t)num_digits_idx(n);
 
     /* Choose k large enough so that 10^k > n^3 / 2.          */
     /* For n up to 10^5 (d ≤ 5), k = 3*d + 7 is far more than enough. */

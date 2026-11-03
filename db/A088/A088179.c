@@ -9,15 +9,18 @@
  *            squarefree with an even number of prime factors)
  * Range:     u8 n <= 12, u16 n <= 1233, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mobius, next_prime
+ * Validated: standard, pass, 67 terms through n = 8728 (2026-11-03)
+ * Helpers:   mem, mobius, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/mobius.h"
 #include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +39,7 @@ seq_t a(idx_t n)
         /* initialise cache on first call */
         if (special_count == 0) {
             special_cap = 16;
-            special = (seq_t *)malloc(special_cap * sizeof(seq_t));
+            special = mem_new(seq_t, special_cap);
             if (!special) return 0; /* allocation failure */
             /* handle the first prime 2 */
             special[0] = 2;
@@ -53,9 +56,8 @@ seq_t a(idx_t n)
                 /* grow array if necessary */
                 if (special_count == special_cap) {
                     special_cap <<= 1;
-                    seq_t *tmp = (seq_t *)realloc(special,
-                        special_cap * sizeof(seq_t));
-                    if (!tmp) { free(special); return 0; }
+                    seq_t *tmp = mem_resize(seq_t, special, special_cap);
+                    if (!tmp) { mem_free(special); return 0; }
                     special = tmp;
                 }
                 special[special_count++] = (seq_t)last_prime;

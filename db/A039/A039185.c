@@ -10,13 +10,30 @@
  *            a(3)=2, …
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   same_3_and_7
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/same_3_and_7.h"
+
+/* Check whether a base‑11 representation of `val` has the same number of
+ * digits 3 and 7.  The function works for any integer type that
+ * supports the usual arithmetic operators with unsigned integer literals. */
+static bool same_3_and_7(seq_t val)
+{
+    int c3 = 0, c7 = 0;
+    if (val == 0) return true;          /* 0 has 0 of each digit */
+    seq_t v = val;
+    while (v != 0) {
+        int d = (int)(v % 11);
+        if (d == 3) ++c3;
+        else if (d == 7) ++c7;
+        v /= 11;
+    }
+    return c3 == c7;
+}
 
 seq_t a(idx_t n)
 {

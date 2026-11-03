@@ -9,7 +9,8 @@
  *            to a(n‑1)*a(n‑2)
  * Range:     u8 n <= 10, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   seq_gcd
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 /*  Requirements:  see problem statement */
 
 #include <stdlib.h>
-#include "../utils/seq_gcd.h"   /* seq_gcd(seq_t a, seq_t b) */
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t find_nth_coprime(seq_t D, size_t rank)
 {
@@ -25,7 +27,7 @@ static seq_t find_nth_coprime(seq_t D, size_t rank)
     size_t cnt = 0;
 
     while (1) {
-        if (seq_gcd(x, D) == (seq_t)1) {
+        if (gcd(x, D) == (seq_t)1) {
             ++cnt;
             if (cnt == rank)
                 return x;
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (cache == NULL) {
         cache_cap = 64;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) {
             exit(1);
         }
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
         /* extend cache if necessary */
         if (cache_len >= cache_cap) {
             cache_cap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
             if (tmp == NULL) {
                 exit(1);
             }

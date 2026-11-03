@@ -8,12 +8,14 @@
  *            a(1)=2, a(2)=3, a(3)=5, a(4)=7, a(5)=8, a(6)=9, a(7)=12
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached sequence values */
 static seq_t *cache = NULL;      /* dynamic array holding a(0)...a(n) */
@@ -28,10 +30,10 @@ static void ensure_cache(idx_t n)
     /* Ensure cache has space for indices 0..n */
     if (cache == NULL) {
         cache_size = n + 1;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
     } else if (cache_size <= n) {
         cache_size = n + 1;
-        cache = (seq_t *)realloc(cache, cache_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_size);
     }
     /* Newly allocated elements are uninitialized; they will be set later */
 }

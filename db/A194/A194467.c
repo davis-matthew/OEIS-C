@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   i_sqrt_uint64
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,7 +31,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/i_sqrt_uint64.h"
+#include "../utils/isqrt_u64.h"
 
 /*
  * a(idx_t n)   –   returns the n-th term of A194467
@@ -52,7 +53,7 @@ seq_t a(idx_t n)
         ++m;
 
         /* floor_sqrt(3*m*m) gives ⌊k√3⌋ for k=m */
-        uint64_t floor_k = i_sqrt_uint64(3 * m * m);
+        uint64_t floor_k = isqrt_u64(3 * m * m);
 
         /* test the condition a_k ≥ 1−c
            (3m+1)² ≥ 3·(floor_k+1)²  =>  bad index */

@@ -7,13 +7,15 @@
  * Formula:   a(n) = least k > 0 such that sigma(n) divides sigma(n + k)
  * Range:     u8 n <= 63, u16 n <= 9999, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 8298 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static cache for sigma values */
 static seq_t *sigma = NULL;      /* array of divisor sums */
@@ -22,7 +24,7 @@ static idx_t  sigma_limit = 0;   /* current size of sigma array (max index compu
 /* recompute sigma[1..new_limit] from scratch */
 static void recompute_sigma(idx_t new_limit)
 {
-    seq_t *new_arr = (seq_t *)malloc((new_limit + 1) * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, (new_limit + 1));
     for (idx_t i = 0; i <= new_limit; ++i)
         new_arr[i] = 0;          /* zero initialize */
 
@@ -32,7 +34,7 @@ static void recompute_sigma(idx_t new_limit)
             new_arr[j] += inc;
     }
 
-    free(sigma);
+    mem_free(sigma);
     sigma = new_arr;
     sigma_limit = new_limit;
 }

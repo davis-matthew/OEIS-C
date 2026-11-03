@@ -7,7 +7,8 @@
  * Formula:   number with exactly two distinct base‑6 digits (OEIS A031951)
  * Range:     u8 n <= 105, u16 n <= 1531, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 9345 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* comparison routine for qsort */
 static int seq_compare(const void *p1, const void *p2)
@@ -35,7 +37,7 @@ static void append_value(seq_t v)
 {
     if (values_size == values_cap) {
         values_cap = (values_cap == 0) ? 16 : values_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(values, values_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, values, values_cap);
         if (!tmp) exit(EXIT_FAILURE);
         values = tmp;
     }
@@ -90,7 +92,7 @@ seq_t a(idx_t n)
     max_len_generated = L;
 
     /* keep the array sorted */
-    qsort(values, values_size, sizeof(seq_t), seq_compare);
+    mem_qsort(values, values_size, sizeof(seq_t), seq_compare);
 
     return values[n - 1];
 }

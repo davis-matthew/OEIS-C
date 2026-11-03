@@ -7,7 +7,8 @@
  * Formula:   a(n) = the n-th integer m (m ≥ 0) with 10·m + 1 composite
  * Range:     u8 n <= 13, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 82 terms through n = 1000 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,8 @@
 /* OEIS offset 1: a(1) = 0 */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,18 +34,18 @@ seq_t a(idx_t n)
     /* Initialise the cache on the first call. */
     if (cache_cap == 0) {
         cache_cap = 128;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* Grow the cache until it contains at least n elements. */
     while (cache_sz < (size_t)n) {
         /* Determine if 10*next_candidate + 1 is composite.  1 is treated as composite. */
         idx_t test_num = 10ULL * next_candidate + 1ULL;
-        if (!is_prime_small(test_num)) {
+        if (!is_prime_seq(test_num)) {
             /* Store the candidate in the cache. */
             if (cache_sz == cache_cap) {
                 cache_cap *= 2;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_sz] = (seq_t)next_candidate;
             cache_sz++;

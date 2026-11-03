@@ -5,15 +5,20 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = gcd(n, 2^n + 1)
- * Range:     u8 n <= 233, u16 n <= 9825, u32 n <= 9825, u64 n <= 9825,
- *            u128 n <= 9825, big any n
- * Helpers:   gcd, mod_pow
+ * Range:     u8 n <= 233, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 117 terms through n = 9825 (2026-11-01)
+ * Helpers:   gcd, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
 #include "../utils/gcd.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +32,7 @@ seq_t a(idx_t n)
     seq_t n_seq = (seq_t)n;
 
     /* Compute 2^n mod n. */
-    seq_t pow_mod = mod_pow((seq_t)2, n, n_seq);
+    seq_t pow_mod = powmod((seq_t)2, n, n_seq);
 
     /* Compute (2^n + 1) mod n. */
     seq_t x = (pow_mod + (seq_t)1) % n_seq;

@@ -12,14 +12,15 @@
  *            7,13,19,37,43,67,79,97,103,109,127,139,163,169,187,193
  * Range:     u8 n <= 16, u16 n <= 16, u32 n <= 16, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   gcd_int
+ * Validated: full, pass, 16 terms through n = 16 (2026-11-02)
+ * Helpers:   gcd_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/gcd_int.h"
+#include "../utils/gcd_i32.h"
 
 seq_t a(idx_t n) {
     static seq_t residues[16];
@@ -31,9 +32,9 @@ seq_t a(idx_t n) {
                 residues[count++] = 7;
                 continue;
             }
-            if (gcd_int(r, 210) == 1) {
+            if (gcd_i32(r, 210) == 1) {
                 int r4 = (r + 4) % 210;
-                if (gcd_int(r4, 210) == 1) {
+                if (gcd_i32(r4, 210) == 1) {
                     residues[count++] = (seq_t)r;
                 }
             }

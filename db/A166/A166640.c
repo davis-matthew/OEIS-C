@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 47, u32 n <= 1535, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 64 terms through n = 9987 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -25,6 +26,8 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 static inline seq_t pow_seq(seq_t base, unsigned int exp)

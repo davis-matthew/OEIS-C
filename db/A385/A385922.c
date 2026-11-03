@@ -8,13 +8,15 @@
  *            * binomial(n-1,k) * a(k) * a(n-1-k), with a(0) = 1
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 6, u64 n <= 9, u128 n <= 13,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Internal cache for computed terms. */
 static seq_t *seq_cache = NULL;
@@ -27,7 +29,7 @@ static void ensure_cache(idx_t n)
     if (seq_cache_cap <= (size_t)n) {
         size_t new_cap = seq_cache_cap ? seq_cache_cap * 2 : 1;
         while (new_cap <= (size_t)n) new_cap *= 2;
-        seq_t *new_buf = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *new_buf = mem_resize(seq_t, seq_cache, new_cap);
         if (!new_buf) abort();
         seq_cache = new_buf;
         seq_cache_cap = new_cap;

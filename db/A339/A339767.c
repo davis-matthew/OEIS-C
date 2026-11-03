@@ -9,15 +9,18 @@
  * Formula:   a(n) = 2*gpf(n) - Sum_{p|n} p*m(p)
  * Range:     i8 n <= 73, i16 n <= 73, i32 n <= 73, i64 n <= 73, i128 n <= 73,
  *            big any n
- * Helpers:   factor_u64, gpf
+ * Validated: partial, pass, 72 terms through n = 73 (2026-11-01)
+ * Helpers:   factor_u64, largest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/gpf.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/largest_prime_factor.h"
 
 seq_t a(idx_t n)
 {
@@ -39,6 +42,6 @@ seq_t a(idx_t n)
     }
 
     /* Compute the result 2*gpf(x) - sum. */
-    seq_t g = (seq_t)gpf(x);
+    seq_t g = (seq_t)largest_prime_factor(x);
     return 2 * g - sum;
 }

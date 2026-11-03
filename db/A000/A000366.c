@@ -11,13 +11,18 @@
  *            a weighted Motzkin/Dyck path count; a(1) = 1
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 11, u64 n <= 17, u128 n <= 26,
  *            big any n
- * Helpers:   alpha
+ * Validated: standard, pass, 37 terms through n = 97 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/alpha.h"
+
+static seq_t alpha(idx_t h) {
+    idx_t k = (h + 1) / 2;
+    return (seq_t)(k * (k + 1) / 2);
+}
 
 #define A366_CAP 10050
 

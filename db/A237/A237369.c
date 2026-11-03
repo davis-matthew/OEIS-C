@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 4, u32 n <= 12, u64 n <= 27, u128 n <= 57,
  *            big any n
- * Helpers:   absdiff
+ * Validated: standard, pass, 36 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include "../utils/absdiff.h"
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* ---------------  Transfer function  --------------- */
+static inline int absdiff(int a, int b)
+{
+    return a > b ? a - b : b - a;
+}
 
 #define ROWS   3            /* number of columns */
 #define V      3            /* possible values 0,1,2 */
@@ -109,7 +117,7 @@ seq_t a(idx_t n)
     /* DP arrays */
     static seq_t dp[STATES];
     static seq_t newdp[STATES];
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
 
     /* initialise with the first two rows (rows 0 and 1) */
     for (int r0 = 0; r0 < STATE_ROWS(V, ROWS); ++r0) {
@@ -124,7 +132,7 @@ seq_t a(idx_t n)
 
     /* number of rows is n+1; the first pair already used rows 0,1 */
     for (idx_t step = 2; step <= n; ++step) {
-        memset(newdp, 0, sizeof(newdp));
+        mem_set(newdp, 0, sizeof(newdp));
         for (int s = 0; s < STATES; ++s) {
             seq_t cnt = dp[s];
             if (cnt == 0) continue;

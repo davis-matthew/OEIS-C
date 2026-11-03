@@ -7,7 +7,8 @@
  * Formula:   a(n) = π(λ(n))
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   build_primes_upto, compute_pi, floor_isqrt_u64, gcd
+ * Validated: partial, pass, 80 terms through n = 80 (2026-11-01)
+ * Helpers:   build_primes_upto, gcd, isqrt, prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,10 +18,11 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/floor_isqrt_u64.h"
 #include "../utils/gcd.h"
-#include "../utils/compute_pi.h"
+#include "../utils/isqrt.h"
+#include "../utils/prime_pi.h"
 
 static uint64_t *prime_cache = NULL;   /* primes up to current limit   */
 static size_t   prime_cnt   = 0;        /* number of cached primes      */
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
 
     /* ----- compute λ(n) ----- */
     uint64_t nn     = (uint64_t)n;
-    uint64_t sqrt_n = floor_isqrt_u64(nn);
+    uint64_t sqrt_n = isqrt(nn);
     ensure_primes(sqrt_n + 1);        /* primes up to √n are enough */
 
     uint64_t m     = nn;
@@ -96,5 +98,5 @@ seq_t a(idx_t n)
     }
 
     /* ----- count primes ≤ λ(n) ----- */
-    return compute_pi((idx_t)lam);
+    return prime_pi((idx_t)lam);
 }

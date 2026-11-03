@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 14,
  *            big any n
- * Helpers:   N_value
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,16 @@
  */
 
 #include <stddef.h>   /* for size_t, idx_t etc. */
-#include "../utils/N_value.h"
+
+/* Value of the numerator N(n) in the generating function */
+static seq_t N_value(idx_t n)
+{
+    if (n == 0 || n == 49)
+        return (seq_t)1;
+    if (n >= 1 && n <= 48)
+        return (seq_t)2;
+    return (seq_t)0;
+}
 
 static seq_t cache[10001];
 static idx_t max_cached = 0;

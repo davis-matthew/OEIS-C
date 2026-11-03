@@ -7,13 +7,15 @@
  * Formula:   a(n) = (max prime factor)^(max exponent among prime factors)
  * Range:     u8 n <= 55, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     if (n <= 1) return 1;
@@ -52,5 +54,5 @@ seq_t a(idx_t n) {
         if (1 > maxExp) maxExp = 1;
     }
 
-    return big_pow((seq_t)maxPrime, (seq_t)maxExp);
+    return ipow((seq_t)maxPrime, (seq_t)maxExp);
 }

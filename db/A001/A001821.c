@@ -10,13 +10,15 @@
  *            a(3) = 44473
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 5, u64 n <= 10, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 83 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;
 static idx_t memo_len = 0;
@@ -25,8 +27,8 @@ static idx_t memo_computed = 0;
 static void init_memo(void) {
     if (memo == NULL) {
         memo_len = 100;
-        memo = (seq_t *)malloc(memo_len * sizeof(seq_t));
-        memset(memo, 0, memo_len * sizeof(seq_t));
+        memo = mem_new(seq_t, memo_len);
+        mem_set(memo, 0, memo_len * sizeof(seq_t));
         
         memo[0] = 1;
         memo[1] = 30;
@@ -44,11 +46,11 @@ static void ensure_computed(idx_t n) {
     if (n >= memo_len) {
         idx_t newlen = memo_len * 2;
         while (newlen <= n) newlen *= 2;
-        seq_t *newmemo = (seq_t *)malloc(newlen * sizeof(seq_t));
-        memcpy(newmemo, memo, memo_len * sizeof(seq_t));
-        free(memo);
+        seq_t *newmemo = mem_new(seq_t, newlen);
+        mem_copy(newmemo, memo, memo_len * sizeof(seq_t));
+        mem_free(memo);
         memo = newmemo;
-        memset(memo + memo_len, 0, (newlen - memo_len) * sizeof(seq_t));
+        mem_set(memo + memo_len, 0, (newlen - memo_len) * sizeof(seq_t));
         memo_len = newlen;
     }
     

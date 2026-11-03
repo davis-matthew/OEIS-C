@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 101, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 9977 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* Helper to compute integer floor of sqrt(n).  Works for all n that
@@ -73,7 +75,7 @@ static void build_terms(void)
 
     /* Allocate initial capacity for the list of terms. */
     const size_t INIT_CAP = 16384U;
-    seq_t *terms = (seq_t *)malloc(INIT_CAP * sizeof(seq_t));
+    seq_t *terms = mem_new(seq_t, INIT_CAP);
     size_t cap   = INIT_CAP;
     size_t len   = 0;
 
@@ -82,7 +84,7 @@ static void build_terms(void)
         if (cnt[s] >= 6) {
             if (len == cap) {                  /* grow if necessary   */
                 cap <<= 1;
-                terms = (seq_t *)realloc(terms, cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, cap);
                 if (!terms) { free(cnt); return; }
             }
             terms[len++] = (seq_t)s;

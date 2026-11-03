@@ -10,15 +10,17 @@
  *            triangular(r-1). The entry is 0 if gcd(r,k)≠1
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   _smallest_prime_factor, gcd_idx_t
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
+ * Helpers:   gcd_idx, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/gcd_idx_t.h"
-#include "../utils/_smallest_prime_factor.h"
+#include <stddef.h>
+#include "../utils/gcd_idx.h"
+#include "../utils/smallest_prime_factor.h"
 
 /* Count integers 1 ≤ m ≤ M that are coprime to n
    given n's distinct prime factors in 'primes' of length np. */
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
     idx_t k = n - prev_tri;          /* column index (1‑based) */
 
     /* If gcd(r,k) ≠ 1, the entry is 0 */
-    if (gcd_idx_t(r, k) != 1)
+    if (gcd_idx(r, k) != 1)
         return (seq_t)0;
 
     /* Factor r into distinct prime factors */
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
     size_t np = 0;
     uint64_t x = r;
     while (x > 1) {
-        uint64_t p = _smallest_prime_factor(x);
+        uint64_t p = smallest_prime_factor(x);
         prime_buf[np++] = p;
         while (x % p == 0)
             x /= p;

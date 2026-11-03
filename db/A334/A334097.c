@@ -11,8 +11,9 @@
  *            sequence is totally additive: a(1) = 0, a(2) = 1, a(p) = 1 +
  *            a((p + 1) / 2) for odd primes p, a(m·n) = a(m) + a(n) for m, n >
  *            1 Thus a(n) can be computed by prime‑factoris...
- * Range:     u8 n <= 9858, u16 n <= 9858, u32 n <= 9858, u64 n <= 9858,
- *            u128 n <= 9858, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9858 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

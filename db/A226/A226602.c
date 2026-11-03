@@ -7,8 +7,9 @@
  * Keywords:  nonn, mult
  * Formula:   a(n) = 1 for n=0; otherwise a(n) = ∏_{p^e‖n} 3*e , where the
  *            product is over the distinct prime factors of n
- * Range:     u8 n <= 1259, u16 n <= 9610, u32 n <= 9610, u64 n <= 9610,
- *            u128 n <= 9610, big any n
+ * Range:     u8 n <= 1259, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 93 terms through n = 9610 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

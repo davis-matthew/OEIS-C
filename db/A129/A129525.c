@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 36, u16 n <= 40, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* initialise cache once */
     if (len == 0) {
         /* Allocate more space than needed; we will fill only `len` entries. */
-        cache = (seq_t*)malloc((MAX_K + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (MAX_K + 1));
         if (!cache) return 0;          /* defensive: out of memory */
 
         size_t count = 0;

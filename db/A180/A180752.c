@@ -9,12 +9,14 @@
  *            a(1)=0, a(2)=1, a(3)=1, a(4)=2, a(5)=3
  * Range:     u8 n <= 10, u16 n <= 17, u32 n <= 31, u64 n <= 59, u128 n <= 99,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 95 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;            /* 0‑based: cache[0] = a(1) */
 static idx_t  cache_size = 0;          /* number of allocated slots       */
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
 
     /* Ensure the cache is large enough. */
     if (cache_size < n) {
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)n * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)n);
         if (!tmp) return 0;           /* allocation failed */
         cache = tmp;
         cache_size = n;

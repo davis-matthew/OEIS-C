@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 35, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Heap node storing the next marked position from a particular a(k)
    and the current triangular index. */
@@ -40,8 +42,7 @@ static void heap_push(seq_t pos, idx_t k)
 {
     if (heap_sz == heap_cap) {
         size_t newcap = heap_cap ? heap_cap << 1 : 16;
-        struct HeapNode *tmp = (struct HeapNode *)
-            realloc(heap, newcap * sizeof *tmp);
+        struct HeapNode *tmp = mem_resize(struct HeapNode, heap, (newcap * sizeof *tmp) / sizeof(struct HeapNode));
         if (!tmp) exit(EXIT_FAILURE);
         heap = tmp;
         heap_cap = newcap;
@@ -94,7 +95,7 @@ static void seq_push(seq_t val)
 {
     if (seq_len == seq_cap) {
         size_t newcap = seq_cap ? seq_cap << 1 : 16;
-        seq_t *tmp = (seq_t *)realloc(seq, newcap * sizeof *tmp);
+        seq_t *tmp = mem_resize(seq_t, seq, (newcap * sizeof *tmp) / sizeof(seq_t));
         if (!tmp) exit(EXIT_FAILURE);
         seq = tmp;
         seq_cap = newcap;

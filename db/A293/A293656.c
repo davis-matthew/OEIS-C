@@ -7,6 +7,7 @@
  * Formula:   a(n) = binomial(n+1,2) * n! / n!!
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 17, u64 n <= 30, u128 n <= 54,
  *            big any n
+ * Validated: standard, pass, 42 terms through n = 791 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

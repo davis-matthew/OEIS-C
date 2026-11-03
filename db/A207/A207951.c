@@ -12,7 +12,8 @@
  *            16,256,1232,5929,18172,55696,133812,321489, 662256,1364224,...
  * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 30, u64 n <= 210, u128 n <= 210,
  *            big any n
- * Helpers:   mul_small
+ * Validated: standard, pass, 42 terms through n = 192 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,21 @@
 /* Includes required for the implementation */
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 /* Utility for multiplication by a small unsigned integer */
-#include "../utils/mul_small.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 /* Computes the n-th term of OEIS sequence A207951 */
 seq_t a(idx_t n)
@@ -43,12 +57,12 @@ seq_t a(idx_t n)
     /* Lazily initialize the cache with the first 20 terms. */
     if (cache == NULL) {
         cache_cap = 20;
-        cache = (seq_t *)malloc((size_t)cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)cache_cap);
         if (cache == NULL) {
             /* Allocation failure – return zero (sequence is not computable). */
             return 0;
         }
-        memcpy(cache, init_vals, 20 * sizeof(seq_t));
+        mem_copy(cache, init_vals, 20 * sizeof(seq_t));
         cache_len = 20;
     }
 
@@ -62,7 +76,7 @@ seq_t a(idx_t n)
     /* Ensure that the cache is large enough to hold terms up to n. */
     if (n > cache_cap) {
         cache_cap = n;
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)cache_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)cache_cap);
         if (tmp == NULL) {
             /* Allocation failure – return zero. */
             return 0;

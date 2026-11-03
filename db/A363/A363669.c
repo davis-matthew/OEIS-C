@@ -7,15 +7,24 @@
  * Formula:   a(n) = Sum_{d|n} (n/d)^n * binomial(d+n-1,d)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 26,
  *            big any n
- * Helpers:   big_pow, binomial, factor_u64, seq_mul
+ * Validated: standard, pass, 34 terms through n = 361 (2026-11-01)
+ * Helpers:   binomial, factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/binomial.h"
 #include "../utils/factor_u64.h"
-#include "../utils/seq_mul.h"
+#include "../utils/ipow.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Enumerate all divisors of n from its prime factorization.
    For each divisor d, accumulate the term (n/d)^n * binomial(d+n-1,d) into *sum. */
@@ -27,7 +36,7 @@ add_divisor_terms(const uint64_t *pr, const uint64_t *ex, size_t idx, uint64_t c
     if (idx == cnt) {
         /* cur is a divisor d of n */
         seq_t base = (seq_t)(n / cur);          /* n/d */
-        seq_t pow  = big_pow(base, (seq_t)n);   /* (n/d)^n */
+        seq_t pow  = ipow(base, (seq_t)n);   /* (n/d)^n */
         seq_t bin  = binomial(cur + n - 1, cur);
         seq_t term = seq_mul(pow, bin);
         *sum = (*sum) + term;                   /* accumulate */

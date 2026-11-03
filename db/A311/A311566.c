@@ -13,7 +13,8 @@
  *            initial terms a(0)..a(18) given below
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   ensure_capacity
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,41 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/ensure_capacity.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* Grow a dynamic array when needed.  The pointer is passed as OEISC_VPP(.) */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    T *tmp = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#else
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#endif
 
 static seq_t *seq_cache = NULL;
 static size_t seq_cap = 0;
@@ -33,7 +68,7 @@ static const seq_t init_terms[19] = {
 
 static void init_cache(void)
 {
-    ensure_capacity(19, &seq_cap, (void **)&seq_cache, sizeof(seq_t));
+    ensure_capacity(19, &seq_cap, OEISC_VPP(&seq_cache), sizeof(seq_t));
     for (size_t i = 0; i < 19; ++i)
         seq_cache[i] = init_terms[i];
 }
@@ -49,7 +84,7 @@ seq_t a(idx_t n)
         /* ensure cache has at least n+1 entries */
     }
     if ((size_t)n >= seq_cap) {
-        ensure_capacity((size_t)n + 1, &seq_cap, (void **)&seq_cache, sizeof(seq_t));
+        ensure_capacity((size_t)n + 1, &seq_cap, OEISC_VPP(&seq_cache), sizeof(seq_t));
     }
     /* Compute missing terms up to n */
     for (size_t i = 19; i <= (size_t)n; ++i) {

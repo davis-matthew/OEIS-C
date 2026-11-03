@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 48, u32 n <= 91, u64 n <= 176,
  *            u128 n <= 345, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 975 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,17 +19,18 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)1;
     if (n <= 2) return (seq_t)0;
     
-    seq_t *dp = (seq_t *)malloc(((size_t)n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, ((size_t)n + 1));
     if (!dp) return (seq_t)0;
     
     bool *is_prime = (bool *)malloc(((size_t)n + 1) * sizeof(bool));
     if (!is_prime) {
-        free(dp);
+        mem_free(dp);
         return (seq_t)0;
     }
     
@@ -43,7 +45,7 @@ seq_t a(idx_t n) {
         }
     }
     
-    memset(dp, 0, ((size_t)n + 1) * sizeof(seq_t));
+    mem_set(dp, 0, ((size_t)n + 1) * sizeof(seq_t));
     dp[0] = (seq_t)1;
     
     for (idx_t i = 3; i <= n; i++) {
@@ -55,7 +57,7 @@ seq_t a(idx_t n) {
     }
     
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     free(is_prime);
     return result;
 }

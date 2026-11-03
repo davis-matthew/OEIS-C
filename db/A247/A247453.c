@@ -9,12 +9,14 @@
  *            from the triangle (row 0, row 1, …)
  * Range:     i8 n <= 27, i16 n <= 54, i32 n <= 119, i64 n <= 299,
  *            i128 n <= 779, big any n
+ * Validated: standard, pass, 72 terms through n = 7988 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 static seq_t euler_cache[20000];

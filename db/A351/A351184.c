@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 6, i16 n <= 9, i32 n <= 14, i64 n <= 23, i128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache   = NULL;   /* array of computed terms */
 static idx_t  cache_len = 0;    /* number of terms currently stored */
@@ -31,7 +33,7 @@ static void ensure_cache(idx_t n)
     /* Lazy initialisation: store a(0)=a(1)=1 */
     if (cache_len == 0) {
         size_t init_cap = 4;
-        cache = (seq_t*)malloc(init_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, init_cap);
         cache_cap = (idx_t)init_cap;
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)1;
@@ -42,7 +44,7 @@ static void ensure_cache(idx_t n)
     if (cache_cap <= n) {
         size_t newcap = (cache_cap == 0) ? 4 : cache_cap;
         while (newcap <= n) newcap <<= 1;
-        cache = (seq_t*)realloc(cache, newcap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, newcap);
         cache_cap = (idx_t)newcap;
     }
 

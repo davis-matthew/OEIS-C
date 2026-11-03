@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 111, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 89 terms through n = 903 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Computation: generate all sums of three distinct non‑zero Fibonacci numbers,
    sort them, remove duplicates, and return the n‑th term (1‑based). */
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
         size_t combos = fib_cnt * (fib_cnt - 1) * (fib_cnt - 2) / 6;
         if (combos == 0) combos = 1;      /* safety for very small fib_cnt */
 
-        seq_t *sums = (seq_t *)malloc(combos * sizeof(seq_t));
+        seq_t *sums = mem_new(seq_t, combos);
         size_t pos = 0;
 
         for (size_t i = 0; i + 2 < fib_cnt; ++i) {
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
         }
 
         /* sort and unique the sums */
-        qsort(sums, pos, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(sums, pos, sizeof(seq_t), cmp_seq_t);
 
         size_t uniq = 0;
         for (size_t i = 0; i < pos; ++i) {
@@ -78,7 +80,7 @@ seq_t a(idx_t n)
         }
 
         /* shrink to the exact size */
-        seq_t *tmp = (seq_t *)realloc(sums, uniq * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, sums, uniq);
         if (tmp) sums = tmp;
 
         terms = sums;

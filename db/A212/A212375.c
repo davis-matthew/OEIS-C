@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 38, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   grow_seq, mod_pow, next_prime
+ * Validated: standard, pass, 71 terms through n = 994 (2026-11-03)
+ * Helpers:   mem, next_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,9 +25,25 @@
 #include <stdbool.h>
 
 /* utilities used by the program */
-#include "../utils/next_prime.h"    /* next_prime(uint64_t) */
-#include "../utils/mod_pow.h"       /* mod_pow(seq_t, uint64_t, seq_t) */
-#include "../utils/grow_seq.h"      /* grow_seq(seq_t **, size_t *, size_t) */
+#include <stdlib.h>
+#include <string.h>
+#include <stddef.h>
+#include "../utils/next_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
 
 static seq_t *cache      = NULL;   /* cache of good primes (1‑based) */
 static size_t cache_cap = 0;       /* current capacity of cache */
@@ -60,7 +77,7 @@ static void ensure_cache(idx_t n)
         seq_t   base = (seq_t)2;
 
         /* check whether 2^{exp} ≡ 1 (mod p) */
-        if (mod_pow(base, (uint64_t)exp, mod) != (seq_t)1) {
+        if (powmod(base, (uint64_t)exp, mod) != (seq_t)1) {
             /* this prime is required – store it */
             grow_seq(&cache, &cache_cap, cache_len + 1);
             cache[cache_len] = (seq_t)last_prime;

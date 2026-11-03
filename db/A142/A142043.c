@@ -7,13 +7,14 @@
  * Formula:   a(n) = n-th prime p ≡ 21 (mod 32) – searched sequentially
  * Range:     u8 n <= 3, u16 n <= 422, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 60 terms through n = 959 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +24,7 @@ seq_t a(idx_t n)
     idx_t count = 0;
 
     while (true) {
-        if (is_prime_small(candidate)) {
+        if (is_prime_seq(candidate)) {
             ++count;
             if (count == n) {
                 return candidate;

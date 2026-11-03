@@ -6,9 +6,10 @@
  * Offset:    2    (a(2) is the first term)
  * Keywords:  easy, nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 27, u64 n <= 32, u128 n <= 32,
+ * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   binom, gcd
+ * Validated: partial, pass, 31 terms through n = 32 (2026-11-01)
+ * Helpers:   binomial, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 #include "../utils/gcd.h"
 
 /* Return a(n) for n >= 2, 0 otherwise. */
@@ -51,8 +52,8 @@ seq_t a(idx_t n)
     idx_t total = r * m + r - 2;      /* r*m + r - 2 */
     idx_t a1    = r * m - 2;          /* r*m - 2 */
 
-    seq_t binom1 = binom(total, a1);  /* C(total, a1)   */
-    seq_t binom2 = binom(r, 2);       /* C(r, 2)        */
+    seq_t binom1 = binomial(total, a1);  /* C(total, a1)   */
+    seq_t binom2 = binomial(r, 2);       /* C(r, 2)        */
     seq_t denom  = (seq_t)r * m - 1;  /* r*m - 1        */
 
     /* Reduce the fraction before multiplying to keep the numbers small. */

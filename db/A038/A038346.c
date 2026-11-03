@@ -5,16 +5,34 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn
  * Formula:   a(n) = Sum_{k=1..n} (prime_k of the form 4k+1)
- * Range:     u8 n <= 7, u16 n <= 105, u32 n <= 9976, u64 n <= 9976,
- *            u128 n <= 9976, big any n
- * Helpers:   iSqrt_u64
+ * Range:     u8 n <= 7, u16 n <= 105, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 53 terms through n = 9976 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/iSqrt_u64.h"
+#include "../utils/mem.h"
+
+/* --------------------------------------------------------------------- */
+static uint64_t iSqrt_u64(uint64_t n)
+{
+    uint64_t x = 1ULL << ((sizeof(uint64_t) * 8 - 1) / 2);
+    uint64_t r = 0;
+    while (x > 0) {
+        if (r + x <= n) {
+            n -= r + x;
+            r = (r >> 1) + x;
+        } else {
+            r >>= 1;
+        }
+        x >>= 2;
+    }
+    return r;
+}
 
 /* --------------------------------------------------------------------- */
 /* Utility: integer square root for uint64_t                              */
@@ -57,7 +75,7 @@ static void ensure_cache_cap(size_t need_cap)
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     if (new_cap < need_cap)
         new_cap = need_cap;
-    seq_t *new_cache = (seq_t *)realloc(sum_cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, sum_cache, new_cap);
     if (!new_cache)
         abort();                      /* allocation failure */
     sum_cache = new_cache;

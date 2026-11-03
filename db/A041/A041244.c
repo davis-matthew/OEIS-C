@@ -7,12 +7,14 @@
  * Formula:   a(n) = numerator of the nth convergent of sqrt(134)
  * Range:     u8 n <= 4, u16 n <= 11, u32 n <= 22, u64 n <= 48, u128 n <= 97,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *p_cache = NULL;          /* cached convergent numerators */
 static size_t p_cache_len = 0;         /* number of cached values            */
@@ -60,12 +62,12 @@ static void ensure_cached(idx_t n)
     if (p_cache_len == 0) {
         /* first element p0 = a0 */
         p_cache_cap = (n + 1 > 16) ? n + 1 : 16;
-        p_cache = (seq_t*)malloc(p_cache_cap * sizeof(seq_t));
+        p_cache = mem_new(seq_t, p_cache_cap);
         p_cache_len = 0;
     }
     if (p_cache_len + (n - p_cache_len + 1) > p_cache_cap) {
         p_cache_cap = (p_cache_cap * 2 > n + 1) ? p_cache_cap * 2 : n + 1;
-        p_cache = (seq_t*)realloc(p_cache, p_cache_cap * sizeof(seq_t));
+        p_cache = mem_resize(seq_t, p_cache, p_cache_cap);
     }
 
     const unsigned int a0 = 11;

@@ -11,13 +11,15 @@
  *            a(8)=672526
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 12, u64 n <= 23, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
         /* at least 8 terms are required for the recurrence */
         size_t init = 8;
         if ((size_t)n > init) init = (size_t)n;  /* ensure enough space for n */
-        cache = (seq_t *)malloc(init * sizeof(seq_t));
+        cache = mem_new(seq_t, init);
         if (!cache) return (seq_t)0;             /* allocation failure */
 
         /* Seed the first 8 terms */
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
     if ((size_t)n > cache_cap) {
         size_t new_cap = cache_cap;
         while (new_cap < (size_t)n) new_cap <<= 1;          /* double size */
-        seq_t *new_buf = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_buf = mem_resize(seq_t, cache, new_cap);
         if (!new_buf) return (seq_t)0;                      /* allocation failure */
         cache      = new_buf;
         cache_cap  = new_cap;

@@ -9,7 +9,8 @@
  *            F_1 = 1)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 15, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Cached Fibonacci numbers.  fib_cache[0] = 0, fib_cache[1] = 1.  */
 static seq_t *fib_cache = NULL;
@@ -27,7 +29,7 @@ static void ensure_fib(idx_t idx)
 {
     if (fib_cache == NULL) {
         /* Allocate space for indices 0 and 1. */
-        fib_cache = (seq_t *)malloc(sizeof(seq_t) * 2);
+        fib_cache = mem_new(seq_t, 2);
         fib_cache[0] = (seq_t)0;
         fib_cache[1] = (seq_t)1;
         fib_count = 2;
@@ -43,7 +45,7 @@ static void ensure_fib(idx_t idx)
         if (new_cap <= fib_count) {   /* overflow protection */
             new_cap = fib_count + 1;
         }
-        seq_t *tmp = (seq_t *)realloc(fib_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fib_cache, new_cap);
         if (tmp == NULL) abort();     /* allocation failure  */
         fib_cache = tmp;
         fib_cache[fib_count++] = next;

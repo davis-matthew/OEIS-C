@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 35, u16 n <= 2587, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   get_digits, grow_seqt_array
+ * Validated: standard, pass, 73 terms through n = 9414 (2026-11-03)
+ * Helpers:   get_digits, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,20 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include "../utils/get_digits.h"
-#include "../utils/grow_seqt_array.h"
+#include "../utils/mem.h"
+
+/* Grow a seq_t array */
+static void grow_seqt_array(seq_t **arr, size_t *cap, size_t needed)
+{
+    if (*cap < needed) {
+        size_t new_cap = *cap ? *cap * 2 : 16;
+        while (new_cap < needed) new_cap <<= 1;
+        *arr = mem_resize(seq_t, *arr, new_cap);
+        *cap = new_cap;
+    }
+}
 
 static uint64_t *prime_list      = NULL;
 static size_t    prime_len       = 0;

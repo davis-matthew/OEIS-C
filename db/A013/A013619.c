@@ -9,13 +9,41 @@
  *            the triangle T(m, k) = 12^k * binomial(m, k) in row‑major order
  * Range:     u8 n <= 7, u16 n <= 18, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   floor_sqrt, pow12_u
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/floor_sqrt.h"
-#include "../utils/pow12_u.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+/* Compute 12^k (k <= 2^32). */
+static seq_t pow12_u(idx_t k)
+{
+    seq_t res = 1;
+    for (idx_t i = 0; i < k; ++i)
+        res *= 12;
+    return res;
+}
 
 /* Compute binomial coefficient C(a, b) for a, b <= 2^32. */
 static seq_t binom_u(idx_t a, idx_t b)

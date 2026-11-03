@@ -8,7 +8,8 @@
  *            two
  * Range:     u8 n <= 24, u16 n <= 4488, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 9966 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- Prime generation (once) ---------- */
 #define PRIME_LIMIT 200000   /* covers factorisation of numbers up to ~10⁵ */
@@ -118,7 +120,7 @@ seq_t a(idx_t n)
     /* Allocate initial cache if needed */
     if (capacity == 0) {
         capacity = 16;
-        cache = (seq_t *)malloc(capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, capacity);
         if (!cache)
             return 0;                /* allocation failed */
     }
@@ -130,7 +132,7 @@ seq_t a(idx_t n)
             /* Grow cache if necessary */
             if (count >= capacity) {
                 size_t new_cap = capacity * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp)              /* reallocation failed */
                     return 0;
                 cache = tmp;

@@ -7,13 +7,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 776, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 9532 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Recurrence: a(0)=1, a(1)=2, a(n)=a(abs((n/3)-a(n-2))) for n>=2 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* memoization array */
 static idx_t cache_size = 0;  /* number of values currently stored */
@@ -23,10 +25,10 @@ static void ensure_cache(idx_t n)
 {
     /* Allocate or enlarge the cache as needed */
     if (cache == NULL) {
-        cache = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (n + 1));
         if (cache == NULL) return; /* allocation failed – library will not use result */
     } else if (cache_size <= n) {
-        cache = (seq_t*)realloc(cache, (n + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (n + 1));
         if (cache == NULL) return; /* allocation failed – library will not use result */
     }
 

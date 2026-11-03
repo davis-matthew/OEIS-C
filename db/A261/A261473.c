@@ -13,6 +13,7 @@
  *            states: (mask of seen patterns, * last up to 3...
  * Range:     u8 n <= 4, u16 n <= 12, u32 n <= 29, u64 n <= 66, u128 n <= 139,
  *            big any n
+ * Validated: standard, pass, 48 terms through n = 943 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

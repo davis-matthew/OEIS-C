@@ -8,13 +8,15 @@
  *            whose decimal digits sum to 24
  * Range:     u8 none, u16 n <= 440, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digitSum
+ * Validated: standard, pass, 58 terms through n = 911 (2026-11-03)
+ * Helpers:   digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/digitSum.h"
+#include "../utils/digit_sum.h"
+#include "../utils/mem.h"
 
 /* Cached sequence */
 static seq_t *cache = NULL;      /* array of found terms */
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
 
     /* Extend cache storage if needed */
     size_t newsize = (size_t)n;
-    seq_t *tmp = (seq_t *)realloc(cache, newsize * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, newsize);
     if (!tmp) exit(EXIT_FAILURE);      /* allocation failed */
     cache = tmp;
 
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     while (cached < n) {
         curMultiple++;                     /* next multiple of 24 */
         seq_t candidate = (seq_t)curMultiple * step;
-        if (digitSum(candidate) == (seq_t)24)
+        if (digit_sum(candidate) == (seq_t)24)
             cache[cached++] = candidate;   /* store term */
     }
 

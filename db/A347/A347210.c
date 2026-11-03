@@ -8,15 +8,28 @@
  * Formula:   a(n) = (n-1)!/2 - (n-1)*(n-4)*2^(n-4) (for n ≥ 4)
  * Range:     i8 n <= 6, i16 n <= 8, i32 n <= 13, i64 n <= 21, i128 n <= 23,
  *            big any n
- * Helpers:   big_pow, factorial
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* a(0) = -1, a(1) = 0, a(2) = 1, a(3) = 2  */
 
-#include "../utils/factorial.h"
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 seq_t a(idx_t n)
 {
@@ -29,7 +42,7 @@ seq_t a(idx_t n)
     /* n ≥ 4 */
     seq_t fact = factorial(n - 1);              /* (n‑1)!   */
     seq_t half_fact = fact / 2;                 /* (n‑1)!/2 */
-    seq_t pow2 = big_pow((seq_t)2, n - 4);      /* 2^(n‑4)   */
+    seq_t pow2 = ipow((seq_t)2, n - 4);      /* 2^(n‑4)   */
     seq_t term2 = pow2 * ((seq_t)(n - 1) * (seq_t)(n - 4)); /* (n-1)*(n-4)*2^(n-4) */
     return half_fact - term2;                   /* a(n)     */
 }

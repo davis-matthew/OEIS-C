@@ -11,12 +11,15 @@
  *            a(1)=907, a(2)=1775, a(3)=1709, a(4)=2543
  * Range:     u8 none, u16 n <= 9, u32 n <= 25, u64 n <= 57, u128 n <= 73,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 42 terms through n = 209 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 #include <stdint.h>
 #ifdef __cplusplus
 #include <type_traits>
@@ -49,7 +52,7 @@ seq_t a(idx_t n)
         return term1_val + term2;
     } else {
         /* Arbitrary‑precision type */
-        seq_t powshift = seq_pow((seq_t)2, shift);
+        seq_t powshift = ipow_idx((seq_t)2, shift);
         seq_t term2 = powshift * (seq_t)2091;
         return term1_val + term2;
     }

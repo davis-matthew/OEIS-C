@@ -8,6 +8,7 @@
  *            a(n)=264*a(n-1)+7160*a(n-2)-31008*a(n-3)-10480*a(n-4) for n>=5
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 8, u128 n <= 13,
  *            big any n
+ * Validated: partial, pass, 13 terms through n = 13 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

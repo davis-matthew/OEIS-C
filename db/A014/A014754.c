@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 805, u32 n <= 9769, u64 n <= 9769,
  *            u128 n <= 9769, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 61 terms through n = 9424 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,10 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"   /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod); */
-#include "../utils/is_prime.h"  /* bool is_prime(idx_t); */
+#include <string.h>
+#include "../utils/is_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -44,13 +47,13 @@ seq_t a(idx_t n)
 
             /* Check the fourth‑power residue condition */
             uint64_t exp = (next_candidate - 1ULL) / 4ULL;
-            if (mod_pow((seq_t)2, exp, (seq_t)next_candidate) == (seq_t)1)
+            if (powmod((seq_t)2, exp, (seq_t)next_candidate) == (seq_t)1)
             {
                 /* Store the found prime, resizing if necessary */
                 if (seq_len == seq_cap)
                 {
                     seq_cap = seq_cap ? seq_cap * 2 : 16;
-                    seq_vals = (seq_t *)realloc(seq_vals, seq_cap * sizeof(seq_t));
+                    seq_vals = mem_resize(seq_t, seq_vals, seq_cap);
                 }
                 seq_vals[seq_len++] = (seq_t)next_candidate;
                 break; /* Found one more term */

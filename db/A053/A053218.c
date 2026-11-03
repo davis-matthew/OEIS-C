@@ -9,6 +9,7 @@
  *            n – r(r−1)/2, and T(r,k) = r·2^(k−1) – (k−1)·2^(k−2) (T(r,1)=r)
  * Range:     u8 n <= 27, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

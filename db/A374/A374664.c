@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   bitlen_seq_t, grow_seq_array
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   bit_length, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,22 @@
  * 0,2,4,8,9,10,12,… */
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/bitlen_seq_t.h"
-#include "../utils/grow_seq_array.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/bit_length.h"
+#include "../utils/mem.h"
+
+/* Helper to grow a sequence array of type seq_t. */
+static void grow_seq_array(seq_t **arr, size_t *size, size_t new_len)
+{
+    if (*size >= new_len) return;
+    size_t new_cap = (*size > 0) ? (*size << 1) : 16;
+    while (new_cap < new_len) new_cap <<= 1;
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+    if (!tmp) abort();
+    *arr = tmp;
+    *size = new_cap;
+}
 
 static seq_t *cache = NULL;           /* cached sequence values   */
 static size_t cache_len = 0;          /* number of cached values  */
@@ -33,7 +48,7 @@ static seq_t next_to_test = 0;        /* next number to examine   */
 static bool is_good(seq_t k) {
     if (k == (seq_t)0) return true;          /* 0 always works */
 
-    unsigned L = bitlen_seq_t(k);           /* bit length of k */
+    unsigned L = bit_length(k);           /* bit length of k */
     for (unsigned s = 1; s < L; ++s) {
         seq_t mask  = (((seq_t)1 << s) - (seq_t)1);      /* lower s bits */
         seq_t low   = k & mask;

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for memoization */
 static seq_t *cache = NULL;          /* array of seq_t values */
@@ -42,12 +44,12 @@ static void compute_to(idx_t n)
     if (need > cache_cap) {
         size_t new_cap = cache_cap > 0 ? cache_cap * 2 : 16;
         if (new_cap < need) new_cap = need;
-        seq_t *newc = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *newc = mem_new(seq_t, new_cap);
         if (!newc) abort();               /* fatal, nothing else we can do */
 
         if (cache) {
             for (size_t i = 0; i < cache_len; ++i) newc[i] = cache[i];
-            free(cache);
+            mem_free(cache);
         }
         cache = newc;
         cache_cap = new_cap;

@@ -7,7 +7,8 @@
  * Formula:   a(n) = Van Eck sequence starting with a(1) = 4
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 90 terms through n = 90 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Auxiliary types are supplied by the build system */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_arr = NULL; /* storage of terms, 1‑based */
 static idx_t  seq_len = 0;     /* number of terms stored (>=1) */
@@ -32,7 +34,7 @@ static void ensure_seq_capacity(idx_t target)
     if ((size_t)target < seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 16;
     while (new_cap <= (size_t)target) new_cap <<= 1;
-    seq_arr = (seq_t *)realloc(seq_arr, new_cap * sizeof(seq_t));
+    seq_arr = mem_resize(seq_t, seq_arr, new_cap);
     seq_cap = new_cap;
 }
 
@@ -42,7 +44,7 @@ static void ensure_map_capacity(size_t target)
     if (target <= last_cap) return;
     size_t new_cap = last_cap ? last_cap * 2 : 16;
     while (new_cap <= target) new_cap <<= 1;
-    last_map = (pair_t *)realloc(last_map, new_cap * sizeof(pair_t));
+    last_map = mem_resize(pair_t, last_map, new_cap);
     last_cap = new_cap;
 }
 

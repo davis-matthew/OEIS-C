@@ -7,6 +7,7 @@
  * Formula:   a(n) = ceiling(n*phi^17); a(0) = 0, a(n) = 3571*n + 1 for n > 0
  * Range:     u8 n <= 0, u16 n <= 18, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 53 terms through n = 987 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

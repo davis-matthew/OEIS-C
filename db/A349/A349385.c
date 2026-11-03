@@ -11,8 +11,9 @@
  *            (-1)^ω(d) * Π nextprime(p) if d is squarefree, * = 0 otherwise *
  *            (nextprime(p) is the least prime > p) * * This implementation
  *            uses the fact that the Dirichlet inverse of * A0...
- * Range:     i8 n <= 23, i16 n <= 5519, i32 n <= 9083, i64 n <= 9083,
- *            i128 n <= 9083, big any n
+ * Range:     i8 n <= 23, i16 n <= 5519, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 93 terms through n = 9083 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

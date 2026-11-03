@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 103, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   negabinary_digit_sum_of_negk
+ * Validated: standard, pass, 80 terms through n = 9632 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,21 @@
    (n ≥ 1). */
 
 #include <stdint.h>
-#include "../utils/negabinary_digit_sum_of_negk.h"
+
+static inline int negabinary_digit_sum_of_negk(seq_t k)
+{
+    /* m is the signed value of -k; k will be small for the required
+       range, so int64_t is safe. */
+    int64_t m = -(int64_t)k;
+    int sum = 0;
+    while (m != 0) {
+        int r = m & 1;          /* least significant bit (0 or 1) */
+        sum += r;
+        /* Next value: m = (m - r) / (-2)  (exact division) */
+        m = (m - r) / -2;
+    }
+    return sum;
+}
 
 seq_t a(idx_t n)
 {

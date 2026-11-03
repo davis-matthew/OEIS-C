@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nice, nonn, look
  * Formula:   not stated
- * Range:     u8 n <= 3464, u16 n <= 9758, u32 n <= 9758, u64 n <= 9758,
- *            u128 n <= 9758, big any n
+ * Range:     u8 n <= 3464, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 114 terms through n = 9758 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,15 +7,17 @@
  * Keywords:  nonn, look, base
  * Formula:   a(n) = number of integers m ≤ n whose set of decimal digits
  *            equals the set of digits of n
- * Range:     u8 n <= 9543, u16 n <= 9543, u32 n <= 9543, u64 n <= 9543,
- *            u128 n <= 9543, big any n
- * Helpers:   none
+ * Range:     u8 n <= 43320, u16 n <= 65536, u32 n <= 65536, u64 n <= 65536,
+ *            u128 n <= 65536, big any n
+ * Validated: standard, pass, 122 terms through n = 9543 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
 
     /* DP table: dp[pos][tight][started][mask] */
     static seq_t dp[21][2][2][1 << 10];
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
     dp[0][1][0][0] = 1;          /* start with no digits taken */
 
     for (int pos = 0; pos < len; ++pos) {

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 56, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   extend_used
+ * Validated: partial, pass, 57 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,20 @@
 /* ---------- required includes ---------- */
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/extend_used.h"
+#include "../utils/mem.h"
+
+/* ---------- bitmap helper ---------- */
+static void extend_used(idx_t *size, unsigned char **used, idx_t val)
+{
+    if (val < *size) return;
+    size_t new_size = (*size == 0) ? 4 : (*size << 1);
+    while (new_size <= (size_t)val) new_size <<= 1;
+    unsigned char *tmp = (unsigned char *)realloc(*used, new_size);
+    if (!tmp) exit(EXIT_FAILURE);
+    memset(tmp + *size, 0, new_size - *size);
+    *used = tmp;
+    *size = new_size;
+}
 
 /* ---------- dynamic array helper ---------- */
 static void grow_seq(seq_t **array, size_t *cap, size_t needed)
@@ -28,7 +42,7 @@ static void grow_seq(seq_t **array, size_t *cap, size_t needed)
     if (*cap < needed) {
         size_t new_cap = (*cap == 0) ? 16 : (*cap << 1);
         while (new_cap < needed) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(*array, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *array, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         *array = tmp;
         *cap   = new_cap;

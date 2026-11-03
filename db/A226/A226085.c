@@ -8,6 +8,7 @@
  *            where k is the unique integer with Σ_{i=1}^{k} (p_{i+1}-2) ≥ n
  * Range:     u8 n <= 18, u16 n <= 44, u32 n <= 109, u64 n <= 349,
  *            u128 n <= 1210, big any n
+ * Validated: standard, pass, 60 terms through n = 9428 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

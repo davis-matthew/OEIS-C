@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2048, u16 n <= 2048, u32 n <= 2048, u64 n <= 2048,
  *            u128 n <= 2048, big any n
- * Helpers:   none
+ * Validated: standard, pass, 122 terms through n = 1852 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Recurrence: a(0)=1; for n>=1, a(n) = (3n+1) - Σ_{k=ceil(n/2)}^{n-1} a(k) */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Computes the n-th term of OEIS sequence A127752.
    Uses dynamic programming with prefix sums for O(n) time per call. */
@@ -30,8 +32,8 @@ seq_t a(idx_t n)
     /* First call: allocate minimal capacity */
     if (A == NULL) {
         cap = 1;
-        A = (seq_t *)calloc(cap, sizeof(seq_t));
-        P = (seq_t *)calloc(cap + 1, sizeof(seq_t));
+        A = mem_new(seq_t, cap);
+        P = mem_new(seq_t, cap + 1);
         if (A == NULL || P == NULL) exit(1); /* abort if allocation fails */
         P[0] = 0;                     /* prefix sum up to index 0 is 0 */
     }
@@ -40,8 +42,8 @@ seq_t a(idx_t n)
     if ((idx_t)(n + 1) > cap) {
         idx_t newcap = cap ? cap : 1;
         while ((idx_t)(n + 1) > newcap) newcap <<= 1;
-        seq_t *tmpA = (seq_t *)realloc(A, newcap * sizeof(seq_t));
-        seq_t *tmpP = (seq_t *)realloc(P, (newcap + 1) * sizeof(seq_t));
+        seq_t *tmpA = mem_resize(seq_t, A, newcap);
+        seq_t *tmpP = mem_resize(seq_t, P, (newcap + 1));
         if (tmpA == NULL || tmpP == NULL) exit(1);  /* abort on failure */
         A = tmpA;
         P = tmpP;

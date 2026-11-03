@@ -8,18 +8,20 @@
  * Formula:   a(n) = 2^(n+4) * C(8n, 4n)
  * Range:     u8 none, u16 n <= 1, u32 n <= 3, u64 n <= 7, u128 n <= 14,
  *            big any n
- * Helpers:   binom, pow2
+ * Validated: standard, pass, 27 terms through n = 29 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {
     seq_t pow_val = pow2(n + 4);
-    seq_t bin_val  = binom(8 * n, 4 * n);
+    seq_t bin_val  = binomial(8 * n, 4 * n);
     return pow_val * bin_val;
 }

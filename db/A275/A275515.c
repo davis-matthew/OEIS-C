@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 549, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 933 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*---------------------------------------------------------------------*/
 /*   Miller–Rabin primality test for 64‑bit integers (deterministic)
@@ -89,7 +91,7 @@ static uint64_t candidate = 5U;
 static void grow_triples(void)
 {
     size_t new_cap = (triple_cap == 0) ? 8 : triple_cap * 2;
-    seq_t *tmp = (seq_t *)realloc(triples, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, triples, new_cap);
     if (!tmp) abort();               /* allocation failure */
     triples = tmp;
     triple_cap = new_cap;

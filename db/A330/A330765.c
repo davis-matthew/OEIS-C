@@ -12,7 +12,8 @@
  *            A330765
  * Range:     u8 n <= 13, u16 n <= 31, u32 n <= 83, u64 n <= 233,
  *            u128 n <= 683, big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 4928 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
         /* allocate p(n,m) array */
         size_t colP = (size_t)(max_m + 1);
         size_t rowsP = (size_t)(max_n + 1);
-        seq_t *newP = (seq_t *)calloc(rowsP * colP, sizeof(seq_t));
+        seq_t *newP = mem_new(seq_t, rowsP * colP);
         if (!newP) { abort(); }  /* allocation failure */
         /* DP for unrestricted partitions with exactly k parts */
         newP[0 * colP + 0] = (seq_t)1;
@@ -63,12 +65,12 @@ seq_t a(idx_t n)
             }
         }
         /* free old array */
-        free(P);
+        mem_free(P);
         P = newP;
 
         /* allocate Stirling numbers S(m,k) */
         size_t colS = (size_t)(max_m + 1);
-        seq_t *newS = (seq_t *)calloc(colS * colS, sizeof(seq_t));
+        seq_t *newS = mem_new(seq_t, colS * colS);
         if (!newS) { abort(); }
         newS[0 * colS + 0] = (seq_t)1;
         for (idx_t i = 1; i <= max_m; ++i) {
@@ -79,12 +81,12 @@ seq_t a(idx_t n)
                 newS[i * colS + k] = val;
             }
         }
-        free(S);
+        mem_free(S);
         S = newS;
 
         /* compute shift and T arrays */
         idx_t *newShift = (idx_t *)calloc((size_t)(max_m + 1), sizeof(idx_t));
-        seq_t *newT = (seq_t *)calloc((size_t)(max_m + 1), sizeof(seq_t));
+        seq_t *newT = mem_new(seq_t, (size_t)(max_m + 1));
         if (!newShift || !newT) { abort(); }
         for (idx_t m = 1; m <= max_m; ++m) {
             newShift[m] = m * (m - 1) / 2;
@@ -97,7 +99,7 @@ seq_t a(idx_t n)
         }
         free(shift_arr);
         shift_arr = newShift;
-        free(T_arr);
+        mem_free(T_arr);
         T_arr = newT;
 
         initialized = true;

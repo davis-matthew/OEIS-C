@@ -14,13 +14,15 @@
  *            explicitly handles the few cases where negative indices woul...
  * Range:     u8 n <= 20, u16 n <= 33, u32 n <= 60, u64 n <= 115,
  *            u128 n <= 225, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 916 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* memoised Tribonacci array (indices >=0) */
 static seq_t *trib = NULL;
@@ -37,7 +39,7 @@ static void ensure_trib(size_t idx)
     if (need > trib_cap) {
         size_t new_cap = trib_cap ? trib_cap * 2 : 8;
         while (new_cap < need) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(trib, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, trib, new_cap);
         if (!tmp) abort();
         trib = tmp;
         trib_cap = new_cap;

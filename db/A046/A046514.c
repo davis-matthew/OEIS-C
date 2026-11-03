@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1312, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_persist5
+ * Validated: standard, pass, 59 terms through n = 8982 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,24 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_persist5.h"
+#include "../utils/mem.h"
+
+static bool is_persist5(seq_t x)
+{
+    int steps = 0;
+    while (x >= 10) {
+        seq_t prod = 1;
+        seq_t t = x;
+        while (t > 0) {
+            prod *= (t % 10);
+            t /= 10;
+        }
+        x = prod;
+        steps++;
+        if (steps > 5) return false;   /* early exit */
+    }
+    return steps == 5;
+}
 
 seq_t a(idx_t n)
 {
@@ -37,7 +55,7 @@ seq_t a(idx_t n)
         if (is_persist5(val)) {
             if (cache_len == cache_cap) {      /* extend storage */
                 size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) exit(1);             /* allocation failed */
                 cache = tmp;
                 cache_cap = new_cap;

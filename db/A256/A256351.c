@@ -10,7 +10,8 @@
  *            interpreted as * a decimal number
  * Range:     u8 n <= 29, u16 n <= 4159, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 9412 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- deterministic 64‑bit Miller–Rabin primality test ---------- */
 static inline uint64_t mul_mod64(uint64_t a, uint64_t b, uint64_t mod) {
@@ -83,7 +85,7 @@ static void grow_seq_array(seq_t **arr, size_t *cap, size_t need) {
     if (*cap < need) {
         size_t new_cap = *cap ? *cap * 2 : 64;
         while (new_cap < need) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
         *arr = tmp;
         *cap = new_cap;
     }

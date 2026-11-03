@@ -7,13 +7,15 @@
  * Formula:   a(n) = n - a(a(a(n-1))), a(0) = 0
  * Range:     u8 n <= 374, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 90 terms through n = 9786 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;
 static idx_t memo_size = 0;
@@ -23,7 +25,7 @@ static bool initialized = false;
 seq_t a(idx_t n) {
     if (!initialized) {
         memo_size = 1024;
-        memo = (seq_t *)malloc(memo_size * sizeof(seq_t));
+        memo = mem_new(seq_t, memo_size);
         if (memo == NULL) return (seq_t)0;
         memo[0] = (seq_t)0;
         computed_up_to = 0;
@@ -34,13 +36,13 @@ seq_t a(idx_t n) {
     
     if (n >= memo_size) {
         idx_t new_size = n + 1024;
-        seq_t *new_memo = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_memo = mem_new(seq_t, new_size);
         if (new_memo == NULL) return (seq_t)0;
         
         for (idx_t i = 0; i < memo_size; i++) {
             new_memo[i] = memo[i];
         }
-        free(memo);
+        mem_free(memo);
         
         memo = new_memo;
         memo_size = new_size;

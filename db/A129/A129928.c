@@ -8,7 +8,8 @@
  *            is prime
  * Range:     u8 n <= 9, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  Prime sieve – to generate primes needed for the sequence          */
@@ -107,7 +109,7 @@ static void ensure_term_capacity(size_t need)
     size_t new_cap = term_cap ? term_cap * 2 : 64;
     while (new_cap < need) new_cap <<= 1;
 
-    seq_t *tmp = (seq_t*)realloc(term_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, term_cache, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     term_cache = tmp;
     term_cap   = new_cap;

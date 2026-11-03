@@ -9,13 +9,15 @@
  *            column index within that row
  * Range:     u8 n <= 8, u16 n <= 13, u32 n <= 26, u64 n <= 43, u128 n <= 88,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 52 terms through n = 1321 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -45,5 +47,5 @@ seq_t a(idx_t n)
     idx_t c = n - row_start;          /* column in the row */
     seq_t exponent = (seq_t)r;        /* use seq_t for arbitrary precision */
     exponent *= (seq_t)c;              /* exponent = r * c */
-    return big_pow((seq_t)2, exponent); /* compute 2^(exponent) */
+    return ipow((seq_t)2, exponent); /* compute 2^(exponent) */
 }

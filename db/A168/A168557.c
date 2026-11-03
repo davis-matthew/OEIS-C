@@ -6,14 +6,17 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  sign, tabf, easy
  * Formula:   T(n,k) = (-1)^n*binomial(n,k) + (-1)^n*delta(0,k) - delta(0,n)
- * Range:     i8 n <= 31, i16 n <= 63, i32 n <= 63, i64 n <= 63, i128 n <= 63,
+ * Range:     i8 n <= 49, i16 n <= 63, i32 n <= 63, i64 n <= 63, i128 n <= 63,
  *            big any n
+ * Validated: partial, pass, 64 terms through n = 63 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* a(n) is obtained by flattening the triangle T by rows. */
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/binomial.h"
 #include <stdbool.h>
 

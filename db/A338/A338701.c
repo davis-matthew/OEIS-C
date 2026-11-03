@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   build_primes_upto_local
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,39 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/build_primes_upto_local.h"
+#include "../utils/mem.h"
+
+/* ---------- small helper: sieve primes up to a limit ---------------- */
+static void build_primes_upto_local(idx_t limit,
+                                    uint64_t **primes_out,
+                                    size_t *cnt_out)
+{
+    /* calloc and malloc in C++ need explicit casts. */
+    char *is_comp = (char *)calloc((size_t)limit + 1, 1);
+    if (!is_comp) { *primes_out = NULL; *cnt_out = 0; return; }
+
+    idx_t i, j;
+    for (i = 2; i * i <= limit; ++i)
+        if (!is_comp[i])
+            for (j = i * i; j <= limit; j += i)
+                is_comp[j] = 1;
+
+    size_t cnt = 0;
+    for (i = 2; i <= limit; ++i)
+        if (!is_comp[i]) ++cnt;
+
+    uint64_t *primes = NULL;
+    if (cnt > 0) {
+        primes = (uint64_t *)malloc(cnt * sizeof(uint64_t));
+        size_t k = 0;
+        for (i = 2; i <= limit; ++i)
+            if (!is_comp[i]) primes[k++] = i;
+    }
+
+    free(is_comp);
+    *primes_out = primes;
+    *cnt_out = cnt;
+}
 
 /* ---------- data structures for heap -------------------------------- */
 typedef struct {
@@ -48,7 +81,7 @@ static void heap_push_node(heap_node_t node)
 {
     if (heap_size == heap_cap) {
         heap_cap = (heap_cap == 0) ? 16 : heap_cap * 2;
-        heap_nodes = (heap_node_t *)realloc(heap_nodes, heap_cap * sizeof(heap_node_t));
+        heap_nodes = mem_resize(heap_node_t, heap_nodes, heap_cap);
     }
     heap_nodes[heap_size++] = node;
     size_t pos = heap_size - 1;
@@ -96,7 +129,7 @@ static void ensure_sums_capacity(size_t needed)
 {
     if (needed <= sums_cap) return;
     sums_cap = needed ? needed * 2 : 16;
-    sums = (seq_t *)realloc(sums, sums_cap * sizeof(seq_t));
+    sums = mem_resize(seq_t, sums, sums_cap);
 }
 
 /* ---------- lazy initialization ------------------------------------- */
@@ -122,7 +155,7 @@ static void init_sequence(void)
 
     /* initialise min‑heap with sums (p_i + p_i) for all odd primes */
     heap_cap = odd_cnt;
-    heap_nodes = (heap_node_t *)malloc(heap_cap * sizeof(heap_node_t));
+    heap_nodes = mem_new(heap_node_t, heap_cap);
     heap_size = 0;
     for (size_t i = 0; i < odd_cnt; ++i) {
         heap_node_t node;

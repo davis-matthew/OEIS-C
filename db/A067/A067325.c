@@ -6,29 +6,31 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = Catalan(n+4) - (Catalan(n+3) + Catalan(n+2) + 2 *
  *            Catalan(n+1))
- * Range:     u8 none, u16 n <= 3, u32 n <= 11, u64 n <= 25, u128 n <= 25,
+ * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 13, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /*  where Catalan(k) = binom(2*k, k) / (k+1)                           */
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
     /* compute Catalan(n+1) .. Catalan(n+4) */
-    seq_t c1 = binom(2*(n+1), n+1);
+    seq_t c1 = binomial(2*(n+1), n+1);
     c1 /= (n+2);                    /* Catalan(n+1) */
 
-    seq_t c2 = binom(2*(n+2), n+2);
+    seq_t c2 = binomial(2*(n+2), n+2);
     c2 /= (n+3);                    /* Catalan(n+2) */
 
-    seq_t c3 = binom(2*(n+3), n+3);
+    seq_t c3 = binomial(2*(n+3), n+3);
     c3 /= (n+4);                    /* Catalan(n+3) */
 
-    seq_t c4 = binom(2*(n+4), n+4);
+    seq_t c4 = binomial(2*(n+4), n+4);
     c4 /= (n+5);                    /* Catalan(n+4) */
 
     /* a(n) = c4 - (c3 + c2 + 2*c1) */

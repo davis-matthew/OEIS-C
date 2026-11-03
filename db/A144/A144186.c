@@ -8,7 +8,8 @@
  * Formula:   a(n) = numerator of C_n / n! (C_n = binomial(2n,n)/(n+1))
  * Range:     u8 n <= 8, u16 n <= 14, u32 n <= 26, u64 n <= 50, u128 n <= 95,
  *            big any n
- * Helpers:   build_primes_upto, seq_mul, seq_one, seq_pow
+ * Validated: standard, pass, 49 terms through n = 924 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,10 +17,17 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/seq_one.h"
-#include "../utils/seq_mul.h"
-#include "../utils/seq_pow.h"
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/ipow_idx.h"
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* exponent of prime p in n! */
 static inline idx_t exp_in_fact(idx_t n, idx_t p) {
@@ -79,7 +87,7 @@ seq_t a(idx_t n) {
         }
 
         if (eResult > 0) {
-            seq_t pow_val = seq_pow((seq_t)p, (idx_t)eResult);
+            seq_t pow_val = ipow_idx((seq_t)p, (idx_t)eResult);
             result = seq_mul(result, pow_val);
         }
     }

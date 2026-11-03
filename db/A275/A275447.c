@@ -13,7 +13,8 @@
  *            g(z)=2*z^3*(1-z^2)/((1+z^2)*(1-z-2*z^2+z^4)^2)
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 66, u128 n <= 133,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 865 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #ifdef __cplusplus
 #include <type_traits>
 #endif
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     if (n + 1 > cache_size) {
         idx_t new_size = n + 1;
 #ifdef __cplusplus
-        cache = static_cast<seq_t*>(realloc(cache, new_size * sizeof(seq_t)));
+        cache = mem_resize(seq_t, cache, new_size);
 #else
         cache = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
 #endif

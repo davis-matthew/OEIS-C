@@ -8,7 +8,8 @@
  *            Σ_{s=1}^{⌊n/2⌋} [s is nonprime] * a(n-2s) (a(0)=1)
  * Range:     u8 n <= 27, u16 n <= 53, u32 n <= 105, u64 n <= 211,
  *            u128 n <= 419, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 9836 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
     /* Ensure a(k) for k=0..n are computed */
     if (n + 1 > A_cap) {
         size_t newCap = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(A, newCap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, A, newCap);
         if (!tmp) abort();
         A = tmp;
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 55, u16 n <= 671, u32 n <= 6000, u64 n <= 6000,
  *            u128 n <= 6000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 91 terms through n = 5865 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* Helper structure and functions                                        */
@@ -59,7 +61,7 @@ static void ensure_cache_capacity(size_t n)
     if (den_cache == NULL || n > cache_len) {
         size_t new_cap = (cache_len == 0) ? 16 : cache_len * 2;
         while (new_cap < n) new_cap *= 2;
-        den_cache = (seq_t *)realloc(den_cache, new_cap * sizeof(seq_t));
+        den_cache = mem_resize(seq_t, den_cache, new_cap);
         cache_len = new_cap;
     }
     *(&den_cache) = den_cache;
@@ -83,7 +85,7 @@ static inline void ensure_cache_capacity_local(size_t n)
     if (den_cache == NULL || n > cache_len) {
         size_t new_cap = (cache_len == 0) ? 16 : cache_len * 2;
         while (new_cap < n) new_cap *= 2;
-        den_cache = (seq_t *)realloc(den_cache, new_cap * sizeof(seq_t));
+        den_cache = mem_resize(seq_t, den_cache, new_cap);
         cache_len = new_cap;
     }
 }
@@ -96,7 +98,7 @@ static void generate_up_to(size_t target)
     /* Initial rows only once. */
     if (total_terms == 0) {
         /* Row 1: 1/1 */
-        row_prev2 = (Frac *)malloc(sizeof(Frac));
+        row_prev2 = mem_new(Frac, 1);
         row_prev2[0].num = (seq_t)1;
         row_prev2[0].den = (seq_t)1;
         len_prev2   = 1;
@@ -105,7 +107,7 @@ static void generate_up_to(size_t target)
         total_terms = 1;
 
         /* Row 2: 1/2 */
-        row_prev1 = (Frac *)malloc(sizeof(Frac));
+        row_prev1 = mem_new(Frac, 1);
         row_prev1[0].num = (seq_t)1;
         row_prev1[0].den = (seq_t)2;
         len_prev1   = 1;
@@ -117,7 +119,7 @@ static void generate_up_to(size_t target)
     /* Generate rows until we reach the requested amount. */
     while (total_terms < target) {
         size_t new_len = len_prev1 + len_prev2;
-        Frac *cur = (Frac *)malloc(new_len * sizeof(Frac));
+        Frac *cur = mem_new(Frac, new_len);
 
         size_t idx = 0;
 
@@ -143,7 +145,7 @@ static void generate_up_to(size_t target)
         /* (idx should equal new_len) */
 
         /* Sort the new row by the numerical value of the fractions. */
-        qsort(cur, new_len, sizeof(Frac), cmp_frac);
+        mem_qsort(cur, new_len, sizeof(Frac), cmp_frac);
 
         /* Append denominators to the cache. */
         ensure_cache_capacity_local(total_terms + new_len);
@@ -153,7 +155,7 @@ static void generate_up_to(size_t target)
         total_terms += new_len;
 
         /* Shift rows for the next iteration. */
-        free(row_prev2);
+        mem_free(row_prev2);
         row_prev2 = row_prev1;
         len_prev2 = len_prev1;
 

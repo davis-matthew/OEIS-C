@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 86, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 9758 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     /* initialise on first call */
     if (seq == NULL) {
         capacity = 1;
-        seq = (seq_t *)malloc(sizeof(seq_t) * capacity);
+        seq = mem_new(seq_t, capacity);
         seq[0] = (seq_t)0;   /* a(1) = 0 */
         count  = 1;
         last_val = (seq_t)0;
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
         /* store the found value */
         if (count == capacity) {
             capacity  = capacity * 2;
-            seq = (seq_t *)realloc(seq, sizeof(seq_t) * capacity);
+            seq = mem_resize(seq_t, seq, capacity);
         }
         seq[count]  = cand;
         last_val = cand;

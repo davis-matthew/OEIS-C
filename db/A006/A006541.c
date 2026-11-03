@@ -8,12 +8,14 @@
  *            n*(n-1)/2
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 6, u128 n <= 8,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 26 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     seq_t m_seq = ((seq_t)n * ((seq_t)n - 1)) / 2;
@@ -21,7 +23,7 @@ seq_t a(idx_t n) {
     
     seq_t **S = (seq_t **)malloc((m + 1) * sizeof(seq_t *));
     for (idx_t i = 0; i <= m; i++) {
-        S[i] = (seq_t *)calloc(i + 1, sizeof(seq_t));
+        S[i] = mem_new(seq_t, i + 1);
     }
     
     S[0][0] = 1;
@@ -34,7 +36,7 @@ seq_t a(idx_t n) {
         }
     }
     
-    seq_t *fact = (seq_t *)malloc((m + 1) * sizeof(seq_t));
+    seq_t *fact = mem_new(seq_t, (m + 1));
     fact[0] = 1;
     for (idx_t i = 1; i <= m; i++) {
         fact[i] = fact[i - 1] * (seq_t)i;
@@ -47,10 +49,10 @@ seq_t a(idx_t n) {
     }
     
     for (idx_t i = 0; i <= m; i++) {
-        free(S[i]);
+        mem_free(S[i]);
     }
     free(S);
-    free(fact);
+    mem_free(fact);
     
     return result;
 }

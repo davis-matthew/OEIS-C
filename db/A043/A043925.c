@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   has_adj26
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,28 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_adj26.h"
+#include "../utils/mem.h"
+
+/* Return true if the base‑7 representation of *x contains an
+   adjacent pair 26 or 62. */
+static bool has_adj26(const seq_t *x)
+{
+    seq_t tmp = *x;
+    bool has_prev = false;
+    seq_t prev = 0;
+
+    while (tmp > 0) {
+        seq_t digit = tmp % 7;
+        if (has_prev) {
+            if ((prev == 6 && digit == 2) || (prev == 2 && digit == 6))
+                return true;
+        }
+        prev = digit;
+        has_prev = true;
+        tmp /= 7;
+    }
+    return false;
+}
 
 /* Return the n-th term of the sequence (offset 1).  Calls are
    memoized so that any order of n is supported. */
@@ -35,7 +57,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (cache == NULL) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* generate terms until we have at least n of them */
@@ -48,7 +70,7 @@ seq_t a(idx_t n)
             if (cache_len >= cache_cap) {
                 size_t new_cap = cache_cap * 2;
                 if (new_cap == 0) new_cap = 16;
-                cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, new_cap);
                 cache_cap = new_cap;
             }
             cache[cache_len++] = last_checked;

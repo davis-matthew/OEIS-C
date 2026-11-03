@@ -8,22 +8,25 @@
  * Formula:   a(n) = A001221(n) - A051903(n)
  * Range:     i8 n <= 10000, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   count_distinct_primes, factor_u64
+ * Validated: standard, pass, 97 terms through n = 7975 (2026-11-01)
+ * Helpers:   factor_u64, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/count_distinct_primes.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/omega.h"
 
 seq_t a(idx_t n)
 {
     uint64_t num = (uint64_t)n;
 
     /* Number of distinct prime factors */
-    int distinct = count_distinct_primes(num);
+    int distinct = omega(num);
 
     /* Factorize n into primes and exponents */
     uint64_t primes[64];

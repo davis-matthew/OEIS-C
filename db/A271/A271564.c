@@ -8,7 +8,8 @@
  * Formula:   a(n) = 2*∏(p-2) – 2*∏(p-3), product over primes p ≤ pₙ, p>3
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 10, u64 n <= 16, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---- cumulative state --------------------------------------------------- */
 static size_t primes_cap = 0;          /* allocated size of primes[]   */
@@ -77,7 +79,7 @@ static void grow_cache(size_t need) {
     if (cache_cap >= need) return;
     size_t new_cap = cache_cap == 0 ? 8 : cache_cap * 2;
     while (new_cap < need) new_cap *= 2;
-    seq_t *new_arr = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, a_cache, new_cap);
     a_cache = new_arr;
     cache_cap = new_cap;
 }

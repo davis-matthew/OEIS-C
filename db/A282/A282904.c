@@ -14,13 +14,26 @@
  *            performed for k = 1, 2, … . The sequence is obtained by run...
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   digits_of, pow10
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
+ * Helpers:   num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/digits_of.h"
-#include "../utils/pow10.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/num_digits_idx.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -39,7 +52,7 @@ seq_t a(idx_t n)
         /* Compute C(k,m) for m = 1…k and accumulate block length */
         for (idx_t m = 1; m <= k; ++m) {
             binom = binom * (k - m + 1) / m;          /* C(k,m) */
-            int dlen = digits_of(m);                  /* decimal length of m */
+            int dlen = num_digits_idx(m);                  /* decimal length of m */
             block += binom * (seq_t)dlen;
         }
 
@@ -54,7 +67,7 @@ seq_t a(idx_t n)
             binom = 1;                                   /* reset binom for second loop */
             for (idx_t m = 1; m <= k; ++m) {
                 binom = binom * (k - m + 1) / m;          /* C(k,m) */
-                int dlen = digits_of(m);
+                int dlen = num_digits_idx(m);
                 seq_t group = binom * (seq_t)dlen;
                 if (remaining < group) {                 /* digit is in this group */
 

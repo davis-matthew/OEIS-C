@@ -10,9 +10,10 @@
  *            square array A(n,k) along antidiagonals. The implementation
  *            computes A(row,col) by dynamic programming counting paths of
  *            length 2*m (m = row*col) that never go below 0 and have...
- * Range:     u8 n <= 18, u16 n <= 38, u32 n <= 58, u64 n <= 95, u128 n <= 160,
+ * Range:     u8 n <= 23, u16 n <= 38, u32 n <= 58, u64 n <= 95, u128 n <= 160,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 71 terms through n = 3274 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static idx_t antidiagonal(idx_t n, idx_t *i, idx_t *j)
 {
@@ -44,7 +47,7 @@ static seq_t catalan(idx_t m)
 {
     if (m == 0)
         return (seq_t)1;
-    seq_t c = binom(2 * m, m);
+    seq_t c = binomial(2 * m, m);
     seq_t div = (seq_t)(m + 1);
     return c / div;
 }
@@ -60,12 +63,12 @@ static seq_t bounded_dyck(idx_t m, idx_t maxh)
         return (seq_t)0;   /* cannot stay above 0 when m>0 */
 
     size_t H = (size_t)(maxh + 1);
-    seq_t *dp_cur = (seq_t *)calloc(H, sizeof(seq_t));
-    seq_t *dp_next = (seq_t *)calloc(H, sizeof(seq_t));
+    seq_t *dp_cur = mem_new(seq_t, H);
+    seq_t *dp_next = mem_new(seq_t, H);
     if (!dp_cur || !dp_next) {
         /* fallback: return 0 on allocation failure */
-        free(dp_cur);
-        free(dp_next);
+        mem_free(dp_cur);
+        mem_free(dp_next);
         return (seq_t)0;
     }
 
@@ -90,8 +93,8 @@ static seq_t bounded_dyck(idx_t m, idx_t maxh)
     }
 
     seq_t result = dp_cur[0];
-    free(dp_cur);
-    free(dp_next);
+    mem_free(dp_cur);
+    mem_free(dp_next);
     return result;
 }
 

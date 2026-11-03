@@ -9,6 +9,7 @@
  *            T(i,j) = (i*j/6)*(4*i^2 + 6*i*j + 4*j^2 - 3*i - 9*j + 4)
  * Range:     u8 n <= 17, u16 n <= 334, u32 n <= 1275, u64 n <= 1275,
  *            u128 n <= 1275, big any n
+ * Validated: standard, pass, 90 terms through n = 1262 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

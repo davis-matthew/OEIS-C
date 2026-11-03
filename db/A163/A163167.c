@@ -6,21 +6,22 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn
  * Formula:   a(n) = sum_{d | φ(n)} μ( φ(d) ) * φ(n)/d
- * Range:     u8 n <= 178, u16 n <= 9649, u32 n <= 9649, u64 n <= 9649,
- *            u128 n <= 9649, big any n
- * Helpers:   mobius, phi
+ * Range:     u8 n <= 178, u16 n <= 10001, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 92 terms through n = 9649 (2026-11-01)
+ * Helpers:   mobius, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/phi.h"
 #include "../utils/mobius.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
     if (n < 1) return 0;
-    seq_t phi_n = phi(n);
+    seq_t phi_n = totient(n);
     idx_t phi_val = (idx_t)phi_n;
 
     int64_t sum = 0;
@@ -28,7 +29,7 @@ seq_t a(idx_t n)
     {
         if (phi_val % d == 0)
         {
-            seq_t phi_d = phi(d);
+            seq_t phi_d = totient(d);
             idx_t phi_d_val = (idx_t)phi_d;
             int mu = (int)mobius(phi_d_val);
             seq_t term = phi_n / (seq_t)d;
@@ -37,7 +38,7 @@ seq_t a(idx_t n)
             idx_t other = phi_val / d;
             if (other != d)
             {
-                seq_t phi_other = phi(other);
+                seq_t phi_other = totient(other);
                 idx_t phi_other_val = (idx_t)phi_other;
                 int mu_other = (int)mobius(phi_other_val);
                 seq_t term_other = phi_n / (seq_t)other;

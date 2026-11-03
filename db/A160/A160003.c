@@ -7,7 +7,8 @@
  * Formula:   a(n) = 25^n * Hermite(n, 1/25)
  * Range:     i8 n <= 1, i16 n <= 3, i32 n <= 5, i64 n <= 10, i128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 366 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /*             a(n) = 2*a(n-1) - 1250*(n-1)*a(n-2)  for n >= 2 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache of computed terms.  The cache grows on demand. */
 static seq_t *cache = NULL;        /* array of computed a(n) values      */
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* Initialise the cache if it does not yet exist.  Allocate space
        for a(0) and a(1) and store the initial values. */
     if (cached_len == 0) {
-        seq_t *tmp = (seq_t *)realloc(cache, 2 * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, 2);
         cache = tmp ? tmp : cache;          /* keep old pointer if realloc failed (unlikely) */
         cached_len = 2;
         cache[0] = (seq_t)1;                /* a(0) */
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
 
     /* Grow the cache to hold terms up to n. */
     if (n + 1 > cached_len) {
-        seq_t *tmp = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
         cache = tmp ? tmp : cache;          /* keep old pointer if realloc failed */
         cached_len = n + 1;
     }

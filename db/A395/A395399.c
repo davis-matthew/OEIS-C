@@ -10,8 +10,9 @@
  *            each assignment in S. This implements the inclusion–exclusion
  *            formula for the number of unsatisfiable 3‑SAT formulas with 3
  *            variables and n clauses
- * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 7, u64 n <= 20, u128 n <= 20,
+ * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 20, u128 n <= 20,
  *            big any n
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* Constants */

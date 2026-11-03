@@ -10,7 +10,8 @@
  *            0..3n in a 3‑column grid row­wise and reading them column­wise
  * Range:     u8 n <= 9, u16 n <= 33, u32 n <= 117, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _gcd_seq
+ * Validated: standard, pass, 65 terms through n = 883 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/_gcd_seq.h"
+#include "../utils/gcd.h"
 
 /* Euclidean algorithm for the (unsigned) type seq_t.  Works for
    built‑in unsigned types, __int128, and for the arbitrary‑precision
@@ -71,7 +72,7 @@ seq_t a(idx_t n)
 
         /* Update lcm(order, len) */
         seq_t len_seq = (seq_t)len;
-        seq_t g = _gcd_seq(order, len_seq);
+        seq_t g = gcd(order, len_seq);
         order = (order / g) * len_seq;
     }
 

@@ -10,7 +10,8 @@
  *            themselves nonprime
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   isPrime64
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/isPrime64.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 /* Dynamic array of nonprime numbers r(k). */
 static seq_t *r_seq = NULL;   /* r_seq[0] = r(1) = 0, r_seq[1] = r(2) = 1 */
@@ -34,7 +36,7 @@ static void ensure_r_cap(size_t min_cap)
         return;
     size_t new_cap = r_cap ? r_cap * 2 : 64;
     while (new_cap < min_cap) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(r_seq, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, r_seq, new_cap);
     r_seq = tmp;
     r_cap = new_cap;
 }
@@ -56,7 +58,7 @@ static void ensure_r(size_t need)
     while (r_len < need)
     {
         uint64_t val = r_next++;
-        if (!isPrime64(val))
+        if (!is_prime_u64(val))
         {
             r_seq[r_len++] = (seq_t)val;
         }
@@ -87,7 +89,7 @@ seq_t a(idx_t n)
         seq_t val = t3 + 1;                            /* a(n) candidate */
 
         /* val is nonprime if it is 0 or 1 or not prime. */
-        if (val <= 1 || !isPrime64((uint64_t)val))
+        if (val <= 1 || !is_prime_u64((uint64_t)val))
         {
             found++;
             if (found == (size_t)n)

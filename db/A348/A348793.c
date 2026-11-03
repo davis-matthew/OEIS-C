@@ -11,12 +11,14 @@
  *            independently and in any order
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 20, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 848 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* forward declaration of seq_t helpers (provided by build) */
 extern void seq_free_array(seq_t*);
@@ -34,7 +36,7 @@ static void ensure_cap(seq_t **arr, size_t *cap, size_t needed)
     if (*cap < needed) {
         size_t new_cap = (*cap == 0) ? 16 : (*cap << 1);
         if (new_cap < needed) new_cap = needed;
-        seq_t *ptr = (seq_t*)realloc(*arr, new_cap * sizeof(seq_t));
+        seq_t *ptr = mem_resize(seq_t, *arr, new_cap);
         *arr = ptr;
         *cap = new_cap;
     }

@@ -10,12 +10,14 @@
  *            matrices with entries 1..n and permanent > n
  * Range:     u8 n <= 4, u16 n <= 16, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
 
     /* Allocate array to hold frequencies of products p = b*c (<= n)
        and later cumulative counts F[t] = #{(b,c): b*c ≤ t}   */
-    seq_t *cum = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *cum = mem_new(seq_t, (n + 1));
     if (!cum) return 0;          /* fallback on allocation failure */
 
     /* initialize to 0 */
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
     total *= nn * nn;                /* n^4 */
 
     /* Free temporary array */
-    free(cum);
+    mem_free(cum);
 
     return total - bound;            /* number with permanent > n */
 }

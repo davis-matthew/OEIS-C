@@ -12,12 +12,14 @@
  *            derived from this product: Start with a[0] = 1, a[i]...
  * Range:     i8 n <= 7, i16 n <= 11, i32 n <= 18, i64 n <= 29, i128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 299 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t binom_u64(idx_t n, idx_t k)
 {
@@ -35,7 +37,7 @@ static seq_t binom_u64(idx_t n, idx_t k)
 seq_t a(idx_t n)
 {
     /* Allocate array for the coefficient sequence up to n. */
-    seq_t *a = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *a = mem_new(seq_t, (n + 1));
     if (!a) return (seq_t)0;          /* fallback: return 0 on allocation failure */
 
     for (idx_t i = 0; i <= n; ++i) a[i] = 0;
@@ -59,6 +61,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = a[n];
-    free(a);
+    mem_free(a);
     return result;
 }

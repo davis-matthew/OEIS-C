@@ -12,7 +12,8 @@
  *            sequentially and caches them for subsequent calls
  * Range:     i8 n <= 66, i16 n <= 2020, i32 n <= 2020, i64 n <= 2020,
  *            i128 n <= 2020, big any n
- * Helpers:   abs_seq
+ * Validated: full, pass, 2020 terms through n = 2020 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,13 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/abs_seq.h"
+#include "../utils/mem.h"
+
+/* absolute value for seq_t */
+static inline seq_t abs_seq(seq_t x)
+{
+    return (x >= 0) ? x : -x;
+}
 
 static seq_t *seq_cache = NULL;   /* cached terms */
 static size_t seq_len  = 0;       /* number of terms cached */
@@ -43,7 +50,7 @@ seq_t a(idx_t n)
     /* Ensure the first term is cached. */
     if (seq_len == 0) {
         seq_cap = 16;
-        seq_cache = (seq_t *)realloc(NULL, seq_cap * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, NULL, seq_cap);
         seq_cache[0] = 1;          /* a(1) = 1 */
         seq_len  = 1;
         seq_sum  = 1;
@@ -118,7 +125,7 @@ seq_t a(idx_t n)
         /* Extend cache storage if necessary. */
         if (seq_len >= seq_cap) {
             seq_cap = (seq_cap == 0) ? 16 : seq_cap * 2;
-            seq_cache = (seq_t *)realloc(seq_cache, seq_cap * sizeof(seq_t));
+            seq_cache = mem_resize(seq_t, seq_cache, seq_cap);
         }
 
         seq_cache[seq_len++] = best_a;

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 23, i16 n <= 57, i32 n <= 66, i64 n <= 66, i128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    powers of x.  This function builds the triangle rows incrementally,
    caches the flattened sequence, and returns a(n). */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -45,25 +47,25 @@ seq_t a(idx_t n)
     if (flat == NULL) {
         /* row 0 : {1} */
         r_prev2_len = 1;
-        row_prev2 = (seq_t *)malloc(r_prev2_len * sizeof(seq_t));
+        row_prev2 = mem_new(seq_t, r_prev2_len);
         row_prev2[0] = (seq_t)1;
 
         flat_cap = 1;
-        flat = (seq_t *)malloc(flat_cap * sizeof(seq_t));
+        flat = mem_new(seq_t, flat_cap);
         flat[0] = row_prev2[0];
         flat_len = 1;
 
         /* row 1 : {0,1} */
         current_row = 1;
         r_prev1_len = 2;
-        row_prev1 = (seq_t *)malloc(r_prev1_len * sizeof(seq_t));
+        row_prev1 = mem_new(seq_t, r_prev1_len);
         row_prev1[0] = (seq_t)0;
         row_prev1[1] = (seq_t)1;
 
         /* ensure enough capacity for the two rows */
         if (flat_cap < flat_len + r_prev1_len) {
             flat_cap = flat_len + r_prev1_len;
-            flat = (seq_t *)realloc(flat, flat_cap * sizeof(seq_t));
+            flat = mem_resize(seq_t, flat, flat_cap);
         }
         flat[flat_len++] = row_prev1[0];
         flat[flat_len++] = row_prev1[1];
@@ -77,7 +79,7 @@ seq_t a(idx_t n)
         idx_t r = current_row + 1;       /* row number to be constructed */
         size_t len = r + 1;              /* number of coefficients in row r */
 
-        seq_t *curr = (seq_t *)malloc(len * sizeof(seq_t));
+        seq_t *curr = mem_new(seq_t, len);
         for (size_t k = 0; k < len; ++k) {
             seq_t from_prev1 = (k > 0 && k - 1 < r_prev1_len) ? row_prev1[k - 1] : (seq_t)0;
             seq_t from_prev2 = (k < r_prev2_len) ? row_prev2[k] : (seq_t)0;
@@ -87,13 +89,13 @@ seq_t a(idx_t n)
         /* Append the new row to the flattened cache */
         if (flat_cap < flat_len + len) {
             flat_cap = flat_len + len;
-            flat = (seq_t *)realloc(flat, flat_cap * sizeof(seq_t));
+            flat = mem_resize(seq_t, flat, flat_cap);
         }
         for (size_t k = 0; k < len; ++k)
             flat[flat_len++] = curr[k];
 
         /* Shift rows: previous row1 becomes previous row2, etc. */
-        free(row_prev2);
+        mem_free(row_prev2);
         row_prev2   = row_prev1;
         r_prev2_len = r_prev1_len;
         row_prev1   = curr;

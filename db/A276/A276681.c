@@ -7,7 +7,8 @@
  * Formula:   a(n) = A000005( A000567(n) ) = number of divisors of n*(3*n-2)
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   divisor_count_u64
+ * Validated: standard, pass, 89 terms through n = 809 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,7 @@
 /*   where A000567(n) = n*(3*n-2) is the n-th octagonal number. */
 
 #include <stdint.h>                     /* for uint64_t */
-#include "../utils/divisor_count_u64.h"  /* provides divisor_count_u64 */
+#include "../utils/num_divisors.h"
 
 seq_t a(idx_t n)
 {
@@ -31,5 +32,5 @@ seq_t a(idx_t n)
     uint64_t oct = un * (3ULL * un - 2ULL);
 
     /* Return the divisor count as a seq_t value. */
-    return divisor_count_u64(oct);
+    return num_divisors(oct);
 }

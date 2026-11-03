@@ -11,7 +11,8 @@
  *            = 784, … (see OEIS A207789)
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 15, u64 n <= 41, u128 n <= 92,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 202 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static idx_t Vsize = 0;                    /* number of valid 7‑bit columns   */
 static unsigned char *valid = 0;           /* list of valid column patterns   */
@@ -93,8 +95,8 @@ static void init(void) {
     }
 
     /* 3) Allocate DP arrays */
-    cur = (seq_t*)malloc(S * sizeof(seq_t));
-    nxt = (seq_t*)malloc(S * sizeof(seq_t));
+    cur = mem_new(seq_t, S);
+    nxt = mem_new(seq_t, S);
 
     initialized = 1;
 }

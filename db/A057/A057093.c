@@ -8,13 +8,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 18, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 758 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Sequence A057093: a(n) = 10*(a(n-1)+a(n-2)), a(-1)=0, a(0)=1. */
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 /* Return the n-th term (n ≥ 0).  The function is lazily memoised in a
    static array so that calls in any order remain efficient. */
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* Initialise cache if this is the first call.  a(0) = 1. */
     if (length == 0) {
         capacity = 1;
-        cache = (seq_t *)malloc(capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, capacity);
         if (!cache) return (seq_t)0;       /* memory allocation failed */
         cache[0] = (seq_t)1;
         length = 1;
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     if (idx >= capacity) {
         size_t newcap = capacity ? capacity : 1;
         while (newcap <= idx) newcap <<= 1;   /* double until sufficient */
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp) return (seq_t)0;           /* memory allocation failed */
         cache = tmp;
         capacity = newcap;

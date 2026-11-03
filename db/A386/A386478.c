@@ -10,8 +10,9 @@
  *            antidiagonals: Let d be the largest integer with d·(d+1)/2 ≤ n.
  *            Let pos = n - d·(d+1)/2 (0 ≤ pos ≤ d). Then k = d - pos ncol =
  *            pos
- * Range:     u8 n <= 47, u16 n <= 794, u32 n <= 9754, u64 n <= 9754,
- *            u128 n <= 9754, big any n
+ * Range:     u8 n <= 47, u16 n <= 794, u32 n <= 11324, u64 n <= 11324,
+ *            u128 n <= 11324, big any n
+ * Validated: standard, pass, 107 terms through n = 9754 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,17 +7,21 @@
  * Formula:   a(n) = 7^n * Catalan(n)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 14, u128 n <= 28,
  *            big any n
- * Helpers:   catalan, pow_uint
+ * Validated: standard, pass, 33 terms through n = 194 (2026-11-01)
+ * Helpers:   catalan, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/catalan.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
-    seq_t pow7 = pow_uint(7, n);      /* 7^n */
+    seq_t pow7 = ipow_u64_idx(7, n);      /* 7^n */
     seq_t cat  = catalan(n);          /* Catalan(n) */
     return pow7 * cat;                /* 7^n * Catalan(n) */
 }

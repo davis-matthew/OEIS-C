@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, look
  * Formula:   not stated
- * Range:     u8 none, u16 n <= 9868, u32 n <= 9868, u64 n <= 9868,
- *            u128 n <= 9868, big any n
- * Helpers:   next_prime
+ * Range:     u8 none, u16 n <= 30000, u32 n <= 30000, u64 n <= 30000,
+ *            u128 n <= 30000, big any n
+ * Validated: standard, pass, 66 terms through n = 9868 (2026-11-03)
+ * Helpers:   mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/next_prime.h"   /* for uint64_t next_prime(uint64_t) */
+#include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
  /* --- prime sieve ------------------------------------------------------ */
 
@@ -72,10 +74,10 @@ static void ensure_capacity(idx_t idx)
     size_t new_cap = perm_cap ? perm_cap << 1 : 8;
     while ((size_t)idx >= new_cap) new_cap <<= 1;
 
-    seq_t *new_arr = (seq_t*)realloc(perm, new_cap * sizeof(*perm));
+    seq_t *new_arr = mem_resize(seq_t, perm, new_cap);
     if (!new_arr) abort();
 
-    memset(new_arr + perm_cap, 0, (new_cap - perm_cap) * sizeof(*perm));
+    mem_set(new_arr + perm_cap, 0, (new_cap - perm_cap) * sizeof(*perm));
     perm = new_arr;
     perm_cap = new_cap;
 }
@@ -148,7 +150,7 @@ seq_t a(idx_t n)
 
     if (perm == NULL) {
         perm_cap = 8;
-        perm = (seq_t*)calloc(perm_cap, sizeof(*perm));   /* perm[0] unused */
+        perm = mem_new(seq_t, perm_cap);   /* perm[0] unused */
         if (!perm) abort();
     }
 

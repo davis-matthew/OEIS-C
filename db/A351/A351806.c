@@ -7,7 +7,8 @@
  * Formula:   a(n) = denominator(6*2^(6*n)/(6*n + 3)!)
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 2, u64 n <= 3, u128 n <= 6,
  *            big any n
- * Helpers:   build_primes_upto, pow_uint
+ * Validated: partial, pass, 9 terms through n = 8 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/pow_uint.h"
 #include "../utils/build_primes_upto.h"
+#include "../utils/ipow_u64_idx.h"
 
 static idx_t exponent_factorial(idx_t p, idx_t m)
 {
@@ -54,7 +55,7 @@ seq_t a(idx_t n)
         }
 
         if (e > 0) {
-            seq_t mult = pow_uint(p, e);
+            seq_t mult = ipow_u64_idx(p, e);
             result *= mult;
         }
     }

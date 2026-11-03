@@ -7,12 +7,14 @@
  * Formula:   a(n) = 3*a(n-1) + 2*a(n-2), a(0) = -1, a(1) = 3
  * Range:     i8 n <= 4, i16 n <= 8, i32 n <= 17, i64 n <= 34, i128 n <= 69,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 979 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* stored sequence values      */
 static idx_t cache_cap = 0;          /* allocated array size (bytes) */
@@ -26,7 +28,7 @@ static void ensure_cache(idx_t n)
     idx_t new_cap = cache_cap > 0 ? cache_cap : 2;
     while (new_cap <= n)
         new_cap <<= 1;               /* double until big enough   */
-    seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         abort();                     /* allocation failed          */
     cache = tmp;
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     /* lazy allocation of cache */
     if (cache == NULL) {
         cache_cap = 2;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         if (!cache)
             abort();
         cache_len = 0;

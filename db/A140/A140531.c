@@ -8,13 +8,15 @@
  *            t=floor((-1+sqrt(8*n-7))/2)
  * Range:     u8 n <= 53, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Compute the sequence A140531 (concatenation of 0,1,2,4,...).  */
-#include "../utils/pow2.h"   /* provides seq_t pow2(idx_t exp) */
+#include <stdbool.h>
+#include "../utils/pow2.h"
 
 /* Integer square‑root of a 128‑bit unsigned integer, floor. */
 static inline idx_t isqrt_u128(unsigned __int128 val)

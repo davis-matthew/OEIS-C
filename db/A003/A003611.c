@@ -11,13 +11,19 @@
  *            (S_k(h)^2 - S_2k(h))/2 + 2^k * S_2k(h) ), a...
  * Range:     u8 n <= 9, u16 n <= 16, u32 n <= 28, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   a3611_mul
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/a3611_mul.h"
+#include "../utils/mem.h"
+
+static seq_t a3611_mul(seq_t x, seq_t y)
+{
+    return (seq_t)(x * (y + 0u));
+}
 
 #define A3611_MAXLEV 80
 
@@ -32,7 +38,7 @@ static void a3611_build(idx_t N)
     idx_t M, m, i;
     seq_t pk[A3611_MAXLEV];
 
-    for (j = 0; j < a3611_nlev; j++) free(a3611_L[j]);
+    for (j = 0; j < a3611_nlev; j++) mem_free(a3611_L[j]);
     a3611_nlev = 0;
 
     M = N;
@@ -46,7 +52,7 @@ static void a3611_build(idx_t N)
 
     for (j = 0; j < a3611_nlev; j++) {
         idx_t len = a3611_M[j] + 1;
-        a3611_L[j] = (seq_t *)malloc((size_t)len * sizeof(seq_t));
+        a3611_L[j] = mem_new(seq_t, (size_t)len);
         for (i = 0; i < len; i++) a3611_L[j][i] = 0;
     }
 

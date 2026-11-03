@@ -7,13 +7,13 @@
  * Formula:   Multiplicative with a(p^e) = ((p+1)^(e+1)-1)/p
  * Range:     u8 n <= 31, u16 n <= 1023, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a000272_ipow
+ * Validated: standard, pass, 79 terms through n = 9859 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a000272_ipow.h"
-
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n) {
     if (n == 1) return 1;
@@ -32,7 +32,7 @@ seq_t a(idx_t n) {
             }
             // Compute contribution a(p^e) = ((p+1)^(e+1) - 1) / p
             seq_t p_plus_1 = (seq_t)(p + 1);
-            seq_t power = a000272_ipow(p_plus_1, (idx_t)(e + 1));
+            seq_t power = ipow_idx(p_plus_1, (idx_t)(e + 1));
             seq_t numerator = power - 1;
             seq_t contribution = numerator / (seq_t)p;
             result *= contribution;

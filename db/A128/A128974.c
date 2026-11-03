@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 167, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 8224 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Fast doubling:  computes Fn and Fn+1 modulo mod.  */
 static void fib_mod(idx_t n, idx_t mod, idx_t *fn, idx_t *fn1)
@@ -66,7 +68,7 @@ static void ensure_queue_capacity(size_t needed)
     size_t newcap = qcap == 0 ? 256 : qcap << 1;
     if (newcap < needed)
         newcap = needed;
-    seq_t *newptr = (seq_t *)realloc(queue, newcap * sizeof(seq_t));
+    seq_t *newptr = mem_resize(seq_t, queue, newcap);
     if (!newptr)
         abort();                      /* out of memory */
     queue = newptr;

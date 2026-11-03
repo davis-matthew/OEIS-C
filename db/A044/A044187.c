@@ -11,14 +11,32 @@
  *            "00" as a substring but the preceding integer does not
  * Range:     u8 n <= 3, u16 n <= 40, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   has_consecutive_zero_base8
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/has_consecutive_zero_base8.h"
+
+/* Return true if the base‑8 representation of x contains the substring "00". */
+static bool has_consecutive_zero_base8(idx_t x)
+{
+    if (x < 8)          /* single digit, cannot have two zeros */
+        return false;
+
+    int prev = x % 8;
+    x /= 8;
+    while (x > 0) {
+        int cur = x % 8;
+        if (cur == 0 && prev == 0)
+            return true;
+        prev = cur;
+        x /= 8;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

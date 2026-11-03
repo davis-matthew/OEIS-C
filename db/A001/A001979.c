@@ -9,18 +9,20 @@
  *            Product_{i=1..7} (1-q^(n+i))/(1-q^i)
  * Range:     u8 n <= 7, u16 n <= 25, u32 n <= 182, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 989 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     size_t W = (size_t)((7 * (uint64_t)n) / 2);
     size_t k, i;
-    seq_t *c = (seq_t *)malloc((W + 1) * sizeof(seq_t));
+    seq_t *c = mem_new(seq_t, (W + 1));
     seq_t result;
 
     for (k = 0; k <= W; k++) c[k] = 0;
@@ -41,6 +43,6 @@ seq_t a(idx_t n) {
     }
 
     result = c[W];
-    free(c);
+    mem_free(c);
     return result;
 }

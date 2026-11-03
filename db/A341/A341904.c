@@ -8,19 +8,21 @@
  * Formula:   a(n) = number of representations of n as Σ e_i·F_i with
  *            e_i∈{0,1,2} and the Fibonacci numbers F_i = 1,2,3,5,… (F_1=1,
  *            F_2=2)
- * Range:     u8 n <= 182, u16 n <= 9394, u32 n <= 9394, u64 n <= 9394,
- *            u128 n <= 9394, big any n
- * Helpers:   none
+ * Range:     u8 n <= 182, u16 n <= 13777, u32 n <= 17711, u64 n <= 17711,
+ *            u128 n <= 17711, big any n
+ * Validated: standard, pass, 84 terms through n = 9394 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate DP array of size n+1.  Use malloc to be compatible with C and C++. */
-    seq_t *dp = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (n + 1));
     if (!dp)
         return (seq_t)0;        /* allocation failed */
 
@@ -51,6 +53,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

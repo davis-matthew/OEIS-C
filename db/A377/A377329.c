@@ -11,13 +11,15 @@
  *            in range of the type seq_t are done with that t...
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <limits.h>
+#include "../utils/mem.h"
 
 /* static state for memoisation */
 static seq_t *cache      = NULL;   /* a(0)…a(n) */
@@ -32,7 +34,7 @@ static void ensure_cache(idx_t n)
     if (cache_len <= (size_t)n) {
         size_t new_len = n + 1;
         if (new_len < 2 * cache_len) new_len = 2 * cache_len;
-        cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_len);
         cache_len = new_len;
     }
 }
@@ -43,11 +45,11 @@ seq_t a(idx_t n)
     if (ready_n == (idx_t)-1) {
         ready_n   = 0;
         cache_len = 1;
-        cache     = (seq_t *)malloc(sizeof(seq_t));
+        cache     = mem_new(seq_t, 1);
         cache[0]  = (seq_t)1;          /* a(0) = 1 */
 
         Sprev_len = 1;
-        Sprev     = (seq_t *)malloc(sizeof(seq_t));
+        Sprev     = mem_new(seq_t, 1);
         Sprev[0]  = (seq_t)1;          /* S(0,0) = 1 */
     }
 
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
     /* Compute rows up to n */
     for (idx_t m = ready_n + 1; m <= n; ++m) {
         /* Build current Stirling row of length m+1 */
-        seq_t *Scur = (seq_t *)malloc((m + 1) * sizeof(seq_t));
+        seq_t *Scur = mem_new(seq_t, (m + 1));
 
         /* S(m,0) = 0 except for m=0 handled above */
         if (m == 0) {
@@ -92,7 +94,7 @@ seq_t a(idx_t n)
         cache[m] = sum;
 
         /* Prepare for next iteration: free old row, keep current */
-        free(Sprev);
+        mem_free(Sprev);
         Sprev     = Scur;
         Sprev_len = m + 1;
         ready_n   = m;

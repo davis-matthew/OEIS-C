@@ -7,15 +7,29 @@
  * Formula:   a(n) = Product_{i=1..11} (7^(n-i+1)-1)/(7^i-1)
  * Range:     u8 n <= 11, u16 n <= 11, u32 n <= 12, u64 n <= 13, u128 n <= 15,
  *            big any n
- * Helpers:   alloc_seq_array, free_seq_array
+ * Validated: standard, pass, 23 terms through n = 111 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Computed via recurrence of Gaussian binomial coefficients:
    [n,k]_q = [n-1,k]_q + q^{n-k} [n-1,k-1]_q  with q=7, k=11 */
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 seq_t a(idx_t n)
 {

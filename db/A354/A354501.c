@@ -11,6 +11,7 @@
  *            result r(x) is taken as an 8‑bit integer
  * Range:     u8 n <= 255, u16 n <= 255, u32 n <= 255, u64 n <= 255,
  *            u128 n <= 255, big any n
+ * Validated: full, pass, 256 terms through n = 255 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

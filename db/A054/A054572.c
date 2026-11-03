@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   gcd, sigma_of
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,22 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/gcd.h"
-#include "../utils/sigma_of.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 typedef struct {
     seq_t      sigma;      /* key */
@@ -48,7 +64,7 @@ static uint64_t current_b = 0;      /* last processed number */
 /* ---------- utilities ---------- */
 static void grow_terms(void) {
     size_t new_cap = (terms_cap == 0) ? 1024 : terms_cap * 2;
-    seq_t *new_ptr = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, terms, new_cap);
     if (!new_ptr) abort();
     terms = new_ptr;
     terms_cap = new_cap;
@@ -70,7 +86,7 @@ static void bucket_append(bucket_t *b, uint64_t val) {
 /* ---------- hash helpers ---------- */
 static void init_hash(void) {
     if (hash) return;
-    hash = (bucket_t *)calloc(hash_size, sizeof(bucket_t));
+    hash = mem_new(bucket_t, hash_size);
     if (!hash) abort();
 }
 
@@ -101,7 +117,7 @@ static bucket_t *bucket_lookup(seq_t sigma, bool create) {
 
 static void rehash(void) {
     size_t new_size = hash_size * 2;
-    bucket_t *new_hash = (bucket_t *)calloc(new_size, sizeof(bucket_t));
+    bucket_t *new_hash = mem_new(bucket_t, new_size);
     if (!new_hash) abort();
 
     for (size_t i = 0; i < hash_size; ++i) {
@@ -111,7 +127,7 @@ static void rehash(void) {
         while (new_hash[idx].len != 0) idx = (idx + 1) & (new_size - 1);
         new_hash[idx] = *b;          /* copy bucket data */
     }
-    free(hash);
+    mem_free(hash);
     hash = new_hash;
     hash_size = new_size;
     /* hash_used unchanged */

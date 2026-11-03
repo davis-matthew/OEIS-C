@@ -7,13 +7,16 @@
  * Formula:   a(n) = Sum_{p|n, p prime} p^gcd(p,n/p)
  * Range:     u8 n <= 24, u16 n <= 48, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   big_pow, gcd
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-01)
+ * Helpers:   gcd, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/gcd.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +33,7 @@ seq_t a(idx_t n)
             /* compute power for this prime divisor */
             uint64_t m = original_n / p;
             seq_t exp = gcd((seq_t)p, (seq_t)m);
-            seq_t term = big_pow((seq_t)p, exp);
+            seq_t term = ipow((seq_t)p, exp);
             sum += term;
 
             /* strip all powers of p from temp */
@@ -44,7 +47,7 @@ seq_t a(idx_t n)
         uint64_t p = temp;
         uint64_t m = original_n / p;
         seq_t exp    = gcd((seq_t)p, (seq_t)m);
-        seq_t term   = big_pow((seq_t)p, exp);
+        seq_t term   = ipow((seq_t)p, exp);
         sum += term;
     }
 

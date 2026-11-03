@@ -8,7 +8,8 @@
  *            binomial(2k,n-2k)/k!
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 26,
  *            big any n
- * Helpers:   binomial, seq_mul, seq_pow
+ * Validated: standard, pass, 36 terms through n = 328 (2026-11-03)
+ * Helpers:   binomial, ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,16 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/binomial.h"   /* seq_t binomial(idx_t a, idx_t b); */
-#include "../utils/seq_mul.h"    /* seq_t seq_mul(seq_t a, seq_t b); */
-#include "../utils/seq_pow.h"    /* seq_t seq_pow(seq_t base, idx_t exp); */
+#include <stdint.h>
+#include <string.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -30,7 +38,7 @@ seq_t a(idx_t n)
 
     if (fact_len == 0) {
         fact_cap = 16;
-        fact = (seq_t*)malloc(fact_cap * sizeof(seq_t));
+        fact = mem_new(seq_t, fact_cap);
         fact[0] = 1u;            /* 0! = 1 */
         fact_len = 1;
     }
@@ -39,7 +47,7 @@ seq_t a(idx_t n)
         if (need > fact_cap) {
             size_t new_cap = fact_cap * 2;
             while (new_cap < need) new_cap *= 2;
-            fact = (seq_t*)realloc(fact, new_cap * sizeof(seq_t));
+            fact = mem_resize(seq_t, fact, new_cap);
             fact_cap = new_cap;
         }
         for (idx_t i = fact_len; i <= n; ++i) {
@@ -55,14 +63,14 @@ seq_t a(idx_t n)
 
     if (cache == NULL) {
         cache_cap = 16;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache_len = 0;
     }
     if ((size_t)n >= cache_cap) {
         size_t need = (size_t)(n + 1);
         size_t new_cap = cache_cap * 2;
         while (new_cap < need) new_cap *= 2;
-        cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 
@@ -74,7 +82,7 @@ seq_t a(idx_t n)
         seq_t sum = 0;
         idx_t maxk = i / 2;
         for (idx_t k = 1; k <= maxk; ++k) {
-            seq_t pow_term  = seq_pow((seq_t)(i + 1), (idx_t)(k - 1));          /* (n+1)^(k-1) */
+            seq_t pow_term  = ipow_idx((seq_t)(i + 1), (idx_t)(k - 1));          /* (n+1)^(k-1) */
             seq_t binom     = binomial(2 * k, i - 2 * k);                       /* C(2k, n-2k) */
             seq_t temp      = fact[i] / fact[k];                                /* n! / k! */
 

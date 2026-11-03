@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 16, u32 n <= 16, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   is_prime_generic
+ * Validated: full, pass, 16 terms through n = 16 (2026-11-02)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
     (obtained for n = 105).  This implementation performs a brute‑force
     search over n from 2 to 105, using the supplied is_prime_generic
     routine.  The terms are memoised for subsequent calls. */
-#include "../utils/is_prime_generic.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/is_prime.h"
 
 seq_t a(idx_t n) {
     /* memoised list of terms already found */
@@ -32,8 +35,8 @@ seq_t a(idx_t n) {
             bool ok = true;
             idx_t upper = 2 * k - 2;
             for (idx_t p = k; ok && p <= upper; ++p) {
-                if (is_prime_generic(p)) {
-                    if (!is_prime_generic(2 * k - p)) {
+                if (is_prime(p)) {
+                    if (!is_prime(2 * k - p)) {
                         ok = false;
                     }
                 }

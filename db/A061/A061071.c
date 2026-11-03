@@ -9,7 +9,8 @@
  *            d(j) is the number of positive divisors of j
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 105 terms through n = 9882 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     }
 
     /* --- Tau array (divisor counts) ----------------------------------- */
-    seq_t *tau = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *tau = mem_new(seq_t, (size_t)(n + 1));
     if (!tau) { free(spf); return (seq_t)0; }
 
     tau[1] = (seq_t)1;
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
 
     /* --- Count distinct tau values ----------------------------------- */
     bool *seen = (bool *)calloc(max_tau_sz + 1, sizeof(bool));
-    if (!seen) { free(tau); free(spf); return (seq_t)0; }
+    if (!seen) { mem_free(tau); free(spf); return (seq_t)0; }
 
     seq_t distinct = (seq_t)0;
     for (uint64_t i = 1; i <= (uint64_t)n; ++i) {
@@ -84,7 +86,7 @@ seq_t a(idx_t n)
         }
     }
 
-    free(tau);
+    mem_free(tau);
     free(spf);
     free(seen);
 

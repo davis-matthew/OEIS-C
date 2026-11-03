@@ -9,7 +9,8 @@
  *            sequence, otherwise a(n) = a(n-1)+3
  * Range:     u8 n <= 127, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 9280 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The types seq_t and idx_t are supplied by the build system. */
 
@@ -33,7 +35,7 @@ seq_t a(idx_t n) {
     /* Initialise on first call. */
     if (maxN == 0) {
         /* Allocate space for the first two indices (a_vals[0] unused). */
-        a_vals = (seq_t*)malloc(2 * sizeof(seq_t));
+        a_vals = mem_new(seq_t, 2);
         if (a_vals == NULL) return (seq_t)0;
         a_vals[1] = (seq_t)1;
         maxN = 1;
@@ -42,7 +44,7 @@ seq_t a(idx_t n) {
         seenCap = 2;
         seen = (bool*)malloc(seenCap * sizeof(bool));
         if (seen == NULL) {
-            free(a_vals);
+            mem_free(a_vals);
             return (seq_t)0;
         }
         for (size_t i = 0; i < seenCap; ++i)
@@ -53,7 +55,7 @@ seq_t a(idx_t n) {
     /* Grow the sequence array if necessary. */
     if (n >= maxN) {
         size_t newSize = (size_t)(n + 1);           /* +1 for 1‑based indexing */
-        seq_t *tmp = (seq_t*)realloc(a_vals, newSize * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_vals, newSize);
         if (tmp == NULL) return a_vals[maxN];      /* allocation failure – return last known value */
         a_vals = tmp;
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 241, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   factor_u64, mod_pow, next_prime
+ * Validated: standard, pass, 58 terms through n = 979 (2026-11-03)
+ * Helpers:   factor_u64, mem, next_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,12 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/next_prime.h"
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <string.h>
 #include "../utils/factor_u64.h"
+#include "../utils/next_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static state to cache already found terms */
@@ -39,7 +43,7 @@ seq_t a(idx_t n) {
             seq_t mod_p = (seq_t)p;
 
             /* Check that 2^t ≡ 1 (mod p) */
-            if (mod_pow((seq_t)2, t, mod_p) == (seq_t)1) {
+            if (powmod((seq_t)2, t, mod_p) == (seq_t)1) {
                 /* factor t and verify minimality of the order */
                 uint64_t primes[32];
                 uint64_t exps[32];
@@ -49,7 +53,7 @@ seq_t a(idx_t n) {
                 bool ok = true;
                 for (size_t i = 0; i < pf_cnt && ok; ++i) {
                     uint64_t q = primes[i];
-                    if (mod_pow((seq_t)2, t / q, mod_p) == (seq_t)1)
+                    if (powmod((seq_t)2, t / q, mod_p) == (seq_t)1)
                         ok = false;
                 }
 
@@ -57,7 +61,7 @@ seq_t a(idx_t n) {
                     /* Store the prime in the cache */
                     if (cache_size >= cache_cap) {
                         size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-                        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                         if (!tmp) { /* allocation failure */
                             /* In an actual implementation we would handle this,
                                but for brevity we simply return 0. */

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 272, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 844 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* --- internal data ---------------------------------------------- */
 
@@ -101,7 +103,7 @@ static void fill_cache_up_to(idx_t target)
         idx_t init_n = 100000;                     /* covers many early terms */
         build_sieve(8 * init_n + 9);
         cache_cap = 4096;
-        cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) exit(1);
         cache_len = 0;
         last_n_scanned = 1;
@@ -114,7 +116,7 @@ static void fill_cache_up_to(idx_t target)
             /* store the term */
             if (cache_len >= cache_cap) {
                 cache_cap <<= 1;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
                 if (!cache) exit(1);
             }
             cache[cache_len++] = (seq_t)n;

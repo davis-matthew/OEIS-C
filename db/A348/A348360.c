@@ -7,7 +7,8 @@
  * Formula:   a(n) = Product_{d|n} d^(d')
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 7, u64 n <= 11, u128 n <= 15,
  *            big any n
- * Helpers:   big_pow, factor_u64, seq_mul
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,16 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
-#include "../utils/seq_mul.h"
+#include "../utils/ipow.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 static void rec(int idx, uint64_t cur_div, int *chosen,
                 uint64_t *primes, int *exps, int cnt, seq_t *result)
@@ -36,7 +44,7 @@ static void rec(int idx, uint64_t cur_div, int *chosen,
             }
         }
         /* Multiply the current result by cur_div^d_prime. */
-        seq_t power = big_pow((seq_t)cur_div, d_prime);
+        seq_t power = ipow((seq_t)cur_div, d_prime);
         *result = seq_mul(*result, power);
         return;
     }

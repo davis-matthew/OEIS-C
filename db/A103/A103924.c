@@ -11,13 +11,36 @@
  *            larger sizes have a single colour
  * Range:     u8 n <= 8, u16 n <= 24, u32 n <= 78, u64 n <= 286,
  *            u128 n <= 1122, big any n
- * Helpers:   alloc_seq_array, free_seq_array
+ * Validated: standard, pass, 56 terms through n = 9160 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
+#include <stdint.h>
+#include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
+
+/* Allocate an array of seq_t, compatible with C and C++ */
+static inline seq_t *alloc_seq_array(size_t cap)
+{
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t *)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+/* Free an array of seq_t, compatible with C and C++ */
+static inline void free_seq_array(seq_t *ptr)
+{
+#ifdef __cplusplus
+    delete [] ptr;
+#else
+    free(ptr);
+#endif
+}
 
 static seq_t *dp = NULL;    /* dp[i] = a(i) for 0 <= i <= precomp */
 static idx_t  precomp = 0;   /* highest n that has been computed */

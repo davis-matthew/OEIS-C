@@ -11,7 +11,8 @@
  *            Lucas_{k-1} and signs alternate starting with...
  * Range:     i8 n <= 31, i16 n <= 98, i32 n <= 338, i64 n <= 1250,
  *            i128 n <= 4614, big any n
- * Helpers:   _floor_isqrt_u64, binom
+ * Validated: standard, pass, 82 terms through n = 6134 (2026-11-01)
+ * Helpers:   binomial, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 /* utility functions provided by the build system */
-#include "../utils/binom.h"
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/binomial.h"
+#include "../utils/isqrt.h"
 
 /* compute Lucas number L_n (n >= 0) */
 static seq_t lucas_number(idx_t n)
@@ -40,7 +41,7 @@ static seq_t lucas_number(idx_t n)
 seq_t a(idx_t n)
 {
     /* find row index m: m = floor((sqrt(8*n+1)-1)/2) */
-    idx_t sq = _floor_isqrt_u64(8*n + 1);   /* sqrt is small for n <= 10000 */
+    idx_t sq = isqrt(8*n + 1);   /* sqrt is small for n <= 10000 */
     idx_t m = (sq - 1) / 2;
 
     /* column index k */
@@ -62,7 +63,7 @@ seq_t a(idx_t n)
     }
 
     /* binomial coefficient */
-    seq_t bin = binom(m, k);
+    seq_t bin = binomial(m, k);
 
     return bin * c;
 }

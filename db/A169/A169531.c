@@ -9,12 +9,14 @@
  *            666*a(n−34) + p_n, where p_0=1, p_1…p_33=2, p_34=1, others 0
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are supplied by the build (not defined here). */
 
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     /* Ensure the first value a(0)=1 is present. */
     if (cache_len == 0) {
         cache_cap = 1;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) exit(1);
         cache[0] = (seq_t)1;
         cache_len = 1;
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
         size_t new_cap = cache_cap ? cache_cap : 1;
         while (new_cap <= idx) new_cap *= 2;
 
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) exit(1);
         cache = tmp;
         cache_cap = new_cap;

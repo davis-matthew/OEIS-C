@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 18, u128 n <= 36,
  *            big any n
- * Helpers:   digit_len
+ * Validated: standard, pass, 36 terms through n = 873 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,7 +35,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/digit_len.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
 
 typedef struct {
     seq_t u;          /* current u = 2x+1 of the Pell solution */
@@ -61,7 +63,7 @@ static void pell_ensure_next(PellGen *g)
         seq_t xu = (g->u + (seq_t)1) / (seq_t)2;  /* b = x+1 = (u+1)/2 */
         seq_t yu = (g->v + (seq_t)1) / (seq_t)2;  /* a = y+1 = (v+1)/2 */
 
-        if (digit_len(xu) - digit_len(yu) == 1) {
+        if (num_digits(xu) - num_digits(yu) == 1) {
             g->next_x = xu - (seq_t)1;   /* x = xu – 1 */
             g->ready   = true;
             pell_advance(g);             /* advance past the used solution */
@@ -108,7 +110,7 @@ seq_t a(idx_t n)
         /* append the smallest term to the cache */
         if (cache_len == cache_cap) {
             size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-            seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
             if (!new_cache) abort();  /* out of memory */
             cache = new_cache;
             cache_cap = new_cap;

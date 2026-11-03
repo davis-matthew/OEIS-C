@@ -9,7 +9,8 @@
  * Formula:   a(n) = n + floor((8*n^2 - 1)^(1/3))
  * Range:     u8 n <= 5, u16 n <= 75, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   icbrt_seq_t
+ * Validated: partial, pass, 90 terms through n = 90 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,26 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/icbrt_seq_t.h"
+
+/* Integer cube‑root: largest integer r with r³ ≤ x. */
+static idx_t icbrt_seq_t(seq_t x)
+{
+    idx_t low = 0, high = 1;
+    /* Grow high until high³ > x */
+    while ((seq_t)high * high * high <= x)
+        high <<= 1;          /* high stays well below the true root for ^64‑bit x */
+
+    /* Binary search [low, high) */
+    while (low < high) {
+        idx_t mid = low + ((high - low + 1) >> 1);
+        seq_t mc = (seq_t)mid * mid * mid;
+        if (mc <= x)
+            low = mid;
+        else
+            high = mid - 1;
+    }
+    return low;
+}
 
 seq_t a(idx_t n)
 {

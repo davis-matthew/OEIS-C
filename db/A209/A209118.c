@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 67, u64 n <= 210, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
       a(12)=885874,a(13)=1303543
 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache of computed values */
@@ -46,7 +48,7 @@ seq_t a(idx_t n) {
     if (cache == NULL) {
         /* need space for indices 0..13 at least */
         cache_used = 13;
-        cache = (seq_t*)malloc((cache_used + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (cache_used + 1));
         if (cache == NULL) return (seq_t)0;  /* unlikely but guard */
         for (idx_t i = 1; i <= 13; ++i)
             cache[i] = init_vals[i];
@@ -60,7 +62,7 @@ seq_t a(idx_t n) {
     if (n > cache_used) {
         size_t old_len = cache_used + 1;
         size_t new_len = n + 1;
-        cache = (seq_t*)realloc(cache, new_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_len);
         if (cache == NULL) return (seq_t)0;  /* guard */
         /* zero-initialize newly allocated part */
         for (idx_t i = old_len; i <= n; ++i)

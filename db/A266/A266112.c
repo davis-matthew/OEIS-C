@@ -7,9 +7,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = 1 if there is no k < n with k - tau(k) = n - tau(n); 0
  *            otherwise. Here tau(m) = A000005(m), the number of divisors
- * Range:     u8 n <= 9668, u16 n <= 9668, u32 n <= 9668, u64 n <= 9668,
- *            u128 n <= 9668, big any n
- * Helpers:   divisor_count_u64
+ * Range:     u8 n <= 131072, u16 n <= 131072, u32 n <= 131072,
+ *            u64 n <= 131072, u128 n <= 131072, big any n
+ * Validated: standard, pass, 144 terms through n = 9668 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
 
 static idx_t *min_idx = NULL;   /* storing the smallest index seen for each d = n - tau(n) */
 static idx_t  max_n   = 0;      /* largest n that has been processed */
@@ -49,7 +50,7 @@ static void preprocess_up_to(idx_t n)
     if (n <= max_n)
         return;
     for (idx_t i = max_n + 1; i <= n; ++i) {
-        uint64_t tau = divisor_count_u64((uint64_t)i);
+        uint64_t tau = num_divisors((uint64_t)i);
         idx_t d = i - (idx_t)tau;
         grow_min_idx((size_t)d + 1);
         if (min_idx[d] == 0)
@@ -66,7 +67,7 @@ seq_t a(idx_t n)
     preprocess_up_to(n);
 
     /* determine the value for n itself */
-    uint64_t tau_n = divisor_count_u64((uint64_t)n);
+    uint64_t tau_n = num_divisors((uint64_t)n);
     idx_t d_n = n - (idx_t)tau_n;
 
     /* if the minimal index for this d is this n, it is the first occurrence */

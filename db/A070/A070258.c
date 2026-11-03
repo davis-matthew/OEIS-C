@@ -9,7 +9,8 @@
  *            square
  * Range:     u8 n <= 5, u16 n <= 1231, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64
+ * Validated: standard, pass, 61 terms through n = 9348 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* Return true iff x has a square divisor > 1.  */
 static bool has_square(uint64_t x)
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     /* Grow the array lazily when needed.  */
     if (cap == 0) {
         cap = 8;
-        terms = (seq_t *)malloc(cap * sizeof(seq_t));
+        terms = mem_new(seq_t, cap);
         if (!terms)
             abort();
     }
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
         /* Store the found value.  Expand storage if necessary.  */
         if (len == cap) {
             size_t newcap = cap * 2;
-            seq_t *tmp = (seq_t *)realloc(terms, newcap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, terms, newcap);
             if (!tmp)
                 abort();
             terms = tmp;

@@ -8,13 +8,22 @@
  * Formula:   brute force search for semi‑one numbers
  * Range:     u8 n <= 4, u16 n <= 13, u32 n <= 16, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   has_digit_one
+ * Validated: full, pass, 16 terms through n = 16 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/has_digit_one.h"
+
+static inline bool has_digit_one(idx_t x)
+{
+    while (x > 0) {
+        if (x % 10 == 1) return true;
+        x /= 10;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

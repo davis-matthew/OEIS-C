@@ -9,6 +9,7 @@
  *            (i.e. divisible by a square)
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
  * Helpers:   is_prime, is_squarefree
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 /* The sequence is the union of all prime powers (A246655) and all non‑squarefree numbers (A013929) */
 
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/is_prime.h"
 #include "../utils/is_squarefree.h"
 

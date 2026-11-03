@@ -12,14 +12,36 @@
  *            i) · k / (2·(k+1))
  * Range:     u8 n <= 16, u16 n <= 37, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   triangle_entry
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/triangle_entry.h"
+
+/* Compute the triangle entry for given row r and column k. */
+static inline seq_t triangle_entry(idx_t r, idx_t k)
+{
+    if (k == 1) {                    /* special case for the first column */
+        return (r == 1) ? 1 : 0;
+    }
+    if (k == r) {                    /* diagonal (k==r) */
+        seq_t val = (seq_t)r * (seq_t)(r - 1) / 2;
+        return val + 1;              /* note: +1 adjustment as shown in the data */
+    }
+    /* 2 <= k < r : use the multiplicative formula. */
+    seq_t prod = 1;
+    for (idx_t i = k - 1; i <= r; ++i) {
+        prod *= (seq_t)i;             /* prod = ∏_{i=k−1}^{r} i  = r!/(k−2)! */
+    }
+    /* prod now equals r!/(k−2)! .  Reduce before multiplying by k to avoid overflow. */
+    prod /= (k + 1);                  /* divide by (k+1); (k+1) divides prod */
+    prod *= k;                        /* multiply by k */
+    prod /= 2;                        /* finally divide by 2; the result is integer */
+    return prod;
+}
 
 /* Find the row r (≥1) such that r(r+1)/2 ≥ n > (r−1)r/2. */
 static inline idx_t find_row(idx_t n)

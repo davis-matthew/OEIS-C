@@ -9,11 +9,13 @@
  *            Sum_{k = 0..w} t_k * 3^k is the ternary representation of n
  * Range:     i8 n <= 2187, i16 n <= 6561, i32 n <= 6561, i64 n <= 6561,
  *            i128 n <= 6561, big any n
+ * Validated: standard, pass, 86 terms through n = 6109 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n) {

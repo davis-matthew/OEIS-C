@@ -8,12 +8,15 @@
  *            2*Pell(n-1)+Pell(n-2), Pell(0)=0, Pell(1)=1)
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 23, u64 n <= 49, u128 n <= 99,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 44 terms through n = 947 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"   /* provides seq_pow(seq_t base, idx_t exp) */
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +36,7 @@ seq_t a(idx_t n)
     /* After loop: p_prev1 = Pell(n+3), p_prev2 = Pell(n+2) */
 
     /* 2^(n+1) */
-    seq_t pow2 = seq_pow((seq_t)2, n + 1);
+    seq_t pow2 = ipow_idx((seq_t)2, n + 1);
 
     /* Compute a(n) */
     seq_t result = p_prev1;

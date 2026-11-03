@@ -10,14 +10,16 @@
  *            (Reference: OEIS A133923)
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   divisor_count_u64
+ * Validated: standard, pass, 116 terms through n = 989 (2026-11-03)
+ * Helpers:   mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (cache == NULL) {
         cache_cap = 16;  /* arbitrary start size */
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         cache_len = 0;
     }
 
@@ -53,14 +55,14 @@ seq_t a(idx_t n)
         } else {                                 /* a(i-1) odd */
             /* calculate tau(i * a(i-1)) */
             uint64_t m = (uint64_t)i * (uint64_t)last;
-            cur = (seq_t)divisor_count_u64(m);
+            cur = (seq_t)num_divisors(m);
         }
 
         /* ensure capacity */
         if (cache_len == cache_cap) {
             size_t new_cap = cache_cap * 2;
             if (new_cap < cache_len + 1) new_cap = cache_len + 1;
-            seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) exit(EXIT_FAILURE);        /* unrecoverable */
             cache = tmp;
             cache_cap = new_cap;

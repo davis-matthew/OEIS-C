@@ -11,24 +11,38 @@
  *            centered at its root iff the maximal child heig...
  * Range:     u8 n <= 11, u16 n <= 18, u32 n <= 29, u64 n <= 51, u128 n <= 92,
  *            big any n
- * Helpers:   u128_to_seq
+ * Validated: standard, pass, 51 terms through n = 190 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/u128_to_seq.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t u128_to_seq(unsigned __int128 u)
+{
+    seq_t r = 0;
+    int k;
+    for (k = 3; k >= 0; k--) {
+        r = r * 65536ULL;
+        r = r * 65536ULL;
+        r += (seq_t)(uint64_t)(uint32_t)(u >> (32 * k));
+    }
+    return r;
+}
 
 #define A676_CORE(NAME, T)                                                   \
 static T *NAME(idx_t N) {                                                    \
-  T *t = (T *)calloc(N + 2, sizeof(T));                                      \
-  T *E = (T *)calloc(N + 2, sizeof(T));                                      \
-  T *D = (T *)calloc(N + 2, sizeof(T));                                      \
-  T *U = (T *)calloc(N + 2, sizeof(T));                                      \
-  T *P = (T *)calloc(N + 2, sizeof(T));                                      \
-  T *C = (T *)calloc(N + 2, sizeof(T));                                      \
-  T *EV = (T *)calloc(N + 2, sizeof(T));                                     \
-  T *res = (T *)calloc(N + 2, sizeof(T));                                    \
+  T *t = mem_new(T, N + 2);                                      \
+  T *E = mem_new(T, N + 2);                                      \
+  T *D = mem_new(T, N + 2);                                      \
+  T *U = mem_new(T, N + 2);                                      \
+  T *P = mem_new(T, N + 2);                                      \
+  T *C = mem_new(T, N + 2);                                      \
+  T *EV = mem_new(T, N + 2);                                     \
+  T *res = mem_new(T, N + 2);                                    \
   idx_t h, i, s, m, d, k;                                                    \
   t[1] = 1; E[0] = 1; D[1] = 1;                                              \
   for (h = 0; h + 1 <= N - 1; h++) {                                         \
@@ -61,7 +75,7 @@ static T *NAME(idx_t N) {                                                    \
   }                                                                          \
   res[0] = 1;                                                                \
   for (m = 1; m <= N; m++) res[m] = t[m] - U[m - 1];                         \
-  free(t); free(E); free(D); free(U); free(P); free(C); free(EV);            \
+  mem_free(t); mem_free(E); mem_free(D); mem_free(U); mem_free(P); mem_free(C); mem_free(EV);            \
   return res;                                                                \
 }
 
@@ -91,13 +105,13 @@ seq_t a(idx_t n) {
       unsigned __int128 *r;
       if (N > 160) N = 160;
       r = a676_core_u128(N);
-      if (a676_memo) free(a676_memo);
-      a676_memo = (seq_t *)calloc(N + 2, sizeof(seq_t));
+      if (a676_memo) mem_free(a676_memo);
+      a676_memo = mem_new(seq_t, N + 2);
       for (j = 0; j <= N; j++) a676_memo[j] = u128_to_seq(r[j]);
       free(r);
     } else {
       seq_t *r = a676_core_seq(N);
-      if (a676_memo) free(a676_memo);
+      if (a676_memo) mem_free(a676_memo);
       a676_memo = r;
     }
     a676_memoN = N;

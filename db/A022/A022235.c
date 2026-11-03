@@ -7,13 +7,15 @@
  * Formula:   a(n) = Product_{i=1..6} (7^(n-i+1)-1)/(7^i-1)
  * Range:     u8 n <= 6, u16 n <= 6, u32 n <= 7, u64 n <= 9, u128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 25 terms through n = 190 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Recurrence used: a(n) = a(n-1) * (7^n-1)/(7^(n-6)-1)  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;            /* cache of computed terms  */
 static idx_t  a_cache_max = 0;           /* highest index computed   */
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* first call: initialise cache up to n = 6 */
     if (a_cache == NULL) {
         a_cache_max = 6;
-        a_cache = (seq_t *)malloc((a_cache_max + 1) * sizeof(seq_t));
+        a_cache = mem_new(seq_t, (a_cache_max + 1));
         if (a_cache == NULL) return (seq_t)0;     /* allocation failed */
 
         a_cache[6] = (seq_t)1;                          /* a(6) = 1  */
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     /* extend cache if required */
     if (n > a_cache_max) {
         idx_t new_max = n;
-        seq_t *new_cache = (seq_t *)realloc(a_cache, (new_max + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, a_cache, (new_max + 1));
         if (new_cache == NULL) return (seq_t)0;  /* reallocation failed */
 
         a_cache = new_cache;

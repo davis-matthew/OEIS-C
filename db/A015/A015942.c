@@ -7,7 +7,8 @@
  * Formula:   a(n) = 2 * A014945(n)
  * Range:     u8 n <= 6, u16 n <= 40, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,11 @@
    t | (2^t + t/2 - 1). Only even t with t/2 odd can satisfy the
    congruence, so we iterate over odd m = t/2 and test the condition. */
 
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +36,7 @@ seq_t a(idx_t n)
             continue;
 
         /* 2^t mod t */
-        seq_t pow_mod = mod_pow((seq_t)2, t, (seq_t)t);
+        seq_t pow_mod = powmod((seq_t)2, t, (seq_t)t);
 
         seq_t half = (seq_t)(t >> 1);
         seq_t sum  = pow_mod + half;     /* sum < 2*t for the range of interest */

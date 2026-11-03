@@ -11,17 +11,18 @@
  *            (r−1)r/2. Then a(n) = k*(r+1) if k<r, otherwise a(n)=k*k
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   _floor_isqrt_u64
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
     /* find row r: minimal r with r*(r+1)/2 >= n */
-    idx_t sq = _floor_isqrt_u64(1 + 8 * n);
+    idx_t sq = isqrt(1 + 8 * n);
     idx_t r = (sq - 1) / 2;
     idx_t tri = r * (r + 1) / 2;
     if (tri < n) {

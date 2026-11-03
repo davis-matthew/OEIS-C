@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   bigomega
+ * Validated: standard, pass, 71 terms through n = 941 (2026-11-03)
+ * Helpers:   bigomega, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include "../utils/bigomega.h"
+#include "../utils/mem.h"
 
 /* External linkage, as required */
 seq_t a(idx_t n)
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     /* Grow the sequence array as needed */
     if (seq_cap == 0) {
         seq_cap = 16;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
     }
 
     /* Generate terms until we have at least n of them */
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
         if (omega_curr == omega_nm1 + omega_nm2) {
             if (seq_len == seq_cap) {
                 size_t newcap = seq_cap * 2;
-                seq = (seq_t *)realloc(seq, newcap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, newcap);
                 seq_cap = newcap;
             }
             seq[seq_len++] = checked_n;

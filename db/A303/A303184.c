@@ -13,13 +13,15 @@
  *            a(n‑9) –9 a(n‑10) –2 a(n‑12) +8 a(n‑13) +2 a(n‑14)...
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 20, u64 n <= 42, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 202 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Base values for n = 1..22 */
 static const seq_t base[23] = {
@@ -75,7 +77,7 @@ seq_t a(idx_t n)
         size_t initial_cap = 64;
         if (initial_cap < 23)
             initial_cap = 23;
-        cache = (seq_t *)malloc((initial_cap + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (initial_cap + 1));
         if (!cache)
             abort();  /* allocation failure */
         for (idx_t i = 1; i <= 22; ++i)
@@ -89,7 +91,7 @@ seq_t a(idx_t n)
         size_t new_cap = cache_cap ? cache_cap * 2 : 64;
         while (new_cap <= (size_t)n)
             new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, (new_cap + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (new_cap + 1));
         if (!tmp)
             abort();  /* allocation failure */
         cache = tmp;

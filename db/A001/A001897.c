@@ -8,6 +8,7 @@
  *            2n} p for n >= 1 (von Staudt-Clausen)
  * Range:     u8 n <= 5, u16 n <= 17, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
+ * Validated: partial, pass, 52 terms through n = 51 (2026-11-03)
  * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

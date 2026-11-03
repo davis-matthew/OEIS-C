@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{d|n} φ(d) * σ(d) * τ(n/d)
  * Range:     u8 n <= 14, u16 n <= 191, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   phi
+ * Validated: standard, pass, 70 terms through n = 9876 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,7 @@
 /*  φ  – Euler's totient (provided by ../utils/phi.h) */
 
 #include <stdint.h>
-#include "../utils/phi.h"
+#include "../utils/totient.h"
 
 /* Sum of divisors of m */
 static seq_t sum_of_divisors(idx_t m)
@@ -57,7 +58,7 @@ seq_t a(idx_t n)
     for (idx_t d = 1; d * d <= n; ++d) {
         if (n % d != 0) continue;
 
-        seq_t phi_d   = phi(d);
+        seq_t phi_d   = totient(d);
         seq_t sigma_d = sum_of_divisors(d);
         idx_t m       = n / d;
         seq_t tau_m   = divisor_count(m);
@@ -65,7 +66,7 @@ seq_t a(idx_t n)
         total += phi_d * sigma_d * tau_m;
 
         if (d != m) {              /* complementary divisor */
-            seq_t phi_m   = phi(m);
+            seq_t phi_m   = totient(m);
             seq_t sigma_m = sum_of_divisors(m);
             seq_t tau_d   = divisor_count(d);
             total += phi_m * sigma_m * tau_d;

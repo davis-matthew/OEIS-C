@@ -10,16 +10,19 @@
  *            fraction Σ d² / τ(n)
  * Range:     u8 n <= 4, u16 n <= 16, u32 n <= 330, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow, factor_u64, gcd
+ * Validated: standard, pass, 70 terms through n = 9245 (2026-11-01)
+ * Helpers:   factor_u64, gcd, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 #include "../utils/gcd.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +43,7 @@ seq_t a(idx_t n)
 
         /* term = (p^(2(e+1)) - 1) / (p² - 1)   */
         seq_t p2   = pseq * pseq;                 /* p²  */
-        seq_t num  = big_pow(p2, (seq_t)(e + 1)) - 1; /* p²(e+1) - 1 */
+        seq_t num  = ipow(p2, (seq_t)(e + 1)) - 1; /* p²(e+1) - 1 */
         seq_t den  = p2 - 1;                        /* p² - 1   */
         seq_t term = num / den;                     /* integer */
 

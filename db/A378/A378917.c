@@ -10,9 +10,10 @@
  *            n. The function performs an incremental search of m, builds a
  *            prime table by sieve, counts the decompositions, and stores the
  *            first m for each count encountered
- * Range:     u8 n <= 26, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
- *            big any n
- * Helpers:   none
+ * Range:     u8 n <= 26, u16 n <= 1520, u32 n <= 3000, u64 n <= 3000,
+ *            u128 n <= 3000, big any n
+ * Validated: standard, pass, 77 terms through n = 2955 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- prime table ---------- */
 static bool *prime_flags = NULL;
@@ -82,7 +84,7 @@ seq_t a(idx_t n)
     /* initialise cache for n = 0 (a(0)=1) */
     if (!answer_cache) {
         answer_cache_size = 1;
-        answer_cache = (seq_t*)calloc(answer_cache_size, sizeof(seq_t));
+        answer_cache = mem_new(seq_t, answer_cache_size);
         answer_cache[0] = (seq_t)1;
     }
 
@@ -116,7 +118,7 @@ seq_t a(idx_t n)
             size_t new_size = answer_cache_size > 0 ? answer_cache_size << 1 : 1;
             while (new_size <= (size_t)count)
                 new_size <<= 1;
-            seq_t *tmp = (seq_t*)realloc(answer_cache, new_size * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, answer_cache, new_size);
             if (!tmp) return 0;            /* unlikely failure */
             for (size_t i = answer_cache_size; i < new_size; ++i)
                 tmp[i] = 0;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 18, i16 n <= 64, i32 n <= 64, i64 n <= 64, i128 n <= 64,
  *            big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 #include "../utils/is_prime.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;          /* cache of found terms */
 static size_t seq_len  = 0;              /* number of terms cached */
@@ -35,7 +38,7 @@ static void ensure_capacity(size_t needed)
     size_t new_cap = seq_cap ? seq_cap * 2 : 8;
     while (new_cap < needed) new_cap *= 2;
     /* realloc may return void*; cast to seq_t* for C++ compatibility */
-    seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_cache = mem_resize(seq_t, seq_cache, new_cap);
     seq_cap = new_cap;
 }
 
@@ -82,13 +85,13 @@ seq_t a(idx_t n)
         for (size_t i = 0; i < nf; ++i) {
             idx_t f = factors[i];
             while (ord % f == 0 &&
-                   mod_pow((seq_t)2, (uint64_t)(ord / f), (seq_t)p) == (seq_t)1) {
+                   powmod((seq_t)2, (uint64_t)(ord / f), (seq_t)p) == (seq_t)1) {
                 ord /= f;
             }
         }
 
         /* ---------- test if 3 is a power of 2 modulo p ---------- */
-        if (mod_pow((seq_t)3, (uint64_t)ord, (seq_t)p) == (seq_t)1) {
+        if (powmod((seq_t)3, (uint64_t)ord, (seq_t)p) == (seq_t)1) {
             add_term((seq_t)p);  /* p satisfies the condition */
         }
 

@@ -9,15 +9,30 @@
  *            ⌊k/7⌋
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   sum_floor_div7
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/sum_floor_div7.h"
+
+/* ------------------------------------------------------------------
+ *  S(m) = Σ_{k=1..m} ⌊k/7⌋
+ * ------------------------------------------------------------------ */
+static inline seq_t sum_floor_div7(idx_t m)
+{
+    if (m == 0)
+        return 0;
+    idx_t Q = m / 7;             /* number of complete blocks */
+    /* term1 = Q * (m + 1), term2 = 7 * Q * (Q + 1) / 2 */
+    idx_t term1 = Q * (m + 1);
+    idx_t term2 = 7 * Q * (Q + 1) / 2;
+    return (seq_t)(term1 - term2);
+}
 
 /* External integer types */
 extern seq_t a(idx_t n);

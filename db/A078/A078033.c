@@ -8,12 +8,14 @@
  *            > 2) This is the expansion of (1‑x)/(1+x²+2x³)
  * Range:     i8 n <= 14, i16 n <= 32, i32 n <= 63, i64 n <= 128,
  *            i128 n <= 255, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 919 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *measure_cache = NULL;
 static idx_t cache_size = 0;
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     /* Ensure cache is allocated up to n+1 */
     if (n >= cache_size) {
         idx_t new_size = n + 1;
-        seq_t *tmp = (seq_t *)realloc(measure_cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, measure_cache, new_size);
         if (!tmp) { /* allocation failure – fall back to minimal error handling */
             abort();
         }

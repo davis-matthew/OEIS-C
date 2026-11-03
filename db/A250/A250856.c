@@ -11,12 +11,14 @@
  *            21·a(n‑5) – 7·a(n‑6) + a(n‑7) for n > 7
  * Range:     u8 none, u16 n <= 2, u32 n <= 25, u64 n <= 210, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Sequence memoisation ----------------------------------------------------- */
 static seq_t *memo = NULL;
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     /* Grow the memoisation table if necessary --------------------------------- */
     if (n > memo_size) {
         idx_t new_size = n + 1;
-        seq_t *new_mem = (seq_t *)realloc(memo, new_size * sizeof(seq_t));
+        seq_t *new_mem = mem_resize(seq_t, memo, new_size);
         if (!new_mem) { /* allocation failed; terminate */
             exit(1);
         }

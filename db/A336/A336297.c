@@ -12,7 +12,8 @@
  *            and returns the n-th term (offset 1) from the precomputed list
  * Range:     u8 n <= 7, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Parameters of the algorithm.  The chosen limit is large enough to
    produce at least 10 000 terms of the sequence. */
@@ -37,7 +39,7 @@ static void init_sequence(void)
     unsigned char *isPrime = (unsigned char *)malloc((LIMIT + 1) * sizeof(unsigned char));
     unsigned char *excluded = (unsigned char *)malloc((LIMIT + 1) * sizeof(unsigned char));
     int *sumD = (int *)malloc((LIMIT + 1) * sizeof(int));
-    seq_values = (seq_t *)malloc((LIMIT + 1) * sizeof(seq_t));
+    seq_values = mem_new(seq_t, (LIMIT + 1));
 
     if (!spf || !isPrime || !excluded || !sumD || !seq_values) {
         /* Memory failure – abort program. */

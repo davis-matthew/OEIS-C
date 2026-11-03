@@ -8,13 +8,14 @@
  * Formula:   a(n) = (n-2)*binomial(2n-2, n-2)/2 + 0^n
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 32, u128 n <= 64,
  *            big any n
- * Helpers:   a002740_ugcd
+ * Validated: standard, pass, 44 terms through n = 198 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a002740_ugcd.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n) {
     if (n < 3) return 0;
@@ -26,7 +27,7 @@ seq_t a(idx_t n) {
         uint64_t num = (uint64_t)(N - k + i);
         uint64_t den = (uint64_t)i;
         uint64_t rm = (uint64_t)(long long)(r % (seq_t)den);
-        uint64_t g = a002740_ugcd(den, rm);
+        uint64_t g = gcd_u64(den, rm);
         r /= (seq_t)g;
         den /= g;
         r *= (seq_t)(num / den);

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 2, u64 n <= 3, u128 n <= 3,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 5 terms through n = 4 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,15 +24,17 @@
     with a(0) = b(0) = 1.  All operations are performed in the integer type
     seq_t.  The function caches results so that calls in any order are fast.   */
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 #ifdef __cplusplus
-#define ALLOC(type, n) reinterpret_cast<type*>(malloc(sizeof(type)*(n)))
-#define RE_ALLOC(ptr, n) reinterpret_cast<seq_t*>(realloc((void*)(ptr), sizeof(seq_t)*(n)))
+#define ALLOC(type, n) mem_new(type, (n))
+#define RE_ALLOC(ptr, n) mem_resize(seq_t, (ptr), (n))
 #else
-#define ALLOC(type, n) ((type*)malloc(sizeof(type)*(n)))
-#define RE_ALLOC(ptr, n) ((seq_t*)realloc((void*)(ptr), sizeof(seq_t)*(n)))
+#define ALLOC(type, n) (mem_new(type, (n)))
+#define RE_ALLOC(ptr, n) (mem_resize(seq_t, (ptr), (n)))
 #endif
+#include "../utils/mem.h"
 
 static seq_t *num_array = NULL;  /* numerators a(n)   */
 static seq_t *den_array = NULL;  /* denominators b(n)*/

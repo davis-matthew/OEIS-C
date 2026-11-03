@@ -8,6 +8,7 @@
  * Formula:   a(2)=10, a(3)=23, a(4)=31, a(5)=35, a(n)=28-(-1)^n for n≥6
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
+ * Validated: partial, pass, 59 terms through n = 60 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

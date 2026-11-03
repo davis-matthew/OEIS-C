@@ -8,14 +8,31 @@
  *            has an even number of runs
  * Range:     u8 n <= 122, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_runs_base11
+ * Validated: standard, pass, 85 terms through n = 8673 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/count_runs_base11.h"
+#include "../utils/mem.h"
+
+/* Count runs in the base‑11 expansion of x. */
+static unsigned int count_runs_base11(seq_t x)
+{
+    unsigned int runs = 0;
+    int prev = -1;
+    while (x > (seq_t)0) {
+        int d = (int)(x % (seq_t)11);
+        if (d != prev) {
+            ++runs;
+            prev = d;
+        }
+        x /= (seq_t)11;
+    }
+    return runs;
+}
 
 /* Return true iff the number of runs in x is even. */
 static inline bool even_runs(seq_t x)
@@ -39,7 +56,7 @@ seq_t a(idx_t n)
             /* Add to cache, resizing if necessary. */
             if (cache_size >= cache_cap) {
                 size_t new_cap = cache_cap == 0 ? 16 : cache_cap << 1;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) exit(EXIT_FAILURE);
                 cache = tmp;
                 cache_cap = new_cap;

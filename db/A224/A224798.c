@@ -13,13 +13,16 @@
  *            T(k,j+1) * This relation follows from the proper...
  * Range:     u8 n <= 14, u16 n <= 20, u32 n <= 44, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   pow2
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 static seq_t **T = NULL;          /* triangular array, allocated lazily */
 static size_t rows_allocated = 0;  /* number of rows currently stored */
@@ -31,7 +34,7 @@ static void ensure_rows(idx_t needed)
         size_t new_size = (size_t)(needed + 1);
         T = (seq_t**)realloc(T, new_size * sizeof(seq_t*));
         for (size_t i = rows_allocated; i <= needed; ++i) {
-            T[i] = (seq_t*)malloc((i + 1) * sizeof(seq_t));
+            T[i] = mem_new(seq_t, (i + 1));
             if (i == 0) {
                 T[i][0] = (seq_t)1;
                 continue;

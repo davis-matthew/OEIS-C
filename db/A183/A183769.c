@@ -8,18 +8,21 @@
  * Formula:   a(n) = 2^{n+2} * binom(6*n, 3*n)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 9, u128 n <= 18,
  *            big any n
- * Helpers:   binom, pow2
+ * Validated: standard, pass, 28 terms through n = 73 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {
     /* compute the binomial coefficient C(6n, 3n) */
-    seq_t val = binom(6 * n, 3 * n);
+    seq_t val = binomial(6 * n, 3 * n);
     /* multiply by 2^{n+2} */
     val *= pow2(n + 2);
     return val;

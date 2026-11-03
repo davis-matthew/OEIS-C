@@ -9,13 +9,15 @@
  *            A002808 is the sequence of composite numbers (offset 1)
  * Range:     u8 n <= 39, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static bool is_prime_uint64(idx_t x)
 {
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
     {
         /* grow storage */
         size_t new_size = (size_t)n + 1;   /* +1 for 1‑based indexing */
-        comps = (seq_t *)realloc(comps, new_size * sizeof(seq_t));
+        comps = mem_resize(seq_t, comps, new_size);
         ind   = (bool   *)realloc(ind,   new_size * sizeof(bool));
 
         /* generate remaining composite numbers */

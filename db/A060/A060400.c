@@ -13,7 +13,8 @@
  *            its decimal representation
  * Range:     u8 n <= 9, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   grow_seq, is_prime_small
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,22 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
-#include "../utils/grow_seq.h"
+#include <stdlib.h>
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
 
 /* helper: does n contain digit d ? */
 static bool contains_digit(uint64_t n, uint64_t d)
@@ -56,7 +71,7 @@ seq_t a(idx_t n)
 
             while (1) {
                 /* test primality and the digit condition */
-                if (is_prime_small((seq_t)cand) && contains_digit(cand, digit))
+                if (is_prime_seq((seq_t)cand) && contains_digit(cand, digit))
                     break;                    /* found the prime for this i */
                 ++cand;
             }

@@ -10,14 +10,24 @@
  *            = 1
  * Range:     u8 n <= 17, u16 n <= 44, u32 n <= 128, u64 n <= 417,
  *            u128 n <= 500, big any n
- * Helpers:   alloc_series
+ * Validated: standard, pass, 62 terms through n = 439 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/alloc_series.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_series(size_t sz)
+{
+    seq_t *p = mem_new(seq_t, sz);
+    size_t i;
+    for (i = 0; i < sz; i++) p[i] = 0;
+    return p;
+}
 
 static seq_t *P = NULL;
 static size_t P_cap = 0;   /* allocated slots */

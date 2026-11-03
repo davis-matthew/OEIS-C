@@ -8,14 +8,36 @@
  *            Φ₃₄₅(x)
  * Range:     i8 n <= 176, i16 n <= 176, i32 n <= 176, i64 n <= 176,
  *            i128 n <= 176, big any n
- * Helpers:   mul_by_xk_minus1
+ * Validated: full, pass, 177 terms through n = 176 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/mul_by_xk_minus1.h"
+
+/* Multiply a polynomial by (x^k - 1).
+   poly[0..*deg] holds the current polynomial.
+   After the call: poly is multiplied by (x^k - 1) and *deg is updated. */
+static void mul_by_xk_minus1(seq_t *poly, size_t *deg, size_t k, seq_t *tmp, size_t maxdeg)
+{
+    size_t newdeg = *deg + k;
+    /* zero working buffer */
+    for (size_t i = 0; i <= newdeg; ++i) {
+        tmp[i] = 0;
+    }
+    /* apply (x^k – 1):  new[i] = -old[i] and new[i+k] += old[i] */
+    for (size_t i = 0; i <= *deg; ++i) {
+        tmp[i] -= poly[i];
+        tmp[i + k] += poly[i];
+    }
+    /* copy back and update degree */
+    *deg = newdeg;
+    for (size_t i = 0; i <= newdeg; ++i) {
+        poly[i] = tmp[i];
+    }
+}
 
 seq_t a(idx_t n)
 {

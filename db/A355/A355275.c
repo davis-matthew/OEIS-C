@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 58, u16 n <= 7441, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_more_odd
+ * Validated: standard, pass, 82 terms through n = 9827 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,18 @@
    term has been found.  This works efficiently for n up to about 10 000. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_more_odd.h"
+#include "../utils/mem.h"
+
+static bool has_more_odd(seq_t x)
+{
+    int odd = 0, even = 0;
+    while (x) {
+        unsigned int d = (unsigned int)(x % 3);
+        if (d == 1) odd++; else even++;
+        x /= 3;
+    }
+    return odd > even;
+}
 
 static seq_t *cache = NULL;              /* stored sequence values        */
 static size_t cache_len = 0;             /* number of cached terms         */
@@ -31,7 +43,7 @@ seq_t a(idx_t n)
     /* Lazily initialize the cache if this is the first call. */
     if (!initialized) {
         cache_cap = 8;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();             /* simple error handling          */
         initialized = true;
     }
@@ -42,7 +54,7 @@ seq_t a(idx_t n)
         if (has_more_odd(val)) {
             if (cache_len == cache_cap) {
                 cache_cap = cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                 if (!tmp) abort();        /* simple error handling          */
                 cache = tmp;
             }

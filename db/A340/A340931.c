@@ -9,7 +9,8 @@
  *            odd number of parts
  * Range:     u8 n <= 58, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Dynamic storage of primes (1‑based indices) */
 static uint64_t *prime_list = NULL;
@@ -114,7 +116,7 @@ seq_t a(idx_t n)
         /* store the candidate */
         if (seq_used == seq_cap) {
             seq_cap = seq_cap ? seq_cap * 2 : 16;
-            seq_vals = (seq_t *)realloc(seq_vals, seq_cap * sizeof(seq_t));
+            seq_vals = mem_resize(seq_t, seq_vals, seq_cap);
         }
         seq_vals[seq_used++] = (seq_t)next_candidate;
         ++next_candidate;

@@ -10,7 +10,8 @@
  *            the complementary increasing sequence to a
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 26, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Auxiliary function to grow a seq_t array when needed */
 static void grow_seq_array(seq_t **arr, size_t *cap, size_t need)
@@ -27,7 +29,7 @@ static void grow_seq_array(seq_t **arr, size_t *cap, size_t need)
     size_t newcap = (*cap == 0) ? 1 : *cap;
     while (newcap < need)
         newcap <<= 1;          /* double the size until enough */
-    *arr = (seq_t *)realloc(*arr, newcap * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, newcap);
     *cap = newcap;
 }
 

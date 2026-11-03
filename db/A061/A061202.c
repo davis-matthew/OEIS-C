@@ -10,6 +10,7 @@
  *            sieve in O(n log n) time and then accumulating the sum
  * Range:     u8 n <= 19, u16 n <= 771, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 69 terms through n = 9586 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

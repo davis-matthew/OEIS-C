@@ -13,7 +13,8 @@
  *            M(n) = n·(n² + 1)/2 is the minimal possible sum...
  * Range:     u8 none, u16 none, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- heap node ------------------------------------------------ */
 typedef struct {
@@ -39,7 +41,7 @@ static void heap_ensure_cap(void)
 {
     if (heap_size < heap_cap) return;
     size_t new_cap = heap_cap ? heap_cap << 1 : 16;
-    heap = (Node *)realloc(heap, new_cap * sizeof(Node));
+    heap = mem_resize(Node, heap, new_cap);
     heap_cap = new_cap;
 }
 
@@ -94,7 +96,7 @@ static void ensure_terms_cap(void)
 {
     if (terms_cnt < terms_cap) return;
     size_t new_cap = terms_cap ? terms_cap << 1 : 64;
-    terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    terms = mem_resize(seq_t, terms, new_cap);
     terms_cap = new_cap;
 }
 

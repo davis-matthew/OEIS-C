@@ -7,13 +7,35 @@
  * Formula:   a(n) = d(5 + 8*n) (number of divisors of 5 + 8*n)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_ull
+ * Validated: standard, pass, 119 terms through n = 9889 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/divisor_count_ull.h"
+
+/* Helper function that returns the divisor count of a 64‑bit unsigned integer.
+   It is safe for all 0 < n < 2^64. */
+static seq_t divisor_count_ull(uint64_t n)
+{
+    if (n == 0) return 0;
+    seq_t count = 1;
+    for (uint64_t p = 2; p <= n / p; ++p) {
+        if (n % p == 0) {
+            unsigned exp = 0;
+            do {
+                n /= p;
+                ++exp;
+            } while (n % p == 0);
+            count *= (exp + 1);
+        }
+    }
+    if (n > 1) {
+        count *= 2;   /* remaining prime factor */
+    }
+    return count;
+}
 
 seq_t a(idx_t n)
 {

@@ -9,14 +9,17 @@
  *            primes ≤ n and q = n - p
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 64, u128 n <= 128,
  *            big any n
- * Helpers:   pow2
+ * Validated: standard, pass, 51 terms through n = 1928 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 /* helper: count the primes up to n (inclusive) using a simple sieve */
 static int count_primes_upto(idx_t n)
@@ -45,8 +48,8 @@ seq_t a(idx_t n)
     int q = (int)n - p;            /* q >= 0 */
 
     /* Cq[b] = binom(q,b), pref[b] = sum_{i=0..b} Cq[i] */
-    seq_t *Cq   = (seq_t*)calloc((size_t)q + 1, sizeof(seq_t));
-    seq_t *pref = (seq_t*)calloc((size_t)q + 1, sizeof(seq_t));
+    seq_t *Cq   = mem_new(seq_t, (size_t)q + 1);
+    seq_t *pref = mem_new(seq_t, (size_t)q + 1);
     if (!Cq || !pref) abort();
 
     Cq[0] = 1;
@@ -68,8 +71,8 @@ seq_t a(idx_t n)
         F += Cp * pref[a - 1];
     }
 
-    free(Cq);
-    free(pref);
+    mem_free(Cq);
+    mem_free(pref);
 
     /* a(n) = 2^n - 1 - F */
     seq_t pow2n = pow2(n);

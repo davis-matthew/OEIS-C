@@ -7,13 +7,16 @@
  * Formula:   a(n) = Sum_{k=1..n} (n!/k!)*binomial(n-1, k-1)*k^(k-1)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 25,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 34 terms through n = 369 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +35,7 @@ seq_t a(idx_t n)
 
     for (idx_t k = 1; k <= n; ++k) {
         /* k^(k-1) using provided big_pow */
-        seq_t powk = big_pow((seq_t)k, (seq_t)(k - 1));
+        seq_t powk = ipow((seq_t)k, (seq_t)(k - 1));
 
         /* term = (n!/k!)*binom*k^(k-1) */
         seq_t term = fact_n / fact_k;   /* integer division, exact */

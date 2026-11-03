@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 126 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <string.h>  /* for memcpy */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* dynamically expanded cache of terms */
 static size_t cache_size = 0; /* number of cached entries (>=1 for 0..cache_size-1) */
@@ -32,12 +34,12 @@ seq_t a(idx_t n)
     if ((size_t)n >= cache_size)
     {
         size_t new_size = (size_t)n + 1;          /* need indices 0 .. n */
-        seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_size);
         if (!new_cache) return 0;                 /* allocation failed – return 0 */
         if (cache)
         {
-            memcpy(new_cache, cache, cache_size * sizeof(seq_t));
-            free(cache);
+            mem_copy(new_cache, cache, cache_size * sizeof(seq_t));
+            mem_free(cache);
         }
         cache = new_cache;
         cache_size = new_size;

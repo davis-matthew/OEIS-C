@@ -9,7 +9,8 @@
  *            contains an equal number of 1, 2 and 3
  * Range:     u8 n <= 26, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   equal_123
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,26 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/equal_123.h"
+
+/* Test whether x has the same number of 1's, 2's and 3's in base 5. */
+static bool equal_123(seq_t x) {
+    unsigned cnt[3] = {0, 0, 0};
+    if (x == 0) {
+        return true;
+    }
+    while (x > 0) {
+        unsigned int r = (unsigned int)(x % 5);
+        if (r == 1) {
+            ++cnt[0];
+        } else if (r == 2) {
+            ++cnt[1];
+        } else if (r == 3) {
+            ++cnt[2];
+        }
+        x = x / 5;
+    }
+    return cnt[0] == cnt[1] && cnt[1] == cnt[2];
+}
 
 /* Return the n-th term (1‑based) of A039569. */
 seq_t a(idx_t n) {

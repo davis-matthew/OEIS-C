@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 73 terms through n = 996 (2026-11-01)
+ * Helpers:   powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/mod_pow.h"
+#include "../utils/powmod_u64.h"
 
 static uint64_t *prime_list = NULL;
 static size_t prime_cap = 0;
@@ -69,12 +70,12 @@ static bool is_primitive_root(uint64_t p) {
         uint64_t q = prime_list[i];
         if (q > t / q) break;           /* q*q > t */
         if (t % q == 0) {
-            if (mod_pow(base, phi / q, p) == 1) return false;
+            if (powmod_u64(base, phi / q, p) == 1) return false;
             while (t % q == 0) t /= q;
         }
     }
     if (t > 1) {  /* remaining prime factor */
-        if (mod_pow(base, phi / t, p) == 1) return false;
+        if (powmod_u64(base, phi / t, p) == 1) return false;
     }
     return true;
 }

@@ -12,7 +12,8 @@
  *            #1110). The DP runs * in O(n²) time (≈2·...
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 34, u64 n <= 66, u128 n <= 131,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 493 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,8 +35,8 @@ seq_t a(idx_t n)
 
     /* Allocate arrays for current and next DP states.
      * calloc guarantees all entries start at 0. */
-    seq_t *cur  = (seq_t*)calloc(total_sz, sizeof(seq_t));
-    seq_t *next = (seq_t*)calloc(total_sz, sizeof(seq_t));
+    seq_t *cur  = mem_new(seq_t, total_sz);
+    seq_t *next = mem_new(seq_t, total_sz);
     if (!cur || !next) return 0;              /* allocation failure                 */
 
     /* start with an empty string: mask 0 (no last bits), diff 0 */
@@ -91,7 +93,7 @@ seq_t a(idx_t n)
         result += cur[mask * row_sz + offset];
     }
 
-    free(cur);
-    free(next);
+    mem_free(cur);
+    mem_free(next);
     return result;
 }

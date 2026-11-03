@@ -9,12 +9,14 @@
  *            (n-1)*a(n-1) for n >= 2, a(0) = 0, a(1) = 1
  * Range:     i8 n <= 5, i16 n <= 7, i32 n <= 12, i64 n <= 19, i128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *memo = NULL;
@@ -24,14 +26,14 @@ seq_t a(idx_t n) {
 
     if (cap <= n) {
         idx_t newcap = (n + 1) * 2;
-        seq_t *nm = (seq_t *)malloc(newcap * sizeof(seq_t));
-        seq_t *nr = (seq_t *)malloc(newcap * sizeof(seq_t));
+        seq_t *nm = mem_new(seq_t, newcap);
+        seq_t *nr = mem_new(seq_t, newcap);
         for (idx_t i = 0; i < computed; i++) {
             nm[i] = memo[i];
             nr[i] = row[i];
         }
-        free(memo);
-        free(row);
+        mem_free(memo);
+        mem_free(row);
         memo = nm;
         row = nr;
         cap = newcap;

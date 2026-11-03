@@ -12,12 +12,14 @@
  *            no three consecutive unequal elements, (ii) new valu...
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 21, u64 n <= 39, u128 n <= 73,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 179 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <string.h>
+#include "../utils/mem.h"
 
 #define V 8                           /* number of possible values (0..7) */
 
@@ -27,8 +29,8 @@ seq_t a(idx_t n)
     static seq_t ndp[V][V][V];
 
     /* reset DP tables */
-    memset(dp, 0, sizeof(dp));
-    memset(ndp, 0, sizeof(ndp));
+    mem_set(dp, 0, sizeof(dp));
+    mem_set(ndp, 0, sizeof(ndp));
 
     /* initial two positions: a[0] = 0, a[1] is 0 or 1 */
     dp[0][0][0] = (seq_t)1;           /* 0,0  .. max 0 */
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
 
     /* extend the array up to length n+2 (positions 0..n+1) */
     for (idx_t pos = 2; pos <= n + 1; ++pos) {
-        memset(ndp, 0, sizeof(ndp));      /* clear next step */
+        mem_set(ndp, 0, sizeof(ndp));      /* clear next step */
 
         for (int x = 0; x < V; ++x) {
             for (int y = 0; y < V; ++y) {
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
         }
 
         /* swap dp and ndp for next iteration */
-        memcpy(dp, ndp, sizeof(dp));
+        mem_copy(dp, ndp, sizeof(dp));
     }
 
     /* sum all states after the last position */

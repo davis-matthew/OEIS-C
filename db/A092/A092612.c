@@ -7,17 +7,56 @@
  * Formula:   a(n) = product of first n primes that end in 7
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 6, u64 n <= 10, u128 n <= 18,
  *            big any n
- * Helpers:   idx_alloc, idx_realloc, is_prime_simple, seq_alloc, seq_realloc
+ * Validated: standard, pass, 29 terms through n = 199 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/idx_alloc.h"
-#include "../utils/idx_realloc.h"
-#include "../utils/is_prime_simple.h"
-#include "../utils/seq_alloc.h"
-#include "../utils/seq_realloc.h"
+#include "../utils/is_prime.h"
+
+/* Helper allocation for idx_t (uint64_t) */
+static idx_t* idx_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new idx_t[cap];
+#else
+    return (idx_t*)malloc(cap * sizeof(idx_t));
+#endif
+}
+
+static idx_t* idx_realloc(idx_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    idx_t* new_ptr = new idx_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (idx_t*)realloc(old, new_cap * sizeof(idx_t));
+#endif
+}
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 /* Cache structure */
 struct seq_data {
@@ -50,7 +89,7 @@ static void seq_ensure_upto(idx_t n) {
         idx_t cand = _seq_data.next_candidate;
 
         /* find the next prime ending in 7 */
-        while (!is_prime_simple(cand))
+        while (!is_prime(cand))
             cand += 10;
 
         /* store the prime */

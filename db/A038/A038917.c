@@ -7,14 +7,16 @@
  * Formula:   primes p such that (39|p)=1 (including p|39)
  * Range:     u8 n <= 25, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_mul
+ * Validated: standard, pass, 62 terms through n = 906 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/mod_mul.h"
+#include <stdlib.h>
+#include "../utils/mulmod.h"
 
 static bool is_quad_res(uint64_t p)
 {
@@ -31,9 +33,9 @@ static bool is_quad_res(uint64_t p)
 
     while (exp)
     {
-        if (exp & 1) res = mod_mul(res, base, p);
+        if (exp & 1) res = mulmod(res, base, p);
         exp >>= 1;
-        if (exp) base = mod_mul(base, base, p);
+        if (exp) base = mulmod(base, base, p);
     }
     return (res == 0) || (res == 1);
 }

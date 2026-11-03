@@ -7,12 +7,14 @@
  * Formula:   a(n) = Sum_{k=1..n} sigma_3(k) * floor(n/k)
  * Range:     u8 n <= 5, u16 n <= 21, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes the OEIS sequence A356043: a(n) = Sum_{k=1..n} sigma_3(k) * floor(n/k) */
 seq_t a(idx_t n)
@@ -20,7 +22,7 @@ seq_t a(idx_t n)
     if (n < 1) return 0;             /* undefined for n=0, but handled gracefully */
 
     /* allocate array for sigma_3 values, 1-indexed */
-    seq_t *sigma = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *sigma = mem_new(seq_t, (n + 1));
     if (!sigma) return 0;            /* allocation failure, return 0 as failure code */
 
     /* initialise to zero */
@@ -41,6 +43,6 @@ seq_t a(idx_t n)
         total += sigma[k] * times;
     }
 
-    free(sigma);
+    mem_free(sigma);
     return total;
 }

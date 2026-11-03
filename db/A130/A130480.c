@@ -7,7 +7,8 @@
  * Formula:   a(n) = lcm(1!!, 2!!, 3!!, …, n!!)
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 15, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   seq_mul, seq_pow
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,14 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/seq_mul.h"
-#include "../utils/seq_pow.h"
+#include <stdint.h>
+#include <string.h>
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -108,7 +115,7 @@ seq_t a(idx_t n)
         }
 
         if (max_exp > 0) {
-            seq_t pow_val = seq_pow((seq_t)p, (idx_t)max_exp);
+            seq_t pow_val = ipow_idx((seq_t)p, (idx_t)max_exp);
             result = seq_mul(result, pow_val);
         }
     }

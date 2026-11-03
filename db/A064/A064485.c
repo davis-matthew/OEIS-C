@@ -9,16 +9,18 @@
  * Formula:   a(n) = 4*n^2 - 3*n*phi(n)
  * Range:     u8 n <= 9, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   phi
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/phi.h"
+#include <stdint.h>
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
     seq_t ns = (seq_t)n;      /* convert index to seq_t */
-    seq_t p  = phi(n);       /* Euler's totient φ(n) */
+    seq_t p  = totient(n);       /* Euler's totient φ(n) */
     return (seq_t)4 * ns * ns - (seq_t)3 * ns * p;
 }

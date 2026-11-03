@@ -8,19 +8,21 @@
  * Formula:   a(n) = n + reverse(zeckendorf digits of n)
  * Range:     u8 n <= 121, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 9630 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return the value of the OEIS sequence A349239.  */
 seq_t a(idx_t n)
 {
     /* Zeckendorf Fibonacci numbers: F[1]=1, F[2]=2, F[k]=F[k-1]+F[k-2] */
     size_t fib_cap = 8;
-    seq_t *fib = (seq_t *)calloc(fib_cap, sizeof(seq_t));
+    seq_t *fib = mem_new(seq_t, fib_cap);
     if (!fib) return (seq_t)0;   /* unlikely, but defensive */
 
     fib[1] = (seq_t)1;
@@ -34,8 +36,8 @@ seq_t a(idx_t n)
 
         if (fill_to >= fib_cap) {             /* enlarge the array */
             fib_cap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(fib, fib_cap * sizeof(seq_t));
-            if (!tmp) { free(fib); return (seq_t)0; }
+            seq_t *tmp = mem_resize(seq_t, fib, fib_cap);
+            if (!tmp) { mem_free(fib); return (seq_t)0; }
             fib = tmp;
         }
         fib[fill_to] = next;
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
     /* Extract the Zeckendorf indices used (descending order). */
     /* At most L indices can be used. */
     idx_t *used = (idx_t *)calloc(L, sizeof(idx_t));
-    if (!used) { free(fib); return (seq_t)0; }
+    if (!used) { mem_free(fib); return (seq_t)0; }
     size_t used_cnt = 0;
     seq_t remaining = (seq_t)n;
     for (idx_t i = (idx_t)L; i > 0; --i) {
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
         rev_val += fib[shift];
     }
 
-    free(fib);
+    mem_free(fib);
     free(used);
 
     return (seq_t)n + rev_val;

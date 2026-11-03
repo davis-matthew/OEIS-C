@@ -8,7 +8,8 @@
  * Formula:   a(1) = 1; a(n) = overstatement look‑and‑say of a(n‑1)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 8, u128 n <= 11,
  *            big any n
- * Helpers:   digit_len, get_digits, seq_from_str
+ * Validated: standard, pass, 23 terms through n = 23 (2026-11-01)
+ * Helpers:   get_digits, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,20 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#include "../utils/seq_from_str.h"
-#include "../utils/digit_len.h"
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/get_digits.h"
+#include "../utils/num_digits.h"
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
 
 /* Return the nth term of the overstatement look‑and‑say sequence.   */
 /* External linkage is required:                                            */
@@ -40,7 +52,7 @@ seq_t a(idx_t n)
     for (idx_t step = 2; step <= n; ++step)
     {
         /* Length of current term in decimal digits. */
-        size_t cur_len = digit_len(cur);
+        size_t cur_len = num_digits(cur);
 
         /* Retrieve the decimal digits, least significant first.  */
         uint8_t *dig = (uint8_t *)malloc(cur_len);

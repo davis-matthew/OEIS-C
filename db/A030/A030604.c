@@ -8,13 +8,15 @@
  *            numbers in base 6 and concatenating them
  * Range:     u8 n <= 26, u16 n <= 83, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 92 terms through n = 91 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static void ensure_digits_capacity(size_t needed, seq_t **buf,
                                    size_t *len, size_t *cap)
@@ -22,7 +24,7 @@ static void ensure_digits_capacity(size_t needed, seq_t **buf,
     if (needed <= *cap) return;
     size_t new_cap = (*cap > 0) ? (*cap) * 2 : 16;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(*buf, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *buf, new_cap);
     *buf = tmp;
     *cap = new_cap;
 }
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
 
     if (!initialized) {
         digits_cap = 16;
-        digits = (seq_t *)malloc(digits_cap * sizeof(seq_t));
+        digits = mem_new(seq_t, digits_cap);
         if (!digits) return 0; /* allocation failed */
         initialized = true;
     }

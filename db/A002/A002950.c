@@ -9,9 +9,10 @@
  *            method: start from P(x) = x^5 - 2; repeatedly a = floor(positive
  *            root of P) (found by sign tests of P at integers), then P(x) <-
  *            x^5 * P(a + 1/x)
- * Range:     u8 n <= 113, u16 n <= 9596, u32 n <= 9596, u64 n <= 9596,
- *            u128 n <= 9596, big any n
- * Helpers:   q2950_cmp
+ * Range:     u8 n <= 113, u16 n <= 19999, u32 n <= 19999, u64 n <= 19999,
+ *            u128 n <= 19999, big any n
+ * Validated: standard, pass, 99 terms through n = 9596 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,15 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/q2950_cmp.h"
+
+static int q2950_cmp(const uint32_t *a, size_t an, const uint32_t *b, size_t bn) {
+    if (an != bn) return an < bn ? -1 : 1;
+    while (an > 0) {
+        an--;
+        if (a[an] != b[an]) return a[an] < b[an] ? -1 : 1;
+    }
+    return 0;
+}
 
 typedef struct { uint32_t *d; size_t n, cap; int neg; } q2950_bn;
 

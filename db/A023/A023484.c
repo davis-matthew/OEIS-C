@@ -8,12 +8,38 @@
  * Formula:   a(n) = A000032(n+1) + A001690(n+1)
  * Range:     u8 n <= 10, u16 n <= 22, u32 n <= 45, u64 n <= 91, u128 n <= 183,
  *            big any n
- * Helpers:   non_fib_k
+ * Validated: standard, pass, 52 terms through n = 881 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/non_fib_k.h"
+static seq_t non_fib_k(idx_t k)
+{
+    /* return the k-th non‑Fibonacci number (k >= 1, 1‑based) */
+    idx_t count = 0;
+    seq_t num = 1;
+    seq_t prev = 0;      /* F0 */
+    seq_t curr = 1;      /* F1 */
+    seq_t next_fib = 1;  /* next Fibonacci after curr */
+
+    while (count < k) {
+        /* advance Fibonacci sequence until next_fib > num */
+        while (next_fib <= num) {
+            seq_t temp = curr;
+            curr = next_fib;
+            next_fib = temp + curr;
+        }
+        /* if num is not a Fibonacci number, count it */
+        if (num != curr) {
+            ++count;
+            if (count == k)
+                return num;
+        }
+        ++num;
+    }
+    return 0;  /* never reached */
+}
 /* A000032 is the Lucas sequence: L0 = 2, L1 = 1, L(n) = L(n-1) + L(n-2)  */
 /* A001690 is the n-th non‑Fibonacci number (offset 1)                           */
 

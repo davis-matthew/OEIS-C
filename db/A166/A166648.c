@@ -7,15 +7,18 @@
  * Formula:   a(n) = Π_{p^e||n} (8*(p+1))^e
  * Range:     u8 n <= 3, u16 n <= 15, u32 n <= 127, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: standard, pass, 58 terms through n = 9324 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +35,7 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < cnt; ++i) {
         seq_t p = (seq_t)primes[i];
         seq_t base = (seq_t)8 * (p + (seq_t)1);
-        seq_t term = big_pow(base, (seq_t)exps[i]);
+        seq_t term = ipow(base, (seq_t)exps[i]);
         result *= term;
     }
     return result;

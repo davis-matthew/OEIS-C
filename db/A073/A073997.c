@@ -12,7 +12,8 @@
  *            s-(t-x)*x) * * with addition and subtraction in GF...
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* multiplication table for GF(4) with elements:
  * 0 → 0 , 1 → 1 , 2 → α , 3 → α+1   (field defined by X²+X+1) */
@@ -44,12 +46,11 @@ seq_t a(idx_t n)
     if ((size_t)n + 1 > dp_capacity) {
         size_t new_capacity = dp_capacity ? dp_capacity * 2 : 16;
         if (new_capacity < (size_t)n + 1) new_capacity = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(dp, new_capacity * 16 * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, new_capacity * 16);
         if (!tmp) return (seq_t)0;          /* allocation failed */
         dp = tmp;
         /* initialise new rows to zero */
-        memset(dp + dp_capacity * 16, 0,
-               (new_capacity - dp_capacity) * 16 * sizeof(seq_t));
+        mem_set(dp + dp_capacity * 16, 0, (new_capacity - dp_capacity) * 16 * sizeof(seq_t));
         dp_capacity = new_capacity;
     }
 

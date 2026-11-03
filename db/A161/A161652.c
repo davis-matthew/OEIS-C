@@ -11,13 +11,15 @@
  *            the coefficient is zero
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 9, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,9 +30,9 @@ seq_t a(idx_t n)
 
     /* Allocate working arrays of length n+1. */
     size_t len = (size_t)n + 1;
-    seq_t *curr  = (seq_t *)calloc(len, sizeof(seq_t));
-    seq_t *next  = (seq_t *)calloc(len, sizeof(seq_t));
-    seq_t *pref  = (seq_t *)calloc(len, sizeof(seq_t));
+    seq_t *curr  = mem_new(seq_t, len);
+    seq_t *next  = mem_new(seq_t, len);
+    seq_t *pref  = mem_new(seq_t, len);
     if (!curr || !next || !pref) {
         /* In a real implementation you'd handle allocation failure. */
         return (seq_t)0;
@@ -61,9 +63,9 @@ seq_t a(idx_t n)
 
     seq_t result = curr[n];
 
-    free(curr);
-    free(next);
-    free(pref);
+    mem_free(curr);
+    mem_free(next);
+    mem_free(pref);
 
     return result;
 }

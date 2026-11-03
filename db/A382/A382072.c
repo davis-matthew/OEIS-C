@@ -9,7 +9,8 @@
  *            m ≥ 1 with m! = n·q
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 12, u64 n <= 22, u128 n <= 31,
  *            big any n
- * Helpers:   build_spf
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/build_spf.h"
+#include "../utils/mem.h"
 
 /*--- Prime factor sieve ---------------------------------------------------*/
 static idx_t spf_limit = 0;
@@ -69,13 +72,13 @@ static void ensure_fact_cached(idx_t m)
     while (fact_cache_len <= m) {
         if (fact_cache_len == 0) { /* initialise 0! = 1 */
             fact_cache_cap = 4;
-            fact_cache = (seq_t *)realloc(fact_cache, fact_cache_cap * sizeof(seq_t));
+            fact_cache = mem_resize(seq_t, fact_cache, fact_cache_cap);
             fact_cache[0] = (seq_t)1;        /* 0! = 1 */
             fact_cache_len = 1;
         }
         if (fact_cache_len == fact_cache_cap) {
             fact_cache_cap *= 2;
-            fact_cache = (seq_t *)realloc(fact_cache, fact_cache_cap * sizeof(seq_t));
+            fact_cache = mem_resize(seq_t, fact_cache, fact_cache_cap);
         }
         idx_t next_m = fact_cache_len;         /* current m to compute: fact_cache_len-1 already stored */
         seq_t next_val = fact_cache[next_m-1] * (seq_t)next_m;
@@ -100,7 +103,7 @@ static void used_push(seq_t val)
 {
     if (used_len == used_cap) {
         used_cap = used_cap ? used_cap * 2 : 4;
-        used_vals = (seq_t *)realloc(used_vals, used_cap * sizeof(seq_t));
+        used_vals = mem_resize(seq_t, used_vals, used_cap);
     }
     used_vals[used_len++] = val;
 }
@@ -130,7 +133,7 @@ seq_t a(idx_t n)
         /* Store term */
         if (cache_len + 1 > cache_cap) {
             cache_cap = cache_cap ? cache_cap * 2 : 4;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
         cache[cache_len++] = q;
         used_push(q);

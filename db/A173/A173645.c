@@ -7,7 +7,8 @@
  * Formula:   a(n) = Σ_{k=0}^n floor(k^2 / 11)
  * Range:     u8 n <= 15, u16 n <= 128, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 4867 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Recurrence: a(0)=0, a(n)=a(n-1)+floor(n^2/11). */
 
 #include <stdlib.h>   /* for malloc, realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static cache to handle arbitrary call order efficiently. */
@@ -23,7 +25,7 @@ seq_t a(idx_t n) {
 
     /* Allocate cache if this is the first call. */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(sizeof(seq_t) * 1);
+        cache = mem_new(seq_t, 1);
         if (!cache) return (seq_t)0;     /* allocation failed, return 0 as fallback */
         cache[0] = (seq_t)0;             /* a(0) = 0 */
         max_computed = 0;
@@ -32,7 +34,7 @@ seq_t a(idx_t n) {
     /* Extend cache up to n if necessary. */
     if (n > max_computed) {
         size_t new_len = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) return (seq_t)0;       /* realloc failed */
         cache = tmp;
 

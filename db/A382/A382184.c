@@ -12,6 +12,7 @@
  *            d[1..m] with 0 ≤ d[i] ≤ i. For any prefix of these di...
  * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 86 terms through n = 9849 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

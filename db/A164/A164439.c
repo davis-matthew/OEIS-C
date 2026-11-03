@@ -10,13 +10,15 @@
  *            a(9)=151
  * Range:     u8 n <= 10, u16 n <= 21, u32 n <= 43, u64 n <= 88, u128 n <= 178,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 486 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static cache: cache[i] holds a(4+i) */
 static seq_t *cache = NULL;
@@ -30,7 +32,7 @@ static void ensure_cap(size_t needed)
         size_t new_cap = cap ? cap * 2 : 16;
         while (new_cap <= needed)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp)
             abort();    /* allocation failure */
         cache = tmp;

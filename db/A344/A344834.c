@@ -7,9 +7,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, base, tabl
  * Formula:   not stated
- * Range:     u8 n <= 9203, u16 n <= 9203, u32 n <= 9203, u64 n <= 9203,
- *            u128 n <= 9203, big any n
- * Helpers:   bitlen_seq_t
+ * Range:     u8 n <= 10010, u16 n <= 10010, u32 n <= 10010, u64 n <= 10010,
+ *            u128 n <= 10010, big any n
+ * Validated: standard, pass, 107 terms through n = 9203 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,14 +23,15 @@
  *  unsigned bitlen_seq_t(seq_t x);)
  */
 
-#include "../utils/bitlen_seq_t.h"   /* provides unsigned bitlen_seq_t(seq_t) */
+#include <stdint.h>
+#include "../utils/bit_length.h"
 
 static seq_t T_val(seq_t x, seq_t y)
 {
     if (x == 0 || y == 0) return 0;
 
-    unsigned lx = bitlen_seq_t(x);
-    unsigned ly = bitlen_seq_t(y);
+    unsigned lx = bit_length(x);
+    unsigned ly = bit_length(y);
 
     if (lx > ly) {
         return x & (y << (lx - ly));

@@ -12,7 +12,8 @@
  *            and stored in a static array
  * Range:     u8 none, u16 n <= 123, u32 n <= 123, u64 n <= 123, u128 n <= 123,
  *            big any n
- * Helpers:   append_candidate, is_prime_small
+ * Validated: full, pass, 123 terms through n = 123 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,25 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_prime_small.h"
-#include "../utils/append_candidate.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
 
 seq_t a(idx_t n) {
     /* Static storage for the sequence, generated on first call. */
@@ -96,7 +114,7 @@ seq_t a(idx_t n) {
                             int val = num0 * 1000 + num1 * 100 + num2 * 10 + num3;
                             if (seen_perm[val] == perm_tag) continue;
                             seen_perm[val] = perm_tag;
-                            if (is_prime_small((seq_t)val))
+                            if (is_prime_seq((seq_t)val))
                                 ++prime_count;
                         }
                     }

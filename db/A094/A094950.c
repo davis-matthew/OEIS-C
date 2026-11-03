@@ -12,6 +12,7 @@
  *            the primes occurring in the denominator of B_k (von Staudt–...
  * Range:     u8 n <= 299, u16 n <= 5160, u32 n <= 5160, u64 n <= 5160,
  *            u128 n <= 5160, big any n
+ * Validated: standard, pass, 87 terms through n = 4778 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

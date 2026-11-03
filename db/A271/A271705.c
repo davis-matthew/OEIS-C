@@ -11,13 +11,15 @@
  *            for n<k, * and T(n,k) = (n/k)*T(n-1,k-1) + n*T(n-1,k)
  * Range:     u8 n <= 15, u16 n <= 36, u32 n <= 79, u64 n <= 211,
  *            u128 n <= 562, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 1198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Integer square root for unsigned 64-bit numbers */
 static inline idx_t _floor_isqrt_u64(idx_t n)
@@ -50,8 +52,8 @@ seq_t a(idx_t n)
 
     /* Allocate two auxiliary rows of length r+1 */
     size_t len = (size_t)(r + 1u);
-    seq_t *prev = (seq_t*)malloc(len * sizeof(seq_t));
-    seq_t *cur  = (seq_t*)malloc(len * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, len);
+    seq_t *cur  = mem_new(seq_t, len);
     if (!prev || !cur) {
         /* In case of allocation failure, return 0 (unlikely) */
         return (seq_t)0;
@@ -80,7 +82,7 @@ seq_t a(idx_t n)
 
     seq_t result = prev[k];
 
-    free(prev);
-    free(cur);
+    mem_free(prev);
+    mem_free(cur);
     return result;
 }

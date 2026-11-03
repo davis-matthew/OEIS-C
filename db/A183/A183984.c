@@ -9,12 +9,14 @@
  *            2^(n-1) + 2^((n+1)/2) + 78 if n is odd (See OEIS A183984)
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 64, u128 n <= 128,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: standard, pass, 48 terms through n = 193 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -23,13 +25,13 @@ seq_t a(idx_t n)
     if (n < 1)
         return 0;
 
-    seq_t pow_n = pow_seq((seq_t)2, n - 1);            /* 2^(n-1) */
+    seq_t pow_n = ipow_i32((seq_t)2, n - 1);            /* 2^(n-1) */
 
     if ((n & 1) == 0) {                               /* even n   */
-        seq_t pow_half = pow_seq((seq_t)2, n / 2 - 1); /* 2^(n/2-1) */
+        seq_t pow_half = ipow_i32((seq_t)2, n / 2 - 1); /* 2^(n/2-1) */
         return (seq_t)3 * pow_half + pow_n + (seq_t)78;
     } else {                                          /* odd n    */
-        seq_t pow_half = pow_seq((seq_t)2, (n + 1) / 2); /* 2^((n+1)/2) */
+        seq_t pow_half = ipow_i32((seq_t)2, (n + 1) / 2); /* 2^((n+1)/2) */
         return pow_n + pow_half + (seq_t)78;
     }
 }

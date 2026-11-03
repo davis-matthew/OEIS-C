@@ -6,8 +6,9 @@
  * Keywords:  nonn, base
  * Formula:   a(n) is the smallest exponent k such that the decimal
  *            representation of 8^k starts with the integer n
- * Range:     u8 n <= 111, u16 n <= 9786, u32 n <= 9786, u64 n <= 9786,
- *            u128 n <= 9786, big any n
+ * Range:     u8 n <= 111, u16 n <= 13243, u32 n <= 32699, u64 n <= 32699,
+ *            u128 n <= 32699, big any n
+ * Validated: standard, pass, 86 terms through n = 9786 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

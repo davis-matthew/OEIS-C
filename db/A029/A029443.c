@@ -7,7 +7,8 @@
  * Formula:   a(n) = coefficient of x^n in 1/((1-x^8)(1-x^9)(1-x^10)(1-x^12))
  * Range:     u8 n <= 73, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 74 terms through n = 73 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static const idx_t coins[4] = {8, 9, 10, 12};
 
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     }
 
     size_t sz = (size_t)n + 1;
-    seq_t *dp = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, sz);
     if (!dp) return 0;          /* allocation failure → zero */
 
     for (size_t i = 0; i < sz; ++i) dp[i] = 0;
@@ -42,6 +44,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[(size_t)n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

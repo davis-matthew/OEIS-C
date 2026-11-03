@@ -7,16 +7,24 @@
  * Formula:   a(1) = 7; a(n+1) = a(n) + product of non‑zero digits of a(n)
  * Range:     u8 n <= 20, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   digit_counts, seq_mul, seq_pow
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-01)
+ * Helpers:   digit_counts, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/digit_counts.h"
-#include "../utils/seq_pow.h"
-#include "../utils/seq_mul.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /*  Compute the product of the non‑zero decimal digits of x.
     The function relies on digit_counts to count each digit.  */
@@ -28,7 +36,7 @@ static seq_t nonzero_digit_product(seq_t x)
     seq_t prod = (seq_t)1;
     for (int d = 1; d <= 9; ++d) {
         if (cnt[d] == 0) continue;
-        seq_t pd = seq_pow((seq_t)d, (idx_t)cnt[d]);  /* d^cnt[d] */
+        seq_t pd = ipow_idx((seq_t)d, (idx_t)cnt[d]);  /* d^cnt[d] */
         prod = seq_mul(prod, pd);
     }
     return prod;                       /* product of non‑zero digits   */

@@ -12,14 +12,16 @@
  *            j^(i-2m) * C(i,2m) * C(2m,m)
  * Range:     u8 n <= 39, u16 n <= 72, u32 n <= 181, u64 n <= 425,
  *            u128 n <= 1159, big any n
- * Helpers:   binom, pow_seq
+ * Validated: standard, pass, 94 terms through n = 9836 (2026-11-01)
+ * Helpers:   binomial, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/binom.h"
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -39,9 +41,9 @@ seq_t a(idx_t n)
     seq_t result = 0;
     for (idx_t m = 0; m <= i / 2; ++m) {
         int exp = (int)(i - 2 * m);          /* exponent for j^(i-2m) */
-        seq_t term = pow_seq((seq_t)j, exp);
-        term = term * binom(i, 2 * m);
-        term = term * binom(2 * m, m);
+        seq_t term = ipow_i32((seq_t)j, exp);
+        term = term * binomial(i, 2 * m);
+        term = term * binomial(2 * m, m);
         result += term;
     }
     return result;

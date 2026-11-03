@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   _smallest_prime_factor, gcd, next_prime
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   gcd, mem, next_prime, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,9 @@
 #include <stdlib.h>
 
 #include "../utils/gcd.h"
-#include "../utils/_smallest_prime_factor.h"
 #include "../utils/next_prime.h"
+#include "../utils/smallest_prime_factor.h"
+#include "../utils/mem.h"
 
 /* Cached sequence values and state */
 static seq_t *seq_cache   = NULL;   /* array of terms */
@@ -46,7 +48,7 @@ static bool in_sequence(uint64_t k)
     size_t   nf = 0;             /* number of distinct prime factors */
 
     while (tmp > 1 && nf < 64) {
-        uint64_t p = _smallest_prime_factor(tmp);
+        uint64_t p = smallest_prime_factor(tmp);
         int      e = 0;
         while (tmp % p == 0) {
             tmp /= p;
@@ -99,7 +101,7 @@ static void build_cache_to(idx_t n)
         if (in_sequence(current_candidate)) {
             if (seq_len == seq_cap) {
                 size_t new_cap = seq_cap == 0 ? 4 : seq_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
                 if (!tmp) abort();      /* allocation failure – should not happen */
                 seq_cache = tmp;
                 seq_cap   = new_cap;

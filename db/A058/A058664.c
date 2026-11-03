@@ -12,13 +12,15 @@
  *            number of...
  * Range:     u8 n <= 20, u16 n <= 60, u32 n <= 189, u64 n <= 645,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 911 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;
 static size_t dp_size = 0;
@@ -27,7 +29,7 @@ static size_t dp_size = 0;
    the number of partitions of i into parts not divisible by 4 or 5. */
 static void build_dp(size_t max_t)
 {
-    seq_t *newdp = (seq_t *)malloc((max_t + 1) * sizeof(seq_t));
+    seq_t *newdp = mem_new(seq_t, (max_t + 1));
     if (!newdp) return;          /* memory allocation failed – caller will
                                     return zero for all values            */
 
@@ -41,7 +43,7 @@ static void build_dp(size_t max_t)
         }
     }
 
-    free(dp);                     /* free previous table if any */
+    mem_free(dp);                     /* free previous table if any */
     dp = newdp;
     dp_size = max_t;
 }

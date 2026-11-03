@@ -12,12 +12,14 @@
  *            from the OEIS sequence. This implementation uses mem...
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 19, u64 n <= 39, u128 n <= 79,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* stores computed values 1 .. N */
 static idx_t cache_size = 0;  /* current allocated size (>=1) */
@@ -45,7 +47,7 @@ static void ensure_cache(idx_t n)
     if (cache_size < 12) {
         /* allocate initial array up to 11 */
         cache_size = 12;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache) return;   /* allocation failure is ignored (UB) */
         for (idx_t i = 1; i <= 11; ++i)
             cache[i] = base[i];
@@ -53,7 +55,7 @@ static void ensure_cache(idx_t n)
 
     if (cache_size <= n) {
         idx_t new_size = n + 1;          /* need space up to n */
-        seq_t *new_ptr = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_ptr = mem_resize(seq_t, cache, new_size);
         if (!new_ptr) return;            /* ignore failure (UB) */
         cache = new_ptr;
         idx_t old_size = cache_size;

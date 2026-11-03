@@ -8,7 +8,8 @@
  *            perfect square, 1 if n-1 is a pronic number, 0 otherwise
  * Range:     u8 n <= 89, u16 n <= 89, u32 n <= 89, u64 n <= 89, u128 n <= 89,
  *            big any n
- * Helpers:   divisor_count_u64
+ * Validated: partial, pass, 89 terms through n = 89 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "../utils/divisor_count_u64.h"   /* uint64_t divisor_count_u64(uint64_t n); */
+#include "../utils/num_divisors.h"
 
 /* Integer square‑root for 64‑bit values (floor). */
 static inline unsigned long long isqrt_u64(unsigned long long n)
@@ -49,7 +50,7 @@ seq_t a(idx_t n)
     uint64_t k64 = (uint64_t)k;          /* k fits in 64 bits for our ctor. */
 
     /* τ(k) – number of divisors of k. */
-    seq_t tau = (seq_t)divisor_count_u64(k64);
+    seq_t tau = (seq_t)num_divisors(k64);
 
     /* Detect perfect square. */
     unsigned long long r = isqrt_u64(k64);

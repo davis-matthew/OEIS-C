@@ -7,13 +7,38 @@
  * Formula:   a(n) = Sum_{k=1..n} mu(k)*k^2
  * Range:     i8 n <= 12, i16 n <= 94, i32 n <= 8490, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   mu_of
+ * Validated: standard, pass, 63 terms through n = 9492 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/mu_of.h"   /* provides int mu_of(idx_t d); */
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/mem.h"
+
+/* Möbius function for the divisor in the loop */
+static inline int mu_of(idx_t d) {
+    int n = (int)d;
+    int sign = 1;
+    int i = 2;
+    while ((int64_t)i * i <= n) {
+        if (n % i == 0) {
+            int cnt = 0;
+            while (n % i == 0) {
+                n /= i;
+                ++cnt;
+                if (cnt > 1) return 0;        /* square factor */
+            }
+            sign = -sign;
+        }
+        ++i;
+    }
+    if (n > 1) sign = -sign;
+    return sign;
+}
 
 /* Static cache of prefix sums: pref[i] = Sum_{k=1..i} mu(k)*k^2, pref[0] = 0. */
 static seq_t *pref = NULL;   /* array of prefix sums (may be nullptr initially) */
@@ -26,7 +51,7 @@ static void ensure_pref(idx_t n)
         return;  /* Already computed */
 
     /* Reallocate (or allocating for the first time).  In C++ need an explicit cast. */
-    seq_t *tmp = (seq_t *)realloc(pref, (n + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, pref, (n + 1));
     if (!tmp) {
         /* Allocation failed – terminate to avoid undefined behaviour. */
         abort();

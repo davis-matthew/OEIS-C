@@ -5,14 +5,16 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base, easy, fini, full
  * Formula:   not stated
- * Range:     u8 n <= 22, u16 n <= 293, u32 n <= 962, u64 n <= 1068,
+ * Range:     u8 n <= 22, u16 n <= 219, u32 n <= 951, u64 n <= 1068,
  *            u128 n <= 1068, big any n
- * Helpers:   none
+ * Validated: full, pass, 1068 terms through n = 1068 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Algorithm: generate the n‑th polydivisible number in base 7.
    a(n) is the n‑th smallest integer whose base‑7 representation
@@ -34,7 +36,7 @@ static void cache_append(seq_t v)
 {
     if (cache_size == cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cache_cap = new_cap;
     }
@@ -50,7 +52,7 @@ static void heap_push(Node n)
 {
     if (heap_size == heap_cap) {
         size_t new_cap = heap_cap ? heap_cap * 2 : 16;
-        Node *tmp = (Node *)realloc(heap, new_cap * sizeof(Node));
+        Node *tmp = mem_resize(Node, heap, new_cap);
         heap = tmp;
         heap_cap = new_cap;
     }

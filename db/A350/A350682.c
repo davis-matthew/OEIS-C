@@ -9,7 +9,8 @@
  *            numbers ordered by divisibility
  * Range:     i8 n <= 10000, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 116 terms through n = 9841 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* The build provides the typedefs:
  *  seq_t – signed integer type (8/16/32/64 bits or arbitrary precision)
@@ -42,7 +44,7 @@ static void ensure_up_to(idx_t n) {
     /* Allocate larger arrays */
     idx_t new_size = n + 1;              /* indices 0..n, we ignore 0 */
     tri = (uint64_t *)realloc(tri, new_size * sizeof(uint64_t));
-    mu  = (seq_t   *)realloc(mu,  new_size * sizeof(seq_t));
+    mu  = mem_resize(seq_t, mu, new_size);
 
     /* If this is the first call, initialise for n=1 */
     if (current_max_n == 0) {

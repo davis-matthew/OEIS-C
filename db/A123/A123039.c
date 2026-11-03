@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 1211, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bitset_words, mask_last_word
+ * Validated: standard, pass, 61 terms through n = 9534 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,22 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/bitset_words.h"
-#include "../utils/mask_last_word.h"
+#include "../utils/mem.h"
+
+/* ------------------------------------------------------------------ */
+static inline size_t bitset_words(idx_t bits) {
+    return (size_t)((bits + 63) >> 6);
+}
+
+static inline void mask_last_word(uint64_t *arr, size_t words, idx_t bits) {
+    idx_t bits_last = bits & 63;
+    if (bits_last) {
+        uint64_t mask = (1ULL << bits_last) - 1;
+        arr[words - 1] &= mask;
+    } else {
+        arr[words - 1] = ~0ULL;
+    }
+}
 
 /* ------------------------------------------------------------------ */
 /* Bitset helpers                                                    */
@@ -123,13 +138,13 @@ static void compute_terms(idx_t upper) {
 
     /* 4. Collect primes that are representable */
     size_t cap = 20000;
-    seq_terms = (seq_t *)malloc(cap * sizeof(seq_t));
+    seq_terms = mem_new(seq_t, cap);
     seq_count = 0;
     for (idx_t p = 2; p <= upper; ++p) {
         if (is_prime[p] && bit_test(cur_odd, p)) {
             if (seq_count == cap) {
                 cap *= 2;
-                seq_terms = (seq_t *)realloc(seq_terms, cap * sizeof(seq_t));
+                seq_terms = mem_resize(seq_t, seq_terms, cap);
             }
             seq_terms[seq_count++] = (seq_t)p;
         }

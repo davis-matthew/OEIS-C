@@ -7,16 +7,19 @@
  * Formula:   a(n) = omega(n) / gcd( bigomega(n), omega(n) )
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bigomega, count_distinct_primes, gcd
+ * Validated: standard, pass, 115 terms through n = 9886 (2026-11-01)
+ * Helpers:   bigomega, gcd, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Computes the denominator of bigomega(n)/omega(n) for n >= 2 */
 #include <stdint.h>
-#include "../utils/gcd.h"     /* provides seq_t gcd(seq_t, seq_t) */
-#include "../utils/bigomega.h" /* provides seq_t bigomega(idx_t) */
-#include "../utils/count_distinct_primes.h" /* provides int count_distinct_primes(uint64_t) */
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/bigomega.h"
+#include "../utils/gcd.h"
+#include "../utils/omega.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +27,7 @@ seq_t a(idx_t n)
     seq_t b = bigomega(n);
 
     /* Omega (number of distinct prime factors) */
-    seq_t o = (seq_t)count_distinct_primes((uint64_t)n);
+    seq_t o = (seq_t)omega((uint64_t)n);
 
     /* Greatest common divisor of b and o */
     seq_t g = gcd(b, o);

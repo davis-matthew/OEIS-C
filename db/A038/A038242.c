@@ -8,7 +8,8 @@
  *            and j = n – i*(i+1)/2
  * Range:     u8 n <= 6, u16 n <= 16, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   binomial, pow3, pow4
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-01)
+ * Helpers:   binomial, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,22 @@
 /* That is, the triangle entry T(i,j) = C(i,j)·4^(i-j)·12^j = C(i,j)·4^i·3^j,
    enumerated row‑wise with offset 0. */
 
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow4.h"
 #include "../utils/pow3.h"
+
+static inline seq_t pow4(idx_t exp) {
+    seq_t result = 1;
+    seq_t base   = 4;
+    idx_t e = exp;
+    while (e) {
+        if (e & 1) result *= base;
+        base *= base;
+        e >>= 1;
+    }
+    return result;
+}
 
 /* Compute the row (i) and column (j) for a zero‑based linear index n.
    The row contains i+1 entries.  The cumulative count up to row i is

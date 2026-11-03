@@ -6,15 +6,16 @@
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{k=0..floor(n/3)} binomial(k,n-3k) *
  *            binomial(3*k,k)/(2*k+1)
- * Range:     u8 n <= 11, u16 n <= 17, u32 n <= 35, u64 n <= 37, u128 n <= 37,
+ * Range:     u8 n <= 11, u16 n <= 20, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
+ * Validated: partial, pass, 38 terms through n = 37 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>                 /* for NULL */
-#include "../utils/binomial.h"      /* for seq_t binomial(idx_t a, idx_t b) */
+#include "../utils/binomial.h"
 
 /* Compute the n‑th term of sequence A376547.
    Uses O(n) time and only integer arithmetic. */

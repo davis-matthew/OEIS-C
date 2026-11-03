@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 11, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   seq_from_str
+ * Validated: standard, pass, 33 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,18 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_from_str.h"
+#include <string.h>
+#include "../utils/mem.h"
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
 
 static seq_t *cache = NULL;          /* cached values, indices 1..cap-1 */
 static size_t cache_cap = 0;         /* allocated capacity */
@@ -56,12 +68,12 @@ static void init_initial_values(void)
 static void ensure_capacity(size_t new_cap)
 {
     if (new_cap <= cache_cap) return;
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache) return; /* allocation failure – give up silently */
     /* Copy existing computed values */
     for (idx_t i = 1; i <= cache_end && i < new_cap; ++i)
         new_cache[i] = cache[i];
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
     cache_cap = new_cap;
     /* Fill the first 16 entries with the known values if room */

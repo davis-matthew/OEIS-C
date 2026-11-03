@@ -14,16 +14,93 @@
  *            k...
  * Range:     u8 n <= 126, u16 n <= 1830, u32 n <= 1830, u64 n <= 1830,
  *            u128 n <= 1830, big any n
- * Helpers:   floor_div_sqrt5, less_than_sqrt5, rank_n_m
+ * Validated: standard, pass, 81 terms through n = 1701 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/floor_div_sqrt5.h"
-#include "../utils/less_than_sqrt5.h"
-#include "../utils/rank_n_m.h"
+
+/* Compare L < A + B*sqrt(5) without floating point.
+   For B >= 0: return (L < A) or ((L-A)^2 < 5*B^2).
+   For B < 0 : return (L >= A) ? false : ((A-L)^2 > 5*(-B)^2).                           */
+static inline bool less_than_sqrt5(idx_t L, idx_t A, int64_t B)
+{
+    if (B == 0) {
+        return L < A;
+    } else if (B > 0) {
+        if (L < A) {
+            return true;
+        }
+        __int128 d  = (__int128)L - (__int128)A;            /* L-A >= 0 */
+        __int128 rhs = (__int128)5 * (__int128)B * (__int128)B;
+        return d * d < rhs;
+    } else { /* B < 0 */
+        if (L >= A) {
+            return false;
+        }
+        __int128 d  = (__int128)A - (__int128)L;            /* A-L > 0 */
+        __int128 rhs = (__int128)5 * (__int128)(-B) * (__int128)(-B);
+        return d * d > rhs;
+    }
+}
+
+/* Floor division by sqrt(5) using binary search.
+   Returns floor(x / sqrt(5)) for non‑negative x.                                            */
+static inline uint64_t floor_div_sqrt5(uint64_t x)
+{
+    uint64_t lo = 0, hi = x;
+    while (lo <= hi) {
+        uint64_t mid = lo + (hi - lo) / 2;
+        /* condition: mid <= x / sqrt(5)  <=>  x >= mid*sqrt(5)   */
+        if (less_than_sqrt5(x, 0, (int64_t)mid)) {    /* mid*sqrt5 > x   */
+            if (mid == 0) { /* cannot get smaller */
+                break;
+            }
+            hi = mid - 1;
+        } else {
+            lo = mid + 1;
+        }
+    }
+    return hi;
+}
+
+/* Rank of i*(sqrt(5)+j) among all k*(sqrt(5)+h) with k>=1,h>=0. */
+static inline seq_t rank_n_m(idx_t i, idx_t j)
+{
+    uint64_t prod     = i * j;                          /* i*j  */
+    uint64_t kmax     = i + floor_div_sqrt5(prod);     /* floor(i + i*j/sqrt5) */
+
+    seq_t sum = 0;
+    for (uint64_t k = 1; k <= kmax; ++k) {
+        uint64_t a = i * j;             /* integer part of D */
+        int64_t  b = (int64_t)i - (int64_t)k; /* coefficient of sqrt(5) in D */
+
+        /* Check if D = a + b*sqrt5 is positive. */
+        if (!less_than_sqrt5(0, a, b))
+            continue;                  /* no h-values for this k */
+
+        /* Upper bound for h.  A conservative bound is (a + 5*i)/k + 5. */
+        uint64_t hi = (a + 5 * i) / k + 5;
+        uint64_t lo = 0;
+        uint64_t best = 0;
+        while (lo <= hi) {
+            uint64_t mid = lo + (hi - lo) / 2;
+            uint64_t left = k * mid;        /* k*h  */
+            if (less_than_sqrt5(left, a, b)) {
+                best = mid;
+                lo   = mid + 1;
+            } else {
+                if (mid == 0) break;
+                hi = mid - 1;
+            }
+        }
+        sum += (seq_t)(best + 1);          /* number of h-values for this k */
+    }
+    return sum + (seq_t)1;                  /* include the element itself */
+}
 
 /* Convert the linear index n (1‑based) to matrix coordinates (i,j) (i>=1,j>=0)
    following the antidiagonal reading.                                                       */

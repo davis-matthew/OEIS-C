@@ -7,13 +7,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Divisors of 10080 in ascending order (a(1)=1, a(72)=10080) */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static int _initialized = 0;
 static seq_t _divisors[72];
@@ -46,7 +48,7 @@ static void _build_divisors(void)
                 for (idx_t e3 = 0; e3 <= 1; ++e3) {
                     _divisors[idx++] = pow2[e0] * pow3[e1] * pow5[e2] * pow7[e3];
                 }
-    qsort(_divisors, 72, sizeof(seq_t), _cmp_seq);
+    mem_qsort(_divisors, 72, sizeof(seq_t), _cmp_seq);
     _initialized = 1;
 }
 

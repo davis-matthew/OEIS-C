@@ -9,6 +9,7 @@
  *            * U^(m)(0) = 0 for even m, U^(2k+1)(0) = (-1)^k * 2^{2k}
  * Range:     i8 n <= 6, i16 n <= 8, i32 n <= 13, i64 n <= 21, i128 n <= 21,
  *            big any n
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
 #ifdef __cplusplus
 #include <vector>
 #endif
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 /* Forward declarations for allocation helpers (if needed) */

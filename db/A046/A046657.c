@@ -9,13 +9,15 @@
  *            φ(n) is Euler's totient function
  * Range:     u8 n <= 40, u16 n <= 656, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 9456 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static helper to precompute totients and sequence values up to a given index */
 static idx_t _max_computed = 0;
@@ -29,7 +31,7 @@ static void _ensure(idx_t n)
 
     size_t newsize = (size_t)(n + 1);
 
-    _a_cache = (seq_t*)realloc(_a_cache, newsize * sizeof(seq_t));
+    _a_cache = mem_resize(seq_t, _a_cache, newsize);
     _phi    = (uint64_t*)realloc(_phi,   newsize * sizeof(uint64_t));
     if (!_a_cache || !_phi) exit(1);
 

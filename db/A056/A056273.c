@@ -9,12 +9,14 @@
  *            S(0,0)=1, S(0,k)=0 for k>0. a(n) = Sum_{k=1..6} S(n,k); a(0)=1
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 16, u64 n <= 28, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 946 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build system. */
 
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     /* Initialise on first call. */
     if (a_vals == NULL) {
         a_alloc = 16;
-        a_vals = (seq_t *)malloc(a_alloc * sizeof(seq_t));
+        a_vals = mem_new(seq_t, a_alloc);
         a_vals[0] = (seq_t)1;        /* a(0) = 1 */
         /* Initialise Stirling numbers for n = 0. */
         prev[0] = (seq_t)1;
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
             size_t new_alloc = a_alloc;
             if (new_alloc < needed) new_alloc = needed;
             while (new_alloc < needed) new_alloc <<= 1;
-            a_vals = (seq_t *)realloc(a_vals, new_alloc * sizeof(seq_t));
+            a_vals = mem_resize(seq_t, a_vals, new_alloc);
             a_alloc = new_alloc;
         }
 

@@ -11,13 +11,41 @@
  *            (r-1)
  * Range:     u8 n <= 93, u16 n <= 93, u32 n <= 93, u64 n <= 93, u128 n <= 93,
  *            big any n
- * Helpers:   knight_moves
+ * Validated: partial, pass, 93 terms through n = 93 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/knight_moves.h"
+
+/* Return the shortest number of knight moves from the origin to
+   the point (x, y) on an infinite board.  x ≥ 0, y can be signed
+   but only its absolute value matters. */
+static inline seq_t knight_moves(idx_t x, int64_t y_signed) {
+    if (x == 0 && y_signed == 0) return 0;          /* origin */
+
+    /* work with non‑negative coordinates */
+    seq_t a = x;
+    seq_t b = (seq_t)(y_signed >= 0 ? y_signed : -y_signed);
+
+    /* swap to ensure a ≥ b */
+    if (a < b) { seq_t t = a; a = b; b = t; }
+
+    /* special cases */
+    if (a == 1 && b == 0) return 3;
+    if (a == 2 && b == 2) return 4;
+
+    /* general formula */
+    seq_t d1 = (a + 1) / 2;
+    seq_t d2 = (a + b + 2) / 3;
+    seq_t d = d1 > d2 ? d1 : d2;
+
+    /* parity adjustment */
+    if ( (d + a + b) & 1U ) d++;
+
+    return d;
+}
 
 /* Integer floor square root for an unsigned 64‑bit integer.
    Uses an efficient Newton‑Raphson iteration. */

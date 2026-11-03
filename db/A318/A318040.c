@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 16, u64 n <= 31, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
   -2*a(n-21)          for n > 23
   with initial terms a(1)…a(23) given below. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
     /* Allocate an array to hold terms up to n.  The array is 1‑based
        for convenience: arr[1] = a(1). */
     idx_t size = n + 1;                  /* includes index 0 unused */
-    seq_t *arr = (seq_t *)malloc(size * sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, size);
     if (!arr) return (seq_t)0;           /* allocation failed → zero */
 
     /* Initialise with the known first 23 terms. */
@@ -88,6 +90,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = arr[n];
-    free(arr);
+    mem_free(arr);
     return result;
 }

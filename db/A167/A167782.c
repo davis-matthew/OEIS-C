@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 7, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 9193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define BASE_MAX 2000      /* maximum base considered when initializing heap */
 
@@ -107,7 +109,7 @@ static void init_once(void)
         return;
 
     /* Allocate heap */
-    heap = (struct Node *)malloc(sizeof(struct Node) * (BASE_MAX - 1));
+    heap = mem_new(struct Node, (BASE_MAX - 1));
     heap_size = 0;
     for (int base = 2; base < BASE_MAX; ++base) {
         seq_t r = repunit(base, 3);
@@ -117,7 +119,7 @@ static void init_once(void)
 
     /* Allocate terms array, insert 0 */
     terms_cap = 256;
-    terms = (seq_t *)malloc(sizeof(seq_t) * terms_cap);
+    terms = mem_new(seq_t, terms_cap);
     terms[0] = 0;            /* offset 1 */
     terms_size = 1;
 
@@ -141,7 +143,7 @@ seq_t a(idx_t n)
         if (terms_size == 0 || val != terms[terms_size - 1]) {
             if (terms_size == terms_cap) {
                 terms_cap <<= 1;
-                terms = (seq_t *)realloc(terms, sizeof(seq_t) * terms_cap);
+                terms = mem_resize(seq_t, terms, terms_cap);
             }
             terms[terms_size++] = val;
         }

@@ -13,15 +13,28 @@
  *            memoises A(i,k) for 0 ≤ i,k ≤ 141, which suffices f...
  * Range:     u8 n <= 25, u16 n <= 42, u32 n <= 87, u64 n <= 187,
  *            u128 n <= 462, big any n
- * Helpers:   big_pow, diagonal_coords
+ * Validated: standard, pass, 82 terms through n = 9468 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
-#include "../utils/diagonal_coords.h"
+#include "../utils/ipow.h"
+
+/* map global index n to antidiagonal coordinates (i,k) */
+static inline void diagonal_coords(idx_t n, idx_t *i, idx_t *k)
+{
+    /* find largest d with d(d+1)/2 <= n */
+    idx_t d = 0;
+    while ((d + 1) * d / 2 <= n) d++;
+    d--;                                   /* now d(d+1)/2 <= n < (d+1)(d+2)/2 */
+    idx_t start = d * (d + 1) / 2;
+    idx_t pos   = n - start;
+    *i = pos;
+    *k = d - pos;
+}
 
 /* size needed for i or j when reading 10000 terms along antidiagonals */
 #define MAX_N 142
@@ -90,7 +103,7 @@ static void compute_A(idx_t i, idx_t k)
                    and attach trees to them */
                 seq_t comb = nCk(m, d) * fact[d-1];
                 /* number of forests on m nodes with the chosen d as roots */
-                seq_t trees = (seq_t)d * big_pow((seq_t)m,
+                seq_t trees = (seq_t)d * ipow((seq_t)m,
                                                 (seq_t)(m - d - 1));
                 term = comb * trees;
             }

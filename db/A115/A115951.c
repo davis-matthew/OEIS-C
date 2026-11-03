@@ -9,14 +9,16 @@
  *            flattening the triangle T(r,c)=C(2c,c)*C(c,r-c) row by row (rows
  *            start at r=0, each row has r+1 entries). Thus for a given
  *            overall index n we find the unique row r and...
- * Range:     u8 n <= 13, u16 n <= 43, u32 n <= 165, u64 n <= 520,
+ * Range:     u8 n <= 18, u16 n <= 51, u32 n <= 165, u64 n <= 520,
  *            u128 n <= 1877, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 82 terms through n = 4755 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     idx_t c = n - cum;
 
     /* Compute the triangle entry: binom(2c,c) * binom(c,r-c) */
-    seq_t first  = binom(2 * c, c);
-    seq_t second = binom(c, r - c);
+    seq_t first  = binomial(2 * c, c);
+    seq_t second = binomial(c, r - c);
     return first * second;
 }

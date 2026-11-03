@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,11 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/is_prime.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static seq_t *prime_form64 = NULL;      /* primes of the form 1+64*b */
 static size_t prime_form_cap = 0;       /* allocated capacity */
@@ -37,7 +41,7 @@ static void ensure_prime_form64(size_t needed)
     if (prime_form_cap < needed) {
         size_t new_cap = prime_form_cap ? prime_form_cap * 2 : 16;
         if (new_cap < needed) new_cap = needed;
-        seq_t *new_arr = (seq_t*)realloc(prime_form64, new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, prime_form64, new_cap);
         if (!new_arr) return; /* allocation failure - let the caller fail */
         prime_form64 = new_arr;
         prime_form_cap = new_cap;
@@ -80,7 +84,7 @@ static uint64_t primitive_root_mod_p(uint64_t p)
     for (uint64_t g = 2; g < p; ++g) {
         bool ok = true;
         for (size_t i = 0; i < faccnt; ++i) {
-            if (mod_pow((seq_t)g, phi / factors[i], (seq_t)p) == 1) {
+            if (powmod((seq_t)g, phi / factors[i], (seq_t)p) == 1) {
                 ok = false;
                 break;
             }
@@ -112,7 +116,7 @@ seq_t a(idx_t n)
     bool first = true;
     for (uint32_t t = 0; t < 32; ++t) {
         seq_t exp = base + step * t;
-        seq_t k = mod_pow((seq_t)g, (uint64_t)exp, p);
+        seq_t k = powmod((seq_t)g, (uint64_t)exp, p);
         if (first || k < min_k) {
             min_k = k;
             first = false;

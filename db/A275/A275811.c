@@ -9,8 +9,9 @@
  * Formula:   a(n) = number of occurrences of the most common element in the
  *            multiset * { i - d | i = position from the right (1‑based) of a
  *            nonzero digit d in the factorial * base expansion of n }
- * Range:     u8 n <= 9869, u16 n <= 9869, u32 n <= 9869, u64 n <= 9869,
- *            u128 n <= 9869, big any n
+ * Range:     u8 n <= 40320, u16 n <= 40320, u32 n <= 40320, u64 n <= 40320,
+ *            u128 n <= 40320, big any n
+ * Validated: standard, pass, 137 terms through n = 9869 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

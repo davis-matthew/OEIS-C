@@ -7,14 +7,16 @@
  * Formula:   a(n) = Sum_{k=0..floor((3*n-6)/2)} binomial(3*n-4-2*k, k)*2^k
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 15, u64 n <= 29, u128 n <= 57,
  *            big any n
+ * Validated: standard, pass, 42 terms through n = 978 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
-
 
 seq_t a(idx_t n)
 {

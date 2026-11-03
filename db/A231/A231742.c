@@ -10,7 +10,8 @@
  *            neighbors
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 8, u64 n <= 17, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 169 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define NUM_ROWS 64          /* 4^3 possible rows of length 3 */
 #define STATE_COUNT (NUM_ROWS * NUM_ROWS)
@@ -105,8 +107,8 @@ seq_t a(idx_t n)
     }
 
     /* Allocate DP arrays */
-    seq_t *dp   = (seq_t *)calloc(STATE_COUNT, sizeof(seq_t));
-    seq_t *next = (seq_t *)calloc(STATE_COUNT, sizeof(seq_t));
+    seq_t *dp   = mem_new(seq_t, STATE_COUNT);
+    seq_t *next = mem_new(seq_t, STATE_COUNT);
     if (!dp || !next) return 0;    /* memory exhaustion -> 0 */
 
     /* Initialisation for first two rows */
@@ -119,7 +121,7 @@ seq_t a(idx_t n)
 
     /* Add subsequent rows */
     for (idx_t step = 3; step <= n; ++step) {
-        memset(next, 0, sizeof(seq_t) * STATE_COUNT);
+        mem_set(next, 0, sizeof(seq_t) * STATE_COUNT);
         for (int idx = 0; idx < STATE_COUNT; ++idx) {
             seq_t cnt = dp[idx];
             if (!cnt) continue;
@@ -147,7 +149,7 @@ seq_t a(idx_t n)
             ans += cnt;
     }
 
-    free(dp);
-    free(next);
+    mem_free(dp);
+    mem_free(next);
     return ans;
 }

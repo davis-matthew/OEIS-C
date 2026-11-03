@@ -7,7 +7,8 @@
  * Formula:   a(n) = (prime(n+1)+prime(n+2))/2
  * Range:     u8 n <= 52, u16 n <= 6540, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   prime_limit_for_idx, sieve_first_n_primes
+ * Validated: standard, pass, 77 terms through n = 8747 (2026-11-01)
+ * Helpers:   sieve_first_n_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,23 @@
 /* This computes the average of two consecutive odd primes.      */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/sieve_first_n_primes.h"   /* sieve_first_n_primes()   */
-#include "../utils/prime_limit_for_idx.h"   /* _prime_limit_for_idx()   */
+#include <string.h>
+#include <math.h>
+#include <stdbool.h>
+#include "../utils/sieve_first_n_primes.h"
+
+/* utility – estimate an upper bound for the n-th prime (Rosser–Schoenfeld) */
+static idx_t prime_limit_for_idx(idx_t n)
+{
+    if (n < 6)
+        return 12;                               /* prime(6)=13 */
+    double dn   = (double)n;
+    double lgn  = log(dn);
+    double lgln = log(lgn);
+    /* p_n < n(ln n + ln ln n) for n ≥ 6, add a safety margin */
+    double limit = dn * (lgn + lgln) + 3.0;
+    return (idx_t)limit;
+}
 
 static uint32_t *prime_list = NULL;   /* Array of the smallest primes   */
 static size_t   prime_count = 0;      /* Number of primes in prime_list */

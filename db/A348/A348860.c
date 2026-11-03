@@ -7,12 +7,14 @@
  * Formula:   a(n) = (-1)^n + Sum_{k=0..n-1} 2^k * a(k) * a(n-k-1)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 8, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;           /* memoized a(n) values      */
 static idx_t cache_size = 0;          /* allocated size of cache   */
@@ -28,10 +30,10 @@ static void ensure_cache(idx_t n)
     if (cache_size <= n) {
         idx_t new_size = cache_size ? cache_size << 1 : 1;
         while (new_size <= n) new_size <<= 1;
-        seq_t *tmp = (seq_t *)malloc(sizeof(seq_t) * new_size);
+        seq_t *tmp = mem_new(seq_t, new_size);
         if (!tmp) abort();
         for (idx_t i = 0; i < cache_size; ++i) tmp[i] = cache[i];
-        if (cache) free(cache);
+        if (cache) mem_free(cache);
         cache = tmp;
         cache_size = new_size;
     }
@@ -43,10 +45,10 @@ static void ensure_pow2(idx_t n)
     if (pow2_size <= n) {
         idx_t new_size = pow2_size ? pow2_size << 1 : 1;
         while (new_size <= n) new_size <<= 1;
-        seq_t *tmp = (seq_t *)malloc(sizeof(seq_t) * new_size);
+        seq_t *tmp = mem_new(seq_t, new_size);
         if (!tmp) abort();
         for (idx_t i = 0; i < pow2_size; ++i) tmp[i] = pow2[i];
-        if (pow2) free(pow2);
+        if (pow2) mem_free(pow2);
         pow2 = tmp;
         pow2_size = new_size;
     }

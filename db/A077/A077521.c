@@ -8,15 +8,27 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 10, u128 n <= 14,
  *            big any n
- * Helpers:   is_squarefree, pow10
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-01)
+ * Helpers:   is_squarefree
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/pow10.h"
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/is_squarefree.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Recurrence: a(1) = 1;
    a(n) = smallest squarefree integer that starts with the decimal digits of n

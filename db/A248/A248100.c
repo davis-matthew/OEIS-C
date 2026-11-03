@@ -10,12 +10,14 @@
  *            a(k)*a(n-3−k) (Catalan‑like convolution shifted by 3)
  * Range:     u8 n <= 15, u16 n <= 25, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_len = 0;
@@ -25,7 +27,7 @@ static void ensure_cache(idx_t n)
     idx_t needed = n + 1;
     if ((size_t)needed <= cache_len) return;
 
-    seq_t *new_cache = (seq_t *)realloc(cache, (size_t)needed * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (size_t)needed);
     if (!new_cache) abort();
 
     for (idx_t i = cache_len; i < needed; ++i) {

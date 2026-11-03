@@ -9,16 +9,17 @@
  *            where φ is Euler's totient function. This is the denominator of
  *            the n‑th fraction (0‑based) in the canonical bijection between
  *            ℕ⁺ and reduced rationals ≤1
- * Range:     u8 n <= 688, u16 n <= 9835, u32 n <= 9835, u64 n <= 9835,
- *            u128 n <= 9835, big any n
- * Helpers:   phi_brute
+ * Range:     u8 n <= 688, u16 n <= 99999, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 94 terms through n = 9835 (2026-11-03)
+ * Helpers:   mem, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/phi_brute.h"
+#include "../utils/totient.h"
 
 /* Recasting macro works for both C and C++ */
 #if defined(__cplusplus)
@@ -26,9 +27,10 @@
 #else
 #define RECAST(ptr, type) ((type)(ptr))
 #endif
+#include "../utils/mem.h"
 
 /* Forward declaration of φ via brute force */
-static seq_t phi_brute(idx_t m);
+static seq_t totient(idx_t m);
 
 /* Cumulative sums Σ_{k=1}^d φ(k) for successive denominators d.
    cum_sums[i]  == Σ_{k=1}^{i+1} φ(k).  */
@@ -41,7 +43,7 @@ static void ensure_cum(seq_t target)
 {
     if (cum_size == 0) {
         cum_cap = 16;
-        cum_sums = RECAST(malloc(cum_cap * sizeof(seq_t)), seq_t *);
+        cum_sums = RECAST(mem_new(seq_t, cum_cap), seq_t *);
         if (!cum_sums) abort();
         cum_size = 0;
     }
@@ -49,13 +51,13 @@ static void ensure_cum(seq_t target)
     /* Add new terms as necessary */
     while (cum_size == 0 || cum_sums[cum_size-1] <= target) {
         idx_t d = (idx_t)(cum_size + 1);        /* next denominator */
-        seq_t phi = phi_brute(d);
+        seq_t phi = totient(d);
         seq_t sum = cum_size == 0 ? phi : cum_sums[cum_size-1] + phi;
 
         /* Grow the array if needed */
         if (cum_size >= cum_cap) {
             size_t new_cap = cum_cap * 2;
-            seq_t *tmp = RECAST(realloc(cum_sums, new_cap * sizeof(seq_t)), seq_t *);
+            seq_t *tmp = RECAST(mem_resize(seq_t, cum_sums, new_cap), seq_t *);
             if (!tmp) abort();
             cum_sums = tmp;
             cum_cap = new_cap;

@@ -11,12 +11,14 @@
  *            x^3*(1+x+2*x^2+3*x^3+3*x^4+x^5)/(1‑x^2‑x^3)^3
  * Range:     u8 n <= 11, u16 n <= 25, u32 n <= 58, u64 n <= 132,
  *            u128 n <= 284, big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 925 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     static const seq_t N[9] =
         {0,0,0,1,1,2,3,3,1};
 
-    seq_t *A = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *A = mem_new(seq_t, (n + 1));
     if (!A) exit(1);                         /* memory allocation failed */
 
     /* Initialize first three terms */
@@ -52,6 +54,6 @@ seq_t a(idx_t n)
     }
 
     seq_t val = A[n];
-    free(A);
+    mem_free(A);
     return val;
 }

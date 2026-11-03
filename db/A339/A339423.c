@@ -9,14 +9,15 @@
  *            non‑decreasing primes, multiplicity counted)
  * Range:     u8 n <= 511, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _smallest_prime_factor
+ * Validated: standard, pass, 108 terms through n = 9821 (2026-11-01)
+ * Helpers:   smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/_smallest_prime_factor.h"
+#include "../utils/smallest_prime_factor.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +31,7 @@ seq_t a(idx_t n)
 
     /* ---------- factorise n ---------- */
     while (x > 1) {
-        uint64_t p = _smallest_prime_factor(x);
+        uint64_t p = smallest_prime_factor(x);
         int e = 0;
         while (x % p == 0) {
             x /= p;

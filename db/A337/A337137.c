@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 126, u16 n <= 2048, u32 n <= 2048, u64 n <= 2048,
  *            u128 n <= 2048, big any n
- * Helpers:   mod_pow2_u64
+ * Validated: standard, pass, 143 terms through n = 2035 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,19 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/mod_pow2_u64.h"
+
+/* Computes 2^exp mod mod using binary exponentiation. */
+static inline seq_t mod_pow2_u64(uint64_t exp, seq_t mod)
+{
+    seq_t result = 1 % mod;
+    seq_t base   = 2 % mod;
+    while (exp) {
+        if (exp & 1ULL) result = (result * base) % mod;
+        base = (base * base) % mod;
+        exp >>= 1ULL;
+    }
+    return result;
+}
 
 /* Count the number of binary bits needed to represent x (>0).  For x==0
    the result is 0.  Works for any unsigned seq_t type that supports

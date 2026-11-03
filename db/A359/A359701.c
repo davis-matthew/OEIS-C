@@ -7,7 +7,8 @@
  * Formula:   a(n) = ∑_{d|n} d^(d + n/d - 2)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 19,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;                /* offset is 1, value for n=0 is irrelevant       */
@@ -25,10 +27,10 @@ seq_t a(idx_t n) {
         if (n % d == 0) {
             idx_t q = n / d;                         /* other divisor */
             seq_t e1 = (seq_t)d + (seq_t)q - 2;
-            sum += big_pow((seq_t)d, e1);
+            sum += ipow((seq_t)d, e1);
             if (d != q) {
                 seq_t e2 = (seq_t)q + (seq_t)d - 2;
-                sum += big_pow((seq_t)q, e2);
+                sum += ipow((seq_t)q, e2);
             }
         }
     }

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;           /* array of computed terms      */
 static size_t seqSize = 0;          /* number of terms stored       */
@@ -45,14 +47,14 @@ static void ensure_seq_size(size_t needed)
     size_t newCap = seqCap ? seqCap * 2 : 1;
     while (newCap < needed)
         newCap <<= 1;
-    seq_t *newPtr = (seq_t *)malloc(newCap * sizeof(seq_t));
+    seq_t *newPtr = mem_new(seq_t, newCap);
     if (!newPtr) {
         /* Handle allocation failure gracefully: abort. */
         abort();
     }
     for (size_t i = 0; i < seqSize; ++i)
         newPtr[i] = seq[i];
-    free(seq);
+    mem_free(seq);
     seq = newPtr;
     seqCap = newCap;
 }

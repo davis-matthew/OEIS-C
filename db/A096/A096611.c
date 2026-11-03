@@ -11,12 +11,14 @@
  *            definition
  * Range:     u8 n <= 8, u16 n <= 14, u32 n <= 25, u64 n <= 47, u128 n <= 92,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 945 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,13 +31,13 @@ seq_t a(idx_t n)
     const size_t base   = 2 * (size_t)n;          /* y=0 maps to this index */
 
     /* Allocate the three arrays for x-2, x-1 and the current x. */
-    seq_t *a0 = (seq_t*)calloc(total, sizeof(seq_t)); /* x‑2  */
-    seq_t *a1 = (seq_t*)calloc(total, sizeof(seq_t)); /* x‑1  */
-    seq_t *a2 = (seq_t*)calloc(total, sizeof(seq_t)); /* x    */
+    seq_t *a0 = mem_new(seq_t, total); /* x‑2  */
+    seq_t *a1 = mem_new(seq_t, total); /* x‑1  */
+    seq_t *a2 = mem_new(seq_t, total); /* x    */
 
     if (!a0 || !a1 || !a2) {
         /* On real builds we would handle OOM.  For the exercise return 0. */
-        free(a0); free(a1); free(a2);
+        mem_free(a0); mem_free(a1); mem_free(a2);
         return 0;
     }
 
@@ -88,9 +90,9 @@ seq_t a(idx_t n)
     /* After the last iteration prev1 holds the counts for x=n. */
     seq_t result = prev1[base + 2];  /* y = 2 */
 
-    free(a0);
-    free(a1);
-    free(a2);
+    mem_free(a0);
+    mem_free(a1);
+    mem_free(a2);
 
     return result;
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 200, u16 n <= 200, u32 n <= 200, u64 n <= 200,
  *            u128 n <= 200, big any n
- * Helpers:   none
+ * Validated: partial, pass, 201 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Ensure *ptr points to an array that can hold at least 'need' elements.
  * Expands the array if necessary.  The array is allocated with malloc/realloc.
@@ -31,7 +33,7 @@ static void _ensure_cache(idx_t need, size_t *cap, seq_t **ptr)
     if ((idx_t)*cap >= need)
         return;
     size_t new_cap = need;
-    seq_t *tmp = (seq_t *)realloc(*ptr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *ptr, new_cap);
     if (!tmp)
     {
         abort();                /* allocation failure – terminate safely */

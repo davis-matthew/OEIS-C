@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 71 terms through n = 982 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 /* Persistent storage of found k's (using uint64_t as intermediate). */
 static idx_t *k_terms = NULL;   /* array of generated k values */
@@ -43,7 +46,7 @@ seq_t a(idx_t n)
     /* Generate terms until we have at least n values. */
     while (k_size < n) {
         uint64_t val = 23ULL * next_k + 2357ULL; /* 23*k + 2357 */
-        if (is_prime(val)) {
+        if (is_prime_u64(val)) {
             ensure_k_cap(k_size + 1);
             k_terms[k_size++] = next_k;
         }

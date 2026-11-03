@@ -8,8 +8,9 @@
  * Formula:   a(n) = number of divisors d of n such that core(d)*phi(d) = n,
  *            where core(d) is the product of the primes dividing d with odd
  *            exponent (the square‑free part of d)
- * Range:     u8 n <= 9854, u16 n <= 9854, u32 n <= 9854, u64 n <= 9854,
- *            u128 n <= 9854, big any n
+ * Range:     u8 n <= 65536, u16 n <= 65536, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 136 terms through n = 9854 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

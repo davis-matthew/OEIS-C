@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 186, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 9741 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Parameters -------------------------------------------------------- */
@@ -100,7 +102,7 @@ static void extend_cache(idx_t n)
     {
         size_t new_sz = (cache_pos + n) * 2;
         if (new_sz > CACHE_SIZE_LIMIT) new_sz = CACHE_SIZE_LIMIT;
-        term_cache = (seq_t*)realloc(term_cache, new_sz * sizeof(seq_t));
+        term_cache = mem_resize(seq_t, term_cache, new_sz);
     }
 
     size_t prime_idx = 0; /* index in prime_list */

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 22,
  *            big any n
- * Helpers:   factorial
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,18 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/factorial.h"   /* factorial(idx_t n) returns seq_t */
+#include "../utils/mem.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 static inline idx_t gcd_idx(idx_t a, idx_t b)
 {
@@ -44,22 +56,22 @@ seq_t a(idx_t n)
 
     /* Allocate two working arrays of size n+1.  */
     size_t len = (size_t)(n + 1);
-    seq_t *dp   = (seq_t *)malloc(len * sizeof(seq_t));
-    seq_t *next = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *dp   = mem_new(seq_t, len);
+    seq_t *next = mem_new(seq_t, len);
     if (!dp || !next) {
-        free(dp); free(next);
+        mem_free(dp); mem_free(next);
         return (seq_t)0;      /* fallback on allocation failure */
     }
 
     seq_t fact_n = factorial(n);
     dp[0] = fact_n;
-    memset(dp + 1, 0, (len - 1) * sizeof(seq_t));
+    mem_set(dp + 1, 0, (len - 1) * sizeof(seq_t));
 
     for (idx_t k = 1; k <= n; ++k) {
         if (gcd_idx(n, k) != 1) continue;
 
         seq_t fact_k = factorial(k);
-        memset(next, 0, len * sizeof(seq_t));
+        mem_set(next, 0, len * sizeof(seq_t));
 
         for (idx_t s = 0; s <= n; ++s) {
             seq_t val = dp[s];
@@ -84,6 +96,6 @@ seq_t a(idx_t n)
 
     seq_t result = dp[n];
 
-    free(dp); free(next);
+    mem_free(dp); mem_free(next);
     return result;
 }

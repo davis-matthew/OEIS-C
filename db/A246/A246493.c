@@ -11,7 +11,8 @@
  *            the sequence follows a(n) = 3^n
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 14, u64 n <= 14, u128 n <= 14,
  *            big any n
- * Helpers:   phi_uint32, seq_pow
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-01)
+ * Helpers:   ipow_idx, totient_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,9 @@
 #include <stdbool.h>
 
 /* external utilities that may be available */
-#include "../utils/seq_pow.h"      /* seq_pow(seq_t base, idx_t exp) */
-#include "../utils/phi_uint32.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/totient_u32.h"
 
 /* ---------- helper functions ---------- */
 
@@ -48,7 +50,7 @@ static uint64_t mod_tetration_uint64(idx_t n, uint64_t mod)
     if (n == 1) return 5 % mod;
     if (n == 2) return powmod_uint64(5, 5, mod);
 
-    uint32_t phi = phi_uint32((uint32_t)mod);
+    uint32_t phi = totient_u32((uint32_t)mod);
     uint64_t exp = mod_tetration_uint64(n - 1, phi);
     /* actual exponent is > phi, so add phi to preserve congruence */
     uint64_t exponent = exp + phi;
@@ -60,7 +62,7 @@ static uint64_t mod_tetration_uint64(idx_t n, uint64_t mod)
 seq_t a(idx_t n)
 {
     /* For n ≥ 9 the sequence equals 3^n. */
-    if (n >= 9) return seq_pow((seq_t)3, n);
+    if (n >= 9) return ipow_idx((seq_t)3, n);
 
     /* Search for the smallest k that distinguishes the two tetrations. */
     for (uint64_t k = 2; ; ++k) {

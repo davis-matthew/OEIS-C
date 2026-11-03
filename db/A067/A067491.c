@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 9, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 262 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Static cache of computed terms */
 static seq_t *cache = NULL;          /* array of terms */
@@ -47,7 +49,7 @@ static void ensure_cache(idx_t n)
     if (cache_size == 0) {
         /* start with 5^0 */
         cache_capacity = 4;
-        cache = (seq_t*)malloc(sizeof(seq_t) * cache_capacity);
+        cache = mem_new(seq_t, cache_capacity);
         cache[0] = current_power;   /* 5^0 = 1 */
         cache_size = 1;
         /* next_exponent is already 1 */
@@ -68,7 +70,7 @@ static void ensure_cache(idx_t n)
             /* grow array if needed */
             if (cache_size == cache_capacity) {
                 cache_capacity *= 2;
-                cache = (seq_t*)realloc(cache, sizeof(seq_t) * cache_capacity);
+                cache = mem_resize(seq_t, cache, cache_capacity);
             }
             cache[cache_size++] = current_power;
         }

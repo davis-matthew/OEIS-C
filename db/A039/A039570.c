@@ -11,7 +11,8 @@
  *            a(5)=39
  * Range:     u8 n <= 26, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   base5_equal_ones_twos_fours
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,24 @@
    base‑5 digits.  */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/base5_equal_ones_twos_fours.h"
+#include "../utils/mem.h"
+
+/* Return true if val has an equal number of digits 1, 2 and 4 in base 5. */
+static bool base5_equal_ones_twos_fours(seq_t val)
+{
+    unsigned cnt1 = 0, cnt2 = 0, cnt4 = 0;
+    seq_t x = val;
+    if (x == 0)             /* all counts are zero */
+        return true;
+    while (x > 0) {
+        unsigned d = (unsigned)(x % 5u);
+        if (d == 1u)          cnt1++;
+        else if (d == 2u)     cnt2++;
+        else if (d == 4u)     cnt4++;
+        x /= 5u;
+    }
+    return (cnt1 == cnt2) && (cnt2 == cnt4);
+}
 
 seq_t a(idx_t n)
 {
@@ -38,7 +56,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call. */
     if (cache == NULL) {
         cache_cap = 128;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* Generate terms until we have at least n of them. */
@@ -47,7 +65,7 @@ seq_t a(idx_t n)
             /* Expand cache if necessary. */
             if (cache_size == cache_cap) {
                 cache_cap *= 2;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_size++] = current_val;
         }

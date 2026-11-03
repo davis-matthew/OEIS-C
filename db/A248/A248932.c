@@ -8,6 +8,7 @@
  * Formula:   a(n) is the nth decimal digit of 2^2203–1, offset 664
  * Range:     u8 n <= 1327, u16 n <= 1327, u32 n <= 1327, u64 n <= 1327,
  *            u128 n <= 1327, big any n
+ * Validated: full, pass, 664 terms through n = 1327 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

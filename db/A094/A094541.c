@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 23, u64 n <= 53, u128 n <= 93,
  *            big any n
- * Helpers:   parity_uint64
+ * Validated: standard, pass, 46 terms through n = 951 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,19 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/parity_uint64.h"
+#include "../utils/mem.h"
+
+/* Parity of the number of 1‑bits of a 64‑bit integer. */
+static inline int parity_uint64(uint64_t x)
+{
+#if defined(__builtin_parityll)
+    return __builtin_parityll(x);
+#else
+    int p = 0;
+    while (x) { p ^= (x & 1U); x >>= 1U; }
+    return p;
+#endif
+}
 
 /* Greatest‑common divisor for seq_t types (works for all integer‑like seq_t). */
 static inline seq_t seq_gcd(seq_t a, seq_t b)
@@ -59,7 +72,7 @@ static void init_cache(void)
 {
     if (cache == NULL) {
         cache_cap = 128;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return;  /* allocation failure – caller will get 0 */
     }
 }
@@ -70,7 +83,7 @@ static void resize_cache(size_t need)
     if (need <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap : 128;
     while (new_cap < need) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) return;  /* keep old buffer if realloc fails */
     cache = tmp;
     cache_cap = new_cap;

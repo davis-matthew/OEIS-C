@@ -10,12 +10,14 @@
  *            a(0)=2
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 3, u64 n <= 4, u128 n <= 5,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 7 terms through n = 6 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_values = NULL;
 static seq_t *cumsum_values = NULL;
@@ -26,8 +28,8 @@ static int initialized = 0;
 static void init(void) {
     if (initialized) return;
     cap = 1;
-    a_values = (seq_t *)malloc(cap * sizeof(seq_t));
-    cumsum_values = (seq_t *)malloc(cap * sizeof(seq_t));
+    a_values = mem_new(seq_t, cap);
+    cumsum_values = mem_new(seq_t, cap);
     a_values[0] = (seq_t)2;
     cumsum_values[0] = (seq_t)2;
     max_n = 0;
@@ -38,8 +40,8 @@ static void ensure_capacity(idx_t n) {
     if (n < cap) return;
     idx_t new_cap = cap ? cap * 2 : 1;
     while (new_cap <= n) new_cap *= 2;
-    a_values = (seq_t *)realloc(a_values, new_cap * sizeof(seq_t));
-    cumsum_values = (seq_t *)realloc(cumsum_values, new_cap * sizeof(seq_t));
+    a_values = mem_resize(seq_t, a_values, new_cap);
+    cumsum_values = mem_resize(seq_t, cumsum_values, new_cap);
     cap = new_cap;
 }
 

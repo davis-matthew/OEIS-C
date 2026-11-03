@@ -7,6 +7,7 @@
  * Formula:   a(n) = a(n-1) + floor((a(n-2)+a(n-3))/2), a(0)=a(1)=a(2)=1
  * Range:     u8 n <= 14, u16 n <= 27, u32 n <= 53, u64 n <= 105,
  *            u128 n <= 208, big any n
+ * Validated: standard, pass, 58 terms through n = 866 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

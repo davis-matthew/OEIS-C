@@ -12,13 +12,21 @@
  *            blocks that contain no black objects contrib...
  * Range:     u8 n <= 5, u16 n <= 20, u32 n <= 75, u64 n <= 291,
  *            u128 n <= 1156, big any n
- * Helpers:   alloc_zero
+ * Validated: standard, pass, 54 terms through n = 4673 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/alloc_zero.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
 
 static seq_t *Pp = 0;
 static seq_t *Rr = 0;

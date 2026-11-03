@@ -10,7 +10,8 @@
  *            of coprime numbers using inclusion–exclusion
  * Range:     u8 n <= 11, u16 n <= 20, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* ---------- cache of computed a(n) values ---------- */
 static seq_t *a_cache = NULL;   /* a_cache[i] holds a(i); 0 means not computed */
@@ -32,7 +34,7 @@ static void ensure_a_cache(idx_t n)
     if (n < a_cache_cap) return;
     size_t new_cap = a_cache_cap ? a_cache_cap : 1;
     while (new_cap <= (size_t)n) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     a_cache = tmp;
     for (size_t i = a_cache_cap; i < new_cap; ++i) a_cache[i] = 0;

@@ -10,7 +10,8 @@
  *            where each group sum is a multiple of its index n
  * Range:     u8 n <= 8, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 #define SIEVE_LIMIT 300000000U   /* 3×10^8, enough for n ≤ 10 000 */
 
@@ -96,7 +98,7 @@ static void ensure_terms(idx_t n)
                 if (cache_len == cache_cap) {
                     /* grow cache */
                     size_t new_cap = (cache_cap == 0) ? 256 : cache_cap << 1;
-                    seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
                     if (tmp == NULL) { abort(); }
                     seq_cache = tmp;
                     cache_cap = new_cap;

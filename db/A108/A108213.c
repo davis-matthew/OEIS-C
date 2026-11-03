@@ -8,6 +8,7 @@
  *            Equivalent closed form: a(2m)=44*2^m and a(2m+1)=22*2^m
  * Range:     u8 n <= 5, u16 n <= 21, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
+ * Validated: partial, pass, 38 terms through n = 37 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

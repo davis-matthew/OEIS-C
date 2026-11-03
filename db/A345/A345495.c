@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 192, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 1000 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *ways[9]    = {0};          /* ways[k][s] = #ways to form s with exactly k positive squares */
 static size_t maxSum     = 0;            /* current DP bound */
@@ -34,20 +36,20 @@ static void extend_precomp(size_t need)
 
         /* free old tables */
         for (int k = 0; k <= 8; ++k) {
-            free(ways[k]);
+            mem_free(ways[k]);
             ways[k] = NULL;
         }
-        free(repCount);
+        mem_free(repCount);
         repCount = NULL;
-        free(terms);
+        mem_free(terms);
         terms = NULL;
         termsLen = 0;
 
         /* allocate new DP tables */
         for (int k = 0; k <= 8; ++k) {
-            ways[k] = (seq_t *)calloc(newMax + 1, sizeof(seq_t));
+            ways[k] = mem_new(seq_t, newMax + 1);
         }
-        repCount = (seq_t *)calloc(newMax + 1, sizeof(seq_t));
+        repCount = mem_new(seq_t, newMax + 1);
 
         /* initialise DP: zero squares give sum 0 only */
         ways[0][0] = 1;
@@ -76,7 +78,7 @@ static void extend_precomp(size_t need)
         for (size_t s = 1; s <= newMax; ++s) {
             if (repCount[s] >= 8) ++newLen;
         }
-        seq_t *newTerms = (seq_t *)calloc(newLen, sizeof(seq_t));
+        seq_t *newTerms = mem_new(seq_t, newLen);
         size_t idx = 0;
         for (size_t s = 1; s <= newMax; ++s) {
             if (repCount[s] >= 8) {

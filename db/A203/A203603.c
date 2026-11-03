@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 32, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 32 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of comparison function for qsort. */
 static int seq_compare(const void *p1, const void *p2);
@@ -82,7 +84,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         /* Allocate an initial buffer for the terms. */
         size_t alloc_cap = 1024;
-        terms = (seq_t *)malloc(alloc_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, alloc_cap);
         size_t len = 0;
 
         /* Initial permutation [0,1,2,3,4,5,6,7,8,9]. */
@@ -104,7 +106,7 @@ seq_t a(idx_t n)
                     terms[len++] = nval;
                     if (len == alloc_cap) {
                         alloc_cap <<= 1;
-                        terms = (seq_t *)realloc(terms, alloc_cap * sizeof(seq_t));
+                        terms = mem_resize(seq_t, terms, alloc_cap);
                     }
                 }
             }
@@ -121,14 +123,14 @@ seq_t a(idx_t n)
                     terms[len++] = nval;
                     if (len == alloc_cap) {
                         alloc_cap <<= 1;
-                        terms = (seq_t *)realloc(terms, alloc_cap * sizeof(seq_t));
+                        terms = mem_resize(seq_t, terms, alloc_cap);
                     }
                 }
             }
         } while (next_permutation(digits, 10));
 
         /* Sort the collected values. */
-        qsort(terms, len, sizeof(seq_t), seq_compare);
+        mem_qsort(terms, len, sizeof(seq_t), seq_compare);
 
         /* Deduplicate in-place. */
         size_t uniq = 0;

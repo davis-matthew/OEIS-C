@@ -9,15 +9,63 @@
  * Formula:   a(n) = n / d, where d is the smallest divisor of n such that the
  *            Smarandache function S(d) equals S(n). S(m) is the minimal
  *            integer k with k! divisible by m
- * Range:     u8 n <= 1372, u16 n <= 9076, u32 n <= 9076, u64 n <= 9076,
- *            u128 n <= 9076, big any n
- * Helpers:   smarandache
+ * Range:     u8 n <= 1372, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 121 terms through n = 9076 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/smarandache.h"
+
+static seq_t smarandache(idx_t n) {
+    if (n <= 1) return 1;
+    idx_t temp = n;
+    seq_t best = 0;                 /* highest k needed among prime powers */
+    for (idx_t p = 2; p * p <= temp; ++p) {
+        if (temp % p == 0) {
+            idx_t e = 0;
+            while (temp % p == 0) {
+                temp /= p;
+                ++e;
+            }
+            /* binary search for minimal k with sum_{i} floor(k/p^i) >= e */
+            idx_t lo = 1, hi = p * e;           /* hi is a safe upper bound */
+            while (lo < hi) {
+                idx_t mid = (lo + hi) >> 1;
+                idx_t sum = 0, d = mid;
+                while (d) {
+                    d /= p;
+                    sum += d;
+                }
+                if (sum >= e)
+                    hi = mid;
+                else
+                    lo = mid + 1;
+            }
+            if (lo > best) best = lo;
+        }
+    }
+    if (temp > 1) {                 /* remaining prime factor */
+        idx_t p = temp, e = 1;
+        idx_t lo = 1, hi = p * e;
+        while (lo < hi) {
+            idx_t mid = (lo + hi) >> 1;
+            idx_t sum = 0, d = mid;
+            while (d) {
+                d /= p;
+                sum += d;
+            }
+            if (sum >= e)
+                hi = mid;
+            else
+                lo = mid + 1;
+        }
+        if (lo > best) best = lo;
+    }
+    return best;
+}
 
 /* Recursively examine all divisors of n, keeping the smallest d
    such that smarandache(d) == target.  cur is the current divisor. */

@@ -11,13 +11,15 @@
  *            H(n-1,x) written from highest degree to constant term
  * Range:     u8 n <= 25, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* compute missing rows up to r */
     while (cached_r < (size_t)r) {
         size_t len = cached_r + 1;            /* length of the new row */
-        seq_t *row = (seq_t *)malloc(sizeof(seq_t) * len);
+        seq_t *row = mem_new(seq_t, len);
         if (!row) abort();                    /* memory failure */
 
         if (cached_r == 0) {                  /* H_0 */
@@ -48,8 +50,8 @@ seq_t a(idx_t n)
             seq_t *prev2 = rows[cached_r - 2];   /* H_(r-3) */
 
             /* temporary arrays for positive and negative contributions */
-            seq_t *pos = (seq_t *)calloc(len, sizeof(seq_t));
-            seq_t *neg = (seq_t *)calloc(len, sizeof(seq_t));
+            seq_t *pos = mem_new(seq_t, len);
+            seq_t *neg = mem_new(seq_t, len);
             if (!pos || !neg) abort();
 
             /* 2*x*prev1  (shift by 1, multiply by 2) */
@@ -71,8 +73,8 @@ seq_t a(idx_t n)
                 row[i] = pos[i] - neg[i];
             }
 
-            free(pos);
-            free(neg);
+            mem_free(pos);
+            mem_free(neg);
         }
 
         /* enlarge the cache array and store the new row */

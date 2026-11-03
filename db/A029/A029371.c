@@ -7,12 +7,14 @@
  * Formula:   not stated
  * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 69 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Sequence: number of partitions of n into parts 4, 8, 9 and 12. */
 static seq_t *dp = NULL;          /* dynamic programming table: dp[i] = a(i) */
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
 {
     /* Ensure dp has enough space for indices 0..n */
     if (dp_cap < n + 1) {
-        dp = (seq_t *)realloc(dp, (n + 1) * sizeof(seq_t));
+        dp = mem_resize(seq_t, dp, (n + 1));
         dp_cap = n + 1;
     }
 

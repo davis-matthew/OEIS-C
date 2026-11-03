@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 54, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   count_prime_factors, sigma_of
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-01)
+ * Helpers:   bigomega_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,24 @@
    then count its prime factors with multiplicity using count_prime_factors.
    When the count is even, accept k. Return the nth accepted k. */
 #include <stdbool.h>
-#include "../utils/sigma_of.h"
-#include "../utils/count_prime_factors.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/bigomega_seq.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 seq_t a(idx_t n) {
     idx_t found = 0;
@@ -27,7 +44,7 @@ seq_t a(idx_t n) {
     while (found < n) {
         idx_t kk = k * k;     /* k is odd, kk will fit in idx_t */
         seq_t s = sigma_of(kk);
-        seq_t omega = count_prime_factors(s);
+        seq_t omega = bigomega_seq(s);
         if ((omega & 1) == 0) {   /* even number of prime factors */
             found++;
             if (found == n)

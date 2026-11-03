@@ -10,11 +10,13 @@
  *            floor((√(8n+1)–1)/2) and k = n – r(r+1)/2. Then a(n) = T(r,k)
  * Range:     i8 n <= 57, i16 n <= 178, i32 n <= 643, i64 n <= 2307,
  *            i128 n <= 5150, big any n
+ * Validated: standard, pass, 82 terms through n = 5085 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include <stddef.h>
 #ifdef __cplusplus
 #include <cstddef>

@@ -11,7 +11,8 @@
  *            7
  * Range:     u8 none, u16 n <= 1, u32 n <= 3, u64 n <= 7, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 27 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 #define ROWS 1296            /* 6^4 possible rows */
 
@@ -131,7 +133,7 @@ seq_t a(idx_t n)
 
         /* initialise cache with the first 7 terms */
         cache_size = 8;   /* indices 0..7 */
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         for (idx_t i = 0; i < cache_size; ++i) cache[i] = 0;
         for (idx_t i = 1; i <= 7; ++i) cache[i] = init_val[i];
 
@@ -146,7 +148,7 @@ seq_t a(idx_t n)
     /* ensure cache big enough */
     if (n >= cache_size) {
         size_t new_size = (size_t)n + 1;
-        cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
         for (size_t i = cache_size; i < new_size; ++i) cache[i] = 0;
         cache_size = new_size;
     }

@@ -10,13 +10,15 @@
  *            the standard coin‑change DP for the 8 parts
  * Range:     u8 n <= 14, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 44 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Static storage for the partition table p8(m)   */
 static seq_t *p8_table   = NULL;   /* array of p8 values              */
@@ -26,7 +28,7 @@ static idx_t  p8_size    = 0;      /* number of slots currently alive */
 static void recompute_p8(idx_t n)
 {
     /* Allocate a new array of size (n+1) elements */
-    seq_t *new_table = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *new_table = mem_new(seq_t, (size_t)(n + 1));
     if (!new_table) abort();
 
     /* Standard 1D DP (coin‑change) for parts 1..8 */
@@ -39,7 +41,7 @@ static void recompute_p8(idx_t n)
     }
 
     /* Replace old table if any */
-    if (p8_table) free(p8_table);
+    if (p8_table) mem_free(p8_table);
     p8_table = new_table;
     p8_size  = n + 1;                       /* indices 0 .. n */
 }

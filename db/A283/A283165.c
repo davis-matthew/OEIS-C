@@ -8,12 +8,14 @@
  * Formula:   a(0)=0, a(1)=1, a(2*n)=2*a(n), a(2*n+1)=2*a(n)+(-1)^a(n+1)
  * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 107 terms through n = 7596 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache for memoisation */
 static seq_t * _cache = NULL;
@@ -23,13 +25,13 @@ static size_t  _next  = 0;     /* next index to compute */
 /* grow the cache to at least new_cap entries */
 static void _grow_cache(size_t new_cap)
 {
-    seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, new_cap);
     if (!tmp) abort();                 /* allocation failure */
     /* copy existing values */
     for (size_t i = 0; i < _next; ++i)
         tmp[i] = _cache[i];
     /* free old storage */
-    free(_cache);
+    mem_free(_cache);
     _cache = tmp;
     _cap   = new_cap;
 }

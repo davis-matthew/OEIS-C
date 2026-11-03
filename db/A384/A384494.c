@@ -11,12 +11,17 @@
  *            (r)(r+1)/2 and k = n - (r)(r+1)/2
  * Range:     i8 n <= 14, i16 n <= 27, i32 n <= 54, i64 n <= 54, i128 n <= 54,
  *            big any n
- * Helpers:   cum128
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/cum128.h"
+static inline unsigned __int128 cum128(idx_t r)
+{
+    /* (r+1)*(r+2)/2, computed in 128‑bit to avoid overflow */
+    return ((unsigned __int128)(r + 1) * (r + 2)) / 2;
+}
 
 seq_t a(idx_t n)
 {

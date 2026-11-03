@@ -11,14 +11,17 @@
  *            (binom(2*j+n, j)-binom(2*j+n, j-1))
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 14, u64 n <= 26, u128 n <= 51,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 41 terms through n = 1256 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* Cache for computed values */
 static seq_t *a_cache = NULL;
@@ -31,7 +34,7 @@ seq_t a(idx_t n)
     if (n >= a_cache_cap) {
         size_t old_cap = a_cache_cap;
         a_cache_cap = n + 1;
-        a_cache = (seq_t *)realloc(a_cache, a_cache_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, a_cache_cap);
         if (!a_cache) abort();
         for (size_t i = old_cap; i < a_cache_cap; ++i)
             a_cache[i] = 0;
@@ -50,9 +53,9 @@ seq_t a(idx_t n)
         idx_t max_j  = (n - 1) / 2;
         for (idx_t j = 0; j <= max_j; ++j) {
             idx_t k = 2 * j + n;
-            seq_t bin1 = binom(m, k);
-            seq_t bin2 = binom(k, j);
-            seq_t bin3 = (j >= 1) ? binom(k, j - 1) : 0;
+            seq_t bin1 = binomial(m, k);
+            seq_t bin2 = binomial(k, j);
+            seq_t bin3 = (j >= 1) ? binomial(k, j - 1) : 0;
             seq_t term = bin1 * (bin2 - bin3);
             result += term;
         }

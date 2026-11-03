@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
           a(n) = n * ( a(n-1) + 1 )   for n ≥ 3
 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* memoisation table */
 static seq_t *cache      = NULL; /* array a[0 … max]   */
@@ -35,7 +37,7 @@ static void ensure_terms(idx_t n)
         size_t init_cap = n + 1;
         if (init_cap < 3) init_cap = 3;          /* at least indices 0,1,2 */
 
-        cache      = (seq_t *)malloc(init_cap * sizeof(seq_t));
+        cache      = mem_new(seq_t, init_cap);
         cache_max  = 0;                          /* currently nothing stored */
 
         /* initialise known base values */
@@ -48,7 +50,7 @@ static void ensure_terms(idx_t n)
     /* extend allocation if needed */
     if (n + 1 > (size_t)(cache_max + 1)) {
         size_t new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
     }
 

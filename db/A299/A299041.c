@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   binom_k3
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -42,7 +43,13 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/binom_k3.h"
+#include "../utils/mem.h"
+
+static inline seq_t binom_k3(idx_t k)
+{
+    /* C(k,3) = k*(k-1)*(k-2)/6  */
+    return ((seq_t)k * (k-1) * (k-2)) / 6;
+}
 
 /* Compute T(m,k) by recurrence,  m>=1, 3<=k<=3*m */
 static seq_t compute_T(idx_t m, idx_t k)
@@ -51,12 +58,12 @@ static seq_t compute_T(idx_t m, idx_t k)
     if (m == 1) return (k == 3 ? 1 : 0);
 
     /* Allocate two rows of length k+1 */
-    seq_t *prev = (seq_t *)calloc(k+1, sizeof(seq_t));
-    seq_t *cur  = (seq_t *)calloc(k+1, sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, k+1);
+    seq_t *cur  = mem_new(seq_t, k+1);
     if (!prev || !cur) {
         /* allocation failed; return 0 as a safe fallback */
-        free(prev);
-        free(cur);
+        mem_free(prev);
+        mem_free(cur);
         return 0;
     }
 
@@ -96,8 +103,8 @@ static seq_t compute_T(idx_t m, idx_t k)
     }
 
     seq_t result = prev[k];   /* last computed row is stored in prev */
-    free(prev);
-    free(cur);
+    mem_free(prev);
+    mem_free(cur);
     return result;
 }
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 23, u32 n <= 23, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   cmp_word
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,21 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include "../utils/cmp_word.h"
+
+static int cmp_word(const char *a, const char *b)
+{
+    while (*a || *b) {
+        while (*a && (*a == ' ' || *a == '-')) ++a;
+        while (*b && (*b == ' ' || *b == '-')) ++b;
+        if (!*a && !*b) return 0;
+        if (!*a) return -1;
+        if (!*b) return 1;
+        if (*a < *b) return -1;
+        if (*a > *b) return 1;
+        ++a; ++b;
+    }
+    return 0;
+}
 
 /* ------------------------------------------------------------------ */
 /* French number to string conversion                                 */

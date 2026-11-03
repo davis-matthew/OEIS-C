@@ -9,7 +9,8 @@
  *            s2 where s1 and s2 are squarefull numbers. (OEIS A076872)
  * Range:     u8 n <= 423, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes, gen_sqfull_rec
+ * Validated: standard, pass, 91 terms through n = 9773 (2026-11-03)
+ * Helpers:   build_primes, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,42 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/build_primes.h"   /* build_primes() */
-#include "../utils/gen_sqfull_rec.h"
+#include <stddef.h>
+#include "../utils/build_primes.h"
+#include "../utils/mem.h"
+
+/* --------------------------------------------------------------------- */
+static void gen_sqfull_rec(uint64_t cur, idx_t prime_idx,
+                           uint64_t *primes, size_t primes_cnt,
+                           uint64_t limit,
+                           uint64_t **arr_p, size_t *cnt, size_t *cap)
+{
+    uint64_t *arr = *arr_p;
+    if (*cnt >= *cap) {
+        *cap = (*cap == 0) ? 64 : (*cap << 1);
+        arr = (uint64_t *)realloc(arr, *cap * sizeof(uint64_t));
+        *arr_p = arr;
+    }
+    if (cur <= limit) {
+        arr[(*cnt)++] = cur;
+    } else {
+        return;
+    }
+
+    for (size_t i = prime_idx; i < primes_cnt; ++i) {
+        uint64_t p = primes[i];
+        /* exponent 2 */
+        if (p > 0 && cur > limit / (p * p)) continue;
+        uint64_t v = cur * p * p;
+        for (;;) {
+            if (v > limit) break;
+            gen_sqfull_rec(v, i + 1, primes, primes_cnt, limit,
+                           arr_p, cnt, cap);
+            if (v > limit / p) break;
+            v *= p;
+        }
+    }
+}
 
 /* --------------------------------------------------------------------- */
 /* Integer square‑root: largest r with r² ≤ x.  Works for idx_t.           */
@@ -80,7 +115,7 @@ static void recompute_up_to(idx_t n)
     }
 
     /* Build prefix counts */
-    seq_t *new_pref = (seq_t *)realloc(pref, (size_t)(n + 1) * sizeof(seq_t));
+    seq_t *new_pref = mem_resize(seq_t, pref, (size_t)(n + 1));
     seq_t running = 0;
     new_pref[0] = 0;
     for (idx_t k = 1; k <= n; ++k) {

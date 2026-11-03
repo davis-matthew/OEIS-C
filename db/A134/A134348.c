@@ -10,13 +10,16 @@
  *            C(r,k) for k < r
  * Range:     i8 n <= 34, i16 n <= 62, i32 n <= 62, i64 n <= 62, i128 n <= 62,
  *            big any n
- * Helpers:   binom, pow2
+ * Validated: partial, pass, 63 terms through n = 62 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"   /* provides seq_t binom(idx_t a, idx_t b)      */
-#include "../utils/pow2.h"    /* provides seq_t pow2(idx_t exp)              */
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +39,7 @@ seq_t a(idx_t n)
     }
 
     /* other elements: (-1)^(r-k+1) * C(r,k) */
-    seq_t bin = binom(r, k);
+    seq_t bin = binomial(r, k);
     if (((r - k + 1) & 1) != 0) /* odd exponent → negative sign */
         return -bin;
     return bin;

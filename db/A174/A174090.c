@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 61, u16 n <= 6557, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_power_of_two, is_prime_small
+ * Validated: standard, pass, 78 terms through n = 9104 (2026-11-01)
+ * Helpers:   is_pow2, is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,8 @@
 /* a(n) = nth member of {1} ∪ {odd primes} ∪ {powers of two} (OEIS A174090) */
 
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
-#include "../utils/is_power_of_two.h"
+#include "../utils/is_pow2.h"
+#include "../utils/is_prime_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -29,8 +30,8 @@ seq_t a(idx_t n)
     {
         /* A member if it is 1, a power of two, or an odd prime */
         bool good = (i == 1) ||
-                    is_power_of_two((seq_t)i) ||
-                    ((i & 1) && is_prime_small((seq_t)i));
+                    is_pow2((seq_t)i) ||
+                    ((i & 1) && is_prime_seq((seq_t)i));
 
         if (good)
         {

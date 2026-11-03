@@ -7,7 +7,8 @@
  * Formula:   a(n) = Σ_{d|n} n^d
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 26,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 35 terms through n = 99 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -81,7 +83,7 @@ seq_t a(idx_t n)
     seq_t sum = 0;
     for (size_t i = 0; i < divc; ++i)
     {
-        seq_t term = big_pow((seq_t)n, (seq_t)divs[i]);
+        seq_t term = ipow((seq_t)n, (seq_t)divs[i]);
         sum += term;
     }
     return sum;

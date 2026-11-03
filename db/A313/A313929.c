@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 45, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    a(n)=a(n-1)+a(n-11)-a(n-12) for n>12. */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_size = 0;
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     /* Lazy allocation / reallocation of the dynamic cache. */
     if (cache == NULL) {
         /* Allocate for at least 13 elements. */
-        cache = (seq_t *)malloc(13 * sizeof(seq_t));
+        cache = mem_new(seq_t, 13);
         if (!cache) return 0;          /* Out of memory: undefined behaviour. */
         for (size_t i = 0; i < 13; ++i)
             cache[i] = base_vals[i];
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     /* Extend cache if needed. */
     if ((size_t)n + 1 > cache_size) {
         size_t new_size = (size_t)n + 1;
-        seq_t *ptr = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *ptr = mem_resize(seq_t, cache, new_size);
         if (!ptr) return 0;                /* Out of memory. */
         cache = ptr;
 

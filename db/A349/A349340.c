@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign, mult
  * Formula:   not stated
- * Range:     i8 n <= 2196, i16 n <= 9826, i32 n <= 9826, i64 n <= 9826,
- *            i128 n <= 9826, big any n
- * Helpers:   big_pow
+ * Range:     i8 n <= 2196, i16 n <= 20000, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 107 terms through n = 9826 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
    a(1) = 1, a(n) = product over prime powers of n of the above. */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +34,7 @@ seq_t a(idx_t n)
         ++exp2;
     }
     if (exp2 > 0) {
-        seq_t term = -big_pow((seq_t)(2 - 1), (seq_t)(exp2 - 1));
+        seq_t term = -ipow((seq_t)(2 - 1), (seq_t)(exp2 - 1));
         result = (result * term);
     }
 
@@ -46,7 +47,7 @@ seq_t a(idx_t n)
                 temp /= d;
                 ++e;
             }
-            seq_t term = -big_pow((seq_t)(d - 1), (seq_t)(e - 1));
+            seq_t term = -ipow((seq_t)(d - 1), (seq_t)(e - 1));
             result = (result * term);
         }
         d += 2;
@@ -54,7 +55,7 @@ seq_t a(idx_t n)
 
     /* remaining prime factor > 1 */
     if (temp > 1) {
-        seq_t term = -big_pow((seq_t)(temp - 1), (seq_t)0);
+        seq_t term = -ipow((seq_t)(temp - 1), (seq_t)0);
         result = (result * term);
     }
     return result;

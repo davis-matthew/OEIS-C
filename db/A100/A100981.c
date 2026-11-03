@@ -8,7 +8,8 @@
  * Formula:   a(n) = n*(Sum_{s=0..m} 5^s*(5^{eps(s)*n}-5^{eps(s-1)*n}))
  * Range:     u8 n <= 9, u16 n <= 24, u32 n <= 49, u64 n <= 99, u128 n <= 224,
  *            big any n
- * Helpers:   pow_seq_t
+ * Validated: standard, pass, 75 terms through n = 4963 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 /* where m = v5(n) (the exponent of 5 in n). */
 
 #include <stdint.h>
-#include "../utils/pow_seq_t.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -44,7 +45,7 @@ seq_t a(idx_t n)
         idx_t denom     = 4U * pow5s_int;
         idx_t e_s       = numerator / denom;
 
-        seq_t power_curr = pow_seq_t((seq_t)5, e_s);
+        seq_t power_curr = ipow_idx((seq_t)5, e_s);
         seq_t diff       = power_curr - power_prev;
 
         total += pow5s_seq * diff;

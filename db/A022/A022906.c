@@ -8,7 +8,8 @@
  * Formula:   a(n) = max_{1≤i<n} (a(i)+a(n-i)) - min_{1≤i<n} (a(i)+a(n-i))
  * Range:     u8 n <= 81, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 81 terms through n = 81 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Offset: a(1)=1.  The function memoizes results for arbitrary call order. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* Initialise cache for n = 1 */
     if (cache == NULL) {
         /* Allocate space for indices 0..1 (index 0 unused) */
-        cache = (seq_t *)malloc(2 * sizeof(seq_t));
+        cache = mem_new(seq_t, 2);
         if (!cache) abort();
         cache[1] = (seq_t)1;
         max_n = 1;
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     /* Compute values up to requested n if needed */
     if (n > max_n) {
         idx_t new_size = n + 1;
-        cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
         if (!cache) abort();
         for (idx_t k = max_n + 1; k <= n; ++k) {
             seq_t sum;

@@ -11,8 +11,8 @@
  *            cuboctahedron. * a(0) = 1, a(n) = 0 for n > 24
  * Range:     u8 n <= 5, u16 n <= 24, u32 n <= 24, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   build_automorphisms, build_cubo_edges, build_cubo_vertices,
- *            build_edge_lookup
+ * Validated: full, pass, 25 terms through n = 24 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,10 +20,96 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/build_automorphisms.h"
-#include "../utils/build_cubo_edges.h"
-#include "../utils/build_cubo_vertices.h"
-#include "../utils/build_edge_lookup.h"
+
+static void build_cubo_vertices(int coords[12][3]) {
+    int idx = 0;
+    for (int zero = 0; zero < 3; ++zero) {
+        for (int s1 = -1; s1 <= 1; s1 += 2) {
+            for (int s2 = -1; s2 <= 1; s2 += 2) {
+                int c[3] = {0, 0, 0};
+                c[zero]          = 0;
+                c[(zero + 1) % 3] = s1;
+                c[(zero + 2) % 3] = s2;
+                for (int i = 0; i < 3; ++i) coords[idx][i] = c[i];
+                ++idx;
+            }
+        }
+    }
+}
+
+static void build_cubo_edges(int edge_u[24], int edge_v[24]) {
+    int coords[12][3];
+    build_cubo_vertices(coords);
+    int edge_cnt = 0;
+    for (int i = 0; i < 12; ++i) {
+        for (int j = i + 1; j < 12; ++j) {
+            int dx = coords[i][0] - coords[j][0];
+            int dy = coords[i][1] - coords[j][1];
+            int dz = coords[i][2] - coords[j][2];
+            int d2 = dx * dx + dy * dy + dz * dz;
+            if (d2 == 2) {          /* distance sqrt(2) → edge */
+                edge_u[edge_cnt] = i;
+                edge_v[edge_cnt] = j;
+                ++edge_cnt;
+            }
+        }
+    }
+}
+
+static void build_edge_lookup(const int edge_u[24], const int edge_v[24],
+                              int lookup[144]) {
+    for (int i = 0; i < 144; ++i) lookup[i] = -1;
+    for (int e = 0; e < 24; ++e) {
+        int a = edge_u[e], b = edge_v[e];
+        if (a > b) { int t = a; a = b; b = t; }
+        lookup[a * 12 + b] = e;
+    }
+}
+
+static void build_automorphisms(int autom[48][24]) {
+    const int perms[6][3] = {
+        {0,1,2},{0,2,1},{1,0,2},
+        {1,2,0},{2,0,1},{2,1,0}
+    };
+    const int signs[8][3] = {
+        { 1, 1, 1},{ 1, 1,-1},{ 1,-1, 1},{ 1,-1,-1},
+        {-1, 1, 1},{-1, 1,-1},{-1,-1, 1},{-1,-1,-1}
+    };
+    int coords[12][3];
+    build_cubo_vertices(coords);
+    int edge_u[24], edge_v[24];
+    build_cubo_edges(edge_u, edge_v);
+    int lookup[144];
+    build_edge_lookup(edge_u, edge_v, lookup);
+
+    int perm_idx = 0;
+    for (int p = 0; p < 6; ++p) {
+        const int *axis = perms[p];
+        for (int s = 0; s < 8; ++s) {
+            const int *sgn = signs[s];
+            int vertex_map[12];
+            for (int v = 0; v < 12; ++v) {
+                int nv[3];
+                for (int d = 0; d < 3; ++d)
+                    nv[d] = sgn[d] * coords[v][axis[d]];
+                int found = -1;
+                for (int u = 0; u < 12; ++u)
+                    if (nv[0] == coords[u][0] &&
+                        nv[1] == coords[u][1] &&
+                        nv[2] == coords[u][2]) { found = u; break; }
+                vertex_map[v] = found;
+            }
+            for (int e = 0; e < 24; ++e) {
+                int u = vertex_map[edge_u[e]];
+                int v = vertex_map[edge_v[e]];
+                if (u > v) { int t = u; u = v; v = t; }
+                int idx = lookup[u * 12 + v];
+                autom[perm_idx][e] = idx;
+            }
+            ++perm_idx;
+        }
+    }
+}
 
 /* ------------------------------------------------------------------ */
 /* Helper functions to construct the cuboctahedron geometry and its   */

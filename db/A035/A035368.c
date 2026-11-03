@@ -8,7 +8,8 @@
  *            0)
  * Range:     u8 n <= 47, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    scratch whenever a larger n is requested. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp     = NULL;  /* cache of partition numbers */
 static idx_t max_n   = 0;     /* largest n for which dp was computed */
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* If we haven't computed up to n yet, recompute the full table. */
     if (n > max_n) {
         /* Allocate a new table of size n+1. */
-        seq_t *new_dp = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+        seq_t *new_dp = mem_new(seq_t, (size_t)(n + 1));
         if (!new_dp)
             return (seq_t)0;            /* allocation failed: safe fallback */
 
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
 
         /* Free the old cache and store the new one. */
         if (dp)
-            free(dp);
+            mem_free(dp);
         dp     = new_dp;
         max_n  = n;
     }

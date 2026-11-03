@@ -12,7 +12,8 @@
  *            Termination for n ≥ 1 is guaranteed
  * Range:     u8 n <= 3, u16 n <= 10, u32 n <= 35, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   to_str
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,25 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/to_str.h"
+#include "../utils/mem.h"
+
+/* Convert an integer of type seq_t to a freshly allocated decimal string */
+static char *to_str(seq_t v)
+{
+    seq_t tmp = v;
+    size_t len = 0;
+    /* compute number of decimal digits (v>0) */
+    do { tmp /= (seq_t)10; len++; } while (tmp != (seq_t)0);
+
+    char *s = (char*)malloc(len + 1);
+    s[len] = '\0';
+    tmp = v;
+    while (len > 0) {
+        s[--len] = (char)('0' + (int)(tmp % (seq_t)10));
+        tmp /= (seq_t)10;
+    }
+    return s;
+}
 
 static seq_t      *g_terms   = NULL;   /* numeric values of the terms   */
 static char      **g_strs    = NULL;   /* decimal strings of the terms  */
@@ -35,7 +54,7 @@ static void ensure_capacity(size_t need)
     if (need <= g_cap) return;
     size_t newcap = g_cap ?: 8;
     while (newcap < need) newcap <<= 1;
-    g_terms = (seq_t*)realloc(g_terms, newcap * sizeof(seq_t));
+    g_terms = mem_resize(seq_t, g_terms, newcap);
     g_strs  = (char**)realloc(g_strs,  newcap * sizeof(char*));
     g_lens  = (size_t*)realloc(g_lens,  newcap * sizeof(size_t));
     g_cap   = newcap;

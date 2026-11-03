@@ -8,7 +8,8 @@
  *            (mod k)
  * Range:     u8 n <= 6, u16 n <= 349, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 8187 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Return (a*b) mod mod using 128‑bit arithmetic to avoid overflow. */
 static uint64_t mulmod64(uint64_t a, uint64_t b, uint64_t mod)
@@ -76,7 +78,7 @@ seq_t a(idx_t n)
         if (fk == need) {
             if (len >= cap) {           /* grow the buffer */
                 size_t newcap = cap ? cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, newcap);
                 if (!tmp) abort();
                 cache = tmp;
                 cap = newcap;

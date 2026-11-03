@@ -8,14 +8,17 @@
  *            2))/2))/4
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 4, u128 n <= 6,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 25 terms through n = 25 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* A047943: Number of 8-colorings of an n X n grid, up to rotational symmetry */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -30,9 +33,9 @@ seq_t a(idx_t n)
 
     /* Powers of 8 */
     const seq_t base = (seq_t)8;
-    seq_t pow1 = big_pow(base, e1);
-    seq_t pow2 = big_pow(base, e2);
-    seq_t pow3 = big_pow(base, e3);
+    seq_t pow1 = ipow(base, e1);
+    seq_t pow2 = ipow(base, e2);
+    seq_t pow3 = ipow(base, e3);
 
     /* Sum terms: pow1 + pow3 + 2*pow2, then divide by 4 */
     seq_t sum = pow1;

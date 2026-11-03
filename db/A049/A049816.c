@@ -11,9 +11,10 @@
  *            that correspond to the position n in the triangular array
  *            defined by T(n,k). Here r is the row number (starting at 1) and
  *            c is the column number (starting at 1). The mappin...
- * Range:     u8 n <= 9796, u16 n <= 9796, u32 n <= 9796, u64 n <= 9796,
- *            u128 n <= 9796, big any n
- * Helpers:   count_nonzero_remainders
+ * Range:     u8 n <= 20100, u16 n <= 20100, u32 n <= 20100, u64 n <= 20100,
+ *            u128 n <= 20100, big any n
+ * Validated: standard, pass, 107 terms through n = 9796 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,21 @@
 /*--- implementation -----------------------------------------------------*/
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/count_nonzero_remainders.h"
+
+/* forward: helper that counts non‑zero remainders for the Euclidean algorithm */
+static inline seq_t count_nonzero_remainders(idx_t a_idx, idx_t b_idx)
+{
+    seq_t a = (seq_t)a_idx;
+    seq_t b = (seq_t)b_idx;
+    seq_t cnt = 0;
+    while (b != 0) {
+        seq_t r = a % b;
+        if (r != 0) cnt++;
+        a = b;
+        b = r;
+    }
+    return cnt;
+}
 
 /* main sequence function */
 seq_t a(idx_t n)

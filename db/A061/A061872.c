@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 34, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 945 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return the n-th term of A061872.
  * The function keeps a static cache so that multiple calls are fast
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
         return cache[n - 1];
 
     /* Grow cache to hold the needed number of terms */
-    seq_t *new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * n);
+    seq_t *new_cache = mem_resize(seq_t, cache, n);
     if (!new_cache) abort();          /* out of memory */
     cache = new_cache;
 

@@ -7,7 +7,8 @@
  * Formula:   a(n) is the n‑th prime p with p ≡ 49 (mod 51)
  * Range:     u8 n <= 1, u16 n <= 197, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 807 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *prime_offset49 = NULL;   /* stored list of primes ≡49 mod 51 */
 static idx_t   prime_offset49_len = 0;  /* number of primes collected */
@@ -28,7 +30,7 @@ static inline void ensure_capacity(size_t need, size_t *cap, seq_t **arr)
     if (need > *cap) {
         size_t new_cap = (*cap) ? (*cap) * 2 : need;
         if (new_cap < need) new_cap = need;
-        *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, new_cap);
         *cap = new_cap;
     }
 }

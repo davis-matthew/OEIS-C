@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 72, u32 n <= 242, u64 n <= 805,
  *            u128 n <= 3051, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 4422 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Return binomial(n,k) as seq_t.  Works for any seq_t implementation. */
 static seq_t local_binomial(idx_t n, idx_t k)
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
     static idx_t anum = 0;
     if (acap == 0) {
         acap = 2;
-        acache = (seq_t *)malloc(acap * sizeof(seq_t));
+        acache = mem_new(seq_t, acap);
         acache[0] = (seq_t)1;   /* a(0) */
         acache[1] = (seq_t)2;   /* a(1) */
         anum = 2;
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
         seq_t next = acache[anum - 1] + (seq_t)3 * acache[anum - 2];
         if (anum >= acap) {
             acap *= 2;
-            acache = (seq_t *)realloc(acache, acap * sizeof(seq_t));
+            acache = mem_resize(seq_t, acache, acap);
         }
         acache[anum++] = next;
     }

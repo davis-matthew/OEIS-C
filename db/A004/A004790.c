@@ -11,7 +11,8 @@
  *            exact multi-limb fixed-point arithmetic with enough guard bits
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 15, u64 n <= 32, u128 n <= 65,
  *            big any n
- * Helpers:   a4790_frac_limbs
+ * Validated: standard, pass, 42 terms through n = 96 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "../utils/a4790_frac_limbs.h"
+
+static size_t a4790_frac_limbs(idx_t M)
+{
+    return (size_t)((1.4426950408889634 * (double)M + 192.0) / 64.0) + 3;
+}
 
 typedef unsigned __int128 a4790_u128;
 

@@ -12,7 +12,8 @@
  *            with no forbidden 4‑bit pattern
  * Range:     u8 n <= 9, u16 n <= 22, u32 n <= 49, u64 n <= 105, u128 n <= 219,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 1842 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define STATE_CNT 15   /* 1 + 2 + 4 + 8 states */
 
@@ -84,13 +86,13 @@ static void init_cache(void)
     if (cache_initialized) return;
 
     cache_cap = 1;
-    cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     cache[0] = (seq_t)1;
     cache_last = 0;
 
-    memset(dp_cur, 0, sizeof(dp_cur));
+    mem_set(dp_cur, 0, sizeof(dp_cur));
     dp_cur[0] = (seq_t)1;
-    memset(dp_next, 0, sizeof(dp_next));
+    mem_set(dp_next, 0, sizeof(dp_next));
 
     cache_initialized = true;
 }
@@ -104,7 +106,7 @@ static void ensure_cache_cap(idx_t n)
     if (cache_cap >= target) return;
     size_t new_cap = cache_cap == 0 ? 1 : cache_cap;
     while (new_cap < target) new_cap <<= 1;
-    seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     cache = tmp;
     cache_cap = new_cap;
 }
@@ -124,7 +126,7 @@ seq_t a(idx_t n)
 
     /* compute all values from cache_last+1 up to n                    */
     for (idx_t i = cache_last + 1; i <= n; ++i) {
-        memset(dp_next, 0, sizeof(dp_next));
+        mem_set(dp_next, 0, sizeof(dp_next));
 
         for (int s = 0; s < STATE_CNT; ++s) {
             seq_t val = dp_cur[s];
@@ -168,7 +170,7 @@ seq_t a(idx_t n)
         cache[(size_t)i] = sum;
 
         /* prepare for next iteration                                */
-        memcpy(dp_cur, dp_next, sizeof(dp_cur));
+        mem_copy(dp_cur, dp_next, sizeof(dp_cur));
     }
 
     cache_last = n;

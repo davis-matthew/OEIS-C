@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 36, u64 n <= 45, u128 n <= 45,
  *            big any n
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
    such that n | (2^k−2^j).  For n = 2^e·o (o odd), the answer is
    2^max(e,1) · (2^ord_o(2) − 1), where ord_o(2) is the multiplicative
    order of 2 modulo o.  */
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

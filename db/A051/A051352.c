@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 25, i16 n <= 321, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 9278 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static bool initialized = false;
 static idx_t max_n = 0;
@@ -36,7 +38,7 @@ static void ensure_compute(idx_t n)
 
     /* allocate new tables */
     bool *new_prime_flag = (bool*)malloc((n + 1) * sizeof(bool));
-    seq_t *new_a_cache   = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+    seq_t *new_a_cache   = mem_new(seq_t, (n + 1));
 
     if (!new_prime_flag || !new_a_cache) {
         /* allocation failed – terminate the program */
@@ -69,7 +71,7 @@ static void ensure_compute(idx_t n)
 
     /* free old tables */
     free(prime_flag);
-    free(a_cache);
+    mem_free(a_cache);
 
     /* store new tables */
     prime_flag = new_prime_flag;

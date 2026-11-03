@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Test whether x contains the substring "78" in its decimal representation. */
 static bool has78(seq_t x)
@@ -46,13 +48,13 @@ seq_t a(idx_t n)
 
     if (memo_cap == 0) {
         memo_cap = 64;
-        memo = (seq_t *)malloc(memo_cap * sizeof(seq_t));
+        memo = mem_new(seq_t, memo_cap);
     }
 
     while (memo_len < (size_t)n) {
         if (memo_len == memo_cap) {
             memo_cap *= 2;
-            memo = (seq_t *)realloc(memo, memo_cap * sizeof(seq_t));
+            memo = mem_resize(seq_t, memo, memo_cap);
         }
         while (true) {
             if (has78(cur) && !has78(cur + 1)) {

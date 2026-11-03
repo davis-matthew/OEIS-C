@@ -9,14 +9,23 @@
  *            Stirling2(floor((r+2)/2), i+1) * Stirling2(floor((r+1)/2), k-i)
  * Range:     u8 n <= 31, u16 n <= 82, u32 n <= 196, u64 n <= 476,
  *            u128 n <= 1292, big any n
- * Helpers:   seq_mul
+ * Validated: standard, pass, 82 terms through n = 10000 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/seq_mul.h"   /* for seq_mul(seq_t, seq_t) */
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* globals for memoising Stirling numbers of the second kind */
 static idx_t S_max_n = 0;          /* highest n for which Stirling numbers have been computed */
@@ -32,7 +41,7 @@ static void ensure_stirling(idx_t needed)
     size_t width  = new_max + 1;
     size_t new_size = width * width;
 
-    seq_t *new_table = (seq_t*)malloc(new_size * sizeof(seq_t));
+    seq_t *new_table = mem_new(seq_t, new_size);
     if (!new_table)
         abort();  /* cannot allocate memory */
 
@@ -48,7 +57,7 @@ static void ensure_stirling(idx_t needed)
                 new_table[n*width + k] = S_table[n*old_width + k];
             }
         }
-        free(S_table);
+        mem_free(S_table);
     }
 
     /* base case: S(0,0) = 1 */

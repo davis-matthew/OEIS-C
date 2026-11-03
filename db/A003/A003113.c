@@ -9,14 +9,19 @@
  *            the two Rogers-Ramanujan series)
  * Range:     u8 n <= 32, u16 n <= 91, u32 n <= 287, u64 n <= 971,
  *            u128 n <= 1000, big any n
- * Helpers:   zalloc_arr
+ * Validated: standard, pass, 73 terms through n = 823 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/zalloc_arr.h"
+#include "../utils/mem.h"
+
+static seq_t *zalloc_arr(idx_t len) {
+    return mem_new(seq_t, (size_t)len);
+}
 
 seq_t a(idx_t n) {
   seq_t *coeff = zalloc_arr(n + 1);
@@ -42,7 +47,7 @@ seq_t a(idx_t n) {
   }
 
   seq_t result = coeff[n];
-  free(poly);
-  free(coeff);
+  mem_free(poly);
+  mem_free(coeff);
   return result;
 }

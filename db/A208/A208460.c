@@ -8,8 +8,9 @@
  * Formula:   a(n) = n - d, where d is the k‑th proper divisor of n (the
  *            sequence is obtained by flattening the triangle T(n,k)=n-d);
  *            a(2) is the first term in the printed list
- * Range:     u8 n <= 1211, u16 n <= 9081, u32 n <= 9081, u64 n <= 9081,
- *            u128 n <= 9081, big any n
+ * Range:     u8 n <= 1211, u16 n <= 10018, u32 n <= 10018, u64 n <= 10018,
+ *            u128 n <= 10018, big any n
+ * Validated: standard, pass, 87 terms through n = 9081 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

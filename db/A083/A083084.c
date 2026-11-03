@@ -7,12 +7,15 @@
  * Formula:   a(n) = ((n+3)*(2n+9)^n + 1)/(n+4)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 7, u64 n <= 12, u128 n <= 21,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 34 terms through n = 295 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 /* Compute a(n) for all supported seq_t types.
    For fixed-width integer types the calculation is performed in
@@ -47,7 +50,7 @@ seq_t a(idx_t n)
 
     /* Arbitrary‑precision builds: rely on big_pow() from utils. */
     seq_t base   = 2 * sn + 9;        /* 2n + 9  (all in seq_t) */
-    seq_t pow_n  = big_pow(base, sn); /* (2n+9)^n  */
+    seq_t pow_n  = ipow(base, sn); /* (2n+9)^n  */
     seq_t num    = (sn + 3) * pow_n;  /* (n+3)*(2n+9)^n   */
     num += 1;                         /* +1                */
     seq_t res    = num / (sn + 4);     /* exact division    */

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 38, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow, realloc_or_die
+ * Validated: standard, pass, 72 terms through n = 980 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,16 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "../utils/mod_pow.h"
-#include "../utils/realloc_or_die.h"
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
+
+static void *realloc_or_die(void *ptr, size_t newsize)
+{
+    void *p = realloc(ptr, newsize);
+    if (!p) exit(EXIT_FAILURE);
+    return p;
+}
 
 static void ensure_capacity(void **p, size_t *cap, size_t need, size_t elem)
 {
@@ -84,11 +93,15 @@ seq_t a(idx_t n)
         /* test the property: 2 has no 6th‑power residue modulo cand */
         uint64_t d = ugcd(6ULL, cand - 1ULL);
         uint64_t e = (cand - 1ULL) / d;
-        seq_t res = mod_pow((seq_t)2, e, (seq_t)cand);
+        seq_t res = powmod((seq_t)2, e, (seq_t)cand);
 
         if (res != (seq_t)1) {               /* no solution, include this prime */
-            ensure_capacity((void **)&seq_vals, &seq_cap,
-                            seq_len + 1, sizeof(seq_t));
+            if (seq_len + 1 > seq_cap) {          /* seq_t: grown with mem_resize */
+                size_t new_cap = seq_cap ? seq_cap << 1 : 8;
+                seq_vals = mem_resize(seq_t, seq_vals, new_cap);
+                if (!seq_vals) abort();
+                seq_cap = new_cap;
+            }
             seq_vals[seq_len++] = (seq_t)cand;
         }
     }

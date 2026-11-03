@@ -13,13 +13,15 @@
  *            The sequence is computed lazily and memoised in static storage
  * Range:     u8 none, u16 none, u32 n <= 210, u64 n <= 210, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 201 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* 1‑based array of values */
 static size_t cache_size = 0; /* length of allocated array */
@@ -30,7 +32,7 @@ static void init_cache(void)
     if (cache != NULL)
         return;
     /* indices 0..25  (index 0 unused) */
-    cache = (seq_t *)malloc(26 * sizeof(seq_t));
+    cache = mem_new(seq_t, 26);
     if (!cache)
         return; /* allocation failure: caller will get uninitialised value */
 
@@ -76,7 +78,7 @@ seq_t a(idx_t n)
     /* Resize cache if the needed index is beyond current size */
     if ((size_t)n >= cache_size) {
         size_t new_size = n + 1; /* 1-based index, include index n */
-        seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (!new_cache)
             return (seq_t)0;   /* allocation failure -> 0 */
 

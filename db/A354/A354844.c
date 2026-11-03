@@ -7,7 +7,8 @@
  * Formula:   a(n) = n! * Sum_{d|n} (n/d)^d /(d! * (n/d)!)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 14, u64 n <= 23, u128 n <= 24,
  *            big any n
- * Helpers:   build_primes_upto, factor_u64, seq_mul, seq_pow
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-01)
+ * Helpers:   build_primes_upto, factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,10 +19,15 @@
 #include <stdbool.h>
 
 /* Auxiliary utilities */
+#include <string.h>
 #include "../utils/build_primes_upto.h"
 #include "../utils/factor_u64.h"
-#include "../utils/seq_mul.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* compute exponent of prime p in m! via Legendre's formula */
 static int64_t exp_in_fact(idx_t m, uint64_t p)
@@ -77,7 +83,7 @@ static seq_t term_for_divisor(idx_t n, idx_t d,
     for (i = 0; i < prime_cnt; ++i) {
         int64_t total = exp_n[i] - exp_d[i] - exp_kfact[i] + (int64_t)d * exp_kprime[i];
         if (total > 0) {
-            seq_t pw = seq_pow((seq_t)primes[i], (idx_t)total);
+            seq_t pw = ipow_idx((seq_t)primes[i], (idx_t)total);
             term      = seq_mul(term, pw);
         }
     }

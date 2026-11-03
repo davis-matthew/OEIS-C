@@ -10,7 +10,8 @@
  *            (1-q^(2j))/(1-q) read row-wise
  * Range:     u8 n <= 16, u16 n <= 37, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *table = NULL;
 static size_t table_size = 0;
@@ -40,7 +42,7 @@ static void compute_rows_upto(idx_t target_row) {
     for (idx_t r = rows_computed + 1; r <= target_row; ++r) {
         idx_t factor_len = 2 * r;
         idx_t new_len = poly_len + factor_len - 1;
-        seq_t *new_poly = (seq_t*)malloc(new_len * sizeof(seq_t));
+        seq_t *new_poly = mem_new(seq_t, new_len);
         for (idx_t i = 0; i < new_len; ++i) new_poly[i] = 0;
         for (idx_t i = 0; i < poly_len; ++i) {
             seq_t val = poly[i];
@@ -49,14 +51,14 @@ static void compute_rows_upto(idx_t target_row) {
                 new_poly[i + j] += val;
             }
         }
-        free(poly);
+        mem_free(poly);
         poly = new_poly;
         poly_len = new_len;
 
         idx_t offset = r * (r + 1) / 2;
         if (table_size < offset + r + 1) {
             size_t new_size = offset + r + 1;
-            seq_t *new_table = (seq_t*)realloc(table, new_size * sizeof(seq_t));
+            seq_t *new_table = mem_resize(seq_t, table, new_size);
             if (!new_table) abort();
             table = new_table;
             table_size = new_size;
@@ -71,11 +73,11 @@ static void compute_rows_upto(idx_t target_row) {
 seq_t a(idx_t n) {
     /* lazy initialization */
     if (!table) {
-        table = (seq_t*)malloc(sizeof(seq_t));
+        table = mem_new(seq_t, 1);
         table[0] = (seq_t)1;
         table_size = 1;
         rows_computed = 0;
-        poly = (seq_t*)malloc(sizeof(seq_t));
+        poly = mem_new(seq_t, 1);
         poly[0] = (seq_t)1;
         poly_len = 1;
     }

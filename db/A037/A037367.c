@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 52, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 963 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 extern seq_t a(idx_t n)
 {
@@ -55,7 +57,7 @@ extern seq_t a(idx_t n)
             if (count_terms >= capacity)
             {
                 capacity = (capacity == 0) ? 16 : capacity << 1;
-                terms = (seq_t *)realloc(terms, capacity * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, capacity);
             }
             terms[count_terms++] = (seq_t)x;
         }

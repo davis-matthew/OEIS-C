@@ -9,14 +9,32 @@
  *            n*(n+1)) is an integer
  * Range:     u8 n <= 34, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_divs_rec
+ * Validated: standard, pass, 74 terms through n = 9986 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/count_divs_rec.h"
+
+/* ---------- recursive divisor counter ---------- */
+static void count_divs_rec(const uint32_t *pr, const int *exp2,
+                           int idx, int total,
+                           uint64_t cur, uint64_t cap,
+                           unsigned long long *f)
+{
+    if (idx == total) {
+        if (cur <= cap) (*f)++;
+        return;
+    }
+    uint64_t val = cur;
+    for (int e = 0; e <= exp2[idx]; ++e) {
+        count_divs_rec(pr, exp2, idx + 1, total, val, cap, f);
+        if (e < exp2[idx])
+            val *= (uint64_t)pr[idx];
+    }
+}
 
 /* ---------- prime sieve ---------- */
 static int primes_done = 0;

@@ -9,7 +9,8 @@
  *            neighboring 1s (adjacency count ≠ 2, 4)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 16, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Pre–compute a table good[up][cur][down] that tells whether
    a row cur is valid when its up and down neighbours are
@@ -56,11 +58,11 @@ seq_t a(idx_t n)
     static seq_t ndp[32][32];
 
     /* initialise for the first row: up‐neighbour is 0 */
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
     for (int m = 0; m < 32; ++m) dp[m][0] = 1;
 
     for (idx_t row = 2; row <= n; ++row) {
-        memset(ndp, 0, sizeof(ndp));
+        mem_set(ndp, 0, sizeof(ndp));
         for (int prev = 0; prev < 32; ++prev) {
             for (int prevprev = 0; prevprev < 32; ++prevprev) {
                 seq_t ways = dp[prev][prevprev];
@@ -71,7 +73,7 @@ seq_t a(idx_t n)
                 }
             }
         }
-        memcpy(dp, ndp, sizeof(dp));
+        mem_copy(dp, ndp, sizeof(dp));
     }
 
     seq_t ans = 0;

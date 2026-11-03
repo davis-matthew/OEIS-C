@@ -12,13 +12,15 @@
  *            216, 1281, 7536, 44021, 255576, 1475871, 8482276, 48543...
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 25, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 186 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static const int coeff[12] =
 {
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     /* Resize cache if necessary */
     if ((size_t)(n + 1) > cap) {
         size_t newCap = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(cache, newCap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newCap);
         if (!tmp) return (seq_t)0ULL; /* allocation error */
         cache = tmp;
         cap = newCap;

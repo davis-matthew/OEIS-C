@@ -11,7 +11,8 @@
  *            pairs of rows
  * Range:     u8 none, u16 n <= 10, u32 n <= 29, u64 n <= 68, u128 n <= 145,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 174 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define ROWS          64            /* 4³ possible rows */
 #define STATES        (ROWS * ROWS) /* pair of rows */
@@ -128,8 +130,8 @@ static void init(void)
     free(state_deg);
 
     /* allocate DP vectors */
-    dp_cur  = (seq_t*)calloc(STATES, sizeof(seq_t));
-    dp_next = (seq_t*)calloc(STATES, sizeof(seq_t));
+    dp_cur  = mem_new(seq_t, STATES);
+    dp_next = mem_new(seq_t, STATES);
 
     /* initialise for n = 1 (three rows) */
     for (i = 0; i < ROWS; ++i) {
@@ -148,7 +150,7 @@ static void init(void)
 
     /* set up cache for a(n) */
     a_len = 2;                     /* indices 0 and 1 at minimum */
-    a_values = (seq_t*)calloc(a_len + 1, sizeof(seq_t));
+    a_values = mem_new(seq_t, a_len + 1);
 
     /* compute a(1) */
     seq_t sum = 0;
@@ -162,7 +164,7 @@ static void init(void)
 /* ------------------------------------------------------------------------- */
 static void step(void)
 {
-    memset(dp_next, 0, STATES * sizeof(seq_t));
+    mem_set(dp_next, 0, STATES * sizeof(seq_t));
     for (int s = 0; s < STATES; ++s) {
         seq_t cnt = dp_cur[s];
         if (cnt == (seq_t)0) continue;
@@ -184,10 +186,10 @@ static void ensure_a_capacity(idx_t n)
 {
     if (n + 1 > a_len) {
         size_t new_len = (n + 1) * 2;
-        seq_t *new_arr = (seq_t*)calloc(new_len + 1, sizeof(seq_t));
+        seq_t *new_arr = mem_new(seq_t, new_len + 1);
         if (new_arr) {
-            memcpy(new_arr, a_values, (a_len + 1) * sizeof(seq_t));
-            free(a_values);
+            mem_copy(new_arr, a_values, (a_len + 1) * sizeof(seq_t));
+            mem_free(a_values);
             a_values = new_arr;
             a_len = new_len;
         }

@@ -12,7 +12,8 @@
  *            test "C(n,k) not divisible by p" is performed usin...
  * Range:     u8 n <= 11, u16 n <= 35, u32 n <= 111, u64 n <= 419,
  *            u128 n <= 1259, big any n
- * Helpers:   binom_not_divisible_by_p, mul_small
+ * Validated: standard, pass, 68 terms through n = 9545 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,34 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/mul_small.h"
-#include "../utils/binom_not_divisible_by_p.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
+
+/* Helper: returns true iff C(n,k) is NOT divisible by prime p. */
+static bool binom_not_divisible_by_p(idx_t n, idx_t k, uint32_t p)
+{
+    /* Apply Lucas theorem: compute base‑p digits of n and k. */
+    while (k != 0) {
+        uint32_t n_digit = (uint32_t)(n % p);
+        uint32_t k_digit = (uint32_t)(k % p);
+        if (k_digit > n_digit)    /* C(n_i,k_i)=0 ⇒ C(n,k)≡0 (mod p) */
+            return false;
+        n /= p;
+        k /= p;
+    }
+    return true; /* all digit conditions satisfied → binomial not divisible */
+}
 
 seq_t a(idx_t n)
 {

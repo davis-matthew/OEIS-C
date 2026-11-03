@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 9, u64 n <= 17, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --- cache for previously computed terms -------------------------------- */
 static seq_t *cache = NULL;    /* cache[i] = a(i) */
@@ -30,11 +32,11 @@ static size_t cache_cap = 0;   /* allocated capacity of cache*/
 static void reserve_cache(size_t new_cap) {
     if (new_cap <= cache_cap) return;
     size_t new_size = new_cap;
-    seq_t *tmp = (seq_t *)malloc(new_size * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, new_size);
     if (!tmp) abort();
     if (cache) {
         for (size_t i = 0; i < cache_len; ++i) tmp[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
     cache = tmp;
     cache_cap = new_size;

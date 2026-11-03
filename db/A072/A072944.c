@@ -9,12 +9,14 @@
  *            n>5 (equivalent to a(n+1)=2*a(n)-phi(a(n)))
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 47, u64 n <= 95, u128 n <= 191,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 4978 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* extend the cache if needed */
     if (n > cache_cap) {
         idx_t new_cap = n;
-        seq_t *tmp = (seq_t *)realloc(cache, (new_cap + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (new_cap + 1));
         if (!tmp) return (seq_t)0; /* allocation failure */
         cache     = tmp;
         cache_cap = new_cap;

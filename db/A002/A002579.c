@@ -11,12 +11,16 @@
  *            c(n-3) + c(n-4) + c(n-5), where c(m) = 0 for m < 0
  * Range:     u8 n <= 23, u16 n <= 395, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   c_val
+ * Validated: standard, pass, 67 terms through n = 990 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/c_val.h"
+static seq_t c_val(idx_t m) {
+    idx_t q = m / 6;
+    return ((seq_t)q + 1) * ((seq_t)(m - 3 * q) + 1);
+}
 
 seq_t a(idx_t n) {
     seq_t result = c_val(n);

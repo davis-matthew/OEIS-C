@@ -12,12 +12,14 @@
  *            function (t^25+2t^24+…+2t+1)/(1-18t-…-18t^24+171t^25)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* ensure buffer large enough */
     size_t needed_cap = (size_t)n + 1;
     if (buf_cap < needed_cap) {
-        seq_t *newbuf = (seq_t *)realloc(buf, needed_cap * sizeof(seq_t));
+        seq_t *newbuf = mem_resize(seq_t, buf, needed_cap);
         if (!newbuf) abort();               /* out of memory */
         buf = newbuf;
         buf_cap = needed_cap;

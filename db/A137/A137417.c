@@ -9,14 +9,51 @@
  * Formula:   not stated
  * Range:     u8 n <= 129, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   ensure_capacity
+ * Validated: standard, pass, 87 terms through n = 9513 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Sequence A137417:  start with a(n)=n and for each k≥1 add a(k) to a(k+a(k)) */
 #include <stddef.h>                      /* for size_t */
-#include "../utils/ensure_capacity.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* Grow a dynamic array when needed.  The pointer is passed as OEISC_VPP(.) */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    T *tmp = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#else
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#endif
 
 static seq_t *seq_arr = NULL;            /* dynamic array of values              */
 static size_t seq_cap = 0;               /* current capacity (≥ max index+1)      */
@@ -29,7 +66,7 @@ static void init_seq(void)
         return;                          /* already initialised */
 
     /* at least space for indices 0..2 (since we branch on n≥1) */
-    ensure_capacity(3, &seq_cap, (void**)&seq_arr, sizeof(seq_t));
+    ensure_capacity(3, &seq_cap, OEISC_VPP(&seq_arr), sizeof(seq_t));
     for (size_t i = 0; i < seq_cap; ++i)
         seq_arr[i] = (seq_t)i;            /* a[i] = i initially (a[0] unused) */
 }
@@ -42,7 +79,7 @@ static void ensure_index(idx_t idx)
 
     size_t needed = (size_t)idx + 1;
     size_t old_cap = seq_cap;
-    ensure_capacity(needed, &seq_cap, (void**)&seq_arr, sizeof(seq_t));
+    ensure_capacity(needed, &seq_cap, OEISC_VPP(&seq_arr), sizeof(seq_t));
 
     for (size_t i = old_cap; i < seq_cap; ++i)
         seq_arr[i] = (seq_t)i;            /* initialise new slots to their index */

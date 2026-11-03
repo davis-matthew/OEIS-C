@@ -9,13 +9,18 @@
  *            Kronecker(-7, d) depends on d mod 7: [0, 1, 1, -1, 1, -1, -1]
  * Range:     u8 n <= 5000, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   kron_m7
+ * Validated: standard, pass, 118 terms through n = 4393 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/kron_m7.h"
+
+static int kron_m7(uint64_t d) {
+    static const int t[7] = {0, 1, 1, -1, 1, -1, -1};
+    return t[d % 7];
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)1;

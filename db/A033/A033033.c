@@ -10,6 +10,7 @@
  *            digit d -> 1 + 2*d
  * Range:     u8 n <= 32, u16 n <= 849, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 68 terms through n = 9807 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

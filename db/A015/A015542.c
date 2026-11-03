@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 2000, i16 n <= 2000, i32 n <= 2000, i64 n <= 2000,
  *            i128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 1921 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define PERIOD 1533
 
@@ -36,15 +38,15 @@ seq_t a(idx_t n)
 
     if (!init) {
         /*  Allocate the coefficient array for the period.  */
-        coef = (seq_t *)malloc(PERIOD * sizeof(seq_t));
+        coef = mem_new(seq_t, PERIOD);
         if (!coef) return 0;   /*  unlikely failure  */
 
         /*  Temporary arrays for successive convolutions.  */
-        seq_t *vec  = (seq_t *)calloc(PERIOD, sizeof(seq_t));
+        seq_t *vec  = mem_new(seq_t, PERIOD);
         seq_t *temp = NULL;
 
         if (!vec) {
-            free(coef);
+            mem_free(coef);
             return 0;
         }
 
@@ -71,9 +73,9 @@ seq_t a(idx_t n)
             const int r = factors[fi].r;
             const int e = factors[fi].e;
 
-            temp = (seq_t *)calloc(PERIOD, sizeof(seq_t));
+            temp = mem_new(seq_t, PERIOD);
             if (!temp) {
-                free(vec); free(coef);
+                mem_free(vec); mem_free(coef);
                 return 0;
             }
 
@@ -92,7 +94,7 @@ seq_t a(idx_t n)
                 }
             }
 
-            free(vec);
+            mem_free(vec);
             vec = temp;
         }
 
@@ -100,7 +102,7 @@ seq_t a(idx_t n)
         for (int i = 0; i < PERIOD; ++i)
             coef[i] = vec[i];
 
-        free(vec);
+        mem_free(vec);
         init = true;
     }
 

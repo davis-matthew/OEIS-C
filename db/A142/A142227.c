@@ -7,7 +7,8 @@
  * Formula:   a(n) = nth prime congruent to 30 mod 41
  * Range:     u8 n <= 1, u16 n <= 168, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 59 terms through n = 812 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
    repeated calls with arbitrary n values are fast.  */
 
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *prime_cache = NULL;    /* array of found primes (seq_t) */
 static size_t cache_cap = 0;         /* capacity of prime_cache */
@@ -34,7 +37,7 @@ seq_t a(idx_t n) {
         /* Initial allocation */
         if (!prime_cache) {
             cache_cap = 16;
-            prime_cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+            prime_cache = mem_new(seq_t, cache_cap);
         }
 
         /* Generate primes until we have at least n entries */
@@ -47,8 +50,7 @@ seq_t a(idx_t n) {
                 /* Ensure there is room in the cache */
                 if (cache_len == cache_cap) {
                     cache_cap *= 2;
-                    prime_cache = (seq_t*)realloc(prime_cache,
-                                                  cache_cap * sizeof(seq_t));
+                    prime_cache = mem_resize(seq_t, prime_cache, cache_cap);
                 }
                 /* Store the prime (cast to seq_t, overflow is acceptable if
                    it doesn't fit in seq_t, per the specification) */

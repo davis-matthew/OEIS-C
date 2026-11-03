@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{d|n} 1_{Per( d )} (# of Perrin divisors of n)
- * Range:     u8 n <= 5148, u16 n <= 9775, u32 n <= 9775, u64 n <= 9775,
- *            u128 n <= 9775, big any n
- * Helpers:   factor_u64, is_perrin_value, seq_mul
+ * Range:     u8 n <= 5148, u16 n <= 24914, u32 n <= 24914, u64 n <= 24914,
+ *            u128 n <= 24914, big any n
+ * Validated: standard, pass, 121 terms through n = 9775 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,9 +16,35 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/factor_u64.h"   /* factor_u64 */
-#include "../utils/seq_mul.h"      /* seq_mul */
-#include "../utils/is_perrin_value.h"
+#include <string.h>
+#include "../utils/factor_u64.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* Check whether a value is a Perrin number. */
+static bool
+is_perrin_value(seq_t val)
+{
+    if (val == (seq_t)0 || val == (seq_t)2 || val == (seq_t)3)
+        return true;
+
+    seq_t a = (seq_t)3;  /* P(n-3)   */
+    seq_t b = (seq_t)0;  /* P(n-2)   */
+    seq_t c = (seq_t)2;  /* P(n-1)   */
+
+    while (c < val) {
+        seq_t next = b + a;   /* P(n) = P(n-2)+P(n-3) */
+        a = b;
+        b = c;
+        c = next;
+    }
+
+    return c == val;
+}
 
 /* Count divisors of n that are Perrin numbers. */
 seq_t
@@ -37,7 +64,7 @@ a(idx_t n)
     /* enumerate all divisors of n */
     size_t div_cap = 16;
     size_t div_cnt = 0;
-    seq_t *divs = (seq_t *)malloc(div_cap * sizeof(seq_t));
+    seq_t *divs = mem_new(seq_t, div_cap);
     if (!divs) exit(1);
     divs[div_cnt++] = (seq_t)1;               /* divisor 1 */
 
@@ -50,8 +77,8 @@ a(idx_t n)
             for (size_t j = 0; j < old_cnt; ++j) {
                 if (div_cnt == div_cap) {
                     div_cap <<= 1;          /* double capacity */
-                    seq_t *tmp = (seq_t *)realloc(divs, div_cap * sizeof(seq_t));
-                    if (!tmp) { free(divs); exit(1); }
+                    seq_t *tmp = mem_resize(seq_t, divs, div_cap);
+                    if (!tmp) { mem_free(divs); exit(1); }
                     divs = tmp;
                 }
                 divs[div_cnt++] = seq_mul(divs[j], pow);
@@ -66,6 +93,6 @@ a(idx_t n)
             ++cnt;
     }
 
-    free(divs);
+    mem_free(divs);
     return (seq_t)cnt;
 }

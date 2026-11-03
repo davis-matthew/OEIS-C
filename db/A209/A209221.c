@@ -9,7 +9,8 @@
  *            0 1 0, and vertical 0 1 0 and 1 1 1
  * Range:     u8 n <= 3, u16 n <= 11, u32 n <= 28, u64 n <= 62, u128 n <= 130,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static bool initialized = false;
 
@@ -92,7 +94,7 @@ static void init(void) {
 
     /* Allocate cache for a(1) and a(2). */
     cache_size = 2;
-    a_cache = (seq_t *)malloc((cache_size + 2) * sizeof(seq_t));
+    a_cache = mem_new(seq_t, (cache_size + 2));
     a_cache[0] = 0; /* unused */
     a_cache[1] = (seq_t)rowsCount;           /* a(1) */
     a_cache[2] = a_cache[1] * a_cache[1];    /* a(2) = N^2 */
@@ -119,7 +121,7 @@ seq_t a(idx_t n) {
 
     /* Grow cache if necessary. */
     if (n > cache_size) {
-        seq_t *new_cache = (seq_t *)realloc(a_cache, (n + 2) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, a_cache, (n + 2));
         a_cache = new_cache;
         cache_size = n;
     }

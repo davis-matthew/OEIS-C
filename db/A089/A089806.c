@@ -7,8 +7,9 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = 1 if 12*n+1 is a perfect square and not divisible by 3,
  *            otherwise 0
- * Range:     u8 n <= 9643, u16 n <= 9643, u32 n <= 9643, u64 n <= 9643,
- *            u128 n <= 9643, big any n
+ * Range:     u8 n <= 10034, u16 n <= 10034, u32 n <= 10034, u64 n <= 10034,
+ *            u128 n <= 10034, big any n
+ * Validated: standard, pass, 118 terms through n = 9643 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

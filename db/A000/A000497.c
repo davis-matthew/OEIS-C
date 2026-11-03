@@ -9,14 +9,16 @@
  *            (equivalently a(n) = n*(n+1)*(2n+1)*(2n+1)!!/18)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 14, u128 n <= 26,
  *            big any n
- * Helpers:   a497_gcd
+ * Validated: standard, pass, 32 terms through n = 96 (2026-11-03)
+ * Helpers:   gcd_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/a497_gcd.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_cap = 0;
@@ -28,17 +30,17 @@ seq_t a(idx_t n) {
     if (cache == NULL) {
         cache_cap = 1024;
         while (cache_cap <= n) cache_cap *= 2;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         for (idx_t i = 0; i < cache_cap; i++) cache[i] = 0;
         cache[1] = 1;
         cache_filled = 1;
     } else if (n >= cache_cap) {
         idx_t new_cap = cache_cap;
         while (new_cap <= n) new_cap *= 2;
-        seq_t *nc = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *nc = mem_new(seq_t, new_cap);
         for (idx_t i = 0; i < new_cap; i++) nc[i] = 0;
         for (idx_t i = 0; i <= cache_filled; i++) nc[i] = cache[i];
-        free(cache);
+        mem_free(cache);
         cache = nc;
         cache_cap = new_cap;
     }
@@ -52,12 +54,12 @@ seq_t a(idx_t n) {
         unsigned long long d2 = (unsigned long long)i - 1;
         unsigned long long g;
 
-        g = a497_gcd(n1, d1); n1 /= g; d1 /= g;
-        g = a497_gcd(n2, d1); n2 /= g; d1 /= g;
-        g = a497_gcd(n3, d1); n3 /= g; d1 /= g;
-        g = a497_gcd(n1, d2); n1 /= g; d2 /= g;
-        g = a497_gcd(n2, d2); n2 /= g; d2 /= g;
-        g = a497_gcd(n3, d2); n3 /= g; d2 /= g;
+        g = gcd_u64(n1, d1); n1 /= g; d1 /= g;
+        g = gcd_u64(n2, d1); n2 /= g; d1 /= g;
+        g = gcd_u64(n3, d1); n3 /= g; d1 /= g;
+        g = gcd_u64(n1, d2); n1 /= g; d2 /= g;
+        g = gcd_u64(n2, d2); n2 /= g; d2 /= g;
+        g = gcd_u64(n3, d2); n3 /= g; d2 /= g;
 
         /* q = d1*d2 is coprime to p, so q divides the previous term */
         seq_t q = (seq_t)d1 * (seq_t)d2;

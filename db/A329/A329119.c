@@ -8,7 +8,8 @@
  * Formula:   a(n) = q*(q^2-1) where q = A246655(n) (the n‑th prime power)
  * Range:     u8 n <= 4, u16 n <= 19, u32 n <= 285, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   cmp_seq_t_wrapper
+ * Validated: standard, pass, 55 terms through n = 8887 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,17 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/cmp_seq_t_wrapper.h"
+#include "../utils/mem.h"
+
+/* helper: compare two seq_t values for qsort */
+static int cmp_seq_t_wrapper(const void *a, const void *b)
+{
+    const seq_t *va = (const seq_t *)a;
+    const seq_t *vb = (const seq_t *)b;
+    if (*va < *vb) return -1;
+    if (*va > *vb) return  1;
+    return 0;
+}
 
 /* static storage for the prime–power sequence */
 static seq_t   *prime_powers = NULL;   /* array of prime powers */
@@ -83,7 +94,7 @@ static void ensure_prime_powers(idx_t n)
     }
 
     /* allocate (or re‑allocate) sufficient space */
-    seq_t *new_arr = (seq_t *)realloc(prime_powers, need * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, prime_powers, need);
     if (!new_arr) {
         free(is_composite);
         return; /* allocation failed, give up */
@@ -106,7 +117,7 @@ static void ensure_prime_powers(idx_t n)
     free(is_composite);
 
     /* sort the array so that it is in increasing order */
-    qsort(prime_powers, pp_length, sizeof(seq_t), cmp_seq_t_wrapper);
+    mem_qsort(prime_powers, pp_length, sizeof(seq_t), cmp_seq_t_wrapper);
 }
 
 /* required function */

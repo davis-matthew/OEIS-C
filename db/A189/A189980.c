@@ -8,6 +8,7 @@
  * Formula:   a(n) = binomial(floor(n/2), 5)
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 444, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 62 terms through n = 8981 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

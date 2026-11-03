@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 24, u32 n <= 94, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 999 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
 
     /* initialise when first called */
     if (!poly[0]) {
-        poly[0] = (seq_t*)malloc(sizeof(seq_t));
+        poly[0] = mem_new(seq_t, 1);
         poly[0][0] = 1;
         poly_len[0] = poly_cap[0] = 1;
         for (int k = 1; k < 9; ++k)
@@ -41,16 +43,16 @@ seq_t a(idx_t n)
 
     if (!cache) {
         cache_cap = 1;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = 0;
     }
 
     /* extend cache array if necessary */
     if (n >= cache_cap) {
         size_t new_cap = (size_t)(n + 1);
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) exit(1);
-        memset(tmp + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
+        mem_set(tmp + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
         cache = tmp;
         cache_cap = new_cap;
     }
@@ -85,10 +87,9 @@ seq_t a(idx_t n)
 
             if (new_len > poly_cap[k]) {
                 seq_t *tmp =
-                    (seq_t*)realloc(poly[k], new_len * sizeof(seq_t));
+                    mem_resize(seq_t, poly[k], new_len);
                 if (!tmp) exit(1);
-                memset(tmp + poly_cap[k], 0,
-                       (new_len - poly_cap[k]) * sizeof(seq_t));
+                mem_set(tmp + poly_cap[k], 0, (new_len - poly_cap[k]) * sizeof(seq_t));
                 poly[k] = tmp;
                 poly_cap[k] = new_len;
             }

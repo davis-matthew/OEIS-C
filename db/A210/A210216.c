@@ -11,13 +11,15 @@
  *            u(n,x)=x*u(n-1,x)+v(n-1,x)+1 v(n,x)=x*u(n-1,x)+x*v(n-1,x)+1
  * Range:     u8 n <= 51, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 74 terms through n = 74 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Integer square root of a 64‑bit unsigned value (floor). */
 static inline uint64_t isqrt_u64(uint64_t x)
@@ -68,13 +70,13 @@ seq_t a(idx_t n)
     size_t maxlen = (size_t)r;
 
     /* allocate four arrays of size r for intermediate values */
-    seq_t *u_prev = (seq_t *)malloc(maxlen * sizeof(seq_t));
-    seq_t *v_prev = (seq_t *)malloc(maxlen * sizeof(seq_t));
-    seq_t *u_cur  = (seq_t *)malloc(maxlen * sizeof(seq_t));
-    seq_t *v_cur  = (seq_t *)malloc(maxlen * sizeof(seq_t));
+    seq_t *u_prev = mem_new(seq_t, maxlen);
+    seq_t *v_prev = mem_new(seq_t, maxlen);
+    seq_t *u_cur  = mem_new(seq_t, maxlen);
+    seq_t *v_cur  = mem_new(seq_t, maxlen);
     if (!u_prev || !v_prev || !u_cur || !v_cur) {
         /* memory failure: return 0 as a fallback */
-        free(u_prev); free(v_prev); free(u_cur); free(v_cur);
+        mem_free(u_prev); mem_free(v_prev); mem_free(u_cur); mem_free(v_cur);
         return 0;
     }
 
@@ -108,10 +110,10 @@ seq_t a(idx_t n)
 
     seq_t result = v_prev[(size_t)k];
 
-    free(u_prev);
-    free(v_prev);
-    free(u_cur);
-    free(v_cur);
+    mem_free(u_prev);
+    mem_free(v_prev);
+    mem_free(u_cur);
+    mem_free(v_cur);
 
     return result;
 }

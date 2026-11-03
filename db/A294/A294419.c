@@ -9,7 +9,8 @@
  *            3; b(0) = 2, b(1) = 4
  * Range:     u8 n <= 6, u16 n <= 17, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   used_in_array
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,22 @@
 /* Standard headers */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/used_in_array.h"
+#include "../utils/mem.h"
+
+/* Binary search for a sorted array of seq_t (ascending). */
+static inline bool used_in_array(const seq_t *arr, size_t len, seq_t val) {
+    size_t lo = 0, hi = len;
+    while (lo < hi) {
+        size_t mid = lo + (hi - lo) / 2;
+        if (arr[mid] < val)
+            lo = mid + 1;
+        else if (arr[mid] > val)
+            hi = mid;
+        else
+            return true;
+    }
+    return false;
+}
 
 /* Ensure the dynamic array has room for at least 'need' elements. */
 static void ensure_cap(seq_t **arr, size_t *cap, size_t need) {
@@ -26,7 +42,7 @@ static void ensure_cap(seq_t **arr, size_t *cap, size_t need) {
     size_t new_cap = *cap ? *cap * 2 : 1;
     while (new_cap < need)
         new_cap <<= 1;  /* double until big enough */
-    seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
     *arr = tmp;
     *cap = new_cap;
 }

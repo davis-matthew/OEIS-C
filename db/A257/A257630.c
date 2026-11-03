@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 15, u32 n <= 17, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   digit_frequencies
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-03)
+ * Helpers:   digit_frequencies, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
    T_k = k(k+1)/2 and stores those that satisfy the near‑repdigit
    condition.  The k‑th element of the stored list is returned. */
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/digit_frequencies.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -56,7 +59,7 @@ seq_t a(idx_t n)
             if (distinct == 2 && onecount >= 1) {
                 if (filled == cache_cap) {
                     size_t newcap = cache_cap ? cache_cap * 2 : 64;
-                    seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, newcap);
                     cache = tmp;
                     cache_cap = newcap;
                 }

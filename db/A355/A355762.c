@@ -7,13 +7,17 @@
  * Formula:   a(n) = Σ_{k=0..n} (n + 2*k + 1)^(k-1) * Stirling2(n,k)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 17,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +28,7 @@ seq_t a(idx_t n)
 
     /* Allocate array for current row of Stirling numbers S(k). */
     size_t size = (size_t)n + 1;              /* indices 0..n */
-    seq_t *S = (seq_t *)calloc(size, sizeof(seq_t));
+    seq_t *S = mem_new(seq_t, size);
     if (!S) {
         return (seq_t)0; /* allocation failed; caller will treat as zero */
     }
@@ -46,10 +50,10 @@ seq_t a(idx_t n)
     seq_t result = 0;
     for (idx_t k = 1; k <= n; ++k) {
         seq_t base    = (seq_t)n + (seq_t)(2 * k) + (seq_t)1;
-        seq_t power   = big_pow(base, (seq_t)(k - 1));
+        seq_t power   = ipow(base, (seq_t)(k - 1));
         result += power * S[k];
     }
 
-    free(S);
+    mem_free(S);
     return result;
 }

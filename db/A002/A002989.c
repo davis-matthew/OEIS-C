@@ -11,17 +11,28 @@
  *            top node branches) C(x) = C0(x)/(1-x) (clos...
  * Range:     u8 n <= 11, u16 n <= 18, u32 n <= 30, u64 n <= 52, u128 n <= 96,
  *            big any n
- * Helpers:   A_grow, a2989_mc2, a2989_mcj, a2989_sgcd
+ * Validated: standard, pass, 49 terms through n = 977 (2026-11-03)
+ * Helpers:   gcd, mem, multichoose, triangular_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/A_grow.h"
-#include "../utils/a2989_mc2.h"
-#include "../utils/a2989_mcj.h"
-#include "../utils/a2989_sgcd.h"
+#include "../utils/gcd.h"
+#include "../utils/multichoose.h"
+#include "../utils/triangular_seq.h"
+#include "../utils/mem.h"
+
+static seq_t *A_grow(seq_t *old, idx_t oldlen, idx_t newlen)
+{
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    idx_t i;
+    for (i = 0; i < newlen; i++) p[i] = 0;
+    for (i = 0; i < oldlen; i++) p[i] = old[i];
+    if (old) mem_free(old);
+    return p;
+}
 
 static seq_t *s_f = NULL, *s_C0 = NULL, *s_C = NULL, *s_G = NULL, *s_cc = NULL;
 static seq_t *s_H = NULL, *s_MS = NULL, *s_A = NULL;
@@ -64,7 +75,7 @@ static void a2989_compute(idx_t N)
         } else {
             seq_t mcv[300];
             idx_t jmax = N / m;
-            for (j = 1; j <= jmax; j++) mcv[j] = a2989_mcj(s_f[m], j);
+            for (j = 1; j <= jmax; j++) mcv[j] = multichoose(s_f[m], j);
             for (w = N; w >= m; w--) {
                 seq_t s = 0;
                 for (j = 1; j * m <= w; j++) s += mcv[j] * s_G[w - j * m];
@@ -79,8 +90,8 @@ static void a2989_compute(idx_t N)
             ms += s_f[i] * s_f[m - i];
         }
         if (m % 2 == 0) {
-            h += a2989_mc2(s_C[m / 2]);
-            ms += a2989_mc2(s_f[m / 2]);
+            h += triangular_seq(s_C[m / 2]);
+            ms += triangular_seq(s_f[m / 2]);
         }
         s_H[m] = h;
         s_MS[m] = ms;

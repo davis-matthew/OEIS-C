@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   alloc_cnt, alloc_seq
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,19 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/alloc_cnt.h"
-#include "../utils/alloc_seq.h"
+#include "../utils/mem.h"
+
+/* Allocate or resize a count array with an explicit cast for C++ */
+static uint32_t *alloc_cnt(size_t n)
+{
+    return (uint32_t *)calloc(n, sizeof(uint32_t));
+}
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 /* The types seq_t and idx_t are defined by the build system. */
 
@@ -65,7 +77,7 @@ static void build_up_to(size_t new_limit)
         if (cnt[i] > 1) {
             if (new_len == new_cap) {
                 new_cap = (new_cap == 0) ? 16 : new_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(new_res, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, new_res, new_cap);
                 if (tmp == NULL)
                     exit(EXIT_FAILURE);
                 new_res = tmp;
@@ -77,7 +89,7 @@ static void build_up_to(size_t new_limit)
     free(cnt);
 
     /* Replace the old result array with the new one. */
-    free(results);
+    mem_free(results);
     results   = new_res;
     res_len   = new_len;
     res_cap   = new_cap;

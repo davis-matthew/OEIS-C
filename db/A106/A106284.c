@@ -9,7 +9,8 @@
  *            modulo p
  * Range:     u8 n <= 21, u16 n <= 2393, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mulmod64
+ * Validated: standard, pass, 71 terms through n = 8890 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/mulmod64.h"
+#include <stddef.h>
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 /* ---------- modular arithmetic helpers ---------- */
 
@@ -27,8 +30,8 @@ static inline uint64_t modpow64(uint64_t base, uint64_t exp, uint64_t mod)
     base %= mod;
     while (exp)
     {
-        if (exp & 1) res = mulmod64(res, base, mod);
-        base = mulmod64(base, base, mod);
+        if (exp & 1) res = mulmod(res, base, mod);
+        base = mulmod(base, base, mod);
         exp >>= 1;
     }
     return res;
@@ -104,12 +107,12 @@ static Poly poly_mod(const Poly *A, const Poly *B, uint64_t mod)
     while (degR >= degB)
     {
         int shift = degR - degB;
-        uint64_t c = mulmod64(R.c[degR], invLeadB, mod);
+        uint64_t c = mulmod(R.c[degR], invLeadB, mod);
 
         for (int i = 0; i <= degB; ++i)
         {
             int idx = i + shift;
-            uint64_t sub = mulmod64(c, B->c[i], mod);
+            uint64_t sub = mulmod(c, B->c[i], mod);
             R.c[idx] = (R.c[idx] + mod - sub) % mod;
         }
         degR = poly_degree(&R);
@@ -212,7 +215,7 @@ seq_t a(idx_t n)
                 if (good_sz == good_cap)
                 {
                     good_cap = 2 * good_cap + 1;
-                    good = (seq_t *)realloc(good, good_cap * sizeof(seq_t));
+                    good = mem_resize(seq_t, good, good_cap);
                 }
                 good[good_sz++] = (seq_t)next_candidate;
             }

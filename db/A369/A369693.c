@@ -6,16 +6,19 @@
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{k=0..⌊n/4⌋} binomial(n+8k+3, n-4k) * binomial(4k, k)
  *            / (3k+1) Offset: 0 (so a(0) = 1)
- * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 18, u64 n <= 35, u128 n <= 67,
+ * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 18, u64 n <= 35, u128 n <= 67,
  *            big any n
+ * Validated: standard, pass, 43 terms through n = 1588 (2026-11-01)
  * Helpers:   binomial, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/binomial.h"   /* seq_t binomial(idx_t a, idx_t b); */
-#include "../utils/gcd.h"        /* seq_t gcd(seq_t a, seq_t b); */
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {

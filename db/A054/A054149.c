@@ -7,12 +7,14 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Recurrence:
    a(1) = 1
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
 
     if (cache_len < n) {                  /* need to compute more terms            */
         size_t new_size = (size_t)n * sizeof(seq_t);
-        seq_t *new_cache = (seq_t*)realloc(cache, new_size);
+        seq_t *new_cache = mem_resize(seq_t, cache, (new_size) / sizeof(seq_t));
         if (!new_cache) exit(EXIT_FAILURE);
         cache = new_cache;
 

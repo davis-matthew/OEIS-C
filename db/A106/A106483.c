@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 1085, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_uint64
+ * Validated: standard, pass, 69 terms through n = 9892 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/is_prime_uint64.h"
+#include <stdbool.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +33,7 @@ seq_t a(idx_t n)
     /* grow the list until it contains at least n terms */
     while (cnt < n) {
         /* find next prime */
-        while (!is_prime_uint64(next)) {
+        while (!is_prime_u64(next)) {
             ++next;
         }
         uint64_t p = next;
@@ -45,11 +48,11 @@ seq_t a(idx_t n)
         uint64_t q = (uint64_t)q128;
 
         /* test the secondary prime condition */
-        if (is_prime_uint64(q)) {
+        if (is_prime_u64(q)) {
             /* ensure capacity */
             if (cnt >= cap) {
                 size_t new_cap = (cap == 0) ? 16 : cap << 1;
-                seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, new_cap);
                 if (!tmp) return 0;      /* allocation failure – fallback */
                 terms = tmp;
                 cap   = new_cap;

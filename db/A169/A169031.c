@@ -10,12 +10,14 @@
  *            1 ≤ n ≤ 23, = 0 otherwise
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache for already computed values. */
 static seq_t *cache      = NULL;   /* array holding a(n) */
@@ -31,7 +33,7 @@ static void ensure_cap(idx_t need)
     size_t new_cap = cache_cap ? cache_cap << 1 : 64;
     while (new_cap < required)
         new_cap <<= 1;
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cache_cap = new_cap;
 }
 

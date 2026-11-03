@@ -7,12 +7,14 @@
  * Formula:   a(n) = Sum_{k=0..floor(n/2)} 8^k * binomial((n+2*k)/4-1, k)
  * Range:     u8 n <= 8, u16 n <= 12, u32 n <= 24, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static cache for previously computed values of a(n) */
@@ -30,7 +32,7 @@ seq_t a(idx_t n) {
 
     /* Grow the a(n) cache if necessary */
     if (cache_sz <= n) {
-        seq_t *tmp = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
         if (tmp == NULL) return 0;          /* allocation failure */
         cache = tmp;
         for (idx_t i = cache_sz; i <= n; ++i) cache[i] = 0;
@@ -40,7 +42,7 @@ seq_t a(idx_t n) {
     idx_t r_req = (n == 0) ? 0 : (n - 1) / 2;
 
     if (d_sz <= r_req) {
-        seq_t *tmpd = (seq_t *)realloc(d, (r_req + 1) * sizeof(seq_t));
+        seq_t *tmpd = mem_resize(seq_t, d, (r_req + 1));
         if (tmpd == NULL) return 0;          /* allocation failure */
         d = tmpd;
         for (idx_t r = d_sz; r <= r_req; ++r) {

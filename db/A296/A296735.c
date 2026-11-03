@@ -12,14 +12,34 @@
  *            the matrix can be built up to that point. When a new row i...
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 21, u128 n <= 43,
  *            big any n
- * Helpers:   count_single_row
+ * Validated: standard, pass, 35 terms through n = 206 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/count_single_row.h"
+
+/* helper: counts for single-row case (n == 1) */
+static seq_t count_single_row(void)
+{
+    seq_t ct = 0;
+    for (int m = 0; m < 16; ++m)
+    {
+        bool ok = true;
+        for (int j = 0; j < 4 && ok; ++j)
+        {
+            if (!(m & (1 << j))) continue;
+            int cnt = 0;
+            if (j > 0 && (m & (1 << (j-1)))) ++cnt;
+            if (j < 3 && (m & (1 << (j+1)))) ++cnt;
+            if (cnt != 1 && cnt != 2 && cnt != 4) ok = false;
+        }
+        if (ok) ++ct;
+    }
+    return ct;
+}
 
 static bool valid_tri[16][16][16];  /* pre‑computed validity of (pp,p,c) */
 

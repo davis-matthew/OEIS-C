@@ -9,7 +9,8 @@
  *            an integer and a prime factor of n
  * Range:     u8 n <= 36, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digit_count, digit_sum, is_prime_small
+ * Validated: standard, pass, 72 terms through n = 918 (2026-11-01)
+ * Helpers:   digit_sum, is_prime_seq, num_digits0
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,9 +24,10 @@
 #endif
 
 /* Digit utilities and small‑prime test */
-#include "../utils/digit_sum.h"     /* seq_t digit_sum(seq_t x); */
-#include "../utils/digit_count.h"   /* uint64_t digit_count(uint64_t n); */
-#include "../utils/is_prime_small.h"/* bool is_prime_small(seq_t n); */
+#include <math.h>
+#include "../utils/digit_sum.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/num_digits0.h"
 
 #ifdef __cplusplus
 /* C++ build: use std::vector for dynamic storage of seq_t objects */
@@ -48,10 +50,10 @@ static void ensure_cache(idx_t needed)
     while (cache_vec.size() < (size_t)needed) {
         uint64_t m = tested++;
         seq_t sum = digit_sum((seq_t)m);
-        uint64_t len = digit_count(m);
+        uint64_t len = num_digits0(m);
         if (sum % (seq_t)len != 0) continue;                  /* mean not integer */
         seq_t mean = sum / (seq_t)len;
-        if (mean <= 1 || !is_prime_small(mean)) continue;     /* must be prime */
+        if (mean <= 1 || !is_prime_seq(mean)) continue;     /* must be prime */
         if ((uint64_t)m % (uint64_t)mean != 0) continue;      /* not a divisor  */
         cache_vec.push_back((seq_t)m);
     }
@@ -71,10 +73,10 @@ static void ensure_cache(idx_t needed)
 
         uint64_t m = tested++;
         seq_t sum   = digit_sum((seq_t)m);
-        uint64_t len = digit_count(m);
+        uint64_t len = num_digits0(m);
         if (sum % (seq_t)len != 0) continue;                  /* mean not integer */
         seq_t mean = sum / (seq_t)len;
-        if (mean <= 1 || !is_prime_small(mean)) continue;     /* must be prime */
+        if (mean <= 1 || !is_prime_seq(mean)) continue;     /* must be prime */
         if ((uint64_t)m % (uint64_t)mean != 0) continue;      /* not a divisor  */
 
         /* Store the found term. */

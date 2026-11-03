@@ -9,7 +9,8 @@
  *            tau(m)
  * Range:     u8 n <= 8, u16 n <= 23, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *tau_arr = NULL;
 static seq_t *conv2_arr = NULL;
@@ -32,9 +34,9 @@ seq_t a(idx_t n)
     if (n > max_n) {
         /* Allocate new arrays of size n+1 (index 0 unused). */
         size_t sz = (size_t)n + 1;
-        seq_t *tau = (seq_t*)malloc(sz * sizeof(seq_t));
-        seq_t *conv2 = (seq_t*)malloc(sz * sizeof(seq_t));
-        seq_t *a_val = (seq_t*)malloc(sz * sizeof(seq_t));
+        seq_t *tau = mem_new(seq_t, sz);
+        seq_t *conv2 = mem_new(seq_t, sz);
+        seq_t *a_val = mem_new(seq_t, sz);
 
         /* Initialise to zero */
         for (size_t i = 0; i < sz; ++i) {
@@ -72,9 +74,9 @@ seq_t a(idx_t n)
         }
 
         /* Replace the old arrays with the new ones. */
-        free(tau_arr);
-        free(conv2_arr);
-        free(a_arr);
+        mem_free(tau_arr);
+        mem_free(conv2_arr);
+        mem_free(a_arr);
         tau_arr = tau;
         conv2_arr = conv2;
         a_arr = a_val;

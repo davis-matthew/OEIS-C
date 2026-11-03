@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 4, u64 n <= 4, u128 n <= 4,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 4 terms through n = 4 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Integer square root of an unsigned 64‑bit integer */
 static inline idx_t isqrt_u64(idx_t n)
@@ -52,7 +54,7 @@ static void push_missing(idx_t val)
 {
     if (missing_len == missing_cap) {
         missing_cap = missing_cap == 0 ? 16 : missing_cap << 1;
-        missing = (seq_t *)realloc(missing, missing_cap * sizeof(seq_t));
+        missing = mem_resize(seq_t, missing, missing_cap);
     }
     missing[missing_len++] = (seq_t)val;
 }
@@ -98,7 +100,7 @@ static size_t count_missing_up_to(idx_t limit)
 static void build_missing_up_to(idx_t limit)
 {
     /* Release any previous list. */
-    free(missing);
+    mem_free(missing);
     missing = NULL;
     missing_len = 0;
     missing_cap = 0;

@@ -8,6 +8,7 @@
  * Formula:   a(0)=1; for n>0, a(n) = (2 * a(n-1)) mod (2*n+1)
  * Range:     u8 n <= 139, u16 n <= 9999, u32 n <= 9999, u64 n <= 9999,
  *            u128 n <= 9999, big any n
+ * Validated: standard, pass, 86 terms through n = 9365 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

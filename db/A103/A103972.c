@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 13, u64 n <= 25, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #else
 #define HAVE_INT128 0
 #endif
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
 
     /* initial cache */
     if (dp == NULL) {
-        dp = (seq_t *)calloc(2, sizeof(seq_t));
+        dp = mem_new(seq_t, 2);
         dp[0] = (seq_t)1;
         dp[1] = (seq_t)6;
         max_n   = 1;
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     if (n <= max_n)
         return dp[n];
 
-    dp = (seq_t *)realloc(dp, (n + 1) * sizeof(seq_t));
+    dp = mem_resize(seq_t, dp, (n + 1));
 
     for (idx_t i = max_n + 1; i <= n; ++i) {
         if (HAVE_INT128 && sizeof(seq_t) <= 8) {

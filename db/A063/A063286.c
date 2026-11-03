@@ -11,12 +11,14 @@
  *            = 69
  * Range:     i8 n <= 21, i16 n <= 54, i32 n <= 54, i64 n <= 54, i128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     if (n + 1 > cache_capacity) {
         /* Grow the cache to accommodate index n. */
         idx_t new_capacity = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)new_capacity * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_capacity);
         /* If realloc fails the program is in an unrecoverable state. */
         if (!tmp) return 0;  /* defensive: return 0 on allocation failure */
         cache = tmp;

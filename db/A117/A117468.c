@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
         a(n) = T(r,k) where n = (r-1)*r/2 + k , 1 ≤ k ≤ r. */
 
 #include <stdlib.h>   /* malloc, realloc, abort */
+#include "../utils/mem.h"
 
 /* Helper: first index (1‑based) of row r in the linear sequence.
    offset_row(r) = (r-1)*r/2 + 1. */
@@ -62,7 +64,7 @@ static void compute_rows_up_to(idx_t needed)
         return;
     for (idx_t i = rows_computed + 1; i <= needed; ++i)
     {
-        seq_t *row = (seq_t*)malloc((i + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (i + 1));
         if (!row)
             abort();                /* out of memory */
         row[1] = (seq_t)1;          /* T(i,1) = 1 */

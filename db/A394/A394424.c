@@ -9,7 +9,8 @@
  *            the n‑th exponentially odd number
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 105 terms through n = 9786 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --------- small divisor count for integers <= 64 --------- */
 static inline int divisor_count_small(int n)
@@ -103,7 +105,7 @@ seq_t a(idx_t n)
     {
         build_primes();
         a_cache_cap = 1024;
-        a_cache = (seq_t *)malloc(a_cache_cap * sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_cache_cap);
         if (!a_cache)
             abort();
         a_cache_len = 0;
@@ -119,7 +121,7 @@ seq_t a(idx_t n)
             if (a_cache_len + 1 > a_cache_cap)
             {
                 a_cache_cap *= 2;
-                a_cache = (seq_t *)realloc(a_cache, a_cache_cap * sizeof(seq_t));
+                a_cache = mem_resize(seq_t, a_cache, a_cache_cap);
                 if (!a_cache)
                     abort();
             }

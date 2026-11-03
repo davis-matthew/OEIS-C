@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 10, u32 n <= 10, u64 n <= 10, u128 n <= 10,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 10 terms through n = 10 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The types seq_t and idx_t are provided by the build.  No
  * definition or redefinition of them is required. */
@@ -92,7 +94,7 @@ seq_t a(idx_t n)
         }
 
         /* Allocate the sequence array. */
-        seq = (seq_t *)malloc(tmp * sizeof(seq_t));
+        seq = mem_new(seq_t, tmp);
         if (!seq) { free(cnt); return 0; }
 
         /* Fill the sequence with numbers having exactly two reps. */

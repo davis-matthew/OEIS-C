@@ -9,7 +9,8 @@
  *            decimal digit into the decimal representation of n
  * Range:     u8 n <= 9, u16 n <= 9999, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digits_of, floor_sqrt, pow10, seq_mul, seq_one, seq_to_str
+ * Validated: standard, pass, 121 terms through n = 9083 (2026-11-01)
+ * Helpers:   ipow_i32, num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,17 +19,69 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/digits_of.h"
-#include "../utils/pow10.h"
-#include "../utils/floor_sqrt.h"
-#include "../utils/seq_to_str.h"
-#include "../utils/seq_mul.h"
-#include "../utils/seq_one.h"
+#include <stddef.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/num_digits_idx.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+/* convert a seq_t value to a decimal string */
+static void seq_to_str(seq_t v, char *buf, size_t *len)
+{
+    if (v == 0) {
+        buf[0] = '0';
+        *len = 1;
+        return;
+    }
+    char tmp[64];
+    int pos = 0;
+    seq_t ten = (seq_t)10;
+    while (v != 0) {
+        tmp[pos++] = '0' + (int)(v % ten);
+        v /= ten;
+    }
+    for (int i = 0; i < pos; ++i)
+        buf[i] = tmp[pos - 1 - i];
+    *len = pos;
+}
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
 
 seq_t a(idx_t n)
 {
     /* Length of n in decimal digits */
-    int m = digits_of(n);           /* 0 -> 1 */
+    int m = num_digits_idx(n);           /* 0 -> 1 */
     int target_len = m + 1;          /* length of the padded square string */
 
     /* Compute upper bound: 10^target_len - 1 */

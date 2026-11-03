@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 3, i16 n <= 5, i32 n <= 8, i64 n <= 12, i128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Static state for memoised computation */
 static seq_t *c_coef   = NULL;  /* C coefficients c[k]            */
@@ -44,16 +46,16 @@ static void ensure_capacity(idx_t need)
     if (arr_cap > (size_t)need) return;
 
     size_t new_cap = (size_t)need + 4;          /* extra room to reduce reallocs */
-    seq_t *new_c   = (seq_t *)realloc(c_coef,   new_cap * sizeof(seq_t));
-    seq_t *new_c2  = (seq_t *)realloc(conv2,    new_cap * sizeof(seq_t));
-    seq_t *new_c3  = (seq_t *)realloc(conv3,    new_cap * sizeof(seq_t));
+    seq_t *new_c   = mem_resize(seq_t, c_coef, new_cap);
+    seq_t *new_c2  = mem_resize(seq_t, conv2, new_cap);
+    seq_t *new_c3  = mem_resize(seq_t, conv3, new_cap);
     if (!new_c || !new_c2 || !new_c3) abort();
 
     /* Zero the new part */
     size_t old_cap = arr_cap;
-    if (new_c)  memset(new_c  + old_cap, 0, (new_cap - old_cap) * sizeof(seq_t));
-    if (new_c2) memset(new_c2 + old_cap, 0, (new_cap - old_cap) * sizeof(seq_t));
-    if (new_c3) memset(new_c3 + old_cap, 0, (new_cap - old_cap) * sizeof(seq_t));
+    if (new_c)  mem_set(new_c  + old_cap, 0, (new_cap - old_cap) * sizeof(seq_t));
+    if (new_c2) mem_set(new_c2 + old_cap, 0, (new_cap - old_cap) * sizeof(seq_t));
+    if (new_c3) mem_set(new_c3 + old_cap, 0, (new_cap - old_cap) * sizeof(seq_t));
 
     c_coef = new_c;
     conv2  = new_c2;

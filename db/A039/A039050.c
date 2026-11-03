@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   good_base8
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,20 @@
 /* Search: numbers whose base‑8 representation has the same number of 0’s and 1’s. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/good_base8.h"
+#include "../utils/mem.h"
+
+/* returns true if x has equal counts of 0 and 1 in base 8 */
+static bool good_base8(seq_t x)
+{
+    seq_t cnt0 = 0, cnt1 = 0;
+    while (x != 0) {
+        seq_t digit = x % (seq_t)8;
+        if (digit == 0) cnt0++;
+        else if (digit == 1) cnt1++;
+        x = x / (seq_t)8;
+    }
+    return cnt0 == cnt1;
+}
 
 /* static cache for generated terms */
 static seq_t *cache = NULL;
@@ -30,7 +44,7 @@ static void ensure_capacity(idx_t need)
     if (need <= cache_cap) return;
     idx_t new_cap = cache_cap ? cache_cap : 8;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();   /* allocation failure */
     cache = tmp;
     cache_cap = new_cap;

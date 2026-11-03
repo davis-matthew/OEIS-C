@@ -10,7 +10,8 @@
  *            all admissible 7‑bit rows
  * Range:     u8 none, u16 n <= 1, u32 n <= 4, u64 n <= 12, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define WIDTH 7
 static int K = 0;
@@ -73,8 +75,8 @@ seq_t a(idx_t n)
     }
 
     size_t sz = (size_t)K * (size_t)K;
-    seq_t *dp_prev = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *dp_next = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *dp_prev = mem_new(seq_t, sz);
+    seq_t *dp_next = mem_new(seq_t, sz);
     if (!dp_prev || !dp_next) return (seq_t)0;  /* allocation failure */
 
     /* initialise for two rows: all pairs are possible */
@@ -84,7 +86,7 @@ seq_t a(idx_t n)
 
     size_t steps = h - 2;   /* number of rows to add beyond the first two */
     for (size_t step = 0; step < steps; ++step) {
-        memset(dp_next, 0, sz * sizeof(seq_t));
+        mem_set(dp_next, 0, sz * sizeof(seq_t));
         for (int i = 0; i < K; ++i) {
             for (int j = 0; j < K; ++j) {
                 seq_t val = dp_prev[i * K + j];
@@ -105,7 +107,7 @@ seq_t a(idx_t n)
     seq_t result = 0;
     for (size_t idx = 0; idx < sz; ++idx) result += dp_prev[idx];
 
-    free(dp_prev);
-    free(dp_next);
+    mem_free(dp_prev);
+    mem_free(dp_next);
     return result;
 }

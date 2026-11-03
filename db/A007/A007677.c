@@ -7,12 +7,26 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 22, u64 n <= 40, u128 n <= 70,
  *            big any n
- * Helpers:   get_cf_coeff
+ * Validated: standard, pass, 47 terms through n = 994 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/get_cf_coeff.h"
+static seq_t get_cf_coeff(idx_t i) {
+    if (i == 0) return 2;
+    if (i == 1) return 1;
+    
+    idx_t j = i - 2;
+    idx_t pos = j / 3;
+    idx_t rem = j % 3;
+    
+    if (rem == 0) {
+        return (seq_t)2 * ((seq_t)pos + 1);
+    } else {
+        return 1;
+    }
+}
 /* Recurrence: a(n) = cf[n] * a(n-1) + a(n-2), a(0) = 1, a(-1) = 0
    where cf = [2, 1, 2, 1, 1, 4, 1, 1, 6, ...] are partial quotients of e */
 

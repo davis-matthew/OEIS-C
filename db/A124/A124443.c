@@ -8,13 +8,14 @@
  * Formula:   a(n) = LCM{ k : 1 <= k <= n/2 and gcd(k,n) = 1 }
  * Range:     u8 n <= 16, u16 n <= 28, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   seq_gcd
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/seq_gcd.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {
@@ -25,8 +26,8 @@ seq_t a(idx_t n)
 
     for (idx_t i = 1; i <= lim; ++i) {
         seq_t i_seq = (seq_t)i;
-        if (seq_gcd(i_seq, n_seq) == (seq_t)1) {
-            seq_t g = seq_gcd(result, i_seq);
+        if (gcd(i_seq, n_seq) == (seq_t)1) {
+            seq_t g = gcd(result, i_seq);
             result = (result / g) * i_seq;
         }
     }

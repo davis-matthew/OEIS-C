@@ -8,7 +8,8 @@
  *            binom(n-1,k)*(k+1)*3^k*a(n-1-k)
  * Range:     i8 n <= 4, i16 n <= 6, i32 n <= 11, i64 n <= 18, i128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 416 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,13 +17,14 @@
 /* with a(0) = 1 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return (seq_t)1;
 
     /* Allocate array for values 0..n */
-    seq_t *val = (seq_t*)calloc(n + 1, sizeof(seq_t));
+    seq_t *val = mem_new(seq_t, n + 1);
     if (!val) return 0;          /* In case of allocation failure */
 
     val[0] = (seq_t)1;
@@ -52,6 +54,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = val[n];
-    free(val);
+    mem_free(val);
     return result;
 }

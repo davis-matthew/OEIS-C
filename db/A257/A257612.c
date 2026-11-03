@@ -12,6 +12,7 @@
  *            a(2)=T(1,1), a(3)=T(2,0), …
  * Range:     u8 n <= 10, u16 n <= 22, u32 n <= 47, u64 n <= 124,
  *            u128 n <= 334, big any n
+ * Validated: standard, pass, 61 terms through n = 1209 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

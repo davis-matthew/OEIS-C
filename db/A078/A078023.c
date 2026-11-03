@@ -7,12 +7,14 @@
  * Formula:   a(0)=1, a(1)=-1, a(2)=2; a(n)=2*a(n-2)+2*a(n-3) for n≥3
  * Range:     i8 n <= 11, i16 n <= 21, i32 n <= 40, i64 n <= 79, i128 n <= 157,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 929 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_seq = NULL;   /* memoized terms */
 static idx_t a_len = 0;       /* number of terms computed */
@@ -23,7 +25,7 @@ static void ensure_capacity(idx_t needed)
     if (needed <= a_cap) return;
     idx_t new_cap = a_cap < 8 ? 8 : a_cap * 2;
     while (new_cap < needed) new_cap *= 2;
-    a_seq = (seq_t *)realloc(a_seq, new_cap * sizeof(seq_t));
+    a_seq = mem_resize(seq_t, a_seq, new_cap);
     a_cap = new_cap;
 }
 

@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 15, u16 n <= 37, u32 n <= 55, u64 n <= 55, u128 n <= 55,
+ * Range:     u8 n <= 16, u16 n <= 46, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   _entries_before, binom, catalan
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   binomial, catalan
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,18 @@
 
 #include <assert.h>
 #include <stdbool.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
 #include "../utils/catalan.h"
-#include "../utils/_entries_before.h"
+
+/* number of entries before row r (triangular number) */
+static inline idx_t _entries_before(idx_t r)
+{
+    /* (r-1)*r/2 */
+    return ((r - 1) * r) / 2;
+}
 
 /* smallest r with r(r+1)/2 >= n (n >= 1) */
 static inline idx_t _row_of(idx_t n)
@@ -49,9 +59,9 @@ seq_t a(idx_t n)
     if (k == 0) {
         return catalan(r);
     } else if (k == 1) {
-        return binom(2 * r - 1, r - 2);
+        return binomial(2 * r - 1, r - 2);
     } else {
-        seq_t val = binom(2 * r - k, r - k - 1);
+        seq_t val = binomial(2 * r - k, r - k - 1);
         return (seq_t)2 * val;
     }
 }

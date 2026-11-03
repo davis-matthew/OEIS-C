@@ -10,6 +10,7 @@
  *            from LSB to MSB
  * Range:     u8 n <= 79, u16 n <= 1359, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
+ * Validated: standard, pass, 92 terms through n = 7332 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,12 +9,17 @@
  *            binomial coefficient
  * Range:     u8 n <= 18, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   tetra_n
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/tetra_n.h"
+static seq_t tetra_n(idx_t k) {
+    seq_t kk = (seq_t)k;
+    /* T(k) = k(k+1)(k+2)/6  */
+    return kk * (kk + 1) * (kk + 2) / 6;
+}
 /* This implements the convolution of odd numbers with sequence A014306
  * (indicator of tetrahedral numbers).  */
 

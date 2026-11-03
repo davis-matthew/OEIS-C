@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 62, u32 n <= 185, u64 n <= 300,
  *            u128 n <= 300, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 293 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* external types supplied by the build system */
 extern seq_t a(idx_t n);
@@ -34,9 +36,9 @@ seq_t a(idx_t n)
 
     /* allocate DP arrays and result array */
     size_t len = (size_t)(n + 1);
-    seq_t *dp      = (seq_t *)calloc(len, sizeof(seq_t));
-    seq_t *dp_new  = (seq_t *)calloc(len, sizeof(seq_t));
-    seq_t *result  = (seq_t *)calloc(len, sizeof(seq_t));
+    seq_t *dp      = mem_new(seq_t, len);
+    seq_t *dp_new  = mem_new(seq_t, len);
+    seq_t *result  = mem_new(seq_t, len);
     if (!dp || !dp_new || !result) {
         /* memory failure – abort (not expected in test environment) */
         exit(EXIT_FAILURE);
@@ -79,9 +81,9 @@ seq_t a(idx_t n)
 
     seq_t ans = result[(size_t)n];
 
-    free(dp);
-    free(dp_new);
-    free(result);
+    mem_free(dp);
+    mem_free(dp_new);
+    mem_free(result);
 
     return ans;
 }

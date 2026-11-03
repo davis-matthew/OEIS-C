@@ -12,7 +12,8 @@
  *            That is, a(1)=T(1,1), a(2)=T(2,1), a(3)=T(2,2), a(4)...
  * Range:     i8 n <= 78, i16 n <= 78, i32 n <= 78, i64 n <= 78, i128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build environment. */
 extern seq_t a(idx_t n);
@@ -37,7 +39,7 @@ static void ensure_rows_up_to(idx_t target_row)
     while (max_rows < target_row) {
         ++max_rows;
         /* Allocate space for the new row (1-based indexing). */
-        seq_t *row = (seq_t*)malloc(sizeof(seq_t) * (max_rows + 1));
+        seq_t *row = mem_new(seq_t, (max_rows + 1));
         if (!row) {
             /* Allocation failed – abort program. */
             abort();

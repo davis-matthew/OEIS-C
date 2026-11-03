@@ -7,7 +7,8 @@
  * Formula:   a(1) = 1;
  * Range:     u8 n <= 31, u16 n <= 501, u32 n <= 501, u64 n <= 501,
  *            u128 n <= 501, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 486 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* Computes the n-th term of sequence A066910.
    Uses a static cache so repeated calls are efficient. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 extern unsigned long long _mul_mod64(unsigned long long a, unsigned long long b,
                                    unsigned long long mod);
 
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* initialise cache on first use */
     if (cache_size == 0) {
         cache_size = 1;
-        cache = (seq_t *)malloc(sizeof(seq_t) * 2);   /* index 0 unused */
+        cache = mem_new(seq_t, 2);   /* index 0 unused */
         if (!cache) return 0;                         /* allocation failed */
         cache[1] = 1;                                 /* a(1) */
         sum_of_a = 1;
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
         idx_t i;
         for (i = cache_size + 1; i <= n; ++i) {
             seq_t next = sum_of_a % (seq_t)(i - 1);   /* a(i) */
-            cache = (seq_t *)realloc(cache, sizeof(seq_t) * (i + 1));
+            cache = mem_resize(seq_t, cache, (i + 1));
             if (!cache) return 0;                    /* allocation failed */
             cache[i] = next;
             sum_of_a += next;

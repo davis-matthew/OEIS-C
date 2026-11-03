@@ -12,6 +12,7 @@
  *            symmetric: if col>r/2 use col=r-col
  * Range:     i8 n <= 59, i16 n <= 1325, i32 n <= 1325, i64 n <= 1325,
  *            i128 n <= 1325, big any n
+ * Validated: standard, pass, 82 terms through n = 1168 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

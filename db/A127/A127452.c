@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 40, u16 n <= 128, u32 n <= 376, u64 n <= 1560,
  *            u128 n <= 4990, big any n
- * Helpers:   small_fact
+ * Validated: standard, pass, 79 terms through n = 4557 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,7 +32,15 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/small_fact.h"
+
+/* ---------- Helper: factorial for small n (≤ about 40) ---------- */
+static inline seq_t small_fact(idx_t m)
+{
+    seq_t r = 1;
+    for (idx_t i = 2; i <= m; ++i)
+        r *= (seq_t)i;
+    return r;
+}
 
 /* ---------- Helper: small integer power for seq_t values ---------- */
 static inline seq_t pow_seq(seq_t base, idx_t exp)

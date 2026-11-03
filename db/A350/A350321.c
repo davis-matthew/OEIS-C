@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 2171, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 9206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define MAX_LIMIT 10000000   /* sieve limit to guarantee many terms */
 
@@ -50,7 +52,7 @@ static void init_terms(void)
     /* -------- collect k such that k is a totient
                           and 14*k is not a totient -------- */
     size_t cap = 1024;
-    terms = (seq_t *)malloc(cap * sizeof(seq_t));
+    terms = mem_new(seq_t, cap);
     if (!terms) exit(EXIT_FAILURE);
     terms_len = 0;
 
@@ -58,7 +60,7 @@ static void init_terms(void)
         if (is_tot[k] && !is_tot[14 * k]) {
             if (terms_len >= cap) {
                 cap <<= 1;
-                terms = (seq_t *)realloc(terms, cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, cap);
                 if (!terms) exit(EXIT_FAILURE);
             }
             terms[terms_len++] = (seq_t)k;

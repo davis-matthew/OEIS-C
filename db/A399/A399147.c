@@ -10,14 +10,16 @@
  *            where val_2(r) is the exponent of 2 in r's prime factorisation
  * Range:     u8 n <= 9, u16 n <= 58, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd, val_2
+ * Validated: standard, pass, 59 terms through n = 892 (2026-11-01)
+ * Helpers:   ctz, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ctz.h"
 #include "../utils/gcd.h"
-#include "../utils/val_2.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     if (!val)
         abort();
     for (idx_t i = 3; i <= n; ++i)
-        val[i] = val_2(i);
+        val[i] = ctz(i);
 
     /* sum over all pairs (m,k) with same val_2 */
     seq_t sum_gcd = 0;

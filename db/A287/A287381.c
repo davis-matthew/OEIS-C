@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 17, u32 n <= 36, u64 n <= 73, u128 n <= 149,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 1882 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    a(0) = 2, a(1) = 4, a(2) = 7 */
 
 #include <stdlib.h>   /* for malloc / realloc / abort */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* memoisation array */
 static size_t len   = 0;      /* number of computed elements   */
@@ -31,7 +33,7 @@ ensure_capacity(size_t needed)
         while (newcap < needed)
             newcap <<= 1;
         /* cast to seq_t* so the code compiles under C++ */
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp) abort();           /* out of memory */
         cache = tmp;
         cap   = newcap;

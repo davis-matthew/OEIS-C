@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 100, u16 n <= 8281, u32 n <= 8281, u64 n <= 8281,
  *            u128 n <= 8281, big any n
- * Helpers:   cube_sum
+ * Validated: standard, pass, 123 terms through n = 6948 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,13 @@
  */
 
 #include <stdint.h> /* for uintptr_t; not strictly required but harmless */
-#include "../utils/cube_sum.h"
+
+/* Helper: cube sum S(m) = (1^3 + 2^3 + … + m^3) = ((m*(m+1))/2)^2. */
+static inline seq_t cube_sum(idx_t m)
+{
+    seq_t t = (seq_t)m * (seq_t)(m + 1) / 2;  /* T = m*(m+1)/2  */
+    return t * t;                             /* S(m) = T^2     */
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)

@@ -7,6 +7,7 @@
  * Formula:   a(n) = C(pi(n),2) * 2^(n - pi(n)), where pi(n) = #primes ≤ n
  * Range:     u8 n <= 9, u16 n <= 19, u32 n <= 37, u64 n <= 77, u128 n <= 154,
  *            big any n
+ * Validated: standard, pass, 49 terms through n = 3435 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

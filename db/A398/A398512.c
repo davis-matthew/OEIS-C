@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3996, u16 n <= 6000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   unique_digits
+ * Validated: standard, pass, 140 terms through n = 9625 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,19 @@
  */
 
 #include <stdbool.h>
-#include "../utils/unique_digits.h"
+
+static bool unique_digits(seq_t x)
+{
+    unsigned used = 0;           /* bit mask for digits 0‑9 */
+    while (x > (seq_t)0) {
+        unsigned d = (unsigned)(x % (seq_t)10);
+        if (used & (1u << d))
+            return false;        /* repeated digit found */
+        used |= 1u << d;
+        x /= (seq_t)10;
+    }
+    return true;                 /* all digits distinct */
+}
 
 seq_t a(idx_t n)
 {

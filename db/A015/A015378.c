@@ -7,14 +7,16 @@
  * Formula:   a(n) = Product_{i=1..9} ((-6)^(n-i+1)-1)/((-6)^i-1)
  * Range:     i8 n <= 9, i16 n <= 9, i32 n <= 10, i64 n <= 11, i128 n <= 14,
  *            big any n
- * Helpers:   seq_gcd, seq_pow
+ * Validated: standard, pass, 24 terms through n = 149 (2026-11-01)
+ * Helpers:   gcd, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/seq_pow.h"
-#include "../utils/seq_gcd.h"
+#include <stdlib.h>
+#include "../utils/gcd.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -37,13 +39,13 @@ seq_t a(idx_t n)
     /* compute numerators: (-6)^(n-i+1)-1   for i=1..9  */
     for (idx_t i = 0; i < 9; ++i) {
         idx_t pow_exp = n - i;                /* n, n-1, …, n-8   */
-        seq_t pow_val = seq_pow(q, pow_exp);
+        seq_t pow_val = ipow_idx(q, pow_exp);
         num[i] = pow_val - 1;
     }
 
     /* compute denominators: (-6)^i-1   for i=1..9  */
     for (idx_t i = 0; i < 9; ++i) {
-        seq_t pow_val = seq_pow(q, i + 1);
+        seq_t pow_val = ipow_idx(q, i + 1);
         den[i] = pow_val - 1;
     }
 
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
        for both 64‑bit and arbitrary precision types. */
     for (idx_t i = 0; i < 9; ++i) {
         for (idx_t j = 0; j < 9; ++j) {
-            seq_t g = seq_gcd(num[i], den[j]);
+            seq_t g = gcd(num[i], den[j]);
             if (g != 1) {
                 num[i] /= g;
                 den[j] /= g;

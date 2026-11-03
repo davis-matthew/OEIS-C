@@ -9,7 +9,8 @@
  * Formula:   a(n) = n*2^(n-A023416(n))
  * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 28, u64 n <= 60, u128 n <= 122,
  *            big any n
- * Helpers:   floor_log2_uint64
+ * Validated: standard, pass, 48 terms through n = 2824 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/floor_log2_uint64.h"   /* floor_log2_uint64() */
+#include <stddef.h>
+#include "../utils/ilog2.h"
 
 /* count the 1‑bits of an idx_t */
 static inline idx_t popcount_idx(idx_t x)
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
         return 0;
 
     /* number of bits in n (including the leading 1) */
-    idx_t bits = floor_log2_uint64(n) + 1;
+    idx_t bits = ilog2(n) + 1;
 
     /* number of 1’s in n */
     idx_t ones = popcount_idx(n);

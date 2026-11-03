@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 43, u64 n <= 134, u128 n <= 200,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *partitions = NULL;   /* partitions[n*43 + k] = number of partitions of n into exactly k parts (0 <= k <= 42) */
 static idx_t  max_n     = 0;
@@ -35,14 +37,13 @@ static void ensure_partitions(idx_t n)
     size_t old_rows = (size_t)max_n + 1;
 
     if (partitions == NULL) {
-        partitions = (seq_t *)calloc(new_rows * 43, sizeof(seq_t));
+        partitions = mem_new(seq_t, new_rows * 43);
         if (!partitions) abort();
     } else {
-        partitions = (seq_t *)realloc(partitions, new_rows * 43 * sizeof(seq_t));
+        partitions = mem_resize(seq_t, partitions, new_rows * 43);
         if (!partitions) abort();
         /* zero the newly added rows */
-        memset(partitions + old_rows * 43, 0,
-               (new_rows - old_rows) * 43 * sizeof(seq_t));
+        mem_set(partitions + old_rows * 43, 0, (new_rows - old_rows) * 43 * sizeof(seq_t));
     }
 
     /* Base case: partition of 0 into 0 parts */

@@ -10,6 +10,7 @@
  *            4*f3) where f3 = floor((n+1)/2), f4 = floor(n/2)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 9, u128 n <= 17,
  *            big any n
+ * Validated: standard, pass, 29 terms through n = 208 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,7 @@
    A060854(a,k) which counts standard Young tableaux of an a×k rectangle.
    For a=3,4 the values are computed iteratively and cached. */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* cache for A060854(4,k) and A060854(3,k) up to k = 5000 (enough for n ≤ 10000) */

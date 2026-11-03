@@ -7,18 +7,19 @@
  * Formula:   a(n) = ∏_{k=1..n} k^(k^3) (OEIS A255321)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 2, u64 n <= 3, u128 n <= 3,
  *            big any n
- * Helpers:   pow_seq_large
+ * Validated: standard, pass, 7 terms through n = 7 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_seq_large.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     seq_t result = 1;
     for (idx_t k = 1; k <= n; ++k) {
         idx_t exp = k * k * k;               /* k^3 fits in 64‑bit for all practical n */
-        seq_t term = pow_seq_large((seq_t)k, (seq_t)exp);
+        seq_t term = ipow((seq_t)k, (seq_t)exp);
         result *= term;                      /* multiplication is supported for seq_t */
     }
     return result;

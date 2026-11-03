@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 14, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 287 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 extern seq_t a(idx_t n) {
     /* static state for incremental computation */
@@ -35,10 +37,10 @@ extern seq_t a(idx_t n) {
     /* initialization for first call */
     if (a_cache_len == 0) {
         a_cache_cap = 2;
-        a_cache = (seq_t*)malloc(a_cache_cap * sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_cache_cap);
         /* row 0 */
         prev_row_len = 1;
-        prev_row = (seq_t*)malloc(sizeof(seq_t));
+        prev_row = mem_new(seq_t, 1);
         prev_row[0] = 1;                /* T(0,0) */
         a_cache[a_cache_len++] = 1;      /* a(0) = 1 */
         last_n = 0;
@@ -52,7 +54,7 @@ extern seq_t a(idx_t n) {
     /* compute rows from last_n+1 up to n */
     for (idx_t i = last_n + 1; i <= n; ++i) {
         size_t cur_len = (size_t)i + 1;
-        seq_t *curr = (seq_t*)malloc(cur_len * sizeof(seq_t));
+        seq_t *curr = mem_new(seq_t, cur_len);
 
         seq_t sum_prev = a_cache[(size_t)last_n];   /* S(n-1) */
         seq_t lastprev = prev_row[prev_row_len - 1];/* T(n-1,n-1) */
@@ -74,12 +76,12 @@ extern seq_t a(idx_t n) {
         /* store the sum in cache, growing if necessary */
         if (a_cache_len == a_cache_cap) {
             a_cache_cap = a_cache_cap ? a_cache_cap * 2 : 2;
-            a_cache = (seq_t*)realloc(a_cache, a_cache_cap * sizeof(seq_t));
+            a_cache = mem_resize(seq_t, a_cache, a_cache_cap);
         }
         a_cache[a_cache_len++] = sum_curr;
 
         /* discard previous row, keep current for next iteration */
-        free(prev_row);
+        mem_free(prev_row);
         prev_row = curr;
         prev_row_len = cur_len;
         last_n = i;

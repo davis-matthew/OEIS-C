@@ -10,13 +10,24 @@
  *            (k-2c+1)(k-2c+1+r), with m = 2k+r, evaluated in closed form
  * Range:     u8 n <= 18, u16 n <= 86, u32 n <= 943, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   a001307_g
+ * Validated: standard, pass, 66 terms through n = 825 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a001307_g.h"
+
+static uint64_t a001307_g(uint64_t m) {
+    uint64_t k = m / 2, r = m % 2;
+    uint64_t T = k + 1;
+    uint64_t C = k / 2;
+    uint64_t s = (T % 2 == 0) ? 2 : 1;
+    uint64_t cc = C * (C + 1);
+    uint64_t S1 = (C + 1) * s + cc;
+    uint64_t S2 = (C + 1) * s * s + 2 * s * cc + 2 * (cc * (2 * C + 1) / 3);
+    return S2 + r * S1;
+}
 
 seq_t a(idx_t n) {
     seq_t res = 0;

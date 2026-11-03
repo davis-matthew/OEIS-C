@@ -12,12 +12,14 @@
  *            * d(m) = (a+1)·2^{b+c+d+e}
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 10, u64 n <= 12, u128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 12 terms through n = 12 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 typedef struct {
     seq_t val;   /* the number itself        */
@@ -64,7 +66,7 @@ static void compute_records(seq_t* out, size_t* rec_cnt)
     candidate cand[64];
     size_t total;
     generate_candidates(cand, &total);
-    qsort(cand, total, sizeof(candidate), cmp_candidate);
+    mem_qsort(cand, total, sizeof(candidate), cmp_candidate);
 
     unsigned max_d = 0;
     size_t cnt = 0;

@@ -11,13 +11,27 @@
  *            and Lucas numbers) are used to represent k
  * Range:     u8 n <= 117, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   find_largest
+ * Validated: standard, pass, 81 terms through n = 9664 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>     /* qsort */
-#include "../utils/find_largest.h"
+#include "../utils/mem.h"
+
+static size_t find_largest(const seq_t *basis, size_t count, seq_t val)
+{
+    size_t lo = 0, hi = count;
+    while (lo < hi) {
+        size_t mid = (lo + hi) >> 1;
+        if (basis[mid] <= val)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;          /* index of largest element ≤ val */
+}
 
 static int cmp_seq_t_cb(const void *a, const void *b)
 {
@@ -62,7 +76,7 @@ seq_t a(idx_t n)
     }
 
     /* sort and deduplicate */
-    qsort(basis, cnt, sizeof(seq_t), cmp_seq_t_cb);
+    mem_qsort(basis, cnt, sizeof(seq_t), cmp_seq_t_cb);
     size_t uniq = 0;
     if (cnt > 0) {
         uniq = 1;

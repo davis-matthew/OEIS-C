@@ -13,7 +13,8 @@
  *            f(0,k,c) = c! (for 0 ≤ c ≤ k) * f(n,k,c) = n*f(n...
  * Range:     u8 n <= 22, u16 n <= 37, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Compute T(n,k) = f(n,k,0) by dynamic programming                  */
@@ -29,12 +31,12 @@ static seq_t count_T(idx_t n, idx_t k)
 {
     /* allocate arrays of length k+2 to allow access to c+1 safely */
     size_t sz = (size_t)(k + 2);
-    seq_t *prev = (seq_t *)malloc(sz * sizeof(seq_t));
-    seq_t *curr = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, sz);
+    seq_t *curr = mem_new(seq_t, sz);
     if (!prev || !curr)
     {
-        free(prev);
-        free(curr);
+        mem_free(prev);
+        mem_free(curr);
         return (seq_t)0;
     }
 
@@ -64,8 +66,8 @@ static seq_t count_T(idx_t n, idx_t k)
     }
 
     seq_t result = prev[0];   /* f(n,k,0) */
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
     return result;
 }
 

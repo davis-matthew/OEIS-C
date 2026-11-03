@@ -10,15 +10,17 @@
  *            t(n,m) defined by t(n,m) = binom(n,m) + ∑_{k=1..⌊n/2⌋} [ if n ≥
  *            2k then 2·binom(n‑2k, m‑k) else 0 ]. a(n) corresponds to the
  *            sequence obtained by concatenating all rows of t(n,m) in order
- * Range:     u8 n <= 39, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
+ * Range:     u8 n <= 58, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 /* returns n*(n+1)/2 safely using 128‑bit arithmetic when available */
 static inline idx_t triangular(idx_t n)
@@ -46,11 +48,11 @@ static inline idx_t row_of_index(idx_t idx)
 /* compute t(n,m) for given row n and column m  (0‑based) */
 static inline seq_t compute_t(idx_t n, idx_t m)
 {
-    seq_t sum = binom(n, m);
+    seq_t sum = binomial(n, m);
 
     idx_t maxk = n / 2;
     for (idx_t k = 1; k <= maxk && k <= m; ++k) {
-        sum += (seq_t)2 * binom(n - 2 * k, m - k);
+        sum += (seq_t)2 * binomial(n - 2 * k, m - k);
     }
     return sum;
 }

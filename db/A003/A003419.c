@@ -13,7 +13,8 @@
  *            = 1
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 16, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   e1_fn, kron_ll
+ * Validated: partial, pass, 16 terms through n = 16 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,56 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
-#include "../utils/e1_fn.h"
-#include "../utils/kron_ll.h"
+
+static double e1_fn(double x) {
+    if (x <= 1.0) {
+        double sum = 0.0, term = 1.0;
+        int k;
+        for (k = 1; k < 60; k++) {
+            term *= -x / k;
+            sum += term / k;
+            if (fabs(term) < 1e-18) break;
+        }
+        return -0.57721566490153286 - log(x) - sum;
+    } else {
+        double b = x + 1.0, c = 1e300, d = 1.0 / b, h = d;
+        int i;
+        for (i = 1; i < 1000; i++) {
+            double an = -(double)i * i;
+            b += 2.0;
+            d = 1.0 / (an * d + b);
+            c = b + an / c;
+            double del = c * d;
+            h *= del;
+            if (fabs(del - 1.0) < 1e-16) break;
+        }
+        return h * exp(-x);
+    }
+}
+
+static int kron_ll(long long a, long long n) {
+    int s = 1;
+    if (n % 2 == 0) {
+        if (a % 2 == 0) return 0;
+        long long r = a & 7;
+        while (n % 2 == 0) {
+            n /= 2;
+            if (r == 3 || r == 5) s = -s;
+        }
+    }
+    long long x = a % n, y = n;
+    while (x) {
+        while (x % 2 == 0) {
+            x /= 2;
+            long long r = y & 7;
+            if (r == 3 || r == 5) s = -s;
+        }
+        long long t = x; x = y; y = t;
+        if ((x & 3) == 3 && (y & 3) == 3) s = -s;
+        x %= y;
+    }
+    return y == 1 ? s : 0;
+}
 
 #define LIM_P 2000
 

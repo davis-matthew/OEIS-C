@@ -9,7 +9,8 @@
  *            which 2 is a primitive root modulo that prime
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   build_primes_upto, is_prime, powmod64
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-01)
+ * Helpers:   build_primes_upto, is_prime, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,10 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"
+#include <stdlib.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/powmod64.h"
+#include "../utils/is_prime.h"
+#include "../utils/powmod_u64.h"
 
 /* Global list of primes used for factorisation.  It is built once
    up to a limit that comfortably exceeds the square root of any value
@@ -48,7 +50,7 @@ static bool is_primitive_root2_prime(uint64_t p)
         uint64_t q = prime_list[i];
         if (temp % q == 0) {
             /* q is a prime divisor of m.  If 2^(m/q) ≡ 1 (mod p), p is not a generator. */
-            if (powmod64(2, m / q, p) == 1) {
+            if (powmod_u64(2, m / q, p) == 1) {
                 return false;
             }
             while (temp % q == 0) {
@@ -58,7 +60,7 @@ static bool is_primitive_root2_prime(uint64_t p)
     }
     /* If a factor larger than sqrt(m) remains, it must be prime. */
     if (temp > 1) {
-        if (powmod64(2, m / temp, p) == 1) {
+        if (powmod_u64(2, m / temp, p) == 1) {
             return false;
         }
     }

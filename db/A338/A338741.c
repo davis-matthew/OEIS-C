@@ -12,15 +12,41 @@
  *            and o is not larger than the next unused even intege...
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   count_odd_digits, find_candidate_odd
+ * Validated: partial, pass, 80 terms through n = 80 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/count_odd_digits.h"
-#include "../utils/find_candidate_odd.h"
+#include "../utils/mem.h"
+
+/* Count the odd decimal digits of x. */
+static seq_t count_odd_digits(seq_t x)
+{
+    seq_t cnt = 0;
+    while (x > 0) {
+        seq_t d = x % 10;
+        if (d & 1u) ++cnt;
+        x /= 10;
+    }
+    return cnt;
+}
+
+/* Return the smallest odd integer satisfying
+   o = k + count_odd_digits(o), or 0 if none exists. */
+static seq_t find_candidate_odd(seq_t k)
+{
+    seq_t cand = 1;
+    for (;;) {
+        seq_t d    = count_odd_digits(cand);
+        seq_t left = cand - d;
+        if (left == k)      return cand;
+        if (left >  k)      return 0;   /* no solution for this k */
+        cand += 2;                     /* skip to next odd number */
+    }
+}
 
 seq_t a(idx_t n)
 {
@@ -40,7 +66,7 @@ seq_t a(idx_t n)
     if (n > cache_cap) {
         idx_t new_cap = cache_cap ? cache_cap << 1 : 128;
         if (new_cap < n) new_cap = n;
-        cache = (seq_t *)realloc(cache, (size_t)new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (size_t)new_cap);
         cache_cap = new_cap;
     }
 

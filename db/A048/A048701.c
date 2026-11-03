@@ -7,6 +7,7 @@
  * Formula:   a(n) = (n << (floor_log_2(n)+1)) + reverse_bits(n)
  * Range:     u8 n <= 15, u16 n <= 255, u32 n <= 9999, u64 n <= 9999,
  *            u128 n <= 9999, big any n
+ * Validated: standard, pass, 68 terms through n = 9967 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

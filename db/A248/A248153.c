@@ -11,13 +11,15 @@
  *            and memoised; any n>=0 can be requested in any order
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 73 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     if (terms == NULL) {
         /* allocate initial buffers */
         terms_cap   = 16;
-        terms       = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms       = mem_new(seq_t, terms_cap);
 
         terms[0]    = (seq_t)10;          /* a(0) = 10   */
         terms_count = 1;
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
         /* ensure term array has room */
         if (terms_count >= terms_cap) {
             size_t new_cap = terms_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, terms, new_cap);
             if (!tmp) return (seq_t)0;   /* allocation failed */
             terms       = tmp;
             terms_cap   = new_cap;

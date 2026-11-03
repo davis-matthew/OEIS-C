@@ -9,13 +9,14 @@
  *            0 (mod 4)
  * Range:     u8 n <= 9, u16 n <= 256, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   rad
+ * Validated: standard, pass, 68 terms through n = 9776 (2026-11-01)
+ * Helpers:   radical
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* The function uses the provided rad(n) implementation. */
-#include "../utils/rad.h"
+#include "../utils/radical.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +25,7 @@ seq_t a(idx_t n)
     if (n == 0)
         return 0;
 
-    seq_t rad_n = rad(n);            /* product of distinct primes of n */
+    seq_t rad_n = radical(n);            /* product of distinct primes of n */
     seq_t nseq  = (seq_t)n;
     seq_t prod  = nseq * rad_n;      /* base value n * rad(n) */
 

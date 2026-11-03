@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 2579, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_sum, divisor_count_u64
+ * Validated: standard, pass, 67 terms through n = 8467 (2026-11-03)
+ * Helpers:   digit_sum, mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/divisor_count_u64.h"   /* uint64_t divisor_count_u64(uint64_t n); */
-#include "../utils/digit_sum.h"          /* seq_t digit_sum(seq_t v); */
+#include "../utils/digit_sum.h"
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
 
 /* Cached sequence values */
 static seq_t *terms = (seq_t *)NULL;   /* array of found terms   */
@@ -33,7 +35,7 @@ static void append_term(seq_t val)
 {
     if (terms_len >= terms_cap) {
         terms_cap = terms_cap ? terms_cap * 2 : 64;
-        terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, terms_cap);
         if (!terms) abort(); /* OOM protection */
     }
     terms[terms_len++] = val;
@@ -51,14 +53,14 @@ seq_t a(idx_t n)
         uint64_t k64 = (uint64_t)last_checked;
 
         /* Count divisors of k */
-        uint64_t d_k = divisor_count_u64(k64);
+        uint64_t d_k = num_divisors(k64);
 
         /* Sum of decimal digits of k */
         seq_t  sumdig_seq = digit_sum((seq_t)last_checked);
         uint64_t sumdig = (uint64_t)sumdig_seq; /* fits in 64 bits */
 
         /* Count divisors of the digit sum */
-        uint64_t d_sum = divisor_count_u64(sumdig);
+        uint64_t d_sum = num_divisors(sumdig);
 
         /* Check defining condition */
         if ((d_k << 1) == d_sum) {

@@ -10,11 +10,13 @@
  *            M, otherwise T(r,M) = 1
  * Range:     u8 n <= 11, u16 n <= 24, u32 n <= 52, u64 n <= 133,
  *            u128 n <= 348, big any n
+ * Validated: standard, pass, 61 terms through n = 1271 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

@@ -7,7 +7,8 @@
  * Formula:   a(n) = sigma( sum_{i=1..n} prime(i) )
  * Range:     u8 n <= 10, u16 n <= 102, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes
+ * Validated: standard, pass, 56 terms through n = 9997 (2026-11-03)
+ * Helpers:   build_primes, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,9 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stddef.h>
 #include "../utils/build_primes.h"
+#include "../utils/mem.h"
 
 static idx_t  *prime_arr   = NULL;   /* array of primes (uint64_t)   */
 static size_t  prime_cnt   = 0;      /* number of primes             */
@@ -40,7 +43,7 @@ static void init(void)
     const idx_t LIMIT = 200000;              /* enough for first 10000 primes */
     build_primes(LIMIT, &prime_arr, &prime_cnt);
 
-    prime_sum = (seq_t*)malloc(prime_cnt * sizeof(seq_t));
+    prime_sum = mem_new(seq_t, prime_cnt);
     seq_t acc = 0;
     for (size_t i = 0; i < prime_cnt; ++i) {
         acc += (seq_t)prime_arr[i];

@@ -7,15 +7,19 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = Sum_{j=0..8} (-1)^j * binomial(2*n+1, j) * binomial(10-j,
  *            2)^n
- * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 7, u64 n <= 12, u128 n <= 23,
+ * Range:     u8 n <= 5, u16 n <= 6, u32 n <= 7, u64 n <= 12, u128 n <= 23,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: standard, pass, 33 terms through n = 200 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +35,7 @@ seq_t a(idx_t n)
         seq_t base = binomial(10 - j, 2);
 
         /* base^n */
-        seq_t pow = big_pow(base, (seq_t)n);
+        seq_t pow = ipow(base, (seq_t)n);
 
         /* binomial(2*n+1, j) */
         seq_t coeff = binomial(two_n_plus_one, j);

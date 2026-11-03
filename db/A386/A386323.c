@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 44, u16 n <= 2937, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_zero_or_five, is_prime
+ * Validated: standard, pass, 73 terms through n = 9918 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,19 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/is_prime.h"
-#include "../utils/has_zero_or_five.h"
+#include "../utils/mem.h"
+
+/* Helper: checks whether a number contains the digit 0 or 5. */
+static bool has_zero_or_five(uint64_t x)
+{
+    while (x > 0u) {
+        uint8_t d = (uint8_t)(x % 10u);
+        if (d == 0u || d == 5u)
+            return true;
+        x /= 10u;
+    }
+    return false;
+}
 
 /* Main sequence function. */
 seq_t a(idx_t n)
@@ -44,7 +57,7 @@ seq_t a(idx_t n)
             /* Ensure cache capacity. */
             if (cache_len == cache_cap) {
                 size_t new_cap = (cache_cap == 0u) ? 32u : cache_cap * 2u;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 cache = tmp;
                 cache_cap = new_cap;
             }

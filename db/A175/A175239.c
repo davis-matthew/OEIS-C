@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   ugcd_uint64
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,7 +36,8 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/ugcd_uint64.h"
+#include <stdlib.h>
+#include "../utils/gcd_u64.h"
 
 /* Compute greatest common divisor of two 64‑bit unsigned integers */
 
@@ -78,7 +80,7 @@ seq_t a(idx_t n)
 
         idx_t m   = (idx_t)m128;    /* safe conversion: m < n <= UINT64_MAX */
         idx_t r   = n % k;
-        idx_t g   = ugcd_uint64(m, k);
+        idx_t g   = gcd_u64(m, k);
         if (r % g != 0) continue;  /* congruence unsolvable */
 
         idx_t m1  = m / g;          /* reduced coefficients */

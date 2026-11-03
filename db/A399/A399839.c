@@ -11,15 +11,17 @@
  *            (p - 1) – p^{e/2} a(n) = ∏ S(p_i, e_i)
  * Range:     u8 n <= 16, u16 n <= 2778, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, pow2, pow_int
+ * Validated: standard, pass, 84 terms through n = 9761 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)
@@ -43,12 +45,12 @@ seq_t a(idx_t n)
         } else {
             /* S(p,e) = (p^{e+1} - 1)/(p - 1)  (minus p^{e/2} if e even) */
             seq_t pseq = (seq_t)p;
-            seq_t t   = pow_int(pseq, (idx_t)(e + 1));   /* p^{e+1} */
+            seq_t t   = ipow_idx(pseq, (idx_t)(e + 1));   /* p^{e+1} */
             seq_t den = pseq - (seq_t)1;                 /* p - 1 */
             sum = (t - (seq_t)1) / den;
 
             if ((e & 1) == 0) {                       /* e even */
-                seq_t sub = pow_int(pseq, (idx_t)(e / 2));
+                seq_t sub = ipow_idx(pseq, (idx_t)(e / 2));
                 sum -= sub;
             }
         }

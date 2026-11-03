@@ -7,6 +7,7 @@
  * Formula:   if n%7==0 then a(n)=0 else a(n)=inverse of 7 modulo n (a(1)=0)
  * Range:     u8 n <= 301, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 79 terms through n = 9747 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

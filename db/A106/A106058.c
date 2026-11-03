@@ -7,6 +7,7 @@
  * Formula:   a(n) = 0 for n<=2; a(n) = (n-2)*(n^2 + 8n - 21)/6 for n>2
  * Range:     u8 n <= 6, u16 n <= 38, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
+ * Validated: partial, pass, 47 terms through n = 46 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

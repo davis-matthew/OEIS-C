@@ -9,7 +9,8 @@
  *            (n-3k)!)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 17,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 static uint32_t *prime_array = NULL;
 static size_t prime_count = 0;
@@ -94,7 +95,7 @@ seq_t a(idx_t n)
 
     for (idx_t k = 0; k <= maxk; ++k) {
         idx_t m = n - 3 * k;                 /* n - 3k  */
-        seq_t term = pow_seq((seq_t)m, (int)k);  /* (n-3k)^k */
+        seq_t term = ipow_i32((seq_t)m, (int)k);  /* (n-3k)^k */
 
         if (term == (seq_t)0)
             continue;  /* term will stay zero after multiplying primes */
@@ -112,7 +113,7 @@ seq_t a(idx_t n)
                     - legendre(m,   (idx_t)p);
 
             if (e > 0) {
-                seq_t p_pow = pow_seq((seq_t)p, (int)e);
+                seq_t p_pow = ipow_i32((seq_t)p, (int)e);
                 term = term * p_pow;
             }
         }

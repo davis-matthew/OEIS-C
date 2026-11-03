@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   has_equal_3_11
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,27 @@
    ordering of calls is handled efficiently. */
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/has_equal_3_11.h"
+
+/* Local helper: true if x has the same number of 3's and 11's in base‑12. */
+static bool has_equal_3_11(idx_t x)
+{
+    unsigned cnt3  = 0;
+    unsigned cnt11 = 0;
+
+    /* Special case for zero: 0 has 0 3's and 0 11's. */
+    if (x == 0)
+        return true;
+
+    while (x > 0) {
+        idx_t d = x % 12;
+        if (d == 3)
+            ++cnt3;
+        else if (d == 11)
+            ++cnt11;
+        x /= 12;
+    }
+    return cnt3 == cnt11;
+}
 
 /* Adjust the following size if larger values of n are required. */
 #define MAX_CACHE 200000        /* maximum number of terms we will store */

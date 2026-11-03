@@ -11,14 +11,15 @@
  *            n. This matches the OEIS definition of A057860
  * Range:     u8 n <= 359, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime64
+ * Validated: standard, pass, 85 terms through n = 9724 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime64.h"
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n) {
     /* Handle the trivial case n == 1 directly */
@@ -48,7 +49,7 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = (seq_t)un - phi;          /* subtract φ(n) */
-    if (is_prime64(un)) {
+    if (is_prime_u64(un)) {
         result -= 1;                         /* subtract contribution of m = 0 */
     }
     result -= (seq_t)omega;                  /* subtract prime class factors */

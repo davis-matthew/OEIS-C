@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 168, u16 n <= 5001, u32 n <= 5001, u64 n <= 5001,
  *            u128 n <= 5001, big any n
- * Helpers:   no_consecutive_equal_digits
+ * Validated: standard, pass, 87 terms through n = 4886 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,21 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/no_consecutive_equal_digits.h"
+#include "../utils/mem.h"
+
+/* Test whether a seq_t value has any pair of consecutive equal decimal digits. */
+static inline bool no_consecutive_equal_digits(seq_t val) {
+    if (val == (seq_t)0) return true;          /* 0 contains only one digit */
+    int prev = -1;                             /* previous digit, -1 means none yet */
+    seq_t tmp = val;
+    while (tmp > (seq_t)0) {
+        int d = (int)(tmp % (seq_t)10);        /* current least‑significant digit */
+        if (prev == d) return false;           /* found equal neighbours */
+        prev = d;
+        tmp /= (seq_t)10;                      /* shift right one decimal digit */
+    }
+    return true;                               /* all adjacent digits differ */
+}
 
 /* static state */
 static seq_t *seq = NULL;        /* 1‑based array of terms: seq[i] = a(i) */
@@ -40,7 +55,7 @@ static void ensure_seq_cap(size_t need)
     if (seq_cap < need) {
         size_t new_cap = seq_cap ? seq_cap << 1 : 16;
         while (new_cap < need) new_cap <<= 1;
-        seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, new_cap);
         seq_cap = new_cap;
     }
 }

@@ -9,26 +9,27 @@
  *            T(n,k) = Σ_{i=0..k} C(n*k−1, k−i)^2 * C((n−2)*k + i − 2, i) *
  *            with the special cases T(n,0)=1 and * T(0,k)= (−1)^k * C(2k,k)
  *            (k>0)
- * Range:     i8 n <= 13, i16 n <= 30, i32 n <= 59, i64 n <= 65, i128 n <= 65,
+ * Range:     i8 n <= 19, i16 n <= 30, i32 n <= 59, i64 n <= 65, i128 n <= 65,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 /* Generalized binomial for possibly negative upper index.
    For a < 0, C(a, b) = (−1)^b * C(−a + b − 1, b).            */
 static inline seq_t binom_general(long long a, idx_t b)
 {
     if (b == 0) return (seq_t)1;
-    if (a >= 0) return binom((idx_t)a, b);
+    if (a >= 0) return binomial((idx_t)a, b);
     /* a < 0 */
     long long m = -a;                     /* m > 0 */
-    seq_t val = binom((idx_t)(m + b - 1), b);
+    seq_t val = binomial((idx_t)(m + b - 1), b);
     if ((b & 1) == 0) return val;
     else              return -val;
 }
@@ -60,14 +61,14 @@ seq_t a(idx_t n)
     } else if (n_val == 0) {
         /* T(0,k) = (−1)^k * C(2k,k)  */
         seq_t sign = ((k & 1) ? -(seq_t)1 : (seq_t)1);
-        result = sign * binom(2 * k, k);
+        result = sign * binomial(2 * k, k);
     } else {
         /* Sum formula for n >= 1 and k >= 1 */
         idx_t nk_minus1 = n_val * k - 1;
         seq_t sum = 0;
         for (idx_t i = 0; i <= k; ++i) {
             idx_t ki = k - i;                     /* k−i  */
-            seq_t term1 = binom(nk_minus1, ki);
+            seq_t term1 = binomial(nk_minus1, ki);
             seq_t term2 = binom_general((long long)((n_val - 2) * (long long)k + (long long)i - 2), i);
             seq_t term = term1 * term1;
             term *= term2;

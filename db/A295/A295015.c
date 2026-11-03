@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 21, u32 n <= 1026, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digits_largest_is_five
+ * Validated: standard, pass, 53 terms through n = 9117 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,25 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/digits_largest_is_five.h"
+#include "../utils/mem.h"
+
+/* Test whether x has at least one digit 5 and no digit >5.
+   The test is performed on the decimal representation of x. */
+static bool digits_largest_is_five(seq_t x)
+{
+    bool has5 = false;
+    if (x == 0)
+        return false;
+    while (x != 0) {
+        int d = (int)(x % 10);
+        if (d > 5)
+            return false;
+        if (d == 5)
+            has5 = true;
+        x /= 10;
+    }
+    return has5;
+}
 
 /* Cache storing the squares that satisfy the condition. */
 static seq_t *cache      = NULL;   /* array of squares found so far */
@@ -50,7 +69,7 @@ seq_t a(idx_t n)
             /* Grow the cache if necessary. */
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 64;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) {
                     /* Allocation failed – terminate the program. */
                     exit(EXIT_FAILURE);

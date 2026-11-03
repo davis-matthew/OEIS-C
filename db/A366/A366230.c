@@ -12,7 +12,8 @@
  *            mapping from the single index n to (r,c) is row...
  * Range:     u8 n <= 15, u16 n <= 28, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   pow_seq_base
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   ipow_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/pow_seq_base.h"
+#include "../utils/ipow_u64.h"
 
 /* --- Pre‑computed primes up to 20000 ---------------------------------- */
 #define PRIME_LIMIT 20000
@@ -104,7 +105,7 @@ seq_t a(idx_t n)
         e -= (int64_t)fact_prime_exp(c, p);          /* denominator c! */
 
         if (e > 0) {
-            result *= pow_seq_base((seq_t)p, (uint64_t)e);
+            result *= ipow_u64((seq_t)p, (uint64_t)e);
         }
         /* e should never be negative for valid parameters */
     }

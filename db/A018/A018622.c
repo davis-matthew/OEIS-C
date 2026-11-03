@@ -7,13 +7,15 @@
  * Formula:   a(n) = n-th divisor of 742 in ascending order
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 8 terms through n = 8 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Comparator for sorting seq_t values */
 static int cmp_divs(const void *a, const void *b)
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
 
         /* allocate space for the divisors (max 8 for this N) */
         size_t cap = 8;
-        divs = (seq_t *)malloc(cap * sizeof(seq_t));
+        divs = mem_new(seq_t, cap);
         if (!divs) return 0;               /* allocation failed */
 
         /* collect divisors up to sqrt(N) and their complements */
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
             if (N % i == 0) {
                 if (divcnt >= cap) {           /* grow array if needed */
                     cap *= 2;
-                    seq_t *tmp = (seq_t *)realloc(divs, cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, divs, cap);
                     if (!tmp) return 0;
                     divs = tmp;
                 }
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
                 if (j != i) {
                     if (divcnt >= cap) {
                         cap *= 2;
-                        seq_t *tmp = (seq_t *)realloc(divs, cap * sizeof(seq_t));
+                        seq_t *tmp = mem_resize(seq_t, divs, cap);
                         if (!tmp) return 0;
                         divs = tmp;
                     }
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
         }
 
         /* sort the divisors in ascending order */
-        qsort(divs, divcnt, sizeof(seq_t), cmp_divs);
+        mem_qsort(divs, divcnt, sizeof(seq_t), cmp_divs);
         init = 1;
     }
 

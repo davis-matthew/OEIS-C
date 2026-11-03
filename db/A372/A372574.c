@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, mult, easy
  * Formula:   a(n) = 1 iff the squarefree part of n ≡ 1 or 5 (mod 6), else 0
- * Range:     u8 n <= 8780, u16 n <= 8780, u32 n <= 8780, u64 n <= 8780,
- *            u128 n <= 8780, big any n
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 137 terms through n = 8780 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

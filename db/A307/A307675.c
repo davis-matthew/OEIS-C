@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign
  * Formula:   not stated
- * Range:     i8 n <= 8, i16 n <= 15, i32 n <= 29, i64 n <= 36, i128 n <= 36,
+ * Range:     i8 n <= 9, i16 n <= 18, i32 n <= 29, i64 n <= 36, i128 n <= 36,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
  * Formula: a(n) = Σ_{d=1}^{n} Σ_{m|d} (n / m) * (-1)^{n-d} * binom(m + n - d - 1, n - d)
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n) {
     seq_t sum = 0;
@@ -28,14 +30,14 @@ seq_t a(idx_t n) {
             if (d % m != 0) continue;
 
             /* first divisor m */
-            seq_t bin = binom(m + n - d - 1, n - d);
+            seq_t bin = binomial(m + n - d - 1, n - d);
             seq_t term = bin * ((seq_t)n) / (seq_t)m;
             if (sgn < 0) sum -= term; else sum += term;
 
             /* if m and d/m are distinct, handle the second divisor */
             idx_t m2 = d / m;
             if (m2 != m) {
-                seq_t bin2 = binom(m2 + n - d - 1, n - d);
+                seq_t bin2 = binomial(m2 + n - d - 1, n - d);
                 seq_t term2 = bin2 * ((seq_t)n) / (seq_t)m2;
                 if (sgn < 0) sum -= term2; else sum += term2;
             }

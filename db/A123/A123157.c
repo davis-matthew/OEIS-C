@@ -7,14 +7,19 @@
  * Formula:   a(n) = digit_sum( p_n^2 ), where p_n is the n-th prime (p_1 = 2)
  * Range:     u8 n <= 6, u16 n <= 54, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-01)
  * Helpers:   digit_sum, sieve_first_n_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/sieve_first_n_primes.h"
+#include <stdint.h>
+#include <string.h>
+#include <math.h>
+#include <stdbool.h>
 #include "../utils/digit_sum.h"
+#include "../utils/sieve_first_n_primes.h"
 
 /* Static cache of primes */
 static uint32_t *prime_cache = NULL;

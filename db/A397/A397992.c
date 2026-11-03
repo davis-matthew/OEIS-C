@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{k=2..n+2} (1 + floor(k*(n-k+2)/(k-1)))
  * Range:     u8 n <= 18, u16 n <= 355, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 71 terms through n = 9889 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

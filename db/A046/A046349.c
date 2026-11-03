@@ -7,7 +7,8 @@
  * Formula:   a(n) = Composite numbers with only palindromic prime factors
  * Range:     u8 n <= 90, u16 n <= 2395, u32 n <= 3020, u64 n <= 3020,
  *            u128 n <= 3020, big any n
- * Helpers:   _is_pal_digit
+ * Validated: standard, pass, 80 terms through n = 2846 (2026-11-03)
+ * Helpers:   is_palindrome_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/_is_pal_digit.h"
+#include "../utils/is_palindrome_u64.h"
+#include "../utils/mem.h"
 
 /* Precomputed limits */
 #define PRIME_LIMIT 5000000ULL   /* 5 000 000 is sufficient for the first 10 000 terms */
@@ -89,7 +91,7 @@ static void _init(void)
     {
         if (_is_prime[i]) {
             _primes[idx++] = (uint32_t)i;
-            if (_is_pal_digit(i)) _is_palprime[i] = 1;
+            if (is_palindrome_u64(i)) _is_palprime[i] = 1;
         }
     }
 }
@@ -108,7 +110,7 @@ static void _cache_reserve(size_t needed)
     if (needed <= _cache.cap) return;
     size_t newcap = _cache.cap ? _cache.cap << 1 : 8;
     while (newcap < needed) newcap <<= 1;
-    seq_t *newdata = (seq_t *)realloc(_cache.data, newcap * sizeof(seq_t));
+    seq_t *newdata = mem_resize(seq_t, _cache.data, newcap);
     _cache.data = newdata;
     _cache.cap  = newcap;
 }

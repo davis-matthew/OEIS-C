@@ -10,13 +10,28 @@
  *            sum of divisors)
  * Range:     u8 n <= 3, u16 n <= 26, u32 n <= 730, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   sum_sigma_prefix
+ * Validated: standard, pass, 52 terms through n = 889 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/sum_sigma_prefix.h"
+
+static inline seq_t sum_sigma_prefix(idx_t M)
+{
+    seq_t sum = 0;
+    for (idx_t i = 1; i <= M; )
+    {
+        idx_t q     = M / i;            // common quotient
+        idx_t last  = M / q;            // last i with same q
+        seq_t cnt   = (seq_t)(last - i + 1);
+        seq_t sum_i = ((seq_t)(i + last) * cnt) / 2; // sum of i..last
+        sum += sum_i * q;              // add contribution
+        i = last + 1;
+    }
+    return sum;
+}
 
 seq_t a(idx_t n)
 {

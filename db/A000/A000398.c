@@ -9,14 +9,15 @@
  *            m in increasing order; L doubles as needed
  * Range:     u8 n <= 238, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   a398_isqrt
+ * Validated: standard, pass, 76 terms through n = 883 (2026-11-01)
+ * Helpers:   isqrt_i64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/a398_isqrt.h"
+#include "../utils/isqrt_i64.h"
 
 static uint64_t *a398_terms = 0;
 static idx_t a398_count = 0;
@@ -25,7 +26,7 @@ static uint64_t a398_limit = 0;
 static void a398_build(uint64_t L) {
     unsigned char *Q = (unsigned char *)calloc((size_t)L + 1, 1);
     unsigned char *M = (unsigned char *)calloc((size_t)L + 1, 1);
-    long long B = a398_isqrt((long long)L) + 1;
+    long long B = isqrt_i64((long long)L) + 1;
     long long y, z, x;
     uint64_t q, m;
     idx_t c = 0;

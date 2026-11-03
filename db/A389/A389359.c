@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 32, u16 n <= 88, u32 n <= 296, u64 n <= 987,
  *            u128 n <= 3651, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 9473 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static storage for rows of the triangle */
 static seq_t **rows = NULL;          /* array of pointers to rows */
@@ -33,7 +35,7 @@ static size_t  rows_cap   = 0;       /* capacity of the rows array */
 /* Allocate a row of length len (in seq_t units) */
 static seq_t *alloc_row(size_t len)
 {
-    return (seq_t*)calloc(len, sizeof(seq_t));
+    return mem_new(seq_t, len);
 }
 
 /* Build triangle rows up to (and including) row rmax */

@@ -7,6 +7,7 @@
  * Formula:   a(n) = (n+1)^2 / gcd(3*(3+(-1)^n), (n+1)^2)
  * Range:     u8 n <= 14, u16 n <= 254, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 70 terms through n = 913 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,7 @@
 
 /*          a(n) = (n+1)^2 without the common factor with the numerator */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

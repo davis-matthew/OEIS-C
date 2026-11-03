@@ -7,14 +7,27 @@
  * Formula:   a(n) = coefficient of x^n in ∏_{k≥1} (1 + x^(2^k-1) + 3 x^(2^k))
  * Range:     u8 n <= 59, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   alloc_seq_array, free_seq_array
+ * Validated: partial, pass, 77 terms through n = 76 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 seq_t a(idx_t n)
 {
@@ -24,8 +37,8 @@ seq_t a(idx_t n)
     seq_t *next = alloc_seq_array(N);
     if (!dp || !next) {
         /* Out of memory – return 0 after freeing any allocated memory. */
-        if (dp) free(dp);
-        if (next) free(next);
+        if (dp) mem_free(dp);
+        if (next) mem_free(next);
         return 0;
     }
 

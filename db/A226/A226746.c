@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   has_extra_solutions
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,47 @@
             (n has at least two distinct prime factors ≡ 3 (mod 4))  */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/has_extra_solutions.h"
+
+static inline bool has_extra_solutions(uint64_t m)
+{
+    /* 1,2,3 never satisfy */
+    if (m <= 3) return false;
+
+    /* Even numbers */
+    if ((m & 1ULL) == 0) {
+        if (m % 4 == 0)             /* 2ⁿ with n ≥ 2  */
+            return true;
+        /* m == 2 is the only even number without extra solutions */
+        return m != 2;
+    }
+
+    /* Odd numbers */
+    uint64_t t = m;
+    int inert_cnt = 0;            /* count of distinct primes ≡ 3 (mod 4) */
+
+    for (uint64_t p = 3; p * p <= t; p += 2) {
+        if (t % p == 0) {
+            if (p % 4 == 1)        /* a “split” prime,  x² = 1 has 4 ways   */
+                return true;
+            ++inert_cnt;           /* distinct inert prime found          */
+            while (t % p == 0)     /* remove all powers of p              */
+                t /= p;
+            if (inert_cnt >= 2)    /* two distinct inert primes give 4 ways */
+                return true;
+        }
+    }
+
+    /* remaining factor > 1 */
+    if (t > 1) {
+        if (t % 4 == 1)            /* last prime is split */
+            return true;
+        ++inert_cnt;
+        if (inert_cnt >= 2)
+            return true;
+    }
+
+    return false;
+}
 
 seq_t a(idx_t n)
 {

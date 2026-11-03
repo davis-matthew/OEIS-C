@@ -8,7 +8,8 @@
  *            that p + 2 is composite
  * Range:     u8 n <= 37, u16 n <= 5682, u32 n <= 6970, u64 n <= 6970,
  *            u128 n <= 6970, big any n
- * Helpers:   _floor_isqrt_u64, calc_phi, is_prime_small
+ * Validated: standard, pass, 72 terms through n = 6263 (2026-11-03)
+ * Helpers:   is_prime_seq, isqrt, mem, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,18 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime_small.h"
-#include "../utils/_floor_isqrt_u64.h"
-#include "../utils/calc_phi.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/isqrt.h"
+#include "../utils/totient_seq.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 static seq_t *a_cache      = NULL;   /* cached sequence values      */
 static size_t  a_cache_cap  = 0;      /* capacity of a_cache         */
@@ -30,6 +40,20 @@ static size_t    prime_list_len  = 0;  /* number of primes stored     */
 static uint64_t  candidate     = 2;    /* next integer to test        */
 
 /* Grow an array of elements; returns the possibly reallocated pointer. */
+#ifdef __cplusplus
+template <class T>
+static T *grow_array(T *ptr, size_t *cap, size_t *len, size_t elem_size)
+{
+    if (*len >= *cap) {
+        size_t new_cap = *cap ? *cap * 2 : 16;
+        T *tmp = mem_resize(T, ptr, (new_cap * elem_size) / sizeof(T));
+        if (!tmp) abort();              /* allocation failure */
+        ptr = tmp;
+        *cap = new_cap;
+    }
+    return ptr;
+}
+#else
 static void *grow_array(void *ptr, size_t *cap, size_t *len, size_t elem_size)
 {
     if (*len >= *cap) {
@@ -41,6 +65,7 @@ static void *grow_array(void *ptr, size_t *cap, size_t *len, size_t elem_size)
     }
     return ptr;
 }
+#endif
 
 seq_t a(idx_t n)
 {
@@ -53,7 +78,7 @@ seq_t a(idx_t n)
         while (true) {
             uint64_t x = candidate;
             bool is_prime = true;
-            uint64_t limit = _floor_isqrt_u64(x);
+            uint64_t limit = isqrt(x);
 
             for (size_t i = 0; i < prime_list_len && prime_list[i] <= limit; ++i) {
                 if (x % prime_list[i] == 0) { is_prime = false; break; }
@@ -67,8 +92,8 @@ seq_t a(idx_t n)
                 prime_list[prime_list_len++] = x;
 
                 /* Check the condition p + 2 composite. */
-                if (!is_prime_small((seq_t)(x + 2))) {
-                    seq_t phi_val = calc_phi((seq_t)x);
+                if (!is_prime_seq((seq_t)(x + 2))) {
+                    seq_t phi_val = totient_seq((seq_t)x);
                     a_cache = (seq_t *)grow_array(
                             a_cache, &a_cache_cap, &a_cache_len,
                             sizeof(seq_t));

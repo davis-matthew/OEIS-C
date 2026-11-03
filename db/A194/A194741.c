@@ -12,7 +12,8 @@
  *            computes the rank via a Fenwick tree (binary indexed tre...
  * Range:     u8 n <= 76, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   lower_bound_uint64
+ * Validated: partial, pass, 76 terms through n = 76 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,20 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/lower_bound_uint64.h"
+
+/* lower_bound on sorted array of uint64_t */
+static size_t lower_bound_uint64(const uint64_t *arr, size_t n, uint64_t v)
+{
+    size_t lo = 0, hi = n;
+    while (lo < hi) {
+        size_t mid = (lo + hi) >> 1;
+        if (arr[mid] < v)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo;  /* first index where arr[lo] >= v */
+}
 
 static const uint64_t SCALE        = 1000000000000000000ULL;          /* 1e18 */
 static const uint64_t SQRT3_SCALED = 1732050807568877294ULL;          /* round(sqrt(3)*1e18) */

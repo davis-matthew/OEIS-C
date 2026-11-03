@@ -11,7 +11,8 @@
  *            values: a(1)=10, a(2)=100
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 14, u64 n <= 30, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -111,7 +113,7 @@ seq_t a(idx_t n)
     if (cache.cap < (size_t)n) {
         size_t new_cap = cache.cap ? cache.cap << 1 : 4;
         while (new_cap < (size_t)n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache.cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache.cache, new_cap);
         if (!tmp) return (seq_t)0;              /* allocation failure */
         cache.cache = tmp;
         cache.cap = new_cap;
@@ -146,7 +148,7 @@ seq_t a(idx_t n)
        Initialise DP for length 2 (all state pairs count as 1).
        ------------------------------------------------------------------ */
     if (cache.cur_len == 2) {
-        memset(dp, 0, sizeof(dp));
+        mem_set(dp, 0, sizeof(dp));
         for (int i = 0; i < init.valid_count; ++i) {
             int c1 = init.valid_list[i];
             for (int j = 0; j < init.valid_count; ++j) {
@@ -161,7 +163,7 @@ seq_t a(idx_t n)
        Extend DP for lengths cur_len+1 … n.
        ------------------------------------------------------------------ */
     for (idx_t L = cache.cur_len + 1; L <= n; ++L) {
-        memset(dp_next, 0, sizeof(dp_next));
+        mem_set(dp_next, 0, sizeof(dp_next));
 
         for (int s = 0; s < STATES; ++s) {
             seq_t val = dp[s];
@@ -180,7 +182,7 @@ seq_t a(idx_t n)
         cache.cache[L-1] = total;
 
         /* Prepare for next iteration. */
-        memcpy(dp, dp_next, sizeof(dp));
+        mem_copy(dp, dp_next, sizeof(dp));
         cache.cur_len = L;
     }
 

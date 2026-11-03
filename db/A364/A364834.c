@@ -8,12 +8,20 @@
  *            (an(n,d) + d)) / (2*d) * and an(n,d) = d * (n/d)
  * Range:     u8 n <= 29, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   sn
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/sn.h"
+static inline seq_t sn(idx_t n, idx_t d)
+{
+    /* floor division n/d */
+    idx_t cnt = n / d;
+    seq_t an  = (seq_t)cnt * (seq_t)d;
+    seq_t sum = an * (an + (seq_t)d) / ((seq_t)(2 * d));
+    return sum;
+}
 
 seq_t a(idx_t n)
 {

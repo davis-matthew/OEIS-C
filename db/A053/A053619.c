@@ -7,18 +7,21 @@
  * Formula:   a(n) = round(n/(log(n)-1) - pi(n))
  * Range:     i8 n <= 929, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   compute_pi
+ * Validated: standard, pass, 119 terms through n = 8435 (2026-11-01)
+ * Helpers:   prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
-#include "../utils/compute_pi.h"
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/prime_pi.h"
 
 seq_t a(idx_t n)
 {
     /* Safe conversion of pi(n) to a native integer type */
-    idx_t pi_n = (idx_t)compute_pi(n);
+    idx_t pi_n = (idx_t)prime_pi(n);
 
     /* Compute the real‑valued expression using long double arithmetic */
     long double nd  = (long double)n;

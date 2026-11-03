@@ -7,13 +7,15 @@
  * Formula:   a(n) = (3^(6*n) - 2^(6*n))/35
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 7, u128 n <= 13,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 29 terms through n = 300 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -37,8 +39,8 @@ seq_t a(idx_t n)
 
     /* For arbitrary‑precision seq_t we use seq_pow which works with
        the seq_t type. */
-    seq_t pow3 = seq_pow((seq_t)3, exp_idx);
-    seq_t pow2 = seq_pow((seq_t)2, exp_idx);
+    seq_t pow3 = ipow_idx((seq_t)3, exp_idx);
+    seq_t pow2 = ipow_idx((seq_t)2, exp_idx);
     seq_t diff = pow3 - pow2;
     return diff / (seq_t)35;
 }

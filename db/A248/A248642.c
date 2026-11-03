@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 879 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Powers of 10 up to 10^18 (enough for up to 19 decimal digits). */
 static const uint64_t pow10[20] = {
@@ -54,7 +56,7 @@ static inline void add_term(seq_t val)
 {
     if (cache_sz == cache_cap) {
         cache_cap = cache_cap == 0 ? 32 : cache_cap * 2;
-        seq_t *newp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        seq_t *newp = mem_resize(seq_t, cache, cache_cap);
         if (!newp) { /* allocation failed – abort */ abort(); }
         cache = newp;
     }

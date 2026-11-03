@@ -9,7 +9,8 @@
  *            humps and an even number of peaks
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 22, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define IDX(prev,inside,pPeak,pHump) (((((prev)*2 + (inside)))*2 + (pPeak))*2 + (pHump))
 
@@ -35,8 +37,8 @@ seq_t a(idx_t n)
     const size_t cap = heightSize * totalStates;
 
     /* Allocate DP tables */
-    seq_t *curr = (seq_t *)calloc(cap, sizeof(seq_t));
-    seq_t *next = (seq_t *)calloc(cap, sizeof(seq_t));
+    seq_t *curr = mem_new(seq_t, cap);
+    seq_t *next = mem_new(seq_t, cap);
     if (!curr || !next) return 0;   /* allocation failure safety */
 
     /* Initial state: height 0, previous step treated as D (no peak/hump),
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
 
     for (size_t step = 0; step < (size_t)n; ++step) {
         /* Clear next table */
-        memset(next, 0, cap * sizeof(seq_t));
+        mem_set(next, 0, cap * sizeof(seq_t));
 
         /* Current maximum height reachable after 'step' steps */
         size_t maxH = step;
@@ -95,8 +97,8 @@ seq_t a(idx_t n)
     }
 
     /* Clean up */
-    free(curr);
-    free(next);
+    mem_free(curr);
+    mem_free(next);
 
     return result;
 }

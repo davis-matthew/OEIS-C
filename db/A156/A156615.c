@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
    unsigned 64‑bit integers.  All intermediate values comfortably fit in
    64 bits for n up to at least 10 000. */
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,14 +36,14 @@ seq_t a(idx_t n)
 
     /* Ensure cache is large enough and initialize the first term. */
     if (cache_len == 0) {
-        cache = (seq_t *)malloc(sizeof(seq_t) * n);
+        cache = mem_new(seq_t, n);
         if (!cache)
             return 0;
         cache[0] = (seq_t)2;
         cache_len = 1;
     } else if (cache_len < n) {
         /* Grow cache to size n.  realloc with a NULL pointer acts like malloc. */
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * n);
+        seq_t *tmp = mem_resize(seq_t, cache, n);
         if (!tmp)
             return 0;
         cache = tmp;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 15, u32 n <= 21, u64 n <= 21, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Return the row index r such that the total number of
    elements up to and including row r (starting from row 0)
@@ -43,12 +45,12 @@ seq_t a(idx_t n)
 
     /* Allocate storage for the current and next row. */
     size_t len = r + 1;
-    seq_t *cur  = (seq_t *)malloc(len * sizeof(seq_t));
-    seq_t *next = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *cur  = mem_new(seq_t, len);
+    seq_t *next = mem_new(seq_t, len);
     if (!cur || !next)
     {
-        free(cur);
-        free(next);
+        mem_free(cur);
+        mem_free(next);
         return (seq_t)0;
     }
 
@@ -76,7 +78,7 @@ seq_t a(idx_t n)
     seq_t result = cur[k];
 
     /* Clean up. */
-    free(cur);
-    free(next);
+    mem_free(cur);
+    mem_free(next);
     return result;
 }

@@ -7,8 +7,9 @@
  * Formula:   a(5n) = a(5n+1) = a(2) = a(5n+3) = a(20n+14) = a(40n+9) = 1,
  *            a(20n+4) = a(40n+29) = 2, a(5n+2) = 3 - a(5n-1) for n>=1,
  *            a(20n+19) = a(10n+9)
- * Range:     u8 n <= 9487, u16 n <= 9487, u32 n <= 9487, u64 n <= 9487,
- *            u128 n <= 9487, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 121 terms through n = 9487 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,7 +10,8 @@
  *            into prime parts
  * Range:     u8 n <= 48, u16 n <= 118, u32 n <= 363, u64 n <= 1342,
  *            u128 n <= 5455, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 9727 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --- global data ---------------------------------------------------------- */
 static idx_t prime_limit = 0;        /* largest number up to which primes are known   */
@@ -86,7 +88,7 @@ static void ensure_partitions(idx_t limit)
     if (limit <= part_limit) return;
 
     /* resize array */
-    part = (seq_t*)realloc(part, (limit + 1) * sizeof(seq_t));
+    part = mem_resize(seq_t, part, (limit + 1));
     if (!part) exit(EXIT_FAILURE);
 
     /* initialize positions above old limit to zero */

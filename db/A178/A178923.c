@@ -12,14 +12,16 @@
  *            prev = (d-1)*(d-2)/2 // entries up to previ...
  * Range:     u8 n <= 39, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   isqrt
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   isqrt_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/isqrt.h"   /* declares _floor_isqrt_u64(idx_t) */
+#include "../utils/isqrt_u64.h"
+#include "../utils/mem.h"
 
 static seq_t *stirling = NULL;          /* 1D array for StirlingS2 */
 static seq_t *fact     = NULL;          /* factorials */
@@ -32,8 +34,8 @@ static void ensure_tables(size_t needed)
         return;
 
     size_t new_cap = needed + 1;
-    seq_t *new_stirling = (seq_t *)malloc(sizeof(seq_t) * new_cap * new_cap);
-    seq_t *new_fact     = (seq_t *)malloc(sizeof(seq_t) * new_cap);
+    seq_t *new_stirling = mem_new(seq_t, new_cap * new_cap);
+    seq_t *new_fact     = mem_new(seq_t, new_cap);
 
     /* initialise Stirling table */
     for (size_t i = 0; i < new_cap; ++i) {
@@ -57,8 +59,8 @@ static void ensure_tables(size_t needed)
         new_fact[i] = new_fact[i - 1] * (seq_t)i;
 
     /* free old tables */
-    free(stirling);
-    free(fact);
+    mem_free(stirling);
+    mem_free(fact);
 
     stirling = new_stirling;
     fact     = new_fact;

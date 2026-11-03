@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 34, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow, next_prime
+ * Validated: standard, pass, 70 terms through n = 990 (2026-11-03)
+ * Helpers:   mem, next_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,10 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#include "../utils/mod_pow.h"    /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod); */
-#include "../utils/next_prime.h" /* uint64_t next_prime(uint64_t start); */
+#include <string.h>
+#include "../utils/next_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static seq_t *good = NULL;          /* list of primes with even order */
 static size_t good_len = 0, good_cap = 0;
@@ -35,7 +38,7 @@ static void grow_array(seq_t **arr, size_t *len, size_t *cap)
 {
     if (*len == *cap) {
         *cap = (*cap == 0) ? 16 : (*cap << 1);
-        *arr = (seq_t *)realloc(*arr, *cap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, (*cap * sizeof(seq_t)) / sizeof(seq_t));
     }
 }
 
@@ -56,7 +59,7 @@ static bool has_even_order(seq_t p)
             /* try to shorten order by this prime factor */
             while (order % q == 0) {
                 uint64_t cand = order / q;
-                seq_t r = mod_pow((seq_t)10, cand, p);
+                seq_t r = powmod((seq_t)10, cand, p);
                 if (r == 1)
                     order = cand;
                 else
@@ -69,7 +72,7 @@ static bool has_even_order(seq_t p)
         q = n;
         while (order % q == 0) {
             uint64_t cand = order / q;
-            seq_t r = mod_pow((seq_t)10, cand, p);
+            seq_t r = powmod((seq_t)10, cand, p);
             if (r == 1)
                 order = cand;
             else
@@ -85,7 +88,7 @@ static void ensure_tables(void)
     if (good != NULL)
         return;
     good_cap = 16;
-    good = (seq_t *)malloc(good_cap * sizeof(seq_t));
+    good = mem_new(seq_t, good_cap);
     good_len = 0;
     last_checked = 1;
 }

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 91, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 91 terms through n = 91 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <limits.h>
+#include "../utils/mem.h"
 
 /* Helper: compute next power of two strictly greater than x. */
 static uint64_t next_power_of_two(uint64_t x)
@@ -54,11 +56,11 @@ seq_t a(idx_t n)
     idx_t r = n - prev_sum;          /* column position in row m */
 
     /* Allocate temporary arrays for the permutation of size m. */
-    seq_t *perm = (seq_t *)malloc((m + 1) * sizeof(seq_t));
+    seq_t *perm = mem_new(seq_t, (m + 1));
     unsigned char *used = (unsigned char *)malloc((m + 1) * sizeof(unsigned char));
     if (!perm || !used) {
         /* Fallback: return 0 if allocation fails. */
-        if (perm) free(perm);
+        if (perm) mem_free(perm);
         if (used) free(used);
         return (seq_t)0;
     }
@@ -83,7 +85,7 @@ seq_t a(idx_t n)
 
     seq_t result = perm[r];
 
-    free(perm);
+    mem_free(perm);
     free(used);
     return result;
 }

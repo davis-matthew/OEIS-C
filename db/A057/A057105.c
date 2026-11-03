@@ -10,12 +10,28 @@
  *            2,3,4,… and k = 1,…,n‑1
  * Range:     i8 n <= 44, i16 n <= 74, i32 n <= 74, i64 n <= 74, i128 n <= 74,
  *            big any n
- * Helpers:   row_for_index
+ * Validated: partial, pass, 74 terms through n = 74 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/row_for_index.h"
+/* Compute the row index (n) for a given position in the flattened triangle. */
+static idx_t row_for_index(idx_t idx) {
+    idx_t low = 2;
+    idx_t high = 2;
+    /* find an upper bound */
+    while ((unsigned __int128)high * (high - 1) / 2 < idx) high <<= 1;
+    /* binary search for the smallest n with n*(n-1)/2 >= idx */
+    while (low < high) {
+        idx_t mid = (low + high) >> 1;
+        if ((unsigned __int128)mid * (mid - 1) / 2 >= idx)
+            high = mid;
+        else
+            low = mid + 1;
+    }
+    return low;
+}
 
 /* Main sequence function */
 seq_t a(idx_t n) {

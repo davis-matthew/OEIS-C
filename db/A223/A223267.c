@@ -14,7 +14,8 @@
  *            listed in the OEIS entry
  * Range:     u8 none, u16 n <= 1, u32 n <= 3, u64 n <= 6, u128 n <= 13,
  *            big any n
- * Helpers:   seq_from_str, seq_mul
+ * Validated: standard, pass, 26 terms through n = 186 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,24 @@
 #include <stddef.h>
 
 /* Utility headers for arbitrary‑precision support (if needed) */
-#include "../utils/seq_from_str.h"   /* seq_from_str(const char *s) -> seq_t */
-#include "../utils/seq_mul.h"        /* seq_mul(seq_t, seq_t) -> seq_t */
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/mem.h"
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Global state for memoisation */
 static seq_t *cache = NULL;        /* 1‑based indexing; cache[0] unused */
@@ -65,7 +82,7 @@ static void ensure_cache(idx_t n) {
     /* Allocate or enlarge the cache */
     if (cache == NULL) {
         cache_cap = (size_t)(n + 1 > 10 ? n + 1 : 10);
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         /* initialise element 0 to zero (unused) */
         cache[0] = (seq_t)0;
         /* copy the known first nine terms */
@@ -75,7 +92,7 @@ static void ensure_cache(idx_t n) {
     } else if ((size_t)(n + 1) > cache_cap) {
         /* grow to at least n+1 elements */
         size_t new_cap = (size_t)(n + 1);
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 

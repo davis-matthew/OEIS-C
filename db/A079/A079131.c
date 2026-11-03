@@ -9,7 +9,8 @@
  *            (mod 18)
  * Range:     u8 n <= 26, u16 n <= 3261, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 9777 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Helper to test if a small integer is prime by trial division.
  * Assumes p > 1. */
@@ -50,7 +52,7 @@ static void ensure_valid_primes(idx_t n)
     /* initialise on first call */
     if (valid_cap == 0) {
         valid_cap   = 256;
-        valid_primes = (seq_t*)malloc(valid_cap * sizeof(seq_t));
+        valid_primes = mem_new(seq_t, valid_cap);
         all_cap     = 256;
         all_primes  = (uint32_t*)malloc(all_cap * sizeof(uint32_t));
     }
@@ -82,7 +84,7 @@ static void ensure_valid_primes(idx_t n)
             if (r == 1U || r == 3U || r == 5U || r == 7U) {
                 if (valid_len == valid_cap) {
                     valid_cap *= 2;
-                    valid_primes = (seq_t*)realloc(valid_primes, valid_cap * sizeof(seq_t));
+                    valid_primes = mem_resize(seq_t, valid_primes, valid_cap);
                 }
                 valid_primes[valid_len++] = (seq_t)candidate;
             }

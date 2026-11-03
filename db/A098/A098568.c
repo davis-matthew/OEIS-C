@@ -10,13 +10,14 @@
  *            sequence is read by rows of a triangular array
  * Range:     u8 n <= 30, u16 n <= 69, u32 n <= 160, u64 n <= 446,
  *            u128 n <= 1080, big any n
- * Helpers:   binom_custom
+ * Validated: standard, pass, 79 terms through n = 1009 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom_custom.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -39,5 +40,5 @@ seq_t a(idx_t n)
     idx_t m = (k + 1) * (k + 2) / 2;     /* (k+1)(k+2)/2  */
 
     /* Compute T(r,k) = binomial(m + d - 1, d)  */
-    return binom_custom(m + d - 1, d);
+    return binomial(m + d - 1, d);
 }

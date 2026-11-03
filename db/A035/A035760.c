@@ -7,13 +7,15 @@
  * Formula:   a(n) = [x^(2n)] ((1+x)/(1-x))^23
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 4, u64 n <= 15, u128 n <= 123,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 34 terms through n = 9413 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -23,8 +25,8 @@ seq_t a(idx_t n)
 
     for (idx_t k = 0; k <= max_k; ++k)
     {
-        seq_t c1 = binom(23, k);                          /* (1+x)^23 coefficient */
-        seq_t c2 = binom(22 + (twon - k), 22);            /* (1-x)^(-23) coefficient */
+        seq_t c1 = binomial(23, k);                          /* (1+x)^23 coefficient */
+        seq_t c2 = binomial(22 + (twon - k), 22);            /* (1-x)^(-23) coefficient */
         total += c1 * c2;
     }
     return total;

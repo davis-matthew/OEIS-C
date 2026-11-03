@@ -8,7 +8,8 @@
  *            divisors of m
  * Range:     u8 n <= 43, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 967 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Use a lazy cache; compute each value only once.  */
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --------- helper: divisor count for uint64_t -------------------- */
 static uint64_t divisor_count_u64(uint64_t n)
@@ -44,7 +46,7 @@ static void ensure_capacity(size_t needed, size_t *cap, seq_t **ptr)
     if (*cap >= needed) return;
     size_t new_cap = (*cap == 0) ? 1 : *cap;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(*ptr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *ptr, new_cap);
     *ptr = tmp;
     *cap = new_cap;
 }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 1, i16 n <= 2, i32 n <= 6, i64 n <= 11, i128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* external linkage */
 seq_t a(idx_t n);
@@ -43,14 +45,14 @@ static void ensure_cache(idx_t n)
     /* grow the cache arrays if necessary */
     while (cache_len <= (size_t)n) {
         size_t new_cap = cache_len ? cache_len * 2 : 8;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return;              /* allocation failure – unlikely */
         cache = tmp;
 
         /* enlarge pow2_5 */
         if (pow2_5_len <= (size_t)n) {
             size_t new_cap2 = pow2_5_len ? pow2_5_len * 2 : 8;
-            seq_t *tmp2 = (seq_t *)realloc(pow2_5, new_cap2 * sizeof(seq_t));
+            seq_t *tmp2 = mem_resize(seq_t, pow2_5, new_cap2);
             if (!tmp2) return;
             pow2_5 = tmp2;
             for (size_t i = pow2_5_len; i <= (size_t)n; ++i) {
@@ -63,7 +65,7 @@ static void ensure_cache(idx_t n)
         /* enlarge pow7 */
         if (pow7_len <= (size_t)n) {
             size_t new_cap3 = pow7_len ? pow7_len * 2 : 8;
-            seq_t *tmp3 = (seq_t *)realloc(pow7, new_cap3 * sizeof(seq_t));
+            seq_t *tmp3 = mem_resize(seq_t, pow7, new_cap3);
             if (!tmp3) return;
             pow7 = tmp3;
             for (size_t i = pow7_len; i <= (size_t)n; ++i) {

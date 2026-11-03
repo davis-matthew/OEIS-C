@@ -11,7 +11,8 @@
  *            numbers, and returns the n‑th one
  * Range:     u8 n <= 21, u16 n <= 1500, u32 n <= 1500, u64 n <= 1500,
  *            u128 n <= 1500, big any n
- * Helpers:   digits_base9
+ * Validated: standard, pass, 68 terms through n = 1481 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,19 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/digits_base9.h"
+#include "../utils/mem.h"
+
+/* Return number of digits of x when written in base 9. */
+static uint32_t digits_base9(seq_t x)
+{
+    uint32_t d = 0;
+    do
+    {
+        x /= 9;
+        ++d;
+    } while (x);
+    return d;
+}
 
 static size_t CACHE_CAP = 0;
 static size_t CACHE_CNT = 0;
@@ -52,7 +65,7 @@ static void precompute(void)
     }
 
     /* Divisor count array */
-    seq_t *divcnt = (seq_t *)malloc((LIMIT + 1) * sizeof(seq_t));
+    seq_t *divcnt = mem_new(seq_t, (LIMIT + 1));
     if (!divcnt)
     {
         free(spf);
@@ -76,12 +89,12 @@ static void precompute(void)
     /* Build cache of numbers satisfying divisor_count == base9_digits */
     CAPACITY: ;
     CACHE_CAP = 100000;
-    CACHE = (seq_t *)malloc(CACHE_CAP * sizeof(seq_t));
+    CACHE = mem_new(seq_t, CACHE_CAP);
     if (!CACHE)
     {
         free(spf);
         free(primes);
-        free(divcnt);
+        mem_free(divcnt);
         return;
     }
 
@@ -94,7 +107,7 @@ static void precompute(void)
             if (cnt == cap)
             {
                 cap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(CACHE, cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, CACHE, cap);
                 if (!tmp)
                     break; /* allocation failure – stop adding */
                 CACHE = tmp;
@@ -107,7 +120,7 @@ static void precompute(void)
     /* free temporary arrays */
     free(spf);
     free(primes);
-    free(divcnt);
+    mem_free(divcnt);
 
     PRECOMPUTED = true;
 }

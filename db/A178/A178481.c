@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   digit_sum, pow_uint
+ * Validated: partial, pass, 81 terms through n = 80 (2026-11-03)
+ * Helpers:   digit_sum, ipow_u64_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,8 +28,10 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/digit_sum.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +43,7 @@ seq_t a(idx_t n)
     /* dynamic array for values that have been seen */
     size_t cap   = 16;
     size_t len   = 0;
-    seq_t *seen  = (seq_t *)malloc(cap * sizeof(seq_t));
+    seq_t *seen  = mem_new(seq_t, cap);
     if (seen == NULL) {
         return (seq_t)0;        /* memory failure – safe default */
     }
@@ -52,7 +55,7 @@ seq_t a(idx_t n)
 
     while (1) {
         /* compute the next value: digit_sum of cur^5 */
-        seq_t val  = pow_uint((uint64_t)cur, (idx_t)5);
+        seq_t val  = ipow_u64_idx((uint64_t)cur, (idx_t)5);
         seq_t next = digit_sum(val);
 
         /* linear search to detect repetition */
@@ -64,16 +67,16 @@ seq_t a(idx_t n)
         }
 
         if (i < len) {            /* repetition found */
-            free(seen);
+            mem_free(seen);
             return step;
         }
 
         /* store the new value */
         if (len == cap) {
             size_t new_cap = cap * 2;
-            seq_t *tmp = (seq_t *)realloc(seen, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seen, new_cap);
             if (tmp == NULL) {
-                free(seen);
+                mem_free(seen);
                 return step;     /* allocation failure – return what we have */
             }
             seen = tmp;

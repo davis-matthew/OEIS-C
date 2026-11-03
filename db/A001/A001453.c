@@ -8,19 +8,20 @@
  *            C(k-1)*2*(2k-1)/(k+1)
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 19, u64 n <= 36, u128 n <= 69,
  *            big any n
- * Helpers:   a001453_gcd
+ * Validated: standard, pass, 43 terms through n = 443 (2026-11-01)
+ * Helpers:   gcd_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a001453_gcd.h"
+#include "../utils/gcd_idx.h"
 
 seq_t a(idx_t n) {
     seq_t c = 1;
     for (idx_t k = 1; k <= n; k++) {
         idx_t m = 2 * (2 * k - 1);
         idx_t d = k + 1;
-        idx_t g = a001453_gcd(m, d);
+        idx_t g = gcd_idx(m, d);
         m /= g;
         d /= g;
         /* c*m/d is an integer and gcd(m,d)=1, so d divides c */

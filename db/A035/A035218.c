@@ -9,8 +9,9 @@
  * Formula:   a(n) = d(6n) - d(3n) - d(2n) + d(n) = number of divisors of n
  *            that are NOT divisible by 2 or 3 = ∏_{p>3, p|n} (e_p + 1) where
  *            n = ∏ p^{e_p}
- * Range:     u8 n <= 9267, u16 n <= 9267, u32 n <= 9267, u64 n <= 9267,
- *            u128 n <= 9267, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9267 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

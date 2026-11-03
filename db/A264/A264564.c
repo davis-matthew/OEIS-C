@@ -9,12 +9,14 @@
  *            2*a(n-1)+a(n-2)+6*a(n-3)-6*a(n-4)+6*a(n-5)-27*a(n-6)+5*a(n-7)-9*a(n-8)+33*a(n-9)-4*a(n-10)+7*a(n-11)-12*a(n-12)+a(n-13)-a(n-14)+a(n-15)
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 22, u64 n <= 43, u128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* First time: allocate space for indices 0 … 15 */
     if (cache == NULL) {
         cache_len = 16;                     /* reserve space for 0‑15 */
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         if (!cache) abort();
         for (size_t i = 0; i < cache_len; ++i)
             cache[i] = init[i];
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     size_t old_len = cache_len;
     size_t new_len = (size_t)n + 1;
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_len);
     if (!tmp) abort();
     cache = tmp;
     cache_len = new_len;

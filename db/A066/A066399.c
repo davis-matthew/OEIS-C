@@ -11,14 +11,17 @@
  *            Σ_{m=0..n} term_m a(n+1) = (-1)^n * sum
  * Range:     i8 n <= 3, i16 n <= 4, i32 n <= 8, i64 n <= 13, i128 n <= 22,
  *            big any n
- * Helpers:   binomial
+ * Validated: standard, pass, 34 terms through n = 296 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;
 static seq_t *fact_cache = NULL;
@@ -33,8 +36,8 @@ static void grow_cache(size_t needed)
     size_t new_cap = cache_capacity ? cache_capacity * 2 : 16;
     while (new_cap < needed)
         new_cap <<= 1;
-    a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
-    fact_cache = (seq_t *)realloc(fact_cache, new_cap * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, new_cap);
+    fact_cache = mem_resize(seq_t, fact_cache, new_cap);
     cache_capacity = new_cap;
 }
 

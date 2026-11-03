@@ -7,21 +7,22 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 87 terms through n = 993 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* a(n) = nth positive integer m such that 7*m-4 is NOT prime */
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 seq_t a(idx_t n)
 {
     idx_t count = 0;
     for (idx_t m = 1; ; ++m) {
         uint64_t val = 7ull * (uint64_t)m - 4ull;
-        if (!is_prime_small(val)) {
+        if (!is_prime_seq(val)) {
             ++count;
             if (count == n)
                 return (seq_t)m;

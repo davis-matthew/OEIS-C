@@ -9,7 +9,8 @@
  *            number of 0's and 3's
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static cache of the sequence values */
 static seq_t *cache = NULL;   /* array of the found terms */
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     /* Allocate initial cache space if needed. */
     if (cache == NULL) {
         cache_cap = 256;
-        cache = (seq_t*)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* Main loop: keep searching until we have at least n values. */
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
             /* Ensure the cache array has room. */
             if (cache_len == cache_cap) {
                 cache_cap *= 2;
-                cache = (seq_t*)realloc(cache, sizeof(seq_t) * cache_cap);
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len] = val;
             ++cache_len;

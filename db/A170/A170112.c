@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* number of generators */
 #define GEN 7
@@ -92,7 +94,7 @@ static void ensure_cache(idx_t need)
     if (need + 1 <= a_cache_size)
         return;
 
-    seq_t *new_cache = (seq_t *)realloc(a_cache, (need + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, a_cache, (need + 1));
     if (!new_cache)
         exit(1); /* memory failure */
 
@@ -118,12 +120,12 @@ seq_t a(idx_t n)
         a_cache[0] = 1;
 
         /* allocate DP arrays */
-        dp_cur  = (seq_t *)malloc(STATE_COUNT * sizeof(seq_t));
-        dp_next = (seq_t *)malloc(STATE_COUNT * sizeof(seq_t));
+        dp_cur  = mem_new(seq_t, STATE_COUNT);
+        dp_next = mem_new(seq_t, STATE_COUNT);
         if (!dp_cur || !dp_next)
             exit(1);
-        memset(dp_cur, 0, STATE_COUNT * sizeof(seq_t));
-        memset(dp_next, 0, STATE_COUNT * sizeof(seq_t));
+        mem_set(dp_cur, 0, STATE_COUNT * sizeof(seq_t));
+        mem_set(dp_next, 0, STATE_COUNT * sizeof(seq_t));
     }
 
     /* extend cache if required */
@@ -137,7 +139,7 @@ seq_t a(idx_t n)
     /* compute missing terms up to n */
     while (dp_cur_len < n) {
         /* clear next layer */
-        memset(dp_next, 0, STATE_COUNT * sizeof(seq_t));
+        mem_set(dp_next, 0, STATE_COUNT * sizeof(seq_t));
 
         if (dp_cur_len == 0) {
             /* initialize for length 1: words of single generator */

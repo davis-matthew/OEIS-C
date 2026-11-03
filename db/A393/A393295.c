@@ -9,12 +9,14 @@
  *            C(n,0)+C(n,1)+9*C(n,2)+49*C(n,3)+128*C(n,4)+180*C(n,5)+120*C(n,6)
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /*          = (1/6)*(n^6 - 6*n^5 + 27*n^4 - 53*n^3 + 56*n^2 - 19*n + 6) */
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

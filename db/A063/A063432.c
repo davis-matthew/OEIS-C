@@ -12,13 +12,25 @@
  *            finds r and k from n * using the triangular num...
  * Range:     u8 n <= 6, u16 n <= 15, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   pow10_of_uint64
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow10_of_uint64.h"
+
+static seq_t pow10_of_uint64(uint64_t d)
+{
+    seq_t p = 1;
+    if (d == 0) return (seq_t)10;
+    while (d)
+    {
+        p *= (seq_t)10;
+        d /= 10;
+    }
+    return p;
+}
 
 seq_t a(idx_t n)
 {

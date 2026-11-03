@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 7, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   add_distinct, passes_weak_carmichael
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,31 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/add_distinct.h"
-#include "../utils/passes_weak_carmichael.h"
+#include "../utils/mem.h"
+
+/* ---------- distinct prime factorisation of small numbers ---------- */
+static void add_distinct(uint64_t p, uint64_t *arr, size_t *cnt)
+{
+    for (size_t i = 0; i < *cnt; ++i)
+        if (arr[i] == p) return;
+    arr[(*cnt)++] = p;
+}
+
+/* ---------- weak Carmichael test ---------- */
+static bool passes_weak_carmichael(uint64_t A, uint64_t B, uint64_t C,
+                                   const uint64_t *primes, size_t prcnt)
+{
+    for (size_t i = 0; i < prcnt; ++i) {
+        uint64_t p = primes[i];
+        uint64_t mod = p - 1;
+        uint64_t prod_mod = 1 % mod;          /* modulo arithmetic */
+        prod_mod = (prod_mod * (A % mod)) % mod;
+        prod_mod = (prod_mod * (B % mod)) % mod;
+        prod_mod = (prod_mod * (C % mod)) % mod;
+        if (prod_mod != 1) return false;
+    }
+    return true;
+}
 
 /* Ensure the following helper prototypes exist according to the build:
    idx_t  -- unsigned 64‑bit integer type
@@ -103,7 +127,7 @@ static void ensure_seq_cap(size_t needed)
     if (needed <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap << 1 : 16;
     while (new_cap < needed) new_cap <<= 1;
-    seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_cache = mem_resize(seq_t, seq_cache, new_cap);
     seq_cap = new_cap;
 }
 

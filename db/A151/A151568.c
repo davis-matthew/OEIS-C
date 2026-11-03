@@ -7,13 +7,16 @@
  * Formula:   a(0)=1, a(1)=1; a(2^i + j) = 2*a(j) + a(j+1) for 0 ≤ j < 2^i
  * Range:     u8 n <= 61, u16 n <= 4087, u32 n <= 8191, u64 n <= 8191,
  *            u128 n <= 8191, big any n
- * Helpers:   floor_log2_uint64
+ * Validated: standard, pass, 89 terms through n = 8129 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/ilog2.h"
 
 #ifdef __cplusplus
 #include <vector>
@@ -44,7 +47,7 @@ seq_t a(idx_t n) {
 
     ensure_cache(n);
     for (idx_t i = max_calculated + 1; i <= n; ++i) {
-        idx_t p = ((idx_t)1) << floor_log2_uint64(i);
+        idx_t p = ((idx_t)1) << ilog2(i);
         idx_t j = i - p;
         cache_vec[i] = 2 * cache_vec[j] + cache_vec[j + 1];
     }
@@ -71,7 +74,7 @@ seq_t a(idx_t n) {
     }
 
     for (idx_t i = max_calculated + 1; i <= n; ++i) {
-        idx_t p = ((idx_t)1) << floor_log2_uint64(i);
+        idx_t p = ((idx_t)1) << ilog2(i);
         idx_t j = i - p;
         cache[i] = 2 * cache[j] + cache[j + 1];
     }

@@ -10,6 +10,7 @@
  *            determinant n
  * Range:     u8 n <= 11, u16 n <= 143, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
+ * Validated: standard, pass, 62 terms through n = 1961 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

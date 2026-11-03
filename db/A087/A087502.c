@@ -8,7 +8,8 @@
  * Formula:   a(n) = min{ x*(n^d-1)/(2n-1) | d>1, 1<x<n }
  * Range:     u8 n <= 5, u16 n <= 5, u32 n <= 6, u64 n <= 14, u128 n <= 18,
  *            big any n
- * Helpers:   gcd64
+ * Validated: standard, pass, 34 terms through n = 217 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/gcd64.h"
+#include "../utils/gcd_u64.h"
 
 /* Euclidean gcd for 64‑bit unsigned integers. */
 
@@ -47,7 +48,7 @@ seq_t a(idx_t n)
         uint64_t rem = (mod_pow + target - 1ULL) % target;
 
         /* g = gcd(target, n^d – 1). */
-        uint64_t g = gcd64(target, rem);
+        uint64_t g = gcd_u64(target, rem);
 
         /* k = target / g. */
         uint64_t k = target / g;

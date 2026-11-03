@@ -10,15 +10,17 @@
  *            e4(i)*e4(n-i), e4 = eta^4 coefficients
  * Range:     i8 n <= 8, i16 n <= 185, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 7717 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
-    seq_t *e4 = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *e4 = mem_new(seq_t, (size_t)(n + 1));
     idx_t i, m, j;
     seq_t result;
     for (i = 0; i <= n; i++) e4[i] = 0;
@@ -43,6 +45,6 @@ seq_t a(idx_t n) {
         if (e4[i] != 0 && e4[n - i] != 0)
             result += e4[i] * e4[n - i];
     }
-    free(e4);
+    mem_free(e4);
     return result;
 }

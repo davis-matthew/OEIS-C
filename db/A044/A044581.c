@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   has15
+ * Validated: standard, pass, 62 terms through n = 977 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,30 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/has15.h"
+#include "../utils/mem.h"
+
+/* Return true if v in base 8 contains the substring 15. */
+static bool has15(seq_t v)
+{
+    if (v == (seq_t)0)
+        return false;
+
+    /* Store the octal digits (least significant first). */
+    uint8_t digits[64];          /* 64 digits suffice for 128‑bit values. */
+    int pos = 0;
+    seq_t t = v;
+    while (t != (seq_t)0) {
+        digits[pos++] = (uint8_t)(t % (seq_t)8);
+        t = t / (seq_t)8;
+    }
+
+    /* Scan from most significant digit to least. */
+    for (int i = pos - 1; i > 0; --i) {
+        if (digits[i] == 1 && digits[i - 1] == 5)
+            return true;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -32,7 +56,7 @@ seq_t a(idx_t n)
     /* Initialise the cache on first call. */
     if (cache == NULL) {
         cap   = 32;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (cache == NULL)
             exit(EXIT_FAILURE);
     }
@@ -42,7 +66,7 @@ seq_t a(idx_t n)
         /* Grow capacity if necessary. */
         if (len + 1 > cap) {
             size_t new_cap = cap * 2;
-            seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
             if (new_cache == NULL)
                 exit(EXIT_FAILURE);
             cache = new_cache;

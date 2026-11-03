@@ -11,7 +11,8 @@
  *            lcm(2,3,5,7)=210. Results are cached for repeated calls
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 20, u64 n <= 41, u128 n <= 82,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 192 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #ifndef MOD
 #define MOD 210   /* lcm(2,3,5,7) */
 #endif
+#include "../utils/mem.h"
 
 /* static tables for dynamic programming */
 static bool allowed[MOD];
@@ -54,7 +56,7 @@ static void ensure_cache(idx_t n)
     size_t new_size = cache_size ? cache_size << 1 : 64;
     while (new_size < need)
         new_size <<= 1;
-    seq_t *tmp = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_size);
     if (!tmp) exit(1);                    /* out of memory */
     cache = tmp;
     cache_size = new_size;

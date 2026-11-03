@@ -10,13 +10,15 @@
  *            14 : a(n) = 2*a(n-4) + a(n-12)
  * Range:     u8 n <= 31, u16 n <= 60, u32 n <= 116, u64 n <= 228,
  *            u128 n <= 452, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 941 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,12 +31,12 @@ seq_t a(idx_t n)
 
     /* grow cache if necessary */
     if (cap < n) {
-        seq_t *newp = (seq_t *)malloc(n * sizeof(seq_t));
+        seq_t *newp = mem_new(seq_t, n);
         if (!newp) { /* allocation failure */ return 0; }
         if (cache) {
             /* copy previous data */
-            memcpy(newp, cache, last_filled * sizeof(seq_t));
-            free(cache);
+            mem_copy(newp, cache, last_filled * sizeof(seq_t));
+            mem_free(cache);
         }
         cache = newp;
         cap   = n;

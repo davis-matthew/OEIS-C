@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 18, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 180 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    per new n.  */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Transition table: trans[prev][cur] == true iff a row 'cur' may
@@ -89,7 +91,7 @@ static void ensure_up_to(idx_t target_n)
     /* Resize cache if needed. */
     if (a_cache == NULL || a_cache_len < target_n + 1) {
         size_t new_len = (size_t)(target_n + 1);
-        seq_t *tmp = (seq_t *)realloc(a_cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_len);
         if (!tmp)
             abort();                 /* out of memory; terminate */
         a_cache = tmp;

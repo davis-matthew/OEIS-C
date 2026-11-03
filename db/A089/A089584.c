@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 40, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   get_digits_rev, interpret_in_base
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,36 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/get_digits_rev.h"
-#include "../utils/interpret_in_base.h"
+#include "../utils/mem.h"
+
+/* Helper: set of digits of x in reverse order, return length and maximum digit.
+   Returns true if digit 9 was found. */
+static bool get_digits_rev(seq_t x, unsigned char *dets, size_t *len, unsigned char *max_digit)
+{
+    size_t i = 0;
+    unsigned char maxd = 0;
+    bool has9 = false;
+    while (x > 0) {
+        unsigned char dig = (unsigned char)(x % 10);
+        if (dig == 9) { has9 = true; }
+        if (dig > maxd) maxd = dig;
+        dets[i++] = dig;
+        x /= 10;
+    }
+    *len = i;
+    *max_digit = maxd;
+    return has9;
+}
+
+/* Helper: interpret digits (most significant last) in given base. */
+static seq_t interpret_in_base(const unsigned char *digits, size_t len, seq_t base)
+{
+    seq_t val = 0;
+    for (size_t i = len; i-- > 0;) {
+        val = val * base + digits[i];
+    }
+    return val;
+}
 
 /* Main sequence function. */
 seq_t a(idx_t n)
@@ -38,7 +67,7 @@ seq_t a(idx_t n)
         /* Grow cache if needed. */
         if (terms_cap == 0) {
             terms_cap = 32;
-            terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+            terms = mem_new(seq_t, terms_cap);
         }
         /* Search until we have enough terms. */
         unsigned char digits[64];
@@ -57,7 +86,7 @@ seq_t a(idx_t n)
                 /* Store term. */
                 if (terms_cnt == terms_cap) {
                     terms_cap *= 2;
-                    terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                    terms = mem_resize(seq_t, terms, terms_cap);
                 }
                 terms[terms_cnt++] = candidate;
             }

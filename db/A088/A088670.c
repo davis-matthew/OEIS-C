@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 n <= 103, u16 n <= 2316, u32 n <= 9165, u64 n <= 9165,
- *            u128 n <= 9165, big any n
- * Helpers:   none
+ * Range:     u8 n <= 103, u16 n <= 2316, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 86 terms through n = 9165 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,11 +20,12 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate the DP table */
-    seq_t *dp = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1));
     if (!dp) return 0;
     for (size_t i = 1; i <= n; ++i) dp[i] = 0;
     dp[0] = 1;                     /* empty sum is a valid partition of 0 */
@@ -33,8 +35,8 @@ seq_t a(idx_t n)
     idx_t tmp = n;
     do { ++digits; tmp /= 10; } while (tmp);
     size_t rep_cap = 9 * digits + 1;          /* +1 just to be safe */
-    seq_t *rep = (seq_t *)malloc(rep_cap * sizeof(seq_t));
-    if (!rep) { free(dp); return 0; }
+    seq_t *rep = mem_new(seq_t, rep_cap);
+    if (!rep) { mem_free(dp); return 0; }
     size_t repcnt = 0;
 
     /* Generate all repdigits ≤ n */
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[(size_t)n];
-    free(dp);
-    free(rep);
+    mem_free(dp);
+    mem_free(rep);
     return result;
 }

@@ -10,16 +10,25 @@
  *            (4^(n+1)-2)/(2n+2)!
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 5, u64 n <= 10, u128 n <= 14,
  *            big any n
- * Helpers:   build_primes, mod_pow, seq_mul, seq_pow
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-01)
+ * Helpers:   build_primes, ipow_idx, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+#include <stdbool.h>
+#include <stddef.h>
 #include "../utils/build_primes.h"
-#include "../utils/mod_pow.h"
-#include "../utils/seq_mul.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/powmod.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -56,13 +65,13 @@ seq_t a(idx_t n)
         } else {
             /* Check if p divides 2^(2n+1)-1 */
             seq_t modp = (seq_t)p;
-            seq_t rem = mod_pow((seq_t)2, (idx_t)(2 * n + 1), modp);
+            seq_t rem = powmod((seq_t)2, (idx_t)(2 * n + 1), modp);
             if (rem == 1) {
                 /* Find largest k such that p^k | (2^(2n+1)-1) */
                 idx_t k = 1;
                 seq_t pk = modp;            /* p^k */
                 while (1) {
-                    seq_t r = mod_pow((seq_t)2, (idx_t)(2 * n + 1), pk);
+                    seq_t r = powmod((seq_t)2, (idx_t)(2 * n + 1), pk);
                     if (r != 1) break;
                     ++k;
                     pk = seq_mul(pk, modp); /* pk *= p   */
@@ -74,7 +83,7 @@ seq_t a(idx_t n)
         /* Remaining exponent to keep in the denominator */
         if (v_fact > v_num) {
             idx_t exp = v_fact - v_num;
-            seq_t part = seq_pow((seq_t)p, exp);
+            seq_t part = ipow_idx((seq_t)p, exp);
             denom = seq_mul(denom, part);
         }
     }

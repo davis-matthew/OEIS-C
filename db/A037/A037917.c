@@ -9,7 +9,8 @@
  *            by a non‑trivial square
  * Range:     u8 none, u16 n <= 2, u32 n <= 328, u64 n <= 328, u128 n <= 328,
  *            big any n
- * Helpers:   rank_of_prime
+ * Validated: standard, pass, 72 terms through n = 326 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,19 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/rank_of_prime.h"
+#include "../utils/mem.h"
+
+/* Compute the rank of apparition (smallest k such that p | F_k).  p > 1 is prime. */
+static uint32_t rank_of_prime(uint32_t p) {
+    uint32_t a = 0; // F_0
+    uint32_t b = 1; // F_1
+    for (uint32_t k = 1;; ++k) {
+        if (b == 0) return k;
+        uint32_t c = (a + b) % p;
+        a = b;
+        b = c;
+    }
+}
 
 /* Helper structures for a binary min‑heap */
 typedef struct {
@@ -38,11 +51,11 @@ typedef struct {
 static void heap_init(heap_t *h, size_t cap) {
     h->capacity = cap;
     h->size = 0;
-    h->data = (node_t*)malloc((cap + 1) * sizeof(node_t));
+    h->data = mem_new(node_t, (cap + 1));
 }
 
 static void heap_free(heap_t *h) {
-    free(h->data);
+    mem_free(h->data);
 }
 
 static void heap_swap(node_t *a, node_t *b) {
@@ -113,7 +126,7 @@ static void ensure_initialized(void) {
     /* Primes up to 20000 are sufficient for our n range. */
     uint32_t MAX_PRIME = 20000;
     sieve_primes(MAX_PRIME, &global_primes, &global_prime_count);
-    global_steps = (seq_t*)malloc(global_prime_count * sizeof(seq_t));
+    global_steps = mem_new(seq_t, global_prime_count);
     for (size_t i = 0; i < global_prime_count; ++i) {
         uint32_t p = global_primes[i];
         uint32_t k = rank_of_prime(p);

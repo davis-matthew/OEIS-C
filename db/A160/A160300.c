@@ -7,12 +7,14 @@
  * Formula:   a(n+2) = 4*a(n+1) - 1922*(n+1)*a(n), a(0) = 1, a(1) = 4
  * Range:     i8 n <= 1, i16 n <= 3, i32 n <= 5, i64 n <= 9, i128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 315 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     /* Initialisation – fill first two terms */
     if (cache == NULL) {
         cache_sz = 2;
-        cache    = (seq_t *)malloc(cache_sz * sizeof(seq_t));
+        cache    = mem_new(seq_t, cache_sz);
         if (!cache) return 0;          /* malloc failure – return 0 */
         cache[0] = 1;
         cache[1] = 4;
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* Grow cache to required length if necessary */
     if ((size_t)n >= cache_sz) {
         size_t new_sz = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_sz * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_sz);
         if (!tmp) return cache[cache_sz-1];     /* leave cache unchanged on failure */
         cache    = tmp;
         cache_sz = new_sz;

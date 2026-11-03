@@ -10,7 +10,8 @@
  *            lexicographically
  * Range:     u8 n <= 65, u16 n <= 913, u32 n <= 2713, u64 n <= 2713,
  *            u128 n <= 2713, big any n
- * Helpers:   none
+ * Validated: standard, pass, 113 terms through n = 2425 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ---- Partition representation ---- */
 typedef struct {
@@ -41,7 +43,7 @@ static bool initialized = false;
 static void ensure_cache_cap(void) {
     if (cache_len < cache_cap) return;
     cache_cap = (cache_cap == 0) ? 256 : (cache_cap << 1);
-    cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, cache_cap);
 }
 
 /* ---- Generate enough primes up to a given limit ---- */
@@ -64,7 +66,7 @@ static void generate_primes_up_to(size_t limit) {
     for (size_t i = 2; i <= limit; ++i)
         if (is_prime[i]) ++prime_cnt;
 
-    prime_vals = (seq_t *)malloc((prime_cnt + 1) * sizeof(seq_t));
+    prime_vals = mem_new(seq_t, (prime_cnt + 1));
     prime_vals[0] = 0; /* unused */
     size_t idx = 1;
     for (size_t i = 2; i <= limit; ++i)

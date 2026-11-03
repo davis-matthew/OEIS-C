@@ -9,13 +9,15 @@
  *            contains the same nonzero number of 5’s and 6’s
  * Range:     u8 n <= 4, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Ensure the cache has space for at least 'needed' elements. */
 static void ensure_capacity(idx_t needed, idx_t *cap, seq_t **ptr)
@@ -23,8 +25,7 @@ static void ensure_capacity(idx_t needed, idx_t *cap, seq_t **ptr)
     if (needed <= *cap) return;
     idx_t new_cap = (*cap == 0) ? 16 : (*cap << 1);
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(*ptr,
-                                  (size_t)new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *ptr, (size_t)new_cap);
     *ptr = tmp;
     *cap = new_cap;
 }

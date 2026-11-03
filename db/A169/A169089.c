@@ -12,12 +12,14 @@
  *            1)/(351*t^25 – 26*t^24 – … – 26*t + 1...
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* for calloc, free */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
 
     /* Allocate space for a[0..n] */
     size_t len = (size_t)n + 1;
-    seq_t *v = (seq_t *)calloc(len, sizeof(seq_t));
+    seq_t *v = mem_new(seq_t, len);
     if (!v) return (seq_t)0;   /* out of memory – should not happen */
 
     v[0] = (seq_t)1;              /* a(0) */
@@ -57,6 +59,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = v[n];
-    free(v);
+    mem_free(v);
     return result;
 }

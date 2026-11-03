@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* memoized values of a(n)           */
 static idx_t cache_cap = 0;      /* allocated cache capacity (size)    */
@@ -33,7 +35,7 @@ static void ensure_cache(idx_t n)
     if (cache_cap <= n) {
         idx_t new_cap = cache_cap == 0 ? 1 : cache_cap;
         while (new_cap <= n) new_cap <<= 1;
-        seq_t *new_buf = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_buf = mem_resize(seq_t, cache, new_cap);
         if (!new_buf) abort();            /* Out of memory – stop */
         cache = new_buf;
         cache_cap = new_cap;

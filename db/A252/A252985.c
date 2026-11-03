@@ -12,12 +12,14 @@
  *            calculation
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 13, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 616 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* initialise the first five terms */
     if (cache == NULL) {
         /* Allocate space for 5 terms. Use explicit cast for C++. */
-        cache = (seq_t*)malloc(5 * sizeof(seq_t));
+        cache = mem_new(seq_t, 5);
         if (cache == NULL) return (seq_t)0;          /* allocation error */
         cache[0] = (seq_t)1;       /* a(1) */
         cache[1] = (seq_t)579;     /* a(2) */
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
             while (new_cap < target)
                 new_cap = new_cap*2;
             /* Reallocate with explicit cast. */
-            seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (tmp == NULL) return (seq_t)0;   /* allocation error */
             cache = tmp;
             cap   = new_cap;

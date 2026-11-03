@@ -7,11 +7,13 @@
  * Formula:   a(n) = coefficient of q^n in product_{m>=1}(1 + m*q^m)^13
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 14, u64 n <= 38, u128 n <= 105,
  *            big any n
+ * Validated: standard, pass, 42 terms through n = 876 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /* This implementation uses dynamic programming.  For each m (1≤m≤n)
    we convolve the current sequence with the polynomial
    (1 + m*q^m)^13 = Σ_{k=0}^{13} C(13,k) * m^k * q^{m*k}.  */

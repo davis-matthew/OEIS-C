@@ -11,7 +11,8 @@
  *            arithmetic in seq_t. The implementation keeps an array...
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    facilities; seq_t and idx_t are defined by the build system. */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static storage for partition values. */
 static seq_t *partitions = NULL;
@@ -33,9 +35,9 @@ static void ensure_parts_cap(idx_t n)
     if (parts_cap < need) {
         parts_cap = need;
         if (partitions == NULL) {
-            partitions = (seq_t *)malloc(parts_cap * sizeof(seq_t));
+            partitions = mem_new(seq_t, parts_cap);
         } else {
-            partitions = (seq_t *)realloc(partitions, parts_cap * sizeof(seq_t));
+            partitions = mem_resize(seq_t, partitions, parts_cap);
         }
     }
 }

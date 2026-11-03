@@ -7,13 +7,17 @@
  * Formula:   a(n) = #{d | n : d^d + d ≡ 0 (mod n)}
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -23,14 +27,14 @@ seq_t a(idx_t n)
         if (n % d == 0)
         {
             seq_t val = (seq_t)d;
-            if ((mod_pow(val, (uint64_t)d, (seq_t)n) + val) % (seq_t)n == 0)
+            if ((powmod(val, (uint64_t)d, (seq_t)n) + val) % (seq_t)n == 0)
                 ++count;
 
             idx_t d2 = n / d;
             if (d2 != d)
             {
                 seq_t val2 = (seq_t)d2;
-                if ((mod_pow(val2, (uint64_t)d2, (seq_t)n) + val2) % (seq_t)n == 0)
+                if ((powmod(val2, (uint64_t)d2, (seq_t)n) + val2) % (seq_t)n == 0)
                     ++count;
             }
         }

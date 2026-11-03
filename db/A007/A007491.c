@@ -7,19 +7,21 @@
  * Formula:   a(n) = smallest prime > n^2
  * Range:     u8 n <= 15, u16 n <= 255, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 66 terms through n = 9499 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/is_prime.h"
+#include <stdbool.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
     seq_t n_squared = (seq_t)n * (seq_t)n;
     seq_t candidate = n_squared + 1;
     
-    while (!is_prime((uint64_t)candidate)) {
+    while (!is_prime_u64((uint64_t)candidate)) {
         candidate++;
     }
     

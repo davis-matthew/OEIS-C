@@ -8,7 +8,8 @@
  *            order)
  * Range:     u8 n <= 8, u16 n <= 8, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 8 terms through n = 8 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static int cmp_seq(const void *p1, const void *p2)
 {
@@ -47,7 +49,7 @@ static seq_t *init_divisors(void)
     }
 
     /* ensure ascending order */
-    qsort(divisors, idx, sizeof(seq_t), cmp_seq);
+    mem_qsort(divisors, idx, sizeof(seq_t), cmp_seq);
     inited = true;
     return divisors;
 }

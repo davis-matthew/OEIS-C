@@ -8,6 +8,7 @@
  * Formula:   a(n) = |{ k ≤ n : ∃ prime p, m ≥ 1 such that k = p² + m² }|
  * Range:     u8 n <= 1452, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 96 terms through n = 9978 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

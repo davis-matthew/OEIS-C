@@ -7,7 +7,8 @@
  * Formula:   a(n) = coefficient of x^n in ∏_{k≥1} 1/(1 - (5k-3)x^{5k-3})
  * Range:     u8 n <= 15, u16 n <= 31, u32 n <= 61, u64 n <= 125,
  *            u128 n <= 253, big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 4774 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,14 +17,15 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate array for 0 … n */
-    seq_t *dp = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (n + 1));
     if (!dp) return 0;                       /* allocation failure */
 
-    memset(dp, 0, (n + 1) * sizeof(seq_t));
+    mem_set(dp, 0, (n + 1) * sizeof(seq_t));
     dp[0] = 1;                                /* empty partition */
 
     /* Iterate over all allowed part sizes m = 5k-3 */
@@ -36,6 +38,6 @@ seq_t a(idx_t n)
     }
 
     seq_t ans = dp[n];
-    free(dp);
+    mem_free(dp);
     return ans;
 }

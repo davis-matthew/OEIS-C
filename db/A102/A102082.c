@@ -7,15 +7,26 @@
  * Keywords:  nonn, word
  * Formula:   a(n) = number of times the n‑th letter of an infinitely
  *            repeating alphabet appears in the US English name for n
- * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
- *            big any n
- * Helpers:   count_in_word
+ * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 103 terms through n = 9937 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/count_in_word.h"
+
+/* Count occurrences of a given letter in a single word. */
+static seq_t count_in_word(const char *word, char target)
+{
+    seq_t cnt = 0;
+    while (*word) {
+        if (*word == target) ++cnt;
+        ++word;
+    }
+    return cnt;
+}
 
 /* Static tables of English words for numbers. */
 static const char *const unit_words[20] = {

@@ -8,13 +8,14 @@
  *            2*(n+1)*(2*n+3)/((n+7)*(n-3)) * a(n), a(4) = 1
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 18, u64 n <= 34, u128 n <= 67,
  *            big any n
- * Helpers:   a3519_gcd
+ * Validated: standard, pass, 41 terms through n = 1232 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a3519_gcd.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n) {
     seq_t result = 1;
@@ -23,7 +24,7 @@ seq_t a(idx_t n) {
     for (i = 4; i < n; i++) {
         uint64_t num = 2 * ((uint64_t)i + 1) * (2 * (uint64_t)i + 3);
         uint64_t den = ((uint64_t)i + 7) * ((uint64_t)i - 3);
-        uint64_t g = a3519_gcd(num, den);
+        uint64_t g = gcd_u64(num, den);
         num /= g;
         den /= g;
         /* den is coprime to num, so it divides result exactly */

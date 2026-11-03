@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64
+ * Validated: standard, pass, 68 terms through n = 8343 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
    Calculation is performed by brute‑force search. */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
 
 /* Return true iff exactly five iterations of the divisor count function
    produce the value 2, with no earlier iteration reaching 2. */
@@ -27,7 +28,7 @@ static inline bool is_depth5(uint64_t n)
     uint64_t cur = n;
     for (int d = 1; d <= 5; ++d)
     {
-        cur = divisor_count_u64(cur);
+        cur = num_divisors(cur);
         if (cur == 2)
             return d == 5;          /* true only if reached at depth 5 */
     }

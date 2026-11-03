@@ -7,12 +7,14 @@
  * Formula:   continued fraction coefficients for sqrt(266)
  * Range:     u8 n <= 83, u16 n <= 83, u32 n <= 83, u64 n <= 83, u128 n <= 83,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 84 terms through n = 83 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute the n-th element of A040249 (continued fraction coefficients for √266) */
 seq_t a(idx_t n) {
@@ -30,7 +32,7 @@ seq_t a(idx_t n) {
 
         /* Dynamic array for the period terms */
         size_t cap = 16;
-        period = (seq_t*)malloc(cap * sizeof(seq_t));
+        period = mem_new(seq_t, cap);
         period_len = 0;
 
         /* Generate the period until we hit the terminating term 2*a0 = 32 */
@@ -43,7 +45,7 @@ seq_t a(idx_t n) {
             /* Store the new term in the period array */
             if (period_len >= cap) {
                 cap <<= 1; /* double capacity */
-                period = (seq_t*)realloc(period, cap * sizeof(seq_t));
+                period = mem_resize(seq_t, period, cap);
             }
             period[period_len++] = (seq_t)a;
 

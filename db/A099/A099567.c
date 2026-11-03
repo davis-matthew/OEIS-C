@@ -8,15 +8,17 @@
  *            ∑_{j=0..⌊n/3⌋} binomial(n-2j, k+j). The sequence enumerates the
  *            triangle row‑wise: a(0)=T(0,0), a(1)=T(1,0), a(2)=T(1,1),
  *            a(3)=T(2,0), …
- * Range:     u8 n <= 39, u16 n <= 163, u32 n <= 643, u64 n <= 1325,
+ * Range:     u8 n <= 58, u16 n <= 196, u32 n <= 644, u64 n <= 1325,
  *            u128 n <= 1325, big any n
+ * Validated: standard, pass, 94 terms through n = 1314 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>                     /* for sqrt() to locate the row */
-#include "../utils/binomial.h"        /* provides seq_t binomial(idx_t a, idx_t b) */
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 9, i16 n <= 20, i32 n <= 65, i64 n <= 171, i128 n <= 527,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 7657 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    r = ⌊(√(8n+1)-1)/2⌋ and offset = n - r(r+1)/2. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* integer square root for 64‑bit unsigned integers */
 static inline idx_t isqrt_u64(idx_t n)
@@ -48,13 +50,13 @@ seq_t a(idx_t n)
     idx_t offset = n - sum_before;              /* 0 ≤ offset ≤ r */
 
     /* base row 0 */
-    seq_t *prev = (seq_t *)malloc(sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, 1);
     prev[0] = 1;
 
     /* build rows up to r */
     for (idx_t i = 1; i <= r; ++i) {
         idx_t cur_len = i + 1;
-        seq_t *cur = (seq_t *)calloc(cur_len, sizeof(seq_t));
+        seq_t *cur = mem_new(seq_t, cur_len);
         seq_t factor = (seq_t)(i + 3);
 
         /* first element */
@@ -67,11 +69,11 @@ seq_t a(idx_t n)
         /* last element is always 1 */
         cur[i] = prev[i - 1];
 
-        free(prev);
+        mem_free(prev);
         prev = cur;
     }
 
     seq_t result = prev[offset];
-    free(prev);
+    mem_free(prev);
     return result;
 }

@@ -8,6 +8,7 @@
  * Formula:   a(n) = ∏_{p^e‖n, e mod 3 ≠ 0} p³
  * Range:     u8 n <= 6, u16 n <= 40, u32 n <= 1625, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 60 terms through n = 9549 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

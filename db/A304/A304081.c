@@ -11,14 +11,16 @@
  *            squarefree
  * Range:     u8 n <= 667, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_small, is_squarefree
+ * Validated: standard, pass, 106 terms through n = 9982 (2026-11-01)
+ * Helpers:   is_prime_seq, is_squarefree
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include <stdlib.h>
+#include "../utils/is_prime_seq.h"
 #include "../utils/is_squarefree.h"
 
 seq_t a(idx_t n) {
@@ -42,7 +44,7 @@ seq_t a(idx_t n) {
             if (!is_squarefree((seq_t)sum)) continue;
 
             uint64_t p = N - sum;
-            if (p > 2ULL && (p & 1ULL) && is_prime_small((seq_t)p))
+            if (p > 2ULL && (p & 1ULL) && is_prime_seq((seq_t)p))
                 ++count;
         }
     }

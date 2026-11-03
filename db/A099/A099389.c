@@ -10,7 +10,8 @@
  *            generates primes on demand and counts the primes among the b(k)
  * Range:     u8 n <= 23, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 864 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *prime_list = NULL;
 static size_t prime_cap = 0;
@@ -27,7 +29,7 @@ static size_t prime_cnt = 0;
 static void add_prime(seq_t p) {
     if (prime_cnt >= prime_cap) {
         size_t new_cap = prime_cap == 0 ? 16 : prime_cap * 2;
-        seq_t *new_list = (seq_t *)realloc(prime_list, new_cap * sizeof(seq_t));
+        seq_t *new_list = mem_resize(seq_t, prime_list, new_cap);
         if (!new_list) abort();
         prime_list = new_list;
         prime_cap = new_cap;

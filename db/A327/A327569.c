@@ -10,15 +10,19 @@
  *            coprime m, n: a(m·n) = lcm(a(m), a(n))
  * Range:     u8 n <= 10, u16 n <= 52, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   factor_u64, gcd, pow_uint
+ * Validated: standard, pass, 72 terms through n = 98 (2026-11-01)
+ * Helpers:   factor_u64, gcd, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/gcd.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_uint.h"
+#include "../utils/gcd.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n) {
     if (n == (idx_t)1) {
@@ -40,12 +44,12 @@ seq_t a(idx_t n) {
 
         if (p == (seq_t)2) {
             /* a(2^e) = 3 * 2^e. */
-            val = (seq_t)3 * pow_uint((uint64_t)2, e);
+            val = (seq_t)3 * ipow_u64_idx((uint64_t)2, e);
         } else {
             /* a(p^e) = ((p^2 - 1) * p^e) / 2. */
             seq_t square = p * p;
             seq_t term   = square - (seq_t)1;
-            seq_t power  = pow_uint((uint64_t)p, e);
+            seq_t power  = ipow_u64_idx((uint64_t)p, e);
             val = (term * power) / (seq_t)2;
         }
 

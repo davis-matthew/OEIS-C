@@ -9,9 +9,10 @@
  *            p(m)=number of partitions of m, * U(m,k)=U(m-k,k)+p(m-k) with
  *            U(0,k)=0. * Then a(n) = p(r-1) if k==1, otherwise
  *            U(r,k)-U(r-1,k)
- * Range:     u8 n <= 153, u16 n <= 990, u32 n <= 8256, u64 n <= 9906,
- *            u128 n <= 9906, big any n
- * Helpers:   none
+ * Range:     u8 n <= 153, u16 n <= 990, u32 n <= 8256, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 94 terms through n = 9906 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* find the smallest r such that r*(r+1)/2 >= n */
 static idx_t find_row(idx_t n)
@@ -41,7 +43,7 @@ static idx_t max_pre = 0;
 static void recompute_partitions(idx_t limit)
 {
     if (limit <= max_pre) return;
-    partitions = (seq_t*)realloc(partitions, (limit + 1) * sizeof(seq_t));
+    partitions = mem_resize(seq_t, partitions, (limit + 1));
     for (idx_t i = 0; i <= limit; ++i) partitions[i] = 0;
     partitions[0] = 1;
     for (idx_t part = 1; part <= limit; ++part) {

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 34, u16 n <= 930, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64
+ * Validated: standard, pass, 76 terms through n = 9589 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 
 /* Needed for the divisor-count utility */
 #include <stdint.h>
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +30,7 @@ seq_t a(idx_t n)
     idx_t k = 1;
     while (1) {
         uint64_t m = (uint64_t)n * k;           /* current multiple of n */
-        uint64_t d = divisor_count_u64(m);       /* number of divisors of m */
+        uint64_t d = num_divisors(m);       /* number of divisors of m */
 
         if (m % d == 0) {
             return (seq_t)m;                     /* fits in seq_t for all test cases */

@@ -10,13 +10,15 @@
  *            polynomials u(r,x). The j‑th coefficient in row r (0‑based)
  *            equals C(r+1, 2j+2). The row lengths follow 1,1,2,2,3,3,…, i.e.
  *            len(row) = (row+1)/2. The function converts the globa...
- * Range:     u8 n <= 13, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
+ * Range:     u8 n <= 26, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

@@ -8,6 +8,7 @@
  * Formula:   a(n) = a(n-1) + 3*a(n-2) - 3*(-1)^n, a(1)=a(2)=1
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 27, u64 n <= 54, u128 n <= 107,
  *            big any n
+ * Validated: standard, pass, 46 terms through n = 972 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

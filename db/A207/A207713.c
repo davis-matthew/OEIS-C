@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 12, u64 n <= 24, u128 n <= 49,
  *            big any n
- * Helpers:   vert_ok
+ * Validated: standard, pass, 36 terms through n = 209 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,20 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/vert_ok.h"
+
+static inline bool vert_ok(uint8_t r1, uint8_t r2, uint8_t r3)
+{
+    /* r1 = upper row, r2 = middle, r3 = lower */
+    for (int col = 0; col < 4; ++col) {
+        uint8_t a = (r1 >> col) & 1;
+        uint8_t b = (r2 >> col) & 1;
+        uint8_t c = (r3 >> col) & 1;
+        uint8_t bits = (a << 2) | (b << 1) | c;
+        if (bits == 0x1 || bits == 0x4)            /* 001 or 100 */
+            return false;
+    }
+    return true;
+}
 
 /* ------------------ global tables ------------------ */
 static uint8_t horiz_ok[16];               /* 1 if a 4‑bit row is horizontal‑valid */

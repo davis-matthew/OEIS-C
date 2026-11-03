@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 165, u16 n <= 789, u32 n <= 5303, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 107 terms through n = 9573 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* The recurrence is the classic partition DP using allowed parts
    p(k) = k*(k+1)^2*(k+2)/12 (k >= 1). */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *dp = NULL;
@@ -26,7 +28,7 @@ seq_t a(idx_t n) {
         idx_t new_n = n;
 
         /* Allocate new DP array and zero it */
-        seq_t *new_dp = (seq_t*)malloc((new_n + 1) * sizeof(seq_t));
+        seq_t *new_dp = mem_new(seq_t, (new_n + 1));
         if (!new_dp) abort();
         for (idx_t i = 0; i <= new_n; ++i)
             new_dp[i] = 0;
@@ -43,7 +45,7 @@ seq_t a(idx_t n) {
             }
         }
 
-        free(dp);
+        mem_free(dp);
         dp = new_dp;
         max_n = new_n;
     }

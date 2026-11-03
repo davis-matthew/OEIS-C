@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   more_ones_than_others
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,29 @@
 /* Computes numbers where the count of digit 1 exceeds the count of any other digit */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/more_ones_than_others.h"
+
+/* Test whether a number has more 1's than any other digit */
+static bool more_ones_than_others(seq_t x)
+{
+    unsigned char cnt[10] = {0};
+
+    if (x == 0) {
+        cnt[0] = 1;                /* decimal '0' has one zero digit */
+    } else {
+        while (x > 0) {
+            unsigned d = (unsigned)(x % 10);
+            cnt[d]++;
+            x /= 10;
+        }
+    }
+
+    unsigned char max_other = 0;
+    for (unsigned d = 0; d < 10; ++d) {
+        if (d == 1) continue;
+        if (cnt[d] > max_other) max_other = cnt[d];
+    }
+    return cnt[1] > max_other;
+}
 
 /* Return the nth term (1‑based index) of the sequence */
 seq_t a(idx_t n)

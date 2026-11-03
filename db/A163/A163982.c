@@ -13,13 +13,15 @@
  *            coefficient). This recurrence follows from the differentia...
  * Range:     i8 n <= 6, i16 n <= 9, i32 n <= 15, i64 n <= 23, i128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 464 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Global cache for the Euler zigzag numbers */
 static seq_t *euler_cache   = NULL;
@@ -33,12 +35,11 @@ static void ensure_euler(idx_t n)
 
     /* enlarge the cache */
     size_t new_size = (size_t)n + 1;
-    seq_t *tmp = (seq_t *)realloc(euler_cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, euler_cache, new_size);
     euler_cache = tmp;
     /* zero the new region */
     if (cache_computed < new_size) {
-        memset(euler_cache + cache_computed, 0,
-               (new_size - cache_computed) * sizeof(seq_t));
+        mem_set(euler_cache + cache_computed, 0, (new_size - cache_computed) * sizeof(seq_t));
     }
 
     /* make sure euler_cache[0] is initialized */

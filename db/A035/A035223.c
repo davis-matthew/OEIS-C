@@ -9,7 +9,8 @@
  * Formula:   a(n) = Sum_{d|n} Kronecker(41,d)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_mul
+ * Validated: standard, pass, 97 terms through n = 9711 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mod_mul.h"
+#include <stdlib.h>
+#include "../utils/mulmod.h"
 
 /* fast modular exponentiation for unsigned 64-bit integers */
 static uint64_t modpow_uint64(uint64_t base, uint64_t exp, uint64_t mod)
@@ -31,8 +33,8 @@ static uint64_t modpow_uint64(uint64_t base, uint64_t exp, uint64_t mod)
     uint64_t result = mod == 1 ? 0 : 1;
     base %= mod;
     while (exp) {
-        if (exp & 1u) result = mod_mul(result, base, mod);
-        base = mod_mul(base, base, mod);
+        if (exp & 1u) result = mulmod(result, base, mod);
+        base = mulmod(base, base, mod);
         exp >>= 1u;
     }
     return result;

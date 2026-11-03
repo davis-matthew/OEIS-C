@@ -12,16 +12,20 @@
  *            v_p(4^gcd(n-1,...
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 17, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   a2675_gcd, a2675_mul, a2675_powmod
+ * Validated: partial, pass, 27 terms through n = 28 (2026-11-01)
+ * Helpers:   gcd_u64, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/a2675_gcd.h"
-#include "../utils/a2675_mul.h"
-#include "../utils/a2675_powmod.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/powmod_u64.h"
+
+static seq_t a2675_mul(seq_t x, seq_t y) {
+    return (seq_t)(1u * x * y);
+}
 
 seq_t a(idx_t n) {
     if (n < 2) return 0;
@@ -52,13 +56,13 @@ seq_t a(idx_t n) {
 
     for (idx_t p = 3; p <= N2; p += 2) {
         if (comp[p]) continue;
-        if (a2675_powmod(4, m, p) != 1) continue;
-        uint64_t g = a2675_gcd(m, p - 1);
+        if (powmod_u64(4, m, p) != 1) continue;
+        uint64_t g = gcd_u64(m, p - 1);
         /* largest power of p not exceeding 2^62 */
         uint64_t pk = p;
         int k = 1;
         while (pk <= ((uint64_t)1 << 62) / p) { pk *= p; k++; }
-        uint64_t t = (a2675_powmod(4, g, pk) + pk - 1) % pk;
+        uint64_t t = (powmod_u64(4, g, pk) + pk - 1) % pk;
         long long v = 0;
         if (t == 0) v = k;
         else while (t % p == 0) { t /= p; v++; }

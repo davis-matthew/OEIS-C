@@ -7,8 +7,9 @@
  * Formula:   a(n) = sum_{p^e||n} (2*e - popcount(e)), where the sum runs over
  *            the prime power factors of n. This equals the 2‑adic valuation
  *            of A046644(n)
- * Range:     u8 n <= 9276, u16 n <= 9276, u32 n <= 9276, u64 n <= 9276,
- *            u128 n <= 9276, big any n
+ * Range:     u8 n <= 65536, u16 n <= 65536, u32 n <= 65536, u64 n <= 65536,
+ *            u128 n <= 65536, big any n
+ * Validated: standard, pass, 109 terms through n = 9276 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

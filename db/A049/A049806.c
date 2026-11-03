@@ -8,7 +8,8 @@
  *            totient of k
  * Range:     u8 n <= 40, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *phi_cache   = NULL;  /* phi values: phi_cache[i] = phi(i)  */
 static seq_t *prefix_sum  = NULL;  /* prefix_sum[i] = sum_{k=2}^i (phi(k)+1)/2 */
@@ -35,8 +37,8 @@ static void ensure_tables(idx_t n)
 
     /* Allocate / enlarge arrays */
     size_t sz = (size_t)n + 1;         /* indices 0 .. n */
-    phi_cache   = (seq_t *)realloc(phi_cache, sz * sizeof(seq_t));
-    prefix_sum  = (seq_t *)realloc(prefix_sum, sz * sizeof(seq_t));
+    phi_cache   = mem_resize(seq_t, phi_cache, sz);
+    prefix_sum  = mem_resize(seq_t, prefix_sum, sz);
     if (!phi_cache || !prefix_sum) {
         /* Allocation failure – abort (no error handling required) */
         exit(EXIT_FAILURE);

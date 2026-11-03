@@ -12,13 +12,15 @@
  *            ≥ 4 the DP iterates over all strings of incr...
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 34, u64 n <= 67, u128 n <= 131,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 490 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* External integer types supplied by the build: seq_t, idx_t */
 seq_t a(idx_t n)
@@ -37,8 +39,8 @@ seq_t a(idx_t n)
     size_t size = 2 * (size_t)n + 1;            /* array width of diff axis   */
     size_t offset = n;                          /* index representing diff = 0 */
 
-    seq_t *dp_prev = (seq_t *)calloc(8 * size, sizeof(seq_t));
-    seq_t *dp_curr = (seq_t *)calloc(8 * size, sizeof(seq_t));
+    seq_t *dp_prev = mem_new(seq_t, 8 * size);
+    seq_t *dp_curr = mem_new(seq_t, 8 * size);
     if (!dp_prev || !dp_curr)
         abort();
 
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
     /* Iterate for lengths 4 .. n */
     for (idx_t len = 4; len <= n; ++len) {
         /* zero the current DP table */
-        memset(dp_curr, 0, sizeof(seq_t) * 8 * size);
+        mem_set(dp_curr, 0, sizeof(seq_t) * 8 * size);
 
         /* transition */
         for (size_t s = 0; s < 8; ++s) {
@@ -78,8 +80,8 @@ seq_t a(idx_t n)
             seq_t sum = 0;
             for (size_t s = 0; s < 8; ++s)
                 sum += dp_curr[s * size + offset];
-            free(dp_prev);
-            free(dp_curr);
+            mem_free(dp_prev);
+            mem_free(dp_curr);
             return sum;
         }
 
@@ -90,7 +92,7 @@ seq_t a(idx_t n)
     }
 
     /* Should never be reached */
-    free(dp_prev);
-    free(dp_curr);
+    mem_free(dp_prev);
+    mem_free(dp_curr);
     return 0;
 }

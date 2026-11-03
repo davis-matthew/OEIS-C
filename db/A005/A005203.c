@@ -7,12 +7,13 @@
  * Formula:   a(n) = a(n-1) * 2^F(n-1) + a(n-2), a(0) = 0, a(1) = 1
  * Range:     u8 n <= 5, u16 n <= 6, u32 n <= 7, u64 n <= 9, u128 n <= 10,
  *            big any n
- * Helpers:   power_2
+ * Validated: standard, pass, 18 terms through n = 17 (2026-11-01)
+ * Helpers:   pow2_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/power_2.h"
+#include "../utils/pow2_seq.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)0;
@@ -26,7 +27,7 @@ seq_t a(idx_t n) {
     
     for (idx_t i = 2; i <= n; i++) {
         seq_t fib_curr = fib_prev2 + fib_prev1;
-        seq_t power = power_2(fib_prev1);
+        seq_t power = pow2_seq(fib_prev1);
         seq_t a_curr = a_prev1 * power + a_prev2;
         
         a_prev2 = a_prev1;

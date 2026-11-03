@@ -12,7 +12,8 @@
  *            This greedy choice yields the required lexicographic m...
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   has_digit6
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,19 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/has_digit6.h"
+#include "../utils/mem.h"
+
+/* Helper to test if a nonnegative seq_t value contains the digit 6. */
+static inline bool has_digit6(seq_t value)
+{
+    seq_t d = value;
+    if (d == 0) return false;
+    while (d != 0u) {
+        if ((d % (seq_t)10u) == (seq_t)6u) return true;
+        d /= (seq_t)10u;
+    }
+    return false;
+}
 
 /* Cache for computed sequence values. */
 static seq_t *seq_cache  = NULL;
@@ -50,7 +63,7 @@ static void ensure_cache_capacity(size_t size)
 {
     while (cache_cap < size) {
         size_t new_cap = cache_cap * 2 + 16;
-        seq_t *new_ptr = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *new_ptr = mem_resize(seq_t, seq_cache, new_cap);
         if (!new_ptr) abort();
         seq_cache = new_ptr;
         cache_cap = new_cap;

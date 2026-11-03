@@ -9,12 +9,15 @@
  *            (2*i – 1)^(2*i)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 17, u128 n <= 27,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 36 terms through n = 282 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +38,7 @@ seq_t a(idx_t n)
             idx_t k   = i >> 1;                 /* k = i/2 */
             seq_t base = (seq_t)(2 * k - 1);    /* odd base */
             seq_t exp  = (seq_t)(2 * k);        /* even exponent */
-            seq_t term = big_pow(base, exp);    /* (2k-1)^(2k) */
+            seq_t term = ipow(base, exp);    /* (2k-1)^(2k) */
             seq_t cur = last_even + term;
             last_even = cur;
         }

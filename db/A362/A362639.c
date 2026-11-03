@@ -9,6 +9,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 15, u32 n <= 22, u64 n <= 35, u128 n <= 56,
  *            big any n
+ * Validated: standard, pass, 47 terms through n = 710 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -22,6 +23,7 @@
         (k-1)k/2 < n ≤ k(k+1)/2,
     m_i is the number of elements remaining before block i,
     and size_i = i for i<k, size_k = n - (k-1)k/2.  */
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

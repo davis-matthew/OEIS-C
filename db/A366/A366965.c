@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,13 +21,13 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 static seq_t count_len(idx_t L) {
     if (L < 2) return 0;
-    seq_t pow9 = pow_uint(9, L - 1);
-    seq_t pow8 = pow_uint(8, L - 1);
-    seq_t pow7 = pow_uint(7, L);
+    seq_t pow9 = ipow_u64_idx(9, L - 1);
+    seq_t pow8 = ipow_u64_idx(8, L - 1);
+    seq_t pow7 = ipow_u64_idx(7, L);
     seq_t res = pow9 * 17;
     res -= pow8 * 31;
     res += pow7 * 2;
@@ -35,21 +36,21 @@ static seq_t count_len(idx_t L) {
 
 static seq_t count_cat0(bool valid, bool seen0, bool seen8, idx_t rem) {
     if (!valid) return 0;
-    seq_t total = pow_uint(9, rem);
+    seq_t total = ipow_u64_idx(9, rem);
     seq_t c1 = 0, c2 = 0, c12 = 0;
-    if (!seen0) c1 = pow_uint(8, rem);
-    if (!seen8) c2 = pow_uint(8, rem);
-    if (!seen0 && !seen8) c12 = pow_uint(7, rem);
+    if (!seen0) c1 = ipow_u64_idx(8, rem);
+    if (!seen8) c2 = ipow_u64_idx(8, rem);
+    if (!seen0 && !seen8) c12 = ipow_u64_idx(7, rem);
     return total - c1 - c2 + c12;
 }
 
 static seq_t count_cat1(bool valid, bool seen1, bool seen9, idx_t rem) {
     if (!valid) return 0;
-    seq_t total = pow_uint(9, rem);
+    seq_t total = ipow_u64_idx(9, rem);
     seq_t c1 = 0, c2 = 0, c12 = 0;
-    if (!seen1) c1 = pow_uint(8, rem);
-    if (!seen9) c2 = pow_uint(8, rem);
-    if (!seen1 && !seen9) c12 = pow_uint(7, rem);
+    if (!seen1) c1 = ipow_u64_idx(8, rem);
+    if (!seen9) c2 = ipow_u64_idx(8, rem);
+    if (!seen1 && !seen9) c12 = ipow_u64_idx(7, rem);
     return total - c1 - c2 + c12;
 }
 

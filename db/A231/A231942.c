@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 14, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static void init_precomputation(void);
 static inline uint8_t get_digit(uint8_t pat, unsigned r) { return (pat >> (2 * r)) & 3U; }
@@ -125,7 +127,7 @@ seq_t a(idx_t n)
     /* DP arrays over states (previous column, current column) */
     static seq_t dp_cur[4096];
     static seq_t dp_next[4096];
-    memset(dp_cur, 0, sizeof(dp_cur));
+    mem_set(dp_cur, 0, sizeof(dp_cur));
 
     /* initialise with first two columns */
     unsigned a, b;
@@ -137,7 +139,7 @@ seq_t a(idx_t n)
     /* iterate columns 3 .. n */
     idx_t col;
     for (col = 2; col < n; ++col) {
-        memset(dp_next, 0, sizeof(dp_next));
+        mem_set(dp_next, 0, sizeof(dp_next));
         for (a = 0; a < 64; ++a) {
             for (b = 0; b < 64; ++b) {
                 unsigned idx = a * 64 + b;
@@ -152,7 +154,7 @@ seq_t a(idx_t n)
                 }
             }
         }
-        memcpy(dp_cur, dp_next, sizeof(dp_cur));
+        mem_copy(dp_cur, dp_next, sizeof(dp_cur));
     }
 
     /* sum over last column constraints */

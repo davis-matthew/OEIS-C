@@ -10,7 +10,8 @@
  *            nth such number (a(1)=21)
  * Range:     u8 n <= 56, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   binary_runs
+ * Validated: standard, pass, 65 terms through n = 957 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,33 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binary_runs.h"
+#include "../utils/mem.h"
+
+/* Count the number of runs of 0/1 in the binary representation of x.
+   For x > 0 this is the number of maximal consecutive blocks of equal bits.
+   If x == 0 this function returns 1 (not used for the sequence). */
+static unsigned int binary_runs(unsigned long long x)
+{
+    if (x == 0ull)
+        return 1u;            /* Not reached for the sequence */
+
+    /* Find position of the most significant set bit. */
+    int msb = 63;
+    while ((x >> msb) == 0u)
+        --msb;
+
+    unsigned int run = 1u;                  /* Start with the highest run */
+    unsigned int prev = (x >> msb) & 1u;    /* Bit of the MSB */
+
+    for (int pos = msb - 1; pos >= 0; --pos) {
+        unsigned int bit = (x >> pos) & 1u;
+        if (bit != prev) {
+            ++run;
+            prev = bit;
+        }
+    }
+    return run;
+}
 
 /* Static cache for computed sequence values. */
 static seq_t *cache = NULL;
@@ -36,7 +63,7 @@ static void cache_grow(size_t need)
     while (new_cap < need)
         new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     cache = tmp;
     cache_capacity = new_cap;
 }

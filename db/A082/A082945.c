@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 19, u64 n <= 10000, u128 n <= 10000,
  *            big any n
- * Helpers:   rev_uint64, seq_compare
+ * Validated: standard, pass, 49 terms through n = 9353 (2026-11-03)
+ * Helpers:   mem, reverse_digits_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,16 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/rev_uint64.h"
-#include "../utils/seq_compare.h"
+#include "../utils/reverse_digits_u64.h"
+#include "../utils/mem.h"
+
+/* Compare two seq_t values for qsort. */
+static int seq_compare(const void *p1, const void *p2)
+{
+    const seq_t *a = (const seq_t *)p1;
+    const seq_t *b = (const seq_t *)p2;
+    return (*a < *b) ? -1 : (*a > *b) ? 1 : 0;
+}
 
 /* Forward declaration of external types.
    They are defined by the build system; do **not** redefine them here.
@@ -47,7 +56,7 @@ static void prepare_sequence(void)
 
     /* Initial capacity – plenty for the first 10⁴ terms. */
     seq_cap = 20000;
-    seq_vals = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+    seq_vals = mem_new(seq_t, seq_cap);
     if (!seq_vals) exit(1);
     seq_cnt = 0;
 
@@ -66,7 +75,7 @@ static void prepare_sequence(void)
         /* i must not end in 0. */
         if ((i % 10) == 0) continue;
 
-        uint64_t j = rev_uint64(i);
+        uint64_t j = reverse_digits_u64(i);
         if (j == 0) continue;
 
         if (i % j != 0) continue;   /* i must be divisible by j */
@@ -82,14 +91,14 @@ static void prepare_sequence(void)
         /* Store it, growing the array if needed. */
         if (seq_cnt == seq_cap) {
             seq_cap <<= 1;
-            seq_vals = (seq_t *)realloc(seq_vals, seq_cap * sizeof(seq_t));
+            seq_vals = mem_resize(seq_t, seq_vals, seq_cap);
             if (!seq_vals) exit(1);
         }
         seq_vals[seq_cnt++] = n;
     }
 
     /* Sort the terms so that a(1) is the smallest, etc. */
-    qsort(seq_vals, seq_cnt, sizeof(seq_t), seq_compare);
+    mem_qsort(seq_vals, seq_cnt, sizeof(seq_t), seq_compare);
 
     seq_ready = 1;
 }

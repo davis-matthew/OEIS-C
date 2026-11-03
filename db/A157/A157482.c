@@ -7,12 +7,15 @@
  * Formula:   a(n) = π(n³ − n² − n) − π((n−1)³ − (n−1)² − (n−1))
  * Range:     u8 n <= 30, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   compute_pi
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-01)
+ * Helpers:   prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/compute_pi.h"
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/prime_pi.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +28,7 @@ seq_t a(idx_t n)
     idx_t n2   = nn * nn;
     idx_t n3   = n2 * nn;
     idx_t L    = n3 - n2 - nn;
-    seq_t piL  = compute_pi(L);
+    seq_t piL  = prime_pi(L);
 
     /* Compute L(n‑1) only when n‑1 ≥ 2; for n‑1 = 1 the value is 0. */
     seq_t piLprev = 0;
@@ -34,7 +37,7 @@ seq_t a(idx_t n)
         idx_t np2  = np * np;
         idx_t np3  = np2 * np;
         idx_t Lprev = np3 - np2 - np;
-        piLprev = compute_pi(Lprev);
+        piLprev = prime_pi(Lprev);
     }
 
     return piL - piLprev;

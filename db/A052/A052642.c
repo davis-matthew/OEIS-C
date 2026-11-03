@@ -8,12 +8,14 @@
  *            (n! is the ordinary factorial)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
             /* Allocate for at least indices 0 and 1 */
             fact_cap = 2;
             fact_last = 1;
-            fact = (seq_t *)malloc(fact_cap * sizeof(seq_t));
+            fact = mem_new(seq_t, fact_cap);
             if (!fact) return (seq_t)0; /* allocation failure, return 0 as safe default */
             fact[0] = (seq_t)1;
             fact[1] = (seq_t)1;
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
             /* Increase capacity if needed */
             if (n >= fact_cap) {
                 size_t new_cap = n + 1;
-                seq_t *tmp = (seq_t *)realloc(fact, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, fact, new_cap);
                 if (!tmp) return (seq_t)0; /* realloc failure */
                 fact = tmp;
                 fact_cap = new_cap;
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
         if (fact == NULL) {
             fact_cap = 2;
             fact_last = 1;
-            fact = (seq_t *)malloc(fact_cap * sizeof(seq_t));
+            fact = mem_new(seq_t, fact_cap);
             if (!fact) return (seq_t)0;
             fact[0] = (seq_t)1;
             fact[1] = (seq_t)1;

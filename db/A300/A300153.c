@@ -13,15 +13,21 @@
  *            even
  * Range:     u8 n <= 74, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   A029578, gcd
+ * Validated: partial, pass, 74 terms through n = 74 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>          /* for bool */
-#include "../utils/gcd.h"     /* gcd(seq_t,seq_t) */
-#include "../utils/A029578.h"
+#include "../utils/gcd.h"
+
+/* A029578(m) = (m-1) if m odd, else m/2. */
+static seq_t A029578(idx_t m)
+{
+    return (m & 1) ? (seq_t)(m - 1) : (seq_t)(m / 2);
+}
 
 static idx_t isqrt_u64(idx_t n)
 {

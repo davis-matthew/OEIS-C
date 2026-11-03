@@ -7,13 +7,35 @@
  * Formula:   not stated
  * Range:     u8 n <= 32, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   calc_T, sum_tri
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/calc_T.h"
-#include "../utils/sum_tri.h"
+static inline seq_t calc_T(idx_t k, idx_t n2)
+{
+    seq_t one = 1;
+    if (n2 == 1) return one;
+    seq_t a0 = one;                       /* T(k,1) */
+    seq_t a1 = (seq_t)(k - 1);            /* T(k,2) */
+    if (n2 == 2) return a1;
+
+    seq_t k_seq = (seq_t)k;
+    for (idx_t i = 3; i <= n2; ++i)
+    {
+        seq_t a2 = k_seq * a1 - a0;       /* T(k,i) = k*T(k,i-1) - T(k,i-2) */
+        a0 = a1;
+        a1 = a2;
+    }
+    return a1;
+}
+
+static inline idx_t sum_tri(idx_t d)
+{
+    /* S(d) = (d+1)(d+2)/2   using 128‑bit to avoid overflow */
+    return (idx_t)(((__int128)(d + 1) * (d + 2)) >> 1);
+}
 /* A094954: T(k,n) read by antidiagonals
  *
  *  T(k,1) = 1

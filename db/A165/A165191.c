@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   bitlen_seq_t
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
    rows.  For a given index n, the function finds the row that
    contains n and returns the corresponding bit (0 or 1). */
 
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
              bitlen_seq_t(g).  bitlen_seq_t returns
              floor(log2(g)) + 1. */
         idx_t len = (row == 0) ? (idx_t)1
-                                : (idx_t)bitlen_seq_t((seq_t)g);
+                                : (idx_t)bit_length((seq_t)g);
 
         /* Does the target index lie inside this row? */
         if (cum + len > target)

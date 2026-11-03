@@ -9,7 +9,8 @@
  *            odd primes)
  * Range:     u8 n <= 359, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 8700 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /*  Global state for memoisation  */
 static seq_t   *unordered_counts = NULL;   /* A002372 values for sums up to current max */
@@ -36,13 +38,13 @@ rebuild_up_to(size_t limit)
         return;                         /* already up-to-date */
 
     /*  Free old structures  */
-    free(unordered_counts);
+    mem_free(unordered_counts);
     free(is_prime_flag);
     free(odd_primes);
 
     max_limit = limit;
 
-    unordered_counts = (seq_t*)malloc((max_limit + 1) * sizeof(seq_t));
+    unordered_counts = mem_new(seq_t, (max_limit + 1));
     is_prime_flag    = (bool*)malloc((max_limit + 1) * sizeof(bool));
     if (!unordered_counts || !is_prime_flag)
         return;                         /* out of memory – caller will see 0 */

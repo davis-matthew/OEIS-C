@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 59, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   compute_multipliers
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,15 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/compute_multipliers.h"
+#include "../utils/mem.h"
+
+/* ------------------------------------------------------------ */
+static void compute_multipliers(const uint64_t *exps, size_t np, size_t *mult)
+{
+    mult[0] = 1;
+    for (size_t i = 1; i < np; ++i)
+        mult[i] = mult[i - 1] * (exps[i - 1] + 1);
+}
 
 /* ------------------------------------------------------------ */
 /*  Helper: factorise n into primes and exponents                */
@@ -97,7 +106,7 @@ seq_t a(idx_t n)
     if (!new_map) { free(digits); return (seq_t)0; }
 
     /* -------- DP array : dp[sum * states + state] ------------ */
-    seq_t *dp = (seq_t *)calloc((size_t)(n + 1) * states, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1) * states);
     if (!dp) { free(digits); free(new_map); return (seq_t)0; }
 
     dp[0 * states + 0] = (seq_t)1;         /* empty partition */
@@ -148,7 +157,7 @@ seq_t a(idx_t n)
     /* -------- result ------------------------------------- */
     seq_t result = dp[(size_t)n * states + target];
 
-    free(dp);
+    mem_free(dp);
     free(digits);
     free(new_map);
     return result;

@@ -10,13 +10,15 @@
  *            = 0, a(10) = 1
  * Range:     u8 n <= 32, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 static seq_t *p_arr = NULL;     /* p[n] — partition numbers */
@@ -29,8 +31,8 @@ static void ensure_capacity(idx_t n)
 {
     if (!p_arr) {
         size_t init_cap = (size_t)(n < 64 ? 64 : n * 2);
-        p_arr = (seq_t *)calloc(init_cap, sizeof(seq_t));
-        a_arr = (seq_t *)calloc(init_cap, sizeof(seq_t));
+        p_arr = mem_new(seq_t, init_cap);
+        a_arr = mem_new(seq_t, init_cap);
         if (!p_arr || !a_arr) abort();
 
         /* base cases */
@@ -48,8 +50,8 @@ static void ensure_capacity(idx_t n)
     if (cap <= (size_t)n) {
         size_t new_cap = cap * 2;
         if (new_cap <= (size_t)n) new_cap = (size_t)n + 1;
-        p_arr = (seq_t *)realloc(p_arr, new_cap * sizeof(seq_t));
-        a_arr = (seq_t *)realloc(a_arr, new_cap * sizeof(seq_t));
+        p_arr = mem_resize(seq_t, p_arr, new_cap);
+        a_arr = mem_resize(seq_t, a_arr, new_cap);
         if (!p_arr || !a_arr) abort();
 
         /* zero the new part */

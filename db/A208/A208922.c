@@ -11,12 +11,14 @@
  *            row
  * Range:     u8 n <= 23, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static storage for memoization across calls */
 static seq_t *cache = NULL;          /* flat sequence of a(n) */
@@ -33,7 +35,7 @@ static void ensure_cache_cap(size_t need)
     if (need <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 64;
     while (new_cap < need) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) { /* allocation failure - abort */
         abort();
     }
@@ -51,8 +53,8 @@ static void init_first_row(void)
     cache_len = 1;
 
     /* Allocate row 1 arrays for u and v */
-    u_prev = (seq_t *)calloc(1, sizeof(seq_t));
-    v_prev = (seq_t *)calloc(1, sizeof(seq_t));
+    u_prev = mem_new(seq_t, 1);
+    v_prev = mem_new(seq_t, 1);
     if (!u_prev || !v_prev) abort();
     u_prev[0] = (seq_t)1;
     v_prev[0] = (seq_t)1;
@@ -72,8 +74,8 @@ seq_t a(idx_t n)
         idx_t cur_len = prev_len + 1;
 
         /* Allocate arrays for current row */
-        seq_t *u_cur = (seq_t *)calloc(cur_len, sizeof(seq_t));
-        seq_t *v_cur = (seq_t *)calloc(cur_len, sizeof(seq_t));
+        seq_t *u_cur = mem_new(seq_t, cur_len);
+        seq_t *v_cur = mem_new(seq_t, cur_len);
         if (!u_cur || !v_cur) abort();
 
         /* Compute u(cur) coefficients */
@@ -100,8 +102,8 @@ seq_t a(idx_t n)
         cache_len += (size_t)cur_len;
 
         /* Prepare for next iteration */
-        free(u_prev);
-        free(v_prev);
+        mem_free(u_prev);
+        mem_free(v_prev);
         u_prev = u_cur;
         v_prev = v_cur;
         prev_len = cur_len;

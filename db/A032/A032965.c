@@ -9,14 +9,31 @@
  *            at all odd positions (digits are indexed from 0)
  * Range:     u8 n <= 142, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   count_len
+ * Validated: standard, pass, 78 terms through n = 990 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/count_len.h"
+
+/* count_len(k): number of admissible numbers with exactly k
+   base‑15 digits (k ≥ 1).  The most significant digit (index 0)
+   may be 1–14; digits at odd indices must be even (0,2,…,14);
+   digits at even indices may be any 0–14. */
+static seq_t count_len(idx_t k)
+{
+    seq_t r0 = 14;         /* choices for leading digit */
+    seq_t mul = 1;
+    for (idx_t i = 1; i < k; ++i) {
+        if (i & 1)          /* odd index */
+            mul *= 8;       /* 0,2,…,14 -> 8 choices */
+        else
+            mul *= 15;      /* unrestricted digit */
+    }
+    return r0 * mul;
+}
 
 /* Main sequence function. */
 seq_t a(idx_t n)

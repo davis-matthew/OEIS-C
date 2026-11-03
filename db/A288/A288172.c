@@ -9,7 +9,8 @@
  *            consecutive primes
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 29, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Types provided by the build */
 extern seq_t a(idx_t n);
@@ -42,7 +44,7 @@ static void build_primes_and_cum(void)
 
     /* Reserve space for primes */
     size_t reserve = SIEVE_LIMIT / 10; /* roughly pi(20M) ~ 1.2M */
-    primes = (seq_t*)malloc(reserve * sizeof(seq_t));
+    primes = mem_new(seq_t, reserve);
     if (!primes) exit(1);
 
     for (idx_t i = 2; i <= SIEVE_LIMIT; ++i) {
@@ -50,7 +52,7 @@ static void build_primes_and_cum(void)
             /* i is prime */
             if (prime_count == reserve) {
                 reserve *= 2;
-                primes = (seq_t*)realloc(primes, reserve * sizeof(seq_t));
+                primes = mem_resize(seq_t, primes, reserve);
                 if (!primes) exit(1);
             }
             primes[prime_count++] = (seq_t)i;
@@ -65,7 +67,7 @@ static void build_primes_and_cum(void)
     free(is_composite);
 
     /* Allocate cumulative sum array */
-    cum = (seq_t*)malloc((prime_count + 1) * sizeof(seq_t));
+    cum = mem_new(seq_t, (prime_count + 1));
     if (!cum) exit(1);
     cum[0] = 0;
     for (idx_t i = 0; i < prime_count; ++i)

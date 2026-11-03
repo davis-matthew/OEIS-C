@@ -14,7 +14,8 @@
  *            ter...
  * Range:     u8 n <= 76, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 77 terms through n = 76 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdbool.h>
 #include <string.h>      /* for memset */
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* static state */
 static seq_t *seq_arr = NULL;      /* stores computed terms */
@@ -37,7 +39,7 @@ static void ensure_seq_cap(size_t cap) {
     if (cap <= seq_cap) return;
     size_t newcap = seq_cap ? seq_cap : 64;
     while (newcap < cap) newcap <<= 1;
-    seq_arr = (seq_t *)realloc(seq_arr, newcap * sizeof(seq_t));
+    seq_arr = mem_resize(seq_t, seq_arr, newcap);
     if (seq_arr == NULL) abort();
     seq_cap = newcap;
 }

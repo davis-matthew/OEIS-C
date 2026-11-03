@@ -10,7 +10,8 @@
  * Formula:   a(n) = Max{x ; π(x) – π(x/2) = n} (n ≥ 1)
  * Range:     u8 none, u16 n <= 3029, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 9829 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define LIMIT     400000U            /* upper bound for x to cover n ≤ 10 000   */
 #define MAX_INDEX 200000U            /* maximum n that we pre‑compute           */
@@ -37,8 +39,8 @@ static void init_sequence(void)
 
     /* Allocate arrays -------------------------------------------------- */
     prime_flags = (bool*)calloc(LIMIT + 1, sizeof(bool));
-    pi_arr      = (seq_t*)calloc(LIMIT + 1, sizeof(seq_t));
-    ans_arr     = (seq_t*)calloc(MAX_INDEX + 1, sizeof(seq_t));
+    pi_arr      = mem_new(seq_t, LIMIT + 1);
+    ans_arr     = mem_new(seq_t, MAX_INDEX + 1);
 
     /* Sieve of Eratosthenes ------------------------------------------- */
     for (uint64_t i = 2; i <= LIMIT; ++i) prime_flags[i] = true;

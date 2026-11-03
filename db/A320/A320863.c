@@ -6,7 +6,8 @@
  * Keywords:  base, nonn
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 none, u64 n <= 2, u128 n <= 6, big any n
- * Helpers:   append_candidate, seq_mul
+ * Validated: standard, pass, 25 terms through n = 166 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,33 @@
    powers are stored in a static cache to allow repeated calls to any n. */
 
 #include <stddef.h>
-#include "../utils/append_candidate.h"
-#include "../utils/seq_mul.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/mem.h"
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 #define LOG10_2 0.3010299956639811952137388947245L
 #define LOG10_7 0.845098040014256831138828628487L

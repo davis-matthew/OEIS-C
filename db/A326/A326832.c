@@ -8,19 +8,43 @@
  * Keywords:  sign, tabl
  * Formula:   a(n) = flattened triangle T(n,k) where T(n,k) = (-1)^(n-k) *
  *            binomial(2n+1, n-k) * Lucas(2k+1)
- * Range:     i8 n <= 9, i16 n <= 27, i32 n <= 44, i64 n <= 44, i128 n <= 44,
+ * Range:     i8 n <= 10, i16 n <= 29, i32 n <= 44, i64 n <= 44, i128 n <= 44,
  *            big any n
- * Helpers:   binomial, free_seq, seq_alloc_new_array, seq_realloc
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include <stdbool.h>
 #include "../utils/binomial.h"
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/seq_realloc.h"
-#include "../utils/free_seq.h"
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
+
+/* Helper: free an array allocated by alloc_seq. */
+static void free_seq(seq_t *p)
+{
+    mem_free(p);
+}
 
 /* static cache for Lucas numbers */
 static seq_t *lucas_cache = NULL;

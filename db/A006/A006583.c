@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{k=1..n-1} (k OR n-k)
  * Range:     u8 n <= 18, u16 n <= 277, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
+ * Validated: standard, pass, 56 terms through n = 8141 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,9 +10,10 @@
  * Formula:   a(n) is the nth term of array T(n,k) read by antidiagonals,
  *            where T(n,k) is defined by componentwise addition of the
  *            balanced ternary representations of n and k without carries
- * Range:     i8 n <= 8129, i16 n <= 9199, i32 n <= 9199, i64 n <= 9199,
- *            i128 n <= 9199, big any n
- * Helpers:   balanced_add, balanced_digits
+ * Range:     i8 n <= 8129, i16 n <= 10010, i32 n <= 10010, i64 n <= 10010,
+ *            i128 n <= 10010, big any n
+ * Validated: standard, pass, 94 terms through n = 9199 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,61 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <math.h>
-#include "../utils/balanced_add.h"
-#include "../utils/balanced_digits.h"
+
+/* Convert a non‑negative integer to its balanced ternary digits.
+   The digits are stored low‑to‑high in out[0]..out[len-1].
+   Balanced ternary digits are in the set {-1,0,1}. */
+static void balanced_digits(idx_t n, int *out, size_t *len)
+{
+    size_t pos = 0;
+    while (n != 0) {
+        uint64_t q = n / 3;
+        uint64_t r = n % 3;
+        if (r == 2) {            /* 2 in base‑3 becomes -1 with a carry */
+            out[pos++] = -1;
+            n = q + 1;
+        } else {                 /* 0 or 1 stays the same */
+            out[pos++] = (int)r;
+            n = q;
+        }
+    }
+    *len = pos;                  /* zero if n was initially 0 */
+}
+
+static inline seq_t balanced_add(idx_t a, idx_t b)
+{
+    /* maximum needed digits for 64‑bit numbers is < 40, keep room */
+    int da[64], db[64];
+    size_t na, nb;
+    balanced_digits(a, da, &na);
+    balanced_digits(b, db, &nb);
+
+    seq_t result = 0;
+    seq_t pow3   = 1;
+    size_t maxlen = na > nb ? na : nb;
+
+    for (size_t i = 0; i < maxlen; ++i) {
+        int va = (i < na) ? da[i] : 0;
+        int vb = (i < nb) ? db[i] : 0;
+        int sum = va + vb;               /* in range [-2,2] */
+
+        int digit;
+        /* Convert the sum to a balanced ternary digit */
+        switch (sum) {
+            case -2: digit = 1;   break;
+            case -1: digit = -1;  break;
+            case 0 : digit = 0;   break;
+            case 1 : digit = 1;   break;
+            case 2 : digit = -1;  break;
+            default: digit = 0;   /* unreachable */
+        }
+
+        result += (seq_t)digit * pow3;
+        pow3 *= 3; /* next power of 3 */
+    }
+
+    return result;
+}
 
 seq_t a(idx_t n)
 {

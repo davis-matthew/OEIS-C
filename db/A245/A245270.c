@@ -11,12 +11,14 @@
  *            interpreted as a binary integer and returned in decimal
  * Range:     u8 n <= 29, u16 n <= 1019, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bitlen_seq_t
+ * Validated: standard, pass, 74 terms through n = 9889 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
 
 seq_t a(idx_t n) {
     if (n < 2) return 0;               /* undefined for n < 2, but safe */
@@ -31,8 +33,8 @@ seq_t a(idx_t n) {
             temp >>= 1;
             ++exp;
         }
-        unsigned int bp = bitlen_seq_t((seq_t)2);
-        unsigned int be = bitlen_seq_t((seq_t)exp);
+        unsigned int bp = bit_length((seq_t)2);
+        unsigned int be = bit_length((seq_t)exp);
         seq_t block = ((seq_t)2 << be) | (seq_t)exp;
         result = (result << (bp + be)) | block;
     }
@@ -45,8 +47,8 @@ seq_t a(idx_t n) {
                 temp /= p;
                 ++exp;
             }
-            unsigned int bp = bitlen_seq_t((seq_t)p);
-            unsigned int be = bitlen_seq_t((seq_t)exp);
+            unsigned int bp = bit_length((seq_t)p);
+            unsigned int be = bit_length((seq_t)exp);
             seq_t block = ((seq_t)p << be) | (seq_t)exp;
             result = (result << (bp + be)) | block;
         }
@@ -55,8 +57,8 @@ seq_t a(idx_t n) {
     /* If remaining temp is a prime > sqrt(original n) */
     if (temp > 1) {
         idx_t exp = 1;
-        unsigned int bp = bitlen_seq_t((seq_t)temp);
-        unsigned int be = bitlen_seq_t((seq_t)exp);
+        unsigned int bp = bit_length((seq_t)temp);
+        unsigned int be = bit_length((seq_t)exp);
         seq_t block = ((seq_t)temp << be) | (seq_t)exp;
         result = (result << (bp + be)) | block;
     }

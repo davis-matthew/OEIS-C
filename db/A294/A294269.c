@@ -9,13 +9,15 @@
  *            a(n)=a(n-1)+a(n-4)-a(n-5) (Recurrence given in the OEIS entry)
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 /* External link: seq_t and idx_t are provided by the build. */
 
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     /* Allocate or resize the cache if necessary. */
     if (cache_size == 0) {
         cache_size = 64;                       /* start with a reasonable size */
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         assert(cache != NULL);
         /* Initialize the first seven terms. */
         for (idx_t i = 1; i <= 7; ++i) {
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
         while (new_size <= n) {
             new_size <<= 1;   /* double the size */
         }
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         assert(tmp != NULL);
         /* Zero the new slots. */
         for (idx_t i = cache_size; i < new_size; ++i) {

@@ -9,14 +9,25 @@
  *            010 in rows, columns and NW‑to‑SE diagonals
  * Range:     u8 none, u16 n <= 3, u32 n <= 9, u64 n <= 20, u128 n <= 44,
  *            big any n
- * Helpers:   _row_ok
+ * Validated: standard, pass, 34 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/_row_ok.h"
+#include "../utils/mem.h"
+
+static int _row_ok(int r) {
+    /* check that r (5 bits) does not contain 000 or 010 as any consecutive triple */
+    for (int j = 0; j <= 2; ++j) {
+        int bits = (r >> j) & 7;          /* extract triple */
+        if (bits == 0 || bits == 2)       /* 000 ->0b000 , 010 ->0b010 */
+            return 0;
+    }
+    return 1;
+}
 
 seq_t a(idx_t n) {
     /* static data structures for memoisation */
@@ -108,7 +119,7 @@ seq_t a(idx_t n) {
 
         /* memo array: index n => a(n). allocate capacity for up to 20000 terms. */
         memo_cap = 20001;
-        memo = (seq_t*)calloc(memo_cap, sizeof(seq_t));
+        memo = mem_new(seq_t, memo_cap);
     }
 
     /* compute up to required number of rows */

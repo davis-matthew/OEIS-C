@@ -7,7 +7,8 @@
  * Formula:   a(n) = 5^n * 2^(n - min(v2, n))
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 12, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,9 @@
 /* where v2 is the exponent of 2 in the imaginary part of (-1-3i)^n */
 
 #include <stdbool.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -115,8 +118,8 @@ seq_t a(idx_t n)
     idx_t exp2 = (v2 < n) ? (n - v2) : (idx_t)0;
     idx_t exp5 = (v5 < n) ? (n - v5) : (idx_t)0;
 
-    seq_t pow2 = seq_pow((seq_t)2, exp2);
-    seq_t pow5 = seq_pow((seq_t)5, exp5);
+    seq_t pow2 = ipow_idx((seq_t)2, exp2);
+    seq_t pow5 = ipow_idx((seq_t)5, exp5);
 
     return pow2 * pow5;
 }

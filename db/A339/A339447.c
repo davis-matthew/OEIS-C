@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,12 +31,12 @@ seq_t a(idx_t n)
     size_t N = (size_t)n;                 /* array bounds are size_t */
 
     /* dp[i] = number of partitions of i using parts up to the current m */
-    seq_t *dp = (seq_t *)calloc(N + 1, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, N + 1);
     /* res[i] = desired count for i (partitions whose largest part is a power of 2) */
-    seq_t *res = (seq_t *)calloc(N + 1, sizeof(seq_t));
+    seq_t *res = mem_new(seq_t, N + 1);
 
     if (!dp || !res) {                    /* allocation failure */
-        free(dp); free(res);
+        mem_free(dp); mem_free(res);
         return (seq_t)0;
     }
 
@@ -58,8 +60,8 @@ seq_t a(idx_t n)
 
     seq_t answer = res[N];
 
-    free(dp);
-    free(res);
+    mem_free(dp);
+    mem_free(res);
 
     return answer;
 }

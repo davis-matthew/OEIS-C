@@ -9,18 +9,20 @@
  *            1)*binomial(14 + n - 2, n - 1)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 30, u128 n <= 230,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 37 terms through n = 945 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
     static const idx_t m = 14;
-    seq_t b1 = binom(m + n - 1, n);
-    seq_t b2 = binom(m + n, n + 1);
-    seq_t b3 = (n == 0) ? 0 : binom(m + n - 2, n - 1);
+    seq_t b1 = binomial(m + n - 1, n);
+    seq_t b2 = binomial(m + n, n + 1);
+    seq_t b3 = (n == 0) ? 0 : binomial(m + n - 2, n - 1);
     return b1 * b1 - b2 * b3;
 }

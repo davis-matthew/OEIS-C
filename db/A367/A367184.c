@@ -10,6 +10,7 @@
  *            = n – p. If k < p/2 then a(n) = p + p/2 – k; else a(n) = p – k
  * Range:     u8 n <= 256, u16 n <= 8192, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
+ * Validated: standard, pass, 96 terms through n = 7886 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,6 +10,7 @@
  *            (1-q^5)^96
  * Range:     i8 n <= 3, i16 n <= 6, i32 n <= 13, i64 n <= 39, i128 n <= 113,
  *            big any n
+ * Validated: full, pass, 1201 terms through n = 1200 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

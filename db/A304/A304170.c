@@ -7,6 +7,7 @@
  * Formula:   a(n) = 32*3^(n+1) + 18*2^(n+1) - 116 (for n >= 0)
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 16, u64 n <= 36, u128 n <= 76,
  *            big any n
+ * Validated: standard, pass, 44 terms through n = 992 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

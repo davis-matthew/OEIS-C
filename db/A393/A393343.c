@@ -8,7 +8,8 @@
  *            initial values: a(0)=1, a(1)=1, a(2)=3, a(3)=11, a(4)=42
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 34, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 96 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* cache of computed values */
 static seq_t *cache = NULL;      /* dynamic array */
@@ -31,14 +33,14 @@ static void ensure_capacity(size_t need)
     size_t new_cap = cache_cap == 0 ? 16 : cache_cap;
     while (new_cap <= need)
         new_cap <<= 1;
-    seq_t *new_cache = (seq_t*)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (cache) {
-        memcpy(new_cache, cache, cache_len * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_cache, cache, cache_len * sizeof(seq_t));
+        mem_free(cache);
     }
     /* zero the newly allocated tail (not strictly required but keeps values defined) */
     if (new_cap > cache_len)
-        memset(new_cache + cache_len, 0, (new_cap - cache_len) * sizeof(seq_t));
+        mem_set(new_cache + cache_len, 0, (new_cap - cache_len) * sizeof(seq_t));
     cache       = new_cache;
     cache_cap   = new_cap;
 }

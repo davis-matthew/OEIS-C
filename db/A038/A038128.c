@@ -5,8 +5,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = floor(n*Euler's constant)
- * Range:     u8 none, u16 none, u32 n <= 0, u64 n <= 9885, u128 n <= 9885,
+ * Range:     u8 none, u16 none, u32 n <= 0, u64 n <= 100000, u128 n <= 100000,
  *            big any n
+ * Validated: standard, pass, 92 terms through n = 9885 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

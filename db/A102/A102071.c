@@ -5,17 +5,29 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = ((3*n+5)*a(n-1)+(n-3)*a(n-2)-3*(n-3)*a(n-3))/(n+3)
- * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 20, u64 n <= 33, u128 n <= 33,
+ * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 23, u64 n <= 44, u128 n <= 84,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 983 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Initial values: a(1)=1, a(2)=3, a(3)=7 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
-seq_t a(idx_t n)
+/* the code below runs in wide_t: 128 bits at the fixed widths (never narrower
+   than seq_t), seq_t itself for big, so values that pass 2^64 on the way to a
+   term that fits stay exact; a() returns the term in seq_t */
+#ifdef __cplusplus
+typedef seq_t wide_t;
+#else
+typedef __typeof__((seq_t)0 + (__int128)0) wide_t;
+#endif
+#define seq_t wide_t
+
+seq_t a_wide(idx_t n)
 {
     /* static cache */
     static seq_t *memo = NULL;   /* array indexed by n (1‑based) */
@@ -29,7 +41,7 @@ seq_t a(idx_t n)
         /* first allocation: at least up to n and 3 for base values */
         idx_t init_cap = 3;
         if (n > init_cap) init_cap = n;
-        memo = (seq_t*)malloc((init_cap + 1) * sizeof(seq_t)); /* index 0 unused */
+        memo = mem_new(seq_t, (init_cap + 1)); /* index 0 unused */
         capac = init_cap;
 
         /* initialise base values */
@@ -44,7 +56,7 @@ seq_t a(idx_t n)
             new_cap *= 2;
             if (new_cap < 4) new_cap = 4; /* minimal size */
         }
-        seq_t *tmp = (seq_t*)realloc(memo, (new_cap + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, memo, (new_cap + 1));
         memo = tmp;
         capac = new_cap;
         /* base values already present in the old array */
@@ -53,7 +65,7 @@ seq_t a(idx_t n)
     /* Compute missing values if necessary */
     if (up_to < n) {
         for (idx_t i = up_to + 1; i <= n; ++i) {
-            /* recurrence: (n+3)*a(n) = (3*n+5)*a(n-1) + (n-3)*a(n-2) - 3*(n-3)*a(n-3) */
+            /* recurrence: (n+3)*a_wide(n) = (3*n+5)*a_wide(n-1) + (n-3)*a_wide(n-2) - 3*(n-3)*a_wide(n-3) */
             seq_t an1 = memo[i-1];
             seq_t an2 = memo[i-2];
             seq_t an3 = memo[i-3];
@@ -69,4 +81,10 @@ seq_t a(idx_t n)
     }
 
     return memo[n];
+}
+
+#undef seq_t
+seq_t a(idx_t n)
+{
+    return (seq_t)a_wide(n);
 }

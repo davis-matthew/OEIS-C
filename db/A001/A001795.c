@@ -9,13 +9,14 @@
  *            where o(n) is the odd part of n
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 18, u128 n <= 35,
  *            big any n
- * Helpers:   a1795_g
+ * Validated: standard, pass, 35 terms through n = 97 (2026-11-01)
+ * Helpers:   gcd_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a1795_g.h"
+#include "../utils/gcd_idx.h"
 
 seq_t a(idx_t n) {
     seq_t x = 1;
@@ -27,10 +28,10 @@ seq_t a(idx_t n) {
         idx_t p2 = 4 * k - 3;
         idx_t g;
         while ((o & 1) == 0) o >>= 1;
-        g = a1795_g(p1, o); p1 /= g; o /= g;
-        g = a1795_g(p2, o); p2 /= g; o /= g;
-        g = a1795_g(p1, d2); p1 /= g; d2 /= g;
-        g = a1795_g(p2, d2); p2 /= g; d2 /= g;
+        g = gcd_idx(p1, o); p1 /= g; o /= g;
+        g = gcd_idx(p2, o); p2 /= g; o /= g;
+        g = gcd_idx(p1, d2); p1 /= g; d2 /= g;
+        g = gcd_idx(p2, d2); p2 /= g; d2 /= g;
         if (o > 1) x /= o;
         if (d2 > 1) x /= d2;
         x *= p1;

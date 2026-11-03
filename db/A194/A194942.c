@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 97, u16 n <= 97, u32 n <= 97, u64 n <= 97, u128 n <= 97,
  *            big any n
- * Helpers:   word_violates
+ * Validated: full, pass, 97 terms through n = 97 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,36 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/word_violates.h"
+#include "../utils/mem.h"
+
+/* Check whether a word stored in buf[0..len-1] violates the
+   Abelian squarefree condition.  Returns true if a square
+   (two adjacent blocks with the same multiset) is found. */
+static bool word_violates(int len, seq_t *buf)
+{
+    for (int k = 1; 2 * k <= len; ++k) {
+        int l0 = 0, l1 = 0, l2 = 0;
+        int r0 = 0, r1 = 0, r2 = 0;
+        int start_left = len - 2 * k;
+        int start_mid  = len - k;
+
+        for (int i = start_left; i < start_mid; ++i) {
+            unsigned long long c = (unsigned long long)buf[i];
+            if (c == 0) ++l0;
+            else if (c == 1) ++l1;
+            else ++l2;            /* must be 2 */
+        }
+        for (int i = start_mid; i < len; ++i) {
+            unsigned long long c = (unsigned long long)buf[i];
+            if (c == 0) ++r0;
+            else if (c == 1) ++r1;
+            else ++r2;
+        }
+        if (l0 == r0 && l1 == r1 && l2 == r2)
+            return true;
+    }
+    return false;
+}
 
 /* External helper types supplied by the build system. */
 extern seq_t a(idx_t n);               /* function to implement */
@@ -46,7 +76,7 @@ static void ensure_flat_capacity(size_t need)
     if (flat_len + need > flat_cap) {
         size_t new_cap = flat_cap ? flat_cap * 2 : 16;
         if (new_cap < flat_len + need) new_cap = flat_len + need;
-        flat = (seq_t *)realloc(flat, new_cap * sizeof(seq_t));
+        flat = mem_resize(seq_t, flat, new_cap);
         flat_cap = new_cap;
     }
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   digit_product_calculate, same_distinct_digits
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,38 @@
 /* A248210:  Zeroless numbers k such that k - digit_product(k)
    contains the same distinct digits as k.  The index n starts at 1. */
 #include <stdbool.h>
-#include "../utils/digit_product_calculate.h"
-#include "../utils/same_distinct_digits.h"
+
+/* Compute the product of the decimal digits of x.  If x contains a zero
+   digit the result is 0. */
+static seq_t digit_product_calculate(seq_t x)
+{
+    seq_t prod = 1;
+    while (x > 0) {
+        int d = (int)(x % 10);
+        prod *= (seq_t)d;
+        x /= 10;
+    }
+    return prod;
+}
+
+/* Compare the sets of distinct decimal digits of a and b. */
+static bool same_distinct_digits(seq_t a, seq_t b)
+{
+    unsigned mask_a = 0, mask_b = 0;
+    seq_t x = a;
+    while (x > 0) {
+        int d = (int)(x % 10);
+        mask_a |= 1u << d;
+        x /= 10;
+    }
+    x = b;
+    while (x > 0) {
+        int d = (int)(x % 10);
+        mask_b |= 1u << d;
+        x /= 10;
+    }
+    return mask_a == mask_b;
+}
 
 /* Return true if the decimal representation of x contains a zero digit. */
 static bool contains_zero(seq_t x)

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 14, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   pow_seq_large, seq_mul
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,14 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_mul.h"
-#include "../utils/pow_seq_large.h"
+#include <stdint.h>
+#include <string.h>
+#include "../utils/ipow.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 static idx_t *Q_cache = NULL;      /* stores Q[0 .. k] */
 static idx_t  Q_cache_len = 0;     /* current number of entries*/
@@ -137,7 +144,7 @@ seq_t a(idx_t n)
             exp -= factorial_prime_exp(mlist[k], p);
 
         if (exp > 0) {
-            seq_t pow_val = pow_seq_large((seq_t)p, (seq_t)exp);
+            seq_t pow_val = ipow((seq_t)p, (seq_t)exp);
             result = seq_mul(result, pow_val);
         }
     }

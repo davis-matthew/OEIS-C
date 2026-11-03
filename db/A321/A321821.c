@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     i8 n <= 2, i16 n <= 8, i32 n <= 74, i64 n <= 6208,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 49 terms through n = 9604 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 seq_t a(idx_t n)

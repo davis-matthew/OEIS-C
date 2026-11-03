@@ -10,7 +10,8 @@
  *            T(1,1)=1 and T(n,k)=0 when k<1 or k>n
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 48, u64 n <= 110,
  *            u128 n <= 284, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 266 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for pre‑computed rows of the triangle
  * tri[i][k] holds T(i,k) for 1 ≤ k ≤ i.  */
@@ -36,7 +38,7 @@ static void ensure_rows_up_to(idx_t r)
     /* compute the missing rows, starting from max_rows+1 */
     for (idx_t i = max_rows + 1; i <= r; ++i) {
         /* each row has i+1 elements (indices 0..i); index 0 is unused */
-        tri[i] = (seq_t *)calloc((size_t)(i + 1), sizeof(seq_t));
+        tri[i] = mem_new(seq_t, (size_t)(i + 1));
         if (tri[i] == NULL) abort();  /* allocation failure */
 
         if (i == 1) {                 /* base case */

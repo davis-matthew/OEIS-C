@@ -11,7 +11,8 @@
  *            list is componentwise ≤ that of n
  * Range:     u8 n <= 1328, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 9803 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static uint32_t *spfs = NULL;          /* smallest prime factor for each number */
 static uint8_t   *lens  = NULL;        /* number of prime factors (bigomega) */
@@ -31,7 +33,7 @@ static idx_t     cache_size = 0;       /* max n for which cache is filled */
 static void build_upto(idx_t max_n)
 {
     /* free old data */
-    free(spfs);  free(lens);  free(starts);  free(flat);  free(cache);
+    free(spfs);  free(lens);  free(starts);  free(flat);  mem_free(cache);
     spfs = (uint32_t*)calloc((size_t)max_n + 1, sizeof(uint32_t));
     lens = (uint8_t*)calloc((size_t)max_n + 1,  sizeof(uint8_t));
     starts = (size_t*)calloc((size_t)max_n + 1, sizeof(size_t));
@@ -75,7 +77,7 @@ static void build_upto(idx_t max_n)
     }
 
     /* compute sequence values */
-    cache = (seq_t*)malloc((size_t)max_n * sizeof(seq_t));
+    cache = mem_new(seq_t, (size_t)max_n);
     for (idx_t i = 1; i <= max_n; ++i) {
         seq_t count = 0;
         uint8_t len_i = lens[i];

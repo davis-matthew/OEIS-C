@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 395, u16 n <= 6441, u32 n <= 6441, u64 n <= 6441,
  *            u128 n <= 6441, big any n
+ * Validated: standard, pass, 98 terms through n = 5961 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -24,6 +25,7 @@
  * and the cumulative sum of entries.  As soon as the sum surpasses
  * n, compute the offset.
  */
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

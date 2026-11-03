@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 12, u64 n <= 27, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,6 +37,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* 1‑based initial values, a[0] unused */
 static const seq_t init_values[21] = {
@@ -65,14 +67,14 @@ static void ensure_cache_size(idx_t n)
     if (cache == NULL) {
         cache_size = n + 1;
         if (cache_size < 21) cache_size = 21;          /* store all initial values */
-        cache = (seq_t*)malloc(cache_size * sizeof(seq_t));
-        memset(cache, 0, cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
+        mem_set(cache, 0, cache_size * sizeof(seq_t));
     }
     else if (cache_size <= n) {
         idx_t new_size = (n + 1 > 2 * cache_size) ? (n + 1) : (2 * cache_size);
-        seq_t *new_cache = (seq_t*)malloc(new_size * sizeof(seq_t));
-        memcpy(new_cache, cache, (max_computed + 1) * sizeof(seq_t));
-        free(cache);
+        seq_t *new_cache = mem_new(seq_t, new_size);
+        mem_copy(new_cache, cache, (max_computed + 1) * sizeof(seq_t));
+        mem_free(cache);
         cache = new_cache;
         cache_size = new_size;
     }

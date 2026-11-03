@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, full, fini
  * Formula:   not stated
- * Range:     u8 none, u16 none, u32 n <= 9507, u64 n <= 9507, u128 n <= 9507,
- *            big any n
- * Helpers:   none
+ * Range:     u8 none, u16 none, u32 n <= 17641, u64 n <= 17641,
+ *            u128 n <= 17641, big any n
+ * Validated: full, pass, 17641 terms through n = 17641 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stddef.h>   /* size_t, NULL */
 #include <stdint.h>   /* uint64_t */
 #include <stdlib.h>   /* malloc, free, qsort */
+#include "../utils/mem.h"
 
 /* Comparator for qsort – works for any seq_t type (arbitrary‑precision
    classes or built‑in unsigned types). */
@@ -78,7 +80,7 @@ seq_t a(idx_t n)
         }
 
         /* Allocate space for all 10! sums */
-        sums = (seq_t *)malloc(TOTAL_PERM * sizeof(seq_t));
+        sums = mem_new(seq_t, TOTAL_PERM);
         if (!sums) return 0;      /* failure – return 0 */
 
         int perm[10];
@@ -94,7 +96,7 @@ seq_t a(idx_t n)
         } while (next_permutation(perm, 10));
 
         /* Sort all sums */
-        qsort(sums, TOTAL_PERM, sizeof(seq_t), seq_cmp);
+        mem_qsort(sums, TOTAL_PERM, sizeof(seq_t), seq_cmp);
 
         /* Remove duplicates in place */
         size_t uniq = 0;

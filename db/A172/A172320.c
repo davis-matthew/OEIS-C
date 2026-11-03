@@ -9,7 +9,8 @@
  *            a(9)=512, a(10)=1024, a(11)=2047
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,11 +18,12 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Utility: allocate array of seq_t */
 static seq_t *alloc_seq_array(size_t n)
 {
-    return (seq_t *)malloc(n * sizeof(seq_t));
+    return mem_new(seq_t, n);
 }
 
 seq_t a(idx_t n)
@@ -60,8 +62,8 @@ seq_t a(idx_t n)
     if (!new_cache) return 0;        /* allocation failure */
 
     /* Copy old values into the new cache */
-    memcpy(new_cache, cache, cache_size * sizeof(seq_t));
-    free(cache);
+    mem_copy(new_cache, cache, cache_size * sizeof(seq_t));
+    mem_free(cache);
     cache = new_cache;
     cache_size = new_size;
 

@@ -10,13 +10,15 @@
  *            Initial values: a(1)=3, a(2)=21, a(3)=125, a(4)=765
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 24, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 179 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached values of the sequence.  Uses 1‑based indexing; element 0 is unused. */
 static seq_t *cache = NULL;       /* 1‑based indexing: cache[0] unused   */
@@ -31,7 +33,7 @@ static void ensure_cache(idx_t n)
     /* Allocate space for indices 0..n inclusive. */
     idx_t new_cap = n + 1;   /* +1 to keep index 0 unused */
     /* realloc works in both C and C++ when the result is cast appropriately. */
-    seq_t *new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache)          /* out‑of‑memory */
         exit(1);
 

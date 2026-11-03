@@ -8,7 +8,8 @@
  * Formula:   a(n) = n mod lambda(n) where lambda is Carmichael's function
  * Range:     u8 n <= 457, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, gcd, pow_uint
+ * Validated: standard, pass, 101 terms through n = 8862 (2026-11-01)
+ * Helpers:   factor_u64, gcd, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "../utils/gcd.h"
-#include "../utils/pow_uint.h"
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
+#include "../utils/ipow_u64_idx.h"
 
 /* Compute Carmichael's lambda function for n (n >= 1) */
 static seq_t carmichael(idx_t n)
@@ -52,7 +54,7 @@ static seq_t carmichael(idx_t n)
         else
         {
             /* For odd prime powers */
-            lam_i = pow_uint(primes[i], (idx_t)(exps[i] - 1));
+            lam_i = ipow_u64_idx(primes[i], (idx_t)(exps[i] - 1));
             lam_i *= (seq_t)(primes[i] - 1);
         }
 

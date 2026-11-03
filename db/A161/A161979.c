@@ -13,7 +13,8 @@
  *            of n as a substring
  * Range:     u8 n <= 56, u16 n <= 736, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   bitlen_seq_t
+ * Validated: standard, pass, 79 terms through n = 1800 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/bitlen_seq_t.h"
+#include "../utils/bit_length.h"
 
 /* Forward declarations of helper functions. */
 static seq_t rev_bin(idx_t n);
@@ -95,7 +96,7 @@ seq_t a(idx_t n)
 
     const seq_t prev = seq_cache[n-1];
     const seq_t pattern = rev_bin(n);
-    const unsigned patlen = bitlen_seq_t(pattern);
+    const unsigned patlen = bit_length(pattern);
 
     /* Build a bitmask covering patlen lower bits. */
     seq_t mask;
@@ -107,7 +108,7 @@ seq_t a(idx_t n)
     seq_t candidate = prev + 1;
     while (true)
     {
-        const unsigned candlen = bitlen_seq_t(candidate);
+        const unsigned candlen = bit_length(candidate);
         if (candlen >= patlen)
         {
             bool found = false;

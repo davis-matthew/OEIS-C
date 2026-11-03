@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 32, u16 n <= 74, u32 n <= 189, u64 n <= 518,
  *            u128 n <= 1503, big any n
+ * Validated: standard, pass, 74 terms through n = 9976 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
    a(n)   = Σ_{k≥1, k*(2*k-1)≤n} binomial(n-1-2*k*(k-1), k-1)   for n ≥ 1
 */
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 /* multiplicative computation of the binomial coefficient

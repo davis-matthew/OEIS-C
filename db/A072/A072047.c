@@ -9,7 +9,8 @@
  *            squarefree number A005117(n)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 103 terms through n = 9746 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -60,10 +62,10 @@ seq_t a(idx_t n)
        Compute omega (number of distinct prime factors) and a flag
        indicating whether i is squarefree.
      ------------------------------------------------------------ */
-    seq_t *omega      = (seq_t *)calloc((size_t)(bound + 1), sizeof(seq_t));
+    seq_t *omega      = mem_new(seq_t, (size_t)(bound + 1));
     uint8_t *sqfree   = (uint8_t *)calloc((size_t)(bound + 1), sizeof(uint8_t));
     if (!omega || !sqfree) {
-        free(spf); free(omega); free(sqfree);
+        free(spf); mem_free(omega); free(sqfree);
         return (seq_t)0;
     }
 
@@ -100,13 +102,13 @@ seq_t a(idx_t n)
             ++found;
             if (found == n) {
                 seq_t result = omega[i];
-                free(spf); free(omega); free(sqfree);
+                free(spf); mem_free(omega); free(sqfree);
                 return result;
             }
         }
     }
 
     /* The bound was not large enough – unlikely, but handle it. */
-    free(spf); free(omega); free(sqfree);
+    free(spf); mem_free(omega); free(sqfree);
     return (seq_t)0;
 }

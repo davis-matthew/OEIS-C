@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 133, u16 n <= 417, u32 n <= 417, u64 n <= 417,
  *            u128 n <= 417, big any n
- * Helpers:   encode_key
+ * Validated: full, pass, 417 terms through n = 417 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,13 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/encode_key.h"
+#include "../utils/mem.h"
+
+/* encode an (i,j) pair into a 64‑bit key (i<2^32, j<2^32) */
+static inline uint64_t encode_key(idx_t i, idx_t j)
+{
+    return ((uint64_t)i << 32) | (uint64_t)j;
+}
 
 /* --- global state ------------------------------------------------------- */
 static idx_t cur_i = 0;           /* current row of the knight */
@@ -125,7 +132,7 @@ static void seq_push(seq_t val)
 {
     if (seq_len == seq_cap) {
         idx_t new_cap = seq_cap ? seq_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(seq, (size_t)new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq, (size_t)new_cap);
         seq = tmp;
         seq_cap = new_cap;
     }

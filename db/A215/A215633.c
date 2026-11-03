@@ -8,7 +8,8 @@
  *            1/(k^{prime(k)}) (prime(k) = k-th prime)
  * Range:     u8 n <= 118, u16 n <= 118, u32 n <= 118, u64 n <= 118,
  *            u128 n <= 118, big any n
- * Helpers:   none
+ * Validated: partial, pass, 118 terms through n = 118 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 typedef struct {
     uint32_t *d;      /* little-endian limbs */
@@ -131,8 +133,8 @@ seq_t a(idx_t n)
 
     if (n > maxComputed) {                /* increase precision   */
         idx_t N = n;
-        sumDigits = (seq_t *)realloc(sumDigits, (N + 1) * sizeof(seq_t));
-        memset(sumDigits, 0, (N + 1) * sizeof(seq_t));
+        sumDigits = mem_resize(seq_t, sumDigits, (N + 1));
+        mem_set(sumDigits, 0, (N + 1) * sizeof(seq_t));
         digits2 = (uint8_t *)realloc(digits2, (N + 1) * sizeof(uint8_t));
         memset(digits2, 0, (N + 1) * sizeof(uint8_t));
         digits3 = (uint8_t *)realloc(digits3, (N + 1) * sizeof(uint8_t));

@@ -11,12 +11,15 @@
  *            iterations of Rule 231: 2n ones followed by a zero)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 9, u128 n <= 19,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 31 terms through n = 971 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +29,7 @@ seq_t a(idx_t n)
     /* exponent 2*n (fits in idx_t for n ≤ 10 000) */
     idx_t exp = n << 1;        /* 2 * n */
 
-    seq_t pow10 = seq_pow((seq_t)10, exp);   /* 10^(2n) */
+    seq_t pow10 = ipow_idx((seq_t)10, exp);   /* 10^(2n) */
     seq_t tmp   = (pow10 - (seq_t)1) / (seq_t)9;  /* (10^(2n)-1)/9  */
     tmp *= (seq_t)10;          /* append the trailing 0 */
 

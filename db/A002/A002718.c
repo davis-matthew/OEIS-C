@@ -11,20 +11,22 @@
  *            blocks already told apart, number of pending...
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 91 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 1;
     size_t D = (size_t)(2 * n + 1);
     size_t Q = (size_t)(n + 2);
     size_t total = D * Q;
-    seq_t *cur = (seq_t *)calloc(total, sizeof(seq_t));
-    seq_t *nxt = (seq_t *)calloc(total, sizeof(seq_t));
+    seq_t *cur = mem_new(seq_t, total);
+    seq_t *nxt = mem_new(seq_t, total);
     size_t i;
     for (i = 0; i < total; i++) { cur[i] = 0; nxt[i] = 0; }
     cur[0] = 1;
@@ -70,7 +72,7 @@ seq_t a(idx_t n) {
 
     seq_t res = 0;
     for (d = 0; d <= 2 * n; d++) res += cur[(size_t)d];
-    free(cur);
-    free(nxt);
+    mem_free(cur);
+    mem_free(nxt);
     return res;
 }

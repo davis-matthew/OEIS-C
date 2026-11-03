@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 573, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 62 terms through n = 9839 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/gcd.h"     /* gcd(seq_t, seq_t) */
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Prime sieve: generate all primes up to 2,000,000 (~1.3e5 primes) */
@@ -179,7 +181,7 @@ static void ensure_terms(idx_t n)
         if (k_is_candidate(next_k)) {
             if (terms_cnt == terms_cap) {
                 size_t new_cap = terms_cap ? terms_cap * 2 : 16;
-                seq_t *tmp = (seq_t*)realloc(terms, new_cap * sizeof(seq_t));  /* C++ cast */
+                seq_t *tmp = mem_resize(seq_t, terms, new_cap);  /* C++ cast */
                 if (!tmp) abort();
                 terms = tmp;
                 terms_cap = new_cap;

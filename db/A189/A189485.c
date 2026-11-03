@@ -12,6 +12,7 @@
  *            intermediate values * within the bit‑width of seq_t, so even...
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 10, u64 n <= 13, u128 n <= 15,
  *            big any n
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,7 @@
 
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 #if defined(__cplusplus)

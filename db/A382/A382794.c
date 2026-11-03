@@ -7,13 +7,15 @@
  * Formula:   a(n) = Sum_{k=0}^{n} Stirling1(n,k) * Stirling2(n,k) * (k!)^2
  * Range:     i8 n <= 3, i16 n <= 5, i32 n <= 7, i64 n <= 12, i128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 
 static seq_t *A = NULL;          /* a(n) values               */
@@ -34,12 +36,12 @@ static void ensure_capacity(idx_t newsize)
     if (newsize <= cap) return;
 
     /* Reallocate each array to the requested size */
-    A        = (seq_t*)realloc(A,    newsize * sizeof(seq_t));
-    fac      = (seq_t*)realloc(fac,  newsize * sizeof(seq_t));
-    S1_prev  = (seq_t*)realloc(S1_prev, newsize * sizeof(seq_t));
-    S1_curr  = (seq_t*)realloc(S1_curr, newsize * sizeof(seq_t));
-    S2_prev  = (seq_t*)realloc(S2_prev, newsize * sizeof(seq_t));
-    S2_curr  = (seq_t*)realloc(S2_curr, newsize * sizeof(seq_t));
+    A        = mem_resize(seq_t, A, newsize);
+    fac      = mem_resize(seq_t, fac, newsize);
+    S1_prev  = mem_resize(seq_t, S1_prev, newsize);
+    S1_curr  = mem_resize(seq_t, S1_curr, newsize);
+    S2_prev  = mem_resize(seq_t, S2_prev, newsize);
+    S2_curr  = mem_resize(seq_t, S2_curr, newsize);
 
     /* Initialise any newly allocated space to zero */
     for (idx_t i = cap; i < newsize; ++i) {

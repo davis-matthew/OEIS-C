@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 512, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   geq_one
+ * Validated: standard, pass, 89 terms through n = 9941 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,17 @@
  */
 
 #include <stdint.h>   /* for int64_t */
-#include "../utils/geq_one.h"
+
+/* Test whether (p + q√3)/2 ≥ 1  ⇔  p + q√3 ≥ 2 */
+static inline int geq_one(int64_t p, int64_t q)
+{
+    if (p >= 2)                 /* p already large enough */
+        return 1;
+    int64_t diff = 2 - p;       /* positive */
+    unsigned __int128 left = (unsigned __int128)q * q * 3;
+    unsigned __int128 right = (unsigned __int128)diff * diff;
+    return left >= right;
+}
 
 seq_t a(idx_t n)
 {

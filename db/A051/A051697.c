@@ -8,15 +8,27 @@
  *            prime
  * Range:     u8 n <= 71, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   is_prime_small, next_prime, prev_prime
+ * Validated: partial, pass, 72 terms through n = 71 (2026-11-01)
+ * Helpers:   is_prime, is_prime_seq, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/prev_prime.h"
+#include <stdint.h>
+#include "../utils/is_prime.h"
+#include "../utils/is_prime_seq.h"
 #include "../utils/next_prime.h"
-#include "../utils/is_prime_small.h"
+
+/* Return the largest prime < n   (n > 2)   ; pp(2) = 1, but we never call it for n==2 */
+static inline idx_t prev_prime(idx_t n)
+{
+    idx_t p = n - 1;
+    for (;; --p)
+    {
+        if (is_prime(p)) return p;
+    }
+}
 
 seq_t a(idx_t n) {
     /* Handle small n where 2 is the closest prime. */
@@ -25,7 +37,7 @@ seq_t a(idx_t n) {
     }
 
     /* If n itself is prime, it is the closest. */
-    if (is_prime_small((seq_t)n)) {
+    if (is_prime_seq((seq_t)n)) {
         return (seq_t)n;
     }
 

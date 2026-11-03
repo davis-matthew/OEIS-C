@@ -8,7 +8,8 @@
  * Formula:   a(n) = min_{x>0 : phi(x) mod A007617(n) == 0}
  * Range:     u8 n <= 16, u16 n <= 1352, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   phi
+ * Validated: standard, pass, 72 terms through n = 9899 (2026-11-03)
+ * Helpers:   mem, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/phi.h"     /* seq_t phi(idx_t m); */
+#include "../utils/totient.h"
+#include "../utils/mem.h"
 
 #define LIMIT 2000000
 
@@ -70,14 +72,14 @@ static void compute_nontotients(void)
 
     /* --- 3. collect nontotients ------------------------------------- */
     nt_cap = 250000;                     /* generous initially          */
-    nontotients = (seq_t *)malloc(nt_cap * sizeof(seq_t));
+    nontotients = mem_new(seq_t, nt_cap);
     nt_len = 0;
 
     for (size_t i = 1; i <= LIMIT; ++i) {
         if (!totient_exists[i]) {
             if (nt_len == nt_cap) {
                 nt_cap *= 2;
-                nontotients = (seq_t *)realloc(nontotients, nt_cap * sizeof(seq_t));
+                nontotients = mem_resize(seq_t, nontotients, nt_cap);
                 if (!nontotients) { /* allocation failure – should not happen */
                     exit(EXIT_FAILURE);
                 }
@@ -111,7 +113,7 @@ seq_t a(idx_t n)
     /* Search for the smallest x with φ(x) ≡ 0 mod t. */
     unsigned long long cand = 1;
     while (true) {
-        seq_t phi_val = phi((idx_t)cand);
+        seq_t phi_val = totient((idx_t)cand);
         if (phi_val % t == 0) {
             return (seq_t)cand;
         }

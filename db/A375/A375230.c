@@ -8,15 +8,18 @@
  * Formula:   a(n) = 3^sum_{p^e||n} popcount(e)
  * Range:     u8 n <= 7559, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, pow_int
+ * Validated: standard, pass, 100 terms through n = 9872 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n) {
     /* Factor n into prime powers */
@@ -36,5 +39,5 @@ seq_t a(idx_t n) {
     }
 
     /* Return 3^sum_pop as seq_t */
-    return pow_int((seq_t)3, sum_pop);
+    return ipow_idx((seq_t)3, sum_pop);
 }

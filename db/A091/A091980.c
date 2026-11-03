@@ -12,12 +12,14 @@
  *            powers exist (signalling a tie) we check both candi...
  * Range:     u8 n <= 13, u16 n <= 27, u32 n <= 54, u64 n <= 109,
  *            u128 n <= 217, big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 5443 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>  /* for malloc, realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* enlarge table if necessary */
     if (max_n < n) {
         idx_t new_size = n + 1;        /* indices 0..n      */
-        seq_t *new_dp  = (seq_t*)realloc(dp, new_size * sizeof(seq_t));
+        seq_t *new_dp  = mem_resize(seq_t, dp, new_size);
         if (!new_dp) {                 /* allocation failure */
             return 0;
         }

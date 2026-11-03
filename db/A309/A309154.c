@@ -9,13 +9,15 @@
  *            1)
  * Range:     u8 n <= 6, u16 n <= 26, u32 n <= 26, u64 n <= 26, u128 n <= 2000,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 1728 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define CACHE_SIZE (1U << 20)          /* 1 048 576 entries – plenty for n up to 10 000   */
 #define EMPTY_KEY ((idx_t)-1)          /* sentinel value – all bits set */
@@ -35,7 +37,7 @@ static void init_cache(void)
         return;                       /* already initialised */
 
     cache_keys = (idx_t*)calloc(cache_cap, sizeof(idx_t));
-    cache_vals = (seq_t*)calloc(cache_cap, sizeof(seq_t));
+    cache_vals = mem_new(seq_t, cache_cap);
     for (size_t i = 0; i < cache_cap; ++i)
         cache_keys[i] = EMPTY_KEY;
 }

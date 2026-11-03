@@ -11,17 +11,51 @@
  *            q*Prod_{k>=1} (1-q^k)^24 (Delta and Del...
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 3, u64 n <= 7, u128 n <= 32,
  *            big any n
- * Helpers:   alloc_zero, from_i128, release, seq_is_fixed_width
+ * Validated: standard, pass, 29 terms through n = 9727 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
-#include "../utils/from_i128.h"
-#include "../utils/seq_is_fixed_width.h"
+#include <stdint.h>
+#include <string.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
+
+static seq_t from_i128(__int128 v)
+{
+    if (v >= -(__int128)4000000000000000000LL && v <= (__int128)4000000000000000000LL)
+        return (seq_t)(long long)v;
+    {
+        __int128 q = v / ((__int128)1 << 32);
+        long long rem = (long long)(v - q * ((__int128)1 << 32));
+        return from_i128(q) * (seq_t)4294967296LL + (seq_t)rem;
+    }
+}
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
 
 static idx_t cap = 0;
 static seq_t *E8s = NULL, *E16s = NULL, *Ys = NULL, *D2 = NULL;

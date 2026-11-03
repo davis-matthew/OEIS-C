@@ -11,7 +11,8 @@
  *            pair of rows s,t it checks that * every of the...
  * Range:     u8 none, u16 n <= 1, u32 n <= 3, u64 n <= 9, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 27 terms through n = 155 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* The constants used below are independent of the seq_t/idx_t types. */
 #define STATE_COUNT 243            /* 3^5 possible rows */
@@ -103,7 +105,7 @@ static void init_once(void)
 
     /* allocate cache for a few terms */
     cache_cap = 1024;   /* start with some room */
-    a_cache   = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+    a_cache   = mem_new(seq_t, cache_cap);
     a_cache[0] = 0;     /* unused */
 
     cache_max = 0;      /* no terms computed yet */
@@ -120,7 +122,7 @@ static void ensure_cache_size(idx_t n)
     size_t new_cap = cache_cap;
     while (new_cap <= (size_t)n)
         new_cap <<= 1;
-    seq_t *newp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *newp = mem_resize(seq_t, a_cache, new_cap);
     if (!newp)
         abort();  /* out of memory */
     /* zero newly added entries */

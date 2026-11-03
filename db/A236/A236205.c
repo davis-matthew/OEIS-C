@@ -9,14 +9,15 @@
  *            base‑10 integer )
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   divisor_count_u64
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/divisor_count_u64.h"   /* provides divisor_count_u64(uint64_t) */
+#include "../utils/num_divisors.h"
 
 seq_t a(idx_t n)
 {
@@ -47,7 +48,7 @@ seq_t a(idx_t n)
         }
 
         /* Add divisor count of the constructed decimal number */
-        sum += (seq_t)divisor_count_u64(value);
+        sum += (seq_t)num_divisors(value);
     }
 
     return sum;

@@ -7,21 +7,22 @@
  * Formula:   a(n) = 1-2^n+4^n-8^n+16^n
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 32,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 35 terms through n = 770 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
     /* compute the required powers of 2 */
-    seq_t p2   = pow_uint(2ULL, n);
-    seq_t p4   = pow_uint(4ULL, n);
-    seq_t p8   = pow_uint(8ULL, n);
-    seq_t p16  = pow_uint(16ULL, n);
+    seq_t p2   = ipow_u64_idx(2ULL, n);
+    seq_t p4   = ipow_u64_idx(4ULL, n);
+    seq_t p8   = ipow_u64_idx(8ULL, n);
+    seq_t p16  = ipow_u64_idx(16ULL, n);
 
     /* combine them in a non‑negative order */
     seq_t result = p16;

@@ -7,12 +7,14 @@
  * Formula:   a(n) = Sum_{k=0..n} C(n,k)*(floor(k/2)!)^2
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 15, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 static seq_t binom(idx_t n, idx_t k) {
@@ -29,7 +31,7 @@ static seq_t binom(idx_t n, idx_t k) {
 seq_t a(idx_t n) {
     /* pre‑compute factorials up to floor(n/2) */
     idx_t maxF = n / (idx_t)2;
-    seq_t *fact = (seq_t *)malloc((maxF + (idx_t)1) * sizeof(seq_t));
+    seq_t *fact = mem_new(seq_t, (maxF + (idx_t)1));
     if (!fact) return (seq_t)0;   /* allocation failed – return 0 */
     fact[0] = (seq_t)1;
     for (idx_t i = (idx_t)1; i <= maxF; ++i) {
@@ -43,6 +45,6 @@ seq_t a(idx_t n) {
         sum += binom(n, k) * f * f;
     }
 
-    free(fact);
+    mem_free(fact);
     return sum;
 }

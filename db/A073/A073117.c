@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 674, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 975 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
  * (The “mod” operand is the previous index n, so a(2) = a(1)+(a(1) mod 1), etc.) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;   /* cache[0] holds a(1), cache[1] holds a(2), ... */
 static size_t a_cache_len = 0;  /* number of terms currently stored */
@@ -29,7 +31,7 @@ static void ensure_a_cache(size_t need) {
     size_t new_cap = (a_cache_cap ? a_cache_cap * 2 : 16);
     if (new_cap < need)
         new_cap = need;
-    seq_t *new_buf = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *new_buf = mem_resize(seq_t, a_cache, new_cap);
     if (!new_buf)
         abort();                /* allocation failure */
     a_cache = new_buf;

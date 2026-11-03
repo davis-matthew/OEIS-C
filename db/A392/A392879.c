@@ -7,8 +7,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   not stated
- * Range:     u8 n <= 82, u16 n <= 9869, u32 n <= 9869, u64 n <= 9869,
- *            u128 n <= 9869, big any n
+ * Range:     u8 n <= 82, u16 n <= 22500, u32 n <= 22500, u64 n <= 22500,
+ *            u128 n <= 22500, big any n
+ * Validated: standard, pass, 98 terms through n = 9869 (2026-11-01)
  * Helpers:   next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,7 @@
    where q = the least prime > p, p = A129252(n). */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/next_prime.h"
 
 /* Integer power for seq_t base and unsigned 64‑bit exponent. */

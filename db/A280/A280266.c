@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, next_prime
+ * Validated: standard, pass, 68 terms through n = 862 (2026-11-03)
+ * Helpers:   is_prime, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,10 +24,32 @@
 #include <stdlib.h>
 #include <stddef.h>
 
-#include "../utils/next_prime.h"
 #include "../utils/is_prime.h"
+#include "../utils/next_prime.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 /* Helper to grow a dynamic array */
+#ifdef __cplusplus
+template <class T>
+static void ensure_cap(size_t needed, size_t *cap, T **ptr, size_t elem_size) {
+    if (needed > *cap) {
+        size_t new_cap = *cap ? *cap * 2 : 8;
+        while (new_cap < needed) new_cap *= 2;
+        T *tmp = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+        if (!tmp) abort();          /* allocation failed */
+        *ptr  = tmp;
+        *cap  = new_cap;
+    }
+}
+#else
 static void ensure_cap(size_t needed, size_t *cap, void **ptr, size_t elem_size) {
     if (needed > *cap) {
         size_t new_cap = *cap ? *cap * 2 : 8;
@@ -37,6 +60,7 @@ static void ensure_cap(size_t needed, size_t *cap, void **ptr, size_t elem_size)
         *cap  = new_cap;
     }
 }
+#endif
 
 /* Storage for primes seen so far */
 static uint64_t *primes = NULL;
@@ -57,7 +81,7 @@ seq_t a(idx_t n) {
         else
             next = next_prime(primes[primes_len - 1] + 1);
 
-        ensure_cap(primes_len + 1, &primes_cap, (void **)&primes,
+        ensure_cap(primes_len + 1, &primes_cap, OEISC_VPP(&primes),
                    sizeof(uint64_t));
         primes[primes_len++] = next;
 
@@ -69,7 +93,7 @@ seq_t a(idx_t n) {
 
             idx_t sum = (idx_t)prev + (idx_t)nextp + (idx_t)1;
             if (is_prime(sum)) {
-                ensure_cap(seq_len + 1, &seq_cap, (void **)&seq,
+                ensure_cap(seq_len + 1, &seq_cap, OEISC_VPP(&seq),
                            sizeof(seq_t));
                 seq[seq_len++] = curr;
             }

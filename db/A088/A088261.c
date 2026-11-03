@@ -11,13 +11,22 @@
  *            to 10 (i.e., the nth number ≡1,3,7,9 mod10)
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   is_prime_uint64, pow10_int
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/is_prime_uint64.h"
-#include "../utils/pow10_int.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/is_prime_u64.h"
+
+static inline uint64_t pow10_int(int e) {
+    uint64_t r = 1;
+    for (int i = 0; i < e; ++i) r *= 10;
+    return r;
+}
 
 static inline int num_digits_idx(idx_t x) {
     int d = 0;
@@ -43,7 +52,7 @@ seq_t a(idx_t n) {
     for (uint64_t D = 1;; ++D) {
         /* D*base + Pn is guaranteed to fit in uint64_t for n <= 10000 */
         uint64_t cand = D * base + Pn;
-        if (is_prime_uint64(cand)) {
+        if (is_prime_u64(cand)) {
             return (seq_t)D;
         }
     }

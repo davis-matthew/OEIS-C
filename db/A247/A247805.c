@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 55, u32 n <= 1007, u64 n <= 1008,
  *            u128 n <= 1008, big any n
- * Helpers:   none
+ * Validated: full, pass, 1008 terms through n = 1008 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* German alphabetic order of the digit names */
 static const unsigned char digit_order[10] = {8, 3, 1, 5, 9, 0, 6, 7, 4, 2};
@@ -70,7 +72,7 @@ static void build_cache(void)
     }
 
     cache_size = cnt;
-    qsort(cache, cache_size, sizeof(seq_t), seq_cmp);
+    mem_qsort(cache, cache_size, sizeof(seq_t), seq_cmp);
     cache_ready = true;
 }
 

@@ -11,12 +11,17 @@
  *            + 5
  * Range:     u8 n <= 6, u16 n <= 42, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   third_prod
+ * Validated: standard, pass, 59 terms through n = 942 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/third_prod.h"
+static seq_t third_prod(seq_t m, seq_t q) {
+    /* exact m*q/3, given 3 divides m*q; divide before multiplying */
+    if (m % 3 == 0) return (m / 3) * q;
+    return m * (q / 3);
+}
 
 seq_t a(idx_t n) {
     seq_t m = (seq_t)(n / 2);

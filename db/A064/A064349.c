@@ -7,7 +7,8 @@
  * Formula:   a(n) is the coefficient of xⁿ in 1/((1−x)(1−x²)²(1−x³)³(1−x⁴)⁴)
  * Range:     u8 n <= 10, u16 n <= 30, u32 n <= 137, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 997 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>   /* malloc, free, abort */
 #include <stddef.h>   /* size_t */
+#include "../utils/mem.h"
 
 /* Persistent DP table.  table[0] = 1, table[i] = a(i).          */
 static seq_t *dp = NULL;          /* array of coefficients               */
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
 
     /* Allocate a new table large enough for all indices 0…n.  */
     size_t new_size = (size_t)(n + 1);
-    seq_t *new_dp = (seq_t *)malloc(new_size * sizeof(seq_t));
+    seq_t *new_dp = mem_new(seq_t, new_size);
     if (!new_dp) abort();
 
     /* Initialise the table. */
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
             new_dp[s] += new_dp[s - 4];
 
     /* Replace the old table.                                    */
-    if (dp != NULL) free(dp);
+    if (dp != NULL) mem_free(dp);
     dp     = new_dp;
     dp_size = new_size;
 

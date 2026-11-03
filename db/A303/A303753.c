@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = number of k, 1 ≤ k ≤ n, such that k - φ(k) = n - φ(n)
- * Range:     u8 n <= 1618, u16 n <= 9949, u32 n <= 9949, u64 n <= 9949,
- *            u128 n <= 9949, big any n
- * Helpers:   none
+ * Range:     u8 n <= 1618, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9949 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -42,12 +44,12 @@ seq_t a(idx_t n)
     }
 
     /* Allocate count array for cototients (value ≤ n-1). */
-    seq_t *cnt = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *cnt = mem_new(seq_t, (n + 1));
     if (!cnt) {
         free(phi);
         return (seq_t)0;
     }
-    memset(cnt, 0, (n + 1) * sizeof(seq_t));
+    mem_set(cnt, 0, (n + 1) * sizeof(seq_t));
 
     seq_t result = (seq_t)0;
     for (idx_t k = 1; k <= n; ++k) {
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
             result = cnt[f];
     }
 
-    free(cnt);
+    mem_free(cnt);
     free(phi);
     return result;
 }

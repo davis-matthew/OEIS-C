@@ -7,7 +7,8 @@
  * Formula:   a(n) = -∑_{k=1..n} (-1)^⌊(3/2)^k⌋
  * Range:     i8 n <= 95, i16 n <= 95, i32 n <= 95, i64 n <= 95, i128 n <= 95,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 95 terms through n = 95 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         /* initial sizes, will grow if necessary          */
         cache_size = 128;
-        cache = (seq_t *)malloc((cache_size + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (cache_size + 1));
         cache[0] = 0;                         /* unused for n=0          */
 
         bits_cap = 128;
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
     /* --------- enlarge cache if needed ----------------------------- */
     if ((size_t)n + 1 > cache_size) {
         size_t new_size = ((size_t)n + 1) * 2;
-        cache = (seq_t *)realloc(cache, (new_size + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (new_size + 1));
         cache_size = new_size;
     }
 

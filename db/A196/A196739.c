@@ -7,16 +7,47 @@
  * Formula:   a(n) = factorial(n) - n^10
  * Range:     i8 n <= 1, i16 n <= 2, i32 n <= 8, i64 n <= 20, i128 n <= 33,
  *            big any n
- * Helpers:   factorial, pow_uint, seq_alloc, seq_realloc
+ * Validated: standard, pass, 37 terms through n = 400 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/factorial.h"
-#include "../utils/pow_uint.h"
-#include "../utils/seq_alloc.h"
-#include "../utils/seq_realloc.h"
+#include <stdlib.h>
+#include "../utils/ipow_u64_idx.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 seq_t a(idx_t n)
 {
@@ -46,6 +77,6 @@ seq_t a(idx_t n)
     }
 
     seq_t fact = fac[n];
-    seq_t power = pow_uint((uint64_t)n, (idx_t)10);
+    seq_t power = ipow_u64_idx((uint64_t)n, (idx_t)10);
     return fact - power;
 }

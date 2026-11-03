@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 360, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   seq_resize, used_get, used_set
+ * Validated: standard, pass, 82 terms through n = 774 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,37 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_resize.h"
-#include "../utils/used_get.h"
-#include "../utils/used_set.h"
+#include "../utils/mem.h"
+
+static inline void seq_resize(idx_t needed_len, seq_t **arr, size_t *cap) {
+    if (needed_len <= *cap) return;
+    size_t new_cap = (*cap > 0) ? *cap : 1;
+    while (new_cap <= needed_len) new_cap <<= 1;
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+    if (!tmp) abort();
+    *arr = tmp;
+    *cap = new_cap;
+}
+
+static inline bool used_get(idx_t v, const uint8_t *used, size_t used_cap) {
+    size_t byte_idx = v >> 3;
+    if (byte_idx >= used_cap) return false;
+    return (used[byte_idx] >> (v & 7)) & 1;
+}
+
+static inline void used_set(idx_t v, uint8_t **used, size_t *used_cap) {
+    size_t byte_idx = v >> 3;
+    if (byte_idx >= *used_cap) {
+        size_t new_cap = (*used_cap > 0) ? *used_cap : 1;
+        while (new_cap <= byte_idx) new_cap <<= 1;
+        uint8_t *tmp = (uint8_t *)realloc(*used, new_cap);
+        if (!tmp) abort();
+        for (size_t i = *used_cap; i < new_cap; ++i) tmp[i] = 0;
+        *used = tmp;
+        *used_cap = new_cap;
+    }
+    (*used)[byte_idx] |= (1u << (v & 7));
+}
 
 /* --------- Helpers for dynamic bitset of used integers ---------- */
 

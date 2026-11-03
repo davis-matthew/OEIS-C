@@ -8,7 +8,8 @@
  *            > 1
  * Range:     u8 n <= 144, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd, mul_small
+ * Validated: standard, pass, 80 terms through n = 932 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,20 @@
 
 /* seq_t and idx_t are provided by the build system. */
 #include "../utils/gcd.h"
-#include "../utils/mul_small.h"
+#include "../utils/mem.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 /* --------------------------------------------------------------------- */
 /*  Various helpers for prime treatment and modular arithmetic (64‑bit). */
@@ -149,7 +163,7 @@ static void update_cache(idx_t need_n)
     compute_Lvals();        /* ensure L_vals is ready */
 
     /* Allocate new array for terms (wide enough for need_n). */
-    seq_t *new_cache = (seq_t*)malloc((need_n + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, (need_n + 1));
     size_t new_len = 0;
 
     /* Choose an upper bound M such that we are sure to find need_n terms. */
@@ -159,7 +173,7 @@ static void update_cache(idx_t need_n)
     while (true) {
         /* Boolean array marking members of the sequence. */
         uint8_t *good = (uint8_t*)calloc((size_t)(M + 1), sizeof(uint8_t));
-        if (!good) { free(new_cache); return; }
+        if (!good) { mem_free(new_cache); return; }
 
         /* Mark multiples of each L. */
         for (size_t i = 0; i < L_len; ++i) {
@@ -184,7 +198,7 @@ static void update_cache(idx_t need_n)
     }
 
     /* Replace old cache. */
-    free(seq_cache);
+    mem_free(seq_cache);
     seq_cache = new_cache;
     seq_len   = new_len;
     cached_max_n = need_n;

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 2438, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 9670 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Compute the first decimal digit of x. */
 static inline int first_digit(seq_t x)
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     /* Ensure the array holds at least two entries (0 and 1). */
     if (size < 2) {
         size  = 2;
-        seq   = (seq_t *)realloc(seq, size * sizeof(seq_t));
+        seq   = mem_resize(seq_t, seq, size);
         if (!seq) abort();
         seq[0] = (seq_t)0;
         seq[1] = (seq_t)1;
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
 
     /* Grow the array and compute missing terms up to n. */
     idx_t new_size = n + 1;
-    seq = (seq_t *)realloc(seq, new_size * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, new_size);
     if (!seq) abort();
 
     for (idx_t i = size; i <= n; ++i) {

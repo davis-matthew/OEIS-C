@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 2000, i16 n <= 2000, i32 n <= 2000, i64 n <= 2000,
  *            i128 n <= 2000, big any n
- * Helpers:   poly_mult_shift_minus
+ * Validated: standard, pass, 97 terms through n = 1886 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,29 @@
  */
 
 #include <stddef.h>   /* for size_t */
-#include "../utils/poly_mult_shift_minus.h"
+
+/* --------------------------------------------------------------------
+ * Helper: multiply a polynomial by (x^shift – 1).
+ * Input polynomial array `poly` has length `*len` (in-place).
+ * After the call `poly` has length `old_len + shift`.
+ * -------------------------------------------------------------------- */
+static void
+poly_mult_shift_minus(int64_t *poly, int *len, int shift)
+{
+    int old_len = *len;
+    int new_len = old_len + shift;
+    int64_t tmp[1081] = {0};          /* maximum size required */
+
+    for (int i = 0; i < old_len; ++i) {
+        tmp[i]         -= poly[i];
+        tmp[i + shift] += poly[i];
+    }
+
+    for (int i = 0; i < new_len; ++i)
+        poly[i] = tmp[i];
+
+    *len = new_len;
+}
 
 /* --------------------------------------------------------------------
  * Main function returning the nth term of the sequence.

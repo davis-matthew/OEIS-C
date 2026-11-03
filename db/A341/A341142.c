@@ -9,7 +9,8 @@
  *            (including 1)
  * Range:     u8 n <= 63, u16 n <= 504, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 4805 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    build.  Only standard library facilities are used. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static size_t max_n = 0;                 /* max n already processed      */
 static seq_t **dp = NULL;                /* dp[k][s]  0 <= k <= 5        */
@@ -30,7 +32,7 @@ static void rebuild_dp(idx_t n_needed) {
     /* free old tables */
     if (dp) {
         for (int k = 0; k <= 5; ++k) {
-            if (dp[k]) free(dp[k]);
+            if (dp[k]) mem_free(dp[k]);
         }
         free(dp);
     }
@@ -39,9 +41,9 @@ static void rebuild_dp(idx_t n_needed) {
     dp = (seq_t**)malloc(6 * sizeof(seq_t*));
     if (!dp) return;               /* allocation failure – caller will return 0 */
     for (int k = 0; k <= 5; ++k) {
-        dp[k] = (seq_t*)calloc(new_max + 1, sizeof(seq_t));
+        dp[k] = mem_new(seq_t, new_max + 1);
         if (!dp[k]) {
-            for (int j = 0; j < k; ++j) free(dp[j]);
+            for (int j = 0; j < k; ++j) mem_free(dp[j]);
             free(dp);
             dp = NULL;
             return;

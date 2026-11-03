@@ -9,12 +9,14 @@
  *            distinct cubes (OEIS A281669)
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   none
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,14 +31,14 @@ seq_t a(idx_t n)
     {
         /* allocate new arrays */
         idx_t new_n = n;
-        seq_t *new_cnt = (seq_t *)calloc((size_t)(new_n + 1), sizeof(seq_t));
-        seq_t *new_parts = (seq_t *)calloc((size_t)(new_n + 1), sizeof(seq_t));
+        seq_t *new_cnt = mem_new(seq_t, (size_t)(new_n + 1));
+        seq_t *new_parts = mem_new(seq_t, (size_t)(new_n + 1));
 
         if (!new_cnt || !new_parts)  /* allocation failure */
         {
             /* fall back to zero */
-            free(new_cnt);
-            free(new_parts);
+            mem_free(new_cnt);
+            mem_free(new_parts);
             return (seq_t)0;
         }
 
@@ -61,8 +63,8 @@ seq_t a(idx_t n)
         }
 
         /* free old cache */
-        free(cnt);
-        free(parts);
+        mem_free(cnt);
+        mem_free(parts);
 
         /* store new cache */
         cnt = new_cnt;

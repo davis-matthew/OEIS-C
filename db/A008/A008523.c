@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 56, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_allowed_upto999
+ * Validated: standard, pass, 76 terms through n = 877 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,25 @@
    order, using the structure of the English number system.  */
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/is_allowed_upto999.h"
+
+/* Determine whether the decimal representation of n (<1000) contains the
+   letter 't' in its English word.  */
+static int is_allowed_upto999(idx_t n)
+{
+    /* Word parts that contain the letter 't' */
+    static const int hasT_unit[10] = {0,0,1,1,0,0,0,0,1,0};
+    if (n < 10)               return !hasT_unit[n];
+    if (n < 20) {             /* 10-19 */
+        return (n == 11);     /* "eleven" */
+    }
+    if (n < 100) {            /* 20-99 all contain 't' in the tens word */
+        return 0;
+    }
+    /* 100-999 */
+    idx_t h = n / 100;
+    if (hasT_unit[h]) return 0;     /* "two", "three", "eight" give 't' */
+    return is_allowed_upto999(n % 100);
+}
 
 #define SMALL_ARRAY_SIZE 56
 #define MILLIONS_ARRAY_SIZE 55

@@ -9,7 +9,8 @@
  *            prime(j) − prime(i), 1 ≤ i < j ≤ n. The value is ≤ n·(n+1)/2
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   estimate_nth_prime
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,14 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdbool.h>
-#include "../utils/estimate_nth_prime.h"
+
+static uint64_t estimate_nth_prime(idx_t n) {
+    /* upper bound for the nth prime: p_n < n (log n + log log n) for n ≥ 6 */
+    if (n < 6) return 13;
+    double dn = (double)n;
+    double bound = dn * (log(dn) + log(log(dn)));
+    return (uint64_t)(bound + 10.0);   /* safety margin */
+}
 
 static uint64_t *sieve_primes(idx_t n, idx_t *count_out) {
     /* Generate first n primes using a simple sieve.

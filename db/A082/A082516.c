@@ -8,14 +8,27 @@
  *            Niven numbers)
  * Range:     u8 n <= 75, u16 n <= 9061, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_niven
+ * Validated: standard, pass, 120 terms through n = 9062 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_niven.h"
+#include "../utils/mem.h"
+
+/* Test whether x is a Niven (Harshad) number: x % digit_sum(x) == 0 */
+static bool is_niven(seq_t x)
+{
+    seq_t sum = 0;
+    seq_t t   = x;
+    while (t) {
+        sum += t % (seq_t)10;
+        t   /= (seq_t)10;
+    }
+    return sum != 0 && (x % sum) == 0;
+}
 
 /* Dynamic array of Niven numbers, 1‑based: N[0] = 1, N[1] = 2, ...            */
 static seq_t *Niven = NULL;
@@ -29,7 +42,7 @@ static void grow_niven(size_t need)
     if (need <= NivenCap) return;
     size_t newcap = NivenCap ? 2 * NivenCap : 8;
     while (newcap < need) newcap *= 2;
-    Niven = (seq_t *)realloc(Niven, newcap * sizeof(seq_t));
+    Niven = mem_resize(seq_t, Niven, newcap);
     NivenCap = newcap;
 }
 

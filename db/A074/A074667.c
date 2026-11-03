@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  fini, full, nonn, base, easy
  * Formula:   not stated
- * Range:     u8 none, u16 none, u32 n <= 9614, u64 n <= 9614, u128 n <= 9614,
- *            big any n
- * Helpers:   none
+ * Range:     u8 none, u16 none, u32 n <= 33950, u64 n <= 33950,
+ *            u128 n <= 33950, big any n
+ * Validated: full, pass, 33950 terms through n = 33950 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static const idx_t MAX_SIEVE = 10000000UL; /* prime sieve up to 10^7 */
 
@@ -65,14 +67,14 @@ static void build_cache(void)
     if (cache_done) return;
     /* initial capacity guess: 35000 primes */
     cache_cap = 35000;
-    prime_cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+    prime_cache = mem_new(seq_t, cache_cap);
     if (!prime_cache) return;
     idx_t count = 0;
     for (idx_t n = 1000000; n <= 9999999; ++n) {
         if (!is_composite[n] && distinct_digits(n)) {
             if (count == cache_cap) {
                 cache_cap *= 2;
-                seq_t *tmp = (seq_t*)realloc(prime_cache, cache_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, prime_cache, cache_cap);
                 if (!tmp) break;
                 prime_cache = tmp;
             }

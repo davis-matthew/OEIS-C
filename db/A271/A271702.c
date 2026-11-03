@@ -11,14 +11,17 @@
  *            set numbers)
  * Range:     u8 n <= 19, u16 n <= 43, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,11 +36,11 @@ seq_t a(idx_t n)
 
     /* Allocate arrays for Stirling numbers of the second kind S2(k,j) */
     size_t sz = (size_t)k + 1;
-    seq_t *prev = (seq_t*)malloc(sz * sizeof(seq_t));
-    seq_t *curr = (seq_t*)malloc(sz * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, sz);
+    seq_t *curr = mem_new(seq_t, sz);
     if (!prev || !curr) {
-        if (prev) free(prev);
-        if (curr) free(curr);
+        if (prev) mem_free(prev);
+        if (curr) mem_free(curr);
         return 0; /* Out of memory: fallback */
     }
 
@@ -63,11 +66,11 @@ seq_t a(idx_t n)
     /* Compute the binomial convolution */
     seq_t sum = 0;
     for (size_t j = 0; j <= k; ++j) {
-        seq_t bin = binom(r, j);
+        seq_t bin = binomial(r, j);
         sum += bin * prev[j];
     }
 
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
     return sum;
 }

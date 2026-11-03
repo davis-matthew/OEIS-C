@@ -8,7 +8,8 @@
  *            a(0) = 1
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 14, u64 n <= 23, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 436 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,13 +17,14 @@
 /* Dependencies are provided by the build system. */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ---------- Helper: dynamic array for seq_t values ---------- */
 static void grow_seq_array(seq_t **p, size_t *cap, size_t need)
 {
     if (*cap < need) {
         size_t new_cap = need * 2;
-        seq_t *tmp = (seq_t *)realloc(*p, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *p, new_cap);
         if (!tmp) abort();
         *p     = tmp;
         *cap   = new_cap;

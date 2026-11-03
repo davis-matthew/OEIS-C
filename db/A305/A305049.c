@@ -9,7 +9,8 @@
  *            τ_k(k)=∏_{p^e||k} binom(e+k-1, k-1)
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 22, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   binom, seq_mul
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,15 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/binom.h"
-#include "../utils/seq_mul.h"
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* static data for memoization */
 static seq_t *A = NULL;       /* a(n) values, indices 0..max_n */
@@ -62,7 +70,7 @@ static seq_t compute_tauk(idx_t k)
             ++e;
         }
         /* multiply by binomial(e + k - 1, k - 1) */
-        prod = seq_mul(prod, binom(e + k - 1, k - 1));
+        prod = seq_mul(prod, binomial(e + k - 1, k - 1));
     }
     return prod;
 }
@@ -73,8 +81,8 @@ seq_t a(idx_t n)
     /* first invocation: allocate structures up to n */
     if (A == NULL) {
         /* allocate arrays up to index n (inclusive) */
-        A = (seq_t*)malloc((n + 1) * sizeof(seq_t));
-        F = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+        A = mem_new(seq_t, (n + 1));
+        F = mem_new(seq_t, (n + 1));
         spf = NULL;               /* will be built below */
         A[0] = (seq_t)1;          /* base case a(0)=1 */
 
@@ -99,8 +107,8 @@ seq_t a(idx_t n)
     build_spf(n);
 
     /* grow arrays */
-    A = (seq_t*)realloc(A, (n + 1) * sizeof(seq_t));
-    F = (seq_t*)realloc(F, (n + 1) * sizeof(seq_t));
+    A = mem_resize(seq_t, A, (n + 1));
+    F = mem_resize(seq_t, F, (n + 1));
 
     /* compute new τ_k(k) and a(k) from max_n+1 up to n */
     for (idx_t k = max_n + 1; k <= n; ++k) {

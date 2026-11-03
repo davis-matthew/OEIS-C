@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   contains85
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,29 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/contains85.h"
+#include "../utils/mem.h"
+
+/* Check whether a decimal representation of *x* contains "85". */
+static bool contains85(seq_t x)
+{
+    seq_t tmp = x;
+    unsigned int prev = 0xFFu;              /* sentinel for "no previous digit" */
+    unsigned long long digit;
+
+    while (tmp != 0)
+    {
+        /* tmp % 10U gives a seq_t; we convert that to unsigned long long
+           so we can test against small constants. */
+        digit = (unsigned long long)(tmp % 10U);
+        tmp   = tmp / 10U;                  /* drop the least significant digit */
+
+        if (prev == 5u && digit == 8u)
+            return true;
+
+        prev = (unsigned int)digit;
+    }
+    return false;
+}
 
 /* Public function required by the framework. */
 seq_t a(idx_t n)
@@ -52,7 +75,7 @@ seq_t a(idx_t n)
             if (cache_len == cache_cap)
             {
                 cache_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = cur;
         }

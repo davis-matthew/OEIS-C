@@ -8,13 +8,25 @@
  *            87156*C(n+9,12) + 11025*C(n+8,12)
  * Range:     u8 none, u16 n <= 1, u32 n <= 7, u64 n <= 71, u128 n <= 1000,
  *            big any n
- * Helpers:   binom12
+ * Validated: standard, pass, 37 terms through n = 954 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/binom12.h"
+
+/* Return binomial coefficient C(N,12).  For N < 12 the value is 0. */
+static seq_t binom12(idx_t N)
+{
+    if (N < 12) return 0;
+    seq_t r = 1;
+    for (unsigned int i = 1; i <= 12; ++i) {
+        /* r = r * (N - 12 + i) / i;  result stays integer. */
+        r = (r * (N - 12 + i)) / i;
+    }
+    return r;
+}
 
 /* Main entry point for sequence A060062. */
 seq_t a(idx_t n)

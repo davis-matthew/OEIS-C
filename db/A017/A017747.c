@@ -7,11 +7,13 @@
  * Formula:   a(n) = binomial coefficient C(n,83) for n ≥ 83
  * Range:     u8 n <= 84, u16 n <= 85, u32 n <= 89, u64 n <= 100,
  *            u128 n <= 136, big any n
+ * Validated: standard, pass, 32 terms through n = 9651 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

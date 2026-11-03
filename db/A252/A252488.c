@@ -9,13 +9,27 @@
  *            ruler sequence A001511 (starting with 1's, then alternating 0's)
  * Range:     u8 n <= 95, u16 n <= 95, u32 n <= 95, u64 n <= 95, u128 n <= 95,
  *            big any n
- * Helpers:   ruler
+ * Validated: partial, pass, 95 terms through n = 95 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/ruler.h"
+
+static inline idx_t ruler(idx_t i) {
+#ifdef __GNUC__
+    /* position of least significant set bit (0‑indexed) + 1 */
+    return (idx_t)__builtin_ctzll(i) + (idx_t)1;
+#else
+    idx_t pos = 0;
+    while ((i & (idx_t)1) == 0) {
+        i >>= (idx_t)1;
+        pos++;
+    }
+    return pos + (idx_t)1;
+#endif
+}
 
 seq_t a(idx_t n) {
     /* n ≥ 1 */

@@ -11,14 +11,26 @@
  *            speed up the happiness test
  * Range:     u8 n <= 8, u16 n <= 899, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sumsq_int
+ * Validated: standard, pass, 71 terms through n = 9749 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/sumsq_int.h"
+
+/* ---------- Sum of squares of decimal digits for a small int ---------- */
+static int sumsq_int(int x)
+{
+    int sum = 0;
+    while (x > 0) {
+        int d = x % 10;
+        sum += d * d;
+        x /= 10;
+    }
+    return sum;
+}
 
 /* ---------- Cache for happiness of numbers < 1000 ---------- */
 static unsigned char happy_state[1000];

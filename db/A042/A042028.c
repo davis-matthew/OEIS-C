@@ -7,12 +7,14 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 12, u64 n <= 25, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 179 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Numerators of convergents to sqrt(538).
    Recurrence:
@@ -34,7 +36,7 @@ static void cf_ensure(idx_t n)
     if (cf_cached > n) return;          /* already available */
 
     /* enlarge the cache */
-    seq_t *new_cache = (seq_t *)realloc(cf_cache, need * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cf_cache, need);
     if (!new_cache) abort();
     cf_cache = new_cache;
 

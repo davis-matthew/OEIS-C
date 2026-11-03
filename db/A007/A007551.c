@@ -9,15 +9,41 @@
  *            with mu2(p) = -2, mu2(p^2) = 1, mu2(p^e) = 0 for e >= 3
  * Range:     i8 n <= 28, i16 n <= 100, i32 n <= 732, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   alloc_zero, mu2, release
+ * Validated: standard, pass, 74 terms through n = 9616 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
-#include "../utils/mu2.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
+
+static long long mu2(idx_t k)
+{
+    long long r = 1;
+    idx_t p;
+    for (p = 2; p * p <= k; p++) {
+        if (k % p == 0) {
+            int e = 0;
+            while (k % p == 0) { k /= p; e++; }
+            if (e == 1) r *= -2;
+            else if (e >= 3) return 0;
+        }
+    }
+    if (k > 1) r *= -2;
+    return r;
+}
 
 static seq_t *A_tab = NULL;
 static idx_t A_cap = 0;

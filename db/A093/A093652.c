@@ -11,12 +11,14 @@
  *            a(2)=2, a(3)=7, a(4)=15
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 29, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 extern seq_t a(idx_t n) {
     /* Handle the first four terms directly. */
@@ -27,7 +29,7 @@ extern seq_t a(idx_t n) {
 
     /* Allocate array to hold b(1)…b(n). */
     size_t sz = (size_t)n + 1;                     /* indices 0..n */
-    seq_t *b = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *b = mem_new(seq_t, sz);
     if (!b) return 0;                              /* out of memory */
 
     /* Initialise base values of b. */
@@ -45,6 +47,6 @@ extern seq_t a(idx_t n) {
     /* Compute a(n) using the formula. */
     seq_t result = ((seq_t)n * b[(size_t)n] - b[(size_t)(n - 2)]) / 2;
 
-    free(b);
+    mem_free(b);
     return result;
 }

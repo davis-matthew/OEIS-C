@@ -8,12 +8,15 @@
  * Formula:   a(1)=12, a(2)=144; a(n)=144*3^(n-2) for n>=2
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 17, u64 n <= 37, u128 n <= 78,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 40 terms through n = 157 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -22,5 +25,5 @@ seq_t a(idx_t n)
     if (n == 2)
         return 144;         /* a(2) = 144 */
     /* n>=3: a(n) = 144 * 3^(n-2) */
-    return seq_pow((seq_t)3, n - 2) * 144;
+    return ipow_idx((seq_t)3, n - 2) * 144;
 }

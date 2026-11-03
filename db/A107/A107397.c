@@ -7,11 +7,13 @@
  * Formula:   a(n) = binomial(n+6,6)*binomial(n+8,6)
  * Range:     u8 n <= 0, u16 n <= 3, u32 n <= 14, u64 n <= 116, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 41 terms through n = 878 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

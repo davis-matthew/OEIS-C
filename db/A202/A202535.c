@@ -7,7 +7,8 @@
  * Formula:   a(n) = n*phi(n)*abs(mobius(n))
  * Range:     u8 n <= 16, u16 n <= 256, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   factor_u64, phi
+ * Validated: standard, pass, 75 terms through n = 991 (2026-11-01)
+ * Helpers:   factor_u64, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,11 @@
    multiply n by phi(n) if square‑free (abs(mobius)=1).  Uses the
    provided utility functions: factor_u64 and phi. */
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/phi.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -36,6 +40,6 @@ seq_t a(idx_t n)
     }
 
     /* n is square‑free → |mu(n)| = 1 */
-    seq_t phi_n = phi(n);
+    seq_t phi_n = totient(n);
     return (seq_t)n * phi_n;
 }

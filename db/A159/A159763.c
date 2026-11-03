@@ -7,7 +7,8 @@
  * Formula:   a(n+2) = 32*a(n+1) - 882*(n+1)*a(n), a(0) = 1, a(1) = 32
  * Range:     i8 n <= 1, i16 n <= 2, i32 n <= 5, i64 n <= 10, i128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 368 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Computes a(n) = 21^n * Hermite(n,16/21) by the recurrence above. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_len = 0;
@@ -26,7 +28,7 @@ static void ensure_cache(idx_t n)
     if (n < cache_cap) return;
     idx_t new_cap = cache_cap ? cache_cap : 1;
     while (new_cap <= n) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     cache = tmp;
     cache_cap = new_cap;
 }

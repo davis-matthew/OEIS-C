@@ -8,19 +8,31 @@
  * Formula:   a(1)=1, a(2)=1, a(n)=n^(n-2)+(n-1)!/2 for n>2
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 17, u128 n <= 28,
  *            big any n
- * Helpers:   big_pow, factorial
+ * Validated: standard, pass, 36 terms through n = 146 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"     /* big_pow(seq_t base, seq_t exp) */
-#include "../utils/factorial.h"   /* factorial(idx_t n) */
+#include <stdbool.h>
+#include "../utils/ipow.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 static seq_t tree_component_count(idx_t n)
 {
     /* n^(n-2) */
-    return big_pow((seq_t)n, (seq_t)(n - 2));
+    return ipow((seq_t)n, (seq_t)(n - 2));
 }
 
 static seq_t cycle_component_count(idx_t n)

@@ -11,13 +11,15 @@
  *            pow2[k] = Σ_{i=0}^{k} a(i)·a(k-i) pow3[k] = Σ_{i=0}^{k} a(i)...
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,18 +37,18 @@ seq_t a(idx_t n)
         size_t newalloc = (size_t)n + 1;
 
         /* Reallocate arrays */
-        A  = (seq_t *)realloc(A,  newalloc * sizeof(seq_t));
-        P2 = (seq_t *)realloc(P2, newalloc * sizeof(seq_t));
-        P3 = (seq_t *)realloc(P3, newalloc * sizeof(seq_t));
-        P4 = (seq_t *)realloc(P4, newalloc * sizeof(seq_t));
-        P5 = (seq_t *)realloc(P5, newalloc * sizeof(seq_t));
+        A  = mem_resize(seq_t, A, newalloc);
+        P2 = mem_resize(seq_t, P2, newalloc);
+        P3 = mem_resize(seq_t, P3, newalloc);
+        P4 = mem_resize(seq_t, P4, newalloc);
+        P5 = mem_resize(seq_t, P5, newalloc);
 
         /* Initialize new entries to zero */
-        memset(A +  allocated, 0, (newalloc - allocated)*sizeof(seq_t));
-        memset(P2 + allocated, 0, (newalloc - allocated)*sizeof(seq_t));
-        memset(P3 + allocated, 0, (newalloc - allocated)*sizeof(seq_t));
-        memset(P4 + allocated, 0, (newalloc - allocated)*sizeof(seq_t));
-        memset(P5 + allocated, 0, (newalloc - allocated)*sizeof(seq_t));
+        mem_set(A +  allocated, 0, (newalloc - allocated)*sizeof(seq_t));
+        mem_set(P2 + allocated, 0, (newalloc - allocated)*sizeof(seq_t));
+        mem_set(P3 + allocated, 0, (newalloc - allocated)*sizeof(seq_t));
+        mem_set(P4 + allocated, 0, (newalloc - allocated)*sizeof(seq_t));
+        mem_set(P5 + allocated, 0, (newalloc - allocated)*sizeof(seq_t));
 
         allocated = newalloc;
     }

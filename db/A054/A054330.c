@@ -9,13 +9,25 @@
  *            possible
  * Range:     u8 n <= 0, u16 n <= 2, u32 n <= 8, u64 n <= 21, u128 n <= 51,
  *            big any n
- * Helpers:   binom_5
+ * Validated: standard, pass, 37 terms through n = 945 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom_5.h"
+
+static seq_t binom_5(idx_t m) {
+    /* Compute binomial(m, 5) = m*(m-1)*(m-2)*(m-3)*(m-4)/120   */
+    seq_t res = 1;
+    res *= (seq_t)m;
+    res *= (seq_t)(m - 1);
+    res *= (seq_t)(m - 2);
+    res *= (seq_t)(m - 3);
+    res *= (seq_t)(m - 4);
+    res /= (seq_t)120;        /* division is exact */
+    return res;
+}
 
 seq_t a(idx_t n) {
     if (n == 0) {            /* handle the offset explicitly */

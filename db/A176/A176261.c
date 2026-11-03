@@ -10,15 +10,18 @@
  *            Σ_{j=0..m} binomial(m-j,j) * 3^j
  * Range:     i8 n <= 29, i16 n <= 105, i32 n <= 378, i64 n <= 1433,
  *            i128 n <= 5150, big any n
- * Helpers:   binomial, pow3
+ * Validated: standard, pass, 71 terms through n = 5021 (2026-11-03)
+ * Helpers:   binomial, mem, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/binomial.h"   /* binomial(idx_t, idx_t) -> seq_t */
-#include "../utils/pow3.h"       /* pow3(idx_t) -> seq_t */
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/pow3.h"
+#include "../utils/mem.h"
 
 /* Cache for A006130 values. */
 static seq_t *a_cache = NULL;
@@ -31,7 +34,7 @@ static void ensure_cache(idx_t n)
     if (n < a_cache_cap)
         return;
     idx_t new_cap = n + 1;
-    a_cache      = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    a_cache      = mem_resize(seq_t, a_cache, new_cap);
     a_computed   = (unsigned char *)realloc(a_computed,
                                             new_cap * sizeof(unsigned char));
     if (!a_cache || !a_computed)

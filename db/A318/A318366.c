@@ -5,13 +5,15 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{d|n} bigomega(d) * bigomega(n/d)
- * Range:     u8 n <= 719, u16 n <= 9609, u32 n <= 9609, u64 n <= 9609,
- *            u128 n <= 9609, big any n
+ * Range:     u8 n <= 719, u16 n <= 20160, u32 n <= 20160, u64 n <= 20160,
+ *            u128 n <= 20160, big any n
+ * Validated: standard, pass, 111 terms through n = 9609 (2026-11-01)
  * Helpers:   bigomega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/bigomega.h"
 
 seq_t a(idx_t n)

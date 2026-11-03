@@ -7,12 +7,14 @@
  * Formula:   a(n) = 24*a(n-1) - a(n-2), a(0) = 2, a(1) = 24
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 577 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes the n-th term of OEIS sequence A090732. */
 seq_t a(idx_t n)
@@ -32,13 +34,13 @@ seq_t a(idx_t n)
     /* Ensure the cache has room for indices up to n. */
     if (!cache) {
         /* First allocation: store the base values. */
-        cache = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (n + 1));
         if (!cache) return (seq_t)0; /* allocation failure (unlikely in tests) */
         cache[0] = (seq_t)2;
         cache[1] = (seq_t)24;
         computed_max = 1;
     } else if (n > computed_max) {
-        seq_t *new_cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
         if (!new_cache) return (seq_t)0; /* allocation failure */
         cache = new_cache;
     }

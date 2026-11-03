@@ -12,7 +12,8 @@
  *            [11112,31427] (the only possible roots of a...
  * Range:     u8 none, u16 none, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *sqr_array = NULL; /* array of penholodigital squares */
 static idx_t sqr_count = 0;     /* number of squares stored */
@@ -31,7 +33,7 @@ static void build_squares(void) {
 
     /* initial capacity (will grow as needed) */
     sqr_cap = 16;
-    sqr_array = (seq_t*)malloc(sqr_cap * sizeof(seq_t));
+    sqr_array = mem_new(seq_t, sqr_cap);
     sqr_count = 0;
 
     /* iterate over all possible roots */
@@ -64,7 +66,7 @@ static void build_squares(void) {
         /* store the square, growing the array if necessary */
         if (sqr_count == sqr_cap) {
             sqr_cap <<= 1;
-            sqr_array = (seq_t*)realloc(sqr_array, sqr_cap * sizeof(seq_t));
+            sqr_array = mem_resize(seq_t, sqr_array, sqr_cap);
         }
         sqr_array[sqr_count++] = sq;
     }

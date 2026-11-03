@@ -9,6 +9,7 @@
  *            binomial(5k, 2k) * binomial(3k, k) * binomial(2k, k)
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 3, u64 n <= 6, u128 n <= 12,
  *            big any n
+ * Validated: partial, pass, 13 terms through n = 12 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 /* This uses the multinomial identity
  * (5k)!/((k!)^3*(2k)!) = binomial(5k, 2k)*binomial(3k, k)*binomial(2k, k). */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

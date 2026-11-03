@@ -9,13 +9,30 @@
  *            the same number of 0's and 2's. Brute‑force scan
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   has_equal_zero_and_two
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/has_equal_zero_and_two.h"
+
+static bool has_equal_zero_and_two(seq_t x) {
+    if (x == 0) {
+        return false;           /* representation "0" has 1 zero, 0 twos */
+    }
+    int zeros = 0, twos = 0;
+    while (x > 0) {
+        int d = (int)(x % 10);
+        if (d == 0) {
+            ++zeros;
+        } else if (d == 2) {
+            ++twos;
+        }
+        x /= 10;
+    }
+    return zeros == twos;
+}
 
 seq_t a(idx_t n) {
     seq_t count = 0;

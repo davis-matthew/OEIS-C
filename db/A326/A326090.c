@@ -8,13 +8,16 @@
  *            (j*k)^(n-k)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 25,
  *            big any n
- * Helpers:   big_pow, binom
+ * Validated: standard, pass, 39 terms through n = 296 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -22,12 +25,12 @@ seq_t a(idx_t n)
     for (idx_t k = 0; k <= n; ++k)
     {
         /* binomial coefficient binom(n,k) */
-        seq_t bin_nk = binom(n, k);
+        seq_t bin_nk = binomial(n, k);
         seq_t inner  = 0;
         idx_t exp = n - k;                /* exponent (n-k) */
         for (idx_t j = 0; j <= k; ++j)
         {
-            seq_t bin_kj = binom(k, j);
+            seq_t bin_kj = binomial(k, j);
             seq_t base  = (seq_t)(j * k); /* (j*k) */
             seq_t p;
             /* Handle 0^0 explicitly: 0^0 = 1, 0^m (m>0) = 0 */
@@ -40,7 +43,7 @@ seq_t a(idx_t n)
             }
             else
             {
-                p = big_pow(base, (seq_t)exp);
+                p = ipow(base, (seq_t)exp);
             }
             inner += bin_kj * p;
         }

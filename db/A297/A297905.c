@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 16, u64 n <= 31, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define MAX_COLS 6
 #define MAX_ROWS (1 << MAX_COLS)           /* 64 possible rows   */
@@ -124,7 +126,7 @@ seq_t a(idx_t n)
     int active_cnt = 0, next_cnt = 0;
 
     /* initialise dp_cur with start states */
-    memset(dp_cur, 0, sizeof(dp_cur));
+    mem_set(dp_cur, 0, sizeof(dp_cur));
     for (int i = 0; i < start_len; ++i) {
         int idx = start_states[i];
         dp_cur[idx] = 1;
@@ -134,7 +136,7 @@ seq_t a(idx_t n)
     /* iterate rows 3 .. n */
     for (idx_t step = 2; step < n; ++step) {
         /* clear next array and visited flags */
-        memset(dp_next, 0, sizeof(dp_next));
+        mem_set(dp_next, 0, sizeof(dp_next));
         memset(next_active, 0, sizeof(next_active));
         next_cnt = 0;
 
@@ -160,7 +162,7 @@ seq_t a(idx_t n)
         }
 
         /* swap old and new DP arrays */
-        memcpy(dp_cur, dp_next, sizeof(dp_cur));
+        mem_copy(dp_cur, dp_next, sizeof(dp_cur));
 
         /* prepare next active list */
         active_cnt = next_cnt;

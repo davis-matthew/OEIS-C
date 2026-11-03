@@ -11,7 +11,8 @@
  *            multiplicities 0..3)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 6, u128 n <= 8,
  *            big any n
- * Helpers:   a1374_divs, a1374_gcd, a1374_muls
+ * Validated: standard, pass, 26 terms through n = 40 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,29 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a1374_divs.h"
-#include "../utils/a1374_gcd.h"
-#include "../utils/a1374_muls.h"
+#include "../utils/gcd_u64.h"
+
+static void a1374_divs(uint32_t *x, size_t L, uint32_t d)
+{
+    uint64_t r = 0;
+    size_t i;
+    for (i = L; i-- > 0;) {
+        uint64_t cur = (r << 32) | x[i];
+        x[i] = (uint32_t)(cur / d);
+        r = cur % d;
+    }
+}
+
+static void a1374_muls(uint32_t *x, size_t L, uint32_t m)
+{
+    uint64_t c = 0;
+    size_t i;
+    for (i = 0; i < L; i++) {
+        uint64_t cur = (uint64_t)x[i] * m + c;
+        x[i] = (uint32_t)cur;
+        c = cur >> 32;
+    }
+}
 
 static uint32_t **a1374_buf;
 static uint32_t *a1374_S;
@@ -61,7 +82,7 @@ static void a1374_rec(idx_t maxk, idx_t rem, int depth, uint64_t e)
         int t;
         uint32_t *cb = a1374_buf[depth + 1];
         for (t = 0; t < depth; t++)
-            cross += (uint64_t)a1374_ms[t] * a1374_gcd(k, a1374_ks[t]);
+            cross += (uint64_t)a1374_ms[t] * gcd_u64(k, a1374_ks[t]);
         memcpy(cb, a1374_buf[depth], a1374_Lf * sizeof(uint32_t));
         for (m = 1; m * k <= rem; m++) {
             a1374_divs(cb, a1374_Lf, (uint32_t)k);

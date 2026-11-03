@@ -13,12 +13,14 @@
  *            a(1)=1
  * Range:     i8 n <= 32, i16 n <= 84, i32 n <= 291, i64 n <= 1062,
  *            i128 n <= 1275, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 1209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define MAX_ROW 5000   /* enough for n up to about 1.25e7 */
 
@@ -53,7 +55,7 @@ static void build_rows(idx_t row)
 
     for (idx_t n = max_computed + 1; n <= row; ++n) {
         idx_t len = n;                /* row n has n coefficients */
-        tri[n] = (seq_t *)malloc(len * sizeof(seq_t));
+        tri[n] = mem_new(seq_t, len);
         for (idx_t i = 0; i < len; ++i) tri[n][i] = 0;
 
         if (n == 1) {                 /* row 1 */

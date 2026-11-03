@@ -10,11 +10,13 @@
  *            column index in that row
  * Range:     i8 n <= 37, i16 n <= 137, i32 n <= 529, i64 n <= 2081,
  *            i128 n <= 5150, big any n
+ * Validated: standard, pass, 71 terms through n = 4653 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 static idx_t _row_of(idx_t n)

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 18, u32 n <= 34, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   fact_u
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,15 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/fact_u.h"
+
+/* Helper: factorial (0! = 1).  Uses only integer arithmetic. */
+static seq_t
+fact_u(idx_t n) {
+    seq_t f = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        f *= (seq_t)i;
+    return f;
+}
 
 /* Helper: compute 2^exp using shifts.  Works for any non‑negative
    exponent; uses only integer operations. */

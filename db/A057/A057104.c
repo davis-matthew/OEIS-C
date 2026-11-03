@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   has8or9
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,17 @@
 /* a(n) = the nth positive integer that contains at least one decimal digit 8 or 9 */
 
 #include <stdbool.h>
-#include "../utils/has8or9.h"
+
+static inline bool has8or9(seq_t x)
+{
+    while (x > (seq_t)0) {
+        int d = (int)(x % (seq_t)10);
+        if (d == 8 || d == 9)
+            return true;
+        x /= (seq_t)10;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

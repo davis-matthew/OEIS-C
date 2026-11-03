@@ -7,7 +7,8 @@
  * Formula:   a(n) = A048385(A000142(n))
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 19,
  *            big any n
- * Helpers:   digit_len, factorial, seq_from_str, seq_to_str
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-01)
+ * Helpers:   num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,10 +17,51 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/factorial.h"
-#include "../utils/digit_len.h"
-#include "../utils/seq_to_str.h"
-#include "../utils/seq_from_str.h"
+#include <stddef.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/num_digits.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
+
+/* convert a seq_t value to a decimal string */
+static void seq_to_str(seq_t v, char *buf, size_t *len)
+{
+    if (v == 0) {
+        buf[0] = '0';
+        *len = 1;
+        return;
+    }
+    char tmp[64];
+    int pos = 0;
+    seq_t ten = (seq_t)10;
+    while (v != 0) {
+        tmp[pos++] = '0' + (int)(v % ten);
+        v /= ten;
+    }
+    for (int i = 0; i < pos; ++i)
+        buf[i] = tmp[pos - 1 - i];
+    *len = pos;
+}
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
 
 static const char *sq_str[10] = {
     "0", "1", "4", "9", "16", "25", "36", "49", "64", "81"
@@ -31,7 +73,7 @@ seq_t a(idx_t n)
     seq_t fact = factorial(n);
 
     /* convert factorial to decimal string */
-    size_t fact_len = digit_len(fact);           /* number of digits in fact */
+    size_t fact_len = num_digits(fact);           /* number of digits in fact */
     char *fact_str = (char *)malloc(fact_len + 1);  /* +1 for null terminator */
     if (!fact_str) return 0;                       /* allocation failure */
 

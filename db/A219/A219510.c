@@ -8,12 +8,14 @@
  *            a(2n+1)=2*(a(2n-1))^2-1
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 10, u128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* memoised terms */
 static idx_t cache_len = 0;   /* number of cached terms */
@@ -24,7 +26,7 @@ static void ensure_upto(idx_t n)
     if (cache_len > n) return;          /* already computed */
 
     idx_t new_len = n + 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_len);
     if (!new_cache) return;              /* allocation failed – caller gets 0 */
     cache = new_cache;
     cache_len = new_len;

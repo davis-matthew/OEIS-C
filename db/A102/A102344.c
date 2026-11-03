@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 18, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  *   a(3) = 97
  *   a(n) = 14*a(n-1) - a(n-2)   for n >= 4   (equivalently a(n+2)=14*a(n+1)-a(n) for n≥2) */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *tbl = NULL;   /* 1‑based table of computed terms */
 static idx_t  tbl_len = 0;  /* largest index that has been computed */
@@ -31,7 +33,7 @@ static void grow_to(idx_t n)
 
     idx_t new_len = n + 1;      /* 0 unused, indices 1..n valid */
 
-    tbl = (seq_t *)realloc(tbl, sizeof(seq_t) * (size_t)new_len);
+    tbl = mem_resize(seq_t, tbl, (size_t)new_len);
 
     /* compute missing terms in increasing order */
     for (idx_t i = tbl_len + 1; i <= n; ++i)

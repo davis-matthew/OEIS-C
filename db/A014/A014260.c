@@ -8,12 +8,14 @@
  *            2. rev_decimal(…) reverses the decimal digits of its argument
  * Range:     u8 n <= 13, u16 n <= 19, u32 n <= 36, u64 n <= 68, u128 n <= 132,
  *            big any n
- * Helpers:   reverse_decimal
+ * Validated: standard, pass, 53 terms through n = 983 (2026-11-01)
+ * Helpers:   reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/reverse_decimal.h"
+#include <stdlib.h>
+#include "../utils/reverse_digits.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     seq_t t2;                      /* will become a(n) */
 
     for (idx_t i = 2; i <= n; ++i) {
-        seq_t rev = reverse_decimal(t0); /* rev_decimal(a(n-2)) */
+        seq_t rev = reverse_digits(t0); /* rev_decimal(a(n-2)) */
         t2 = t1 + rev;                   /* a(n) */
         t0 = t1;                         /* shift window */
         t1 = t2;

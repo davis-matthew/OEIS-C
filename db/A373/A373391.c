@@ -12,7 +12,8 @@
  *            search with a prime–factorisation optimisation
  * Range:     u8 none, u16 n <= 3, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   push_word
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,18 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/push_word.h"
+#include "../utils/mem.h"
+
+/* --------------------------------------------------------------------
+   Push rank of each letter of a word into an array
+   -------------------------------------------------------------------- */
+static void push_word(const char *w, unsigned char *ranks, int *len)
+{
+    while (*w) {
+        ranks[(*len)++] = (unsigned char)(*w - 'a' + 1);
+        ++w;
+    }
+}
 
 /* --------------------------------------------------------------------
    Prime factors of letter ranks (primes <= 26: 2,3,5,7,11,13,17,19,23)
@@ -185,7 +197,7 @@ seq_t a(idx_t n)
 {
     if (!terms) {
         terms_cap = 64;
-        terms = (seq_t*)malloc(sizeof(seq_t) * terms_cap);
+        terms = mem_new(seq_t, terms_cap);
     }
 
     /* generate until we have n terms */
@@ -193,7 +205,7 @@ seq_t a(idx_t n)
         if (is_good(last_checked)) {
             if (terms_cnt == terms_cap) {
                 terms_cap *= 2;
-                terms = (seq_t*)realloc(terms, sizeof(seq_t) * terms_cap);
+                terms = mem_resize(seq_t, terms, terms_cap);
             }
             terms[terms_cnt++] = (seq_t)last_checked;
         }

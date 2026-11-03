@@ -12,12 +12,22 @@
  *            with increasing i. Implementation uses the...
  * Range:     u8 n <= 71, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   count_prefix
+ * Validated: partial, pass, 72 terms through n = 71 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/count_prefix.h"
+static inline idx_t count_prefix(idx_t d) {
+    /* cumulative number of terms up to diagonal d (inclusive) */
+    if ((d & 1) == 0) {     /* d = 2m */
+        idx_t m = d >> 1;
+        return (m + 1) * (m + 1);
+    } else {                /* d = 2m+1 */
+        idx_t m = (d - 1) >> 1;
+        return (m + 1) * (m + 2);
+    }
+}
 
 seq_t a(idx_t n) {
     /* Find diagonal d such that T(d-1) ≤ n < T(d) */

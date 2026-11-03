@@ -10,14 +10,15 @@
  *            Π a(p)^e where n = Π p^e
  * Range:     u8 n <= 67, u16 n <= 2532, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime, rev
+ * Validated: standard, pass, 82 terms through n = 9866 (2026-11-01)
+ * Helpers:   is_prime, reverse_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/rev.h"            /* rev(idx_t) */
-#include "../utils/is_prime.h"       /* is_prime(idx_t) */
+#include "../utils/is_prime.h"
+#include "../utils/reverse_digits_idx.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;            /* undefined for n=0, but safe */
@@ -34,7 +35,7 @@ seq_t a(idx_t n) {
     }
     if (exp) {
         seq_t p_val = 2;
-        if (is_prime(rev(2))) p_val = rev(2);
+        if (is_prime(reverse_digits_idx(2))) p_val = reverse_digits_idx(2);
         seq_t pow = 1;
         for (unsigned i = 0; i < exp; ++i) pow *= p_val;
         result *= pow;
@@ -49,7 +50,7 @@ seq_t a(idx_t n) {
                 ++exp;
             }
             seq_t p_val = (seq_t)p;
-            if (is_prime(rev(p))) p_val = rev(p);
+            if (is_prime(reverse_digits_idx(p))) p_val = reverse_digits_idx(p);
             seq_t pow = 1;
             for (unsigned i = 0; i < exp; ++i) pow *= p_val;
             result *= pow;
@@ -59,7 +60,7 @@ seq_t a(idx_t n) {
     /* remaining prime factor, if any */
     if (tmp > 1ULL) {
         seq_t p_val = (seq_t)tmp;
-        if (is_prime(rev(tmp))) p_val = rev(tmp);
+        if (is_prime(reverse_digits_idx(tmp))) p_val = reverse_digits_idx(tmp);
         result *= p_val;
     }
 

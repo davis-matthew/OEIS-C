@@ -7,13 +7,14 @@
  * Formula:   a(n) = [concatenation of 1..n] repeated n times
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 4, u128 n <= 6,
  *            big any n
- * Helpers:   digit_count_idx
+ * Validated: partial, pass, 9 terms through n = 9 (2026-11-01)
+ * Helpers:   num_digits_idx_to_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/digit_count_idx.h"
+#include "../utils/num_digits_idx_to_idx.h"
 
 /* compute 10^exp in seq_t */
 static seq_t pow10_idx(idx_t exp) {
@@ -33,7 +34,7 @@ seq_t a(idx_t n) {
 
     /* build block = concatenate 1..n */
     for (idx_t j = 1; j <= n; ++j) {
-        idx_t d = digit_count_idx(j);
+        idx_t d = num_digits_idx_to_idx(j);
         seq_t mult = pow10_idx(d);      /* 10^d */
         block = block * mult + j;
         len += d;

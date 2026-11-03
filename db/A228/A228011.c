@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 39,
  *            big any n
- * Helpers:   prefix_ok, seq_cmp, seq_from_str
+ * Validated: standard, pass, 40 terms through n = 143 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,9 +31,41 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_from_str.h"
-#include "../utils/seq_cmp.h"
-#include "../utils/prefix_ok.h"
+#include <string.h>
+#include <stddef.h>
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
+
+static int seq_cmp(const void *p, const void *q)
+{
+    const seq_t *a = (const seq_t *)p;
+    const seq_t *b = (const seq_t *)q;
+    if (*a < *b) return -1;
+    if (*a > *b) return 1;
+    return 0;
+}
+
+/* 
+ * Compute remainder of the prefix digits[0..pos] modulo mod.
+ * The prefix value is digits[pos] * 10^pos + ... + digits[0].
+ */
+static inline bool prefix_ok(idx_t pos, idx_t n, uint8_t *digits)
+{
+    uint32_t mod = (uint32_t)((pos + 1) * (pos + 1));   /* (pos+1)^2 fits in 32 bits for n <= 10^4 */
+    uint64_t rem = 0;
+    for (int i = (int)pos; i >= 0; --i) {
+        rem = (rem * 10 + digits[i]) % mod;
+    }
+    return rem == 0;
+}
 
 /* forward declaration of recursive search */
 static void dfs(idx_t pos, idx_t n, seq_t *best, bool *best_set, uint8_t *digits);

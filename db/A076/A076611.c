@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 36, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   is_prime_digit, rev_digits_uint64
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-03)
+ * Helpers:   mem, reverse_digits_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,13 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_prime_digit.h"
-#include "../utils/rev_digits_uint64.h"
+#include "../utils/reverse_digits_u64.h"
+#include "../utils/mem.h"
+
+static bool is_prime_digit(int d)
+{
+    return d == 2 || d == 3 || d == 5 || d == 7;
+}
 
 /* ---------- helper functions ---------- */
 
@@ -80,7 +86,7 @@ static void push_seq_val(seq_t val)
 {
     if (seq_count == seq_cap) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 16;
-        seq_t *tmp = (seq_t*)realloc(seq, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq, new_cap);
         if (!tmp) exit(1);
         seq = tmp;
         seq_cap = new_cap;
@@ -110,7 +116,7 @@ seq_t a(idx_t n)
                 continue;
 
             uint64_t rem = left / 10;                       /* left part without the middle digit */
-            uint64_t rev = rev_digits_uint64(rem);
+            uint64_t rev = reverse_digits_u64(rem);
             uint64_t pal = left * pow10k + rev;
 
             if (is_prime64(pal))

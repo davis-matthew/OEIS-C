@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    seq_t is an arbitrary‑precision integer class. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The function must have external linkage. */
 seq_t a(idx_t n)
@@ -44,13 +46,13 @@ seq_t a(idx_t n)
     /* ------------------------------------------------------------------ */
     if (fact == NULL) {
         fact_cap = 1;
-        fact = (seq_t*)malloc(sizeof(seq_t) * fact_cap);
+        fact = mem_new(seq_t, fact_cap);
         if (!fact) return (seq_t)0;                    /* allocation failed */
         fact[0] = (seq_t)1;                 /* 0! = 1                    */
         fact_last = 0;
 
         pow2_cap = 1;
-        pow2 = (seq_t*)malloc(sizeof(seq_t) * pow2_cap);
+        pow2 = mem_new(seq_t, pow2_cap);
         if (!pow2) return (seq_t)0;
         pow2[0] = (seq_t)1;                 /* 2^0 = 1                    */
         pow2_last = 0;
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
         size_t new_cap = fact_cap;
         while (new_cap <= (size_t)n) new_cap = new_cap ? new_cap * 2 : 1;
         if (new_cap > fact_cap) {
-            seq_t *tmp = (seq_t*)realloc(fact, sizeof(seq_t) * new_cap);
+            seq_t *tmp = mem_resize(seq_t, fact, new_cap);
             if (!tmp) return (seq_t)0;
             fact = tmp;
             fact_cap = new_cap;
@@ -80,7 +82,7 @@ seq_t a(idx_t n)
         size_t new_cap = pow2_cap;
         while (new_cap <= (size_t)n) new_cap = new_cap ? new_cap * 2 : 1;
         if (new_cap > pow2_cap) {
-            seq_t *tmp = (seq_t*)realloc(pow2, sizeof(seq_t) * new_cap);
+            seq_t *tmp = mem_resize(seq_t, pow2, new_cap);
             if (!tmp) return (seq_t)0;
             pow2 = tmp;
             pow2_cap = new_cap;

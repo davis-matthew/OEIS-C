@@ -9,7 +9,8 @@
  *            are proper divisors of a(n-1))
  * Range:     u8 n <= 261, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 95 terms through n = 8559 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <limits.h>
+#include "../utils/mem.h"
 
 /* --- global state ---------------------------------------------------- */
 static seq_t *seq_arr   = NULL;   /* 1‑indexed array of sequence values */
@@ -50,7 +52,7 @@ static void ensure_seq_cap(idx_t n)
     if (need <= seq_cap) return;
     size_t new_cap = (seq_cap == 0) ? 2 : seq_cap << 1;
     while (new_cap < need) new_cap <<= 1;
-    seq_arr = (seq_t *)realloc(seq_arr, new_cap * sizeof(seq_t));
+    seq_arr = mem_resize(seq_t, seq_arr, new_cap);
     seq_cap = new_cap;
 }
 
@@ -62,7 +64,7 @@ static void ensure_freq_cap(uint64_t value)
     size_t old_cap = freq_cap;
     size_t new_cap = (freq_cap == 0) ? 2 : freq_cap << 1;
     while (new_cap < need) new_cap <<= 1;
-    freq_arr = (seq_t *)realloc(freq_arr, new_cap * sizeof(seq_t));
+    freq_arr = mem_resize(seq_t, freq_arr, new_cap);
     /* zero newly allocated slots */
     for (size_t i = old_cap; i < new_cap; ++i) freq_arr[i] = 0;
     freq_cap = new_cap;

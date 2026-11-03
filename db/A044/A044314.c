@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   contains_70
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,24 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/contains_70.h"
+#include "../utils/mem.h"
+
+/* Test whether a number has the substring 70 in its base‑9 representation. */
+static bool contains_70(seq_t x)
+{
+    unsigned prev = 0;          /* previous (less significant) digit */
+    bool has_prev = false;      /* whether we already saw a digit */
+
+    while (x > 0) {
+        unsigned dig = (unsigned)(x % 9);
+        if (dig == 7 && has_prev && prev == 0)
+            return true;
+        prev = dig;
+        has_prev = true;
+        x /= 9;
+    }
+    return false;
+}
 
 /* Cache for the sequence values.  cache[i] holds a(i+1). */
 static seq_t *cache = NULL;
@@ -40,7 +58,7 @@ static void ensure_cache(idx_t n)
     /* Initialise the cache if this is the first call. */
     if (cache_cap == 0) {
         cache_cap = 128;
-        cache = (seq_t *)malloc(cache_cap * sizeof(*cache));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* Generate terms until we have at least `n` of them. */
@@ -50,7 +68,7 @@ static void ensure_cache(idx_t n)
         if (contains_70(cand) && !contains_70(cand - 1)) {
             if (cache_size == cache_cap) {          /* grow array */
                 size_t new_cap = cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(*cache));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) abort();                  /* OOM: abort in this context */
                 cache = tmp;
                 cache_cap = new_cap;

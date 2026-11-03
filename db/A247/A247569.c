@@ -12,13 +12,26 @@
  *            two): a(n) = n * ord_8(m) + 1 where ord_8(k) i...
  * Range:     u8 n <= 20, u16 n <= 20, u32 n <= 20, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   multiplicative_order_8
+ * Validated: partial, pass, 19 terms through n = 20 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/multiplicative_order_8.h"
+
+static seq_t multiplicative_order_8(idx_t m)
+{
+    if (m <= 1)
+        return 1;
+    seq_t cur = (seq_t)8 % m;
+    seq_t ord = 1;
+    while (cur != 1) {
+        cur = (cur * 8) % m;
+        ++ord;
+    }
+    return ord;
+}
 
 seq_t a(idx_t n)
 {

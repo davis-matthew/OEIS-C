@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 144, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_long_representation
+ * Validated: standard, pass, 82 terms through n = 9616 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,39 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has_long_representation.h"
+#include "../utils/mem.h"
+
+/* return true if m has any Brazilian representation of length >=3 */
+static bool has_long_representation(uint64_t m)
+{
+    /* maximum k such that 2^k-1 <= m  (k >= 3) */
+    uint64_t pow2 = 8;   /* 2^3 */
+    int k = 3;
+    while (pow2 - 1 <= m) {
+        for (uint64_t b = 2; ; ++b) {
+            /* compute sum = 1 + b + b^2 + ... + b^(k-1) */
+            uint64_t term = 1;
+            uint64_t sum  = 1;
+            bool overflow = false;
+            for (int i = 1; i < k; ++i) {
+                if (term > m / b) { overflow = true; break; }
+                term *= b;
+                sum += term;
+                if (sum > m) break;
+            }
+            if (overflow || sum > m) break;   /* f_k(b) larger than m */
+            if (m % sum == 0) {               /* representation exists */
+                uint64_t d = m / sum;
+                if (d < b) return true;       /* d <= b-1 ‖ d < b */
+            }
+        }
+        k++;
+        if (k > 63) break;            /* guard against overflow of pow2 */
+        if (pow2 > UINT64_MAX / 2) break;
+        pow2 <<= 1;                    /* next power of two */
+    }
+    return false;
+}
 
 /* ---------- utility functions ---------- */
 
@@ -108,7 +141,7 @@ static void ensure_cache_capacity(size_t need)
     if (cache_cap >= need) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     if (new_cap < need) new_cap = need;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     cache = tmp;
     cache_cap = new_cap;

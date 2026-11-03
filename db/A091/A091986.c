@@ -7,15 +7,18 @@
  * Formula:   a(n) = sigma_3(2*n) (sum of cubes of the divisors of 2*n)
  * Range:     u8 n <= 3, u16 n <= 19, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   factor_u64, pow_seq_t_uint64
+ * Validated: partial, pass, 37 terms through n = 36 (2026-11-01)
+ * Helpers:   factor_u64, ipow_u64_to_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/factor_u64.h"   /* provides factor_u64(uint64_t n, uint64_t *pr, uint64_t *exp, size_t *cnt) */
-#include "../utils/pow_seq_t_uint64.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+#include "../utils/ipow_u64_to_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +40,7 @@ seq_t a(idx_t n)
         uint64_t e = exps[i];
 
         /* sum_{k=0..e} p^{3k} */
-        seq_t pk3       = pow_seq_t_uint64(p, 3ULL);   /* p^3 */
+        seq_t pk3       = ipow_u64_to_seq(p, 3ULL);   /* p^3 */
         seq_t pk_pow    = 1;                           /* p^{3k} with k=0 */
         seq_t term_sum  = 1;                           /* include k=0 term */
 

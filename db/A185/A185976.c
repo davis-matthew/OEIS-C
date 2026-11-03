@@ -12,7 +12,8 @@
  *            of triangular numbers ≤ n (≈√(2n)), which i...
  * Range:     u8 n <= 21, u16 n <= 85, u32 n <= 399, u64 n <= 2211,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 9347 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Public sequence function. */
 seq_t a(idx_t n)
@@ -38,11 +40,11 @@ seq_t a(idx_t n)
         size_t new_size = (size_t)n + 1;     /* include index 0 */
 
         /* Allocate new dp and cumulative arrays. */
-        seq_t *dp = (seq_t*)calloc(new_size, sizeof(seq_t));
-        seq_t *new_cum = (seq_t*)calloc(new_size, sizeof(seq_t));
+        seq_t *dp = mem_new(seq_t, new_size);
+        seq_t *new_cum = mem_new(seq_t, new_size);
 
         if (!dp || !new_cum) {              /* allocation failure: keep old */
-            free(dp); free(new_cum);
+            mem_free(dp); mem_free(new_cum);
             return (seq_t)0;
         }
 
@@ -64,12 +66,12 @@ seq_t a(idx_t n)
         }
 
         /* Replace old cache. */
-        free(cum);
+        mem_free(cum);
         cum = new_cum;
         max_n_cached = n;
 
         /* Free temporary dp array. */
-        free(dp);
+        mem_free(dp);
     }
 
     return cum[(size_t)n];

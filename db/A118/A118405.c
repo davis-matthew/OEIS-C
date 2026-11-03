@@ -8,12 +8,14 @@
  *            a(1)=0, a(2)=0
  * Range:     i8 n <= 9, i16 n <= 17, i32 n <= 33, i64 n <= 35, i128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return the n‑th term of OEIS A118405. */
 seq_t a(idx_t n)
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
             while (new_cap < need)
                 new_cap <<= 1;
             /* realloc returns void*, cast explicitly for C++ */
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort();               /* allocation failure */
             cache = tmp;
             cache_cap = new_cap;

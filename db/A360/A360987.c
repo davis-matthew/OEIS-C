@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 3, i16 n <= 5, i32 n <= 9, i64 n <= 15, i128 n <= 25,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: standard, pass, 34 terms through n = 317 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,10 @@
    (The k = 0 term is zero for n > 0 and equals 1 when n = 0.) */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -36,11 +39,11 @@ seq_t a(idx_t n)
         seq_t base1 = (seq_t)( (int64_t)2 * (int64_t)n
                                - (int64_t)2 * (int64_t)k
                                + 1 );
-        seq_t pow1  = big_pow(base1, k - 1);
+        seq_t pow1  = ipow(base1, k - 1);
 
         /* (-2*k)^(n-k) */
         seq_t base2 = (seq_t)( -(int64_t)2 * (int64_t)k );
-        seq_t pow2  = big_pow(base2, n - k);
+        seq_t pow2  = ipow(base2, n - k);
 
         /* term = bin * pow1 * pow2 */
         seq_t term = bin * pow1 * pow2;

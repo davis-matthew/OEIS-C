@@ -10,12 +10,14 @@
  *            a(0)=1, a(1)=1, a(2)=2, a(3)=5
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* Initialise buffer with the first four terms */
     if (buf_size == 0) {
         buf_size = 4;
-        buf = (seq_t *)malloc(buf_size * sizeof(seq_t));
+        buf = mem_new(seq_t, buf_size);
         if (!buf) return (seq_t)0;  /* allocation failed – return 0 */
         buf[0] = (seq_t)1;
         buf[1] = (seq_t)1;
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     /* Otherwise, extend the buffer and compute new terms */
     idx_t old_size = buf_size;
     buf_size = n + 1;
-    seq_t *tmp = (seq_t *)realloc(buf, buf_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, buf, buf_size);
     if (!tmp) return (seq_t)0;  /* allocation failed – return 0 */
     buf = tmp;
 

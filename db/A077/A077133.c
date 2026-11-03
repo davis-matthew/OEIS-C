@@ -9,7 +9,8 @@
  *            A077133)
  * Range:     u8 n <= 50, u16 n <= 6128, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 9885 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Static storage for primes: enough for n up to ~10000 (20000 primes) */
 #define PRIME_CAP 30000
@@ -82,7 +84,7 @@ seq_t a(idx_t n)
     /* Allocate or grow a_cache if needed */
     if ((size_t)n + 1 > a_cache_size) {
         size_t new_size = ((size_t)n + 1) * 2;  /* grow for future calls */
-        seq_t *tmp = (seq_t *)realloc(a_cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_size);
         if (!tmp) {
             /* Allocation failed – return 0 as a safe fallback */
             return (seq_t)0;

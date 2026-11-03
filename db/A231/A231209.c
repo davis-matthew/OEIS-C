@@ -10,7 +10,8 @@
  *            squarefree factorizations
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 16,
  *            big any n
- * Helpers:   isPrimeSmall, mul_small
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   is_prime_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,21 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/isPrimeSmall.h"
-#include "../utils/mul_small.h"
+#include "../utils/is_prime_i32.h"
+#include "../utils/mem.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 static seq_t *prime_prod = NULL;   /* prime_prod[r] = product of first r primes, r>=0 */
 static size_t prod_len = 0;        /* number of products stored */
@@ -36,7 +50,7 @@ static void ensure_primorial_size(idx_t r_needed)
     if (prime_prod == NULL) {
         /* initialise storage for prime_prod[0] = 1 */
         prod_cap = 16;
-        prime_prod = (seq_t *)malloc(prod_cap * sizeof(seq_t));
+        prime_prod = mem_new(seq_t, prod_cap);
         prime_prod[0] = (seq_t)1;
         prod_len = 1;
 
@@ -48,7 +62,7 @@ static void ensure_primorial_size(idx_t r_needed)
     while (prod_len <= (size_t)r_needed) {
 
         /* find next prime */
-        while (!isPrimeSmall(next_candidate))
+        while (!is_prime_i32(next_candidate))
             next_candidate++;
 
         /* store prime */
@@ -63,7 +77,7 @@ static void ensure_primorial_size(idx_t r_needed)
 
         if (prod_len == prod_cap) {
             prod_cap <<= 1;
-            prime_prod = (seq_t *)realloc(prime_prod, prod_cap * sizeof(seq_t));
+            prime_prod = mem_resize(seq_t, prime_prod, prod_cap);
         }
         prime_prod[prod_len++] = new_prod;
 

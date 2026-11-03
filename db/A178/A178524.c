@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 91, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 92 terms through n = 91 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --- cached values of a(n) --------------------------------------- */
 static seq_t *seq_cache = NULL;   /* a(0), a(1), …, a(last)     */
@@ -42,7 +44,7 @@ init_triangle(void)
         return;
 
     seq_cap = 64;
-    seq_cache = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+    seq_cache = mem_new(seq_t, seq_cap);
     if (!seq_cache)
         return;              /* allocation failure – sequence stays empty */
 
@@ -53,11 +55,11 @@ init_triangle(void)
     seq_len = 2;              /* indices 0 and 1 are filled */
 
     /* allocate storage for rows 0 and 1 */
-    row_prev2 = (seq_t*)malloc(sizeof(seq_t));
+    row_prev2 = mem_new(seq_t, 1);
     row_prev2[0] = (seq_t)1;
     row_prev2_len = 1;
 
-    row_prev1 = (seq_t*)malloc(sizeof(seq_t));
+    row_prev1 = mem_new(seq_t, 1);
     row_prev1[0] = (seq_t)1;
     row_prev1_len = 1;
 }
@@ -77,7 +79,7 @@ compute_upto(idx_t n)
         idx_t new_n   = row_prev1_len + 1;       /* because row_prev1_len = n-1 */
         idx_t new_len = (new_n >= 2) ? new_n : 1;
 
-        seq_t *curr = (seq_t*)malloc(new_len * sizeof(seq_t));
+        seq_t *curr = mem_new(seq_t, new_len);
         if (!curr)
             return;  /* allocation failure – leave the cache as is */
 
@@ -99,7 +101,7 @@ compute_upto(idx_t n)
             idx_t new_cap = seq_cap ? seq_cap * 2 : 16;
             while (new_cap < seq_len + new_len)
                 new_cap *= 2;
-            seq_t *tmp = (seq_t*)realloc(seq_cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
             if (!tmp)
                 return;  /* failure – keep previous cache */
             seq_cache = tmp;
@@ -111,7 +113,7 @@ compute_upto(idx_t n)
             seq_cache[seq_len++] = curr[k];
 
         /* slide the row buffers */
-        free(row_prev2);
+        mem_free(row_prev2);
         row_prev2 = row_prev1;
         row_prev2_len = row_prev1_len;
 

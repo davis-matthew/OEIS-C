@@ -9,15 +9,31 @@
  *            multiplicative definition in A260649
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_for_prime, factor_u64
+ * Validated: standard, pass, 103 terms through n = 9050 (2026-11-01)
+ * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/factor_for_prime.h"
+
+/* Contribution of a single prime power to the multiplicative value. */
+static inline seq_t factor_for_prime(uint64_t p, idx_t e)
+{
+    if (p == 2ULL)
+        return (e > 1) ? (seq_t)(e - 1) : (seq_t)0;
+    if (p == 3ULL || p == 5ULL)
+        return (seq_t)1;
+    uint64_t r = p % 15ULL;
+    if (r == 1ULL || r == 2ULL || r == 4ULL || r == 8ULL)
+        return (seq_t)(e + 1);
+    /* r == 7,11,13,14 */
+    return (e & 1UL) ? (seq_t)0 : (seq_t)1;
+}
 
 seq_t a(idx_t n)
 {

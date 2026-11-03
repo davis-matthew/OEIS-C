@@ -7,6 +7,7 @@
  * Formula:   a(n) = 16*n^5 + 70*n^4 + 105*n^3 + 65*n^2 + 15*n + 1
  * Range:     u8 n <= 0, u16 n <= 4, u32 n <= 28, u64 n <= 28, u128 n <= 28,
  *            big any n
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

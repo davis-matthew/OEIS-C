@@ -12,14 +12,42 @@
  *            circular base‑12 sequences (248832 possibili...
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   absdiffint, compute_a5
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/absdiffint.h"
-#include "../utils/compute_a5.h"
+
+/* Helper: absolute difference of two ints */
+static inline int absdiffint(int a, int b)
+{
+    return a >= b ? a - b : b - a;
+}
+
+/* Compute a(5) by brute force enumeration */
+static seq_t compute_a5(void)
+{
+    seq_t cnt = 0;
+    for (int d0 = 0; d0 < 12; ++d0) {
+        for (int d1 = 0; d1 < 12; ++d1) {
+            if (absdiffint(d0, d1) > 9) continue;
+            for (int d2 = 0; d2 < 12; ++d2) {
+                if (absdiffint(d1, d2) > 9) continue;
+                for (int d3 = 0; d3 < 12; ++d3) {
+                    if (absdiffint(d2, d3) > 9) continue;
+                    for (int d4 = 0; d4 < 12; ++d4) {
+                        if (absdiffint(d3, d4) > 9) continue;
+                        if (absdiffint(d4, d0) > 9) continue;
+                        ++cnt;
+                    }
+                }
+            }
+        }
+    }
+    return cnt;
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)

@@ -10,13 +10,15 @@
  *            A000111(m) = E(m,m)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 12, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 224 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *a364_vals = NULL;
 static idx_t a364_have = 0;
@@ -30,9 +32,9 @@ seq_t a(idx_t n) {
     if (N < 16) N = 16;
     idx_t M = 2 * N;
 
-    seq_t *p = (seq_t *)calloc((size_t)(M + 2), sizeof(seq_t));
-    seq_t *q = (seq_t *)calloc((size_t)(M + 2), sizeof(seq_t));
-    seq_t *R = (seq_t *)calloc((size_t)(N + 1), sizeof(seq_t));
+    seq_t *p = mem_new(seq_t, (size_t)(M + 2));
+    seq_t *q = mem_new(seq_t, (size_t)(M + 2));
+    seq_t *R = mem_new(seq_t, (size_t)(N + 1));
 
     p[0] = 1;
     R[0] = 1;
@@ -45,9 +47,9 @@ seq_t a(idx_t n) {
             R[m / 2] = p[m];
     }
 
-    free(p);
-    free(q);
-    if (a364_vals != NULL) free(a364_vals);
+    mem_free(p);
+    mem_free(q);
+    if (a364_vals != NULL) mem_free(a364_vals);
     a364_vals = R;
     a364_have = N + 1;
     return a364_vals[n];

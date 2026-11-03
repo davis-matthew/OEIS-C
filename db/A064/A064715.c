@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 262, u32 n <= 1200, u64 n <= 1200,
  *            u128 n <= 1200, big any n
- * Helpers:   build_repr, grow_terms_array
+ * Validated: standard, pass, 59 terms through n = 1110 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -37,8 +38,40 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdbool.h>
-#include "../utils/build_repr.h"
-#include "../utils/grow_terms_array.h"
+#include "../utils/mem.h"
+
+/* ---------- helper to build the representation sieve --------------- */
+static void build_repr(size_t limit, uint8_t **rep, size_t *limit_out)
+{
+    /* free old sieve if any */
+    if (*rep != NULL)
+        free(*rep);
+
+    /* allocate new sieve: index 0..limit */
+    *rep  = (uint8_t*)calloc(limit + 1, 1);
+    if (*rep == NULL) return;          /* OOM – abort silently */
+
+    size_t sqrt_lim = (size_t)floor(sqrt((double)limit));
+    for (size_t a = 1; a <= sqrt_lim; ++a) {
+        size_t a2 = a * a;
+        for (size_t b = a + 1; b <= sqrt_lim; ++b) {
+            size_t s = a2 + b * b;
+            if (s > limit) break;
+            (*rep)[s] = 1;
+        }
+    }
+    *limit_out = limit;
+}
+
+/* ---------- helper to grow the terms array ------------------------ */
+static void grow_terms_array(seq_t **arr, size_t *cap, size_t new_cap)
+{
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+    if (tmp != NULL) {
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
 
 /* ---------- main OEIS function ------------------------------------- */
 seq_t a(idx_t n)
@@ -54,7 +87,7 @@ seq_t a(idx_t n)
     /* initial allocation for terms array */
     if (terms == NULL) {
         terms_cap = 16;
-        terms = (seq_t*)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
     }
 
     /* build initial sieve */

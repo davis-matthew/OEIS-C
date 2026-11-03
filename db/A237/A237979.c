@@ -12,13 +12,15 @@
  *            memoised up to the largest n requested
  * Range:     u8 n <= 46, u16 n <= 120, u32 n <= 357, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 90 terms through n = 942 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Cached DP table */
 static idx_t dp_N = 0;       /* largest n currently computed */
@@ -30,14 +32,14 @@ static void ensure_dp(idx_t nmax)
 {
     if (dp_N >= nmax) return;            /* already sufficient */
 
-    if (dp) { free(dp); dp = NULL; }     /* discard old table */
+    if (dp) { mem_free(dp); dp = NULL; }     /* discard old table */
 
     dp_N = nmax;
     dp_K = (size_t)sqrt((double)nmax);    /* floor(√nmax) */
 
     size_t rows = dp_N + 1;
     size_t cols = dp_K + 1;
-    dp = (seq_t *)calloc(rows * cols, sizeof(seq_t));
+    dp = mem_new(seq_t, rows * cols);
     if (dp == NULL) return;              /* allocation failed – caller will get zeros */
 
     dp[0] = 1;                            /* dp[0][0] = 1 */

@@ -9,13 +9,15 @@
  *            distinct numbers of the form 3^k - 2^k (k>=1)
  * Range:     u8 n <= 232, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 9288 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *missing = NULL;
 static size_t miss_size = 0;
@@ -29,7 +31,7 @@ static void ensure_miss_capacity(void)
 {
     if (miss_size == miss_cap) {
         size_t new_cap = miss_cap ? miss_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(missing, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, missing, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         missing = tmp;
         miss_cap = new_cap;

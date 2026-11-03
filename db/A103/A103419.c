@@ -8,13 +8,15 @@
  *            t-1)
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 33, u64 n <= 65, u128 n <= 129,
  *            big any n
- * Helpers:   binom, pow2
+ * Validated: standard, pass, 50 terms through n = 969 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include <sys/types.h>
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
         for (idx_t t = 1; t <= max_t; ++t) {
             idx_t N = n - (k - 1) * t - 1;
             idx_t K = t - 1;
-            sumk += binom(N, K);
+            sumk += binomial(N, K);
         }
 
         if ((k & 1) == 0)      /* even k → negative sign */

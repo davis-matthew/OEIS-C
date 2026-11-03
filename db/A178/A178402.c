@@ -9,7 +9,8 @@
  *            contain the rounded-up arithmetic mean of its digits. Offset = 1
  * Range:     u8 n <= 167, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   ceil_mean
+ * Validated: standard, pass, 84 terms through n = 9224 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,21 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/ceil_mean.h"
+#include "../utils/mem.h"
+
+/* rounded‑up arithmetic mean of digits of x */
+static int ceil_mean(seq_t x)
+{
+    int sum = 0;
+    int cnt = 0;
+    seq_t t = x;
+    while (t > 0) {
+        sum += (int)(t % 10);
+        t /= 10;
+        ++cnt;
+    }
+    return (sum + cnt - 1) / cnt;    /* ceil(sum/cnt) */
+}
 
 /* memoisation tables */
 static seq_t *cache = NULL;          /* stored terms */
@@ -32,13 +47,13 @@ static void ensure_capacity(size_t needed)
     size_t new_cap = cache_cap ? cache_cap * 2 : 8;
     if (new_cap < needed) new_cap = needed;
 
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache) exit(1);          /* fatal allocation error */
 
     if (cache) {
         for (size_t i = 0; i < cache_len; ++i)
             new_cache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
 
     cache = new_cache;

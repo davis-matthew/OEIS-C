@@ -9,7 +9,8 @@
  *            s0·s2) where s_j = (2ⁿ + 2·cos(π·(n – 2j)/3)) / 3 , j = 0,1,2
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,12 +22,14 @@
    the six possible values of 2·cos(π·m/3).  All arithmetic uses the
    generic integer type seq_t. */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
     /* 2ⁿ as a seq_t (big integer if needed) */
-    seq_t pow2 = seq_pow((seq_t)2, n);
+    seq_t pow2 = ipow_idx((seq_t)2, n);
 
     /* 2·cos(π·m/3) for m = 0..5  */
     static const int8_t cos2[6] = { 2,  1, -1, -2, -1,  1 };

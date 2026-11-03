@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 18, u128 n <= 36,
  *            big any n
- * Helpers:   row_code, row_v0, row_v1
+ * Validated: standard, pass, 34 terms through n = 207 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -38,9 +39,15 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/row_code.h"
-#include "../utils/row_v0.h"
-#include "../utils/row_v1.h"
+
+/* helper: encode a row (2 cells) as an integer 0..15:
+ *  row = (v0 << 2) | v1   (v0, v1 ∈ {0,1,2,3}) */
+static inline int row_code(int v0, int v1) { return (v0 << 2) | v1; }
+
+/* Decode row code: */
+static inline int row_v0(int code) { return code >> 2; }
+
+static inline int row_v1(int code) { return code & 3; }
 
 #define NULL_ROW 16          /* sentinel for “no row above” */
 #define INVALID_MASK 255U    /* sentinel for invalid mask transition */

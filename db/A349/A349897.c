@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 59, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   seq_gcd
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/seq_gcd.h"
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* Prime factorisation helper structures */
 typedef struct {
@@ -133,8 +135,7 @@ static void add_factor(uint64_t p, uint64_t f)
     if (idx == primeExp_cnt) {           /* new prime */
         if (primeExp_cnt == primeExp_cap) {
             primeExp_cap = (primeExp_cap == 0) ? 4 : primeExp_cap * 2;
-            primeExp = (prime_exp_t*)realloc(primeExp,
-                                             primeExp_cap * sizeof(prime_exp_t));
+            primeExp = mem_resize(prime_exp_t, primeExp, primeExp_cap);
         }
         primeExp[primeExp_cnt].prime = (seq_t)p;
         primeExp[primeExp_cnt].exp   = ff;
@@ -153,7 +154,7 @@ seq_t a(idx_t n)
 
     if (primeExp_cnt == 0) {             /* initial factorisation of b(0)=4=2^2 */
         primeExp_cap = 4;
-        primeExp = (prime_exp_t*)malloc(primeExp_cap * sizeof(prime_exp_t));
+        primeExp = mem_new(prime_exp_t, primeExp_cap);
         primeExp[0].prime = (seq_t)2;
         primeExp[0].exp   = (seq_t)2;
         primeExp_cnt = 1;
@@ -164,8 +165,8 @@ seq_t a(idx_t n)
         size_t new_cap = a_cache_cap;
         if (new_cap == 0) new_cap = 64;
         while (n >= new_cap) new_cap <<= 1;
-        a_cache = (seq_t*)realloc(a_cache, new_cap * sizeof(seq_t));
-        memset(a_cache + a_cache_cap, 0, (new_cap - a_cache_cap) * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_cap);
+        mem_set(a_cache + a_cache_cap, 0, (new_cap - a_cache_cap) * sizeof(seq_t));
         a_cache_cap = new_cap;
     }
 
@@ -191,12 +192,12 @@ seq_t a(idx_t n)
                 numer *= num_factor;
                 denom *= den_factor;
 
-                seq_t g = seq_gcd(numer, denom);
+                seq_t g = gcd(numer, denom);
                 numer /= g;
                 denom /= g;
             }
             /* final reduction */
-            seq_t g2 = seq_gcd(numer, denom);
+            seq_t g2 = gcd(numer, denom);
             numer /= g2;
             denom /= g2;
 

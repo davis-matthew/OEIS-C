@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 419, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   div_rec
+ * Validated: standard, pass, 72 terms through n = 9505 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,43 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/div_rec.h"
+
+/*---------------------------------------------------------------------------*
+ *  Helper: recursive divisor enumeration
+ *---------------------------------------------------------------------------*/
+static void div_rec(const uint64_t *prm, const uint64_t *fld,
+                    size_t cnt, size_t idx,
+                    seq_t phi_prod, seq_t tau_prod,
+                    seq_t *sum)
+{
+    if (idx == cnt) {
+        *sum += phi_prod * tau_prod;
+        return;
+    }
+
+    uint64_t p   = prm[idx];
+    uint64_t exp = fld[idx];
+
+    seq_t p_pow      = 1;  /* p^f               */
+    seq_t p_pow_prev = 1;  /* p^(f-1)           */
+
+    for (uint64_t f = 0; f <= exp; ++f) {
+        seq_t new_phi = phi_prod;
+        seq_t new_tau = tau_prod * (seq_t)(3 * f + 1);
+
+        if (f > 0) {
+            /* phi(p^f) = p^f - p^(f-1) */
+            seq_t phi_factor = p_pow - p_pow_prev;
+            new_phi *= phi_factor;
+        }
+
+        div_rec(prm, fld, cnt, idx + 1, new_phi, new_tau, sum);
+
+        /* prepare for next f */
+        p_pow_prev = p_pow;
+        p_pow *= (seq_t)p;
+    }
+}
 
 /*---------------------------------------------------------------------------*
  *  Helper: factorise unsigned 64‑bit integer

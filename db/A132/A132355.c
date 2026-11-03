@@ -7,6 +7,7 @@
  * Formula:   a(n) = n^2 - n + 5*floor(n/2)^2
  * Range:     u8 n <= 11, u16 n <= 171, u32 n <= 2108, u64 n <= 2108,
  *            u128 n <= 2108, big any n
+ * Validated: standard, pass, 63 terms through n = 1933 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

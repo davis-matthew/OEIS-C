@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 59, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   is_periodic
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,30 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_periodic.h"
+#include "../utils/mem.h"
+
+/* Helper: test whether an exponent vector of length k is periodic.
+   Periodic means there exists a proper divisor d of k such that the
+   vector repeats every d positions. */
+static bool is_periodic(const int *exps, size_t k)
+{
+    if (k < 2) return false;          /* need at least two exponents */
+
+    /* Search proper divisors of k. */
+    for (size_t d = 1; d <= k / 2; ++d) {
+        if (k % d != 0) continue;
+
+        bool ok = true;
+        for (size_t i = 0; i < k; ++i) {
+            if (exps[i] != exps[i % d]) {
+                ok = false;
+                break;
+            }
+        }
+        if (ok) return true;
+    }
+    return false;
+}
 
 /* Main sequence function. */
 seq_t a(idx_t n)
@@ -36,7 +60,7 @@ seq_t a(idx_t n)
     /* Allocate initial cache. */
     if (!cache) {
         cache_cap = 64;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* Produce terms until cache holds at least n of them. */
@@ -80,9 +104,9 @@ seq_t a(idx_t n)
             /* Store the candidate in cache. */
             if (cache_len >= cache_cap) {
                 cache_cap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                 if (!tmp) { /* OOM: abort gracefully. */
-                    free(cache);
+                    mem_free(cache);
                     cache = NULL;
                     cache_cap = cache_len = 0;
                     return (seq_t)0;

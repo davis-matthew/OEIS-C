@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 142, u32 n <= 200, u64 n <= 200,
  *            u128 n <= 200, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 191 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    Computed by iteratively evaluating the Q‑sequence and recording the
    indices where the increment is exactly 1. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Ensure that the dynamic array *arr has space for at least needed elements.
    Returns 1 on success, 0 on allocation failure. */
@@ -25,7 +27,7 @@ static int grow_seq(seq_t **arr, size_t *cap, size_t needed)
     if (needed <= *cap) return 1;
     size_t new_cap = *cap ? *cap * 2 : 128;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
     if (!tmp) return 0;
     *arr = tmp;
     *cap = new_cap;

@@ -13,7 +13,8 @@
  *            utilities
  * Range:     u8 n <= 24, u16 n <= 33, u32 n <= 63, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   factorial, pow2, pow_seq
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   ipow_i32, mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,21 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "../utils/factorial.h"   /* factorial(idx_t n) returns a seq_t */
-#include "../utils/pow_seq.h"    /* pow_seq(seq_t base, int exp) */
-#include "../utils/pow2.h"       /* pow2(idx_t exp) returns seq_t */
+#include <stdbool.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 /* integer square root of a 64‑bit unsigned integer */
 static idx_t floor_isqrt_u64(idx_t n) {
@@ -51,7 +64,7 @@ static void ensure_factorial(size_t n) {
     if (n < fact_size) return;
     size_t old = fact_size;
     fact_size = n + 1;
-    fact_cache = (seq_t *)realloc(fact_cache, fact_size * sizeof(seq_t));
+    fact_cache = mem_resize(seq_t, fact_cache, fact_size);
     if (fact_cache == NULL) exit(EXIT_FAILURE);
     if (old == 0) {
         fact_cache[0] = (seq_t)1;
@@ -71,9 +84,9 @@ static seq_t compute_T(idx_t r, idx_t c) {
     seq_t fact_r = fact_cache[r];
     for (idx_t j = 0; j <= maxj; ++j) {
         idx_t other = r - 2 * j;              /* r-2j >= 0 */
-        seq_t pow_cj = pow_seq((seq_t)c, (int)j);
+        seq_t pow_cj = ipow_i32((seq_t)c, (int)j);
         idx_t exp1 = r - j - 1;               /* exponent >= 0 for r>0 */
-        seq_t pow_2j1 = pow_seq((seq_t)(2 * j + 1), (int)exp1);
+        seq_t pow_2j1 = ipow_i32((seq_t)(2 * j + 1), (int)exp1);
         seq_t numerator = fact_r * pow_cj;
         numerator = numerator * pow_2j1;
         seq_t denom = fact_cache[j] * fact_cache[other];

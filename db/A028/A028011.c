@@ -7,7 +7,8 @@
  * Formula:   a(n) = (7*12^(n+3)-25*9^(n+3)+3*7^(n+4)-3*2^(n+3))/1050
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 16, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* with initial values a(0)=1, a(1)=30, a(2)=589, a(3)=9606 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     if (n >= cache_size) {
         idx_t new_size = n + 1;                /* need indices 0..n inclusive */
         /* allocate new cache */
-        seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_size);
         if (!new_cache) abort();               /* unable to allocate */
 
         /* copy old values to new cache */
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
         }
 
         /* free old cache and update pointers */
-        if (cache) free(cache);
+        if (cache) mem_free(cache);
         cache      = new_cache;
         cache_size = new_size;
     }

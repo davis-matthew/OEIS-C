@@ -9,7 +9,8 @@
  *            the largest divisor of k not exceeding √k
  * Range:     u8 n <= 71, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   fourth_root_of_cube
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,26 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/fourth_root_of_cube.h"
+
+/* Utility: compute integer fourth‑root of k^3  (i.e. floor((k^3)^(1/4))) */
+static inline uint64_t fourth_root_of_cube(uint64_t k)
+{
+    unsigned __int128 cube = (unsigned __int128)k * k * k;  /* safe up to k≈10^12 */
+    uint64_t low  = 0;
+    uint64_t high = k;   /* upper bound is k itself – very safe */
+
+    while (low < high) {
+        uint64_t mid = (low + high + 1) >> 1;
+        unsigned __int128 mid2 = (unsigned __int128)mid * mid;
+        unsigned __int128 mid4 = mid2 * mid2;  /* mid^4 */
+
+        if (mid4 <= cube)
+            low = mid;
+        else
+            high = mid - 1;
+    }
+    return low;
+}
 
 /* Static data for memoisation */
 static uint64_t *largest_prime_factor = NULL;   /* array indexed by k */

@@ -9,7 +9,8 @@
  * Formula:   a(n) = a(n-1) + a(n-3) - a(n-4) + 2*a(n-5) - a(n-6) + a(n-7)
  * Range:     u8 n <= 12, u16 n <= 25, u32 n <= 53, u64 n <= 107,
  *            u128 n <= 210, big any n
- * Helpers:   _count_perm_, _dfs_perm_
+ * Validated: standard, pass, 55 terms through n = 192 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,46 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_count_perm_.h"
-#include "../utils/_dfs_perm_.h"
+#include "../utils/mem.h"
+
+/*  window‑of‑4 constraint.  Only used for n≤18.                     */
+static void _dfs_perm_(idx_t pos, uint64_t used, int *perm, idx_t n, seq_t *cnt)
+{
+    if (pos == n) {
+        (*cnt)++;
+        return;
+    }
+    int minv = (int)pos - 2;
+    if (minv < 0) minv = 0;
+    int maxv = (int)pos + 2;
+    if (maxv > (int)n - 1) maxv = (int)n - 1;
+
+    for (int v = minv; v <= maxv; ++v) {
+        if (used & (1ULL << v))
+            continue;
+        perm[pos] = v;
+        if (pos >= 3) {
+            int mn = perm[pos], mx = perm[pos];
+            for (int k = pos - 3; k <= pos; ++k) {
+                if (perm[k] < mn) mn = perm[k];
+                if (perm[k] > mx) mx = perm[k];
+            }
+            if (mx - mn > 4)
+                continue;
+        }
+        _dfs_perm_(pos + 1, used | (1ULL << v), perm, n, cnt);
+    }
+}
+
+static seq_t _count_perm_(idx_t n)
+{
+    if (n == 0)
+        return (seq_t)1;
+    seq_t cnt = 0;
+    int perm[20];          /* n ≤ 18 for this routine */
+    _dfs_perm_(0, 0, perm, n, &cnt);
+    return cnt;
+}
 
 /* ------------------------------------------------------------------ */
 /*  Enumerate permutations 0..n-1 satisfying the bandwidth ≤2   and   */
@@ -39,9 +78,9 @@ seq_t a(idx_t n)
     if (n > cache_max) {
         size_t new_size = (size_t)(n + 1);        /* 1‑based indexing */
         if (cache == NULL) {
-            cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+            cache = mem_new(seq_t, new_size);
         } else {
-            cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_size);
         }
         if (cache == NULL)
             abort();           /* memory exhausted */

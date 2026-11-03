@@ -8,13 +8,14 @@
  *            n*(n-1)/2)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 8, u128 n <= 14,
  *            big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 29 terms through n = 185 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/is_prime.h"
-
+#include <stdbool.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n) {
     idx_t start_idx = 1 + (idx_t)(((n - 1) * n) / 2);
@@ -25,7 +26,7 @@ seq_t a(idx_t n) {
     uint64_t candidate = 2;
     
     while (prime_idx < end_idx) {
-        if (is_prime(candidate)) {
+        if (is_prime_u64(candidate)) {
             prime_idx++;
             if (prime_idx >= start_idx && prime_idx < end_idx) {
                 result *= (seq_t)candidate;

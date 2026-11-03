@@ -9,13 +9,15 @@
  *            A396916)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc, free, exit */
 #include <stddef.h>   /* size_t */
+#include "../utils/mem.h"
 
 /* Memoised storage for the sequence and helper tables. */
 static seq_t *A = NULL;        /* term array */
@@ -35,15 +37,15 @@ static void ensure_A(idx_t n)
     /* Reallocate the three arrays. */
     void *tmp;
 
-    tmp = realloc(A, new_cap * sizeof(seq_t));
+    tmp = mem_resize(seq_t, A, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     A = (seq_t *)tmp;
 
-    tmp = realloc(powk, new_cap * sizeof(seq_t));
+    tmp = mem_resize(seq_t, powk, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     powk = (seq_t *)tmp;
 
-    tmp = realloc(binom, new_cap * sizeof(seq_t));
+    tmp = mem_resize(seq_t, binom, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     binom = (seq_t *)tmp;
 

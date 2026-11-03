@@ -11,13 +11,15 @@
  *            n)
  * Range:     u8 n <= 40, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 86 terms through n = 86 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Convert index to seq_t, but direct cast is fine because both are unsigned integral types. */
 static seq_t largest_digit(seq_t v) {
@@ -39,7 +41,7 @@ static void ensure_capacity(size_t n) {
     if (traj_size >= n) return;
     if (traj_cap == 0) traj_cap = 16;
     while (traj_cap < n) traj_cap <<= 1;
-    traj = (seq_t *)realloc(traj, traj_cap * sizeof(seq_t));
+    traj = mem_resize(seq_t, traj, traj_cap);
 }
 
 /* Append a value to the trajectory array. */

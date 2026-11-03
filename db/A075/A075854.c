@@ -12,6 +12,7 @@
  *            resulting sequence has length n²+1 digits and starts...
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 4, u128 n <= 6,
  *            big any n
+ * Validated: full, pass, 9 terms through n = 9 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

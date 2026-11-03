@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
 */
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_len = 0;
@@ -46,7 +49,7 @@ static void regenerate_cache(idx_t n)
                 ++pair_cnt;
 
         /* Allocate (or reallocate) the cache. */
-        seq_t *new_cache = (seq_t *)malloc(pair_cnt * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, pair_cnt);
         size_t idx = 0;
         for (size_t i = 0; i + 1 < prime_cnt && idx < pair_cnt; ++i) {
             if (primes[i + 1] - primes[i] == 22) {
@@ -56,7 +59,7 @@ static void regenerate_cache(idx_t n)
         }
 
         free(primes);
-        free(cache);
+        mem_free(cache);
         cache      = new_cache;
         cache_len  = pair_cnt;
 

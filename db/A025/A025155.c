@@ -11,12 +11,14 @@
  *            over each possible part j from 10 up to the requested n...
  * Range:     u8 n <= 66, u16 n <= 137, u32 n <= 341, u64 n <= 981,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 92 terms through n = 918 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* if this is the first call or we need a larger table, recompute */
     if (dp == NULL || n > max_n) {
         /* allocate new array of size n+1 (indices 0..n) */
-        seq_t *tmp = (seq_t *)realloc(dp, (size_t)(n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, (size_t)(n + 1));
         if (tmp == NULL) {
             abort();  /* out of memory */
         }

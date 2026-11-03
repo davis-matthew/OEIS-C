@@ -10,12 +10,25 @@
  *            of factors, which avoids duplicate counts
  * Range:     u8 n <= 63, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_even_factorizations
+ * Validated: standard, pass, 113 terms through n = 9015 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/count_even_factorizations.h"
+static seq_t count_even_factorizations(idx_t N, idx_t min_factor)
+{
+    seq_t total = 0;
+    for (idx_t d = min_factor; d <= N; d += 2) {      /* only even d */
+        if ((N % d) != 0) continue;                  /* d must divide N   */
+        if (d == N) {
+            total += 1;                               /* trivial factorization N itself */
+        } else {
+            total += count_even_factorizations(N / d, d);
+        }
+    }
+    return total;
+}
 
 seq_t a(idx_t n)
 {

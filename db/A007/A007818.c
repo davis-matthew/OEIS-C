@@ -10,13 +10,20 @@
  *            so a(n) = 3m - (ab+bc+ca) + r + 2r - ceil(2*sqrt(r))
  * Range:     u8 n <= 108, u16 n <= 500, u32 n <= 500, u64 n <= 500,
  *            u128 n <= 500, big any n
- * Helpers:   a007818_ceil2sqrt
+ * Validated: standard, pass, 79 terms through n = 485 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a007818_ceil2sqrt.h"
+
+static uint64_t a007818_ceil2sqrt(uint64_t r) {
+    /* smallest t with t*t >= 4r */
+    uint64_t x = 4 * r, t = 0;
+    while (t * t < x) t++;
+    return t;
+}
 
 seq_t a(idx_t n) {
     uint64_t N = (uint64_t)n;

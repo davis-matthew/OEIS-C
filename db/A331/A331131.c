@@ -12,13 +12,15 @@
  *            sieve which is recomputed only when a larger...
  * Range:     u8 n <= 14, u16 n <= 566, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 8358 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* The types seq_t and idx_t are provided by the build system. */
 seq_t a(idx_t n)
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
         /* Free previous storage if it exists. */
         if (divCount) free(divCount);
         if (div3)     free(div3);
-        if (pref)     free(pref);
+        if (pref)     mem_free(pref);
 
         current_limit = needed;
 
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
         */
         divCount = (uint64_t*)calloc((size_t)current_limit + 1, sizeof(uint64_t));
         div3     = (uint64_t*)calloc((size_t)current_limit + 1, sizeof(uint64_t));
-        pref     = (seq_t*)   calloc((size_t)current_limit + 1, sizeof(seq_t));
+        pref     = mem_new(seq_t, (size_t)current_limit + 1);
 
         /* -------- compute d(i) -------- */
         for (idx_t i = 1; i <= current_limit; ++i)

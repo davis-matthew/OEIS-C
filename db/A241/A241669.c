@@ -9,7 +9,8 @@
  * Formula:   T(n,k) = Σ_{s=1}^{n-1} C(n,s) * C(s*(n-s), k)
  * Range:     u8 n <= 13, u16 n <= 33, u32 n <= 79, u64 n <= 79, u128 n <= 79,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 79 terms through n = 79 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 /* a(n) is the flattened triangle where row r has length floor(r²/4)+1 */
 /* and the k‑th element of that row (k=0 … floor(r²/4)) is T(r,k). */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -34,10 +36,10 @@ seq_t a(idx_t n)
             /* Compute T(row, k) */
             seq_t sum = 0;
             for (idx_t s = 1; s < row; ++s) {
-                seq_t comb1 = binom(row, s);
+                seq_t comb1 = binomial(row, s);
                 idx_t e = s * (row - s);
                 if (k > e) continue;              /* binomial is zero in this case */
-                seq_t comb2 = binom(e, k);
+                seq_t comb2 = binomial(e, k);
                 sum += comb1 * comb2;
             }
             return sum;

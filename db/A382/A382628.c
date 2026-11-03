@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 14, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   factor_u64
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/factor_u64.h"   /* factor_u64(uint64_t n,uint64_t *pr,uint64_t *ex,size_t *cnt); */
+#include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* Test whether a 64‑bit integer is a sphenic number. */
 static bool is_sphenic_uint64(uint64_t x)
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
     /* Initialise cache once. */
     if (cache == NULL) {
         cache_cap = 128;
-        cache     = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache     = mem_new(seq_t, cache_cap);
         if (!cache) abort();                         /* memory allocation failure */
     }
 
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
                 /* Grow cache if necessary. */
                 if (cache_len == cache_cap) {
                     cache_cap <<= 1;
-                    seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                     if (!tmp) abort();
                     cache = tmp;
                 }

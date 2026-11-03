@@ -8,12 +8,14 @@
  *            interpret that digit string in base b+1, then subtract 1
  * Range:     u8 none, u16 n <= 1, u32 n <= 13, u64 n <= 253, u128 n <= 10000,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 9356 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     /* dynamic array for digits */
     seq_t *digits = NULL;
     size_t cap = 64;
-    digits = (seq_t *)malloc(cap * sizeof(seq_t));
+    digits = mem_new(seq_t, cap);
     if (!digits) return (seq_t)0;  /* fallback; unlikely to happen */
 
     for (idx_t step = 0; step < n; ++step) {
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
         while (current != (seq_t)0) {
             if (len == cap) {               /* grow array */
                 cap <<= 1;
-                digits = (seq_t *)realloc(digits, cap * sizeof(seq_t));
+                digits = mem_resize(seq_t, digits, cap);
                 if (!digits) return (seq_t)0;  /* fallback */
             }
             digits[len++] = current % base;
@@ -62,6 +64,6 @@ seq_t a(idx_t n)
         current = new_val;
     }
 
-    free(digits);
+    mem_free(digits);
     return current;
 }

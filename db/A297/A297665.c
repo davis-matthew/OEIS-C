@@ -11,12 +11,14 @@
  *            generic; it uses only integer operations and standard...
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 38 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* cache of computed a(n) values      */
 static idx_t cache_len = 0;      /* number of cache entries currently allocated */
@@ -29,7 +31,7 @@ static void ensure_cache(idx_t n)
 
     idx_t new_len = n + 1;
     /* realloc may return NULL; we cast for C++ compatibility       */
-    seq_t *new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_len);
+    seq_t *new_cache = mem_resize(seq_t, cache, new_len);
     if (new_cache == NULL) {
         abort();                      /* allocation failed             */
     }

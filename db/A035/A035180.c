@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   kronecker_minus10_prime
+ * Validated: standard, pass, 97 terms through n = 9781 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,26 @@
  */
 
 #include <stdint.h>
-#include "../utils/kronecker_minus10_prime.h"
+
+/* Calculate Kronecker symbol (-10|p) for an odd prime p.
+   Returns -1, 0, or 1. */
+static int kronecker_minus10_prime(uint64_t p)
+{
+    if (p == 2ULL || p == 5ULL)
+        return 0;                  /* zero for the primes dividing 10 */
+
+    /* (−1|p) = 1 if p ≡ 1 (mod 4), otherwise -1 */
+    int leg1 = ((p & 3ULL) == 1) ? 1 : -1;
+
+    /* (2|p) = 1 if p ≡ 1 or 7 (mod 8), otherwise -1 */
+    int leg2 = (((p & 7ULL) == 1) || ((p & 7ULL) == 7)) ? 1 : -1;
+
+    /* (5|p) = (p|5) because 5 ≡ 1 (mod 4) */
+    uint64_t r = p % 5ULL;
+    int leg5 = (r == 1 || r == 4) ? 1 : -1;
+
+    return leg1 * leg2 * leg5;
+}
 
 seq_t a(idx_t n)
 {

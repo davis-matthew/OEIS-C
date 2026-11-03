@@ -9,6 +9,7 @@
  *            with Fibonacci(-1) = 1, Fibonacci(0) = 0
  * Range:     u8 n <= 11, u16 n <= 21, u32 n <= 43, u64 n <= 88, u128 n <= 178,
  *            big any n
+ * Validated: standard, pass, 53 terms through n = 977 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

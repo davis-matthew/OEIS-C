@@ -8,7 +8,8 @@
  *            (σ₃ is the sum of cubes of the divisors of k)
  * Range:     u8 n <= 65, u16 n <= 6610, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 90 terms through n = 9794 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --- prime table ---------------------------------------------------- */
 #define PRIME_LIMIT 200000   /* sufficient for n up to about 10000 */
@@ -91,7 +93,7 @@ static void ensure_cap(size_t needed)
     if (seq_cap >= needed) return;
     size_t newcap = seq_cap ? seq_cap * 2 : 16;
     while (newcap < needed) newcap <<= 1;
-    seq_vals = (seq_t *)realloc(seq_vals, newcap * sizeof(seq_t));
+    seq_vals = mem_resize(seq_t, seq_vals, newcap);
     seq_cap = newcap;
 }
 

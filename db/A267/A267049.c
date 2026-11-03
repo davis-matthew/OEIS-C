@@ -9,6 +9,7 @@
  * Formula:   a(n) = (n^2 + (-1)^n*(n-3) + 5) / 2 for n > 1 a(0) = 0, a(1) = 1
  * Range:     u8 n <= 15, u16 n <= 257, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 70 terms through n = 977 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

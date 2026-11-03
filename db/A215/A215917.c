@@ -7,12 +7,14 @@
  * Formula:   a(n) = -3*a(n-1) + a(n-3) , a(0)=0, a(1)=6, a(2)=-15
  * Range:     i8 n <= 3, i16 n <= 9, i32 n <= 19, i64 n <= 26, i128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 seq_t a(idx_t n)
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     /* initialize base values */
     if (!cache) {
         cache_capacity = 3;
-        cache = (seq_t *)malloc(cache_capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_capacity);
         if (!cache) return (seq_t)0;               /* allocation failure fallback */
         cache[0] = (seq_t)0;
         cache[1] = (seq_t)6;
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
             cache_capacity <<= 1;
             if (cache_capacity == 0) cache_capacity = 1;  /* safety */
         }
-        seq_t *tmp = (seq_t *)realloc(cache, cache_capacity * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, cache_capacity);
         if (!tmp) return (seq_t)0;                     /* allocation failure fallback */
         cache = tmp;
 

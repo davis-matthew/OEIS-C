@@ -8,7 +8,8 @@
  *            / (m(m+1)/2)! )
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 13, u64 n <= 20, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,6 +37,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 static seq_t *A = NULL;          /* cached a values, 1‑based */
 static int8_t *C = NULL;         /* cached c values (-1,0,1) */
@@ -51,7 +53,7 @@ static void ensure_capacity(idx_t n)
     idx_t new_cap = (curr_cap == 0) ? 16 : curr_cap * 2;
     while (new_cap < n) new_cap <<= 1;
 
-    A = (seq_t *)realloc(A, (new_cap + 1) * sizeof(seq_t));
+    A = mem_resize(seq_t, A, (new_cap + 1));
     C = (int8_t *)realloc(C, (new_cap + 1) * sizeof(int8_t));
     assert(A && C);
 

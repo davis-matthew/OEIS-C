@@ -6,18 +6,21 @@
  * Keywords:  nonn
  * Formula:   a(n) = product of all perfect divisors of n A perfect divisor d
  *            of n satisfies d^k = n for some integer k ≥ 1
- * Range:     u8 n <= 48, u16 n <= 624, u32 n <= 9898, u64 n <= 9898,
- *            u128 n <= 9898, big any n
- * Helpers:   euclidean_gcd, factor_u64, pow_uint
+ * Range:     u8 n <= 48, u16 n <= 624, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 86 terms through n = 9898 (2026-11-01)
+ * Helpers:   factor_u64, gcd_idx, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_uint.h"
-#include "../utils/euclidean_gcd.h"
+#include "../utils/gcd_idx.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n) {
     if (n == 1) return 1;          /* the only perfect divisor of 1 is 1 */
@@ -31,7 +34,7 @@ seq_t a(idx_t n) {
     /* Compute G = gcd of all exponents. */
     idx_t G = exps[0];
     for (size_t i = 1; i < cnt; ++i)
-        G = euclidean_gcd(G, exps[i]);
+        G = gcd_idx(G, exps[i]);
     
     /* Enumerate all divisors of G (G ≤ 64 for 64‑bit n). */
     idx_t divs[64];
@@ -46,7 +49,7 @@ seq_t a(idx_t n) {
         seq_t root = 1;
         for (size_t i = 0; i < cnt; ++i) {
             idx_t exp = exps[i] / d;
-            root *= pow_uint(primes[i], exp);
+            root *= ipow_u64_idx(primes[i], exp);
         }
         result *= root;
     }

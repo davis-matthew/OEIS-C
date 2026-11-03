@@ -12,12 +12,14 @@
  *            a(7)=1866,a(8)=3186,a(9)=5010,a(10)=7830,a(11)=11550,a(12)=17004
  * Range:     u8 n <= 3, u16 n <= 16, u32 n <= 123, u64 n <= 210,
  *            u128 n <= 210, big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 177 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static inline seq_t mul_small(seq_t a, unsigned int m)
 {
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     /* Initial cache allocation */
     if (cache == NULL) {
         cache_cap = 128;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL)
             return 0; /* allocation failure, return 0 as fallback */
         static const seq_t init[12] = {
@@ -65,10 +67,10 @@ seq_t a(idx_t n)
         size_t new_cap = cache_cap;
         while ((size_t)n > new_cap)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) {
             /* allocation failure: free and retry with malloc each time */
-            free(cache);
+            mem_free(cache);
             cache = NULL;
             cache_cap = 0;
             cache_len = 0;

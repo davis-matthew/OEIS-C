@@ -11,7 +11,8 @@
  *            with (row=n, col=k) in antidiagonal order starting at (0,1)
  * Range:     u8 n <= 17, u16 n <= 23, u32 n <= 32, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   _floor_isqrt_u64, factor_u64, seq_mul, seq_pow
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,17 +20,23 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/_floor_isqrt_u64.h"
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_pow.h"
-#include "../utils/seq_mul.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/isqrt.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Convert global index to the (row,col) coordinates used for GL(n,k). */
 static void idx_to_coords(idx_t idx, idx_t *row, idx_t *col)
 {
     /* Find the diagonal s such that (s-1)*s/2 <= idx < s*(s+1)/2. */
     idx_t tmp = 8 * idx + 1;
-    idx_t r   = _floor_isqrt_u64(tmp);
+    idx_t r   = isqrt(tmp);
     idx_t s   = (r - 1) / 2 + 1;          /* diagonal number (starting at 1) */
 
     /* Offset within the diagonal. */
@@ -61,12 +68,12 @@ static seq_t T_n_k(idx_t n, idx_t k)
 
         /* Compute the exponent part: p^{e·n² - n(n+1)/2}. */
         uint64_t exp_diff = e * (n * n) - (n * (n + 1) / 2);
-        seq_t pow_part = seq_pow((seq_t)p, exp_diff);
+        seq_t pow_part = ipow_idx((seq_t)p, exp_diff);
 
         /* Compute the product over j = 1..n of (p^j - 1). */
         seq_t prod = 1;
         for (idx_t j = 1; j <= n; ++j) {
-            seq_t pj   = seq_pow((seq_t)p, j);
+            seq_t pj   = ipow_idx((seq_t)p, j);
             seq_t term = pj - 1;              /* pj-1 fits in seq_t */
             prod = seq_mul(prod, term);
         }

@@ -9,30 +9,31 @@
  *            (i.e. the number of divisors of d divides d), otherwise c(d)=0.
  *            Equivalently: add d for each refactorable divisor d of n, else
  *            add 1
- * Range:     u8 n <= 179, u16 n <= 9892, u32 n <= 9892, u64 n <= 9892,
- *            u128 n <= 9892, big any n
- * Helpers:   _floor_isqrt_u64, divisor_count_u64
+ * Range:     u8 n <= 179, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 100 terms through n = 9892 (2026-11-01)
+ * Helpers:   isqrt, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/divisor_count_u64.h"
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
+#include "../utils/num_divisors.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return 0;           /* undefined for n=0, return 0 safely */
     seq_t sum = 0;
-    idx_t s = _floor_isqrt_u64(n);
+    idx_t s = isqrt(n);
 
     for (idx_t d = 1; d <= s; ++d) {
         if (n % d == 0) {
             idx_t d2 = n / d;
 
             /* process divisor d */
-            uint64_t tau_d = divisor_count_u64(d);
+            uint64_t tau_d = num_divisors(d);
             if (d % tau_d == 0)
                 sum += (seq_t)d;
             else
@@ -40,7 +41,7 @@ seq_t a(idx_t n)
 
             /* process paired divisor d2 if distinct */
             if (d2 != d) {
-                uint64_t tau_d2 = divisor_count_u64(d2);
+                uint64_t tau_d2 = num_divisors(d2);
                 if (d2 % tau_d2 == 0)
                     sum += (seq_t)d2;
                 else

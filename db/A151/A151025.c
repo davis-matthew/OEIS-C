@@ -9,19 +9,21 @@
  * Formula:   a(n) = Σₖ₌⌈n/2⌉ⁿ ((2k−n+1)/(k+1) · C(n,k)) · C(k,⌊k/2⌋) · 2ᵏ
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 14, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate temporary arrays of length n+1 */
     size_t len = (size_t)n + 1;
-    seq_t *pow2   = (seq_t*)malloc(len * sizeof(seq_t));
-    seq_t *central = (seq_t*)malloc(len * sizeof(seq_t));
+    seq_t *pow2   = mem_new(seq_t, len);
+    seq_t *central = mem_new(seq_t, len);
     if (!pow2 || !central) abort();
 
     /* Pre‑compute powers of two: 2ᵏ */
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
         sum += term;
     }
 
-    free(pow2);
-    free(central);
+    mem_free(pow2);
+    mem_free(central);
     return sum;
 }

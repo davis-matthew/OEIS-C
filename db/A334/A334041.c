@@ -9,14 +9,29 @@
  *            bitlen(a(n-2))) OR 1
  * Range:     u8 n <= 13, u16 n <= 29, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   bitlen_seq_t, grow_seq_array
+ * Validated: partial, pass, 43 terms through n = 42 (2026-11-03)
+ * Helpers:   bit_length, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/bitlen_seq_t.h"
-#include "../utils/grow_seq_array.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/bit_length.h"
+#include "../utils/mem.h"
+
+/* Helper to grow a sequence array of type seq_t. */
+static void grow_seq_array(seq_t **arr, size_t *size, size_t new_len)
+{
+    if (*size >= new_len) return;
+    size_t new_cap = (*size > 0) ? (*size << 1) : 16;
+    while (new_cap < new_len) new_cap <<= 1;
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+    if (!tmp) abort();
+    *arr = tmp;
+    *size = new_cap;
+}
 
 seq_t a(idx_t n)
 {
@@ -28,7 +43,7 @@ seq_t a(idx_t n)
     /* initialise cache with the two base values */
     if (cap == 0) {
         cap = 2;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) exit(EXIT_FAILURE);
         cache[0] = (seq_t)2;
         cache[1] = (seq_t)3;
@@ -50,7 +65,7 @@ seq_t a(idx_t n)
         seq_t prev2 = cache[i-2];
         seq_t prev1 = cache[i-1];
         seq_t xored = prev2 ^ prev1;
-        seq_t high  = ((seq_t)1) << bitlen_seq_t(prev2);
+        seq_t high  = ((seq_t)1) << bit_length(prev2);
         cache[i] = xored | high | ((seq_t)1);
     }
     sz = (size_t)n + 1;

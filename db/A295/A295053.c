@@ -13,12 +13,14 @@
  *            already used in a or b
  * Range:     u8 n <= 6, u16 n <= 17, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static state used for memoisation */
 static seq_t *a_arr  = NULL;   /* array of a(n) values */
@@ -41,7 +43,7 @@ static void ensure_capacity(idx_t need, seq_t **arr, idx_t *cap)
     if (*cap < need) {
         idx_t newcap = (*cap) ? (*cap) * 2 : 4;
         while (newcap < need) newcap *= 2;
-        *arr = (seq_t *)realloc(*arr, newcap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, newcap);
         *cap = newcap;
     }
 }

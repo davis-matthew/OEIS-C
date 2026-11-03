@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 45, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Test whether value v occurs in the sorted array a[1..len] */
 static bool contains(idx_t v, idx_t len, seq_t *a)
@@ -45,7 +47,7 @@ static void ensure_capacity(idx_t need, seq_t **a, idx_t *cap)
     if (need <= *cap) return;
     idx_t newcap = *cap ? (*cap * 2) : 16;
     while (newcap < need) newcap *= 2;
-    seq_t *tmp = (seq_t *)realloc(*a, (newcap + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *a, (newcap + 1));
     if (!tmp) abort();
     *a = tmp;
     *cap = newcap;

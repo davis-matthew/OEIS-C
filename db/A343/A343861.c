@@ -10,6 +10,7 @@
  *            This produces the sequence A343861
  * Range:     i8 n <= 9, i16 n <= 20, i32 n <= 44, i64 n <= 119, i128 n <= 324,
  *            big any n
+ * Validated: standard, pass, 61 terms through n = 1299 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,14 +7,16 @@
  * Formula:   a(n) = number of distinct prime divisors of φ(n) (n ≥ 1)
  * Range:     u8 n <= 522, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   calc_phi, count_distinct_primes
+ * Validated: standard, pass, 121 terms through n = 4795 (2026-11-01)
+ * Helpers:   omega, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/calc_phi.h"
-#include "../utils/count_distinct_primes.h"
+#include <stdbool.h>
+#include "../utils/omega.h"
+#include "../utils/totient_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -23,14 +25,14 @@ seq_t a(idx_t n)
         return (seq_t)0;
 
     /* Compute Euler's totient value φ(n). */
-    seq_t phi = calc_phi((seq_t)n);
+    seq_t phi = totient_seq((seq_t)n);
 
     /* Convert φ(n) to 64‑bit for prime‑divisor counting.  The value
        of φ(n) for n in the expression range is always < 2⁶⁴. */
     uint64_t phi64 = (uint64_t)phi;
 
     /* Count distinct prime divisors of φ(n). */
-    int cnt = count_distinct_primes(phi64);
+    int cnt = omega(phi64);
 
     return (seq_t)cnt;
 }

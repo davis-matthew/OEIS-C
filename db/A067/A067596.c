@@ -9,19 +9,22 @@
  *            dynamic‑programming coin‑change algorithm
  * Range:     u8 n <= 32, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   is_palindrome
+ * Validated: partial, pass, 57 terms through n = 56 (2026-11-03)
+ * Helpers:   is_palindrome_base, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/is_palindrome.h"
+#include <stdbool.h>
+#include "../utils/is_palindrome_base.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Dynamically allocate the DP table and the list of palindromic parts. */
     size_t size = (size_t)(n + 1);
-    seq_t *dp = (seq_t *)malloc(size * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, size);
     if (!dp) return 0;  /* allocation failure, unlikely for n≤10000 */
 
     /* Initialize dp[0] = 1, the empty partition. */
@@ -29,13 +32,13 @@ seq_t a(idx_t n)
     dp[0] = 1;
 
     /* Collect all binary palindromic numbers ≤ n. */
-    seq_t *coins = (seq_t *)malloc(size * sizeof(seq_t));
-    if (!coins) { free(dp); return 0; }
+    seq_t *coins = mem_new(seq_t, size);
+    if (!coins) { mem_free(dp); return 0; }
     size_t coin_count = 0;
 
     for (idx_t x = 1; x <= n; ++x)
     {
-        if (is_palindrome((seq_t)x, 2))
+        if (is_palindrome_base((seq_t)x, 2))
             coins[coin_count++] = (seq_t)x;
     }
 
@@ -52,7 +55,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
-    free(coins);
+    mem_free(dp);
+    mem_free(coins);
     return result;
 }

@@ -8,14 +8,15 @@
  *            binomial(1/3,k)/(n-k)!
  * Range:     i8 n <= 3, i16 n <= 5, i32 n <= 9, i64 n <= 15, i128 n <= 18,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
-
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 /* Return the n‑th term of OEIS sequence A380029; a(0)=1. */
 seq_t a(idx_t n)
@@ -30,7 +31,7 @@ seq_t a(idx_t n)
             /* k^0 = 1, 0^(positive)=0 */
             power = (n == 0) ? (seq_t)1 : (seq_t)0;
         } else {
-            power = big_pow((seq_t)k, (seq_t)(n - k));
+            power = ipow((seq_t)k, (seq_t)(n - k));
         }
 
         /* term = C(n,k) * (-1)^k * prod * k^(n-k) */

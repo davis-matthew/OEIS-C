@@ -7,7 +7,8 @@
  * Formula:   a(n) = sum_{j=1..n} phi(n)^j
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 19,
  *            big any n
- * Helpers:   phi
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 
 /* Provide phi(n) and basic arithmetic on seq_t */
 /* The build supplies the following headers:                      */
-#include "../utils/phi.h"   /* provides seq_t phi(idx_t m) */
+#include <stdint.h>
+#include "../utils/totient.h"
 
 /* Exponentiation by squaring for seq_t */
 static seq_t power_seq_t(seq_t base, idx_t exp)
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
 {
     if (n == (idx_t)0) return 0;          /* not used by OEIS, but safe */
 
-    seq_t phi_n = phi(n);                  /* φ(n) */
+    seq_t phi_n = totient(n);                  /* φ(n) */
     if (phi_n == (seq_t)1) {
         return (seq_t)n;                   /* sum = n when φ(n)=1 */
     }

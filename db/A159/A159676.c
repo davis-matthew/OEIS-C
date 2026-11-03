@@ -9,13 +9,15 @@
  *            a(n)-17*a(n-1)+200*(n-1)*a(n-2)=0)
  * Range:     i8 n <= 2, i16 n <= 3, i32 n <= 7, i64 n <= 12, i128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 178 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Memoised recurrence with static cache */
 seq_t a(idx_t n) {
@@ -33,7 +35,7 @@ seq_t a(idx_t n) {
         /* allocate enough space for at least n+1 entries */
         size_t initial_cap = n + 1;
         if (initial_cap < 2) initial_cap = 2;
-        cache = (seq_t*)malloc(initial_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, initial_cap);
         if (cache == NULL) {exit(EXIT_FAILURE);}  /* silence any compiler warning */
         cache_cap = initial_cap;
         cache[0] = (seq_t)1;
@@ -45,7 +47,7 @@ seq_t a(idx_t n) {
     if ((size_t)(n + 1) > cache_cap) {
         size_t new_cap = cache_cap * 2;
         if (new_cap < (size_t)(n + 1)) new_cap = n + 1;
-        seq_t* tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t* tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) {exit(EXIT_FAILURE);}
         cache = tmp;
         cache_cap = new_cap;

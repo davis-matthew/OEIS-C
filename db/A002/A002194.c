@@ -7,9 +7,10 @@
  * Formula:   digit-by-digit square root: a(n) = floor(sqrt(3)*10^(n-1)) mod
  *            10, with exact big-integer arithmetic (base 10^9 limbs); digits
  *            are cached
- * Range:     u8 n <= 9624, u16 n <= 9624, u32 n <= 9624, u64 n <= 9624,
- *            u128 n <= 9624, big any n
- * Helpers:   a002194_cmp
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 129 terms through n = 9624 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,15 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/a002194_cmp.h"
+
+static int a002194_cmp(const uint32_t *x, const uint32_t *y, size_t m) {
+    size_t i = m;
+    while (i > 0) {
+        i--;
+        if (x[i] != y[i]) return x[i] < y[i] ? -1 : 1;
+    }
+    return 0;
+}
 
 #define A002194_BASE 1000000000u
 

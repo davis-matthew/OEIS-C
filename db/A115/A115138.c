@@ -11,13 +11,15 @@
  *            2*(2n+1)/(n+2)
  * Range:     i8 n <= 4, i16 n <= 6, i32 n <= 12, i64 n <= 22, i128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *cat   = NULL;        /* Catalan numbers C[0..] */
 static seq_t *aseq  = NULL;        /* a[0..] */
@@ -30,8 +32,8 @@ seq_t a(idx_t n)
 {
     /* initialise on first call */
     if (!cat) {
-        cat  = (seq_t *)malloc(sizeof(seq_t));
-        aseq = (seq_t *)malloc(sizeof(seq_t));
+        cat  = mem_new(seq_t, 1);
+        aseq = mem_new(seq_t, 1);
         if (!cat || !aseq) { abort(); }
         cat[0]  = 1;
         aseq[0] = 1;
@@ -44,8 +46,8 @@ seq_t a(idx_t n)
     }
 
     /* expand storage */
-    cat  = (seq_t *)realloc(cat,  sizeof(seq_t)*(n+1));
-    aseq = (seq_t *)realloc(aseq, sizeof(seq_t)*(n+1));
+    cat  = mem_resize(seq_t, cat, (n+1));
+    aseq = mem_resize(seq_t, aseq, (n+1));
     if (!cat || !aseq) { abort(); }
 
     /* compute new values up to n */

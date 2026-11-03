@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 64, u16 n <= 5841, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_isolated
+ * Validated: standard, pass, 74 terms through n = 9831 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,19 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/has_isolated.h"
+#include "../utils/mem.h"
+
+/*--------------------------------------------------------------------
+ * Helper: check that a binary representation contains no isolated 1s.
+ *--------------------------------------------------------------------*/
+static bool has_isolated(seq_t x)
+{
+    /* A bit is isolated iff it is 1 and has no 1 neighbor. */
+    seq_t left   = x & (x << 1);      /* bits that have a right neighbour  */
+    seq_t right  = x & (x >> 1);      /* bits that have a left neighbour   */
+    seq_t combined = left | right;    /* bits that have at least one neighbour */
+    return (x & ~combined) != 0;      /* any 1 that survives is isolated      */
+}
 
 /*--------------------------------------------------------------------
  * Public function: a(idx_t n) – nth term of the sequence (1‑based).
@@ -51,7 +64,7 @@ seq_t a(idx_t n)
                 size_t new_cap = term_cap ? term_cap * 2 : 16;
                 if (new_cap < term_len + 1) new_cap = term_len + 1;
                 /* realloc returns void*; cast for C++ compatibility. */
-                seq_t *tmp = (seq_t*)realloc(terms, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, new_cap);
                 if (!tmp) abort(); /* allocation failure */
                 terms = tmp;
                 term_cap = new_cap;

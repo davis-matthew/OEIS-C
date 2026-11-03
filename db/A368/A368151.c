@@ -14,12 +14,14 @@
  *            is the coefficient of x^{k-1} in p(n,x)....
  * Range:     u8 n <= 17, u16 n <= 49, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
         while (rows_count < r) {
             idx_t cur = rows_count + 1;          /* row number (1‑based) */
             idx_t len = cur;                     /* number of elements */
-            seq_t *row = (seq_t*)malloc(sizeof(seq_t) * (size_t)len);
+            seq_t *row = mem_new(seq_t, (size_t)len);
             if (!row) abort();                  /* allocation failed */
 
             if (cur == 1) {

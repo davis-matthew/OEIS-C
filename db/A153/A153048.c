@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 15, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   is_three_digit_prime
+ * Validated: full, pass, 15 terms through n = 15 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,20 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/is_three_digit_prime.h"
+
+/* Helper to test primality of a 3‑digit integer. */
+static bool is_three_digit_prime(unsigned int x)
+{
+    if (x < 100u || x > 999u)
+        return false;
+    if ((x & 1u) == 0u)      /* even */
+        return (x == 2u);
+    for (unsigned int d = 3u; d * d <= x; d += 2u) {
+        if (x % d == 0u)
+            return false;
+    }
+    return true;
+}
 
 #define MEMO_CAP 16  /* at most 15 numbers known */
 

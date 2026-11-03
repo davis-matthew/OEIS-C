@@ -12,12 +12,14 @@
  *            a(8)=306717703
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 17, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 830 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;        /* cache of already computed terms */
 static size_t memo_len = 0;       /* number of terms stored in memo (len>0) */
@@ -27,7 +29,7 @@ static void ensure_upto(idx_t n) {
     if (memo_len == 0) {
         /* allocate space for the first 9 terms (0…8) */
         size_t init_len = 9;
-        memo = (seq_t *)malloc(init_len * sizeof(seq_t));
+        memo = mem_new(seq_t, init_len);
         if (!memo) abort();
         memo_len = init_len;
         /* base terms, all fit in 32 bits */
@@ -44,7 +46,7 @@ static void ensure_upto(idx_t n) {
     if ((size_t)n + 1 <= memo_len) return;       /* already computed */
 
     size_t new_len = (size_t)n + 1;
-    seq_t *tmp = (seq_t *)realloc(memo, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, memo, new_len);
     if (!tmp) abort();
     memo = tmp;
 

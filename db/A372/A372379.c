@@ -7,16 +7,19 @@
  * Formula:   a(n) = multiplicative with a(p^e) = p^(2^floor(log_2(e+1))-1)
  * Range:     u8 n <= 256, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow, factor_u64, floor_log2_uint64
+ * Validated: standard, pass, 86 terms through n = 9453 (2026-11-01)
+ * Helpers:   factor_u64, ilog2, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/floor_log2_uint64.h"
-#include "../utils/big_pow.h"
+#include "../utils/ilog2.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -35,10 +38,10 @@ seq_t a(idx_t n)
 
     for (size_t i = 0; i < cnt; ++i) {
         uint64_t e = ex[i];
-        unsigned k = floor_log2_uint64(e + 1);
+        unsigned k = ilog2(e + 1);
         uint64_t e_pow = ((uint64_t)1 << k) - 1;
 
-        seq_t pow_term = big_pow((seq_t)pr[i], (seq_t)e_pow);
+        seq_t pow_term = ipow((seq_t)pr[i], (seq_t)e_pow);
         result *= pow_term;
     }
 

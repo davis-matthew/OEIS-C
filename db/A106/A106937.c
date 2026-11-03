@@ -7,7 +7,8 @@
  * Formula:   a(n) = the n-th prime of the form 2x²+2xy+9y² with x,y ≥ 0
  * Range:     u8 n <= 6, u16 n <= 694, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   cmp_u64
+ * Validated: standard, pass, 60 terms through n = 9522 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,14 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/cmp_u64.h"
+
+/* comparator for qsort */
+static int cmp_u64(const void *a, const void *b)
+{
+    uint64_t va = *(const uint64_t *)a;
+    uint64_t vb = *(const uint64_t *)b;
+    return (va > vb) - (va < vb);
+}
 
 /* --- small integer helpers --- */
 static inline uint64_t mul_mod_uint64(uint64_t a, uint64_t b, uint64_t m)

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 136, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 9605 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper: deterministic Miller–Rabin for 64‑bit integers. */
 static uint64_t mod_mul(uint64_t a, uint64_t b, uint64_t mod)
@@ -78,7 +80,7 @@ static void ensure_cache(size_t need)
 
     if (!cache) {
         cache_cap = 4096;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     idx_t m;
@@ -116,7 +118,7 @@ static void ensure_cache(size_t need)
         if (is_prime_u64(concat)) {
             if (cache_len == cache_cap) {
                 cache_cap *= 2;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = (seq_t)m;
         }

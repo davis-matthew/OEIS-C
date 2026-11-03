@@ -13,7 +13,8 @@
  *            a(14)=46575...
  * Range:     u8 none, u16 n <= 9, u32 n <= 35, u64 n <= 87, u128 n <= 191,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #endif
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (cache == NULL) {
         cache_cap = 256;                 /* initial capacity */
-        cache = (seq_t*)malloc((cache_cap + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (cache_cap + 1));
         if (cache == NULL) return 0;     /* memory failure – unlikely */
         for (size_t i = 0; i <= cache_cap; ++i) {
 #ifdef __cplusplus
@@ -78,7 +80,7 @@ seq_t a(idx_t n)
     if ((size_t)n > cache_cap) {
         size_t new_cap = cache_cap;
         while ((size_t)n > new_cap) new_cap *= 2;
-        seq_t *tmp = (seq_t*)malloc((new_cap + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, (new_cap + 1));
         if (tmp == NULL) return 0; /* memory failure – unlikely */
         for (size_t i = 0; i <= cache_cap; ++i) {
             tmp[i] = cache[i];
@@ -88,7 +90,7 @@ seq_t a(idx_t n)
             ::new ((void*)&tmp[i]) seq_t();
         }
 #endif
-        free(cache);
+        mem_free(cache);
         cache = tmp;
         cache_cap = new_cap;
     }

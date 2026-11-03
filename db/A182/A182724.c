@@ -8,13 +8,15 @@
  * Formula:   a(n) = (n-1) * p(n) (p(n) = number of partitions of n)
  * Range:     u8 n <= 9, u16 n <= 26, u32 n <= 88, u64 n <= 326,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 929 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *part_cache = NULL;
 static idx_t   part_cap   = 0;
@@ -28,7 +30,7 @@ static void ensure_partitions(idx_t n)
     /* Allocate or expand cache */
     if (!part_cache) {
         part_cap = (n >= 16) ? n + 1 : 16;
-        part_cache = (seq_t *)malloc(part_cap * sizeof(seq_t));
+        part_cache = mem_new(seq_t, part_cap);
         if (!part_cache) exit(1);
         for (idx_t i = 0; i < part_cap; ++i) part_cache[i] = 0;
         part_cache[0] = 1;          /* p(0) = 1 */
@@ -36,7 +38,7 @@ static void ensure_partitions(idx_t n)
     } else if (n + 1 > part_cap) {
         size_t new_cap = part_cap;
         while (new_cap <= n) new_cap <<= 1;
-        part_cache = (seq_t *)realloc(part_cache, new_cap * sizeof(seq_t));
+        part_cache = mem_resize(seq_t, part_cache, new_cap);
         if (!part_cache) exit(1);
         for (idx_t i = part_cap; i < new_cap; ++i) part_cache[i] = 0;
         part_cap = new_cap;

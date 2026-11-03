@@ -10,13 +10,14 @@
  *            x^2
  * Range:     u8 n <= 7, u16 n <= 49, u32 n <= 500, u64 n <= 500,
  *            u128 n <= 500, big any n
- * Helpers:   a604_isqrt
+ * Validated: standard, pass, 59 terms through n = 462 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a604_isqrt.h"
+#include "../utils/isqrt_u64.h"
 
 seq_t a(idx_t n) {
     uint64_t N = (uint64_t)n;
@@ -26,7 +27,7 @@ seq_t a(idx_t n) {
 
     for (x = 0; x <= N; x++) {
         uint64_t R = N2 - x * x;
-        uint64_t z = a604_isqrt(R);
+        uint64_t z = isqrt_u64(R);
         uint64_t c = 0;
         uint64_t y;
         for (y = 0; y * y <= R; y++) {

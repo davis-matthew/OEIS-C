@@ -12,13 +12,15 @@
  *            initial values (offset 1) given below
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 28, u64 n <= 55, u128 n <= 110,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>    /* for size_t */
 #include <stdlib.h>    /* for malloc, realloc */
+#include "../utils/mem.h"
 
 /* Initial terms a(1)..a(18) from OEIS A304053. */
 static const seq_t _init_values[19] = {
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     /* Initialise cache if this is the first call. */
     if (_cache_len == 0) {
         _cache_len = 18;   /* we have a(1)..a(18) */
-        _cache = (seq_t*)malloc((_cache_len + 1) * sizeof(seq_t));
+        _cache = mem_new(seq_t, (_cache_len + 1));
         for (size_t i = 0; i <= _cache_len; ++i) {
             _cache[i] = _init_values[i];
         }
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
     /* Extend cache if necessary. */
     if ((idx_t)_cache_len < n) {
         size_t new_len = (size_t)n + 1;
-        _cache = (seq_t*)realloc(_cache, new_len * sizeof(seq_t));
+        _cache = mem_resize(seq_t, _cache, new_len);
         for (idx_t i = (idx_t)_cache_len + 1; i <= n; ++i) {
             /* Apply the 15‑term empirical recurrence. */
             seq_t val = _cache[i-1];

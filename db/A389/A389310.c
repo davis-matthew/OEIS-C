@@ -13,6 +13,7 @@
  *            max(n + k/2 − 1, 2 k − 1) if n is odd and k...
  * Range:     u8 n <= 1277, u16 n <= 1277, u32 n <= 1277, u64 n <= 1277,
  *            u128 n <= 1277, big any n
+ * Validated: standard, pass, 82 terms through n = 1237 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

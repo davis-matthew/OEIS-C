@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 17, u32 n <= 17, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   grow_idx_t
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,17 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/grow_idx_t.h"
+#include "../utils/mem.h"
+
+/* enlarge an idx_t array if needed */
+static void grow_idx_t(idx_t **arr, size_t *size, size_t *cap, size_t need)
+{
+    if (*cap >= need) return;
+    size_t ncap = *cap ? *cap * 2 : 16;
+    while (ncap < need) ncap <<= 1;
+    *arr = (idx_t *)realloc(*arr, ncap * sizeof(idx_t));
+    *cap = ncap;
+}
 
 /* forward declaration */
 static bool can_factor_seq(seq_t val, size_t start);
@@ -48,7 +59,7 @@ static void grow_seq_t(seq_t **arr, size_t *size, size_t *cap, size_t need)
     if (*cap >= need) return;
     size_t ncap = *cap ? *cap * 2 : 16;
     while (ncap < need) ncap <<= 1;
-    *arr = (seq_t *)realloc(*arr, ncap * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, ncap);
     *cap = ncap;
 }
 

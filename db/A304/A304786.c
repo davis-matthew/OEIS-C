@@ -9,12 +9,14 @@
  *            = number of partitions of k into distinct parts
  * Range:     i8 n <= 25, i16 n <= 46, i32 n <= 51, i64 n <= 51, i128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,8 +27,8 @@ seq_t a(idx_t n)
     /* Ensure arrays are large enough. */
     if ((size_t)n + 1 > alloc) {
         alloc = (size_t)n + 1;
-        dp = (seq_t *)realloc(dp, alloc * sizeof(seq_t));
-        b  = (seq_t *)realloc(b,  alloc * sizeof(seq_t));
+        dp = mem_resize(seq_t, dp, alloc);
+        b  = mem_resize(seq_t, b, alloc);
     }
 
     /* Initialize arrays. */

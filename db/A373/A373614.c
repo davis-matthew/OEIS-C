@@ -7,6 +7,7 @@
  * Formula:   a(n) = fibonacci(n)^2 * catalan(n)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 11, u64 n <= 21, u128 n <= 24,
  *            big any n
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-01)
  * Helpers:   catalan, fibonacci
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,8 @@
 
 /*          where fibonacci(0)=0, fibonacci(1)=1 */
 
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/catalan.h"
 #include "../utils/fibonacci.h"
 

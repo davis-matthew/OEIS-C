@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 53, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 9597 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Use a 64‑bit bitset for numbers that appear in any row.  The
    sequence for the tested range always fits in 64 bits, so this
@@ -65,7 +67,7 @@ static inline int used_get(uint64_t v)
 static inline void ensure_seq_cap(seq_t **arr, size_t *cap, size_t new_cap)
 {
     if (*cap < new_cap) {
-        seq_t *p = (seq_t*)realloc(*arr, new_cap * sizeof(seq_t));
+        seq_t *p = mem_resize(seq_t, *arr, new_cap);
         if (!p) exit(1);
         *arr = p;
         *cap = new_cap;

@@ -10,13 +10,15 @@
  *            are obtained via the recurrence below
  * Range:     i8 n <= 14, i16 n <= 25, i32 n <= 47, i64 n <= 47, i128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *w = NULL;          /* w[n] = n * c(n), c = log-coefficient of RHS */
 static seq_t *A = NULL;          /* A[n] = a(n) * n */
@@ -61,9 +63,9 @@ static void ensure_arrays(idx_t n)
     mu = new_mu;
 
     /* --- allocate or reallocate working arrays --- */
-    w     = (seq_t*)realloc(w,     sizeof(seq_t) * (n + 1));
-    A     = (seq_t*)realloc(A,     sizeof(seq_t) * (n + 1));
-    a_arr = (seq_t*)realloc(a_arr, sizeof(seq_t) * (n + 1));
+    w     = mem_resize(seq_t, w, (n + 1));
+    A     = mem_resize(seq_t, A, (n + 1));
+    a_arr = mem_resize(seq_t, a_arr, (n + 1));
 
     /* --- compute w[n] for new indices --- */
     for (idx_t t = current_max + 1; t <= n; ++t) {

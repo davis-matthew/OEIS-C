@@ -7,16 +7,45 @@
  * Formula:   a(n) = Π_{i=1..n} (i-1)! * (i+2n-1)! / (i+n-1)!
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 3, u64 n <= 4, u128 n <= 5,
  *            big any n
- * Helpers:   exp_in_product_range, sum_floor_range, sum_floor_upto
+ * Validated: partial, pass, 8 terms through n = 7 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/exp_in_product_range.h"
-#include "../utils/sum_floor_range.h"
-#include "../utils/sum_floor_upto.h"
+
+/* Σ_{k=0}^{x} ⌊k/d⌋ for non‑negative d */
+static inline idx_t sum_floor_upto(idx_t x, idx_t d)
+{
+    idx_t q = x / d;
+    idx_t r = x % d;
+    __int128 tot = (__int128)d * q * (q - 1) / 2 + (__int128)(r + 1) * q;
+    return (idx_t)tot;
+}
+
+static inline idx_t sum_floor_range(idx_t L, idx_t R, idx_t d)
+{
+    if (L > R) return 0;
+    idx_t sR = sum_floor_upto(R, d);
+    if (L == 0) return sR;
+    idx_t sL = sum_floor_upto(L - 1, d);
+    return sR - sL;
+}
+
+/* exponent of prime p in Π_{k=L..R} k! */
+static inline idx_t exp_in_product_range(idx_t L, idx_t R, idx_t p)
+{
+    if (L > R) return 0;
+    idx_t e = 0;
+    for (idx_t power = p; power <= R; ) {
+        e += sum_floor_range(L, R, power);
+        if (power > R / p) break;
+        power *= p;
+    }
+    return e;
+}
 
 static inline seq_t pow_seq(seq_t base, idx_t exp)
 {

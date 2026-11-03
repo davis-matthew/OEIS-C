@@ -8,7 +8,8 @@
  * Formula:   a(n) = 9 * (n-th squarefree number)
  * Range:     u8 n <= 17, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 963 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
         /* Reallocate and fill the squarefree list up to newLimit. */
         size_t newCount = 0;
         size_t newCap   = count * 2 + 16;
-        seq_t *newArray = (seq_t *)realloc(squarefree, newCap * sizeof(seq_t));
+        seq_t *newArray = mem_resize(seq_t, squarefree, newCap);
         if (!newArray) {
             free(isPrime);
             free(sqfree);

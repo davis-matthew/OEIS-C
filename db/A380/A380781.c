@@ -9,7 +9,8 @@
  *            n-k)/k!
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 17,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/binomial.h"   /* Provides seq_t binomial(idx_t n, idx_t k); */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *fact_cache = NULL;   /* Cache of factorials */
 static size_t fact_cap   = 0;      /* Current capacity of the cache */
@@ -30,9 +32,9 @@ seq_t a(idx_t n)
     /* Ensure factorial cache is big enough and filled up to n */
     if (fact_cap <= (size_t)n+1) {
         size_t new_cap = (n+1) * 2;
-        seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (!new_cache) return 0;    /* Out of memory; caller should avoid this */
-        if (fact_cache) free(fact_cache);
+        if (fact_cache) mem_free(fact_cache);
         fact_cache = new_cache;
         fact_cap = new_cap;
     }

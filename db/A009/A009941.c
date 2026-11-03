@@ -8,13 +8,15 @@
  *            {1,10,35,40,35,10,1} and c[n]=0 for n>6
  * Range:     u8 n <= 4, u16 n <= 77, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 925 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* The build system supplies seq_t and idx_t. */
 extern seq_t a(idx_t n);
@@ -32,7 +34,7 @@ static void compute_up_to(idx_t n)
     /* first allocation and base cases */
     if (max_cached == 0) {
         size_t sz = (size_t)(n > 6 ? n + 1 : 7);  /* at least indices 0..6 */
-        cache = (seq_t *)realloc(cache, sz * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, sz);
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)11;
         cache[2] = (seq_t)47;
@@ -45,7 +47,7 @@ static void compute_up_to(idx_t n)
     /* enlarge cache if necessary */
     if ((size_t)n + 1 > max_cached + 1) {
         size_t sz = (size_t)n + 1;
-        cache = (seq_t *)realloc(cache, sz * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, sz);
     }
     if (n <= max_cached)
         return;

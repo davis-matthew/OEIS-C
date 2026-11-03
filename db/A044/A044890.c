@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 822, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   seq_t_realloc
+ * Validated: standard, pass, 65 terms through n = 813 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,13 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_t_realloc.h"
+#include "../utils/mem.h"
+
+static seq_t *seq_t_realloc(seq_t *old, size_t old_cnt, size_t new_cnt)
+{
+    (void)old_cnt;   /* unused in C version */
+    return mem_resize(seq_t, old, new_cnt);
+}
 
 /* Helper functions for memory management of seq_t arrays */
 #ifdef __cplusplus

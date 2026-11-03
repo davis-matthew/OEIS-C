@@ -12,7 +12,8 @@
  *            therefore * are not included
  * Range:     u8 n <= 146, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 9913 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* cached sequence terms */
 static idx_t cache_len = 0;          /* number of cached terms */
@@ -59,7 +61,7 @@ static void grow_cache(size_t need)
     if (cache_cap >= cache_len + need) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 4;
     while (new_cap < cache_len + need) new_cap *= 2;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     cache = new_cache;
     cache_cap = new_cap;
 }

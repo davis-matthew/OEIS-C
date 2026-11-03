@@ -10,7 +10,8 @@
  *            row‑by‑row (row 0, then row 1, …)
  * Range:     u8 n <= 23, u16 n <= 30, u32 n <= 39, u64 n <= 48, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    the requested value.  The storage is O(m²) where m≈√(2n). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for the triangle */
 static seq_t **tri = NULL;           /* array of rows, tri[i] is row i */
@@ -39,7 +41,7 @@ static void ensure_rows(size_t target)
     for (size_t i = tri_rows; i <= target; ++i)
     {
         /* each row has i+1 elements */
-        tri[i] = (seq_t *)malloc((i + 1) * sizeof(seq_t));
+        tri[i] = mem_new(seq_t, (i + 1));
         if (tri[i] == NULL) abort();
         seq_t *row = tri[i];
 

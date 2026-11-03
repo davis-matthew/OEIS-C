@@ -7,12 +7,14 @@
  * Formula:   a(n) = a(n-1) + a(n-2) - 2*a(n-3), with a(0)=1, a(1)=0, a(2)=1
  * Range:     i8 n <= 21, i16 n <= 44, i32 n <= 90, i64 n <= 177,
  *            i128 n <= 351, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 923 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* for malloc, realloc, free */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* Need at least indices 0..2 */
         size_t sz = 3;
-        cache = (seq_t *)malloc(sz * sizeof(seq_t));
+        cache = mem_new(seq_t, sz);
         if (cache == NULL) return (seq_t)0;  /* allocate failure, return 0 */
 
         /* Set base values */
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     /* Expand cache if a larger index is requested */
     if ((size_t)n + 1 > cache_size) {
         size_t new_size = (size_t)n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (new_cache == NULL) return (seq_t)0;  /* realloc failure, return 0 */
         cache      = new_cache;
         cache_size = new_size;

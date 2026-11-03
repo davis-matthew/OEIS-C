@@ -8,7 +8,8 @@
  * Formula:   a(n) = 2*a(n-1) + mu(n)^2 (a(1) = 1)
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static cache for already computed values */
 static idx_t  cached_n  = 0;   /* largest n for which mu[1..cached_n] and a[1..cached_n] are filled */
@@ -32,7 +34,7 @@ ensure_cached(idx_t n)
 
     /* Allocate new storage big enough */
     int8_t  *new_mu = (int8_t *)malloc((n + 1) * sizeof(int8_t));
-    seq_t   *new_a  = (seq_t  *)malloc((n + 1) * sizeof(seq_t));
+    seq_t   *new_a  = mem_new(seq_t, (n + 1));
 
     /* Linear sieve for μ up to n */
     unsigned char *is_comp = (unsigned char *)calloc(n + 1, sizeof(unsigned char));
@@ -82,7 +84,7 @@ ensure_cached(idx_t n)
 
     /* Free old cache */
     free(mu_cache);
-    free(a_cache);
+    mem_free(a_cache);
 
     /* Update cache pointers and size */
     mu_cache  = new_mu;

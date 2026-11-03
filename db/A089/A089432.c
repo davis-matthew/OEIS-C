@@ -9,7 +9,8 @@
  *            memoisation
  * Range:     u8 n <= 5, u16 n <= 22, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   digits, isPrimeGeneric, pow10_u128
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   is_prime_u128, is_prime_u64, mem, num_digits_idx, pow10_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,33 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/digits.h"          /* int digits(idx_t x);          */
-#include "../utils/isPrimeGeneric.h"  /* bool isPrimeGeneric(seq_t);   */
-#include "../utils/pow10_u128.h"
+#include <stddef.h>
+#include <limits.h>
+#include "../utils/is_prime_u128.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/num_digits_idx.h"
+#include "../utils/pow10_i32.h"
+#include "../utils/mem.h"
+
+/* -----------------  Generic primality test ------------------------ */
+static bool isPrimeGeneric(seq_t n)
+{
+    /* all seq_t are unsigned; use the smallest type that fits */
+    if ((seq_t)(ULLONG_MAX) >= n) {
+        return is_prime_u64((uint64_t)n);
+    }
+#if defined(__SIZEOF_INT128__)
+    return is_prime_u128((__uint128_t)n);
+#else
+    /* fallback: if seq_t > 64‑bit but no 128‑bit support,
+       order the test as simple trial division up to sqrt */
+    seq_t limit = 0;
+    for (seq_t i = 2; i*i <= n; ++i) {
+        if (n % i == 0) return false;
+    }
+    return true;
+#endif
+}
 
 /* External linkage as required. */
 seq_t a(idx_t n)
@@ -33,7 +58,7 @@ seq_t a(idx_t n)
     /* Grow storage if necessary. */
     if (len == cap) {
         cap = (cap == 0) ? 64 : cap << 1;
-        cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cap);
     }
 
     /* Generate terms until we have at least n of them. */
@@ -48,11 +73,11 @@ seq_t a(idx_t n)
             idx_t half = cand >> 1;
 
             /* Number of decimal digits of half. */
-            int d = digits(half);
+            int d = num_digits_idx(half);
 
             /* Concatenate: cand * 10^d + half.  */
             unsigned __int128 concat128 =
-                (unsigned __int128)cand * pow10_u128(d) + (unsigned __int128)half;
+                (unsigned __int128)cand * pow10_i32(d) + (unsigned __int128)half;
 
             /* If the concatenated value does not fit in seq_t, skip it.
                This only happens for very large candidates; all terms that

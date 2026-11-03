@@ -7,15 +7,18 @@
  * Formula:   a(n) = product of cumulative sums of divisors of n
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 35, u64 n <= 119, u128 n <= 359,
  *            big any n
- * Helpers:   factor_u64, seq_one
+ * Validated: standard, pass, 60 terms through n = 9480 (2026-11-01)
+ * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_one.h"
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
 
 /* compare two uint64_t values for qsort */
 static int cmp_uint64(const void *a, const void *b)

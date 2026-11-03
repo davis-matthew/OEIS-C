@@ -8,12 +8,14 @@
  * Formula:   a(n) = A002487(n-1) XOR A002487(n) (Stern's diatomic sequence)
  * Range:     u8 n <= 4690, u16 n <= 8192, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 7172 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached Stern’s diatomic sequence:  S[0] = 0, S[1] = 1, S[2k] = S[k], S[2k+1] = S[k] + S[k+1] */
 static seq_t *Stern = NULL;    /* array of Stern values (index from 0) */
@@ -28,7 +30,7 @@ static void ensure_stern_cap(idx_t n)
 
     /* Allocate a larger buffer; newSize = n+1 so index n is valid */
     size_t newSize = (size_t)(n + 1);
-    seq_t *tmp = (seq_t *)realloc(Stern, newSize * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, Stern, newSize);
     if (!tmp)                     /* abort if out‑of‑memory */
         exit(1);
     Stern = tmp;

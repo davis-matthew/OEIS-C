@@ -11,12 +11,14 @@
  *            number of parts (0…6)
  * Range:     u8 n <= 15, u16 n <= 43, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,10 +37,10 @@ seq_t a(idx_t n)
         size_t size = 7 * cols;                    /* 7 rows: 0…6 parts                     */
 
         /* Allocate new tables; zero‑initialize with calloc.             */
-        seq_t *newcnt  = (seq_t *)calloc(size, sizeof(seq_t));
-        seq_t *newsume = (seq_t *)calloc(size, sizeof(seq_t));
+        seq_t *newcnt  = mem_new(seq_t, size);
+        seq_t *newsume = mem_new(seq_t, size);
         if (!newcnt || !newsume) {                  /* allocation failure */
-            free(newcnt); free(newsume);
+            mem_free(newcnt); mem_free(newsume);
             return (seq_t)0;
         }
 
@@ -69,8 +71,8 @@ seq_t a(idx_t n)
         }
 
         /* Replace old tables with the newly built ones.                  */
-        free(cnt);
-        free(sumeven);
+        mem_free(cnt);
+        mem_free(sumeven);
         cnt      = newcnt;
         sumeven  = newsume;
         maxn     = newmax;

@@ -10,18 +10,20 @@
  *            successive iterates starting from the single symbol 1
  * Range:     u8 n <= 55, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* initial iterate: [1] */
     idx_t cur_len = 1;
-    seq_t *cur = (seq_t *)malloc(cur_len * sizeof(seq_t));
+    seq_t *cur = mem_new(seq_t, cur_len);
     if (!cur) exit(1);          /* allocation failure */
     cur[0] = 1;
 
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
         if (cumulative + cur_len > n) {
             idx_t offset = n - cumulative;
             seq_t val = cur[offset];
-            free(cur);
+            mem_free(cur);
             return val;
         }
 
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
         }
 
         /* allocate memory for next iterate */
-        seq_t *next = (seq_t *)malloc(next_len * sizeof(seq_t));
+        seq_t *next = mem_new(seq_t, next_len);
         if (!next) exit(1);  /* allocation failure */
 
         /* fill next iterate with the substitutions */
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
         }
 
         /* move to next iterate */
-        free(cur);
+        mem_free(cur);
         cur = next;
         cur_len = next_len;
     }

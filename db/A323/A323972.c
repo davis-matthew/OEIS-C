@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 14, u64 n <= 70, u128 n <= 1187,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 41 terms through n = 8055 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,8 @@
           – 1820x^4 + 343x^3 + 38x^2 + 4x + 1. */
 
 /* The binary coefficient function is provided by the utils library. */
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 /* Coefficients of P(x) in increasing order of x^k (k = 0 … 17). */
 static const int coeff[18] = {
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     for (idx_t k = 0; k <= limit; ++k) {
         /* Binomial coefficient C(n+16-k , 16).  The helper binom
            returns zero automatically when the upper argument is < 16. */
-        seq_t bin = binom(n + 16 - k, 16);
+        seq_t bin = binomial(n + 16 - k, 16);
 
         int c = coeff[k];
         if (c >= 0)

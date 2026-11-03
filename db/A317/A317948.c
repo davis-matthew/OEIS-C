@@ -15,12 +15,17 @@
  *            k = offset, m = d - k Thus a(n) = S(d-k,k)....
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   tri1
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/tri1.h"
+/* Helper: compute (x+1)*(x+2)/2 as a 128‑bit integer. */
+static inline unsigned __int128 tri1(idx_t x)
+{
+    return (unsigned __int128)(x + 1) * (x + 2) / 2;
+}
 
 seq_t a(idx_t n)
 {

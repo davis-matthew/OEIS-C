@@ -8,6 +8,7 @@
  * Formula:   a(n) = (n^2 + 9*n - 2)/2 for n > 2, a(1) = 1, a(2) = 7
  * Range:     u8 n <= 18, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
+ * Validated: standard, pass, 62 terms through n = 62 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

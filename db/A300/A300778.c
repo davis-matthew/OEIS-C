@@ -11,7 +11,8 @@
  *            lies in row m (1 ≤ k ≤ m) of the triangle
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   simple_gcd
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
+ * Helpers:   gcd_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
    O(m·k) per call, with m ≈ √(2·n) ≤ 141 for n ≤ 10000. */
 
 #include <stddef.h>
-#include "../utils/simple_gcd.h"
+#include "../utils/gcd_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +41,7 @@ seq_t a(idx_t n)
     seq_t cnt = 0;
     for (idx_t x = 1; x <= m; ++x) {
         for (idx_t y = 1; y <= k; ++y) {
-            if (simple_gcd(x, y) == 1) ++cnt;
+            if (gcd_idx(x, y) == 1) ++cnt;
         }
     }
 

@@ -10,8 +10,9 @@
  *            zeros of x. * 2. Let len = bit-length of x. * 3. Reverse the
  *            len-bit binary representation of x, obtaining rev. * 4. Return
  *            rev << t. * Then a(n) = (A057889(3*n)) / 3. * The...
- * Range:     u8 n <= 171, u16 n <= 9532, u32 n <= 9532, u64 n <= 9532,
- *            u128 n <= 9532, big any n
+ * Range:     u8 n <= 171, u16 n <= 10921, u32 n <= 10921, u64 n <= 10921,
+ *            u128 n <= 10921, big any n
+ * Validated: standard, pass, 98 terms through n = 9532 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..n} (∏_{j=0}^{k-1} (3*j-5)) * |Stirling1(n,k)|
  * Range:     i8 n <= 3, i16 n <= 6, i32 n <= 10, i64 n <= 16, i128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Public entry point */
 seq_t a(idx_t n)
@@ -36,15 +38,15 @@ seq_t a(idx_t n)
     if (!initialised)
     {
         /* Allocation for n = 0 */
-        cache     = (seq_t *)malloc(sizeof(seq_t));
+        cache     = mem_new(seq_t, 1);
         cache[0]  = (seq_t)1;
         cache_len = cache_cap = 1;
 
-        P         = (seq_t *)malloc(sizeof(seq_t));
+        P         = mem_new(seq_t, 1);
         P[0]      = (seq_t)1;
         P_cap     = 1;
 
-        prev_row  = (seq_t *)malloc(sizeof(seq_t));
+        prev_row  = mem_new(seq_t, 1);
         prev_row[0] = (seq_t)1;         /* Stirling1(0,0) = 1 */
         prev_len  = 1;
 
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
             size_t new_cap = cache_cap;
             while ((size_t)(n + 1) > new_cap)
                 new_cap = new_cap ? new_cap * 2 : 1;
-            cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_cap);
             cache_cap = new_cap;
         }
 
@@ -80,7 +82,7 @@ seq_t a(idx_t n)
             size_t new_cap = P_cap;
             while ((size_t)(new_n + 1) > new_cap)
                 new_cap = new_cap ? new_cap * 2 : 1;
-            P = (seq_t *)realloc(P, new_cap * sizeof(seq_t));
+            P = mem_resize(seq_t, P, new_cap);
             P_cap = new_cap;
         }
 
@@ -91,7 +93,7 @@ seq_t a(idx_t n)
         /* Resize next_row buffer if necessary */
         if ((size_t)(new_n + 1) > next_cap)
         {
-            next_row = (seq_t *)realloc(next_row, (new_n + 1) * sizeof(seq_t));
+            next_row = mem_resize(seq_t, next_row, (new_n + 1));
             next_cap = new_n + 1;
         }
 
@@ -116,7 +118,7 @@ seq_t a(idx_t n)
             cache_len = new_n + 1;
 
         /* Prepare for next iteration */
-        free(prev_row);
+        mem_free(prev_row);
         prev_row = next_row;
         prev_len = new_n + 1;
         next_row = NULL;

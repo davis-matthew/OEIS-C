@@ -13,13 +13,15 @@
  *            a(13)=15169, a(14)=21210
  * Range:     u8 none, u16 n <= 18, u32 n <= 63, u64 n <= 152, u128 n <= 200,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* Initialise cache with the first 14 non‑zero terms. */
     if (cache == NULL) {
         cache_size = 15; /* indices 0..14 (index 0 unused) */
-        cache = (seq_t *)calloc(cache_size, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (cache == NULL) abort();
 
         static const seq_t seed[15] = {
@@ -47,12 +49,12 @@ seq_t a(idx_t n)
         size_t old_size = cache_size;
         size_t new_size = (size_t)n + 1;
 
-        seq_t *new_cache = (seq_t *)calloc(new_size, sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_size);
         if (new_cache == NULL) abort();
 
-        memcpy(new_cache, cache, old_size * sizeof(seq_t));
+        mem_copy(new_cache, cache, old_size * sizeof(seq_t));
 
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_size = new_size;
 

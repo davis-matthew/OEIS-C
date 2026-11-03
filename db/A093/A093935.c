@@ -7,12 +7,14 @@
  * Formula:   a(1)=1, a(n+1)=a(n)+n*(a(1)+...+a(n)) (n>=1)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return the n-th term of OEIS A093935.
    The function uses memoised incremental computation,
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
 
     /* Extend cache to contain up to term n.  Use realloc which works for
        all supported seq_t types (built‑in and class types like cpp_int). */
-    cache = (seq_t *)realloc(cache, (size_t)n * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, (size_t)n);
     if (cache == NULL) {
         /* allocation failure – in a real program we would handle this error */
         abort();

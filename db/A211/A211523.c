@@ -10,6 +10,7 @@
  *            such that 1 ≤ w = 5y – 2x ≤ n, where x also lies in [1,n]
  * Range:     u8 n <= 35, u16 n <= 572, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 73 terms through n = 828 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

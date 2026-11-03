@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 9, u64 n <= 14, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
    arbitrary‑precision integer classes. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -45,11 +47,11 @@ seq_t a(idx_t n)
 
     /* Reallocate memory and/or construct any new slots. */
     if (cache == NULL) {
-        cache = (seq_t *)realloc(NULL, new_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, new_len);
     } else {
         /* Reallocation retains existing elements, but new slots are uninitialised.
            We simply reallocate and then initialise the new indices. */
-        cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_len);
     }
     if (cache == NULL) abort(); /* allocation failed */
 

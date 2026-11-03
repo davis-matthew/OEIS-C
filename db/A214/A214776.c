@@ -6,8 +6,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 24, u16 n <= 50, u32 n <= 113, u64 n <= 290,
+ * Range:     u8 n <= 24, u16 n <= 50, u32 n <= 114, u64 n <= 290,
  *            u128 n <= 766, big any n
+ * Validated: standard, pass, 82 terms through n = 9980 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,7 @@
    then i = n - d(d+1)/2, j = d - i.  A(0,*) = 1, A(*,0) = 0 for * > 0. */
 
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* Return the nth term of the sequence. */

@@ -11,9 +11,10 @@
  *            2^max(0,w(k)-w(n)), k * 2^max(0,w(n)-w(k)) ) * * where w(x) is
  *            the bit‑length of x (w(0)=0). This value is the * n‑th term a(n)
  *            with a(0)=0
- * Range:     u8 n <= 9053, u16 n <= 9053, u32 n <= 9053, u64 n <= 9053,
- *            u128 n <= 9053, big any n
- * Helpers:   none
+ * Range:     u8 n <= 10010, u16 n <= 10010, u32 n <= 10010, u64 n <= 10010,
+ *            u128 n <= 10010, big any n
+ * Validated: standard, pass, 107 terms through n = 9053 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* bit length of an idx_t (0 -> 0, otherwise floor(log2(v))+1) */
 static inline unsigned bitlen_idx(idx_t v)
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
         idx_t need = (n + 1) * 2;          /* double for growth factor */
         if (need < n + 1)
             need = n + 1;                  /* overflow guard */
-        seq_t *tmp = (seq_t *)realloc(cache, need * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, need);
         if (!tmp)
             abort();                       /* out of memory */
         cache = tmp;

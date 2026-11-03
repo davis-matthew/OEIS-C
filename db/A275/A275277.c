@@ -9,15 +9,29 @@
  *            initial values a(0) = a(1) = a(2) = a(3) = 1
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 25, u64 n <= 47, u128 n <= 93,
  *            big any n
- * Helpers:   alloc_cache, free_seq_array
+ * Validated: standard, pass, 47 terms through n = 919 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <string.h>
-#include "../utils/alloc_cache.h"
-#include "../utils/free_seq_array.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* Allocate and free using malloc/free when compiled as C. */
+static seq_t *alloc_cache(idx_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 seq_t a(idx_t n)
 {
@@ -42,7 +56,7 @@ seq_t a(idx_t n)
     if ((idx_t)(cap) <= n) {
         size_t newcap = (size_t)(n + 1);
         seq_t *newcache = alloc_cache(newcap);
-        memcpy(newcache, cache, cap * sizeof(seq_t));
+        mem_copy(newcache, cache, cap * sizeof(seq_t));
         free_seq_array(cache);
         cache = newcache;
         cap = newcap;

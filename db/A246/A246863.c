@@ -10,13 +10,15 @@
  *            16
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 103 terms through n = 898 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Periodic coefficients c_k (k = 1,2,…) */
 static const int8_t c_coeff[16] =
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     }
 
     /* Compute the Euler transform entries e_k (k = 0..n) */
-    seq_t *e = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *e = mem_new(seq_t, len);
     if (!e) { free(b); return (seq_t)0; }
     e[0] = (seq_t)1;
     for (size_t i = 1; i <= n; ++i) {
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = e[(size_t)n];
-    free(e);
+    mem_free(e);
     free(b);
     return result;
 }

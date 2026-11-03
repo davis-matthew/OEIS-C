@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 671, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 968 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 #define MAX_SUM 20000000U
 
@@ -36,7 +38,7 @@ static void add_term(seq_t v)
     if (terms_len >= terms_cap) {
         size_t new_cap = terms_cap ? terms_cap * 2 : 64;
         /* Cast returned void* to seq_t* for C++ compatibility. */
-        terms = (seq_t*)realloc(terms, new_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, new_cap);
         if (!terms) abort();          /* allocation failure */
         terms_cap = new_cap;
     }

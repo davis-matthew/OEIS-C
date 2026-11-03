@@ -8,12 +8,14 @@
  *            positive integers)
  * Range:     u8 none, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache of computed sums (not multiplied by 4). */
 static seq_t *cache = NULL;
@@ -39,7 +41,7 @@ static void recompute_cache(idx_t target_n) {
         size_t total = (size_t)t128;  /* safe because M is small (≤ few hundred). */
 
         /* Allocate raw array for all sums, then compress unique values. */
-        seq_t *raw = (seq_t *)malloc(total * sizeof(seq_t));
+        seq_t *raw = mem_new(seq_t, total);
         if (!raw) { /* allocation failure – abort. */
             exit(1);
         }
@@ -62,7 +64,7 @@ static void recompute_cache(idx_t target_n) {
         }
 
         /* Sort all sums. */
-        qsort(raw, idx, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(raw, idx, sizeof(seq_t), cmp_seq_t);
 
         /* Keep only unique values.  We can compress in place. */
         size_t uniq = 0;
@@ -74,13 +76,13 @@ static void recompute_cache(idx_t target_n) {
 
         if (uniq < target_n) {
             /* Need more numbers – increase M and retry. */
-            free(raw);
+            mem_free(raw);
             M += M / 2 + 10;  /* increase roughly by 50% + 10 to converge quickly */
             continue;
         }
 
         /* Replace old cache. */
-        free(cache);
+        mem_free(cache);
         cache = raw;
         cached_len = uniq;
         current_M = M;

@@ -7,8 +7,9 @@
  * Keywords:  easy, nonn, base
  * Formula:   a(n) = smallest k ≥ 2 such that the integer 1 followed by n 3's
  *            (i.e. N_n = (4·10^n – 1)/3) has N_n mod k even
- * Range:     u8 n <= 9527, u16 n <= 9527, u32 n <= 9527, u64 n <= 9527,
- *            u128 n <= 9527, big any n
+ * Range:     u8 n <= 20004, u16 n <= 20004, u32 n <= 20004, u64 n <= 20004,
+ *            u128 n <= 20004, big any n
+ * Validated: standard, pass, 96 terms through n = 9527 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

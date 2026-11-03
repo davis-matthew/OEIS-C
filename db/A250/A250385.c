@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 3, u32 n <= 9, u64 n <= 22, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 192 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Helper: quadruple-to-index */
@@ -76,18 +78,18 @@ seq_t a(idx_t n) {
     if (cache_len < n) {
         if (!cache) {
             cache_cap = 16;
-            cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+            cache = mem_new(seq_t, cache_cap);
         }
         while (cache_len < n) {
             /* Ensure cache capacity */
             if (cache_len >= cache_cap) {
                 cache_cap *= 2;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             if (cache_len == 0) {
                 /* First initialization: length = 4 */
-                dp_prev = (seq_t *)calloc(STATE, sizeof(seq_t));
-                dp_curr = (seq_t *)calloc(STATE, sizeof(seq_t));
+                dp_prev = mem_new(seq_t, STATE);
+                dp_curr = mem_new(seq_t, STATE);
                 for (int a = 0; a < PU; ++a)
                     for (int b = 0; b < PU; ++b)
                         for (int c = 0; c < PU; ++c)
@@ -104,7 +106,7 @@ seq_t a(idx_t n) {
                 cache[cache_len++] = total;          /* a(1) */
             } else {
                 /* Transition to next length */
-                memset(dp_curr, 0, STATE * sizeof(seq_t));
+                mem_set(dp_curr, 0, STATE * sizeof(seq_t));
                 for (int a = 0; a < PU; ++a)
                     for (int b = 0; b < PU; ++b)
                         for (int c = 0; c < PU; ++c) {

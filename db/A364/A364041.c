@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
  
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
  
 /* Helper: power by squaring, works for builtin and arbitrary‐precision seq_t */
 static seq_t pow_seq(seq_t base, idx_t exp) {
@@ -37,7 +39,7 @@ static void ensure_capacity(size_t needed, size_t *cap, seq_t **ptr) {
     if (*cap >= needed) return;
     size_t newcap = (*cap == 0) ? 8 : *cap * 2;
     while (newcap < needed) newcap *= 2;
-    seq_t *newp = (seq_t *)realloc(*ptr, newcap * sizeof(seq_t));
+    seq_t *newp = mem_resize(seq_t, *ptr, newcap);
     if (!newp) abort();   /* out of memory */
     *ptr = newp;
     *cap = newcap;

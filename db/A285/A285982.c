@@ -7,13 +7,16 @@
  * Formula:   a(n) = n! mod (n + 3)
  * Range:     u8 n <= 517, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mul_mod64
+ * Validated: standard, pass, 99 terms through n = 9950 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/mul_mod64.h"
+#include <stddef.h>
+#include <stdbool.h>
+#include "../utils/mulmod.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +25,7 @@ seq_t a(idx_t n)
     uint64_t res = 1 % mod;          /* 0! = 1 */
     for (idx_t i = 1; i <= n; ++i) {
         /* Compute res = (res * i) mod mod using safe 64‑bit modular multiplication. */
-        res = mul_mod64(res, i, mod);
+        res = mulmod(res, i, mod);
     }
     return (seq_t)res;
 }

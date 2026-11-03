@@ -9,8 +9,9 @@
  *            positive palindrome: find d, set half = 10^(h-1) + (offset-1),
  *            then a(n) = half followed by reversed digits of half (dropping
  *            half's last digit when d is odd)
- * Range:     u8 n <= 35, u16 n <= 754, u32 n <= 9663, u64 n <= 9663,
- *            u128 n <= 9663, big any n
+ * Range:     u8 n <= 35, u16 n <= 754, u32 n <= 19999, u64 n <= 19999,
+ *            u128 n <= 19999, big any n
+ * Validated: standard, pass, 77 terms through n = 9663 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

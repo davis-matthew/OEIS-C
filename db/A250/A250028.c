@@ -9,13 +9,23 @@
  *            is the least prime factor of m)
  * Range:     u8 n <= 17, u16 n <= 783, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   lpf
+ * Validated: standard, pass, 92 terms through n = 9792 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/lpf.h"
+#include <stdbool.h>
+
+/* Return the smallest prime factor of n   (n > 1) */
+static inline idx_t lpf(idx_t n)
+{
+    if (n % 2 == 0) return 2;
+    for (idx_t i = 3; i <= n / i; i += 2)
+        if (n % i == 0) return i;
+    return n;   /* n itself is prime – should not be called for primes */
+}
 
 /* static cache of least prime factors for k^2+1, indexed by k-1 */
 static idx_t *lpf_cache = NULL;   /* array of lpf values */

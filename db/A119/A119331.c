@@ -9,16 +9,18 @@
  *            r(r+1)/2 ≤ n), c = n - r(r+1)/2. T(n,k) = Σ_{i=k..n} (-1)^(n-i)
  *            C(n,i) * Σ_{j=0..min(⌊(i-k)/2⌋, ⌊k/2⌋)} C(k,2j) C(i-k,2j) 2^j (C
  *            are binomial coefficients)
- * Range:     i8 n <= 35, i16 n <= 65, i32 n <= 65, i64 n <= 65, i128 n <= 65,
+ * Range:     i8 n <= 39, i16 n <= 65, i32 n <= 65, i64 n <= 65, i128 n <= 65,
  *            big any n
- * Helpers:   binom, pow2
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"   /* provides seq_t binom(idx_t a, idx_t b) */
-#include "../utils/pow2.h"    /* provides seq_t pow2(idx_t exp) */
+#include <stdbool.h>
+#include "../utils/binomial.h"
+#include "../utils/pow2.h"
 
 static seq_t compute_T(idx_t n, idx_t k)
 {
@@ -30,12 +32,12 @@ static seq_t compute_T(idx_t n, idx_t k)
             idx_t twoj = j << 1;
             if (twoj > m || twoj > k)
                 break;
-            seq_t term = binom(k, twoj);
-            term = term * binom(m, twoj);
+            seq_t term = binomial(k, twoj);
+            term = term * binomial(m, twoj);
             term = term * pow2(j);
             inner += term;
         }
-        seq_t coeff = binom(n, i);
+        seq_t coeff = binomial(n, i);
         if (((n - i) & 1) != 0)
             coeff = -coeff;
         total += coeff * inner;

@@ -13,7 +13,8 @@
  *            d*(d+1)/2, j = d-i. The function below computes...
  * Range:     u8 n <= 77, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     if (T_rows <= d) {
         idx_t new_rows = d + 1;
         size_t len = (size_t)new_rows * 5;
-        seq_t *new_T = (seq_t*)malloc(len * sizeof(seq_t));
+        seq_t *new_T = mem_new(seq_t, len);
         if (!new_T) return (seq_t)0;            /* allocation failure */
 
         /* Initialise all entries to zero. */
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
         }
 
         /* Replace old table. */
-        free(T);
+        mem_free(T);
         T = new_T;
         T_rows = new_rows;
     }

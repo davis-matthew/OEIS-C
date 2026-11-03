@@ -8,7 +8,8 @@
  * Formula:   a(n) = -2*(n + 1) + 4*Σ_{k=1..n} φ(k) for n > 0, a(0)=0
  * Range:     u8 n <= 14, u16 n <= 232, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 942 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    whose determinant is ±1.  Uses an incremental sieve of Euler's totient. */
 
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 /* ---------- Euler's totient for a single integer ---------- */
 static seq_t phi_simple(idx_t m)
@@ -54,12 +56,12 @@ seq_t a(idx_t n)
     if (n > phi_cum_max) {
         size_t new_cap = (size_t)(n + 1);
         if (phi_cum == NULL) {
-            phi_cum = (seq_t *)malloc(new_cap * sizeof(seq_t));
+            phi_cum = mem_new(seq_t, new_cap);
             if (!phi_cum) abort();          /* out of memory */
             phi_cum[0] = 0;
             phi_cum_cap = new_cap;
         } else if (new_cap > phi_cum_cap) {
-            seq_t *tmp = (seq_t *)realloc(phi_cum, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, phi_cum, new_cap);
             if (!tmp) abort();
             phi_cum = tmp;
             phi_cum_cap = new_cap;

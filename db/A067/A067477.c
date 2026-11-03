@@ -7,13 +7,14 @@
  * Formula:   a(n) = ceil(sqrt(7 * 10^(n‑1)))^2 (for n ≥ 3)
  * Range:     u8 none, u16 n <= 4, u32 n <= 9, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   floor_sqrt_seq_custom
+ * Validated: partial, pass, 16 terms through n = 18 (2026-11-01)
+ * Helpers:   isqrt_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/floor_sqrt_seq_custom.h"
+#include "../utils/isqrt_seq.h"
 
 /* Main sequence function */
 seq_t a(idx_t n)
@@ -36,7 +37,7 @@ seq_t a(idx_t n)
     seq_t target = pow10 * (seq_t)7;
 
     /* floor(sqrt(target)) */
-    seq_t s = floor_sqrt_seq_custom(target);
+    seq_t s = isqrt_seq(target);
 
     /* If s*s < target, take the next integer for the ceiling */
     if (s * s < target)

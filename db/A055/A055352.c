@@ -9,6 +9,7 @@
  *            (n-1)*(n-2)*(n-3)*(n-4)*(n-5)*(15*n^3-75*n^2+110*n-48) / 691200
  * Range:     u8 none, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 29,
  *            big any n
+ * Validated: standard, pass, 30 terms through n = 241 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

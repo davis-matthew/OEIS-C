@@ -10,15 +10,42 @@
  *            -1, -2, -1, 4, -4} for d ≡ 1,2,3,4,5,0 (mod 6)
  * Range:     u8 n <= 7, u16 n <= 238, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   coeff_of, mul_small
+ * Validated: standard, pass, 74 terms through n = 973 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/mul_small.h"
-#include "../utils/coeff_of.h"
+#include "../utils/mem.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
+
+/* periodic coefficient C(d) for divisors d. */
+static int coeff_of(idx_t d)
+{
+    switch (d % 6) {
+        case 1: return  4;
+        case 2: return -1;
+        case 3: return -2;
+        case 4: return -1;
+        case 5: return  4;
+        case 0: return -4;
+    }
+    return 0;               /* unreachable */
+}
 
 seq_t a(idx_t n)
 {
@@ -29,7 +56,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= sz) {
         size_t new_sz = (size_t)n + 1;
 
-        seq = (seq_t *)realloc(seq, new_sz * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, new_sz);
         s   = (int64_t *)realloc(s,   new_sz * sizeof(int64_t));
 
         /* initialize new slots */

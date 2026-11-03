@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 1665, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_mul
+ * Validated: standard, pass, 72 terms through n = 9398 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,15 +21,17 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mod_mul.h"
+#include <stdint.h>
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 /*----- deterministic Miller‑Rabin for 64‑bit integers ---------*/
 
 static uint64_t mod_pow(uint64_t a, uint64_t e, uint64_t mod) {
     uint64_t res = 1;
     while (e) {
-        if (e & 1) res = mod_mul(res, a, mod);
-        a = mod_mul(a, a, mod);
+        if (e & 1) res = mulmod(res, a, mod);
+        a = mulmod(a, a, mod);
         e >>= 1;
     }
     return res;
@@ -63,7 +66,7 @@ static bool _is_prime(uint64_t n) {
         if (x == 1 || x == n-1) continue;
         bool witness = true;
         for (unsigned r = 1; r < s; ++r) {
-            x = mod_mul(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n-1) { witness = false; break; }
         }
         if (witness) return false;
@@ -84,7 +87,7 @@ seq_t a(idx_t n) {
     /* initialise cache on first call */
     if (cache == NULL) {
         cache_cap = 1024;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* generate terms until we have at least n terms */
@@ -95,7 +98,7 @@ seq_t a(idx_t n) {
             if (_is_prime(partner)) {
                 if (cache_len >= cache_cap) {
                     cache_cap <<= 1;
-                    cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cache_cap);
                 }
                 cache[cache_len++] = (seq_t)candidate;
             }

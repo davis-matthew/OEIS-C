@@ -11,7 +11,8 @@
  *            A125875
  * Range:     u8 none, u16 none, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* forward declaration of seq_t and idx_t from build */
 seq_t a(idx_t n);
@@ -33,7 +35,7 @@ static bool      initialized  = false;  /* has memoization been done   */
 /* free any existing cache */
 static void free_cache(void)
 {
-    free(cache_vals);
+    mem_free(cache_vals);
     cache_vals = NULL;
     cache_len  = 0;
     cache_cap  = 0;
@@ -73,7 +75,7 @@ static void build_cache(uint32_t limit)
 
     /* allocate cache with some initial capacity */
     cache_cap = 1024;
-    cache_vals = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+    cache_vals = mem_new(seq_t, cache_cap);
     if (!cache_vals) {
         free(phi); free(is_comp);
         exit(1);
@@ -94,8 +96,7 @@ static void build_cache(uint32_t limit)
         if (tmp == 1) {                                 /* no large primes */
             if (cache_len == cache_cap) {               /* grow cache if needed */
                 cache_cap <<= 1;
-                cache_vals = (seq_t*)realloc(cache_vals,
-                                              cache_cap * sizeof(seq_t));
+                cache_vals = mem_resize(seq_t, cache_vals, cache_cap);
                 if (!cache_vals) { free(phi); free(is_comp); exit(1); }
             }
             cache_vals[cache_len++] = (seq_t)k;

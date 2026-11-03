@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn
  * Formula:   not stated
- * Range:     u8 n <= 9953, u16 n <= 9953, u32 n <= 9953, u64 n <= 9953,
- *            u128 n <= 9953, big any n
- * Helpers:   _tri_idx
+ * Range:     u8 n <= 10011, u16 n <= 10011, u32 n <= 10011, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 101 terms through n = 9953 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,11 @@
    The following function evaluates a(n) in O(log n) time. */
 
 #include <stdint.h>
-#include "../utils/_tri_idx.h"
+
+static inline unsigned __int128 _tri_idx(idx_t m)
+{
+    return (unsigned __int128)m * (m + 1) / 2;
+}
 
 seq_t a(idx_t n)
 {

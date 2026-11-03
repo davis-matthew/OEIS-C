@@ -8,9 +8,10 @@
  * Keywords:  nonn, tabf
  * Formula:   a(n) is the nth term of the triangle read by rows, where T(r,k)
  *            = binomial(r,k-1) + [k==r+1] for 1 ≤ k ≤ r+1
- * Range:     u8 n <= 6, u16 n <= 178, u32 n <= 540, u64 n <= 1325,
+ * Range:     u8 n <= 6, u16 n <= 197, u32 n <= 646, u64 n <= 1325,
  *            u128 n <= 1325, big any n
- * Helpers:   binomial, floor_sqrt
+ * Validated: standard, pass, 93 terms through n = 1236 (2026-11-01)
+ * Helpers:   binomial, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,28 @@
 /* The function calculates the appropriate row r and column k
    from the index n (1‑based), then evaluates T(r,k). */
 
-#include "../utils/floor_sqrt.h"   /* seq_t floor_sqrt(seq_t x); */
-#include "../utils/binomial.h"    /* seq_t binomial(idx_t n, idx_t k); */
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_i32.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 seq_t a(idx_t n)
 {

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   pow_small
+ * Validated: partial, pass, 47 terms through n = 46 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,8 @@
  */
 
 #include <stdbool.h>
-#include "../utils/pow_small.h"
+#include <stdlib.h>
+#include "../utils/ipow_i32.h"
 
 #define MAXVAL 2000            /* maximal integer that may appear in factorisation */
 
@@ -121,7 +123,7 @@ seq_t a(idx_t n)
         int nexp = num_exp[p];
         int rem = d - (d < nexp ? d : nexp);  /* remaining exponent after cancellation */
         if (rem > 0) {
-            seq_t pow = pow_small((seq_t)primes[p], (idx_t)rem);
+            seq_t pow = ipow_i32((seq_t)primes[p], (idx_t)rem);
             result = result * pow;
         }
     }

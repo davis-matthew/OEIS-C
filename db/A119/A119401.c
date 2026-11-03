@@ -9,13 +9,15 @@
  *            3*(n-1)^4*a(n-2) - (n-2)^3*(n-1)^3*a(n-3) for n>=3
  * Range:     i8 n <= 3, i16 n <= 5, i32 n <= 7, i64 n <= 12, i128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* memoised values */
 static idx_t  cache_cap = 0;     /* allocated size */
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     idx_t needed = n + 1;
     if (needed < 3) needed = 3;
     if (cache_cap < needed) {
-        seq_t *new_cache = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, needed);
         if (!new_cache) return 0;  /* unlikely, but keep type compatible */
         /* Initialize the freshly allocated slots to zero (not strictly needed for big ints) */
         for (idx_t i = cache_cap; i < needed; ++i) new_cache[i] = 0;

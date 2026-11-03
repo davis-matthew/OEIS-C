@@ -10,6 +10,7 @@
  *            index), * m = n – r(r+1)/2 (column index)
  * Range:     u8 n <= 35, u16 n <= 135, u32 n <= 527, u64 n <= 2079,
  *            u128 n <= 7380, big any n
+ * Validated: standard, pass, 82 terms through n = 6836 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

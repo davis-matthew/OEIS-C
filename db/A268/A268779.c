@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 9, u64 n <= 21, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     /* DP arrays: dp[pattern][used] where used = 0 or 1 adjacency pair already used. */
     static seq_t dp[64][2];
     static seq_t newdp[64][2];
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
 
     /* Initialize for the first row.  Patterns with more than one internal
        adjacency pair are invalid and therefore ignored. */
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
 
     /* Process subsequent rows. */
     for (idx_t row = 2; row <= n; ++row) {
-        memset(newdp, 0, sizeof(newdp));
+        mem_set(newdp, 0, sizeof(newdp));
         for (int p1 = 0; p1 < 64; ++p1) {
             for (int used = 0; used <= 1; ++used) {
                 seq_t ways = dp[p1][used];
@@ -78,7 +80,7 @@ seq_t a(idx_t n)
                 }
             }
         }
-        memcpy(dp, newdp, sizeof(dp));
+        mem_copy(dp, newdp, sizeof(dp));
     }
 
     /* Sum all valid final states. */

@@ -8,7 +8,8 @@
  *            integer y for which 2*y^2+1 is prime
  * Range:     u8 n <= 4, u16 n <= 37, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 953 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*--- Minimal 64‑bit Miller–Rabin primality test ----------------------------------*/
 static bool is_prime_uint64(uint64_t n)
@@ -73,7 +75,7 @@ static void ensure_cache_size(size_t needed)
     if (needed <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     if (new_cap < needed) new_cap = needed;
-    seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) { /* out of memory – abort */
         abort();
     }

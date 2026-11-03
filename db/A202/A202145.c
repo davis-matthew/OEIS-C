@@ -12,12 +12,14 @@
  *            memory, which is adequate for n up to at least 10 000
  * Range:     i8 n <= 500, i16 n <= 500, i32 n <= 500, i64 n <= 500,
  *            i128 n <= 500, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 448 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;   /* cached values a(0)..a(n)   */
 static size_t cache_len   = 0;    /* current number of cached entries */
@@ -32,12 +34,12 @@ static void ensure_cache(idx_t n)
 
     /* Allocate temporary arrays; use casts so that the code compiles
      * both in C and in C++ when seq_t is an arbitrary‑precision class. */
-    seq_t *B   = (seq_t*)calloc(needed, sizeof(*B));   /* holds current product   */
-    seq_t *seq = (seq_t*)calloc(needed, sizeof(*seq)); /* holds the result array */
+    seq_t *B   = mem_new(seq_t, needed);   /* holds current product   */
+    seq_t *seq = mem_new(seq_t, needed); /* holds the result array */
 
     if (!B || !seq) {            /* allocation failed */
-        free(B);
-        free(seq);
+        mem_free(B);
+        mem_free(seq);
         exit(EXIT_FAILURE);
     }
 
@@ -63,12 +65,12 @@ static void ensure_cache(idx_t n)
     }
 
     /* Replace the old cache.  */
-    free(seq_cache);
+    mem_free(seq_cache);
     seq_cache = seq;
     cache_len = needed;
 
     /* Temporary product array can be freed.  */
-    free(B);
+    mem_free(B);
 }
 
 seq_t a(idx_t n)

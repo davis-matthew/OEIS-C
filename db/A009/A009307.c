@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 292, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 8737 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* binary search: true if value v exists in sorted array seq[0..len-1] */
 static bool seq_exists(const seq_t *seq, size_t len, seq_t v)
@@ -50,7 +52,7 @@ static void heap_push(Node **heap, size_t *hsize, size_t *hcap, Node n)
 {
     if (*hsize == *hcap) {
         *hcap = (*hcap == 0) ? 4 : (*hcap << 1);
-        *heap = (Node *)realloc(*heap, *hcap * sizeof(Node));
+        *heap = mem_resize(Node, *heap, (*hcap * sizeof(Node)) / sizeof(Node));
     }
     size_t i = (*hsize)++;
     while (i > 0) {
@@ -98,7 +100,7 @@ seq_t a(idx_t n)
     /* initialise */
     if (seq == NULL) {
         seq_cap = 16;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         seq[0] = (seq_t)2;
         seq_len = 1;
 
@@ -107,7 +109,7 @@ seq_t a(idx_t n)
         ptr[0] = 0;   /* start with j = 0 */
 
         hcap = 4;
-        heap = (Node *)malloc(hcap * sizeof(Node));
+        heap = mem_new(Node, hcap);
         heap_push(&heap, &hsize, &hcap, (Node){seq[0] * seq[0] + (seq_t)6, 0});
     }
 
@@ -130,7 +132,7 @@ seq_t a(idx_t n)
         if (!seq_exists(seq, seq_len, val)) {
             if (seq_len == seq_cap) {
                 seq_cap <<= 1;
-                seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, seq_cap);
             }
             seq[seq_len++] = val;
 

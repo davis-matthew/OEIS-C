@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd, mod_pow
+ * Validated: standard, pass, 74 terms through n = 911 (2026-11-03)
+ * Helpers:   gcd, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,20 +20,40 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/gcd.h"      /* For seq_t gcd, not used below; local gcd used instead. */
-#include "../utils/mod_pow.h"  /* For mod_pow(seq_t base, uint64_t exp, seq_t mod). */
+#include <string.h>
+#include "../utils/gcd.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 static inline uint64_t ugcd(uint64_t a, uint64_t b) {
     while (b) { uint64_t t = a % b; a = b; b = t; }
     return a;
 }
 
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t *cap, size_t *size, T **ptr, size_t elem_size) {
+    if (*size >= *cap) {
+        *cap = (*cap == 0) ? 16 : (*cap << 1);
+        *ptr = mem_resize(T, *ptr, (*cap * elem_size) / sizeof(T));
+    }
+}
+#else
 static void ensure_capacity(size_t *cap, size_t *size, void **ptr, size_t elem_size) {
     if (*size >= *cap) {
         *cap = (*cap == 0) ? 16 : (*cap << 1);
         *ptr = realloc(*ptr, *cap * elem_size);
     }
 }
+#endif
 
 /* Return the nth term of the sequence (1‑based index). */
 seq_t a(idx_t n) {
@@ -64,7 +85,7 @@ seq_t a(idx_t n) {
         }
 
         /* Store new prime */
-        ensure_capacity(&prime_cap, &prime_cnt, (void **)&primes, sizeof(idx_t));
+        ensure_capacity(&prime_cap, &prime_cnt, OEISC_VPP(&primes), sizeof(idx_t));
         primes[prime_cnt++] = c;
 
         /* Test the 54‑th power residue condition */
@@ -77,12 +98,12 @@ seq_t a(idx_t n) {
             uint64_t g = ugcd(p_minus_1, (uint64_t)54);
             uint64_t exp = p_minus_1 / g;
             seq_t base = (seq_t)(c - 2);      /* (-2) mod p == p-2 == c-2 for c>2 */
-            seq_t r = mod_pow(base, exp, c);
+            seq_t r = powmod(base, exp, c);
             if (r == (seq_t)1) ok = true;
         }
 
         if (ok) {
-            ensure_capacity(&res_cap, &res_cnt, (void **)&results, sizeof(seq_t));
+            ensure_capacity(&res_cap, &res_cnt, OEISC_VPP(&results), sizeof(seq_t));
             results[res_cnt++] = (seq_t)c;
         }
 

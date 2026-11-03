@@ -7,13 +7,15 @@
  * Formula:   a(n) = ceil(7^n / n)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 24, u128 n <= 46,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 36 terms through n = 946 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
         seq_t result = (seq_t)(numerator / n);
         return result;
     } else {
-        seq_t power = big_pow((seq_t)7, (seq_t)n);
+        seq_t power = ipow((seq_t)7, (seq_t)n);
         return (power + (seq_t)n - 1) / (seq_t)n;
     }
 }

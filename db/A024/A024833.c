@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 190, u32 n <= 300, u64 n <= 300,
  *            u128 n <= 300, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 298 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* aux: test whether m satisfies all constraints for given n */
 static bool satisfies(idx_t n, seq_t m)
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
 
     /* initialise cache on first call */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(3 * sizeof(seq_t)); /* indices 0,1,2 */
+        cache = mem_new(seq_t, 3); /* indices 0,1,2 */
         cache[0] = 0;
         cache[1] = 0;
         cache[2] = 5;                 /* a(2) = 5 */
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
 
     /* extend cache to hold up to index n */
     if (n > max_cached) {
-        cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (n + 1));
         for (idx_t i = max_cached + 1; i <= n; ++i) {
             seq_t m = cache[i - 1];   /* start just above previous term */
             while (!satisfies(i, m))

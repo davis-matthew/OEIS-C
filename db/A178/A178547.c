@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ----------  helper: integer square root for seq_t  ---------- */
 static inline seq_t seq_isqrt(seq_t x)
@@ -54,7 +56,7 @@ static void prime_grow(size_t min_cap)
     if (prime_cap >= min_cap) return;
     size_t new_cap = (prime_cap == 0) ? 8 : prime_cap << 1;
     if (new_cap < min_cap) new_cap = min_cap;
-    seq_t *tmp = (seq_t *)realloc(prime_tbl, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, prime_tbl, new_cap);
     if (!tmp) exit(1);                 /* fatal error */
     prime_tbl = tmp;
     prime_cap = new_cap;

@@ -9,13 +9,14 @@
  *            a(2) = 1
  * Range:     u8 n <= 9, u16 n <= 18, u32 n <= 31, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   rev
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-01)
+ * Helpers:   reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/rev.h"
+#include "../utils/reverse_digits.h"
 
 seq_t a(idx_t n)
 {
@@ -29,10 +30,10 @@ seq_t a(idx_t n)
     seq_t a_n   = 0;   /* current a(n) */
 
     for (idx_t i = 3; i <= n; ++i) {
-        seq_t rev_nm1 = rev(a_nm1);
-        seq_t rev_nm3 = rev(a_nm3);
+        seq_t rev_nm1 = reverse_digits(a_nm1);
+        seq_t rev_nm3 = reverse_digits(a_nm3);
         seq_t sum     = rev_nm1 + a_nm2 + rev_nm3;
-        a_n          = rev(sum);
+        a_n          = reverse_digits(sum);
 
         /* roll the window */
         a_nm3 = a_nm2;

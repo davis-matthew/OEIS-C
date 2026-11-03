@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 134, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   seq_is_squarefree, seq_isqrt
+ * Validated: standard, pass, 64 terms through n = 998 (2026-11-03)
+ * Helpers:   is_squarefree, isqrt_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,9 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_is_squarefree.h"
-#include "../utils/seq_isqrt.h"
+#include "../utils/is_squarefree.h"
+#include "../utils/isqrt_seq.h"
+#include "../utils/mem.h"
 
 /* -------------------------------------------------------------- */
 /*  Integer square‑root for any seq_t dimension. */
@@ -45,7 +47,7 @@ static void seq_grow(idx_t min_cap)
     if (min_cap <= seq_cap) return;
     idx_t new_cap = seq_cap ? seq_cap << 1 : 1;
     while (new_cap < min_cap) new_cap <<= 1;
-    seq_t *new_buf = (seq_t *)realloc(seq_buf, new_cap * sizeof(seq_t));
+    seq_t *new_buf = mem_resize(seq_t, seq_buf, new_cap);
     seq_buf = new_buf;
     seq_cap = new_cap;
 }
@@ -69,14 +71,14 @@ seq_t a(idx_t n)
 
             /* Compute s = floor(sqrt(2*prev)) + 1  */
             seq_t twice = prev + prev;      /* 2*prev */
-            seq_t s = seq_isqrt(twice) + 1;
+            seq_t s = isqrt_seq(twice) + 1;
 
             /* Find the first s with square‑free diff. */
             while (true) {
                 seq_t square = s * s;      /* s^2 */
                 seq_t diff   = square - twice;   /* difference = s^2 – 2*prev */
 
-                if (seq_is_squarefree(diff)) {
+                if (is_squarefree(diff)) {
                     seq_t cand = square - prev;   /* a(n) = s^2 – prev */
                     seq_buf[seq_len] = cand;
                     break;

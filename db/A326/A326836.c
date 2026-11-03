@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 62, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static uint32_t *spf         = NULL;  /* smallest prime factor */
 static uint32_t *prime_idx   = NULL;  /* prime → 1‑based index */
@@ -103,7 +105,7 @@ static void ensure_terms(idx_t n)
         if (max_idx > 0 && (sum % (seq_t)max_idx) == 0) {
             if (cache_len + 1 > cache_cap) {
                 cache_cap = (cache_cap == 0) ? 256 : cache_cap * 2;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = (seq_t)next_candidate;
         }

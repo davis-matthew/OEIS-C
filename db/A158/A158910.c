@@ -7,13 +7,16 @@
  * Formula:   a(n) = P_{n+1} - P_n (first differences of primes ≡5 (mod 18))
  * Range:     u8 n <= 8, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 85 terms through n = 994 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Returns the n‑th term of OEIS sequence A158910.  The offset is 1. */
 seq_t a(idx_t n)
@@ -31,7 +34,7 @@ seq_t a(idx_t n)
     /* Allocate initial storage if needed. */
     if (!primes) {
         primes_cap = 20000;                  /* enough for n up to ~100 000 */
-        primes = (seq_t *)malloc(primes_cap * sizeof(seq_t));
+        primes = mem_new(seq_t, primes_cap);
     }
 
     /* Generate primes until we have at least (n+1) of them. */
@@ -40,7 +43,7 @@ seq_t a(idx_t n)
             /* Grow the array if it is full. */
             if (prime_cnt >= primes_cap) {
                 size_t new_cap = primes_cap ? primes_cap << 1 : 64;
-                seq_t *tmp = (seq_t *)realloc(primes, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, primes, new_cap);
                 primes = tmp;
                 primes_cap = new_cap;
             }

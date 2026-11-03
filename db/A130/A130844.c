@@ -9,12 +9,14 @@
  *            a(3)=5, a(4)=17 offset 1 (a(1) is the first term)
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 27, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* we need room for indices 0..4 at least (index 0 unused) */
         cache_sz = 5;
-        cache = (seq_t *)malloc(cache_sz * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_sz);
         if (cache == NULL) return 0u;   /* allocation failed – unlikely */
     }
 
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
         /* grow at least to n+1; double for amortised O(1) growth */
         idx_t new_sz = n + 1;
         if (new_sz < cache_sz * 2) new_sz = cache_sz * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_sz * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_sz);
         if (tmp == NULL) return 0u; /* allocation failed – unlikely */
         cache = tmp;
         cache_sz = new_sz;

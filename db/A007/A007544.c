@@ -10,19 +10,21 @@
  *            frequency
  * Range:     u8 n <= 5, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 76 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     idx_t N = n + 1;
     
     // Maximum possible squared distance is 3*(N-1)²
     idx_t max_dist_sq = 3 * (N - 1) * (N - 1);
-    seq_t *freq = (seq_t *)calloc((size_t)(max_dist_sq + 1), sizeof(seq_t));
+    seq_t *freq = mem_new(seq_t, (size_t)(max_dist_sq + 1));
     if (freq == NULL) return 0;
     
     // For each possible absolute displacement vector
@@ -64,6 +66,6 @@ seq_t a(idx_t n) {
         }
     }
     
-    free(freq);
+    mem_free(freq);
     return result;
 }

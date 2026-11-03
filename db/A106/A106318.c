@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nice, nonn, easy
  * Formula:   a(n) = 2*n^6
- * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 26, u64 n <= 26, u128 n <= 26,
- *            big any n
+ * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 35, u64 n <= 1448,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 42 terms through n = 9819 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

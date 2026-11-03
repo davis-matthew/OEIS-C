@@ -7,7 +7,8 @@
  * Formula:   a(n) = Product_{i=2..n-1} (i^2+1), a(1)=1 (empty product =1)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 13, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Implementation uses the recurrence a(n) = a(n‑1) * ((n-1)^2 + 1).    */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (cache == NULL) {
         capacity = 3;   /* indices 0,1,2 (index 0 unused) */
-        cache = (seq_t *)realloc(NULL, capacity * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, capacity);
         if (!cache)
             return (seq_t)0; /* allocation fail */
         cache[0] = (seq_t)0;
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     /* grow the allocated storage if needed   */
     if (capacity <= n) {
         idx_t new_capacity = n + 1;      /* include index n */
-        seq_t *tmp = (seq_t *)realloc(cache, new_capacity * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_capacity);
         if (!tmp)
             return (seq_t)0;            /* allocation fail */
         cache    = tmp;

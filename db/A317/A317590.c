@@ -8,7 +8,8 @@
  *            integer partitions
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   is_uniform_rec
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,32 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/is_uniform_rec.h"
+
+/* Recursive test for uniform normality.  arr holds counts per part value. */
+static int is_uniform_rec(const int *arr, int len)
+{
+    /* Trim trailing zeros */
+    while (len > 0 && arr[len - 1] == 0) --len;
+    if (len == 0) return 1;          /* empty – trivially uniform */
+
+    /* Count non‑zero entries */
+    int nonZero = 0;
+    for (int i = 0; i < len; ++i) if (arr[i] > 0) ++nonZero;
+    if (nonZero == 1) return 1;      /* all parts equal */
+
+    /* Any zero inside means it does not span the initial interval */
+    for (int i = 0; i < len; ++i) if (arr[i] == 0) return 0;
+
+    /* Build multiplicity partition: histogram of the counts */
+    int maxVal = 0;
+    for (int i = 0; i < len; ++i) if (arr[i] > maxVal) maxVal = arr[i];
+
+    int new_arr[64];
+    for (int i = 0; i < maxVal; ++i) new_arr[i] = 0;
+    for (int i = 0; i < len; ++i) new_arr[arr[i] - 1]++;   /* shift: value v → index v‑1 */
+
+    return is_uniform_rec(new_arr, maxVal);
+}
 
 /* Constants for the sieve and storage limits */
 #define LIMIT      2000000      /* Sieve limit – enough for the required n */

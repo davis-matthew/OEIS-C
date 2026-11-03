@@ -9,8 +9,9 @@
  *            a(n) = (H(n) even? H(n)/-2 : -H(n)). This follows from the
  *            definition a(n)=numerator of -A023900(n)/2, where
  *            A023900(n)=∑_{d|n} μ(d)d and μ is the Möbius function. Sinc...
- * Range:     i8 n <= 256, i16 n <= 9654, i32 n <= 9654, i64 n <= 9654,
- *            i128 n <= 9654, big any n
+ * Range:     i8 n <= 256, i16 n <= 65536, i32 n <= 65537, i64 n <= 65537,
+ *            i128 n <= 65537, big any n
+ * Validated: standard, pass, 104 terms through n = 9654 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

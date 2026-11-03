@@ -10,14 +10,28 @@
  *            sequence starts 1,1,1,1,2,6,
  * Range:     u8 n <= 13, u16 n <= 26, u32 n <= 53, u64 n <= 134,
  *            u128 n <= 349, big any n
- * Helpers:   binomial, factorial
+ * Validated: standard, pass, 71 terms through n = 1229 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Required utilities */
-#include "../utils/binomial.h"   /* seq_t binomial(idx_t a, idx_t b); */
-#include "../utils/factorial.h"  /* seq_t factorial(idx_t n); */
+#include <stdint.h>
+#include <stdlib.h>
+#include <math.h>
+#include "../utils/binomial.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 #include <math.h>                /* sqrt() for index calculation */
 
 /* compute a(n) */

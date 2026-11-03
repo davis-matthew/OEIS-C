@@ -12,17 +12,50 @@
  *            1/(1-G) as series, P(m)=Sum_{i=1..m} i*G(i)*C(m-i), g(m...
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 18, u64 n <= 31, u128 n <= 56,
  *            big any n
- * Helpers:   A_grow, a3456_fixed, a3456_phi, u128_to_seq
+ * Validated: standard, pass, 40 terms through n = 197 (2026-11-03)
+ * Helpers:   mem, totient_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/A_grow.h"
-#include "../utils/u128_to_seq.h"
-#include "../utils/a3456_fixed.h"
-#include "../utils/a3456_phi.h"
+#include "../utils/totient_u64.h"
+#include "../utils/mem.h"
+
+static seq_t *A_grow(seq_t *old, idx_t oldlen, idx_t newlen)
+{
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    idx_t i;
+    for (i = 0; i < newlen; i++) p[i] = 0;
+    for (i = 0; i < oldlen; i++) p[i] = old[i];
+    if (old) mem_free(old);
+    return p;
+}
+
+static seq_t u128_to_seq(unsigned __int128 u)
+{
+    seq_t r = 0;
+    int k;
+    for (k = 3; k >= 0; k--) {
+        r = r * 65536ULL;
+        r = r * 65536ULL;
+        r += (seq_t)(uint64_t)(uint32_t)(u >> (32 * k));
+    }
+    return r;
+}
+
+static int a3456_fixed(void)
+{
+    static int det = -1;
+    if (det < 0) {
+        seq_t t = 1;
+        int i;
+        for (i = 0; i < 300; i++) t = t * 2;
+        det = (t == 0) ? 1 : 0;
+    }
+    return det;
+}
 
 /* ---------- arbitrary precision path (exact, cached) ---------- */
 static seq_t *bG, *bQ, *bC, *bS, *bS2, *bH;
@@ -83,7 +116,7 @@ static seq_t a3456_big(idx_t n)
             idx_t m = n / d;
             seq_t p = 0;
             for (i = 1; i <= m; i++) p += (seq_t)i * bG[i] * bC[m - i];
-            pos += p * a3456_phi(d) * 4;
+            pos += p * totient_u64(d) * 4;
         }
     t = 0;
     for (i = 1; i < n; i++) t += bS[i] * bH[n - i];
@@ -196,7 +229,7 @@ static seq_t a3456_fix(idx_t n)
             a3456_u p = a3456_U(0);
             for (i = 1; i <= mm; i++)
                 p = a3456_add(p, a3456_mul(a3456_mul(a3456_U(i), G[i]), C[mm - i]));
-            pos = a3456_add(pos, a3456_mul(p, a3456_U(a3456_phi(d) * 4)));
+            pos = a3456_add(pos, a3456_mul(p, a3456_U(totient_u64(d) * 4)));
         }
     t = a3456_U(0);
     for (i = 1; i < n; i++) t = a3456_add(t, a3456_mul(S[i], H[n - i]));

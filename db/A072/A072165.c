@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3001, u16 n <= 3001, u32 n <= 3001, u64 n <= 3001,
  *            u128 n <= 3001, big any n
- * Helpers:   _floor_isqrt_u64
+ * Validated: standard, pass, 131 terms through n = 2843 (2026-11-03)
+ * Helpers:   isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/_floor_isqrt_u64.h"   /* provides _floor_isqrt_u64 */
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 static uint64_t *primes = NULL;          /* list of primes currently known */
 static size_t primes_len   = 0;          /* number of primes stored      */
@@ -76,7 +78,7 @@ ensure_primes_upto(uint64_t limit)
 static bool
 is_semiprime(uint64_t x, uint64_t *p_out, uint64_t *q_out)
 {
-    uint64_t limit_p = _floor_isqrt_u64(x) + 1;
+    uint64_t limit_p = isqrt(x) + 1;
     ensure_primes_upto(limit_p);
 
     uint64_t p = 0, q = 0;
@@ -94,7 +96,7 @@ is_semiprime(uint64_t x, uint64_t *p_out, uint64_t *q_out)
     if (p == 0)                    /* x is prime */
         return false;
     /* check that the other factor q is prime */
-    uint64_t limit_q = _floor_isqrt_u64(q) + 1;
+    uint64_t limit_q = isqrt(q) + 1;
     ensure_primes_upto(limit_q);
 
     bool q_prime = true;
@@ -130,10 +132,10 @@ seq_t a(idx_t n)
                 seq_t val = (p == q) ? (seq_t)0 : (seq_t)1;
                 /* grow memo */
                 if (memo_len == 0) {
-                    memo = (seq_t *)malloc(sizeof(seq_t));
+                    memo = mem_new(seq_t, 1);
                     memo_len = 0;
                 } else {
-                    memo = (seq_t *)realloc(memo, sizeof(seq_t) * (memo_len + 1));
+                    memo = mem_resize(seq_t, memo, (memo_len + 1));
                 }
                 memo[memo_len++] = val;
                 break;

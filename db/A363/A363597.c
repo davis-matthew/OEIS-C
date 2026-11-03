@@ -10,7 +10,8 @@
  *            numbers * and tests membership using trial division by primes
  * Range:     u8 n <= 153, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _int_sqrt_u64
+ * Validated: standard, pass, 83 terms through n = 9201 (2026-11-03)
+ * Helpers:   isqrt_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/_int_sqrt_u64.h"
+#include "../utils/isqrt_u64.h"
+#include "../utils/mem.h"
 
 /* Dynamic array of primes, rebuilt each time we need a larger bound. */
 static uint32_t *primes = NULL;        /* primes array */
@@ -60,7 +62,7 @@ static bool _in_sequence(uint64_t x)
 {
     if (x == 1) return true;        /* empty product */
 
-    uint64_t limit = _int_sqrt_u64(x) + 1;
+    uint64_t limit = isqrt_u64(x) + 1;
     _ensure_primes(limit);
 
     uint64_t temp = x;
@@ -99,7 +101,7 @@ seq_t a(idx_t n)
         if (_in_sequence(cur)) {
             if (seq_len == seq_cap) {
                 seq_cap = seq_cap ? seq_cap * 2 : 8;
-                seq_arr = (seq_t *)realloc(seq_arr, seq_cap * sizeof(seq_t));
+                seq_arr = mem_resize(seq_t, seq_arr, seq_cap);
                 if (!seq_arr) abort();
             }
             seq_arr[seq_len++] = (seq_t)cur;

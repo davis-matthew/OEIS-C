@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 856, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   isPrimeGeneric, is_antipal_prime
+ * Validated: standard, pass, 66 terms through n = 9956 (2026-11-03)
+ * Helpers:   is_prime_u128, is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,56 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "../utils/isPrimeGeneric.h"
-#include "../utils/is_antipal_prime.h"
+#include <limits.h>
+#include "../utils/is_prime_u128.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+/* -----------------  Generic primality test ------------------------ */
+static bool isPrimeGeneric(seq_t n)
+{
+    /* all seq_t are unsigned; use the smallest type that fits */
+    if ((seq_t)(ULLONG_MAX) >= n) {
+        return is_prime_u64((uint64_t)n);
+    }
+#if defined(__SIZEOF_INT128__)
+    return is_prime_u128((__uint128_t)n);
+#else
+    /* fallback: if seq_t > 64‑bit but no 128‑bit support,
+       order the test as simple trial division up to sqrt */
+    seq_t limit = 0;
+    for (seq_t i = 2; i*i <= n; ++i) {
+        if (n % i == 0) return false;
+    }
+    return true;
+#endif
+}
+
+/* Returns true iff p is an antipalindromic prime. */
+static bool is_antipal_prime(seq_t p)
+{
+    /* Buffer large enough for most primes that arise in the limits. */
+    uint8_t buf[256];
+    int d = 0;
+    seq_t tmp = p;
+
+    /* Extract decimal digits into buf, least‑significant first. */
+    while (tmp > 0) {
+        buf[d++] = (uint8_t)(tmp % 10);
+        tmp     /= 10;
+    }
+
+    /* Primes with odd numbers of digits cannot satisfy the condition. */
+    if (d % 2 != 0)
+        return false;
+
+    int half = d / 2;
+    for (int i = 0; i < half; ++i) {
+        if (buf[i] == buf[d - 1 - i])
+            return false;         /* matching digits found */
+    }
+    return true;                  /* all corresponding digits differ */
+}
 
 /* Forward declarations */
 static bool is_antipal_prime(seq_t p);
@@ -77,7 +126,7 @@ static void append_to_cache(seq_t val)
 {
     if (cache_len == cache_cap) {
         size_t new_cap = cache_cap == 0 ? 4 : cache_cap * 2;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         /* In the unlikely event of realloc failure tmp will be NULL.
            For the purposes of this assignment we assume success.   */
         cache   = tmp;

@@ -11,13 +11,15 @@
  *            768*a(n-9) - 64*a(n-10) (empirical)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 16, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Pre‑computed data for the transfer matrix (243 patterns). */
 static int pat_val[243][5];
@@ -66,7 +68,7 @@ static void compute_base_terms(void)
     /* DP arrays: dp[pattern][k] – number of ways with k bad edges (k=0,1). */
     static seq_t dp[243][2];
     static seq_t newdp[243][2];
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
 
     /* Row 1 initialisation. */
     for (int p = 0; p < 243; ++p) {
@@ -83,7 +85,7 @@ static void compute_base_terms(void)
 
     /* Subsequent rows up to row 10. */
     for (int row = 2; row <= 10; ++row) {
-        memset(newdp, 0, sizeof(newdp));
+        mem_set(newdp, 0, sizeof(newdp));
         for (int prev = 0; prev < 243; ++prev) {
             for (int curr = 0; curr < 243; ++curr) {
                 int add = hcount[curr] + vert[curr][prev];
@@ -97,7 +99,7 @@ static void compute_base_terms(void)
                 }
             }
         }
-        memcpy(dp, newdp, sizeof(dp));
+        mem_copy(dp, newdp, sizeof(dp));
         /* Store a(row). */
         a_cache[row] = (seq_t)0;
         for (int p = 0; p < 243; ++p) {

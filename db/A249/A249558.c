@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   ensure_bool, floor_sqrt
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,40 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/floor_sqrt.h"
-#include "../utils/ensure_bool.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+/* Expand a bool array to hold at least idx elements (1‑based). */
+static void ensure_bool(idx_t idx, bool **arr, size_t *cap)
+{
+    if ((size_t)idx < *cap) return;
+    size_t new_cap = *cap ? *cap : 16;
+    while (new_cap <= (size_t)idx) new_cap <<= 1;
+    bool *new_arr = (bool *)realloc(*arr, new_cap * sizeof(bool));
+    if (!new_arr) abort();
+    for (size_t i = *cap; i < new_cap; ++i) new_arr[i] = false;
+    *arr = new_arr;
+    *cap = new_cap;
+}
 
 /* Return the k‑th triangular number T(k) = k*(k+1)/2 */
 static inline seq_t triangular(idx_t k)
@@ -64,7 +97,7 @@ static void ensure_perm(idx_t idx)
     if ((size_t)idx < perm_cap) return;
     size_t new_cap = perm_cap ? perm_cap : 16;
     while (new_cap <= (size_t)idx) new_cap <<= 1;
-    seq_t *new_arr = (seq_t *)realloc(perm, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, perm, new_cap);
     if (!new_arr) abort();
     for (size_t i = perm_cap; i < new_cap; ++i) new_arr[i] = 0;
     perm = new_arr;

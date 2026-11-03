@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 20, u32 n <= 206, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_prod_idx, is_power_of_10_idx
+ * Validated: standard, pass, 61 terms through n = 9953 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,26 @@
    conjecture asserts this never happens). */
 
 #include <stdbool.h>
-#include "../utils/digit_prod_idx.h"
-#include "../utils/is_power_of_10_idx.h"
+
+/* Compute product of the non‑zero decimal digits of an idx_t value. */
+static seq_t digit_prod_idx(idx_t x)
+{
+    seq_t prod = 1;
+    while (x > 0) {
+        int d = x % 10;
+        if (d != 0) prod *= d;
+        x /= 10;
+    }
+    return prod;
+}
+
+/* Test if an idx_t number is an exact power of 10. */
+static inline bool is_power_of_10_idx(idx_t x)
+{
+    if (x == 0) return false;
+    while (x % 10 == 0) x /= 10;
+    return x == 1;
+}
 
 /* Return true iff x = 10^k for some k >= 0. */
 

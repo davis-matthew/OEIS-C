@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 21, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,8 +41,7 @@ seq_t a(idx_t n)
 
     if ((size_t)n >= cache_size) {
         size_t new_size = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache,
-                                      new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) {
             /* allocation failed – fall back to recomputation each time */
             cache = NULL;
@@ -59,7 +60,7 @@ seq_t a(idx_t n)
     /* Search for the smallest positive difference */
     idx_t limit = (idx_t)(2 * n);          /* upper bound for k */
     /* array for the first occurrence of each remainder (0..n-1) */
-    seq_t *first = (seq_t *)calloc(n, sizeof(seq_t));
+    seq_t *first = mem_new(seq_t, n);
     if (!first)                /* Fallback: recompute without cache */
         limit = n;              /* small value, not ideal but safe */
 
@@ -103,7 +104,7 @@ seq_t a(idx_t n)
             }
         }
     }
-    free(first);
+    mem_free(first);
 
     /* Store and return result */
     if (cache)

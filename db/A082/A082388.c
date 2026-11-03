@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 63, u16 n <= 1023, u32 n <= 1024, u64 n <= 1024,
  *            u128 n <= 1024, big any n
- * Helpers:   none
+ * Validated: standard, pass, 115 terms through n = 945 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 /* ------------------------------------------------------------ */
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper: floor(log2(x)) for unsigned 64‑bit integer */
 static inline int _floor_log2_uint64(idx_t x)
@@ -44,7 +46,7 @@ static void ensure_cache(idx_t size)
     while (new_cap < (size_t)size)
         new_cap <<= 1;
 
-    seq_t *newp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *newp = mem_resize(seq_t, a_cache, new_cap);
     if (!newp)
         abort();           /* out of memory */
 

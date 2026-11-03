@@ -9,7 +9,8 @@
  *            prime. I.e., a(n) = sort( A000079 ∪ A006450 )
  * Range:     u8 n <= 19, u16 n <= 558, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 71 terms through n = 999 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Static state for memoisation */
 static seq_t *term_arr   = NULL; /* array of computed terms */
@@ -38,7 +40,7 @@ static void ensure_capacity(size_t needed)
     size_t new_cap = term_cap ? term_cap * 2 : 16;
     while (new_cap < needed)
         new_cap *= 2;
-    seq_t *new_arr = (seq_t *)realloc(term_arr, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, term_arr, new_cap);
     if (!new_arr)
         exit(1);
     term_arr = new_arr;

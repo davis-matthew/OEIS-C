@@ -9,7 +9,8 @@
  *            of length = number of decimal digits of n)
  * Range:     u8 n <= 9, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   floor_root_8
+ * Validated: partial, pass, 62 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,29 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdbool.h>
-#include "../utils/floor_root_8.h"
+#include "../utils/mem.h"
+
+/* Helper: compute integer floor of the eighth root of x (x >= 0). */
+static inline idx_t floor_root_8(idx_t x)
+{
+    if (x == 0) return 0;
+    idx_t low = 0;
+    idx_t high = 1;
+    /* Find an upper bound. */
+    while (((unsigned __int128)high * high * high * high *
+            high * high * high * high) <= x)
+        high <<= 1;
+    while (high - low > 1) {
+        idx_t mid = (low + high) >> 1;
+        unsigned __int128 pow8 = ((unsigned __int128)mid * mid * mid * mid *
+                                 mid * mid * mid * mid);
+        if (pow8 <= x)
+            low = mid;
+        else
+            high = mid;
+    }
+    return low;
+}
 
 /* Cached results.  cache[n] stores a(n);  0 means not yet computed. */
 static seq_t *cache = NULL;
@@ -42,7 +65,7 @@ seq_t a(idx_t n)
     /* Extend cache if necessary. */
     if (n >= cache_size) {
         size_t new_size = (n + 1) * 2;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (!new_cache) abort(); /* no memory */
         cache = new_cache;
         /* Initialize new elements to 0. */

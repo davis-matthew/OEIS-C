@@ -9,7 +9,8 @@
  *            (mod m) (J is the Jacobi symbol)
  * Range:     u8 n <= 4, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   isPrimeTrial, jacobi_symbol
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,32 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/jacobi_symbol.h"
-#include "../utils/isPrimeTrial.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
+
+/* Jacobi symbol (a|n) for odd positive n <= 2^64-1.
+   Returns 1, 0, or -1. */
+static int jacobi_symbol(uint64_t a, uint64_t n) {
+    if (n == 0) return 0;
+    a %= n;
+    if (a == 0) return 0;
+    int res = 1;
+    while (a != 0) {
+        while ((a & 1) == 0) {
+            a >>= 1;
+            uint64_t n_mod8 = n & 7;
+            if (n_mod8 == 3 || n_mod8 == 5)
+                res = -res;
+        }
+        uint64_t tmp = a;
+        a = n;
+        n = tmp;
+        if ((a & 3) == 3 && (n & 3) == 3)
+            res = -res;
+        a %= n;
+    }
+    return (n == 1) ? res : 0;
+}
 
 /* Multiply modulo mod using 128‑bit intermediate (sufficient for seq_t ≤ 64‑bit). */
 static inline seq_t mulmod(seq_t a, seq_t b, seq_t mod)
@@ -70,7 +95,7 @@ static void ensure_capacity(size_t needed)
     size_t new_cap = cache_cap ? cache_cap * 2 : 8;
     while (new_cap < needed)
         new_cap *= 2;
-    seq_t *newp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *newp = mem_resize(seq_t, cache, new_cap);
     cache = newp;
     cache_cap = new_cap;
 }
@@ -87,7 +112,7 @@ seq_t a(idx_t n)
         seq_t m = next_search_m;
         for (;;) {
             /* Skip primes and numbers divisible by 5 (Jacobi symbol would be 0). */
-            if ((m % 5) == 0 || isPrimeTrial(m)) {
+            if ((m % 5) == 0 || is_prime_seq(m)) {
                 m += 2;
                 continue;
             }

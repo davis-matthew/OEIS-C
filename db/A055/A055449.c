@@ -11,7 +11,8 @@
  *            cumulative leading‑digit counts
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Cached terms (1‑based indices are stored at cache[n‑1]) */
 static seq_t *cache = NULL;
@@ -53,8 +55,7 @@ seq_t a(idx_t n)
     if ((idx_t)n > (idx_t)cache_len)
     {
         idx_t new_len = n;                     /* new length required */
-        seq_t *tmp = (seq_t *)realloc(
-            cache, (size_t)new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_len);
         if (!tmp) abort();                     /* allocation failure */
         cache = tmp;
 

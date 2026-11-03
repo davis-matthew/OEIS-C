@@ -7,12 +7,14 @@
  * Formula:   a(n) = 48*a(n-1)+a(n-2); a(0)=24, a(1)=1153
  * Range:     u8 n <= 0, u16 n <= 2, u32 n <= 4, u64 n <= 10, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes the nth term of OEIS sequence A042104
  * (Numerators of continued fraction convergents to sqrt(577)).
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* Ensure the cache has at least two initial terms */
     if (cache_len == 0) {
         /* Allocate space for two elements */
-        cache = (seq_t *)malloc(2 * sizeof(seq_t));
+        cache = mem_new(seq_t, 2);
         if (!cache) return 0; /* allocation failure – unlikely in tests */
         cache[0] = (seq_t)24;
         cache[1] = (seq_t)1153;
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     if (n >= cache_len) {
         /* Resize the cache to hold indices 0 .. n */
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0; /* allocation failure – unlikely in tests */
         cache = tmp;
 

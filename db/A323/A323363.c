@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign, mult, easy
  * Formula:   a(p^e) = (-1)^e * (p+1); multiplicative over prime powers
- * Range:     i8 n <= 65, i16 n <= 9917, i32 n <= 9917, i64 n <= 9917,
- *            i128 n <= 9917, big any n
+ * Range:     i8 n <= 65, i16 n <= 12209, i32 n <= 16384, i64 n <= 16384,
+ *            i128 n <= 16384, big any n
+ * Validated: standard, pass, 91 terms through n = 9917 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 12, u32 n <= 27, u64 n <= 58, u128 n <= 119,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 */
 
 #include <stdlib.h>           /* calloc, realloc, abort */
+#include "../utils/mem.h"
 
 /* --------- memoisation storage ------------------------------------- */
 static seq_t *cache = NULL;   /* array of computed terms a(0)...a(n) */
@@ -64,7 +66,7 @@ static void ensure_cache_cap(size_t need)
     if (cap >= need) return;
     size_t new_cap = cap ? cap << 1 : 32;
     if (new_cap < need) new_cap = need;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();                     /* out of memory */
     cache = tmp;
     cap   = new_cap;
@@ -83,7 +85,7 @@ seq_t a(idx_t n)
     if (!cache) {
         /* allocate for first 18 terms at least */
         cap   = N + 1 > 18 ? N + 1 : 18;
-        cache = (seq_t *)calloc(cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) abort();                    /* allocation failure */
         for (size_t i = 1; i <= 17; ++i) cache[i] = init[i];
         size = 18;                              /* entries 0..17 are valid */

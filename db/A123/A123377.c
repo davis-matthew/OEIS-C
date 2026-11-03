@@ -8,13 +8,15 @@
  *            a(n) = 340*a(n-1) - 5798*a(n-2) + 340*a(n-3) - a(n-4)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 8, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 395 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, free */
 #include <string.h>   /* memcpy */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* cached values */
 static idx_t  cache_size = 0;   /* number of cached elements */
@@ -29,14 +31,14 @@ seq_t a(idx_t n)
     size_t new_size = (size_t)n + 1;
 
     /* Allocate new cache */
-    seq_t *new_cache = (seq_t*)malloc(new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_size);
     if (!new_cache)
         return 0;  /* out of memory – return 0 as a safe failure */
 
     /* Copy any existing cached values to the new array */
     if (cache && cache_size > 0) {
-        memcpy(new_cache, cache, cache_size * sizeof(seq_t));
-        free(cache);          /* free old cache */
+        mem_copy(new_cache, cache, cache_size * sizeof(seq_t));
+        mem_free(cache);          /* free old cache */
     }
 
     /* Initialise the first four terms (if within bounds) */

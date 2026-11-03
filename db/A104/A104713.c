@@ -9,11 +9,13 @@
  *            k ≤ r, read by rows. The sequence is 1‑indexed with a(3)=1
  * Range:     u8 n <= 39, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
+ * Validated: partial, pass, 59 terms through n = 61 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

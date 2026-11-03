@@ -7,12 +7,14 @@
  * Formula:   a(n) = number of partitions of n whose parts are ≡4 or 5 (mod 6)
  * Range:     u8 n <= 64, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static state to memoize computed values up to the largest required n. */
 static seq_t *dp      = NULL;   /* array of partition counts            */
@@ -20,7 +22,7 @@ static idx_t  max_n   = 0;      /* largest n for which dp is valid      */
 
 /* Recompute the partition table up to new_max (inclusive). */
 static void recompute(idx_t new_max) {
-    seq_t *new_dp = (seq_t *)malloc((new_max + 1) * sizeof(seq_t));
+    seq_t *new_dp = mem_new(seq_t, (new_max + 1));
     /* Initialise all entries to 0. */
     for (idx_t i = 0; i <= new_max; ++i) new_dp[i] = 0;
     new_dp[0] = 1;   /* empty partition */
@@ -40,7 +42,7 @@ static void recompute(idx_t new_max) {
     }
 
     /* Replace old table. */
-    free(dp);
+    mem_free(dp);
     dp      = new_dp;
     max_n   = new_max;
 }

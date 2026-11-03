@@ -9,13 +9,15 @@
  *            max(p) = 4*min(p)
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 71 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n < 5) return 0;                /* trivial zeros for n < 5 */
@@ -23,17 +25,17 @@ seq_t a(idx_t n) {
     idx_t N = n;
     size_t size = (size_t)(N + 1);
 
-    seq_t *dp = (seq_t *)malloc(size * sizeof(seq_t));
-    seq_t *tmp = (seq_t *)malloc(size * sizeof(seq_t));
-    seq_t *res = (seq_t *)malloc(size * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, size);
+    seq_t *tmp = mem_new(seq_t, size);
+    seq_t *res = mem_new(seq_t, size);
     if (!dp || !tmp || !res) {
-        free(dp); free(tmp); free(res);
+        mem_free(dp); mem_free(tmp); mem_free(res);
         return 0;                     /* allocation failed */
     }
 
-    memset(dp, 0, size * sizeof(seq_t));
-    memset(tmp, 0, size * sizeof(seq_t));
-    memset(res, 0, size * sizeof(seq_t));
+    mem_set(dp, 0, size * sizeof(seq_t));
+    mem_set(tmp, 0, size * sizeof(seq_t));
+    mem_set(res, 0, size * sizeof(seq_t));
     dp[0] = 1;                         /* empty set */
 
     /* m = 1 : block [2,3] */
@@ -78,8 +80,8 @@ seq_t a(idx_t n) {
     }
 
     seq_t ans = res[N];
-    free(dp);
-    free(tmp);
-    free(res);
+    mem_free(dp);
+    mem_free(tmp);
+    mem_free(res);
     return ans;
 }

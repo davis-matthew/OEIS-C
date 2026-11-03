@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 9895 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Comparator for qsort (ascending order). */
 static int cmp_seq_t_func(const void *a, const void *b)
@@ -51,7 +53,7 @@ static void ensure_cache(idx_t n)
         size_t total_pairs = (size_t)K * (K + 1) / 2;
 
         /* Allocate temporary storage. */
-        seq_t *temp = (seq_t *)malloc(total_pairs * sizeof(seq_t));
+        seq_t *temp = mem_new(seq_t, total_pairs);
         if (!temp)
             exit(1); /* Out of memory */
 
@@ -69,7 +71,7 @@ static void ensure_cache(idx_t n)
         }
 
         /* Sort the values. */
-        qsort(temp, len, sizeof(seq_t), cmp_seq_t_func);
+        mem_qsort(temp, len, sizeof(seq_t), cmp_seq_t_func);
 
         /* Count unique entries. */
         size_t uniq = 0;
@@ -83,7 +85,7 @@ static void ensure_cache(idx_t n)
         /* If we have enough terms, build the final cache. */
         if (uniq >= (size_t)n) {
             /* Allocate new cache. */
-            seq_t *new_cache = (seq_t *)malloc(uniq * sizeof(seq_t));
+            seq_t *new_cache = mem_new(seq_t, uniq);
             if (!new_cache)
                 exit(1);
 
@@ -100,16 +102,16 @@ static void ensure_cache(idx_t n)
             }
 
             /* Replace old cache. */
-            free(cache);
+            mem_free(cache);
             cache      = new_cache;
             cache_len  = uniq;
             current_K  = K;
-            free(temp);
+            mem_free(temp);
             return;
         }
 
         /* Not enough; release temp and double K. */
-        free(temp);
+        mem_free(temp);
         K *= 2;
     }
 }

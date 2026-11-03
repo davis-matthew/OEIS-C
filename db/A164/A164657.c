@@ -7,7 +7,8 @@
  * Formula:   a(n) = denominator( sum_{j=1..n} 1/(2*j-1)^5 )
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 3, u64 n <= 6, u128 n <= 10,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 12 terms through n = 12 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *nums = NULL;   /* numerators of partial sums */
 static seq_t *dens = NULL;   /* denominators of partial sums (a(n)) */
@@ -33,8 +35,8 @@ static void ensure_cache(size_t needed)
         new_cap <<= 1;
 
     /* realloc is safe for class types when the result is cast. */
-    seq_t *new_nums = (seq_t*)realloc(nums, new_cap * sizeof(seq_t));
-    seq_t *new_dens = (seq_t*)realloc(dens, new_cap * sizeof(seq_t));
+    seq_t *new_nums = mem_resize(seq_t, nums, new_cap);
+    seq_t *new_dens = mem_resize(seq_t, dens, new_cap);
     if (!new_nums || !new_dens)
         abort();  /* allocation failed */
 

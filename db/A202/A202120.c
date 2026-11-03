@@ -12,7 +12,8 @@
  *            the recurrence is a(n) = sum_{x,y,z,w} a(n-1,x,y,z)...
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 14, u64 n <= 30, u128 n <= 62,
  *            big any n
- * Helpers:   idx3
+ * Validated: standard, pass, 38 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,13 @@
 #endif
 
 #include <string.h>      /* for memset */
-#include "../utils/idx3.h"
+#include "../utils/mem.h"
+
+/* Helper to map a triple of values in [-4,4] to an index 0..728 */
+static inline int idx3(int x, int y, int z)
+{
+    return ((x + 4) * 81 + (y + 4) * 9 + (z + 4));
+}
 
 seq_t a(idx_t n)
 {
@@ -51,7 +58,7 @@ seq_t a(idx_t n)
     static seq_t dp_prev[729];
     static seq_t dp_next[729];
     /* initialise dp_prev with all valid triples for n = 3 */
-    memset(dp_prev, 0, sizeof(dp_prev));
+    mem_set(dp_prev, 0, sizeof(dp_prev));
     for (int x = -4; x <= 4; ++x)
     {
         for (int y = -4; y <= 4; ++y)
@@ -76,7 +83,7 @@ seq_t a(idx_t n)
     size_t steps = (size_t)(n - 3);
     for (size_t step = 0; step < steps; ++step)
     {
-        memset(dp_next, 0, sizeof(dp_next));
+        mem_set(dp_next, 0, sizeof(dp_next));
         for (int x = -4; x <= 4; ++x)
         {
             for (int y = -4; y <= 4; ++y)
@@ -101,7 +108,7 @@ seq_t a(idx_t n)
             }
         }
         /* move dp_next into dp_prev for next iteration */
-        memcpy(dp_prev, dp_next, sizeof(dp_prev));
+        mem_copy(dp_prev, dp_next, sizeof(dp_prev));
     }
 
     /* sum all counts for sequences of length n */

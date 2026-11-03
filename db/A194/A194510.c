@@ -7,6 +7,7 @@
  * Formula:   a(n) = 3*n - 5*floor((4*n + 2)/7)
  * Range:     i8 n <= 88, i16 n <= 88, i32 n <= 88, i64 n <= 88, i128 n <= 88,
  *            big any n
+ * Validated: partial, pass, 88 terms through n = 88 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

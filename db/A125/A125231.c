@@ -9,14 +9,16 @@
  *            ceil((k+1)/2) * binomial(r,k), * where r is the row number
  *            (starting at 0) and k is the column * within that row (0 ≤ k ≤
  *            r). The triangle is flattened left‑to‑right
- * Range:     u8 n <= 39, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
+ * Range:     u8 n <= 48, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
+ * Validated: partial, pass, 73 terms through n = 72 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* integer square root for 64‑bit unsigned integers */

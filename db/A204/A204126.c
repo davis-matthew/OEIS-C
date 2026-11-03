@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 16, i16 n <= 37, i32 n <= 47, i64 n <= 47, i128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
  * coefficient as a seq_t value. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t **row_cache = NULL;       /* arrays of coefficients for each row */
 static size_t   row_cache_cap = 0;      /* capacity of row_cache */
@@ -53,7 +55,7 @@ static void ensure_rows(idx_t need_row)
 
     /* Initialise Stirling numbers for n = 0 */
     if (S_prev == NULL) {
-        S_prev = (seq_t*)malloc(sizeof(seq_t));
+        S_prev = mem_new(seq_t, 1);
         S_prev[0] = (seq_t)1;
         current_n = 0;
     }
@@ -62,7 +64,7 @@ static void ensure_rows(idx_t need_row)
     for (idx_t n = current_n + 1; n <= need_row; ++n) {
         /* Allocate new Stirling row of length n+1 */
         idx_t new_len = n + 1;
-        seq_t *S_cur = (seq_t*)malloc(new_len * sizeof(seq_t));
+        seq_t *S_cur = mem_new(seq_t, new_len);
 
         /* Recurrence: s(n,0)=0; s(n,n)=1 */
         S_cur[0] = (seq_t)0;
@@ -76,9 +78,9 @@ static void ensure_rows(idx_t need_row)
 
         /* Compute coefficients of the characteristic polynomial for this row.
          * D_m = a_m - (m+1) * a_{m+1},  a_m = (-1)^n * s(n,m),  a_{n+1}=0. */
-        seq_t *coeff = (seq_t*)malloc(new_len * sizeof(seq_t));
+        seq_t *coeff = mem_new(seq_t, new_len);
         int sign = (n & 1) ? -1 : 1;
-        seq_t *a = (seq_t*)malloc(new_len * sizeof(seq_t));
+        seq_t *a = mem_new(seq_t, new_len);
         for (idx_t m = 0; m <= n; ++m)
             a[m] = (sign == 1) ? S_cur[m] : -S_cur[m];
 
@@ -90,8 +92,8 @@ static void ensure_rows(idx_t need_row)
         row_cache[n] = coeff;
 
         /* Clean up for next iteration */
-        free(a);
-        free(S_prev);
+        mem_free(a);
+        mem_free(S_prev);
         S_prev = S_cur;
     }
 

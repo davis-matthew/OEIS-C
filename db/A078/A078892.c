@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 133, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 84 terms through n = 868 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const idx_t LIMIT = 2000000ULL;          /* pre‑compute enough terms */
 
@@ -59,7 +61,7 @@ static void build_cached_sequence(void)
     }
 
     /* Allocate sequence cache (LOTS of space for safety) */
-    seq_cache = (seq_t*)malloc((size_t)LIMIT * sizeof(seq_t));
+    seq_cache = mem_new(seq_t, (size_t)LIMIT);
     if (!seq_cache) abort();
 
     /* Collect terms */

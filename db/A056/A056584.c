@@ -9,7 +9,8 @@
  *            a and n^2 / a are integers; otherwise 0
  * Range:     u8 n <= 16, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   sum_k_vp
+ * Validated: partial, pass, 64 terms through n = 65 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,22 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/sum_k_vp.h"
+
+/*------------------- helper: Σ_{k=1}^{n-1} k·v_p(k) -------------------*/
+static seq_t sum_k_vp(idx_t n, idx_t p)
+{
+    idx_t M = n - 1;
+    seq_t S = 0;
+    idx_t pow = p;
+    while (pow <= M) {
+        idx_t M1 = M / pow;
+        seq_t sum_m = (seq_t)M1 * (M1 + 1) / 2;
+        S += (seq_t)pow * sum_m;
+        if (pow > M / p) break;
+        pow *= p;
+    }
+    return S;
+}
 
 /*------------------- helper: factor n -------------------*/
 static void factorize(idx_t n, idx_t *primes, idx_t *exps, size_t *cnt)

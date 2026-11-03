@@ -9,13 +9,15 @@
  *            quadratic residues mod 9^n)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 994 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;        /* array holding precomputed terms */
 static size_t cache_len = 0;       /* current length of cache (elements 0 .. cache_len-1 */ 
@@ -26,7 +28,7 @@ seq_t a(idx_t n) {
 
     if (cache_len <= target) {
         size_t new_len = target + 1;                     /* need indices 0 .. target */
-        seq_t *new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_len);
 
         if (!new_cache) { abort(); }                     /* allocation failed */
         cache = new_cache;

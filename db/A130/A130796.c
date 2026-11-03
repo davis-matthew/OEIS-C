@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   is_power_of_two, is_prime, next_prime
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   is_pow2, is_prime, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,12 @@
    cached so that calls with arbitrary indices remain efficient. */
 
 #include <stdlib.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/is_pow2.h"
 #include "../utils/is_prime.h"
-#include "../utils/is_power_of_two.h"
 #include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Guard for a zero index (not part of the OEIS sequence) */
@@ -44,11 +48,11 @@ seq_t a(idx_t n) {
         idx_t q = next_prime(cur_p);   /* nextprime(cur_p) */
 
         seq_t diff = (seq_t)(q - cur_p);
-        if (!is_power_of_two(diff)) {
+        if (!is_pow2(diff)) {
             /* grow cache if needed */
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 8;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) abort();
                 cache = tmp;
                 cache_cap = new_cap;

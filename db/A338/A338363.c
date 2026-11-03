@@ -7,7 +7,8 @@
  * Formula:   a(n) = n + pi(n) - pi(floor(n/2))
  * Range:     u8 n <= 234, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 88 terms through n = 9407 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static idx_t max_limit = 0;      /* highest index we've sieved up to */
 static seq_t *pi_counts = NULL;  /* pi_counts[i] = number of primes ≤ i */
@@ -38,7 +40,7 @@ static void sieve_up_to(idx_t limit)
     }
 
     /* allocate array for pi counts (cast for C++) */
-    seq_t *pi_arr = (seq_t *)malloc((limit + 1) * sizeof(seq_t));
+    seq_t *pi_arr = mem_new(seq_t, (limit + 1));
     if (!pi_arr) abort();
 
     seq_t cnt = 0;
@@ -48,7 +50,7 @@ static void sieve_up_to(idx_t limit)
     }
 
     /* free old data */
-    free(pi_counts);
+    mem_free(pi_counts);
     pi_counts = pi_arr;
     max_limit = limit;
 

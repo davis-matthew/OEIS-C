@@ -8,6 +8,7 @@
  * Formula:   a(n) = C(n-1,2) + C(n-3,2) + max(0, n-9) - floor(max(0,n-9)/4)
  * Range:     u8 n <= 13, u16 n <= 13, u32 n <= 13, u64 n <= 13, u128 n <= 13,
  *            big any n
+ * Validated: partial, pass, 11 terms through n = 13 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

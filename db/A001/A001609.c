@@ -7,12 +7,14 @@
  * Formula:   a(n) = a(n-1) + a(n-3), a(1) = 1, a(2) = 1, a(3) = 4
  * Range:     u8 n <= 14, u16 n <= 29, u32 n <= 58, u64 n <= 116,
  *            u128 n <= 232, big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 5477 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;
 static idx_t memo_len = 0;
@@ -20,7 +22,7 @@ static idx_t memo_len = 0;
 static void ensure_computed(idx_t n) {
     if (n >= memo_len) {
         idx_t new_len = (n < 100) ? 100 : n + 10;
-        seq_t *new_memo = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_memo = mem_new(seq_t, new_len);
         
         for (idx_t i = 0; i < new_len; i++) {
             if (i < memo_len) {
@@ -30,7 +32,7 @@ static void ensure_computed(idx_t n) {
             }
         }
         
-        if (memo) free(memo);
+        if (memo) mem_free(memo);
         memo = new_memo;
         memo_len = new_len;
     }

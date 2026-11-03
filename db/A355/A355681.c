@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 3280, i16 n <= 3280, i32 n <= 3280, i64 n <= 3280,
  *            i128 n <= 3280, big any n
- * Helpers:   floor_div3
+ * Validated: standard, pass, 104 terms through n = 3210 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,14 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/floor_div3.h"
+
+static inline idx_t floor_div3(idx_t x)
+/* floor division by 3 for signed int64_t */
+{
+    if (x >= 0) return x / 3;
+    /* x < 0: floor toward ‑∞  */
+    return - ((-x + 2) / 3);
+}
 
 static inline seq_t f_compute(idx_t n)
 /* recursive computation of f(n) */

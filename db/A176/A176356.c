@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   is_prime_big, mirror_of
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,84 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/is_prime_big.h"
-#include "../utils/mirror_of.h"
+#include "../utils/mem.h"
+#include "../utils/is_prime_u64.h"
+
+/* Miller–Rabin primality test for seq_t (supports 8/16/32/64/128/ arbitrary-precision) */
+/* n fits in uint64_t (n >= 0 here) */
+static bool is_prime_big_fits_u64(seq_t v)
+{
+    if (sizeof(seq_t) <= 8) return true;
+    return !((seq_t)UINT64_MAX < v);
+}
+
+static bool is_prime_big(seq_t n) {
+    if (n < 2) return false;
+    /* exact in 64 bits when n fits: the seq_t products below overflow at
+       u64/i64 once n passes 2^32, and are slow under big */
+    if (is_prime_big_fits_u64(n)) return is_prime_u64((uint64_t)n);
+    if (n == 2 || n == 3) return true;
+    if ((n & 1) == 0) return false;
+
+    /* write n-1 as d * 2^s with d odd */
+    seq_t d = n - 1;
+    unsigned s = 0;
+    while ((d & 1) == 0) {
+        d >>= 1;
+        s++;
+    }
+
+    /* deterministic bases covering 128‑bit values */
+    static const int base_list[] = {2,3,5,7,11,13,17,19,23,29,31,37};
+    const int num_bases = sizeof(base_list)/sizeof(base_list[0]);
+
+    for (int i = 0; i < num_bases; i++) {
+        seq_t a = (seq_t)base_list[i];
+        if (a >= n) continue;
+
+        /* compute a^d mod n */
+        seq_t x = 1;
+        seq_t pow = a % n;
+        seq_t exp = d;
+        while (exp > 0) {
+            if (exp & 1) x = (x * pow) % n;
+            pow = (pow * pow) % n;
+            exp >>= 1;
+        }
+
+        if (x == 1 || x == n-1) continue;
+
+        bool cont = false;
+        for (unsigned r = 1; r < s; r++) {
+            x = (x * x) % n;
+            if (x == n-1) { cont = true; break; }
+        }
+        if (!cont) return false;
+    }
+    return true;
+}
+
+/* compute the mirror of n as defined in the OEIS entry */
+static seq_t mirror_of(seq_t n) {
+    seq_t r = 0;
+    if (n == 0) return 0;
+    seq_t temp = n;
+    while (temp > 0) {
+        unsigned long long d = (unsigned long long)(temp % 10);
+        uint8_t m;
+        switch (d) {
+            case 0: m = 0; break;
+            case 1: m = 1; break;
+            case 2: m = 5; break;
+            case 5: m = 2; break;
+            case 8: m = 8; break;
+            default: return (seq_t)-1;   /* should not occur, invalid digit */
+        }
+        r = r * 10 + m;
+        temp /= 10;
+    }
+    return r;
+}
 
 /* cache of found terms; 0‑based */
 static seq_t *cache = NULL;
@@ -35,7 +112,7 @@ static void ensure_capacity(idx_t new_cap) {
     if (new_cap <= cache_cap) return;
     idx_t alloc = new_cap * 2;
     if (alloc < new_cap) alloc = new_cap;          /* never overflow */
-    seq_t *ptr = (seq_t *)realloc(cache, alloc * sizeof(seq_t));
+    seq_t *ptr = mem_resize(seq_t, cache, alloc);
     cache = ptr;
     cache_cap = alloc;
 }

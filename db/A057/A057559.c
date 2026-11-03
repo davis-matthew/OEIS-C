@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 140, u16 n <= 140, u32 n <= 140, u64 n <= 140,
  *            u128 n <= 140, big any n
- * Helpers:   nC2, nC3
+ * Validated: partial, pass, 140 terms through n = 140 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,21 @@
    For n>=1, a(n) is the coordinate at position (n-1)%4 in the
    ((n-1)/4)-th tuple (0‑based). */
 #include <stddef.h>
-#include "../utils/nC2.h"
-#include "../utils/nC3.h"
+
+/* Helper: binomial coefficient nC2 (n>=2). */
+static inline idx_t nC2(idx_t n) {
+    unsigned long long a = n;
+    unsigned long long b = n - 1;
+    return (idx_t)((a * b) / 2);
+}
+
+/* Helper: binomial coefficient nC3 (n>=3). */
+static inline idx_t nC3(idx_t n) {
+    unsigned long long a = n;
+    unsigned long long b = n - 1;
+    unsigned long long c = n - 2;
+    return (idx_t)((a * b * c) / 6);
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)

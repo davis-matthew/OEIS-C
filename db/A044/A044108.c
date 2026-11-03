@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 1442, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has10
+ * Validated: standard, pass, 66 terms through n = 9545 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,22 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has10.h"
+#include "../utils/mem.h"
+
+/* Check whether a number in base 6 contains the substring "10". */
+static bool has10(seq_t x) {
+    const seq_t six = (seq_t)6;
+    if (x == (seq_t)0) return false;
+    seq_t prev = x % six;
+    x /= six;
+    while (x > (seq_t)0) {
+        seq_t d = x % six;
+        if (d == (seq_t)1 && prev == (seq_t)0) return true;
+        prev = d;
+        x /= six;
+    }
+    return false;
+}
 
 /* Static storage for memoisation. */
 static seq_t *terms    = NULL;      /* array of found terms */
@@ -31,7 +47,7 @@ static idx_t  last_checked = 5;    /* largest k that has been examined */
 seq_t a(idx_t n) {
     if (terms == NULL) {                /* initialise on first call */
         terms_cap = 128;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
         terms_len = 0;
         last_checked = 5;
     }
@@ -47,7 +63,7 @@ seq_t a(idx_t n) {
             /* Grow the array if necessary. */
             if (terms_len == terms_cap) {
                 terms_cap *= 2;
-                terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
             }
             terms[terms_len++] = (seq_t)last_checked;
         }

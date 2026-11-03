@@ -10,6 +10,7 @@
  *            given in row‑major order, so a(n) = T(r,c)
  * Range:     u8 n <= 20, u16 n <= 104, u32 n <= 434, u64 n <= 1325,
  *            u128 n <= 1325, big any n
+ * Validated: standard, pass, 71 terms through n = 1313 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,8 +18,10 @@
 
 #include <stdint.h>
 #include <math.h>
-#include "../utils/pow2.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/pow2.h"
 
 /* Return the n'th term of A135852 */
 seq_t a(idx_t n)

@@ -7,13 +7,14 @@
  * Formula:   a(n) = Sum_{k=0..n} 3^(n-k)*binomial(2*n+k,k)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 23, u128 n <= 46,
  *            big any n
- * Helpers:   a006256_gcd
+ * Validated: standard, pass, 38 terms through n = 944 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a006256_gcd.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n) {
     seq_t r = 0;
@@ -23,7 +24,7 @@ seq_t a(idx_t n) {
         if (k > 0) {
             /* c = c * (2n+k) / k, done without overflowing past the result */
             uint64_t rem = (uint64_t)(c % (seq_t)k);
-            uint64_t g = a006256_gcd(k, rem);
+            uint64_t g = gcd_u64(k, rem);
             uint64_t kd = k / g;
             uint64_t m = (2 * n + k) / kd;
             c = (c / (seq_t)g) * (seq_t)m;

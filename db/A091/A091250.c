@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 36, u16 n <= 1110, u32 n <= 1110, u64 n <= 1110,
  *            u128 n <= 1110, big any n
- * Helpers:   factor_uint32
+ * Validated: standard, pass, 71 terms through n = 1108 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,18 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/factor_uint32.h"
+#include "../utils/mem.h"
+
+/* --- Trial‑division factorisation for 32‑bit numbers --- */
+static void factor_uint32(uint32_t n, uint32_t *factors, size_t *cnt) {
+    size_t c = 0;
+    if (n % 2u == 0u) { factors[c++] = 2u; while (n % 2u == 0u) n /= 2u; }
+    for (uint32_t p = 3u; (uint64_t)p * p <= n; p += 2u) {
+        if (n % p == 0u) { factors[c++] = p; while (n % p == 0u) n /= p; }
+    }
+    if (n > 1u) factors[c++] = n;
+    *cnt = c;
+}
 
 /* --- Bit‑degree of a polynomial represented as uint32_t --- */
 static inline int poly_deg(uint32_t p) { return p ? 31 - __builtin_clz(p) : -1; }
@@ -118,7 +130,7 @@ static void generate_degree(int deg) {
 
         if (cache_size == cache_cap) {
             size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) exit(1);
             cache = tmp;
             cache_cap = new_cap;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 104, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64
+ * Validated: standard, pass, 78 terms through n = 9364 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "../utils/factor_u64.h"   /* void factor_u64(uint64_t, uint64_t *, uint64_t *, size_t *); */
+#include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* ------- internal helpers --------------------------------------- */
 static bool is_term(uint64_t m)
@@ -57,7 +59,7 @@ static void append_term(uint64_t val, seq_t **array, size_t *len, size_t *cap)
 {
     if (*len == *cap) {
         size_t new_cap = *cap ? *cap * 2 : 8;
-        seq_t *tmp = (seq_t *)realloc(*array, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *array, new_cap);
         if (!tmp) abort();           /* unrecoverable allocation failure */
         *array = tmp;
         *cap = new_cap;

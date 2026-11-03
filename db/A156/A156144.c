@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 117, u16 n <= 324, u32 n <= 500, u64 n <= 500,
  *            u128 n <= 500, big any n
- * Helpers:   none
+ * Validated: standard, pass, 109 terms through n = 442 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,6 +37,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External linkage is required by the build system */
 seq_t a(idx_t n)
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
 
     /* Allocate DP array */
     const size_t N = (size_t)n;
-    seq_t *dp = (seq_t *)malloc((N + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (N + 1));
     if (!dp) return 0;                      /* Allocation failure, unlikely */
 
     /* Initialise dp[0] = 1 (empty partition), rest = 0 */
@@ -62,6 +64,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[N];
-    free(dp);
+    mem_free(dp);
     return result;
 }

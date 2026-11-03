@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,12 +27,13 @@
 #include <stdlib.h>
 
 #if defined(__cplusplus)
-#define OMALLOC(t, sz) reinterpret_cast<t*>(malloc(sz))
-#define OREALLOC(t, ptr, sz) reinterpret_cast<t*>(realloc(ptr, sz))
+#define OMALLOC(t, sz) mem_new(t, (sz) / sizeof(t))
+#define OREALLOC(t, ptr, sz) mem_resize(t, ptr, (sz) / sizeof(t))
 #else
-#define OMALLOC(t, sz) ((t*)malloc(sz))
-#define OREALLOC(t, ptr, sz) ((t*)realloc(ptr, sz))
+#define OMALLOC(t, sz) (mem_new(t, (sz) / sizeof(t)))
+#define OREALLOC(t, ptr, sz) (mem_resize(t, ptr, (sz) / sizeof(t)))
 #endif
+#include "../utils/mem.h"
 
 /* ---------- static prime cache (1‑based index) ---------- */
 

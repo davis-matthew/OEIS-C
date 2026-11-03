@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 1272, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64
+ * Validated: standard, pass, 65 terms through n = 9592 (2026-11-03)
+ * Helpers:   mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;       /* array of found terms */
 static size_t cache_len = 0;      /* number of terms stored */
@@ -33,7 +35,7 @@ static void cache_ensure_size(size_t need)
     if (need <= cache_cap) return;
     size_t newcap = cache_cap ? cache_cap * 2 : 8;
     while (newcap < need) newcap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, newcap);
     cache = tmp;
     cache_cap = newcap;
 }
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     /* Generate new terms until we have at least n of them. */
     while (cache_len < (size_t)n) {
         uint64_t k = ++last_checked;                 /* next integer to test */
-        uint64_t tau = (uint64_t)divisor_count_u64(k);/* τ(k) */
+        uint64_t tau = (uint64_t)num_divisors(k);/* τ(k) */
         /* Check that k / τ(k) is an even integer */
         if ((k % tau == 0) && (((k / tau) & 1U) == 0)) {
             cache_ensure_size(cache_len + 1);

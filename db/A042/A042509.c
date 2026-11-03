@@ -11,13 +11,15 @@
  *            Static cache holds all previously computed val...
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 13, u64 n <= 25, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc */
 #include <stddef.h>   /* size_t */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static cache and state variables */
@@ -28,7 +30,7 @@ seq_t a(idx_t n) {
     /* Initialisation: allocate cache and store first 8 terms */
     if (cache == NULL) {
         cap = 8;                                 /* reserve space for 0..7 */
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         cache[0] = 1;  cache[1] = 1;  cache[2] = 27;   cache[3] = 28;
         cache[4] = 1539; cache[5] = 1567; cache[6] = 42281; cache[7] = 43848;
         max_cached = 7;
@@ -46,7 +48,7 @@ seq_t a(idx_t n) {
         while (new_cap <= (size_t)n) {
             new_cap *= 2;
         }
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) {
             /* Allocation failed; in a competitive setting we could abort.
                Here we simply return 0 on error. */

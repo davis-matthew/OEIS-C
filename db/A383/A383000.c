@@ -8,14 +8,15 @@
  *            utilities calc_phi and pow_seq
  * Range:     i8 n <= 5, i16 n <= 10, i32 n <= 20, i64 n <= 29, i128 n <= 29,
  *            big any n
- * Helpers:   calc_phi, pow_seq
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-01)
+ * Helpers:   ipow_i32, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/calc_phi.h"
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/totient_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -29,8 +30,8 @@ seq_t a(idx_t n)
         if (n % d == 0)
         {
             /* divisor d */
-            seq_t phi1 = calc_phi((seq_t)(n / d));
-            seq_t pow1 = pow_seq((seq_t)-3, (int)(d - 1));
+            seq_t phi1 = totient_seq((seq_t)(n / d));
+            seq_t pow1 = ipow_i32((seq_t)-3, (int)(d - 1));
             __int128 term1 = (__int128)phi1 * (__int128)pow1;
             result += (seq_t)term1;
 
@@ -38,8 +39,8 @@ seq_t a(idx_t n)
             if (d2 != d)
             {
                 /* complementary divisor d2 */
-                seq_t phi2 = calc_phi((seq_t)(n / d2));
-                seq_t pow2 = pow_seq((seq_t)-3, (int)(d2 - 1));
+                seq_t phi2 = totient_seq((seq_t)(n / d2));
+                seq_t pow2 = ipow_i32((seq_t)-3, (int)(d2 - 1));
                 __int128 term2 = (__int128)phi2 * (__int128)pow2;
                 result += (seq_t)term2;
             }

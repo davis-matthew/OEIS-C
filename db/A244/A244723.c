@@ -11,7 +11,8 @@
  *            No hard‑coded * table is used. The funct...
  * Range:     u8 n <= 99, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 9606 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /*  Global cache state                                                   */
@@ -96,7 +98,7 @@ static void build_terms(size_t limit)
     linear_sieve(limit, phi, mu, is_comp, &prime_cnt, &primes);
 
     /* Allocate a workspace for the qualifying numbers. */
-    seq_t *terms = (seq_t*)malloc((limit + 1) * sizeof(seq_t));
+    seq_t *terms = mem_new(seq_t, (limit + 1));
     if (!terms) exit(1);
     size_t terms_cnt = 0;
 
@@ -114,8 +116,8 @@ static void build_terms(size_t limit)
 
     /* Re‑allocate the terms array to its exact size and store it in
        the global cache. */
-    terms = (seq_t*)realloc(terms, terms_cnt * sizeof(seq_t));
-    if (term_cache) free(term_cache);
+    terms = mem_resize(seq_t, terms, terms_cnt);
+    if (term_cache) mem_free(term_cache);
     term_cache = terms;
     term_count = terms_cnt;
     sieve_limit = limit;

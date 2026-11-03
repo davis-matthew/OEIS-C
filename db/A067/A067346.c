@@ -11,6 +11,7 @@
  *            (k>1)
  * Range:     u8 n <= 22, u16 n <= 56, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-01)
  * Helpers:   catalan
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,7 +19,9 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/catalan.h"  /* provides seq_t catalan(idx_t k) */
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/catalan.h"
 
 /* returns the n-th term of sequence A067346 (1‑based index) */
 seq_t a(idx_t N)

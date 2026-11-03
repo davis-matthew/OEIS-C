@@ -8,12 +8,14 @@
  *            1,3,5,…,19 and unlimited even parts 2,4,6,…,20
  * Range:     u8 n <= 22, u16 n <= 61, u32 n <= 253, u64 n <= 3065,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 8025 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *coeff = NULL;      /* array of coefficients */
 static idx_t  max_comp = 0;       /* largest index computed */
@@ -24,7 +26,7 @@ static void ensure_computed(idx_t n)
     if (coeff && n <= max_comp) return;                /* already done */
 
     /* Allocate/resize array */
-    seq_t *new_coeff = (seq_t*)malloc(sizeof(seq_t) * (n + 1));
+    seq_t *new_coeff = mem_new(seq_t, (n + 1));
     if (!new_coeff) return;                            /* allocation failed */
 
     /* initialize to zero */
@@ -47,7 +49,7 @@ static void ensure_computed(idx_t n)
     }
 
     /* Replace old array */
-    free(coeff);
+    mem_free(coeff);
     coeff = new_coeff;
     max_comp = n;
 }

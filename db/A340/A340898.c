@@ -11,20 +11,23 @@
  * Formula:   a(n) = 27*7^(n-3) - 29*3^(n-3) + 2
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 24, u128 n <= 46,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 37 terms through n = 820 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
     if (n < 4)
         return (seq_t)0;        /* values below the offset are undefined */
     seq_t x = (seq_t)(n - 3);
-    seq_t pow7 = big_pow((seq_t)7, x);
-    seq_t pow3 = big_pow((seq_t)3, x);
+    seq_t pow7 = ipow((seq_t)7, x);
+    seq_t pow3 = ipow((seq_t)3, x);
     seq_t term1 = (seq_t)27 * pow7;
     seq_t term2 = (seq_t)29 * pow3;
     seq_t result = term1 - term2 + (seq_t)2;

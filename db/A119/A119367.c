@@ -9,12 +9,14 @@
  *            * where C(n,k) is the binomial coefficient
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 18, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   binom_n_k
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom_n_k.h"
+#include <stdbool.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -22,8 +24,8 @@ seq_t a(idx_t n)
     seq_t result = 0;
     for (idx_t k = 0; k <= n; ++k) {
         if ((n - k) % 3 != 2) continue;
-        seq_t c1 = binom_n_k(n, k);
-        seq_t c2 = binom_n_k(n, k + 1); /* k+1 <= n for these k */
+        seq_t c1 = binomial(n, k);
+        seq_t c2 = binomial(n, k + 1); /* k+1 <= n for these k */
         seq_t prod = c1 * c2;
         prod = prod / ((seq_t)n);       /* exact division */
         result += prod;

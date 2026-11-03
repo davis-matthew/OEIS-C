@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 52, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   trait_ok
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,27 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/trait_ok.h"
+
+/* Returns true iff the base‑3 representation of x has a run count
+   congruent to 4 modulo 10. */
+static bool trait_ok(seq_t x) {
+    if (x == 0) return false;          /* 0 is not in the sequence */
+
+    seq_t tmp = x;
+    int runs = 1;                      /* first run */
+    int prev = (int)(tmp % 3);
+    tmp = tmp / 3;
+
+    while (tmp > 0) {
+        int d = (int)(tmp % 3);
+        if (d != prev) {
+            ++runs;
+            prev = d;
+        }
+        tmp = tmp / 3;
+    }
+    return (runs % 10) == 4;
+}
 
 /* Static cache for the sequence values.
    200 000 is ample for n up to about 10 000. */

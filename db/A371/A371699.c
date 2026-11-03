@@ -13,7 +13,8 @@
  *            search
  * Range:     u8 n <= 5, u16 n <= 227, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   passes_concatenation
+ * Validated: standard, pass, 87 terms through n = 8965 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,33 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/passes_concatenation.h"
+
+static bool passes_concatenation(uint64_t m,
+                                 uint32_t base_n,
+                                 const uint64_t *factors,
+                                 int cnt)
+{
+    uint64_t rem = 0;
+    for (int fi = cnt - 1; fi >= 0; --fi) {           /* descending order */
+        uint64_t val = factors[fi];
+        /* digits of val in base_n, least significant first */
+        uint32_t digits[64];
+        int dcnt = 0;
+        if (val == 0) {
+            digits[dcnt++] = 0;
+        } else {
+            while (val > 0) {
+                digits[dcnt++] = (uint32_t)(val % base_n);
+                val /= base_n;
+            }
+        }
+        /* process most significant digit first */
+        for (int j = dcnt - 1; j >= 0; --j) {
+            rem = (uint64_t)((__uint128_t)rem * base_n + digits[j]) % m;
+        }
+    }
+    return rem == 0;
+}
 
 /* ---------- prime sieve ---------- */
 

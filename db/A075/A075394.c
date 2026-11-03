@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   min_m_for_pe
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,30 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/min_m_for_pe.h"
+#include "../utils/mem.h"
+
+/* minimal m such that exponent of prime p in m! is at least e */
+static seq_t min_m_for_pe(uint64_t p, uint64_t e)
+{
+    if (e == 0) return (seq_t)0;
+    uint64_t low = e;          /* lower bound: at least e */
+    uint64_t high = e * p;     /* upper bound: e·p is safe */
+    while (low < high) {
+        uint64_t mid = (low + high) >> 1;
+        /* exponent of p in mid! */
+        uint64_t exp = 0;
+        uint64_t t = mid;
+        while (t) {
+            t /= p;
+            exp += t;
+        }
+        if (exp >= e)
+            high = mid;
+        else
+            low = mid + 1;
+    }
+    return (seq_t)low;
+}
 
 /* main sequence function */
 seq_t a(idx_t n)
@@ -38,7 +62,7 @@ seq_t a(idx_t n)
         init = true;
         limit = 1;
         terms_cap = 16;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
         terms_cnt = 0;
     }
 
@@ -70,7 +94,7 @@ seq_t a(idx_t n)
         /* allocate / resize S array */
         if (S_cap < new_limit + 2) {
             S_cap = new_limit + 2;
-            seq_t *tmp = (seq_t *)realloc(S, S_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, S, S_cap);
             S = tmp;
         }
         S[0] = (seq_t)0;      /* by convention S(0)=0 */
@@ -94,15 +118,15 @@ seq_t a(idx_t n)
         }
 
         /* rebuild term list for i=2..new_limit */
-        if (terms) free(terms);
+        if (terms) mem_free(terms);
         terms_cap = 16;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
         terms_cnt = 0;
         for (size_t i = 2; i <= new_limit; ++i) {
             if (S[i - 1] < S[i] && S[i] > S[i + 1]) {
                 if (terms_cnt == terms_cap) {
                     terms_cap <<= 1;
-                    terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                    terms = mem_resize(seq_t, terms, terms_cap);
                 }
                 terms[terms_cnt++] = (seq_t)i;
             }

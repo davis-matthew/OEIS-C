@@ -12,7 +12,8 @@
  *            expression, and returns the value
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 13, u128 n <= 24,
  *            big any n
- * Helpers:   alloc_seq, pow_seq_large, seq_free
+ * Validated: standard, pass, 34 terms through n = 355 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,18 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "../utils/alloc_seq.h"
-#include "../utils/seq_free.h"
-#include "../utils/pow_seq_large.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void seq_free(seq_t *p) { mem_free(p); }
 
 /* Recursively compute B_b(x).  base and x are arbitrary‑precision integers. */
 static seq_t B_helper(seq_t base, seq_t x)
@@ -40,7 +50,7 @@ static seq_t B_helper(seq_t base, seq_t x)
         t = t / base;
         if (digit != 0) {
             seq_t exp_out = B_helper(base, (seq_t)i);
-            seq_t pow_val = pow_seq_large(base + 1, exp_out);
+            seq_t pow_val = ipow(base + 1, exp_out);
             result += digit * pow_val;
         }
         ++i;
@@ -61,7 +71,7 @@ seq_t a(idx_t n)
     seq_t *new_cache = alloc_seq(new_cap);
 
     if (cache) {
-        memcpy(new_cache, cache, cache_cap * sizeof(seq_t));
+        mem_copy(new_cache, cache, cache_cap * sizeof(seq_t));
         seq_free(cache);
     }
 

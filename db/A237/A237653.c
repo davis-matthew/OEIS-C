@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 339 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,8 +32,8 @@ seq_t a(idx_t n)
     size_t max_row = N + 1;
     /* allocate two temporary rows of length N+2 (enough for all rows) */
     size_t alloc_size = N + 2;
-    seq_t *prev = (seq_t *)calloc(alloc_size, sizeof(seq_t));
-    seq_t *curr = (seq_t *)calloc(alloc_size, sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, alloc_size);
+    seq_t *curr = mem_new(seq_t, alloc_size);
     if (prev == NULL || curr == NULL) {
         /* memory allocation failed – return zero (should not happen) */
         return (seq_t)0;
@@ -63,8 +65,8 @@ seq_t a(idx_t n)
     }
 
     /* clean up */
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
 
     return sum;
 }

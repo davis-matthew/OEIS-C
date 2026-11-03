@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = A003415(sigma(n))
- * Range:     u8 n <= 41, u16 n <= 4619, u32 n <= 9684, u64 n <= 9684,
- *            u128 n <= 9684, big any n
+ * Range:     u8 n <= 41, u16 n <= 4619, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 92 terms through n = 9684 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

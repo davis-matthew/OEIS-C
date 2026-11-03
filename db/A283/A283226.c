@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 33, u128 n <= 66,
  *            big any n
- * Helpers:   eval_row
+ * Validated: standard, pass, 40 terms through n = 209 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,25 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/eval_row.h"
+
+/* Helper: evaluate a single row once its vertical neighbours are known.
+ * Returns the number of exception cells in that row (0, 1, or 2).
+ * A cell is an exception iff it is 1 and all three of its neighbours
+ * (horizontal and two vertical) are also 1. */
+static inline int eval_row(uint8_t prev, uint8_t prev2, uint8_t cur)
+{
+    int exc = 0;
+    for (int c = 0; c < 2; ++c) {
+        int bit = (prev >> c) & 1;
+        if (!bit) continue;
+        int horiz = (prev >> (1 - c)) & 1;
+        int up    = (prev2 >> c) & 1;
+        int down  = (cur  >> c) & 1;
+        int nbors = horiz + up + down;   /* number of 1‑neighbours */
+        if (nbors > 2) ++exc;            /* exception cell */
+    }
+    return exc;
+}
 
 /* Main sequence function. */
 seq_t a(idx_t n)

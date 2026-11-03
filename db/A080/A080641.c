@@ -12,7 +12,8 @@
  *            divisible by 5
  * Range:     u8 n <= 62, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static idx_t  a_cap = 0;      /* capacity of a_values array            */
 static idx_t  a_size = 0;     /* largest index computed so far         */
@@ -35,7 +37,7 @@ static void ensure_a_cap(idx_t min_cap)
     if (min_cap <= a_cap) return;
     idx_t new_cap = a_cap ? a_cap : 1;
     while (new_cap < min_cap) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(a_values, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_values, new_cap);
     if (!tmp) abort();
     a_values = tmp;
     a_cap   = new_cap;
@@ -61,7 +63,7 @@ static void init_sequence(void)
     if (a_values) return;           /* already initialised */
     /* allocate initial arrays */
     a_cap = 16;                     /* enough for early indices           */
-    a_values = (seq_t *)calloc(a_cap, sizeof(seq_t));
+    a_values = mem_new(seq_t, a_cap);
     if (!a_values) abort();
 
     m_cap = 128;                    /* accommodate early values            */

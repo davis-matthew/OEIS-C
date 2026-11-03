@@ -8,8 +8,9 @@
  * Formula:   a(n) is the n-th lexicographically ordered balanced binary word
  *            of even length 2m (with m zeros and m ones), interpreted as a
  *            binary number
- * Range:     u8 n <= 34, u16 n <= 9426, u32 n <= 9647, u64 n <= 9647,
- *            u128 n <= 9647, big any n
+ * Range:     u8 n <= 34, u16 n <= 9426, u32 n <= 17576, u64 n <= 17576,
+ *            u128 n <= 17576, big any n
+ * Validated: standard, pass, 80 terms through n = 9647 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

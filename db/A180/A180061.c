@@ -7,7 +7,8 @@
  * Formula:   a(n) = numbers k such that (2^(2^k mod k) mod k) = 4
  * Range:     u8 n <= 62, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   append_candidate, mod_pow
+ * Validated: standard, pass, 71 terms through n = 989 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,28 @@
 
 #include <stddef.h>          /* for size_t */
 #include <stdint.h>          /* for uint64_t */
-#include "../utils/mod_pow.h"
-#include "../utils/append_candidate.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
 
 seq_t a(idx_t n) {
     /* Persistent cache of found terms */
@@ -36,13 +57,13 @@ seq_t a(idx_t n) {
     /* Generate more terms until we have at least n */
     for (idx_t k = last_checked + 1;; ++k) {
         /* Compute e = 2^k mod k  */
-        seq_t e = mod_pow((seq_t)2, k, (seq_t)k);
+        seq_t e = powmod((seq_t)2, k, (seq_t)k);
 
         /* e < k, safe to cast to 64‑bit integer for exponent */
         uint64_t exp = (uint64_t)e;
 
         /* Compute value = 2^e mod k  */
-        seq_t val = mod_pow((seq_t)2, exp, (seq_t)k);
+        seq_t val = powmod((seq_t)2, exp, (seq_t)k);
 
         if (val == (seq_t)4)
             append_candidate(&cache, &cache_len, &cache_cap, (seq_t)k);

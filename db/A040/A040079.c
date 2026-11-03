@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   isPrimeTrial, mod_pow
+ * Validated: standard, pass, 60 terms through n = 978 (2026-11-03)
+ * Helpers:   is_prime_seq, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/isPrimeTrial.h"
-#include "../utils/mod_pow.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* Cached primes.  The array is expanded on demand. */
 static seq_t *prime_cache = NULL;
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     /* Allocate initial cache if needed. */
     if (cache_cap == 0) {
         cache_cap   = 16;
-        prime_cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        prime_cache = mem_new(seq_t, cache_cap);
         if (!prime_cache) abort();
     }
 
@@ -51,15 +53,15 @@ seq_t a(idx_t n)
        the required number of terms. */
     while (cache_size < (size_t)n) {
         /* Only candidates ≡ 1 (mod 3) can belong to the sequence. */
-        if ((next_candidate % 3) == 1 && isPrimeTrial((seq_t)next_candidate)) {
+        if ((next_candidate % 3) == 1 && is_prime_seq((seq_t)next_candidate)) {
             /* Test whether 17 is a cubic residue modulo this prime. */
             uint64_t exp = (next_candidate - 1) / 3;
-            seq_t res    = mod_pow((seq_t)17, exp, (seq_t)next_candidate);
+            seq_t res    = powmod((seq_t)17, exp, (seq_t)next_candidate);
             if (res != (seq_t)1) {
                 /* Store the prime, expanding the cache if necessary. */
                 if (cache_size == cache_cap) {
                     size_t new_cap = cache_cap * 2;
-                    seq_t *tmp     = (seq_t *)realloc(prime_cache, new_cap * sizeof(seq_t));
+                    seq_t *tmp     = mem_resize(seq_t, prime_cache, new_cap);
                     if (!tmp) abort();
                     prime_cache = tmp;
                     cache_cap   = new_cap;

@@ -9,14 +9,18 @@
  *            sum)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   compute_pi, factor_u64
+ * Validated: standard, pass, 103 terms through n = 9836 (2026-11-01)
+ * Helpers:   factor_u64, prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/compute_pi.h"
+#include "../utils/prime_pi.h"
 
 /* Computes A380955: for n ≥ 1, return the sum of prime indices of n (with multiplicity)
    minus the sum of distinct prime indices of n.  */
@@ -39,7 +43,7 @@ seq_t a(idx_t n)
             continue;      /* (e-1) would be zero */
         }
         /* Prime index of the i-th prime factor.  */
-        seq_t pi = compute_pi(primes[i]);     /* A056239(p) = PrimePi(p) */
+        seq_t pi = prime_pi(primes[i]);     /* A056239(p) = PrimePi(p) */
         seq_t add = pi * (seq_t)(exps[i] - 1);
         result += add;
     }

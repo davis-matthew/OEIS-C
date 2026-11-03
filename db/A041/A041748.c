@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 20, u64 n <= 43, u128 n <= 89,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>   /* malloc, realloc, abort */
+#include "../utils/mem.h"
 
 static idx_t cache_cap = 0;          /* capacity of the cached arrays     */
 static idx_t cache_len = 0;          /* number of values stored           */
@@ -49,7 +51,7 @@ static void ensure_cache(idx_t need)
     if (new_cap < need + 1)
         new_cap = need + 1;
 
-    seq_t *new_p   = (seq_t *)realloc(cache_p, new_cap * sizeof(seq_t));
+    seq_t *new_p   = mem_resize(seq_t, cache_p, new_cap);
     idx_t *new_m   = (idx_t *)realloc(cache_m, new_cap * sizeof(idx_t));
     idx_t *new_d   = (idx_t *)realloc(cache_d, new_cap * sizeof(idx_t));
     idx_t *new_a   = (idx_t *)realloc(cache_a, new_cap * sizeof(idx_t));

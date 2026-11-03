@@ -7,13 +7,17 @@
  * Formula:   a(n) = 2^(n+2) mod n
  * Range:     u8 n <= 256, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 91 terms through n = 991 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -21,5 +25,5 @@ seq_t a(idx_t n)
     if (n == 0) return 0;
 
     /* Compute 2^(n+2) mod n using the provided modular exponentiation routine. */
-    return mod_pow((seq_t)2, (uint64_t)(n + 2), (seq_t)n);
+    return powmod((seq_t)2, (uint64_t)(n + 2), (seq_t)n);
 }

@@ -7,12 +7,14 @@
  * Formula:   a(n) = numerator of the nth convergent of √619 (index 0‑based)
  * Range:     u8 n <= 1, u16 n <= 7, u32 n <= 18, u64 n <= 37, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *num = NULL;     /* cache of numerators */
 static size_t cap = 0, len = 0;   /* current capacity and number of cached terms */
@@ -28,7 +30,7 @@ static void ensure_capacity(size_t need)
     if (need <= cap) return;
     size_t newcap = cap ? cap << 1 : 16;
     if (newcap < need) newcap = need;
-    seq_t *tmp = (seq_t*)realloc(num, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, num, newcap);
     if (!tmp) abort(); /* out of memory; allow abort for simplicity */
     num = tmp;
     cap = newcap;

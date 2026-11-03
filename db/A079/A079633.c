@@ -7,13 +7,14 @@
  * Formula:   a(n) = floor(n / floor(n^(1/3))) - floor(n^(2/3))
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   cube_root_floor_uint128
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
+ * Helpers:   icbrt_u128
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/cube_root_floor_uint128.h"
+#include "../utils/icbrt_u128.h"
 
 /* OEIS A079633: a(n) = floor(n / floor(n^(1/3))) - floor(n^(2/3)) */
 seq_t a(idx_t n)
@@ -21,9 +22,9 @@ seq_t a(idx_t n)
     if (n == 0) return 0;              /* offset starts at 1, but guard anyway */
 
     __uint128_t n128 = n;               /* for 128‑bit arithmetic */
-    uint64_t c = cube_root_floor_uint128(n128);  /* c = ⌊n^(1/3)⌋ */
+    uint64_t c = icbrt_u128(n128);  /* c = ⌊n^(1/3)⌋ */
     __uint128_t n2   = n128 * n128;     /* n² fits in 128 bits */
-    uint64_t d = cube_root_floor_uint128(n2);     /* d = ⌊n^(2/3)⌋ */
+    uint64_t d = icbrt_u128(n2);     /* d = ⌊n^(2/3)⌋ */
 
     /* floor(n / c) is integer division of idx_t (uint64_t). */
     uint64_t div = n / c;

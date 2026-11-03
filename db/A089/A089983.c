@@ -8,12 +8,14 @@
  *            (offset 1)
  * Range:     i8 n <= 14, i16 n <= 15, i32 n <= 17, i64 n <= 18, i128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
         return cache[n];            /* already known */
 
     /* grow the cache to hold indices up to n */
-    cache = (seq_t*)realloc(cache, (n + 1) * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, (n + 1));
     if (!cache)                      /* allocation failure – abort */
         exit(1);
 

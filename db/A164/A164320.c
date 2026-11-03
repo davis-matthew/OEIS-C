@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 727, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 4800 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* --- Integer square root ------------------------------------------------ */
 static inline uint64_t isqrt_u64(uint64_t n) {
@@ -119,7 +121,7 @@ seq_t a(idx_t n) {
                 /* Store in qualifying list */
                 if (qual_cnt == qual_cap) {
                     size_t new_cap = qual_cap ? qual_cap * 2 : 16;
-                    seq_t *tmp = (seq_t *)realloc(qual_prime_list, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, qual_prime_list, new_cap);
                     if (!tmp) exit(1);
                     qual_prime_list = tmp;
                     qual_cap = new_cap;

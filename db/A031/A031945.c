@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   is_valid_base4
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,18 @@
    four digits 0,1,2,3 at least once. */
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/is_valid_base4.h"
+#include "../utils/mem.h"
+
+static int is_valid_base4(seq_t v)
+{
+    int mask = 0;
+    while (v > 0) {
+        int d = (int)(v % 4);
+        mask |= 1 << d;
+        v /= 4;
+    }
+    return mask == 0xF; /* bits for digits 0,1,2,3 set */
+}
 
 seq_t a(idx_t n)
 {
@@ -34,10 +46,10 @@ seq_t a(idx_t n)
         while (len < n) {
             if (cap == 0) {
                 cap = 128;
-                cache = (seq_t *)malloc(cap * sizeof(seq_t));
+                cache = mem_new(seq_t, cap);
             } else if (len >= cap) {
                 cap *= 2;
-                cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cap);
             }
 
             /* find next valid term */

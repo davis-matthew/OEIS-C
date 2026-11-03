@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   sigma_of
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,22 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/sigma_of.h"   /* seq_t sigma_of(idx_t n) */
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 seq_t a(idx_t n)
 {
@@ -34,7 +50,7 @@ seq_t a(idx_t n)
     /* initialisation */
     if (terms == NULL) {
         terms_cap = 128;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
     }
 
     /* generate terms until we have at least n of them */
@@ -59,7 +75,7 @@ seq_t a(idx_t n)
                 /* enlarge storage if needed */
                 if (terms_len == terms_cap) {
                     size_t new_cap = terms_cap * 2;
-                    seq_t *new_buf = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                    seq_t *new_buf = mem_resize(seq_t, terms, new_cap);
                     if (!new_buf) exit(EXIT_FAILURE);
                     terms = new_buf;
                     terms_cap = new_cap;

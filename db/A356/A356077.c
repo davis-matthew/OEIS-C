@@ -8,7 +8,8 @@
  * Formula:   a(n) = least prime p such that 2*n - p^2 is prime, or -1 if none
  * Range:     i8 n <= 8581, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   _floor_isqrt_u64, build_primes_upto, is_prime
+ * Validated: standard, pass, 108 terms through n = 9142 (2026-11-01)
+ * Helpers:   build_primes_upto, is_prime, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,10 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-#include "../utils/_floor_isqrt_u64.h"   /* _floor_isqrt_u64(idx_t n) */
-#include "../utils/build_primes_upto.h"  /* build_primes_upto(idx_t limit, uint64_t **primes, size_t *cnt) */
-#include "../utils/is_prime.h"           /* is_prime(idx_t n) */
+#include <stdlib.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/is_prime.h"
+#include "../utils/isqrt.h"
 
 /* cache of primes, up to prime_limit.  Maintained across calls. */
 static uint64_t *prime_list = NULL;   /* primes in ascending order */
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     idx_t two_n = (idx_t)2 * n;
 
     /* Largest prime whose square is < 2*n. */
-    idx_t m = _floor_isqrt_u64(two_n - 1);
+    idx_t m = isqrt(two_n - 1);
 
     ensure_primes_upto(m);
 

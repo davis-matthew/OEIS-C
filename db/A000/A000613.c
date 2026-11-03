@@ -11,8 +11,8 @@
  *            partition is chosen. The number of cycles of a matr...
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 6, u64 n <= 6, u128 n <= 7,
  *            big any n
- * Helpers:   b613_deg, b613_gcd, b613_mod, b613_mulmod, b613_order, b613_phi,
- *            b613_powx
+ * Validated: partial, pass, 8 terms through n = 8 (2026-11-01)
+ * Helpers:   gcd_u64, ilog2_u64, totient_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,13 +20,51 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/b613_deg.h"
-#include "../utils/b613_gcd.h"
-#include "../utils/b613_mod.h"
-#include "../utils/b613_mulmod.h"
-#include "../utils/b613_order.h"
-#include "../utils/b613_phi.h"
-#include "../utils/b613_powx.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/ilog2_u64.h"
+#include "../utils/totient_u64.h"
+
+static uint64_t b613_mod(uint64_t a, uint64_t f, int df)
+{
+    int da = ilog2_u64(a);
+    while (da >= df) { a ^= f << (da - df); da = ilog2_u64(a); }
+    return a;
+}
+
+static uint64_t b613_mulmod(uint64_t x, uint64_t y, uint64_t f, int d)
+{
+    uint64_t r = 0; int i;
+    for (i = d - 1; i >= 0; i--) {
+        r <<= 1;
+        if ((r >> d) & 1) r ^= f;
+        if ((y >> i) & 1) r ^= x;
+    }
+    return r;
+}
+
+static uint64_t b613_powx(uint64_t e, uint64_t f, int d)
+{
+    uint64_t res = 1, base = b613_mod(2, f, d);
+    while (e) {
+        if (e & 1) res = b613_mulmod(res, base, f, d);
+        base = b613_mulmod(base, base, f, d);
+        e >>= 1;
+    }
+    return res;
+}
+
+static uint64_t b613_order(uint64_t f, int d)
+{
+    uint64_t M = (1ull << d) - 1, e = M, m = M, p;
+    for (p = 3; p * p <= m; p += 2)
+        if (m % p == 0) {
+            while (m % p == 0) m /= p;
+            while (e % p == 0 && b613_powx(e / p, f, d) == 1) e /= p;
+        }
+    if (m > 1)
+        while (e % m == 0 && b613_powx(e / m, f, d) == 1) e /= m;
+    return e;
+}
 
 static uint64_t *b613_poly; static int *b613_pdeg; static uint64_t *b613_pord;
 static int b613_np, b613_pcapp;
@@ -96,7 +134,7 @@ static void b613_eval(void)
     long long s = 0;
     for (b = 0; b < b613_sn; b++) {
         int mp = b613_pool[b613_poff[b613_spart[b]]];
-        N = N / b613_gcd(N, b613_sord[b]) * b613_sord[b];
+        N = N / gcd_u64(N, b613_sord[b]) * b613_sord[b];
         k = 0; while ((1 << k) < mp) k++;
         if (k > u) u = k;
     }
@@ -114,7 +152,7 @@ static void b613_eval(void)
                 for (i = 0; i < len; i++) sm += p[i] < cap ? p[i] : cap;
                 D += b613_sdeg[b] * sm;
             }
-        sum += b613_phi(N / g) << D;
+        sum += totient_u64(N / g) << D;
     }
     c = sum / N;
     memcpy(b613_X, b613_O, sizeof(uint32_t) * b613_OL);

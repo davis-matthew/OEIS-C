@@ -12,14 +12,19 @@
  *            programming over rows
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 14, u128 n <= 28,
  *            big any n
- * Helpers:   need_neighbour
+ * Validated: standard, pass, 31 terms through n = 194 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/need_neighbour.h"
+
+/* Compute whether a 0 or 1 has a required neighbour of a given value. */
+static inline bool need_neighbour(uint8_t val, uint8_t need) {
+    return val == need;
+}
 
 /* 3‑letter rows: 0..2 in each of the 3 columns. */
 #define PAT_COUNT 27

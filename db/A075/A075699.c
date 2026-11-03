@@ -7,7 +7,8 @@
  * Formula:   a(n) = π(4n) – π(n) (number of primes in (n,4n])
  * Range:     u8 n <= 634, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 89 terms through n = 9518 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static idx_t sieve_limit = 0;            /* highest number currently sieved */
 static bool *is_prime = NULL;            /* boolean array: is_prime[i] */
@@ -33,7 +35,7 @@ static void ensure_sieve(idx_t limit)
     bool *new_is_prime = (bool *)malloc((limit + 1) * sizeof(bool));
     if (!new_is_prime)
         exit(EXIT_FAILURE);
-    seq_t *new_prime_count = (seq_t *)malloc((limit + 1) * sizeof(seq_t));
+    seq_t *new_prime_count = mem_new(seq_t, (limit + 1));
     if (!new_prime_count)
         exit(EXIT_FAILURE);
 
@@ -61,7 +63,7 @@ static void ensure_sieve(idx_t limit)
 
     /* Replace old data */
     free(is_prime);
-    free(prime_count);
+    mem_free(prime_count);
     is_prime      = new_is_prime;
     prime_count   = new_prime_count;
     sieve_limit   = limit;

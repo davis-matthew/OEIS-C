@@ -7,7 +7,8 @@
  * Formula:   a(n) = |(p^2 - q)(q - 1)/2| for p*q = A006881(n), p < q
  * Range:     u8 n <= 10, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 typedef struct {
     uint64_t prod;
@@ -81,7 +83,7 @@ static void _ensure_cache(idx_t n)
 
         /* If we now have enough terms, build the cache */
         if (sem_cnt >= n) {
-            seq_t *new_cache = (seq_t *)calloc((size_t)sem_cnt + 1, sizeof(seq_t));
+            seq_t *new_cache = mem_new(seq_t, (size_t)sem_cnt + 1);
             if (!new_cache) abort();
             new_cache[0] = 0; /* unused for 1‑based indexing */
 
@@ -96,7 +98,7 @@ static void _ensure_cache(idx_t n)
             }
 
             /* Replace old cache */
-            free(cache);
+            mem_free(cache);
             cache       = new_cache;
             cache_len   = sem_cnt;
             sieve_lim   = limit;

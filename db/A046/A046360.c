@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 25, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   factor_u64, is_palindrome, is_prime, pow10, rev_decimal
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-01)
+ * Helpers:   factor_u64, is_palindrome_base, is_prime, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,11 +22,22 @@
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/is_palindrome.h"
-#include "../utils/is_prime.h"
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow10.h"
-#include "../utils/rev_decimal.h"
+#include "../utils/is_palindrome_base.h"
+#include "../utils/is_prime.h"
+#include "../utils/reverse_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;                /* offset is 1 */
@@ -49,11 +61,11 @@ seq_t a(idx_t n) {
             /* build palindrome */
             if (length % 2 == 0) {                        /* even length */
                 basePow = pow10(half_len);
-                rev = rev_decimal(left);
+                rev = reverse_digits(left);
                 pal = left * basePow + rev;
             } else {                                     /* odd length */
                 basePow = pow10(half_len - 1);
-                rev = rev_decimal(left / (seq_t)10);
+                rev = reverse_digits(left / (seq_t)10);
                 pal = left * basePow + rev;
             }
 
@@ -72,7 +84,7 @@ seq_t a(idx_t n) {
                 sum_factors += (seq_t)primes[i] * (seq_t)exps[i];
 
             /* sum must itself be a palindrome */
-            if (!is_palindrome(sum_factors, 10)) continue;
+            if (!is_palindrome_base(sum_factors, 10)) continue;
 
             /* palindrome must be divisible by this sum */
             if (sum_factors == 0) continue;          /* safety */

@@ -8,13 +8,16 @@
  * Formula:   a(n) = 1 + ∑_{k=1..n} 8 * (k+8)^(k-1) * C(n,k)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 14, u128 n <= 25,
  *            big any n
- * Helpers:   big_pow, binom
+ * Validated: standard, pass, 34 terms through n = 126 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
-#include "../utils/binom.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow.h"
 
 /* Compute a(n) where a(0) = 1,  a(n) = Σ_{k=0..n} 8*(k+8)^(k-1)*C(n,k),
  * with the convention that the term for k = 0 equals 1.
@@ -33,10 +36,10 @@ seq_t a(idx_t n)
         seq_t exp  = (seq_t)(k - 1);
 
         /* pow_val = (k+8)^(k-1) */
-        seq_t pow_val = big_pow(base, exp);
+        seq_t pow_val = ipow(base, exp);
 
         /* bin = C(n,k) */
-        seq_t bin = binom(n, k);
+        seq_t bin = binomial(n, k);
 
         /* term = 8 * pow_val * bin */
         seq_t term = pow_val * bin * (seq_t)8;

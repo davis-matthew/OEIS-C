@@ -7,12 +7,14 @@
  * Formula:   a(n) = -2*a(n-1)+4*a(n-2), a(0)=1, a(1)=-4
  * Range:     i8 n <= 3, i16 n <= 8, i32 n <= 18, i64 n <= 23, i128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute the n-th term of OEIS sequence A152174.
  * The sequence satisfies the recurrence
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call */
     if (cache_size == 0) {
         cache_size = 2;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_size);
+        cache = mem_new(seq_t, cache_size);
         if (!cache) return 0;                 /* allocation failure – return 0 (unused case) */
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)-4;
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
 
     /* Extend cache if requested n is beyond current size */
     if (n >= cache_size) {
-        seq_t *new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * (n + 1));
+        seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
         if (!new_cache) return 0;           /* allocation failure */
         cache = new_cache;
 

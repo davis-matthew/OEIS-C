@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 22, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   alloc_cache, free_cache
+ * Validated: partial, pass, 39 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,18 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/alloc_cache.h"
-#include "../utils/free_cache.h"
+#include "../utils/mem.h"
+
+/* Allocate and free using malloc/free when compiled as C. */
+static seq_t *alloc_cache(idx_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_cache(seq_t *p)
+{
+    mem_free(p);
+}
 
 seq_t a(idx_t n)
 {
@@ -38,7 +49,7 @@ seq_t a(idx_t n)
 
         /* Copy existing values into the new block (if any). */
         if (cache != NULL) {
-            memcpy(new_cache, cache, cache_sz * sizeof(seq_t));
+            mem_copy(new_cache, cache, cache_sz * sizeof(seq_t));
             free_cache(cache);
         }
 

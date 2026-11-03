@@ -11,7 +11,8 @@
  *            brute‑force search with memoisation
  * Range:     u8 n <= 8, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   has_adjacent_36
+ * Validated: standard, pass, 59 terms through n = 955 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,27 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/has_adjacent_36.h"
+#include "../utils/mem.h"
+
+/* Helper: test whether the base‑8 digits of x contain an adjacent
+   pair 3‑6 or 6‑3. */
+static bool has_adjacent_36(seq_t x)
+{
+    if (x == 0u)
+        return false;
+
+    seq_t prev = x & 7u;      /* least‑significant octal digit */
+    x >>= 3u;                 /* shift right one octal digit */
+
+    while (x > 0u) {
+        seq_t curr = x & 7u;
+        if ((prev == 3u && curr == 6u) || (prev == 6u && curr == 3u))
+            return true;
+        prev = curr;
+        x >>= 3u;
+    }
+    return false;
+}
 
 /* Global cache of found terms.  Shared between a() and
    cache growth helper. */
@@ -36,7 +57,7 @@ static void grow_cache(size_t need)
     while (new_cap < need)
         new_cap <<= 1u;
 
-    seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
     seq_cache = tmp;
     seq_cache_cap = new_cap;
 }

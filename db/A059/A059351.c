@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _gcd_uint64, append_candidate, gcd, mod_pow, next_prime
+ * Validated: standard, pass, 70 terms through n = 973 (2026-11-03)
+ * Helpers:   gcd, gcd_u64, mem, next_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,11 +28,29 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "../utils/next_prime.h"
-#include "../utils/append_candidate.h"
-#include "../utils/mod_pow.h"
+#include <string.h>
 #include "../utils/gcd.h"
-#include "../utils/_gcd_uint64.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/next_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
 
 static seq_t *primes_cache      = NULL;   /* memoised primes satisfying the condition */
 static size_t cache_len          = 0;      /* number of cached primes */
@@ -48,11 +67,11 @@ static void _ensure_cache(idx_t n)
             break;
 
         /* Compute g = gcd(39, p-1) */
-        uint64_t g = _gcd_uint64(39ULL, last_checked_prime - 1);
+        uint64_t g = gcd_u64(39ULL, last_checked_prime - 1);
         uint64_t e = (last_checked_prime - 1) / g;
 
         /* test whether 2^e ≡ 1 (mod p) */
-        seq_t res = mod_pow((seq_t)2, e, (seq_t)last_checked_prime);
+        seq_t res = powmod((seq_t)2, e, (seq_t)last_checked_prime);
         if (res != (seq_t)1) {
             /* prime satisfies the condition; store it */
             append_candidate(&primes_cache, &cache_len, &cache_cap, (seq_t)last_checked_prime);

@@ -12,7 +12,8 @@
  *            -Sum_{j=1..m}...
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 3, u64 n <= 6, u128 n <= 12,
  *            big any n
- * Helpers:   a2198_cmpmag
+ * Validated: standard, pass, 27 terms through n = 99 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,16 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a2198_cmpmag.h"
+
+static int a2198_cmpmag(const uint32_t *x, size_t xn, const uint32_t *y, size_t yn) {
+    size_t i;
+    if (xn != yn) return xn > yn ? 1 : -1;
+    i = xn;
+    while (i-- > 0) {
+        if (x[i] != y[i]) return x[i] > y[i] ? 1 : -1;
+    }
+    return 0;
+}
 
 typedef struct { uint32_t *d; size_t n; int neg; } a2198_big;
 

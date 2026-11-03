@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 47, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 /* Sequence A343892: side b of integer‑sided primitive triangles (a,b,c) where 2/a = 1/b + 1/c. 
    The triples are listed in increasing order of a, then b. */
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *b_arr = NULL;
@@ -28,7 +31,7 @@ seq_t a(idx_t n) {
     /* Initialisation on first call */
     if (b_arr == NULL) {
         cap = 128;
-        b_arr = (seq_t *)malloc(cap * sizeof(seq_t));
+        b_arr = mem_new(seq_t, cap);
         len   = 0;
         a_cur = 3;
         b_cur = (a_cur / 2) + 1;
@@ -38,7 +41,7 @@ seq_t a(idx_t n) {
     if (cap <= len) {
         size_t new_cap = cap * 2;
         while (new_cap <= len) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(b_arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, b_arr, new_cap);
         if (!tmp) abort();      /* cannot happen in typical use */
         b_arr = tmp;
         cap   = new_cap;
@@ -67,7 +70,7 @@ seq_t a(idx_t n) {
                         if (cap <= len) {
                             size_t new_cap = cap * 2;
                             while (new_cap <= len) new_cap *= 2;
-                            seq_t *tmp = (seq_t *)realloc(b_arr, new_cap * sizeof(seq_t));
+                            seq_t *tmp = mem_resize(seq_t, b_arr, new_cap);
                             if (!tmp) abort();
                             b_arr = tmp;
                             cap   = new_cap;

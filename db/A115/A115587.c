@@ -11,12 +11,14 @@
  *            b(n) in reduced form
  * Range:     u8 n <= 7, u16 n <= 8, u32 n <= 10, u64 n <= 11, u128 n <= 12,
  *            big any n
+ * Validated: standard, pass, 19 terms through n = 19 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/gcd.h"   /* seq_t gcd(seq_t a, seq_t b); */
+#include <stdint.h>
+#include "../utils/gcd.h"
 
 /* Rational addition:  (*n1/*d1) + (n2/d2)  →  (*n1/*d1)   */
 static void add_frac(seq_t *n1, seq_t *d1, seq_t n2, seq_t d2)

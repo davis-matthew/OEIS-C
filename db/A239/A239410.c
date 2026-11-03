@@ -11,7 +11,8 @@
  *            4, nor two plus the sum of the elements above it mod 4
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 9, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 28 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Helper constants */
 #define ROWS 6
@@ -118,13 +120,13 @@ static void build_adjacency(void)
 static void init_buffers(void)
 {
     /* Allocate DP buffers */
-    curr = (seq_t*)calloc(STATES, sizeof(seq_t));
-    next = (seq_t*)calloc(STATES, sizeof(seq_t));
+    curr = mem_new(seq_t, STATES);
+    next = mem_new(seq_t, STATES);
     curr[0] = 1;  /* start state */
 
     /* Allocate values cache */
     values_cap = 64;
-    values = (seq_t*)malloc(values_cap * sizeof(seq_t));
+    values = mem_new(seq_t, values_cap);
     values[0] = 0; /* unused, as offset is 1 */
     values_count = 1; /* only values[0] defined */
 }
@@ -145,7 +147,7 @@ seq_t a(idx_t n)
     if (n >= values_cap) {
         idx_t new_cap = values_cap == 0 ? 64 : values_cap;
         while (new_cap <= n) new_cap <<= 1;
-        seq_t *new_vals = (seq_t*)realloc(values, new_cap * sizeof(seq_t));
+        seq_t *new_vals = mem_resize(seq_t, values, new_cap);
         if (!new_vals) abort(); /* allocation failure */
         values = new_vals;
         values_cap = new_cap;
@@ -154,7 +156,7 @@ seq_t a(idx_t n)
     /* Compute up to requested n */
     for (idx_t step = max_computed + 1; step <= n; ++step) {
         /* Zero next buffer */
-        memset(next, 0, STATES * sizeof(seq_t));
+        mem_set(next, 0, STATES * sizeof(seq_t));
 
         /* Transition */
         for (int s = 0; s < STATES; ++s) {

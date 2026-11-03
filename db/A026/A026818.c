@@ -8,14 +8,29 @@
  *            of the largest digit of k and the smallest digit of k is a prime
  * Range:     u8 n <= 57, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   is_concat_prime
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/is_concat_prime.h"
+
+/* Check whether a 2‑digit number (<100) is prime. */
+static bool is_concat_prime(int concat)
+{
+    /* All primes <= 97. */
+    static const int primes[25] = {
+        2,3,5,7,11,13,17,19,23,29,
+        31,37,41,43,47,53,59,61,67,71,
+        73,79,83,89,97
+    };
+    for (int i = 0; i < 25; ++i) {
+        if (primes[i] == concat) return true;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

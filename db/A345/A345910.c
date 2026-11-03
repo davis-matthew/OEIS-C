@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   alt_sum_is_minus_one
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,43 @@
 
 #include <stdbool.h>
 #include <stddef.h>   /* for size_t */
-#include "../utils/alt_sum_is_minus_one.h"
+
+/* Helper: test whether the alternating sum of the composition of k
+   equals -1.  k >= 1. */
+static bool alt_sum_is_minus_one(idx_t k)
+{
+    idx_t temp = k;      /* copy of k for bit iteration              */
+    idx_t j = 0;         /* current bit position (starting from 0)     */
+    idx_t prev = 0;      /* previous position of a 1 bit               */
+    int m = 0;           /* number of differences computed             */
+    int diffs[65];       /* storage for differences (max popcount 64)  */
+
+    /* Gather the differences d_i = p_i - p_{i-1}, where p_i are the
+       1‑based positions of 1-bits in the reversed binary.          */
+    while (temp) {
+        if (temp & 1U) {
+            idx_t cur = j + 1U;          /* 1‑based position            */
+            diffs[m++] = (int)(cur - prev);
+            prev = cur;
+        }
+        ++j;
+        temp >>= 1U;
+    }
+
+    /* The parts of the composition are the differences in reverse
+       order.  Compute their alternating sum.                       */
+    int sign = 1;                    /* first part has positive sign       */
+    int64_t sum  = 0;
+    for (int idx = m - 1; idx >= 0; --idx) {
+        int diff = diffs[idx];
+        if (sign > 0)
+            sum += diff;
+        else
+            sum -= diff;
+        sign = -sign;
+    }
+    return sum == -1;
+}
 
 /* Maximum number of terms we can cache.  The sequence grows
    reasonably slowly, so 200 000 covers far more than the test

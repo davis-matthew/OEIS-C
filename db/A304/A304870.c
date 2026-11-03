@@ -8,12 +8,15 @@
  * Formula:   a(n) = Sum_{d|n} (-1)^(n/d+1) * d^(d+1)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 19,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +33,7 @@ seq_t a(idx_t n)
 
         /* first divisor d */
         idx_t q = n / d;
-        seq_t term = big_pow((seq_t)d, (seq_t)(d + 1));
+        seq_t term = ipow((seq_t)d, (seq_t)(d + 1));
 
         /* sign determined by parity of n/d */
         if (q & 1)          /* odd -> positive sign */
@@ -41,7 +44,7 @@ seq_t a(idx_t n)
         /* counterpart divisor q, avoid double counting the square root */
         if (d != q)
         {
-            seq_t term2 = big_pow((seq_t)q, (seq_t)(q + 1));
+            seq_t term2 = ipow((seq_t)q, (seq_t)(q + 1));
 
             /* sign for q depends on parity of n/q == d */
             if (d & 1)          /* d odd -> positive sign for q */

@@ -11,8 +11,9 @@
  *            to the rightmost nonzero digit: * if that digit is 1: swap 2↔3 *
  *            if that digit is 2: swap 1↔3 * if that digit is 3: swap 1↔2 *
  *            a(0)=0. * This implements A361947
- * Range:     u8 n <= 255, u16 n <= 9735, u32 n <= 9735, u64 n <= 9735,
- *            u128 n <= 9735, big any n
+ * Range:     u8 n <= 255, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 83 terms through n = 9735 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

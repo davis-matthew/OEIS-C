@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 33, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Check whether val is already in the first len elements of arr */
 static bool contains_seq(const seq_t *arr, size_t len, seq_t val)
@@ -46,7 +48,7 @@ static void ensure_cap(seq_t **p, size_t *cap, size_t new_cap)
     if (*cap >= new_cap) return;
     size_t new_size = (*cap == 0) ? 8 : (*cap << 1);
     if (new_size < new_cap) new_size = new_cap;
-    seq_t *tmp = (seq_t *)realloc(*p, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *p, new_size);
     if (!tmp) abort();          /* allocation failure */
     *p = tmp;
     *cap = new_size;

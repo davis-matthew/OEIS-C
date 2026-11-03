@@ -8,13 +8,16 @@
  * Formula:   a(n) = A001147(n) - A003436(n)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 28,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 36 terms through n = 372 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* a(n) = Σ_{k=1}^{n} (-1)^{k+1} * (2n)/(2n-k) * C(2n-k,k) * (2n-2k-1)!!          */
-#include "../utils/binom.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
 #include <stdlib.h>
 
 seq_t a(idx_t n)
@@ -44,7 +47,7 @@ seq_t a(idx_t n)
         cur = cur / ((seq_t)odd_factor);
 
         /* Compute m_k = (2n)/(2n-k) * C(2n-k, k). */
-        seq_t mk = (seq_t)m * binom((idx_t)(m - k), k);
+        seq_t mk = (seq_t)m * binomial((idx_t)(m - k), k);
         mk = mk / ((seq_t)(m - k));
 
         /* term = m_k * (2n-2k-1)!!. */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 32, u32 n <= 3502, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   eval_at, pow3_u64
+ * Validated: standard, pass, 52 terms through n = 9586 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,24 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/eval_at.h"
-#include "../utils/pow3_u64.h"
+
+/* Evaluate f at integer a (0 ≤ a < 3) with Horner in GF(3).   f
+ * is monic (coeff[deg]==1). */
+static int eval_at(const uint8_t *f, int deg, int a)
+{
+    int v = 0;
+    for (int i = deg; i >= 0; --i)
+        v = (v * a + f[i]) % 3;
+    return v;
+}
+
+/* 3^e (e ≥ 0) stored in 64‑bit; e will stay ≤ 30 */
+static uint64_t pow3_u64(unsigned int e)
+{
+    uint64_t r = 1;
+    while (e--) r *= 3ull;
+    return r;
+}
 
 #define MAX_DEG 30   /* sufficient for n up to 10,000 */
 

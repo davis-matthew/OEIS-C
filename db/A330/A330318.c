@@ -9,14 +9,52 @@
  *            number of representations of n as a sum of two squares
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   r_calc
+ * Validated: partial, pass, 62 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/r_calc.h"
+#include "../utils/mem.h"
+
+static seq_t r_calc(idx_t n)
+{
+    if (n == (idx_t)0)          /* by convention r(0)=1 */
+        return (seq_t)1;
+
+    idx_t m = n;
+    seq_t prod = (seq_t)1;
+    for (idx_t p = (idx_t)2; p * p <= m; ++p)
+    {
+        if (m % p == (idx_t)0)
+        {
+            int exp = 0;
+            while (m % p == (idx_t)0)
+            {
+                m /= p;
+                ++exp;
+            }
+
+            if (p % (idx_t)4 == (idx_t)1)          /* p ≡ 1 (mod 4) */
+                prod *= (seq_t)(exp + 1);
+            else if (p % (idx_t)4 == (idx_t)3 && (exp & 1) == 1)
+                return (seq_t)0;                   /* p ≡ 3 (mod 4) with odd exponent */
+        }
+    }
+
+    if (m > (idx_t)1)                            /* remaining prime factor > sqrt(n) */
+    {
+        if (m % (idx_t)4 == (idx_t)1)              /* prime ≡ 1 (mod 4) */
+            prod *= (seq_t)2;
+        else if (m % (idx_t)4 == (idx_t)3)         /* prime ≡ 3 (mod 4) */
+            return (seq_t)0;                       /* odd exponent (1) */
+        /* m == 2 or m ≡ 2 (mod 4) : no effect, prod stays the same */
+    }
+
+    return prod * (seq_t)4;                       /* final factor of 4 */
+}
 
 /*--- static cache for r(n) and a(n) -----------------------------------*/
 
@@ -35,7 +73,7 @@ static void ensure_R(idx_t k)
     if (Rsize > (size_t)k) return;
 
     size_t newsize = (size_t)k + 1;
-    R = (seq_t *)realloc(R, newsize * sizeof(seq_t));
+    R = mem_resize(seq_t, R, newsize);
     for (size_t i = Rsize; i < newsize; ++i)
         R[i] = r_calc((idx_t)i);
 
@@ -49,7 +87,7 @@ static void ensure_A(idx_t n)
     if (Asize > (size_t)n) return;
 
     size_t newsize = (size_t)n + 1;
-    A = (seq_t *)realloc(A, newsize * sizeof(seq_t));
+    A = mem_resize(seq_t, A, newsize);
 
     seq_t sum = Asize > 0 ? A[Asize - 1] : (seq_t)0;
 

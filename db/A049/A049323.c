@@ -10,15 +10,18 @@
  *            triangle from A033842 / A049323)
  * Range:     u8 n <= 17, u16 n <= 32, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   big_pow, binomial, floor_isqrt_u64
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-01)
+ * Helpers:   binomial, ipow, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binomial.h"        /* seq_t binomial(idx_t a, idx_t b); */
-#include "../utils/big_pow.h"          /* seq_t big_pow(seq_t base, idx_t exp); */
-#include "../utils/floor_isqrt_u64.h"  /* idx_t floor_isqrt_u64(idx_t n); */
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow.h"
+#include "../utils/isqrt.h"
 
 /* Compute a(n) for n >= 0
    Step 1: find the row r such that r*(r+1)/2 <= n < (r+1)*(r+2)/2.
@@ -27,7 +30,7 @@
 seq_t a(idx_t n)
 {
     /* Find row r via integer square root */
-    idx_t t = floor_isqrt_u64(8 * n + 1);
+    idx_t t = isqrt(8 * n + 1);
     idx_t r = (t - 1) / 2;                   /* floor((sqrt(8n+1)-1)/2) */
 
     /* Number of elements before row r */
@@ -42,7 +45,7 @@ seq_t a(idx_t n)
 
     /* a(r,c) = binomial(r+1, c+1) * (r+1)^{c-1} */
     seq_t bin = binomial(r + 1, c + 1);
-    seq_t pow = big_pow((seq_t)(r + 1), c - 1);
+    seq_t pow = ipow((seq_t)(r + 1), c - 1);
 
     return bin * pow;
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 40, u32 n <= 102, u64 n <= 262,
  *            u128 n <= 640, big any n
- * Helpers:   compare_uint64, power_u64
+ * Validated: standard, pass, 70 terms through n = 4074 (2026-11-01)
+ * Helpers:   ipow_u64_to_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,14 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/compare_uint64.h"
-#include "../utils/power_u64.h"
+#include "../utils/ipow_u64_to_u64.h"
+
+static int compare_uint64(const void *a, const void *b)
+{
+    uint64_t va = *(const uint64_t *)a;
+    uint64_t vb = *(const uint64_t *)b;
+    return (va > vb) - (va < vb);
+}
 
 /* static state for on‑the‑fly precomputation */
 static idx_t _max_precomputed_limit = 0;
@@ -104,7 +111,7 @@ seq_t a(idx_t n)
             while (rem) {
                 if (rem & 1U) { /* exponent equals 2^bitpos */
                     uint64_t exponent = ((uint64_t)1) << bitpos;
-                    uint64_t val = power_u64((uint64_t)p, exponent);
+                    uint64_t val = ipow_u64_to_u64((uint64_t)p, exponent);
                     size_t idx_val = _index_map[val];
                     result += ((seq_t)1) << (idx_val - 1);
                 }

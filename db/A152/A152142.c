@@ -8,7 +8,8 @@
  * Formula:   a(n) = ∏_{k=1..⌊(n-1)/2⌋} (1 + 4*sin(k*π/n)^2 + 16*sin(k*π/n)^4)
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 26, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* coefficients of the numerator polynomial P(x) (degree 8)  */
 static const int coeff[9] = { 1,  1, -6,  6,  9, -6, -8, -1,  1 };
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
         idx_t new_cap = (capacity == 0) ? 16 : (capacity << 1);
         if (new_cap <= n)
             new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) exit(1);                 /* allocation failure – abort */
         if (cache == NULL) {
             tmp[0] = (seq_t)1;             /* a(0) = 1 is mandatory */

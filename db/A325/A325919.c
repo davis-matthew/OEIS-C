@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 25, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #include <stddef.h>   /* size_t */
 #include <stdlib.h>   /* malloc, free */
 #include <string.h>   /* memset */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,17 +42,17 @@ seq_t a(idx_t n)
     /* Number of possible heights after n steps is n+1. */
     const size_t max_states = (size_t)(n + 1) * 3 * 2;   /* height * state * parity */
 
-    seq_t *cur  = (seq_t *)malloc(max_states * sizeof(seq_t));
-    seq_t *next = (seq_t *)malloc(max_states * sizeof(seq_t));
+    seq_t *cur  = mem_new(seq_t, max_states);
+    seq_t *next = mem_new(seq_t, max_states);
     if (!cur || !next) {
-        if (cur) free(cur);
-        if (next) free(next);
+        if (cur) mem_free(cur);
+        if (next) mem_free(next);
         return 0;   /* allocation failed – safe fallback */
     }
 
     /* Zero out DP tables */
-    memset(cur, 0, max_states * sizeof(seq_t));
-    memset(next, 0, max_states * sizeof(seq_t));
+    mem_set(cur, 0, max_states * sizeof(seq_t));
+    mem_set(next, 0, max_states * sizeof(seq_t));
 
     /* Helper macro for linearising (h, state, parity). */
     #define IDX(h, s, p) (((size_t)(h) * 3 + (size_t)(s)) << 1 | (size_t)(p))
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
 
         /* Zero out only the part of 'next' that will be used. */
         size_t required_next = (max_h_next + 1) * 3 * 2;
-        memset(next, 0, required_next * sizeof(seq_t));
+        mem_set(next, 0, required_next * sizeof(seq_t));
 
         for (size_t h = 0; h <= max_h; ++h) {
             for (int s = 0; s < 3; ++s) {
@@ -115,8 +117,8 @@ seq_t a(idx_t n)
         }
     }
 
-    free(cur);
-    free(next);
+    mem_free(cur);
+    mem_free(next);
     return result;
 }
 #undef IDX

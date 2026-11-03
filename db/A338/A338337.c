@@ -8,7 +8,8 @@
  * Formula:   a(n) = (11*n)! / ((2*n)! * (3*n)! * (6*n)!)
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 2, u64 n <= 4, u128 n <= 8,
  *            big any n
- * Helpers:   seq_mul, seq_pow
+ * Validated: standard, pass, 27 terms through n = 191 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,14 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/seq_pow.h"
-#include "../utils/seq_mul.h"
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Helper: exponent of prime p in m! (Legendre's formula) */
 static idx_t prime_exp(idx_t p, idx_t m)
@@ -86,7 +93,7 @@ seq_t a(idx_t n)
         exp -= prime_exp(p, 6 * n);
 
         if (exp > 0) {
-            seq_t pp = seq_pow((seq_t)p, exp);
+            seq_t pp = ipow_idx((seq_t)p, exp);
             result = seq_mul(result, pp);
         }
     }

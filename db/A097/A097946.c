@@ -9,6 +9,7 @@
  * Formula:   a(n) = μ(n) * A014197(n) (the number of m with φ(m)=n)
  * Range:     i8 n <= 10000, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 108 terms through n = 9364 (2026-11-01)
  * Helpers:   build_spf, mobius
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,8 +17,9 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mobius.h"     /* returns μ(n) */
-#include "../utils/build_spf.h"  /* builds smallest‑prime‑factor array */
+#include <stdint.h>
+#include "../utils/build_spf.h"
+#include "../utils/mobius.h"
 
 /* cached data for the pre‑image counts of Euler’s totient function   */
 static idx_t *phi_count   = NULL; /* phi_count[k] = |{m : φ(m)=k}|     */

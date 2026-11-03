@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 6, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   iexact_isqrt_u64
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/iexact_isqrt_u64.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 /*------------------------------------------------------------------*/
 
@@ -41,7 +43,7 @@ static void cache_append(seq_t val)
 {
     if (cache_len >= cache_cap) {
         cache_cap = (cache_cap == 0) ? 16 : cache_cap << 1;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
     cache[cache_len++] = val;
 }
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
             processed_up_to = k;
 
             /* Skip perfect squares. */
-            idx_t a0 = iexact_isqrt_u64(k);
+            idx_t a0 = isqrt(k);
             if (a0 * a0 == k) continue;
 
             /* Compute continued fraction of √k. */

@@ -10,13 +10,15 @@
  *            theorem
  * Range:     u8 n <= 23, u16 n <= 55, u32 n <= 151, u64 n <= 465,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 953 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static cache for partition numbers. */
 static seq_t *P = NULL;
@@ -34,7 +36,7 @@ static void ensure_partitions(idx_t up_to)
         size_t new_cap = P_capacity == 0 ? 4 : P_capacity;
         while (new_cap < needed)
             new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(P, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, P, new_cap);
         if (!tmp) abort();          /* out‑of‑memory – kill the program */
         P = tmp;
         P_capacity = new_cap;

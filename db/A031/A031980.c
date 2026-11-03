@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 53, u16 n <= 1254, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   cube_pair_exists, is_sum_of_cubes
+ * Validated: standard, pass, 88 terms through n = 9764 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,40 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/cube_pair_exists.h"
-#include "../utils/is_sum_of_cubes.h"
+#include "../utils/mem.h"
+
+/*--- Helper: binary search for a cube value ---------------------------------*/
+static bool cube_pair_exists(seq_t target,
+                             const seq_t *cubes,
+                             size_t len,
+                             size_t exclude)
+{
+    size_t lo = 0, hi = len;
+    while (lo < hi) {
+        size_t mid = (lo + hi) >> 1;
+        if (cubes[mid] < target)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return (lo < len && cubes[lo] == target && lo != exclude);
+}
+
+/*--- Helper: test whether cand is a sum of two distinct earlier cubes ----*/
+static bool is_sum_of_cubes(seq_t cand,
+                            const seq_t *cubes,
+                            size_t len)
+{
+    for (size_t j = 0; j < len; ++j) {
+        seq_t cj = cubes[j];
+        if (cj >= cand)            /* cubes are increasing */
+            break;
+        seq_t target = cand - cj;
+        if (cube_pair_exists(target, cubes, len, j))
+            return true;           /* found a pair of distinct terms */
+    }
+    return false;
+}
 
 /*--- Helper: grow the used array to at least 'needed' entries --------------*/
 static void ensure_used_cap(size_t needed,
@@ -65,8 +98,8 @@ static void ensure_terms_cap(size_t needed,
     if (needed > new_cap)
         new_cap = needed;
 
-    seq_t *tmp_terms = (seq_t *)realloc(*terms, new_cap * sizeof(seq_t));
-    seq_t *tmp_cubes  = (seq_t *)realloc(*cubes,  new_cap * sizeof(seq_t));
+    seq_t *tmp_terms = mem_resize(seq_t, *terms, new_cap);
+    seq_t *tmp_cubes  = mem_resize(seq_t, *cubes, new_cap);
     if (!tmp_terms || !tmp_cubes)
         abort();
 
@@ -93,8 +126,8 @@ seq_t a(idx_t n)
     /* Initialize on first call */
     if (!terms) {
         terms_cap = 16;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
-        cubes = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
+        cubes = mem_new(seq_t, terms_cap);
         used_cap = 16;
         used = (uint8_t *)calloc(used_cap, 1);   /* zeroed */
         if (!terms || !cubes || !used)

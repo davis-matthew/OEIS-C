@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   count_prime_digits_uint64, is_prime
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,17 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include "../utils/is_prime.h"
-#include "../utils/count_prime_digits_uint64.h"
+
+static inline int count_prime_digits_uint64(uint64_t x)
+{
+    int cnt = 0;
+    while (x) {
+        uint8_t d = x % 10;
+        if (d == 2 || d == 3 || d == 5 || d == 7) ++cnt;
+        x /= 10;
+    }
+    return cnt;
+}
 
 static inline int count_odd_digits_uint64(uint64_t x)
 {

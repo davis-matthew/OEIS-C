@@ -7,6 +7,7 @@
  * Formula:   a(n) = (4*n)^11
  * Range:     u8 n <= 0, u16 n <= 0, u32 n <= 1, u64 n <= 14, u128 n <= 795,
  *            big any n
+ * Validated: standard, pass, 32 terms through n = 919 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

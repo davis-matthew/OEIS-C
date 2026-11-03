@@ -7,7 +7,8 @@
  * Keywords:  nonn, easy
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 none, u64 n <= 2, u128 n <= 4, big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 23 terms through n = 95 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,7 @@
  * produced but may be truncated on 64‑bit builds; no tests require those.
  */
 #include <stdint.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -43,7 +44,7 @@ seq_t a(idx_t n)
     }
 
     /* arbitrary‐precision case */
-    seq_t t   = pow_uint(100, e);     /* t = 100^(2*n+1) */
+    seq_t t   = ipow_u64_idx(100, e);     /* t = 100^(2*n+1) */
     seq_t sum = t + 1;                /* sum = t + 1 */
     seq_t sq  = sum * sum;            /* (t+1)^2 */
     seq_t res = sq / (seq_t)101;      /* divide by 101 (exact) */

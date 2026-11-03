@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow, push_seq, simple_sieve
+ * Validated: standard, pass, 71 terms through n = 906 (2026-11-03)
+ * Helpers:   mem, powmod_u64, simple_sieve
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,22 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stddef.h>
+#include "../utils/powmod_u64.h"
 #include "../utils/simple_sieve.h"
-#include "../utils/push_seq.h"
-#include "../utils/mod_pow.h"
+#include "../utils/mem.h"
+
+/* Dynamic array helpers. */
+static void push_seq(seq_t **arr, idx_t *cap, idx_t *size, seq_t val)
+{
+    if (*size >= *cap) {
+        size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+        *arr = mem_resize(seq_t, *arr, new_cap);
+        *cap = new_cap;
+    }
+    (*arr)[*size] = val;
+    (*size)++;
+}
 
 static bool is_neg34_primitive_root(uint32_t p, const uint32_t *prime_list,
                                     size_t prime_count)
@@ -43,7 +57,7 @@ static bool is_neg34_primitive_root(uint32_t p, const uint32_t *prime_list,
         uint32_t q = prime_list[i];
         if (temp % q == 0)
         {
-            if (mod_pow((uint64_t)g, (pp1 / q), (uint64_t)p) == 1) return false;
+            if (powmod_u64((uint64_t)g, (pp1 / q), (uint64_t)p) == 1) return false;
             while (temp % q == 0) temp /= q;
         }
     }
@@ -51,7 +65,7 @@ static bool is_neg34_primitive_root(uint32_t p, const uint32_t *prime_list,
     if (temp > 1)
     {
         uint32_t q = (uint32_t)temp;
-        if (mod_pow((uint64_t)g, (pp1 / q), (uint64_t)p) == 1) return false;
+        if (powmod_u64((uint64_t)g, (pp1 / q), (uint64_t)p) == 1) return false;
     }
 
     return true;

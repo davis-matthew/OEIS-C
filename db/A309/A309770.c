@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sieve_primes
+ * Validated: standard, pass, 73 terms through n = 9598 (2026-11-03)
+ * Helpers:   mem, sieve_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,9 @@
 #include <stdbool.h>
 
 /* The sieve routine is provided by the framework */
+#include <string.h>
 #include "../utils/sieve_primes.h"
+#include "../utils/mem.h"
 
 static bool _initialized = false;
 static seq_t * _terms = NULL;
@@ -41,7 +44,7 @@ static void _grow_terms(size_t needed)
     if (_term_cap < needed) {
         _term_cap = needed > 1024 ? needed : 1024;
         while (_term_cap < needed) _term_cap <<= 1;
-        _terms = (seq_t*)realloc(_terms, _term_cap * sizeof(seq_t));
+        _terms = mem_resize(seq_t, _terms, _term_cap);
     }
 }
 
@@ -89,7 +92,7 @@ static void _init_sequence(void)
         if (cnt[v] >= 2) {
             if (_term_count >= dummy_cap) {
                 dummy_cap = dummy_cap ? dummy_cap << 1 : 64;
-                _terms = (seq_t*)realloc(_terms, dummy_cap * sizeof(seq_t));
+                _terms = mem_resize(seq_t, _terms, dummy_cap);
             }
             _terms[_term_count++] = (seq_t)v;
         }

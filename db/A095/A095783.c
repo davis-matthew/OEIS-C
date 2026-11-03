@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   accept
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,40 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/accept.h"
+#include "../utils/mem.h"
+
+/* Helper: test whether a sequence value uses only decimal digits in base 2..15
+ * and has at least one non‑decimal digit in base 16. */
+static bool accept(seq_t n)
+{
+    /* Bases 2 through 15: all digits must be < 10. */
+    for (int base = 2; base <= 15; ++base)
+    {
+        seq_t t = n;
+        while (t > 0)
+        {
+            seq_t r = t % (seq_t)base;
+            if (r >= 10)
+                return false;
+            t /= (seq_t)base;
+        }
+    }
+
+    /* Base 16: at least one digit must be ≥ 10. */
+    seq_t t = n;
+    bool has_nondec = false;
+    while (t > 0)
+    {
+        seq_t r = t % (seq_t)16;
+        if (r >= 10)
+        {
+            has_nondec = true;
+            break;
+        }
+        t /= (seq_t)16;
+    }
+    return has_nondec;
+}
 
 /* The sequence cache. */
 static seq_t *cache = NULL;        /* array of terms */
@@ -41,7 +75,7 @@ static void ensure_cache(idx_t n)
         cache_cap = 32;
     while (cache_cap < n)
         cache_cap *= 2;
-    cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, cache_cap);
     /* Now extend the cache. */
     seq_t cand = cache_len > 0 ? cache[cache_len - 1] + 1 : 1;
     while (cache_len < n)

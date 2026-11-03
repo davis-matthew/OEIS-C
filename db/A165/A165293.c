@@ -10,16 +10,26 @@
  *            functions.)
  * Range:     i8 n <= 6, i16 n <= 15, i32 n <= 35, i64 n <= 35, i128 n <= 35,
  *            big any n
- * Helpers:   _floor_isqrt_u64, binom, pow10
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-01)
+ * Helpers:   binomial, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binom.h"
-#include "../utils/pow10.h"
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/binomial.h"
+#include "../utils/isqrt.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -29,7 +39,7 @@ seq_t a(idx_t n)
     /* Compute r via integer sqrt */
     /* tmp = 8*idx + 1 can safely fit into 64-bit for required n */
     idx_t tmp = (idx << 3) + (idx >> 61) + 1;  /* (idx*8)+1 */
-    idx_t s   = _floor_isqrt_u64(tmp);
+    idx_t s   = isqrt(tmp);
     idx_t r   = (s - 1) >> 1;
 
     /* previous cumulative count */
@@ -39,7 +49,7 @@ seq_t a(idx_t n)
     idx_t k   = idx - prev;
 
     /* compute binomial coefficient and power of 10 */
-    seq_t bin   = binom(r, k);
+    seq_t bin   = binomial(r, k);
     seq_t pow10v = pow10(r - k);
 
     /* combine with sign (-1)^k */

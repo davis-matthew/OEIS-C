@@ -9,13 +9,15 @@
  *            composition (standard order) has half‑alternating sum 0
  * Range:     u8 n <= 39, u16 n <= 7762, u32 n <= 7762, u64 n <= 7762,
  *            u128 n <= 7762, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 7755 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* The function uses the public types seq_t and idx_t supplied by the
    build system.  idx_t is an unsigned 64‑bit type; seq_t is an unsigned
@@ -80,7 +82,7 @@ seq_t a(idx_t n)
         if (hsum == 0) {
             if (list_len == list_cap) {
                 list_cap = list_cap ? (list_cap << 1) : 32;
-                list = (seq_t *)realloc(list, list_cap * sizeof(seq_t));
+                list = mem_resize(seq_t, list, list_cap);
             }
             list[list_len++] = (seq_t)k;
         }

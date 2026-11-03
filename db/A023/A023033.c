@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 20, u32 n <= 84, u64 n <= 1914,
  *            u128 n <= 5000, big any n
- * Helpers:   C_n_choose_7, mobius
+ * Validated: standard, pass, 48 terms through n = 4955 (2026-11-01)
+ * Helpers:   mobius
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,20 @@
 
 #include <stdint.h>
 #include "../utils/mobius.h"
-#include "../utils/C_n_choose_7.h"
+
+/* compute binomial coefficient C(n,7) using 128‑bit intermediates.
+   For n < 7 the result is 0.  The value always fits in seq_t for
+   the sizes considered in the tests. */
+static seq_t C_n_choose_7(idx_t n)
+{
+    if (n < 7) return (seq_t)0;
+    __int128 r = 1;
+    /* compute n*(n-1)*...*(n-6)/7! */
+    for (idx_t i = 1; i <= 7; ++i) {
+        r = r * (n - 7 + i) / i;
+    }
+    return (seq_t)r;
+}
 
 seq_t a(idx_t n)
 {

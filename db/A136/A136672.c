@@ -9,14 +9,16 @@
  *            the column index k (0‑based) we have m = r – k a = binom(2k + m
  *            + 1, m) + (m ≥ 2 ? binom(2k + m – 1, m – 2) : 0) a(n) = (k even
  *            ? +a : –a). The mapping from n to (r,k) is r = s...
- * Range:     i8 n <= 17, i16 n <= 66, i32 n <= 66, i64 n <= 66, i128 n <= 66,
+ * Range:     i8 n <= 23, i16 n <= 66, i32 n <= 66, i64 n <= 66, i128 n <= 66,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -32,9 +34,9 @@ seq_t a(idx_t n)
     idx_t m = r - k;
 
     /* Compute the binomial terms. */
-    seq_t val = binom(2U * k + m + 1U, m);
+    seq_t val = binomial(2U * k + m + 1U, m);
     if (m >= 2U)
-        val += binom(2U * k + m - 1U, m - 2U);
+        val += binomial(2U * k + m - 1U, m - 2U);
 
     /* Multiply by (–1)^k. */
     if (k & 1U)

@@ -13,7 +13,8 @@
  *            0 and D_k = (k-1)*(D_{k-1}+D_{k-2}) for k≥2
  * Range:     u8 n <= 26, u16 n <= 52, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <math.h>
 #include <stdbool.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* Cache of derangement numbers D_k.  D_cache[i] holds D_i. */
 static seq_t *D_cache = NULL;
@@ -35,7 +37,7 @@ static void ensure_D(idx_t k)
         return;
 
     idx_t new_size = k + 1;
-    seq_t *new_cache = (seq_t *)realloc(D_cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, D_cache, new_size);
     if (!new_cache) {
         /* Allocation failure: terminate the program – the sequence
            cannot be continued. */

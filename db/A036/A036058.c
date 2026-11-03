@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 20, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   digit_counts, digit_len, pow10
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   digit_counts, mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,22 @@
 #include <stdlib.h>                 /* malloc, realloc */
 
 /* utilities used by the summation */
-#include "../utils/digit_counts.h"  /* void digit_counts(seq_t x, unsigned char cnt[10]); */
-#include "../utils/digit_len.h"     /* unsigned int digit_len(seq_t x); */
-#include "../utils/pow10.h"         /* seq_t pow10(idx_t e); */
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/digit_counts.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* produce the next term by summarizing the digits of x */
 static seq_t summarize(seq_t x)
@@ -42,7 +56,7 @@ static seq_t summarize(seq_t x)
         if (cnt[d] == 0) continue;
 
         seq_t c      = (seq_t)cnt[d];               /* count of this digit */
-        unsigned int digs = digit_len(c);           /* digits of the count */
+        unsigned int digs = num_digits(c);           /* digits of the count */
         seq_t mult = pow10((idx_t)(digs + 1));      /* 10^(digits+1) */
 
         /* append c then d:  ... -> ...c d */
@@ -59,16 +73,16 @@ seq_t a(idx_t n)
     static idx_t cache_sz = 0;
 
     if (cache == NULL) {               /* first call – initialise cache */
-        cache     = (seq_t *)malloc(sizeof(seq_t));
+        cache     = mem_new(seq_t, 1);
         cache_sz  = 1;
         cache[0]  = 0;                  /* a(0) = 0 */
     }
 
     if (n >= cache_sz) {               /* extend cache up to n */
         idx_t new_sz = n + 1;
-        seq_t *tmp   = (seq_t *)realloc(cache, new_sz * sizeof(seq_t));
+        seq_t *tmp   = mem_resize(seq_t, cache, new_sz);
         if (tmp == NULL) {             /* allocation failure: return dummy */
-            free(cache);
+            mem_free(cache);
             cache = NULL;
             cache_sz = 0;
             return (seq_t)0;

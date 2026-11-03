@@ -5,14 +5,16 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  easy, nonn
  * Formula:   a(0)=1; a(n+1)=a(ceil(n/a(n)))+1
- * Range:     u8 n <= 9755, u16 n <= 9755, u32 n <= 9755, u64 n <= 9755,
- *            u128 n <= 9755, big any n
- * Helpers:   none
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 110 terms through n = 9755 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes A130193.  The function may be called in any order.
    It lazily computes values and keeps them in a static array. */
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     /* Allocate and initialise the zeroth element on first call */
     if (!seq)
     {
-        seq = (seq_t *)malloc(sizeof(seq_t));
+        seq = mem_new(seq_t, 1);
         seq[0] = 1;          /* a(0) = 1 */
         last = 0;
     }
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     if (n > last)
     {
         /* Allocate exactly enough space for indices 0..n */
-        seq_t *tmp = (seq_t *)realloc(seq, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq, (n + 1));
         if (!tmp) { /* Allocation failed – abort: no meaningful return */ }
         seq = tmp;
 

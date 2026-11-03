@@ -7,7 +7,8 @@
  * Formula:   a(n) = digit_sum(7^n)
  * Range:     u8 n <= 61, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 985 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 #define BASE 1000000000U    /* 10^9 – base for intermediate big‑integer storage */
 
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* cache for digit sums: grow as needed */
         cache_cap = 64;
-        cache = (seq_t *)realloc(NULL, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, cache_cap);
 
         cache[0] = (seq_t)1;   /* a(0) = digit_sum(1) = 1 */
         cached_upto = 0;        /* we have computed up to n = 0 */
@@ -79,7 +81,7 @@ seq_t a(idx_t n)
             /* --- store the result in the cache --- */
             if (k == cache_cap) {
                 size_t new_cap = cache_cap << 1;
-                cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, new_cap);
                 cache_cap = new_cap;
             }
             cache[k] = sum;

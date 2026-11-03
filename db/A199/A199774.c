@@ -8,12 +8,14 @@
  *            a(5)=203, a(6)=333
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init[6] = {0, 3, 5, 32, 203, 333};
 
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
 
     /* Ensure that the first six terms are cached. */
     if (cache_cap < 6) {
-        seq_t *tmp = (seq_t*)realloc(cache, 6 * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, 6);
         if (!tmp) abort();
         cache = tmp;
         for (idx_t i = 0; i < 6; ++i) cache[i] = init[i];
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
 
     /* Extend the cache if we need more terms. */
     if (n > cache_cap) {
-        seq_t *tmp = (seq_t*)realloc(cache, n * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, n);
         if (!tmp) abort();
         cache = tmp;
         for (idx_t i = cache_cap; i < n; ++i)

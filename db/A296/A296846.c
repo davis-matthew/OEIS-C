@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 24, u32 n <= 47, u64 n <= 93, u128 n <= 185,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 56 terms through n = 938 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,10 +24,24 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 /* helper allocation wrappers making C and C++ compatible */
 static void *xmalloc(size_t sz) { return malloc(sz); }
+#ifdef __cplusplus
+template <class T>
+static T *xrealloc(T *p, size_t sz) { return mem_resize(T, p, (sz) / sizeof(T)); }
+#else
 static void *xrealloc(void *p, size_t sz) { return realloc(p, sz); }
+#endif
 
 /* static memoisation storage */
 static seq_t *a_arr = NULL;          /* a(n) values                      */

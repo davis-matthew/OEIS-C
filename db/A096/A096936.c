@@ -10,8 +10,9 @@
  *            following local rules: * - a(2^e) = 3*(1+(-1)^e)/2: 0 for odd e,
  *            3 for even e. * - a(3^e) = 1 for all e. * - a(p^e) (p ≡ 1 mod 3)
  *            = 1 + e. * - a(p^e) (p ≡ 2 mod 3) = (1+(-1)^e...
- * Range:     u8 n <= 9978, u16 n <= 9978, u32 n <= 9978, u64 n <= 9978,
- *            u128 n <= 9978, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9978 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

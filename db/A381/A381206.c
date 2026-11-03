@@ -10,12 +10,14 @@
  *            (n−2m) Then a(n) = Σ_{k=0..n} h(k) * h(n−k) * C(n,k)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 18, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Parameters seq_t and idx_t are supplied by the build system. */
 seq_t a(idx_t n)
@@ -25,11 +27,11 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* Allocate arrays to hold h[0..n] and a[0..n]. */
-    seq_t *h  = (seq_t *)malloc((n + 1) * sizeof(seq_t));
-    seq_t *a_arr = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *h  = mem_new(seq_t, (n + 1));
+    seq_t *a_arr = mem_new(seq_t, (n + 1));
     if (!h || !a_arr) {
-        free(h);
-        free(a_arr);
+        mem_free(h);
+        mem_free(a_arr);
         return (seq_t)0;   /* return 0 on allocation failure */
     }
 
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = a_arr[n];
-    free(h);
-    free(a_arr);
+    mem_free(h);
+    mem_free(a_arr);
     return result;
 }

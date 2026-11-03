@@ -7,12 +7,27 @@
  * Formula:   not stated
  * Range:     u8 n <= 861, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow_idx
+ * Validated: standard, pass, 107 terms through n = 8920 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/mod_pow_idx.h"
+/* Utility: modular exponentiation, using only idx_t arithmetic
+   so that intermediate values fit in 64‑bit integers. */
+static idx_t mod_pow_idx(idx_t base, idx_t exp, idx_t mod)
+{
+    idx_t result = 1 % mod;
+    idx_t b = base % mod;
+    while (exp > 0)
+    {
+        if (exp & 1U)
+            result = (result * b) % mod;
+        b = (b * b) % mod;
+        exp >>= 1U;
+    }
+    return result;
+}
 /* Computes the least k > 1 such that (n^k + k)/(n + k) is an integer
    (OEIS A341760).  The algorithm simply tests successive k by
    checking the divisibility condition using modular exponentiation. */

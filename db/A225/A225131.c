@@ -12,7 +12,8 @@
  *            prime congruent to 1 (mod 6) (p_1 = 7). * * This im...
  * Range:     i8 n <= 3, i16 n <= 6, i32 n <= 10, i64 n <= 21, i128 n <= 41,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 37 terms through n = 989 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 static uint64_t *primes1mod6 = NULL;
 static size_t primes_cap = 0;
@@ -38,7 +40,7 @@ static void ensure_primes1mod6(idx_t n) {
     while (primes_cnt < (size_t)n) {
         uint64_t start = (primes_cnt == 0) ? 7ULL : primes1mod6[primes_cnt - 1] + 6ULL;
         for (; primes_cnt < (size_t)n; start += 6ULL) {
-            if (is_prime_small((seq_t)start)) {
+            if (is_prime_seq((seq_t)start)) {
                 if (primes_cnt >= primes_cap) {
                     size_t newcap = primes_cap ? primes_cap * 2 : 16;
                     uint64_t *tmp = (uint64_t *)realloc(primes1mod6, newcap * sizeof(uint64_t));
@@ -54,7 +56,7 @@ static void ensure_primes1mod6(idx_t n) {
 /* Ensure pow7_cache stores 7^k for 0 ≤ k < n. */
 static void ensure_pow7(idx_t n) {
     if (!pow7_cache) {
-        pow7_cache = (seq_t *)calloc(1, sizeof(seq_t));
+        pow7_cache = mem_new(seq_t, 1);
         if (!pow7_cache) return;
         pow7_cache[0] = (seq_t)1;
         pow7_cap = 1;
@@ -63,7 +65,7 @@ static void ensure_pow7(idx_t n) {
     if (pow7_cap < needlen) {
         size_t newcap = pow7_cap;
         while (newcap < needlen) newcap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(pow7_cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, pow7_cache, newcap);
         for (size_t i = pow7_cap; i < newcap; ++i) {
             tmp[i] = tmp[i - 1] * (seq_t)7;
         }
@@ -76,7 +78,7 @@ static void ensure_pow7(idx_t n) {
 static void ensure_seq_cache(idx_t n) {
     if (!seq_cache) {
         seq_cap = (size_t)(n + 1) * 2;
-        seq_cache = (seq_t *)calloc(seq_cap, sizeof(seq_t));
+        seq_cache = mem_new(seq_t, seq_cap);
         if (!seq_cache) return;
         seq_cache[0] = (seq_t)1;          /* unused */
         seq_cache[1] = (seq_t)1;          /* a(1) = 1 */
@@ -85,7 +87,7 @@ static void ensure_seq_cache(idx_t n) {
     if (seq_cap <= (size_t)n) {
         size_t newcap = seq_cap;
         while (newcap <= (size_t)n) newcap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(seq_cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, newcap);
         seq_cache = tmp;
         seq_cap = newcap;
     }

@@ -8,7 +8,8 @@
  *            = 0, a(2) = 1, a(3) = 2, a(4) = 3, ... (Offset 1.)
  * Range:     u8 n <= 73, u16 n <= 7303, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_sum, is_fibo_sum
+ * Validated: standard, pass, 77 terms through n = 9850 (2026-11-03)
+ * Helpers:   digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,20 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/digit_sum.h"
-#include "../utils/is_fibo_sum.h"
+#include "../utils/mem.h"
+
+/* Helper: true iff s is a Fibonacci number (including 0). */
+static bool is_fibo_sum(seq_t s)
+{
+    if (s == 0) return true;
+    seq_t a = 0, b = 1;
+    while (b < s) {
+        seq_t tmp = a + b;
+        a = b;
+        b = tmp;
+    }
+    return b == s;
+}
 
 /* Sequence function. */
 seq_t a(idx_t n)
@@ -33,9 +47,9 @@ seq_t a(idx_t n)
     if (cache_len < n) {
         /* Allocate or resize the cache. */
         if (cache == NULL) {
-            cache = (seq_t *)malloc(sizeof(seq_t) * (size_t)n);
+            cache = mem_new(seq_t, (size_t)n);
         } else {
-            cache = (seq_t *)realloc(cache, sizeof(seq_t) * (size_t)n);
+            cache = mem_resize(seq_t, cache, (size_t)n);
         }
 
         /* Scan new numbers until we have n terms. */

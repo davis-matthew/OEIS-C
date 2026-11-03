@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 18, u32 n <= 18, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   cycle_is_smaller, rotate_min
+ * Validated: full, pass, 18 terms through n = 18 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,8 +28,26 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/cycle_is_smaller.h"
-#include "../utils/rotate_min.h"
+
+/* Lexicographic comparison of two already rotated cycles. */
+static bool cycle_is_smaller(const int *a, const int *b, int len)
+{
+    for (int i = 0; i < len; ++i) {
+        if (a[i] < b[i]) return true;
+        if (a[i] > b[i]) return false;
+    }
+    return false;                 /* equal */
+}
+
+/* rotate a cycle so that its minimal element is first */
+static void rotate_min(const int *src, int *dst, int len)
+{
+    int min_idx = 0;
+    for (int i = 1; i < len; ++i)
+        if (src[i] < src[min_idx]) min_idx = i;
+    for (int i = 0; i < len; ++i)
+        dst[i] = src[(min_idx + i) % len];
+}
 
 #define NUM_NODES 90                /* two‑digit numbers 10 … 99 */
 #define MAX_PRIME 1000000           /* 6‑digit primes fit in this range */

@@ -10,7 +10,8 @@
  *            a(3)=14, a(4)=22, a(5)=68, a(6)=163
  * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 26, u64 n <= 53, u128 n <= 106,
  *            big any n
- * Helpers:   alloc_seq_array, free_seq_array
+ * Validated: standard, pass, 48 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,18 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 seq_t a(idx_t n)
 {
@@ -41,13 +52,13 @@ seq_t a(idx_t n)
 
         /* copy old values */
         if (cache) {
-            memcpy(newbuf, cache, cap * sizeof(seq_t));
+            mem_copy(newbuf, cache, cap * sizeof(seq_t));
             free_seq_array(cache);
         }
 
         /* zero‑initialise new part (alloc_seq_array already produces
            default constructed elements, but we explicitly set 0 for safety) */
-        memset(newbuf + cap, 0, (newcap - cap) * sizeof(seq_t));
+        mem_set(newbuf + cap, 0, (newcap - cap) * sizeof(seq_t));
 
         cache = newbuf;
         cap   = newcap;

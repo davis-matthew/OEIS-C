@@ -10,7 +10,8 @@
  *            digit_product(digit_sum(k)) = digit_sum(digit_product(k))
  * Range:     u8 n <= 22, u16 n <= 4918, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   alloc_seq, digit_product, digit_sum, seq_free_array
+ * Validated: standard, pass, 73 terms through n = 9386 (2026-11-03)
+ * Helpers:   digit_product, digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,10 +20,22 @@
  * list of already found terms and grows it as needed.            */
 
 #include <stddef.h>                    /* for size_t */
-#include "../utils/digit_sum.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include <math.h>
 #include "../utils/digit_product.h"
-#include "../utils/alloc_seq.h"
-#include "../utils/seq_free_array.h"
+#include "../utils/digit_sum.h"
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 static seq_t *cache = NULL;       /* array of found terms          */
 static size_t cache_len = 0;      /* number of terms stored        */

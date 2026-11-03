@@ -8,7 +8,8 @@
  *            divisors of m
  * Range:     i8 n <= 6, i16 n <= 36, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   seq_pow_idx
+ * Validated: standard, pass, 76 terms through n = 932 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 /* ----------------------- includes ----------------------- */
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/seq_pow_idx.h"
+#include "../utils/ipow_idx.h"
 
 /* ---------------------- main function ------------------- */
 seq_t a(idx_t n)
@@ -67,11 +68,11 @@ seq_t a(idx_t n)
         idx_t e = exp[i];
 
         /* σ(p^e)   = (p^(e+1)-1)/(p-1) */
-        seq_t term_n  = (seq_pow_idx(p, e + 1) - 1) / (p - 1);
+        seq_t term_n  = (ipow_idx(p, e + 1) - 1) / (p - 1);
         sigma_n      *= term_n;
 
         /* σ(p^(2e)) = (p^(2e+1)-1)/(p-1) */
-        seq_t term_n2 = (seq_pow_idx(p, 2 * e + 1) - 1) / (p - 1);
+        seq_t term_n2 = (ipow_idx(p, 2 * e + 1) - 1) / (p - 1);
         sigma_n2     *= term_n2;
     }
 

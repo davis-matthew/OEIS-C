@@ -8,7 +8,8 @@
  * Formula:   a(n) = rotate_first_digit(a(n-1)) + 20 with a(1) = 1
  * Range:     u8 n <= 12, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   digit_len, pow10
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,20 @@
     the result is r * 10 + d.  */
 
 #include <stdlib.h>
-#include "../utils/digit_len.h"   /* int digit_len(seq_t x); */
-#include "../utils/pow10.h"       /* seq_t pow10(idx_t e); */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 static seq_t *cache = NULL;   /* cache of computed terms   */
 static size_t cache_size = 0; /* number of terms stored   */
@@ -35,7 +48,7 @@ ensure_cache_cap(idx_t n)
     size_t new_cap = cache_cap ? cache_cap * 2 : 64;
     while (new_cap < need)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         abort();   /* insufficient memory – terminate */
     cache = tmp;
@@ -57,7 +70,7 @@ seq_t a(idx_t n)
                 continue;
             }
             seq_t prev = cache[i - 1];    /* a(i)   */
-            int d = digit_len(prev);     /* number of decimal digits (>=1) */
+            int d = num_digits(prev);     /* number of decimal digits (>=1) */
             seq_t pow10d1 = pow10((idx_t)(d - 1)); /* 10^(d-1) */
             seq_t first = prev / pow10d1;   /* most significant digit */
             seq_t rest  = prev % pow10d1;   /* remaining suffix   */

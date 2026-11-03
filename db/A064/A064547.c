@@ -7,15 +7,32 @@
  * Keywords:  nonn, easy, base
  * Formula:   a(n) = sum of popcount(e_i) over the exponents e_i in the prime
  *            factorisation of n (a(1)=0)
- * Range:     u8 n <= 9487, u16 n <= 9487, u32 n <= 9487, u64 n <= 9487,
- *            u128 n <= 9487, big any n
- * Helpers:   factor
+ * Range:     u8 n <= 32768, u16 n <= 32768, u32 n <= 32768, u64 n <= 32768,
+ *            u128 n <= 32768, big any n
+ * Validated: standard, pass, 121 terms through n = 9487 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/factor.h"   /* provides void factor(uint64_t n,uint64_t *pr,uint64_t *exp,size_t *cnt); */
+#include <stddef.h>
+#include <stdbool.h>
+
+/* --------------------------------------------------------------- */
+static void factor(uint64_t n, uint64_t *pr, uint64_t *exp, size_t *cnt)
+{
+    size_t c = 0;
+    for (uint64_t p = 2; p*p <= n; ++p) {
+        if (n % p == 0) {
+            pr[c] = p; exp[c] = 0;
+            while (n % p == 0) { n /= p; ++exp[c]; }
+            ++c;
+        }
+    }
+    if (n > 1) { pr[c] = n; exp[c] = 1; ++c; }
+    *cnt = c;
+}
 
 seq_t a(idx_t n)
 {

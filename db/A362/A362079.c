@@ -9,8 +9,9 @@
  *            satisfying s*(s+1)/2 <= n. i = n - s*(s+1)/2 and j = s - i. *
  *            T(n,k) = Σ_{j=0..n} binomial(j+k-1, j) * binomial(n*j, n-j), *
  *            with T(0,0)=1, T(n,0)=0 for n>0, and T(0,k)=1 for any k
- * Range:     u8 n <= 25, u16 n <= 52, u32 n <= 65, u64 n <= 65, u128 n <= 65,
+ * Range:     u8 n <= 31, u16 n <= 52, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* Find the antidiagonal index s such that s*(s+1)/2 <= n < (s+1)*(s+2)/2. */

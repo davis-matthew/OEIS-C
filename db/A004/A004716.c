@@ -11,7 +11,8 @@
  *            division
  * Range:     u8 n <= 121, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   bcmp_ge, bshl1, bsub, bzero_p
+ * Validated: standard, pass, 69 terms through n = 956 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,10 +20,40 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/bcmp_ge.h"
-#include "../utils/bshl1.h"
-#include "../utils/bsub.h"
-#include "../utils/bzero_p.h"
+
+static int bcmp_ge(const uint32_t *x, const uint32_t *y, size_t W) {
+    size_t i;
+    for (i = 0; i < W; i++) {
+        if (x[i] != y[i]) return x[i] > y[i];
+    }
+    return 1;
+}
+
+static void bshl1(uint32_t *x, size_t W) {
+    uint32_t c = 0;
+    size_t i = W;
+    while (i-- > 0) {
+        uint32_t nc = x[i] >> 31;
+        x[i] = (x[i] << 1) | c;
+        c = nc;
+    }
+}
+
+static void bsub(uint32_t *s, const uint32_t *t, size_t W) {
+    int64_t b = 0;
+    size_t i = W;
+    while (i-- > 0) {
+        int64_t v = (int64_t)s[i] - (int64_t)t[i] - b;
+        if (v < 0) { v += ((int64_t)1 << 32); b = 1; } else b = 0;
+        s[i] = (uint32_t)v;
+    }
+}
+
+static int bzero_p(const uint32_t *x, size_t W) {
+    size_t i;
+    for (i = 0; i < W; i++) if (x[i]) return 0;
+    return 1;
+}
 
 static idx_t *pos_cache = NULL;
 static idx_t pos_count = 0;

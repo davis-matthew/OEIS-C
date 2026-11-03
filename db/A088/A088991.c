@@ -8,7 +8,8 @@
  * Formula:   a(n) = 4*(n-1)*(a(n-1)+a(n-2)), a(0)=1, a(1)=0
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 14, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 190 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /*  Recurrence for derangement numbers d(n,4) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_cap = 0;
@@ -26,7 +28,7 @@ static void ensure_cache_cap(size_t n) {
     if (cache == NULL) {
         /* initial capacity at least 2 to hold a(0) and a(1) */
         cache_cap = 2;
-        cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return;            /* allocation failure – caller will get 0 */
         cache[0] = (seq_t)1;           /* a(0) */
         cache[1] = (seq_t)0;           /* a(1) */
@@ -34,7 +36,7 @@ static void ensure_cache_cap(size_t n) {
     }
     while (cache_cap <= n) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return;              /* allocation failure – caller will get 0 */
         /* zero any new elements */
         for (size_t i = cache_cap; i < new_cap; ++i) tmp[i] = (seq_t)0;

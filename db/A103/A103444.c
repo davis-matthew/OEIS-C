@@ -12,12 +12,23 @@
  *            divisors correspond to choosing, for each prime dividin...
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   get_row_col
+ * Validated: partial, pass, 101 terms through n = 100 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/get_row_col.h"
+/* Compute the row and column of index n in the triangle */
+static void get_row_col(idx_t n, idx_t *row, idx_t *col)
+{
+    /* Find the smallest r such that r(r+1)/2 > n; then r is the row */
+    idx_t r = 0;
+    while ((r + 1) * (r + 2) / 2 <= n) {
+        ++r;
+    }
+    *row = r;
+    *col = n - r * (r + 1) / 2;
+}
 
 /* Legendre's formula: exponent of prime p in n! */
 static inline idx_t legendre(idx_t n, idx_t p)

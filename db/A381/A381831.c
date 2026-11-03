@@ -7,14 +7,16 @@
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{k=0..n} binomial(3*n+k+1,k) * binomial(4*n-2*k,n-k)
  *            / (3*n+k+1)
- * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 18, u128 n <= 21,
+ * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 18, u128 n <= 21,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
 #if defined(__cplusplus)
 /* C++ version – rely on seq_t arithmetic (supports big integer types) */
     seq_t sum = 0;
-    seq_t T   = binom((idx_t)(4*n), (idx_t)n);      /* binom(4n,n)      */
+    seq_t T   = binomial((idx_t)(4*n), (idx_t)n);      /* binom(4n,n)      */
     T = T / (seq_t)(3*n + 1);                       /* T0 = binom(4n,n)/(3n+1) */
     sum = T;
 
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
 #else
 /* C version – use 128‑bit intermediate to avoid overflow for 64‑bit seq_t */
     seq_t sum = 0;
-    seq_t T   = binom((idx_t)(4*n), (idx_t)n);
+    seq_t T   = binomial((idx_t)(4*n), (idx_t)n);
     T = (seq_t)((__int128)T / (seq_t)(3*n + 1));
     sum = T;
 

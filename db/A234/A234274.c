@@ -8,13 +8,15 @@
  *            a(1)=8, a(2)=56, a(3)=392, a(4)=2737, a(5)=19103
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* initialise first six terms */
         cap = 6;
-        cache = (seq_t*)calloc(cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) abort();
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)8;
@@ -45,10 +47,10 @@ seq_t a(idx_t n)
     if (need > cap) {
         size_t newcap = cap ? cap : 1;
         while (need > newcap) newcap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp) abort();
         /* zero the new part so any uncomputed entry is 0 */
-        memset(tmp + cap, 0, (newcap - cap) * sizeof(seq_t));
+        mem_set(tmp + cap, 0, (newcap - cap) * sizeof(seq_t));
         cache = tmp;
         cap   = newcap;
     }

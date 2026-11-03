@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 18, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* External types supplied by the build */
 extern seq_t a(idx_t n);
@@ -44,7 +46,7 @@ static void ensure(idx_t n)
     if (!initialized) {
         /* initialise for a(0) = 1 */
         a_cap = 4;
-        a_cache = (seq_t *)malloc(a_cap * sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_cap);
         a_cache[0] = (seq_t)1;
         a_len = 1;
 
@@ -65,7 +67,7 @@ static void ensure(idx_t n)
         /* ensure capacity for c_cache */
         if (c_len == c_cap) {
             c_cap = c_cap ? c_cap * 2 : 4;
-            c_cache = (seq_t *)realloc(c_cache, c_cap * sizeof(seq_t));
+            c_cache = mem_resize(seq_t, c_cache, c_cap);
         }
         seq_t ck1 = pow3 * d;           /* c(k-1) */
         c_cache[c_len++] = ck1;
@@ -80,7 +82,7 @@ static void ensure(idx_t n)
         /* ensure capacity for a_cache */
         if (a_len == a_cap) {
             a_cap = a_cap * 2;
-            a_cache = (seq_t *)realloc(a_cache, a_cap * sizeof(seq_t));
+            a_cache = mem_resize(seq_t, a_cache, a_cap);
         }
         a_cache[a_len++] = ak;
 

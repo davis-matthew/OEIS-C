@@ -8,9 +8,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 16, u16 n <= 2670, u32 n <= 9879, u64 n <= 9879,
- *            u128 n <= 9879, big any n
- * Helpers:   is_power_of_two, largest_prime_factor, seq_pow
+ * Range:     u8 n <= 16, u16 n <= 2670, u32 n <= 65536, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9879 (2026-11-01)
+ * Helpers:   ipow_idx, is_pow2, largest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,16 +22,18 @@
    or -1 if it never occurs. */
 
 #include <stdbool.h>
-#include "../utils/is_power_of_two.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/is_pow2.h"
 #include "../utils/largest_prime_factor.h"
-#include "../utils/seq_pow.h"
 
 seq_t a(idx_t n) {
     seq_t k = (seq_t)n;
     seq_t steps = 0;
 
     /* n ≥ 1 by definition of the sequence */
-    while (!is_power_of_two(k)) {
+    while (!is_pow2(k)) {
         /* Find largest prime factor p of k (assumed to fit in uint64_t) */
         uint64_t kp = (uint64_t)k;
         uint64_t p = largest_prime_factor(kp);
@@ -45,8 +48,8 @@ seq_t a(idx_t n) {
         }
 
         /* Compute m = p^e and σ(pⁿ) = (p^(e+1)-1)/(p-1) */
-        seq_t m   = seq_pow((seq_t)p, (idx_t)e);
-        seq_t num = seq_pow((seq_t)p, (idx_t)(e + 1));
+        seq_t m   = ipow_idx((seq_t)p, (idx_t)e);
+        seq_t num = ipow_idx((seq_t)p, (idx_t)(e + 1));
         num -= 1;
         seq_t sigma = num / (seq_t)(p - 1);
 

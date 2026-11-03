@@ -7,8 +7,9 @@
  * Keywords:  nonn, base
  * Formula:   a(n) = A276085(A276076(n)) (factorial‑base digits interpreted in
  *            primorial base)
- * Range:     u8 n <= 159, u16 n <= 8355, u32 n <= 8355, u64 n <= 8355,
- *            u128 n <= 8355, big any n
+ * Range:     u8 n <= 159, u16 n <= 12015, u32 n <= 40319, u64 n <= 40319,
+ *            u128 n <= 40319, big any n
+ * Validated: standard, pass, 99 terms through n = 8355 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

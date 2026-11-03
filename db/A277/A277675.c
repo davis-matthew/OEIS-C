@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 45, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digits_factorial_in_base
+ * Validated: standard, pass, 72 terms through n = 998 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,27 @@
 
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/digits_factorial_in_base.h"
+#include "../utils/mem.h"
+
+/* Return floor( ln(m!)/ln(m) ) + 1.
+   The function keeps a running sum of ln(i) for i = 1..cur_m,
+   so each call increases cur_m only if necessary. */
+static idx_t digits_factorial_in_base(idx_t m)
+{
+    static idx_t cur_m = 0;
+    static long double sum_ln = 0.0L;
+
+    while (cur_m < m) {
+        ++cur_m;
+        sum_ln += logl((long double)cur_m);
+    }
+
+    /* ln(m!)/ln(m)   */
+    long double val = sum_ln / logl((long double)m);
+    /* tiny epsilon to guard against rounding at an integer boundary */
+    const long double eps = 1e-12L;
+    return (idx_t)(floorl(val + eps)) + 1;
+}
 
 /* Return the nth term of the sequence.
    The implementation lazily generates terms and remembers
@@ -39,7 +60,7 @@ seq_t a(idx_t n)
         if (d1 == d2) {
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap << 1 : 16;
-                void *tmp = realloc(cache, new_cap * sizeof(seq_t));
+                void *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) abort();            /* allocation failure */
                 cache = (seq_t *)tmp;
                 cache_cap = new_cap;

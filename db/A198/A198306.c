@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 27, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 28 terms through n = 30 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
    We compute the required power of 5 using the provided helper
    `big_pow(seq_t base, seq_t exp)`. */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -34,11 +37,11 @@ seq_t a(idx_t n)
 
     if ((n & 1) == 0) {
         /* even n: a(n) = (5^(n/2) - 1) / 2 */
-        pow5 = big_pow(FIVE, (seq_t)(n / 2));
+        pow5 = ipow(FIVE, (seq_t)(n / 2));
         result = (pow5 - 1) / 2;
     } else {
         /* odd n: a(n) = (3 * 5^((n-1)/2) - 1) / 2 */
-        pow5 = big_pow(FIVE, (seq_t)((n - 1) / 2));
+        pow5 = ipow(FIVE, (seq_t)((n - 1) / 2));
         result = (3 * pow5 - 1) / 2;
     }
 

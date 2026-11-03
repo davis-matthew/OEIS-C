@@ -8,13 +8,15 @@
  *            17, a(2) = 92, a(3) = 495
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 12, u64 n <= 25, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 933 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static cache of computed terms (0‑based index) */
 static seq_t *cache = NULL;        /* Allocated array of terms */
@@ -39,7 +41,7 @@ static void grow_cache_to(size_t new_cap)
     if (new_cap <= cache_size) return;
     size_t cap = cache_size ? cache_size : 1;
     while (cap < new_cap) cap <<= 1;
-    seq_t *tmp = (seq_t*)realloc(cache, cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, cap);
     if (!tmp) abort();                /* out of memory */
     cache = tmp;
     cache_size = cap;

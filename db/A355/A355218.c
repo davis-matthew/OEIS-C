@@ -7,12 +7,14 @@
  * Formula:   a(n) = 2^n + Sum_{k=1..n} binomial(n,k) * 3^k * a(n-k) a(0) = 1
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* ensure memo array large enough */
     if (n >= memo_cap) {
         idx_t new_cap = n + 1;
-        seq_t *new_memo = (seq_t *)realloc(memo, new_cap * sizeof(seq_t));
+        seq_t *new_memo = mem_resize(seq_t, memo, new_cap);
         if (!new_memo) return 0;
         if (memo_cap == 0) {
             new_memo[0] = 1;          /* a(0) = 1 */
@@ -45,8 +47,8 @@ seq_t a(idx_t n)
     /* ensure power arrays large enough */
     if (n >= pow_cap) {
         idx_t new_cap = n + 1;
-        seq_t *new_pow2 = (seq_t *)realloc(pow2_arr, new_cap * sizeof(seq_t));
-        seq_t *new_pow3 = (seq_t *)realloc(pow3_arr, new_cap * sizeof(seq_t));
+        seq_t *new_pow2 = mem_resize(seq_t, pow2_arr, new_cap);
+        seq_t *new_pow3 = mem_resize(seq_t, pow3_arr, new_cap);
         if (!new_pow2 || !new_pow3) return 0;
         if (pow_cap == 0) {
             new_pow2[0] = 1;

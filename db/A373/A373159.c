@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 15, u32 n <= 15, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   is_prime
+ * Validated: full, pass, 15 terms through n = 15 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Forward declaration of helper */
 static void compute_terms(void);
@@ -68,7 +70,7 @@ static void compute_terms(void)
     }
 
     /* Allocate the final cache.  The sequence is finite. */
-    seq_cache = (seq_t *)malloc(tcnt * sizeof(seq_t));
+    seq_cache = mem_new(seq_t, tcnt);
     seq_len   = tcnt;
     for (idx_t i = 0; i < tcnt; ++i) {
         seq_cache[i] = (seq_t)temp[i];

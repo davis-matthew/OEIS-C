@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   int_sqrt
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/int_sqrt.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 #define MAX_PERIOD 30000
 #define CACHE_CAP 200000
@@ -42,7 +44,7 @@ static void ensure_cache_cap(void)
     {
         size_t new_cap = cap == 0 ? 64 : cap * 2;
         while (new_cap < CACHE_CAP) new_cap <<= 1;
-        seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, new_cap);
         cap = new_cap;
     }
 }
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
         idx_t k = next_k++;
 
         /* Skip perfect squares */
-        idx_t a0 = int_sqrt(k);
+        idx_t a0 = isqrt(k);
         if (a0 * a0 == k) continue;
 
         idx_t m = 0;

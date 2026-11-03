@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 107, u32 n <= 150, u64 n <= 150, u128 n <= 150,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 53 terms through n = 137 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"   // mod_pow(seq_t base, uint64_t exp, seq_t mod)
+#include <string.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n) {
     /* static state */
@@ -67,10 +69,10 @@ seq_t a(idx_t n) {
             uint64_t exp8  = (i - 1ULL) / 8ULL;
             uint64_t exp16 = (i - 1ULL) / 16ULL;
 
-            seq_t r8  = mod_pow(2, exp8,  p);
+            seq_t r8  = powmod(2, exp8,  p);
             if (r8 != one) continue;         /* x^8 = 2 has no solution */
 
-            seq_t r16 = mod_pow(2, exp16, p);
+            seq_t r16 = powmod(2, exp16, p);
             if (r16 == one) continue;        /* x^16 = 2 would have a solution */
 
             /* Store qualifying prime */

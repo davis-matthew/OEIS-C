@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{d|n, n/d == 2 (mod 3)} (-1)^(n/d) * d
  * Range:     i8 n <= 207, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 95 terms through n = 9765 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

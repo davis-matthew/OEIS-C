@@ -5,14 +5,16 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = Σ_{i=0}^{n-1} Σ_{j=0}^{i} (i-j+1)^j (OEIS A103439)
- * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 17, u64 n <= 26, u128 n <= 26,
+ * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 17, u64 n <= 28, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 583 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 static seq_t *seq_arr = NULL;  /* a(n) values */
@@ -30,8 +32,8 @@ seq_t a(idx_t n)
     if (max_comp < n) {
         idx_t new_size = n + 1;           /* indices 0..n */
 
-        pow_arr = (seq_t *)realloc(pow_arr, new_size * sizeof(seq_t));
-        seq_arr = (seq_t *)realloc(seq_arr, new_size * sizeof(seq_t));
+        pow_arr = mem_resize(seq_t, pow_arr, new_size);
+        seq_arr = mem_resize(seq_t, seq_arr, new_size);
 
         /* Initialise new entries – they are zeroed by the realloc in
            most implementations, but we do it explicitly for

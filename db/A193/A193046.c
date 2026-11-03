@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 11, u32 n <= 29, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>   /* malloc, abort */
 #include <stdint.h>   /* size_t */
+#include "../utils/mem.h"
 
 static const seq_t base_values[6] = {1, 1, 17, 83, 275, 727};
 
@@ -45,12 +47,12 @@ static void ensure_cache(idx_t n)
     if (need > cache_capacity) {
         size_t new_cap = cache_capacity ? cache_capacity << 1 : 16;
         while (new_cap < need) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, new_cap);
         if (!tmp) abort();
         if (cache) {
             /* copy old data */
             for (size_t i = 0; i < cache_length; ++i) tmp[i] = cache[i];
-            free(cache);
+            mem_free(cache);
         }
         cache = tmp;
         cache_capacity = new_cap;

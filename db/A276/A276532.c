@@ -9,7 +9,8 @@
  *            a(n-7) with a(0)=a(1)=a(2)=a(3)=a(4)=a(5)=a(6)=1
  * Range:     u8 n <= 11, u16 n <= 13, u32 n <= 15, u64 n <= 16, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    and the result is computed in O(n) time and memory. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined in the build environment. */
 
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     if (cache == NULL || cap < (size_t)(n + 1))
     {
         size_t new_cap = (n + 1 > 7) ? n + 1 : 7;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL)   /* allocation failed – return 0 */
             return 0;
         cache = tmp;

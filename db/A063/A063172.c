@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 8, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   _smallest_prime_factor, seq_realloc, to_base9
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-01)
+ * Helpers:   smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,9 +26,45 @@
 #include <string.h>
 
 /* Helper functions provided by the build */
-#include "../utils/_smallest_prime_factor.h"   /* uint64_t _smallest_prime_factor(uint64_t n); */
-#include "../utils/seq_realloc.h"             /* seq_t *seq_realloc(seq_t *old, size_t old_cap, size_t new_cap); */
-#include "../utils/to_base9.h"
+#include "../utils/smallest_prime_factor.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
+
+/* Convert a number to its base‑9 string representation.
+   buf must be large enough (64 chars is ample). */
+static void to_base9(seq_t x, char *buf)
+{
+    if (x == 0) {
+        buf[0] = '0';
+        buf[1] = '\0';
+        return;
+    }
+    char rev[64];
+    int pos = 0;
+    while (x != 0) {
+        int d = (int)(x % 9);
+        rev[pos++] = '0' + d;
+        x /= 9;
+    }
+    /* reverse */
+    for (int i = 0; i < pos / 2; ++i) {
+        char t = rev[i];
+        rev[i] = rev[pos - 1 - i];
+        rev[pos - 1 - i] = t;
+    }
+    memcpy(buf, rev, pos);
+    buf[pos] = '\0';
+}
 
 static seq_t *cache = NULL;        /* cache of found terms   */
 static size_t cache_size = 0;      /* number of terms stored */
@@ -44,7 +81,7 @@ seq_t a(idx_t n)
         uint64_t cand = next_candidate++;   /* candidate number */
 
         /* Skip primes */
-        uint64_t spf = _smallest_prime_factor(cand);
+        uint64_t spf = smallest_prime_factor(cand);
         if (spf == cand) continue;           /* candidate is prime */
 
         /* Largest proper factor */

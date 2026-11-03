@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 50, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- dynamic array helpers ---------- */
 static void grow_seq(seq_t **arr, size_t *len, size_t *cap, size_t need)
@@ -28,7 +30,7 @@ static void grow_seq(seq_t **arr, size_t *len, size_t *cap, size_t need)
     if (*cap >= need) return;
     size_t new_cap = *cap ? *cap * 2 : 16;
     if (new_cap < need) new_cap = need;
-    seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
     if (!tmp) exit(1);
     *arr = tmp;
     *cap = new_cap;
@@ -73,8 +75,8 @@ seq_t a(idx_t n)
 {
     /* Lazy initialisation */
     if (!a_arr) {
-        a_cap = 16;  a_arr = (seq_t *)malloc(a_cap * sizeof(seq_t));
-        b_cap = 16;  b_arr = (seq_t *)malloc(b_cap * sizeof(seq_t));
+        a_cap = 16;  a_arr = mem_new(seq_t, a_cap);
+        b_cap = 16;  b_arr = mem_new(seq_t, b_cap);
         if (!a_arr || !b_arr) exit(1);
 
         /* initialise b(0) = 1 */

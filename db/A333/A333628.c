@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   run_lengths
+ * Validated: partial, pass, 86 terms through n = 86 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,29 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/run_lengths.h"
+
+/* Apply run‑length encoding to an array of seq_t values.  The input array
+   has length 'len'; the result is written to 'out' and the new length is
+   stored in '*outlen'.  */
+static void run_lengths(const seq_t *in, size_t len, seq_t *out, size_t *outlen)
+{
+    if (len == 0) {
+        *outlen = 0;
+        return;
+    }
+    size_t k = 0;
+    seq_t run = 1;
+    for (size_t i = 1; i < len; ++i) {
+        if (in[i] == in[i - 1]) {
+            run++;
+        } else {
+            out[k++] = run;
+            run = 1;
+        }
+    }
+    out[k++] = run;
+    *outlen = k;
+}
 
 /* Maximum number of parts in any composition that we will handle
    (2^(m‑1) compositions exist for integer m, so m ≤ 64 for any 64‑bit index). */

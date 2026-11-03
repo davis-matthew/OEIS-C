@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 6777, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64, mod_pow
+ * Validated: standard, pass, 81 terms through n = 8666 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,57 @@
  */
 
 #include <stdlib.h>
-#include "../utils/divisor_count_u64.h"
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <string.h>
+#include <stdbool.h>
+
+/* Count divisors of a 64‑bit integer */
+static uint64_t divisor_count_u64(uint64_t n)
+{
+    uint64_t tau = 1;
+    uint64_t exp;
+
+    /* factor 2 */
+    exp = 0;
+    while ((n & 1ULL) == 0) {
+        n >>= 1;
+        ++exp;
+    }
+    if (exp) tau *= (exp + 1);
+
+    /* factor odd primes */
+    for (uint64_t p = 3; p <= n / p; p += 2) {
+        if (n % p == 0) {
+            exp = 0;
+            while (n % p == 0) {
+                n /= p;
+                ++exp;
+            }
+            tau *= (exp + 1);
+        }
+    }
+
+    /* remaining prime factor */
+    if (n > 1) tau *= 2;
+
+    return tau;
+}
+
+/* modular exponentiation using 128‑bit intermediate.
+   Works for any seq_t. */
+static seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod)
+{
+    seq_t res = 1 % mod;
+    base   %= mod;
+    while (exp) {
+        if (exp & 1)
+            res = (unsigned __int128)res * base % mod;
+        exp >>= 1;
+        if (exp)
+            base = (unsigned __int128)base * base % mod;
+    }
+    return res;
+}
 
 static uint64_t *terms = NULL;   /* table of found terms */
 static size_t   terms_len = 0;   /* number of stored terms   */

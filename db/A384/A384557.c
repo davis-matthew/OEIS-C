@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   exponent_factor
+ * Validated: standard, pass, 116 terms through n = 9991 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,30 @@
  */
 
 #include <stdint.h>
-#include "../utils/exponent_factor.h"
+
+static seq_t exponent_factor(uint64_t e)
+{
+    /* Count distinct odd prime factors of e. */
+    unsigned t = 0;
+
+    /* Remove all factors of 2. */
+    while ((e & 1ULL) == 0 && e > 1)
+        e >>= 1;
+
+    /* Factor remaining odd part. */
+    uint64_t d;
+    for (d = 3; d * d <= e; d += 2) {
+        if (e % d == 0) {
+            t++;
+            while (e % d == 0)
+                e /= d;
+        }
+    }
+    if (e > 1)
+        t++;
+
+    return (seq_t)((seq_t)1 << t);   /* 1 << t is safe because t is tiny. */
+}
 
 seq_t a(idx_t n)
 {

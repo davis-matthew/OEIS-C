@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   ok_for_k
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,42 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/ok_for_k.h"
+#include "../utils/mem.h"
+
+/* Test whether nonnegative integer k satisfies the property.
+   For k = 0 the empty composition yields zero sums and is valid. */
+static bool ok_for_k(idx_t k)
+{
+    if (k == 0) return true;
+
+    /* Gather the 1‑based positions of set bits (little‑endian). */
+    idx_t pos[64];
+    size_t m = 0;
+    idx_t bit = 0;
+    idx_t tmp = k;
+    while (tmp) {
+        if (tmp & 1) pos[m++] = bit + 1;     /* 1‑based position */
+        tmp >>= 1;
+        ++bit;
+    }
+
+    /* Compute the difference sequence (gaps between successive positions). */
+    seq_t diff[64];
+    diff[0] = pos[0];
+    for (size_t i = 1; i < m; ++i) diff[i] = pos[i] - pos[i-1];
+
+    /* Reverse the differences to obtain the composition parts and evaluate the sums. */
+    seq_t sumHalf = 0;
+    seq_t sumSkew = 0;
+    for (size_t rev = 0; rev < m; ++rev) {
+        seq_t part = diff[m-1-rev];
+        int half_sign = ((rev >> 1) & 1) ? -1 : 1;
+        int skew_sign = ((rev & 3) == 0 || (rev & 3) == 3) ? 1 : -1;
+        sumHalf += (seq_t)(half_sign) * part;
+        sumSkew += (seq_t)(skew_sign) * part;
+    }
+    return sumHalf == 0 && sumSkew == 0;
+}
 
 /* Cache of found values. */
 static seq_t *cache = NULL;
@@ -34,7 +70,7 @@ static void ensure_cache_capacity(size_t needed)
     if (needed <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap << 1 : 16;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *new_ptr = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
     if (!new_ptr && new_cap > 0) {
         /* allocation failure – abort is safe for this harness */
         abort();

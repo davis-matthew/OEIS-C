@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 9, i16 n <= 21, i32 n <= 44, i64 n <= 44, i128 n <= 44,
  *            big any n
- * Helpers:   ensure_idx_capacity
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,18 @@
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/ensure_idx_capacity.h"
+#include "../utils/mem.h"
+
+/* Ensure capacity for an idx_t array */
+static void ensure_idx_capacity(idx_t **idx_ptr, size_t *cap, size_t need)
+{
+    if (need > *cap) {
+        size_t new_cap = (*cap) ? (*cap) << 1 : 64;
+        while (new_cap < need) new_cap <<= 1;
+        *idx_ptr = (idx_t *)realloc(*idx_ptr, new_cap * sizeof(idx_t));
+        *cap = new_cap;
+    }
+}
 
 /* Helper to compute triangular numbers: r*(r+1)/2 */
 static inline idx_t triangular(idx_t r)
@@ -37,7 +49,7 @@ static void ensure_seq_capacity(seq_t **seq_ptr, size_t *cap, size_t need)
     if (need > *cap) {
         size_t new_cap = (*cap) ? (*cap) << 1 : 64;
         while (new_cap < need) new_cap <<= 1;
-        *seq_ptr = (seq_t *)realloc(*seq_ptr, new_cap * sizeof(seq_t));
+        *seq_ptr = mem_resize(seq_t, *seq_ptr, new_cap);
         *cap = new_cap;
     }
 }

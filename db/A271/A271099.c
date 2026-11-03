@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 9857 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    with u <= v, x <= y such that u³ + v³ + 2·x³ + 2·y³ + 3·z³ = n.  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Integer cube root: largest k with k³ <= n.  Uses __int128 to avoid overflow. */
 static inline idx_t icbrt(idx_t n)
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
 
     if (n >= cache_cap) {
         idx_t new_cap = n + 1;
-        seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (!new_cache)
             return 0;                 /* allocation failure */
 
@@ -97,7 +99,7 @@ seq_t a(idx_t n)
             }
         }
 
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_cap = new_cap;
     }

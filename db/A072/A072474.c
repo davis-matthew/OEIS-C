@@ -7,6 +7,7 @@
  * Formula:   a(n) = (n/12)*(3*n^2 + 1)*(n^2 + 2) (OEIS A072474)
  * Range:     u8 n <= 3, u16 n <= 12, u32 n <= 111, u64 n <= 9410,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 51 terms through n = 9950 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

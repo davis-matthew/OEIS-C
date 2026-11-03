@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 293, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   init_global_primes
+ * Validated: standard, pass, 84 terms through n = 872 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,30 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/init_global_primes.h"
+#include "../utils/mem.h"
+
+static void init_global_primes(uint32_t **primes, size_t *prime_len)
+{
+    /* limit large enough for the expected range of n (≈10 000) */
+    const size_t MAX_PRIME = 200000;
+    uint8_t *sieve = (uint8_t *)calloc(MAX_PRIME + 1, 1);
+    if (!sieve) return;  /* unlikely; abort silently */
+
+    *prime_len = 0;
+    *primes = (uint32_t *)malloc((MAX_PRIME + 1) * sizeof(uint32_t));
+
+    for (size_t i = 2; i <= MAX_PRIME; ++i) {
+        if (!sieve[i]) {
+            (*primes)[(*prime_len)++] = (uint32_t)i;
+            if (i * i <= MAX_PRIME) {
+                for (size_t j = i * i; j <= MAX_PRIME; j += i) {
+                    sieve[j] = 1;
+                }
+            }
+        }
+    }
+    free(sieve);
+}
 
 static bool is_squarefree(seq_t v, const uint32_t *primes, size_t prime_len)
 {
@@ -55,7 +79,7 @@ seq_t a(idx_t n)
     /* Allocate cache if necessary */
     if (!cache) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* Compute terms up to n if they are not yet known */
@@ -75,7 +99,7 @@ seq_t a(idx_t n)
         if (cache_cap <= last_computed) {
             size_t new_cap = cache_cap * 2;
             if (new_cap == 0) new_cap = 16;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) exit(EXIT_FAILURE);  /* allocation failed */
             cache = tmp;
             cache_cap = new_cap;

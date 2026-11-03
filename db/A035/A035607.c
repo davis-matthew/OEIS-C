@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 38, u16 n <= 111, u32 n <= 390, u64 n <= 1454,
  *            u128 n <= 5506, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 7134 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Integer square‑root for 64‑bit unsigned values, without floating point. */
 static uint64_t floor_sqrt_u64(uint64_t n)
@@ -57,7 +59,7 @@ static void ensure_dp_up_to(size_t target_d)
     if (!dp) abort();
 
     for (size_t d = max_d + 1; d <= target_d; ++d) {
-        dp[d] = (seq_t *)calloc(d, sizeof(seq_t));
+        dp[d] = mem_new(seq_t, d);
         if (!dp[d]) abort();
 
         dp[d][0] = (seq_t)1;          /* f(d,0) = 1 */

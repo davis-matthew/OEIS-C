@@ -7,6 +7,7 @@
  * Formula:   a(n) = (n^4 - 14*n^3 + 51*n^2 - 38*n - 16) / 8
  * Range:     i8 n <= 5, i16 n <= 17, i32 n <= 257, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 66 terms through n = 9558 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

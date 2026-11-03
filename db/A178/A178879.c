@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 13, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: full, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 /* Utility that builds all primes <= limit and returns an array of uint64_t. */
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 /* static cache of counts indexed by digit sum (0..71) */
 static seq_t *digit_sum_counts = NULL;
@@ -46,7 +48,7 @@ static void init_counts(void)
             sums_values[sums_count++] = (unsigned short)s;
 
     /* memory for 72 possible sums, zeroed */
-    digit_sum_counts = (seq_t *)calloc(72, sizeof(seq_t));
+    digit_sum_counts = mem_new(seq_t, 72);
 
     /* sieve all primes up to 99,999,999 */
     uint64_t *primes = NULL;

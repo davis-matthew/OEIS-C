@@ -12,13 +12,15 @@
  *            O(n log n) for the largest n, * which is comfo...
  * Range:     u8 n <= 705, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 9784 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for the prefix array and divisor counts */
 static seq_t *pref      = NULL;   /* pref[i] = a(i) */
@@ -33,7 +35,7 @@ static void grow(idx_t need)
     if (need <= cur_max) return;
     /* allocate new arrays */
     divcnt = (uint32_t *)realloc(divcnt, (new_max + 1) * sizeof(uint32_t));
-    pref   = (seq_t   *)realloc(pref  , (new_max + 1) * sizeof(seq_t));
+    pref   = mem_resize(seq_t, pref, (new_max + 1));
     /* clear new slots (they may contain garbage) */
     for (idx_t i = cur_max + 1; i <= new_max; ++i)
         divcnt[i] = 0, pref[i] = 0;

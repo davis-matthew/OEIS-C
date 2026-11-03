@@ -9,13 +9,15 @@
  *            a(3)=1925, a(4)=2181, a(5)=2465, a(6)=13056
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 27, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;        /* array storing computed terms */
 static size_t capacity = 0;       /* allocated size of cache */
@@ -26,7 +28,7 @@ static void ensure_cache(idx_t n) {
     if (cache == NULL) {
         /* first allocation: at least 6 terms, or n if larger */
         capacity = n > 6 ? n : 6;
-        cache = (seq_t *)calloc(capacity, sizeof(seq_t));
+        cache = mem_new(seq_t, capacity);
         if (!cache) return;                     /* memory failure, caller handles 0 */
         cache[0] = 0;
         cache[1] = 56;
@@ -37,7 +39,7 @@ static void ensure_cache(idx_t n) {
         computed = 6;
     } else if (capacity < (size_t)n) {
         /* extend allocation to size n */
-        seq_t *tmp = (seq_t *)realloc(cache, n * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, n);
         if (!tmp) return;                     /* memory failure, caller handles 0 */
         /* initialize newly allocated elements to 0 */
         for (size_t i = capacity; i < (size_t)n; ++i) tmp[i] = 0;

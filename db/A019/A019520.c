@@ -7,12 +7,16 @@
  * Formula:   a(n) = concatenation of the first n positive even numbers
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   digit_len
+ * Validated: partial, pass, 16 terms through n = 16 (2026-11-01)
+ * Helpers:   num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/digit_len.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/num_digits.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +26,7 @@ seq_t a(idx_t n)
     for (idx_t i = 1; i <= n; ++i)
     {
         seq_t even_val = (seq_t)2 * (seq_t)i;
-        int d = digit_len(even_val);          /* number of decimal digits */
+        int d = num_digits(even_val);          /* number of decimal digits */
         seq_t mult = (seq_t)1;
         for (int j = 0; j < d; ++j)
             mult *= (seq_t)10;                /* 10^d */

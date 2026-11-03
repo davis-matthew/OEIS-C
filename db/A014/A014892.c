@@ -10,6 +10,7 @@
  *            n‑th such integer
  * Range:     u8 none, u16 n <= 7, u32 n <= 27, u64 n <= 27, u128 n <= 27,
  *            big any n
+ * Validated: full, pass, 27 terms through n = 27 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

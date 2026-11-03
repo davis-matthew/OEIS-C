@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   append_candidate, factor_u64, prev_prime, sigma_of
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   factor_u64, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,10 +29,52 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-#include "../utils/factor_u64.h"          /* factor_u64(uint64_t n,uint64_t*pr,uint64_t*ex,size_t*cnt); */
-#include "../utils/sigma_of.h"            /* sigma_of(idx_t n); */
-#include "../utils/prev_prime.h"          /* prev_prime(idx_t n); */
-#include "../utils/append_candidate.h"    /* append_candidate(seq_t**p,size_t*len,size_t*cap,seq_t val); */
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
+
+/* Return the largest prime < n   (n > 2)   ; pp(2) = 1, but we never call it for n==2 */
+static inline idx_t prev_prime(idx_t n)
+{
+    idx_t p = n - 1;
+    for (;; --p)
+    {
+        if (is_prime(p)) return p;
+    }
+}
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
 
 static seq_t *cache = NULL;          /* memoised values */
 static size_t cache_size = 0;

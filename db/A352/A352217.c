@@ -7,7 +7,8 @@
  * Formula:   a(n) = 2^(order_2(2*n-1)), n ≥ 1
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 18, u64 n <= 33, u128 n <= 65,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 49 terms through n = 1546 (2026-11-03)
+ * Helpers:   ipow_u64_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/pow_uint.h"   /* pow_uint(base, exp) -> seq_t */
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,15 +34,14 @@ seq_t a(idx_t n)
     /* enlarge cache if necessary */
     if (n > cache_size) {
         size_t new_size = n;
-        seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_size);
         if (new_cache == NULL) return 0;           /* allocation failure */
         if (cache != NULL) {
-            memcpy(new_cache, cache, cache_size * sizeof(seq_t));
-            free(cache);
+            mem_copy(new_cache, cache, cache_size * sizeof(seq_t));
+            mem_free(cache);
         }
         /* initialise new slots to zero */
-        memset(new_cache + cache_size, 0,
-               (new_size - cache_size) * sizeof(seq_t));
+        mem_set(new_cache + cache_size, 0, (new_size - cache_size) * sizeof(seq_t));
         cache = new_cache;
         cache_size = new_size;
     }
@@ -64,7 +65,7 @@ seq_t a(idx_t n)
     }
 
     /* a(n) = 2^k */
-    seq_t result = pow_uint(2, k);
+    seq_t result = ipow_u64_idx(2, k);
 
     cache[n - 1] = result;
     return result;

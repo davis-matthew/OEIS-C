@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 180 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -39,6 +40,7 @@
  */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /*   Helper: compute ordinary binomial coefficient C(n,r) for r <= 8     */
@@ -88,7 +90,7 @@ a(idx_t n)
     /* allocate and initialise the cache if it does not exist yet   */
     if (cache == NULL)
     {
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (cache == NULL) exit(1);
         cache[0] = 1;                /* a(0) = 1   */
         cache_len = 0;
@@ -98,7 +100,7 @@ a(idx_t n)
     if (cache_len < n)
     {
         size_t newsize = (size_t)(n + 1);
-        seq_t *new_cache = (seq_t *)realloc(cache, newsize * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, newsize);
         if (new_cache == NULL) exit(1);
         cache = new_cache;
 

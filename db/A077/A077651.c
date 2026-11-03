@@ -8,16 +8,18 @@
  * Formula:   a(n) = A000030(A000010(n)) – the first decimal digit of φ(n)
  * Range:     u8 n <= 462, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   phi
+ * Validated: standard, pass, 121 terms through n = 8586 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/phi.h"
+#include <stdint.h>
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
-    seq_t val = phi(n);                 /* compute Euler's totient φ(n) */
+    seq_t val = totient(n);                 /* compute Euler's totient φ(n) */
     while (val >= 10)                    /* strip off trailing digits until one remains */
         val /= 10;
     return val;                          /* leading digit of φ(n) */

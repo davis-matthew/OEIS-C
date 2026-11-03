@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 5, u32 n <= 16, u64 n <= 36, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -41,6 +42,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static const unsigned char IN_S[10] = {
     1,0,0,1,0,1,1,0,1,0   /* 0..9 : 1 if sum ∈ S */
@@ -209,8 +211,8 @@ static int build_globals(void)
     /* --------------------------------------------------------------
      * 4) Allocate DP storage and active lists.
      * -------------------------------------------------------------- */
-    dp_cur   = (seq_t *)calloc(states_size, sizeof(seq_t));
-    dp_next  = (seq_t *)calloc(states_size, sizeof(seq_t));
+    dp_cur   = mem_new(seq_t, states_size);
+    dp_next  = mem_new(seq_t, states_size);
     act_cur  = (int *)malloc(states_size * sizeof(int));
     act_next = (int *)malloc(states_size * sizeof(int));
 

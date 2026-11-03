@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 39, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow, next_prime
+ * Validated: standard, pass, 72 terms through n = 993 (2026-11-03)
+ * Helpers:   mem, next_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,11 @@
    Therefore we select primes for which that expression is not 1. */
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
 #include "../utils/next_prime.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -50,12 +54,12 @@ seq_t a(idx_t n)
         /* test whether (-2)^(e) ≡ 1 (mod p) */
         seq_t base = (seq_t)(p - 2);          /* (-2) mod p */
         seq_t mod  = (seq_t)p;
-        seq_t val  = mod_pow(base, e, mod);
+        seq_t val  = powmod(base, e, mod);
         if (val != (seq_t)1) {                /* no solution, keep the prime */
             /* grow the cache if necessary */
             if (count == capacity) {
                 size_t new_cap = capacity ? capacity * 2 : 32;
-                seq_t *tmp = (seq_t *)realloc(primes, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, primes, new_cap);
                 if (!tmp) return 0; /* out‑of‑memory: return 0 as sentinel */
                 primes   = tmp;
                 capacity = new_cap;

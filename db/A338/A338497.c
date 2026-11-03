@@ -7,13 +7,15 @@
  * Formula:   a(n) = minimal number of odd cubes summing to n
  * Range:     u8 n <= 81, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 81 terms through n = 81 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are provided by the build system */
 
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
 {
     /* Allocate DP array, indices 0..n.  Use calloc so internal
        entries are initially zero; we will override them. */
-    seq_t *dp = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)n + 1);
     if (!dp)
         return 0;                      /* OOM – return 0 as a safe value */
 
@@ -52,6 +54,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

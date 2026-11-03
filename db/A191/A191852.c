@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 16, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Auxiliary: primary array resize routine */
 static void ensure_cap(seq_t **arr, size_t *cap, size_t needed)
@@ -30,7 +32,7 @@ static void ensure_cap(seq_t **arr, size_t *cap, size_t needed)
     if (*cap < needed) {
         size_t new_cap = (*cap > 0) ? (*cap << 1) : 1;
         while (new_cap < needed) new_cap <<= 1;
-        *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, new_cap);
         *cap = new_cap;
     }
 }
@@ -93,7 +95,7 @@ static void build_sequence(void)
     }
 
     /* Sort all differences */
-    qsort(diffs, diffs_len, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(diffs, diffs_len, sizeof(seq_t), cmp_seq_t);
 
     /* Deduplicate into the global cache */
     ensure_cap(&cache, &cache_cap, diffs_len);
@@ -110,8 +112,8 @@ static void build_sequence(void)
     }
 
     /* Free temporary storage (optional) */
-    free(fibs);
-    free(diffs);
+    mem_free(fibs);
+    mem_free(diffs);
 }
 
 /* User function ------------------------------------------------------------ */

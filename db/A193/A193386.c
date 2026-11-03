@@ -5,22 +5,25 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = number of even divisors of φ(n)
- * Range:     u8 n <= 303, u16 n <= 9795, u32 n <= 9795, u64 n <= 9795,
- *            u128 n <= 9795, big any n
- * Helpers:   factor_u64, phi
+ * Range:     u8 n <= 303, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 121 terms through n = 9795 (2026-11-01)
+ * Helpers:   factor_u64, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/phi.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
     /* Compute Euler's totient φ(n) */
-    seq_t tot = phi(n);
+    seq_t tot = totient(n);
 
     /* φ(n) fits in uint64_t because n is uint64_t */
     uint64_t phi_val = (uint64_t)tot;

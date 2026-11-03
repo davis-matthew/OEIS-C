@@ -7,12 +7,14 @@
  * Formula:   a(0)=0, a(1)=1; a(n+1)= Σ_{k=1}^{n-1} 2^{k-1}*binomial(n,k)*a(k)
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 10, u64 n <= 15, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static idx_t max_cached = 0;
 static seq_t *cache      = NULL;
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
     /* Ensure cache is at least size 2 and contains initial values */
     if (cache == NULL) {
         cache_len = 2;
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         if (cache == NULL) return 0;          /* OOM, unlikely */
         cache[0] = 0;
         cache[1] = 1;
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     /* Extend cache if necessary */
     if (n + 1 > cache_len) {
         cache_len = n + 1;
-        cache = (seq_t *)realloc(cache, cache_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_len);
     }
 
     /* Compute new values */

@@ -8,6 +8,7 @@
  *            floor((4*n^3+n^2+4*n+2)/5)
  * Range:     u8 n <= 0, u16 n <= 7, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
+ * Validated: partial, pass, 53 terms through n = 52 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

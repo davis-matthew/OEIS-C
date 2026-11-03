@@ -9,7 +9,8 @@
  *            in a(1)…a(n-1))
  * Range:     u8 n <= 41, u16 n <= 468, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_ones_seq_t
+ * Validated: standard, pass, 68 terms through n = 9982 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,19 @@
 /*  Implements the recurrence using a static cache so that calls in any order are handled. */
 
 #include <stdlib.h>
-#include "../utils/count_ones_seq_t.h"
+#include "../utils/mem.h"
+
+/* Helper: count digit '1' in the decimal expansion of a seq_t value. */
+static seq_t count_ones_seq_t(seq_t val)
+{
+    seq_t cnt = 0;
+    while (val > 0) {
+        if ( (val % 10) == 1 )
+            ++cnt;
+        val /= 10;
+    }
+    return cnt;
+}
 
 /* Static cache state */
 static seq_t *cache      = NULL;   /* array of computed a(n) */
@@ -35,7 +48,7 @@ static void ensure_cache_size(size_t need)
     if (new_cap < need)
         new_cap = need;
 
-    seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
     if (!new_ptr) {
         /* In an actual build we would report an error; here we simply abort. */
         abort();

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* integer square root for uint64_t (used in divisor counting) */
 static uint64_t uint64_sqrt(uint64_t x)
@@ -135,7 +137,7 @@ static void ensure_ans_capacity(size_t need)
         size_t new_cap = ans_cap ? ans_cap * 2 : 16;
         if (new_cap < need)
             new_cap = need;
-        seq_t *tmp = (seq_t *)realloc(ans_list, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, ans_list, new_cap);
         if (!tmp) exit(1);
         ans_list = tmp;
         ans_cap  = new_cap;

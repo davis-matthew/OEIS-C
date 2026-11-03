@@ -8,14 +8,16 @@
  * Formula:   a(n) = smallest m such that m^2+3 is a sum of 4 nonzero squares
  *            but not fewer Equivalent detection: accept m if m^2+3 is of the
  *            form 4^a*(8b+7) (Legendre's 3-square theorem)
- * Range:     u8 n <= 96, u16 n <= 9952, u32 n <= 9952, u64 n <= 9952,
- *            u128 n <= 9952, big any n
- * Helpers:   none
+ * Range:     u8 n <= 96, u16 n <= 10001, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 80 terms through n = 9952 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;          /* cached a(k) values */
@@ -37,7 +39,7 @@ seq_t a(idx_t n) {
             /* store m in cache */
             if (len == cap) {
                 size_t new_cap = cap ? cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) exit(EXIT_FAILURE);
                 cache = tmp;
                 cap = new_cap;

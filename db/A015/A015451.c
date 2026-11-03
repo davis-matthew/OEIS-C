@@ -7,12 +7,14 @@
  * Formula:   a(n) = 6*a(n-1) + a(n-2) for n > 1; a(0) = 1, a(1) = 1
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 13, u64 n <= 25, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 932 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     /* initialise cache if necessary */
     if (cache == NULL) {
         capacity = 16;                      /* start with some slack */
-        cache = (seq_t *)malloc(capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, capacity);
         if (cache == NULL) return 0;        /* out of memory – shouldn't happen */
 
         /* base cases */
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
         size_t new_capacity = capacity;
         while ((size_t)n >= new_capacity)
             new_capacity *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_capacity * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_capacity);
         if (tmp == NULL) return 0;          /* out of memory – shouldn't happen */
         cache = tmp;
         capacity = new_capacity;

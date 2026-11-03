@@ -10,12 +10,15 @@
  *            (triangular indexing)
  * Range:     i8 n <= 0, i16 n <= 2, i32 n <= 4, i64 n <= 8, i128 n <= 16,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 31 terms through n = 409 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +27,7 @@ seq_t a(idx_t n)
         idx_t m = n >> 1;                 /* m = n/2  */
         seq_t sign = ((m & 1ULL) == 0) ? (seq_t)1 : (seq_t)-1;  /* (-1)^m */
 
-        seq_t power = big_pow((seq_t)5, (seq_t)(2*m + 1));
+        seq_t power = ipow((seq_t)5, (seq_t)(2*m + 1));
         seq_t term  = (seq_t)(2*m + 1) * power * sign;          /* result */
         return term;
     }
@@ -33,7 +36,7 @@ seq_t a(idx_t n)
         seq_t sign = ((m & 1ULL) == 0) ? (seq_t)1 : (seq_t)-1;  /* (-1)^m */
 
         seq_t coeff = (seq_t)-4 * sign;    /* -4 * (-1)^m */
-        seq_t power = big_pow((seq_t)239, (seq_t)(2*m + 1));
+        seq_t power = ipow((seq_t)239, (seq_t)(2*m + 1));
         seq_t term  = coeff * (seq_t)(2*m + 1) * power;          /* result */
         return term;
     }

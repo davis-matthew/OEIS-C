@@ -8,7 +8,8 @@
  * Formula:   a(n) = Sum_{i=0..k} ceil(10^n / 2^(2*i+3) - 7/8)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
    a(n) = Sum_{k>=0} ( floor(A0 / 4^k) + ( (A0 % 4^k) > 7*4^k/8 ? 1 : 0 ) ),
    where A0 = floor(10^n / 8). */
 
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -32,12 +34,12 @@ seq_t a(idx_t n)
        compute it directly.                        */
     seq_t A0;
     if (n < 3) {
-        seq_t pow10 = pow_seq((seq_t)10, (int)n); /* 10^n */
+        seq_t pow10 = ipow_i32((seq_t)10, (int)n); /* 10^n */
         A0 = pow10 / (seq_t)8;
     } else {
         /* For n >= 3, 10^n is divisible by 8, so
            10^n / 8 = 125 * 10^(n-3).              */
-        seq_t pow10 = pow_seq((seq_t)10, (int)(n - 3));
+        seq_t pow10 = ipow_i32((seq_t)10, (int)(n - 3));
         A0 = (seq_t)125 * pow10;
     }
 

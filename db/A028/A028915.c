@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 71, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   map_last_digit
+ * Validated: partial, pass, 70 terms through n = 71 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,19 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/map_last_digit.h"
+
+/* Map the last digit of a prime to a base‑4 digit. */
+static inline unsigned int map_last_digit(uint64_t p)
+{
+    unsigned int d = p % 10U;
+    switch (d) {
+        case 1U: return 0U;   /* 1 → 0  */
+        case 3U: return 1U;   /* 3 → 1  */
+        case 7U: return 3U;   /* 7 → 3  */
+        case 9U: return 2U;   /* 9 → 2  */
+        default: return 0U;   /* primes >5 end in 1,3,7,9 */
+    }
+}
 
 /* Prime cache shared between calls. */
 static uint64_t   *prime_list   = NULL;   /* array of primes          */

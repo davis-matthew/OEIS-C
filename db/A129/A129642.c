@@ -9,12 +9,14 @@
  *            a(4)=1371, a(5)=3255, a(6)=4088
  * Range:     u8 n <= 1, u16 n <= 10, u32 n <= 28, u64 n <= 66, u128 n <= 142,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 967 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External types seq_t and idx_t are defined by the build. */
 seq_t a(idx_t n)
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
 
     /* Ensure the cache can hold up to n terms. */
     if (cache_size < n) {
-        seq_t *tmp = (seq_t *)realloc(cache, n * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, n);
         if (!tmp) abort(); /* allocation failure – terminate */
         cache = tmp;
         /* Initialize newly allocated entries. */

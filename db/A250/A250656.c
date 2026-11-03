@@ -13,6 +13,7 @@
  *            column (m = offset, k = s‑offset), * and finally...
  * Range:     u8 n <= 19, u16 n <= 103, u32 n <= 463, u64 n <= 880,
  *            u128 n <= 880, big any n
+ * Validated: standard, pass, 69 terms through n = 847 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

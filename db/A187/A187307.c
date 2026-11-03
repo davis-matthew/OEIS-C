@@ -7,6 +7,7 @@
  * Formula:   a(n) = (-1)^floor(n/3) * (1 if n%3==0 else 3*floor(n/3)+2)
  * Range:     i8 n <= 126, i16 n <= 9999, i32 n <= 9999, i64 n <= 9999,
  *            i128 n <= 9999, big any n
+ * Validated: standard, pass, 77 terms through n = 9945 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 73, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   binom1
+ * Validated: partial, pass, 73 terms through n = 73 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,10 @@
  *                          exactly 3 ones in binary.
  */
 #include <stdint.h>
-#include "../utils/binom1.h"
+
+static inline seq_t binom1(int i) {
+    return (seq_t)i;
+}
 
 static inline seq_t binom3(int i) {
     /* Binomial coefficient C(i,3) for i >= 3, otherwise 0. */

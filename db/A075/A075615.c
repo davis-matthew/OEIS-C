@@ -13,13 +13,15 @@
  *            Chebyshev polynomial of the first kind. * * For a giv...
  * Range:     i8 n <= 19, i16 n <= 58, i32 n <= 75, i64 n <= 75, i128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of the sequence type.  The build system supplies
    seq_t and idx_t. */
@@ -50,14 +52,14 @@ static void ensure_cheb(idx_t max_deg)
     if (cheb_cap == 0) {
         /* T_0 = 1 */
         cheb[0].deg   = 0;
-        cheb[0].coeff = (seq_t *)calloc(1, sizeof(seq_t));
+        cheb[0].coeff = mem_new(seq_t, 1);
         if (!cheb[0].coeff)
             abort();
         cheb[0].coeff[0] = (seq_t)1;
 
         /* T_1 = X */
         cheb[1].deg   = 1;
-        cheb[1].coeff = (seq_t *)calloc(2, sizeof(seq_t));
+        cheb[1].coeff = mem_new(seq_t, 2);
         if (!cheb[1].coeff)
             abort();
         cheb[1].coeff[0] = (seq_t)0;
@@ -77,7 +79,7 @@ static void ensure_cheb(idx_t max_deg)
 
         size_t degree = n;                     /* degree of T_n+1   */
         size_t len    = degree + 1;            /* number of coeffs  */
-        seq_t *coeff  = (seq_t *)calloc(len, sizeof(seq_t));
+        seq_t *coeff  = mem_new(seq_t, len);
         if (!coeff)
             abort();
 

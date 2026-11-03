@@ -11,7 +11,8 @@
  *            B(c)*(2n-2c+1)/(2n-c) * (2n-2c)/c
  * Range:     u8 n <= 8, u16 n <= 14, u32 n <= 26, u64 n <= 50, u128 n <= 97,
  *            big any n
- * Helpers:   a967_add, a967_addsmall, a967_div, a967_mul
+ * Validated: standard, pass, 46 terms through n = 976 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,10 +20,43 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a967_add.h"
-#include "../utils/a967_addsmall.h"
-#include "../utils/a967_div.h"
-#include "../utils/a967_mul.h"
+
+static void a967_add(uint32_t *a, const uint32_t *b, size_t L) {
+    uint64_t carry = 0;
+    for (size_t i = 0; i < L; i++) {
+        uint64_t t = (uint64_t)a[i] + b[i] + carry;
+        a[i] = (uint32_t)t;
+        carry = t >> 32;
+    }
+}
+
+static void a967_addsmall(uint32_t *a, size_t L, uint64_t v) {
+    for (size_t i = 0; i < L && v; i++) {
+        uint64_t t = (uint64_t)a[i] + (v & 0xffffffffULL);
+        a[i] = (uint32_t)t;
+        v = (v >> 32) + (t >> 32);
+    }
+}
+
+static uint32_t a967_div(uint32_t *x, size_t L, uint32_t d) {
+    uint64_t r = 0;
+    size_t i = L;
+    while (i--) {
+        uint64_t t = (r << 32) | x[i];
+        x[i] = (uint32_t)(t / d);
+        r = t % d;
+    }
+    return (uint32_t)r;
+}
+
+static void a967_mul(uint32_t *x, size_t L, uint32_t m) {
+    uint64_t carry = 0;
+    for (size_t i = 0; i < L; i++) {
+        uint64_t t = (uint64_t)x[i] * m + carry;
+        x[i] = (uint32_t)t;
+        carry = t >> 32;
+    }
+}
 
 seq_t a(idx_t n) {
     size_t L = (size_t)(n / 16) + 4;

@@ -10,12 +10,14 @@
  *            that row)
  * Range:     u8 n <= 26, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *fact_cache = NULL;   /* fact_cache[k] = k!  (k ≤ fact_cap-1) */
 static idx_t fact_cap = 0;
@@ -27,7 +29,7 @@ static void ensure_fact(idx_t m)
         return;
 
     idx_t new_cap = m + 1;
-    seq_t *new_cache = (seq_t *)realloc(fact_cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, fact_cache, new_cap);
     if (!new_cache)      /* allocation failed – leave cache unchanged */
         return;
 

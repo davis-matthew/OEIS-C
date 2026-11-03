@@ -10,13 +10,14 @@
  *            binom(r-1, j-1), where binom is the binomial coefficient
  * Range:     u8 n <= 63, u16 n <= 85, u32 n <= 85, u64 n <= 85, u128 n <= 85,
  *            big any n
- * Helpers:   binom_ll
+ * Validated: partial, pass, 85 terms through n = 85 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom_ll.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -33,6 +34,6 @@ seq_t a(idx_t n)
     idx_t prev = r * (r - (idx_t)1) / (idx_t)2;  /* elements before row r */
     idx_t j = m - prev;                          /* position within row r (1‑based) */
 
-    seq_t comb = binom_ll(r - (idx_t)1, j - (idx_t)1);
+    seq_t comb = binomial(r - (idx_t)1, j - (idx_t)1);
     return (seq_t)r * comb;
 }

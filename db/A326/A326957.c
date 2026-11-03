@@ -10,7 +10,8 @@
  *            accordingly. Complexity: O(n²) time, O(n) memory
  * Range:     u8 n <= 11, u16 n <= 31, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 43 terms through n = 42 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,13 +19,14 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate zero‑initialized arrays for partition counts (p)
        and accumulated number of non‑composite parts (f). */
-    seq_t *p = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
-    seq_t *f = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
+    seq_t *p = mem_new(seq_t, (size_t)n + 1);
+    seq_t *f = mem_new(seq_t, (size_t)n + 1);
     if (!p || !f)
         abort();
 
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = f[n];
-    free(p);
-    free(f);
+    mem_free(p);
+    mem_free(f);
     return result;
 }

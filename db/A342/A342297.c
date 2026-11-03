@@ -10,9 +10,10 @@
  *            S_i is the last position at which the value j (1 ≤ j ≤ F_i)
  *            appeared in the sequence so far. The infinite sequence a is the
  *            union of all such blocks
- * Range:     u8 n <= 415, u16 n <= 9963, u32 n <= 9963, u64 n <= 9963,
- *            u128 n <= 9963, big any n
- * Helpers:   ensure_last_cap
+ * Range:     u8 n <= 415, u16 n <= 17711, u32 n <= 17711, u64 n <= 17711,
+ *            u128 n <= 17711, big any n
+ * Validated: standard, pass, 94 terms through n = 9963 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,14 +21,30 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/ensure_last_cap.h"
+#include "../utils/mem.h"
+
+/* Grow an idx_t array to at least new_cap elements, initializing new
+   entries to 0. */
+static void ensure_last_cap(idx_t min_cap, idx_t **arr, size_t *cap) {
+    if (*cap >= min_cap) return;
+    size_t new_cap = (*cap) ? (*cap) << 1 : 4;
+    while (new_cap < min_cap) new_cap <<= 1;
+    idx_t *tmp = (idx_t *)realloc(*arr, new_cap * sizeof(idx_t));
+    if (!tmp) abort();
+    /* zero‑initialize newly allocated part */
+    if (new_cap > *cap) {
+        memset(tmp + *cap, 0, (new_cap - *cap) * sizeof(idx_t));
+    }
+    *arr = tmp;
+    *cap = new_cap;
+}
 
 /* Grow a seq_t array to at least new_cap elements. */
 static void ensure_seq_cap(idx_t min_cap, seq_t **arr, size_t *cap) {
     if (*cap >= min_cap) return;
     size_t new_cap = (*cap) ? (*cap) << 1 : 4;
     while (new_cap < min_cap) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
     if (!tmp) abort();
     *arr = tmp;
     *cap = new_cap;
@@ -81,7 +98,7 @@ seq_t a(idx_t n) {
         if (block_cap < (size_t)block_len) {
             size_t new_cap = block_cap ? block_cap << 1 : 4;
             while (new_cap < (size_t)block_len) new_cap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(block_buf, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, block_buf, new_cap);
             if (!tmp) abort();
             block_buf = tmp;
             block_cap = new_cap;

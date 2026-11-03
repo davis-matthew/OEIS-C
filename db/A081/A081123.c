@@ -7,12 +7,14 @@
  * Formula:   a(n) = floor(n/2)!
  * Range:     u8 n <= 11, u16 n <= 17, u32 n <= 25, u64 n <= 41, u128 n <= 69,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *fact_cache = NULL;   /* fact_cache[i] = i! for i already computed */
 static idx_t   cache_size = 0;     /* number of factorials stored (fact_cache[0..cache_size-1]) */
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
         idx_t new_size = k + 1;            /* we need indices 0..k inclusive */
 
         /* Reallocate array; cast to seq_t* to satisfy C++ */
-        seq_t *tmp = (seq_t *)realloc(fact_cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fact_cache, new_size);
         if (!tmp)
             abort();                       /* allocation failed – abort */
         fact_cache = tmp;

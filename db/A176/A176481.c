@@ -10,7 +10,8 @@
  *            with b(0)=b(1)=1 and b(i)=2*b(i-1)+b(i-2)
  * Range:     u8 n <= 36, u16 n <= 105, u32 n <= 354, u64 n <= 1378,
  *            u128 n <= 5150, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 4786 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *b_cache = NULL;
 static idx_t  b_len   = 0;
@@ -33,7 +35,7 @@ static void ensure_b_upto(idx_t n)
         /* double capacity strategy */
         size_t new_cap = (b_cap > 0) ? b_cap * 2 : 16;
         if (new_cap < n + 1) new_cap = n + 1;
-        b_cache = (seq_t *)realloc(b_cache, new_cap * sizeof(seq_t));
+        b_cache = mem_resize(seq_t, b_cache, new_cap);
         b_cap   = new_cap;
     }
 

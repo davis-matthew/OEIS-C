@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 3, i16 n <= 15, i32 n <= 17, i64 n <= 47, i128 n <= 81,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 52 terms through n = 1293 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,9 @@
  * The product is performed multiplicatively, using big integer arithmetic iff 
  * seq_t is an arbitrary‑precision type.
  */
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +43,7 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* Prepare values for the multiplicative product */
-    seq_t pow_nk1 = big_pow((seq_t)-13, (seq_t)r); /* = (-13)^r */
+    seq_t pow_nk1 = ipow((seq_t)-13, (seq_t)r); /* = (-13)^r */
     seq_t pow_k   = (seq_t)1;                     /* = (-13)^0 initially */
     seq_t T       = (seq_t)1;
 

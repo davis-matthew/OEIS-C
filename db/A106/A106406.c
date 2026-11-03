@@ -10,9 +10,10 @@
  *            p ≡ 7,11,13,14 (mod 15) and e is odd, e+1 if p ≡ 1, 4 (mod 15),
  *            (e+1)*(-1)^e if p ≡ 2, 8 (mod 15), a(n) = ∏_p a(p^e) over the
  *            prime factorisation of n. a(1) = 1
- * Range:     i8 n <= 79, i16 n <= 79, i32 n <= 79, i64 n <= 79, i128 n <= 79,
- *            big any n
- * Helpers:   prime_power_factor
+ * Range:     i8 n <= 10000, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
+ *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 95 terms through n = 9232 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,24 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/prime_power_factor.h"
+
+/* Compute factor contribution for a prime power (p^e) */
+static seq_t prime_power_factor(int p, int e)
+{
+    if (p == 3 || p == 5) {
+        return (e & 1) ? -1 : 1;
+    }
+    int mod15 = p % 15;
+    if (mod15 == 1 || mod15 == 4) {
+        return (seq_t)(e + 1);
+    }
+    if (mod15 == 2 || mod15 == 8) {
+        seq_t sign = (e & 1) ? (seq_t)-1 : 1;
+        return (seq_t)(e + 1) * sign;
+    }
+    /* mod15 == 7,11,13,14 */
+    return (e & 1) ? 0 : 1;
+}
 
 static bool  *sieve_used = NULL;
 static int   sieve_size = 0;

@@ -7,13 +7,15 @@
  * Formula:   a(n) = (30*n)!*n! / ((15*n)!*(10*n)!*(6*n)!)
  * Range:     u8 n <= 0, u16 n <= 0, u32 n <= 0, u64 n <= 1, u128 n <= 3,
  *            big any n
- * Helpers:   binomial, seq_gcd
+ * Validated: standard, pass, 22 terms through n = 48 (2026-11-01)
+ * Helpers:   binomial, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/seq_gcd.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {
@@ -28,11 +30,11 @@ seq_t a(idx_t n)
 
     /* Cancel common factors between numerator and denominator
        to avoid overflow on fixed‑width builds. */
-    seq_t g = seq_gcd(t2, den);
+    seq_t g = gcd(t2, den);
     t2 /= g;
     den /= g;
 
-    g = seq_gcd(t1, den);
+    g = gcd(t1, den);
     t1 /= g;
     den /= g;
 

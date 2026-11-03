@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 651, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 78 terms through n = 9288 (2026-11-01)
  * Helpers:   digit_sum
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
    memoised in an array of 64‑bit indices to avoid overflow of seq_t
    when it is too small for the needed k-values.  */
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/digit_sum.h"
 
 static idx_t *cache   = NULL;   /* stored indices k (idx_t)          */

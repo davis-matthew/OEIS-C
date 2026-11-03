@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 16, i16 n <= 32, i32 n <= 45, i64 n <= 45, i128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -59,12 +61,12 @@ seq_t a(idx_t n)
     /* ---------- 2. Allocate coefficient arrays ----------
        A holds the current tail coefficients.  B is temporary. ----- */
     size_t sz = (size_t)n + 1;
-    seq_t *A = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *B = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *A = mem_new(seq_t, sz);
+    seq_t *B = mem_new(seq_t, sz);
     if (!A || !B) {
         free(exps);
-        free(A);
-        free(B);
+        mem_free(A);
+        mem_free(B);
         return (seq_t)0;
     }
 
@@ -75,7 +77,7 @@ seq_t a(idx_t n)
         idx_t e = exps[exps_cnt - 1 - rev];   /* current exponent */
 
         /* Zero B, then set its constant term */
-        memset(B, 0, sz * sizeof(seq_t));
+        mem_set(B, 0, sz * sizeof(seq_t));
         B[0] = (seq_t)1;
 
         /* Compute B[k] = - Σ_{t=0}^{k-e} A[t] * B[k-e-t] for k ≥ e */
@@ -88,7 +90,7 @@ seq_t a(idx_t n)
         }
 
         /* Copy B into A for the next iteration */
-        memcpy(A, B, sz * sizeof(seq_t));
+        mem_copy(A, B, sz * sizeof(seq_t));
     }
 
     /* ---------- 4. Result ----------
@@ -97,8 +99,8 @@ seq_t a(idx_t n)
 
     /* ---------- 5. Clean up ----------
        Free all dynamically allocated memory.    */
-    free(A);
-    free(B);
+    mem_free(A);
+    mem_free(B);
     free(exps);
 
     return result;

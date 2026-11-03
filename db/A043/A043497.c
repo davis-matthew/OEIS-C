@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 77, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   has_one_digit_two
+ * Validated: standard, pass, 66 terms through n = 1922 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,22 @@
    contain a single '2', and returns the nth such number. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_one_digit_two.h"
+
+/* Test whether a decimal representation of x contains exactly one digit 2 */
+static inline bool has_one_digit_two(seq_t x)
+{
+    int cnt = 0;
+    while (x != (seq_t)0) {
+        seq_t d = x % (seq_t)10;
+        if (d == (seq_t)2) {
+            cnt++;
+            if (cnt > 1)
+                return false;        /* early exit */
+        }
+        x /= (seq_t)10;
+    }
+    return cnt == 1;
+}
 
 seq_t a(idx_t n)
 {

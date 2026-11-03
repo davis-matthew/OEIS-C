@@ -8,11 +8,13 @@
  *            38)/8
  * Range:     i8 none, i16 n <= 3, i32 n <= 16, i64 n <= 176, i128 n <= 200,
  *            big any n
+ * Validated: standard, pass, 40 terms through n = 186 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

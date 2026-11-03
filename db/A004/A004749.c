@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base, easy
  * Formula:   search for numbers whose binary representation contains "110"
- * Range:     u8 n <= 168, u16 n <= 9459, u32 n <= 9459, u64 n <= 9459,
- *            u128 n <= 9459, big any n
+ * Range:     u8 n <= 168, u16 n <= 50000, u32 n <= 50000, u64 n <= 50000,
+ *            u128 n <= 50000, big any n
+ * Validated: standard, pass, 77 terms through n = 9459 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

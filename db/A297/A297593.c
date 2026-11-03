@@ -11,7 +11,8 @@
  *            dynamic programming over the last two rows
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 22, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define R 6                         /* number of columns */
 
@@ -92,12 +94,12 @@ seq_t a(idx_t n)
     static seq_t dp[64][64];
     static seq_t dp2[64][64];
 
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
     for (int r = 0; r < 64; ++r)
         dp[0][r] = 1;               /* dummy previous row of zeros */
 
     for (idx_t row = 2; row <= n; ++row) {      /* transition for each new row */
-        memset(dp2, 0, sizeof(dp2));
+        mem_set(dp2, 0, sizeof(dp2));
 
         for (int pp = 0; pp < 64; ++pp)
             for (int p = 0; p < 64; ++p) {
@@ -111,7 +113,7 @@ seq_t a(idx_t n)
                     dp2[p][n] += ways;
                 }
             }
-        memcpy(dp, dp2, sizeof(dp));
+        mem_copy(dp, dp2, sizeof(dp));
     }
 
     /* Final row check */

@@ -9,7 +9,8 @@
  *            if n is even: a(n) = 3 * Σ_{i=0}^{n-1} a(i)*a(n-1-i)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 14, u64 n <= 26, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 589 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
  * which satisfies the requirements. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache for memoization */
 static seq_t *cache = NULL;      /* array of a(i) */
@@ -32,7 +34,7 @@ static void ensure_capacity(idx_t needed)
     /* grow exponentially to avoid frequent reallocs */
     idx_t new_cap = cap ? cap * 2 : 4;
     while (new_cap <= needed) new_cap <<= 1;
-    seq_t *new_arr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, cache, new_cap);
     /* realloc returns NULL only on failure; the problem assumes enough memory */
     cache = new_arr;
     cap = new_cap;

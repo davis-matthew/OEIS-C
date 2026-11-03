@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 3644, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, sieve
+ * Validated: standard, pass, 74 terms through n = 9981 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,22 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/sieve.h"
+#include "../utils/mem.h"
+
+/* Create a standard sieve of Eratosthenes up to 'max'.
+   The caller must provide an array of size max+1. */
+static void sieve(bool *is_prime, size_t max)
+{
+    memset(is_prime, true, (max + 1) * sizeof(bool));
+    is_prime[0] = is_prime[1] = false;
+    for (size_t p = 2; p * p <= max; ++p) {
+        if (is_prime[p]) {
+            for (size_t m = p * p; m <= max; m += p) {
+                is_prime[m] = false;
+            }
+        }
+    }
+}
 
 /* Static state for the sequence */
 
@@ -68,7 +84,7 @@ static void seq_append(seq_t val)
 {
     if (seq_len == seq_cap) {
         seq_cap = seq_cap ? seq_cap * 2 : 1;
-        seq_cache = (seq_t*)realloc(seq_cache, seq_cap * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, seq_cap);
         if (!seq_cache) abort();
     }
     seq_cache[seq_len++] = val;

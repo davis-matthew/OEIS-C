@@ -8,14 +8,17 @@
  *            prime(k-1)+prime(k+1)) = 1
  * Range:     u8 n <= 10, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0; /* undefined for n < 1, but protect anyway */
@@ -42,7 +45,7 @@ seq_t a(idx_t n) {
         for (int i = 2; i <= limit; ++i)
             if (isPrime[i]) ++primes_cnt;
 
-        seq_t *primes = (seq_t*)malloc(primes_cnt * sizeof(seq_t));
+        seq_t *primes = mem_new(seq_t, primes_cnt);
         if (!primes) {
             free(isPrime);
             return 0;
@@ -62,14 +65,14 @@ seq_t a(idx_t n) {
                 ++found;
                 if (found == n) {
                     seq_t result = primes[k - 1];          /* prime(k) */
-                    free(primes);
+                    mem_free(primes);
                     return result;
                 }
             }
         }
 
         /* Not enough primes found; enlarge limit and retry */
-        free(primes);
+        mem_free(primes);
         limit *= 2; /* double the search space */
     }
 }

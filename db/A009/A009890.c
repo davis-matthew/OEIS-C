@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 174, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 964 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,6 +35,7 @@
  * The first 17 terms are taken from the OEIS b-file as initial values.
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Initial 17 terms (a(0) ... a(16)) */
 static const seq_t init[17] = {
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
 
     /* Allocate an array large enough to store all terms up to n. */
     size_t len = (size_t)n + 1;
-    seq_t *vals = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *vals = mem_new(seq_t, len);
     if (!vals) {
         /* Caller guarantees that n is modest; aborting is acceptable here. */
         abort();
@@ -93,6 +95,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = vals[n];
-    free(vals);
+    mem_free(vals);
     return result;
 }

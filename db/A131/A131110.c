@@ -7,14 +7,16 @@
  * Formula:   a(n) = binom(r+1, j+1) if j is odd, binom(r, j) if j is even,
  *            where r = smallest integer with r(r+1)/2 ≥ n (row number), j = n
  *            - r(r-1)/2 (position in that row, 1‑based)
- * Range:     u8 n <= 23, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
+ * Range:     u8 n <= 47, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
 
     /* Compute the required binomial coefficient */
     if (j & 1)
-        return binom(r + 1, j + 1);
+        return binomial(r + 1, j + 1);
     else
-        return binom(r, j);
+        return binomial(r, j);
 }

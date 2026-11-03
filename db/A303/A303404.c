@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  sign, look
  * Formula:   not stated
- * Range:     i8 n <= 49, i16 n <= 1571, i32 n <= 8808, i64 n <= 8808,
- *            i128 n <= 8808, big any n
- * Helpers:   none
+ * Range:     i8 n <= 49, i16 n <= 1571, i32 n <= 10240, i64 n <= 10240,
+ *            i128 n <= 10240, big any n
+ * Validated: standard, pass, 88 terms through n = 8808 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>  /* for uint64_t if needed */
+#include "../utils/mem.h"
 
 /* Allocate a static cache for sequence values */
 static seq_t *seq_cache = NULL;       /* array of computed a(n) */
@@ -34,7 +36,7 @@ static void ensure_cache(idx_t n)
     /* Lazy initialization: allocate minimal array and set a(0)=0, a(1)=1 */
     if (seq_cache == NULL) {
         cache_cap = 2;
-        seq_cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, cache_cap);
         seq_cache[0] = 0;
         seq_cache[1] = 1;
         max_computed = 1;
@@ -50,7 +52,7 @@ static void ensure_cache(idx_t n)
     while (new_cap <= (size_t)n)
         new_cap <<= 1;
 
-    seq_cache = (seq_t*)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_cache = mem_resize(seq_t, seq_cache, new_cap);
     cache_cap = new_cap;
 
     /* Compute missing entries sequentially */

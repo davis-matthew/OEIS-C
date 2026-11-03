@@ -9,7 +9,8 @@
  *            a(n-13) for n >= 14, with a(1) … a(12) = 0, a(13) = 1
  * Range:     u8 n <= 192, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 105 terms through n = 991 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* Standard headers for memory handling */
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Static cache for memoisation */
 static seq_t *cache = NULL;   /* array of computed values, index 0 … n */
@@ -31,12 +33,12 @@ ensure_cache(idx_t n)
 
     /* Allocate a new cache array of size n+1 */
     size_t new_len = (size_t)(n + 1);
-    seq_t *new_cache = (seq_t *)malloc(new_len * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_len);
     if (!new_cache)                 /* allocation failure – abort */
         return;                     /* caller will see 0 in cache */
 
     /* Initialise all entries to zero */
-    memset(new_cache, 0, new_len * sizeof(seq_t));
+    mem_set(new_cache, 0, new_len * sizeof(seq_t));
 
     /* Base value: a(13) = 1  (indices <13 are already 0) */
     if (n >= 13)
@@ -54,7 +56,7 @@ ensure_cache(idx_t n)
 
     /* Replace old cache, freeing memory if needed */
     if (cache)
-        free(cache);
+        mem_free(cache);
     cache      = new_cache;
     cache_len  = new_len;
 }

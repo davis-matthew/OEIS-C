@@ -7,7 +7,8 @@
  * Formula:   a(n) = ∏_{p|n} (1 + p⁶)
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 40, u64 n <= 1621,
  *            u128 n <= 10000, big any n
- * Helpers:   cube_power_six
+ * Validated: standard, pass, 49 terms through n = 9772 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,16 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/cube_power_six.h"
+
+/* Helper: compute p⁶ in seq_t, where p is an idx_t. */
+static seq_t cube_power_six(idx_t p)
+{
+    /* Use the fast multiplication pattern: p², p⁴, then p²·p⁴. */
+    seq_t p2 = (seq_t)p * (seq_t)p;          /* p² */
+    seq_t p4 = p2 * p2;                      /* p⁴ */
+    seq_t p6 = p2 * p4;                      /* p⁶ */
+    return p6;
+}
 
 /* Main sequence function. */
 seq_t a(idx_t n)

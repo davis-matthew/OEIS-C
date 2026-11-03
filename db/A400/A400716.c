@@ -8,14 +8,17 @@
  *            binomial(n-2, k-1) * a(k)
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 8, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   binomial, pow2
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   binomial, mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_cap = 0;
@@ -32,7 +35,7 @@ static void ensure_cache(idx_t n)
         size_t cap = 1;
         while (cap < cache_cap) cap <<= 1;
         cache_cap = cap;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return;           /* allocation failed – caller will handle */
         cache[0] = (seq_t)1;          /* a(0) */
         if (n >= 1) {
@@ -48,7 +51,7 @@ static void ensure_cache(idx_t n)
     if (cache_cap <= (size_t)n) {
         size_t new_cap = cache_cap;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return; /* allocation failed – caller will handle */
         cache = tmp;
         cache_cap = new_cap;

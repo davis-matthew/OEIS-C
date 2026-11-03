@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 22, u32 n <= 57, u64 n <= 141,
  *            u128 n <= 387, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 1278 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_vals   = NULL;   /* array of a(0),a(1),…   */
 static size_t seq_len    = 0;      /* number of values in seq_vals   */
@@ -44,7 +46,7 @@ static void push_to_seq(seq_t val)
         if (new_cap < seq_len + 1) new_cap = seq_len + 1;
 #ifdef __cplusplus
         seq_t *tmp = reinterpret_cast<seq_t *>(
-            realloc(seq_vals, new_cap * sizeof(seq_t)));
+            mem_resize(seq_t, seq_vals, new_cap));
 #else
         seq_t *tmp = (seq_t *)realloc(seq_vals, new_cap * sizeof(seq_t));
 #endif

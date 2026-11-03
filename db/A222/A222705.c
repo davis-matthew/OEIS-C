@@ -8,13 +8,15 @@
  *            the partition number (p(0)=1, p(m<0)=0)
  * Range:     u8 n <= 25, u16 n <= 53, u32 n <= 139, u64 n <= 426,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 992 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* static cache for partition numbers */
 static seq_t *partitions   = NULL;
@@ -45,14 +47,14 @@ static void ensure_partitions(idx_t n)
 {
     if (partitions == NULL) {                     /* first time */
         size_t need = (size_t)(n + 1);
-        partitions = (seq_t *)malloc(need * sizeof(seq_t));
+        partitions = mem_new(seq_t, need);
         if (!partitions) abort();                 /* allocation failed */
         part_capacity = need;
         partitions[0] = (seq_t)1;
         dp_limit = 0;
     } else if ((size_t)(n + 1) > part_capacity) { /* grow cache */
         size_t need = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(partitions, need * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, partitions, need);
         if (!tmp) abort();                       /* allocation failed */
         partitions = tmp;
         part_capacity = need;

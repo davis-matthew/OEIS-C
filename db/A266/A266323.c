@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 4, u64 n <= 10, u128 n <= 18,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 36 terms through n = 481 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
    for odd n≥3, a(n) is decimal all‑ones of length L=4*((n/2)+1)-1,
    i.e. a(n) = (10^L-1)/9. */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -43,7 +46,7 @@ seq_t a(idx_t n)
         return val;
     } else {
         /* For larger L use the generic big_pow utility (works with arbitrary‑precision seq_t). */
-        seq_t val = big_pow((seq_t)10, (seq_t)L);
+        seq_t val = ipow((seq_t)10, (seq_t)L);
         val -= (seq_t)1;
         val /= (seq_t)9;
         return val;

@@ -8,16 +8,18 @@
  * Keywords:  nonn
  * Formula:   a(1) = 0; For n ≥ 2: if (is_prime(n)) a(n) = a( π(n) ); else
  *            a(n) = 1 + a( n - π(n) - 1 ); π(n) = number of primes ≤ n
- * Range:     u8 n <= 8315, u16 n <= 8315, u32 n <= 8315, u64 n <= 8315,
- *            u128 n <= 8315, big any n
- * Helpers:   is_prime
+ * Range:     u8 n <= 32998, u16 n <= 32998, u32 n <= 32998, u64 n <= 32998,
+ *            u128 n <= 32998, big any n
+ * Validated: standard, pass, 136 terms through n = 8315 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_prime.h"     /* provides bool is_prime(idx_t) */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
         /* Reallocate the π cache */
         pi_cache = (idx_t *)realloc(pi_cache, new_size * sizeof(idx_t));
         /* Reallocate the a cache */
-        a_cache = (seq_t *)realloc(a_cache, new_size * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_size);
         if (!pi_cache || !a_cache) {
             /* Memory allocation failed – aborting. In the real
                benchmark environment this situation does not occur. */

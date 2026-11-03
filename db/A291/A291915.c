@@ -9,12 +9,14 @@
  *            a(5)=22,a(6)=82,a(7)=268,a(8)=742)
  * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 30, u64 n <= 71, u128 n <= 158,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 4727 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache for previously computed terms.  Index 0 is unused. */
 static seq_t *cache = NULL;
@@ -27,7 +29,7 @@ static void ensure_cache_capacity(idx_t needed)
     if (needed + 1 <= cache_capacity)
         return;
     size_t new_capacity = (needed + 1) * 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_capacity * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_capacity);
     if (!tmp) abort();          /* memory failure */
     cache = tmp;
     /* new slots are zero-initialised by realloc (implementation-defined), but

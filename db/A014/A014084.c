@@ -11,13 +11,15 @@
  *            a(n−k) for n ≥ 1, where coeff[k] are the coeffi...
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 970 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* theorem: DEGR = φ(75) = 40, PERIOD = 75 */
 #define DEGR   40
@@ -82,7 +84,7 @@ static void init_period(void)
 
     init_coeff();
 
-    period = (seq_t*)malloc(PERIOD * sizeof(seq_t));
+    period = mem_new(seq_t, PERIOD);
     if (!period)
         abort();
 

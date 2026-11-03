@@ -9,12 +9,14 @@
  *            values: a(0)=1, a(1)=0, a(2)=0
  * Range:     u8 n <= 15, u16 n <= 25, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,8 +28,8 @@ seq_t a(idx_t n)
     /* Lazy initialisation of seeds */
     if (P == NULL) {
         cap = 16;
-        P = (seq_t*)malloc(cap * sizeof(seq_t));
-        A = (seq_t*)malloc(cap * sizeof(seq_t));
+        P = mem_new(seq_t, cap);
+        A = mem_new(seq_t, cap);
 
         P[0] = 1;  A[0] = 1;   /* P(0)=1, a(0)=1^2 */
         P[1] = 0;  A[1] = 0;   /* P(1)=0, a(1)=0^2 */
@@ -41,8 +43,8 @@ seq_t a(idx_t n)
         if (n >= cap) {
             idx_t new_cap = cap ? cap * 2 : 16;
             while (new_cap <= n) new_cap *= 2;
-            P = (seq_t*)realloc(P, new_cap * sizeof(seq_t));
-            A = (seq_t*)realloc(A, new_cap * sizeof(seq_t));
+            P = mem_resize(seq_t, P, new_cap);
+            A = mem_resize(seq_t, A, new_cap);
             cap = new_cap;
         }
 

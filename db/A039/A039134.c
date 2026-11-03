@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   equal_2_9
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,22 @@
  * number of 2's and 9's. This implementation searches sequentially
  * from 0 upward until the nth such number is found. */
 #include <stdbool.h>
-#include "../utils/equal_2_9.h"
+
+/* Count and return the nth (1‑based) number satisfying the condition. */
+static bool equal_2_9(seq_t x)
+{
+    int c2 = 0, c9 = 0;
+    if (x == 0)
+        return true;                 /* 0 has no 2's and no 9's */
+    while (x > 0)
+    {
+        int d = (int)(x % 10);
+        if (d == 2) ++c2;
+        else if (d == 9) ++c9;
+        x = x / 10;
+    }
+    return c2 == c9;
+}
 
 seq_t a(idx_t n)
 {

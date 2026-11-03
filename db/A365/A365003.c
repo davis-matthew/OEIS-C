@@ -11,7 +11,8 @@
  *            increasing order and returns the n‑th element
  * Range:     u8 n <= 13, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define MAX_LIMIT 5000000ULL  /* upper bound sufficient for n ≤ 10000 */
 
@@ -78,7 +80,7 @@ static size_t seq_cap   = 0;
 static void append_seq(seq_t val) {
     if (seq_size == seq_cap) {
         seq_cap = (seq_cap == 0) ? 64 : seq_cap * 2;
-        seq_array = (seq_t *)realloc(seq_array, seq_cap * sizeof(seq_t));
+        seq_array = mem_resize(seq_t, seq_array, seq_cap);
         if (!seq_array) abort();
     }
     seq_array[seq_size++] = val;

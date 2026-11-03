@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   is_concave_uint64
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,35 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/is_concave_uint64.h"
+
+/*  Helper: is the decimal digit graph of x concave?                     */
+static bool is_concave_uint64(uint64_t x)
+{
+    /* need at least three digits */
+    if (x < 100)
+        return false;
+
+    unsigned char rev[20];
+    int len = 0;
+    uint64_t t = x;
+    while (t) {
+        rev[len++] = t % 10;
+        t /= 10;
+    }
+
+    /* digits in normal order: d[0] most significant */
+    int d[20];
+    for (int i = 0; i < len; ++i)
+        d[i] = rev[len - 1 - i];
+
+    for (int j = 1; j <= len - 2; ++j) {
+        int diff1 = d[j] - d[j - 1];
+        int diff2 = d[j + 1] - d[j];
+        if (diff1 < diff2)
+            return false;                   /* slope increased → not concave */
+    }
+    return true;
+}
 
 #define PRE_LIMIT     20000000UL   /* limit up to which primes are sieved */
 #define MAX_CONCAVE   300000       /* maximum number of concave primes to store */

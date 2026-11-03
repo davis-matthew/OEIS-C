@@ -7,8 +7,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabl, look
  * Formula:   not stated
- * Range:     u8 n <= 8075, u16 n <= 8075, u32 n <= 8075, u64 n <= 8075,
- *            u128 n <= 8075, big any n
+ * Range:     u8 n <= 8075, u16 n <= 20300, u32 n <= 20300, u64 n <= 20300,
+ *            u128 n <= 20300, big any n
+ * Validated: standard, pass, 107 terms through n = 8075 (2026-11-03)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,8 +20,10 @@
  * main diagonal, or antidiagonal. */
 
 #include <stddef.h>
+#include <stdlib.h>
 
-#define MAX_ROW   200                 /* enough for n ≤ 10 000 */
+#define MAX_ROW   256                 /* rows 0..255: n < 32896 (the b-file
+                                         has 20301 terms; 200 rows overran) */
 #define MAX_DIAG  (2*MAX_ROW-1)
 #define OFFSET    (MAX_ROW-1)
 
@@ -83,6 +86,7 @@ seq_t a(idx_t n)
     /* locate the row containing index n */
     idx_t r = 0;
     while ((r + 1) * (r + 2) / 2 <= n) ++r;
+    if (r >= MAX_ROW) abort();       /* beyond the tables */
 
     /* build rows up to r if not already done */
     while (built_rows <= r) build_row(built_rows);

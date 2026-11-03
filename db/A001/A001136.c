@@ -10,7 +10,8 @@
  *            every prime q dividing (p-1)/6, i.e. ord_p(2) = (p-1)/6
  * Range:     u8 n <= 2, u16 n <= 337, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   a1136_order_ok, a1136_powmod
+ * Validated: standard, pass, 64 terms through n = 973 (2026-11-01)
+ * Helpers:   powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,22 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/a1136_order_ok.h"
-#include "../utils/a1136_powmod.h"
+#include "../utils/powmod_u64.h"
+
+static bool a1136_order_ok(uint64_t p) {
+    uint64_t k = (p - 1) / 6;
+    uint64_t t, q;
+    if (powmod_u64(2, k, p) != 1) return false;
+    t = k;
+    for (q = 2; q * q <= t; q++) {
+        if (t % q == 0) {
+            if (powmod_u64(2, k / q, p) == 1) return false;
+            while (t % q == 0) t /= q;
+        }
+    }
+    if (t > 1 && powmod_u64(2, k / t, p) == 1) return false;
+    return true;
+}
 
 static unsigned char *a1136_comp = NULL; /* 1 = composite */
 static uint64_t a1136_lim = 0;

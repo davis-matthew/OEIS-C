@@ -10,14 +10,55 @@
  *            rotating z if sign(Re) ≠ sign(Im)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 13, u64 n <= 27, u128 n <= 55,
  *            big any n
- * Helpers:   sub_abs, sum_abs
+ * Validated: standard, pass, 40 terms through n = 398 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/sub_abs.h"
-#include "../utils/sum_abs.h"
+
+static inline void sub_abs(int sa, seq_t ax, int sb, seq_t bx, int *r_sign, seq_t *r_abs)
+{
+    if (sa == 0) { *r_sign = -sb; *r_abs = bx; return; }
+    if (sb == 0) { *r_sign = sa; *r_abs = ax; return; }
+    if (sa == sb) {
+        if (ax >= bx) {
+            *r_abs = ax - bx;
+            *r_sign = sa;
+        } else {
+            *r_abs = bx - ax;
+            *r_sign = -sa;
+        }
+    } else {
+        /* opposite signs: a - (-b) = a + b */
+        *r_abs = ax + bx;
+        *r_sign = sa;
+    }
+    if (*r_abs == 0) *r_sign = 0;
+}
+
+/* Small helper for signed absolute arithmetic ---------------------------------- */
+static inline void sum_abs(int sa, seq_t ax, int sb, seq_t bx, int *r_sign, seq_t *r_abs)
+{
+    if (sa == 0) { *r_sign = sb; *r_abs = bx; return; }
+    if (sb == 0) { *r_sign = sa; *r_abs = ax; return; }
+    if (sa == sb) {
+        *r_sign = sa;
+        *r_abs = ax + bx;
+        if (*r_abs == 0) *r_sign = 0;
+        return;
+    }
+    /* different signs */
+    if (ax >= bx) {
+        *r_abs = ax - bx;
+        *r_sign = sa;
+    } else {
+        *r_abs = bx - ax;
+        *r_sign = sb;
+    }
+    if (*r_abs == 0) *r_sign = 0;
+}
 
 /* --------------------------------------------------------------------- */
 

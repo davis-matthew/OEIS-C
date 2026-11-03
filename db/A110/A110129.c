@@ -8,13 +8,16 @@
  *            n)*n^(n-2*j)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 11, u128 n <= 20,
  *            big any n
- * Helpers:   binom, pow_seq
+ * Validated: standard, pass, 34 terms through n = 308 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
-#include "../utils/pow_seq.h"
+#include <sys/types.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_idx.h"
 
 /* fast exponentiation for seq_t; works for all build types */
 
@@ -27,11 +30,11 @@ seq_t a(idx_t n)
 
     /* pre‑compute n^(n) and n^2 for division in the loop */
     seq_t n_sq = (seq_t)n * (seq_t)n;
-    seq_t cur   = pow_seq((seq_t)n, n);   /* cur = n^(n-2*j), j=0 */
+    seq_t cur   = ipow_idx((seq_t)n, n);   /* cur = n^(n-2*j), j=0 */
 
     for (idx_t j = 0; j <= maxj; ++j) {
-        seq_t bin1 = binom(n, j);                         /* C(n, j)          */
-        seq_t bin2 = binom((idx_t)(2*n - 2*j), n);        /* C(2n-2j, n)      */
+        seq_t bin1 = binomial(n, j);                         /* C(n, j)          */
+        seq_t bin2 = binomial((idx_t)(2*n - 2*j), n);        /* C(2n-2j, n)      */
 
         seq_t term = bin1 * bin2 * cur;
         if ((j & 1) == 0)

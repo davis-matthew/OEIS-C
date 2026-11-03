@@ -8,13 +8,15 @@
  *            >= 2
  * Range:     i8 n <= 1, i16 n <= 2, i32 n <= 5, i64 n <= 10, i128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* external integer types supplied by the build */
 extern seq_t a(idx_t n);
@@ -33,7 +35,7 @@ static void ensure_cache(size_t n_plus_one)
         while (newcap < n_plus_one) newcap <<= 1;
 
         /* allocate new array */
-        seq_t *tmp = (seq_t *)malloc(newcap * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, newcap);
         if (!tmp) abort();                /* out of memory */
 
         /* copy existing values if any */
@@ -42,7 +44,7 @@ static void ensure_cache(size_t n_plus_one)
             size_t j;
             for (j = 0; j < computed; ++j)
                 tmp[j] = cache[j];
-            free(cache);
+            mem_free(cache);
         }
 
         cache = tmp;

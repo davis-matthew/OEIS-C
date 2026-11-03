@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 9700, u16 n <= 9700, u32 n <= 9700, u64 n <= 9700,
- *            u128 n <= 9700, big any n
- * Helpers:   find_diagonal_start
+ * Range:     u8 n <= 10439, u16 n <= 10439, u32 n <= 10439, u64 n <= 10439,
+ *            u128 n <= 10439, big any n
+ * Validated: standard, pass, 121 terms through n = 9700 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,25 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>               /* for size_t */
-#include "../utils/find_diagonal_start.h"
+
+/* Find s such that s(s+1)/2 <= n < (s+1)(s+2)/2.  Uses integer arithmetic. */
+static idx_t
+find_diagonal_start(idx_t n)
+{
+    /* Binary search over s in [0, MAX_S] where MAX_S is big enough for n. */
+    idx_t low = 0;
+    idx_t high = 1;
+    while ((high * (high + 1) / 2) <= n) high <<= 1;   /* exponential search */
+
+    while (low < high) {
+        idx_t mid = (low + high) / 2;
+        if ((mid * (mid + 1) / 2) <= n)
+            low = mid + 1;
+        else
+            high = mid;
+    }
+    return low - 1;
+}
 
 /* Maximum limit for pre‑computed prime list – sufficient for n up to 10⁵. */
 #define PRIME_LIMIT 20000

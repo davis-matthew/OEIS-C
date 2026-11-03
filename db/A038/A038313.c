@@ -11,15 +11,27 @@
  *            - i(i+1)/2
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   binomial, pow10, pow_int
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Required helper routines */
-#include "../utils/binomial.h"   /* seq_t binomial(idx_t n, idx_t k); */
-#include "../utils/pow10.h"      /* seq_t pow10(idx_t e); */
-#include "../utils/pow_int.h"    /* seq_t pow_int(seq_t base, idx_t exp); */
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_idx.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 #include <stdint.h>              /* uint64_t, etc. */
 
 /* Integer square root via binary search (floor) */
@@ -52,6 +64,6 @@ seq_t a(idx_t n)
     /* Compute value = binom(i,j) * 10^(i-j) * 11^j */
     seq_t val = binomial(i, j);
     val *= pow10(i - j);
-    val *= pow_int(11, j);
+    val *= ipow_idx(11, j);
     return val;
 }

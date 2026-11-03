@@ -8,8 +8,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn
  * Formula:   not stated
- * Range:     u8 n <= 8, u16 n <= 2724, u32 n <= 9528, u64 n <= 9528,
- *            u128 n <= 9528, big any n
+ * Range:     u8 n <= 8, u16 n <= 2724, u32 n <= 17712, u64 n <= 17712,
+ *            u128 n <= 17712, big any n
+ * Validated: standard, pass, 68 terms through n = 9528 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,7 @@
    with lcm(1..m) | k is greater than the largest m with m! | k. */
 
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 #define MAX_M 20

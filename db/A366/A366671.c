@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = smallest prime divisor of 8^n + 1
- * Range:     u8 n <= 31, u16 n <= 127, u32 n <= 127, u64 n <= 9694,
- *            u128 n <= 9694, big any n
- * Helpers:   mod_pow
+ * Range:     u8 n <= 31, u16 n <= 127, u32 n <= 127, u64 n <= 16383,
+ *            u128 n <= 16383, big any n
+ * Validated: standard, pass, 95 terms through n = 9694 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,9 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/powmod.h"
 
 /* Simple trial‑division test for uint64_t primes. */
 static bool is_prime_u64(uint64_t n)
@@ -55,7 +58,7 @@ seq_t a(idx_t n)
     {
         if (!is_prime_u64(p)) continue;
         seq_t mod = (seq_t)p;
-        seq_t r   = mod_pow((seq_t)8, n, mod);
+        seq_t r   = powmod((seq_t)8, n, mod);
         if (r == mod - (seq_t)1) return (seq_t)p;
     }
 }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 23, u64 n <= 45, u128 n <= 89,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 184 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached sequence values.  The cache is expanded as needed. */
 static seq_t *seq_cache = NULL;
@@ -49,7 +51,7 @@ static void ensure_cache_capacity(idx_t new_cap)
     while (cap < new_cap)
         cap <<= 1;          /* double until enough */
 
-    seq_t *new_ptr = (seq_t *)realloc(seq_cache, cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, seq_cache, cap);
     if (!new_ptr) {
         /* In a real system we would handle the allocation failure. */
         abort();

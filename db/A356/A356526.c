@@ -10,13 +10,15 @@
  *            of 759)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 106 terms through n = 9702 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *digit_cache   = NULL;   /* cache of computed digits (starting at a(3)) */
 static size_t cache_len     = 0;      /* number of digits currently in cache      */
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
 
         /* allocate cache for integer digits (at least cnt) */
         cache_cap = cnt > 16 ? cnt : 16;
-        digit_cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        digit_cache = mem_new(seq_t, cache_cap);
 
         for (size_t i = 0; i < cnt; ++i)
             digit_cache[i] = (seq_t)tmp[i];
@@ -69,13 +71,12 @@ seq_t a(idx_t n)
         /* ensure enough capacity */
         if (cache_cap == 0) {
             cache_cap = 16;
-            digit_cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+            digit_cache = mem_new(seq_t, cache_cap);
         }
         while (cache_len <= pos) {
             if (cache_len >= cache_cap) {               /* grow cache if needed */
                 cache_cap *= 2;
-                digit_cache = (seq_t *)realloc(digit_cache,
-                                               cache_cap * sizeof(seq_t));
+                digit_cache = mem_resize(seq_t, digit_cache, cache_cap);
             }
 
             /* compute next decimal digit */

@@ -8,13 +8,22 @@
  * Formula:   a(n) = Product_i binomial(3+e_i, 3) where n = Product p_i^e_i
  * Range:     u8 n <= 31, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   binom_3_plus_e
+ * Validated: standard, pass, 93 terms through n = 9680 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom_3_plus_e.h"
+
+static seq_t binom_3_plus_e(idx_t e)
+{
+    seq_t result = (seq_t)(1 + e);
+    result *= (seq_t)(2 + e);
+    result *= (seq_t)(3 + e);
+    result /= 6;
+    return result;
+}
 
 seq_t a(idx_t n)
 {

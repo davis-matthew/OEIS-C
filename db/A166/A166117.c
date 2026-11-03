@@ -7,13 +7,15 @@
  * Formula:   a(0)=0, a(1)=1, a(2)=2, a(n)=a(n-1)-2*a(n-2)+a(n-3) for n≥3
  * Range:     i8 n <= 19, i16 n <= 37, i32 n <= 77, i64 n <= 155,
  *            i128 n <= 313, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 990 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* small indices handled directly */
@@ -30,7 +32,7 @@ seq_t a(idx_t n) {
     if (cache == NULL) {
         /* start with capacity at least enough for n+1 but not too small */
         cache_cap = (size_t)(n + 1) < 4 ? 4 : (size_t)(n + 1);
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return (seq_t)0;   /* allocation failed – return 0 as safe value */
         cache[0] = (seq_t)0;
         cache[1] = (seq_t)1;
@@ -43,7 +45,7 @@ seq_t a(idx_t n) {
         size_t new_cap = cache_cap;
         while (new_cap < (size_t)(n + 1))
             new_cap *= 2;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         if (!cache) return (seq_t)0;   /* allocation failed – return 0 as safe value */
         cache_cap = new_cap;
     }

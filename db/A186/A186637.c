@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 12, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   big_pow, build_primes
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   build_primes, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/build_primes.h"   /* build_primes() */
-#include "../utils/big_pow.h"        /* big_pow() */
+#include "../utils/build_primes.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /* Comparison used by qsort for uint64_t values */
 static int cmp_uint64(const void *a, const void *b)
@@ -129,7 +131,7 @@ static void init_semiprimes(void)
 /* ---------- Initialize heap with exponent index 0 for each base ---------- */
 static void init_heap(void)
 {
-    heap = (HeapNode *)malloc(semip_cnt * sizeof(HeapNode));
+    heap = mem_new(HeapNode, semip_cnt);
     heap_size = 0;
 
     /* The smallest exponent corresponds to the first semiprime (e.g. 4 -> exp=3) */
@@ -140,7 +142,7 @@ static void init_heap(void)
         HeapNode node;
         node.base_idx = i;
         node.exp_idx = 0;
-        node.val = big_pow((seq_t)semip[i], base_exp);
+        node.val = ipow((seq_t)semip[i], base_exp);
         heap_push(node);
     }
 }
@@ -150,7 +152,7 @@ static void ensure_cache_capacity(void)
 {
     if (cache_len >= cache_cap) {
         size_t new_cap = (cache_cap == 0) ? 512 : cache_cap * 2;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 }
@@ -175,7 +177,7 @@ static void generate_up_to(idx_t n)
             HeapNode nxt;
             nxt.base_idx = cur.base_idx;
             nxt.exp_idx = next_exp;
-            nxt.val = big_pow((seq_t)semip[cur.base_idx],
+            nxt.val = ipow((seq_t)semip[cur.base_idx],
                               (seq_t)(semip[next_exp] - 1));
             heap_push(nxt);
         }

@@ -8,13 +8,15 @@
  *            values a(1)=1, a(2)=1, a(3)=3, a(4)=9, a(5)=21 for n ≥ 1
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 21, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,10 +32,10 @@ seq_t a(idx_t n)
     /* Allocate/resize the memo array if needed. */
     if (n + 1 > memo_size) {
         idx_t new_size = n + 1;
-        seq_t *new_memo = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_memo = mem_new(seq_t, new_size);
         if (memo) {
-            memcpy(new_memo, memo, memo_size * sizeof(seq_t));
-            free(memo);
+            mem_copy(new_memo, memo, memo_size * sizeof(seq_t));
+            mem_free(memo);
         }
         memo = new_memo;
         memo_size = new_size;

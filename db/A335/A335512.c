@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 58, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   has_triplet
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,35 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/has_triplet.h"
+
+static bool has_triplet(idx_t k)
+{
+    /* Positions of 1‑bits in the reversed binary expansion of k. */
+    idx_t pos[65];
+    int m = 0;
+    idx_t bit_pos = 1;
+    while (k > 0) {
+        if (k & 1ULL) {
+            pos[m++] = bit_pos;
+        }
+        ++bit_pos;
+        k >>= 1;
+    }
+
+    /* Compute the composition parts (differences of consecutive positions
+       starting from 0) and count how many times each part occurs. */
+    int counts[65] = {0};
+    idx_t prev = 0;
+    for (int i = 0; i < m; ++i) {
+        idx_t part = pos[i] - prev;
+        prev = pos[i];
+        unsigned p = (unsigned)part;            /* part ≤ 64 */
+        if (++counts[p] >= 3) {
+            return true;
+        }
+    }
+    return false;
+}
 
 /* Sequence A335512:
    a(n) is the n‑th integer k such that the k‑th composition in

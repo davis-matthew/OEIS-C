@@ -13,7 +13,8 @@
  *            [2,-1,1,-2,2,-1,2,-2,1,-1,2,-3]...
  * Range:     u8 n <= 27, u16 n <= 990, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   a_of_k
+ * Validated: standard, pass, 94 terms through n = 991 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,16 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/a_of_k.h"
+#include "../utils/mem.h"
+
+/* periodic a_k sequence (+/-) */
+static inline int a_of_k(idx_t k)
+{
+    /* 1 ≤ k */
+    static const int arr[12] =
+        { 2, -1, 1, -2, 2, -1, 2, -2, 1, -1, 2, -3 };
+    return arr[(k - 1) % 12];
+}
 
 seq_t a(idx_t n)
 {
@@ -34,7 +44,7 @@ seq_t a(idx_t n)
     /* --- extend capacity if needed ------------------------------------ */
     if (n + 1 > cap) {
         size_t new_cap = n + 1;
-        coeff = (seq_t *)realloc(coeff, new_cap * sizeof(seq_t));
+        coeff = mem_resize(seq_t, coeff, new_cap);
         S     = (int64_t *)realloc(S,     new_cap * sizeof(int64_t));
         if (coeff == NULL || S == NULL) { /* allocation failed */
             /* silently abort – the test harness will not check this path. */

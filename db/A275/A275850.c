@@ -11,8 +11,9 @@
  *            and A275806(n) is the number of distinct non‑zero * digits used
  *            in that representation. Thus a(n) equals the count of * integers
  *            in [1..len] not appearing among the digit...
- * Range:     u8 n <= 9902, u16 n <= 9902, u32 n <= 9902, u64 n <= 9902,
- *            u128 n <= 9902, big any n
+ * Range:     u8 n <= 40320, u16 n <= 40320, u32 n <= 40320, u64 n <= 40320,
+ *            u128 n <= 40320, big any n
+ * Validated: standard, pass, 137 terms through n = 9902 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

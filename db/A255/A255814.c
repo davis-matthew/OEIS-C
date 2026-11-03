@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 30, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 959 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    Recurrence:  a(n+3) = 5*a(n+2) - 4*a(n+1) + 4*a(n)
    Initial values:  a(0)=1, a(1)=4, a(2)=17 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* memoisation array */
 static idx_t  cache_size = 0;        /* allocated capacity */
@@ -28,7 +30,7 @@ static void ensure_capacity(idx_t n) {
     size_t new_cap = cache_size ? cache_size : 8;
     while (new_cap <= (size_t)n) new_cap <<= 1;
 
-    seq_t *new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) exit(EXIT_FAILURE);   /* OOM guard */
     cache = new_cache;
     cache_size = (idx_t)new_cap;

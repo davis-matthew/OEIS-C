@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign
  * Formula:   a(n) = -Sum_{d|n, d < n} omega(n/d) * a(d) (omega = A001221)
- * Range:     i8 n <= 9740, i16 n <= 9740, i32 n <= 9740, i64 n <= 9740,
- *            i128 n <= 9740, big any n
- * Helpers:   count_distinct_primes
+ * Range:     i8 n <= 20000, i16 n <= 20000, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 106 terms through n = 9740 (2026-11-03)
+ * Helpers:   mem, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/count_distinct_primes.h"
+#include <stdint.h>
+#include "../utils/omega.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* cache of a(n) values (0‑based index) */
 static bool  *cached = NULL;     /* flags indicating whether cache[i] is valid */
@@ -33,7 +36,7 @@ static void ensure_cache_size(idx_t n)
     size_t new_cap = cache_cap ? cache_cap * 2 : 1;
     while (new_cap < (size_t)n) new_cap <<= 1;
 
-    seq_t  *new_cache  = (seq_t *)realloc(cache,  new_cap * sizeof(seq_t));
+    seq_t  *new_cache  = mem_resize(seq_t, cache, new_cap);
     bool   *new_cached = (bool  *)realloc(cached, new_cap * sizeof(bool));
 
     if (!new_cache || !new_cached) {
@@ -69,14 +72,14 @@ seq_t a(idx_t n)
 
             /* divisor d1 < n */
             if (d1 < n) {
-                seq_t od = (seq_t)count_distinct_primes(d2);   /* ω(n/d1) = ω(d2) */
+                seq_t od = (seq_t)omega(d2);   /* ω(n/d1) = ω(d2) */
                 seq_t ad = a(d1);
                 sum += od * ad;
             }
 
             /* complementary divisor d2 < n, avoid double counting when d1==d2 */
             if (d2 != d1 && d2 < n) {
-                seq_t od = (seq_t)count_distinct_primes(d1);   /* ω(n/d2) = ω(d1) */
+                seq_t od = (seq_t)omega(d1);   /* ω(n/d2) = ω(d1) */
                 seq_t ad = a(d2);
                 sum += od * ad;
             }

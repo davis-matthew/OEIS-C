@@ -7,6 +7,7 @@
  * Formula:   a(n) = n*10^len(a(n-1)) + a(n-1), a(1) = 1
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 9, u64 n <= 14, u128 n <= 24,
  *            big any n
+ * Validated: standard, pass, 34 terms through n = 148 (2026-11-01)
  * Helpers:   num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

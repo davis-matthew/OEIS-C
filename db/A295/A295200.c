@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 64, u128 n <= 128,
  *            big any n
- * Helpers:   cell_valid, compute_valid
+ * Validated: standard, pass, 48 terms through n = 210 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,35 @@
    consecutive rows) and works for any n≥1.  It is O(n) time and O(1) memory. */
 
 #include <stdbool.h>
-#include "../utils/cell_valid.h"
-#include "../utils/compute_valid.h"
+
+static inline bool cell_valid(int up, int down, int left, int right, int bit)
+{
+    if (bit == 0) return true;
+    int deg = up + down + left + right;
+    return (deg == 2) || (deg == 4);
+}
+
+/* Pre‑compute validity for all triples of rows (prev, cur, next). */
+static void compute_valid(bool v[8][8][8])
+{
+    for (int prev = 0; prev < 8; ++prev)
+        for (int cur = 0; cur < 8; ++cur)
+            for (int next = 0; next < 8; ++next)
+            {
+                bool ok = true;
+                for (int col = 0; col < 3; ++col)
+                {
+                    int bit = (cur >> col) & 1;
+                    int up   = (prev >> col) & 1;
+                    int down = (next >> col) & 1;
+                    int left = (col > 0)     ? ((cur >> (col-1)) & 1) : 0;
+                    int right= (col < 2)    ? ((cur >> (col+1)) & 1) : 0;
+                    if (!cell_valid(up, down, left, right, bit))
+                    { ok = false; break; }
+                }
+                v[prev][cur][next] = ok;
+            }
+}
 
 seq_t a(idx_t n)
 {

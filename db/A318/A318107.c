@@ -10,7 +10,8 @@
  *            a(n) = binom(3r-2c, r-c) * binom(2r-c, r-c) * binom(r, c)
  * Range:     u8 n <= 5, u16 n <= 14, u32 n <= 35, u64 n <= 119, u128 n <= 406,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 61 terms through n = 5143 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 /* Find the row r such that r*(r+1)/2 <= n < (r+1)*(r+2)/2.
    n is 0‑based. */
@@ -50,9 +51,9 @@ seq_t a(idx_t n) {
     idx_t a_val = 3 * r - 2 * c;     /* 3r-2c  */
     idx_t b     = r - c;             /* r-c     */
 
-    seq_t result = binom(a_val, b);          /* C(3r-2c, r-c) */
-    result *= binom(2 * r - c, b);           /* C(2r-c,   r-c) */
-    result *= binom(r, c);                   /* C(r,     c)   */
+    seq_t result = binomial(a_val, b);          /* C(3r-2c, r-c) */
+    result *= binomial(2 * r - c, b);           /* C(2r-c,   r-c) */
+    result *= binomial(r, c);                   /* C(r,     c)   */
 
     return result;
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 192, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_distinct_primes
+ * Validated: standard, pass, 87 terms through n = 7874 (2026-11-03)
+ * Helpers:   mem, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/count_distinct_primes.h"
+#include "../utils/omega.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* cached qualifying k values */
 static size_t cache_len = 0;  /* number of entries currently cached   */
@@ -35,7 +37,7 @@ static void ensure_capacity(size_t need)
     if (need <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < need) new_cap *= 2;
-    seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     cache = tmp;
     cache_cap = new_cap;
 }
@@ -51,8 +53,8 @@ seq_t a(idx_t n)
         uint64_t k = last_k;
 
         /* compute ω(k) and ω(k+1) */
-        int omega_k   = count_distinct_primes(k);
-        int omega_next = count_distinct_primes(k + 1);
+        int omega_k   = omega(k);
+        int omega_next = omega(k + 1);
 
         /* check the defining inequality */
         if (omega_next < 2 * omega_k)

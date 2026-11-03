@@ -10,14 +10,16 @@
  *            rows. The mapping from n to (r,k) is: r = smallest integer ≥ 3
  *            with Σ_{i=3}^r ⌊(i‑1)/2⌋ ≥ n k = n – Σ_{i=3}^{r‑1} ⌊(i‑1)/2⌋
  *            (1‑based within the row) The value returned is...
- * Range:     u8 n <= 15, u16 n <= 55, u32 n <= 56, u64 n <= 56, u128 n <= 56,
+ * Range:     u8 n <= 23, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n) {
     if (n == 0) {          /* undefined for offset=1, but return 0 for safety */
@@ -32,7 +34,7 @@ seq_t a(idx_t n) {
         if (cum + terms_in_row >= n) {
             /* The term is in this row */
             idx_t k = n - cum;                      /* 1‑based index in row */
-            return binom(row, k);
+            return binomial(row, k);
         }
         cum += terms_in_row;
         ++row;

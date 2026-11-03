@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,6 +35,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /*======================================================================
  *  Static data that is initialised on first use
@@ -78,7 +80,7 @@ static void ensure_cache_capacity(idx_t need)
     if (need <= cache_cap) return;
     size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
     while (new_cap < (size_t)need) new_cap <<= 1;
-    seq_t *newp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *newp = mem_resize(seq_t, cache, new_cap);
     if (!newp) abort();            /* fatal error */
     cache = newp;
     cache_cap = new_cap;
@@ -148,8 +150,8 @@ static void init_structures(void)
     }
 
     /* DP temporary arrays */
-    dpCurr = (seq_t *)malloc(state_cnt * sizeof(seq_t));
-    dpNext = (seq_t *)malloc(state_cnt * sizeof(seq_t));
+    dpCurr = mem_new(seq_t, state_cnt);
+    dpNext = mem_new(seq_t, state_cnt);
     if (!dpCurr || !dpNext) abort();
 
     ready = 1;
@@ -168,7 +170,7 @@ seq_t a(idx_t n)
     if (n > cache_size) {
         /* initialise DP for height 1 if this is the very first call */
         if (computedN == 0) {
-            memset(dpCurr, 0, state_cnt * sizeof(seq_t));
+            mem_set(dpCurr, 0, state_cnt * sizeof(seq_t));
             for (size_t idx = 0; idx < init_cnt; ++idx)
                 dpCurr[ init_idx[idx] ] = (seq_t)1;
 
@@ -183,7 +185,7 @@ seq_t a(idx_t n)
 
         /* extend DP step by step */
         for (idx_t cur = computedN + 1; cur <= n; ++cur) {
-            memset(dpNext, 0, state_cnt * sizeof(seq_t));
+            mem_set(dpNext, 0, state_cnt * sizeof(seq_t));
 
             for (size_t i = 0; i < state_cnt; ++i) {
                 seq_t val = dpCurr[i];

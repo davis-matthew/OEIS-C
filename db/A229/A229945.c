@@ -11,7 +11,8 @@
  *            a(3)=2, …
  * Range:     u8 n <= 91, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 91 terms through n = 91 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* Integer square‑root (floor) for idx_t                                 */
@@ -107,7 +109,7 @@ static void append_term(seq_t val)
     if (terms_size + 1 > terms_cap) {
         size_t new_cap = terms_cap ? terms_cap * 2 : 8;
         while (new_cap <= terms_size + 1) new_cap *= 2;
-        seq_t *new_terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *new_terms = mem_resize(seq_t, terms, new_cap);
         if (!new_terms) exit(1);
         terms = new_terms;
         terms_cap = new_cap;

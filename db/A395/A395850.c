@@ -6,17 +6,29 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy, fini, full
  * Formula:   a(n) = A027750(A001228(19), n)
- * Range:     u8 none, u16 n <= 15, u32 n <= 3600, u64 n <= 9746,
- *            u128 n <= 9746, big any n
- * Helpers:   factor_u64, seq_cmp
+ * Range:     u8 none, u16 n <= 15, u32 n <= 3243, u64 n <= 16128,
+ *            u128 n <= 16128, big any n
+ * Validated: full, pass, 16128 terms through n = 16128 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_cmp.h"
+#include "../utils/mem.h"
+
+static int seq_cmp(const void *p, const void *q)
+{
+    const seq_t *a = (const seq_t *)p;
+    const seq_t *b = (const seq_t *)q;
+    if (*a < *b) return -1;
+    if (*a > *b) return 1;
+    return 0;
+}
 
 seq_t a(idx_t n)
 {
@@ -40,16 +52,16 @@ seq_t a(idx_t n)
             cnt *= (size_t)(exps[i] + 1);
 
         /* Allocate storage for members of the divisor set */
-        divs = (seq_t *)malloc(cnt * sizeof(seq_t));
+        divs = mem_new(seq_t, cnt);
         if (divs == NULL)
             return 0;            /* allocation failure */
 
         /* Generate all divisors iteratively.
            Each stack element carries (prime index, current product). */
         typedef struct { size_t idx; seq_t val; } Item;
-        Item *stack = (Item *)malloc(cnt * 2 * sizeof(Item));  /* buffer */
+        Item *stack = mem_new(Item, cnt * 2);  /* buffer */
         if (stack == NULL) {
-            free(divs);
+            mem_free(divs);
             divs = NULL;
             return 0;
         }
@@ -78,10 +90,10 @@ seq_t a(idx_t n)
                 stack[top++] = (Item){i + 1, w};
             }
         }
-        free(stack);
+        mem_free(stack);
 
         /* Sort the divisors in increasing order */
-        qsort(divs, cnt, sizeof(seq_t), seq_cmp);
+        mem_qsort(divs, cnt, sizeof(seq_t), seq_cmp);
     }
 
     if (n < 1 || (idx_t)cnt < n)

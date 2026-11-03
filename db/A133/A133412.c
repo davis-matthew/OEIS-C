@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 33, u16 n <= 79, u32 n <= 79, u64 n <= 79, u128 n <= 79,
  *            big any n
+ * Validated: partial, pass, 79 terms through n = 79 (2026-11-01)
  * Helpers:   build_spf, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,9 @@
    possibly equal).  For example a(1)=5 because 5 is the
    only prime between the 1st semiprime 4 and the 2nd semiprime 6. */
 
+#include <stdbool.h>
+#include <stdlib.h>
+#include <stdint.h>
 #include "../utils/build_spf.h"
 #include "../utils/is_prime.h"
 #include <stdlib.h>

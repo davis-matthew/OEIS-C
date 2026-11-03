@@ -8,9 +8,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabf
  * Formula:   sequence defined by cycles as described in OEIS A348328
- * Range:     u8 n <= 4664, u16 n <= 9776, u32 n <= 9776, u64 n <= 9776,
- *            u128 n <= 9776, big any n
- * Helpers:   none
+ * Range:     u8 n <= 4664, u16 n <= 10878, u32 n <= 10878, u64 n <= 10878,
+ *            u128 n <= 10878, big any n
+ * Validated: standard, pass, 138 terms through n = 9776 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static state */
 static seq_t *seq = NULL;          /* sequence storage */
@@ -42,7 +44,7 @@ static void ensure_seq_cap(size_t need)
     if (seq_cap >= need) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 16;
     while (new_cap < need) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, new_cap);
     seq = tmp;
     seq_cap = new_cap;
 }
@@ -105,7 +107,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         /* Initial term a(0) = 0 */
         seq_cap = 16;
-        seq = (seq_t *)calloc(seq_cap, sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         seq[0] = (seq_t)0;
         seq_len = 1;
 

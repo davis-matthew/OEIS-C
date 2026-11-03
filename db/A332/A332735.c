@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Global caches for the series s(x)=1/D(x) and the sequence a(n) */
 static seq_t *s_arr   = NULL;   /* coefficients s_n of 1/D(x)      */
@@ -49,7 +51,7 @@ static void ensure_s_up_to(idx_t n)
     size_t needed = (size_t)n + 1;
     if (needed > s_cap) {
         s_cap = needed;
-        s_arr = (seq_t *)realloc(s_arr, s_cap * sizeof(seq_t));
+        s_arr = mem_resize(seq_t, s_arr, s_cap);
         if (!s_arr) return;           /* abort on allocation failure */
     }
 
@@ -88,7 +90,7 @@ static void ensure_a_up_to(idx_t n)
     size_t needed = (size_t)n + 1;
     if (needed > a_cap) {
         a_cap = needed;
-        a_arr = (seq_t *)realloc(a_arr, a_cap * sizeof(seq_t));
+        a_arr = mem_resize(seq_t, a_arr, a_cap);
         if (!a_arr) return;           /* abort on allocation failure */
     }
 

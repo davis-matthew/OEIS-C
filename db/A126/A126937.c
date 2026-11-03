@@ -12,7 +12,8 @@
  *            tz is the number of trailing zeros in t) is 0,...
  * Range:     u8 n <= 61, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   ulam_index
+ * Validated: partial, pass, 65 terms through n = 64 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,43 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/ulam_index.h"
+
+/* Compute the Ulam spiral index of the lattice point (x,y).  The
+ * spiral begins at 0 at (0,0) and numbers are assigned in the
+ * clockwise ring pattern described above.  The implementation
+ * handles k = 0 separately and then classifies the side of the
+ * ring in which (x,y) lies.  For the corner points the order of the
+ * tests ensures the correct offset. */
+static seq_t ulam_index(int64_t x, int64_t y)
+{
+    int64_t absx = (x >= 0) ? x : -x;
+    int64_t absy = (y >= 0) ? y : -y;
+    if (absx == 0 && absy == 0) {
+        return (seq_t)0;
+    }
+    int64_t k = (absx > absy) ? absx : absy;        /* ring layer */
+
+    seq_t kk = (seq_t)k;           /* cast once, reused */
+    /* first index in this ring: (2k‑1)^2 */
+    seq_t layer_start = (2 * kk - (seq_t)1) * (2 * kk - (seq_t)1);
+
+    seq_t offset;
+    if (y == -(k)) {
+        /* bottom side: y = -k, x from -k+1 to k */
+        offset = 6 * kk + (seq_t)(x + k - 1);
+    } else if (x == k) {
+        /* right side: x = k, y from -(k‑1) to k */
+        offset = (seq_t)(y + (k - 1));
+    } else if (y == k) {
+        /* top side: y = k, x from k‑1 down to -k */
+        offset = 2 * kk + (seq_t)(k - 1 - x);
+    } else { /* x == -k */
+        /* left side: x = -k, y from k‑1 down to -k */
+        offset = 4 * kk + (seq_t)(k - 1 - y);
+    }
+
+    return layer_start + offset;
+}
 
 seq_t a(idx_t n)
 {

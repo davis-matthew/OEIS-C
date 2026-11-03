@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache: cache[i] holds a(i), 1-based */
@@ -29,7 +31,7 @@ seq_t a(idx_t n) {
     if (cache_size < n) {
         /* need to enlarge cache to size n+1 (index 0 unused) */
         idx_t new_size = n + 1;
-        seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_size);
         if (!new_cache) {
             /* out of memory – abort */
             abort();
@@ -42,8 +44,8 @@ seq_t a(idx_t n) {
             cache_size = 1;
         } else {
             /* copy existing values */
-            memcpy(new_cache, cache, (cache_size + 1) * sizeof(seq_t));
-            free(cache);
+            mem_copy(new_cache, cache, (cache_size + 1) * sizeof(seq_t));
+            mem_free(cache);
         }
 
         /* compute missing terms up to n */

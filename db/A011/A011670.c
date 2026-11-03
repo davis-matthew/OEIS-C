@@ -11,13 +11,15 @@
  *            precomputation. * It works for any inte...
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 81 terms through n = 80 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
 
     if (n >= cache_size) {
         /* Grow the cache. */
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)needed);
         if (!tmp) {
             /* Allocation failed; terminate program (cannot recover). */
             exit(1);

@@ -9,6 +9,7 @@
  *            (next_prime(p)-1)
  * Range:     u8 n <= 520, u16 n <= 8191, u32 n <= 8191, u64 n <= 8191,
  *            u128 n <= 8191, big any n
+ * Validated: standard, pass, 114 terms through n = 7382 (2026-11-01)
  * Helpers:   factor_u64, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,8 +18,9 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/next_prime.h"
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/next_prime.h"
 
 static seq_t a_prime_value(uint64_t p)
 {

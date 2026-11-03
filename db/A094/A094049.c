@@ -11,7 +11,8 @@
  *            equation m^2 – p·k^2 = –1
  * Range:     u8 n <= 1, u16 n <= 7, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   minimal_k
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,43 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/minimal_k.h"
+
+/* Compute the minimal k for a given prime p  ≡ 1 (mod 4) from the
+   fundamental solution of the negative Pell equation m^2 – p·k^2 = –1.  */
+static seq_t minimal_k(uint64_t p) {
+    uint64_t a0 = (uint64_t)floor(sqrt((double)p));
+    uint64_t m = 0, d = 1, a = a0;
+
+    seq_t P_prev2 = (seq_t)0;
+    seq_t P_prev1 = (seq_t)1;
+    seq_t Q_prev2 = (seq_t)1;
+    seq_t Q_prev1 = (seq_t)0;
+
+    while (true) {
+        /* Compute next convergent.  */
+        seq_t P = (seq_t)a * P_prev1 + P_prev2;
+        seq_t Q = (seq_t)a * Q_prev1 + Q_prev2;
+
+        /* Test whether P^2 – p·Q^2 = –1  →  p·Q^2 – P^2 = 1 */
+        seq_t temp = (seq_t)p * Q * Q;    /* p·Q^2  */
+        if (temp > P * P && (temp - P * P) == (seq_t)1) {
+            return Q;                     /* minimal k found */
+        }
+
+        /* Prepare next terms of the continued fraction.  */
+        __uint128_t m_next = (__uint128_t)d * a - m;
+        __uint128_t d_next = ((__uint128_t)p - m_next * m_next) / d;
+        uint64_t a_next = (a0 + (uint64_t)m_next) / (uint64_t)d_next;
+
+        m = (uint64_t)m_next;
+        d = (uint64_t)d_next;
+        a = a_next;
+
+        /* Shift previous convergents.  */
+        P_prev2 = P_prev1;  P_prev1 = P;
+        Q_prev2 = Q_prev1;  Q_prev1 = Q;
+    }
+}
 
 /* Static storage for the primes congruent to 1 modulo 4. */
 static uint64_t *primes1 = NULL;

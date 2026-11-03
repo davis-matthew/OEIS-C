@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 216, u32 n <= 267, u64 n <= 267,
  *            u128 n <= 267, big any n
- * Helpers:   none
+ * Validated: full, pass, 267 terms through n = 267 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  Sieve for divisor counts (linear sieve)                           */
@@ -92,7 +94,7 @@ static void assure_terms(size_t needed)
     size_t new_cap = terms_cap ? terms_cap << 1 : 4;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, terms, new_cap);
     if (!tmp)
         abort();
     terms = tmp;

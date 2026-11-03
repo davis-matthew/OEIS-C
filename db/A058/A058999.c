@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 390, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 60 terms through n = 905 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/mod_pow.h"    /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod); */
+#include <string.h>
+#include "../utils/powmod.h"
 
 /* Make sure a dynamic array has enough room. */
 static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size) {
@@ -69,7 +71,7 @@ seq_t a(idx_t n) {
         /* Only check primes with p ≡ 1 (mod 17). */
         if ((cand - 1) % 17 == 0) {
             uint64_t exp = (cand - 1) / 17;
-            seq_t res = mod_pow((seq_t)2, exp, (seq_t)cand);
+            seq_t res = powmod((seq_t)2, exp, (seq_t)cand);
             if (res != (seq_t)1) append_special(cand);
         }
     }

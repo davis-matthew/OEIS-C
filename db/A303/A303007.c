@@ -10,12 +10,14 @@
  *            to handle arbitrary call order
  * Range:     i8 n <= 1, i16 n <= 2, i32 n <= 4, i64 n <= 8, i128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 416 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     if (cache == NULL)
     {
         cache_cap = 1;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = (seq_t)1;
         cache_len = 1;
     }
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
         size_t new_cap = cache_cap;
         while (new_cap <= (size_t)n)
             new_cap <<= 1;           /* double until big enough */
-        cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 

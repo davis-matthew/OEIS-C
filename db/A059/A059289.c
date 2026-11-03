@@ -7,7 +7,8 @@
  * Formula:   a(n) = 1 + (binomial(2*n, n) mod n)
  * Range:     u8 n <= 304, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   v_p_factorial
+ * Validated: standard, pass, 99 terms through n = 4977 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,17 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/v_p_factorial.h"
+
+/* Legendre exponent of prime p in n!  */
+static idx_t v_p_factorial(idx_t n, idx_t p)
+{
+    idx_t exp = 0;
+    while (n) {
+        n /= p;
+        exp += n;
+    }
+    return exp;
+}
 
 /* Helper to compute power modulo a divisor (mod) */
 static seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod)

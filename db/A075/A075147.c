@@ -8,6 +8,7 @@
  * Formula:   a(n) = (1/n) * Sum_{d|n} μ(n/d) * n^d
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 9, u64 n <= 16, u128 n <= 26,
  *            big any n
+ * Validated: standard, pass, 36 terms through n = 346 (2026-11-01)
  * Helpers:   mobius
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 
 /* Compute a(n) for the number of Lyndon words of length n over an n‑symbol alphabet. */
 
+#include <stdint.h>
 #include "../utils/mobius.h"
 
 static seq_t pow_seq(seq_t base, idx_t exp)

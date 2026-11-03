@@ -11,6 +11,7 @@
  *            numbers in increasing * order
  * Range:     u8 n <= 10, u16 n <= 58, u32 n <= 2346, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 63 terms through n = 9734 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
 
 /* The implementation iterates through 1..n, tests gcd(i,n)==1 and sums
  * cnt*i, where cnt is the number of coprimes seen so far. */
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

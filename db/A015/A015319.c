@@ -7,6 +7,7 @@
  * Formula:   a(n) = Gaussian binomial coefficient [n,5] for q = -12
  * Range:     i8 n <= 5, i16 n <= 5, i32 n <= 6, i64 n <= 8, i128 n <= 12,
  *            big any n
+ * Validated: standard, pass, 24 terms through n = 188 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

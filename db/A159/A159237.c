@@ -8,7 +8,8 @@
  * Formula:   a(n) = A046346(n) / Sopfr(A046346(n))
  * Range:     u8 n <= 163, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _smallest_prime_factor, is_prime
+ * Validated: standard, pass, 88 terms through n = 855 (2026-11-03)
+ * Helpers:   is_prime, mem, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <stdint.h>
+#include <stddef.h>
 #include "../utils/is_prime.h"
-#include "../utils/_smallest_prime_factor.h"
+#include "../utils/smallest_prime_factor.h"
+#include "../utils/mem.h"
 
 /* Return the n-th term of sequence A159237, with n ≥ 1.  */
 seq_t a(idx_t n)
@@ -43,12 +47,12 @@ seq_t a(idx_t n)
     /* ---- enlarge cache if we need to store more terms ---- */
     if (cache_cap < n) {
         size_t new_cap = n;
-        seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, new_cap);
         if (!tmp)               /* allocation failure – give up */
             return (seq_t)0;
         if (cache) {
-            memcpy(tmp, cache, terms_found * sizeof(seq_t));
-            free(cache);
+            mem_copy(tmp, cache, terms_found * sizeof(seq_t));
+            mem_free(cache);
         }
         cache   = tmp;
         cache_cap = new_cap;
@@ -71,7 +75,7 @@ seq_t a(idx_t n)
         uint64_t temp      = (uint64_t)current;
         uint64_t sum_pf    = 0;
         while (temp > 1) {
-            uint64_t p = _smallest_prime_factor(temp);
+            uint64_t p = smallest_prime_factor(temp);
             sum_pf += p;
             temp /= p;
         }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 4, u64 n <= 15, u128 n <= 69,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 29 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are supplied by the build system. */
 
@@ -102,15 +104,15 @@ static void ensure_f(size_t len)
 
     /* allocate DP arrays if needed */
     if (dpCap < rowCount) {
-        dpPrev = (seq_t *)realloc(dpPrev, rowCount * sizeof(seq_t));
-        dpCur  = (seq_t *)realloc(dpCur,  rowCount * sizeof(seq_t));
+        dpPrev = mem_resize(seq_t, dpPrev, rowCount);
+        dpCur  = mem_resize(seq_t, dpCur, rowCount);
         if (!dpPrev || !dpCur) exit(1);
         dpCap = rowCount;
     }
 
     /* allocate the f array */
     if (fCap < len + 1) {
-        seq_t *tmp = (seq_t *)realloc(fVals, (len + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fVals, (len + 1));
         if (!tmp) exit(1);
         if (fVals) {
             for (size_t i = fCap; i <= len; ++i) tmp[i] = (seq_t)0;

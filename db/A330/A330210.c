@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 58, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
- *            big any n
- * Helpers:   small_prime_test
+ * Range:     u8 n <= 60, u16 n <= 5683, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 74 terms through n = 9501 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,7 +35,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <math.h>
-#include "../utils/small_prime_test.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* --------- FFT helper (complex numbers) ---------- */
 typedef struct { double re, im; } Complex;
@@ -142,17 +144,17 @@ static void recompute(idx_t limit)
         long long ordered = (long long)(A[m].re + 0.5);   /* round to nearest */
         bool half_prime = prime_mask[m / 2];
         long long unordered = (ordered + (half_prime ? 1 : 0)) / 2;
-        if (small_prime_test((idx_t)unordered)) {
+        if (is_prime((idx_t)unordered)) {
             if (new_len == new_cap) {
                 new_cap = new_cap ? new_cap * 2 : 64;
-                new_cache = (seq_t*)realloc(new_cache, new_cap * sizeof(seq_t));
+                new_cache = mem_resize(seq_t, new_cache, new_cap);
             }
             new_cache[new_len++] = (seq_t)m;
         }
     }
 
     /* replace old cache */
-    if (cache_terms) free(cache_terms);
+    if (cache_terms) mem_free(cache_terms);
     cache_terms = new_cache;
     cache_len   = new_len;
     current_limit = limit;

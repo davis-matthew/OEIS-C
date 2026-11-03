@@ -9,6 +9,7 @@
  * Formula:   a(n) = 2*Fibonacci(n)^2 - 1
  * Range:     i8 n <= 6, i16 n <= 11, i32 n <= 23, i64 n <= 46, i128 n <= 92,
  *            big any n
+ * Validated: standard, pass, 47 terms through n = 880 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

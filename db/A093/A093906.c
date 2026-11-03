@@ -10,7 +10,8 @@
  *            and XY+1
  * Range:     u8 n <= 52, u16 n <= 96, u32 n <= 96, u64 n <= 96, u128 n <= 96,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 96 terms through n = 96 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -51,8 +53,7 @@ seq_t a(idx_t n)
 
             /* Allocate (or reallocate) the missing values array. */
             size_t new_cap = (size_t)limit + 2;   /* guarantee enough space */
-            seq_t *new_arr = (seq_t *)realloc(missing_arr,
-                                               new_cap * sizeof(seq_t));
+            seq_t *new_arr = mem_resize(seq_t, missing_arr, new_cap);
             if (!new_arr) {
                 free(reachable);
                 return (seq_t)0;

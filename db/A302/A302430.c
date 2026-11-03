@@ -11,7 +11,8 @@
  *            neighbours, with upper‑left cell fixed to 0
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 19, u64 n <= 38, u128 n <= 78,
  *            big any n
- * Helpers:   check_center
+ * Validated: standard, pass, 41 terms through n = 191 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,36 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/check_center.h"
+
+/* Check whether column 'center' satisfies the rule with
+   neighbouring columns 'left' (if left_exist) and 'right' (if right_exist). */
+static bool check_center(bool left_exist, bool right_exist,
+                         int left, int center, int right)
+{
+    for (int r = 0; r < 5; ++r) {
+        int val = (center >> r) & 1;
+        int cnt = 0;
+
+        /* left neighbour (horizontal) */
+        if (left_exist) {
+            if (((left >> r) & 1) == val) ++cnt;
+            if (r > 0 && (((left >> (r - 1)) & 1) == val)) ++cnt;
+            if (r < 4 && (((left >> (r + 1)) & 1) == val)) ++cnt;
+        }
+
+        /* right neighbour (horizontal) */
+        if (right_exist) {
+            if (((right >> r) & 1) == val) ++cnt;
+            if (r > 0 && (((right >> (r - 1)) & 1) == val)) ++cnt;
+            if (r < 4 && (((right >> (r + 1)) & 1) == val)) ++cnt;
+        }
+
+        /* allowed counts are 0,1,3,5 */
+        if (!(cnt == 0 || cnt == 1 || cnt == 3 || cnt == 5))
+            return false;
+    }
+    return true;
+}
 
 static bool tables_built = false;
 static bool start_ok[32][32];

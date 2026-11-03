@@ -7,7 +7,8 @@
  * Formula:   a(n) = n! * Σ_{k=0..n} (k+1)^(k-1) * binomial(n+3k-1, n-k)/k!
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 17,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   binomial, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
 #include "../utils/binomial.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +39,7 @@ seq_t a(idx_t n)
     if (n > fact_n) {
         size_t new_cap = (size_t)(n + 1U);
         if (!fact) {
-            fact = (seq_t *)malloc(new_cap * sizeof(seq_t));
+            fact = mem_new(seq_t, new_cap);
             if (!fact)
                 return (seq_t)0;   /* out of memory – caller may interpret 0 as failure */
 
@@ -45,7 +48,7 @@ seq_t a(idx_t n)
                 fact[i] = fact[i - 1] * (seq_t)i;
         } else {
             if (new_cap > fact_cap) {
-                seq_t *tmp = (seq_t *)realloc(fact, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, fact, new_cap);
                 if (!tmp)
                     return (seq_t)0;
                 fact = tmp;
@@ -68,7 +71,7 @@ seq_t a(idx_t n)
         mult /= k; /* now mult = n! / k! */
 
         /* (k+1)^(k-1)  (k+1) and k-1 are small enough for the generic big_pow). */
-        seq_t pow_term = big_pow((seq_t)(k + 1U), (seq_t)(k - 1U));
+        seq_t pow_term = ipow((seq_t)(k + 1U), (seq_t)(k - 1U));
 
         /* binomial(n+3k-1, n-k)   (top >= bottom for k ≤ n). */
         seq_t bin = binomial(n + 3U * k - 1U, n - k);

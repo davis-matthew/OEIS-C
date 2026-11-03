@@ -9,12 +9,14 @@
  *            position of the term in the triangular array read row‑wise
  * Range:     i8 n <= 23, i16 n <= 45, i32 n <= 45, i64 n <= 45, i128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,10 +36,10 @@ seq_t a(idx_t n)
 
     /* Dynamic programming for Stirling numbers of the second kind.
        Only two rows are kept at a time. */
-    seq_t *prev = (seq_t *)malloc((r + 2) * sizeof(seq_t));
-    seq_t *cur  = (seq_t *)malloc((r + 2) * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, (r + 2));
+    seq_t *cur  = mem_new(seq_t, (r + 2));
     if (!prev || !cur) {
-        free(prev); free(cur);
+        mem_free(prev); mem_free(cur);
         return 0; /* out of memory */
     }
 
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     prev[1] = 1;
     if (r == 1) {
         seq_t result = (c == r) ? prev[1] : -prev[1];
-        free(prev); free(cur);
+        mem_free(prev); mem_free(cur);
         return result;
     }
 
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
     seq_t sign  = (c == r) ? (seq_t)1 : (seq_t)-1;
     seq_t result = value * sign;
 
-    free(prev);
-    free(cur);
+    mem_free(prev);
+    mem_free(cur);
     return result;
 }

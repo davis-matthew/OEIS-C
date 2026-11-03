@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 46, u32 n <= 191, u64 n <= 821,
  *            u128 n <= 3322, big any n
- * Helpers:   S_val
+ * Validated: standard, pass, 76 terms through n = 9361 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,17 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/S_val.h"
+#include "../utils/mem.h"
+
+/*  Compute the cumulative count S(r) = number of terms in rows 0..r.
+        For r==0, S(0)=1.  For r>=1, S(r)=r*(r-1)/2 + 2.
+    The result fits in idx_t for all r that are below the maximum
+    index that may occur in the input.  */
+static inline unsigned __int128 S_val(idx_t r)
+{
+    if (r == 0) return (unsigned __int128)1;
+    return (unsigned __int128)r * (r - 1) / 2 + 2;
+}
 
 /*  Find the row number r such that the index idx lies in row r.
     For idx==0 return r=0.  */
@@ -64,15 +75,15 @@ seq_t a(idx_t idx)
 
     /*  DP arrays:  f[s][k]  where s=0,1,2 tracks trailing zeros  */
     idx_t maxK = r - 1;                /* maximum possible k is r-2; array size r-1 safe */
-    seq_t *f0 = (seq_t *)calloc(maxK + 1, sizeof(seq_t));
-    seq_t *f1 = (seq_t *)calloc(maxK + 1, sizeof(seq_t));
-    seq_t *f2 = (seq_t *)calloc(maxK + 1, sizeof(seq_t));
-    seq_t *nf0 = (seq_t *)calloc(maxK + 1, sizeof(seq_t));
-    seq_t *nf1 = (seq_t *)calloc(maxK + 1, sizeof(seq_t));
-    seq_t *nf2 = (seq_t *)calloc(maxK + 1, sizeof(seq_t));
+    seq_t *f0 = mem_new(seq_t, maxK + 1);
+    seq_t *f1 = mem_new(seq_t, maxK + 1);
+    seq_t *f2 = mem_new(seq_t, maxK + 1);
+    seq_t *nf0 = mem_new(seq_t, maxK + 1);
+    seq_t *nf1 = mem_new(seq_t, maxK + 1);
+    seq_t *nf2 = mem_new(seq_t, maxK + 1);
     if (!f0 || !f1 || !f2 || !nf0 || !nf1 || !nf2) {
         /*  Allocation failed – return zero as a safe fallback.  */
-        free(f0); free(f1); free(f2); free(nf0); free(nf1); free(nf2);
+        mem_free(f0); mem_free(f1); mem_free(f2); mem_free(nf0); mem_free(nf1); mem_free(nf2);
         return (seq_t)0;
     }
 
@@ -124,8 +135,8 @@ seq_t a(idx_t idx)
     }
 
     /*  Free memory  */
-    free(f0); free(f1); free(f2);
-    free(nf0); free(nf1); free(nf2);
+    mem_free(f0); mem_free(f1); mem_free(f2);
+    mem_free(nf0); mem_free(nf1); mem_free(nf2);
 
     return result;
 }

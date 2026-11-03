@@ -5,15 +5,17 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = Sum_{k=0..⌊n/5⌋} (k+1)*binomial(n-3*k+3, n-5*k)
- * Range:     u8 n <= 6, u16 n <= 18, u32 n <= 43, u64 n <= 93, u128 n <= 196,
+ * Range:     u8 n <= 7, u16 n <= 19, u32 n <= 43, u64 n <= 93, u128 n <= 196,
  *            big any n
+ * Validated: standard, pass, 53 terms through n = 954 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>               /* for size_t; no external types needed */
-#include "../utils/binomial.h"    /* declares: seq_t binomial(idx_t n, idx_t k); */
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {

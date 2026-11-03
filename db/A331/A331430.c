@@ -10,12 +10,13 @@
  *            triangle T(n,k) as defined in A331430)
  * Range:     i8 n <= 12, i16 n <= 39, i32 n <= 127, i64 n <= 421,
  *            i128 n <= 1325, big any n
- * Helpers:   _binomial_m
+ * Validated: standard, pass, 82 terms through n = 1262 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/_binomial_m.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -33,8 +34,8 @@ seq_t a(idx_t n)
     idx_t c = n - (idx_t)tri;
 
     /* compute binomial factors and product */
-    seq_t val = _binomial_m(r, c);
-    val = val * _binomial_m(r + c, c);
+    seq_t val = binomial(r, c);
+    val = val * binomial(r + c, c);
 
     /* apply alternating sign (-1)^(c+1) */
     if ((c & 1) == 0)            /* c even → sign -1 */

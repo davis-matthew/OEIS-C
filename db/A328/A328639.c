@@ -8,13 +8,15 @@
  *            a(1) = 1)
  * Range:     i8 n <= 9, i16 n <= 165, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 9886 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* small helper to find the smallest prime factor of n */
 static inline uint64_t _smallest_prime_factor(uint64_t n) {
@@ -59,7 +61,7 @@ static void _ensure_cache(idx_t n) {
     size_t needed = (size_t)n + 1;   /* index n can be stored at cache[n] */
     if (needed > a_cache_cap) {
         size_t new_cap = needed > a_cache_cap * 2U ? needed : a_cache_cap * 2U;
-        seq_t *new_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, a_cache, new_cap);
         if (!new_cache)
             abort(); /* allocation failure */
         a_cache = new_cache;

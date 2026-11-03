@@ -7,13 +7,15 @@
  * Formula:   a(n) = 2^n * [x^n] sqrt( ∏_{k≥1} ((1 + 3*x^k)/(1 - 3*x^k)) )
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 12, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -21,12 +23,12 @@ seq_t a(idx_t n)
 
     /* Allocate working arrays */
     idx_t N = n;
-    seq_t *h    = (seq_t*)calloc((size_t)(N + 1), sizeof(seq_t));
-    seq_t *B    = (seq_t*)calloc((size_t)(N + 1), sizeof(seq_t));
-    seq_t *pow3 = (seq_t*)calloc((size_t)(N + 1), sizeof(seq_t));
-    seq_t *ainc = (seq_t*)calloc((size_t)(N + 1), sizeof(seq_t));
+    seq_t *h    = mem_new(seq_t, (size_t)(N + 1));
+    seq_t *B    = mem_new(seq_t, (size_t)(N + 1));
+    seq_t *pow3 = mem_new(seq_t, (size_t)(N + 1));
+    seq_t *ainc = mem_new(seq_t, (size_t)(N + 1));
     if (!h || !B || !pow3 || !ainc) {
-        free(h); free(B); free(pow3); free(ainc);
+        mem_free(h); mem_free(B); mem_free(pow3); mem_free(ainc);
         return (seq_t)0;
     }
 
@@ -81,6 +83,6 @@ seq_t a(idx_t n)
 
     seq_t result = ainc[N];
 
-    free(h); free(B); free(pow3); free(ainc);
+    mem_free(h); mem_free(B); mem_free(pow3); mem_free(ainc);
     return result;
 }

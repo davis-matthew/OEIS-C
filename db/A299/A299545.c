@@ -9,7 +9,8 @@
  * Formula:   a(n) = b(n-1) + 2*b(n-2) - b(n-3), a(0) = 1, a(1) = 2, a(2) = 3
  * Range:     u8 n <= 58, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *A = NULL;              /* a[n] values          */
 static seq_t *B = NULL;              /* b[n] values          */
@@ -75,8 +77,8 @@ static void init_sequences(void)
 
     /* allocate space for indices 0..3 (will grow as needed) */
     A_cap = 16;
-    A = (seq_t *)calloc(A_cap, sizeof(seq_t));
-    B = (seq_t *)calloc(A_cap, sizeof(seq_t));
+    A = mem_new(seq_t, A_cap);
+    B = mem_new(seq_t, A_cap);
     used_cap = 32;
     used = (uint8_t *)calloc(used_cap, sizeof(uint8_t));
 
@@ -103,8 +105,8 @@ static void grow_arrays(idx_t up_to)
     if ((size_t)up_to + 1 <= A_cap) return;
     size_t new_cap = A_cap;
     while ((size_t)up_to + 1 > new_cap) new_cap <<= 1;
-    A = (seq_t *)realloc(A, new_cap * sizeof(seq_t));
-    B = (seq_t *)realloc(B, new_cap * sizeof(seq_t));
+    A = mem_resize(seq_t, A, new_cap);
+    B = mem_resize(seq_t, B, new_cap);
     A_cap = new_cap;
 }
 

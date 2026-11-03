@@ -8,8 +8,9 @@
  * Keywords:  base, easy, nonn
  * Formula:   a(n) = k where k is the (n-1)-th non‑negative integer whose
  *            binary length is even (0 has length 0)
- * Range:     u8 n <= 171, u16 n <= 9767, u32 n <= 9767, u64 n <= 9767,
- *            u128 n <= 9767, big any n
+ * Range:     u8 n <= 171, u16 n <= 10001, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 80 terms through n = 9767 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

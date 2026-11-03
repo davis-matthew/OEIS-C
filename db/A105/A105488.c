@@ -10,7 +10,8 @@
  * Formula:   a(n) = binomial(n-2, 2) * Bell(n-3)
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 16, u64 n <= 26, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 560 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 /* Offset: 4  (a(4) = 1) */
 
 #include <stdlib.h>   /* for malloc, realloc */
+#include "../utils/mem.h"
 
 /* Dynamic array of Bell numbers: bell[i] = Bell(i) */
 static seq_t *bell = NULL;   /* array of Bell numbers */
@@ -30,7 +32,7 @@ static void ensureBell(idx_t needed)
     /* initialise the array if it has not been allocated yet */
     if (bell_cap == 0) {
         bell_cap = 1;
-        bell = (seq_t *)malloc(bell_cap * sizeof(seq_t));
+        bell = mem_new(seq_t, bell_cap);
         if (!bell) return;                /* allocation failed – leave NULL */
         bell[0] = (seq_t)1;               /* Bell(0) = 1 */
         bell_size = 1;
@@ -41,7 +43,7 @@ static void ensureBell(idx_t needed)
         /* grow storage if necessary */
         if (bell_cap <= bell_size) {
             bell_cap *= 2;
-            seq_t *tmp = (seq_t *)realloc(bell, bell_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, bell, bell_cap);
             if (!tmp) return;             /* allocation error – abort */
             bell = tmp;
         }

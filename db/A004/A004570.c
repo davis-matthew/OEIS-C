@@ -10,7 +10,8 @@
  *            = 3*p + d, r' = 9*r - d*(6*p + d); a(n) = d of step n
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   muladd
+ * Validated: standard, pass, 115 terms through n = 9058 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,18 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/muladd.h"
+
+static size_t muladd(uint32_t *dst, const uint32_t *src, size_t len, uint32_t m, uint32_t add) {
+    uint64_t carry = add;
+    size_t i;
+    for (i = 0; i < len; i++) {
+        uint64_t v = (uint64_t)src[i] * m + carry;
+        dst[i] = (uint32_t)v;
+        carry = v >> 32;
+    }
+    if (carry) dst[len++] = (uint32_t)carry;
+    return len;
+}
 
 static uint32_t *P_, *R_, *T_, *U_;
 static size_t cap_ = 0, pl_ = 0, rl_ = 0;

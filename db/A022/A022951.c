@@ -10,7 +10,8 @@
  *            identical to OEIS A022947
  * Range:     u8 n <= 19, u16 n <= 346, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   raw_free, raw_malloc
+ * Validated: standard, pass, 66 terms through n = 9827 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,16 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/raw_free.h"
-#include "../utils/raw_malloc.h"
+
+static void raw_free(void* ptr)
+{
+    free(ptr);
+}
+
+static void* raw_malloc(size_t n, size_t elem_size)
+{
+    return malloc(n * elem_size);
+}
 
 /* Static storage for the sequence values */
 static seq_t *a_vals = NULL;   /* array of computed a(n) values          */

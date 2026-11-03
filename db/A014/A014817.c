@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{k=1..n} floor(k^2 / n)
  * Range:     u8 n <= 15, u16 n <= 442, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 63 terms through n = 4773 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

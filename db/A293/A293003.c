@@ -7,18 +7,20 @@
  * Formula:   a(n) = coefficient of x^n in ∏_{k≥1} (1 - x^(2k)) / (1 - x^(3k))
  * Range:     i8 n <= 44, i16 n <= 128, i32 n <= 404, i64 n <= 1382,
  *            i128 n <= 4997, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 9658 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* The code computes the product by successive polynomial convolutions. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate an array for the coefficients up to degree n. */
-    seq_t *res = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *res = mem_new(seq_t, (size_t)(n + 1));
     if (res == NULL)
         return 0;   /* allocation failed */
 
@@ -43,6 +45,6 @@ seq_t a(idx_t n)
     }
 
     seq_t ans = res[n];
-    free(res);
+    mem_free(res);
     return ans;
 }

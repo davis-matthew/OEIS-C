@@ -10,6 +10,7 @@
  *            trailing 1-bits in n, and h = n >> (p+1) (the head)
  * Range:     u8 n <= 17, u16 n <= 33, u32 n <= 65, u64 n <= 129,
  *            u128 n <= 257, big any n
+ * Validated: standard, pass, 66 terms through n = 592 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

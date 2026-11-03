@@ -12,14 +12,24 @@
  *            whether the last step was an ascent: U(m+1,j) =...
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 21, u128 n <= 35,
  *            big any n
- * Helpers:   zalloc_s
+ * Validated: standard, pass, 38 terms through n = 368 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/zalloc_s.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *zalloc_s(idx_t n)
+{
+    seq_t *p = mem_new(seq_t, (size_t)n);
+    idx_t i;
+    for (i = 0; i < n; i++) p[i] = 0;
+    return p;
+}
 
 static seq_t *res_ = 0, *U_ = 0, *D_ = 0, *T_ = 0;
 static idx_t cap_ = 0;   /* allocated length of each array */

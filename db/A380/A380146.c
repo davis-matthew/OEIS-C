@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 17, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------  dynamic array for primes  -------------- */
 #define PRIME_INIT_CAP 64
@@ -79,7 +81,7 @@ static void heap_push(const HeapNode *node)
     if (heap_size == heap_cap)
     {
         heap_cap = (heap_cap == 0) ? 64 : heap_cap * 2;
-        heap = (HeapNode*)realloc(heap, heap_cap * sizeof(HeapNode));
+        heap = mem_resize(HeapNode, heap, heap_cap);
     }
     size_t i = heap_size++;
     heap[i] = *node;
@@ -125,7 +127,7 @@ static void record_append(seq_t val)
     if (record_len == record_cap)
     {
         record_cap = (record_cap == 0) ? 64 : record_cap * 2;
-        record_vals = (seq_t*)realloc(record_vals, record_cap * sizeof(seq_t));
+        record_vals = mem_resize(seq_t, record_vals, record_cap);
     }
     record_vals[record_len++] = val;
 }

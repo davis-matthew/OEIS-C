@@ -8,7 +8,8 @@
  * Formula:   a(n) = \sum_{t=1}^{n} S(n,t) * (C(t+3,3)+1)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 23, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 551 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* where S(n,t) is the Stirling number of the second kind. */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,12 +31,12 @@ seq_t a(idx_t n)
     /* On first call initialise */
     if (a_cap == 0) {
         a_cap = 1;
-        a_vals = (seq_t *)calloc(a_cap, sizeof(seq_t));
+        a_vals = mem_new(seq_t, a_cap);
         if (!a_vals) exit(1);
         a_vals[0] = (seq_t)2;           /* a(0)=2 */
 
         stir_cap = 1;
-        stir = (seq_t *)calloc(stir_cap, sizeof(seq_t));
+        stir = mem_new(seq_t, stir_cap);
         if (!stir) exit(1);
         stir[0] = (seq_t)1;             /* S(0,0)=1 */
         cur_n = 0;
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
             if (i >= stir_cap) {
                 size_t new_cap = stir_cap > 0 ? stir_cap * 2 : 1;
                 while (new_cap <= i) new_cap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(stir, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, stir, new_cap);
                 if (!tmp) exit(1);
                 /* initialise new entries */
                 for (size_t j = stir_cap; j < new_cap; ++j) tmp[j] = (seq_t)0;
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
             if (i >= a_cap) {
                 size_t new_cap = a_cap > 0 ? a_cap * 2 : 1;
                 while (new_cap <= i) new_cap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(a_vals, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, a_vals, new_cap);
                 if (!tmp) exit(1);
                 for (size_t j = a_cap; j < new_cap; ++j) tmp[j] = (seq_t)0;
                 a_vals = tmp;

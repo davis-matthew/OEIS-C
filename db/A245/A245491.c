@@ -12,13 +12,59 @@
  *            position using * the standard positional f...
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 15, u128 n <= 26,
  *            big any n
- * Helpers:   zeros_in_base
+ * Validated: standard, pass, 33 terms through n = 97 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/zeros_in_base.h"
+
+/* Count the number of zeros appearing in the base‑b
+ * representations of the integers 1 through x (inclusive).
+ * The algorithm iterates over each digit position i (with
+ * place value pw = b^i) and applies the classic
+ * positional counting formula corrected for leading zeros. */
+static seq_t zeros_in_base(idx_t base_idx, seq_t x)
+{
+    seq_t base = (seq_t)base_idx;
+    seq_t total = 0;
+    seq_t pw = 1;                     /* b^i  */
+
+    while (pw <= x)
+    {
+        /* Compute next power safely to avoid overflow */
+        seq_t next_pw;
+        if (pw > x / base)                /* pw*base would overflow or exceed x */
+            next_pw = x + 1;
+        else
+            next_pw = pw * base;          /* next_pw = b^(i+1) */
+
+        seq_t high = x / next_pw;            /* high = floor(x / b^(i+1))   */
+        seq_t cur = (x / pw) % base;        /* current digit at position i   */
+        seq_t low = x % pw;                 /* lower part < pw               */
+
+        seq_t zeros_at_pos = 0;
+        if (pw <= x)                        /* position exists */
+        {
+            if (cur == 0)
+            {
+                if (high == 0)
+                    zeros_at_pos = 0;
+                else
+                    zeros_at_pos = (high - 1) * pw + low + 1;
+            }
+            else
+            {
+                zeros_at_pos = high * pw;
+            }
+        }
+
+        total += zeros_at_pos;
+        pw = next_pw;
+    }
+    return total;
+}
 /* The types seq_t and idx_t are supplied by the framework. */
 
 seq_t a(idx_t n)

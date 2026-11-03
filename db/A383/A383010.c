@@ -7,14 +7,17 @@
  * Formula:   a(n) = -Sum_{d|n} (-n)^d
  * Range:     i8 n <= 3, i16 n <= 5, i32 n <= 9, i64 n <= 15, i128 n <= 19,
  *            big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/ipow.h"
 
 /* Recursive helper to enumerate divisors of n. */
 static void _divisor_recurse(idx_t idx, idx_t cur, idx_t n,
@@ -22,7 +25,7 @@ static void _divisor_recurse(idx_t idx, idx_t cur, idx_t n,
                              size_t cnt, seq_t *sum)
 {
     if (idx == cnt) {
-        seq_t term = big_pow((seq_t)n, (seq_t)cur);
+        seq_t term = ipow((seq_t)n, (seq_t)cur);
         if (cur & 1) term = -term;   /* (-n)^d = (-1)^d * n^d */
         *sum += term;
         return;

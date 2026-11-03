@@ -7,12 +7,14 @@
  * Formula:   a(n) = triangle read by rows of (1 - t)^(-x)*(1 + t)^(3-x)
  * Range:     u8 n <= 42, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 71 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Forward declaration for external linkage */
 seq_t a(idx_t n);
@@ -35,14 +37,14 @@ static void init_cache(void)
 {
     if (cache == NULL) {
         cache_cap = 1024;
-        cache    = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache    = mem_new(seq_t, cache_cap);
     }
     if (s_prev == NULL) {
-        s_prev = (seq_t *)malloc(sizeof(seq_t));
+        s_prev = mem_new(seq_t, 1);
         s_prev[0] = (seq_t)1;
     }
     if (s_curr == NULL) {
-        s_curr = (seq_t *)malloc(sizeof(seq_t));
+        s_curr = mem_new(seq_t, 1);
         s_curr[0] = (seq_t)1;
     }
     m_curr       = 0;
@@ -60,14 +62,14 @@ static void ensure_cache_for_index(idx_t n)
             /* Row 0: single value */
             if (cache_len >= cache_cap) {
                 cache_cap <<= 1;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = (seq_t)1;
         } else if (current_row == 1) {
             /* Row 1: single value */
             if (cache_len >= cache_cap) {
                 cache_cap <<= 1;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = (seq_t)3;
         } else {
@@ -77,7 +79,7 @@ static void ensure_cache_for_index(idx_t n)
             /* Build Stirling row for m if necessary */
             while (m_curr < m) {
                 idx_t next_m = m_curr + 1;
-                seq_t *newS = (seq_t *)malloc((next_m + 1) * sizeof(seq_t));
+                seq_t *newS = mem_new(seq_t, (next_m + 1));
 
                 for (idx_t k = 0; k <= next_m; ++k) {
                     seq_t a = (k == 0) ? (seq_t)0 : s_curr[k - 1];
@@ -85,7 +87,7 @@ static void ensure_cache_for_index(idx_t n)
                     newS[k] = a + (seq_t)(next_m - 1) * b;
                 }
                 /* rotate */
-                free(s_prev);
+                mem_free(s_prev);
                 s_prev = s_curr;
                 s_curr = newS;
                 m_curr = next_m;
@@ -96,7 +98,7 @@ static void ensure_cache_for_index(idx_t n)
             if (cache_len + len_row > cache_cap) {
                 while (cache_len + len_row > cache_cap)
                     cache_cap <<= 1;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
 
             for (idx_t k = 0; k <= m; ++k) {

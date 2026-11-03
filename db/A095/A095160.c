@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 42, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Count binary 1‑bits of a seq_t.  Works for any unsigned size. */
 static seq_t popcount_seq(seq_t x)
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
     /* grow cache if necessary */
     if (cache_len == 0) {
         cache_cap = 256;
-        cache_arr = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache_arr = mem_new(seq_t, cache_cap);
         if (!cache_arr) exit(1);      /* out of memory */
     }
 
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
             /* store term */
             if (cache_len == cache_cap) {
                 cache_cap *= 2;
-                cache_arr = (seq_t*)realloc(cache_arr, cache_cap * sizeof(seq_t));
+                cache_arr = mem_resize(seq_t, cache_arr, cache_cap);
                 if (!cache_arr) exit(1);
             }
             cache_arr[cache_len++] = k;

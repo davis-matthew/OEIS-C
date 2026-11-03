@@ -7,7 +7,8 @@
  * Formula:   a(n) = floor(sqrt(prime(n+1))) - floor(sqrt(prime(n)))
  * Range:     u8 n <= 53, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   int_sqrt_uint64, sqrt_seq
+ * Validated: standard, pass, 121 terms through n = 1960 (2026-11-01)
+ * Helpers:   isqrt_seq, isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/int_sqrt_uint64.h"
-#include "../utils/sqrt_seq.h"
+#include "../utils/isqrt_seq.h"
+#include "../utils/isqrt_u64.h"
 
 /* How many primes are required for n up to 10000 (n+1th prime). */
 #define REQ_PRIMES 12000
@@ -81,7 +82,7 @@ seq_t a(idx_t n)
     uint32_t p_next = primes[n];
 
     /* Compute integer square roots and return their difference. */
-    seq_t s_n    = sqrt_seq((seq_t)p_n);
-    seq_t s_next = sqrt_seq((seq_t)p_next);
+    seq_t s_n    = isqrt_seq((seq_t)p_n);
+    seq_t s_next = isqrt_seq((seq_t)p_next);
     return s_next - s_n;
 }

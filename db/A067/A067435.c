@@ -8,6 +8,7 @@
  * Formula:   a(n) = Σ_{odd d, 1 ≤ d < 2n−1} (2n−1) mod d
  * Range:     u8 n <= 28, u16 n <= 431, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 72 terms through n = 9730 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

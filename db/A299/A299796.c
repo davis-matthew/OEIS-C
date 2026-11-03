@@ -9,12 +9,13 @@
  *            3^(2n+5)}
  * Range:     u8 none, u16 n <= 2, u32 n <= 7, u64 n <= 17, u128 n <= 37,
  *            big any n
- * Helpers:   pow_int
+ * Validated: standard, pass, 34 terms through n = 924 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +26,7 @@ seq_t a(idx_t n)
 
     /* Compute the threshold T = 3^(2n+5). */
     idx_t exp = 2*n + 5;
-    seq_t T = pow_int((seq_t)3, exp);
+    seq_t T = ipow_idx((seq_t)3, exp);
 
     seq_t max_val = 0;
 

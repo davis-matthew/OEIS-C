@@ -8,15 +8,17 @@
  * Formula:   a(n) = number of integers k ≤ n whose sigma value (sum of
  *            divisors) has no preimage, i.e. sigma(x)=k has no integer
  *            solution
- * Range:     u8 n <= 23, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
+ * Range:     u8 n <= 392, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 86 terms through n = 9402 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,11 +28,11 @@ seq_t a(idx_t n)
 
     size_t nn = (size_t)n;
 
-    if (nn > sigma_cap) {
+    if (nn + 1 > sigma_cap) {
         /* free old and allocate new array */
-        free(sigma);
+        mem_free(sigma);
         sigma_cap = nn + 1;
-        sigma = (seq_t*)calloc(sigma_cap, sizeof(seq_t));
+        sigma = mem_new(seq_t, sigma_cap);
         if (sigma == NULL) return (seq_t)0; /* out of memory – return 0 as sentinel */
 
         /* compute sigma for 1..nn via simple divisor summing sieve */

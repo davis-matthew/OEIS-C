@@ -9,7 +9,8 @@
  *            a(3)=4, a(4)=9, …
  * Range:     u8 n <= 5, u16 n <= 13, u32 n <= 37, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   is_palindrome, seq_alloc_new_array
+ * Validated: standard, pass, 44 terms through n = 57 (2026-11-03)
+ * Helpers:   is_palindrome_base, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,13 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/is_palindrome.h"
+#include <stdint.h>
+#include <math.h>
+#include "../utils/is_palindrome_base.h"
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
 
 /* Cache for the generated squares that are palindromes in base 14. */
 static seq_t *cache      = NULL;     /* array of cached terms                */
@@ -52,8 +58,8 @@ static void cache_grow_if_needed(size_t needed)
         new_cap *= 2;
     seq_t *new_cache = seq_alloc_new_array(new_cap);
     if (cache_len > 0)
-        memcpy(new_cache, cache, cache_len * sizeof(seq_t));
-    free(cache);
+        mem_copy(new_cache, cache, cache_len * sizeof(seq_t));
+    mem_free(cache);
     cache = new_cache;
     cache_cap = new_cap;
 }
@@ -69,10 +75,10 @@ seq_t a(idx_t n)
     /* Generate squares until we have at least n terms in the cache. */
     while (cache_len < (size_t)n) {
         seq_t val = (seq_t)next_k * (seq_t)next_k;
-        if (is_palindrome(val, (idx_t)14))
+        if (is_palindrome_base(val, (idx_t)14))
             cache_grow_if_needed(cache_len + 1);   /* grow if necessary */
 
-        if (is_palindrome(val, (idx_t)14))
+        if (is_palindrome_base(val, (idx_t)14))
             cache[cache_len++] = val;
 
         ++next_k;

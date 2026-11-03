@@ -8,7 +8,8 @@
  * Formula:   a(n) = a(n-2) + b(n-1) + 2, a(0)=1, a(1)=3, b(0)=2
  * Range:     u8 n <= 24, u16 n <= 485, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 938 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* --- static state -------------------------------------------------------- */
 static idx_t   last_n_computed = 0;
@@ -36,7 +38,7 @@ static void ensure_a_capacity(idx_t idx)
     if (a_cap > idx) return;
     idx_t new_cap = a_cap ? a_cap * 2 : 16;
     while (new_cap <= idx) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(a_seq, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_seq, new_cap);
     if (!tmp) return;          /* allocation failure – program will abort soon   */
     a_seq = tmp;
     a_cap = new_cap;
@@ -47,7 +49,7 @@ static void ensure_b_capacity(idx_t idx)
     if (b_cap > idx) return;
     idx_t new_cap = b_cap ? b_cap * 2 : 16;
     while (new_cap <= idx) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(b_seq, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, b_seq, new_cap);
     if (!tmp) return;
     b_seq = tmp;
     b_cap = new_cap;

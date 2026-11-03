@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 51, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,12 +20,13 @@
          s = min{s | (s+1)(s+2)/2 >= n}
    and N[n][k] are Narayana numbers (0‑based):
    N[n][k] = binom(n+1, k+1) * binom(n+1, k) / (n+1).  */
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 static inline seq_t narayana(idx_t n, idx_t k)
 {
-    seq_t a = binom(n+1, k+1);      /* C(n+1, k+1) */
-    seq_t b = binom(n+1, k);        /* C(n+1, k)   */
+    seq_t a = binomial(n+1, k+1);      /* C(n+1, k+1) */
+    seq_t b = binomial(n+1, k);        /* C(n+1, k)   */
     return (a * b) / (n+1);         /* exact division */
 }
 

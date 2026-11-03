@@ -10,12 +10,14 @@
  *            recurrence holds for all n ≥ 5
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 15, u64 n <= 29, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 917 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached values (index 0 unused except for internal safety). */
 static seq_t *cache = NULL;
@@ -35,7 +37,7 @@ static void ensure_capacity(idx_t n)
     if (new_cap < cache_cap * 2)     /* double when needed */
         new_cap = cache_cap * 2;
 
-    seq_t *new_cache = (seq_t*)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache)                  /* allocation failure – caller handles */
         return;
 
@@ -45,7 +47,7 @@ static void ensure_capacity(idx_t n)
 
     /* Free old storage and update pointers */
     if (cache)
-        free(cache);
+        mem_free(cache);
     cache = new_cache;
     cache_cap = new_cap;
 }

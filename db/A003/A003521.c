@@ -14,7 +14,8 @@
  *            redu...
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 14, u64 n <= 14, u128 n <= 14,
  *            big any n
- * Helpers:   a3521_classno, a3521_gcd
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,25 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/a3521_classno.h"
-#include "../utils/a3521_gcd.h"
+#include "../utils/gcd_u64.h"
+
+static uint64_t a3521_classno(uint64_t m) {
+    uint64_t h = 0, b;
+    for (b = 0; 3 * b * b <= m; b++) {
+        uint64_t N = b * b + m;
+        uint64_t a0 = (b == 0) ? 1 : 2 * b;
+        uint64_t a;
+        for (a = a0; a * a <= N; a++) {
+            if (N % a) continue;
+            {
+                uint64_t c = N / a;
+                if (gcd_u64(gcd_u64(a, 2 * b), c) != 1) continue;
+                h += (b == 0 || 2 * b == a || a == c) ? 1 : 2;
+            }
+        }
+    }
+    return h;
+}
 
 #define A3521_PMAX 1000
 

@@ -12,13 +12,15 @@
  *            A(t) = (t^25 + 2t^24 + … + 2t + 1)/(1 – 43t – … – 43t^24 + 9...
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* Initialise cache with a[0] = 1 */
     if (cache == NULL) {
         cache_size = 1;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (cache == NULL) return (seq_t)0;   /* allocation failure */
         cache[0] = (seq_t)1;
         current_max = 0;
@@ -44,8 +46,7 @@ seq_t a(idx_t n)
     /* Resize the cache if necessary */
     if (n + 1 > cache_size) {
         size_t new_size = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc((void *)cache,
-                                      new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (tmp == NULL) return (seq_t)0;   /* allocation failure */
         cache = tmp;
         cache_size = new_size;

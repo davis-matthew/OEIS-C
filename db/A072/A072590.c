@@ -11,14 +11,15 @@
  *            constant)
  * Range:     u8 n <= 17, u16 n <= 39, u32 n <= 83, u64 n <= 199,
  *            u128 n <= 541, big any n
- * Helpers:   isqrt_floor
+ * Validated: standard, pass, 67 terms through n = 1160 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* ------------------------------------------------------------ */
 #include <stdint.h>
-#include "../utils/isqrt_floor.h"
+#include "../utils/isqrt_u64.h"
 
 /* Power function for seq_t using exponentiation by squaring */
 static seq_t pow_seq(seq_t base, idx_t exp)
@@ -41,7 +42,7 @@ seq_t a(idx_t n)
 
     /* Find diagonal number d such that d(d+1)/2 >= n and (d-1)d/2 < n */
     uint64_t t = 1 + 8ULL * (uint64_t)n;      /* 1 + 8*n fits in 64 bits */
-    uint64_t s = isqrt_floor(t);              /* floor(sqrt(t)) */
+    uint64_t s = isqrt_u64(t);              /* floor(sqrt(t)) */
     uint64_t d;                               /* diagonal index */
     if (s * s == t)
         d = (s - 1) / 2;                      /* exact root gives smallest d */

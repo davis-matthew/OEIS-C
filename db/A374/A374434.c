@@ -12,7 +12,8 @@
  *            triangle is read by rows; row r has r+1 entries for k=0..r
  * Range:     u8 n <= 77, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   gcd, rad
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-01)
+ * Helpers:   gcd, radical
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,8 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/rad.h"   /* seq_t rad(idx_t m); */
-#include "../utils/gcd.h"   /* seq_t gcd(seq_t a, seq_t b); */
+#include "../utils/gcd.h"
+#include "../utils/radical.h"
 
 /* Convert a linear index to (row, col) in the triangle */
 static void row_col_from_index(idx_t n, idx_t *row, idx_t *col)
@@ -51,17 +52,17 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     if (k == 0)
-        return rad(r);   /* rad(0) is undefined; for k==0 we return rad(r) */
+        return radical(r);   /* rad(0) is undefined; for k==0 we return rad(r) */
 
     if (r == 0)
-        return rad(k);
+        return radical(k);
 
     /* General case: T(r,k) = (rad(r)/rad(g)) * (rad(k)/rad(g)),
        where g = gcd(r,k).  The division is exact. */
-    seq_t rad_r = rad(r);
-    seq_t rad_k = rad(k);
+    seq_t rad_r = radical(r);
+    seq_t rad_k = radical(k);
     idx_t g = (idx_t)gcd((seq_t)r, (seq_t)k);
-    seq_t rad_g = rad(g);
+    seq_t rad_g = radical(g);
 
     seq_t part1 = rad_r / rad_g;
     seq_t part2 = rad_k / rad_g;

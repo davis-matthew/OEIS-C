@@ -8,7 +8,8 @@
  *            weight)
  * Range:     u8 n <= 14, u16 n <= 492, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow3
+ * Validated: standard, pass, 76 terms through n = 9927 (2026-11-03)
+ * Helpers:   mem, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/pow3.h"
+#include "../utils/mem.h"
 
 /* Compute binary population count of a 64‑bit integer (uses compiler builtin). */
 static inline int popcount_u64(idx_t v) {
@@ -33,7 +35,7 @@ extern seq_t a(idx_t n) {
     /* Need indices 0 .. n+1 inclusive (total n+2 entries) */
     idx_t need = n + 2;
     if (cap < need) {
-        seq_t *newP = (seq_t *)realloc(P, need * sizeof(seq_t));
+        seq_t *newP = mem_resize(seq_t, P, need);
         if (!newP) {
             /* Allocation failed – abort (as in many OEIS test harnesses) */
             exit(1);

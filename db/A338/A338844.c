@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 1081, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   no_prime_digits
+ * Validated: standard, pass, 94 terms through n = 4674 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,19 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/no_prime_digits.h"
+#include "../utils/mem.h"
+
+/* Return true if the decimal representation of x contains no prime digits. */
+static bool no_prime_digits(seq_t x)
+{
+    if (x == 0) return true;          /* 0 has only the digit 0            */
+    while (x > 0) {
+        seq_t d = x % 10;
+        if (d == 2 || d == 3 || d == 5 || d == 7) return false;
+        x /= 10;
+    }
+    return true;
+}
 
 /* Global state for memoisation */
 static seq_t *seq_cache = NULL;   /* already generated terms          */
@@ -33,7 +46,7 @@ static void ensure_cache(size_t n)
     if (n <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < n) new_cap <<= 1;
-    seq_t *tmp = (seq_t*)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
     seq_cache = tmp;
     cache_cap = new_cap;
 }

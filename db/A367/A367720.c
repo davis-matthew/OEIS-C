@@ -8,7 +8,8 @@
  *            * a(n-1-4k) / (k! * (n-1-4k)!)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 20, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper to make sure an array has space for indices 0..need */
 static void
@@ -25,7 +27,7 @@ ensure_cap(size_t need, size_t *cap, seq_t **arr)
     if (need >= *cap) {
         size_t new_cap = (*cap == 0) ? 1 : (*cap << 1);
         if (new_cap <= need) new_cap = need + 1;
-        *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, new_cap);
         *cap = new_cap;
     }
 }

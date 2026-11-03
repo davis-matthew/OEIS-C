@@ -12,7 +12,8 @@
  *            sequence lazily and is independent of the order of calls
  * Range:     u8 n <= 104, u16 n <= 9615, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   exponents_all_distinct
+ * Validated: standard, pass, 79 terms through n = 8401 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,16 @@
 #include <stdbool.h>
 #include <string.h>
 #include <limits.h>
-#include "../utils/exponents_all_distinct.h"
+#include "../utils/mem.h"
+
+/* check if all exponents in array exp[0..n-1] are distinct.
+   The array must be sorted before calling.                        */
+static bool exponents_all_distinct(uint32_t *exp, size_t n)
+{
+    for (size_t i = 1; i < n; ++i)
+        if (exp[i] == exp[i - 1]) return false;
+    return true;
+}
 
 /* ======================================================================
    Prime sieve (up to 2 million) – enough for n ≤ 10 000.
@@ -112,7 +122,7 @@ static void seq_cache_append(seq_t value)
     if (seq_cache_len == seq_cache_cap) {
         size_t new_cap = seq_cache_cap == 0 ? INITIAL_CACHE_CAP : seq_cache_cap * 2;
         if (new_cap < seq_cache_len + 1) new_cap = seq_cache_len + 1;
-        seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, new_cap);
         seq_cache_cap = new_cap;
     }
     seq_cache[seq_cache_len++] = value;

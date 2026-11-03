@@ -9,13 +9,15 @@
  *            is the k-th partition number
  * Range:     u8 n <= 463, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 90 terms through n = 965 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
         max_n = 0;
         par   = (uint8_t*)malloc(sizeof(uint8_t));
         if (!par) return (seq_t)0;          /* allocation failed */
-        cum   = (seq_t*)malloc(sizeof(seq_t));
+        cum   = mem_new(seq_t, 1);
         if (!cum) { free(par); return (seq_t)0; }
 
         par[0] = 1;                          /* p(0)=1 is odd              */
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     if (n > max_n) {
         size_t new_len = (size_t)(n + 1);
         uint8_t *p_new = (uint8_t*)realloc(par, new_len * sizeof(uint8_t));
-        seq_t   *c_new = (seq_t*)realloc(cum, new_len * sizeof(seq_t));
+        seq_t   *c_new = mem_resize(seq_t, cum, new_len);
         if (!p_new || !c_new) return (seq_t)0; /* allocation failed */
 
         par = p_new;

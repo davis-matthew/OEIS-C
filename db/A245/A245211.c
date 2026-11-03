@@ -7,12 +7,14 @@
  * Formula:   a(n) = Sum_{d|n, d<n} (d * tau(d))
  * Range:     u8 n <= 47, u16 n <= 1439, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 9876 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static caches for a(n) and τ(n) */
 static seq_t *a_cache = NULL;
@@ -25,15 +27,15 @@ static void extend_cache(size_t new_size) {
         return;
 
     /* Allocate fresh arrays (free old ones) */
-    free(a_cache);
-    free(tau_cache);
-    a_cache   = (seq_t *)calloc(new_size + 1, sizeof(seq_t));
-    tau_cache = (seq_t *)calloc(new_size + 1, sizeof(seq_t));
+    mem_free(a_cache);
+    mem_free(tau_cache);
+    a_cache   = mem_new(seq_t, new_size + 1);
+    tau_cache = mem_new(seq_t, new_size + 1);
     if (!a_cache || !tau_cache) {
         /* In a real system you would handle allocation failure
            more gracefully; here we simply abort the computation. */
-        free(a_cache);
-        free(tau_cache);
+        mem_free(a_cache);
+        mem_free(tau_cache);
         a_cache   = NULL;
         tau_cache = NULL;
         cache_size = 0;

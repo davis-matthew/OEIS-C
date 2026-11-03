@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 30, u32 n <= 59, u64 n <= 126,
  *            u128 n <= 261, big any n
- * Helpers:   coeff_row, pow2_seqt, power5
+ * Validated: standard, pass, 71 terms through n = 1235 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,12 +26,37 @@
     operations that are provided by the build. */
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Declaration of the auxiliary power routine from the build.  It
    returns a seq_t containing base^exp.  */
-#include "../utils/power5.h"   /* power5 just gives power of 2 or 5 */
-#include "../utils/coeff_row.h"
-#include "../utils/pow2_seqt.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/pow2.h"
+
+static inline seq_t power5(idx_t exp)
+{
+    seq_t result = 1;
+    seq_t base   = 5;
+    while (exp)
+    {
+        if (exp & 1)
+            result *= base;
+        base *= base;
+        exp >>= 1;
+    }
+    return result;
+}
+
+/* Coefficient used when constructing row r (r≥2).  It equals
+   2^r + (r≥3?2^(r-2):0). */
+static seq_t coeff_row(idx_t r)
+{
+    seq_t m = pow2(r);
+    if (r >= 3)
+        m += pow2(r - 2);
+    return m;
+}
 
 /* ----------  storage for computed rows  ---------- */
 
@@ -60,11 +86,11 @@ static void compute_rows_up_to(idx_t r_needed)
     if (rows_len == 0) {
         /* initialise first two rows */
         ensure_rows_cap(2);
-        rows[0] = (seq_t *)malloc(sizeof(seq_t));
+        rows[0] = mem_new(seq_t, 1);
         rows[0][0] = (seq_t)1;
         rows_len = 1;
 
-        rows[1] = (seq_t *)malloc(2 * sizeof(seq_t));
+        rows[1] = mem_new(seq_t, 2);
         rows[1][0] = rows[1][1] = (seq_t)1;
         rows_len = 2;
     }
@@ -72,7 +98,7 @@ static void compute_rows_up_to(idx_t r_needed)
     while (rows_len <= r_needed) {
         idx_t r = (idx_t)rows_len;              /* index of new row   */
         size_t len = r + 1;                     /* number of elements */
-        seq_t *new_row = (seq_t *)malloc(len * sizeof(seq_t));
+        seq_t *new_row = mem_new(seq_t, len);
         if (!new_row)
             abort();
 

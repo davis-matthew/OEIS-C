@@ -12,12 +12,14 @@
  *            (c_0 = 1, c_1..c_40 = 2) * For n = 41: * a(41) =...
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
 
     /* Allocate array for a[0..n] */
     size_t sz = (size_t)n + 1;
-    seq_t *a = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *a = mem_new(seq_t, sz);
     if (!a)
         return (seq_t)0; /* allocation failure */
 
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     /* Return if n ≤ 40 */
     if (n <= 40ULL) {
         seq_t res = a[n];
-        free(a);
+        mem_free(a);
         return res;
     }
 
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
 
     if (n == 41ULL) {
         seq_t res = a[41];
-        free(a);
+        mem_free(a);
         return res;
     }
 
@@ -76,6 +78,6 @@ seq_t a(idx_t n)
     }
 
     seq_t res = a[n];
-    free(a);
+    mem_free(a);
     return res;
 }

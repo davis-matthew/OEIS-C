@@ -7,14 +7,28 @@
  * Formula:   a(n) = ∏_{p^e‖n} (-1)^e * binomial(9, e)
  * Range:     i8 n <= 7, i16 n <= 719, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   coeff_for_exp
+ * Validated: standard, pass, 74 terms through n = 8973 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/coeff_for_exp.h"
+
+/* compute coefficient for a prime power p^e */
+static seq_t coeff_for_exp(idx_t e)
+{
+    if (e > 9) return 0;
+    seq_t coeff = 1;
+    for (idx_t k = 1; k <= e; ++k) {
+        /* binomial(9, e) computed multiplicatively */
+        coeff = coeff * ((seq_t)(9 - e + k));
+        coeff = coeff / ((seq_t)k);
+    }
+    if (e & 1) coeff = -coeff;
+    return coeff;
+}
 
 seq_t a(idx_t n)
 {

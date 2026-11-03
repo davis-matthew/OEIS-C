@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 17, u32 n <= 33, u64 n <= 66, u128 n <= 130,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 281 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Recurrence: a(0)=a(1)=0, a(2)=2; for n>=3 a(n)=a(n-1)+4*a(n-3) */
 
 #include <stdlib.h>   /* malloc, free */
+#include "../utils/mem.h"
 
 /* Static cache to support out‑of‑order calls */
 static seq_t *cache   = NULL; /* pointer to cached values          */
@@ -31,7 +33,7 @@ static void grow_cache(size_t idx)
         new_cap = new_cap * 2 + 1;  /* ensure we exceed idx */
     }
 
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (new_cache == NULL) {
         /* Allocation failed – aborting is acceptable for this build */
         abort();
@@ -42,7 +44,7 @@ static void grow_cache(size_t idx)
         new_cache[i] = cache[i];
     }
 
-    free(cache);
+    mem_free(cache);
     cache      = new_cache;
     cache_cap  = new_cap;
 }

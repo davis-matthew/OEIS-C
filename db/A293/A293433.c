@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) is the number of proper divisors of n that are Jacobsthal
  *            numbers (A001045)
- * Range:     u8 n <= 140, u16 n <= 9558, u32 n <= 9558, u64 n <= 9558,
- *            u128 n <= 9558, big any n
+ * Range:     u8 n <= 140, u16 n <= 21845, u32 n <= 21845, u64 n <= 21845,
+ *            u128 n <= 21845, big any n
+ * Validated: standard, pass, 121 terms through n = 9558 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

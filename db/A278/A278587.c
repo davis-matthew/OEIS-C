@@ -9,6 +9,7 @@
  *            if n ≡ 1 (mod 4); a(n) = –1 if n ≡ 2 (mod 4); otherwise a(n) = 0
  * Range:     i8 n <= 20, i16 n <= 20, i32 n <= 20, i64 n <= 20, i128 n <= 20,
  *            big any n
+ * Validated: partial, pass, 18 terms through n = 20 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

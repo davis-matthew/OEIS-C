@@ -11,14 +11,21 @@
  *            = 2*( m*(k-1)!*(m! + (-1)^(k+1)*k!*(k+2)!) +...
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 10, u128 n <= 14,
  *            big any n
- * Helpers:   seq_big_check
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/seq_big_check.h"
+
+static int seq_big_check(void) {
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 17; i++) x <<= 8;
+    return !(x == 0);
+}
 
 static uint64_t powm(uint64_t b, uint64_t e, uint64_t p) {
     uint64_t r = 1;

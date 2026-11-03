@@ -8,14 +8,29 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 20, u32 n <= 26, u64 n <= 32, u128 n <= 38,
  *            big any n
- * Helpers:   next_in_sequence
+ * Validated: standard, pass, 48 terms through n = 65 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* A023389: a(1) = 7, a(n+1) = a(n) expressed in base 7 interpreted in base 9 (decimal) */
 #include <stdint.h>
-#include "../utils/next_in_sequence.h"
+
+static seq_t next_in_sequence(seq_t cur)
+{
+    seq_t tmp = cur;
+    seq_t result = 0;
+    seq_t pow9 = 1;
+    while (tmp > 0)
+    {
+        seq_t d = tmp % (seq_t)7;
+        tmp = tmp / (seq_t)7;
+        result += d * pow9;
+        pow9 *= (seq_t)9;
+    }
+    return result;
+}
 
 seq_t a(idx_t n)
 {

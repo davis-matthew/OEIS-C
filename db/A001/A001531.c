@@ -12,7 +12,8 @@
  *            (complement) has a fixed point, i.e. if there is e >= 0 with...
  * Range:     u8 n <= 4, u16 n <= 4, u32 n <= 5, u64 n <= 6, u128 n <= 7,
  *            big any n
- * Helpers:   s1531_gcd, s1531_v2
+ * Validated: partial, pass, 9 terms through n = 8 (2026-11-01)
+ * Helpers:   ctz_u64, gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/s1531_gcd.h"
-#include "../utils/s1531_v2.h"
+#include "../utils/ctz_u64.h"
+#include "../utils/gcd_u64.h"
 
 static int s1531_P[80], s1531_Q[80];
 static int s1531_M;
@@ -59,7 +60,7 @@ static void s1531_leaf(void)
     size = tot / cent;
     for (k = 1; k <= m; k++) {
         if (s1531_Q[k] > 0) {
-            int v = s1531_v2((uint64_t)k);
+            int v = ctz_u64((uint64_t)k);
             if (!hasneg) { e = v; hasneg = 1; }
             else if (v != e) consistent = 0;
         }
@@ -68,7 +69,7 @@ static void s1531_leaf(void)
         zero = consistent;
         if (zero)
             for (k = 1; k <= m; k++)
-                if (s1531_P[k] > 0 && s1531_v2((uint64_t)k) <= e) zero = 0;
+                if (s1531_P[k] > 0 && ctz_u64((uint64_t)k) <= e) zero = 0;
     } else {
         zero = 1;
         for (k = 1; k <= m; k++)
@@ -76,8 +77,8 @@ static void s1531_leaf(void)
     }
     if (zero) return;
     for (k = 1; k <= m; k++) {
-        if (s1531_P[k] > 0) L = L / s1531_gcd(L, (uint64_t)k) * (uint64_t)k;
-        if (s1531_Q[k] > 0) L = L / s1531_gcd(L, (uint64_t)(2 * k)) * (uint64_t)(2 * k);
+        if (s1531_P[k] > 0) L = L / gcd_u64(L, (uint64_t)k) * (uint64_t)k;
+        if (s1531_Q[k] > 0) L = L / gcd_u64(L, (uint64_t)(2 * k)) * (uint64_t)(2 * k);
     }
     for (t = 0; t < L; t++) {
         int bad = 0;
@@ -86,7 +87,7 @@ static void s1531_leaf(void)
             int j = s1531_P[k] + s1531_Q[k];
             uint64_t d;
             if (j == 0) continue;
-            d = t ? s1531_gcd((uint64_t)k, t) : (uint64_t)k;
+            d = t ? gcd_u64((uint64_t)k, t) : (uint64_t)k;
             ex += (uint64_t)j * d;
             if (s1531_Q[k] > 0 && ((t / d) & 1)) bad = 1;
         }

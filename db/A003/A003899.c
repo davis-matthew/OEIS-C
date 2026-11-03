@@ -11,6 +11,7 @@
  *            (multiplicity divided by q-1): 1 (x1), q^2+q (x1), q^2+q+...
  * Range:     u8 n <= 9, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
+ * Validated: full, pass, 90 terms through n = 90 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

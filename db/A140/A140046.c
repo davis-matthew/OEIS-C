@@ -11,13 +11,15 @@
  *            are computed. The memory is doubled * when a large...
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 15, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_a = NULL;          /* a[1 .. computed_N]            */
 static seq_t *seq_c = NULL;          /* c[0 .. 2*computed_N] (0 unused) */
@@ -32,14 +34,14 @@ static void enlarge_arrays(idx_t new_N)
 
     /* Grow seq_a */
     size_t new_a_size = new_N + 1; /* indices 0 .. new_N */
-    seq_a = (seq_t *)realloc(seq_a, new_a_size * sizeof(seq_t));
+    seq_a = mem_resize(seq_t, seq_a, new_a_size);
     for (idx_t i = computed_N + 1; i <= new_N; ++i)
         seq_a[i] = 0;
 
     /* Grow seq_c to hold indices up to 2*new_N */
     size_t required_c_size = 2 * new_N + 1;
     if (required_c_size > seq_c_size) {
-        seq_c = (seq_t *)realloc(seq_c, required_c_size * sizeof(seq_t));
+        seq_c = mem_resize(seq_t, seq_c, required_c_size);
         for (size_t i = seq_c_size; i < required_c_size; ++i)
             seq_c[i] = 0;
         seq_c_size = required_c_size;

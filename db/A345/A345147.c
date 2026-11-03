@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 484, u16 n <= 9731, u32 n <= 9731, u64 n <= 9731,
- *            u128 n <= 9731, big any n
- * Helpers:   none
+ * Range:     u8 n <= 484, u16 n <= 10001, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 92 terms through n = 9731 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Compute the divisor count d(n) for a seq_t value */
 static seq_t divisor_count(seq_t n) {
@@ -58,7 +60,7 @@ seq_t a(idx_t n) {
     /* Grow storage as needed */
     if (n > max_n) {
         size_t new_size = (size_t)(n + 1);   /* index 0 unused, 1…n used */
-        vals  = (seq_t *)realloc(vals,  new_size * sizeof(seq_t));
+        vals  = mem_resize(seq_t, vals, new_size);
         used_m = (bool  *)realloc(used_m, new_size * sizeof(bool));
         /* initialise new entries of used_m to false */
         for (idx_t i = max_n + 1; i <= n; ++i) {

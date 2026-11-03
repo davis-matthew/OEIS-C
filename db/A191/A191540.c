@@ -8,6 +8,7 @@
  *            by antidiagonals. a(1)=1, a(2)=2, a(3)=3, a(4)=5,
  * Range:     u8 n <= 21, u16 n <= 67, u32 n <= 253, u64 n <= 947,
  *            u128 n <= 1275, big any n
+ * Validated: standard, pass, 73 terms through n = 1224 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

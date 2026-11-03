@@ -12,7 +12,8 @@
  *            sum-of-divisors function
  * Range:     u8 n <= 7, u16 n <= 967, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd, seq_pow
+ * Validated: standard, pass, 77 terms through n = 9855 (2026-11-03)
+ * Helpers:   gcd, ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,9 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include "../utils/gcd.h"          /* gcd for seq_t           */
-#include "../utils/seq_pow.h"      /* seq_pow(seq_t base, idx_t exp) */
+#include "../utils/gcd.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
 
 /* ---------- prime sieve ---------- */
 static const idx_t _sieve_limit = 10000000ULL;          /* enough for all tests   */
@@ -89,7 +91,7 @@ static bool _good_k(uint64_t k)
             }
             tau *= (seq_t)(e + 1);
 
-            seq_t p_pow = seq_pow((seq_t)p, (idx_t)(e + 1));
+            seq_t p_pow = ipow_idx((seq_t)p, (idx_t)(e + 1));
             seq_t numer = p_pow - (seq_t)1;
             seq_t denom = (seq_t)p - (seq_t)1;
             seq_t part = numer / denom;
@@ -98,7 +100,7 @@ static bool _good_k(uint64_t k)
     }
     if (tmp > 1) {           /* remaining prime factor */
         tau *= (seq_t)2;
-        seq_t p_pow = seq_pow((seq_t)tmp, (idx_t)2);
+        seq_t p_pow = ipow_idx((seq_t)tmp, (idx_t)2);
         seq_t numer = p_pow - (seq_t)1;
         seq_t denom = (seq_t)tmp - (seq_t)1;
         seq_t part = numer / denom;
@@ -132,7 +134,7 @@ seq_t a(idx_t n)
 
     if (_seq == NULL) {
         _seq_cap = 1024;
-        _seq = (seq_t *)malloc(_seq_cap * sizeof(seq_t));
+        _seq = mem_new(seq_t, _seq_cap);
         if (!_seq)
             exit(1);
         _seq[0] = (seq_t)1;      /* first term is 1 */
@@ -145,7 +147,7 @@ seq_t a(idx_t n)
         if (_good_k(_last_k)) {
             if (_seq_used == _seq_cap) {
                 _seq_cap *= 2;
-                _seq = (seq_t *)realloc(_seq, _seq_cap * sizeof(seq_t));
+                _seq = mem_resize(seq_t, _seq, _seq_cap);
                 if (!_seq)
                     exit(1);
             }

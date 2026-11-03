@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 11, u128 n <= 15,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,14 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#endif
 
 static bool initialized = false;
 static idx_t          max_n          = 0;    /* largest n computed so far   */
@@ -32,6 +40,18 @@ static size_t         pow_cap        = 0;    /* capacity of power array      */
 static seq_t          *pow_arr       = NULL; /* pow_arr[k] = k^(current_n-2)* */
 
 /* Ensure a correctly sized allocation */
+#ifdef __cplusplus
+template <class T>
+static void ensure_cap(size_t needed, size_t *cap, T **ptr, size_t elem_size) /* elem_size: sizeof(T) */
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 1 : (*cap * 2);
+    while (new_cap < needed) new_cap *= 2;
+    T *newp = mem_resize(T, *ptr, new_cap);
+    *ptr = newp;
+    *cap = new_cap;
+}
+#else
 static void ensure_cap(size_t needed, size_t *cap, void **ptr, size_t elem_size)
 {
     if (needed <= *cap) return;
@@ -41,6 +61,7 @@ static void ensure_cap(size_t needed, size_t *cap, void **ptr, size_t elem_size)
     *ptr = newp;
     *cap = new_cap;
 }
+#endif
 
 /* Initialise static arrays for n = 0 */
 static void initialise(void)
@@ -50,22 +71,22 @@ static void initialise(void)
 
     /* a_vals[0] = 0 */
     a_cap  = 4;
-    a_vals = (seq_t*)calloc(a_cap, sizeof(seq_t));
+    a_vals = mem_new(seq_t, a_cap);
     a_vals[0] = 0;
 
     /* factorial[0] = 1 */
     fact_cap = 4;
-    fact = (seq_t*)calloc(fact_cap, sizeof(seq_t));
+    fact = mem_new(seq_t, fact_cap);
     fact[0] = 1;
 
     /* S[0] = 1 (for Stirling(0,0)=1) */
     S_cap = 4;
-    S = (seq_t*)calloc(S_cap, sizeof(seq_t));
+    S = mem_new(seq_t, S_cap);
     S[0] = 1;
 
     /* pow_arr not needed for n=0; allocate empty */
     pow_cap = 4;
-    pow_arr = (seq_t*)calloc(pow_cap, sizeof(seq_t));
+    pow_arr = mem_new(seq_t, pow_cap);
 }
 
 /* Main sequence function */
@@ -79,11 +100,11 @@ seq_t a(idx_t n)
     for (idx_t cur = max_n + 1; cur <= n; ++cur)
     {
         /* extend factorial */
-        ensure_cap((size_t)cur + 1, &fact_cap, (void **)&fact, sizeof(seq_t));
+        ensure_cap((size_t)cur + 1, &fact_cap, OEISC_VPP(&fact), sizeof(seq_t));
         fact[cur] = fact[cur - 1] * (seq_t)cur;
 
         /* extend Stirling array */
-        ensure_cap((size_t)cur + 1, &S_cap, (void **)&S, sizeof(seq_t));
+        ensure_cap((size_t)cur + 1, &S_cap, OEISC_VPP(&S), sizeof(seq_t));
         for (idx_t k = cur; k >= 1; --k)
         {
             seq_t tmp = (seq_t)k * S[k] + S[k - 1];
@@ -92,7 +113,7 @@ seq_t a(idx_t n)
         S[0] = 0;
 
         /* extend power array */
-        ensure_cap((size_t)cur + 1, &pow_cap, (void **)&pow_arr, sizeof(seq_t));
+        ensure_cap((size_t)cur + 1, &pow_cap, OEISC_VPP(&pow_arr), sizeof(seq_t));
         /* update powers for existing k < cur */
         for (idx_t k = 1; k < cur; ++k)
             pow_arr[k] = pow_arr[k] * (seq_t)k;
@@ -101,7 +122,7 @@ seq_t a(idx_t n)
         if (cur <= 2)
             pow_new = 1; /* 1^(-1)=1, 2^0=1 */
         else
-            pow_new = big_pow((seq_t)cur, (seq_t)(cur - 2));
+            pow_new = ipow((seq_t)cur, (seq_t)(cur - 2));
         pow_arr[cur] = pow_new;
 
         /* compute a[cur] */
@@ -111,7 +132,7 @@ seq_t a(idx_t n)
             seq_t term = fact[k] * pow_arr[k] * S[k];
             sum += term;
         }
-        ensure_cap((size_t)cur + 1, &a_cap, (void **)&a_vals, sizeof(seq_t));
+        ensure_cap((size_t)cur + 1, &a_cap, OEISC_VPP(&a_vals), sizeof(seq_t));
         a_vals[cur] = sum;
     }
 

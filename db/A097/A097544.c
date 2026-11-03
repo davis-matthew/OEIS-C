@@ -7,6 +7,7 @@
  * Formula:   a(n) = Σ_{k=1..2n-1} J(4*n,k) * k^2 (Jacobi symbol)
  * Range:     i8 n <= 5, i16 n <= 35, i32 n <= 47, i64 n <= 47, i128 n <= 47,
  *            big any n
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

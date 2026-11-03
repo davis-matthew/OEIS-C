@@ -9,13 +9,15 @@
  *            d≡1 (mod 3), and P(m,k) = m!/(m-k+1)! (falling factorial)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 431 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* for malloc, realloc */
 #include <stdint.h>   /* for uint64_t */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static idx_t max_computed = 0;          /* highest n for which a[] has been filled */
@@ -28,14 +30,14 @@ seq_t a(idx_t n) {
     /* Allocate arrays if they have not been allocated yet */
     if (a_vals == NULL) {
         size_t cap = n + 1;
-        a_vals = (seq_t *)malloc(cap * sizeof(seq_t));
+        a_vals = mem_new(seq_t, cap);
         w_vals = (uint32_t *)malloc(cap * sizeof(uint32_t));
         if (a_vals == NULL || w_vals == NULL) return 0;  /* allocation failure */
         a_vals[0] = (seq_t)1;
         w_vals[0] = 0;
     } else if ((size_t)(n + 1) > a_vals - a_vals) { /* enlarge if needed */
         size_t new_cap = n + 1;
-        seq_t *new_a = (seq_t *)realloc(a_vals, new_cap * sizeof(seq_t));
+        seq_t *new_a = mem_resize(seq_t, a_vals, new_cap);
         uint32_t *new_w = (uint32_t *)realloc(w_vals, new_cap * sizeof(uint32_t));
         if (new_a == NULL || new_w == NULL) return 0;  /* allocation failure */
         a_vals = new_a;

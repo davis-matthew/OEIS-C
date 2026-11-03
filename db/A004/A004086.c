@@ -5,8 +5,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, base, nice, look
  * Formula:   digit reversal of n
- * Range:     u8 n <= 102, u16 n <= 9421, u32 n <= 9421, u64 n <= 9421,
- *            u128 n <= 9421, big any n
+ * Range:     u8 n <= 102, u16 n <= 10006, u32 n <= 50000, u64 n <= 50000,
+ *            u128 n <= 50000, big any n
+ * Validated: standard, pass, 91 terms through n = 9421 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

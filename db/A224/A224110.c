@@ -10,13 +10,36 @@
  *            cycle
  * Range:     u8 none, u16 n <= 2, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   easter_calc
+ * Validated: full, pass, 35 terms through n = 35 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/easter_calc.h"
+
+/* compute Easter (month, day) for year y using the
+   Meeus/Jones/Butcher algorithm.  month: 3=March, 4=April.
+   day: 1-31. */
+static void easter_calc(idx_t y, int *month, int *day)
+{
+    int a = y % 19;
+    int b = y / 100;
+    int c = y % 100;
+    int d = b / 4;
+    int e = b % 4;
+    int f = (b + 8) / 25;
+    int g = (b - f + 1) / 3;
+    int h = (19 * a + b - d - g + 15) % 30;
+    int i = c / 4;
+    int k = c % 4;
+    int l = (32 + 2 * e + 2 * i - h - k) % 7;
+    int m = (a + 11 * h + 22 * l) / 451;
+    int mm = (h + l - 7 * m + 114) / 31;      /* 3 or 4 */
+    int dd = ((h + l - 7 * m + 114) % 31) + 1;
+    *month = mm;
+    *day   = dd;
+}
 
 seq_t a(idx_t n)
 {

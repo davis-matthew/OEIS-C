@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 101, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_palindrome
+ * Validated: standard, pass, 77 terms through n = 9650 (2026-11-03)
+ * Helpers:   is_palindrome_base, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/is_palindrome.h"
+#include "../utils/is_palindrome_base.h"
+#include "../utils/mem.h"
 
 /* Cache of sequence values.  */
 static seq_t *seq_cache = NULL;
@@ -40,7 +42,7 @@ static void grow_cache(size_t need)
     if (seq_cap >= need) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 8;
     while (new_cap < need) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     seq_cache = tmp;
     seq_cap   = new_cap;
@@ -62,13 +64,13 @@ static bool has_binpal_divisor(uint64_t n)
     /* Check all divisors up to sqrt(n).  */
     for (uint64_t d = 2; d * d <= n; ++d) {
         if (n % d == 0) {
-            if (is_palindrome((seq_t)d, 2)) return true;
+            if (is_palindrome_base((seq_t)d, 2)) return true;
             uint64_t q = n / d;
-            if (is_palindrome((seq_t)q, 2)) return true;
+            if (is_palindrome_base((seq_t)q, 2)) return true;
         }
     }
     /* Finally, test `n` itself.  */
-    return is_palindrome((seq_t)n, 2);
+    return is_palindrome_base((seq_t)n, 2);
 }
 
 /* External function required by the framework.  */

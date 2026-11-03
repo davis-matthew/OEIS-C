@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 typedef uint64_t idx_t;  /* placeholder; actual type is supplied by the build */
 
@@ -35,8 +37,8 @@ static seq_t *prefix_cache = NULL; /* prefix sums of ψ(k) */
 static void recompute_upto(idx_t N)
 {
     /* allocate new arrays */
-    seq_t *new_psi = (seq_t*)calloc((size_t)(N + 1), sizeof(seq_t));
-    seq_t *new_prefix = (seq_t*)calloc((size_t)(N + 1), sizeof(seq_t));
+    seq_t *new_psi = mem_new(seq_t, (size_t)(N + 1));
+    seq_t *new_prefix = mem_new(seq_t, (size_t)(N + 1));
     if (!new_psi || !new_prefix) {
         abort(); /* memory allocation failed */
     }
@@ -87,8 +89,8 @@ static void recompute_upto(idx_t N)
     }
 
     /* replace old caches */
-    free(psi_cache);
-    free(prefix_cache);
+    mem_free(psi_cache);
+    mem_free(prefix_cache);
     psi_cache = new_psi;
     prefix_cache = new_prefix;
     max_cached = N;

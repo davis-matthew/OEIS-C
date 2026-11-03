@@ -7,6 +7,7 @@
  * Formula:   a(n) = s(10,n) (Stirling numbers of the first kind)
  * Range:     i8 none, i16 none, i32 n <= 10, i64 n <= 10, i128 n <= 10,
  *            big any n
+ * Validated: full, pass, 10 terms through n = 10 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

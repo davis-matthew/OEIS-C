@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 9, u32 n <= 437, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 9382 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ----------  Deterministic Miller–Rabin test for uint64_t  ---------- */
 
@@ -91,7 +93,7 @@ static void _ensure_cache_capacity(size_t new_cap)
     if (new_cap <= _terms_cap) return;
     size_t cap = _terms_cap ? _terms_cap : 64;
     while (cap < new_cap) cap <<= 1;
-    seq_t *new_mem = (seq_t *)realloc(_terms_cache, cap * sizeof(seq_t));
+    seq_t *new_mem = mem_resize(seq_t, _terms_cache, cap);
     if (!new_mem) {
         /* out of memory – terminate the program */
         exit(1);

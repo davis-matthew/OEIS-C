@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   exists_in_seq
+ * Validated: partial, pass, 67 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,27 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/exists_in_seq.h"
+#include "../utils/mem.h"
+
+/*  binary search: does value appear in seq[0..len-1]?  */
+static bool exists_in_seq(const seq_t *array, idx_t len, idx_t value)
+{
+    idx_t low = 0, high = len;
+    while (low < high) {
+        idx_t mid = low + ((high - low) >> 1);
+        if ((seq_t)mid > array[mid]) { /* this comparison uses numeric value */
+            /* not needed; values are sorted strictly increasing */
+            /* but we compare value with array[mid] directly */
+        }
+        if (array[mid] == (seq_t)value)
+            return true;
+        else if (array[mid] < (seq_t)value)
+            low = mid + 1;
+        else
+            high = mid;
+    }
+    return false;
+}
 
 /*  dynamic array holding the sequence values  */
 static seq_t *seq = NULL;      /* array of sequence values */
@@ -38,7 +59,7 @@ static void ensure_seq_capacity(idx_t need)
     if (need < seq_cap) return;
     idx_t new_cap = seq_cap ? seq_cap * 2 : 1;
     while (new_cap <= need) new_cap <<= 1;
-    seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, new_cap);
     seq_cap = new_cap;
 }
 

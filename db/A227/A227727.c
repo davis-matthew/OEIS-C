@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 433, u16 n <= 1999, u32 n <= 1999, u64 n <= 1999,
  *            u128 n <= 1999, big any n
- * Helpers:   poly_value
+ * Validated: standard, pass, 100 terms through n = 1997 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,16 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/poly_value.h"
+
+/* Return the value of the x‑th r‑gonal number in seq_t type:
+   P_r(x) = ((r-2)x² – (r-4)x)/2. */
+static inline seq_t poly_value(idx_t r, idx_t x)
+{
+    __int128 rs = (__int128)(int64_t)r;
+    __int128 xx = (__int128)x;
+    __int128 v  = ( (rs - 2) * xx * xx - (rs - 4) * xx ) / 2;
+    return (seq_t)v;
+}
 
 /* Integer square root for unsigned __int128 values, result fits in idx_t */
 static inline idx_t isqrt128(unsigned __int128 n)

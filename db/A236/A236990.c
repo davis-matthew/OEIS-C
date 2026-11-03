@@ -10,6 +10,7 @@
  * Formula:   a(n) = 400 * a(n-4), a(1)=81, a(2)=360, a(3)=1600, a(4)=7200
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 12, u64 n <= 27, u128 n <= 57,
  *            big any n
+ * Validated: standard, pass, 36 terms through n = 206 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

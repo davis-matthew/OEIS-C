@@ -8,6 +8,7 @@
  * Formula:   a(n) = Sum_{1<=i<j<k<=n} F(i)*F(j)*F(k)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 16, u64 n <= 32, u128 n <= 62,
  *            big any n
+ * Validated: standard, pass, 45 terms through n = 415 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

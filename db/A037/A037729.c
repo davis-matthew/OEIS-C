@@ -11,13 +11,15 @@
  *            period 4
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,12 +34,12 @@ seq_t a(idx_t n)
     /* allocate or grow cache to at least n+1 elements (index 0 unused) */
     if (cache == NULL) {
         capacity = n + 1;
-        cache = (seq_t *)malloc(capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, capacity);
         cache[0] = 0;
         cached_n = 0;
     } else if (capacity < n + 1) {
         capacity = n + 1;
-        cache = (seq_t *)realloc(cache, capacity * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, capacity);
     }
 
     /* compute missing values up to n */

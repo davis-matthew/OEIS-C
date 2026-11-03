@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 342, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_ull, phi
+ * Validated: standard, pass, 79 terms through n = 9736 (2026-11-03)
+ * Helpers:   is_prime_u64, mem, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/phi.h"
-#include "../utils/is_prime_ull.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/totient.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* initialise on first call */
     if (cache == NULL) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache_len = 0;
     }
 
@@ -42,15 +44,15 @@ seq_t a(idx_t n)
     while (cache_len < n) {
         ++next_k;                            /* test next integer */
 
-        seq_t phi_k = phi(next_k);           /* φ(next_k)          */
+        seq_t phi_k = totient(next_k);           /* φ(next_k)          */
         seq_t prod   = phi_k * ((seq_t)next_k - phi_k); /* φ(k)*(k-φ(k)) */
         seq_t val    = prod + 1;             /* φ(k)*(k-φ(k))+1   */
 
-        if (is_prime_ull((uint64_t)val)) {
+        if (is_prime_u64((uint64_t)val)) {
             /* enlarge cache if necessary */
             if (cache_len == cache_cap) {
                 cache_cap *= 2;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = next_k;       /* store found term */
         }

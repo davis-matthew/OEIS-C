@@ -9,13 +9,14 @@
  *            factor of n+1)
  * Range:     u8 n <= 47, u16 n <= 1679, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _spf_of_uint64
+ * Validated: standard, pass, 77 terms through n = 8683 (2026-11-01)
+ * Helpers:   smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_spf_of_uint64.h"
+#include "../utils/smallest_prime_factor.h"
 
 /* Main sequence function */
 seq_t a(idx_t n)
@@ -26,7 +27,7 @@ seq_t a(idx_t n)
     }
 
     uint64_t m   = n + 1U;                 /* n + 1  */
-    uint64_t spf = _spf_of_uint64(m);     /* smallest prime factor of n+1 */
+    uint64_t spf = smallest_prime_factor(m);     /* smallest prime factor of n+1 */
 
     if (spf == m) {                       /* m is prime */
         return (seq_t)n;

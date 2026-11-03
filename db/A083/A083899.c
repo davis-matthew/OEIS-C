@@ -7,14 +7,26 @@
  * Formula:   not stated
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   small_digits
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Computes a(n) = number of divisors of n whose largest decimal digit is <= 4. */
 #include <stdint.h>
-#include "../utils/small_digits.h"
+
+/* Return 1 if all decimal digits of d are <= 4, 0 otherwise. */
+static inline int small_digits(uint64_t d) {
+    while (d > 0) {
+        uint64_t dig = d % 10;
+        if (dig > 4) {
+            return 0;
+        }
+        d /= 10;
+    }
+    return 1;
+}
 
 /* seq_t a(idx_t n) – see prelude for type definitions. */
 seq_t a(idx_t n) {

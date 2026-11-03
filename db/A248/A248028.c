@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..n} |Stirling1(n, k)| * (n-k)!
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 13, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* A248028: a(0)=1, a(1)=1, a(2)=2, a(3)=8, a(4)=65, ...    */
 
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,11 +34,11 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* allocate space for all intended indices up to n */
         cache_size = (size_t)(n + 1);
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
 
         T_size = (size_t)(n + 1);
-        T_old = (seq_t *)malloc(T_size * sizeof(seq_t));
-        T_new = (seq_t *)malloc(T_size * sizeof(seq_t));
+        T_old = mem_new(seq_t, T_size);
+        T_new = mem_new(seq_t, T_size);
 
         /* base case n = 0 */
         cache[0]   = (seq_t)1;      /* a(0) = 1 */
@@ -51,12 +53,12 @@ seq_t a(idx_t n)
         /* ensure buffers are large enough */
         if (T_size <= (size_t)(cur + 1)) {
             T_size = (size_t)(cur + 2);
-            T_old = (seq_t *)realloc(T_old, T_size * sizeof(seq_t));
-            T_new = (seq_t *)realloc(T_new, T_size * sizeof(seq_t));
+            T_old = mem_resize(seq_t, T_old, T_size);
+            T_new = mem_resize(seq_t, T_new, T_size);
         }
         if (cache_size <= (size_t)(cur + 1)) {
             cache_size = (size_t)(cur + 2);
-            cache = (seq_t *)realloc(cache, cache_size * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_size);
         }
 
         /* T_new[0] is always zero for cur > 0 */

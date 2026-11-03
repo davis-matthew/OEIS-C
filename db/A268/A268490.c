@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 109, u16 n <= 109, u32 n <= 109, u64 n <= 109,
  *            u128 n <= 109, big any n
- * Helpers:   none
+ * Validated: partial, pass, 109 terms through n = 109 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Digit words */
 static const char *digit_words[10] = {
@@ -40,7 +42,7 @@ static void push_cache(seq_t **cache, size_t *cap, size_t *len, seq_t val)
 {
     if (*len >= *cap) {
         size_t new_cap = (*cap ? *cap * 2 : 16);
-        seq_t *new_arr = (seq_t*)realloc(*cache, new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, *cache, new_cap);
         if (!new_arr) abort();  /* memory exhausted */
         *cache = new_arr;
         *cap = new_cap;
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
     /* Initialise with the first term a(1)=20 */
     if (cache_len == 0) {
         cache_cap = 16;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();
         cache[0] = (seq_t)20;  /* 'T' */
         cache_len = 1;

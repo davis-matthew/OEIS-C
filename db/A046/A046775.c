@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 34, u16 n <= 79, u32 n <= 199, u64 n <= 559,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 101 terms through n = 962 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -37,6 +38,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Helper: use 128‑bit intermediate for products when available. */
 #if defined(__SIZEOF_INT128__)
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
     idx_t t = n / 5;                /* work in variable y = x^5  */
 
     /* ---- 1. Partition numbers p[0..t] ----- */
-    seq_t *p = (seq_t*)calloc(t + 1, sizeof(seq_t));
+    seq_t *p = mem_new(seq_t, t + 1);
     if (!p) return 0;
     p[0] = 1;
     for (idx_t i = 1; i <= t; ++i)
@@ -69,12 +71,12 @@ seq_t a(idx_t n)
         }
 
     /* ---- 2. Series S(y) = Σ_k y^(2k)*H_k(y) ----- */
-    seq_t *S = (seq_t*)calloc(t + 1, sizeof(seq_t));
-    if (!S) { free(p); return 0; }
+    seq_t *S = mem_new(seq_t, t + 1);
+    if (!S) { mem_free(p); return 0; }
 
     /* current H_k series stored in h[0..t]  (H_0 = 1) */
-    seq_t *h = (seq_t*)calloc(t + 1, sizeof(seq_t));
-    if (!h) { free(p); free(S); return 0; }
+    seq_t *h = mem_new(seq_t, t + 1);
+    if (!h) { mem_free(p); mem_free(S); return 0; }
     h[0] = 1;                       /* H_0 = 1 */
 
     idx_t maxK = t / 2;              /* largest k such that 2k ≤ t */
@@ -97,8 +99,8 @@ seq_t a(idx_t n)
 
         /* compute H_{k+1} = H_k * (1 - y^{k+1})^{-3}  */
         idx_t step = k + 1;          /* exponent step in y */
-        seq_t *newh = (seq_t*)calloc(t + 1, sizeof(seq_t));
-        if (!newh) { free(p); free(S); free(h); return 0; }
+        seq_t *newh = mem_new(seq_t, t + 1);
+        if (!newh) { mem_free(p); mem_free(S); mem_free(h); return 0; }
 
         for (idx_t u = 0; u <= t; ++u)
         {
@@ -129,10 +131,10 @@ seq_t a(idx_t n)
 #endif
             }
         }
-        free(h);
+        mem_free(h);
         h = newh;
     }
-    free(h);        /* no longer needed */
+    mem_free(h);        /* no longer needed */
 
     /* ---- 3. Convolve S with partition numbers p to get final result. */
     seq_t result = 0;
@@ -158,7 +160,7 @@ seq_t a(idx_t n)
 #endif
     }
 
-    free(S);
-    free(p);
+    mem_free(S);
+    mem_free(p);
     return result;
 }

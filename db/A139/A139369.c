@@ -11,13 +11,16 @@
  *            pairs (i,j) appear with i = 0,1,…,j-1. The overall...
  * Range:     u8 n <= 39, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -55,8 +58,8 @@ seq_t a(idx_t n)
     idx_t i = c - j * (j - 1) / 2;
 
     /* Compute k^i and k^j using the provided big‑power routine */
-    seq_t pow_i = seq_pow((seq_t)k, (idx_t)i);
-    seq_t pow_j = seq_pow((seq_t)k, (idx_t)j);
+    seq_t pow_i = ipow_idx((seq_t)k, (idx_t)i);
+    seq_t pow_j = ipow_idx((seq_t)k, (idx_t)j);
 
     return pow_i + pow_j;
 }

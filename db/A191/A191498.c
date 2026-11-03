@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 5, i16 n <= 8, i32 n <= 12, i64 n <= 19, i128 n <= 21,
  *            big any n
- * Helpers:   pow2
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache for memoization */
@@ -27,7 +30,7 @@ seq_t a(idx_t n) {
 
     /* Initialise cache for a(0) if needed */
     if (!cache) {
-        cache = (seq_t*)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) return (seq_t)0;      /* out of memory: return 0 as a safe fallback */
         cache[0] = (seq_t)1;
         cached = 0;
@@ -35,7 +38,7 @@ seq_t a(idx_t n) {
 
     /* Extend cache up to n if necessary */
     if (n > cached) {
-        cache = (seq_t*)realloc(cache, (size_t)(n+1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (size_t)(n+1));
         if (!cache) return (seq_t)0;      /* out of memory */
 
         /* compute new values sequentially */

@@ -10,12 +10,14 @@
  *            +32*(-2*n+5)*a(n-3)=0 * Initial values: a(0)=1, a(1)=1, a(2)=3
  * Range:     i8 n <= 3, i16 n <= 6, i32 n <= 14, i64 n <= 26, i128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;
@@ -24,7 +26,7 @@ seq_t a(idx_t n) {
     /* ensure cache has at least the first three values */
     if (cache_size == 0) {
         cache_size = 3;
-        cache = (seq_t *)realloc(NULL, cache_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, cache_size);
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)1;
         cache[2] = (seq_t)3;
@@ -37,7 +39,7 @@ seq_t a(idx_t n) {
 
     /* grow cache to accommodate n */
     size_t new_size = (size_t)n + 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache) {
         /* allocation failed – return last known value (should not happen) */
         return cache[cache_size - 1];

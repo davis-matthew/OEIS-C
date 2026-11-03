@@ -8,6 +8,7 @@
  * Formula:   a(n) = 90*C(n,4)^2 + 36*C(n,4)*C(n,3) + 2*C(n,2)*C(n,4)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 21, u64 n <= 100, u128 n <= 100,
  *            big any n
+ * Validated: standard, pass, 44 terms through n = 96 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

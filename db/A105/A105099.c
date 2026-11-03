@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 5, u64 n <= 11, u128 n <= 23,
  *            big any n
- * Helpers:   grow_if_needed
+ * Validated: standard, pass, 31 terms through n = 475 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,14 +27,24 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/grow_if_needed.h"
+#include "../utils/mem.h"
+
+static void grow_if_needed(size_t *cap, size_t *len, seq_t **arr) {
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 4 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *arr, newcap);
+        if (!tmp) exit(EXIT_FAILURE);          /* out of memory */
+        *arr  = tmp;
+        *cap  = newcap;
+    }
+}
 
 /* ------------------------------------------------------------------ */
 /*  Utility: dynamic array allocation for seq_t                        */
 /* ------------------------------------------------------------------ */
 
 static seq_t *seq_malloc(idx_t n) {
-    return (seq_t *)malloc((size_t)n * sizeof(seq_t));
+    return mem_new(seq_t, (size_t)n);
 }
 
 /* ------------------------------------------------------------------ */

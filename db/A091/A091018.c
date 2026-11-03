@@ -9,7 +9,8 @@
  *            triangle T contains 0; 1,2; 3,4,5; 6,7,8,9;
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   cum_terms
+ * Validated: partial, pass, 71 terms through n = 70 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,22 @@
 
 #include <stdint.h>
 #include <math.h>
-#include "../utils/cum_terms.h"
+
+/* Helper to compute cumulative count S(d) = number of entries
+   up to and including diagonal d. */
+static inline idx_t cum_terms(idx_t d)
+{
+    if (d == (idx_t)-1) return 0;
+    if ((d & 1u) == 0) {
+        /* d = 2m */
+        idx_t m = d >> 1;
+        return (m + 1) * (m + 1);
+    } else {
+        /* d = 2m+1 */
+        idx_t m = d >> 1;
+        return (m + 1) * (m + 2);
+    }
+}
 
 static inline idx_t int_sqrt(idx_t x)
 {

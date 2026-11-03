@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 14, u32 n <= 26, u64 n <= 50, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 191 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    a(14)=59299, a(15)=153471, a(16)=366241, a(17)=519712 */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     /* initialize cache on first use */
     if (cache == NULL) {
         cache_len = 18;
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         for (idx_t i = 0; i < 18; ++i) {
             cache[i] = init[i];
         }
@@ -60,14 +62,14 @@ seq_t a(idx_t n)
     /* grow the cache if required */
     if (n + 1 > cache_len) {
         idx_t new_len = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (tmp == NULL) {
             /* allocation failed – fall back to reallocating a fresh array
                and recomputing from scratch so that the function keeps
                working.  This situation is unlikely for realistic values
                of n. */
             cache_len = 18;
-            cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+            cache = mem_new(seq_t, cache_len);
             for (idx_t i = 0; i < 18; ++i) cache[i] = init[i];
             cache_max = 17;
         } else {

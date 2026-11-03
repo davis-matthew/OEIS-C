@@ -9,16 +9,29 @@
  *            offset (r is the row index in the fourth‑dimensional * figurate
  *            array A(r,offset) = binomial(offset+3,3)+ r*binomial(offset+3,4)
  *            )
- * Range:     u8 n <= 20, u16 n <= 372, u32 n <= 9613, u64 n <= 9613,
- *            u128 n <= 9613, big any n
- * Helpers:   binomial, min_k_triangular
+ * Range:     u8 n <= 33, u16 n <= 372, u32 n <= 10011, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 83 terms through n = 9613 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/min_k_triangular.h"
+
+static inline idx_t min_k_triangular(idx_t n)
+{
+    /* Find smallest k such that k*(k+1)/2 >= n.  k>=1. */
+    idx_t k = 0;
+    idx_t tri = 0;
+    while (tri < n) {
+        ++k;
+        tri += k;
+    }
+    return k;
+}
 
 seq_t a(idx_t n)
 {

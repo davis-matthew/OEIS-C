@@ -12,12 +12,14 @@
  *            a(1)=1, a(2)=1, a(3)=1, a(4)=1
  * Range:     u8 n <= 40, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static tables for already computed rows of u and v */
 static seq_t **u_tbl = NULL;
@@ -42,8 +44,8 @@ seq_t a(idx_t n)
         /* Compute new rows from max_row+1 up to r */
         for (idx_t row = max_row + 1; row <= r; ++row) {
             size_t len = (size_t)row;                    /* number of coefficients in this row */
-            u_tbl[row] = (seq_t *)malloc(len * sizeof(seq_t));
-            v_tbl[row] = (seq_t *)malloc(len * sizeof(seq_t));
+            u_tbl[row] = mem_new(seq_t, len);
+            v_tbl[row] = mem_new(seq_t, len);
 
             if (row == 1) {                         /* base row */
                 u_tbl[1][0] = (seq_t)1;

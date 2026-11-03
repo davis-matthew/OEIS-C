@@ -11,7 +11,8 @@
  *            after the point (search over primes)
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 2, u64 n <= 4, u128 n <= 6,
  *            big any n
- * Helpers:   is_prime, powmod_u, seq_is_fixed_width
+ * Validated: standard, pass, 24 terms through n = 60 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,30 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/is_prime.h"
-#include "../utils/seq_is_fixed_width.h"
-#include "../utils/powmod_u.h"
+#include "../utils/is_prime_u64.h"
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
+
+static uint64_t powmod_u(uint64_t b, uint64_t e, uint64_t m) {
+    uint64_t r = 1 % m;
+    b %= m;
+    while (e) {
+        if (e & 1) r = (r * b) % m;
+        b = (b * b) % m;
+        e >>= 1;
+    }
+    return r;
+}
 
 static uint64_t *fr_list = NULL;
 static idx_t fr_len = 0, fr_cap = 0;
@@ -29,7 +51,7 @@ static uint64_t fr_next = 7;
 
 static bool full_reptend(uint64_t p) {
     uint64_t m = p - 1, q;
-    if (p == 2 || p == 5 || !is_prime(p)) return false;
+    if (p == 2 || p == 5 || !is_prime_u64(p)) return false;
     for (q = 2; q * q <= m; q++) {
         if (m % q == 0) {
             if (powmod_u(10, (p - 1) / q, p) == 1) return false;

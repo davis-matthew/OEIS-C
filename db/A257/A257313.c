@@ -12,7 +12,8 @@
  *            search
  * Range:     u8 n <= 20, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 72 terms through n = 993 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /*--------------------------------------------------------------------------*/
 /* Sequence cache and state                                               */
@@ -141,7 +144,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         initialized = true;
         seq_cap = 32;
-        seq_cache = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, seq_cap);
         if (!seq_cache)
             abort();
 
@@ -167,8 +170,7 @@ seq_t a(idx_t n)
         /* Ensure cache capacity. */
         if (seq_len >= seq_cap) {
             seq_cap <<= 1;
-            seq_cache = (seq_t *)realloc(seq_cache,
-                                         seq_cap * sizeof(seq_t));
+            seq_cache = mem_resize(seq_t, seq_cache, seq_cap);
             if (!seq_cache)
                 abort();
         }

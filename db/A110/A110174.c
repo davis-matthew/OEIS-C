@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, look
  * Formula:   a(n) = number of k, 0<k<n, such that φ(n)=φ(k)+φ(n‑k)
- * Range:     u8 n <= 103, u16 n <= 9858, u32 n <= 9858, u64 n <= 9858,
- *            u128 n <= 9858, big any n
- * Helpers:   none
+ * Range:     u8 n <= 103, u16 n <= 9858, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 119 terms through n = 9858 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* static state for the φ sieve */
 static seq_t *phi_arr = NULL;
@@ -32,7 +34,7 @@ static idx_t phi_limit = 0;
 static void recompute_phi_until(idx_t n)
 {
     /* allocate or grow the array */
-    seq_t *tmp = (seq_t *)realloc(phi_arr, (size_t)(n + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, phi_arr, (size_t)(n + 1));
     if (!tmp) {
         /* On allocation failure we simply abort – the environment
            which evaluates the OEIS functions expects a terminating

@@ -10,7 +10,8 @@
  *            where μ is the Möbius function
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 static seq_t *pow3_cache = NULL;
 static size_t pow3_cap = 0;
@@ -34,7 +36,7 @@ static void ensure_pow3(idx_t n)
     size_t new_cap = pow3_cap ? pow3_cap : 1;
     while (new_cap < need) new_cap <<= 1;
 
-    seq_t *new_arr = (seq_t*)realloc(pow3_cache, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, pow3_cache, new_cap);
     if (!new_arr) abort();
 
     if (!pow3_cache)                 /* first allocation */

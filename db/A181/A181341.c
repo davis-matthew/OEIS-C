@@ -14,7 +14,8 @@
  *            comparison
  * Range:     u8 n <= 64, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   bits_in
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,12 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/bits_in.h"
+
+static size_t bits_in(idx_t x) {
+    size_t b = 0;
+    while (x) { ++b; x >>= 1; }
+    return b;
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;  /* undefined for n=0, but safe */

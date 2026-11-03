@@ -10,7 +10,8 @@
  *            a(6)=-15
  * Range:     i8 n <= 10, i16 n <= 22, i32 n <= 46, i64 n <= 95, i128 n <= 192,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 4872 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
 
     /* Initialise memoiser with the first seven terms */
     if (!memo) {
-        memo = (seq_t *)malloc(sizeof(seq_t) * 7);
+        memo = mem_new(seq_t, 7);
         for (size_t i = 0; i < 7; ++i)
             memo[i] = init[i];
         memo_size = 7;
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     /* Extend memoisation up to n if necessary */
     if ((size_t)n + 1 > memo_size) {
         size_t new_size = (size_t)n + 1;
-        seq_t *new_mem = (seq_t *)realloc(memo, new_size * sizeof(seq_t));
+        seq_t *new_mem = mem_resize(seq_t, memo, new_size);
         if (!new_mem)
             return (seq_t)0;          /* Memory failure – unlikely in tests */
         memo = new_mem;

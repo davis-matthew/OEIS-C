@@ -8,7 +8,8 @@
  *            p_{p_k} (k‑th prime taken at a prime index)
  * Range:     u8 none, u16 n <= 7, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   compare_seq_t, is_prime, sieve_primes
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-03)
+ * Helpers:   is_prime, mem, sieve_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,20 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
+#include <string.h>
 #include "../utils/is_prime.h"
 #include "../utils/sieve_primes.h"
-#include "../utils/compare_seq_t.h"
+#include "../utils/mem.h"
+
+static int compare_seq_t(const void *a, const void *b)
+{
+    const seq_t *x = (const seq_t *)a;
+    const seq_t *y = (const seq_t *)b;
+    if (*x < *y) return -1;
+    if (*x > *y) return 1;
+    return 0;
+}
 
 static seq_t *sequence = NULL;
 static size_t seq_len    = 0;
@@ -42,7 +54,7 @@ static void precompute(void)
     sieve_primes(LIMIT, &primes_all, &primes_all_cnt);
 
     /* --- Build list of primes whose indices are prime (q‑values) -------- */
-    seq_t *Q = (seq_t *)malloc(Q_TARGET * sizeof(seq_t));
+    seq_t *Q = mem_new(seq_t, Q_TARGET);
     size_t Qlen = 0;
     for (idx_t idx = 1; idx <= primes_all_cnt && Qlen < Q_TARGET; ++idx) {
         if (is_prime(idx)) {
@@ -52,7 +64,7 @@ static void precompute(void)
 
     /* --- Compute all possible half‑sums --------------------------------- */
     size_t num_pairs = Qlen * (Qlen + 1) / 2;
-    seq_t *sums = (seq_t *)malloc(num_pairs * sizeof(seq_t));
+    seq_t *sums = mem_new(seq_t, num_pairs);
     size_t pos = 0;
     for (size_t i = 0; i < Qlen; ++i) {
         for (size_t j = i; j < Qlen; ++j) {
@@ -61,8 +73,8 @@ static void precompute(void)
     }
 
     /* --- Sort and deduplicate ------------------------------------------- */
-    qsort(sums, num_pairs, sizeof(seq_t), compare_seq_t);
-    seq_t *unique = (seq_t *)malloc(num_pairs * sizeof(seq_t));
+    mem_qsort(sums, num_pairs, sizeof(seq_t), compare_seq_t);
+    seq_t *unique = mem_new(seq_t, num_pairs);
     size_t uniq   = 0;
     for (size_t i = 0; i < num_pairs; ++i) {
         if (i == 0 || compare_seq_t(&sums[i - 1], &sums[i]) != 0) {
@@ -72,16 +84,16 @@ static void precompute(void)
 
     /* --- Keep first PRECOMP terms --------------------------------------- */
     size_t limit = (uniq > PRECOMP) ? PRECOMP : uniq;
-    sequence = (seq_t *)malloc(limit * sizeof(seq_t));
+    sequence = mem_new(seq_t, limit);
     for (size_t i = 0; i < limit; ++i) {
         sequence[i] = unique[i];
     }
     seq_len = limit;
 
     /* --- Clean up -------------------------------------------------------- */
-    free(sums);
-    free(unique);
-    free(Q);
+    mem_free(sums);
+    mem_free(unique);
+    mem_free(Q);
     free(primes_all);
 
     ready = true;

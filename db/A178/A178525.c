@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 37, u64 n <= 82, u128 n <= 172,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 955 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    where F(k) is the k‑th Fibonacci number (F(0)=0, F(1)=1). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static state for the Fibonacci cache */
 /* fib_cache[i] = F(i) */
@@ -42,7 +44,7 @@ static void ensure_fib(idx_t limit)
     while (new_cap <= limit)
         new_cap <<= 1;
 
-    seq_t *tmp = (seq_t*)realloc(fib_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, fib_cache, new_cap);
     if (!tmp) abort();
     fib_cache = tmp;
 
@@ -71,7 +73,7 @@ static void ensure_a(idx_t limit)
     while (new_cap <= limit)
         new_cap <<= 1;
 
-    seq_t *tmp = (seq_t*)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
     if (!tmp) abort();
     a_cache = tmp;
     a_cap   = new_cap;

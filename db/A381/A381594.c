@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 25, u32 n <= 63, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   _antidiagonal_d, binomial
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,7 +35,21 @@
 
 #include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/_antidiagonal_d.h"
+#include "../utils/mem.h"
+
+/* Compute the required diagonal d for index n. */
+static void _antidiagonal_d(idx_t n, idx_t *d, idx_t *count)
+{
+    idx_t dd = 0, cnt = 0;
+    while (1) {
+        idx_t next = cnt + (dd + 1);
+        if (next > n) break;
+        cnt = next;
+        ++dd;
+    }
+    *d     = dd;
+    *count = cnt;
+}
 
 /* Return the n-th term a(n). */
 seq_t a(idx_t n)
@@ -49,7 +64,7 @@ seq_t a(idx_t n)
     /* Allocate the table A[0..d][0..3*d].  Zero-initialise. */
     seq_t **A = (seq_t**)malloc((d + 1) * sizeof(seq_t*));
     for (idx_t i = 0; i <= d; ++i) {
-        A[i] = (seq_t*)calloc(width, sizeof(seq_t));
+        A[i] = mem_new(seq_t, width);
     }
 
     /* Compute values according to the recurrence. */
@@ -81,7 +96,7 @@ seq_t a(idx_t n)
     seq_t result = A[pos][col];
 
     /* Free the table. */
-    for (idx_t i = 0; i <= d; ++i) free(A[i]);
+    for (idx_t i = 0; i <= d; ++i) mem_free(A[i]);
     free(A);
 
     return result;

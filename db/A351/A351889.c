@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 73, u32 n <= 183, u64 n <= 226,
  *            u128 n <= 226, big any n
- * Helpers:   period_of_order_mod
+ * Validated: standard, pass, 90 terms through n = 218 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,44 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/period_of_order_mod.h"
+#include "../utils/mem.h"
+
+/* Compute the period of the n‑step Fibonacci sequence modulo k.
+ * Uses initial terms 0,…,0,1.  Mod > 0.
+ */
+static uint64_t period_of_order_mod(unsigned int order, unsigned int mod)
+{
+    if (mod == 1) return 1;   /* all zero modulo 1 => period 1 */
+
+    uint64_t *state = (uint64_t*)calloc(order, sizeof(uint64_t));
+    uint64_t *init  = (uint64_t*)calloc(order, sizeof(uint64_t));
+
+    state[order-1] = 1 % mod;        /* initial vector 0,…,0,1 */
+    memcpy(init, state, order * sizeof(uint64_t));
+
+    uint64_t sum = 0;
+    for (size_t i = 0; i < order; ++i) sum += state[i];
+
+    uint64_t period = 0;
+    while (1) {
+        uint64_t next = sum % mod;
+        sum -= state[0];
+        for (size_t i = 0; i + 1 < order; ++i) state[i] = state[i+1];
+        state[order-1] = next;
+        sum += next;
+        ++period;
+
+        /* check repetition of initial state */
+        size_t i;
+        for (i = 0; i < order; ++i)
+            if (state[i] != init[i]) break;
+        if (i == order) break;
+    }
+
+    free(state);
+    free(init);
+    return period;
+}
 
 /* Ensure range cast into seq_t (works for integer types and
  * arbitrary-precision integer classes).
@@ -48,14 +86,14 @@ static void period_cache_ensure(size_t needed)
     /* allocate new rows */
     seq_t **new_rows = (seq_t**)calloc(needed + 1, sizeof(seq_t*));
     for (size_t i = 1; i <= needed; ++i)
-        new_rows[i] = (seq_t*)calloc(needed + 1, sizeof(seq_t));
+        new_rows[i] = mem_new(seq_t, needed + 1);
 
     /* copy old data */
     if (period_capacity > 0) {
         for (size_t i = 1; i <= period_capacity; ++i) {
             for (size_t j = 1; j <= period_capacity; ++j)
                 new_rows[i][j] = period_cache[i][j];
-            free(period_cache[i]);
+            mem_free(period_cache[i]);
         }
         free(period_cache);
     }

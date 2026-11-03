@@ -11,7 +11,8 @@
  *            Define A(x) = ∑ a(n) x^n. * From the quotient...
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *S   = NULL;   /* S_k = 4^k * Catalan(k)  */
 static seq_t *C2  = NULL;   /* C2_j = ∑_{i=0}^{j} S_i * S_{j-i} */
@@ -34,9 +36,9 @@ static void grow(size_t need)
     size_t newcap = (cap == 0) ? 64 : cap;
     while (newcap < need)
         newcap <<= 1;
-    S  = (seq_t *)realloc(S,  newcap * sizeof(seq_t));
-    C2 = (seq_t *)realloc(C2, newcap * sizeof(seq_t));
-    A  = (seq_t *)realloc(A,  newcap * sizeof(seq_t));
+    S  = mem_resize(seq_t, S, newcap);
+    C2 = mem_resize(seq_t, C2, newcap);
+    A  = mem_resize(seq_t, A, newcap);
     cap = newcap;
 }
 

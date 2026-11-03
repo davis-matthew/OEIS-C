@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   mod_add128, mod_sub128
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,26 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mod_add128.h"
-#include "../utils/mod_sub128.h"
+#include "../utils/mem.h"
+
+/* -------------- modular arithmetic on unsigned __int128 -------------- */
+static inline unsigned __int128
+mod_add128(unsigned __int128 a, unsigned __int128 b,
+           unsigned __int128 mod)
+{
+    /* a+b mod mod   (a,b < mod) */
+    if (a >= mod - b) return a - (mod - b);
+    return a + b;
+}
+
+static inline unsigned __int128
+mod_sub128(unsigned __int128 a, unsigned __int128 b,
+           unsigned __int128 mod)
+{
+    /* a-b mod mod   (a,b < mod) */
+    if (a >= b) return a - b;
+    return a + mod - b;
+}
 
 static inline unsigned __int128
 mod_mul128(unsigned __int128 a, unsigned __int128 b,
@@ -120,7 +139,7 @@ seq_t a(idx_t n)
             if (len == cap)
             {
                 cap = (cap) ? cap << 1 : 16;
-                terms = (seq_t *)realloc(terms, cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, cap);
             }
             terms[len++] = (seq_t)last;
         }

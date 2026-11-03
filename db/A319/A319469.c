@@ -9,7 +9,8 @@
  *            decimal palindromes (computed via DP)
  * Range:     u8 n <= 387, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_palindrome
+ * Validated: standard, pass, 84 terms through n = 9330 (2026-11-03)
+ * Helpers:   is_palindrome_base, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_palindrome.h"
+#include "../utils/is_palindrome_base.h"
+#include "../utils/mem.h"
 
 /* Count partitions of n into exactly four non‑zero decimal palindromes.
    The algorithm builds all palindromes ≤ n and then uses a
@@ -35,13 +37,13 @@ seq_t a(idx_t n)
     idx_t pals_cnt = 0;
 
     for (idx_t v = 1; v <= n; ++v)
-        if (is_palindrome((seq_t)v, 10))
+        if (is_palindrome_base((seq_t)v, 10))
             pals[pals_cnt++] = v;
 
     /* DP array: dp[k][s] stored in a linear buffer.
        k ranges 0..4, s ranges 0..n. */
     size_t row_size = (size_t)(n + 1);
-    seq_t *dp = (seq_t *)malloc(5 * row_size * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, 5 * row_size);
     if (!dp) { free(pals); return (seq_t)0; }
 
     /* Initialize all to 0 */
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
     seq_t result = dp[4 * row_size + n];
 
     /* Clean up */
-    free(dp);
+    mem_free(dp);
     free(pals);
 
     return result;

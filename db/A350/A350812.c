@@ -9,7 +9,8 @@
  * Formula:   a(n) = ceiling((n - R(ceil(sqrt(n))))^2 / (n + R(ceil(sqrt(n))))
  * Range:     u8 n <= 20, u16 n <= 544, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   isqrt_floor_u64, rev
+ * Validated: standard, pass, 89 terms through n = 931 (2026-11-01)
+ * Helpers:   isqrt, reverse_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,21 +18,21 @@
 /* where R(x) is the decimal digit reversal.  */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/rev.h"   /* provides idx_t rev(idx_t x) */
-#include "../utils/isqrt_floor_u64.h"
+#include "../utils/isqrt.h"
+#include "../utils/reverse_digits_idx.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return 0;          /* safety for non‑positive inputs */
 
     /* compute ceil(sqrt(n)) */
-    idx_t floor_sqrt = isqrt_floor_u64(n);
+    idx_t floor_sqrt = isqrt(n);
     idx_t ceil_sqrt = floor_sqrt;
     if ((__uint128_t)ceil_sqrt * ceil_sqrt < n)
         ++ceil_sqrt;
 
     /* reversed digits of ceil_sqrt */
-    seq_t r = rev(ceil_sqrt);
+    seq_t r = reverse_digits_idx(ceil_sqrt);
 
     /* difference and squared difference (in seq_t) */
     seq_t diff = (seq_t)(n - r);

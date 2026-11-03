@@ -11,12 +11,14 @@
  *            - 6*a(n-3) + 15*a(n-4) + a(n-5) - 2*a(n-6) (n>9)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 25, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 176 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Returns the n-th term of OEIS A220634 (n >= 1). */
 seq_t a(idx_t n) {
@@ -38,14 +40,14 @@ seq_t a(idx_t n) {
 
     /* Initialise cache on first call. */
     if (cache_len == 0) {
-        cache = (seq_t *)malloc(sizeof(seq_t) * needed);
+        cache = mem_new(seq_t, needed);
         if (!cache) abort();
         for (size_t i = 0; i < 9; ++i) cache[i] = init[i];
         cache_len = 9;
     }
     /* Grow cache if required. */
     else if (cache_len < needed) {
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * needed);
+        seq_t *tmp = mem_resize(seq_t, cache, needed);
         if (!tmp) abort();
         cache = tmp;
         /* Fill newly allocated slots. */

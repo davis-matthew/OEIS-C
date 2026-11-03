@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 32, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 73 terms through n = 891 (2026-11-01)
+ * Helpers:   is_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
 #include "../utils/is_prime.h"
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
 
         /* Base of the power is –2 ≡ p‑2 (mod p).  */
         seq_t base = (seq_t)(p - 2);
-        seq_t r = mod_pow(base, e, (seq_t)p);
+        seq_t r = powmod(base, e, (seq_t)p);
 
         /* If r != 1, then –2 is NOT a 10th power modulo p,
            so this prime belongs in the sequence.  */

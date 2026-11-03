@@ -8,12 +8,14 @@
  *            derangements of k elements
  * Range:     u8 n <= 5, u16 n <= 5, u32 n <= 5, u64 n <= 5, u128 n <= 5,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 6 terms through n = 5 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -21,6 +23,6 @@ seq_t a(idx_t n)
         return (seq_t)0;
     /* Derangements D(k) for k = 0..5 */
     static const seq_t der[6] = {1, 0, 1, 2, 9, 44};
-    seq_t comb = binom(5, n);
+    seq_t comb = binomial(5, n);
     return comb * der[5 - n];
 }

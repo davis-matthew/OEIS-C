@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1655, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 108 terms through n = 8802 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ----------- partitions of exponents (e ≤ 64) ----------- */
 static seq_t part[65];
@@ -124,8 +126,8 @@ seq_t a(idx_t n)
         /* Allocate or grow cumulative table */
         size_t new_cap = (size_t)n + 1U;
         seq_t *new_tbl = (a_table == NULL)
-                         ? (seq_t *)calloc(new_cap, sizeof(seq_t))
-                         : (seq_t *)realloc(a_table, new_cap * sizeof(seq_t));
+                         ? mem_new(seq_t, new_cap)
+                         : mem_resize(seq_t, a_table, new_cap);
         if (!new_tbl)                /* allocation failed – return previous value */
             return a_table ? a_table[a_last] : 0;
         a_table = new_tbl;

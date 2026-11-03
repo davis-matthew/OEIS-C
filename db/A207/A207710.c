@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 100 terms through n = 909 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
    required 2 s limit for n ≤ 10 000. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *coeff_cache = NULL;   /* cached coefficients */
 static idx_t   cache_len  = 0;      /* cache size (number of elements) */
@@ -35,9 +37,9 @@ static void recompute(idx_t max_n)
 {
     /* Allocate new cache if needed */
     if (coeff_cache != NULL) {
-        free(coeff_cache);
+        mem_free(coeff_cache);
     }
-    coeff_cache = (seq_t *)malloc((size_t)(max_n + 1) * sizeof(seq_t));
+    coeff_cache = mem_new(seq_t, (size_t)(max_n + 1));
     if (coeff_cache == NULL) {
         /* In a real build this should be handled, but we assume sufficient
            memory as per problem constraints. */

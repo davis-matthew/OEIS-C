@@ -8,11 +8,14 @@
  * Formula:   a(n) = Sum_{i=1..floor(n/2)} i * [A008966(i) = A008966(n-i)]
  * Range:     u8 n <= 51, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-01)
  * Helpers:   is_squarefree
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/is_squarefree.h"
 
 seq_t a(idx_t n)

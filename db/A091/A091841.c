@@ -11,12 +11,14 @@
  *            class of n modulo 4.)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 10, u64 n <= 10, u128 n <= 10,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 11 terms through n = 10 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     if (mem == NULL) {
         mem_cap  = 1;
         mem_used = 1;
-        mem = (seq_t *)malloc(mem_cap * sizeof(seq_t));
+        mem = mem_new(seq_t, mem_cap);
         mem[0] = (seq_t)1;         /* a(0) = 1 */
     }
 
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     if ((idx_t)n >= mem_cap) {
         /* grow capacity (doubling is cheap for n <= 10^4) */
         while (mem_cap <= n) mem_cap <<= 1;
-        mem = (seq_t *)realloc(mem, mem_cap * sizeof(seq_t));
+        mem = mem_resize(seq_t, mem, mem_cap);
     }
 
     /* --- compute terms up to n if not already done --- */

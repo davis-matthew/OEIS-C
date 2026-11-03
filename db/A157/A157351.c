@@ -8,14 +8,18 @@
  * Formula:   a(n) = sum_{k=1..n} (n^k mod (n*k))
  * Range:     u8 n <= 12, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* static cache for memoisation of computed values */
 static seq_t *cache = NULL;
@@ -32,7 +36,7 @@ static void ensure_cache(idx_t n)
     while (new_cap < n)
         new_cap <<= 1;
 
-    seq_t *new_cache = (seq_t *)realloc(cache, (new_cap + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (new_cap + 1));
     if (!new_cache)
         abort();
 
@@ -46,7 +50,7 @@ static void ensure_cache(idx_t n)
             /* use 64‑bit intermediate to avoid overflow */
             uint64_t prod = (uint64_t)j * (uint64_t)k;
             seq_t mod = (seq_t)prod;
-            seq_t term = mod_pow(jseq, k, mod);
+            seq_t term = powmod(jseq, k, mod);
             sum += term;
         }
         cache[j] = sum;

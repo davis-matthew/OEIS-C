@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ---------- Helper: test whether n satisfies the condition ---------- */
 static bool qualifies(uint64_t n)
@@ -110,7 +112,7 @@ static void ensure_cache_size(size_t needed)
     size_t newcap = (cache_cap == 0) ? 16 : cache_cap;
     while (newcap < needed)
         newcap <<= 1;
-    seq_t *newp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+    seq_t *newp = mem_resize(seq_t, cache, newcap);
     if (!newp)
         abort();
     cache = newp;

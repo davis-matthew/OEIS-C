@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 27, u32 n <= 330, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digits_le4
+ * Validated: standard, pass, 56 terms through n = 941 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,19 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/digits_le4.h"
+#include "../utils/mem.h"
+
+/* Test whether all decimal digits of x are <= 4. */
+static bool digits_le4(seq_t x)
+{
+    if (x == 0) return true;
+    while (x > 0) {
+        int d = (int)(x % 10);
+        if (d > 4) return false;
+        x /= 10;
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {
@@ -37,7 +50,7 @@ seq_t a(idx_t n)
     /* If we're starting for the first time, insert the square 0. */
     if (sz == 0) {
         cap = 16;
-        cache = (seq_t *)realloc(NULL, cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, cap);
         cache[0] = 0;
         sz = 1;
         last_i = 0;
@@ -50,7 +63,7 @@ seq_t a(idx_t n)
         if (digits_le4(v)) {
             if (sz >= cap) {
                 cap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, cap);
                 if (!tmp) exit(1);  /* allocation failed */
                 cache = tmp;
             }

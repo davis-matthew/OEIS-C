@@ -7,19 +7,21 @@
  * Formula:   a(n) = 5 * A051037(n)
  * Range:     u8 n <= 24, u16 n <= 189, u32 n <= 1499, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 9058 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Generation uses the standard three‑pointer method for 5‑smooth numbers. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return 0;                     /* unused, offset starts at 1 */
     idx_t size = n;                          /* we need n elements, 1‑based */
-    seq_t *h = (seq_t *)malloc((size + 1) * sizeof(seq_t));
+    seq_t *h = mem_new(seq_t, (size + 1));
     if (!h) return 0;                        /* allocation failure, unlikely */
 
     /* 5‑smooth numbers: numbers with prime factors only 2, 3, 5. */
@@ -42,6 +44,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = h[size - 1] * 5;
-    free(h);
+    mem_free(h);
     return result;
 }

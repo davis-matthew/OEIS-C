@@ -11,12 +11,14 @@
  *            a(5)=24, a(6)=29
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     if (!init_done) {
         /* Allocate a reasonable starting size (at least 8) */
         cap = (n + 1 > 8) ? (n + 1) : 8;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         for (int i = 0; i < 7; ++i)           /* set the known values */
             cache[i] = init[i];
         upTo = 6;                              /* we know up to a(6) */
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     /* Expand cache if caller requests a larger index */
     if (n + 1 > cap) {
         cap = n + 1;
-        cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cap);
     }
 
     /* Compute missing terms with the recurrence, up to n */

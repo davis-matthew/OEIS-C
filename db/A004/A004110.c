@@ -12,7 +12,8 @@
  *            k*c_k*(c_k-1)/2) + Sum_{i<j} gcd(i,j)*c_i*c_j (sum over pai...
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 11, u64 n <= 14, u128 n <= 19,
  *            big any n
- * Helpers:   bn_div
+ * Validated: standard, pass, 36 terms through n = 49 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/bn_div.h"
+
+static void bn_div(uint32_t *a, int L, uint32_t d) {
+    uint64_t rem = 0;
+    for (int i = L - 1; i >= 0; i--) {
+        uint64_t cur = (rem << 32) | a[i];
+        a[i] = (uint32_t)(cur / d);
+        rem = cur % d;
+    }
+}
 
 static int g_n, g_ls;
 static uint32_t *g_w, *g_s, *g_tmp;

@@ -6,8 +6,9 @@
  * Keywords:  base, nonn
  * Formula:   a(n) = 4 + sum of Braille dot counts for each decimal digit of n
  *            (digit → dots: 0→3, 1→1, 2→2, 3→2, 4→3, 5→2, 6→3, 7→4, 8→3, 9→2)
- * Range:     u8 n <= 9340, u16 n <= 9340, u32 n <= 9340, u64 n <= 9340,
- *            u128 n <= 9340, big any n
+ * Range:     u8 n <= 50000, u16 n <= 50000, u32 n <= 50000, u64 n <= 50000,
+ *            u128 n <= 50000, big any n
+ * Validated: standard, pass, 106 terms through n = 9340 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,6 +9,7 @@
  *            h)/960 * with h = 0 for even n and h = 15 for odd n
  * Range:     u8 n <= 4, u16 n <= 14, u32 n <= 109, u64 n <= 4545,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 52 terms through n = 9313 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

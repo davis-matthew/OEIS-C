@@ -11,7 +11,8 @@
  *            number)
  * Range:     i8 n <= 7, i16 n <= 10, i32 n <= 13, i64 n <= 18, i128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 
 static inline seq_t seq_gcd(seq_t a, seq_t b)
@@ -49,8 +51,8 @@ seq_t a(idx_t n)
     /* ---------- initialise caches if necessary ---------- */
     if (cached_n == 0) {
         size_t cap = (n > 64) ? n + 16 : 64;
-        num = (seq_t *)malloc(cap * sizeof(seq_t));
-        den = (seq_t *)malloc(cap * sizeof(seq_t));
+        num = mem_new(seq_t, cap);
+        den = mem_new(seq_t, cap);
         cache_cap = cap;
 
         /* Initial terms of r(n) */
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
     if (n > fib_cached) {
         if (fibs == NULL) {
             size_t cap = (n > 64) ? n + 16 : 64;
-            fibs = (seq_t *)malloc(cap * sizeof(seq_t));
+            fibs = mem_new(seq_t, cap);
             fib_cap = cap;
             fibs[0] = 0;       /* F(0) */
             fibs[1] = 1;       /* F(1) */
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
         if ((size_t)(n + 1) > fib_cap) {
             size_t cap = fib_cap * 2;
             if (cap < (size_t)(n + 1)) cap = n + 1;
-            fibs = (seq_t *)realloc(fibs, cap * sizeof(seq_t));
+            fibs = mem_resize(seq_t, fibs, cap);
             fib_cap = cap;
         }
         for (idx_t i = fib_cached + 1; i <= n; ++i)
@@ -86,8 +88,8 @@ seq_t a(idx_t n)
         if ((size_t)n > cache_cap) {              /* enlarge capacity if needed */
             size_t cap = cache_cap ? cache_cap * 2 : 64;
             if (cap < (size_t)n) cap = n;
-            num = (seq_t *)realloc(num, cap * sizeof(seq_t));
-            den = (seq_t *)realloc(den, cap * sizeof(seq_t));
+            num = mem_resize(seq_t, num, cap);
+            den = mem_resize(seq_t, den, cap);
             cache_cap = cap;
         }
 

@@ -10,11 +10,13 @@
  *            a(5)=8, a(6)=17
  * Range:     u8 n <= 9, u16 n <= 16, u32 n <= 29, u64 n <= 55, u128 n <= 106,
  *            big any n
+ * Validated: standard, pass, 47 terms through n = 179 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <string.h>
 #include <stddef.h>   /* size_t, NULL */
 #include <stdlib.h>   /* malloc, free, memcpy */
 #ifdef __cplusplus

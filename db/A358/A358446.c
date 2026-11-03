@@ -7,13 +7,16 @@
  * Formula:   a(n) = n! * Sum_{k=0..floor(n/2)} 1/binomial(n-k, k)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 33,
  *            big any n
- * Helpers:   binomial
+ * Validated: standard, pass, 39 terms through n = 438 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/binomial.h"        /* provides binomial(idx_t n, idx_t k) */
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +25,7 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* Allocate space for factorials up to n */
-    seq_t *fac = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *fac = mem_new(seq_t, (size_t)(n + 1));
     if (!fac)                 /* allocation failure → 0 (unlikely for reasonable n) */
         return (seq_t)0;
 
@@ -38,6 +41,6 @@ seq_t a(idx_t n)
         sum += term;
     }
 
-    free(fac);
+    mem_free(fac);
     return sum;
 }

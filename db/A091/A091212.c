@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 186, u16 n <= 9375, u32 n <= 9375, u64 n <= 9375,
- *            u128 n <= 9375, big any n
- * Helpers:   bitlen_seq_t, is_prime
+ * Range:     u8 n <= 186, u16 n <= 55428, u32 n <= 55429, u64 n <= 55429,
+ *            u128 n <= 55429, big any n
+ * Validated: standard, pass, 85 terms through n = 9375 (2026-11-03)
+ * Helpers:   bit_length, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "../utils/bit_length.h"
 #include "../utils/is_prime.h"
-#include "../utils/bitlen_seq_t.h"
+#include "../utils/mem.h"
 
 /* ---------  Iron-irreducible polynomials (monic) --------------------- */
 static seq_t *irr_list = NULL;        /* integer representation of the polynomial */
@@ -43,7 +45,7 @@ ensure_irreducibles(idx_t max_deg)
 
     /* Allocate or resize the storage arrays if needed. */
     if (irr_list == NULL) {
-        irr_list = (seq_t *)malloc(16 * sizeof(seq_t));
+        irr_list = mem_new(seq_t, 16);
         irr_deg  = (idx_t *)malloc(16 * sizeof(idx_t));
         if (!irr_list || !irr_deg) {
             abort();                 /* allocation failure */
@@ -57,7 +59,7 @@ ensure_irreducibles(idx_t max_deg)
         irr_max_deg++;
         if (irr_count == cap) {
             cap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(irr_list, cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, irr_list, cap);
             if (!tmp) abort();
             irr_list = tmp;
             idx_t *tmpd = (idx_t *)realloc(irr_deg, cap * sizeof(idx_t));
@@ -79,12 +81,12 @@ ensure_irreducibles(idx_t max_deg)
 
                 /* GF(2) division using a simple shift‑and‑xor loop. */
                 seq_t r = cand;
-                idx_t df = bitlen_seq_t(r) - 1;
+                idx_t df = bit_length(r) - 1;
                 idx_t dg = irr_deg[j];
                 while (df >= dg) {
                     r ^= irr_list[j] << (df - dg);
                     if (!r) break;
-                    df = bitlen_seq_t(r) - 1;
+                    df = bit_length(r) - 1;
                 }
                 if (r == 0) {                 /* divisible => not irreducible */
                     is_irred = false;
@@ -105,8 +107,8 @@ ensure_irreducibles(idx_t max_deg)
 static seq_t
 gf2_mod(seq_t f, seq_t g)
 {
-    idx_t df = bitlen_seq_t(f) - 1;
-    idx_t dg = bitlen_seq_t(g) - 1;
+    idx_t df = bit_length(f) - 1;
+    idx_t dg = bit_length(g) - 1;
     if (dg > df)
         return f;
 
@@ -115,7 +117,7 @@ gf2_mod(seq_t f, seq_t g)
         r ^= g << (df - dg);
         if (!r)
             break;
-        df = bitlen_seq_t(r) - 1;
+        df = bit_length(r) - 1;
     }
     return r;
 }
@@ -129,7 +131,7 @@ is_reducible(idx_t m)
     if (m < 4)                 /* 0,1,2,3 are not composite */
         return false;
 
-    idx_t deg = bitlen_seq_t((seq_t)m) - 1;
+    idx_t deg = bit_length((seq_t)m) - 1;
     ensure_irreducibles(deg / 2);
 
     for (idx_t j = 0; j < irr_count; ++j) {
@@ -156,7 +158,7 @@ ensure_cache(idx_t n)
     size_t new_cap = cache_cap ? cache_cap : 16;
     while (new_cap < n)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp && new_cap > 0) {
         abort();                 /* allocation failure */
     }

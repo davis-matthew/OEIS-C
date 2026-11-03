@@ -9,12 +9,14 @@
  *            a(1)=-10, a(2)=-12
  * Range:     i8 n <= 4, i16 n <= 9, i32 n <= 21, i64 n <= 44, i128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 935 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_size = 0;
@@ -26,7 +28,7 @@ static void ensure_cache(idx_t n)
     if (needed < 3) needed = 3;  /* at least three entries for the base case */
 
     if (cache == NULL) {
-        cache = (seq_t *)malloc(needed * sizeof(seq_t));
+        cache = mem_new(seq_t, needed);
         if (!cache) abort();
         cache[0] = (seq_t)0;
         cache[1] = (seq_t)-10;
@@ -34,7 +36,7 @@ static void ensure_cache(idx_t n)
         cache_size = needed;
         /* if needed > 3, we will compute remaining entries below */
     } else if (needed > cache_size) {
-        seq_t *tmp = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, needed);
         if (!tmp) abort();
         cache = tmp;
         cache_size = needed;

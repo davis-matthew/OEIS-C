@@ -9,11 +9,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_at_least_runs, used_check
+ * Validated: standard, pass, 70 terms through n = 9794 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdio.h>
 /*  Lexicographically earliest sequence of distinct positive terms such that
  *  the binary representation of the sum of two consecutive terms has at
  *  least five runs of ones.  The sequence is constructed greedily:
@@ -28,8 +30,32 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/has_at_least_runs.h"
-#include "../utils/used_check.h"
+#include "../utils/mem.h"
+
+/* counts the number of runs of consecutive 1 bits in 'x' */
+static bool has_at_least_runs(seq_t x, unsigned int need)
+{
+    bool in_run = false;
+    int runs     = 0;
+    while (x > 0) {
+        if (x & 1) {
+            if (!in_run) {
+                ++runs;
+                in_run = true;
+            }
+        } else {
+            in_run = false;
+        }
+        x >>= 1;
+    }
+    return (unsigned int)runs >= need;
+}
+
+/* returns true if 'v' has been used in the sequence so far */
+static bool used_check(idx_t v, unsigned char *used, idx_t used_cap)
+{
+    return (v <= used_cap) && ((used[v >> 3] >> (v & 7)) & 1);
+}
 
 /* ensures the bitset can hold at least 'v' and zeros new bits */
 static void ensure_used_cap(idx_t v, unsigned char **used, idx_t *used_cap)
@@ -66,7 +92,7 @@ seq_t a(idx_t n)
     if (seq_len == 0) {
         /* start with a(1) = 1 */
         seq_cap = 128;
-        seq     = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq     = mem_new(seq_t, seq_cap);
         if (!seq)
             abort();
         seq[0]   = (seq_t)1;
@@ -95,7 +121,7 @@ seq_t a(idx_t n)
         /* grow seq array if needed */
         if (seq_len >= seq_cap) {
             size_t new_cap = seq_cap << 1;
-            seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq, new_cap);
             if (!tmp)
                 abort();
             seq = tmp;

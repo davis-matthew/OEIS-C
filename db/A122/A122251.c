@@ -7,7 +7,8 @@
  * Formula:   a(n) = 9^sum_{k=1..n} sum_{j=0..⌊log_3(n)⌋} floor(k/3^j)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 5, u128 n <= 7,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 9 terms through n = 8 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,8 @@
 /*    = 9^A122250(n) */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -29,5 +31,5 @@ seq_t a(idx_t n)
     }
 
     /* Return 9^e as seq_t (big integer if needed) */
-    return big_pow((seq_t)9, (seq_t)e);
+    return ipow((seq_t)9, (seq_t)e);
 }

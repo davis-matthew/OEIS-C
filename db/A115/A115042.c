@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 7, u64 n <= 7, u128 n <= 7,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 7 terms through n = 7 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    value 1 in the sequence (b(k)).  Calls may arrive in any order;
    results are memoised. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
         if (val == (seq_t)1) {       /* a new occurrence of 1 */
             if (pos_len == pos_cap) {/* grow the positions array if needed */
                 size_t new_cap = pos_cap ? pos_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(positions, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, positions, new_cap);
                 if (!tmp) return 0;  /* out of memory – unlikely in tests */
                 positions = tmp;
                 pos_cap   = new_cap;

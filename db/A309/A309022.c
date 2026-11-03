@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 90, i16 n <= 90, i32 n <= 90, i64 n <= 90, i128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    a(2n)= -a(n),  a(2n+1)= a(n+1)-a(n)-a(n-1)   (n≥1)  */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- internal memoisation structures ---------- */
 static seq_t *cache   = NULL;   /* array of computed values      */
@@ -33,9 +35,9 @@ ensure_capacity(idx_t n)
 
     /* resize cache array */
     if (cache != NULL) {
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
     } else {
-        cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, new_cap);
     }
     /* resize computed flag array */
     if (computed != NULL) {

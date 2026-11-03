@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 4, i16 n <= 7, i32 n <= 12, i64 n <= 20, i128 n <= 20,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,9 @@
 */
 
 #include <stdlib.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *a_cache   = NULL;  /* cache of a(n) values          */
 static seq_t *s_cache   = NULL;  /* cache of s(m) coefficients   */
@@ -41,9 +44,9 @@ static void ensure_cache(idx_t n)
     idx_t new_size = n + 1;
 
     /* Reallocate caches */
-    a_cache     = (seq_t *)realloc(a_cache,     new_size * sizeof(seq_t));
-    s_cache     = (seq_t *)realloc(s_cache,     new_size * sizeof(seq_t));
-    pow3_cache  = (seq_t *)realloc(pow3_cache,  new_size * sizeof(seq_t));
+    a_cache     = mem_resize(seq_t, a_cache, new_size);
+    s_cache     = mem_resize(seq_t, s_cache, new_size);
+    pow3_cache  = mem_resize(seq_t, pow3_cache, new_size);
 
     /* Initialise new entries */
     if (old_size == 0)
@@ -75,7 +78,7 @@ static void ensure_cache(idx_t n)
         seq_t sum = (seq_t)0;
         for (idx_t m = 1U; m <= i; m += 2U) {  /* odd m only */
             seq_t term = s_cache[m] * a_cache[i - m];
-            term = term * binom(i, m);         /* binom(i, m) is seq_t */
+            term = term * binomial(i, m);         /* binom(i, m) is seq_t */
             sum += term;
         }
         a_cache[i] = sum;

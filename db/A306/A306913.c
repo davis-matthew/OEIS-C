@@ -8,13 +8,15 @@
  * Formula:   a(n) is read by antidiagonals from the square array A(n,k) =
  *            (-1)^n * Σ_{j=0..⌊n/k⌋} (-1)^(((k+1) mod 2)·j) * binomial(n+k-1,
  *            k·j+k-1)
- * Range:     i8 n <= 38, i16 n <= 151, i32 n <= 559, i64 n <= 2143,
- *            i128 n <= 8351, big any n
+ * Range:     i8 n <= 43, i16 n <= 151, i32 n <= 559, i64 n <= 2143,
+ *            i128 n <= 8383, big any n
+ * Validated: standard, pass, 82 terms through n = 8352 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

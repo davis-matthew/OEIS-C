@@ -5,13 +5,15 @@
  * Offset:    11    (a(11) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = ceil(binomial(n, 11) / n) (for n ≥ 11)
- * Range:     u8 n <= 13, u16 n <= 16, u32 n <= 34, u64 n <= 39, u128 n <= 39,
+ * Range:     u8 n <= 13, u16 n <= 18, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
+ * Validated: partial, pass, 29 terms through n = 39 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

@@ -7,7 +7,8 @@
  * Formula:   a(n) = coefficient of x^n/n! in exp(tan(sinh(x)))
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,9 +34,9 @@ seq_t a(idx_t n)
 
     /* Allocate arrays for t, s and a. */
     size_t N = (size_t)n;
-    seq_t *t = (seq_t *)malloc((N + 1) * sizeof(seq_t));
-    seq_t *s = (seq_t *)malloc((N + 1) * sizeof(seq_t));
-    seq_t *arr = (seq_t *)malloc((N + 1) * sizeof(seq_t));
+    seq_t *t = mem_new(seq_t, (N + 1));
+    seq_t *s = mem_new(seq_t, (N + 1));
+    seq_t *arr = mem_new(seq_t, (N + 1));
     if (!t || !s || !arr) {
         /* In the unlikely event of allocation failure, return 0. */
         return (seq_t)0;
@@ -90,9 +92,9 @@ seq_t a(idx_t n)
     seq_t result = arr[n];
 
     /* Free allocated memory. */
-    free(t);
-    free(s);
-    free(arr);
+    mem_free(t);
+    mem_free(s);
+    mem_free(arr);
 
     return result;
 }

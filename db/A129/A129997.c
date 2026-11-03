@@ -7,12 +7,14 @@
  * Formula:   a(n) = 4*a(n-1) + (n-6)*a(n-2) Offset: 1 (a(1)=0, a(2)=1)
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 16, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* allocate space for indices 0..3 (size 4) */
         cache_size = 4;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache) exit(1);             /* allocation failure */
         cache[1] = (seq_t)0;
         cache[2] = (seq_t)1;
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
         if (cache_size <= (size_t)n) {
             size_t new_size = cache_size;
             while (new_size <= (size_t)n) new_size <<= 1;
-            seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_size);
             if (!tmp) exit(1);          /* allocation failure */
             cache = tmp;
             cache_size = new_size;

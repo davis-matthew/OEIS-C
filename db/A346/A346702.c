@@ -10,8 +10,9 @@
  *            the first composition being the empty one). Algorithm: 1. Find
  *            the sum m of the n-th composition: 2^(m-1) ≤ n < 2^m (m=0 only
  *            for n=0). 2. Represent the offset within the...
- * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
- *            u128 n <= 10000, big any n
+ * Range:     u8 n <= 77, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
+ *            big any n
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

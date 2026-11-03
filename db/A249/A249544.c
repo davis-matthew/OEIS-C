@@ -9,13 +9,16 @@
  *            ((2^(n+1))^m - 1)*(2^n - 1)/(2^(n+1) - 1)
  * Range:     u8 n <= 8, u16 n <= 23, u32 n <= 49, u64 n <= 110, u128 n <= 219,
  *            big any n
- * Helpers:   big_pow, pow_uint
+ * Validated: standard, pass, 55 terms through n = 6135 (2026-11-01)
+ * Helpers:   ipow, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_uint.h"
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t idx)
 {
@@ -30,11 +33,11 @@ seq_t a(idx_t idx)
     idx_t n      = s - m;               /* n ≥ 1 */
 
     /* compute powers of two */
-    seq_t two_n_plus1 = pow_uint(2ULL, n + 1);
-    seq_t two_n       = pow_uint(2ULL, n);
+    seq_t two_n_plus1 = ipow_u64_idx(2ULL, n + 1);
+    seq_t two_n       = ipow_u64_idx(2ULL, n);
 
     /* A = 2^(n+1) */
-    seq_t numerator   = big_pow(two_n_plus1, (seq_t)m);
+    seq_t numerator   = ipow(two_n_plus1, (seq_t)m);
     numerator -= 1;
     seq_t denominator = two_n_plus1 - 1;
 

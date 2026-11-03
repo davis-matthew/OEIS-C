@@ -13,7 +13,8 @@
  *            values ≤ L – 1 that have appeared. Then a(n) = L –...
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ---------- Static state ---------- */
 static seq_t *recam = NULL;            /* Recamán values */
@@ -43,7 +45,7 @@ static void ensure_recam_capacity(size_t needed) {
     if (recam_cap >= needed) return;
     size_t newCap = recam_cap ? recam_cap * 2 : 1;
     while (newCap < needed) newCap <<= 1;
-    recam = (seq_t *)realloc(recam, newCap * sizeof(seq_t));
+    recam = mem_resize(seq_t, recam, newCap);
     if (!recam) abort();
     recam_cap = newCap;
 }
@@ -52,7 +54,7 @@ static void ensure_answers_capacity(size_t needed) {
     if (answers_cap >= needed) return;
     size_t newCap = answers_cap ? answers_cap * 2 : 1;
     while (newCap < needed) newCap <<= 1;
-    answers = (seq_t *)realloc(answers, newCap * sizeof(seq_t));
+    answers = mem_resize(seq_t, answers, newCap);
     if (!answers) abort();
     answers_cap = newCap;
 }
@@ -61,7 +63,7 @@ static void ensure_visited_capacity(size_t needed) {
     if (visited_cap >= needed) return;
     size_t newCap = visited_cap ? visited_cap * 2 : 1;
     while (newCap < needed) newCap <<= 1;
-    visited_vals = (seq_t *)realloc(visited_vals, newCap * sizeof(seq_t));
+    visited_vals = mem_resize(seq_t, visited_vals, newCap);
     if (!visited_vals) abort();
     visited_cap = newCap;
 }

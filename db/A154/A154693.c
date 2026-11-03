@@ -9,13 +9,16 @@
  *            * A008292(n+1,k+1), read by rows and concatenated
  * Range:     u8 n <= 10, u16 n <= 29, u32 n <= 69, u64 n <= 177,
  *            u128 n <= 505, big any n
- * Helpers:   pow2
+ * Validated: standard, pass, 61 terms through n = 1270 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/pow2.h"          /* pow2(idx_t exp) -> seq_t */
+#include <stdbool.h>
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 /* Cached Eulerian triangle rows (row i has elements 0..i). */
 static seq_t **rows = NULL;      /* array of pointers to row data */
@@ -39,7 +42,7 @@ static void ensure_row(size_t r)
 
     /* Compute missing rows up to r. */
     for (size_t i = rows_len; i <= r; ++i) {
-        seq_t *row = (seq_t*)calloc(i + 1, sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, i + 1);
         if (!row) return;           /* allocation failure – caller UB */
 
         if (i == 0) {               /* A008292(1,1) = 1 */

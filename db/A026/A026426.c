@@ -10,13 +10,15 @@
  *            Initial values: a(1)=2, a(2)=4
  * Range:     u8 n <= 112, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 999 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Binary search for a target in a sorted array of seq_t. */
 static bool seq_contains(const seq_t *seq, size_t len, seq_t target)
@@ -46,7 +48,7 @@ static void ensure_base(void)
     if (seq_len > 0)
         return;
     seq_cap = 16;
-    seq_cache = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+    seq_cache = mem_new(seq_t, seq_cap);
     if (!seq_cache)
         return;
     seq_cache[0] = (seq_t)2;
@@ -62,7 +64,7 @@ static void grow_cache_if_needed(size_t new_len)
     size_t new_cap = seq_cap ? seq_cap * 2 : 1;
     while (new_cap < new_len)
         new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
     if (!tmp)
         return; /* on allocation failure we keep old cache */
     seq_cache = tmp;

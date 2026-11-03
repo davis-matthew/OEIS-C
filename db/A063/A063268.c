@@ -15,7 +15,8 @@
  *            repeatedly applying f until the denominator become...
  * Range:     u8 n <= 34, u16 n <= 4751, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   g_of, gcd
+ * Validated: standard, pass, 98 terms through n = 9690 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,20 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/gcd.h"
-#include "../utils/g_of.h"
+
+/* Compute g(p) as described.  m is never zero. */
+static seq_t g_of(seq_t p) {
+    seq_t m = p;
+    if ((m & 1) == 0) {
+        /* m even – keep halving until odd */
+        while ((m & 1) == 0) m /= 2;
+    } else {
+        /* m odd – apply h once then halve until odd */
+        m = ((seq_t)5 * m) - 1;
+        while ((m & 1) == 0) m /= 2;
+    }
+    return m;          /* odd by construction */
+}
 
 typedef struct { seq_t p; seq_t q; } fraction_t;
 

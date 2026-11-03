@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 64, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   _odd_factorial
+ * Validated: partial, pass, 70 terms through n = 69 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,7 +34,17 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_odd_factorial.h"
+
+/* odd double factorial: (2k−1)!!  (with k=0 → 1) */
+static inline seq_t _odd_factorial(idx_t k)
+{
+    if (k == 0) return 1;
+    seq_t res = 1;
+    for (idx_t i = 1; i <= 2 * k - 1; i += 2) {
+        res *= (seq_t)i;
+    }
+    return res;
+}
 
 /* ----- helpers ----- */
 

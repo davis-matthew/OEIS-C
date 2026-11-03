@@ -6,15 +6,17 @@
  * Keywords:  nonn
  * Formula:   a(n) = 3 * Σ_{k=0..n} binomial(2k+3,k) * binomial(n+k-1,n-k) /
  *            (2k+3)
- * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 13, u64 n <= 23, u128 n <= 23,
+ * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 13, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /*              (k = 0 term is zero for n ≥ 1; a(0) = 1)                            */
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     for (idx_t k = 1; k <= n; ++k)          /* k = 0 contributes 0 for n ≥ 1          */
     {
         /* Compute binomial(2k+3, k)  */
-        seq_t b1 = binom(2 * k + 3, k);
+        seq_t b1 = binomial(2 * k + 3, k);
 
         /* Perform the division (3 * b1) / (2k+3) without overflow:
            let d = 2k+3, q = b1 / d, r = b1 - q*d.  Then
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
         seq_t t2 = q * 3 + (r * 3) / d;        /* = (3*b1)/d                     */
 
         /* Compute binomial(n+k-1, n-k)  */
-        seq_t b2 = binom(n + k - 1, n - k);
+        seq_t b2 = binomial(n + k - 1, n - k);
 
         /* Add the contribution of this k  */
         sum += t2 * b2;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 109, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 57 terms through n = 950 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,16 +19,17 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Append a value to the dynamic cache, growing its capacity as needed. */
 static void append_to_cache(seq_t **cache, size_t *len, size_t *cap, seq_t val)
 {
     if (*cap == 0) {
         *cap = 4;
-        *cache = (seq_t *)malloc(*cap * sizeof(seq_t));
+        *cache = mem_new(seq_t, (*cap * sizeof(seq_t)) / sizeof(seq_t));
     } else if (*len == *cap) {
         size_t new_cap = *cap * 2;
-        *cache = (seq_t *)realloc(*cache, new_cap * sizeof(seq_t));
+        *cache = mem_resize(seq_t, *cache, new_cap);
         *cap = new_cap;
     }
     (*cache)[*len] = val;

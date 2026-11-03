@@ -9,6 +9,7 @@
  *            n < 1 the function returns 0 (undefined, but never called)
  * Range:     u8 n <= 26, u16 n <= 120, u32 n <= 288, u64 n <= 1368,
  *            u128 n <= 5040, big any n
+ * Validated: standard, pass, 73 terms through n = 9852 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,7 +18,8 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/build_primes_upto.h"   /* provides build_primes_upto */
+#include <stdbool.h>
+#include "../utils/build_primes_upto.h"
 
 static uint64_t *prime_tbl  = NULL;   /* array of primes ≤ prime_limit */
 static size_t    prime_cnt  = 0;       /* number of primes in prime_tbl   */

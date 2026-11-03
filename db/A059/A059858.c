@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   modpow2_uint64
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,21 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/modpow2_uint64.h"
+
+/* Compute 2^exp mod mod.  Exp is in the range of a 64‑bit unsigned.   */
+static inline seq_t modpow2_uint64(uint64_t exp, uint64_t mod)
+{
+    seq_t res = 1;
+    uint64_t base = 2 % mod;
+    while (exp)
+    {
+        if (exp & 1)
+            res = (seq_t)(((__int128)res * base) % mod);
+        base = (uint64_t)(((__int128)base * base) % mod);
+        exp >>= 1;
+    }
+    return res;
+}
 
 /* --------------------------------------------------------------------- */
 

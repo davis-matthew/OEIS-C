@@ -7,7 +7,8 @@
  * Formula:   numbers k such that tau(k^2-1) = tau(k^2+1) = 8
  * Range:     u8 n <= 7, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /*  Configurable limits                                                */
@@ -129,7 +131,7 @@ seq_t a(idx_t n)
         init_primes_and_spf();
 
         buf_cap = 32;
-        buf = (seq_t*)malloc(buf_cap * sizeof(seq_t));
+        buf = mem_new(seq_t, buf_cap);
     }
 
     /* Generate terms until we have at least `n` of them */
@@ -155,7 +157,7 @@ seq_t a(idx_t n)
                 /* store the term */
                 if (buf_size == buf_cap) {
                     buf_cap *= 2;
-                    buf = (seq_t*)realloc(buf, buf_cap * sizeof(seq_t));
+                    buf = mem_resize(seq_t, buf, buf_cap);
                 }
                 buf[buf_size++] = (seq_t)k;
             }

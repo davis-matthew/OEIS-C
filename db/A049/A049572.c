@@ -9,7 +9,8 @@
  *            a(1)=2
  * Range:     u8 n <= 15, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   powmod64
+ * Validated: standard, pass, 67 terms through n = 932 (2026-11-03)
+ * Helpers:   mem, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,16 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/powmod64.h"   /* provides uint64_t powmod64(uint64_t, uint64_t, uint64_t) */
+#include "../utils/powmod_u64.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 /* --------------------------------------------------------------------- */
 /* Small helpers -------------------------------------------------------- */
@@ -38,6 +48,17 @@ static inline uint64_t gcd_uint64(uint64_t a, uint64_t b)
 }
 
 /* Dynamic array growth ---------------------------------------------- */
+#ifdef __cplusplus
+template <class T>
+static inline void grow(T **arr, size_t *cap, size_t needed, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : *cap * 2;
+    while (new_cap < needed) new_cap *= 2;
+    *arr = mem_resize(T, *arr, (new_cap * elem_size) / sizeof(T));
+    *cap = new_cap;
+}
+#else
 static inline void grow(void **arr, size_t *cap, size_t needed, size_t elem_size)
 {
     if (needed <= *cap) return;
@@ -46,6 +67,7 @@ static inline void grow(void **arr, size_t *cap, size_t needed, size_t elem_size
     *arr = realloc(*arr, new_cap * elem_size);
     *cap = new_cap;
 }
+#endif
 
 /* --------------------------------------------------------------------- */
 /* Prime search -------------------------------------------------------- */
@@ -77,7 +99,7 @@ static uint64_t next_prime(void)
 {
     /* Handle the very first prime (2) explicitly */
     if (prime_cnt == 0) {
-        grow((void **)&prime_list, &prime_cap, 1, sizeof(uint64_t));
+        grow(OEISC_VPP(&prime_list), &prime_cap, 1, sizeof(uint64_t));
         prime_list[0] = 2ULL;
         prime_cnt = 1;
         last_checked = 2ULL;
@@ -90,7 +112,7 @@ static uint64_t next_prime(void)
 
     for (;; candidate += 2) {
         if (is_prime_uint64(candidate)) {
-            grow((void **)&prime_list, &prime_cap, prime_cnt + 1, sizeof(uint64_t));
+            grow(OEISC_VPP(&prime_list), &prime_cap, prime_cnt + 1, sizeof(uint64_t));
             prime_list[prime_cnt++] = candidate;
             last_checked = candidate;
             return candidate;
@@ -107,7 +129,7 @@ static bool good_prime(uint64_t p)
 
     uint64_t g   = gcd_uint64(40ULL, p - 1ULL);
     uint64_t exp = (p - 1ULL) / g;
-    return powmod64(2ULL, exp, p) == 1ULL;
+    return powmod_u64(2ULL, exp, p) == 1ULL;
 }
 
 /* --------------------------------------------------------------------- */
@@ -128,7 +150,7 @@ seq_t a(idx_t n)
     while (seq_cnt < (size_t)n) {
         uint64_t p = next_prime();
         if (good_prime(p)) {
-            grow((void **)&seq_cache, &seq_cap, seq_cnt + 1, sizeof(seq_t));
+            grow(OEISC_VPP(&seq_cache), &seq_cap, seq_cnt + 1, sizeof(seq_t));
             seq_cache[seq_cnt++] = (seq_t)p;
         }
     }

@@ -7,13 +7,15 @@
  * Formula:   a(n) = Sum_{k=0..⌊n/4⌋} n!/[k!*(n-4k)!*4^k] * a(k), with a(0)=1
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 14, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* array of previously computed a(n) */
 static idx_t cache_size = 0;     /* number of entries in cache */
@@ -26,7 +28,7 @@ static void ensure_cache(idx_t n)
 
     size_t new_size = (size_t)(n + 1);
     /* realloc is C++-friendly with the cast below. */
-    seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_size);
     if (!tmp) abort();                   /* allocation failed */
     cache = tmp;
 

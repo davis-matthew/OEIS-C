@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 6, u64 n <= 7, u128 n <= 8,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 13 terms through n = 13 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    (equivalently: a(3) = 9, a(n) = 9^(2^(n-3)) for n >= 3) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return the nth term of OEIS sequence A165427
    (index n >= 1).  The function caches computed values
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
 
     /* Initialise cache with the first three known terms. */
     if (cache_len == 0) {
-        cache = (seq_t *)malloc(3 * sizeof(seq_t));
+        cache = mem_new(seq_t, 3);
         if (!cache)
             return (seq_t)0;   /* allocation failure – give up */
 
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
        previous term (valid for indices >= 4). */
     if (cache_len < n) {
         /* Grow the buffer to hold at least n terms. */
-        seq_t *tmp = (seq_t *)realloc(cache, n * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, n);
         if (!tmp)
             return (seq_t)0;   /* allocation failure – give up */
 

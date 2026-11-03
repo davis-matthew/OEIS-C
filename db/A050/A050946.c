@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..n} (-1)^{n-k} S2(n,k) * k! * Fibonacci(k)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 33,
  *            big any n
- * Helpers:   seq_realloc
+ * Validated: standard, pass, 39 terms through n = 415 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,18 @@
 #include <stdlib.h>
 
 /* helpers from utils (the build supplies seq_t/idx_t, plus these allocation helpers) */
-#include "../utils/seq_realloc.h"      /* seq_realloc(seq_t *old, size_t old_cap, size_t new_cap) */
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 /* static state to memoise computed values */
 static idx_t  max_n     = 0;     /* largest n for which values are already computed */

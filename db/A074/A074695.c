@@ -7,12 +7,13 @@
  * Formula:   a(n) = GCD(n, floor(sqrt(n))^2) (OEIS A074695)
  * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   my_gcd
+ * Validated: standard, pass, 116 terms through n = 9755 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/my_gcd.h"
+#include "../utils/gcd.h"
 /* Compute the integer square root of a 64‑bit unsigned integer.
  * Returns floor(sqrt(n)). */
 static uint64_t isqrt_u64(uint64_t n)
@@ -44,5 +45,5 @@ seq_t a(idx_t n)
 
     /* Return gcd(n, sq).  Cast n to seq_t for the computation. */
     seq_t nn = (seq_t)n;
-    return my_gcd(nn, sq);
+    return gcd(nn, sq);
 }

@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{k=0..n} binomial(n+k,k) * sin(Pi*(n+k)/2)
  * Range:     i8 n <= 5, i16 n <= 9, i32 n <= 17, i64 n <= 33, i128 n <= 65,
  *            big any n
+ * Validated: standard, pass, 41 terms through n = 991 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

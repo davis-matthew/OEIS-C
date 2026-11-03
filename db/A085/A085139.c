@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 18, u64 n <= 34, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 1603 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External definitions of seq_t and idx_t are provided by the build */
 extern seq_t a(idx_t n);
@@ -39,7 +41,7 @@ static void ensure_cap(idx_t needed, seq_t **p, size_t *cap)
     {
         ncap = ncap ? ncap << 1 : 1;
         while (ncap < (size_t)needed) ncap <<= 1;
-        *p = (seq_t *)realloc(*p, ncap * sizeof(seq_t));
+        *p = mem_resize(seq_t, *p, ncap);
         *cap = ncap;
     }
 }

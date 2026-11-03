@@ -7,11 +7,14 @@
  * Formula:   a(n) = 2^(2*n-1) - 3^n + 5*2^(n-1) - 3
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 32, u128 n <= 64,
  *            big any n
+ * Validated: standard, pass, 42 terms through n = 937 (2026-11-01)
  * Helpers:   pow2, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdint.h>
 #include "../utils/pow2.h"
 #include "../utils/pow3.h"
 

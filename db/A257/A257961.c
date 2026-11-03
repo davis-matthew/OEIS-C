@@ -8,8 +8,9 @@
  * Keywords:  nonn, tabf
  * Formula:   a(n) = ((n - S) * F(m-1)) mod F(m), where S = sum_{i=2}^{m-1}
  *            F(i) and m is the smallest index with S + F(m) > n
- * Range:     u8 n <= 442, u16 n <= 9979, u32 n <= 9979, u64 n <= 9979,
- *            u128 n <= 9979, big any n
+ * Range:     u8 n <= 442, u16 n <= 121397, u32 n <= 317807, u64 n <= 317808,
+ *            u128 n <= 317808, big any n
+ * Validated: standard, pass, 93 terms through n = 9979 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

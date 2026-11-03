@@ -11,7 +11,8 @@
  *            a_{k+1} = (a0 + m_{k+1}) / d_{k+1}
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 88 terms through n = 87 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define D 542ULL
 #define A0 23ULL
@@ -37,7 +39,7 @@ static void ensure_capacity(size_t need)
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     if (new_cap < need)
         new_cap = need * 2;
-    cache_a = (seq_t *)realloc(cache_a, new_cap * sizeof(seq_t));
+    cache_a = mem_resize(seq_t, cache_a, new_cap);
     cache_m = (uint64_t *)realloc(cache_m, new_cap * sizeof(uint64_t));
     cache_d = (uint64_t *)realloc(cache_d, new_cap * sizeof(uint64_t));
     cache_cap = new_cap;

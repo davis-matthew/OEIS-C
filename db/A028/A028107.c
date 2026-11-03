@@ -9,13 +9,15 @@
  *            Initial values: a(0)=1, a(1)=35, a(2)=790, a(3)=14630
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 16, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc, abort */
 #include <stdint.h>   /* uint64_t definition for idx_t if needed */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* memoized terms */
 static idx_t  cache_val_count = 0;   /* number of terms initialized (0 … cache_val_count-1) */
@@ -29,7 +31,7 @@ static void ensure_capacity(size_t needed)
     size_t new_cap = needed <= 2 ? 2 : needed;
     while (new_cap < needed)
         new_cap <<= 1;                 /* grow by doubling */
-    seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         abort();                       /* out‑of‑memory: terminate */
     cache = tmp;

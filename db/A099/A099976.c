@@ -7,11 +7,13 @@
  * Formula:   a(n) = binomial(4*n+2, 2*n+1)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 32,
  *            big any n
+ * Validated: standard, pass, 36 terms through n = 100 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 /* Compute a(n) = C(4n+2, 2n+1) using a multiplicative algorithm

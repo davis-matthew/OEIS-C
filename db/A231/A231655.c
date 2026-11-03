@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabf
  * Formula:   not stated
- * Range:     u8 n <= 15, u16 n <= 44, u32 n <= 101, u64 n <= 173,
+ * Range:     u8 n <= 17, u16 n <= 46, u32 n <= 111, u64 n <= 173,
  *            u128 n <= 173, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 75 terms through n = 166 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -37,7 +38,8 @@
  */
 
 #include <stdbool.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
             idx_t k = n - cum;          /* k ranges from 0 … N */
 
             /* ---- Identity element ---- */
-            seq_t identity = binom(N, k);
+            seq_t identity = binomial(N, k);
 
             /* ---- Rotations by 120° and 240° ---- */
             idx_t m1_rot = ((s - 1) % 3 == 0) ? 1 : 0;
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
             for (idx_t t = 0; t <= max_t_rot; ++t) {
                 idx_t rest = k - 3 * t;
                 if (rest > m1_rot) continue;
-                rot += binom(z_rot, t) * binom(m1_rot, rest);
+                rot += binomial(z_rot, t) * binomial(m1_rot, rest);
             }
 
             /* ---- Reflections (three of them) ---- */
@@ -79,7 +81,7 @@ seq_t a(idx_t n)
             for (idx_t t = 0; t <= max_t_ref; ++t) {
                 idx_t rest = k - 2 * t;
                 if (rest > m1_ref) continue;
-                ref += binom(m2_ref, t) * binom(m1_ref, rest);
+                ref += binomial(m2_ref, t) * binomial(m1_ref, rest);
             }
 
             /* ---- Burnside's lemma --- */

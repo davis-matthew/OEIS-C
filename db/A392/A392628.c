@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   apply_exponent
+ * Validated: standard, pass, 106 terms through n = 9779 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,7 +31,18 @@
  *  For n = 0 it returns 0 (undefined by definition). */
 
 #include <stdint.h>
-#include "../utils/apply_exponent.h"
+
+static inline void apply_exponent(seq_t *res, uint64_t e)
+{
+    uint64_t trailing = 0;
+    while ((e & 1ULL) != 0ULL) {
+        ++trailing;
+        e >>= 1;
+    }
+    /* trailing holds the number of consecutive 1‑bits from LSB of e.
+       (trailing + 1) is the desired factor for this prime power. */
+    *res *= (seq_t)(trailing + 1);
+}
 
 seq_t a(idx_t n)
 {

@@ -7,7 +7,8 @@
  * Formula:   a(n) = the nth smallest integer of the form (3*m)^k, k>=2, m>=1
  * Range:     u8 n <= 3, u16 n <= 35, u32 n <= 4625, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   grow_seq, pow_int
+ * Validated: standard, pass, 62 terms through n = 9241 (2026-11-03)
+ * Helpers:   ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,23 @@
 #include <stdbool.h>     /* bool */
 
 /* Helper functions from the utility library */
-#include "../utils/pow_int.h"   /* seq_t pow_int(seq_t base, idx_t exp) */
-#include "../utils/grow_seq.h"  /* void grow_seq(seq_t **arr, size_t *cap, size_t need) */
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
 
 /* --- heap to produce the numbers in increasing order ------------------- */
 #define MAX_EXP 20   /* exponents k ≥ 2 that we generate */
@@ -38,7 +54,7 @@ static inline void heap_swap(HeapNode *a, HeapNode *b)
 
 static void heap_insert(uint64_t base, uint64_t exp)
 {
-    seq_t v = pow_int((seq_t)base, (idx_t)exp);
+    seq_t v = ipow_idx((seq_t)base, (idx_t)exp);
     size_t i = ++heap_size;
     heap[i].val = v;
     heap[i].base = base;

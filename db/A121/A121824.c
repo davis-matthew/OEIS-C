@@ -7,13 +7,15 @@
  * Formula:   a(n) = (3^(2^n) + 5^(2^n)) / 2, n >= 1
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 3, u128 n <= 3,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 3 terms through n = 3 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *pow3 = NULL;
 static seq_t *pow5 = NULL;
@@ -28,8 +30,8 @@ ensure_cap(idx_t n)
         return;
     /* grow to at least n+1, keep power1 at index 1 for n=1 */
     size_t new_cap = n + 1;
-    pow3 = (seq_t *)realloc(pow3, new_cap * sizeof(seq_t));
-    pow5 = (seq_t *)realloc(pow5, new_cap * sizeof(seq_t));
+    pow3 = mem_resize(seq_t, pow3, new_cap);
+    pow5 = mem_resize(seq_t, pow5, new_cap);
     if (cap == 0) {
         /* initialise for n=1 (exponent 2) */
         pow3[1] = (seq_t)9;   /* 3^2 */

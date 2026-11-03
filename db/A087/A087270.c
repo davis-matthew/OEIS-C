@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 62, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdbool.h>
 
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* Global state for the dynamic sieve / sequence cache */
 static size_t pi_limit = 0;           /* up to which `x` we have sieved */
@@ -39,7 +41,7 @@ static void rebuild_limit(size_t limit)
     /* free old data if any */
     free(prime);
     free(pi_arr);
-    free(qual);
+    mem_free(qual);
 
     /* allocate new storage */
     prime  = (bool*)malloc((limit + 1) * sizeof(bool));
@@ -58,7 +60,7 @@ static void rebuild_limit(size_t limit)
 
     /* build cumulative prime counts and qualifying list */
     qual_cap = 16;
-    qual = (seq_t*)malloc(qual_cap * sizeof(seq_t));
+    qual = mem_new(seq_t, qual_cap);
     if (!qual) { free(prime); free(pi_arr); return; }
 
     qual_size = 0;
@@ -75,7 +77,7 @@ static void rebuild_limit(size_t limit)
             if (gcd(x, pi_val) > one) {
                 if (qual_size == qual_cap) {
                     qual_cap <<= 1;
-                    qual = (seq_t*)realloc(qual, qual_cap * sizeof(seq_t));
+                    qual = mem_resize(seq_t, qual, qual_cap);
                 }
                 qual[qual_size++] = x;
             }

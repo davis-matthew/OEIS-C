@@ -9,7 +9,8 @@
  *            * a(0)=1, a(1)=11, a(2)=211,
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 14, u128 n <= 18,
  *            big any n
- * Helpers:   pow10
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,17 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/pow10.h"   /* pow10(idx_t e) → seq_t */
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Count decimal digits of x.  Assumes x > 0. */
 static int digit_count(seq_t x)
@@ -44,7 +55,7 @@ seq_t a(idx_t n)
         if (new_cap == 0) new_cap = 1;
         while (new_cap < (size_t)n + 1) new_cap <<= 1;
 
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) /* allocation failure: abort */
             exit(EXIT_FAILURE);
         cache = new_cache;

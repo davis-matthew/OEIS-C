@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 8, u64 n <= 19, u128 n <= 41,
  *            big any n
- * Helpers:   diff_for_subblock
+ * Validated: standard, pass, 33 terms through n = 166 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,23 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/diff_for_subblock.h"
+
+/* Utility: compute diff = median(diagonal) – median(antidiagonal)
+   for a 3×3 subblock starting at given column (0 or 1). */
+static int8_t diff_for_subblock(uint16_t r0, uint16_t r1, uint16_t r2, int col)
+{
+    int a = (r0 >> col)       & 1;
+    int b = (r1 >> (col + 1)) & 1;
+    int c = (r2 >> (col + 2)) & 1;
+    int diag = (a + b + c) >= 2;          /* 0 or 1 */
+
+    int d = (r0 >> (col + 2)) & 1;
+    int e = (r1 >> (col + 1)) & 1;
+    int f = (r2 >> col)     & 1;
+    int anti = (d + e + f) >= 2;          /* 0 or 1 */
+
+    return (int8_t)(diag - anti);         /* -1,0,1 */
+}
 
  /* The build supplies idx_t and seq_t.  Do not #define them here. */
 

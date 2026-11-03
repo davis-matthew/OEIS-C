@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,6 +35,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* structure for a triangle together with its radius squared as a reduced fraction */
 struct Tri {
@@ -135,7 +137,7 @@ static void precompute(void)
     qsort(tri, tri_cnt, sizeof(struct Tri), tri_cmp);
 
     /* allocate sequence array and fill it with the i values */
-    a_seq = (seq_t *)malloc(tri_cnt * sizeof(seq_t));
+    a_seq = mem_new(seq_t, tri_cnt);
     if (!a_seq) abort();
     for (size_t idx = 0; idx < tri_cnt; ++idx) {
         a_seq[idx] = (seq_t)tri[idx].i;

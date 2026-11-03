@@ -8,12 +8,14 @@
  *            a(n) = 10*a(n-1) - 24*a(n-2) (n>1)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 24, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
 
     /* Initialise cache for the first call: a[0] = 1 */
     if (cache_size == 0) {
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) exit(1);          /* out of memory */
         cache_size = 1;
         cache[0] = (seq_t)1;
@@ -54,11 +56,11 @@ seq_t a(idx_t n)
 
         /* Grow the cache if necessary */
         if (cache_size == 0) {
-            cache = (seq_t *)malloc(sizeof(seq_t));
+            cache = mem_new(seq_t, 1);
             if (!cache) exit(1);          /* out of memory */
         } else {
             /* allocate one more slot */
-            seq_t *tmp = (seq_t *)realloc(cache, (cache_size + 1) * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, (cache_size + 1));
             if (!tmp) exit(1);            /* out of memory */
             cache = tmp;
         }

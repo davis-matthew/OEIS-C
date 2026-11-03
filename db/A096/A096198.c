@@ -10,12 +10,26 @@
  *            contains (m,n) = (r,1),(r-1,2),…,(1,r)
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   ceil_log2_idx
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/ceil_log2_idx.h"
+static inline seq_t ceil_log2_idx(idx_t x)
+{
+    /* returns ceil(log2(x)) for x >= 1; sequence definition uses
+       ceil(log2(1)) = 0, therefore the result is 0 for x <= 1.   */
+    if (x <= 1) return 0;
+    seq_t r = 0;
+    idx_t y = x - 1;             /* use floor_log2(x-1) + 1 */
+    while (y)
+    {
+        y >>= 1;
+        r++;
+    }
+    return r;
+}
 
 seq_t a(idx_t n)
 {

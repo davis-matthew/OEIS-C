@@ -7,17 +7,20 @@
  * Formula:   a(n) = 7^n - n^9
  * Range:     i8 n <= 1, i16 n <= 3, i32 n <= 11, i64 n <= 22, i128 n <= 45,
  *            big any n
- * Helpers:   big_pow, pow_seq
+ * Validated: standard, pass, 35 terms through n = 394 (2026-11-01)
+ * Helpers:   ipow, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
-    seq_t p7 = big_pow((seq_t)7, (seq_t)n);
-    seq_t p9 = pow_seq((seq_t)n, 9);
+    seq_t p7 = ipow((seq_t)7, (seq_t)n);
+    seq_t p9 = ipow_i32((seq_t)n, 9);
     return p7 - p9;
 }

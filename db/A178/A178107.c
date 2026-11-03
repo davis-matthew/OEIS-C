@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 37, i16 n <= 74, i32 n <= 74, i64 n <= 74, i128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 75 terms through n = 74 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    The flattened array a(n) is defined by a(0)=1, a(1)=0, a(2)=1, a(3)=-1, … */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Global storage for coefficient rows, built on demand */
 static seq_t **rows            = NULL;      /* rows[i] points to array of i+1 coefficients */
@@ -33,11 +35,11 @@ static void build_next_row(void)
 
     if (i == 0) {
         rows = (seq_t**)realloc(rows, sizeof(seq_t*));
-        rows[0] = (seq_t*)malloc(sizeof(seq_t));
+        rows[0] = mem_new(seq_t, 1);
         rows[0][0] = (seq_t)1;
     } else if (i == 1) {
         rows = (seq_t**)realloc(rows, 2 * sizeof(seq_t*));
-        rows[1] = (seq_t*)malloc(2 * sizeof(seq_t));
+        rows[1] = mem_new(seq_t, 2);
         rows[1][0] = (seq_t)0;
         rows[1][1] = (seq_t)1;
     } else {
@@ -47,7 +49,7 @@ static void build_next_row(void)
         seq_t C       = (seq_t)C_int;
 
         rows = (seq_t**)realloc(rows, (i + 1) * sizeof(seq_t*));
-        rows[i] = (seq_t*)malloc((i + 1) * sizeof(seq_t));
+        rows[i] = mem_new(seq_t, (i + 1));
 
         for (idx_t j = 0; j <= i; ++j) {
             seq_t a = (j > 0) ? rows[i - 1][j - 1] : (seq_t)0;

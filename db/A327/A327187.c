@@ -12,13 +12,16 @@
  *            (y). For n = 0 return 0
  * Range:     u8 n <= 4507, u16 n <= 8192, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   floor_log2_uint64
+ * Validated: standard, pass, 102 terms through n = 7062 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/ilog2.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +31,7 @@ seq_t a(idx_t n)
 
     /* Length L of the binary representation of n (most‑significant bit to
        least‑significant bit) */
-    unsigned L = floor_log2_uint64(n) + 1;
+    unsigned L = ilog2(n) + 1;
 
     seq_t min_val = 0;            /* will be set on first iteration */
     bool first   = true;          /* flag to initialise min_val */

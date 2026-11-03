@@ -10,13 +10,15 @@
  *            = a_k * q_{k-1} + q_{k-2}
  * Range:     u8 n <= 4, u16 n <= 12, u32 n <= 24, u64 n <= 45, u128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 /* seq_t and idx_t are supplied by the build system. */
 
 static const idx_t SQRTH = 29;      /* floor(sqrt(881)) */
@@ -47,7 +49,7 @@ static void ensure_up_to(idx_t n)
         size_t newcap = cache_cap ? cache_cap : 16;
         while (newcap < (size_t)(n + 1))
             newcap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         cache = tmp;
         cache_cap = newcap;
     }

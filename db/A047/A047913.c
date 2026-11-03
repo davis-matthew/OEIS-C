@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 77, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static storage for the dynamic program */
 static idx_t   current_max_k = 0;   /* maximum column that has been computed */
@@ -38,7 +40,7 @@ static void ensure_max_k(idx_t req_k)
     /* New table dimensions */
     idx_t new_stride = req_k + 1;
     size_t new_size  = (size_t)new_stride * new_stride;
-    seq_t *new_dp = (seq_t *)calloc(new_size, sizeof(seq_t));
+    seq_t *new_dp = mem_new(seq_t, new_size);
 
     /* Copy existing entries */
     if (dp) {
@@ -68,7 +70,7 @@ static void ensure_max_k(idx_t req_k)
     }
 
     /* Replace old table */
-    if (dp) free(dp);
+    if (dp) mem_free(dp);
     dp   = new_dp;
     stride = new_stride;
     current_max_k = req_k;

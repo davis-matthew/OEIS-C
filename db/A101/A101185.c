@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static const size_t LIMIT = 300000;   /* sufficient for at least 20000 missing terms */
 
@@ -54,13 +56,13 @@ static void build_missing(seq_t **out_vals, idx_t *out_len)
 
     /* 4. collect the complement */
     size_t cap = 20000;
-    seq_t *missing = (seq_t *)malloc(cap * sizeof(seq_t));
+    seq_t *missing = mem_new(seq_t, cap);
     size_t missing_len = 0;
     for (size_t i = 1; i <= LIMIT; ++i) {
         if (!is_repr[i]) {
             if (missing_len == cap) {
                 cap <<= 1;
-                missing = (seq_t *)realloc(missing, cap * sizeof(seq_t));
+                missing = mem_resize(seq_t, missing, cap);
             }
             missing[missing_len++] = (seq_t)i;
         }

@@ -11,13 +11,15 @@
  *            each index n
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /*--------------------------------------------------------------------
  *  Dynamic storage for the sequence values and auxiliary convolutions.
@@ -38,9 +40,9 @@ static void ensure_capacity(idx_t n)
             new_cap <<= 1;                    /* exponential growth */
 
         /* grow arrays; realloc may move the memory */
-        a_vals  = (seq_t *)realloc(a_vals,  new_cap * sizeof(seq_t));
-        c2_vals = (seq_t *)realloc(c2_vals, new_cap * sizeof(seq_t));
-        c3_vals = (seq_t *)realloc(c3_vals, new_cap * sizeof(seq_t));
+        a_vals  = mem_resize(seq_t, a_vals, new_cap);
+        c2_vals = mem_resize(seq_t, c2_vals, new_cap);
+        c3_vals = mem_resize(seq_t, c3_vals, new_cap);
 
         /* initialise any new elements to zero */
         for (size_t i = allocated; i < new_cap; ++i) {

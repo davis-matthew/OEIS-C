@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 2288, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   seq_insert
+ * Validated: standard, pass, 89 terms through n = 9595 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,33 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/seq_insert.h"
+#include "../utils/mem.h"
+
+/* insert val into sorted array *arr of length *len and capacity *cap.
+   If val is already present, nothing is changed. */
+static void seq_insert(seq_t **arr, size_t *len, size_t *cap, seq_t val)
+{
+    size_t lo = 0, hi = *len;
+    while (lo < hi) {
+        size_t mid = (lo + hi) >> 1;
+        if ((*arr)[mid] < val)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    if (lo < *len && (*arr)[lo] == val)
+        return;                      /* already present */
+
+    if (*len == *cap) {               /* grow array */
+        *cap = (*cap == 0 ? 16 : (*cap << 1));
+        *arr = mem_resize(seq_t, *arr, (*cap * sizeof(seq_t)) / sizeof(seq_t));
+    }
+
+    for (size_t i = *len; i > lo; --i)
+        (*arr)[i] = (*arr)[i - 1];
+    (*arr)[lo] = val;
+    (*len)++;
+}
 
 /* binary search: returns 1 if val is present, 0 otherwise */
 static int seq_contains(const seq_t *seq, size_t len, seq_t val)
@@ -47,7 +74,7 @@ seq_t a(idx_t n)
     /* initialise on first call */
     if (seq == NULL) {
         cap = 16;
-        seq = (seq_t *)malloc(cap * sizeof(seq_t));
+        seq = mem_new(seq_t, cap);
         seq[0] = (seq_t)1;            /* a(1) = 1 */
         len  = 1;
     }

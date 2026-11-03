@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 37, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* ----------  deterministic Miller–Rabin  --------------------------------- */
 static inline uint64_t mod_mul(uint64_t a, uint64_t b, uint64_t mod)
@@ -103,7 +105,7 @@ seq_t a(idx_t n)
     /* allocate storage on first call */
     if (positions == NULL) {
         pos_cap = 256U;
-        positions = (seq_t *)malloc(pos_cap * sizeof(seq_t));
+        positions = mem_new(seq_t, pos_cap);
         pos_len = 0U;
     }
 
@@ -137,8 +139,7 @@ seq_t a(idx_t n)
             if (is_prime_u64(sum)) {
                 if (pos_len == pos_cap) {
                     pos_cap <<= 1U; /* double capacity */
-                    positions = (seq_t *)realloc(positions,
-                                                 pos_cap * sizeof(seq_t));
+                    positions = mem_resize(seq_t, positions, pos_cap);
                 }
                 positions[pos_len++] = (seq_t)pos_counter;
             }

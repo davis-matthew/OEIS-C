@@ -10,8 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 49, u16 n <= 642, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   bin_to_seq, overlap_len, rev_no_leading, str_contains,
- *            to_bin_string
+ * Validated: standard, pass, 83 terms through n = 4910 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,11 +24,68 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/bin_to_seq.h"
-#include "../utils/overlap_len.h"
-#include "../utils/rev_no_leading.h"
-#include "../utils/str_contains.h"
-#include "../utils/to_bin_string.h"
+
+/* Convert binary string s (MSB first) to a seq_t value. */
+static seq_t bin_to_seq(const char *s)
+{
+    seq_t v = 0;
+    for (const char *p = s; *p; ++p)
+        v = (v << 1) | (seq_t)(*p - '0');
+    return v;
+}
+
+/* Return the length of the longest suffix of a (length la) which
+   matches a prefix of b (length lb). */
+static size_t overlap_len(const char *a, size_t la, const char *b, size_t lb)
+{
+    size_t m = la < lb ? la : lb;
+    for (size_t k = m; k > 0; --k) {
+        if (memcmp(a + la - k, b, k) == 0)
+            return k;
+    }
+    return 0;
+}
+
+/* Convert n to a binary string in buf (MSB first, '\0' terminated).
+   Returns the length of the string (excluding the terminator). */
+static size_t to_bin_string(idx_t n, char *buf)
+{
+    char tmp[128];
+    size_t pos = 0;
+    do {
+        tmp[pos++] = (n & 1) ? '1' : '0';
+        n >>= 1;
+    } while (n != 0);
+    /* tmp[0] holds LSB, tmp[pos-1] holds MSB */
+    for (size_t i = 0; i < pos; ++i)
+        buf[i] = tmp[pos - 1 - i];
+    buf[pos] = '\0';
+    return pos;
+}
+
+/* Build the reverse of the binary string of n, remove leading zeros,
+   store in buf, and return its length. */
+static size_t rev_no_leading(idx_t n, char *buf)
+{
+    char bin[128];
+    size_t len = to_bin_string(n, bin);          /* len ≥ 1, bin[0] == '1' */
+
+    int32_t pos = (int32_t)len - 1;              /* signed to allow -1 */
+    while (pos >= 0 && bin[pos] == '0')
+        --pos;                                  /* skip trailing zero(s) */
+
+    size_t revlen = (pos + 1);                   /* number of digits */
+    for (size_t i = 0; i < revlen; ++i)
+        buf[i] = bin[pos - (int32_t)i];
+    buf[revlen] = '\0';
+    return revlen;
+}
+
+/* Return true if pattern b occurs inside string a. */
+static bool str_contains(const char *a, const char *b)
+{
+    return strstr(a, b) != NULL;
+}
 
 seq_t a(idx_t n)
 {

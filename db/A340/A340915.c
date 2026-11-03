@@ -7,15 +7,17 @@
  * Keywords:  nonn
  * Formula:   a(n) = number of ways to write n as an ordered sum of 8 squares
  *            of positive integers
- * Range:     u8 n <= 24, u16 n <= 128, u32 n <= 4031, u64 n <= 9979,
- *            u128 n <= 9979, big any n
- * Helpers:   none
+ * Range:     u8 n <= 24, u16 n <= 128, u32 n <= 4031, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 73 terms through n = 9979 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_size = 0;
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
 
         size_t cap = (size_t)newlen;
 
-        seq_t *dp = (seq_t *)malloc(cap * sizeof(seq_t));
+        seq_t *dp = mem_new(seq_t, cap);
         if (dp == NULL) return 0;
 
         /* initialise with 1 way to form 0 using 0 squares */
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
         /* convolve 8 times with the series Σ x^{k^2}, k≥1 */
         for (idx_t step = 0; step < 8; ++step)
         {
-            seq_t *next = (seq_t *)calloc(cap, sizeof(seq_t));
+            seq_t *next = mem_new(seq_t, cap);
             if (next == NULL) return 0;
 
             for (idx_t i = 0; i < newlen; ++i)
@@ -62,12 +64,12 @@ seq_t a(idx_t n)
                     next[j] += val;
                 }
             }
-            free(dp);
+            mem_free(dp);
             dp = next;
         }
 
         /* replace old cache */
-        if (cache) free(cache);
+        if (cache) mem_free(cache);
         cache = dp;
         cache_size = newlen;
     }

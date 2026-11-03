@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 23, u64 n <= 47, u128 n <= 92,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 183 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
  * Initial values a(0)..a(23) are taken from the definition.
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     /* if cache is unexplored, allocate the minimal required space */
     if (cache == NULL) {
         size_t needed = (n + 1 > 24) ? (size_t)n + 1 : 24;
-        cache = (seq_t *)malloc(needed * sizeof(seq_t));
+        cache = mem_new(seq_t, needed);
         if (!cache) return 0;              /* allocation failed – produce 0 */
         for (size_t i = 0; i < 24; ++i) cache[i] = init24[i];
         cache_cap = needed;
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     /* grow the cache if the caller asked for a larger index */
     else if ((size_t)n + 1 > cache_cap) {
         size_t new_cap = ((size_t)n + 1 > cache_cap * 2) ? (size_t)n + 1 : cache_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;                  /* reallocation failed */
         cache = tmp;
         cache_cap = new_cap;

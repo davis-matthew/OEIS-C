@@ -7,11 +7,13 @@
  * Formula:   a(1)=2, a(2)=6, a(3)=15, a(n) = (7*n + 9) * 2^(n-4) for n >= 4
  * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 28, u64 n <= 35, u128 n <= 35,
  *            big any n
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

@@ -7,7 +7,8 @@
  * Formula:   a(n) = Im((1 - n*i) * [x^n] ∏_{k=1}^{∞} (1 - n*i*x^k))
  * Range:     i8 n <= 4, i16 n <= 9, i32 n <= 21, i64 n <= 27, i128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Computes the n-th term of OEIS A292162 (main diagonal of A292160). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -22,12 +24,12 @@ seq_t a(idx_t n)
         return 0;
 
     /* Allocate arrays for the real and imaginary parts of the coefficients. */
-    seq_t *real = (seq_t *)malloc((n + 1) * sizeof(seq_t));
-    seq_t *imag = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *real = mem_new(seq_t, (n + 1));
+    seq_t *imag = mem_new(seq_t, (n + 1));
     if (!real || !imag) {
         /* In case of allocation failure, return zero (not expected). */
-        free(real);
-        free(imag);
+        mem_free(real);
+        mem_free(imag);
         return 0;
     }
 
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
     /* Compute the final value: Im((1 - n*i)*dp[n]) = imag[n] - n*real[n]. */
     seq_t result = imag[n] - (seq_t)n * real[n];
 
-    free(real);
-    free(imag);
+    mem_free(real);
+    mem_free(imag);
     return result;
 }

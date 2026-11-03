@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 16, u64 n <= 30, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 879 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are provided by the build system.  */
 seq_t a(idx_t n)
@@ -41,9 +43,9 @@ seq_t a(idx_t n)
     /* Ensure the arrays are large enough to hold indices up to n. */
     if (n >= capacity) {
         idx_t new_size = (n + 1) * 2;   /* grow geometrically */
-        a_vals = (seq_t *)realloc(a_vals, new_size * sizeof(seq_t));
-        C_vals = (seq_t *)realloc(C_vals, new_size * sizeof(seq_t));
-        D_vals = (seq_t *)realloc(D_vals, new_size * sizeof(seq_t));
+        a_vals = mem_resize(seq_t, a_vals, new_size);
+        C_vals = mem_resize(seq_t, C_vals, new_size);
+        D_vals = mem_resize(seq_t, D_vals, new_size);
         if (!a_vals || !C_vals || !D_vals) return 0;   /* allocation failed */
 
         /* initialise new slots to zero */

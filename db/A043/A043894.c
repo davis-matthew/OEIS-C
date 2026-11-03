@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   has24_or42
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,21 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has24_or42.h"
+#include "../utils/mem.h"
+
+/* return true if x in base‑5 contains the pattern "24" or "42" */
+static bool has24_or42(seq_t x)
+{
+    unsigned prev = 0;               /* previous LSD digit, 0 to start */
+    while (x > 0) {
+        unsigned cur = (unsigned)(x % 5);
+        if ((prev == 2 && cur == 4) || (prev == 4 && cur == 2))
+            return true;
+        x /= 5;
+        prev = cur;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -47,9 +62,9 @@ seq_t a(idx_t n)
         /* extend the cache array if necessary */
         if (len + 1 > cap) {
             size_t newcap = (cap == 0) ? 16 : cap * 2;
-            seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, newcap);
             if (!tmp) {            /* allocation failed */
-                free(cache);
+                mem_free(cache);
                 cache = NULL;
                 cap   = len = 0;
                 last_k = 0;

@@ -7,9 +7,10 @@
  * Keywords:  nonn, base
  * Formula:   a(n) = length of the longest block of consecutive 1’s in the
  *            binary * representation of the n‑th prime (offset 1)
- * Range:     u8 n <= 8712, u16 n <= 8712, u32 n <= 8712, u64 n <= 8712,
- *            u128 n <= 8712, big any n
- * Helpers:   longest_ones
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 121 terms through n = 8712 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,22 @@
 /* Standard headers (no floating point, no stdio). */
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/longest_ones.h"
+
+/* Longest run of 1's in the binary representation of x. */
+static seq_t longest_ones(uint64_t x)
+{
+    uint64_t cur = 0, max_run = 0;
+    while (x) {
+        if (x & 1ULL) cur++;
+        else {
+            if (cur > max_run) max_run = cur;
+            cur = 0;
+        }
+        x >>= 1ULL;
+    }
+    if (cur > max_run) max_run = cur;
+    return (seq_t)max_run;
+}
 
 /* A small fixed‑size prime cache – enough for the required n (≈10 000). */
 static uint64_t prime_cache[200000];

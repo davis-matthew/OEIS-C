@@ -12,12 +12,14 @@
  *            performed in the integer type seq_t
  * Range:     u8 n <= 16, u16 n <= 37, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     if (k == 1) return 0;                      /* T(n,1) = 0 */
 
     /* Allocate factorials up to r (r ≤ 141 for n ≤ 10000) */
-    seq_t *fact = (seq_t *)malloc((r + 1) * sizeof(seq_t));
+    seq_t *fact = mem_new(seq_t, (r + 1));
     if (!fact) return 0;                       /* allocation failed */
 
     fact[0] = (seq_t)1;
@@ -73,6 +75,6 @@ seq_t a(idx_t n)
         }
     }
 
-    free(fact);
+    mem_free(fact);
     return total;
 }

@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 8522, u16 n <= 8522, u32 n <= 8522, u64 n <= 8522,
- *            u128 n <= 8522, big any n
- * Helpers:   build_primes_upto, int_sqrt
+ * Range:     u8 n <= 65536, u16 n <= 65536, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 136 terms through n = 8522 (2026-11-01)
+ * Helpers:   build_primes_upto, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/int_sqrt.h"
+#include "../utils/isqrt.h"
 
 /* Global, cached list of primes up to the maximum sqrt(n) seen. */
 static uint64_t *primes = NULL;
@@ -40,7 +41,7 @@ seq_t a(idx_t n)
     if (n == 1)                     /* special case: a(1) = 0 */
         return (seq_t)0;
 
-    idx_t limit = int_sqrt(n);
+    idx_t limit = isqrt(n);
     ensure_primes(limit);
 
     idx_t  temp = n;

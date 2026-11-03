@@ -13,6 +13,7 @@
  *            n mod 3 == 0: a(n) = a(n-1) + 2
  * Range:     u8 n <= 15, u16 n <= 30, u32 n <= 60, u64 n <= 120,
  *            u128 n <= 240, big any n
+ * Validated: standard, pass, 59 terms through n = 932 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

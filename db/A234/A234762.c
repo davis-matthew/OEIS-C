@@ -10,13 +10,15 @@
  *            a(1)=56, a(2)=240, a(3)=916, a(4)=3800, a(5)=14828
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 14, u64 n <= 30, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 /* Computes A234762(n).  External linkage. */
 seq_t a(idx_t n)
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* Lazy initialization of the cache with the first five terms */
     if (cache == NULL) {
         cache_size = 5;
-        cache = (seq_t*)malloc(sizeof(seq_t) * cache_size);
+        cache = mem_new(seq_t, cache_size);
         assert(cache);  /* abort on allocation failure */
         for (idx_t i = 0; i < 5; ++i)
             cache[(size_t)i] = INIT[i];
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
 
     /* Grow the cache to accommodate the requested term */
     size_t new_size = (size_t)n;
-    seq_t *new_cache = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     assert(new_cache);  /* abort on allocation failure */
     cache = new_cache;
 

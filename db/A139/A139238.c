@@ -7,6 +7,7 @@
  * Formula:   a(n) = 2^prime(n+1) - 2^prime(n) (OEIS A139238)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 17, u128 n <= 30,
  *            big any n
+ * Validated: standard, pass, 35 terms through n = 59 (2026-11-01)
  * Helpers:   build_primes, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,8 +18,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/pow2.h"
+#include <stdint.h>
+#include <stddef.h>
 #include "../utils/build_primes.h"
+#include "../utils/pow2.h"
 
 /* Cache the list of primes up to a pre‑chosen limit.
    The limit is set high enough for the typical test range (n ≤ 10000).

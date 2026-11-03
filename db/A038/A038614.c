@@ -11,21 +11,32 @@
  *            lists so that calls in arbitrary order are fast
  * Range:     u8 n <= 50, u16 n <= 4423, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_digit_6
+ * Validated: standard, pass, 74 terms through n = 9807 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has_digit_6.h"
+#include "../utils/mem.h"
+
+/* Return true iff the decimal representation of v contains the digit 6 */
+static bool has_digit_6(seq_t v)
+{
+    while (v != 0) {
+        if ((v % 10) == 6) return true;
+        v /= 10;
+    }
+    return false;
+}
 
 /* Grow a dynamic array, ensuring it can hold 'needed' elements */
 static void grow_array(seq_t **arr, size_t *cap, size_t needed)
 {
     if (*cap < needed) {
         size_t new_cap = (*cap == 0) ? 16 : *cap * 2;
-        *arr = (seq_t*)realloc(*arr, new_cap * sizeof(**arr));
+        *arr = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
         *cap = new_cap;
     }
 }

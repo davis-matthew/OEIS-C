@@ -9,13 +9,25 @@
  *            factor p in n, add the sum of the base‑3 digits of p
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_sum_base3_u64
+ * Validated: standard, pass, 121 terms through n = 9648 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/digit_sum_base3_u64.h"
+
+/* Return the base‑3 digit sum of a 64‑bit integer. */
+static seq_t digit_sum_base3_u64(uint64_t x)
+{
+    seq_t s = 0;
+    while (x)
+    {
+        s += (seq_t)(x % 3);
+        x /= 3;
+    }
+    return s;
+}
 
 seq_t a(idx_t n)
 {

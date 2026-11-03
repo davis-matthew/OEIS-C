@@ -11,14 +11,29 @@
  *            breadth‑first traversal of the rotated tree
  * Range:     u8 n <= 91, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   left_child, right_child
+ * Validated: partial, pass, 91 terms through n = 91 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/left_child.h"
-#include "../utils/right_child.h"
+
+/* Children in the rotated tree.  All other nodes keep their original
+   children (2*x and 2*x+1). */
+static inline idx_t left_child(idx_t x) {
+    if (x == 4)      return 17;    /* 4's new left child */
+    if (x == 8)      return 16;    /* 8 keeps its own left child */
+    if (x == 2)      return 8;     /* 2's new left child */
+    return 2*x;
+}
+
+static inline idx_t right_child(idx_t x) {
+    if (x == 4)      return 9;     /* 4's unchanged right child */
+    if (x == 8)      return 4;     /* 8's new right child */
+    if (x == 2)      return 5;     /* 2's unchanged right child */
+    return 2*x+1;
+}
 
 seq_t a(idx_t n) {
     if (n == 1) return (seq_t)1;   /* root stays at position 1 */

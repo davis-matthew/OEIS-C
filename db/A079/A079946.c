@@ -8,8 +8,9 @@
  * Formula:   a(n) = 2^floor(log_2(4*n)) + 2*n This is the equivalent of the
  *            recurrence: a(2n) = 2*a(n) a(2n+1) = 2*a(n) + 2 + 4[n==0] (n>=0)
  *            for a(1) = 6, a(2) = 12,
- * Range:     u8 n <= 63, u16 n <= 9632, u32 n <= 9632, u64 n <= 9632,
- *            u128 n <= 9632, big any n
+ * Range:     u8 n <= 63, u16 n <= 10001, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 75 terms through n = 9632 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

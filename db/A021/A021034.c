@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 22, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    The implementation is O(n) per new maximum n and uses only integer
    arithmetic that stays within the bounds of seq_t.                                           */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache for memoised terms */
@@ -27,7 +29,7 @@ seq_t a(idx_t n) {
 
     /* Resize cache if needed */
     if ((idx_t)cached_size < n + 1) {
-        seq_t *newptr = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *newptr = mem_resize(seq_t, cache, (n + 1));
         /* If realloc fails we silently keep the old cache; in typical
            usage the program will not crash because memory is available. */
         cache = newptr;

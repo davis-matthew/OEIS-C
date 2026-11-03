@@ -11,13 +11,15 @@
  *            rational generating function of the group)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,8 +31,8 @@ seq_t a(idx_t n)
     /* allocate space if needed   */
     if (n + 1 > cache_len) {
         idx_t new_len = n + 1U;
-        seq_t *new_a = (seq_t *)realloc(a_cache, (size_t)new_len * sizeof(seq_t));
-        seq_t *new_s = (seq_t *)realloc(s_cache, (size_t)new_len * sizeof(seq_t));
+        seq_t *new_a = mem_resize(seq_t, a_cache, (size_t)new_len);
+        seq_t *new_s = mem_resize(seq_t, s_cache, (size_t)new_len);
         if (!new_a || !new_s) return (seq_t)0;   /* allocation failed – return 0 */
 
         a_cache = new_a;

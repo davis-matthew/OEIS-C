@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 106, u32 n <= 106, u64 n <= 106,
  *            u128 n <= 106, big any n
+ * Validated: partial, pass, 105 terms through n = 106 (2026-11-01)
  * Helpers:   digit_counts
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,9 @@
  * starts with a(2) as the first term (the smaller of 3 and 5). */
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
 #include "../utils/digit_counts.h"
 
 /* static state used to keep a sieve and the list of twin-prime leaders */

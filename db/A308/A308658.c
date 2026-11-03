@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 77, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 77 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /*  Constants – tuned to cover n up to about 10 000         */
 #define PRIME_LIMIT 2000000        /* numbers to sieve (≥ any perfect power needed) */
@@ -64,7 +66,7 @@ static void init_tables(void)
         if (isprime[i])
             for (j = i * i; j <= PRIME_LIMIT; j += i) isprime[j] = 0;
 
-    prime_pi = (seq_t *)calloc(PRIME_LIMIT + 1, sizeof(seq_t));
+    prime_pi = mem_new(seq_t, PRIME_LIMIT + 1);
     if (!prime_pi) exit(1);
     seq_t count = 0;
     for (i = 0; i <= PRIME_LIMIT; ++i) {

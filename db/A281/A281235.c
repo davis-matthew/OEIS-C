@@ -9,13 +9,15 @@
  *            a(2)=76, a(3)=132, a(4)=204, a(5)=324, a(6)=716
  * Range:     u8 n <= 4, u16 n <= 14, u32 n <= 32, u64 n <= 70, u128 n <= 146,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 916 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>   /* for memcpy */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,12 +33,12 @@ seq_t a(idx_t n)
     if (cap < n) {
         /* Ensure the cache is at least n elements, but keep at least 6 for recurrence. */
         idx_t new_cap = (n > 6) ? n : 6;
-        seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (!new_cache) return 0;          /* allocation failed */
 
         /* Copy previously computed terms. */
         if (cache) {
-            memcpy(new_cache, cache, cap * sizeof(seq_t));
+            mem_copy(new_cache, cache, cap * sizeof(seq_t));
         }
 
         /* Initialise the first six values if they are not yet set. */
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
             new_cache[i] = (seq_t)( (seq_t)6 * new_cache[i - 3] - new_cache[i - 6] );
         }
 
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cap = new_cap;
     }

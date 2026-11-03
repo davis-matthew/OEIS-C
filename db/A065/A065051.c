@@ -8,7 +8,8 @@
  * Formula:   a(n) = floor(R(n)/n) where R(n) is the n-th Recamán term
  * Range:     u8 n <= 99, u16 n <= 99, u32 n <= 99, u64 n <= 99, u128 n <= 99,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 99 terms through n = 99 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* static storage for the Recamán sequence, the quotient sequence, and a
    bit‑set of visited values                                            */
@@ -55,7 +57,7 @@ static void ensure_capacity(seq_t **ptr, size_t *cap, size_t cap_needed)
     if (*cap >= cap_needed) return;
     size_t new_cap = (*cap == 0) ? 1 : *cap;
     while (new_cap < cap_needed) new_cap <<= 1;
-    *ptr = (seq_t *)realloc(*ptr, new_cap * sizeof(seq_t));
+    *ptr = mem_resize(seq_t, *ptr, new_cap);
     *cap = new_cap;
 }
 

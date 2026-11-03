@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 12, i16 n <= 210, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   power_seq_u64
+ * Validated: standard, pass, 81 terms through n = 984 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,17 @@
  */
 
 #include <stdint.h>
-#include "../utils/power_seq_u64.h"
+
+static seq_t power_seq_u64(idx_t base, int exp) {
+    seq_t r = 1;
+    seq_t b = (seq_t)base;
+    while (exp > 0) {
+        if (exp & 1) r *= b;
+        b *= b;
+        exp >>= 1;
+    }
+    return r;
+}
 
 seq_t a(idx_t n) {
     if (n == 0 || n % 3 == 0) /* a(1)=1 but n%3==0 covers 3,9,27... */

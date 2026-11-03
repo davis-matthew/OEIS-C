@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 28, u64 n <= 28, u128 n <= 28,
  *            big any n
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-01)
  * Helpers:   digit_counts, factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -24,8 +25,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/factor_u64.h"
 #include "../utils/digit_counts.h"
+#include "../utils/factor_u64.h"
 
 /* Local cache of found terms as uint64_t (they fit comfortably in 
    64 bits for the range of indices expected). */

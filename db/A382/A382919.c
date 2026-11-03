@@ -11,7 +11,8 @@
  *            2*E[n-k] - E2[n-k] ) All arithmetic is exact fo...
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper for multiplication that avoids overflow for integral seq_t types.
    For non‑integral (big‑integer) types it simply uses the * operator. */
@@ -57,9 +59,9 @@ static void ensure_capacity(idx_t n)
     size_t new_cap = cap ? cap << 1 : 16;
     if (new_cap < (size_t)(n + 1))
         new_cap = n + 1;
-    A   = (seq_t*)realloc(A,   new_cap * sizeof(seq_t));
-    E   = (seq_t*)realloc(E,   new_cap * sizeof(seq_t));
-    E2  = (seq_t*)realloc(E2,  new_cap * sizeof(seq_t));
+    A   = mem_resize(seq_t, A, new_cap);
+    E   = mem_resize(seq_t, E, new_cap);
+    E2  = mem_resize(seq_t, E2, new_cap);
     /* Initialize new slots */
     for (size_t i = cap; i < new_cap; ++i) {
         A[i]  = 0;

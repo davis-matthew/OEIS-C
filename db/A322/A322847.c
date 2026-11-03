@@ -11,7 +11,8 @@
  *            (with multiplicity), and checking whether any two...
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   factor_u64, free_seq_array, seq_alloc_new_array
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,17 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include <math.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/free_seq_array.h"
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 #define SIEVE_LIMIT     200000
 #define MAX_IDX_CNT      128

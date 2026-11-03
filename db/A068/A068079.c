@@ -7,7 +7,8 @@
  * Formula:   a(n) = the n‑th decimal digit of 355 ÷ 113 (1‑based)
  * Range:     u8 n <= 119, u16 n <= 119, u32 n <= 119, u64 n <= 119,
  *            u128 n <= 119, big any n
- * Helpers:   none
+ * Validated: partial, pass, 119 terms through n = 119 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *digits = NULL;     /* 0‑based array of cached digits, digits[0] = a(1) */
 static idx_t  digits_len = 0;    /* number of digits currently cached */
@@ -27,7 +29,7 @@ static void init_cache(void)
 {
     if (digits == NULL) {
         digits_cap = 1;
-        digits = (seq_t *)malloc((size_t)digits_cap * sizeof(seq_t));
+        digits = mem_new(seq_t, (size_t)digits_cap);
         if (digits == NULL) exit(EXIT_FAILURE);
     }
     digits[0] = (seq_t)3;          /* integer part of 355 / 113 */
@@ -43,7 +45,7 @@ static void ensure_cache_capacity(idx_t need)
     idx_t new_cap = digits_cap ? digits_cap : 1;
     while (new_cap < need) new_cap <<= 1;
 
-    seq_t *ptr = (seq_t *)realloc(digits, (size_t)new_cap * sizeof(seq_t));
+    seq_t *ptr = mem_resize(seq_t, digits, (size_t)new_cap);
     if (ptr == NULL) exit(EXIT_FAILURE);
     digits = ptr;
     digits_cap = new_cap;

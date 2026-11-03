@@ -11,12 +11,14 @@
  *            a(4)=T(3,1), …)
  * Range:     i8 n <= 23, i16 n <= 48, i32 n <= 55, i64 n <= 55, i128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,22 +40,22 @@ seq_t a(idx_t n)
 
     /* Allocate storage for the previous row.
        We use (r+1) so that indices 1..r are available. */
-    seq_t *prev = (seq_t*)calloc(r + 1, sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, r + 1);
     prev[1] = 1;                         /* T(1,1) */
 
     /* Build successive rows up to row r */
     for (idx_t row = 2u; row <= r; ++row) {
-        seq_t *curr = (seq_t*)calloc(row + 1, sizeof(seq_t));
+        seq_t *curr = mem_new(seq_t, row + 1);
         for (idx_t pos = 1u; pos <= row; ++pos) {
             seq_t term1 = (pos > 1u) ? prev[pos - 1] : 0;          /* T(row-1, pos-1) */
             seq_t term2 = (pos <= row - 1u) ? prev[pos] : 0;       /* T(row-1, pos)  */
             curr[pos] = -term1 + (seq_t)pos * term2;
         }
-        free(prev);
+        mem_free(prev);
         prev = curr;
     }
 
     seq_t result = prev[k];
-    free(prev);
+    mem_free(prev);
     return result;
 }

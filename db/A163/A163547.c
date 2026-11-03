@@ -6,8 +6,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = A000290(A059252(n)) + A000290(A059253(n))
- * Range:     u8 n <= 104, u16 n <= 9067, u32 n <= 9067, u64 n <= 9067,
- *            u128 n <= 9067, big any n
+ * Range:     u8 n <= 104, u16 n <= 22121, u32 n <= 65535, u64 n <= 65535,
+ *            u128 n <= 65535, big any n
+ * Validated: standard, pass, 88 terms through n = 9067 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

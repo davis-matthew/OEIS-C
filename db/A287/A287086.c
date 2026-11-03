@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 9122 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
  * and expands it until the requested index is reached.
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *st_seq = NULL;
 static idx_t st_len = 0;
@@ -32,12 +34,12 @@ seq_t a(idx_t n)
     if (st_len < n) {
         if (st_len == 0) {
             st_len = 1;
-            st_seq = (seq_t *)malloc(sizeof(seq_t));
+            st_seq = mem_new(seq_t, 1);
             st_seq[0] = 0;
         }
         while (st_len < n) {
             idx_t new_cap = st_len * 2;
-            seq_t *next = (seq_t *)malloc(sizeof(seq_t) * new_cap);
+            seq_t *next = mem_new(seq_t, new_cap);
             idx_t pos = 0;
             for (idx_t i = 0; i < st_len; ++i) {
                 seq_t c = st_seq[i];
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
                 }
             }
             idx_t new_len = pos;
-            free(st_seq);
+            mem_free(st_seq);
             st_seq = next;
             st_len = new_len;
         }

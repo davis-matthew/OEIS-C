@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 85, u16 n <= 205, u32 n <= 569, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 101 terms through n = 982 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Number of partitions of n into parts 8k or 8k+6. */
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* External types provided by the build system:
    seq_t   – unsigned integer type (up to 128 bits or arbitrary precision)
@@ -26,9 +28,9 @@ seq_t a(idx_t n)
 
     /* Allocate DP array */
     size_t N = (size_t)n + 1;
-    seq_t *dp = (seq_t *)malloc(N * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, N);
     if (!dp) return (seq_t)0;          /* allocation failed */
-    memset(dp, 0, N * sizeof(seq_t));
+    mem_set(dp, 0, N * sizeof(seq_t));
     dp[0] = (seq_t)1;                  /* one way to partition 0 */
 
     /* Parts of the form 8k (k ≥ 1) */
@@ -48,6 +50,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[(size_t)n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 58, u16 n <= 5419, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   append_candidate, phi, rad
+ * Validated: standard, pass, 75 terms through n = 9524 (2026-11-03)
+ * Helpers:   mem, radical, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,27 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/rad.h"
-#include "../utils/phi.h"
-#include "../utils/append_candidate.h"
+#include <stdlib.h>
+#include "../utils/radical.h"
+#include "../utils/totient.h"
+#include "../utils/mem.h"
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
 
 /* Static cache for the generated terms */
 static seq_t *cache   = NULL;  /* array of results */
@@ -42,12 +61,12 @@ seq_t a(idx_t n)
         ++max_checked;
 
         /* Compute φ(k) and rad(φ(k)) */
-        seq_t phi_k   = phi(max_checked);             /* φ(k)   */
-        seq_t rad_phi = rad((idx_t)phi_k);            /* rad(φ(k)) */
+        seq_t phi_k   = totient(max_checked);             /* φ(k)   */
+        seq_t rad_phi = radical((idx_t)phi_k);            /* rad(φ(k)) */
 
         /* Compute rad(k) and φ(rad(k)) */
-        seq_t rad_k    = rad(max_checked);            /* rad(k)   */
-        seq_t phi_rad = phi((idx_t)rad_k);            /* φ(rad(k)) */
+        seq_t rad_k    = radical(max_checked);            /* rad(k)   */
+        seq_t phi_rad = totient((idx_t)rad_k);            /* φ(rad(k)) */
 
         /* If the equality holds, store the value */
         if (rad_phi == phi_rad) {

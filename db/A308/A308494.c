@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   build_spf, divisor_count_using_spf
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,26 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/build_spf.h"          /* for build_spf() */
-#include "../utils/divisor_count_using_spf.h"
+#include "../utils/build_spf.h"
+#include "../utils/mem.h"
+
+/* divisor count of an integer n using a pre‑computed spf array */
+static idx_t divisor_count_using_spf(idx_t n, idx_t *spf)
+{
+    idx_t d = 1;
+    while (n > 1)
+    {
+        idx_t p = spf[n];
+        idx_t e = 0;
+        while (n % p == 0)
+        {
+            n /= p;
+            ++e;
+        }
+        d *= (e + 1);
+    }
+    return d;
+}
 
 seq_t a(idx_t n)
 {
@@ -43,7 +62,7 @@ seq_t a(idx_t n)
     {
         initialized = 1;
         cache_cap = 64;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache_len = 0;
 
         spf_limit = 2000000;          /* initial sieve limit */
@@ -86,7 +105,7 @@ seq_t a(idx_t n)
         if (cache_len >= cache_cap)
         {
             cache_cap *= 2;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
         cache[cache_len] = (seq_t)next_k;
         ++cache_len;

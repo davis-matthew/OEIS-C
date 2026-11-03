@@ -9,6 +9,7 @@
  *            r*(r+1)/2), * r is the largest integer with r*(r+1)/2 <= n
  * Range:     u8 n <= 27, u16 n <= 90, u32 n <= 324, u64 n <= 1175,
  *            u128 n <= 4464, big any n
+ * Validated: standard, pass, 82 terms through n = 6960 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

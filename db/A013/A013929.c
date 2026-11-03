@@ -10,8 +10,9 @@
  *            {k ≤ x : k is not squarefree} = x - Σ_{i=1}^{⌊√x⌋} μ(i) ⌊x / i²⌋
  *            where μ(i) is the Möbius function. The nth term is obtained by
  *            binary searching for the smallest x with count(x)...
- * Range:     u8 n <= 98, u16 n <= 8788, u32 n <= 8788, u64 n <= 8788,
- *            u128 n <= 8788, big any n
+ * Range:     u8 n <= 98, u16 n <= 25691, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 78 terms through n = 8788 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

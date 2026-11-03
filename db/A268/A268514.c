@@ -7,20 +7,24 @@
  * Formula:   a(n) = Sum{i=1..n} 2^{number of 0's in binary expansion of i}
  * Range:     u8 n <= 41, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   floor_log2_uint64, popcount_u64
+ * Validated: standard, pass, 72 terms through n = 919 (2026-11-01)
+ * Helpers:   ilog2, popcount
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/floor_log2_uint64.h"
-#include "../utils/popcount_u64.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/ilog2.h"
+#include "../utils/popcount.h"
 
 seq_t a(idx_t n)
 {
     seq_t res = 0;
     for (idx_t i = 1; i <= n; ++i) {
-        unsigned int bits = floor_log2_uint64(i) + 1;
-        unsigned int ones = popcount_u64(i);
+        unsigned int bits = ilog2(i) + 1;
+        unsigned int ones = popcount(i);
         unsigned int zeros = bits - ones;
         res += ((seq_t)1 << zeros);
     }

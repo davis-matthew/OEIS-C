@@ -11,13 +11,15 @@
  *            admissible strings by dynamic programming
  * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 42, u64 n <= 85, u128 n <= 171,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 480 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 #define NUM_STATES 7
 
@@ -59,7 +61,7 @@ static void ensure_cache(idx_t n)
     /* first call: initialize cache and basis state vector */
     if (cache == NULL) {
         cache_len = 1;
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) abort();
         cache[0] = (seq_t)1;                     /* a(0) = 1 (empty string) */
         for (int s = 0; s < NUM_STATES; ++s) state_vec[s] = (seq_t)0;
@@ -72,7 +74,7 @@ static void ensure_cache(idx_t n)
     /* grow cache array if necessary */
     if (cache_len <= n) {
         size_t new_len = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) abort();
         cache = tmp;
         cache_len = new_len;

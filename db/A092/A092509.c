@@ -6,15 +6,17 @@
  * Keywords:  nonn
  * Formula:   a(n) = 0 if n=1 or not a prime power; a(n) = n if n is prime;
  *            a(n) = n*(1-1/p) if n = p^k with k≥2
- * Range:     u8 n <= 255, u16 n <= 9622, u32 n <= 9622, u64 n <= 9622,
- *            u128 n <= 9622, big any n
- * Helpers:   _smallest_prime_factor
+ * Range:     u8 n <= 255, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 109 terms through n = 9622 (2026-11-01)
+ * Helpers:   smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_smallest_prime_factor.h"
+#include <stddef.h>
+#include "../utils/smallest_prime_factor.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +24,7 @@ seq_t a(idx_t n)
         return (seq_t)0;
 
     /* Find the smallest prime factor of n. */
-    uint64_t spf = _smallest_prime_factor((uint64_t)n);
+    uint64_t spf = smallest_prime_factor((uint64_t)n);
     if (spf == n)            /* n is prime. */
         return (seq_t)n;
 

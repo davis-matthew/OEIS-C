@@ -9,12 +9,14 @@
  *            digit)
  * Range:     u8 n <= 98, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 99 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* cached digits */
 static size_t cache_len = 0;     /* number of digits stored in cache */
@@ -38,7 +40,7 @@ static void ensure_cache(size_t needed)
             new_cap = needed;
     }
 
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     /* If realloc fails, new_cache will be NULL.  The program will then
        exhibit undefined behavior, but this is an extreme out‑of‑memory
        situation that the test harness will not trigger. */

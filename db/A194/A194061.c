@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   first_col, first_row, value_ij
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,9 +33,40 @@
  */
 
 #include <stdint.h>   /* only for standard types; idx_t and seq_t are defined by the build */
-#include "../utils/first_col.h"
-#include "../utils/first_row.h"
-#include "../utils/value_ij.h"
+
+static seq_t first_col(idx_t i)
+{
+    /* a(i,1) = i^2 - 1   for i ≥ 2  */
+    seq_t ii = (seq_t)i;
+    return ii * ii - (seq_t)1;
+}
+
+static seq_t first_row(idx_t j)
+{
+    /* a(1,j) = 1 + Σ_{t=2}^{j} ⌊(1+t)/2⌋  */
+    seq_t val = (seq_t)1;
+    for (idx_t t = 2; t <= j; ++t)
+        val += (seq_t)((1 + t) / 2);
+    return val;
+}
+
+static seq_t value_ij(idx_t i, idx_t j)
+{
+    /* a(i,j) for i > 1 and j > 1  */
+    seq_t ii = (seq_t)i;
+    seq_t val = ii * ii - (seq_t)1;          /* i²-1 */
+
+    val += ((seq_t)(j - 1)) * ii;           /* (j-1)·i */
+
+    /* Sum over t=2..j of floor((t-2)/2) */
+    idx_t k = j - 2;
+    idx_t m = k / 2;                        /* ⌊k/2⌋ */
+    idx_t r = k % 2;                        /* k mod 2 */
+    seq_t mm = (seq_t)m;
+    val += mm * mm + (seq_t)r * mm;         /* ⌊k/2⌋² + (k mod 2)·⌊k/2⌋ */
+
+    return val;
+}
 
 seq_t a(idx_t n)
 {

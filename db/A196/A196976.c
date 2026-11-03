@@ -10,7 +10,8 @@
  *            a(n)=2*a(n‑1)+a(n‑2)+4*a(n‑3) – 2*a(n‑4) – a(n‑6)
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 22, u64 n <= 43, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    It works for any unsigned integer type or arbitrary‑precision type
    assigned to seq_t and any unsigned 64‑bit type assigned to idx_t. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;        /* array storing a(1)…a(n)  */
 static size_t cached_up_to = 0;    /* number of terms currently cached */
@@ -31,7 +33,7 @@ static void extend_to(idx_t n)
         return;
 
     size_t new_size = (size_t)n;
-    seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_size);
     if (tmp == NULL)
         abort();                                  /* allocation failed */
     cache = tmp;

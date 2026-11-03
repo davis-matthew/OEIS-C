@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..n} |Stirling1(n,k)| * k^k
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 25,
  *            big any n
- * Helpers:   big_pow, seq_alloc_new_array, seq_free
+ * Validated: standard, pass, 37 terms through n = 367 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,18 @@
    and 0^0 = 1. */
 
 #include <stddef.h>
-#include "../utils/big_pow.h"
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/seq_free.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void seq_free(seq_t *p) { mem_free(p); }
 
 /* static cache state */
 static seq_t *a_cache     = NULL;   /* a(n) values */
@@ -88,7 +98,7 @@ seq_t a(idx_t n)
             if (k == 0)
                 pows[k] = (seq_t)1;
             else
-                pows[k] = big_pow((seq_t)k, (seq_t)k);
+                pows[k] = ipow((seq_t)k, (seq_t)k);
         }
     }
 

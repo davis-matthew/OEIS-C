@@ -8,15 +8,50 @@
  * Formula:   a(n) = (1/n)*Sum_{d|n} mu(d)*7^(n/d), for n>0; a(0) = 1
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 24, u128 n <= 47,
  *            big any n
- * Helpers:   a1693_add, a1693_mu, a1693_pow7_qr
+ * Validated: standard, pass, 36 terms through n = 1087 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a1693_add.h"
-#include "../utils/a1693_mu.h"
-#include "../utils/a1693_pow7_qr.h"
+
+static void a1693_add(seq_t *Q, uint64_t *R, seq_t q, uint64_t r, idx_t n) {
+    *Q += q;
+    *R += r;
+    if (*R >= n) {
+        *R -= n;
+        *Q += 1;
+    }
+}
+
+static int a1693_mu(uint64_t m) {
+    int r = 1;
+    uint64_t p;
+    for (p = 2; p <= m / p; p++) {
+        if (m % p == 0) {
+            m /= p;
+            if (m % p == 0) return 0;
+            r = -r;
+        }
+    }
+    if (m > 1) r = -r;
+    return r;
+}
+
+/* 7^e = q*n + r with 0 <= r < n; q is computed modulo the width of seq_t */
+static void a1693_pow7_qr(idx_t e, idx_t n, seq_t *q, uint64_t *r) {
+    seq_t Q = (seq_t)(1 / n);
+    uint64_t R = 1 % n;
+    idx_t i;
+    for (i = 0; i < e; i++) {
+        R *= 7;
+        Q = Q * 7 + (seq_t)(R / n);
+        R %= n;
+    }
+    *q = Q;
+    *r = R;
+}
 
 seq_t a(idx_t n) {
     seq_t Qp = 0, Qn = 0;

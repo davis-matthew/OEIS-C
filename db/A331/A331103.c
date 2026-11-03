@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, look, tabf
  * Formula:   not stated
- * Range:     u8 n <= 3355, u16 n <= 8361, u32 n <= 8361, u64 n <= 8361,
- *            u128 n <= 8361, big any n
- * Helpers:   build_primes_upto, ensure_capacity
+ * Range:     u8 n <= 3355, u16 n <= 27572, u32 n <= 27572, u64 n <= 27572,
+ *            u128 n <= 27572, big any n
+ * Validated: standard, pass, 92 terms through n = 8361 (2026-11-01)
+ * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,22 @@
     0 ≤ k ≤ p – 1.  The rows are concatenated to give the sequence a(n).  */
 
 /*  Required helper prototypes (provided by the build environment)  */
+#include <stdbool.h>
+#include <stdlib.h>
+#include <stdint.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/ensure_capacity.h"
+
+/* Grow a dynamic array when needed.  The pointer is passed as (void **). */
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
 
 #include <stdint.h>
 #include <stdlib.h>

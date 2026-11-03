@@ -8,6 +8,7 @@
  *            sqrt(8*n - 7))/2)
  * Range:     u8 n <= 35, u16 n <= 135, u32 n <= 527, u64 n <= 2079,
  *            u128 n <= 7380, big any n
+ * Validated: standard, pass, 94 terms through n = 6977 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 /* Standard integer types */
 #include <stdint.h>
 /* Utility for computing powers of two */
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 /* Binary search for the row r such that r*(r+1)/2 <= n < (r+1)*(r+2)/2 */

@@ -6,13 +6,15 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = gcd(odd_part(n), sigma(n))
- * Range:     u8 n <= 1637, u16 n <= 9947, u32 n <= 9947, u64 n <= 9947,
- *            u128 n <= 9947, big any n
+ * Range:     u8 n <= 1637, u16 n <= 99999, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 121 terms through n = 9947 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

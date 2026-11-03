@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{d|n} phi(d) * sigma(d^n)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 18,
  *            big any n
- * Helpers:   big_pow, build_primes_upto, factor_u64, phi_from_factors
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-01)
+ * Helpers:   build_primes_upto, factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,10 +17,22 @@
 #include <stdint.h>
 
 /* external functions from utils.h */
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/build_primes_upto.h"
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
-#include "../utils/phi_from_factors.h"
+#include "../utils/ipow.h"
+
+/* helper: compute phi(d) from its prime factorisation */
+static seq_t phi_from_factors(idx_t d, uint64_t *fac, uint64_t *exp, size_t cnt)
+{
+    seq_t phi = (seq_t)d;
+    for (size_t i = 0; i < cnt; ++i) {
+        seq_t p = (seq_t)fac[i];
+        phi = (phi / p) * (p - (seq_t)1);
+    }
+    return phi;
+}
 
 /* Static state for prime generation */
 static uint64_t *s_primes = NULL;
@@ -34,7 +47,7 @@ static seq_t sigma_power(idx_t d, idx_t n, uint64_t *fac, uint64_t *exp, size_t 
         seq_t p   = (seq_t)fac[i];
         seq_t e   = (seq_t)exp[i] * (seq_t)n;          /* exponent in d^n           */
         seq_t ep1 = e + (seq_t)1;                      /* e+1                       */
-        seq_t num = big_pow(p, ep1) - (seq_t)1;         /* p^(e+1) - 1               */
+        seq_t num = ipow(p, ep1) - (seq_t)1;         /* p^(e+1) - 1               */
         seq_t den = p - (seq_t)1;                      /* p - 1                     */
         seq_t part = num / den;                        /* (p^(e+1)-1)/(p-1)         */
         result *= part;

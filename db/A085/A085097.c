@@ -5,13 +5,15 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign, easy, mult
  * Formula:   a(n) = phi(n)*mu(n/gcd(n, 3)) / phi(n/gcd(n, 3))
- * Range:     i8 n <= 8048, i16 n <= 8048, i32 n <= 8048, i64 n <= 8048,
- *            i128 n <= 8048, big any n
+ * Range:     i8 n <= 65537, i16 n <= 65537, i32 n <= 65537, i64 n <= 65537,
+ *            i128 n <= 65537, big any n
+ * Validated: standard, pass, 124 terms through n = 8048 (2026-11-01)
  * Helpers:   mobius
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/mobius.h"
 
 seq_t a(idx_t n)

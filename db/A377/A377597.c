@@ -12,6 +12,7 @@
  *            (s-1)*s/2. Then the offset within this diagonal is t = n -...
  * Range:     u8 n <= 16, u16 n <= 23, u32 n <= 31, u64 n <= 45, u128 n <= 45,
  *            big any n
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

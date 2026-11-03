@@ -14,13 +14,15 @@
  *            a(13)=36, a(14)=78
  * Range:     u8 n <= 41, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[15] = {
     1, 3, 9, 12, 24, 12, 24, 18, 36, 33,
@@ -36,7 +38,7 @@ static void ensure_capacity(size_t needed) {
     if (cache_cap >= needed) return;
     size_t new_cap = cache_cap ? cache_cap : 16;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) abort();
     cache = new_cache;
     cache_cap = new_cap;
@@ -47,7 +49,7 @@ seq_t a(idx_t n) {
     /* lazy initialization of first 15 terms */
     if (!cache) {
         ensure_capacity(16);
-        memcpy(cache, init_vals, sizeof(init_vals));
+        mem_copy(cache, init_vals, sizeof(init_vals));
         /* fill the remaining entries with zeroes (unneeded but safe) */
         for (size_t i = 15; i < cache_cap; ++i) cache[i] = 0;
         last_computed = 14;

@@ -7,13 +7,15 @@
  * Keywords:  nonn
  * Formula:   a(n) = the largest odd prime q < 2*n such that p = 2*n - q is
  *            prime and p < q. Return 0 if no such prime exists
- * Range:     u8 n <= 129, u16 n <= 9184, u32 n <= 9184, u64 n <= 9184,
- *            u128 n <= 9184, big any n
+ * Range:     u8 n <= 129, u16 n <= 32769, u32 n <= 55000, u64 n <= 55000,
+ *            u128 n <= 55000, big any n
+ * Validated: standard, pass, 82 terms through n = 9184 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/is_prime.h"
 
 seq_t a(idx_t n)

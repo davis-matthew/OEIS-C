@@ -11,13 +11,34 @@
  *            child0(v) = floor(√3·v) = floor_sqrt(3*v*v) child1...
  * Range:     u8 n <= 4, u16 n <= 47, u32 n <= 2936, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   floor_sqrt
+ * Validated: standard, pass, 80 terms through n = 7748 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/floor_sqrt.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* cache for already generated terms */
 static seq_t *cache = NULL;
@@ -38,12 +59,12 @@ static void ensure_cache(size_t n)
     /* first call – initialise */
     if (cache == NULL) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = (seq_t)1;        /* a(1) */
         cache_len = 1;
 
         q_cap  = 16;
-        queue  = (seq_t *)malloc(q_cap * sizeof(seq_t));
+        queue  = mem_new(seq_t, q_cap);
         q_head = q_tail = 0;
         queue[q_tail++] = (seq_t)2;   /* child of the root */
     }
@@ -58,7 +79,7 @@ static void ensure_cache(size_t n)
         /* grow cache if needed */
         if (cache_len >= cache_cap) {
             cache_cap *= 2;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
         cache[cache_len++] = node;
 
@@ -70,7 +91,7 @@ static void ensure_cache(size_t n)
         /* grow queue if needed */
         if (q_tail + 2 > q_cap) {
             q_cap *= 2;
-            queue = (seq_t *)realloc(queue, q_cap * sizeof(seq_t));
+            queue = mem_resize(seq_t, queue, q_cap);
         }
         queue[q_tail++] = child0;
         queue[q_tail++] = child1;

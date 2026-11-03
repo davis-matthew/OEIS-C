@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 31, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,10 +42,10 @@ seq_t a(idx_t n)
         /* Allocate or enlarge the array as needed. */
         if (sz == 0) {
             cap = 64;
-            vals = (seq_t *)malloc(cap * sizeof(seq_t));
+            vals = mem_new(seq_t, cap);
         } else if ((size_t)sz == cap) {
             cap <<= 1;
-            vals = (seq_t *)realloc(vals, cap * sizeof(seq_t));
+            vals = mem_resize(seq_t, vals, cap);
         }
 
         /* Compute the four linear forms using 64‑bit arithmetic. */
@@ -52,7 +55,7 @@ seq_t a(idx_t n)
         uint64_t p4 = 8 * cand + 9ULL;
 
         /* Test primality of the four numbers. */
-        if (is_prime(p1) && is_prime(p2) && is_prime(p3) && is_prime(p4)) {
+        if (is_prime_u64(p1) && is_prime_u64(p2) && is_prime_u64(p3) && is_prime_u64(p4)) {
             vals[sz++] = (seq_t)cand;   /* store the found n */
         }
 

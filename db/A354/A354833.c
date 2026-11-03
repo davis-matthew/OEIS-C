@@ -9,9 +9,10 @@
  * Formula:   a(1) = 1; for n > 1, a(n) = a(n-1) - n if that result is
  *            non‑negative, not already in the sequence, otherwise a(n) =
  *            a(n-1) * n
- * Range:     u8 n <= 30, u16 n <= 214, u32 n <= 9373, u64 n <= 9373,
- *            u128 n <= 9373, big any n
- * Helpers:   none
+ * Range:     u8 n <= 30, u16 n <= 214, u32 n <= 22279, u64 n <= 22279,
+ *            u128 n <= 22279, big any n
+ * Validated: standard, pass, 72 terms through n = 9373 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* array of computed terms */
 static idx_t  cache_len = 0;     /* number of terms stored */
@@ -39,12 +41,12 @@ ensure_size(idx_t upto)
     /* Allocate / resize the array if necessary */
     if (cache == NULL) {
         cache_cap = 64;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();  /* out of memory */
     }
     if (upto > cache_cap) {
         while (cache_cap < upto) cache_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
         if (!tmp) abort();
         cache = tmp;
     }

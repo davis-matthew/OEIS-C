@@ -11,6 +11,7 @@
  *            is prime)
  * Range:     i8 n <= 10000, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 115 terms through n = 9372 (2026-11-01)
  * Helpers:   is_prime, sieve_first_n_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,8 +19,11 @@
 
 #include <stdlib.h>   /* for free */
 #include <stdbool.h>  /* for bool */
-#include "../utils/sieve_first_n_primes.h"
+#include <stdint.h>
+#include <string.h>
+#include <math.h>
 #include "../utils/is_prime.h"
+#include "../utils/sieve_first_n_primes.h"
 
 seq_t a(idx_t n)
 {

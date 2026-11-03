@@ -7,13 +7,28 @@
  * Formula:   The n-th number with an odd number of digits
  * Range:     u8 n <= 166, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   count_for_digits, pow10
+ * Validated: standard, pass, 72 terms through n = 977 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/count_for_digits.h"
-#include "../utils/pow10.h"
+static idx_t count_for_digits(int digits) {
+    if (digits == 1) return 10;
+    idx_t result = 9;
+    for (int i = 1; i < digits; i++) {
+        result *= 10;
+    }
+    return result;
+}
+
+static seq_t pow10(int k) {
+    seq_t result = 1;
+    for (int i = 0; i < k; i++) {
+        result *= 10;
+    }
+    return result;
+}
 
 seq_t a(idx_t n) {
     idx_t pos = n;

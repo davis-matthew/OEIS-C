@@ -10,12 +10,14 @@
  *            a(1)=1, a(2)=7, a(3)=38, a(4)=198, a(5)=1039
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 26, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 186 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;        /* memoized values, index 0 unused */
 static idx_t built = 0;           /* highest index already computed */
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
 
     if (n > built) {
         /* grow the memo array */
-        seq_t *tmp = (seq_t *)realloc(memo, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, memo, (n + 1));
         if (!tmp) return (seq_t)0;        /* allocation failed */
         memo = tmp;
         memo[0] = (seq_t)0;               /* dummy */

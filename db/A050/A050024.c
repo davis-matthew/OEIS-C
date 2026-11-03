@@ -11,13 +11,15 @@
  *            the recurrence for OEIS A050024.)
  * Range:     u8 n <= 25, u16 n <= 59, u32 n <= 197, u64 n <= 771,
  *            u128 n <= 3649, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 8136 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* static cache for computed values, 1‑based index */
 static seq_t *cache   = NULL;
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
         idx_t old_size = cache_size;
         idx_t new_size = n + 1;   /* indices 0 … n inclusive */
 
-        seq_t  *new_cache  = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t  *new_cache  = mem_resize(seq_t, cache, new_size);
         unsigned char *new_calc = (unsigned char *)realloc(calculated, new_size);
 
         if (!new_cache || !new_calc) {   /* allocation failed */

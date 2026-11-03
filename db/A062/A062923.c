@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 67, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 97 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helpers for dynamic array of seq_t */
 static seq_t *cache = NULL;
@@ -28,7 +30,7 @@ static size_t cache_cap = 0;
 static void cache_push(seq_t val) {
     if (cache_size == cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 4;
-        seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
         if (!new_ptr) exit(1);          /* memory exhausted */
         cache = new_ptr;
         cache_cap = new_cap;

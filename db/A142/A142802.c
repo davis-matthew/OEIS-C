@@ -7,15 +7,23 @@
  * Formula:   a(n) = the nth prime p such that p % 61 == 4 (offset = 1)
  * Range:     u8 none, u16 n <= 107, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   alloc_seq_array, is_prime
+ * Validated: standard, pass, 56 terms through n = 940 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
 #include "../utils/is_prime.h"
-#include "../utils/alloc_seq_array.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 static seq_t *primes = NULL;          /* cached primes */
 static size_t primes_cap = 0;         /* capacity of the cache */

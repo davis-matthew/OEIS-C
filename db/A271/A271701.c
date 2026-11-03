@@ -11,14 +11,29 @@
  *            S2(k,j) are Stirling numbers of the second kind
  * Range:     u8 n <= 25, u16 n <= 43, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   binomial, compute_stirling2
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/compute_stirling2.h"
+#include "../utils/mem.h"
+
+/* Fill array S[0..k] with Stirling numbers S2(k,j) for j=0..k */
+static void compute_stirling2(idx_t k, seq_t *S)
+{
+    S[0] = 1;
+    for (idx_t j = 1; j <= k; ++j) S[j] = 0;
+
+    for (idx_t row = 1; row <= k; ++row) {
+        for (idx_t j = row; j >= 1; --j) {
+            S[j] = S[j] * (seq_t)j + S[j - 1];
+        }
+        S[0] = 0;
+    }
+}
 
 /* Compute row index r such that r(r+1)/2 ≤ n < (r+1)(r+2)/2 */
 static idx_t triangle_row(idx_t n)
@@ -47,7 +62,7 @@ seq_t a(idx_t n)
     idx_t start = (idx_t)start_big;
     idx_t c = n - start;           /* column index */
 
-    seq_t *S = (seq_t *)calloc((size_t)(c + 1), sizeof(seq_t));
+    seq_t *S = mem_new(seq_t, (size_t)(c + 1));
     if (!S) return 0;              /* memory failure fallback */
 
     compute_stirling2(c, S);
@@ -60,6 +75,6 @@ seq_t a(idx_t n)
         sum += bin * s2;
     }
 
-    free(S);
+    mem_free(S);
     return sum;
 }

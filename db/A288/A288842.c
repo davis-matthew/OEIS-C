@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 37, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    The sequence a(n) is the row‑wise reading of this triangle:
    a(1)=1, a(2)=2, a(3)=3, a(4)=9, a(5)=6, …  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,22 +38,22 @@ seq_t a(idx_t n)
 
     /* Base row T(1,·) */
     idx_t  prev_len = 2;
-    seq_t *prev = (seq_t*)malloc(prev_len * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, prev_len);
     if (!prev) return (seq_t)0;          /* allocation failure fall‑through */
     prev[0] = (seq_t)1;
     prev[1] = (seq_t)2;
 
     if (row == 1) {
         seq_t result = prev[col-1];
-        free(prev);
+        mem_free(prev);
         return result;
     }
 
     /* Build successive rows up to the required one */
     for (idx_t r = 2; r <= row; ++r) {
         idx_t cur_len = r + 1;
-        seq_t *cur = (seq_t*)malloc(cur_len * sizeof(seq_t));
-        if (!cur) { free(prev); return (seq_t)0; }
+        seq_t *cur = mem_new(seq_t, cur_len);
+        if (!cur) { mem_free(prev); return (seq_t)0; }
 
         /* First element of the new row */
         cur[0] = (seq_t)3 * prev[0];
@@ -63,11 +65,11 @@ seq_t a(idx_t n)
         /* Last element of the new row */
         cur[cur_len - 1] = (seq_t)3 * prev[cur_len - 2];
 
-        free(prev);
+        mem_free(prev);
         prev = cur;
     }
 
     seq_t result = prev[col-1];
-    free(prev);
+    mem_free(prev);
     return result;
 }

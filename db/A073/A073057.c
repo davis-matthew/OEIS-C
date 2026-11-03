@@ -9,6 +9,7 @@
  *            12, 2 → 13, 3 → 42, 4 → 43, starting from 1234
  * Range:     u8 n <= 2900, u16 n <= 2900, u32 n <= 2900, u64 n <= 2900,
  *            u128 n <= 2900, big any n
+ * Validated: standard, pass, 121 terms through n = 2797 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

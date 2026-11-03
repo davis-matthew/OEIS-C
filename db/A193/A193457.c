@@ -8,13 +8,15 @@
  *            floor((n+5)/C) - 5, R = (n+5) mod C (OEIS A193457)
  * Range:     u8 n <= 29, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -29,8 +31,8 @@ seq_t a(idx_t n)
     idx_t R = (n + 5) % C;
 
     /* Compute the two powers and multiply them */
-    seq_t pow1 = big_pow(m,          (seq_t)(C - R));
-    seq_t pow2 = big_pow(m + 1u,     (seq_t)R);
+    seq_t pow1 = ipow(m,          (seq_t)(C - R));
+    seq_t pow2 = ipow(m + 1u,     (seq_t)R);
 
     return pow1 * pow2;
 }

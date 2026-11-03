@@ -7,12 +7,20 @@
  * Formula:   a(n) = 1 if the fractional part of n^(1/9) >= 1/2, otherwise 0
  * Range:     u8 none, u16 n <= 102, u32 n <= 102, u64 n <= 102, u128 n <= 102,
  *            big any n
- * Helpers:   pow9_seqt
+ * Validated: partial, pass, 102 terms through n = 102 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow9_seqt.h"
+/* compute x^9 for an arbitrary‑precision integer type seq_t */
+static seq_t pow9_seqt(seq_t x)
+{
+    seq_t x2 = x * x;          /* x^2   */
+    seq_t x4 = x2 * x2;        /* x^4   */
+    seq_t x8 = x4 * x4;        /* x^8   */
+    return x8 * x;             /* x^9   */
+}
 
 seq_t a(idx_t n)
 {

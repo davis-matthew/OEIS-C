@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 3791, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bitlen_seq_t
+ * Validated: standard, pass, 72 terms through n = 9666 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
    Numbers k such that the binary length of k equals the binary length
    of the odd part of 3*k+1 (i.e. 3*k+1 with all trailing zeros removed). */
 
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
 
 seq_t a(idx_t n)
 {
@@ -36,8 +38,8 @@ seq_t a(idx_t n)
             r = r >> 1;
         }
 
-        unsigned bl_k = bitlen_seq_t(k);
-        unsigned bl_r = bitlen_seq_t(r);
+        unsigned bl_k = bit_length(k);
+        unsigned bl_r = bit_length(r);
 
         if (bl_k == bl_r) {
             ++count;                      /* k satisfies the condition */

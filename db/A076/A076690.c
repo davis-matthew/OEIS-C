@@ -10,14 +10,50 @@
  *            .5 are rounded up
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   prime_factors
+ * Validated: partial, pass, 86 terms through n = 87 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/prime_factors.h"
+
+/* Compute the smallest and largest prime factors of n.
+   n >= 2. */
+static void prime_factors(uint64_t n, uint64_t *small, uint64_t *large)
+{
+    uint64_t m = n;
+    uint64_t s = 0;
+    uint64_t l = 0;
+
+    /* Check divisor 2 separately */
+    if (m % 2 == 0) {
+        s = 2;
+        l = 2;
+        while (m % 2 == 0)
+            m /= 2;
+    }
+
+    /* Trial division by odd numbers */
+    for (uint64_t d = 3; d * d <= m; d += 2) {
+        if (m % d == 0) {
+            if (s == 0) s = d;   /* first divisor is the smallest */
+            l = d;               /* keep updating; last seen is largest */
+            while (m % d == 0)
+                m /= d;
+        }
+    }
+
+    /* If remainder > 1, it is prime */
+    if (m > 1) {
+        if (s == 0) s = m;      /* n is prime or product of one prime factor */
+        if (m > l) l = m;
+    }
+
+    *small = s;
+    *large = l;
+}
 
 seq_t a(idx_t n)
 {

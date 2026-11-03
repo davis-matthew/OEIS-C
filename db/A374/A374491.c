@@ -7,13 +7,15 @@
  * Formula:   a(n) = decimal digit at position n+2 of zeta(-11) = 691/32760
  * Range:     u8 n <= 0, u16 n <= 88, u32 n <= 88, u64 n <= 88, u128 n <= 88,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 90 terms through n = 88 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* numerator and denominator of the exact value of zeta(-11) */
 static const seq_t Z_691 = 691;
@@ -34,7 +36,7 @@ ensure_digits(idx_t pos)
     if (cache == NULL) {
         /* first time: allocate room for a few digits */
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         rem_val = (uint64_t)Z_691; /* initial remainder = numerator */
     }
 
@@ -47,7 +49,7 @@ ensure_digits(idx_t pos)
         /* grow cache if necessary */
         if (cache_size >= cache_cap) {
             cache_cap *= 2;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
         cache[cache_size++] = digit;
     }

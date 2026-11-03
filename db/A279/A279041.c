@@ -7,15 +7,17 @@
  * Formula:   a(n) = number of partitions of n into nonzero octagonal numbers
  *            (octagonal numbers: k*(3*k-2) for k >= 1). Implements the DP
  *            recurrence a(n) = sum_{p=octagonal <= n} a(n-p) with a(0)=1
- * Range:     u8 n <= 157, u16 n <= 580, u32 n <= 2622, u64 n <= 9547,
- *            u128 n <= 9547, big any n
- * Helpers:   none
+ * Range:     u8 n <= 157, u16 n <= 580, u32 n <= 2622, u64 n <= 14079,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 107 terms through n = 9547 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
 
     /* Initialise DP array for n==0 on first call */
     if (dp == NULL) {
-        dp = (seq_t *)malloc(sizeof(seq_t));
+        dp = mem_new(seq_t, 1);
         if (dp == NULL) return 0;   /* Allocation failure */
         dp[0] = 1;
         max_n = 0;
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
             if (parts_len + 1 > parts_cap) {
                 size_t newcap = parts_cap == 0 ? 1 : parts_cap * 2;
                 idx_t *tmp = (idx_t *)realloc(parts, newcap * sizeof(idx_t));
-                if (tmp == NULL) { free(dp); return 0; }
+                if (tmp == NULL) { mem_free(dp); return 0; }
                 parts = tmp;
                 parts_cap = newcap;
             }
@@ -55,8 +57,8 @@ seq_t a(idx_t n)
         }
 
         /* Allocate DP array up to n */
-        seq_t *newdp = (seq_t *)realloc(dp, (n + 1) * sizeof(seq_t));
-        if (newdp == NULL) { free(dp); return 0; }
+        seq_t *newdp = mem_resize(seq_t, dp, (n + 1));
+        if (newdp == NULL) { mem_free(dp); return 0; }
         dp = newdp;
 
         /* Initialise new entries to zero */

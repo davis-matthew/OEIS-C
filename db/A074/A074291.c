@@ -11,7 +11,8 @@
  *            collects the matching positions
  * Range:     u8 n <= 131, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 9997 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* External types supplied by the build.  Do not modify. */
 extern seq_t a(idx_t n);
@@ -44,13 +46,13 @@ seq_t a(idx_t n)
     if (!initialized) {
         /* Allocate initial capacity. */
         seq_cap = 256;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         if (!seq) return 0;
         seq[0] = 1;           /* a[1] = 1 */
         seq_len = 1;
 
         matches_cap = 256;
-        matches = (seq_t *)malloc(matches_cap * sizeof(seq_t));
+        matches = mem_new(seq_t, matches_cap);
         if (!matches) return 0;
 
         /* Position 1 always matches the parity rule (1 at odd index). */
@@ -71,7 +73,7 @@ seq_t a(idx_t n)
         /* Grow seq array if necessary. */
         if ((idx_t)pos > seq_cap) {
             size_t new_cap = seq_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq, new_cap);
             if (!tmp) return 0;
             seq = tmp;
             seq_cap = new_cap;
@@ -87,7 +89,7 @@ seq_t a(idx_t n)
             /* Grow matches array if necessary. */
             if ((idx_t)match_count >= matches_cap) {
                 size_t new_cap = matches_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(matches, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, matches, new_cap);
                 if (!tmp) return 0;
                 matches = tmp;
                 matches_cap = new_cap;

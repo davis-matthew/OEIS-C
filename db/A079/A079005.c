@@ -12,13 +12,14 @@
  *            Lah‑triangle (O...
  * Range:     u8 n <= 11, u16 n <= 29, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   binom_idx
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>   /* for size_t */
-#include "../utils/binom_idx.h"
+#include "../utils/binomial.h"
 
 /* Main sequence function */
 seq_t a(idx_t n)
@@ -42,7 +43,7 @@ seq_t a(idx_t n)
     }
 
     /* -------------- compute binomial (r-1, k-1) -------------- */
-    seq_t binom_r1_k1 = (k == 1 && r == 1) ? 1 : binom_idx(r - 1, k - 1);
+    seq_t binom_r1_k1 = (k == 1 && r == 1) ? 1 : binomial(r - 1, k - 1);
 
     /* -------------- compute Bell(k) ----------------------------------
      *  Bell numbers are generated on demand in a static array up to
@@ -60,7 +61,7 @@ seq_t a(idx_t n)
         seq_t sum = 0;
         for (size_t j = 0; j < m; ++j) {
             /* B[m] = Σ_{j=0}^{m-1} C(m-1, j) * B[j] */
-            sum += binom_idx(m - 1, j) * bell[j];
+            sum += binomial(m - 1, j) * bell[j];
         }
         bell[m] = sum;
         ++bell_len;

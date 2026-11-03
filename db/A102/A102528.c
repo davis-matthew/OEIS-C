@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Dynamically‑allocated arrays for the sequence and the used table. */
 static seq_t *seq = NULL;           /* seq[0] = a(1), seq[1] = a(2), …            */
@@ -42,7 +44,7 @@ static void ensure_seq_capacity(idx_t min_cap)
     idx_t new_cap = seq_capacity ? seq_capacity * 2 : 8;
     if (new_cap < min_cap)
         new_cap = min_cap;
-    seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, new_cap);
     if (!tmp)
         exit(EXIT_FAILURE);
     seq = tmp;

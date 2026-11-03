@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 156, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   good_exponent
+ * Validated: standard, pass, 81 terms through n = 9089 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,35 @@
  */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/good_exponent.h"
+
+static inline bool good_exponent(uint64_t e)
+{
+    if (e == 1) return true;
+    uint64_t t = e;
+    for (uint64_t p = 2; p * p <= t; ++p)
+    {
+        if (t % p == 0)
+        {
+            uint64_t exp = 0;
+            while (t % p == 0)
+            {
+                t /= p;
+                ++exp;
+            }
+            if (p == 3) return false;            /* base prime 3 in factorisation */
+            if (!good_exponent(exp)) return false;
+        }
+    }
+    if (t > 1) /* remaining prime factor */
+    {
+        // t is prime itself, check exponent 1
+        // since exp == 1 -> good
+        // but need to check if t==3
+        if (t == 3) return false;
+        // exponent 1 is always good, no further recursion needed
+    }
+    return true;
+}
 
 static inline bool is_good(uint64_t n)
 {

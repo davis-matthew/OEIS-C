@@ -8,13 +8,26 @@
  *            0)
  * Range:     u8 n <= 279, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   modpow_local
+ * Validated: standard, pass, 91 terms through n = 8695 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/modpow_local.h"
+
+/* modular exponentiation: base^exp mod mod  (exp fits in uint64_t) */
+static seq_t modpow_local(seq_t base, uint64_t exp, seq_t mod)
+{
+    seq_t result = 1 % mod;
+    seq_t b = base % mod;
+    while (exp > 0) {
+        if (exp & 1) result = (result * b) % mod;
+        exp >>= 1;
+        b = (b * b) % mod;
+    }
+    return result;
+}
 
 /* compute the Euler totient of n; n fits in idx_t */
 static seq_t phi_val(idx_t n)

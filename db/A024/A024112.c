@@ -7,12 +7,14 @@
  * Formula:   a(n) = 9^n - n^11
  * Range:     i8 n <= 1, i16 n <= 2, i32 n <= 7, i64 n <= 19, i128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 291 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +24,7 @@ seq_t a(idx_t n)
 
     /* initialise cache for n = 0 */
     if (pow9_len == 0) {
-        pow9 = (seq_t *)malloc(sizeof(seq_t));
+        pow9 = mem_new(seq_t, 1);
         pow9[0] = (seq_t)1;
         pow9_len = 1;
     }
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* extend cache up to n if necessary */
     if (pow9_len <= n) {
         size_t new_len = n + 1;
-        pow9 = (seq_t *)realloc(pow9, new_len * sizeof(seq_t));
+        pow9 = mem_resize(seq_t, pow9, new_len);
         for (size_t i = pow9_len; i < new_len; ++i) {
             pow9[i] = pow9[i - 1] * (seq_t)9;
         }

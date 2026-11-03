@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = A001221(A137795(n))
- * Range:     u8 n <= 3253, u16 n <= 9692, u32 n <= 9692, u64 n <= 9692,
- *            u128 n <= 9692, big any n
+ * Range:     u8 n <= 3253, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 119 terms through n = 9692 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 
+#include <stdlib.h>
 #include "../utils/build_primes_upto.h"
 
 /* Prime list cache -------------------------------------------------------- */

@@ -7,20 +7,31 @@
  * Formula:   a(n) = n^10 mod 10^n (OEIS A087355)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 10, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   pow10, pow_uint
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow10.h"
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
     /* For n < 10 the modulus 10^n is larger than n^10,
        so we can compute the remainder directly. */
     if (n < 10) {
-        seq_t val = pow_uint((uint64_t)n, 10);
+        seq_t val = ipow_u64_idx((uint64_t)n, 10);
         seq_t mod = pow10(n);
         return val % mod;
     }
@@ -32,5 +43,5 @@ seq_t a(idx_t n)
 
     /* For n > 10, 10^n grows much faster than n^10,
        thus n^10 mod 10^n == n^10. */
-    return pow_uint((uint64_t)n, 10);
+    return ipow_u64_idx((uint64_t)n, 10);
 }

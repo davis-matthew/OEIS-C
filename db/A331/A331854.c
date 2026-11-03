@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   quicksort_idx_t
+ * Validated: partial, pass, 79 terms through n = 78 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,38 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/quicksort_idx_t.h"
+
+/* Local quicksort for idx_t values.  The maximum number of splits
+ * for the problem is 2^(k-1) with k <= 14 (n up to 10000),
+ * so at most 8192 elements. */
+static void quicksort_idx_t(idx_t *arr, size_t left, size_t right)
+{
+    while (left < right) {
+        idx_t pivot = arr[left + (right - left) / 2];
+        size_t i = left, j = right;
+        while (i <= j) {
+            while (arr[i] < pivot) ++i;
+            while (arr[j] > pivot) --j;
+            if (i <= j) {
+                idx_t tmp = arr[i];
+                arr[i] = arr[j];
+                arr[j] = tmp;
+                ++i;
+                if (j > 0) --j;
+            }
+        }
+        if (j < left) break;   /* prevents underflow when j == 0 */
+        if (i - left < right - i) {
+            if (left < j)
+                quicksort_idx_t(arr, left, j);
+            left = i;
+        } else {
+            if (i < right)
+                quicksort_idx_t(arr, i, right);
+            right = j;
+        }
+    }
+}
 
 seq_t a(idx_t n)
 {

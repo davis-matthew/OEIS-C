@@ -12,12 +12,14 @@
  *            a(3)=25, …
  * Range:     u8 n <= 6, u16 n <= 16, u32 n <= 48, u64 n <= 158, u128 n <= 475,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 1126 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for computed rows */
 static seq_t **rows = NULL;            /* rows[i] points to array of T(i,0..i) */
@@ -43,7 +45,7 @@ static void ensure_rows(idx_t r)
     /* Compute new rows from rows_count up to r */
     for (idx_t i = rows_count; i <= r; ++i) {
         size_t len = (size_t)(i + 1);
-        seq_t *row = (seq_t *)malloc(len * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, len);
 
         if (i == 0) {                /* T(0,0) = 1, 5^0 = 1 */
             row[0] = 1;

@@ -9,13 +9,16 @@
  *            a(n-2)) for n>2 Sequence A070282
  * Range:     u8 n <= 5, u16 n <= 6, u32 n <= 7, u64 n <= 8, u128 n <= 9,
  *            big any n
- * Helpers:   big_pow, digit_sum
+ * Validated: partial, pass, 10 terms through n = 10 (2026-11-01)
+ * Helpers:   digit_sum, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/digit_sum.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -42,7 +45,7 @@ seq_t a(idx_t n)
     for (idx_t idx = current_max; idx < n; ++idx) {
         seq_t sd_prev  = digit_sum(cache[idx-1]); /* sumdigits a(idx)   */
         seq_t sd_prev2 = digit_sum(cache[idx-2]); /* sumdigits a(idx-1) */
-        cache[idx] = big_pow(sd_prev, sd_prev2);
+        cache[idx] = ipow(sd_prev, sd_prev2);
         ready[idx] = true;
     }
     current_max = n;

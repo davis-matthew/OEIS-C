@@ -13,13 +13,15 @@
  *            a(11)=909868, a(12)=1810124, a(13)=3610156
  * Range:     u8 none, u16 n <= 7, u32 n <= 23, u64 n <= 55, u128 n <= 119,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 202 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t base_vals[14] = {
     0ULL,          /* 0 unused */
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     /* allocation and base initialization */
     if (cache == NULL) {
         cache_len = 14; /* indices 0..13 */
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         if (!cache) exit(1);
         for (size_t i = 0; i < cache_len; ++i) cache[i] = 0;
         for (size_t i = 1; i <= 13; ++i) cache[i] = base_vals[i];
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
     size_t needed_len = (size_t)n + 1;
     if (needed_len > cache_len) {
         size_t new_len = needed_len;
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) exit(1);
         /* initialize newly allocated part to 0 */
         for (size_t i = cache_len; i < new_len; ++i) tmp[i] = 0;

@@ -7,6 +7,7 @@
  * Formula:   a(n) = n^2 * Sum_{d^2 | n} 1/d^2 (equivalently
  * Range:     u8 n <= 4, u16 n <= 16, u32 n <= 3072, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 69 terms through n = 9890 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,8 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 static seq_t pow_seq_seq(seq_t base, idx_t exp) {

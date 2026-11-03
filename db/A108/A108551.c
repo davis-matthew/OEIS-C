@@ -8,6 +8,7 @@
  *            = (b-4)·b^(b-1) + 2·b^(b-2) + b^(b-3) + b^3
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 23,
  *            big any n
+ * Validated: standard, pass, 33 terms through n = 314 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

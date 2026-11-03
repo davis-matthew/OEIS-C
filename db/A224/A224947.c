@@ -9,6 +9,7 @@
  *            {1608,1636,1664,1692,1704,1732,1760,1788,1828,1856,1884,1924,1952,1980}
  * Range:     u8 none, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

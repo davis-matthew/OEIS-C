@@ -8,8 +8,9 @@
  *            factors n and uses the multiplicative formula A(p^e) =
  *            (p^(4*(1+⌊e/4⌋)) – 1)/(p^4 – 1). Complexity: O(√n) per call,
  *            well under the limits for n up to at least 10^6
- * Range:     u8 n <= 15, u16 n <= 9097, u32 n <= 9097, u64 n <= 9097,
- *            u128 n <= 9097, big any n
+ * Range:     u8 n <= 15, u16 n <= 65535, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 128 terms through n = 9097 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

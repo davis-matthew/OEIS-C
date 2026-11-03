@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign
  * Formula:   a(n) = n - A048146(n) = n - (sum of non‑unitary divisors)
- * Range:     i8 n <= 12, i16 n <= 2341, i32 n <= 9758, i64 n <= 9758,
- *            i128 n <= 9758, big any n
+ * Range:     i8 n <= 12, i16 n <= 2341, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 100 terms through n = 9758 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

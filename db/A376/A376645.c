@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   max_prime_exponent_odd
+ * Validated: standard, pass, 103 terms through n = 9102 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,43 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/max_prime_exponent_odd.h"
+
+/* Helper: exponent of the largest prime power dividing x (x > 1).
+ * For x == 1, returns 0.  Only odd x are passed from the main routine. */
+static seq_t max_prime_exponent_odd(idx_t x)
+{
+    if (x <= 1)                 /* odd part is 1 */
+        return (seq_t)0;
+
+    seq_t max_exp = 0;
+    idx_t remaining = x;
+
+    /* Handle factor 3 separately to allow stepping by 2 */
+    idx_t exp = 0;
+    while ((remaining % 3) == 0) {
+        ++exp;
+        remaining /= 3;
+    }
+    if (exp > max_exp)
+        max_exp = exp;
+
+    /* Trial division by odd numbers starting from 5 */
+    for (idx_t p = 5; p * p <= remaining; p += 2) {
+        exp = 0;
+        while ((remaining % p) == 0) {
+            ++exp;
+            remaining /= p;
+        }
+        if (exp > max_exp)
+            max_exp = exp;
+    }
+
+    /* If a prime > sqrt(original) remains, its exponent is 1 */
+    if (remaining > 1 && max_exp < 1)
+        max_exp = 1;
+
+    return max_exp;
+}
 
 /* Main sequence function. */
 seq_t a(idx_t n)

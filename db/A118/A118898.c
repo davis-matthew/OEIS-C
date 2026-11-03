@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 34, u64 n <= 66, u128 n <= 133,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 2819 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Base values for indices 0..8. */
 static const seq_t init_vals[9] = {0,0,0,0,1,2,5,12,28};
@@ -36,14 +38,14 @@ seq_t a(idx_t n)
 
     /* Need to enlarge cache to accommodate up to index n. */
     idx_t new_size = n + 1;                     /* new number of elements */
-    seq_t *new_cache = (seq_t*)malloc(new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_size);
     if (!new_cache)
         return (seq_t)0; /* fallback, though allocation failure should not happen */
 
     /* Copy previously computed values into the new cache. */
     if (cache != NULL) {
-        memcpy(new_cache, cache, cache_size * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_cache, cache, cache_size * sizeof(seq_t));
+        mem_free(cache);
     }
 
     /* Initialize base values (indices 0..8) in the new cache. */

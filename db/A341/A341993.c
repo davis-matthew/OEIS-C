@@ -11,7 +11,8 @@
  *            integer
  * Range:     u8 n <= 41, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   digit_sum
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/digit_sum.h"
+#include "../utils/mem.h"
 
 /* Sequence storage */
 static seq_t *seq_tbl = NULL;
@@ -49,7 +51,7 @@ static void ensure_seq_cap(size_t needed)
     if (seq_cap >= needed) return;
     size_t new_cap = seq_cap ? seq_cap << 1 : 8;
     while (new_cap < needed) new_cap <<= 1;
-    seq_tbl = (seq_t *)realloc(seq_tbl, new_cap * sizeof(seq_t));
+    seq_tbl = mem_resize(seq_t, seq_tbl, new_cap);
     seq_cap = new_cap;
 }
 
@@ -57,7 +59,7 @@ static void ensure_seq_cap(size_t needed)
 static void used_resize(void)
 {
     size_t new_cap = used_cap ? used_cap << 1 : 16;
-    seq_t *new_keys = (seq_t *)calloc(new_cap, sizeof(seq_t));
+    seq_t *new_keys = mem_new(seq_t, new_cap);
     bool   *new_filled = (bool *)calloc(new_cap, sizeof(bool));
 
     for (size_t i = 0; i < used_cap; ++i) {
@@ -70,7 +72,7 @@ static void used_resize(void)
         }
     }
 
-    free(used_keys);
+    mem_free(used_keys);
     free(used_filled);
     used_keys   = new_keys;
     used_filled = new_filled;
@@ -106,13 +108,13 @@ seq_t a(idx_t n)
     /* One‑time initialization. */
     if (!seq_tbl) {
         seq_cap = 8;
-        seq_tbl = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_tbl = mem_new(seq_t, seq_cap);
 
         seq_tbl[0] = 0;
         seq_len   = 1;
 
         used_cap   = 16;
-        used_keys  = (seq_t *)calloc(used_cap, sizeof(seq_t));
+        used_keys  = mem_new(seq_t, used_cap);
         used_filled = (bool *)calloc(used_cap, sizeof(bool));
         used_insert(0);
 

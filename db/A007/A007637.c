@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 95, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 59 terms through n = 987 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,8 @@
 /* a(n) = n-th prime of form 3*k^2 - 3*k + 23 */
 
 #include <stdint.h>
-#include "../utils/is_prime.h"
+#include <stdbool.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n) {
     idx_t count = 0;
@@ -24,7 +26,7 @@ seq_t a(idx_t n) {
     while (1) {
         uint64_t candidate = 3 * k * k - 3 * k + 23;
         
-        if (is_prime(candidate)) {
+        if (is_prime_u64(candidate)) {
             count++;
             if (count == n) {
                 return (seq_t)candidate;

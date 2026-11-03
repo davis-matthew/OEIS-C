@@ -13,12 +13,14 @@
  *            a(n) = T(r,c)
  * Range:     i8 n <= 6, i16 n <= 10, i32 n <= 28, i64 n <= 91, i128 n <= 253,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 1231 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,11 +36,11 @@ seq_t a(idx_t n)
 
     /* Allocate two rows of length r + 1 (index 0 unused). */
     size_t len = (size_t)(r + 1);
-    seq_t *row_prev = (seq_t *)malloc(len * sizeof(seq_t));
-    seq_t *row_cur  = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *row_prev = mem_new(seq_t, len);
+    seq_t *row_cur  = mem_new(seq_t, len);
     if (!row_prev || !row_cur) {
-        free(row_prev);
-        free(row_cur);
+        mem_free(row_prev);
+        mem_free(row_cur);
         return (seq_t)0;   /* allocation failure sentinel */
     }
 
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
     /* The requested entry is now in row_prev[c]. */
     seq_t result = row_prev[c];
 
-    free(row_prev);
-    free(row_cur);
+    mem_free(row_prev);
+    mem_free(row_cur);
     return result;
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 91 terms through n = 90 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 /* Required integer types are supplied by the build (seq_t, idx_t). */
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Number of 64‑bit words needed to hold subset sums up to n ≤ 200. */
 #define WORDS 4
@@ -62,7 +64,7 @@ static void ensure_up_to(idx_t n)
 static void compute_row(int r)
 {
     size_t len = (size_t)r + 1;
-    seq_t *count = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *count = mem_new(seq_t, len);
     if (!count) return;                /* allocation failed – keep function safe */
     for (size_t i = 0; i < len; ++i) count[i] = 0;
 
@@ -77,7 +79,7 @@ static void compute_row(int r)
     if (flat_len + len > flat_cap) {
         size_t new_cap = flat_cap ? flat_cap * 2 : 256;
         while (new_cap < flat_len + len) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(flat, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, flat, new_cap);
         if (!tmp) return;               /* allocation failed – stay safe */
         flat = tmp;
         flat_cap = new_cap;
@@ -88,7 +90,7 @@ static void compute_row(int r)
         flat[flat_len++] = count[i];
     }
 
-    free(count);
+    mem_free(count);
 }
 
 /* Recursive enumeration of strict partitions of 'remaining', where the next part

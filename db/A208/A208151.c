@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 995 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
  *  a(idx_t n) is O(1).  The implementation works for any seq_t
  *  width supported by the build. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
                 non_repeat_len = (size_t)rpos;
                 period_len = digits_len - (size_t)rpos;
                 if (period_len > 0) {
-                    period = (seq_t *)malloc(period_len * sizeof(seq_t));
+                    period = mem_new(seq_t, period_len);
                     for (size_t i = 0; i < period_len; ++i)
                         period[i] = digits[non_repeat_len + i];
                 }

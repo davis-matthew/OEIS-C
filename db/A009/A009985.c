@@ -7,6 +7,7 @@
  * Formula:   a(n) = 41^n ; a(0) = 1, a(n) = 41*a(n-1) for n>0
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 23,
  *            big any n
+ * Validated: standard, pass, 33 terms through n = 95 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

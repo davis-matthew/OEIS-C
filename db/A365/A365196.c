@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 68, u16 n <= 80, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 116 terms through n = 8994 (2026-11-01)
  * Helpers:   is_squarefree, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
    This implementation tests successive k using the is_squarefree
    and pow2 utilities. */
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/is_squarefree.h"
 #include "../utils/pow2.h"
 

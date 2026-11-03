@@ -10,7 +10,8 @@
  *            sum
  * Range:     u8 none, u16 n <= 4, u32 n <= 17, u64 n <= 41, u128 n <= 89,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 190 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define STATES 1024   /* 4^5 */
 #define TUPLES 4096   /* 4^6 */
@@ -87,8 +89,8 @@ static void init(void)
     /* -- initialize DP for length 6 --------------------------------
      *   Longest needed DP step will grow from length 6 upwards.
      */
-    dp_cur  = (seq_t *)malloc(STATES * sizeof(seq_t));
-    dp_next = (seq_t *)malloc(STATES * sizeof(seq_t));
+    dp_cur  = mem_new(seq_t, STATES);
+    dp_next = mem_new(seq_t, STATES);
     if (!dp_cur || !dp_next) { abort(); }
 
     for (int i = 0; i < STATES; ++i) dp_cur[i] = 0;
@@ -104,7 +106,7 @@ static void init(void)
      *   We'll enlarge it lazily.
      */
     ans_cap = 1024;
-    answers = (seq_t *)malloc(ans_cap * sizeof(seq_t));
+    answers = mem_new(seq_t, ans_cap);
     if (!answers) abort();
 
     /* compute answer for n=1 (length 6) */
@@ -126,7 +128,7 @@ static void ensure_up_to(idx_t n)
         /* grow answers array if needed */
         if (idx >= ans_cap) {
             size_t new_cap = ans_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(answers, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, answers, new_cap);
             if (!tmp) abort();
             answers = tmp;
             ans_cap = new_cap;

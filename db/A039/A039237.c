@@ -9,7 +9,8 @@
  *            and 10's
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   equal_2_and_10_base12
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,25 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/equal_2_and_10_base12.h"
+#include "../utils/mem.h"
+
+/* Test whether a number x has equal counts of digits 2 and 10
+ * in its base‑12 representation. */
+static bool equal_2_and_10_base12(seq_t x)
+{
+    unsigned long long cnt2  = 0;
+    unsigned long long cnt10 = 0;
+    while (x > 0)
+    {
+        unsigned digit = (unsigned)(x % 12);
+        if (digit == 2)
+            ++cnt2;
+        else if (digit == 10)
+            ++cnt10;
+        x /= 12;
+    }
+    return cnt2 == cnt10;
+}
 
 /* ------------------------------------------------------------------
  * Internal static storage for memoised terms
@@ -39,7 +58,7 @@ static void grow_cache(size_t need)
         size_t new_cap = cache_cap ? cache_cap << 1 : 64;
         while (new_cap < need)
             new_cap <<= 1;
-        seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
         cache = new_ptr;
         cache_cap = new_cap;
     }

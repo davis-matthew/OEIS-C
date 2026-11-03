@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 32, u16 n <= 51, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Find the antidiagonal d so that d*(d+1)/2 <= n < (d+1)*(d+2)/2 */
@@ -41,7 +43,7 @@ seq_t a(idx_t n) {
 
     /* Compute coefficient of x^j in 1/(1 - Σ_{t=1..i} x^t) via DP */
     size_t jsz = (size_t)j;
-    seq_t *coeff = (seq_t*)malloc((jsz + 1) * sizeof(seq_t));
+    seq_t *coeff = mem_new(seq_t, (jsz + 1));
     if (!coeff) return 0;                        /* memory failure – unlikely here */
     coeff[0] = 1;
     for (size_t k = 1; k <= jsz; ++k) {
@@ -58,6 +60,6 @@ seq_t a(idx_t n) {
         fact *= (seq_t)f;
 
     seq_t result = coeff[jsz] * fact;
-    free(coeff);
+    mem_free(coeff);
     return result;
 }

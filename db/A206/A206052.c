@@ -9,7 +9,8 @@
  *            edge increase in every 2×2 subblock
  * Range:     u8 none, u16 none, u32 n <= 3, u64 n <= 8, u128 n <= 19,
  *            big any n
- * Helpers:   clear_seq_array
+ * Validated: standard, pass, 27 terms through n = 206 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,12 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/clear_seq_array.h"
+
+/* ------------------------------------------------------------------ */
+static void clear_seq_array(seq_t *arr, size_t n)
+{
+    for (size_t i = 0; i < n; ++i) arr[i] = 0;
+}
 
 /* ------------------------------------------------------------------ */
 /*  Macros for allocation that work in both C and C++                 */

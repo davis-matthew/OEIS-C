@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   big_pow, build_primes_upto
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   build_primes_upto, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,9 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-#include "../utils/big_pow.h"           /* seq_t big_pow(seq_t, seq_t) */
-#include "../utils/build_primes_upto.h" /* void build_primes_upto(idx_t, uint64_t**, size_t*) */
+#include "../utils/build_primes_upto.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /*=========================================================================*/
 /*  Heap element structure                                               */
@@ -83,7 +85,7 @@ static inline void heap_push(HeapItem x)
 {
     if (heap_size == heap_cap) {
         heap_cap = heap_cap ? heap_cap * 2 : 8;
-        heap = (HeapItem *)realloc(heap, heap_cap * sizeof(HeapItem));
+        heap = mem_resize(HeapItem, heap, heap_cap);
     }
     heap[heap_size++] = x;
     sift_up(heap_size - 1);
@@ -116,11 +118,11 @@ static void generate_upto(idx_t n)
 
         /* initialise heap with the first term of every base sequence */
         heap_cap  = base_count;
-        heap      = (HeapItem *)malloc(heap_cap * sizeof(HeapItem));
+        heap      = mem_new(HeapItem, heap_cap);
         heap_size = 0;
         for (idx_t r = 1; r <= base_count; ++r) {
             seq_t base   = (seq_t)base_primes[r - 1];
-            seq_t first  = big_pow(base, (seq_t)base_primes[0]); /* base^2 */
+            seq_t first  = ipow(base, (seq_t)base_primes[0]); /* base^2 */
             HeapItem h = {first, r, 1, base};
             heap_push(h);
         }
@@ -135,7 +137,7 @@ static void generate_upto(idx_t n)
         if (!cached_len || val != cache[cached_len - 1]) {
             if (cached_len == cache_cap) {
                 cache_cap = cache_cap ? cache_cap * 2 : 32;
-                cache     = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache     = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cached_len++] = val;
         }
@@ -145,7 +147,7 @@ static void generate_upto(idx_t n)
         if (next_m <= base_count) {   /* we have enough primes for exponent */
             seq_t base    = cur.base;
             seq_t exp     = (seq_t)base_primes[next_m - 1];
-            seq_t next_pow = big_pow(base, exp);
+            seq_t next_pow = ipow(base, exp);
             seq_t next_sum = cur.sum + next_pow;
             HeapItem h = {next_sum, cur.r, next_m, base};
             heap_push(h);

@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = -Sum_{d|n, d>1, d not a perfect power} (-1)^Ω(d) * a(n/d)
- * Range:     u8 n <= 9802, u16 n <= 9802, u32 n <= 5519, u64 n <= 9802,
- *            u128 n <= 9802, big any n
- * Helpers:   factor_u64
+ * Range:     u8 n <= 10799, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9802 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* ---------- Memoisation infrastructure ---------- */
 static seq_t *a_cache      = NULL;
@@ -32,7 +34,7 @@ ensure_cache_capacity(idx_t n)
     if (n < a_cap) return;
     idx_t new_cap = a_cap ? a_cap * 2 : 16;
     while (new_cap <= n) new_cap <<= 1;
-    a_cache     = (seq_t *)realloc(a_cache,     new_cap * sizeof(seq_t));
+    a_cache     = mem_resize(seq_t, a_cache, new_cap);
     a_computed  = (bool  *)realloc(a_computed,  new_cap * sizeof(bool));
     for (idx_t i = a_cap; i < new_cap; ++i) {
         a_cache[i]    = 0;
@@ -96,7 +98,7 @@ static seq_t
 a_rec(idx_t n)
 {
     if (n == 1) return 1;
-    if (a_computed && a_computed[n]) return a_cache[n];
+    if (n < a_cap && a_computed[n]) return a_cache[n];      /* only inside the cache */
 
     uint64_t primes[64], exps[64];
     size_t cnt = 0;

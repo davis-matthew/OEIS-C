@@ -10,14 +10,52 @@
  *            the binary representation of n, with a(0)=0
  * Range:     u8 n <= 2770, u16 n <= 2770, u32 n <= 2770, u64 n <= 2770,
  *            u128 n <= 2770, big any n
- * Helpers:   kth_run_length, run_count
+ * Validated: standard, pass, 151 terms through n = 2746 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/kth_run_length.h"
-#include "../utils/run_count.h"
+
+static inline seq_t kth_run_length(idx_t n, idx_t k) {
+    seq_t run_len = 0;
+    idx_t run_idx = 0;
+    while (n) {
+        int bit = n & 1;
+        if (bit) {
+            run_len++;
+        } else {
+            if (run_len) {
+                run_idx++;
+                if (run_idx == k) return run_len;
+                run_len = 0;
+            }
+        }
+        n >>= 1;
+    }
+    if (run_len) {
+        run_idx++;
+        if (run_idx == k) return run_len;
+    }
+    return 0;    /* should not happen for valid k */
+}
+
+static inline int run_count(idx_t n) {
+    int cnt = 0;
+    int in_run = 0;
+    while (n) {
+        int bit = n & 1;
+        if (bit) {
+            if (!in_run) cnt++;
+            in_run = 1;
+        } else {
+            in_run = 0;
+        }
+        n >>= 1;
+    }
+    return cnt;
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;

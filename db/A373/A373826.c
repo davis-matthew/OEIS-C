@@ -13,7 +13,8 @@
  *            antiruns, then produces the run‑lengths of e...
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 6, u64 n <= 6, u128 n <= 6,
  *            big any n
- * Helpers:   seen_contains
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,16 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seen_contains.h"
+#include <stddef.h>
+
+/* Test whether val is already present in arr[0..len-1].  */
+static bool seen_contains(const seq_t *arr, size_t len, seq_t val)
+{
+    for (size_t i = 0; i < len; ++i)
+        if (arr[i] == val)
+            return true;
+    return false;
+}
 
 /* Function to grow a dynamic array if needed */
 static void grow_array(void **ptr, size_t *cap, size_t elem_size, size_t need)

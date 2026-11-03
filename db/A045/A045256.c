@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   has_two_ones_one_four
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,21 @@
  * Computed by brute‑force incremental search. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_two_ones_one_four.h"
+#include "../utils/mem.h"
+
+/* Test if a number x has exactly two 1's and one 4 in its base‑5 representation. */
+static bool has_two_ones_one_four(seq_t x)
+{
+    seq_t ones = 0, fours = 0;
+    while (x > 0) {
+        seq_t d = x % 5;
+        if (d == 1) ++ones;
+        else if (d == 4) ++fours;
+        if (ones > 2 || fours > 1) return false;
+        x /= 5;
+    }
+    return (ones == 2 && fours == 1);
+}
 
 /* Return the n‑th term of the sequence (n ≥ 1). */
 seq_t a(idx_t n)
@@ -34,7 +49,7 @@ seq_t a(idx_t n)
         if (cap < (size_t)n) {
             size_t new_cap = (cap == 0 ? 16 : cap * 2);
             if (new_cap < (size_t)n) new_cap = (size_t)n;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort();
             cache = tmp;
             cap   = new_cap;

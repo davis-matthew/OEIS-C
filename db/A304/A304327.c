@@ -8,9 +8,10 @@
  * Formula:   a(n) = number of distinct perfect‑power factors a^b (a>1, b≥2)
  *            such that n/(a^b) is square‑free. The perfect power 1^b is
  *            counted once when n itself is square‑free
- * Range:     u8 n <= 8996, u16 n <= 8996, u32 n <= 8996, u64 n <= 8996,
- *            u128 n <= 8996, big any n
- * Helpers:   cmp_seq_t, factor_u64, is_squarefree
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 8996 (2026-11-03)
+ * Helpers:   factor_u64, is_squarefree, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,19 @@
 #include <stdbool.h>
 
 /* The sequence utilities are available from the framework. */
-#include "../utils/factor_u64.h"   /* void factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt); */
-#include "../utils/is_squarefree.h" /* bool is_squarefree(seq_t x); */
-#include "../utils/cmp_seq_t.h"   /* int cmp_seq_t(const void *p1, const void *p2); */
+#include "../utils/factor_u64.h"
+#include "../utils/is_squarefree.h"
+#include "../utils/mem.h"
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
 
 seq_t a(idx_t n)
 {
@@ -85,7 +96,7 @@ seq_t a(idx_t n)
     if (vlen == 0)
         return 0; /* Should not happen for non‑square‑free n */
 
-    qsort(values, vlen, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(values, vlen, sizeof(seq_t), cmp_seq_t);
 
     size_t unique = 0;
     seq_t last = 0;

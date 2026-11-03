@@ -11,12 +11,14 @@
  *            by the above recurrence. a(0)=0 is handled explicitly. All r...
  * Range:     u8 n <= 5, u16 n <= 14, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,8 +35,8 @@ seq_t a(idx_t n)
     /* Allocate / grow arrays if necessary                                 */
     if (n + 1 > size) {
         size_t new_size = (size_t)n + 1;
-        sigma = (seq_t *)realloc(sigma, new_size * sizeof(seq_t));
-        p     = (seq_t *)realloc(p,     new_size * sizeof(seq_t));
+        sigma = mem_resize(seq_t, sigma, new_size);
+        p     = mem_resize(seq_t, p, new_size);
         /* initialise new entries                                         */
         for (size_t i = size; i < new_size; ++i) {
             sigma[i] = 0;

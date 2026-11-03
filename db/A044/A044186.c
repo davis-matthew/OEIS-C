@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   has66
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,22 @@
    the substring 66 but the representation of k‑1 does not (search‑based). */
 
 #include <stdbool.h>
-#include "../utils/has66.h"
+
+static bool has66(seq_t v)
+{
+    if (v == 0)            /* 0 has no digits 6 */
+        return false;
+    int prev = -1;         /* previous digit, -1 indicates none */
+    seq_t x = v;
+    while (x != 0) {
+        int d = (int)(x % (seq_t)7);   /* least significant digit in base 7 */
+        if (d == 6 && prev == 6)       /* found consecutive 6,6 */
+            return true;
+        prev = d;
+        x /= (seq_t)7;                /* shift right in base 7 */
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

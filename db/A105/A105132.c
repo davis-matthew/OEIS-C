@@ -6,9 +6,10 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) are the primes congruent to 513 modulo 1024 (i.e. of the
  *            form 1024*k + 513)
- * Range:     u8 none, u16 n <= 10, u32 n <= 33, u64 n <= 33, u128 n <= 33,
- *            big any n
- * Helpers:   is_prime
+ * Range:     u8 none, u16 n <= 10, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 49 terms through n = 8222 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     {
         /* val = 1024*k + 513 fits into 64 bits for all n needed by the tests */
         uint64_t val = 1024ULL * k + 513ULL;
-        if (is_prime(val))
+        if (is_prime_u64(val))
         {
             ++count;
             if (count == n)

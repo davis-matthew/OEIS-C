@@ -7,13 +7,17 @@
  * Formula:   a(n) = Sum_{k=0..n} (-1)^k * binomial(n,k) * (2^{n-k} - 1)^n
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 5, u64 n <= 8, u128 n <= 11,
  *            big any n
- * Helpers:   big_pow, binomial, pow2
+ * Validated: standard, pass, 29 terms through n = 32 (2026-11-01)
+ * Helpers:   binomial, ipow, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/ipow.h"
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)
@@ -35,7 +39,7 @@ seq_t a(idx_t n)
         base -= (seq_t)1;                 /* 2^t - 1 */
 
         /* (2^t - 1)^n */
-        seq_t pow_term = big_pow(base, (seq_t)n);
+        seq_t pow_term = ipow(base, (seq_t)n);
 
         /* term = C(n,k) * (2^t - 1)^n */
         seq_t term = comb * pow_term;

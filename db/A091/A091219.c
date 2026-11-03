@@ -10,20 +10,81 @@
  *            squarefree, * otherwise (-1)^(# of distinct irreducible factors)
  * Range:     i8 n <= 90, i16 n <= 90, i32 n <= 90, i64 n <= 90, i128 n <= 90,
  *            big any n
- * Helpers:   deg_uint64, factor_rec, find_factor, poly_derivative, poly_div,
- *            poly_mod
+ * Validated: partial, pass, 90 terms through n = 90 (2026-11-01)
+ * Helpers:   ilog2_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/deg_uint64.h"
-#include "../utils/factor_rec.h"
-#include "../utils/find_factor.h"
-#include "../utils/poly_derivative.h"
-#include "../utils/poly_div.h"
-#include "../utils/poly_mod.h"
+#include "../utils/ilog2_u64.h"
+
+/* Remainder of a divided by b over GF(2), b != 0. */
+static inline uint64_t poly_mod(uint64_t a, uint64_t b) {
+    int db = ilog2_u64(b);
+    while (1) {
+        int da = ilog2_u64(a);
+        if (da < db) break;
+        a ^= b << (da - db);
+    }
+    return a;
+}
+
+/* Find a non‑trivial divisor of poly over GF(2).     */
+static uint64_t find_factor(uint64_t poly) {
+    if (poly <= 1) return poly;
+    /* For the sizes that occur in the OEIS tests (n up to ~10⁴),
+       a simple linear search is fast. */
+    for (uint64_t d = 2; d < poly; ++d) {
+        if (poly_mod(poly, d) == 0)
+            return d;
+    }
+    return poly;   /* irreducible */
+}
+
+/* Quotient of a divided by b over GF(2), assumes b ≠ 0 and a divisible by b. */
+static inline uint64_t poly_div(uint64_t a, uint64_t b) {
+    uint64_t q = 0;
+    int da = ilog2_u64(a);
+    int db = ilog2_u64(b);
+    while (da >= db) {
+        int shift = da - db;
+        q |= (uint64_t)1 << shift;
+        a ^= b << shift;
+        da = ilog2_u64(a);
+    }
+    return q;   /* a should be 0 now */
+}
+
+/* Recursively factor a polynomial into monic irreducible factors.
+   The list of factors (with multiplicity) is stored in 'factors'.
+   'cnt' receives the number of factors found. */
+static void factor_rec(uint64_t poly, uint64_t *factors, int *cnt) {
+    if (poly <= 1) return;
+    uint64_t f = find_factor(poly);
+    if (f == poly) {
+        factors[(*cnt)++] = poly;
+    } else {
+        factor_rec(f, factors, cnt);
+        factor_rec(poly_div(poly, f), factors, cnt);
+    }
+}
+
+/* Derivative of a polynomial over GF(2). */
+static inline uint64_t poly_derivative(uint64_t p) {
+    uint64_t d = 0;
+    uint64_t rest = p >> 1;          /* skip constant term */
+    for (uint64_t i = 0; rest; ++i, rest >>= 1) {
+        if (rest & 1) {
+            /* original exponent = i+1; if odd → i even → derivative term */
+            if ((i & 1) == 0) {
+                d |= (uint64_t)1 << i;
+            }
+        }
+    }
+    return d;
+}
 
 /* Greatest common divisor of polynomials a and b over GF(2). */
 static inline uint64_t poly_gcd(uint64_t a, uint64_t b) {

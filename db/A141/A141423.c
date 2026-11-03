@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 7, u32 n <= 7, u64 n <= 7, u128 n <= 7,
  *            big any n
- * Helpers:   grow_seq_idx
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,25 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/grow_seq_idx.h"
+
+/* ---------- helpers for a dynamic array of uint64_t ---------- */
+static void grow_seq_idx(idx_t **arr, size_t *cap, size_t needed)
+{
+    if (*cap < needed) {
+        size_t newcap = (*cap == 0) ? 1 : (*cap << 1);
+        if (newcap < needed) newcap = needed;
+#ifdef __cplusplus
+        idx_t *newarr = new idx_t[newcap];
+        for (size_t i = 0; i < *cap; ++i) newarr[i] = (*arr)[i];
+        delete[] *arr;
+#else
+        idx_t *newarr = (idx_t *)realloc(*arr, newcap * sizeof(idx_t));
+        if (!newarr) exit(EXIT_FAILURE);
+#endif
+        *arr = newarr;
+        *cap = newcap;
+    }
+}
 
 /* ---------- global state ---------- */
 static unsigned char *rep = NULL;   /* 0/1 flags, rep[n] true if representable */

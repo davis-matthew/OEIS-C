@@ -11,7 +11,8 @@
  *            complexity is O(n · m) with m≈100 for n≤10000, w...
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 87 terms through n = 86 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static bool is_prime_idx(idx_t x)
 {
@@ -33,7 +35,7 @@ static bool is_prime_idx(idx_t x)
 seq_t a(idx_t n)
 {
     /* allocate workspace for dynamic programming */
-    seq_t *dp = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1));
     if (!dp) return 0;
     dp[0] = 1;
     for (idx_t i = 1; i <= n; ++i) dp[i] = 0;
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
                 size_t new_cap = coins_cap ? 2 * coins_cap : 8;
                 idx_t *tmp = (idx_t *)realloc(coins, new_cap * sizeof(idx_t));
                 if (!tmp) {
-                    free(dp);
+                    mem_free(dp);
                     free(coins);
                     return 0;
                 }
@@ -75,7 +77,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     free(coins);
     return result;
 }

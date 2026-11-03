@@ -11,13 +11,15 @@
  *            the table whenever a larger n is requested
  * Range:     u8 n <= 96, u16 n <= 96, u32 n <= 96, u64 n <= 96, u128 n <= 96,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 96 terms through n = 96 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     if (n > cur_max) {
         /* grow the array to hold indices up to n */
         size_t new_size = (size_t)(n + 1) * sizeof(seq_t);
-        dp = (seq_t *)realloc(dp, new_size);
+        dp = mem_resize(seq_t, dp, (new_size) / sizeof(seq_t));
         if (!dp) return 0;        /* allocation failed – return 0 as a safe value */
 
         /* initialise dp array for indices 0..n */

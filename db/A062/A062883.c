@@ -8,13 +8,15 @@
  *            a(1)=4, a(2)=12, a(3)=25, a(4)=64, a(5)=159
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 22, u64 n <= 44, u128 n <= 89,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *cache   = NULL;   /* 1‑based cache for a(n) */
 static size_t cache_len = 0;    /* largest n already computed (>=0) */
@@ -26,7 +28,7 @@ static void ensure_cache_capacity(idx_t n)
     if ((size_t)n < cache_cap)
         return;
     size_t new_cap = (size_t)n + 10;                /* extra space */
-    seq_t *new_cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache)
         exit(EXIT_FAILURE);
     cache = new_cache;
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
 
     if (cache == NULL) {
         cache_cap   = 6;                 /* indices 0 … 5 */
-        cache       = (seq_t*)calloc(cache_cap, sizeof(seq_t));
+        cache       = mem_new(seq_t, cache_cap);
         if (!cache)
             exit(EXIT_FAILURE);
         cache[0] = (seq_t)0;

@@ -12,6 +12,7 @@
  *            until the numerator is divisible by 3
  * Range:     u8 n <= 6, u16 n <= 7, u32 n <= 16, u64 n <= 16, u128 n <= 16,
  *            big any n
+ * Validated: partial, pass, 29 terms through n = 34 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

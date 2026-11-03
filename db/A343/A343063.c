@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 typedef struct {
     seq_t a, b, c;
@@ -93,8 +95,7 @@ seq_t a(idx_t n)
                 /* store the primitive triple */
                 if (triple_len == triple_cap) {
                     size_t new_cap = triple_cap ? 2 * triple_cap : 16;
-                    Triple *tmp = (Triple *)realloc(triples,
-                                                   new_cap * sizeof(Triple));
+                    Triple *tmp = mem_resize(Triple, triples, new_cap);
                     if (!tmp)
                         exit(EXIT_FAILURE);
                     triples = tmp;
@@ -110,12 +111,12 @@ seq_t a(idx_t n)
     }
 
     /* sort the triples by (a,b) to obtain the correct order of the sequence */
-    qsort(triples, triple_len, sizeof(Triple), cmp_triple);
+    mem_qsort(triples, triple_len, sizeof(Triple), cmp_triple);
 
     /* build the flattened sequence array */
     size_t needed_len = triple_len * 3;
     if (needed_len > seq_cap) {
-        seq_t *tmp = (seq_t *)realloc(seq, needed_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq, needed_len);
         if (!tmp)
             exit(EXIT_FAILURE);
         seq = tmp;

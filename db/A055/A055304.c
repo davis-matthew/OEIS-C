@@ -7,13 +7,22 @@
  * Formula:   a(n) = n! * (n-3)*(n-2)*(n-1)*(3*n-8)/144, for n ≥ 4
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 10, u64 n <= 18, u128 n <= 31,
  *            big any n
- * Helpers:   cancel_factor
+ * Validated: standard, pass, 32 terms through n = 196 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/cancel_factor.h"
+
+/* Cancel a factor of `divisor` from *res as often as possible, up to *rem times. */
+static void cancel_factor(seq_t *res, int divisor, int *rem)
+{
+    while (*rem > 0 && (*res) % divisor == 0) {
+        *res /= divisor;
+        (*rem)--;
+    }
+}
 
 seq_t a(idx_t n)
 {

@@ -9,12 +9,14 @@
  *            1)
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 19, u64 n <= 35, u128 n <= 68,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 45 terms through n = 1000 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -25,5 +27,5 @@ seq_t a(idx_t n)
     idx_t k  = (n + 1) / 2;              /* ceil(n/2) = (n+1)/2 for integer n */
 
     /* binom(a, b) is defined in utils/binom.h; it returns 0 if b > a */
-    return binom(nn, k) * binom(nn, k - 1);
+    return binomial(nn, k) * binomial(nn, k - 1);
 }

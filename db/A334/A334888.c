@@ -10,6 +10,7 @@
  *            n and f = {0,1,2,2,2,1,0,0} for k = 0..7
  * Range:     u8 n <= 4095, u16 n <= 4095, u32 n <= 4095, u64 n <= 4095,
  *            u128 n <= 4095, big any n
+ * Validated: standard, pass, 98 terms through n = 4049 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

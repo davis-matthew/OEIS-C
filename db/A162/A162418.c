@@ -8,7 +8,8 @@
  *            x^e)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of the sequence function */
 seq_t a(idx_t n);
@@ -37,7 +39,7 @@ static bool coeff_init = false;
 static void init_coeff(void)
 {
     /* Allocate space for all coefficients. */
-    coeff = (seq_t*)calloc(MAX_DEG + 1, sizeof(seq_t));
+    coeff = mem_new(seq_t, MAX_DEG + 1);
     if (!coeff) return;          /* Allocation failure is ignored – build system will not use this path. */
     coeff[0] = (seq_t)1;         /* Empty product gives coefficient 1 for degree 0. */
 

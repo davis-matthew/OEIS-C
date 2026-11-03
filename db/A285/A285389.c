@@ -8,6 +8,7 @@
  * Formula:   a(n) = 2^( 2*n^2 - 1 - (v2(n) + popcount(n^2)) )
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 8,
  *            big any n
+ * Validated: standard, pass, 26 terms through n = 38 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,7 +21,8 @@
 
 #include <stdint.h>           /* for uint64_t used in utils */
 
-#include "../utils/pow2.h"   /* seq_t pow2(idx_t exp); */
+#include <stdbool.h>
+#include "../utils/pow2.h"
 
 /* Popcount of a 64‑bit integer. */
 static inline idx_t popcount_u64(idx_t x) {

@@ -9,7 +9,8 @@
  *            p+34 are consecutive primes
  * Range:     u8 none, u16 n <= 2, u32 n <= 26, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------ */
 /* Small prime sieve for the segmented sieve                     */
@@ -80,7 +82,7 @@ seq_t a(idx_t n)
     /* Extend array lazily */
     if (!results) {
         res_cap = 64;
-        results = (seq_t*)malloc(res_cap * sizeof(seq_t));
+        results = mem_new(seq_t, res_cap);
         if (!results) return 0;
     }
 
@@ -127,7 +129,7 @@ seq_t a(idx_t n)
                 {
                     if (res_len == res_cap) {
                         res_cap = (res_cap == 0) ? 64 : res_cap << 1;
-                        seq_t *tmp = (seq_t*)realloc(results, res_cap * sizeof(seq_t));
+                        seq_t *tmp = mem_resize(seq_t, results, res_cap);
                         if (!tmp) { free(segment); return 0; }
                         results = tmp;
                     }

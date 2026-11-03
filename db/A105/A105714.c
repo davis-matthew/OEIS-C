@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 6, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   digit_len, seq_to_dec_string
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-01)
+ * Helpers:   num_digits0_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,38 @@
 #include <stdlib.h>
 #include <stddef.h>
 
-#include "../utils/digit_len.h"
-#include "../utils/seq_to_dec_string.h"
+#include <stdint.h>
+#include <string.h>
+#include "../utils/num_digits0_seq.h"
+
+/* Convert a seq_t value to a decimal string.  The buffer must be
+   large enough to hold the result.  */
+static void seq_to_dec_string(seq_t val, char *buf, size_t buflen)
+{
+    seq_t v = val;
+    if (v == 0) {
+        if (buflen >= 2) {
+            buf[0] = '0';
+            buf[1] = '\0';
+        }
+        return;
+    }
+    size_t pos = 0;
+    /* Extract digits in reverse order. */
+    while (v != 0 && pos + 1 < buflen) {
+        seq_t d = v % 10;
+        v = v / 10;
+        buf[pos++] = (char)('0' + (int)d);
+    }
+    /* Null‑terminate and reverse the string. */
+    if (pos >= buflen) pos = buflen - 1;
+    buf[pos] = '\0';
+    for (size_t i = 0; i < pos / 2; ++i) {
+        char tmp = buf[i];
+        buf[i] = buf[pos - 1 - i];
+        buf[pos - 1 - i] = tmp;
+    }
+}
 
 seq_t a(idx_t n)
 {
@@ -38,7 +69,7 @@ seq_t a(idx_t n)
 
     while (1) {
         /* Length of the current Fibonacci number in decimal. */
-        size_t len = (size_t)digit_len(f_prev);
+        size_t len = (size_t)num_digits0_seq(f_prev);
 
         if (len > n) {              /* the number has enough digits */
             size_t need = len + 1;  /* +1 for terminating '\0' */

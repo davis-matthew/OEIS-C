@@ -9,7 +9,8 @@
  *            Fib(k)=Fib(k-1)+Fib(k-2)
  * Range:     u8 n <= 6, u16 n <= 16, u32 n <= 41, u64 n <= 87, u128 n <= 176,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 869 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* cached Fibonacci array */
 static seq_t *fib = NULL;
@@ -30,7 +32,7 @@ static void ensure_fib(idx_t N)
     if (fib == NULL) {
         fib_cap = 2;
         fib_len = 2;
-        fib = (seq_t *)malloc(fib_cap * sizeof(seq_t));
+        fib = mem_new(seq_t, fib_cap);
         fib[0] = 0;
         fib[1] = 1;
     }
@@ -39,10 +41,10 @@ static void ensure_fib(idx_t N)
         size_t new_cap = fib_cap * 2;
         if (new_cap < (size_t)(N + 2))
             new_cap = (size_t)(N + 2);
-        seq_t *new_fib = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_fib = mem_new(seq_t, new_cap);
         for (size_t i = 0; i < fib_len; ++i)
             new_fib[i] = fib[i];
-        free(fib);
+        mem_free(fib);
         fib = new_fib;
         fib_cap = new_cap;
     }

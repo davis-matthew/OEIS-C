@@ -13,14 +13,25 @@
  *            C(x,a)*C(x,b) = Sum_m C(m,a)*C(a,m-b)*C(x,m). The state i...
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 13, u64 n <= 17, u128 n <= 24,
  *            big any n
- * Helpers:   alloc_zero, release
+ * Validated: standard, pass, 36 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
 
 static seq_t *Cf = NULL, *Qf = NULL, *NCf = NULL, *PAS = NULL, *RES = NULL;
 static idx_t Dm = 0;      /* stride / capacity of the square arrays */

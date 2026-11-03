@@ -7,13 +7,15 @@
  * Formula:   a(n) = nextprime(n) + n
  * Range:     u8 n <= 126, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 80 terms through n = 4973 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/is_prime_small.h"
+#include <stdbool.h>
+#include "../utils/is_prime_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     }
 
     /* Search for the next prime (greater or equal to start) */
-    while (!is_prime_small(cand)) {
+    while (!is_prime_seq(cand)) {
         cand += 2ULL;  /* skip even numbers */
     }
 

@@ -9,13 +9,14 @@
  *            starting with its second term)
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 16, u64 n <= 24, u128 n <= 40,
  *            big any n
- * Helpers:   calc_phi
+ * Validated: standard, pass, 41 terms through n = 192 (2026-11-01)
+ * Helpers:   totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/calc_phi.h"
+#include "../utils/totient_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +28,7 @@ seq_t a(idx_t n)
     seq_t sum  = (seq_t)0;
 
     for (idx_t i = (idx_t)1; i <= n; ++i) {
-        seq_t phi_i = calc_phi((seq_t)i);   /* φ(i) */
+        seq_t phi_i = totient_seq((seq_t)i);   /* φ(i) */
         prod = prod * phi_i;                /* prod = A001088(i) */
         if (i >= (idx_t)2) {
             sum = sum + prod;                /* accumulate from the second term */

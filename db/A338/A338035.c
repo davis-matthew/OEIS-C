@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 
 /* OEIS A338035: triangle T(n,m) = (1/m)*∑_{k=1..m} k*C(2m-k-1,m-k)*C(2*(2m-k),n-2m+k),
    enumerated row‑wise: a(n)=T(r,c) where r(r+1)/2≥n and c=n−r(r−1)/2. */
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n) {

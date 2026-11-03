@@ -8,7 +8,8 @@
  * Formula:   a(n) = Σ_{P Dyck, semilength n} ∏_{p∈peaks(P)} C(x_p , y_p)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 11, u128 n <= 15,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 32 terms through n = 72 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
 /* where C(x,y) = binom(x,y) and (x_p , y_p) are the coordinates of each peak p.  */
 
 #include <stdlib.h>
-#include "../utils/binom.h"  /* provides seq_t binom(idx_t a, idx_t b) */
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,13 +30,13 @@ seq_t a(idx_t n)
     const size_t sz = (size_t)n + 1;               /* maximum possible height */
 
     /* Allocate DP tables. Cast for C++ compliance when seq_t is a class. */
-    seq_t *dpU   = (seq_t*)calloc(sz, sizeof(seq_t));
-    seq_t *dpD   = (seq_t*)calloc(sz, sizeof(seq_t));
-    seq_t *newU  = (seq_t*)calloc(sz, sizeof(seq_t));
-    seq_t *newD  = (seq_t*)calloc(sz, sizeof(seq_t));
+    seq_t *dpU   = mem_new(seq_t, sz);
+    seq_t *dpD   = mem_new(seq_t, sz);
+    seq_t *newU  = mem_new(seq_t, sz);
+    seq_t *newD  = mem_new(seq_t, sz);
     if (!dpU || !dpD || !newU || !newD) {
         /* Allocation failed – normally impossible for tested sizes. */
-        free(dpU); free(dpD); free(newU); free(newD);
+        mem_free(dpU); mem_free(dpD); mem_free(newU); mem_free(newD);
         return (seq_t)0;
     }
 
@@ -48,8 +51,8 @@ seq_t a(idx_t n)
         const idx_t max_h = (step <= n) ? step : (2 * n - step);
 
         /* Clear new tables up to max_h. */
-        memset(newU, 0, (max_h + 1) * sizeof(seq_t));
-        memset(newD, 0, (max_h + 1) * sizeof(seq_t));
+        mem_set(newU, 0, (max_h + 1) * sizeof(seq_t));
+        mem_set(newD, 0, (max_h + 1) * sizeof(seq_t));
 
         /* Transition to an up-step: from height h-1 to h. */
         for (idx_t h = 1; h <= max_h; ++h)
@@ -61,7 +64,7 @@ seq_t a(idx_t n)
             seq_t no_peak   = dpD[prev];   /* path ended with a down, no new peak */
             seq_t peak_part = dpU[prev];   /* path ended with an up → peak */
             if (peak_part)
-                peak_part *= binom(step - 1, prev);  /* product over this peak */
+                peak_part *= binomial(step - 1, prev);  /* product over this peak */
 
             newD[prev - 1] = newD[prev - 1] + no_peak + peak_part;
         }
@@ -76,7 +79,7 @@ seq_t a(idx_t n)
     seq_t result = dpD[0];
 
     /* Free allocated memory. */
-    free(dpU); free(dpD); free(newU); free(newD);
+    mem_free(dpU); mem_free(dpD); mem_free(newU); mem_free(newD);
 
     return result;
 }

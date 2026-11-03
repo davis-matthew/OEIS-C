@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 903, u16 n <= 2932, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 9688 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Memoized DP array.  dp[i] holds the number of ways to write i as sum of cubes. */
@@ -29,10 +31,10 @@ seq_t a(idx_t n) {
 
     /* Always recompute up to the requested n; n is modest (≤ 10000 in tests). */
     size_t newcap = (size_t)n + 1;
-    seq_t *newdp = (seq_t*)malloc(newcap * sizeof(seq_t));
+    seq_t *newdp = mem_new(seq_t, newcap);
     if (newdp == NULL) return 0;    /* fallback – should not happen in tests */
 
-    memset(newdp, 0, newcap * sizeof(seq_t));
+    mem_set(newdp, 0, newcap * sizeof(seq_t));
     newdp[0] = 1;   /* one way to make 0 (empty sum) */
 
     /* Enumerate all cubes m³ (m ≥ 2) not exceeding n. */
@@ -45,7 +47,7 @@ seq_t a(idx_t n) {
     }
 
     /* Replace old dp with newdp (freeing previous memory). */
-    free(dp);
+    mem_free(dp);
     dp  = newdp;
     cap = newcap;
 

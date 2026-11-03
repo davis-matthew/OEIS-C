@@ -10,11 +10,13 @@
  *            - 1) × 2^(j+2) along anti‑diagonals
  * Range:     u8 n <= 15, u16 n <= 91, u32 n <= 435, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 70 terms through n = 955 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

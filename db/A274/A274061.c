@@ -11,15 +11,17 @@
  *            follows the definition of sequence A274061. The algorithm uses *
  *            dynamic programming: for each m from 1 to n we compute the best
  *            * result by trying each addition split, each m...
- * Range:     u8 n <= 893, u16 n <= 9835, u32 n <= 9835, u64 n <= 9835,
- *            u128 n <= 9835, big any n
- * Helpers:   none
+ * Range:     u8 n <= 893, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 116 terms through n = 9835 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Maximum cache size for static allocation.  The tests use n ≤ 10000,
  * but we keep a larger buffer to avoid reallocating for moderately
@@ -94,12 +96,9 @@ seq_t a(idx_t n)
         static idx_t dyn_cap = 0;
 
         if (n > dyn_cap) {
-            seq_t *new_cache = (seq_t *)realloc(dyn_cache,
-                                                (n + 1) * sizeof(seq_t));
+            seq_t *new_cache = mem_resize(seq_t, dyn_cache, (n + 1));
             if (!new_cache) return (seq_t)0; /* allocation failed */
             /* Copy old values into new buffer */
-            for (idx_t i = 0; i <= dyn_cap; ++i)
-                new_cache[i] = dyn_cache[i];
             dyn_cache = new_cache;
             dyn_cap   = n;
         }

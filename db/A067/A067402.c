@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 37, u32 n <= 80, u64 n <= 175,
  *            u128 n <= 441, big any n
- * Helpers:   int_pow_seq
+ * Validated: standard, pass, 71 terms through n = 7809 (2026-11-01)
+ * Helpers:   ipow_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/int_pow_seq.h"
+#include "../utils/ipow_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -50,7 +51,7 @@ seq_t a(idx_t n)
     seq_t term = (seq_t)(2 * (unsigned long long)m + 1);
     uint64_t exp = 2 * (r - m - 1);
     seq_t base = (seq_t)(m + 1);
-    term *= int_pow_seq(base, exp);
+    term *= ipow_u64(base, exp);
 
     return term;
 }

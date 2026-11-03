@@ -7,7 +7,8 @@
  * Formula:   a(n) = A007504(n+1) - 2*A071148(n-1)
  * Range:     i8 n <= 10, i16 n <= 39, i32 n <= 39, i64 n <= 39, i128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static storage for primes and their prefix sums. */
 static uint64_t *prime_list   = NULL;  /* prime_list[0..prime_cnt-1] */
@@ -40,7 +42,7 @@ static void grow_prime_storage(void)
     prime_list = new_list;
 
     seq_t *new_sum =
-        (seq_t *)realloc((void *)prime_sum, (new_cap + 1) * sizeof(seq_t));
+        mem_resize(seq_t, prime_sum, (new_cap + 1));
     if (!new_sum)
         abort();
     prime_sum = new_sum;
@@ -70,7 +72,7 @@ static void init_primes(void)
     if (!prime_list)
         abort();
 
-    prime_sum = (seq_t *)malloc((prime_cap + 1) * sizeof(seq_t));
+    prime_sum = mem_new(seq_t, (prime_cap + 1));
     if (!prime_sum)
         abort();
 

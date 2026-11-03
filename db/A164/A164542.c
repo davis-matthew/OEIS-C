@@ -7,13 +7,15 @@
  * Formula:   a(n) = 8*a(n-1) - 8*a(n-2) (a(0)=1, a(1)=16)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 22, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 135 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* Initialise the first two terms if this is the first call. */
     if (seq == NULL) {
         cap = 4;                     /* give some spare room */
-        seq = (seq_t *)malloc(cap * sizeof(seq_t));
+        seq = mem_new(seq_t, cap);
         if (!seq) return (seq_t)0;   /* out‑of‑memory: return 0 (undefined) */
         seq[0] = (seq_t)1;
         seq[1] = (seq_t)16;
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     if ((idx_t)len <= n && (size_t)n + 1 > cap) {
         size_t new_cap = cap * 2;
         if (new_cap < (size_t)n + 1) new_cap = (size_t)n + 1;
-        seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, new_cap);
         if (!seq) return (seq_t)0;   /* out‑of‑memory: return 0 (undefined) */
         cap = new_cap;
     }

@@ -9,7 +9,8 @@
  *            that has not appeared earlier for any index < n
  * Range:     u8 n <= 11, u16 n <= 67, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow2
+ * Validated: standard, pass, 83 terms through n = 9909 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/pow2.h"     /* pow2(idx_t) returns 2^exp as seq_t */
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 /* ---------- static cache ----------
  * seq   : array of computed terms
@@ -67,7 +69,7 @@ static void ensure_seq_cap(void)
 {
     if (seq_len >= (idx_t)seq_cap) {
         size_t new_cap = seq_cap ? seq_cap << 1 : 16;
-        seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq, new_cap);
         if (!tmp) abort();
         seq = tmp;
         seq_cap = new_cap;

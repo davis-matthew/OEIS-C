@@ -8,7 +8,8 @@
  *            many times
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 6, u128 n <= 10,
  *            big any n
- * Helpers:   is_prime, num_digits, pow10_idx, seq_pow
+ * Validated: partial, pass, 10 terms through n = 10 (2026-11-03)
+ * Helpers:   ipow_idx, is_prime_u64, num_digits_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,16 +18,25 @@
 #include <stdint.h>
 
 /* Primality test for 64‑bit numbers */
-#include "../utils/is_prime.h"
+#include <stdlib.h>
+#include <stddef.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/num_digits_u64.h"
+
+static seq_t pow10_idx(idx_t exp)
+{
+    seq_t res = 1;
+    for (idx_t i = 0; i < exp; ++i)
+        res *= 10;
+    return res;
+}
 
 /* Count decimal digits of an unsigned 64‑bit integer */
-#include "../utils/num_digits.h"
 
 /* Power of 10 as a seq_t */
-#include "../utils/pow10_idx.h"
 
 /* Big integer exponentiation */
-#include "../utils/seq_pow.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +49,7 @@ seq_t a(idx_t n)
     /* Find the n‑th nonprime number */
     while (count < n)
     {
-        if (!is_prime((uint64_t)cand))
+        if (!is_prime_u64((uint64_t)cand))
         {
             ++count;
             if (count == n)
@@ -49,7 +59,7 @@ seq_t a(idx_t n)
     }
 
     /* Number of decimal digits of m */
-    int d = num_digits((uint64_t)m);
+    int d = num_digits_u64((uint64_t)m);
     seq_t mult = pow10_idx((idx_t)d);         /* 10^d */
 
     /* Concatenate m, m times */

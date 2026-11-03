@@ -9,13 +9,15 @@
  *            where E_k are the Eisenstein series of weight k
  * Range:     u8 n <= 5, u16 n <= 21, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* --------------  cache -------------- */
 static idx_t recomputed = 0;
@@ -43,7 +45,7 @@ static void free_cache(void)
     free(e2sq_arr);  e2sq_arr  = NULL;
     free(e2cub_arr); e2cub_arr = NULL;
     free(e2e4_arr);  e2e4_arr = NULL;
-    free(a_arr);     a_arr     = NULL;
+    mem_free(a_arr);     a_arr     = NULL;
 }
 
 /* --------------  main recompute -------------- */
@@ -63,7 +65,7 @@ static void recompute(idx_t N)
     e2sq_arr  = (signed __int128 *)calloc(sz, sizeof(signed __int128));
     e2cub_arr = (signed __int128 *)calloc(sz, sizeof(signed __int128));
     e2e4_arr  = (signed __int128 *)calloc(sz, sizeof(signed __int128));
-    a_arr     = (seq_t          *)calloc(sz, sizeof(seq_t));
+    a_arr     = mem_new(seq_t, sz);
 
     /* divisor sums */
     for (idx_t d = 1; d <= N; ++d) {

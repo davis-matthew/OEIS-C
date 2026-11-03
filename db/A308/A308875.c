@@ -9,6 +9,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 48, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
+ * Validated: partial, pass, 59 terms through n = 61 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,6 +21,7 @@
     For n ≥ 5: row = sorted( n+1, 2·n, 2ⁿ )
     The sequence is obtained by concatenating the rows for
     dimensions n = 3, 4, 5, 6, …  */
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 static const seq_t row3[5] = { (seq_t)4, (seq_t)6, (seq_t)8, (seq_t)12, (seq_t)20 };

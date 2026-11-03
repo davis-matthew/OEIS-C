@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 83, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   quaternary_digit_sum
+ * Validated: standard, pass, 80 terms through n = 927 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,18 @@
  */
 
 #include <stdlib.h>
-#include "../utils/quaternary_digit_sum.h"
+#include "../utils/mem.h"
+
+/* Sum of base‑4 digits of x (x > 0).  */
+static seq_t quaternary_digit_sum(seq_t x)
+{
+    seq_t sum = 0;
+    while (x > 0) {
+        sum += x % 4;
+        x /= 4;
+    }
+    return sum;
+}
 
 static seq_t *seq_cache   = NULL;  /* cached terms a(1), a(2), …          */
 static size_t seq_cache_len  = 0;   /* number of cached terms              */
@@ -37,7 +49,7 @@ static void seq_grow_cache(size_t min_needed)
     if (seq_cache_cap >= min_needed) return;
     size_t new_cap = seq_cache_cap ? seq_cache_cap << 1 : 128;
     while (new_cap < min_needed) new_cap <<= 1;
-    seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_cache = mem_resize(seq_t, seq_cache, new_cap);
     seq_cache_cap = new_cap;
 }
 

@@ -10,17 +10,59 @@
  *            that order
  * Range:     u8 n <= 12, u16 n <= 38, u32 n <= 132, u64 n <= 492,
  *            u128 n <= 1904, big any n
- * Helpers:   a003594_max, a003594_mul, a003594_pw, a003594_val
+ * Validated: standard, pass, 57 terms through n = 9197 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/a003594_max.h"
-#include "../utils/a003594_mul.h"
-#include "../utils/a003594_pw.h"
-#include "../utils/a003594_val.h"
+
+static seq_t a003594_max(bool *fixed) {
+    seq_t m = 0;
+    m -= 1;
+    *fixed = (m > 0);
+    return m;
+}
+
+/* multiply with overflow detection for fixed-width builds */
+static seq_t a003594_mul(seq_t x, seq_t y, bool *ovf) {
+    bool fixed;
+    seq_t m = a003594_max(&fixed);
+    if (fixed && y != 0 && x > m / y) {
+        *ovf = true;
+        return 0;
+    }
+    seq_t t = x;
+    t *= y;
+    return t;
+}
+
+static seq_t a003594_pw(seq_t b, unsigned e, bool *ovf) {
+    seq_t r = 1;
+    while (e) {
+        if (e & 1u) {
+            r = a003594_mul(r, b, ovf);
+            if (*ovf) return 0;
+        }
+        e >>= 1;
+        if (e) {
+            b = a003594_mul(b, b, ovf);
+            if (*ovf) return 0;
+        }
+    }
+    return r;
+}
+
+static seq_t a003594_val(unsigned i, unsigned j, bool *ovf) {
+    *ovf = false;
+    seq_t x = a003594_pw((seq_t)3, i, ovf);
+    if (*ovf) return 0;
+    seq_t y = a003594_pw((seq_t)7, j, ovf);
+    if (*ovf) return 0;
+    return a003594_mul(x, y, ovf);
+}
 
 seq_t a(idx_t n) {
     static unsigned short *E3 = (unsigned short *)0;

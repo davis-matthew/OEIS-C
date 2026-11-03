@@ -8,9 +8,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = 0 if n = 1 or n is prime; otherwise a(n) = s + a(s) where
  *            s = sum of distinct prime divisors of n
- * Range:     u8 n <= 397, u16 n <= 9770, u32 n <= 9770, u64 n <= 9770,
- *            u128 n <= 9770, big any n
- * Helpers:   factor_uint64, isPrime
+ * Range:     u8 n <= 397, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 105 terms through n = 9770 (2026-11-01)
+ * Helpers:   factor_uint64, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,8 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#include "../utils/isPrime.h"
 #include "../utils/factor_uint64.h"
+#include "../utils/is_prime.h"
 
 /* Return the sum of distinct prime divisors of x. */
 static inline seq_t sum_distinct_primes(idx_t x)
@@ -44,7 +45,7 @@ static inline seq_t sum_distinct_primes(idx_t x)
 /* Recursive routine that follows the definition. */
 static seq_t a_rec(idx_t n)
 {
-    if (n <= 1 || isPrime(n))
+    if (n <= 1 || is_prime(n))
         return 0;
 
     seq_t s = sum_distinct_primes(n);

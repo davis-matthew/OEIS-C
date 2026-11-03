@@ -11,7 +11,8 @@
  *            a(n-i) where φ_i are the coefficients of Φ_38...
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   multiply_by_xd_minus1
+ * Validated: standard, pass, 97 terms through n = 945 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,29 @@
 /* Includes */
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/multiply_by_xd_minus1.h"
+#include "../utils/mem.h"
+
+/* Helper: multiply a polynomial by (x^d - 1) */
+static void multiply_by_xd_minus1(seq_t *poly, size_t *len, size_t d)
+{
+    size_t old_len = *len;
+    size_t new_len = old_len + d;
+    seq_t *tmp = mem_new(seq_t, new_len);
+    if (!tmp) return; /* allocation failure - unlikely */
+
+    /* (x^d - 1) * poly */
+    for (size_t i = 0; i < old_len; ++i) {
+        tmp[i]     -= poly[i];
+        tmp[i + d] += poly[i];
+    }
+
+    /* copy back */
+    for (size_t i = 0; i < new_len; ++i) {
+        poly[i] = tmp[i];
+    }
+    mem_free(tmp);
+    *len = new_len;
+}
 
 /* Helper: polynomial division by monic divisor.
    Compute quotient q = num / div   (exact division).   */
@@ -31,7 +54,7 @@ static void poly_div_monic(const seq_t *num, size_t lnum,
     size_t deg_div = ldiv - 1;
     size_t deg_quo = deg_num - deg_div;
     size_t qlen = deg_quo + 1;
-    seq_t *rem = (seq_t *)calloc(lnum, sizeof(seq_t));
+    seq_t *rem = mem_new(seq_t, lnum);
     if (!rem) return; /* allocation failure */
 
     /* copy numerator to remainder */
@@ -48,7 +71,7 @@ static void poly_div_monic(const seq_t *num, size_t lnum,
         }
     }
     /* remainder should be zero */
-    free(rem);
+    mem_free(rem);
     *lquo = qlen;
 }
 
@@ -106,7 +129,7 @@ seq_t a(idx_t n)
     /* ensure cache has value for a(0) */
     if (cache_len == 0) {
         cache_cap = 64;
-        cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return 0;                /* allocation failure, return 0 */
         cache[0] = 1;                        /* a(0) = 1 */
         cache_len = 1;
@@ -118,7 +141,7 @@ seq_t a(idx_t n)
         while (cache_len <= (size_t)n) {
             if (cache_len >= cache_cap) {
                 size_t new_cap = cache_cap * 2;
-                seq_t *new_mem = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *new_mem = mem_resize(seq_t, cache, new_cap);
                 if (!new_mem) return 0;     /* allocation failure */
                 cache = new_mem;
                 cache_cap = new_cap;

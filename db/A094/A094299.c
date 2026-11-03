@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 18, u32 n <= 31, u64 n <= 72, u128 n <= 128,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 995 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Generic Euclidean GCD for any unsigned integer type `seq_t`. */
 static seq_t gcd_seq_t(seq_t a, seq_t b)
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     /* initialise cache with a(0) = 1 */
     if (cache == NULL) {
         cap = 1;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cap);
+        cache = mem_new(seq_t, cap);
         cache[0] = (seq_t)1;
         last = 0;
     }
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
         idx_t new_cap = cap ? (cap << 1) : 1;
         while (new_cap < n + 1)
             new_cap <<= 1;
-        cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+        cache = mem_resize(seq_t, cache, new_cap);
         cap = new_cap;
     }
 

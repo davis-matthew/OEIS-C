@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    requested (≈10⁸ elementary arithmetic operations for n = 10⁴). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;   /* dynamic array: dp[i] = required number of partitions */
 static idx_t dp_len = 0;   /* current allocated size (dp_len = max_n + 1) */
@@ -30,7 +32,7 @@ static void recompute_up_to(idx_t n)
 {
     /* Allocate or resize the DP array. */
     size_t new_len = (size_t)n + 1;
-    seq_t *tmp = (seq_t *)realloc(dp, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, dp, new_len);
     if (!tmp) exit(1);
     dp = tmp;
     dp_len = new_len;

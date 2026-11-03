@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mul_mod64
+ * Validated: standard, pass, 71 terms through n = 982 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mul_mod64.h"
+#include <stddef.h>
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 /* ---------- 64‑bit deterministic Miller–Rabin primality test ---------- */
 
@@ -26,8 +29,8 @@ static uint64_t pow_mod64(uint64_t base, uint64_t exp, uint64_t mod)
     uint64_t result = 1 % mod;
     base %= mod;
     while (exp) {
-        if (exp & 1U) result = mul_mod64(result, base, mod);
-        base = mul_mod64(base, base, mod);
+        if (exp & 1U) result = mulmod(result, base, mod);
+        base = mulmod(base, base, mod);
         exp >>= 1;
     }
     return result;
@@ -50,7 +53,7 @@ static bool isPrime64(uint64_t n)
         if (x==1 || x==n-1) continue;
         bool cont = false;
         for (uint64_t r=1;r<s;++r) {
-            x = mul_mod64(x, x, n);
+            x = mulmod(x, x, n);
             if (x==n-1) { cont = true; break; }
         }
         if (!cont) return false;
@@ -105,7 +108,7 @@ static uint32_t m_processed = 0;   /* how many m's have already been examined */
 static void grow_term_cache(void)
 {
     cache_cap = cache_cap ? cache_cap * 2 : 8;
-    seq_t *tmp = (seq_t *)realloc(term_cache, cache_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, term_cache, cache_cap);
     if (!tmp) exit(1);
     term_cache = tmp;
 }

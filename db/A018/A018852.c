@@ -10,14 +10,35 @@
  *            ≥ 0 and uses the cube‑root helper from the utils library
  * Range:     u8 n <= 2, u16 n <= 10, u32 n <= 865, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digits, floor_cube_root
+ * Validated: standard, pass, 89 terms through n = 9550 (2026-11-01)
+ * Helpers:   ipow_i32, num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/floor_cube_root.h"
-#include "../utils/digits.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/num_digits_idx.h"
+
+/* Floor cube root by binary search */
+static inline seq_t floor_cube_root(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    /* raise hi until hi^3 > x */
+    while (ipow_i32(hi, 3) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid3 = ipow_i32(mid, 3);
+        if (mid3 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* multiply by 10^e   (e may be 0).  The result always fits in seq_t for
    the sizes used by this sequence. */

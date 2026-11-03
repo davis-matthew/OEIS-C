@@ -12,9 +12,10 @@
  *            the honeycomb lattice: interpreting 0 as a left turn and 1 as a
  *            right turn at each vertex. The code synthesizes the sequence by
  *            brute‑force search
- * Range:     u8 n <= 4, u16 n <= 400, u32 n <= 9867, u64 n <= 9867,
- *            u128 n <= 9867, big any n
- * Helpers:   none
+ * Range:     u8 n <= 4, u16 n <= 400, u32 n <= 18484, u64 n <= 18484,
+ *            u128 n <= 18484, big any n
+ * Validated: standard, pass, 68 terms through n = 9867 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Direction vectors for a 6‑fold symmetric honeycomb lattice. */
 static const int da[6] = { 1,  1,  0, -1, -1,  0 };
@@ -63,7 +65,7 @@ static void ensure_cache_capacity(size_t minlen)
     if (minlen <= cache_cap) return;
     size_t new_cap = (cache_cap ? cache_cap * 2 : 16);
     while (new_cap < minlen) new_cap <<= 1;
-    seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
     cache = new_ptr;
     cache_cap = new_cap;
 }

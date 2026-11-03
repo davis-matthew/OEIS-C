@@ -11,7 +11,8 @@
  *            composite
  * Range:     i8 n <= 3, i16 n <= 6, i32 n <= 23, i64 n <= 23, i128 n <= 23,
  *            big any n
- * Helpers:   dfs_generate, is_prime32, mod_mul32, mod_pow32
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-01)
+ * Helpers:   is_prime_u32, mulmod_u32, powmod_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,10 +23,41 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/dfs_generate.h"
-#include "../utils/is_prime32.h"
-#include "../utils/mod_mul32.h"
-#include "../utils/mod_pow32.h"
+#include "../utils/is_prime_u32.h"
+#include "../utils/mulmod_u32.h"
+#include "../utils/powmod_u32.h"
+
+/* Recursive generation of distinct‑digit numbers.
+   pos   – current position (0‑based)
+   len   – desired length
+   cur   – number built so far
+   mask  – bitmask of used digits (bit d set if digit d used)
+   cnt   – pointer to counter of primes found. */
+static void dfs_generate(int pos, int len, uint32_t cur,
+                         uint16_t mask, seq_t *cnt)
+{
+    if (pos == len)
+    {
+        if (is_prime_u32(cur))
+            ++(*cnt);
+        return;
+    }
+    for (int d = 0; d <= 9; ++d)
+    {
+        if (mask & (1U << d))
+            continue;               /* digit already used */
+        if (pos == 0 && d == 0)
+            continue;               /* leading zero forbidden */
+        if (pos == len - 1)
+        {
+            /* last digit of a multi‑digit number must be odd and not 5 */
+            if (len > 1 && (d % 2 == 0 || d == 5))
+                continue;
+        }
+        dfs_generate(pos + 1, len, (uint32_t)(cur * 10U + (uint32_t)d),
+                     mask | (1U << d), cnt);
+    }
+}
 
 /* Cached results for n = 1…9.  Index 0 is unused. */
 static seq_t _cache[10] = { 0 };

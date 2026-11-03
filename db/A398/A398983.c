@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   A(n,k) = k * binomial((k+1)*n, n) / ((k+1)*n - 1)
- * Range:     u8 n <= 6, u16 n <= 22, u32 n <= 55, u64 n <= 55, u128 n <= 55,
+ * Range:     u8 n <= 11, u16 n <= 29, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
    from 1 up to d-1 in each diagonal.  The implementation
    searches for the diagonal containing the nth element in O(√n). */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* Find the smallest integer d ≥ 2 such that (d‑1)*d/2 ≥ n.

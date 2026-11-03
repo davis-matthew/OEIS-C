@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 1, u64 n <= 11, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,6 +36,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Binomial coefficient C(m,r) for small r (r≤16) using exact division. */
 static seq_t small_binom(idx_t m, idx_t r, const seq_t *fact)
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
     }
 
     /* Allocate array for a[0..n]. */
-    seq_t *arr = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, (size_t)(n + 1));
     if (!arr) return 0;   /* allocation failure; caller can handle */
 
     arr[0] = 1;   /* base case */
@@ -83,6 +85,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = arr[n];
-    free(arr);
+    mem_free(arr);
     return result;
 }

@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  sign
  * Formula:   a(n) = \sum_{k=0}^n (-1)^k * binomial(5*k, n-k) * Catalan(k)
- * Range:     i8 n <= 4, i16 n <= 8, i32 n <= 16, i64 n <= 27, i128 n <= 27,
+ * Range:     i8 n <= 6, i16 n <= 10, i32 n <= 19, i64 n <= 27, i128 n <= 27,
  *            big any n
- * Helpers:   binomial, catalan
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   binomial, catalan, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,9 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/catalan.h"   /* provides: seq_t catalan(idx_t k) */
-#include "../utils/binomial.h"  /* provides: seq_t binomial(idx_t a, idx_t b) */
+#include "../utils/binomial.h"
+#include "../utils/catalan.h"
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build system.  */
 seq_t a(idx_t n)
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     if ((size_t)(n + 1) > cache_cap) {
         if (cache_cap == 0) cache_cap = 1;
         while (cache_cap < (size_t)(n + 1)) cache_cap <<= 1;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 
     /* Compute all values from cache_size up to n.  */

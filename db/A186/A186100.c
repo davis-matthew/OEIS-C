@@ -11,12 +11,14 @@
  *            gives the correct first 24 terms
  * Range:     i8 n <= 10, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 927 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>  /* for malloc, free */
+#include "../utils/mem.h"
 
 /* cached sum‑of‑divisors array */
 static seq_t *sigma_arr = NULL;
@@ -30,10 +32,10 @@ static void _ensure_sigma(idx_t n)
 
     /* free old storage if it exists */
     if (sigma_arr != NULL)
-        free(sigma_arr);
+        mem_free(sigma_arr);
 
     sigma_size = n + 1;
-    sigma_arr = (seq_t *)malloc(sizeof(seq_t) * sigma_size);
+    sigma_arr = mem_new(seq_t, sigma_size);
     if (sigma_arr == NULL) {
         /* memory allocation failed – abort */
         /* In the test harness such a failure should not occur for n≤10000. */

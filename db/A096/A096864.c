@@ -11,9 +11,10 @@
  *            sigma(phi(x)) starting from n. This implementation iterates the
  *            map until a repetition occurs, tracking the greatest element
  *            seen. It uses the provided calc_phi routine and impleme...
- * Range:     u8 n <= 84, u16 n <= 3384, u32 n <= 9581, u64 n <= 9581,
- *            u128 n <= 9581, big any n
- * Helpers:   calc_phi
+ * Range:     u8 n <= 84, u16 n <= 3384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 84 terms through n = 9581 (2026-11-01)
+ * Helpers:   totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/calc_phi.h"   /* provides seq_t calc_phi(seq_t m); */
+#include "../utils/totient_seq.h"
 
 /* ------------------ sum of divisors sigma(x) --------------------- */
 static seq_t sigma_seq(seq_t n)
@@ -69,7 +70,7 @@ seq_t a(idx_t n)
 
     for (;;)
     {
-        seq_t phi  = calc_phi(current);
+        seq_t phi  = totient_seq(current);
         seq_t next = sigma_seq(phi);
 
         if (next > maxi)

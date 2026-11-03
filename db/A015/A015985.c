@@ -9,13 +9,15 @@
  *            and return the appropriate coefficient
  * Range:     i8 n <= 2000, i16 n <= 2000, i32 n <= 2000, i64 n <= 2000,
  *            i128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 1908 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>  /* malloc, free */
 #include <stddef.h>  /* size_t */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,11 +28,11 @@ seq_t a(idx_t n)
     if (!period_computed) {
         /* Temporary arrays for the convolution.  The casts are required
            for C++ compatibility; they are valid in C as well. */
-        seq_t *cur  = (seq_t*)malloc(sizeof(seq_t) * P);
-        seq_t *next = (seq_t*)malloc(sizeof(seq_t) * P);
+        seq_t *cur  = mem_new(seq_t, P);
+        seq_t *next = mem_new(seq_t, P);
         if (!cur || !next) {
-            if (cur) free(cur);
-            if (next) free(next);
+            if (cur) mem_free(cur);
+            if (next) mem_free(next);
             return 0;                     /* allocation failure → 0 */
         }
 
@@ -75,16 +77,16 @@ seq_t a(idx_t n)
         }
 
         /* Store the computed period. */
-        period = (seq_t*)malloc(sizeof(seq_t) * P);
+        period = mem_new(seq_t, P);
         if (!period) {
-            free(cur);
-            free(next);
+            mem_free(cur);
+            mem_free(next);
             return 0;
         }
         for (size_t i = 0; i < P; ++i) period[i] = cur[i];
 
-        free(cur);
-        free(next);
+        mem_free(cur);
+        mem_free(next);
 
         period_computed = 1;
     }

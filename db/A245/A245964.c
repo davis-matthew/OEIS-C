@@ -10,6 +10,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 89, u16 n <= 89, u32 n <= 89, u64 n <= 89, u128 n <= 89,
  *            big any n
+ * Validated: partial, pass, 90 terms through n = 89 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,7 @@
    T(n,k) = (n/k) * binomial(k, n-2k)   (k ≥ 1)
    a(n) is the n‑th term when the triangle is read row‑wise (offset 0). */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* Total number of entries up to (and including) row R. */

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 39, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache of the partition numbers b(n) and the convolution a(n). */
 static seq_t *b = NULL;          /* b[i] = number of partitions of i into 1 mod 4 parts */
@@ -37,8 +39,8 @@ static void recompute_up_to(idx_t n)
     /* Allocate space for the new arrays.  realloc keeps existing data
        but we will recompute everything anyway. */
     size_t sz = (size_t)(n + 1);
-    seq_t *new_b = (seq_t *)realloc(b, sz * sizeof(seq_t));
-    seq_t *new_a = (seq_t *)realloc(a_cache, sz * sizeof(seq_t));
+    seq_t *new_b = mem_resize(seq_t, b, sz);
+    seq_t *new_a = mem_resize(seq_t, a_cache, sz);
     if (!new_b || !new_a) {
         abort();                     /* out of memory – terminate safely */
     }

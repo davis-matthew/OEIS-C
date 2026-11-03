@@ -7,14 +7,15 @@
  * Formula:   a(n) = number of distinct prime factors of n(n+1)/2
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _count_distinct_primes
+ * Validated: standard, pass, 106 terms through n = 801 (2026-11-01)
+ * Helpers:   omega_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_count_distinct_primes.h"
+#include "../utils/omega_idx.h"
 
 /* Main sequence function */
 seq_t a(idx_t n) {
@@ -30,7 +31,7 @@ seq_t a(idx_t n) {
         b_val >>= 1;
     }
 
-    seq_t ca = _count_distinct_primes(a_val);
-    seq_t cb = _count_distinct_primes(b_val);
+    seq_t ca = omega_idx(a_val);
+    seq_t cb = omega_idx(b_val);
     return ca + cb;
 }

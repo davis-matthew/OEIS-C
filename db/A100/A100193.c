@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{k=0..n} binomial(2*n, n+k) * 3^k
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 13, u64 n <= 26, u128 n <= 53,
  *            big any n
+ * Validated: standard, pass, 40 terms through n = 972 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -12,6 +12,7 @@
  *            k*T(n-1,k-1) + (k+1)*T(n-1,k+1) for n>0, 0<=k<=n
  * Range:     u8 n <= 22, u16 n <= 39, u32 n <= 95, u64 n <= 219,
  *            u128 n <= 573, big any n
+ * Validated: standard, pass, 76 terms through n = 7523 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

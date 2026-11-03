@@ -9,11 +9,13 @@
  *            non‑negative integer with (i+1)(i+2)/2 > n j = n - i(i+1)/2
  * Range:     u8 n <= 5, u16 n <= 14, u32 n <= 37, u64 n <= 138, u128 n <= 502,
  *            big any n
+ * Validated: standard, pass, 48 terms through n = 9443 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n) {

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 188, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_sum_of_consecutive
+ * Validated: standard, pass, 84 terms through n = 9737 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,16 @@
    distinct value using only integer arithmetic. */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_sum_of_consecutive.h"
+
+static bool is_sum_of_consecutive(seq_t N) {
+    for (idx_t k = 4; ; ++k) {
+        seq_t C = (seq_t)k * (k - 1) / 2;      // base sum for length k
+        if (C > N) break;
+        seq_t diff = N - C;
+        if (diff % (seq_t)k == 0) return true;
+    }
+    return false;
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;   // undefined for offset 1, but safe return

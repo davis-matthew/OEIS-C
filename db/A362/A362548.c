@@ -9,13 +9,31 @@
  *            formula and computes p(n) by Euler's pentagonal recurrence
  * Range:     u8 n <= 17, u16 n <= 43, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   count_small_partitions
+ * Validated: partial, pass, 53 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/count_small_partitions.h"
+#include "../utils/mem.h"
+
+/* Number of partitions of n with at most two parts larger than 1. */
+static seq_t count_small_partitions(idx_t n)
+{
+    seq_t cnt = 1;                     /* all ones (empty partition when n==0) */
+    if (n >= 2)
+        cnt += (seq_t)(n - 1);         /* one part > 1 */
+    if (n >= 4) {
+        for (idx_t b = 2; b <= n / 2; ++b) {
+            idx_t max_a = n - b;
+            if (max_a < b)
+                break;
+            cnt += (seq_t)(max_a - b + 1);
+        }
+    }
+    return cnt;
+}
 
 /* Static array holding partition numbers p[0..max] and the current max index. */
 static seq_t *part_arr = NULL;
@@ -28,7 +46,7 @@ static void ensure_partitions(idx_t n)
         return;
 
     /* Grow the array if necessary. */
-    seq_t *new_arr = (seq_t *)realloc(part_arr, (size_t)(n + 1) * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, part_arr, (size_t)(n + 1));
     if (!new_arr) {          /* Allocation failed – keep old data unchanged. */
         new_arr = part_arr;
     } else {

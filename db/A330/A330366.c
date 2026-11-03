@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 2, u16 n <= 225, u32 n <= 9543, u64 n <= 9543,
- *            u128 n <= 9543, big any n
- * Helpers:   build_primes_upto
+ * Range:     u8 n <= 2, u16 n <= 225, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 62 terms through n = 9543 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 /* static cache */
 static seq_t *primes_list      = NULL; /* holds the sequence terms */
@@ -44,7 +46,7 @@ static void rebuild_list(void)
 
     /* temporary array for the sequence */
     size_t cap = 64;
-    seq_t *tmp = (seq_t*)malloc(cap * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, cap);
     size_t cnt = 0;
 
     /* scan adjacent primes; keep the first when both ≡1 mod 10 */
@@ -54,7 +56,7 @@ static void rebuild_list(void)
         {
             if (cnt == cap) {
                 cap <<= 1;
-                tmp = (seq_t*)realloc(tmp, cap * sizeof(seq_t));
+                tmp = mem_resize(seq_t, tmp, cap);
             }
             tmp[cnt++] = (seq_t)primes[i];
         }
@@ -62,7 +64,7 @@ static void rebuild_list(void)
     free(primes);
 
     /* replace old cache */
-    free(primes_list);
+    mem_free(primes_list);
     primes_list     = tmp;
     primes_list_cnt = cnt;
     cache_ready     = true;

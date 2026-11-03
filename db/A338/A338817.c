@@ -7,7 +7,8 @@
  * Formula:   T(n,k) = 1
  * Range:     i8 n <= 16, i16 n <= 30, i32 n <= 65, i64 n <= 65, i128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *fact   = NULL; /* factorial array, fact[i] = i! */
 static idx_t  fact_n = 0;    /* number of factorials available (num-1) */
@@ -31,7 +33,7 @@ static void ensure_factorial(idx_t idx)
 {
     if (idx < fact_n) return;
     size_t new_cap = (size_t)(idx + 1);
-    fact = (seq_t *)realloc(fact, new_cap * sizeof(seq_t));
+    fact = mem_resize(seq_t, fact, new_cap);
     if (!fact) abort();
     for (idx_t i = fact_n; i <= idx; ++i) {
         if (i == 0) fact[i] = 1;
@@ -49,7 +51,7 @@ static void ensure_triangle(idx_t idx)
     if (!T) abort();
     for (idx_t n = t_rows; n <= idx; ++n) {
         /* allocate row of length n+1 */
-        seq_t *row = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (size_t)n + 1);
         if (!row) abort();
         T[n] = row;
 

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    a(6)=20, a(7)=24, a(8)=29, a(9)=34, a(10)=37 */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     /* initialise the cache on first call */
     if (cache == NULL) {
         cacheCap = 16;                           /* start with some capacity */
-        cache = (seq_t*)malloc((size_t)cacheCap * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)cacheCap);
         if (cache == NULL) return (seq_t)0;     /* allocation failed */
         for (idx_t i = 0; i < 11; ++i)
             cache[i] = base[i];
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
     if (n + 1 > cacheCap) {
         idx_t newCap = cacheCap * 2;
         if (newCap <= n + 1) newCap = n + 1;
-        seq_t *newCache = (seq_t*)realloc(cache, (size_t)newCap * sizeof(seq_t));
+        seq_t *newCache = mem_resize(seq_t, cache, (size_t)newCap);
         if (newCache == NULL) return (seq_t)0;   /* allocation failed */
         cache = newCache;
         cacheCap = newCap;

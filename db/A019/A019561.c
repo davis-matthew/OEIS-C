@@ -9,6 +9,7 @@
  *            (1+45x+210x²+210x³+45x⁴+x⁵)/(1‑x)⁵
  * Range:     u8 n <= 1, u16 n <= 7, u32 n <= 119, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 42 terms through n = 9986 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

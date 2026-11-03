@@ -10,6 +10,7 @@
  *            floor((sqrt(8*n+1)-1)/2), c = n - r*(r+1)/2
  * Range:     u8 n <= 13, u16 n <= 27, u32 n <= 54, u64 n <= 135,
  *            u128 n <= 376, big any n
+ * Validated: standard, pass, 63 terms through n = 3972 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

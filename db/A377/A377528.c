@@ -8,7 +8,8 @@
  *            ((k+1)*(n-k)!)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,10 @@
 /* This implements the same sum directly, using the helpers big_pow and binomial. */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/ipow.h"
 
 /* Compute the n-th term of OEIS A377528. */
 seq_t a(idx_t n)
@@ -36,7 +39,7 @@ seq_t a(idx_t n)
             falling *= (seq_t)(n - (j - 1));
 
         /* k^(n-k) */
-        seq_t power = (k == 0 && n == k) ? 1 : big_pow((seq_t)k, (seq_t)(n - k));
+        seq_t power = (k == 0 && n == k) ? 1 : ipow((seq_t)k, (seq_t)(n - k));
 
         /* term = binom * falling * power */
         seq_t term = binom * falling;

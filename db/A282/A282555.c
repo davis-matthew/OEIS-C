@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 25, u128 n <= 52,
  *            big any n
- * Helpers:   violation_count
+ * Validated: standard, pass, 36 terms through n = 189 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,30 @@
    below. */
 
 #include <stdint.h>
-#include "../utils/violation_count.h"
+
+static inline int violation_count(uint8_t up, uint8_t cur, uint8_t down)
+{
+    int cnt = 0;
+    for (int j = 0; j < 3; ++j)
+    {
+        if (!((cur >> j) & 1U))
+            continue;
+        int neighbors = 0;
+        /* same row */
+        if (j > 0 && ((cur >> (j - 1)) & 1U)) neighbors++;
+        if (j < 2 && ((cur >> (j + 1)) & 1U)) neighbors++;
+        /* upper row */
+        if (j > 0 && ((up >> (j - 1)) & 1U)) neighbors++;
+        if ((up >> j) & 1U) neighbors++;
+        if (j < 2 && ((up >> (j + 1)) & 1U)) neighbors++;
+        /* lower row */
+        if (j > 0 && ((down >> (j - 1)) & 1U)) neighbors++;
+        if ((down >> j) & 1U) neighbors++;
+        if (j < 2 && ((down >> (j + 1)) & 1U)) neighbors++;
+        if (neighbors > 2) cnt++;
+    }
+    return cnt;
+}
 
 seq_t a(idx_t n)
 {

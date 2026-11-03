@@ -10,7 +10,8 @@
  *            a(4)=14, a(5)=22, a(6)=27, a(7)=40, a(8)=49, a(9)=71
  * Range:     u8 n <= 14, u16 n <= 55, u32 n <= 863, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 9232 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* pointer to cached values */
 static idx_t cache_cap = 0;      /* capacity of the cache array */
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call. */
     if (cache_cap == 0) {
         cache_cap = 10;                 /* we know at least 10 values */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         assert(cache != NULL);
         /* pre-fill the first 10 terms */
         cache[0] = (seq_t)1;
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
     /* If needed, grow the cache to accommodate n. */
     if (n >= cache_cap) {
         idx_t new_cap = n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         assert(new_cache != NULL);
         cache = new_cache;
         cache_cap = new_cap;

@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 2525, u16 n <= 9570, u32 n <= 9570, u64 n <= 9570,
- *            u128 n <= 9570, big any n
- * Helpers:   factor_u64
+ * Range:     u8 n <= 2525, u16 n <= 65536, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9570 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 /* external helper for prime factorisation */
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* Compute g = gcd(a,b) for seq_t. */
 static seq_t _gcd(seq_t a, seq_t b) {
@@ -86,7 +88,7 @@ seq_t a(idx_t n) {
 
     /* generate all divisors of n */
     size_t divs_cap = 16;
-    seq_t *divs = (seq_t *)malloc(divs_cap * sizeof(seq_t));
+    seq_t *divs = mem_new(seq_t, divs_cap);
     if (!divs) return (seq_t)0; /* allocation failure */
     size_t divs_len = 1;
     divs[0] = (seq_t)1;
@@ -101,7 +103,7 @@ seq_t a(idx_t n) {
             for (size_t j = 0; j < current_len; ++j) {
                 if (divs_len == divs_cap) {
                     divs_cap <<= 1;
-                    divs = (seq_t *)realloc(divs, divs_cap * sizeof(seq_t));
+                    divs = mem_resize(seq_t, divs, divs_cap);
                     if (!divs) return (seq_t)0; /* allocation failure */
                 }
                 divs[divs_len++] = divs[j] * mult;
@@ -116,6 +118,6 @@ seq_t a(idx_t n) {
         if (_is_A083345_even(d)) count++;
     }
 
-    free(divs);
+    mem_free(divs);
     return count;
 }

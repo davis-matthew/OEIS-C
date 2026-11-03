@@ -10,12 +10,14 @@
  *            θ₃(qᵈ)=1+2∑_{k>0} q^{d·k²} for all divisors d of 24
  * Range:     u8 n <= 20, u16 n <= 125, u32 n <= 4991, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 9498 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* Allocate array for dynamic programming, size n+1.  All entries
        are zeroed by calloc.  The initial array represents the
        product of an empty set of factors (coefficient 1 at 0).   */
-    seq_t *dp = (seq_t *)calloc(n + 1, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, n + 1);
     if (!dp) /* allocation failed; return 0 as fallback */
         return 0;
     dp[0] = (seq_t)1;
@@ -39,9 +41,9 @@ seq_t a(idx_t n)
         idx_t d = divs[di];
 
         /* Temporary array for the next convolution stage. */
-        seq_t *next = (seq_t *)calloc(n + 1, sizeof(seq_t));
+        seq_t *next = mem_new(seq_t, n + 1);
         if (!next) {
-            free(dp);
+            mem_free(dp);
             return 0;
         }
 
@@ -61,11 +63,11 @@ seq_t a(idx_t n)
             next[m] = sum;
         }
 
-        free(dp);
+        mem_free(dp);
         dp = next;
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

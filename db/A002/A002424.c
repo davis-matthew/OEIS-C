@@ -8,12 +8,22 @@
  *            (-4)^n*binomial(9/2, n))
  * Range:     i8 n <= 2, i16 n <= 15, i32 n <= 26, i64 n <= 44, i128 n <= 78,
  *            big any n
- * Helpers:   a002424_sgcd
+ * Validated: standard, pass, 45 terms through n = 940 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a002424_sgcd.h"
+static long long a002424_sgcd(long long x, long long y) {
+    if (x < 0) x = -x;
+    if (y < 0) y = -y;
+    while (y) {
+        long long t = x % y;
+        x = y;
+        y = t;
+    }
+    return x;
+}
 
 seq_t a(idx_t n) {
     seq_t result = 1;

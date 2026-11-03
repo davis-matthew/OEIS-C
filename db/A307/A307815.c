@@ -7,7 +7,8 @@
  * Formula:   a(n) = # of partitions of n into 3 square‑free parts (unordered)
  * Range:     u8 n <= 106, u16 n <= 1822, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, floor_isqrt_u64
+ * Validated: standard, pass, 91 terms through n = 9706 (2026-11-01)
+ * Helpers:   build_primes_upto, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/floor_isqrt_u64.h"
 #include "../utils/build_primes_upto.h"
+#include "../utils/isqrt.h"
 
 static bool *squarefree_cache = NULL;
 static idx_t cache_max = 0;
@@ -39,7 +40,7 @@ static void ensure_squarefree_cache(idx_t n)
     squarefree_cache = new_cache;
 
     /* Mark all numbers that are divisible by a square > 1. */
-    idx_t limit = floor_isqrt_u64(n);
+    idx_t limit = isqrt(n);
     size_t prime_cnt;
     uint64_t *primes = NULL;
     build_primes_upto(limit, &primes, &prime_cnt);

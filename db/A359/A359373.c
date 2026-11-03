@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   _floor_isqrt_u64
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_floor_isqrt_u64.h"   /* idx_t _floor_isqrt_u64(idx_t n) */
+#include "../utils/isqrt.h"
 
 static uint64_t *prime_list = NULL;   /* dynamic array of primes */
 static size_t prime_cnt   = 0;
@@ -67,7 +68,7 @@ static int odd_prime_factor_parity(uint64_t n)
     unsigned parity = 0;    /* 0 = even, 1 = odd */
 
     /* Ensure we have primes up to sqrt(temp) for factoring */
-    uint64_t sqrt_n = _floor_isqrt_u64(temp);
+    uint64_t sqrt_n = isqrt(temp);
     if (prime_cnt == 0 || prime_list[prime_cnt - 1] < sqrt_n)
         ensure_primes_leq(sqrt_n);
 

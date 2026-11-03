@@ -12,7 +12,8 @@
  *            counting subsets of the Fibonacci coins
  * Range:     u8 n <= 22, u16 n <= 82, u32 n <= 82, u64 n <= 82, u128 n <= 82,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 81 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 #define MAX_N 20000ULL          /* maximum n we will precompute */
@@ -37,7 +39,7 @@ static bool table_built = false;
 static void build_tables(void)
 {
     size_t sz = (size_t)MAX_M + 1ULL;
-    dp_global = (seq_t *)calloc(sz, sizeof(seq_t));
+    dp_global = mem_new(seq_t, sz);
     if (!dp_global) abort();
     dp_global[0] = 1ULL;      /* one way to make 0: empty subset */
 
@@ -67,7 +69,7 @@ static void build_tables(void)
     }
 
     /* Allocate answer tables */
-    ans_global = (seq_t *)calloc((size_t)MAX_N + 1ULL, sizeof(seq_t));
+    ans_global = mem_new(seq_t, (size_t)MAX_N + 1ULL);
     seen      = (unsigned char *)calloc((size_t)MAX_N + 1ULL, sizeof(unsigned char));
     if (!ans_global || !seen) abort();
 

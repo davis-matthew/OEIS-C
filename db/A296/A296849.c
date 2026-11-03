@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 24, u64 n <= 49, u128 n <= 99,
  *            big any n
- * Helpers:   grow_seq_array
+ * Validated: standard, pass, 46 terms through n = 952 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,20 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/grow_seq_array.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* Helper to grow a sequence array of type seq_t. */
+static void grow_seq_array(seq_t **arr, size_t *size, size_t new_len)
+{
+    if (*size >= new_len) return;
+    size_t new_cap = (*size > 0) ? (*size << 1) : 16;
+    while (new_cap < new_len) new_cap <<= 1;
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+    if (!tmp) abort();
+    *arr = tmp;
+    *size = new_cap;
+}
 
 /* binary search – does A contain val?  A[0..len-1] is sorted */
 static bool contains_a(const seq_t *A, size_t len, seq_t val) {
@@ -50,14 +64,14 @@ seq_t a(idx_t n) {
     if (lenA == 0) {
         /* a(0) = 1, a(1) = 2 */
         capA = 4;
-        A = (seq_t *)malloc(capA * sizeof(seq_t));
+        A = mem_new(seq_t, capA);
         A[0] = (seq_t)1;
         A[1] = (seq_t)2;
         lenA = 2;
 
         /* b(0) = 3, b(1) = 4, b(2) = 5 */
         capB = 8;
-        B = (seq_t *)malloc(capB * sizeof(seq_t));
+        B = mem_new(seq_t, capB);
         B[0] = (seq_t)3;
         B[1] = (seq_t)4;
         B[2] = (seq_t)5;

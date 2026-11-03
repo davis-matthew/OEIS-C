@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 7, u32 n <= 14, u64 n <= 14, u128 n <= 14,
  *            big any n
- * Helpers:   ok_in_bases, seq_alloc_array
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,8 +29,29 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/seq_alloc_array.h"
-#include "../utils/ok_in_bases.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+/* Check all bases 6…9; each representation must use only digits ≤ 4. */
+static bool ok_in_bases(seq_t x)
+{
+    for (int b = 6; b <= 9; ++b) {
+        seq_t t = x;
+        while (t != (seq_t)0) {
+            seq_t d = t % (seq_t)b;
+            if (d > (seq_t)4)
+                return false;
+            t /= (seq_t)b;
+        }
+    }
+    return true;
+}
 
 static seq_t *seq_cache = NULL;   /* cache of sequence values */
 static size_t seq_len   = 0;      /* number of stored values   */
@@ -50,7 +72,7 @@ static void ensure_seq_capacity(size_t needed)
 
     seq_t *new_cache = seq_alloc_array(new_cap);
     if (seq_cache) {
-        memcpy(new_cache, seq_cache, seq_len * sizeof(seq_t));
+        mem_copy(new_cache, seq_cache, seq_len * sizeof(seq_t));
         /* We deliberately do not free the old array. */
     }
     seq_cache = new_cache;

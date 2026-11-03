@@ -9,6 +9,7 @@
  *            initial values: a(0)=0, a(1)=1, a(2)=1, a(3)=2, a(4)=3, a(5)=5
  * Range:     i8 n <= 7, i16 n <= 10, i32 n <= 17, i64 n <= 26, i128 n <= 26,
  *            big any n
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

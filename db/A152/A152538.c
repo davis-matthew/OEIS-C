@@ -8,12 +8,14 @@
  *            r(r+1)/2 p(k) = partition number, d(k) = A152537(k)
  * Range:     u8 n <= 64, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --- cached tables ---------------------------------------------------- */
 static seq_t *p_cache = NULL;      /* partition numbers p[0..p_len-1]  */
@@ -34,7 +36,7 @@ static void ensure_partitions(idx_t max)
 {
     if (p_len > max) return;
     /* enlarge p_cache */
-    seq_t *tmp = (seq_t *)realloc(p_cache, (max + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, p_cache, (max + 1));
     if (!tmp) exit(EXIT_FAILURE);
     p_cache = tmp;
     p_len  = max + 1;
@@ -53,7 +55,7 @@ static void ensure_partitions(idx_t max)
 static void ensure_pow2(idx_t max)
 {
     if (pow2_len > max) return;
-    seq_t *tmp = (seq_t *)realloc(pow2_cache, (max + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, pow2_cache, (max + 1));
     if (!tmp) exit(EXIT_FAILURE);
     pow2_cache = tmp;
     if (pow2_len == 0) {
@@ -70,7 +72,7 @@ static void ensure_pow2(idx_t max)
 static void ensure_d(idx_t max)
 {
     if (d_len > max) return;
-    seq_t *tmp = (seq_t *)realloc(d_cache, (max + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, d_cache, (max + 1));
     if (!tmp) exit(EXIT_FAILURE);
     d_cache = tmp;
     if (d_len == 0) {
@@ -122,7 +124,7 @@ static void ensure_rows(idx_t needed_row)
         /* new total size after adding this row */
         size_t new_len = (size_t)((r + 1) * (r + 2) / 2);
         if (a_cap < new_len) {
-            seq_t *tmp = (seq_t *)realloc(a_cache, new_len * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, a_cache, new_len);
             if (!tmp) exit(EXIT_FAILURE);
             a_cache = tmp;
             a_cap = new_len;

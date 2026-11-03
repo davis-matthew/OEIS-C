@@ -9,13 +9,15 @@
  *            that is 1 or 2 or not a Fibonacci number
  * Range:     u8 n <= 10, u16 n <= 21, u32 n <= 44, u64 n <= 90, u128 n <= 183,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 935 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 
 static seq_t *fib = NULL;
@@ -31,7 +33,7 @@ static seq_t next_val = 1;
 static void fib_init(void) {
     if (!fib) {
         fib_cap = 2;
-        fib = (seq_t*)malloc(fib_cap * sizeof(seq_t));
+        fib = mem_new(seq_t, fib_cap);
         fib[0] = (seq_t)0;
         fib[1] = (seq_t)1;
         fib_len = 2;
@@ -44,7 +46,7 @@ static void ensure_fib_index(idx_t k) {
     while (fib_len <= k) {
         if (fib_len >= fib_cap) {
             fib_cap = fib_cap * 2;
-            seq_t *tmp = (seq_t*)realloc(fib, fib_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, fib, fib_cap);
             if (!tmp) abort();
             fib = tmp;
         }
@@ -59,7 +61,7 @@ static void ensure_fib_up_to_value(seq_t v) {
     while (fib_len >= 2 && fib[fib_len-1] < v) {
         if (fib_len >= fib_cap) {
             fib_cap = fib_cap * 2;
-            seq_t *tmp = (seq_t*)realloc(fib, fib_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, fib, fib_cap);
             if (!tmp) abort();
             fib = tmp;
         }
@@ -85,7 +87,7 @@ static int member_fib(seq_t x) {
 static void ensure_c_len(idx_t n) {
     if (!c_cache) {
         c_cap = 64;
-        c_cache = (seq_t*)malloc(c_cap * sizeof(seq_t));
+        c_cache = mem_new(seq_t, c_cap);
         c_len = 0;
         next_val = 1;
     }
@@ -95,7 +97,7 @@ static void ensure_c_len(idx_t n) {
         if (cand == (seq_t)1 || cand == (seq_t)2 || !member_fib(cand)) {
             if (c_len >= c_cap) {
                 c_cap = c_cap * 2;
-                seq_t *tmp = (seq_t*)realloc(c_cache, c_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, c_cache, c_cap);
                 if (!tmp) abort();
                 c_cache = tmp;
             }

@@ -8,7 +8,8 @@
  * Formula:   a(n) = |{ primes p ≤ n | p^(p+n) ≡ p (mod p+n) }|
  * Range:     u8 n <= 290, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 106 terms through n = 9986 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/mod_pow.h"   /* provides mod_pow(seq_t, uint64_t, seq_t) */
+#include <string.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     for (idx_t p = 2; p <= n; ++p) {
         if (is_prime[p]) {
             seq_t mod = (seq_t)(p + n);
-            seq_t res = mod_pow((seq_t)p, (uint64_t)(p + n), mod);
+            seq_t res = powmod((seq_t)p, (uint64_t)(p + n), mod);
             if (res == (seq_t)p)
                 ++count;
         }

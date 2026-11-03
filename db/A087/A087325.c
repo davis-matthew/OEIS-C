@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 65, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64
+ * Validated: standard, pass, 75 terms through n = 9505 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* Return true if a and b have the same multiset of prime exponents. */
 static bool same_signature_uint64(uint64_t a, uint64_t b)
@@ -80,7 +82,7 @@ seq_t a(idx_t n)
     /* Grow cache if first call. */
     if (cap == 0) {
         cap = 128;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
     }
 
     /* Generate terms until we have at least n terms. */
@@ -105,7 +107,7 @@ seq_t a(idx_t n)
         if (same_signature_uint64(k, comp)) {
             if (size == cap) {
                 cap *= 2;
-                cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cap);
             }
             cache[size] = (seq_t)k;
             ++size;

@@ -10,12 +10,14 @@
  *            derivative identity f' = c' f for f = exp(c)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 20, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 499 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* grow cache if necessary */
     if (n > known_n) {
         size_t new_size = (size_t)n + 1;
-        seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_size);
         if (!new_cache)
             return (seq_t)0;  /* allocation failed */
 
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
         }
 
         /* replace old cache */
-        free(cache);
+        mem_free(cache);
         cache    = new_cache;
         known_n  = n;
     }

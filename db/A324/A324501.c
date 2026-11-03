@@ -9,14 +9,15 @@
  *            of all divisors of d
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   gcd_seq_t
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/gcd_seq_t.h"
+#include "../utils/gcd.h"
 
 /* Integer power using exponentiation by squaring */
 static seq_t big_pow(seq_t base, idx_t exp)
@@ -74,12 +75,12 @@ static void rec_divs(size_t idx, size_t pn,
             pod_val = pod_val * term;
         }
         /* Add 1/pod_val to the current fraction num/den */
-        seq_t g = gcd_seq_t(*den, pod_val);
+        seq_t g = gcd(*den, pod_val);
         seq_t pod_div_g = pod_val / g;
         seq_t den_div_g = *den / g;
         seq_t new_num = (*num) * pod_div_g + den_div_g;
         seq_t new_den = (*den) * pod_div_g;
-        seq_t g2 = gcd_seq_t(new_num, new_den);
+        seq_t g2 = gcd(new_num, new_den);
         *num = new_num / g2;
         *den = new_den / g2;
         return;

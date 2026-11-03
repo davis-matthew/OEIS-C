@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 95, u16 n <= 570, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   nondec_digits
+ * Validated: standard, pass, 80 terms through n = 971 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,21 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/nondec_digits.h"
+#include "../utils/mem.h"
+
+/* Test whether decimal digits of x are nondecreasing (from most to least significant). */
+static bool nondec_digits(uint64_t x)
+{
+    const uint64_t TEN = 10;
+    int prev = 10;                     /* greater than any digit */
+    while (x > 0) {
+        int digit = (int)(x % TEN);
+        if (digit > prev) return false;
+        prev = digit;
+        x /= TEN;
+    }
+    return true;
+}
 
 /* Check whether all divisors of m have nondecreasing decimal digits. */
 static bool satisfies(uint64_t m)
@@ -51,9 +66,9 @@ seq_t a(idx_t n)
         if (satisfies(next_candidate)) {
             if (seq_len == seq_cap) {
                 seq_cap = seq_cap ? seq_cap * 2 : 8;
-                seq_t *tmp = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, seq, seq_cap);
                 if (!tmp) {          /* allocation failed; abort */
-                    free(seq);
+                    mem_free(seq);
                     seq = NULL;
                     seq_cap = 0;
                     seq_len = 0;

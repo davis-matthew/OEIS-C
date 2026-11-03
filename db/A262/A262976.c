@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 116 terms through n = 9906 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- configuration ------------------------------------------------- */
 /* Sieve limit must cover all z^2 needed for the requested n.
@@ -75,7 +77,7 @@ static void ensure_precomputed(idx_t n)
     /* extend cnt array if necessary */
     if (n + 1 > cnt_size) {
         size_t new_size = (size_t)(n + 1);
-        seq_t *tmp = (seq_t*)realloc(cnt, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cnt, new_size);
         if (!tmp) abort();
         /* initialize new entries to zero */
         for (idx_t i = cnt_size; i < new_size; ++i) tmp[i] = 0;

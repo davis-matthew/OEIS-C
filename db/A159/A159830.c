@@ -11,12 +11,14 @@
  *            d_{m+1} = Σ_{k=0}^{m} C(m,k) * d_k – 2*d_m *...
  * Range:     i8 n <= 28, i16 n <= 65, i32 n <= 65, i64 n <= 65, i128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Multiplicative computation of binomial coefficient.
  * n and k are non‑negative and n ≥ k.
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     idx_t c = n - prev_offset;   /* column within the row */
 
     /* Build first column d[0 … r] by recurrence. */
-    seq_t *d = (seq_t *)malloc((r + 1) * sizeof(seq_t));
+    seq_t *d = mem_new(seq_t, (r + 1));
     if (!d)
         return (seq_t)0;          /* allocation failure – return 0 */
 
@@ -67,6 +69,6 @@ seq_t a(idx_t n)
     seq_t bin = small_binom((idx_t)r, (idx_t)c);
     seq_t result = bin * d[r - c];
 
-    free(d);
+    mem_free(d);
     return result;
 }

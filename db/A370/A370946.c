@@ -8,7 +8,8 @@
  *            sum to n
  * Range:     u8 n <= 20, u16 n <= 43, u32 n <= 103, u64 n <= 268,
  *            u128 n <= 746, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 65 terms through n = 4718 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,9 @@
    Then a(n) = Σ_{m≥1} f(n,m) * B(m).  */
 
 #include <stdlib.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +40,7 @@ seq_t a(idx_t n)
     /* DP table for p(N,k): partitions of N into exactly k parts */
     size_t rows = (size_t)n + 1;
     size_t cols = (size_t)max_m + 1;
-    seq_t *p = (seq_t *)calloc(rows * cols, sizeof(seq_t));
+    seq_t *p = mem_new(seq_t, rows * cols);
     if (!p) return 0;                    /* memory allocation failure */
 
     p[0 * cols + 0] = 1;                 /* p(0,0)=1 */
@@ -51,13 +54,13 @@ seq_t a(idx_t n)
     }
 
     /* Compute B(m): partitions into blocks of size ≥ 2 */
-    seq_t *B = (seq_t *)calloc((size_t)max_m + 1, sizeof(seq_t));
-    if (!B) { free(p); return 0; }
+    seq_t *B = mem_new(seq_t, (size_t)max_m + 1);
+    if (!B) { mem_free(p); return 0; }
     B[0] = 1;
     for (idx_t m = 1; m <= max_m; ++m) {
         seq_t sum = 0;
         for (idx_t s = 2; s <= m; ++s) {
-            seq_t bin = binom(m - 1, s - 1);
+            seq_t bin = binomial(m - 1, s - 1);
             seq_t sub = B[m - s];
             sum += bin * sub;
         }
@@ -73,7 +76,7 @@ seq_t a(idx_t n)
         result += f * B[m];
     }
 
-    free(p);
-    free(B);
+    mem_free(p);
+    mem_free(B);
     return result;
 }

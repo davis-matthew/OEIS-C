@@ -7,6 +7,7 @@
  * Formula:   a(n) = prime(4*n - 2) (the (4*n-2)-th prime)
  * Range:     u8 n <= 14, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 65 terms through n = 949 (2026-11-01)
  * Helpers:   sieve_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,8 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
+#include <string.h>
 #include "../utils/sieve_primes.h"
 
 /* Static cache of primes: primes_arr holds primes[0] = 2, ... */

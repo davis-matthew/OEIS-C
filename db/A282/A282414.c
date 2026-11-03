@@ -11,6 +11,7 @@
  *            2^(n+1) – 1 for even n > 1
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 63, u128 n <= 126,
  *            big any n
+ * Validated: standard, pass, 58 terms through n = 123 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,6 +21,7 @@
    2^exp value in seq_t, handling arbitrary-precision integers when needed.
    The function works for all non‑negative n and for any seq_t width. */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

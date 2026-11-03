@@ -8,12 +8,14 @@
  *            a(0)=0, a(1)=0, a(2)=1, a(3)=2, a(4)=2, a(5)=4, a(6)=4, a(7)=8
  * Range:     u8 n <= 20, u16 n <= 120, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 883 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,9 +27,9 @@ seq_t a(idx_t n)
         if (new_size < 8) new_size = 8;
 
         if (cache == NULL) {
-            cache = (seq_t *)malloc(sizeof(seq_t) * new_size);
+            cache = mem_new(seq_t, new_size);
         } else {
-            cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_size);
+            cache = mem_resize(seq_t, cache, new_size);
         }
 
         static const seq_t base[8] = {0, 0, 1, 2, 2, 4, 4, 8};

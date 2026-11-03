@@ -8,13 +8,15 @@
  *            function: (1 - x^2)/(1 - 3*x^2 - x^3)
  * Range:     u8 n <= 10, u16 n <= 19, u32 n <= 36, u64 n <= 72, u128 n <= 142,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 3101 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* initialise cache with the base cases */
     if (cache == NULL) {
         cap   = 3;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (cache == NULL) abort();    /* allocation failed */
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)0;
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     /* enlarge the cache if n is beyond its current size */
     if ((size_t)n >= cap) {
         size_t newcap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (tmp == NULL) abort();      /* allocation failed */
         cache = tmp;
         cap   = newcap;

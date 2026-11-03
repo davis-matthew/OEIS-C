@@ -8,12 +8,16 @@
  *            from 1: a(1) = 12
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 54, u64 n <= 200, u128 n <= 200,
  *            big any n
+ * Validated: standard, pass, 43 terms through n = 189 (2026-11-01)
  * Helpers:   sieve_first_n_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+#include <math.h>
 #include "../utils/sieve_first_n_primes.h"
 
 seq_t a(idx_t n)

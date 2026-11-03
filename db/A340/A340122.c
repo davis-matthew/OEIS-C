@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   lucas_U_mod
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,34 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/lucas_U_mod.h"
+#include "../utils/mem.h"
+
+/* ---- Lucas sequence U(n) with parameters a=3, b=1, mod m ---- */
+static seq_t lucas_U_mod(seq_t n, seq_t mod)
+{
+    /* matrices are stored in row major order:
+       [m00 m01]
+       [m10 m11] */
+    seq_t r00 = 1, r01 = 0, r10 = 0, r11 = 1;           /* identity */
+    seq_t p00 = 3 % mod, p01 = (mod - 1) % mod,          /* base matrix */
+           p10 = 1 % mod, p11 = 0;
+    while (n) {
+        if (n & 1) {
+            seq_t t00 = ((unsigned __int128)r00 * p00 + (unsigned __int128)r01 * p10) % mod;
+            seq_t t01 = ((unsigned __int128)r00 * p01 + (unsigned __int128)r01 * p11) % mod;
+            seq_t t10 = ((unsigned __int128)r10 * p00 + (unsigned __int128)r11 * p10) % mod;
+            seq_t t11 = ((unsigned __int128)r10 * p01 + (unsigned __int128)r11 * p11) % mod;
+            r00 = t00; r01 = t01; r10 = t10; r11 = t11;
+        }
+        seq_t t00 = ((unsigned __int128)p00 * p00 + (unsigned __int128)p01 * p10) % mod;
+        seq_t t01 = ((unsigned __int128)p00 * p01 + (unsigned __int128)p01 * p11) % mod;
+        seq_t t10 = ((unsigned __int128)p10 * p00 + (unsigned __int128)p11 * p10) % mod;
+        seq_t t11 = ((unsigned __int128)p10 * p01 + (unsigned __int128)p11 * p11) % mod;
+        p00 = t00; p01 = t01; p10 = t10; p11 = t11;
+        n >>= 1;
+    }
+    return r10 % mod;   /* U(n) is in the element (1,0) of the matrix */
+}
 
 /* ---- helper: 64‑bit modular multiplication and power ---- */
 static inline uint64_t mul_mod64(uint64_t a, uint64_t b, uint64_t mod)
@@ -79,7 +107,7 @@ seq_t a(idx_t n)
     if (!ready) {
         ready = true;
         cap = 64;
-        buf = (seq_t*)malloc(cap * sizeof(seq_t));
+        buf = mem_new(seq_t, cap);
     }
 
     while (len < (size_t)n) {
@@ -99,7 +127,7 @@ seq_t a(idx_t n)
         if (u == target) {
             if (len == cap) {
                 cap *= 2;
-                buf = (seq_t*)realloc(buf, cap * sizeof(seq_t));
+                buf = mem_resize(seq_t, buf, cap);
             }
             buf[len++] = (seq_t)last;
         }

@@ -8,13 +8,14 @@
  *            Product_{k=0..n-1} (4*k+7))
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 20, u128 n <= 41,
  *            big any n
- * Helpers:   a004986_gcd_u64
+ * Validated: standard, pass, 38 terms through n = 996 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a004986_gcd_u64.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n) {
     seq_t result = 1;
@@ -23,11 +24,11 @@ seq_t a(idx_t n) {
         uint64_t t = 2 * (4 * (uint64_t)i + 3);
         /* cancel common factor of result and i */
         uint64_t r = (uint64_t)(result % (seq_t)m);
-        uint64_t g1 = a004986_gcd_u64(m, r);
+        uint64_t g1 = gcd_u64(m, r);
         result /= (seq_t)g1;
         m /= g1;
         /* cancel common factor of t and remaining divisor */
-        uint64_t g2 = a004986_gcd_u64(t, m);
+        uint64_t g2 = gcd_u64(t, m);
         t /= g2;
         m /= g2;
         /* now m is coprime to t, so m divides result */

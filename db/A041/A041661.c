@@ -9,12 +9,14 @@
  *            2891939, 6189121, 9081060
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 16, u64 n <= 32, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;      /* memoized values */
@@ -34,7 +36,7 @@ seq_t a(idx_t n) {
         if (new_cap > cache_capacity) {
             idx_t cand = cache_capacity ? cache_capacity * 2 : 16;
             if (cand < new_cap) cand = new_cap;
-            seq_t *tmp = (seq_t *)realloc(cache, cand * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, cand);
             cache = tmp;
             cache_capacity = cand;
         }

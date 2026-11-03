@@ -13,6 +13,7 @@
  *            14620, -48372, 143864, -388316, 986436]
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 10, u64 n <= 10, u128 n <= 10,
  *            big any n
+ * Validated: partial, pass, 11 terms through n = 10 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

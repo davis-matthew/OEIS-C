@@ -7,6 +7,7 @@
  * Formula:   a(n) = A056964^n(196), where A056964(x) = x + reverse_digits(x)
  * Range:     u8 n <= 0, u16 n <= 5, u32 n <= 17, u64 n <= 40, u128 n <= 81,
  *            big any n
+ * Validated: standard, pass, 43 terms through n = 2333 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

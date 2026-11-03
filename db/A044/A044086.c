@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   has_pattern_14_base5
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,20 @@
 /* Sequence A044086: n-th integer whose base‑5 representation contains the
    substring "14" while the previous integer does not.  */
 #include <stdbool.h>
-#include "../utils/has_pattern_14_base5.h"
+
+static bool has_pattern_14_base5(idx_t x)
+{
+    /* Return true if the base‑5 expansion of x has digits ...1,4 ... */
+    idx_t prev = (idx_t)-1;           /* sentinel for “no previous digit” */
+    while (x > 0) {
+        idx_t d = x % 5;              /* current (least‑significant) digit */
+        if (d == 1 && prev == 4)      /* pattern found when scanning LSB→MSB  */
+            return true;
+        prev = d;
+        x /= 5;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

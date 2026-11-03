@@ -10,13 +10,18 @@
  *            horizontal and vertical neighbors
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 14, u64 n <= 27, u128 n <= 54,
  *            big any n
- * Helpers:   digit_from_row
+ * Validated: standard, pass, 38 terms through n = 199 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/digit_from_row.h"
+
+static inline int digit_from_row(int row, int col) {
+    /* row = 0..24, col = 0 or 1 */
+    return (col == 0) ? row / 5 : row % 5;
+}
 
 static inline bool row_ok(int prev_row, bool prev_exists,
                           int curr_row, int next_row, bool next_exists) {

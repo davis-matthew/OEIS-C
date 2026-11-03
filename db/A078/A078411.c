@@ -7,6 +7,7 @@
  * Formula:   a(n) = ((2*n^3 + 6*n^2 + 27*n + 36) - 9*n*(n%2)) / 36
  * Range:     u8 n <= 3, u16 n <= 30, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 67 terms through n = 977 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

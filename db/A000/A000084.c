@@ -12,15 +12,43 @@
  *            a(n) (the k = n term contains n*a(n)/2). Fixed...
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 21, u64 n <= 39, u128 n <= 75,
  *            big any n
- * Helpers:   a84_gcd, a84_small
+ * Validated: standard, pass, 43 terms through n = 988 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/a84_gcd.h"
-#include "../utils/a84_small.h"
+#include "../utils/gcd_u64.h"
+
+static seq_t a84_small(idx_t n)
+{
+    seq_t P[130];
+    seq_t C[130];
+    idx_t i, k, j, m;
+    for (i = 0; i <= n; i++)
+        P[i] = 0;
+    P[0] = 1;
+    for (k = 1; k <= n; k++) {
+        seq_t b = (k == 1) ? (seq_t)1 : P[k];
+        idx_t J = n / k;
+        C[0] = 1;
+        for (j = 1; j <= J; j++) {
+            unsigned long long r = (unsigned long long)(C[j - 1] % (seq_t)j);
+            unsigned long long g = gcd_u64(r, (unsigned long long)j);
+            seq_t num = b + (seq_t)(j - 1);
+            C[j] = (C[j - 1] / (seq_t)g) * (num / (seq_t)(j / g));
+        }
+        for (m = n; m >= k; m--) {
+            seq_t add = 0;
+            for (j = 1; j * k <= m; j++)
+                add += C[j] * P[m - j * k];
+            P[m] += add;
+        }
+    }
+    return P[n];
+}
 
 #define A84_MAXN 30000
 

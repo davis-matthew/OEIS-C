@@ -13,15 +13,39 @@
  *            whether the string for a(k) occurs inside the strin...
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_len, seq_to_str
+ * Validated: standard, pass, 93 terms through n = 9740 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/seq_to_str.h"
-#include "../utils/digit_len.h"
+#include <stddef.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* convert a seq_t value to a decimal string */
+static void seq_to_str(seq_t v, char *buf, size_t *len)
+{
+    if (v == 0) {
+        buf[0] = '0';
+        *len = 1;
+        return;
+    }
+    char tmp[64];
+    int pos = 0;
+    seq_t ten = (seq_t)10;
+    while (v != 0) {
+        tmp[pos++] = '0' + (int)(v % ten);
+        v /= ten;
+    }
+    for (int i = 0; i < pos; ++i)
+        buf[i] = tmp[pos - 1 - i];
+    *len = pos;
+}
 
 static seq_t  *seq_cache = NULL;   /* cached sequence values          */
 static char **str_cache = NULL;   /* cached decimal strings          */
@@ -37,7 +61,7 @@ static void grow_cache(size_t needed)
     while (new_cap < needed)
         new_cap <<= 1;
 
-    seq_t *new_seq = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *new_seq = mem_resize(seq_t, seq_cache, new_cap);
     if (!new_seq)
         exit(EXIT_FAILURE);
     char **new_str = (char **)realloc(str_cache, new_cap * sizeof(char *));
@@ -54,7 +78,7 @@ static void init_cache(void)
 {
     grow_cache(1);
     seq_cache[0] = (seq_t)1;           /* a(1) */
-    str_cache[0] = strdup("1");        /* decimal string of a(1) */
+    str_cache[0] = mem_strdup("1");        /* decimal string of a(1) */
     if (!str_cache[0])
         exit(EXIT_FAILURE);
     cache_size = 1;
@@ -86,7 +110,7 @@ seq_t a(idx_t n)
         seq_cache[cache_size] = new_val;   /* store the new term */
 
         /* Convert new_val to a decimal string and cache it. */
-        int digits = digit_len(new_val);
+        int digits = num_digits(new_val);
         /* Allocate buffer larger than digits so we can null‑terminate. */
         char *buf = (char *)malloc((size_t)digits + 1);
         if (!buf)

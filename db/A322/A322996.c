@@ -7,14 +7,15 @@
  * Keywords:  nonn
  * Formula:   a(n) = 0 if n = 0 or n odd; * a(n) = 1 + a(n - d(n)) if n even,
  *            * where d(n) = A000005(n) = number of divisors of n
- * Range:     u8 n <= 2467, u16 n <= 9735, u32 n <= 9735, u64 n <= 9735,
- *            u128 n <= 9735, big any n
- * Helpers:   _num_divisors
+ * Range:     u8 n <= 2467, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 122 terms through n = 9735 (2026-11-01)
+ * Helpers:   num_divisors_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/_num_divisors.h"
+#include "../utils/num_divisors_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +27,7 @@ seq_t a(idx_t n)
     while (cur > 0 && (cur & 1) == 0) {    /* while even */
         steps += (seq_t)1;
         /* subtract number of divisors, cast to idx_t for subtraction */
-        cur -= (idx_t)_num_divisors(cur);
+        cur -= (idx_t)num_divisors_idx(cur);
     }
     return steps;
 }

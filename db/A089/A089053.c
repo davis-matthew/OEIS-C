@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <math.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* forward declaration of the required function */
 seq_t a(idx_t n);
@@ -39,7 +41,7 @@ static idx_t dp_rows = 0;          /* number of rows currently stored (0 if none
 static void free_dp(void) {
     if (dp == NULL) return;
     for (idx_t i = 0; i < dp_rows; ++i) {
-        free(dp[i]);
+        mem_free(dp[i]);
     }
     free(dp);
     dp = NULL;
@@ -52,7 +54,7 @@ static void compute_dp(idx_t upto) {
     dp = (seq_t**)malloc((size_t)(upto + 1) * sizeof(seq_t*));
     dp_rows = upto + 1;
     for (idx_t s = 0; s <= upto; ++s) {
-        dp[s] = (seq_t*)calloc((size_t)(s + 1), sizeof(seq_t));
+        dp[s] = mem_new(seq_t, (size_t)(s + 1));
     }
     dp[0][0] = (seq_t)1;                     /* base case: empty sum, 0 parts */
 

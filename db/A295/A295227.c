@@ -9,13 +9,15 @@
  *            numbers of the first kind
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 10, u64 n <= 14, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Computes OEIS sequence A295227. */
 seq_t a(idx_t n) {
@@ -36,7 +38,7 @@ seq_t a(idx_t n) {
     if (n >= a_cap) {
         size_t new_cap = a_cap ? a_cap * 2 : 2;
         while (new_cap <= n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(a_vals, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_vals, new_cap);
         if (!tmp) return (seq_t)0;          /* allocation failure */
         a_vals = tmp;
         a_cap = new_cap;
@@ -44,9 +46,9 @@ seq_t a(idx_t n) {
 
     /* first call: initialise rows and base values */
     if (computed_n == 0) {
-        row0 = (seq_t *)calloc(1, sizeof(seq_t));
-        row1 = (seq_t *)calloc(1, sizeof(seq_t));
-        row2 = (seq_t *)calloc(1, sizeof(seq_t));
+        row0 = mem_new(seq_t, 1);
+        row1 = mem_new(seq_t, 1);
+        row2 = mem_new(seq_t, 1);
         if (!row0 || !row1 || !row2) return (seq_t)0;  /* allocation error */
         row0_cap = row1_cap = row2_cap = 1;
         row0[0] = (seq_t)1;     /* s(0,0) */
@@ -64,7 +66,7 @@ seq_t a(idx_t n) {
 
             /* enlarge row2 if necessary */
             if (row2_cap < (size_t)Kmax + 1) {
-                seq_t *tmp = (seq_t *)realloc(row2, ((size_t)Kmax + 1) * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, row2, ((size_t)Kmax + 1));
                 if (!tmp) return (seq_t)0; /* allocation error */
                 row2 = tmp;
                 row2_cap = (size_t)Kmax + 1;

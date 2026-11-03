@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 16, u32 n <= 972, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_more_even_digits
+ * Validated: standard, pass, 74 terms through n = 9918 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,28 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/has_more_even_digits.h"
+
+/* Return true iff cube of x has more even digits than odd digits */
+static int has_more_even_digits( seq_t x )
+{
+    seq_t cube = x * x * x;
+    int even = 0, odd = 0;
+
+    /* handle the special case x == 0 (not used here but keeps the
+       function mathematically correct). */
+    if (cube == 0) {
+        even = 1;   /* digit 0 is even */
+    } else {
+        while (cube) {
+            int d = (int)(cube % 10);
+            if ((d & 1) == 0)  even++;
+            else                odd++;
+            cube /= 10;
+        }
+    }
+
+    return even > odd;
+}
 
 /* fixed upper bound for preallocated storage (large enough for the
    expected test range - about 200 000 terms). */

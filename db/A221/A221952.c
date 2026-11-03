@@ -7,6 +7,7 @@
  * Formula:   a(n) = (6·ν₅(n) + 2) · τ(n / 5^{ν₅(n)})
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
+ * Validated: partial, pass, 80 terms through n = 80 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,7 +20,9 @@
    (6k+2)·τ(m). */
 
 #include <stdint.h>
-#include "../utils/factor_u64.h"   /* factor_u64() */
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
 
 /* compute τ(m) for m ≥ 1 */
 static seq_t divisor_count_u64(uint64_t m)

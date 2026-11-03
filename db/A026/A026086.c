@@ -11,13 +11,15 @@
  *            with s(n)=3. Implemented via dynamic programming
  * Range:     u8 n <= 8, u16 n <= 13, u32 n <= 23, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,8 +29,8 @@ seq_t a(idx_t n)
     const size_t len   = (size_t)(2 * n + 1);   /* positions from -n to n */
     const size_t offset = (size_t)n;            /* index of value 0 */
 
-    seq_t *cur  = (seq_t*)malloc(len * sizeof(seq_t));
-    seq_t *next = (seq_t*)malloc(len * sizeof(seq_t));
+    seq_t *cur  = mem_new(seq_t, len);
+    seq_t *next = mem_new(seq_t, len);
     if (!cur || !next)
         return 0; /* memory failure – treat as zero (unlikely in tests) */
 
@@ -76,7 +78,7 @@ seq_t a(idx_t n)
 
     seq_t result = cur[offset + 3];          /* s(n) must be 3 */
 
-    free(cur);
-    free(next);
+    mem_free(cur);
+    mem_free(next);
     return result;
 }

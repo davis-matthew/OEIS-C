@@ -10,6 +10,7 @@
  *            read row‑wise
  * Range:     u8 n <= 22, u16 n <= 55, u32 n <= 136, u64 n <= 351,
  *            u128 n <= 946, big any n
+ * Validated: standard, pass, 82 terms through n = 9811 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 static seq_t bell[200];

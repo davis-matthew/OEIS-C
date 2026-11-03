@@ -7,7 +7,8 @@
  * Formula:   a(n) = n^2 mod p where p is the least prime greater than n
  * Range:     u8 n <= 522, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mul_mod64
+ * Validated: standard, pass, 103 terms through n = 8450 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/mul_mod64.h"
+#include "../utils/mulmod.h"
 
 static uint64_t *prime_cache = NULL;
 static size_t prime_count = 0;
@@ -62,6 +63,6 @@ seq_t a(idx_t n)
         return 0;
     }
     uint64_t p = next_prime_uint64((uint64_t)n);
-    uint64_t res = mul_mod64((uint64_t)n, (uint64_t)n, p);
+    uint64_t res = mulmod((uint64_t)n, (uint64_t)n, p);
     return (seq_t)res;
 }

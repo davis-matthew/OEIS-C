@@ -7,13 +7,25 @@
  * Formula:   a(n) = 5^((n+1)^2) * Product_{j=1..n} (25^j - 1), a(0)=5
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 1, u64 n <= 2, u128 n <= 4,
  *            big any n
- * Helpers:   pow5_seq
+ * Validated: partial, pass, 8 terms through n = 7 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow5_seq.h"
+
+static seq_t pow5_seq(seq_t exp)
+{
+    seq_t result = 1;
+    seq_t base   = 5;
+    while (exp > 0) {
+        if (exp & 1) result *= base;
+        base *= base;
+        exp >>= 1;
+    }
+    return result;
+}
 
 seq_t a(idx_t n)
 {

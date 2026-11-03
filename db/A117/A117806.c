@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 101, u16 n <= 101, u32 n <= 101, u64 n <= 101,
  *            u128 n <= 101, big any n
- * Helpers:   none
+ * Validated: partial, pass, 101 terms through n = 101 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*  Supplying types from the build.  */
 #ifndef idx_t
@@ -47,8 +49,7 @@ static void grow_arrays(size_t needed)
     while (new_cap < needed)
         new_cap <<= 1;
 
-    a_arr   = (seq_t *)realloc(a_arr,
-                               (new_cap + 1) * sizeof(seq_t));
+    a_arr   = mem_resize(seq_t, a_arr, (new_cap + 1));
     cum_arr = (idx_t *)realloc(cum_arr,
                                (new_cap + 1) * sizeof(idx_t));
     if (!a_arr || !cum_arr) {

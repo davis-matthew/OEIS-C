@@ -9,12 +9,14 @@
  *            (Equivalently a(n)=17^n*cos(2*n*arctan(1/4)) )
  * Range:     i8 n <= 1, i16 n <= 4, i32 n <= 7, i64 n <= 16, i128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
 
     /* Ensure cache can hold n terms (n is 1‑based) */
     if ((idx_t)n > cache_size) {
-        seq_t *tmp = (seq_t*)realloc(cache, (size_t)n * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)n);
         if (!tmp) abort();            /* allocation failed */
         cache = tmp;
         cache_size = n;

@@ -7,12 +7,14 @@
  * Formula:   a(n) = 1 + Sum_{i=2..n-1} n*a(i) (offset 0)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 431 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* Initial allocation and base values */
     if (arr == NULL) {
         cap = 3;
-        arr = (seq_t *)malloc(cap * sizeof(seq_t));
+        arr = mem_new(seq_t, cap);
         if (!arr) return (seq_t)0;      /* allocation failed, return 0 */
         arr[0] = arr[1] = arr[2] = (seq_t)1;
         max_computed = 2;
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
         size_t new_cap = cap;
         while (n + 1 > new_cap)
             new_cap *= 2;
-        arr = (seq_t *)realloc(arr, new_cap * sizeof(seq_t));
+        arr = mem_resize(seq_t, arr, new_cap);
         if (!arr) return (seq_t)0;
         cap = new_cap;
     }

@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 n <= 48, u16 n <= 6387, u32 n <= 8488, u64 n <= 8488,
- *            u128 n <= 8488, big any n
- * Helpers:   none
+ * Range:     u8 n <= 48, u16 n <= 6387, u32 n <= 92160, u64 n <= 92160,
+ *            u128 n <= 92160, big any n
+ * Validated: standard, pass, 84 terms through n = 8488 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Primorial bases: primes p_k are used as digit limits.
    Digits are computed as v % p_k; the value is always
@@ -66,10 +68,10 @@ static idx_t  a_count = 0;               /* number of terms found so far */
 static void a_cache_push(seq_t val) {
     if (a_cache_size == a_cache_cap) {
         size_t new_cap = a_cache_cap == 0 ? 64 : a_cache_cap * 2;
-        seq_t *newp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *newp = mem_new(seq_t, new_cap);
         if (a_cache) {
-            memcpy(newp, a_cache, a_cache_size * sizeof(seq_t));
-            free(a_cache);
+            mem_copy(newp, a_cache, a_cache_size * sizeof(seq_t));
+            mem_free(a_cache);
         }
         a_cache = newp;
         a_cache_cap = new_cap;

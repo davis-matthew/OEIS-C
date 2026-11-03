@@ -12,7 +12,8 @@
  *            required range (n up to about 10000)
  * Range:     u8 n <= 10, u16 n <= 46, u32 n <= 282, u64 n <= 2878,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 7525 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* External integer types provided by the build. */
 extern seq_t a(idx_t n);  // function required by the harness
@@ -37,7 +39,7 @@ static void ensure_cache(idx_t n)
 {
     if (n + 1 <= cache_cap) return;
     size_t new_cap = n + 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) abort();  /* allocation failure; abort is safe here */
     for (size_t i = cache_cap; i < new_cap; ++i) new_cache[i] = (seq_t)0;
     cache = new_cache;

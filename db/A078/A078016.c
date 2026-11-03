@@ -7,13 +7,15 @@
  * Formula:   a(n) = a(n-1) - a(n-2) - a(n-3) a(0)=1, a(1)=0, a(2)=-1
  * Range:     i8 n <= 18, i16 n <= 35, i32 n <= 73, i64 n <= 145,
  *            i128 n <= 291, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 991 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* initialise buffer if first call */
     if (buf == NULL) {
         buf_size = (N > 2) ? N + 1 : 3;   /* at least capacity for the first three terms */
-        buf = (seq_t*)malloc(buf_size * sizeof(seq_t));
+        buf = mem_new(seq_t, buf_size);
         if (buf == NULL) return (seq_t)0; /* allocation failed – return zero as a safe fallback */
 
         /* base cases */
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     if (N + 1 > buf_size) {
         size_t new_size = buf_size;
         while (new_size < N + 1) new_size <<= 1;
-        seq_t *tmp = (seq_t*)realloc(buf, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, buf, new_size);
         if (tmp == NULL) return (seq_t)0;   /* realloc failed – return zero */
         buf = tmp;
         buf_size = new_size;

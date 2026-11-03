@@ -10,15 +10,22 @@
  *            x, y, z ≥ 0 integers, x ≥ y, k ∈ {2,3} and m ∈ {2,3}
  * Range:     u8 n <= 1905, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   cube_root_u64, is_cube
+ * Validated: standard, pass, 117 terms through n = 9956 (2026-11-01)
+ * Helpers:   icbrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/cube_root_u64.h"
-#include "../utils/is_cube.h"
+#include "../utils/icbrt.h"
+
+/* Test if t is a perfect cube; returns true if yes, false otherwise. */
+static inline bool is_cube(idx_t t)
+{
+    idx_t r = icbrt(t);
+    return (seq_t)r * (seq_t)r * (seq_t)r == (seq_t)t;
+}
 
 /* integer square root (floor) for unsigned 64‑bit values */
 static inline idx_t floor_sqrt_u64(idx_t n)
@@ -61,7 +68,7 @@ seq_t a(idx_t n)
         }
 
         /* k = 3 : y^3 term */
-        idx_t ymax_cb = cube_root_u64(rem1);
+        idx_t ymax_cb = icbrt(rem1);
         for (idx_t y = 0; y <= ymax_cb && y <= x; ++y) {
             idx_t rem2 = rem1 - y * y * y;
             if (rem2 & 1) continue;

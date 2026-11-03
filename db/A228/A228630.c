@@ -9,15 +9,18 @@
  *            (n-1)^{r-1}
  * Range:     u8 n <= 11, u16 n <= 15, u32 n <= 25, u64 n <= 43, u128 n <= 76,
  *            big any n
- * Helpers:   binomial, pow_uint
+ * Validated: standard, pass, 45 terms through n = 163 (2026-11-01)
+ * Helpers:   binomial, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* where C(a,b) is the binomial coefficient, and (n-1)^{k} is a power in seq_t. */
 
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -46,7 +49,7 @@ seq_t a(idx_t n)
             continue; /* no compositions with a run of length 4. */
 
         /* Compute n * (n-1)^{r-1}. */
-        seq_t pow_term = pow_uint((uint64_t)(n - 1), r - 1);
+        seq_t pow_term = ipow_u64_idx((uint64_t)(n - 1), r - 1);
         seq_t run_assign = (seq_t)n * pow_term;
 
         seq_t add = diff * run_assign;

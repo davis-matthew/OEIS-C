@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 867, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_spf
+ * Validated: standard, pass, 67 terms through n = 939 (2026-11-03)
+ * Helpers:   build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
    Computed by scanning integers and testing the condition. */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/build_spf.h"
+#include "../utils/mem.h"
 
 static idx_t *spf = NULL;          /* least prime factor array */
 static idx_t spf_limit = 0;        /* current size of spf array */
@@ -81,7 +84,7 @@ static void generate_terms(idx_t needed) {
         if (sigma_kplus == sigma_k + d_k) {
             if (terms_cnt >= terms_cap) {
                 size_t new_cap = terms_cap ? terms_cap * 2 : 32;
-                seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, new_cap);
                 if (!tmp) exit(1);
                 terms = tmp;
                 terms_cap = new_cap;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 24, u32 n <= 24, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   bitcount
+ * Validated: full, pass, 24 terms through n = 24 (2026-11-02)
+ * Helpers:   popcount_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/bitcount.h"
+#include "../utils/popcount_i32.h"
 
 static bool is_prime_uint64(uint64_t n)
 {
@@ -59,7 +60,7 @@ seq_t a(idx_t n)
                 tmp /= 10;
             }
 
-            if (bitcount(mask) != 2)
+            if (popcount_i32(mask) != 2)
                 continue;
 
             int d1 = -1, d2 = -1;

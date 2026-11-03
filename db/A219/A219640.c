@@ -9,16 +9,29 @@
  *            popcount_zeckendorf(k), with a(0)=0. The implementation
  *            precomputes Fibonacci numbers and builds the sequence on demand,
  *            keeping it sorted
- * Range:     u8 n <= 159, u16 n <= 9914, u32 n <= 9914, u64 n <= 9914,
- *            u128 n <= 9914, big any n
- * Helpers:   ensure_size_seq_t
+ * Range:     u8 n <= 159, u16 n <= 10947, u32 n <= 10947, u64 n <= 10947,
+ *            u128 n <= 10947, big any n
+ * Validated: standard, pass, 82 terms through n = 9914 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/ensure_size_seq_t.h"
+#include "../utils/mem.h"
+
+/*--- Helper: ensure dynamic array of seq_t has capacity new_cap ---------*/
+static void ensure_size_seq_t(seq_t **arr, size_t *cap, size_t new_cap)
+{
+    if (new_cap <= *cap) return;
+    size_t nc = (*cap == 0) ? 4 : (*cap << 1);
+    while (nc < new_cap) nc <<= 1;
+    seq_t *tmp = mem_resize(seq_t, *arr, nc);
+    if (!tmp) abort();
+    *arr = tmp;
+    *cap = nc;
+}
 
 /*--- Helper: ensure Fibonacci table contains numbers ≥ k -----------------*/
 static uint64_t *fib = NULL;

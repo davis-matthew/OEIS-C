@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 58, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_uint64, seq_malloc, seq_realloc
+ * Validated: standard, pass, 76 terms through n = 964 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,27 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "../utils/is_prime_uint64.h"
-#include "../utils/seq_malloc.h"
-#include "../utils/seq_realloc.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+/* helper to allocate an array of seq_t that works in both C and C++ */
+static inline seq_t *seq_malloc(idx_t n)
+{
+#ifdef __cplusplus
+    return mem_new(seq_t, n);
+#else
+    return (seq_t *)malloc(n * sizeof(seq_t));
+#endif
+}
+
+static inline seq_t *seq_realloc(seq_t *p, idx_t n)
+{
+#ifdef __cplusplus
+    return mem_resize(seq_t, p, n);
+#else
+    return (seq_t *)realloc(p, n * sizeof(seq_t));
+#endif
+}
 
 seq_t a(idx_t n)
 {
@@ -42,7 +61,7 @@ seq_t a(idx_t n)
         unsigned __int128 temp = (unsigned __int128)last_k * 1000ULL + 711ULL;
         uint64_t candidate = (uint64_t)temp;   /* fits for the needed n */
 
-        if (is_prime_uint64(candidate)) {
+        if (is_prime_u64(candidate)) {
             if (count == capacity) {          /* grow the cache */
                 capacity <<= 1;
                 cache = seq_realloc(cache, capacity);

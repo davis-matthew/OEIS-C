@@ -9,14 +9,41 @@
  *            minimizing u²+v² in gcd(x,y)=u*x+v*y and u=0, v=1 for x=y
  * Range:     i8 n <= 54, i16 n <= 66, i32 n <= 66, i64 n <= 66, i128 n <= 66,
  *            big any n
- * Helpers:   _extgcd, _gcd_idx
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
+ * Helpers:   gcd_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_extgcd.h"
-#include "../utils/_gcd_idx.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/gcd_idx.h"
+
+/* Extended Euclid: returns gcd of a,b and finds (s,t) with a*s + b*t = gcd */
+static void _extgcd(long long a, long long b, long long *s, long long *t)
+{
+    long long s0 = 1, t0 = 0;
+    long long s1 = 0, t1 = 1;
+    while (b != 0) {
+        long long q = a / b;
+        long long r = a % b;
+
+        long long ns = s1;
+        long long nt = t1;
+
+        s1 = s0 - q * s1;
+        t1 = t0 - q * t1;
+
+        s0 = ns;
+        t0 = nt;
+
+        a = b;
+        b = r;
+    }
+    *s = s0;
+    *t = t0;
+}
 
 /* Euclidean gcd on unsigned 64‑bit indices */
 
@@ -33,7 +60,7 @@ seq_t a(idx_t n)
             }
 
             /* gcd(x,y) */
-            idx_t d = _gcd_idx(x, y);
+            idx_t d = gcd_idx(x, y);
             /* coprime pair */
             long long X = (long long)(x / d);
             long long Y = (long long)(y / d);

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 62, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 91 terms through n = 91 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache of the triangle */
 static seq_t **triangle = NULL;   /* triangle[i] points to row i, 1‑based; element 0 unused */
@@ -48,7 +50,7 @@ static void ensure_rows(size_t upto)
 
     /* Build each new row incrementally using the recurrence */
     for (size_t i = maxRow + 1; i <= upto; ++i) {
-        triangle[i] = (seq_t *)calloc(i + 1, sizeof(seq_t)); /* indices 1..i are used */
+        triangle[i] = mem_new(seq_t, i + 1); /* indices 1..i are used */
         if (!triangle[i]) abort();
 
         triangle[i][1] = (seq_t)1;

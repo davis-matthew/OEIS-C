@@ -7,22 +7,25 @@
  * Formula:   a(n) = Sum_{d|n} d^phi(d)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 21,
  *            big any n
- * Helpers:   big_pow, calc_phi, factor_u64
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-01)
+ * Helpers:   factor_u64, ipow, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
-#include "../utils/calc_phi.h"
+#include "../utils/ipow.h"
+#include "../utils/totient_seq.h"
 
 /* Recursive helper: sum over divisors constructed from prime factorization. */
 static seq_t rec_div_sum(int i, seq_t cur, uint64_t *primes, uint64_t *exps, int cnt)
 {
     if (i == cnt) {
-        seq_t phi = calc_phi(cur);
-        return big_pow(cur, phi);
+        seq_t phi = totient_seq(cur);
+        return ipow(cur, phi);
     }
 
     seq_t sum = 0;

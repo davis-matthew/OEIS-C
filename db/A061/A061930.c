@@ -11,7 +11,8 @@
  *            a(3)=T(0,2), …
  * Range:     u8 n <= 43, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   floor_triangle
+ * Validated: partial, pass, 77 terms through n = 76 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,22 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "../utils/floor_triangle.h"
+#include "../utils/mem.h"
+
+/* ----------------------------------------------------------- */
+static idx_t floor_triangle(idx_t n)
+/* largest d such that d*(d+1)/2 ≤ n */
+{
+    /* initial estimate using floating point */
+    long double d_est = (sqrtl((long double)8.0L * (long double)n + 1.0L) - 1.0L) / 2.0L;
+    idx_t d = (idx_t)d_est;
+
+    /* correct upward */
+    while (((unsigned __int128)(d + 1) * (d + 2) / 2) <= n) ++d;
+    /* correct downward */
+    while (((unsigned __int128)d * (d + 1) / 2) > n) --d;
+    return d;
+}
 
 /* ----------------------------------------------------------- */
 /* forward declarations of helpers                         */
@@ -54,16 +70,16 @@ static void extend_to(idx_t n)
 
         /* enlarge existing rows to new column width */
         for (size_t i = 0; i < step; ++i) {
-            seq_t *ptr = (seq_t*)realloc(rows[i], step_needed * sizeof(seq_t));
+            seq_t *ptr = mem_resize(seq_t, rows[i], step_needed);
             if (!ptr) continue;                   /* ignore if realloc fails */
             /* zero new tail elements */
-            memset(ptr + step, 0, (step_needed - step) * sizeof(seq_t));
+            mem_set(ptr + step, 0, (step_needed - step) * sizeof(seq_t));
             rows[i] = ptr;
         }
 
         /* allocate new rows */
         for (size_t i = step; i < step_needed; ++i) {
-            rows[i] = (seq_t*)calloc(step_needed, sizeof(seq_t));
+            rows[i] = mem_new(seq_t, step_needed);
             if (!rows[i]) continue;               /* ignore if calloc fails */
         }
 
@@ -84,11 +100,10 @@ static void extend_to(idx_t n)
     size_t old_cache_size = cache_size;
     size_t cache_needed = (size_t)n + 1;
     if (cache_needed > cache_size) {
-        seq_t *new_cache = (seq_t*)realloc(cache, cache_needed * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, cache_needed);
         if (!new_cache) return;                   /* ignore failure */
         /* zero new entries */
-        memset(new_cache + cache_size, 0,
-               (cache_needed - cache_size) * sizeof(seq_t));
+        mem_set(new_cache + cache_size, 0, (cache_needed - cache_size) * sizeof(seq_t));
         cache = new_cache;
         cache_size = cache_needed;
     }

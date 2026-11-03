@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{d | n, d == 3 (mod 4)} (-1)^((d-3)/4)
  * Range:     i8 n <= 101, i16 n <= 101, i32 n <= 101, i64 n <= 101,
  *            i128 n <= 101, big any n
+ * Validated: partial, pass, 101 terms through n = 101 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

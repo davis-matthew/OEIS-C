@@ -8,7 +8,8 @@
  *            cubefree numbers)
  * Range:     u8 n <= 3413, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 103 terms through n = 9660 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,28 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 /* ---------- utility: grow dynamic array ----- */
+#ifdef __cplusplus
+template <class T>
+static void grow_if_needed(T **ptr, size_t *cap, size_t needed, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0 ? 8 : (*cap << 1));
+    while (new_cap < needed) new_cap <<= 1;
+    *ptr = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+    *cap = new_cap;
+}
+#else
 static void grow_if_needed(void **ptr, size_t *cap, size_t needed, size_t elem_size)
 {
     if (needed <= *cap) return;
@@ -26,6 +47,7 @@ static void grow_if_needed(void **ptr, size_t *cap, size_t needed, size_t elem_s
     *ptr = realloc(*ptr, new_cap * elem_size);
     *cap = new_cap;
 }
+#endif
 
 /* ---------- prime table generation ---- */
 static uint64_t *primes = NULL;
@@ -34,7 +56,7 @@ static size_t primes_cap = 0;
 
 static void add_prime(uint64_t p)
 {
-    grow_if_needed((void **)&primes, &primes_cap, primes_sz + 1, sizeof(uint64_t));
+    grow_if_needed(OEISC_VPP(&primes), &primes_cap, primes_sz + 1, sizeof(uint64_t));
     primes[primes_sz++] = p;
 }
 
@@ -112,7 +134,7 @@ seq_t a(idx_t n)
         seq_t new_val = (seq_t)candidate;
         seq_t gap = new_val - last_cubefree;
 
-        grow_if_needed((void **)&diff, &diff_cap, diff_sz + 1, sizeof(seq_t));
+        grow_if_needed(OEISC_VPP(&diff), &diff_cap, diff_sz + 1, sizeof(seq_t));
         diff[diff_sz++] = gap;
 
         last_cubefree = new_val;

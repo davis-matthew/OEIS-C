@@ -7,7 +7,8 @@
  * Formula:   a(n) = prime(n)^5 mod prime(n-1)
  * Range:     u8 n <= 54, u16 n <= 6612, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   modpow5
+ * Validated: standard, pass, 81 terms through n = 9390 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,18 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/modpow5.h"
+#include "../utils/mem.h"
+
+/* Compute (base^5) mod mod_val, avoiding overflow on small seq_t. */
+static seq_t modpow5(seq_t base, seq_t mod_val)
+{
+    seq_t result = 1 % mod_val;
+    for (int i = 0; i < 5; ++i) {
+        uint64_t temp = ((uint64_t)result * (uint64_t)base) % (uint64_t)mod_val;
+        result = (seq_t)temp;
+    }
+    return result;
+}
 
 static seq_t *primes = NULL;          /* 0‑based array of primes */
 static idx_t  primes_cnt = 0;         /* number of primes stored   */
@@ -31,7 +43,7 @@ static void grow_primes(size_t need)
     if (new_cap < need)
         new_cap = need;
 
-    seq_t *tmp = (seq_t *)realloc(primes, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, primes, new_cap);
     if (!tmp)
         abort();            /* memory exhausted */
 

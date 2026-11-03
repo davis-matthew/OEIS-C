@@ -10,7 +10,8 @@
  *            residue modulo p (i.e., no x : x^36≡2 (mod p))
  * Range:     u8 n <= 3, u16 n <= 614, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd64
+ * Validated: standard, pass, 61 terms through n = 8664 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/gcd64.h"
+#include "../utils/gcd_u64.h"
 
 /* ------------------------------------------------------------------ */
 /* Dynamic array of 64‑bit values (used for primes and terms).       */
@@ -90,8 +91,8 @@ static uint64_t next_prime_uint64(uint64_t last, U64Vec *primes)
 static bool good_prime(uint64_t p)
 {
     uint64_t phi = p - 1;
-    uint64_t g1 = gcd64(6ULL,  phi);
-    uint64_t g2 = gcd64(36ULL, phi);
+    uint64_t g1 = gcd_u64(6ULL,  phi);
+    uint64_t g2 = gcd_u64(36ULL, phi);
     uint64_t exp1 = phi / g1;
     uint64_t exp2 = phi / g2;
     uint64_t pow1 = mod_pow_uint64(2ULL, exp1, p);

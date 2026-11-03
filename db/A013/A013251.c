@@ -8,23 +8,25 @@
  *            arctan(x))
  * Range:     i8 n <= 5, i16 n <= 8, i32 n <= 13, i64 n <= 20, i128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return 0; /* a(0) = 0 */
 
     /* Allocate temporary arrays */
-    seq_t *fact = (seq_t*)malloc((n + 1) * sizeof(seq_t));   /* factorials */
-    seq_t *r    = (seq_t*)malloc(n * sizeof(seq_t));         /* ordinary coeffs of f' */
-    seq_t *f    = (seq_t*)malloc((n + 1) * sizeof(seq_t));   /* EGF coeffs of F(x) */
-    seq_t *y    = (seq_t*)malloc((n + 1) * sizeof(seq_t));   /* G(x) = sinh(F) coeffs */
-    seq_t *c    = (seq_t*)malloc((n + 1) * sizeof(seq_t));   /* cosh(F) coeffs */
+    seq_t *fact = mem_new(seq_t, (n + 1));   /* factorials */
+    seq_t *r    = mem_new(seq_t, n);         /* ordinary coeffs of f' */
+    seq_t *f    = mem_new(seq_t, (n + 1));   /* EGF coeffs of F(x) */
+    seq_t *y    = mem_new(seq_t, (n + 1));   /* G(x) = sinh(F) coeffs */
+    seq_t *c    = mem_new(seq_t, (n + 1));   /* cosh(F) coeffs */
 
     /* factorials */
     fact[0] = 1;
@@ -83,11 +85,11 @@ seq_t a(idx_t n)
     seq_t result = y[n];
 
     /* Free temporary memory */
-    free(fact);
-    free(r);
-    free(f);
-    free(y);
-    free(c);
+    mem_free(fact);
+    mem_free(r);
+    mem_free(f);
+    mem_free(y);
+    mem_free(c);
 
     return result;
 }

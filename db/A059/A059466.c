@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 35, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   has_digit7_uint64, resize_array
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,49 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/has_digit7_uint64.h"
-#include "../utils/resize_array.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* Test whether an unsigned 64‑bit value contains the digit 7. */
+static inline bool has_digit7_uint64(uint64_t x)
+{
+    while (x) {
+        if (x % 10 == 7) return true;
+        x /= 10;
+    }
+    return false;
+}
+
+/* Allocate or grow an array while keeping its contents. */
+#ifdef __cplusplus
+template <class T>
+static T *resize_array(T *ptr, size_t old_cap, size_t new_cap, size_t elem_size)
+{
+    T *new_ptr = mem_resize(T, ptr, (new_cap * elem_size) / sizeof(T));
+    if (!new_ptr && new_cap > 0) {
+        /* Allocation failed – abort the program safely. */
+        abort();
+    }
+    return new_ptr;
+}
+#else
+static void *resize_array(void *ptr, size_t old_cap, size_t new_cap, size_t elem_size)
+{
+    void *new_ptr = realloc(ptr, new_cap * elem_size);
+    if (!new_ptr && new_cap > 0) {
+        /* Allocation failed – abort the program safely. */
+        abort();
+    }
+    return new_ptr;
+}
+#endif
 
 /* Global state: sums of divisors and stored sequence values. */
 static size_t current_limit   = 0;         /* current maximum n processed   */
@@ -44,7 +86,7 @@ static void extend_to(size_t new_limit)
                                     new_limit + 1, sizeof(seq_t));
     sum_arr_cap = new_limit + 1;
     /* Initialise to zero. */
-    memset((void *)sum_arr, 0, (new_limit + 1) * sizeof(seq_t));
+    mem_set(sum_arr, 0, (new_limit + 1) * sizeof(seq_t));
 
     /* Sieve: for every divisor d with digit 7, add d to all multiples > d. */
     for (size_t d = 2; d <= new_limit; ++d) {
@@ -55,11 +97,11 @@ static void extend_to(size_t new_limit)
     }
 
     /* Build the result list.  Reallocate as needed. */
-    free(results_arr);
+    mem_free(results_arr);
     results_arr = NULL;
     results_cnt = 0;
     results_cap = new_limit / 5 + 10;          /* rough over‑estimate */
-    results_arr = (seq_t *)malloc(results_cap * sizeof(seq_t));
+    results_arr = mem_new(seq_t, results_cap);
     if (!results_arr) abort();
 
     for (size_t n = 2; n <= new_limit; ++n) {

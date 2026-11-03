@@ -10,7 +10,8 @@
  *            is 2n.)
  * Range:     u8 n <= 16, u16 n <= 256, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_simple
+ * Validated: standard, pass, 66 terms through n = 985 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/is_prime_simple.h"
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -33,9 +34,9 @@ seq_t a(idx_t n)
 
     for (uint64_t p = 2; p <= limit; ++p)
     {
-        if (!is_prime_simple(p)) continue;
+        if (!is_prime_u64(p)) continue;
         uint64_t q = sum - p;
-        if (!is_prime_simple(q)) continue;
+        if (!is_prime_u64(q)) continue;
         uint64_t prod = p * q;
         if (prod > best) best = prod;
     }

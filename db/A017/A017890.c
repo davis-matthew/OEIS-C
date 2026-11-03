@@ -8,12 +8,14 @@
  *            14, a(0)=1, a(1..9)=0, a(10..14)=1
  * Range:     u8 n <= 57, u16 n <= 100, u32 n <= 181, u64 n <= 345,
  *            u128 n <= 672, big any n
- * Helpers:   none
+ * Validated: standard, pass, 93 terms through n = 925 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* memoised recurrence */
 seq_t a(idx_t n) {
@@ -33,7 +35,7 @@ seq_t a(idx_t n) {
             new_cap *= 2;
 
         /* reallocate and zero the newly allocated part */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) exit(1);          /* allocation failed */
         cache = tmp;
         size_t old = cap;

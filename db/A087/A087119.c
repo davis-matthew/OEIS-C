@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 64, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   bitlen_seq_t
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   bit_length, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
 
 #include <stddef.h>                  /* NULL, size_t */
 #include <stdlib.h>                  /* malloc, realloc */
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
+#include "../utils/mem.h"
 
 /* Count maximal runs of consecutive zeros in the binary representation
    of x.  The most significant bit of a positive integer is always 1,
@@ -28,7 +31,7 @@ static int zero_runs(seq_t x)
 {
     if (x == (seq_t)0) return 0;                 /* not used for positive x */
 
-    unsigned int bits = bitlen_seq_t(x);          /* number of bits */
+    unsigned int bits = bit_length(x);          /* number of bits */
     int runs   = 0;
     int prev   = 1;                               /* pretend leading 1 */
 
@@ -54,10 +57,10 @@ seq_t a(idx_t n)
     /* Allocate or expand the cache. */
     if (!seq) {
         seq_cap = 64;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
     } else if (seq_len >= seq_cap) {
         seq_cap <<= 1;
-        seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, seq_cap);
     }
 
     /* Generate terms until we have at least n of them. */

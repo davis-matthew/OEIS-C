@@ -8,18 +8,19 @@
  *            with an exact integer square root
  * Range:     u8 n <= 106, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   a003151_isqrt128
+ * Validated: standard, pass, 76 terms through n = 4397 (2026-11-01)
+ * Helpers:   isqrt_u128_to_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a003151_isqrt128.h"
+#include "../utils/isqrt_u128_to_u64.h"
 
 seq_t a(idx_t n)
 {
     unsigned __int128 nn = (unsigned __int128)n;
-    uint64_t r = a003151_isqrt128(2 * nn * nn);
+    uint64_t r = isqrt_u128_to_u64(2 * nn * nn);
     seq_t result = (seq_t)n;
     result += (seq_t)r;
     return result;

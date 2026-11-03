@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/big_pow.h"      /* seq_t big_pow(seq_t base, seq_t exp); */
+#include "../utils/ipow.h"
 
 /* Small prime list – sufficient for any partition of a n up to 5 decimal
    digits (max 5 exponents).  The primes are cast to seq_t to keep the
@@ -38,7 +39,7 @@ static void dfs(const char *s, size_t len, size_t pos,
     if (pos == len) {                       /* a full split reached */
         seq_t prod = (seq_t)1;
         for (size_t i = 0; i < cnt; ++i) {
-            prod *= big_pow(primes[i], exps[i]);   /* P_i ^ e_i */
+            prod *= ipow(primes[i], exps[i]);   /* P_i ^ e_i */
         }
         if (!*found || prod < *best) {
             *best  = prod;

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _smallest_prime_factor
+ * Validated: standard, pass, 103 terms through n = 8819 (2026-11-01)
+ * Helpers:   smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_smallest_prime_factor.h"
+#include <stddef.h>
+#include "../utils/smallest_prime_factor.h"
 
 /* Compute the sum of distinct prime factors of a 64‑bit integer. */
 static uint64_t sopf_uint64(uint64_t n)
@@ -30,7 +32,7 @@ static uint64_t sopf_uint64(uint64_t n)
         return 0;
     uint64_t sum = 0;
     while (n > 1) {
-        uint64_t p = _smallest_prime_factor(n);
+        uint64_t p = smallest_prime_factor(n);
         sum += p;
         /* skip repeated occurrences of p */
         while (n % p == 0)

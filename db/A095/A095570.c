@@ -8,6 +8,7 @@
  *            interpreting the digit string as a decimal integer. For n = 1
  *            the representation is simply 89 copies of the digit '1'
  * Range:     u8 none, u16 none, u32 none, u64 none, u128 none, big any n
+ * Validated: partial, pass, 12 terms through n = 12 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

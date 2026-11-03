@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 176, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_adj_sum_gt2
+ * Validated: standard, pass, 80 terms through n = 9513 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,27 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has_adj_sum_gt2.h"
+#include "../utils/mem.h"
+
+/* Test whether a number has an adjacent ternary digit pair whose
+   sum exceeds 2.  The implementation examines the base‑3 digits
+   from least significant to most significant. */
+static inline bool has_adj_sum_gt2(seq_t x)
+{
+    bool first = true;
+    int prev = 0;
+    while (x > (seq_t)0) {
+        int d = (int)(x % (seq_t)3);
+        if (!first) {
+            if (prev + d > 2)
+                return true;
+        }
+        first = false;
+        prev = d;
+        x = x / (seq_t)3;
+    }
+    return false;
+}
 
 /* Return the nth term of the sequence (1‑based). */
 seq_t a(idx_t n)
@@ -36,7 +57,7 @@ seq_t a(idx_t n)
         idx_t new_cap = n * 2;
         if (new_cap < n)
             new_cap = n;            /* handle overflow of multiplication */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cache_cap = new_cap;
     }

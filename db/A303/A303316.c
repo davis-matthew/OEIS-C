@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 24, u64 n <= 47, u128 n <= 95,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdlib.h>
 #include <string.h>   /* for memcpy */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -45,14 +47,14 @@ seq_t a(idx_t n)
     idx_t new_size = n + 1;               /* index 0 is unused */
 
     /* Allocate larger cache and copy existing data. */
-    seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_size);
     if (!new_cache) {
         /* Allocation failed – return 0 (should never happen in tests). */
         return 0;
     }
     if (cache) {
-        memcpy(new_cache, cache, (old_cached + 1) * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_cache, cache, (old_cached + 1) * sizeof(seq_t));
+        mem_free(cache);
     }
     cache = new_cache;
     cached_size = n;

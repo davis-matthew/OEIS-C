@@ -12,6 +12,7 @@
  *            the required floor values
  * Range:     u8 n <= 30, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -25,10 +26,10 @@ seq_t a(idx_t n)
     /* Avoid recomputing constants on every call by storing them in a static block
        that is executed only once.  The constants are computed from long double
        values to retain adequate precision for the range of n expected in tests. */
-    static const long double X     = 2.0L * acosl(-1.0L) / 5.0L;   /* 2π/5  */
-    static const long double SIN_X = sinl(X);
-    static const long double COS_X = cosl(X);
-    static const long double TAN_X = tanl(X);
+    const long double X     = 2.0L * acosl(-1.0L) / 5.0L;   /* 2π/5  */
+    const long double SIN_X = sinl(X);
+    const long double COS_X = cosl(X);
+    const long double TAN_X = tanl(X);
 
     /* Each term is a floor of a real expression.  We compute the floor in
        long double and then cast the result to an unsigned long long.  The

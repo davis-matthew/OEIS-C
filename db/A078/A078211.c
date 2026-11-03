@@ -9,15 +9,16 @@
  *            decimal representation of n, or 0 if it does not exist
  * Range:     u8 n <= 2, u16 n <= 11, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   gcd_uint64, modinv_uint64
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-01)
+ * Helpers:   gcd_u64, modinv
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/gcd_uint64.h"
-#include "../utils/modinv_uint64.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/modinv.h"
 
 /* local helpers */
 static uint64_t digits_uint64(uint64_t x)
@@ -37,7 +38,7 @@ seq_t a(idx_t n)
 
     uint64_t n2 = n64 * n64;               /* n^2 fits in 64 bits for n <= 10000 */
 
-    uint64_t g = gcd_uint64(n2, pow10_d);
+    uint64_t g = gcd_u64(n2, pow10_d);
     if (n64 % g != 0) return 0;           /* no solution */
 
     /* reduced congruence parameters */
@@ -45,7 +46,7 @@ seq_t a(idx_t n)
     uint64_t b1 = pow10_d / g;
     uint64_t c1 = n64 / g;
 
-    uint64_t inv = modinv_uint64(a1 % b1, b1);
+    uint64_t inv = modinv(a1 % b1, b1);
     uint64_t t0 = (c1 * inv) % b1;       /* minimal solution modulo b1 */
 
     /* now search over increasing number of digits k of the result */

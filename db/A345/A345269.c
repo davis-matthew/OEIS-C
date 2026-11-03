@@ -7,16 +7,19 @@
  * Formula:   a(n) = Sum_{d|n} (n/d)^(phi(n/d)-1)
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 12, u64 n <= 18, u128 n <= 25,
  *            big any n
- * Helpers:   big_pow, calc_phi, factor_u64
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-01)
+ * Helpers:   factor_u64, ipow, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/calc_phi.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
+#include "../utils/totient_seq.h"
 
 static void rec_divisors(size_t idx, uint64_t current,
                          const uint64_t *primes, const uint64_t *exps,
@@ -25,9 +28,9 @@ static void rec_divisors(size_t idx, uint64_t current,
     if (idx == cnt) {
         /* current is a divisor d of n, compute m = n/d */
         seq_t m = (seq_t)(n / current);
-        seq_t phi_m = calc_phi(m);
+        seq_t phi_m = totient_seq(m);
         seq_t exp = phi_m - (seq_t)1;           /* exponent = phi(m)-1 */
-        seq_t term = big_pow(m, exp);           /* m^exp */
+        seq_t term = ipow(m, exp);           /* m^exp */
         *sum += term;
         return;
     }

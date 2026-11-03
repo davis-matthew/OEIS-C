@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    Uses dynamic programming and caches results for repeated calls. */
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External integer types provided by the build system */
 typedef idx_t idx_t;      /* index type (uint64_t) */
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     /* Compute values up to new_n = n */
     idx_t new_n = n;
     /* Allocate workspace for dynamic programming */
-    seq_t *dp = (seq_t *)malloc((new_n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (new_n + 1));
     if (!dp) return 0;            /* allocation failed – unlikely in this context */
 
     /* Initial condition: one way to partition 0 */
@@ -58,9 +60,9 @@ seq_t a(idx_t n)
     }
 
     /* Resize cache to hold up to new_n entries */
-    seq_t *new_cache = (seq_t *)realloc(cache, new_n * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_n);
     if (!new_cache) {
-        free(dp);
+        mem_free(dp);
         return 0;   /* out of memory; unlikely */
     }
     cache = new_cache;
@@ -74,6 +76,6 @@ seq_t a(idx_t n)
     /* Result for current request */
     seq_t result = cache[n - 1];
 
-    free(dp);
+    mem_free(dp);
     return result;
 }

@@ -11,13 +11,33 @@
  *            n. * Here m is the number of such pairs
  * Range:     u8 n <= 4, u16 n <= 12, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   ext_gcd_signed
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/ext_gcd_signed.h"
+
+/* Extended Euclidean algorithm.
+ * a,b are positive. u and v satisfy u*a + v*b = gcd(a,b) (which is 1 here). */
+static inline void ext_gcd_signed(long long a, long long b, long long *u_out, long long *v_out)
+{
+    long long u = 1, v = 0;
+    long long u1 = 0, v1 = 1;
+    while (b != 0)
+    {
+        long long q = a / b;
+        long long r = a % b;
+        long long tmpu = u - q * u1;
+        long long tmpv = v - q * v1;
+        a = b; b = r;
+        u = u1; v = v1;
+        u1 = tmpu; v1 = tmpv;
+    }
+    *u_out = u;
+    *v_out = v;
+}
 
 static inline idx_t gcd_idx(idx_t a, idx_t b)
 {

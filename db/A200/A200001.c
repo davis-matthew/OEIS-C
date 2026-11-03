@@ -10,13 +10,15 @@
  *            sequence is finite * and contains 153 terms
  * Range:     u8 n <= 25, u16 n <= 125, u32 n <= 153, u64 n <= 153,
  *            u128 n <= 153, big any n
- * Helpers:   none
+ * Validated: full, pass, 153 terms through n = 153 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /*  Comparator for qsort that works for any unsigned integer type or for
  *  arbitrary‑precision integer classes that implement the usual comparison
@@ -44,7 +46,7 @@ static void init_cache(void)
     const size_t max_mask = 1U << 10;  /* 10 digits: 0..9 */
     /* Allocate space for all subset products first */
     size_t capacity = max_mask;
-    seq_t *tmp = (seq_t *)malloc(capacity * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, capacity);
     if (!tmp) return; /* allocation failure – environment will handle */
 
     size_t count = 0;
@@ -65,7 +67,7 @@ static void init_cache(void)
     }
 
     /* Sort the list */
-    qsort(tmp, count, sizeof(seq_t), seq_cmp);
+    mem_qsort(tmp, count, sizeof(seq_t), seq_cmp);
 
     /* Remove duplicates in‑place */
     size_t uniq = 0;
@@ -76,7 +78,7 @@ static void init_cache(void)
     }
 
     /* Reallocate to exact size */
-    seq_t *real = (seq_t *)realloc(tmp, uniq * sizeof(seq_t));
+    seq_t *real = mem_resize(seq_t, tmp, uniq);
     if (real) {
         seq_cache = real;
         seq_len   = uniq;

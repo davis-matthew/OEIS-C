@@ -9,7 +9,8 @@
  *            prime(3)=5 divides the base 5
  * Range:     u8 n <= 56, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 100 terms through n = 893 (2026-11-01)
+ * Helpers:   is_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,9 @@
 #include <stdbool.h>
 
 /* Utility functions provided by the build system */
-#include "../utils/is_prime.h"   /* bool is_prime(idx_t n); */
-#include "../utils/mod_pow.h"    /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod); */
+#include <string.h>
+#include "../utils/is_prime.h"
+#include "../utils/powmod.h"
 
 /* ---------- prime cache ---------- */
 
@@ -80,7 +82,7 @@ ord5(uint64_t p)
         /* try to reduce the order by successive powers of q */
         while (ord % q == 0) {
             uint64_t candidate = ord / q;
-            seq_t    pow_mod   = mod_pow((seq_t)5, candidate, (seq_t)p);
+            seq_t    pow_mod   = powmod((seq_t)5, candidate, (seq_t)p);
             if (pow_mod == (seq_t)1)
                 ord = candidate;
             else
@@ -92,7 +94,7 @@ ord5(uint64_t p)
     if (rem > 1) {
         while (ord % rem == 0) {
             uint64_t candidate = ord / rem;
-            seq_t    pow_mod   = mod_pow((seq_t)5, candidate, (seq_t)p);
+            seq_t    pow_mod   = powmod((seq_t)5, candidate, (seq_t)p);
             if (pow_mod == (seq_t)1)
                 ord = candidate;
             else

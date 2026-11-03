@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 10, u32 n <= 22, u64 n <= 46, u128 n <= 95,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
             - 12*a(n-6) - 8*a(n-7) + 8*a(n-9).          */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* First time: allocate space for indices 0..11 (11 inclusive) */
     if (!initialized) {
         cache_size = 12;            /* indices 0..11 */
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache)                  /* allocation failure → 0 */
             return (seq_t)0;
 
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
         size_t new_cap = cache_size;
         while (new_cap <= (size_t)n)
             new_cap <<= 1;          /* double until enough */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp)                  /* allocation failure → 0 */
             return (seq_t)0;
         cache = tmp;

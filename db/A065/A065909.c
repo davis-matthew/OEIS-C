@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   is_prime, mul64
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   is_prime, mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,12 +26,13 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_prime.h"   /* is_prime(idx_t) -> bool              */
-#include "../utils/mul64.h"      /* mul64(uint64_t, uint64_t, uint64_t) */
+#include "../utils/is_prime.h"
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 static inline uint64_t mod_mul64(uint64_t a, uint64_t b, uint64_t mod)
 {
-    return mul64(a, b, mod);   /* safe for 64‑bit operands            */
+    return mulmod(a, b, mod);   /* safe for 64‑bit operands            */
 }
 
 static inline uint64_t mod_pow64(uint64_t base, uint64_t exp, uint64_t mod)
@@ -156,7 +158,7 @@ seq_t a(idx_t n)
             if (cache_len == cache_cap)
             {
                 cache_cap = (cache_cap == 0) ? 64 : cache_cap << 1;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = (seq_t)min;
 

@@ -11,13 +11,15 @@
  *            values: a(1)=38, a(2)=90, a(3)=202, a(4)=478
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 22, u64 n <= 48, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 202 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 /* Dynamic cache for memoisation */
 static seq_t *cache = NULL;          /* allocated entries 0 … cache_cap-1 */
@@ -28,12 +30,12 @@ static idx_t   last_filled = 0;     /* largest index for which cache[index] is v
 static void ensure_cache(idx_t n)
 {
     if (cache == NULL) {
-        cache = (seq_t *)malloc(sizeof(seq_t) * (n + 1));
+        cache = mem_new(seq_t, (n + 1));
         if (cache == NULL) abort();
         cache_cap = n + 1;
     } else if (cache_cap <= (size_t)n) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) abort();
         cache = tmp;
         cache_cap = new_cap;

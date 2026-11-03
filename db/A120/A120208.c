@@ -7,6 +7,7 @@
  * Formula:   a(1) = 7; for n > 1, a(n) = ⌊(69 + Σ_{k=1}^{n-1} a(k)) / 9⌋
  * Range:     u8 n <= 16, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

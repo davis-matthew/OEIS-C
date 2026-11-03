@@ -6,8 +6,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, hear
  * Formula:   a(0)=0; a(3n)=a(n); a(3n+1)=a(n)*3+1; a(3n-1)=a(n)*3-1
- * Range:     u8 n <= 283, u16 n <= 9573, u32 n <= 9573, u64 n <= 9573,
- *            u128 n <= 9573, big any n
+ * Range:     u8 n <= 283, u16 n <= 19683, u32 n <= 19683, u64 n <= 19683,
+ *            u128 n <= 19683, big any n
+ * Validated: standard, pass, 98 terms through n = 9573 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

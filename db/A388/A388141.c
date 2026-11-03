@@ -8,9 +8,10 @@
  * Keywords:  nonn, easy
  * Formula:   a(1) = 1008973; a(n+1) = a(n)/2 if a(n) even, else a(n)+p_k,
  *            where p_k is the k‑th smallest prime not yet used
- * Range:     u8 none, u16 none, u32 n <= 9182, u64 n <= 9182, u128 n <= 9182,
- *            big any n
- * Helpers:   build_primes_upto
+ * Range:     u8 none, u16 none, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 60 terms through n = 9182 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 static seq_t *cache      = NULL;   /* cache[1] holds a(1) */
 static size_t cache_len  = 0;      /* highest index stored (0 if none) */
@@ -53,7 +55,7 @@ static void ensure_cache(idx_t n)
     if (cache_len < 1) {
         if (cache_cap < 2) {
             cache_cap = 16;
-            cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+            cache = mem_new(seq_t, cache_cap);
         }
         cache[1] = (seq_t)1008973;
         cache_len = 1;
@@ -70,7 +72,7 @@ static void ensure_cache(idx_t n)
 
         if (i + 1 >= cache_cap) {              /* grow storage if needed */
             size_t new_cap = cache_cap * 2;
-            seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             cache = tmp;
             cache_cap = new_cap;
         }

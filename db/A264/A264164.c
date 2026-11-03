@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 46, u32 n <= 249, u64 n <= 1154,
  *            u128 n <= 4936, big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 9179 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
     arbitrary‑ordered calls. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,14 +36,14 @@ seq_t a(idx_t n)
     /* initialise the generators on first call */
     if (!hams) {
         hams_cap = 16;
-        hams = (seq_t*)malloc(hams_cap * sizeof(seq_t));
+        hams = mem_new(seq_t, hams_cap);
         hams[0] = (seq_t)1;           /* 2^0⋅3^0 */
         hams_len = 1;
         i2 = i3 = 0;
     }
     if (!list) {
         list_cap = 16;
-        list = (seq_t*)malloc(list_cap * sizeof(seq_t));
+        list = mem_new(seq_t, list_cap);
         list_len = 0;
     }
 
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
 
         if (hams_len == hams_cap) {
             hams_cap *= 2;
-            hams = (seq_t*)realloc(hams, hams_cap * sizeof(seq_t));
+            hams = mem_resize(seq_t, hams, hams_cap);
         }
         hams[hams_len++] = nxt;
 
@@ -77,7 +79,7 @@ seq_t a(idx_t n)
         if (t != 1) {                 /* d has a prime > 3 → include */
             if (list_len == list_cap) {
                 list_cap *= 2;
-                list = (seq_t*)realloc(list, list_cap * sizeof(seq_t));
+                list = mem_resize(seq_t, list, list_cap);
             }
             list[list_len++] = nxt;
         }

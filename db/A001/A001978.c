@@ -12,6 +12,7 @@
  *            (1-x)(1-x^2)^3(1-x^3)(1-x^5)
  * Range:     u8 n <= 9, u16 n <= 35, u32 n <= 351, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 59 terms through n = 865 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

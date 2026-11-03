@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   get_parts
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,52 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/get_parts.h"
+#include "../utils/mem.h"
+
+/* parts[] and len[] are provided by caller; part count is stored in *len.
+ * The array must be able to hold at least 64 elements. */
+static inline void get_parts(idx_t r, idx_t parts[64], idx_t *len)
+{
+    if (r == 0) {               /* empty composition : leaf */
+        *len = 0;
+        return;
+    }
+    /* extract bits of r into an array (lsb first) */
+    unsigned char bits[64];
+    idx_t bitlen = 0;
+    while (r > 0) {
+        bits[bitlen++] = r & 1U;
+        r >>= 1;
+    }
+    idx_t pos = bitlen - 1;     /* start at msb */
+    idx_t out_len = 0;
+    while (pos != (idx_t)-1) {  /* pos is signed by casting -1 sentinel */
+        if (bits[pos]) {        /* found a '1' */
+            idx_t zeros = 0;
+            if (pos == 0) {
+                /* last bit, no zeros after it */
+                parts[out_len++] = 1;
+                pos = (idx_t)-1;
+            } else {
+                --pos;          /* move to next bit */
+                while (pos != (idx_t)-1 && !bits[pos]) {
+                    ++zeros;
+                    --pos;
+                }
+                parts[out_len++] = zeros + 1;
+            }
+        } else {
+            /* Should never happen: bits[pos] is 0 only after a 1,
+             * handled in the previous block. */
+            if (pos == 0) {
+                pos = (idx_t)-1;
+            } else {
+                --pos;
+            }
+        }
+    }
+    *len = out_len;
+}
 
 /* Helper: convert rank r (= n-1) to the composition parts of the root. */
 
@@ -91,7 +137,7 @@ static inline void ensure_vals_cap(size_t needed)
     size_t new_cap = vals_cap * 2;
     if (new_cap < 8) new_cap = 8;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *new_arr = (seq_t *)realloc(vals, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, vals, new_cap);
     if (!new_arr) exit(1);                     /* fatal error */
     vals = new_arr;
     vals_cap = new_cap;

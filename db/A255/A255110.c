@@ -8,6 +8,7 @@
  * Formula:   a(n) = (n^5 + 30*n^4 + 295*n^3 + 2790*n^2 + 5284*n + 1320) / 120
  * Range:     u8 none, u16 n <= 3, u32 n <= 82, u64 n <= 210, u128 n <= 210,
  *            big any n
+ * Validated: standard, pass, 51 terms through n = 182 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

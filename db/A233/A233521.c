@@ -9,7 +9,8 @@
  *            {0,…,n-1}
  * Range:     u8 n <= 270, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 93 terms through n = 863 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/mod_pow.h"
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
 
     /* compute f[x] = x^x mod n */
     for (idx_t i = 0; i < n; ++i) {
-        seq_t v = mod_pow((seq_t)i, i, (seq_t)n);  /* 0^0 → 1 by definition */
+        seq_t v = powmod((seq_t)i, i, (seq_t)n);  /* 0^0 → 1 by definition */
         f[i] = (idx_t)v;
     }
 

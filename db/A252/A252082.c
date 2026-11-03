@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 7, u32 n <= 17, u64 n <= 39, u128 n <= 82,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define ROWS            81                      /* 3^4 possible rows */
 #define STATES          (ROWS * ROWS)            /* 6561 state pairs */
@@ -127,10 +129,10 @@ seq_t a(idx_t n)
     static size_t dp_cap = 0;
 
     if (dp_cap < (size_t)STATES) {
-        free(dp);
-        free(newdp);
-        dp = (seq_t*)malloc(sizeof(seq_t) * STATES);
-        newdp = (seq_t*)malloc(sizeof(seq_t) * STATES);
+        mem_free(dp);
+        mem_free(newdp);
+        dp = mem_new(seq_t, STATES);
+        newdp = mem_new(seq_t, STATES);
         dp_cap = STATES;
     }
 

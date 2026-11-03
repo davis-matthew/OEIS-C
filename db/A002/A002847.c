@@ -13,12 +13,13 @@
  *            13*C(12,3)*C(4,2)*4^3, a(9) = (C(13,5) - 10)*(4^5 - 4)
  * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 9, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   a002847_binom
+ * Validated: full, pass, 9 terms through n = 9 (2026-11-02)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a002847_binom.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n) {
     seq_t straights = 10;                 /* rank sequences A-5 .. 10-A */
@@ -30,28 +31,28 @@ seq_t a(idx_t n) {
         r = sf;
         break;
     case 2:
-        r = (seq_t)13 * a002847_binom(4, 4) * (seq_t)48;
+        r = (seq_t)13 * binomial(4, 4) * (seq_t)48;
         break;
     case 3:
-        r = (seq_t)13 * a002847_binom(4, 3) * (seq_t)12 * a002847_binom(4, 2);
+        r = (seq_t)13 * binomial(4, 3) * (seq_t)12 * binomial(4, 2);
         break;
     case 4:
-        r = (seq_t)4 * a002847_binom(13, 5) - sf;
+        r = (seq_t)4 * binomial(13, 5) - sf;
         break;
     case 5:
         r = straights * suits5 - sf;
         break;
     case 6:
-        r = (seq_t)13 * a002847_binom(4, 3) * a002847_binom(12, 2) * (seq_t)16;
+        r = (seq_t)13 * binomial(4, 3) * binomial(12, 2) * (seq_t)16;
         break;
     case 7:
-        r = a002847_binom(13, 2) * a002847_binom(4, 2) * a002847_binom(4, 2) * (seq_t)44;
+        r = binomial(13, 2) * binomial(4, 2) * binomial(4, 2) * (seq_t)44;
         break;
     case 8:
-        r = (seq_t)13 * a002847_binom(4, 2) * a002847_binom(12, 3) * (seq_t)64;
+        r = (seq_t)13 * binomial(4, 2) * binomial(12, 3) * (seq_t)64;
         break;
     case 9:
-        r = (a002847_binom(13, 5) - straights) * (suits5 - 4);
+        r = (binomial(13, 5) - straights) * (suits5 - 4);
         break;
     default:
         r = 0;

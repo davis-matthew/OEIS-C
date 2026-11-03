@@ -11,7 +11,8 @@
  *            forms another 9‑digit zeroless pandigital
  * Range:     u8 none, u16 none, u32 n <= 9, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 9 terms through n = 9 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Forward declarations of helper functions */
 static int next_permutation(char *a, int n);
@@ -140,7 +142,7 @@ static void ensure_seq_cap(size_t needed)
     if (needed <= seqcap) return;
     size_t newcap = seqcap ? seqcap * 2 : 16;
     if (newcap < needed) newcap = needed;
-    seqs = (seq_t *)realloc(seqs, newcap * sizeof(seq_t));
+    seqs = mem_resize(seq_t, seqs, newcap);
     seqcap = newcap;
 }
 

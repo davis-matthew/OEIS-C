@@ -13,13 +13,29 @@
  *            (p|19) except for p = 2, * where it equa...
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   kronecker_m19
+ * Validated: standard, pass, 97 terms through n = 9901 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/kronecker_m19.h"
+
+static int
+kronecker_m19(uint64_t p)
+{
+    /* handles all primes */
+    if (p == 19)   return 0;       /* divisible by discriminant */
+    if (p == 2)    return -1;      /* (−19|2) = –1 */
+
+    /* p % 19 ≠ 0 */
+    uint64_t r = p % 19;
+    switch (r) {
+        case 1: case 4: case 5: case 6: case 7: case 9:
+        case 11: case 16: case 17: return 1;   /* quadratic residue */
+        default: return -1;     /* non‑residue */
+    }
+}
 
 /* multiplicative factor for a prime power p^e */
 static seq_t

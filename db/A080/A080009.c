@@ -11,12 +11,14 @@
  *            a(5)=26, a(6)=56, a(7)=127, a(8)=288, a(9)=660, a(10)=1500
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 28, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[] = {
     (seq_t)1,
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     }
 
     /* Allocate space for all required terms up to n. */
-    seq_t *buf = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+    seq_t *buf = mem_new(seq_t, (n + 1));
     if (!buf) { /* allocation failure – unlikely in test environment */
         return (seq_t)0;
     }
@@ -63,6 +65,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = buf[n];
-    free(buf);
+    mem_free(buf);
     return result;
 }

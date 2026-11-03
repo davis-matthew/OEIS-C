@@ -11,16 +11,39 @@
  *            integer
  * Range:     u8 n <= 57, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   a3234_B, a3234_L, a3234_U, a3234_isqrt
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a3234_B.h"
-#include "../utils/a3234_L.h"
-#include "../utils/a3234_U.h"
-#include "../utils/a3234_isqrt.h"
+
+static uint64_t a3234_isqrt(uint64_t x)
+{
+    if (x < 2) return x;
+    uint64_t r = x, y = (x >> 1) + 1;
+    while (y < r) {
+        r = y;
+        y = (r + x / r) >> 1;
+    }
+    return r;
+}
+
+static uint64_t a3234_L(uint64_t m)
+{
+    return (m + a3234_isqrt(5 * m * m)) / 2;
+}
+
+static uint64_t a3234_B(uint64_t m)      /* A003231 */
+{
+    return a3234_L(m) + 2 * m;
+}
+
+static uint64_t a3234_U(uint64_t m)      /* A001950 */
+{
+    return a3234_L(m) + m;
+}
 
 seq_t a(idx_t n)
 {

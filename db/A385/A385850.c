@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy, frac, look, tabl
  * Formula:   not stated
- * Range:     u8 n <= 89, u16 n <= 9705, u32 n <= 9705, u64 n <= 9705,
- *            u128 n <= 9705, big any n
+ * Range:     u8 n <= 89, u16 n <= 11325, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 94 terms through n = 9705 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

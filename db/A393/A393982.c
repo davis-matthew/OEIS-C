@@ -9,13 +9,15 @@
  *            = 49, a(3) = 56 * (recurrence up to offset 0)
  * Range:     u8 n <= 6, u16 n <= 17, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* We only use the types seq_t and idx_t given by the build system.
  * No other type definitions or headers are required. */
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* initialise the cache on first use */
     if (cache == NULL) {
         cache_cap = 4;                 /* enough for indices 0..3 */
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)7;
         cache[2] = (seq_t)49;
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
             size_t new_cap = cache_cap * 2;
             if (new_cap < (size_t)(n + 1))
                 new_cap = (size_t)(n + 1);
-            seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort();  /* unlikely in test harness */
             cache = tmp;
             cache_cap = new_cap;

@@ -9,8 +9,9 @@
  * Formula:   a(n) = 1 for n = 0 or n not a positive triangular number; a(n) =
  *            0 if n > 0 is a triangular number. Equivalently, a(n) = 1 -
  *            A010054(n)
- * Range:     u8 n <= 9466, u16 n <= 9466, u32 n <= 9466, u64 n <= 9466,
- *            u128 n <= 9466, big any n
+ * Range:     u8 n <= 22154, u16 n <= 22154, u32 n <= 22154, u64 n <= 22154,
+ *            u128 n <= 22154, big any n
+ * Validated: standard, pass, 121 terms through n = 9466 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

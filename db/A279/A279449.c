@@ -13,12 +13,14 @@
  *            a(3)=9, a(4)=306, a(5)=4361, a(6)=34059,...
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 18, u64 n <= 167, u128 n <= 1000,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 971 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache of already computed values */
@@ -52,14 +54,14 @@ seq_t a(idx_t n) {
     if (cache == NULL) {
         /* need at least 18 slots (indices 0..17) */
         idx_t alloc = (n + 1 > 18 ? n + 1 : 18);
-        cache = (seq_t *)malloc((size_t)alloc * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)alloc);
         for (idx_t i = 0; i < alloc; ++i) cache[i] = 0;
         for (idx_t i = 1; i <= 17; ++i) cache[i] = init[i];
         cache_size = alloc;
         current_max = 17;
     } else if (n >= cache_size) {
         idx_t new_size = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_size);
         if (!tmp) return 0; /* allocation failed, return 0 */
         cache = tmp;
         for (idx_t i = cache_size; i < new_size; ++i) cache[i] = 0;

@@ -7,12 +7,14 @@
  * Formula:   a(n) = 6^n * binomial(n+5,5)
  * Range:     u8 n <= 0, u16 n <= 3, u32 n <= 8, u64 n <= 18, u128 n <= 41,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 36 terms through n = 399 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     bin = bin / (seq_t)120;             /* divide by 5! = 120 */
 
     /* Compute 6^n */
-    seq_t pow6 = pow_uint(6, n);
+    seq_t pow6 = ipow_u64_idx(6, n);
 
     /* Return the product */
     return bin * pow6;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 309, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   get_digits
+ * Validated: standard, pass, 91 terms through n = 8666 (2026-11-03)
+ * Helpers:   get_digits, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,10 +32,11 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The build supplies seq_t, idx_t and a host of helpers.
    The following headers make the needed helpers visible. */
-#include "../utils/get_digits.h"   /* if available, otherwise we use our own */
+#include "../utils/get_digits.h"
 
 static seq_t *memo = NULL;     /* cache of already computed results */
 static idx_t   memo_cap = 0;   /* allocated capacity of 'memo' */
@@ -50,12 +52,12 @@ ensure_cache(idx_t n)
     while (new_cap <= n)
         new_cap *= 2;
 
-    seq_t *new_mem = (seq_t *)realloc(memo, new_cap * sizeof(seq_t));
+    seq_t *new_mem = mem_resize(seq_t, memo, new_cap);
     if (!new_mem)
         abort();                 /* out of memory */
 
     /* Zero‑fill the newly added parts */
-    memset(new_mem + memo_cap, 0, (new_cap - memo_cap) * sizeof(seq_t));
+    mem_set(new_mem + memo_cap, 0, (new_cap - memo_cap) * sizeof(seq_t));
 
     memo = new_mem;
     memo_cap = new_cap;

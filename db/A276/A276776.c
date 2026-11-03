@@ -11,6 +11,7 @@
  *            ≥ 2, 1 ≤ K < R. The offset is 2, i.e. a(2) is the first entry
  * Range:     u8 none, u16 none, u32 none, u64 n <= 48, u128 n <= 48,
  *            big any n
+ * Validated: partial, pass, 47 terms through n = 48 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

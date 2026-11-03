@@ -12,14 +12,15 @@
  *            over signed cycle types; c(g) = (1/L) Sum_{t...
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 6,
  *            big any n
- * Helpers:   s814_gcd
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/s814_gcd.h"
+#include "../utils/gcd_u64.h"
 
 static idx_t s814_n;
 static int *s814_P, *s814_Q;
@@ -46,17 +47,17 @@ static void s814_visit(void)
     idx_t n = s814_n, k;
     unsigned long long L = 1, t;
     for (k = 1; k <= n; k++) {
-        if (s814_P[k]) L = L / s814_gcd(L, k) * k;
-        if (s814_Q[k]) L = L / s814_gcd(L, 2 * k) * (2 * k);
+        if (s814_P[k]) L = L / gcd_u64(L, k) * k;
+        if (s814_Q[k]) L = L / gcd_u64(L, 2 * k) * (2 * k);
     }
     unsigned __int128 s = 0;
     for (t = 0; t < L; t++) {
         int ok = 1;
         unsigned long long ex = 0;
         for (k = 1; k <= n && ok; k++) {
-            if (s814_P[k]) ex += (unsigned long long)s814_P[k] * s814_gcd(k, t);
+            if (s814_P[k]) ex += (unsigned long long)s814_P[k] * gcd_u64(k, t);
             if (s814_Q[k]) {
-                unsigned long long g = s814_gcd(k, t);
+                unsigned long long g = gcd_u64(k, t);
                 if ((t / g) & 1) ok = 0;
                 ex += (unsigned long long)s814_Q[k] * g;
             }

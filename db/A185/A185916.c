@@ -8,6 +8,7 @@
  *            if n = 2m^2 + 1 for some integer m ≥ 1, a(n) = 0 otherwise
  * Range:     i8 n <= 1275, i16 n <= 1275, i32 n <= 1275, i64 n <= 1275,
  *            i128 n <= 1275, big any n
+ * Validated: standard, pass, 121 terms through n = 1260 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

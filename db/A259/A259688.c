@@ -11,12 +11,14 @@
  *            arithmetic is performed with the seq_t type
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 13, u64 n <= 21, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 431 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *T = NULL;          /* tangent numbers T_{2k+1},  T[0] = 1 */
 static size_t T_size = 0;        /* number of computed tangent numbers */
@@ -29,7 +31,7 @@ static void ensure_T_size(size_t need)
     /* Grow the array. */
     size_t new_cap = (T_size == 0) ? 4 : T_size * 2;
     while (new_cap <= need) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(T, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, T, new_cap);
     if (!tmp) return;           /* allocation failure – abort silently */
     T = tmp;
 

@@ -10,7 +10,8 @@
  *            partition numbers once and reuses them
  * Range:     u8 n <= 20, u16 n <= 48, u32 n <= 135, u64 n <= 429,
  *            u128 n <= 1480, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 8861 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #ifdef __cplusplus
 #include <new>
 #endif
+#include "../utils/mem.h"
 
 /* static caches for partition numbers p[0..max] and the sequence a[0..max] */
 static seq_t *partitions = NULL;
@@ -30,26 +32,11 @@ static idx_t  max_cached = 0;
    elements). */
 static seq_t *realloc_seq_t(seq_t *old_arr, size_t old_cap, size_t new_cap)
 {
-    seq_t *new_arr;
-#if defined(__cplusplus)
-    new_arr = (seq_t *)operator new(new_cap * sizeof(seq_t));
-#else
-    new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
-#endif
-    if (!new_arr) return NULL;           /* allocation failed */
-
-    /* copy existing values */
-    for (size_t i = 0; i < old_cap; ++i) new_arr[i] = old_arr[i];
-
-    /* free the old array */
-    if (old_arr) {
-#if defined(__cplusplus)
-        operator delete[](old_arr);
-#else
-        free(old_arr);
-#endif
-    }
-    return new_arr;
+    /* mem_resize keeps the old values (this used raw operator new, so the
+       elements were never constructed, and freed mem_new memory with
+       operator delete[]) */
+    (void)old_cap;
+    return mem_resize(seq_t, old_arr, new_cap);
 }
 
 /* Ensure that partitions[0..n] and seq_cache[0..n] are computed. */
@@ -61,7 +48,7 @@ static void ensure_cache(idx_t n)
 
     /* Allocate or grow the partitions array */
     if (!partitions) {
-        partitions = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        partitions = mem_new(seq_t, new_cap);
         if (!partitions) return;             /* out of memory */
     } else if (new_cap > (size_t)max_cached + 1) {
         seq_t *tmp = realloc_seq_t(partitions, (size_t)max_cached + 1, new_cap);
@@ -71,7 +58,7 @@ static void ensure_cache(idx_t n)
 
     /* Allocate or grow the sequence cache array */
     if (!seq_cache) {
-        seq_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, new_cap);
         if (!seq_cache) return;
     } else if (new_cap > (size_t)max_cached + 1) {
         seq_t *tmp = realloc_seq_t(seq_cache, (size_t)max_cached + 1, new_cap);

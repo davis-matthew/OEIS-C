@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 27, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -31,11 +32,11 @@ seq_t a(idx_t n)
 
     for (idx_t a_val = 0; ; ++a_val) {
         /* compute a^a, with 0^0 defined as 0 */
-        seq_t a_pow = (a_val == 0) ? 0 : big_pow((seq_t)a_val, (seq_t)a_val);
+        seq_t a_pow = (a_val == 0) ? 0 : ipow((seq_t)a_val, (seq_t)a_val);
 
         for (idx_t b_val = 0; b_val <= a_val; ++b_val) {
             /* compute b^b, with 0^0 defined as 0 */
-            seq_t b_pow = (b_val == 0) ? 0 : big_pow((seq_t)b_val, (seq_t)b_val);
+            seq_t b_pow = (b_val == 0) ? 0 : ipow((seq_t)b_val, (seq_t)b_val);
 
             /* a^a + b^b is the next term in the sequence */
             seq_t val = a_pow + b_pow;

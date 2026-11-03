@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   contains_42
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,20 @@
    amortised O(1) time per additional term.  */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/contains_42.h"
+
+/* Return true if the base‑7 representation of x contains the
+   adjacent digit pair 4 followed by 2 (i.e. the substring "42"). */
+static bool contains_42(seq_t x)
+{
+    int prev = -1;          /* previous digit (more significant) */
+    while (x > 0) {
+        int d = (int)(x % 7); /* least significant digit */
+        if (prev == 2 && d == 4) return true; /* 4 (prev), 2 (d) */
+        prev = d;
+        x /= 7;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

@@ -12,7 +12,8 @@
  *            t=(x^2+y^2)/2 and k=(x^2-y^2)/2, keeping the larg...
  * Range:     u8 none, u16 none, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Pair of a value t and its corresponding maximum k. */
 typedef struct {
@@ -51,7 +53,7 @@ static void compute_sequence(idx_t max_n)
     unsigned long long pair_est = (unsigned long long)X_MAX * (X_MAX - 1) / 2 + 10;
     size_t max_pairs = (size_t)pair_est;
 
-    Pair *pairs = (Pair *)malloc(max_pairs * sizeof(Pair));
+    Pair *pairs = mem_new(Pair, max_pairs);
     size_t pair_cnt = 0;
 
     for (idx_t x = 2; x <= X_MAX; ++x) {
@@ -72,7 +74,7 @@ static void compute_sequence(idx_t max_n)
     }
 
     /* Sort pairs by t. */
-    qsort(pairs, pair_cnt, sizeof(Pair), pair_cmp);
+    mem_qsort(pairs, pair_cnt, sizeof(Pair), pair_cmp);
 
     /* Deduplicate: keep for each distinct t the maximum k. */
     a_len = 0;
@@ -88,12 +90,12 @@ static void compute_sequence(idx_t max_n)
     }
 
     /* Allocate array for a(n).  Store 1‑based indexes. */
-    a_values = (seq_t *)malloc((a_len + 1) * sizeof(seq_t));
+    a_values = mem_new(seq_t, (a_len + 1));
     for (size_t idx = 1; idx <= a_len; ++idx) {
         a_values[idx] = pairs[idx - 1].k;
     }
 
-    free(pairs);
+    mem_free(pairs);
 }
 
 /* Function required by the build. */

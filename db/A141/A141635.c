@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   is_prime_small, next_prime
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   is_prime_seq, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#include "../utils/next_prime.h"    /* uint64_t next_prime(uint64_t start); */
-#include "../utils/is_prime_small.h"/* bool is_prime_small(seq_t n); */
+#include "../utils/is_prime_seq.h"
+#include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 /* Cache for the sequence */
 static seq_t *cache = NULL;
@@ -43,7 +45,7 @@ static void cache_grow(size_t new_cap)
     size_t cap = cache_cap ? cache_cap : 8;
     while (cap < new_cap)
         cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, cap * sizeof(*cache));
+    seq_t *tmp = mem_resize(seq_t, cache, cap);
     cache = tmp;
     cache_cap = cap;
 }
@@ -81,7 +83,7 @@ seq_t a(idx_t n)
         if (gap != 0 && j % gap == 0) {
             idx_t r = j / gap;                 /* integer quotient */
             seq_t val = (seq_t)r;
-            if ((val & 1U) && !is_prime_small(val))
+            if ((val & 1U) && !is_prime_seq(val))
                 cache_append(val);
         }
 

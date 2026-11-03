@@ -12,13 +12,14 @@
  *            n - 2^t * (floor(n/2^t)-1), t = max(log2(n)-3,0)
  * Range:     u8 n <= 23, u16 n <= 7163, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bitlen_seq_t
+ * Validated: standard, pass, 82 terms through n = 9178 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/bitlen_seq_t.h"
+#include "../utils/bit_length.h"
 
 /* compute append(n) according to the given formula */
 static inline seq_t append_seq(idx_t n)
@@ -37,7 +38,7 @@ static inline seq_t append_seq(idx_t n)
 /* compute delete(n) according to the given formula */
 static inline seq_t delete_seq(seq_t n)
 {
-    unsigned k = bitlen_seq_t(n) - 1u;                      /* floor(log2(n)) */
+    unsigned k = bit_length(n) - 1u;                      /* floor(log2(n)) */
     unsigned t = (k >= 3u) ? (k - 3u) : 0u;
     seq_t pow_t = ((seq_t)1 << t);
     seq_t d     = n >> t;                                   /* floor(n/2^t) */

@@ -11,14 +11,28 @@
  *            integer sequences
  * Range:     i8 none, i16 n <= 11, i32 n <= 61, i64 n <= 61, i128 n <= 61,
  *            big any n
- * Helpers:   conv
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/conv.h"
+#include "../utils/mem.h"
+
+static void conv(const seq_t *a, const seq_t *b, seq_t *res, idx_t N)
+{
+    size_t len = (size_t)(N + 1);
+    mem_set(res, 0, len * sizeof(seq_t));
+    for (size_t i = 0; i <= N; ++i) {
+        if (a[i] == 0) continue;
+        for (size_t j = 0; i + j <= N; ++j) {
+            if (b[j] == 0) continue;
+            res[i + j] += a[i] * b[j];
+        }
+    }
+}
 
 seq_t a(idx_t n)
 {
@@ -32,20 +46,20 @@ seq_t a(idx_t n)
         size_t len = (size_t)(N + 1);          /* array length          */
 
         /* Allocate all helper arrays */
-        seq_t *t3  = (seq_t*)calloc(len, sizeof(seq_t));
-        seq_t *f   = (seq_t*)calloc(len, sizeof(seq_t));
-        seq_t *t4  = (seq_t*)calloc(len, sizeof(seq_t));
-        seq_t *H   = (seq_t*)calloc(len, sizeof(seq_t));
-        seq_t *H2  = (seq_t*)calloc(len, sizeof(seq_t));
-        seq_t *H4  = (seq_t*)calloc(len, sizeof(seq_t));
-        seq_t *t32 = (seq_t*)calloc(len, sizeof(seq_t));
-        seq_t *S1  = (seq_t*)calloc(len, sizeof(seq_t));
-        seq_t *f2  = (seq_t*)calloc(len, sizeof(seq_t));
-        seq_t *F4  = (seq_t*)calloc(len, sizeof(seq_t));
-        seq_t *A   = (seq_t*)calloc(len, sizeof(seq_t));
-        seq_t *X   = (seq_t*)calloc(len, sizeof(seq_t));
-        seq_t *S4  = (seq_t*)calloc(len, sizeof(seq_t));
-        seq_t *Y   = (seq_t*)calloc(len, sizeof(seq_t));
+        seq_t *t3  = mem_new(seq_t, len);
+        seq_t *f   = mem_new(seq_t, len);
+        seq_t *t4  = mem_new(seq_t, len);
+        seq_t *H   = mem_new(seq_t, len);
+        seq_t *H2  = mem_new(seq_t, len);
+        seq_t *H4  = mem_new(seq_t, len);
+        seq_t *t32 = mem_new(seq_t, len);
+        seq_t *S1  = mem_new(seq_t, len);
+        seq_t *f2  = mem_new(seq_t, len);
+        seq_t *F4  = mem_new(seq_t, len);
+        seq_t *A   = mem_new(seq_t, len);
+        seq_t *X   = mem_new(seq_t, len);
+        seq_t *S4  = mem_new(seq_t, len);
+        seq_t *Y   = mem_new(seq_t, len);
 
         /* 1. θ3(q) : coefficient 1 at q^0, 2 at q^(k^2) (k>0) */
         t3[0] = 1;
@@ -95,21 +109,21 @@ seq_t a(idx_t n)
         conv(X, S4, Y, N);
 
         /* 12. Final coefficients: divide by 128 */
-        seq_t *new_cache = (seq_t*)calloc((size_t)n, sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, (size_t)n);
         for (idx_t i = 1; i <= N; ++i)
             new_cache[i - 1] = Y[i] / 128;
 
         /* Replace old cache */
-        if (cache) free(cache);
+        if (cache) mem_free(cache);
         cache = new_cache;
         cache_max = n;
 
         /* Free temporary arrays */
-        free(t3); free(f); free(t4);
-        free(H); free(H2); free(H4);
-        free(t32); free(S1);
-        free(f2); free(F4);
-        free(A); free(X); free(S4); free(Y);
+        mem_free(t3); mem_free(f); mem_free(t4);
+        mem_free(H); mem_free(H2); mem_free(H4);
+        mem_free(t32); mem_free(S1);
+        mem_free(f2); mem_free(F4);
+        mem_free(A); mem_free(X); mem_free(S4); mem_free(Y);
     }
 
     return cache[n - 1];

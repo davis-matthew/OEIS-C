@@ -9,6 +9,7 @@
  * Formula:   T(n,k) = Sum_{i=0..floor(n/2)} C(n-i,i)*C(n-i,k)*k/(n-i)
  * Range:     u8 n <= 38, u16 n <= 109, u32 n <= 333, u64 n <= 1191,
  *            u128 n <= 4310, big any n
+ * Validated: standard, pass, 94 terms through n = 9929 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

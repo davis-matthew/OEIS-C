@@ -9,7 +9,8 @@
  *            of prime p in n! (Legendre’s formula)
  * Range:     u8 n <= 10, u16 n <= 21, u32 n <= 49, u64 n <= 118,
  *            u128 n <= 282, big any n
- * Helpers:   legendre_exponent
+ * Validated: standard, pass, 52 terms through n = 923 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,19 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/legendre_exponent.h"
+
+/* Legendre exponent of prime p in n! : e_p = sum_{k≥1} ⌊n / p^k⌋ */
+static idx_t legendre_exponent(idx_t n, idx_t p)
+{
+    idx_t exp = 0;
+    idx_t power = p;
+    while (power <= n) {
+        exp += n / power;
+        if (power > n / p) break;       /* prevent overflow of power * p */
+        power *= p;
+    }
+    return exp;
+}
 
 /* Static sieve data */
 static char *prime_sieve = NULL; /* 1 = prime, 0 = composite */

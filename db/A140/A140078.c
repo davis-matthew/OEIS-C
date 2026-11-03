@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 348, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_distinct_primes
+ * Validated: standard, pass, 50 terms through n = 9248 (2026-11-03)
+ * Helpers:   mem, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/count_distinct_primes.h"
+#include <stdbool.h>
+#include "../utils/omega.h"
+#include "../utils/mem.h"
 
 /* External linkage */
 seq_t a(idx_t n)
@@ -40,8 +43,8 @@ seq_t a(idx_t n)
         for (;;)
         {
             uint64_t k = next_candidate;
-            if (count_distinct_primes(k)     == 4 &&
-                count_distinct_primes(k + 1) == 4)
+            if (omega(k)     == 4 &&
+                omega(k + 1) == 4)
             {
                 /* Store value. The cast stores the truncated value if
                    seq_t is smaller than 64 bits. */
@@ -51,7 +54,7 @@ seq_t a(idx_t n)
                 if (cache_len == cache_cap)
                 {
                     idx_t new_cap = (cache_cap == 0) ? 16 : cache_cap << 1;
-                    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                     if (!tmp) abort();          /* Out of memory */
                     cache      = tmp;
                     cache_cap  = new_cap;

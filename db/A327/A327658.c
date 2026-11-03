@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   gcd_uint64
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
    accounts for all such unordered factorizations, including the trivial
    factorization n itself, and counts the empty factorization only for n=1. */
 #include <stdint.h>
-#include "../utils/gcd_uint64.h"
+#include "../utils/gcd_u64.h"
 
 /* Euclidean algorithm for 64‑bit integers (used only for small values). */
 
@@ -32,14 +33,14 @@ static seq_t dfs(uint64_t n, uint64_t min_f, seq_t cur_g) {
     seq_t cnt = 0;
 
     /* single‑factor case: n itself */
-    uint64_t gcd_val = (cur_g == (seq_t)0) ? n : gcd_uint64((uint64_t)cur_g, n);
+    uint64_t gcd_val = (cur_g == (seq_t)0) ? n : gcd_u64((uint64_t)cur_g, n);
     if (gcd_val > 1) cnt++;
 
     /* proper factors (unordered, nondecreasing) */
     for (uint64_t d = min_f; d * d <= n; ++d) {
         if (n % d == 0) {
             uint64_t r = n / d;
-            uint64_t new_gcd = gcd_uint64((cur_g == (seq_t)0 ? d : (uint64_t)cur_g), d);
+            uint64_t new_gcd = gcd_u64((cur_g == (seq_t)0 ? d : (uint64_t)cur_g), d);
             if (new_gcd == 1) continue;          /* gcd would become 1 – prune */
             cnt += dfs(r, d, (seq_t)new_gcd);
         }

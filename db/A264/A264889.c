@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..n} product_{i=1..k} i^i
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 7, u128 n <= 9,
  *            big any n
- * Helpers:   big_pow, seq_alloc, seq_realloc
+ * Validated: standard, pass, 28 terms through n = 37 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,28 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "../utils/big_pow.h"
-#include "../utils/seq_alloc.h"
-#include "../utils/seq_realloc.h"
+#include "../utils/ipow.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 static seq_t *cache = NULL;             /* cache of a(k) values */
 static size_t capacity = 0;             /* allocated size of cache   */
@@ -61,7 +81,7 @@ seq_t a(idx_t n) {
     grow_to((size_t)n + 1);             /* ensure enough space */
 
     for (idx_t i = current_max + 1; i <= n; ++i) {
-        seq_t powi = big_pow((seq_t)i, (seq_t)i);  /* i^i */
+        seq_t powi = ipow((seq_t)i, (seq_t)i);  /* i^i */
         H_cur = H_cur * powi;                         /* H(i)  */
         cache[i] = cache[i - 1] + H_cur;              /* a(i)  */
     }

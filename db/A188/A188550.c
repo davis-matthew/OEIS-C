@@ -6,8 +6,9 @@
  * Offset:    4    (a(4) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = max_{2≤k≤⌊√n⌋} #{ d>1 | d | (n–k) and (n–d) mod k = 0 }
- * Range:     u8 n <= 9105, u16 n <= 9105, u32 n <= 9105, u64 n <= 9105,
- *            u128 n <= 9105, big any n
+ * Range:     u8 n <= 10004, u16 n <= 10004, u32 n <= 10004, u64 n <= 10004,
+ *            u128 n <= 10004, big any n
+ * Validated: standard, pass, 133 terms through n = 9105 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

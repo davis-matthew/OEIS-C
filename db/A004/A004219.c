@@ -8,14 +8,31 @@
  *            - 1, computed exactly with multi-precision integers
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   big_mul
+ * Validated: standard, pass, 84 terms through n = 9682 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <string.h>
-#include "../utils/big_mul.h"
+
+static int big_mul(uint32_t *r, const uint32_t *x, int lx, const uint32_t *y, int ly) {
+  int i, j, len;
+  memset(r, 0, sizeof(uint32_t) * (size_t)(lx + ly));
+  for (i = 0; i < lx; i++) {
+    uint64_t carry = 0;
+    for (j = 0; j < ly; j++) {
+      uint64_t t = (uint64_t)x[i] * y[j] + r[i + j] + carry;
+      r[i + j] = (uint32_t)t;
+      carry = t >> 32;
+    }
+    r[i + ly] = (uint32_t)carry;
+  }
+  len = lx + ly;
+  while (len > 0 && r[len - 1] == 0) len--;
+  return len;
+}
 
 seq_t a(idx_t n) {
   uint32_t base[2], acc[32], tmp[32];

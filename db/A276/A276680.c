@@ -7,13 +7,14 @@
  * Formula:   a(n) = A000005(A000566(n)) = number of divisors of n*(5*n-3)/2
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   divisor_count_u64
+ * Validated: standard, pass, 90 terms through n = 947 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
 
 seq_t a(idx_t n)
 {
@@ -21,5 +22,5 @@ seq_t a(idx_t n)
     uint64_t H = (uint64_t)n * ((uint64_t)5 * n - 3) / 2;
 
     /* Return the divisor count τ(H). */
-    return divisor_count_u64(H);
+    return num_divisors(H);
 }

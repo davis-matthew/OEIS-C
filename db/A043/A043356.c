@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2020, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_four_exact_ones
+ * Validated: standard, pass, 55 terms through n = 9702 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,19 @@
 /* Sequence A043356: numbers having exactly four 1's in base 5 */
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/has_four_exact_ones.h"
+#include "../utils/mem.h"
+
+/* Return true iff x has exactly four digits equal to 1 in base 5 */
+static inline int has_four_exact_ones(seq_t x) {
+    int count = 0;
+    while (x) {
+        if ((x % (seq_t)5) == (seq_t)1) {
+            count++;
+        }
+        x /= (seq_t)5;
+    }
+    return count == 4;
+}
 
 /* Cache of previously found terms to allow arbitrary call order */
 static seq_t *cache = NULL;
@@ -27,10 +40,10 @@ static idx_t  last_candidate = 1;      /* next integer to test */
 static void ensure_capacity(void) {
     if (cache_cap == 0) {
         cache_cap = 1024;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     } else if (cache_used + 1 > cache_cap) {
         size_t new_cap = cache_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp) {
             cache = tmp;
             cache_cap = new_cap;

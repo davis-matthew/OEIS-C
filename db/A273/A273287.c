@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 72, u16 n <= 300, u32 n <= 300, u64 n <= 300,
  *            u128 n <= 300, big any n
- * Helpers:   factorize_int, gcd_int, mod_inv_ll
+ * Validated: standard, pass, 76 terms through n = 289 (2026-11-03)
+ * Helpers:   gcd_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,9 +27,38 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/factorize_int.h"
-#include "../utils/gcd_int.h"
-#include "../utils/mod_inv_ll.h"
+#include "../utils/gcd_i32.h"
+#include "../utils/mem.h"
+
+/* Factorize n using spf; primes[] and exps[] filled, cnt returned. */
+static void factorize_int(int n, const int *spf, int *primes, int *exps, int *cnt) {
+    int c = 0;
+    while (n > 1) {
+        int p = spf[n];
+        int e = 0;
+        while (n % p == 0) {
+            n /= p;
+            ++e;
+        }
+        primes[c] = p;
+        exps[c] = e;
+        ++c;
+    }
+    *cnt = c;
+}
+
+/* Helper: extended Euclid to find modular inverse (mod>1). */
+static long long mod_inv_ll(long long a, long long mod) {
+    if (mod == 1) return 0;
+    long long b = mod, u = 1, v = 0;
+    while (b) {
+        long long t = a / b;
+        a -= t * b;  long long tmp = a; a = b; b = tmp;
+        u -= t * v;  tmp = u; u = v; v = tmp;
+    }
+    if (a != 1) return -1;           /* inverse does not exist */
+    return (u % mod + mod) % mod;
+}
 
 /* Helper: Euclidean gcd for int (n ≤ 10000). */
 
@@ -76,7 +106,7 @@ seq_t a(idx_t n) {
     const int n_int = (int)n;
 
     /* Pre‑compute cube residues and their counts. */
-    seq_t *cube_mod = (seq_t *)malloc(sizeof(seq_t) * n);
+    seq_t *cube_mod = mem_new(seq_t, n);
     size_t *cube_counts = (size_t *)calloc((size_t)n, sizeof(size_t));
     for (int i = 0; i < n_int; ++i) {
         unsigned long long v = (unsigned long long)i * i % N * (unsigned long long)i % N;
@@ -88,11 +118,11 @@ seq_t a(idx_t n) {
     unsigned long long zeroCnt = 0;
 
     /* helper inverses for linear equations */
-    int g3 = gcd_int(3, n_int);
+    int g3 = gcd_i32(3, n_int);
     int nprime3 = n_int / g3;
     long long inv3 = mod_inv_ll(3 / g3, nprime3);
 
-    int g2 = gcd_int(2, n_int);
+    int g2 = gcd_i32(2, n_int);
     int nprime2 = n_int / g2;
     long long inv2 = mod_inv_ll(2 / g2, nprime2);
 
@@ -221,7 +251,7 @@ seq_t a(idx_t n) {
         free(spf);
     }
 
-    free(cube_mod);
+    mem_free(cube_mod);
     free(cube_counts);
 
     unsigned long long result = zeroCnt + allNonZeroCnt;

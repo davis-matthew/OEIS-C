@@ -8,15 +8,17 @@
  * Formula:   a(n) = lexicographically least sequence of nonnegative integers
  *            that contains no factor of exponent 9/7 (i.e. no block of length
  *            9k consisting of a 7k‑segment followed by its first 2k symbols)
- * Range:     u8 n <= 9912, u16 n <= 9912, u32 n <= 9912, u64 n <= 9912,
- *            u128 n <= 9912, big any n
- * Helpers:   none
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 136 terms through n = 9912 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_len = 0;
@@ -27,7 +29,7 @@ static void ensure_capacity(size_t needed)
     if (needed <= cache_cap) return;
     size_t newcap = cache_cap ? cache_cap * 2 : 256;
     while (newcap < needed) newcap *= 2;
-    seq_t *newptr = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+    seq_t *newptr = mem_resize(seq_t, cache, newcap);
     if (!newptr) exit(EXIT_FAILURE);  /* abort on OOM */
     cache = newptr;
     cache_cap = newcap;

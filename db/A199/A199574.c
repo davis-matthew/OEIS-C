@@ -9,14 +9,16 @@
  * Formula:   a(n) = (2^C(n,2) + 2^((C(n,2)+floor(n/2))/2)) / 2
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 8, u64 n <= 11, u128 n <= 15,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* where C(n,2) = n*(n-1)/2 is the number of edges in a complete graph on n vertices. */
 
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -30,8 +32,8 @@ seq_t a(idx_t n)
     idx_t exp2 = (m + f) / 2;
 
     /* 2^m and 2^exp2 using the utility function */
-    seq_t term1 = pow_uint(2, m);
-    seq_t term2 = pow_uint(2, exp2);
+    seq_t term1 = ipow_u64_idx(2, m);
+    seq_t term2 = ipow_u64_idx(2, exp2);
 
     seq_t sum = term1 + term2;
 

@@ -7,13 +7,15 @@
  * Formula:   a(n) = Sum_{k=0..n} k^(2*(n-k+1))
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 249 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Cached powers of k: powers[k] = k^{2*(current_n-k+1)}   (for k>=1) */
 static seq_t   *powers      = NULL;
@@ -34,20 +36,20 @@ static void ensure_capacity(idx_t n)
     if (cache_cap <= (size_t)n) {
         size_t new_cap = cache_cap == 0 ? 1 : cache_cap * 2;
         while (new_cap < (size_t)(n + 1)) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();
         /* initialize new entries to zero */
         if (tmp != cache) cache = tmp;
-        memset(cache + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
+        mem_set(cache + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
         cache_cap = new_cap;
     }
     if (powers_cap <= (size_t)n) {
         size_t new_cap = powers_cap == 0 ? 1 : powers_cap * 2;
         while (new_cap < (size_t)(n + 1)) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(powers, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, powers, new_cap);
         if (!tmp) abort();
         if (tmp != powers) powers = tmp;
-        memset(powers + powers_cap, 0, (new_cap - powers_cap) * sizeof(seq_t));
+        mem_set(powers + powers_cap, 0, (new_cap - powers_cap) * sizeof(seq_t));
         powers_cap = new_cap;
     }
 }

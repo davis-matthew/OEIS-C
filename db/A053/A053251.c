@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 47, u16 n <= 135, u32 n <= 430, u64 n <= 1483,
  *            u128 n <= 5418, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 9475 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
  */
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;
 static seq_t *a_arr = NULL;
@@ -29,8 +31,8 @@ static void precompute(idx_t limit)
 {
     if (dp != NULL) return;          /* already done */
 
-    dp    = (seq_t *)calloc((size_t)(limit + 1), sizeof(seq_t));
-    a_arr = (seq_t *)calloc((size_t)(limit + 1), sizeof(seq_t));
+    dp    = mem_new(seq_t, (size_t)(limit + 1));
+    a_arr = mem_new(seq_t, (size_t)(limit + 1));
     if (dp == NULL || a_arr == NULL) return;   /* allocation failed */
 
     dp[0] = 1;                       /* empty partition */

@@ -8,7 +8,8 @@
  *            of T(k) is a semiprime (product of two primes)
  * Range:     u8 n <= 15, u16 n <= 146, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_sum, is_semiprime_uint64
+ * Validated: standard, pass, 65 terms through n = 9831 (2026-11-03)
+ * Helpers:   digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,24 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/digit_sum.h"
-#include "../utils/is_semiprime_uint64.h"
+#include "../utils/mem.h"
+
+/* Return true iff s is a semiprime: product of exactly two prime factors
+   (counting multiplicities).  The smallest semiprime is 4 = 2*2. */
+static bool is_semiprime_uint64(uint64_t s)
+{
+    if (s < 4) return false;          /* 4 is the first semiprime */
+    size_t count = 0;
+    for (uint64_t p = 2; p * p <= s; ++p) {
+        while (s % p == 0) {
+            ++count;
+            s /= p;
+            if (count > 2) return false;
+        }
+    }
+    if (s > 1) ++count;                /* remaining prime factor */
+    return count == 2;
+}
 
 /* Return the n-th term of A242454 (offset 1). */
 seq_t a(idx_t n)
@@ -34,7 +52,7 @@ seq_t a(idx_t n)
     if (cache_count < n) {
         if (cache_capacity == 0) {
             cache_capacity = 16;
-            cache = (seq_t *)malloc(cache_capacity * sizeof(seq_t));
+            cache = mem_new(seq_t, cache_capacity);
         }
         while (cache_count < n) {
             /* Next triangular number */
@@ -50,8 +68,7 @@ seq_t a(idx_t n)
             if (is_semiprime_uint64(sum)) {
                 if (cache_count == cache_capacity) {
                     cache_capacity <<= 1;
-                    cache = (seq_t *)realloc(cache,
-                                              cache_capacity * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cache_capacity);
                 }
                 cache[cache_count++] = tri;
             }

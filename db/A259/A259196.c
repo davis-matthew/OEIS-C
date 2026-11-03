@@ -7,7 +7,8 @@
  * Formula:   Number of partitions of n into six primes (order disregarded)
  * Range:     u8 n <= 77, u16 n <= 399, u32 n <= 6743, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, seq_alloc_new_array
+ * Validated: standard, pass, 81 terms through n = 9737 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,15 @@
 
 #include <stddef.h>           // For size_t
 #include <stdlib.h>           // For free()
-#include "../utils/build_primes_upto.h"   // build_primes_upto
-#include "../utils/seq_alloc_new_array.h" // seq_alloc_new_array
+#include <stdint.h>
+#include <string.h>
+#include <math.h>
+#include <stdbool.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
 /* seq_t and idx_t are defined by the build system. */
 
 static seq_t *dp[7];           /* dp[k][s] = ways to sum to s with k primes */

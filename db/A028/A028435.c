@@ -9,12 +9,25 @@
  *            floor(log_5) values until a 1 is reached
  * Range:     u8 n <= 24, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   append_base5
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/append_base5.h"
+/* Append the base‑5 digits of value to the accumulating result res.
+   The digits are written most‑significant to least‑significant. */
+static inline void append_base5(idx_t value, seq_t *res)
+{
+    if (value == (idx_t)0) {
+        *res = (*res) * (seq_t)5 + (seq_t)0;
+        return;
+    }
+    if (value >= (idx_t)5) {
+        append_base5(value / (idx_t)5, res);
+    }
+    *res = (*res) * (seq_t)5 + (seq_t)(value % (idx_t)5);
+}
 static inline idx_t floor_log5(idx_t x)
 {
     idx_t k = 0;

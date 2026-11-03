@@ -8,13 +8,30 @@
  * Formula:   a(n) = ∏_{p^m‖n} Catalan(m) (Catalan numbers = A000108)
  * Range:     u8 n <= 127, u16 n <= 4095, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor
+ * Validated: standard, pass, 106 terms through n = 9447 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>   /* for size_t */
-#include "../utils/factor.h"   /* void factor(uint64_t n, uint64_t *pr, uint64_t *exp, size_t *cnt); */
+#include <stdint.h>
+#include <stdbool.h>
+
+/* --------------------------------------------------------------- */
+static void factor(uint64_t n, uint64_t *pr, uint64_t *exp, size_t *cnt)
+{
+    size_t c = 0;
+    for (uint64_t p = 2; p*p <= n; ++p) {
+        if (n % p == 0) {
+            pr[c] = p; exp[c] = 0;
+            while (n % p == 0) { n /= p; ++exp[c]; }
+            ++c;
+        }
+    }
+    if (n > 1) { pr[c] = n; exp[c] = 1; ++c; }
+    *cnt = c;
+}
 
 /* Compute the m‑th Catalan number.  m≥0. */
 static inline seq_t catalan(idx_t m)

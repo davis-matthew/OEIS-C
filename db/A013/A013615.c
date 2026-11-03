@@ -10,13 +10,22 @@
  *            with a(0)=1
  * Range:     u8 n <= 8, u16 n <= 25, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   pow8seq
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow8seq.h"
+
+/* Compute 8^k using seq_t arithmetic only. */
+static seq_t pow8seq(idx_t k)
+{
+    seq_t result = (seq_t)1;
+    for (idx_t i = 0; i < k; ++i)
+        result = result * (seq_t)8;
+    return result;
+}
 
 /* Find the row index r for a given overall index n.
    result satisfies r*(r+1)/2 ≤ n < (r+1)*(r+2)/2. */

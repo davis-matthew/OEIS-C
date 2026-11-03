@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 23, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* A269137: a(n) = 12*a(n-1) - 38*a(n-2) + 12*a(n-3) - a(n-4)  (n>5)
    Initial values: a(1)=16, a(2)=148, a(3)=1164, a(4)=8532, a(5)=59916 */
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;        /* 1‑based memoization array */
 static size_t cache_cap = 0;       /* array capacity in elements */
@@ -29,7 +31,7 @@ ensure_cache_size(idx_t n)
     if (cache_cap < (size_t)(n + 1)) {          /* need room for index n */
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 }

@@ -9,14 +9,28 @@
  *            contains exactly three 0's and one 1 (leading digit non‑zero)
  * Range:     u8 n <= 1, u16 n <= 3577, u32 n <= 4300, u64 n <= 4300,
  *            u128 n <= 4300, big any n
- * Helpers:   add_cap, mul_cap
+ * Validated: standard, pass, 57 terms through n = 4042 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/add_cap.h"
-#include "../utils/mul_cap.h"
+
+/* Helper: add two unsigned integers, saturating at limit+1 */
+static idx_t add_cap(idx_t a, idx_t b, idx_t limit) {
+    unsigned __int128 sum = (unsigned __int128)a + b;
+    if (sum > (unsigned __int128)(limit + 1)) return limit + 1;
+    return (idx_t)sum;
+}
+
+/* Helper: multiply two unsigned integers, saturating at limit+1 */
+static idx_t mul_cap(idx_t a, idx_t b, idx_t limit) {
+    if (a == 0 || b == 0) return 0;
+    unsigned __int128 res = (unsigned __int128)a * b;
+    if (res > (unsigned __int128)(limit + 1)) return limit + 1;
+    return (idx_t)res;
+}
 
 /* Helper: compute binomial coefficient C(n,k), saturating at limit+1 */
 static idx_t binom_cap(idx_t n, idx_t k, idx_t limit) {

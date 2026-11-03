@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{d|n, n/d ≡ 3 (mod 4)} d^2
  * Range:     u8 n <= 47, u16 n <= 692, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 89 terms through n = 9573 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,8 @@
 
 /* This uses factors of n and enumerates all divisors recursively. */
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 /* Recursive helper: walk through the prime factorisation and enumerate

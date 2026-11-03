@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* helper to grow a 1‑dimensional array of unsigned chars */
 static void grow_uchar_array(unsigned char **arr, size_t *cap, size_t needed)
@@ -43,10 +45,10 @@ static void grow_seq_array(seq_t **arr, size_t *cap, size_t needed)
     if (needed < *cap) return;
     size_t new_cap = (*cap) ? (*cap << 1) : 16;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)calloc(new_cap, sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, new_cap);
     if (*arr) {
-        memcpy(tmp, *arr, *cap * sizeof(seq_t));
-        free(*arr);
+        mem_copy(tmp, *arr, *cap * sizeof(seq_t));
+        mem_free(*arr);
     }
     *arr = tmp;
     *cap = new_cap;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   cmp_seq
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,18 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/cmp_seq.h"
+#include <stddef.h>
+#include "../utils/mem.h"
+
+/* comparison helper for qsort on seq_t values */
+static int cmp_seq(const void *a, const void *b)
+{
+    seq_t v1 = *(const seq_t *)a;
+    seq_t v2 = *(const seq_t *)b;
+    if (v1 < v2) return -1;
+    if (v1 > v2) return 1;
+    return 0;
+}
 
 /* Auxiliary function: compute the bitmask of decimal digits of x.
    Bits 0‑9 represent digits 0‑9. */
@@ -62,10 +74,10 @@ static void ensure_prod_capacity(void)
 {
     if (prod_cap == 0) {
         prod_cap = 1024;
-        products  = (seq_t *)malloc(prod_cap * sizeof(seq_t));
+        products  = mem_new(seq_t, prod_cap);
     } else if (prod_len >= prod_cap) {
         size_t new_cap = prod_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(products, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, products, new_cap);
         if (!tmp) return;            /* malloc failure, abort silently */
         products = tmp;
         prod_cap = new_cap;
@@ -115,7 +127,7 @@ static void init_sequence(void)
     /* Sort products and deduplicate into seq. */
     if (!products) return;  /* allocation failure */
 
-    qsort(products, prod_len, sizeof(seq_t), cmp_seq);
+    mem_qsort(products, prod_len, sizeof(seq_t), cmp_seq);
 
     /* Count unique values. */
     seq_len = 0;
@@ -125,7 +137,7 @@ static void init_sequence(void)
         while (i < prod_len && products[i] == current) ++i;
     }
 
-    seq = (seq_t *)malloc(seq_len * sizeof(seq_t));
+    seq = mem_new(seq_t, seq_len);
     if (!seq) return;  /* allocation failure */
 
     size_t idx = 0;
@@ -135,7 +147,7 @@ static void init_sequence(void)
         while (i < prod_len && products[i] == val) ++i;
     }
 
-    free(products);
+    mem_free(products);
     products = NULL;
     prod_cap = prod_len = 0;
 

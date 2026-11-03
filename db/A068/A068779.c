@@ -8,14 +8,28 @@
  *            decimal digit reversal of k)
  * Range:     u8 n <= 5, u16 n <= 86, u32 n <= 150, u64 n <= 150,
  *            u128 n <= 150, big any n
- * Helpers:   rev, seq_realloc
+ * Validated: standard, pass, 63 terms through n = 148 (2026-11-01)
+ * Helpers:   reverse_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/rev.h"
-#include "../utils/seq_realloc.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/reverse_digits_idx.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 /* Cached values for a(1), a(2), ...  (index 0 unused) */
 static seq_t *cache      = NULL;
@@ -65,7 +79,7 @@ seq_t a(idx_t n)
 
     /* Scan k values until all indices up to max_needed have been found. */
     while (remaining_needed > 0) {
-        idx_t revk = rev(next_k);
+        idx_t revk = reverse_digits_idx(next_k);
         idx_t t = next_k / revk;   /* floor division, revk > 0 */
 
         if (t > 0) {

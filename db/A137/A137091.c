@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 3, u64 n <= 4, u128 n <= 4,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 4 terms through n = 4 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- helpers ---------- */
 
@@ -85,12 +87,12 @@ static void init_seq_t_max(void) {
 
 static void ensure_cache_capacity(void) {
     if (cache_cap == 0) {
-        cache = (seq_t *)malloc(16 * sizeof(seq_t));
+        cache = mem_new(seq_t, 16);
         if (!cache) abort();
         cache_cap = 16;
     } else if (cache_size >= cache_cap) {
         cache_cap *= 2;
-        seq_t *new_mem = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        seq_t *new_mem = mem_resize(seq_t, cache, cache_cap);
         if (!new_mem) abort();
         cache = new_mem;
     }

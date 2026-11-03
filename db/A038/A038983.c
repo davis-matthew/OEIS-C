@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   grow_seq, mod_pow
+ * Validated: standard, pass, 62 terms through n = 911 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,24 @@
    good because 94 ≡ 0 (mod p) is a perfect square. */
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/grow_seq.h"   /* void grow_seq(seq_t **arr, size_t *cap, size_t need); */
-#include "../utils/mod_pow.h"    /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod); */
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
 
 static seq_t *primes = NULL;      /* all primes discovered so far          */
 static size_t   prime_cnt = 0;
@@ -54,7 +71,7 @@ static bool good_prime(seq_t x)
     if (94 % ux == 0) return true;            /* handles p = 47 */
 
     uint64_t exp = (ux - 1) >> 1;             /* (x‑1)/2 */
-    seq_t residue = mod_pow((seq_t)94, exp, x);
+    seq_t residue = powmod((seq_t)94, exp, x);
     return residue == 1;
 }
 

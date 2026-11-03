@@ -8,7 +8,8 @@
  *            (2k+1)·(-x)^{k(k+1)/2}
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 18, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* cache holds computed values a[0], a[1], …, a[cache_len-1] */
 static seq_t *cache = NULL;
@@ -41,11 +43,11 @@ static void ensure_cache(size_t n)
     if (n + 1 <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap << 1 : 4;
     while (new_cap <= n + 1) new_cap <<= 1;
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache) abort();                     /* allocation failed */
     if (cache) {
-        memcpy(new_cache, cache, cache_len * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_cache, cache, cache_len * sizeof(seq_t));
+        mem_free(cache);
     }
     cache = new_cache;
     cache_cap = new_cap;

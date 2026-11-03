@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 2558, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   e_not_squarefree
+ * Validated: standard, pass, 67 terms through n = 9482 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,17 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/e_not_squarefree.h"
+
+/* Return true if the integer e has a prime squared divisor
+   (i.e. e is not squarefree).  Works for e up to the
+   exponent of the smallest prime factor of the searched numbers. */
+static bool e_not_squarefree(idx_t e)
+{
+    if (e <= 1) return false;          /* 0 or 1 are squarefree */
+    for (idx_t i = 2; i * i <= e; ++i)
+        if (e % (i * i) == 0) return true;
+    return false;
+}
 
 /* Return the nth element (offset 1) of A383264. */
 seq_t a(idx_t n)

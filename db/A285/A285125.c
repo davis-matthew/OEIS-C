@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 9174 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    to be prefix‑stable). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static idx_t _level = 0;   /* current iteration level (even after each call) */
 static seq_t * _w = NULL; /* current word */
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
 
     /* Initialise on first call */
     if (_w == NULL) {
-        _w = (seq_t *)malloc(sizeof(seq_t));
+        _w = mem_new(seq_t, 1);
         if (_w == NULL) return (seq_t)0; /* allocation failure */
         _w[0]  = (seq_t)0;
         _len   = 1;
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     while (_len < n || (_level % 2)) {
         /* Compute length of new word */
         idx_t new_len = _zeros * 2 + _ones * 4;
-        seq_t *new_w = (seq_t *)malloc(sizeof(seq_t) * new_len);
+        seq_t *new_w = mem_new(seq_t, new_len);
         if (new_w == NULL)
             return (seq_t)0; /* allocation failure */
 
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
         }
 
         /* Free old word and update state */
-        free(_w);
+        mem_free(_w);
         _w = new_w;
         _len = new_len;
         _zeros = new_zeros;

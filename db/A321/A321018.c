@@ -7,17 +7,20 @@
  * Formula:   a(n) = round(pi(n)/2)
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   compute_pi
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-01)
+ * Helpers:   prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/compute_pi.h"
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/prime_pi.h"
 
 seq_t a(idx_t n)
 {
     if (n < 1)
         return 0;
-    seq_t pc = compute_pi(n);          /* pi(n) */
+    seq_t pc = prime_pi(n);          /* pi(n) */
     return (pc + 1) / 2;               /* round(pi(n)/2) = floor((pi(n)+1)/2) */
 }

@@ -9,7 +9,8 @@
  *            digits of x
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 33,
  *            big any n
- * Helpers:   A153880
+ * Validated: standard, pass, 40 terms through n = 117 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,37 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/A153880.h"
+#include "../utils/mem.h"
+
+/* helper: compute A153880(x) for a given seq_t value */
+static seq_t A153880(seq_t x)
+{
+    if (x == 0) return (seq_t)0;
+
+    /* find m such that m! <= x < (m+1)! */
+    seq_t fact = (seq_t)1;   /* 1! */
+    int k = 1;
+    while (1) {
+        seq_t next_fact = fact * (seq_t)(k + 1);  /* (k+1)! */
+        if (next_fact > x) break;
+        fact = next_fact;
+        k++;
+    }
+    /* now fact == m! with current k = m */
+    seq_t sum = (seq_t)0;
+    seq_t rem = x;
+
+    /* iterate k from m down to 1 */
+    for (int cur = k; cur >= 1; --cur) {
+        seq_t next_fact = fact * (seq_t)(cur + 1);      /* (cur+1)! */
+        seq_t digit      = rem / fact;                 /* d_cur */
+        rem              = rem % fact;
+        sum              += digit * next_fact;
+        /* move to next lower factorial: (cur-1)! = cur! / cur */
+        fact = fact / (seq_t)cur;
+    }
+    return sum;
+}
 
 /* static cache for memoisation */
 static seq_t *cache = NULL;
@@ -35,7 +66,7 @@ static void ensure_cache(idx_t n)
         /* allocate space for at least one term */
         if (cache_cap < 1) {
             cache_cap = 1;
-            cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+            cache = mem_new(seq_t, cache_cap);
         }
         cache[0] = (seq_t)1;      /* a(1) */
         cache_len = 1;
@@ -45,7 +76,7 @@ static void ensure_cache(idx_t n)
     if (cache_cap < (size_t)n) {
         size_t new_cap = cache_cap * 2;
         if (new_cap < (size_t)n) new_cap = (size_t)n;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 

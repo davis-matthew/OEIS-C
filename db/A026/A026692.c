@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 49, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t **tri = NULL;          /* array of row pointers */
 static size_t rows_used = 0;        /* number of rows actually built (0‑based) */
@@ -50,7 +52,7 @@ static bool build_rows(size_t row)
 
     /* Build missing rows */
     for (size_t n = rows_used; n <= row; ++n) {
-        seq_t *row_ptr = (seq_t *)calloc(n + 1U, sizeof(seq_t));
+        seq_t *row_ptr = mem_new(seq_t, n + 1U);
         if (!row_ptr)
             return false;      /* allocation failed */
 

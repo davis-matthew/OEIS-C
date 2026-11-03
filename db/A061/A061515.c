@@ -8,14 +8,45 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 12, u64 n <= 15, u128 n <= 18,
  *            big any n
- * Helpers:   inc_by3
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Recurrence: a(0) = 1; a(n) = inc_by3(a(n‑1)) for n > 0 */
 #include <stdlib.h>
-#include "../utils/inc_by3.h"
+#include <stddef.h>
+#include "../utils/mem.h"
+
+/* Helper: apply the digit‑increment rule once. */
+static seq_t inc_by3(seq_t x)
+{
+    /* Special case for 0 – its decimal digit "0" becomes "3". */
+    if (x == (seq_t)0)
+        return (seq_t)3;
+
+    seq_t result = (seq_t)0;
+    seq_t pow10  = (seq_t)1;
+    while (x != (seq_t)0) {
+        seq_t d     = x % (seq_t)10;
+        x          /= (seq_t)10;
+        seq_t nv    = d + (seq_t)3;
+        if (nv < (seq_t)10) {
+            result += nv * pow10;
+            pow10   *= (seq_t)10;
+        } else {
+            /* nv is 10…12 – write two digits. */
+            seq_t low  = nv % (seq_t)10;
+            seq_t high = nv / (seq_t)10;
+            result += low * pow10;
+            pow10   *= (seq_t)10;
+            result += high * pow10;
+            pow10   *= (seq_t)10;
+        }
+    }
+    return result;
+}
 
 seq_t a(idx_t n)
 {
@@ -33,7 +64,7 @@ seq_t a(idx_t n)
     while (new_cap <= (size_t)n + 1)
         new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         abort();                /* allocation failure */
     cache = tmp;

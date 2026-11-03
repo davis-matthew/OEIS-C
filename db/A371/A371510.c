@@ -10,14 +10,30 @@
  *            bubble‑sort * the letters of the name
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   _count_inversions
+ * Validated: partial, pass, 101 terms through n = 100 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/_count_inversions.h"
+
+/* Count inversions in the alphabetic sequence of the letters in buf[0..len-1]. */
+static seq_t _count_inversions(const char *buf, size_t len)
+{
+    uint32_t freq[26] = {0};
+    seq_t inv = 0;
+
+    for (size_t i = 0; i < len; ++i) {
+        unsigned c = (unsigned)(buf[i] - 'a');
+        for (unsigned j = c + 1; j < 26; ++j) {
+            inv += freq[j];
+        }
+        freq[c]++;
+    }
+    return inv;
+}
 
 /* Append a null‑terminated word to buf[0..*len-1]. */
 static void append_word(char *buf, size_t *len, const char *w)

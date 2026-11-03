@@ -11,13 +11,15 @@
  *            ≤ r
  * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 53, u64 n <= 135, u128 n <= 377,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 71 terms through n = 9649 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     /* Compute (r-k+1) * k^(k+1) - (k-1) */
     seq_t kk          = (seq_t)k;
     seq_t mult_factor = (seq_t)(r - k + 1);
-    seq_t powk        = big_pow(kk, (seq_t)(k + 1));
+    seq_t powk        = ipow(kk, (seq_t)(k + 1));
     seq_t val         = mult_factor * powk;
     val -= (seq_t)(k - 1);        /* subtract (k-1) */
 

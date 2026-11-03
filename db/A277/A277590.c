@@ -8,13 +8,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 7284, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 9361 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Computation: generate all numbers whose right‑most non‑zero digit is 3 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 /* seq_t, idx_t are supplied by the build system */
 
 seq_t a(idx_t n)
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
             /* store the term */
             if (terms_len == terms_cap) {
                 size_t new_cap = terms_cap ? terms_cap * 2 : 16;
-                seq_t *new_arr = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                seq_t *new_arr = mem_resize(seq_t, terms, new_cap);
                 if (!new_arr)
                     abort(); /* memory allocation failure */
                 terms = new_arr;

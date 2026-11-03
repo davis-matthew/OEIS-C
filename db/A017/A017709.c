@@ -8,7 +8,8 @@
  *            = σ_{23}(n) / gcd(σ_{23}(n), n^23)
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 2, u64 n <= 6, u128 n <= 47,
  *            big any n
- * Helpers:   factor_u64, seq_gcd
+ * Validated: standard, pass, 29 terms through n = 990 (2026-11-01)
+ * Helpers:   factor_u64, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/factor_u64.h"      /* factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt) */
-#include "../utils/seq_gcd.h"         /* seq_gcd(seq_t a, seq_t b) */
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {
@@ -58,6 +60,6 @@ seq_t a(idx_t n)
         n_pow23 *= (seq_t)n;
 
     /* Divide out the greatest common divisor. */
-    seq_t g = seq_gcd(sigma, n_pow23);
+    seq_t g = gcd(sigma, n_pow23);
     return sigma / g;
 }

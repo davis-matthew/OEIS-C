@@ -8,12 +8,14 @@
  *            n+1}
  * Range:     u8 n <= 92, u16 n <= 92, u32 n <= 92, u64 n <= 92, u128 n <= 92,
  *            big any n
+ * Validated: partial, pass, 90 terms through n = 92 (2026-11-01)
  * Helpers:   largest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/largest_prime_factor.h"
 
 seq_t a(idx_t n)

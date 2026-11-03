@@ -11,14 +11,37 @@
  *            are multiplied into the result
  * Range:     u8 n <= 146, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_and_apply, mul_prime_power
+ * Validated: standard, pass, 80 terms through n = 9023 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/factor_and_apply.h"
-#include "../utils/mul_prime_power.h"
+
+static void mul_prime_power(seq_t *res, uint64_t prime, uint64_t exp) {
+    seq_t pow = 1;
+    seq_t p   = (seq_t)prime;
+    for (uint64_t i = 0; i < exp; ++i)
+        pow *= p;
+    *res *= pow;
+}
+
+static void factor_and_apply(uint64_t num, uint64_t mult_exp, seq_t *res) {
+    uint64_t tmp = num;
+    for (uint64_t d = 2; d * d <= tmp; ++d) {
+        if (tmp % d == 0) {
+            uint64_t e = 0;
+            while (tmp % d == 0) {
+                tmp /= d;
+                ++e;
+            }
+            mul_prime_power(res, d, e * mult_exp);
+        }
+    }
+    if (tmp > 1)
+        mul_prime_power(res, tmp, mult_exp);
+}
 
 static seq_t pow_seq(seq_t base, uint64_t exp) {
     seq_t r = 1;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 35, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   big_pow, build_spf
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   build_spf, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/build_spf.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /* ----------  State  ---------- */
 static seq_t *term_arr    = NULL;   /* stored sequence values   */
@@ -45,8 +47,7 @@ static void grow_terms(size_t needed)
     size_t new_cap = term_cap ? term_cap * 2 : 128;
     while (new_cap < needed)
         new_cap *= 2;
-    seq_t *new_arr = (seq_t *)realloc((void *)term_arr,
-                                      new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, term_arr, new_cap);
     if (!new_arr)                /* unrecoverable */
         exit(EXIT_FAILURE);
     term_arr = new_arr;
@@ -77,7 +78,7 @@ static seq_t calc_f(idx_t n)
             ++e;
         }
         /* term = e^p */
-        seq_t term = big_pow((seq_t)e, (seq_t)p);
+        seq_t term = ipow((seq_t)e, (seq_t)p);
         result *= term;
     }
     return result;
@@ -120,7 +121,7 @@ static bool is_good_candidate(idx_t m)
     /* Compute f(m).  */
     seq_t fm = 1;
     for (size_t i = 0; i < sz; ++i) {
-        seq_t term = big_pow((seq_t)exps[i], (seq_t)primes[i]);
+        seq_t term = ipow((seq_t)exps[i], (seq_t)primes[i]);
         fm *= term;
     }
     if (fm == (seq_t)m)       /* fixed point ⇒ not in sequence */

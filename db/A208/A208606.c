@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 39, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
    coefficient. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* O( n^2 ) algorithm, fine for n≤10 000 (≈50 M elementary ops). */
 seq_t a(idx_t n)
@@ -40,8 +42,8 @@ seq_t a(idx_t n)
         size_t new_len = len + 1;          /* length of next row */
 
         /* Allocate space for the new row (cast required for C++). */
-        seq_t *next_u = (seq_t *)malloc(sizeof(seq_t) * new_len);
-        seq_t *next_v = (seq_t *)malloc(sizeof(seq_t) * new_len);
+        seq_t *next_u = mem_new(seq_t, new_len);
+        seq_t *next_v = mem_new(seq_t, new_len);
 
         if (len == 0) {   /* u_1(x)=1, v_1(x)=1 */
             next_u[0] = 1;
@@ -70,16 +72,16 @@ seq_t a(idx_t n)
             seq_t result = next_u[offset - 1];
 
             /* Clean up and return */
-            free(u);
-            free(v);
-            free(next_u);
-            free(next_v);
+            mem_free(u);
+            mem_free(v);
+            mem_free(next_u);
+            mem_free(next_v);
             return result;
         }
 
         /* Prepare for next iteration */
-        free(u);
-        free(v);
+        mem_free(u);
+        mem_free(v);
         u = next_u;
         v = next_v;
         len = new_len;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Forward declare the routine used by the test harness. */
 seq_t a(idx_t n);
@@ -78,7 +80,7 @@ static void build_terms_up_to_limit(uint64_t limit, size_t *found)
         if (sum_mark[i]) {
             if (terms_count == terms_capacity) {
                 terms_capacity = terms_capacity ? terms_capacity * 2 : 128;
-                terms = (seq_t *)realloc(terms, terms_capacity * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_capacity);
             }
             terms[terms_count++] = (seq_t)i;
             ++(*found);
@@ -104,7 +106,7 @@ seq_t a(idx_t n)
         size_t found = 0;
         while (terms_count < (size_t)n) {
             /* Reset any previous data. */
-            free(terms);
+            mem_free(terms);
             terms = NULL;
             terms_count = 0;
             terms_capacity = 0;

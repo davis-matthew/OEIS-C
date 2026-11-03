@@ -10,16 +10,51 @@
  *            order. See OEIS entry for A395383
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 5, u64 n <= 10, u128 n <= 15,
  *            big any n
- * Helpers:   binomial, mul_small, seq_mul
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/binomial.h"
-#include "../utils/seq_mul.h"
-#include "../utils/mul_small.h"
+#include <stdint.h>
+#include <string.h>
+#include "../utils/mem.h"
+
+/* Compute binomial coefficient n choose k multiplicatively.
+   This works for any seq_t that supports + - * / % with integer constants. */
+static seq_t binomial(idx_t n, idx_t k)
+{
+    if (k > n)
+        return 0;
+    if (k > n - k)      /* use symmetry */
+        k = n - k;
+    seq_t res = 1;
+    for (idx_t i = 1; i <= k; ++i) {
+        res = res * (seq_t)(n - k + i);
+        res = res / (seq_t)i;
+    }
+    return res;
+}
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 seq_t a(idx_t n)
 {
@@ -39,7 +74,7 @@ seq_t a(idx_t n)
     /* Initialize cache for a(0) */
     if (!init_cache) {
         cache_cap = 1;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = (seq_t)1;
         cache_max = 0;
         init_cache = true;
@@ -49,15 +84,15 @@ seq_t a(idx_t n)
     if ((idx_t)(cache_cap) <= n) {
         size_t new_cap = cache_cap ? cache_cap : 1;
         while ((idx_t)(new_cap) <= n) new_cap <<= 1;
-        cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 
     /* Initialize powers of 9 and 25 */
     if (!init_pow) {
         pow_cap = 1;
-        pow9  = (seq_t*)malloc(pow_cap * sizeof(seq_t));
-        pow25 = (seq_t*)malloc(pow_cap * sizeof(seq_t));
+        pow9  = mem_new(seq_t, pow_cap);
+        pow25 = mem_new(seq_t, pow_cap);
         pow9[0]  = (seq_t)1;
         pow25[0] = (seq_t)1;
         pow_max = 0;
@@ -67,8 +102,8 @@ seq_t a(idx_t n)
     if ((idx_t)(pow_cap) <= n) {
         size_t new_cap = pow_cap ? pow_cap : 1;
         while ((idx_t)(new_cap) <= n) new_cap <<= 1;
-        pow9  = (seq_t*)realloc(pow9,  new_cap * sizeof(seq_t));
-        pow25 = (seq_t*)realloc(pow25, new_cap * sizeof(seq_t));
+        pow9  = mem_resize(seq_t, pow9, new_cap);
+        pow25 = mem_resize(seq_t, pow25, new_cap);
         pow_cap = new_cap;
     }
 

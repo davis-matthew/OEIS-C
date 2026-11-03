@@ -9,14 +9,15 @@
  *            2*(1+3*k)/(5+6*k)))
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   seq_gcd
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_gcd.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +34,7 @@ seq_t a(idx_t n)
         den *= b_factor;
 
         /* reduce the fraction to keep numbers small */
-        seq_t g = seq_gcd(num, den);
+        seq_t g = gcd(num, den);
         num /= g;
         den /= g;
     }
@@ -42,7 +43,7 @@ seq_t a(idx_t n)
     seq_t sum = num + den;
     seq_t two_den = den * (seq_t)2;
 
-    seq_t g2 = seq_gcd(sum, two_den);
+    seq_t g2 = gcd(sum, two_den);
     seq_t denom = two_den / g2;  /* the denominator of R(n) */
 
     return denom;

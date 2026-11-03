@@ -7,7 +7,8 @@
  * Formula:   a(0)=1, a(1)=2, a(2)=5, a(n) = 3*a(n-1) - a(n-3) for n ≥ 3
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 21, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* This recurrence follows from a(n+3)=3*a(n+2)-a(n). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     if (memo == NULL) {
         memo_cap  = 3;
         memo_size = 3;
-        memo = (seq_t *)malloc(memo_cap * sizeof(seq_t));
+        memo = mem_new(seq_t, memo_cap);
         if (memo == NULL) {                 /* just to keep the function defined */
             return (seq_t)0;
         }
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
         idx_t new_cap = memo_cap * 2;
         if (new_cap < n + 1)
             new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(memo, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, memo, new_cap);
         if (tmp == NULL)
             return (seq_t)0;                 /* memory failure; unlikely in test harness */
         memo      = tmp;

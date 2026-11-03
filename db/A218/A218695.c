@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 30, u32 n <= 59, u64 n <= 125,
  *            u128 n <= 240, big any n
- * Helpers:   big_pow, binomial, pow2
+ * Validated: standard, pass, 61 terms through n = 1267 (2026-11-01)
+ * Helpers:   binomial, ipow, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,12 @@
    Formula used: A(h,k) = ∑_{i=0}^{h} (-1)^{h-i} * C(h,i) * (2^i-1)^k
 */
 
-#include "../utils/pow2.h"      /* pow2(idx_t exp) -> seq_t */
-#include "../utils/big_pow.h"   /* big_pow(seq_t base, seq_t exp) -> seq_t */
-#include "../utils/binomial.h"  /* binomial(idx_t n, idx_t k) -> seq_t */
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow.h"
+#include "../utils/pow2.h"
 
 /* Compute a single table entry A(h,k) using the explicit formula */ 
 static seq_t A_h_k(idx_t h, idx_t k)
@@ -33,7 +37,7 @@ static seq_t A_h_k(idx_t h, idx_t k)
     seq_t neg = 0;   /* sum of terms with (-1)^{h-i} = -1 */
     for (idx_t i = 0; i <= h; ++i) {
         seq_t base   = pow2(i) - (seq_t)1;          /* (2^i-1) */
-        seq_t power  = big_pow(base, (seq_t)k);     /* (2^i-1)^k   */
+        seq_t power  = ipow(base, (seq_t)k);     /* (2^i-1)^k   */
         seq_t binom  = binomial(h, i);             /* C(h,i)      */
         seq_t term   = binom * power;              /* C(h,i)*(2^i-1)^k */
         if (((h - i) & 1U) == 0) {                 /* even parity → + */

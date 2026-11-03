@@ -8,7 +8,8 @@
  *            number
  * Range:     u8 n <= 8, u16 n <= 44, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   digit_len, pow10
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-01)
+ * Helpers:   num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,17 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/digit_len.h"
-#include "../utils/pow10.h"
+#include "../utils/num_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 static uint64_t *composites = NULL;   /* cached composites */
 static idx_t composites_cap   = 0;     /* allocated capacity */
@@ -85,7 +95,7 @@ seq_t a(idx_t n)
             }
 
             seq_t sp = (seq_t)prime;
-            int d = digit_len(sp);
+            int d = num_digits(sp);
             seq_t pow10d = pow10((idx_t)d);
 
             for (int i = 0; i < exp; ++i)
@@ -96,7 +106,7 @@ seq_t a(idx_t n)
     if (rem > 1)   /* remaining prime factor */
     {
         seq_t sp = (seq_t)rem;
-        int d = digit_len(sp);
+        int d = num_digits(sp);
         seq_t pow10d = pow10((idx_t)d);
         result = result * pow10d + sp;
     }

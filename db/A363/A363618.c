@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{d|n} (-1)^d * binomial(d,4)
  * Range:     i8 n <= 5, i16 n <= 15, i32 n <= 470, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 57 terms through n = 9352 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,8 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 /* Compute binomial(d,4) for d >= 4; returns 0 otherwise. */

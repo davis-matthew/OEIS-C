@@ -12,16 +12,28 @@
  *            k! (n-kp)!) + ∑_{k even ≥2}^{⌊n/2⌋} n!/(2^k...
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 14, u64 n <= 22, u128 n <= 36,
  *            big any n
- * Helpers:   binom, build_primes, factorial
+ * Validated: standard, pass, 40 terms through n = 185 (2026-11-01)
+ * Helpers:   binomial, build_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/binom.h"
-#include "../utils/factorial.h"
+#include <stddef.h>
+#include "../utils/binomial.h"
 #include "../utils/build_primes.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 seq_t a(idx_t n)
 {
@@ -51,12 +63,12 @@ seq_t a(idx_t n)
         seq_t fact_p_minus1 = factorial(p - 1);   /* (p-1)! */
 
         /* k = 1 term: binom(n,p) * (p-2)! */
-        seq_t S = binom(n, p) * fact_p_minus2;
+        seq_t S = binomial(n, p) * fact_p_minus2;
         ans += S;
 
         /* k ≥ 2 terms */
         for (idx_t k = 2; k <= kmax; ++k) {
-            seq_t bin = binom(n - (k - 1) * p, p);
+            seq_t bin = binomial(n - (k - 1) * p, p);
             /* S = S * bin * (p-1)! / k */
             S = S * bin;
             S = S * fact_p_minus1;
@@ -69,7 +81,7 @@ seq_t a(idx_t n)
     idx_t kmax2 = n / 2;
     seq_t term = 1;   /* term_k for current k, starting with k = 0 */
     for (idx_t k = 1; k <= kmax2; ++k) {
-        seq_t bin = binom(n - 2 * (k - 1), 2);
+        seq_t bin = binomial(n - 2 * (k - 1), 2);
         term = term * bin;
         term = term / (seq_t)k;           /* exact division */
         if ((k & 1) == 0)                /* only even k */

@@ -10,7 +10,8 @@
  *            concatenation of a(0),a(1),...,a(n-1); 0 otherwise
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   get_bin_pattern
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,25 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/get_bin_pattern.h"
+#include "../utils/mem.h"
+
+/* produce binary pattern of val into out[0..len-1] (most‑significant bit first) */
+static inline void get_bin_pattern(idx_t val, char *out, size_t *plen)
+{
+    size_t len = 0;
+    idx_t t = val;
+    do {
+        out[len++] = (char)('0' + (t & 1));
+        t >>= 1;
+    } while (t);
+    /* reverse to normal order */
+    for (size_t i = 0; i < len / 2; ++i) {
+        char tmp = out[i];
+        out[i] = out[len - 1 - i];
+        out[len - 1 - i] = tmp;
+    }
+    *plen = len;
+}
 
 /* ---------- global state ---------- */
 static bool         initialized      = false;
@@ -40,7 +59,7 @@ static inline void ensure_cache_cap(size_t need)
     if (need > cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 1;
         while (new_cap < need) new_cap <<= 1;
-        cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 }
@@ -78,7 +97,7 @@ seq_t a(idx_t n)
 
         /* cache for a(0) */
         cache_cap = 1;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = (seq_t)1;
 
         /* bits array */

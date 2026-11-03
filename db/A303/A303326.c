@@ -13,12 +13,14 @@
  *            2*a(n-1)+9*a(n-2)-16*a(n-3)-25*a(n-4)+34*a(n-5)+15*a(n-6)+4*a(n-7)+34*a(n...
  * Range:     u8 n <= 9, u16 n <= 16, u32 n <= 28, u64 n <= 53, u128 n <= 104,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache for previously computed values */
 static seq_t *cache = NULL;          /* array of values a(1) .. a(max_computed) */
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
     if (cache_cap < n + 1) {
         /* new capacity: at least n+1, keep old capacity if larger */
         size_t new_cap = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) {
             /* allocation failed – abort computation */
             return 0;

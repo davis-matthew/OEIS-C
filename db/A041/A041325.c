@@ -9,12 +9,14 @@
  *            = 1591, a(7) = 5970
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 30, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 187 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t _init_vals[8] = {1, 3, 4, 15, 394, 1197, 1591, 5970};
 
@@ -31,7 +33,7 @@ seq_t a(idx_t n) {
     /* Initialise cache on first use with the first eight values. */
     if (!cache) {
         cache_cap = 8;
-        cache = (seq_t *)calloc((size_t)cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)cache_cap);
         if (!cache)
             exit(1);               /* allocation failure */
         for (idx_t i = 0; i < 8; ++i)
@@ -42,7 +44,7 @@ seq_t a(idx_t n) {
     /* Grow cache if a larger n is requested. */
     if (n >= cache_cap) {
         idx_t new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_cap);
         if (!tmp)
             exit(1);               /* allocation failure */
         /* Initialise the new slots with zero (placeholder). */

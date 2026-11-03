@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 17, u32 n <= 32, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   pow2
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,9 @@
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/pow2.h"   /* provides seq_t pow2(idx_t) */
+#include <stdbool.h>
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +37,7 @@ seq_t a(idx_t n)
     /* Resize cache if necessary. */
     if ((size_t)n + 1 > cache_cap) {
         size_t new_cap = ((size_t)n + 1) + 1024;   /* small extra room */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) { /* allocation failed – treat as empty */
             tmp = cache;
             cache_cap = 0;

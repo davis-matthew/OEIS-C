@@ -9,14 +9,18 @@
  *            the integers from n+1 to n+k (base 10)
  * Range:     u8 n <= 36, u16 n <= 450, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digits_of, mod_pow
+ * Validated: standard, pass, 91 terms through n = 9993 (2026-11-01)
+ * Helpers:   num_digits_idx, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/digits_of.h"
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/num_digits_idx.h"
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n) {
     /* Special case: a(1) = 1 by definition. */
@@ -27,10 +31,10 @@ seq_t a(idx_t n) {
 
     for (idx_t k = 1; ; ++k) {
         idx_t x = n + k;           /* the next integer to append */
-        int d = digits_of(x);     /* number of decimal digits in x */
+        int d = num_digits_idx(x);     /* number of decimal digits in x */
 
         /* (10^d) mod n */
-        seq_t mult = mod_pow((seq_t)10, (uint64_t)d, mod);
+        seq_t mult = powmod((seq_t)10, (uint64_t)d, mod);
 
         /* Append the digits of x to the current number modulo n */
         rem = (rem * mult + (seq_t)x) % mod;

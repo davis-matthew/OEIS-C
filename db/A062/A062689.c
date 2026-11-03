@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 1056, u64 n <= 9999,
  *            u128 n <= 9999, big any n
- * Helpers:   digit_len, isqrt_seq, pow10, pow10_overflow
+ * Validated: standard, pass, 57 terms through n = 9863 (2026-11-01)
+ * Helpers:   num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,10 +32,56 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/digit_len.h"     /* int digit_len(seq_t x); */
-#include "../utils/pow10.h"         /* seq_t pow10(idx_t e); */
-#include "../utils/isqrt_seq.h"     /* seq_t isqrt_seq(seq_t v); */
-#include "../utils/pow10_overflow.h"
+#include <stdlib.h>
+#include "../utils/num_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
+
+/* Integer square root (floor) of a non‑negative seq_t value. */
+static seq_t isqrt_seq(seq_t v)
+{
+    seq_t lo = 0, hi = v;
+    while (lo <= hi) {
+        seq_t mid = lo + ((hi - lo) >> 1);
+        seq_t sq  = mid * mid;
+        if (sq == v) return mid;
+        if (sq < v) {
+            lo = mid + 1;
+        } else {
+            hi = mid - 1;
+        }
+    }
+    return hi;
+}
+
+static bool pow10_overflow(idx_t exp, seq_t *res)
+{
+    /* Computes 10^exp into *res.  Returns true if overflow would occur
+     * when seq_t is a bounded unsigned integer type. */
+    static const seq_t MAX_VAL =
+#if defined(UINT64_MAX)
+        (seq_t)UINT64_MAX;
+#else
+        0;  /* 0 indicates unbounded seq_t */
+#endif
+
+    seq_t val = 1;
+    for (idx_t i = 0; i < exp; ++i) {
+        if (sizeof(seq_t) <= sizeof(UINT64_MAX) && MAX_VAL > 0 && val > MAX_VAL / 10)
+            return true;      /* overflow would happen */
+        val *= 10;
+    }
+    *res = val;
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -45,7 +92,7 @@ seq_t a(idx_t n)
     seq_t target = (seq_t)n;
 
     /* Number of decimal digits of n */
-    int d = digit_len(target);
+    int d = num_digits(target);
 
     /* Determine whether seq_t is a bounded unsigned integer (<= 8 bytes) */
     static const bool BOUNDED = (sizeof(seq_t) == sizeof(uint64_t));

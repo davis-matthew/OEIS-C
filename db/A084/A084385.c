@@ -11,6 +11,7 @@
  *            n+2 if n mod 4 = 3 The values for n ≤ 6 are {1,2,4,3,7,5}
  * Range:     u8 n <= 254, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 88 terms through n = 9948 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

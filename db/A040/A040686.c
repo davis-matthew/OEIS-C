@@ -7,14 +7,35 @@
  * Formula:   a(n) = nth term of the continued fraction expansion of sqrt(713)
  * Range:     u8 none, u16 n <= 89, u32 n <= 89, u64 n <= 89, u128 n <= 89,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: partial, pass, 90 terms through n = 89 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/floor_sqrt.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 static seq_t *period = NULL;
 static size_t period_len = 0;
@@ -35,7 +56,7 @@ static void init_period(void) {
     seq_t a = a0;
 
     size_t cap = 8;
-    period = (seq_t *)malloc(cap * sizeof(seq_t));
+    period = mem_new(seq_t, cap);
     period_len = 0;
 
     while (1) {
@@ -45,7 +66,7 @@ static void init_period(void) {
 
         if (period_len == cap) {
             cap *= 2;
-            period = (seq_t *)realloc(period, cap * sizeof(seq_t));
+            period = mem_resize(seq_t, period, cap);
         }
         period[period_len++] = a;
 

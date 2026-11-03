@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 137, u16 n <= 518, u32 n <= 555, u64 n <= 555,
  *            u128 n <= 555, big any n
- * Helpers:   none
+ * Validated: standard, pass, 89 terms through n = 534 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;          /* dynamic DP table */
 static size_t dp_cap = 0;         /* current capacity of dp */
@@ -35,9 +37,9 @@ seq_t a(idx_t n)
 {
     /* Allocate / resize the DP array if necessary */
     if ((size_t)n + 1 > dp_cap) {
-        seq_t *tmp = (seq_t *)malloc(((size_t)n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, ((size_t)n + 1));
         if (!tmp) return (seq_t)0;          /* allocation failed – unlikely */
-        free(dp);
+        mem_free(dp);
         dp = tmp;
         dp_cap = (size_t)n + 1;
     }

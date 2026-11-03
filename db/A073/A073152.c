@@ -13,7 +13,8 @@
  *            integ...
  * Range:     u8 n <= 19, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   add_big, sum_mul_big, sum_partial
+ * Validated: partial, pass, 46 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,23 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/add_big.h"
-#include "../utils/sum_mul_big.h"
-#include "../utils/sum_partial.h"
+#include "../utils/mem.h"
+
+static inline seq_t add_big(seq_t a, seq_t b) { return (seq_t)((unsigned __int128)a + b); }
+
+static inline seq_t sum_mul_big(const seq_t *tab, size_t n)
+{
+    seq_t s = 0;
+    for (size_t j = 0; j <= n; ++j) s += tab[j] * tab[n-j];
+    return s;
+}
+
+static inline seq_t sum_partial(const seq_t *tab, size_t row, size_t col)
+{
+    seq_t s = 0;
+    for (size_t j = 0; j <= col; ++j) s += tab[j] * tab[row-j];
+    return s;
+}
 
 /* Triangle workspace */
 static seq_t *L = NULL;          /* a(n,0) values */
@@ -50,8 +65,8 @@ static void ensure_triangle(idx_t rmax)
     if (need > cap) {
         size_t newcap = cap ? cap : 16;
         while (newcap < need) newcap <<= 1;
-        L = (seq_t*)realloc(L, newcap * sizeof(seq_t));
-        D = (seq_t*)realloc(D, newcap * sizeof(seq_t));
+        L = mem_resize(seq_t, L, newcap);
+        D = mem_resize(seq_t, D, newcap);
         cap = newcap;
     }
 

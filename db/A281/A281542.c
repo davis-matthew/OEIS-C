@@ -9,13 +9,15 @@
  *            distinct squares
  * Range:     u8 n <= 354, u16 n <= 1520, u32 n <= 7655, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 116 terms through n = 8719 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Cached DP tables and the maximum index that has been computed. */
 static seq_t *dp = NULL;
@@ -26,12 +28,12 @@ static idx_t max_n_computed = 0;
 static void recompute(idx_t max)
 {
     /* Free previously allocated tables. */
-    if (dp)          free(dp);
-    if (parts)       free(parts);
+    if (dp)          mem_free(dp);
+    if (parts)       mem_free(parts);
 
     /* Allocate new zeroed tables. */
-    dp    = (seq_t*)calloc((size_t)max + 1, sizeof(seq_t));
-    parts = (seq_t*)calloc((size_t)max + 1, sizeof(seq_t));
+    dp    = mem_new(seq_t, (size_t)max + 1);
+    parts = mem_new(seq_t, (size_t)max + 1);
     if (!dp || !parts) {                      /* OOM – caller will receive 0. */
         return;
     }

@@ -11,12 +11,14 @@
  *            ordinary integer sums.)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* for malloc, free */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
 
     /* Allocate space for terms up to max(n,44). */
     size_t size = (n >= 44 ? (size_t)n + 1 : (size_t)45);
-    seq_t *terms = (seq_t*)malloc(size * sizeof(seq_t));
+    seq_t *terms = mem_new(seq_t, size);
     if (!terms) return (seq_t)0;   /* allocation failed, return 0 as fallback */
 
     /* Compute a(0)..a(44). */
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     }
     if (n <= 43) {                      /* answer already in the array */
         seq_t result = terms[n];
-        free(terms);
+        mem_free(terms);
         return result;
     }
 
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
 
     if (n == 44) {                       /* answer is a(44) */
         seq_t result = terms[44];
-        free(terms);
+        mem_free(terms);
         return result;
     }
 
@@ -71,6 +73,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = terms[n];
-    free(terms);
+    mem_free(terms);
     return result;
 }

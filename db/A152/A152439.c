@@ -9,6 +9,7 @@
  *            T(r,k) = (r-3)*(k-r)*(k-r-2) - (2*r - k)*(k-2)
  * Range:     i8 n <= 35, i16 n <= 1088, i32 n <= 2600, i64 n <= 2600,
  *            i128 n <= 2600, big any n
+ * Validated: standard, pass, 80 terms through n = 2424 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,14 +9,30 @@
  *            T(n,k) = 5^k * binomial(n, k) of (1+5*x)^n
  * Range:     u8 n <= 12, u16 n <= 32, u32 n <= 114, u64 n <= 370,
  *            u128 n <= 1365, big any n
- * Helpers:   binomial, power5
+ * Validated: standard, pass, 71 terms through n = 9730 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/power5.h"
+
+static inline seq_t power5(idx_t exp)
+{
+    seq_t result = 1;
+    seq_t base   = 5;
+    while (exp)
+    {
+        if (exp & 1)
+            result *= base;
+        base *= base;
+        exp >>= 1;
+    }
+    return result;
+}
 
 seq_t a(idx_t n)
 {

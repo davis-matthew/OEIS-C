@@ -10,7 +10,8 @@
  *            1, b(1) = 3, b(2) = 5;
  * Range:     u8 n <= 5, u16 n <= 16, u32 n <= 39, u64 n <= 85, u128 n <= 177,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 992 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,30 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 /* Ensure the dynamic array pointed to by *ptr has capacity at least "needed". */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (*cap < needed) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        while (newcap < needed)
+            newcap <<= 1;
+        *ptr = mem_resize(T, *ptr, (newcap * elem_size) / sizeof(T));
+        *cap = newcap;
+    }
+}
+#else
 static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
 {
     if (*cap < needed) {
@@ -30,6 +53,7 @@ static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_
         *cap = newcap;
     }
 }
+#endif
 
 /* Return a(n). */
 seq_t a(idx_t n)
@@ -46,8 +70,8 @@ seq_t a(idx_t n)
 
     /* One‑time initialization: set up the initial values of a and b. */
     if (a_len == 0) {
-        ensure_capacity(2, &a_cap, (void **)&a_seq, sizeof(seq_t));
-        ensure_capacity(3, &b_cap, (void **)&b_seq, sizeof(seq_t));
+        ensure_capacity(2, &a_cap, OEISC_VPP(&a_seq), sizeof(seq_t));
+        ensure_capacity(3, &b_cap, OEISC_VPP(&b_seq), sizeof(seq_t));
 
         a_seq[0] = (seq_t)2;
         a_seq[1] = (seq_t)4;
@@ -86,14 +110,14 @@ seq_t a(idx_t n)
                 break;
             }
             bi = cand;
-            ensure_capacity(b_len + 1, &b_cap, (void **)&b_seq, sizeof(seq_t));
+            ensure_capacity(b_len + 1, &b_cap, OEISC_VPP(&b_seq), sizeof(seq_t));
             b_seq[b_len++] = bi;
         }
 
         /* Compute a(i) using the recurrence. */
         seq_t ai = a_seq[i - 1] + a_seq[i - 2] + b_seq[i - 2] * bi;
 
-        ensure_capacity(a_len + 1, &a_cap, (void **)&a_seq, sizeof(seq_t));
+        ensure_capacity(a_len + 1, &a_cap, OEISC_VPP(&a_seq), sizeof(seq_t));
         a_seq[a_len++] = ai;
     }
 

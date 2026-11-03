@@ -8,6 +8,7 @@
  * Formula:   T(n, k) = (-1)^k * n! * binomial(2*n+1, n-k) / k!
  * Range:     i8 n <= 5, i16 n <= 14, i32 n <= 44, i64 n <= 44, i128 n <= 44,
  *            big any n
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -11,12 +11,14 @@
  *            Initial values: a(4)=6, a(5)=12, a(6)=38
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 20, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* cache of computed values */
 static idx_t cache_size = 0;         /* size of allocated cache */
@@ -25,7 +27,7 @@ static void ensure_cache(idx_t n)
 {
     /* make sure cache has entries up to n inclusive */
     if (cache_size <= n) {
-        seq_t *tmp = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
         if (!tmp) {
             /* allocation failed; for the purposes of this exercise,
                we simply exit, though a proper implementation should

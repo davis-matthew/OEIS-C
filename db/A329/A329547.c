@@ -7,13 +7,14 @@
  * Formula:   a(n) = floor(n/2) + ceil(floor(sqrt(n))/2)
  * Range:     u8 n <= 488, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _floor_isqrt_u64
+ * Validated: standard, pass, 89 terms through n = 9489 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Computes the number of k ≤ n such that k^k is a perfect square. */
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
@@ -21,7 +22,7 @@ seq_t a(idx_t n)
 
     seq_t half_n = (seq_t)n / (seq_t)2;    /* floor(n/2)          */
 
-    idx_t sqrt_val = _floor_isqrt_u64(n); /* floor(sqrt(n))      */
+    idx_t sqrt_val = isqrt(n); /* floor(sqrt(n))      */
     seq_t half_sqrt = ((seq_t)sqrt_val + (seq_t)1) / (seq_t)2; /* ceil(floor(sqrt(n))/2) */
 
     return half_n + half_sqrt;

@@ -11,22 +11,23 @@
  *            1‑bits of n, i.e. popcount(n).)
  * Range:     u8 n <= 130, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime, phi
+ * Validated: standard, pass, 87 terms through n = 9917 (2026-11-01)
+ * Helpers:   is_prime, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/phi.h"
 #include "../utils/is_prime.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
     if (n == 1)
         return (seq_t)1;
 
-    seq_t phi_n = phi(n);
+    seq_t phi_n = totient(n);
     seq_t result = (seq_t)2 * phi_n;
 
     if (is_prime(n)) {

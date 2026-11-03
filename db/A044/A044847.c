@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 52, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Return the nth term (1‑based) of sequence A044847.  */
 seq_t a(idx_t n) {
@@ -67,7 +69,7 @@ seq_t a(idx_t n) {
         if (even >= odd) {        /* satisfies the property */
             if (count == (idx_t)cap) {   /* enlarge cache if needed */
                 size_t newcap = (cap == 0 ? 8 : cap * 2);
-                seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, newcap);
                 if (!tmp) abort();            /* allocation failed */
                 cache = tmp;
                 cap   = newcap;

@@ -10,7 +10,8 @@
  *            lazily until it contains n terms
  * Range:     u8 n <= 18, u16 n <= 551, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 68 terms through n = 9610 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 #ifdef __cplusplus
 #include <vector>
@@ -36,9 +38,9 @@ seq_t a(idx_t n)
     static uint64_t candidate = 2;               /* next integer to test           */
 
     while (terms.size() < n) {
-        if (is_prime(candidate)) {
+        if (is_prime_u64(candidate)) {
             uint64_t t = candidate * 10ULL;
-            if (is_prime(t - 3ULL) && is_prime(t + 3ULL))
+            if (is_prime_u64(t - 3ULL) && is_prime_u64(t + 3ULL))
                 terms.push_back((seq_t)candidate);
         }
         candidate += (candidate == 2) ? 1ULL : 2ULL;
@@ -59,9 +61,9 @@ seq_t a(idx_t n)
     }
 
     while (terms_cnt < n) {
-        if (is_prime(candidate)) {
+        if (is_prime_u64(candidate)) {
             uint64_t t = candidate * 10ULL;
-            if (is_prime(t - 3ULL) && is_prime(t + 3ULL)) {
+            if (is_prime_u64(t - 3ULL) && is_prime_u64(t + 3ULL)) {
                 if (terms_cnt >= capacity) {   /* grow array if needed     */
                     capacity <<= 1;
                     seq_t *tmp = (seq_t *)realloc(terms, capacity * sizeof(seq_t));

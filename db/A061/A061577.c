@@ -11,7 +11,8 @@
  *            such that x and (x-a(n-1)) have neither appeared as...
  * Range:     u8 n <= 19, u16 n <= 347, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 9086 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* dynamic arrays holding the sequence and the set of used numbers */
 static seq_t *seq      = NULL;
@@ -47,7 +49,7 @@ static void init_sequence(void)
     if (seq) return;
 
     seq_cap = 4;
-    seq = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+    seq = mem_new(seq_t, seq_cap);
     if (!seq) abort();
     seq[0] = (seq_t)2ULL;
     seq[1] = (seq_t)3ULL;
@@ -87,7 +89,7 @@ static void generate_upto(idx_t n)
         /* append the new term */
         if (seq_len == seq_cap) {
             seq_cap <<= 1;
-            seq_t *tmp = (seq_t*)realloc(seq, seq_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq, seq_cap);
             if (!tmp) abort();
             seq = tmp;
         }

@@ -7,7 +7,8 @@
  * Formula:   primes p such that p+72 and p+144 are also prime
  * Range:     u8 n <= 10, u16 n <= 391, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 64 terms through n = 944 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *list      = NULL;  /* cache of found terms              */
 static size_t list_len  = 0;      /* number of terms stored            */
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
             if (list_len == list_cap)
             {
                 list_cap = list_cap ? list_cap * 2 : 16;
-                list = (seq_t *)realloc(list, list_cap * sizeof(seq_t));
+                list = mem_resize(seq_t, list, list_cap);
             }
             list[list_len++] = (seq_t)p;
         }

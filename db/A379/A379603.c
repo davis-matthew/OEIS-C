@@ -11,13 +11,16 @@
  *            98336, 998333, 9994833, 99983333, 999939437)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 19, u128 n <= 21,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 static bool digits_ok(seq_t sq)
 {
@@ -36,7 +39,7 @@ seq_t a(idx_t n)
     /* Small n: brute‑force search */
     if (n <= 9)
     {
-        seq_t limit = seq_pow(10, n);
+        seq_t limit = ipow_idx(10, n);
         seq_t cur   = limit - 1;
         for (;;)
         {
@@ -50,15 +53,15 @@ seq_t a(idx_t n)
     /* Even n: closed form */
     if ((n & 1) == 0)
     {
-        seq_t pow10_n     = seq_pow(10, n);
-        seq_t pow10_half  = seq_pow(10, n / 2);
+        seq_t pow10_n     = ipow_idx(10, n);
+        seq_t pow10_half  = ipow_idx(10, n / 2);
         seq_t sub         = (5 * pow10_half + 1) / 3;
         return pow10_n - sub;
     }
 
     /* Odd n ≥ 11: use the recurrence a(2k+1)=10*a(2k)+6 */
-    seq_t pow10_prev   = seq_pow(10, n - 1);    /* 10^(n−1)  */
-    seq_t pow10_half   = seq_pow(10, (n - 1) / 2); /* 10^((n−1)/2) */
+    seq_t pow10_prev   = ipow_idx(10, n - 1);    /* 10^(n−1)  */
+    seq_t pow10_half   = ipow_idx(10, (n - 1) / 2); /* 10^((n−1)/2) */
     seq_t sub          = (5 * pow10_half + 1) / 3;
     seq_t even_term    = pow10_prev - sub;     /* a(n−1)        */
     return even_term * 10 + 6;

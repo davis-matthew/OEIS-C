@@ -9,7 +9,8 @@
  *            prime(n) (a(1) = 1)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a1390_powmod
+ * Validated: standard, pass, 122 terms through n = 8865 (2026-11-01)
+ * Helpers:   powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/a1390_powmod.h"
+#include "../utils/powmod_u64.h"
 
 static uint64_t *a1390_primes = NULL;
 static uint64_t a1390_cnt = 0;
@@ -64,10 +65,10 @@ seq_t a(idx_t n) {
     }
     if (t > 1) f[nf++] = t;
     for (x = 2; x < p; x++) {
-        if (a1390_powmod(x, q, p) != 1) continue;
+        if (powmod_u64(x, q, p) != 1) continue;
         ok = true;
         for (i = 0; i < nf; i++) {
-            if (a1390_powmod(x, q / f[i], p) == 1) { ok = false; break; }
+            if (powmod_u64(x, q / f[i], p) == 1) { ok = false; break; }
         }
         if (ok) return (seq_t)x;
     }

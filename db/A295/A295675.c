@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 14, i16 n <= 26, i32 n <= 49, i64 n <= 95, i128 n <= 187,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 1921 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static memoisation tables – external linkage for a() only */
 static seq_t *cache      = NULL;   /* values of a(i) */
@@ -32,7 +34,7 @@ static void ensure_cache(idx_t n)
         return;                    /* already large enough */
 
     idx_t new_size = (n + 1) * 2;    /* grow a bit to avoid many reallocs */
-    seq_t *new_cache = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     bool  *new_present = (bool*)realloc(present, new_size * sizeof(bool));
 
     if (!new_cache || !new_present)          /* allocation failure */

@@ -10,16 +10,17 @@
  *            offset)
  * Range:     u8 n <= 8, u16 n <= 12, u32 n <= 21, u64 n <= 37, u128 n <= 70,
  *            big any n
- * Helpers:   a3444_binom, a3444_gcd, a3444_phi
+ * Validated: standard, pass, 42 terms through n = 193 (2026-11-01)
+ * Helpers:   binomial, gcd_u64, totient_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/a3444_binom.h"
-#include "../utils/a3444_gcd.h"
-#include "../utils/a3444_phi.h"
+#include "../utils/binomial.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/totient_u64.h"
 
 seq_t a(idx_t n) {
     idx_t m, N, k, g;
@@ -27,7 +28,7 @@ seq_t a(idx_t n) {
     m = n - 1;
     N = 2 * m;
     k = n - 3;
-    g = a3444_gcd(N, k);
+    g = gcd_u64(N, k);
 
     if (m <= 300) {
         /* Pascal's triangle with each entry stored as q*N + r (0 <= r < N),
@@ -49,7 +50,7 @@ seq_t a(idx_t n) {
             if (N % row == 0) {
                 idx_t d = N / row;
                 if (g % d == 0) {
-                    uint64_t ph = a3444_phi(d);
+                    uint64_t ph = totient_u64(d);
                     idx_t c = k / d;
                     Q += (seq_t)ph * q[c];
                     R += ph * r[c];
@@ -62,10 +63,10 @@ seq_t a(idx_t n) {
         uint64_t d;
         for (d = 1; d * d <= g; d++) {
             if (g % d == 0) {
-                sum += (seq_t)a3444_phi(d) * a3444_binom(N / d, k / d);
+                sum += (seq_t)totient_u64(d) * binomial(N / d, k / d);
                 if (d != g / d) {
                     uint64_t e = g / d;
-                    sum += (seq_t)a3444_phi(e) * a3444_binom(N / e, k / e);
+                    sum += (seq_t)totient_u64(e) * binomial(N / e, k / e);
                 }
             }
         }

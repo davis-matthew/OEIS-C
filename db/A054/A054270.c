@@ -7,6 +7,7 @@
  * Formula:   a(n) = largest prime < prime(n)^2
  * Range:     u8 n <= 6, u16 n <= 54, u32 n <= 6542, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 57 terms through n = 9999 (2026-11-01)
  * Helpers:   is_prime, sieve_first_n_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -23,8 +24,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/sieve_first_n_primes.h"
+#include <string.h>
+#include <math.h>
 #include "../utils/is_prime.h"
+#include "../utils/sieve_first_n_primes.h"
 
 static uint32_t *prime_cache = NULL;   /* cached primes as 32‑bit ints */
 static size_t  prime_cache_cnt = 0;    /* number of primes stored */

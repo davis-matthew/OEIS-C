@@ -9,27 +9,29 @@
  *            partitions)
  * Range:     u8 n <= 16, u16 n <= 38, u32 n <= 110, u64 n <= 369,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 927 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Computes a(n), number of non‑Fibonacci parts in all partitions of n.
    Returns a value of type seq_t; idx_t is an unsigned integer type. */
 seq_t a(idx_t n)
 {
     /* Arrays of size n+1, indexed 0..n. All entries are zero‐initialized. */
-    seq_t *dp     = (seq_t*)calloc((size_t)n + 1, sizeof(seq_t)); /* #partitions */
-    seq_t *parts  = (seq_t*)calloc((size_t)n + 1, sizeof(seq_t)); /* total parts */
-    seq_t *fparts = (seq_t*)calloc((size_t)n + 1, sizeof(seq_t)); /* fib parts */
+    seq_t *dp     = mem_new(seq_t, (size_t)n + 1); /* #partitions */
+    seq_t *parts  = mem_new(seq_t, (size_t)n + 1); /* total parts */
+    seq_t *fparts = mem_new(seq_t, (size_t)n + 1); /* fib parts */
     bool  *isFib  = (bool*)calloc((size_t)n + 1, sizeof(bool));   /* Fibonacci flag */
 
     if (!dp || !parts || !fparts || !isFib)
     {
-        free(dp); free(parts); free(fparts); free(isFib);
+        mem_free(dp); mem_free(parts); mem_free(fparts); free(isFib);
         return 0;
     }
 
@@ -69,6 +71,6 @@ seq_t a(idx_t n)
     seq_t result = parts[(size_t)n] - fparts[(size_t)n];
 
     /* Clean up */
-    free(dp); free(parts); free(fparts); free(isFib);
+    mem_free(dp); mem_free(parts); mem_free(fparts); free(isFib);
     return result;
 }

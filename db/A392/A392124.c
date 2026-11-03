@@ -12,13 +12,15 @@
  *            known
  * Range:     u8 n <= 10, u16 n <= 22, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 typedef struct {
     idx_t k;        /* exponent of sec^2   */
@@ -48,7 +50,7 @@ static void ensure_cache_capacity(size_t need)
     if (cache_len + need > cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 128;
         while (new_cap < cache_len + need) new_cap <<= 1;
-        cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 }
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
 {
     /* Initialise the first row (tan(x) itself) and the cache on first call */
     if (!initialized) {
-        cache = (seq_t*)malloc(128 * sizeof(seq_t));
+        cache = mem_new(seq_t, 128);
         cache_cap = 128;
         cache[0] = (seq_t)1;      /* a(1) */
         cache_len = 1;
@@ -142,7 +144,7 @@ seq_t a(idx_t n)
         }
 
         /* Prepare for the next iteration */
-        memcpy(prev_row, next_row, next_cnt * sizeof(term_t));
+        mem_copy(prev_row, next_row, next_cnt * sizeof(term_t));
         prev_cnt = next_cnt;
     }
 

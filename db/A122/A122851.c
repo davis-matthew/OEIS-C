@@ -8,12 +8,15 @@
  *            * T(r,j) = 0 if 2j < r, * otherwise T(r,j) = ∏_{t=2j‑r+1}^{j} t
  * Range:     u8 n <= 60, u16 n <= 144, u32 n <= 337, u64 n <= 840,
  *            u128 n <= 2245, big any n
- * Helpers:   isqrt
+ * Validated: standard, pass, 94 terms through n = 9885 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/isqrt.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/isqrt_u64.h"
 
 seq_t a(idx_t n)
 {

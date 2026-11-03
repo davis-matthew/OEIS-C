@@ -10,7 +10,8 @@
  *            considered a * Fibonacci number)
  * Range:     u8 n <= 9, u16 n <= 5743, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 66 terms through n = 9001 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/is_prime.h"   /* provides bool is_prime(idx_t) */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *g_fibs     = NULL;   /* array of Fibonacci numbers */
 static size_t g_fibs_len = 0;      /* number of Fibonacci numbers stored */
@@ -31,7 +33,7 @@ static void ensure_fibs_up_to(seq_t limit)
     /* Initialise on first use.  */
     if (!g_fibs) {
         g_fibs_cap = 8;
-        g_fibs = (seq_t *)malloc(g_fibs_cap * sizeof(seq_t));
+        g_fibs = mem_new(seq_t, g_fibs_cap);
         if (!g_fibs) exit(EXIT_FAILURE);
         g_fibs[0] = (seq_t)0;
         g_fibs[1] = (seq_t)1;
@@ -41,7 +43,7 @@ static void ensure_fibs_up_to(seq_t limit)
     /* Grow capacity if needed.  */
     while (g_fibs_len >= g_fibs_cap) {
         size_t new_cap = g_fibs_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(g_fibs, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, g_fibs, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         g_fibs = tmp;
         g_fibs_cap = new_cap;
@@ -59,7 +61,7 @@ static void ensure_fibs_up_to(seq_t limit)
         /* Ensure we still have room for the new element.  */
         if (g_fibs_len >= g_fibs_cap) {
             size_t new_cap = g_fibs_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(g_fibs, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, g_fibs, new_cap);
             if (!tmp) exit(EXIT_FAILURE);
             g_fibs = tmp;
             g_fibs_cap = new_cap;

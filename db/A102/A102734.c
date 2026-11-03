@@ -7,7 +7,8 @@
  * Formula:   a(n) = the nth prime of the form 23k+5 (k ≥ 0)
  * Range:     u8 n <= 2, u16 n <= 302, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_mul_u64, mod_pow_u64
+ * Validated: standard, pass, 60 terms through n = 877 (2026-11-01)
+ * Helpers:   mulmod, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/mod_mul_u64.h"
-#include "../utils/mod_pow_u64.h"
+#include "../utils/mulmod.h"
+#include "../utils/powmod_u64.h"
 
 static inline bool is_prime_uint64(uint64_t n)
 {
@@ -43,11 +44,11 @@ static inline bool is_prime_uint64(uint64_t n)
     for (size_t i = 0; i < sizeof(witnesses)/sizeof(witnesses[0]); ++i) {
         uint64_t a = witnesses[i] % n;
         if (a == 0u) continue;
-        uint64_t x = mod_pow_u64(a, d, n);
+        uint64_t x = powmod_u64(a, d, n);
         if (x == 1u || x == n - 1u) continue;
         bool cont = false;
         for (int r = 1; r < s; ++r) {
-            x = mod_mul_u64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1u) { cont = true; break; }
         }
         if (!cont) return false;

@@ -8,13 +8,15 @@
  *            (-1)^k*(2k+1)*binomial(n-1,2k)*a(n-2k-1)
  * Range:     i8 n <= 4, i16 n <= 7, i32 n <= 12, i64 n <= 21, i128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 520 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* multiplicative binomial coefficient: C(a,b) */
 static seq_t binom(idx_t a, idx_t b)
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     /* allocate/reallocate if needed */
     if (n + 1 > cap) {
         size_t new_cap = n + 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) exit(1);          /* allocation failure */
         cache = tmp;
         cap   = new_cap;

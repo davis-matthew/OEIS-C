@@ -8,13 +8,15 @@
  *            Stirling number of the first kind
  * Range:     i8 n <= 5, i16 n <= 7, i32 n <= 13, i64 n <= 20, i128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  Signed Stirling numbers of the first kind (memoised)               */
@@ -34,13 +36,13 @@ static void stir_init(void)
 {
     if (stir_tbl) return;
     stir_cap = 1 << 14;               /* 16384 slots, power of 2 */
-    stir_tbl = (StirEntry *)calloc(stir_cap, sizeof(StirEntry));
+    stir_tbl = mem_new(StirEntry, stir_cap);
 }
 
 static void stir_expand(void)
 {
     size_t new_cap = stir_cap << 1;
-    StirEntry *new_tbl = (StirEntry *)calloc(new_cap, sizeof(StirEntry));
+    StirEntry *new_tbl = mem_new(StirEntry, new_cap);
 
     for (size_t i = 0; i < stir_cap; ++i) {
         if (stir_tbl[i].used) {
@@ -53,7 +55,7 @@ static void stir_expand(void)
             new_tbl[h].used = 1;
         }
     }
-    free(stir_tbl);
+    mem_free(stir_tbl);
     stir_tbl = new_tbl;
     stir_cap = new_cap;
 }
@@ -103,14 +105,14 @@ static void ensure_factorial(idx_t n)
     if (fact_sz > n) return;
 
     if (fact_sz == 0) {
-        fact_tbl = (seq_t *)malloc(sizeof(seq_t));
+        fact_tbl = mem_new(seq_t, 1);
         fact_tbl[0] = (seq_t)1;
         fact_sz = 1;
     }
 
     if (n + 1 <= fact_sz) return;
 
-    seq_t *tmp = (seq_t *)realloc(fact_tbl, (n + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, fact_tbl, (n + 1));
     if (!tmp) exit(1);               /* out of memory: abort early */
     fact_tbl = tmp;
 

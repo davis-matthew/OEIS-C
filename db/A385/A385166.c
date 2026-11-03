@@ -10,7 +10,8 @@
  *            (mod 4)
  * Range:     u8 n <= 553, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gaussian_mul, gaussian_pow
+ * Validated: standard, pass, 103 terms through n = 9460 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,47 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/gaussian_mul.h"
-#include "../utils/gaussian_pow.h"
+
+/* --- Gaussian integer multiplication modulo p --------------------------------------------- */
+static void gaussian_mul(uint64_t a1, uint64_t b1, uint64_t a2, uint64_t b2,
+                         uint64_t mod, uint64_t *ra, uint64_t *rb)
+{
+    __uint128_t ac = (__uint128_t)a1 * a2;
+    __uint128_t bd = (__uint128_t)b1 * b2;
+    __uint128_t ad = (__uint128_t)a1 * b2;
+    __uint128_t bc = (__uint128_t)b1 * a2;
+
+    *ra = ( (ac % mod) + mod - (bd % mod) ) % mod;
+    *rb = ( (ad % mod) + (bc % mod) ) % mod;
+}
+
+/* --- Gaussian integer exponentiation modulo p --------------------------------------------- */
+static void gaussian_pow(uint64_t a0, uint64_t b0, uint64_t exp,
+                         uint64_t mod, uint64_t *ra, uint64_t *rb)
+{
+    uint64_t ra1 = 1 % mod;
+    uint64_t rb1 = 0;
+    uint64_t a = a0 % mod;
+    uint64_t b = b0 % mod;
+
+    while (exp) {
+        if (exp & 1ULL) {
+            uint64_t na, nb;
+            gaussian_mul(ra1, rb1, a, b, mod, &na, &nb);
+            ra1 = na;
+            rb1 = nb;
+        }
+        exp >>= 1;
+        if (exp) {
+            uint64_t na, nb;
+            gaussian_mul(a, b, a, b, mod, &na, &nb);
+            a = na;
+            b = nb;
+        }
+    }
+    *ra = ra1;
+    *rb = rb1;
+}
 
 /* --- Small prime generation (up to a fixed limit) -------------------------------------------- */
 #define SMALL_PRIME_LIMIT 400000   /* sufficient for all n up to about 10000 */

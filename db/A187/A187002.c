@@ -11,12 +11,14 @@
  *            by * r(r−1)/2 < n ≤ r(r+1)/2, c = n − r(r−1)/2
  * Range:     u8 n <= 31, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"   /* provides seq_t binom(idx_t a, idx_t b); */
+#include <stdint.h>
+#include "../utils/binomial.h"
  
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* Compute T(r,c) according to the closed‑form formula. */
     seq_t result = 0;
     for (idx_t k = c; k <= r; ++k) {
-        seq_t bin1 = binom(c, k - c);   /* C(c, k−c)                 */
+        seq_t bin1 = binomial(c, k - c);   /* C(c, k−c)                 */
         seq_t inner = 0;
         for (idx_t j = 0; j <= k; ++j) {
             /* diff = r - 3*k + 2*j  must be in [0, j]  to contribute. */
@@ -40,8 +42,8 @@ seq_t a(idx_t n)
             idx_t diff = (idx_t)t;
             if (diff > j)
                 continue;
-            seq_t bin2 = binom(j, diff);   /* C(j, diff) */
-            seq_t bin3 = binom(k, j);      /* C(k, j)   */
+            seq_t bin2 = binomial(j, diff);   /* C(j, diff) */
+            seq_t bin3 = binomial(k, j);      /* C(k, j)   */
             inner += bin3 * bin2;
         }
         result += bin1 * inner;

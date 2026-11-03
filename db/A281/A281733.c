@@ -10,7 +10,8 @@
  * Formula:   a(n) = 16^(n-1) * binomial(3*n-2, 2*n-1) / n
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 6, u64 n <= 11, u128 n <= 20,
  *            big any n
- * Helpers:   binomial, pow_uint
+ * Validated: standard, pass, 32 terms through n = 96 (2026-11-01)
+ * Helpers:   binomial, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,10 @@
 /* Utility function to compute the n-th term of OEIS sequence A281733.
    The function works for any seq_t defined by the build system
    (unsigned integer of any supported bit-width or an arbitrary-precision type).  */
-#include "../utils/binomial.h"    /* seq_t binomial(idx_t n, idx_t k);          */
-#include "../utils/pow_uint.h"    /* seq_t pow_uint(uint64_t base, idx_t exp); */
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +41,7 @@ seq_t a(idx_t n)
 
     /* Compute 16^(n-1).  pow_uint returns an object of type seq_t
        and handles large intermediate values gracefully. */
-    seq_t pow16 = pow_uint(16, n-1);
+    seq_t pow16 = ipow_u64_idx(16, n-1);
 
     /* Final multiplication.  For arbitrary-precision types this
        may allocate a few digits; for fixed-width types it works

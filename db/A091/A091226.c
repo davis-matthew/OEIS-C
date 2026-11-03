@@ -8,7 +8,8 @@
  *            value ≤ n
  * Range:     u8 n <= 81, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
- * Helpers:   highbit, is_irreducible
+ * Validated: partial, pass, 82 terms through n = 81 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,41 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/highbit.h"
-#include "../utils/is_irreducible.h"
+#include "../utils/mem.h"
+
+/* highest bit index (degree) of a polynomial represented as an integer */
+static inline idx_t highbit(seq_t x) {
+    idx_t h = 0;
+    while (x >> 1) {
+        x >>= 1;
+        ++h;
+    }
+    return h;
+}
+
+/* Test whether a monic polynomial p (with degree ≥ 1) is irreducible over GF(2). */
+static bool is_irreducible(seq_t p) {
+    if (p < (seq_t)2)            /* exclude constant polynomials 0 and 1 */
+        return false;
+
+    idx_t deg = highbit(p);
+    for (idx_t d = 1; d <= deg / 2; ++d) {
+        seq_t base  = (seq_t)1 << d;          /* lowest monic polynomial of degree d */
+        seq_t upper = (seq_t)1 << (d + 1);    /* exclusive upper bound for monic polys */
+
+        for (seq_t q = base; q < upper; ++q) {   /* iterate all monic polys of degree d */
+            seq_t r = p;
+            /* polynomial division by q over GF(2) */
+            while (r >= base) {
+                idx_t shift = highbit(r) - d;
+                r ^= (q << shift);
+            }
+            if (r == (seq_t)0)  /* found a non‑trivial factor */
+                return false;
+        }
+    }
+    return true;   /* no factor found */
+}
 
 /* Memoised table of all irreducible polynomials found so far. */
 static seq_t *irred = NULL;
@@ -38,7 +72,7 @@ static void ensure_irreducibles_upto(idx_t n) {
         if (is_irreducible(val)) {
             if (irred_len == irred_cap) {
                 irred_cap = irred_cap ? (irred_cap << 1) : 16;
-                irred = (seq_t *)realloc(irred, irred_cap * sizeof(seq_t));
+                irred = mem_resize(seq_t, irred, irred_cap);
             }
             irred[irred_len++] = val;
         }

@@ -9,7 +9,8 @@
  *            number of prime factors of k counted with multiplicity
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 9817 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* The build supplies the types seq_t (arbitrary‑precision) and idx_t
    (unsigned 64‑bit).  We only use standard C types for the sieve. */
@@ -44,8 +46,8 @@ static void ensure_initialized(void)
 
     /* Allocate arrays. */
     spf   = (uint32_t *)malloc((sieve_limit + 1) * sizeof(uint32_t));
-    omega = (seq_t   *)malloc((sieve_limit + 1) * sizeof(seq_t));
-    pref  = (seq_t   *)malloc((sieve_limit + 1) * sizeof(seq_t));
+    omega = mem_new(seq_t, (sieve_limit + 1));
+    pref  = mem_new(seq_t, (sieve_limit + 1));
     /* Approximate number of primes up to sieve_limit. */
     primes = (idx_t   *)malloc((sieve_limit / 10 + 10) * sizeof(idx_t));
 

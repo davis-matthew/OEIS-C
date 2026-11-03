@@ -8,7 +8,8 @@
  * Formula:   a(n) = Sum_{k=0..n-1} p_n^k = (p_n^n - 1)/(p_n - 1)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 18,
  *            big any n
- * Helpers:   sieve_up_to
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,52 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/sieve_up_to.h"
+
+static void sieve_up_to(idx_t limit, uint64_t **primes_out, size_t *cnt_out)
+{
+    /* allocate bitmap of size limit+1, 0 = prime, 1 = composite */
+    size_t sz = (size_t)(limit + 1);
+    uint8_t *is_composite = (uint8_t *)calloc(sz, 1);
+    if (!is_composite) {
+        *primes_out = NULL;
+        *cnt_out    = 0;
+        return;
+    }
+
+    is_composite[0] = is_composite[1] = 1;
+
+    /* simple Eratosthenes */
+    for (idx_t i = 2; (i * i) <= limit; ++i) {
+        if (!is_composite[i]) {
+            for (idx_t j = i * i; j <= limit; j += i) {
+                is_composite[j] = 1;
+            }
+        }
+    }
+
+    /* count primes */
+    size_t cnt = 0;
+    for (idx_t i = 2; i <= limit; ++i) {
+        if (!is_composite[i]) ++cnt;
+    }
+
+    uint64_t *primes = (uint64_t *)malloc(cnt * sizeof(uint64_t));
+    if (!primes) {
+        free(is_composite);
+        *primes_out = NULL;
+        *cnt_out    = 0;
+        return;
+    }
+
+    size_t pos = 0;
+    for (idx_t i = 2; i <= limit; ++i) {
+        if (!is_composite[i]) primes[pos++] = (uint64_t)i;
+    }
+
+    free(is_composite);
+    *primes_out = primes;
+    *cnt_out    = cnt;
+}
 
 /* ---------- prime storage ---------- */
 

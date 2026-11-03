@@ -7,12 +7,14 @@
  * Formula:   a(n) = Sum_{k=0..n} (k!)^4 * StirlingS2(n,k)^2
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 8, u128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 14 terms through n = 13 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*  ----------  Required types  ----------  */
 /*  seq_t and idx_t are supplied by the build system.  */
@@ -32,12 +34,12 @@ seq_t a(idx_t n)
 
     /* Allocate arrays for factorials and Stirling numbers.  */
     size_t sz = (size_t)n + 1;                 /* size_t is large enough  */
-    seq_t *fac = (seq_t *)malloc(sz * sizeof(seq_t));
-    seq_t *S   = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *fac = mem_new(seq_t, sz);
+    seq_t *S   = mem_new(seq_t, sz);
     if (!fac || !S) {
         /* If allocation fails, return 0 as a safe sentinel.  */
-        free(fac);
-        free(S);
+        mem_free(fac);
+        mem_free(S);
         return 0;
     }
 
@@ -76,7 +78,7 @@ seq_t a(idx_t n)
     }
 
     /* Free allocated memory.  */
-    free(fac);
-    free(S);
+    mem_free(fac);
+    mem_free(S);
     return sum;
 }

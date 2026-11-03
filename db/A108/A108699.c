@@ -9,13 +9,14 @@
  *            (OEIS A108699)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 6, u64 n <= 8, u128 n <= 11,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: partial, pass, 11 terms through n = 11 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -31,12 +32,12 @@ seq_t a(idx_t n)
         for (idx_t d = 1; d * d <= k; ++d) {
             if (k % d == 0) {
                 /* d^m */
-                sigma += pow_seq((seq_t)d, m);
+                sigma += ipow_idx((seq_t)d, m);
 
                 idx_t q = k / d;
                 if (q != d) {
                     /* (k/d)^m */
-                    sigma += pow_seq((seq_t)q, m);
+                    sigma += ipow_idx((seq_t)q, m);
                 }
             }
         }

@@ -9,13 +9,15 @@
  *            j^(i-1)*((i+1)*j+i-1)/2 for i>0, A(0,j)=0
  * Range:     u8 n <= 38, u16 n <= 72, u32 n <= 180, u64 n <= 451,
  *            u128 n <= 1158, big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 82 terms through n = 7606 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     }
 
     seq_t k = (seq_t)j;
-    seq_t pow_val = big_pow(k, (seq_t)(i - 1));
+    seq_t pow_val = ipow(k, (seq_t)(i - 1));
     seq_t term = ((seq_t)(i + 1) * k) + (seq_t)(i - 1);
     seq_t res = pow_val * term / 2;
     return res;

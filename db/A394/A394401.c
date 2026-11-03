@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1297, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   p_of_k
+ * Validated: standard, pass, 96 terms through n = 9501 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,15 @@
    of the distribution p(k) = 1/log2(k+1) - 1/log2(k+2)  */
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/p_of_k.h"
+#include "../utils/mem.h"
+
+/* probability mass function p(k) = 1/log2(k+1) – 1/log2(k+2)  */
+static double p_of_k(idx_t k)
+{
+    double l1 = log2((double)(k + 1));
+    double l2 = log2((double)(k + 2));
+    return 1.0 / l1 - 1.0 / l2;
+}
 
 /* static buffers for memoisation */
 static seq_t *seq = NULL;          /* computed sequence values */
@@ -35,7 +44,7 @@ static void ensure_seq_cap(idx_t needed)
     if ((size_t)needed > seq_cap) {
         size_t new_cap = seq_cap ? seq_cap : 8;
         while (new_cap < (size_t)needed) new_cap <<= 1;
-        seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, new_cap);
         seq_cap = new_cap;
     }
 }

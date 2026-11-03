@@ -6,14 +6,16 @@
  * Keywords:  nonn, tabl
  * Formula:   not stated
  * Range:     u8 n <= 78, u16 n <= 276, u32 n <= 1081, u64 n <= 4278,
- *            u128 n <= 8372, big any n
- * Helpers:   none
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 94 terms through n = 8372 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Triangle of differences of Fibonacci numbers, rows descending:
    a(1) = 1.
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
 
     /* Compute Fibonacci numbers up to F(row+1). */
     idx_t need = row + 2;                 /* indices 0 .. row+1 inclusive */
-    seq_t *fib = (seq_t*)malloc(need * sizeof(seq_t));
+    seq_t *fib = mem_new(seq_t, need);
     if (!fib) return 0;                  /* unsafe fallback – should never occur */
 
     fib[0] = 0;
@@ -54,6 +56,6 @@ seq_t a(idx_t n)
     /* Compute the term. */
     seq_t result = fib[row + 1] - fib[k];
 
-    free(fib);
+    mem_free(fib);
     return result;
 }

@@ -11,14 +11,15 @@
  *            ln(n‑1) ) ), then adjust for rounding errors. See OEIS A396781
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 9, u128 n <= 13,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: partial, pass, 14 terms through n = 15 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
 #include <stdint.h>
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -37,9 +38,9 @@ seq_t a(idx_t n)
 
     /* Adjust k if the floating‑point estimate was off by ±1 */
     while (1) {
-        seq_t pow_n_k   = pow_seq(n_seq,  (int)k);
-        seq_t pow_n1_k  = pow_seq(n1_seq, (int)k);
-        seq_t pow_n1_kp1 = pow_seq(n1_seq, (int)(k + 1));
+        seq_t pow_n_k   = ipow_i32(n_seq,  (int)k);
+        seq_t pow_n1_k  = ipow_i32(n1_seq, (int)k);
+        seq_t pow_n1_kp1 = ipow_i32(n1_seq, (int)(k + 1));
 
         if (pow_n_k <= pow_n1_kp1) {       /* can increase k */
             k++;
@@ -47,7 +48,7 @@ seq_t a(idx_t n)
         }
 
         if (k > 1) {
-            seq_t pow_n_km1 = pow_seq(n_seq, (int)(k - 1));
+            seq_t pow_n_km1 = ipow_i32(n_seq, (int)(k - 1));
             if (pow_n_km1 > pow_n1_k) {  /* must decrease k */
                 k--;
                 continue;
@@ -56,5 +57,5 @@ seq_t a(idx_t n)
         break;   /* k is correct */
     }
 
-    return pow_seq(n1_seq, (int)k);
+    return ipow_i32(n1_seq, (int)k);
 }

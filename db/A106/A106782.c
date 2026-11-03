@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base
  * Formula:   a(n) = the nth prime (index 1) whose decimal digit sum equals 53
- * Range:     u8 none, u16 none, u32 n <= 25, u64 n <= 25, u128 n <= 25,
- *            big any n
+ * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 41 terms through n = 9117 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

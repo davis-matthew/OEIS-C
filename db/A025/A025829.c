@@ -7,7 +7,8 @@
  * Formula:   a(n) = a(n-3)+a(n-4)-a(n-10)-a(n-11)+a(n-14)
  * Range:     u8 n <= 200, u16 n <= 3311, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 9974 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Initial values: a(0)=1, a(1)=0, a(2)=0 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     {
         idx_t new_len = n + 1;
         /* realloc handles NULL pointer case */
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp)
             return 0; /* allocation failure; caller will handle */
         cache = tmp;

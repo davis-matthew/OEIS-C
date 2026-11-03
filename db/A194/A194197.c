@@ -7,6 +7,7 @@
  * Formula:   a(n) = 1 + (167*n +2325*n^2 +15400*n^3 +47250*n^4 +54000*n^5)/6
  * Range:     u8 n <= 0, u16 n <= 0, u32 n <= 9, u64 n <= 23, u128 n <= 23,
  *            big any n
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

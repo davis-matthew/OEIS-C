@@ -12,9 +12,10 @@
  *            (k0+1)*a([k0,k1-1,…]) (k1>0) * + Σ_{i≥2}
  *            (k_{i-1}+1)*a([k0-1,k1,…,k_{i-2}, * k_{i-1}+1,k_i-1,k_{i+1},…])
  *            (k_i>0) *...
- * Range:     u8 n <= 215, u16 n <= 4319, u32 n <= 9177, u64 n <= 9177,
- *            u128 n <= 9177, big any n
- * Helpers:   none
+ * Range:     u8 n <= 215, u16 n <= 4319, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 117 terms through n = 9177 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static uint64_t *spf_arr      = NULL;   /* smallest prime factor */
 static size_t    spf_limit    = 0;
@@ -101,7 +103,7 @@ static void ensure_cache(idx_t n)
 {
     if (cache_limit > (size_t)n) return;
     size_t new_limit = (size_t)n + 1;
-    seq_t *new_vals = (seq_t*)realloc(cache_vals, new_limit * sizeof(seq_t));
+    seq_t *new_vals = mem_resize(seq_t, cache_vals, new_limit);
     bool *new_valid = (bool*)realloc(cache_valid, new_limit * sizeof(bool));
     for (size_t i = cache_limit; i < new_limit; ++i) new_valid[i] = false;
     cache_vals = new_vals;

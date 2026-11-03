@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   has_00
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,21 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_00.h"
+#include "../utils/mem.h"
+
+/* check whether base‑4 representation of x contains two consecutive zeros */
+static bool has_00(seq_t x)
+{
+    int prev = -1;
+    while (x > 0) {
+        int digit = (int)(x % 4);
+        if (digit == 0 && prev == 0)
+            return true;
+        prev = digit;
+        x /= 4;
+    }
+    return false;
+}
 
 /* static state for memoisation */
 static seq_t *cache = NULL;          /* array of found terms          */
@@ -44,10 +59,10 @@ seq_t a(idx_t n)
             /* grow cache if necessary */
             if (cache_cap == 0) {
                 cache_cap = 16;
-                cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+                cache = mem_new(seq_t, cache_cap);
             } else if ((size_t)cached_len == cache_cap) {
                 cache_cap <<= 1; /* double capacity */
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cached_len++] = val;
         }

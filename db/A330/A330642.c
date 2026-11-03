@@ -12,13 +12,15 @@
  *            for n > 20, with initial values * a(0)=1, a(1)=1, a(...
  * Range:     u8 n <= 16, u16 n <= 43, u32 n <= 204, u64 n <= 4743,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 9333 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* initial values for n = 0 .. 20 */
 static const seq_t init[21] = {
@@ -41,9 +43,9 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* first time we need values >= 21 */
         cache_len = (size_t)n + 1;
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         if (!cache) abort();          /* out of memory */
-        memcpy(cache, init, 21 * sizeof(seq_t));
+        mem_copy(cache, init, 21 * sizeof(seq_t));
 
         /* compute values from 21 up to n */
         for (size_t i = 21; i <= (size_t)n; ++i) {
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
         /* need to extend cache */
         size_t old_len = cache_len;
         cache_len = (size_t)n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, cache_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, cache_len);
         if (!new_cache) abort();          /* out of memory */
         cache = new_cache;
 

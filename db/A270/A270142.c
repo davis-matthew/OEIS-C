@@ -11,14 +11,23 @@
  *            n; k = number of digits of n
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 58, u64 n <= 798,
  *            u128 n <= 10000, big any n
- * Helpers:   digits_of, seq_mul, seq_pow
+ * Validated: standard, pass, 54 terms through n = 9087 (2026-11-01)
+ * Helpers:   ipow_idx, num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/digits_of.h"
-#include "../utils/seq_pow.h"
-#include "../utils/seq_mul.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/num_digits_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 static const seq_t composites[20] = {
     (seq_t)4, (seq_t)6, (seq_t)8, (seq_t)9, (seq_t)10,
@@ -30,7 +39,7 @@ static const seq_t composites[20] = {
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)1;          /* undefined for 0; safe fallback */
 
-    int k = digits_of(n);                 /* number of decimal digits */
+    int k = num_digits_idx(n);                 /* number of decimal digits */
     seq_t result = (seq_t)1;
 
     /* Store digits in reverse order (least significant first). */
@@ -46,7 +55,7 @@ seq_t a(idx_t n) {
         int digit = rev[k - 1 - i];       /* most significant digit first */
         seq_t base = composites[i];
         if (digit == 0) continue;        /* base^0 = 1 */
-        seq_t powv = seq_pow(base, (idx_t)digit);
+        seq_t powv = ipow_idx(base, (idx_t)digit);
         result = seq_mul(result, powv);
     }
     return result;

@@ -12,23 +12,65 @@
  *            t3^8*(t3^8 - 56*D8) + 280*D8^2 ) using sparse series mult...
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 9, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   a2520_mul_D8, a2520_mul_psi, a2520_mul_t3, a2520_mul_t4
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/a2520_mul_D8.h"
-#include "../utils/a2520_mul_psi.h"
-#include "../utils/a2520_mul_t3.h"
-#include "../utils/a2520_mul_t4.h"
+#include "../utils/mem.h"
+
+/* f *= psi = Sum_{k>=0} q^(k(k+1)), in place */
+static void a2520_mul_psi(seq_t *f, idx_t L) {
+    idx_t m, k;
+    for (m = L; m-- > 0;) {
+        seq_t s = 0;
+        for (k = 1; k * (k + 1) <= m; k++) s += f[m - k * (k + 1)];
+        f[m] += s;
+    }
+}
+
+/* f *= theta_4, in place */
+static void a2520_mul_t4(seq_t *f, idx_t L) {
+    idx_t m, k;
+    for (m = L; m-- > 0;) {
+        seq_t p = 0, q = 0;
+        for (k = 1; k * k <= m; k++) {
+            if (k & 1) q += f[m - k * k];
+            else p += f[m - k * k];
+        }
+        f[m] += 2 * p;
+        f[m] -= 2 * q;
+    }
+}
+
+/* f *= D8 = q * psi^4 * theta_4^4, in place */
+static void a2520_mul_D8(seq_t *f, idx_t L) {
+    idx_t m;
+    int i;
+    for (m = L; m-- > 1;) f[m] = f[m - 1];
+    if (L > 0) f[0] = 0;
+    for (i = 0; i < 4; i++) a2520_mul_psi(f, L);
+    for (i = 0; i < 4; i++) a2520_mul_t4(f, L);
+}
+
+/* f *= theta_3, in place, coefficients 0..L-1 */
+static void a2520_mul_t3(seq_t *f, idx_t L) {
+    idx_t m, k;
+    for (m = L; m-- > 0;) {
+        seq_t s = 0;
+        for (k = 1; k * k <= m; k++) s += f[m - k * k];
+        f[m] += 2 * s;
+    }
+}
 
 static seq_t *a2520_cache = NULL;
 static idx_t a2520_len = 0;
 
 static void a2520_build(idx_t L) {
-    seq_t *Y = (seq_t *)malloc(L * sizeof(seq_t));
-    seq_t *D = (seq_t *)malloc(L * sizeof(seq_t));
+    seq_t *Y = mem_new(seq_t, L);
+    seq_t *D = mem_new(seq_t, L);
     idx_t i;
     int r;
     for (i = 0; i < L; i++) { Y[i] = 0; D[i] = 0; }
@@ -41,8 +83,8 @@ static void a2520_build(idx_t L) {
     a2520_mul_D8(D, L);                              /* D = D8^2 */
     for (i = 0; i < L; i++) Y[i] += 280 * D[i];
     for (r = 0; r < 12; r++) a2520_mul_t3(Y, L);     /* times t3^12 */
-    free(D);
-    if (a2520_cache) free(a2520_cache);
+    mem_free(D);
+    if (a2520_cache) mem_free(a2520_cache);
     a2520_cache = Y;
     a2520_len = L;
 }

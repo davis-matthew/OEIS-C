@@ -13,15 +13,33 @@
  *            special polynomial x + 2
  * Range:     u8 n <= 16, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   delete_poly, new_poly
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/delete_poly.h"
-#include "../utils/new_poly.h"
+
+/* Helper to free an array allocated by new_poly. */
+static void delete_poly(seq_t* p) {
+#if defined(__cplusplus)
+    delete[] p;
+#else
+    free(p);
+#endif
+}
+
+/* Helper to allocate an array of seq_t.  Works in both C and C++. */
+static seq_t* new_poly(size_t len) {
+#if defined(__cplusplus)
+    seq_t* p = new seq_t[len]();      /* value‑initialize to zero */
+    return p;
+#else
+    return (seq_t*)malloc(len * sizeof(seq_t));
+#endif
+}
 
 seq_t a(idx_t n) {
     /* Find the row number r (0‑based) and the position p in that row. */

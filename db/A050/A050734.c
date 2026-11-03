@@ -9,8 +9,8 @@
  *            consecutive equal decimal digits
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 12, u64 n <= 18, u128 n <= 23,
  *            big any n
- * Helpers:   mul_small, no_consecutive_equal_digits, seq_alloc_new_array,
- *            seq_free_array
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,10 +19,42 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-#include "../utils/no_consecutive_equal_digits.h"
-#include "../utils/mul_small.h"
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/seq_free_array.h"
+#include <stdint.h>
+#include <string.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* Test whether a seq_t value has any pair of consecutive equal decimal digits. */
+static inline bool no_consecutive_equal_digits(seq_t val) {
+    if (val == (seq_t)0) return true;          /* 0 contains only one digit */
+    int prev = -1;                             /* previous digit, -1 means none yet */
+    seq_t tmp = val;
+    while (tmp > (seq_t)0) {
+        int d = (int)(tmp % (seq_t)10);        /* current least‑significant digit */
+        if (prev == d) return false;           /* found equal neighbours */
+        prev = d;
+        tmp /= (seq_t)10;                      /* shift right one decimal digit */
+    }
+    return true;                               /* all adjacent digits differ */
+}
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 static seq_t *cached_terms = NULL;    /* dynamic array of found terms   */
 static size_t cache_capacity = 0;      /* current array capacity         */

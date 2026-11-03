@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 15, u32 n <= 38, u64 n <= 85, u128 n <= 177,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 988 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static storage for the sequences and their meta‑data. */
 static seq_t *a_arr  = NULL;
@@ -37,7 +39,7 @@ static void ensure_a_cap(idx_t needed) {
     if (a_cap < needed) {
         size_t new_cap = a_cap ? a_cap * 2 : 4;
         if (new_cap < (size_t)needed) new_cap = needed;
-        seq_t *tmp = (seq_t *)realloc(a_arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_arr, new_cap);
         a_arr = tmp;
         a_cap = new_cap;
     }
@@ -48,7 +50,7 @@ static void ensure_b_cap(idx_t needed) {
     if (b_cap < needed) {
         size_t new_cap = b_cap ? b_cap * 2 : 4;
         if (new_cap < (size_t)needed) new_cap = needed;
-        seq_t *tmp = (seq_t *)realloc(b_arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, b_arr, new_cap);
         b_arr = tmp;
         b_cap = new_cap;
     }
@@ -81,9 +83,9 @@ static void init_sequences(void) {
 
     /* Allocate initial storage. */
     a_cap = 8;
-    a_arr = (seq_t *)malloc(a_cap * sizeof(seq_t));
+    a_arr = mem_new(seq_t, a_cap);
     b_cap = 8;
-    b_arr = (seq_t *)malloc(b_cap * sizeof(seq_t));
+    b_arr = mem_new(seq_t, b_cap);
 
     /* Initial values of a and b. */
     a_arr[0] = (seq_t)1;

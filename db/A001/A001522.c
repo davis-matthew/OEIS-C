@@ -11,13 +11,26 @@
  *            from Euler's pentagonal recurrence
  * Range:     u8 n <= 19, u16 n <= 47, u32 n <= 134, u64 n <= 428,
  *            u128 n <= 1479, big any n
- * Helpers:   grow_zero
+ * Validated: standard, pass, 73 terms through n = 8150 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/grow_zero.h"
+#include <string.h>
+#include "../utils/mem.h"
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
 
 static seq_t *P = NULL;   /* partition numbers p(0..pcount-1) */
 static idx_t pcount = 0;

@@ -7,7 +7,8 @@
  * Formula:   a(n) = 3 * (Sum_{k=1..n} φ(k)) - 1
  * Range:     u8 n <= 16, u16 n <= 267, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   phi
+ * Validated: standard, pass, 73 terms through n = 9033 (2026-11-03)
+ * Helpers:   mem, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/phi.h"          /* declares seq_t phi(idx_t); */
+#include <stdint.h>
+#include "../utils/totient.h"
+#include "../utils/mem.h"
 
 static seq_t *cumsum = NULL;      /* cumsum[i] = Σ_{k=1..i} φ(k) */
 static idx_t capacity = 0;        /* allocated array size */
@@ -33,7 +36,7 @@ ensure_capacity(idx_t n)
     while (new_cap <= n)
         new_cap *= 2;
 
-    seq_t *tmp = (seq_t *)realloc(cumsum, (size_t)new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cumsum, (size_t)new_cap);
     if (!tmp)
         abort();                      /* allocation failed – terminate */
 
@@ -50,7 +53,7 @@ seq_t a(idx_t n)
 
     /* Compute missing values up to n */
     for (idx_t k = max_n + 1; k <= n; ++k) {
-        cumsum[k] = cumsum[k - 1] + phi(k);
+        cumsum[k] = cumsum[k - 1] + totient(k);
     }
     max_n = n;
 

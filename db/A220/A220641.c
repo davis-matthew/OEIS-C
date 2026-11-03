@@ -9,7 +9,8 @@
  *            transfer‑matrix DP over 5‑bit column states is used
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 5, u64 n <= 11, u128 n <= 22,
  *            big any n
- * Helpers:   gen_trans_bits
+ * Validated: standard, pass, 32 terms through n = 287 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,49 @@
 /* Note: seq_t and idx_t are supplied by the build. */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/gen_trans_bits.h"
+
+static void gen_trans_bits(uint8_t freeMask, uint8_t nextMask, uint32_t *cnt)
+{
+    if (freeMask == 0) {
+        cnt[nextMask]++;    /* ready for next column */
+        return;
+    }
+    /* find first free vertex (smallest bit set) */
+    int r = 0;
+    while ((freeMask & (1u << r)) == 0) r++;
+    uint8_t maskR = 1u << r;
+    uint8_t remFree = freeMask & ~maskR;
+
+    /* 1) self‑loop (leave r unmatched) */
+    gen_trans_bits(remFree, nextMask, cnt);
+
+    /* 2) vertical pair with r+1 if possible */
+    if (r + 1 < 5 && (freeMask & (1u << (r + 1)))) {
+        uint8_t maskR1 = 1u << (r + 1);
+        uint8_t remFree2 = remFree & ~maskR1;
+        gen_trans_bits(remFree2, nextMask, cnt);
+    }
+
+    /* 3) match to next column – three king neighbours */
+    /*   (north‑west) */
+    if (r > 0) {
+        int dst = r - 1;
+        if (!(nextMask & (1u << dst))) {
+            gen_trans_bits(remFree, nextMask | (1u << dst), cnt);
+        }
+    }
+    /*   (east) */
+    if (!(nextMask & maskR)) {
+        gen_trans_bits(remFree, nextMask | maskR, cnt);
+    }
+    /*   (south‑east) */
+    if (r + 1 < 5) {
+        int dst = r + 1;
+        if (!(nextMask & (1u << dst))) {
+            gen_trans_bits(remFree, nextMask | (1u << dst), cnt);
+        }
+    }
+}
 
 static uint32_t trans[32][32];
 static int trans_precomputed = 0;

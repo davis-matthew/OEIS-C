@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 785, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 78 terms through n = 8756 (2026-11-01)
  * Helpers:   build_primes_upto, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -21,8 +22,8 @@
 #include <stdbool.h>
 
 /* Dependencies from utils */
-#include "../utils/is_prime.h"            /* bool is_prime(idx_t n); */
-#include "../utils/build_primes_upto.h"    /* void build_primes_upto(idx_t limit, uint64_t **primes_out, size_t *cnt_out); */
+#include "../utils/build_primes_upto.h"
+#include "../utils/is_prime.h"
 
 #ifdef __cplusplus
 #include <vector>

@@ -8,15 +8,19 @@
  * Formula:   a(n) = sigma(n) - A057521(n) where sigma(n) is the sum of
  *            divisors of n and A057521(n) is the largest powerful divisor of
  *            n (p^e if e ≥ 2, otherwise 1)
- * Range:     u8 n <= 16, u16 n <= 1603, u32 n <= 9963, u64 n <= 9963,
- *            u128 n <= 9963, big any n
- * Helpers:   big_pow, factor_u64
+ * Range:     u8 n <= 16, u16 n <= 1603, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 99 terms through n = 9963 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +39,7 @@ seq_t a(idx_t n)
         uint64_t e = exps[i];
         seq_t pseq = (seq_t)p;
         /* term = (p^(e+1) - 1) / (p - 1) */
-        seq_t term = (big_pow(pseq, (seq_t)(e + 1)) - 1) / (pseq - 1);
+        seq_t term = (ipow(pseq, (seq_t)(e + 1)) - 1) / (pseq - 1);
         sigma *= term;
     }
 
@@ -45,7 +49,7 @@ seq_t a(idx_t n)
         uint64_t p = primes[i];
         uint64_t e = exps[i];
         if (e >= 2) {
-            powerful *= big_pow((seq_t)p, (seq_t)e);
+            powerful *= ipow((seq_t)p, (seq_t)e);
         }
     }
 

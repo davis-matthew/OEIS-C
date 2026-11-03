@@ -8,12 +8,14 @@
  *            a(n-k-1) (n ≥ 1)
  * Range:     i8 n <= 2, i16 n <= 4, i32 n <= 5, i64 n <= 8, i128 n <= 11,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 13 terms through n = 12 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
+#include "../utils/mem.h"
 
 #define MAX_COMPUTE 10001   /* safe upper bound for the required range (≈10 000) */
 
@@ -43,8 +45,8 @@ seq_t a(idx_t n)
 
         if (dyn_size == 0) {
             dyn_size = n + 1;
-            dyn_terms = (seq_t*)malloc(dyn_size * sizeof(seq_t));
-            dyn_powm4 = (seq_t*)malloc(dyn_size * sizeof(seq_t));
+            dyn_terms = mem_new(seq_t, dyn_size);
+            dyn_powm4 = mem_new(seq_t, dyn_size);
             if (!dyn_terms || !dyn_powm4) {
                 /* allocation failure – return 0 (undefined behaviour for huge n) */
                 return (seq_t)0;

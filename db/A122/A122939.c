@@ -11,12 +11,14 @@
  *            (−1)^{n-k} * (n-k+1) d[k] = Σ_{i=0}^{k} a[i] * a[k-i] (= 2...
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 19, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- utility (binomial) --------------------------------- */
 static seq_t _binom(idx_t n, idx_t k)
@@ -42,8 +44,8 @@ static void _ensure_capacity(idx_t needed)
 {
     if (needed <= _cap) return;
     size_t new_cap = (size_t)needed;
-    seq_t * new_a = (seq_t *)realloc(_a_vals, new_cap * sizeof(seq_t));
-    seq_t * new_d = (seq_t *)realloc(_d_vals, new_cap * sizeof(seq_t));
+    seq_t * new_a = mem_resize(seq_t, _a_vals, new_cap);
+    seq_t * new_d = mem_resize(seq_t, _d_vals, new_cap);
     /* initialise the newly allocated cells to 0 */
     for (size_t i = _cap; i < new_cap; ++i) {
         new_a[i] = 0;

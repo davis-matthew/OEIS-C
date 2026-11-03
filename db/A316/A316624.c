@@ -9,7 +9,8 @@
  *            Complexity: O(log2(n) * n^2), acceptable for n ≤ 10000
  * Range:     u8 n <= 16, u16 n <= 29, u32 n <= 53, u64 n <= 100,
  *            u128 n <= 194, big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 483 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* External types supplied by the build. */
 typedef uint64_t idx_t;   /* assumed; replace with actual type if different */
@@ -33,14 +35,14 @@ static void recompute_up_to(idx_t limit)
 
     size_t N = (size_t)limit;
     /* Allocate new cache, zero‑initialized */
-    seq_t *new_cache = (seq_t*)calloc(N + 1, sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, N + 1);
     if (!new_cache) return;            /* out of memory; caller will handle */
 
     /* Base case for height 0 */
     if (N >= 1) new_cache[1] = (seq_t)1;
 
     /* Arrays for dynamic programming */
-    seq_t *prev = (seq_t*)calloc(N + 1, sizeof(seq_t));      /* B[h-1][n]  */
+    seq_t *prev = mem_new(seq_t, N + 1);      /* B[h-1][n]  */
     seq_t *dp   = NULL;                                      /* temporary DP */
 
     /* height 0 tree */
@@ -49,7 +51,7 @@ static void recompute_up_to(idx_t limit)
     for (size_t h = 1; ; ++h)
     {
         /* Compute dp[n] = coefficient of x^n in ∏_{w} (1 - prev[w] x^w)^-1 */
-        dp = (seq_t*)calloc(N + 1, sizeof(seq_t));
+        dp = mem_new(seq_t, N + 1);
         if (!dp) break;        /* memory failure; break and keep current cache */
         dp[0] = (seq_t)1;
 
@@ -80,15 +82,15 @@ static void recompute_up_to(idx_t limit)
             }
         }
 
-        free(dp);
+        mem_free(dp);
 
         if (!any_nonzero) break;   /* no new trees at this height */
     }
 
-    free(prev);
+    mem_free(prev);
 
     /* Replace old cache */
-    if (a_cache) free(a_cache);
+    if (a_cache) mem_free(a_cache);
     a_cache    = new_cache;
     cache_cap  = N + 1;
 }

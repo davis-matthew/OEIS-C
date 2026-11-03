@@ -10,13 +10,15 @@
  *            triangle, * computed recursively from the triangle itself
  * Range:     u8 n <= 44, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     if (a006_len < (size_t)r) {
         size_t needed = (size_t)r + 1;  /* we need indices up to r */
         if (needed > a006_cap) {
-            seq_t *tmp = (seq_t *)realloc(a006, needed * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, a006, needed);
             if (!tmp)
                 abort();
             a006 = tmp;

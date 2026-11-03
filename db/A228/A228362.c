@@ -9,12 +9,14 @@
  *            0, a(3) = 1, a(4) = 2, a(5) = 3, a(6) = 3, a(7) = 4
  * Range:     u8 n <= 21, u16 n <= 41, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
 
     /* enlarge the cache to hold up to index n (size = n+1) */
     idx_t newsize = n + 1;
-    seq_t *newptr = (seq_t *)realloc(cache, newsize * sizeof(seq_t));
+    seq_t *newptr = mem_resize(seq_t, cache, newsize);
     if (!newptr)
     {
         /* allocation failure: abort gracefully */

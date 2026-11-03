@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 21, u32 n <= 210, u64 n <= 210,
  *            u128 n <= 210, big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;
@@ -59,7 +61,7 @@ seq_t a(idx_t n) {
 
     /* ---------- Precompute number of valid d for each S3 ---------- */
     idx_t maxS3 = 3 * L;
-    seq_t *compCountAdd = (seq_t *)malloc((size_t)(maxS3 + 1) * sizeof(seq_t));
+    seq_t *compCountAdd = mem_new(seq_t, (size_t)(maxS3 + 1));
     for (idx_t s3 = 1; s3 <= maxS3; ++s3) {
         idx_t end = s3 + L;
         if (end > maxSum) end = maxSum;
@@ -69,7 +71,7 @@ seq_t a(idx_t n) {
 
     /* ---------- Precompute total pairs for each S2 ---------------- */
     idx_t maxS2 = 2 * L;
-    seq_t *totalPairsS2 = (seq_t *)malloc((size_t)(maxS2 + 1) * sizeof(seq_t));
+    seq_t *totalPairsS2 = mem_new(seq_t, (size_t)(maxS2 + 1));
     for (idx_t s2 = 2; s2 <= maxS2; ++s2) {
         seq_t total = 0;
         for (idx_t c = 1; c <= L; ++c) {
@@ -109,8 +111,8 @@ seq_t a(idx_t n) {
     /* ---------- Clean up ---------------------------------------- */
     free(prime);
     free(primePrefix);
-    free(compCountAdd);
-    free(totalPairsS2);
+    mem_free(compCountAdd);
+    mem_free(totalPairsS2);
 
     return ans;
 }

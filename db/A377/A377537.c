@@ -9,15 +9,18 @@
  *            function
  * Range:     u8 n <= 9, u16 n <= 16, u32 n <= 36, u64 n <= 72, u128 n <= 156,
  *            big any n
- * Helpers:   build_primes_upto, compute_pi
+ * Validated: standard, pass, 51 terms through n = 4976 (2026-11-01)
+ * Helpers:   build_primes_upto, prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/compute_pi.h"
+#include <stddef.h>
+#include <stdint.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/prime_pi.h"
 
 static inline idx_t legendre(idx_t m, idx_t p)
 {

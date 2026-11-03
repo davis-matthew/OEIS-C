@@ -8,9 +8,10 @@
  * Formula:   a(n) = lexicographically least integer avoiding 5/4-powers *
  *            (factor xyx with |y| = 3|x| ≥ 1); constructed incrementally by *
  *            choosing the smallest candidate not creating such a pattern
- * Range:     u8 n <= 9843, u16 n <= 9843, u32 n <= 9843, u64 n <= 9843,
- *            u128 n <= 9843, big any n
- * Helpers:   none
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 136 terms through n = 9843 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static cache for already computed terms */
 static seq_t *cache = NULL;      /* array of seq_t values */
@@ -33,11 +35,11 @@ static void ensure_cache(idx_t n)
     if (needed > cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 64;
         if (new_cap < needed) new_cap = needed;
-        seq_t *tmp = (seq_t*)malloc(new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, new_cap);
         if (!tmp) abort();     /* allocation failure */
         if (cache) {
             for (size_t i = 0; i < cache_len; ++i) tmp[i] = cache[i];
-            free(cache);
+            mem_free(cache);
         }
         cache = tmp;
         cache_cap = new_cap;

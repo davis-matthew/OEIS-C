@@ -7,16 +7,34 @@
  * Formula:   a(n) = Sum_{d|n} mu(d) * (n/d)^(n/d)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 16, u128 n <= 26,
  *            big any n
- * Helpers:   big_pow, factor_u64, mu_of_divisor
+ * Validated: standard, pass, 35 terms through n = 384 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
-#include "../utils/mu_of_divisor.h"
+#include "../utils/ipow.h"
+
+static int mu_of_divisor(uint64_t d, const uint64_t *primes, size_t pcnt)
+{
+    int mu = 1;
+    for (size_t i = 0; i < pcnt; ++i) {
+        uint64_t p = primes[i];
+        if (p * p > d) break;
+        if (d % p == 0) {
+            d /= p;
+            if (d % p == 0) return 0;      /* square factor found */
+            mu = -mu;                      /* toggle sign for each prime */
+        }
+    }
+    if (d > 1) mu = -mu;                     /* remaining prime factor */
+    return mu;
+}
 
 seq_t a(idx_t n)
 {
@@ -52,7 +70,7 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < dcnt; ++i) {
         uint64_t d = divisors[i];
         idx_t k = (idx_t)(n / d);            /* n/d fits in idx_t (≤ n) */
-        seq_t term = big_pow((seq_t)k, (seq_t)k);   /* (n/d)^(n/d) */
+        seq_t term = ipow((seq_t)k, (seq_t)k);   /* (n/d)^(n/d) */
         int mu = mu_of_divisor(d, primes, pcnt);
         if (mu == 1)        sum += term;
         else if (mu == -1)  sum -= term;

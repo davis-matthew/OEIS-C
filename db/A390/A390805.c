@@ -10,7 +10,8 @@
  *            phi(m) is Euler's totient
  * Range:     u8 n <= 23, u16 n <= 365, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is3smooth
+ * Validated: standard, pass, 71 terms through n = 9993 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,15 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is3smooth.h"
+#include "../utils/mem.h"
+
+/* Test whether n is a 3‑smooth number (product of powers of 2 and 3 only). */
+static bool is3smooth(idx_t n)
+{
+    while ((n & 1ULL) == 0) n >>= 1;
+    while (n % 3ULL == 0)   n /= 3;
+    return n == 1;
+}
 
 /* The totient table is computed up to the largest argument seen so far. */
 static seq_t *phi_cache = NULL;
@@ -28,7 +37,7 @@ static idx_t phi_cap   = 0;
 static void init_phi(idx_t limit)
 {
     size_t sz = (size_t)(limit + 1);
-    seq_t *newcache = (seq_t *)realloc(phi_cache, sz * sizeof(seq_t));
+    seq_t *newcache = mem_resize(seq_t, phi_cache, sz);
     if (!newcache) abort();           /* allocation failed */
     phi_cache = newcache;
     phi_cap   = limit;

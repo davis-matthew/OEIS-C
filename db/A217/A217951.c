@@ -12,12 +12,14 @@
  *            a(7)=1177, a(8)=2209, a(9)=4202, a(10)=8366, a(11)=1...
  * Range:     u8 n <= 4, u16 n <= 12, u32 n <= 27, u64 n <= 57, u128 n <= 117,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t _seed[16] = {
     4, 16, 50, 130, 296, 610,
@@ -37,7 +39,7 @@ static void _ensure_cache(size_t needed)
     size_t new_cap = cache_cap ? cache_cap : 16;
     while (new_cap < needed)
         new_cap <<= 1;
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cache_cap = new_cap;
 }
 

@@ -7,7 +7,8 @@
  * Formula:   a(0) = 1, a(n) = -∑_{k≥1, k⁴≤n} a(n−k⁴) (for n≥1)
  * Range:     i8 n <= 48, i16 n <= 106, i32 n <= 199, i64 n <= 401,
  *            i128 n <= 807, big any n
- * Helpers:   none
+ * Validated: standard, pass, 88 terms through n = 9714 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Cached values of the sequence */
 static seq_t *seq_cache = NULL;
@@ -32,7 +34,7 @@ static void ensure_cache(idx_t n)
     idx_t new_cap = n + 1;
 
     /* Reallocate the cache array */
-    seq_t *new_arr = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, seq_cache, new_cap);
     if (!new_arr)                      /* allocation failed */
         abort();
 

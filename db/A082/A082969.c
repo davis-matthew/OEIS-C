@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* --- static cache for odious numbers --------------------------------- */
 static idx_t     last_num      = 0;     /* last integer tested                 */
@@ -48,7 +50,7 @@ ensure_odious_up_to(size_t need)
         if (odious_size == odious_cap)
         {
             size_t new_cap = odious_cap ? odious_cap << 1 : 16;
-            seq_t *tmp = (seq_t *)realloc(odious_cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, odious_cache, new_cap);
             if (!tmp) return;           /* allocation failure → abort */
             odious_cache = tmp;
             odious_cap = new_cap;

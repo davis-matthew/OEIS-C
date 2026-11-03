@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 82, u32 n <= 82, u64 n <= 82, u128 n <= 82,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 83 terms through n = 82 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    index requested.  The implementation runs in O(n²) time for the largest
    n requested, which is comfortably fast for n ≈ 10 000. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache   = NULL;  /* memoised sequence values */
 static idx_t  size    = 0;     /* number of values stored (>=1 after init) */
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* initialise cache with a(0)=1 */
     if (size == 0) {
         cap = 1;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cap);
+        cache = mem_new(seq_t, cap);
         if (!cache) abort();          /* out of memory */
         cache[0] = 1;
         size    = 1;
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
         /* ensure enough space */
         if (size >= cap) {
             size_t new_cap = cap * 2 + 1;
-            seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort();          /* out of memory */
             cache = tmp;
             cap   = new_cap;

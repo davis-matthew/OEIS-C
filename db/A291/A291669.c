@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   big_pow, digit_frequencies
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   digit_frequencies, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "../utils/big_pow.h"
 #include "../utils/digit_frequencies.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /* Return the n-th element (offset 1) of A291669 */
 seq_t a(idx_t n)
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     while (cache_len < (size_t)n)
     {
         seq_t k   = (seq_t)next_k;         /* candidate integer */
-        seq_t k4  = big_pow(k, (seq_t)4); /* k^4 */
+        seq_t k4  = ipow(k, (seq_t)4); /* k^4 */
 
         unsigned int freq[10] = {0};
         digit_frequencies(k4, freq);
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
             if (cache_len == cache_cap)
             {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) exit(EXIT_FAILURE);
                 cache      = tmp;
                 cache_cap  = new_cap;

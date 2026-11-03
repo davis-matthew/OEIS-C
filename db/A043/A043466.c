@@ -8,12 +8,14 @@
  *            exactly two digits 3
  * Range:     u8 n <= 5, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *seq = NULL;
@@ -25,7 +27,7 @@ seq_t a(idx_t n) {
     /* Allocate storage on first call. */
     if (seq == NULL) {
         cap = 64;
-        seq = (seq_t*)malloc(cap * sizeof(seq_t));
+        seq = mem_new(seq_t, cap);
     }
 
     /* Generate terms until we have at least n of them. */
@@ -46,7 +48,7 @@ seq_t a(idx_t n) {
         if (cnt == 2) {        /* exactly two 3's ? */
             if (size == cap) { /* resize if needed */
                 cap <<= 1;
-                seq = (seq_t*)realloc(seq, cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, cap);
             }
             seq[size++] = prev_val;
             ++current_count;

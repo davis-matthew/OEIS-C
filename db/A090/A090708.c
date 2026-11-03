@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 61, u32 n <= 210, u64 n <= 210,
  *            u128 n <= 210, big any n
- * Helpers:   to_base5
+ * Validated: standard, pass, 61 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,24 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/to_base5.h"
+#include "../utils/mem.h"
+
+/* ------------------------------------------------------------------ */
+static uint64_t to_base5(uint64_t n)
+{
+    uint8_t digits[20];
+    int len = 0;
+    if (n == 0) return 0;
+    while (n) {
+        digits[len++] = n % 10;
+        n /= 10;
+    }
+    uint64_t val = 0;
+    for (int i = len - 1; i >= 0; --i) {
+        val = val * 5 + digits[i];
+    }
+    return val;
+}
 
 /* ------------------------------------------------------------------ */
 /* Helper: deterministic Miller–Rabin primality test for 64‑bit n   */
@@ -106,7 +124,7 @@ static void ensure_cache_capacity(size_t needed)
     if (needed <= cache_alloc) return;
     size_t cap = cache_alloc ? cache_alloc : 8;
     while (cap < needed) cap <<= 1;
-    seq_t *newp = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+    seq_t *newp = mem_resize(seq_t, cache, cap);
     if (!newp) {
         /* allocation failed – abort */
         abort();

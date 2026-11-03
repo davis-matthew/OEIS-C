@@ -6,9 +6,10 @@
  * Offset:    2    (a(2) is the first term)
  * Keywords:  nonn, easy
  * Formula:   not stated
- * Range:     u8 n <= 8, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
- *            big any n
- * Helpers:   isprime_big
+ * Range:     u8 n <= 8, u16 n <= 71, u32 n <= 1000, u64 n <= 1000,
+ *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 59 terms through n = 872 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
    primes is built incrementally by trial division. */
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/isprime_big.h"
+#include <stdint.h>
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /*--- Prime table, grown dynamically ------------------------------------*/
 static seq_t *prime_tbl = NULL;          /* array of primes (0‑based)   */
@@ -31,7 +34,7 @@ static void add_prime(seq_t p)
 {
     if (prime_cnt == prime_cap) {
         idx_t new_cap = prime_cap ? prime_cap << 1 : 16;
-        seq_t *tmp = (seq_t *)realloc(prime_tbl, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, prime_tbl, new_cap);
         prime_tbl = tmp;
         prime_cap = new_cap;
     }
@@ -95,7 +98,7 @@ seq_t a(idx_t n)
         unsigned __int128 sum = prod + (unsigned __int128)q;
         if ((sum & 1) == 0) {           /* sum must be even to divide by 2 */
             seq_t val = (seq_t)(sum >> 1);   /* (sum/2) */
-            if (isprime_big(val))
+            if (is_prime_seq(val))
                 return val;
         }
         ++q_index;

@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 9803, u16 n <= 9803, u32 n <= 9803, u64 n <= 9803,
- *            u128 n <= 9803, big any n
- * Helpers:   none
+ * Range:     u8 n <= 15126, u16 n <= 15126, u32 n <= 15126, u64 n <= 15126,
+ *            u128 n <= 15126, big any n
+ * Validated: standard, pass, 116 terms through n = 9803 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    The algorithm expands the word until the required index is reached. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *word = NULL;   /* buffer holding the generated word   */
 static size_t  len  = 0;      /* number of symbols currently stored  */
@@ -28,7 +30,7 @@ ensure_length(idx_t n)
 
     /* Initialise with the seed word if this is the first call. */
     if (len == 0) {
-        word = (seq_t *)malloc(sizeof(seq_t) * 2);
+        word = mem_new(seq_t, 2);
         word[0] = (seq_t)1;
         len    = 1;
     }
@@ -46,7 +48,7 @@ ensure_length(idx_t n)
         }
 
         /* Allocate the new word. */
-        seq_t *new_word = (seq_t *)malloc(sizeof(seq_t) * new_len);
+        seq_t *new_word = mem_new(seq_t, new_len);
         size_t pos = 0;
         for (size_t i = 0; i < len; ++i) {
             const seq_t v = word[i];
@@ -65,7 +67,7 @@ ensure_length(idx_t n)
         }
 
         /* Replace the old buffer. */
-        free(word);
+        mem_free(word);
         word = new_word;
         len  = new_len;
     }

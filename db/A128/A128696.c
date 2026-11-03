@@ -12,14 +12,27 @@
  *            by direct summation
  * Range:     i8 n <= 3, i16 n <= 4, i32 n <= 8, i64 n <= 14, i128 n <= 27,
  *            big any n
- * Helpers:   fib
+ * Validated: standard, pass, 37 terms through n = 676 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/fib.h"
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
 
 static seq_t *cache = NULL;      /* dynamic array of previously computed a(n) */
 static idx_t cache_size = 0;     /* number of elements stored */
@@ -28,7 +41,7 @@ static idx_t cache_size = 0;     /* number of elements stored */
 static void init_first_terms(void)
 {
     const idx_t N = 9; /* cover indices 0 .. 8 */
-    seq_t *new_cache = (seq_t *)malloc(N * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, N);
     if (!new_cache) abort();
 
     for (idx_t n = 0; n < N; ++n)
@@ -58,7 +71,7 @@ static void extend_cache(idx_t n)
     if (cache_size > n) return;   /* already have all needed terms */
 
     size_t needed = (size_t)n + 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, needed);
     if (!new_cache) abort();
 
     for (size_t i = cache_size; i < needed; ++i)

@@ -8,13 +8,15 @@
  *            where d(x) is the number of positive divisors of x
  * Range:     u8 n <= 50, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Compute number of divisors of a positive integer x (x ≥ 1). */
 static seq_t divisor_count(idx_t x)
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
     if (!cum)
     {
         cap = 32;                       /* initial capacity */
-        cum = (seq_t *)calloc(cap, sizeof(seq_t));
+        cum = mem_new(seq_t, cap);
         if (!cum)
             return (seq_t)0;             /* allocation failure → return 0 */
 
@@ -86,7 +88,7 @@ seq_t a(idx_t n)
             size_t newcap = cap * 2;
             if (newcap <= (size_t)next)
                 newcap = next + 1;
-            seq_t *tmp = (seq_t *)realloc(cum, newcap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cum, newcap);
             if (!tmp)
                 return (seq_t)0;
             cum = tmp;

@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = A003961(n) - n where A003961(n) replaces every prime
  *            factor p of n by the next prime after p (keeping the exponent)
- * Range:     u8 n <= 47, u16 n <= 1535, u32 n <= 9678, u64 n <= 9678,
- *            u128 n <= 9678, big any n
+ * Range:     u8 n <= 47, u16 n <= 1535, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 97 terms through n = 9678 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

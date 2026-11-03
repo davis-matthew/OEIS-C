@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 22, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   hash_xyz
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,14 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/hash_xyz.h"
+#include "../utils/mem.h"
+
+/* 64‑bit hashing of three 32‑bit integers */
+static size_t hash_xyz(int x, int y, int z)
+{
+    size_t h = ((size_t)x * 73856093u) ^ ((size_t)y * 19349663u) ^ ((size_t)z * 83492791u);
+    return h;
+}
 
 /* ---------- Hash table for states ---------- */
 
@@ -54,13 +62,13 @@ static void ht_init(HashTable *ht, size_t init_cap)
     ht->mask     = cap - 1;
     ht->size     = 0;
     ht->used_count = 0;
-    ht->tbl = (Entry *)calloc(cap, sizeof(Entry));
+    ht->tbl = mem_new(Entry, cap);
     ht->used_idx = (size_t *)calloc(cap, sizeof(size_t));
 }
 
 static void ht_free(HashTable *ht)
 {
-    free(ht->tbl);
+    mem_free(ht->tbl);
     free(ht->used_idx);
 }
 
@@ -85,7 +93,7 @@ static void ht_rehash(HashTable *ht)
     ht->capacity     = new_cap;
     ht->mask         = new_cap - 1;
 
-    ht->tbl          = (Entry *)calloc(new_cap, sizeof(Entry));
+    ht->tbl          = mem_new(Entry, new_cap);
     ht->used_idx     = (size_t *)calloc(new_cap, sizeof(size_t));
     ht->size         = 0;
     ht->used_count   = 0;
@@ -104,7 +112,7 @@ static void ht_rehash(HashTable *ht)
         }
     }
 
-    free(old_tbl);
+    mem_free(old_tbl);
     free(old_idx);
 }
 
@@ -156,7 +164,7 @@ seq_t a(idx_t n)
         ht_init(&cur, 1024);
         ht_init(&nxt, 1024);
 
-        memo = (seq_t *)malloc(sizeof(seq_t));
+        memo = mem_new(seq_t, 1);
         memo[0] = (seq_t)1;   /* a(0) = 1 */
         memo_size = 1;
 
@@ -188,7 +196,7 @@ seq_t a(idx_t n)
 
         /* append to memo */
         memo_size++;
-        memo = (seq_t *)realloc(memo, memo_size * sizeof(seq_t));
+        memo = mem_resize(seq_t, memo, memo_size);
         memo[memo_size - 1] = total;
 
         /* prepare for next iteration */

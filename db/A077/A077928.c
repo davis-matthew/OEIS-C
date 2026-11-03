@@ -8,13 +8,15 @@
  *            a(2)=2, a(3)=0
  * Range:     i8 n <= 9, i16 n <= 20, i32 n <= 39, i64 n <= 39, i128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;        /* cache of computed terms */
 static size_t cache_capacity = 0;  /* allocated capacity */
@@ -28,7 +30,7 @@ static void ensure_cache_size(size_t needed)
     size_t new_capacity = cache_capacity ? cache_capacity * 2 : 16;
     while (new_capacity < needed)
         new_capacity *= 2;
-    void *tmp = realloc(cache, new_capacity * sizeof(seq_t));
+    void *tmp = mem_resize(seq_t, cache, new_capacity);
     if (!tmp)
         exit(1);                     /* allocation failed */
     cache = (seq_t *)tmp;

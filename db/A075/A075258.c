@@ -11,6 +11,7 @@
  *            3*min(a,b)}) starting from the pair (1,2) (offset 1)
  * Range:     u8 n <= 22, u16 n <= 48, u32 n <= 98, u64 n <= 201,
  *            u128 n <= 406, big any n
+ * Validated: standard, pass, 64 terms through n = 776 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

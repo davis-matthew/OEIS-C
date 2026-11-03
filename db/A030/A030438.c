@@ -7,12 +7,14 @@
  * Formula:   a(n) = (n-1)! * Sum_{i=0}^{n-1} Stirling2(n-1,i) * n^i (a(0)=1)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 11, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External definitions supplied by the build system */
 extern idx_t _prime_limit_for_idx(idx_t n);
@@ -30,13 +32,13 @@ seq_t a(idx_t n)
 
     /* initialise on first call */
     if (a_vals == NULL) {
-        a_vals = (seq_t *)malloc(sizeof(seq_t));   /* a(0) */
+        a_vals = mem_new(seq_t, 1);   /* a(0) */
         if (!a_vals) return (seq_t)0;              /* allocation failed */
         a_vals[0] = 1;
         a_len = 1;
 
-        s_row = (seq_t *)malloc(sizeof(seq_t));    /* S(0,0)=1 */
-        if (!s_row) { free(a_vals); return (seq_t)0; }
+        s_row = mem_new(seq_t, 1);    /* S(0,0)=1 */
+        if (!s_row) { mem_free(a_vals); return (seq_t)0; }
         s_row[0] = 1;
         s_len = 1;
 
@@ -64,8 +66,8 @@ seq_t a(idx_t n)
         /* store a(m) */
         if (a_len <= (size_t)m) {
             size_t new_len = m + 1;
-            seq_t *tmp = (seq_t *)realloc(a_vals, sizeof(seq_t) * new_len);
-            if (!tmp) { free(a_vals); free(s_row); return (seq_t)0; }
+            seq_t *tmp = mem_resize(seq_t, a_vals, new_len);
+            if (!tmp) { mem_free(a_vals); mem_free(s_row); return (seq_t)0; }
             a_vals = tmp;
             a_len = new_len;
         }
@@ -76,8 +78,8 @@ seq_t a(idx_t n)
 
         /* compute next Stirling row S(m,k) for k=0..m   */
         size_t new_len = m + 1;
-        seq_t *new_row = (seq_t *)malloc(sizeof(seq_t) * new_len);
-        if (!new_row) { free(a_vals); free(s_row); return (seq_t)0; }
+        seq_t *new_row = mem_new(seq_t, new_len);
+        if (!new_row) { mem_free(a_vals); mem_free(s_row); return (seq_t)0; }
 
         new_row[0] = 0;  /* S(m,0)=0 for m>0 */
         for (idx_t k = 1; k < m; ++k) {
@@ -87,7 +89,7 @@ seq_t a(idx_t n)
         }
         new_row[m] = 1;  /* S(m,m)=1 */
 
-        free(s_row);
+        mem_free(s_row);
         s_row = new_row;
         s_len = new_len;
         current_n = m;

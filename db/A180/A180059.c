@@ -9,7 +9,8 @@
  *            popcount(k), or 0 if none
  * Range:     u8 n <= 10, u16 n <= 636, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_power_of_two
+ * Validated: standard, pass, 84 terms through n = 8938 (2026-11-01)
+ * Helpers:   is_pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/is_power_of_two.h"
+#include "../utils/is_pow2.h"
 
 /* Count the number of 1 bits in a seq_t value. */
 static unsigned popcount_seq_t(seq_t x)
@@ -37,7 +38,7 @@ seq_t a(idx_t n)
     seq_t N = (seq_t)n;
 
     /* No such k exists for powers of two. */
-    if (is_power_of_two(N)) return 0;
+    if (is_pow2(N)) return 0;
 
     /* Brute‑force search for the smallest k.  The bound is chosen large enough
        for all n up to about 10 000.  In practice the answer is found far

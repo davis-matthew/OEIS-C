@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_log2_uint64
+ * Validated: standard, pass, 98 terms through n = 9793 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,15 +24,16 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/floor_log2_uint64.h"   /* floor_log2_uint64 is provided */
+#include <stddef.h>
+#include "../utils/ilog2.h"
 
 /* Test if m appears as a subsequence of n (both are non‑zero 64‑bit integers). */
 static inline bool subseq(idx_t n, idx_t m)
 {
     if (m == 0)
         return true;               /* not needed, but keeps logic simple */
-    int p_n = floor_log2_uint64((uint64_t)n);
-    int p_m = floor_log2_uint64((uint64_t)m);
+    int p_n = ilog2((uint64_t)n);
+    int p_m = ilog2((uint64_t)m);
     int i = p_n, j = p_m;
 
     while (i >= 0 && j >= 0) {

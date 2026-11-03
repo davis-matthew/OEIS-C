@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   has_two_fours
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,25 @@
 /* Sequence: numbers whose base‑7 representation contains exactly two 4's */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_two_fours.h"
+#include "../utils/mem.h"
+
+/* Test whether a value has exactly two 4's in base 7 */
+static bool has_two_fours(seq_t v)
+{
+    int cnt = 0;
+    const seq_t seven = (seq_t)7;
+    const seq_t four  = (seq_t)4;
+
+    while (v > (seq_t)0) {
+        seq_t d = v % seven;
+        if (d == four) {
+            if (++cnt > 2)
+                return false;
+        }
+        v /= seven;
+    }
+    return cnt == 2;
+}
 
 /* Internal state for incremental generation */
 static seq_t *cache        = NULL;  /* array of found terms */
@@ -34,7 +53,7 @@ static void ensure_capacity(size_t needed)
         new_cap *= 2;
 
     /* realloc returns void* in C++; cast to seq_t* here */
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         abort();   /* fatal on allocation failure */
 

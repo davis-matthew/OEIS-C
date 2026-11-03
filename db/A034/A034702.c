@@ -10,13 +10,16 @@
  *            derived from the OEIS entry. * No other global state is required
  * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   floor_log2_uint64, pow2
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-01)
+ * Helpers:   ilog2, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/floor_log2_uint64.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/ilog2.h"
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)
@@ -28,7 +31,7 @@ seq_t a(idx_t n)
 
     /* For n > 2, use the formula */
     idx_t m = n + (idx_t)2;
-    unsigned k = floor_log2_uint64(m);       /* floor(log2(n+2)) */
+    unsigned k = ilog2(m);       /* floor(log2(n+2)) */
     seq_t p2 = pow2((idx_t)k);              /* 2^k  as seq_t */
 
     seq_t term = (seq_t)3 * (seq_t)n;        /* 3*n          */

@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..(n-2)/2} a(k) * a(n-1-k), a(0)=a(1)=1
  * Range:     u8 n <= 11, u16 n <= 18, u32 n <= 33, u64 n <= 60, u128 n <= 113,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 997 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache of already computed terms */
 static seq_t *cache = NULL;           /* array a[i] */
@@ -32,7 +34,7 @@ ensure_cache(idx_t n)
             cap = 8;
         /* round up to next power of two for future growth */
         while ((cap & (cap - 1)) != 0) cap <<= 1;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (cache == NULL) {
             /* If allocation fails, the program cannot continue */
             abort();
@@ -53,7 +55,7 @@ ensure_cache(idx_t n)
     while ((size_t)n + 1 > cap)
         cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, cap);
     if (tmp == NULL) {
         abort();
     }

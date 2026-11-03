@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 615, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   compute_pi
+ * Validated: standard, pass, 84 terms through n = 8008 (2026-11-01)
+ * Helpers:   prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
    f(n) = n + π(n) – π(n + π(n)).
    The function iteratively applies f until the value becomes 1
    and counts how many steps were needed. */
-#include "../utils/compute_pi.h"
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/prime_pi.h"
 
 seq_t a(idx_t n)
 {
@@ -28,9 +31,9 @@ seq_t a(idx_t n)
     idx_t steps = 0;
 
     while (cur > 1u) {
-        seq_t pi_cur = compute_pi(cur);                 /* π(cur)   */
+        seq_t pi_cur = prime_pi(cur);                 /* π(cur)   */
         idx_t next  = cur + (idx_t)pi_cur;              /* cur + π(cur) */
-        seq_t pi_next = compute_pi(next);               /* π(cur + π(cur)) */
+        seq_t pi_next = prime_pi(next);               /* π(cur + π(cur)) */
 
         /* Because π(next) > π(cur) for cur > 1, the difference is positive. */
         idx_t delta = (idx_t)(pi_next - pi_cur);

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 11, u32 n <= 24, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   cmp_seq_t
+ * Validated: full, pass, 24 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,18 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/cmp_seq_t.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
 
 /* constant factorization of 196884 = 2^2 * 3^3 * 1823 */
 static const uint64_t prime1 = 2;
@@ -52,7 +64,7 @@ static void init_divisors(void) {
         }
     }
     divisor_count = idx;                    /* should be 24 */
-    qsort(sorted_divisors, divisor_count, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(sorted_divisors, divisor_count, sizeof(seq_t), cmp_seq_t);
     initialized = true;
 }
 

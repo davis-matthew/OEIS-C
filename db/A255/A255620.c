@@ -11,7 +11,8 @@
  *            symbols
  * Range:     u8 none, u16 n <= 4, u32 n <= 16, u64 n <= 38, u128 n <= 83,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 186 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>   /* size_t */
 #include <stdbool.h>  /* bool */
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 #define STATE_COUNT 729            /* 3^6 */
 #define STATE_FIVE 243             /* 3^5 */
@@ -62,7 +64,7 @@ static void init(void)
 
     /* Allocate cache for n = 1 … MAX_COMPUTE. */
     cache_cap = MAX_COMPUTE + 1;
-    cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
 
     /* Compute a(n) for n = 1 … MAX_COMPUTE. */
     for (size_t n = 1; n <= MAX_COMPUTE; ++n) {
@@ -134,7 +136,7 @@ seq_t a(idx_t n)
         if (cur_n + 1 > cache_cap) {
             size_t new_cap = cache_cap * 2;
             if (new_cap < cur_n + 1) new_cap = cur_n + 1;
-            seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             cache = tmp;
             cache_cap = new_cap;
         }

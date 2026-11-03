@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 26,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 36 terms through n = 350 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,7 +32,9 @@
  * This method requires only integer arithmetic; it works for any
  * seq_t that supports +, -, *, /, comparison, etc.
  */
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -41,7 +44,7 @@ seq_t a(idx_t n)
     const seq_t sn = (seq_t)n;
     seq_t sum = (seq_t)0;
 
-    seq_t pow = big_pow(sn, sn);          /* n^n */
+    seq_t pow = ipow(sn, sn);          /* n^n */
     seq_t binom = (seq_t)1;               /* C(n,0) */
 
     idx_t maxj = n / (idx_t)2;            /* floor(n/2) */

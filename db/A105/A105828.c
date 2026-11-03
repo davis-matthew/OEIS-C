@@ -6,87 +6,75 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, look
  * Formula:   not stated
- * Range:     u8 n <= 5, u16 n <= 12, u32 n <= 69, u64 n <= 69, u128 n <= 69,
- *            big any n
- * Helpers:   is_square
+ * Range:     u8 n <= 82, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 85 terms through n = 9914 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-/* Sequence A105828:  a(1)=1, a(2)=3.  For n>2, a(n) is the
-   smallest positive integer not yet in the sequence such that
-   a(n-1)^2 + 4*a(n-2)*a(n) is a perfect square (choosing the
-   minimal possible square). */
+/* a(1) = 1, a(2) = 3; a(n) is the least c not used yet with
+   a(n-1)^2 + 4 a(n-2) c a square. The terms stay small, so this runs in 64
+   bits with a bitmap of the values used (in seq_t, searching the whole
+   sequence for each candidate, it timed out under big); terms are cached. */
 
+#include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_square.h"
+#include "../utils/mem.h"
 
-/* Persistent storage for the sequence. */
-static seq_t *seq = NULL;      /* array of computed terms   */
-static idx_t seq_len = 0;      /* number of terms stored   */
-static idx_t seq_cap = 0;      /* current allocation size  */
-
-/* Ensure that the array can hold at least new_cap elements. */
-static void ensure_cap(idx_t new_cap)
+static bool is_square_u64(uint64_t x)
 {
-    if (new_cap <= seq_cap)
-        return;
-    if (new_cap == 0)
-        new_cap = 2;                 /* minimal initial size   */
-    else if (new_cap < seq_cap * 2)
-        new_cap = seq_cap * 2;
-    seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
-    seq_cap = new_cap;
+    uint64_t r = 0;
+    for (uint64_t b = (uint64_t)1 << 31; b; b >>= 1)
+        if ((r + b) * (r + b) <= x) r += b;
+    return r * r == x;
 }
 
 seq_t a(idx_t n)
 {
-    /* Direct returns for the first two terms. */
-    if (n == 1) return (seq_t)1;
-    if (n == 2) return (seq_t)3;
-
-    /* Initialise the sequence storage on first use. */
-    if (seq_len == 0)
-    {
-        ensure_cap(2);
-        seq[0] = (seq_t)1;
-        seq[1] = (seq_t)3;
-        seq_len = 2;
+    static seq_t *A = NULL;
+    static uint64_t *V = NULL;                /* the terms in 64 bits */
+    static size_t len = 0, cap = 0;
+    static unsigned char *used = NULL;
+    static size_t ucap = 0;
+    if (n == 0) return (seq_t)0;
+    if (!len) {
+        cap = 64;
+        A = mem_new(seq_t, cap);
+        V = (uint64_t *)malloc(cap * sizeof *V);
+        ucap = 1024;
+        used = (unsigned char *)calloc(ucap, 1);
+        if (!A || !V || !used) abort();
+        V[0] = 1; V[1] = 3;
+        A[0] = (seq_t)1; A[1] = (seq_t)3;
+        used[1] = used[3] = 1;
+        len = 2;
     }
-
-    /* Compute terms up to the requested index. */
-    while (seq_len < n)
-    {
-        seq_t p = seq[seq_len - 1];   /* a(n-1) */
-        seq_t q = seq[seq_len - 2];   /* a(n-2) */
-        seq_t cand;                  /* candidate for a(n) */
-
-        for (cand = 1; ; ++cand)
-        {
-            /* Compute p^2 + 4*q*cand and test for a perfect square. */
-            seq_t sum = p * p + (seq_t)4 * q * cand;
-            if (!is_square(sum))
-                continue;
-
-            /* Ensure cand has not appeared before. */
-            bool used = false;
-            for (idx_t j = 0; j < seq_len; ++j)
-            {
-                if (seq[j] == cand)
-                {
-                    used = true;
-                    break;
-                }
+    while (len < (size_t)n) {
+        uint64_t p = V[len - 1], q = V[len - 2], c;
+        for (c = 1;; ++c) {
+            if (c >= ucap) {
+                unsigned char *t = (unsigned char *)realloc(used, 2 * ucap);
+                if (!t) abort();
+                for (size_t i = ucap; i < 2 * ucap; ++i) t[i] = 0;
+                used = t;
+                ucap *= 2;
             }
-            if (!used)
-                break;
+            if (!used[c] && is_square_u64(p * p + 4 * q * c)) break;
         }
-
-        /* Append the found term. */
-        ensure_cap(seq_len + 1);
-        seq[seq_len++] = cand;
+        if (len == cap) {
+            cap *= 2;
+            seq_t *t = mem_resize(seq_t, A, cap);
+            uint64_t *v = (uint64_t *)realloc(V, cap * sizeof *v);
+            if (!t || !v) abort();
+            A = t;
+            V = v;
+        }
+        used[c] = 1;
+        V[len] = c;
+        A[len++] = (seq_t)c;
     }
-
-    return seq[n - 1];
+    return A[n - 1];
 }

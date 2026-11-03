@@ -10,7 +10,8 @@
  *            results for repeated queries
  * Range:     u8 n <= 34, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   divisor_count_u64, phi, sigma_of
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem, num_divisors, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,24 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/divisor_count_u64.h"
-#include "../utils/sigma_of.h"
-#include "../utils/phi.h"
+#include "../utils/num_divisors.h"
+#include "../utils/totient.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 /* External‐linkage function required by the build system */
 seq_t a(idx_t n)
@@ -45,9 +61,9 @@ seq_t a(idx_t n)
         do {
             ++next_candidate;
 
-            uint64_t tau  = divisor_count_u64(next_candidate);
+            uint64_t tau  = num_divisors(next_candidate);
             seq_t    sigma = sigma_of(next_candidate);
-            seq_t    phi_val = phi(next_candidate);   /* phi is a static helper */
+            seq_t    phi_val = totient(next_candidate);   /* phi is a static helper */
 
             /* Check divisibility conditions */
             if ((sigma % (seq_t)tau) != 0 && (sigma % phi_val) != 0)
@@ -57,8 +73,7 @@ seq_t a(idx_t n)
         /* Grow the cache if necessary. */
         if (cache_sz >= cache_cap) {
             cache_cap = cache_cap ? cache_cap * 2 : 16;
-            seq_t *tmp = (seq_t *)realloc(cache,
-                                          cache_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
             if (!tmp) {          /* Allocation failure: return 0 as a safe
                                     fallback (should not occur under
                                     normal limits). */

@@ -12,20 +12,56 @@
  *            partition, the centralizer orders come from the sta...
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 4, u128 n <= 5,
  *            big any n
- * Helpers:   p2, pdeg, pmodp, pmulm, ppowx, pw8, ugcd
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-01)
+ * Helpers:   gcd_u64, ilog2_u64, pow2_i64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/p2.h"
-#include "../utils/pdeg.h"
-#include "../utils/pmodp.h"
-#include "../utils/pmulm.h"
-#include "../utils/ppowx.h"
-#include "../utils/pw8.h"
-#include "../utils/ugcd.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/ilog2_u64.h"
+#include "../utils/pow2_i64.h"
+
+static uint64_t pmodp(uint64_t a, uint64_t f) {
+    int df = ilog2_u64(f), da;
+    while ((da = ilog2_u64(a)) >= df) a ^= f << (da - df);
+    return a;
+}
+
+static uint64_t pmulm(uint64_t a, uint64_t b, uint64_t f) {
+    int df = ilog2_u64(f);
+    uint64_t r = 0;
+    a = pmodp(a, f);
+    while (b) {
+        if (b & 1) r ^= a;
+        b >>= 1;
+        a <<= 1;
+        if ((a >> df) & 1) a ^= f;
+    }
+    return r;
+}
+
+static uint64_t ppowx(uint64_t e, uint64_t f) {
+    uint64_t r = 1, b = pmodp(2, f);
+    while (e) {
+        if (e & 1) r = pmulm(r, b, f);
+        b = pmulm(b, b, f);
+        e >>= 1;
+    }
+    return r;
+}
+
+static seq_t pw8(uint64_t e) {
+    seq_t r = 1, b = 8;
+    while (e) {
+        if (e & 1) r *= b;
+        e >>= 1;
+        if (e) b *= b;
+    }
+    return r;
+}
 
 static uint64_t *ipoly = NULL, *iord = NULL;
 static int *ideg = NULL;
@@ -74,7 +110,7 @@ static uint64_t cycles(void) {
         uint64_t t = 1;
         while (t < (uint64_t)ce[i]) t *= 2;
         x = cord[i] * t;
-        m = m / ugcd(m, x) * x;
+        m = m / gcd_u64(m, x) * x;
     }
     divs[0] = 1;
     x = m;
@@ -124,7 +160,7 @@ static void genpart(int idx, int left, int maxp, int np, int rem_after, seq_t ce
     if (left == 0) {
         int d = ideg[idx], i, j;
         long long E = 0;
-        seq_t fac = 1, Q = p2(d);
+        seq_t fac = 1, Q = pow2_i64(d);
         for (i = 0; i < np; i++)
             for (j = 0; j < np; j++)
                 E += ce[CN + i] < ce[CN + j] ? ce[CN + i] : ce[CN + j];
@@ -135,12 +171,12 @@ static void genpart(int idx, int left, int maxp, int np, int rem_after, seq_t ce
             j = i;
             while (j < np && ce[CN + j] == ce[CN + i]) { j++; mlt++; }
             E -= (long long)mlt * mlt;
-            Qm = p2((long long)d * mlt);
-            for (k = 0; k < mlt; k++) fac *= Qm - p2((long long)d * k);
+            Qm = pow2_i64((long long)d * mlt);
+            for (k = 0; k < mlt; k++) fac *= Qm - pow2_i64((long long)d * k);
             i = j;
         }
         (void)Q;
-        fac *= p2((long long)d * E);
+        fac *= pow2_i64((long long)d * E);
         for (i = 0; i < np; i++) { cdeg[CN + i] = d; cord[CN + i] = iord[idx]; }
         CN += np;
         dfs(idx + 1, rem_after, cent * fac);
@@ -169,7 +205,7 @@ seq_t a(idx_t n) {
     int nn = (int)n, k;
     build(nn);
     GLn = 1;
-    for (k = 0; k < nn; k++) GLn *= p2(nn) - p2(k);
+    for (k = 0; k < nn; k++) GLn *= pow2_i64(nn) - pow2_i64(k);
     TOTAL = 0;
     CN = 0;
     dfs(0, nn, (seq_t)1);

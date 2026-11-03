@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 17, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   seq_gcd
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,7 @@
 
 /* Binomial coefficient C(n,k) computed multiplicatively.
    It uses seq_gcd from "../utils/seq_gcd.h" to cancel factors. */
-#include "../utils/seq_gcd.h"
+#include "../utils/gcd.h"
 
 static seq_t binom(idx_t n, idx_t k)
 {
@@ -34,10 +35,10 @@ static seq_t binom(idx_t n, idx_t k)
         seq_t num = (seq_t)(n - k + i);
         seq_t den = (seq_t)i;
 
-        seq_t g = seq_gcd(num, den);
+        seq_t g = gcd(num, den);
         num /= g;  den /= g;
 
-        g = seq_gcd(res, den);
+        g = gcd(res, den);
         res /= g;  den /= g;
 
         res *= num; /* den must be 1 now */

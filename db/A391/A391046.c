@@ -10,13 +10,14 @@
  *            floor((sqrt(8*n+1)-1)/2) and k = n - r*(r+1)/2
  * Range:     u8 n <= 17, u16 n <= 48, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -32,8 +33,8 @@ seq_t a(idx_t n)
     idx_t k1 = k + 1;
     idx_t m  = 3 * r - 2 * k + 1;
 
-    seq_t first  = binom(n1, k1);
-    seq_t second = binom(m, k);
+    seq_t first  = binomial(n1, k1);
+    seq_t second = binomial(m, k);
 
     return (first * second) / (seq_t)n1;
 }

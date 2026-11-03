@@ -10,7 +10,8 @@
  *            p*10^len(a(n‑1)) + a(n‑1) (prepend)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 11, u128 n <= 17,
  *            big any n
- * Helpers:   digits_uint32, pow10_small
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-03)
+ * Helpers:   mem, num_digits_u32_to_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,16 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/digits_uint32.h"
-#include "../utils/pow10_small.h"
+#include "../utils/num_digits_u32_to_i32.h"
+#include "../utils/mem.h"
+
+/* --- Helper to compute 10^e where e is small (max 10) --- */
+static seq_t pow10_small(int e)
+{
+    seq_t r = 1;
+    while (e--) r *= 10;
+    return r;
+}
 
 /* Seq_t and idx_t are supplied by the build. */
 
@@ -71,7 +80,7 @@ static void store_term(seq_t value, size_t len)
     if (terms_len >= terms_cap) {
         size_t new_cap = terms_cap ? terms_cap * 2 : 16;
         if (new_cap < terms_len + 1) new_cap = terms_len + 1;
-        terms     = (seq_t *)realloc(terms,     new_cap * sizeof(seq_t));
+        terms     = mem_resize(seq_t, terms, new_cap);
         len_arr   = (size_t *)realloc(len_arr,   new_cap * sizeof(size_t));
         terms_cap = new_cap;
     }
@@ -99,7 +108,7 @@ seq_t a(idx_t n)
         ensure_primes_at_least(idx);
         uint32_t prime_val = primes[idx - 1];
         seq_t   prime      = (seq_t)prime_val;
-        int     d          = digits_uint32(prime_val);
+        int     d          = num_digits_u32_to_i32(prime_val);
         seq_t   pow10_d    = pow10_small(d);
 
         /* Length of the previous term. */

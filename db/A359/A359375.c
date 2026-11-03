@@ -7,6 +7,7 @@
  * Formula:   a(n) = 12*floor((n-1)/7) + c[(n-1)%7] with c = {1,2,5,6,7,10,11}
  * Range:     u8 n <= 149, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 89 terms through n = 8640 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

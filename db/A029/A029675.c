@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------ */
 /*  Static cache structures                                       */
@@ -75,7 +77,7 @@ static void recompute_cache(idx_t limit)
     /*  Allocate new cache array.                               */
     seq_t *new_arr = NULL;
     if (cnt > 0) {
-        new_arr = (seq_t*)malloc(cnt * sizeof(seq_t));
+        new_arr = mem_new(seq_t, cnt);
         if (!new_arr) { free(present); exit(1); }
         size_t idx = 0;
         for (size_t i = 0; i < bs_size; ++i)
@@ -85,7 +87,7 @@ static void recompute_cache(idx_t limit)
     free(present);
 
     /*  Replace old cache.                                       */
-    free(cache_values);
+    mem_free(cache_values);
     cache_values = new_arr;
     cache_len    = cnt;
     cache_limit  = limit;

@@ -9,14 +9,17 @@
  *            computed as (a/gcd) * (n-2) to avoid overflow
  * Range:     u8 n <= 11, u16 n <= 18, u32 n <= 30, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,14 +35,14 @@ seq_t a(idx_t n)
     /* Allocate cache on first call */
     if (cache == NULL) {
         cap = (size_t)n + 1;
-        cache = (seq_t*)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         cache[1] = cache[2] = cache[3] = (seq_t)6;
         computed = 3;
     }
     /* Grow the cache if needed */
     else if ((size_t)n + 1 > cap) {
         cap = (size_t)n + 1;
-        cache = (seq_t*)realloc(cache, cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cap);
     }
 
     /* Compute missing terms up to n */

@@ -9,7 +9,8 @@
  *            cyclotomic polynomial Φ_n(x)
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 955 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
  */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static int **poly_cache = NULL;        /* pointer to coefficient arrays */
 static size_t *deg_cache = NULL;       /* degree of each poly */
@@ -37,7 +39,7 @@ static void ensure_cache_size(idx_t n)
     while (n >= new_size) new_size <<= 1;
     poly_cache = (int**)realloc(poly_cache, new_size * sizeof(int*));
     deg_cache = (size_t*)realloc(deg_cache, new_size * sizeof(size_t));
-    value_cache = (seq_t*)realloc(value_cache, new_size * sizeof(seq_t));
+    value_cache = mem_resize(seq_t, value_cache, new_size);
     for (size_t i = cache_size; i < new_size; ++i) {
         poly_cache[i] = NULL;
         value_cache[i] = 0;

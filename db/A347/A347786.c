@@ -8,12 +8,14 @@
  * Formula:   a(n) = number of compositions of n into at most 5 powers of 2
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static arrays to memoise the DP for the largest n requested. */
 static seq_t *res          = NULL;  /* sum of compositions with ≤5 parts */
@@ -30,15 +32,15 @@ static void ensure_arrays(idx_t n)
 
     size_t sz = (size_t)new_cap * sizeof(seq_t);
 
-    seq_t *tmp = (seq_t *)realloc(res,    sz);
+    seq_t *tmp = mem_resize(seq_t, res, (sz) / sizeof(seq_t));
     if (!tmp) exit(1);
     res = tmp;
 
-    tmp = (seq_t *)realloc(dp,     sz);
+    tmp = mem_resize(seq_t, dp, (sz) / sizeof(seq_t));
     if (!tmp) exit(1);
     dp = tmp;
 
-    tmp = (seq_t *)realloc(next_m, sz);
+    tmp = mem_resize(seq_t, next_m, (sz) / sizeof(seq_t));
     if (!tmp) exit(1);
     next_m = tmp;
 

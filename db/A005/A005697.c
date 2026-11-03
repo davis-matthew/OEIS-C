@@ -9,15 +9,36 @@
  *            or 3k-1 and 1 is terminal
  * Range:     u8 n <= 15, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   bdt_odd, bdt_rem
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-01)
+ * Helpers:   odd_part_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/bdt_odd.h"
-#include "../utils/bdt_rem.h"
+#include "../utils/odd_part_u64.h"
+
+/* exact remoteness of m if it is <= lim, else -1 */
+static int bdt_rem(uint64_t m, int lim)
+{
+    uint64_t c[2];
+    int r[2], i, minEven = -1, maxOdd = -1, unknown = 0;
+    if (m == 1) return 0;
+    if (lim <= 0) return -1;
+    c[0] = odd_part_u64(3 * m + 1);
+    c[1] = odd_part_u64(3 * m - 1);
+    for (i = 0; i < 2; i++) {
+        r[i] = bdt_rem(c[i], lim - 1);
+        if (r[i] < 0) unknown = 1;
+        else if (r[i] % 2 == 0) {
+            if (minEven < 0 || r[i] < minEven) minEven = r[i];
+        } else if (r[i] > maxOdd) maxOdd = r[i];
+    }
+    if (minEven >= 0) return minEven + 1;
+    if (unknown) return -1;
+    return maxOdd + 1;
+}
 
 static uint64_t *bdt_terms = NULL;
 static idx_t bdt_count = 0, bdt_cap = 0;

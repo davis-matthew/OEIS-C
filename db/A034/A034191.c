@@ -11,7 +11,8 @@
  *            element g
  * Range:     u8 none, u16 n <= 3, u32 n <= 7, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 65 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ---------- internal data structures ----------------------------------- */
 typedef struct {
@@ -108,8 +110,7 @@ static void process_perm(const unsigned char *perm) {
         if (!found) {
             if (cycle_type_cnt == cycle_type_cap) {
                 cycle_type_cap = cycle_type_cap ? cycle_type_cap * 2 : 8;
-                cycle_types = (CycleType *)realloc(cycle_types,
-                                                   cycle_type_cap * sizeof(CycleType));
+                cycle_types = mem_resize(CycleType, cycle_types, cycle_type_cap);
             }
             CycleType *ct = &cycle_types[cycle_type_cnt++];
             ct->num  = lnum;
@@ -150,7 +151,7 @@ static void init(void) {
     /* pre‑compute fixed[n] for each cycle type                           */
     for (size_t i = 0; i < cycle_type_cnt; ++i) {
         CycleType *ct = &cycle_types[i];
-        ct->fixed = (seq_t *)malloc(65 * sizeof(seq_t));
+        ct->fixed = mem_new(seq_t, 65);
         for (int k = 0; k <= 64; ++k) ct->fixed[k] = 0;
         ct->fixed[0] = (seq_t)1;
         for (size_t j = 0; j < ct->num; ++j) {

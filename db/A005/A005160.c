@@ -12,14 +12,15 @@
  *            (3t-1)!*(t-1)!/((2t-1)!)^2, R(2t+1) = (3t)!*t!/((2t)!...
  * Range:     u8 n <= 10, u16 n <= 14, u32 n <= 16, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   a005160_ipow
+ * Validated: partial, pass, 16 terms through n = 16 (2026-11-01)
+ * Helpers:   ipow_i64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/a005160_ipow.h"
+#include "../utils/ipow_i64.h"
 
 seq_t a(idx_t n)
 {
@@ -85,7 +86,7 @@ seq_t a(idx_t n)
 
     for (x = 2; x <= L; x++) {
         if (spf[x] == x && E[x] > 0)
-            res *= a005160_ipow((seq_t)(long long)x, E[x]);
+            res *= ipow_i64((seq_t)(long long)x, E[x]);
     }
 
     free(fe);

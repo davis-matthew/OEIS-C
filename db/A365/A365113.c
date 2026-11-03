@@ -8,6 +8,7 @@
  *            binomial(n+2k-1,n-k)/(n-k+1)
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 17, u64 n <= 26, u128 n <= 26,
  *            big any n
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 
 /* The code uses a recurrence for the summand derived from this closed form. */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 /* Compute a(n) for user supplied types seq_t and idx_t. */

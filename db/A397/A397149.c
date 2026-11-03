@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 14, u32 n <= 23, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,14 +42,14 @@ seq_t a(idx_t n)
     /* Ensure enough space for aval and pair up to n */
     if (a_cap <= n) {
         size_t new_cap = n * 2 + 10;
-        aval = (seq_t *)realloc(aval, new_cap * sizeof(seq_t));
-        memset(aval + a_cap, 0, (new_cap - a_cap) * sizeof(seq_t));
+        aval = mem_resize(seq_t, aval, new_cap);
+        mem_set(aval + a_cap, 0, (new_cap - a_cap) * sizeof(seq_t));
         a_cap = new_cap;
     }
     if (p_cap <= n) {
         size_t new_p = n * 2 + 10;
-        pair = (seq_t *)realloc(pair, new_p * sizeof(seq_t));
-        memset(pair + p_cap, 0, (new_p - p_cap) * sizeof(seq_t));
+        pair = mem_resize(seq_t, pair, new_p);
+        mem_set(pair + p_cap, 0, (new_p - p_cap) * sizeof(seq_t));
         p_cap = new_p;
     }
 

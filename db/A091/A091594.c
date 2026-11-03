@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  easy, nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 39, u16 n <= 140, u32 n <= 474, u64 n <= 1728,
+ * Range:     u8 n <= 46, u16 n <= 140, u32 n <= 474, u64 n <= 1728,
  *            u128 n <= 6479, big any n
- * Helpers:   binomial, seq_mul
+ * Validated: standard, pass, 94 terms through n = 8845 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,16 @@
     T(n,m) = Σ_{k=0..⌊(n-m)/2⌋} binomial(n-2k,m) * binomial(n-m-k,k)
  */
 #include <math.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/binomial.h"
-#include "../utils/seq_mul.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n) {
     /* Find row index r */

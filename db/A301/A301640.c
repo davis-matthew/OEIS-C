@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 11, i16 n <= 228, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   pow2k
+ * Validated: standard, pass, 86 terms through n = 8483 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow2k.h"
+#include "../utils/pow2.h"
 
 /* -------------------------------------------------------------------- */
 /* Small sieve of primes up to 10000 (sufficient for n up to ~10⁴). */
@@ -102,7 +103,7 @@ seq_t a(idx_t n)
     if (max_k < 0) return (seq_t)-1;   /* no such k */
 
     for (int cur = max_k; cur >= 0; --cur) {
-        seq_t pow = pow2k((idx_t)cur);
+        seq_t pow = pow2((idx_t)cur);
         seq_t m   = n_sq - three * pow;
         if (representable(m)) return (seq_t)cur;
     }

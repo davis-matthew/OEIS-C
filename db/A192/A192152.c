@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 27, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    or arbitrary precision) and any idx_t type. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Comparison routine for sorting values in ascending order.  It works
    for basic integer types as well as for arbitrary‑precision types
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
            arbitrary‑precision types the overflow tests are skipped.       */
         const idx_t I_MAX = 40u;                /* guaranteed upper bound */
         size_t cap = 2048;                      /* provisional capacity  */
-        seq_t *tmp = (seq_t *)malloc(cap * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, cap);
         if (!tmp) {      /* allocation failure – return zero  */
             return (seq_t)0;
         }
@@ -76,8 +78,8 @@ seq_t a(idx_t n)
                 /* store diff */
                 if (len == cap) {
                     cap <<= 1;
-                    seq_t *tmp2 = (seq_t *)realloc(tmp, cap * sizeof(seq_t));
-                    if (!tmp2) { free(tmp); return (seq_t)0; }
+                    seq_t *tmp2 = mem_resize(seq_t, tmp, cap);
+                    if (!tmp2) { mem_free(tmp); return (seq_t)0; }
                     tmp = tmp2;
                 }
                 tmp[len++] = diff;
@@ -132,7 +134,7 @@ seq_t a(idx_t n)
 
         /* shrink to the exact number of unique values */
         if (ulen < len) {
-            seq_t *tmp2 = (seq_t *)realloc(tmp, ulen * sizeof(seq_t));
+            seq_t *tmp2 = mem_resize(seq_t, tmp, ulen);
             if (tmp2) tmp = tmp2;
         }
 

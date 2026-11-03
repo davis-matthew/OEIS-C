@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 10, i16 n <= 18, i32 n <= 34, i64 n <= 66, i128 n <= 130,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 911 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
  * where p = {-5, 1, 3, 1}.  This generates A161204.
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const int p[4] = {-5, 1, 3, 1};
 
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (!cache) {
         cap   = 1;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) return 0;          /* allocation failed, return 0 */
         cache[0] = (seq_t)2;          /* a(0) */
         last = 0;
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     if (n > last) {
         idx_t new_cap = cap;
         while (new_cap <= n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return cache[last];   /* realloc failed – return last value */
         cache = tmp;
         cap   = new_cap;

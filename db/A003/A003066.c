@@ -9,7 +9,8 @@
  *            Product (a(i)-1))
  * Range:     u8 n <= 48, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   add_n, bitlen32, cmp_n, get64, mul_small, sub_n
+ * Validated: standard, pass, 74 terms through n = 970 (2026-11-01)
+ * Helpers:   bit_length_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,12 +18,63 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/add_n.h"
-#include "../utils/bitlen32.h"
-#include "../utils/cmp_n.h"
-#include "../utils/get64.h"
-#include "../utils/mul_small.h"
-#include "../utils/sub_n.h"
+#include "../utils/bit_length_u32.h"
+
+static void add_n(uint32_t *x, size_t *xl, const uint32_t *y, size_t yl) {
+    size_t L = *xl > yl ? *xl : yl, i;
+    uint64_t c = 0;
+    for (i = 0; i < L; i++) {
+        uint64_t s = c + (i < *xl ? x[i] : 0) + (i < yl ? y[i] : 0);
+        x[i] = (uint32_t)s;
+        c = s >> 32;
+    }
+    if (c) x[L++] = (uint32_t)c;
+    *xl = L;
+}
+
+static int cmp_n(const uint32_t *x, size_t xl, const uint32_t *y, size_t yl) {
+    size_t i;
+    if (xl != yl) return xl < yl ? -1 : 1;
+    for (i = xl; i-- > 0;) {
+        if (x[i] != y[i]) return x[i] < y[i] ? -1 : 1;
+    }
+    return 0;
+}
+
+static uint64_t get64(const uint32_t *x, size_t len, uint64_t pos) {
+    size_t w = (size_t)(pos / 32);
+    unsigned b = (unsigned)(pos % 32);
+    unsigned __int128 v = 0;
+    int k;
+    for (k = 2; k >= 0; k--) {
+        v <<= 32;
+        if (w + k < len) v |= x[w + k];
+    }
+    return (uint64_t)(v >> b);
+}
+
+static void mul_small(uint32_t *x, size_t *xl, uint32_t m) {
+    uint64_t c = 0;
+    size_t i;
+    for (i = 0; i < *xl; i++) {
+        uint64_t s = (uint64_t)x[i] * m + c;
+        x[i] = (uint32_t)s;
+        c = s >> 32;
+    }
+    while (c) { x[(*xl)++] = (uint32_t)c; c >>= 32; }
+    while (*xl > 0 && x[*xl - 1] == 0) (*xl)--;
+}
+
+static void sub_n(uint32_t *x, size_t *xl, const uint32_t *y, size_t yl) {
+    size_t i;
+    int64_t b = 0;
+    for (i = 0; i < *xl; i++) {
+        int64_t s = (int64_t)x[i] - (i < yl ? (int64_t)y[i] : 0) - b;
+        if (s < 0) { s += ((int64_t)1 << 32); b = 1; } else b = 0;
+        x[i] = (uint32_t)s;
+    }
+    while (*xl > 0 && x[*xl - 1] == 0) (*xl)--;
+}
 
 static uint32_t *QQ = 0, *PP = 0, *TT = 0, *T2 = 0;
 static size_t QL = 0, PL = 0, CAP = 0;
@@ -42,7 +94,7 @@ static void ensure_cap(size_t need) {
 
 /* floor(QQ / PP), quotient known to be small */
 static uint64_t small_quot(void) {
-    uint64_t bl = 32 * (uint64_t)(PL - 1) + bitlen32(PP[PL - 1]);
+    uint64_t bl = 32 * (uint64_t)(PL - 1) + bit_length_u32(PP[PL - 1]);
     uint64_t pos = bl > 64 ? bl - 64 : 0;
     unsigned __int128 X = (unsigned __int128)get64(QQ, QL, pos)
                         | ((unsigned __int128)get64(QQ, QL, pos + 64) << 64);

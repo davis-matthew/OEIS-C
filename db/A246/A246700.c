@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1272, u16 n <= 5462, u32 n <= 5462, u64 n <= 5462,
  *            u128 n <= 5462, big any n
- * Helpers:   gcd_u64, lcm_u64
+ * Validated: standard, pass, 98 terms through n = 4814 (2026-11-03)
+ * Helpers:   gcd_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,15 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/gcd_u64.h"
-#include "../utils/lcm_u64.h"
+#include "../utils/mem.h"
+
+/* LCM for uint64_t (used internally by λ computation) */
+static inline uint64_t lcm_u64(uint64_t a, uint64_t b)
+{
+    return a / gcd_u64(a, b) * b;
+}
 
 /* Euclidean algorithm for uint64_t (used internally by λ computation) */
 
@@ -107,7 +115,7 @@ static void grow_seq(seq_t **array, size_t *cap, size_t needed)
     if (needed <= *cap) return;
     size_t new_cap = (*cap == 0) ? 16 : *cap;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t*)realloc(*array, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *array, new_cap);
     *array = tmp;
     *cap   = new_cap;
 }

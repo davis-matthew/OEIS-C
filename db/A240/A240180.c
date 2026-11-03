@@ -12,12 +12,14 @@
  *            [m, L‑1]
  * Range:     u8 n <= 18, u16 n <= 45, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
         idx_t maxHigh = maxL - 1;      /* high value: L-1 */
 
         /* allocate and zero DP array */
-        dp = (seq_t*)calloc(N, sizeof(seq_t));
+        dp = mem_new(seq_t, N);
         if (!dp) return ans;          /* memory failure, return partial result */
         dp[0] = 1;
 
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
             ans = ans + dp[Rprime];
         }
 
-        free(dp);
+        mem_free(dp);
     }
 
     return ans;

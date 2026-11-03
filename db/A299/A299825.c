@@ -10,14 +10,22 @@
  *            ≥ 0, x ≤ y, x ≡ y (mod 2), and |x + y – z| a power of 4
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_power_of_four
+ * Validated: standard, pass, 96 terms through n = 8810 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_power_of_four.h"
+
+/* Test whether v is a power of 4 (v ≥ 1). */
+static inline bool is_power_of_four(int v)
+{
+    if (v < 1) return false;
+    while (v % 4 == 0) v /= 4;
+    return v == 1;
+}
 
 /* Integer square root: floor(sqrt(n)), n ≤ 2^64‑1. */
 static inline uint64_t isqrt_uint64(uint64_t n)

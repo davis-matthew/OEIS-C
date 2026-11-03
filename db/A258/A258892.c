@@ -11,6 +11,7 @@
  *            Initial values: * a(1) = 94249, a(2) = 51188, a(3) = 20164
  * Range:     u8 none, u16 none, u32 n <= 210, u64 n <= 210, u128 n <= 210,
  *            big any n
+ * Validated: standard, pass, 47 terms through n = 183 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

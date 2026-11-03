@@ -9,12 +9,14 @@
  *            a(2)=457, a(3)=877, a(4)=1073, a(5)=2285, a(6)=4937
  * Range:     u8 none, u16 n <= 10, u32 n <= 28, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* cache[0] unused, cache[i] = a(i) */
 static idx_t       cache_high = 0;   /* highest index cached */
@@ -23,7 +25,7 @@ static idx_t       cache_high = 0;   /* highest index cached */
 static void init_cache(void)
 {
     size_t sz = 7;   /* indices 0..6 */
-    cache = (seq_t *)malloc(sz * sizeof(seq_t));
+    cache = mem_new(seq_t, sz);
     if (!cache) abort();
     for (size_t i = 0; i < sz; ++i) cache[i] = 0;
     cache[1] = 325; cache[2] = 457; cache[3] = 877;
@@ -39,7 +41,7 @@ static void ensure_cache(idx_t n)
     if (n <= cache_high) return;                 /* already computed */
 
     size_t new_sz = (size_t)n + 1;               /* indices 0..n */
-    seq_t *new_cache = (seq_t *)realloc(cache, new_sz * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_sz);
     if (!new_cache) abort();
 
     /* zero the new entries that will be filled by the recurrence */

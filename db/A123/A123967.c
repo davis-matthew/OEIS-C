@@ -14,7 +14,8 @@
  *            (r+1)(r+2)/2 and k = n – r(r+1)/2
  * Range:     i8 n <= 9, i16 n <= 27, i32 n <= 54, i64 n <= 54, i128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,11 +40,11 @@ seq_t a(idx_t n)
     /* Allocate storage for three consecutive rows of the triangle.
        All arrays have length r+1, which is enough for every row up to r. */
     size_t len = (size_t)r + 1;
-    seq_t *prevprev = (seq_t *)calloc(len, sizeof(seq_t));
-    seq_t *prev     = (seq_t *)calloc(len, sizeof(seq_t));
-    seq_t *curr     = (seq_t *)calloc(len, sizeof(seq_t));
+    seq_t *prevprev = mem_new(seq_t, len);
+    seq_t *prev     = mem_new(seq_t, len);
+    seq_t *curr     = mem_new(seq_t, len);
     if (!prevprev || !prev || !curr) {
-        free(prevprev); free(prev); free(curr);
+        mem_free(prevprev); mem_free(prev); mem_free(curr);
         return (seq_t)0;                 /* allocation failed – safe fallback */
     }
 
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
 
     if (r == 0) {                          /* a(0) */
         seq_t result = prev[0];
-        free(prevprev); free(prev); free(curr);
+        mem_free(prevprev); mem_free(prev); mem_free(curr);
         return result;
     }
 
@@ -85,6 +87,6 @@ seq_t a(idx_t n)
         curr = tmp;
     }
 
-    free(prevprev); free(prev); free(curr);
+    mem_free(prevprev); mem_free(prev); mem_free(curr);
     return result;
 }

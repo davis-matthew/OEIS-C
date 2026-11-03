@@ -9,7 +9,8 @@
  *            6*a(n-3) for n ≥ 4
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 21, u64 n <= 42, u128 n <= 82,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 1000 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* The recurrence follows the closed form a(n) = (3^n + 2*(-2)^n + 1)/6 for n>0 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
 
     if (cache == NULL) {
         /* Allocate space for the first term (index 0) */
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         cache[0] = (seq_t)1;
         cache_len = 1;
     }
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     if (n >= cache_len) {
         /* Allocate more space: new_len = n+1  (to include index n) */
         size_t new_len = (size_t)(n + 1);
-        seq_t *new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_len);
         if (!new_cache) {
             /* Allocation failure – halt (no restoration needed for this exercise) */
             exit(1);

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 25, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -39,6 +40,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *A = NULL;          /* flattened 2‑D array: A[n*s + k] */
 static idx_t table_size = 0;     /* current side length of the table */
@@ -48,12 +50,12 @@ static void compute_table(idx_t s)
 {
     /* free old table if it exists */
     if (A) {
-        free(A);
+        mem_free(A);
         A = NULL;
     }
 
     /* allocate new table */
-    A = (seq_t *)malloc(s * s * sizeof(seq_t));
+    A = mem_new(seq_t, s * s);
     if (!A) {
         /* allocation failed – abort */
         exit(1);

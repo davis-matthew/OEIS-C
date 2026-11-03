@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 43, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   big_pow, build_primes_upto, floor_sqrt, int_sqrt
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow, ipow_i32, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,10 +26,29 @@
 #include <stdlib.h>
 
 /* Utility headers (provided by the build system) */
+#include <stdint.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/floor_sqrt.h"
-#include "../utils/big_pow.h"
-#include "../utils/int_sqrt.h"
+#include "../utils/ipow.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/isqrt.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Static cache of primes for factorisation */
 static uint64_t *prime_arr   = NULL;
@@ -56,7 +76,7 @@ a(idx_t n)
         idx_t temp = m;
 
         /* Prime table must reach at least √m. */
-        ensure_primes(int_sqrt((idx_t)m) + 1);
+        ensure_primes(isqrt((idx_t)m) + 1);
 
         seq_t sigma  = 1;   /* σ(m) = ∏ (p^(e+1)-1)/(p-1) */
         seq_t sigma2 = 1;   /* σ₂(m) = ∏ (p^(2(e+1))-1)/(p²-1) */
@@ -70,12 +90,12 @@ a(idx_t n)
             idx_t e = 0;
             while (temp % p == 0) { temp /= p; ++e; }
 
-            seq_t p_pow  = big_pow((seq_t)p, (idx_t)(e + 1));
+            seq_t p_pow  = ipow((seq_t)p, (idx_t)(e + 1));
             seq_t term   = (p_pow - 1) / ((seq_t)p - 1);
             sigma  *= term;
 
             seq_t p2    = (seq_t)p * (seq_t)p;
-            seq_t p_pow2 = big_pow(p2, (idx_t)(e + 1));
+            seq_t p_pow2 = ipow(p2, (idx_t)(e + 1));
             seq_t term2 = (p_pow2 - 1) / (p2 - 1);
             sigma2 *= term2;
 

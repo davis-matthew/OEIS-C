@@ -12,13 +12,15 @@
  *            a(4)=3, a(5)=5,
  * Range:     u8 n <= 9, u16 n <= 15, u32 n <= 26, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* Initialize cache for first call */
     if (cap == 0) {
         cap = 1;                                 /* need index 1 */
-        A = (seq_t *)malloc((cap + 1) * sizeof(seq_t));
+        A = mem_new(seq_t, (cap + 1));
         if (!A) exit(1);
         A[0] = (seq_t)0;                         /* unused */
         A[1] = (seq_t)1;                         /* a(1) */
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
         idx_t new_cap = cap;
         while (new_cap < n) new_cap <<= 1;       /* double until enough */
 
-        seq_t *tmp = (seq_t *)realloc(A, (new_cap + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, A, (new_cap + 1));
         if (!tmp) exit(1);
         A = tmp;
 

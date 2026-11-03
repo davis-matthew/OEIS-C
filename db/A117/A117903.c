@@ -9,12 +9,14 @@
  *            a(3)=-2, a(4)=4, a(5)=-2, a(6)=-5, a(7)=14
  * Range:     i8 n <= 12, i16 n <= 24, i32 n <= 48, i64 n <= 96, i128 n <= 192,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 951 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t INIT[8] = { (seq_t)1, (seq_t)-1, (seq_t)1, (seq_t)-2,
                                (seq_t)4, (seq_t)-2, (seq_t)-5, (seq_t)14 };
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* Allocate initial cache if not yet done */
     if (!cache) {
         cache_size = 8;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         for (idx_t i = 0; i < 8; ++i)
             cache[i] = INIT[i];
     }
@@ -39,10 +41,10 @@ seq_t a(idx_t n)
         while (new_size < needed)
             new_size <<= 1;          /* double until large enough */
 
-        seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (!new_cache) {
             /* Allocation failed; fall back to recomputing from scratch */
-            free(cache);
+            mem_free(cache);
             cache = NULL;
             return a(n);            /* will reallocate */
         }

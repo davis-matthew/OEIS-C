@@ -10,15 +10,17 @@
  *            excluded)
  * Range:     u8 none, u16 none, u32 n <= 1000, u64 n <= 1000, u128 n <= 1000,
  *            big any n
- * Helpers:   is_palindrome, reverse_decimal
+ * Validated: standard, pass, 56 terms through n = 998 (2026-11-03)
+ * Helpers:   is_palindrome_base, mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_palindrome.h"
-#include "../utils/reverse_decimal.h"
+#include "../utils/is_palindrome_base.h"
+#include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
 
 /* Static storage for memoization */
 static seq_t *seq_storage = NULL;   /* Array of found terms */
@@ -30,7 +32,7 @@ static idx_t next_candidate = 1;    /* Next integer to test */
 static void grow_sequence(void)
 {
     size_t new_cap = seq_buf_cap ? seq_buf_cap * 2 : 256;
-    seq_t *new_buf = (seq_t *)realloc(seq_storage, new_cap * sizeof(seq_t));
+    seq_t *new_buf = mem_resize(seq_t, seq_storage, new_cap);
     if (!new_buf) abort(); /* Out of memory */
     seq_storage = new_buf;
     seq_buf_cap = new_cap;
@@ -40,16 +42,16 @@ static void grow_sequence(void)
 static bool requires_ten_steps(idx_t num)
 {
     /* Skip palindromic starts */
-    if (is_palindrome((seq_t)num, 10)) return false;
+    if (is_palindrome_base((seq_t)num, 10)) return false;
 
     seq_t v = (seq_t)num;
     int steps = 0;
 
     while (steps < 10) {
-        seq_t revv = reverse_decimal(v);
+        seq_t revv = reverse_digits(v);
         v += revv;
         ++steps;
-        if (is_palindrome(v, 10)) {
+        if (is_palindrome_base(v, 10)) {
             return steps == 10; /* accept only if palindrome appears at step 10 */
         }
     }

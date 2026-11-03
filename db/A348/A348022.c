@@ -12,7 +12,8 @@
  *            on the standard square spiral
  * Range:     u8 n <= 73, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   gcd, int_sqrt
+ * Validated: partial, pass, 73 terms through n = 73 (2026-11-03)
+ * Helpers:   gcd, isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <string.h>
 #include <stdbool.h>
 #include "../utils/gcd.h"
-#include "../utils/int_sqrt.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
         /* compute coordinates for 2 .. MAX_NUM */
         for (size_t i = 2; i <= MAX_NUM; ++i) {
             idx_t n = (idx_t)i;
-            idx_t s = int_sqrt(n);
+            idx_t s = isqrt(n);
             if (s * s < n)
                 ++s;                           /* ceil(sqrt(n)) */
             idx_t r = s / 2;                   /* ring number */
@@ -86,7 +88,7 @@ seq_t a(idx_t n)
 
         /* pre‑allocate sequence array */
         seq_cap = 16;
-        seq = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
 
         /* initialise with the first two terms */
         seq[0] = (seq_t)1;
@@ -133,7 +135,7 @@ seq_t a(idx_t n)
         /* append the new term to the sequence */
         if (seq_len == seq_cap) {
             seq_cap *= 2;
-            seq = (seq_t*)realloc(seq, seq_cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, seq_cap);
         }
         seq[seq_len++] = next;
     }

@@ -7,12 +7,14 @@
  * Formula:   a(n) = RisingFactorial(6 + n, n) = (2*n+5)! / (n+5)!
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 212 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;  /* indices start at 1, a_cache[0] unused */
 static idx_t  a_cache_len = 0; /* highest index computed */
@@ -23,7 +25,7 @@ a_cache_init(void)
 {
     if (a_cache != NULL)
         return;
-    a_cache = (seq_t *)calloc((size_t)2, sizeof(seq_t)); /* indices 0 and 1 */
+    a_cache = mem_new(seq_t, (size_t)2); /* indices 0 and 1 */
     if (!a_cache)
         exit(1);
     a_cache[1] = (seq_t)7;          /* a(1) = 7 */
@@ -46,9 +48,9 @@ a(idx_t n)
 
     /* enlarge cache to hold indices up to n */
     size_t new_size = (size_t)(n + 1);   /* indices 0..n */
-    seq_t *tmp = (seq_t *)realloc(a_cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, new_size);
     if (!tmp) {
-        free(a_cache);
+        mem_free(a_cache);
         exit(1);
     }
     a_cache = tmp;

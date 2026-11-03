@@ -9,7 +9,8 @@
  *            204187500 a(n‑6) + 393750000 a(n‑7)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 635 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* Initial values for n = 0 … 6 are given. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Elementary symmetric sums of 5,10,15,20,25,30,35.  */
 static const seq_t E1 = (seq_t)140;
@@ -39,7 +41,7 @@ static void ensure_cache(idx_t n)
     /* if cache empty: allocate the minimal size (at least 7).  */
     if (cache == NULL) {
         if (need < 7) need = 7;           /* have room for initial 7 terms */
-        cache = (seq_t *)malloc(need * sizeof(seq_t));
+        cache = mem_new(seq_t, need);
         if (cache == NULL) return;       /* allocation failed – caller will
                                             be unable to compute value */
 
@@ -72,7 +74,7 @@ static void ensure_cache(idx_t n)
     else if (cache_len <= (size_t)n) {
         /* grow to at least n+1, or double the size for amortised
            linear behaviour – simple approach is to allocate exactly n+1.  */
-        seq_t *new_cache = (seq_t *)realloc(cache, need * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, need);
         if (new_cache == NULL) return;  /* allocation failed – caller fails */
 
         cache = new_cache;

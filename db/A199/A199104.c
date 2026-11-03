@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,9 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *A = NULL;   /* coefficients a(n) */
 static seq_t *S = NULL;   /* s(n) = n·l(n) */
@@ -44,11 +47,11 @@ static void ensure(idx_t n)
     idx_t new_cap = cap ? cap : 1;
     while (new_cap <= n) new_cap <<= 1;
     if (A == NULL) {
-        A = (seq_t *)malloc(new_cap * sizeof(seq_t));
-        S = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        A = mem_new(seq_t, new_cap);
+        S = mem_new(seq_t, new_cap);
     } else {
-        A = (seq_t *)realloc(A, new_cap * sizeof(seq_t));
-        S = (seq_t *)realloc(S, new_cap * sizeof(seq_t));
+        A = mem_resize(seq_t, A, new_cap);
+        S = mem_resize(seq_t, S, new_cap);
     }
     if (!A || !S) abort();          /* allocation failure */
     cap = new_cap;
@@ -68,7 +71,7 @@ static void ensure(idx_t n)
             idx_t mmax = (t - d) / d;          /* floor((t-d)/d) */
             for (idx_t m = 0; m <= mmax; ++m) {
                 idx_t tprime = t - d * (m + 1);   /* ≥0 */
-                seq_t bin = binom(d + tprime - 1, tprime);
+                seq_t bin = binomial(d + tprime - 1, tprime);
                 inner += A[m] * bin;
             }
             seq_t tmp = inner * (seq_t)t;  /* multiply by t */

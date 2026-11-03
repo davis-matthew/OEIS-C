@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum{k=0..n} (-1)^(n-k) * binomial(n,k) * Stirling2(n,k)
  * Range:     i8 n <= 5, i16 n <= 8, i32 n <= 13, i64 n <= 22, i128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Memoised cache for a(n) values */
 static seq_t *a_cache = NULL;
@@ -32,7 +34,7 @@ static void ensure_a_capacity(idx_t n)
 {
     size_t needed = (size_t)n + 1;
     if (needed > a_cap) {
-        a_cache = (seq_t*)realloc(a_cache, needed * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, needed);
         a_cap   = needed;
     }
 }
@@ -43,8 +45,8 @@ static void ensure_S_capacity(idx_t n)
 {
     size_t needed = (size_t)n + 1;
     if (needed > S_cap) {
-        S_prev = (seq_t*)realloc(S_prev, needed * sizeof(seq_t));
-        S_curr = (seq_t*)realloc(S_curr, needed * sizeof(seq_t));
+        S_prev = mem_resize(seq_t, S_prev, needed);
+        S_curr = mem_resize(seq_t, S_curr, needed);
         S_cap  = needed;
     }
     if (!S_initialised) {
@@ -76,8 +78,8 @@ seq_t a(idx_t n)
             size_t prev_size = cur - 1;          /* size of S_prev row (prev_size+1 elems) */
             /* Make sure arrays are large enough for this row. */
             if (prev_size + 1 > S_cap) {
-                S_prev = (seq_t*)realloc(S_prev, (cur + 1) * sizeof(seq_t));
-                S_curr = (seq_t*)realloc(S_curr, (cur + 1) * sizeof(seq_t));
+                S_prev = mem_resize(seq_t, S_prev, (cur + 1));
+                S_curr = mem_resize(seq_t, S_curr, (cur + 1));
                 S_cap  = cur + 1;
             }
 

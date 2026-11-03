@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Bitset used to remember which natural numbers have already appeared. */
 static uint64_t *used_bits = NULL;
@@ -86,7 +88,7 @@ ensure_cache(idx_t need)
         size_t new_cap = seq_cap ? seq_cap << 1 : 1;
         if (new_cap < (size_t)need)
             new_cap = need;
-        seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, new_cap);
         seq_cap   = new_cap;
     }
 
@@ -128,7 +130,7 @@ ensure_cache(idx_t need)
             size_t new_cap = seq_cap ? seq_cap << 1 : 1;
             while (new_cap < seq_len + 2)
                 new_cap <<= 1;
-            seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+            seq_cache = mem_resize(seq_t, seq_cache, new_cap);
             seq_cap   = new_cap;
         }
 

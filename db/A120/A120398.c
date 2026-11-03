@@ -9,7 +9,8 @@
  *            sorting, and removing duplicates.)
  * Range:     u8 none, u16 none, u32 n <= 1950, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto
+ * Validated: standard, pass, 55 terms through n = 9808 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 /* compare function for qsort on seq_t values */
 static int cmp_seq(const void *a, const void *b)
@@ -46,13 +48,13 @@ static void build_cache(void)
     build_primes_upto(PRIME_LIMIT, &primes, &prime_cnt);
 
     /* Pre‑compute cubes of each prime */
-    seq_t *cubes = (seq_t *)malloc(prime_cnt * sizeof(seq_t));
+    seq_t *cubes = mem_new(seq_t, prime_cnt);
     for (size_t i = 0; i < prime_cnt; ++i)
         cubes[i] = (seq_t)primes[i] * (seq_t)primes[i] * (seq_t)primes[i];
 
     /* Estimate number of sums: odd (2000^3) + even pairs */
     size_t max_sums = prime_cnt * (prime_cnt - 1) / 2 + (prime_cnt - 1);
-    seq_t *sums = (seq_t *)malloc(max_sums * sizeof(seq_t));
+    seq_t *sums = mem_new(seq_t, max_sums);
     size_t len = 0;
 
     /* Add odd sums 8 + p^3 for all primes p > 2 */
@@ -71,7 +73,7 @@ static void build_cache(void)
     }
 
     /* Sort the sums */
-    qsort(sums, len, sizeof(seq_t), cmp_seq);
+    mem_qsort(sums, len, sizeof(seq_t), cmp_seq);
 
     /* Remove duplicates */
     seq_len = 0;
@@ -81,10 +83,10 @@ static void build_cache(void)
     }
 
     /* Allocate cache of exact size */
-    seq_cache = (seq_t *)realloc(sums, seq_len * sizeof(seq_t));
+    seq_cache = mem_resize(seq_t, sums, seq_len);
     /* cubes and primes arrays are freed automatically when function returns,
        as they were allocated on the heap and are no longer needed. */
-    free(cubes);
+    mem_free(cubes);
     free(primes);
 
     initialized = true;

@@ -8,14 +8,19 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 17, u64 n <= 36, u128 n <= 75,
  *            big any n
- * Helpers:   bad_triple
+ * Validated: standard, pass, 39 terms through n = 199 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Computes a(n) by dynamic programming over sequences of length n+2 with no forbidden triple */
 #include <stdbool.h>
-#include "../utils/bad_triple.h"
+
+static bool bad_triple(int x, int y, int z)
+{
+    return (x + y == 2 * z) || (x + z == 2 * y) || (y + z == 2 * x);
+}
 
 seq_t a(idx_t n)
 {

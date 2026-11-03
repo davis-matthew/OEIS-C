@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 58, u16 n <= 2338, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_unique_u64
+ * Validated: standard, pass, 76 terms through n = 9560 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,26 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/factor_unique_u64.h"
+
+/* Factorise x into distinct prime factors stored in out[0..*cnt-1].
+   Size of out is assumed to be large enough (at most 16). */
+static void factor_unique_u64(uint64_t x, uint64_t *out, size_t *cnt)
+{
+    size_t i = 0;
+    if (x == 0) { *cnt = 0; return; }
+    if (x % 2ULL == 0ULL) {
+        out[i++] = 2ULL;
+        while (x % 2ULL == 0ULL) x /= 2ULL;
+    }
+    for (uint64_t d = 3ULL; d * d <= x; d += 2ULL) {
+        if (x % d == 0ULL) {
+            out[i++] = d;
+            while (x % d == 0ULL) x /= d;
+        }
+    }
+    if (x > 1ULL) out[i++] = x;
+    *cnt = i;
+}
 
 /* Test whether k satisfies: every prime dividing φ(k) also divides k. */
 static bool valid_k(uint64_t k)

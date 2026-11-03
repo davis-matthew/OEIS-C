@@ -8,13 +8,15 @@
  *            sum_{j=1..n, j%2 == n%2} phi(j) (n>0) a(0) = 0
  * Range:     u8 n <= 34, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Global static cache */
 static idx_t max_n = 0;          /* largest n for which data are prepared */
@@ -29,12 +31,9 @@ static void extend_to(idx_t new_max)
         return;
 
     /* Allocate or grow arrays */
-    seq_t *phi_new      = (seq_t *)realloc(phi_arr,
-                                            (new_max + 1) * sizeof(seq_t));
-    seq_t *even_new     = (seq_t *)realloc(prefix_even,
-                                            (new_max + 1) * sizeof(seq_t));
-    seq_t *odd_new      = (seq_t *)realloc(prefix_odd,
-                                            (new_max + 1) * sizeof(seq_t));
+    seq_t *phi_new      = mem_resize(seq_t, phi_arr, (new_max + 1));
+    seq_t *even_new     = mem_resize(seq_t, prefix_even, (new_max + 1));
+    seq_t *odd_new      = mem_resize(seq_t, prefix_odd, (new_max + 1));
 
     /* In case realloc fails */
     if (!phi_new || !even_new || !odd_new) {

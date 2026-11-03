@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 802, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   alloc_seq_array, ensure_capacity, is_prime
+ * Validated: standard, pass, 66 terms through n = 7934 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,11 +24,46 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/is_prime.h"              /* bool is_prime(idx_t x); */
-#include "../utils/alloc_seq_array.h"       /* seq_t *alloc_seq_array(size_t n); */
-#include "../utils/ensure_capacity.h"       /* void ensure_capacity(size_t needed,
-                                               size_t *cap, void **ptr,
-                                               size_t elem_size); */
+#include <stddef.h>
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#endif
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+/* Grow a dynamic array when needed.  The pointer is passed as (void **). */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size) /* elem_size: sizeof(T) */
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    T *tmp = mem_resize(T, *ptr, new_cap);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#else
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#endif
 
 static seq_t *terms = NULL;          /* memoized sequence terms   */
 static size_t  terms_cnt = 0;        /* number of terms stored    */
@@ -67,7 +103,7 @@ seq_t a(idx_t n)
         if (is_prime((idx_t)cur_sum)) {
             /* Ensure there is room for a new element. */
             ensure_capacity(terms_cnt + 1, &terms_cap,
-                            (void **)&terms, sizeof(seq_t));
+                            OEISC_VPP(&terms), sizeof(seq_t));
             terms[terms_cnt++] = cur_sum;
         }
     }

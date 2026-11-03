@@ -11,13 +11,16 @@
  * Formula:   a(n) = value of the triangular array T(n,S) read by rows where S
  *            is a subset of [n-1] ordered first by size then
  *            lexicographically
- * Range:     u8 n <= 57, u16 n <= 475, u32 n <= 8190, u64 n <= 8839,
- *            u128 n <= 8839, big any n
+ * Range:     u8 n <= 57, u16 n <= 475, u32 n <= 8190, u64 n <= 32767,
+ *            u128 n <= 32767, big any n
+ * Validated: standard, pass, 80 terms through n = 8839 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
+#include <stdint.h>
 #include "../utils/binomial.h"
 #include <stdint.h>
 

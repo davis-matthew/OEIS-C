@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ----- constants ---------------------------------------------------- */
 #define MAX_LIMIT     200000   /* sieve limit – sufficient for n ≤ 10 000 */
@@ -167,7 +169,7 @@ seq_t a(idx_t n)
     if (n > cache_sz) {
         size_t new_sz = (n > cache_sz * 2) ? n : cache_sz * 2;
         if (new_sz == 0) new_sz = 16;
-        seq_t *newc = (seq_t*)realloc(cache, new_sz * sizeof(seq_t));
+        seq_t *newc = mem_resize(seq_t, cache, new_sz);
         if (!newc) return 0;                 /* allocation failure */
         cache = newc;
         cache_sz = new_sz;

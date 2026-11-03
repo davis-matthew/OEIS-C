@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 1178, u64 n <= 1178, u128 n <= 1178,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 1159 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* ---------- node type for the heap ---------- */
 typedef struct {
@@ -42,7 +44,7 @@ static void heap_swap(heap_node *a, heap_node *b) {
 static void heap_push(heap_node **heap, size_t *hs, size_t *hc, heap_node node) {
     if (*hs == *hc) {
         *hc = (*hc == 0) ? 4 : (*hc << 1);
-        *heap = (heap_node *)realloc(*heap, *hc * sizeof(heap_node));
+        *heap = mem_resize(heap_node, *heap, (*hc * sizeof(heap_node)) / sizeof(heap_node));
     }
     size_t i = (*hs)++;
     (*heap)[i] = node;
@@ -92,11 +94,11 @@ seq_t a(idx_t n) {
     if (!inited) {
         /* max capacity for the sequence array */
         seq_cap = 256;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
 
         /* initialise heap with the first value for each m >= 3 */
         heap_cap = (size_t)(MAX_M - 2);
-        heap     = (heap_node *)malloc(heap_cap * sizeof(heap_node));
+        heap     = mem_new(heap_node, heap_cap);
         heap_len = 0;
         for (idx_t m = 3; m <= MAX_M; ++m) {
             heap_node node;
@@ -118,7 +120,7 @@ seq_t a(idx_t n) {
         if (seq_len == 0 || cur.val != seq[seq_len - 1]) {
             if (seq_len == seq_cap) {
                 seq_cap <<= 1;                      /* double capacity */
-                seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, seq_cap);
             }
             seq[seq_len++] = cur.val;
         }

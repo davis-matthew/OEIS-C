@@ -13,13 +13,15 @@
  *            a(10)=37245814, a(11)=80267686, a(12)=176914157, a(...
  * Range:     u8 none, u16 n <= 1, u32 n <= 15, u64 n <= 42, u128 n <= 95,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The first 14 terms, needed for the recurrence seed.  */
 static const seq_t A251026_start[14] = {
@@ -46,7 +48,7 @@ static void ensure_cache(size_t need)
     if (need <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 32;
     while (new_cap < need) new_cap *= 2;
-    seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) exit(1);          /* out‑of‑memory – terminate */
     cache = tmp;
     cache_cap = new_cap;

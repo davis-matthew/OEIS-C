@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 22, u32 n <= 57, u64 n <= 141,
  *            u128 n <= 362, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 1201 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper that returns the starting index of row r
    (row 0 starts at index 0).  Uses 128‑bit arithmetic
@@ -68,14 +70,14 @@ static void compute_rows_up_to(idx_t row)
 
     /* Row 0 */
     if (tri_rows == 0) {
-        triangle[0] = (seq_t *)malloc(1 * sizeof(seq_t));
+        triangle[0] = mem_new(seq_t, 1);
         triangle[0][0] = (seq_t)1;
         tri_rows = 1;
     }
 
     /* Row 1 */
     if (tri_rows == 1) {
-        triangle[1] = (seq_t *)malloc(2 * sizeof(seq_t));
+        triangle[1] = mem_new(seq_t, 2);
         triangle[1][0] = (seq_t)1;
         triangle[1][1] = (seq_t)1;
         tri_rows = 2;
@@ -83,7 +85,7 @@ static void compute_rows_up_to(idx_t row)
 
     /* Rows 2 and above */
     for (size_t r = tri_rows; r <= (size_t)row; ++r) {
-        seq_t *cur = (seq_t *)malloc((r + 1) * sizeof(seq_t));
+        seq_t *cur = mem_new(seq_t, (r + 1));
         cur[0] = (seq_t)1;
         cur[r] = (seq_t)1;
 

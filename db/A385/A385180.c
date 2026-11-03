@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 424, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   jacobi_symbol, mul_mod_u64, next_prime
+ * Validated: standard, pass, 65 terms through n = 9626 (2026-11-03)
+ * Helpers:   mem, mulmod, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,9 +25,33 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "../utils/jacobi_symbol.h"   /* int jacobi_symbol(uint64_t,uint64_t) */
-#include "../utils/next_prime.h"      /* uint64_t next_prime(uint64_t) */
-#include "../utils/mul_mod_u64.h"
+#include "../utils/mulmod.h"
+#include "../utils/next_prime.h"
+#include "../utils/mem.h"
+
+/* Jacobi symbol (a|n) for odd positive n <= 2^64-1.
+   Returns 1, 0, or -1. */
+static int jacobi_symbol(uint64_t a, uint64_t n) {
+    if (n == 0) return 0;
+    a %= n;
+    if (a == 0) return 0;
+    int res = 1;
+    while (a != 0) {
+        while ((a & 1) == 0) {
+            a >>= 1;
+            uint64_t n_mod8 = n & 7;
+            if (n_mod8 == 3 || n_mod8 == 5)
+                res = -res;
+        }
+        uint64_t tmp = a;
+        a = n;
+        n = tmp;
+        if ((a & 3) == 3 && (n & 3) == 3)
+            res = -res;
+        a %= n;
+    }
+    return (n == 1) ? res : 0;
+}
 
 static uint64_t pow_mod_u64(uint64_t base, uint64_t exp, uint64_t mod)
 {
@@ -34,8 +59,8 @@ static uint64_t pow_mod_u64(uint64_t base, uint64_t exp, uint64_t mod)
     while (exp)
     {
         if (exp & 1ULL)
-            res = mul_mod_u64(res, base, mod);
-        base = mul_mod_u64(base, base, mod);
+            res = mulmod(res, base, mod);
+        base = mulmod(base, base, mod);
         exp >>= 1ULL;
     }
     return res;
@@ -85,8 +110,8 @@ typedef struct { uint64_t a, b; } gf_elem;
 
 static inline gf_elem gf_mul(const gf_elem x, const gf_elem y, uint64_t p)
 {
-    uint64_t ax = mul_mod_u64(x.a, y.a, p);
-    uint64_t bx = mul_mod_u64(x.b, y.b, p);
+    uint64_t ax = mulmod(x.a, y.a, p);
+    uint64_t bx = mulmod(x.b, y.b, p);
 
     uint64_t a_res = ax;
     uint64_t sub = bx;
@@ -95,7 +120,7 @@ static inline gf_elem gf_mul(const gf_elem x, const gf_elem y, uint64_t p)
     else
         a_res = a_res + p - sub;
 
-    uint64_t b_res = (mul_mod_u64(x.a, y.b, p) + mul_mod_u64(x.b, y.a, p)) % p;
+    uint64_t b_res = (mulmod(x.a, y.b, p) + mulmod(x.b, y.a, p)) % p;
     return (gf_elem){ a_res, b_res };
 }
 
@@ -168,7 +193,7 @@ seq_t a(idx_t n)
             if (cache_len == cache_cap)
             {
                 size_t new_cap = cache_cap ? cache_cap << 1 : 64;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) abort();
                 cache = tmp;
                 cache_cap = new_cap;

@@ -9,6 +9,7 @@
  *            by solving m*(m+1)/2 <= n < (m+1)*(m+2)/2
  * Range:     u8 n <= 22, u16 n <= 59, u32 n <= 197, u64 n <= 645,
  *            u128 n <= 2375, big any n
+ * Validated: standard, pass, 77 terms through n = 5073 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 
 #include <stdint.h>
 #include <limits.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 static idx_t _row_from_index(idx_t n)

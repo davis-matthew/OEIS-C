@@ -7,14 +7,34 @@
  * Formula:   not stated
  * Range:     u8 n <= 33, u16 n <= 33, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   is_nonsquare
+ * Validated: full, pass, 33 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_nonsquare.h"
+#include "../utils/mem.h"
+
+static bool
+is_nonsquare(idx_t x)
+{
+    /* mod 3: only 2 is a nonresidue */
+    unsigned r3 = (unsigned)(x % 3);
+    if (r3 == 2)
+        return true;
+
+    /* mod 17: nonresidues are 3,5,6,7,10,11,12,14 */
+    unsigned r17 = (unsigned)(x % 17);
+    switch (r17) {
+        case 3: case 5: case 6: case 7:
+        case 10: case 11: case 12: case 14:
+            return true;
+        default:
+            return false;
+    }
+}
 
 /* Sequence: list of positive integers that are quadratic nonresidues modulo 51
    (i.e., 3·17). */
@@ -29,7 +49,7 @@ ensure_cache_capacity(size_t needed, size_t *cap, seq_t **cache)
     while (new_cap < needed)
         new_cap *= 2;
 
-    seq_t *tmp = (seq_t *)realloc(*cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *cache, new_cap);
     if (!tmp) abort();          /* allocation failed */
 
     *cache = tmp;

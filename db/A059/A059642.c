@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _floor_isqrt_u64, gcd_uint64, mod_pow
+ * Validated: standard, pass, 67 terms through n = 930 (2026-11-01)
+ * Helpers:   gcd_u64, isqrt, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,10 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_floor_isqrt_u64.h"
-#include "../utils/mod_pow.h"
-#include "../utils/gcd_uint64.h"
+#include <string.h>
+#include "../utils/gcd_u64.h"
+#include "../utils/isqrt.h"
+#include "../utils/powmod.h"
 
 /* ---------- Prime generation for uint64_t ---------- */
 static uint64_t *prime_list = NULL;
@@ -51,7 +53,7 @@ static uint64_t next_prime(void)
     for (;;) {
         if (cand > 2 && (cand & 1ULL) == 0) { cand++; continue; }
         bool prime = true;
-        uint64_t sq = _floor_isqrt_u64(cand);
+        uint64_t sq = isqrt(cand);
         for (size_t i = 0; i < primes_cnt && prime_list[i] <= sq; ++i) {
             if (cand % prime_list[i] == 0) { prime = false; break; }
         }
@@ -89,9 +91,9 @@ static void ensure_seq_n(idx_t n)
         uint64_t p = next_prime();
         if (p == 2) continue;                  /* 2 always satisfies the equation */
         uint64_t pm1 = p - 1;
-        uint64_t g = gcd_uint64(pm1, 55ULL);
+        uint64_t g = gcd_u64(pm1, 55ULL);
         uint64_t exp = pm1 / g;
-        seq_t r = mod_pow((seq_t)2, exp, (seq_t)p);
+        seq_t r = powmod((seq_t)2, exp, (seq_t)p);
         if (r != (seq_t)1) {                   /* no solution exists */
             grow_seq_primes(seq_cnt + 1);
             seq_primes_list[seq_cnt++] = p;

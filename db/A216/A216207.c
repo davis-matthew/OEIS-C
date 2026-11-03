@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 5, i16 n <= 14, i32 n <= 27, i64 n <= 44, i128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build */
 static seq_t **rows      = NULL; /* pointers to each row */
@@ -51,7 +53,7 @@ static void ensure_rows(idx_t rmax)
         }
 
         idx_t r = rows_count;                     /* new row index */
-        seq_t *row = (seq_t *)malloc((r + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (r + 1));
         if (!row) exit(1);
 
         if (r == 0)
@@ -61,7 +63,7 @@ static void ensure_rows(idx_t rmax)
         else
         {
             /* Pre‑compute binomial coefficients C(r,m) for m=0..r-1 */
-            seq_t *bin = (seq_t *)malloc(r * sizeof(seq_t));
+            seq_t *bin = mem_new(seq_t, r);
             if (!bin) exit(1);
             bin[0] = 1;
             for (idx_t m = 0; m + 1 < r; ++m)
@@ -84,7 +86,7 @@ static void ensure_rows(idx_t rmax)
             }
 
             row[r] = 1;                       /* diagonal entry */
-            free(bin);
+            mem_free(bin);
         }
 
         rows[rows_count++] = row;

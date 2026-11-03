@@ -7,14 +7,17 @@
  * Formula:   a(n) = Sum_{k=0..n} binomial(n,k)*Sum_{j=1..k} j^n
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 25,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 37 terms through n = 308 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* (same as A215077) */
 
-#include "../utils/big_pow.h"   /* big_pow() */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +33,7 @@ seq_t a(idx_t n)
         if (k == n) break;    /* last iteration */
 
         /* Update S to incorporate (k+1)^n */
-        S += big_pow((seq_t)(k + 1), n);
+        S += ipow((seq_t)(k + 1), n);
 
         /* Update binomial coefficient to C(n,k+1) */
         binom = binom * (n - k) / (k + 1);

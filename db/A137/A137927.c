@@ -8,7 +8,8 @@
  * Formula:   a(n) = the largest divisor of τ(n) that is coprime to n
  * Range:     u8 n <= 3339, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _floor_isqrt_u64, build_primes_upto, factor_u64, gcd
+ * Validated: standard, pass, 96 terms through n = 9164 (2026-11-01)
+ * Helpers:   build_primes_upto, factor_u64, gcd, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,10 +17,11 @@
 /* Here τ(n) is the divisor count A000005(n).                                 */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/gcd.h"
-#include "../utils/factor_u64.h"
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n) {
     /* Factorize n and compute τ(n) */
@@ -44,7 +46,7 @@ seq_t a(idx_t n) {
     uint64_t exps_t[64];
     size_t cnt_t = 0;
 
-    idx_t sqrt_limit = _floor_isqrt_u64(tau_u);
+    idx_t sqrt_limit = isqrt(tau_u);
     uint64_t *primes_list = NULL;
     size_t primes_cnt = 0;
     build_primes_upto(sqrt_limit, &primes_list, &primes_cnt);

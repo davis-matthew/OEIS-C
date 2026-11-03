@@ -8,14 +8,15 @@
  * Formula:   a(n) = floor(exp(gamma) * n * log log n) - phi(n)
  * Range:     i8 n <= 59, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   phi_uint64
+ * Validated: standard, pass, 84 terms through n = 962 (2026-11-01)
+ * Helpers:   totient_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <math.h>
-#include "../utils/phi_uint64.h"
+#include "../utils/totient_u64.h"
 
 /* Computes the nth term of sequence A062787 */
 seq_t a(idx_t n)
@@ -38,7 +39,7 @@ seq_t a(idx_t n)
     seq_t floor_term = (seq_t)fl;
 
     /* Euler's totient function, using the helper in utils */
-    seq_t phi_val = (seq_t)phi_uint64((uint64_t)n);
+    seq_t phi_val = (seq_t)totient_u64((uint64_t)n);
 
     /* Final result */
     return floor_term - phi_val;

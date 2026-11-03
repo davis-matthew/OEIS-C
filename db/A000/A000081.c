@@ -10,14 +10,15 @@
  *            one)
  * Range:     u8 n <= 8, u16 n <= 14, u32 n <= 25, u64 n <= 47, u128 n <= 88,
  *            big any n
- * Helpers:   a81_gcd
+ * Validated: standard, pass, 48 terms through n = 967 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/a81_gcd.h"
+#include "../utils/gcd_u64.h"
 
 #define A81_MAX 32768
 
@@ -48,7 +49,7 @@ static void a81_build(idx_t N)
         M[0] = 1;
         for (j = 1; j <= J; j++) {
             unsigned long long r = (unsigned long long)(M[j - 1] % (seq_t)j);
-            unsigned long long g = a81_gcd(r, (unsigned long long)j);
+            unsigned long long g = gcd_u64(r, (unsigned long long)j);
             seq_t x = M[j - 1] / (seq_t)g;
             seq_t y = (c + (seq_t)(j - 1)) / (seq_t)((unsigned long long)j / g);
             M[j] = x * y;

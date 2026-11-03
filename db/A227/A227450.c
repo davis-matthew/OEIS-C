@@ -10,13 +10,16 @@
  *            (A008277)
  * Range:     u8 n <= 17, u16 n <= 39, u32 n <= 97, u64 n <= 283,
  *            u128 n <= 793, big any n
- * Helpers:   pow2
+ * Validated: standard, pass, 71 terms through n = 6956 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/pow2.h"          /* seq_t pow2(idx_t) */
+#include <stdbool.h>
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 static seq_t **triangle = NULL;   /* triangle[r][k] = S(r,k) for r>=1, 1<=k<=r */
 static idx_t max_row = 0;          /* largest row whose values are stored */
@@ -24,7 +27,7 @@ static idx_t max_row = 0;          /* largest row whose values are stored */
 /* Compute a single Stirling entry row r (r>=1) and store it in triangle[r] */
 static void compute_row(idx_t r)
 {
-    seq_t *row = (seq_t *)malloc((size_t)(r + 1) * sizeof(seq_t));
+    seq_t *row = mem_new(seq_t, (size_t)(r + 1));
     if (!row) return;                          /* failure – caller will abort on use */
 
     row[0] = 0;                                 /* unused entry */

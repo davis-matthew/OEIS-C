@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8191, u16 n <= 8191, u32 n <= 8191, u64 n <= 8191,
  *            u128 n <= 8191, big any n
- * Helpers:   trailing_zeros_u64
+ * Validated: standard, pass, 103 terms through n = 7617 (2026-11-01)
+ * Helpers:   ctz
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,7 +35,7 @@
  */
 
 #include <stdbool.h>
-#include "../utils/trailing_zeros_u64.h"
+#include "../utils/ctz.h"
 
 static idx_t floor_log2_u64(idx_t v)
 {
@@ -61,7 +62,7 @@ seq_t a(idx_t n)
         return (seq_t)L;
     } else {
         /* T = number of trailing zeros in m. */
-        idx_t T = trailing_zeros_u64(m);
+        idx_t T = ctz(m);
         idx_t result = L - T - 1;
         return (seq_t)result;
     }

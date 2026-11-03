@@ -8,7 +8,8 @@
  *            is the divisor count τ(k))
  * Range:     u8 n <= 37, u16 n <= 4246, u32 n <= 7955, u64 n <= 7955,
  *            u128 n <= 7955, big any n
- * Helpers:   none
+ * Validated: standard, pass, 95 terms through n = 6150 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Local helper: we use static data to compute the series only once. */
 static seq_t *series = NULL;         /* the computed sequence (sorted)          */
@@ -92,7 +94,7 @@ static void precompute(void)
     for (uint32_t p = 2; p <= LIMIT; ++p) {
         if (prime_seen[p]) ++series_len;
     }
-    series = (seq_t *)malloc(series_len * sizeof(seq_t));
+    series = mem_new(seq_t, series_len);
 
     /* Now fill the sequence array in increasing order of p. */
     size_t idx = 0;

@@ -12,13 +12,15 @@
  *            173722, a(9) = 773529, a(10) = 3412416, a(11...
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 30, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 202 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Computes a(n) for sequence A282786, 1‑based. */
 seq_t a(idx_t n)
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     if (!cache) {
         /* allocate space for indices 0..12 at least */
         cache_cap = (n > 12) ? (n + 1) : 13;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return (seq_t)0; /* allocation failed */
 
         /* initial values */
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
     /* ----- grow cache if needed ----- */
     if (n >= cache_cap) {
         size_t new_cap = n + 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return (seq_t)0;          /* realloc failed */
         cache = tmp;
         /* initialise newly allocated entries to zero */

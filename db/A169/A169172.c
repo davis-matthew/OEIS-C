@@ -11,13 +11,15 @@
  *            +1 when n=27), for n≥27: a(n)=13·∑_{k=1}^{26}a(n-k) – 91·a(n-27)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* allocate array for values up to n */
-    seq_t *val = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *val = mem_new(seq_t, (n + 1));
     if (!val)
         return (seq_t)0;                 /* allocation failed */
 
@@ -59,6 +61,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = val[n];
-    free(val);
+    mem_free(val);
     return result;
 }

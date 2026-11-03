@@ -11,14 +11,16 @@
  *            concatenate(1,10,11,…,binary(n),…,11,10,1)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 11, u128 n <= 18,
  *            big any n
- * Helpers:   floor_log2_uint64
+ * Validated: standard, pass, 32 terms through n = 231 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include "../utils/ilog2.h"
 
 /* Computes a(n) for n >= 1. */
 seq_t a(idx_t n)
@@ -28,13 +30,13 @@ seq_t a(idx_t n)
 
     /* Upward concatenation: 1, 2, …, n */
     for (i = 1; i <= n; ++i) {
-        len = floor_log2_uint64(i) + 1; /* length of binary(i) */
+        len = ilog2(i) + 1; /* length of binary(i) */
         res = (res << len) | (seq_t)i;
     }
 
     /* Downward concatenation: n-1, n-2, …, 1 */
     for (i = n - 1; i >= 1; --i) {
-        len = floor_log2_uint64(i) + 1;
+        len = ilog2(i) + 1;
         res = (res << len) | (seq_t)i;
         if (i == 1) break;            /* avoid unsigned underflow */
     }

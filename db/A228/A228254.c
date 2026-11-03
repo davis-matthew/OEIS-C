@@ -9,12 +9,15 @@
  *            = 143, a(3) = 621 This implements OEIS A228254
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 17, u64 n <= 37, u128 n <= 77,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 39 terms through n = 204 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +28,7 @@ seq_t a(idx_t n)
 
     /* For n > 3: compute 3^(n+3) - 2^(n+3). */
     seq_t exp = (seq_t)n + 3;
-    seq_t p3 = big_pow(3, exp);
-    seq_t p2 = big_pow(2, exp);
+    seq_t p3 = ipow(3, exp);
+    seq_t p2 = ipow(2, exp);
     return p3 - p2;
 }

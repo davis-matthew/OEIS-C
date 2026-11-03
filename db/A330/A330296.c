@@ -9,7 +9,8 @@
  *            are pairwise disjoint
  * Range:     u8 n <= 21, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   ctz_uint64, valid_bii
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   ctz_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,34 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/ctz_uint64.h"
-#include "../utils/valid_bii.h"
+#include "../utils/ctz_u64.h"
+#include "../utils/mem.h"
+
+static bool valid_bii(uint64_t x)
+{
+    if (__builtin_popcountll(x) < 2)  /* need at least two blocks */
+        return false;
+
+    uint64_t used = 0;          /* used bit positions of binary indices */
+    uint64_t temp = x;
+    while (temp) {
+        uint64_t lsb = temp & -temp;
+        int pos = ctz_u64(lsb) + 1;  /* binary index (1‑based) */
+        uint64_t idx = (uint64_t)pos;
+        uint64_t t2 = idx;
+        while (t2) {
+            uint64_t lsb2 = t2 & -t2;
+            int pos2 = ctz_u64(lsb2) + 1;  /* position inside idx */
+            uint64_t mask = 1ULL << (pos2 - 1);
+            if (used & mask)
+                return false;               /* overlap */
+            used |= mask;
+            t2 ^= lsb2;
+        }
+        temp ^= lsb;
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {
@@ -35,7 +62,7 @@ seq_t a(idx_t n)
         if (valid_bii((uint64_t)candidate)) {
             if (cache_size == cache_cap) {
                 size_t new_cap = (cache_cap == 0) ? 8 : cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) return (seq_t)0; /* allocation failure */
                 cache = tmp;
                 cache_cap = new_cap;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 36, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   count_distinct_primes
+ * Validated: standard, pass, 72 terms through n = 915 (2026-11-03)
+ * Helpers:   mem, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/count_distinct_primes.h"
+#include <stdbool.h>
+#include "../utils/omega.h"
+#include "../utils/mem.h"
 
 /* Helper: test whether a particular k satisfies the property. */
 static inline int valid_k(uint64_t k)
@@ -34,7 +37,7 @@ static inline int valid_k(uint64_t k)
         uint64_t m = 3 * k - 1;          /* 3*k-1 is odd when k is even   */
         pent = (k / 2) * m;
     }
-    return count_distinct_primes(k) == count_distinct_primes(pent);
+    return omega(k) == omega(pent);
 }
 
 /* Return the nth term of the sequence (indexing starts at 1). */
@@ -54,7 +57,7 @@ seq_t a(idx_t n)
     /* Initialise storage on first call. */
     if (!values) {
         cap = 128;
-        values = (seq_t *)malloc(cap * sizeof(seq_t));
+        values = mem_new(seq_t, cap);
     }
 
     /* Extend pre‑computation until we have at least n values. */
@@ -66,7 +69,7 @@ seq_t a(idx_t n)
                 /* Ensure we have enough space in the array. */
                 if (len == cap) {
                     cap *= 2;
-                    values = (seq_t *)realloc(values, cap * sizeof(seq_t));
+                    values = mem_resize(seq_t, values, cap);
                 }
                 values[len++] = (seq_t)last_checked;
                 break;  /* ready for the next required term   */

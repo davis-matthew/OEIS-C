@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"   /* declares: bool is_prime(idx_t); */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* static cache of lower twin primes (values stored as seq_t) */
 static seq_t *lower = NULL;          /* array of lower twin primes */
@@ -45,7 +47,7 @@ static void ensure_capacity(size_t new_cap)
     size_t newsize = (lower_cap == 0 ? 1 : lower_cap * 2);
     while (newsize < new_cap)
         newsize <<= 1;               /* double until large enough */
-    seq_t *tmp = (seq_t *)realloc(lower, newsize * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, lower, newsize);
     if (!tmp) {
         /* Out of memory – abort (sequence generation cannot continue) */
         exit(EXIT_FAILURE);

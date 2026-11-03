@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 9980 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* forward declaration - types are supplied by the build system */
 extern seq_t a(idx_t n);
@@ -89,13 +91,13 @@ static void build_sequence(size_t LIMIT)
 
     /* 3. collect sums with at least four representations */
     size_t cap = 1024;
-    seq_terms = (seq_t*)malloc(cap * sizeof(seq_t));
+    seq_terms = mem_new(seq_t, cap);
     seq_len   = 0;
     for (size_t v = 1; v < sz; ++v) {
         if (dp[MAX_K][v] >= 4) {
             if (seq_len == cap) {
                 cap <<= 1;
-                seq_terms = (seq_t*)realloc(seq_terms, cap * sizeof(seq_t));
+                seq_terms = mem_resize(seq_t, seq_terms, cap);
             }
             seq_terms[seq_len++] = (seq_t)v;
         }
@@ -135,7 +137,7 @@ seq_t a(idx_t n)
             break;
         last_limit = last_limit + last_limit / 2;
         /* free old table */
-        free(seq_terms);
+        mem_free(seq_terms);
         seq_terms = NULL;
         seq_len   = 0;
         /* rebuild with bigger limit */

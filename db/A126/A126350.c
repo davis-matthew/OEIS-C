@@ -10,13 +10,15 @@
  *            + 1 (rows are counted from 1)
  * Range:     u8 n <= 18, u16 n <= 41, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>                 /* malloc, free */
-#include "../utils/binomial.h"      /* seq_t binomial(idx_t a, idx_t b) */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;          /* offset starts at 1 */
@@ -31,10 +33,10 @@ seq_t a(idx_t n) {
 
     /* ---------- compute Stirling numbers S2(j, k) 1 ≤ k ≤ j ----------
        Using two arrays of size j+1 to avoid in‑place update bugs.   */
-    seq_t *prev = (seq_t *)malloc((j + 1) * sizeof(seq_t));
-    seq_t *curr = (seq_t *)malloc((j + 1) * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, (j + 1));
+    seq_t *curr = mem_new(seq_t, (j + 1));
     if (!prev || !curr) {
-        free(prev); free(curr);
+        mem_free(prev); mem_free(curr);
         return 0;
     }
 
@@ -60,7 +62,7 @@ seq_t a(idx_t n) {
         sum = sum + (bin * prev[k]);          /* accumulate */
     }
 
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
     return sum;
 }

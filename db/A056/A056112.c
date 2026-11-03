@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
  *  C++ integer, etc.).  No dynamic libraries beyond stdlib.h are used. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The function to be implemented */
 seq_t a(idx_t n)
@@ -35,8 +37,8 @@ seq_t a(idx_t n)
     /* ---- initialisation ------------------------------------------------ */
     if (seq == NULL) {
         capacity = 4;                /* start with capacity for indices 0..3 */
-        seq  = (seq_t *)malloc(sizeof(seq_t) * capacity);
-        pref = (seq_t *)malloc(sizeof(seq_t) * capacity);
+        seq  = mem_new(seq_t, capacity);
+        pref = mem_new(seq_t, capacity);
         seq[0]  = (seq_t)0;
         pref[0] = (seq_t)0;
         seq[1]  = (seq_t)1;          /* a(1) = 1 */
@@ -68,8 +70,8 @@ seq_t a(idx_t n)
         /* grow arrays if necessary */
         if (used + 1 >= capacity) {
             idx_t new_cap = capacity << 1;            /* double size */
-            seq  = (seq_t *)realloc(seq,  sizeof(seq_t)  * new_cap);
-            pref = (seq_t *)realloc(pref, sizeof(seq_t) * new_cap);
+            seq  = mem_resize(seq_t, seq, new_cap);
+            pref = mem_resize(seq_t, pref, new_cap);
             capacity = new_cap;
         }
 

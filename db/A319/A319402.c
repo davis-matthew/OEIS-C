@@ -10,9 +10,10 @@
  *            approach: a(n) = coefficient of x^n in [x^n](∏_{F∈Fib}
  *            1/(1–x^F)) where the sum is taken over exactly 9 parts. This DP
  *            counts unordered partitions (order of summands does n...
- * Range:     u8 n <= 232, u16 n <= 9738, u32 n <= 9738, u64 n <= 9738,
- *            u128 n <= 9738, big any n
- * Helpers:   none
+ * Range:     u8 n <= 232, u16 n <= 17711, u32 n <= 17711, u64 n <= 17711,
+ *            u128 n <= 17711, big any n
+ * Validated: standard, pass, 84 terms through n = 9738 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The external types seq_t and idx_t are supplied by the build. */
 
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     size_t rows = 10;          /* k from 0 to 9 inclusive. */
     size_t cols = (size_t)n + 1;
     size_t total = rows * cols;
-    seq_t *dp = (seq_t *)malloc(total * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, total);
     if (dp == NULL) return 0;          /* allocation failure – safety. */
     for (size_t i = 0; i < total; ++i) dp[i] = 0;
 
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[IDX(9, n)];
-    free(dp);
+    mem_free(dp);
     #undef IDX
     return result;
 }

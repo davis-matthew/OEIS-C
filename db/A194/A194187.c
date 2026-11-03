@@ -7,7 +7,8 @@
  * Formula:   a(n) = A000040(n) - (A070883(n) = n XOR A000040(n))
  * Range:     i8 n <= 127, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 9941 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* static cache for primes */
 static seq_t *prime_cache = NULL;      /* array of primes */
@@ -52,7 +54,7 @@ static void recompute_primes(idx_t n)
         if (is_prime[i]) ++count;
     }
 
-    seq_t *new_cache = (seq_t *)malloc((size_t)count * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, (size_t)count);
     if (!new_cache) abort();
 
     idx_t idx = 0;
@@ -63,7 +65,7 @@ static void recompute_primes(idx_t n)
     }
 
     /* replace old cache */
-    free(prime_cache);
+    mem_free(prime_cache);
     prime_cache = new_cache;
     prime_count = count;
     last_limit  = limit;

@@ -10,18 +10,25 @@
  * Formula:   a(n) is the value of the A059895 table at position n. The table
  *            entry a(i,j) = ∏ prime_k^(Ei[k] & Ej[k]) where Ei, Ej are the
  *            exponent vectors of i and j
- * Range:     u8 n <= 9288, u16 n <= 9288, u32 n <= 9288, u64 n <= 9288,
- *            u128 n <= 9288, big any n
- * Helpers:   factor_u64, seq_pow, tri_ge
+ * Range:     u8 n <= 10440, u16 n <= 10440, u32 n <= 10440, u64 n <= 10440,
+ *            u128 n <= 10440, big any n
+ * Validated: standard, pass, 136 terms through n = 9288 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_pow.h"
-#include "../utils/tri_ge.h"
+#include "../utils/ipow_idx.h"
+
+static inline int tri_ge(idx_t s, idx_t n)
+{
+    return ((((__int128)s * (s - 1)) / 2) >= n);
+}
 
 seq_t a(idx_t n)
 {
@@ -59,7 +66,7 @@ seq_t a(idx_t n)
             uint64_t p = primes_i[ii];
             uint64_t e = exps_i[ii] & exps_j[jj];   /* bitwise AND of exponents */
             if (e != 0) {
-                seq_t pow_val = seq_pow((seq_t)p, (idx_t)e);
+                seq_t pow_val = ipow_idx((seq_t)p, (idx_t)e);
                 result *= pow_val;
             }
             ++ii;

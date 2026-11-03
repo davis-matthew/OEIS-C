@@ -11,7 +11,8 @@
  *            digit by digit, * keeping a sorted list of all known terms
  * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #ifdef __cplusplus
 #include <type_traits>
 #endif
+#include "../utils/mem.h"
 
 /* Dynamic array of seq_t values */
 typedef struct {
@@ -36,7 +38,7 @@ static inline void ensure_capacity(SeqArray *arr, size_t needed)
     if (needed > arr->cap) {
         size_t newcap = arr->cap ? arr->cap * 2 : 16;
         while (newcap < needed) newcap <<= 1;
-        seq_t *newdata = (seq_t *)realloc(arr->data, newcap * sizeof(seq_t));
+        seq_t *newdata = mem_resize(seq_t, arr->data, newcap);
         if (!newdata) abort();
         arr->data = newdata;
         arr->cap = newcap;
@@ -48,7 +50,7 @@ static inline void push_back(SeqArray *arr, seq_t val)
 {
     if (arr->size == arr->cap) {
         size_t newcap = arr->cap ? arr->cap * 2 : 16;
-        seq_t *newdata = (seq_t *)realloc(arr->data, newcap * sizeof(seq_t));
+        seq_t *newdata = mem_resize(seq_t, arr->data, newcap);
         if (!newdata) abort();
         arr->data = newdata;
         arr->cap = newcap;
@@ -137,7 +139,7 @@ seq_t a(idx_t n)
 
         /* Sort and store new terms not already in cache */
         if (next.size > 0) {
-            qsort(next.data, next.size, sizeof(seq_t), seq_qsort_cmp);
+            mem_qsort(next.data, next.size, sizeof(seq_t), seq_qsort_cmp);
             for (size_t i = 0; i < next.size; ++i) {
                 seq_t v = next.data[i];
                 if (v >= base) {               /* new digit added */

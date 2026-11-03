@@ -10,13 +10,15 @@
  *            5*a(n-3) - a(n-4) (n>=4)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /*  Computes the n-th term of OEIS A099528.  */
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     if (vals == NULL) {
         /* initialise to size at least 4 */
         cap = (n < 4 ? 4 : n + 1);
-        vals = (seq_t *)malloc(cap * sizeof(seq_t));
+        vals = mem_new(seq_t, cap);
         /* base values */
         vals[0] = 1;
         vals[1] = 5;
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     } else if (n + 1 > cap) {
         /* double capacity until it fits n+1 */
         while (cap <= n) cap <<= 1;
-        vals = (seq_t *)realloc(vals, cap * sizeof(seq_t));
+        vals = mem_resize(seq_t, vals, cap);
     }
 
     /* if requested term already computed, return it */

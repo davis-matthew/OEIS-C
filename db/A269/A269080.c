@@ -11,7 +11,8 @@
  *            anti‑diagonal)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 17, u128 n <= 36,
  *            big any n
- * Helpers:   count_adj
+ * Validated: standard, pass, 32 terms through n = 205 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,20 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/count_adj.h"
+
+/* Count adjacency pairs between two 6‑bit masks */
+static int count_adj(int a, int b)
+{
+    int cnt = 0;
+    for (int r = 0; r < 6; ++r) {
+        if (a & (1 << r)) {
+            if (b & (1 << r))                 ++cnt;                /* horizontal   */
+            if ((r + 1) < 6 && (b & (1 << (r + 1)))) ++cnt;          /* diagonal down   */
+            if ((r - 1) >= 0 && (b & (1 << (r - 1)))) ++cnt;          /* anti‑diagonal up */
+        }
+    }
+    return cnt;
+}
 
 /* Helper data structures */
 static uint8_t zero_next[64][64];

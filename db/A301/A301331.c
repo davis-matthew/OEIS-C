@@ -9,7 +9,8 @@
  *            number of divisors as n
  * Range:     u8 n <= 18, u16 n <= 36, u32 n <= 60, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   build_spf
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "../utils/build_spf.h"
+#include "../utils/mem.h"
 
 /* Helper structure: a list of numbers that share the same divisor count. */
 typedef struct {
@@ -77,7 +79,7 @@ static void ensure_precompute(idx_t up_to) {
     /* enlarge cache and flag arrays */
     if (cache_cap <= up_to) {
         size_t new_cap = (size_t)up_to + 1;
-        seq_t *tmp = (seq_t *)realloc(cache_arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache_arr, new_cap);
         cache_arr   = tmp;
         uint8_t *tmpf = (uint8_t *)realloc(cached_flag, new_cap * sizeof(uint8_t));
         cached_flag = tmpf;
@@ -140,7 +142,7 @@ seq_t a(idx_t n) {
     /* compute dp[0..n] for the current n */
     idx_t d = divcnt[n];
     Group *g = groups[d];          /* list of allowed part sizes */
-    seq_t *dp = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1));
     if (!dp) return (seq_t)0;      /* fall back on out‑of‑memory, though this case won't happen */
 
     dp[0] = (seq_t)1;
@@ -155,7 +157,7 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
 
     cache_arr[n] = result;
     cached_flag[n] = 1;

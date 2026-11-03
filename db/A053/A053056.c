@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 8, u32 n <= 10, u64 n <= 12, u128 n <= 14,
  *            big any n
- * Helpers:   grow_bool_array, grow_seq_array
+ * Validated: standard, pass, 24 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,32 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/grow_bool_array.h"
-#include "../utils/grow_seq_array.h"
+#include "../utils/mem.h"
+
+/* Helper to ensure a boolean array can grow to at least index 'idx' (idx >= current size). */
+static void grow_bool_array(bool **arr, size_t *size, size_t idx)
+{
+    if (*size > idx) return;
+    size_t new_size = (*size > 0) ? (*size << 1) : 16;
+    while (new_size <= idx) new_size <<= 1;
+    bool *tmp = (bool *)realloc(*arr, new_size * sizeof(bool));
+    if (!tmp) abort();
+    for (size_t i = *size; i < new_size; ++i) tmp[i] = false;
+    *arr = tmp;
+    *size = new_size;
+}
+
+/* Helper to grow a sequence array of type seq_t. */
+static void grow_seq_array(seq_t **arr, size_t *size, size_t new_len)
+{
+    if (*size >= new_len) return;
+    size_t new_cap = (*size > 0) ? (*size << 1) : 16;
+    while (new_cap < new_len) new_cap <<= 1;
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+    if (!tmp) abort();
+    *arr = tmp;
+    *size = new_cap;
+}
 
 /* Main function to return the nth term (1‑based). */
 seq_t a(idx_t n)
@@ -40,7 +65,7 @@ seq_t a(idx_t n)
     /* One‑time initialization */
     if (!initialized) {
         seq_cap = 16;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         if (!seq) abort();
         seq[0] = 0;
         seq_len = 1;

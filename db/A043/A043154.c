@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   has_adjacent_0_3_idx
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,19 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/has_adjacent_0_3_idx.h"
+
+static bool has_adjacent_0_3_idx(idx_t n)
+{
+    idx_t prev = 8;
+    while (n > 0) {
+        idx_t cur = n & 7;          /* n % 8 */
+        if ((prev == 0 && cur == 3) || (prev == 3 && cur == 0))
+            return true;
+        prev = cur;
+        n >>= 3;                    /* n /= 8 */
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

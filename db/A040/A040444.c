@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 89, u32 n <= 89, u64 n <= 89, u128 n <= 89,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 90 terms through n = 89 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Return a(n) = n-th term of the continued fraction of √466. */
 seq_t a(idx_t n)
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
         a0 = x;
         /* seed the cache with the zeroth term */
         cache_cap = 16;
-        cache = (seq_t*)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) {
             /* allocation failed; return 0 as a graceful fallback */
             return (seq_t)0;
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
     /* Grow the cache if necessary. */
     if (cache_len >= cache_cap) {
         size_t new_cap = cache_cap * 2;
-        seq_t *new_cache = (seq_t*)realloc(cache, sizeof(seq_t) * new_cap);
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) {
             /* reallocation failed; return 0 as a graceful fallback */
             return (seq_t)0;

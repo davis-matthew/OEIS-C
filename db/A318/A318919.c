@@ -13,12 +13,16 @@
  *            D(n) = total number of digits in b(n) (D(1) = 2), * a...
  * Range:     u8 n <= 64, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   digit_len
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-01)
+ * Helpers:   num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/digit_len.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/num_digits.h"
 
 /* Computes the n‑th term of A318919.  */
 seq_t a(idx_t n)
@@ -37,8 +41,8 @@ seq_t a(idx_t n)
         a_val += d;
 
         /* D(n) = digits(D(n−1)) + digits(a(n)) */
-        int d_digits  = digit_len(d);
-        int a_digits  = digit_len(a_val);
+        int d_digits  = num_digits(d);
+        int a_digits  = num_digits(a_val);
         seq_t new_d = (seq_t)d_digits + (seq_t)a_digits;
 
         d = new_d;

@@ -6,16 +6,18 @@
  * Keywords:  nonn, tabl, easy
  * Formula:   a(n) = d(k) if n = k*(k+1)/2 (k ≥ 1), a(n) = 0 otherwise. Here
  *            d(k) is the number of positive divisors of k
- * Range:     u8 n <= 9734, u16 n <= 9734, u32 n <= 9734, u64 n <= 9734,
- *            u128 n <= 9734, big any n
- * Helpers:   divisor_count_u64
+ * Range:     u8 n <= 22155, u16 n <= 22155, u32 n <= 22155, u64 n <= 22155,
+ *            u128 n <= 22155, big any n
+ * Validated: standard, pass, 121 terms through n = 9734 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* The function divisor_count_u64 is provided by the build.
    It returns the divisor count of a 64‑bit unsigned integer. */
-#include "../utils/divisor_count_u64.h"
+#include <stdint.h>
+#include "../utils/num_divisors.h"
 
 /* Integer floor square root for a 64‑bit unsigned integer.
    (No external library needed – a simple binary search.) */
@@ -52,5 +54,5 @@ seq_t a(idx_t n)
     if ((__uint128_t)k * (k + 1) / 2 != n) return 0;
 
     /* Return the number of divisors of k, cast to seq_t. */
-    return (seq_t)divisor_count_u64((uint64_t)k);
+    return (seq_t)num_divisors((uint64_t)k);
 }

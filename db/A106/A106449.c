@@ -12,8 +12,9 @@
  *            (P(x) ⊕ P(y)) / gcd(P(x),P(y)) where P(k) is the polynomial over
  *            GF(2) with coefficients given by the binary expansion of k and ⊕
  *            is carry‑less binary addition
- * Range:     u8 n <= 9436, u16 n <= 9436, u32 n <= 9436, u64 n <= 9436,
- *            u128 n <= 9436, big any n
+ * Range:     u8 n <= 10440, u16 n <= 10440, u32 n <= 10440, u64 n <= 10440,
+ *            u128 n <= 10440, big any n
+ * Validated: standard, pass, 110 terms through n = 9436 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -11,7 +11,8 @@
  *            sequence begins 1,1,2,1,3,2,1,6,3,4, …
  * Range:     u8 n <= 29, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Cache for the triangular array and its row sums                    */
@@ -38,7 +40,7 @@ static void grow_vals(size_t needed)
 {
     if (needed > vals_cap) {
         vals_cap = needed > vals_cap ? needed : (vals_cap? 2*vals_cap : 16);
-        vals = (seq_t*)realloc(vals, vals_cap * sizeof(seq_t));
+        vals = mem_resize(seq_t, vals, vals_cap);
     }
 }
 
@@ -47,7 +49,7 @@ static void grow_rows(size_t needed)
     if (needed > row_cap) {
         row_cap = needed > row_cap ? needed : (row_cap? 2*row_cap : 16);
         row_start = (idx_t*)realloc(row_start, row_cap * sizeof(idx_t));
-        row_sum   = (seq_t*)realloc(row_sum,   row_cap * sizeof(seq_t));
+        row_sum   = mem_resize(seq_t, row_sum, row_cap);
     }
 }
 

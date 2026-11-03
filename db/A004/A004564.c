@@ -10,7 +10,8 @@
  *            pair; d = max with (10p+d)d <= r; p <- 5p+d)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   add_small, mul_add_small
+ * Validated: standard, pass, 115 terms through n = 9024 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,26 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/add_small.h"
-#include "../utils/mul_add_small.h"
+
+static void add_small(uint32_t *A, uint32_t v, size_t len) {
+    uint64_t carry = v;
+    size_t i;
+    for (i = 0; i < len && carry; i++) {
+        uint64_t t = (uint64_t)A[i] + carry;
+        A[i] = (uint32_t)t;
+        carry = t >> 32;
+    }
+}
+
+static void mul_add_small(uint32_t *A, uint32_t m, uint32_t add, size_t len) {
+    uint64_t carry = add;
+    size_t i;
+    for (i = 0; i < len; i++) {
+        uint64_t t = (uint64_t)A[i] * m + carry;
+        A[i] = (uint32_t)t;
+        carry = t >> 32;
+    }
+}
 
 static uint32_t *P = NULL, *R = NULL, *S = NULL;
 static unsigned char *dig = NULL;

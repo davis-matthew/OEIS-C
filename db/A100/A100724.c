@@ -6,57 +6,112 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  base, nonn
  * Formula:   not stated
- * Range:     u8 n <= 30, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
- *            big any n
- * Helpers:   binary_runs_uint64
+ * Range:     u8 n <= 30, u16 n <= 134, u32 n <= 613, u64 n <= 2533,
+ *            u128 n <= 3222, big any n
+ * Validated: standard, pass, 71 terms through n = 9830 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-/* This function computes the n-th prime number whose binary representation
-   contains at most three runs of consecutive identical bits.  */
+/* A number with at most 3 binary runs is 1^a (2^a - 1), 1^a 0^b (even, so
+ * only 2 = "10" is prime) or 1^a 0^b 1^c. For L bits, in increasing order,
+ * these are 1^a 0^b 1^c for a = 1..L-2 and, for each a, c = 1..L-a-1, then
+ * 2^L - 1: (2^a - 1) 2^(L-a) grows with a by more than any 2^c - 1 below
+ * it. So the candidates come in order with no sorting, and are tested for
+ * primality: exactly when they fit in 64 bits, and above that (only big
+ * gets there; the terms reach 4e37) by Miller-Rabin in seq_t to the first 20
+ * prime bases, a probable-prime test (no counterexample is known at these
+ * sizes). Widths narrower than the values stop with 0. (The original tried
+ * every odd number by trial division, and in 64 bits.) */
+
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binary_runs_uint64.h"
+#include <stdlib.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
-/* Deterministic trial‑division prime test, sufficient for uint64_t values. */
-static bool is_prime_uint64(uint64_t n)
+static unsigned width(void)                 /* bits seq_t holds; 1000 for big */
 {
-    if (n < 2) return false;
-    if (n % 2ULL == 0ULL) return n == 2ULL;
-    for (uint64_t d = 3ULL; d <= n / d; d += 2ULL) {
-        if (n % d == 0ULL) return false;
+    if (sizeof(seq_t) < 16) return 8 * sizeof(seq_t);
+    seq_t x = (seq_t)1 << 64;
+    x = x << 64;
+    return x == (seq_t)0 ? 128 : 1000;
+}
+
+static bool fits_u64(seq_t v)
+{
+    if (sizeof(seq_t) <= 8) return true;
+    return !((seq_t)UINT64_MAX < v);
+}
+
+static seq_t powmod(seq_t b, seq_t e, seq_t m)
+{
+    seq_t r = (seq_t)1;
+    b = b % m;
+    while (e > (seq_t)0) {
+        if (e % (seq_t)2 == (seq_t)1) r = r * b % m;
+        b = b * b % m;
+        e = e / (seq_t)2;
+    }
+    return r;
+}
+
+static bool is_prime_any(seq_t v)
+{
+    if (fits_u64(v)) return is_prime_u64((uint64_t)v);
+    static const unsigned P[20] = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71};
+    for (int i = 0; i < 20; ++i)
+        if (v % (seq_t)P[i] == (seq_t)0) return false;
+    seq_t d = v - (seq_t)1;
+    unsigned s = 0;
+    while (d % (seq_t)2 == (seq_t)0) { d = d / (seq_t)2; ++s; }
+    for (int i = 0; i < 20; ++i) {
+        seq_t x = powmod((seq_t)P[i], d, v);
+        if (x == (seq_t)1 || x == v - (seq_t)1) continue;
+        bool ok = false;
+        for (unsigned r = 1; r < s; ++r) {
+            x = x * x % v;
+            if (x == v - (seq_t)1) { ok = true; break; }
+        }
+        if (!ok) return false;
     }
     return true;
 }
 
-/* Return the n-th prime with at most three binary runs.  */
+static seq_t *terms = NULL;
+static size_t cnt = 0, cap = 0;
+
+static void add(seq_t v)
+{
+    if (cnt == cap) {
+        cap = cap ? 2 * cap : 256;
+        seq_t *t = mem_resize(seq_t, terms, cap);
+        if (!t) abort();
+        terms = t;
+    }
+    terms[cnt++] = v;
+}
+
 seq_t a(idx_t n)
 {
-    idx_t count = 0;
-    uint64_t cur = 2ULL;                       /* first candidate */
-
-    /* Handle 2 separately (it is prime and has one run). */
-    if (is_prime_uint64(cur) && binary_runs_uint64(cur) <= 3) {
-        ++count;
-        if (count == n) return (seq_t)cur;
-    }
-
-    cur = 3ULL;                                /* start with the first odd */
-    for (;;) {
-        if (cur == 0ULL) break;                /* uint64_t overflow guard */
-
-        if (is_prime_uint64(cur) && binary_runs_uint64(cur) <= 3) {
-            ++count;
-            if (count == n) return (seq_t)cur;
+    static unsigned L = 1;                  /* lengths < L are done */
+    if (n == 0) return (seq_t)0;
+    unsigned w = width();
+    while (cnt < (size_t)n) {
+        ++L;
+        if (L > w) return (seq_t)0;         /* beyond this width */
+        if (L == 2) add((seq_t)2);          /* "10" */
+        seq_t one = (seq_t)1;
+        for (unsigned A = 1; A + 2 <= L; ++A) {
+            seq_t high = ((one << A) - one) << (L - A);
+            for (unsigned c = 1; c + A + 1 <= L; ++c) {
+                seq_t v = high + ((one << c) - one);
+                if (is_prime_any(v)) add(v);
+            }
         }
-
-        /* Advance to the next odd integer. */
-        if (cur > UINT64_MAX - 2ULL) break;    /* avoid overflow */
-        cur += 2ULL;
+        seq_t mers = L == w ? (seq_t)0 - one : (one << L) - one;   /* (no shift by the full width) */
+        if (is_prime_any(mers)) add(mers);
     }
-
-    /* If we reach here, the requested n is beyond the range that fits in
-       seq_t.  Return 0 (undefined for such n). */
-    return (seq_t)0;
+    return terms[n - 1];
 }

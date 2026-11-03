@@ -11,12 +11,14 @@
  *            A(x)=-(x^3-7x^2+5x-1)x/((2x^2-4x+1)(x^2-3x+1))
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 19, u64 n <= 37, u128 n <= 73,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 929 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache for memoised values (1‑based; index 0 unused) */
 static seq_t *cache = NULL;   /* cache[1] = a(1), etc. */
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
 
     /* enlarge cache to hold up to n */
     size_t new_cap = (size_t)n + 1;            /* indices 0..n */
-    seq_t *new_cache = (seq_t*)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache)
         return (seq_t)0;   /* allocation failed (unlikely for n≤10000) */
 
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
     }
 
     /* replace old cache */
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
     cache_size = n;
 

@@ -12,13 +12,30 @@
  *            38n*d(30) - 82n*...
  * Range:     u8 n <= 10, u16 n <= 36, u32 n <= 568, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   a7569_choose, a7569_gcd
+ * Validated: standard, pass, 60 terms through n = 958 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a7569_choose.h"
-#include "../utils/a7569_gcd.h"
+#include "../utils/gcd_u64.h"
+
+/* C(n,k) for small k, dividing out k! from the factors natively first */
+static seq_t a7569_choose(idx_t n, int k) {
+  uint64_t f[4];
+  uint64_t t = 1;
+  int i;
+  seq_t r = 1;
+  if (n < (idx_t)k) return 0;
+  for (i = 0; i < k; i++) { f[i] = (uint64_t)(n - (idx_t)i); t *= (uint64_t)(i + 1); }
+  for (i = 0; i < k; i++) {
+    uint64_t g = gcd_u64(f[i], t);
+    f[i] /= g;
+    t /= g;
+  }
+  for (i = 0; i < k; i++) r *= (seq_t)f[i];
+  return r;
+}
 
 seq_t a(idx_t n) {
   seq_t pos, neg;

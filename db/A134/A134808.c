@@ -11,14 +11,33 @@
  *            over {1,…,9}. They * are ordered first by k, then...
  * Range:     u8 n <= 19, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   num_from_index
+ * Validated: standard, pass, 68 terms through n = 993 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/num_from_index.h"
+
+/* Helper: construct the k‑digit number (digits 1‑9) from
+ * a 0‑based index in base‑9 representation (each digit 0‑8
+ * corresponds to the actual digit +1).  pow9k = 9^k. */
+static seq_t
+num_from_index (idx_t k, unsigned __int128 index, unsigned __int128 pow9k)
+{
+    seq_t   num  = 0;
+    /* pow is 9^(k-1), 9^(k-2), …, 9^0 in successive iterations */
+    unsigned __int128 pow = pow9k / 9; /* start with 9^(k-1) */
+    for (int pos = 0; pos < (int)k; ++pos)
+    {
+        unsigned int digit_base9 = (unsigned int)(index / pow);
+        index %= pow;
+        num = num * 10 + (seq_t)(digit_base9 + 1);
+        pow /= 9;       /* move to the next less significant digit */
+    }
+    return num;
+}
 
 /* Helper: compute 10^exp as a seq_t.  exp>=0. */
 static seq_t

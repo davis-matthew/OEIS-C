@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,15 +39,15 @@ seq_t a(idx_t n)
     /* Pre‑compute powers of 3 up to floor(n/2)+1. */
     size_t kmax = (size_t)(n / 2);
     size_t pow_size = kmax + 2;                  /* need index up to kmax+1 */
-    seq_t *pow3 = (seq_t *)malloc(pow_size * sizeof(seq_t));
+    seq_t *pow3 = mem_new(seq_t, pow_size);
     if (!pow3) return 0; /* allocation failure – not expected in tests */
     pow3[0] = (seq_t)1;
     for (size_t i = 1; i < pow_size; ++i)
         pow3[i] = pow3[i - 1] * (seq_t)3;
 
     /* Array for sequence values. */
-    seq_t *a_arr = (seq_t *)malloc((n + 1) * sizeof(seq_t));
-    if (!a_arr) { free(pow3); return 0; }
+    seq_t *a_arr = mem_new(seq_t, (n + 1));
+    if (!a_arr) { mem_free(pow3); return 0; }
     a_arr[0] = (seq_t)1;
 
     for (idx_t k = 1; k <= n; ++k)
@@ -81,7 +83,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = a_arr[n];
-    free(a_arr);
-    free(pow3);
+    mem_free(a_arr);
+    mem_free(pow3);
     return result;
 }

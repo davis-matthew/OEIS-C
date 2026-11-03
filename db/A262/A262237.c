@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 21, u64 n <= 41, u128 n <= 82,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -43,6 +44,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static const int STATE_SIZE = 1331;          // 11^3
 static const int MOD = 11;
@@ -57,8 +59,8 @@ seq_t a(idx_t n) {
     idx_t L = n + 3;
 
     /* Allocate DP arrays */
-    seq_t *dp_cur = (seq_t*)calloc(STATE_SIZE, sizeof(seq_t));
-    seq_t *dp_next = (seq_t*)calloc(STATE_SIZE, sizeof(seq_t));
+    seq_t *dp_cur = mem_new(seq_t, STATE_SIZE);
+    seq_t *dp_next = mem_new(seq_t, STATE_SIZE);
     if (!dp_cur || !dp_next) return (seq_t)0; /* In practice this won't happen */
 
     /* Initial state: all remainders 0 */
@@ -96,7 +98,7 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = dp_cur[0];
-    free(dp_cur);
-    free(dp_next);
+    mem_free(dp_cur);
+    mem_free(dp_next);
     return result;
 }

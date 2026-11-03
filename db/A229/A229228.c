@@ -8,7 +8,8 @@
  * Formula:   a(n) = (2n)! * [x^(2n)] exp(Sum_{j=1..n} x^j/j!)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,12 +33,12 @@ seq_t a(idx_t n)
         size_t new_cap = memo_cap ? memo_cap * 2 : 1;
         while (new_cap < needed) new_cap *= 2;
 
-        seq_t *new_mem = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_mem = mem_new(seq_t, new_cap);
         bool *new_comp = (bool *)malloc(new_cap * sizeof(bool));
         if (memo) {
-            memcpy(new_mem, memo, memo_cap * sizeof(seq_t));
+            mem_copy(new_mem, memo, memo_cap * sizeof(seq_t));
             memcpy(new_comp, computed, memo_cap * sizeof(bool));
-            free(memo);
+            mem_free(memo);
             free(computed);
         }
         memset(new_comp + memo_cap, 0, (new_cap - memo_cap) * sizeof(bool));
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
        S_k(m) = sum_{t=1..min(k,m)} C(m-1, t-1) * S_k(m-t)
     */
     size_t mmax = (size_t)n * 2;
-    seq_t *dp = (seq_t *)malloc((mmax + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (mmax + 1));
     dp[0] = (seq_t)1;  /* S_k(0) = 1 */
 
     for (size_t m = 1; m <= mmax; ++m) {
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[mmax];
-    free(dp);
+    mem_free(dp);
 
     memo[n] = result;
     computed[n] = true;

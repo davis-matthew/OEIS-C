@@ -12,7 +12,8 @@
  *            sorted in ascending order (leading zeros allowed)
  * Range:     u8 none, u16 n <= 0, u32 n <= 3, u64 n <= 4, u128 n <= 4,
  *            big any n
- * Helpers:   cmp_seq_t_helper
+ * Validated: full, pass, 5 terms through n = 4 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,16 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/cmp_seq_t_helper.h"
+#include "../utils/mem.h"
+
+/* Helper compare function for qsort (works for any seq_t). */
+static int cmp_seq_t_helper(const void *p1, const void *p2) {
+    const seq_t *a = (const seq_t *)p1;
+    const seq_t *b = (const seq_t *)p2;
+    if (*a < *b) return -1;
+    if (*a > *b) return 1;
+    return 0;
+}
 
 /* Cached sequence values.  A maximum of 1023 valid terms exist. */
 static seq_t seq_cache[1024];
@@ -74,7 +84,7 @@ static void build_sequence(void) {
     }
 
     /* Sort ascending for direct indexing by n. */
-    qsort(seq_cache, seq_len, sizeof(seq_t), cmp_seq_t_helper);
+    mem_qsort(seq_cache, seq_len, sizeof(seq_t), cmp_seq_t_helper);
     seq_built = true;
 }
 

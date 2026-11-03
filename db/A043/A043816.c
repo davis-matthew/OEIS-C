@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 20, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   run_count_idx
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,22 @@
    values; the resulting nth term is converted to `seq_t` before being returned. */
 
 #include <stdint.h>
-#include "../utils/run_count_idx.h"
+
+/* Count the number of runs in the base‑3 representation of an `idx_t` value. */
+static inline int run_count_idx(idx_t x)
+{
+    int runs = 0;
+    int prev = -1;                 /* sentinel not equal to 0,1,2 */
+    while (x > 0) {
+        int d = x % 3;
+        if (runs == 0 || d != prev) {
+            ++runs;
+            prev = d;
+        }
+        x /= 3;
+    }
+    return runs;
+}
 
 seq_t a(idx_t n)
 {

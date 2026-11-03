@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,6 +35,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 #define LIMIT 200000  /* sieve capacity; safe for n≤10000 */
 
@@ -143,7 +145,7 @@ seq_t a(idx_t n)
 
     if (seqCap < n) {
         seqCap = n;
-        seqArray = (seq_t *)realloc(seqArray, seqCap * sizeof(seq_t));
+        seqArray = mem_resize(seq_t, seqArray, seqCap);
     }
 
     while (seqSize < n) {

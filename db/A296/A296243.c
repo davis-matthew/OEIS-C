@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 107, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, mod_pow
+ * Validated: standard, pass, 80 terms through n = 9843 (2026-11-03)
+ * Helpers:   build_primes_upto, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,11 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include <stdint.h>
+#include <string.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* Cached results of the sequence. */
 static seq_t *cache = NULL;          /* array of terms         */
@@ -100,7 +104,7 @@ static bool has_even_order(seq_t k)
             /* Reduce order by powers of p while possible. */
             while (order % p == 0) {
                 uint64_t new_order = order / p;
-                if (mod_pow((seq_t)2, new_order, k) == (seq_t)1)
+                if (powmod((seq_t)2, new_order, k) == (seq_t)1)
                     order = new_order;
                 else
                     break;
@@ -112,7 +116,7 @@ static bool has_even_order(seq_t k)
         uint64_t p = temp;
         while (order % p == 0) {
             uint64_t new_order = order / p;
-            if (mod_pow((seq_t)2, new_order, k) == (seq_t)1)
+            if (powmod((seq_t)2, new_order, k) == (seq_t)1)
                 order = new_order;
             else
                 break;
@@ -140,7 +144,7 @@ seq_t a(idx_t n)
             /* Resize cache if needed. */
             if (cache_len == cache_cap) {
                 cache_cap = (cache_cap == 0 ? 8 : cache_cap * 2);
-                seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                 if (!tmp) {
                     /* In a real program you would handle an OOM error. */
                     exit(EXIT_FAILURE);

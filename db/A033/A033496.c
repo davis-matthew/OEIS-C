@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 2858, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 9893 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper: test whether m is a peak */
 static bool is_peak(seq_t m)
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
     /* Ensure cache capacity */
     if (peak_cap == 0) {
         peak_cap = 64;
-        peaks = (seq_t *)malloc(peak_cap * sizeof(seq_t));
+        peaks = mem_new(seq_t, peak_cap);
     }
 
     /* Generate peaks until we have enough for the requested n */
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
         /* Expand cache if necessary */
         if (peak_len == peak_cap) {
             peak_cap <<= 1;
-            peaks = (seq_t *)realloc(peaks, peak_cap * sizeof(seq_t));
+            peaks = mem_resize(seq_t, peaks, peak_cap);
         }
         ++next_m;
     }

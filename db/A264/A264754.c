@@ -8,6 +8,7 @@
  *            = (2*n*(n + (-1)^n + 5) - 3*(-1)^n + 11)/8
  * Range:     u8 n <= 29, u16 n <= 509, u32 n <= 2222, u64 n <= 2222,
  *            u128 n <= 2222, big any n
+ * Validated: standard, pass, 82 terms through n = 2213 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

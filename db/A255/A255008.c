@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 17, i16 n <= 31, i32 n <= 46, i64 n <= 46, i128 n <= 46,
  *            big any n
- * Helpers:   seq_gcd, seq_pow, seq_realloc
+ * Validated: partial, pass, 47 terms through n = 46 (2026-11-01)
+ * Helpers:   gcd, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,9 +25,20 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-#include "../utils/seq_realloc.h"
-#include "../utils/seq_pow.h"
-#include "../utils/seq_gcd.h"
+#include "../utils/gcd.h"
+#include "../utils/ipow_idx.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 /* factorial cache */
 static seq_t *fac = NULL;
@@ -62,10 +74,10 @@ static seq_t T_numerator(idx_t n, idx_t k)
     idx_t exp = n + 1;
 
     for (idx_t j = 1; j < k; ++j) {
-        seq_t j_pow = seq_pow((seq_t)j, exp);
+        seq_t j_pow = ipow_idx((seq_t)j, exp);
         seq_t new_num = H_num * j_pow + H_den;   /* H_num/j_pow + 1/j_pow */
         seq_t new_den = H_den * j_pow;
-        seq_t g = seq_gcd(new_num, new_den);
+        seq_t g = gcd(new_num, new_den);
         H_num = new_num / g;
         H_den = new_den / g;
     }
@@ -74,14 +86,14 @@ static seq_t T_numerator(idx_t n, idx_t k)
     seq_t fact = fac[n];
 
     /* cancel common factor between factorial and denominator */
-    seq_t g2 = seq_gcd(fact, H_den);
+    seq_t g2 = gcd(fact, H_den);
     seq_t fact_div = fact / g2;
     seq_t den_tmp  = H_den / g2;
 
     seq_t num_tmp = H_num * fact_div;
 
     /* final reduction */
-    seq_t g3 = seq_gcd(num_tmp, den_tmp);
+    seq_t g3 = gcd(num_tmp, den_tmp);
     seq_t final_num = num_tmp / g3;
     /* final_den = den_tmp / g3;   // not needed */
 

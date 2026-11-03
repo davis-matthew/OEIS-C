@@ -11,13 +11,15 @@
  *            (a(1)=29)
  * Range:     u8 n <= 11, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return true iff the base‑5 representation of x contains the substring
  * "0,4".  Scan from the least significant digit: a pair 0,4 means a
@@ -54,9 +56,9 @@ seq_t a(idx_t n)
 
         /* Reallocate the cache array */
         if (cache == NULL) {
-            cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+            cache = mem_new(seq_t, new_size);
         } else if (new_size > cache_used) {
-            cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_size);
         }
 
         /* Find new terms and store them */

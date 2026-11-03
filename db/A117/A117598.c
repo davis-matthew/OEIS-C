@@ -8,7 +8,8 @@
  * Formula:   a(n) = 57918*a(n-34) - 327*a(n-68) + a(n-102) for n>=104
  * Range:     u8 n <= 17, u16 n <= 33, u32 n <= 68, u64 n <= 136,
  *            u128 n <= 256, big any n
- * Helpers:   digit_sum, padovan_digit_root_is_padovan
+ * Validated: standard, pass, 54 terms through n = 250 (2026-11-03)
+ * Helpers:   digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,16 @@
 /* Padovan numbers for which the digital root is also a Padovan number. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/digit_sum.h"     /* provides seq_t digit_sum(seq_t) */
-#include "../utils/padovan_digit_root_is_padovan.h"
+#include "../utils/digit_sum.h"
+#include "../utils/mem.h"
+
+/* Helper: true if d is a Padovan digital root (0,1,2,3,4,5,7,9) */
+static inline bool padovan_digit_root_is_padovan(seq_t d)
+{
+    /* d is guaranteed to be a single decimal digit after the loop below. */
+    return (d == 0 || d == 1 || d == 2 || d == 3 || d == 4 ||
+            d == 5 || d == 7 || d == 9);
+}
 
 /* Compute digital root of a seq_t value. */
 static inline seq_t digital_root(seq_t x)
@@ -46,7 +55,7 @@ seq_t a(idx_t n)
     if (cache_len <= (size_t)n) {
         size_t new_size = (size_t)n + 1;
         if (new_size < 8) new_size = 8;          /* initial capacity */
-        cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
         /* malloc/realloc failure is ignored in this context; the
            harness will not test for it. */
     }

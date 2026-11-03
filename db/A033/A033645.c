@@ -7,7 +7,8 @@
  * Formula:   a(n) = Σ (digit_i in base 8 of n) * a(n-1-i)
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 20, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Initial value: a(0) = 1                                      */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     if (cache_len == 0)
     {
         cache_len = 1;
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (cache == NULL) return 0; /* fallback on allocation failure */
         cache[0] = (seq_t)1;         /* a(0) = 1 */
     }
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
         return cache[n];
 
     /* extend the cache up to n */
-    cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, (n + 1));
     if (cache == NULL) return 0; /* allocation failure */
 
     /* compute missing terms iteratively */

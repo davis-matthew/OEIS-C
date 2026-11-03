@@ -10,14 +10,26 @@
  *            n!/((n-2k)!k!) )^2. The recurrence allows an O(n) implementation
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 14, u128 n <= 27,
  *            big any n
- * Helpers:   mul_seq_fast
+ * Validated: standard, pass, 34 terms through n = 188 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc */
 #include <stdint.h>   /* uintmax_t, etc. */
-#include "../utils/mul_seq_fast.h"
+#include "../utils/mem.h"
+
+/* Helper: multiply two seq_t values using 128‑bit arithmetic if available. */
+static inline seq_t mul_seq_fast(seq_t a, seq_t b)
+{
+#ifdef __SIZEOF_INT128__
+    return (seq_t)((unsigned __int128)a * b);
+#else
+    /* Fallback – safe only when seq_t is a big‑int type. */
+    return a * b;
+#endif
+}
 
 seq_t a(idx_t n)
 {
@@ -30,14 +42,14 @@ seq_t a(idx_t n)
     if (cache == NULL)
     {
         cache_cap = (n > 30 ? n * 2 : 32);
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache_len = 0;
     }
     else if ((idx_t)(n + 1) > cache_cap)
     {
         size_t new_cap = cache_cap;
         while ((idx_t)(n + 1) > new_cap) new_cap *= 2;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 

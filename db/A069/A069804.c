@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 7, u64 n <= 7, u128 n <= 7,
  *            big any n
- * Helpers:   is_palindrome, next_prime
+ * Validated: full, pass, 7 terms through n = 7 (2026-11-03)
+ * Helpers:   is_palindrome_base, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/is_palindrome_base.h"
 #include "../utils/next_prime.h"
-#include "../utils/is_palindrome.h"
+#include "../utils/mem.h"
 
 /* Static cache for recursive calls */
 static seq_t *seq_cache = NULL;
@@ -40,7 +42,7 @@ static void ensure_cache_capacity(size_t need)
     size_t new_cap = seq_cache_cap ? seq_cache_cap * 2 : 64;
     while (new_cap < need)
         new_cap <<= 1;
-    seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_cache = mem_resize(seq_t, seq_cache, new_cap);
     seq_cache_cap = new_cap;
 }
 
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
         /* Check consecutive palindromic pair */
         if (last_prime)
         {
-            if (is_palindrome(p, 10) && is_palindrome(last_prime, 10))
+            if (is_palindrome_base(p, 10) && is_palindrome_base(last_prime, 10))
             {
                 /* p is the larger of the pair */
                 ensure_cache_capacity(seq_cache_len + 1);

@@ -9,13 +9,40 @@
  *            in increasing order and tests each candidate
  * Range:     u8 n <= 64, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   is_binomial_divisible_by_p
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/is_binomial_divisible_by_p.h"
+
+/* Test whether a prime p divides C(n, floor(n/2)). */
+static int is_binomial_divisible_by_p(idx_t n, idx_t k, idx_t p)
+{
+    if (p > n) return 0;
+    idx_t exp = 0;
+
+    /* v_p(n!) */
+    for (idx_t pw = p; pw <= n; ) {
+        exp += n / pw;
+        if (pw > n / p) break;
+        pw *= p;
+    }
+    /* subtract v_p(k!) */
+    for (idx_t pw = p; pw <= k; ) {
+        exp -= k / pw;
+        if (pw > k / p) break;
+        pw *= p;
+    }
+    /* subtract v_p((n-k)!) */
+    for (idx_t pw = p; pw <= n - k; ) {
+        exp -= (n - k) / pw;
+        if (pw > (n - k) / p) break;
+        pw *= p;
+    }
+    return exp > 0;
+}
 
 /* Storage for the sequence – enough for all requested n up to about 10 000. */
 static seq_t good[20001];     /* 1‑based in the sense that good[0] will hold a(1) */

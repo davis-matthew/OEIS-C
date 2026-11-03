@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 7, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 65 terms through n = 992 (2026-11-01)
  * Helpers:   digit_sum
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 
 /* Search: a(n) = the nth integer k for which digit_sum(k) > digit_sum(k^2) */
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/digit_sum.h"
 
 seq_t a(idx_t n)

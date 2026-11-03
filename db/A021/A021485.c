@@ -8,13 +8,15 @@
  *            a(1)=0, a(2)=2, a(3)=0, a(4)=7
  * Range:     u8 n <= 98, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 99 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;   /* dynamic array of already computed terms */
 static size_t seq_cache_len = 0;  /* allocated size of seq_cache */
@@ -29,8 +31,7 @@ static void seq_ensure(idx_t n)
 
     size_t target = (size_t)n + 1;                 /* need indices 0..n */
 
-    seq_cache = (seq_t *)realloc(seq_cache,
-                                 target * sizeof(seq_t));
+    seq_cache = mem_resize(seq_t, seq_cache, target);
     /* initialise newly added entries */
     for (size_t i = seq_cache_len; i < target; ++i) {
         if (i == 0)          seq_cache[i] = (seq_t)0;

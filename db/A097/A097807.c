@@ -9,8 +9,9 @@
  *            (-1)^(r-k) for 0 ≤ k ≤ r * is read row by row. * The row r is
  *            the largest integer with r(r+1)/2 ≤ n. * The column k is n -
  *            r(r+1)/2
- * Range:     i8 n <= 9863, i16 n <= 9863, i32 n <= 9863, i64 n <= 9863,
- *            i128 n <= 9863, big any n
+ * Range:     i8 n <= 11324, i16 n <= 11324, i32 n <= 11324, i64 n <= 11324,
+ *            i128 n <= 11324, big any n
+ * Validated: standard, pass, 97 terms through n = 9863 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

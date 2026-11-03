@@ -12,7 +12,8 @@
  *            dynamic program over row patterns
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 30, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 202 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>   /* for memset */
+#include "../utils/mem.h"
 
 static int base[32][7];
 static int popcnt[32];
@@ -75,18 +77,18 @@ seq_t a(idx_t n)
     const size_t P = 32;
     const size_t dim = P * (n + 1);
     /* allocate DP arrays */
-    seq_t *dp_cur  = (seq_t*)malloc(sizeof(seq_t) * dim);
-    seq_t *dp_next = (seq_t*)malloc(sizeof(seq_t) * dim);
+    seq_t *dp_cur  = mem_new(seq_t, dim);
+    seq_t *dp_next = mem_new(seq_t, dim);
     if (!dp_cur || !dp_next) {
         /* Allocation failed – return 0 as a safe fallback. */
-        if (dp_cur) free(dp_cur);
-        if (dp_next) free(dp_next);
+        if (dp_cur) mem_free(dp_cur);
+        if (dp_next) mem_free(dp_next);
         seq_t zero = 0;
         return zero;
     }
     /* initialise to zero */
-    memset(dp_cur, 0, sizeof(seq_t) * dim);
-    memset(dp_next, 0, sizeof(seq_t) * dim);
+    mem_set(dp_cur, 0, sizeof(seq_t) * dim);
+    mem_set(dp_next, 0, sizeof(seq_t) * dim);
 
     /* row 1: first column value is 0, any pattern is allowed */
     for (int p = 0; p < 32; ++p) {
@@ -96,7 +98,7 @@ seq_t a(idx_t n)
     /* process subsequent rows */
     for (idx_t r = 2; r <= n; ++r) {
         /* zero dp_next for this row */
-        memset(dp_next, 0, sizeof(seq_t) * dim);
+        mem_set(dp_next, 0, sizeof(seq_t) * dim);
 
         for (int p = 0; p < 32; ++p) {
             size_t idx_base = (size_t)p * (n + 1);
@@ -133,7 +135,7 @@ seq_t a(idx_t n)
         ans += dp_cur[p * (n + 1) + need_a1];
     }
 
-    free(dp_cur);
-    free(dp_next);
+    mem_free(dp_cur);
+    mem_free(dp_next);
     return ans;
 }

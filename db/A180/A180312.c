@@ -8,14 +8,31 @@
  *            4*T_c, * where T_k = k*(k+1)/2 (triangular numbers)
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_tri_value
+ * Validated: standard, pass, 121 terms through n = 980 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_tri_value.h"
+
+/* Check whether v is a triangular number by binary search in tri[0..sz-1] */
+static inline bool is_tri_value(idx_t v, const idx_t *tri, idx_t sz)
+{
+    idx_t low = 0, high = sz;
+    while (low < high) {
+        idx_t mid = low + ((high - low) >> 1);
+        idx_t tv = tri[mid];
+        if (tv == v)
+            return true;
+        if (tv < v)
+            low = mid + 1;
+        else
+            high = mid;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

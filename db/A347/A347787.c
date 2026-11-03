@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,21 +20,22 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Allocate two arrays of length n+1 for DP.
        prev[i] = number of compositions of i with exactly the current
        number of parts; curr is used for the next part count. */
-    seq_t *prev = (seq_t *)malloc((n + 1) * sizeof(seq_t));
-    seq_t *curr = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, (n + 1));
+    seq_t *curr = mem_new(seq_t, (n + 1));
     if (!prev || !curr) {            /* allocation failure – return 0 */
-        free(prev);
-        free(curr);
+        mem_free(prev);
+        mem_free(curr);
         return (seq_t)0;
     }
 
     /* Base case: 0 parts summing to 0.  All other sums are 0. */
-    memset(prev, 0, (n + 1) * sizeof(seq_t));
+    mem_set(prev, 0, (n + 1) * sizeof(seq_t));
     prev[0] = (seq_t)1;
 
     /* a(n) is the sum of compositions with 0 to 6 parts. */
@@ -43,7 +45,7 @@ seq_t a(idx_t n) {
     /* Iterate over part counts 1 .. 6. */
     for (idx_t parts = 1; parts <= 6; ++parts) {
         /* Zero the current array. */
-        memset(curr, 0, (n + 1) * sizeof(seq_t));
+        mem_set(curr, 0, (n + 1) * sizeof(seq_t));
 
         /* For every sum value i, compute compositions with exactly
            `parts` parts: add a composition by appending a power of two
@@ -69,8 +71,8 @@ seq_t a(idx_t n) {
     }
 
     /* Clean up. */
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
 
     return total;
 }

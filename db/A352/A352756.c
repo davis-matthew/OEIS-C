@@ -9,6 +9,7 @@
  * Formula:   a(n) = ((2*n - 1)*(3*(2*n - 1)^2 + 4) - 1)/2
  * Range:     u8 n <= 3, u16 n <= 18, u32 n <= 709, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 59 terms through n = 8542 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   a(n) = binomial(i,j)*7^(i-j)*4^j
  * Range:     u8 n <= 5, u16 n <= 20, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   binomial, pow_seq
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-01)
+ * Helpers:   binomial, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,9 @@
 /* Find i and j such that n = i*(i+1)/2 + j and 0 ≤ j ≤ i. */
 
 #include <stdint.h>
-#include "../utils/binomial.h"   /* seq_t binomial(idx_t n, idx_t k); */
-#include "../utils/pow_seq.h"    /* seq_t pow_seq(seq_t a, int k); */
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_i32.h"
 
 /* Helper: triangular number t(i) = i*(i+1)/2 using 128‑bit to avoid overflow. */
 static inline idx_t triangular(idx_t i)
@@ -60,8 +62,8 @@ seq_t a(idx_t n)
     int exp7 = (int)(i - j);
     int exp4 = (int)j;
 
-    val *= pow_seq((seq_t)7, exp7);
-    val *= pow_seq((seq_t)4, exp4);
+    val *= ipow_i32((seq_t)7, exp7);
+    val *= ipow_i32((seq_t)4, exp4);
 
     return val;
 }

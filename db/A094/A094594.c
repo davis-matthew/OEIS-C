@@ -8,16 +8,20 @@
  *            binomial(n,k)*2^binomial(n-k,2)*a(k) Initial value: a(1) = 0
  *            (Recurrence implemented with memoisation for fast repeated
  *            calls.)
- * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 8, u64 n <= 11, u128 n <= 14,
+ * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 8, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   binom, pow2
+ * Validated: standard, pass, 32 terms through n = 50 (2026-11-03)
+ * Helpers:   binomial, mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/binom.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +36,7 @@ seq_t a(idx_t n)
     /* Grow the cache array to accommodate index n */
     if (n >= current_size) {
         size_t new_size = (size_t)n + 1;          /* include index n */
-        seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (!new_cache)
             abort();                             /* allocation failure */
 
@@ -63,7 +67,7 @@ seq_t a(idx_t n)
         seq_t sum = 0;
 
         for (idx_t k = 1; k < m; ++k) {
-            seq_t binom_nk = binom(m, k);          /* C(m,k) as seq_t */
+            seq_t binom_nk = binomial(m, k);          /* C(m,k) as seq_t */
 
             idx_t edges_ck = ((m - k) * (m - k - 1)) / 2;   /* C(m-k,2) as idx_t */
             seq_t pow_ck   = pow2(edges_ck);          /* 2^C(m-k,2) */

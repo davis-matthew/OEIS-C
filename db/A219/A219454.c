@@ -13,7 +13,8 @@
  *            4,4,13,26,57,116,231,450,859,1604,2928,5228,9139,15653
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 62, u64 n <= 210, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static const seq_t init[15] = {
     0ULL,      /* unused 0 */
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     /* Allocate or resize cache if necessary */
     if (cache_size < n + 1ULL) {
         idx_t new_size = n + 1ULL;
-        seq_t *tmp = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (tmp == NULL)
             abort();                /* out‑of‑memory */
         cache = tmp;

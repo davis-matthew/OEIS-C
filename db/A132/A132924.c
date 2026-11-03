@@ -9,15 +9,33 @@
  *            2 ) c = n - r*(r-1)/2 (1 <= c <= r)
  * Range:     u8 n <= 7, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   floor_sqrt, pow_seq
+ * Validated: partial, pass, 74 terms through n = 74 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/floor_sqrt.h"   /* seq_t floor_sqrt(seq_t) */
-#include "../utils/pow_seq.h"      /* seq_t pow_seq(seq_t, int) */
+#include "../utils/ipow_i32.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;   /* offset 1, but n>=1 in all tests */
@@ -34,7 +52,7 @@ seq_t a(idx_t n) {
     seq_t k = (seq_t)n - prev;     /* 1‑based column within the row */
     idx_t c = (idx_t)k;
 
-    seq_t pow2 = pow_seq((seq_t)2, (int)(c - 1)); /* 2^(c-1) */
+    seq_t pow2 = ipow_i32((seq_t)2, (int)(c - 1)); /* 2^(c-1) */
     seq_t offset = pow2 - (seq_t)c;
 
     return (seq_t)r + offset;

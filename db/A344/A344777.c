@@ -5,16 +5,19 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign
  * Formula:   a(n) = Sum_{d|n} (-1)^(n/d-1) * binomial(d+n/d-1, d)
- * Range:     i8 n <= 17, i16 n <= 79, i32 n <= 287, i64 n <= 1119,
+ * Range:     i8 n <= 20, i16 n <= 79, i32 n <= 287, i64 n <= 1119,
  *            i128 n <= 4306, big any n
- * Helpers:   binom, factor_u64
+ * Validated: standard, pass, 75 terms through n = 8573 (2026-11-01)
+ * Helpers:   binomial, factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/factor_u64.h"  /* factor_u64 */
-#include "../utils/binom.h"      /* binom */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/binomial.h"
+#include "../utils/factor_u64.h"
 
 static seq_t rec_div(const uint64_t *pr, const uint64_t *ex, size_t pos,
                      size_t cnt, unsigned long long cur, uint64_t N)
@@ -22,7 +25,7 @@ static seq_t rec_div(const uint64_t *pr, const uint64_t *ex, size_t pos,
     if (pos == cnt) {
         uint64_t d  = cur;
         uint64_t nd = N / d;          /* n/d, integer because d|n */
-        seq_t   bin = binom(d + nd - 1, d);
+        seq_t   bin = binomial(d + nd - 1, d);
         /* sign = (-1)^(nd-1) */
         if ((nd - 1) & 1ULL)
             return -bin;

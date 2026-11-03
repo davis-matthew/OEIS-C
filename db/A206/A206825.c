@@ -5,15 +5,17 @@
  * Offset:    2    (a(2) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = floor((n-1)/∏_{p|n} p^{ceil(v_p(n)/4)})
- * Range:     u8 n <= 1052, u16 n <= 9569, u32 n <= 9569, u64 n <= 9569,
- *            u128 n <= 9569, big any n
- * Helpers:   pow_seq
+ * Range:     u8 n <= 1052, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 114 terms through n = 9569 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* where v_p(n) is the exponent of prime p in n. */
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
             ++e;
         }
         int ceil = (e + 3) / 4;
-        L *= pow_seq((seq_t)2, ceil);
+        L *= ipow_i32((seq_t)2, ceil);
     }
 
     /* odd factors */
@@ -44,12 +46,12 @@ seq_t a(idx_t n)
             ++e;
         }
         int ceil = (e + 3) / 4;
-        L *= pow_seq((seq_t)p, ceil);
+        L *= ipow_i32((seq_t)p, ceil);
     }
 
     /* remaining prime factor, if any */
     if (m > 1) {
-        L *= pow_seq((seq_t)m, 1); /* ceil((1+3)/4) = 1 */
+        L *= ipow_i32((seq_t)m, 1); /* ceil((1+3)/4) = 1 */
     }
 
     seq_t res = ((seq_t)(n - 1)) / L;

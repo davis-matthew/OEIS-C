@@ -7,7 +7,8 @@
  * Formula:   a(n) = (4*n+1)^(n-1) * (4*n)!/(n!*24^n) (offset 0)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 5, u128 n <= 9,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 27 terms through n = 100 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/pow_uint.h"   /* for pow_uint(uint64_t base, idx_t exp) */
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n) {
     /* Handle the offset.  a(0) = 1 by definition. */
@@ -24,7 +25,7 @@ seq_t a(idx_t n) {
     }
 
     /* Compute the first factor: (4*n+1)^(n-1) */
-    seq_t first = pow_uint((uint64_t)(4 * n + 1), n - 1);
+    seq_t first = ipow_u64_idx((uint64_t)(4 * n + 1), n - 1);
 
     /* Compute the product (n+1)(n+2)...(4*n) */
     seq_t prod = (seq_t)1;
@@ -33,7 +34,7 @@ seq_t a(idx_t n) {
     }
 
     /* Divide by 24^n = (4!)^n */
-    seq_t denom = pow_uint(24, n);
+    seq_t denom = ipow_u64_idx(24, n);
     seq_t part = prod / denom;
 
     /* Final result */

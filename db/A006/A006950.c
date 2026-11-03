@@ -8,13 +8,25 @@
  *            G.f.: Product_{k>=1, k mod 4 != 2} 1/(1 - x^k), a(0) = 1
  * Range:     u8 n <= 22, u16 n <= 58, u32 n <= 171, u64 n <= 557,
  *            u128 n <= 1947, big any n
- * Helpers:   alloc_zero, release
+ * Validated: standard, pass, 67 terms through n = 9529 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
 
 static seq_t *memo = 0;
 static idx_t cap = 0;

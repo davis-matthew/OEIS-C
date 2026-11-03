@@ -12,12 +12,34 @@
  *            counting the 8 * neighbouring positions (i±1,j±...
  * Range:     u8 n <= 120, u16 n <= 120, u32 n <= 120, u64 n <= 120,
  *            u128 n <= 120, big any n
- * Helpers:   coords_from_idx
+ * Validated: partial, pass, 120 terms through n = 120 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/coords_from_idx.h"
+static inline void coords_from_idx(idx_t n, idx_t *i, idx_t *j)
+{
+    /* find diagonal sum s such that (s-1)*s/2 >= n */
+    idx_t low = 2;
+    idx_t high = 2;
+    while ((unsigned __int128)(high - 1) * high / 2 < n)
+        high <<= 1;
+    while (low < high)
+    {
+        idx_t mid = low + (high - low) / 2;
+        if ((unsigned __int128)(mid - 1) * mid / 2 >= n)
+            high = mid;
+        else
+            low = mid + 1;
+    }
+    idx_t s = low;
+    unsigned __int128 prod = (unsigned __int128)(s - 2) * (s - 1);
+    idx_t prev = (idx_t)(prod / 2);
+    idx_t offset = n - prev;          /* 1‑based offset inside this diagonal */
+    *i = offset;
+    *j = s - offset;
+}
 static inline idx_t idx_from_coords(idx_t i, idx_t j)
 {
     idx_t s = i + j;

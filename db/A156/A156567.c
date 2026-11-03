@@ -10,13 +10,15 @@
  *            other a(n) are positive integers.)
  * Range:     u8 n <= 6, u16 n <= 15, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, free, realloc for C, malloc for C++ */
 #include <string.h>   /* memcpy for C, also available in C++ */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,14 +32,14 @@ seq_t a(idx_t n)
     /* Grow cache if needed */
     if (n > cache_len) {
         /* Allocate new array of required size */
-        seq_t *new_cache = (seq_t *)malloc(sizeof(seq_t) * n);
+        seq_t *new_cache = mem_new(seq_t, n);
         if (new_cache == NULL)
             return 0;   /* allocation failed */
 
         /* Copy old data if any, then free old array */
         if (cache != NULL) {
-            memcpy(new_cache, cache, sizeof(seq_t) * cache_len);
-            free(cache);
+            mem_copy(new_cache, cache, sizeof(seq_t) * cache_len);
+            mem_free(cache);
         }
 
         /* Zero out newly allocated part (values will be computed later) */

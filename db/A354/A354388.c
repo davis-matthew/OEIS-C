@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 120, u16 n <= 9565, u32 n <= 9565, u64 n <= 9565,
- *            u128 n <= 9565, big any n
- * Helpers:   binom
+ * Range:     u8 n <= 120, u16 n <= 10011, u32 n <= 10011, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 102 terms through n = 9565 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
    sequence (n ≥ 1). */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 /* Return the sum of the c‑th weakly decreasing sequence of length r.
    The sequences are ordered lexicographically; c is 1‑indexed. */
@@ -37,7 +38,7 @@ static seq_t row_sum(idx_t r, idx_t c)
             /* first component: no upper bound */
             for (seq_t v = 0;; ++v) {
                 seq_t count = (tail == 0) ? (seq_t)1
-                                          : binom((idx_t)(v + tail), (idx_t)tail);
+                                          : binomial((idx_t)(v + tail), (idx_t)tail);
                 if (count >= remaining) {
                     sum += v;
                     max_prev = v;
@@ -50,7 +51,7 @@ static seq_t row_sum(idx_t r, idx_t c)
             for (seq_t v = 0;; ++v) {
                 if (v > max_prev) break;   /* safety: should never happen */
                 seq_t count = (tail == 0) ? (seq_t)1
-                                          : binom((idx_t)(v + tail), (idx_t)tail);
+                                          : binomial((idx_t)(v + tail), (idx_t)tail);
                 if (count >= remaining) {
                     sum += v;
                     max_prev = v;

@@ -5,21 +5,23 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  easy, look, nonn
  * Formula:   a(n) = ceil(n^(2/3))^3 - n^2
- * Range:     u8 n <= 3, u16 n <= 15, u32 n <= 6836, u64 n <= 10000,
+ * Range:     u8 n <= 15, u16 n <= 699, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_cuberoot
+ * Validated: standard, pass, 77 terms through n = 9814 (2026-11-01)
+ * Helpers:   icbrt_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* a(n) is the smallest non‑negative value of the form x^3 - n^2. */
-#include "../utils/floor_cuberoot.h"
+#include <stdbool.h>
+#include "../utils/icbrt_seq.h"
 
 seq_t a(idx_t n)
 {
     seq_t nseq = (seq_t)n;
     seq_t n2 = nseq * nseq;                 /* n^2 */
-    seq_t k   = floor_cuberoot(n2);         /* floor of cube root of n^2 */
+    seq_t k   = icbrt_seq(n2);         /* floor of cube root of n^2 */
     seq_t k2  = k * k;
     seq_t k3  = k2 * k;
 

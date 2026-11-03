@@ -12,7 +12,8 @@
  *            calls are O(1)
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 16, u64 n <= 26, u128 n <= 43,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 44 terms through n = 486 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* cached Bell numbers B[0..] */
 static seq_t *Bell      = NULL;
@@ -38,8 +41,8 @@ static void ensure_cache(idx_t n)
 
     /* Allocate the new capacity, at least n + 1 entries. */
     size_t newCap = (size_t)n + 1;
-    Bell  = (seq_t *)realloc(Bell,  newCap * sizeof(seq_t));
-    bVals = (seq_t *)realloc(bVals, newCap * sizeof(seq_t));
+    Bell  = mem_resize(seq_t, Bell, newCap);
+    bVals = mem_resize(seq_t, bVals, newCap);
     if (!Bell || !bVals)
         abort();          /* out of memory */
 
@@ -54,7 +57,7 @@ static void ensure_cache(idx_t n)
     for (idx_t i = startBell; i <= n; ++i) {
         seq_t sum = 0;
         for (idx_t k = 0; k < i; ++k) {
-            seq_t term = binom(i - 1, k) * Bell[k];
+            seq_t term = binomial(i - 1, k) * Bell[k];
             sum += term;
         }
         Bell[i] = sum;
@@ -67,7 +70,7 @@ static void ensure_cache(idx_t n)
         seq_t pos = 0, neg = 0;
         for (idx_t k = k_start; k <= i; ++k) {
             idx_t d = i - k;               /* n‑k */
-            seq_t term = Bell[k] * binom(k, d);
+            seq_t term = Bell[k] * binomial(k, d);
             if ((d & 1u) == 0)
                 pos += term;
             else

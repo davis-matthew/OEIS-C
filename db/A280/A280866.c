@@ -11,7 +11,8 @@
  *            length 1 for any prime. see A280866
  * Range:     u8 n <= 168, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   get_prime_factors
+ * Validated: standard, pass, 83 terms through n = 9959 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,26 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/get_prime_factors.h"
+#include "../utils/mem.h"
+
+/* factorise n into distinct prime factors stored in arr */
+static void get_prime_factors(seq_t n, uint32_t *arr, size_t *cnt)
+{
+    *cnt = 0;
+    seq_t tmp = n;
+    if (tmp <= 1) return;                /* 0 or 1 has no prime factors   */
+    while ((tmp & 1) == 0) {              /* factor 2 */
+        if (*cnt == 0 || arr[0] != 2) arr[(*cnt)++] = 2;
+        tmp >>= 1;
+    }
+    for (uint32_t f = 3; (seq_t)f * (seq_t)f <= tmp; f += 2) {
+        if (tmp % f == 0) {
+            arr[(*cnt)++] = f;
+            while (tmp % f == 0) tmp /= f;
+        }
+    }
+    if (tmp > 1) arr[(*cnt)++] = (uint32_t)tmp;
+}
 
 /* ---------- local state ---------- */
 static seq_t *sequence   = NULL;      /* sequence buffer            */
@@ -75,7 +95,7 @@ static void init_sequence(void)
     run_len = (uint8_t*)calloc(run_len_cap, sizeof(uint8_t));
 
     seq_cap = 16;
-    sequence = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+    sequence = mem_new(seq_t, seq_cap);
 
     /* first term is 1 */
     sequence[0] = (seq_t)1;
@@ -154,7 +174,7 @@ seq_t a(idx_t n)
             /* store the term */
             if (seq_len >= seq_cap) {
                 seq_cap = seq_cap * 2;
-                sequence = (seq_t*)realloc(sequence, seq_cap * sizeof(seq_t));
+                sequence = mem_resize(seq_t, sequence, seq_cap);
             }
             sequence[seq_len++] = cand;
             used[(size_t)candIdx] = 1;

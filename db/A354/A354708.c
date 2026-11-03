@@ -9,6 +9,7 @@
  *            compute a(n)
  * Range:     u8 none, u16 none, u32 n <= 14, u64 n <= 14, u128 n <= 14,
  *            big any n
+ * Validated: full, pass, 15 terms through n = 14 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

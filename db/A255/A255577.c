@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 n <= 41, u16 n <= 1972, u32 n <= 8867, u64 n <= 8867,
- *            u128 n <= 8867, big any n
- * Helpers:   val2, val5
+ * Range:     u8 n <= 41, u16 n <= 1972, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 65 terms through n = 8867 (2026-11-03)
+ * Helpers:   ctz_seq_to_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,19 @@
    and returns a(n) for every n ≥ 1.  */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/val2.h"
-#include "../utils/val5.h"
+#include "../utils/ctz_seq_to_idx.h"
+#include "../utils/mem.h"
+
+/* Count power of 5 in n. */
+static idx_t val5(seq_t n)
+{
+    idx_t c = 0;
+    while (n % 5 == 0) {
+        n /= 5;
+        ++c;
+    }
+    return c;
+}
 
 /* Memoisation storage for the sequence. */
 static seq_t *seq      = NULL;  /* seq[i] holds a(i+1) */
@@ -43,7 +55,7 @@ static void ensure_capacity(size_t needed)
     size_t new_cap = seq_cap ? seq_cap * 2 : 16;
     while (new_cap < needed)
         new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, new_cap);
     if (!tmp) {
         /* Allocation failure: abort */
         exit(EXIT_FAILURE);
@@ -71,7 +83,7 @@ static bool is_k_morphic(seq_t n)
     if (n == 0)
         return false;
     idx_t d = digit_count(n);
-    idx_t a = val2(n);
+    idx_t a = ctz_seq_to_idx(n);
     idx_t b = val5(n);
     return (a == 0 || a >= d) && (b == 0 || b >= d);
 }

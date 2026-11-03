@@ -7,7 +7,8 @@
  * Formula:   primes congruent to 2 or 5 modulo 13
  * Range:     u8 n <= 10, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 65 terms through n = 939 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;       /* cached terms */
 static size_t cache_len = 0;      /* number of cached terms */
@@ -28,7 +30,7 @@ static void ensure_cache_cap(size_t need)
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
         while (new_cap < need)
             new_cap <<= 1;
-        seq_t *new_arr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, cache, new_cap);
         if (!new_arr)
             exit(1);
         cache = new_arr;

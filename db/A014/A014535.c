@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 30, u32 n <= 55, u64 n <= 102,
  *            u128 n <= 196, big any n
- * Helpers:   binomial
+ * Validated: standard, pass, 61 terms through n = 963 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,7 +31,8 @@
 #include <stdlib.h>   /* malloc, realloc, free */
 #include <string.h>   /* memset */
 
-#include "../utils/binomial.h" /* seq_t binomial(idx_t a, idx_t b) */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -42,16 +44,16 @@ seq_t a(idx_t n)
     if ((idx_t)(n + 1) > cache_len) {
         idx_t new_len = n + 1;
         /* allocate new array */
-        seq_t *new_cache = (seq_t *)malloc((size_t)new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, (size_t)new_len);
         if (!new_cache) return 0;  /* allocation failed – unlikely */
 
         /* copy existing values (they are already in place) */
         if (cache) {
-            memcpy(new_cache, cache, (size_t)cache_len * sizeof(seq_t));
-            free(cache);
+            mem_copy(new_cache, cache, (size_t)cache_len * sizeof(seq_t));
+            mem_free(cache);
         }
         /* zero initialise the new portion */
-        memset(new_cache + cache_len, 0, (size_t)(new_len - cache_len) * sizeof(seq_t));
+        mem_set(new_cache + cache_len, 0, (size_t)(new_len - cache_len) * sizeof(seq_t));
 
         cache = new_cache;
         cache_len = new_len;

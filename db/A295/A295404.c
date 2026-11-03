@@ -11,13 +11,24 @@
  *            Σ_{p=0}^{k} a(p) * b(k‑p), b(k) = Σ_{i=0}^...
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 20, u64 n <= 37, u128 n <= 70,
  *            big any n
- * Helpers:   allocate_seq_array
+ * Validated: standard, pass, 51 terms through n = 445 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/allocate_seq_array.h"
+#include <stdlib.h>
+#include <assert.h>
+
+static seq_t *allocate_seq_array(size_t n)
+{
+#ifdef __cplusplus
+    return new seq_t[n];
+#else
+    return (seq_t *)malloc(n * sizeof(seq_t));
+#endif
+}
 
 static seq_t *a_seq = NULL;   /* a values           */
 static seq_t *b_seq = NULL;   /* convolution a*a   */

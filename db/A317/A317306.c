@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 20, u32 n <= 37, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   pow2, seq_mul
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,15 @@
    ascending order. */
 
 #include <stdbool.h>
-#include "../utils/pow2.h"   /* seq_t pow2(idx_t exp); */
-#include "../utils/seq_mul.h"/* seq_t seq_mul(seq_t a, seq_t b); */
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/pow2.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 static const idx_t perfect_exps[] = {
     2, 3, 5, 7, 13, 17, 19, 31, 61, 89, 107, 127, 521

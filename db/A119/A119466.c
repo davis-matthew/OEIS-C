@@ -13,7 +13,8 @@
  *            a(1)=0
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static storage for the generated z‑values */
 static seq_t *zlist = NULL;
@@ -32,7 +34,7 @@ static idx_t   nexts = 0;    /* sum of the next triple to generate */
 static void grow_zlist(void)
 {
     size_t newcap = zcap == 0 ? 64 : zcap << 1;
-    seq_t *tmp = (seq_t *)realloc(zlist, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, zlist, newcap);
     if (!tmp) abort();          /* allocation failure */
     zlist = tmp;
     zcap  = newcap;

@@ -7,12 +7,21 @@
  * Formula:   a(n) = 12*5^n
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 12, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   seq_mul
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_mul.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 static seq_t power_of_seq(seq_t base, idx_t exp) {
     seq_t result = (seq_t)1;

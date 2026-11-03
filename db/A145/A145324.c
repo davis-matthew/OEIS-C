@@ -9,12 +9,14 @@
  *            T(n,k)=T(n-1,k)+n*T(n-1,k-1)
  * Range:     u8 n <= 18, u16 n <= 34, u32 n <= 87, u64 n <= 225,
  *            u128 n <= 589, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 9996 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t **triangle = NULL; /* rows of the triangle, triangle[0] unused */
 static idx_t  max_row   = 0;     /* largest row that has been built */
@@ -38,7 +40,7 @@ ensure_rows(idx_t r)
     /* Build each new row one by one. */
     for (idx_t i = max_row + 1; i <= r; ++i) {
         /* allocate the row; index 0 is unused but filled with 0 */
-        seq_t *row = (seq_t*)calloc((size_t)(i + 1), sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (size_t)(i + 1));
         if (!row)
             return;       /* OOM */
 

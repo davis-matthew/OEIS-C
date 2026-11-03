@@ -9,7 +9,8 @@
  *            equals k
  * Range:     u8 n <= 14, u16 n <= 407, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 9311 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    up to the largest n requested so far. */
 
 #include <stdlib.h>   /* for malloc, free, size_t */
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build. */
 seq_t a(idx_t n)
@@ -34,15 +36,15 @@ seq_t a(idx_t n)
         idx_t new_n = n;
 
         /* Allocate new arrays (size new_n + 1 to use 1‑based indexing) */
-        seq_t *t2 = (seq_t*)calloc(new_n + 1, sizeof(seq_t));
-        seq_t *t3 = (seq_t*)calloc(new_n + 1, sizeof(seq_t));
-        seq_t *t4 = (seq_t*)calloc(new_n + 1, sizeof(seq_t));
+        seq_t *t2 = mem_new(seq_t, new_n + 1);
+        seq_t *t3 = mem_new(seq_t, new_n + 1);
+        seq_t *t4 = mem_new(seq_t, new_n + 1);
 
         if (!t2 || !t3 || !t4) {
             /* Allocation failure: return 0 (unlikely in contest environment) */
-            if (t2) free(t2);
-            if (t3) free(t3);
-            if (t4) free(t4);
+            if (t2) mem_free(t2);
+            if (t3) mem_free(t3);
+            if (t4) mem_free(t4);
             return (seq_t)0;
         }
 
@@ -68,9 +70,9 @@ seq_t a(idx_t n)
         }
 
         /* Free old arrays */
-        if (tau2) free(tau2);
-        if (tau3) free(tau3);
-        if (tau4) free(tau4);
+        if (tau2) mem_free(tau2);
+        if (tau3) mem_free(tau3);
+        if (tau4) mem_free(tau4);
 
         /* Store new arrays and update cache size */
         tau2 = t2; tau3 = t3; tau4 = t4;

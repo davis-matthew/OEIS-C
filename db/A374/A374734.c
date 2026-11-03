@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 24, u64 n <= 49, u128 n <= 90,
  *            big any n
- * Helpers:   digit_len, pow10
+ * Validated: standard, pass, 47 terms through n = 967 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,20 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/pow10.h"
-#include "../utils/digit_len.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -39,7 +52,7 @@ seq_t a(idx_t n)
     if (cap == 0) {
         /* ensure capacity for at least indices 0..n */
         cap = 4;
-        cache = (seq_t *)realloc(NULL, cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, cap);
         if (!cache) return 0;
         for (size_t i = 0; i < cap; ++i) cache[i] = 0;
         /* base value a(1) = 1 */
@@ -51,7 +64,7 @@ seq_t a(idx_t n)
     if (n >= cap) {
         size_t newcap = cap * 2;
         while (newcap <= (size_t)n) newcap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp) return 0;
         /* zero the newly allocated part */
         for (size_t i = cap; i < newcap; ++i) tmp[i] = 0;
@@ -68,7 +81,7 @@ seq_t a(idx_t n)
     for (idx_t i = max_n + 1; i <= n; ++i) {
         seq_t prev = cache[i - 1];
         /* number of decimal digits of prev */
-        int digits = digit_len(prev);
+        int digits = num_digits(prev);
         if (digits <= 0) digits = 1;   /* safety, should not happen */
 
         /* rotation amount */

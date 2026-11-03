@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 686, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 61 terms through n = 9480 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  SPF sieve for factoring numbers up to a fixed limit.              */
@@ -95,7 +97,7 @@ static void ensure_cache(idx_t n)
     /* allocate initial cache memory */
     if (!cache) {
         cache_cap = 128;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     while (cache_len < (size_t)n) {
@@ -116,7 +118,7 @@ static void ensure_cache(idx_t n)
                 uint32_t e0 = ex0[i];
                 if (e0 <= 1) continue;          /* exponent must be prime >1 */
                 if (e0 == p) continue;           /* distinct primes */
-                if (!is_prime_small(e0)) continue;
+                if (!is_prime_seq(e0)) continue;
                 uint32_t q = e0;
                 /* find exponent of q in n+1 and check p absent */
                 uint32_t e1 = 0;
@@ -130,7 +132,7 @@ static void ensure_cache(idx_t n)
             if (ok) {
                 if (cache_len == cache_cap) {
                     cache_cap *= 2;
-                    cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cache_cap);
                 }
                 cache[cache_len++] = (seq_t)next_checked;
             }

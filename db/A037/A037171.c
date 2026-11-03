@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn, fini, full
  * Formula:   not stated
- * Range:     u8 none, u16 n <= 8, u32 n <= 8, u64 n <= 8, u128 n <= 8,
+ * Range:     u8 n <= 8, u16 n <= 8, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
- * Helpers:   calc_phi, prime_pi
+ * Validated: full, pass, 8 terms through n = 8 (2026-11-03)
+ * Helpers:   mem, prime_pi, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,10 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/calc_phi.h"
+#include <stdint.h>
 #include "../utils/prime_pi.h"
+#include "../utils/totient_seq.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +36,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         initialized = true;
         sol_cap = 16;                      /* initial capacity */
-        solutions = (seq_t *)malloc(sol_cap * sizeof(seq_t));
+        solutions = mem_new(seq_t, sol_cap);
         sol_cnt = 0;
 
         /* Search up to a value comfortably above the largest known
@@ -41,13 +44,12 @@ seq_t a(idx_t n)
            than 90 is sufficient. */
         for (idx_t cur = 2; cur <= 1000; ++cur) {
             seq_t cur_seq = (seq_t)cur;
-            seq_t phi_val = calc_phi(cur_seq);
+            seq_t phi_val = totient_seq(cur_seq);
             seq_t pi_val  = prime_pi(cur);
             if (phi_val == pi_val) {
                 if (sol_cnt >= sol_cap) {
                     sol_cap <<= 1;               /* double capacity */
-                    solutions = (seq_t *)realloc(
-                        solutions, sol_cap * sizeof(seq_t));
+                    solutions = mem_resize(seq_t, solutions, sol_cap);
                 }
                 solutions[sol_cnt++] = cur_seq;
             }

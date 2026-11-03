@@ -12,8 +12,8 @@
  *            3*(2k-1)*S(k-1) - (k-2)*S(k-2), S(0)=S(1)=1). Derived from t...
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 17, u64 n <= 30, u128 n <= 56,
  *            big any n
- * Helpers:   a3454_accum, a3454_add, a3454_div, a3454_mulsm, a3454_nrm,
- *            a3454_phi, a3454_step, a3454_sub
+ * Validated: standard, pass, 41 terms through n = 184 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,14 +21,101 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a3454_accum.h"
-#include "../utils/a3454_add.h"
-#include "../utils/a3454_div.h"
-#include "../utils/a3454_mulsm.h"
-#include "../utils/a3454_nrm.h"
-#include "../utils/a3454_phi.h"
-#include "../utils/a3454_step.h"
-#include "../utils/a3454_sub.h"
+
+static void a3454_add(uint32_t *a, size_t *al, const uint32_t *b, size_t bl)
+{
+    size_t L = *al > bl ? *al : bl, i;
+    uint64_t c = 0;
+    for (i = 0; i < L; i++) {
+        uint64_t t = (uint64_t)(i < *al ? a[i] : 0) + (i < bl ? b[i] : 0) + c;
+        a[i] = (uint32_t)t;
+        c = t >> 32;
+    }
+    if (c) a[L++] = (uint32_t)c;
+    *al = L;
+}
+
+static size_t a3454_nrm(const uint32_t *x, size_t len)
+{
+    while (len && x[len - 1] == 0) len--;
+    return len;
+}
+
+static void a3454_mulsm(uint32_t *x, size_t *len, uint32_t m)
+{
+    uint64_t c = 0;
+    size_t i;
+    for (i = 0; i < *len; i++) {
+        uint64_t t = (uint64_t)x[i] * m + c;
+        x[i] = (uint32_t)t;
+        c = t >> 32;
+    }
+    if (c) x[(*len)++] = (uint32_t)c;
+    *len = a3454_nrm(x, *len);
+}
+
+static void a3454_accum(uint32_t *acc, size_t *al, const uint32_t *D, size_t dl,
+                        uint32_t ph, uint32_t *tmp)
+{
+    size_t lt = dl;
+    memcpy(tmp, D, dl * sizeof(uint32_t));
+    a3454_mulsm(tmp, &lt, ph);
+    a3454_add(acc, al, tmp, lt);
+}
+
+static void a3454_div(uint32_t *x, size_t *len, uint32_t d)
+{
+    uint64_t r = 0;
+    size_t i = *len;
+    while (i > 0) {
+        i--;
+        uint64_t cur = (r << 32) | x[i];
+        x[i] = (uint32_t)(cur / d);
+        r = cur % d;
+    }
+    *len = a3454_nrm(x, *len);
+}
+
+static uint32_t a3454_phi(uint64_t m)
+{
+    uint64_t r = m, p;
+    for (p = 2; p * p <= m; p++) {
+        if (m % p == 0) {
+            while (m % p == 0) m /= p;
+            r -= r / p;
+        }
+    }
+    if (m > 1) r -= r / m;
+    return (uint32_t)r;
+}
+
+/* a -= b, requires a >= b */
+static void a3454_sub(uint32_t *a, size_t *al, const uint32_t *b, size_t bl)
+{
+    size_t i;
+    int64_t br = 0;
+    for (i = 0; i < *al; i++) {
+        int64_t t = (int64_t)a[i] - (int64_t)(i < bl ? b[i] : 0) - br;
+        if (t < 0) { t += (int64_t)1 << 32; br = 1; } else br = 0;
+        a[i] = (uint32_t)t;
+    }
+    *al = a3454_nrm(a, *al);
+}
+
+/* out = (P1*c1 - P2*c2) / dv */
+static void a3454_step(const uint32_t *P2, size_t l2, const uint32_t *P1, size_t l1,
+                       uint32_t c1, uint32_t c2, uint32_t dv,
+                       uint32_t *out, size_t *lo, uint32_t *tmp)
+{
+    size_t lt = l2;
+    memcpy(out, P1, l1 * sizeof(uint32_t));
+    *lo = l1;
+    a3454_mulsm(out, lo, c1);
+    memcpy(tmp, P2, l2 * sizeof(uint32_t));
+    a3454_mulsm(tmp, &lt, c2);
+    a3454_sub(out, lo, tmp, lt);
+    a3454_div(out, lo, dv);
+}
 
 seq_t a(idx_t n)
 {

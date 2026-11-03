@@ -11,16 +11,42 @@
  *            Each state records the strands crossing the scan...
  * Range:     u8 n <= 11, u16 n <= 16, u32 n <= 26, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   alloc_zero, partner, release
+ * Validated: partial, pass, 28 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
-#include "../utils/partner.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
+
+static int partner(const unsigned char *s, int k, int j) {
+    int q, depth = 0;
+    if (s[j] == 1) {
+        for (q = j + 1; q < k; q++) {
+            if (s[q] == 1) depth++;
+            else if (s[q] == 2) { if (depth == 0) return q; depth--; }
+        }
+    } else {
+        for (q = j - 1; q >= 0; q--) {
+            if (s[q] == 2) depth++;
+            else if (s[q] == 1) { if (depth == 0) return q; depth--; }
+        }
+    }
+    return -1;
+}
 
 typedef unsigned __int128 u128_t;
 

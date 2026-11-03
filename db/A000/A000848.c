@@ -13,17 +13,34 @@
  *            canonical forms: each irreducible p != x gets a part...
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 4, u128 n <= 5,
  *            big any n
- * Helpers:   g64, pdeg_, pmod_, u128_to_seq
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-01)
+ * Helpers:   gcd_u64, ilog2_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/u128_to_seq.h"
-#include "../utils/g64.h"
-#include "../utils/pdeg_.h"
-#include "../utils/pmod_.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/ilog2_u64.h"
+
+static seq_t u128_to_seq(unsigned __int128 u)
+{
+    seq_t r = 0;
+    int k;
+    for (k = 3; k >= 0; k--) {
+        r = r * 65536ULL;
+        r = r * 65536ULL;
+        r += (seq_t)(uint64_t)(uint32_t)(u >> (32 * k));
+    }
+    return r;
+}
+
+static uint64_t pmod_(uint64_t a, uint64_t g) {
+    int dg = ilog2_u64(g), da;
+    while ((da = ilog2_u64(a)) >= dg) a ^= g << (da - dg);
+    return a;
+}
 
 static int N;
 static uint64_t *ir;
@@ -74,7 +91,7 @@ static void leaf(void) {
         for (i = 0; i < nm; i++)
             for (j = 0; j <= M; j++) {
                 uint64_t a = lensA[i], b = Lj[j];
-                uint64_t l = a / g64(a, b) * b, c = cntsA[i] * Cj[j];
+                uint64_t l = a / gcd_u64(a, b) * b, c = cntsA[i] * Cj[j];
                 int q;
                 for (q = 0; q < nn; q++) if (lensB[q] == l) break;
                 if (q == nn) { lensB[nn] = l; cntsB[nn] = 0; nn++; }
@@ -137,7 +154,7 @@ static void gen_irr(int n) {
     irord = (uint64_t *)malloc(cap * sizeof(uint64_t));
     nir = 0;
     for (f = 3; f < lim; f += 2) {
-        int d = pdeg_(f), ok = 1, q;
+        int d = ilog2_u64(f), ok = 1, q;
         uint64_t cur, k;
         for (q = 0; q < nir && 2 * irdeg[q] <= d; q++)
             if (pmod_(f, ir[q]) == 0) { ok = 0; break; }

@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 256, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 86 terms through n = 9853 (2026-11-01)
  * Helpers:   factor_u64, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,8 +17,10 @@
 /* Computes a(n) = lcm of the bases and exponents in n's prime factorisation. */
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/gcd.h"          /* gcd(seq_t, seq_t) */
-#include "../utils/factor_u64.h"   /* factor_u64(uint64_t, uint64_t*, uint64_t*, size_t*) */
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
 
 static inline seq_t lcm_seq(seq_t a, seq_t b)
 {

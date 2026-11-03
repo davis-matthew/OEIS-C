@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   has57oct
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,20 @@
    and caching results for efficiency. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has57oct.h"
+#include "../utils/mem.h"
+
+// Check whether the octal representation of x contains the substring "57".
+static bool has57oct(seq_t x)
+{
+    int prev = -1;
+    while (x != 0) {
+        int d = (int)(x % 8);
+        if (d == 5 && prev == 7) return true;
+        prev = d;
+        x /= 8;
+    }
+    return false;
+}
 
 static seq_t *cache = NULL;          // cached sequence values
 static size_t cache_len = 0;         // number of terms cached
@@ -37,7 +51,7 @@ static void extend_cache(idx_t n)
             if (!has57oct(nxt)) {
                 if (cache_len == cache_cap) {
                     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-                    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                     if (!tmp) abort();
                     cache = tmp;
                     cache_cap = new_cap;

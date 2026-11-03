@@ -11,13 +11,15 @@
  *            + 1·a(n‑5) * + 4·a(n‑6) – 3·a(n‑7) – 3·a(n‑8) + 4·a(n‑9...
  * Range:     u8 n <= 4, u16 n <= 26, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>   /* size_t */
 #include <stdlib.h>   /* malloc, free */
+#include "../utils/mem.h"
 
 /* Initial 15 terms (index 0 unused). */
 static const seq_t init[16] = {
@@ -40,12 +42,12 @@ static void ensure_cache(idx_t n)
 {
     size_t need = (size_t)(n + 1);                /* include a(0) */
     if (need > cache_cap) {                      /* allocate or grow   */
-        seq_t *tmp = (seq_t *)malloc(need * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, need);
         if (!tmp) abort();                       /* allocation failed */
         if (cache) {                             /* copy old data      */
             for (size_t i = 0; i < cache_cap && i <= (size_t)last_computed; ++i)
                 tmp[i] = cache[i];
-            free(cache);
+            mem_free(cache);
         }
         cache     = tmp;
         cache_cap = need;

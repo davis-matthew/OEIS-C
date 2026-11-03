@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 8, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 27 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* -------------------------------------------------------------------- */
 /* The types seq_t and idx_t are supplied by the build environment.    */
@@ -162,8 +164,8 @@ static void init(void)
     build_edges();
 
     /* 3. Allocate DP arrays. */
-    DP_CUR  = (seq_t *)calloc(R, sizeof(seq_t));
-    DP_NEXT = (seq_t *)calloc(R, sizeof(seq_t));
+    DP_CUR  = mem_new(seq_t, R);
+    DP_NEXT = mem_new(seq_t, R);
 
     /* 4. Initialise DP for the first row (must start with 0). */
     for (size_t s = 0; s < R; ++s)
@@ -177,7 +179,7 @@ static void init(void)
 
     /* 6. Initialise cache. */
     CACHE_CAP = 16;
-    CACHE = (seq_t *)calloc(CACHE_CAP, sizeof(seq_t));
+    CACHE = mem_new(seq_t, CACHE_CAP);
     CACHE[1] = sum;
     CACHE_SZ  = 1;
 }
@@ -195,7 +197,7 @@ seq_t a(idx_t n)
     /* Run DP until the required n is reached. */
     while (CACHE_SZ < (size_t)n) {
         /* Zero next DP buffer. */
-        memset(DP_NEXT, 0, R * sizeof(seq_t));
+        mem_set(DP_NEXT, 0, R * sizeof(seq_t));
 
         /* Transition. */
         for (size_t s = 0; s < R; ++s) {
@@ -217,7 +219,7 @@ seq_t a(idx_t n)
         /* Extend cache if needed. */
         if (CACHE_SZ + 1 >= CACHE_CAP) {
             size_t new_cap = CACHE_CAP ? CACHE_CAP * 2 : 16;
-            seq_t *tmp = (seq_t *)realloc(CACHE, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, CACHE, new_cap);
             if (!tmp) exit(1);
             CACHE = tmp;
             CACHE_CAP = new_cap;

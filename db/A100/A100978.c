@@ -10,15 +10,29 @@
  *            (h,5)=1, eps(s) = Sum_{i=1..s} 1/5^i, eps(-1) = -∞
  * Range:     u8 n <= 9, u16 n <= 19, u32 n <= 49, u64 n <= 99, u128 n <= 224,
  *            big any n
- * Helpers:   pow_seq, sigma1
+ * Validated: standard, pass, 74 terms through n = 4665 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow_seq.h"   /* pow_seq(seq_t base, idx_t exp) */
-#include "../utils/sigma1.h"
+#include "../utils/ipow_idx.h"
+
+static inline seq_t sigma1(idx_t n) {
+    /* Sum of positive divisors of n. n fits in idx_t. */
+    seq_t sum = 0;
+    for (idx_t i = 1; i * i <= n; ++i) {
+        if (n % i == 0) {
+            sum += (seq_t)i;
+            idx_t j = n / i;
+            if (j != i)
+                sum += (seq_t)j;
+        }
+    }
+    return sum;
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;  /* offset starts at 1, but guard against n=0 */
@@ -43,7 +57,7 @@ seq_t a(idx_t n) {
 
     /* s = 0 case */
     {
-        seq_t factor = (pow_seq(P5, m + 1) - (seq_t)1) / FOUR; /* (p^(m+1)-1)/(p-1) */
+        seq_t factor = (ipow_idx(P5, m + 1) - (seq_t)1) / FOUR; /* (p^(m+1)-1)/(p-1) */
         sum_B += factor; /* diff = 1 for s=0 */
     }
 
@@ -53,12 +67,12 @@ seq_t a(idx_t n) {
     for (idx_t s = 1; s <= m; ++s) {
         pi *= (idx_t)5;                /* pi = 5^s */
         idx_t e = n / pi;              /* integer division since s <= m */
-        seq_t term = pow_seq(P5, e);   /* 5^e */
+        seq_t term = ipow_idx(P5, e);   /* 5^e */
         seq_t G_curr = G_prev * term;  /* G_s = G_{s-1} * 5^e */
 
         seq_t diff = G_curr - G_prev;  /* p^(eps(s)*n)-p^(eps(s-1)*n) */
 
-        seq_t numerator = pow_seq(P5, m + s + 1) - pow_seq(P5, 2 * s);
+        seq_t numerator = ipow_idx(P5, m + s + 1) - ipow_idx(P5, 2 * s);
         seq_t factor = numerator / FOUR; /* (p^(m+s+1)-p^(2s))/(p-1) */
         sum_B += factor * diff;
 

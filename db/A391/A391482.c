@@ -10,7 +10,8 @@
  *            (n-1)^(n-k)
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 14, u64 n <= 27, u128 n <= 44,
  *            big any n
- * Helpers:   binomial, pow_int
+ * Validated: standard, pass, 44 terms through n = 657 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,9 @@
 #ifndef A391482_H
 #define A391482_H
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -44,12 +46,12 @@ seq_t a(idx_t n)
     seq_t bin   = binomial(r, k);
 
     idx_t exp1 = r * (r - 1) / 2;      /* exponent for n^(n*(n-1)/2) */
-    seq_t pow1 = pow_int((seq_t)r, exp1);
+    seq_t pow1 = ipow_idx((seq_t)r, exp1);
 
     idx_t exp2 = r - k;                /* exponent for (n-1)^(n-k) */
     seq_t pow2 = (exp2 == 0
                   ? (seq_t)1
-                  : pow_int((seq_t)(r ? r - 1 : 0), exp2));
+                  : ipow_idx((seq_t)(r ? r - 1 : 0), exp2));
 
     seq_t result = bin;
     result *= pow1;

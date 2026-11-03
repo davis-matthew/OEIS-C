@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..n} BarnesG(k)*BarnesG(n-k)
  * Range:     u8 n <= 6, u16 n <= 7, u32 n <= 9, u64 n <= 11, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
    -------------------------------------------------------------- */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
 
     /* Allocate factorial array fact[j] = j!  (0 <= j <= n-2) */
     size_t fact_size = (size_t)(n >= 2 ? n - 1 : 1);
-    seq_t *fact = (seq_t *)malloc(fact_size * sizeof(seq_t));
+    seq_t *fact = mem_new(seq_t, fact_size);
     if (!fact) return (seq_t)0; /* allocation failure, return 0 */
 
     fact[0] = (seq_t)1;               /* 0! = 1 */
@@ -46,9 +48,9 @@ seq_t a(idx_t n)
 
     /* Allocate BarnesG array b[0..n] */
     size_t b_size = (size_t)(n + 1);
-    seq_t *b = (seq_t *)malloc(b_size * sizeof(seq_t));
+    seq_t *b = mem_new(seq_t, b_size);
     if (!b) {
-        free(fact);
+        mem_free(fact);
         return (seq_t)0;
     }
 
@@ -71,8 +73,8 @@ seq_t a(idx_t n)
     }
 
     /* Clean up */
-    free(b);
-    free(fact);
+    mem_free(b);
+    mem_free(fact);
 
     return sum;
 }

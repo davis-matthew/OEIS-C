@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{k=1..n} gcd(k^3, n^2)
  * Range:     u8 n <= 6, u16 n <= 40, u32 n <= 1633, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 67 terms through n = 9455 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,7 @@
 
 /* This implementation computes the sum directly using the supplied seq_t gcd routine. */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n) {

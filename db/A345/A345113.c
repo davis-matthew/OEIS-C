@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 38, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   digit_len, is_palindrome, pow_int
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-01)
+ * Helpers:   ipow_idx, is_palindrome_base, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,12 @@
    reached after 5000 iterations.  The left rotation
    moves the most significant digit to the least
    significant position. */
-#include "../utils/digit_len.h"
-#include "../utils/pow_int.h"
-#include "../utils/is_palindrome.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/is_palindrome_base.h"
+#include "../utils/num_digits.h"
 
 /* Compute left cyclic shift of decimal digits of x */
 static seq_t left_shift(seq_t x)
@@ -30,8 +34,8 @@ static seq_t left_shift(seq_t x)
     if (x < 10U)                  /* one–digit numbers stay the same */
         return x;
 
-    int  len   = digit_len(x);             /* number of decimal digits */
-    seq_t pow10 = pow_int(10, (idx_t)(len - 1)); /* 10^(len-1) */
+    int  len   = num_digits(x);             /* number of decimal digits */
+    seq_t pow10 = ipow_idx(10, (idx_t)(len - 1)); /* 10^(len-1) */
 
     seq_t msd = x / pow10;                 /* most significant digit */
     seq_t rest = x - msd * pow10;          /* remaining part */
@@ -50,7 +54,7 @@ seq_t a(idx_t n)
     for (idx_t steps = 0; steps < MAX_STEPS; ++steps)
     {
         cur += left_shift(cur);            /* apply map x → x + left_shift(x) */
-        if (is_palindrome(cur, 10U))
+        if (is_palindrome_base(cur, 10U))
             return cur;                    /* palindrome found */
     }
     return 0U;                             /* no palindrome within limit */

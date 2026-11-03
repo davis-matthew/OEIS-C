@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   append_seq_t, append_uint64
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,30 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/append_seq_t.h"
-#include "../utils/append_uint64.h"
+#include "../utils/mem.h"
+
+/* Append a value to a dynamic array of seq_t.  The array
+   is grown as necessary. */
+static void append_seq_t(seq_t **arr, size_t *cap, size_t *len, seq_t val)
+{
+    if (*len == *cap)
+    {
+        *cap = *cap ? *cap * 2 : 16;
+        *arr = mem_resize(seq_t, *arr, (*cap * sizeof(**arr)) / sizeof(seq_t));
+    }
+    (*arr)[(*len)++] = val;
+}
+
+/* Append a value to a dynamic array of uint64_t. */
+static void append_uint64(uint64_t **arr, size_t *cap, size_t *len, uint64_t val)
+{
+    if (*len == *cap)
+    {
+        *cap = *cap ? *cap * 2 : 16;
+        *arr = (uint64_t *)realloc(*arr, *cap * sizeof(**arr));
+    }
+    (*arr)[(*len)++] = val;
+}
 
 /* Test primality of x using the list of primes that is
    dynamically maintained.  The list contains all primes
@@ -66,7 +89,7 @@ seq_t a(idx_t n)
 
         /* Initialise terms array */
         terms_cap = 16;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
         terms_len = 0;
 
         /* Check the prime 2 itself */

@@ -11,7 +11,8 @@
  *            OEIS entry A368229
  * Range:     u8 n <= 243, u16 n <= 6560, u32 n <= 6560, u64 n <= 6560,
  *            u128 n <= 6560, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 6541 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Produces a(n) for OEIS sequence A368229. */
 seq_t a(idx_t n)
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
                 }
                 new_cap *= 2;
             }
-            seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq, new_cap);
             if (!tmp) abort();
             seq = tmp;
             seq_cap = new_cap;

@@ -8,7 +8,8 @@
  *            (computed by sequential search)
  * Range:     u8 n <= 13, u16 n <= 6012, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_mixed
+ * Validated: standard, pass, 69 terms through n = 9475 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,33 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_mixed.h"
+#include "../utils/mem.h"
+
+/* Return true iff an odd integer x contains at least one prime factor
+   with exponent exactly 1 and at least one prime factor with exponent ≥ 2. */
+static bool is_mixed(uint64_t x)
+{
+    bool seen_one = false;
+    bool seen_ge2 = false;
+    uint64_t temp = x;
+
+    for (uint64_t p = 3; p * p <= temp; p += 2) {
+        if (temp % p == 0) {
+            unsigned exp = 0;
+            while (temp % p == 0) {
+                temp /= p;
+                ++exp;
+            }
+            if (exp == 1)      seen_one = true;
+            else if (exp >= 2) seen_ge2 = true;
+            if (seen_one && seen_ge2) return true;
+        }
+    }
+    /* remaining prime factor (if any) has exponent 1 */
+    if (temp > 1) seen_one = true;
+
+    return seen_one && seen_ge2;
+}
 
 /* Cached sequence values */
 static seq_t *seq_vals = NULL;
@@ -32,7 +59,7 @@ static void ensure_seq_cap(size_t n)
     size_t new_cap = seq_cap ? seq_cap * 2 : 8;
     if (new_cap < n) new_cap = n;
     /* cast is needed for C++ compatibility */
-    seq_t *tmp = (seq_t *)realloc(seq_vals, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_vals, new_cap);
     seq_vals = tmp;
     seq_cap = new_cap;
 }

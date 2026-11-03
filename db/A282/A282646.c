@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 14, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 #define WIDTH   7U
 #define PATS    (1U << WIDTH)          /* 128 */
@@ -120,8 +122,8 @@ seq_t a(idx_t n)
     }
 
     /* n >= 3: dynamic programming over three rows */
-    seq_t *dp = (seq_t *)calloc(STATE, sizeof(seq_t));
-    seq_t *dp_next = (seq_t *)calloc(STATE, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, STATE);
+    seq_t *dp_next = mem_new(seq_t, STATE);
     if (!dp || !dp_next) return (seq_t)0; /* allocation failure unlikely */
 
     /* initialise with all valid first pairs (row0, row1) */
@@ -164,7 +166,7 @@ seq_t a(idx_t n)
         if (valid_last[id] && dp[id] != (seq_t)0)
             result += dp[id];
 
-    free(dp);
-    free(dp_next);
+    mem_free(dp);
+    mem_free(dp_next);
     return result;
 }

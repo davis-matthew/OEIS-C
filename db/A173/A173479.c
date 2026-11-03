@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 23, u128 n <= 39,
  *            big any n
- * Helpers:   mod_mul
+ * Validated: standard, pass, 45 terms through n = 927 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
    overflowing intermediate products and computes the full value only when the
    result is guaranteed to fit in seq_t. */
 #include <stdbool.h>
-#include "../utils/mod_mul.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/mulmod.h"
 
 seq_t a(idx_t n)
 {
@@ -29,14 +32,14 @@ seq_t a(idx_t n)
     /* Compute 10^(n‑1) mod n.  We use mod_mul to avoid overflow.            */
     uint64_t pow10_mod = 1 % nn;
     for (uint64_t i = 1; i < nn; ++i) {
-        pow10_mod = mod_mul(pow10_mod, 10, nn);
+        pow10_mod = mulmod(pow10_mod, 10, nn);
     }
 
     /* Test first digits 1…9.  If one yields a multiple of n, compute the
        full value.  The full value fits because we only compute it for a
        divisor that is known to produce a number ≤ seq_t max.                */
     for (uint64_t d = 1; d <= 9; ++d) {
-        if (mod_mul(pow10_mod, d, nn) == 0) {
+        if (mulmod(pow10_mod, d, nn) == 0) {
             /* pow10 = 10^(n‑1) as a seq_t.  This will not overflow because
                the result fits in seq_t.                                       */
             seq_t pow10 = 1;

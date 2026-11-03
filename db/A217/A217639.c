@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 18, u64 n <= 37, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
    compatible with both C11 and C++17. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,13 +37,13 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* Start with enough room for indices 0..6 (inclusive). */
         cache_size = 7;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache) abort();                /* allocation failure */
 #ifdef __cplusplus
         /* In C++ construct the objects explicitly.  In C the objects are
            trivial (integer type) so this block is skipped. */
         for (idx_t i = 0; i < cache_size; ++i)
-            new (cache + i) seq_t();
+            *(cache + i) = (seq_t)0;
 #endif
         /* Seed the known base values. */
         cache[1] = (seq_t)3;
@@ -59,13 +61,13 @@ seq_t a(idx_t n)
     /* Grow cache if n exceeds current allocation. */
     while (n >= cache_size) {
         idx_t new_size = cache_size * 2;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (!new_cache) abort();
         cache = new_cache;
 #ifdef __cplusplus
         /* Construct any newly allocated elements. */
         for (idx_t i = cache_size; i < new_size; ++i)
-            new (cache + i) seq_t();
+            *(cache + i) = (seq_t)0;
 #endif
         cache_size = new_size;
     }

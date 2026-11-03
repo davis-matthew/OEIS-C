@@ -8,13 +8,23 @@
  *            does not contain the substring "001"
  * Range:     u8 n <= 134, u16 n <= 6747, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   msb_position
+ * Validated: standard, pass, 83 terms through n = 9541 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/msb_position.h"
+
+static int msb_position(seq_t x) {
+    if (x == 0) return -1;
+    int pos = 0;
+    while (x > 0) {
+        x >>= 1;
+        pos++;
+    }
+    return pos - 1;
+}
 
 static bool has_001(seq_t num) {
     int msb = msb_position(num);

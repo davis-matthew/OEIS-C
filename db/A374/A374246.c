@@ -9,7 +9,8 @@
  * Formula:   a(n) = A001222(n) - A373957(n)
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   count_prime_factors, factor_u64
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
+ * Helpers:   bigomega_seq, factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/count_prime_factors.h"
+#include <stdlib.h>
+#include "../utils/bigomega_seq.h"
 #include "../utils/factor_u64.h"
 
 /* a(n) = number of prime factors of n (with multiplicity) minus the
@@ -33,7 +35,7 @@ seq_t a(idx_t n) {
     uint64_t n64 = (uint64_t)n;
 
     /* 1. omega(n) = number of prime factors (with multiplicity). */
-    seq_t omega = count_prime_factors(n64);           /* returns seq_t */
+    seq_t omega = bigomega_seq(n64);           /* returns seq_t */
 
     /* 2. Factor the number to find exponents of each distinct prime. */
     /* Allocate a small buffer; n will not have more than 64 distinct primes. */

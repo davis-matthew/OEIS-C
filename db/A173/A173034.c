@@ -7,11 +7,13 @@
  * Formula:   a(0)=1, a(1)=5, a(n)=8*2^n-12 for n>=2
  * Range:     u8 n <= 5, u16 n <= 13, u32 n <= 28, u64 n <= 28, u128 n <= 28,
  *            big any n
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

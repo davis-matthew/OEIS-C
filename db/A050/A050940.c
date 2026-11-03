@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 127, u16 n <= 8704, u32 n <= 8704, u64 n <= 8704,
- *            u128 n <= 8704, big any n
- * Helpers:   none
+ * Range:     u8 n <= 127, u16 n <= 10001, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 77 terms through n = 8704 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* -------------------------------------------------------------------------- */
 /*  Static data                                                                */
@@ -33,7 +35,7 @@ static size_t  sieve_lim   = 0;      /* current maximum number that has been sie
 /*  Utility: dynamic reallocation of an array of seq_t                        */
 static void realloc_seq_vals(size_t new_cap)
 {
-    seq_t *tmp = (seq_t *)realloc(seq_vals, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_vals, new_cap);
     if (!tmp) abort();                 /* out of memory */
     seq_vals = tmp;
 }
@@ -97,7 +99,7 @@ static void recompute_up_to(size_t new_limit)
 
     /* Build the array of numbers NOT representable as sums of consecutive primes */
     size_t new_cap = new_limit + 1;
-    seq_t *new_vals = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_vals = mem_new(seq_t, new_cap);
     if (!new_vals) abort();
 
     size_t new_len = 0;
@@ -108,7 +110,7 @@ static void recompute_up_to(size_t new_limit)
     }
 
     /* Replace old data */
-    free(seq_vals);
+    mem_free(seq_vals);
     free(rep_flag);
     free(primes);
 

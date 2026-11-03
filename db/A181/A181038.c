@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 15, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Constants for the automaton */
 #define BASE 6          /* modulo value */
@@ -96,8 +98,8 @@ static void init(void)
     }
 
     /* Allocate DP arrays. */
-    dp_cur  = (seq_t *)malloc(sizeof(seq_t) * STATE_COUNT);
-    dp_next = (seq_t *)malloc(sizeof(seq_t) * STATE_COUNT);
+    dp_cur  = mem_new(seq_t, STATE_COUNT);
+    dp_next = mem_new(seq_t, STATE_COUNT);
     for (int i = 0; i < STATE_COUNT; ++i) dp_cur[i] = 0;
     dp_cur[0] = 1;            /* start state: all remainders 0 */
 
@@ -133,7 +135,7 @@ seq_t a(idx_t n)
         /* store the answer */
         if (cache_len == cache_cap) {
             size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             cache = tmp;
             cache_cap = new_cap;
         }

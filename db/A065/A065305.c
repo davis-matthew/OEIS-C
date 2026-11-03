@@ -11,7 +11,8 @@
  *            incremental sieve
  * Range:     u8 n <= 1484, u16 n <= 7876, u32 n <= 7876, u64 n <= 7876,
  *            u128 n <= 7876, big any n
- * Helpers:   row_from_m
+ * Validated: standard, pass, 89 terms through n = 7722 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,26 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/row_from_m.h"
+
+/* Find the row index 'i' such that the (i‑1)*i/2 < m <= i*(i+1)/2.  */
+static idx_t row_from_m(idx_t m)
+{
+    idx_t low  = 1;
+    idx_t high = 1;
+    /* Exponential search to find an upper bound for 'high'. */
+    while (high * (high + 1u) / 2 < m) {
+        high <<= 1;
+    }
+    /* Binary search within [low, high]. */
+    while (low < high) {
+        idx_t mid = low + ((high - low) >> 1);
+        if (mid * (mid + 1u) / 2 >= m)
+            high = mid;
+        else
+            low = mid + 1;
+    }
+    return low;
+}
 
 /* static storage for generated odd primes, indexed from 0, where
    primes[0] == 3 is the 1st odd prime.                             */

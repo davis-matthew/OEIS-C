@@ -12,12 +12,14 @@
  *            reading the array row‑wise
  * Range:     u8 n <= 10, u16 n <= 15, u32 n <= 45, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;      /* flat 2‑D array for a(r,m) values          */
 static size_t dp_rows = 0;    /* current maximum row handled by dp          */
@@ -33,13 +35,13 @@ static void extend_to(idx_t new_rmax)
     size_t width = (size_t)new_rmax + 1;
     size_t new_size = width * width;
 
-    seq_t *newdp = (seq_t*)calloc(new_size, sizeof(seq_t));
+    seq_t *newdp = mem_new(seq_t, new_size);
     if (!newdp) return;    /* allocation failed – caller will get 0 */
 
     /* ensure weight array covers all sizes up to new_rmax */
     if (new_rmax > max_w) {
-        seq_t *neww = (seq_t*)realloc(w, (size_t)(new_rmax + 1) * sizeof(seq_t));
-        if (!neww) { free(newdp); return; }
+        seq_t *neww = mem_resize(seq_t, w, (size_t)(new_rmax + 1));
+        if (!neww) { mem_free(newdp); return; }
         w = neww;
         if (max_w < 1) w[1] = (seq_t)1;
         for (idx_t s = max_w + 1; s <= new_rmax; ++s) {
@@ -65,7 +67,7 @@ static void extend_to(idx_t new_rmax)
         }
     }
 
-    free(dp);
+    mem_free(dp);
     dp = newdp;
     dp_rows = new_rmax;
 }

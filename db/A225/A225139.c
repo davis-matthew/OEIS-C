@@ -11,16 +11,37 @@
  *            primes in discovery order
  * Range:     u8 none, u16 none, u32 n <= 1, u64 n <= 1000, u128 n <= 1000,
  *            big any n
- * Helpers:   seq_alloc, seq_realloc
+ * Validated: standard, pass, 37 terms through n = 908 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdio.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/seq_alloc.h"
-#include "../utils/seq_realloc.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 /* ----------  64‑bit deterministic Miller–Rabin ------------------- */
 static uint64_t mul_mod_uint64(uint64_t a, uint64_t b, uint64_t mod)

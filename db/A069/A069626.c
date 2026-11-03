@@ -8,6 +8,7 @@
  * Formula:   a(n) = Sum_{ d divides n } mu(n/d) * 2^(tau(d)-1)
  * Range:     u8 n <= 47, u16 n <= 179, u32 n <= 1259, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 108 terms through n = 9610 (2026-11-01)
  * Helpers:   factor_u64, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 #include "../utils/pow2.h"
 

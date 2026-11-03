@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 67, u32 n <= 215, u64 n <= 791,
  *            u128 n <= 3024, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 9440 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Integer square root, floor(sqrt(x)) for non‑negative x. */
 static idx_t floor_sqrt(idx_t x)
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
         rows = tmp;
 
         for (size_t i = max_rows; i < new_max; ++i) {
-            seq_t *row = (seq_t*)calloc(i + 1, sizeof(seq_t));
+            seq_t *row = mem_new(seq_t, i + 1);
             if (!row) abort();
             rows[i] = row;
 

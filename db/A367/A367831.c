@@ -9,7 +9,8 @@
  *            a(n-k) (OEIS A367831)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 5, u64 n <= 8, u128 n <= 11,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 13 terms through n = 12 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,42 +21,18 @@
 #ifdef __cplusplus
 #include <new>
 #endif
+#include "../utils/mem.h"
 
 /* ===== Dynamic array helpers (valid for both C and C++) ===== */
 
 /* Ensure *arr has capacity at least 'needed' elements.
-   Elements are default-constructed (C++) or left uninitialized (C).
-   Existing elements are copied to the new storage.                 */
+   Existing elements are kept (mem_resize).                         */
 static void ensure_capacity_seq(seq_t **arr, size_t *cap, size_t needed)
 {
     if (*cap >= needed) return;
 
-    /* Allocate new buffer */
-    void *mem = malloc(needed * sizeof(seq_t));
-    if (!mem) abort(); /* allocation failure */
-
-#ifdef __cplusplus
-    seq_t *newarr = static_cast<seq_t *>(mem);
-#else
-    seq_t *newarr = (seq_t *)mem;
-#endif
-
-    /* Copy existing elements */
-    for (size_t i = 0; i < *cap; ++i)
-        newarr[i] = (*arr)[i];
-
-#ifdef __cplusplus
-    /* Default-construct new elements */
-    for (size_t i = *cap; i < needed; ++i)
-        new (newarr + i) seq_t();
-
-    /* Destroy old elements */
-    for (size_t i = 0; i < *cap; ++i)
-        (*arr)[i].~seq_t();
-#endif
-
-    /* Free old storage and update pointers */
-    free(*arr);
+    seq_t *newarr = mem_resize(seq_t, *arr, needed);    /* keeps the old values, zero after */
+    if (!newarr) abort();
     *arr   = newarr;
     *cap   = needed;
 }

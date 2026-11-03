@@ -11,6 +11,7 @@
  *            = ⌊(a₀ + m_{k+1}) / d_{k+1}⌋ The sequence a(n...
  * Range:     u8 n <= 1, u16 n <= 89, u32 n <= 89, u64 n <= 89, u128 n <= 89,
  *            big any n
+ * Validated: partial, pass, 90 terms through n = 89 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

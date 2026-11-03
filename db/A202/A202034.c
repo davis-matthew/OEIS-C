@@ -8,7 +8,8 @@
  *            k=0..n-1 (computed by brute‑force enumeration of all residues)
  * Range:     u8 n <= 429, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 97 terms through n = 9720 (2026-11-01)
+ * Helpers:   is_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,10 @@
 #include <stddef.h>
 
 /* utility functions for modular exponentiation and primality testing */
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <string.h>
 #include "../utils/is_prime.h"
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +37,7 @@ seq_t a(idx_t n)
 
     for (idx_t k = 0; k < n; ++k) {
         /* r = k^n mod n (mod_pow works for all seq_t sizes). */
-        seq_t r_seq = mod_pow((seq_t)k, n, (seq_t)n);
+        seq_t r_seq = powmod((seq_t)k, n, (seq_t)n);
         idx_t r = (idx_t)r_seq;         /* r < n, safe cast to idx_t */
 
         if (!seen[r]) {

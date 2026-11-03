@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 91, u16 n <= 1952, u32 n <= 1952, u64 n <= 1952,
  *            u128 n <= 1952, big any n
- * Helpers:   contains_49
+ * Validated: standard, pass, 75 terms through n = 1751 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,18 @@
    numbers whose Roman‑numeral representation uses subtractive notation. */
 
 #include <stdbool.h>
-#include "../utils/contains_49.h"
+
+/* Test whether a value contains a decimal digit 4 or 9. */
+static bool contains_49(seq_t x)
+{
+    seq_t t = x;
+    while (t != 0) {
+        seq_t d = t % 10;
+        if (d == 4 || d == 9) return true;
+        t /= 10;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

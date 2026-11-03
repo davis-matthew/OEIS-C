@@ -9,14 +9,16 @@
  * Formula:   a(n) = number of representations of n as a sum of distinct
  *            elements of the generalized Fibonacci sequence starting
  *            8,1,9,10,19,29,
- * Range:     u8 n <= 8715, u16 n <= 8715, u32 n <= 8715, u64 n <= 8715,
- *            u128 n <= 8715, big any n
- * Helpers:   none
+ * Range:     u8 n <= 15360, u16 n <= 15360, u32 n <= 15360, u64 n <= 15360,
+ *            u128 n <= 15360, big any n
+ * Validated: standard, pass, 117 terms through n = 8715 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute a(n) for any n >= 0.  This DP counts the ways to
    represent n as a sum of distinct Fibonacci terms.  The
@@ -26,7 +28,7 @@
 seq_t a(idx_t n)
 {
     /* Allocate DP array of size n+1, initialized to 0 */
-    seq_t *dp = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (n + 1));
     if (!dp) return (seq_t)0;          /* allocation failure – return 0 */
     for (idx_t i = 0; i <= n; ++i) dp[i] = (seq_t)0;
     dp[0] = (seq_t)1;                  /* empty sum */
@@ -52,6 +54,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

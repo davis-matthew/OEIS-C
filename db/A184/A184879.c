@@ -9,14 +9,16 @@
  *            = n - r*(r+1)/2 (column index within the row) and T(r,c) =
  *            Σ_{i=0}^{2*r-2*c} binomial(2*r-2*c, i)*binomial(2*c, i)*(-1)^i.
  *            This is the row‑by‑row flattening of the triangular array
- * Range:     i8 n <= 22, i16 n <= 68, i32 n <= 70, i64 n <= 70, i128 n <= 70,
+ * Range:     i8 n <= 46, i16 n <= 70, i32 n <= 70, i64 n <= 70, i128 n <= 70,
  *            big any n
+ * Validated: partial, pass, 71 terms through n = 70 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 static seq_t compute_T(idx_t r, idx_t c) {

@@ -11,12 +11,14 @@
  *            elementary symmetric sum of the numbers 4*i^2 (i=1..r)
  * Range:     i8 n <= 7, i16 n <= 12, i32 n <= 32, i64 n <= 54, i128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
 
     /* Allocate and zero the e array. */
     size_t sz = (size_t)p + 1;
-    seq_t *e = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *e = mem_new(seq_t, sz);
     if (!e) return 0;            /* allocation failure – undefined */
     e[0] = 1;
 
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     }
 
     seq_t coeff = e[(size_t)p];
-    free(e);
+    mem_free(e);
 
     /* Apply the sign (-1)^p. */
     if (p & 1)

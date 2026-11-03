@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   factor_u64, mod_pow
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-03)
+ * Helpers:   factor_u64, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,12 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include <stdint.h>
+#include <string.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------- */
 /* Cache for values of the A045572 sequence (numbers coprime to 2 and 5) */
@@ -43,7 +48,7 @@ static seq_t get_A045572(idx_t idx)
     /* Allocate / grow cache if necessary */
     if (A_cap == 0) {
         A_cap = 4;
-        A_vals = (seq_t *)malloc(A_cap * sizeof(seq_t));
+        A_vals = mem_new(seq_t, A_cap);
     }
     for (idx_t i = A_len + 1; i <= idx; ++i) {
         if (A_len == 0) {
@@ -55,7 +60,7 @@ static seq_t get_A045572(idx_t idx)
         while ((v % 2 == 0) || (v % 5 == 0)) v += 1;
         if (A_len >= A_cap) {
             A_cap *= 2;
-            A_vals = (seq_t *)realloc(A_vals, A_cap * sizeof(seq_t));
+            A_vals = mem_resize(seq_t, A_vals, A_cap);
         }
         A_vals[A_len++] = v;
     }
@@ -91,7 +96,7 @@ static seq_t order_10_mod(uint64_t N)
     for (size_t i = 0; i < fcnt; ++i) {
         uint64_t p = fp[i];
         while ((d % p) == 0) {
-            seq_t val = mod_pow((seq_t)10, d / p, (seq_t)N);
+            seq_t val = powmod((seq_t)10, d / p, (seq_t)N);
             if (val == (seq_t)1) {
                 d /= p;
             } else {
@@ -119,7 +124,7 @@ seq_t a(idx_t n)
     if ((idx_t)n > a_cap) {
         idx_t new_cap = a_cap == 0 ? 4 : a_cap * 2;
         while ((idx_t)n > new_cap) new_cap *= 2;
-        a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_cap);
         a_cap   = new_cap;
     }
     while (n > a_len) a_cache[a_len++] = (seq_t)0;  /* initialise to 0 */

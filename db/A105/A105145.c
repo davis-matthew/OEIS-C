@@ -6,15 +6,31 @@
  * Keywords:  base, nonn, easy
  * Formula:   a(n) = n such that the number formed by concatenating n and
  *            10001 (i.e. n*10^5 + 10001) is prime
- * Range:     u8 none, u16 none, u32 none, u64 n <= 1000, u128 n <= 1000,
+ * Range:     u8 none, u16 none, u32 n <= 1000, u64 n <= 1000, u128 n <= 1000,
  *            big any n
- * Helpers:   isprime_big, push_seq
+ * Validated: standard, pass, 79 terms through n = 918 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/isprime_big.h"
-#include "../utils/push_seq.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
+
+/* Dynamic array helpers. */
+static void push_seq(seq_t **arr, idx_t *cap, idx_t *size, seq_t val)
+{
+    if (*size >= *cap) {
+        size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+        *arr = mem_resize(seq_t, *arr, new_cap);
+        *cap = new_cap;
+    }
+    (*arr)[*size] = val;
+    (*size)++;
+}
 
 seq_t a(idx_t n)
 {
@@ -25,7 +41,7 @@ seq_t a(idx_t n)
 
     while (seq_len < n) {
         seq_t val = (seq_t)test_n * (seq_t)100000 + (seq_t)10001;
-        if (isprime_big(val))
+        if (is_prime_seq(val))
             push_seq(&seq, &seq_cap, &seq_len, (seq_t)test_n);
         test_n++;
     }

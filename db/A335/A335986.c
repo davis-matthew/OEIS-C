@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 7, i16 n <= 11, i32 n <= 17, i64 n <= 24, i128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stddef.h>   /* size_t */
 #include <stdlib.h>   /* malloc, realloc, abort */
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /*  Global cache for the sequence values and the current Stirling‑2 row */
@@ -39,8 +41,8 @@ static void ensure_cache(idx_t need)
     if (required > cache_cap)
     {
         size_t new_cap = required * 2;
-        seq_t *new_a = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
-        seq_t *new_s = (seq_t *)realloc(s_cache, new_cap * sizeof(seq_t));
+        seq_t *new_a = mem_resize(seq_t, a_cache, new_cap);
+        seq_t *new_s = mem_resize(seq_t, s_cache, new_cap);
         if (!new_a || !new_s) { abort(); }      /* allocation failure */
 
         /* initialise new slots to zero */

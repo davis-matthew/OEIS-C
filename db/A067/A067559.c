@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 938 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Numbers n for which floor(π·n²) is prime.  */
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const uint64_t PI_SCALER = 3141592653589793238ULL;   /* π × 10¹⁸  */
 static const uint64_t SCALE     = 1000000000000000000ULL;   /* 10¹⁸     */
@@ -78,16 +80,20 @@ static void ensure_terms(idx_t n)
     /* Grow cache capacity if necessary. */
     if (cache_cap == 0) {
         cache_cap = 64;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     } else if (cache_len == cache_cap) {
         cache_cap <<= 1;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 
     /* Scan numbers until we have n terms. */
     while (cache_len < (size_t)n) {
         uint64_t val = floor_pi_sq((uint64_t)last_scanned);
         if (is_prime_uint64(val)) {
+            if (cache_len == cache_cap) {      /* grow before each store (it grew once) */
+                cache_cap <<= 1;
+                cache = mem_resize(seq_t, cache, cache_cap);
+            }
             cache[cache_len++] = (seq_t)last_scanned;
         }
         ++last_scanned;

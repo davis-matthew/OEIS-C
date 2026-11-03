@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 4, i16 none, i32 n <= 4, i64 n <= 5, i128 n <= 5,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 5 terms through n = 5 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Integer square root using binary search (works for any seq_t) */
 static seq_t isqrt(seq_t x) {
@@ -57,7 +59,7 @@ static void compute_solutions(void) {
         if (r * r == val) {
             if (sol_count == sol_cap) {
                 sol_cap = sol_cap ? sol_cap * 2 : 8;
-                seq_t *tmp = (seq_t *)realloc(solutions, sol_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, solutions, sol_cap);
                 if (!tmp) break;
                 solutions = tmp;
             }

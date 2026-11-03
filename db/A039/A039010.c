@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 77, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_equal_ones_twos
+ * Validated: standard, pass, 76 terms through n = 9251 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,21 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/has_equal_ones_twos.h"
+#include "../utils/mem.h"
+
+/* Return 1 if x has an equal number of 1's and 2's in its base‑5 expansion. */
+static int has_equal_ones_twos(uint64_t x)
+{
+    int cnt1 = 0, cnt2 = 0;
+    do
+    {
+        int d = x % 5;
+        if (d == 1) ++cnt1;
+        else if (d == 2) ++cnt2;
+        x /= 5;
+    } while (x);
+    return cnt1 == cnt2;
+}
 
 /* Grow the cache so it can hold at least 'need' elements. */
 static void ensure_cache_size(size_t need, seq_t **c, size_t *cap)
@@ -26,7 +41,7 @@ static void ensure_cache_size(size_t need, seq_t **c, size_t *cap)
     if (*cap >= need) return;
     size_t new_cap = *cap ? (*cap << 1) : 8;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(*c, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *c, new_cap);
     if (!tmp) exit(1);           /* OOM – not expected */
     *c = tmp;
     *cap = new_cap;

@@ -10,14 +10,40 @@
  *            det(M)/2 where M is the Cayley–Menger matrix
  * Range:     u8 n <= 14, u16 n <= 34, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   valid_triangles
+ * Validated: partial, pass, 40 terms through n = 48 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/valid_triangles.h"
+
+/* Check the triangle inequalities for the four faces of a tetrahedron. */
+static bool valid_triangles(const int e[6])
+{
+    /* face 0-1-2 : edges e0, e1, e3 */
+    if (e[0] + e[1] <= e[3]) return false;
+    if (e[0] + e[3] <= e[1]) return false;
+    if (e[1] + e[3] <= e[0]) return false;
+
+    /* face 0-1-3 : edges e0, e2, e4 */
+    if (e[0] + e[2] <= e[4]) return false;
+    if (e[0] + e[4] <= e[2]) return false;
+    if (e[2] + e[4] <= e[0]) return false;
+
+    /* face 0-2-3 : edges e1, e2, e5 */
+    if (e[1] + e[2] <= e[5]) return false;
+    if (e[1] + e[5] <= e[2]) return false;
+    if (e[2] + e[5] <= e[1]) return false;
+
+    /* face 1-2-3 : edges e3, e4, e5 */
+    if (e[3] + e[4] <= e[5]) return false;
+    if (e[3] + e[5] <= e[4]) return false;
+    if (e[4] + e[5] <= e[3]) return false;
+
+    return true;
+}
 
 /* Permutations of 0..4 used for the 5x5 determinant (120 elements). */
 static int perm5[120][5];

@@ -11,15 +11,32 @@
  *            are all graphical, so F(n) = Sum_{e=2..n-3} Sum_{E<=e-2, E==e...
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 19, u64 n <= 36, u128 n <= 68,
  *            big any n
- * Helpers:   a007722_cap, alloc_zero, release
+ * Validated: standard, pass, 42 terms through n = 89 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
-#include "../utils/a007722_cap.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
+
+static long long a007722_cap(long long a)
+{
+    long long c = (a + 1) * (a + 1) / 4;
+    if (c & 1) c++;
+    return c;
+}
 
 seq_t a(idx_t n)
 {

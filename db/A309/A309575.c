@@ -8,15 +8,16 @@
  *            t(3t±1)/2, else 0. This follows from the pentagonal number
  *            theorem applied to G(x) = ∏_{k≥1} (1 - (x+x²)^k) = ∏_{k≥1} (1 -
  *            y^k) with y=x+x²
- * Range:     i8 n <= 10, i16 n <= 21, i32 n <= 42, i64 n <= 42, i128 n <= 42,
+ * Range:     i8 n <= 14, i16 n <= 27, i32 n <= 42, i64 n <= 42, i128 n <= 42,
  *            big any n
- * Helpers:   binom_pos
+ * Validated: partial, pass, 43 terms through n = 42 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/binom_pos.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n) {
     seq_t total = 0;
@@ -32,7 +33,7 @@ seq_t a(idx_t n) {
         if (m1 > 0) {              /* skip m1=0 since we handled n==0 */
             if (n >= m1 && n <= 2 * m1) {
                 idx_t k = n - m1;  /* k ∈ [0, m1] */
-                total += sign * binom_pos(m1, k);
+                total += sign * binomial(m1, k);
             }
         }
 
@@ -42,7 +43,7 @@ seq_t a(idx_t n) {
         if (m2 > 0) {
             if (n >= m2 && n <= 2 * m2) {
                 idx_t k = n - m2;
-                total += sign * binom_pos(m2, k);
+                total += sign * binomial(m2, k);
             }
         }
     }

@@ -8,15 +8,19 @@
  *            k
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 30, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   binom, digit_len
+ * Validated: partial, pass, 58 terms through n = 57 (2026-11-01)
+ * Helpers:   binomial, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Include helper functions for big integer binomial computation
    and decimal digit counting. */
-#include "../utils/binom.h"
-#include "../utils/digit_len.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/num_digits.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +30,7 @@ seq_t a(idx_t n)
 
     for (idx_t k = 0; k <= n; ++k) {
         /* add digits of current binomial coefficient */
-        int d = digit_len(cur);
+        int d = num_digits(cur);
         total += d;
 
         /* compute next coefficient C(n,k+1) if needed */

@@ -8,12 +8,14 @@
  *            a(k)=0 for k<0
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 33, u64 n <= 66, u128 n <= 133,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 299 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;
@@ -23,12 +25,12 @@ seq_t a(idx_t n) {
     /* Initial allocation or resizing */
     if (cache_size == 0) {
         cache_size = n + 1;
-        cache = (seq_t *)realloc(cache, cache_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_size);
         cache[0] = (seq_t)1;           /* a(0) = 1 */
         max_computed = 0;
     } else if (n >= cache_size) {
         cache_size = n + 1;
-        cache = (seq_t *)realloc(cache, cache_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_size);
     }
 
     /* Return immediately if already computed */

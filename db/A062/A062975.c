@@ -10,15 +10,17 @@
  *            this list by incrementally searching for qualifying numbers
  * Range:     u8 n <= 71, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   divisor_count_u64, phi
+ * Validated: partial, pass, 69 terms through n = 71 (2026-11-03)
+ * Helpers:   mem, num_divisors, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/phi.h"
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
+#include "../utils/totient.h"
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are supplied by the build system. */
 seq_t a(idx_t n)
@@ -46,11 +48,11 @@ seq_t a(idx_t n)
         for (;; ++cur)
         {
             /* Compute phi(cur) and its half.  phi(cur) is even for cur≥3. */
-            seq_t phi_val   = phi((idx_t)cur);
+            seq_t phi_val   = totient((idx_t)cur);
             seq_t phi_half  = phi_val / 2;
 
             /* Count divisors of cur. */
-            uint64_t tau_u64 = divisor_count_u64(cur);
+            uint64_t tau_u64 = num_divisors(cur);
             seq_t   tau_seq  = (seq_t)tau_u64;
 
             /* Check the conditions. */
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
         if (seq_len == seq_cap)
         {
             seq_cap = seq_cap ? seq_cap * 2 : 8;
-            seq     = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+            seq     = mem_resize(seq_t, seq, seq_cap);
         }
 
         /* Store the discovered value. */

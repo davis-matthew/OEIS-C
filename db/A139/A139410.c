@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 2, u64 n <= 2, u128 n <= 2,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 2 terms through n = 2 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     /* helper to grow the terms array */
     if (terms_cnt == terms_cap) {
         size_t new_cap = terms_cap ? terms_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
         if (!tmp) abort();          /* out of memory */
         terms = tmp;
         terms_cap = new_cap;
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
         if (sum == (seq_t)last_check) {
             if (terms_cnt == terms_cap) {
                 size_t new_cap = terms_cap ? terms_cap * 2 : 16;
-                seq_t *tmp2 = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                seq_t *tmp2 = mem_resize(seq_t, terms, new_cap);
                 if (!tmp2) abort();
                 terms = tmp2;
                 terms_cap = new_cap;

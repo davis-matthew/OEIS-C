@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 8814 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    adaptively chosen limit and returns the n‑th such number (1‑based index). */
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- static state ---------- */
 static seq_t *seq_buf = NULL;   /* array of values that satisfy the property   */
@@ -60,7 +62,7 @@ static void compute_terms(void)
     }
 
     /* allocate array for the terms */
-    seq_buf = (seq_t *)malloc(needed * sizeof(seq_t));
+    seq_buf = mem_new(seq_t, needed);
     if (!seq_buf) { free(dp); DP(0,0) = 0; return; }
     seq_len = needed;
 

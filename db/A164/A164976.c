@@ -11,13 +11,15 @@
  *            obtained by finding the row r such that r*(r+1)/2 ≤ n < (...
  * Range:     i8 n <= 24, i16 n <= 72, i32 n <= 245, i64 n <= 891,
  *            i128 n <= 3463, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 5006 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *tri = NULL;        /* linearized triangle */
 static size_t tri_cap = 0;       /* allocated capacity */
@@ -35,13 +37,13 @@ seq_t a(idx_t n)
     /* Ensure the cache is large enough */
     idx_t needed = (r + 1) * (r + 2) / 2;
     if (!tri) {
-        tri = (seq_t *)malloc((size_t)needed * sizeof(seq_t));
+        tri = mem_new(seq_t, (size_t)needed);
         tri_cap = (size_t)needed;
         /* seed first element */
         tri[0] = (seq_t)1;
         last_row = 0;
     } else if ((size_t)needed > tri_cap) {
-        seq_t *tmp = (seq_t *)realloc(tri, (size_t)needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, tri, (size_t)needed);
         if (!tmp) return (seq_t)0;   /* allocation failed; return 0 */
         tri = tmp;
         tri_cap = (size_t)needed;

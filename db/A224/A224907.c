@@ -8,7 +8,8 @@
  * Formula:   a(n) = 2*A005101(n) – twice the n‑th abundant number
  * Range:     u8 n <= 24, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 981 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Abuse of opaque types – seq_t and idx_t are defined in the build
    system.  The code below treats them as unsigned integer types, so
@@ -34,8 +36,8 @@ static size_t abund_cap   = 0;        /* allocated capacity of abund */
 
 static void rebuild_sigma(idx_t limit)
 {
-    free(sigma);
-    sigma = (seq_t *)calloc((size_t)limit + 1, sizeof(seq_t));
+    mem_free(sigma);
+    sigma = mem_new(seq_t, (size_t)limit + 1);
     if (!sigma) abort();
     for (idx_t i = 1; i <= limit; ++i) {
         seq_t val = (seq_t)i;
@@ -63,7 +65,7 @@ static void ensure_n(idx_t n)
             if (sigma[i] > (seq_t)2 * (seq_t)i) {
                 if (abund_sz == abund_cap) {
                     size_t new_cap = abund_cap == 0 ? 32 : abund_cap * 2;
-                    seq_t *tmp = (seq_t *)realloc(abund, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, abund, new_cap);
                     if (!tmp) abort();
                     abund = tmp;
                     abund_cap = new_cap;

@@ -10,12 +10,14 @@
  *            * Generates the sequence A167124
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 482 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* numerator coefficient b(n) */
 static inline seq_t b_term(idx_t n)
@@ -38,9 +40,9 @@ seq_t a(idx_t n)
     {
         idx_t new_len = n + 1U;
         if (max_alloc == 0U)
-            cache = (seq_t *)malloc(sizeof(seq_t) * new_len);
+            cache = mem_new(seq_t, new_len);
         else
-            cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_len);
+            cache = mem_resize(seq_t, cache, new_len);
         max_alloc = new_len;
     }
 

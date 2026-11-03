@@ -10,12 +10,14 @@
  *            contains n
  * Range:     i8 n <= 30, i16 n <= 70, i32 n <= 78, i64 n <= 78, i128 n <= 78,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n) {
     /* Find the diagonal s such that n lies on it: n <= s*(s+1)/2  */
@@ -37,13 +39,13 @@ seq_t a(idx_t n) {
 
     for (idx_t d = 1; d * d <= r; ++d) {
         if (r % d == 0) {
-            seq_t v1 = pow_seq((seq_t)d, (int)k);
+            seq_t v1 = ipow_i32((seq_t)d, (int)k);
             if (d % 4 == 1)      pos += v1;
             else if (d % 4 == 3) neg += v1;
 
             idx_t d2 = r / d;
             if (d2 != d) {
-                seq_t v2 = pow_seq((seq_t)d2, (int)k);
+                seq_t v2 = ipow_i32((seq_t)d2, (int)k);
                 if (d2 % 4 == 1)   pos += v2;
                 else if (d2 % 4 == 3) neg += v2;
             }

@@ -7,6 +7,7 @@
  * Formula:   a(n) = 4*n*(n^2 - 3*n - 1)/3
  * Range:     i8 n <= 4, i16 n <= 21, i32 n <= 921, i64 n <= 1000,
  *            i128 n <= 1000, big any n
+ * Validated: standard, pass, 63 terms through n = 922 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

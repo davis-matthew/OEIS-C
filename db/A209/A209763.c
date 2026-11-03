@@ -10,7 +10,8 @@
  *            flattened triangle of coefficients of u(n,x)
  * Range:     u8 n <= 25, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
  * ... */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -46,8 +48,8 @@ seq_t a(idx_t n)
         /* Initial row (row 1) if not yet built */
         if (max_row == 0) {
             prev_len = 1;
-            u_prev = (seq_t *)calloc(prev_len, sizeof(seq_t));
-            v_prev = (seq_t *)calloc(prev_len, sizeof(seq_t));
+            u_prev = mem_new(seq_t, prev_len);
+            v_prev = mem_new(seq_t, prev_len);
             if (!u_prev || !v_prev) abort();
             u_prev[0] = (seq_t)1;
             v_prev[0] = (seq_t)1;
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
             /* Append coefficients of u(1) to the flat array */
             if (flat_len + prev_len > flat_cap) {
                 size_t new_cap = (flat_cap ? flat_cap * 2 : 16);
-                seq_t *tmp = (seq_t *)realloc(flat, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, flat, new_cap);
                 if (!tmp) abort();
                 flat      = tmp;
                 flat_cap  = new_cap;
@@ -67,8 +69,8 @@ seq_t a(idx_t n)
         /* Generate subsequent rows */
         for (idx_t row = max_row + 1; row <= r; ++row) {
             idx_t cur_len = row;          /* coefficients of u(row,x) */
-            seq_t *u_cur = (seq_t *)calloc(cur_len, sizeof(seq_t));
-            seq_t *v_cur = (seq_t *)calloc(cur_len, sizeof(seq_t));
+            seq_t *u_cur = mem_new(seq_t, cur_len);
+            seq_t *v_cur = mem_new(seq_t, cur_len);
             if (!u_cur || !v_cur) abort();
 
             /* Build the polynomials for this row */
@@ -87,7 +89,7 @@ seq_t a(idx_t n)
             /* Append u(row) coefficients to the flat array */
             if (flat_len + cur_len > flat_cap) {
                 size_t new_cap = (flat_cap ? flat_cap * 2 : 16);
-                seq_t *tmp = (seq_t *)realloc(flat, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, flat, new_cap);
                 if (!tmp) abort();
                 flat      = tmp;
                 flat_cap  = new_cap;
@@ -97,8 +99,8 @@ seq_t a(idx_t n)
             }
 
             /* Prepare for next iteration */
-            free(u_prev);
-            free(v_prev);
+            mem_free(u_prev);
+            mem_free(v_prev);
             u_prev = u_cur;
             v_prev = v_cur;
             prev_len = cur_len;

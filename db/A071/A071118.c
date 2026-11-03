@@ -7,14 +7,16 @@
  * Formula:   a(n) = 2 * n * phi(n)
  * Range:     u8 n <= 12, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   phi
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* This implements the size of the automorphism group of Z × Z_n. */
 
-#include "../utils/phi.h"
+#include <stdint.h>
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +24,7 @@ seq_t a(idx_t n)
     if (n == 0)
         return (seq_t)0;
 
-    seq_t phi_n = phi(n);           /* Euler's totient of n */
+    seq_t phi_n = totient(n);           /* Euler's totient of n */
     seq_t result = (seq_t)n * phi_n;/* n * phi(n) */
     result *= 2;                    /* multiply by 2 as required */
     return result;

@@ -11,14 +11,16 @@
  *            answers queries by indexing into the resulting array
  * Range:     u8 n <= 17, u16 n <= 19, u32 n <= 19, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: full, pass, 19 terms through n = 19 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 static seq_t *valid = NULL;      /* array of qualifying numbers */
 static size_t valid_cnt = 0;     /* number of stored elements */
@@ -29,17 +31,17 @@ static void build_table(void)
     if (valid != NULL) return;   /* already built */
 
     size_t cap = 16;
-    valid = (seq_t *)malloc(cap * sizeof(seq_t));
+    valid = mem_new(seq_t, cap);
     if (!valid) abort();
 
     /* scan all numbers from 4 to 999 */
     for (idx_t num = 4; num <= 999; ++num) {
         /* single–digit composite numbers */
         if (num < 10) {
-            if (!is_prime_small((seq_t)num)) {
+            if (!is_prime_seq((seq_t)num)) {
                 if (valid_cnt == cap) {
                     cap *= 2;
-                    seq_t *tmp = (seq_t *)realloc(valid, cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, valid, cap);
                     if (!tmp) abort();
                     valid = tmp;
                 }
@@ -67,17 +69,17 @@ static void build_table(void)
                 sub = sub * 10 + digs[j];
                 /* full number is a proper substring? skip it */
                 if ((j - i + 1) == len) break;
-                if (!is_prime_small(sub)) {
+                if (!is_prime_seq(sub)) {
                     ok = false;
                     break;
                 }
             }
         }
 
-        if (ok && !is_prime_small((seq_t)num)) {
+        if (ok && !is_prime_seq((seq_t)num)) {
             if (valid_cnt == cap) {
                 cap *= 2;
-                seq_t *tmp = (seq_t *)realloc(valid, cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, valid, cap);
                 if (!tmp) abort();
                 valid = tmp;
             }

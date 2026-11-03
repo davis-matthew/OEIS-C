@@ -11,13 +11,15 @@
  *            and odious numbers, computed incrementally in O...
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 73 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *evils   = NULL;   /* array of evil numbers (popcount even) */
 static seq_t *odious  = NULL;   /* array of odious numbers (popcount odd) */
@@ -32,7 +34,7 @@ static void ensure_cap(size_t *cap, size_t *count, seq_t **arr)
 {
     if (*count >= *cap) {
         size_t new_cap = (*cap == 0) ? 8 : (*cap << 1);
-        seq_t *p = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        seq_t *p = mem_resize(seq_t, *arr, new_cap);
         if (!p) abort();                     /* allocation failure */
         *arr = p;
         *cap = new_cap;

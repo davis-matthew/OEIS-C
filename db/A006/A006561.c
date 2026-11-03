@@ -11,15 +11,32 @@
  *            35*n*delta(24,n) - 38*n*delta(30,n) - 82*n*delta(42,n) -
  *            330*n*delta(60,n) - 144*n*delta(84,n) - 96*n*delta(90,n) -
  *            144*n*de...
- * Range:     u8 n <= 10, u16 n <= 36, u32 n <= 568, u64 n <= 9545,
- *            u128 n <= 9545, big any n
- * Helpers:   a006561_binom4
+ * Range:     u8 n <= 10, u16 n <= 36, u32 n <= 568, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 60 terms through n = 9545 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a006561_binom4.h"
+
+/* binomial(n,4) built from exact native factors so fixed-width wrap stays consistent */
+static seq_t a006561_binom4(idx_t n) {
+    uint64_t f[4];
+    int i;
+    for (i = 0; i < 4; i++) f[i] = (uint64_t)n - (uint64_t)i;
+    for (i = 0; i < 4; i++) if (f[i] % 3 == 0) { f[i] /= 3; break; }
+    for (i = 0; i < 4; i++) if (f[i] % 4 == 0) { f[i] /= 4; break; }
+    for (i = 0; i < 4; i++) if (f[i] % 2 == 0) { f[i] /= 2; break; }
+    {
+        seq_t r = (seq_t)f[0];
+        r *= (seq_t)f[1];
+        r *= (seq_t)f[2];
+        r *= (seq_t)f[3];
+        return r;
+    }
+}
 
 seq_t a(idx_t n) {
     long long m, corr = 0;

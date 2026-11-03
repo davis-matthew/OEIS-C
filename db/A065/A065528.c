@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 47, u16 n <= 1931, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_sqrt, gcd_uint64, phi
+ * Validated: standard, pass, 76 terms through n = 9084 (2026-11-03)
+ * Helpers:   gcd_u64, ipow_i32, mem, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,28 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/phi.h"        /* seq_t phi(idx_t m);           */
-#include "../utils/floor_sqrt.h" /* seq_t floor_sqrt(seq_t x);    */
-#include "../utils/gcd_uint64.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/totient.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* ---------- Helper: Euclidean GCD for uint64_t values ---------- */
 
@@ -71,12 +91,12 @@ static bool is_perfect_power_uint64(uint64_t x) {
         }
         if (exp > 0) {
             if (gcd_exp == 0) gcd_exp = exp;
-            else gcd_exp = gcd_uint64(gcd_exp, exp);
+            else gcd_exp = gcd_u64(gcd_exp, exp);
         }
     }
     if (y > 1) {               /* remaining prime factor with exponent 1 */
         if (gcd_exp == 0) gcd_exp = 1;
-        else gcd_exp = gcd_uint64(gcd_exp, 1);
+        else gcd_exp = gcd_u64(gcd_exp, 1);
     }
     return gcd_exp > 1;
 }
@@ -93,20 +113,20 @@ seq_t a(idx_t n) {
     if (!seq_initialised) {
         init_primes();
         seq_cap = 16;
-        seq_arr = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_arr = mem_new(seq_t, seq_cap);
         if (!seq_arr) exit(EXIT_FAILURE);
         seq_initialised = true;
     }
 
     /* Generate terms until we reach the requested index n */
     while (seq_len < (size_t)n) {
-        seq_t ph = phi((idx_t)candidate); /* φ(candidate) */
+        seq_t ph = totient((idx_t)candidate); /* φ(candidate) */
         uint64_t ph64 = (uint64_t)ph;      /* φ fits into 64 bits for our range */
 
         if (is_perfect_power_uint64(ph64)) {
             if (seq_len == seq_cap) {       /* grow storage */
                 seq_cap *= 2;
-                seq_arr = (seq_t *)realloc(seq_arr, seq_cap * sizeof(seq_t));
+                seq_arr = mem_resize(seq_t, seq_arr, seq_cap);
                 if (!seq_arr) exit(EXIT_FAILURE);
             }
             seq_arr[seq_len++] = (seq_t)candidate;

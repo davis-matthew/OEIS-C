@@ -8,15 +8,19 @@
  *            a(0) = 1
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 14, u128 n <= 19,
  *            big any n
- * Helpers:   binomial, pow2, pow3
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   binomial, mem, pow2, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdbool.h>
+#include <stdint.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
 #include "../utils/pow3.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +33,7 @@ seq_t a(idx_t n)
     if (cache_size <= n)
     {
         idx_t new_size = n + 1;
-        seq_t *tmp = (seq_t *)calloc(new_size, sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, new_size);
         if (!tmp)
             return (seq_t)0;      /* out‑of‑memory → undefined value */
 
@@ -38,7 +42,7 @@ seq_t a(idx_t n)
             /* copy already computed values into the new buffer */
             for (idx_t i = 0; i <= cached_upto; ++i)
                 tmp[i] = cache[i];
-            free(cache);
+            mem_free(cache);
         }
         cache      = tmp;
         cache_size = new_size;

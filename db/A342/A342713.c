@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 6, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   triangular_uint
+ * Validated: partial, pass, 46 terms through n = 48 (2026-11-01)
+ * Helpers:   triangular_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/triangular_uint.h"
+#include "../utils/triangular_idx.h"
 
 /* --------------------- Integer square root (seq_t) --------------------- */
 static inline seq_t floor_sqrt(seq_t x)
@@ -47,11 +48,11 @@ static inline seq_t floor_sqrt(seq_t x)
 seq_t a(idx_t n)
 {
     /* n ≥ 3 by the sequence definition; no explicit check needed. */
-    seq_t total = triangular_uint(n);  /* Sum of 1..n */
+    seq_t total = triangular_idx(n);  /* Sum of 1..n */
     seq_t best  = 0;                   /* Maximum product found */
 
     for (idx_t i = 1; i <= n - 2; ++i) {
-        seq_t Ti    = triangular_uint(i);   /* Sum of first block */
+        seq_t Ti    = triangular_idx(i);   /* Sum of first block */
         seq_t limit = total - Ti;           /* Needed for j search */
 
         /* Find largest j (i+1 ≤ j ≤ n‑1) with T(j) ≤ limit.
@@ -67,7 +68,7 @@ seq_t a(idx_t n)
         /* Evaluate j = j0 and j = j0+1 (if valid) to capture optimum. */
         for (idx_t jj = j0; jj <= j0 + 1; ++jj) {
             if (jj <= i || jj > n - 1) continue;
-            seq_t Tj = triangular_uint(jj);
+            seq_t Tj = triangular_idx(jj);
             seq_t S2 = Tj - Ti;
             seq_t S3 = total - Tj;
             seq_t prod;

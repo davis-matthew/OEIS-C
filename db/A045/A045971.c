@@ -9,7 +9,8 @@
  *            ), where n = Π p_i^(e_i) (prime factorization)
  * Range:     u8 n <= 4, u16 n <= 20, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   factor_u64, next_prime, seq_pow
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,9 +24,10 @@
 #include <stdlib.h>   /* malloc, free */
 #include <stdint.h>   /* uint64_t */
 
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
+#include "../utils/ipow_idx.h"
 #include "../utils/next_prime.h"
-#include "../utils/seq_pow.h"
 
 seq_t a(idx_t n) {
     if (n == 1) {
@@ -50,7 +52,7 @@ seq_t a(idx_t n) {
     for (size_t i = 0; i < cnt; ++i) {
         uint64_t next = next_prime(primes[i]);                 /* p_{i+1} */
         idx_t    exp  = (idx_t)(expo[i] + 2ULL);               /* e_i + 2   */
-        seq_t term = seq_pow((seq_t)next, exp);                /* next^(exp) */
+        seq_t term = ipow_idx((seq_t)next, exp);                /* next^(exp) */
         result = result * term;
     }
 

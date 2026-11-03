@@ -5,14 +5,16 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = sum_{q=0..n} Stirling2(n+1,q)^2 * q!
- * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 12, u128 n <= 17,
+ * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -22,15 +24,15 @@ seq_t a(idx_t n)
     /* ---- Allocate temporary tables ------------------------------------- */
     /* factorials: fact[0..n] */
     size_t fsize = (size_t)n + 1;
-    seq_t *fact = (seq_t *)malloc(fsize * sizeof(seq_t));
+    seq_t *fact = mem_new(seq_t, fsize);
     if (!fact) return 0; /* Allocation failed – return 0 as a fallback */
 
     /* Stirling numbers for the current and previous row:
        we need indices up to (n+1) */
     size_t rsize = (size_t)n + 2; /* rows 0..n+1 inclusive */
-    seq_t *prev = (seq_t *)malloc(rsize * sizeof(seq_t));
-    seq_t *curr = (seq_t *)malloc(rsize * sizeof(seq_t));
-    if (!prev || !curr) { free(fact); free(prev); free(curr); return 0; }
+    seq_t *prev = mem_new(seq_t, rsize);
+    seq_t *curr = mem_new(seq_t, rsize);
+    if (!prev || !curr) { mem_free(fact); mem_free(prev); mem_free(curr); return 0; }
 
     /* ---- Compute factorials -------------------------------------------- */
     fact[0] = 1;
@@ -66,9 +68,9 @@ seq_t a(idx_t n)
     }
 
     /* ---- Clean up ----------------------------------------------------- */
-    free(fact);
-    free(prev);
-    free(curr);
+    mem_free(fact);
+    mem_free(prev);
+    mem_free(curr);
 
     return sum;
 }

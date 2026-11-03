@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 67 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  * Complexity: O(n) per call (parts count is constant). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;          /* dynamic programming table */
 static idx_t  dp_cap = 0;         /* allocated size of dp */
@@ -29,12 +31,12 @@ seq_t a(idx_t n)
     if (dp == NULL)
     {
         dp_cap = n + 1;
-        dp = (seq_t *)malloc(sizeof(seq_t) * dp_cap);
+        dp = mem_new(seq_t, dp_cap);
     }
     else if (dp_cap <= n)
     {
         dp_cap = n + 1;
-        dp = (seq_t *)realloc(dp, sizeof(seq_t) * dp_cap);
+        dp = mem_resize(seq_t, dp, dp_cap);
     }
 
     /* Re-initialize dp[0..n] */

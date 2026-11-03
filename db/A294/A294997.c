@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 216, u64 n <= 300, u128 n <= 300,
  *            big any n
- * Helpers:   big_pow, digit_counts, seq_realloc
+ * Validated: standard, pass, 75 terms through n = 299 (2026-11-01)
+ * Helpers:   digit_counts, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,14 +20,26 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "../utils/big_pow.h"          /* seq_t big_pow(seq_t base, seq_t exp); */
-#include "../utils/digit_counts.h"     /* void digit_counts(seq_t x, unsigned char cnt[10]); */
-#include "../utils/seq_realloc.h"      /* seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap); */
+#include <stdlib.h>
+#include "../utils/digit_counts.h"
+#include "../utils/ipow.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 /* Return the maximum decimal digit of k³ */
 static unsigned max_digit_in_cube(idx_t k)
 {
-    seq_t cube = big_pow((seq_t)k, (seq_t)3);
+    seq_t cube = ipow((seq_t)k, (seq_t)3);
     unsigned char cnt[10] = {0};
     digit_counts(cube, cnt);
     for (int d = 9; d >= 0; --d)

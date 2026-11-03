@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 9918 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* The build environment supplies definitions for seq_t and idx_t;
    they are NOT declared here.          */
@@ -64,7 +66,7 @@ static void initialise(void)
     dp[0 * stride + 0] = 1;              /* one way to use 0 terms for sum 0 */
 
     /* Pre‑compute the fourth powers up to max_root. */
-    seq_t *fourths = (seq_t *)malloc((max_root + 1) * sizeof(seq_t));
+    seq_t *fourths = mem_new(seq_t, (max_root + 1));
     if (!fourths) {
         free(dp);
         return;
@@ -99,9 +101,9 @@ static void initialise(void)
         if (ways >= 6) {
             if (cache_len >= cap) {
                 size_t new_cap = cap == 0 ? 1024 : cap << 1;
-                seq_t *tmp = (seq_t *)realloc(cache_vals, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache_vals, new_cap);
                 if (!tmp) {
-                    free(fourths);
+                    mem_free(fourths);
                     free(dp);
                     cache_vals = NULL;
                     cache_len  = 0;
@@ -114,7 +116,7 @@ static void initialise(void)
         }
     }
 
-    free(fourths);
+    mem_free(fourths);
     free(dp);
     initialized = true;
 }

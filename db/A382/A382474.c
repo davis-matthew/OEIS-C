@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 13, u64 n <= 31, u128 n <= 72,
  *            big any n
- * Helpers:   binomial
+ * Validated: standard, pass, 40 terms through n = 478 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
 
     if (n + 1 > choose_cap) {
         idx_t new_cap = n + 1;
-        seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_new(seq_t, new_cap);
         if (!new_arr) return 0;  /* allocation failure */
 
         /* copy existing values */
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
         }
 
         if (choose)
-            free(choose);
+            mem_free(choose);
         choose     = new_arr;
         choose_cap = new_cap;
     }

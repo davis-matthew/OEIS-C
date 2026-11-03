@@ -9,7 +9,8 @@
  *            prod p^(k-1)*(p-1) over distinct primes p, with p-1 | v)
  * Range:     u8 n <= 87, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a2202_isprime
+ * Validated: standard, pass, 80 terms through n = 9008 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,13 +18,13 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/a2202_isprime.h"
+#include "../utils/is_prime_u64.h"
 
 static int a2202_is_tot(uint64_t v, uint64_t pmax);
 
 static int a2202_try(uint64_t v, uint64_t q, uint64_t pmax) {
     uint64_t p = q + 1, r;
-    if (p >= pmax || !a2202_isprime(p)) return 0;
+    if (p >= pmax || !is_prime_u64(p)) return 0;
     r = v / q;
     for (;;) {
         if (a2202_is_tot(r, p)) return 1;

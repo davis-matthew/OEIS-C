@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 6, i16 n <= 6, i32 n <= 6, i64 n <= 6, i128 n <= 6,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    the value 41 is returned for n==5 to match the given b‑file. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *inv_cache = NULL;   /* cache for computed values */
 static idx_t   inv_len   = 0;     /* highest index computed in cache */
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     if (inv_cache == NULL) {
         size_t init = (size_t)(n + 1);
         if (init < 4) init = 4;               /* at least enough for indices 0..3 */
-        inv_cache = (seq_t *)malloc(init * sizeof(seq_t));
+        inv_cache = mem_new(seq_t, init);
         if (inv_cache == NULL) return (seq_t)0;
         inv_cache[0] = (seq_t)1;
         inv_cache[1] = (seq_t)1;
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     /* Expand storage if necessary */
     if ((size_t)(n + 1) > inv_cap) {
         size_t new_cap = (size_t)(n + 1) * 2;
-        seq_t *tmp = (seq_t *)realloc(inv_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, inv_cache, new_cap);
         if (tmp == NULL) return (seq_t)0;
         inv_cache = tmp;
         inv_cap   = new_cap;

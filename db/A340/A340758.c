@@ -10,7 +10,8 @@
  *            the number of distinct prime factors
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 68 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     {
         idx_t newN = n;
         /* allocate answer array */
-        seq_t *newAns  = (seq_t *)calloc((size_t)(newN + 1), sizeof(seq_t));
+        seq_t *newAns  = mem_new(seq_t, (size_t)(newN + 1));
         if (!newAns) abort();
 
         /* 1. compute Ω(k) for 1..newN */
@@ -89,7 +91,7 @@ seq_t a(idx_t n)
             if (counts[t] == 0) continue;
 
             /* dp[used][sum] flattened */
-            seq_t *dp = (seq_t *)calloc(5 * sumSize, sizeof(seq_t));
+            seq_t *dp = mem_new(seq_t, 5 * sumSize);
             if (!dp) abort();
             dp[0] = (seq_t)1;        /* 0 parts sum to 0 */
 
@@ -110,7 +112,7 @@ seq_t a(idx_t n)
             for (size_t s = 0; s <= newN; ++s)
                 newAns[s] += dp[base4 + s];
 
-            free(dp);
+            mem_free(dp);
         }
 
         /* free auxiliary structures */
@@ -121,7 +123,7 @@ seq_t a(idx_t n)
         free(caps);
 
         /* replace old table */
-        free(answers);
+        mem_free(answers);
         answers = newAns;
         Nmax = newN;
     }

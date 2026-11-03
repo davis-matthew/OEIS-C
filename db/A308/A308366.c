@@ -7,13 +7,16 @@
  * Formula:   a(n) = Sum_{d|n} (-1)^(d+1) * d^(n/d)
  * Range:     i8 n <= 14, i16 n <= 29, i32 n <= 45, i64 n <= 45, i128 n <= 45,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +27,7 @@ seq_t a(idx_t n)
         if (n % d == 0) {
             /* divisor d */
             idx_t exp1 = n / d;
-            seq_t term1 = seq_pow((seq_t)d, exp1);
+            seq_t term1 = ipow_idx((seq_t)d, exp1);
             if ((d & 1) == 0) /* even d => sign negative */
                 term1 = -term1;
             sum += term1;
@@ -33,7 +36,7 @@ seq_t a(idx_t n)
             idx_t d2 = n / d;
             if (d2 != d) {
                 idx_t exp2 = n / d2; /* exp2 = d */
-                seq_t term2 = seq_pow((seq_t)d2, exp2);
+                seq_t term2 = ipow_idx((seq_t)d2, exp2);
                 if ((d2 & 1) == 0)
                     term2 = -term2;
                 sum += term2;

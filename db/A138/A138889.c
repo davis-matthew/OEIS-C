@@ -7,7 +7,8 @@
  * Formula:   a(n) = nth prime that is not a Fermat prime (non‑Fermat primes)
  * Range:     u8 n <= 51, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *all_primes = NULL;    /* list of all primes found so far      */
 static size_t all_cnt   = 0;         /* number of primes stored              */
@@ -34,7 +36,7 @@ static void grow_array(seq_t **arr, size_t *cap, size_t need)
     size_t new_cap = (*cap) ? (*cap) * 2 : 64;
     while (new_cap < need)
         new_cap <<= 1;
-    *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, new_cap);
     *cap = new_cap;
 }
 

@@ -10,7 +10,8 @@
  *            complement
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   bitset_or, bitset_shift_left, bitset_subtract
+ * Validated: partial, pass, 68 terms through n = 67 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,39 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/bitset_or.h"
-#include "../utils/bitset_shift_left.h"
-#include "../utils/bitset_subtract.h"
+
+/* Bitwise OR: dest = a | b. */
+static void bitset_or(const uint64_t *a, const uint64_t *b,
+                      uint64_t *dest, size_t W)
+{
+    for (size_t i = 0; i < W; ++i)
+        dest[i] = a[i] | b[i];
+}
+
+/* Shift src left by one bit into dest; dest = src << 1. */
+static void bitset_shift_left(const uint64_t *src, uint64_t *dest, size_t W)
+{
+    uint64_t carry = 0;
+    for (size_t i = 0; i < W; ++i) {
+        uint64_t cur = src[i];
+        dest[i] = (cur << 1) | carry;
+        carry = cur >> 63;
+    }
+}
+
+/* Subtract bitset a - b into result; all arrays have W words. */
+static void bitset_subtract(const uint64_t *a, const uint64_t *b,
+                            uint64_t *result, size_t W)
+{
+    uint64_t borrow = 0;
+    for (size_t i = 0; i < W; ++i) {
+        uint64_t ai = a[i];
+        uint64_t bi = b[i];
+        uint64_t sub = ai - bi - borrow;
+        result[i] = sub;
+        borrow = ((ai < bi + borrow) ? 1ULL : 0ULL);
+    }
+}
 
 /* Main sequence function. */
 seq_t a(idx_t n)

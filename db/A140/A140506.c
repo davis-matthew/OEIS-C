@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 998 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define MAX_LIMIT 1000000   /* sufficient for n up to about 10 000 */
 
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
 
         /* Prepare output array */
         size_t capacity = MAX_LIMIT / 4 + 10;   /* very safe estimate */
-        seq = (seq_t *)malloc(capacity * sizeof(seq_t));
+        seq = mem_new(seq_t, capacity);
         if (!seq) {
             free(is_comp);
             return 0;
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
             if (!is_comp[i] && ((i % 30) == 11 || (i % 30) == 19)) {
                 if (seq_sz == capacity) {
                     capacity *= 2;
-                    seq = (seq_t *)realloc(seq, capacity * sizeof(seq_t));
+                    seq = mem_resize(seq_t, seq, capacity);
                     if (!seq) { free(is_comp); return 0; }
                 }
                 seq[seq_sz++] = (seq_t)i;

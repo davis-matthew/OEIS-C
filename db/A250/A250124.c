@@ -12,12 +12,14 @@
  *            recurrence comes from the rational generating function of th...
  * Range:     u8 n <= 70, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 992 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[15] = {
     1, 4, 7, 10, 15, 16, 21, 29, 28, 34, 33, 40, 48, 45, 53
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
        initialise the cache with the first 15 sequence values     */
     if (cache == NULL) {
         cache_size = 15;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_size);
+        cache = mem_new(seq_t, cache_size);
         if (cache == NULL)       /* allocation failure → return 0 */
             return (seq_t)0;
         for (idx_t i = 0; i < 15; ++i)
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     /* enlarge the cache if necessary */
     if (n + 1 > cache_size) {
         idx_t new_size = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_size);
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (tmp == NULL)       /* allocation failure → return 0 */
             return (seq_t)0;
         cache = tmp;

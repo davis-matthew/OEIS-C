@@ -8,7 +8,8 @@
  * Formula:   a(n) = ceil(n/2) + 2*5^(n-1)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 14, u64 n <= 28, u128 n <= 55,
  *            big any n
- * Helpers:   power5
+ * Validated: standard, pass, 40 terms through n = 899 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,22 @@
 /*  a satisfies the recurrence: a(n) = 6*a(n-1) - 4*a(n-2) - 6*a(n-3) + 5*a(n-4),  n>4 */
 
 /* pow5 is provided by the library */
-#include "../utils/power5.h"
+#include <stdint.h>
+#include <stdbool.h>
+
+static inline seq_t power5(idx_t exp)
+{
+    seq_t result = 1;
+    seq_t base   = 5;
+    while (exp)
+    {
+        if (exp & 1)
+            result *= base;
+        base *= base;
+        exp >>= 1;
+    }
+    return result;
+}
 
 seq_t a(idx_t n) {
     /* transient part: t = ceil(n/2) = (n+1)/2 for integer n>=1 */

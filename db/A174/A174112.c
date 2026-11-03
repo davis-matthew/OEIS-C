@@ -8,7 +8,8 @@
  *            sigma(i)
  * Range:     i8 n <= 24, i16 n <= 43, i32 n <= 43, i64 n <= 43, i128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,13 +18,14 @@
  * required values on each call, using an O(n log n) divisor sieve. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return (seq_t)0;                /* undefined offset, safe guard */
 
     /* Allocate array for sigma[1..n], sigma[0] unused. */
-    seq_t *sigma = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *sigma = mem_new(seq_t, (size_t)(n + 1));
     if (!sigma) return (seq_t)0;                /* allocation failed */
 
     /* initialize sigma array to zero */
@@ -44,6 +46,6 @@ seq_t a(idx_t n)
         result += (2 * iv) - sigma[i];
     }
 
-    free(sigma);
+    mem_free(sigma);
     return result;
 }

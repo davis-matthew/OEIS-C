@@ -7,9 +7,10 @@
  * Formula:   a(n) = ∏_{1≤i<j≤τ(n)} (d_j – d_i) where d_1, …, d_{τ(n)} are all
  *            divisors of n sorted in increasing order (the Vandermonde
  *            determinant of the divisor set)
- * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 17, u64 n <= 23, u128 n <= 47,
+ * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 17, u64 n <= 23, u128 n <= 35,
  *            big any n
- * Helpers:   factor_u64, generate_divisors_rec
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-01)
+ * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,25 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/generate_divisors_rec.h"
+
+/* Recursively generate all divisors of n from its prime factorisation. */
+static void
+generate_divisors_rec(idx_t idx, seq_t cur,
+                      const uint64_t *pr, const uint64_t *ex,
+                      size_t pcnt, seq_t *divs, size_t *dpos)
+{
+    if (idx == pcnt) {
+        divs[*dpos] = cur;
+        ++(*dpos);
+    } else {
+        seq_t prod = 1;
+        for (size_t e = 0; e <= ex[idx]; ++e) {
+            generate_divisors_rec(idx + 1, cur * prod,
+                                 pr, ex, pcnt, divs, dpos);
+            prod = prod * (seq_t)pr[idx];
+        }
+    }
+}
 
 /* Simple insertion sort – the divisor list is tiny (≤ few hundred). */
 static void

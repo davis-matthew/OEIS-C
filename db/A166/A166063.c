@@ -9,7 +9,8 @@
  *            factors less than 23. Sequence indexed from 1
  * Range:     u8 n <= 47, u16 n <= 1200, u32 n <= 1200, u64 n <= 1200,
  *            u128 n <= 1200, big any n
- * Helpers:   is_23_rough
+ * Validated: standard, pass, 104 terms through n = 1149 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,20 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/is_23_rough.h"
+#include "../utils/mem.h"
+
+/* Test whether x has any prime factor < 23 */
+static bool is_23_rough(seq_t x)
+{
+    static const unsigned int primes[] = {2, 3, 5, 7, 11, 13, 17, 19};
+    for (size_t i = 0; i < sizeof(primes)/sizeof(primes[0]); ++i)
+    {
+        unsigned int p = primes[i];
+        if (x % (seq_t)p == 0)
+            return false;
+    }
+    return true;
+}
 
 /* Static cache of computed terms */
 static seq_t *seq_cache   = NULL;
@@ -33,7 +47,7 @@ static void ensure_capacity(size_t need)
     size_t new_cap = seq_cap ? seq_cap * 2 : 16;
     while (new_cap < need)
         new_cap *= 2;
-    seq_t *tmp = (seq_t*)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
     seq_cache = tmp;
     seq_cap   = new_cap;
 }

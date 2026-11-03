@@ -7,13 +7,15 @@
  * Formula:   a(n) = n * 4^(n-1) + (2*4^n + 1) / 3
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 30, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 946 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     if (pow4_len <= n) {
         /* grow array */
         idx_t new_len = n + 1;
-        seq_t *new_pow4 = (seq_t *)realloc(pow4, new_len * sizeof(seq_t));
+        seq_t *new_pow4 = mem_resize(seq_t, pow4, new_len);
         if (!new_pow4)
             abort();                 /* allocation failed – unlikely */
         pow4 = new_pow4;

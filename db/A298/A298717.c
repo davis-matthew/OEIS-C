@@ -9,7 +9,8 @@
  *            that each cell has 2,3,4,6, or 7 equal king‑move neighbours
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 9, u64 n <= 17, u128 n <= 33,
  *            big any n
- * Helpers:   allowed_neighbour_count
+ * Validated: standard, pass, 33 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,13 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/allowed_neighbour_count.h"
+#include "../utils/mem.h"
+
+/* Does a cell with value v have exactly c equal neighbours? */
+static inline bool allowed_neighbour_count(size_t c)
+{
+    return c == 2 || c == 3 || c == 4 || c == 6 || c == 7;
+}
 
 #define NUM_COLS    6
 #define ROW_BITS    6
@@ -99,7 +106,7 @@ seq_t a(idx_t n)
     seq_t *cur = cur_arr;
     seq_t *nxt = nxt_arr;
     /* initialise to zero */
-    memset(cur, 0, sizeof(cur_arr));
+    mem_set(cur, 0, sizeof(cur_arr));
 
     /* initial state: prev row absent, first row is cur */
     for (idx_t r = 0; r < CURR_SIZE; ++r) {
@@ -109,7 +116,7 @@ seq_t a(idx_t n)
 
     /* transition for subsequent rows */
     for (idx_t step = 1; step < n; ++step) {
-        memset(nxt, 0, sizeof(nxt_arr));
+        mem_set(nxt, 0, sizeof(nxt_arr));
 
         for (idx_t prev = 0; prev < PREV_SIZE; ++prev) {
             for (idx_t cur_row = 0; cur_row < CURR_SIZE; ++cur_row) {

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 12, u64 n <= 29, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const int coeff[11] = {
     10,  -29,  -6,  136, -90,  -217,  186,  143,  -124, -32, 24
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
     /* initialise cache with the first 11 terms if not yet done */
     if (len == 0) {
         size_t needed = 12;           /* we need indices 1..11 inclusive */
-        cache = (seq_t *)malloc(needed * sizeof(seq_t));
+        cache = mem_new(seq_t, needed);
         if (!cache) return (seq_t)0;
         for (size_t i = 1; i < needed; ++i) {
             cache[i] = base[i];
@@ -79,7 +81,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= cap) {
         size_t newcap = cap > 0 ? cap * 2 : 16;
         while (newcap <= (size_t)n) newcap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp) return (seq_t)0;
         cache = tmp;
         cap = newcap;

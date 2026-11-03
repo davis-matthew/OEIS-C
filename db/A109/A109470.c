@@ -10,13 +10,23 @@
  *            accumulating the sum until the desired n terms have been reached
  * Range:     u8 n <= 20, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   is_cube
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_cube.h"
+
+static inline bool is_cube(seq_t x)
+{
+    seq_t i = 1;
+    while (i * i * i <= x) {
+        if (i * i * i == x) return true;
+        ++i;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

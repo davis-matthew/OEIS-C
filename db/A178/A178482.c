@@ -11,13 +11,14 @@
  *            a(1)=1)
  * Range:     u8 n <= 63, u16 n <= 4095, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   lucas_index
+ * Validated: standard, pass, 67 terms through n = 9985 (2026-11-01)
+ * Helpers:   lucas
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/lucas_index.h"
+#include "../utils/lucas.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +36,7 @@ seq_t a(idx_t n)
     while (m != (idx_t)0)
     {
         if (m & (idx_t)1)
-            result += lucas_index( (idx_t)(2ULL * k) );   /* Lucas(2k) */
+            result += lucas( (idx_t)(2ULL * k) );   /* Lucas(2k) */
 
         m >>= (idx_t)1;
         ++k;

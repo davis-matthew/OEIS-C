@@ -9,13 +9,15 @@
  *            tau(m) is the number of positive divisors of m. a(0) = 1
  * Range:     u8 n <= 11, u16 n <= 479, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 9910 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *tau = NULL;
 static idx_t tau_max = 0;
@@ -25,10 +27,10 @@ static void ensure_tau(idx_t n)
     if (n <= tau_max) return;
 
     /* Allocate a fresh array up to n (size n+1 to include 0). */
-    seq_t *new_tau = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+    seq_t *new_tau = mem_new(seq_t, (n + 1));
     if (!new_tau) return;  /* allocation failed – leave uninitialized */
 
-    memset(new_tau, 0, (n + 1) * sizeof(seq_t));
+    mem_set(new_tau, 0, (n + 1) * sizeof(seq_t));
 
     /* Sieve-like computation of divisor counts. */
     for (idx_t i = 1; i <= n; ++i) {
@@ -37,7 +39,7 @@ static void ensure_tau(idx_t n)
         }
     }
 
-    free(tau);
+    mem_free(tau);
     tau = new_tau;
     tau_max = n;
 }

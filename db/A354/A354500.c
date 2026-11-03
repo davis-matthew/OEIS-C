@@ -8,14 +8,45 @@
  *            (x^8+x^4+x^3+x+1)) + x^6 + x^5 + x + 1) mod (x^8+1))
  * Range:     u8 n <= 255, u16 n <= 255, u32 n <= 255, u64 n <= 255,
  *            u128 n <= 255, big any n
- * Helpers:   gf_mul, gf_pow
+ * Validated: full, pass, 256 terms through n = 255 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/gf_mul.h"
-#include "../utils/gf_pow.h"
+
+/* Multiply two elements of GF(2^8) using the AES irreducible polynomial
+   x^8 + x^4 + x^3 + x + 1  (0x11B).  */
+static uint8_t gf_mul(uint8_t a, uint8_t b)
+{
+    uint16_t res = 0;          /* wide enough to hold intermediate values */
+    uint16_t aa  = a;          /* use a 16‑bit accumulator to detect high bits */
+
+    while (b) {
+        if (b & 1)
+            res ^= aa;
+        aa <<= 1;
+        if (aa & 0x100)        /* degree == 8 ⇒ reduce modulo 0x11B */
+            aa ^= 0x11B;
+        b >>= 1;
+    }
+    return (uint8_t)res;
+}
+
+/* Power of a field element: base^exp mod the field, where exp is small
+   (here exp = 254).  */
+static uint8_t gf_pow(uint8_t base, uint8_t exp)
+{
+    uint8_t r = 1;
+    while (exp) {
+        if (exp & 1)
+            r = gf_mul(r, base);
+        base = gf_mul(base, base);
+        exp >>= 1;
+    }
+    return r;
+}
 
 /* Reduce a binary polynomial of degree < 64 modulo the AES irreducible
    polynomial (0x11B), obtaining an element of GF(2^8). */

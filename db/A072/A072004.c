@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 24, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static storage for primes and cumulative sums */
 static idx_t *primes  = NULL;   /* primes[0] == 2, ...      */
@@ -34,7 +36,7 @@ static seq_t current_sum = 0;   /* running sum of squares */
 static void grow_arrays(size_t new_cap)
 {
     idx_t *new_primes = (idx_t *)realloc(primes, new_cap * sizeof(idx_t));
-    seq_t *new_sums   = (seq_t *)realloc(sums,   new_cap * sizeof(seq_t));
+    seq_t *new_sums   = mem_resize(seq_t, sums, new_cap);
     primes = new_primes;
     sums   = new_sums;
     prime_cap = new_cap;

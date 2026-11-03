@@ -14,7 +14,8 @@
  *            Return the n‑th element of P
  * Range:     u8 n <= 9, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Global storage for the sequences and auxiliary data structures */
 static seq_t *P = NULL;
@@ -42,7 +44,7 @@ static void grow_P(size_t min_len)
     if (min_len <= P_cap) return;
     size_t new_cap = P_cap ? P_cap : 8;
     while (new_cap < min_len) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(P, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, P, new_cap);
     P = tmp; P_cap = new_cap;
 }
 
@@ -51,7 +53,7 @@ static void grow_Q(size_t min_len)
     if (min_len <= Q_cap) return;
     size_t new_cap = Q_cap ? Q_cap : 8;
     while (new_cap < min_len) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(Q, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, Q, new_cap);
     Q = tmp; Q_cap = new_cap;
 }
 
@@ -60,7 +62,7 @@ static void grow_R(size_t min_len)
     if (min_len <= R_cap) return;
     size_t new_cap = R_cap ? R_cap : 8;
     while (new_cap < min_len) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(R, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, R, new_cap);
     R = tmp; R_cap = new_cap;
 }
 

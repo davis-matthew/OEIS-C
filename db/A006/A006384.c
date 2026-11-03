@@ -11,21 +11,33 @@
  *            2n*a(n) = A'(n) + Sum + E with E = (2m+1)(m+1)A'(m),...
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 22, u128 n <= 41,
  *            big any n
- * Helpers:   central, seq_is_fixed_width, sgcd64, sphi, spow3
+ * Validated: standard, pass, 38 terms through n = 287 (2026-11-01)
+ * Helpers:   central_binomial, gcd_u64, pow3, totient_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_is_fixed_width.h"
-#include "../utils/central.h"
-#include "../utils/sgcd64.h"
-#include "../utils/sphi.h"
-#include "../utils/spow3.h"
+#include "../utils/central_binomial.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/pow3.h"
+#include "../utils/totient_u64.h"
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
 
 static seq_t catalan(idx_t m) {
-    return central(m) / (seq_t)(m + 1);
+    return central_binomial(m) / (seq_t)(m + 1);
 }
 
 typedef struct { seq_t q, r; } qr_t;   /* value = q*D + r, 0 <= r < D */
@@ -41,9 +53,9 @@ static qr_t aprime_qr(idx_t m, seq_t D) {
     qr_t res;
     seq_t x = 2 * catalan(m);
     uint64_t d = m + 2;
-    uint64_t g = sgcd64((uint64_t)(x % (seq_t)d), d);
+    uint64_t g = gcd_u64((uint64_t)(x % (seq_t)d), d);
     x /= (seq_t)g;
-    seq_t y = spow3(m) / (seq_t)(d / g);
+    seq_t y = pow3(m) / (seq_t)(d / g);
     seq_t xr = x % D;
     seq_t t = xr * y;
     res.q = (x / D) * y + t / D;
@@ -60,7 +72,7 @@ seq_t a(idx_t n) {
 
     for (idx_t k = 1; k < n; k++) {
         if (n % k == 0) {
-            seq_t t = (seq_t)sphi(n / k) * spow3(k) * central(k);
+            seq_t t = (seq_t)totient_u64(n / k) * pow3(k) * central_binomial(k);
             qr_add(&acc, t, D);
         }
     }
@@ -76,7 +88,7 @@ seq_t a(idx_t n) {
         qr_add(&acc, rc, D);
     } else {
         idx_t m = (n - 1) / 2;
-        F = spow3(m) * catalan(m);
+        F = pow3(m) * catalan(m);
     }
 
     return acc.q + acc.r / D + F;

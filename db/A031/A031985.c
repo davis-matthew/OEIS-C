@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 36, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   has_five_distinct_base8
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,14 +16,34 @@
 /* a(n) = the n-th integer whose base‑8 representation contains exactly five distinct digits, in increasing order. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_five_distinct_base8.h"
+#include "../utils/mem.h"
+
+/* 
+ * Count distinct base‑8 digits of x (x > 0).
+ * Returns true iff there are exactly five distinct digits.
+ */
+static bool has_five_distinct_base8(seq_t x) {
+    unsigned mask = 0;
+    while (x > 0) {
+        unsigned digit = (unsigned)(x % 8);
+        mask |= 1u << digit;
+        x = x / 8;
+    }
+    /* Count set bits in mask */
+    unsigned cnt = 0;
+    while (mask) {
+        mask &= mask - 1;
+        ++cnt;
+    }
+    return cnt == 5;
+}
 
 /* Ensure capacity for the static cache */
 static void ensure_capacity(size_t required, size_t *cap, seq_t **arr) {
     if (*cap >= required) return;
     size_t newcap = (*cap) ? (*cap) * 2 : 16;
     if (newcap < required) newcap = required;
-    seq_t *newp = (seq_t *)realloc(*arr, newcap * sizeof(seq_t));
+    seq_t *newp = mem_resize(seq_t, *arr, newcap);
     *arr = newp;
     *cap = newcap;
 }
@@ -40,7 +61,7 @@ seq_t a(idx_t n) {
     /* Allocate cache on first call */
     if (!cache) {
         cap = 16;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         size = 0;
         last_val = 0;
     }

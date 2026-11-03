@@ -10,13 +10,19 @@
  *            degree f(L); each self-conjugate L gives two degrees f(L)/2
  * Range:     u8 n <= 12, u16 n <= 31, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   cmp_ll
+ * Validated: full, pass, 31 terms through n = 31 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/cmp_ll.h"
+
+static int cmp_ll(const void *x, const void *y)
+{
+	long long u = *(const long long *)x, v = *(const long long *)y;
+	return (u > v) - (u < v);
+}
 
 static long long degs[64];
 static int ndegs = 0;

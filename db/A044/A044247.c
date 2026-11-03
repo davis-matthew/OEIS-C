@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 1136, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has74
+ * Validated: standard, pass, 61 terms through n = 9446 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,24 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has74.h"
+#include "../utils/mem.h"
+
+/* Check whether the base‑8 representation of x contains "74" (in the
+   natural left‑to‑right order).  We scan from least significant digit
+   to most significant; the pattern appears as a digit 7 followed by a
+   previous digit 4. */
+static inline bool has74(seq_t x)
+{
+    seq_t prev = 8;                  /* sentinel not 0..7 */
+    while (x > 0) {
+        seq_t digit = x % 8;
+        if (digit == (seq_t)7 && prev == (seq_t)4)
+            return true;
+        prev = digit;
+        x /= 8;
+    }
+    return false;
+}
 
 /* Static storage for memoisation. */
 static struct {
@@ -38,8 +56,7 @@ static void seq_ensure_capacity(size_t needed)
     size_t newcap = seq_state.cap ? seq_state.cap * 2 : 16;
     while (newcap < needed)
         newcap *= 2;
-    seq_t *newterms = (seq_t *)realloc(seq_state.terms,
-                                       newcap * sizeof(seq_t));
+    seq_t *newterms = mem_resize(seq_t, seq_state.terms, newcap);
     if (!newterms)
         exit(EXIT_FAILURE);            /* out of memory */
     seq_state.terms = newterms;

@@ -10,14 +10,16 @@
  *            rows in order (row 0 first)
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   binom_n_k
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/binom_n_k.h"
+#include <stdbool.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
        repeated C(r,k) times. */
     idx_t cumulative = 0;
     for (idx_t k = 0; k <= r; ++k) {
-        seq_t bin = binom_n_k(r, k);               /* C(r,k) */
+        seq_t bin = binomial(r, k);               /* C(r,k) */
         cumulative += (idx_t)bin;                  /* cumulative sum is <= 2^r <= 2^63-1 */
         if (offset < cumulative)
             return (seq_t)k;

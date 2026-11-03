@@ -10,12 +10,14 @@
  *            which equals binomial(2*n, n) * A000670(n)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 325 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes a(n) for OEIS A099880. */
 seq_t a(idx_t n)
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* initialise memoisation table the first time */
     if (A == NULL) {
         cap = 1;
-        A   = (seq_t *)malloc(cap * sizeof(seq_t));
+        A   = mem_new(seq_t, cap);
         if (A == NULL) return 0;      /* allocation failure */
         A[0] = 1;                     /* A000670(0) = 1 */
     }
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
         size_t new_cap = cap;
         while (new_cap <= (size_t)n) new_cap <<= 1;
         if (new_cap > cap) {
-            seq_t *tmp = (seq_t *)realloc(A, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, A, new_cap);
             if (tmp == NULL) return 0; /* allocation failure */
             A   = tmp;
             cap = new_cap;

@@ -13,7 +13,8 @@
  *            returned value is the n-th element of that list
  * Range:     u8 n <= 2, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
- * Helpers:   first_index_gt, valid_square
+ * Validated: full, pass, 81 terms through n = 81 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,32 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/first_index_gt.h"
-#include "../utils/valid_square.h"
+
+static size_t first_index_gt(const size_t *arr, size_t len, size_t val) {
+    size_t lo = 0, hi = len;
+    while (lo < hi) {
+        size_t mid = (lo + hi) >> 1;
+        if (arr[mid] <= val)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo;
+}
+
+static bool valid_square(uint64_t sq, int *out_mask) {
+    int mask = 0;
+    while (sq) {
+        int d = sq % 10;
+        if (d == 0) return false;
+        int b = 1 << d;
+        if (mask & b) return false;
+        mask |= b;
+        sq /= 10;
+    }
+    *out_mask = mask;
+    return true;
+}
 
 static const int ALL_MASK = 0x3FE;            /* bits 1..9 set */
 #define MAX_N 31622                           /* sqrt(10^9-1) */

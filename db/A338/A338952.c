@@ -9,6 +9,7 @@
  *            48*n^32 + 32*n^36 + 19*n^48 + 72*n^50 + n^96) / 576
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 1, u64 n <= 1, u128 n <= 2,
  *            big any n
+ * Validated: standard, pass, 20 terms through n = 30 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

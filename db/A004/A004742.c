@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 114, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   contains_101
+ * Validated: standard, pass, 81 terms through n = 9760 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,16 @@
 /* Search: counts numbers whose binary representation does not contain "101" */
 
 #include <stdbool.h>
-#include "../utils/contains_101.h"
+
+static bool contains_101(seq_t k) {
+    while (k > 0) {
+        if ((k & 7) == 5) {  // 5 is binary 101
+            return true;
+        }
+        k >>= 1;
+    }
+    return false;
+}
 
 seq_t a(idx_t n) {
     seq_t count = 0;

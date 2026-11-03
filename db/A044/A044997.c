@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 1638, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   choose_n_k, count_of_length
+ * Validated: standard, pass, 62 terms through n = 9681 (2026-11-01)
+ * Helpers:   binomial_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,14 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/choose_n_k.h"
-#include "../utils/count_of_length.h"
+#include "../utils/binomial_idx.h"
+
+/* Count how many numbers of exact length L satisfy the digit rules. */
+static idx_t count_of_length(idx_t L)
+{
+    if (L < 4) return 0;                /* minimal length = 4 */
+    return (L - 1) * binomial_idx(L - 1, 3);
+}
 
 /* Number of completions for the remaining 'rem' positions, given
    twos still needed and whether the unique zero has yet to be placed. */
@@ -32,14 +39,14 @@ static idx_t count_completions(idx_t rem, idx_t twos_rem, bool zero_needed)
 
     if (!zero_needed)                  /* zero already used */
     {
-        return choose_n_k(rem, twos_rem);
+        return binomial_idx(rem, twos_rem);
     }
 
     /* zero still to be placed somewhere among the remaining positions */
     if (rem == 0) return 0;             /* cannot place zero later */
     if (twos_rem > rem - 1) return 0;   /* not enough spots for twos after zero */
 
-    return rem * choose_n_k(rem - 1, twos_rem);
+    return rem * binomial_idx(rem - 1, twos_rem);
 }
 
 /* Main sequence function. */

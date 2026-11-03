@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{p|n, p prime} n^phi(n/p)
  * Range:     u8 n <= 9, u16 n <= 13, u32 n <= 21, u64 n <= 33, u128 n <= 34,
  *            big any n
- * Helpers:   big_pow, calc_phi, factor_u64
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-01)
+ * Helpers:   factor_u64, ipow, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,10 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/big_pow.h"
-#include "../utils/calc_phi.h"
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
+#include "../utils/ipow.h"
+#include "../utils/totient_seq.h"
 
 seq_t a(idx_t n) {
     if (n <= 1) return (seq_t)0;                 /* a(1)=0 */
@@ -37,8 +39,8 @@ seq_t a(idx_t n) {
         uint64_t p = primes[i];
         uint64_t m = np / p;                      /* n / p  */
 
-        seq_t phi_m = calc_phi((seq_t)m);        /* φ(n/p)  */
-        seq_t term  = big_pow(n_seq, phi_m);     /* n^φ(n/p) */
+        seq_t phi_m = totient_seq((seq_t)m);        /* φ(n/p)  */
+        seq_t term  = ipow(n_seq, phi_m);     /* n^φ(n/p) */
 
         total += term;
     }

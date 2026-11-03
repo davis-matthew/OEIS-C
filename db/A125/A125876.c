@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* 13‑smooth primes contributing to the humble numbers  */
 static const uint8_t HUME_PRIMES[6] = {2, 3, 5, 7, 11, 13};
@@ -55,7 +57,7 @@ static void grow_primes(size_t need)
 {
     while (pr_cap < need) {
         size_t new_cap = (pr_cap == 0) ? 16 : pr_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(primes, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, primes, new_cap);
         if (!tmp) abort();
         primes = tmp;
         pr_cap = new_cap;

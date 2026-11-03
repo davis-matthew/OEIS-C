@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 57, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache of computed terms */
 static seq_t *seq_arr = NULL;
@@ -109,7 +111,7 @@ static void recompute(idx_t needed)
 
         if (new_len >= (size_t)needed) {
             /* allocate array for new terms */
-            seq_t *new_arr = (seq_t *)malloc(sum_size * sizeof(seq_t));
+            seq_t *new_arr = mem_new(seq_t, sum_size);
             if (!new_arr) { free(twin); free(present); return; }
 
             size_t k = 0;
@@ -117,7 +119,7 @@ static void recompute(idx_t needed)
                 if (present[v]) new_arr[k++] = (seq_t)v;   /* k == new_len */
 
             /* replace old cache */
-            free(seq_arr);
+            mem_free(seq_arr);
             seq_arr = new_arr;
             seq_len = k;           /* k == new_len */
 

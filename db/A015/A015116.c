@@ -8,12 +8,14 @@
  *            from the triangle of coefficients along antidiagonals
  * Range:     i8 n <= 6, i16 n <= 16, i32 n <= 30, i64 n <= 39, i128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
 
     /* Pre‑compute powers of q = -6 up to exponent row. */
     const seq_t Q = -((seq_t)6);
-    seq_t *pow_arr = (seq_t *)malloc((row + 1) * sizeof(seq_t));
+    seq_t *pow_arr = mem_new(seq_t, (row + 1));
     if (!pow_arr)
         return (seq_t)0;   /* unlikely for small row, but defensive */
 
@@ -47,6 +49,6 @@ seq_t a(idx_t n)
         result = result * num / den;   /* exact division */
     }
 
-    free(pow_arr);
+    mem_free(pow_arr);
     return result;
 }

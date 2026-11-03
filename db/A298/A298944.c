@@ -7,15 +7,18 @@
  * Formula:   a(n) = 2^(c-1) mod c^2, where c is the nth composite number
  * Range:     u8 n <= 8, u16 n <= 213, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 68 terms through n = 9162 (2026-11-01)
+ * Helpers:   is_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
+#include <string.h>
 #include "../utils/is_prime.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -41,6 +44,6 @@ seq_t a(idx_t n)
 
     idx_t c = comp_arr[n - 1];           /* nth composite (1‑based) */
     seq_t mod = (seq_t)c * (seq_t)c;     /* c^2                */
-    seq_t res = mod_pow((seq_t)2, (uint64_t)(c - 1), mod); /* 2^(c-1) mod c^2 */
+    seq_t res = powmod((seq_t)2, (uint64_t)(c - 1), mod); /* 2^(c-1) mod c^2 */
     return res;
 }

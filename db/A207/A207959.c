@@ -10,7 +10,8 @@
  *            programming over 2‑row states with vertical transition groups
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define MAXV 128          /* maximum possible number of valid rows (≤128) */
 #define COLMASK 0x7F      /* 7 bits */
@@ -126,7 +128,7 @@ seq_t a(idx_t n)
     for (idx_t row = 3; row <= n; ++row) {
         /* Zero dp_next */
         for (int i = 0; i < V; ++i)
-            memset(dp_next[i], 0, V * sizeof(seq_t));
+            mem_set(dp_next[i], 0, V * sizeof(seq_t));
 
         /* For each possible last row j (prev1) */
         for (int j = 0; j < V; ++j) {
@@ -160,7 +162,7 @@ seq_t a(idx_t n)
 
         /* Swap dp_cur and dp_next for next iteration */
         for (int i = 0; i < V; ++i)
-            memcpy(dp_cur[i], dp_next[i], V * sizeof(seq_t));
+            mem_copy(dp_cur[i], dp_next[i], V * sizeof(seq_t));
     }
 
     /* Sum all entries of dp_cur for the final answer */

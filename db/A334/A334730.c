@@ -9,7 +9,8 @@
  * Formula:   a(n) = product_{d|n} gcd(tau(d), pod(d))
  * Range:     u8 n <= 23, u16 n <= 71, u32 n <= 215, u64 n <= 719,
  *            u128 n <= 4319, big any n
- * Helpers:   divisor_count_u64, factor_u64, gcd
+ * Validated: standard, pass, 95 terms through n = 9919 (2026-11-01)
+ * Helpers:   factor_u64, gcd, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,11 @@
  * modulo reduction to compute gcd(tau(d), pod(d)) efficiently. */
 
 #include <stdint.h>
-#include "../utils/gcd.h"
-#include "../utils/divisor_count_u64.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
+#include "../utils/num_divisors.h"
 
 /* Integer square root (floor). */
 static uint64_t isqrt_u64(uint64_t n)
@@ -56,7 +59,7 @@ static void dfs_divisors(size_t idx, uint64_t cur, const uint64_t *primes,
 {
     if (idx == pcnt) {
         uint64_t d = cur;
-        uint64_t tau = divisor_count_u64(d);
+        uint64_t tau = num_divisors(d);
         uint64_t mod = tau;
         uint64_t pod_mod;
 

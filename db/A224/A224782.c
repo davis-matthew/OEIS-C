@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 9540 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static state ------------------------------------------------------------*/
 static idx_t      max_n     = 0;          /* largest n cached in a_cache   */
@@ -35,7 +37,7 @@ static void ensure_cache(size_t need)
     size_t new_cap = cache_cap ? cache_cap << 1U : 16;
     while (new_cap < need) new_cap <<= 1U;
 #if defined(__cplusplus)
-    seq_t *tmp = static_cast<seq_t*>(realloc(a_cache, new_cap * sizeof(seq_t)));
+    seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
 #else
     seq_t *tmp = realloc(a_cache, new_cap * sizeof(seq_t));
 #endif

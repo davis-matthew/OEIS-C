@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 71, u32 n <= 999, u64 n <= 999,
  *            u128 n <= 999, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 843 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *cnt = NULL;
 static size_t cnt_size = 0;
@@ -43,8 +45,8 @@ seq_t a(idx_t n)
     /* Allocate or resize the array that holds counts of unordered
      * pairs for each residue modulo n. */
     if (cnt == NULL || cnt_size < limit) {
-        free(cnt);
-        cnt = (seq_t *)malloc(limit * sizeof(seq_t));
+        mem_free(cnt);
+        cnt = mem_new(seq_t, limit);
         if (!cnt) return (seq_t)0;   /* allocation failed */
         cnt_size = limit;
     }

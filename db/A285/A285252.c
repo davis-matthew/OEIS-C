@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 9794 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    The returned value is the n-th term (1‑based) of OEIS
    A285252. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* Initial 1‑limiting word after the first odd iteration:
        0 → 10  gives 10.  Store as [1,0]. */
     if (len == 0) {
-        word = (seq_t*)malloc(2 * sizeof(seq_t));
+        word = mem_new(seq_t, 2);
         word[0] = (seq_t)1;
         word[1] = (seq_t)0;
         len   = 2;
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
         }
         idx_t new_len = zeros * 6 + ones * 12;
 
-        seq_t *new_word = (seq_t*)malloc(new_len * sizeof(seq_t));
+        seq_t *new_word = mem_new(seq_t, new_len);
         idx_t pos = 0;
         for (idx_t i = 0; i < len; ++i) {
             if (word[i] == (seq_t)0) {
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
             }
         }
 
-        free(word);
+        mem_free(word);
         word = new_word;
         len  = new_len;
     }

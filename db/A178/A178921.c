@@ -7,8 +7,9 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = product of differences between successive distinct prime
  *            divisors * of n; 0 if n has at most one distinct prime factor
- * Range:     u8 n <= 525, u16 n <= 6820, u32 n <= 6820, u64 n <= 6820,
- *            u128 n <= 6820, big any n
+ * Range:     u8 n <= 525, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 120 terms through n = 6820 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

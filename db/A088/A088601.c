@@ -10,14 +10,26 @@
  *            starting from n
  * Range:     u8 n <= 3300, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow10, reverse
+ * Validated: standard, pass, 121 terms through n = 9850 (2026-11-01)
+ * Helpers:   reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow10.h"   /* seq_t pow10(idx_t) */
-#include "../utils/reverse.h" /* seq_t reverse(seq_t v) */
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/reverse_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Find the number of decimal digits of a non‑negative integer. */
 static inline idx_t digit_len(seq_t x) {
@@ -42,10 +54,10 @@ static seq_t largest_palindrome_leq(seq_t x) {
     /* Build candidate palindrome from 'left'. */
     seq_t cand;
     if (d % 2 == 0) {              /* even number of digits */
-        seq_t rev = reverse(left);
+        seq_t rev = reverse_digits(left);
         cand = left * pow10(l) + rev;
     } else {                       /* odd number of digits */
-        seq_t rev = reverse(left / 10);
+        seq_t rev = reverse_digits(left / 10);
         cand = left * pow10(l - 1) + rev;
     }
 
@@ -59,10 +71,10 @@ static seq_t largest_palindrome_leq(seq_t x) {
     }
 
     if (d % 2 == 0) {
-        seq_t rev = reverse(left);
+        seq_t rev = reverse_digits(left);
         cand = left * pow10(l) + rev;
     } else {
-        seq_t rev = reverse(left / 10);
+        seq_t rev = reverse_digits(left / 10);
         cand = left * pow10(l - 1) + rev;
     }
     return cand;

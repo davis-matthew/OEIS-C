@@ -10,12 +10,14 @@
  *            a(14)=24, a(15)=26, a(16)=27, a(17)=28
  * Range:     u8 n <= 198, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 95 terms through n = 927 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
         /* Initialise cache with the first 17 terms */
         if (cache_size == 0) {
             cache_size = 17;
-            cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+            cache = mem_new(seq_t, cache_size);
             if (!cache) abort();
             for (idx_t i = 0; i < 17; ++i)
                 cache[i] = init[i];
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
 
         /* Extend cache to size n and compute new terms */
         if (n > cache_size) {
-            seq_t *new_cache = (seq_t *)realloc(cache, n * sizeof(seq_t));
+            seq_t *new_cache = mem_resize(seq_t, cache, n);
             if (!new_cache) abort();
             cache = new_cache;
 

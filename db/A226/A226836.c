@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 21, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   bitlen_seq_t, floor_sqrt
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-03)
+ * Helpers:   bit_length, ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,15 +23,35 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/bitlen_seq_t.h"
-#include "../utils/floor_sqrt.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Test whether an unsigned integer square satisfies the OEIS condition. */
 static bool is_valid_sq(seq_t s)
 {
     if (s == 0) return false;
 
-    unsigned L = bitlen_seq_t(s);            /* binary length of s */
+    unsigned L = bit_length(s);            /* binary length of s */
     unsigned m = L / 2;                      /* floor(L/2) */
     if (m == 0) return false;                /* need non‑empty halves */
 
@@ -60,7 +81,7 @@ static void ensure_cache(idx_t n)
 
     if (cache == NULL) {
         cache_cap = 64;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
     }
 
     while (cache_len < (size_t)n) {
@@ -69,7 +90,7 @@ static void ensure_cache(idx_t n)
         if (is_valid_sq(sq)) {
             if (cache_len == cache_cap) {
                 cache_cap *= 2;
-                cache = (seq_t *)realloc(cache, sizeof(seq_t) * cache_cap);
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = sq;
         }

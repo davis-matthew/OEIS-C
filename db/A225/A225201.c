@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 19, i16 n <= 38, i32 n <= 63, i64 n <= 63, i128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t **rows = NULL;          /* array of coefficient arrays */
 static size_t  row_count = 0;        /* number of rows currently stored */
@@ -38,8 +40,8 @@ static void compute_next_row(void)
     size_t next_len = prev_len << 1;            /* 2^(row_count) */
 
     seq_t *prev = rows[row_count - 1];
-    seq_t *next = (seq_t *)malloc(sizeof(seq_t) * next_len);
-    memset(next, 0, sizeof(seq_t) * next_len);
+    seq_t *next = mem_new(seq_t, next_len);
+    mem_set(next, 0, sizeof(seq_t) * next_len);
 
     /* shift by prev_len (multiplication by x^prev_len) */
     for (size_t i = 0; i < prev_len; ++i)
@@ -47,8 +49,8 @@ static void compute_next_row(void)
 
     /* convolution prev * prev -> sq (size 2*prev_len-1) */
     size_t sq_len = 2 * prev_len - 1;
-    seq_t *sq = (seq_t *)malloc(sizeof(seq_t) * sq_len);
-    memset(sq, 0, sizeof(seq_t) * sq_len);
+    seq_t *sq = mem_new(seq_t, sq_len);
+    mem_set(sq, 0, sizeof(seq_t) * sq_len);
 
     for (size_t i = 0; i < prev_len; ++i) {
         const seq_t ai = prev[i];
@@ -61,7 +63,7 @@ static void compute_next_row(void)
     for (size_t i = 0; i < sq_len; ++i)
         next[i] -= sq[i];
 
-    free(sq);
+    mem_free(sq);
 
     /* store the new row */
     seq_t **tmp = (seq_t **)realloc(rows, sizeof(seq_t *) * (row_count + 1));
@@ -84,7 +86,7 @@ seq_t a(idx_t n)
     while (row_count < row) {
         if (row_count == 0) {
             /* initialise row 1: length 1, coefficient 1 */
-            seq_t *first = (seq_t *)malloc(sizeof(seq_t));
+            seq_t *first = mem_new(seq_t, 1);
             first[0] = 1;
             rows = (seq_t **)realloc(rows, sizeof(seq_t *));
             rows[0] = first;

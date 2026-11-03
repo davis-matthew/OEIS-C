@@ -9,13 +9,23 @@
  *            part 1, a(2) = first decimal digit, …)
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   _str_to_uint128
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/_str_to_uint128.h"
+
+/* Convert a decimal string (≤ 38 digits) to unsigned __int128 */
+static unsigned __int128 _str_to_uint128(const char *s) {
+    unsigned __int128 val = 0;
+    while (*s) {
+        val = val * 10 + (unsigned int)(*s - '0');
+        ++s;
+    }
+    return val;
+}
 
 static bool _initialized = false;
 static unsigned __int128 _N = 0;

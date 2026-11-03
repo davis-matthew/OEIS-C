@@ -7,7 +7,8 @@
  * Formula:   a(n) is the nth integer k such that gcd(k, phi(k)) = τ(k)
  * Range:     u8 n <= 17, u16 n <= 1621, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   calc_phi, divisor_count_u64, gcd
+ * Validated: standard, pass, 68 terms through n = 1894 (2026-11-03)
+ * Helpers:   gcd, mem, num_divisors, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/gcd.h"
-#include "../utils/divisor_count_u64.h"
-#include "../utils/calc_phi.h"
+#include "../utils/num_divisors.h"
+#include "../utils/totient_seq.h"
+#include "../utils/mem.h"
 
 static seq_t *seq_arr = NULL;   /* array of found k */
 static size_t seq_len = 0;      /* number of elements stored */
@@ -28,7 +30,7 @@ static void seq_append(seq_t val)
 {
     if (seq_len == seq_cap) {
         seq_cap = seq_cap ? seq_cap * 2 : 64;
-        seq_t *tmp = (seq_t *)realloc(seq_arr, seq_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_arr, seq_cap);
         if (!tmp) exit(1);
         seq_arr = tmp;
     }
@@ -43,10 +45,10 @@ seq_t a(idx_t n)
         ++checked_max;                       /* next candidate k */
 
         /* τ(k) for 64‑bit k */
-        uint64_t tau = divisor_count_u64(checked_max);
+        uint64_t tau = num_divisors(checked_max);
 
         /* φ(k) and gcd(k, φ(k)) using seq_t operations */
-        seq_t phi  = calc_phi((seq_t)checked_max);
+        seq_t phi  = totient_seq((seq_t)checked_max);
         seq_t g_c  = gcd((seq_t)checked_max, phi);
 
         if (g_c == (seq_t)tau) {

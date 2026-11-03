@@ -5,18 +5,48 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = n! * Σ_{k=0..n} (-k)^(n-k) * C(4k,k)/(3k+1)/(n-k)!
- * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 17,
+ * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 12, u128 n <= 17,
  *            big any n
- * Helpers:   binom, ensure_cache, pow_uint
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   binomial, ipow_u64_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binom.h"
-#include "../utils/pow_uint.h"
-#include "../utils/ensure_cache.h"
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/mem.h"
+
+/* Make sure the cache is large enough */
+static void ensure_cache(idx_t n, seq_t **cache_ptr, size_t *cap_ptr) {
+    seq_t *cache = *cache_ptr;
+    size_t cap = *cap_ptr;
+    if (cap <= (size_t)n) {
+        size_t new_cap = cap ? (cap << 1) : 16;
+        while (new_cap <= (size_t)n)
+            new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
+        if (!tmp && new_cap > 0) {
+            /* Allocation failed – abort the program. */
+            exit(1);
+        }
+        if (tmp) {
+            /* Initialize newly allocated slots to zero. */
+            if (!cache) {
+                for (size_t i = 0; i < new_cap; ++i)
+                    tmp[i] = 0;
+            } else {
+                for (size_t i = cap; i < new_cap; ++i)
+                    tmp[i] = 0;
+            }
+            *cache_ptr = tmp;
+            *cap_ptr = new_cap;
+        }
+    }
+}
 
 /*  Compute a(n) for OEIS sequence A365011  */
 seq_t a(idx_t n)
@@ -49,11 +79,11 @@ seq_t a(idx_t n)
         /* k^(n-k)  (base may be 0) */
         seq_t powk = 1;
         if (k != 0 && exp > 0)
-            powk = pow_uint((uint64_t)k, exp);
+            powk = ipow_u64_idx((uint64_t)k, exp);
 
         /* B_k = C(4k,k)/(3k+1)  (Fuss–Catalan number) */
         idx_t fourk = k << 2;
-        seq_t bin = binom(fourk, k);
+        seq_t bin = binomial(fourk, k);
         seq_t Bk = bin / ((3 * (seq_t)k) + 1U);
 
         /* term magnitude = P * powk * Bk   (all integers) */

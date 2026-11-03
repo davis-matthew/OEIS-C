@@ -7,6 +7,7 @@
  * Formula:   a(n) = 0 if n mod 32 ≠ 0; otherwise a(n) = (-1)^(n/32)
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
+ * Validated: standard, pass, 103 terms through n = 887 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

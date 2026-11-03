@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = (n / largest_prime_factor(n)) *
  *            index_of_largest_prime_factor(n)
- * Range:     u8 n <= 383, u16 n <= 8751, u32 n <= 8751, u64 n <= 8751,
- *            u128 n <= 8751, big any n
+ * Range:     u8 n <= 383, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 101 terms through n = 8751 (2026-11-01)
  * Helpers:   build_primes_upto, largest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,8 +21,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/largest_prime_factor.h"
 #include "../utils/build_primes_upto.h"
+#include "../utils/largest_prime_factor.h"
 
 /* Static cache for primes up to the current limit */
 static uint64_t *g_primes = NULL;

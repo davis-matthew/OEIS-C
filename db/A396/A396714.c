@@ -10,6 +10,7 @@
  *            d1(k)=d1(k‑1)+d2(k‑1) and a(n)=a(n‑1)+d1(n‑1)
  * Range:     u8 n <= 9, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

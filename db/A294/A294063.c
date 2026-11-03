@@ -8,6 +8,7 @@
  * Formula:   a(n) = 2 * Σ_{i=1}^{n} (n-i) * μ(2n-i)^2
  * Range:     u8 n <= 19, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-01)
  * Helpers:   is_squarefree
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,8 @@
  * 2n-i is squarefree.  The sum is multiplied by 2 at the end.  The loop
  * runs in O(n) time and uses only integer arithmetic. */
 
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/is_squarefree.h"
 
 seq_t a(idx_t n)

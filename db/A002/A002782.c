@@ -9,7 +9,8 @@
  *            where each divides the next
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 4, u64 n <= 4, u128 n <= 4,
  *            big any n
- * Helpers:   string_mod, string_to_seq
+ * Validated: partial, pass, 5 terms through n = 5 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,24 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "../utils/string_mod.h"
-#include "../utils/string_to_seq.h"
+
+static seq_t string_mod(const char *s, size_t len, seq_t divisor) {
+    seq_t result = 0;
+    for (size_t i = 0; i < len; i++) {
+        int digit = s[i] - '0';
+        result = result * 10 + digit;
+        result = result % divisor;
+    }
+    return result;
+}
+
+static seq_t string_to_seq(const char *s, size_t len) {
+    seq_t result = 0;
+    for (size_t i = 0; i < len; i++) {
+        result = result * 10 + (s[i] - '0');
+    }
+    return result;
+}
 
 seq_t a(idx_t n) {
     if (n == 1) {

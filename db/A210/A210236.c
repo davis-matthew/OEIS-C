@@ -11,7 +11,8 @@
  *            v(n,x)=(x+1)*u(n-1,x)+(x+1)*v(n-1,x)+1
  * Range:     u8 n <= 23, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static idx_t  max_row = 0;            /* highest row already computed */
 static seq_t *U      = NULL;          /* coefficients of u(row)   */
@@ -39,10 +41,10 @@ seq_t a(idx_t n)
     /* 2. Initialise first row if necessary. */
     if (max_row == 0) {
         capacity = 1;
-        U      = (seq_t*)malloc(capacity * sizeof(seq_t));
-        V      = (seq_t*)malloc(capacity * sizeof(seq_t));
-        Utmp   = (seq_t*)malloc(capacity * sizeof(seq_t));
-        Vtmp   = (seq_t*)malloc(capacity * sizeof(seq_t));
+        U      = mem_new(seq_t, capacity);
+        V      = mem_new(seq_t, capacity);
+        Utmp   = mem_new(seq_t, capacity);
+        Vtmp   = mem_new(seq_t, capacity);
         if (!U || !V || !Utmp || !Vtmp) return (seq_t)0; /* OOM */
         U[0] = (seq_t)1;
         V[0] = (seq_t)1;
@@ -57,8 +59,8 @@ seq_t a(idx_t n)
         /* Resize buffers if needed. */
         if (capacity < L) {
             capacity = L;
-            Utmp = (seq_t*)realloc(Utmp, capacity * sizeof(seq_t));
-            Vtmp = (seq_t*)realloc(Vtmp, capacity * sizeof(seq_t));
+            Utmp = mem_resize(seq_t, Utmp, capacity);
+            Vtmp = mem_resize(seq_t, Vtmp, capacity);
             if (!Utmp || !Vtmp) return (seq_t)0; /* OOM */
         }
 

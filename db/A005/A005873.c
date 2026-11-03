@@ -12,16 +12,57 @@
  *            #{(i,j): i^2+ij+j^2 = m}, rA(m) = #{(x,y): x == y ==...
  * Range:     u8 n <= 76, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   a005873_isqrt, a005873_mod3, a005873_rA, a005873_rB
+ * Validated: partial, pass, 77 terms through n = 76 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a005873_isqrt.h"
-#include "../utils/a005873_mod3.h"
-#include "../utils/a005873_rA.h"
-#include "../utils/a005873_rB.h"
+
+static long long a005873_isqrt(long long x) {
+    if (x < 0) return -1;
+    if (x < 2) return x;
+    unsigned long long r = (unsigned long long)x, y = (r + 1) / 2;
+    while (y < r) { r = y; y = (r + (unsigned long long)x / r) / 2; }
+    return (long long)r;
+}
+
+static long long a005873_mod3(long long v) {
+    long long r = v % 3;
+    return r < 0 ? r + 3 : r;
+}
+
+/* number of (x,y), x == y == 2 mod 3, with x^2+xy+y^2 = 3m */
+static long long a005873_rA(long long m) {
+    long long cnt = 0, L = a005873_isqrt(4 * m) + 1;
+    for (long long x = -L; x <= L; x++) {
+        if (a005873_mod3(x) != 2) continue;
+        long long D = 12 * m - 3 * x * x;
+        if (D < 0) continue;
+        long long s = a005873_isqrt(D);
+        if (s * s != D) continue;
+        if (((s - x) % 2) != 0) continue;
+        long long y1 = (-x + s) / 2, y2 = (-x - s) / 2;
+        if (a005873_mod3(y1) == 2) cnt++;
+        if (s != 0 && a005873_mod3(y2) == 2) cnt++;
+    }
+    return cnt;
+}
+
+/* number of (i,j) with i^2+ij+j^2 = m */
+static long long a005873_rB(long long m) {
+    if (m == 0) return 1;
+    long long cnt = 0, L = a005873_isqrt(4 * m / 3) + 1;
+    for (long long i = -L; i <= L; i++) {
+        long long D = 4 * m - 3 * i * i;
+        if (D < 0) continue;
+        long long s = a005873_isqrt(D);
+        if (s * s != D) continue;
+        cnt += (s == 0) ? 1 : 2;
+    }
+    return cnt;
+}
 
 seq_t a(idx_t n) {
     long long N = (long long)n;

@@ -7,7 +7,8 @@
  * Formula:   a(n) = A015128(n) - 2*A015128(n-1) + A015128(n-2)
  * Range:     u8 n <= 17, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 38 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
     by the test suite.                                              */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* global state for incremental computation */
 static seq_t *P      = NULL;   /* ordinary partitions P[n]   */
@@ -45,11 +47,11 @@ static void ensure_overpart(idx_t N)
     /* Resize arrays if necessary.  New cells are zeroed.  */
     if (N + 1 > capacity) {
         seq_t *tmp;
-        tmp = (seq_t *)realloc(P,       (N + 1) * sizeof(seq_t));
+        tmp = mem_resize(seq_t, P, (N + 1));
         P = tmp;
-        tmp = (seq_t *)realloc(Q,       (N + 1) * sizeof(seq_t));
+        tmp = mem_resize(seq_t, Q, (N + 1));
         Q = tmp;
-        tmp = (seq_t *)realloc(Opart, (N + 1) * sizeof(seq_t));
+        tmp = mem_resize(seq_t, Opart, (N + 1));
         Opart = tmp;
         for (idx_t i = capacity; i <= N; ++i) {
             P[i] = 0;

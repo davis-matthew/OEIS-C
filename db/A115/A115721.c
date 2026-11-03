@@ -9,14 +9,26 @@
  *            Stegun order
  * Range:     u8 n <= 2713, u16 n <= 2713, u32 n <= 2713, u64 n <= 2713,
  *            u128 n <= 2713, big any n
- * Helpers:   durfee
+ * Validated: standard, pass, 121 terms through n = 2625 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/durfee.h"
+#include "../utils/mem.h"
+
+/* Compute the Durfee square size of a partition represented by parts[0..k-1] */
+static seq_t durfee(const int *parts, int k)
+{
+    seq_t maxD = 0;
+    for (int i = 0; i < k; ++i) {
+        int di = parts[i] < (i + 1) ? parts[i] : (i + 1);
+        if ((seq_t)di > maxD) maxD = di;
+    }
+    return maxD;
+}
 
 /* ---------- Static cache for the sequence values ---------- */
 static seq_t *seq_cache = NULL;   /* Dynamic array of computed a(n) values   */
@@ -30,7 +42,7 @@ static void ensure_cache_capacity(void)
     if (cache_len < cache_cap)
         return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 64;
-    seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
     if (!tmp) abort();              /* Out of memory */
     seq_cache = tmp;
     cache_cap = new_cap;
@@ -70,7 +82,7 @@ seq_t a(idx_t n)
     /* First time: initialise the cache with a(0) = 0 */
     if (!seq_cache) {
         cache_cap = 64;
-        seq_cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+        seq_cache = mem_new(seq_t, cache_cap);
         if (!seq_cache) abort();
         seq_cache[0] = 0;      /* a(0) */
         cache_len = 1;

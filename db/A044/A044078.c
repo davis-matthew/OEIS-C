@@ -9,7 +9,8 @@
  *            while the previous number (k - 1) does not
  * Range:     u8 n <= 12, u16 n <= 2929, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has01_base5
+ * Validated: standard, pass, 69 terms through n = 9777 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,24 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/has01_base5.h"
+#include "../utils/mem.h"
+
+/* Test whether the base‑5 representation of x contains the substring "01".
+   The digits are examined from least significant to most significant. */
+static bool has01_base5(seq_t x)
+{
+    seq_t prev = x % 5;   /* least significant digit */
+    seq_t q    = x / 5;   /* remaining higher digits */
+
+    while (q > 0) {
+        seq_t cur = q % 5;             /* next more significant digit */
+        if (cur == 0 && prev == 1)     /* pattern 0 (cur) followed by 1 (prev) */
+            return true;
+        prev = cur;
+        q    = q / 5;
+    }
+    return false;
+}
 
 /* Return the n-th term of the sequence.  The sequence is generated incrementally
    and cached so that arbitrarily ordered calls are efficient. */
@@ -39,7 +57,7 @@ seq_t a(idx_t n)
             /* Grow cache if necessary */
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 64;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) return (seq_t)0; /* allocation failure – unlikely */
                 cache      = tmp;
                 cache_cap  = new_cap;

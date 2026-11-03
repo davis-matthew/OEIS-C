@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 9924 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* array of terms */
 static size_t cache_len = 0;    /* number of terms currently cached */
@@ -80,7 +82,7 @@ static void rebuild_cache(idx_t need)
 
         if (count >= need) {
             /* Gather the qualifying sums into a new cache. */
-            seq_t *new_cache = (seq_t *)malloc(count * sizeof(seq_t));
+            seq_t *new_cache = mem_new(seq_t, count);
             if (!new_cache)
                 abort();
             size_t pos = 0;
@@ -90,7 +92,7 @@ static void rebuild_cache(idx_t need)
                 }
             }
 
-            free(cache);
+            mem_free(cache);
             cache = new_cache;
             cache_len = count;
             free(dp);

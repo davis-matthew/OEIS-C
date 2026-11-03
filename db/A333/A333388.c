@@ -8,7 +8,8 @@
  * Formula:   a(n) = |{(x,y) : 0 ≤ x < n, 1 ≤ y ≤ n, x^y ≡ -1 (mod n)}|
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   _smallest_prime_factor, gcd, gcd_int
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-01)
+ * Helpers:   gcd, gcd_i32, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,9 +28,9 @@
 #include <stdbool.h>
 
 /* smallest prime factor utility from the utils library */
-#include "../utils/gcd.h"          /* allows use of gcd for idx_t */
-#include "../utils/gcd_int.h"      /* provides gcd for integer types */
-#include "../utils/_smallest_prime_factor.h"
+#include "../utils/gcd.h"
+#include "../utils/gcd_i32.h"
+#include "../utils/smallest_prime_factor.h"
 
 static idx_t
 gcd_idx(idx_t a, idx_t b)
@@ -52,7 +53,7 @@ seq_t a(idx_t n)
     int odd_cnt = 0;
 
     while (tmp > 1u) {
-        idx_t p = _smallest_prime_factor(tmp);
+        idx_t p = smallest_prime_factor(tmp);
         int exp = 0;
         while (tmp % p == 0u) {
             tmp /= p;

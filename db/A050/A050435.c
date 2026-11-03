@@ -8,7 +8,8 @@
  * Formula:   a(n) = composite(composite(n))
  * Range:     u8 n <= 153, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 9538 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Upper bound for the sieve.  This value is large enough to cover all
    test indices (typically n <= 10 000).  Increase if a larger range is needed. */
@@ -58,7 +60,7 @@ static void init_composites(void)
     }
 
     /* Allocate the array that will hold the composite values.  */
-    composites = (seq_t*)malloc((composites_cnt + 1) * sizeof(seq_t));
+    composites = mem_new(seq_t, (composites_cnt + 1));
     if (!composites) exit(EXIT_FAILURE);
 
     /* Store the composites in order.  composites[0] = 4, composites[1] = 6, ... */

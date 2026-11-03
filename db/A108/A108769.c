@@ -6,8 +6,9 @@
  * Keywords:  easy, nonn
  * Formula:   a(n) = the nth integer m such that m^2 + (m+1)^2 is a semiprime.
  *            Computed by brute‑force search with memoisation
- * Range:     u8 n <= 112, u16 n <= 9064, u32 n <= 9064, u64 n <= 9064,
- *            u128 n <= 9064, big any n
+ * Range:     u8 n <= 112, u16 n <= 22007, u32 n <= 65536, u64 n <= 65536,
+ *            u128 n <= 65536, big any n
+ * Validated: standard, pass, 80 terms through n = 9064 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

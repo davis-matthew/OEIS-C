@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{d|n, n/d odd, Ω(n/d) even} d
- * Range:     u8 n <= 224, u16 n <= 9700, u32 n <= 9700, u64 n <= 9700,
- *            u128 n <= 9700, big any n
+ * Range:     u8 n <= 224, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 98 terms through n = 9700 (2026-11-01)
  * Helpers:   factor_u64, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,8 +17,10 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#include "../utils/pow2.h"     /* seq_t pow2(idx_t exp) */
-#include "../utils/factor_u64.h" /* void factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt) */
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+#include "../utils/pow2.h"
 
 /* Recursively enumerate all divisors of m using its prime factorisation.
  * For each divisor d, if the parity of Ω(d) matches the target parity

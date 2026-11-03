@@ -10,6 +10,7 @@
  *            downwards, where T(r,k) = ∑_{j=0..r} k^{r-j} · ⌊j/2⌋
  * Range:     u8 n <= 41, u16 n <= 86, u32 n <= 202, u64 n <= 484,
  *            u128 n <= 1209, big any n
+ * Validated: standard, pass, 82 terms through n = 8883 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

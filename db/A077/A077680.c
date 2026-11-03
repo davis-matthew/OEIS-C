@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 6768, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_squarefree, starts_with_4
+ * Validated: standard, pass, 69 terms through n = 9034 (2026-11-03)
+ * Helpers:   is_squarefree, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,15 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_squarefree.h"
-#include "../utils/starts_with_4.h"
+#include "../utils/mem.h"
+
+/* Helper: true iff x starts with decimal digit 4 */
+static bool starts_with_4(idx_t x)
+{
+    seq_t y = (seq_t)x;
+    while (y >= 10) y /= 10;
+    return y == 4;
+}
 
 /* Simple cache of terms that have already been found */
 static seq_t *cache      = NULL;
@@ -35,7 +44,7 @@ seq_t a(idx_t n)
     /* Initialise cache on the first call */
     if (cache == NULL) {
         cache_cap = 64;
-        cache     = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache     = mem_new(seq_t, cache_cap);
         if (!cache) exit(EXIT_FAILURE);   /* out of memory */
         cache_len = 0;
     }
@@ -50,7 +59,7 @@ seq_t a(idx_t n)
         /* store found term, growing the cache if necessary */
         if (cache_len == cache_cap) {
             cache_cap *= 2;
-            seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * cache_cap);
+            seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
             if (!tmp) exit(EXIT_FAILURE);   /* out of memory */
             cache = tmp;
         }

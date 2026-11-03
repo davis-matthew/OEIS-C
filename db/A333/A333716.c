@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,7 +32,9 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;        // dynamic array of computed terms
 static size_t  seq_cap = 0;      // allocated capacity of seq
@@ -43,7 +46,7 @@ static void ensure_cap(size_t new_cap) {
     if (new_cap <= seq_cap) return;
     size_t new_cap2 = (seq_cap == 0) ? 16 : seq_cap << 1;
     while (new_cap2 < new_cap) new_cap2 <<= 1;
-    seq_t *tmp = (seq_t *)realloc(seq, new_cap2 * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, new_cap2);
     seq = tmp;
     seq_cap = new_cap2;
 }

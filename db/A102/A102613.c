@@ -9,7 +9,8 @@
  *            / gcd(pi(n), n)
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   gcd_seq_t
+ * Validated: partial, pass, 86 terms through n = 86 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/gcd_seq_t.h"
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* Static state for the sieve and prefix counts */
 static bool   *sieve     = NULL;
@@ -46,7 +48,7 @@ static void extend_sieve(idx_t N)
                 sieve[m] = false;
 
     /* Compute prefix prime counts */
-    seq_t *new_pi = (seq_t*)malloc(new_sz * sizeof(seq_t));
+    seq_t *new_pi = mem_new(seq_t, new_sz);
     if (!new_pi) exit(EXIT_FAILURE);
     seq_t count = 0;
     for (idx_t i = 0; i < new_sz; ++i) {
@@ -55,7 +57,7 @@ static void extend_sieve(idx_t N)
     }
 
     /* Replace the old table */
-    free(pi_arr);
+    mem_free(pi_arr);
     pi_arr = new_pi;
     sieve_sz = new_sz;
 }
@@ -71,7 +73,7 @@ seq_t a(idx_t n)
     seq_t pi_n  = pi_arr[n];          /* π(n) */
     seq_t n_seq = n;                  /* cast n to seq_t for GCD */
 
-    seq_t d          = gcd_seq_t(pi_n, n_seq);
+    seq_t d          = gcd(pi_n, n_seq);
     seq_t numerator  = pi_n / d;      /* reduced numerator */
 
     return numerator;

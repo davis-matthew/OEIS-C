@@ -14,13 +14,15 @@
  *            the first kind)
  * Range:     u8 n <= 21, u16 n <= 45, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t N)
 {
@@ -45,7 +47,7 @@ seq_t a(idx_t N)
     if (current_r < r) {
         for (idx_t n = current_r + 1; n <= r; ++n) {
             idx_t new_len = n + 1;          /* size of the new row (indices 0..n) */
-            seq_t *new_row = (seq_t *)malloc(new_len * sizeof(seq_t));
+            seq_t *new_row = mem_new(seq_t, new_len);
             if (!new_row) {
                 abort();                    /* out‑of‑memory: stop */
             }
@@ -69,7 +71,7 @@ seq_t a(idx_t N)
             }
 
             /* free the old row and adopt the new one */
-            free(row);
+            mem_free(row);
             row = new_row;
             current_r = n;
             factorial *= (seq_t)n;   /* update factorial to n! */

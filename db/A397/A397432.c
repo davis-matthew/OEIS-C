@@ -9,13 +9,14 @@
  *            representation of its argument
  * Range:     u8 n <= 19, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   rev_bin_idx
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-01)
+ * Helpers:   reverse_bits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/rev_bin_idx.h"
+#include "../utils/reverse_bits_idx.h"
 
 /* Simple trial‑division primality test for 64‑bit integers. */
 static inline bool is_prime_idx(idx_t v)
@@ -38,7 +39,7 @@ seq_t a(idx_t n)
         /* Skip primes. */
         if (is_prime_idx(x)) continue;
         /* Compute the binary reversal of x. */
-        idx_t rev = rev_bin_idx(x);
+        idx_t rev = reverse_bits_idx(x);
         if (rev <= x) continue;       /* need rev > x */
         /* Skip if the reversal is prime. */
         if (is_prime_idx(rev)) continue;

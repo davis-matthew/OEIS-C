@@ -9,14 +9,18 @@
  *            binomial(k,3*(n-3k))
  * Range:     u8 n <= 12, u16 n <= 21, u32 n <= 43, u64 n <= 87, u128 n <= 174,
  *            big any n
+ * Validated: standard, pass, 57 terms through n = 994 (2026-11-01)
  * Helpers:   binomial, pow2, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
 #include "../utils/pow3.h"
-#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {

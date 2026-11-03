@@ -7,13 +7,15 @@
  * Formula:   a(n) = n! * Sum_{k=1..n} sigma_0(k)/k (OEIS A356297)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 19, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Cached data for divisor counts and factorials. */
 /* idx_t and seq_t are provided by the build environment. */
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
         div_cnt = tmp;
 
         /* Reallocate factorial cache. */
-        seq_t *tmpf = (seq_t *)realloc(fact_cache, new_len * sizeof(seq_t));
+        seq_t *tmpf = mem_resize(seq_t, fact_cache, new_len);
         if (!tmpf) return 0;
         fact_cache = tmpf;
 

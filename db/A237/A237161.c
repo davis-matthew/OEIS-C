@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 11, u64 n <= 23, u128 n <= 48,
  *            big any n
- * Helpers:   expr_val
+ * Validated: standard, pass, 35 terms through n = 210 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,19 @@
    sequences using only edges of that value. */
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/expr_val.h"
+
+/* Compute 2*(min+max) - sum for four elements.  All inputs are 0..2. */
+static inline int expr_val(int a, int b, int c, int d)
+{
+    int min = a < b ? a : b;
+    if (c < min) min = c;
+    if (d < min) min = d;
+    int max = a > b ? a : b;
+    if (c > max) max = c;
+    if (d > max) max = d;
+    int sum = a + b + c + d;
+    return 2 * (min + max) - sum;
+}
 
 /* Precomputed table of the 27 possible rows (each a triple of 0..2). */
 static const unsigned char row[27][3] = {

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 589, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd, mod_pow
+ * Validated: standard, pass, 103 terms through n = 995 (2026-11-01)
+ * Helpers:   gcd, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,11 @@
    by iteratively testing m and using modular reduction to avoid
    constructing the huge number 3^n. */
 #include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
 #include "../utils/gcd.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +42,7 @@ seq_t a(idx_t n)
         }
 
         /* Compute 3^n mod d */
-        seq_t r = mod_pow((seq_t)3, n, d);
+        seq_t r = powmod((seq_t)3, n, d);
 
         /* Compute (3^n - m) mod d */
         seq_t m_mod = ((seq_t)m) % d;

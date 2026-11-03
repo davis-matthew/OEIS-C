@@ -7,13 +7,31 @@
  * Formula:   a(n) = (n / smallestPrimeFactor(n)) * greatestPrimeFactor(n)
  * Range:     u8 n <= 33, u16 n <= 513, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _gpf
+ * Validated: standard, pass, 82 terms through n = 9949 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_gpf.h"
+
+/* Greatest prime factor of n (n >= 2).  Returns n if n is prime. */
+static uint64_t _gpf(uint64_t n)
+{
+    uint64_t greatest = 0ULL;
+    if ((n & 1ULL) == 0) {
+        greatest = 2ULL;
+        while ((n & 1ULL) == 0) n >>= 1;   /* n /= 2 */
+    }
+    for (uint64_t p = 3ULL; p <= n / p; p += 2ULL) {
+        if (n % p == 0ULL) {
+            greatest = p;
+            while (n % p == 0ULL) n /= p;
+        }
+    }
+    if (n > 1ULL) greatest = n;
+    return greatest;
+}
 
 /* Smallest prime factor of n (n >= 2).  Returns n if n is prime. */
 static uint64_t _spf(uint64_t n)

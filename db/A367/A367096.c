@@ -11,7 +11,8 @@
  *            semiprime divisors
  * Range:     u8 n <= 74, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   build_spf, cmp_seq_t
+ * Validated: partial, pass, 74 terms through n = 74 (2026-11-03)
+ * Helpers:   build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,19 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/cmp_seq_t.h"
+#include <stddef.h>
 #include "../utils/build_spf.h"
+#include "../utils/mem.h"
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
 
 /* ----------  cached sequence  ---------- */
 static seq_t *seq_cache   = NULL;
@@ -53,7 +65,7 @@ static void seq_append(seq_t v)
 {
     if (seq_cache_len == seq_cache_cap) {
         size_t new_cap = (seq_cache_cap ? seq_cache_cap * 2 : 16);
-        seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
         seq_cache = tmp;
         seq_cache_cap = new_cap;
     }
@@ -113,7 +125,7 @@ static void process_row(idx_t row)
         return;                         /* no semiprime divisors in this row */
 
     /* sort the divisors */
-    qsort(divs, divs_len, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(divs, divs_len, sizeof(seq_t), cmp_seq_t);
 
     /* append sorted divisors to the global cache */
     for (size_t i = 0; i < divs_len; ++i)

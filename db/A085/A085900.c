@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 96, u32 n <= 96, u64 n <= 96, u128 n <= 96,
  *            big any n
- * Helpers:   has_three_negative_coeffs
+ * Validated: standard, pass, 68 terms through n = 96 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,45 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has_three_negative_coeffs.h"
+#include "../utils/mem.h"
+
+/* Test whether a number satisfies the above characterisation. */
+static bool has_three_negative_coeffs(uint64_t k)
+{
+    if (k < 14)          /* the smallest such number is 14 */
+        return false;
+
+    uint64_t x = k;
+    int e2 = 0, e3 = 0, e5 = 0, e7 = 0;
+
+    while ((x & 1U) == 0) {
+        ++e2;
+        x >>= 1;
+    }
+    while (x % 3U == 0) {
+        ++e3;
+        x /= 3U;
+    }
+    while (x % 5U == 0) {
+        ++e5;
+        x /= 5U;
+    }
+    while (x % 7U == 0) {
+        ++e7;
+        x /= 7U;
+    }
+
+    if (x != 1U)                /* other prime factor present */
+        return false;
+
+    if (e7 > 0)                 /* case: 2^a · 7^b with a≥1,b≥1 */
+        return (e2 >= 1) && (e3 == 0) && (e5 == 0);
+
+    if (e3 > 0 && e5 > 0)       /* case: odd part 3^c · 5^d, c≥1,d≥1 */
+        return true;
+
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -37,7 +76,7 @@ seq_t a(idx_t n)
     /* grow the array as needed */
     if (seq == NULL) {
         cap = 16;
-        seq = (seq_t *)malloc(cap * sizeof(seq_t));
+        seq = mem_new(seq_t, cap);
     }
 
     while (len <= n) {
@@ -45,7 +84,7 @@ seq_t a(idx_t n)
             ++cur;
         if (len == cap) {
             cap <<= 1;          /* double capacity */
-            seq = (seq_t *)realloc(seq, cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, cap);
         }
         seq[len++] = (seq_t)cur;
         ++cur;

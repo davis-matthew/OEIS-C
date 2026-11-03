@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 4065, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _subset_sum, calc_phi
+ * Validated: standard, pass, 74 terms through n = 9194 (2026-11-03)
+ * Helpers:   mem, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,23 @@
    array so that calls with arbitrary order of n are fast.  */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/calc_phi.h"
-#include "../utils/_subset_sum.h"
+#include <stdint.h>
+#include "../utils/totient_seq.h"
+#include "../utils/mem.h"
+
+/* Recursive subset‑sum test with pruning using suffix sums.  */
+static bool _subset_sum(const seq_t *values, size_t idx, seq_t target,
+                        const seq_t *suffix, size_t sz)
+{
+    if (target == 0) return true;            /* found a subset */
+    if (idx == sz) return false;             /* exhausted all values */
+    if (target > suffix[idx]) return false;   /* cannot reach target */
+    if (values[idx] <= target) {
+        if (_subset_sum(values, idx + 1, target - values[idx], suffix, sz))
+            return true;
+    }
+    return _subset_sum(values, idx + 1, target, suffix, sz);
+}
 
 static seq_t *cache      = NULL;   /* cached terms of the sequence    */
 static size_t cache_len  = 0;      /* number of cached terms          */
@@ -37,7 +53,7 @@ static void ensure_cache_cap(size_t needed)
     if (needed <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();
     cache = tmp;
     cache_cap = new_cap;
@@ -51,7 +67,7 @@ static bool good_candidate(seq_t m)
     seq_t cur = m;
     traj[sz++] = cur;                       /* include initial term */
     while (cur != 1) {
-        cur = calc_phi(cur);
+        cur = totient_seq(cur);
         if (sz >= max_traj_len) break;       /* safety guard */
         traj[sz++] = cur;
     }

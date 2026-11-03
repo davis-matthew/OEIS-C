@@ -7,12 +7,14 @@
  * Formula:   a(n) = (16^(n+1) - 15*n - 16)/225
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 183 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Recurrence: a(n) = 16*a(n-1) + n,  a(0) = 0 */
 seq_t a(idx_t n)
@@ -21,7 +23,7 @@ seq_t a(idx_t n)
     static idx_t last = 0;          /* highest index already computed */
 
     if (!cache) {                    /* first call: initialise cache */
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) return (seq_t)0; /* unlikely, but safe fallback */
         cache[0] = (seq_t)0;
         last = 0;
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
 
     if (n > last) {                  /* grow cache up to n */
         idx_t new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return cache[last];   /* cannot grow, return last value */
         cache = tmp;
 

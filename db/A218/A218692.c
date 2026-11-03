@@ -7,13 +7,16 @@
  * Formula:   a(n) = Σ_{k=0..n} binomial(n,k)^6 * binomial(n+k,k)^3
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 7, u128 n <= 14,
  *            big any n
- * Helpers:   big_pow, binom
+ * Validated: standard, pass, 30 terms through n = 186 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -24,8 +27,8 @@ seq_t a(idx_t n)
 
     for (idx_t k = 0; k <= n; ++k) {
         /* compute binomial powers */
-        seq_t ck6 = big_pow(Cnk, (seq_t)6);
-        seq_t cnk3 = big_pow(Cnkp_k, (seq_t)3);
+        seq_t ck6 = ipow(Cnk, (seq_t)6);
+        seq_t cnk3 = ipow(Cnkp_k, (seq_t)3);
 
         sum += ck6 * cnk3;
 

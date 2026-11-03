@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 115, u32 n <= 115, u64 n <= 115,
  *            u128 n <= 115, big any n
- * Helpers:   build_primes_upto, is_prime_small
+ * Validated: full, pass, 115 terms through n = 115 (2026-11-02)
+ * Helpers:   build_primes_upto, is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,7 @@
 #include <stdint.h>
 
 #include "../utils/build_primes_upto.h"
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 static seq_t cache[115];
 static bool   initialized = false;
@@ -45,7 +46,7 @@ static void build_cache(void)
         seq_t   v = (seq_t)v_int;
 
         /* Include 1 or any composite value. */
-        if (v_int == 1 || !is_prime_small(v))
+        if (v_int == 1 || !is_prime_seq(v))
         {
             cache[term_count++] = v;
         }

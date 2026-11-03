@@ -9,13 +9,23 @@
  *            among the first n primes. (Offset 1)
  * Range:     u8 n <= 292, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 93 terms through n = 956 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 static idx_t     next_candidate = 2;          /* next number to test for primality   */
 static idx_t    *prime_list      = NULL;      /* dynamic array of primes             */
@@ -29,6 +39,19 @@ static size_t    max_cap         = 0;          /* allocated capacity of max_coun
 static seq_t digit_counts[10] = {0};           /* cumulative digit frequencies       */
 
 /* Grow dynamic array to at least 'need' elements, using realloc. */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(T **ptr, size_t *cap, size_t need, size_t elem_size)
+{
+    if (need <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 16 : *cap;
+    while (new_cap < need) new_cap <<= 1;
+    T *tmp = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+    if (!tmp) { abort(); }                      /* out of memory                */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#else
 static void ensure_capacity(void **ptr, size_t *cap, size_t need, size_t elem_size)
 {
     if (need <= *cap) return;
@@ -39,6 +62,7 @@ static void ensure_capacity(void **ptr, size_t *cap, size_t need, size_t elem_si
     *ptr = tmp;
     *cap = new_cap;
 }
+#endif
 
 /* Test whether x is prime by trial division using the primes found so far. */
 static bool is_candidate_prime(idx_t x)
@@ -60,7 +84,7 @@ static void generate_up_to(idx_t target_n)
         while (!is_candidate_prime(next_candidate)) ++next_candidate;
 
         /* store prime */
-        ensure_capacity((void**)&prime_list, &prime_cap, prime_cnt + 1, sizeof(idx_t));
+        ensure_capacity(OEISC_VPP(&prime_list), &prime_cap, prime_cnt + 1, sizeof(idx_t));
         prime_list[prime_cnt] = next_candidate;
 
         /* update digit frequencies */
@@ -77,7 +101,7 @@ static void generate_up_to(idx_t target_n)
             if (digit_counts[d] > max_f) max_f = digit_counts[d];
 
         /* store answer for this prefix */
-        ensure_capacity((void**)&max_counts, &max_cap, prime_cnt + 1, sizeof(seq_t));
+        ensure_capacity(OEISC_VPP(&max_counts), &max_cap, prime_cnt + 1, sizeof(seq_t));
         max_counts[prime_cnt] = max_f;
 
         /* prepare for next candidate */

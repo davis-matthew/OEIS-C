@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 11, i16 n <= 21, i32 n <= 44, i64 n <= 44, i128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,6 +36,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* State for incremental generation of the triangle values */
 static seq_t *flat_cache = NULL;          /* flattened sequence a(n)   */
@@ -55,7 +57,7 @@ static void grow_cache(idx_t need)
     idx_t new_cap = cache_cap ? cache_cap * 2 : 4;
     while (new_cap < need)
         new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(flat_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, flat_cache, new_cap);
     flat_cache = tmp;
     cache_cap  = new_cap;
 }
@@ -74,20 +76,20 @@ static void compute_next_row(void)
     idx_t r = next_row;   /* current row index */
 
     if (r == 0) { /* Row 0: [1] */
-        seq_t *cur = (seq_t *)malloc(sizeof(seq_t));
+        seq_t *cur = mem_new(seq_t, 1);
         cur[0] = (seq_t)1;
         push_cache(cur[0]);
 
         /* Update state: prev becomes this row, prev2 stays NULL */
         if (prev)
-            free(prev);  /* Should be NULL on first call */
+            mem_free(prev);  /* Should be NULL on first call */
         prev = cur;
         len_prev  = 1;
         len_prev2 = 0;
         prev2 = NULL;
     }
     else if (r == 1) { /* Row 1: [1, 1] */
-        seq_t *cur = (seq_t *)malloc(2 * sizeof(seq_t));
+        seq_t *cur = mem_new(seq_t, 2);
         cur[0] = (seq_t)1;
         cur[1] = (seq_t)1;
         push_cache(cur[0]);
@@ -95,7 +97,7 @@ static void compute_next_row(void)
 
         /* Shift rows: old prev (row 0) becomes prev2 */
         if (prev2)
-            free(prev2);          /* prev2 is NULL here */
+            mem_free(prev2);          /* prev2 is NULL here */
         prev2 = prev;            /* row 0 */
         prev  = cur;             /* row 1 */
         len_prev2 = len_prev;    /* 1 */
@@ -104,7 +106,7 @@ static void compute_next_row(void)
     else { /* r >= 2 */
         idx_t n = r;
         idx_t row_len = n + 1;
-        seq_t *cur = (seq_t *)malloc(row_len * sizeof(seq_t));
+        seq_t *cur = mem_new(seq_t, row_len);
 
         /* k = 0 value is always 1 */
         cur[0] = (seq_t)1;
@@ -133,7 +135,7 @@ static void compute_next_row(void)
 
         /* Shift rows for next iteration: old prev2 is no longer needed. */
         if (prev2)
-            free(prev2);     /* free row (n-2) */
+            mem_free(prev2);     /* free row (n-2) */
         prev2 = prev;        /* previous row becomes prev2   */
         prev  = cur;         /* current row becomes prev     */
         len_prev2 = len_prev;/* len_prev was length of row (n-1) */
@@ -149,7 +151,7 @@ seq_t a(idx_t n)
     /* Allocate state on first call. */
     if (!flat_cache) {
         cache_cap = 4;
-        flat_cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        flat_cache = mem_new(seq_t, cache_cap);
         cache_len = 0;
         next_row = 0;
         prev = prev2 = NULL;

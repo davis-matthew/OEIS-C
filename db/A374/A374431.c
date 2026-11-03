@@ -7,7 +7,8 @@
  * Formula:   a(n) = ∏_{p | n} p^{⌊n/p⌋}
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 29, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 40 terms through n = 39 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
    produces the OEIS sequence A374431.  The implementation factors n by
    trial division and uses the provided big_pow utility for exponentiation. */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +36,7 @@ seq_t a(idx_t n)
     {
         if (temp % p == 0)
         {
-            seq_t factor = big_pow((seq_t)p, orig / p);
+            seq_t factor = ipow((seq_t)p, orig / p);
             result = result * factor;
             while (temp % p == 0)       /* remove all occurrences of p */
                 temp /= p;
@@ -43,7 +46,7 @@ seq_t a(idx_t n)
     /* if a prime factor larger than sqrt(n) remains, it is the last one */
     if (temp > 1)
     {
-        seq_t factor = big_pow((seq_t)temp, orig / temp);
+        seq_t factor = ipow((seq_t)temp, orig / temp);
         result = result * factor;
     }
 

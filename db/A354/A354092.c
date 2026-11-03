@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 258, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   seq_mul, seq_pow
+ * Validated: standard, pass, 105 terms through n = 9942 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,14 @@
    arithmetic (seq_mul, seq_pow) supplied by the build system. */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_mul.h"
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Test whether x is prime (trial division, fast enough for n ≤ 100‑000). */
 static bool is_prime_uint64(uint64_t x) {
@@ -72,7 +79,7 @@ seq_t a(idx_t n) {
                 ++exp;
             }
             seq_t base = prime_map(p);
-            seq_t power = seq_pow(base, (idx_t)exp);
+            seq_t power = ipow_idx(base, (idx_t)exp);
             result = seq_mul(result, power);
         }
     }

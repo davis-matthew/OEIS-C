@@ -7,7 +7,8 @@
  * Formula:   a(n) = gcd(n , A002808(n)) (A002808 = n‑th composite)
  * Range:     u8 n <= 1921, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd, is_prime
+ * Validated: standard, pass, 114 terms through n = 9915 (2026-11-03)
+ * Helpers:   gcd, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/gcd.h"     /* seq_t gcd(seq_t a, seq_t b);           */
-#include "../utils/is_prime.h"/* bool  is_prime(uint64_t n);           */
+#include "../utils/gcd.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call. */
     if (comps == NULL) {
         cap   = 256;                      /* start with some room  */
-        comps = (seq_t *)malloc(cap * sizeof(seq_t));
+        comps = mem_new(seq_t, cap);
         len   = 0;
     }
 
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
         if (!is_prime((uint64_t)next)) {          /* composite detected */
             if (len >= cap) {                 /* grow array       */
                 cap *= 2;
-                comps = (seq_t *)realloc(comps, cap * sizeof(seq_t));
+                comps = mem_resize(seq_t, comps, cap);
             }
             comps[len++] = (seq_t)next;
         }

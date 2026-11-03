@@ -7,7 +7,8 @@
  * Formula:   a(n) = number of partitions of n into parts 3, 7, 9 and 10
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,11 +16,12 @@
 /* Computed via standard unbounded knapsack DP (coin change counting) */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* The DP array has length n+1.  Use calloc to zero-initialize it. */
-    seq_t *dp = (seq_t*)calloc((size_t)n + 1U, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)n + 1U);
     if (dp == NULL) {
         /* In case of allocation failure, return 0 (undefined behavior is rare). */
         return (seq_t)0;
@@ -36,6 +38,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

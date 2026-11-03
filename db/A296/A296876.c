@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 143, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 8469 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Count whether an integer has equal numbers of pits and peaks in base‑8. */
 static bool is_good(idx_t n)
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
         if (terms_cap < need) {
             size_t new_cap = terms_cap ? terms_cap * 2 : 64;
             while (new_cap < need) new_cap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, terms, new_cap);
             terms = tmp;
             terms_cap = new_cap;
         }

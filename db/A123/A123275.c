@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 9681, u16 n <= 9681, u32 n <= 9681, u64 n <= 9681,
- *            u128 n <= 9681, big any n
- * Helpers:   largest_coprime_divisor
+ * Range:     u8 n <= 10440, u16 n <= 10440, u32 n <= 10440, u64 n <= 10440,
+ *            u128 n <= 10440, big any n
+ * Validated: standard, pass, 117 terms through n = 9681 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,33 @@
    A(i,j) = max{d | j : gcd(d,i)=1} */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/largest_coprime_divisor.h"
+
+/* compute largest divisor of m that is coprime to n */
+static seq_t largest_coprime_divisor(seq_t n, seq_t m)
+{
+    seq_t result = 1;
+    seq_t jj = m;
+    /* trial division up to sqrt(jj) */
+    for (idx_t p = 2; (seq_t)p * (seq_t)p <= jj; ++p) {
+        if (jj % (seq_t)p == 0) {
+            seq_t power = 1;
+            while (jj % (seq_t)p == 0) {
+                jj /= (seq_t)p;
+                power *= (seq_t)p;
+            }
+            if (n % (seq_t)p != 0) {
+                result *= power;
+            }
+        }
+    }
+    /* remaining prime factor > 1 */
+    if (jj > 1) {
+        if (n % jj != 0) {
+            result *= jj;
+        }
+    }
+    return result;
+}
 
 /* compute the triangular number T(x) = x*(x+1)/2 using 128-bit to avoid overflow */
 static inline idx_t triangular(idx_t x)

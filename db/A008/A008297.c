@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 11, i16 n <= 28, i32 n <= 67, i64 n <= 191,
  *            i128 n <= 530, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 5037 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     seq_t *curr = NULL;
     for (idx_t rr = 1; rr <= r; ++rr) {
         /* Allocate current row buffer.  Size rr+1 (index 0 unused). */
-        curr = (seq_t *)calloc((size_t)(rr + 1), sizeof(seq_t));
+        curr = mem_new(seq_t, (size_t)(rr + 1));
         if (curr == NULL) { exit(EXIT_FAILURE); }
 
         if (rr == 1) {
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
         }
 
         /* Recycle previous row buffer. */
-        free(prev);
+        mem_free(prev);
         prev = curr;
     }
 
@@ -69,6 +71,6 @@ seq_t a(idx_t n)
         result = -result;
     }
 
-    free(prev);
+    mem_free(prev);
     return result;
 }

@@ -10,12 +10,14 @@
  *            x^{2k-1})
  * Range:     u8 n <= 15, u16 n <= 24, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for computed coefficients */
 static idx_t  cached_n = 0;   /* largest n for which coefficients are stored */
@@ -28,9 +30,9 @@ static void recompute_upto(idx_t N)
 
     /* Allocate temporary arrays, size N+1. */
     size_t sz = (size_t)(N + 1);
-    seq_t *p      = (seq_t *)calloc(sz, sizeof(seq_t));   /* p_odd counts   */
-    seq_t *prev   = (seq_t *)calloc(sz, sizeof(seq_t));   /* convolution   */
-    seq_t *next   = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *p      = mem_new(seq_t, sz);   /* p_odd counts   */
+    seq_t *prev   = mem_new(seq_t, sz);   /* convolution   */
+    seq_t *next   = mem_new(seq_t, sz);
 
     if (p == NULL || prev == NULL || next == NULL) {
         /* In the unlikely event of allocation failure, just return
@@ -66,19 +68,19 @@ static void recompute_upto(idx_t N)
     }
 
     /* Allocate new coefficient array, copy results into it. */
-    seq_t *new_coeff = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *new_coeff = mem_new(seq_t, sz);
     if (new_coeff != NULL) {
         for (idx_t i = 0; i <= N; ++i) new_coeff[i] = prev[i];
     }
 
     /* Clean up old cache and temporaries. */
-    if (coeff_arr) free(coeff_arr);
+    if (coeff_arr) mem_free(coeff_arr);
     coeff_arr = new_coeff;
     cached_n  = N;
 
-    free(p);
-    free(prev);
-    free(next);
+    mem_free(p);
+    mem_free(prev);
+    mem_free(next);
 }
 
 seq_t a(idx_t n)

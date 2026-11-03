@@ -10,14 +10,16 @@
  * Formula:   not stated
  * Range:     u8 n <= 190, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   phi
+ * Validated: standard, pass, 95 terms through n = 937 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* a(n) = minimum of φ(n+1), φ(n+2), … , φ(2n)  (φ = Euler's totient) */
 
-#include "../utils/phi.h"
+#include <stdint.h>
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -27,11 +29,11 @@ seq_t a(idx_t n)
     idx_t end   = 2 * n;
 
     /* initialise best with the first value in the interval */
-    seq_t best = phi(start);
+    seq_t best = totient(start);
 
     /* scan the rest of the interval */
     for (idx_t m = start + 1; m <= end; ++m) {
-        seq_t v = phi(m);
+        seq_t v = totient(m);
         if (v < best)
             best = v;
     }

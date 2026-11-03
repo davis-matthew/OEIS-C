@@ -9,12 +9,14 @@
  *            2*a(n-13) + a(n-14)
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 21, u64 n <= 41, u128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 857 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t init[14] = {0, 0, 2, 6, 18, 46, 146, 460, 1436, 4352, 13252, 40532, 124396, 381140};
 static seq_t *win = NULL;
@@ -24,7 +26,7 @@ seq_t a(idx_t n) {
     if (n < 14) return init[n];
     
     if (!win) {
-        win = (seq_t *)malloc(14 * sizeof(seq_t));
+        win = mem_new(seq_t, 14);
         for (int i = 0; i < 14; i++) win[i] = init[i];
     }
     

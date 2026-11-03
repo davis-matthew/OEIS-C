@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{d|n} (-1)^(d + n/d) * d^10
  * Range:     i8 n <= 1, i16 n <= 2, i32 n <= 8, i64 n <= 78, i128 n <= 6653,
  *            big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: standard, pass, 35 terms through n = 8817 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,9 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 /* Recursive enumeration of divisors.
    cur_d holds the product of the primes chosen so far.
@@ -31,7 +33,7 @@ static void _dfs(const uint64_t primes[], const uint64_t exps[],
     if (idx == cnt) {
         uint64_t nd = nn / (uint64_t)cur_d;          /* n / d   */
         seq_t parity = ((cur_d & 1) ^ (nd & 1));     /* (d + n/d) mod 2 */
-        seq_t term   = big_pow(cur_d, (seq_t)10);    /* d^10    */
+        seq_t term   = ipow(cur_d, (seq_t)10);    /* d^10    */
         if (parity) term = -term;                    /* sign     */
         *total += term;
         return;

@@ -7,16 +7,18 @@
  * Formula:   a(n) = n^3 + reverse_decimal(n^3)
  * Range:     u8 n <= 4, u16 n <= 21, u32 n <= 1001, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   reverse_decimal
+ * Validated: standard, pass, 60 terms through n = 9659 (2026-11-01)
+ * Helpers:   reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/reverse_decimal.h"
+#include <stdlib.h>
+#include "../utils/reverse_digits.h"
 
 seq_t a(idx_t n) {
     seq_t z = (seq_t)n;
     seq_t cube = z * z * z;
-    seq_t rev = reverse_decimal(cube);
+    seq_t rev = reverse_digits(cube);
     return cube + rev;
 }

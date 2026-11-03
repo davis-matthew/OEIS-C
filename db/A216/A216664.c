@@ -9,7 +9,8 @@
  *            1/n contains the digit "9" at position (n + 1)/2
  * Range:     u8 n <= 4, u16 n <= 500, u32 n <= 692, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   powmod_mod
+ * Validated: standard, pass, 71 terms through n = 935 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,20 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/powmod_mod.h"
+#include "../utils/mem.h"
+
+static inline seq_t powmod_mod(seq_t base, idx_t exp, seq_t mod)
+{
+    seq_t result = 1 % mod;
+    base %= mod;
+    while (exp > 0) {
+        if (exp & 1U)
+            result = (result * base) % mod;
+        base = (base * base) % mod;
+        exp >>= 1U;
+    }
+    return result;
+}
 
 seq_t a(idx_t n)
 {
@@ -28,7 +42,7 @@ seq_t a(idx_t n)
 
     if (cache == NULL) {
         capacity = 64;
-        cache = (seq_t *)malloc(capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, capacity);
     }
 
     /* find terms up to n, if not already cached */
@@ -50,7 +64,7 @@ seq_t a(idx_t n)
         if (digit == 9) {
             if (cache_size == capacity) {           /* grow cache as needed */
                 capacity <<= 1;
-                cache = (seq_t *)realloc(cache, capacity * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, capacity);
             }
             cache[cache_size++] = (seq_t)candidate;
         }

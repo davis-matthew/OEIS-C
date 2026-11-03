@@ -12,7 +12,8 @@
  *            OEIS entry
  * Range:     u8 none, u16 none, u32 n <= 36, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   ensure_cap_seq_t
+ * Validated: partial, pass, 47 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,22 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/ensure_cap_seq_t.h"
+#include "../utils/mem.h"
+
+/* Ensure a seq_t vector has at least 'need' slots. */
+static void ensure_cap_seq_t(void **p, size_t *cap, size_t need)
+{
+    if (*p == NULL) {
+        *cap = 8;
+        while (*cap < need) *cap <<= 1U;
+        *p = realloc(NULL, *cap * sizeof(seq_t));
+    } else if (*cap < need) {
+        size_t new_cap = *cap << 1U;
+        if (new_cap < need) new_cap = need;
+        *p = realloc(*p, new_cap * sizeof(seq_t));
+        *cap = new_cap;
+    }
+}
 
 /* Comparison function for qsort, compatible with both integer
    and arbitrary‑precision seq_t types. */
@@ -78,7 +94,7 @@ seq_t a(idx_t n)
         }
 
         /* Sort the list. */
-        qsort(cached_vals, cached_len, sizeof(seq_t), seq_cmp);
+        mem_qsort(cached_vals, cached_len, sizeof(seq_t), seq_cmp);
 
         /* Remove duplicates in place. */
         size_t uniq = 0;

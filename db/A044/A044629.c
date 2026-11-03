@@ -10,14 +10,33 @@
  *            representation of n+1 does not
  * Range:     u8 n <= 4, u16 n <= 40, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   contains75
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/contains75.h"
+
+/* Return true iff the base‑8 representation of x contains the
+ * adjacent digits 7 followed by 5. */
+static bool contains75(seq_t x)
+{
+    if (x == 0) return false;
+    int digits[64];          /* enough for 128‑bit numbers (≤42 octal digits) */
+    int len = 0;
+    seq_t t = x;
+    while (t != 0) {
+        digits[len++] = (int)(t % 8);
+        t = t / 8;
+    }
+    if (len < 2) return false;
+    for (int i = len - 1; i > 0; --i) {
+        if (digits[i] == 7 && digits[i - 1] == 5) return true;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

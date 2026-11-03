@@ -13,7 +13,8 @@
  *            a(12)=4...
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 14, u64 n <= 29, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* fixed initial terms, only needed for the first 13 indices */
 static const seq_t init_terms[13] = {
@@ -52,7 +54,7 @@ static void ensure_capacity(idx_t needed)
     idx_t new_cap = cache_cap ? cache_cap : 13;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
     if (!new_ptr && new_cap)
         abort();                     /* out of memory */
     cache = new_ptr;
@@ -65,7 +67,7 @@ static void init_cache(idx_t n)
     if (cache)
         return;
     idx_t init_cap = n > 13 ? n : 13;
-    cache = (seq_t *)malloc(init_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, init_cap);
     if (!cache && init_cap)
         abort();                      /* out of memory */
     for (idx_t i = 0; i < 13; ++i)

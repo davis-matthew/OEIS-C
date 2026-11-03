@@ -7,7 +7,8 @@
  * Formula:   a(n) = numerator( ∑_{k=1..n} prime(k+1)/prime(k) )
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 17,
  *            big any n
- * Helpers:   gcd_f
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-02)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/gcd_f.h"
+#include "../utils/gcd.h"
 
 /* static storage for primes -------------------------------------------- */
 static bool primes_prepared = false;
@@ -84,7 +85,7 @@ seq_t a(idx_t n)
         seq_t new_num = num * a + b * den;
         seq_t new_den = den * a;
 
-        seq_t g = gcd_f(new_num, new_den);
+        seq_t g = gcd(new_num, new_den);
         num = new_num / g;
         den = new_den / g;
     }

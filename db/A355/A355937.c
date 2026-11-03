@@ -7,16 +7,19 @@
  * Keywords:  nonn
  * Formula:   a(n) = 1 if the number of divisors of n is a noncomposite (i.e.
  *            1 or a prime), otherwise 0
- * Range:     u8 n <= 9264, u16 n <= 9264, u32 n <= 9264, u64 n <= 9264,
- *            u128 n <= 9264, big any n
- * Helpers:   factor_u64, isPrimeSmall
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 137 terms through n = 9264 (2026-11-01)
+ * Helpers:   factor_u64, is_prime_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdlib.h>
+#include <stdint.h>
 #include "../utils/factor_u64.h"
-#include "../utils/isPrimeSmall.h"
+#include "../utils/is_prime_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +39,7 @@ seq_t a(idx_t n)
 
     /* τ(n) is a noncomposite iff it equals 1 or is prime.   */
     seq_t result = 0;
-    if (tau == 1 || isPrimeSmall(tau))
+    if (tau == 1 || is_prime_i32(tau))
         result = 1;
 
     return result;

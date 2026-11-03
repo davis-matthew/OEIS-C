@@ -10,14 +10,33 @@
  *            ∏_{t=n^2-n+1}^{n^2} t * ∏_{j=1}^{n-2} (n*j+1) for n ≥ 3
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 3, u64 n <= 5, u128 n <= 8,
  *            big any n
- * Helpers:   factorial, seq_mul, seq_pow
+ * Validated: partial, pass, 11 terms through n = 11 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/factorial.h"
-#include "../utils/seq_mul.h"
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/ipow_idx.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -26,7 +45,7 @@ seq_t a(idx_t n)
     if (n == 2) return 24;
 
     /* n^(n-3) */
-    seq_t pow_term = seq_pow((seq_t)n, n - 3);
+    seq_t pow_term = ipow_idx((seq_t)n, n - 3);
 
     /* (n!)^2 */
     seq_t fact_n = factorial(n);

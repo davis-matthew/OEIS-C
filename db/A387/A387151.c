@@ -8,7 +8,8 @@
  * Formula:   a(n) = n*n! / ∏_{k=1..n}radical(k)
  * Range:     u8 n <= 10, u16 n <= 23, u32 n <= 39, u64 n <= 74, u128 n <= 135,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 3147 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)0;
@@ -29,7 +31,7 @@ seq_t a(idx_t n) {
         /* allocate new buffers */
         size_t cap = (size_t)n + 1;
         uint64_t *new_rad   = (uint64_t*)malloc(cap * sizeof(uint64_t));
-        seq_t    *new_cache = (seq_t*)malloc(cap * sizeof(seq_t));
+        seq_t    *new_cache = mem_new(seq_t, cap);
         if (!new_rad || !new_cache) return (seq_t)0;  /* allocation failure */
 
         /* initialise radical array */
@@ -61,7 +63,7 @@ seq_t a(idx_t n) {
 
         /* replace old buffers */
         free(rad);
-        free(cache);
+        mem_free(cache);
         rad = new_rad;
         cache = new_cache;
         max_n = n;

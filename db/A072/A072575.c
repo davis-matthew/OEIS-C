@@ -9,8 +9,9 @@
  *            let c = n – r(r–1)/2. Then a(n) = T(r,c), where T(r,k) =
  *            Σ_{U⊆{1,…,k–1}, ΣU = r–k} (|U|+1)! (number of ordered partitions
  *            with distinct parts whose largest part is exactly k)
- * Range:     u8 n <= 177, u16 n <= 712, u32 n <= 3585, u64 n <= 9949,
- *            u128 n <= 9949, big any n
+ * Range:     u8 n <= 177, u16 n <= 712, u32 n <= 3585, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 121 terms through n = 9949 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

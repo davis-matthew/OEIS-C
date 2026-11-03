@@ -7,6 +7,7 @@
  * Formula:   a(n) = Product_{k=0..floor((n-1)/2)} 2*(2*n-4*k-1)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 13, u64 n <= 24, u128 n <= 42,
  *            big any n
+ * Validated: standard, pass, 40 terms through n = 630 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

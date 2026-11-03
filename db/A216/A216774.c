@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow, next_prime
+ * Validated: standard, pass, 70 terms through n = 998 (2026-11-01)
+ * Helpers:   next_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,11 @@
 /* Computes the n-th prime p such that the congruence x^58 = -2 (mod p) has no solution (search). */
 
 #include <stdint.h>
-#include "../utils/next_prime.h"   /* uint64_t next_prime(uint64_t start); */
-#include "../utils/mod_pow.h"     /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod); */
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/next_prime.h"
+#include "../utils/powmod.h"
 
 /* Euclidean gcd for 64‑bit integers. */
 static uint64_t gcd_u64(uint64_t a, uint64_t b)
@@ -44,7 +48,7 @@ seq_t a(idx_t n)
         uint64_t d   = gcd_u64(58, rem);          /* gcd(58, cur-1) */
         uint64_t exp = (cur - 1) / d;              /* exponent to test */
 
-        seq_t residue = mod_pow((seq_t)cur - 2, exp, (seq_t)cur);
+        seq_t residue = powmod((seq_t)cur - 2, exp, (seq_t)cur);
         if (residue != (seq_t)1) {
             ++count;
             if (count == n) {

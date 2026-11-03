@@ -9,7 +9,8 @@
  *            into odd parts
  * Range:     u8 n <= 18, u16 n <= 56, u32 n <= 190, u64 n <= 687,
  *            u128 n <= 2500, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 2292 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* external linkage expected by the build system */
 seq_t a(idx_t n)
@@ -37,11 +39,11 @@ seq_t a(idx_t n)
         idx_t sz = N + 1;          /* include index 0 */
 
         /* Allocate new arrays */
-        seq_t *new_a   = (seq_t*)malloc(sz * sizeof(seq_t));
-        seq_t *new_gp  = (seq_t*)malloc(sz * sizeof(seq_t));
-        seq_t *new_gc  = (seq_t*)malloc(sz * sizeof(seq_t));
-        seq_t *new_D   = (seq_t*)malloc(sz * sizeof(seq_t));
-        seq_t *new_E   = (seq_t*)malloc(sz * sizeof(seq_t));
+        seq_t *new_a   = mem_new(seq_t, sz);
+        seq_t *new_gp  = mem_new(seq_t, sz);
+        seq_t *new_gc  = mem_new(seq_t, sz);
+        seq_t *new_D   = mem_new(seq_t, sz);
+        seq_t *new_E   = mem_new(seq_t, sz);
 
         if (!new_a || !new_gp || !new_gc || !new_D || !new_E) {
             /* allocation failed – abort */
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
         }
 
         /* free old arrays */
-        free(a_vals); free(g_prev); free(g_cur); free(D); free(E);
+        mem_free(a_vals); mem_free(g_prev); mem_free(g_cur); mem_free(D); mem_free(E);
 
         a_vals = new_a;
         g_prev = new_gp;

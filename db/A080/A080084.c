@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 2262, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 9836 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 /* Requires <math.h> for log().  */
 #include <math.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Global static storage for the sieve and prefix sums. */
 static uint64_t *prime_list   = NULL;   /* p₁, p₂, … */
@@ -38,12 +40,12 @@ static void rebuild_sieve(size_t limit)
 {
     /* free previously allocated memory */
     if (spf)          free(spf);
-    if (omega_prefix) free(omega_prefix);
+    if (omega_prefix) mem_free(omega_prefix);
     if (prime_list)   free(prime_list);
 
     /* allocate new arrays */
     spf          = (unsigned*)malloc((limit + 1) * sizeof(unsigned));
-    omega_prefix = (seq_t*)malloc((limit + 1) * sizeof(seq_t));
+    omega_prefix = mem_new(seq_t, (limit + 1));
 
     /* dynamic array for primes */
     size_t prime_cap = 16;
@@ -70,7 +72,7 @@ static void rebuild_sieve(size_t limit)
     }
 
     /* temporary array for Ω(i) */
-    seq_t *omega = (seq_t*)malloc((limit + 1) * sizeof(seq_t));
+    seq_t *omega = mem_new(seq_t, (limit + 1));
     omega[0] = 0;
     omega[1] = 0;
     for (size_t i = 2; i <= limit; ++i) {
@@ -83,7 +85,7 @@ static void rebuild_sieve(size_t limit)
         omega_prefix[i] = omega_prefix[i - 1] + omega[i];
     }
 
-    free(omega);
+    mem_free(omega);
     sieve_limit = limit;
 }
 

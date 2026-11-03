@@ -8,13 +8,24 @@
  *            the base‑5 digits of i (A053824)
  * Range:     u8 n <= 17, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   digsum5
+ * Validated: partial, pass, 72 terms through n = 71 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/digsum5.h"
+
+/* Compute the digit sum of x in base 5. */
+static inline seq_t digsum5(idx_t x)
+{
+    seq_t s = 0;
+    while (x > 0) {
+        s += x % 5;
+        x /= 5;
+    }
+    return s;
+}
 
 /* a(n) = Σ_{i=0..n} (digsum_5(i))^2 */
 seq_t a(idx_t n)

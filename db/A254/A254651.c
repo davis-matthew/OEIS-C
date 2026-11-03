@@ -7,8 +7,9 @@
  * Keywords:  nonn, base
  * Formula:   a(n) = 1 if n is odd or the number of 1‑bits in n is even;
  *            otherwise 0
- * Range:     u8 n <= 9448, u16 n <= 9448, u32 n <= 9448, u64 n <= 9448,
- *            u128 n <= 9448, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 117 terms through n = 9448 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

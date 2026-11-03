@@ -9,7 +9,8 @@
  *            = index of the prime p (1 for 2, 2 for 3, 3 for 5, …)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 8567 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ---- utility: integer square root from utils ---------------------------------- */
 static inline idx_t integer_sqrt(idx_t x) {
@@ -93,7 +95,7 @@ static void ensure_cache(idx_t n) {
     if (n < cache_len) return;
     size_t new_len = cache_len ? cache_len * 2 : 64;
     while (new_len <= n) new_len <<= 1;
-    seq_t *new_cache = (seq_t *)realloc(seq_cache, (new_len + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, seq_cache, (new_len + 1));
     if (!new_cache) exit(1);
     for (size_t i = cache_len; i <= new_len; ++i) new_cache[i] = 0;
     seq_cache = new_cache;

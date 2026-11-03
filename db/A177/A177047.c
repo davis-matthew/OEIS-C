@@ -11,14 +11,16 @@
  *            10000
  * Range:     u8 n <= 38, u16 n <= 500, u32 n <= 500, u64 n <= 500,
  *            u128 n <= 500, big any n
- * Helpers:   bitlen_seq_t
+ * Validated: standard, pass, 94 terms through n = 494 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
 #include <stdbool.h>
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     }
 
     /* Number of bits of n (i.e. floor(log2(n))+1). */
-    unsigned L = bitlen_seq_t((seq_t)n);          /* 1 ≤ L ≤ 14 for n ≤ 10000 */
+    unsigned L = bit_length((seq_t)n);          /* 1 ≤ L ≤ 14 for n ≤ 10000 */
 
     /* Logarithm base 2 of n (as long double for high precision). */
     long double logn = logl((long double)n);

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 154, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_proper_divisors
+ * Validated: standard, pass, 82 terms through n = 9916 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,24 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/count_proper_divisors.h"
+#include "../utils/mem.h"
+
+/* Count the proper divisors of m.  Proper divisors are all divisors of m
+   except m itself.  Complexity is O(√m). */
+static inline uint64_t count_proper_divisors(uint64_t m)
+{
+    uint64_t cnt = 0;
+    for (uint64_t d = 1; d * d <= m; ++d) {
+        if (m % d == 0) {
+            if (d != m)
+                ++cnt;                 /* divisor d itself */
+            uint64_t q = m / d;
+            if (q != d && q != m)
+                ++cnt;                 /* paired divisor q */
+        }
+    }
+    return cnt;
+}
 
 /* Cache for previously computed terms of the sequence. */
 static seq_t      *cache = NULL;
@@ -35,7 +53,7 @@ static void ensure_cache_capacity(size_t needed)
     size_t new_cap = cache_cap ? cache_cap << 1 : 1;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) {
         abort(); /* Out of memory */
     }

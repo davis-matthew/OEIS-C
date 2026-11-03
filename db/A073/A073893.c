@@ -13,7 +13,8 @@
  *            It uses * only integer arithmetic and caches...
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   digit_len
+ * Validated: partial, pass, 80 terms through n = 80 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stdint.h>          /* for uint64_t */
 #include <stdbool.h>         /* for bool */
 
-#include "../utils/digit_len.h"   /* int digit_len(seq_t x) */
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static cache for already computed terms */
@@ -32,7 +34,7 @@ seq_t a(idx_t n) {
     /* Grow cache if necessary */
     if (n > cached_cnt) {
         idx_t new_cnt = n;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cnt * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cnt);
         if (!new_cache) exit(1); /* out‑of‑memory */
         cache = new_cache;
         for (idx_t i = cached_cnt; i < new_cnt; ++i)
@@ -64,7 +66,7 @@ seq_t a(idx_t n) {
 
     for (idx_t i = 1; i < n; ++i) {
         seq_t term = cache[i - 1];
-        int d = digit_len(term);
+        int d = num_digits(term);
         if (d > MAX_DIG) {
             /* Extend the power array if needed */
             for (int dd = MAX_DIG + 1; dd <= d; ++dd)

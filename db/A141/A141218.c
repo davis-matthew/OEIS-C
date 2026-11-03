@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 137, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, is_prime
+ * Validated: standard, pass, 85 terms through n = 9251 (2026-11-03)
+ * Helpers:   factor_u64, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
 #include "../utils/factor_u64.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
 
     /* Initialise cache with first term if not yet done. */
     if (cache_len == 0) {
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) return (seq_t)0;     /* allocation failed */
         cache[0] = (seq_t)1;            /* a(1) = 1 (nonprime = 1) */
         cache_len = 1;
@@ -89,7 +91,7 @@ seq_t a(idx_t n)
         }
 
         /* Store the computed term in the cache. */
-        seq_t *new_cache = (seq_t *)realloc(cache, (cache_len + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (cache_len + 1));
         if (!new_cache) return (seq_t)0;     /* allocation failed */
         cache = new_cache;
         cache[cache_len] = prod;

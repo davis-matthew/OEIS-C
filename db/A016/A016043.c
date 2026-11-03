@@ -8,13 +8,15 @@
  *            indices) a(2k+1) = 2^{2^k} + 1 (odd indices)
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 10, u64 n <= 12, u128 n <= 14,
  *            big any n
- * Helpers:   pow2, pow_seq_large
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-01)
+ * Helpers:   ipow, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include "../utils/ipow.h"
 #include "../utils/pow2.h"
-#include "../utils/pow_seq_large.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     seq_t pow2k = pow2(k);
 
     /* 2^{2^k}  */
-    seq_t val = pow_seq_large((seq_t)2, pow2k);
+    seq_t val = ipow((seq_t)2, pow2k);
 
     if (n & 1U) {          /* odd n => +1 */
         return val + (seq_t)1;

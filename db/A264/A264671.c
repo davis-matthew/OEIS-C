@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 31, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 178 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
  *   a(13)=46972259, a(14)=192337615, a(15)=787587465
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute the n-th term of A264671, with 1‑based index. */
 seq_t a(idx_t n)
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     /* Lazy allocation of cache and copy of the initial values. */
     if (cache == NULL) {
         cache_len = 16;                         /* indices 0 .. 15 */
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_len);
+        cache = mem_new(seq_t, cache_len);
         if (cache == NULL) return 0;            /* allocation failed */
         cache[0] = 0;                           /* unused placeholder */
         for (idx_t i = 1; i <= 15; ++i) {
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
     /* Grow cache if needed and compute new terms up to n. */
     if ((idx_t)(n + 1) > cache_len) {           /* we need indices up to n inclusive */
         idx_t new_len = (idx_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_len);
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (tmp == NULL) return 0;              /* allocation failed */
         cache = tmp;
         /* Compute missing terms. */

@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 20, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   bitlen_seq_t
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-03)
+ * Helpers:   bit_length, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,9 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,13 +40,13 @@ seq_t a(idx_t n)
     /* initialise cache */
     if (cache_cap == 0) {
         cache_cap = 128;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* generate terms until we have at least n of them */
     while (cache_len < n) {
         seq_t k = ((seq_t)next_m) * ((seq_t)next_m);      /* m² */
-        size_t L = bitlen_seq_t(k);                      /* binary length */
+        size_t L = bit_length(k);                      /* binary length */
 
         bool good = false;
         for (size_t lb = 1; lb < L && !good; ++lb) {
@@ -61,7 +64,7 @@ seq_t a(idx_t n)
             /* grow cache if necessary */
             if (cache_len == cache_cap) {
                 cache_cap *= 2;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = k;
         }

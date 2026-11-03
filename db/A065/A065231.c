@@ -10,13 +10,21 @@
  *            sum exceeds it
  * Range:     u8 n <= 41, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   heptagonal
+ * Validated: partial, pass, 64 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/heptagonal.h"
+#include "../utils/mem.h"
+
+static seq_t heptagonal(idx_t m)
+{
+    seq_t mp1 = (seq_t)(m + 1);
+    seq_t val = mp1 * (((seq_t)5 * mp1) - 3) / 2;
+    return val;
+}
 
 static seq_t *arr = NULL;       /* cache of a(n) values */
 static idx_t  max_n = (idx_t)-1; /* last computed index in arr */
@@ -31,12 +39,12 @@ seq_t a(idx_t n)
     if (arr == NULL || n > max_n) {
         size_t new_size = (size_t)n + 1;          /* allocate up to n */
         if (arr == NULL) {
-            arr = (seq_t *)malloc(new_size * sizeof(seq_t));
+            arr = mem_new(seq_t, new_size);
             max_n = 0;
             k_next = 0;
             arr[0] = (seq_t)1;
         } else {
-            arr = (seq_t *)realloc(arr, new_size * sizeof(seq_t));
+            arr = mem_resize(seq_t, arr, new_size);
         }
         /* compute values from max_n+1 up to n */
         for (idx_t i = max_n + 1; i <= n; ++i) {

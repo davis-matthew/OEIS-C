@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 23, u64 n <= 45, u128 n <= 89,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 982 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
  */
 
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are supplied by the build environment. */
 seq_t a(idx_t n)
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     /* Ensure table has entries up to n */
     if (size <= (size_t)n) {
         size_t new_size = (size_t)n + 1;
-        seq_t *new_table = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_table = mem_new(seq_t, new_size);
         if (!new_table) return (seq_t)0;          /* allocation fail -> 0 */
 
         /* copy old values */
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
         for (size_t i = size; i < new_size; ++i)
             new_table[i] = (seq_t)0;
 
-        free(table);
+        mem_free(table);
         table = new_table;
         size  = new_size;
     }

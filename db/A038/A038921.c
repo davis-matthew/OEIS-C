@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 974 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /*  Auxiliary: modular exponentiation  (base^exp mod mod)
  *  works for 64‑bit primes – all built‑in utilities are avoided.
@@ -69,7 +71,7 @@ static void ensure_good_cap(size_t need)
     if (good_cap < need) {
         size_t newcap = good_cap ? good_cap * 2 : 16;
         if (newcap < need) newcap = need;
-        seq_t *tmp = (seq_t *)realloc(good_primes, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, good_primes, newcap);
         if (!tmp) abort();
         good_primes = tmp;
         good_cap    = newcap;

@@ -7,16 +7,35 @@
  * Formula:   a(n) = Sum_{d|n} (2^d*3^(n/d))
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 19, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   pow2, pow3, seq_mul, seq_realloc
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-01)
+ * Helpers:   pow2, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/pow2.h"
 #include "../utils/pow3.h"
-#include "../utils/seq_mul.h"
-#include "../utils/seq_realloc.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 static void rec(const uint64_t primes[], const uint64_t exps[],
                 size_t idx, size_t total, uint64_t curr,

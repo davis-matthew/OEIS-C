@@ -7,14 +7,16 @@
  * Keywords:  sign, look
  * Formula:   a(1) = 1; for n>1: * if n % 3 == 0: a(n) = -5 * a(n/3) * else if
  *            (n+1) % 3 == 0: a(n) = n - a(n-1) * else: a(n) = n + a(n-1)
- * Range:     i8 n <= 29, i16 n <= 1548, i32 n <= 9957, i64 n <= 9957,
- *            i128 n <= 9957, big any n
- * Helpers:   none
+ * Range:     i8 n <= 29, i16 n <= 1548, i32 n <= 10934, i64 n <= 10934,
+ *            i128 n <= 10934, big any n
+ * Validated: standard, pass, 84 terms through n = 9957 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
         if (needed > capacity) {
             size_t new_cap = capacity ? capacity * 2 : 16;
             while (new_cap < needed) new_cap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort();
             cache = tmp;
             capacity = new_cap;

@@ -11,7 +11,8 @@
  *            p(m+3)‑p(m+2) > p(m+4)‑p(m+3)
  * Range:     u8 none, u16 n <= 19, u32 n <= 2500, u64 n <= 2500,
  *            u128 n <= 2500, big any n
- * Helpers:   none
+ * Validated: standard, pass, 56 terms through n = 2377 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Types supplied by the build system */
 extern seq_t a(idx_t n);
@@ -56,7 +58,7 @@ static void recompute_up_to_limit(size_t limit)
 
     /* 3. Identify strong sextets */
     size_t est_sextet = pc;           /* upper bound for number of sextets */
-    seq_t *slist = (seq_t*)malloc(est_sextet * sizeof(seq_t));
+    seq_t *slist = mem_new(seq_t, est_sextet);
     if (!slist) exit(1);
     size_t sc = 0;
     for (size_t i = 0; i + 5 < pc; ++i)
@@ -79,7 +81,7 @@ static void recompute_up_to_limit(size_t limit)
     /* 4. Replace old data with new data */
     free(is_prime);
     free(prime_list);
-    free(sextet_list);
+    mem_free(sextet_list);
     is_prime   = sieve;
     prime_list = plist;
     prime_count = pc;

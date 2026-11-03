@@ -13,7 +13,8 @@
  *            and the values of the previous subblocks)
  * Range:     u8 none, u16 n <= 1, u32 n <= 5, u64 n <= 14, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 180 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define ROWS          32          /* 5-bit rows: 0 .. 31 */
 #define STATE_D_BITS  3           /* d values (0/1) for 3 columns */
@@ -144,12 +146,12 @@ seq_t a(idx_t n)
        Remaining rows to add = rows - 3. */
     idx_t remaining = rows - 3;
     /* Allocate DP arrays */
-    seq_t *dp_cur = (seq_t*)calloc(STATE_COUNT, sizeof(seq_t));
-    seq_t *dp_next = (seq_t*)calloc(STATE_COUNT, sizeof(seq_t));
+    seq_t *dp_cur = mem_new(seq_t, STATE_COUNT);
+    seq_t *dp_next = mem_new(seq_t, STATE_COUNT);
     if (!dp_cur || !dp_next) {
         /* Memory error: return zero as per specification. */
-        if (dp_cur) free(dp_cur);
-        if (dp_next) free(dp_next);
+        if (dp_cur) mem_free(dp_cur);
+        if (dp_next) mem_free(dp_next);
         return 0;
     }
 
@@ -194,8 +196,8 @@ seq_t a(idx_t n)
     }
 
     /* Clean up */
-    free(dp_cur);
-    free(dp_next);
+    mem_free(dp_cur);
+    mem_free(dp_next);
 
     return result;
 }

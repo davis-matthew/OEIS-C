@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 48, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
        for n up to at least 10 000. */
     size_t heap_cap = (size_t)n;
     struct node { seq_t sum; idx_t a; idx_t b; seq_t a4; } *heap =
-        (struct node *)malloc(heap_cap * sizeof(struct node));
+        mem_new(struct node, heap_cap);
     if (!heap) return 0;  /* allocation failure – should not occur */
 
     /* Build the initial heap: one entry per a = 1 .. n. */
@@ -112,6 +114,6 @@ seq_t a(idx_t n)
         }
     }
 
-    free(heap);
+    mem_free(heap);
     return result;
 }

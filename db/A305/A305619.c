@@ -7,7 +7,8 @@
  * Formula:   a(n) = coefficient of x^n/n! in log(1 + Sum_{p prime} x^p/p)
  * Range:     i8 n <= 6, i16 n <= 8, i32 n <= 13, i64 n <= 21, i128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are supplied by the build */
 #ifdef SEQ_T_IS_BIGINT
@@ -45,8 +47,8 @@ seq_t a(idx_t n)
     /* ---- resize arrays to cover [0..n] ---- */
     size_t new_cap = (size_t)n + 1;     /* include index n */
 
-    a_vals = (seq_t *)realloc(a_vals, new_cap * sizeof(seq_t));
-    fac    = (seq_t *)realloc(fac   , new_cap * sizeof(seq_t));
+    a_vals = mem_resize(seq_t, a_vals, new_cap);
+    fac    = mem_resize(seq_t, fac, new_cap);
     is_prime = (bool  *)realloc(is_prime, new_cap * sizeof(bool));
 
     if (!a_vals || !fac || !is_prime) {

@@ -8,6 +8,7 @@
  *            4.4482216152605 N
  * Range:     u8 none, u16 none, u32 none, u64 n <= 14, u128 n <= 14,
  *            big any n
+ * Validated: full, pass, 14 terms through n = 14 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

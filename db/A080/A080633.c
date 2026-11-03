@@ -12,13 +12,15 @@
  *            * and the self‑referential condition a(a(n)) = 4*n + 1
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>   /* for size_t */
+#include "../utils/mem.h"
 
 static seq_t *A = NULL;          /* a(n) values, 1‑based index */
 static seq_t *FORCED = NULL;     /* forced value for a(index) if it appears
@@ -32,8 +34,8 @@ static void ensure_cap(idx_t needed)
     if ((size_t)needed >= CAP) {
         size_t newcap = CAP ? CAP << 1 : 64;
         while ((size_t)needed >= newcap) newcap <<= 1;
-        A      = (seq_t *)realloc(A, newcap * sizeof(seq_t));
-        FORCED = (seq_t *)realloc(FORCED, newcap * sizeof(seq_t));
+        A      = mem_resize(seq_t, A, newcap);
+        FORCED = mem_resize(seq_t, FORCED, newcap);
         for (size_t i = CAP; i < newcap; ++i) {
             A[i] = 0;
             FORCED[i] = 0;
@@ -50,8 +52,8 @@ seq_t a(idx_t n)
     /* initialise static allocation */
     if (A == NULL) {
         CAP = 64;
-        A = (seq_t *)malloc(CAP * sizeof(seq_t));
-        FORCED = (seq_t *)malloc(CAP * sizeof(seq_t));
+        A = mem_new(seq_t, CAP);
+        FORCED = mem_new(seq_t, CAP);
         for (size_t i = 0; i < CAP; ++i) {
             A[i] = 0;
             FORCED[i] = 0;

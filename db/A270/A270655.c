@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  sign, look
  * Formula:   not stated
- * Range:     i8 n <= 9678, i16 n <= 9678, i32 n <= 9678, i64 n <= 9678,
- *            i128 n <= 9678, big any n
- * Helpers:   none
+ * Range:     i8 n <= 59049, i16 n <= 59049, i32 n <= 59049, i64 n <= 59049,
+ *            i128 n <= 59049, big any n
+ * Validated: standard, pass, 98 terms through n = 9678 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* memoised values */
 static bool *known = NULL;    /* flags whether cache[n] is defined */
@@ -41,7 +43,7 @@ static void grow_cache(idx_t idx)
     if (new_cap < 2 * cache_cap) new_cap = 2 * cache_cap;
     if (new_cap == 0) new_cap = 1;                    /* first allocation */
 
-    seq_t *c = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *c = mem_resize(seq_t, cache, new_cap);
     bool *k = (bool *)realloc(known, new_cap * sizeof(bool));
     if (!c || !k) {                                    /* allocation failed */
         /* In a production system we might abort or handle errors.

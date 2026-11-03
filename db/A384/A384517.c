@@ -9,14 +9,44 @@
  *            the n‑th integer whose prime factor exponents are all equal)
  * Range:     u8 n <= 13, u16 n <= 176, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   equal_exponents_uint64
+ * Validated: standard, pass, 66 terms through n = 9827 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/equal_exponents_uint64.h"
+
+/* Test whether all prime exponents of x are equal.
+   Returns true if x has just one prime factor (any exponent),
+   or if every prime factor occurs with the same exponent e. */
+static bool equal_exponents_uint64(uint64_t x)
+{
+    int first_exp = -1;
+    uint64_t t = x;
+    for (uint64_t p = 2; p * p <= t; ++p) {
+        if (t % p == 0) {
+            int exp = 0;
+            while (t % p == 0) {
+                t /= p;
+                ++exp;
+            }
+            if (first_exp == -1)
+                first_exp = exp;
+            else if (first_exp != exp)
+                return false;
+        }
+    }
+    /* Remaining factor, if any, is prime with exponent 1 */
+    if (t > 1) {
+        if (first_exp == -1)
+            first_exp = 1;
+        else if (first_exp != 1)
+            return false;
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {

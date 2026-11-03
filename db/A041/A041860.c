@@ -7,13 +7,15 @@
  * Formula:   a(n) = numerator of the n-th convergent of sqrt(452)
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 14, u64 n <= 29, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 171 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
 
     if (cache_len == 0) {
         cache_cap = 16;                     /* initial capacity */
-        cache = (seq_t *)calloc((size_t)cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)cache_cap);
         cache[0] = (seq_t)21;                /* p0 */
         cache_len = 1;
     }
@@ -44,9 +46,9 @@ seq_t a(idx_t n)
     if (n >= cache_cap) {
         while (cache_cap <= (size_t)n)
             cache_cap = (cache_cap > 0) ? cache_cap * 2 : 16;
-        seq_t *new_cache = (seq_t *)calloc((size_t)cache_cap, sizeof(seq_t));
-        memcpy(new_cache, cache, (size_t)cache_len * sizeof(seq_t));
-        free(cache);
+        seq_t *new_cache = mem_new(seq_t, (size_t)cache_cap);
+        mem_copy(new_cache, cache, (size_t)cache_len * sizeof(seq_t));
+        mem_free(cache);
         cache = new_cache;
     }
 

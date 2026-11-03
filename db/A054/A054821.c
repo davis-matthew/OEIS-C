@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 /* The build supplies seq_t and idx_t; we do not redeclare them. */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* dynamic array for primes */
 static seq_t *primes = NULL;
@@ -36,7 +38,7 @@ static void push_prime(seq_t p)
 {
     if (prime_len == prime_cap) {
         size_t new_cap = prime_cap == 0 ? 256 : prime_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(primes, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, primes, new_cap);
         if (!tmp) abort();
         primes = tmp; prime_cap = new_cap;
     }
@@ -48,7 +50,7 @@ static void push_weak(seq_t v)
 {
     if (weak_len == weak_cap) {
         size_t new_cap = weak_cap == 0 ? 128 : weak_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(weak, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, weak, new_cap);
         if (!tmp) abort();
         weak = tmp; weak_cap = new_cap;
     }

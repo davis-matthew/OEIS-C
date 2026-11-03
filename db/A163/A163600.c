@@ -10,13 +10,15 @@
  *            33·a(n‑2) + 33·a(n‑3) + 33·a(n‑4) – 561·a(n‑5)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 649 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     /* Ensure the cache has enough capacity. */
     if (n + 1 > cache_sz) {
         idx_t new_sz = n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_sz * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_sz);
         if (!new_cache) /* allocation failed – return 0 (unlikely). */
             return (seq_t)0;
         cache = new_cache;

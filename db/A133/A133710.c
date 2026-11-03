@@ -9,12 +9,14 @@
  *            a(3)=35, a(4)=131, a(5)=347, a(6)=767, a(7)=1511
  * Range:     u8 n <= 4, u16 n <= 15, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[8] = {0, 0, 3, 35, 131, 347, 767, 1511};
 static seq_t *cache = NULL;          /* 1‑based array of cached terms */
@@ -31,7 +33,7 @@ static void grow_cache(size_t needed)
     while (newcap < needed)
         newcap <<= 1;
 
-    seq_t *newcache = (seq_t *)malloc(newcap * sizeof(seq_t));
+    seq_t *newcache = mem_new(seq_t, newcap);
     if (!newcache) {
         /* Terminate: not enough memory.  The OEIS harness will treat this as a failure. */
         exit(1);
@@ -40,7 +42,7 @@ static void grow_cache(size_t needed)
     if (cache) {
         for (size_t i = 1; i <= cache_cap; ++i)
             newcache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
     else {
         /* Uninitialized for first time. No need to clear, but zero used elements for safety. */

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 970 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Integer square root: floor(sqrt(n)) using 128‑bit arithmetic */
 static uint64_t isqrt_uint64(uint64_t n)
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
     /* initialise buffers on first call */
     if (seq_buf == NULL) {
         seq_cap = 128;
-        seq_buf = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_buf = mem_new(seq_t, seq_cap);
     }
     if (prime_list == NULL) {
         prime_cap = 16;
@@ -107,7 +109,7 @@ seq_t a(idx_t n)
         if (leg == p - 1) {                   /* p > 2 guarantees correct test */
             if (seq_len == seq_cap) {
                 seq_cap *= 2;
-                seq_buf = (seq_t *)realloc(seq_buf, seq_cap * sizeof(seq_t));
+                seq_buf = mem_resize(seq_t, seq_buf, seq_cap);
             }
             seq_buf[seq_len++] = (seq_t)p;
         }

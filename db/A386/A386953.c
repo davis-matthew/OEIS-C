@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 590, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_not_div_by_9
+ * Validated: standard, pass, 71 terms through n = 9226 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,61 @@
  */
 
 #include <stdint.h>
-#include "../utils/count_not_div_by_9.h"
+
+static seq_t count_not_div_by_9(idx_t r)
+{
+    /* Convert r to base‑3 digits (least significant first). */
+    idx_t digits[20];           /* 3¹⁰ = 59049 > 10 000, so 20 is safe. */
+    idx_t len = 0;
+    idx_t tmp = r;
+    if (tmp == 0) {
+        digits[0] = 0;
+        len = 1;
+    } else {
+        while (tmp > 0) {
+            digits[len++] = tmp % 3;
+            tmp /= 3;
+        }
+    }
+
+    /* dp[borrow_in][borrow_cnt] where borrow_cnt ∈ {0,1}. */
+    seq_t dp[2][2] = {{0, 0}, {0, 0}};
+    dp[0][0] = 1;  /* start with no borrow, zero borrowed positions. */
+
+    for (idx_t pos = 0; pos < len; ++pos) {
+        seq_t ndp[2][2] = {{0, 0}, {0, 0}};
+        for (int bi = 0; bi < 2; ++bi) {            /* borrow_in */
+            for (int bc = 0; bc < 2; ++bc) {        /* cumulative borrow_cnt */
+                seq_t val = dp[bi][bc];
+                if (val == 0) continue;
+
+                int t = (int)digits[pos] - bi;     /* r_i - borrow_in */
+
+                seq_t no_borrow = 0, borrow = 0;
+                if (t >= 0)
+                    no_borrow = (seq_t)(t + 1);    /* k_i ≤ t */
+                else
+                    no_borrow = 0;                 /* none without borrow */
+                borrow = 3 - no_borrow;           /* remaining k_i values */
+
+                /* Case: no borrow at this digit. */
+                if (no_borrow) {
+                    ndp[0][bc] += val * no_borrow;
+                }
+                /* Case: borrow at this digit (adds 1 to borrow count). */
+                if (borrow && bc + 1 <= 1) {
+                    ndp[1][bc + 1] += val * borrow;
+                }
+            }
+        }
+        dp[0][0] = ndp[0][0];
+        dp[0][1] = ndp[0][1];
+        dp[1][0] = ndp[1][0];
+        dp[1][1] = ndp[1][1];
+    }
+    /* Valid k’s finish with no remaining borrow (borrow_in==0). */
+    return dp[0][0] + dp[0][1];
+}
 
 seq_t a(idx_t n)
 {

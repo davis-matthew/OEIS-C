@@ -7,20 +7,21 @@
  * Formula:   a(n) = floor(n / floor(sqrt(n)))
  * Range:     u8 n <= 1050, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   uint64_floor_sqrt
+ * Validated: standard, pass, 115 terms through n = 9356 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/uint64_floor_sqrt.h"
+#include "../utils/isqrt_u64.h"
 
 seq_t a(idx_t n) {
     /* offset starts at 1; for safety return 0 if called with 0 */
     if (n == 0)
         return 0;
 
-    uint64_t s = uint64_floor_sqrt((uint64_t)n);   /* floor(sqrt(n)) */
+    uint64_t s = isqrt_u64((uint64_t)n);   /* floor(sqrt(n)) */
     /* Division uses seq_t arithmetic; intermediate cast is fine. */
     return (seq_t)((seq_t)n / (seq_t)s);
 }

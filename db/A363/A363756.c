@@ -9,14 +9,34 @@
  *            unordered factorizations of d into integers > 1
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   part_factorisations
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/part_factorisations.h"
+
+/* Recursive function that returns the number of unordered factorisations
+   of m (m > 1) into integers > 1.  The parameter min_factor guarantees
+   that the factors are generated in non‑decreasing order, so each
+   factorisation is counted exactly once. */
+static seq_t part_factorisations(uint64_t m, uint64_t min_factor)
+{
+    seq_t count = 1;  /* the trivial factorisation m itself */
+
+    for (uint64_t f = min_factor; f * f <= m; ++f) {
+        if (m % f == 0) {
+            uint64_t q = m / f;
+            /* recursion counts factorizations of q with the
+               smallest factor at least f, which together with f
+               give factorizations of m. */
+            count += part_factorisations(q, f);
+        }
+    }
+    return count;
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)

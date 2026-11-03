@@ -7,12 +7,14 @@
  * Formula:   a(n) = Sum_{k=0..n} k^5 * binomial(n,k)^2 * binomial(n+k,k)^2
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for binomial coefficients */
 static seq_t *binom_n = NULL;   /* binomial(n,k) for k = 0..n           */
@@ -24,11 +26,11 @@ seq_t a(idx_t n)
     /* Allocate or expand cache if required */
     size_t needed = (size_t)n + 1;
     if (needed > binom_cap) {
-        seq_t *tmp1 = (seq_t *)realloc(binom_n, needed * sizeof(seq_t));
+        seq_t *tmp1 = mem_resize(seq_t, binom_n, needed);
         if (!tmp1) return 0;
-        seq_t *tmp2 = (seq_t *)realloc(binom_nn, needed * sizeof(seq_t));
+        seq_t *tmp2 = mem_resize(seq_t, binom_nn, needed);
         if (!tmp2) {
-            free(tmp1);
+            mem_free(tmp1);
             return 0;
         }
         binom_n   = tmp1;

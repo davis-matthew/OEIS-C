@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 52, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   has_consecutive_equal_digits
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,23 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has_consecutive_equal_digits.h"
+#include "../utils/mem.h"
+
+/* helper: check if a non‑negative integer < 2^64 has a repeated
+   consecutive decimal digit. */
+static bool has_consecutive_equal_digits(uint64_t v)
+{
+    if (v < 10) return true;            /* single‑digit numbers */
+    int prev = v % 10;
+    v /= 10;
+    while (v > 0) {
+        int d = v % 10;
+        if (d == prev) return true;
+        prev = d;
+        v /= 10;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -35,11 +52,11 @@ seq_t a(idx_t n)
     if (cache_len < (size_t)n) {
         if (!cache) {
             cache_capacity = 1024;
-            cache = (seq_t *)malloc(cache_capacity * sizeof(seq_t));
+            cache = mem_new(seq_t, cache_capacity);
         } else if (cache_len + 1 > cache_capacity) {
             size_t new_cap = cache_capacity * 2;
             if (new_cap < cache_len + 1) new_cap = cache_len + 1;
-            cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_cap);
             cache_capacity = new_cap;
         }
 

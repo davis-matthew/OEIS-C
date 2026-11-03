@@ -7,13 +7,16 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 935, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 103 terms through n = 9741 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* a(n) = number of distinct Fermat numbers 2^(2^k)+1 that divide n */
-#include "../utils/seq_pow.h"   /* seq_pow(seq_t base, idx_t exp) */
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +30,7 @@ seq_t a(idx_t n)
     for (;;)
     {
         /* Fermat number F = 2^exp + 1 */
-        seq_t f = seq_pow((seq_t)2, exp) + (seq_t)1;
+        seq_t f = ipow_idx((seq_t)2, exp) + (seq_t)1;
 
         if (f > nt) break;                  /* no larger Fermat number can divide n */
 

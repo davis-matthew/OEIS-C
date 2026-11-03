@@ -8,14 +8,19 @@
  * Formula:   a(n) = 1 if n is odd, a(n) = smallest k>1 such that 2^n ≡
  *            2·3^(k-1) (mod 3^k), a(n) = 0 if no such k exists (conjectured
  *            only for n=0,2,8)
- * Range:     u8 n <= 7, u16 n <= 23, u32 n <= 9801, u64 n <= 9801,
- *            u128 n <= 9801, big any n
- * Helpers:   mod_pow
+ * Range:     u8 n <= 7, u16 n <= 23, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 120 terms through n = 9801 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n) {
     /* Special cases */
@@ -35,7 +40,7 @@ seq_t a(idx_t n) {
 
     /* Find the first position of a digit 2 (starting from 1). */
     for (idx_t k = 2u; k <= 80u; ++k) {
-        seq_t r = mod_pow((seq_t)2u, n, pow3[k]);          /* 2^n mod 3^k */
+        seq_t r = powmod((seq_t)2u, n, pow3[k]);          /* 2^n mod 3^k */
         seq_t t = (r / pow3[k-1]) % ((seq_t)3u);          /* k‑th digit */
         if (t == (seq_t)2u) return (seq_t)k;
     }

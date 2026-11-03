@@ -8,12 +8,24 @@
  * Formula:   a(n) = sigma_3(n) * Fib(n), sigma_3(n) = Σ_{d|n} d^3
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 27, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   fib
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/fib.h"   /* provides seq_t fib(idx_t n); */
+#include <stdbool.h>
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
 
 static inline seq_t pow_uint(seq_t base, idx_t exp) {
     seq_t result = 1;

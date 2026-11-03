@@ -13,6 +13,7 @@
  *            by: let s be the unique integer with s*(s+1)/2 ≤...
  * Range:     u8 n <= 11, u16 n <= 12, u32 n <= 17, u64 n <= 24, u128 n <= 40,
  *            big any n
+ * Validated: standard, pass, 52 terms through n = 222 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

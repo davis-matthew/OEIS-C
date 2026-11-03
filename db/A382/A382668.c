@@ -7,13 +7,16 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = C(n+1) - C(n-1) - 2*C(n-2) where C(k) = A000108(k)
  *            (Catalan)
- * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 27, u128 n <= 27,
+ * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 18, u64 n <= 27, u128 n <= 27,
  *            big any n
+ * Validated: partial, pass, 26 terms through n = 27 (2026-11-01)
  * Helpers:   catalan
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/catalan.h"
 
 seq_t a(idx_t n) {

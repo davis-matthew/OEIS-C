@@ -9,6 +9,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 50, u16 n <= 124, u32 n <= 440, u64 n <= 1370,
  *            u128 n <= 1370, big any n
+ * Validated: standard, pass, 94 terms through n = 9646 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -21,7 +22,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/gcd.h"   /* provides seq_t gcd(seq_t a, seq_t b) */
+#include "../utils/gcd.h"
 
 static inline seq_t egyptian_largest_denom(seq_t num, seq_t den) {
     seq_t largest = 0;

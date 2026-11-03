@@ -7,13 +7,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 30, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* a(n) = product of the two smallest distinct primes that are ≡ 1 (mod n). */
-#include "../utils/is_prime_small.h"
+#include <stdbool.h>
+#include "../utils/is_prime_seq.h"
 
 seq_t a(idx_t n) {
     /* Convert n to seq_t for arithmetic, but keep its original value for loop step. */
@@ -24,7 +26,7 @@ seq_t a(idx_t n) {
 
     /* Find the two smallest distinct primes ≡ 1 (mod n). */
     while (first == 0 || second == 0) {
-        if (is_prime_small(candidate)) {
+        if (is_prime_seq(candidate)) {
             if (first == 0)
                 first = candidate;
             else if (second == 0 && candidate != first)

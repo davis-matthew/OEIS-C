@@ -10,13 +10,41 @@
  *            suffices for all n that fit in idx_t (uint64_t)
  * Range:     u8 n <= 100, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _unitary_totient
+ * Validated: standard, pass, 81 terms through n = 9638 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>   /* for uint64_t, if needed */
-#include "../utils/_unitary_totient.h"
+
+/* --- unitary totient for 64‑bit values ----------------------------------- */
+static seq_t _unitary_totient(idx_t n)
+{
+    if (n == 1) return (seq_t)1;
+
+    idx_t result = n;
+    idx_t temp   = n;
+
+    for (idx_t p = 2; p * p <= temp; ++p) {
+        if (temp % p == 0) {
+            idx_t p_pow = 1;
+            while (temp % p == 0) {
+                temp  /= p;
+                p_pow *= p;
+            }
+            /* result = (result / p_pow) * (p_pow - 1)  */
+            result = (result / p_pow) * (p_pow - 1);
+        }
+    }
+
+    if (temp > 1) {
+        /* remaining prime factor > sqrt(original n) */
+        result = (result / temp) * (temp - 1);
+    }
+
+    return (seq_t)result;
+}
 
 /* --- main sequence function --------------------------------------------- */
 seq_t a(idx_t n)

@@ -7,12 +7,14 @@
  * Formula:   a(n) = n! * Sum_{k=1..n} sigma_2(k)/(k * (n-k)!)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 11, u64 n <= 19, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -21,9 +23,9 @@ seq_t a(idx_t n)
 
     /* allocate arrays of size (n+1) */
     const size_t sz = (size_t)n + 1;
-    seq_t *sigma2 = (seq_t*)calloc(sz, sizeof(seq_t));
-    seq_t *fact   = (seq_t*)calloc(sz, sizeof(seq_t));
-    seq_t *A      = (seq_t*)calloc(sz, sizeof(seq_t));
+    seq_t *sigma2 = mem_new(seq_t, sz);
+    seq_t *fact   = mem_new(seq_t, sz);
+    seq_t *A      = mem_new(seq_t, sz);
 
     /* sigma_2(k) = sum_{d|k} d^2 */
     for (idx_t i = 1; i <= n; ++i) {
@@ -49,8 +51,8 @@ seq_t a(idx_t n)
         sum   += coeff * A[k];
     }
 
-    free(sigma2);
-    free(fact);
-    free(A);
+    mem_free(sigma2);
+    mem_free(fact);
+    mem_free(A);
     return sum;
 }

@@ -16,6 +16,7 @@
  *            -C(i-1,2k-1)*C(i-2k+4,i-2k)^(p-1) ] . * * Offset:...
  * Range:     u8 n <= 5, u16 n <= 19, u32 n <= 36, u64 n <= 100, u128 n <= 211,
  *            big any n
+ * Validated: standard, pass, 54 terms through n = 4786 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

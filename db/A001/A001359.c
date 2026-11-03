@@ -6,8 +6,9 @@
  * Keywords:  nonn, nice, easy
  * Formula:   sieve of Eratosthenes; a(n) = n-th prime p such that p+2 is also
  *            prime
- * Range:     u8 n <= 17, u16 n <= 860, u32 n <= 9291, u64 n <= 9291,
- *            u128 n <= 9291, big any n
+ * Range:     u8 n <= 17, u16 n <= 860, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 67 terms through n = 9291 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

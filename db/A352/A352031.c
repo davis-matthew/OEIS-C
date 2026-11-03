@@ -8,13 +8,14 @@
  *            (n^3 if n odd, else 0)
  * Range:     u8 n <= 13, u16 n <= 81, u32 n <= 3209, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 77 terms through n = 9956 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +39,7 @@ seq_t a(idx_t n)
                 temp /= p;
                 exp++;
             }
-            seq_t p3 = pow_uint((uint64_t)p, (idx_t)3);
+            seq_t p3 = ipow_u64_idx((uint64_t)p, (idx_t)3);
             seq_t cur = (seq_t)1;
             seq_t term = (seq_t)1;
             for (int i = 0; i < exp; i++) {
@@ -49,7 +50,7 @@ seq_t a(idx_t n)
         }
     }
     if (temp > 1) { /* remaining prime factor */
-        seq_t p3 = pow_uint((uint64_t)temp, (idx_t)3);
+        seq_t p3 = ipow_u64_idx((uint64_t)temp, (idx_t)3);
         seq_t cur = (seq_t)1;
         seq_t term = (seq_t)1;
         cur *= p3;        /* exponent 1 */
@@ -59,7 +60,7 @@ seq_t a(idx_t n)
 
     /* If original n is odd, subtract n^3 to exclude the divisor n itself */
     if (n & 1) {
-        result -= pow_uint((uint64_t)n, (idx_t)3);
+        result -= ipow_u64_idx((uint64_t)n, (idx_t)3);
     }
 
     return result;

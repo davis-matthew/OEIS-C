@@ -9,13 +9,14 @@
  *            C(floor(n/3), 2t) * C(n - floor(n/3), t)
  * Range:     u8 n <= 14, u16 n <= 26, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
-
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -30,8 +31,8 @@ seq_t a(idx_t n)
     seq_t sum = (seq_t)0;
     for (idx_t t = (idx_t)1; t <= max_t; ++t)
     {
-        seq_t low_part  = binom(lo, (idx_t)2 * t);
-        seq_t high_part = binom(hi, t);
+        seq_t low_part  = binomial(lo, (idx_t)2 * t);
+        seq_t high_part = binomial(hi, t);
         sum = sum + low_part * high_part;
     }
     return sum;

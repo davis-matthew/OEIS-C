@@ -9,6 +9,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 24, u32 n <= 24, u64 n <= 24, u128 n <= 24,
  *            big any n
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,6 +21,8 @@
      f(2,k) = 3·2^{k-1}  (k ≥ 2),
      f(p,k) = p^k + p^{k-1}  (odd prime p).  The function is multiplicative. */
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 static seq_t pow_seq(seq_t base, uint64_t exp)

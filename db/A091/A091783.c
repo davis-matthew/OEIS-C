@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 5, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 34 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
  */
 #include <stdlib.h>
 #include <stdint.h> /* for uint64_t */
+#include "../utils/mem.h"
 
 /* Coefficients for 2520 = lcm(1..9) stored as 2520 / d. */
 static const int w[10] = { 0, 2520, 1260,  840,  630,  504,  420,
@@ -41,7 +43,7 @@ static void add_solution(seq_t val)
 {
     if (sol_len >= sol_cap) {
         size_t new_cap = sol_cap == 0 ? 16 : sol_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(solutions, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, solutions, new_cap);
         if (!tmp) exit(EXIT_FAILURE);   /* allocation failure */
         solutions = tmp;
         sol_cap = new_cap;
@@ -80,7 +82,7 @@ seq_t a(idx_t n)
     if (!built) {
         /* Generate all solutions once. */
         dfs(1, 0, 0);
-        qsort(solutions, sol_len, sizeof(seq_t), cmp_seq);
+        mem_qsort(solutions, sol_len, sizeof(seq_t), cmp_seq);
         built = 1;
     }
     if (n == 0) return 0;

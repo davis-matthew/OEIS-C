@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 41, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   has_even_or_more_runs
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,37 @@
  * 2‑second limit for n up to about 10 000. */
 
 #include <stdlib.h>    /* for malloc/realloc; not strictly needed here */
-#include "../utils/has_even_or_more_runs.h"
+
+static int has_even_or_more_runs(seq_t x)
+{
+    seq_t tmp = x;
+    int prev_digit = -1;
+    int run_len   = 0;
+    int evens = 0, odds = 0;
+
+    while (tmp > 0) {
+        unsigned int d = (unsigned int)(tmp % 5);   /* digit 0‑4 */
+        if (prev_digit == -1) {
+            prev_digit = (int)d;
+            run_len    = 1;
+        } else if (d == (unsigned int)prev_digit) {
+            ++run_len;
+        } else {
+            if (run_len % 2 == 0) ++evens;
+            else                 ++odds;
+            prev_digit = (int)d;
+            run_len    = 1;
+        }
+        tmp = tmp / 5;
+    }
+
+    /* account for the final run */
+    if (run_len > 0) {
+        if (run_len % 2 == 0) ++evens;
+        else                 ++odds;
+    }
+    return evens >= odds;
+}
 
 seq_t a(idx_t n)
 {

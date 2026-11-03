@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 39, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_primes_upto, gcd_u64, powmod64
+ * Validated: standard, pass, 72 terms through n = 982 (2026-11-03)
+ * Helpers:   build_primes_upto, gcd_u64, mem, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/powmod64.h"
 #include "../utils/gcd_u64.h"
+#include "../utils/powmod_u64.h"
+#include "../utils/mem.h"
 
 /* Euclidean GCD for 64‑bit values */
 
@@ -58,13 +60,13 @@ seq_t a(idx_t n)
 
             uint64_t g   = gcd_u64(56ULL, p - 1ULL);
             uint64_t exp = (p - 1ULL) / g;
-            uint64_t val = powmod64(2ULL, exp, p);
+            uint64_t val = powmod_u64(2ULL, exp, p);
 
             if (val != 1ULL) {                    /* no solution exists */
                 /* grow the array if necessary */
                 if (good_cnt >= good_cap) {
                     size_t new_cap = (good_cap ? good_cap << 1 : 16);
-                    seq_t *tmp = (seq_t *)realloc(good_primes, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, good_primes, new_cap);
                     if (!tmp) exit(EXIT_FAILURE);
                     good_primes = tmp;
                     good_cap    = new_cap;

@@ -8,14 +8,17 @@
  *            C(n,q)*(-1)^(q+1)*(n-q)^(n-2-q)/(n-2-q)!
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 17, u128 n <= 20,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     if (n <= 2) return 0;
@@ -30,7 +33,7 @@ seq_t a(idx_t n) {
 
     for (idx_t q = 1; q <= n - 2; ++q) {
         /* (n-q)^(n-2-q) */
-        seq_t pw = big_pow((seq_t)(n - q), (seq_t)(n - 2 - q));
+        seq_t pw = ipow((seq_t)(n - q), (seq_t)(n - 2 - q));
 
         /* term = C(n,q) * (n-q)^(n-2-q) * (n-2)!/(n-2-q)! */
         seq_t term = comb;

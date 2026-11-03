@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 14, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,23 @@
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/binomial.h"   /* provides seq_t binomial(idx_t n, idx_t k); */
+#include "../utils/mem.h"
+
+/* Compute binomial coefficient n choose k multiplicatively.
+   This works for any seq_t that supports + - * / % with integer constants. */
+static seq_t binomial(idx_t n, idx_t k)
+{
+    if (k > n)
+        return 0;
+    if (k > n - k)      /* use symmetry */
+        k = n - k;
+    seq_t res = 1;
+    for (idx_t i = 1; i <= k; ++i) {
+        res = res * (seq_t)(n - k + i);
+        res = res / (seq_t)i;
+    }
+    return res;
+}
 
 static seq_t *f_arr = NULL;   /* f[k] = binomial(k+5,5)   */
 static idx_t  f_len = 0;      /* number of f entries stored    */
@@ -36,7 +53,7 @@ seq_t a(idx_t n)
     /* Ensure we have f values up to n */
     if (n + 1 > f_len) {
         size_t new_len = (size_t)(n + 1);
-        f_arr = (seq_t *)realloc(f_arr, new_len * sizeof(seq_t));
+        f_arr = mem_resize(seq_t, f_arr, new_len);
         if (!f_arr) abort();
         for (idx_t i = f_len; i <= n; ++i)
             f_arr[i] = binomial(i + (idx_t)5, (idx_t)5);
@@ -46,7 +63,7 @@ seq_t a(idx_t n)
     /* Compute a[n] for any indices that haven't been computed yet */
     if (n + 1 > a_len) {
         size_t new_len = (size_t)(n + 1);
-        a_arr = (seq_t *)realloc(a_arr, new_len * sizeof(seq_t));
+        a_arr = mem_resize(seq_t, a_arr, new_len);
         if (!a_arr) abort();
         for (idx_t k = a_len; k <= n; ++k) {
             seq_t target = f_arr[k];

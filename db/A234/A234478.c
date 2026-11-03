@@ -11,7 +11,8 @@
  *            exactly 1
  * Range:     u8 none, u16 none, u32 n <= 4, u64 n <= 10, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 29 terms through n = 140 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static int a234478_initialized = 0;
 static size_t a234478_K = 0;
@@ -66,9 +68,9 @@ static void a234478_init(void)
     a234478_K = idx;
 
     /* allocate tables */
-    a234478_W   = (seq_t*)malloc(a234478_K * sizeof(seq_t));
-    a234478_cur = (seq_t*)malloc(a234478_K * sizeof(seq_t));
-    a234478_next = (seq_t*)malloc(a234478_K * sizeof(seq_t));
+    a234478_W   = mem_new(seq_t, a234478_K);
+    a234478_cur = mem_new(seq_t, a234478_K);
+    a234478_next = mem_new(seq_t, a234478_K);
 
     /* compute weight of each difference vector */
     for (i = 0; i < (int)a234478_K; ++i) {

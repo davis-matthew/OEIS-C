@@ -9,14 +9,16 @@
  * Formula:   a(n) = (n-1) - 2 * f * cnt_f where f = frequency of a(n-1) among
  *            the first n-1 terms, cnt_f = number of distinct terms that have
  *            frequency f
- * Range:     i8 n <= 171, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
- *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Range:     i8 n <= 171, i16 n <= 7132, i32 n <= 7132, i64 n <= 10000,
+ *            i128 n <= 751, big any n
+ * Validated: standard, pass, 88 terms through n = 9840 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper structure to keep each distinct value and its frequency. */
 struct Dist {
@@ -43,7 +45,7 @@ static void ensure_seq_cap(size_t need) {
     if (seq_cap >= need) return;
     if (seq_cap == 0) seq_cap = 1;
     while (seq_cap < need) seq_cap <<= 1;
-    seq_arr = (seq_t *)realloc(seq_arr, seq_cap * sizeof(seq_t));
+    seq_arr = mem_resize(seq_t, seq_arr, seq_cap);
 }
 
 /* Ensure distinct_arr can hold at least 'need' elements. */
@@ -51,7 +53,7 @@ static void ensure_distinct_cap(size_t need) {
     if (distinct_cap >= need) return;
     if (distinct_cap == 0) distinct_cap = 1;
     while (distinct_cap < need) distinct_cap <<= 1;
-    distinct_arr = (struct Dist *)realloc(distinct_arr, distinct_cap * sizeof(struct Dist));
+    distinct_arr = mem_resize(struct Dist, distinct_arr, distinct_cap);
 }
 
 /* Ensure freq_cnt_arr can hold at least 'need' indices. */

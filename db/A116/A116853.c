@@ -10,7 +10,8 @@
  *            (difference order)
  * Range:     u8 n <= 15, u16 n <= 36, u32 n <= 86, u64 n <= 210,
  *            u128 n <= 595, big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 7685 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Forward declarations for seq_t handling */
 static void ensure_fact(idx_t n);
@@ -34,7 +36,7 @@ ensure_fact(idx_t n)
         return;
 
     size_t new_size = (size_t)n;
-    seq_t *new_fact = (seq_t *)realloc(fact, (new_size + 1) * sizeof(seq_t));
+    seq_t *new_fact = mem_resize(seq_t, fact, (new_size + 1));
     if (!new_fact)
         exit(1);   /* allocation failed */
 

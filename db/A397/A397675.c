@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 36, u16 n <= 136, u32 n <= 528, u64 n <= 2080,
  *            u128 n <= 8256, big any n
- * Helpers:   pow_int
+ * Validated: standard, pass, 122 terms through n = 9482 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,7 @@
    (equivalently increasing disk index n). */
 
 #include <stdint.h>
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -56,5 +57,5 @@ seq_t a(idx_t n)
     }
 
     /* --- Result is 2^k ----------------------------------------------------------------- */
-    return pow_int((seq_t)2, k);
+    return ipow_idx((seq_t)2, k);
 }

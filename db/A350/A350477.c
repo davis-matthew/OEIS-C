@@ -8,9 +8,10 @@
  *            a(m) * (-1)^{n+1-2m} * binom(3m-2, n+1-2m) where binom(α,β) is
  *            the binomial coefficient. The terms are indexed from 1 as in the
  *            OEIS entry
- * Range:     i8 n <= 8, i16 n <= 16, i32 n <= 30, i64 n <= 33, i128 n <= 33,
+ * Range:     i8 n <= 8, i16 n <= 17, i32 n <= 30, i64 n <= 33, i128 n <= 33,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;        /* array holding computed a(n)   */
 static size_t cache_cap = 0;       /* allocated capacity of cache   */
@@ -32,15 +34,15 @@ static void ensure_cache(idx_t n)
     if (cache_cap >= (size_t)n)
         return;
     size_t new_cap = (size_t)n;
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache)
         return;                     /* allocation failure – caller will fail */
     if (cache) {
-        memcpy(new_cache, cache, cache_used * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_cache, cache, cache_used * sizeof(seq_t));
+        mem_free(cache);
     }
     /* zero‑initialise the new part */
-    memset(new_cache + cache_used, 0, (new_cap - cache_used) * sizeof(seq_t));
+    mem_set(new_cache + cache_used, 0, (new_cap - cache_used) * sizeof(seq_t));
     cache = new_cache;
     cache_cap = new_cap;
 }
@@ -75,7 +77,7 @@ seq_t a(idx_t n)
 
         for (idx_t m = m_min; m <= m_max; ++m) {
             idx_t j = N - 2 * m + 1;   /* n+1-2m                       */
-            seq_t coef = binom(3 * m - 2, j);
+            seq_t coef = binomial(3 * m - 2, j);
             if (j & 1)                /* multiply by (-1)^j           */
                 coef = -coef;
             sum += cache[m - 1] * coef;

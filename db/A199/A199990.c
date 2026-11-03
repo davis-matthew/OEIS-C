@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 40, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   construct_number
+ * Validated: standard, pass, 57 terms through n = 97 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,23 @@
    arithmetic and the standard <stdbool.h> header.   */
 
 #include <stdbool.h>    /* for bool */
-#include "../utils/construct_number.h"
+
+static seq_t construct_number(idx_t len, idx_t left_pos, idx_t right_pos, seq_t left_digit) {
+    /* Build the number digit by digit. */
+    seq_t val = 0;
+    for (idx_t pos = 0; pos < len; ++pos) {
+        seq_t d;
+        if (pos == left_pos) {
+            d = left_digit;
+        } else if (pos == right_pos) {
+            d = (left_digit == 2) ? 5 : 2;
+        } else {
+            d = 1;
+        }
+        val = val * 10 + d;
+    }
+    return val;
+}
 
 seq_t a(idx_t n) {
     if (n < 1) {

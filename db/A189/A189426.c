@@ -8,13 +8,15 @@
  *            n>=6 a(0)=0,a(1)=0,a(2)=1,a(3)=4,a(4)=14,a(5)=42
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 25, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* first call: initialise cache with the six initial terms */
     if (cache == NULL) {
         cache_size = 6;                     /* we need indices 0..5 at least */
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache) return (seq_t)0;        /* allocation failed */
         for (size_t i = 0; i < cache_size; ++i) {
             cache[i] = init[i];
@@ -41,14 +43,14 @@ seq_t a(idx_t n)
     else if (idx >= cache_size) {
         /* enlarge the cache to hold up to idx */
         size_t new_size = idx + 1;
-        seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_size);
         if (!new_cache) return (seq_t)0;    /* allocation failed */
-        memcpy(new_cache, cache, cache_size * sizeof(seq_t));
+        mem_copy(new_cache, cache, cache_size * sizeof(seq_t));
         /* initialise new entries that are still uncomputed */
         for (size_t i = cache_size; i < new_size; ++i) {
             new_cache[i] = (i < 6) ? init[i] : (seq_t)0;
         }
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_size = new_size;
     }

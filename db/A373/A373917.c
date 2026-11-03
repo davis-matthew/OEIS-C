@@ -7,8 +7,9 @@
  * Formula:   a(n) = ((n - (r−1)*r/2 − 1) * 10) mod r, where r is the smallest
  *            integer with r(r+1)/2 ≥ n (the row index of the triangle
  *            T(n,k)=k*10 mod n when read row‑wise)
- * Range:     u8 n <= 44, u16 n <= 5226, u32 n <= 9194, u64 n <= 9194,
- *            u128 n <= 9194, big any n
+ * Range:     u8 n <= 44, u16 n <= 5226, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 107 terms through n = 9194 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

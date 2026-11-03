@@ -9,7 +9,8 @@
  *            contain any digit 6
  * Range:     u8 n <= 13, u16 n <= 19, u32 n <= 34, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   has_no_digit6
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,20 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has_no_digit6.h"
+#include "../utils/mem.h"
+
+/* Check whether a seq_t value contains no decimal digit 6. */
+static bool has_no_digit6(seq_t x)
+{
+    seq_t t = x;
+    while (t != 0) {
+        if ((unsigned)(t % 10) == 6) {
+            return false;
+        }
+        t /= 10;
+    }
+    return true;
+}
 
 /* The a(n) function. */
 seq_t a(idx_t n)
@@ -36,7 +50,7 @@ seq_t a(idx_t n)
     /* initialize cache on first call */
     if (!initialized) {
         cap = 16;
-        valid = (seq_t *)malloc(cap * sizeof(seq_t));
+        valid = mem_new(seq_t, cap);
         /* store the first two Fibonacci numbers if they satisfy the condition */
         size_t i = 0;
         if (has_no_digit6(f_prev)) {
@@ -60,7 +74,7 @@ seq_t a(idx_t n)
             if (len == cap) {
                 /* grow the cache */
                 size_t newcap = cap ? cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(valid, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, valid, newcap);
                 if (!tmp) {
                     /* allocation failed; return 0 as a fallback */
                     return (seq_t)0;

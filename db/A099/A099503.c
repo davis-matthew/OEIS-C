@@ -7,12 +7,14 @@
  * Formula:   a(n) = 4*a(n-1) - a(n-3), a(0)=1, a(1)=4, a(2)=16
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 32, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 957 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Memoised linear‑recurrence computation */
 static seq_t *cache = NULL;         /* pointer to computed terms          */
@@ -26,11 +28,11 @@ static void ensure_cache(idx_t n)
     if (!cache) {
         /* initial allocation; grow to meet need */
         cache_size = need > 4 ? need : 4;
-        cache = (seq_t*)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
     } else if (cache_size < need) {
         size_t new_size = cache_size * 2;
         while (new_size < need) new_size *= 2;
-        cache = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
         cache_size = new_size;
     }
 }

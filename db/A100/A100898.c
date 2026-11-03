@@ -13,12 +13,14 @@
  *            Σ_{i=1}^{r} Σ_{t=0}^{k-1} C((i-1)-t , t) · C((...
  * Range:     u8 n <= 43, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   binom_small
+ * Validated: partial, pass, 71 terms through n = 70 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom_small.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     idx_t k = n - cum;          /* column index, 0 ≤ k ≤ ceil(row/2) */
 
     /* Base term: matchings that avoid the central vertex */
-    seq_t res = binom_small(row - k, k);
+    seq_t res = binomial(row - k, k);
 
     /* Add matchings that use exactly one edge incident to the center. */
     if (k > 0) {
@@ -50,9 +52,9 @@ seq_t a(idx_t n)
                    guarantee nCr is defined. */
                 if (mL >= 2 * t && mR >= 2 * (max_t - t)) {
                     /* left part: (mL - t) choose t */
-                    seq_t left  = binom_small(mL - t, t);
+                    seq_t left  = binomial(mL - t, t);
                     /* right part: (mR - (max_t-t)) choose (max_t-t) */
-                    seq_t right = binom_small(mR - (max_t - t), max_t - t);
+                    seq_t right = binomial(mR - (max_t - t), max_t - t);
                     res += left * right;
                 }
             }

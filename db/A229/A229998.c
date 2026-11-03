@@ -8,14 +8,15 @@
  * Formula:   a(n) = n / gcd(∏(p^(2e)+1), n) , where n = ∏ p^e
  * Range:     u8 n <= 14, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   gcd_uint64
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/gcd_uint64.h"
+#include "../utils/gcd_u64.h"
 
 /* Euclidean GCD for 64-bit unsigned integers. */
 
@@ -77,7 +78,7 @@ seq_t a(idx_t n)
     }
 
     /* GCD of N and n (both fit in 64 bits for the tested ranges) */
-    uint64_t g = gcd_uint64((uint64_t)N, un);
+    uint64_t g = gcd_u64((uint64_t)N, un);
 
     /* a(n) = n / g */
     return (seq_t)(un / g);

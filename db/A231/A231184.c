@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 7, i16 n <= 16, i32 n <= 32, i64 n <= 32, i128 n <= 32,
  *            big any n
- * Helpers:   recurrence
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,18 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/recurrence.h"
+#include "../utils/mem.h"
+
+/* compute recurrence a(i) = a(i-1)+4*a(i-2)-3*a(i-3)-3*a(i-4)+a(i-5) */
+static seq_t recurrence(idx_t i, const seq_t *prev)
+{
+    /* prev points to a(i-5) ... a(i-1) */
+    return prev[4]            /* a(i-1)   */
+         + (seq_t)4 * prev[3] /* 4*a(i-2) */
+         - (seq_t)3 * prev[2] /* -3*a(i-3) */
+         - (seq_t)3 * prev[1] /* -3*a(i-4) */
+         + prev[0];          /* +a(i-5)   */
+}
 
 #define STATIC_MAX 10005   /* safe static range */
 
@@ -57,7 +69,7 @@ static void init_dynamic(void)
 {
     if (!dyn_cache) {
         dyn_cap = 8;                  /* start with a small capacity */
-        dyn_cache = (seq_t *)malloc(dyn_cap * sizeof(seq_t));
+        dyn_cache = mem_new(seq_t, dyn_cap);
         if (!dyn_cache) return;       /* memory failure: caller will crash */
 
         dyn_cache[0] = (seq_t)(-1);
@@ -75,7 +87,7 @@ static void grow_dynamic(idx_t n)
     if (n < dyn_cap) return;
     size_t new_cap = dyn_cap ? dyn_cap << 1 : 1;
     while (new_cap <= n) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(dyn_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, dyn_cache, new_cap);
     if (!tmp) return;   /* on failure we keep old pointer – caller will crash */
     dyn_cache = tmp;
     dyn_cap   = new_cap;

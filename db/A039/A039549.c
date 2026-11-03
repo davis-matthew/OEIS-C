@@ -11,7 +11,8 @@
  *            sequence is returned in ascending order, * with a(1) = 92
  * Range:     u8 n <= 4, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   has_equal_nonzero_78
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,19 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has_equal_nonzero_78.h"
+
+static bool has_equal_nonzero_78(seq_t x)
+{
+    int cnt7 = 0, cnt8 = 0;
+    seq_t temp = x;
+    while (temp > (seq_t)0) {
+        seq_t digit = temp % (seq_t)12;
+        temp       = temp / (seq_t)12;
+        if (digit == (seq_t)7) cnt7++;
+        else if (digit == (seq_t)8) cnt8++;
+    }
+    return cnt7 && cnt8 && cnt7 == cnt8;
+}
 
 seq_t a(idx_t n)
 {

@@ -12,13 +12,15 @@
  *            a(4t+3)=2*a(2t+1)+8*a(t) (t>=0)
  * Range:     u8 n <= 14, u16 n <= 254, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 8863 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* See OEIS entry A160239 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static memoisation cache */
 static seq_t *cache = NULL;        /* pointer to array of seq_t */
@@ -33,7 +35,7 @@ static void ensure_cache(idx_t n)
     while ((size_t)n >= new_size) new_size <<= 1;
 
     /* realloc may return a different pointer; we cast it to seq_t* for C/C++ */
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache) abort();       /* out of memory */
 
     /* initialise new elements to zero (unused value) */

@@ -9,15 +9,27 @@
  *            A064657)
  * Range:     u8 n <= 206, u16 n <= 866, u32 n <= 866, u64 n <= 866,
  *            u128 n <= 866, big any n
- * Helpers:   diff_index, seq_to_index
+ * Validated: full, pass, 867 terms through n = 866 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/diff_index.h"
-#include "../utils/seq_to_index.h"
+
+/* ------------------------------------------------------------------ */
+static inline idx_t seq_to_index(seq_t v)
+{
+    return (idx_t)v;
+}
+
+/* ------------------------------------------------------------------ */
+static inline idx_t diff_index(idx_t n, seq_t v)
+{
+    idx_t vr = seq_to_index(v);
+    return (n >= vr) ? n - vr : vr - n;
+}
 
 /* ------------------------------------------------------------------ */
 /*  Memoisation arrays (size large enough for the defined range).   */

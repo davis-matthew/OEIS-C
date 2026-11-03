@@ -7,16 +7,30 @@
  * Keywords:  nonn, base, easy
  * Formula:   a(n) = smallest number > a(n-1) whose a(i)-th binary digit is 0
  *            for all i<n, a(1)=1
- * Range:     u8 n <= 31, u16 n <= 511, u32 n <= 9921, u64 n <= 9921,
- *            u128 n <= 9921, big any n
- * Helpers:   has_forbidden_bit
+ * Range:     u8 n <= 31, u16 n <= 511, u32 n <= 65536, u64 n <= 65536,
+ *            u128 n <= 65536, big any n
+ * Validated: standard, pass, 64 terms through n = 9921 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/has_forbidden_bit.h"
+#include "../utils/mem.h"
+
+/* Helper to test bits of a seq_t value */
+static int has_forbidden_bit(seq_t value, const char *forbidden, size_t forb_cap) {
+    unsigned pos = 0;
+    while (value) {
+        if ((value & (seq_t)1) && pos < forb_cap && forbidden[pos]) {
+            return 1;          /* found a forbidden 1‑bit */
+        }
+        value >>= 1;
+        ++pos;
+    }
+    return 0;                  /* no forbidden bits set */
+}
 
 seq_t a(idx_t n) {
     /* Persistent cache of computed terms */
@@ -34,7 +48,7 @@ seq_t a(idx_t n) {
     if (cache_len == 0) {
         /* start with a(1) = 1 */
         cache_cap = 2;                    /* indices 0 and 1 */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache[1] = (seq_t)1;
         cache_len = 1;
 
@@ -53,7 +67,7 @@ seq_t a(idx_t n) {
     if (cache_cap <= (size_t)n) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 2;
         if (new_cap <= (size_t)n) new_cap = n * 2;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 

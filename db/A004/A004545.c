@@ -10,7 +10,8 @@
  *            multiword integers; results are memoized
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sq2_cmp, sq2_shl, sq2_sub
+ * Validated: standard, pass, 116 terms through n = 9375 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,35 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/sq2_cmp.h"
-#include "../utils/sq2_shl.h"
-#include "../utils/sq2_sub.h"
+
+static int sq2_cmp(const uint32_t *a, const uint32_t *b, size_t len) {
+    size_t i = len;
+    while (i > 0) {
+        i--;
+        if (a[i] != b[i]) return a[i] > b[i] ? 1 : -1;
+    }
+    return 0;
+}
+
+static void sq2_shl(uint32_t *a, size_t len, int s) {
+    uint32_t c = 0;
+    size_t i;
+    for (i = 0; i < len; i++) {
+        uint32_t v = a[i];
+        a[i] = (v << s) | c;
+        c = v >> (32 - s);
+    }
+}
+
+static void sq2_sub(uint32_t *a, const uint32_t *b, size_t len) {
+    uint64_t borrow = 0;
+    size_t i;
+    for (i = 0; i < len; i++) {
+        uint64_t d = (uint64_t)a[i] - b[i] - borrow;
+        a[i] = (uint32_t)d;
+        borrow = (d >> 63) & 1;
+    }
+}
 
 static unsigned char *sq2_bits = NULL;
 static idx_t sq2_nbits = 0;

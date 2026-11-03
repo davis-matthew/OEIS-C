@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 54, u16 n <= 252, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   base4_runs
+ * Validated: standard, pass, 71 terms through n = 923 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,29 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>    /* for uintptr_t used only in abort */
-#include "../utils/base4_runs.h"
+#include "../utils/mem.h"
+
+/* Count the number of runs in the base‑4 representation of x. */
+static int base4_runs(seq_t x)
+{
+    int runs = 0;
+    int prev = -1;
+    bool first = true;
+
+    while (x != 0) {
+        int digit = (int)(x % 4);
+        x = x / 4;
+        if (first) {
+            first = false;
+            runs = 1;
+            prev = digit;
+        } else if (digit != prev) {
+            runs++;
+            prev = digit;
+        }
+    }
+    return runs;
+}
 
 static seq_t *cache      = NULL; /* cached terms */
 static size_t cache_len  = 0;    /* number of valid terms stored */
@@ -35,7 +58,7 @@ static void ensure_capacity(size_t need)
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap - cache_len < need)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) {
         /* out of memory – terminate */
         abort();

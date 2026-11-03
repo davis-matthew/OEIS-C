@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 58, u32 n <= 192, u64 n <= 590,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 992 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Note: idx_t (uint64_t) and seq_t are supplied by the build.
  * We use only + - * / % and comparisons on seq_t.               */
@@ -44,13 +46,13 @@ seq_t a(idx_t n)
 
     /* Allocate Fibonacci array.  Use malloc (works for arbitrary
        integer types).                                              */
-    seq_t *fib = (seq_t *)malloc(limit * sizeof(seq_t));
+    seq_t *fib = mem_new(seq_t, limit);
     if (!fib) return 0;            /* allocation failure */
 
     /* Track first occurrence of each residue modulo n.
      * Use -1 for “not seen yet”.                                   */
     int *first = (int *)malloc(n * sizeof(int));
-    if (!first) { free(fib); return 0; }
+    if (!first) { mem_free(fib); return 0; }
     memset(first, 0xff, n * sizeof(int));  /* set to -1 */
 
     /* Fibonacci indices start at 0 */
@@ -71,7 +73,7 @@ seq_t a(idx_t n)
            F_1=F_2=1).  In that case skip. */
         if (fib[1] != fib[first[mod_prev]]) {
             seq_t res = fib[1] - fib[first[mod_prev]];
-            free(first); free(fib);
+            free(first); mem_free(fib);
             return res;
         }
     }
@@ -90,7 +92,7 @@ seq_t a(idx_t n)
                (happens only for the equal pair 1,1).           */
             if (fib[i] != fib[first[mod_i]]) {
                 seq_t res = fib[i] - fib[first[mod_i]];
-                free(first); free(fib);
+                free(first); mem_free(fib);
                 return res;
             }
         }
@@ -100,6 +102,6 @@ seq_t a(idx_t n)
     }
 
     /* Should never reach here for n >= 1: a return idempotent fallback. */
-    free(first); free(fib);
+    free(first); mem_free(fib);
     return 0;
 }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 15, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 14 terms through n = 16 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,9 @@
  *  defined for all n≥3; a(n)=0 for n<3.
  */
 
-#include "../utils/big_pow.h"   /* seq_t big_pow(seq_t base, seq_t exp) */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 #include <stdbool.h>            /* bool – not strictly needed, but harmless */
 
 /*  Recursive helper that computes B_b(x) as described above.
@@ -44,11 +47,11 @@ static seq_t B_rec(idx_t base, seq_t x)
     }
 
     seq_t coeff   = tmp;                                 /* floor(x / base^e)   */
-    seq_t pow_base = big_pow((seq_t)base, (seq_t)e);        /* base^e              */
+    seq_t pow_base = ipow((seq_t)base, (seq_t)e);        /* base^e              */
     seq_t rest    = x - coeff * pow_base;                 /* remaining part      */
 
     seq_t e_val   = B_rec(base, (seq_t)e);                 /* interpret exponent  */
-    seq_t term_val = big_pow((seq_t)(base + 1), e_val);    /* base+1 ^ e_val      */
+    seq_t term_val = ipow((seq_t)(base + 1), e_val);    /* base+1 ^ e_val      */
 
     return coeff * term_val + B_rec(base, rest);           /* sum of the parts   */
 }

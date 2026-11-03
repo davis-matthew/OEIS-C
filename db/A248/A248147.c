@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8855, u16 n <= 8855, u32 n <= 8855, u64 n <= 8855,
  *            u128 n <= 8855, big any n
- * Helpers:   binom_cumulative, prefix_within_row
+ * Validated: standard, pass, 100 terms through n = 8515 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,23 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/binom_cumulative.h"
-#include "../utils/prefix_within_row.h"
+
+/* binomial(r+3,4) = cumulative number of terms up to row r. */
+static inline idx_t binom_cumulative(idx_t r)
+{
+    __int128 v = ( __int128 )(r + 3);
+    return (idx_t)(v * (v - 1) * (v - 2) * (v - 3) / 24);
+}
+
+/* prefix_within_row(k,r) – number of terms contributed by lengths 1..k
+ * in row r.  k = 0 → 0. */
+static inline idx_t prefix_within_row(idx_t k, idx_t r)
+{
+    if (k == 0) return 0;
+    __int128 kk = k;
+    __int128 rr = r;
+    return (idx_t)(kk * (kk + 1) * (3 * rr + 2 - 2 * kk) / 6);
+}
 
 /* Global storage for the first primes.  The array is grown only
  * when more primes are needed; the value of prime_count is the

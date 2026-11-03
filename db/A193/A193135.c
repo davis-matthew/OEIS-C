@@ -8,13 +8,16 @@
  *            ∏_{k=2}^{n-1} k^{C(n-1,k-1)}
  * Range:     u8 n <= 3, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 6,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Include the utility providing the big_pow function */
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 /* Helper: binomial coefficient for unsigned 64 bit integers.
    The result is assumed to fit in idx_t. */
@@ -41,7 +44,7 @@ seq_t a(idx_t n)
     {
         idx_t exp = binom_uint64(A, k);
         seq_t base = (seq_t)(2 * k);
-        result *= big_pow(base, exp);
+        result *= ipow(base, exp);
     }
 
     /* Second product: ∏_{k=2}^{A} k^{C(A,k-1)} */
@@ -49,11 +52,11 @@ seq_t a(idx_t n)
     {
         idx_t exp = binom_uint64(A, k - 1);
         seq_t base = (seq_t)k;
-        result *= big_pow(base, exp);
+        result *= ipow(base, exp);
     }
 
     /* Divide by 2^(n-1) = 2^A */
-    seq_t pow2A = big_pow((seq_t)2, A);
+    seq_t pow2A = ipow((seq_t)2, A);
     result /= pow2A;
 
     return result;

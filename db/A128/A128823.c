@@ -8,14 +8,17 @@
  *            digits
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 38,
  *            big any n
- * Helpers:   digit_len
+ * Validated: standard, pass, 33 terms through n = 99 (2026-11-01)
+ * Helpers:   num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/digit_len.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/num_digits.h"
 
 #ifdef __cplusplus
 /* C++ implementation uses std::vector for convenient construction of arbitrary‑precision seq_t objects. */
@@ -44,7 +47,7 @@ static void build_upto(idx_t n)
         f_prev = (seq_t)1;          /* F1 */
         f_curr = (seq_t)1;          /* F2 */
         current_index = 1;
-        cur_len = digit_len(f_prev);
+        cur_len = num_digits(f_prev);
         current_sum = 0;
     }
     else if (a_cache.size() <= static_cast<size_t>(n))
@@ -62,7 +65,7 @@ static void build_upto(idx_t n)
         f_curr = f_next;
         ++current_index;
 
-        int next_len = digit_len(f_prev);
+        int next_len = num_digits(f_prev);
         if (next_len != cur_len)
         {
             a_cache[cur_len] = current_sum;   /* store sum for current_len */
@@ -96,7 +99,7 @@ static void build_upto(idx_t n)
         f_prev = (seq_t)1;          /* F1 */
         f_curr = (seq_t)1;          /* F2 */
         current_index = 1;
-        cur_len = digit_len(f_prev);
+        cur_len = num_digits(f_prev);
         current_sum = 0;
     }
     else if (n + 1 > a_max + 1)
@@ -118,7 +121,7 @@ static void build_upto(idx_t n)
         f_curr = f_next;
         ++current_index;
 
-        int next_len = digit_len(f_prev);
+        int next_len = num_digits(f_prev);
         if (next_len != cur_len)
         {
             a_cache[cur_len] = current_sum;   /* store sum for current_len */

@@ -7,13 +7,22 @@
  * Formula:   a(n) = a(n-1)+(2n-1)^(2n+1)+(2n+1)^(2n-1); a(0)=0
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 7, u128 n <= 12,
  *            big any n
- * Helpers:   seq_alloc_array, seq_pow
+ * Validated: partial, pass, 13 terms through n = 12 (2026-11-03)
+ * Helpers:   ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-# include "../utils/seq_pow.h"
-# include "../utils/seq_alloc_array.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 seq_t a(idx_t n)
 {
@@ -47,8 +56,8 @@ seq_t a(idx_t n)
 
     /* compute new terms up to n */
     for (idx_t i = last_computed + 1; i <= n; ++i) {
-        seq_t term1 = seq_pow((seq_t)(2 * i - 1), 2 * i + 1);
-        seq_t term2 = seq_pow((seq_t)(2 * i + 1), 2 * i - 1);
+        seq_t term1 = ipow_idx((seq_t)(2 * i - 1), 2 * i + 1);
+        seq_t term2 = ipow_idx((seq_t)(2 * i + 1), 2 * i - 1);
         cache[i] = cache[i - 1] + term1 + term2;
     }
 

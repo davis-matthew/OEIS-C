@@ -7,13 +7,15 @@
  * Formula:   right truncatable primes in base 3 (written in decimal form)
  * Range:     u8 n <= 4, u16 n <= 4, u32 n <= 4, u64 n <= 4, u128 n <= 4,
  *            big any n
- * Helpers:   isPrimeTrial
+ * Validated: full, pass, 4 terms through n = 4 (2026-11-02)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/isPrimeTrial.h"
+#include <stdlib.h>
+#include "../utils/is_prime_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -25,12 +27,12 @@ seq_t a(idx_t n)
         idx_t count = 0;
         for (idx_t cand = 2; count < 4; ++cand) {
             seq_t p = (seq_t)cand;
-            if (!isPrimeTrial(p))
+            if (!is_prime_seq(p))
                 continue;
             /* check all right truncations */
             bool ok = true;
             for (seq_t tmp = p; tmp > 0; tmp /= 3) {
-                if (!isPrimeTrial(tmp)) {
+                if (!is_prime_seq(tmp)) {
                     ok = false;
                     break;
                 }

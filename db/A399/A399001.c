@@ -12,13 +12,16 @@
  *            Then A(i,j) = Σ_{m=0}^{|i-j|} binomial(|i-j|,m) * sgn^(|...
  * Range:     i8 n <= 20, i16 n <= 77, i32 n <= 77, i64 n <= 77, i128 n <= 77,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>      /* for sqrtl */
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Find diagonal t such that t*(t+1)/2 <= n < (t+1)*(t+2)/2. */
@@ -48,7 +51,7 @@ seq_t a(idx_t n) {
     int s = (j <= i) ? 1 : -1;  /* integer sign */
 
     /* Precompute Fibonacci values up to index t */
-    seq_t *fibs = (seq_t*)malloc((t + 1) * sizeof(seq_t));
+    seq_t *fibs = mem_new(seq_t, (t + 1));
     if (!fibs) return 0;  /* allocation failure, returns 0 as a fallback */
     fibs[0] = 0;
     if (t >= 1) fibs[1] = 1;
@@ -65,6 +68,6 @@ seq_t a(idx_t n) {
         result += term;
     }
 
-    free(fibs);
+    mem_free(fibs);
     return result;
 }

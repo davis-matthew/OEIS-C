@@ -8,6 +8,7 @@
  * Formula:   a(1)=1; for n>1, a(n) = #{k ≤ n : gcd(k , a(n−1)) = 1}
  * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 /* static cache: cache[0] unused, cache[1..cached_up_to] hold the sequence */

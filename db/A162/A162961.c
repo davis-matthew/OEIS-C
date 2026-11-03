@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 255, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   factor_u64, mod_pow
+ * Validated: standard, pass, 88 terms through n = 909 (2026-11-01)
+ * Helpers:   factor_u64, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,10 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/factor_u64.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
 
 /* Modular inverse of m modulo p^e (a prime power).  Because m and
    p^e are coprime, the inverse exists and can be computed as
@@ -33,7 +36,7 @@ static seq_t modinv_prime_power(seq_t m, seq_t mod_i, uint64_t p)
     seq_t phi = mod_i - (mod_i / p);
     /* phi fits in 64 bits for all inputs (mod_i <= 10000) */
     uint64_t exp = (uint64_t)(phi - (seq_t)1);
-    return mod_pow(m, exp, mod_i);
+    return powmod(m, exp, mod_i);
 }
 
 /* Recursive search over all permutations of the prime powers.

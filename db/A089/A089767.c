@@ -7,7 +7,8 @@
  * Formula:   a(n) = m^2, where 10*m^2 + 1 is prime a(1)=1, a(2)=4, a(3)=25, …
  * Range:     u8 n <= 7, u16 n <= 68, u32 n <= 7983, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 58 terms through n = 9918 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/is_prime.h"   /* provides bool is_prime(uint64_t) */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
             if (cached == cap)        /* extend cache storage */
             {
                 size_t new_cap = (cap == 0) ? 16 : cap << 1;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) exit(EXIT_FAILURE);
                 cache = tmp;
                 cap   = new_cap;

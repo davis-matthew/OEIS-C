@@ -11,7 +11,8 @@
  *            to have no other divisor d such that * d+1 is prime
  * Range:     u8 none, u16 none, u32 n <= 1000, u64 n <= 1000, u128 n <= 1000,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 954 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- Configuration ------------------------------------------------- */
 /* Adjust MAX_K to be large enough to contain the first 10 000 terms.
@@ -116,14 +118,14 @@ static void init_cache(void)
 
     /* initial capacity – will grow as needed */
     cache_cap = 1024;
-    cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     if (!cache) abort();
 
     for (seq_t m = 52; m <= MAX_N; m += 52) {
         if (!good_n(m)) {
             if (cache_len == cache_cap) {
                 cache_cap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                 if (!tmp) abort();
                 cache = tmp;
             }

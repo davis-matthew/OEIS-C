@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bigomega_uint64, rev
+ * Validated: standard, pass, 50 terms through n = 9951 (2026-11-03)
+ * Helpers:   bigomega_u64, mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/bigomega_uint64.h"
-#include "../utils/rev.h"
+#include "../utils/bigomega_u64.h"
+#include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
 
 #define LIMIT 35000000U  /* search limit – gives >10 000 terms */
 
@@ -81,7 +83,7 @@ static void push_term(seq_t val)
 {
     if (terms_size == terms_cap) {
         size_t new_cap = terms_cap ? terms_cap * 2 : 64;
-        seq_t *new_arr = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, terms, new_cap);
         if (!new_arr) exit(1);
         terms = new_arr;
         terms_cap = new_cap;
@@ -102,13 +104,13 @@ static void compute_until(idx_t n)
         if (cur <= LIMIT) {
             omega_val = (seq_t)bigomega[cur];
         } else {
-            omega_val = bigomega_uint64((uint64_t)cur);
+            omega_val = bigomega_u64((uint64_t)cur);
         }
 
         if (omega_val == 7) {
-            seq_t rev_val = rev(val);
+            seq_t rev_val = reverse_digits(val);
             if (rev_val != val) {
-                seq_t omega_rev = bigomega_uint64((uint64_t)rev_val);
+                seq_t omega_rev = bigomega_u64((uint64_t)rev_val);
                 if (omega_rev == 7) {
                     push_term(val);
                 }

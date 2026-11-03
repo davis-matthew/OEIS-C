@@ -8,12 +8,28 @@
  *            function)
  * Range:     i8 n <= 82, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   sum_of_divisors_uint64
+ * Validated: standard, pass, 83 terms through n = 9556 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/sum_of_divisors_uint64.h"
+static __int128 sum_of_divisors_uint64(uint64_t m)
+{
+    __int128 sum = 0;
+    uint64_t i = 1;
+    /* Loop until i*i > m; m ≤ 10⁴ in the test harness, so this is fast. */
+    while (i * i <= m) {
+        if (m % i == 0) {
+            sum += i;
+            uint64_t j = m / i;
+            if (j != i)          /* avoid double‑counting a square root */
+                sum += j;
+        }
+        ++i;
+    }
+    return sum;
+}
 
 seq_t a(idx_t n)
 {

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,11 +34,11 @@ seq_t a(idx_t n)
     const size_t N = (size_t)n + 1;
 
     /* allocate two working arrays of type seq_t */
-    seq_t *cur = (seq_t *)calloc(N, sizeof(seq_t));
-    seq_t *nxt = (seq_t *)calloc(N, sizeof(seq_t));
+    seq_t *cur = mem_new(seq_t, N);
+    seq_t *nxt = mem_new(seq_t, N);
     if (!cur || !nxt) {
-        free(cur);
-        free(nxt);
+        mem_free(cur);
+        mem_free(nxt);
         return (seq_t)0;   /* out of memory: return zero */
     }
 
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
 
     seq_t result = cur[(size_t)n];
 
-    free(cur);
-    free(nxt);
+    mem_free(cur);
+    mem_free(nxt);
     return result;
 }

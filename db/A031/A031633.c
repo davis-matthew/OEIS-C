@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 6, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Integer square root for unsigned 64‑bit values. */
 static inline idx_t uint64_isqrt(idx_t n)
@@ -101,7 +103,7 @@ static void ensure_cache_size(size_t need)
     if (need <= cache_cap) return;
     size_t newcap = cache_cap ? (cache_cap << 1) : 8;
     if (newcap < need) newcap = need;
-    seq_t *ptr = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+    seq_t *ptr = mem_resize(seq_t, cache, newcap);
     if (!ptr) abort(); /* out of memory */
     cache = ptr;
     cache_cap = newcap;

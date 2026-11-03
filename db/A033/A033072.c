@@ -9,12 +9,14 @@
  *            differ by 1
  * Range:     u8 n <= 15, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Minimal binary heap for seq_t */
 struct Heap {
@@ -27,7 +29,7 @@ static void heap_push(struct Heap *h, seq_t v)
 {
     if (h->size == h->cap) {
         size_t newcap = h->cap? h->cap*2 : 8;
-        h->data = (seq_t *)realloc(h->data, newcap * sizeof(seq_t));
+        h->data = mem_resize(seq_t, h->data, newcap);
         h->cap = newcap;
     }
     size_t i = h->size++;
@@ -70,7 +72,7 @@ static void seq_append(seq_t **arr, size_t *size, size_t *cap, seq_t val)
 {
     if (*size == *cap) {
         size_t newcap = *cap? *cap*2 : 8;
-        *arr = (seq_t *)realloc(*arr, newcap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, newcap);
         *cap = newcap;
     }
     (*arr)[*size] = val;
@@ -88,10 +90,10 @@ seq_t a(idx_t n)
     /* initialize on first call */
     if (!initialized) {
         seqcap = 16;
-        seq = (seq_t *)malloc(seqcap * sizeof(seq_t));
+        seq = mem_new(seq_t, seqcap);
 
         heap.cap = 16;
-        heap.data = (seq_t *)malloc(heap.cap * sizeof(seq_t));
+        heap.data = mem_new(seq_t, heap.cap);
 
         /* push the single‑digit numbers 1 … 6 */
         for (idx_t i = 1; i <= 6; ++i) {

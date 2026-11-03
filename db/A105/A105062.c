@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ensure that *arr contains at least 'needed' elements */
 static void ensure_capacity(size_t needed, seq_t **arr, size_t *cap)
@@ -33,7 +35,7 @@ static void ensure_capacity(size_t needed, seq_t **arr, size_t *cap)
         size_t new_cap = (*cap == 0) ? 8 : *cap;
         while (new_cap < needed)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
         if (!tmp) abort();                 /* out of memory */
         *arr = tmp;
         *cap = new_cap;
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         /* first row is [1] */
         prev_len = 1;
-        prev_row = (seq_t *)malloc(prev_len * sizeof(seq_t));
+        prev_row = mem_new(seq_t, prev_len);
         prev_row[0] = (seq_t)1;
 
         /* store the very first term in the cache */
@@ -78,7 +80,7 @@ seq_t a(idx_t n)
         /* estimate capacity for the next row: max 5× previous length */
         size_t next_cap = prev_len * 5;
         if (next_cap < 1) next_cap = 1;
-        seq_t *next_row = (seq_t *)malloc(next_cap * sizeof(seq_t));
+        seq_t *next_row = mem_new(seq_t, next_cap);
         size_t next_len = prev_len;   /* start with copying original row */
 
         /* copy the original elements first (the row itself) */
@@ -121,7 +123,7 @@ seq_t a(idx_t n)
             cache[cache_size++] = next_row[i];
 
         /* advance to the next row */
-        free(prev_row);
+        mem_free(prev_row);
         prev_row = next_row;
         prev_len = next_len;
     }

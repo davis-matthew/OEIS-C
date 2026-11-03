@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 10, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #ifdef __cplusplus
 #include <new>
 #endif
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
 
     /* Grow the cache to hold indices up to n. */
     size_t need = (size_t)n + 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, need * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, need);
     if (!new_cache)
         return 0;        /* allocation failure – unlikely for the tested limits */
 
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     if (new_cache != cache) {
 #ifdef __cplusplus
         for (size_t i = cached; i < need; ++i)
-            new(&new_cache[i]) seq_t();   /* default‑construct */
+            *(&new_cache[i]) = (seq_t)0;   /* default‑construct */
 #endif
     }
 

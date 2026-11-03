@@ -5,9 +5,10 @@
  * Offset:    2    (a(2) is the first term)
  * Keywords:  easy, nonn, cons
  * Formula:   not stated
- * Range:     u8 n <= 9535, u16 n <= 9535, u32 n <= 9535, u64 n <= 9535,
- *            u128 n <= 9535, big any n
- * Helpers:   none
+ * Range:     u8 n <= 10003, u16 n <= 10003, u32 n <= 10003, u64 n <= 10003,
+ *            u128 n <= 10003, big any n
+ * Validated: standard, pass, 118 terms through n = 9535 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* simple bignum: unsigned integer in little‑endian base 2^32            */
@@ -171,7 +173,7 @@ static void sqrt_init(void) {
     bigint_set_uint(&p, d0);
 
     sqrt_cap = 64;
-    sqrt_digits = (seq_t *)calloc(sqrt_cap, sizeof(seq_t));
+    sqrt_digits = mem_new(seq_t, sqrt_cap);
     sqrt_len = 0;
     sqrt_initialized = true;
 }
@@ -223,7 +225,7 @@ seq_t a(idx_t n) {
         uint32_t d = sqrt_next_digit();
         if (sqrt_len == sqrt_cap) {
             sqrt_cap *= 2;
-            sqrt_digits = (seq_t *)realloc(sqrt_digits, sqrt_cap * sizeof(seq_t));
+            sqrt_digits = mem_resize(seq_t, sqrt_digits, sqrt_cap);
         }
         sqrt_digits[sqrt_len++] = (seq_t)d;
     }

@@ -9,6 +9,7 @@
  *            unordered prime pairs (p, 2n-p) with p <= n
  * Range:     u8 n <= 270, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
+ * Validated: standard, pass, 86 terms through n = 1978 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

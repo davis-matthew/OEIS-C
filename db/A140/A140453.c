@@ -10,15 +10,17 @@
  *            Σ_{k=0}^{m} C(m,k)^r (for n=1, m=0, r=1 this gives a(1)=1)
  * Range:     u8 n <= 7, u16 n <= 9, u32 n <= 13, u64 n <= 18, u128 n <= 24,
  *            big any n
- * Helpers:   binom, seq_pow
+ * Validated: standard, pass, 25 terms through n = 25 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binom.h"
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -30,8 +32,8 @@ seq_t a(idx_t n)
 
     for (idx_t k = 0; k <= m; ++k)
     {
-        seq_t bin = binom(m, k);           /* C(m,k) */
-        seq_t power = seq_pow(bin, r);     /* C(m,k)^r */
+        seq_t bin = binomial(m, k);           /* C(m,k) */
+        seq_t power = ipow_idx(bin, r);     /* C(m,k)^r */
         sum += power;                      /* add to sum */
     }
 

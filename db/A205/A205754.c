@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 13, u64 n <= 29, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
  *   a(10)=19364230, a(11)=79981548. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* cached values, 1‑based indexing */
 static size_t    cache_size = 0;     /* current capacity of cache   */
@@ -35,7 +37,7 @@ static void ensure_cache(idx_t n)
     /* 1. Allocate (or grow) the cache so it can hold indices 0..n. */
     if (cache == NULL) {
         cache_size = (n + 1 > 12 ? n + 1 : 12);        /* at least 12 slots */
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache) return;                           /* allocation failed */
 
         /* 2. Initialize known initial values (index 0 is unused). */
@@ -55,7 +57,7 @@ static void ensure_cache(idx_t n)
     } else if ((size_t)n + 1 > cache_size) {
         size_t new_size = cache_size * 2;
         if ((size_t)n + 1 > new_size) new_size = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) return;           /* allocation failed, keep old cache */
         cache = tmp;
         cache_size = new_size;

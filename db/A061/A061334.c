@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 14, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   factor_u64, is_prime64
+ * Validated: standard, pass, 49 terms through n = 980 (2026-11-03)
+ * Helpers:   factor_u64, is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,12 +24,11 @@
 #include <stdbool.h>
 
 /* Prime test – supplied by the OEIS framework */
-#include "../utils/is_prime64.h"
+#include "../utils/factor_u64.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 /* Prime factorisation of a 64‑bit integer – supplied by the framework */
-#include "../utils/factor_u64.h"   /* void factor_u64(uint64_t n,
-                                     uint64_t *pr, uint64_t *exp,
-                                     size_t *cnt); */
 
 /* Fast modular exponentiation (binary exponentiation) */
 static uint64_t modpow(uint64_t base, uint64_t exp, uint64_t mod)
@@ -76,7 +76,7 @@ static void ensure_cache_size(idx_t n)
             p++;
 
         /* Find the next prime. */
-        while (!is_prime64(p)) {
+        while (!is_prime_u64(p)) {
             p += (p == 2 ? 1ULL : 2ULL);      /* skip even numbers */
         }
         last_checked = p;
@@ -107,9 +107,9 @@ static void ensure_cache_size(idx_t n)
         /* Store the prime in the cache. */
         if (cache_len + 1 > cache_cap) {
             size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) {
-                free(cache);
+                mem_free(cache);
                 exit(1);          /* allocation failure */
             }
             cache = tmp;

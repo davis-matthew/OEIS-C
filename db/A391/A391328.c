@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 1736, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 9579 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper for computing bit length of a 64‑bit unsigned integer. */
 static inline unsigned bitlen_uint64(uint64_t x) {
@@ -91,7 +93,7 @@ static void init_sequence(void) {
 static void append_term(seq_t val) {
     if (seq_len == seq_cap) {
         size_t new_cap = (seq_cap == 0) ? 32 : seq_cap * 2;
-        seq_vals = (seq_t*)realloc(seq_vals, new_cap * sizeof(seq_t));
+        seq_vals = mem_resize(seq_t, seq_vals, new_cap);
         seq_cap = new_cap;
     }
     seq_vals[seq_len++] = val;

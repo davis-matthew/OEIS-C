@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 55, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   grow_seq_array, is_palindrome
+ * Validated: standard, pass, 61 terms through n = 99 (2026-11-03)
+ * Helpers:   is_palindrome_base, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,21 @@
 /* Sequence A029805: numbers k such that k² is palindromic in base 8 (search). */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_palindrome.h"
-#include "../utils/grow_seq_array.h"
+#include <stdint.h>
+#include "../utils/is_palindrome_base.h"
+#include "../utils/mem.h"
+
+/* Helper to grow a sequence array of type seq_t. */
+static void grow_seq_array(seq_t **arr, size_t *size, size_t new_len)
+{
+    if (*size >= new_len) return;
+    size_t new_cap = (*size > 0) ? (*size << 1) : 16;
+    while (new_cap < new_len) new_cap <<= 1;
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+    if (!tmp) abort();
+    *arr = tmp;
+    *size = new_cap;
+}
 
 static inline bool is_palindrome_uint128(unsigned __int128 x, idx_t base)
 {
@@ -62,7 +76,7 @@ seq_t a(idx_t n)
             ok = is_palindrome_uint128(sq, 8);
         } else {                   /* seq_t is at least 16 bytes (big int).  */
             seq_t sq = k * k;
-            ok = is_palindrome(sq, 8);
+            ok = is_palindrome_base(sq, 8);
         }
         if (ok) {                   /* store term                          */
             grow_cache(len + 1);

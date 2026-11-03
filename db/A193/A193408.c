@@ -11,7 +11,8 @@
  *            numbers in ascending order using a recursive construction
  * Range:     u8 n <= 31, u16 n <= 1753, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 90 terms through n = 7588 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *hill = NULL;
 static size_t hill_cap = 0;
@@ -31,7 +33,7 @@ static void ensure_hill_capacity(size_t needed)
     if (needed > hill_cap) {
         size_t new_cap = hill_cap == 0 ? 64 : hill_cap;
         while (new_cap < needed) new_cap <<= 1;
-        seq_t *new_arr = (seq_t *)realloc(hill, new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, hill, new_cap);
         if (!new_arr) abort();
         hill = new_arr;
         hill_cap = new_cap;

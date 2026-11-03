@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 8, u32 n <= 25, u64 n <= 58, u128 n <= 125,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*--------------------------------------------------------------------
  *  Static state (initialised on first call)
@@ -106,8 +108,8 @@ seq_t a(idx_t n)
         _build_transitions();
 
         size_t totalPairs = (size_t)_Rsize * _Rsize;
-        _dp_prev = (seq_t*)calloc(totalPairs, sizeof(seq_t));
-        _dp_cur  = (seq_t*)calloc(totalPairs, sizeof(seq_t));
+        _dp_prev = mem_new(seq_t, totalPairs);
+        _dp_cur  = mem_new(seq_t, totalPairs);
 
         _init = 1;
     }

@@ -11,13 +11,15 @@
  *            4*T(n-2,k-1) (2 <= k <= n-1)
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 49, u64 n <= 126,
  *            u128 n <= 336, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 1203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Forward declaration for types supplied by build */
 extern seq_t a(idx_t n);
@@ -62,7 +64,7 @@ static void ensure_rows(idx_t up_to) {
     }
     for (idx_t r = tri_max + 1; r <= up_to; ++r) {
         /* Allocate row (1..r), ignore index 0 */
-        seq_t *row = (seq_t *)malloc((size_t)(r + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (size_t)(r + 1));
         if (!row) abort();
         row[1] = (seq_t)1;
         if (r > 1)

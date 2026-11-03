@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = Σ_{d|gcd(2n+5,n)} μ(d) * C((2n+5)/d , n/d)
- * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 13, u64 n <= 22, u128 n <= 22,
+ * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 /* Greatest common divisor of two idx_t numbers. */
 static idx_t gcd_idx(idx_t a, idx_t b)
@@ -70,7 +71,7 @@ seq_t a(idx_t n)
         int mu = mobius(d);
         if (mu == 0) continue;
 
-        seq_t term = binom(N / d, K / d);
+        seq_t term = binomial(N / d, K / d);
         if (mu > 0) {
             sum += term;
         } else {

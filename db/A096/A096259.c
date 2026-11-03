@@ -12,13 +12,14 @@
  *            p = m mod 2. Then a(n) = n * 2^p * ( sum_{...
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 12, u64 n <= 12, u128 n <= 12,
  *            big any n
- * Helpers:   count_trailing_zeros
+ * Validated: partial, pass, 12 terms through n = 12 (2026-11-01)
+ * Helpers:   ctz_u64_to_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/count_trailing_zeros.h"
+#include "../utils/ctz_u64_to_u32.h"
 
 seq_t a(idx_t n) {
     /* handle small n directly */
@@ -32,7 +33,7 @@ seq_t a(idx_t n) {
 
     while (1) {
         /* compute h_k = v2(cur) */
-        unsigned h = count_trailing_zeros((uint64_t)cur);
+        unsigned h = ctz_u64_to_u32((uint64_t)cur);
 
         /* add sum_{i=0}^{h} (cur >> i) */
         seq_t local = 0;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    or an arbitrary‑precision integer class, and idx_t is uint64_t. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *fib      = NULL;
 static size_t fib_len  = 0;
@@ -35,7 +37,7 @@ static void ensure_fib(idx_t limit)
 {
     if (fib_len == 0) {
         fib_cap = 4;
-        fib = (seq_t*)malloc(fib_cap * sizeof(seq_t));
+        fib = mem_new(seq_t, fib_cap);
         fib[0] = 1;
         fib[1] = 1;
         fib_len = 2;
@@ -43,7 +45,7 @@ static void ensure_fib(idx_t limit)
     while (fib[fib_len - 1] < (seq_t)limit) {
         if (fib_len == fib_cap) {
             fib_cap <<= 1;
-            fib = (seq_t*)realloc(fib, fib_cap * sizeof(seq_t));
+            fib = mem_resize(seq_t, fib, fib_cap);
         }
         fib[fib_len] = fib[fib_len - 1] + fib[fib_len - 2];
         ++fib_len;
@@ -54,7 +56,7 @@ static void ensure_lucas(idx_t limit)
 {
     if (lucas_len == 0) {
         lucas_cap = 4;
-        lucas = (seq_t*)malloc(lucas_cap * sizeof(seq_t));
+        lucas = mem_new(seq_t, lucas_cap);
         lucas[0] = 2;
         lucas[1] = 1;
         lucas_len = 2;
@@ -62,7 +64,7 @@ static void ensure_lucas(idx_t limit)
     while (lucas[lucas_len - 1] < (seq_t)limit) {
         if (lucas_len == lucas_cap) {
             lucas_cap <<= 1;
-            lucas = (seq_t*)realloc(lucas, lucas_cap * sizeof(seq_t));
+            lucas = mem_resize(seq_t, lucas, lucas_cap);
         }
         lucas[lucas_len] = lucas[lucas_len - 1] + lucas[lucas_len - 2];
         ++lucas_len;
@@ -121,7 +123,7 @@ static void generate_zeros_up_to(idx_t goal)
 {
     if (zeros == NULL) {
         zeros_cap = 4;
-        zeros = (seq_t*)malloc(zeros_cap * sizeof(seq_t));
+        zeros = mem_new(seq_t, zeros_cap);
     }
     while (zeros_len < goal) {
         ++processed_n;
@@ -136,7 +138,7 @@ static void generate_zeros_up_to(idx_t goal)
         if (diff == 0) {
             if (zeros_len == zeros_cap) {
                 zeros_cap <<= 1;
-                zeros = (seq_t*)realloc(zeros, zeros_cap * sizeof(seq_t));
+                zeros = mem_resize(seq_t, zeros, zeros_cap);
             }
             zeros[zeros_len++] = (seq_t)processed_n;
         }

@@ -12,16 +12,54 @@
  *            the number of steps if the * termination is 0, otherwise the
  *            negative of the number of steps to reach the * first qualifying
  *            number. a(0)=0, a(1)=1. The recurrence follows d...
- * Range:     i8 n <= 99, i16 n <= 8208, i32 n <= 8208, i64 n <= 8208,
- *            i128 n <= 8208, big any n
- * Helpers:   has_pp_factor_uint64
+ * Range:     i8 n <= 845, i16 n <= 65536, i32 n <= 65537, i64 n <= 65537,
+ *            i128 n <= 65537, big any n
+ * Validated: standard, pass, 116 terms through n = 8208 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/has_pp_factor_uint64.h"
+
+/* Test whether a 64‑bit integer has a prime factor p with exponent e ≥ p. */
+static bool has_pp_factor_uint64(uint64_t n)
+{
+    if (n < 2)
+        return false;
+
+    /* factor 2 */
+    if ((n & 1ULL) == 0) {
+        unsigned int e = 0;
+        while ((n & 1ULL) == 0) {
+            n >>= 1;
+            ++e;
+        }
+        if (e >= 2)   /* p = 2 */
+            return true;
+    }
+
+    /* odd factors */
+    for (uint64_t p = 3; p <= n / p; p += 2) {
+        if (n % p == 0) {
+            unsigned int e = 0;
+            while (n % p == 0) {
+                n /= p;
+                ++e;
+            }
+            if (e >= p) /* p itself is the exponent threshold */
+                return true;
+        }
+    }
+
+    /* remaining prime factor */
+    if (n > 1) {
+        /* exponent = 1, cannot satisfy e ≥ p for prime p ≥ 2 */
+    }
+
+    return false;
+}
 
 /* Compute the arithmetic derivative of a 64‑bit integer n. */
 static seq_t derivative_uint64(uint64_t n)

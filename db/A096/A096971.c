@@ -8,16 +8,18 @@
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{j=0..floor((n+1)/2)} C(2n-2j-1, n-1) * a(j); a(0)=1,
  *            a(1)=1
- * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 15, u64 n <= 24, u128 n <= 24,
+ * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *seq_array = NULL;   /* cache of already computed terms */
 static idx_t  seq_cap   = 0;      /* current capacity of seq_array */
@@ -29,7 +31,7 @@ static void seq_grow(idx_t need)
     if (seq_cap <= need) {
         idx_t new_cap = seq_cap ? seq_cap << 1 : 8;
         while (new_cap <= need) new_cap <<= 1;
-        seq_array = (seq_t *)realloc(seq_array, new_cap * sizeof(seq_t));
+        seq_array = mem_resize(seq_t, seq_array, new_cap);
         seq_cap   = new_cap;
     }
 }
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
             for (idx_t j = 0; j <= j_max; ++j) {
                 idx_t a_val = 2 * k - 2 * j - 1;
                 idx_t b_val = k - 1;
-                seq_t comb  = binom(a_val, b_val);
+                seq_t comb  = binomial(a_val, b_val);
                 sum += comb * seq_array[j];
             }
         }

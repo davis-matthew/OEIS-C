@@ -9,6 +9,7 @@
  *            that ⌊n⋅π⌋ computed with 3.141592 equals ⌊n⋅π⌋ exactly
  * Range:     u8 n <= 61, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
+ * Validated: standard, pass, 73 terms through n = 1919 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

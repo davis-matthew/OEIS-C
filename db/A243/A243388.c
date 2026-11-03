@@ -14,13 +14,15 @@
  *            –7*a(n-18)+a(n-19) wi...
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 23, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>   /* size_t */
 #include <stdlib.h>   /* malloc, realloc, free */
+#include "../utils/mem.h"
 
 /* 19‑term recurrence coefficients (a(n–i) coefficient for i=1..19) */
 static const int coeff[19] = {
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
        first 19 terms. */
     if (cache == NULL) {
         cache_size = 20;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (cache == NULL) return (seq_t)0;   /* allocation failure */
         for (idx_t i = 1; i <= 19; ++i)
             cache[i] = init_vals[i - 1];
@@ -74,7 +76,7 @@ seq_t a(idx_t n)
     /* Extend the cache if the requested index exceeds the current size. */
     if ((idx_t)cache_size <= n) {
         size_t new_size = n + 1;          /* needed slots: 0..n */
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (tmp == NULL) return (seq_t)0; /* allocation failure */
         cache = tmp;
         /* If we allocated more space than previous, initialize the new part

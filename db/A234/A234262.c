@@ -11,12 +11,14 @@
  *            a(3)=560, a(4)=988, a(5)=1816, a(6)=3616
  * Range:     u8 n <= 1, u16 n <= 9, u32 n <= 22, u64 n <= 47, u128 n <= 97,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 202 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Base values 1..6; index 0 is unused. */
 static const seq_t base[7] = {0, 244, 358, 560, 988, 1816, 3616};
@@ -35,7 +37,7 @@ static void ensure_cache(idx_t n)
 
     /* Resize the cache to hold indices 0 … n. */
     idx_t new_len = n + 1;              /* include index 0 */
-    seq_t *new_cache = (seq_t*)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_len);
     if (!new_cache) {
         exit(EXIT_FAILURE);           /* allocation failure */
     }

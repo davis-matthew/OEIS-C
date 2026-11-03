@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 150, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   alloc_seq_array, sort_ul
+ * Validated: standard, pass, 85 terms through n = 7814 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,28 @@
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/alloc_seq_array.h"
-#include "../utils/sort_ul.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+/* Small insertion sort for an array of idx_t (max 128 elements). */
+static void sort_ul(idx_t *arr, size_t n)
+{
+    for (size_t i = 1; i < n; ++i) {
+        idx_t key = arr[i];
+        size_t j = i;
+        while (j > 0 && arr[j-1] > key) {
+            arr[j] = arr[j-1];
+            --j;
+        }
+        arr[j] = key;
+    }
+}
 
 /* Test whether x satisfies the divisor-product property. */
 static bool has_property(seq_t x)

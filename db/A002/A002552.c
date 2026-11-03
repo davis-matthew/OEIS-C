@@ -12,7 +12,8 @@
  *            prime from p-adic valuations: Legendre's formula fo...
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 11, u64 n <= 20, u128 n <= 37,
  *            big any n
- * Helpers:   a2552_modinv, a2552_spow
+ * Validated: standard, pass, 36 terms through n = 200 (2026-11-01)
+ * Helpers:   ipow_i64, modinv
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/a2552_modinv.h"
-#include "../utils/a2552_spow.h"
+#include "../utils/ipow_i64.h"
+#include "../utils/modinv.h"
 
 seq_t a(idx_t n) {
     if (n < 2) return 1;
@@ -46,7 +47,7 @@ seq_t a(idx_t n) {
         uint64_t t = (uint64_t)n;
         while (t) { pc += (long long)(t & 1); t >>= 1; }
         long long tot = pc + 3 - 2 * N + v2e;
-        if (tot < 0) res = res * a2552_spow((seq_t)2, -tot);
+        if (tot < 0) res = res * ipow_i64((seq_t)2, -tot);
     }
 
     /* odd primes p <= n (primes p > n never divide the denominator) */
@@ -83,7 +84,7 @@ seq_t a(idx_t n) {
             r += 2;
             if (r >= p) r -= p;
         }
-        uint64_t inv = a2552_modinv(prod, q);
+        uint64_t inv = modinv(prod, q);
         uint64_t O = 0, E = 0;
         for (j = N - 1; j >= 0; j--) {
             uint64_t invu = (j > 0) ? inv * pre[j - 1] % q : inv;
@@ -103,7 +104,7 @@ seq_t a(idx_t n) {
             pk *= p;
         }
         long long ex = 2 * (long long)s - vS - vC;
-        if (ex > 0) res = res * a2552_spow((seq_t)p, ex);
+        if (ex > 0) res = res * ipow_i64((seq_t)p, ex);
     }
 
     free(comp);

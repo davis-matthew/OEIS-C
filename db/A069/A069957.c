@@ -9,12 +9,14 @@
  *            (1-x)^2*(1-x^2)^2*(1-x^3)*(1-x^4)^2*(1-x^5) )
  * Range:     u8 n <= 9, u16 n <= 33, u32 n <= 203, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 971 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Coefficients of the denominator polynomial D(x)=∑_{k=0}^{22} d[k]x^k.
    d[0] is 1 (not used in the recurrence). */
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
     /* Initialize storage and first value. */
     if (memo == NULL) {
         memo_cap = 64;                     /* initial capacity */
-        memo = (seq_t *)malloc(memo_cap * sizeof(seq_t));
+        memo = mem_new(seq_t, memo_cap);
         if (!memo) return (seq_t)0;         /* allocation failed */
         memo[0] = (seq_t)1;                 /* a(0) */
         memo_len = 1;
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
         idx_t new_cap = memo_cap ? memo_cap * 2 : 64;
         while (new_cap <= n)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(memo, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, memo, new_cap);
         if (!tmp) return (seq_t)0;          /* allocation failed */
         memo = tmp;
         memo_cap = new_cap;

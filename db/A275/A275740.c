@@ -7,13 +7,15 @@
  * Formula:   a(n) = sum of next n consecutive non‑square integers
  * Range:     u8 n <= 7, u16 n <= 50, u32 n <= 2047, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 9938 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache  = NULL;       /* cache of a(n) values */
 static size_t cache_cap = 0;       /* allocated capacity of cache */
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* lazy initialization of cache and auxiliary state */
     if (!cache) {
         cache_cap = (size_t)(n + 1);
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = (seq_t)0;
         next_n = 1;
         i_val  = 2;
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     /* Ensure the cache is large enough for n+1 entries */
     if ((size_t)(n + 1) > cache_cap) {
         size_t new_cap = ((size_t)(n + 1)) * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return (seq_t)0; /* allocation failure – unlikely */
         cache = tmp;
         cache_cap = new_cap;

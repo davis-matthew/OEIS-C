@@ -10,7 +10,8 @@
  *            lazily and memoised, so any order of calls works
  * Range:     u8 n <= 21, u16 n <= 1230, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 9325 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* 64‑bit deterministic Miller--Rabin primality test ----------------------------------- */
 static inline uint64_t modmul64(uint64_t a, uint64_t b, uint64_t m)
@@ -78,7 +80,7 @@ static void ensure_capacity(idx_t n)
     /* grow capacity if needed */
     if (cap == 0) cap = 1;
     while (cap <= (size_t)n) cap <<= 1;
-    seq = (seq_t *)realloc(seq, cap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, cap);
     /* len remains its old value; unused slots are uninitialized */
 }
 

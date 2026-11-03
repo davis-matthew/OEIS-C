@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 513, u16 n <= 8177, u32 n <= 8177, u64 n <= 8177,
- *            u128 n <= 8177, big any n
- * Helpers:   find_min_k
+ * Range:     u8 n <= 513, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 101 terms through n = 8177 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,18 @@
 /* Compute A309155: for each prime factor p of n (with multiplicity)
    add the least positive integer k such that (p-k) divides (n-k). */
 #include <stdint.h>
-#include "../utils/find_min_k.h"
+
+static seq_t find_min_k(uint64_t p, uint64_t n)
+{
+    for (uint64_t k = 1; k < p; ++k) {
+        int64_t d = (int64_t)p - (int64_t)k;                /* p - k   */
+        if (d == 0) continue;                              /* skip divisor 0   */
+        int64_t absd = d > 0 ? d : -d;                     /* |p-k|     */
+        int64_t rem = (int64_t)n - (int64_t)k;             /* n-k   */
+        if (rem % absd == 0) return (seq_t)k;              /* found minimal k */
+    }
+    return (seq_t)(p - 1);                                  /* fallback p-1   */
+}
 
 seq_t a(idx_t n)
 {

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 76 terms through n = 76 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,10 @@
 */
 
 #include <stdint.h>
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 /* -------------------------------------------------------------
    Compute a(n) by brute‑force search on m.
@@ -33,13 +37,13 @@ seq_t a(idx_t n)
 
     for (idx_t m = 1; ; ++m) {
         /* r = 3^m (mod m) */
-        seq_t r = mod_pow((seq_t)3, (uint64_t)m, (seq_t)m);
+        seq_t r = powmod((seq_t)3, (uint64_t)m, (seq_t)m);
 
         /* nm = n * m */
         seq_t nm = (seq_t)n * (seq_t)m;
 
         /* t = 3^m (mod n*m) */
-        seq_t t = mod_pow((seq_t)3, (uint64_t)m, nm);
+        seq_t t = powmod((seq_t)3, (uint64_t)m, nm);
 
         if (t == r)           /* n | floor(3^m/m) */
             return (seq_t)m;

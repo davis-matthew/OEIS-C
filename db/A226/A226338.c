@@ -10,16 +10,19 @@
  *            equivalent to: 1. 6·Σ|v_i| ≥ n, 2. gcd(v) | n. Hence the code
  *            enumerates all such vectors via inclusion–exclusion on the
  *            possible gcd’s (1…6)
- * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 18, u64 n <= 18, u128 n <= 18,
+ * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 18, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* compute F_g : number of nondecreasing vectors of length n
    with all entries multiples of g  (range –6…6)  and 6·Σ|v_i| ≥ n */
@@ -27,7 +30,7 @@ static seq_t compute_F(idx_t n, idx_t g, idx_t T) {
     /* integers for internal use */
     idx_t m   = 6 / g;                     /* floor(6/g)  */
     idx_t A   = 2 * m + 1;                 /* number of allowed values */
-    seq_t totalC = binom(n + A - 1, A - 1); /* all nondecreasing vectors */
+    seq_t totalC = binomial(n + A - 1, A - 1); /* all nondecreasing vectors */
 
     /* threshold on Σ|k| where v_i = g·k_i */
     idx_t threshold = (T + g - 1) / g;              /* ceil<T/g> */
@@ -36,16 +39,16 @@ static seq_t compute_F(idx_t n, idx_t g, idx_t T) {
     if (threshold > 0) {
         size_t thresh = (size_t)threshold;
         size_t len     = (size_t)(n + 1) * thresh;    /* dp size */
-        seq_t *dp      = (seq_t*)malloc(len * sizeof(seq_t));
-        seq_t *dp_next = (seq_t*)malloc(len * sizeof(seq_t));
+        seq_t *dp      = mem_new(seq_t, len);
+        seq_t *dp_next = mem_new(seq_t, len);
         if (!dp || !dp_next)                          /* safe guard */
             return 0;
 
-        memset(dp, 0, len * sizeof(seq_t));
+        mem_set(dp, 0, len * sizeof(seq_t));
         dp[0] = 1;                                   /* k=0, s=0 */
 
         for (idx_t w = 1; w <= m; ++w) {             /* weight from 1..m */
-            memset(dp_next, 0, len * sizeof(seq_t));
+            mem_set(dp_next, 0, len * sizeof(seq_t));
             for (idx_t k = 0; k <= n; ++k) {
                 idx_t base = k * thresh;
                 for (idx_t s = 0; s < threshold; ++s) {
@@ -74,8 +77,8 @@ static seq_t compute_F(idx_t n, idx_t g, idx_t T) {
                 sub_C += dp[base + s];
             }
         }
-        free(dp);
-        free(dp_next);
+        mem_free(dp);
+        mem_free(dp_next);
     }
 
     return totalC - sub_C;

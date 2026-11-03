@@ -8,14 +8,16 @@
  *            where m = floor(log2(log2(n-1))) (n > 2) * a(1)=1, a(2)=2
  * Range:     u8 n <= 16, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   floor_log2_uint64, pow2
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-01)
+ * Helpers:   ilog2, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include "../utils/ilog2.h"
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)
@@ -25,8 +27,8 @@ seq_t a(idx_t n)
 
     /* Compute m = floor(log2(log2(n-1))) */
     idx_t nm1 = n - 1;
-    unsigned l1 = floor_log2_uint64(nm1);   /* floor(log2(n-1))      */
-    unsigned m  = floor_log2_uint64(l1);   /* floor(log2(l1))      */
+    unsigned l1 = ilog2(nm1);   /* floor(log2(n-1))      */
+    unsigned m  = ilog2(l1);   /* floor(log2(l1))      */
 
     /* n + m is the left side of the test */
     seq_t nm = (seq_t)n + (seq_t)m;

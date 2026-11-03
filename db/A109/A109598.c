@@ -12,14 +12,37 @@
  *            returns the n‑th term (1‑based index)
  * Range:     u8 n <= 31, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   good_candidate
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/good_candidate.h"
+#include "../utils/mem.h"
+
+/* test whether a candidate n satisfies the definition */
+static bool good_candidate(idx_t n)
+{
+    /* 6m-1 and 6m+1 families */
+    idx_t mmax6 = (n + 1) / 5;     /* from 6m-1 <= n+m */
+    for (idx_t m = 1; m <= mmax6; ++m) {
+        idx_t d = 6 * m - 1;
+        if ( (n + m) % d == 0 ) return false;
+        d = 6 * m + 1;
+        if ( (n + m) % d == 0 ) return false;
+    }
+    /* 8m-1 and 8m+1 families */
+    idx_t mmax8 = (n + 1) / 7;     /* from 8m-1 <= n+m */
+    for (idx_t m = 1; m <= mmax8; ++m) {
+        idx_t d = 8 * m - 1;
+        if ( (n + m) % d == 0 ) return false;
+        d = 8 * m + 1;
+        if ( (n + m) % d == 0 ) return false;
+    }
+    return true;
+}
 
 /* static state for memoisation */
 static seq_t *vals = NULL;    /* array of found sequence elements */
@@ -33,7 +56,7 @@ static void ensure_cap(size_t new_cap)
     if (new_cap <= val_cap) return;
     size_t cap = val_cap ? val_cap * 2 : 64;
     if (cap < new_cap) cap = new_cap;
-    seq_t *tmp = (seq_t*)realloc(vals, cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, vals, cap);
     vals = tmp;
     val_cap = cap;
 }

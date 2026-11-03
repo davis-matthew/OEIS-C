@@ -8,12 +8,14 @@
  * Formula:   a(n) = a(n-1) + a(n-2) + a(n-3), a(0) = 0, a(1) = 1, a(2) = 0
  * Range:     u8 n <= 12, u16 n <= 21, u32 n <= 39, u64 n <= 75, u128 n <= 148,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 176 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;
@@ -26,14 +28,14 @@ seq_t a(idx_t n) {
     
     if (cache == NULL) {
         cache_len = 100;
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         cache[0] = 0;
         cache[1] = 1;
         cache[2] = 0;
     }
     
     while (cache_len <= n) {
-        cache = (seq_t *)realloc(cache, (cache_len * 2) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (cache_len * 2));
         cache_len *= 2;
     }
     

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 112, u16 n <= 151, u32 n <= 151, u64 n <= 151,
  *            u128 n <= 151, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 150 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* DP helper: compute all terms up to a given largest cube index. */
 static void compute_terms(idx_t maxCubeIdx, seq_t **out, size_t *len)
@@ -64,13 +66,13 @@ static void compute_terms(idx_t maxCubeIdx, seq_t **out, size_t *len)
 
     /* Extract numbers with exactly one representation. */
     size_t capacity = 1024;
-    seq_t *terms = (seq_t*)malloc(capacity * sizeof(seq_t));
+    seq_t *terms = mem_new(seq_t, capacity);
     size_t termsn = 0;
     for (size_t sum = 10; sum <= maxSum; ++sum) {   /* minimal sum is 10*1^3 = 10 */
         if (dp[10 * USIZE + sum] == 1) {
             if (termsn == capacity) {
                 capacity <<= 1;
-                terms = (seq_t*)realloc(terms, capacity * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, capacity);
             }
             terms[termsn++] = (seq_t)sum;
         }
@@ -98,12 +100,12 @@ seq_t a(idx_t n)
         if (!newseq) return 0;   /* allocation failure */
 
         if (newlen >= n) {
-            free(seq);
+            mem_free(seq);
             seq = newseq;
             seq_len = newlen;
             break;
         } else {
-            free(newseq);
+            mem_free(newseq);
             cube_limit += 5;      /* enlarge cube range and try again */
             if (cube_limit > 100) { /* safety cap */
                 cube_limit = 100;

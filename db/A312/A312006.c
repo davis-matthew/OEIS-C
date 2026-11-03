@@ -11,13 +11,15 @@
  *            a(10)=43, a(11)=48
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* cache[i] holds a(i) for i < cache_cap */
 static idx_t cache_size = 0;  /* number of initialized entries in cache */
@@ -33,14 +35,13 @@ static void grow_cache(idx_t need)
     while (new_cap <= need)
         new_cap <<= 1;
 
-    seq_t *new_buf = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_buf = mem_resize(seq_t, cache, new_cap);
     if (!new_buf)
         abort();                 /* out of memory */
 
     /* Zero the newly allocated portion of the array. */
     if (new_cap > cache_cap)
-        memset(&new_buf[cache_cap], 0,
-               (new_cap - cache_cap) * sizeof(seq_t));
+        mem_set(&new_buf[cache_cap], 0, (new_cap - cache_cap) * sizeof(seq_t));
 
     cache = new_buf;
     cache_cap = new_cap;
@@ -53,7 +54,7 @@ static void init_cache(void)
         return;                  /* already initialised */
 
     cache_cap = 16;             /* sufficient for initial values */
-    cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     if (!cache)
         abort();                 /* out of memory */
 

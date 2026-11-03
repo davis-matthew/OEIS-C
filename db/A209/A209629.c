@@ -9,14 +9,17 @@
  * Formula:   a(n) = 2^n + 2*(B(n)-1), where B(n) is the Bell number
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 15, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   binomial, pow2
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-03)
+ * Helpers:   binomial, mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/pow2.h"
+#include <stdbool.h>
 #include "../utils/binomial.h"
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 /* Cached array of Bell numbers; bell[0] = 1. */
 static seq_t *bell = NULL;          /* dynamic array of Bell numbers */
@@ -30,7 +33,7 @@ static void ensure_bell_capacity(idx_t max_index)
 
     /* Allocate new array of size max_index + 1. */
     size_t new_len = (size_t)(max_index + 1);
-    seq_t *tmp = (seq_t *)realloc(bell, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, bell, new_len);
     if (!tmp)                /* memory exhausted – abort */
         exit(EXIT_FAILURE);
     bell = tmp;
@@ -58,7 +61,7 @@ seq_t a(idx_t n)
 
     /* Initialise Bell cache if necessary. */
     if (bell == NULL) {
-        bell = (seq_t *)calloc(1, sizeof(seq_t));   /* B(0) = 1 */
+        bell = mem_new(seq_t, 1);   /* B(0) = 1 */
         if (!bell)
             exit(EXIT_FAILURE);
         bell[0] = (seq_t)1;

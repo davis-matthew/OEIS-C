@@ -13,6 +13,7 @@
  *            row by row and a(n) is the n-th element (1-indexed)
  * Range:     u8 n <= 7473, u16 n <= 7473, u32 n <= 7473, u64 n <= 7473,
  *            u128 n <= 7473, big any n
+ * Validated: standard, pass, 103 terms through n = 7169 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

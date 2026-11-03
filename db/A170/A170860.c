@@ -10,7 +10,8 @@
  *            iterative dynamic‑programming cache
  * Range:     u8 n <= 58, u16 n <= 1015, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_log2_uint64, seq_alloc_array
+ * Validated: standard, pass, 92 terms through n = 9722 (2026-11-03)
+ * Helpers:   ilog2, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,15 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/seq_alloc_array.h"
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include "../utils/ilog2.h"
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 /* cache of already computed values */
 static seq_t *cache = NULL;   /* array of seq_t */
@@ -77,7 +85,7 @@ seq_t a(idx_t n)
     for (idx_t k = max_computed + 1; k <= n; ++k) {
         if (k < 2) continue;   /* a(0) and a(1) are already set */
 
-        idx_t i = floor_log2_uint64(k);       /* i such that 2^i ≤ k < 2^(i+1) */
+        idx_t i = ilog2(k);       /* i such that 2^i ≤ k < 2^(i+1) */
         idx_t m = 1ULL << i;                  /* 2^i */
         idx_t j = k - m;                      /* 0 ≤ j < 2^i */
 

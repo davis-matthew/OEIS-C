@@ -8,7 +8,8 @@
  *            Stirling2(n,k)
  * Range:     i8 n <= 4, i16 n <= 6, i32 n <= 10, i64 n <= 16, i128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;          /* cached a(n) values */
 static size_t a_cache_cap = 0;         /* capacity of a_cache */
@@ -53,7 +55,7 @@ static void ensure_a_cache(size_t need)
     size_t newcap = a_cache_cap > 0 ? a_cache_cap * 2 : 64;
     while (newcap <= need) newcap <<= 1;
 #ifdef __cplusplus
-    seq_t *tmp = reinterpret_cast<seq_t*>(realloc(a_cache, newcap * sizeof(seq_t)));
+    seq_t *tmp = reinterpret_cast<seq_t*>(mem_resize(seq_t, a_cache, newcap));
 #else
     seq_t *tmp = realloc(a_cache, newcap * sizeof(seq_t));
 #endif
@@ -71,7 +73,7 @@ static void compute_up_to(idx_t max_n)
         size_t newlen = (size_t)n + 1;
         if (newlen > curr_row_len) {
 #ifdef __cplusplus
-            seq_t *tmp = reinterpret_cast<seq_t*>(realloc(curr_row, newlen * sizeof(seq_t)));
+            seq_t *tmp = reinterpret_cast<seq_t*>(mem_resize(seq_t, curr_row, newlen));
 #else
             seq_t *tmp = realloc(curr_row, newlen * sizeof(seq_t));
 #endif
@@ -126,7 +128,7 @@ seq_t a(idx_t n)
         a_cache_used = 1;
 
         /* row for n = 0 */
-        prev_row = (seq_t*)malloc(sizeof(seq_t));
+        prev_row = mem_new(seq_t, 1);
         if (!prev_row) exit(EXIT_FAILURE);
         prev_row[0] = (seq_t)1;
         prev_row_len = 1;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 240, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 9837 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Adjust LIMIT if you need more terms.  20 000 000 yields well over 10 000
    terms and uses ≈100 MB in the 64‑bit build. */
@@ -89,7 +91,7 @@ static void build_cache(void)
 
     /* Collect all k with exactly 9 preimages into a sorted list */
     size_t cap = 16384;
-    cached_k = (seq_t*)malloc(cap * sizeof(seq_t));
+    cached_k = mem_new(seq_t, cap);
     if (!cached_k) { free(phi); free(is_prime); free(primes); free(cnt); return; }
     cached_len = 0;
 
@@ -97,7 +99,7 @@ static void build_cache(void)
         if (cnt[k] == 9) {
             if (cached_len == cap) {
                 cap = cap * 2 + 1;
-                seq_t *tmp = (seq_t*)realloc(cached_k, cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cached_k, cap);
                 if (!tmp) break;
                 cached_k = tmp;
             }

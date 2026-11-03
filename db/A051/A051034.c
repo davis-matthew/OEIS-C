@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_num
+ * Validated: standard, pass, 127 terms through n = 9612 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime_num.h"
+#include "../utils/is_prime_u64.h"
 
 #define MAX_N 10000        /* sieve range sufficient for test data */
 
@@ -61,7 +62,7 @@ seq_t a(idx_t n)
     if (n <= MAX_N) {
         if (is_prime[(size_t)n]) return (seq_t)1;
     } else {
-        if (is_prime_num((uint64_t)n)) return (seq_t)1;
+        if (is_prime_u64((uint64_t)n)) return (seq_t)1;
     }
 
     /* 2) even n > 2 */
@@ -70,7 +71,7 @@ seq_t a(idx_t n)
         for (size_t i = 0; i < prime_cnt && primes[i] <= half; ++i) {
             uint64_t p = primes[i];
             uint64_t q = n - p;
-            bool qprime = (q <= MAX_N) ? is_prime[(size_t)q] : is_prime_num(q);
+            bool qprime = (q <= MAX_N) ? is_prime[(size_t)q] : is_prime_u64(q);
             if (qprime) return (seq_t)2;
         }
         /* fallback – all even ≤ 10000 satisfy Goldbach, so unreachable */
@@ -81,7 +82,7 @@ seq_t a(idx_t n)
     uint64_t n_minus_two = n - 2;
     bool pair_possible = (n_minus_two <= MAX_N) ?
                           is_prime[(size_t)n_minus_two] :
-                          is_prime_num(n_minus_two);
+                          is_prime_u64(n_minus_two);
     if (pair_possible) return (seq_t)2;
 
     /* 4) otherwise */

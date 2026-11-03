@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 55, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* array of computed a(n) values   */
 static size_t cache_len = 0;         /* number of values stored         */
@@ -66,7 +68,7 @@ seq_t a(idx_t n) {
             /* append the new partial sum to the cache */
             if (cache_len + 1 > cache_cap) {
                 size_t new_cap = cache_cap == 0 ? 16 : cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) abort();  /* allocation failure */
                 cache = tmp;
                 cache_cap = new_cap;

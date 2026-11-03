@@ -11,9 +11,10 @@
  *            composition in graded reverse‑lexicographic (standard) order.
  *            The value of a(n) is computed by enumerating all compositions in
  *            that order and counting those that admit at leas...
- * Range:     u8 n <= 153, u16 n <= 9666, u32 n <= 10000, u64 n <= 10000,
- *            u128 n <= 10000, big any n
- * Helpers:   has_multiple
+ * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
+ *            big any n
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,32 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <limits.h>
-#include "../utils/has_multiple.h"
+
+/* Number of integer values t that satisfy the constraints:
+   a_i = (-1)^{i-1} t + s_i ,   0 <= a_i .
+   This returns true if there are at least two such values. */
+static bool has_multiple(const int *c, int len)
+{
+    int64_t s[65];
+    s[0] = 0;
+    for (int i = 0; i < len; ++i) {
+        s[i + 1] = (int64_t)c[i] - s[i];
+    }
+
+    int64_t L = 0;                  /* lower bound for t               */
+    int64_t U = INT64_MAX;          /* upper bound for t               */
+    for (int i = 0; i <= len; ++i) {
+        if ((i & 1) == 0) {         /* even index → coefficient +1   */
+            int64_t val = -s[i];
+            if (val > L) L = val;
+        } else {                    /* odd index  → coefficient -1   */
+            int64_t val = s[i];
+            if (val < U) U = val;
+        }
+    }
+    if (U < L) return false;
+    return (U - L + 1) > 1;
+}
 
 /* ---------- helpers ---------- */
 

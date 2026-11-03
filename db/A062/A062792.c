@@ -7,7 +7,8 @@
  * Formula:   a(n) = Σ_{d|n} μ(d)·primorial(n/d) (OEIS A062792)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 19,
  *            big any n
- * Helpers:   approximate_prime_limit
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,18 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/approximate_prime_limit.h"
+#include "../utils/mem.h"
+
+/* ------------------------------------------------------------------ */
+static size_t approximate_prime_limit(size_t n)
+{
+    if (n < 6)
+        return 15;                     /* 1..5th prime < 15 */
+    double dn     = (double)n;
+    double logn   = log(dn);
+    double loglog = log(logn);
+    return (size_t)(dn * (logn + loglog) + 3.0);   /* safety margin */
+}
 
 /* ------------------------------------------------------------------ */
 /* Global state:  a table of the first primes and a cache of primorials */
@@ -88,12 +100,12 @@ static void ensure_primorial_up_to(size_t n)
     if (primorial_cap > n) return;
 
     if (primorial_cache == NULL) {
-        primorial_cache = (seq_t *)realloc(primorial_cache, (n + 1) * sizeof(seq_t));
+        primorial_cache = mem_resize(seq_t, primorial_cache, (n + 1));
         if (!primorial_cache) exit(EXIT_FAILURE);
         primorial_cache[0] = (seq_t)1;
         primorial_cap = 1;
     } else {
-        primorial_cache = (seq_t *)realloc(primorial_cache, (n + 1) * sizeof(seq_t));
+        primorial_cache = mem_resize(seq_t, primorial_cache, (n + 1));
         if (!primorial_cache) exit(EXIT_FAILURE);
     }
 

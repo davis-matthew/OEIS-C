@@ -9,13 +9,15 @@
  *            q^n = 1/(1 - Sum a(n) q^(2^n)))
  * Range:     u8 n <= 9, u16 n <= 18, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;
@@ -25,10 +27,10 @@ seq_t a(idx_t n) {
     if (n >= cap) {
         idx_t newcap = cap ? cap : 1024;
         while (newcap <= n) newcap *= 2;
-        seq_t *nc = (seq_t *)calloc((size_t)newcap, sizeof(seq_t));
+        seq_t *nc = mem_new(seq_t, (size_t)newcap);
         for (idx_t i = 0; i < newcap; i++) nc[i] = 0;
         for (idx_t i = 0; i < done; i++) nc[i] = cache[i];
-        if (cache) free(cache);
+        if (cache) mem_free(cache);
         cache = nc;
         cap = newcap;
     }

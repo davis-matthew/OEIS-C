@@ -12,6 +12,7 @@
  *            Initial values: a(2)=1, a(3)=5, a(4)=1...
  * Range:     u8 n <= 6, u16 n <= 7, u32 n <= 12, u64 n <= 27, u128 n <= 27,
  *            big any n
+ * Validated: partial, pass, 26 terms through n = 27 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

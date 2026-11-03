@@ -8,14 +8,32 @@
  * Formula:   not stated
  * Range:     u8 n <= 183, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   has_equal_7_9
+ * Validated: standard, pass, 84 terms through n = 919 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Numbers whose base-12 representation has the same number of 7's and 9's. */
 #include <stdbool.h>
-#include "../utils/has_equal_7_9.h"
+
+/* Returns true if the base‑12 digits of x contain an equal number of 7’s and 9’s. */
+static inline bool has_equal_7_9(seq_t x)
+{
+    int c7 = 0;
+    int c9 = 0;
+    seq_t t = x;
+    while (t)
+    {
+        seq_t d = t % 12;
+        if (d == 7)
+            ++c7;
+        else if (d == 9)
+            ++c9;
+        t /= 12;
+    }
+    return c7 == c9;
+}
 
 /* a(n) = the n-th non‑negative integer whose base‑12 representation has equal
  * numbers of 7’s and 9’s.  a(1) = 0. */

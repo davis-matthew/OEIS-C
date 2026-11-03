@@ -7,11 +7,13 @@
  * Formula:   a(n) = lcm(1,2,...,2n) / (n * binomial(2n,n)) (OEIS A068553)
  * Range:     u8 n <= 14, u16 n <= 21, u32 n <= 36, u64 n <= 75, u128 n <= 141,
  *            big any n
+ * Validated: standard, pass, 52 terms through n = 3737 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
 

@@ -8,12 +8,14 @@
  *            a(0)=1
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* exponentiation by squaring for big integers (works for built‑in and arbitrary‑precision types) */
 static seq_t pow_uint(seq_t base, idx_t exp)
@@ -34,7 +36,7 @@ static void ensure_cap(seq_t **arr, size_t *cap, size_t needed)
     if (needed <= *cap) return;
     size_t newcap = (*cap > 0) ? *cap : 1;
     while (newcap < needed) newcap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(*arr, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *arr, newcap);
     if (!tmp) abort();
     for (size_t i = *cap; i < newcap; ++i) tmp[i] = 0;
     *arr = tmp;

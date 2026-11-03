@@ -7,16 +7,35 @@
  * Formula:   a(n) = Sum_{d|n} d^(n + 1 - d - n/d)
  * Range:     u8 n <= 9, u16 n <= 13, u32 n <= 20, u64 n <= 32, u128 n <= 50,
  *            big any n
- * Helpers:   big_pow, build_divisors, factor_u64
+ * Validated: standard, pass, 48 terms through n = 557 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/build_divisors.h"
+#include "../utils/ipow.h"
+
+/* Recursive helper to generate all divisors of n from its prime factorisation */
+static void build_divisors(const uint64_t *pr, const uint64_t *ex,
+                           size_t cnt, int pos, uint64_t cur,
+                           uint64_t *divs, size_t *dcnt)
+{
+    if (pos == (int)cnt) {
+        divs[(*dcnt)++] = cur;
+        return;
+    }
+    uint64_t p = pr[pos];
+    uint64_t val = 1;
+    for (int i = 0; i <= (int)ex[pos]; ++i) {
+        build_divisors(pr, ex, cnt, pos + 1, cur * val, divs, dcnt);
+        val *= p;
+    }
+}
 
 seq_t a(idx_t n)
 {
@@ -35,7 +54,7 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < dcnt; ++i) {
         uint64_t d = divs[i];
         idx_t e = n + 1 - d - (n / d);          /* exponent is non‑negative */
-        seq_t term = big_pow((seq_t)d, (seq_t)e);
+        seq_t term = ipow((seq_t)d, (seq_t)e);
         sum += term;
     }
     return sum;

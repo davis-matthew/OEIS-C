@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 308, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 116 terms through n = 9976 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache   = NULL;
@@ -29,7 +31,7 @@ seq_t a(idx_t n) {
 
     /* Allocate on first call (array[0] unused) */
     if (cache == NULL) {
-        cache = (seq_t*)malloc(sizeof(seq_t)); /* size 1 */
+        cache = mem_new(seq_t, 1); /* size 1 */
         cache[0] = 0;
         cache_size = 1;
     }
@@ -51,8 +53,8 @@ seq_t a(idx_t n) {
 
         /* ---- dynamic programming for coin change ---- */
         size_t sz = (size_t)(maxN + 1);
-        seq_t *cur   = (seq_t*)calloc(sz, sizeof(seq_t));
-        seq_t *next  = (seq_t*)calloc(sz, sizeof(seq_t));
+        seq_t *cur   = mem_new(seq_t, sz);
+        seq_t *next  = mem_new(seq_t, sz);
         cur[0] = 1;                     /* one way to make 0 */
 
         for (idx_t wi = 0; wi < weight_cnt; ++wi) {
@@ -70,14 +72,14 @@ seq_t a(idx_t n) {
         }
 
         /* ---- store results in cache ---- */
-        cache = (seq_t*)realloc(cache, (size_t)(maxN + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (size_t)(maxN + 1));
         for (idx_t i = cache_size; i <= maxN; ++i) {
             cache[i] = cur[i];
         }
         cache_size = maxN + 1;
 
-        free(cur);
-        free(next);
+        mem_free(cur);
+        mem_free(next);
     }
 
     return cache[n];

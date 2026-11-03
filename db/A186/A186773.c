@@ -8,14 +8,15 @@
  *            counted from n = 1
  * Range:     u8 n <= 48, u16 n <= 9032, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_sum, is_prime_small
+ * Validated: standard, pass, 72 terms through n = 9554 (2026-11-01)
+ * Helpers:   digit_sum, is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/digit_sum.h"       /* seq_t digit_sum(seq_t v); */
-#include "../utils/is_prime_small.h"  /* bool is_prime_small(seq_t n); */
+#include "../utils/digit_sum.h"
+#include "../utils/is_prime_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +30,7 @@ seq_t a(idx_t n)
         candidate += (seq_t)2;              /* next odd integer */
 
         /* Check if its digit sum is prime. */
-        if (is_prime_small(digit_sum(candidate))) {
+        if (is_prime_seq(digit_sum(candidate))) {
             ++found;                        /* register as the next term */
         }
     }

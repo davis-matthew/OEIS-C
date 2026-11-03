@@ -12,13 +12,15 @@
  *            + 2 * (T(n-1,0))^2, * T(n,k) = 2 * Σ_{i=0..k}...
  * Range:     i8 n <= 7, i16 n <= 14, i32 n <= 26, i64 n <= 31, i128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static state for memoization */
 static seq_t **rows      = NULL;  /* pointers to each row array */
@@ -34,12 +36,12 @@ static void add_row(idx_t r)
 
     if (r == 0) { /* Row 0: [1] */
         new_len = 1;
-        new_row = (seq_t*)malloc(sizeof(seq_t));
+        new_row = mem_new(seq_t, 1);
         new_row[0] = (seq_t)1;
     }
     else if (r == 1) { /* Row 1: [-1, 2] */
         new_len = 2;
-        new_row = (seq_t*)malloc(sizeof(seq_t) * new_len);
+        new_row = mem_new(seq_t, new_len);
         new_row[0] = (seq_t)-1;
         new_row[1] = (seq_t)2;
     }
@@ -48,7 +50,7 @@ static void add_row(idx_t r)
         seq_t *prev = rows[r - 1];
         idx_t prev_len = row_len[r - 1];
         new_len = 2 * prev_len - 1;              /* length for this row */
-        new_row = (seq_t*)calloc((size_t)new_len, sizeof(seq_t));
+        new_row = mem_new(seq_t, (size_t)new_len);
 
         for (idx_t k = 0; k < new_len; ++k) {
             idx_t i_start = (k >= prev_len) ? k - (prev_len - 1) : (idx_t)0;

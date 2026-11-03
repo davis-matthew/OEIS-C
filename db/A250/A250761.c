@@ -9,6 +9,7 @@
  * Formula:   a(n) = 2607*n^2 + 4791*n + 2187 (Sequence A250761)
  * Range:     u8 none, u16 n <= 4, u32 n <= 209, u64 n <= 209, u128 n <= 209,
  *            big any n
+ * Validated: standard, pass, 45 terms through n = 208 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

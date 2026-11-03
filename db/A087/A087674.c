@@ -8,12 +8,14 @@
  * Formula:   a(n) = Sum_{k=0..n} Stirling2(n,k) * k! * (-3)^(n-k)
  * Range:     i8 n <= 5, i16 n <= 8, i32 n <= 12, i64 n <= 21, i128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static caches for the sequence values, the auxiliary B values,
@@ -25,11 +27,11 @@ seq_t a(idx_t n) {
 
     /* initialise for n = 0 */
     if (cache_len == 0) {
-        a_cache = (seq_t*)malloc(sizeof(seq_t));
-        B_cache = (seq_t*)malloc(sizeof(seq_t));
+        a_cache = mem_new(seq_t, 1);
+        B_cache = mem_new(seq_t, 1);
         a_cache[0] = 1;        /* a(0) = 1 */
         B_cache[0] = 0;        /* B(0) = 0 */
-        t = (seq_t*)malloc(sizeof(seq_t));
+        t = mem_new(seq_t, 1);
         t[0] = 1;              /* T(0,0) = 1 */
         cache_len = 1;
     }
@@ -38,7 +40,7 @@ seq_t a(idx_t n) {
     if (n >= cache_len) {
         for (idx_t m = cache_len; m <= n; ++m) {
             /* increase the size of the current row to m+1 */
-            t = (seq_t*)realloc(t, (size_t)(m + 1) * sizeof(seq_t));
+            t = mem_resize(seq_t, t, (size_t)(m + 1));
             t[m] = 0;  /* new element, initially zero */
 
             /* compute T(m,k) from T(m-1,k)  (in place, descending order) */
@@ -60,8 +62,8 @@ seq_t a(idx_t n) {
             }
 
             /* store the computed terms */
-            a_cache = (seq_t*)realloc(a_cache, (size_t)(m + 1) * sizeof(seq_t));
-            B_cache = (seq_t*)realloc(B_cache, (size_t)(m + 1) * sizeof(seq_t));
+            a_cache = mem_resize(seq_t, a_cache, (size_t)(m + 1));
+            B_cache = mem_resize(seq_t, B_cache, (size_t)(m + 1));
             a_cache[m] = a_m;
             B_cache[m] = B_m;
         }

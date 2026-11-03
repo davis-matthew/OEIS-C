@@ -9,7 +9,8 @@
  *            (1+q)(1+q^2)…(1+q^{m-1})(1+q^m)^2 ) (GF in OEIS)
  * Range:     i8 n <= 50, i16 n <= 50, i32 n <= 50, i64 n <= 50, i128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    progressively building the partial reciprocal polynomials.  It is
    correct for any seq_t (signed integer or arbitrary‑precision). */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,11 +27,11 @@ seq_t a(idx_t n)
     if (N == 0) return 1;                       /* a(0) */
 
     /* storage for the answer and the partial reciprocal polynomials */
-    seq_t *ans = (seq_t *)calloc(N + 1, sizeof(seq_t));
-    seq_t *p   = (seq_t *)calloc(N + 1, sizeof(seq_t));
-    seq_t *tmp = (seq_t *)calloc(N + 1, sizeof(seq_t));
+    seq_t *ans = mem_new(seq_t, N + 1);
+    seq_t *p   = mem_new(seq_t, N + 1);
+    seq_t *tmp = mem_new(seq_t, N + 1);
     if (!ans || !p || !tmp) {                 /* unlikely */
-        free(ans); free(p); free(tmp);
+        mem_free(ans); mem_free(p); mem_free(tmp);
         return 0;
     }
 
@@ -89,6 +91,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = ans[N];
-    free(ans); free(p); free(tmp);
+    mem_free(ans); mem_free(p); mem_free(tmp);
     return result;
 }

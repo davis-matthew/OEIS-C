@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 3, u128 n <= 4,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 5 terms through n = 5 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
  * Indexed so that a(1) is the first element (OEIS offset 1). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Dynamic cache for already computed terms.  cache[0] == a(1). */
 static seq_t *cache      = NULL;  /* pointer to array of terms */
@@ -32,7 +34,7 @@ static void ensure_cache_capacity(size_t min_cap)
     size_t new_cap = cache_cap ? cache_cap << 1U : 16;
     while (new_cap < min_cap)
         new_cap <<= 1U;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     cache = new_cache;
     cache_cap = new_cap;
 }

@@ -9,13 +9,15 @@
  *            a(1)=5, a(2)=25, a(3)=106, a(4)=419
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 32, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 178 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Memoisation cache */
 static seq_t *seq_cache = NULL;
@@ -32,7 +34,7 @@ static void ensure_cap(idx_t n)
     while (new_cap < need) new_cap <<= 1;
 
     /* Allocate new storage */
-    seq_t *new_cache = (seq_t*)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache) abort();   /* allocation failed */
 
     /* Copy old data, keep values up to cache_len */
@@ -40,7 +42,7 @@ static void ensure_cap(idx_t n)
         for (size_t i = 0; i < cache_len; ++i) {
             new_cache[i] = seq_cache[i];
         }
-        free(seq_cache);       /* discard old block */
+        mem_free(seq_cache);       /* discard old block */
     }
 
     seq_cache = new_cache;

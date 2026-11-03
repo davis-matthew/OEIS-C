@@ -9,7 +9,8 @@
  *            a(0) = 0, a(1) = 0, a(2) = -1, a(3) = 2
  * Range:     i8 n <= 10, i16 n <= 21, i32 n <= 44, i64 n <= 90, i128 n <= 182,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 1836 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
         if (cache == NULL)
         {
             /* First allocation. */
-            cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+            cache = mem_new(seq_t, new_size);
             assert(cache != NULL);
             /* Set the initial four values. */
             cache[0] = 0;
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
         else
         {
             /* Extend the existing cache. */
-            seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+            seq_t *new_cache = mem_resize(seq_t, cache, new_size);
             assert(new_cache != NULL);
             cache = new_cache;
             /* Compute the newly‑needed terms. */

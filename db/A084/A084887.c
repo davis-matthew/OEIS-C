@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 73, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   arithmetic_derivative_uint64, umul_gcd
+ * Validated: partial, pass, 73 terms through n = 73 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,36 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/arithmetic_derivative_uint64.h"
-#include "../utils/umul_gcd.h"
+#include "../utils/gcd_u64.h"
+
+/* Arithmetic derivative of an integer n (n≥0).  The result fits in 64 bits
+   for all n used in this problem (n≤10⁴ in typical tests). */
+static inline unsigned long long arithmetic_derivative_uint64(idx_t n)
+{
+    if (n <= 1)
+        return 0;
+
+    unsigned long long sum = 0;
+    unsigned long long m   = n;
+    unsigned long long p   = 2;
+
+    while (p * p <= m) {
+        if (m % p == 0) {
+            unsigned long long exp = 0;
+            while (m % p == 0) {
+                m /= p;
+                ++exp;
+            }
+            /* contribution: n * exp / p   (division exact) */
+            sum += ((unsigned long long)n) * exp / p;
+        }
+        ++p;
+    }
+    if (m > 1)          /* remaining prime factor */
+        sum += ((unsigned long long)n) / m;
+
+    return sum;
+}
 
 /* Main sequence function. */
 seq_t a(idx_t n)
@@ -51,7 +80,7 @@ seq_t a(idx_t n)
     unsigned long long m_sq = (unsigned long long)m * (unsigned long long)m;
 
     /* 5. Reduce fraction: denom = m² / gcd(abs_num, m²). */
-    unsigned long long g = umul_gcd(abs_num, m_sq);
+    unsigned long long g = gcd_u64(abs_num, m_sq);
     unsigned long long denom = m_sq / g;
 
     return (seq_t)denom;

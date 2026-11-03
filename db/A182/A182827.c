@@ -7,6 +7,7 @@
  * Formula:   a(n) = -(2*n-1)*a(n-1)-4*(n-1)^2*a(n-2), * a(0)=1, a(1)=-1
  * Range:     i8 n <= 4, i16 n <= 6, i32 n <= 10, i64 n <= 17, i128 n <= 19,
  *            big any n
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

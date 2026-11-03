@@ -11,13 +11,15 @@
  *            φ(2)=1
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   phi
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* The helper `phi` is provided in ../utils/phi.h */
-#include "../utils/phi.h"
+#include <stdint.h>
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
 
     for (;; ++k)
     {
-        blockSize = (idx_t)phi(k);        /* φ(k) fits in idx_t (φ(k) ≤ k) */
+        blockSize = (idx_t)totient(k);        /* φ(k) fits in idx_t (φ(k) ≤ k) */
         if (cum + blockSize >= n)
             break;
         cum += blockSize;

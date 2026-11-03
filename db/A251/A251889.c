@@ -12,6 +12,7 @@
  *            memoises computed terms and grows the buffer as needed
  * Range:     u8 none, u16 n <= 14, u32 n <= 38, u64 n <= 86, u128 n <= 182,
  *            big any n
+ * Validated: standard, pass, 47 terms through n = 210 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

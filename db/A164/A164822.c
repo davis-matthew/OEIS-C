@@ -11,6 +11,7 @@
  *            each modulus j ≥ 2, list k = 1…j−1
  * Range:     u8 n <= 4950, u16 n <= 4950, u32 n <= 4950, u64 n <= 4950,
  *            u128 n <= 4950, big any n
+ * Validated: standard, pass, 120 terms through n = 4915 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

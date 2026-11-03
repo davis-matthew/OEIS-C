@@ -7,14 +7,35 @@
  * Formula:   a(n) = n! - floor((n!)^(1/3))^3 * (OEIS A226973)
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 16, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   floor_cube_root, seq_pow
+ * Validated: standard, pass, 43 terms through n = 425 (2026-11-01)
+ * Helpers:   ipow_i32, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/floor_cube_root.h"
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/ipow_idx.h"
+
+/* Floor cube root by binary search */
+static inline seq_t floor_cube_root(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    /* raise hi until hi^3 > x */
+    while (ipow_i32(hi, 3) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid3 = ipow_i32(mid, 3);
+        if (mid3 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Compute factorial using 128‑bit arithmetic when possible,
    falling back to seq_t multiplication for larger n.  The
@@ -54,6 +75,6 @@ seq_t a(idx_t n)
         fact *= (seq_t)i;
 
     seq_t m   = floor_cube_root(fact);
-    seq_t cube = seq_pow(m, 3);
+    seq_t cube = ipow_idx(m, 3);
     return fact - cube;
 }

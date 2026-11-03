@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 58, i16 n <= 196, i32 n <= 644, i64 n <= 2310,
  *            i128 n <= 5150, big any n
- * Helpers:   flat_index_to_row_col
+ * Validated: standard, pass, 82 terms through n = 5076 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,20 @@
    O(r) where r ≈ sqrt(2n). */
 
 #include <stdlib.h>
-#include "../utils/flat_index_to_row_col.h"
+#include "../utils/mem.h"
+
+/* Find the row (r) and column (c) in the triangle that contain
+   the flat index n.  The result satisfies
+       n = r*(r+1)/2 + c      with 0 ≤ c ≤ r. */
+static void flat_index_to_row_col(idx_t n, idx_t *r, idx_t *c)
+{
+    idx_t row = 0;
+    /* Increment until the next row would exceed n. */
+    while ((row + 1) * (row + 2) / 2 <= n)
+        ++row;
+    *r = row;
+    *c = n - row * (row + 1) / 2;
+}
 
 /* The types seq_t and idx_t are provided elsewhere in the build. */
 extern seq_t a(idx_t n);
@@ -56,7 +70,7 @@ static void ensure_rows(idx_t required_row)
             continue;          /* already computed */
 
         /* Allocate space for the current row. */
-        seq_t *row_arr = (seq_t *)malloc((size_t)(r + 1) * sizeof(seq_t));
+        seq_t *row_arr = mem_new(seq_t, (size_t)(r + 1));
         if (row_arr == NULL)
             return;           /* silently bail; caller will fail */
 

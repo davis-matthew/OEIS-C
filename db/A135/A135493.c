@@ -8,12 +8,14 @@
  *            a(1)=2, a(2)=4, a(3)=8, a(4)=16, a(5)=32
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 65, u128 n <= 131,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 959 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute the n-th term of A135493 (connected to run‑of‑six coin tosses). */
 seq_t a(idx_t n)
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
 
     if (need > cap) {
         /* Reallocate cache.  For C++ we cast the void* returned by realloc. */
-        seq_t *tmp = (seq_t *)realloc(cache, need * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, need);
         if (!tmp) {
             /* Allocation failure: abort (build environment treats it as fatal). */
             abort();

@@ -7,11 +7,13 @@
  * Formula:   a(0) = a(1) = 1; a(n) = 3 * Σ_{k=0}^{n-2} a(k) * a(n-k-2)
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 19, u64 n <= 28, u128 n <= 28,
  *            big any n
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <string.h>
 #include <stddef.h>   /* size_t, NULL */
 
 /* Use the supplied integer types.  The build defines seq_t and idx_t. */

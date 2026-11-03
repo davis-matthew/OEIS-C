@@ -12,13 +12,16 @@
  *            T(r,c) where r and c are determined by the positi...
  * Range:     u8 n <= 15, u16 n <= 28, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   pow2
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 /* Maximum row index that has been computed */
 static idx_t max_row = 0;
@@ -41,7 +44,7 @@ static void compute_up_to_row(idx_t target)
 
     for (idx_t i = max_row + 1; i <= target; ++i) {
         size_t len = (size_t)(i + 1);
-        tri[i] = (seq_t *)malloc(len * sizeof(seq_t));
+        tri[i] = mem_new(seq_t, len);
         tri[i][0] = 1;          /* T(i,0) = 1 */
         tri[i][i] = 1;          /* T(i,i) = 1 */
 

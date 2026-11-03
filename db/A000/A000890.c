@@ -13,7 +13,8 @@
  *            o...
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 4, u128 n <= 5,
  *            big any n
- * Helpers:   a890_from_u128, a890_gcd, a890_is_big
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,25 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/a890_from_u128.h"
-#include "../utils/a890_gcd.h"
-#include "../utils/a890_is_big.h"
+#include "../utils/gcd_u64.h"
+
+static seq_t a890_from_u128(unsigned __int128 r)
+{
+    uint64_t lo = (uint64_t)r, hi = (uint64_t)(r >> 64);
+    seq_t res = (seq_t)hi;
+    int i;
+    if (hi) for (i = 0; i < 4; i++) res *= (seq_t)65536U;
+    res += (seq_t)lo;
+    return res;
+}
+
+static int a890_is_big(void)
+{
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 130; i++) x *= 2;
+    return x != 0;
+}
 
 /* cycle types of AGL(3,2) on 8 points: (lengths, multiplicities), class sizes */
 static const int A890_CNT[8] = {1, 49, 42, 252, 224, 224, 168, 384};
@@ -55,7 +72,7 @@ static int64_t a890_fixg(uint64_t k)
 {
     int e = 0, i;
     for (i = 0; i < a890_K; i++) {
-        uint64_t m = a890_m[i], g = a890_gcd(m, k);
+        uint64_t m = a890_m[i], g = gcd_u64(m, k);
         if (a890_pa[i]) e += (int)(a890_pa[i] * g);
         if (a890_pb[i]) {
             if ((k / g) % 2 == 0 && (m / g) % 2 == 1) e += (int)(a890_pb[i] * g);
@@ -75,8 +92,8 @@ static void a890_leaf(void)
     bool ok[8];
 
     for (i = 0; i < a890_K; i++) {
-        if (a890_pa[i]) L = L / a890_gcd(L, a890_m[i]) * a890_m[i];
-        if (a890_pb[i]) L = L / a890_gcd(L, 2 * a890_m[i]) * (2 * a890_m[i]);
+        if (a890_pa[i]) L = L / gcd_u64(L, a890_m[i]) * a890_m[i];
+        if (a890_pb[i]) L = L / gcd_u64(L, 2 * a890_m[i]) * (2 * a890_m[i]);
     }
     dv = (uint64_t *)malloc(sizeof(uint64_t) * (size_t)cap);
     {

@@ -7,13 +7,15 @@
  * Formula:   a(0)=1, a(n)=∑{k≥0 | 3^k≤n} a(n-3^k) for n>0
  * Range:     u8 n <= 15, u16 n <= 29, u32 n <= 57, u64 n <= 112,
  *            u128 n <= 223, big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 4699 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Number of compositions of n into powers of 3 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +24,7 @@ seq_t a(idx_t n)
 
     /* initialise the table on first call */
     if (dp == NULL) {
-        dp   = (seq_t *)malloc(sizeof(seq_t));   /* a[0] will be stored */
+        dp   = mem_new(seq_t, 1);   /* a[0] will be stored */
         dp[0] = (seq_t)1;                       /* a(0)=1 */
         size  = 1;
     }
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* grow the table if necessary */
     if (n >= size) {
         idx_t new_size = n + 1;
-        seq_t *tmp = (seq_t *)realloc(dp, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, new_size);
         if (tmp == NULL) { /* allocation failed – abort */
             return (seq_t)0;
         }

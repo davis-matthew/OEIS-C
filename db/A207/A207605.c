@@ -11,13 +11,16 @@
  *            the triangle flattened row by row (offset 1)
  * Range:     u8 n <= 29, u16 n <= 94, u32 n <= 330, u64 n <= 1188,
  *            u128 n <= 4581, big any n
- * Helpers:   pow2
+ * Validated: standard, pass, 83 terms through n = 5064 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 /* ----------  Cached triangle rows ------------------------------------- */
 static seq_t **triangle = NULL;   /* triangle[i] points to row i+1  */
@@ -44,7 +47,7 @@ static void build_row(idx_t n)
 {
     ensure_capacity(max_rows + 1);
     size_t len = (n == 1 || n == 2) ? 1 : (size_t)(n - 1);
-    seq_t *row = (seq_t*)malloc(len * sizeof(seq_t));
+    seq_t *row = mem_new(seq_t, len);
 
     if (n == 1) {
         row[0] = 1;

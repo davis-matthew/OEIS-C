@@ -8,6 +8,7 @@
  * Formula:   a(n) = 2*binomial(n+10,10) - binomial(n+9,9)
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 33, u64 n <= 351, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 46 terms through n = 895 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

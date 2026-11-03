@@ -7,6 +7,7 @@
  * Formula:   a(n) = 2*binomial(9*n+2,n)/(9*n+2)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 16, u128 n <= 30,
  *            big any n
+ * Validated: standard, pass, 35 terms through n = 183 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,8 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 
 static idx_t exp_factorial(idx_t n, uint64_t p)

@@ -12,7 +12,8 @@
  *            = 1
  * Range:     u8 n <= 9000, u16 n <= 9000, u32 n <= 9000, u64 n <= 9000,
  *            u128 n <= 9000, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 136 terms through n = 8746 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
 /* The sequence is stored row‑wise: [i,j,k],[i',j',k'],… */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* Cached sequence values            */
 static size_t cache_cap = 0;   /* Allocated capacity (in seq_t)     */
@@ -39,7 +42,7 @@ static void ensure_capacity(size_t need)
     size_t new_cap = cache_cap ? cache_cap * 2 : 64;
     while (new_cap < need)
         new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (tmp == NULL)
         abort();                     /* unrecoverable error          */
     cache = tmp;

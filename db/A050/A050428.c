@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   bitlen_seq_t
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   bit_length, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/bitlen_seq_t.h"
+#include "../utils/bit_length.h"
+#include "../utils/mem.h"
 
 static seq_t *cache_vals = NULL;   /* memoised terms */
 static idx_t cache_len   = 0;       /* number of stored terms */
@@ -37,8 +39,7 @@ static void ensure_cache_capacity(idx_t cap)
     if (cache_cap >= cap) return;
     idx_t new_cap = cache_cap ? cache_cap * 2 : 64;
     while (new_cap < cap) new_cap <<= 1;
-    seq_t *p = (seq_t *)realloc(cache_vals,
-                                sizeof(seq_t) * (size_t)new_cap);
+    seq_t *p = mem_resize(seq_t, cache_vals, (size_t)new_cap);
     if (!p) abort();          /* allocation failure – terminate */
     cache_vals = p;
     cache_cap = new_cap;
@@ -51,7 +52,7 @@ static int minimal_deletions_starting_with_1(seq_t x)
 {
     if (x == 0) return 1000;
 
-    idx_t len = bitlen_seq_t(x);
+    idx_t len = bit_length(x);
     if (len < 1) return 1000;        /* no bits */
 
     /* store bits MSB -> LSB */

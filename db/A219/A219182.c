@@ -13,7 +13,8 @@
  *            answer for n...
  * Range:     u8 n <= 142, u16 n <= 377, u32 n <= 1185, u64 n <= 3500,
  *            u128 n <= 3500, big any n
- * Helpers:   build_primes_upto
+ * Validated: standard, pass, 94 terms through n = 3280 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Special case n = 0 */
@@ -50,7 +52,7 @@ seq_t a(idx_t n) {
        whose sum is s.  Rows are indexed by k from 0..max_k_needed. */
     size_t cap_k = max_k_needed + 1;   /* include k = 0 */
     size_t cap_n = n + 1;
-    seq_t *dp = (seq_t *)malloc(cap_k * cap_n * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, cap_k * cap_n);
     if (!dp) {
         free(primes);
         return (seq_t)0;
@@ -80,7 +82,7 @@ seq_t a(idx_t n) {
             best = val;
     }
 
-    free(dp);
+    mem_free(dp);
     free(primes);
     return best;
 }

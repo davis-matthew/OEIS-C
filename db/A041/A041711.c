@@ -11,12 +11,14 @@
  *            repeating
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 22, u64 n <= 44, u128 n <= 88,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc, abort */
+#include "../utils/mem.h"
 
 static const idx_t period[10] = {2,1,2,1,5,1,2,1,2,38};
 
@@ -29,7 +31,7 @@ static void grow_cache(idx_t need)
     if (need < cap) return;
     idx_t new_cap = cap ? cap * 2 : 4;
     while (new_cap <= need) new_cap *= 2;
-    seq_t *p = (seq_t *)realloc(den, new_cap * sizeof(seq_t));
+    seq_t *p = mem_resize(seq_t, den, new_cap);
     if (!p) abort();                /* out‑of‑memory */
     den = p;
     cap = new_cap;

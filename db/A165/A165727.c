@@ -11,11 +11,13 @@
  *            1/max(k,n)^2 otherwise
  * Range:     u8 n <= 47, u16 n <= 573, u32 n <= 1034, u64 n <= 1034,
  *            u128 n <= 1034, big any n
+ * Validated: standard, pass, 94 terms through n = 999 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 /* Integer square root for 64‑bit values, floor(sqrt(x)). */

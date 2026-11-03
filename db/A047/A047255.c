@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, nice, easy
  * Formula:   a(n) = 6*⌊(n-1)/4⌋ + {1,2,3,5}[ (n-1) mod 4 ]
- * Range:     u8 n <= 171, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
- *            u128 n <= 10000, big any n
+ * Range:     u8 n <= 171, u16 n <= 10012, u32 n <= 10012, u64 n <= 10012,
+ *            u128 n <= 10012, big any n
+ * Validated: standard, pass, 86 terms through n = 10000 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

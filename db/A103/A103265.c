@@ -9,13 +9,15 @@
  * Formula:   a(n) = coefficient of x^n in ∏_{k≥1} (1+x^{k^2})/(1-x^{k^2})
  * Range:     u8 n <= 35, u16 n <= 129, u32 n <= 577, u64 n <= 3026,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 9615 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,9 +28,9 @@ seq_t a(idx_t n)
     size_t N = (size_t)n;
 
     /* allocate arrays */
-    seq_t *dp      = (seq_t *)calloc(N + 1, sizeof(seq_t));
-    seq_t *dp_next = (seq_t *)calloc(N + 1, sizeof(seq_t));
-    seq_t *sum     = (seq_t *)calloc(N + 1, sizeof(seq_t));
+    seq_t *dp      = mem_new(seq_t, N + 1);
+    seq_t *dp_next = mem_new(seq_t, N + 1);
+    seq_t *sum     = mem_new(seq_t, N + 1);
     if (!dp || !dp_next || !sum) {
         /* allocation failure – return 0 as a fallback */
         return 0;
@@ -64,9 +66,9 @@ seq_t a(idx_t n)
 
     seq_t result = dp[N];
 
-    free(sum);
-    free(dp_next);
-    free(dp);
+    mem_free(sum);
+    mem_free(dp_next);
+    mem_free(dp);
 
     return result;
 }

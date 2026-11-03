@@ -8,15 +8,62 @@
  *            a(n)=a(n-1)+n*3^(n-1) (n≥2)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 18, u64 n <= 37, u128 n <= 77,
  *            big any n
- * Helpers:   ensure_capacity, mul_small
+ * Validated: standard, pass, 43 terms through n = 575 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/mul_small.h"
-#include "../utils/ensure_capacity.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#endif
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
+
+/* Grow a dynamic array when needed.  The pointer is passed as (void **). */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size) /* elem_size: sizeof(T) */
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    T *tmp = mem_resize(T, *ptr, new_cap);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#else
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#endif
 
 seq_t a(idx_t n)
 {
@@ -31,10 +78,10 @@ seq_t a(idx_t n)
 
     /* Allocate and initialise cache on first call. */
     if (cache == NULL) {
-        ensure_capacity(2, &cache_cap, (void **)&cache, sizeof(seq_t));
+        ensure_capacity(2, &cache_cap, OEISC_VPP(&cache), sizeof(seq_t));
         if (cache_cap == 0) {   /* safety check */
             cache_cap = 2;
-            cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+            cache = mem_new(seq_t, cache_cap);
         }
         cache[1] = (seq_t)1;        /* a(1) = 1 */
         cache_len = 1;
@@ -47,10 +94,10 @@ seq_t a(idx_t n)
     }
 
     /* Expand cache to accommodate up to n. */
-    ensure_capacity(n + 1, &cache_cap, (void **)&cache, sizeof(seq_t));
+    ensure_capacity(n + 1, &cache_cap, OEISC_VPP(&cache), sizeof(seq_t));
     if (cache_cap < n + 1) {
         cache_cap = n + 1;
-        cache = (seq_t *)realloc(cache, sizeof(seq_t) * cache_cap);
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 
     /* Compute missing terms up to n. */

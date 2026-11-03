@@ -8,13 +8,15 @@
  *            a(n-4*k-1) with a(0) = 1
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 19, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static cache for memoisation */
 static seq_t *a_cache = NULL;   /* array of a values */
@@ -26,7 +28,7 @@ ensure_a_cache(idx_t n)
 {
     if (a_cache_size <= n) {
         size_t new_size = n + 1;
-        seq_t *tmp = (seq_t *)realloc(a_cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_size);
         if (!tmp)
             abort();                     /* out of memory */
         /* zero‑initialise the new slots */

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 14, u64 n <= 23, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,13 +22,14 @@
  * For coefficients: l_k[n] = k*l_k[n-1] + 2*l_{k-1}[n-1] – (n==k?1:0),
  * with l_k[0] = 0 for k≥1 and l_0[0] = 1. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate two temporary arrays of size n+1 for coefficient tables. */
     size_t sz = (size_t)n + 1;                /* n is never huge, fits in size_t */
-    seq_t *prev = (seq_t*)malloc(sz * sizeof(seq_t));
-    seq_t *curr = (seq_t*)malloc(sz * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, sz);
+    seq_t *curr = mem_new(seq_t, sz);
     if (!prev || !curr) return 0;             /* out‑of‑memory – unlikely */
 
     /* L_0(t) = 1 → prev[0] = 1, prev[i>0] = 0. */
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
         curr = tmp;
     }
 
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
     return total;
 }

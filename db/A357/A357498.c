@@ -9,8 +9,9 @@
  *            1, * T(r,k) = (T(r,k-1)*(r-k+2) + (r-k+1) - (T(r,k-1)*(r-k+2) %
  *            (r-k+1))) / (r-k+1) * for 2 ≤ k ≤ r, where r is the smallest
  *            integer with r(r+1)/2 ≥ n and * c = n - r(r-1)/2
- * Range:     u8 n <= 377, u16 n <= 9546, u32 n <= 9546, u64 n <= 9546,
- *            u128 n <= 9546, big any n
+ * Range:     u8 n <= 377, u16 n <= 10011, u32 n <= 10011, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 94 terms through n = 9546 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

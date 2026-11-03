@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 102, u16 n <= 102, u32 n <= 102, u64 n <= 102,
  *            u128 n <= 102, big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 102 terms through n = 102 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/is_prime.h"
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +31,7 @@ seq_t a(idx_t n)
     uint64_t num   = 4;      /* first composite number */
 
     for (;; ++num) {
-        if (!is_prime(num)) {          /* found a composite */
+        if (!is_prime_u64(num)) {          /* found a composite */
             ++count;
             if (count == target) {     /* this is the n‑th composite */
                 uint64_t temp = num;

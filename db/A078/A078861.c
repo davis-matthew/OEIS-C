@@ -13,7 +13,8 @@
  *            a(2)=13, … (first few terms shown in OEIS)
  * Range:     u8 n <= 30, u16 n <= 30, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   cmp_uint, gcd_uint, isPrime
+ * Validated: full, pass, 30 terms through n = 30 (2026-11-02)
+ * Helpers:   gcd_u32, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,16 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/isPrime.h"   /* isPrime(idx_t n) */
-#include "../utils/cmp_uint.h"
-#include "../utils/gcd_uint.h"
+#include "../utils/gcd_u32.h"
+#include "../utils/is_prime.h"
+
+/* Comparator for qsort of unsigned ints. */
+static int cmp_uint(const void *a, const void *b)
+{
+    unsigned int ai = *(const unsigned int *)a;
+    unsigned int bi = *(const unsigned int *)b;
+    return (ai > bi) - (ai < bi);
+}
 
 /* Stored residues (in ascending order).  The sequence has at most 30 terms. */
 static unsigned int residues[30];
@@ -49,8 +57,8 @@ static void init_residues(void)
      * -------------------------------------------------------------------- */
     memset(allowed, 0, sizeof(allowed));
     for (unsigned int r = 1; r < 210U; ++r) {
-        if (gcd_uint(r, 210U) == 1U &&
-            gcd_uint((r + 6U) % 210U, 210U) == 1U) {
+        if (gcd_u32(r, 210U) == 1U &&
+            gcd_u32((r + 6U) % 210U, 210U) == 1U) {
             allowed[r] = true;
             allowed_res[allowed_cnt++] = r;
         }
@@ -95,8 +103,8 @@ static void init_residues(void)
         /* Incrementally test p = r + 210*k.  Stop when a pair is found. */
         for (unsigned long long k = 0; k < 2000000ULL; ++k) {
             unsigned long long p = (unsigned long long)210U * k + r;
-            if (!isPrime(p)) continue;
-            if (isPrime(p + 6ULL)) {
+            if (!is_prime(p)) continue;
+            if (is_prime(p + 6ULL)) {
                 residues[residues_cnt++] = r;
                 seen[r] = true;
                 break;

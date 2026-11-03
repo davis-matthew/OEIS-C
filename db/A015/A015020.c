@@ -8,12 +8,14 @@
  *            = ((-7)^n - 1) * a(n‑1) / (-8)
  * Range:     i8 n <= 2, i16 n <= 3, i32 n <= 5, i64 n <= 7, i128 n <= 9,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 29 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* q‑factorial numbers for q = -7 */
 seq_t a(idx_t n)
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (cache == NULL) {
         /* allocate space for a(0) */
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (cache == NULL)   /* allocation failure – unlikely but safe */
             return (seq_t)0;
         cache[0]  = (seq_t)1;   /* a(0) = 1 */
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
         return cache[n];
 
     /* extend cache up to n (both inclusive) */
-    seq_t *tmp = (seq_t *)realloc(cache, (size_t)(n + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, (size_t)(n + 1));
     if (tmp == NULL)   /* allocation failure – unlikely but safe */
         return (seq_t)0;
     cache = tmp;

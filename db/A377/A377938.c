@@ -9,6 +9,7 @@
  *            returns -1 if no such k exists (happens exactly for squares > 1)
  * Range:     i8 n <= 118, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 91 terms through n = 9014 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,7 +18,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/factor_u64.h"   /* factor_u64(uint64_t, uint64_t*, uint64_t*, size_t*) */
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
 
 /* Integer gcd for idx_t. */
 static inline idx_t gcd_idx(idx_t a, idx_t b)

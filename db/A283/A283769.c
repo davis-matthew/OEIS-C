@@ -12,7 +12,8 @@
  *            433494437)
  * Range:     u8 n <= 85, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 9622 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Convergent constants (< φ) – 32‑bit unsigned values. */
 static const unsigned long long NUM = 701408733ULL;   /* numerator   */
@@ -57,7 +59,7 @@ ensure_n(idx_t n)
             if (cache_size == cache_cap)
             {
                 size_t new_cap = cache_cap ? cache_cap * 2ULL : 16ULL;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp)   /* allocation failure – abort growth */
                 {
                     /* In this rare case we stop; the next call to a() may

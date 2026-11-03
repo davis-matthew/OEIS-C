@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 108, u32 n <= 931, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   sumConsecutiveSquares, sumSquares
+ * Validated: standard, pass, 72 terms through n = 932 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,23 @@
    all such sums in ascending order using a fixed‑size min‑heap. */
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/sumConsecutiveSquares.h"
-#include "../utils/sumSquares.h"
+#include "../utils/mem.h"
+
+/* ----- helper to compute 1^2 + 2^2 + … + n^2 --------------------------- */
+static inline seq_t sumSquares(idx_t n) {
+    seq_t N  = (seq_t)n;
+    seq_t N1 = N + 1;
+    seq_t N2 = (seq_t)(2 * n) + 1;
+    seq_t prod = N * N1;   /* N * (N+1) */
+    prod *= N2;            /* (N)(N+1)(2N+1) */
+    prod /= 6;             /* divide by 6 */
+    return prod;
+}
+
+/* ----- sum of squares from k to k+m-1 (m ≥ 2) -------------------------- */
+static inline seq_t sumConsecutiveSquares(idx_t k, idx_t m) {
+    return sumSquares(k + m - 1) - sumSquares(k - 1);
+}
 
 /* ----- heap node ----------------------------------------------------- */
 typedef struct {
@@ -65,7 +81,7 @@ seq_t a(idx_t n) {
     if (max_m < 4) max_m = 4;   /* ensure at least m = 2..3 are present */
 
     size_t heapSize = (size_t)(max_m - 1);   /* m runs from 2 to max_m inclusive */
-    Node *heap = (Node *)malloc(heapSize * sizeof(Node));
+    Node *heap = mem_new(Node, heapSize);
     if (!heap) return 0;   /* allocation failure */
 
     /* initialise heap nodes : one per m, with starting k = 1          */
@@ -88,7 +104,7 @@ seq_t a(idx_t n) {
             prev = cur.val;
             ++count;
             if (count == n) {
-                free(heap);
+                mem_free(heap);
                 return prev;
             }
         }
@@ -102,6 +118,6 @@ seq_t a(idx_t n) {
     }
 
     /* unreachable */
-    free(heap);
+    mem_free(heap);
     return 0;
 }

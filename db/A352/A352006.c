@@ -8,6 +8,7 @@
  * Formula:   a(n) = Sum_{k=0..⌊(n-1)/2⌋} 2^k * a(k) * a(n-2k-1), a(0)=1
  * Range:     u8 n <= 8, u16 n <= 15, u32 n <= 28, u64 n <= 55, u128 n <= 108,
  *            big any n
+ * Validated: standard, pass, 49 terms through n = 991 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 #ifdef __cplusplus

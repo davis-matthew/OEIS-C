@@ -8,8 +8,9 @@
  * Formula:   a(n) = Sum_{j=1..floor(n/3)} Sum_{i=j..floor((n-j)/2)} c(n/j) *
  *            c(n/i) * where c(x) = 1 - ceil(x) + floor(x) (equals 1 if x is
  *            integer, 0 otherwise)
- * Range:     u8 n <= 719, u16 n <= 7447, u32 n <= 7447, u64 n <= 7447,
- *            u128 n <= 7447, big any n
+ * Range:     u8 n <= 719, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 100 terms through n = 7447 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

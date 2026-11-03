@@ -13,13 +13,41 @@
  *            condition k*(12n – k(k²–1)) must be divisible by...
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   is_square128
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_square128.h"
+
+/* Integer square test for non‑negative 128‑bit values.
+   Returns true if val is a perfect square, and stores the floor
+   square root in *root when non‑NULL. */
+static inline bool is_square128(__int128 val, __int128 *root)
+{
+    if (val < 0) return false;
+
+    /* binary search for floor(sqrt(val)) within 0 … 2^63−1,
+       which covers all 128‑bit numbers that may appear here. */
+    __int128 low = 0, high = ( (__int128)1 << 63 ) - 1;
+    while (low <= high) {
+        __int128 mid = (low + high) >> 1;
+        __int128 sq = mid * mid;
+        if (sq == val) {
+            if (root) *root = mid;
+            return true;
+        }
+        if (sq < val) {
+            low = mid + 1;
+        } else {
+            if (mid == 0) break;          /* avoid infinite loop */
+            high = mid - 1;
+        }
+    }
+    if (root) *root = high;   /* floor square root */
+    return false;
+}
 
 seq_t a(idx_t n)
 {

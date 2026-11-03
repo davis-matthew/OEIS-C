@@ -7,13 +7,21 @@
  * Formula:   a(n) = (n+1)^15 - n^15 (Nexus numbers)
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 3, u64 n <= 19, u128 n <= 465,
  *            big any n
- * Helpers:   power15
+ * Validated: standard, pass, 33 terms through n = 9731 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>  /* for size_t, if needed */
-#include "../utils/power15.h"
+
+static seq_t power15(seq_t base) {
+    seq_t r = 1;
+    for (int i = 0; i < 15; ++i) {
+        r *= base;
+    }
+    return r;
+}
 
 seq_t a(idx_t n) {
     seq_t sn = (seq_t)n;

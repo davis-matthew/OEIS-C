@@ -7,12 +7,14 @@
  * Formula:   a(n) = Sum_{k=0..n} (k+1)^4 * Stirling2(n,k) (OEIS A383053)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes the OEIS sequence A383053.
  * The function is memoised: values for n <= curr_max are cached,
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* initialise a_seq for n == 0 */
     if (a_seq == NULL) {
         a_cap = 1;
-        a_seq = (seq_t*)malloc(a_cap * sizeof(seq_t));
+        a_seq = mem_new(seq_t, a_cap);
         if (!a_seq) return 0;           /* out of memory */
         a_seq[0] = (seq_t)1;            /* a(0) = 1 */
     }
@@ -41,10 +43,10 @@ seq_t a(idx_t n)
     /* initialise Stirling arrays for m == 0 */
     if (S_prev == NULL) {
         S_cap = 1;
-        S_prev = (seq_t*)malloc(S_cap * sizeof(seq_t));
+        S_prev = mem_new(seq_t, S_cap);
         if (!S_prev) return 0;
-        S_curr = (seq_t*)malloc(S_cap * sizeof(seq_t));
-        if (!S_curr) { free(S_prev); return 0; }
+        S_curr = mem_new(seq_t, S_cap);
+        if (!S_curr) { mem_free(S_prev); return 0; }
         S_prev[0] = (seq_t)1;   /* S(0,0) = 1 */
         prev_len = 1;
     }
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
     if (n >= a_cap) {
         size_t cap = a_cap;
         while (cap <= n) cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(a_seq, cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_seq, cap);
         if (!tmp) return 0;
         a_seq = tmp;
         a_cap = cap;
@@ -68,8 +70,8 @@ seq_t a(idx_t n)
         if (S_cap < (size_t)m + 1) {
             size_t cap = S_cap;
             while (cap <= (size_t)m) cap <<= 1;
-            seq_t *tmp_prev = (seq_t*)realloc(S_prev, cap * sizeof(seq_t));
-            seq_t *tmp_curr = (seq_t*)realloc(S_curr, cap * sizeof(seq_t));
+            seq_t *tmp_prev = mem_resize(seq_t, S_prev, cap);
+            seq_t *tmp_curr = mem_resize(seq_t, S_curr, cap);
             if (!tmp_prev || !tmp_curr) return 0;
             S_prev = tmp_prev;
             S_curr = tmp_curr;

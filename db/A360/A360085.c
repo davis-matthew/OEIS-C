@@ -5,16 +5,19 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  sign
  * Formula:   a(n) = Sum_{k=0..n} (-1)^k * binomial(4*k, n-k) * Catalan(k)
- * Range:     i8 n <= 5, i16 n <= 8, i32 n <= 16, i64 n <= 29, i128 n <= 29,
+ * Range:     i8 n <= 6, i16 n <= 11, i32 n <= 20, i64 n <= 29, i128 n <= 29,
  *            big any n
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-01)
  * Helpers:   binomial, catalan
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/binomial.h"   /* prototype for binomial(idx_t, idx_t)   */
-#include "../utils/catalan.h"     /* prototype for catalan(idx_t)          */
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/catalan.h"
 
 seq_t a(idx_t n)
 {

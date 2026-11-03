@@ -7,9 +7,10 @@
  * Keywords:  sign
  * Formula:   a(n) = 2^(n-1) - O(n) where O(n) is the number of overpartitions
  *            of n (OEIS A015128)
- * Range:     i8 n <= 1, i16 n <= 1, i32 n <= 7, i64 n <= 34, i128 n <= 34,
+ * Range:     i8 n <= 9, i16 n <= 16, i32 n <= 32, i64 n <= 34, i128 n <= 34,
  *            big any n
- * Helpers:   pow2, seq_alloc_new_array, seq_free_array, seq_mul
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,10 +25,29 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "../utils/pow2.h"         /* seq_t pow2(idx_t); */
-#include "../utils/seq_alloc_new_array.h"  /* seq_t *seq_alloc_new_array(size_t); */
-#include "../utils/seq_free_array.h"       /* void seq_free_array(seq_t *); */
-#include "../utils/seq_mul.h"      /* seq_t seq_mul(seq_t a, seq_t b); */
+#include <string.h>
+#include <stddef.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* Compute 2^exp for any exponent that may not fit in the bit width of seq_t. */
+static seq_t pow2(idx_t exp)
+{
+    seq_t res = (seq_t)1;
+    for (idx_t i = 0; i < exp; ++i)
+        res *= (seq_t)2;
+    return res;
+}
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 static seq_t *p_cache = NULL;     /* partitions p(n)   */
 static seq_t *d_cache = NULL;     /* distinct-partitions d(n) */

@@ -8,7 +8,8 @@
  *            the largest Fibonacci number dividing 10)
  * Range:     u8 n <= 376, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 116 terms through n = 9893 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 
 seq_t a(idx_t n)
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (fib == NULL) {
         fib_cap = 4;
-        fib = (seq_t *)malloc(fib_cap * sizeof(seq_t));
+        fib = mem_new(seq_t, fib_cap);
         if (fib == NULL) return 0;          /* allocation failure */
         fib[0] = (seq_t)1;
         fib[1] = (seq_t)1;
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
 
         if (fib_cnt == fib_cap) {           /* double capacity if needed */
             size_t new_cap = fib_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(fib, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, fib, new_cap);
             if (tmp == NULL) return 0;      /* allocation failure */
             fib = tmp;
             fib_cap = new_cap;

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6339, u16 n <= 8192, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   alloc_seq
+ * Validated: standard, pass, 101 terms through n = 7618 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -48,7 +49,16 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/alloc_seq.h"
+#include <stddef.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 seq_t a(idx_t n)
 {
@@ -79,7 +89,7 @@ seq_t a(idx_t n)
         /* enlarge storage for the new terms if necessary */
         if (new_len > seq_cap) {
             seq_cap = new_len;
-            seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, seq_cap);
         }
 
         /* enlarge frequency table to accommodate any value already seen */

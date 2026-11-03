@@ -8,12 +8,21 @@
  * Formula:   a(n) = (6^n - 6^ceil(n/2)) / 2 , for k = 6
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 25, u128 n <= 26,
  *            big any n
- * Helpers:   pow_of_6
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_of_6.h"
+/* Helper: compute 6^exp exactly.  exp is small (≤13 for the
+   64‑bit build, and arbitrary for big‑int builds).  */
+static seq_t pow_of_6(idx_t exp)
+{
+    seq_t r = 1;
+    for (idx_t i = 0; i < exp; ++i)
+        r *= (seq_t)6;
+    return r;
+}
 
 seq_t a(idx_t n)
 {

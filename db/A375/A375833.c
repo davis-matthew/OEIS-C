@@ -8,13 +8,15 @@
  *            k! * (k+1)! )
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 18, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes the nth term of OEIS A375833. */
 seq_t a(idx_t n)
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     size_t maxK = N / 2;
 
     /* factorials 0! … N! */
-    seq_t *fact = (seq_t *)malloc((N + 1) * sizeof(seq_t));
+    seq_t *fact = mem_new(seq_t, (N + 1));
     if (!fact)
         return (seq_t)0;
     fact[0] = (seq_t)1;
@@ -36,12 +38,12 @@ seq_t a(idx_t n)
         fact[i] = fact[i - 1] * (seq_t)i;
 
     /* Stirling–2 numbers: only rows 0 … maxK are required */
-    seq_t *prev = (seq_t *)malloc((maxK + 1) * sizeof(seq_t));
-    seq_t *curr = (seq_t *)malloc((maxK + 1) * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, (maxK + 1));
+    seq_t *curr = mem_new(seq_t, (maxK + 1));
     if (!prev || !curr) {
-        free(fact);
-        free(prev);
-        free(curr);
+        mem_free(fact);
+        mem_free(prev);
+        mem_free(curr);
         return (seq_t)0;
     }
     /* row n = 0 : S(0,0) = 1, all other entries 0 */
@@ -77,9 +79,9 @@ seq_t a(idx_t n)
         }
     }
 
-    free(fact);
-    free(prev);
-    free(curr);
+    mem_free(fact);
+    mem_free(prev);
+    mem_free(curr);
 
     return result;
 }

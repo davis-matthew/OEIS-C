@@ -10,7 +10,8 @@
  *            (C(n,k) – 2*C(n–2,k–1)), with the special case T(1,0) = 1
  * Range:     i8 n <= 59, i16 n <= 77, i32 n <= 77, i64 n <= 77, i128 n <= 77,
  *            big any n
- * Helpers:   int_sqrt
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 /* Note: seq_t and idx_t are provided by the build. */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/int_sqrt.h"
+#include "../utils/isqrt.h"
 
 /* Compute binomial coefficient C(n,k) as seq_t.
    Uses multiplicative formula with 128‑bit intermediate
@@ -46,7 +47,7 @@ seq_t a(idx_t n) {
     if (n == 1) return 1;          /* because T(1,0) = 1, T(1,1) = -1 is handled below */
 
     /* Find row r such that r(r+1)/2 <= n < (r+1)(r+2)/2. */
-    idx_t s = int_sqrt(8 * n + 1);
+    idx_t s = isqrt(8 * n + 1);
     idx_t r = (s - 1) / 2;
     /* Correct possible off‑by‑one due to floor sqrt. */
     while (r * (r + 1) / 2 > n) --r;

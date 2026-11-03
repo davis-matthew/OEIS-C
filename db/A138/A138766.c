@@ -9,12 +9,14 @@
  *            a(2)=2, a(3)=4, a(4)=7
  * Range:     i8 n <= 8, i16 n <= 14, i32 n <= 29, i64 n <= 30, i128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,9 +31,9 @@ seq_t a(idx_t n)
     /* Expand cache to hold terms up to n */
     idx_t new_len = n;
     if (cache_len == 0) {
-        cache = (seq_t *)malloc(sizeof(seq_t) * new_len);
+        cache = mem_new(seq_t, new_len);
     } else {
-        cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_len);
+        cache = mem_resize(seq_t, cache, new_len);
     }
 
     /* Compute new terms */

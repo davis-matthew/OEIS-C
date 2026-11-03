@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 252, u16 n <= 1325, u32 n <= 1325, u64 n <= 1325,
  *            u128 n <= 1325, big any n
- * Helpers:   S_rows, T_rows
+ * Validated: standard, pass, 82 terms through n = 1102 (2026-11-01)
+ * Helpers:   triangular
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,16 @@
  */
 
 #include <stdint.h>
-#include "../utils/S_rows.h"
-#include "../utils/T_rows.h"
+#include "../utils/triangular.h"
+
+/* Helper: S(r) = (r+1)(r+2)/2, number of entries up to row r inclusive */
+static inline idx_t S_rows(idx_t r)
+{
+    __int128 t = (__int128)(r + 1);
+    t *= (__int128)(r + 2);
+    t /= 2;
+    return (idx_t)t;
+}
 
 seq_t a(idx_t n)
 {
@@ -56,7 +65,7 @@ seq_t a(idx_t n)
     if (r == 0)
         offset = n;        /* row 0 has only one element */
     else
-        offset = n - T_rows(r);
+        offset = n - triangular(r);
 
     /* Column index k */
     idx_t k = offset;

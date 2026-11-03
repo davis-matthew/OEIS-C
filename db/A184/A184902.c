@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 3268, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   is_in_residue, is_prime
+ * Validated: standard, pass, 67 terms through n = 4656 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,22 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/is_prime.h"
-#include "../utils/is_in_residue.h"
+#include "../utils/mem.h"
+
+/*------------------------------------------------------------------
+ *  Test whether a prime satisfies the residue condition.
+ *------------------------------------------------------------------*/
+static bool is_in_residue(uint64_t p)
+{
+    /* admissible residues modulo 43 */
+    switch (p % 43) {
+        case 2: case 3: case 5: case 7: case 8: case 12: case 18:
+        case 19: case 20: case 22: case 26: case 27: case 28:
+        case 29: case 30: case 32: case 33: case 34: case 37:
+        case 39: case 42: return true;
+        default: return false;
+    }
+}
 
 /*------------------------------------------------------------------
  *  Cache of admissible primes and state of the prime generator.
@@ -44,7 +60,7 @@ static void ensure_n(idx_t n)
     /* Allocate initial capacity if needed */
     if (admissible_cap == 0) {
         admissible_cap = 64;
-        admissible_primes = (seq_t *)malloc(admissible_cap * sizeof(seq_t));
+        admissible_primes = mem_new(seq_t, admissible_cap);
     }
 
     /* Generate primes until we have n of them */
@@ -60,8 +76,7 @@ static void ensure_n(idx_t n)
         if (admissible_count == admissible_cap) {
             admissible_cap *= 2;
             admissible_primes =
-                (seq_t *)realloc(admissible_primes,
-                                 admissible_cap * sizeof(seq_t));
+                mem_resize(seq_t, admissible_primes, admissible_cap);
         }
         admissible_primes[admissible_count++] = (seq_t)last_checked;
     }

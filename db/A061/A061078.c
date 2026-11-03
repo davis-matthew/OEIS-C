@@ -8,7 +8,8 @@
  * Formula:   a(n) = Σ_{k=1..n} (∏ digits of 2k)
  * Range:     u8 n <= 27, u16 n <= 896, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 8981 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    legal in both C (implicit conversion) and C++ (requires a cast). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     if (n > current_max) {
         idx_t new_size = n + 1; /* include index 0 */
         /* cast is required for C++ (void* to seq_t*) but harmless in C */
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) return 0;      /* allocation failure – unlikely in tests */
         cache = tmp;
 

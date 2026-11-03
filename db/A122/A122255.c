@@ -9,7 +9,8 @@
  *            φ(n) = 2^a·3^b for some a,b ≥ 0; otherwise a(n) = 0
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_3_smooth_uint64
+ * Validated: standard, pass, 121 terms through n = 9863 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,15 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_3_smooth_uint64.h"
+
+static bool is_3_smooth_uint64(uint64_t v)
+{
+    while ((v & 1ULL) == 0)        /* remove factors of 2 */
+        v >>= 1;
+    while (v % 3ULL == 0)          /* remove factors of 3 */
+        v /= 3;
+    return v == 1ULL;
+}
 
 static uint64_t phi_uint64(uint64_t n)
 {

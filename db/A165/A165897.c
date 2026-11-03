@@ -8,6 +8,7 @@
  *            to a(n)=a(n-1)+largest proper divisor of a(n-1))
  * Range:     u8 n <= 12, u16 n <= 27, u32 n <= 57, u64 n <= 118,
  *            u128 n <= 239, big any n
+ * Validated: standard, pass, 55 terms through n = 827 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

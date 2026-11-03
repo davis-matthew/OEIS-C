@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 9501 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  */
 
 #include <stdlib.h>      /* malloc, free */
+#include "../utils/mem.h"
 
 /* static cache holding the generated prefix of the fixed point */
 static seq_t *cache = NULL;   /* array of 0/1 values */
@@ -33,7 +35,7 @@ static void ensure_cache(idx_t n)
     /* initialise the empty cache with the first word "0" */
     if (cache_len == 0) {
         cache_len = 1;
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (cache == NULL) exit(1);
         cache[0] = 0;
     }
@@ -49,7 +51,7 @@ static void ensure_cache(idx_t n)
         }
 
         /* allocate buffer for the next level */
-        seq_t *newbuf = (seq_t *)malloc(sizeof(seq_t) * newlen);
+        seq_t *newbuf = mem_new(seq_t, newlen);
         if (newbuf == NULL) exit(1);
 
         /* expand each symbol */
@@ -68,7 +70,7 @@ static void ensure_cache(idx_t n)
         }
 
         /* replace old cache with new buffer */
-        free(cache);
+        mem_free(cache);
         cache     = newbuf;
         cache_len = newlen;
     }

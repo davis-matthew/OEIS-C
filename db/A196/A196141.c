@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 64, u128 n <= 129,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;       /* dynamic array of computed terms */
 static idx_t cache_len = 0;       /* one past the largest index stored (so cache_len-1 is max index) */
@@ -32,7 +34,7 @@ static void grow_cache(idx_t n)
     /* initial allocation and seed with known values */
     if (cache == NULL) {
         cache_len = 13;                 /* indices 0..12 (0 unused) */
-        cache    = (seq_t*)calloc(cache_len, sizeof(seq_t));
+        cache    = mem_new(seq_t, cache_len);
         if (!cache) return;             /* allocation failed – caller will get 0 */
 
         /* hard‑coded initial values (index 0 unused) */
@@ -52,7 +54,7 @@ static void grow_cache(idx_t n)
 
     /* grow array if necessary */
     if (n >= cache_len) {
-        seq_t *tmp = (seq_t*)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
         if (!tmp) return;                /* allocation failed – leave cache unchanged */
         cache = tmp;
         /* fill new slots (initialized to 0 by realloc for size growth) */

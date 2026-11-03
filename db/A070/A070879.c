@@ -10,7 +10,8 @@
  *            f(m,2k )=f(m−1,k)+f(m−1,k+1) (m≥1)
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   stern_val
+ * Validated: partial, pass, 101 terms through n = 100 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,21 @@
    row m is 2^m−1.  If k = n-(2^m−1)+1 (1≤k≤2^m) then a(n)=f(m,k).  */
 
 #include <stdint.h>
-#include "../utils/stern_val.h"
+
+/* Recursively evaluate f(m,k) described above.  If k>2^m the
+   value is defined to be 0, which is correctly handled by the
+   recursion falling to the m==0 case. */
+static seq_t stern_val(idx_t m, idx_t k)
+{
+    if (m == 0)
+        return (k == 1) ? (seq_t)1 : (seq_t)0;
+
+    if (k & 1ULL)                 /* odd index: f(m,2x−1)=f(m−1,x) */
+        return stern_val(m - 1, (k + 1) >> 1);
+    else                           /* even index: f(m,2x)=f(m−1,x)+f(m−1,x+1) */
+        return stern_val(m - 1, k >> 1) +
+               stern_val(m - 1, (k >> 1) + 1);
+}
 
 /* Return ⌊log₂(x)⌋ for 1 ≤ x < 2⁶⁴. */
 static inline idx_t floor_log2_idx(idx_t x)

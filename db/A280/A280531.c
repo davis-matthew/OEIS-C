@@ -7,14 +7,47 @@
  * Formula:   a(n) = major index of the binary representation of n!
  * Range:     u8 n <= 19, u16 n <= 149, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   major_index_of_binary
+ * Validated: standard, pass, 67 terms through n = 9890 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/major_index_of_binary.h"
+
+/* Compute the major index of a binary string.
+   The binary string is stored in big‑endian order, most significant word first. */
+static seq_t major_index_of_binary(uint64_t *words, size_t sz)
+{
+    /* Find the most significant word and the number of bits it uses */
+    size_t msw = sz - 1;
+    while (msw > 0 && words[msw] == 0)
+        --msw;
+    uint64_t high_word = words[msw];
+    int high_bits = 64 - __builtin_clzll(high_word); /* words[msw] != 0 */
+
+    seq_t sum = 0;
+    uint64_t pos = 1;      /* position of the current bit (1‑based) */
+    uint64_t prev_bit = 0; /* bit just < processed bit */
+    int first = 1;         /* no descent check for the first bit */
+
+    for (int w = (int)msw; w >= 0; --w) {
+        uint64_t word = words[w];
+        int start_bit = (w == (int)msw) ? high_bits - 1 : 63;
+        for (int b = start_bit; b >= 0; --b) {
+            uint64_t bit = (word >> b) & 1ULL;
+            if (!first) {
+                if (prev_bit && !bit)    /* transition 1 → 0 */
+                    sum += (seq_t)(pos - 1); /* position of the preceding bit */
+            } else
+                first = 0;
+            prev_bit = bit;
+            ++pos;
+        }
+    }
+    return sum;
+}
 
 seq_t a(idx_t n)
 {

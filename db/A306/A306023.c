@@ -7,15 +7,23 @@
  * Formula:   a(n) = Sum_{k=0..n} Stirling2(n,k) * A000009(k)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 14, u64 n <= 24, u128 n <= 41,
  *            big any n
- * Helpers:   seq_alloc_new_array, seq_free_array
+ * Validated: standard, pass, 41 terms through n = 526 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <string.h>
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/seq_free_array.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 /* Static storage for memoisation */
 static seq_t *part   = NULL;  /* A000009(k) for 0 ≤ k ≤ current capacity-1 */
@@ -37,9 +45,9 @@ static void grow_tables(idx_t new_cap)
     /* Copy existing data if present */
     if (part) {
         size_t copy_len = (cap < new_cap) ? cap : new_cap;
-        memcpy(new_part,  part,  copy_len * sizeof(seq_t));
-        memcpy(new_aseq,  aseq,  copy_len * sizeof(seq_t));
-        memcpy(new_Sprev, Sprev, copy_len * sizeof(seq_t));
+        mem_copy(new_part, part, copy_len * sizeof(seq_t));
+        mem_copy(new_aseq, aseq, copy_len * sizeof(seq_t));
+        mem_copy(new_Sprev, Sprev, copy_len * sizeof(seq_t));
         /* Snext will be overwritten, no need to copy */
     }
 

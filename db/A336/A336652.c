@@ -7,8 +7,9 @@
  * Keywords:  nonn, mult
  * Formula:   a(n) = product over odd primes p^e||A000265(n) of (p + p^2 + … +
  *            p^e)
- * Range:     u8 n <= 188, u16 n <= 9131, u32 n <= 9131, u64 n <= 9131,
- *            u128 n <= 9131, big any n
+ * Range:     u8 n <= 188, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 102 terms through n = 9131 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

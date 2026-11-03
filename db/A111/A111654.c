@@ -9,13 +9,16 @@
  *            number
  * Range:     u8 n <= 94, u16 n <= 94, u32 n <= 94, u64 n <= 94, u128 n <= 94,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 94 terms through n = 94 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/is_prime.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +36,7 @@ seq_t a(idx_t n)
     while (cum < (seq_t)n)
     {
         /* find next composite number */
-        while (is_prime(m)) m++;
+        while (is_prime_u64(m)) m++;
 
         /* this is the run length A002808(k+1) = m */
         k++;

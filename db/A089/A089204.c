@@ -9,6 +9,7 @@
  *            n ≤ m(m+1)/2. P(m,k) = 1 - m!/(m^k (m-k)!) for 2 ≤ k ≤ m
  * Range:     u8 n <= 5, u16 n <= 19, u32 n <= 44, u64 n <= 45, u128 n <= 45,
  *            big any n
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

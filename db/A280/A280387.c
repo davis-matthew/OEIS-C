@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,9 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static seq_t sum_series(seq_t p, uint64_t k, seq_t m)
 {
@@ -52,7 +55,7 @@ static seq_t sum_series(seq_t p, uint64_t k, seq_t m)
         return (term + pow_k) % m;
     } else {
         seq_t prev = sum_series(p, k - 1, m);
-        seq_t pow_k = mod_pow(p, k, m);
+        seq_t pow_k = powmod(p, k, m);
         return (prev + pow_k) % m;
     }
 }
@@ -145,7 +148,7 @@ seq_t a(idx_t n)
         }
 
         /* n^n mod mod */
-        seq_t n_pow_mod = mod_pow((seq_t)candidate, candidate, mod);
+        seq_t n_pow_mod = powmod((seq_t)candidate, candidate, mod);
 
         /* s(c^c) mod mod */
         seq_t s_mod = sigma_mod >= n_pow_mod ?
@@ -156,7 +159,7 @@ seq_t a(idx_t n)
             /* Store the term */
             if (term_len == term_cap) {
                 term_cap = term_cap ? term_cap * 2 : 16;
-                terms = (seq_t *)realloc(terms, term_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, term_cap);
             }
             terms[term_len++] = candidate;
         }

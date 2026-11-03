@@ -12,13 +12,14 @@
  *            n + k), (0,d), (1,d-1), … , (d,0) (top to bottom). Th...
  * Range:     u8 n <= 22, u16 n <= 39, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   seq_pow_small
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/seq_pow_small.h"
+#include "../utils/ipow_idx.h"
 
 /* Public sequence function */
 seq_t a(idx_t n)
@@ -42,8 +43,8 @@ seq_t a(idx_t n)
     seq_t sum = (seq_t)0;
     for (idx_t t = (idx_t)0; t <= i; ++t)
     {
-        seq_t j_pow_t = seq_pow_small((seq_t)j, t);
-        seq_t t_pow_j = seq_pow_small((seq_t)t, j);
+        seq_t j_pow_t = ipow_idx((seq_t)j, t);
+        seq_t t_pow_j = ipow_idx((seq_t)t, j);
         sum += j_pow_t * t_pow_j;
     }
 

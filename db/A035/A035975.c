@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   alloc_seq
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,15 @@
    Valid C11 and C++17. */
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/alloc_seq.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 /* Cached partition table */
 static seq_t *dp = NULL;          /* array of length max_computed+1 */
@@ -53,7 +62,7 @@ static void recompute(idx_t n)
     }
 
     /* Replace old table */
-    free(dp);
+    mem_free(dp);
     dp = newdp;
     max_computed = n;
 }

@@ -7,6 +7,7 @@
  * Formula:   a(n) = 1 + n*(n+1)*(23*n^4+48*n^3+98*n^2+73*n+58)/12
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 35, u64 n <= 1457,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 42 terms through n = 7113 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

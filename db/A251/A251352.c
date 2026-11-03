@@ -13,6 +13,7 @@
  *            150*a(n-4) + 118*a(n-5) - 48*a(n-6) + 9*a(n-7)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 32,
  *            big any n
+ * Validated: standard, pass, 31 terms through n = 200 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

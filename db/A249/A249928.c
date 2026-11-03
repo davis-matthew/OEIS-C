@@ -11,12 +11,14 @@
  *            Σ_{i=1}^{n-1} a[i]·p2[n-i] let p4[n] = Σ_{i=1}^{n-1}...
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 17, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache for the values and for intermediate powers */
 static seq_t *a_seq           = NULL;
@@ -34,12 +36,12 @@ ensure_capacity(idx_t n)
     size_t needed = (size_t)n + 1;          /* indices 0 .. n */
 
     if (a_seq == NULL) {                   /* first allocation */
-        a_seq  = (seq_t*)malloc(needed * sizeof(seq_t));
-        p2_seq = (seq_t*)malloc(needed * sizeof(seq_t));
-        p3_seq = (seq_t*)malloc(needed * sizeof(seq_t));
-        p4_seq = (seq_t*)malloc(needed * sizeof(seq_t));
-        p5_seq = (seq_t*)malloc(needed * sizeof(seq_t));
-        p6_seq = (seq_t*)malloc(needed * sizeof(seq_t));
+        a_seq  = mem_new(seq_t, needed);
+        p2_seq = mem_new(seq_t, needed);
+        p3_seq = mem_new(seq_t, needed);
+        p4_seq = mem_new(seq_t, needed);
+        p5_seq = mem_new(seq_t, needed);
+        p6_seq = mem_new(seq_t, needed);
 
         for (size_t i = 0; i < needed; ++i) {
             a_seq[i] = 0;
@@ -50,12 +52,12 @@ ensure_capacity(idx_t n)
             p6_seq[i] = 0;
         }
     } else if (needed > max_cached_n + 1) { /* grow existing arrays */
-        a_seq  = (seq_t*)realloc(a_seq,  needed * sizeof(seq_t));
-        p2_seq = (seq_t*)realloc(p2_seq, needed * sizeof(seq_t));
-        p3_seq = (seq_t*)realloc(p3_seq, needed * sizeof(seq_t));
-        p4_seq = (seq_t*)realloc(p4_seq, needed * sizeof(seq_t));
-        p5_seq = (seq_t*)realloc(p5_seq, needed * sizeof(seq_t));
-        p6_seq = (seq_t*)realloc(p6_seq, needed * sizeof(seq_t));
+        a_seq  = mem_resize(seq_t, a_seq, needed);
+        p2_seq = mem_resize(seq_t, p2_seq, needed);
+        p3_seq = mem_resize(seq_t, p3_seq, needed);
+        p4_seq = mem_resize(seq_t, p4_seq, needed);
+        p5_seq = mem_resize(seq_t, p5_seq, needed);
+        p6_seq = mem_resize(seq_t, p6_seq, needed);
 
         for (size_t i = max_cached_n + 1; i < needed; ++i) {
             a_seq[i] = 0;

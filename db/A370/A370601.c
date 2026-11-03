@@ -8,14 +8,29 @@
  * Formula:   a(n) = tau((D²)/gcd(D²,n)) – n, where D = (2n‑1)!!
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 26, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   _vp_odd_double_factorial
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/_vp_odd_double_factorial.h"
+
+/* ---- helper: exponent of p in odd double factorial D = (2n‑1)!! ---- */
+static size_t _vp_odd_double_factorial(idx_t n, uint32_t p)
+{
+    size_t exp = 0;
+    idx_t two_n_minus1 = 2 * n - 1;
+    idx_t power = p;
+    while (power <= two_n_minus1) {
+        idx_t M = two_n_minus1 / power;          /* numbers ≤ 2n‑1 divisible by p^k */
+        exp += (M + 1) / 2;                      /* only odd multiples count */
+        if (power > two_n_minus1 / p) break;     /* avoid overflow */
+        power *= p;
+    }
+    return exp;
+}
 
 /* ---- prime sieve up to 20000 (covers n ≤ 10000) ---- */
 #define MAX_SIEVE 20000

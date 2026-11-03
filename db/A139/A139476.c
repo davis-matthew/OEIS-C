@@ -10,7 +10,8 @@
  *            cached state so that repeated calls are fast
  * Range:     u8 n <= 6, u16 n <= 104, u32 n <= 143, u64 n <= 143,
  *            u128 n <= 143, big any n
- * Helpers:   floor_sqrt
+ * Validated: standard, pass, 64 terms through n = 137 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,26 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/floor_sqrt.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* ---------- configuration ---------- */
 #define INITIAL_SQ_LIMIT 10000ULL           /* initial number of square positions stored */
@@ -79,7 +99,7 @@ static void init_state(void)
     ekg->spf  = (uint16_t*)calloc(ekg->limit + 1, sizeof(uint16_t));
     ekg->next = (uint32_t*)calloc(ekg->limit + 1, sizeof(uint32_t));
     ekg->pos_size = INITIAL_SQ_LIMIT + 1;
-    ekg->pos = (seq_t*)calloc(ekg->pos_size, sizeof(seq_t));
+    ekg->pos = mem_new(seq_t, ekg->pos_size);
     if (!ekg->used || !ekg->spf || !ekg->next || !ekg->pos)
         exit(1);                    /* memory allocation failed */
 
@@ -103,11 +123,11 @@ static void ensure_pos_capacity(idx_t need)
     size_t new_size = ekg->pos_size * 2;
     if (new_size < (size_t)need + 1)
         new_size = (size_t)need + 1;
-    seq_t *p = (seq_t*)realloc(ekg->pos, new_size * sizeof(seq_t));
+    seq_t *p = mem_resize(seq_t, ekg->pos, new_size);
     if (!p)
         exit(1);
     /* zero the newly added entries */
-    memset(p + ekg->pos_size, 0, (new_size - ekg->pos_size) * sizeof(seq_t));
+    mem_set(p + ekg->pos_size, 0, (new_size - ekg->pos_size) * sizeof(seq_t));
     ekg->pos = p;
     ekg->pos_size = new_size;
 }

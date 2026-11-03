@@ -10,6 +10,7 @@
  *            flattened row‑major; a(0)=1, a(1)=1, a(2)=1, a(3)=1, …
  * Range:     u8 n <= 260, u16 n <= 756, u32 n <= 2518, u64 n <= 7380,
  *            u128 n <= 7380, big any n
+ * Validated: standard, pass, 121 terms through n = 5937 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

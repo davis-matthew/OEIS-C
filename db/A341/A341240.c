@@ -10,12 +10,14 @@
  *            >= 7, with a(1)=1, a(2)=2, a(3)=4, a(4)=12, a(5)=38, a(6)=127
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 20, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   // malloc, realloc, abort
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,10 +32,10 @@ seq_t a(idx_t n)
 
     /* Ensure capacity */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(target * sizeof(seq_t));
+        cache = mem_new(seq_t, target);
         if (cache == NULL) abort();
     } else if (old_filled < target) {
-        seq_t *tmp = (seq_t *)realloc(cache, target * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, target);
         if (tmp == NULL) abort();
         cache = tmp;
     }

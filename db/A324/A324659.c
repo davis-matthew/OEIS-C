@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, look
  * Formula:   a(n) = (2*n & sigma(n)) >> 1
- * Range:     u8 n <= 22, u16 n <= 2081, u32 n <= 9640, u64 n <= 9640,
- *            u128 n <= 9640, big any n
- * Helpers:   factor_u64, pow_seq
+ * Range:     u8 n <= 22, u16 n <= 2081, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 106 terms through n = 9640 (2026-11-01)
+ * Helpers:   factor_u64, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,10 @@
 #include <stddef.h>
 #include <stdint.h>
 /* The following utility is available in the build environment: */
-#include "../utils/factor_u64.h"   /* factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt); */
-#include "../utils/pow_seq.h"     /* pow_seq(seq_t base, int exp); */
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +37,7 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < cnt; ++i) {
         seq_t p = (seq_t)primes[i];
         unsigned int e = (unsigned int)exps[i];
-        seq_t num = pow_seq(p, e + 1) - 1;   /* p^(e+1) - 1 */
+        seq_t num = ipow_i32(p, e + 1) - 1;   /* p^(e+1) - 1 */
         seq_t den = p - 1;                  /* p - 1 */
         seq_t term = num / den;             /* (p^(e+1)-1)/(p-1) */
         sigma *= term;

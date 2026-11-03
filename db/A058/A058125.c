@@ -7,14 +7,15 @@
  * Formula:   a(n) = n^(n^n - n^2)
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 3, u64 n <= 3, u128 n <= 3,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 5 terms through n = 4 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;
@@ -24,7 +25,7 @@ seq_t a(idx_t n) {
 
     /* Compute n^n (uses small exponent) */
     seq_t exp_n = (seq_t)n;
-    seq_t n_pow_n = big_pow(sn, exp_n);
+    seq_t n_pow_n = ipow(sn, exp_n);
 
     /* Compute n^2 */
     seq_t n_sq = sn * sn;
@@ -33,5 +34,5 @@ seq_t a(idx_t n) {
     seq_t exp = n_pow_n - n_sq;
 
     /* Final result: n^(exp) */
-    return big_pow(sn, exp);
+    return ipow(sn, exp);
 }

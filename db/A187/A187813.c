@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 45, u16 n <= 6508, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 9405 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Compute the sum of the digits of value when represented in the given base. */
 static seq_t digit_sum_base(seq_t value, seq_t base)
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
         /* Ensure there is room for one more term. */
         if (cache_size + 1 > cache_cap) {
             size_t new_cap = (cache_cap == 0) ? 16 : cache_cap << 1;
-            cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_cap);
             cache_cap = new_cap;
         }
 

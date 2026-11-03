@@ -9,13 +9,14 @@
  *            Möbius function. The term for n=0 is defined to be 1
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 3, u64 n <= 6, u128 n <= 12,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 13 terms through n = 12 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"   /* provides seq_t binom(idx_t n, idx_t k) */
+#include "../utils/binomial.h"
 
 /* Recursive enumeration of divisors of n.
    Arguments:
@@ -47,10 +48,10 @@ static void dfs_div(int idx, uint64_t cur, uint64_t n,
         mu = (parity == 0) ? 1 : -1;
 
         /* (5d)! / (d!⁵) = binom(5d,d)*binom(4d,d)*binom(3d,d)*binom(2d,d) */
-        seq_t term = binom(5 * cur, cur);
-        term *= binom(4 * cur, cur);
-        term *= binom(3 * cur, cur);
-        term *= binom(2 * cur, cur);
+        seq_t term = binomial(5 * cur, cur);
+        term *= binomial(4 * cur, cur);
+        term *= binomial(3 * cur, cur);
+        term *= binomial(2 * cur, cur);
 
         if (mu > 0) *sumPos += term;
         else        *sumNeg += term;

@@ -11,12 +11,14 @@
  *            a(n) = T(r, k)
  * Range:     u8 n <= 5, u16 n <= 14, u32 n <= 20, u64 n <= 44, u128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 1226 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     idx_t k     = n - tri;
 
     /* Allocate memory for the current row (size r+1)             */
-    seq_t *row = (seq_t *)malloc((r + 1) * sizeof(seq_t));
+    seq_t *row = mem_new(seq_t, (r + 1));
     if (!row) return 0;                     /* allocation failed  */
 
     /* Initialize the row array to zero */
@@ -60,6 +62,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = row[k];
-    free(row);
+    mem_free(row);
     return result;
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 23, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 290 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;
@@ -37,12 +39,12 @@ seq_t a(idx_t n) {
     /* Allocate arrays for a(0..n+2) and the powers of A(x) up to needed index.
      * We allocate n+3 elements (indices 0 .. n+2). */
     size_t size = (size_t)(n + 3);
-    seq_t *A   = (seq_t *)malloc(size * sizeof(seq_t));
-    seq_t *P2  = (seq_t *)malloc(size * sizeof(seq_t));
-    seq_t *P3  = (seq_t *)malloc(size * sizeof(seq_t));
-    seq_t *P4  = (seq_t *)malloc(size * sizeof(seq_t));
-    seq_t *P5  = (seq_t *)malloc(size * sizeof(seq_t));
-    seq_t *P6  = (seq_t *)malloc(size * sizeof(seq_t));
+    seq_t *A   = mem_new(seq_t, size);
+    seq_t *P2  = mem_new(seq_t, size);
+    seq_t *P3  = mem_new(seq_t, size);
+    seq_t *P4  = mem_new(seq_t, size);
+    seq_t *P5  = mem_new(seq_t, size);
+    seq_t *P6  = mem_new(seq_t, size);
 
     if (!A || !P2 || !P3 || !P4 || !P5 || !P6) {
         /* out of memory – return 0 as a safe fallback */
@@ -50,12 +52,12 @@ seq_t a(idx_t n) {
     }
 
     /* initialise all arrays to zero */
-    memset(A,  0, size * sizeof(seq_t));
-    memset(P2, 0, size * sizeof(seq_t));
-    memset(P3, 0, size * sizeof(seq_t));
-    memset(P4, 0, size * sizeof(seq_t));
-    memset(P5, 0, size * sizeof(seq_t));
-    memset(P6, 0, size * sizeof(seq_t));
+    mem_set(A, 0, size * sizeof(seq_t));
+    mem_set(P2, 0, size * sizeof(seq_t));
+    mem_set(P3, 0, size * sizeof(seq_t));
+    mem_set(P4, 0, size * sizeof(seq_t));
+    mem_set(P5, 0, size * sizeof(seq_t));
+    mem_set(P6, 0, size * sizeof(seq_t));
 
     A[0] = 0;      /* a(0) = 0 */
 
@@ -129,12 +131,12 @@ seq_t a(idx_t n) {
 
     seq_t result = A[n];
 
-    free(A);
-    free(P2);
-    free(P3);
-    free(P4);
-    free(P5);
-    free(P6);
+    mem_free(A);
+    mem_free(P2);
+    mem_free(P3);
+    mem_free(P4);
+    mem_free(P5);
+    mem_free(P6);
 
     return result;
 }

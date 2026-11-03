@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 254, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_single_bit
+ * Validated: standard, pass, 83 terms through n = 9822 (2026-11-03)
+ * Helpers:   is_pow2_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/has_single_bit.h"
+#include "../utils/is_pow2_u64.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Pre‑compute Fibonacci numbers 1,2,3,5,… up to 64‑bit overflow.     */
@@ -78,7 +80,7 @@ static void ensure_capacity(idx_t up_to)
     idx_t new_cap = perm_cap ? (perm_cap << 1) : 4;
     while (new_cap <= up_to) new_cap <<= 1;
 
-    perm     = (seq_t *)realloc(perm,     new_cap * sizeof(seq_t));
+    perm     = mem_resize(seq_t, perm, new_cap);
     mask_arr = (uint64_t *)realloc(mask_arr, new_cap * sizeof(uint64_t));
     if (!perm || !mask_arr) exit(EXIT_FAILURE);
 
@@ -103,7 +105,7 @@ seq_t a(idx_t n)
     for (idx_t i = 1; i <= n; ++i) {
         if (perm[i] != 0) continue;          /* already assigned */
 
-        if (has_single_bit(mask_arr[i])) {    /* Fibonacci number */
+        if (is_pow2_u64(mask_arr[i])) {    /* Fibonacci number */
             perm[i] = (seq_t)i;
             continue;
         }
@@ -115,7 +117,7 @@ seq_t a(idx_t n)
             if (perm[j] != 0) continue;      /* already used */
 
             uint64_t common = mask_arr[i] & mask_arr[j];
-            if (common && has_single_bit(common)) {
+            if (common && is_pow2_u64(common)) {
                 perm[i] = (seq_t)j;
                 perm[j] = (seq_t)i;
                 break;

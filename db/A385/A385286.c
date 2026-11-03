@@ -7,7 +7,8 @@
  * Formula:   a(n) = (n!)^2 * [x^n] (I0(2*sqrt(x)))^8
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 7, u64 n <= 12, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 #define MAX_CATEGORIES 8
 
@@ -41,14 +43,14 @@ static idx_t cached_max = 0;
 static void recompute_dp(idx_t n)
 {
     /* free old arrays if any */
-    if (cached_vals)  free(cached_vals);
-    if (dp_cur)       free(dp_cur);
-    if (dp_next)      free(dp_next);
+    if (cached_vals)  mem_free(cached_vals);
+    if (dp_cur)       mem_free(dp_cur);
+    if (dp_next)      mem_free(dp_next);
 
     size_t sz = (size_t)(n + 1);
-    cached_vals = (seq_t*)malloc(sz * sizeof(seq_t));
-    dp_cur      = (seq_t*)malloc(sz * sizeof(seq_t));
-    dp_next     = (seq_t*)malloc(sz * sizeof(seq_t));
+    cached_vals = mem_new(seq_t, sz);
+    dp_cur      = mem_new(seq_t, sz);
+    dp_next     = mem_new(seq_t, sz);
     if (!cached_vals || !dp_cur || !dp_next) return;
 
     /* initialize for 0 categories */

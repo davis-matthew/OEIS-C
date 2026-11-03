@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 49, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Find the row number r such that T(r-1) < n ≤ T(r), where
  * T(r) = r*(r+1)/2.  For n up to 10 000 a simple linear scan is
@@ -56,15 +58,15 @@ seq_t a(idx_t n)
         return (seq_t)1;                    /* all elements are 1 */
 
     /* Allocate the first two rows (row 1 and row 2). */
-    seq_t *prev2 = (seq_t *)malloc(sizeof(seq_t));   /* row r-2, size 1 */
+    seq_t *prev2 = mem_new(seq_t, 1);   /* row r-2, size 1 */
     prev2[0] = (seq_t)1;                               /* d(0,1) = 1 */
 
-    seq_t *prev1 = (seq_t *)calloc(2, sizeof(seq_t));  /* row r-1, size 2 */
+    seq_t *prev1 = mem_new(seq_t, 2);  /* row r-1, size 2 */
     prev1[0] = prev1[1] = (seq_t)1;                    /* d(0,2)=d(1,2)=1 */
 
     /* Build rows from 3 up to r. */
     for (idx_t cur = 3; cur <= r; ++cur) {
-        seq_t *newrow = (seq_t *)calloc(cur, sizeof(seq_t));
+        seq_t *newrow = mem_new(seq_t, cur);
         newrow[0] = newrow[cur - 1] = (seq_t)1;              /* ends are 1 */
 
         for (idx_t i = 1; i < cur - 1; ++i) {
@@ -78,14 +80,14 @@ seq_t a(idx_t n)
         }
 
         /* Shift rows: prev2 <- prev1, prev1 <- newrow. */
-        free(prev2);
+        mem_free(prev2);
         prev2 = prev1;
         prev1 = newrow;
     }
 
     /* prev1 now holds row r.  Retrieve the requested element. */
     seq_t result = prev1[k];
-    free(prev2);
-    free(prev1);
+    mem_free(prev2);
+    mem_free(prev1);
     return result;
 }

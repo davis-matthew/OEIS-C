@@ -12,13 +12,25 @@
  *            closed‑form expression for S(r,d1,d2)
  * Range:     u8 n <= 204, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sum_f
+ * Validated: standard, pass, 97 terms through n = 9780 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/sum_f.h"
+
+/* ---- sum of f(y,d) over y ------------------------------------------ */
+static inline seq_t sum_f(idx_t n, idx_t d)
+{
+    if (d == 0) return (seq_t)n;
+    /* d > 0, and d ≤ n-1 because caller checks bounds */
+    if (d <= n / 2) {
+        return (seq_t)2 * (seq_t)n - (seq_t)2 * (seq_t)d;
+    } else {
+        return (seq_t)2 * (seq_t)(n - d);
+    }
+}
 
 /* ---- integer square root (floor) ----------------------------------- */
 static inline idx_t floor_sqrt(idx_t x)

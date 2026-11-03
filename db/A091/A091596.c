@@ -7,6 +7,7 @@
  * Formula:   a(n) = ((3*n + 8)*2^n + (3*n - 8)*(-1)^n) / 27
  * Range:     u8 n <= 3, u16 n <= 10, u32 n <= 25, u64 n <= 33, u128 n <= 33,
  *            big any n
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

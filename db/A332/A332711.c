@@ -8,15 +8,30 @@
  * Formula:   a(n) = ((n+1)^n - 2^n) / (n-1) (for n ≥ 2)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 26,
  *            big any n
- * Helpers:   big_pow, pow128_u128
+ * Validated: standard, pass, 36 terms through n = 371 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Special cases: a(0) = 0, a(1) = 1                               */
 
-#include "../utils/big_pow.h"
-#include "../utils/pow128_u128.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+
+static unsigned __int128 pow128_u128(seq_t base, idx_t exp)
+{
+    unsigned __int128 res = 1;
+    unsigned __int128 b   = (unsigned __int128)base;
+    while (exp)
+    {
+        if (exp & 1u) res *= b;
+        b *= b;
+        exp >>= 1u;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -36,8 +51,8 @@ seq_t a(idx_t n)
     }
 
     /* Larger seq_t (arbitrary precision or 128‑bit): rely on big_pow */
-    seq_t pow_n_plus = big_pow((seq_t)(n + 1u), (seq_t)n);
-    seq_t pow_two     = big_pow((seq_t)2u,          (seq_t)n);
+    seq_t pow_n_plus = ipow((seq_t)(n + 1u), (seq_t)n);
+    seq_t pow_two     = ipow((seq_t)2u,          (seq_t)n);
     seq_t numerator   = pow_n_plus - pow_two;
     seq_t denominator = (seq_t)(n - 1u);
     return numerator / denominator;

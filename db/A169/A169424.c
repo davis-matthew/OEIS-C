@@ -12,13 +12,15 @@
  *            33 : a(n) = 25 * Σ_{k=1}^{31} a(n‑k) – 325*a...
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* stored sequence values   */
 static idx_t cache_size = 0;          /* allocated array length   */
@@ -34,7 +36,7 @@ static void ensure_cache_size(idx_t n)
     while (new_size <= n)
         new_size <<= 1;                     /* double until sufficient */
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_size);
     if (!tmp) {
         /* out of memory – terminate */
         exit(1);

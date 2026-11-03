@@ -11,13 +11,15 @@
  *            1,3,9,…,3^{r-1}
  * Range:     i8 n <= 9, i16 n <= 14, i32 n <= 27, i64 n <= 34, i128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     idx_t k = n - r * (r + 1) / 2;
 
     /* Allocate array for elementary symmetric sums up to degree r. */
-    seq_t *e = (seq_t *)malloc((r + 1) * sizeof(seq_t));
+    seq_t *e = mem_new(seq_t, (r + 1));
     if (!e)
         return 0; /* unlikely for the given constraints */
 
@@ -54,6 +56,6 @@ seq_t a(idx_t n)
     if (k & 1)
         coef = -coef;
 
-    free(e);
+    mem_free(e);
     return coef;
 }

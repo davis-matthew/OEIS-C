@@ -12,12 +12,14 @@
  *            r-m) / m! (binomial coefficient with provided helper f...
  * Range:     i8 n <= 5, i16 n <= 20, i32 n <= 54, i64 n <= 154, i128 n <= 466,
  *            big any n
+ * Validated: standard, pass, 54 terms through n = 7979 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* Integer binary‑search square root: floor(sqrt(x)) for unsigned 64‑bit. */

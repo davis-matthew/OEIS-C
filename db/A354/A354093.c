@@ -14,16 +14,18 @@
  *            q_i^e_i (q_i = mapped prime). Then a(n) = σ(A35...
  * Range:     u8 n <= 7, u16 n <= 63, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow, factor_u64, next_prime
+ * Validated: standard, pass, 86 terms through n = 9568 (2026-11-01)
+ * Helpers:   factor_u64, ipow, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/ipow.h"
 #include "../utils/next_prime.h"
-#include "../utils/big_pow.h"
 
 static seq_t shift_prime(uint64_t p)
 {
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
         uint64_t e = exps[i];
         seq_t q = shift_prime(p);                     /* mapped prime      */
         seq_t exp = (seq_t)(e + 1);                   /* exponent for power */
-        seq_t power = big_pow(q, exp);                /* q^(e+1)           */
+        seq_t power = ipow(q, exp);                /* q^(e+1)           */
         seq_t term   = (power - (seq_t)1) / (q - (seq_t)1);
         sigma *= term;
     }

@@ -11,7 +11,8 @@
  *            and store the ones that satisfy the condition
  * Range:     u8 n <= 66, u16 n <= 7951, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, gpf
+ * Validated: standard, pass, 94 terms through n = 9711 (2026-11-03)
+ * Helpers:   factor_u64, largest_prime_factor, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/gpf.h"          /* uint64_t gpf(uint64_t)         */
-#include "../utils/factor_u64.h"   /* factor_u64(uint64_t,uint64_t*,uint64_t*,size_t*) */
+#include "../utils/factor_u64.h"
+#include "../utils/largest_prime_factor.h"
+#include "../utils/mem.h"
 
 /* ----------- caching machinery ----------------------------------- */
 
@@ -36,7 +38,7 @@ static void ensure_cache_capacity(size_t new_cap)
     if (new_cap <= cache_cap) return;
     size_t cap = cache_cap ? cache_cap : 8;
     while (cap < new_cap) cap <<= 1;
-    seq_t *ptr = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+    seq_t *ptr = mem_resize(seq_t, cache, cap);
     if (!ptr) abort();   /* out of memory */
     cache = ptr;
     cache_cap = cap;
@@ -60,12 +62,12 @@ static bool qualifies(uint64_t k, seq_t *to_store)
         deriv += part;
     }
 
-    uint64_t gpf_k   = gpf(k);
+    uint64_t gpf_k   = largest_prime_factor(k);
     /* the derivative is guaranteed to fit in 64 bits for the range required
        in the tests; if it overflows nothing is returned, the sequence would
        be incorrect but such a case does not occur for the intended n.   */
     uint64_t deriv_u = (uint64_t)deriv;   /* safe for the required range   */
-    uint64_t gpf_d   = gpf(deriv_u);
+    uint64_t gpf_d   = largest_prime_factor(deriv_u);
 
     if (to_store) *to_store = (seq_t)k;
     return gpf_d <= gpf_k;

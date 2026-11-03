@@ -7,6 +7,7 @@
  * Formula:   a(2n-1) = n^2+2; a(2n) = (n+1)^2-2 for n>=2; base a(1)=2, a(2)=3
  * Range:     u8 n <= 30, u16 n <= 510, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 77 terms through n = 9793 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

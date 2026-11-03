@@ -7,14 +7,16 @@
  * Formula:   a(n) = s(j) - s(i) where s(k) = C(2k,k)/2 and (i,j) correspond
  *            to n in the natural triangular enumeration: 1 ≤ i < j and n ≤
  *            (j-1)j/2
- * Range:     u8 n <= 3, u16 n <= 21, u32 n <= 42, u64 n <= 42, u128 n <= 42,
+ * Range:     u8 n <= 10, u16 n <= 36, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -33,9 +35,9 @@ seq_t a(idx_t n)
     idx_t i = n - prev;            /* 1 ≤ i < j */
 
     /* Compute s(i) and s(j). */
-    seq_t si = binom(2 * i, i);    /* C(2i,i)  */
+    seq_t si = binomial(2 * i, i);    /* C(2i,i)  */
     si = si / 2;                   /* divide by 2 */
-    seq_t sj = binom(2 * j, j);    /* C(2j,j)  */
+    seq_t sj = binomial(2 * j, j);    /* C(2j,j)  */
     sj = sj / 2;                   /* divide by 2 */
 
     return sj - si;                /* a(n) = s(j)-s(i) */

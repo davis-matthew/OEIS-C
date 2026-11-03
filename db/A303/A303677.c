@@ -9,12 +9,14 @@
  *            a(1) = 2, a(2) = 5, a(3) = 7, a(4) = 17, a(5) = 31
  * Range:     u8 n <= 8, u16 n <= 17, u32 n <= 35, u64 n <= 71, u128 n <= 143,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 185 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     if (capacity < n) {
         size_t new_cap = (capacity == 0) ? (n > 5 ? n : 5) : capacity * 2;
         if (new_cap < n) new_cap = n;
-        seq_t *tmp = (seq_t *)realloc(cache, (new_cap + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (new_cap + 1));
         if (!tmp) exit(EXIT_FAILURE);
         cache = tmp;
         capacity = new_cap;
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     if (computed < 5) {
         /* Ensure we have space for indices up to 5 */
         if (capacity < 5) {
-            seq_t *tmp = (seq_t *)realloc(cache, 6 * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, 6);
             if (!tmp) exit(EXIT_FAILURE);
             cache = tmp;
             capacity = 5;

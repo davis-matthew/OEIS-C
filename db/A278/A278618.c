@@ -7,7 +7,8 @@
  * Formula:   a(n) = ∑_{j=0}^{⌊n/2⌋} C(n−j−1, n−2j) * C(2n+1, j)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 34, u128 n <= 66,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 42 terms through n = 987 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,8 @@
 /* The implementation uses the provided binom function to evaluate binomial
    coefficients.  It handles the case j = 0 implicitly by skipping it,
    because C(n−1, n) = 0 for all n ≥ 1.  For n = 0 the result is 1.  */
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -35,8 +37,8 @@ seq_t a(idx_t n)
         if (b1 > a1)
             continue;
 
-        seq_t term1 = binom(a1, b1);
-        seq_t term2 = binom(2 * n + 1, j);
+        seq_t term1 = binomial(a1, b1);
+        seq_t term2 = binomial(2 * n + 1, j);
         sum += term1 * term2;
     }
 

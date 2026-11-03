@@ -12,13 +12,15 @@
  *            a(13)=927792
  * Range:     u8 none, u16 n <= 9, u32 n <= 25, u64 n <= 57, u128 n <= 121,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 190 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,20 +35,20 @@ seq_t a(idx_t n)
     if (n > cap) {
         /* first time: fill initial 13 terms */
         if (cap == 0) {
-            cache = (seq_t*)malloc(13 * sizeof(seq_t));
+            cache = mem_new(seq_t, 13);
             if (!cache) abort();
             static const seq_t init[13] = {
                 396, 702, 1264, 2314, 4308,
                 8150, 15640, 30620, 60192, 118756,
                 235048, 466476, 927792
             };
-            memcpy(cache, init, 13 * sizeof(seq_t));
+            mem_copy(cache, init, 13 * sizeof(seq_t));
             cap = 13;
         }
 
         /* resize cache to hold up to n */
         if (n > cap) {
-            seq_t *tmp = (seq_t*)realloc(cache, n * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, n);
             if (!tmp) abort();
             cache = tmp;
             /* compute missing values using the recurrence */

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 47, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   mul_small
+ * Validated: partial, pass, 56 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,20 @@
      r(r+1)/2 <= n < (r+1)(r+2)/2. */
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/mul_small.h"
+#include "../utils/mem.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 static idx_t max_row = 0;
 static seq_t **rows = NULL;
@@ -42,11 +56,11 @@ static void ensure_rows(idx_t want)
         rows = (seq_t**)calloc(rows_cap, sizeof(seq_t*));
         if (!rows) abort();
         /* Row 0 */
-        rows[0] = (seq_t*)malloc(sizeof(seq_t));
+        rows[0] = mem_new(seq_t, 1);
         if (!rows[0]) abort();
         rows[0][0] = (seq_t)1;
         /* Row 1 */
-        rows[1] = (seq_t*)malloc(2 * sizeof(seq_t));
+        rows[1] = mem_new(seq_t, 2);
         if (!rows[1]) abort();
         rows[1][0] = rows[1][1] = (seq_t)1;
         max_row = 1;
@@ -54,7 +68,7 @@ static void ensure_rows(idx_t want)
     while (max_row < want) {
         idx_t next = max_row + 1;
         idx_t len  = (idx_t)(next + 1);       /* row length */
-        seq_t *cur = (seq_t*)malloc(len * sizeof(seq_t));
+        seq_t *cur = mem_new(seq_t, len);
         if (!cur) abort();
 
         seq_t *prev1 = rows[next-1];           /* v(n-1)  length len-1 */

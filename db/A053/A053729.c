@@ -7,13 +7,15 @@
  * Formula:   a(n) = Sum_{k=1..n} k^k * (n+1-k)^(n+1-k)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Auxiliary function: exponentiation by squaring for seq_t */
 static seq_t pow_seq_t(seq_t base, idx_t exp)
@@ -45,7 +47,7 @@ static void ensure_f(idx_t n)
     idx_t new_cap = f_cap ? f_cap : 4;
     while (new_cap < n) new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(f_arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, f_arr, new_cap);
     if (!tmp) abort();          /* allocation failure – terminate */
     f_arr = tmp;
     f_cap = new_cap;
@@ -64,7 +66,7 @@ static void ensure_a(idx_t n)
     idx_t new_cap = a_cap ? a_cap : 4;
     while (new_cap < n) new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(a_arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_arr, new_cap);
     if (!tmp) abort();
     a_arr = tmp;
     a_cap = new_cap;

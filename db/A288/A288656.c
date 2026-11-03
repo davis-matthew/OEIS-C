@@ -11,13 +11,15 @@
  *            then evaluates the double sum in O(n) time
  * Range:     u8 n <= 17, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     if (!is_prime)
         return (seq_t)0;                /* fallback on allocation failure */
 
-    seq_t *pref = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *pref = mem_new(seq_t, (size_t)(n + 1));
     if (!pref) {
         free(is_prime);
         return (seq_t)0;
@@ -63,6 +65,6 @@ seq_t a(idx_t n)
     }
 
     free(is_prime);
-    free(pref);
+    mem_free(pref);
     return total;
 }

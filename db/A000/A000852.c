@@ -9,7 +9,8 @@
  *            is 1, 8, 11, 18, 80..89, or has hundreds digit 1 or 8
  * Range:     u8 n <= 114, u16 n <= 4214, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   vowel_start
+ * Validated: standard, pass, 63 terms through n = 9918 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,17 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/vowel_start.h"
+
+static bool vowel_start(uint64_t k) {
+    while (k >= 1000) k /= 1000;
+    if (k >= 100) {
+        uint64_t h = k / 100;
+        return h == 1 || h == 8;
+    }
+    if (k < 10) return k == 1 || k == 8;
+    if (k < 20) return k == 11 || k == 18;
+    return k >= 80 && k < 90;
+}
 
 static uint64_t *terms = NULL;
 static idx_t nterms = 0, capterms = 0;

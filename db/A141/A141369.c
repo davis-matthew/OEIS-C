@@ -8,7 +8,8 @@
  *            (i+1)*(-1)^i*binomial(n,i)*a(i)*a(n-i) (n≥0)
  * Range:     i8 n <= 4, i16 n <= 6, i32 n <= 10, i64 n <= 18, i128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 316 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #ifdef __cplusplus
 #include <new>      /* for placement new */
 #endif
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,11 +30,11 @@ seq_t a(idx_t n)
     if (cache_len == 0) {
         /* grow to capacity 2 */
         size_t new_cap = 2;
-        cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         if (!cache) return 0; /* out of memory */
 #ifdef __cplusplus
-        new(&cache[0]) seq_t(1);
-        new(&cache[1]) seq_t(1);
+        *(&cache[0]) = (seq_t)(1);
+        *(&cache[1]) = (seq_t)(1);
 #else
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)1;
@@ -50,13 +52,13 @@ seq_t a(idx_t n)
     if (n + 1 > cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
         if (new_cap < n + 1) new_cap = n + 1;
-        void *tmp = realloc(cache, new_cap * sizeof(seq_t));
+        void *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0; /* out of memory */
         cache = (seq_t*)tmp;
 #ifdef __cplusplus
         /* Construct any newly allocated elements */
         for (size_t i = cache_cap; i < new_cap; ++i) {
-            new(&cache[i]) seq_t();
+            *(&cache[i]) = (seq_t)0;
         }
 #endif
         cache_cap = new_cap;

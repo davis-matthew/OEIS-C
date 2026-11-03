@@ -7,13 +7,15 @@
  * Formula:   a(1) = 1; a(n+1) = Sum_{d|n} d*a(d) for n >= 1
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 13, u64 n <= 21, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 430 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>   /* size_t */
 #include <stdlib.h>   /* malloc, realloc, free, abort */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
         if (newcap <= (size_t)n)
             newcap = (size_t)n + 1;
         /* realloc may return NULL on failure */
-        void *tmpv = realloc(cache, newcap * sizeof(seq_t));
+        void *tmpv = mem_resize(seq_t, cache, newcap);
         if (tmpv == NULL)
             abort();
         cache = (seq_t *)tmpv;

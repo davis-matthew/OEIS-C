@@ -7,13 +7,15 @@
  * Formula:   a(n) = A014437(n)^2 (squares of odd Fibonacci numbers)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 15, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Compute a(n).  Uses a simple static cache that grows as needed. */
 seq_t a(idx_t n)
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* Initialise on first call */
     if (cache == NULL) {
         cache_cap = 4;                  /* initial capacity */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL)
             return 0;                    /* out of memory – return 0 as sentinel */
 
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
             /* Grow cache if necessary */
             if (odd_cnt >= cache_cap) {
                 size_t new_cap = cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (tmp == NULL)
                     return 0;            /* out of memory – return 0 as sentinel */
                 cache = tmp;

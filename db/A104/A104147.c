@@ -6,9 +6,10 @@
  * Keywords:  easy, nonn
  * Formula:   a(n) = ⌊cuberoot(p_n)⌋ + 1, where p_n is the n‑th prime
  *            (0‑based)
- * Range:     u8 n <= 46, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
+ * Range:     u8 n <= 53, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   cube_root_floor, is_prime_uint64
+ * Validated: standard, pass, 114 terms through n = 886 (2026-11-03)
+ * Helpers:   icbrt_seq, is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/is_prime_uint64.h"
-#include "../utils/cube_root_floor.h"
+#include "../utils/icbrt_seq.h"
+#include "../utils/is_prime_u64.h"
 
 static uint64_t *prime_cache = NULL;   /* cached prime values (uint64_t)           */
 static idx_t    cache_size  = 0;       /* number of stored primes                 */
@@ -41,7 +42,7 @@ static bool grow_cache(idx_t n)
     idx_t    count     = cache_size;
 
     while (count < new_size) {
-        if (is_prime_uint64(candidate)) {
+        if (is_prime_u64(candidate)) {
             new_arr[count] = candidate;
             ++count;
         }
@@ -59,6 +60,6 @@ seq_t a(idx_t n)
     if (!grow_cache(n)) return 0;             /* allocation error case */
 
     uint64_t p = prime_cache[n];              /* n-th prime (uint64_t) */
-    seq_t  k = cube_root_floor(p);           /* floor(cuberoot(p))   */
+    seq_t  k = icbrt_seq(p);           /* floor(cuberoot(p))   */
     return k + 1;                             /* include the cube 0^3 */
 }

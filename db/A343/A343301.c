@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 133, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto
+ * Validated: standard, pass, 80 terms through n = 9670 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 /* Integer square‑root for uint64_t (binary search). */
 static uint64_t isqrt_uint64(uint64_t n)
@@ -89,7 +91,7 @@ static void add_term(seq_t val)
 {
     if (terms_len == terms_cap) {
         terms_cap = (terms_cap == 0) ? 8 : terms_cap << 1;
-        terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, terms_cap);
         if (!terms) abort();
     }
     terms[terms_len++] = val;

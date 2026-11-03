@@ -10,7 +10,8 @@
  *            otherwise a(n) = a(n-1) - phi(n)
  * Range:     u8 n <= 156, u16 n <= 9999, u32 n <= 9999, u64 n <= 9999,
  *            u128 n <= 9999, big any n
- * Helpers:   phi
+ * Validated: standard, pass, 91 terms through n = 9799 (2026-11-03)
+ * Helpers:   mem, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 /*  Computes OEIS A327442.  */
 
 #include <stdlib.h>
-#include "../utils/phi.h"
+#include <stdint.h>
+#include "../utils/totient.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +34,7 @@ seq_t a(idx_t n)
     if (len == 0) {
         /* allocate for a(0) only */
         cap = 1;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cap);
+        cache = mem_new(seq_t, cap);
         cache[0] = (seq_t)0;
         len = 1;
     }
@@ -41,7 +44,7 @@ seq_t a(idx_t n)
         size_t new_cap = cap;
         while (new_cap < (size_t)(n + 1))
             new_cap = new_cap == 0 ? 1 : new_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort(); /* out‑of‑memory: terminate */
         cache = tmp;
         cap = new_cap;
@@ -49,7 +52,7 @@ seq_t a(idx_t n)
 
     /* compute missing terms up to n */
     for (idx_t i = len; i <= n; ++i) {
-        seq_t phi_i = phi(i);                /* phi(i) as seq_t */
+        seq_t phi_i = totient(i);                /* phi(i) as seq_t */
         seq_t prev  = cache[i - 1];
         if (phi_i > prev)
             cache[i] = prev + phi_i;

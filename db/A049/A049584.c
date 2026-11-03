@@ -8,7 +8,8 @@
  *            solution
  * Range:     u8 n <= 18, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   append_candidate, is_prime_small, powmod64
+ * Validated: standard, pass, 70 terms through n = 887 (2026-11-03)
+ * Helpers:   is_prime_seq, mem, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,26 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_prime_small.h"
-#include "../utils/append_candidate.h"
-#include "../utils/powmod64.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/powmod_u64.h"
+#include "../utils/mem.h"
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
 
 /* Euclidean GCD for 64‑bit unsigned integers. */
 static uint64_t gcd_u64(uint64_t a, uint64_t b)
@@ -61,7 +79,7 @@ seq_t a(idx_t n)
             continue;
 
         /* Test primality. */
-        if (!is_prime_small((seq_t)p))
+        if (!is_prime_seq((seq_t)p))
             continue;
 
         /* Special‑case p = 2 is already handled. */
@@ -71,7 +89,7 @@ seq_t a(idx_t n)
         /* For odd primes: check 2^((p-1)/gcd(52,p-1)) ≡ 1 (mod p). */
         uint64_t g   = gcd_u64(52ULL, p - 1ULL);
         uint64_t exp = (p - 1ULL) / g;
-        uint64_t val = powmod64(2ULL, exp, p);
+        uint64_t val = powmod_u64(2ULL, exp, p);
         if (val == 1ULL)
             append_candidate(&good_primes, &good_cnt, &good_cap, (seq_t)p);
     }

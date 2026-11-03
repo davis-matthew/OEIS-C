@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   get_digits, mul_small
+ * Validated: standard, pass, 69 terms through n = 8372 (2026-11-01)
+ * Helpers:   get_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,23 @@
 #include <stddef.h>
 
 /* Helper functions from the build's utils */
-#include "../utils/mul_small.h"   /* seq_t mul_small(seq_t x, unsigned int m); */
-#include "../utils/get_digits.h" /* void get_digits(seq_t x, uint8_t *buf, size_t *len); */
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/get_digits.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 static seq_t rearrange_three_times(seq_t x)
 {

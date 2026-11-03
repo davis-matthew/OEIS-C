@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_log2
+ * Validated: standard, pass, 102 terms through n = 8738 (2026-11-01)
+ * Helpers:   ilog2_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,14 +36,15 @@
  *********************************************************************/
 
 #include <stdint.h>   /* for idx_t and seq_t types (provided by the build) */
-#include "../utils/floor_log2.h"
+#include <stdlib.h>
+#include "../utils/ilog2_idx.h"
 
 seq_t a(idx_t n) {
     if (n <= 3)   /* Base cases: the initial word */
         return (seq_t)n;
 
     /* p = 2^k , k = ⌊log₂n⌋ */
-    idx_t k = floor_log2(n);
+    idx_t k = ilog2_idx(n);
     idx_t p = 1ULL << k;          /* 2^k, largest power of two ≤ n */
 
     if (n == p) {

@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = gcd(n - A020639(n), sigma(n) - A020639(n) - n)
- * Range:     u8 n <= 256, u16 n <= 9821, u32 n <= 9821, u64 n <= 9821,
- *            u128 n <= 9821, big any n
- * Helpers:   gcd, spf_of
+ * Range:     u8 n <= 256, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 121 terms through n = 9821 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,15 @@
 
 #include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/spf_of.h"
+
+/* Smallest prime factor of n (n >= 1). */
+static uint64_t spf_of(uint64_t n) {
+    if (n <= 1) return 1;          /* A020639(1) = 1 by definition */
+    for (uint64_t p = 2; p * p <= n; ++p) {
+        if (n % p == 0) return p;
+    }
+    return n;                       /* n is prime */
+}
 
 /* Sum of divisors of n using trial division factorisation. */
 static uint64_t sigma_of_uint64(uint64_t n) {

@@ -10,12 +10,14 @@
  *            that works for any supported seq_t and idx_t
  * Range:     u8 n <= 765, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 95 terms through n = 9550 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;    /* array holding computed values */
 static idx_t  cached_n = 0;    /* highest index already computed (inclusive) */
@@ -28,7 +30,7 @@ static void ensure_cache(idx_t n)
     if (cap <= (size_t)n) {                /* need to grow */
         size_t newcap = (size_t)n + 1;
         if (newcap < 8) newcap = 8;        /* minimum */
-        cache = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, newcap);
         cap = newcap;
     }
     /* compute new entries */

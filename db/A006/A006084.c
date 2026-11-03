@@ -9,8 +9,9 @@
  *            9, write n = 9k + r where 0 <= r < 9: a(9k) = 1, a(9k+1) = 1,
  *            a(9k+2) = 18k+8, a(9k+3) = 1, a(9k+4) = 1, a(9k+5) = 2k+1,
  *            a(9k+6) = 5, a(9k+7) = 1, a(9k+8) = 2k+1
- * Range:     u8 n <= 127, u16 n <= 9404, u32 n <= 9404, u64 n <= 9404,
- *            u128 n <= 9404, big any n
+ * Range:     u8 n <= 127, u16 n <= 19999, u32 n <= 19999, u64 n <= 19999,
+ *            u128 n <= 19999, big any n
+ * Validated: standard, pass, 108 terms through n = 9404 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

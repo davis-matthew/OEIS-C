@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 50, u32 n <= 107, u64 n <= 296,
  *            u128 n <= 799, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 1616 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>   /* malloc, free */
 #include <stdint.h>   /* uint64_t */
+#include "../utils/mem.h"
 
 /* floor(sqrt(n)) for non‑negative n < 2⁶⁴ */
 static idx_t _floor_isqrt_u64(idx_t n)
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
 
     /* DP array of size c+1 (indices 0..c). */
     size_t len = (size_t)c + 1;
-    seq_t *dp = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, len);
     if (!dp) return (seq_t)0;     /* allocation failure (unlikely) */
 
     dp[0] = (seq_t)1;
@@ -71,6 +73,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[c];
-    free(dp);
+    mem_free(dp);
     return result;
 }

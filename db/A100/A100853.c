@@ -11,12 +11,14 @@
  *            8)). a(0) = 1; a(n) is the number of such partitions of n
  * Range:     u8 n <= 23, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *dp = NULL;
@@ -25,7 +27,7 @@ seq_t a(idx_t n) {
 
     /* Allocate or enlarge the dp array if necessary */
     if (dp_cap < n + 1) {
-        seq_t *new_dp = (seq_t *)realloc(dp, (size_t)(n + 1) * sizeof(seq_t));
+        seq_t *new_dp = mem_resize(seq_t, dp, (size_t)(n + 1));
         if (!new_dp) return (seq_t)0; /* allocation failed */
         dp = new_dp;
         dp_cap = n + 1;

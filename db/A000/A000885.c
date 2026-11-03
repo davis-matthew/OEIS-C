@@ -9,7 +9,8 @@
  *            classes mod 210 (pre-sieved by 11,13,17,19)
  * Range:     u8 n <= 30, u16 n <= 474, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   t885_cnt, t885_inv, t885_isqrt, t885_kcut
+ * Validated: standard, pass, 75 terms through n = 9928 (2026-11-01)
+ * Helpers:   isqrt_u64, modinv
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,10 +19,26 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/t885_cnt.h"
-#include "../utils/t885_inv.h"
-#include "../utils/t885_isqrt.h"
-#include "../utils/t885_kcut.h"
+#include "../utils/isqrt_u64.h"
+#include "../utils/modinv.h"
+
+static uint64_t t885_cnt(const unsigned char *s, size_t a, size_t b) {
+    uint64_t r = 0;
+    while (a < b && (a & 7)) r += s[a++];
+    while (a + 8 <= b) {
+        uint64_t w;
+        memcpy(&w, s + a, 8);
+        r += (w * 0x0101010101010101ULL) >> 56;
+        a += 8;
+    }
+    while (a < b) r += s[a++];
+    return r;
+}
+
+static uint64_t t885_kcut(uint64_t X, uint64_t c) {
+    if (X <= c + 2) return 0;
+    return (X - c - 2 + 209) / 210;
+}
 
 #define T885_L ((uint64_t)1 << 18)
 #define T885_M ((uint64_t)46189) /* 11*13*17*19 */
@@ -101,7 +118,7 @@ seq_t a(idx_t n) {
     while ((uint64_t)t885_next <= (uint64_t)n) {
         uint64_t kb = t885_kb, kend = kb + T885_L;
         uint64_t hi = 210 * kend + 1000;
-        t885_primes(2 * t885_isqrt(hi) + 10);
+        t885_primes(2 * isqrt_u64(hi) + 10);
         if (t885_NP + 1 > t885_Acap) {
             size_t nc = t885_Acap;
             while (nc < t885_NP + 1) nc *= 2;
@@ -136,7 +153,7 @@ seq_t a(idx_t n) {
                     t885_nx[ci] = (uint64_t *)realloc(t885_nx[ci], 2 * nc * sizeof(uint64_t));
                 t885_ncap = nc;
             }
-            uint64_t iv = t885_inv(210 % q, q);
+            uint64_t iv = modinv(210 % q, q);
             for (int ci = 0; ci < t885_nc; ci++) {
                 for (int t = 0; t < 2; t++) {
                     uint64_t off = (uint64_t)t885_c[ci] + 2 * (uint64_t)t;

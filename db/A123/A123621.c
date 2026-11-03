@@ -7,14 +7,26 @@
  * Formula:   a(n) = greatest k ≤ n/2 such that n divides C(n,k)
  * Range:     u8 n <= 512, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   count_factorial
+ * Validated: standard, pass, 92 terms through n = 1000 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/count_factorial.h"
+
+/* exponents of a prime in n! (Legendre's formula) */
+static inline idx_t
+count_factorial(idx_t n, idx_t p)
+{
+    idx_t cnt = 0;
+    while (n) {
+        n /= p;
+        cnt += n;
+    }
+    return cnt;
+}
 
 /* OEIS sequence A123621 */
 seq_t

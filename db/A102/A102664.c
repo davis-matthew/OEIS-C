@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 47, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   isqrt, seq_malloc
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   isqrt_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,19 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/isqrt.h"     /* provides seq_t isqrt(seq_t) */
-#include "../utils/seq_malloc.h"/* provides seq_t *seq_malloc(idx_t)  */
+#include <stdint.h>
+#include "../utils/isqrt_seq.h"
+#include "../utils/mem.h"
+
+/* helper to allocate an array of seq_t that works in both C and C++ */
+static inline seq_t *seq_malloc(idx_t n)
+{
+#ifdef __cplusplus
+    return mem_new(seq_t, n);
+#else
+    return (seq_t *)malloc(n * sizeof(seq_t));
+#endif
+}
 
 seq_t a(idx_t n)
 {
@@ -98,7 +110,7 @@ seq_t a(idx_t n)
                 if (sum < sq_cap)
                     square = sq_flag[(idx_t)sum];
                 else {
-                    seq_t r = isqrt(sum);
+                    seq_t r = isqrt_seq(sum);
                     square = r * r == sum;
                 }
                 if (square) conflict = true;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 6,
  *            big any n
- * Helpers:   build_primes_upto, seq_pow
+ * Validated: partial, pass, 8 terms through n = 9 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,9 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 static uint64_t *primes = NULL;
 static size_t      prime_cnt = 0;
@@ -74,8 +76,8 @@ seq_t a(idx_t n)
         /* guarantee we can refer to primes[i+1] and primes[i+n] */
         ensure_primes(i + n + 1);
 
-        seq_t low  = seq_pow((seq_t)primes[i],       n); /* p_i  ^ n */
-        seq_t high = seq_pow((seq_t)primes[i + 1],   n); /* p_{i+1} ^ n */
+        seq_t low  = ipow_idx((seq_t)primes[i],       n); /* p_i  ^ n */
+        seq_t high = ipow_idx((seq_t)primes[i + 1],   n); /* p_{i+1} ^ n */
 
         if (prod > low && prod < high)
             return prod;        /* found the minimal product */

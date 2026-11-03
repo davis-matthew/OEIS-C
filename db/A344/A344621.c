@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static bool is_prime(uint64_t n)
 {
@@ -54,11 +56,11 @@ static bool satisfies_property(uint64_t p)
         uint64_t r3 = a2 + 1;
         if (r3 >= p) break;
 
-        seq_t l1 = mod_pow((seq_t)two_a, exp, modp);
+        seq_t l1 = powmod((seq_t)two_a, exp, modp);
         if (l1 != nonres)         continue;
-        seq_t l2 = mod_pow((seq_t)r2, exp, modp);
+        seq_t l2 = powmod((seq_t)r2, exp, modp);
         if (l2 != nonres)         continue;
-        seq_t l3 = mod_pow((seq_t)r3, exp, modp);
+        seq_t l3 = powmod((seq_t)r3, exp, modp);
         if (l3 == nonres)         return false; /* counter‑example found */
     }
     return true;   /* no counter‑example found */
@@ -72,11 +74,11 @@ static uint64_t last_checked = 0;  /* last integer examined for primality */
 static void grow_cache(void)
 {
     size_t new_cap = (cache_cap == 0) ? 16 : cache_cap << 1;
-    seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (!new_arr) abort();
     if (cache) {
-        memcpy(new_arr, cache, cache_len * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_arr, cache, cache_len * sizeof(seq_t));
+        mem_free(cache);
     }
     cache = new_arr;
     cache_cap = new_cap;

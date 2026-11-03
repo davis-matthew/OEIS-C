@@ -8,15 +8,35 @@
  *            f(x) = sum of the cubes of the decimal digits of x
  * Range:     u8 none, u16 n <= 4, u32 n <= 4, u64 n <= 4, u128 n <= 4,
  *            big any n
- * Helpers:   alloc_seq_array, cube_digit_sum
+ * Validated: full, pass, 4 terms through n = 4 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/alloc_seq_array.h"
-#include "../utils/cube_digit_sum.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+/* sum of the cubes of the decimal digits of x */
+static seq_t cube_digit_sum(seq_t x)
+{
+    seq_t sum = 0;
+    while (x != 0)
+    {
+        seq_t d = x % 10;
+        sum += d * d * d;
+        x /= 10;
+    }
+    return sum;
+}
 
 static seq_t *cycle_cache = NULL;
 static size_t cycle_cache_len = 0;

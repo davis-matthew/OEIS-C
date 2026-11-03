@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 57, u16 n <= 8110, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_max_digit_idx, sieve_first_n_primes
+ * Validated: standard, pass, 86 terms through n = 9582 (2026-11-01)
+ * Helpers:   sieve_first_n_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,20 @@
 #include <stdlib.h>
 
 /* Helper for sieving the first n primes */
+#include <string.h>
+#include <math.h>
 #include "../utils/sieve_first_n_primes.h"
-#include "../utils/has_max_digit_idx.h"
+
+/* Check whether the digit (base-1) occurs in base‑b representation of num */
+static bool has_max_digit_idx(idx_t num, idx_t base)
+{
+    idx_t target = base - 1;
+    while (num > 0) {
+        if (num % base == target) return true;
+        num /= base;
+    }
+    return false;
+}
 
 /* Integer square root for idx_t (uint64_t) */
 static inline idx_t isqrt_u64(idx_t n)

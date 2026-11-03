@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 147, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   divisor_count_u64
+ * Validated: standard, pass, 85 terms through n = 944 (2026-11-03)
+ * Helpers:   mem, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;        /* sequence values, 0‑based */
 static size_t cached_len = 0;      /* number of elements stored */
@@ -36,7 +38,7 @@ static void ensure_cache_cap(size_t needed)
     size_t new_cap = cached_cap ? cached_cap : 1;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_t *new_buf = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_buf = mem_resize(seq_t, cache, new_cap);
     if (!new_buf) {
         /* In a real project you'd prefer a proper error handling. */
         exit(EXIT_FAILURE);
@@ -58,10 +60,10 @@ static void ensure_seq_upto(idx_t n)
     }
 
     for (idx_t i = cached_len + 1; i <= n; ++i) {
-        uint64_t d_i = divisor_count_u64((uint64_t)i);  /* d(n) */
+        uint64_t d_i = num_divisors((uint64_t)i);  /* d(n) */
 
         seq_t candidate = cache[cached_len - 1] + 1;      /* > a(n‑1) */
-        while (divisor_count_u64((uint64_t)candidate) < d_i)
+        while (num_divisors((uint64_t)candidate) < d_i)
             ++candidate;
 
         ensure_cache_cap(cached_len + 1);

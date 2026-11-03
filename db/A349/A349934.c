@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy, tabl
  * Formula:   not stated
- * Range:     u8 n <= 3, u16 n <= 11, u32 n <= 38, u64 n <= 55, u128 n <= 55,
+ * Range:     u8 n <= 6, u16 n <= 16, u32 n <= 47, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,7 @@
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 static idx_t isqrt_u64(idx_t x)
 {
@@ -55,7 +56,7 @@ static seq_t t_coef(idx_t n, idx_t k, idx_t s)
     for (idx_t j = 0; j <= maxj; ++j)
     {
         idx_t term_k = k - j * (s + 1) + n - 1;
-        seq_t term = binom(n, j) * binom(term_k, n - 1);
+        seq_t term = binomial(n, j) * binomial(term_k, n - 1);
         if (j & 1)
             neg += term;
         else

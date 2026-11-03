@@ -8,12 +8,14 @@
  * Formula:   a(n) = coefficient of x^n in ∏_{k>0} (1 - x^k)^2 * (1 + x^(2k))
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 121 terms through n = 995 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute a(n) by expanding the product up to the required index.
    This uses O(n^2) time and O(n) memory, which is acceptable for n up to ~10 000. */
@@ -21,11 +23,11 @@ seq_t a(idx_t n)
 {
     /* Allocate coefficient arrays.  A holds the current polynomial,
        B holds the next polynomial after processing a new k. */
-    seq_t *A = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
-    seq_t *B = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
+    seq_t *A = mem_new(seq_t, (size_t)n + 1);
+    seq_t *B = mem_new(seq_t, (size_t)n + 1);
     if (!A || !B) {          /* allocation failure – return 0 as fallback */
-        free(A);
-        free(B);
+        mem_free(A);
+        mem_free(B);
         return (seq_t)0;
     }
 
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
 
     seq_t result = A[n];
 
-    free(A);
-    free(B);
+    mem_free(A);
+    mem_free(B);
     return result;
 }

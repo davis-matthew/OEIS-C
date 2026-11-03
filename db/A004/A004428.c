@@ -8,14 +8,23 @@
  *            of digits of n; a(0) = 0
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   power_leq
+ * Validated: standard, pass, 124 terms through n = 9560 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/power_leq.h"
+
+static bool power_leq(uint64_t x, int e, uint64_t limit) {
+    uint64_t r = 1;
+    for (int i = 0; i < e; i++) {
+        if (r > limit / x) return false;
+        r *= x;
+    }
+    return true;
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)0;

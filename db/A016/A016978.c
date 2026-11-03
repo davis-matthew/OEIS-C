@@ -7,6 +7,7 @@
  * Formula:   a(n) = (6*n + 5)^10
  * Range:     u8 none, u16 none, u32 n <= 0, u64 n <= 13, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 30 terms through n = 991 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,12 +8,14 @@
  * Formula:   a(n) = the nth positive integer coprime to n*(n+1)
  * Range:     u8 n <= 15, u16 n <= 396, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 78 terms through n = 965 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Compute a(n) = the nth positive integer coprime to n*(n+1). */
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

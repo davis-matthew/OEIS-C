@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 902, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 965 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* forward declaration – the build is done inside this file */
 static void build_prime_table(void);
@@ -113,9 +115,9 @@ append_term(seq_t val)
 {
     if (term_len == term_cap) {
         size_t newcap = term_cap ? term_cap * 2 : 8;
-        seq_t *tmp = (seq_t *)realloc(term_vals, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, term_vals, newcap);
         if (!tmp) {
-            if (term_vals) free(term_vals);
+            if (term_vals) mem_free(term_vals);
             abort();
         }
         term_vals = tmp;

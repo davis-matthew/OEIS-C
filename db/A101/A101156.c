@@ -7,12 +7,25 @@
  * Formula:   a(n) = 2*Fibonacci(n) + 8*Fibonacci(n-5)
  * Range:     u8 n <= 11, u16 n <= 22, u32 n <= 45, u64 n <= 91, u128 n <= 183,
  *            big any n
- * Helpers:   bitlen
+ * Validated: standard, pass, 51 terms through n = 967 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/bitlen.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
+
+/* Computes the number of bits needed to represent x:
+   0 has length 1. */
+static idx_t bitlen(idx_t x)
+{
+    if (x == 0) return 1;
+    idx_t len = 0;
+    while (x) { ++len; x >>= 1; }
+    return len;
+}
 #include <stddef.h>
 
 static inline void fib_pair(idx_t n, seq_t *fn, seq_t *fn_next)

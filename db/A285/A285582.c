@@ -8,13 +8,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 652, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 91 terms through n = 9497 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Recurrence: a(1)=1, a(2)=a(3)=a(4)=2; a(n)=a(a(n-3)-1)+a(n-a(n-4)-1) for n>4 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* 1‑based array of computed values */
 static idx_t  computed = 0;   /* largest n that has been computed */
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* allocate enough space for indices 0 .. n (index 0 unused) */
     size_t needed = (size_t)n + 1;
     if (cap < needed) {
-        seq_t *tmp = (seq_t *)realloc(cache, needed * sizeof *cache);
+        seq_t *tmp = mem_resize(seq_t, cache, (needed * sizeof *cache) / sizeof(seq_t));
         if (tmp == NULL) abort();
         cache = tmp;
         cap   = needed;

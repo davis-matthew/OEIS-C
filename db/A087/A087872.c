@@ -10,7 +10,8 @@
  *            test for 64‑bit integers
  * Range:     u8 n <= 1, u16 n <= 17, u32 n <= 1607, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   is_prime_u64, mulmod_u64, powmod_u64
+ * Validated: standard, pass, 50 terms through n = 4922 (2026-11-03)
+ * Helpers:   is_prime_u64, mem, mulmod, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/is_prime_u64.h"
-#include "../utils/mulmod_u64.h"
+#include "../utils/mulmod.h"
 #include "../utils/powmod_u64.h"
+#include "../utils/mem.h"
 
 /* ---------- Sequence function ---------- */
 seq_t a(idx_t n)
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     if (primes == NULL)
     {
         cap = 256;
-        primes = (seq_t *)malloc(cap * sizeof(seq_t));
+        primes = mem_new(seq_t, cap);
         size   = 0;
     }
 
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
             if (size + 1 > cap)
             {
                 cap *= 2;
-                primes = (seq_t *)realloc(primes, cap * sizeof(seq_t));
+                primes = mem_resize(seq_t, primes, cap);
             }
             primes[size++] = val;
         }

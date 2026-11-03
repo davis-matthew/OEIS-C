@@ -9,11 +9,14 @@
  *            1) - 1)/2) and k = n - r*(r+1)/2
  * Range:     u8 n <= 16, u16 n <= 38, u32 n <= 109, u64 n <= 335,
  *            u128 n <= 1148, big any n
+ * Validated: standard, pass, 71 terms through n = 5054 (2026-11-01)
  * Helpers:   binomial, catalan
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/catalan.h"
 

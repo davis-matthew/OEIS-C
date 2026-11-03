@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 55, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   digit_len, pow10
+ * Validated: partial, pass, 73 terms through n = 73 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,19 @@
    efficient. */
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/pow10.h"
-#include "../utils/digit_len.h"
+#include <stdint.h>
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -38,7 +50,7 @@ seq_t a(idx_t n)
             ok = true;
         } else {
             /* length of decimal representation */
-            size_t len = digit_len(cur);
+            size_t len = num_digits(cur);
             if (len > 1) {
                 /* 10^len value needed for rotation computation */
                 seq_t pow10_len = pow10(len);
@@ -61,7 +73,7 @@ seq_t a(idx_t n)
             /* add cur to cache */
             if (seq_len == seq_cap) {
                 seq_cap = seq_cap ? seq_cap * 2 : 64;
-                seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, seq_cap);
             }
             seq[seq_len++] = cur;
         }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -37,6 +38,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define STATE_COUNT 81
 
@@ -66,10 +68,10 @@ static void init_tables(void)
         }
     }
     /* allocate dp arrays once */
-    dp_prev = (seq_t *)calloc(STATE_COUNT, sizeof(seq_t));
-    dp_next = (seq_t *)calloc(STATE_COUNT, sizeof(seq_t));
+    dp_prev = mem_new(seq_t, STATE_COUNT);
+    dp_next = mem_new(seq_t, STATE_COUNT);
     /* memoise first a(1) onwards */
-    a_cache = (seq_t *)calloc(1, sizeof(seq_t)); /* index 0 unused */
+    a_cache = mem_new(seq_t, 1); /* index 0 unused */
     cache_len = 0;
     init_done = true;
 }
@@ -91,7 +93,7 @@ static void grow_cache_to(idx_t n)
     if (n <= cache_len) return;
 
     /* enlarge a_cache to hold n (1‑based) */
-    seq_t *tmp = (seq_t *)realloc(a_cache, (n + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, (n + 1));
     if (!tmp) return; /* allocation failure: leave cache incomplete */
     a_cache = tmp;
     /* initialise new entries */

@@ -12,13 +12,15 @@
  *            O(n²) algorithm for n up to about 10 000
  * Range:     u8 n <= 108, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 885 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Recursive helper: enumerate unordered factorizations of rem (>=1)
    with factors >= min_f.  cur_sum is the sum of selected factors.
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     /* Recompute the table if necessary */
     if (!cache_vals || n > cache_size) {
         /* Allocate space for the new table */
-        seq_t *new_vals = (seq_t *)calloc(n + 1, sizeof(seq_t));
+        seq_t *new_vals = mem_new(seq_t, n + 1);
         long long *diff  = (long long *)calloc(n + 1, sizeof(long long));
 
         /* Enumerate all products p from 1 to n (inclusive) */
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
 
         /* Replace old cache with the new one */
         free(diff);
-        free(cache_vals);
+        mem_free(cache_vals);
         cache_vals  = new_vals;
         cache_size  = n;
     }

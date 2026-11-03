@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 179, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_prime_factor_3mod4
+ * Validated: standard, pass, 82 terms through n = 9955 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,26 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_prime_factor_3mod4.h"
+#include "../utils/mem.h"
+
+static bool has_prime_factor_3mod4(uint64_t x)
+{
+    if (x < 3) return false;        // 1 and 2 have no such factor
+
+    if (x % 2 == 0) {               // factor out the 2‑s
+        do { x /= 2; } while (x % 2 == 0);
+    }
+
+    for (uint64_t p = 3; p * p <= x; p += 2) {
+        if (x % p == 0) {
+            if (p % 4 == 3) return true;
+            do { x /= p; } while (x % p == 0);
+        }
+    }
+    /* Remaining x (if >1) is a prime factor. */
+    if (x > 1 && x % 4 == 3) return true;
+    return false;
+}
 
 /* Static cache for computed terms. */
 static seq_t *seq_cache = NULL;   /* array of seq_t values */
@@ -42,7 +62,7 @@ seq_t a(idx_t n)
         /* Grow cache if necessary. */
         if (cache_size == cache_cap) {
             idx_t new_cap = cache_cap ? cache_cap * 2 : 16;
-            seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
             if (!tmp) abort();         /* out of memory – abort safely */
             seq_cache = tmp;
             cache_cap = new_cap;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 36, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* --------- small helpers ------------------------------------------ */
 static inline int ceil_log2_uint64(uint64_t v)
@@ -134,7 +136,7 @@ static void push_term(seq_t val)
 {
     if (term_count == term_cap) {
         term_cap = term_cap ? term_cap * 2 : 128;
-        seq_t *tmp = (seq_t*)realloc(term_arr, term_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, term_arr, term_cap);
         if (!tmp) exit(1);
         term_arr = tmp;
     }

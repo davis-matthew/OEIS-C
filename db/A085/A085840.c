@@ -9,11 +9,13 @@
  *            T(r,c) = 4^c * binomial(2*r+1, 2*c) (OEIS A085840)
  * Range:     u8 n <= 7, u16 n <= 23, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 static seq_t pow4(idx_t exp) {

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 1188, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   ensure_capacity, rev_decimal, sigma_of
+ * Validated: standard, pass, 69 terms through n = 9763 (2026-11-03)
+ * Helpers:   mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,58 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/sigma_of.h"
-#include "../utils/rev_decimal.h"
-#include "../utils/ensure_capacity.h"
+#include <stdlib.h>
+#include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
+
+/* Grow a dynamic array when needed.  The pointer is passed as OEISC_VPP(.) */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    T *tmp = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#else
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#endif
 
 seq_t a(idx_t n) {
     /* Static cache of found terms */
@@ -39,7 +89,7 @@ seq_t a(idx_t n) {
         seq_t proper_cand = sigma_cand - cand;      /* sum of proper divisors */
         if (proper_cand < cand) {                    /* deficient? */
             /* Compute reversal and test for abundance */
-            seq_t rev = rev_decimal((seq_t)cand);
+            seq_t rev = reverse_digits((seq_t)cand);
             /* If reversal does not fit in idx_t, skip this candidate */
             if (rev <= (seq_t)UINT64_MAX) {
                 idx_t rev_i = (idx_t)rev;
@@ -47,7 +97,7 @@ seq_t a(idx_t n) {
                 seq_t proper_rev = sigma_rev - rev_i;
                 if (proper_rev > rev_i) {            /* abundant? */
                     /* Append to cache */
-                    ensure_capacity(size + 1, &cap, (void **)&cache, sizeof(seq_t));
+                    ensure_capacity(size + 1, &cap, OEISC_VPP(&cache), sizeof(seq_t));
                     cache[size++] = (seq_t)cand;
                 }
             }

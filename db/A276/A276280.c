@@ -6,9 +6,10 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = coefficient of x^n in
  *            1/((1-x)^9*(1-x^3)^8*(1-x^5)^7*(1-x^7)^6*(1-x^9)^5*(1-x^11)^4*(1-x^13)^3*(1-x^15)^2*(1-x^17))
- * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 28, u64 n <= 28, u128 n <= 28,
+ * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 28, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,9 +30,9 @@ seq_t a(idx_t n)
 
     if (n >= dp_size) {                 /* need to (re)compute up to n      */
         /* Free old cache if it exists */
-        free(dp);
+        mem_free(dp);
         dp_size = n + 1;
-        dp = (seq_t *)malloc((size_t)dp_size * sizeof(seq_t));
+        dp = mem_new(seq_t, (size_t)dp_size);
         if (!dp) return 0;              /* allocation failure, unlikely  */
 
         /* Initialize DP array */
@@ -49,14 +51,14 @@ seq_t a(idx_t n)
 
             /* Pre‑compute binomial coefficients for this part up to needed t */
             idx_t max_t = n / k;                               /* max usage count */
-            seq_t *w = (seq_t *)malloc((size_t)(max_t + 1) * sizeof(seq_t));
+            seq_t *w = mem_new(seq_t, (size_t)(max_t + 1));
             if (!w) return 0;                                 /* unlikely */
             for (idx_t t = 0; t <= max_t; ++t) {
                 w[t] = binomial(t + m - 1, m - 1);
             }
 
             /* Allocate array for the convolution result */
-            seq_t *newdp = (seq_t *)malloc((size_t)dp_size * sizeof(seq_t));
+            seq_t *newdp = mem_new(seq_t, (size_t)dp_size);
             if (!newdp) return 0;                             /* unlikely */
             for (idx_t i = 0; i < dp_size; ++i)
                 newdp[i] = 0;
@@ -75,8 +77,8 @@ seq_t a(idx_t n)
             }
 
             /* Clean up and set up for next stage */
-            free(w);
-            free(dp);
+            mem_free(w);
+            mem_free(dp);
             dp = newdp;
         }
     }

@@ -10,17 +10,18 @@
  *            function returns 0 for n < 1
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 23, u64 n <= 43, u128 n <= 83,
  *            big any n
- * Helpers:   big_pow, phi
+ * Validated: standard, pass, 46 terms through n = 850 (2026-11-02)
+ * Helpers:   ipow, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
+#include "../utils/ipow.h"
+#include "../utils/totient.h"
 
 #include <stdint.h>
 #ifdef __cplusplus
-#include "../utils/phi.h"
-#include "../utils/big_pow.h"
+#include <stdbool.h>
 #else
-#include "../utils/phi.h"
 #endif
 
 /* Helper that computes (1/n) * Σ_{d|n} φ(d) * base^(n/d) */
@@ -34,12 +35,12 @@ static seq_t _necklaces_divisor_sum(idx_t n, uint64_t base)
     {
         if (n % d == 0)
         {
-            seq_t term = phi(d) * big_pow((seq_t)base, (seq_t)(n / d));
+            seq_t term = totient(d) * ipow((seq_t)base, (seq_t)(n / d));
             sum += term;
             idx_t d2 = n / d;
             if (d2 != d)
             {
-                seq_t term2 = phi(d2) * big_pow((seq_t)base, (seq_t)(n / d2));
+                seq_t term2 = totient(d2) * ipow((seq_t)base, (seq_t)(n / d2));
                 sum += term2;
             }
         }
@@ -52,7 +53,7 @@ static seq_t _necklaces_divisor_sum(idx_t n, uint64_t base)
     {
         if (n % d == 0)
         {
-            unsigned long long phi_d = (unsigned long long)phi(d);
+            unsigned long long phi_d = (unsigned long long)totient(d);
             idx_t exp = n / d;
             __uint128_t pow = 1;
             __uint128_t b = base;
@@ -68,7 +69,7 @@ static seq_t _necklaces_divisor_sum(idx_t n, uint64_t base)
             idx_t d2 = n / d;
             if (d2 != d)
             {
-                unsigned long long phi_d2 = (unsigned long long)phi(d2);
+                unsigned long long phi_d2 = (unsigned long long)totient(d2);
                 idx_t exp2 = n / d2;
                 __uint128_t pow2 = 1;
                 __uint128_t b2 = base;

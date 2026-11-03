@@ -7,21 +7,22 @@
  * Keywords:  nonn, look, tabf
  * Formula:   a(n) = T(r,k) where * r = ⌊log₂(n+1)⌋, k = n – (2^r – 1) *
  *            T(r,k) = –k·(k+1)/2 (mod 2^r)
- * Range:     u8 n <= 511, u16 n <= 9675, u32 n <= 9675, u64 n <= 9675,
- *            u128 n <= 9675, big any n
- * Helpers:   floor_log2_uint64
+ * Range:     u8 n <= 511, u16 n <= 65534, u32 n <= 65534, u64 n <= 65534,
+ *            u128 n <= 65534, big any n
+ * Validated: standard, pass, 90 terms through n = 9675 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/floor_log2_uint64.h"
+#include "../utils/ilog2.h"
 
 seq_t a(idx_t n)
 {
     /* Determine the row r and offset k inside that row.  */
-    idx_t r = floor_log2_uint64(n + 1);            /* r = floor(log2(n+1)) */
+    idx_t r = ilog2(n + 1);            /* r = floor(log2(n+1)) */
     idx_t prev_len = ((idx_t)1 << r) - 1;          /* total entries before row r */
     idx_t k = n - prev_len;                       /* column index within row r */
 

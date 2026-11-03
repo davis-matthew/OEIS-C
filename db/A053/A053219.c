@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
     This implementation builds rows incrementally and caches them,
     so subsequent calls are fast and order‑independent.  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t **triangle = NULL;   /* 1‑based: triangle[r] is row r */
 static idx_t triangle_rows = 0;   /* number of rows currently cached */
@@ -41,7 +43,7 @@ static void ensure_rows(idx_t upto)
     /* Build missing rows. */
     for (idx_t r = triangle_rows + 1; r <= upto; ++r)
     {
-        seq_t *row = (seq_t *)malloc(sizeof(seq_t) * r);
+        seq_t *row = mem_new(seq_t, r);
         row[0] = (seq_t)r;
         for (idx_t j = 1; j < r; ++j)
             row[j] = row[j - 1] + triangle[r - 1][j - 1];

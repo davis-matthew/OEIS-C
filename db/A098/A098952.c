@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 107, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digit_count_seq_t
+ * Validated: standard, pass, 85 terms through n = 939 (2026-11-01)
+ * Helpers:   num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
  * arithmetic operators that the definition obliges us
  * to use. */
 #include <stdint.h>
-#include "../utils/digit_count_seq_t.h"
+#include "../utils/num_digits.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +30,7 @@ seq_t a(idx_t n)
     idx_t   seen = 0;      /* how many qualifying numbers found so far */
 
     while (1) {
-        int d = digit_count_seq_t(candidate);
+        int d = num_digits(candidate);
         /* d fits into an int; cast to seq_t for modulo operation */
         if (candidate % (seq_t)d == 0) {
             ++seen;

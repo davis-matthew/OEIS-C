@@ -12,7 +12,8 @@
  *            * at least one 7‑smooth composite. For each even k, compar...
  * Range:     u8 n <= 47, u16 n <= 136, u32 n <= 136, u64 n <= 136,
  *            u128 n <= 136, big any n
- * Helpers:   is_7smooth_composite
+ * Validated: full, pass, 136 terms through n = 136 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,20 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_7smooth_composite.h"
+
+/* helper: test whether n is a 7‑smooth composite */
+static bool is_7smooth_composite(uint64_t n)
+{
+    if (n < 4) return false;           /* 1,2,3 are not composites */
+    if (n == 2 || n == 3 || n == 5 || n == 7) return false;
+
+    uint64_t t = n;
+    while (t % 2 == 0) t /= 2;
+    while (t % 3 == 0) t /= 3;
+    while (t % 5 == 0) t /= 5;
+    while (t % 7 == 0) t /= 7;
+    return t == 1;                     /* all prime factors ≤ 7 */
+}
 
 #define MAX_K 2000         /* upper bound for k (≥1406) */
 #define MAX_COMPOSITES 500 /* generous limit for 7‑smooth composites */

@@ -11,6 +11,7 @@
  *            x) / 3 // A061039 = t/72 in this case else: a(...
  * Range:     u8 n <= 7, u16 n <= 128, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 62 terms through n = 4997 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

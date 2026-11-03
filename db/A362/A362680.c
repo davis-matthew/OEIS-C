@@ -8,13 +8,15 @@
  *            digits(k))
  * Range:     u8 n <= 68, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   digit_count
+ * Validated: standard, pass, 79 terms through n = 4938 (2026-11-01)
+ * Helpers:   num_digits0
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/digit_count.h"
+#include <math.h>
+#include "../utils/num_digits0.h"
 
 /* seq_t and idx_t are defined by the build system. */
 seq_t a(idx_t n)
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     seq_t d = 0;
 
     for (idx_t i = 1; i <= n; ++i) {
-        d = (seq_t)digit_count((uint64_t)i);
+        d = (seq_t)num_digits0((uint64_t)i);
         sum += d;
     }
 

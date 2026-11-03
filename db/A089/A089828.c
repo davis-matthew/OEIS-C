@@ -9,7 +9,8 @@
  *            prime pair)
  * Range:     u8 n <= 9, u16 n <= 16, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   build_primes_upto, fib_small, pow2
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-01)
+ * Helpers:   build_primes_upto, fibonacci, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,9 +25,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/build_primes_upto.h"  /* build_primes_upto(limit,&primes,&cnt) */
-#include "../utils/pow2.h"                /* pow2(exp)       */
-#include "../utils/fib_small.h"
+#include "../utils/build_primes_upto.h"
+#include "../utils/fibonacci.h"
+#include "../utils/pow2.h"
 /* -------------------------------------------------------------------------- */
 
 /* -------------------------------------------------------------------------- */
@@ -55,7 +56,7 @@ seq_t a(idx_t n)
         }
 
         /* Multiply by F_{k+2} for this chain */
-        prod_fib *= fib_small(chain_len + (idx_t)2);
+        prod_fib *= fibonacci(chain_len + (idx_t)2);
 
         ++i; /* move to the next prime after the chain */
     }

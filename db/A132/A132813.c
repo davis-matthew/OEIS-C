@@ -10,12 +10,14 @@
  *            entries)
  * Range:     u8 n <= 22, u16 n <= 58, u32 n <= 179, u64 n <= 645,
  *            u128 n <= 2310, big any n
+ * Validated: standard, pass, 71 terms through n = 7381 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binomial.h"          /* binomial(idx_t n, idx_t k) */
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 static idx_t isqrt_u64(idx_t n) {
     idx_t lo = 0, hi = n;

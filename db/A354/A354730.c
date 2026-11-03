@@ -9,13 +9,15 @@
  *            s(n-1,k-1) + (n-1)*s(n-1,k)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,12 +35,12 @@ seq_t a(idx_t n)
     /* Initialise on first call. */
     if (a_cache == NULL) {
         a_cap = 1;
-        a_cache = (seq_t *)malloc(a_cap * sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_cap);
         a_cache[0] = (seq_t)1;       /* a(0) = 1 */
         a_len  = 0;
 
         s_cap   = 1;
-        s_row   = (seq_t *)malloc(s_cap * sizeof(seq_t));
+        s_row   = mem_new(seq_t, s_cap);
         s_row[0] = (seq_t)1;         /* s(0,0) = 1 */
         s_row_n = 0;
     }
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
         if ((size_t)m >= a_cap) {
             size_t new_cap = a_cap ? a_cap * 2 : 1;
             while (new_cap <= (size_t)m) new_cap <<= 1;
-            a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+            a_cache = mem_resize(seq_t, a_cache, new_cap);
             a_cap   = new_cap;
         }
         a_cache[m] = val;
@@ -71,7 +73,7 @@ seq_t a(idx_t n)
         if ((size_t)m + 1 > s_cap) {
             size_t new_cap = s_cap ? s_cap * 2 : 1;
             while (new_cap <= (size_t)m + 1) new_cap <<= 1;
-            s_row = (seq_t *)realloc(s_row, new_cap * sizeof(seq_t));
+            s_row = mem_resize(seq_t, s_row, new_cap);
             s_cap = new_cap;
         }
         /* Ensure the new element exists. */

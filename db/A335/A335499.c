@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   isqrt_seq
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,26 @@
    The nth term a(n) is the element at the n‑th anti‑diagonal position. */
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/isqrt_seq.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Integer square root (floor) of a non‑negative seq_t value. */
+static seq_t isqrt_seq(seq_t v)
+{
+    seq_t lo = 0, hi = v;
+    while (lo <= hi) {
+        seq_t mid = lo + ((hi - lo) >> 1);
+        seq_t sq  = mid * mid;
+        if (sq == v) return mid;
+        if (sq < v) {
+            lo = mid + 1;
+        } else {
+            hi = mid - 1;
+        }
+    }
+    return hi;
+}
 
 static seq_t *lucas = NULL;
 static size_t lucas_len = 0;
@@ -30,7 +50,7 @@ static void ensure_lucas_index(size_t idx) {
     if (lucas_len > idx) return;
     if (lucas == NULL) {
         lucas_cap = 4;
-        lucas = (seq_t *)malloc(lucas_cap * sizeof(seq_t));
+        lucas = mem_new(seq_t, lucas_cap);
         lucas[0] = (seq_t)2;     /* L(0) */
         lucas[1] = (seq_t)1;     /* L(1) */
         lucas_len = 2;
@@ -38,7 +58,7 @@ static void ensure_lucas_index(size_t idx) {
     while (lucas_len <= idx) {
         if (lucas_len >= lucas_cap) {
             lucas_cap *= 2;
-            lucas = (seq_t *)realloc(lucas, lucas_cap * sizeof(seq_t));
+            lucas = mem_resize(seq_t, lucas, lucas_cap);
         }
         lucas[lucas_len] = lucas[lucas_len-1] + lucas[lucas_len-2];
         lucas_len++;

@@ -8,13 +8,15 @@
  *            product over set bits a of (1 + p^(2^a)) * a(1) = 0
  * Range:     u8 n <= 167, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 91 terms through n = 9843 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
         int a_bit = 0;
         while (mask) {
             if (mask & 1ULL) {
-                seq_t pow_val = seq_pow((seq_t)p, (idx_t)(1ULL << a_bit)); /* p^(2^a) */
+                seq_t pow_val = ipow_idx((seq_t)p, (idx_t)(1ULL << a_bit)); /* p^(2^a) */
                 term *= (pow_val + (seq_t)1);
             }
             mask >>= 1;

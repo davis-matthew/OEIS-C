@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 64, u128 n <= 128,
  *            big any n
+ * Validated: standard, pass, 51 terms through n = 3264 (2026-11-01)
  * Helpers:   is_prime, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -22,8 +23,8 @@
 #include <stdbool.h>
 #include <math.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"   /* bool is_prime(idx_t) */
-#include "../utils/pow2.h"       /* seq_t pow2(idx_t) */
+#include "../utils/is_prime.h"
+#include "../utils/pow2.h"
 
 /* Return the next prime after x (x ≥ 2). */
 static uint64_t next_prime(uint64_t x)

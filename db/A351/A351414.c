@@ -8,6 +8,7 @@
  * Formula:   a(n) = Sum_{d|n} [[omega(d) = 1] = mu(d)^2]
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 112 terms through n = 8594 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

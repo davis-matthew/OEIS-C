@@ -8,17 +8,20 @@
  * Formula:   a(n) = (Chowla(n) mod proper_divisors(n)) where Chowla(n) =
  *            sigma(n) – 1 – n and proper_divisors(n) = divisor_count(n) – 1
  *            a(1) = 0 by convention
- * Range:     u8 n <= 3881, u16 n <= 9920, u32 n <= 9920, u64 n <= 9920,
- *            u128 n <= 9920, big any n
- * Helpers:   divisor_count_u64, factor_u64
+ * Range:     u8 n <= 3881, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 121 terms through n = 9920 (2026-11-01)
+ * Helpers:   factor_u64, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/divisor_count_u64.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/num_divisors.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +29,7 @@ seq_t a(idx_t n)
         return 0;
 
     /* divisor count, proper divisor count, and modulus */
-    idx_t d = divisor_count_u64((uint64_t)n);
+    idx_t d = num_divisors((uint64_t)n);
     idx_t proper_cnt = d - 1;          /* >= 1 for n > 1 */
     if (proper_cnt <= 1)               /* n is prime → result 0 */
         return 0;

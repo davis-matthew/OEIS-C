@@ -8,7 +8,8 @@
  *            (non‑prime)
  * Range:     u8 n <= 1, u16 n <= 21, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Return the n-th tetrahedral number whose three consecutive arguments
  * are all composite (non‑prime).  The sequence is indexed starting at 1. */
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     if (!n_table) {
         cap = 16;
         n_table = (idx_t *)malloc(cap * sizeof(idx_t));
-        v_table = (seq_t *)malloc(cap * sizeof(seq_t));
+        v_table = mem_new(seq_t, cap);
         if (!n_table || !v_table) abort();
     }
 
@@ -76,7 +78,7 @@ seq_t a(idx_t n)
                 if (size == cap) {
                     cap <<= 1;
                     n_table = (idx_t *)realloc(n_table, cap * sizeof(idx_t));
-                    v_table = (seq_t *)realloc(v_table, cap * sizeof(seq_t));
+                    v_table = mem_resize(seq_t, v_table, cap);
                     if (!n_table || !v_table) abort();
                 }
                 n_table[size] = next_candidate;

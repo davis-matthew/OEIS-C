@@ -7,15 +7,27 @@
  * Formula:   a(n) = 1 + ∑_{k=1..n-3} a(k)·a(n−k−3) ; a(0)=a(1)=a(2)=a(3)=1
  * Range:     u8 n <= 14, u16 n <= 24, u32 n <= 43, u64 n <= 80, u128 n <= 153,
  *            big any n
- * Helpers:   alloc_seq_array, free_seq_array
+ * Validated: standard, pass, 57 terms through n = 926 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 static seq_t *cache   = NULL;   /* cached values */
 static idx_t  cached_len = 0;    /* number of values stored */

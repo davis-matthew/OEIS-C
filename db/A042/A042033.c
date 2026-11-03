@@ -11,12 +11,14 @@
  *            a(14)=290295097, a(15)=1220239608
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 15, u64 n <= 30, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for memoisation */
 static seq_t *cache = NULL;   /* array of computed terms */
@@ -39,7 +41,7 @@ static void ensure_cache(idx_t n)
         /* Allocate at least 16 slots, enough for the initial values.
            If n < 15 we still allocate the full 16 to keep the code simple. */
         cache_cap = (n + 1 > 16) ? n + 1 : 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return;                 /* memory allocation failure */
         for (idx_t i = 0; i < 16; ++i) {
             cache[i] = init_vals[i];
@@ -49,7 +51,7 @@ static void ensure_cache(idx_t n)
     else if (n + 1 > cache_cap) {
         /* Grow the cache if necessary */
         cache_cap = (n + 1) * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
         if (!tmp) return;                 /* memory allocation failure */
         cache = tmp;
     }

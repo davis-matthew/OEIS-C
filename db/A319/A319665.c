@@ -9,8 +9,9 @@
  * Formula:   a(n) = log_5(4*k+1) in the group Z/(2^n) where r =
  *            floor(log2(n-1)) + 2 is the row containing the term, and k =
  *            (n-2) - (2^(r-2) - 1) is the column within that row
- * Range:     u8 n <= 514, u16 n <= 8034, u32 n <= 8034, u64 n <= 8034,
- *            u128 n <= 8034, big any n
+ * Range:     u8 n <= 514, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 111 terms through n = 8034 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

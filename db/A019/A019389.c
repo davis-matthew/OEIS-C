@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, powmod64
+ * Validated: standard, pass, 72 terms through n = 970 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdlib.h>
 
 #include "../utils/is_prime.h"
-#include "../utils/powmod64.h"
+#include "../utils/powmod_u64.h"
+#include "../utils/mem.h"
 
 /* Prime list used for factorisation of p-1 */
 static uint64_t *prime_list = NULL;
@@ -53,7 +55,7 @@ static void ensure_seq_cache(size_t need)
     if (seq_cnt + need > seq_cap) {
         size_t new_cap = seq_cap ? seq_cap << 1 : 8;
         while (seq_cnt + need > new_cap) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
         if (!tmp) abort();
         seq_cache = tmp;
         seq_cap   = new_cap;
@@ -74,12 +76,12 @@ static bool has_primitive_root_66(uint64_t p)
         uint64_t q = prime_list[i];
         if ((tmp % q) == 0) {
             while ((tmp % q) == 0) tmp /= q;
-            if (powmod64(66ULL, (p - 1) / q, p) == 1ULL)
+            if (powmod_u64(66ULL, (p - 1) / q, p) == 1ULL)
                 return false;
         }
     }
     if (tmp > 1) { /* remaining prime factor */
-        if (powmod64(66ULL, (p - 1) / tmp, p) == 1ULL)
+        if (powmod_u64(66ULL, (p - 1) / tmp, p) == 1ULL)
             return false;
     }
     return true;

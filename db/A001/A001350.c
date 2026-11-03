@@ -7,6 +7,7 @@
  * Formula:   a(n) = Lucas(n) - 1 - (-1)^n, where Lucas(n) is A000032(n)
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 46, u64 n <= 92, u128 n <= 184,
  *            big any n
+ * Validated: standard, pass, 56 terms through n = 976 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

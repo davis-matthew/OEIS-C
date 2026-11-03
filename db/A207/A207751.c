@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 11, u64 n <= 24, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper macro to get 1-bit at position i (0 = LSB) of integer x */
 #define BIT(x,i) (((x) >> (i)) & 1)
@@ -94,8 +96,8 @@ seq_t a(idx_t n) {
     const idx_t pair_cnt = (idx_t)_R * (idx_t)_R;
 
     /* Allocate DP arrays */
-    seq_t *cur = (seq_t *)calloc(pair_cnt, sizeof(seq_t));
-    seq_t *nxt = (seq_t *)calloc(pair_cnt, sizeof(seq_t));
+    seq_t *cur = mem_new(seq_t, pair_cnt);
+    seq_t *nxt = mem_new(seq_t, pair_cnt);
 
     /* Initialize DP for length 2: all pairs count = 1 */
     for (idx_t id = 0; id < pair_cnt; ++id) {
@@ -130,7 +132,7 @@ seq_t a(idx_t n) {
         result += cur[id];
     }
 
-    free(cur);
-    free(nxt);
+    mem_free(cur);
+    mem_free(nxt);
     return result;
 }

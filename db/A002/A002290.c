@@ -11,7 +11,8 @@
  *            x^(m(m+1)/2) (Jacobi)
  * Range:     u8 n <= 4, u16 n <= 40, u32 n <= 2706, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a002290_mul
+ * Validated: standard, pass, 62 terms through n = 8822 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,27 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include "../utils/a002290_mul.h"
+
+/* kind 0: multiply by phi(-q^s); kind 1: multiply by E(q^s) */
+static void a002290_mul(__int128 *f, __int128 *t, long long N, long long s, int kind)
+{
+    long long i, m;
+    for (i = 0; i <= N; i++) t[i] = 0;
+    for (m = 0;; m++) {
+        long long e;
+        __int128 c;
+        if (kind == 0) {
+            e = s * m * m;
+            c = (m == 0) ? 1 : ((m & 1) ? -2 : 2);
+        } else {
+            e = s * (m * (m + 1) / 2);
+            c = (m & 1) ? -(__int128)(2 * m + 1) : (__int128)(2 * m + 1);
+        }
+        if (e > N) break;
+        for (i = e; i <= N; i++) t[i] += c * f[i - e];
+    }
+    memcpy(f, t, (size_t)(N + 1) * sizeof(__int128));
+}
 
 static __int128 *a002290_F = 0;
 static long long a002290_N = -1;

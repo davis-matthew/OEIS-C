@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 53, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   build_primes_upto, is_prime_small
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-01)
+ * Helpers:   build_primes_upto, is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,9 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 static uint64_t *prime_list = NULL;   /* primes up to current limit */
 static size_t prime_count = 0;        /* number of primes in prime_list */
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
             continue;
 
         /* Check if q is prime */
-        if (!is_prime_small((seq_t)q))
+        if (!is_prime_seq((seq_t)q))
             continue;
 
         uint64_t prod = p * q;

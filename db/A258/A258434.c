@@ -7,15 +7,17 @@
  * Formula:   a(n) = n^2 - phi(n)
  * Range:     u8 n <= 16, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   phi
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/phi.h"
+#include <stdint.h>
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
     seq_t sq = (seq_t)n * (seq_t)n;
-    return sq - phi(n);
+    return sq - totient(n);
 }

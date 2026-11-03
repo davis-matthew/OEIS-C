@@ -10,13 +10,15 @@
  *            computed once by polynomial division
  * Range:     i8 n <= 2000, i16 n <= 2000, i32 n <= 2000, i64 n <= 2000,
  *            i128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 1829 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* size of the period */
@@ -30,12 +32,12 @@ seq_t a(idx_t n) {
 
     if (!built) {
         /* allocate storage */
-        period    = (seq_t *)malloc(period_len * sizeof(seq_t));
-        phi_coeff = (seq_t *)malloc((deg_phi + 1) * sizeof(seq_t));
+        period    = mem_new(seq_t, period_len);
+        phi_coeff = mem_new(seq_t, (deg_phi + 1));
         if (!period || !phi_coeff) {
             /* allocation failure – return zero for all n */
-            if (period) free(period);
-            if (phi_coeff) free(phi_coeff);
+            if (period) mem_free(period);
+            if (phi_coeff) mem_free(phi_coeff);
             return (seq_t)0;
         }
 
@@ -46,10 +48,10 @@ seq_t a(idx_t n) {
          */
         const size_t deg_P = 1704;
         const size_t deg_Q = 144;
-        seq_t *P = (seq_t *)malloc((deg_P + 1) * sizeof(seq_t));
+        seq_t *P = mem_new(seq_t, (deg_P + 1));
         seq_t Q[deg_Q + 1];
         if (!P) {
-            free(period); free(phi_coeff);
+            mem_free(period); mem_free(phi_coeff);
             return (seq_t)0;
         }
 
@@ -91,7 +93,7 @@ seq_t a(idx_t n) {
         }
 
         /* free temporary storage */
-        free(P);
+        mem_free(P);
 
         /* mark as built */
         built = true;

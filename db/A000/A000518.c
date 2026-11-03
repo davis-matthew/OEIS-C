@@ -12,15 +12,28 @@
  *            n = s^2...
  * Range:     u8 none, u16 n <= 2, u32 n <= 9, u64 n <= 192, u128 n <= 1000,
  *            big any n
- * Helpers:   k518_jacobi, k518_kron
+ * Validated: standard, pass, 35 terms through n = 792 (2026-11-01)
+ * Helpers:   jacobi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <string.h>
-#include "../utils/k518_jacobi.h"
-#include "../utils/k518_kron.h"
+#include "../utils/jacobi.h"
+
+static int k518_kron(uint64_t f, uint64_t k)
+{
+    int r = 1;
+    while (!(k & 1)) {
+        uint64_t t = f & 7;
+        k >>= 1;
+        if (!(f & 1)) return 0;
+        if (t == 3 || t == 5) r = -r;
+    }
+    if (k == 1) return r;
+    return r * jacobi(f, k);
+}
 
 #define K518_NL 16
 

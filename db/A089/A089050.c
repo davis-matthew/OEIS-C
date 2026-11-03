@@ -6,15 +6,56 @@
  * Keywords:  nonn
  * Formula:   a(n) = number of unordered multisets {2^a,2^b,2^c,2^d,2^e} of
  *            five powers of 2 (a,b,c,d,e ≥ 0) whose sum equals n
- * Range:     u8 n <= 9569, u16 n <= 9569, u32 n <= 9569, u64 n <= 9569,
- *            u128 n <= 9569, big any n
- * Helpers:   compute_generic
+ * Range:     u8 n <= 65536, u16 n <= 65536, u32 n <= 65536, u64 n <= 65536,
+ *            u128 n <= 65536, big any n
+ * Validated: standard, pass, 121 terms through n = 9569 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/compute_generic.h"
+
+static seq_t compute_generic(idx_t n) {
+    /* For n > GLOBAL_MAX compute on the fly (worst case still fast). */
+    if (n < 5) return 0;          /* smallest possible sum is 5*1 = 5 */
+    /* Find highest power of two ≤ n. */
+    int maxExp = 0;
+    while (((unsigned long long)1 << (maxExp + 1)) <= (unsigned long long)n) {
+        ++maxExp;
+    }
+    unsigned long long pow2[64];
+    pow2[0] = 1ULL;
+    for (int e = 1; e <= maxExp; ++e) {
+        pow2[e] = pow2[e - 1] << 1;
+    }
+
+    seq_t result = 0;
+    for (int e1 = 0; e1 <= maxExp; ++e1) {
+        unsigned long long p1 = pow2[e1];
+        for (int e2 = e1; e2 <= maxExp; ++e2) {
+            unsigned long long p2 = pow2[e2];
+            for (int e3 = e2; e3 <= maxExp; ++e3) {
+                unsigned long long p3 = pow2[e3];
+                for (int e4 = e3; e4 <= maxExp; ++e4) {
+                    unsigned long long p4 = pow2[e4];
+                    for (int e5 = e4; e5 <= maxExp; ++e5) {
+                        unsigned long long sum =
+                            p1 + p2 + p3 + p4 + pow2[e5];
+                        if (sum == (unsigned long long)n) {
+                            result = result + 1;
+                        } else if (sum > (unsigned long long)n) {
+                            /* Since the exponents are non‑decreasing,
+                               increasing e5 will only increase the sum. */
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return result;
+}
 
 #define GLOBAL_MAX 10000
 

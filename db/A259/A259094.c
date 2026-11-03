@@ -9,13 +9,31 @@
  *            number of partitions of n into odd parts of size < 2k
  * Range:     u8 n <= 771, u16 n <= 4640, u32 n <= 9870, u64 n <= 9870,
  *            u128 n <= 9870, big any n
- * Helpers:   anti_coords
+ * Validated: standard, pass, 121 terms through n = 9458 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/anti_coords.h"
+
+/* Given a 1‑based index n (offset 1) find the corresponding
+   anti‑diagonal coordinates (row n, column k).  The enumeration
+   runs over all (i,j) with i+j = s, for increasing s, where
+   i = row, j = column (zero based). */
+static void anti_coords(idx_t index, idx_t *row, idx_t *col)
+{
+    /* zero‑based position in the enumeration */
+    idx_t z = index - 1;
+    idx_t s = 0;
+    /* Find the smallest s such that (s+1)(s+2)/2 > z */
+    while (((s + 1) * (s + 2)) / 2 <= z)
+        ++s;
+    idx_t prev = (s * (s + 1)) / 2;        /* number of entries before diagonal s */
+    idx_t t = z - prev;                    /* offset inside the diagonal s */
+    *row = t;                              /* row index (i) */
+    *col = s - t;                          /* column index (j) */
+}
 
 /* Pre‑compute the array T(n,k) for all n,k up to a safe bound.
    For n as large as 10000 the maximal row index needed is < 150

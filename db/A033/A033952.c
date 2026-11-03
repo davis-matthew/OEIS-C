@@ -12,7 +12,8 @@
  *            position (k,0) is a(k+1)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_count
+ * Validated: standard, pass, 121 terms through n = 9567 (2026-11-01)
+ * Helpers:   num_digits0
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/digit_count.h"
+#include <math.h>
+#include "../utils/num_digits0.h"
  
 /* External linker symbol types */
  
@@ -67,7 +69,7 @@ static void ensure_axis_capacity(idx_t min_cap) {
  
 /* compute the digit array for a given number */
 static void init_digits(idx_t num) {
-    sp.dlen = (num == 0) ? 1 : (int)digit_count(num);
+    sp.dlen = (num == 0) ? 1 : (int)num_digits0(num);
     idx_t tmp = num;
     for (int i = sp.dlen - 1; i >= 0; --i) {
         sp.digits[i] = (unsigned char)(tmp % 10);

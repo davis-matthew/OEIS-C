@@ -8,19 +8,21 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   count_prime_factors
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-01)
+ * Helpers:   bigomega_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Search: a(n) = min{ a ≥ n | n*a + 2 is a semiprime } */
 #include <stdbool.h>
-#include "../utils/count_prime_factors.h"
+#include <stdint.h>
+#include "../utils/bigomega_seq.h"
 
 /* Helper to test for semiprimality (product of exactly two primes,
    allowing repetition). */
 static inline bool is_semiprime(seq_t x) {
-    return count_prime_factors(x) == 2;
+    return bigomega_seq(x) == 2;
 }
 
 /* Sequence function. */

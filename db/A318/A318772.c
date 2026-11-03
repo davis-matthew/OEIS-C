@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 34, u16 n <= 101, u32 n <= 319, u64 n <= 1120,
  *            u128 n <= 1890, big any n
- * Helpers:   total_terms_up_to_row
+ * Validated: standard, pass, 88 terms through n = 1832 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,20 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/total_terms_up_to_row.h"
+
+/* Compute the number of terms in rows 0 … r (inclusive).
+ * Returns a 128‑bit value to avoid overflow. */
+static inline unsigned __int128 total_terms_up_to_row(idx_t r)
+{
+    idx_t q = r / 4;          /* floor(r/4)       */
+    idx_t rem = r & 3;        /* r % 4            */
+
+    /* sum_{i=0}^r floor(i/4) = q*(2*q+rem-1)   */
+    unsigned __int128 sum_floor =
+        (unsigned __int128)q * (unsigned __int128)(2 * (unsigned __int128)q + rem - 1);
+
+    return (unsigned __int128)(r + 1) + sum_floor;
+}
 
 seq_t a(idx_t n)
 {

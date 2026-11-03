@@ -8,13 +8,14 @@
  * Formula:   a(n) = Sum_{j=0..7} (-1)^j*binomial(n+1,j)*(8-j)^n, for n >= 8
  * Range:     u8 n <= 8, u16 n <= 10, u32 n <= 13, u64 n <= 22, u128 n <= 42,
  *            big any n
- * Helpers:   a001244_pw
+ * Validated: standard, pass, 31 terms through n = 949 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a001244_pw.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +36,7 @@ seq_t a(idx_t n)
             for (i = 0; i < j; i++)
                 binom = binom * ((seq_t)n + 1 - i) / (i + 1);
         }
-        term = binom * a001244_pw((seq_t)(8 - j), n);
+        term = binom * ipow_idx((seq_t)(8 - j), n);
         if (j & 1) neg += term;
         else pos += term;
     }

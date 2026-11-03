@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 79, u32 n <= 232, u64 n <= 782,
  *            u128 n <= 1275, big any n
- * Helpers:   binomial
+ * Validated: standard, pass, 82 terms through n = 1070 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* ---------- helper: triangular number (s*(s+1)/2) in 128‑bit to avoid overflow ---------- */
 static inline idx_t tri(idx_t s)
@@ -41,7 +43,7 @@ static inline idx_t tri(idx_t s)
 static seq_t compute_T(idx_t n, idx_t q)
 {
     /* Allocate array for a[0..n] */
-    seq_t *a = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *a = mem_new(seq_t, (size_t)(n + 1));
     if (!a) return 0;          /* if allocation fails, return 0 (should not happen) */
 
     /* a[0] = q (column 1 value) */
@@ -50,8 +52,8 @@ static seq_t compute_T(idx_t n, idx_t q)
     /* Pre‑compute binomial values for this q to speed up the loop */
     /* We need binomial(2q-s, s) for 1 ≤ s ≤ q (many repeated calls) */
     struct bcoeff { seq_t b; };
-    struct bcoeff *B = (struct bcoeff *)malloc((size_t)q * sizeof(struct bcoeff));
-    if (!B) { free(a); return 0; }
+    struct bcoeff *B = mem_new(struct bcoeff, (size_t)q);
+    if (!B) { mem_free(a); return 0; }
 
     for (idx_t s = 1; s <= q; ++s)
         B[s - 1].b = binomial(2 * q - s, s);
@@ -89,8 +91,8 @@ static seq_t compute_T(idx_t n, idx_t q)
     }
 
     seq_t result = a[n];
-    free(a);
-    free(B);
+    mem_free(a);
+    mem_free(B);
     return result;
 }
 

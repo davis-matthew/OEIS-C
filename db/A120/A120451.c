@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 49, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Pre‑defined types in the build */
 typedef uint64_t idx_t;   /* external linkage – assume this type is available */
@@ -83,7 +85,7 @@ static void init(void)
     sieve_primes();
 
     /* Allocate result array */
-    result = (seq_t*)malloc(prime_cnt * sizeof(seq_t));
+    result = mem_new(seq_t, prime_cnt);
 
     /* Allocate difference table */
     diffCount = (uint32_t*)calloc(2 * PRIMELIM + 1, sizeof(uint32_t));

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 61, u16 n <= 6586, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 8753 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /*  Helper for division gcd                                          */
@@ -203,8 +205,7 @@ seq_t a(idx_t n)
         if (is_lambda_practical(last_checked)) {
             if (cache_len == cache_cap) {   /* enlarge cache               */
                 cache_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-                lambda_cache = (seq_t *)realloc(lambda_cache,
-                                                 cache_cap * sizeof(seq_t));
+                lambda_cache = mem_resize(seq_t, lambda_cache, cache_cap);
                 if (!lambda_cache) abort();
             }
             lambda_cache[cache_len++] = (seq_t)last_checked;

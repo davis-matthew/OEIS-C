@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 38, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   u64_gcd
+ * Validated: standard, pass, 72 terms through n = 908 (2026-11-03)
+ * Helpers:   gcd_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/u64_gcd.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/mem.h"
 
 /* ---------- Utility: gcd for 64‑bit values ---------- */
 
@@ -75,18 +77,18 @@ static void init_sequence(void)
 
     /* ---------- Gather all valid k ---------- */
     const size_t INITIAL_CAP = 32768;
-    seq_t *tmp = (seq_t *)malloc(sizeof(seq_t) * INITIAL_CAP);
+    seq_t *tmp = mem_new(seq_t, INITIAL_CAP);
     if (!tmp) abort();
 
     size_t cap = INITIAL_CAP;
     size_t cnt = 0;
 
     for (idx_t k = 2; k <= LIMIT; ++k) {
-        uint64_t g = u64_gcd((uint64_t)phi[k], (uint64_t)(k - 1));
+        uint64_t g = gcd_u64((uint64_t)phi[k], (uint64_t)(k - 1));
         if (g == (uint64_t)omega[k]) {
             if (cnt == cap) {
                 cap <<= 1;
-                seq_t *t = (seq_t *)realloc(tmp, sizeof(seq_t) * cap);
+                seq_t *t = mem_resize(seq_t, tmp, cap);
                 if (!t) abort();
                 tmp = t;
             }

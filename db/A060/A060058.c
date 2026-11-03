@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 41, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   triangular_start
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem, triangular
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,7 +34,8 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/triangular_start.h"
+#include "../utils/triangular.h"
+#include "../utils/mem.h"
 
 static seq_t **triangle = NULL;   /* triangle[row][col] */
 static idx_t   last_row = 0;       /* highest row computed (0‑based) */
@@ -42,7 +44,7 @@ static idx_t   last_row = 0;       /* highest row computed (0‑based) */
 static inline idx_t row_from_index(idx_t n)
 {
     idx_t r = 0;
-    while (triangular_start(r + 1) <= n)
+    while (triangular(r + 1) <= n)
         ++r;
     return r;
 }
@@ -52,7 +54,7 @@ static void ensure_row(idx_t row)
 {
     if (triangle == NULL) {
         triangle = (seq_t**)malloc(sizeof(seq_t*));
-        triangle[0] = (seq_t*)malloc(sizeof(seq_t));
+        triangle[0] = mem_new(seq_t, 1);
         triangle[0][0] = (seq_t)1;
         last_row = 0;
     }
@@ -63,7 +65,7 @@ static void ensure_row(idx_t row)
     triangle = (seq_t**)realloc(triangle, sizeof(seq_t*) * (row + 1));
 
     for (idx_t i = last_row + 1; i <= row; ++i) {
-        triangle[i] = (seq_t*)malloc(sizeof(seq_t) * (i + 1));
+        triangle[i] = mem_new(seq_t, (i + 1));
         for (idx_t j = 0; j <= i; ++j) {
             seq_t prior = 0;     /* a(i-1, j) */
             seq_t left  = 0;     /* a(i, j-1) */
@@ -92,6 +94,6 @@ seq_t a(idx_t n)
 {
     idx_t row = row_from_index(n);
     ensure_row(row);
-    idx_t col = n - triangular_start(row);
+    idx_t col = n - triangular(row);
     return triangle[row][col];
 }

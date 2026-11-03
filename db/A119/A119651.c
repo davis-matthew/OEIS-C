@@ -11,6 +11,7 @@
  *            use the explicit values directly
  * Range:     u8 n <= 13, u16 n <= 250, u32 n <= 250, u64 n <= 250,
  *            u128 n <= 250, big any n
+ * Validated: standard, pass, 67 terms through n = 245 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

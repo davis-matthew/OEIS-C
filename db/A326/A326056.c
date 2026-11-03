@@ -7,8 +7,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = gcd(sigma(n)-A008833(n)-n, n-A008833(n))
- * Range:     u8 n <= 18, u16 n <= 2082, u32 n <= 9867, u64 n <= 9867,
- *            u128 n <= 9867, big any n
+ * Range:     u8 n <= 18, u16 n <= 2082, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 115 terms through n = 9867 (2026-11-01)
  * Helpers:   factor_u64, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,8 +17,10 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/gcd.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
 
 /* Computes seq_t a(idx_t n)
    n >= 1, idx_t is unsigned (uint64_t), seq_t is the build's

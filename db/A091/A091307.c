@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 13, u32 n <= 29, u64 n <= 61, u128 n <= 125,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 906 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     /* Lazy allocation on first call. */
     if (cache == NULL) {
         /* Allocate space for indices 0..2 (index 0 unused). */
-        cache = (seq_t *)malloc((3) * sizeof(seq_t));
+        cache = mem_new(seq_t, (3));
         if (!cache) abort();          /* OJ will not hit OOM for small sizes. */
         cache[1] = (seq_t)6;         /* a(1) */
         cache[2] = (seq_t)28;        /* a(2) */
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
 
     /* Extend the cache to hold up to index n. */
     idx_t new_cap = n;               /* new maximum index needed */
-    seq_t *new_cache = (seq_t *)realloc(cache, (new_cap + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (new_cap + 1));
     if (!new_cache) abort();         /* again, unlikely for problem constraints */
     cache = new_cache;
     /* Compute new terms using the recurrence. */

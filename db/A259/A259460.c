@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 4, u64 n <= 9, u128 n <= 16,
  *            big any n
- * Helpers:   gcd64
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   gcd_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,10 @@
 
 #include <stddef.h>   /* for NULL */
 #include <stdlib.h>   /* for realloc */
-#include "../utils/gcd64.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/gcd_u64.h"
+#include "../utils/mem.h"
 
 /* GCD for unsigned 64‑bit values */
 
@@ -39,7 +43,7 @@ seq_t a(idx_t n)
         #ifdef seq_realloc
         seq_t *tmp = seq_realloc(cache, cache_cap, new_cap);
         #else
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         #endif
         cache = tmp;
         cache_cap = new_cap;
@@ -77,7 +81,7 @@ seq_t a(idx_t n)
         for (int i = 0; i < 4; ++i) {
             for (int j = 0; j < 2; ++j) {
                 if (nd[j] == 1ULL) continue;
-                uint64_t g = gcd64(nf[i], nd[j]);
+                uint64_t g = gcd_u64(nf[i], nd[j]);
                 if (g > 1ULL) {
                     nf[i] /= g;
                     nd[j] /= g;

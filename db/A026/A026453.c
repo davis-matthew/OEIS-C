@@ -9,7 +9,8 @@
  *            ≤ i < j ≤ n-1 with a(i)*a(j)-2 = a(n)
  * Range:     u8 n <= 135, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 979 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Thread‑local / static storage for the computed sequence. */
 static seq_t *seq_data   = NULL;   /* array of sequence terms */
@@ -35,7 +37,7 @@ static void ensure_seq_cap(size_t needed)
     if (needed <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 16;
     while (new_cap < needed) new_cap *= 2;
-    seq_data = (seq_t *)realloc(seq_data, new_cap * sizeof(seq_t));
+    seq_data = mem_resize(seq_t, seq_data, new_cap);
     seq_cap = new_cap;
 }
 
@@ -45,7 +47,7 @@ static void ensure_sorted_cap(size_t needed)
     if (needed <= sorted_cap) return;
     size_t new_cap = sorted_cap ? sorted_cap * 2 : 16;
     while (new_cap < needed) new_cap *= 2;
-    sorted_terms = (seq_t *)realloc(sorted_terms, new_cap * sizeof(seq_t));
+    sorted_terms = mem_resize(seq_t, sorted_terms, new_cap);
     sorted_cap = new_cap;
 }
 

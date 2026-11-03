@@ -11,15 +11,23 @@
  *            to 100000 and checks square‑freeness by trial division
  * Range:     u8 n <= 26, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   to_uint64
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/to_uint64.h"
+
+/* Check whether x fits in 64 bits; this helper is used only when x is
+   known to be within bounds (see below). */
+static inline uint64_t to_uint64(seq_t x)
+{
+    return (uint64_t)x;
+}
 
 /* Array of powers of 10 (up to 10^18, safe for 64‑bit operands). */
 static const uint64_t POW10[] = {

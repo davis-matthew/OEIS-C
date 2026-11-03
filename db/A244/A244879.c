@@ -10,7 +10,8 @@
  *            a(1)=18, a(2)=129, a(3)=571, a(4)=1884, a(5)=5103, a(6)=11998
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 61, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 831 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #ifdef __cplusplus
 #include <type_traits>
 #endif
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,13 +37,13 @@ seq_t a(idx_t n)
     /* Initialise cache on first use. */
     if (!cache) {
         cache_cap = (size_t)n + 1;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return 0;          /* out of memory – unlikely in tests */
         for (idx_t i = 0; i < 7; ++i) cache[i] = INIT[i];
         last_computed = 6;
     } else if (n + 1 > cache_cap) {   /* grow if needed */
         size_t new_cap = (size_t)n + 1;
-        seq_t *t = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *t = mem_resize(seq_t, cache, new_cap);
         if (!t) return 0;
         cache = t;
         cache_cap = new_cap;

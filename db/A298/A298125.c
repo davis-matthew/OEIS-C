@@ -7,6 +7,7 @@
  * Formula:   a(n) = 7 - 9*n + 3*n^2 (for n > 2), a(1)=1, a(2)=3
  * Range:     u8 n <= 10, u16 n <= 149, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 66 terms through n = 968 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

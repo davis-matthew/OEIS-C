@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = 1 if n is neither 2 nor a twin prime; 0 otherwise
- * Range:     u8 n <= 9125, u16 n <= 9125, u32 n <= 9125, u64 n <= 9125,
- *            u128 n <= 9125, big any n
+ * Range:     u8 n <= 65539, u16 n <= 65539, u32 n <= 65539, u64 n <= 65539,
+ *            u128 n <= 65539, big any n
+ * Validated: standard, pass, 121 terms through n = 9125 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

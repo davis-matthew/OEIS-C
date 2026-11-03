@@ -10,15 +10,17 @@
  *            of a(n-1)). That is, a(n) = k where k > 0 and a(n-k) = a(n-1),
  *            or 2 if no such k exists. This implements Van Eck's sequence
  *            with 2 marking new values
- * Range:     u8 n <= 412, u16 n <= 9735, u32 n <= 9735, u64 n <= 9735,
- *            u128 n <= 9735, big any n
- * Helpers:   none
+ * Range:     u8 n <= 412, u16 n <= 25000, u32 n <= 25000, u64 n <= 25000,
+ *            u128 n <= 25000, big any n
+ * Validated: standard, pass, 92 terms through n = 9735 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* The build supplies the integer types seq_t and idx_t. */
 static seq_t *seq        = NULL;   /* array holding the sequence values          */
@@ -38,7 +40,7 @@ static void ensure_capacity(size_t needed)
         newcap = 16;
 
     /* realloc produces a void* which is then cast to seq_t*. */
-    seq_t *newptr = (seq_t *)realloc(seq, newcap * sizeof(seq_t));
+    seq_t *newptr = mem_resize(seq_t, seq, newcap);
     seq = newptr;
     seq_cap = newcap;
 }

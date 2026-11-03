@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 57, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   smallest_prime_factor_u64
+ * Validated: standard, pass, 74 terms through n = 9374 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,17 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <assert.h>
-#include "../utils/smallest_prime_factor_u64.h"
+#include "../utils/mem.h"
+
+/* Return the smallest prime factor of n (n ≥ 2).  If n is prime
+   the function returns n itself. */
+static inline uint64_t smallest_prime_factor_u64(uint64_t n) {
+    if (n % 2 == 0) return 2;
+    for (uint64_t i = 3; i * i <= n; i += 2) {
+        if (n % i == 0) return i;
+    }
+    return n;               /* n is prime */
+}
 
 /* ---------------------------------------------------------------- */
 /* Small helper routines                                              */
@@ -80,11 +91,11 @@ static uint64_t last_candidate = 5;        /* next to try after 5 */
 static void grow_cache(void) {
     if (cache_cap == 0) {
         cache_cap = 16;
-        term_cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        term_cache = mem_new(seq_t, cache_cap);
         assert(term_cache != NULL);
     } else if (cache_sz >= cache_cap) {
         cache_cap *= 2;
-        term_cache = (seq_t *)realloc(term_cache, cache_cap * sizeof(seq_t));
+        term_cache = mem_resize(seq_t, term_cache, cache_cap);
         assert(term_cache != NULL);
     }
 }

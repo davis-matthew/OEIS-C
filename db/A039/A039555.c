@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   has_equal_8_11
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,23 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_equal_8_11.h"
+#include "../utils/mem.h"
+
+/* Return true if x, written in base‑12, has the same non‑zero numbers
+   of digits 8 and 11. */
+static bool has_equal_8_11(seq_t x)
+{
+    unsigned long long cnt8 = 0;
+    unsigned long long cnt11 = 0;
+    seq_t t = x;
+    while (t > (seq_t)0) {
+        seq_t d = t % (seq_t)12;
+        if (d == (seq_t)8)        cnt8++;
+        else if (d == (seq_t)11)  cnt11++;
+        t = t / (seq_t)12;
+    }
+    return (cnt8 > (unsigned long long)0) && (cnt8 == cnt11);
+}
 
 /* Return the n-th element of the sequence. */
 seq_t a(idx_t n)
@@ -39,7 +56,7 @@ seq_t a(idx_t n)
     /* Grow the cache if needed. */
     if (len == cap) {
         size_t newcap = (cap == 0U) ? 128U : cap * 2U;
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp) { /* allocation failure – return 0 as sentinel */
             return (seq_t)0;
         }

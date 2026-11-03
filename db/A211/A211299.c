@@ -12,13 +12,15 @@
  *            letters) and on the difference (count(121) – count(213))
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static const uint8_t next_state[9][3] = {
     /* state index: a*3 + b  (a,b are 0‑based for letters 1,2,3) */
@@ -68,8 +70,8 @@ seq_t a(idx_t n)
 
     /* Allocate two working layers.  Each layer has size 9 * diff_range */
     size_t layer_size = 9 * (size_t)diff_range;
-    seq_t *cur  = (seq_t *)calloc(layer_size, sizeof(seq_t));
-    seq_t *next = (seq_t *)calloc(layer_size, sizeof(seq_t));
+    seq_t *cur  = mem_new(seq_t, layer_size);
+    seq_t *next = mem_new(seq_t, layer_size);
     if (!cur || !next) {
         abort();   /* allocation failed */
     }
@@ -83,7 +85,7 @@ seq_t a(idx_t n)
     /* Perform DP for the remaining k letters. */
     for (int step = 1; step <= k; ++step) {
         /* Zero out the next layer (only the reachable part needs resetting). */
-        memset(next, 0, sizeof(seq_t) * layer_size);
+        mem_set(next, 0, sizeof(seq_t) * layer_size);
 
         /* Current reachable diff indices are in [offset-step+1, offset+step-1] */
         int cur_min = offset - (step - 1);
@@ -118,7 +120,7 @@ seq_t a(idx_t n)
         result += cur[s * diff_range + offset];
     }
 
-    free(cur);
-    free(next);
+    mem_free(cur);
+    mem_free(next);
     return result;
 }

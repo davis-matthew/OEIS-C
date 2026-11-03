@@ -11,12 +11,17 @@
  *            arithmetic
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;
@@ -28,7 +33,7 @@ seq_t a(idx_t n) {
         pow5 *= 5;              /* 5^(m+1) */
 
         /* Compute current root to 5^(m+1) */
-        seq_t k4   = mod_pow(k, 4, pow5);
+        seq_t k4   = powmod(k, 4, pow5);
         seq_t diff = k4 - 6;                 /* >=0 */
         seq_t u    = diff / prevPow;         /* integer division gives coeff of 5^m */
         seq_t s    = u % 5;                  /* s = (k^4 - 6)/5^m  (mod 5) */

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   build_table
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,32 @@
 */
 
 #include <stdlib.h>
-#include "../utils/build_table.h"
+#include "../utils/mem.h"
+
+/* build table up to new_s (inclusive) */
+static seq_t *build_table(idx_t new_s)
+{
+    idx_t width = new_s + 1;
+    idx_t total = width * width;
+    seq_t *a = mem_new(seq_t, total);
+    if (!a) return NULL;
+    for (idx_t i = 0; i < total; ++i) a[i] = 0;
+
+    /* T(0,0)=1 */
+    a[0] = 1;
+
+    for (idx_t n = 1; n <= new_s; ++n)
+    {
+        for (idx_t k = 0; k <= new_s; ++k)
+        {
+            seq_t val = a[(n-1)*width + k];
+            if (k >= n)           val += a[(n-1)*width + k-n];
+            if (k >= 2*n)         val += a[(n-1)*width + k-2*n];
+            a[n*width + k] = val;
+        }
+    }
+    return a;
+}
 
 static seq_t *table = NULL;          /* flat 2‑D array T[n][k] */
 static idx_t  table_size = 0;        /* number of rows that have been built */
@@ -46,7 +72,7 @@ static void ensure_table(idx_t s)
     if (table == NULL || s > table_size)
     {
         seq_t *new_table = build_table(s);
-        if (table) free(table);
+        if (table) mem_free(table);
         table      = new_table;
         table_size = s;
     }

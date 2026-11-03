@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   kaprekar_step
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,51 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/kaprekar_step.h"
+#include "../utils/mem.h"
+
+/* Perform one Kaprekar step on x. */
+static seq_t kaprekar_step(seq_t x)
+{
+    uint8_t digit_buf[128];  /* plenty for any practical width */
+    size_t dlen = 0;
+    seq_t tmp = x;
+
+    /* Extract digits (least significant first) */
+    if (tmp == 0) {
+        digit_buf[0] = 0;
+        dlen = 1;
+    } else {
+        while (tmp > 0) {
+            digit_buf[dlen++] = (uint8_t)(tmp % 10);
+            tmp /= 10;
+        }
+    }
+
+    /* Sort digits ascending (bubble sort is fine for dlen ≤ 128) */
+    for (size_t i = 0; i + 1 < dlen; ++i) {
+        for (size_t j = i + 1; j < dlen; ++j) {
+            if (digit_buf[j] < digit_buf[i]) {
+                uint8_t t = digit_buf[i];
+                digit_buf[i] = digit_buf[j];
+                digit_buf[j] = t;
+            }
+        }
+    }
+
+    /* Build ascending number */
+    seq_t asc = 0;
+    for (size_t i = 0; i < dlen; ++i) {
+        asc = asc * 10 + digit_buf[i];
+    }
+
+    /* Build descending number (reverse of ascending) */
+    seq_t desc = 0;
+    for (size_t i = dlen; i > 0; --i) {
+        desc = desc * 10 + digit_buf[i - 1];
+    }
+
+    return desc - asc;
+}
 
 /* internal cache for already computed terms */
 static seq_t *cache   = NULL;   /* array of a(i) */
@@ -37,7 +82,7 @@ seq_t a(idx_t n)
     if (cache_cap < (size_t)n) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 4;
         while (new_cap < (size_t)n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(*cache));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;            /* allocation failure (unlikely) */
         cache = tmp;
         cache_cap = new_cap;

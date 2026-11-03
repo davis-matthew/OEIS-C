@@ -7,11 +7,13 @@
  * Formula:   a(n) = Sum_{k=0..n} binomial(n, 2k)*binomial(n-k, k)*(-1)^k
  * Range:     i8 n <= 6, i16 n <= 13, i32 n <= 25, i64 n <= 48, i128 n <= 93,
  *            big any n
+ * Validated: standard, pass, 51 terms through n = 390 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* Computes sequence A278415.  binomial(n, k) is provided by the

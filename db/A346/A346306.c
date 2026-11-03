@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabf, base
  * Formula:   a(n) = 3*(2^d-1) - n, where d = ⌊log₂(n+1)⌋
- * Range:     u8 n <= 254, u16 n <= 9949, u32 n <= 9949, u64 n <= 9949,
- *            u128 n <= 9949, big any n
+ * Range:     u8 n <= 254, u16 n <= 16382, u32 n <= 16382, u64 n <= 16382,
+ *            u128 n <= 16382, big any n
+ * Validated: standard, pass, 82 terms through n = 9949 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

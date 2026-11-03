@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 18, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --- static caching of computed terms ----------------------------------- */
 
@@ -39,14 +41,14 @@ grow_cache(idx_t need)
         cache_len = 3;
         if (need < 3)                    /* we need 3 for the init   */
             need = 3;
-        a_cache = (seq_t *)malloc(need * sizeof(seq_t));
+        a_cache = mem_new(seq_t, need);
         if (!a_cache) exit(1);           /* fatal, can't allocate     */
         for (idx_t i = 0; i < need; ++i)
             a_cache[i] = (seq_t)0;
         a_cache[0] = a_cache[1] = a_cache[2] = (seq_t)1;
     } else {
         /* resize */
-        a_cache = (seq_t *)realloc(a_cache, need * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, need);
         if (!a_cache) exit(1);
         for (idx_t i = cache_cap; i < need; ++i)
             a_cache[i] = (seq_t)0;

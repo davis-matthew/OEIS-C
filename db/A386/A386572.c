@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 73, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 8934 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Constants */
 static const size_t L = 400000;          /* upper limit for k and for marked values */
@@ -37,7 +39,7 @@ static bool            initialized = false;
 /* Helper: Grow the missing array when needed */
 static void grow_missing(void) {
     size_t new_cap = (missing_cap == 0) ? INITIAL_CAP : missing_cap << 1;
-    seq_t *p = (seq_t *)realloc(missing, new_cap * sizeof(seq_t));
+    seq_t *p = mem_resize(seq_t, missing, new_cap);
     if (!p) abort();                /* unrecoverable failure */
     missing = p;
     missing_cap = new_cap;

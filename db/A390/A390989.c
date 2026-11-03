@@ -12,13 +12,38 @@
  *            at 1 (so a(1) is the first term)
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   _partitions_in_range
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/_partitions_in_range.h"
+#include "../utils/mem.h"
+
+/* counts partitions of `m` into parts all lying in
+   the closed interval [a,b].  `m` is 0..k−1,  a,b≥1 */
+static seq_t _partitions_in_range(idx_t m, idx_t a, idx_t b)
+{
+    if (m == 0)                /* the empty partition */
+        return 1;
+    if (a > b || a > m)        /* impossible range */
+        return 0;
+
+    /* dynamic programming over the sum */
+    seq_t *dp = mem_new(seq_t, m + 1);
+    dp[0] = 1;                 /* empty partition of 0 */
+
+    for (idx_t val = a; val <= b; ++val) {
+        for (idx_t sum = val; sum <= m; ++sum) {
+            dp[sum] += dp[sum - val];
+        }
+    }
+
+    seq_t res = dp[m];
+    mem_free(dp);
+    return res;
+}
 
 seq_t a(idx_t n)
 {

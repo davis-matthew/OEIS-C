@@ -12,13 +12,15 @@
  *            = T(r,c). T(n,k) counts compositions of n into k...
  * Range:     u8 n <= 49, u16 n <= 143, u32 n <= 478, u64 n <= 1679,
  *            u128 n <= 6268, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 8626 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc */
 #include <stddef.h>   /* size_t */
+#include "../utils/mem.h"
 
 /* ensure we can compute up to the required row */
 static seq_t **T = NULL;          /* triangular array: T[n][k] */
@@ -53,7 +55,7 @@ static void ensure_rows(idx_t r_needed)
 
     for (idx_t n = rows_allocated; n <= r_needed; ++n) {
         /* allocate the row with n+1 entries (k=0..n) */
-        T[n] = (seq_t *)malloc(sizeof(seq_t) * (n + 1));
+        T[n] = mem_new(seq_t, (n + 1));
         /* initialise to zero */
         for (idx_t k = 0; k <= n; ++k)
             T[n][k] = 0;

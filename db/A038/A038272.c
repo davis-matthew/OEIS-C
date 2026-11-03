@@ -8,19 +8,21 @@
  *            floor((sqrt(8*n+1)-1)/2) and j = n - i*(i+1)/2
  * Range:     u8 n <= 5, u16 n <= 15, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   _floor_isqrt_u64, binomial, pow_int
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-01)
+ * Helpers:   binomial, ipow_idx, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/_floor_isqrt_u64.h"
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
     /* compute i = floor((sqrt(8*n+1)-1)/2) */
-    idx_t sqrt_term = _floor_isqrt_u64(8*n + 1);
+    idx_t sqrt_term = isqrt(8*n + 1);
     idx_t i = (sqrt_term - 1) / 2;
 
     /* compute j = n - i*(i+1)/2 */
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* term = C(i,j) * 7^(i-j) * 6^j */
     seq_t bin = binomial(i, j);
     idx_t exp7 = i - j;
-    seq_t p7  = pow_int((seq_t)7, exp7);
-    seq_t p6  = pow_int((seq_t)6, j);
+    seq_t p7  = ipow_idx((seq_t)7, exp7);
+    seq_t p6  = ipow_idx((seq_t)6, j);
     return bin * p7 * p6;
 }

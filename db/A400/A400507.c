@@ -9,13 +9,14 @@
  *            A(n,k) read by antidiagonals
  * Range:     u8 n <= 18, u16 n <= 50, u32 n <= 130, u64 n <= 368,
  *            u128 n <= 1022, big any n
- * Helpers:   pow_int
+ * Validated: standard, pass, 71 terms through n = 9996 (2026-11-02)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -39,6 +40,6 @@ seq_t a(idx_t n)
 
     /* Compute k * (k+2)^(nrow-1) */
     seq_t base  = (seq_t)(kcol + 2);
-    seq_t power = pow_int(base, (idx_t)(nrow - 1));
+    seq_t power = ipow_idx(base, (idx_t)(nrow - 1));
     return (seq_t)(kcol) * power;
 }

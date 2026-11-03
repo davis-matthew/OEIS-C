@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,6 +36,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* -----------------------------------------------------------------------
  *  Grow a dynamic array of seq_t elements.
@@ -43,7 +45,7 @@ static void grow_seq_array(seq_t **arr, size_t *len, size_t *cap, seq_t val)
 {
     if (*len == *cap) {
         *cap = (*cap == 0) ? 8 : (*cap << 1);
-        *arr = (seq_t *)realloc(*arr, (*cap) * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, (*cap));
     }
     (*arr)[(*len)++] = val;
 }
@@ -124,7 +126,7 @@ static void expand_terms_if_needed(idx_t n_needed,
 
         if (new_len >= (size_t)n_needed) {
             /* We have enough terms; replace the cached array. */
-            free(*terms);
+            mem_free(*terms);
             *terms   = new_terms;
             *len     = new_len;
             *limit   = new_limit;
@@ -132,7 +134,7 @@ static void expand_terms_if_needed(idx_t n_needed,
         }
 
         /* Not enough; free and try a larger limit. */
-        free(new_terms);
+        mem_free(new_terms);
         new_limit <<= 1;                 /* double the limit and retry */
     }
 }

@@ -9,15 +9,17 @@
  *            = 1
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 15, u64 n <= 24, u128 n <= 39,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 43 terms through n = 181 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>            /* NULL, size_t */
 #include <stdlib.h>            /* malloc, realloc, exit */
-#include "../utils/binom.h"    /* binom(idx_t a, idx_t b) */
-
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* memoised a(0)…a(… ) */
 static size_t cache_cap = 0;  /* allocated array size */
@@ -30,7 +32,7 @@ static void grow_cache(idx_t n)
         return;                       /* already large enough */
     size_t new_cap = cache_cap ? cache_cap * 2 : 8;
     while (new_cap <= (size_t)n) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) {                       /* allocation failed */
         exit(EXIT_FAILURE);
     }
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
         seq_t sum = (seq_t)0;
         for (idx_t i = 0; i <= m - 1; ++i) {
             idx_t j   = m - 1 - i;
-            seq_t bin = binom(m - i, i);          /* binomial coefficient */
+            seq_t bin = binomial(m - i, i);          /* binomial coefficient */
             seq_t prod = bin * cache[i] * cache[j];
             sum += prod;
         }

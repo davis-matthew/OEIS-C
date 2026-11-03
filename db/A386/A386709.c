@@ -10,12 +10,14 @@
  *            with 1's in blocks of at least 4, excluding the all‑zero word
  * Range:     u8 n <= 27, u16 n <= 53, u32 n <= 105, u64 n <= 210,
  *            u128 n <= 419, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 946 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
 
     /* Length of array holding b(k) for k=0..n-4. */
     size_t len = (size_t)(n - 4 + 1);
-    seq_t *b = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *b = mem_new(seq_t, len);
     if (!b) {
         return 0;          /* allocation failure – not expected for n≤10000 */
     }
@@ -57,12 +59,12 @@ seq_t a(idx_t n)
             a_curr = a_prev + b[i - 4];
         }
         if (i == n) {
-            free(b);
+            mem_free(b);
             return a_curr;
         }
         a_prev = a_curr;
     }
 
-    free(b);           /* unreachable, but keeps the compiler happy */
+    mem_free(b);           /* unreachable, but keeps the compiler happy */
     return 0;
 }

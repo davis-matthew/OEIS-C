@@ -14,7 +14,8 @@
  *            by reading the rectangle of T(i,k) values...
  * Range:     u8 n <= 30, u16 n <= 58, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -39,6 +40,7 @@
 #include <stdint.h>
 #include <math.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t compute_T(idx_t N, idx_t K)
 {
@@ -50,7 +52,7 @@ static seq_t compute_T(idx_t N, idx_t K)
     size_t dim = n + 1;
 
     /* binomial coefficients C[x][y] for 0≤x≤n, 0≤y≤x */
-    seq_t *C = (seq_t *)malloc(dim * dim * sizeof(seq_t));
+    seq_t *C = mem_new(seq_t, dim * dim);
     for (size_t i = 0; i < dim * dim; ++i) C[i] = 0;
     C[0 * dim + 0] = 1;
     for (size_t i = 1; i < dim; ++i) {
@@ -61,8 +63,8 @@ static seq_t compute_T(idx_t N, idx_t K)
     }
 
     /* dynamic programming arrays */
-    seq_t *cur = (seq_t *)calloc(dim, sizeof(seq_t));
-    seq_t *nxt = (seq_t *)calloc(dim, sizeof(seq_t));
+    seq_t *cur = mem_new(seq_t, dim);
+    seq_t *nxt = mem_new(seq_t, dim);
     cur[0] = 1;   /* start at the empty set */
 
     for (size_t step = 0; step < k; ++step) {
@@ -92,9 +94,9 @@ static seq_t compute_T(idx_t N, idx_t K)
     }
 
     seq_t result = cur[n];
-    free(cur);
-    free(nxt);
-    free(C);
+    mem_free(cur);
+    mem_free(nxt);
+    mem_free(C);
     return result;
 }
 

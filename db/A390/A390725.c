@@ -12,14 +12,17 @@
  *            binomial(a,b) and catalan(k) returning the k‑th Catalan number
  * Range:     u8 n <= 16, u16 n <= 37, u32 n <= 79, u64 n <= 193,
  *            u128 n <= 502, big any n
- * Helpers:   binom, catalan
+ * Validated: standard, pass, 61 terms through n = 4127 (2026-11-01)
+ * Helpers:   binomial, catalan
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binom.h"
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
 #include "../utils/catalan.h"
 
 seq_t a(idx_t n)
@@ -44,7 +47,7 @@ seq_t a(idx_t n)
     }
 
     /* L(n,k) = binomial(r-1,k-1) * prod_{i=k+1}^{r} i */
-    seq_t bin = binom((idx_t)(r - 1), (idx_t)(k - 1));
+    seq_t bin = binomial((idx_t)(r - 1), (idx_t)(k - 1));
 
     seq_t prod = 1;
     for (uint64_t i = k + 1; i <= r; ++i) {

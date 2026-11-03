@@ -12,14 +12,46 @@
  *            divides n. For n = 2^e * ∏_{p odd} p^{k_p...
  * Range:     u8 n <= 14, u16 n <= 164, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   a_p_pow_odd
+ * Validated: standard, pass, 72 terms through n = 918 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/a_p_pow_odd.h"
+
+/* Compute a_p(p^k) for odd prime p and exponent k ≥ 0 */
+static seq_t a_p_pow_odd(uint64_t p, idx_t k)
+{
+    if (k == 0)                   return 1;
+    if (k == 1) { 
+        seq_t t = (seq_t)(p + 1);
+        return t * t;
+    }
+    /* k >= 2 */
+    seq_t a0 = 1;         /* a(p^0) */
+    seq_t a1 = (seq_t)(p + 1) * (seq_t)(p + 1);   /* a(p^1) */
+
+    if (k == 2) {
+        /* a(p^2) = p + (p+p^2)*a1 - p^3 */
+        seq_t pp = (seq_t)p * p;          /* p^2 */
+        seq_t ppp = pp * (seq_t)p;       /* p^3 */
+        seq_t term = (seq_t)(p + pp) * a1;
+        return (seq_t)p + term - ppp;
+    }
+
+    seq_t a2 = (seq_t)p + ((seq_t)(p + (seq_t)p * p) * a1) - (seq_t)p * (seq_t)p * (seq_t)p;  /* p^3 */
+    /* Recurrence for k >= 3 */
+    seq_t prev2 = a1;
+    seq_t prev1 = a2;
+    for (idx_t i = 3; i <= k; ++i) {
+        seq_t cur = ((seq_t)(p + (seq_t)p * p) * prev1) - (seq_t)p * (seq_t)p * (seq_t)p * prev2;
+        prev2 = prev1;
+        prev1 = cur;
+    }
+    return prev1;
+}
 
 seq_t a(idx_t n)
 {

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 36, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    ∏_{k≥1} (1 + x^(2*k-1))^(k*(k-1)/2)
    (OEIS A294777, offset 0).  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,10 +28,10 @@ seq_t a(idx_t n)
     size_t sz = (size_t)n + 1;
 
     /* Allocate two working arrays of seq_t */
-    seq_t *dp   = (seq_t *)malloc(sz * sizeof(seq_t));
-    seq_t *next = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *dp   = mem_new(seq_t, sz);
+    seq_t *next = mem_new(seq_t, sz);
     if (!dp || !next) {
-        free(dp); free(next);
+        mem_free(dp); mem_free(next);
         return (seq_t)0;   /* allocation failure */
     }
 
@@ -48,9 +50,9 @@ seq_t a(idx_t n)
         if (tmax == 0) continue;                 /* this weight has no effect */
 
         /* Pre‑compute binomial coefficients C(m,t) for t=0..tmax */
-        seq_t *binom = (seq_t *)malloc((size_t)(tmax + 1) * sizeof(seq_t));
+        seq_t *binom = mem_new(seq_t, (size_t)(tmax + 1));
         if (!binom) {
-            free(dp); free(next);
+            mem_free(dp); mem_free(next);
             return (seq_t)0;   /* allocation failure */
         }
         binom[0] = (seq_t)1;
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
             }
         }
 
-        free(binom);
+        mem_free(binom);
 
         /* Prepare for next iteration */
         seq_t *tmp = dp;
@@ -82,7 +84,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
-    free(next);
+    mem_free(dp);
+    mem_free(next);
     return result;
 }

@@ -11,13 +11,15 @@
  *            where all operations are performed modulo the natural...
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 13,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 14 terms through n = 13 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>      /* size_t */
 #include <stdlib.h>     /* malloc, realloc */
+#include "../utils/mem.h"
 
 static const seq_t E1 = (seq_t)112;
 static const seq_t E2 = (seq_t)4648;
@@ -48,9 +50,9 @@ static void expand_cache(idx_t need)
     idx_t new_len   = need + 1;
     seq_t *new_cache;
     if (cache == NULL) {
-        new_cache = (seq_t *)malloc(sizeof(seq_t) * new_len);
+        new_cache = mem_new(seq_t, new_len);
     } else {
-        new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_len);
+        new_cache = mem_resize(seq_t, cache, new_len);
     }
     cache = new_cache;
     /* Populate newly allocated entries */

@@ -7,9 +7,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = nth prime p such that largest prime factor(p-1) < largest
  *            prime factor(p+1)
- * Range:     u8 n <= 25, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
- *            big any n
- * Helpers:   none
+ * Range:     u8 n <= 25, u16 n <= 3296, u32 n <= 39168, u64 n <= 39168,
+ *            u128 n <= 39168, big any n
+ * Validated: standard, pass, 70 terms through n = 9982 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- Prime list handling ---------- */
 static uint64_t *prime_list = NULL;    /* primes, 2,3,5,...   */
@@ -113,7 +115,7 @@ static void ensure_term_cap(size_t need)
     if (term_cap >= need) return;
     size_t newcap = term_cap ? term_cap * 2 : 16;
     while (newcap < need) newcap *= 2;
-    seq_t *tmp = (seq_t *)realloc(term_list, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, term_list, newcap);
     if (tmp) {
         term_list = tmp;
         term_cap = newcap;

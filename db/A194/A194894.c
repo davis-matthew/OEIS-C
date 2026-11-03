@@ -13,15 +13,35 @@
  *            (a(m)+1)(a(n)+1) = a(mn)+1
  * Range:     u8 n <= 6, u16 n <= 40, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   floor_sqrt, seq_pow
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-01)
+ * Helpers:   ipow_i32, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_pow.h"        /* seq_pow(seq_t base, idx_t exp) */
-#include "../utils/floor_sqrt.h"     /* floor_sqrt(seq_t x) */
+#include <stdlib.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/ipow_idx.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 seq_t a(idx_t n)
 {
@@ -42,7 +62,7 @@ seq_t a(idx_t n)
             seq_t p_sq = p * p;                    /* p^2 */
             seq_t factor = p_sq - (seq_t)1;        /* p^2-1 */
             /* compute p^(3e-2) */
-            seq_t p_pow = seq_pow(p, 3 * (idx_t)e - 2);
+            seq_t p_pow = ipow_idx(p, 3 * (idx_t)e - 2);
             seq_t a_pe = factor * p_pow;           /* a(p^e) */
             g *= (a_pe + (seq_t)1);
         }
@@ -53,7 +73,7 @@ seq_t a(idx_t n)
         int e = 1;
         seq_t p_sq = p * p;                        /* p^2 */
         seq_t factor = p_sq - (seq_t)1;            /* p^2-1 */
-        seq_t p_pow = seq_pow(p, 3 * (idx_t)e - 2);
+        seq_t p_pow = ipow_idx(p, 3 * (idx_t)e - 2);
         seq_t a_pe = factor * p_pow;
         g *= (a_pe + (seq_t)1);
     }

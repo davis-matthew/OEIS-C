@@ -11,14 +11,24 @@
  *            prime p≡5 (mod 6), f(p,odd)=0, f(p,even)=1.)
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mult_val
+ * Validated: standard, pass, 103 terms through n = 878 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/mult_val.h"
+
+static seq_t mult_val(uint64_t p, int e)
+{
+    if (p == 2ULL) return (seq_t)3;
+    if (p == 3ULL) return (seq_t)1;
+    int mod = (int)(p % 6ULL);
+    if (mod == 1) return (seq_t)(e + 1);
+    /* mod == 5 */
+    return (seq_t)(((e & 1) == 0) ? 1 : 0);
+}
 
 seq_t a(idx_t n)
 {

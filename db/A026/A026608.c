@@ -7,8 +7,9 @@
  * Formula:   a(n) = number of 2's between the n-th 1 and the (n+1)-th 1 of
  *            the fixed point of the 3-symbol Thue–Morse morphism μ(1)=123,
  *            μ(2)=231, μ(3)=312
- * Range:     u8 n <= 9203, u16 n <= 9203, u32 n <= 9203, u64 n <= 9203,
- *            u128 n <= 9203, big any n
+ * Range:     u8 n <= 19682, u16 n <= 19682, u32 n <= 19682, u64 n <= 19682,
+ *            u128 n <= 19682, big any n
+ * Validated: standard, pass, 106 terms through n = 9203 (2026-11-03)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

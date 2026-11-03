@@ -9,14 +9,28 @@
  *            hard‑coded numerically.)
  * Range:     u8 n <= 5, u16 n <= 44, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mul_small
+ * Validated: standard, pass, 56 terms through n = 939 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/mul_small.h"   /* provides seq_t mul_small(seq_t, unsigned int) */
+#include "../utils/mem.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 seq_t a(idx_t n)
 {
@@ -29,14 +43,14 @@ seq_t a(idx_t n)
     /* Resize cache if we need values beyond what we have already computed */
     if (n > max_computed) {
         idx_t new_size = n + 1;          /* allocate index 0..n (index 0 unused) */
-        seq_t *new_cache = (seq_t *)malloc(sizeof(seq_t) * new_size);
+        seq_t *new_cache = mem_new(seq_t, new_size);
         if (new_cache == NULL)
             abort();                    /* caller cannot recover */
 
         /* copy previously computed values, if any */
         if (cache != NULL) {
-            memcpy(new_cache, cache, sizeof(seq_t) * (max_computed + 1));
-            free(cache);
+            mem_copy(new_cache, cache, sizeof(seq_t) * (max_computed + 1));
+            mem_free(cache);
         }
         cache = new_cache;
 

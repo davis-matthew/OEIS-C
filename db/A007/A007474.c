@@ -12,15 +12,40 @@
  *            adjacent-edge orbits), T(r) = [d even]*T(r-1...
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 11, u64 n <= 18, u128 n <= 29,
  *            big any n
- * Helpers:   a7474_phi, seq_is_fixed_width, u128_to_seq
+ * Validated: standard, pass, 37 terms through n = 291 (2026-11-01)
+ * Helpers:   totient_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/seq_is_fixed_width.h"
-#include "../utils/u128_to_seq.h"
-#include "../utils/a7474_phi.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/totient_idx.h"
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
+
+static seq_t u128_to_seq(unsigned __int128 u)
+{
+    seq_t r = 0;
+    int k;
+    for (k = 3; k >= 0; k--) {
+        r = r * 65536ULL;
+        r = r * 65536ULL;
+        r += (seq_t)(uint64_t)(uint32_t)(u >> (32 * k));
+    }
+    return r;
+}
 
 #define A7474_DEF_F(NAME, T)                                              \
 static T NAME(idx_t n, idx_t d) {                                         \
@@ -62,12 +87,12 @@ seq_t a(idx_t n) {
         unsigned __int128 S = 0;
         for (idx_t d = 1; d <= N; d++)
             if (N % d == 0)
-                S += (unsigned __int128)a7474_phi(d) * a7474_F_fix(n, d);
+                S += (unsigned __int128)totient_idx(d) * a7474_F_fix(n, d);
         return u128_to_seq(S / (unsigned __int128)N);
     }
     seq_t S = 0;
     for (idx_t d = 1; d <= N; d++)
         if (N % d == 0)
-            S += (seq_t)a7474_phi(d) * a7474_F_big(n, d);
+            S += (seq_t)totient_idx(d) * a7474_F_big(n, d);
     return S / (seq_t)N;
 }

@@ -13,6 +13,7 @@
  *            base-10^n digits of q^3 add up to q
  * Range:     u8 n <= 3, u16 n <= 17, u32 n <= 147, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 51 terms through n = 919 (2026-11-01)
  * Helpers:   modinv
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,14 +8,16 @@
  * Formula:   a(1)=1; a(n)=reverse(a(n-1))+55 (n>1)
  * Range:     u8 n <= 5, u16 n <= 25, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   reverse
+ * Validated: standard, pass, 57 terms through n = 1975 (2026-11-03)
+ * Helpers:   mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/reverse.h"
+#include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
 
 /* Return a(n) for the sequence A118161.
  * The function memoizes computed values so that
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (!cache) {
         cap = 4;                            /* initial size */
-        cache = (seq_t *)malloc(sizeof(seq_t) * cap);
+        cache = mem_new(seq_t, cap);
         if (!cache) exit(1);
         /* a(1) is given */
         cache[1] = 1;
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     if ((size_t)n + 1 > cap) {
         size_t new_cap = cap;
         while ((size_t)n + 1 > new_cap) new_cap <<= 1;   /* double */
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) exit(1);
         cache = tmp;
         cap = new_cap;
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
     /* extend cache up to n */
     for (size_t i = max + 1; i <= (size_t)n; ++i) {
         seq_t prev = cache[i - 1];
-        seq_t rev  = reverse(prev);       /* reverse decimal digits */
+        seq_t rev  = reverse_digits(prev);       /* reverse decimal digits */
         cache[i] = rev + (seq_t)55;
     }
     max = (size_t)n;

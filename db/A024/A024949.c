@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 16, u32 n <= 29, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 /* Implementation uses memoization; works for any seq_t (built-in or big integer). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache of previously computed terms, 1‑based indexing */
 static seq_t *cache = NULL;      /* pointer to array of seq_t */
@@ -33,7 +35,7 @@ static void ensure_capacity(idx_t n)
     if (n <= cache_cap) return;
 
     /* Reallocate memory; cast to seq_t* for both C and C++ */
-    seq_t *newbuf = (seq_t *)realloc(cache, (size_t)n * sizeof(seq_t));
+    seq_t *newbuf = mem_resize(seq_t, cache, (size_t)n);
     cache = newbuf;
     cache_cap = n;
 }

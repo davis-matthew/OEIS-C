@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   get_cache
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,21 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/get_cache.h"
+#include "../utils/mem.h"
+
+static seq_t *get_cache(size_t *sz, size_t *cap, size_t *needed) {
+    static seq_t *cache = NULL;
+    static size_t capacity = 0;
+    if (*needed > capacity) {
+        size_t newcap = capacity ? capacity * 2 : 8;
+        while (newcap < *needed) newcap *= 2;
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
+        if (!tmp) abort();  /* allocation failure */
+        cache = tmp;
+        capacity = newcap;
+    }
+    return cache;
+}
 
 static bool has_pattern(seq_t x) {
     // Return true if the base‑8 representation of x contains the substring 6,4
@@ -73,7 +88,7 @@ seq_t a(idx_t n) {
         if (contains && !has_pattern((seq_t)(cand + 1))) {
             if (cache_size == cache_cap) {
                 size_t newcap = cache_cap ? cache_cap * 2 : 8;
-                seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, newcap);
                 if (!tmp) abort();  /* allocation failure */
                 cache = tmp;
                 cache_cap = newcap;

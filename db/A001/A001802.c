@@ -9,15 +9,24 @@
  *            7), computed as odd part times a power of 2
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 11, u64 n <= 25, u128 n <= 57,
  *            big any n
- * Helpers:   a1802_g, a1802_muldiv, a1802_pop
+ * Validated: standard, pass, 38 terms through n = 927 (2026-11-01)
+ * Helpers:   gcd_u64, popcount
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a1802_g.h"
-#include "../utils/a1802_muldiv.h"
-#include "../utils/a1802_pop.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/popcount.h"
+
+/* multiply O by x/y exactly (result known to be an integer), y odd */
+static seq_t a1802_muldiv(seq_t O, uint64_t x, uint64_t y) {
+    uint64_t r = (uint64_t)(O % (seq_t)y);
+    uint64_t g = gcd_u64(y, r);
+    O /= (seq_t)g;
+    y /= g;
+    return O * (seq_t)(x / y);
+}
 
 seq_t a(idx_t n) {
     uint64_t k = (uint64_t)n + 3;
@@ -34,7 +43,7 @@ seq_t a(idx_t n) {
         while ((y & 1) == 0) y >>= 1;
         O = a1802_muldiv(O, x, y);
     }
-    s += a1802_pop(k);
+    s += popcount(k);
 
     /* times (n+1)(n+2)(n+3)/3 */
     f[0] = (uint64_t)n + 1; f[1] = (uint64_t)n + 2; f[2] = (uint64_t)n + 3;
@@ -48,7 +57,7 @@ seq_t a(idx_t n) {
     }
 
     /* times 2^(A011371(n+6) - n - 7) */
-    s += (long long)((uint64_t)n + 6) - a1802_pop((uint64_t)n + 6);
+    s += (long long)((uint64_t)n + 6) - popcount((uint64_t)n + 6);
     s -= (long long)n + 7;
 
     while (s > 0) {

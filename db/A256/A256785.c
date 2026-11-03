@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 57, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   even_H_digits
+ * Validated: standard, pass, 92 terms through n = 947 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,20 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/even_H_digits.h"
+#include "../utils/mem.h"
+
+/* ------------------------------------------------------------------ */
+static bool even_H_digits(seq_t m)
+{
+    seq_t parity = 0;          /* 0 = even, 1 = odd number of H */
+    while (m) {
+        seq_t r2 = m * 2;      /* multiply by 2 (use integer ops only) */
+        if (r2 % 3 == 1)       /* remainder 1 => a digit of 0.5 (H) */
+            parity ^= 1;       /* toggle parity */
+        m = r2 / 3;            /* next higher digit */
+    }
+    return parity == 0;        /* true if even number of H digits */
+}
 
 /* ------------------------------------------------------------------ */
 /* Test whether an integer m has an even number of H (0.5) digits     */
@@ -40,7 +54,7 @@ static void cache_append(seq_t v)
 {
     if (cache_sz == cache_cap) {
         size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         /* If realloc fails, the program will terminate.  The
            challenge environment does not require a graceful fail. */
         cache = tmp;

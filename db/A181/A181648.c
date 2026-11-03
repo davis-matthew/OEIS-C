@@ -10,13 +10,27 @@
  *            transform of the period‑6 sequence [1,0,1,0,1,-3]
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   period6_b
+ * Validated: standard, pass, 101 terms through n = 926 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/period6_b.h"
+#include "../utils/mem.h"
+
+/* helper to obtain the period‑6 value b(k) = [1,0,1,0,1,-3] repeating. */
+static inline int period6_b(idx_t k)
+{
+    switch (k % 6) {
+        case 1: return 1;
+        case 2: return 0;
+        case 3: return 1;
+        case 4: return 0;
+        case 5: return 1;
+        default: /* k % 6 == 0 */   return -3;
+    }
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)
@@ -28,7 +42,7 @@ seq_t a(idx_t n)
 
     /* initialise base case a(0)=1 */
     if (a_val == NULL) {
-        a_val = (seq_t*)malloc(sizeof(seq_t));
+        a_val = mem_new(seq_t, 1);
         c_val = (long long*)malloc(sizeof(long long));
         if (!a_val || !c_val) return 0;   /* memory error */
         a_val[0] = (seq_t)1;
@@ -39,7 +53,7 @@ seq_t a(idx_t n)
     /* extend memoisation if necessary */
     if (n > cap) {
         size_t new_cap = (size_t)(n + 1);
-        seq_t *tmp_a = (seq_t*)realloc(a_val, new_cap * sizeof(seq_t));
+        seq_t *tmp_a = mem_resize(seq_t, a_val, new_cap);
         if (!tmp_a) return 0;   /* memory error */
         a_val = tmp_a;
         long long *tmp_c = (long long*)realloc(c_val, new_cap * sizeof(long long));

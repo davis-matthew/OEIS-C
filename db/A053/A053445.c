@@ -8,7 +8,8 @@
  *            partitions of k
  * Range:     u8 n <= 29, u16 n <= 67, u32 n <= 176, u64 n <= 517,
  *            u128 n <= 1676, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 9850 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Computes the sequence A053445 (Second differences of partition numbers). */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
         if (cap <= need) {
             size_t newcap = cap ? cap * 2 : 16;
             while (newcap <= need) newcap *= 2;
-            p = (seq_t*)realloc(p, newcap * sizeof(seq_t));
+            p = mem_resize(seq_t, p, newcap);
             cap = newcap;
         }
         /* initialise new entries */

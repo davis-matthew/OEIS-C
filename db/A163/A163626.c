@@ -11,6 +11,7 @@
  *            r*(r+1)/2
  * Range:     i8 n <= 16, i16 n <= 38, i32 n <= 83, i64 n <= 200,
  *            i128 n <= 517, big any n
+ * Validated: standard, pass, 64 terms through n = 9584 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

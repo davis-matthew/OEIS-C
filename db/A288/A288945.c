@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 64, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static state for memoisation */
 static seq_t *seq = NULL;         /* sequence storage                */
@@ -35,7 +37,7 @@ static seq_t next_start[10];     /* next unchecked candidate per first digit */
 static void init_sequence(void)
 {
     seq_cap = 32;
-    seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+    seq = mem_new(seq_t, seq_cap);
     seq[0] = (seq_t)1;
     seq_len = 1;
     for (int d = 0; d < 10; ++d)
@@ -106,7 +108,7 @@ seq_t a(idx_t n)
         /* grow array if needed */
         if (seq_len == seq_cap) {
             seq_cap = seq_cap * 2;
-            seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, seq_cap);
         }
         seq[seq_len++] = cand;
     }

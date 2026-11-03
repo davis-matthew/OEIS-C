@@ -10,9 +10,10 @@
  *            where d(n) = number of divisors of n. This counts the even
  *            numbers (including the starting n) encountered before reaching
  *            zero when repeatedly applying k ← k – d(k)
- * Range:     u8 n <= 2301, u16 n <= 9463, u32 n <= 9463, u64 n <= 9463,
- *            u128 n <= 9463, big any n
- * Helpers:   none
+ * Range:     u8 n <= 2301, u16 n <= 10080, u32 n <= 10080, u64 n <= 10080,
+ *            u128 n <= 10080, big any n
+ * Validated: standard, pass, 119 terms through n = 9463 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static idx_t *spf   = NULL;          /* smallest prime factor table     */
 static size_t spf_cap = 0;           /* current capacity of spf         */
@@ -72,7 +74,7 @@ static void ensure_cache(idx_t n)
     ensure_spf(n);
 
     size_t new_cap = (size_t)n + 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) exit(EXIT_FAILURE);
     cache = new_cache;
     cache_cap = new_cap;

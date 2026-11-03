@@ -14,7 +14,8 @@
  *            2,4,5,11,17,23,38,
  * Range:     u8 n <= 20, u16 n <= 787, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 71 terms through n = 9930 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"   /* is_prime(uint64_t) */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *S = NULL;          /* sums of antidiagonals, indexed by (i+j) */
 static size_t Scar = 0;          /* allocated capacity of S */
@@ -39,7 +41,7 @@ static void ensure_S_capacity(size_t need)
     if (Scar >= need) return;
     size_t newcap = Scar ? Scar * 2 : 16;
     if (newcap < need) newcap = need;
-    seq_t *tmp = (seq_t *)realloc(S, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, S, newcap);
     if (!tmp) abort();
     /* zero the newly added part */
     for (size_t i = Scar; i < newcap; ++i) tmp[i] = 0;

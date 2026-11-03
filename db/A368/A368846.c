@@ -10,12 +10,14 @@
  *            binomial(2*k-1, r) * binomial(2*r+1, 2*k)
  * Range:     i8 n <= 8, i16 n <= 25, i32 n <= 86, i64 n <= 291,
  *            i128 n <= 1065, big any n
+ * Validated: standard, pass, 71 terms through n = 8715 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n) {

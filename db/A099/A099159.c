@@ -8,7 +8,8 @@
  *            a(n) = 4*a(n-1) - 2*a(n-2) - 3*a(n-3) for n >= 3
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 21, u64 n <= 41, u128 n <= 81,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 960 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    overall and use only integer arithmetic. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache used by both ensure_cache and a(). */
 static seq_t *cache = NULL;
@@ -28,7 +30,7 @@ static void ensure_cache(idx_t n)
 {
     /* Lazy initialization: the first three values are known. */
     if (cache_len == 0) {
-        cache = (seq_t *)malloc(3 * sizeof(seq_t));
+        cache = mem_new(seq_t, 3);
         if (!cache) return;            /* allocation failed – caller will get 0 */
         cache[0] = (seq_t)1;           /* a(0) */
         cache[1] = (seq_t)1;           /* a(1) */
@@ -40,7 +42,7 @@ static void ensure_cache(idx_t n)
     if (n + 1 <= cache_len) return;
 
     idx_t new_len = n + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_len);
     if (!tmp) return;                /* allocation failed – keep old cache */
     cache = tmp;
 

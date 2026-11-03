@@ -11,6 +11,7 @@
  *            letters are H(8), I(9), N(14), O(15), S(19), X(24), Z(26)
  * Range:     u8 n <= 7, u16 n <= 7, u32 n <= 7, u64 n <= 7, u128 n <= 7,
  *            big any n
+ * Validated: full, pass, 7 terms through n = 7 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

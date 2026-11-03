@@ -8,7 +8,8 @@
  *            decimal expansion of k! contains n digits equal to '2' }
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 1, u64 n <= 3, u128 n <= 4,
  *            big any n
- * Helpers:   digit_frequencies, seq_from_str, seq_mul
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-03)
+ * Helpers:   digit_frequencies, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,24 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/digit_frequencies.h" /* digit_frequencies */
-#include "../utils/seq_mul.h"          /* seq_mul */
-#include "../utils/seq_from_str.h"     /* seq_from_str */
+#include <stdint.h>
+#include "../utils/digit_frequencies.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
 
 /* ------------------------------------------------------------------ */
 /* helper to convert an unsigned integer to a seq_t value            */
@@ -50,7 +66,7 @@ static void ensure_factorials(idx_t up_to)
 {
     if (fact_len == 0) {
         /* initialise 0! = 1 */
-        fact_cache = (seq_t *)malloc(sizeof(seq_t) * 8);
+        fact_cache = mem_new(seq_t, 8);
         if (!fact_cache) return; /* out‑of‑memory; caller will see uninitialised result */
         fact_cache[0] = int_to_seq(1);
         fact_len = 1;
@@ -61,7 +77,7 @@ static void ensure_factorials(idx_t up_to)
         /* enlarge cache if necessary */
         if (fact_len == fact_cap) {
             size_t new_cap = fact_cap ? fact_cap * 2 : 8;
-            seq_t *tmp = (seq_t *)realloc(fact_cache, sizeof(seq_t) * new_cap);
+            seq_t *tmp = mem_resize(seq_t, fact_cache, new_cap);
             if (!tmp) return;
             fact_cache = tmp;
             fact_cap = new_cap;
@@ -84,9 +100,9 @@ static void ensure_res_capacity(idx_t n)
     if ((size_t)n + 1 > res_cap) {
         size_t new_cap = res_cap ? res_cap * 2 : 16;
         while (new_cap <= (size_t)n) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(res_cache, sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_resize(seq_t, res_cache, new_cap);
         if (!tmp) return;
-        memset(tmp + res_cap, 0, (new_cap - res_cap) * sizeof(seq_t));
+        mem_set(tmp + res_cap, 0, (new_cap - res_cap) * sizeof(seq_t));
         res_cache = tmp;
         res_cap = new_cap;
     }

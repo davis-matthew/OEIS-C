@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 18, u64 n <= 37, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    p_n = a_n * p_{n-1} + p_{n-2}.
    Then a(n) = p_n. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static idx_t period[512];
 static size_t period_len = 0;
@@ -46,11 +48,11 @@ static void ensure_cache(idx_t n) {
     init_period();
     if (cache == NULL) {
         cache_cap = 64;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
     if ((n + 1) > cache_cap) {
         while (cache_cap <= n + 1) cache_cap <<= 1;
-        cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
     if (cache_len == 0) {
         cache[0] = sqrt653_floor;

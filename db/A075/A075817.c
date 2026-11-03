@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-01)
  * Helpers:   bigomega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 /* a(n) = the n-th palindrome in base 10 that is even and has an odd number of prime factors (counted with multiplicity) */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/bigomega.h"
 
 /* Reverse an unsigned integer (assumes 64‑bit) */

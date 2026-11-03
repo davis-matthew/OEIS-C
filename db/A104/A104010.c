@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,10 @@
  * The function searches for successive primes p such that both p and p+6 are
  * prime and returns the sum when the n-th pair is reached.
  */
-#include "../utils/is_prime.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 #include <stdint.h>          /* for uint64_t */
 
 seq_t a(idx_t n)
@@ -30,7 +34,7 @@ seq_t a(idx_t n)
     uint64_t p = 5;                 /* first possible p (odd primes ≥5) */
 
     while (1) {
-        if (is_prime(p) && is_prime(p + 6)) {
+        if (is_prime_u64(p) && is_prime_u64(p + 6)) {
             ++count;
             if (count == n) {
                 return (seq_t)2 * (seq_t)p + (seq_t)6;

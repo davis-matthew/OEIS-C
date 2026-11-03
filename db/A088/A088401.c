@@ -8,6 +8,7 @@
  *            n/2 for even n<8; * a(n) = (n+9)/2 for odd n<8
  * Range:     i8 n <= 18, i16 n <= 24, i32 n <= 24, i64 n <= 24, i128 n <= 24,
  *            big any n
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

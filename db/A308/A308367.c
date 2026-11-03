@@ -7,14 +7,15 @@
  * Formula:   a(n) = Sum_{d|n} (-d)^(n/d-1)
  * Range:     i8 n <= 15, i16 n <= 31, i32 n <= 62, i64 n <= 122,
  *            i128 n <= 245, big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 65 terms through n = 4417 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -24,11 +25,11 @@ seq_t a(idx_t n)
             idx_t d1 = d;
             idx_t d2 = n / d;
             idx_t e1 = n / d1 - 1;
-            seq_t term1 = big_pow(-((seq_t)d1), (seq_t)e1);
+            seq_t term1 = ipow(-((seq_t)d1), (seq_t)e1);
             sum += term1;
             if (d1 != d2) {
                 idx_t e2 = n / d2 - 1;
-                seq_t term2 = big_pow(-((seq_t)d2), (seq_t)e2);
+                seq_t term2 = ipow(-((seq_t)d2), (seq_t)e2);
                 sum += term2;
             }
         }

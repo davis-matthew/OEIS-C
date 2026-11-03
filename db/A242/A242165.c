@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = minimal k ≥ 0 such that n−k and n+k are both Fermi‑Dirac
  *            primes (numbers of the form p^(2^j), where p is prime)
- * Range:     u8 n <= 8410, u16 n <= 9739, u32 n <= 9739, u64 n <= 9739,
- *            u128 n <= 9739, big any n
+ * Range:     u8 n <= 8410, u16 n <= 10001, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 112 terms through n = 9739 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

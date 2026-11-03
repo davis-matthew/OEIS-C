@@ -9,8 +9,9 @@
  *            positive cubes, else 0. a(0) = 0, a(1) = 0, ... * The program
  *            simply checks all possible pairs of cubes up to the * integer
  *            cube root of n
- * Range:     u8 n <= 3255, u16 n <= 9877, u32 n <= 9877, u64 n <= 9877,
- *            u128 n <= 9877, big any n
+ * Range:     u8 n <= 3255, u16 n <= 100079, u32 n <= 100080, u64 n <= 100080,
+ *            u128 n <= 100080, big any n
+ * Validated: standard, pass, 143 terms through n = 9877 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

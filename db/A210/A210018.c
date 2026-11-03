@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   prod_is_substring, prod_to_base7
+ * Validated: full, pass, 62 terms through n = 62 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,55 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/prod_is_substring.h"
-#include "../utils/prod_to_base7.h"
+
+/* Convert product of two adjacent digits to an array of base‑7 digits.
+   sub  : buffer that will contain the result digits (most significant first)
+   sublen: pointer to store the number of digits written */
+static void prod_to_base7(uint8_t prod, uint8_t sub[3], int *sublen)
+{
+    if (prod == 0) {
+        sub[0] = 0;
+        *sublen = 1;
+        return;
+    }
+    /* compute in reverse order */
+    int len = 0;
+    while (prod > 0) {
+        sub[len++] = (uint8_t)(prod % 7);
+        prod /= 7;
+    }
+    /* reverse to get most significant first */
+    for (int i = 0; i < len / 2; ++i) {
+        uint8_t tmp = sub[i];
+        sub[i] = sub[len - 1 - i];
+        sub[len - 1 - i] = tmp;
+    }
+    *sublen = len;
+}
+
+/* Check whether the product of two adjacent digits is a substring of
+   the 7‑digit sequence d. */
+static bool prod_is_substring(const uint8_t d[7], int i)
+{
+    uint8_t prod = d[i] * d[i + 1];
+    uint8_t sub[3];
+    int sublen = 0;
+
+    prod_to_base7(prod, sub, &sublen);
+
+    /* search for sub in d */
+    for (int start = 0; start <= 7 - sublen; ++start) {
+        bool ok = true;
+        for (int k = 0; k < sublen; ++k) {
+            if (d[start + k] != sub[k]) {
+                ok = false;
+                break;
+            }
+        }
+        if (ok) return true;
+    }
+    return false;
+}
 
 /* maximum number of 7‑digit permutations */
 #define MAX_7DIG_PERM 5040

@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 33, u16 n <= 9147, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 71 terms through n = 9550 (2026-11-01)
  * Helpers:   digit_sum, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,8 +16,10 @@
 
 /* Sequence A339077: numbers k such that k and k+1 are both coprime to their digital sum. */
 /* The function returns the nth such number (1‑based index). */
-#include "../utils/gcd.h"
+#include <stdbool.h>
+#include <stdint.h>
 #include "../utils/digit_sum.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {

@@ -12,7 +12,8 @@
  *            where `seq_t` is an arithmetic type or * an arbi...
  * Range:     i8 n <= 19, i16 n <= 35, i32 n <= 47, i64 n <= 47, i128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for the computed sequence */
 static seq_t *a_vals = NULL;
@@ -95,7 +97,7 @@ seq_t a(idx_t n)
     /* Initialise a(0) once */
     if (a_cap == 0) {
         size_t cap = 1;
-        seq_t *tmp = (seq_t *)realloc(a_vals, cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_vals, cap);
         if (!tmp) exit(EXIT_FAILURE);
         a_vals = tmp;
         a_vals[0] = 1;
@@ -111,7 +113,7 @@ seq_t a(idx_t n)
     /* Expand a_vals array if necessary */
     if (n + 1 > a_cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(a_vals, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_vals, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         a_vals = tmp;
 

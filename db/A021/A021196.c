@@ -7,7 +7,8 @@
  * Formula:   a(n) is the (n+1)-th decimal digit of 1/192
  * Range:     u8 n <= 98, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 99 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* Initialise the cache on the first call. */
     if (digits == NULL) {
         capacity = 64;
-        digits = (seq_t *)malloc(capacity * sizeof(seq_t));
+        digits = mem_new(seq_t, capacity);
         if (digits == NULL) { return (seq_t)0; } /* guard against OOM */
     }
 
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
         /* Grow the cache if necessary. */
         if (count >= capacity) {
             capacity *= 2u;
-            seq_t *new_digits = (seq_t *)realloc(digits, capacity * sizeof(seq_t));
+            seq_t *new_digits = mem_resize(seq_t, digits, capacity);
             if (new_digits == NULL) { return (seq_t)0; } /* OOM guard */
             digits = new_digits;
         }

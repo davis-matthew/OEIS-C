@@ -9,12 +9,14 @@
  *            for n≥8: a(n)=10*a(n‑2)−29*a(n‑4)+24*a(n‑6)
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 25, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* 1‑based cache for already computed terms */
 static seq_t *cache = NULL;
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
 
     /* enlarge the cache if necessary */
     if (n > cache_size) {
-        seq_t *newp = (seq_t *)realloc(cache, (n + 1) * sizeof *newp);
+        seq_t *newp = mem_resize(seq_t, cache, ((n + 1) * sizeof *newp) / sizeof(seq_t));
         if (!newp)            /* allocation failed */
             return (seq_t)0;
         cache = newp;

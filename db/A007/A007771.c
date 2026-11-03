@@ -10,12 +10,14 @@
  *            213, 1]
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 9, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 10 terms through n = 9 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 static const unsigned long hstar[10] = {
     1UL, 213UL, 8064UL, 70712UL, 197490UL,
@@ -27,6 +29,6 @@ seq_t a(idx_t n)
     seq_t s = 0;
     idx_t k;
     for (k = 0; k < 10; k++)
-        s += binom(n + 10 - k, 10) * (seq_t)hstar[k];
+        s += binomial(n + 10 - k, 10) * (seq_t)hstar[k];
     return s;
 }

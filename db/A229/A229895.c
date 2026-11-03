@@ -11,12 +11,14 @@
  *            increasing L. For a given n the returned value is the tuple...
  * Range:     u8 n <= 84, u16 n <= 3906, u32 n <= 3906, u64 n <= 3906,
  *            u128 n <= 3906, big any n
- * Helpers:   pow_seq
+ * Validated: standard, pass, 102 terms through n = 2843 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -36,10 +38,10 @@ seq_t a(idx_t n)
         for (idx_t L = 1; L <= m; ++L) {
             seq_t term;
             if (m == L) {
-                term = pow_seq((seq_t)m, (int)L);
+                term = ipow_i32((seq_t)m, (int)L);
             } else {
-                term = pow_seq((seq_t)m, (int)L) -
-                       pow_seq((seq_t)(m - 1), (int)L);
+                term = ipow_i32((seq_t)m, (int)L) -
+                       ipow_i32((seq_t)(m - 1), (int)L);
             }
             block += term;
         }
@@ -50,10 +52,10 @@ seq_t a(idx_t n)
             for (idx_t L = 1; L <= m; ++L) {
                 seq_t term;
                 if (m == L) {
-                    term = pow_seq((seq_t)m, (int)L);
+                    term = ipow_i32((seq_t)m, (int)L);
                 } else {
-                    term = pow_seq((seq_t)m, (int)L) -
-                           pow_seq((seq_t)(m - 1), (int)L);
+                    term = ipow_i32((seq_t)m, (int)L) -
+                           ipow_i32((seq_t)(m - 1), (int)L);
                 }
 
                 if (offset <= term)      /* the tuple lies in this L‑block */

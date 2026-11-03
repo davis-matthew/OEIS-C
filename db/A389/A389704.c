@@ -7,13 +7,15 @@
  * Keywords:  nonn
  * Formula:   a(n) = maximum k such that bigomega(n) > bigomega(n+1) > ... >
  *            bigomega(n+k-1)
- * Range:     u8 n <= 9749, u16 n <= 9749, u32 n <= 9749, u64 n <= 9749,
- *            u128 n <= 9749, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 103 terms through n = 9749 (2026-11-01)
  * Helpers:   bigomega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/bigomega.h"
 
 seq_t a(idx_t n)

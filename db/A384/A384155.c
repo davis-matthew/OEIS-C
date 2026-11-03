@@ -12,12 +12,14 @@
  *            via state transitions below). The implementation use...
  * Range:     u8 n <= 13, u16 n <= 24, u32 n <= 47, u64 n <= 93, u128 n <= 185,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 993 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build system. */
 seq_t a(idx_t n)
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
 
     /* initialise cache on first call */
     if (!a_arr) {
-        a_arr = (seq_t *)malloc(sizeof(seq_t) * 1);
+        a_arr = mem_new(seq_t, 1);
         if (!a_arr) return 0;   /* memory error */
         a_arr[0] = 0;           /* a(0) = 0   */
         max_n = 0;
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     /* expand cache up to required n */
     if (n > max_n) {
         idx_t new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(a_arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_arr, new_cap);
         if (!tmp) return 0; /* memory error */
         a_arr = tmp;
 

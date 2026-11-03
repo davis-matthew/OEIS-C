@@ -11,13 +11,15 @@
  *            sequence a(n) = T(r,k) where r is the row containing...
  * Range:     u8 n <= 55, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t **rows = NULL;      /* array of pointers to rows          */
 static size_t rows_alloc = 0;    /* allocated length of rows[]         */
@@ -40,7 +42,7 @@ static void compute_rows_upto(size_t max_row)
     ensure_rows_array_size(max_row);
 
     for (size_t r = rows_count; r <= max_row; ++r) {
-        rows[r] = (seq_t*)malloc((r + 1) * sizeof(seq_t));
+        rows[r] = mem_new(seq_t, (r + 1));
         if (!rows[r]) { exit(1); }               /* allocation failure */
 
         if (r == 0) {

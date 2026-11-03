@@ -7,7 +7,8 @@
  * Formula:   a(n) = prime(floor(1/2 + sqrt(2*n)))
  * Range:     u8 n <= 1485, u16 n <= 7875, u32 n <= 7875, u64 n <= 7875,
  *            u128 n <= 7875, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 6930 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <math.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 static bool sieve_initialized = false;
@@ -45,7 +47,7 @@ static void init_primes(void) {
         if (is_prime[i]) prime_count++;
     }
     
-    primes = (seq_t *)malloc(prime_count * sizeof(seq_t));
+    primes = mem_new(seq_t, prime_count);
     idx_t idx = 0;
     for (int i = 0; i <= limit; i++) {
         if (is_prime[i]) {

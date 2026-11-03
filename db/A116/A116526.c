@@ -7,9 +7,10 @@
  * Keywords:  nonn
  * Formula:   a(0) = 0, a(1) = 1, for n >= 2: if n even -> a(n) = 9 * a(n/2)
  *            if n odd -> a(n) = 8 * a((n-1)/2) + a((n+1)/2)
- * Range:     u8 n <= 7, u16 n <= 42, u32 n <= 1471, u64 n <= 9333,
- *            u128 n <= 9333, big any n
- * Helpers:   none
+ * Range:     u8 n <= 7, u16 n <= 42, u32 n <= 1471, u64 n <= 16383,
+ *            u128 n <= 16383, big any n
+ * Validated: standard, pass, 60 terms through n = 9333 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    index are fast and the recursion depth is at most O(log n). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache   = NULL;   /* memoised values */
 static unsigned char *present = NULL;  /* flag whether cache[i] is valid */
@@ -32,7 +34,7 @@ static void ensure_capacity(idx_t n)
     if (new_size <= n)
         new_size = n + 1;
 
-    seq_t *tmp_cache   = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp_cache   = mem_resize(seq_t, cache, new_size);
     unsigned char *tmp_present = (unsigned char *)realloc(present,
                                                              new_size *
                                                              sizeof(unsigned char));

@@ -7,13 +7,15 @@
  * Formula:   a(n) = number of partitions of 9^n into parts at most 9
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 2, u64 n <= 3, u128 n <= 6,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: partial, pass, 9 terms through n = 8 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/pow_seq.h"   /* provides seq_t pow_seq(seq_t base, int exp) */
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
 
 static bool initialized = false;
 static seq_t diff[2520][9];   /* Binomial‑basis coefficients for each residue */
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
     init_coeffs();                       /* Ensure coefficients are ready */
 
     /* Compute m = 9^n */
-    seq_t m = pow_seq((seq_t)9, (int)n);
+    seq_t m = ipow_i32((seq_t)9, (int)n);
 
     /* Residue and quotient for binomial basis */
     seq_t r = m % (seq_t)2520;

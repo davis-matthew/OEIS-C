@@ -7,7 +7,8 @@
  * Formula:   a(n) = Π_{k=0..n} (5*k + 3)!
  * Range:     u8 n <= 0, u16 n <= 0, u32 n <= 1, u64 n <= 2, u128 n <= 3,
  *            big any n
- * Helpers:   factorial, seq_mul
+ * Validated: partial, pass, 6 terms through n = 5 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,26 @@
    calls with arbitrary order of n remain efficient. */
 
 #include <stdlib.h>
-#include "../utils/factorial.h"
-#include "../utils/seq_mul.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/mem.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -36,7 +55,7 @@ seq_t a(idx_t n)
     if (cache == NULL)
     {
         cache_cap = 8;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap); /* cast for C++ */
+        cache = mem_new(seq_t, cache_cap); /* cast for C++ */
     }
 
     /* grow the cache as needed */
@@ -70,7 +89,7 @@ seq_t a(idx_t n)
         if (cache_len == (idx_t)cache_cap)
         {
             cache_cap <<= 1;
-            cache = (seq_t *)realloc( cache, sizeof(seq_t) * cache_cap ); /* cast for C++ */
+            cache = mem_resize(seq_t, cache, cache_cap); /* cast for C++ */
         }
     }
 

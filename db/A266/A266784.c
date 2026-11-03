@@ -7,11 +7,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 50, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 72 terms through n = 847 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /* OEIS A266784 – growth series for the affine Weyl group F4.
    Recurrence derived from the rational generating function:
    G(t) = (1-x²)(1-x⁶)(1-x⁸)(1-x¹²) /

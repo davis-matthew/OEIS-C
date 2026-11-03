@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5050, u16 n <= 5050, u32 n <= 5050, u64 n <= 5050,
  *            u128 n <= 5050, big any n
- * Helpers:   josephus_cycles
+ * Validated: standard, pass, 107 terms through n = 4786 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,7 +32,55 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/josephus_cycles.h"
+
+/*  Count the cycles of the Josephus permutation for parameters (n,k).  */
+static seq_t josephus_cycles(idx_t n, idx_t k)
+{
+    /*  labels[0..n-1] holds the remaining people.
+        sigma[1..n] holds the permutation (elimination order).            */
+    idx_t *labels = (idx_t *)malloc(n * sizeof(idx_t));
+    idx_t *sigma  = (idx_t *)malloc((n + 1) * sizeof(idx_t));
+    bool  *seen   = (bool  *)malloc((n + 1) * sizeof(bool ));
+    if (!labels || !sigma || !seen) {   /*  ignore allocation failures  */
+        return (seq_t)0;
+    }
+    for (idx_t i = 0; i < n; ++i) labels[i] = i + 1;
+    for (idx_t i = 1; i <= n; ++i) seen[i] = false;
+
+    idx_t sz = n;
+    idx_t cur = 0;        /*  index into the current list of labels   */
+    for (idx_t step = 1; step <= n; ++step) {
+        cur = (cur + k - 1) % sz;           /*  elimination step               */
+        idx_t lbl = labels[cur];            /*  person eliminated             */
+        sigma[step] = lbl;
+
+        /*  Remove the person from the list                          */
+        for (idx_t j = cur; j < sz - 1; ++j)
+            labels[j] = labels[j + 1];
+        --sz;
+        if (sz == 0) break;
+    }
+
+    /*  Count cycles of the permutation sigma[1..n]                */
+    seq_t cycles = 0;
+    for (idx_t i = 1; i <= n; ++i) {
+        if (!seen[i]) {
+            ++cycles;
+            idx_t p = i;
+            seen[p] = true;
+            p = sigma[p];
+            while (p != i) {
+                seen[p] = true;
+                p = sigma[p];
+            }
+        }
+    }
+
+    free(labels);
+    free(sigma);
+    free(seen);
+    return cycles;
+}
 
 /*  Main sequence function
  *

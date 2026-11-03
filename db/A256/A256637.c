@@ -10,7 +10,8 @@
  *            eta(q^2)*eta(q^12)^3
  * Range:     i8 n <= 65, i16 n <= 199, i32 n <= 653, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   free_seq_arr, pentagonal_series
+ * Validated: standard, pass, 89 terms through n = 982 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,31 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <assert.h>
-#include "../utils/free_seq_arr.h"
-#include "../utils/pentagonal_series.h"
+
+static inline void free_seq_arr(seq_t* p)
+{
+#if defined(__cplusplus)
+    delete[] p;
+#else
+    free(p);
+#endif
+}
+
+/* Compute the series of product ∏_{k≥1} (1−q^{m k}) truncated to length L. */
+static void pentagonal_series(int m, size_t L, seq_t *out) {
+    for (size_t i = 0; i < L; ++i) out[i] = (seq_t)0;
+    out[0] = (seq_t)1;
+    for (int j = 1; ; ++j) {
+        seq_t sign = (j & 1) ? (seq_t)-1 : (seq_t)1;
+        long long p1 = (long long)j * (3LL * j - 1) / 2;
+        long long p2 = p1 + j;
+        long long e1 = (long long)m * p1;
+        long long e2 = (long long)m * p2;
+        if (e1 >= (long long)L && e2 >= (long long)L) break;
+        if (e1 < (long long)L) out[e1] += sign;
+        if (e2 < (long long)L) out[e2] += sign;
+    }
+}
 
 /* seq_t and idx_t are defined by the build. */
 

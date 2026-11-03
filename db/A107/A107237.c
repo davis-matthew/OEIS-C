@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 74, u32 n <= 216, u64 n <= 697,
  *            u128 n <= 2429, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 9901 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    satisfies the 2‑second limit for n up to ~10 000.
 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
 
     /* Resize buffer if necessary */
     if (cap < n + 1) {
-        seq_t *new_dp = (seq_t *)realloc(dp, (n + 1) * sizeof(seq_t));
+        seq_t *new_dp = mem_resize(seq_t, dp, (n + 1));
         if (new_dp == NULL)
             abort();                       /* out of memory */
         dp = new_dp;

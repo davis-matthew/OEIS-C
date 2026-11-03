@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 24, u64 n <= 56, u128 n <= 120,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
  *  is applied for all larger n.  The result is memoised so each unique n is evaluated only once.
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* memoisation array, index 0 unused */
 static idx_t cache_size = 0;         /* number of allocated elements (cache_size > n means a(n) cached) */
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call */
     if (cache == NULL) {
         cache_size = 10;                         /* indices 0 .. 9 will be set */
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_size);
+        cache = mem_new(seq_t, cache_size);
         if (cache == NULL) return (seq_t)0;
         for (idx_t i = 0; i < cache_size; ++i) cache[i] = init_vals[i];
     }
@@ -55,9 +57,9 @@ seq_t a(idx_t n)
     /* Ensure the cache can hold indices up to n */
     idx_t old_size = cache_size;
     if (n + 1 > cache_size) {
-        seq_t *tmp = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
         if (tmp == NULL) {
-            free(cache);
+            mem_free(cache);
             cache = NULL;
             cache_size = 0;
             return (seq_t)0;

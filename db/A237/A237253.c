@@ -11,6 +11,7 @@
  *            prime
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 96 terms through n = 9718 (2026-11-01)
  * Helpers:   build_primes, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -21,8 +22,9 @@
 #include <stdlib.h>
 
 /* ---------- External utilities ---------- */
-#include "../utils/is_prime.h"   /* bool is_prime(idx_t x); */
-#include "../utils/build_primes.h" /* void build_primes(idx_t limit, idx_t **out, size_t *cnt); */
+#include <stddef.h>
+#include "../utils/build_primes.h"
+#include "../utils/is_prime.h"
 
 /* ---------- Global prime table ---------- */
 static idx_t *prime_list = NULL;   /* list of primes in increasing order */

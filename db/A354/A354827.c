@@ -11,6 +11,7 @@
  *            Thus f(p^e) = next_prime(p)^e / σ(p^e), * where σ(p^e) = (p^...
  * Range:     i8 n <= 8, i16 n <= 26, i32 n <= 255, i64 n <= 2047,
  *            i128 n <= 9694, big any n
+ * Validated: standard, pass, 86 terms through n = 9694 (2026-11-01)
  * Helpers:   build_primes, build_spf, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,9 +19,11 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/gcd.h"
-#include "../utils/build_primes.h"   /* build_primes, build_spf are included indirectly */
+#include <stdlib.h>
+#include <stddef.h>
+#include "../utils/build_primes.h"
 #include "../utils/build_spf.h"
+#include "../utils/gcd.h"
 
 static idx_t *primes = NULL;        /* list of primes up to LIMIT */
 static size_t primes_cnt = 0;

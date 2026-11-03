@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 6, u64 n <= 13, u128 n <= 27,
  *            big any n
- * Helpers:   transition_allowed
+ * Validated: standard, pass, 31 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,37 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/transition_allowed.h"
+#include "../utils/mem.h"
+
+/* ------------------------------------------------------------------------ */
+static inline int transition_allowed(int col0, int col1, int newcol)
+{
+    /* Horizontal 010 */
+    for (int r = 0; r < 7; ++r) {
+        if ((((col0 >> r) & 1) == 0) &&
+            (((col1 >> r) & 1) == 1) &&
+            (((newcol >> r) & 1) == 0))
+            return 0;
+    }
+
+    /* Diagonal 010 (down‑right) */
+    for (int r = 0; r < 5; ++r) {
+        if ((((col0 >> r) & 1) == 0) &&
+            (((col1 >> (r + 1)) & 1) == 1) &&
+            (((newcol >> (r + 2)) & 1) == 0))
+            return 0;
+    }
+
+    /* Anti‑diagonal 010 (down‑left) */
+    for (int r = 2; r < 7; ++r) {
+        if ((((col0 >> r) & 1) == 0) &&
+            (((col1 >> (r - 1)) & 1) == 1) &&
+            (((newcol >> (r - 2)) & 1) == 0))
+            return 0;
+    }
+
+    return 1;
+}
 
 /* Number of possible columns: 2^7 */
 #define COL_BITS   7
@@ -89,8 +120,8 @@ static void init(void)
     free(state_out_count);
 
     /* ---- Allocate DP vectors ---- */
-    dp_prev  = (seq_t *)malloc(STATE_COUNT * sizeof(seq_t));
-    dp_next  = (seq_t *)malloc(STATE_COUNT * sizeof(seq_t));
+    dp_prev  = mem_new(seq_t, STATE_COUNT);
+    dp_next  = mem_new(seq_t, STATE_COUNT);
     if (!dp_prev || !dp_next) exit(EXIT_FAILURE);
 
     for (uint32_t i = 0; i < STATE_COUNT; ++i) {
@@ -100,7 +131,7 @@ static void init(void)
 
     /* ---- Memoisation table ---- */
     memo_capacity = 64;
-    memo          = (seq_t *)malloc(memo_capacity * sizeof(seq_t));
+    memo          = mem_new(seq_t, memo_capacity);
     if (!memo) exit(EXIT_FAILURE);
 
     memo_size = 3;               /* indices 0,1,2 used */
@@ -125,7 +156,7 @@ seq_t a(idx_t n)
         size_t new_cap = memo_capacity;
         while ((size_t)n >= new_cap)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(memo, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, memo, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         memo = tmp;
         memo_capacity = new_cap;

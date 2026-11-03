@@ -7,20 +7,23 @@
  * Formula:   a(n) = 19 + 8*2^n + 4*3^n + 2*4^n + 5^n + 6^n
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 12, u64 n <= 24, u128 n <= 49,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 39 terms through n = 476 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
-    seq_t pow2 = big_pow((seq_t)2, (seq_t)n);
-    seq_t pow3 = big_pow((seq_t)3, (seq_t)n);
-    seq_t pow4 = big_pow((seq_t)4, (seq_t)n);
-    seq_t pow5 = big_pow((seq_t)5, (seq_t)n);
-    seq_t pow6 = big_pow((seq_t)6, (seq_t)n);
+    seq_t pow2 = ipow((seq_t)2, (seq_t)n);
+    seq_t pow3 = ipow((seq_t)3, (seq_t)n);
+    seq_t pow4 = ipow((seq_t)4, (seq_t)n);
+    seq_t pow5 = ipow((seq_t)5, (seq_t)n);
+    seq_t pow6 = ipow((seq_t)6, (seq_t)n);
 
     seq_t res = (seq_t)19;
     res += (seq_t)8 * pow2;

@@ -9,13 +9,15 @@
  *            standard * recurrence for continued fractions of square roots
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 22, u64 n <= 41, u128 n <= 83,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,13 +38,13 @@ seq_t a(idx_t n)
     /* allocate/combine capacities as needed */
     if (denoms == NULL) {
         cap = 16;
-        denoms = (seq_t *)malloc(cap * sizeof(seq_t));
+        denoms = mem_new(seq_t, cap);
         if (denoms == NULL) return 0;       /* out of memory – unlikely in tests */
         denoms[0] = (seq_t)1;               /* a(0) */
     }
     if ((size_t)n >= cap) {
         size_t newcap = (size_t)n + 16;
-        seq_t *newptr = (seq_t *)realloc(denoms, newcap * sizeof(seq_t));
+        seq_t *newptr = mem_resize(seq_t, denoms, newcap);
         if (newptr == NULL) return 0;       /* out of memory */
         denoms = newptr;
         cap = newcap;

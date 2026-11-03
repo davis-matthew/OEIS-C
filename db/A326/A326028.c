@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 9597, u16 n <= 9597, u32 n <= 9597, u64 n <= 9597,
- *            u128 n <= 9597, big any n
- * Helpers:   none
+ * Range:     u8 n <= 46655, u16 n <= 100000, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 137 terms through n = 9597 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Helper: greatest common divisor for idx_t */
 static idx_t gcd_idx(idx_t a, idx_t b)
@@ -109,7 +111,7 @@ seq_t a(idx_t n)
     /* If G==0, n was 1 which is handled above. */
     /* Count all unordered factorizations of n into >1 factors. */
     seq_t cnts[128];
-    memset(cnts, 0, sizeof(cnts));
+    mem_set(cnts, 0, sizeof(cnts));
     dfs(n, 2, 0, cnts);
 
     /* Sum counts for lengths d that divide G. */

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 34, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   cmp_seq_t
+ * Validated: full, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,16 @@
 /* Sequence: a(n) = reverse of the decimal representation of the nth divisor of 100000 (2^5·5^5) */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/cmp_seq_t.h"
+#include "../utils/mem.h"
+
+static int cmp_seq_t(const void *a, const void *b)
+{
+    seq_t va = *(const seq_t *)a;
+    seq_t vb = *(const seq_t *)b;
+    if (va < vb) return -1;
+    if (va > vb) return 1;
+    return 0;
+}
 
 seq_t a(idx_t n)
 {
@@ -36,7 +46,7 @@ seq_t a(idx_t n)
             for (int j = 0; j <= 5; ++j)
                 divisors[idx++] = pow2 * pow5[j];
         }
-        qsort(divisors, 36, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(divisors, 36, sizeof(seq_t), cmp_seq_t);
         initialized = 1;
     }
 

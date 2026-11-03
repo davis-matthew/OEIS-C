@@ -9,7 +9,8 @@
  *            the k‑th twin prime pair and tu(k) = tl(k) + 2. (OEIS A135285)
  * Range:     u8 n <= 3, u16 n <= 17, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are supplied by the build system.  */
 static seq_t *twin_prime = NULL;   /* array of lower twins, 0‑based */
@@ -52,7 +54,7 @@ static void build_twin_primes_upto(idx_t limit)
 
     /* Allocate or grow the twin array. */
     size_t new_cap = (twin_prime == NULL) ? count : twin_count + count;
-    twin_prime = (seq_t *)realloc(twin_prime, new_cap * sizeof(seq_t));
+    twin_prime = mem_resize(seq_t, twin_prime, new_cap);
     if (!twin_prime)
         exit(1);
 

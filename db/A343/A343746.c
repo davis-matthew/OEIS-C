@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 89, i16 n <= 89, i32 n <= 89, i64 n <= 89, i128 n <= 89,
  *            big any n
- * Helpers:   vis_hash
+ * Validated: partial, pass, 89 terms through n = 89 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,17 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/vis_hash.h"
+#include "../utils/mem.h"
+
+/* Hash ---------------------------------------------------------------- */
+static inline size_t vis_hash(seq_t x, seq_t y, seq_t z)
+{
+    /* Suitable for all seq_t that support the basic arithmetic ops. */
+    unsigned long long h = (unsigned long long)(x) * 73856093ull
+                       ^ (unsigned long long)(y) * 19349663ull
+                       ^ (unsigned long long)(z) * 83492791ull;
+    return (size_t)h;
+}
 
 /* Helpers ------------------------------------------------------------ */
 static inline seq_t abs_seq(seq_t v) { return v < 0 ? -v : v; }
@@ -65,7 +76,7 @@ static void vis_rehash(size_t new_size)
     VisItem *old   = vis_table;
     size_t   oldsz = vis_table_size;
 
-    vis_table = (VisItem*)calloc(new_size, sizeof(VisItem));
+    vis_table = mem_new(VisItem, new_size);
     vis_table_size = new_size;
 
     for (size_t i = 0; i < oldsz; ++i) {
@@ -76,7 +87,7 @@ static void vis_rehash(size_t new_size)
             vis_table[idx] = old[i];
         }
     }
-    free(old);
+    mem_free(old);
 }
 
 /* Check load factor and trigger resize -------------------------------- */
@@ -121,7 +132,7 @@ static void ensure_visited_cap(size_t needed)
     if (needed <= visited_cap) return;
     size_t new_cap = visited_cap ? visited_cap << 1 : 128;
     while (new_cap < needed) new_cap <<= 1;
-    Point *tmp = (Point*)realloc(visited_pts, new_cap * sizeof(Point));
+    Point *tmp = mem_resize(Point, visited_pts, new_cap);
     if (!tmp) exit(1);
     visited_pts = tmp;
     visited_cap = new_cap;
@@ -217,7 +228,7 @@ static void init_sequence(void)
 
     /* Allocate space for visited points */
     visited_cap = 128;
-    visited_pts = (Point*)malloc(visited_cap * sizeof(Point));
+    visited_pts = mem_new(Point, visited_cap);
     if (!visited_pts) exit(1);
     visited_cnt = 0;
 
@@ -229,7 +240,7 @@ static void init_sequence(void)
 
     /* Initialise the hash set */
     vis_table_size = 16;
-    vis_table = (VisItem*)calloc(vis_table_size, sizeof(VisItem));
+    vis_table = mem_new(VisItem, vis_table_size);
     if (!vis_table) exit(1);
     vis_insert(0, 0, 0);
 }

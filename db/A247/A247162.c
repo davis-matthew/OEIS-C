@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 19, u32 n <= 34, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   mul_seq_uint
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,21 @@
    intermediate results.
 */
 #include <stdlib.h>
-#include "../utils/mul_seq_uint.h"
+#include "../utils/mem.h"
+
+/* ------------------------------------------------------------------ */
+static seq_t mul_seq_uint(seq_t a, uint64_t b)
+{
+#if defined(__SIZEOF_INT128__)
+    /* If seq_t fits in 64 bits, compute product in 128 bits and cast back */
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 prod = (unsigned __int128)a * b;
+        return (seq_t)prod;
+    }
+#endif
+    /* Fallback: rely on seq_t having enough room or on arbitrary precision */
+    return a * (seq_t)b;
+}
 
 static seq_t *cache = NULL;   /* 1‑based array of terms */
 static size_t cache_cap = 0;  /* capacity of cache (number of usable slots) */
@@ -43,7 +58,7 @@ static void ensure_capacity(idx_t n)
     if (new_cap < 10)                 /* avoid too small allocations */
         new_cap = 10;
 
-    seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
     if (!new_ptr)
         abort();                      /* out of memory */
 

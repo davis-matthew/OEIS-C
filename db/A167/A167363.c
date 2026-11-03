@@ -8,6 +8,7 @@
  * Formula:   a(n) = ∏_{p^e∥n} (p+3)^{2e} (multiplicative, a(p)=(p+3)^2)
  * Range:     u8 n <= 3, u16 n <= 15, u32 n <= 127, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 58 terms through n = 921 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,8 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 /* Computes the A167363 sequence value for any n ≥ 1 */

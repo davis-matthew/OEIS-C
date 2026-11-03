@@ -7,14 +7,18 @@
  * Formula:   a(n) = gcd(n, Σ_{k=1}^{n-1} k^(n-1)) (n > 1)
  * Range:     u8 n <= 254, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd, mod_pow
+ * Validated: standard, pass, 111 terms through n = 9261 (2026-11-01)
+ * Helpers:   gcd, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/gcd.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +29,7 @@ seq_t a(idx_t n)
     seq_t mod = (seq_t)n;
     seq_t sum = 0;
     for (idx_t k = 1; k < n; ++k) {
-        seq_t term = mod_pow((seq_t)k, n - 1, mod);
+        seq_t term = powmod((seq_t)k, n - 1, mod);
         sum += term;
         if (sum >= mod)
             sum -= mod;   /* keep sum < mod */

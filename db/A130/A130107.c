@@ -8,12 +8,30 @@
  *            e==1 p^2 - p - 1 if e==2 p^(e-3)*(p+1)*(p-1)^2 if e>=3 }
  * Range:     u8 n <= 256, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   prime_term
+ * Validated: standard, pass, 86 terms through n = 1882 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/prime_term.h"
+/* Compute the contribution of a single prime power */
+static inline seq_t prime_term(uint64_t p, int e)
+{
+    if (e == 1)
+        return (seq_t)(p - 1);
+    if (e == 2)
+        return (seq_t)p * (seq_t)p - (seq_t)p - 1;
+
+    /* e >= 3 */
+    seq_t p_pow = 1;
+    for (int i = 0; i < e - 3; ++i)
+        p_pow *= (seq_t)p;
+
+    seq_t term = p_pow * (p + 1);
+    term *= (p - 1);
+    term *= (p - 1);
+    return term;
+}
 
 seq_t a(idx_t n)
 {

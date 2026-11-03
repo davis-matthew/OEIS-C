@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 17, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   radix_sort_uint64
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,58 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/radix_sort_uint64.h"
+
+/* ---------- radix sort for 64‑bit unsigned integers ---------- */
+static void radix_sort_uint64(uint64_t *a, size_t n)
+{
+    if (n <= 1) return;
+
+    /* temporary buffer */
+    uint64_t *tmp = (uint64_t*)malloc(n * sizeof(uint64_t));
+    if (!tmp) return;        /* malloc failure – silently ignore */
+
+    /* 65536 bucket count array */
+    size_t  *cnt  = (size_t*)malloc(65536 * sizeof(size_t));
+    if (!cnt) { free(tmp); return; }
+
+    uint64_t *src = a;
+    uint64_t *dst = tmp;
+
+    /* two passes (16 bits each) */
+    for (int shift = 0; shift < 32; shift += 16) {
+        memset(cnt, 0, 65536 * sizeof(size_t));
+
+        /* count occurrences of each bucket key */
+        for (size_t i = 0; i < n; ++i)
+            ++cnt[(src[i] >> shift) & 0xFFFF];
+
+        /* cumulative sum to get start indices */
+        size_t sum = 0;
+        for (size_t i = 0; i < 65536; ++i) {
+            size_t t      = cnt[i];
+            cnt[i]        = sum;
+            sum += t;
+        }
+
+        /* distribute elements to the destination array */
+        for (size_t i = 0; i < n; ++i) {
+            size_t idx   = (src[i] >> shift) & 0xFFFF;
+            dst[cnt[idx]++] = src[i];
+        }
+
+        /* swap source and destination for next pass */
+        uint64_t *tmp_ptr = src;
+        src = dst;
+        dst = tmp_ptr;
+    }
+
+    /* after two passes src points back to a if n is even */
+    if (src != a)
+        memcpy(a, src, n * sizeof(uint64_t));
+
+    free(tmp);
+    free(cnt);
+}
 
 /* --------------- main sequence function --------------------- */
 seq_t a(idx_t n)

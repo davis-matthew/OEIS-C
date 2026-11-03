@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 17, u64 n <= 40, u128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define MAX_COLS   128            /* maximum number of possible 7‑bit columns */
 #define MAX_STATE  (MAX_COLS * MAX_COLS) /* maximum number of column‑pairs */
@@ -110,7 +112,7 @@ seq_t a(idx_t n)
     int steps = (int)(n - 2); /* number of transitions to reach length n */
     for (int step = 0; step < steps; step++) {
         /* clear next array */
-        memset(next, 0, statecnt * sizeof(seq_t));
+        mem_set(next, 0, statecnt * sizeof(seq_t));
 
         /* transition */
         for (int s = 0; s < statecnt; s++) {

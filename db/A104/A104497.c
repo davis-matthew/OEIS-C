@@ -7,13 +7,15 @@
  * Formula:   n*a(n) = (12*n-14)*a(n-1) - 32*(n-2)*a(n-2), a(0)=1, a(1)=-2
  * Range:     i8 n <= 2, i16 n <= 6, i32 n <= 11, i64 n <= 21, i128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* cached values of the sequence; supports any order of calls */
 static seq_t *cache = NULL;       /* array of a(0) … a(k) */
@@ -25,7 +27,7 @@ static void ensure_cache(idx_t n)
     /* First initialisation: cache a(0) and a(1) */
     if (cache == NULL) {
         size_t init = 2;
-        cache = (seq_t*)malloc(init * sizeof(seq_t));
+        cache = mem_new(seq_t, init);
         if (cache == NULL) return; /* out of memory – caller may handle */
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)-2;
@@ -38,7 +40,7 @@ static void ensure_cache(idx_t n)
     /* grow the storage if needed */
     size_t new_size = cache_size;
     while (new_size <= (size_t)n) new_size <<= 1;
-    seq_t *tmp = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_size);
     if (tmp == NULL) return; /* out of memory – caller may handle */
     cache = tmp;
 

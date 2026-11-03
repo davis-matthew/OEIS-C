@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = Σ_{k=1..n} [φ(k)·τ(k) == n]
- * Range:     u8 n <= 103, u16 n <= 9289, u32 n <= 9289, u64 n <= 9289,
- *            u128 n <= 9289, big any n
- * Helpers:   none
+ * Range:     u8 n <= 103, u16 n <= 19999, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 121 terms through n = 9289 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <string.h>   /* for memset */
+#include "../utils/mem.h"
 
 /* static state for incremental precomputation */
 static idx_t Nmax = 0;          /* largest n already precomputed */
@@ -29,11 +31,11 @@ static void ensure_up_to(idx_t new_max)
         return;              /* already sufficient */
 
     /* allocate fresh arrays (zeroed) */
-    seq_t *new_phi = (seq_t *)calloc((size_t)new_max + 1, sizeof(seq_t));
-    seq_t *new_tau = (seq_t *)calloc((size_t)new_max + 1, sizeof(seq_t));
+    seq_t *new_phi = mem_new(seq_t, (size_t)new_max + 1);
+    seq_t *new_tau = mem_new(seq_t, (size_t)new_max + 1);
     if (!new_phi || !new_tau) {                /* allocation failure */
-        free(new_phi);
-        free(new_tau);
+        mem_free(new_phi);
+        mem_free(new_tau);
         return;
     }
 
@@ -61,8 +63,8 @@ static void ensure_up_to(idx_t new_max)
     }
 
     /* replace old tables */
-    if (phi) free(phi);
-    if (tau) free(tau);
+    if (phi) mem_free(phi);
+    if (tau) mem_free(tau);
     phi = new_phi;
     tau = new_tau;
     Nmax = new_max;

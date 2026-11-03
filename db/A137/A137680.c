@@ -9,13 +9,15 @@
  *            T(n-k,k-1) (k>1) a(n) is the triangle read by rows, a(1)=1
  * Range:     u8 n <= 36, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 91 terms through n = 91 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* data for memoised triangle */
 static idx_t max_row   = 0;      /* number of rows already computed */
@@ -37,7 +39,7 @@ static void ensure_terms(idx_t n)
         if (new_len > capacity) {
             size_t new_cap = capacity ? capacity << 1 : 16;
             while (new_cap < (size_t)new_len) new_cap <<= 1;
-            seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, new_cap);
             capacity = new_cap;
         }
 

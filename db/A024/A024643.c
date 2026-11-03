@@ -7,6 +7,7 @@
  * Formula:   a(n) = representation of n in fractional base 7/6 (digits 0..6)
  * Range:     u8 n <= 13, u16 n <= 34, u32 n <= 76, u64 n <= 433,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 73 terms through n = 874 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

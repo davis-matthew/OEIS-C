@@ -8,13 +8,15 @@
  *            the product runs over the distinct prime powers p^e dividing n
  * Range:     u8 n <= 4, u16 n <= 16, u32 n <= 3505, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 9725 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* exponentiation for seq_t */
 static inline seq_t pow_seq(seq_t base, idx_t exp)
@@ -52,7 +54,7 @@ static void ensure_up_to(idx_t n)
     /* enlarge cache if necessary */
     if (n + 1 > cache_cap)
     {
-        seq_t *tmp = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
         if (!tmp) { /* allocation failed – keep empty cache */
             cache   = NULL;
             cache_cap = 0;

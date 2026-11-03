@@ -7,14 +7,18 @@
  * Formula:   a(n) = A007092(A002275(n))
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 17,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Computes the decimal integer obtained by writing the n‑digit decimal repunit’s base‑6
  * representation as a decimal number.  For n = 0 the value is 0. */
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/ipow_idx.h"
 #include <stddef.h>
 
 seq_t a(idx_t n)
@@ -23,7 +27,7 @@ seq_t a(idx_t n)
         return (seq_t)0;
 
     /* 10^n as a seq_t, then (10^n – 1)/9 gives the decimal repunit with n ones */
-    seq_t pow10 = seq_pow((seq_t)10, n);
+    seq_t pow10 = ipow_idx((seq_t)10, n);
     seq_t r = (pow10 - 1) / 9;
 
     /* The number of base‑6 digits of the repunit is ≈ 1.285⋅n, so 20000 suffices

@@ -8,14 +8,23 @@
  *            searching odd numbers for primes
  * Range:     u8 n <= 96, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   a006254_is_odd_prime
+ * Validated: standard, pass, 80 terms through n = 961 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/a006254_is_odd_prime.h"
+
+static bool a006254_is_odd_prime(uint64_t m) {
+    if (m < 3) return false;
+    if (m % 2 == 0) return false;
+    for (uint64_t i = 3; i * i <= m; i += 2) {
+        if (m % i == 0) return false;
+    }
+    return true;
+}
 
 seq_t a(idx_t n) {
     idx_t count = 0;

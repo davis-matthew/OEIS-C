@@ -9,15 +9,51 @@
  *            (1 + p^e)
  * Range:     u8 n <= 6, u16 n <= 45, u32 n <= 1866, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   ensure_capacity, seq_pow
+ * Validated: standard, pass, 56 terms through n = 9810 (2026-11-03)
+ * Helpers:   ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/seq_pow.h"          // seq_pow(seq_t, idx_t)
-#include "../utils/ensure_capacity.h" // ensure_capacity(size_t, size_t*, void**, size_t)
+#include <stdbool.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* Grow a dynamic array when needed.  The pointer is passed as OEISC_VPP(.) */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    T *tmp = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#else
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#endif
 
 seq_t a(idx_t n)
 {
@@ -32,9 +68,9 @@ seq_t a(idx_t n)
     }
 
     /* make sure capacity is sufficient */
-    ensure_capacity((size_t)(n + 1), &usigma_cap, (void**)&usigma, sizeof(seq_t));
-    ensure_capacity((size_t)(n + 1), &prefix_cap, (void**)&prefix, sizeof(seq_t));
-    ensure_capacity((size_t)(n + 1), &spf_cap, (void**)&spf, sizeof(uint64_t));
+    ensure_capacity((size_t)(n + 1), &usigma_cap, OEISC_VPP(&usigma), sizeof(seq_t));
+    ensure_capacity((size_t)(n + 1), &prefix_cap, OEISC_VPP(&prefix), sizeof(seq_t));
+    ensure_capacity((size_t)(n + 1), &spf_cap, OEISC_VPP(&spf), sizeof(uint64_t));
 
     /* compute smallest prime factor table */
     spf[0] = 0;
@@ -67,7 +103,7 @@ seq_t a(idx_t n)
                 v /= p;
                 ++e;
             }
-            seq_t p_pow = seq_pow((seq_t)p, e);
+            seq_t p_pow = ipow_idx((seq_t)p, e);
             seq_t factor = 1 + p_pow;
             s *= factor;
         }

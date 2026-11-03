@@ -10,14 +10,18 @@
  *            m^{-s})^{-m}
  * Range:     u8 n <= 35, u16 n <= 959, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 79 terms through n = 900 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Find binomial coefficients */
-#include "../utils/binom.h"
+#include <stdint.h>
 #include <stdlib.h>
+#include "../utils/binomial.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Simple linked‑list cache for (n, minBase) → value */
 typedef struct CacheEntry {
@@ -57,7 +61,7 @@ static seq_t compute_at(idx_t n, idx_t minBase)
             while (rem % d == 0) {
                 ++exp;
                 rem /= d;
-                seq_t weight = binom(d + exp - 1, exp);
+                seq_t weight = binomial(d + exp - 1, exp);
                 seq_t sub = compute_at(rem, d + 1);
                 sum += weight * sub;
             }
@@ -71,7 +75,7 @@ static seq_t compute_at(idx_t n, idx_t minBase)
             while (rem % od == 0) {
                 ++exp;
                 rem /= od;
-                seq_t weight = binom(od + exp - 1, exp);
+                seq_t weight = binomial(od + exp - 1, exp);
                 seq_t sub = compute_at(rem, od + 1);
                 sum += weight * sub;
             }
@@ -80,12 +84,12 @@ static seq_t compute_at(idx_t n, idx_t minBase)
 
     /* Handle the base n itself (e = 1) */
     if (minBase <= n) {
-        seq_t weight = binom(n, 1);          /* C(n,1) = n */
+        seq_t weight = binomial(n, 1);          /* C(n,1) = n */
         sum += weight * compute_at(1, n + 1); /* remainder is 1 */
     }
 
     /* Store in cache */
-    CacheEntry *c = (CacheEntry *)malloc(sizeof(CacheEntry));
+    CacheEntry *c = mem_new(CacheEntry, 1);
     c->n = n;
     c->minBase = minBase;
     c->value = sum;

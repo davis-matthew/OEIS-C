@@ -12,13 +12,15 @@
  *            a(11)=7579, a(12)=9522, a(13)=12249, * a(14)=16025,...
  * Range:     u8 none, u16 n <= 19, u32 n <= 58, u64 n <= 137, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static const seq_t init[17] = {
     (seq_t)2662,(seq_t)1494,(seq_t)1636,(seq_t)1896,(seq_t)2136,
@@ -37,7 +39,7 @@ static void ensure_capacity(size_t need)
     if (dp_cap >= need) return;
     size_t new_cap = dp_cap ? dp_cap << 1 : 32;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(dp, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, dp, new_cap);
     if (!tmp) abort();          /* allocation failure */
     dp = tmp;
     dp_cap = new_cap;

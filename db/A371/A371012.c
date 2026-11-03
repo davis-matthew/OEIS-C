@@ -6,9 +6,10 @@
  * Offset:    2    (a(2) is the first term)
  * Keywords:  nonn, easy
  * Formula:   not stated
- * Range:     u8 n <= 98, u16 n <= 8842, u32 n <= 8842, u64 n <= 8842,
- *            u128 n <= 8842, big any n
- * Helpers:   gpf
+ * Range:     u8 n <= 98, u16 n <= 10001, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 87 terms through n = 8842 (2026-11-03)
+ * Helpers:   largest_prime_factor, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
    (offset 2: a(2) is the first term) */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/gpf.h"           /* uint64_t gpf(uint64_t) */
+#include <stdint.h>
+#include "../utils/largest_prime_factor.h"
+#include "../utils/mem.h"
 
 /* Test whether m is representable as a sum of two squares using the
    standard criterion on prime factors ≡3 (mod 4). */
@@ -60,11 +63,11 @@ static void grow_vectors(size_t need)
     while (new_cap < need) new_cap <<= 1;
 
     if (sum_vals == NULL) {
-        sum_vals = (seq_t *)malloc(new_cap * sizeof(seq_t));
-        lpf_vals = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        sum_vals = mem_new(seq_t, new_cap);
+        lpf_vals = mem_new(seq_t, new_cap);
     } else {
-        sum_vals = (seq_t *)realloc(sum_vals, new_cap * sizeof(seq_t));
-        lpf_vals = (seq_t *)realloc(lpf_vals, new_cap * sizeof(seq_t));
+        sum_vals = mem_resize(seq_t, sum_vals, new_cap);
+        lpf_vals = mem_resize(seq_t, lpf_vals, new_cap);
     }
     sum_cap = new_cap;
 }
@@ -82,7 +85,7 @@ static void ensure_upto(size_t target_index)
             if (next_n <= 1) {
                 lpf = (seq_t)1;                /* convention: largest prime of 1 is 1 */
             } else {
-                lpf = (seq_t)gpf(next_n);       /* gpf returns largest prime factor */
+                lpf = (seq_t)largest_prime_factor(next_n);       /* gpf returns largest prime factor */
             }
             sum_vals[sum_len] = val;
             lpf_vals[sum_len] = lpf;

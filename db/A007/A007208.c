@@ -7,13 +7,54 @@
  * Formula:   Length of German name of n, counting letters only
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   len_0_99, len_0_999
+ * Validated: partial, pass, 71 terms through n = 70 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/len_0_99.h"
-#include "../utils/len_0_999.h"
+static seq_t len_0_99(idx_t m) {
+    const seq_t lens_0_9_standalone[] = {4, 4, 4, 4, 4, 4, 5, 6, 4, 4};
+    const seq_t lens_0_9_compound[] = {0, 3, 4, 4, 4, 4, 5, 6, 4, 4};
+    const seq_t lens_10_19[] = {4, 3, 5, 8, 8, 8, 8, 8, 8, 8};
+    const seq_t lens_tens[] = {0, 0, 7, 7, 7, 7, 7, 7, 7, 7};
+    
+    if (m < 10) {
+        return lens_0_9_standalone[m];
+    } else if (m < 20) {
+        return lens_10_19[m - 10];
+    } else {
+        seq_t len = lens_tens[m / 10];
+        if (m % 10 > 0) {
+            len += 3;
+            len += lens_0_9_compound[m % 10];
+        }
+        return len;
+    }
+}
+
+static seq_t len_0_999(idx_t m) {
+    const seq_t lens_0_9_compound[] = {0, 3, 4, 4, 4, 4, 5, 6, 4, 4};
+    
+    if (m < 100) {
+        return len_0_99(m);
+    } else {
+        seq_t len = 0;
+        idx_t hundreds = m / 100;
+        idx_t remainder = m % 100;
+        
+        if (hundreds > 1) {
+            len += lens_0_9_compound[hundreds];
+        }
+        len += 7;
+        
+        if (remainder > 0) {
+            len += len_0_99(remainder);
+        }
+        
+        return len;
+    }
+}
 
 seq_t a(idx_t n) {
     if (n < 1000) {

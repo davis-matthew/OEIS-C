@@ -8,13 +8,17 @@
  *            order)
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   big_pow, digit_counts
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-01)
+ * Helpers:   digit_counts, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
 #include "../utils/digit_counts.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +26,7 @@ seq_t a(idx_t n)
     if (n == 0) return (seq_t)1;
 
     /* compute 3^n exactly */
-    seq_t power = big_pow((seq_t)3, (seq_t)n);
+    seq_t power = ipow((seq_t)3, (seq_t)n);
 
     /* count decimal digits of the power */
     unsigned char cnt[10] = {0};

@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 38, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,6 +36,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Auxiliary: triangular number of r, using 128‑bit to avoid overflow */
 static inline idx_t triangular(idx_t r)
@@ -56,13 +58,13 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* Allocate two buffers of size r+1 for the DP */
-    seq_t *prev = (seq_t*)malloc((r + 1) * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, (r + 1));
     if (!prev)
         return (seq_t)0;   /* allocation failure */
 
-    seq_t *cur  = (seq_t*)malloc((r + 1) * sizeof(seq_t));
+    seq_t *cur  = mem_new(seq_t, (r + 1));
     if (!cur) {
-        free(prev);
+        mem_free(prev);
         return (seq_t)0;
     }
 
@@ -92,8 +94,8 @@ seq_t a(idx_t n)
     seq_t result = prev[k];
 
     /* Clean up */
-    free(prev);
-    free(cur);
+    mem_free(prev);
+    mem_free(cur);
 
     return result;
 }

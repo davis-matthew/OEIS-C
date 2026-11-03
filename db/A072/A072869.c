@@ -6,8 +6,9 @@
  * Offset:    2    (a(2) is the first term)
  * Keywords:  easy, nonn
  * Formula:   a(n) = sigma(sigma(n) - n) (OEIS A072869)
- * Range:     u8 n <= 59, u16 n <= 7559, u32 n <= 9269, u64 n <= 9269,
- *            u128 n <= 9269, big any n
+ * Range:     u8 n <= 59, u16 n <= 7559, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 90 terms through n = 9269 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

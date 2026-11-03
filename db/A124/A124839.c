@@ -7,17 +7,20 @@
  * Keywords:  sign
  * Formula:   a(n) = Sum_{k=0..n-1} (-1)^(n-1-k) * binomial(n-1,k) *
  *            mobius(k+1)
- * Range:     i8 n <= 8, i16 n <= 16, i32 n <= 31, i64 n <= 34, i128 n <= 34,
+ * Range:     i8 n <= 8, i16 n <= 16, i32 n <= 33, i64 n <= 34, i128 n <= 34,
  *            big any n
- * Helpers:   binomial, mobius
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-03)
+ * Helpers:   binomial, mem, mobius
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/binomial.h"
 #include "../utils/mobius.h"
+#include "../utils/mem.h"
 
 /* External linkage function defined by the build system */
 seq_t a(idx_t n)
@@ -35,7 +38,7 @@ seq_t a(idx_t n)
     if (n > cache_cap)
     {
         size_t new_cap = (size_t)n;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache)
             abort();                       /* Allocation failed. */
         cache = new_cache;

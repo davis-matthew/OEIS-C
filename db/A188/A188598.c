@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 4576, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 9103 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #ifdef __cplusplus
 /* helper functions for C++ builds: use new/delete */
@@ -71,7 +73,7 @@ static void recompute(size_t limit)
                 seq_cap *= 2;
                 seq_t *tmp = new_array(seq_cap);
                 if (!tmp) exit(1);
-                memcpy(tmp, seq, seq_len * sizeof(seq_t));
+                mem_copy(tmp, seq, seq_len * sizeof(seq_t));
                 delete_array(seq);
                 seq = tmp;
             }

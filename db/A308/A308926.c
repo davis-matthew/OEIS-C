@@ -11,13 +11,15 @@
  *            p_{≤7}(n-7) where p_{≤7}(m) counts partitio...
  * Range:     u8 n <= 14, u16 n <= 36, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,12 +31,12 @@ seq_t a(idx_t n)
     idx_t m = n - 7u;
 
     /* Allocate temporary array for DP: dp[0..m] */
-    seq_t *dp = (seq_t *)malloc((m + 1u) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (m + 1u));
     if (!dp)
         return (seq_t)0;          /* memory failure – unlikely in tests */
 
     /* initialize dp[0] = 1, rest = 0 */
-    memset(dp, 0, (m + 1u) * sizeof(seq_t));
+    mem_set(dp, 0, (m + 1u) * sizeof(seq_t));
     dp[0] = (seq_t)1;
 
     /* Unbounded knapsack DP over coin values 1..7 */
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     seq_t p7 = dp[m];
 
     /* Free temporary array */
-    free(dp);
+    mem_free(dp);
 
     /* Multiply by n (converted to seq_t) */
     return ((seq_t)n) * p7;

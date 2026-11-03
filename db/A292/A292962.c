@@ -12,6 +12,7 @@
  *            definition using only integer arithmetic
  * Range:     u8 n <= 97, u16 n <= 1830, u32 n <= 1830, u64 n <= 1830,
  *            u128 n <= 1830, big any n
+ * Validated: standard, pass, 80 terms through n = 1550 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

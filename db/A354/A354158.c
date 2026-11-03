@@ -8,6 +8,7 @@
  * Formula:   a(1) = -1; a(2*n) = a(n); a(2*n+1) = a(n+1) + n
  * Range:     i8 n <= 144, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 106 terms through n = 9586 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

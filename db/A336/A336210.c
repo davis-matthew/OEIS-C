@@ -10,12 +10,14 @@
  *            that calls in any order are fast
  * Range:     i8 n <= 3, i16 n <= 5, i32 n <= 7, i64 n <= 12, i128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The types seq_t (the sequence element type) and idx_t (index type)
    are defined by the build system. */
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     if (n < cap) return cache[n];
 
     /* Expand cache to hold values up to n */
-    cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, (n + 1));
     /* If realloc fails, cache becomes NULL and program will abort.
        The build environment guarantees sufficient memory for test cases. */
 

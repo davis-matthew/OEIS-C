@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 24, u32 n <= 24, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 24 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Use a wider type for internal counts to avoid overflow of seq_t. */
 typedef uint32_t cnt_type;
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
             if (dp[5][num] == 1)
                 ++cnt;
 
-        terms = (seq_t *)malloc((size_t)cnt * sizeof(seq_t));
+        terms = mem_new(seq_t, (size_t)cnt);
         idx_t pos = 0;
         for (idx_t num = 1; num <= LIMIT; ++num)
             if (dp[5][num] == 1)

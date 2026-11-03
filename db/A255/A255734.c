@@ -11,7 +11,8 @@
  *            sieve‑like search, memoising all terms * foun...
  * Range:     u8 n <= 27, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Cache of terms that have been found.  It grows as needed. */
 static seq_t *terms = NULL;
@@ -40,7 +42,7 @@ static void grow_terms(size_t min_cap)
     size_t new_cap = terms_capacity ? terms_capacity * 2 : 4;
     while (new_cap < min_cap)
         new_cap *= 2;
-    seq_t *new_ptr = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, terms, new_cap);
     if (!new_ptr)
         abort();
     terms = new_ptr;

@@ -10,14 +10,16 @@
  *            = n - r(r+1)/2. * This is the row‑wise enumeration of the
  *            infinite lower‑triangular * array T(r,k) with T(r,k) =
  *            Σ_{j=0}^{r-k} (-1)^j (j+1) * C(r-j,k)
- * Range:     i8 n <= 38, i16 n <= 77, i32 n <= 77, i64 n <= 77, i128 n <= 77,
+ * Range:     i8 n <= 70, i16 n <= 77, i32 n <= 77, i64 n <= 77, i128 n <= 77,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     seq_t sum = 0;
     for (idx_t j = 0; j <= r - k; ++j)
     {
-        seq_t term = binom(r - j, k);          /* binomial coefficient */
+        seq_t term = binomial(r - j, k);          /* binomial coefficient */
         term *= (seq_t)(j + 1);                /* multiply by (j+1) */
         if (j & 1)                             /* (-1)^j: odd j -> subtract */
             sum -= term;

@@ -10,7 +10,8 @@
  *            where x,y,z are non‑negative integers, w>0, and T(m) = m*(m+1)/2
  * Range:     u8 n <= 80, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 106 terms through n = 9521 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* table of counts */
 static idx_t  cached_max = 0; /* largest index that has been computed */
@@ -31,10 +33,10 @@ static idx_t  cached_max = 0; /* largest index that has been computed */
 static void recompute_counts(idx_t max_n)
 {
     /* malloc returns void*; casting satisfies both C and C++ */
-    seq_t *new_cache = (seq_t *)malloc((size_t)(max_n + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, (size_t)(max_n + 1));
     if (!new_cache) return; /* silently give up on allocation failure */
 
-    memset(new_cache, 0, (size_t)(max_n + 1) * sizeof(seq_t));
+    mem_set(new_cache, 0, (size_t)(max_n + 1) * sizeof(seq_t));
 
     seq_t max_n_t = (seq_t)max_n;
     idx_t x = 0;
@@ -66,7 +68,7 @@ static void recompute_counts(idx_t max_n)
     }
 
     /* Replace old cache */
-    if (cache) free(cache);
+    if (cache) mem_free(cache);
     cache = new_cache;
     cached_max = max_n;
 }

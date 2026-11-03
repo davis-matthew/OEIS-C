@@ -8,7 +8,8 @@
  * Formula:   a(n) = (is_prime_power(n) ? count_prime_powers(n) : 0)
  * Range:     u8 n <= 1432, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 106 terms through n = 9901 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* --- global state for small prime list --- */
 static uint64_t *g_primes = NULL;
@@ -94,7 +96,7 @@ static void extend_cum_to(idx_t limit)
     if (limit <= g_cum_size) return;
 
     idx_t new_size = limit + 1;                   /* we need indices 0..limit */
-    seq_t *new_mem = (seq_t *)realloc(g_cum, new_size * sizeof(seq_t));
+    seq_t *new_mem = mem_resize(seq_t, g_cum, new_size);
     if (!new_mem) return;                        /* allocation failure – give up */
     g_cum = new_mem;
 

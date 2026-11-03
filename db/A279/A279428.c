@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 18, u32 n <= 2509, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_len, pow10, seq_alloc
+ * Validated: standard, pass, 64 terms through n = 9299 (2026-11-01)
+ * Helpers:   num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,28 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/seq_alloc.h"
-#include "../utils/pow10.h"
-#include "../utils/digit_len.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/num_digits.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 #define MAX_TERMS 20000  /* enough for n up to about 10 000 */
 
@@ -46,7 +66,7 @@ seq_t a(idx_t n)
     while (terms_cnt < (size_t)n) {
         seq_t k   = (seq_t)next_k;
         seq_t sq  = k * k;
-        int len   = digit_len(sq);
+        int len   = num_digits(sq);
 
         if (len & 1) { /* odd number of digits */
             /* Determine the base 10^((len-1)/2) to isolate the middle digit. */

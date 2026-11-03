@@ -9,12 +9,14 @@
  *            a(1)=1, a(2)=2, a(3)=2, a(4)=3, a(5)=3, a(6)=4, a(7)=4
  * Range:     i8 n <= 25, i16 n <= 44, i32 n <= 93, i64 n <= 187,
  *            i128 n <= 377, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 804 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* dynamic memoization */
@@ -25,7 +27,7 @@ seq_t a(idx_t n) {
     /* initialise first 8 terms on first call */
     if (cache == NULL) {
         size = 8;
-        cache = (seq_t *)malloc(sizeof(seq_t) * size);
+        cache = mem_new(seq_t, size);
         if (!cache) return 0;          /* allocation failed */
         const seq_t init[8] = {1, 1, 2, 2, 3, 3, 4, 4};
         for (idx_t i = 0; i < 8; ++i)
@@ -43,7 +45,7 @@ seq_t a(idx_t n) {
                 break;
             }
         }
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_size);
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) return 0;          /* allocation failed */
         cache = tmp;
         size = new_size;

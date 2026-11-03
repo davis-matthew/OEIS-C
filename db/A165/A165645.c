@@ -9,7 +9,8 @@
  *            (a(n-1)+…+a(n-8)) – 496 * a(n-9) (with a(k)=0 for k<0)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    (t^9+2t^8+⋯+2t+1)/(496t^9−31t^8−⋯−31t+1). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* cached sequence values */
 static idx_t cached_size = 0;        /* number of values already cached */
@@ -35,7 +37,7 @@ static void ensure_cache(idx_t n)
     if (cached_size > 0 && new_size < cached_size * 2)
         new_size = cached_size * 2;
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_size);
     if (!tmp)
         abort();                      /* out of memory */
     cache = tmp;

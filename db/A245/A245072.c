@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 51, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_mul_uint64
+ * Validated: standard, pass, 75 terms through n = 960 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/mod_mul_uint64.h"
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 /* ---------- Reverse decimal digits of a 64‑bit integer ---------- */
 static idx_t rev_uint64(idx_t x)
@@ -81,7 +83,7 @@ static bool is_prime_uint64(uint64_t n)
         if (x == 1ULL || x == n - 1) continue;
         bool cont = false;
         for (unsigned int r = 1; r < s; ++r) {
-            x = mod_mul_uint64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) {
                 cont = true;
                 break;
@@ -104,7 +106,7 @@ static void cache_grow(size_t needed)
     if (seq_cache_cap < needed) {
         size_t new_cap = seq_cache_cap ? seq_cache_cap * 2 : 8;
         if (new_cap < needed) new_cap = needed;
-        seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
         if (!tmp) abort();   /* out of memory */
         seq_cache = tmp;
         seq_cache_cap = new_cap;

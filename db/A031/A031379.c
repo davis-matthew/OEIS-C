@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 63 terms through n = 939 (2026-11-01)
  * Helpers:   next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,7 +15,8 @@
 
 /* Computes a(n) = prime(5*n-2) by successive next_prime calls. */
 #include <stdint.h>
-#include "../utils/next_prime.h"   /* declares uint64_t next_prime(uint64_t start); */
+#include <stdbool.h>
+#include "../utils/next_prime.h"
 
 seq_t a(idx_t n)
 {

@@ -10,14 +10,29 @@
  *            never overflow
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 14, u64 n <= 27, u128 n <= 52,
  *            big any n
- * Helpers:   g2898_gcd, g2898_mulfrac
+ * Validated: standard, pass, 41 terms through n = 193 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/g2898_gcd.h"
-#include "../utils/g2898_mulfrac.h"
+#include "../utils/gcd_u64.h"
+
+/* returns x * prod(num) / prod(den), known to be an integer */
+static seq_t g2898_mulfrac(seq_t x, uint64_t *num, int nn, uint64_t *den, int nd) {
+    int i, j;
+    for (i = 0; i < nn; i++)
+        for (j = 0; j < nd; j++) {
+            uint64_t g = gcd_u64(num[i], den[j]);
+            if (g > 1) { num[i] /= g; den[j] /= g; }
+        }
+    for (j = 0; j < nd; j++)
+        if (den[j] > 1) x /= (seq_t)den[j];
+    for (i = 0; i < nn; i++)
+        if (num[i] != 1) x *= (seq_t)num[i];
+    return x;
+}
 
 seq_t a(idx_t n) {
     idx_t k0 = (n + 2) / 3, kmax = n / 2, i, k;

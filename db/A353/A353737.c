@@ -7,6 +7,7 @@
  * Formula:   a(n) = 2*n + 1 for n ≥ 3, with a(1) = 2, a(2) = 4
  * Range:     u8 n <= 7, u16 n <= 7, u32 n <= 7, u64 n <= 7, u128 n <= 7,
  *            big any n
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

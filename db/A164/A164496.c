@@ -12,6 +12,7 @@
  *            3 that have not yet * produced a forbidden patt...
  * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 42, u64 n <= 86, u128 n <= 174,
  *            big any n
+ * Validated: standard, pass, 49 terms through n = 411 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

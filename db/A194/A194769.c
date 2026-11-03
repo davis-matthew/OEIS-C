@@ -11,13 +11,15 @@
  *            2037573096
  * Range:     u8 n <= 2, u16 n <= 24, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 9958 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* A minimal binary heap for (sum,last) pairs.  The heap is global so that
    the enumeration can continue across successive calls to a(). */
@@ -36,14 +38,14 @@ static void heap_init(Heap *h)
 {
     h->size     = 0;
     h->capacity = 16;
-    h->data     = (Node*)malloc(h->capacity * sizeof(Node));
+    h->data     = mem_new(Node, (h->capacity * sizeof(Node)) / sizeof(Node));
 }
 
 static void heap_push(Heap *h, Node v)
 {
     if (h->size == h->capacity) {
         h->capacity *= 2;
-        h->data = (Node*)realloc(h->data, h->capacity * sizeof(Node));
+        h->data = mem_resize(Node, h->data, (h->capacity * sizeof(Node)) / sizeof(Node));
     }
     size_t i = h->size++;
     h->data[i] = v;
@@ -132,7 +134,7 @@ static void ensure_computed(idx_t target)
         /* Append the newly generated sum */
         if (seq_len == seq_cap) {
             seq_cap = seq_cap == 0 ? 16 : seq_cap << 1;
-            seq_table = (seq_t*)realloc(seq_table, seq_cap * sizeof(seq_t));
+            seq_table = mem_resize(seq_t, seq_table, seq_cap);
         }
         seq_table[seq_len++] = cur.sum;
 

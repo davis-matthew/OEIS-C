@@ -8,14 +8,17 @@
  * Formula:   a(n) = R( R(a(n-1)) + a(n-2) + a(n-3) ) (a(0)=0, a(1)=0, a(2)=1)
  * Range:     u8 n <= 9, u16 n <= 16, u32 n <= 28, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   rev
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-03)
+ * Helpers:   mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/rev.h"          /* provides seq_t rev(seq_t) */
+#include <stdbool.h>
+#include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;          /* dynamic array of computed values */
 static idx_t  memo_len = 0;         /* current allocated length */
@@ -29,7 +32,7 @@ static void ensure_cap(idx_t need)
     idx_t newlen = memo_len ? memo_len << 1 : 8;
     while (newlen <= need) newlen <<= 1;        /* double until big enough */
 
-    seq_t *tmp = (seq_t *)realloc(memo, newlen * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, memo, newlen);
     if (!tmp) abort();                          /* out of memory */
     memo = tmp;
     memo_len = newlen;
@@ -41,7 +44,7 @@ static void init_memo(void)
     if (memo) return;                           /* already initialised */
 
     memo_len = 3;
-    memo = (seq_t *)malloc(memo_len * sizeof(seq_t));
+    memo = mem_new(seq_t, memo_len);
     if (!memo) abort();                          /* out of memory */
 
     memo[0] = (seq_t)0;
@@ -63,9 +66,9 @@ seq_t a(idx_t n)
     ensure_cap(n);
 
     for (idx_t i = memo_max + 1; i <= n; ++i) {
-        seq_t revprev = rev(memo[i - 1]);          /* R(a(i-1))          */
+        seq_t revprev = reverse_digits(memo[i - 1]);          /* R(a(i-1))          */
         seq_t sum     = revprev + memo[i - 2] + memo[i - 3];
-        memo[i]       = rev(sum);                  /* outer R            */
+        memo[i]       = reverse_digits(sum);                  /* outer R            */
     }
     memo_max = n;
     return memo[n];

@@ -9,7 +9,8 @@
  *            decimal digit counts form the set {1,2,…,m} for some m
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   digit_count, factor_u64
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   factor_u64, mem, num_digits0
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <math.h>
 #include "../utils/factor_u64.h"
-#include "../utils/digit_count.h"
+#include "../utils/num_digits0.h"
+#include "../utils/mem.h"
 
 static seq_t *terms = NULL;
 static size_t terms_cap = 0;
@@ -37,7 +40,7 @@ static bool is_factor_triangle(uint64_t x)
     bool used[64] = {0};
     for (size_t i = 0; i < cnt; ++i) {
         if (ex[i] != 1) return false;
-        uint64_t len = digit_count(pr[i]);   /* number of decimal digits */
+        uint64_t len = num_digits0(pr[i]);   /* number of decimal digits */
         if (len < 1 || len > m) return false;
         if (used[(size_t)len]) return false;
         used[(size_t)len] = true;
@@ -54,7 +57,7 @@ static void ensure_terms(idx_t n)
 
     if (terms_cap == 0) {
         terms_cap = 64;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
     }
 
     while (terms_len < n) {
@@ -66,7 +69,7 @@ static void ensure_terms(idx_t n)
             if (is_factor_triangle(next_candidate)) {
                 if (terms_len == terms_cap) {
                     terms_cap <<= 1;
-                    terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                    terms = mem_resize(seq_t, terms, terms_cap);
                 }
                 terms[terms_len++] = (seq_t)next_candidate;
                 ++next_candidate;

@@ -10,7 +10,8 @@
  *            the 148 unimodal 6‑tuples (vectors over {0,1,2})
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 11, u64 n <= 85, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are supplied by the build system */
 seq_t a(idx_t n)
@@ -68,12 +70,12 @@ seq_t a(idx_t n)
 
     /* ----- dynamic programming arrays ----- */
     const size_t SIZE = 729;
-    seq_t *dp      = (seq_t *)calloc(SIZE, sizeof(seq_t));
-    seq_t *dp_next = (seq_t *)calloc(SIZE, sizeof(seq_t));
-    seq_t *cum     = (seq_t *)calloc(SIZE, sizeof(seq_t));
+    seq_t *dp      = mem_new(seq_t, SIZE);
+    seq_t *dp_next = mem_new(seq_t, SIZE);
+    seq_t *cum     = mem_new(seq_t, SIZE);
     if (!dp || !dp_next || !cum) {
         /* allocation failure – return 0 to avoid crash */
-        free(dp); free(dp_next); free(cum);
+        mem_free(dp); mem_free(dp_next); mem_free(cum);
         return 0;
     }
 
@@ -86,7 +88,7 @@ seq_t a(idx_t n)
         seq_t total = 0;
         for (size_t i = 0; i < SIZE; ++i)
             if (unim[i]) total += dp[i];
-        free(dp); free(dp_next); free(cum);
+        mem_free(dp); mem_free(dp_next); mem_free(cum);
         return total;
     }
 
@@ -122,6 +124,6 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < SIZE; ++i)
         if (unim[i]) total += dp[i];
 
-    free(dp); free(dp_next); free(cum);
+    mem_free(dp); mem_free(dp_next); mem_free(cum);
     return total;
 }

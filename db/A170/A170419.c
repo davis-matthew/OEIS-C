@@ -12,12 +12,14 @@
  *            + … + 2t⁴³ + t⁴⁴) / (1 – 24t – 24t² – … – 24t⁴³...
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     if (n + 1 > cache_len) {
         idx_t old_len = cache_len;
         cache_len = n + 1;
-        cache = (seq_t *)realloc(cache, cache_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_len);
         if (old_len == 0) {          /* first allocation: set a(0) */
             cache[0] = (seq_t)1;
             old_len = 1;

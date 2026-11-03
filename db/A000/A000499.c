@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{k=1..n-1} k^3*sigma(k)*sigma(n-k)
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 59, u64 n <= 2399,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 48 terms through n = 9666 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

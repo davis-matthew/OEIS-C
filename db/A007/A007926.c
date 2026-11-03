@@ -10,7 +10,8 @@
  *            these digits, allowing leading zeros, is a factorial
  * Range:     u8 n <= 17, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   next_perm
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,19 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/next_perm.h"
+#include "../utils/mem.h"
+
+static bool next_perm(char *d, int len) {
+    int i = len - 2;
+    while (i >= 0 && d[i] >= d[i + 1]) i--;
+    if (i < 0) return false;
+    int j = len - 1;
+    while (d[j] <= d[i]) j--;
+    char t = d[i]; d[i] = d[j]; d[j] = t;
+    int l = i + 1, r = len - 1;
+    while (l < r) { t = d[l]; d[l] = d[r]; d[r] = t; l++; r--; }
+    return true;
+}
 
 static seq_t *terms = 0;
 static idx_t nterms = 0, capterms = 0;
@@ -32,9 +45,9 @@ static int cmp_str(const void *x, const void *y) {
 static void push_term(seq_t v) {
     if (nterms == capterms) {
         idx_t nc = capterms ? capterms * 2 : 256;
-        seq_t *nt = (seq_t *)malloc(sizeof(seq_t) * (size_t)nc);
+        seq_t *nt = mem_new(seq_t, (size_t)nc);
         for (idx_t i = 0; i < nterms; i++) nt[i] = terms[i];
-        free(terms);
+        mem_free(terms);
         terms = nt;
         capterms = nc;
     }

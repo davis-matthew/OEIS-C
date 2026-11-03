@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static void sieve_primes(idx_t n, idx_t **primes_out, size_t *cnt_out) {
     bool *is_prime = (bool *)malloc((size_t)(n + 1) * sizeof(bool));
@@ -48,12 +50,12 @@ seq_t a(idx_t n) {
 
     /* Allocate working arrays of size n+1 */
     size_t sz = (size_t)(n + 1);
-    seq_t *dp_prev = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *dp_curr = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *prefix = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *dp_prev = mem_new(seq_t, sz);
+    seq_t *dp_curr = mem_new(seq_t, sz);
+    seq_t *prefix = mem_new(seq_t, sz);
     if (!dp_prev || !dp_curr || !prefix) {
         /* Allocation failure – return 0 as a safe fallback */
-        free(dp_prev); free(dp_curr); free(prefix);
+        mem_free(dp_prev); mem_free(dp_curr); mem_free(prefix);
         return (seq_t)0;
     }
 
@@ -96,9 +98,9 @@ seq_t a(idx_t n) {
     }
 
     /* Clean up */
-    free(dp_prev);
-    free(dp_curr);
-    free(prefix);
+    mem_free(dp_prev);
+    mem_free(dp_curr);
+    mem_free(prefix);
     free(primes);
 
     /* Include k=0 part for n==0 (handled earlier) */

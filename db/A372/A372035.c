@@ -7,13 +7,15 @@
  * Formula:   a(n) given by A(x) = sqrt(1 + 4*x*A(x)/(1-x)), a(0)=1
  * Range:     i8 n <= 10, i16 n <= 18, i32 n <= 33, i64 n <= 35, i128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Required headers for standard library functions */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Global cached sequences and state */
 static seq_t *b_cache   = NULL;  /* coefficients of sqrt(1-2x+5x^2) */
@@ -29,8 +31,8 @@ static void compute_to(idx_t n)
         size_t new_cap = capacity ? capacity << 1 : 1;
         if (new_cap < 3) new_cap = 3;          /* allow indices 0..2 safely */
         while (new_cap < need) new_cap <<= 1;
-        b_cache = (seq_t *)realloc(b_cache, new_cap * sizeof(seq_t));
-        a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        b_cache = mem_resize(seq_t, b_cache, new_cap);
+        a_cache = mem_resize(seq_t, a_cache, new_cap);
         capacity = new_cap;
     }
 

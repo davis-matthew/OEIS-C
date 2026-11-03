@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 51, u32 n <= 128, u64 n <= 128,
  *            u128 n <= 128, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 125 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    and works for any supported seq_t type. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* prime factors of 69371610 */
 static const seq_t _primes[7] = { 2, 3, 5, 7, 11, 59, 509 };
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
         _gen_divs(0, (seq_t)1, &pos);
 
         /* sort ascending */
-        qsort(_divs, _div_count, sizeof(seq_t), _cmp_seq);
+        mem_qsort(_divs, _div_count, sizeof(seq_t), _cmp_seq);
 
         _initialized = 1;
     }

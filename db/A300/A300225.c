@@ -8,9 +8,10 @@
  * Formula:   a(n) = restricted growth of Cantor pair( A296078(n), A296091(n)
  *            ), where A296078(n)=prime signature of φ(n)+1 and
  *            A296091(n)=prime signature of σ(n)-1. a(1)=1
- * Range:     u8 n <= 105, u16 n <= 9286, u32 n <= 9286, u64 n <= 9286,
- *            u128 n <= 9286, big any n
- * Helpers:   calc_phi, digits_of, factor_u64, pow10, sigma_of
+ * Range:     u8 n <= 2393, u16 n <= 65536, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9286 (2026-11-03)
+ * Helpers:   factor_u64, mem, num_digits_idx, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,10 +21,42 @@
 #include <stdbool.h>
 
 #include "../utils/factor_u64.h"
-#include "../utils/digits_of.h"
-#include "../utils/pow10.h"
-#include "../utils/calc_phi.h"
-#include "../utils/sigma_of.h"
+#include "../utils/num_digits_idx.h"
+#include "../utils/totient_seq.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 /* Prime signature: encode the sorted multiset of exponents of prime factorisation. */
 static seq_t prime_signature(uint64_t v)
@@ -49,7 +82,7 @@ static seq_t prime_signature(uint64_t v)
     seq_t enc = 0;
     for (size_t i = 0; i < cnt; ++i) {
         uint64_t e = ex[i];
-        int d = digits_of(e);
+        int d = num_digits_idx(e);
         seq_t pow10_d = pow10((idx_t)d);
         enc = enc * pow10_d + e;
     }
@@ -57,6 +90,19 @@ static seq_t prime_signature(uint64_t v)
 }
 
 /* Reallocate or grow an array of elements of size elem_size to accommodate needed elements. */
+#ifdef __cplusplus
+template <class T>
+static T *resize_array(T *ptr, size_t *cap, size_t needed, size_t elem_size)
+{
+    if (*cap < needed) {
+        size_t new_cap = (*cap == 0) ? 8 : (*cap << 1);
+        while (new_cap < needed) new_cap <<= 1;
+        ptr = mem_resize(T, ptr, (new_cap * elem_size) / sizeof(T));
+        *cap = new_cap;
+    }
+    return ptr;
+}
+#else
 static void *resize_array(void *ptr, size_t *cap, size_t needed, size_t elem_size)
 {
     if (*cap < needed) {
@@ -67,6 +113,7 @@ static void *resize_array(void *ptr, size_t *cap, size_t needed, size_t elem_siz
     }
     return ptr;
 }
+#endif
 
 /* Main sequence function. */
 seq_t a(idx_t n)
@@ -90,7 +137,7 @@ seq_t a(idx_t n)
         cache = (seq_t *)resize_array(cache, &cache_cap, (size_t)(n + 1), sizeof(seq_t));
         for (idx_t i = max_n + 1; i <= n; ++i) {
             /* Compute A296078(i) = prime signature of φ(i)+1. */
-            seq_t phi_val = calc_phi((seq_t)i) + 1;
+            seq_t phi_val = totient_seq((seq_t)i) + 1;
             seq_t sig_phi = prime_signature((uint64_t)phi_val);
 
             /* Compute A296091(i) = prime signature of σ(i)-1. */

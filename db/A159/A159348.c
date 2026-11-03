@@ -9,12 +9,14 @@
  *            a(0)=1, a(1)=1, a(2)=1, a(3)=4, a(4)=11, a(5)=24, a(6)=55
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 27, u64 n <= 53, u128 n <= 106,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 2209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_len = 0;   /* number of computed entries in cache */
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     /* Ensure the cache has at least the first 7 terms and grows to n+1 */
     if (cache == NULL) {
         size_t init_cap = (n + 1 > 7 ? n + 1 : 7);
-        cache = (seq_t *)malloc(init_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, init_cap);
         if (!cache) return 0;           /* out of memory: return 0 (caller handles) */
 
         /* store the seven known values */
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     /* grow cache if needed */
     if (n + 1 > cache_len) {
         size_t new_cap = n + 1;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         if (!cache) return 0;           /* out of memory */
 
         /* compute missing terms using the recurrence */

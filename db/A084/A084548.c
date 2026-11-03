@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 6393, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd64
+ * Validated: standard, pass, 70 terms through n = 9915 (2026-11-03)
+ * Helpers:   gcd_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/gcd64.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/mem.h"
 
 /* ---------- prime sieve (up to 2 000 000) --------------------------- */
 #define PRIME_LIMIT 2000000
@@ -143,7 +145,7 @@ static bool qualifies(uint64_t k)
         __int128 t = (__int128)m * m * m * m * m;   /* m^5 */
         if (t >= k) break;
         uint64_t r = (uint64_t)t;
-        if (gcd64(r, k) != 1) continue;
+        if (gcd_u64(r, k) != 1) continue;
 
         /* multiplicative order of r modulo k must equal φ(k) */
         uint64_t ord = phi;
@@ -173,7 +175,7 @@ seq_t a(idx_t n)
         if (qualifies(next_test)) {
             if (cache_len == cache_cap) {
                 cache_cap = cache_cap ? cache_cap << 1 : 64;
-                cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = (seq_t)next_test;
         }

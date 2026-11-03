@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 279, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 92 terms through n = 4732 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static const uint64_t SCALE = (UINT64_C(1) << 56);   /* 2^56 */
 
@@ -82,10 +84,10 @@ static void extend_tables(idx_t n)
 
     /* Allocate or grow memoised a(n) array. */
     if (!memo) {
-        memo = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        memo = mem_new(seq_t, (n + 1));
         if (!memo) { abort(); }
     } else {
-        seq_t *tmp = (seq_t *)realloc(memo, (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, memo, (n + 1));
         if (!tmp) { abort(); }
         memo = tmp;
     }

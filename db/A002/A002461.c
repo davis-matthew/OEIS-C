@@ -9,13 +9,14 @@
  *            bits of k (equivalently n*|A002596(n)|)
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 19, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   a002461_gcd_loc
+ * Validated: partial, pass, 27 terms through n = 28 (2026-11-01)
+ * Helpers:   gcd_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a002461_gcd_loc.h"
+#include "../utils/gcd_idx.h"
 
 seq_t a(idx_t n) {
     if (n == 2) return 1;
@@ -27,7 +28,7 @@ seq_t a(idx_t n) {
         idx_t d = j;
         while (!(d & 1)) d >>= 1;
         idx_t m = 2 * j - 1;
-        idx_t g = a002461_gcd_loc(m, d);
+        idx_t g = gcd_idx(m, d);
         m /= g;
         d /= g;
         O = O / d * m;

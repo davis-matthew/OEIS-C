@@ -7,6 +7,7 @@
  * Formula:   a(n) = #{ d | n | d is squarefree and d² < n }
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 103 terms through n = 9255 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <math.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 /* Count squarefree divisors d of n with d < n/d (i.e. d² < n). */

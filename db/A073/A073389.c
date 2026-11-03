@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 17, u64 n <= 38, u128 n <= 80,
  *            big any n
- * Helpers:   binom, pow2
+ * Validated: standard, pass, 43 terms through n = 499 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,9 @@
  * supported build configurations.
  */
 
-#include "../utils/binom.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)
@@ -38,7 +41,7 @@ seq_t a(idx_t n)
         /* binomial(n-k+2, 2) = (nk+2)*(nk+1)/2 */
         seq_t bin1 = ((seq_t)(nk + 2) * (seq_t)(nk + 1)) / (seq_t)2;
         /* binomial(n-k, k) */
-        seq_t bin2 = binom(nk, k);
+        seq_t bin2 = binomial(nk, k);
         /* 2^(n-k) */
         seq_t pow = pow2(nk);
 

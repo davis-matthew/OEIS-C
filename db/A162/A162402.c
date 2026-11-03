@@ -8,12 +8,14 @@
  *            = 40, 2, 4, …, 78 (40 factors)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 9, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>          /* for calloc, free */
+#include "../utils/mem.h"
 
 static void multiply_by_factor(seq_t **coeff, idx_t *cur_deg,
                                idx_t max_deg, idx_t k)
@@ -23,7 +25,7 @@ static void multiply_by_factor(seq_t **coeff, idx_t *cur_deg,
     if (new_deg > max_deg) new_deg = max_deg;
 
     seq_t *old = *coeff;
-    seq_t *newc = (seq_t*)calloc((size_t)(max_deg + 1), sizeof(seq_t));
+    seq_t *newc = mem_new(seq_t, (size_t)(max_deg + 1));
 
     for (idx_t i = 0; i <= old_deg; ++i) {
         seq_t val = old[i];
@@ -34,7 +36,7 @@ static void multiply_by_factor(seq_t **coeff, idx_t *cur_deg,
         }
     }
 
-    free(old);
+    mem_free(old);
     *coeff = newc;
     *cur_deg = new_deg;
 }
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     if (n > max_deg) return 0;
 
     if (!initialized) {
-        coeff = (seq_t*)calloc((size_t)(max_deg + 1), sizeof(seq_t));
+        coeff = mem_new(seq_t, (size_t)(max_deg + 1));
         coeff[0] = 1;
         cur_deg = 0;
 

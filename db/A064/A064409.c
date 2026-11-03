@@ -7,9 +7,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = n-th positive even number not equal to
  *            A001359(i)+A006512(j)
- * Range:     u8 n <= 70, u16 n <= 9887, u32 n <= 9887, u64 n <= 9887,
- *            u128 n <= 9887, big any n
- * Helpers:   none
+ * Range:     u8 n <= 70, u16 n <= 20177, u32 n <= 20177, u64 n <= 20177,
+ *            u128 n <= 20177, big any n
+ * Validated: standard, pass, 71 terms through n = 9887 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static cache for computed terms */
 static seq_t *cache = NULL;
@@ -90,7 +92,7 @@ static void compute_representable(uint64_t N)
 static void rebuild_cache(uint64_t limit)
 {
     /* free previous cache */
-    free(cache);
+    mem_free(cache);
     cache   = NULL;
     cache_cap = 0;
     cache_sz  = 0;
@@ -99,7 +101,7 @@ static void rebuild_cache(uint64_t limit)
         if (!rep[e]) {
             if (cache_sz >= cache_cap) {
                 cache_cap = cache_cap ? cache_cap * 2 : 16;
-                cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_sz++] = (seq_t)e;
         }

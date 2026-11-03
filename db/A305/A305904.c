@@ -11,8 +11,9 @@
  *            = n - C(n) + 1 otherwise, where C(n) = number of such primes ≤
  *            n. This implementation builds a cache of the qualifying primes
  *            up to the largest argument seen and uses that...
- * Range:     u8 n <= 279, u16 n <= 9979, u32 n <= 9979, u64 n <= 9979,
- *            u128 n <= 9979, big any n
+ * Range:     u8 n <= 279, u16 n <= 66704, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 113 terms through n = 9979 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

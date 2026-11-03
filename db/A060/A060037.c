@@ -9,7 +9,8 @@
  *            Σ_{i=2}^{r} ⌊i/2⌋ ≥ n−1, and k = (n−1) − Σ_{i=2}^{r−1} ⌊i/2⌋
  * Range:     u8 n <= 2501, u16 n <= 2501, u32 n <= 2501, u64 n <= 2501,
  *            u128 n <= 2501, big any n
- * Helpers:   cumulative, square_mod
+ * Validated: standard, pass, 112 terms through n = 2467 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,28 @@
 
 #include <stdint.h>
 #include <math.h>
-#include "../utils/cumulative.h"
-#include "../utils/square_mod.h"
+
+/* Returns  Σ_{i=2}^{r} ⌊i/2⌋  for r ≥ 2  */
+static inline idx_t cumulative(idx_t r)
+{
+    if (r < 2) return 0;
+    if (r & 1) {                 /* odd r = 2M+1 */
+        idx_t M = r >> 1;        /* floor(r/2) */
+        return M * (M + 1);
+    } else {                     /* even r = 2M */
+        idx_t M = r >> 1;
+        return M * M;
+    }
+}
+
+/* Computes (k^2) mod r using a 128‑bit intermediate to avoid overflow.
+ * Works for any seq_t that can hold the result (including 8‑bit types). */
+static inline seq_t square_mod(idx_t r, idx_t k)
+{
+    unsigned __int128 prod = (unsigned __int128)k * k;
+    unsigned __int128 mod  = r;
+    return (seq_t)(prod % mod);
+}
 
 seq_t a(idx_t n)
 {

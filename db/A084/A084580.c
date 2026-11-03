@@ -14,14 +14,21 @@
  *            The function returns the nth term
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gauss_kuzmin
+ * Validated: standard, pass, 120 terms through n = 9852 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/gauss_kuzmin.h"
+#include "../utils/mem.h"
+
+/* Gauss–Kuzmin probability for a given k. */
+static double gauss_kuzmin(idx_t k)
+{
+    return log1p(1.0 / ((double)k * ((double)k + 2.0))) / log(2.0);
+}
 
 /* Cache of already computed a(n) values */
 static seq_t *cache   = NULL;   /* indices stored as 0‑based array */
@@ -60,7 +67,7 @@ static void ensure_cache(idx_t n)
     size_t new_cap = cache_cap == 0 ? 1 : cache_cap;
     while (new_cap < (size_t)n) new_cap <<= 1;
 
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) return;   /* allocation failure – should not happen */
 
     cache   = new_cache;

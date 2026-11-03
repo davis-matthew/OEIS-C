@@ -8,7 +8,8 @@
  * Formula:   a(n) = -p(n) + 3*p(n+3) - p(n+4) - 2*p(n+5) + p(n+6)
  * Range:     u8 n <= 24, u16 n <= 56, u32 n <= 152, u64 n <= 466,
  *            u128 n <= 1566, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 8597 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 /* Static cache for partition numbers.
  * P[0] through P[maxComputed] are valid. */
@@ -33,7 +35,7 @@ static void ensure_partitions(idx_t n_needed)
     /* Resize array if required */
     idx_t newSize = n_needed + 1;
     /* C++ requires a cast from void* to seq_t* */
-    seq_t *newP = (seq_t *)realloc(P, newSize * sizeof(seq_t));
+    seq_t *newP = mem_resize(seq_t, P, newSize);
     if (!newP && newSize > 0)
         abort();   /* allocation error */
     P = newP;

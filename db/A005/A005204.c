@@ -10,7 +10,8 @@
  *            a(1)=0, a(2)=0, a(3)=1, a(4)=2, a(5)=4
  * Range:     u8 n <= 7, u16 n <= 9, u32 n <= 11, u64 n <= 13, u128 n <= 14,
  *            big any n
- * Helpers:   get_shift, grow_zero
+ * Validated: standard, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,34 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/grow_zero.h"
-#include "../utils/get_shift.h"
+#include "../utils/mem.h"
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
+
+static idx_t get_shift(idx_t n) {
+    if (n < 6) return 0;
+    if (n == 6) return 1;
+    if (n == 7) return 2;
+    if (n == 8) return 3;
+    
+    idx_t s6 = 1, s7 = 2, s8 = 3;
+    for (idx_t i = 9; i <= n; i++) {
+        idx_t next = s6 + s8;
+        s6 = s7;
+        s7 = s8;
+        s8 = next;
+    }
+    return s8;
+}
 
 static seq_t *memo = NULL;
 static idx_t memo_len = 0;

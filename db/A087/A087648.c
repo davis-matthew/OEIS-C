@@ -7,7 +7,8 @@
  * Formula:   a(n) = (Bell(n+2)+Bell(n+1)-Bell(n))/2
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 23, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 /* Include standard library for memory management */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External integer types (provided by the build) */
 extern seq_t a(idx_t n);   /* declaration required for the compiler */
@@ -37,7 +39,7 @@ static void ensure_capacity(size_t needed)
     while (new_cap <= needed)
         new_cap *= 2;
 
-    seq_t *new_arr = (seq_t *)realloc(bell, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, bell, new_cap);
     /* zero‑initialize new elements */
     for (size_t i = bell_cap; i < new_cap; ++i)
         new_arr[i] = 0;

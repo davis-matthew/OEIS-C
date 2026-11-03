@@ -13,8 +13,8 @@
  *            conjuga...
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 4, u64 n <= 5, u128 n <= 6,
  *            big any n
- * Helpers:   x892_addsh, x892_divs, x892_gcd, x892_muls, x892_pdeg,
- *            x892_pmod, x892_shr
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-01)
+ * Helpers:   gcd_u64, ilog2_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,13 +22,56 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/x892_addsh.h"
-#include "../utils/x892_divs.h"
-#include "../utils/x892_gcd.h"
-#include "../utils/x892_muls.h"
-#include "../utils/x892_pdeg.h"
-#include "../utils/x892_pmod.h"
-#include "../utils/x892_shr.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/ilog2_u64.h"
+
+static void x892_addsh(uint32_t *x, int L, uint64_t c, uint64_t e) {
+    int i = (int)(e / 32);
+    int s = (int)(e % 32);
+    uint64_t v = c << s, carry = 0;
+    for (; i < L; i++) {
+        uint64_t t = (uint64_t)x[i] + (v & 0xffffffffULL) + carry;
+        x[i] = (uint32_t)t;
+        carry = t >> 32;
+        v >>= 32;
+        if (!v && !carry) break;
+    }
+}
+
+static void x892_divs(uint32_t *x, int L, uint32_t d) {
+    uint64_t r = 0;
+    int i;
+    for (i = L - 1; i >= 0; i--) {
+        uint64_t t = (r << 32) | x[i];
+        x[i] = (uint32_t)(t / d);
+        r = t % d;
+    }
+}
+
+static void x892_muls(uint32_t *x, int L, uint32_t m) {
+    uint64_t c = 0;
+    int i;
+    for (i = 0; i < L; i++) {
+        uint64_t t = (uint64_t)x[i] * m + c;
+        x[i] = (uint32_t)t;
+        c = t >> 32;
+    }
+}
+
+static uint64_t x892_pmod(uint64_t a, uint64_t b) {
+    int db = ilog2_u64(b), da;
+    while ((da = ilog2_u64(a)) >= db) a ^= b << (da - db);
+    return a;
+}
+
+static void x892_shr(uint32_t *x, int L, uint64_t e) {
+    int q = (int)(e / 32), s = (int)(e % 32), i;
+    for (i = 0; i < L; i++) {
+        uint64_t lo = (i + q < L) ? x[i + q] : 0;
+        uint64_t hi = (i + q + 1 < L) ? x[i + q + 1] : 0;
+        x[i] = (uint32_t)(((hi << 32) | lo) >> s);
+    }
+}
 
 typedef struct { uint64_t o, c; } x892_oc;
 
@@ -110,7 +153,7 @@ static void x892_apply(int pi, int rem, int depth, int m, int k) {
         }
         sprev = sj;
         for (a = 0; a < sc; a++) {
-            uint64_t o = src[a].o / x892_gcd(src[a].o, oj) * oj;
+            uint64_t o = src[a].o / gcd_u64(src[a].o, oj) * oj;
             uint64_t c = src[a].c * cnt;
             int b;
             for (b = 0; b < nc; b++) if (dst[b].o == o) break;

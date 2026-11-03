@@ -10,14 +10,27 @@
  *            concatenation is in decimal, with no separators
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 6, u128 n <= 9,
  *            big any n
- * Helpers:   digit_len, pow10
+ * Validated: partial, pass, 10 terms through n = 10 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/digit_len.h"
-#include "../utils/pow10.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -35,7 +48,7 @@ seq_t a(idx_t n)
     /* Grow the Stirling array if necessary */
     if (stirling_cap <= n) {
         size_t new_cap = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(stirling, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, stirling, new_cap);
         if (!tmp && new_cap > 0) /* allocation failed */
             exit(EXIT_FAILURE);
         stirling = tmp;
@@ -45,7 +58,7 @@ seq_t a(idx_t n)
     /* Grow the cache if necessary */
     if (cache_cap < n) {
         size_t new_cap = (size_t)n;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp && new_cap > 0)
             exit(EXIT_FAILURE);
         cache = tmp;
@@ -73,7 +86,7 @@ seq_t a(idx_t n)
         seq_t ans = (seq_t)0;
         for (idx_t k = 1; k <= cur; ++k) {
             seq_t v = stirling[k];
-            int d = digit_len(v);                 /* decimal digits of v */
+            int d = num_digits(v);                 /* decimal digits of v */
             seq_t mult = pow10((idx_t)d);         /* 10^d */
             ans = ans * mult + v;
         }

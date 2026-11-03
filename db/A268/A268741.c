@@ -8,7 +8,8 @@
  *            implementation with memoisation
  * Range:     i8 n <= 8, i16 n <= 16, i32 n <= 32, i64 n <= 33, i128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static cache for memoisation. */
 static seq_t *cache = NULL;
@@ -32,7 +34,7 @@ static void ensure(size_t n_plus_one)
     while (new_cap < n_plus_one)
         new_cap *= 2;
 
-    seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     cache = tmp;
     cap   = new_cap;
 }

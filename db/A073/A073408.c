@@ -8,16 +8,17 @@
  * Keywords:  easy, nonn
  * Formula:   a(n) = minimal m ≥ 1 such that cophi_m(n) divides n (cophi_m(n)
  *            = repeated application of x → x – φ(x) )
- * Range:     u8 n <= 2317, u16 n <= 9627, u32 n <= 9627, u64 n <= 9627,
- *            u128 n <= 9627, big any n
- * Helpers:   phi_local
+ * Range:     u8 n <= 2317, u16 n <= 16385, u32 n <= 16385, u64 n <= 16385,
+ *            u128 n <= 16385, big any n
+ * Validated: standard, pass, 121 terms through n = 9627 (2026-11-01)
+ * Helpers:   totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/phi_local.h"
+#include "../utils/totient_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +30,7 @@ seq_t a(idx_t n)
     seq_t cur = N;          /* current value of iterated cophi */
 
     for (idx_t m = 1; ; ++m) {
-        seq_t phi_cur = phi_local(cur);
+        seq_t phi_cur = totient_seq(cur);
         seq_t next    = cur - phi_cur;   /* cophi(cur) */
 
         /* Next should never be zero for n ≥ 2, but guard against it. */

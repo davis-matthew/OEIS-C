@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Forward declarations of the private helpers */
 static void _ensure_a_cap(size_t m);
@@ -43,7 +45,7 @@ static void _ensure_a_cap(size_t m)
     if (_a_cap <= m) {
         size_t new_cap = (_a_cap < 8) ? 8 : _a_cap;
         while (new_cap <= m) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(_a, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, _a, new_cap);
         if (!tmp) abort();
         _a      = tmp;
         _a_cap  = new_cap;
@@ -54,7 +56,7 @@ static void _ensure_a_cap(size_t m)
 static void _ensure_s_cap(size_t l)
 {
     if (_s_cap < l) {
-        seq_t *tmp = (seq_t *)realloc(_s, l * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, _s, l);
         if (!tmp) abort();
         _s      = tmp;
         _s_cap  = l;

@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 76, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 76 terms through n = 76 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *seq   = NULL;      /* sequence values */
 static size_t seq_len  = 0;      /* number of elements stored */
@@ -39,7 +42,7 @@ static void ensure_seq_cap(void)
 {
     if (seq_len < seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 16;
-    seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, new_cap);
     seq = tmp;
     seq_cap = new_cap;
 }
@@ -77,7 +80,7 @@ seq_t a(idx_t n)
     /* Lazy initialization of the first three terms */
     if (seq == NULL) {
         seq_cap = 64;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         used_cap = 64;
         used = (unsigned char *)calloc(used_cap, 1);
 

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 44, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   compute_row_zero
+ * Validated: partial, pass, 58 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -47,7 +48,23 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/compute_row_zero.h"
+#include "../utils/mem.h"
+
+/* compute a(r,0) by the closed‑form sum of terms */
+static seq_t compute_row_zero(idx_t r)
+{
+    seq_t sum = 0;
+    seq_t term = 1;
+    for (idx_t i = 0; i <= r; ++i) {
+        sum += term;
+        if (i < r) {
+            seq_t num = term * (i + 3) * (r - i);
+            seq_t denom = (i + 1) * (i + 1);
+            term = num / denom;   /* exact division */
+        }
+    }
+    return sum;   /* a(r,0) */
+}
 
 static seq_t **rows = NULL;     /* triangle rows */
 static size_t rows_cap = 0;     /* capacity of rows array */
@@ -72,7 +89,7 @@ static void ensure_rows(idx_t rmax)
     /* compute new rows incrementally */
     for (size_t cur = rows_used; cur <= (size_t)rmax; ++cur) {
         size_t len = cur + 1;
-        seq_t *row = (seq_t*)malloc(len * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, len);
 
         /* a(cur,0) */
         seq_t a0 = compute_row_zero((idx_t)cur);

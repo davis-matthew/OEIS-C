@@ -9,7 +9,8 @@
  *            totient, d = number of positive divisors)
  * Range:     u8 n <= 53, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* The type seq_t and idx_t are defined by the build system. */
 
@@ -32,7 +34,7 @@ static void init(void)
     const size_t MAP_SIZE = max_n + 1;
 
     /* Allocate mapping array (0 means “no m found yet”). */
-    min_for_n = (seq_t *)calloc(MAP_SIZE, sizeof(seq_t));
+    min_for_n = mem_new(seq_t, MAP_SIZE);
     if (!min_for_n) exit(EXIT_FAILURE);
 
     /* Allocate temporary arrays for linear sieve. */

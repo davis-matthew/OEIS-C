@@ -8,6 +8,7 @@
  * Formula:   a(n+5) = a(n+3) + a(n+2) + a(n); a(1)=a(2)=a(3)=a(4)=a(5)=1
  * Range:     u8 n <= 19, u16 n <= 34, u32 n <= 65, u64 n <= 127,
  *            u128 n <= 252, big any n
+ * Validated: standard, pass, 60 terms through n = 932 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

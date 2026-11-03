@@ -8,11 +8,15 @@
  * Formula:   a(n) = Sum_{k=0..⌊n/3⌋} (k+1)*2^k*3^(n-3k)*binomial(k,2*(n-3k))
  * Range:     u8 n <= 9, u16 n <= 22, u32 n <= 41, u64 n <= 83, u128 n <= 168,
  *            big any n
+ * Validated: standard, pass, 56 terms through n = 985 (2026-11-01)
  * Helpers:   binomial, pow2, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
 #include "../utils/pow3.h"

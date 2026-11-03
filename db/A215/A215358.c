@@ -8,7 +8,8 @@
  *            A215358) Offset: 1 (a(1) = 2)
  * Range:     u8 n <= 18, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, residue_ok
+ * Validated: standard, pass, 69 terms through n = 980 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,17 @@
 #include <stdlib.h>          /* for size_t, malloc, realloc */
 
 /* External helper: primality test for idx_t (usually uint64_t) */
-#include "../utils/is_prime.h"    /* bool is_prime(idx_t x); */
-#include "../utils/residue_ok.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
+
+/* Test whether a number satisfies the modulo‑11 condition */
+static inline bool residue_ok(idx_t x)
+{
+    if (x == 11)                    /* 11 ≡ 0 (mod 11) */
+        return true;
+    idx_t r = x % 11;
+    return (r == 2) || (r == 3) || (r == 4);
+}
 
 /* Static cache of found primes */
 static seq_t *prime_cache = NULL;   /* dynamically resized array of primes */
@@ -36,7 +46,7 @@ static void ensure_capacity(size_t need)
     while (prime_cnt + need > new_cap)
         new_cap <<= 1;   /* double the capacity */
 
-    seq_t *tmp = (seq_t *)realloc(prime_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, prime_cache, new_cap);
     if (!tmp) /* allocation failure – abort test harness */
         abort();
 

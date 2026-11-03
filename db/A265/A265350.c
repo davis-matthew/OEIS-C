@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 n <= 77, u16 n <= 9817, u32 n <= 9817, u64 n <= 9817,
- *            u128 n <= 9817, big any n
- * Helpers:   ensure_cap_seq, has_repeated_nonzero_digit
+ * Range:     u8 n <= 77, u16 n <= 10080, u32 n <= 10080, u64 n <= 10080,
+ *            u128 n <= 10080, big any n
+ * Validated: standard, pass, 93 terms through n = 9817 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,56 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/ensure_cap_seq.h"
-#include "../utils/has_repeated_nonzero_digit.h"
+#include "../utils/mem.h"
+
+/* Helper: ensure that the dynamic array has room for *needed* entries. */
+static void ensure_cap_seq(size_t needed, seq_t **arr, size_t *cap)
+{
+    if (needed > *cap) {
+        size_t new_cap = *cap ? (*cap * 2) : 16;
+        if (new_cap < needed)
+            new_cap = needed;
+        seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
+
+/* Helper: test if val has a repeated non‑zero digit in its factorial base. */
+static bool has_repeated_nonzero_digit(seq_t val)
+{
+    /* Precompute factorials up to the largest needed for the current valuation. */
+    static seq_t facts[21];
+    static int maxfact = 1;          /* facts[1] = 1! = 1 */
+    static bool initialized = false;
+
+    if (!initialized) {
+        facts[1] = (seq_t)1;
+        initialized = true;
+    }
+
+    /* Extend factorial table if necessary. */
+    while (maxfact < 20 && facts[maxfact] <= val) {
+        ++maxfact;
+        facts[maxfact] = facts[maxfact - 1] * (seq_t)maxfact;
+    }
+
+    /* Count non‑zero digits; array index corresponds to digit value. */
+    unsigned int digit_seen[21] = {0};
+
+    for (int k = maxfact; k >= 1; --k) {
+        seq_t f   = facts[k];
+        seq_t dig = val / f;
+        if (dig != 0) {
+            unsigned int d = (unsigned int)dig;
+            if (digit_seen[d])
+                return true;          /* repeated digit found */
+            digit_seen[d] = 1;
+        }
+        val %= f;
+    }
+    return false;
+}
 
 /* Main function required by the build. */
 seq_t a(idx_t n)

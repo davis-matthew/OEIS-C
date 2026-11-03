@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 322, u16 n <= 9230, u32 n <= 9230, u64 n <= 9230,
- *            u128 n <= 9230, big any n
- * Helpers:   is_corner
+ * Range:     u8 n <= 322, u16 n <= 10001, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 117 terms through n = 9230 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,18 @@
 #include <math.h>
 #include <limits.h>
 #include <stdbool.h>
-#include "../utils/is_corner.h"
+
+static inline bool is_corner(idx_t n)
+{
+    if (n == 1) return true;
+    idx_t val = 1;
+    for (idx_t k = 2; k <= n; ++k) {
+        val += k / 2;           /* floor(k/2) */
+        if (val == n) return true;
+        if (val > n) break;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

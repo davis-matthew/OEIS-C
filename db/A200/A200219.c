@@ -9,7 +9,8 @@
  *            (x+2)^n (mod n)
  * Range:     u8 n <= 412, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 100 terms through n = 1000 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,11 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <string.h>
 #include "../utils/is_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +33,7 @@ seq_t a(idx_t n)
 
     if (n >= cap) {
         size_t new_cap = n + 1;                    /* protect index n */
-        seq_t *new_cache   = (seq_t *)realloc((void *)cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache   = mem_resize(seq_t, cache, new_cap);
         bool   *new_comp   = (bool *)realloc((void *)computed, new_cap * sizeof(bool));
         if (!new_cache || !new_comp) return 0;     /* allocation failure */
 
@@ -56,9 +60,9 @@ seq_t a(idx_t n)
     } else {
         seq_t N = (seq_t)n;        /* modulus */
         for (idx_t x = 0; x < n; ++x) {
-            seq_t a1 = mod_pow((seq_t)x,     n, N);
-            seq_t a2 = mod_pow((seq_t)(x+1), n, N);
-            seq_t a3 = mod_pow((seq_t)(x+2), n, N);
+            seq_t a1 = powmod((seq_t)x,     n, N);
+            seq_t a2 = powmod((seq_t)(x+1), n, N);
+            seq_t a3 = powmod((seq_t)(x+2), n, N);
             if (((a1 + a2) % N) == a3)
                 ++result;
         }

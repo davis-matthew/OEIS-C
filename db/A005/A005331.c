@@ -11,12 +11,14 @@
  *            part P minus negative part N so all values stay nonnegative
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 7, u64 n <= 11, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 78 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *P = NULL, *N = NULL, *M1 = NULL, *M2 = NULL, *Avals = NULL;
 static idx_t cap = 0;
@@ -24,11 +26,11 @@ static idx_t cur = 0;   /* rows 0..cur computed */
 static int inited = 0;
 
 static seq_t *grow_buf(seq_t *old, idx_t oldlen, idx_t newlen) {
-    seq_t *p = (seq_t *)malloc((size_t)newlen * sizeof(seq_t));
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
     idx_t i;
     for (i = 0; i < newlen; i++) p[i] = 0;
     for (i = 0; i < oldlen; i++) p[i] = old[i];
-    if (old) free(old);
+    if (old) mem_free(old);
     return p;
 }
 

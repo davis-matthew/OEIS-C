@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 13, u32 n <= 27, u64 n <= 50, u128 n <= 97,
  *            big any n
- * Helpers:   init_first_28
+ * Validated: standard, pass, 47 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,43 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include "../utils/init_first_28.h"
+#include "../utils/mem.h"
+
+/* Compute the first 28 denominators by the standard continued‑fraction
+   algorithm for sqrt(474).  The algorithm uses only integer arithmetic. */
+static void init_first_28(seq_t first[28])
+{
+    const seq_t D = (seq_t)474;          /* non‑square  */
+    const seq_t a0 = (seq_t)21;         /* floor(sqrt(474)) */
+
+    seq_t m = (seq_t)0;
+    seq_t d = (seq_t)1;
+    seq_t a = a0;
+
+    seq_t p_m2 = (seq_t)0;  /* p[-2] */
+    seq_t p_m1 = (seq_t)1;  /* p[-1] */
+    seq_t q_m2 = (seq_t)1;  /* q[-2] */
+    seq_t q_m1 = (seq_t)0;  /* q[-1] */
+
+    for (idx_t i = 0; i < 28; ++i) {
+        seq_t p = a * p_m1 + p_m2;
+        seq_t q = a * q_m1 + q_m2;
+        first[(size_t)i] = q;             /* denominator of i‑th convergent */
+
+        /* shift previous values  */
+        p_m2 = p_m1;   p_m1 = p;
+        q_m2 = q_m1;   q_m1 = q;
+
+        /* next triple (m, d, a) of the continued fraction */
+        seq_t m_next = d * a - m;
+        seq_t d_next = (D - m_next * m_next) / d;
+        seq_t a_next = ((seq_t)a0 + m_next) / d_next;
+
+        m = m_next;
+        d = d_next;
+        a = a_next;
+    }
+}
 
 seq_t a(idx_t n)
 {
@@ -44,12 +81,12 @@ seq_t a(idx_t n)
 
         cache_cap  = 28;
         cache_size = 28;
-        cache      = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache      = mem_new(seq_t, cache_cap);
         if (!cache) {
             /* allocation failure – return 0 (should not happen in tests) */
             return (seq_t)0;
         }
-        memcpy(cache, first_28, 28 * sizeof(seq_t));
+        mem_copy(cache, first_28, 28 * sizeof(seq_t));
         initialized = true;
     }
 
@@ -64,7 +101,7 @@ seq_t a(idx_t n)
         while (new_cap < need) {
             new_cap <<= 1;
         }
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) {
             /* allocation failure – return 0 (should not happen in tests) */
             return (seq_t)0;

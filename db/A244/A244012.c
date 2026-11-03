@@ -12,13 +12,15 @@
  *            keeps a memoised table of (p_n, q_n) pairs so that calls in...
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 3, u64 n <= 4, u128 n <= 5,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 8 terms through n = 7 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *p_cache = NULL;      /* Numerators p_n */
 static seq_t *q_cache = NULL;      /* Denominators q_n */
@@ -29,8 +31,8 @@ static void ensure_cached(idx_t n)
 {
     if (cache_len == 0) {
         /* Initialise with n = 0 term. */
-        p_cache = (seq_t *)malloc(sizeof(seq_t));
-        q_cache = (seq_t *)malloc(sizeof(seq_t));
+        p_cache = mem_new(seq_t, 1);
+        q_cache = mem_new(seq_t, 1);
         if (!p_cache || !q_cache) {
             /* Allocation failed – abort.  In a real project you would
                handle this more gracefully. */
@@ -50,10 +52,8 @@ static void ensure_cached(idx_t n)
         seq_t q_next = (seq_t)2 * p_prev * q_prev;
 
         /* Grow storage to accommodate the new term. */
-        seq_t *p_new = (seq_t *)realloc(p_cache,
-                                        (cache_len + 1) * sizeof(seq_t));
-        seq_t *q_new = (seq_t *)realloc(q_cache,
-                                        (cache_len + 1) * sizeof(seq_t));
+        seq_t *p_new = mem_resize(seq_t, p_cache, (cache_len + 1));
+        seq_t *q_new = mem_resize(seq_t, q_cache, (cache_len + 1));
         if (!p_new || !q_new) {
             exit(1); /* Allocation failure. */
         }

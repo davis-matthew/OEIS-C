@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 49, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
  *            big any n
- * Helpers:   cum_row, seq_alloc_array, seq_free_array
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,9 +26,26 @@
  */
 
 #include <stddef.h>                     /* size_t */
-#include "../utils/seq_alloc_array.h"    /* seq_alloc_array */
-#include "../utils/seq_free_array.h"     /* seq_free_array */
-#include "../utils/cum_row.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
+
+static inline idx_t cum_row(idx_t r)
+{
+    __uint128_t t = (__uint128_t)r * r * r + (__uint128_t)5 * r;
+    t /= 6;
+    return (idx_t)t;
+}
 
 /* Zero a seq_t array of given length. */
 static void zero_seq_array(seq_t *a, size_t len)

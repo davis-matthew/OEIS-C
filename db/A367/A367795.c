@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 39, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   bitlen_seq_t, pow2
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-03)
+ * Helpers:   bit_length, mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,8 +31,10 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#include "../utils/bitlen_seq_t.h"   /* bitlen_seq_t() */
-#include "../utils/pow2.h"           /* pow2() */
+#include <stdbool.h>
+#include "../utils/bit_length.h"
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -58,13 +61,13 @@ seq_t a(idx_t n)
     /* Build rows sequentially up to row r.  Use dynamic allocation
        that is compatible with both C and C++. */
     idx_t prev_len = 2;  /* length of L(1) */
-    seq_t *prev = (seq_t *)malloc(prev_len * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, prev_len);
     prev[0] = (seq_t)1;
     prev[1] = (seq_t)0;
 
     for (idx_t row = 2; row <= r; ++row) {
         idx_t curr_len = 2 * prev_len - 1;
-        seq_t *curr = (seq_t *)calloc(curr_len, sizeof(seq_t));
+        seq_t *curr = mem_new(seq_t, curr_len);
 
         idx_t pos = 0;
         for (idx_t i = 0; i < prev_len; ++i) {
@@ -73,18 +76,18 @@ seq_t a(idx_t n)
                 seq_t x = prev[i];
                 seq_t y = prev[i + 1];
                 /* 0 is considered 1‑bit long */
-                unsigned bits_y = (y == (seq_t)0) ? 1 : bitlen_seq_t(y);
+                unsigned bits_y = (y == (seq_t)0) ? 1 : bit_length(y);
                 seq_t concat = x * pow2(bits_y) + y;
                 curr[pos++] = concat;      /* insert concatenation */
             }
         }
 
-        free(prev);
+        mem_free(prev);
         prev      = curr;
         prev_len  = curr_len;
     }
 
     seq_t result = prev[k];
-    free(prev);
+    mem_free(prev);
     return result;
 }

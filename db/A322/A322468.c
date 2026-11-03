@@ -11,7 +11,8 @@
  *            corresponding to a fixed starting index i and...
  * Range:     u8 n <= 10, u16 n <= 119, u32 n <= 603, u64 n <= 603,
  *            u128 n <= 603, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 562 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Tetrahedral number */
 static inline seq_t tetrahedral(idx_t k)
@@ -53,7 +55,7 @@ static void heap_push(struct node v)
 {
     if (heap_len == heap_cap) {
         size_t new_cap = heap_cap ? heap_cap << 1 : 8;
-        struct node *tmp = (struct node *)realloc(heap, new_cap * sizeof(struct node));
+        struct node *tmp = mem_resize(struct node, heap, new_cap);
         if (!tmp) abort();
         heap     = tmp;
         heap_cap = new_cap;
@@ -99,7 +101,7 @@ seq_t a(idx_t n)
     /* Initialise storage on first call */
     if (res_len == 0) {
         res_cap   = 16;
-        results   = (seq_t *)malloc(res_cap * sizeof(seq_t));
+        results   = mem_new(seq_t, res_cap);
         if (!results) abort();
         results[0] = (seq_t)0;   /* a(1) = 0 */
         res_len   = 1;
@@ -123,7 +125,7 @@ seq_t a(idx_t n)
         if (res_len == 0 || cur.sum != results[res_len - 1]) {
             if (res_len == res_cap) {
                 size_t new_cap = res_cap ? res_cap << 1 : 8;
-                seq_t *tmp = (seq_t *)realloc(results, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, results, new_cap);
                 if (!tmp) abort();
                 results = tmp;
                 res_cap = new_cap;

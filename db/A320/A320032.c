@@ -12,6 +12,7 @@
  *            t! * j^t * This implements the OEIS definition o...
  * Range:     i8 n <= 24, i16 n <= 49, i32 n <= 86, i64 n <= 184,
  *            i128 n <= 428, big any n
+ * Validated: standard, pass, 82 terms through n = 8686 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -12,12 +12,14 @@
  *            -25*(n-5)²*(5n-24)*(5n-23...
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,9 +41,9 @@ seq_t a(idx_t n)
     /* grow cache to hold values up to n */
     size_t new_sz = (size_t)n + 1;
     if (cache == NULL) {
-        cache = (seq_t*)malloc(new_sz * sizeof(seq_t));
+        cache = mem_new(seq_t, new_sz);
     } else {
-        cache = (seq_t*)realloc(cache, new_sz * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_sz);
     }
     if (cache == NULL) {               /* allocation failure, return 0 as a fallback */
         return (seq_t)0;

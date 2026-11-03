@@ -10,7 +10,8 @@
  *            7, a(4) = 11, …
  * Range:     u8 n <= 27, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 61 terms through n = 994 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
 #include "../utils/is_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 typedef seq_t seq_t;
 typedef idx_t idx_t;
@@ -41,7 +44,7 @@ static bool ok_for_prime(idx_t p)
         return true;  /* 14 ≡ 0 (mod p) → 0² = 0, hence residue */
 
     /* Euler's criterion: (14|p) ≡ 14^((p-1)/2) (mod p) */
-    seq_t r = mod_pow((seq_t)14, (p - 1) >> 1, (seq_t)p);
+    seq_t r = powmod((seq_t)14, (p - 1) >> 1, (seq_t)p);
     return (r == (seq_t)1) || (r == (seq_t)0);  /* only r==1 for odd primes */
 }
 
@@ -49,7 +52,7 @@ static void ensure_cache(idx_t n)
 {
     if (cache == NULL) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache_len = 0;
     }
 
@@ -59,7 +62,7 @@ static void ensure_cache(idx_t n)
             if (ok_for_prime(current_checked)) {
                 if (cache_len == cache_cap) {
                     cache_cap *= 2;
-                    cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cache_cap);
                 }
                 cache[cache_len++] = (seq_t)current_checked;
             }

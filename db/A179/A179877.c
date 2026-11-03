@@ -10,7 +10,8 @@
  *            and that of h+1 are equal and integral
  * Range:     u8 n <= 10, u16 n <= 2281, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 9314 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* ---------- integer square root for uint64_t ---------- */
 static uint64_t isqrt_u64(uint64_t n)
@@ -171,7 +173,7 @@ static void cache_ensure_capacity(size_t need)
     if (CACHE_CAP >= need) return;
     size_t new_cap = CACHE_CAP ? CACHE_CAP << 1 : 64;
     while (new_cap < need) new_cap <<= 1;
-    CACHE = (seq_t *)realloc(CACHE, new_cap * sizeof(seq_t));
+    CACHE = mem_resize(seq_t, CACHE, new_cap);
     CACHE_CAP = new_cap;
 }
 

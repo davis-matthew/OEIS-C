@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   diff_all_digits
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,21 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/diff_all_digits.h"
+#include "../utils/mem.h"
+
+/* Auxiliary: test if all decimal digits of a and b differ.
+   Missing higher‑order digits are treated as 0. */
+static bool diff_all_digits(seq_t a, seq_t b)
+{
+    while (a > 0 || b > 0) {
+        unsigned da = (a > 0) ? (unsigned)(a % 10) : 0;
+        unsigned db = (b > 0) ? (unsigned)(b % 10) : 0;
+        if (da == db) return false;
+        a = (a > 0) ? a / 10 : 0;
+        b = (b > 0) ? b / 10 : 0;
+    }
+    return true;
+}
 
 /* Ensure the boolean array "used" can index at least k. */
 static void ensure_used_idx(idx_t k, bool **used, size_t *used_size)
@@ -55,9 +70,9 @@ static void init_once(void)
 
     /* Initial space for seq[1] */
     seq_size = 16;
-    seq = (seq_t *)malloc(seq_size * sizeof(seq_t));
+    seq = mem_new(seq_t, seq_size);
     if (!seq) abort();
-    memset(seq, 0, seq_size * sizeof(seq_t));
+    mem_set(seq, 0, seq_size * sizeof(seq_t));
 
     seq[1] = (seq_t)1;  /* a(1) = 1 */
     seq_used = 1;
@@ -79,9 +94,9 @@ seq_t a(idx_t n)
     if ((size_t)n >= seq_size) {
         size_t new_size = seq_size ? seq_size * 2 : 16;
         while (new_size <= (size_t)n) new_size <<= 1;
-        seq_t *new_seq = (seq_t *)realloc(seq, new_size * sizeof(seq_t));
+        seq_t *new_seq = mem_resize(seq_t, seq, new_size);
         if (!new_seq) abort();
-        memset(new_seq + seq_size, 0, (new_size - seq_size) * sizeof(seq_t));
+        mem_set(new_seq + seq_size, 0, (new_size - seq_size) * sizeof(seq_t));
         seq = new_seq;
         seq_size = new_size;
     }

@@ -7,12 +7,15 @@
  * Formula:   a(2n) = (3^n - 1)/2, a(2n+1) = 3^n
  * Range:     u8 n <= 11, u16 n <= 21, u32 n <= 41, u64 n <= 82, u128 n <= 161,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 54 terms through n = 3955 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"   /* provides seq_t big_pow(seq_t base, seq_t exp) */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -43,7 +46,7 @@ seq_t a(idx_t n)
     }
 
     /* Arbitrary‑precision build. */
-    seq_t p = big_pow((seq_t)3, (seq_t)m);
+    seq_t p = ipow((seq_t)3, (seq_t)m);
     if ((n & 1ULL) == 0ULL)                /* even index */
         return (p - 1) / 2;
     else                                   /* odd index */

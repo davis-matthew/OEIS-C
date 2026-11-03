@@ -11,7 +11,8 @@
  *            = 357356, a(9) = 1032000, a(10) = 3365824, a(11) = 11680176
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 16, u64 n <= 34, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* cache[0] = a(1), cache[1] = a(2), ...  */
 static size_t cache_cap = 0;     /* allocated capacity of cache          */
@@ -48,11 +50,11 @@ static void grow_cache(size_t needed)
     if (needed <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 32;
     if (new_cap < needed) new_cap = needed;
-    seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, new_cap);
     if (!tmp) abort();
     if (cache) {
-        memcpy(tmp, cache, cache_size * sizeof(seq_t));
-        free(cache);
+        mem_copy(tmp, cache, cache_size * sizeof(seq_t));
+        mem_free(cache);
     }
     cache     = tmp;
     cache_cap = new_cap;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   mul_u128
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,15 +25,16 @@
  */
 
 #include <stdlib.h>   /* for realloc, abort */
-#include "../utils/mul_u128.h"
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 static inline uint64_t pow_u64(uint64_t base, idx_t exp, uint64_t mod)
 {
     uint64_t res = 1 % mod;
     base %= mod;
     while (exp) {
-        if (exp & 1U) res = mul_u128(res, base, mod);
-        base = mul_u128(base, base, mod);
+        if (exp & 1U) res = mulmod(res, base, mod);
+        base = mulmod(base, base, mod);
         exp >>= 1;
     }
     return res;
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
         if (sum == 0) {   /* m satisfies the condition */
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap << 1 : 16;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) abort();          /* allocation failure */
                 cache = tmp;
                 cache_cap = new_cap;

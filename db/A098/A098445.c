@@ -8,6 +8,7 @@
  *            (-1)^k (mod 5), i.e. 1 if k is even, 4 if k is odd
  * Range:     u8 n <= 101, u16 n <= 101, u32 n <= 101, u64 n <= 101,
  *            u128 n <= 101, big any n
+ * Validated: partial, pass, 102 terms through n = 101 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

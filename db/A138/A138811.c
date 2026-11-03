@@ -9,7 +9,8 @@
  *            even, 0 if Kronecker(-43,p)=-1 and e odd
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   powmod64
+ * Validated: standard, pass, 103 terms through n = 9622 (2026-11-01)
+ * Helpers:   powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,13 +19,14 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/powmod64.h"   /* powmod64(uint64_t, uint64_t, uint64_t) */
+#include <stdbool.h>
+#include "../utils/powmod_u64.h"
 
 static int legendre_43(uint64_t p)
 /* returns (43|p), Legendre symbol for odd prime p. */
 {
     uint64_t a = 43ULL % p;
-    uint64_t res = powmod64(a, (p - 1) / 2, p);
+    uint64_t res = powmod_u64(a, (p - 1) / 2, p);
     if (res == 1) return 1;
     if (res == p - 1) return -1;
     return 0;   /* never happens for a prime p */

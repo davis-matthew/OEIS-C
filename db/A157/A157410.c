@@ -7,13 +7,15 @@
  * Formula:   a(n) = largest prime ≤ 100 * n
  * Range:     u8 n <= 2, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static state for incremental sieve */
 static idx_t sieve_limit = 0;      /* currently sieved up to index */
@@ -56,7 +58,7 @@ static void ensure_sieve(idx_t limit)
     }
 
     /* enlarge prefix array holding largest prime ≤ i */
-    seq_t *new_last = (seq_t *)realloc(last_prime, sizeof(seq_t) * (limit + 1));
+    seq_t *new_last = mem_resize(seq_t, last_prime, (limit + 1));
     if (!new_last)
         abort();
     last_prime = new_last;

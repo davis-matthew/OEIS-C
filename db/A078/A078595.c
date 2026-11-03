@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = |{(x,y) : 1≤x≤y≤n , 1/x+1/y+1/n = 1/2}|
- * Range:     u8 n <= 36, u16 n <= 1071, u32 n <= 9758, u64 n <= 9758,
- *            u128 n <= 9758, big any n
+ * Range:     u8 n <= 36, u16 n <= 1071, u32 n <= 11380, u64 n <= 11380,
+ *            u128 n <= 11380, big any n
+ * Validated: standard, pass, 116 terms through n = 9758 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

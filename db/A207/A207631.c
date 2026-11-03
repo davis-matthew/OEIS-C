@@ -11,12 +11,14 @@
  *            coefficient read row by row (1‑based)
  * Range:     u8 n <= 30, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return the n‑th term of OEIS sequence A207631. */
 seq_t a(idx_t n)
@@ -40,10 +42,10 @@ seq_t a(idx_t n)
 
     /* Allocate buffers for the two most recent rows of u and v. */
     size_t max_row = (size_t)r;
-    seq_t *u_prev = (seq_t *)calloc(max_row,          sizeof(seq_t));
-    seq_t *u_cur  = (seq_t *)calloc(max_row,          sizeof(seq_t));
-    seq_t *v_prev = (seq_t *)calloc(max_row + 1,      sizeof(seq_t));
-    seq_t *v_cur  = (seq_t *)calloc(max_row + 1,      sizeof(seq_t));
+    seq_t *u_prev = mem_new(seq_t, max_row);
+    seq_t *u_cur  = mem_new(seq_t, max_row);
+    seq_t *v_prev = mem_new(seq_t, max_row + 1);
+    seq_t *v_cur  = mem_new(seq_t, max_row + 1);
 
     /* Initial values for row 1. */
     u_prev[0] = (seq_t)1;
@@ -87,10 +89,10 @@ seq_t a(idx_t n)
     seq_t result = u_prev[j];
 
     /* Clean up. */
-    free(u_cur);
-    free(v_cur);
-    free(u_prev);
-    free(v_prev);
+    mem_free(u_cur);
+    mem_free(v_cur);
+    mem_free(u_prev);
+    mem_free(v_prev);
 
     return result;
 }

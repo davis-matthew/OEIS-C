@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   cmp_seq_t_custom
+ * Validated: full, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,15 @@
    For each solution (x,y,z) the value of the sequence is a(n) = x+y+z. */
 
 #include <stdlib.h>
-#include "../utils/cmp_seq_t_custom.h"
+#include "../utils/mem.h"
+
+/* simple comparison function for qsort */
+static int cmp_seq_t_custom(const void *a, const void *b)
+{
+    seq_t v1 = *(const seq_t *)a;
+    seq_t v2 = *(const seq_t *)b;
+    return (v1 < v2) ? -1 : (v1 > v2);
+}
 
 /* static storage for all solutions (45 known triangles) */
 static seq_t solutions[100];
@@ -70,7 +79,7 @@ static void init_solutions(void)
 
     /* sort the values; duplicates are kept exactly as many times as they
        occur (different triangles with same perimeter) */
-    qsort(solutions, solcnt, sizeof(seq_t), cmp_seq_t_custom);
+    mem_qsort(solutions, solcnt, sizeof(seq_t), cmp_seq_t_custom);
 }
 
 /* public function */

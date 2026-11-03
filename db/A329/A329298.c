@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 34, u16 n <= 52, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   nondecreasing
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,22 @@
  * digits are in nondecreasing order. A dynamic cache allows arbitrary call order. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/nondecreasing.h"
+#include "../utils/mem.h"
+
+static bool nondecreasing(seq_t v, int base)
+{
+    if (v == (seq_t)0) return true;           /* 0 is trivially nondecreasing */
+    seq_t cur  = v;
+    seq_t prev = (seq_t)base;                 /* larger than any digit */
+    while (cur > 0) {
+        seq_t rem = cur % (seq_t)base;
+        if (rem > prev) return false;         /* digit smaller than a more
+                                                 significant one ⇒ decreasing */
+        prev = rem;
+        cur  /= (seq_t)base;
+    }
+    return true;
+}
 
 static bool is_valid(seq_t v)
 {
@@ -40,7 +56,7 @@ static void grow_cache(size_t needed)
     if (cache_cap >= needed) return;
     size_t new_cap = cache_cap ? cache_cap << 1 : 16;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) exit(1);
     cache = new_cache;
     cache_cap = new_cap;

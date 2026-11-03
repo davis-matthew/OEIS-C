@@ -14,15 +14,37 @@
  *            valid modu...
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 18, u128 n <= 29,
  *            big any n
- * Helpers:   b1171_big, b1171_is_fixed
+ * Validated: standard, pass, 35 terms through n = 99 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <string.h>
-#include "../utils/b1171_big.h"
-#include "../utils/b1171_is_fixed.h"
+
+static seq_t b1171_big(idx_t n) {
+    seq_t a1 = (seq_t)20, a2 = (seq_t)4, a3 = (seq_t)1, a4 = (seq_t)1;
+    idx_t k;
+    for (k = 5; k <= n; k++) {
+        seq_t K = (seq_t)k;
+        seq_t c1 = (seq_t)4 * K - 1;
+        seq_t c2 = (seq_t)5 * K * K * K + (seq_t)13 * K - (seq_t)16 * K * K - 1;
+        seq_t c3 = (seq_t)10 * K * K * K + (seq_t)150 * K - (seq_t)68 * K * K - 107;
+        seq_t c4 = (K - 4) * (K - 2) * (K - 2) * ((seq_t)2 * K - 7) * ((seq_t)2 * K - 7);
+        seq_t pos = c2 * a2 + c3 * a3;
+        seq_t neg = c1 * a1 + c4 * a4;
+        seq_t nx = (pos - neg) / (K + 1);
+        a4 = a3; a3 = a2; a2 = a1; a1 = nx;
+    }
+    return a1;
+}
+
+static int b1171_is_fixed(void) {
+    seq_t m = (seq_t)0;
+    m = m - 1;
+    return m > 0;
+}
 
 #define B1171_L 48
 #define B1171_CAP 80

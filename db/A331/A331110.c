@@ -14,7 +14,8 @@
  *            maximum element (ties broken by taking the larger number...
  * Range:     u8 n <= 119, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: standard, pass, 82 terms through n = 8774 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,9 @@
 #include <stddef.h>
 #include <limits.h>
 
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -144,7 +146,7 @@ seq_t a(idx_t n)
                     for (int t = 2; t <= j; ++t) fv[t] = fv[t-1] + fv[t-2];
                     term = fv[j];
                 }
-                seq_t pt = big_pow((seq_t)p, (seq_t)term);
+                seq_t pt = ipow((seq_t)p, (seq_t)term);
                 prod *= (pt + (seq_t)1);
             }
         }

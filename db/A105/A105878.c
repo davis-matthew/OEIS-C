@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 18, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
- *            big any n
- * Helpers:   is_prime64, modpow64
+ * Range:     u8 n <= 18, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
+ *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 72 terms through n = 908 (2026-11-03)
+ * Helpers:   is_prime_u64, mem, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,10 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/is_prime64.h"
-#include "../utils/modpow64.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/powmod_u64.h"
+#include "../utils/mem.h"
 
 /* dynamic array of primes up to the current candidate */
 static idx_t *prime_arr   = NULL;
@@ -50,7 +53,7 @@ static void ensure_found_cap(idx_t need)
     if (found_cap < need) {
         idx_t new_cap = found_cap ? found_cap * 2 : 32;
         if (new_cap < need) new_cap = need;
-        found_arr = (seq_t *)realloc(found_arr, new_cap * sizeof(seq_t));
+        found_arr = mem_resize(seq_t, found_arr, new_cap);
         found_cap = new_cap;
     }
 }
@@ -67,11 +70,11 @@ static bool is_prime_primitive_root(idx_t p)
         if (q * q > temp) break;
         if (temp % q == 0) {
             while (temp % q == 0) temp /= q;
-            if (modpow64(base, (p - 1) / q, p) == 1) return false;
+            if (powmod_u64(base, (p - 1) / q, p) == 1) return false;
         }
     }
     if (temp > 1) { /* remaining prime factor */
-        if (modpow64(base, (p - 1) / temp, p) == 1) return false;
+        if (powmod_u64(base, (p - 1) / temp, p) == 1) return false;
     }
     return true;
 }
@@ -87,7 +90,7 @@ seq_t a(idx_t n)
         idx_t cur = next_candidate;
 
         /* find next prime */
-        while (!is_prime64(cur)) ++cur;
+        while (!is_prime_u64(cur)) ++cur;
 
         /* store the prime for factorisation of larger candidates */
         add_prime(cur);

@@ -9,12 +9,14 @@
  *            for n≥1 (Recurrence from OEIS A352010)
  * Range:     i8 n <= 8, i16 n <= 13, i32 n <= 24, i64 n <= 45, i128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 980 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* Ensure capacity for at least n+1 entries */
     if (memo == NULL) {
         memo_cap = (size_t)n + 1;
-        memo = (seq_t *)malloc(memo_cap * sizeof(seq_t));
+        memo = mem_new(seq_t, memo_cap);
         if (memo == NULL) return (seq_t)0;  /* allocation failure, return 0 */
         memo[0] = (seq_t)1;  /* a(0)=1 */
         memo_len = 1;
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
         /* Grow the cache if necessary */
         size_t new_cap = memo_cap * 2;
         while ((size_t)n + 1 > new_cap) new_cap *= 2;
-        seq_t *new_mem = (seq_t *)realloc(memo, new_cap * sizeof(seq_t));
+        seq_t *new_mem = mem_resize(seq_t, memo, new_cap);
         if (new_mem == NULL) return (seq_t)0;  /* allocation failure */
         memo = new_mem;
         memo_cap = new_cap;

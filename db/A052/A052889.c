@@ -7,12 +7,14 @@
  * Formula:   a(n) = n*Bell(n-1) (Bell(0)=1)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 15, u64 n <= 25, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 558 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,12 +28,12 @@ seq_t a(idx_t n)
     /* Helper to initialise static arrays on first use. */
     if (bell == NULL) {
         bell_cap = 1;
-        bell = (seq_t *)malloc(bell_cap * sizeof(seq_t));
+        bell = mem_new(seq_t, bell_cap);
         bell[0] = (seq_t)1;            /* Bell(0) = 1 */
         bell_last = 0;
 
         row_len = 1;
-        row = (seq_t *)malloc(row_len * sizeof(seq_t));
+        row = mem_new(seq_t, row_len);
         row[0] = (seq_t)1;              /* row[0] = 1  */
     }
 
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
         for (size_t i = bell_last + 1; i <= (size_t)up_to; ++i) {
             /* New row length is one larger. */
             size_t new_len = row_len + 1;
-            seq_t *new_row = (seq_t *)malloc(new_len * sizeof(seq_t));
+            seq_t *new_row = mem_new(seq_t, new_len);
 
             /* First element of new row = last element of previous row. */
             new_row[0] = row[row_len - 1];
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
             /* Store the new Bell number (first element of the new row). */
             if (i >= bell_cap) {
                 size_t new_cap = bell_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(bell, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, bell, new_cap);
                 if (tmp == NULL) {
                     /* In a real application, handle out‑of‑memory here. */
                     exit(1);
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
             bell[i] = new_row[0];
 
             /* Advance to next row. */
-            free(row);
+            mem_free(row);
             row = new_row;
             row_len = new_len;
             bell_last = i;

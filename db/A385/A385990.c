@@ -9,13 +9,15 @@
  *            a(k) * a(n-1-k) (n ≥ 1)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 9, u128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* uses the generic seq_t/idx_t types supplied by the build */
 seq_t a(idx_t n)
@@ -32,13 +34,13 @@ seq_t a(idx_t n)
         size_t newcap = (cap == 0 ? 16 : cap * 2);
         while (newcap < (size_t)(n + 1))
             newcap *= 2;
-        seq_t *tmp = (seq_t *)realloc(table, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, table, newcap);
         if (!tmp) exit(1);
         table = tmp;
-        tmp = (seq_t *)realloc(pow2, newcap * sizeof(seq_t));
+        tmp = mem_resize(seq_t, pow2, newcap);
         if (!tmp) exit(1);
         pow2 = tmp;
-        tmp = (seq_t *)realloc(pow3, newcap * sizeof(seq_t));
+        tmp = mem_resize(seq_t, pow3, newcap);
         if (!tmp) exit(1);
         pow3 = tmp;
         cap = newcap;

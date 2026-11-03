@@ -11,13 +11,15 @@
  *            sequences
  * Range:     u8 n <= 5, u16 n <= 16, u32 n <= 39, u64 n <= 85, u128 n <= 177,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 946 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *a_seq = NULL;
 static seq_t *b_seq = NULL;
@@ -32,7 +34,7 @@ static void ensure_cap(size_t *cap, seq_t **arr, size_t needed)
     if (*cap >= needed) return;
     size_t newcap = (*cap > 0) ? (*cap * 2) : 8;
     while (newcap < needed) newcap <<= 1;
-    *arr = (seq_t *)realloc(*arr, newcap * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, newcap);
     *cap = newcap;
 }
 

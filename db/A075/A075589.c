@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 236, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_uint64, next_prime
+ * Validated: standard, pass, 62 terms through n = 9721 (2026-11-03)
+ * Helpers:   is_prime_u64, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,9 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+#include "../utils/is_prime_u64.h"
 #include "../utils/next_prime.h"
-#include "../utils/is_prime_uint64.h"
+#include "../utils/mem.h"
 
 /* ----- Prime sieve up to a fixed limit ----- */
 #define SIEVE_MAX 10000000UL  /* enough for factorisation up to 10^14          */
@@ -77,7 +79,7 @@ static bool satisfies(uint64_t p)
     size_t seen_cnt = 0;
 
     for (uint64_t n = p + 1; n < q; ++n) {
-        if (is_prime_uint64(n))
+        if (is_prime_u64(n))
             continue;   /* skip primes */
 
         uint64_t m = n;
@@ -133,10 +135,10 @@ static void cache_append(seq_t val)
 {
     if (cache.cap == 0) {
         cache.cap = 16;
-        cache.data = (seq_t*)malloc(cache.cap * sizeof(seq_t));
+        cache.data = mem_new(seq_t, cache.cap);
     } else if (cache.len == cache.cap) {
         cache.cap <<= 1;
-        cache.data = (seq_t*)realloc(cache.data, cache.cap * sizeof(seq_t));
+        cache.data = mem_resize(seq_t, cache.data, cache.cap);
     }
     cache.data[cache.len++] = val;
 }

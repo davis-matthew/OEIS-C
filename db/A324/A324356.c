@@ -8,7 +8,8 @@
  * Formula:   a(n) = Σ_{k=1..n} (-1)^{k+1} * (n! / k!) * C(n - k + 6, 6)
  * Range:     u8 n <= 0, u16 n <= 4, u32 n <= 9, u64 n <= 16, u128 n <= 30,
  *            big any n
- * Helpers:   comb6
+ * Validated: standard, pass, 36 terms through n = 444 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,20 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/comb6.h"
+#include "../utils/mem.h"
+
+/* Small binomial C(m,6) for m >= 0, computed directly */
+static seq_t comb6(idx_t m)
+{
+    if (m < 6)
+        return 0;
+    seq_t c = 1;
+    for (idx_t i = 0; i < 6; ++i) {
+        c *= (seq_t)(m - i);
+    }
+    c /= 720;              /* 6! */
+    return c;
+}
 
 /* Cached factorials */
 static seq_t *fact_cache = NULL;
@@ -31,14 +45,13 @@ static void ensure_factorial_cache(idx_t n)
         return;
 
     size_t new_size = (size_t)(n + 1);
-    seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_size);
     if (!new_cache)
         return;                /* allocation failed – return 0 values */
 
     if (fact_cache != NULL) {
-        memcpy(new_cache, fact_cache,
-               (size_t)(fact_cache_max + 1) * sizeof(seq_t));
-        free(fact_cache);
+        mem_copy(new_cache, fact_cache, (size_t)(fact_cache_max + 1) * sizeof(seq_t));
+        mem_free(fact_cache);
     }
 
     if (fact_cache == NULL) {   /* initialise from scratch */

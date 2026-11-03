@@ -7,6 +7,7 @@
  * Formula:   a(0) = 11; for n≥1, a(n) = [2,4,11,4,2,22][(n-1) % 6]
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
+ * Validated: partial, pass, 70 terms through n = 69 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

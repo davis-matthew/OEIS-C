@@ -11,21 +11,24 @@
  * Formula:   a(n) = 343*15^(n-3) - 264*7^(n-3) + 52*3^(n-3) - 2
  * Range:     u8 none, u16 n <= 5, u32 n <= 9, u64 n <= 17, u128 n <= 20,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 17 terms through n = 20 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
     if (n < 4)
         return 0;
     seq_t e = (seq_t)(n - 3);
-    seq_t p15 = big_pow((seq_t)15, e);
-    seq_t p7  = big_pow((seq_t)7,  e);
-    seq_t p3  = big_pow((seq_t)3,  e);
+    seq_t p15 = ipow((seq_t)15, e);
+    seq_t p7  = ipow((seq_t)7,  e);
+    seq_t p3  = ipow((seq_t)3,  e);
     seq_t res = (seq_t)343 * p15 - (seq_t)264 * p7 + (seq_t)52 * p3 - (seq_t)2;
     return res;
 }

@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_cube_product
+ * Validated: standard, pass, 116 terms through n = 992 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,24 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_cube_product.h"
+
+/* Test whether a non‑negative 128‑bit integer is an exact cube. */
+static bool is_cube_product(__int128 prod)
+{
+    if (prod < 0) return false;
+    __int128 lo = 0, hi = 1;
+    /* Find an upper bound for the cube root. */
+    while (hi * hi * hi <= prod) hi <<= 1;
+    /* Binary search for the cube root. */
+    while (lo < hi) {
+        __int128 mid = (lo + hi + 1) >> 1;
+        if (mid * mid * mid <= prod)
+            lo = mid;
+        else
+            hi = mid - 1;
+    }
+    return lo * lo * lo == prod;
+}
 
 /* Cache of sigma values up to the largest n seen so far. */
 static uint64_t *sigma_cache = NULL;

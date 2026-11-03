@@ -13,17 +13,60 @@
  *            q...
  * Range:     u8 n <= 0, u16 n <= 3, u32 n <= 11, u64 n <= 43, u128 n <= 164,
  *            big any n
- * Helpers:   alloc_zero, div_e3, grow_zero, u128_to_seq
+ * Validated: standard, pass, 37 terms through n = 9026 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/grow_zero.h"
-#include "../utils/alloc_zero.h"
-#include "../utils/u128_to_seq.h"
-#include "../utils/div_e3.h"
+#include <string.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static seq_t u128_to_seq(unsigned __int128 u)
+{
+    seq_t r = 0;
+    int k;
+    for (k = 3; k >= 0; k--) {
+        r = r * 65536ULL;
+        r = r * 65536ULL;
+        r += (seq_t)(uint64_t)(uint32_t)(u >> (32 * k));
+    }
+    return r;
+}
+
+/* in-place division of series G (length len) by eta(q^step)^3 / q^(step/8) */
+static void div_e3(seq_t *g, idx_t len, idx_t step)
+{
+    idx_t n, m, t;
+    for (n = 1; n < len; n++) {
+        seq_t pos = g[n], neg = 0;
+        for (m = 1; (t = step * m * (m + 1) / 2) <= n; m++) {
+            if (m & 1) pos += g[n - t] * (2 * m + 1);
+            else neg += g[n - t] * (2 * m + 1);
+        }
+        g[n] = pos - neg;
+    }
+}
 
 static idx_t cap = 0;
 static seq_t *G = NULL;               /* coeffs of prod 1/((1-q^k)^6 (1-q^3k)^6) */

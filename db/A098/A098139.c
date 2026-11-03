@@ -7,14 +7,16 @@
  * Formula:   a(n) = 2^p + 3^p + 5^p + 7^p where p = prime(n) (1‑based)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 5, u64 n <= 8, u128 n <= 12,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 12 terms through n = 12 (2026-11-03)
+ * Helpers:   ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/seq_pow.h"  /* seq_pow(seq_t base, idx_t exp) */
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
 
 static seq_t *prime_list = NULL;          /* array of primes (1‑based) */
 static idx_t  prime_count = 0;            /* number of primes stored   */
@@ -48,7 +50,7 @@ static void ensure_primes(idx_t n_needed)
 
     if (!prime_list) {
         prime_cap   = 128;
-        prime_list  = (seq_t *)calloc(prime_cap, sizeof(seq_t));
+        prime_list  = mem_new(seq_t, prime_cap);
     }
 
     seq_t candidate = (prime_count == 0) ? 2 : prime_list[prime_count - 1] + 1;
@@ -56,7 +58,7 @@ static void ensure_primes(idx_t n_needed)
         if (is_prime_candidate((seq_t)candidate)) {
             if (prime_count >= prime_cap) {
                 prime_cap  *= 2;
-                prime_list = (seq_t *)realloc(prime_list, prime_cap * sizeof(seq_t));
+                prime_list = mem_resize(seq_t, prime_list, prime_cap);
             }
             prime_list[prime_count++] = candidate;
         }
@@ -76,10 +78,10 @@ seq_t a(idx_t n)
     seq_t p = prime_list[n - 1];
 
     /* compute 2^p + 3^p + 5^p + 7^p */
-    seq_t term2 = seq_pow((seq_t)2, (idx_t)p);
-    seq_t term3 = seq_pow((seq_t)3, (idx_t)p);
-    seq_t term5 = seq_pow((seq_t)5, (idx_t)p);
-    seq_t term7 = seq_pow((seq_t)7, (idx_t)p);
+    seq_t term2 = ipow_idx((seq_t)2, (idx_t)p);
+    seq_t term3 = ipow_idx((seq_t)3, (idx_t)p);
+    seq_t term5 = ipow_idx((seq_t)5, (idx_t)p);
+    seq_t term7 = ipow_idx((seq_t)7, (idx_t)p);
 
     return term2 + term3 + term5 + term7;
 }

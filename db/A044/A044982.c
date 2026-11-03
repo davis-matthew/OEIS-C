@@ -9,7 +9,8 @@
  *            0's and two 1's (offset 1)
  * Range:     u8 n <= 4, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Cached powers of 3, pow3[i] = 3^i */
 static seq_t *pow3      = NULL;
@@ -36,7 +38,7 @@ static void ensure_pow3(idx_t n)
     if (pow3_len > (size_t)n) return;
     size_t new_cap = pow3_cap ? pow3_cap : 4;
     while (new_cap <= (size_t)n) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(pow3, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, pow3, new_cap);
     if (!tmp) exit(1);
     pow3 = tmp;
     pow3_cap = new_cap;
@@ -54,7 +56,7 @@ static void ensure_cache_capacity(size_t needed)
     if (cache_cap >= needed) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 64;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) exit(1);
     cache = tmp;
     cache_cap = new_cap;
@@ -94,7 +96,7 @@ seq_t a(idx_t n)
             oneComb /= t;
         }
         size_t termsCap = zeroComb * oneComb;
-        seq_t *buf = (seq_t *)malloc(termsCap * sizeof(seq_t));
+        seq_t *buf = mem_new(seq_t, termsCap);
         if (!buf) exit(1);
         size_t buf_len = 0;
 
@@ -128,13 +130,13 @@ seq_t a(idx_t n)
         }
 
         /* Sort the terms of this length. */
-        qsort(buf, buf_len, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(buf, buf_len, sizeof(seq_t), cmp_seq_t);
 
         /* Append sorted terms to the global cache. */
         ensure_cache_capacity(cache_len + buf_len);
-        memcpy(cache + cache_len, buf, buf_len * sizeof(seq_t));
+        mem_copy(cache + cache_len, buf, buf_len * sizeof(seq_t));
         cache_len += buf_len;
-        free(buf);
+        mem_free(buf);
     }
 
     return cache[n - 1];

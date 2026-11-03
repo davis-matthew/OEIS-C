@@ -8,13 +8,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Computation of OEIS A039850.
    a(n) counts partitions of n such that
@@ -34,8 +36,8 @@ static idx_t max_computed = 0;  /* highest index cached so far              */
 static void recompute_upto(idx_t new_n)
 {
     /* Allocate new arrays */
-    seq_t *new_f = (seq_t *)malloc(sizeof(seq_t) * (new_n + 1));
-    seq_t *new_a = (seq_t *)malloc(sizeof(seq_t) * (new_n + 1));
+    seq_t *new_f = mem_new(seq_t, (new_n + 1));
+    seq_t *new_a = mem_new(seq_t, (new_n + 1));
 
     /* Initialise to zero */
     for (idx_t i = 0; i <= new_n; ++i) {
@@ -93,8 +95,8 @@ static void recompute_upto(idx_t new_n)
     }
 
     /* Replace old cache with new one */
-    if (cache_f) free(cache_f);
-    if (cache_a) free(cache_a);
+    if (cache_f) mem_free(cache_f);
+    if (cache_a) mem_free(cache_a);
     cache_f = new_f;
     cache_a = new_a;
     max_computed = new_n;

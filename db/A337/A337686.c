@@ -10,18 +10,19 @@
  *            divisor_count_u64 from the utils.)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64
+ * Validated: standard, pass, 106 terms through n = 9748 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
 
 seq_t a(idx_t n) {
     /* τ(n) */
-    seq_t dn = divisor_count_u64((uint64_t)n);
+    seq_t dn = num_divisors((uint64_t)n);
     /* For odd n, k = 2 is always minimal */
     if ((n & 1) == 1) {
         return (seq_t)2;
@@ -29,7 +30,7 @@ seq_t a(idx_t n) {
     /* For even n, search k = 2,3,... until condition holds */
     for (idx_t k = 2; ; ++k) {
         uint64_t prod = (uint64_t)n * (uint64_t)k;
-        seq_t dnk = divisor_count_u64(prod);
+        seq_t dnk = num_divisors(prod);
         if (dnk == 2 * dn) {
             return (seq_t)k;
         }

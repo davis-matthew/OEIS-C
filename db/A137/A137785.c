@@ -12,13 +12,18 @@
  *            triangular array, row 1 having 2 elements, row 2 having...
  * Range:     u8 n <= 15, u16 n <= 35, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   triangular_cumsum
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/triangular_cumsum.h"
+
+/* Computes the triangular cumulative sum: T(r) = r(r+3)/2  (1‑based rows). */
+static inline idx_t triangular_cumsum(idx_t r) {
+    return r * (r + 3) / 2;
+}
 
 /* Returns the nth term of the sequence (1‑based index). */
 seq_t a(idx_t n) {

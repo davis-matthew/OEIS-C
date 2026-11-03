@@ -10,14 +10,42 @@
  *            one digit
  * Range:     u8 n <= 3, u16 n <= 28, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   one_digit_diff
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/one_digit_diff.h"
+#include "../utils/mem.h"
+
+static bool one_digit_diff(seq_t a, seq_t b)
+{
+    int ca[10] = {0};
+    int cb[10] = {0};
+    while (a > 0) {
+        ca[(int)(a % 10)]++;
+        a /= 10;
+    }
+    while (b > 0) {
+        cb[(int)(b % 10)]++;
+        b /= 10;
+    }
+    int plus = 0, minus = 0;
+    for (int d = 0; d < 10; ++d) {
+        int delta = ca[d] - cb[d];
+        if (delta == 0) continue;
+        if (delta == 1) {
+            ++plus;
+        } else if (delta == -1) {
+            ++minus;
+        } else {
+            return false;
+        }
+    }
+    return (plus == 1 && minus == 1);
+}
 
 seq_t a(idx_t n)
 {
@@ -27,7 +55,7 @@ seq_t a(idx_t n)
     static idx_t next_m = 1;
 
     if ((size_t)n > cap) {
-        seq_t *new_cache = (seq_t *)realloc(cache, (size_t)n * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (size_t)n);
         if (!new_cache) abort();
         cache = new_cache;
         cap = (size_t)n;

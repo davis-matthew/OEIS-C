@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 4, u16 n <= 40, u32 n <= 69, u64 n <= 69, u128 n <= 69,
+ * Range:     u8 n <= 7, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   has_two_square_rep, is_near_hypotenuse, isqrt_generic
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-03)
+ * Helpers:   isqrt_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,9 +33,50 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/has_two_square_rep.h"
-#include "../utils/is_near_hypotenuse.h"
-#include "../utils/isqrt_generic.h"
+#include "../utils/isqrt_seq.h"
+#include "../utils/mem.h"
+
+/* Test whether m > 0 can be expressed as a²+b² with a,b > 1. */
+static int has_two_square_rep(seq_t m)
+{
+    if (m < 8)                     /* 2²+2² = 8 is the smallest admissible sum */
+        return 0;
+
+    seq_t limit = isqrt_seq(m - 4);   /* a² ≤ m–4 because b² ≥ 4 (b>1) */
+
+    for (seq_t a = 2; a <= limit; ++a)
+    {
+        seq_t a2 = a * a;
+        seq_t b2 = m - a2;
+        if (b2 < 4)   /* b > 1 ⇒ b² ≥ 4 */
+            continue;
+
+        seq_t b = isqrt_seq(b2);
+        if (b * b == b2 && b > 1)
+            return 1;
+    }
+    return 0;
+}
+
+/* Test whether n is a near hypotenuse number. */
+static int is_near_hypotenuse(seq_t n)
+{
+    seq_t n2 = n * n;
+
+    /* n² + 1 */
+    seq_t pos = n2 + 1;
+    if (has_two_square_rep(pos))
+        return 1;
+
+    /* n² – 1 (guard against underflow when n == 0) */
+    if (n > 0)
+    {
+        seq_t neg = n2 - 1;
+        if (has_two_square_rep(neg))
+            return 1;
+    }
+    return 0;
+}
 
 /* --------------------------------------------------------------------- */
 /* Local caching of found terms, to allow out‑of‑order queries.          */
@@ -50,7 +92,7 @@ static void cache_push(seq_t val)
     if (cache_len == cache_cap)
     {
         cache_cap = (cache_cap > 0) ? cache_cap * 2 : 16;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
     cache[cache_len++] = val;
 }

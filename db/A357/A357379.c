@@ -7,7 +7,8 @@
  * Formula:   a(n) = A357378(floor(n/2)) * A357378(n)
  * Range:     u8 n <= 114, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 9931 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,6 +37,7 @@
 #include <stddef.h>
 #include <string.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 /* ---------- dynamic array for A357378 values ---------- */
 static seq_t *t_vals = NULL;
@@ -50,7 +52,7 @@ static size_t used_cap = 0;
 static void ensure_t_capacity(size_t cap)
 {
     if (t_cap >= cap) return;
-    seq_t *tmp = (seq_t *)realloc(t_vals, cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, t_vals, cap);
     if (!tmp) abort();               /* allocation failure */
     t_vals = tmp;
     t_cap  = cap;
@@ -74,7 +76,7 @@ static void init_static_data(idx_t n_max)
     /* small initial allocation that will grow */
     size_t init_cap = 16;
     if (init_cap < (size_t)n_max + 1) init_cap = n_max + 1;
-    t_vals = (seq_t *)malloc(init_cap * sizeof(seq_t));
+    t_vals = mem_new(seq_t, init_cap);
     if (!t_vals) abort();
     t_cap  = init_cap;
     t_vals[0] = (seq_t)1;

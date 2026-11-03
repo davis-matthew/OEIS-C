@@ -12,18 +12,19 @@
  *            the utils library for integer exponentiation
  * Range:     u8 n <= 16, u16 n <= 2809, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 96 terms through n = 9669 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 static seq_t prime_contribution(uint64_t p, int exp)
 {
     /* (p^(exp+1) - p) / (p-1)  +  (-1)^((p-1)/2)  (p odd prime) */
-    seq_t num = pow_uint(p, exp + 1) - (seq_t)p;
+    seq_t num = ipow_u64_idx(p, exp + 1) - (seq_t)p;
     seq_t denom = (seq_t)(p - 1);
     seq_t geom = num / denom;             /* geometric sum, integer division */
     if (p % 4 == 1)                        /* (-1)^((p-1)/2)=+1 for p≡1 (mod4) */
@@ -48,7 +49,7 @@ seq_t a(idx_t n)
         tmp >>= 1;
     }
     if (exp2 > 0) {
-        seq_t term2 = pow_uint(2ULL, exp2 + 1) - 1;  /* 2^(exp2+1) - 1 */
+        seq_t term2 = ipow_u64_idx(2ULL, exp2 + 1) - 1;  /* 2^(exp2+1) - 1 */
         result *= term2;
     }
 

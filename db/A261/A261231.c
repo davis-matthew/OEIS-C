@@ -8,14 +8,23 @@
  * Keywords:  nonn
  * Formula:   a(n) = 1 + a(n - sumDigitsBase3(n)), a(0) = 0 where
  *            sumDigitsBase3(n) = sum of the base‑3 digits of n
- * Range:     u8 n <= 1646, u16 n <= 9935, u32 n <= 9935, u64 n <= 9935,
- *            u128 n <= 9935, big any n
- * Helpers:   _sum_digits_base3
+ * Range:     u8 n <= 1646, u16 n <= 19683, u32 n <= 19683, u64 n <= 19683,
+ *            u128 n <= 19683, big any n
+ * Validated: standard, pass, 109 terms through n = 9935 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/_sum_digits_base3.h"
+static inline idx_t _sum_digits_base3(idx_t x)
+{
+    idx_t s = 0;
+    while (x != 0) {
+        s += x % 3;
+        x /= 3;
+    }
+    return s;
+}
 
 seq_t a(idx_t n)
 {

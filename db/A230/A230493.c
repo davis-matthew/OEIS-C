@@ -11,6 +11,7 @@
  *            2r²‑1 are all prime
  * Range:     u8 n <= 4452, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 116 terms through n = 9413 (2026-11-01)
  * Helpers:   build_primes_upto, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -23,8 +24,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"           /* for is_prime(idx_t)   */
-#include "../utils/build_primes_upto.h" /* for build_primes_upto */
+#include "../utils/build_primes_upto.h"
+#include "../utils/is_prime.h"
 
 static idx_t   max_n_sieve = 0ULL;   /* largest n for which we have a sieve   */
 static uint64_t *primes_arr   = NULL;/* array of primes ≤ max_n_sieve          */

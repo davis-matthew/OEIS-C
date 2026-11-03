@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 14, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 729 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  *                 a(5)=4278351  (added numerator correction: +1)
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;          /* cached sequence values   */
@@ -28,8 +30,8 @@ seq_t a(idx_t n) {
     /* Pre‑initialise the first five terms; a(5) will be computed correctly
        by the recurrence with the +1 numerator adjustment. */
     if (size < 6) {
-        if (cache) free(cache);
-        cache = (seq_t*)malloc(6 * sizeof(seq_t));
+        if (cache) mem_free(cache);
+        cache = mem_new(seq_t, 6);
         if (!cache) return (seq_t)0;     /* memory allocation failure   */
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)22;
@@ -47,7 +49,7 @@ seq_t a(idx_t n) {
     /* Grow the cache if necessary. */
     if ((size_t)(n + 1) > size) {
         size_t newsize = (size_t)(n + 1);
-        seq_t *tmp = (seq_t*)realloc(cache, newsize * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newsize);
         if (!tmp) return (seq_t)0;     /* allocation failure          */
         cache = tmp;
         size  = newsize;

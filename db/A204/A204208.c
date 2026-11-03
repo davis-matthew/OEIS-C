@@ -8,11 +8,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 14, u64 n <= 25, u128 n <= 49,
  *            big any n
+ * Validated: standard, pass, 37 terms through n = 207 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /*  A204208 – Number of length n + 1 non‑negative integer arrays
  *  starting and ending with 0 with adjacent elements differing by
  *  at most 3.

@@ -10,18 +10,19 @@
  *            ≥ n (row number) k = n - (r-1)*r/2 (column number)
  * Range:     u8 n <= 28, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   _int_isqrt_u64
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_int_isqrt_u64.h"
+#include "../utils/isqrt.h"
 
 extern seq_t a(idx_t n)
 {
     /* determine row r */
-    idx_t r = (_int_isqrt_u64(8 * n + 1) - 1) / 2;
+    idx_t r = (isqrt(8 * n + 1) - 1) / 2;
 
     /* adjust r so that r*(r+1)/2 >= n */
     while (r * (r + 1) / 2 < n) r++;

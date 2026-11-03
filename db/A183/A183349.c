@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 14, u64 n <= 29, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 173 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* constant parameters */
 #define W            7                    /* width of the array */
@@ -114,7 +116,7 @@ seq_t a(idx_t n)
     /* initialise dp for the first two rows: only rows with no
        overlapping 1s are allowed (top row has no upper neighbour, the
        bottom row has no lower neighbour). */
-    memset(dp_cur, 0, sizeof(dp_cur));
+    mem_set(dp_cur, 0, sizeof(dp_cur));
 
     for (int i = 0; i < good_cnt; ++i) {
         uint8_t mask_i = good_mask_list[i];
@@ -143,7 +145,7 @@ seq_t a(idx_t n)
 
     /* DP for rows 3 … n */
     for (idx_t row = 3; row <= n; ++row) {
-        memset(dp_next, 0, sizeof(dp_next));
+        mem_set(dp_next, 0, sizeof(dp_next));
 
         for (int u_id = 0; u_id < good_cnt; ++u_id) {
             for (int v_id = 0; v_id < good_cnt; ++v_id) {
@@ -160,7 +162,7 @@ seq_t a(idx_t n)
             }
         }
         /* swap dp arrays for next iteration */
-        memcpy(dp_cur, dp_next, sizeof(dp_cur));
+        mem_copy(dp_cur, dp_next, sizeof(dp_cur));
     }
 
     /* final condition : the last row must have no vertical 1‑overlap

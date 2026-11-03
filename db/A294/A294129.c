@@ -11,12 +11,14 @@
  * Formula:   a(n) = a(n-1) + A000085(n-1), a(1) = 0
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 19, u64 n <= 32, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 709 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,8 +32,8 @@ seq_t a(idx_t n)
     if (max_n < n) {
         /* Allocate space for indices 0 .. n */
         idx_t new_cap = n + 1;
-        a_vals   = (seq_t*)realloc(a_vals,   new_cap * sizeof(seq_t));
-        inv_vals = (seq_t*)realloc(inv_vals, new_cap * sizeof(seq_t));
+        a_vals   = mem_resize(seq_t, a_vals, new_cap);
+        inv_vals = mem_resize(seq_t, inv_vals, new_cap);
 
         /* Initial values for involutions */
         if (max_n == 0) {

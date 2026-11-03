@@ -8,6 +8,7 @@
  *            This follows from the generating function (1-4x+5x^2)/(1-2x)^2
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 29, u64 n <= 60, u128 n <= 123,
  *            big any n
+ * Validated: standard, pass, 50 terms through n = 2000 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

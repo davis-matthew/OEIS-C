@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5050, u16 n <= 5050, u32 n <= 5050, u64 n <= 5050,
  *            u128 n <= 5050, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 107 terms through n = 4423 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdint.h>
 #include <string.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* cache of sigma values  (1‑based indexing) */
 static seq_t *sigma = NULL;
@@ -41,14 +43,14 @@ ensure_sigma(idx_t limit)
     if (limit <= sigma_cap) return;
 
     /* free old storage */
-    free(sigma);
+    mem_free(sigma);
 
     /* allocate (limit+1) entries, 1‑based; use malloc + cast for
      * C++ arbitrary‑precision builds.  */
-    sigma = (seq_t *)malloc((size_t)(limit + 1) * sizeof(seq_t));
+    sigma = mem_new(seq_t, (size_t)(limit + 1));
     if (!sigma) exit(1);          /* out of memory */
     /* zero‑initialize */
-    memset(sigma, 0, (size_t)(limit + 1) * sizeof(seq_t));
+    mem_set(sigma, 0, (size_t)(limit + 1) * sizeof(seq_t));
 
     /* classic harmonic series sieve for sum of divisors */
     for (idx_t d = 1; d <= limit; ++d) {

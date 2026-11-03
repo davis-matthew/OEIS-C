@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 1003, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 90 terms through n = 9181 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    The function memoises values so calls can be made in any order.
 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *S  = NULL;          /* array of a(i)   (1‑based) */
 static seq_t *P  = NULL;          /* prefix sums: P[i] = sum_{k=1}^{i} a(k) */
@@ -35,8 +37,8 @@ static void ensure_capacity(idx_t n_needed)
     while (new_cap < (size_t)n_needed)
         new_cap *= 2;
 
-    S = (seq_t *)realloc(S, (new_cap + 1) * sizeof(seq_t));
-    P = (seq_t *)realloc(P, (new_cap + 1) * sizeof(seq_t));
+    S = mem_resize(seq_t, S, (new_cap + 1));
+    P = mem_resize(seq_t, P, (new_cap + 1));
     cap = new_cap;
 }
 

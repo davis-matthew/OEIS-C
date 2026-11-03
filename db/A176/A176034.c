@@ -10,7 +10,8 @@
  *            starting at n = 1
  * Range:     u8 none, u16 none, u32 n <= 83, u64 n <= 83, u128 n <= 83,
  *            big any n
- * Helpers:   build_primes_upto, floor_sqrt
+ * Validated: partial, pass, 83 terms through n = 83 (2026-11-03)
+ * Helpers:   build_primes_upto, ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,35 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/floor_sqrt.h"
 #include "../utils/build_primes_upto.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 typedef struct { seq_t prod; seq_t diff; } ProdDiff;
 
@@ -33,6 +61,17 @@ static int cmp_prod(const void *a, const void *b)
 }
 
 /* Increments the size of a pointer-to-array, returning the new pointer.  */
+#ifdef __cplusplus
+template <class T>
+static T *grow_array(T *ptr, size_t *cap, size_t need, size_t elem_size)
+{
+    size_t newcap = *cap ? *cap : 8;
+    while (newcap < need) newcap <<= 1;
+    T *p = mem_resize(T, ptr, (newcap * elem_size) / sizeof(T));
+    *cap = newcap;
+    return p;
+}
+#else
 static void *grow_array(void *ptr, size_t *cap, size_t need, size_t elem_size)
 {
     size_t newcap = *cap ? *cap : 8;
@@ -41,6 +80,7 @@ static void *grow_array(void *ptr, size_t *cap, size_t need, size_t elem_size)
     *cap = newcap;
     return p;
 }
+#endif
 
 seq_t a(idx_t n)
 {
@@ -79,7 +119,7 @@ seq_t a(idx_t n)
 
         /* Allocate array for all prime products */
         size_t prod_cnt = prime_cnt * (prime_cnt - 1) / 2;
-        ProdDiff *prods = (ProdDiff *)malloc(prod_cnt * sizeof(ProdDiff));
+        ProdDiff *prods = mem_new(ProdDiff, prod_cnt);
 
         /* Generate all pairwise products and their differences */
         size_t idx = 0;
@@ -100,7 +140,7 @@ seq_t a(idx_t n)
         }
 
         /* Sort the products in ascending order */
-        qsort(prods, prod_cnt, sizeof(ProdDiff), cmp_prod);
+        mem_qsort(prods, prod_cnt, sizeof(ProdDiff), cmp_prod);
 
         /* Ensure the cache is large enough */
         cache = (seq_t *)grow_array(cache, &cache_cap, prod_cnt, sizeof(seq_t));
@@ -111,7 +151,7 @@ seq_t a(idx_t n)
 
         /* Clean up temporary arrays */
         free(primes);
-        free(prods);
+        mem_free(prods);
     }
 
     /* Return the required term */

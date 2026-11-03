@@ -8,13 +8,16 @@
  * Formula:   a(n) = Sum_{d|n, d>1} (pi(2*d-1) - pi(d))
  * Range:     u8 n <= 479, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   compute_pi
+ * Validated: standard, pass, 96 terms through n = 7663 (2026-11-01)
+ * Helpers:   prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/compute_pi.h"
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/prime_pi.h"
 
 seq_t a(idx_t n)
 {
@@ -32,8 +35,8 @@ seq_t a(idx_t n)
             idx_t d = i;
             if (d > 1)
             {
-                seq_t pi_d   = compute_pi(d);
-                seq_t pi_2d  = compute_pi((idx_t)(2 * d - 1));
+                seq_t pi_d   = prime_pi(d);
+                seq_t pi_2d  = prime_pi((idx_t)(2 * d - 1));
                 sum += (pi_2d - pi_d);
             }
 
@@ -41,8 +44,8 @@ seq_t a(idx_t n)
             idx_t d2 = n / i;
             if (d2 != d && d2 > 1)
             {
-                seq_t pi_d2  = compute_pi(d2);
-                seq_t pi_2d2 = compute_pi((idx_t)(2 * d2 - 1));
+                seq_t pi_d2  = prime_pi(d2);
+                seq_t pi_2d2 = prime_pi((idx_t)(2 * d2 - 1));
                 sum += (pi_2d2 - pi_d2);
             }
         }

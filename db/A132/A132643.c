@@ -7,14 +7,18 @@
  * Formula:   a(n) = Bell(n-1)^Bell(n-1)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 4, u64 n <= 5, u128 n <= 5,
  *            big any n
- * Helpers:   big_pow, binom
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-03)
+ * Helpers:   binomial, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/binom.h"
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /* static cache for Bell numbers: bell_cache[i] = Bell(i)  with Bell(0)=1 */
 static seq_t *bell_cache = NULL;
@@ -27,7 +31,7 @@ static void compute_bell_upto(idx_t m)
     /* grow the cache if necessary */
     if (m + 1 > bell_cap) {
         size_t new_cap = m + 1;
-        seq_t *tmp = (seq_t *)realloc(bell_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, bell_cache, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         bell_cache = tmp;
         bell_cap   = new_cap;
@@ -43,7 +47,7 @@ static void compute_bell_upto(idx_t m)
         seq_t sum = (seq_t)0;
         idx_t n_minus_1 = i - 1;
         for (idx_t k = 0; k <= n_minus_1; ++k) {
-            seq_t bin = binom(n_minus_1, k);
+            seq_t bin = binomial(n_minus_1, k);
             seq_t term = bin * bell_cache[k];
             sum += term;
         }
@@ -60,5 +64,5 @@ seq_t a(idx_t n)
     compute_bell_upto(idx);
 
     seq_t b = bell_cache[idx];            /* Bell(n-1) */
-    return big_pow(b, b);                 /* Bell(n-1)^Bell(n-1) */
+    return ipow(b, b);                 /* Bell(n-1)^Bell(n-1) */
 }

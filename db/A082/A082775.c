@@ -8,7 +8,8 @@
  * Formula:   a(n) = Σ_{k=0}^{n-2} (n-k) * p(k) p(k)=A000041(k)
  * Range:     u8 n <= 10, u16 n <= 28, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static state for memoisation */
 static seq_t *p      = NULL;      /* partition numbers p[0..cur_max]   */
@@ -32,9 +34,9 @@ static void ensure_up_to(idx_t n)
     size_t new_size = (size_t)n + 1;
 
     /* Reallocate the arrays */
-    p     = (seq_t *)realloc(p,     new_size * sizeof(seq_t));
-    sumP  = (seq_t *)realloc(sumP,  new_size * sizeof(seq_t));
-    a_arr = (seq_t *)realloc(a_arr, new_size * sizeof(seq_t));
+    p     = mem_resize(seq_t, p, new_size);
+    sumP  = mem_resize(seq_t, sumP, new_size);
+    a_arr = mem_resize(seq_t, a_arr, new_size);
 
     /* Initialise new elements */
     for (idx_t i = cur_max + 1; i <= n; ++i) {

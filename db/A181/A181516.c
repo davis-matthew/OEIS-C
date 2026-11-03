@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 3378, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 71 terms through n = 9797 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 /* OEIS helper: tests primality of idx_t values. */
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Function returning the n-th term of the sequence. */
 seq_t a(idx_t n)
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     /* grow array if needed */
     if (!primes) {
         primes_cap = 16;
-        primes = (seq_t *)malloc(primes_cap * sizeof(seq_t));
+        primes = mem_new(seq_t, primes_cap);
         if (!primes) abort();
     }
 
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
             if (primes_len == 0 || (seq_t)primes[primes_len-1] < (seq_t)v) {
                 if (primes_len == primes_cap) {
                     primes_cap *= 2;
-                    seq_t *tmp = (seq_t *)realloc(primes, primes_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, primes, primes_cap);
                     if (!tmp) abort();
                     primes = tmp;
                 }

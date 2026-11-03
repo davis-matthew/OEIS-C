@@ -12,7 +12,8 @@
  *            MAX_N * a direct search is performed. The...
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 105 terms through n = 9347 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Smallest integer square root: floor(sqrt(n)) for a 64‑bit unsigned n. */
 static inline idx_t isqrt_u64(idx_t n)
@@ -52,8 +54,8 @@ static void build_tables(void)
     tables_built = true;
 
     /* Allocate tables; abort on failure as the environment should provide enough memory. */
-    sigma_table = (seq_t *)malloc((MAX_K + 1u) * sizeof(seq_t));
-    inv_table   = (seq_t *)malloc((MAX_N + 1u) * sizeof(seq_t));
+    sigma_table = mem_new(seq_t, (MAX_K + 1u));
+    inv_table   = mem_new(seq_t, (MAX_N + 1u));
     if (!sigma_table || !inv_table)
         abort();
 

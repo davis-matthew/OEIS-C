@@ -8,14 +8,16 @@
  *            (each part is 1,2,4,8,…). Order of parts is irrelevant,
  *            repetitions allowed. Computation uses a simple coin‑change style
  *            DP that counts combinations with an exact number of coins
- * Range:     u8 n <= 104, u16 n <= 9849, u32 n <= 9849, u64 n <= 9849,
- *            u128 n <= 9849, big any n
- * Helpers:   none
+ * Range:     u8 n <= 104, u16 n <= 65535, u32 n <= 65536, u64 n <= 65536,
+ *            u128 n <= 65536, big any n
+ * Validated: standard, pass, 121 terms through n = 9849 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* quick return for impossible sums */
@@ -24,7 +26,7 @@ seq_t a(idx_t n) {
 
     /* dp[k][s] : number of ways to reach sum s using exactly k powers of 2 */
     size_t sz = (size_t)(7 * (n + 1));
-    seq_t *dp = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, sz);
     if (!dp) return 0;          /* memory allocation failed */
     /* initialise all entries to 0 */
     for (size_t i = 0; i < sz; ++i) dp[i] = 0;
@@ -46,6 +48,6 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = dp[(size_t)6 * (n + 1) + (size_t)n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

@@ -8,7 +8,8 @@
  *            prime
  * Range:     u8 n <= 30, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   fib_pair_mod, gen_divisors_rec, mod_pow
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-01)
+ * Helpers:   powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,51 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/mod_pow.h"   /* uint64_t mod_pow(uint64_t a, uint64_t e, uint64_t m); */
-#include "../utils/fib_pair_mod.h"
-#include "../utils/gen_divisors_rec.h"
+#include "../utils/powmod_u64.h"
+
+/* ---------- Fast doubling Fibonacci modulo p ----------
+   Returns F_n (in *f) and F_{n+1} (in *f_next) modulo the prime p. */
+static void fib_pair_mod(uint64_t p, uint64_t n, uint64_t *f, uint64_t *f_next)
+{
+    if (n == 0) {
+        *f = 0;
+        *f_next = 1;
+        return;
+    }
+    uint64_t a, b;
+    fib_pair_mod(p, n >> 1, &a, &b);
+
+    /* c = F(2k) = F_k * (2*F_{k+1} – F_k) */
+    uint64_t t = ((b << 1) % p + p - a) % p;   /* 2*b – a (mod p) */
+    uint64_t c = (a * t) % p;
+
+    /* d = F(2k+1) = F_k^2 + F_{k+1}^2 */
+    uint64_t d = ((a * a) % p + (b * b) % p) % p;
+
+    if ((n & 1) == 0) {
+        *f = c;
+        *f_next = d;
+    } else {
+        *f = d;
+        *f_next = (c + d) % p;
+    }
+}
+
+/* ---------- Generate all divisors from factorisation ----------
+   Recursively build divisors; results placed in divs[0..div_idx-1]. */
+static void gen_divisors_rec(int idx, const uint64_t *fact, const int *exp,
+                             int f_cnt, uint64_t current,
+                             uint64_t *divs, int *div_idx)
+{
+    if (idx == f_cnt) {
+        divs[(*div_idx)++] = current;
+        return;
+    }
+    for (int e = 0; e <= exp[idx]; ++e) {
+        gen_divisors_rec(idx + 1, fact, exp, f_cnt, current, divs, div_idx);
+        current *= fact[idx];
+    }
+}
 
 #define PRIME_LIMIT 400000        /* enough to generate >40000 primes */
 
@@ -103,7 +146,7 @@ seq_t a(idx_t n)
     if (p == 5) return (seq_t)4;
 
     /* Determines whether 5 is a quadratic residue mod p. */
-    uint64_t leg = mod_pow(5ULL, (p - 1) / 2, p);
+    uint64_t leg = powmod_u64(5ULL, (p - 1) / 2, p);
     bool residue = (leg == 1);
 
     /* Candidate period: (p-1) if 5 is a residue, otherwise 2*(p+1). */

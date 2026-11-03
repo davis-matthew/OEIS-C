@@ -7,14 +7,18 @@
  * Formula:   a(n) = ∑_{k=0..n} binomial(n,k) * (n*k)^{n-k}
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 18,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /*             (OEIS A295552)                                  */
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 /* Compute a(n) for OEIS A295552 */
 seq_t a(idx_t n) {
@@ -34,7 +38,7 @@ seq_t a(idx_t n) {
         uint64_t base_val = (uint64_t)n * (uint64_t)k;
         seq_t base = (seq_t)base_val;
         seq_t exp  = (seq_t)(n - k);
-        seq_t pow_val = big_pow(base, exp);
+        seq_t pow_val = ipow(base, exp);
         seq_t term = comb * pow_val;
         sum += term;
     }

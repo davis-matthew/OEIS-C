@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 51, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   is_non_lattice_uint64
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,67 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_non_lattice_uint64.h"
+#include "../utils/mem.h"
+
+/* local helper: test whether a candidate satisfies the non‑lattice
+ * condition.  The algorithm factors k by trial division, records the
+ * prime exponents, and checks the three conditions listed above.   */
+static bool is_non_lattice_uint64(uint64_t k)
+{
+    if (k <= 1) return false;
+
+    uint64_t n = k;
+    int exps[64];
+    size_t cnt = 0;
+
+    /* factor 2 separately */
+    if ((n & 1ULL) == 0) {
+        int e = 0;
+        while ((n & 1ULL) == 0) {
+            n >>= 1;
+            ++e;
+        }
+        exps[cnt++] = e;
+    }
+
+    /* factor odd primes */
+    for (uint64_t p = 3; p * p <= n; p += 2) {
+        if (n % p == 0) {
+            int e = 0;
+            while (n % p == 0) {
+                n /= p;
+                ++e;
+            }
+            exps[cnt++] = e;
+        }
+    }
+
+    /* remaining prime factor (if any) */
+    if (n > 1) {
+        exps[cnt++] = 1;
+    }
+
+    /* Condition (i) : exponent ≥ 5 */
+    for (size_t i = 0; i < cnt; ++i)
+        if (exps[i] >= 5)
+            return true;
+
+    /* Condition (ii) : exponent ≥ 3 and at least one other prime */
+    if (cnt >= 2) {
+        for (size_t i = 0; i < cnt; ++i)
+            if (exps[i] >= 3)
+                return true;
+    }
+
+    /* Condition (iii) : exponent ≥ 2 and at least two other primes */
+    if (cnt >= 3) {
+        for (size_t i = 0; i < cnt; ++i)
+            if (exps[i] >= 2)
+                return true;
+    }
+
+    return false;
+}
 
 /* cache of already computed terms */
 static seq_t *cache = NULL;     /* array of cached sequence values */
@@ -41,7 +102,7 @@ static void cache_append(seq_t val)
 {
     if (cache_len == cache_cap) {
         cache_cap = (cache_cap == 0) ? 64 : cache_cap * 2;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
     cache[cache_len++] = val;
 }
@@ -54,7 +115,7 @@ seq_t a(idx_t n)
     /* initialise cache if first use */
     if (cache_len == 0) {
         cache_cap = 64;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* extend cache until it contains at least n terms */

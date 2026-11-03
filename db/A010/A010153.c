@@ -9,8 +9,9 @@
  *            definition: * a(2) = 1, a(2^e) = 16 for e ≥ 2, a(p^e) = 1 for
  *            odd primes p. * Hence any n divisible by 4 receives value 16,
  *            all other positive n give 1
- * Range:     u8 n <= 9567, u16 n <= 9567, u32 n <= 9567, u64 n <= 9567,
- *            u128 n <= 9567, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 89 terms through n = 9567 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

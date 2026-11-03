@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 58, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    positive integer that does NOT divide a(n-1).  This implements
    the map n → n + second‑smallest non‑divisor of n. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;       /* memoized sequence values */
 static size_t cache_len = 0;      /* number of values stored */
@@ -33,7 +35,7 @@ ensure_capacity(size_t new_cap)
     size_t new_cap2 = new_cap > 0 ? new_cap : 1;
     while (new_cap2 < new_cap)
         new_cap2 <<= 1;          /* grow by factor of two */
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap2 * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap2);
     if (!tmp) abort();          /* out of memory */
     cache = tmp;
     cache_cap = new_cap2;

@@ -8,8 +8,9 @@
  * Formula:   rotate left the binary representation of n by the number of ones
  *            in n. The bit width used is the minimal number of bits needed to
  *            represent n (i.e. floor(log2(n)) + 1). For n = 0 the result is 0
- * Range:     u8 n <= 270, u16 n <= 9247, u32 n <= 9247, u64 n <= 9247,
- *            u128 n <= 9247, big any n
+ * Range:     u8 n <= 270, u16 n <= 16383, u32 n <= 16383, u64 n <= 16383,
+ *            u128 n <= 16383, big any n
+ * Validated: standard, pass, 89 terms through n = 9247 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

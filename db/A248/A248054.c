@@ -9,7 +9,8 @@
  * Formula:   a(n) = least m≥1 such that (m+n) divides σ(m²)+σ(n²)
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 44, u64 n <= 3190,
  *            u128 n <= 3190, big any n
- * Helpers:   factor_u64, seq_pow
+ * Validated: standard, pass, 76 terms through n = 3034 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,10 @@
 #include <stddef.h>
 
 /* Utility headers */
-#include "../utils/factor_u64.h"   /* factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt) */
-#include "../utils/seq_pow.h"     /* seq_pow(seq_t base, idx_t exp) */
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/factor_u64.h"
+#include "../utils/ipow_idx.h"
 
 /* Compute σ(m²) for a 64‑bit integer m */
 static seq_t sigma_square_u64(uint64_t m)
@@ -36,7 +39,7 @@ static seq_t sigma_square_u64(uint64_t m)
         seq_t pseq = (seq_t)p;
 
         /* σ(p²ᵉ) = (p^(2e+1)-1)/(p-1) */
-        seq_t numerator = seq_pow(pseq, (idx_t)(2*e + 1));
+        seq_t numerator = ipow_idx(pseq, (idx_t)(2*e + 1));
         numerator = numerator - 1;
         seq_t denominator = (seq_t)(p - 1);
         seq_t part = numerator / denominator;

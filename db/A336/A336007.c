@@ -11,16 +11,62 @@
  *            Fibonacci number
  * Range:     u8 n <= 56, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   extend_fib_upto, extend_luc_upto, largest_le
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/extend_fib_upto.h"
-#include "../utils/extend_luc_upto.h"
-#include "../utils/largest_le.h"
+
+/* Extend Fibonacci array up to at least 'limit' (inclusive). Safe against overflow. */
+static void extend_fib_upto(seq_t *fib, size_t *len, size_t capacity, seq_t limit)
+{
+    if (*len < 2) {
+        fib[0] = 1;
+        fib[1] = 2;
+        *len = 2;
+    }
+    while (true) {
+        if (*len == 0) break; /* safety */
+        seq_t next = fib[*len - 1] + fib[*len - 2];
+        if (next < fib[*len - 1]) break;           /* overflow */
+        if (next > limit) break;
+        if (*len == capacity) break;               /* avoid overflow */
+        fib[*len] = next;
+        ++(*len);
+    }
+}
+
+/* Extend Lucas array up to at least 'limit' (inclusive). Safe against overflow. */
+static void extend_luc_upto(seq_t *luc, size_t *len, size_t capacity, seq_t limit)
+{
+    if (*len < 2) {
+        /* Standard Lucas numbers: 2, 1, 3, 4, 7, ... */
+        luc[0] = 2;
+        luc[1] = 1;
+        *len = 2;
+    }
+    while (true) {
+        if (*len == 0) break; /* safety */
+        seq_t next = luc[*len - 1] + luc[*len - 2];
+        if (next < luc[*len - 1]) break;           /* overflow */
+        if (next > limit) break;
+        if (*len == capacity) break;
+        luc[*len] = next;
+        ++(*len);
+    }
+}
+
+/* Helper: largest element <= limit (linear scan) */
+static seq_t largest_le(const seq_t *arr, size_t len, seq_t limit)
+{
+    seq_t best = 0;
+    for (size_t i = 0; i < len; ++i)
+        if (arr[i] <= limit && arr[i] > best) best = arr[i];
+    return best;
+}
 
 /* Helper: binary search for membership */
 static bool in_array(const seq_t *arr, size_t len, seq_t x)

@@ -8,9 +8,10 @@
  * Keywords:  nonn
  * Formula:   a(1) = 1, a(2*n) = 2*a(n), a(2*n+1) = A003961(1 + a(n)) A003961
  *            shifts each prime factor of its argument to the next prime
- * Range:     u8 n <= 46, u16 n <= 558, u32 n <= 9805, u64 n <= 9805,
- *            u128 n <= 9805, big any n
- * Helpers:   floor_sqrt, grow_seq, is_prime_small64
+ * Range:     u8 n <= 46, u16 n <= 558, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 90 terms through n = 9805 (2026-11-03)
+ * Helpers:   ipow_i32, is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,40 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/floor_sqrt.h" /* floor_sqrt(seq_t) */
-#include "../utils/grow_seq.h"   /* grow_seq(seq_t **, size_t *, size_t) */
-#include "../utils/is_prime_small64.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
 
 /*** prime cache ***/
 static seq_t *prime_cache = NULL;   /* list of known primes (seq_t) */
@@ -33,7 +65,7 @@ static void ensure_primes_upto(seq_t limit)
 {
     while (prime_cnt == 0 || prime_cache[prime_cnt - 1] < limit) {
         seq_t cand = (prime_cnt == 0 ? (seq_t)2 : prime_cache[prime_cnt - 1] + (seq_t)1);
-        while (!is_prime_small64(cand)) cand = cand + (seq_t)1;
+        while (!is_prime_seq(cand)) cand = cand + (seq_t)1;
         grow_seq(&prime_cache, &prime_cap, prime_cnt + 1);
         prime_cache[prime_cnt++] = cand;
     }
@@ -43,7 +75,7 @@ static void ensure_primes_upto(seq_t limit)
 static seq_t next_prime(seq_t p)
 {
     seq_t q = p + (seq_t)1;
-    while (!is_prime_small64(q)) q = q + (seq_t)1;
+    while (!is_prime_seq(q)) q = q + (seq_t)1;
     return q;
 }
 

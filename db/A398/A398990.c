@@ -9,13 +9,15 @@
  *            by ascending antidiagonals
  * Range:     i8 n <= 20, i16 n <= 65, i32 n <= 65, i64 n <= 65, i128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *partition_cache = NULL; /* cached partition numbers P(0), P(1), ... */
 static idx_t  partition_count = 0;     /* number of entries stored */
@@ -26,7 +28,7 @@ static void ensure_partitions(idx_t n_needed)
     if (partition_cache == NULL || n_needed >= partition_count)
     {
         idx_t new_size = n_needed + 1;
-        seq_t *new_cache = (seq_t*)malloc(new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_size);
         if (partition_cache == NULL)          /* first time allocation */
         {
             new_cache[0] = 1;                 /* P(0) = 1 */
@@ -48,7 +50,7 @@ static void ensure_partitions(idx_t n_needed)
         }
         else                                 /* extend existing cache */
         {
-            memcpy(new_cache, partition_cache, partition_count * sizeof(seq_t));
+            mem_copy(new_cache, partition_cache, partition_count * sizeof(seq_t));
             for (idx_t n = partition_count; n < new_size; ++n)
             {
                 seq_t sum = 0;
@@ -65,7 +67,7 @@ static void ensure_partitions(idx_t n_needed)
                 new_cache[n] = sum;
             }
         }
-        free(partition_cache);
+        mem_free(partition_cache);
         partition_cache = new_cache;
         partition_count = new_size;
     }
@@ -94,14 +96,14 @@ seq_t a(idx_t n)
     seq_t arr[MAX_D];
     if (diff >= MAX_D)                    /* fall back to dynamic allocation if needed */
     {
-        seq_t *dyn = (seq_t*)malloc((diff + 1) * sizeof(seq_t));
+        seq_t *dyn = mem_new(seq_t, (diff + 1));
         for (idx_t k = 0; k <= diff; ++k) dyn[k] = partition_cache[p + k];
         for (idx_t t = 0; t < diff; ++t)
             for (idx_t k = 0; k < diff - t; ++k)
                 if (s == 1) dyn[k] += dyn[k + 1];
                 else       dyn[k] = dyn[k + 1] - dyn[k];
         seq_t result = dyn[0];
-        free(dyn);
+        mem_free(dyn);
         return result;
     }
 

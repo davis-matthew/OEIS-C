@@ -12,22 +12,64 @@
  *            cycles of odd/even length, c_3/c_n3: lengths divi...
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 4, u128 n <= 5,
  *            big any n
- * Helpers:   z833_deg, z833_g, z833_irred, z833_mod, z833_mulm, z833_p2,
- *            z833_pgcd, z833_powm
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-01)
+ * Helpers:   gcd_u64, ilog2_u64, pow2_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/z833_deg.h"
-#include "../utils/z833_g.h"
-#include "../utils/z833_irred.h"
-#include "../utils/z833_mod.h"
-#include "../utils/z833_mulm.h"
-#include "../utils/z833_p2.h"
-#include "../utils/z833_pgcd.h"
-#include "../utils/z833_powm.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/ilog2_u64.h"
+#include "../utils/pow2_u64.h"
+
+static uint64_t z833_mod(uint64_t a, uint64_t b) {
+    int db = ilog2_u64(b), da;
+    while ((da = ilog2_u64(a)) >= db) a ^= b << (da - db);
+    return a;
+}
+
+static uint64_t z833_mulm(uint64_t a, uint64_t b, uint64_t f, int d) {
+    uint64_t r = 0;
+    int i;
+    for (i = d - 1; i >= 0; i--) {
+        r <<= 1;
+        if ((r >> d) & 1) r ^= f;
+        if ((b >> i) & 1) r ^= a;
+    }
+    return r;
+}
+
+static uint64_t z833_pgcd(uint64_t a, uint64_t b) {
+    while (b) { uint64_t t = z833_mod(a, b); a = b; b = t; }
+    return a;
+}
+
+static int z833_irred(uint64_t f, int d, const int *dp, int ndp) {
+    uint64_t xr = z833_mod(2, f), t = xr;
+    int i, j;
+    for (i = 0; i < d; i++) t = z833_mulm(t, t, f, d);
+    if (t != xr) return 0;
+    for (j = 0; j < ndp; j++) {
+        uint64_t h;
+        t = xr;
+        for (i = 0; i < d / dp[j]; i++) t = z833_mulm(t, t, f, d);
+        h = t ^ xr;
+        if (h == 0 || z833_pgcd(f, h) != 1) return 0;
+    }
+    return 1;
+}
+
+static uint64_t z833_powm(uint64_t b, uint64_t e, uint64_t f, int d) {
+    uint64_t r = 1;
+    while (e) {
+        if (e & 1) r = z833_mulm(r, b, f, d);
+        e >>= 1;
+        if (e) b = z833_mulm(b, b, f, d);
+    }
+    return r;
+}
 
 typedef struct { uint64_t L, N; } z833_od;
 
@@ -63,10 +105,10 @@ static void z833_eval(const z833_od *map, int msz) {
             + 2 * ((unsigned __int128)1 << e3);
         z833_accF += w * s;
     } else {
-        seq_t cen = z833_p2(z833_cexp), w, s;
+        seq_t cen = pow2_u64(z833_cexp), w, s;
         for (i = 0; i < z833_ncf; i++) cen *= (seq_t)z833_cf[i];
         w = z833_glB / cen;
-        s = z833_p2(e1) + (seq_t)3 * z833_p2(e2) + (seq_t)2 * z833_p2(e3);
+        s = pow2_u64(e1) + (seq_t)3 * pow2_u64(e2) + (seq_t)2 * pow2_u64(e3);
         z833_accB += w * s;
     }
 }
@@ -99,7 +141,7 @@ static void z833_part(int k, int left, int maxp, int *parts, int len, int remAft
         nm = (z833_od *)malloc(sizeof(z833_od) * (size_t)(msz * np));
         for (a = 0; a < msz; a++)
             for (b = 0; b < np; b++) {
-                uint64_t L = map[a].L / z833_g(map[a].L, prim[b].L) * prim[b].L;
+                uint64_t L = map[a].L / gcd_u64(map[a].L, prim[b].L) * prim[b].L;
                 uint64_t N = map[a].N * prim[b].N;
                 for (i = 0; i < nsz; i++) if (nm[i].L == L) break;
                 if (i == nsz) { nm[nsz].L = L; nm[nsz].N = N; nsz++; }
@@ -184,9 +226,9 @@ seq_t a(idx_t n) {
             z833_glF *= (unsigned __int128)(((uint64_t)1 << N) - ((uint64_t)1 << i));
         z833_accF = 0;
     } else {
-        seq_t P = z833_p2((uint64_t)N);
+        seq_t P = pow2_u64((uint64_t)N);
         z833_glB = 1;
-        for (i = 0; i < N; i++) z833_glB *= P - z833_p2((uint64_t)i);
+        for (i = 0; i < N; i++) z833_glB *= P - pow2_u64((uint64_t)i);
         z833_accB = 0;
     }
     start.L = 1; start.N = 1;

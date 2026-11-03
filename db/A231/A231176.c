@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   is_even_popcount, is_in_A
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,25 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_even_popcount.h"
-#include "../utils/is_in_A.h"
+#include "../utils/mem.h"
+
+/* Parity of popcount of a seq_t: true if even number of 1‑bits. */
+static inline bool is_even_popcount(seq_t x)
+{
+    unsigned parity = 0;
+    while (x) {
+        parity ^= (unsigned)(x & 1);
+        x >>= 1;
+    }
+    return parity == 0;
+}
+
+/* Is k in set A?  k is a divisor of a square; we test k+2. */
+static inline bool is_in_A(idx_t k)
+{
+    seq_t val = (seq_t)k + (seq_t)2;
+    return is_even_popcount(val);
+}
 
 /* Global cache of terms found so far. */
 static seq_t *cache = NULL;
@@ -62,7 +80,7 @@ static void ensure_cache(idx_t need)
         if (cntA == cntB) {
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap == 0 ? 16 : cache_cap * 2;
-                seq_t *new_mem = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *new_mem = mem_resize(seq_t, cache, new_cap);
                 if (!new_mem) abort();      /* out of memory */
                 cache = new_mem;
                 cache_cap = new_cap;

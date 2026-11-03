@@ -12,12 +12,14 @@
  *            5·T(n–2,k) + 4·5^(n–2) (0 ≤ k ≤ 4)
  * Range:     u8 n <= 24, u16 n <= 39, u32 n <= 74, u64 n <= 144,
  *            u128 n <= 284, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 894 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static caches for the five sequences T(·,k) */
 static seq_t *tcache[5] = {0};
@@ -42,14 +44,14 @@ static void init_cache(void)
     for (idx_t k = 0; k < 5; ++k) {
         tcap[k] = 4;                    /* initial capacity */
         tlen[k] = 3;                    /* indices 0,1,2 are known */
-        tcache[k] = (seq_t *)malloc(tcap[k] * sizeof(seq_t));
+        tcache[k] = mem_new(seq_t, tcap[k]);
         tcache[k][0] = init0[k];
         tcache[k][1] = init1[k];
         tcache[k][2] = init2[k];
     }
 
     pow5cap = 4;
-    pow5    = (seq_t *)malloc(pow5cap * sizeof(seq_t));
+    pow5    = mem_new(seq_t, pow5cap);
     pow5[0] = (seq_t)1;
     pow5len = 1;
 
@@ -66,7 +68,7 @@ static void extend_cache(idx_t m)
     if (pow5cap < m + 1) {
         idx_t newcap = pow5cap ? pow5cap : 4;
         while (newcap <= m) newcap <<= 1;
-        pow5 = (seq_t *)realloc(pow5, newcap * sizeof(seq_t));
+        pow5 = mem_resize(seq_t, pow5, newcap);
         pow5cap = newcap;
     }
     for (idx_t i = pow5len; i <= m; ++i) {
@@ -79,7 +81,7 @@ static void extend_cache(idx_t m)
         if (tcap[k] < m + 1) {
             idx_t newcap = tcap[k] ? tcap[k] : 4;
             while (newcap <= m) newcap <<= 1;
-            tcache[k] = (seq_t *)realloc(tcache[k], newcap * sizeof(seq_t));
+            tcache[k] = mem_resize(seq_t, tcache[k], newcap);
             tcap[k] = newcap;
         }
         for (idx_t i = tlen[k]; i <= m; ++i) {

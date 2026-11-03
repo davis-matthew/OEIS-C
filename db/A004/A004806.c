@@ -10,16 +10,43 @@
  *            repeat
  * Range:     u8 none, u16 n <= 7, u32 n <= 209, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   alloc_array, cmp_seq, grow_arr, release
+ * Validated: standard, pass, 52 terms through n = 9745 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/grow_arr.h"
-#include "../utils/alloc_array.h"
-#include "../utils/release.h"
-#include "../utils/cmp_seq.h"
+#include "../utils/mem.h"
+
+static seq_t *grow_arr(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *r = mem_new(seq_t, newlen);
+    idx_t i;
+    for (i = 0; i < oldlen; i++) r[i] = old[i];
+    if (old) mem_free(old);
+    return r;
+}
+
+static seq_t *alloc_array(idx_t n) {
+    seq_t *p = mem_new(seq_t, (n + 1));
+    for (idx_t i = 0; i <= n; i++) {
+        p[i] = 0;
+    }
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
+
+static int cmp_seq(const void *a, const void *b) {
+    seq_t x = *(const seq_t *)a;
+    seq_t y = *(const seq_t *)b;
+    if (x < y) return -1;
+    if (x > y) return 1;
+    return 0;
+}
 
 static seq_t pw[256];
 static seq_t lim;
@@ -70,7 +97,7 @@ seq_t a(idx_t n) {
         cap = 0;
         rec(6, 1, (seq_t)0);
 
-        qsort(buf, cnt, sizeof(seq_t), cmp_seq);
+        mem_qsort(buf, cnt, sizeof(seq_t), cmp_seq);
         idx_t u = 0;
         for (idx_t i = 0; i < cnt; i++) {
             if (u == 0 || buf[i] != buf[u - 1]) {

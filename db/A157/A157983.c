@@ -7,12 +7,14 @@
  * Formula:   a(n) = 3!*n!/(8!*19!) = (n!)/(6720*19!)
  * Range:     u8 none, u16 n <= 25, u32 n <= 28, u64 n <= 35, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* Initial construction of the cache with a(24). */
     if (values_len == 0) {
         values_len = 1;
-        values = (seq_t *)malloc(values_len * sizeof(seq_t));
+        values = mem_new(seq_t, values_len);
         if (!values) return (seq_t)0;  /* allocation failure – unlikely in this context */
         values[0] = (seq_t)759;        /* a(24) = 759 */
     }
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     /* If we don't have enough entries yet, grow the cache and compute the missing values. */
     if (off >= values_len) {
         size_t new_len = (size_t)off + 1;
-        seq_t *new_arr = (seq_t *)realloc(values, new_len * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, values, new_len);
         if (!new_arr) return (seq_t)0; /* allocation failure */
         values = new_arr;
 

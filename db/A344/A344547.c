@@ -13,13 +13,27 @@
  *            k) This yields the lexicographically earliest sequen...
  * Range:     u8 n <= 74, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   start_of_segment
+ * Validated: partial, pass, 74 terms through n = 74 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/start_of_segment.h"
+
+static inline idx_t start_of_segment(idx_t k)
+{
+    if (k & 1)   /* odd */
+    {
+        idx_t m = (k - 1) >> 1;        /* (k-1)/2 */
+        return (m * (m + 1)) + 1;
+    }
+    else  /* even */
+    {
+        idx_t m = k >> 1;              /* k/2 */
+        return (m * m) + 1;
+    }
+}
 
 seq_t a(idx_t n)
 {

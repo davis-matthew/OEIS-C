@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 24, u32 n <= 47, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 68 terms through n = 67 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
    Row 0 has a single entry T(0,0)=0.
    a(n) is the sequence obtained by concatenating the rows
    (row 0, row 1, row 2, …).  */
-#include "../utils/binom.h"   /* binom(idx_t a, idx_t b) -> seq_t */
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
 
             /* For odd k compute the formula */
             idx_t twopow = ((idx_t)1 << r);   /* 2^r (idx_t) */
-            seq_t binom_val = binom(twopow, k);
+            seq_t binom_val = binomial(twopow, k);
             seq_t numerator = ((seq_t)(twopow - 1)) * binom_val;
             return numerator / ((seq_t)twopow);
         }

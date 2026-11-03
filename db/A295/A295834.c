@@ -8,7 +8,8 @@
  *            a(n-k), where s(k) = Σ_{d|k} (-1)^{d + k/d}
  * Range:     i8 n <= 5, i16 n <= 8, i32 n <= 13, i64 n <= 20, i128 n <= 23,
  *            big any n
- * Helpers:   compute_s_up_to
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,23 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/compute_s_up_to.h"
+#include "../utils/mem.h"
+
+/* compute s(k) for all 0 <= k <= max_n */
+static void compute_s_up_to(idx_t max_n, seq_t *s_out)
+{
+    size_t i;
+    for (i = 0; i <= (size_t)max_n; ++i)
+        s_out[i] = 0;
+
+    for (idx_t d = 1; d <= max_n; ++d) {
+        for (idx_t m = d; m <= max_n; m += d) {
+            idx_t dd = m / d;                       /* m/d    */
+            seq_t sign = ((d + dd) & 1) ? -1 : 1;
+            s_out[m] += sign;
+        }
+    }
+}
 
 /* static caches for computed values */
 static seq_t *a_cache = NULL;          /* a(n) values      */
@@ -36,7 +53,7 @@ static void ensure_s_size(size_t sz)
     size_t new_cap = s_cap ? s_cap : 1;
     while (new_cap < sz) new_cap <<= 1;
 
-    seq_t *new_s = (seq_t *)realloc(s_cache, new_cap * sizeof(seq_t));
+    seq_t *new_s = mem_resize(seq_t, s_cache, new_cap);
     if (!new_s) abort(); /* allocation failure */
 
     compute_s_up_to((idx_t)(new_cap - 1), new_s);
@@ -53,7 +70,7 @@ static void ensure_a_size(size_t sz)
     size_t new_cap = a_cap ? a_cap : 1;
     while (new_cap < sz) new_cap <<= 1;
 
-    seq_t *new_a = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *new_a = mem_resize(seq_t, a_cache, new_cap);
     if (!new_a) abort(); /* allocation failure */
 
     a_cache = new_a;

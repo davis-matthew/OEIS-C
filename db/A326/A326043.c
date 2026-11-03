@@ -6,8 +6,9 @@
  * Keywords:  nonn, mult
  * Formula:   a(n) = multiplicative with a(p^e) = floor(((e-1)+sigma(p^e)) /
  *            e), where sigma(p^e) = 1 + p + p^2 + ... + p^e
- * Range:     u8 n <= 137, u16 n <= 9935, u32 n <= 9935, u64 n <= 9935,
- *            u128 n <= 9935, big any n
+ * Range:     u8 n <= 137, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 98 terms through n = 9935 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,12 +7,14 @@
  * Formula:   a(n) = A007091(A000040(n)) - the nth prime written in base 5
  * Range:     u8 n <= 21, u16 n <= 445, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 69 terms through n = 944 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/is_prime.h"
+#include <stdbool.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n) {
     // Find the nth prime
@@ -21,7 +23,7 @@ seq_t a(idx_t n) {
     
     while (count < n) {
         candidate++;
-        if (is_prime(candidate)) {
+        if (is_prime_u64(candidate)) {
             count++;
         }
     }

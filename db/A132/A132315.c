@@ -7,6 +7,7 @@
  * Formula:   a(n) = n*(n+1)/2 - sum_{k=1}^{floor(n^{1/4})} k^4
  * Range:     u8 none, u16 none, u32 none, u64 n <= 54, u128 n <= 54,
  *            big any n
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

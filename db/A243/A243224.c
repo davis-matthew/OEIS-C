@@ -11,7 +11,8 @@
  *            (d - 1)
  * Range:     u8 n <= 14, u16 n <= 5086, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   valid_odiv
+ * Validated: standard, pass, 103 terms through n = 9049 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,20 @@
 #include <stdint.h>
 #include <math.h>
 #include <stdbool.h>
-#include "../utils/valid_odiv.h"
+
+/* Check the two inequalities for a given odd divisor d and n,
+   all computed in seq_t to avoid overflow. */
+static inline bool valid_odiv(seq_t d, seq_t n)
+{
+    /* d * (d + 3) <= 6 * n  and 2 * n <= 3 * d * (d - 1) */
+    seq_t left1  = d * (d + 3);          /* d*(d+3)          */
+    seq_t right1 = (seq_t)6 * n;         /* 6*n              */
+    if (left1 > right1) return false;
+
+    seq_t left2  = (seq_t)2 * n;          /* 2*n              */
+    seq_t right2 = (seq_t)3 * d * (d - 1);/* 3*d*(d-1)        */
+    return left2 <= right2;
+}
 
 /* Integer square‑root for unsigned 64‑bit values.
    Returns ⌊√n⌋. */

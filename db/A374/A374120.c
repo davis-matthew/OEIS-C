@@ -11,15 +11,17 @@
  *            additive with a(p)=p#/p). k is included iff sum_{p^e||k}
  *            e*Fib(p) ≡ 0 (mod 3) and e2 + 2*e3 ≡ 0 (mod 3) where e2, e3 are
  *            exponents of primes 2 and 3. The implementation generat...
- * Range:     u8 n <= 24, u16 n <= 8891, u32 n <= 9967, u64 n <= 9967,
- *            u128 n <= 9967, big any n
- * Helpers:   none
+ * Range:     u8 n <= 24, u16 n <= 8891, u32 n <= 12000, u64 n <= 12000,
+ *            u128 n <= 12000, big any n
+ * Validated: standard, pass, 82 terms through n = 9967 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;             /* cached sequence values          */
 static size_t seq_len = 0;            /* number of values cached         */
@@ -117,7 +119,7 @@ static void ensure_sequence(idx_t need)
         /* allocate sequence buffer if needed */
         if (seq == NULL) {
             seq_cap = need > 64 ? need : 64;
-            seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+            seq = mem_new(seq_t, seq_cap);
         }
 
         /* generate terms from scratch up to 'limit' */
@@ -126,7 +128,7 @@ static void ensure_sequence(idx_t need)
             if (qualifies(i)) {
                 if (seq_len == seq_cap) {
                     seq_cap *= 2;
-                    seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+                    seq = mem_resize(seq_t, seq, seq_cap);
                 }
                 seq[seq_len++] = (seq_t)i;
             }

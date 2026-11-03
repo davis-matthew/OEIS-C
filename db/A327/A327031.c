@@ -7,9 +7,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 49, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
+ * Range:     u8 n <= 70, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   _A_value, _binomial, _phi_small
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-01)
+ * Helpers:   binomial, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,9 +37,32 @@
  */
 
 #include <stdint.h>
-#include "../utils/_A_value.h"
-#include "../utils/_binomial.h"
-#include "../utils/_phi_small.h"
+#include "../utils/binomial.h"
+#include "../utils/totient.h"
+
+/* ---------- compute A(row,col) for row > 0 ---------- */
+static inline seq_t _A_value(idx_t row, idx_t col) {
+    if (row == 0) return 0;
+
+    seq_t sum = 0;
+    for (idx_t d = 1; d * d <= row; ++d) {
+        if (row % d == 0) {
+            /* divisor d */
+            idx_t nd = row / d;
+            seq_t phi_d = totient(d);
+            seq_t term = binomial(nd + col - 1, nd);
+            sum += phi_d * term;
+
+            /* complement divisor nd (= row/d) if distinct */
+            if (nd != d) {
+                seq_t phi_nd = totient(nd);
+                seq_t term2 = binomial(d + col - 1, d);
+                sum += phi_nd * term2;
+            }
+        }
+    }
+    return sum;
+}
 
 /* ---------- integer square root (floor) for 64‑bit unsigned integers ---------- */
 static inline idx_t _isqrt_u64(idx_t x) {

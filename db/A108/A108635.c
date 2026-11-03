@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   decreasing_digits
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,25 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/decreasing_digits.h"
+#include "../utils/mem.h"
+
+/* test whether a decimal representation has non‑increasing digits -------- */
+static bool decreasing_digits(uint64_t x)
+{
+    /* store digits reversed so that d[0] = least significant digit */
+    uint8_t d[20];
+    int len = 0;
+    do {
+        d[len++] = (uint8_t)(x % 10);
+        x /= 10;
+    } while (x && len < (int)sizeof(d));
+    /* now check from most significant to least significant */
+    for (int i = len - 1; i > 0; --i) {
+        if (d[i] < d[i - 1]) /* strictly increasing */
+            return false;
+    }
+    return true;
+}
 
 /* integer square root for 64‑bit values --------------------------------- */
 static inline uint64_t isqrt_uint64(uint64_t n)
@@ -112,7 +131,7 @@ static void push_seq(seq_t val)
 {
     if (seq_sz == seq_cap) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 128;
-        seq_t *tmp = (seq_t *)realloc(seq_arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_arr, new_cap);
         seq_arr = tmp;
         seq_cap = new_cap;
     }

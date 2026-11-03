@@ -11,7 +11,8 @@
  *            a²≡y (mod m)
  * Range:     u8 n <= 205, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sq_2_power
+ * Validated: standard, pass, 88 terms through n = 9965 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,30 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/sq_2_power.h"
+#include "../utils/mem.h"
+
+/* ------------------------------------------------------------------ */
+static seq_t sq_2_power(idx_t e)
+{
+    if (e == 1 || e == 2)
+        return (seq_t)2;          /* 0,1   */
+    /* e >= 3 */
+    seq_t count = (seq_t)1;       /* zero residue */
+    /* odd squares (t = 0) */
+    count += ((seq_t)1 << (e - 3));   /* 2^(e-3) odd squares for e>=3 */
+
+    idx_t max_t = (e - 1) / 2;   /* t runs while 2t < e */
+    for (idx_t t = 1; t <= max_t; ++t) {
+        idx_t k = e - 2 * t;     /* exponent of 2 in the odd part */
+        seq_t odd_sq;
+        if (k == 1 || k == 2)            /* Nodd(1)=Nodd(2)=1 */
+            odd_sq = (seq_t)1;
+        else
+            odd_sq = ((seq_t)1 << (k - 3));   /* 2^(k-3) */
+        count += odd_sq;
+    }
+    return count;
+}
 
 /* ------------------------------------------------------------------ */
 /*  helper: power of an unsigned integer, safe for small exponents    */
@@ -105,7 +129,7 @@ seq_t a(idx_t n)
         if (qualifies(next_m)) {
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 8;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 cache = tmp;
                 cache_cap = new_cap;
             }

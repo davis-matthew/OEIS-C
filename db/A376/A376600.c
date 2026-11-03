@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   count_distinct_primes
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-01)
+ * Helpers:   omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,13 +21,13 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/count_distinct_primes.h"
+#include "../utils/omega.h"
 
 /* Test whether x is a prime power (including 1). */
 static inline bool is_prime_power(uint64_t x)
 {
     if (x <= 1) return true;            /* 1 is deemed a prime power */
-    return count_distinct_primes(x) == 1;
+    return omega(x) == 1;
 }
 
 seq_t a(idx_t n)

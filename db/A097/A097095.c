@@ -12,12 +12,14 @@
  *            memoises computed terms to allow arbitrary call order....
  * Range:     i8 n <= 13, i16 n <= 24, i32 n <= 41, i64 n <= 41, i128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,8 +31,8 @@ seq_t a(idx_t n)
     /* initialise on first call */
     if (max_computed == (idx_t)-1) {
         size_t sz = (size_t)n + 1;
-        a_arr = (seq_t*)malloc(sz * sizeof(seq_t));
-        e_arr = (seq_t*)malloc(sz * sizeof(seq_t));
+        a_arr = mem_new(seq_t, sz);
+        e_arr = mem_new(seq_t, sz);
         if (!a_arr || !e_arr) return 0;          /* allocation failure */
         a_arr[0] = 1;                            /* a(0) */
         e_arr[0] = 1;                            /* e(0) = a0*a0 */
@@ -39,8 +41,8 @@ seq_t a(idx_t n)
     /* grow arrays if necessary */
     else if (n > max_computed) {
         size_t new_sz = (size_t)n + 1;
-        seq_t* new_a = (seq_t*)realloc(a_arr, new_sz * sizeof(seq_t));
-        seq_t* new_e = (seq_t*)realloc(e_arr, new_sz * sizeof(seq_t));
+        seq_t* new_a = mem_resize(seq_t, a_arr, new_sz);
+        seq_t* new_e = mem_resize(seq_t, e_arr, new_sz);
         if (!new_a || !new_e) return a_arr[n];   /* keep previous data */
         a_arr = new_a;
         e_arr = new_e;

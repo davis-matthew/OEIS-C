@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   gval
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,14 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/gval.h"
+
+/* Evaluate g(k) = k + (k+1)/log(k+1) for integer k ≥ 1. */
+static double gval(uint64_t k)
+{
+    double dk  = (double)k;
+    double denom = log((double)(k + 1));
+    return dk + (double)(k + 1) / denom;
+}
 
 /*--- sieve data ---------------------------------------------------*/
 static uint8_t *prime_flag = NULL;   /* flag[i] == 1 if i is prime   */

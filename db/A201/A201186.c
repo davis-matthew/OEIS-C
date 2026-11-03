@@ -9,12 +9,15 @@
  *            where 2^(2*n-1)-1 is the (2*n-1)-th Mersenne number
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
- * Helpers:   big_pow
+ * Validated: full, pass, 8 terms through n = 8 (2026-11-02)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     /* Special case n = 1 */
@@ -25,8 +28,8 @@ seq_t a(idx_t n) {
     seq_t p = ((seq_t)n) * 2 - 1;
     seq_t two = (seq_t)2;
     /* Compute 2^(p-1) and 2^p */
-    seq_t pow_p_minus_1 = big_pow(two, p - 1);
-    seq_t pow_p         = big_pow(two, p);
+    seq_t pow_p_minus_1 = ipow(two, p - 1);
+    seq_t pow_p         = ipow(two, p);
     /* a(n) = 2^(p-1) * (2^p - 1) */
     return pow_p_minus_1 * (pow_p - (seq_t)1);
 }

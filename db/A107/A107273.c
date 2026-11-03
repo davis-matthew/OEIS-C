@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   is_vert_sym
+ * Validated: full, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,24 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_vert_sym.h"
+#include "../utils/mem.h"
+
+/* Return true iff the 8‑character string s is vertically symmetrical.
+   The only allowed symmetrical pairs are 0<->0, 1<->1, 8<->8 and
+   2<->5 (with 2 mapping to 5 and vice‑versa). */
+static bool is_vert_sym(const char *s)
+{
+    for (int i = 0; i < 4; ++i) {
+        char a = s[i];
+        char b = s[7-i];
+        if (a == b && (a == '0' || a == '1' || a == '8'))
+            continue;
+        if ((a == '2' && b == '5') || (a == '5' && b == '2'))
+            continue;
+        return false;
+    }
+    return true;
+}
 
 /* Return the number of days in the given month of the given year. */
 static int days_in_month(uint32_t year, int month)
@@ -48,7 +66,7 @@ seq_t a(idx_t n)
 
     if (!ready) {
         cap = 128;
-        arr = (seq_t *)malloc(cap * sizeof(seq_t));
+        arr = mem_new(seq_t, cap);
         if (!arr) return (seq_t)0;  /* allocation failure – unlikely in tests */
 
         for (int month = 1; month <= 12; ++month) {
@@ -71,7 +89,7 @@ seq_t a(idx_t n)
                               + (seq_t)year;
                     if (sz == cap) {
                         cap *= 2;
-                        arr = (seq_t *)realloc(arr, cap * sizeof(seq_t));
+                        arr = mem_resize(seq_t, arr, cap);
                         if (!arr) return (seq_t)0;  /* allocation failure */
                     }
                     arr[sz++] = val;

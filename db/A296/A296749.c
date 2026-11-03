@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 68, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   fewer_rises_than_falls
+ * Validated: standard, pass, 74 terms through n = 9490 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,39 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>   /* malloc/realloc */
-#include "../utils/fewer_rises_than_falls.h"
+#include "../utils/mem.h"
+
+/* Helper: return 1 if x's base‑12 digits contain fewer rises than falls. */
+static int fewer_rises_than_falls(seq_t x)
+{
+    /* Extract base‑12 digits (least significant first). */
+    uint8_t dig[64];
+    size_t len = 0;
+    seq_t v = x;                     /* preserve original */
+    seq_t zero = 0;
+    while (v > zero) {
+        /* x % 12 and x / 12 are defined for seq_t. */
+        dig[len++] = (uint8_t)(v % 12);
+        v = v / 12;
+        if (len == sizeof(dig)) {    /* safety guard, should not happen */
+            break;
+        }
+    }
+    if (len <= 1) return 0;          /* no adjacent digit pairs */
+
+    /* Count rises and falls.  Compare digits from most to least significant. */
+    unsigned int rises = 0, falls = 0;
+    for (size_t i = len - 1; i > 0; --i) {
+        uint8_t a = dig[i];
+        uint8_t b = dig[i - 1];
+        if (a < b) {
+            ++rises;
+        } else if (a > b) {
+            ++falls;
+        }
+    }
+    return rises < falls;
+}
 
 /* Memoised sequence array.  All indices are 1‑based. */
 static seq_t *cache      = NULL;
@@ -35,7 +68,7 @@ static void push_cache(seq_t val)
 {
     if (cache_len == cache_cap) {
         size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         /* On a failure realloc will return NULL and leave cache unchanged.
            For the purposes of this problem a failure is not expected. */
         cache = tmp;

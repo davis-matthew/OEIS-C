@@ -10,6 +10,7 @@
  *            first listed term)
  * Range:     u8 n <= 27, u16 n <= 127, u32 n <= 127, u64 n <= 127,
  *            u128 n <= 127, big any n
+ * Validated: full, pass, 127 terms through n = 127 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

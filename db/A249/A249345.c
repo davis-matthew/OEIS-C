@@ -9,7 +9,8 @@
  *            exponent of 5 in i
  * Range:     u8 n <= 124, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   v5_of_uint64
+ * Validated: standard, pass, 91 terms through n = 9586 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,18 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/v5_of_uint64.h"
+
+/* Helper: exponent of the highest power of 5 dividing i.  */
+static unsigned int v5_of_uint64(uint64_t v)
+{
+    unsigned int c = 0;
+    while (v % 5 == 0 && v > 0)
+    {
+        v /= 5;
+        ++c;
+    }
+    return c;
+}
 
 /* External linkage as required. */
 seq_t a(idx_t n)

@@ -8,13 +8,15 @@
  *            J(n)=J(n-1)+2*J(n-2) for n≥2 a(n)=n*J(n)
  * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 28, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* dynamic storage of Jacobsthal numbers, computed lazily */
 static seq_t *J = NULL;    /* array of Jacobsthal numbers */
@@ -31,10 +33,10 @@ ensure_jacobsthal(idx_t n)
     seq_t *tmp = NULL;
 
     if (J == NULL) {
-        tmp = (seq_t *)malloc(newlen * sizeof(seq_t));
+        tmp = mem_new(seq_t, newlen);
         if (tmp == NULL) return -1;
     } else {
-        tmp = (seq_t *)realloc(J, newlen * sizeof(seq_t));
+        tmp = mem_resize(seq_t, J, newlen);
         if (tmp == NULL) return -1;   /* keep old array on failure */
     }
     J = tmp;

@@ -8,12 +8,14 @@
  *            n >= 1, indexed by OEIS convention
  * Range:     u8 n <= 519, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 111 terms through n = 930 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
         /* New size is n+1 to allow indexing up to n inclusive. */
         idx_t new_size = n + 1;
         /* `realloc` returns void*; cast explicitly to satisfy C++. */
-        cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
         if (cache == NULL) {              /* allocation failed */
             /* In a real application you might abort or return an error. */
             return 0;

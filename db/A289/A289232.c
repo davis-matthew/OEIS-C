@@ -13,13 +13,15 @@
  *            function: * a(n) = - (d1*a(n-1) + d2*a(n-2) + ... +...
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 19, u64 n <= 100, u128 n <= 100,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 99 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static const seq_t init_terms[14] = {
     (seq_t)0ULL,               /* a(5) */
@@ -64,10 +66,10 @@ static void ensure_capacity(idx_t n) {
     if (cache_size > n) return;
     idx_t new_size = cache_size ? cache_size * 2 : 64;
     while (new_size <= n) new_size <<= 1;
-    seq_t *new_cache = (seq_t *)calloc(new_size, sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_size);
     if (cache) {
         for (idx_t i = 0; i < cache_size; ++i) new_cache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
     cache = new_cache;
     cache_size = new_size;

@@ -7,19 +7,21 @@
  * Formula:   a(n) = lcm( n - φ(n) , (n+1) - φ(n+1) ) (cototients)
  * Range:     u8 n <= 34, u16 n <= 493, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd, phi
+ * Validated: standard, pass, 83 terms through n = 9678 (2026-11-01)
+ * Helpers:   gcd, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/phi.h"
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
     /* cototient of n and n+1 */
-    seq_t cot1 = ((seq_t)n) - phi(n);
-    seq_t cot2 = ((seq_t)(n + 1)) - phi(n + 1);
+    seq_t cot1 = ((seq_t)n) - totient(n);
+    seq_t cot2 = ((seq_t)(n + 1)) - totient(n + 1);
 
     /* if either cototient is zero, the LCM is zero */
     if (cot1 == 0 || cot2 == 0)

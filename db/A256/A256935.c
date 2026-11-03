@@ -9,7 +9,8 @@
  *            whose decimal digits are all odd (offset 1)
  * Range:     u8 n <= 11, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   digit_len, pow10
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-01)
+ * Helpers:   num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,17 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/pow10.h"
-#include "../utils/digit_len.h"
+#include "../utils/num_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Test whether all decimal digits of x are odd */
 static inline bool all_odd_digits(uint64_t x)
@@ -62,7 +72,7 @@ seq_t a(idx_t n)
     for (uint64_t p = 3; p * p <= tmp; p += 2) {
         while (tmp % p == 0) {
             seq_t prime = (seq_t)p;
-            seq_t mult  = pow10((idx_t)digit_len(prime));
+            seq_t mult  = pow10((idx_t)num_digits(prime));
             result = result * mult + prime;
             tmp   /= p;
         }
@@ -70,7 +80,7 @@ seq_t a(idx_t n)
     /* Remaining prime factor (>1) */
     if (tmp > 1) {
         seq_t prime = (seq_t)tmp;
-        seq_t mult  = pow10((idx_t)digit_len(prime));
+        seq_t mult  = pow10((idx_t)num_digits(prime));
         result = result * mult + prime;
     }
 

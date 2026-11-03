@@ -12,7 +12,8 @@
  *            a(6)=T(3,3), …
  * Range:     i8 n <= 47, i16 n <= 66, i32 n <= 66, i64 n <= 66, i128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static idx_t max_row = 0;        /* largest row that has been precomputed   */
 static seq_t *b      = NULL;     /* coefficients of B(x)  (b[1..R])         */
@@ -37,7 +39,7 @@ static idx_t find_row(idx_t n)
 static void recompute_all(idx_t R)
 {
     /*  Allocate / resize b[0..R]  */
-    seq_t *new_b = (seq_t *)realloc(b, (R + 1) * sizeof(seq_t));
+    seq_t *new_b = mem_resize(seq_t, b, (R + 1));
     if (new_b == NULL) exit(1);
     b = new_b;
 
@@ -58,14 +60,14 @@ static void recompute_all(idx_t R)
     powers = new_pow;
 
     /*  powers[0] : B^0 = 1  */
-    seq_t *p0 = (seq_t *)calloc(R + 1, sizeof(seq_t));
+    seq_t *p0 = mem_new(seq_t, R + 1);
     if (p0 == NULL) exit(1);
     p0[0] = 1;        /* coefficient of x^0 */
     powers[0] = p0;
 
     /*  Compute powers[k] for k = 1..R  */
     for (idx_t k = 1; k <= R; ++k) {
-        seq_t *cur = (seq_t *)calloc(R + 1, sizeof(seq_t));
+        seq_t *cur = mem_new(seq_t, R + 1);
         if (cur == NULL) exit(1);
 
         for (idx_t i = 0; i <= R; ++i) {

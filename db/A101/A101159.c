@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 369, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   isqrt
+ * Validated: standard, pass, 76 terms through n = 942 (2026-11-01)
+ * Helpers:   isqrt_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/isqrt.h"
+#include "../utils/isqrt_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +38,7 @@ seq_t a(idx_t n)
         sum += (seq_t)m;    /* add the new term m */
 
         /* Check if sum is a perfect square. */
-        seq_t r = isqrt(sum);
+        seq_t r = isqrt_seq(sum);
         if (r * r == sum) {
             return (seq_t)m;
         }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 4098, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   add_mod_seq, mod_mul
+ * Validated: standard, pass, 69 terms through n = 9681 (2026-11-03)
+ * Helpers:   addmod, mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,13 +20,15 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/mod_mul.h"   /* mod_mul for uint64_t multiplication modulo */
-#include "../utils/add_mod_seq.h"
+#include <stdlib.h>
+#include "../utils/addmod.h"
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 static seq_t mul_mod_seq(seq_t a, seq_t b, seq_t mod)
 {
     if (sizeof(seq_t) <= 8) {
-        return (seq_t)mod_mul((uint64_t)a, (uint64_t)b, (uint64_t)mod);
+        return (seq_t)mulmod((uint64_t)a, (uint64_t)b, (uint64_t)mod);
     }
     return (a * b) % mod;
 }
@@ -42,18 +45,18 @@ static seq_t fib_mod(idx_t n, seq_t mod)
 
     for (; bit; bit >>= 1) {
         /* c = a * (2*b - a) mod mod */
-        seq_t t = add_mod_seq(b, b, mod);          /* 2*b mod mod */
+        seq_t t = addmod(b, b, mod);          /* 2*b mod mod */
         if (t >= a) t -= a; else t += mod - a;
         seq_t c = mul_mod_seq(a, t, mod);
 
         /* d = a*a + b*b mod mod */
         seq_t aa = mul_mod_seq(a, a, mod);
         seq_t bb = mul_mod_seq(b, b, mod);
-        seq_t d = add_mod_seq(aa, bb, mod);
+        seq_t d = addmod(aa, bb, mod);
 
         if (n & bit) {
             a = d;
-            seq_t tmp = add_mod_seq(c, d, mod);
+            seq_t tmp = addmod(c, d, mod);
             b = tmp;
         } else {
             a = c;
@@ -155,7 +158,7 @@ seq_t a(idx_t n)
                 /* this prime is part of the sequence */
                 if (term_cnt == term_cap) {
                     size_t new_cap = term_cap ? term_cap * 2 : 64;
-                    seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, terms, new_cap);
                     terms = tmp;
                     term_cap = new_cap;
                 }

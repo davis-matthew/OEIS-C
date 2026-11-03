@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,6 +34,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* GCD for integral types */
 static inline seq_t my_gcd(seq_t a, seq_t b)
@@ -99,7 +101,7 @@ seq_t a(idx_t n)
     /* Initialise with the first three terms if empty */
     if (len == 0) {
         cap = 8;
-        buf = (seq_t *)realloc(NULL, cap * sizeof(seq_t));
+        buf = mem_resize(seq_t, NULL, cap);
         buf[0] = (seq_t)1;
         buf[1] = (seq_t)2;
         buf[2] = (seq_t)6;
@@ -149,7 +151,7 @@ seq_t a(idx_t n)
         /* Append the found candidate and grow array if needed */
         if (len == cap) {
             size_t new_cap = cap ? cap * 2 : 8;
-            buf = (seq_t *)realloc(buf, new_cap * sizeof(seq_t));
+            buf = mem_resize(seq_t, buf, new_cap);
             cap = new_cap;
         }
         buf[len++] = cand;

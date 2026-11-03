@@ -7,8 +7,9 @@
  * Formula:   Primes of the form 4*x^2 + x*y + 4*y^2. The function generates
  *            all primes of this form in ascending order and returns the n-th
  *            one (1‑based)
- * Range:     u8 n <= 7, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
- *            big any n
+ * Range:     u8 n <= 7, u16 n <= 810, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 62 terms through n = 8660 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  *            1‑based; a(1) corresponds to the first composite 4)
  * Range:     u8 n <= 201, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   factor_u64, is_prime_small
+ * Validated: standard, pass, 87 terms through n = 4652 (2026-11-01)
+ * Helpers:   factor_u64, is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "../utils/is_prime_small.h"   /* bool is_prime_small(uint64_t) */
-#include "../utils/factor_u64.h"       /* void factor_u64(uint64_t, uint64_t *, uint64_t *, size_t *) */
+#include "../utils/factor_u64.h"
+#include "../utils/is_prime_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -47,7 +48,7 @@ seq_t a(idx_t n)
         }
         /* add composites until we have n of them */
         while (comps_len < n) {
-            if (!is_prime_small(next_candidate))
+            if (!is_prime_seq(next_candidate))
                 comps[comps_len++] = next_candidate;
             next_candidate++;
         }

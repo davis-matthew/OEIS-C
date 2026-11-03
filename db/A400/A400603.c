@@ -7,13 +7,15 @@
  * Formula:   a(1)=1; a(n+1)=∑_{k=1..n} a(n/gcd(n,k))*a(k/gcd(n,k))
  * Range:     u8 n <= 6, u16 n <= 7, u32 n <= 9, u64 n <= 10, u128 n <= 11,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 13 terms through n = 13 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Euclidean GCD for idx_t (uint64_t) */
 static inline idx_t _gcd_idx(idx_t a, idx_t b)
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     if (cache == NULL)
     {
         cap   = (idx_t)2;               /* indices 0 and 1 */
-        cache = (seq_t*)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) return (seq_t)0;    /* allocation failure */
         cache[(idx_t)1] = (seq_t)1;     /* a(1) = 1 */
         last = (idx_t)1;
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
     {
         idx_t newcap = cap;
         while (newcap <= n) newcap <<= 1; /* double until large enough */
-        seq_t *tmp = (seq_t*)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp) return (seq_t)0;        /* allocation failure */
         cache = tmp;
         cap   = newcap;

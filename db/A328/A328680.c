@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 109, u16 n <= 109, u32 n <= 109, u64 n <= 109,
  *            u128 n <= 109, big any n
- * Helpers:   a040115, a053392
+ * Validated: partial, pass, 109 terms through n = 109 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,64 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/a040115.h"
-#include "../utils/a053392.h"
+
+/* --------------------------------------------------------------------
+   Helper: A040115(x) – concatenation of absolute digit differences
+   -------------------------------------------------------------------- */
+static seq_t a040115(seq_t x)
+{
+    /* Use a sufficiently large stack buffer for decimal digits. */
+    unsigned char digits[512];
+    size_t len = 0;
+
+    if (x == 0) {
+        digits[len++] = 0;
+    } else {
+        while (x != 0) {
+            digits[len++] = (unsigned char)(x % 10);
+            x /= 10;
+        }
+    }
+
+    seq_t res = 0;
+    for (size_t i = len; i > 1; --i) {
+        int d1 = digits[i - 1];
+        int d0 = digits[i - 2];
+        unsigned diff = (d1 > d0) ? (unsigned)(d1 - d0) : (unsigned)(d0 - d1);
+        res = res * 10 + diff;
+    }
+    return res;
+}
+
+/* --------------------------------------------------------------------
+   Helper: A053392(x) – concatenation of adjacent digit sums
+   -------------------------------------------------------------------- */
+static seq_t a053392(seq_t x)
+{
+    unsigned char digits[512];
+    size_t len = 0;
+
+    if (x == 0) {
+        digits[len++] = 0;
+    } else {
+        while (x != 0) {
+            digits[len++] = (unsigned char)(x % 10);
+            x /= 10;
+        }
+    }
+
+    seq_t res = 0;
+    for (size_t i = len; i > 1; --i) {
+        int sum = (int)digits[i - 1] + (int)digits[i - 2];   /* 0..18 */
+        if (sum >= 10) {
+            res = res * 10 + (sum / 10);
+            res = res * 10 + (sum % 10);
+        } else {
+            res = res * 10 + sum;
+        }
+    }
+    return res;
+}
 
 /* --------------------------------------------------------------------
    Simple singly linked list to store seen values.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 176, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   binom_capped
+ * Validated: standard, pass, 62 terms through n = 8244 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,19 @@
    arbitrary‑precision arithmetic. */
 
 #include <stdint.h>
-#include "../utils/binom_capped.h"
+
+/* Return min( C(n,k), limit+1 ).  n,k are non‑negative idx_t values. */
+static idx_t binom_capped(idx_t n, idx_t k, idx_t limit) {
+    if (k > n) return 0;
+    if (k > n - k) k = n - k;
+    unsigned __int128 r = 1;
+    for (idx_t i = 1; i <= k; ++i) {
+        r = r * (n - k + i);
+        r /= i;
+        if (r > (unsigned __int128)limit) return limit + 1;
+    }
+    return (idx_t)r;
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 0; /* not used, offset starts at 1 */

@@ -11,7 +11,8 @@
  *            p ≥ 5 a(n) for general n is the product of its p...
  * Range:     u8 n <= 134, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, mod_pow, pow_uint
+ * Validated: standard, pass, 76 terms through n = 9926 (2026-11-01)
+ * Helpers:   factor_u64, ipow_u64_idx, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,16 +20,18 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_uint.h"
-#include "../utils/mod_pow.h"
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/powmod.h"
 
 /* Legendre symbol (value/p) for an odd prime p. Returns 1, 0, or –1. */
 static int legendre_symbol(uint64_t value, uint64_t prime)
 {
     uint64_t v = value % prime;
     if (v == 0) return 0;
-    seq_t pow_res = mod_pow((seq_t)v, (prime - 1) / 2, (seq_t)prime);
+    seq_t pow_res = powmod((seq_t)v, (prime - 1) / 2, (seq_t)prime);
     if (pow_res == (seq_t)(prime - 1)) return -1;
     return 1;
 }
@@ -37,7 +40,7 @@ static int legendre_symbol(uint64_t value, uint64_t prime)
 static uint64_t mod_inv_prime(uint64_t b, uint64_t p)
 {
     /* Fermat's little theorem: b^(p‑2) ≡ b⁻¹ (mod p) */
-    seq_t inv = mod_pow((seq_t)b, p - 2, (seq_t)p);
+    seq_t inv = powmod((seq_t)b, p - 2, (seq_t)p);
     return (uint64_t)inv;
 }
 
@@ -64,13 +67,13 @@ seq_t a(idx_t n)
             if (e == 1)
                 block = (seq_t)3;
             else
-                block = 2 * pow_uint(3, e);
+                block = 2 * ipow_u64_idx(3, e);
         }
         else if (p % 3 == 2) {
-            block = pow_uint(p, e);
+            block = ipow_u64_idx(p, e);
         }
         else { /* p % 3 == 1  (p ≥ 5) */
-            seq_t p_pow = pow_uint(p, e - 1);
+            seq_t p_pow = ipow_u64_idx(p, e - 1);
 
             int64_t sum = 0;
             for (uint64_t b = 1; b < p; ++b) {

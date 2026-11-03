@@ -8,6 +8,7 @@
  *            - r*(r+1)/2. This yields the OEIS sequence A137948
  * Range:     u8 n <= 26, u16 n <= 52, u32 n <= 103, u64 n <= 251,
  *            u128 n <= 663, big any n
+ * Validated: standard, pass, 71 terms through n = 7965 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

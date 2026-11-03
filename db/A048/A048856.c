@@ -8,7 +8,8 @@
  *            nth prime) + 1
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   build_primes_upto, nth_prime_upper
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-01)
+ * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,17 @@
 #include <stdint.h>
 
 /* helpers from the utils library */
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/nth_prime_upper.h"
+
+/* upper bound for the nth prime (n >= 6) */
+static inline idx_t nth_prime_upper(idx_t n)
+{
+    if (n < 6) return 15;
+    long double nn = (long double)n;
+    long double ub = nn * (logl(nn) + logl(logl(nn)));
+    return (idx_t)(ub + 10.0L);          /* safety margin */
+}
 
 /* static cache for primes and cumulative log10 sum */
 static uint64_t *prime_list   = NULL;   /* array of all primes up to the current limit */

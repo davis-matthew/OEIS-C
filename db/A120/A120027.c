@@ -9,14 +9,29 @@
  *            read bottom‑up on each diagonal.)
  * Range:     u8 n <= 12, u16 n <= 34, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   pow3, power5
+ * Validated: partial, pass, 44 terms through n = 43 (2026-11-01)
+ * Helpers:   pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow3.h"
-#include "../utils/power5.h"
+
+static inline seq_t power5(idx_t exp)
+{
+    seq_t result = 1;
+    seq_t base   = 5;
+    while (exp)
+    {
+        if (exp & 1)
+            result *= base;
+        base *= base;
+        exp >>= 1;
+    }
+    return result;
+}
 
 /* integer square root of an unsigned __int128 value */
 static inline idx_t isqrt128(unsigned __int128 x)

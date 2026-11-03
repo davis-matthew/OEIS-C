@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 30, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
  * The function memoises values in a static array, expanding it as needed.
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static memoisation */
@@ -33,7 +35,7 @@ seq_t a(idx_t n) {
     /* initialise cache on first call */
     if (cache == NULL) {
         capacity = 12;               /* store a[1] .. a[11] plus one slot for 0 */
-        cache = (seq_t *)malloc(capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, capacity);
         if (!cache) return 0;       /* allocation failed: return 0 */
 
         /* initialise first 11 terms */
@@ -57,7 +59,7 @@ seq_t a(idx_t n) {
     /* enlarge cache if required */
     if ((size_t)n + 1 > capacity) {
         size_t new_cap = (n + 1) * 2;  /* grow by factor 2 for future calls */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;           /* allocation failed */
         cache = tmp;
         capacity = new_cap;

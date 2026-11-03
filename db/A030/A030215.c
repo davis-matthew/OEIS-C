@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 10000, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 9193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The build supplies seq_t and idx_t; no other prototypes are needed. */
 
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     if (n > cached_size) {
         /* Allocate a new coefficient array. */
         size_t sz = (size_t)n;                 /* array indices 0 .. n-1 */
-        seq_t *new_coeff = (seq_t *)malloc(sz * sizeof(seq_t));
+        seq_t *new_coeff = mem_new(seq_t, sz);
         if (!new_coeff)
             return 0;                        /* in case of OOM, return 0 */
 
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
 
         /* Replace old cache if present. */
         if (coeff != NULL)
-            free(coeff);
+            mem_free(coeff);
         coeff = new_coeff;
         cached_size = n;
     }

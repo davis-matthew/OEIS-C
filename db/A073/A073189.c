@@ -10,13 +10,20 @@
  *            mod (k+1)
  * Range:     u8 n <= 3977, u16 n <= 3977, u32 n <= 3977, u64 n <= 3977,
  *            u128 n <= 3977, big any n
- * Helpers:   C
+ * Validated: standard, pass, 121 terms through n = 3924 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/C.h"
+
+static inline idx_t C(idx_t k) {
+    /* Compute C(k) = 3*(k+1)*(k+2)/2 using 128‑bit arithmetic to avoid overflow. */
+    __int128 x = (__int128)(k + 1) * (k + 2);
+    x = x * 3 / 2;
+    return (idx_t)x;
+}
 
 seq_t a(idx_t n)
 {

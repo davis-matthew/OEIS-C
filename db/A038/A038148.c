@@ -11,7 +11,8 @@
  *            multiplicative property of 3‑infinitary divisors
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   ternary_contrib
+ * Validated: standard, pass, 121 terms through n = 8996 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,18 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/ternary_contrib.h"
+
+/* Return ∏(digit+1) for the base‑3 representation of exp. */
+static seq_t ternary_contrib(uint64_t exp)
+{
+    seq_t prod = (seq_t)1;
+    while (exp > 0) {
+        uint64_t digit = exp % 3ULL;
+        prod *= (seq_t)(digit + 1);
+        exp /= 3ULL;
+    }
+    return prod;
+}
 
 /* Sequence function ---------------------------------------------------- */
 seq_t a(idx_t n)

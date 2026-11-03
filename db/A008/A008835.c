@@ -9,13 +9,15 @@
  *            and multiplies the * appropriate 4‑th power factors
  * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 97 terms through n = 8794 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 
 /* External linkage as required */
 seq_t a(idx_t n)
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
         }
         int exp4 = 4 * (e / 4);
         if (exp4 > 0) {
-            seq_t pow_val = seq_pow((seq_t)p, (idx_t)exp4);
+            seq_t pow_val = ipow_idx((seq_t)p, (idx_t)exp4);
             result *= pow_val;
         }
     }

@@ -8,6 +8,7 @@
  * Formula:   a(n) = n*(n-1)*(n-2)*(n+3)/12 for n >= 3; a(1) = 0, a(2) = 1
  * Range:     u8 n <= 7, u16 n <= 29, u32 n <= 476, u64 n <= 5000,
  *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 58 terms through n = 4940 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

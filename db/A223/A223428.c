@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 171 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ---------- constants ---------------------------------------------------- */
 #define NODES 15                          /* graph nodes 0 … 14 */
@@ -163,8 +165,8 @@ static void build_tables(void)
     }
 
     /* DP arrays */
-    dp_cur  = (seq_t *)malloc(sizeof(seq_t) * valid_cnt);
-    dp_next = (seq_t *)malloc(sizeof(seq_t) * valid_cnt);
+    dp_cur  = mem_new(seq_t, valid_cnt);
+    dp_next = mem_new(seq_t, valid_cnt);
     init_done = true;
 }
 

@@ -7,12 +7,14 @@
  * Formula:   a(n) = 6*a(n-1) - a(n-2), with a(1)=2, a(2)=14 (offset 1)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 13, u64 n <= 25, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 1273 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
     /* lazy initialization of first two terms */
     if (A == NULL) {
         sz = 4;                       /* small initial capacity */
-        A = (seq_t*)malloc(sz * sizeof(seq_t));
+        A = mem_new(seq_t, sz);
         A[0] = (seq_t)2;              /* a(1) */
         A[1] = (seq_t)14;             /* a(2) */
         cnt = 2;
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     if (n > cnt) {
         if (n > sz) {
             sz = n;
-            A = (seq_t*)realloc(A, sz * sizeof(seq_t));
+            A = mem_resize(seq_t, A, sz);
         }
         for (idx_t i = cnt + 1; i <= n; ++i) {
             seq_t next = (seq_t)( (seq_t)6 * A[i - 2] - A[i - 3] );

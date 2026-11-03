@@ -9,12 +9,14 @@
  *            k! [x^k] (x*exp(x) - x^2*exp(2*x)))
  * Range:     i8 n <= 4, i16 n <= 6, i32 n <= 10, i64 n <= 17, i128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 296 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *A_vals = NULL;   /* a(0..len-1) */
 static seq_t *F_vals = NULL;   /* f(0..len-1) */
@@ -27,17 +29,17 @@ static void ensure_cap(idx_t need) {
     if (need <= cap) return;
     idx_t nc = cap ? cap : 16;
     while (nc < need) nc *= 2;
-    seq_t *na = (seq_t *)malloc(nc * sizeof(seq_t));
-    seq_t *nf = (seq_t *)malloc(nc * sizeof(seq_t));
-    seq_t *nr = (seq_t *)malloc(nc * sizeof(seq_t));
+    seq_t *na = mem_new(seq_t, nc);
+    seq_t *nf = mem_new(seq_t, nc);
+    seq_t *nr = mem_new(seq_t, nc);
     for (idx_t i = 0; i < len; i++) {
         na[i] = A_vals[i];
         nf[i] = F_vals[i];
         nr[i] = R_row[i];
     }
-    free(A_vals);
-    free(F_vals);
-    free(R_row);
+    mem_free(A_vals);
+    mem_free(F_vals);
+    mem_free(R_row);
     A_vals = na;
     F_vals = nf;
     R_row = nr;

@@ -8,7 +8,8 @@
  * Formula:   a(n) = ∏_{p | prime(n), q < p, q prime} (p mod q)
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 15, u64 n <= 22, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 322 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- Prime generation (trial division) ---------- */
 static uint64_t *prime_list   = NULL;   /* dynamic array of primes       */
@@ -85,9 +87,9 @@ seq_t a(idx_t n)
 
     /* Grow cache if needed and compute missing terms. */
     if (cache_len < n) {
-        seq_t *tmp = (seq_t *)realloc(cache, n * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, n);
         if (!tmp) {
-            free(cache);
+            mem_free(cache);
             cache = NULL;
             cache_len = 0;
             return 0;                /* allocation failure                    */

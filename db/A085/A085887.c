@@ -9,15 +9,17 @@
  *            where tau(k) is the number of positive divisors of k. The
  *            function computes tau values up to the maximum n requested and
  *            then evaluates the minimum in O(n) per call
- * Range:     u8 n <= 9075, u16 n <= 9075, u32 n <= 9075, u64 n <= 9075,
- *            u128 n <= 9075, big any n
- * Helpers:   none
+ * Range:     u8 n <= 16385, u16 n <= 16385, u32 n <= 16385, u64 n <= 16385,
+ *            u128 n <= 16385, big any n
+ * Validated: standard, pass, 121 terms through n = 9075 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static cache for divisor counts */
 static seq_t *tau_cache = NULL;     /* tau[k] = number of divisors of k */
@@ -27,7 +29,7 @@ static idx_t tau_len = 0;           /* current size of tau_cache (size == tau_le
 static void recompute_tau(idx_t n)
 {
     /* allocate large enough array */
-    tau_cache = (seq_t *)realloc(tau_cache, (n + 1) * sizeof(seq_t));
+    tau_cache = mem_resize(seq_t, tau_cache, (n + 1));
     if (tau_cache == NULL)
         exit(EXIT_FAILURE);
 

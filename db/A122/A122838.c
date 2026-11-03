@@ -12,7 +12,8 @@
  *            read row by row, where row r contains r+1 coefficients
  * Range:     i8 n <= 20, i16 n <= 35, i32 n <= 55, i64 n <= 55, i128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    calls and is O(n) in the required row size. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -44,15 +46,15 @@ seq_t a(idx_t n)
     if (polys == NULL) {
         polys_cap = 2;
         polys = (seq_t **)malloc(polys_cap * sizeof(seq_t *));
-        polys[0] = (seq_t *)malloc(1 * sizeof(seq_t));
+        polys[0] = mem_new(seq_t, 1);
         polys[0][0] = (seq_t)1;            /* p(0) = 1 */
-        polys[1] = (seq_t *)malloc(2 * sizeof(seq_t));
+        polys[1] = mem_new(seq_t, 2);
         polys[1][0] = (seq_t)(-1);          /* p(1) = x - 1 */
         polys[1][1] = (seq_t)1;
         polys_max = 1;
 
         fibs_cap = 2;
-        fibs = (seq_t *)malloc(fibs_cap * sizeof(seq_t));
+        fibs = mem_new(seq_t, fibs_cap);
         fibs[0] = (seq_t)0;                 /* fib(0) = 0 */
         fibs[1] = (seq_t)1;                 /* fib(1) = 1 */
         fibs_max = 1;
@@ -76,7 +78,7 @@ seq_t a(idx_t n)
             size_t new_cap = fibs_cap ? fibs_cap * 2 : 2;
             if (new_cap < (size_t)(r + 1))
                 new_cap = r + 1;
-            seq_t *tmp = (seq_t *)realloc(fibs, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, fibs, new_cap);
             fibs = tmp;
             fibs_cap = new_cap;
         }
@@ -89,7 +91,7 @@ seq_t a(idx_t n)
 
         /* Compute missing polynomial rows */
         for (idx_t i = polys_max + 1; i <= r; ++i) {
-            polys[i] = (seq_t *)malloc((size_t)(i + 1) * sizeof(seq_t));
+            polys[i] = mem_new(seq_t, (size_t)(i + 1));
             for (idx_t k = 0; k <= i; ++k) {
                 seq_t t1 = (k > 0)                    ? polys[i - 1][k - 1] : (seq_t)0;
                 seq_t t2 = (k < i)                    ? polys[i - 1][k] * fibs[i] : (seq_t)0;

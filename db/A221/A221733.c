@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 10, u128 n <= 21,
  *            big any n
- * Helpers:   parse_bigint
+ * Validated: standard, pass, 29 terms through n = 102 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,7 +34,18 @@
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/parse_bigint.h"
+#include "../utils/mem.h"
+
+/*------------------------------------------------------------------*/
+static seq_t parse_bigint(const char *s)
+{
+    seq_t res = 0;
+    while (*s) {
+        res = res * (seq_t)10 + (seq_t)(*s - '0');
+        ++s;
+    }
+    return res;
+}
 
 /*------------------------------------------------------------------*/
 /* Simple parser for decimal strings into seq_t. Works with any  */
@@ -54,7 +66,7 @@ static void ensure_capacity(size_t need)
     size_t new_cap = buf_cap ? buf_cap * 2 : 64;
     while (new_cap < need)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(buf, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, buf, new_cap);
     if (!tmp)
         abort();   /* allocation failure – terminate */
     buf = tmp;
@@ -128,7 +140,7 @@ static seq_t compute_from_recurrence(size_t idx)
     seq_t t11 = buf[idx -11];
     seq_t t12 = buf[idx -12];
 
-    seq_t val =  NULL; /* initialise to silence compiler warnings */
+    seq_t val = 0;
 
     val = t1  * C65
         + t2  * C82

@@ -10,7 +10,8 @@
  *            sieve that grows as needed factors p-1
  * Range:     u8 n <= 5, u16 n <= 370, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   a001125_isroot, a001125_pw
+ * Validated: standard, pass, 60 terms through n = 991 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,24 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/a001125_isroot.h"
-#include "../utils/a001125_pw.h"
+
+static uint64_t a001125_pw(uint64_t b, uint64_t e, uint64_t m) {
+    uint64_t r = 1 % m;
+    b %= m;
+    while (e) {
+        if (e & 1) r = r * b % m;
+        b = b * b % m;
+        e >>= 1;
+    }
+    return r;
+}
+
+static bool a001125_isroot(uint64_t g, uint64_t p, const uint64_t *qs, int nq) {
+    int i;
+    for (i = 0; i < nq; i++)
+        if (a001125_pw(g, (p - 1) / qs[i], p) == 1) return false;
+    return true;
+}
 
 static uint64_t *a001125_terms = NULL;
 static idx_t a001125_cnt = 0;

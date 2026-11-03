@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 40, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static state */
 static seq_t *cache_a     = NULL;   /* a(n) values, 0‑based */
@@ -38,10 +40,10 @@ ensure_cache(idx_t n)
         return;
 
     /* grow a(n) array to size n */
-    cache_a   = (seq_t *)realloc(cache_a, (size_t)n   * sizeof(*cache_a));
+    cache_a   = mem_resize(seq_t, cache_a, (size_t)n);
 
     /* grow cumulative array to size n+1 (cum[0] = 0) */
-    cache_cum = (seq_t *)realloc(cache_cum, (size_t)(n+1) * sizeof(*cache_cum));
+    cache_cum = mem_resize(seq_t, cache_cum, (size_t)(n+1));
 
     /* initialise cum[0] if this is the first allocation */
     if (cache_size == 0)

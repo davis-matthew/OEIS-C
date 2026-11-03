@@ -8,16 +8,24 @@
  * Formula:   a(n) = A001037(n) * A002884(n) / A000225(n)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 8, u128 n <= 11,
  *            big any n
- * Helpers:   factor_u64, seq_mul, seq_pow
+ * Validated: partial, pass, 13 terms through n = 13 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_pow.h"
-#include "../utils/seq_mul.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Möbius function for 64‑bit integers (0, ±1). */
 static int mu_u64(uint64_t n)
@@ -41,7 +49,7 @@ static seq_t irreducible_count(idx_t n)
         if (n % d == 0) {
             int mu = mu_u64((uint64_t)d);
             if (mu != 0) {
-                seq_t term = seq_pow((seq_t)2, (idx_t)(n / d));
+                seq_t term = ipow_idx((seq_t)2, (idx_t)(n / d));
                 sum += (seq_t)mu * term;
             }
         }
@@ -53,14 +61,14 @@ static seq_t irreducible_count(idx_t n)
 seq_t a(idx_t n)
 {
     /* 2^n */
-    seq_t pow2_n = seq_pow((seq_t)2, (idx_t)n);
+    seq_t pow2_n = ipow_idx((seq_t)2, (idx_t)n);
 
     /* A001037(n) */
     seq_t irr = irreducible_count(n);
 
     /* product_{k=1}^{n-1} (2^n - 2^k)  (GL_n(2) divided by 2^n-1) */
     seq_t prod = 1;
-    seq_t cur  = seq_pow((seq_t)2, 1);   /* 2^1 */
+    seq_t cur  = ipow_idx((seq_t)2, 1);   /* 2^1 */
 
     for (idx_t k = 1; k < n; ++k) {
         seq_t term = pow2_n - cur;

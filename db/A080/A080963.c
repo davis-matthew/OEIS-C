@@ -7,7 +7,8 @@
  * Formula:   a(n) = coefficient of q^n in θ₃(q)·θ₃(q²)·θ₄(q⁸)
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 113 terms through n = 977 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 typedef struct {
     idx_t exp;
@@ -44,7 +46,7 @@ static void rebuild_lists(idx_t max_expo)
         seq_t c = (k == 0) ? (seq_t)1 : (seq_t)2;
         if (current == phi_cnt) {
             phi_cnt = (phi_cnt == 0) ? 1 : phi_cnt * 2;
-            phi_pairs = (pair_t*)realloc(phi_pairs, phi_cnt * sizeof(pair_t));
+            phi_pairs = mem_resize(pair_t, phi_pairs, phi_cnt);
         }
         phi_pairs[current++] = (pair_t){ e, c };
         ++k;
@@ -60,7 +62,7 @@ static void rebuild_lists(idx_t max_expo)
         seq_t c = (k == 0) ? (seq_t)1 : (seq_t)2;
         if (current == psi_cnt) {
             psi_cnt = (psi_cnt == 0) ? 1 : psi_cnt * 2;
-            psi_pairs = (pair_t*)realloc(psi_pairs, psi_cnt * sizeof(pair_t));
+            psi_pairs = mem_resize(pair_t, psi_pairs, psi_cnt);
         }
         psi_pairs[current++] = (pair_t){ e, c };
         ++k;
@@ -82,7 +84,7 @@ static void rebuild_lists(idx_t max_expo)
         }
         if (current == gam_cnt) {
             gam_cnt = (gam_cnt == 0) ? 1 : gam_cnt * 2;
-            gam_pairs = (pair_t*)realloc(gam_pairs, gam_cnt * sizeof(pair_t));
+            gam_pairs = mem_resize(pair_t, gam_pairs, gam_cnt);
         }
         gam_pairs[current++] = (pair_t){ e, c };
         ++k;
@@ -98,8 +100,8 @@ static void compute_a_up_to(idx_t max_n)
 
     /* Allocate or resize array for a values */
     if (a_size < (size_t)max_n + 1) {
-        seq_t *new_vals = (seq_t*)calloc((size_t)max_n + 1, sizeof(seq_t));
-        if (a_vals) free(a_vals);
+        seq_t *new_vals = mem_new(seq_t, (size_t)max_n + 1);
+        if (a_vals) mem_free(a_vals);
         a_vals = new_vals;
         a_size = (size_t)max_n + 1;
     } else {

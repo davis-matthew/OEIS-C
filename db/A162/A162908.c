@@ -11,7 +11,8 @@
  *            divisors – the complementary * pair of divisors tha...
  * Range:     u8 n <= 76, u16 n <= 94, u32 n <= 94, u64 n <= 94, u128 n <= 94,
  *            big any n
- * Helpers:   floor_sqrt, is_prime
+ * Validated: partial, pass, 94 terms through n = 94 (2026-11-03)
+ * Helpers:   ipow_i32, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,27 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+#include "../utils/ipow_i32.h"
 #include "../utils/is_prime.h"
-#include "../utils/floor_sqrt.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* ---------- cache for A089229 -------------------------------- */
 static seq_t *A089229 = NULL;    /* array of cached values       */
@@ -49,7 +69,7 @@ static void ensure_A089229(size_t need)
                 /* grow buffer if necessary */
                 if (A089229_len == A089229_cap) {
                     size_t new_cap = A089229_cap ? A089229_cap * 2 : 16;
-                    seq_t *tmp = (seq_t *)realloc(A089229, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, A089229, new_cap);
                     if (!tmp) exit(1);
                     A089229 = tmp;
                     A089229_cap = new_cap;

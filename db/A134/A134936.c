@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 11, u64 n <= 11, u128 n <= 11,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 11 terms through n = 11 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;     /* sorted list of terms found */
 static size_t seq_cache_len = 0;    /* number of cached terms          */
@@ -60,7 +62,7 @@ static void build_cache(size_t target_terms)
             if (cnt[(idx_t)num] == 3) {
                 if (tmp_len >= tmp_cap) {
                     size_t new_cap = tmp_cap ? tmp_cap * 2 : 1024;
-                    seq_t *new_buf = (seq_t *)realloc(tmp, new_cap * sizeof(seq_t));
+                    seq_t *new_buf = mem_resize(seq_t, tmp, new_cap);
                     if (!new_buf) exit(1);
                     tmp = new_buf;
                     tmp_cap = new_cap;
@@ -72,17 +74,17 @@ static void build_cache(size_t target_terms)
         free(cnt);
 
         if (tmp_len >= target_terms) {
-            seq_cache = (seq_t *)malloc(tmp_len * sizeof(seq_t));
+            seq_cache = mem_new(seq_t, tmp_len);
             if (!seq_cache) exit(1);
-            memcpy(seq_cache, tmp, tmp_len * sizeof(seq_t));
+            mem_copy(seq_cache, tmp, tmp_len * sizeof(seq_t));
             seq_cache_len = tmp_len;
-            free(tmp);
+            mem_free(tmp);
             seq_cache_init = true;
             break;
         }
 
         /* Need more terms: enlarge N and try again. */
-        free(tmp);
+        mem_free(tmp);
         tmp = NULL;
         tmp_len = 0;
         tmp_cap = 0;

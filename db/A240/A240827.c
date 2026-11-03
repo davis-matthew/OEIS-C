@@ -6,15 +6,17 @@
  * Keywords:  nonn, hear
  * Formula:   a(1)=1,a(2)=2,a(3)=3,a(4)=4,a(5)=5,a(6)=6;
  *            a(n)=a(n-a(n-3))+a(n-a(n-6)) for n>=7 (OEIS A240827)
- * Range:     u8 n <= 486, u16 n <= 9538, u32 n <= 9538, u64 n <= 9538,
- *            u128 n <= 9538, big any n
- * Helpers:   none
+ * Range:     u8 n <= 486, u16 n <= 50000, u32 n <= 50000, u64 n <= 50000,
+ *            u128 n <= 50000, big any n
+ * Validated: standard, pass, 106 terms through n = 9538 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* 1‑based, cache[0] will be 0 */
 static idx_t cap = 0;         /* current capacity (>=1) */
@@ -26,7 +28,7 @@ static void ensure_cap(idx_t n)
     if (cap > n) return;
     idx_t new_cap = cap ? cap << 1 : 64;
     while (new_cap <= n) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();                /* allocation failed */
     cache = tmp;
     if (cap == 0) {                   /* initial allocation */

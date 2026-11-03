@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 194, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime, make_pal, pow10
+ * Validated: standard, pass, 64 terms through n = 8625 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,9 +16,28 @@
 /* Computes the nth palindrome whose digit sum is a prime, in increasing order. */
 
 #include <stdbool.h>
-#include "../utils/pow10.h"
+#include <stdint.h>
 #include "../utils/is_prime.h"
-#include "../utils/make_pal.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
+
+static seq_t make_pal(seq_t prefix, bool odd) {
+    seq_t pal = prefix;
+    seq_t temp = odd ? prefix / 10 : prefix;
+    while (temp > 0) {
+        pal = pal * 10 + (temp % 10);
+        temp = temp / 10;
+    }
+    return pal;
+}
 
 seq_t a(idx_t n) {
     idx_t count = 0;

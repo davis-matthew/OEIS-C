@@ -7,13 +7,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 65, u16 n <= 108, u32 n <= 195, u64 n <= 371,
  *            u128 n <= 722, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 962 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Sequence A127840
    Recurrence: a(1) = 1, a(2)=…=a(6)=0,
@@ -29,7 +31,7 @@ static void init_cache(void)
 {
     if (cache) return;                     /* already initialised */
     cache_alloc = 7;                       /* we need indices 0…6 */
-    cache = (seq_t *)calloc(cache_alloc, sizeof(seq_t));
+    cache = mem_new(seq_t, cache_alloc);
     if (!cache) return;                    /* allocation failed – fall back */
     cache[1] = (seq_t)1;                   /* a(1) = 1; indices 2‑6 stay 0 */
     cache_filled = 6;                      /* we have values up to 6   */
@@ -42,7 +44,7 @@ static void extend_cache_to(idx_t n)
     if ((idx_t)cache_alloc - 1 >= n) return;   /* already big enough */
 
     size_t new_alloc = (size_t)n + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_alloc * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_alloc);
     if (!tmp) return;                      /* realloc failed – keep old */
     cache = tmp;
     /* initialise new entries to zero */

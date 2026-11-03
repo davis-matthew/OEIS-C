@@ -13,7 +13,8 @@
  *            x (spaces and hyphens ignored). If no such term oc...
  * Range:     u8 n <= 46, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 99 terms through n = 995 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 extern seq_t a(idx_t n);
 
@@ -120,7 +122,7 @@ static void ensure_A_capacity(size_t need) {
     if (need <= A_cap) return;
     size_t new_cap = A_cap ? A_cap << 1 : 128;
     while (new_cap < need) new_cap <<= 1;
-    A = (seq_t *)realloc(A, new_cap * sizeof(seq_t));
+    A = mem_resize(seq_t, A, new_cap);
     A_cap = new_cap;
 }
 

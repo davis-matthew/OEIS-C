@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 43, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   parity_idx
+ * Validated: standard, pass, 71 terms through n = 948 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,19 @@
    remembers previously found positions so that calls with arbitrary n
    are O(1) after the required entries have been discovered. */
 #include <stdlib.h>
-#include "../utils/parity_idx.h"
+#include "../utils/mem.h"
+
+/* parity of the number of 1‑bits in (x-1); result is 0 or 1 */
+static inline seq_t parity_idx(idx_t x)
+{
+    idx_t y = x - 1;
+    seq_t p = 0;
+    while (y) {
+        p ^= 1;
+        y &= (y - 1);
+    }
+    return p;
+}
 
 seq_t a(idx_t n)
 {
@@ -40,7 +53,7 @@ seq_t a(idx_t n)
             /* Append to cache */
             if (cache_size >= cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 128;
-                seq_t *tmp = (seq_t *)realloc(pos_cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, pos_cache, new_cap);
                 pos_cache = tmp;
                 cache_cap = new_cap;
             }

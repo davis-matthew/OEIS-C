@@ -8,12 +8,14 @@
  *            a(2)=4, a(3)=8 and for n≥4 a(n)=a(n‑1)^2
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 6, u64 n <= 7, u128 n <= 8,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 14 terms through n = 13 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache for memoised values */
 static seq_t *cache = NULL;        /* pointer to sequence array   */
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
         size_t new_cap = idx + 1;
         if (new_cap < 2 * cache_cap)   /* grow by a factor of 2 */
             new_cap = 2 * cache_cap;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) exit(1);             /* memory exhaustion – abort */
         cache = tmp;
         cache_cap = new_cap;

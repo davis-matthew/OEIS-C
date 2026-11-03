@@ -9,12 +9,14 @@
  *            order of calls with O(n^2) construction time
  * Range:     i8 n <= 11, i16 n <= 18, i32 n <= 31, i64 n <= 34, i128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External linkage as required. */
 seq_t a(idx_t n)
@@ -26,14 +28,14 @@ seq_t a(idx_t n)
     /* initialise cache with a(0) */
     if (cache_len == 0) {
         cache_len = 1;
-        cache = (seq_t *)realloc(cache, sizeof(seq_t) * cache_len);
+        cache = mem_resize(seq_t, cache, cache_len);
         cache[0] = 1;
     }
 
     /* extend cache up to n if necessary */
     if ((idx_t)n >= cache_len) {
         size_t new_len = (size_t)n + 1;
-        cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_len);
+        cache = mem_resize(seq_t, cache, new_len);
         for (size_t i = cache_len; i < new_len; ++i) {
             seq_t sum = 0;
             for (idx_t k = 0; k < (idx_t)i; ++k) {

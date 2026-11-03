@@ -9,12 +9,14 @@
  *            Π_{r=1..∞}(1 + x^{2r-1}))
  * Range:     i8 n <= 23, i16 n <= 52, i32 n <= 52, i64 n <= 52, i128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,10 +38,10 @@ seq_t a(idx_t n)
     /* Grow static arrays if necessary. */
     if (new_cap > max_cap) {
         max_cap = new_cap;
-        e = (seq_t *)realloc(e, max_cap * sizeof(seq_t));
-        g = (seq_t *)realloc(g, max_cap * sizeof(seq_t));
-        d = (seq_t *)realloc(d, max_cap * sizeof(seq_t));
-        f = (seq_t *)realloc(f, max_cap * sizeof(seq_t));
+        e = mem_resize(seq_t, e, max_cap);
+        g = mem_resize(seq_t, g, max_cap);
+        d = mem_resize(seq_t, d, max_cap);
+        f = mem_resize(seq_t, f, max_cap);
     }
 
     /* --- compute e: partitions into parts 2,4,6 (unrestricted) --- */

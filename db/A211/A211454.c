@@ -8,7 +8,8 @@
  * Formula:   a(n) = (prime(n)-1)/ord(9,prime(n))
  * Range:     u8 n <= 54, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_primes_upto, mod_pow
+ * Validated: standard, pass, 100 terms through n = 975 (2026-11-01)
+ * Helpers:   build_primes_upto, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,10 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <string.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
 
 static uint64_t *prime_list = NULL;
 static size_t prime_count = 0;
@@ -79,7 +82,7 @@ seq_t a(idx_t n)
         while (order % (seq_t)q == 0)
         {
             seq_t cand = order / (seq_t)q;
-            if (mod_pow((seq_t)9, (uint64_t)cand, p) == 1)
+            if (powmod((seq_t)9, (uint64_t)cand, p) == 1)
                 order = cand;
             else
                 break;
@@ -93,7 +96,7 @@ seq_t a(idx_t n)
         while (order % (seq_t)q == 0)
         {
             seq_t cand = order / (seq_t)q;
-            if (mod_pow((seq_t)9, (uint64_t)cand, p) == 1)
+            if (powmod((seq_t)9, (uint64_t)cand, p) == 1)
                 order = cand;
             else
                 break;

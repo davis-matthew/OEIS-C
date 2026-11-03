@@ -11,14 +11,28 @@
  *            integer ≥ 2}
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   count_excluded
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/count_excluded.h"
+
+/* Count numbers ≤ x that are of the form (odd)·4^k with k ≥ 1. */
+static idx_t count_excluded(idx_t x)
+{
+    idx_t sum = 0;
+    idx_t pow4 = 4;            /* 4^k, k starts at 1 */
+    while (pow4 <= x) {
+        idx_t y = x / pow4;                    /* largest odd ≤ x/4^k */
+        sum += (y + 1) >> 1;                    /* count of odd ≤ y */
+        if (pow4 > UINT64_MAX / 4) break;       /* avoid overflow */
+        pow4 <<= 2;                              /* multiply by 4 */
+    }
+    return sum;
+}
 
 /* Rank of x: number of included integers ≤ x. */
 static idx_t rank_of(idx_t x)

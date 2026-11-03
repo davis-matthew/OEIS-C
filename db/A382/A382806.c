@@ -7,12 +7,14 @@
  * Formula:   a(n) = Sum_{k=0..n} (k!)^2 * binomial(k+2,2) * Stirling1(n,k)^2
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 10, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Global caches (shared across calls) */
 static idx_t alloc_size = 0;
@@ -29,10 +31,10 @@ static void ensure_capacity(idx_t needed)
     idx_t new_size = alloc_size ? alloc_size * 2 : 1;
     while (new_size <= needed) new_size <<= 1;
 
-    a_cache   = (seq_t*)realloc(a_cache,   sizeof(seq_t) * new_size);
-    fact_cache= (seq_t*)realloc(fact_cache,sizeof(seq_t) * new_size);
-    s_prev    = (seq_t*)realloc(s_prev,   sizeof(seq_t) * new_size);
-    s_cur     = (seq_t*)realloc(s_cur,    sizeof(seq_t) * new_size);
+    a_cache   = mem_resize(seq_t, a_cache, new_size);
+    fact_cache= mem_resize(seq_t, fact_cache, new_size);
+    s_prev    = mem_resize(seq_t, s_prev, new_size);
+    s_cur     = mem_resize(seq_t, s_cur, new_size);
 
     for (idx_t i = alloc_size; i < new_size; ++i) {
         a_cache[i]   = 0;

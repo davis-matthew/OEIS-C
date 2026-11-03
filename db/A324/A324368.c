@@ -8,7 +8,8 @@
  * Formula:   a(n) = A000041(n-2) + A000_KEY_A0(n-1) - A000041(n)
  * Range:     i8 n <= 17, i16 n <= 42, i32 n <= 50, i64 n <= 50, i128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *partitions = NULL;   /* cache of partition numbers */
 static size_t partitions_size = 0; /* number of elements currently stored (>=1 if initialized) */
@@ -29,10 +31,10 @@ static size_t partitions_size = 0; /* number of elements currently stored (>=1 i
 static void ensure_partitions(size_t up_to)
 {
     if (partitions == NULL) {
-        partitions = (seq_t *)malloc((up_to + 1) * sizeof(seq_t));
+        partitions = mem_new(seq_t, (up_to + 1));
         if (partitions == NULL) return; /* allocation failed – sequence will be wrong */
     } else if (partitions_size <= up_to) {
-        partitions = (seq_t *)realloc(partitions, (up_to + 1) * sizeof(seq_t));
+        partitions = mem_resize(seq_t, partitions, (up_to + 1));
         if (partitions == NULL) return; /* allocation failed */
     }
 

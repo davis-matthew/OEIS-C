@@ -8,11 +8,13 @@
  *            is the Stern's diatomic sequence)
  * Range:     u8 n <= 8, u16 n <= 12, u32 n <= 20, u64 n <= 34, u128 n <= 56,
  *            big any n
+ * Validated: standard, pass, 45 terms through n = 389 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
 #ifdef __cplusplus

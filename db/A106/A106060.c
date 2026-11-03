@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   mod_mul
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mod_mul.h"
+#include <stddef.h>
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 /* 64‑bit modular multiplication using 128‑bit intermediate */
 
@@ -26,8 +29,8 @@ static inline uint64_t mod_pow(uint64_t a, uint64_t e, uint64_t m)
 {
     uint64_t r = 1;
     while (e) {
-        if (e & 1) r = mod_mul(r, a, m);
-        a = mod_mul(a, a, m);
+        if (e & 1) r = mulmod(r, a, m);
+        a = mulmod(a, a, m);
         e >>= 1;
     }
     return r;
@@ -55,7 +58,7 @@ static bool is_prime_uint64(uint64_t n)
         if (x == 1 || x == n - 1) continue;
         bool composite = true;
         for (uint64_t r = 1; r < s; ++r) {
-            x = mod_mul(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) { composite = false; break; }
         }
         if (composite) return false;
@@ -77,7 +80,7 @@ static uint64_t next_candidate = 3;
 static void grow_array(void)
 {
     idx_t new_cap = prime_cap == 0 ? 16 : prime_cap * 2;
-    seq_t *new_arr = (seq_t *)realloc(primes, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, primes, new_cap);
     if (!new_arr) abort();
     primes = new_arr;
     prime_cap = new_cap;

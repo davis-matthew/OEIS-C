@@ -7,15 +7,18 @@
  * Formula:   a(n) = 2^(composite(n)-4) mod composite(n)
  * Range:     u8 n <= 215, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_small, mod_pow
+ * Validated: standard, pass, 72 terms through n = 959 (2026-11-01)
+ * Helpers:   is_prime_seq, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <string.h>
+#include "../utils/is_prime_seq.h"
+#include "../utils/powmod.h"
 
 /* Computes the n-th term of OEIS sequence A175621.
    n is 1‑based; for n < 1 the behaviour is unspecified. */
@@ -34,7 +37,7 @@ seq_t a(idx_t n)
             continue;
 
         /* A composite if it is not prime. */
-        if (!is_prime_small((seq_t)last_seen)) {
+        if (!is_prime_seq((seq_t)last_seen)) {
             /* Ensure there is space for one more composite. */
             if (comps_sz == comps_cap) {
                 idx_t new_cap = comps_cap ? comps_cap * 2 : 4;
@@ -53,5 +56,5 @@ seq_t a(idx_t n)
 
     /* Compute a(n) = 2^(comp-4) mod comp. */
     uint64_t exp = comp - 4;                 /* safe: comp ≥ 4 */
-    return mod_pow((seq_t)2, exp, (seq_t)comp);
+    return powmod((seq_t)2, exp, (seq_t)comp);
 }

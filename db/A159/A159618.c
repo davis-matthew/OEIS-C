@@ -8,13 +8,15 @@
  *            a(n)=4*a(n-1)-722*(n-1)*a(n-2) for n≥2
  * Range:     i8 n <= 1, i16 n <= 3, i32 n <= 5, i64 n <= 11, i128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 385 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     if (n >= cache_cap) {
         /* enlarge cache to hold terms up to n */
         idx_t new_cap = n + 1;
-        seq_t *new_cache = (seq_t *)malloc((size_t)new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, (size_t)new_cap);
         if (!new_cache) /* allocation failed – undefined behaviour, but avoid crash */
             return 0;
 
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
 
         /* free old cache and replace it */
         if (cache)
-            free(cache);
+            mem_free(cache);
         cache = new_cache;
         cache_cap = new_cap;
     }

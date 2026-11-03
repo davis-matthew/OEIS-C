@@ -12,13 +12,25 @@
  *            function returns this coefficient v
  * Range:     i8 n <= 91, i16 n <= 91, i32 n <= 91, i64 n <= 91, i128 n <= 91,
  *            big any n
- * Helpers:   floor_div_ll, gcd
+ * Validated: partial, pass, 91 terms through n = 91 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/floor_div_ll.h"
+
+/* integer floor division for possibly negative numerator */
+static long long floor_div_ll(long long num, long long den)
+{
+    if (den == 0) return 0;                /* division by zero never occurs here */
+    long long q = num / den;
+    if ((num ^ den) < 0 && num % den) {    /* signs differ and remainder non‑zero */
+        q -= 1;
+    }
+    return q;
+}
 
 /* extended Euclidean algorithm: for coprime a,b returns one pair (x,y) such that a*x + b*y = 1 */
 static void extended_gcd(seq_t a, seq_t b, seq_t *x, seq_t *y)

@@ -11,15 +11,50 @@
  *            neighbors equal to 1
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 12, u64 n <= 25, u128 n <= 51,
  *            big any n
- * Helpers:   bit_col, valid_first_pair, valid_last_col
+ * Validated: standard, pass, 35 terms through n = 209 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/bit_col.h"
-#include "../utils/valid_first_pair.h"
-#include "../utils/valid_last_col.h"
+
+/* Helper to extract a bit from a 4‑bit column representation. */
+static inline int bit_col(int col, int row) { return (col >> row) & 1; }
+
+/* Check validity of the first column (col0) when the next column is col1.
+ * Only the right and, for rows >0, the NE neighbor exist. */
+static inline bool valid_first_pair(int col0, int col1)
+{
+    (void)col0;  /* col0 itself is not used in the check */
+    for (int r = 0; r < 4; ++r) {
+        int k   = 1;                       /* right neighbor always exists */
+        int cnt = bit_col(col1, r);        /* right */
+        if (r > 0) {                       /* NE */
+            ++k;
+            cnt += bit_col(col1, r-1);
+        }
+        if (cnt > (k >> 1)) return false;
+    }
+    return true;
+}
+
+/* Check validity of the last column (curr) given the preceding (prev)
+ * column.  Only left and, for rows <3, SW exist. */
+static inline bool valid_last_col(int prev, int curr)
+{
+    (void)curr;  /* curr itself is not used in the check */
+    for (int r = 0; r < 4; ++r) {
+        int k   = 1;                      /* left neighbor exists */
+        int cnt = bit_col(prev, r);
+        if (r < 3) {                     /* SW from prev */
+            ++k;
+            cnt += bit_col(prev, r+1);
+        }
+        if (cnt > (k >> 1)) return false;
+    }
+    return true;
+}
 
 /* Check validity of the middle column (curr) given the previous (prevprev)
  * and next (next) columns.  All four neighbors exist. */

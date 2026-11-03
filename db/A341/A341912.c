@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 37, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* static storage */
 static bool init_done = false;
@@ -85,9 +87,9 @@ static void precompute(idx_t n)
     if (n < 15) n = 15;
     compute_mobius(n);
     compute_ways(n);
-    res_arr = (seq_t*)realloc(res_arr, (size_t)(n + 1) * sizeof(seq_t));
+    res_arr = mem_resize(seq_t, res_arr, (size_t)(n + 1));
     if (!res_arr) return;
-    memset(res_arr, 0, (size_t)(n + 1) * sizeof(seq_t));
+    mem_set(res_arr, 0, (size_t)(n + 1) * sizeof(seq_t));
     for (idx_t i = 15; i <= n; ++i) {
         int64_t sum = 0;
         for (idx_t d = 1; d * d <= i; ++d) {

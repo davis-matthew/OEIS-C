@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 48, u32 n <= 207, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 908 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Computed by dynamic programming over parts 1..11. */
 /* Complexity: O(11*n) time, O(n) memory. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* the empty partition */
@@ -28,7 +30,7 @@ seq_t a(idx_t n) {
 
     if (n > max_n) {
         /* Allocate a new table up to n */
-        seq_t *newdp = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        seq_t *newdp = mem_new(seq_t, (n + 1));
         if (!newdp) {
             /* allocation failure – give up */
             return 0;
@@ -48,7 +50,7 @@ seq_t a(idx_t n) {
         }
 
         /* replace old table */
-        free(dp);
+        mem_free(dp);
         dp = newdp;
         max_n = n;
     }

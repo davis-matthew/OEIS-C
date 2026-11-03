@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 14, u32 n <= 35, u64 n <= 77, u128 n <= 160,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,15 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 /* The types idx_t and seq_t are provided by the build system. */
 
@@ -44,6 +54,22 @@ static size_t cache_len = 0;   /* number of valid entries in cache (1‑based) *
 static size_t cache_cap = 0;   /* allocated capacity of cache */
 
 /* Resize the cache array so that it can hold at least `needed` elements. */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (needed <= *cap)
+        return;
+    size_t new_cap = (*cap == 0) ? 16 : (*cap << 1);
+    while (new_cap < needed)
+        new_cap <<= 1;
+    T *tmp = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+    if (!tmp)
+        abort();                /* out of memory */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#else
 static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
 {
     if (needed <= *cap)
@@ -57,6 +83,7 @@ static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_
     *ptr = tmp;
     *cap = new_cap;
 }
+#endif
 
 /* Public sequence function. */
 seq_t a(idx_t n)
@@ -70,7 +97,7 @@ seq_t a(idx_t n)
 
     /* Initialise cache with the 18 known values on first use. */
     if (cache_len == 0) {
-        ensure_capacity(18, &cache_cap, (void **)&cache, sizeof(seq_t));
+        ensure_capacity(18, &cache_cap, OEISC_VPP(&cache), sizeof(seq_t));
         for (size_t i = 0; i < 18; ++i)
             cache[i] = init[i];
         cache_len = 18;
@@ -78,7 +105,7 @@ seq_t a(idx_t n)
 
     /* Extend cache up to the requested index if necessary. */
     if ((size_t)n > cache_len) {
-        ensure_capacity((size_t)n, &cache_cap, (void **)&cache, sizeof(seq_t));
+        ensure_capacity((size_t)n, &cache_cap, OEISC_VPP(&cache), sizeof(seq_t));
         for (size_t j = cache_len; j < (size_t)n; ++j) {
             /* indicesj-? are always valid because j >= 18 */
             seq_t val = cache[j - 1]          /* a(n‑1) */

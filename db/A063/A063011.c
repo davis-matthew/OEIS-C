@@ -10,17 +10,20 @@
  *            all products, and returns the n‑th smallest product
  * Range:     u8 none, u16 none, u32 n <= 13, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>                 /* malloc, realloc, free, qsort */
-#include "../utils/gcd.h"           /* gcd(seq_t, seq_t) */
+#include <stdint.h>
+#include "../utils/gcd.h"
 
 #if defined(__cplusplus)
     #include <algorithm>           /* std::nth_element */
 #endif
+#include "../utils/mem.h"
 
 /* comparison function for qsort (used only when compiling as C) */
 #ifndef __cplusplus
@@ -48,7 +51,7 @@ static void recompute_to(size_t needed)
     idx_t m_limit = 200;            /* initial limit on the Euclid parameter m      */
     while (1) {
         size_t cap = 1024;          /* initial capacity of the product array       */
-        seq_t *tmp = (seq_t *)malloc(cap * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, cap);
         if (!tmp) return;                  /* allocation failure – give up                */
         size_t len = 0;                           /* number of products collected              */
 
@@ -65,8 +68,8 @@ static void recompute_to(size_t needed)
 
                 if (len == cap) {                                   /* grow array          */
                     cap <<= 1;
-                    seq_t *tmp2 = (seq_t *)realloc(tmp, cap * sizeof(seq_t));
-                    if (!tmp2) { free(tmp); return; }
+                    seq_t *tmp2 = mem_resize(seq_t, tmp, cap);
+                    if (!tmp2) { mem_free(tmp); return; }
                     tmp = tmp2;
                 }
                 tmp[len++] = prod;
@@ -75,7 +78,7 @@ static void recompute_to(size_t needed)
 
         if (len >= needed) {                                      /* enough products found */
             /* Free any previously stored array */
-            free(products);
+            mem_free(products);
             products = tmp;
             prod_len = len;
             prod_cap = cap;
@@ -83,7 +86,7 @@ static void recompute_to(size_t needed)
         }
 
         /* Not enough – try a larger bound on m */
-        free(tmp);
+        mem_free(tmp);
         m_limit <<= 1;
     }
 }

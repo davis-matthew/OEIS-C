@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 43, u64 n <= 135, u128 n <= 204,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 167 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    For n ≤ 20, this reduces to a(n)=p(n)^2 (p = partition function). */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Maximum number of parts allowed – the sequence length (41) */
 #define K_MAX 41
@@ -47,8 +49,8 @@ static void ensure_cached(idx_t n)
         if (new_alloc <= n + 1) new_alloc = n + 1;
 
         /* Allocate larger tables */
-        seq_t *new_q = (seq_t *)malloc(new_alloc * (K_MAX + 1) * sizeof(seq_t));
-        seq_t *new_a = (seq_t *)malloc((new_alloc + 1) * sizeof(seq_t));
+        seq_t *new_q = mem_new(seq_t, new_alloc * (K_MAX + 1));
+        seq_t *new_a = mem_new(seq_t, (new_alloc + 1));
         if (!new_q || !new_a) return;          /* allocation failed – unlikely */
 
         /* Copy old data */
@@ -59,12 +61,12 @@ static void ensure_cached(idx_t n)
                 for (int k = 0; k <= K_MAX; ++k)
                     new_q[base_dst + k] = q_exact[base_src + k];
             }
-            memcpy(new_a, a_cache, (cached_n + 1) * sizeof(seq_t));
+            mem_copy(new_a, a_cache, (cached_n + 1) * sizeof(seq_t));
         }
 
         /* Free old memory */
-        free(q_exact);
-        free(a_cache);
+        mem_free(q_exact);
+        mem_free(a_cache);
 
         /* Install new tables */
         q_exact = new_q;

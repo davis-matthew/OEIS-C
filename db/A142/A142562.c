@@ -7,6 +7,7 @@
  * Formula:   a(n) = the n-th prime p such that p ≡ 32 (mod 53)
  * Range:     u8 n <= 1, u16 n <= 122, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 56 terms through n = 889 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,6 +9,7 @@
  *            Sum_{k=1..n} (-1)^(k+1)*binomial(2n,2k)*25^k*a(n-k), a(0) = 2
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 7, u128 n <= 12,
  *            big any n
+ * Validated: standard, pass, 29 terms through n = 242 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

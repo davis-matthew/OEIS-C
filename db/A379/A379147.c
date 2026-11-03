@@ -11,9 +11,10 @@
  *            that contains index n, generating the list of signed sums for
  *            that row, sorting them, and returning the value at the required
  *            position
- * Range:     i8 n <= 171, i16 n <= 9804, i32 n <= 9804, i64 n <= 9804,
- *            i128 n <= 9804, big any n
- * Helpers:   cmp_seq_t_const
+ * Range:     i8 n <= 171, i16 n <= 10922, i32 n <= 10922, i64 n <= 10922,
+ *            i128 n <= 10922, big any n
+ * Validated: standard, pass, 73 terms through n = 9804 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,17 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/cmp_seq_t_const.h"
+#include "../utils/mem.h"
+
+/* comparison function for qsort on seq_t */
+static int cmp_seq_t_const(const void *p1, const void *p2)
+{
+    seq_t a = *(const seq_t *)p1;
+    seq_t b = *(const seq_t *)p2;
+    if (a < b) return -1;
+    if (a > b) return  1;
+    return 0;
+}
 
 /* global storage for Fibonacci numbers F(2+i) (i ≥ 0) */
 static idx_t *g_fibs     = NULL;   /* Fibonacci values */
@@ -108,7 +119,7 @@ seq_t a(idx_t n)
     /* 5. generate all subset sums (subset of exponents)
        and sort them */
     size_t subset_cnt = (size_t)1 << k;             /* number of subsets */
-    seq_t *subset_sums = (seq_t *)malloc(subset_cnt * sizeof(seq_t));
+    seq_t *subset_sums = mem_new(seq_t, subset_cnt);
     for (size_t mask = 0; mask < subset_cnt; ++mask) {
         seq_t sum = 0;
         for (size_t j = 0; j < k; ++j) {
@@ -117,11 +128,11 @@ seq_t a(idx_t n)
         }
         subset_sums[mask] = sum;
     }
-    qsort(subset_sums, subset_cnt, sizeof(seq_t), cmp_seq_t_const);
+    mem_qsort(subset_sums, subset_cnt, sizeof(seq_t), cmp_seq_t_const);
 
     /* 6. convert position to subset sum */
     seq_t subset = subset_sums[pos];
-    free(subset_sums);
+    mem_free(subset_sums);
 
     /* 7. compute the final value */
     seq_t result = -S_total + (seq_t)2 * subset;

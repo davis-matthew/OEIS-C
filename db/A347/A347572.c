@@ -7,13 +7,20 @@
  * Formula:   Number of partitions of n into 5 or more distinct parts
  * Range:     u8 n <= 34, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   p_index
+ * Validated: partial, pass, 51 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/p_index.h"
+#include "../utils/mem.h"
+
+/* Compute the index into the flattened table.  */
+static inline size_t p_index(idx_t n, idx_t k, idx_t kmax)
+{
+    return ((size_t)n) * (kmax + 1) + k;
+}
 
 /* seq_t and idx_t are supplied by the build system.  */
 /* No need to declare them; they are already defined.  */
@@ -42,7 +49,7 @@ recompute_dp(idx_t N)
 
     /* Allocate a new table.  All elements are initialised to zero. */
     size_t cells   = (size_t)(N + 1) * (kmax + 1);
-    seq_t *newP    = (seq_t *)calloc(cells, sizeof(seq_t));
+    seq_t *newP    = mem_new(seq_t, cells);
     if (!newP)       /* allocation failure – keep the old table */
         return;
 
@@ -61,7 +68,7 @@ recompute_dp(idx_t N)
     }
 
     /* Replace the old table. */
-    free(P);
+    mem_free(P);
     P       = newP;
     P_nmax  = N;
     P_kmax  = kmax;

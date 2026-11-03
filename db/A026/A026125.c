@@ -12,13 +12,15 @@
  *            programming in Θ(n²) time
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 23, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,8 +30,8 @@ seq_t a(idx_t n)
     /* Arrays large enough to hold all positions that can occur
        during n steps (max position is 1 + n). */
     size_t sz = (size_t)n + 3;
-    seq_t *prev = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *cur  = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, sz);
+    seq_t *cur  = mem_new(seq_t, sz);
     if (!prev || !cur)
         return (seq_t)0;                 /* allocation failed, unlikely */
 
@@ -58,8 +60,8 @@ seq_t a(idx_t n)
 
     seq_t result = prev[4];                 /* value at position 4 after n steps */
 
-    free(prev);
-    free(cur);
+    mem_free(prev);
+    mem_free(cur);
 
     return result;
 }

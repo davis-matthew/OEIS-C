@@ -7,15 +7,23 @@
  * Formula:   a(n) = Sum_{k=1..n} (2*k)^(n-k) * (k-1)! * binomial(n,k)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 18,
  *            big any n
- * Helpers:   alloc_seq_array, big_pow
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/big_pow.h"
-#include "../utils/alloc_seq_array.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 /* Cache of previously computed values */
 static seq_t *cache = NULL;      /* cache entries */
@@ -33,7 +41,7 @@ seq_t a(idx_t n)
         seq_t *new_cache = alloc_seq_array(new_cap);
         if (cache) {
             for (size_t i = 0; i < cache_len; ++i) new_cache[i] = cache[i];
-            free(cache);                  /* free old cache */
+            mem_free(cache);                  /* free old cache */
         }
         cache = new_cache;
         cache_cap = new_cap;
@@ -58,7 +66,7 @@ seq_t a(idx_t n)
             /* pow_val = (2*k)^(m-k) */
             seq_t base = (seq_t)(2 * k);
             seq_t exp  = (seq_t)(m - k);
-            seq_t pow_val = big_pow(base, exp);
+            seq_t pow_val = ipow(base, exp);
 
             /* term = pow_val * fact * binom */
             seq_t term = pow_val;

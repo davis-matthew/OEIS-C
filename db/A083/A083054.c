@@ -7,12 +7,14 @@
  * Formula:   a(n) = floor(n*sqrt(3)) mod 3
  * Range:     u8 n <= 9, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   floor_sqrt_seq
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
+ * Helpers:   isqrt_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/floor_sqrt_seq.h"
+#include <stdint.h>
+#include "../utils/isqrt_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     prod = prod * ((seq_t)3);
 
     /* Integer square root of a seq_t value. */
-    seq_t sq = floor_sqrt_seq(prod);
+    seq_t sq = isqrt_seq(prod);
 
     /* Return the result modulo 3. */
     return sq % ((seq_t)3);

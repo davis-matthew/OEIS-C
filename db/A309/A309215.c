@@ -9,12 +9,14 @@
  *            a(n)=a(n-1)-n
  * Range:     i8 n <= 126, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 854 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache holds a(0)...a(cache_size-1) */
@@ -28,9 +30,9 @@ seq_t a(idx_t n) {
     /* Extend cache to hold a(0)..a(n) */
     idx_t new_size = n + 1;
     if (cache == NULL) {
-        cache = (seq_t*)malloc(sizeof(seq_t) * new_size);
+        cache = mem_new(seq_t, new_size);
     } else {
-        cache = (seq_t*)realloc(cache, sizeof(seq_t) * new_size);
+        cache = mem_resize(seq_t, cache, new_size);
     }
     if (cache == NULL)
         return (seq_t)0;  /* allocation failure: undefined behaviour otherwise */

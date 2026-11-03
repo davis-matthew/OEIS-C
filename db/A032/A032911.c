@@ -11,13 +11,17 @@
  *            digit 3, then interpret this string as a ba...
  * Range:     u8 n <= 30, u16 n <= 510, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   bits_of_idx
+ * Validated: standard, pass, 72 terms through n = 905 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/bits_of_idx.h"
+
+static inline unsigned bits_of_idx(idx_t x) {
+    return 64 - __builtin_clzll((unsigned long long)x);
+}
 
 seq_t a(idx_t n) {
     /* n ≥ 1 by contract */

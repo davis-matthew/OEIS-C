@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 27, u32 n <= 54, u64 n <= 91, u128 n <= 189,
  *            big any n
- * Helpers:   seq_alloc_new_array
+ * Validated: standard, pass, 61 terms through n = 479 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,7 +31,14 @@
 */
 
 #include <stdlib.h>
-#include "../utils/seq_alloc_new_array.h"
+#include <stdint.h>
+#include <string.h>
+#include <stddef.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
 
 static seq_t **T = NULL;                   /* array of rows */
 static idx_t max_row_computed = (idx_t)-1;  /* -1 means no rows yet */

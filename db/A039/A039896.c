@@ -8,13 +8,15 @@
  * Formula:   a(n) = p(n) - (n mod 5 == 0)*p(n/5)
  * Range:     u8 n <= 16, u16 n <= 43, u32 n <= 127, u64 n <= 416,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 967 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* where p(n) is the partition function. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for partition numbers. */
 static seq_t *partition = NULL;
@@ -53,11 +55,11 @@ seq_t a(idx_t n)
     /* Extend the cached partitions if needed. */
     if (par_size <= n) {
         idx_t new_size = n + 1;
-        seq_t *new_parts = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_parts = mem_new(seq_t, new_size);
         if (!new_parts)
             return 0;               /* Allocation failure -> zero */
         compute_partitions(n, new_parts);
-        free(partition);
+        mem_free(partition);
         partition = new_parts;
         par_size = new_size;
     }

@@ -9,13 +9,15 @@
  *            r*(r+1)/2 is the column within that row
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 22, u64 n <= 38, u128 n <= 70,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 52 terms through n = 1244 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -37,5 +39,5 @@ seq_t a(idx_t n)
         return (seq_t)1;                    /* 21^0 = 1 */
 
     seq_t base = 21;
-    return big_pow(base, exp);
+    return ipow(base, exp);
 }

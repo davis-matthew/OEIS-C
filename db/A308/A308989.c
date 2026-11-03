@@ -8,12 +8,14 @@
  *            into 8 parts)
  * Range:     u8 n <= 15, u16 n <= 36, u32 n <= 166, u64 n <= 2788,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 9613 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     if (!dp) abort();
 
     for (int k = 0; k < 9; ++k) {
-        dp[k] = (seq_t*)calloc(size, sizeof(seq_t));
+        dp[k] = mem_new(seq_t, size);
         if (!dp[k]) abort();
     }
 
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
 
     /* Clean up allocated memory */
     for (int k = 0; k < 9; ++k) {
-        free(dp[k]);
+        mem_free(dp[k]);
     }
     free(dp);
 

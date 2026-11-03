@@ -9,6 +9,7 @@
  *            where sigma_17(n) = sum_{d|n} d^17
  * Range:     i8 none, i16 none, i32 n <= 1, i64 n <= 7, i128 n <= 96,
  *            big any n
+ * Validated: standard, pass, 29 terms through n = 9903 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

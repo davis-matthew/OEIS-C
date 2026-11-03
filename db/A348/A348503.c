@@ -8,8 +8,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = gcd(σ(n), σ*(n)) where σ(n) is the sum‑of‑divisors and
  *            σ*(n) is the unitary sum‑of‑divisors
- * Range:     u8 n <= 137, u16 n <= 8692, u32 n <= 8692, u64 n <= 8692,
- *            u128 n <= 8692, big any n
+ * Range:     u8 n <= 137, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 100 terms through n = 8692 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

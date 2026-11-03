@@ -8,7 +8,8 @@
  * Formula:   a(n) = MIN{k >= 0 : n | (k + semiprime(n))}
  * Range:     u8 n <= 87, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 96 terms through n = 959 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*=== Cached data ==========================================================*/
 static seq_t *semiprimes = NULL;   /* semiprimes[0] = first (4)          */
@@ -54,7 +56,7 @@ ensure_semiprimes(idx_t need)
         }
 
         /* Resize the semiprime array if necessary. */
-        seq_t *new_arr = (seq_t *)realloc(semiprimes, need * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, semiprimes, need);
         if (!new_arr)
             exit(EXIT_FAILURE);
         semiprimes = new_arr;

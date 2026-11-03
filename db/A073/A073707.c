@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 53, u32 n <= 163, u64 n <= 547,
  *            u128 n <= 1955, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 9058 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
     fast enough for n up to about 10 000 on the typical test machine. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;      /* array of computed values  */
 static idx_t  cache_size = 0;     /* number of elements currently stored */
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
        any existing data.  On allocation failure we return 0 as a
        graceful fallback. */
     size_t new_size = (size_t)n + 1;
-    seq_t *tmp = (seq_t *)realloc(a_cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, new_size);
     if (!tmp) {
         return (seq_t)0;          /* memory shortage – give up */
     }

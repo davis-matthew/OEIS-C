@@ -11,13 +11,24 @@
  *            factorisation of n
  * Range:     i8 n <= 10000, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   is_square_exp
+ * Validated: standard, pass, 121 terms through n = 9796 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/is_square_exp.h"
+
+static int is_square_exp(int exp, int *sqrt_out)
+{
+    int r = 0;
+    while ((idx_t)r * r < exp) r++;
+    if ((idx_t)r * r == exp) {
+        if (sqrt_out) *sqrt_out = r;
+        return 1;
+    }
+    return 0;
+}
 
 seq_t a(idx_t n)
 {

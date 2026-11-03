@@ -8,7 +8,8 @@
  *            Φ_190(x)
  * Range:     i8 n <= 72, i16 n <= 72, i32 n <= 72, i64 n <= 72, i128 n <= 72,
  *            big any n
- * Helpers:   poly_div128, poly_mul128
+ * Validated: full, pass, 73 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,47 @@
 #include <stdlib.h>   /* malloc, free, abort */
 #include <stdbool.h>  /* bool */
 #include <string.h>   /* memset */
-#include "../utils/poly_div128.h"
-#include "../utils/poly_mul128.h"
+#include "../utils/mem.h"
+
+/* exact polynomial division: dividend / divisor, both stored in __int128 arrays.
+   Assumes the division is exact (no remainder).  */
+static void poly_div128(const __int128 *Dividend, size_t degD,
+                        const __int128 *Divisor, size_t degV,
+                        __int128 *Quotient, size_t *degQ)
+{
+    /* copy dividend into mutable array */
+    __int128 tmp[256];
+    for (size_t i = 0; i <= degD; ++i) tmp[i] = Dividend[i];
+
+    for (size_t i = 0; i <= degD; ++i) Quotient[i] = 0;
+
+    for (int i = (int)degD; i >= (int)degV; --i) {
+        __int128 coeff = tmp[i];
+        if (coeff == 0) continue;
+        size_t qIdx = i - degV;
+        Quotient[qIdx] = coeff;           /* coefficient of x^qIdx in quotient   */
+        /* subtract coeff * Divisor from tmp */
+        for (size_t j = 0; j <= degV; ++j) {
+            tmp[j + qIdx] -= coeff * Divisor[j];
+        }
+    }
+    *degQ = degD - degV;
+    /* remainder is implicit; caller guarantees it is zero   */
+}
+
+/* multiply two polynomials stored in __int128 arrays */
+static void poly_mul128(const __int128 *A, size_t degA,
+                        const __int128 *B, size_t degB,
+                        __int128 *C, size_t *degC)
+{
+    size_t new_deg = degA + degB;
+    for (size_t i = 0; i <= new_deg; ++i) C[i] = 0;
+    for (size_t i = 0; i <= degA; ++i)
+        if (A[i] != 0)
+            for (size_t j = 0; j <= degB; ++j)
+                C[i + j] += A[i] * B[j];
+    *degC = new_deg;
+}
 
 /* static storage for the cyclotomic polynomials Φ_n(x), 1 ≤ n ≤ 190 */
 #define NMAX 190
@@ -49,7 +89,7 @@ static void init_polynomials(void)
 {
     /* allocate storage for each polynomial */
     for (idx_t n = 1; n <= NMAX; ++n) {
-        poly[n] = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        poly[n] = mem_new(seq_t, (n + 1));
         if (!poly[n]) abort();
         deg_poly[n] = 0;
     }

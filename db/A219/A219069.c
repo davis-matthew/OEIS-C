@@ -8,6 +8,7 @@
  *            such that r*(r+1)/2 >= n, and k = n - (r-1)*r/2
  * Range:     u8 n <= 6, u16 n <= 89, u32 n <= 7260, u64 n <= 7260,
  *            u128 n <= 7260, big any n
+ * Validated: standard, pass, 61 terms through n = 6260 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

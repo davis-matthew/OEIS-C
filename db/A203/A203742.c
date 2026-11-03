@@ -9,16 +9,53 @@
  *            the k‑th Fibonacci number (starting with F_1 = 1)
  * Range:     u8 n <= 3, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 7,
  *            big any n
- * Helpers:   fib
+ * Validated: partial, pass, 8 terms through n = 8 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/fib.h"
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
 
 /* Grow an array to at least 'needed' elements */
+#ifdef __cplusplus
+template <class T>
+static void grow_array(size_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (needed <= *cap)
+        return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed)
+        new_cap <<= 1;
+    T *tmp = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+    if (!tmp)
+        abort();  /* memory exhausted */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#else
 static void grow_array(size_t needed, size_t *cap, void **ptr, size_t elem_size)
 {
     if (needed <= *cap)
@@ -32,6 +69,7 @@ static void grow_array(size_t needed, size_t *cap, void **ptr, size_t elem_size)
     *ptr = tmp;
     *cap = new_cap;
 }
+#endif
 
 /* Cache for the sequence values and Fibonacci numbers */
 static seq_t *seq_cache = NULL;
@@ -44,8 +82,8 @@ static idx_t current_max = 0;
 seq_t a(idx_t n)
 {
     /* Ensure the cache can hold index n */
-    grow_array(n + 1, &seq_cap, (void **)&seq_cache, sizeof(seq_t));
-    grow_array(n + 1, &fib_cap, (void **)&fib_cache, sizeof(seq_t));
+    grow_array(n + 1, &seq_cap, OEISC_VPP(&seq_cache), sizeof(seq_t));
+    grow_array(n + 1, &fib_cap, OEISC_VPP(&fib_cache), sizeof(seq_t));
 
     /* Initialisation for n = 1 */
     if (current_max == 0) {

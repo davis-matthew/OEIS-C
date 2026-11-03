@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 none, u64 n <= 10000, u128 n <= 10000,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 9865 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Size limits for the precomputed search grid.  200×200 ≈ 40 000 sums
    well exceed the 10 000‑term requirement for typical tests. */
@@ -46,7 +48,7 @@ static void init_sequence(void)
 {
     const size_t total = (size_t)A_MAX * (size_t)B_MAX;
     /* Allocate temporary array for raw sums */
-    seq_t *sums = (seq_t *)malloc(total * sizeof(seq_t));
+    seq_t *sums = mem_new(seq_t, total);
     if (!sums) { /* OOM; in a contest setting this will crash */ }
 
     /* Pre‑compute powers of a and b. */
@@ -83,10 +85,10 @@ static void init_sequence(void)
     }
 
     /* Sort the sums. */
-    qsort(sums, idx, sizeof(seq_t), cmp_seq);
+    mem_qsort(sums, idx, sizeof(seq_t), cmp_seq);
 
     /* Deduplicate into uniq_vals. */
-    uniq_vals = (seq_t *)malloc(idx * sizeof(seq_t));
+    uniq_vals = mem_new(seq_t, idx);
     uniq_len = 0;
     for (size_t i = 0; i < idx; ++i) {
         if (uniq_len == 0 || sums[i] != uniq_vals[uniq_len - 1]) {
@@ -94,7 +96,7 @@ static void init_sequence(void)
         }
     }
 
-    free(sums);
+    mem_free(sums);
     initialized = true;
 }
 

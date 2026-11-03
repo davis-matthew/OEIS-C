@@ -11,12 +11,14 @@
  *            with largest part ≤ k
  * Range:     u8 n <= 17, u16 n <= 43, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;     /* dp[n] = partition counts with parts ≤ current k   */
 static seq_t *ans = NULL;    /* ans[n] = required value up to n                  */
@@ -26,8 +28,8 @@ static idx_t  computed_max = (idx_t)-1;   /* maximum n for which ans[] is valid 
 static void recompute(idx_t up_to)
 {
     size_t N = (size_t)up_to;
-    seq_t *new_dp  = (seq_t*)realloc(dp,  (N + 1) * sizeof(seq_t));
-    seq_t *new_ans = (seq_t*)realloc(ans, (N + 1) * sizeof(seq_t));
+    seq_t *new_dp  = mem_resize(seq_t, dp, (N + 1));
+    seq_t *new_ans = mem_resize(seq_t, ans, (N + 1));
     dp  = new_dp;
     ans = new_ans;
 

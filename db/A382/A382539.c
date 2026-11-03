@@ -11,11 +11,13 @@
  *            for all n≥0 and memoises values
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 15, u64 n <= 31, u128 n <= 60,
  *            big any n
+ * Validated: standard, pass, 42 terms through n = 575 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #ifndef _SEQ_A382539_H_
 #define _SEQ_A382539_H_
 

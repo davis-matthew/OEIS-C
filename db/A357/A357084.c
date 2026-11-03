@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 18,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,7 +32,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/seq_pow.h"
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
 
 /* Sequence entry point */
 seq_t a(idx_t n)
@@ -44,13 +47,13 @@ seq_t a(idx_t n)
     /* Allocate or extend cache to hold values up to the requested n */
     if (cache == NULL) {
         cache_cap = (size_t)1;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = (seq_t)1;          /* a(0) = 1 */
         max_computed = 0;
     } else if (n >= cache_cap) {
         size_t new_cap = cache_cap;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         for (size_t i = cache_cap; i < new_cap; ++i) cache[i] = (seq_t)0;
         cache_cap = new_cap;
     }
@@ -66,8 +69,8 @@ seq_t a(idx_t n)
 
     size_t needed_S_cap = (size_t)n + 1;
     if (S_cap < needed_S_cap) {
-        S_cur  = (seq_t*)realloc(S_cur,  needed_S_cap * sizeof(seq_t));
-        S_prev = (seq_t*)realloc(S_prev, needed_S_cap * sizeof(seq_t));
+        S_cur  = mem_resize(seq_t, S_cur, needed_S_cap);
+        S_prev = mem_resize(seq_t, S_prev, needed_S_cap);
         S_cap  = needed_S_cap;
     }
 
@@ -92,7 +95,7 @@ seq_t a(idx_t n)
         idx_t maxk = cur / 2;
         for (idx_t k = 1; k <= maxk; ++k)
         {
-            seq_t power = seq_pow((seq_t)(cur + k + 1), k - 1);   /* (n+k+1)^(k-1) */
+            seq_t power = ipow_idx((seq_t)(cur + k + 1), k - 1);   /* (n+k+1)^(k-1) */
 
             /* S = S(cur, 2k) */
             seq_t S = S_cur[2 * k];

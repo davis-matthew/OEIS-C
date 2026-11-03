@@ -10,8 +10,9 @@
  *            T(r‑1,k‑r) (r ≥ 1, k ≥ 0), T(r,k) = 0 if k < 0 or k > r(r+1)/2.
  *            That is, a(n) is the number of subsets of {1,2,…,r} whose
  *            elements sum to k, where n is the linear index obtained b...
- * Range:     u8 n <= 505, u16 n <= 2153, u32 n <= 9682, u64 n <= 9682,
- *            u128 n <= 9682, big any n
+ * Range:     u8 n <= 505, u16 n <= 2153, u32 n <= 11050, u64 n <= 11520,
+ *            u128 n <= 11520, big any n
+ * Validated: standard, pass, 115 terms through n = 9682 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

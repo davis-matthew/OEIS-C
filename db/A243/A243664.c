@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=1..n} binomial(3*n,3*k) * a(n-k), a(0) = 1
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 8, u128 n <= 13,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 96 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Hash in a client environment: seq_t, idx_t are provided externally. */
 
@@ -30,7 +32,7 @@ static void ensure_cache(idx_t n)
     if (needed > cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
         while (new_cap < needed) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cache_cap = new_cap;
     }

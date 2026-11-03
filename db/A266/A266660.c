@@ -10,13 +10,14 @@
  *            (10 * 100^n - 100) / 9 for odd n ≥ 3
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 4, u64 n <= 10, u128 n <= 20,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: standard, pass, 35 terms through n = 947 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +30,7 @@ seq_t a(idx_t n)
     if ((n & 1) == 0) return (seq_t)11;
 
     /* Odd indices (n ≥ 3): (10 * 100^n - 100) / 9 */
-    seq_t t = pow_seq((seq_t)100, (int)n);   /* 100^n */
+    seq_t t = ipow_i32((seq_t)100, (int)n);   /* 100^n */
     t = (seq_t)10 * t;                      /* 10 * 100^n */
     t -= (seq_t)100;                        /* - 100 */
     t /= (seq_t)9;                          /* / 9 */

@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{d|n} J_2(d) * sigma(d)
  * Range:     u8 n <= 5, u16 n <= 35, u32 n <= 1259, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow_int64
+ * Validated: standard, pass, 58 terms through n = 9546 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/pow_int64.h"
+#include "../utils/ipow_idx.h"
 
 /* recursive enumeration of all divisors of n */
 static void dfs_divisors(const idx_t *primes, const unsigned *exps,
@@ -37,7 +38,7 @@ static void dfs_divisors(const idx_t *primes, const unsigned *exps,
         } else {
             pow_p *= (seq_t)p;   /* now pow_p = p^k */
             seq_t pow_p_k1 = pow_p * (seq_t)p;           /* p^(k+1) */
-            seq_t pow_p_2k_2 = pow_int64((seq_t)p, 2 * k - 2); /* p^(2k-2) */
+            seq_t pow_p_2k_2 = ipow_idx((seq_t)p, 2 * k - 2); /* p^(2k-2) */
             j2_k = pow_p_2k_2 * ((seq_t)p * (seq_t)p - 1);
             sigma_k = (pow_p_k1 - 1) / ((seq_t)p - 1);
         }

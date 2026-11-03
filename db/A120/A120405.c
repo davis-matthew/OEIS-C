@@ -13,7 +13,8 @@
  *            produces the sequence A120405
  * Range:     u8 n <= 30, u16 n <= 119, u32 n <= 507, u64 n <= 4094,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 85 terms through n = 9188 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* array of precomputed a(n) */
 static idx_t cache_size = 0;     /* currently stored values are cache[1..cache_size] */
@@ -32,9 +34,9 @@ seq_t a(idx_t n) {
         idx_t new_size = n + 1;                      /* include index 0 unused */
         size_t new_bytes = (size_t)new_size * sizeof(seq_t);
         if (cache == NULL) {
-            cache = (seq_t *)malloc(new_bytes);
+            cache = mem_new(seq_t, (new_bytes) / sizeof(seq_t));
         } else {
-            cache = (seq_t *)realloc(cache, new_bytes);
+            cache = mem_resize(seq_t, cache, (new_bytes) / sizeof(seq_t));
         }
         /* Initialize from previous size+1 up to n */
         for (idx_t i = cache_size + 1; i <= n; ++i) {

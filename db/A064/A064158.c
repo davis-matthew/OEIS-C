@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 71, u32 n <= 179, u64 n <= 179,
  *            u128 n <= 179, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 178 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;          /* dynamic array of sequence values */
 static size_t seq_cap = 0;         /* current capacity of seq            */
@@ -45,7 +47,7 @@ static void push_value(seq_t val)
     if (seq_len == seq_cap) {
         if (seq_cap == 0) seq_cap = 16;
         else seq_cap <<= 1;
-        seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, seq_cap);
     }
     seq[seq_len++] = val;
 }

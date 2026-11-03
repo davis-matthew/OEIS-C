@@ -11,13 +11,15 @@
  *            positive integers
  * Range:     u8 n <= 80, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 96 terms through n = 9494 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Static tables for memoization */
 static seq_t *pairCount = NULL;        /* counts of sum of floor(y^2/3)+floor(z^2/4) */
@@ -31,12 +33,12 @@ static void recompute_tables(idx_t n)
 {
     /* free old table if any */
     if (pairCount != NULL) {
-        free(pairCount);
+        mem_free(pairCount);
     }
 
     /* allocate new pairCount array of length n+1 */
     pairCap = (size_t)n + 1;
-    pairCount = (seq_t *)calloc(pairCap, sizeof(seq_t));
+    pairCount = mem_new(seq_t, pairCap);
     if (pairCount == NULL) { /* allocation failed – abort */
         exit(EXIT_FAILURE);
     }

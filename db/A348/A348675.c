@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{k=0..n-1} Omega(n^2 - k^2)
  * Range:     u8 n <= 53, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-01)
  * Helpers:   bigomega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
    No memoisation or additional memory is required, and the
    code works for any build (primitive or arbitrary‑precision seq_t). */
 
+#include <stdlib.h>
 #include "../utils/bigomega.h"
 
 seq_t a(idx_t n)

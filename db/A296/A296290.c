@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 16, u32 n <= 39, u64 n <= 86, u128 n <= 178,
  *            big any n
- * Helpers:   in_a
+ * Validated: standard, pass, 51 terms through n = 937 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,19 @@
 */
 
 #include <stddef.h>   /* size_t */
-#include "../utils/in_a.h"
+
+/* binary search for x in sorted array arr[0..len-1] */
+static int in_a(const seq_t *arr, size_t len, const seq_t x) {
+    size_t lo = 0, hi = len;
+    while (lo < hi) {
+        size_t mid = (lo + hi) / 2;
+        const seq_t y = arr[mid];
+        if (y == x) return 1;
+        if (y < x) lo = mid + 1;
+        else hi = mid;
+    }
+    return 0;
+}
 
 #define MAXN 20000  /* sufficient for n up to about 10 000 */
 

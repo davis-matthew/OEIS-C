@@ -10,8 +10,9 @@
  *            antidiagonals. * The antidiagonal index `s` and offset `k` are
  *            computed as: * s = largest integer such that s*(s+1)/2 <= n * k
  *            = n - s*(s+1)/2 * i = k * j = s - k * Thus a(n) = T(i, j)
- * Range:     u8 n <= 135, u16 n <= 9836, u32 n <= 9836, u64 n <= 9836,
- *            u128 n <= 9836, big any n
+ * Range:     u8 n <= 135, u16 n <= 10010, u32 n <= 10010, u64 n <= 10010,
+ *            u128 n <= 10010, big any n
+ * Validated: standard, pass, 94 terms through n = 9836 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

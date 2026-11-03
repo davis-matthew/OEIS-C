@@ -12,12 +12,14 @@
  *            a(n-k) for n>2 (offset 2)
  * Range:     u8 n <= 7, u16 n <= 9, u32 n <= 14, u64 n <= 22, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache        = NULL;   /* cache[n] holds a(n) for n>=0   */
 static idx_t cacheSize      = 0;     /* allocated size of cache       */
@@ -30,7 +32,7 @@ static void ensure_cache(idx_t n)
         return;
 
     idx_t newSize = (n < 32) ? 32 : n * 2;
-    seq_t *newCache = (seq_t *)malloc(newSize * sizeof(seq_t));
+    seq_t *newCache = mem_new(seq_t, newSize);
     if (!newCache)
         exit(EXIT_FAILURE);
 
@@ -38,7 +40,7 @@ static void ensure_cache(idx_t n)
         /* copy existing values */
         for (idx_t i = 0; i < cacheSize; ++i)
             newCache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
 
     /* initialize new slots to 0 */

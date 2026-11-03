@@ -7,12 +7,14 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 177, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 58 terms through n = 986 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Computes the nth prime congruent to 8 mod 63 by iterating candidates. */
+#include <stdbool.h>
 #include "../utils/is_prime.h"
 #include <stdbool.h>
 

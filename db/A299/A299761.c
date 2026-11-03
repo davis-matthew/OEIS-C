@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabf, look
  * Formula:   not stated
- * Range:     u8 n <= 19, u16 n <= 1206, u32 n <= 8333, u64 n <= 8333,
- *            u128 n <= 8333, big any n
- * Helpers:   get_middle_divisors
+ * Range:     u8 n <= 19, u16 n <= 1206, u32 n <= 14002, u64 n <= 14002,
+ *            u128 n <= 14002, big any n
+ * Validated: standard, pass, 118 terms through n = 8333 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,30 @@
    which is sufficient for n up to about 10000. */
 
 #include <stddef.h>
-#include "../utils/get_middle_divisors.h"
+
+/* Fill arr with the middle divisors of m and return the count.
+   Middle divisors are divisors d of m such that
+      2*d*d >= m   and   d*d < 2*m.  */
+static size_t get_middle_divisors(idx_t m, seq_t *arr)
+{
+    size_t count = 0;
+    for (idx_t d = 1; d * d <= m; ++d) {
+        if (m % d == 0) {
+            seq_t d2 = (seq_t)d * (seq_t)d;
+            if ((seq_t)2 * d2 >= m && d2 < (seq_t)2 * m) {
+                arr[count++] = (seq_t)d;
+            }
+            idx_t c = m / d;
+            if (c != d) {
+                seq_t c2 = (seq_t)c * (seq_t)c;
+                if ((seq_t)2 * c2 >= m && c2 < (seq_t)2 * m) {
+                    arr[count++] = (seq_t)c;
+                }
+            }
+        }
+    }
+    return count;
+}
 
 static void sort_seq_t(seq_t *arr, size_t len)
 {

@@ -8,14 +8,16 @@
  * Formula:   a(n) = T(r,k) with r = floor((sqrt(8*n+1)-1)/2) and k = n -
  *            r*(r+1)/2, where T(r,k) = binomial(r,k) * binomial(r+k,k)
  *            (flattening the triangle row‑by‑row)
- * Range:     u8 n <= 13, u16 n <= 40, u32 n <= 128, u64 n <= 422,
+ * Range:     u8 n <= 17, u16 n <= 40, u32 n <= 128, u64 n <= 422,
  *            u128 n <= 1467, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 71 terms through n = 5029 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"   /* declares seq_t binom(idx_t, idx_t) */
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -32,8 +34,8 @@ seq_t a(idx_t n)
     idx_t k = n - start;
 
     /* Compute the two binomials and their product. */
-    seq_t b1 = binom(r, k);
-    seq_t b2 = binom(r + k, k);
+    seq_t b1 = binomial(r, k);
+    seq_t b2 = binomial(r + k, k);
 
     return b1 * b2;
 }

@@ -11,12 +11,14 @@
  *            a(18)=3017524, a(19)=4136957, a(20)=11291438, a(21)=3801...
  * Range:     u8 n <= 8, u16 n <= 13, u32 n <= 25, u64 n <= 50, u128 n <= 99,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 183 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
 
     if (cache_len < needed) {
         /* enlarge cache */
-        seq_t *tmp = (seq_t*)realloc(cache, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, needed);
         cache = tmp;
         /* compute new terms */
         for (idx_t k = cache_len; k < needed; ++k) {

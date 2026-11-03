@@ -8,6 +8,7 @@
  * Keywords:  fini, full, nonn
  * Formula:   a(n)=n*a(1) for n=1,2,3,4; a(5)=6*a(1); a(6)=8*a(1)
  * Range:     u8 none, u16 none, u32 none, u64 n <= 6, u128 n <= 6, big any n
+ * Validated: full, pass, 6 terms through n = 6 (2026-11-02)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 /* a(1) is the least common multiple of all ab+ac+bc, where
    a, b, c taken from {1,2,3,4,6,8}. */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 static inline seq_t lcm_seq(seq_t a, seq_t b)

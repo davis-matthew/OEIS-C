@@ -12,13 +12,15 @@
  *            coefficients of (x‑(23+7(r‑1)))(x‑16)^{r‑1}
  * Range:     i8 n <= 2, i16 n <= 9, i32 n <= 35, i64 n <= 35, i128 n <= 35,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Include the binomial helper from the utilities library */
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -50,8 +52,8 @@ seq_t a(idx_t n)
         powNeg16 *= (seq_t)-16;
     }
 
-    seq_t bin1 = binom(r - 1, s + 1);   /* C(r-1, s+1) */
-    seq_t bin0 = binom(r - 1, s);       /* C(r-1, s)   */
+    seq_t bin1 = binomial(r - 1, s + 1);   /* C(r-1, s+1) */
+    seq_t bin0 = binomial(r - 1, s);       /* C(r-1, s)   */
     seq_t term1   = bin1 * powNeg16 * (seq_t)-16;            /* bin1 * (‑16)^(s+1) */
     seq_t b = ((seq_t)7 * r) + (seq_t)16;                  /* 7r + 16 */
     seq_t term2   = b * bin0 * powNeg16;                    /* b * bin0 * (‑16)^s */

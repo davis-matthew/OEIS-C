@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 24, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   mul64
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mul64.h"
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 /* 64‑bit modular multiplication using 128‑bit arithmetic */
 
@@ -27,8 +29,8 @@
 static inline uint64_t powmod64(uint64_t a, uint64_t d, uint64_t mod) {
     uint64_t r = 1;
     while (d) {
-        if (d & 1) r = mul64(r, a, mod);
-        a = mul64(a, a, mod);
+        if (d & 1) r = mulmod(r, a, mod);
+        a = mulmod(a, a, mod);
         d >>= 1;
     }
     return r;
@@ -57,7 +59,7 @@ static bool isPrime64(uint64_t n) {
         if (x == 1 || x == n - 1) continue;
         bool composite = true;
         for (int r = 1; r < s; ++r) {
-            x = mul64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) { composite = false; break; }
         }
         if (composite) return false;
@@ -77,7 +79,7 @@ static void ensure_cache(size_t need) {
     size_t new_cap = (cache_cap > 0) ? cache_cap * 2 : 4;
     while (new_cap < need) new_cap *= 2;
 #if defined(__cplusplus)
-    seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
 #else
     seq_t *new_ptr = realloc(cache, new_cap * sizeof(seq_t));
 #endif

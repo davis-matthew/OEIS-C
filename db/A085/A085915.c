@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 18,
  *            big any n
- * Helpers:   group_size
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -43,7 +44,13 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/group_size.h"
+
+/* Compute the size of the n-th group. */
+static inline idx_t group_size(idx_t n)
+{
+    if (n <= 2) return 1;
+    return (n & 1) ? (n - 1) : n;
+}
 
 /* Multiplicative binomial coefficient C(N,K) returning seq_t. */
 static seq_t binomial(idx_t N, idx_t K)

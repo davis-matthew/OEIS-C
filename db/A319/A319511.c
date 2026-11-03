@@ -13,14 +13,16 @@
  *            r and k * are found from the index n by solving...
  * Range:     u8 n <= 11, u16 n <= 17, u32 n <= 23, u64 n <= 31, u128 n <= 39,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 44 terms through n = 44 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Dependencies:  big_pow.h – provides seq_t big_pow(seq_t base, seq_t exp)  */
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include "../utils/ipow.h"
 
 /* Forward declaration of helper that computes T(n,k) */
 static seq_t compute_T(idx_t n, idx_t k);
@@ -60,8 +62,8 @@ static seq_t compute_T(idx_t n, idx_t k) {
         binom = (binom * (n - i)) / (i + 1); /* compute C(n,i+1)    */
     }
     /* After the loop binom == C(n,k)  */
-    seq_t pow_bin = big_pow((seq_t)2, binom);   /* 2^C(n,k)   */
+    seq_t pow_bin = ipow((seq_t)2, binom);   /* 2^C(n,k)   */
     seq_t base = pow_bin - (seq_t)1;            /* 2^C(n,k)-1  */
-    seq_t pow_sum = big_pow((seq_t)2, sum);     /* 2^Σ_{i<k}C(n,i) */
+    seq_t pow_sum = ipow((seq_t)2, sum);     /* 2^Σ_{i<k}C(n,i) */
     return base * pow_sum;
 }

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 45, u16 n <= 78, u32 n <= 147, u64 n <= 285,
  *            u128 n <= 564, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 832 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    Initial column k=0: T(0,0)=T(0,1)=0 , T(0,2)=1. */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *col_vals = NULL;        /* flattened 3*column values */
 static size_t  col_cap  = 0;          /* capacity in columns */
@@ -33,7 +35,7 @@ static void ensure_col_capacity(size_t needed)
     size_t new_cap = col_cap ? col_cap * 2 : 16;
     while (new_cap < needed) new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(col_vals, new_cap * 3 * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, col_vals, new_cap * 3);
     if (!tmp) abort();                 /* out of memory */
     col_vals = tmp;
     col_cap  = new_cap;

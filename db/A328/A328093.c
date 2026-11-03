@@ -8,7 +8,8 @@
  * Formula:   a(n) = coefficient of qⁿ in (θ₃(z)·θ₃(23z) + θ₂(z)·θ₂(23z))⁵
  * Range:     u8 n <= 5, u16 n <= 24, u32 n <= 401, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 856 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     size_t sz = (size_t)(N + 1);
 
     /* Allocate coefficient array S for S(q) = θ₃*θ₃ + θ₂*θ₂. */
-    seq_t *S = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *S = mem_new(seq_t, sz);
     if (!S) return (seq_t)0;
 
     /* Contributions from θ₃(z)*θ₃(23z): Σ q^{m²+23l²}.  */
@@ -52,12 +54,12 @@ seq_t a(idx_t n)
     }
 
     /* Allocate working arrays for convolution. */
-    seq_t *cur  = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *next = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *cur  = mem_new(seq_t, sz);
+    seq_t *next = mem_new(seq_t, sz);
     if (!cur || !next) {
-        free(S);
-        free(cur);
-        free(next);
+        mem_free(S);
+        mem_free(cur);
+        mem_free(next);
         return (seq_t)0;
     }
 
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
     /* Multiply cur by S four more times to obtain S^5. */
     for (int step = 0; step < 4; ++step) {
         /* Zero next array. */
-        memset((void *)next, 0, sz * sizeof(seq_t));
+        mem_set(next, 0, sz * sizeof(seq_t));
 
         for (size_t k = 0; k < sz; ++k) {
             if (cur[k] == 0) continue;
@@ -86,9 +88,9 @@ seq_t a(idx_t n)
     seq_t result = cur[(size_t)N];
 
     /* Free all allocated memory. */
-    free(S);
-    free(cur);
-    free(next);
+    mem_free(S);
+    mem_free(cur);
+    mem_free(next);
 
     return result;
 }

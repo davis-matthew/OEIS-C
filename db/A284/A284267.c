@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8192, u16 n <= 8192, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   none
+ * Validated: standard, pass, 137 terms through n = 7382 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>  /* for uint64_t */
+#include "../utils/mem.h"
 
 #define COEFF_WIDTH 64   /* enough to store a coefficient of any B(k)  */
 
@@ -35,8 +37,7 @@ static void ensure_capacity(idx_t need)
     idx_t new_max = need;
 
     /* Reallocate coefficient array */
-    seq_t *new_coeffs = (seq_t *)realloc(coeffs,
-                         (new_max + 1) * COEFF_WIDTH * sizeof(seq_t));
+    seq_t *new_coeffs = mem_resize(seq_t, coeffs, (new_max + 1) * COEFF_WIDTH);
     if (!new_coeffs) abort();
     coeffs = new_coeffs;
 

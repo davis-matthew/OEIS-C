@@ -8,12 +8,14 @@
  *            (row‑sum recurrence)
  * Range:     i8 n <= 2500, i16 n <= 2500, i32 n <= 2500, i64 n <= 2500,
  *            i128 n <= 2500, big any n
- * Helpers:   none
+ * Validated: standard, pass, 99 terms through n = 2378 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* static storage for computed values       */
 static idx_t cache_size = 0;  /* number of valid elements in cache       */
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     if (cache == NULL)
     {
         cache_size = 4;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (cache == NULL)
             exit(EXIT_FAILURE);                /* out of memory          */
 
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
         return cache[n];
 
     /* extend cache to include n                                 */
-    seq_t *tmp = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
     if (tmp == NULL)
         exit(EXIT_FAILURE);                /* out of memory          */
     cache = tmp;

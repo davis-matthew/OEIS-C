@@ -12,7 +12,8 @@
  *            medians (central row, central column, diagonal, antidiagonal)
  * Range:     u8 none, u16 n <= 2, u32 n <= 10, u64 n <= 25, u128 n <= 55,
  *            big any n
- * Helpers:   _majority3, _state_decode, _state_index
+ * Validated: standard, pass, 34 terms through n = 201 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,28 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/_majority3.h"
-#include "../utils/_state_decode.h"
-#include "../utils/_state_index.h"
+
+/* Helper: majority of three bits a,b,c (each 0/1) */
+static inline uint8_t _majority3(uint8_t a, uint8_t b, uint8_t c)
+{
+    return (a + b + c >= 2) ? 1 : 0;
+}
+
+/* Decode state (index) */
+static inline void _state_decode(size_t state, uint8_t *prev_row, uint8_t *cur_row,
+                                 uint8_t *sum_idx)
+{
+    *sum_idx = state % 15;
+    size_t tmp = state / 15;
+    *prev_row = (uint8_t)(tmp >> 4);
+    *cur_row  = (uint8_t)(tmp & 0xF);
+}
+
+/* Encode state (prev_row,cur_row,prev_sum_idx) -> 0..3839 */
+static inline size_t _state_index(uint8_t prev_row, uint8_t cur_row, uint8_t sum_idx)
+{
+    return (((size_t)prev_row << 4) | cur_row) * 15 + sum_idx;
+}
 
 static bool _a254506_precomp_done = false;
 /* mapping from (s0,s1), 0<=s0<=s1<=4  -> index 0..14 */

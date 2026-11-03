@@ -7,6 +7,7 @@
  * Formula:   a(n) = (22*n - 5*(-1)^n - 19)/4
  * Range:     u8 n <= 12, u16 n <= 3038, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 73 terms through n = 9830 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

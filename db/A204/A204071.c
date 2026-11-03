@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
    unsigned integers (64‑bit) or arbitrary‑precision integer classes. */
 
 #include <stdlib.h>   /* for realloc, exit */
+#include "../utils/mem.h"
 
 #if defined(__cplusplus)
 #include <cstddef>    /* for std::size_t */
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
 
     if (cache_size < n) {
         /* extend cache to hold indices up to n (index 0 unused) */
-        seq_t *new_cache = (seq_t *)realloc(cache, (size_t)(n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (size_t)(n + 1));
         if (!new_cache) { exit(EXIT_FAILURE); }
         cache = new_cache;
 

@@ -7,13 +7,21 @@
  * Formula:   a(n) = sum_{k=1..n} F_k^5 (F_0 = 0, F_1 = 1)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 20, u128 n <= 38,
  *            big any n
- * Helpers:   pow5_local
+ * Validated: standard, pass, 37 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/pow5_local.h"
+#include "../utils/mem.h"
+
+static seq_t pow5_local(seq_t x)
+{
+    seq_t r = x;
+    for (int i = 1; i < 5; ++i) r *= x;   /* multiply 5 times */
+    return r;
+}
 
 seq_t a(idx_t n)
 {
@@ -25,8 +33,8 @@ seq_t a(idx_t n)
 
     if (fib == NULL) {           /* first-time initialization */
         capacity = 2;            /* at least indices 0 and 1 needed */
-        fib  = (seq_t *)malloc(capacity * sizeof(seq_t));
-        sum  = (seq_t *)malloc(capacity * sizeof(seq_t));
+        fib  = mem_new(seq_t, capacity);
+        sum  = mem_new(seq_t, capacity);
         fib[0] = 0;
         sum[0] = 0;
     }
@@ -37,8 +45,8 @@ seq_t a(idx_t n)
         if (needed > capacity) {
             /* Grow by doubling until we have enough space */
             while (capacity < needed) capacity <<= 1;
-            fib = (seq_t *)realloc(fib, capacity * sizeof(seq_t));
-            sum = (seq_t *)realloc(sum, capacity * sizeof(seq_t));
+            fib = mem_resize(seq_t, fib, capacity);
+            sum = mem_resize(seq_t, sum, capacity);
         }
         /* Compute Fibonacci numbers and sums from max_n+1 up to n */
         for (size_t i = (size_t)max_n + 1; i <= (size_t)n; ++i) {

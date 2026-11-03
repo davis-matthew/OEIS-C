@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 355, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_distinct_primes
+ * Validated: standard, pass, 60 terms through n = 9116 (2026-11-03)
+ * Helpers:   mem, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,10 @@
    found terms so that calls with arbitrary n order remain fast.  */
 
 #include <stdlib.h>
-#include "../utils/count_distinct_primes.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/omega.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,15 +39,14 @@ seq_t a(idx_t n)
         while (1)
         {
             uint64_t k = next_k++;
-            if (count_distinct_primes(k)     >= 4 &&
-                count_distinct_primes(k + 1) >= 4)
+            if (omega(k)     >= 4 &&
+                omega(k + 1) >= 4)
             {
                 /* Grow cache if necessary */
                 if (cache_size == cache_cap)
                 {
                     size_t new_cap = (cache_cap == 0) ? 64 : cache_cap * 2;
-                    seq_t *tmp = (seq_t *)realloc(cache,
-                                                  new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                     if (!tmp) abort();  /* out of memory – terminate */
                     cache = tmp;
                     cache_cap = new_cap;

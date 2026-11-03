@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 84, u16 n <= 84, u32 n <= 84, u64 n <= 84, u128 n <= 84,
  *            big any n
- * Helpers:   int_sqrt705
+ * Validated: partial, pass, 85 terms through n = 84 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,22 @@
    a(0)  = 26.  Caches computed terms for fast random access. */
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/int_sqrt705.h"
+#include "../utils/mem.h"
+
+static seq_t int_sqrt705(void)
+{
+    seq_t low = 0, high = 705, mid, result = 0;
+    while (low <= high) {
+        mid = (low + high) / 2;
+        if (mid * mid <= 705) {
+            result = mid;
+            low = mid + 1;
+        } else {
+            high = mid - 1;
+        }
+    }
+    return result;
+}
 
 static struct {
     seq_t *cache;   /* cached terms */
@@ -37,7 +53,7 @@ static void ensure_capacity(void)
 {
     if (state.size + 1 > state.cap) {
         size_t new_cap = state.cap ? state.cap * 2 : 1;
-        seq_t *tmp = (seq_t *)realloc(state.cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, state.cache, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         state.cache = tmp;
         state.cap = new_cap;
@@ -48,7 +64,7 @@ seq_t a(idx_t n)
 {
     /* Initialise state on first call */
     if (!state.cache) {
-        state.cache = (seq_t *)malloc(sizeof(seq_t));
+        state.cache = mem_new(seq_t, 1);
         if (!state.cache) exit(EXIT_FAILURE);
         state.cap = 1;
         state.a0 = int_sqrt705();          /* 26 for sqrt(705) */

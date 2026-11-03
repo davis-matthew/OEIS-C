@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 13, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Growth helper for dynamic arrays of seq_t. */
 static void grow_seq(seq_t **pptr, size_t *cap, size_t new_cap)
@@ -30,9 +32,9 @@ static void grow_seq(seq_t **pptr, size_t *cap, size_t new_cap)
     if (new_cap <= *cap)
         return;
     if (*pptr == NULL)
-        *pptr = (seq_t*)malloc(new_cap * sizeof(seq_t));
+        *pptr = mem_new(seq_t, new_cap);
     else
-        *pptr = (seq_t*)realloc(*pptr, new_cap * sizeof(seq_t));
+        *pptr = mem_resize(seq_t, *pptr, new_cap);
     *cap = new_cap;
 }
 

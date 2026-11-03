@@ -8,7 +8,8 @@
  *            (non‑prime integer >1)
  * Range:     u8 n <= 4, u16 n <= 73, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_len, pow10
+ * Validated: standard, pass, 70 terms through n = 9343 (2026-11-01)
+ * Helpers:   num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,17 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "../utils/digit_len.h"
-#include "../utils/pow10.h"
+#include "../utils/num_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* --- static cache for composites ----------------------------------- */
 static uint64_t *composites     = NULL;   /* store composite integers */
@@ -70,7 +80,7 @@ seq_t a(idx_t n)
     uint64_t comp      = composites[n - 1];     /* n‑th composite      */
     seq_t   comp_seq   = (seq_t)comp;           /* cast to seq_t        */
     seq_t   n_seq      = (seq_t)n;              /* unsigned index      */
-    seq_t   pow10_val  = pow10((idx_t)digit_len(comp_seq));
+    seq_t   pow10_val  = pow10((idx_t)num_digits(comp_seq));
 
     return n_seq * pow10_val + comp_seq;        /* concatenation       */
 }

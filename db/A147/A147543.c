@@ -8,6 +8,7 @@
  *            a(1)=25, a(2)=105, a(n)=10*a(n-1)-31*a(n-2)+30*a(n-3))
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 12, u64 n <= 26, u128 n <= 53,
  *            big any n
+ * Validated: standard, pass, 37 terms through n = 969 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

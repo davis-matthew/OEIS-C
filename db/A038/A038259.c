@@ -9,13 +9,16 @@
  *            r(r+1)/2
  * Range:     u8 n <= 6, u16 n <= 21, u32 n <= 58, u64 n <= 214, u128 n <= 755,
  *            big any n
- * Helpers:   binomial, pow_uint
+ * Validated: standard, pass, 52 terms through n = 998 (2026-11-01)
+ * Helpers:   binomial, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -35,8 +38,8 @@ seq_t a(idx_t n)
     idx_t col = n - prev_cum;
 
     seq_t bin = binomial(r, col);
-    seq_t p6  = pow_uint(6, r - col);
-    seq_t p5  = pow_uint(5, col);
+    seq_t p6  = ipow_u64_idx(6, r - col);
+    seq_t p5  = ipow_u64_idx(5, col);
 
     return bin * p6 * p5;
 }

@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 79, u16 n <= 79, u32 n <= 79, u64 n <= 79, u128 n <= 79,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 79 terms through n = 79 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 /* static storage for the sequence and its digit stream */
 static seq_t *seq_cache = NULL;
@@ -41,7 +43,7 @@ static void init(void)
 
     /* allocate for first term */
     seq_cap = 16;
-    seq_cache = (seq_t *)malloc(sizeof(seq_t) * seq_cap);
+    seq_cache = mem_new(seq_t, seq_cap);
     seq_cache[0] = (seq_t)10;
     seq_len = 1;
 
@@ -74,7 +76,7 @@ seq_t a(idx_t n)
         if (seq_len == seq_cap)
         {
             seq_cap = seq_cap ? seq_cap * 2 : 8;
-            seq_cache = (seq_t *)realloc(seq_cache, seq_cap * sizeof(seq_t));
+            seq_cache = mem_resize(seq_t, seq_cache, seq_cap);
         }
         seq_cache[seq_len++] = val;
 

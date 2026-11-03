@@ -7,7 +7,8 @@
  * Formula:   a(n) = 2^(p) + 1 where p is the n‑th prime (a(1) = 5)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 11, u64 n <= 18, u128 n <= 31,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 34 terms through n = 191 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 #include <stddef.h>   /* for size_t */
 
 /* Include the arbitrary‑precision exponentiation routine. */
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include "../utils/ipow.h"
 
 /* --------------------------------------------------------------------- */
 /* Prime storage and generation                                         */
@@ -76,6 +78,6 @@ seq_t a(idx_t n)
 
     /* Compute 2^p + 1 using big_pow (arbitrary precision). */
     seq_t two = (seq_t)2;
-    seq_t power = big_pow(two, (seq_t)p);
+    seq_t power = ipow(two, (seq_t)p);
     return power + (seq_t)1;
 }

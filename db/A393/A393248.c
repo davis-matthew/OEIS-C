@@ -9,14 +9,21 @@
  *            digits of n
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   ducci_step
+ * Validated: partial, pass, 80 terms through n = 80 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/ducci_step.h"
+
+static inline seq_t ducci_step(seq_t v, idx_t k, seq_t mask)
+{
+    /* Circular left shift by one then XOR with original. */
+    seq_t rot = ((v << 1) | (v >> (k - 1))) & mask;
+    return v ^ rot;
+}
 
 seq_t a(idx_t n)
 {

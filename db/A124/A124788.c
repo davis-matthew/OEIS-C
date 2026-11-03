@@ -9,12 +9,14 @@
  *            satisfies r(r+1)/2 <= n < (r+1)(r+2)/2; k = n - r(r+1)/2
  * Range:     u8 n <= 103, u16 n <= 103, u32 n <= 103, u64 n <= 103,
  *            u128 n <= 103, big any n
- * Helpers:   binom
+ * Validated: partial, pass, 104 terms through n = 103 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -36,5 +38,5 @@ seq_t a(idx_t n)
     if (floor_k2 < nk)                     /* binomial would be zero */
         return (seq_t)0;
 
-    return binom(floor_k2, nk);            /* compute binomial coefficient */
+    return binomial(floor_k2, nk);            /* compute binomial coefficient */
 }

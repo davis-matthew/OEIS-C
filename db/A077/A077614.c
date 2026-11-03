@@ -10,7 +10,8 @@
  *            gcd(j,k)=1 } equals k
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   build_spf
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/build_spf.h"
+#include "../utils/mem.h"
 
 static idx_t max_precomputed = 0;
 static idx_t *global_spf = NULL;
@@ -29,9 +31,9 @@ static seq_t *global_phi  = NULL;
 static void precompute(idx_t n) {
     if (n <= max_precomputed) return;
     if (global_spf) free(global_spf);
-    if (global_phi) free(global_phi);
+    if (global_phi) mem_free(global_phi);
     build_spf(n, &global_spf);
-    global_phi = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    global_phi = mem_new(seq_t, (n + 1));
     if (!global_phi) abort();
     global_phi[0] = 0;
     global_phi[1] = (seq_t)1;

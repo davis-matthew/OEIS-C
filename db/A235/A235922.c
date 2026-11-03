@@ -9,7 +9,8 @@
  *            * n‑th decimal palindrome, read in decimal, is a palindrome
  * Range:     u8 n <= 35, u16 n <= 85, u32 n <= 85, u64 n <= 85, u128 n <= 85,
  *            big any n
- * Helpers:   is_palindrome
+ * Validated: partial, pass, 85 terms through n = 85 (2026-11-01)
+ * Helpers:   is_palindrome_base
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_palindrome.h"
+#include "../utils/is_palindrome_base.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +29,7 @@ seq_t a(idx_t n)
     idx_t count = 0;
 
     while (count < n) {
-        if (is_palindrome(candidate, 10)) {
+        if (is_palindrome_base(candidate, 10)) {
             ++count;
             if (count == n)
                 break;

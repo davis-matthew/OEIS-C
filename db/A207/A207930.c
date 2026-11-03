@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 18, u64 n <= 38, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -87,8 +89,8 @@ seq_t a(idx_t n)
     if (n == 2) return (seq_t)m * (seq_t)m;
 
     /* dynamic programming */
-    seq_t *dp_prev = (seq_t *)calloc(states, sizeof(seq_t));
-    seq_t *dp_next = (seq_t *)calloc(states, sizeof(seq_t));
+    seq_t *dp_prev = mem_new(seq_t, states);
+    seq_t *dp_next = mem_new(seq_t, states);
     if (!dp_prev || !dp_next) { free(valid); return 0; }
 
     /* for column 2: all pairs are allowed */
@@ -98,7 +100,7 @@ seq_t a(idx_t n)
     for (int step = 3; step <= N; ++step)
     {
         /* zero next array */
-        memset(dp_next, 0, states * sizeof(seq_t));
+        mem_set(dp_next, 0, states * sizeof(seq_t));
 
         for (int u = 0; u < m; ++u)
         {
@@ -128,8 +130,8 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < states; ++i) total += dp_prev[i];
 
     free(valid);
-    free(dp_prev);
-    free(dp_next);
+    mem_free(dp_prev);
+    mem_free(dp_next);
 
     return total;
 }

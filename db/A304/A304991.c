@@ -9,12 +9,14 @@
  *            into distinct parts
  * Range:     u8 n <= 9, u16 n <= 21, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 /* Global cache for the two auxiliary sequences. */
@@ -25,11 +27,11 @@ static idx_t  current_size = 0;  /* largest n that has been computed */
 /* Allocate new arrays and compute both sequences up to n (inclusive). */
 static void compute_to(idx_t n)
 {
-    seq_t *p_new = (seq_t *)malloc((n + 1) * sizeof(seq_t));
-    seq_t *q_new = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *p_new = mem_new(seq_t, (n + 1));
+    seq_t *q_new = mem_new(seq_t, (n + 1));
     if (!p_new || !q_new) {
-        if (p_new) free(p_new);
-        if (q_new) free(q_new);
+        if (p_new) mem_free(p_new);
+        if (q_new) mem_free(q_new);
         abort();
     }
 
@@ -68,8 +70,8 @@ static void compute_to(idx_t n)
     }
 
     /* Replace old tables with the new ones */
-    free(p);
-    free(q);
+    mem_free(p);
+    mem_free(q);
     p = p_new;
     q = q_new;
     current_size = n;

@@ -10,6 +10,7 @@
  *            integers in blocks of four, alternating signs between blocks
  * Range:     i8 n <= 6, i16 n <= 15, i32 n <= 36, i64 n <= 36, i128 n <= 36,
  *            big any n
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 63, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_prime_factors, is_prime
+ * Validated: standard, pass, 75 terms through n = 9848 (2026-11-03)
+ * Helpers:   bigomega_seq, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,9 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/count_prime_factors.h"
+#include "../utils/bigomega_seq.h"
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *terms = NULL;          /* cached terms */
 static size_t  terms_capacity = 0;   /* allocated capacity of terms */
@@ -36,7 +38,7 @@ static void ensure_capacity(size_t need)
     if (terms_capacity < need) {
         size_t new_cap = terms_capacity ? terms_capacity << 1 : 16;
         if (new_cap < need) new_cap = need;
-        terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, new_cap);
         terms_capacity = new_cap;
     }
 }
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
     /* Generate terms until we reach the requested index. */
     while (terms_size < (size_t)n) {
         seq_t m = next_candidate++;
-        seq_t om = count_prime_factors(m);   /* Ω(m), multiplicity counted */
+        seq_t om = bigomega_seq(m);   /* Ω(m), multiplicity counted */
 
         /* Check: Ω(m) > 1, Ω(m) must be prime, and Ω(m) | m */
         if (om > 1) {

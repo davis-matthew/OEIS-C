@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 483, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_sqrt, int_cube_root
+ * Validated: standard, pass, 80 terms through n = 8997 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,42 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/int_cube_root.h"
-#include "../utils/floor_sqrt.h"
+#include <limits.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* integer cube root: largest k with k³ ≤ x */
+static idx_t int_cube_root(idx_t x)
+{
+    idx_t lo = 0, hi = x;
+    while (lo < hi) {
+        idx_t mid = lo + (hi - lo + 1) / 2;
+        __int128 cube = (__int128)mid * mid * mid;
+        if (cube <= x)
+            lo = mid;
+        else
+            hi = mid - 1;
+    }
+    return lo;
+}
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 static seq_t *cache      = NULL;  /* list of non‑representable numbers   */
 static size_t cache_len  = 0;      /* current list length                 */
@@ -53,7 +88,7 @@ static seq_t *build_nonrep(idx_t limit, size_t *out_len)
         if (!rep[(size_t)k]) ++count;
 
     /* Create array of the missing numbers.     */
-    seq_t *vec = (seq_t *)malloc(count * sizeof(seq_t));
+    seq_t *vec = mem_new(seq_t, count);
     if (!vec) {
         free(rep);
         return NULL;
@@ -85,7 +120,7 @@ static void ensure_cache(idx_t n)
         if (!new_buf)
             return;                    /* unlikely, but avoid crash */
 
-        free(cache);
+        mem_free(cache);
         cache     = new_buf;
         cache_len = new_len;
         cache_lim = limit;

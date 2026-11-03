@@ -7,16 +7,19 @@
  * Formula:   a(n) = (65*3^n - 84*n - 6*n^2 - 40*n^3 - 65)/8
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 16, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
-    seq_t pow3 = seq_pow((seq_t)3, n);
+    seq_t pow3 = ipow_idx((seq_t)3, n);
     seq_t sn    = (seq_t)n;
     seq_t n2    = sn * sn;
     seq_t n3    = n2 * sn;

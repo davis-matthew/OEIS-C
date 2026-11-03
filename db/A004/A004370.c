@@ -8,12 +8,13 @@
  *            (7n-i) / (i+1), with each fraction first reduced by its gcd
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 17, u128 n <= 20,
  *            big any n
- * Helpers:   a004370_gcd
+ * Validated: partial, pass, 19 terms through n = 20 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a004370_gcd.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n) {
     idx_t m = 7 * n;
@@ -23,7 +24,7 @@ seq_t a(idx_t n) {
     for (i = 0; i < k; i++) {
         uint64_t num = (uint64_t)(m - i);
         uint64_t den = (uint64_t)(i + 1);
-        uint64_t g = a004370_gcd(num, den);
+        uint64_t g = gcd_u64(num, den);
         num /= g;
         den /= g;
         /* den is coprime to num and divides r*num, so den divides r */

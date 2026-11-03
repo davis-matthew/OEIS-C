@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 494, u32 n <= 512, u64 n <= 512,
  *            u128 n <= 512, big any n
- * Helpers:   bitset_get, bitset_set, is_legendre_form
+ * Validated: standard, pass, 108 terms through n = 495 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,26 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/bitset_get.h"
-#include "../utils/bitset_set.h"
-#include "../utils/is_legendre_form.h"
+
+static inline int bitset_get(const uint8_t *bits, idx_t i)
+{
+    return (bits[(size_t)i >> 3] >> (i & 7)) & 1u;
+}
+
+/* Bit‑set helpers. */
+static inline void bitset_set(uint8_t *bits, idx_t i)
+{
+    bits[(size_t)i >> 3] |= (uint8_t)(1u << (i & 7));
+}
+
+/* Legendre's theorem: true if n = 4^a*(8b+7). */
+static inline bool is_legendre_form(seq_t n)
+{
+    while ((n & 3) == 0) {   /* divide by 4 while divisible */
+        n >>= 2;
+    }
+    return (n & 7) == 7;
+}
 
 /* Integer square root for 64‑bit values. */
 static inline idx_t floor_isqrt_u64(idx_t n)

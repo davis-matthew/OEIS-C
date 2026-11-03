@@ -8,12 +8,14 @@
  *            where p = k(3k−1)/2 , k ≥ 1
  * Range:     u8 n <= 21, u16 n <= 40, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,8 +26,7 @@ seq_t a(idx_t n)
     /* Grow the cache if necessary */
     if (n >= cache_sz) {
         idx_t new_sz = n + 1;                /* size after enlargement */
-        seq_t *tmp = (seq_t *)realloc(cache,
-                                       (size_t)new_sz * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_sz);
         if (!tmp)              /* out of memory – return 0 (safe) */
             return (seq_t)0;
         cache = tmp;

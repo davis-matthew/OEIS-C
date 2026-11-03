@@ -13,7 +13,8 @@
  *            :...
  * Range:     u8 n <= 9, u16 n <= 16, u32 n <= 29, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,14 +22,15 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)1;
 
     size_t N = (size_t)n;
-    seq_t *a_arr = (seq_t*)calloc(N + 1, sizeof(seq_t));
-    seq_t *g2    = (seq_t*)calloc(N + 1, sizeof(seq_t));
-    seq_t *f     = (seq_t*)calloc(N + 1, sizeof(seq_t));
+    seq_t *a_arr = mem_new(seq_t, N + 1);
+    seq_t *g2    = mem_new(seq_t, N + 1);
+    seq_t *f     = mem_new(seq_t, N + 1);
     if (!a_arr || !g2 || !f) return (seq_t)0;   // memory error
 
     a_arr[0] = (seq_t)1;   /* a(0) */
@@ -81,8 +83,8 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = a_arr[n];
-    free(a_arr);
-    free(g2);
-    free(f);
+    mem_free(a_arr);
+    mem_free(g2);
+    mem_free(f);
     return result;
 }

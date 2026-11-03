@@ -7,6 +7,7 @@
  * Formula:   a(n) = 137*n^2 - 4043*n + 27277
  * Range:     i8 none, i16 n <= 30, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
+ * Validated: standard, pass, 56 terms through n = 979 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

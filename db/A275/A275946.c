@@ -8,8 +8,9 @@
  * Keywords:  nonn, base
  * Formula:   a(n) = number of nonzero digits that are sole occupants of their
  *            * slope in the factorial base representation of n
- * Range:     u8 n <= 9798, u16 n <= 9798, u32 n <= 9798, u64 n <= 9798,
- *            u128 n <= 9798, big any n
+ * Range:     u8 n <= 40320, u16 n <= 40320, u32 n <= 40320, u64 n <= 40320,
+ *            u128 n <= 40320, big any n
+ * Validated: standard, pass, 137 terms through n = 9798 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 6, u64 n <= 14, u128 n <= 29,
  *            big any n
- * Helpers:   subblock_f
+ * Validated: standard, pass, 30 terms through n = 195 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,20 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/subblock_f.h"
+
+/* compute f = max + uppermedian – min for a 2×2 subblock */
+static int subblock_f(int a, int b, int c, int d) {
+    int arr[4] = {a,b,c,d};
+    /* simple sort of 4 elements */
+    for (int i = 0; i < 4; ++i)
+        for (int j = i + 1; j < 4; ++j)
+            if (arr[i] > arr[j]) {
+                int t = arr[i];
+                arr[i] = arr[j];
+                arr[j] = t;
+            }
+    return arr[3] + arr[2] - arr[0];
+}
 
 /* build of adjacency lists for each K is done once */
 static bool built = false;

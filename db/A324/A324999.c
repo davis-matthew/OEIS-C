@@ -11,14 +11,16 @@
  *            (starting with (1,1), then (1,2),(2,1), etc.). The index mapping
  *            is: let s be the smallest integer with s*(s-1)/2 >= n; let
  *            offset = n - (s-1)*(s-2)/2; then (n,k) = (offset, s-o...
- * Range:     u8 n <= 23, u16 n <= 158, u32 n <= 539, u64 n <= 1275,
+ * Range:     u8 n <= 39, u16 n <= 159, u32 n <= 576, u64 n <= 1275,
  *            u128 n <= 1275, big any n
+ * Validated: standard, pass, 82 terms through n = 1244 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

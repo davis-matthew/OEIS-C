@@ -9,7 +9,8 @@
  *            compositions of m into cubes is odd
  * Range:     u8 n <= 82, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 86 terms through n = 9253 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static state for the memoisation */
 static size_t parity_cap = 0;     /* capacity of the parity array          */
@@ -45,7 +47,7 @@ static void init(void)
     current_limit = 0;
 
     odd_cap = 16;
-    odd_vals = (seq_t *)malloc(odd_cap * sizeof(seq_t));
+    odd_vals = mem_new(seq_t, odd_cap);
     if (odd_vals == NULL)
         abort();
     odd_vals[0] = (seq_t)0;       /* 0 is the first odd index       */
@@ -57,7 +59,7 @@ static void append_odd(idx_t val)
 {
     if (odd_count >= odd_cap) {
         size_t new_cap = odd_cap ? odd_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(odd_vals, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, odd_vals, new_cap);
         if (tmp == NULL)
             abort();
         odd_vals = tmp;

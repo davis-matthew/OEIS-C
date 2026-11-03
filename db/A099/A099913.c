@@ -7,12 +7,14 @@
  * Formula:   a(0)=1, a(1)=3, a(2)=25, a(n)=10*a(n‑1)+a(n‑2)‑10*a(n‑3) for n≥3
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 19, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* Initialise the cache on the first call */
     if (!init) {
         cap = 8;
-        buf = (seq_t *)malloc(cap * sizeof(seq_t));
+        buf = mem_new(seq_t, cap);
         if (!buf) exit(1);
         buf[0] = (seq_t)1;
         buf[1] = (seq_t)3;
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
         if (cap < needed) {
             size_t newcap = cap;
             while (newcap < needed) newcap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(buf, newcap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, buf, newcap);
             if (!tmp) exit(1);
             buf = tmp;
             cap = newcap;

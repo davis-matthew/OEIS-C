@@ -7,13 +7,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 647, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 89 terms through n = 9841 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Recurrence: a(0)=0; a(n)=1+a(n/2)+a(n/3) */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;           /* memoized values */
 static unsigned char *filled = NULL;  /* 0=unset, 1=set */
@@ -26,7 +28,7 @@ static void ensure_cache(idx_t n)
         return;
     idx_t new_cap = (n + 1) * 2;
     /* reallocate cache */
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     unsigned char *new_filled = (unsigned char *)realloc(filled, new_cap * sizeof(unsigned char));
     if (!new_cache || !new_filled) {
         /* allocation failed: terminate */

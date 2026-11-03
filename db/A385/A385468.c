@@ -10,13 +10,15 @@
  *            Σ_{k=1}^{n-1} a[k]⋅a[n-k]⋅C(n,k) ) / 2
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 19,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,13 +26,13 @@ seq_t a(idx_t n)
     idx_t N = n;
 
     /* Allocate arrays for factorials, auxiliary sequence c, and result a. */
-    seq_t *fact = (seq_t *)malloc((size_t)(N + 1) * sizeof(seq_t));
-    seq_t *c    = (seq_t *)malloc((size_t)(N + 1) * sizeof(seq_t));
-    seq_t *ares = (seq_t *)malloc((size_t)(N + 1) * sizeof(seq_t));
+    seq_t *fact = mem_new(seq_t, (size_t)(N + 1));
+    seq_t *c    = mem_new(seq_t, (size_t)(N + 1));
+    seq_t *ares = mem_new(seq_t, (size_t)(N + 1));
 
     if (!fact || !c || !ares) {
         /* In the unlikely event of allocation failure we return 0. */
-        free(fact); free(c); free(ares);
+        mem_free(fact); mem_free(c); mem_free(ares);
         return (seq_t)0;
     }
 
@@ -74,8 +76,8 @@ seq_t a(idx_t n)
 
     seq_t result = ares[N];
 
-    free(fact);
-    free(c);
-    free(ares);
+    mem_free(fact);
+    mem_free(c);
+    mem_free(ares);
     return result;
 }

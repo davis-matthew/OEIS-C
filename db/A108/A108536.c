@@ -9,6 +9,7 @@
  *            {1,5,10,25,50,100,200,500,1000,2000,5000,10000,50000,100000,500000,1000000,10000000}
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 15, u64 n <= 15, u128 n <= 15,
  *            big any n
+ * Validated: full, pass, 16 terms through n = 15 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

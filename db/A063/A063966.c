@@ -8,7 +8,8 @@
  *            number of e
  * Range:     u8 n <= 134, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   alloc_cache, build_spf
+ * Validated: standard, pass, 84 terms through n = 9239 (2026-11-03)
+ * Helpers:   build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,14 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "../utils/alloc_cache.h"   /* seq_t *alloc_cache(idx_t n); */
-#include "../utils/build_spf.h"    /* void build_spf(idx_t limit, idx_t **spf_out); */
+#include "../utils/build_spf.h"
+#include "../utils/mem.h"
+
+/* Allocate and free using malloc/free when compiled as C. */
+static seq_t *alloc_cache(idx_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 static seq_t *cache = NULL;     /* cumulative counts a(0)…a(current) */
 static idx_t cache_size = 0;    /* largest index cached (>=0) */
@@ -77,7 +84,7 @@ static void ensure_cache(idx_t idx)
         seq_t *tmp = alloc_cache(idx + 1);
         for (idx_t i = 0; i <= cache_size; ++i)
             tmp[i] = cache[i];
-        free(cache);
+        mem_free(cache);
         cache = tmp;
     }
 

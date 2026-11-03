@@ -10,6 +10,7 @@
  *            floor(n/2) else n!/k! (with q = 1)
  * Range:     u8 n <= 38, u16 n <= 82, u32 n <= 179, u64 n <= 479,
  *            u128 n <= 1299, big any n
+ * Validated: standard, pass, 82 terms through n = 1252 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

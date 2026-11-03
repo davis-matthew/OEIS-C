@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
  
 /* array 0..999 indicating primality */
 static bool prime_small[1000];
@@ -67,7 +69,7 @@ static void init_static(void)
  
     /* terms array */
     term_cap = 64;
-    terms = (seq_t *)malloc(term_cap * sizeof(seq_t));
+    terms = mem_new(seq_t, term_cap);
     if (!terms) exit(1);
     term_len = 0;
  
@@ -135,7 +137,7 @@ static void append_term(seq_t v)
 {
     if (term_len == term_cap) {
         term_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(terms, term_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, term_cap);
         if (!tmp) exit(1);
         terms = tmp;
     }

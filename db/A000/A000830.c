@@ -12,14 +12,15 @@
  *            {0,1}^n has c cycles, co of odd length, ce of even length,...
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 4, u128 n <= 5,
  *            big any n
- * Helpers:   a830_pow2
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a830_pow2.h"
+#include "../utils/pow2.h"
 
 static int a830_len[64], a830_neg[64], a830_ncyc;
 static int a830_n;
@@ -58,7 +59,7 @@ static void a830_leaf(void) {
         if (L % 3 == 0) c3++;
     }
     /* class size = 2^n n! / prod_cycles(2k) / prod_groups(m!) */
-    seq_t num = a830_pow2((idx_t)n);
+    seq_t num = pow2((idx_t)n);
     for (int i = 2; i <= n; i++) num *= (seq_t)i;
     seq_t den = 1;
     int t = 0;
@@ -71,9 +72,9 @@ static void a830_leaf(void) {
         t = u;
     }
     seq_t size = num / den;
-    seq_t fix = a830_pow2(3 * c)
-              + (seq_t)3 * a830_pow2(2 * co + 3 * ce)
-              + (seq_t)2 * a830_pow2(3 * c3 + (c - c3));
+    seq_t fix = pow2(3 * c)
+              + (seq_t)3 * pow2(2 * co + 3 * ce)
+              + (seq_t)2 * pow2(3 * c3 + (c - c3));
     a830_total += size * fix;
 }
 
@@ -100,7 +101,7 @@ seq_t a(idx_t n) {
     a830_ncyc = 0;
     a830_rec((int)n, (int)n, 1);
     free(a830_vis);
-    seq_t g = (seq_t)6 * a830_pow2(n);
+    seq_t g = (seq_t)6 * pow2(n);
     for (idx_t i = 2; i <= n; i++) g *= (seq_t)i;
     return a830_total / g;
 }

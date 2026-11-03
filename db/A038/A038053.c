@@ -8,7 +8,8 @@
  *            a(1) = 0
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 26,
  *            big any n
- * Helpers:   binom, seq_pow
+ * Validated: standard, pass, 33 terms through n = 197 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,9 @@
 #include <stdint.h>
 
 /* Helper functions provided by the environment */
-#include "../utils/binom.h"   /* seq_t binom(idx_t a, idx_t b); */
-#include "../utils/seq_pow.h" /* seq_t seq_pow(seq_t base, idx_t exp); */
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_idx.h"
 
 /* Function to compute the n-th term of OEIS sequence A038053 */
 seq_t a(idx_t n)
@@ -34,10 +36,10 @@ seq_t a(idx_t n)
     for (idx_t k = 0; k <= m; ++k)
     {
         /* binom(m, k) */
-        seq_t b = binom(m, k);
+        seq_t b = binomial(m, k);
 
         /* k^p */
-        seq_t pow_k = seq_pow((seq_t)k, p);
+        seq_t pow_k = ipow_idx((seq_t)k, p);
 
         /* term = binom(m, k) * k^{p} */
         seq_t term = b * pow_k;

@@ -9,14 +9,33 @@
  *            cannot be expressed as a*x + b*y with a,b >= 1
  * Range:     u8 n <= 26, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   ceil_div, extended_gcd
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/ceil_div.h"
-#include "../utils/extended_gcd.h"
+
+static long long ceil_div(long long a, long long b) /* b > 0 */
+{
+    if (a >= 0) return (a + b - 1) / b;
+    return -((-a) / b);
+}
+
+static long long extended_gcd(long long a, long long b, long long *x, long long *y)
+{
+    if (b == 0) {
+        *x = 1;
+        *y = 0;
+        return a;
+    }
+    long long x1, y1;
+    long long d = extended_gcd(b, a % b, &x1, &y1);
+    *x = y1;
+    *y = x1 - (a / b) * y1;
+    return d;
+}
 
 static long long floor_div(long long a, long long b) /* b > 0 */
 {

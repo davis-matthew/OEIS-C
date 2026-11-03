@@ -11,12 +11,14 @@
  *            184, 924, 3809, 13197, 39675, 106357, * 259669, 586829
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 29, u64 n <= 210, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 201 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 static seq_t *cache   = NULL;   /* cache[0] unused, cache[1] == a(1) */
 static size_t cache_cap = 0;    /* allocated capacity (elements)   */
@@ -33,7 +35,7 @@ static void ensure_cache(idx_t n)
         size_t new_cap = (cache_cap == 0) ? 64 : cache_cap << 1;
         while (n + 1 > new_cap)
             new_cap <<= 1;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 

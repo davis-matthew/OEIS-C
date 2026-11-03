@@ -12,7 +12,8 @@
  *            a(n−t) where T = {twin primes ≤ n}
  * Range:     u8 n <= 27, u16 n <= 48, u32 n <= 91, u64 n <= 176,
  *            u128 n <= 346, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 8700 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* ---------- prime sieve utilities ---------- */
 static uint8_t *primes_arr = NULL;  /* 1 = prime, 0 = composite */
@@ -98,13 +100,13 @@ static void ensure_dp(idx_t n)
     if (!dp_arr)
     {
         dp_cap = n + 1;
-        dp_arr = (seq_t *)malloc(dp_cap * sizeof(seq_t));
+        dp_arr = mem_new(seq_t, dp_cap);
     }
     else if (dp_cap <= (size_t)n)
     {
         size_t new_cap = dp_cap * 2;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        dp_arr = (seq_t *)realloc(dp_arr, new_cap * sizeof(seq_t));
+        dp_arr = mem_resize(seq_t, dp_arr, new_cap);
         dp_cap = new_cap;
     }
 

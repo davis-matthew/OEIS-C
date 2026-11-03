@@ -11,7 +11,8 @@
  *            immediately
  * Range:     u8 n <= 71, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   has_i_part
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,17 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/has_i_part.h"
+#include "../utils/mem.h"
+
+/* Return 1 if the string contains the letter 'i'. */
+static int has_i_part(const char *s)
+{
+    if (!s) return 0;
+    for (;; ++s) {
+        if (*s == '\0') return 0;
+        if (*s == 'i') return 1;
+    }
+}
 
 /* English word tables for 0–19 and the tens. */
 static const char *const units_str[20] = {
@@ -85,7 +96,7 @@ seq_t a(idx_t n)
         idx_t needed = n;
         if (cache_cap == 0) cache_cap = 64;
         while (cache_cap < needed) cache_cap <<= 1;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
         if (!cache) exit(1);              /* allocation failure */
     }
 

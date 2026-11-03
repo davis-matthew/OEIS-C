@@ -8,8 +8,9 @@
  * Formula:   a(n) = number of ordered pairs (k,m) with n = L_k + m, where L_k
  *            is a Lucas number (L_0 = 2, L_1 = 1) and m is a positive odd
  *            square‑free integer
- * Range:     u8 n <= 548, u16 n <= 9681, u32 n <= 9681, u64 n <= 9681,
- *            u128 n <= 9681, big any n
+ * Range:     u8 n <= 548, u16 n <= 100000, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 106 terms through n = 9681 (2026-11-01)
  * Helpers:   is_squarefree
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/is_squarefree.h"
 
 seq_t a(idx_t n)

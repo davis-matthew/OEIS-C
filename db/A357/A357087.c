@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 10, u64 n <= 17, u128 n <= 20,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,10 @@
    overflow when the final term fits in seq_t. */
 
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,10 +36,10 @@ seq_t a(idx_t n)
     /* handle first call */
     if (max_pre == (idx_t)-1) {
         max_pre = 0;
-        fact = (seq_t *)malloc(sizeof(seq_t) * 1);
-        a_cache = (seq_t *)malloc(sizeof(seq_t) * 1);
-        Sprev = (seq_t *)malloc(sizeof(seq_t) * 1);
-        Scurr = (seq_t *)malloc(sizeof(seq_t) * 1);
+        fact = mem_new(seq_t, 1);
+        a_cache = mem_new(seq_t, 1);
+        Sprev = mem_new(seq_t, 1);
+        Scurr = mem_new(seq_t, 1);
 
         fact[0] = (seq_t)1;
         a_cache[0] = (seq_t)1;        /* a(0)=1 */
@@ -53,16 +57,16 @@ seq_t a(idx_t n)
         size_t old_size = (size_t)(max_pre + 1);
 
         /* factorial array expansion */
-        fact = (seq_t *)realloc(fact, sizeof(seq_t) * (n + 1));
+        fact = mem_resize(seq_t, fact, (n + 1));
         for (idx_t i = max_pre + 1; i <= n; ++i)
             fact[i] = fact[i - 1] * (seq_t)i;
 
         /* a_cache expansion */
-        a_cache = (seq_t *)realloc(a_cache, sizeof(seq_t) * (n + 1));
+        a_cache = mem_resize(seq_t, a_cache, (n + 1));
 
         /* Stirling arrays expansion */
-        Sprev = (seq_t *)realloc(Sprev, sizeof(seq_t) * (n + 1));
-        Scurr = (seq_t *)realloc(Scurr, sizeof(seq_t) * (n + 1));
+        Sprev = mem_resize(seq_t, Sprev, (n + 1));
+        Scurr = mem_resize(seq_t, Scurr, (n + 1));
 
         /* compute rows from max_pre+1 to n */
         for (idx_t cur = max_pre + 1; cur <= n; ++cur) {
@@ -93,7 +97,7 @@ seq_t a(idx_t n)
                 if (k == 0)
                     power = (seq_t)1;
                 else
-                    power = big_pow(base, (seq_t)(k - 1));
+                    power = ipow(base, (seq_t)(k - 1));
 
                 /* use 128‑bit arithmetic for the product */
                 unsigned __int128 prod = (unsigned __int128)fact_3k;

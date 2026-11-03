@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,10 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* cache of all solutions discovered so far */
 static seq_t *cache = NULL;
@@ -41,7 +45,7 @@ seq_t a(idx_t n)
 
             for (int i = 0; i < 5; ++i) {
                 /* compute base^mod (mod next_candidate) */
-                seq_t term = mod_pow(bases[i], next_candidate, (seq_t)mod);
+                seq_t term = powmod(bases[i], next_candidate, (seq_t)mod);
                 sum += (unsigned long long)term;
                 /* reduce modulo mod (summation is always < 2*mod) */
                 if (sum >= mod) sum -= mod;
@@ -51,7 +55,7 @@ seq_t a(idx_t n)
             if (sum == 0) {
                 if (cache_len == cache_capacity) {
                     size_t new_cap = cache_capacity == 0 ? 8 : cache_capacity * 2;
-                    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                     if (!tmp) abort();          /* fatal: cannot allocate more memory */
                     cache = tmp;
                     cache_capacity = new_cap;

@@ -8,13 +8,15 @@
  * Formula:   not stated
  * Range:     i8 n <= 546, i16 n <= 2500, i32 n <= 2500, i64 n <= 2500,
  *            i128 n <= 2500, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 1637 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Sequence A263501
  *
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
 {
     /* Initialise on first call.  coeff[0] = 1 for the empty product. */
     if (!initialized) {
-        coeff = (seq_t *)calloc(1, sizeof(seq_t));
+        coeff = mem_new(seq_t, 1);
         coeff[0] = 1;
         max_n  = 0;
         initialized = 1;
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     /* Recompute all coefficients if a larger n is requested. */
     if (n > max_n) {
         size_t new_size = (size_t)(n + 1);
-        seq_t *new_coeff = (seq_t *)calloc(new_size, sizeof(seq_t));
+        seq_t *new_coeff = mem_new(seq_t, new_size);
         if (!new_coeff) {        /* out of memory – unlikely in test harness */
             return 0;
         }
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
         }
 
         /* Replace old cache and update maximum index. */
-        free(coeff);
+        mem_free(coeff);
         coeff = new_coeff;
         max_n = n;
     }

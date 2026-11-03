@@ -8,15 +8,17 @@
  * Formula:   a(n) = C( max(i+2, j+2), min(i+2, j+2) ) * where (i,j) are the
  *            antidiagonal coordinates of the n‑th element * in the infinite
  *            matrix indexed by i,j >= 1
- * Range:     u8 n <= 22, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
+ * Range:     u8 n <= 46, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 /* Compute a(n) for the OEIS sequence A205549.
  * idx_t is an unsigned 64‑bit integer; seq_t is an unsigned integer
@@ -49,5 +51,5 @@ seq_t a(idx_t n)
     idx_t n_binom = (i > j) ? i + 2 : j + 2;
     idx_t k_binom = (i > j) ? j + 2 : i + 2;
 
-    return binom(n_binom, k_binom);
+    return binomial(n_binom, k_binom);
 }

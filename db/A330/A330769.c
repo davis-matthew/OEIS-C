@@ -7,6 +7,7 @@
  * Formula:   a(n) = ∏_{k=max(1,n)}^{2n} prime(k) (OEIS A330769)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 6, u64 n <= 10, u128 n <= 18,
  *            big any n
+ * Validated: standard, pass, 33 terms through n = 267 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

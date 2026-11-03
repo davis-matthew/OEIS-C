@@ -8,15 +8,26 @@
  *            produced by the digit-by-digit square-root method in base 9
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a4568_cmp, a4568_norm
+ * Validated: standard, pass, 115 terms through n = 9990 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a4568_cmp.h"
-#include "../utils/a4568_norm.h"
+
+static int a4568_cmp(const unsigned char *x, long lx, const unsigned char *y, long ly) {
+    long j;
+    if (lx != ly) return lx < ly ? -1 : 1;
+    for (j = lx - 1; j >= 0; j--)
+        if (x[j] != y[j]) return x[j] < y[j] ? -1 : 1;
+    return 0;
+}
+
+static void a4568_norm(const unsigned char *x, long *l) {
+    while (*l > 0 && x[*l - 1] == 0) (*l)--;
+}
 
 static unsigned char *a4568_dig = NULL;
 static idx_t a4568_have = 0;

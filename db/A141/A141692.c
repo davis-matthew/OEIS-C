@@ -9,6 +9,7 @@
  *            ≤ n}, k = n – r(r+1)/2 (row r has r+1 elements, indexed 0..r)
  * Range:     i8 n <= 46, i16 n <= 157, i32 n <= 572, i64 n <= 2169,
  *            i128 n <= 5150, big any n
+ * Validated: standard, pass, 82 terms through n = 5110 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

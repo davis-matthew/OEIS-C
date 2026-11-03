@@ -7,16 +7,42 @@
  * Keywords:  nonn, look, easy
  * Formula:   a(n) = A002487(3*n) / 2 (Stern's diatomic sequence at 3n,
  *            halved)
- * Range:     u8 n <= 3525, u16 n <= 8382, u32 n <= 8382, u64 n <= 8382,
- *            u128 n <= 8382, big any n
- * Helpers:   stern_of
+ * Range:     u8 n <= 3525, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 145 terms through n = 8382 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/stern_of.h"
+
+/* Compute the Stern diatomic sequence s(n).  s(0)=0, s(1)=1, s(2n)=s(n),
+   s(2n+1)=s(n)+s(n+1).  This iterative implementation runs in O(log n). */
+static seq_t stern_of(idx_t n) {
+    if (n == 0)
+        return 0;
+
+    seq_t a = 1, b = 1;          /* start with s(1)=1, s(2)=1 */
+
+    /* Find floor(log2 n) by counting bits above the least significant bit. */
+    int p = 0;
+    idx_t tmp = n >> 1;
+    while (tmp) {
+        ++p;
+        tmp >>= 1;
+    }
+
+    /* Process bits of n from second‑most significant down to the least. */
+    for (int i = p - 1; i >= 0; --i) {
+        if ((n >> i) & 1)
+            a = a + b;   /* odd position: s(2m+1) = s(m)+s(m+1) */
+        else
+            b = a + b;   /* even position: s(2m)   = s(m)     */
+    }
+    return a;               /* s(n) = a after all bit steps */
+}
 
 /* Main entry for OEIS A240388: w(n) = s(3n)/2. */
 seq_t a(idx_t n) {

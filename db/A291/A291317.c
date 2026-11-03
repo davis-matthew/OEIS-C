@@ -11,7 +11,8 @@
  *            places clockwise and eliminate the current person
  * Range:     u8 n <= 268, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   find_kth
+ * Validated: standard, pass, 87 terms through n = 4901 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,21 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/find_kth.h"
+
+static inline size_t find_kth(int *bit, size_t n, size_t k) {
+    size_t idx = 0;
+    size_t bit_mask = 1;
+    while ((bit_mask << 1) <= n) bit_mask <<= 1;
+    while (bit_mask) {
+        size_t next = idx + bit_mask;
+        if (next <= n && (size_t)bit[next] < k) {
+            k -= bit[next];
+            idx = next;
+        }
+        bit_mask >>= 1;
+    }
+    return idx + 1; /* return 1‑based index */
+}
 
 /* Fenwick tree operations */
 static inline void bit_add(int *bit, size_t n, size_t idx, int delta) {

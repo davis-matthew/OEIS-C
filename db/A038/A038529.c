@@ -8,6 +8,7 @@
  *            composite number > 1, i.e. 4, 6, 8, 9, 10, …)
  * Range:     i8 n <= 42, i16 n <= 3954, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 78 terms through n = 9307 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

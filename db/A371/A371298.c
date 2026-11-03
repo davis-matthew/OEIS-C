@@ -10,12 +10,14 @@
  *            operations and memoises all values up to the largest n requested
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache of previously computed values */
@@ -29,10 +31,10 @@ seq_t a(idx_t n) {
     /* initial allocation */
     if (cap == 0) {
         cap = 1; /* at least for n = 0 */
-        S_prev   = (seq_t*)malloc(cap * sizeof(seq_t));
-        S_curr   = (seq_t*)malloc(cap * sizeof(seq_t));
-        A_vals   = (seq_t*)malloc(cap * sizeof(seq_t));
-        pow2_arr = (seq_t*)malloc(cap * sizeof(seq_t));
+        S_prev   = mem_new(seq_t, cap);
+        S_curr   = mem_new(seq_t, cap);
+        A_vals   = mem_new(seq_t, cap);
+        pow2_arr = mem_new(seq_t, cap);
         if (!S_prev || !S_curr || !A_vals || !pow2_arr) abort();
         S_prev[0]   = (seq_t)1;   /* S(0,0) = 1 */
         S_curr[0]   = (seq_t)0;   /* will never be used for n=0 */
@@ -46,10 +48,10 @@ seq_t a(idx_t n) {
         /* grow to the next power of two for simplicity */
         idx_t newcap = cap;
         while (newcap <= n) newcap <<= 1;
-        S_prev = (seq_t*)realloc(S_prev, newcap * sizeof(seq_t));
-        S_curr = (seq_t*)realloc(S_curr, newcap * sizeof(seq_t));
-        A_vals = (seq_t*)realloc(A_vals, newcap * sizeof(seq_t));
-        pow2_arr = (seq_t*)realloc(pow2_arr, newcap * sizeof(seq_t));
+        S_prev = mem_resize(seq_t, S_prev, newcap);
+        S_curr = mem_resize(seq_t, S_curr, newcap);
+        A_vals = mem_resize(seq_t, A_vals, newcap);
+        pow2_arr = mem_resize(seq_t, pow2_arr, newcap);
         if (!S_prev || !S_curr || !A_vals || !pow2_arr) abort();
         cap = newcap;
     }

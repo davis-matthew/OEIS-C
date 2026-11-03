@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   digit_count
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem, num_digits0
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/digit_count.h"
+#include <math.h>
+#include "../utils/num_digits0.h"
+#include "../utils/mem.h"
 
 static seq_t *seq_vals = NULL;      /* array of sequence values */
 static size_t seq_cap = 0, seq_len = 0;
@@ -33,10 +36,10 @@ static uint64_t prime_limit = 1;    /* largest prime generated */
 static void grow_seq_cap(void) {
     if (seq_cap == 0) {
         seq_cap = 64;
-        seq_vals = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_vals = mem_new(seq_t, seq_cap);
     } else {
         seq_cap *= 2;
-        seq_vals = (seq_t *)realloc(seq_vals, seq_cap * sizeof(seq_t));
+        seq_vals = mem_resize(seq_t, seq_vals, seq_cap);
     }
 }
 
@@ -87,7 +90,7 @@ static bool has_two_digit_lengths(uint64_t n) {
         uint64_t p = prime_list[i];
         if (p * p > tmp) break;
         if (tmp % p == 0) {
-            int d = digit_count(p);
+            int d = num_digits0(p);
             if (len1 == 0)
                 len1 = d;
             else if (d != len1 && len2 == 0) {
@@ -99,7 +102,7 @@ static bool has_two_digit_lengths(uint64_t n) {
         }
     }
     if (tmp > 1) {
-        int d = digit_count(tmp);
+        int d = num_digits0(tmp);
         if (len1 == 0)
             len1 = d;
         else if (d != len1 && len2 == 0) {

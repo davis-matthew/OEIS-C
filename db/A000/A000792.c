@@ -8,6 +8,7 @@
  *            4*3^(k-1), a(3k+2) = 2*3^k
  * Range:     u8 n <= 15, u16 n <= 30, u32 n <= 60, u64 n <= 121,
  *            u128 n <= 242, big any n
+ * Validated: standard, pass, 60 terms through n = 6030 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

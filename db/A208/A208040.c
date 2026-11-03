@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 14, u64 n <= 28, u128 n <= 58,
  *            big any n
- * Helpers:   is_valid_vertical
+ * Validated: standard, pass, 37 terms through n = 182 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,21 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/is_valid_vertical.h"
+#include "../utils/mem.h"
+
+static int is_valid_vertical(int col)
+{
+    /* forbid 0 0 0 and 1 0 1 within a column (rows 0–2 and 1–3) */
+    for (int r = 0; r <= 1; ++r) {
+        int b1 = (col >> r)     & 1;
+        int b2 = (col >> (r+1)) & 1;
+        int b3 = (col >> (r+2)) & 1;
+        if ((b1 == 0 && b2 == 0 && b3 == 0) ||
+            (b1 == 1 && b2 == 0 && b3 == 1))
+            return 0;
+    }
+    return 1;
+}
 
 static struct Scratch {
     int m;                 /* number of valid columns */
@@ -84,8 +99,8 @@ seq_t a(idx_t n)
         }
 
         /* allocate DP arrays */
-        S->dpPrev = (seq_t*)malloc(S->stateCount * sizeof(seq_t));
-        S->dpCur  = (seq_t*)malloc(S->stateCount * sizeof(seq_t));
+        S->dpPrev = mem_new(seq_t, (S->stateCount * sizeof(seq_t)) / sizeof(seq_t));
+        S->dpCur  = mem_new(seq_t, (S->stateCount * sizeof(seq_t)) / sizeof(seq_t));
 
         /* base DP for width = 2: one way for each state */
         for (int s = 0; s < S->stateCount; ++s)
@@ -93,7 +108,7 @@ seq_t a(idx_t n)
 
         /* allocate values cache */
         S->valuesSize = 4;                 /* at least indices 0..3 */
-        S->values = (seq_t*)malloc(S->valuesSize * sizeof(seq_t));
+        S->values = mem_new(seq_t, (S->valuesSize * sizeof(seq_t)) / sizeof(seq_t));
         S->values[0] = 0;                   /* unused */
         S->values[1] = (seq_t)S->m;                /* a(1) */
         S->values[2] = (seq_t)S->m * (seq_t)S->m;  /* a(2) */
@@ -139,7 +154,7 @@ seq_t a(idx_t n)
         if ((size_t)width >= S->valuesSize) {
             size_t newSize = S->valuesSize * 2;
             if (newSize <= (size_t)width) newSize = (size_t)width + 1;
-            S->values = (seq_t*)realloc(S->values, newSize * sizeof(seq_t));
+            S->values = mem_resize(seq_t, S->values, newSize);
             S->valuesSize = newSize;
         }
         S->values[width] = sum;

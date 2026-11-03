@@ -12,6 +12,7 @@
  *            T(n,k)=c(n,4)/c(max(k,n-k),4)
  * Range:     i8 n <= 10, i16 n <= 16, i32 n <= 30, i64 n <= 58, i128 n <= 110,
  *            big any n
+ * Validated: standard, pass, 52 terms through n = 1088 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

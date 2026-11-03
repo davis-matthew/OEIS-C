@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(1)=0; for n>1, a(n)=1 if n is a power of 2 else 2
- * Range:     u8 n <= 9784, u16 n <= 9784, u32 n <= 9784, u64 n <= 9784,
- *            u128 n <= 9784, big any n
+ * Range:     u8 n <= 16384, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 129 terms through n = 9784 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

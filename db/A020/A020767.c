@@ -8,12 +8,14 @@
  * Formula:   a(n) = ∏_{k=1..n} (binary digits of k read as a decimal number)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 10, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 173 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     /* initialise cache[0] if not yet done */
     if (allocated == 0) {
         allocated = 1;
-        cache = (seq_t*)malloc(sizeof(seq_t) * allocated);
+        cache = mem_new(seq_t, allocated);
         if (cache == NULL) return 0;      /* allocation failure – unlikely */
         cache[0] = 1;
         computed = 1;
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     if ((size_t)n + 1 > allocated) {
         size_t newsize = allocated * 2;
         if (newsize < (size_t)n + 1) newsize = (size_t)n + 1;
-        seq_t *tmp = (seq_t*)realloc(cache, sizeof(seq_t) * newsize);
+        seq_t *tmp = mem_resize(seq_t, cache, newsize);
         if (tmp == NULL) return cache[computed - 1]; /* graceful fallback */
         cache = tmp;
         allocated = newsize;

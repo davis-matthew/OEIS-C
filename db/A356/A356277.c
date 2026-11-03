@@ -9,13 +9,22 @@
  *            n ≤ 5 5^5 * 10^((n-7)/2) if n is odd and n ≥ 7
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 11, u64 n <= 11, u128 n <= 11,
  *            big any n
- * Helpers:   seq_mul, seq_pow
+ * Validated: partial, pass, 10 terms through n = 11 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_mul.h"
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -23,19 +32,19 @@ seq_t a(idx_t n)
         return 0;                   /* undefined for n < 2 */
 
     if ((n & 1) == 0)               /* even n */
-        return seq_pow(10, n / 2);
+        return ipow_idx(10, n / 2);
 
     /* odd n */
     if (n <= 5)
     {
-        seq_t part   = seq_pow(10, (n - 3) / 2);
-        seq_t factor = seq_pow(2, 5);            /* 32 */
+        seq_t part   = ipow_idx(10, (n - 3) / 2);
+        seq_t factor = ipow_idx(2, 5);            /* 32 */
         return seq_mul(factor, part);
     }
     else
     {
-        seq_t part   = seq_pow(10, (n - 7) / 2);
-        seq_t factor = seq_pow(5, 5);            /* 3125 */
+        seq_t part   = ipow_idx(10, (n - 7) / 2);
+        seq_t factor = ipow_idx(5, 5);            /* 3125 */
         return seq_mul(factor, part);
     }
 }

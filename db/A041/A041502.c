@@ -11,12 +11,14 @@
  *            numerators p_n: p_0 = 16 p_1 = 33 (since a1 = 2) p_n...
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 18, u64 n <= 38, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache of computed numerators */
@@ -35,7 +37,7 @@ seq_t a(idx_t n) {
     /* ensure cache is large enough */
     if (cache == NULL) {
         capacity = 16;                  /* initial capacity */
-        cache = (seq_t*)malloc(sizeof(seq_t) * capacity);
+        cache = mem_new(seq_t, capacity);
         if (!cache) return 0;           /* allocation failed, return 0 */
         /* compute p0 */
         cache[0] = (seq_t)a0_val;
@@ -46,7 +48,7 @@ seq_t a(idx_t n) {
     while (capacity <= (size_t)n) {
         size_t new_cap = capacity * 2;
         if (new_cap < capacity + 1) new_cap = capacity + 1;
-        seq_t *tmp = (seq_t*)realloc(cache, sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;            /* allocation failed */
         cache = tmp;
         capacity = new_cap;

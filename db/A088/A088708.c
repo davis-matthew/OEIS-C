@@ -10,7 +10,8 @@
  *            that * m+p−q and m−p+q are both prime
  * Range:     u8 n <= 11, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   mod_mul_u64
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/mod_mul_u64.h"
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 /* ----- modular multiplication and exponentiation for 64‑bit ---- */
 
@@ -29,8 +31,8 @@ static uint64_t mod_pow_u64(uint64_t base, uint64_t exp, uint64_t mod)
     while (exp)
     {
         if (exp & 1)
-            result = mod_mul_u64(result, base, mod);
-        base = mod_mul_u64(base, base, mod);
+            result = mulmod(result, base, mod);
+        base = mulmod(base, base, mod);
         exp >>= 1;
     }
     return result;
@@ -62,7 +64,7 @@ static bool is_prime_u64(uint64_t n)
         bool cont = false;
         for (int r = 1; r < s; ++r)
         {
-            x = mod_mul_u64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) { cont = true; break; }
         }
         if (!cont) return false;
@@ -128,7 +130,7 @@ seq_t a(idx_t n)
         {
             size_t new_cap = terms_cap ? terms_cap << 1 : 16;
             while (new_cap < needed) new_cap <<= 1;
-            seq_t *new_terms = (seq_t*)realloc(terms, new_cap * sizeof(seq_t));
+            seq_t *new_terms = mem_resize(seq_t, terms, new_cap);
             if (!new_terms) abort();
             terms = new_terms;
             terms_cap = new_cap;

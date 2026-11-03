@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 53, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   _has_unique_digits
+ * Validated: full, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,21 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_has_unique_digits.h"
+#include "../utils/mem.h"
+
+/* Check if the decimal representation of x has all distinct digits. */
+static bool _has_unique_digits(uint64_t x)
+{
+    uint16_t mask = 0;
+    while (x > 0) {
+        uint8_t d = (uint8_t)(x % 10);
+        if (mask & (1U << d))
+            return false;
+        mask |= (1U << d);
+        x /= 10;
+    }
+    return true;
+}
 
 static size_t _prime_positions_cap = 128;         // > 87
 static seq_t *_prime_positions = NULL;            // positions of primes
@@ -48,7 +63,7 @@ static void _build_prime_positions(void)
     if (_prime_positions != NULL)
         return;                                 // already built
 
-    _prime_positions = (seq_t *)malloc(_prime_positions_cap * sizeof(seq_t));
+    _prime_positions = mem_new(seq_t, _prime_positions_cap);
     if (_prime_positions == NULL)
         return;                                 // allocation failed
 
@@ -64,9 +79,7 @@ static void _build_prime_positions(void)
                 if (_prime_positions_len >= _prime_positions_cap) {
                     /* enlarge buffer if needed (unlikely) */
                     _prime_positions_cap <<= 1;
-                    seq_t *tmp = (seq_t *)realloc(_prime_positions,
-                                                   _prime_positions_cap *
-                                                   sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, _prime_positions, _prime_positions_cap);
                     if (tmp != NULL)
                         _prime_positions = tmp;
                 }

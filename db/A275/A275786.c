@@ -8,6 +8,7 @@
  * Formula:   a(n) = product_{d|n} d*(d+1)/2
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 29, u64 n <= 71, u128 n <= 239,
  *            big any n
+ * Validated: standard, pass, 55 terms through n = 938 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,8 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 static void _enum_divs(idx_t cur, size_t idx, uint64_t *pr, int *ex, size_t cnt, seq_t *prod)

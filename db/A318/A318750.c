@@ -9,14 +9,16 @@
  *            recomputes the divisor tables and cumulative sums from scratch
  *            whenever a larger n is requested, which is fast enough for n up
  *            to ~10 000
- * Range:     u8 n <= 8, u16 n <= 89, u32 n <= 8654, u64 n <= 8654,
- *            u128 n <= 8654, big any n
- * Helpers:   none
+ * Range:     u8 n <= 8, u16 n <= 89, u32 n <= 12319, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 62 terms through n = 8654 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static idx_t max_n = 0;                    /* maximum n that has been computed   */
 static uint32_t *tau  = NULL;              /* ordinary divisor counts            */
@@ -33,12 +35,12 @@ ensure_capacity(idx_t n)
     /* free old tables if they exist (calloc below will overwrite) */
     if (tau)  free(tau);
     if (tau3) free(tau3);
-    if (cum)  free(cum);
+    if (cum)  mem_free(cum);
 
     /* allocate new tables */
     tau  = (uint32_t *)calloc((size_t)(n + 1), sizeof(uint32_t));
     tau3 = (uint32_t *)calloc((size_t)(n + 1), sizeof(uint32_t));
-    cum  = (seq_t    *)calloc((size_t)(n + 1), sizeof(seq_t));
+    cum  = mem_new(seq_t, (size_t)(n + 1));
 
     /* compute tau: number of divisors for every integer <= n */
     for (idx_t d = 1; d <= n; ++d) {

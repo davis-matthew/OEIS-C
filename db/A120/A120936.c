@@ -7,7 +7,8 @@
  * Formula:   a(n) = # of primes p with n ≤ p ≤ n + ⌊log(n)⌋
  * Range:     u8 n <= 5000, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   floor_log_nat, is_prime
+ * Validated: standard, pass, 121 terms through n = 4943 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,13 @@
 #include <stdbool.h>
 #include <math.h>
 #include "../utils/is_prime.h"
-#include "../utils/floor_log_nat.h"
+
+static inline idx_t floor_log_nat(idx_t n)
+{
+    /* compute floor(log(n)) using double precision; the value is < 45 for
+       all 64‑bit integers, so the cast is exact. */
+    return (idx_t)log((double)n);
+}
 
 seq_t a(idx_t n)
 {

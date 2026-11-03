@@ -12,9 +12,10 @@
  *            the prime divisors of a(n-1)*x there are at least * four runs of
  *            consecutive prime numbers. The sequence is a * permutation of
  *            the natural numbers
- * Range:     u8 n <= 1, u16 n <= 9959, u32 n <= 9959, u64 n <= 9959,
- *            u128 n <= 9959, big any n
- * Helpers:   factor_u64, next_prime
+ * Range:     u8 n <= 1, u16 n <= 25000, u32 n <= 25000, u64 n <= 25000,
+ *            u128 n <= 25000, big any n
+ * Validated: standard, pass, 75 terms through n = 9959 (2026-11-03)
+ * Helpers:   factor_u64, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stddef.h>
 #include "../utils/factor_u64.h"
 #include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 #define BITSET_WORDS(n)   (((n) + 63) >> 6)
 
@@ -108,7 +110,7 @@ seq_t a(idx_t n)
     /* initialise data structures on first call */
     if (g_seq_len == 0) {
         g_seq_cap = 64;
-        g_seq     = (seq_t *)malloc(g_seq_cap * sizeof(seq_t));
+        g_seq     = mem_new(seq_t, g_seq_cap);
         g_used_cap = 0;
         g_used = NULL;
         /* first term */
@@ -127,8 +129,7 @@ seq_t a(idx_t n)
                 /* accept this candidate */
                 if (g_seq_len >= g_seq_cap) {
                     g_seq_cap = (g_seq_cap < 64) ? 64 : g_seq_cap * 2;
-                    seq_t *tmp = (seq_t *)realloc(g_seq,
-                                                  g_seq_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, g_seq, g_seq_cap);
                     if (!tmp) exit(EXIT_FAILURE);
                     g_seq = tmp;
                 }

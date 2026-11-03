@@ -8,18 +8,20 @@
  *            8*k + 25
  * Range:     u8 n <= 4, u16 n <= 12, u32 n <= 28, u64 n <= 60, u128 n <= 124,
  *            big any n
- * Helpers:   A001832_pow2, a000248_pow
+ * Validated: standard, pass, 47 terms through n = 3172 (2026-11-01)
+ * Helpers:   ipow_idx, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/A001832_pow2.h"
-#include "../utils/a000248_pow.h"
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n) {
     idx_t k = n / 2;
-    seq_t pow2_k = A001832_pow2(k);
-    seq_t pow4_k = a000248_pow((seq_t)4, k);
+    seq_t pow2_k = pow2(k);
+    seq_t pow4_k = ipow_idx((seq_t)4, k);
     
     if (n % 2 == 0) {
         seq_t pos = (seq_t)14 * pow4_k + (seq_t)8 * (seq_t)k + (seq_t)21;

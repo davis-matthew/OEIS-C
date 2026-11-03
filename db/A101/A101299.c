@@ -8,14 +8,16 @@
  *            prime
  * Range:     u8 n <= 18, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   is_prime_seq
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime_seq.h"  /* provides bool is_prime_seq(seq_t) */
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* The function returns the n-th term of OEIS A101299. */
 seq_t a(idx_t n)
@@ -57,8 +59,7 @@ seq_t a(idx_t n)
             if (is_prime_seq(cumulative_sum - 1)) {
                 if (terms_count == terms_capacity) {
                     terms_capacity = terms_capacity ? terms_capacity * 2 : 8;
-                    terms = (seq_t *)realloc(terms,
-                        terms_capacity * sizeof(seq_t));
+                    terms = mem_resize(seq_t, terms, terms_capacity);
                     if (!terms) exit(1);
                 }
                 terms[terms_count++] = (seq_t)i;

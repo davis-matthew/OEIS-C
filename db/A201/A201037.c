@@ -7,7 +7,8 @@
  * Formula:   a(n) = the n-th prime of the form 10 k^3 - 3 (k >= 1)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 55, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mulmod64
+ * Validated: standard, pass, 41 terms through n = 990 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,15 +16,15 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/mulmod64.h"
+#include "../utils/mulmod.h"
 
 static uint64_t powmod64(uint64_t a, uint64_t e, uint64_t mod)
 {
     uint64_t res = 1;
     while (e != 0) {
         if (e & 1)
-            res = mulmod64(res, a, mod);
-        a = mulmod64(a, a, mod);
+            res = mulmod(res, a, mod);
+        a = mulmod(a, a, mod);
         e >>= 1;
     }
     return res;
@@ -57,7 +58,7 @@ static bool is_prime_uint64(uint64_t n)
             continue;
         bool composite = true;
         for (uint64_t r = 1; r < s; ++r) {
-            x = mulmod64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) {
                 composite = false;
                 break;

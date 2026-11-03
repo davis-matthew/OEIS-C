@@ -11,7 +11,8 @@
  *            qualifying blocks, memoising results for repeated calls
  * Range:     u8 n <= 3, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   is_small_prime
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   is_prime_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_small_prime.h"
+#include "../utils/is_prime_i32.h"
+#include "../utils/mem.h"
 
 static inline uint64_t mod_mul_uint64(uint64_t a, uint64_t b, uint64_t mod) {
     return (unsigned __int128)a * b % mod;
@@ -123,7 +125,7 @@ seq_t a(idx_t n) {
             bool ok = true;
             for (int i = 0; i < 4; ++i) {
                 sum[i] = digit_sum_uint64(block[i]);
-                if (!is_small_prime(sum[i])) {
+                if (!is_prime_i32(sum[i])) {
                     ok = false;
                     break;
                 }
@@ -141,7 +143,7 @@ seq_t a(idx_t n) {
             if (ok) {
                 if (terms_size + 1 > terms_capacity) {
                     terms_capacity = terms_capacity == 0 ? 8 : terms_capacity << 1;
-                    terms = (seq_t *)realloc(terms, terms_capacity * sizeof(seq_t));
+                    terms = mem_resize(seq_t, terms, terms_capacity);
                 }
                 terms[terms_size] = (seq_t)block[0];
                 ++terms_size;

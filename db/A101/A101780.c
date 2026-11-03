@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 164, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 51 terms through n = 950 (2026-11-01)
  * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,7 @@
 
 /* Computes the nth prime of the form 100*k + 3 by iterating candidates
    and testing primality using the provided is_prime_seq helper. */
+#include <stdbool.h>
 #include "../utils/is_prime_seq.h"
 
 seq_t a(idx_t n)

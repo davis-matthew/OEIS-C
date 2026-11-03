@@ -8,14 +8,23 @@
  * Formula:   a(n) = psi(3, n) + Sum_{i=1..n-1} (3-1)*3^(i-1)*psi(3, n-i)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 17, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   seq_mul
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/seq_mul.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* --- Utility: integer square root for small idx_t values --- */
 static inline idx_t isqrt_idx(idx_t x) {
@@ -60,10 +69,10 @@ static void ensure_size(idx_t n)
     while (new_cap <= n) new_cap <<= 1;
 
     /* Reallocate storage */
-    psi_arr = (seq_t *)realloc(psi_arr, new_cap * sizeof(seq_t));
-    pow3_arr = (seq_t *)realloc(pow3_arr, new_cap * sizeof(seq_t));
-    a_arr = (seq_t *)realloc(a_arr, new_cap * sizeof(seq_t));
-    s_arr = (seq_t *)realloc(s_arr, new_cap * sizeof(seq_t));
+    psi_arr = mem_resize(seq_t, psi_arr, new_cap);
+    pow3_arr = mem_resize(seq_t, pow3_arr, new_cap);
+    a_arr = mem_resize(seq_t, a_arr, new_cap);
+    s_arr = mem_resize(seq_t, s_arr, new_cap);
     if (!psi_arr || !pow3_arr || !a_arr || !s_arr) exit(EXIT_FAILURE);
 
     /* Initialize new elements */

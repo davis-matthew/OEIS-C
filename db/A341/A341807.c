@@ -10,12 +10,14 @@
  *            x^{C(k+2,3)})^8
  * Range:     u8 n <= 25, u16 n <= 240, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 955 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
 
     /* Allocate DP array of size n+1, zeroed. */
     size_t sz = (size_t)n + 1;
-    seq_t *dp = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, sz);
     if (!dp)
         return (seq_t)0;
     dp[0] = (seq_t)1;
@@ -43,9 +45,9 @@ seq_t a(idx_t n)
 
     /* Perform 8 successive convolutions, counting ordered sums. */
     for (size_t step = 0; step < 8; ++step) {
-        seq_t *next = (seq_t *)calloc(sz, sizeof(seq_t));
+        seq_t *next = mem_new(seq_t, sz);
         if (!next) {
-            free(dp);
+            mem_free(dp);
             return (seq_t)0;
         }
         for (idx_t s = 0; s <= n; ++s) {
@@ -59,11 +61,11 @@ seq_t a(idx_t n)
                 next[ns] += cur;
             }
         }
-        free(dp);
+        mem_free(dp);
         dp = next;
     }
 
     seq_t ans = dp[(size_t)n];
-    free(dp);
+    mem_free(dp);
     return ans;
 }

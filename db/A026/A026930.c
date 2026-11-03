@@ -11,13 +11,15 @@
  *            Implemented by dynamic programming
  * Range:     u8 n <= 29, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,10 +32,10 @@ seq_t a(idx_t n)
     idx_t needed = n + 1;
     if (cap < needed) {
         idx_t newcap = needed;
-        even_f = (seq_t *)realloc(even_f, newcap * sizeof(seq_t));
-        odd_f  = (seq_t *)realloc(odd_f , newcap * sizeof(seq_t));
-        even_g = (seq_t *)realloc(even_g, newcap * sizeof(seq_t));
-        odd_g  = (seq_t *)realloc(odd_g , newcap * sizeof(seq_t));
+        even_f = mem_resize(seq_t, even_f, newcap);
+        odd_f  = mem_resize(seq_t, odd_f, newcap);
+        even_g = mem_resize(seq_t, even_g, newcap);
+        odd_g  = mem_resize(seq_t, odd_g, newcap);
         cap = newcap;
     }
 

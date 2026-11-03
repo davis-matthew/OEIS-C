@@ -11,6 +11,7 @@
  *            a leading 1 followed by * (n-1)/2 copies o...
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 20, u64 n <= 39, u128 n <= 78,
  *            big any n
+ * Validated: standard, pass, 44 terms through n = 992 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

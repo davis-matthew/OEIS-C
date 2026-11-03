@@ -8,12 +8,14 @@
  * Formula:   a(n) = 1 for 1 ≤ n ≤ 9; for n > 9, a(n) = a(n-8) + a(n-9)
  * Range:     u8 n <= 72, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 76 terms through n = 76 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* Cached values, 0‑indexed: a(1) -> cache[0] */
 static idx_t cached_size = 0u;       /* Number of entries stored in cache */
@@ -26,7 +28,7 @@ static void expand_cache(idx_t need)
     /* Ensure at least 10 elements for the base cases */
     if (need < 10u)
         need = 10u;
-    seq_t *new_cache = (seq_t *)realloc(cache, need * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, need);
     if (!new_cache) {
         /* Allocation failed – abort the program (not expected in tests). */
         abort();

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 104, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 89 terms through n = 9691 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static idx_t isqrt_u64(idx_t v) {
     idx_t lo = 0, hi = (v >> 1) + 1;
@@ -69,10 +71,10 @@ static void rebuild_repr(idx_t limit) {
 
 /* Build the non‑representable list up to 'limit'. */
 static void rebuild_nonrep(idx_t limit) {
-    if (nonrep) free(nonrep);
+    if (nonrep) mem_free(nonrep);
     nonrep_cap = (size_t)limit;           /* upper bound on elements */
     if (nonrep_cap == 0) nonrep_cap = 1;
-    nonrep = (seq_t*)malloc(nonrep_cap * sizeof(seq_t));
+    nonrep = mem_new(seq_t, nonrep_cap);
     if (!nonrep) exit(1);
     nonrep_sz = 0;
 
@@ -80,7 +82,7 @@ static void rebuild_nonrep(idx_t limit) {
         if (!repr[i]) {
             if (nonrep_sz == nonrep_cap) {
                 nonrep_cap <<= 1;
-                nonrep = (seq_t*)realloc(nonrep, nonrep_cap * sizeof(seq_t));
+                nonrep = mem_resize(seq_t, nonrep, nonrep_cap);
                 if (!nonrep) exit(1);
             }
             nonrep[nonrep_sz++] = (seq_t)i;

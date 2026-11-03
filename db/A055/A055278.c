@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 43, u32 n <= 200, u64 n <= 200,
  *            u128 n <= 200, big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache   = NULL; /* values of a(n) */
 static size_t  cap    = 0;    /* allocated capacity */
@@ -39,13 +41,13 @@ seq_t a(idx_t n)
     size_t needed_cap = (size_t)(n + 1);
     if (cap < needed_cap) {
         size_t new_cap = needed_cap;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return (seq_t)0;               /* allocation failure – abort */
         /* Zero-fill newly allocated part */
         if (new_cap > cap) {
             size_t i = cap;
             size_t d = new_cap - cap;
-            memset(tmp + i, 0, d * sizeof(seq_t));
+            mem_set(tmp + i, 0, d * sizeof(seq_t));
         }
         cache = tmp;
         cap   = new_cap;

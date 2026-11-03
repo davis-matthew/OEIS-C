@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 58, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   is_5_less_uint128
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,19 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_5_less_uint128.h"
+#include "../utils/mem.h"
+
+/* Return true if the decimal representation of v contains no digit 5.
+   Works for 128‑bit values. */
+static bool is_5_less_uint128(__uint128_t v)
+{
+    while (v > 0) {
+        if ((v % 10) == 5)
+            return false;
+        v /= 10;
+    }
+    return true;
+}
 
 /* External integer types supplied by the build */
 extern seq_t a(idx_t n);
@@ -101,7 +114,7 @@ seq_t a(idx_t n)
                 /* Store the candidate as a term */
                 if (terms_size == terms_cap) {
                     terms_cap = terms_cap ? terms_cap * 2 : 16;
-                    seq_t *tmp = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, terms, terms_cap);
                     if (!tmp) abort();
                     terms = tmp;
                 }

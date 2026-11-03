@@ -10,12 +10,14 @@
  *            (n>=1)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 6, u128 n <= 8,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 10 terms through n = 9 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* exponentiation by squaring for seq_t */
 static seq_t pow_seq(seq_t base, idx_t exp) {
@@ -43,16 +45,16 @@ static void ensure_caches(idx_t n) {
     if (needed > a_cap) {                              /* grow storage */
         size_t new_cap = a_cap ? a_cap : 1;
         while (new_cap < needed) new_cap <<= 1;
-        seq_t *new_a   = (seq_t*)malloc(new_cap * sizeof(seq_t));
-        seq_t *new_p3  = (seq_t*)malloc(new_cap * sizeof(seq_t));
-        seq_t *new_c   = (seq_t*)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_a   = mem_new(seq_t, new_cap);
+        seq_t *new_p3  = mem_new(seq_t, new_cap);
+        seq_t *new_c   = mem_new(seq_t, new_cap);
         if (a_cache) {
             for (size_t i = 0; i < a_size; ++i) {
                 new_a[i]   = a_cache[i];
                 new_p3[i]  = pow3_cache[i];
                 new_c[i]   = c_cache[i];
             }
-            free(a_cache);   free(pow3_cache); free(c_cache);
+            mem_free(a_cache);   mem_free(pow3_cache); mem_free(c_cache);
         }
         a_cache     = new_a;
         pow3_cache  = new_p3;

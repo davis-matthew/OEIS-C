@@ -11,7 +11,8 @@
  *            with * the orders of 2 modulo p² for all odd p...
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 608, u64 n <= 608, u128 n <= 608,
  *            big any n
- * Helpers:   build_primes, build_spf, mod_pow
+ * Validated: standard, pass, 86 terms through n = 601 (2026-11-03)
+ * Helpers:   build_primes, build_spf, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <stddef.h>
 #include "../utils/build_primes.h"
 #include "../utils/build_spf.h"
-#include "../utils/mod_pow.h"          /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod); */
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -79,7 +82,7 @@ seq_t a(idx_t n)
                 idx_t f = factors[z];
                 while (d % f == 0) {
                     idx_t cand = d / f;
-                    if (mod_pow((seq_t)2, cand, (seq_t)mod) == (seq_t)1)
+                    if (powmod((seq_t)2, cand, (seq_t)mod) == (seq_t)1)
                         d = cand;
                     else
                         break;
@@ -93,7 +96,7 @@ seq_t a(idx_t n)
             /* if d even, test 2^(d/2) ≡ −1 (mod p²)                            */
             idx_t d_neg = 0;
             if ((d & 1ULL) == 0) {
-                if (mod_pow((seq_t)2, d >> 1, (seq_t)mod) == (seq_t)(mod - 1))
+                if (powmod((seq_t)2, d >> 1, (seq_t)mod) == (seq_t)(mod - 1))
                     d_neg = d >> 1;
             }
 
@@ -107,7 +110,7 @@ seq_t a(idx_t n)
         }   /* end for primes */
 
         /* ---- collect all allowed exponents --------------------------------- */
-        allowed = (seq_t *)malloc((size_t)LIMIT_EXP * sizeof(seq_t));
+        allowed = mem_new(seq_t, (size_t)LIMIT_EXP);
         if (!allowed) return (seq_t)0;  /* unlikely but safe              */
         size_t cnt = 0;
         for (idx_t exp = 1; exp <= LIMIT_EXP; ++exp) {

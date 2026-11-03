@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 4, u64 n <= 7, u128 n <= 11,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 11 terms through n = 11 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
  *  Thus a(n) gives the squares that remain square when a 4 is appended. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     if (cap < n + 1) {
         idx_t new_cap = cap ? cap * 2 : 1;
         while (new_cap <= n) new_cap <<= 1;          /* new_cap > n */
-        y_cache = (seq_t*)realloc(y_cache, new_cap * sizeof(seq_t));
+        y_cache = mem_resize(seq_t, y_cache, new_cap);
         cap = new_cap;
     }
 

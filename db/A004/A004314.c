@@ -9,13 +9,14 @@
  *            so intermediates never exceed a(n)
  * Range:     u8 n <= 10, u16 n <= 12, u32 n <= 19, u64 n <= 35, u128 n <= 66,
  *            big any n
- * Helpers:   a004314_gcd
+ * Validated: standard, pass, 39 terms through n = 973 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a004314_gcd.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n) {
     idx_t k = n - 8;
@@ -24,7 +25,7 @@ seq_t a(idx_t n) {
     for (i = 1; i <= k; i++) {
         seq_t num = (seq_t)(n + 8 + i);
         seq_t den = (seq_t)i;
-        seq_t g = a004314_gcd(r, den);
+        seq_t g = gcd(r, den);
         r /= g;
         den /= g;
         /* now den divides num, since gcd(r, den) == 1 */

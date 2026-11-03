@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 95, u16 n <= 419, u32 n <= 2159, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 100 terms through n = 9738 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --- integer square root for uint64_t --------------------------------- */
 static inline idx_t isqrt_uint64(idx_t x) {
@@ -60,7 +62,7 @@ seq_t a(idx_t n) {
         /* allocate new table */
         seq_t **newdp = (seq_t **)calloc((size_t)(needK + 1), sizeof(seq_t *));
         for (idx_t k = 0; k <= needK; ++k) {
-            newdp[k] = (seq_t *)calloc((size_t)(needN + 1), sizeof(seq_t));
+            newdp[k] = mem_new(seq_t, (size_t)(needN + 1));
         }
 
         /* base case p_0(0) = 1 */
@@ -82,7 +84,7 @@ seq_t a(idx_t n) {
         /* free old table */
         if (dp) {
             for (idx_t k = 0; k <= Kmax; ++k) {
-                free(dp[k]);
+                mem_free(dp[k]);
             }
             free(dp);
         }

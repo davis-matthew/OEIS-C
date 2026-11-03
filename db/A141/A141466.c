@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 76, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   _smallest_prime_factor, gpf, is_prime_small
+ * Validated: partial, pass, 76 terms through n = 76 (2026-11-01)
+ * Helpers:   is_prime_seq, largest_prime_factor, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,9 +24,10 @@
 #include <stdbool.h>
 
 /* Helper functions provided by the framework.  */
-#include "../utils/is_prime_small.h"    /* bool is_prime_small(seq_t)  */
-#include "../utils/_smallest_prime_factor.h"  /* uint64_t _smallest_prime_factor(uint64_t) */
-#include "../utils/gpf.h"              /* uint64_t gpf(uint64_t)     */
+#include <stddef.h>
+#include "../utils/is_prime_seq.h"
+#include "../utils/largest_prime_factor.h"
+#include "../utils/smallest_prime_factor.h"
 
 seq_t a(idx_t n)
 {
@@ -37,12 +39,12 @@ seq_t a(idx_t n)
     for (uint64_t k = 4; ; ++k)
     {
         /* Skip primes – only composites contribute. */
-        if (is_prime_small((seq_t)k))
+        if (is_prime_seq((seq_t)k))
             continue;
 
         /* Prime factorisation information.  */
-        uint64_t pmin = _smallest_prime_factor(k);
-        uint64_t pmax = gpf(k);
+        uint64_t pmin = smallest_prime_factor(k);
+        uint64_t pmax = largest_prime_factor(k);
 
         /* Compute the transformed product:
                product = k/(pmin*pmax) * (pmax-1) * (pmin-1)   */
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
         seq_t prod  = div * (seq_t)(pmax - 1) * (seq_t)(pmin - 1);
 
         /* If the product is not prime, we count it. */
-        if (!is_prime_small(prod))
+        if (!is_prime_seq(prod))
         {
             count++;
             if (count == n)

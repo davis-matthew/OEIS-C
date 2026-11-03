@@ -8,12 +8,14 @@
  *            number (p(0)=1)
  * Range:     u8 n <= 21, u16 n <= 47, u32 n <= 130, u64 n <= 411,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 974 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, free */
+#include "../utils/mem.h"
 
 static idx_t max_n = 0;
 static seq_t *part = NULL;   /* partition numbers p[0..max_n]   */
@@ -22,8 +24,8 @@ static seq_t *aarr  = NULL;   /* result a[0..max_n] for sequence */
 /* compute partition numbers up to n using the recurrence with generalized pentagonal numbers */
 static void compute_partitions(idx_t n)
 {
-    if (part) free(part);
-    part = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+    if (part) mem_free(part);
+    part = mem_new(seq_t, (n + 1));
     part[0] = 1;   /* p(0)=1 */
 
     for (idx_t i = 1; i <= n; ++i) {
@@ -49,8 +51,8 @@ static void compute_partitions(idx_t n)
 /* compute a(n) for all 1..n using the derived formula */
 static void compute_a(idx_t n)
 {
-    if (aarr) free(aarr);
-    aarr = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+    if (aarr) mem_free(aarr);
+    aarr = mem_new(seq_t, (n + 1));
     for (idx_t i = 0; i <= n; ++i) aarr[i] = 0;
 
     for (idx_t k = 1; 3 * k <= n; ++k) {

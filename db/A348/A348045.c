@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, look
  * Formula:   a(n) = Sum_{d|n} A008683(n/d) * A252463(d) (μ is A008683)
- * Range:     u8 n <= 262, u16 n <= 9364, u32 n <= 9364, u64 n <= 9364,
- *            u128 n <= 9364, big any n
- * Helpers:   build_spf
+ * Range:     u8 n <= 262, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 106 terms through n = 9364 (2026-11-03)
+ * Helpers:   build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <inttypes.h>
 #include "../utils/build_spf.h"
+#include "../utils/mem.h"
 
 /* External sequence type */
 seq_t a(idx_t n);
@@ -41,7 +43,7 @@ static void prepare(idx_t N)
     /* Free old tables if any */
     free(spf);
     free(mu);
-    free(A252);
+    mem_free(A252);
     free(prevPrime);
     free(primes);
     spf        = NULL;
@@ -89,7 +91,7 @@ static void prepare(idx_t N)
     }
 
     /* 5. Compute A252463 values for 1..N */
-    A252 = (seq_t *)malloc((size_t)(N + 1) * sizeof(seq_t));
+    A252 = mem_new(seq_t, (size_t)(N + 1));
     A252[1] = 1;            /* by definition */
     for (idx_t num = 2; num <= N; ++num) {
         if ((num & 1) == 0) {                 /* even */

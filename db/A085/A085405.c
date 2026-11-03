@@ -7,8 +7,9 @@
  * Formula:   a(n) = binom(3n+2, n+1)/(3n+2) (Mod 2) – compute parity of the
  *            integer C(3n+2, n+1)/(3n+2) by using 2‑adic valuations: a(n)=1
  *            iff v₂(C(3n+2, n+1)) equals v₂(3n+2)
- * Range:     u8 n <= 9704, u16 n <= 9704, u32 n <= 9704, u64 n <= 9704,
- *            u128 n <= 9704, big any n
+ * Range:     u8 n <= 65539, u16 n <= 65539, u32 n <= 65539, u64 n <= 65539,
+ *            u128 n <= 65539, big any n
+ * Validated: standard, pass, 121 terms through n = 9704 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

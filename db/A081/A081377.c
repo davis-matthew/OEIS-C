@@ -9,7 +9,8 @@
  *            prime divisors of φ(k) equals that of σ(k)
  * Range:     u8 n <= 12, u16 n <= 303, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   same_prime_sets
+ * Validated: standard, pass, 64 terms through n = 951 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,17 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/same_prime_sets.h"
+#include "../utils/mem.h"
+
+/*  Compare two sorted arrays of distinct primes                */
+static bool same_prime_sets(const uint32_t *a, size_t ca,
+                            const uint32_t *b, size_t cb)
+{
+    if (ca != cb) return false;
+    for (size_t i = 0; i < ca; ++i)
+        if (a[i] != b[i]) return false;
+    return true;
+}
 
 /* ------------------------------------------------------------ */
 /*  Prime table – fixed limit large enough for the required range */
@@ -140,7 +151,7 @@ seq_t a(idx_t n)
         init_primes();                     /* fill the prime table */
 
         seq_cap = 64;
-        seq_vals = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+        seq_vals = mem_new(seq_t, seq_cap);
         if (!seq_vals) exit(1);
 
         seq_len = 0;
@@ -169,7 +180,7 @@ seq_t a(idx_t n)
             /* Ensure capacity */
             if (seq_len == seq_cap) {
                 seq_cap <<= 1;
-                seq_vals = (seq_t*)realloc(seq_vals, seq_cap * sizeof(seq_t));
+                seq_vals = mem_resize(seq_t, seq_vals, seq_cap);
                 if (!seq_vals) exit(1);
             }
             seq_vals[seq_len++] = (seq_t)k;   /* cast fits because k is uint64_t */

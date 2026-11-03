@@ -7,7 +7,8 @@
  * Formula:   a(n) = prime(n) * prime(n+1) - prime(n+1)
  * Range:     u8 n <= 6, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helpers that may be provided by the build system.  They are not needed
    for the algorithm below, but we keep the headers in case they are
@@ -22,8 +24,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-extern void *malloc(size_t);
-extern void *realloc(void *, size_t);
 extern void abort(void);
 #ifdef __cplusplus
 }
@@ -64,7 +64,7 @@ static void ensure_primes_upto(idx_t target)
         /* Grow the array if necessary. */
         if (primes_cnt == primes_cap) {
             size_t new_cap = (primes_cap == 0) ? 2 : primes_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(primes, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, primes, new_cap);
             if (!tmp) {
                 /* Out of memory; terminate the program. */
                 abort();

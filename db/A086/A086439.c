@@ -12,7 +12,8 @@
  *            terms, then a(n) = A(n)
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 1, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   gcd
+ * Validated: full, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <string.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,8 +41,8 @@ seq_t a(idx_t n)
     int i, j, r;
 
     /* clear DP tables */
-    memset(dp, 0, sizeof(dp));
-    memset(dp_next, 0, sizeof(dp_next));
+    mem_set(dp, 0, sizeof(dp));
+    mem_set(dp_next, 0, sizeof(dp_next));
 
     /* first card: red or black */
     dp[0][1][1] = 1;   /* first card red */
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
 
     /* process remaining 51 cards */
     for (idx_t step = 1; step < 52; ++step) {
-        memset(dp_next, 0, sizeof(dp_next));
+        mem_set(dp_next, 0, sizeof(dp_next));
 
         for (i = 0; i < 2; ++i) {
             for (j = 1; j <= (int)max_run; ++j) {
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
                 }
             }
         }
-        memcpy(dp, dp_next, sizeof(dp));
+        mem_copy(dp, dp_next, sizeof(dp));
     }
 
     /* patterns that avoid a run of length >= n */

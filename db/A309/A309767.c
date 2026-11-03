@@ -7,11 +7,13 @@
  * Formula:   a(n) = (Sum_{i=0..floor((n-3)/4)} 4^(2*i+1)/(2*i+1)) mod 2^n
  * Range:     u8 n <= 9, u16 n <= 16, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 /* --- local helpers ------------------------------------------------------- */

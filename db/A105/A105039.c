@@ -8,14 +8,28 @@
  *            binomial(n - k*s - 1, k-2)
  * Range:     u8 n <= 11, u16 n <= 22, u32 n <= 44, u64 n <= 89, u128 n <= 179,
  *            big any n
- * Helpers:   binomial, mul128
+ * Validated: standard, pass, 55 terms through n = 1965 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
+#include <stdalign.h>
 #include "../utils/binomial.h"
-#include "../utils/mul128.h"
+
+/* Helper: safe multiplication using 128‑bit intermediate when
+   available and seq_t is a built‑in integer.  For arbitrary‑precision
+   types the plain * operator is used. */
+static inline seq_t mul128(seq_t a, seq_t b)
+{
+#if defined(__SIZEOF_INT128__) && !defined(__cplusplus)
+    return (seq_t)((unsigned __int128)(unsigned long long)a * b);
+#else
+    return a * b;
+#endif
+}
 
 seq_t a(idx_t n) {
     if (n < 1) return (seq_t)0;

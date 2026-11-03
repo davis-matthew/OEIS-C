@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 31, u64 n <= 210, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 189 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static bool initialized = false;
 
@@ -101,7 +103,7 @@ seq_t a(idx_t n)
         return (seq_t)valid_rows * (seq_t)valid_rows;
 
     /* DP for n >= 3 */
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
 
     /* Base state for length 2: all valid (a,b) pairs have count 1. */
     int cur = 0, nxt = 1;
@@ -113,7 +115,7 @@ seq_t a(idx_t n)
 
     /* Perform transitions for each additional row. */
     for (unsigned int step = 0; step < nu - 2; ++step) {
-        memset(dp[nxt], 0, sizeof(dp[nxt]));
+        mem_set(dp[nxt], 0, sizeof(dp[nxt]));
         for (unsigned int a = 0; a < 32; ++a) {
             for (unsigned int b = 0; b < 32; ++b) {
                 seq_t cnt = dp[cur][a][b];

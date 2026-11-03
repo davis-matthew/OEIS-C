@@ -7,13 +7,25 @@
  * Formula:   a(n) = 4*(2^(n^2-n+1)*(n^2-n)-n+3)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 7, u128 n <= 11,
  *            big any n
- * Helpers:   pow2seq
+ * Validated: partial, pass, 13 terms through n = 13 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>            /* for basic integer types */
-#include "../utils/pow2seq.h"
+
+static inline seq_t pow2seq(idx_t exp) {
+    seq_t result = 1;
+    seq_t base   = 2;
+    while (exp) {
+        if (exp & 1U)
+            result = result * base;
+        base   = base * base;
+        exp >>= 1U;
+    }
+    return result;
+}
 
 seq_t a(idx_t n) {
     if (n == 0)

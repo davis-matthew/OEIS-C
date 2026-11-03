@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 557, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _smallest_prime_factor, alloc_cache, free_cache, is_prime
+ * Validated: standard, pass, 67 terms through n = 9940 (2026-11-03)
+ * Helpers:   is_prime, mem, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,10 +25,20 @@
 #include <stddef.h>
 
 /* Helper functions provided by the build environment */
-#include "../utils/is_prime.h"                     /* bool is_prime(idx_t x); */
-#include "../utils/_smallest_prime_factor.h"       /* uint64_t _smallest_prime_factor(uint64_t n); */
-#include "../utils/alloc_cache.h"                  /* seq_t *alloc_cache(idx_t n); */
-#include "../utils/free_cache.h"                   /* void free_cache(seq_t *p); */
+#include "../utils/is_prime.h"
+#include "../utils/smallest_prime_factor.h"
+#include "../utils/mem.h"
+
+/* Allocate and free using malloc/free when compiled as C. */
+static seq_t *alloc_cache(idx_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_cache(seq_t *p)
+{
+    mem_free(p);
+}
 
 /* --------------------------------------------------------------------- */
 /* Check whether a 64‑bit integer is a semiprime (product of two primes,
@@ -37,7 +48,7 @@ static bool is_semiprime_uint64(uint64_t n)
     if (n < 4)                     /* 0,1,2,3 cannot be semiprime */
         return false;
 
-    uint64_t spf = _smallest_prime_factor(n);   /* smallest prime factor */
+    uint64_t spf = smallest_prime_factor(n);   /* smallest prime factor */
     if (spf == 0 || spf == n)                    /* n is 0 or prime */
         return false;
 

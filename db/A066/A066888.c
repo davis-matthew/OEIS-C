@@ -8,12 +8,16 @@
  *            k‑th triangular number
  * Range:     u8 n <= 21, u16 n <= 900, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 112 terms through n = 9599 (2026-11-01)
  * Helpers:   sieve_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/sieve_primes.h"
 
 /* static state to cache primes up to the largest triangular number seen */

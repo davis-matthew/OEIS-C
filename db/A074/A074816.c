@@ -6,8 +6,9 @@
  * Keywords:  nonn, mult, easy, changed
  * Formula:   a(n) = 3^ω(n) where ω(n) is the number of distinct prime factors
  *            of n
- * Range:     u8 n <= 9949, u16 n <= 9949, u32 n <= 9949, u64 n <= 9949,
- *            u128 n <= 9949, big any n
+ * Range:     u8 n <= 10005, u16 n <= 10005, u32 n <= 10005, u64 n <= 10005,
+ *            u128 n <= 10005, big any n
+ * Validated: standard, pass, 116 terms through n = 9949 (2026-11-01)
  * Helpers:   pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

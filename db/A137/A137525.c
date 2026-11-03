@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 21, i16 n <= 38, i32 n <= 87, i64 n <= 87, i128 n <= 87,
  *            big any n
- * Helpers:   factorial
+ * Validated: partial, pass, 88 terms through n = 87 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,7 +32,18 @@
  * provided in the build utilities.
  */
 
-#include "../utils/factorial.h"
+#include <stdint.h>
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 /* Find the row r that contains the flat index n. */
 static idx_t row_of(idx_t n)

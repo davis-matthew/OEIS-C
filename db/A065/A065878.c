@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 191, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 86 terms through n = 9450 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    memoised and works for any of the supported seq_t types. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* count 1-bits of a seq_t value */
 static unsigned int popcount_seq_t(seq_t x)
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
 
     if (cache == NULL) {
         cap  = 128;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         cache[0] = 0;    /* dummy */
         len = 1;
     }
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
         if (pc && cand % (seq_t)pc != 0) {
             if (len >= cap) {
                 cap *= 2;
-                cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cap);
             }
             cache[len++] = cand;
         }

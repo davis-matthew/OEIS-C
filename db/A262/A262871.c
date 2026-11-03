@@ -9,7 +9,8 @@
  *            numbers up to ⌊n/2⌋
  * Range:     u8 n <= 59, u16 n <= 925, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 948 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static state used for incremental computation */
 static idx_t            pre_max   = 0;     /* largest n processed  */
@@ -58,7 +60,7 @@ static void extend_to(idx_t limit)
     size_t sz = (size_t)(limit + 1);
     mu     = (int8_t *)realloc(mu,      sz * sizeof(int8_t));
     isComp = (unsigned char *)realloc(isComp, sz * sizeof(unsigned char));
-    prfx   = (seq_t *)realloc(prfx,    sz * sizeof(seq_t));
+    prfx   = mem_resize(seq_t, prfx, sz);
     if (!mu || !isComp || !prfx) abort();
 
     /* initialise arrays for new entries */

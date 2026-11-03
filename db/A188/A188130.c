@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 55, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 71 terms through n = 9816 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 #include "../utils/is_prime.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +40,7 @@ seq_t a(idx_t n)
     /* Ensure cache capacity */
     if (cache_len == cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0; /* allocation failure */
         cache = tmp;
         cache_cap = new_cap;
@@ -48,7 +51,7 @@ seq_t a(idx_t n)
         /* candidate is always ≡1 (mod 4) because we advance by 4 */
         if (is_prime(candidate)) {
             seq_t d = (seq_t)(6ULL * candidate + 1ULL);
-            seq_t rem = mod_pow((seq_t)2, (uint64_t)candidate, d);
+            seq_t rem = powmod((seq_t)2, (uint64_t)candidate, d);
             if (rem == (seq_t)1) {
                 /* Store the prime in the cache */
                 cache[cache_len++] = (seq_t)candidate;
@@ -56,7 +59,7 @@ seq_t a(idx_t n)
                 /* Grow the cache if full */
                 if (cache_len == cache_cap) {
                     size_t new_cap = cache_cap * 2;
-                    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                     if (!tmp) return 0;
                     cache = tmp;
                     cache_cap = new_cap;

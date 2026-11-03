@@ -7,7 +7,8 @@
  * Formula:   a(n) = (16^n - 1)/3
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 797 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Recurrence: a(0) = 0, a(n) = 16 * a(n-1) + 5  for n > 0 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached values of the sequence */
 static seq_t *seq_cache = NULL;
@@ -26,7 +28,7 @@ static void ensure_cache(idx_t n)
     /* Initialise cache first element if it does not exist */
     if (seq_cache_len == 0) {
         seq_cache_len = 1;
-        seq_cache = (seq_t *)malloc(sizeof(seq_t) * seq_cache_len);
+        seq_cache = mem_new(seq_t, seq_cache_len);
         if (seq_cache == NULL) return;          /* allocation failed – nothing we can do */
         seq_cache[0] = 0;
         return;
@@ -37,7 +39,7 @@ static void ensure_cache(idx_t n)
 
     /* Allocate/expand the cache to hold indices up to n inclusive */
     size_t new_len = (size_t)(n + 1);
-    seq_t *tmp = (seq_t *)realloc(seq_cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, new_len);
     if (tmp == NULL) return;                    /* reallocation failed – keep old cache */
     seq_cache = tmp;
 

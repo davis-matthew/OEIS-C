@@ -8,7 +8,8 @@
  *            gcd(8,p−1) for odd p
  * Range:     u8 n <= 1359, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, xor_gcd64
+ * Validated: standard, pass, 96 terms through n = 7921 (2026-11-01)
+ * Helpers:   factor_u64, gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,9 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/xor_gcd64.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
             result *= (seq_t)(1ULL << m);
         } else {
             /* gcd(8,p−1), always ≤8 */
-            uint64_t g = xor_gcd64(8ULL, p - 1ULL);
+            uint64_t g = gcd_u64(8ULL, p - 1ULL);
             result *= (seq_t)g;
         }
     }

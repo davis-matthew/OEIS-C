@@ -9,15 +9,19 @@
  *            is the sum of d^18 over all divisors d of n)
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 3, u64 n <= 12, u128 n <= 138,
  *            big any n
- * Helpers:   factor_u64, mod_pow
+ * Validated: standard, pass, 28 terms through n = 8720 (2026-11-01)
+ * Helpers:   factor_u64, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
+#include "../utils/powmod.h"
 
 /* Power of a base raised to an integer exponent (num <= 64-bit). */
 static seq_t pow_seq(seq_t base, uint64_t exp)
@@ -41,14 +45,14 @@ static int val_power(seq_t base, uint64_t exp, seq_t prime)
 
     int v = 0;
     seq_t mod = prime;
-    seq_t rem = mod_pow(base, exp, mod);
+    seq_t rem = powmod(base, exp, mod);
     if (rem != 1)
         return 0;
 
     v = 1;
     while (1) {
         seq_t mod_next = mod * prime;
-        seq_t rem_next = mod_pow(base, exp, mod_next);
+        seq_t rem_next = powmod(base, exp, mod_next);
         if (rem_next == 1) {
             mod = mod_next;
             ++v;

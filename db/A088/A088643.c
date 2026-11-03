@@ -8,9 +8,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabl, nice, easy
  * Formula:   not stated
- * Range:     u8 n <= 9730, u16 n <= 9730, u32 n <= 9730, u64 n <= 9730,
- *            u128 n <= 9730, big any n
- * Helpers:   none
+ * Range:     u8 n <= 11325, u16 n <= 11325, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 121 terms through n = 9730 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Static state shared by all calls */
 static seq_t *a_seq      = NULL;   /* array of computed sequence values   */
@@ -65,7 +67,7 @@ static void append_value(seq_t val)
 {
     if (a_len == a_cap) {
         size_t new_cap = (a_cap == 0) ? 32 : a_cap * 2;
-        seq_t *new_arr = (seq_t*)realloc(a_seq, new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, a_seq, new_cap);
         if (!new_arr) exit(1);
         a_seq = new_arr;
         a_cap = new_cap;

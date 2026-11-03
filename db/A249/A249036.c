@@ -11,7 +11,8 @@
  *            arbitrary‑precision)
  * Range:     u8 n <= 382, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 93 terms through n = 9866 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static storage for memoisation */
 static seq_t  *cache = NULL;          /* 1‑based indices; cache[0] unused          */
@@ -37,7 +39,7 @@ static void ensure_cache(idx_t n)
     while (newcap < (size_t)n) newcap <<= 1;
 
     /* realloc with explicit casts to satisfy C++ */
-    cache    = (seq_t*)realloc(cache,    (newcap + 1) * sizeof *cache);
+    cache    = mem_resize(seq_t, cache, ((newcap + 1) * sizeof *cache) / sizeof(seq_t));
     evenCnt  = (uint32_t*)realloc(evenCnt, (newcap + 1) * sizeof *evenCnt);
     oddCnt   = (uint32_t*)realloc(oddCnt,  (newcap + 1) * sizeof *oddCnt);
     cap = newcap;

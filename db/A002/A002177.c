@@ -12,7 +12,8 @@
  *            multiprecision integers
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 12, u64 n <= 22, u128 n <= 36,
  *            big any n
- * Helpers:   c177_vfact
+ * Validated: standard, pass, 38 terms through n = 94 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,13 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/c177_vfact.h"
+
+static uint64_t c177_vfact(uint64_t m, uint64_t p)
+{
+    uint64_t s = 0;
+    while (m) { m /= p; s += m; }
+    return s;
+}
 
 typedef struct { uint32_t *d; size_t len; size_t cap; } c177_bn;
 

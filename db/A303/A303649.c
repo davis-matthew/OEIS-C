@@ -6,8 +6,9 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = 4*a(n-1) - 4*a(n-2) - 4*a(n-3) + 10*a(n-4) - 4*a(n-5) -
  *            4*a(n-6) + 4*a(n-7) - a(n-8) (for n >= 8)
- * Range:     u8 n <= 8, u16 n <= 27, u32 n <= 252, u64 n <= 9876,
- *            u128 n <= 9876, big any n
+ * Range:     u8 n <= 8, u16 n <= 27, u32 n <= 252, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 58 terms through n = 9876 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

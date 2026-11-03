@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 19, u64 n <= 37, u128 n <= 71,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
  */
 
 #include <stdlib.h>   /* malloc, realloc, abort */
+#include "../utils/mem.h"
 
 /* Initial 16 terms of the sequence */
 static const seq_t initial[16] = {
@@ -63,7 +65,7 @@ static void ensure_capacity(size_t cap)
         newcap <<= 1;
 
     /* realloc returns void*, must be cast to seq_t* for arbitrary‑precision types */
-    seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, newcap);
     if (!tmp)
         abort(); /* allocation failure */
 

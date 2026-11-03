@@ -13,13 +13,15 @@
  *            T(n,k)
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static idx_t max_row      = 0;     /* highest row that has been pre‑computed */
 static idx_t cur_k        = 0;     /* largest k with P(k) ≤ current row   */
@@ -40,7 +42,7 @@ static void ensure_rows(idx_t target)
         idx_t new_cap = capacity ? capacity << 1 : 8;
         while (new_cap <= target) new_cap <<= 1;
         idx_t *newK = (idx_t *)realloc(K, new_cap * sizeof(idx_t));
-        seq_t *newC = (seq_t *)realloc(C, new_cap * sizeof(seq_t));
+        seq_t *newC = mem_resize(seq_t, C, new_cap);
         if (!newK || !newC) abort();
         K = newK;
         C = newC;

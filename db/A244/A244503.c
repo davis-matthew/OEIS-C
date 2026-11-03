@@ -11,6 +11,7 @@
  *            forward expression with starting point n = 7
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 21, u64 n <= 192, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 41 terms through n = 826 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

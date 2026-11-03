@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 3, u32 n <= 9, u64 n <= 23, u128 n <= 49,
  *            big any n
- * Helpers:   row_has_run_of_three
+ * Validated: standard, pass, 34 terms through n = 193 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,25 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/row_has_run_of_three.h"
+
+/* Helpers ------------------------------------------------------------------- */
+static inline bool row_has_run_of_three(int pat)
+{
+    int last = -1;
+    int run  = 0;
+    for (int c = 0; c < 6; ++c) {
+        int bit = (pat >> c) & 1;
+        if (bit == last) {
+            ++run;
+        } else {
+            last = bit;
+            run  = 1;
+        }
+        if (run >= 3)
+            return false;
+    }
+    return true;
+}
 
 /* ------------------------------------------------------------------ */
 /* Forward declaration of the function required by the test harness. */

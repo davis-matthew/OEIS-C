@@ -7,13 +7,15 @@
  * Formula:   not stated
  * Range:     i8 n <= 5, i16 n <= 6, i32 n <= 7, i64 n <= 8, i128 n <= 9,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 10 terms through n = 10 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Recurrence: a(1)=3, a(2)=0, a(n)=a(n-1)^2 - a(n-2)  for n>2 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     if (cache_cap < n) {
         idx_t new_cap = cache_cap ? cache_cap * 2 : 2;
         if (new_cap < n) new_cap = n;   /* final size must be at least n */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp)                     /* allocation failed – give up */
             return 0;
         cache = tmp;

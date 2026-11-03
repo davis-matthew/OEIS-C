@@ -9,14 +9,29 @@
  *            A000041 computed by Euler's pentagonal number recurrence
  * Range:     u8 n <= 16, u16 n <= 43, u32 n <= 127, u64 n <= 416,
  *            u128 n <= 1458, big any n
- * Helpers:   mu_local
+ * Validated: standard, pass, 63 terms through n = 8936 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/mu_local.h"
+#include "../utils/mem.h"
+
+static int mu_local(uint64_t m) {
+    int r = 1;
+    uint64_t q;
+    for (q = 2; q * q <= m; q++) {
+        if (m % q == 0) {
+            m /= q;
+            if (m % q == 0) return 0;
+            r = -r;
+        }
+    }
+    if (m > 1) r = -r;
+    return r;
+}
 
 seq_t a(idx_t n) {
     seq_t *p;
@@ -25,7 +40,7 @@ seq_t a(idx_t n) {
 
     if (n == 0) return 1;
 
-    p = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    p = mem_new(seq_t, (size_t)(n + 1));
     if (!p) return 0;
     p[0] = 1;
     for (m = 1; m <= n; m++) {
@@ -56,6 +71,6 @@ seq_t a(idx_t n) {
         }
     }
     result = pos - neg;
-    free(p);
+    mem_free(p);
     return result;
 }

@@ -8,12 +8,14 @@
  * Formula:   a(n) = Σ_{j=1..n} j * B(j-1), where B(k) = Bell(k)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 15, u64 n <= 25, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 554 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached values of Bell numbers B[0..] and a[n] */
 static seq_t *B_cache = NULL;   /* B[0..]            */
@@ -29,8 +31,8 @@ seq_t a(idx_t n)
     /* Grow cache to include n */
     idx_t old_cap = cache_cap;
     idx_t new_cap = n + 1;
-    B_cache = (seq_t*)realloc(B_cache, new_cap * sizeof(seq_t));
-    A_cache = (seq_t*)realloc(A_cache, new_cap * sizeof(seq_t));
+    B_cache = mem_resize(seq_t, B_cache, new_cap);
+    A_cache = mem_resize(seq_t, A_cache, new_cap);
 
     if (old_cap == 0) {        /* initialise base cases */
         B_cache[0] = (seq_t)1; /* B(0) = 1          */

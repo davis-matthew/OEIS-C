@@ -14,11 +14,13 @@
  *            se...
  * Range:     u8 n <= 17, u16 n <= 40, u32 n <= 98, u64 n <= 266,
  *            u128 n <= 764, big any n
+ * Validated: standard, pass, 71 terms through n = 9791 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 static seq_t power_seq_t(seq_t base, idx_t exp)

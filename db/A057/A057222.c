@@ -10,6 +10,7 @@
  *            (i+2)(i+1)*3* binom(n-1-2i+5,5)/2 )
  * Range:     u8 n <= 4, u16 n <= 11, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

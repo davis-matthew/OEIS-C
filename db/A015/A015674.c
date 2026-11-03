@@ -11,13 +11,15 @@
  *            them to generate the first 1665 values of the sequence an...
  * Range:     i8 n <= 2000, i16 n <= 2000, i32 n <= 2000, i64 n <= 2000,
  *            i128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 1942 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 #define PERIOD 1665
 /* The degree of Φ_1665 is φ(1665) = 864 */
@@ -35,9 +37,9 @@ static seq_t* poly_div_exact(const seq_t *dividend, size_t deg_d,
                              const seq_t *divisor, size_t deg_s)
 {
     size_t deg_q = deg_d - deg_s;
-    seq_t *q = (seq_t*)calloc(deg_q + 1, sizeof(seq_t));
-    seq_t *f = (seq_t*)malloc((deg_d + 1) * sizeof(seq_t));
-    memcpy(f, dividend, (deg_d + 1) * sizeof(seq_t));
+    seq_t *q = mem_new(seq_t, deg_q + 1);
+    seq_t *f = mem_new(seq_t, (deg_d + 1));
+    mem_copy(f, dividend, (deg_d + 1) * sizeof(seq_t));
 
     for (int k = (int)deg_q; k >= 0; --k) {
         seq_t coeff = f[deg_s + k];  /* leading coeff of current remainder */
@@ -48,7 +50,7 @@ static seq_t* poly_div_exact(const seq_t *dividend, size_t deg_d,
             }
         }
     }
-    free(f);
+    mem_free(f);
     return q;
 }
 
@@ -63,7 +65,7 @@ static seq_t* compute_phi_1665(void)
     Poly *polys = (Poly*)malloc(D * sizeof(Poly));
 
     /* φ_1(x) = x - 1 */
-    seq_t *c1 = (seq_t*)malloc(2 * sizeof(seq_t));
+    seq_t *c1 = mem_new(seq_t, 2);
     c1[0] = (seq_t)-1;
     c1[1] = (seq_t)1;
     polys[0].c = c1;
@@ -73,7 +75,7 @@ static seq_t* compute_phi_1665(void)
     for (size_t idx = 1; idx < D; ++idx) {
         idx_t d = divs[idx];
         /* Start with x^d - 1 */
-        seq_t *tmp = (seq_t*)calloc(d + 1, sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, d + 1);
         tmp[0] = (seq_t)-1;
         tmp[d] = (seq_t)1;
         size_t deg_tmp = d;
@@ -84,7 +86,7 @@ static seq_t* compute_phi_1665(void)
             if (d % e != 0) continue;
             seq_t *q = poly_div_exact(tmp, deg_tmp,
                                       polys[j].c, polys[j].deg);
-            free(tmp);
+            mem_free(tmp);
             tmp = q;
             deg_tmp = deg_tmp - polys[j].deg;
         }
@@ -97,7 +99,7 @@ static seq_t* compute_phi_1665(void)
 
     /* Free all other intermediate polynomials */
     for (size_t i = 0; i < D - 1; ++i) {
-        free(polys[i].c);
+        mem_free(polys[i].c);
     }
     free(polys);
     return phi;
@@ -111,7 +113,7 @@ static void init_cache(void)
 {
     if (cache) return;
 
-    cache = (seq_t*)malloc(PERIOD * sizeof(seq_t));
+    cache = mem_new(seq_t, PERIOD);
     if (!cache) return; /* allocation failure */
 
     /* Compute the cyclotomic polynomial coefficients */
@@ -127,7 +129,7 @@ static void init_cache(void)
         }
         cache[n] = -sum;
     }
-    free(phi);
+    mem_free(phi);
 }
 
 /* Sequence function with external linkage */

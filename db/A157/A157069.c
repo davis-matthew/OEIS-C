@@ -9,6 +9,7 @@
  *            binomial(n-i+20,20)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 8, u64 n <= 20, u128 n <= 74,
  *            big any n
+ * Validated: standard, pass, 35 terms through n = 814 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 
 /* This counts sequences of length n+1 with sum zero and sum of absolute values 40. */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

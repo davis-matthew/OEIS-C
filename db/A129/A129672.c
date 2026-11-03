@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 35, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   is_prime_small, seq_alloc_new_array
+ * Validated: full, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,14 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "../utils/is_prime_small.h"
-#include "../utils/seq_alloc_new_array.h"
+#include <stdint.h>
+#include <string.h>
+#include <math.h>
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
 
 static seq_t *cache = NULL;          /* array holding the found primes */
 static size_t cache_size = 0;        /* number of cached primes (≤36) */
@@ -36,13 +43,13 @@ static void build_cache(void)
     size_t count = 0;
 
     for (seq_t p = 2; count < NEED; ++p) {
-        if (!is_prime_small(p))
+        if (!is_prime_seq(p))
             continue;
 
         bool ok = true;
         seq_t temp = p;
         while (temp > 0) {
-            if (!is_prime_small(temp)) { ok = false; break; }
+            if (!is_prime_seq(temp)) { ok = false; break; }
             temp /= 6;
         }
         if (ok) {

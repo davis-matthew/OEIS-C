@@ -7,9 +7,10 @@
  * Formula:   a(n) is multiplicative. For a prime power p^e * f(2^e) = 2^(e-2)
  *            for 2 ≤ e ≤ 5, * 0 otherwise, * f(p^e) = gcd(p-1,8)-1 for e=1 (p
  *            odd prime), * 0 for e≥2. The value a(1)=1
- * Range:     u8 n <= 9344, u16 n <= 9344, u32 n <= 9344, u64 n <= 9344,
- *            u128 n <= 9344, big any n
- * Helpers:   _gcd_int_small, gcd
+ * Range:     u8 n <= 22303, u16 n <= 65539, u32 n <= 65539, u64 n <= 65539,
+ *            u128 n <= 65539, big any n
+ * Validated: standard, pass, 107 terms through n = 9344 (2026-11-01)
+ * Helpers:   gcd, gcd_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/gcd.h"
-#include "../utils/_gcd_int_small.h"
+#include "../utils/gcd_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -59,7 +60,7 @@ seq_t a(idx_t n)
 
         /* compute gcd(p-1,8)-1 */
         int mod8 = (int)((p - 1) & 7ULL);
-        int g = _gcd_int_small(mod8, 8);
+        int g = gcd_i32(mod8, 8);
         int contrib = g - 1;
         result *= (seq_t)contrib;
     }

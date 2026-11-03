@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,11 +23,12 @@
    This uses only integer arithmetic and runs in O(n²) time. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate array for all terms up to n */
-    seq_t *terms = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *terms = mem_new(seq_t, (n + 1));
     if (!terms) return 0;  /* out of memory, return 0 */
 
     /* Initial term a(0) = 1 */
@@ -54,6 +56,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = terms[n];
-    free(terms);
+    mem_free(terms);
     return result;
 }

@@ -5,14 +5,16 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = A000120(A000010(n))
- * Range:     u8 n <= 594, u16 n <= 9361, u32 n <= 9361, u64 n <= 9361,
- *            u128 n <= 9361, big any n
- * Helpers:   phi
+ * Range:     u8 n <= 594, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9361 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/phi.h"
+#include <stdint.h>
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -20,7 +22,7 @@ seq_t a(idx_t n)
 
     /* Compute Euler's totient φ(n).  The static function `phi`
        provided by utils/phi.h gives the value directly as seq_t. */
-    seq_t phi_val = phi(n);
+    seq_t phi_val = totient(n);
 
     /* Count the binary weight (number of 1‑bits) of φ(n). */
     int bits = 0;

@@ -9,13 +9,15 @@
  *            of odd digits differ by exactly 8 (in absolute value)
  * Range:     u8 n <= 19, u16 n <= 3273, u32 n <= 5001, u64 n <= 5001,
  *            u128 n <= 5001, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 4480 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static inline bool is_valid(seq_t x) {
     seq_t sum_even = 0, sum_odd = 0;
@@ -56,7 +58,7 @@ seq_t a(idx_t n) {
         if (cache_cap <= cache_len) {
             size_t new_cap = (cache_cap ? cache_cap * 2 : 16);
             while (new_cap <= cache_len) new_cap <<= 1;
-            void *tmp = realloc(cache, new_cap * sizeof(seq_t));
+            void *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) { /* allocation failure, abort */ abort(); }
             cache = (seq_t *)tmp;
             cache_cap = new_cap;

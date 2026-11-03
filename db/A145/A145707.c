@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 45, i16 n <= 126, i32 n <= 390, i64 n <= 1309,
  *            i128 n <= 4684, big any n
- * Helpers:   seq_alloc
+ * Validated: standard, pass, 75 terms through n = 9994 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,18 @@
  */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Using the library allocator for a tidy API */
-#include "../utils/seq_alloc.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
 
 seq_t a(idx_t n)
 {
@@ -31,9 +41,9 @@ seq_t a(idx_t n)
 
     /* Allocate (or reallocate) the array if it does not cover n+1 entries. */
     if (coef == NULL || current_cap <= (size_t)(n + 1)) {
-        free(coef);                      /* free old storage if it exists */
+        mem_free(coef);                      /* free old storage if it exists */
         size_t need = (size_t)(n + 1);
-        coef = (seq_t *)calloc(need, sizeof(seq_t));  /* initialise to 0 */
+        coef = mem_new(seq_t, need);  /* initialise to 0 */
         current_cap = need;
         if (coef == NULL) abort();       /* allocation failed */
     } else {

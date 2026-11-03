@@ -7,13 +7,16 @@
  * Formula:   a(n) = C(2n,n) * (7^n / n!^2) * prod_{k=0}^{n-1} (7k+3)(7k+4)
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 3, u64 n <= 6, u128 n <= 13,
  *            big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 27 terms through n = 304 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,10 +31,10 @@ seq_t a(idx_t n)
     /* allocate / grow cache */
     size_t needed = (size_t)n + 1;
     if (cache == NULL) {
-        cache = (seq_t*)malloc(needed * sizeof(seq_t));
+        cache = mem_new(seq_t, needed);
         cache_len = needed;
     } else if (needed > cache_len) {
-        seq_t *tmp = (seq_t*)realloc(cache, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, needed);
         cache = tmp;
         cache_len = needed;
     }

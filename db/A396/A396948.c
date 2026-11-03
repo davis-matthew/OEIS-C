@@ -9,8 +9,9 @@
  * Formula:   a(n) = 10*(n-3) for n >= 8; the first seven terms are * listed
  *            explicitly: a(1)=10, a(2)=15, a(3)=18, a(4)=20, a(5)=30, *
  *            a(6)=40, a(7)=45
- * Range:     u8 n <= 28, u16 n <= 6556, u32 n <= 9906, u64 n <= 9906,
- *            u128 n <= 9906, big any n
+ * Range:     u8 n <= 28, u16 n <= 6556, u32 n <= 10003, u64 n <= 10003,
+ *            u128 n <= 10003, big any n
+ * Validated: standard, pass, 75 terms through n = 9906 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

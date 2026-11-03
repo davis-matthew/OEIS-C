@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 21, u128 n <= 41,
  *            big any n
- * Helpers:   decode_pattern
+ * Validated: standard, pass, 36 terms through n = 209 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,13 @@
  * states with no pending needs. */
 
 #include <stddef.h>
-#include "../utils/decode_pattern.h"
+
+/* Helper for decoding a pattern into its 3 column values. */
+static inline void decode_pattern(unsigned pat, unsigned char col[3]) {
+    col[0] = pat & 3;
+    col[1] = (pat >> 2) & 3;
+    col[2] = (pat >> 4) & 3;
+}
 
 /* ------------------------------------------------------------------ */
 /*  State tables and transition calculations                          */

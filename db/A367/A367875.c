@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 20, u128 n <= 21,
  *            big any n
- * Helpers:   binomial_inline
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/binomial_inline.h"
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* Memoised a(n) values          */
 static size_t cache_cap = 0;     /* Allocated array capacity      */
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
 {
     /* Allocate or grow cache to hold up to index n */
     if ((size_t)(n + 1) > cache_cap) {
-        cache = (seq_t *)realloc(cache, (size_t)(n + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (size_t)(n + 1));
         cache_cap = (size_t)(n + 1);
     }
 
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
         } else {
             seq_t sum = cache[i - 1] * (seq_t)3;
             for (idx_t k = (idx_t)1; k <= i; ++k) {
-                seq_t bin = binomial_inline(i - 1, k - 1);
+                seq_t bin = binomial(i - 1, k - 1);
                 seq_t term = bin;
                 term *= (seq_t)k;
                 term *= cache[i - k];

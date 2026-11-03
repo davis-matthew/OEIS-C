@@ -8,12 +8,14 @@
  * Formula:   a(n) = square of the numerator of ∏_{i=0}^{n-1} (4i+3)/(4i+5)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 8, u64 n <= 15, u128 n <= 28,
  *            big any n
+ * Validated: standard, pass, 37 terms through n = 733 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 /* Return a(n) for n ≥ 0.  The calculation is done by

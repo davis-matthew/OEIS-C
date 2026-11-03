@@ -11,15 +11,16 @@
  *            triangle and returns binom(d(n_val)+k_val-1, k_val)
  * Range:     u8 n <= 125, u16 n <= 539, u32 n <= 1275, u64 n <= 1275,
  *            u128 n <= 1275, big any n
- * Helpers:   binom, divisor_count_u64
+ * Validated: standard, pass, 94 terms through n = 1252 (2026-11-01)
+ * Helpers:   binomial, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/divisor_count_u64.h"
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
+#include "../utils/num_divisors.h"
 
 seq_t a(idx_t n)
 {
@@ -43,9 +44,9 @@ seq_t a(idx_t n)
     idx_t k_val = s - offset;
 
     /* Number of divisors of n_val */
-    uint64_t d = divisor_count_u64((uint64_t)n_val);
+    uint64_t d = num_divisors((uint64_t)n_val);
 
     /* Compute binomial coefficient C(d + k_val - 1, k_val) */
     idx_t a_val = (idx_t)d + k_val - 1;
-    return binom(a_val, k_val);
+    return binomial(a_val, k_val);
 }

@@ -7,6 +7,7 @@
  * Formula:   a(n) = round(n * 0.3048) = floor((n*381 + 625)/1250)
  * Range:     u8 n <= 73, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
+ * Validated: partial, pass, 74 terms through n = 73 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

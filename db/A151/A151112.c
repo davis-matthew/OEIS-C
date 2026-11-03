@@ -13,7 +13,8 @@
  *            recurrence order is at most 30, thus the algorithm * r...
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 15, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static const uint64_t MOD = 1234567891ULL;   /* prime for BM */
 
@@ -109,8 +111,8 @@ static void prepare_recurrence(seq_t *first_terms, size_t *order_ret, int64_t *c
     enum { M = 30 };
     const size_t DIM = M + 1;
     const size_t TOTAL = DIM * DIM * DIM;
-    seq_t *dp  = (seq_t *)calloc(TOTAL, sizeof(seq_t));
-    seq_t *nxt = (seq_t *)calloc(TOTAL, sizeof(seq_t));
+    seq_t *dp  = mem_new(seq_t, TOTAL);
+    seq_t *nxt = mem_new(seq_t, TOTAL);
     size_t idx = 0, idxx = 0, idxz = 0;
     #define IDX(x,y,z) (((size_t)(x) * DIM + (size_t)(y)) * DIM + (size_t)(z))
 
@@ -120,7 +122,7 @@ static void prepare_recurrence(seq_t *first_terms, size_t *order_ret, int64_t *c
     for (size_t step = 0; step < M; ++step)
     {
         /* zero next */
-        memset(nxt, 0, TOTAL * sizeof(seq_t));
+        mem_set(nxt, 0, TOTAL * sizeof(seq_t));
 
         for (size_t x = 0; x <= step; ++x)
             for (size_t y = 0; y <= step; ++y)
@@ -159,8 +161,8 @@ static void prepare_recurrence(seq_t *first_terms, size_t *order_ret, int64_t *c
         nxt = tmp;
     }
 
-    free(nxt);
-    free(dp);
+    mem_free(nxt);
+    mem_free(dp);
 
     /* 2. Convert to modulo MOD sequence for BM. */
     uint64_t seq_mod[64];

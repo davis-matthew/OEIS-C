@@ -7,13 +7,15 @@
  * Formula:   a(n) = ∏_{k=1..n} (3*k^2+1) (a(0)=1)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 6, u64 n <= 10, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     if (idx + 1 > cap) {
         size_t newcap = cap ? cap * 2 : 1;
         while (newcap < idx + 1) newcap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         /* If realloc fails, leave the cache unchanged and the
            function will return 0 (undefined behaviour for out of memory). */
         if (tmp) {

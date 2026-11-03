@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 6874, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 89 terms through n = 9192 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Computes A354145: deficient numbers that are neither prime powers nor semiprimes. Search method. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static storage for computed terms and state. */
@@ -26,7 +28,7 @@ seq_t a(idx_t n) {
     /* Grow the terms array when needed. */
     if (terms_len == terms_cap) {
         terms_cap = terms_cap ? terms_cap * 2 : 16;
-        terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, terms_cap);
     }
 
     /* Generate terms until we have at least 'n' of them. */
@@ -70,7 +72,7 @@ seq_t a(idx_t n) {
             /* Store the term. */
             if (terms_len == terms_cap) {
                 terms_cap = terms_cap ? terms_cap * 2 : 16;
-                terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
             }
             terms[terms_len++] = (seq_t)next_check;
         }

@@ -7,7 +7,8 @@
  * Formula:   a(n) = denominator of \sum_{k=1..n} 1/sigma(k)
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   extend_seqt, extend_uint64, gcd, recompute_sigma
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,51 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/gcd.h"
-#include "../utils/extend_seqt.h"
-#include "../utils/extend_uint64.h"
-#include "../utils/recompute_sigma.h"
+#include "../utils/mem.h"
+
+/* Ensure an array of seq_t is at least new_cap elements long,
+   zero‑filling any newly allocated part. */
+static void extend_seqt(seq_t **arr, idx_t *cur_cap, idx_t new_cap)
+{
+    if (new_cap <= *cur_cap)
+        return;
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+    if (!tmp)
+        exit(1);                                   /* allocation failure */
+    for (idx_t i = *cur_cap; i < new_cap; ++i)
+        tmp[i] = 0;
+    *arr = tmp;
+    *cur_cap = new_cap;
+}
+
+/* Ensure an array of uint64_t is at least new_cap elements long,
+   zero‑filling any newly allocated part. */
+static void extend_uint64(uint64_t **arr, idx_t *cur_cap, idx_t new_cap)
+{
+    if (new_cap <= *cur_cap)
+        return;
+    uint64_t *tmp = (uint64_t *)realloc(*arr, new_cap * sizeof(uint64_t));
+    if (!tmp)
+        exit(1);                                   /* allocation failure */
+    for (idx_t i = *cur_cap; i < new_cap; ++i)
+        tmp[i] = 0;
+    *arr = tmp;
+    *cur_cap = new_cap;
+}
+
+/* Recompute all sigma values for indices 1..n.
+   This simply runs the classic divisor‑sum sieve. */
+static void recompute_sigma(uint64_t *sigma, idx_t n)
+{
+    /* Zero the working part */
+    for (idx_t i = 1; i <= n; ++i)
+        sigma[i] = 0;
+
+    for (idx_t i = 1; i <= n; ++i) {
+        for (idx_t j = i; j <= n; j += i)
+            sigma[j] += i;
+    }
+}
 
 seq_t a(idx_t n)
 {

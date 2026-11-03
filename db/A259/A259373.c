@@ -8,18 +8,22 @@
  * Formula:   a(n) = Product_{k=0..n} p(k)^k, p(k) = partition(k)
  * Range:     u8 n <= 3, u16 n <= 3, u32 n <= 5, u64 n <= 6, u128 n <= 8,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 11 terms through n = 10 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate array for partition numbers up to n */
-    seq_t *p = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *p = mem_new(seq_t, (size_t)(n + 1));
     if (p == NULL) return 0;   /* out of memory */
 
     /* Base case p(0) = 1 */
@@ -52,10 +56,10 @@ seq_t a(idx_t n)
     seq_t result = (seq_t)1;
     for (idx_t k = 0; k <= n; ++k) {
         seq_t pk = p[k];
-        seq_t power = big_pow(pk, (seq_t)k);   /* k ≤ n, fits in seq_t safely */
+        seq_t power = ipow(pk, (seq_t)k);   /* k ≤ n, fits in seq_t safely */
         result *= power;
     }
 
-    free(p);
+    mem_free(p);
     return result;
 }

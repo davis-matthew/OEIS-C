@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 58, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   build_primes, odd_digit_prime
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   build_primes, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,23 @@
 #include <stdbool.h>
 #include <string.h>
 
-#include "../utils/build_primes.h"   /* build_primes(idx_t limit, idx_t **primes_out, size_t *cnt); */
-#include "../utils/odd_digit_prime.h"
+#include <stddef.h>
+#include "../utils/build_primes.h"
+#include "../utils/mem.h"
+
+/* Test whether a prime has only odd decimal digits. */
+static bool odd_digit_prime(uint64_t p)
+{
+    if (p < 10)
+        return (p == 3 || p == 5 || p == 7);
+    while (p > 0) {
+        uint8_t d = p % 10;
+        if ((d & 1) == 0)
+            return false;          /* even digit found */
+        p /= 10;
+    }
+    return true;
+}
 
 /* Cached terms (1‑based index). */
 static seq_t *term_cache = NULL;
@@ -104,7 +120,7 @@ static void fill_until(idx_t n)
     /* Grow cache if needed. */
     if (cache_cap == 0) {
         cache_cap = 64;
-        term_cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        term_cache = mem_new(seq_t, cache_cap);
     }
 
     while (cache_len < (size_t)n) {
@@ -112,7 +128,7 @@ static void fill_until(idx_t n)
         if (is_seq_term(current)) {
             if (cache_len == cache_cap) {
                 cache_cap *= 2;
-                term_cache = (seq_t *)realloc(term_cache, cache_cap * sizeof(seq_t));
+                term_cache = mem_resize(seq_t, term_cache, cache_cap);
             }
             term_cache[cache_len++] = (seq_t)current;
         }

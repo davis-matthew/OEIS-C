@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 263, u32 n <= 664, u64 n <= 1468,
  *            u128 n <= 3011, big any n
- * Helpers:   digit_len, is_palindrome, pow10
+ * Validated: standard, pass, 91 terms through n = 9122 (2026-11-03)
+ * Helpers:   is_palindrome_base, mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,9 +24,19 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/pow10.h"        /* seq_t pow10(idx_t e); */
-#include "../utils/digit_len.h"    /* int digit_len(seq_t x); */
-#include "../utils/is_palindrome.h"/* bool is_palindrome(seq_t x, idx_t base); */
+#include "../utils/is_palindrome_base.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -38,7 +49,7 @@ seq_t a(idx_t n)
 
     /* Ensure cache capacity for n terms */
     if ((size_t)n > cap) {
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)n * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)n);
         if (!tmp) return 0;              /* allocation failure */
         cache = tmp;
         cap = (size_t)n;
@@ -66,13 +77,13 @@ seq_t a(idx_t n)
 
                 /* form number obtained by replacing the first digit of cand
                  * by the decimal representation of prev */
-                int lenC = digit_len(cand);          /* λ(cand) */
+                int lenC = num_digits(cand);          /* λ(cand) */
                 if (lenC <= 0) lenC = 1;             /* safety */
                 seq_t pow10_len = pow10((idx_t)(lenC - 1));
                 seq_t suffix   = cand % pow10_len;
                 seq_t L        = prev * pow10_len + suffix;
 
-                if (is_palindrome(L, 10)) {
+                if (is_palindrome_base(L, 10)) {
                     cache[i] = cand;
                     break;
                 }

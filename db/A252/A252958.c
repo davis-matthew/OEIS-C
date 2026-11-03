@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 10, u32 n <= 27, u64 n <= 59, u128 n <= 123,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
  *   The function memoises computed values and can answer calls in any order.
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* initial 16 terms */
 static const seq_t init_vals[16] = {
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
     /* initialise cache if required */
     if (!cache) {
         cache_cap = 17;                      /* 0..16 */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();
         cache[0] = 0;
         for (idx_t i = 1; i <= 16; ++i)
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
     /* grow cache to hold up to n */
     size_t needed = (size_t)(n + 1);   /* indices 0..n */
     if (needed > cache_cap) {
-        seq_t *tmp = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, needed);
         if (!tmp) abort();
         cache = tmp;
         cache_cap = needed;

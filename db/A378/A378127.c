@@ -11,6 +11,7 @@
  *            len(r). If (b - k) is even then p = (b - k + 2) / 2 ;...
  * Range:     u8 n <= 246, u16 n <= 9940, u32 n <= 9940, u64 n <= 9940,
  *            u128 n <= 9940, big any n
+ * Validated: standard, pass, 106 terms through n = 9938 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

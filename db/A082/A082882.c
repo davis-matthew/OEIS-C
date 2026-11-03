@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- CONFIGURATION ---------- */
 #define LIMIT 200000U                 /* enough for n up to ≈10 000 */
@@ -121,7 +123,7 @@ static void ensure_cache(idx_t n)
     size_t need = (size_t)n + 1;              /* 1‑based array */
     if (need > cache_size) {
         size_t new_size = need > 2 * cache_size ? need : 2 * cache_size;
-        seq_t *tmp = (seq_t*)realloc(cached_a, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cached_a, new_size);
         if (!tmp) abort();
         cached_a = tmp;
         cache_size = new_size;
@@ -176,7 +178,7 @@ seq_t a(idx_t n)
         init_prime_data();
 
         cache_size = 3;
-        cached_a   = (seq_t*)calloc(cache_size, sizeof(seq_t));
+        cached_a   = mem_new(seq_t, cache_size);
         if (!cached_a) abort();
         cached_a[0] = 0;      /* unused */
         cached_a[1] = 0;      /* a(1) = 0 */

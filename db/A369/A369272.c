@@ -11,7 +11,8 @@
  *            not divide n*a(n-1)
  * Range:     u8 n <= 15, u16 n <= 965, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   ensure_cache, is_prime_small
+ * Validated: standard, pass, 92 terms through n = 9204 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,36 @@
 #include <stdbool.h>
 
 /* Utilities from the build environment */
-#include "../utils/ensure_cache.h"   /* void ensure_cache(idx_t n, seq_t **cache_ptr, size_t *cap_ptr); */
-#include "../utils/is_prime_small.h" /* bool is_prime_small(seq_t n); */
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
+
+/* Make sure the cache is large enough */
+static void ensure_cache(idx_t n, seq_t **cache_ptr, size_t *cap_ptr) {
+    seq_t *cache = *cache_ptr;
+    size_t cap = *cap_ptr;
+    if (cap <= (size_t)n) {
+        size_t new_cap = cap ? (cap << 1) : 16;
+        while (new_cap <= (size_t)n)
+            new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
+        if (!tmp && new_cap > 0) {
+            /* Allocation failed – abort the program. */
+            exit(1);
+        }
+        if (tmp) {
+            /* Initialize newly allocated slots to zero. */
+            if (!cache) {
+                for (size_t i = 0; i < new_cap; ++i)
+                    tmp[i] = 0;
+            } else {
+                for (size_t i = cap; i < new_cap; ++i)
+                    tmp[i] = 0;
+            }
+            *cache_ptr = tmp;
+            *cap_ptr = new_cap;
+        }
+    }
+}
 
 /* --------------------------------------------------------------------- */
 /* Static state ---------------------------------------------------------- */
@@ -67,7 +96,7 @@ extend_primes_to(size_t new_cnt)
 
     while (primes_cnt < new_cnt) {
         /* find next prime */
-        while (!is_prime_small((seq_t)cand)) ++cand;
+        while (!is_prime_seq((seq_t)cand)) ++cand;
 
         /* grow primes array */
         uint64_t *tmp = (uint64_t *)realloc(primes, (primes_cnt + 1) * sizeof(uint64_t));
@@ -76,8 +105,7 @@ extend_primes_to(size_t new_cnt)
         primes[primes_cnt] = cand;
 
         /* grow next_mult array */
-        seq_t *tmp2 = (seq_t *)realloc(next_mult,
-            (primes_cnt + 1) * sizeof(seq_t));
+        seq_t *tmp2 = mem_resize(seq_t, next_mult, (primes_cnt + 1));
         if (!tmp2) abort();
         next_mult = tmp2;
         next_mult[primes_cnt] = 1;  /* first unused multiple starts at 1 */

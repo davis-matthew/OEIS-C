@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 141, u16 n <= 417, u32 n <= 819, u64 n <= 819,
  *            u128 n <= 819, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 94 terms through n = 784 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,7 +33,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/binom.h"   /* seq_t binom(idx_t a, idx_t b);  */
+#include "../utils/binomial.h"
 
 /* Compute T(ones,zeros) with the given formula. */
 static inline seq_t calc_T(idx_t ones, idx_t zeros)
@@ -50,13 +51,13 @@ static inline seq_t calc_T(idx_t ones, idx_t zeros)
         int64_t topO = (int64_t)ones - (int64_t)k + 2 * (int64_t)f3;
         seq_t Uo = 0;
         if (topO >= 0 && (idx_t)topO >= f3)
-            Uo = binom((idx_t)topO, f3);
+            Uo = binomial((idx_t)topO, f3);
 
         /* U(zeros,k) */
         int64_t topZ = (int64_t)zeros - (int64_t)k + 2 * (int64_t)f3;
         seq_t Uz = 0;
         if (topZ >= 0 && (idx_t)topZ >= f3)
-            Uz = binom((idx_t)topZ, f3);
+            Uz = binomial((idx_t)topZ, f3);
 
         sum += Uz * Uo;                    /* first term of the summand */
 
@@ -66,13 +67,13 @@ static inline seq_t calc_T(idx_t ones, idx_t zeros)
         int64_t topVO = (int64_t)ones - (int64_t)ceil_k2 - 1;
         seq_t Vo = 0;
         if (topVO >= 0 && (idx_t)topVO >= floor_k2)
-            Vo = binom((idx_t)topVO, floor_k2);
+            Vo = binomial((idx_t)topVO, floor_k2);
 
         /* V(zeros,k) */
         int64_t topVZ = (int64_t)zeros - (int64_t)ceil_k2 - 1;
         seq_t Vz = 0;
         if (topVZ >= 0 && (idx_t)topVZ >= floor_k2)
-            Vz = binom((idx_t)topVZ, floor_k2);
+            Vz = binomial((idx_t)topVZ, floor_k2);
 
         seq_t termV = Vz * Vo;             /* V*V part */
         termV <<= 1;                       /* multiply by 2 */

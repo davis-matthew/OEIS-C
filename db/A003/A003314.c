@@ -7,8 +7,9 @@
  * Keywords:  nonn, easy, nice
  * Formula:   a(n) = n*floor(log_2(4n)) - 2^floor(log_2(2n)), i.e. with k =
  *            floor(log_2(n)): a(n) = n*(k+2) - 2^(k+1)
- * Range:     u8 n <= 45, u16 n <= 5266, u32 n <= 9255, u64 n <= 9255,
- *            u128 n <= 9255, big any n
+ * Range:     u8 n <= 45, u16 n <= 5266, u32 n <= 32768, u64 n <= 32768,
+ *            u128 n <= 32768, big any n
+ * Validated: standard, pass, 73 terms through n = 9255 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

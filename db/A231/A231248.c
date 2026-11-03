@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 23, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 201 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
  * values that fit in seq_t. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* cache[0] unused; indices start at 1 */
 static idx_t  cache_max = 0;         /* largest n with cached value */
@@ -35,7 +37,7 @@ static void init_initial_values(void)
 {
     if (cache_max >= 8) return;      /* already initialised */
     /* Allocate space for indices 0..8 */
-    cache = (seq_t *)calloc(9, sizeof(seq_t));
+    cache = mem_new(seq_t, 9);
     cache[0] = 0;                   /* unused */
     cache[1] = 0;
     cache[2] = 6;
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
 
     if (n > cache_max) {
         /* Grow the cache to accommodate n */
-        cache = (seq_t *)realloc(cache, (size_t)(n + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (size_t)(n + 1));
         for (idx_t i = cache_max + 1; i <= n; ++i) {
             if (i <= 8) continue;    /* already set */
             /* Retrieve the required previous terms */

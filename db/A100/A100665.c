@@ -7,14 +7,26 @@
  * Formula:   a(n) = round(sqrt(Fibonacci(n)))
  * Range:     u8 n <= 13, u16 n <= 24, u32 n <= 47, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   bitlen, isqrt
+ * Validated: partial, pass, 52 terms through n = 51 (2026-11-01)
+ * Helpers:   isqrt_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Uses fast‑doubling Fibonacci and an integer square–root routine */
-#include "../utils/isqrt.h"
-#include "../utils/bitlen.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/isqrt_seq.h"
+
+/* Computes the number of bits needed to represent x:
+   0 has length 1. */
+static idx_t bitlen(idx_t x)
+{
+    if (x == 0) return 1;
+    idx_t len = 0;
+    while (x) { ++len; x >>= 1; }
+    return len;
+}
 
 /* Compute F(n) exactly.  Returns F(n) for n >= 0. */
 static seq_t fib_fast(idx_t n)
@@ -51,7 +63,7 @@ static seq_t fib_fast(idx_t n)
 seq_t a(idx_t n)
 {
     seq_t f = fib_fast(n);          /* exact Fibonacci(n) */
-    seq_t r = isqrt(f);             /* floor(sqrt(F(n))) */
+    seq_t r = isqrt_seq(f);             /* floor(sqrt(F(n))) */
 
     /* Decide whether to round up: 4*f >= 4*r^2 + 4*r + 1 */
     seq_t four_f = f << 2;          /* 4 * f       */

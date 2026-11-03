@@ -7,9 +7,10 @@
  * Offset:    2    (a(2) is the first term)
  * Keywords:  nonn, tabf, easy
  * Formula:   not stated
- * Range:     u8 n <= 1004, u16 n <= 8995, u32 n <= 8995, u64 n <= 8995,
- *            u128 n <= 8995, big any n
- * Helpers:   genWeakRec
+ * Range:     u8 n <= 1004, u16 n <= 11751, u32 n <= 11751, u64 n <= 11751,
+ *            u128 n <= 11751, big any n
+ * Validated: standard, pass, 97 terms through n = 8995 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,27 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/genWeakRec.h"
+#include "../utils/mem.h"
+
+/* generate weak divisors recursively */
+static void genWeakRec(const uint64_t *pr, const int *exp, size_t pfCnt,
+                       size_t pos, uint64_t cur, bool hasOne,
+                       uint64_t *out, size_t *idx) {
+    if (pos == pfCnt) {
+        if (cur > 1 && hasOne) {
+            out[(*idx)++] = cur;
+        }
+        return;
+    }
+    uint64_t p = pr[pos];
+    int eMax = exp[pos];
+    uint64_t nxt = cur;
+    for (int e = 0; e <= eMax; ++e) {
+        bool newHasOne = hasOne || (e == 1);
+        genWeakRec(pr, exp, pfCnt, pos + 1, nxt, newHasOne, out, idx);
+        if (e < eMax) nxt *= p;
+    }
+}
 
 /* factor a number into primes and exponents */
 static void factor_uint64(uint64_t n, uint64_t *pr, int *exp, size_t *cnt) {
@@ -68,10 +89,10 @@ seq_t a(idx_t n) {
 
     if (!cache) {
         cache_cap = 256;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     } else if (cache_len + 1024 > cache_cap) {
         cache_cap *= 2;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 
     while (cache_len <= target) {
@@ -101,7 +122,7 @@ seq_t a(idx_t n) {
             for (size_t i = 0; i < weakCount; ++i) {
                 if (cache_len >= cache_cap) {
                     cache_cap *= 2;
-                    cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cache_cap);
                 }
                 cache[cache_len++] = (seq_t)divs[i];
             }

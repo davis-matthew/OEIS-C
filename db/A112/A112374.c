@@ -8,8 +8,9 @@
  * Formula:   a(n) = smallest k such that n divides T(k), where T(1)=1,
  *            T(2)=1, T(3)=2, T(4)=4 and T(k)=T(k-1)+T(k-2)+T(k-3)+T(k-4) for
  *            k≥5 (tetranacci numbers)
- * Range:     u8 n <= 75, u16 n <= 75, u32 n <= 75, u64 n <= 75, u128 n <= 75,
- *            big any n
+ * Range:     u8 n <= 77, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 91 terms through n = 6224 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

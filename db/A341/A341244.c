@@ -8,13 +8,15 @@
  *            ∏_{k≥1} (1 + x^{2k-1}) (distinct odd parts)
  * Range:     u8 n <= 14, u16 n <= 30, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_max = 0;
@@ -25,19 +27,19 @@ static void compute_to(idx_t N)
     if (N <= cache_max) return;
 
     /* Allocate new cache */
-    seq_t *new_cache = (seq_t*)malloc((N + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, (N + 1));
     if (!new_cache) return;              /* OOM – unlikely in test harness */
     for (idx_t i = 0; i <= N; ++i) new_cache[i] = 0;
 
     /* f : partitions into distinct odd parts, f[0] = 1 */
-    seq_t *f  = (seq_t*)malloc((N + 1) * sizeof(seq_t));
-    seq_t *p2 = (seq_t*)malloc((N + 1) * sizeof(seq_t));
-    seq_t *p3 = (seq_t*)malloc((N + 1) * sizeof(seq_t));
-    seq_t *p4 = (seq_t*)malloc((N + 1) * sizeof(seq_t));
-    seq_t *p5 = (seq_t*)malloc((N + 1) * sizeof(seq_t));
+    seq_t *f  = mem_new(seq_t, (N + 1));
+    seq_t *p2 = mem_new(seq_t, (N + 1));
+    seq_t *p3 = mem_new(seq_t, (N + 1));
+    seq_t *p4 = mem_new(seq_t, (N + 1));
+    seq_t *p5 = mem_new(seq_t, (N + 1));
     if (!f || !p2 || !p3 || !p4 || !p5) {
-        free(f); free(p2); free(p3); free(p4); free(p5);
-        free(new_cache);
+        mem_free(f); mem_free(p2); mem_free(p3); mem_free(p4); mem_free(p5);
+        mem_free(new_cache);
         return;
     }
 
@@ -81,9 +83,9 @@ static void compute_to(idx_t N)
     }
     new_cache[0] = 0;     /* a(0) is defined as 0 */
 
-    free(f); free(p2); free(p3); free(p4); free(p5);
+    mem_free(f); mem_free(p2); mem_free(p3); mem_free(p4); mem_free(p5);
 
-    if (cache) free(cache);
+    if (cache) mem_free(cache);
     cache = new_cache;
     cache_max = N;
 }

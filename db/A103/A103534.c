@@ -7,7 +7,8 @@
  * Formula:   a(n) = Concatenate(P, P+1000) where P and P+1000 are primes
  * Range:     u8 none, u16 none, u32 n <= 25, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   digits_uint64, is_prime, pow10_uint64
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-03)
+ * Helpers:   is_prime_u64, num_digits_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,9 +16,17 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "../utils/is_prime.h"
-#include "../utils/digits_uint64.h"
-#include "../utils/pow10_uint64.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/num_digits_u64.h"
+
+static inline seq_t pow10_uint64(int d)
+{
+    seq_t r = 1;
+    for (int i = 0; i < d; ++i)
+        r *= 10;
+    return r;
+}
 
 seq_t a(idx_t n)
 {
@@ -26,15 +35,15 @@ seq_t a(idx_t n)
 
     idx_t count = 0;
     for (idx_t p = 2; ; ++p) {
-        if (!is_prime((uint64_t)p))
+        if (!is_prime_u64((uint64_t)p))
             continue;
-        if (!is_prime((uint64_t)(p + 1000)))
+        if (!is_prime_u64((uint64_t)(p + 1000)))
             continue;
 
         ++count;
         if (count == n) {
             uint64_t q = p + 1000;
-            int d = digits_uint64(q);
+            int d = num_digits_u64(q);
             seq_t mult = pow10_uint64(d);
             seq_t result = (seq_t)p * mult + (seq_t)q;
             return result;

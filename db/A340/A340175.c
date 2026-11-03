@@ -12,14 +12,15 @@
  *            26*3^(n-1) - 4
  * Range:     u8 none, u16 n <= 3, u32 n <= 5, u64 n <= 11, u128 n <= 21,
  *            big any n
- * Helpers:   pow128_uint, pow_uint
+ * Validated: standard, pass, 29 terms through n = 423 (2026-11-01)
+ * Helpers:   ipow_u64_idx, ipow_u64_idx_to_i128
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_uint.h"
-#include "../utils/pow128_uint.h"
+#include "../utils/ipow_u64_idx.h"
+#include "../utils/ipow_u64_idx_to_i128.h"
 
 seq_t a(idx_t n)
 {
@@ -29,11 +30,11 @@ seq_t a(idx_t n)
        fits in 64‑bit without overflow in the intermediate terms).  For larger
        n we fall back to the arbitrary‑precision pow_uint routine. */
     if (sizeof(seq_t) <= 8 && n > 10) {
-        __int128 p63 = pow128_uint(63, n-1);
-        __int128 p31 = pow128_uint(31, n-1);
-        __int128 p15 = pow128_uint(15, n-1);
-        __int128 p7  = pow128_uint(7,  n-1);
-        __int128 p3  = pow128_uint(3,  n-1);
+        __int128 p63 = ipow_u64_idx_to_i128(63, n-1);
+        __int128 p31 = ipow_u64_idx_to_i128(31, n-1);
+        __int128 p15 = ipow_u64_idx_to_i128(15, n-1);
+        __int128 p7  = ipow_u64_idx_to_i128(7,  n-1);
+        __int128 p3  = ipow_u64_idx_to_i128(3,  n-1);
 
         __int128 res = 15 * p63 - 58 * p31 + 89 * p15
                      - 68 * p7  + 26 * p3  - 4;
@@ -41,11 +42,11 @@ seq_t a(idx_t n)
     }
 
     /* Default path uses the big‑integer utility pow_uint. */
-    seq_t p63 = pow_uint(63, n-1);
-    seq_t p31 = pow_uint(31, n-1);
-    seq_t p15 = pow_uint(15, n-1);
-    seq_t p7  = pow_uint(7,  n-1);
-    seq_t p3  = pow_uint(3,  n-1);
+    seq_t p63 = ipow_u64_idx(63, n-1);
+    seq_t p31 = ipow_u64_idx(31, n-1);
+    seq_t p15 = ipow_u64_idx(15, n-1);
+    seq_t p7  = ipow_u64_idx(7,  n-1);
+    seq_t p3  = ipow_u64_idx(3,  n-1);
 
     seq_t res = 15 * p63 - 58 * p31 + 89 * p15
               - 68 * p7  + 26 * p3  - 4;

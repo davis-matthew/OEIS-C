@@ -8,13 +8,15 @@
  *            >= 2 (Numerator of Hermite(n, 29/31) evaluated at x = 29/31)
  * Range:     i8 n <= 1, i16 n <= 2, i32 n <= 5, i64 n <= 9, i128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Static cache for memoization */
 static seq_t *cache   = NULL;  /* array of previously computed terms */
@@ -32,7 +34,7 @@ static void ensure_capacity(size_t need)
         new_cap <<= 1;
 
     /* Allocate new array and copy old values */
-    seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, new_cap);
     if (tmp == NULL)
         abort();                  /* out‑of‑memory */
 
@@ -40,7 +42,7 @@ static void ensure_capacity(size_t need)
         tmp[i] = cache[i];
 
     if (cache != NULL)
-        free(cache);
+        mem_free(cache);
 
     cache     = tmp;
     cache_cap = new_cap;

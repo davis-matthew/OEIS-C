@@ -7,9 +7,10 @@
  * Formula:   a(n) = n-th digit of log(10), where log(10) = 46*atanh(1/31) +
  *            34*atanh(1/49) + 20*atanh(1/161), atanh(1/x) = Sum_{k>=0}
  *            1/((2k+1)*x^(2k+1)); evaluated in base-10^9 fixed point
- * Range:     u8 n <= 9085, u16 n <= 9085, u32 n <= 9085, u64 n <= 9085,
- *            u128 n <= 9085, big any n
- * Helpers:   ln10_add, ln10_divs, ln10_iszero
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 103 terms through n = 9085 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,32 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/ln10_add.h"
-#include "../utils/ln10_divs.h"
-#include "../utils/ln10_iszero.h"
+
+static void ln10_add(uint32_t *s, const uint32_t *t, size_t L) {
+    uint32_t carry = 0;
+    size_t i = L;
+    while (i-- > 0) {
+        uint32_t v = s[i] + t[i] + carry;
+        if (v >= 1000000000U) { v -= 1000000000U; carry = 1; } else carry = 0;
+        s[i] = v;
+    }
+}
+
+static void ln10_divs(uint32_t *x, size_t L, uint32_t d) {
+    uint64_t r = 0;
+    size_t i;
+    for (i = 0; i < L; i++) {
+        uint64_t cur = r * 1000000000ULL + x[i];
+        x[i] = (uint32_t)(cur / d);
+        r = cur % d;
+    }
+}
+
+static int ln10_iszero(const uint32_t *x, size_t L) {
+    size_t i;
+    for (i = 0; i < L; i++) if (x[i]) return 0;
+    return 1;
+}
 
 static uint32_t *ln10_fx = NULL;
 static size_t ln10_limbs = 0;

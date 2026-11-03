@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 28, u16 n <= 9439, u32 n <= 9439, u64 n <= 9439,
- *            u128 n <= 9439, big any n
- * Helpers:   factor_stats
+ * Range:     u8 n <= 28, u16 n <= 23437, u32 n <= 23437, u64 n <= 23437,
+ *            u128 n <= 23437, big any n
+ * Validated: standard, pass, 69 terms through n = 9439 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,37 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/factor_stats.h"
+#include "../utils/mem.h"
+
+/* ----- helper: compute divisor and prime factor statistics for k ----- */
+static void factor_stats(uint64_t k,
+                         uint64_t *tau,
+                         uint64_t *bigomega,
+                         uint64_t *omega)
+{
+    uint64_t n = k;
+    *tau = 1;
+    *bigomega = 0;
+    *omega = 0;
+
+    for (uint64_t p = 2; p * p <= n; ++p) {
+        if (n % p == 0) {
+            uint64_t e = 0;
+            while (n % p == 0) {
+                n /= p;
+                ++e;
+            }
+            *tau   *= (e + 1);
+            *bigomega += e;
+            ++(*omega);
+        }
+    }
+    if (n > 1) {  /* remaining prime factor */
+        *tau       *= 2;
+        *bigomega  += 1;
+        ++(*omega);
+    }
+}
 
 /* ----- static state for memoized sequence ----- */
 static seq_t *seq_cache     = NULL;   /* array of computed terms */
@@ -54,10 +85,9 @@ seq_t a(idx_t n)
             /* ensure capacity for the new element */
             if (seq_len == seq_cap) {
                 size_t new_cap = seq_cap ? seq_cap * 2 : 4;
-                seq_t *new_buf = (seq_t *)realloc(seq_cache,
-                                                  new_cap * sizeof(seq_t));
+                seq_t *new_buf = mem_resize(seq_t, seq_cache, new_cap);
                 if (!new_buf) {
-                    free(seq_cache);
+                    mem_free(seq_cache);
                     seq_cache = NULL;
                     seq_cap = seq_len = 0;
                     return (seq_t)0;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 8, u64 n <= 14, u128 n <= 24,
  *            big any n
- * Helpers:   mul_idx_seq
+ * Validated: standard, pass, 33 terms through n = 338 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,11 @@
    for n ≥ 0    a(n+2) = 4*(n+2)*a(n+1) – (n+2)*(n+1)*a(n) */
 
 #include <stddef.h>
-#include "../utils/mul_idx_seq.h"
+
+static inline seq_t mul_idx_seq(idx_t a, seq_t b)
+{
+    return (seq_t)((__uint128_t)a * b);
+}
 
 #ifdef __cplusplus
 

@@ -12,7 +12,8 @@
  *            appeared. The term chosen for a(n) is the k with maximal f...
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 103 terms through n = 8750 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 #define KMAX 2000
 
@@ -63,7 +65,7 @@ static void ensure_seq_capacity(size_t needed)
     if (needed <= memo_cap) return;
     size_t new_cap = memo_cap ? memo_cap * 2 : 64;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *new_mem = (seq_t *)realloc(memo, new_cap * sizeof(seq_t));
+    seq_t *new_mem = mem_resize(seq_t, memo, new_cap);
     if (!new_mem) exit(EXIT_FAILURE);
     memo = new_mem;
     memo_cap = new_cap;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 89, u32 n <= 89, u64 n <= 89, u128 n <= 89,
  *            big any n
- * Helpers:   compute_pi, is_prime, prev_prime
+ * Validated: partial, pass, 86 terms through n = 89 (2026-11-01)
+ * Helpers:   is_prime, prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,20 @@
    and works for all supported seq_t sizes, including arbitrary‑precision. */
 
 #include <stdbool.h>
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/is_prime.h"
-#include "../utils/prev_prime.h"
-#include "../utils/compute_pi.h"
+#include "../utils/prime_pi.h"
+
+/* Return the largest prime < n   (n > 2)   ; pp(2) = 1, but we never call it for n==2 */
+static inline idx_t prev_prime(idx_t n)
+{
+    idx_t p = n - 1;
+    for (;; --p)
+    {
+        if (is_prime(p)) return p;
+    }
+}
 
 seq_t a(idx_t n)
 {
@@ -48,7 +60,7 @@ seq_t a(idx_t n)
         else
         {
             /* f(x) = x + pi(x) */
-            next = cur + compute_pi((idx_t)cur);
+            next = cur + prime_pi((idx_t)cur);
         }
         cur = next;
         len++;

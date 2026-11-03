@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 6, u32 n <= 6, u64 n <= 6, u128 n <= 6,
  *            big any n
- * Helpers:   digits_leq_3, ensure_vector
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,33 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/digits_leq_3.h"
-#include "../utils/ensure_vector.h"
+#include "../utils/mem.h"
+
+/* Test whether all decimal digits of x are in {0,1,2,3}. */
+static bool digits_leq_3(seq_t x)
+{
+    while (x > 0)
+    {
+        unsigned d = (unsigned)(x % 10);
+        if (d > 3)
+            return false;
+        x = x / 10;
+    }
+    return true;
+}
+
+/* Grow an array of seq_t to at least the requested capacity. */
+static void ensure_vector(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need)
+    {
+        size_t new_cap = (*cap) ? (*cap) * 2 : 4;
+        while (new_cap < need)
+            new_cap *= 2;
+        *arr = mem_resize(seq_t, *arr, new_cap);
+        *cap = new_cap;
+    }
+}
 
 seq_t a(idx_t n)
 {
@@ -38,7 +64,7 @@ seq_t a(idx_t n)
     if (cache == NULL)
     {
         ccap = 4;
-        cache = (seq_t *)malloc(ccap * sizeof(seq_t));
+        cache = mem_new(seq_t, ccap);
         clen = 0;
     }
 
@@ -46,7 +72,7 @@ seq_t a(idx_t n)
     if (humble == NULL)
     {
         hcap = 4;
-        humble = (seq_t *)malloc(hcap * sizeof(seq_t));
+        humble = mem_new(seq_t, hcap);
         hlen = 0;
     }
 

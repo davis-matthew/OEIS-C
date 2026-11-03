@@ -9,12 +9,14 @@
  *            L(1)=1, L(2)=3, L(k)=L(k-1)+L(k-2) for k≥3
  * Range:     u8 n <= 8, u16 n <= 19, u32 n <= 42, u64 n <= 49, u128 n <= 49,
  *            big any n
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 static seq_t

@@ -8,12 +8,14 @@
  *            positive 11th powers
  * Range:     u8 n <= 7, u16 n <= 7, u32 n <= 28, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 56 terms through n = 8624 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 static void gen(seq_t *pow, int pc, int pi, seq_t sum, int c, seq_t *sums, idx_t *cnt) {
@@ -26,7 +28,7 @@ static void gen(seq_t *pow, int pc, int pi, seq_t sum, int c, seq_t *sums, idx_t
     }
 }
 
-static int cmp(const void *a, const void *b) {
+static int cmp_sort(const void *a, const void *b) {
     seq_t x = *(seq_t *)a, y = *(seq_t *)b;
     return (x < y) ? -1 : (x > y) ? 1 : 0;
 }
@@ -44,11 +46,11 @@ seq_t a(idx_t n) {
         pow[k] = p;
     }
     
-    seq_t *sums = (seq_t *)malloc(300000 * sizeof(seq_t));
+    seq_t *sums = mem_new(seq_t, 300000);
     idx_t cnt = 0;
     gen(pow, 20, 0, 0, 6, sums, &cnt);
     
-    qsort(sums, cnt, sizeof(seq_t), cmp);
+    mem_qsort(sums, cnt, sizeof(seq_t), cmp_sort);
     
     idx_t uc = 0;
     for (idx_t i = 0; i < cnt; i++) {

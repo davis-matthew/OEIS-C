@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 9633 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Fixed point of the morphism 0→11, 1→1100.  a(n) is the nth symbol (1‑indexed) of the infinite word obtained by iterating the morphism starting with the single symbol 0. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
 
     /* initialise with the first symbol of the fixed point, which is 1 */
     if (seq == NULL) {
-        seq = (seq_t *)malloc(sizeof(seq_t));
+        seq = mem_new(seq_t, 1);
         seq[0] = 1;
         sz = 1;
     }
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     while (sz < n) {
         /* worst case 1 expands to 4 symbols, 0 expands to 2 */
         idx_t new_sz_est = sz * 4;
-        seq_t *new_seq = (seq_t *)malloc(new_sz_est * sizeof(seq_t));
+        seq_t *new_seq = mem_new(seq_t, new_sz_est);
         idx_t pos = 0;
 
         for (idx_t i = 0; i < sz; ++i) {
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
             }
         }
 
-        free(seq);
+        mem_free(seq);
         seq = new_seq;
         sz = pos;                     /* actual new length */
     }

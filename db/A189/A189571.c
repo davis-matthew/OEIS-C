@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   isPrimeGeneric
+ * Validated: standard, pass, 68 terms through n = 980 (2026-11-03)
+ * Helpers:   is_prime_u128, is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,31 @@
 #include <stdlib.h>   /* malloc, realloc, free */
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/isPrimeGeneric.h"   /* bool isPrimeGeneric(seq_t n); */
+#include <stddef.h>
+#include <limits.h>
+#include "../utils/is_prime_u128.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+/* -----------------  Generic primality test ------------------------ */
+static bool isPrimeGeneric(seq_t n)
+{
+    /* all seq_t are unsigned; use the smallest type that fits */
+    if ((seq_t)(ULLONG_MAX) >= n) {
+        return is_prime_u64((uint64_t)n);
+    }
+#if defined(__SIZEOF_INT128__)
+    return is_prime_u128((__uint128_t)n);
+#else
+    /* fallback: if seq_t > 64‑bit but no 128‑bit support,
+       order the test as simple trial division up to sqrt */
+    seq_t limit = 0;
+    for (seq_t i = 2; i*i <= n; ++i) {
+        if (n % i == 0) return false;
+    }
+    return true;
+#endif
+}
 
 static uint64_t *prime_arr = NULL;   /* list of primes (uint64_t) */
 static size_t     prime_cap = 0;
@@ -54,7 +79,7 @@ static void result_ensure(size_t needed)
     if (result_cap < needed) {
         size_t newcap = result_cap ? result_cap << 1 : 8;
         if (newcap < needed) newcap = needed;
-        seq_t *tmp = (seq_t *)realloc(result_arr, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, result_arr, newcap);
         result_arr = tmp;
         result_cap = newcap;
     }

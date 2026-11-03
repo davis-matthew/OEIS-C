@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 255, u16 n <= 9503, u32 n <= 9503, u64 n <= 9503,
- *            u128 n <= 9503, big any n
- * Helpers:   build_primes_upto, factor_u64, gcd_int_simple, is_prime_small
+ * Range:     u8 n <= 255, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 90 terms through n = 9503 (2026-11-01)
+ * Helpers:   build_primes_upto, factor_u64, gcd_i32, is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,10 +32,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/factor_u64.h"
 #include "../utils/build_primes_upto.h"
-#include "../utils/is_prime_small.h"
-#include "../utils/gcd_int_simple.h"
+#include "../utils/factor_u64.h"
+#include "../utils/gcd_i32.h"
+#include "../utils/is_prime_seq.h"
 
 /* recursive enumeration of allowed divisors */
 static void dfs(const uint64_t *odd_primes, const int *odd_idx,
@@ -48,7 +49,7 @@ static void dfs(const uint64_t *odd_primes, const int *odd_idx,
             if (cur > *best) *best = cur;
             return;
         }
-        if (!is_prime_small(cur)) {
+        if (!is_prime_seq(cur)) {
             if (cur > *best) *best = cur;
         }
         return;
@@ -62,7 +63,7 @@ static void dfs(const uint64_t *odd_primes, const int *odd_idx,
     int idx = odd_idx[pos];
     bool ok = true;
     for (size_t k = 0; k < sel_len; ++k) {
-        if (gcd_int_simple(idx, idx_sel[k]) > 1) {
+        if (gcd_i32(idx, idx_sel[k]) > 1) {
             ok = false;
             break;
         }

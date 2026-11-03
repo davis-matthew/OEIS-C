@@ -11,6 +11,7 @@
  *            that triangle
  * Range:     u8 n <= 57, u16 n <= 195, u32 n <= 644, u64 n <= 1273,
  *            u128 n <= 1273, big any n
+ * Validated: standard, pass, 87 terms through n = 1234 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

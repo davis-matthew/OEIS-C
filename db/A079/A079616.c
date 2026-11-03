@@ -6,9 +6,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = A077462(n) - 1 (rank of the prime‑factorisation template
  *            of n minus 1)
- * Range:     u8 n <= 8929, u16 n <= 8929, u32 n <= 8929, u64 n <= 8929,
- *            u128 n <= 8929, big any n
- * Helpers:   pow_seq
+ * Range:     u8 n <= 19999, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 121 terms through n = 8929 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 #define PRIMELIMIT   100000   /* upper bound for sieve */
 #define MAXPRIMES    10000    /* number of primes that will be stored */
@@ -100,7 +101,7 @@ seq_t a(idx_t n)
        multiply primes[i]^exps[i] using the first k primes */
     seq_t min_val = 1;
     for (int i = 0; i < k; ++i) {
-        seq_t part = pow_seq((seq_t)primes[i], exps[i]);
+        seq_t part = ipow_i32((seq_t)primes[i], exps[i]);
         min_val *= part;
     }
 

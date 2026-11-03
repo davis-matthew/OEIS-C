@@ -7,8 +7,9 @@
  * Keywords:  base, nonn
  * Formula:   a(n) = the n-th integer N such that 100·10^digits(N)+N is prime
  *            (i.e., the decimal string "100" followed by N is a prime)
- * Range:     u8 n <= 22, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
- *            big any n
+ * Range:     u8 n <= 22, u16 n <= 4258, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 70 terms through n = 9980 (2026-11-03)
  * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

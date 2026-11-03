@@ -6,10 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 5, u16 n <= 115, u32 n <= 116, u64 n <= 10000,
+ * Range:     u8 n <= 5, u16 n <= 437, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   alloc_seq_arr, alloc_used_arr, is_prime_big, realloc_seq_arr,
- *            realloc_used_arr
+ * Validated: standard, pass, 81 terms through n = 9678 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,11 +25,108 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/is_prime_big.h"
-#include "../utils/alloc_seq_arr.h"
-#include "../utils/alloc_used_arr.h"
-#include "../utils/realloc_seq_arr.h"
-#include "../utils/realloc_used_arr.h"
+#include "../utils/is_prime_u64.h"
+
+/* Miller–Rabin primality test for seq_t (supports 8/16/32/64/128/ arbitrary-precision) */
+/* n fits in uint64_t (n >= 0 here) */
+static bool is_prime_big_fits_u64(seq_t v)
+{
+    if (sizeof(seq_t) <= 8) return true;
+    return !((seq_t)UINT64_MAX < v);
+}
+
+static bool is_prime_big(seq_t n) {
+    if (n < 2) return false;
+    /* exact in 64 bits when n fits: the seq_t products below overflow at
+       u64/i64 once n passes 2^32, and are slow under big */
+    if (is_prime_big_fits_u64(n)) return is_prime_u64((uint64_t)n);
+    if (n == 2 || n == 3) return true;
+    if ((n & 1) == 0) return false;
+
+    /* write n-1 as d * 2^s with d odd */
+    seq_t d = n - 1;
+    unsigned s = 0;
+    while ((d & 1) == 0) {
+        d >>= 1;
+        s++;
+    }
+
+    /* deterministic bases covering 128‑bit values */
+    static const int base_list[] = {2,3,5,7,11,13,17,19,23,29,31,37};
+    const int num_bases = sizeof(base_list)/sizeof(base_list[0]);
+
+    for (int i = 0; i < num_bases; i++) {
+        seq_t a = (seq_t)base_list[i];
+        if (a >= n) continue;
+
+        /* compute a^d mod n */
+        seq_t x = 1;
+        seq_t pow = a % n;
+        seq_t exp = d;
+        while (exp > 0) {
+            if (exp & 1) x = (x * pow) % n;
+            pow = (pow * pow) % n;
+            exp >>= 1;
+        }
+
+        if (x == 1 || x == n-1) continue;
+
+        bool cont = false;
+        for (unsigned r = 1; r < s; r++) {
+            x = (x * x) % n;
+            if (x == n-1) { cont = true; break; }
+        }
+        if (!cont) return false;
+    }
+    return true;
+}
+
+/* helper for allocating / re‑allocating arrays that hold seq_t objects.
+   Works both in C (malloc/realloc) and in C++ (new/delete).               */
+static void *alloc_seq_arr(size_t n)
+{
+#if defined(__cplusplus)
+    return new seq_t[n];
+#else
+    return malloc(n * sizeof(seq_t));
+#endif
+}
+
+/* helper for arrays of uint8_t (the used flags) --------------------------- */
+static void *alloc_used_arr(size_t n)
+{
+#if defined(__cplusplus)
+    return new uint8_t[n];
+#else
+    return malloc(n * sizeof(uint8_t));
+#endif
+}
+
+static void *realloc_seq_arr(void *ptr, size_t old_cap, size_t new_cap)
+{
+#if defined(__cplusplus)
+    seq_t *new_arr = new seq_t[new_cap];
+    if (ptr)
+        for (size_t i = 0; i < old_cap; ++i) new_arr[i] = ((seq_t*)ptr)[i];
+    delete[] (seq_t*)ptr;
+    return new_arr;
+#else
+    return realloc(ptr, new_cap * sizeof(seq_t));
+#endif
+}
+
+static void *realloc_used_arr(void *ptr, size_t old_cap, size_t new_cap)
+{
+#if defined(__cplusplus)
+    uint8_t *new_arr = new uint8_t[new_cap];
+    if (ptr)
+        for (size_t i = 0; i < old_cap; ++i) new_arr[i] = ((uint8_t*)ptr)[i];
+    delete[] (uint8_t*)ptr;
+    return new_arr;
+#else
+    return realloc(ptr, new_cap * sizeof(uint8_t));
+#endif
+}
 
 /* static state ------------------------------------------------------------- */
 

@@ -6,8 +6,9 @@
  * Keywords:  base, easy, nonn, changed
  * Formula:   a(n) = (number of occurrences of digit 6 in decimal expansion of
  *            n)
- * Range:     u8 n <= 9999, u16 n <= 9999, u32 n <= 9999, u64 n <= 9999,
- *            u128 n <= 9999, big any n
+ * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
+ *            u128 n <= 104, big any n
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

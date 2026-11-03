@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 2833, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 9951 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Data structures                                                     */
@@ -133,7 +135,7 @@ static void init_heap(void)
     build_primes();            /* ensures primes[] and prime_cnt are ready */
 
     heap_cap = prime_cnt;      /* one node per prime (p_i, p_i) initially   */
-    heap = (heap_node_t *)malloc(heap_cap * sizeof(heap_node_t));
+    heap = mem_new(heap_node_t, heap_cap);
 
     for (size_t k = 0; k < heap_cap; ++k) {
         heap[k].i = k;
@@ -161,7 +163,7 @@ static void grow_cache_to(idx_t n)
         size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
         if (new_cap < (size_t)n)
             new_cap = (size_t)n;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 

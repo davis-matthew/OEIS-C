@@ -11,12 +11,14 @@
  *            a(8) = 37, a(9) = 41, a(10) = 46, a(11) = 50, a(12) = 54
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[13] = {
     1, 4, 9, 13, 18, 23, 27, 32, 37, 41, 46, 50, 54
@@ -33,14 +35,14 @@ seq_t a(idx_t n)
     if (needed < 13) needed = 13;          /* at least the initial 13 values */
 
     if (cache == NULL) {
-        cache = (seq_t *)malloc(needed * sizeof(seq_t));
+        cache = mem_new(seq_t, needed);
         if (!cache) abort();               /* allocation failed */
         cache_size = needed;
         for (size_t i = 0; i < 13; ++i)
             cache[i] = init_vals[i];
         computed_len = 13;
     } else if (needed > cache_size) {
-        seq_t *tmp = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, needed);
         if (!tmp) abort();
         cache = tmp;
         cache_size = needed;

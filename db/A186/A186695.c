@@ -10,13 +10,15 @@
  *            a(3) = 3, a(4) = 1,
  * Range:     u8 n <= 12, u16 n <= 24, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* static state for memoisation */
 static seq_t **triangle = NULL;   /* array of rows (each row is seq_t*)   */
@@ -41,7 +43,7 @@ static void grow_capacity(void) {
 /* build the next row (row number = num_rows + 1) and append it */
 static void build_next_row(void) {
     size_t row_no = num_rows + 1;          /* 1‑based row number, also its length */
-    seq_t *row = (seq_t *)malloc(row_no * sizeof(seq_t));
+    seq_t *row = mem_new(seq_t, row_no);
     if (!row) abort();
 
     if (row_no == 1) {

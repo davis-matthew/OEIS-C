@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* helper: test whether a candidate integer produces a set‑system with max degree 2 */
 static bool valid_bii(idx_t cand) {
@@ -67,10 +69,10 @@ seq_t a(idx_t n) {
             /* enlarge cache array if needed */
             if (cache_sz == cache_cap) {
                 idx_t new_cap = cache_cap ? cache_cap * 2 : 64;
-                seq_t *new_cache = (seq_t*)malloc((size_t)new_cap * sizeof(seq_t));
+                seq_t *new_cache = mem_new(seq_t, (size_t)new_cap);
                 if (new_cache == NULL) abort();
-                if (cache) memcpy(new_cache, cache, (size_t)cache_sz * sizeof(seq_t));
-                if (cache) free((void*)cache);
+                if (cache) mem_copy(new_cache, cache, (size_t)cache_sz * sizeof(seq_t));
+                if (cache) mem_free(cache);
                 cache = new_cache;
                 cache_cap = new_cap;
             }

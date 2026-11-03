@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 40, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   alloc_seq_array
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,15 @@
    values and O(r²) triangle construction, where r ≈ √(2n).  It
    performs well for n up to about 10 000. */
 #include <stdlib.h>
-#include "../utils/alloc_seq_array.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)0;
@@ -71,8 +80,8 @@ seq_t a(idx_t n) {
         }
     }
 
-    free(prev);
-    free(cur);
-    free(sigma);
+    mem_free(prev);
+    mem_free(cur);
+    mem_free(sigma);
     return result;
 }

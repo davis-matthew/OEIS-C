@@ -6,16 +6,20 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, changed
  * Formula:   not stated
- * Range:     u8 n <= 260, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
- *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
+ *            u128 n <= 100, big any n
+ * Validated: standard, pass, 96 terms through n = 100 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* OEIS A216440: a(n) = smallest m such that 2n-1 | 2^m+1, or 0 if none */
 #include <stdint.h>
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -50,7 +54,7 @@ seq_t a(idx_t n)
             /* try dividing out p as many times as possible */
             while (ord % p == 0) {
                 seq_t new_ord = ord / p;
-                if (mod_pow((seq_t)2, (uint64_t)new_ord, d) == 1)
+                if (powmod((seq_t)2, (uint64_t)new_ord, d) == 1)
                     ord = new_ord;
                 else
                     break;
@@ -62,7 +66,7 @@ seq_t a(idx_t n)
         idx_t p = t;
         while (ord % p == 0) {
             seq_t new_ord = ord / p;
-            if (mod_pow((seq_t)2, (uint64_t)new_ord, d) == 1)
+            if (powmod((seq_t)2, (uint64_t)new_ord, d) == 1)
                 ord = new_ord;
             else
                 break;
@@ -72,7 +76,7 @@ seq_t a(idx_t n)
     /* check for a solution m = ord/2 with 2^m ≡ -1 (mod d) */
     if ((ord & 1) == 0) {          /* ord even */
         seq_t half = ord >> 1;
-        if (mod_pow((seq_t)2, (uint64_t)half, d) == d - 1)
+        if (powmod((seq_t)2, (uint64_t)half, d) == d - 1)
             return half;
     }
 

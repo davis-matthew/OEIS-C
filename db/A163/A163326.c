@@ -8,6 +8,7 @@
  * Formula:   a(n) = Σ_{i≥0} ((n / 3^{2i+1}) mod 3) * 3^i
  * Range:     u8 n <= 728, u16 n <= 728, u32 n <= 728, u64 n <= 728,
  *            u128 n <= 728, big any n
+ * Validated: standard, pass, 118 terms through n = 677 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

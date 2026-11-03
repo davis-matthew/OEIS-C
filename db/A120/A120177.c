@@ -7,12 +7,14 @@
  * Formula:   a(n) = ⌊(47 + Σ_{k=1}^{n-1} a(k)) / 5⌋ , a(1) = 9
  * Range:     u8 n <= 19, u16 n <= 49, u32 n <= 110, u64 n <= 232,
  *            u128 n <= 472, big any n
- * Helpers:   none
+ * Validated: standard, pass, 56 terms through n = 997 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
 
     if (n > max_n) {
         size_t new_cap = (size_t)(n + 1);  /* indices 0..n, 0 unused */
-        a_vals = (seq_t *)realloc(a_vals, new_cap * sizeof(seq_t));
+        a_vals = mem_resize(seq_t, a_vals, new_cap);
 
         for (idx_t i = max_n + 1; i <= n; ++i) {
             seq_t term;

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 107, i16 n <= 107, i32 n <= 107, i64 n <= 107,
  *            i128 n <= 107, big any n
- * Helpers:   koch_symbol
+ * Validated: partial, pass, 107 terms through n = 107 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,56 @@
    P(-2) = -2,1,-2,-1,-2
    The argument n is 1‑based. */
 #include <stddef.h>
-#include "../utils/koch_symbol.h"
+
+static seq_t koch_symbol(idx_t n)
+{
+    if (n == 1)
+        return (seq_t)1;
+
+    /* previous index in the previous step (ceil division by 5) */
+    idx_t pidx = (n - 1) / 5 + 1;
+    seq_t prev = koch_symbol(pidx);
+
+    /* position within the 5‑symbol expansion (0..4) */
+    idx_t pos = (n - 1) % 5;
+    seq_t res;
+
+    if (prev == (seq_t)1) {
+        switch (pos) {
+            case 0: res =  1; break;
+            case 1: res =  2; break;
+            case 2: res =  1; break;
+            case 3: res = -2; break;
+            case 4: res =  1; break;
+        }
+    } else if (prev == (seq_t)-1) {
+        switch (pos) {
+            case 0: res = -1; break;
+            case 1: res = -2; break;
+            case 2: res = -1; break;
+            case 3: res =  2; break;
+            case 4: res = -1; break;
+        }
+    } else if (prev == (seq_t)2) {
+        switch (pos) {
+            case 0: res =  2; break;
+            case 1: res = -1; break;
+            case 2: res =  2; break;
+            case 3: res =  1; break;
+            case 4: res =  2; break;
+        }
+    } else { /* prev == -2 */
+        switch (pos) {
+            case 0: res = -2; break;
+            case 1: res =  1; break;
+            case 2: res = -2; break;
+            case 3: res = -1; break;
+            case 4: res = -2; break;
+        }
+    }
+
+    return res;
+}
 
 seq_t a(idx_t n)
 {

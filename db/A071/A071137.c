@@ -7,6 +7,7 @@
  * Formula:   a(n) = #{ p | p=1 or prime p<n and 2*n+p is prime }
  * Range:     u8 n <= 3989, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 114 terms through n = 9820 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,7 +10,8 @@
  *            S_{k/d}, with S_m = Σ_{i=1}^m τ(i) = Σ_{i=1}^m ⌊m/i⌋
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static idx_t  max_pre = 0;
 static int   *mu      = NULL;
@@ -31,13 +33,13 @@ static void _ensure_pre(idx_t need)
 
     /* Free previous arrays. */
     free(mu);
-    free(S);
-    free(A);
+    mem_free(S);
+    mem_free(A);
 
     /* Allocate new arrays. */
     mu = (int*)malloc((need + 1) * sizeof(int));
-    S  = (seq_t*)malloc((need + 1) * sizeof(seq_t));
-    A  = (seq_t*)malloc((need + 1) * sizeof(seq_t));
+    S  = mem_new(seq_t, (need + 1));
+    A  = mem_new(seq_t, (need + 1));
     if (!mu || !S || !A) return;   /* allocation failure not expected */
 
     /* Linear sieve for μ (Möbius function). */

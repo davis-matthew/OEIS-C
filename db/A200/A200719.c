@@ -6,17 +6,19 @@
  * Keywords:  nonn
  * Formula:   a(n) = Σ_{k=0..⌊n/2⌋} (binom(2n+k+1, k) * binom(2n+k+1, n-2k)) /
  *            (2n+k+1)
- * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 25, u128 n <= 48,
+ * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 14, u64 n <= 25, u128 n <= 48,
  *            big any n
- * Helpers:   binom, gcd
+ * Validated: standard, pass, 41 terms through n = 938 (2026-11-01)
+ * Helpers:   binomial, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/binom.h"    /* provides seq_t binom(idx_t n, idx_t k) */
-#include "../utils/gcd.h"      /* provides seq_t gcd(seq_t a, seq_t b) */
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {
@@ -26,8 +28,8 @@ seq_t a(idx_t n)
         /* N = 2*n + k + 1 (fits in idx_t for the required n range) */
         idx_t N = 2 * n + k + 1;
 
-        seq_t b1 = binom(N, k);              /* C(N, k)              */
-        seq_t b2 = binom(N, n - 2 * k);      /* C(N, n-2k)          */
+        seq_t b1 = binomial(N, k);              /* C(N, k)              */
+        seq_t b2 = binomial(N, n - 2 * k);      /* C(N, n-2k)          */
         seq_t denom = (seq_t)N;              /* (2n+k+1)             */
 
         /* Cancel common factors with the denominator */

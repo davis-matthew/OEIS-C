@@ -8,12 +8,14 @@
  *            Σ_{i=0}^{min(27,2n)} binom(27,i) * binom(26+2n-i, 26)
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 4, u64 n <= 13, u128 n <= 77,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 33 terms through n = 9533 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -21,9 +23,9 @@ seq_t a(idx_t n)
     idx_t max_i = two_n < 27 ? two_n : 27;
     seq_t sum = 0;
     for (idx_t i = 0; i <= max_i; ++i) {
-        seq_t c1 = binom(27, i);
+        seq_t c1 = binomial(27, i);
         idx_t j = two_n - i;
-        seq_t c2 = binom(26 + j, 26);
+        seq_t c2 = binomial(26 + j, 26);
         sum += c1 * c2;
     }
     return sum;

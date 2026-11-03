@@ -8,12 +8,14 @@
  * Formula:   G.f.: (∏_{k=1..8} 1/(1-x^k))^2⋅∏_{j≥9} 1/(1-x^j)
  * Range:     u8 n <= 8, u16 n <= 23, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Number of partitions of n into parts but with two kinds of parts of sizes 1 to 8. */
 seq_t a(idx_t n)
@@ -28,10 +30,10 @@ seq_t a(idx_t n)
     {
         /* Allocate new array (zero‑initialized) */
         size_t new_cap = (size_t)(n + 1);
-        seq_t *new_dp = (seq_t*)calloc(new_cap, sizeof(seq_t));
+        seq_t *new_dp = mem_new(seq_t, new_cap);
         if (!new_dp) return 0;               /* allocation failure */
 
-        if (dp != NULL) free(dp);            /* discard old array */
+        if (dp != NULL) mem_free(dp);            /* discard old array */
         dp      = new_dp;
         dp_cap  = new_cap;
 

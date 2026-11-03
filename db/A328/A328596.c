@@ -10,7 +10,8 @@
  *            strictly smaller than all of its non‑trivial rotations)
  * Range:     u8 n <= 59, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   bitlen_seq_t
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/bitlen_seq_t.h"
+#include "../utils/bit_length.h"
 
 /* Check whether the binary string of `x` reversed to the same length
    is a Lyndon word.  */
@@ -27,7 +28,7 @@ static bool
 is_lyndon_candidate(seq_t x)
 {
     /* length of binary representation (x > 0)                                    */
-    size_t len = bitlen_seq_t(x);
+    size_t len = bit_length(x);
     if (len == 0) return false;
 
     /* reverse the bits of `x` to get `rev` of the same length                */

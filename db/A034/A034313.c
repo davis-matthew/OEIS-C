@@ -12,16 +12,18 @@
  *            condition for that I, and merging consecutive runs. The...
  * Range:     u8 n <= 0, u16 n <= 3, u32 n <= 22, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   digits, rev, seq_pow
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-01)
+ * Helpers:   ipow_idx, num_digits_idx, reverse_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_pow.h"
-#include "../utils/digits.h"
-#include "../utils/rev.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/num_digits_idx.h"
+#include "../utils/reverse_digits_idx.h"
 
 /* Helper: 10^e; defined only for the unsigned __int128 branch. */
 static unsigned __int128 pow10_u128(idx_t e)
@@ -42,8 +44,8 @@ seq_t a(idx_t n)
     {
         /* Digits of the integer part I, used for the length of the
            reversed integer part. */
-        idx_t d   = digits(I);
-        idx_t revI = rev(I);
+        idx_t d   = num_digits_idx(I);
+        idx_t revI = reverse_digits_idx(I);
 
         if (sizeof(seq_t) <= sizeof(uint64_t))
         {
@@ -82,13 +84,13 @@ seq_t a(idx_t n)
         else
         {
             /* Arbitrary‑precision arithmetic. */
-            seq_t ten_d  = seq_pow((seq_t)10, d);
-            seq_t ten_7d = seq_pow((seq_t)10, 7 * d);
+            seq_t ten_d  = ipow_idx((seq_t)10, d);
+            seq_t ten_7d = ipow_idx((seq_t)10, 7 * d);
 
             seq_t A = (seq_t)I * ten_d + (seq_t)revI;
 
-            seq_t powA     = seq_pow(A,             7);
-            seq_t powAplus = seq_pow(A + (seq_t)1,  7);
+            seq_t powA     = ipow_idx(A,             7);
+            seq_t powAplus = ipow_idx(A + (seq_t)1,  7);
 
             seq_t low  = (powA + ten_7d - (seq_t)1) / ten_7d;
             seq_t high = (powAplus - (seq_t)1)       / ten_7d;

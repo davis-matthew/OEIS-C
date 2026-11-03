@@ -11,13 +11,15 @@
  *            (a(2) … a(16)) are hard‑coded for initialisation
  * Range:     u8 n <= 15, u16 n <= 29, u32 n <= 58, u64 n <= 116,
  *            u128 n <= 231, big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 965 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  Base values for n = 0 … 16 (offset 2: a(2)=1).                    */
@@ -57,7 +59,7 @@ ensure_capacity(idx_t n)
     size_t new_size = dp_size ? dp_size << 1 : 16;
     while (new_size < needed) new_size <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(dp, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, dp, new_size);
     if (!tmp) exit(EXIT_FAILURE);          /* abort on OOM */
     /* initialise new slots to 0 – not strictly needed for known terms */
     for (size_t i = dp_size; i < new_size; ++i) tmp[i] = 0;

@@ -8,7 +8,8 @@
  *            1 → 1000. a(1) = 0, a(2) = 1, a(3) = 1, …
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 9404 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    is well within the time limits. */
 
 #include <stdlib.h>   /* malloc, free */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* initialise with the first symbol "0" on the first call */
     if (word == NULL) {
         cap = 1;
-        word = (seq_t *)malloc(cap * sizeof(seq_t));
+        word = mem_new(seq_t, cap);
         word[0] = 0;
         len   = 1;
     }
@@ -46,12 +48,12 @@ seq_t a(idx_t n)
         /* reallocate if needed */
         if (new_len > cap) {
             idx_t new_cap = new_len;
-            seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+            seq_t *new_arr = mem_new(seq_t, new_cap);
             /* copy the old word */
             for (idx_t i = 0; i < len; ++i) {
                 new_arr[i] = word[i];
             }
-            free(word);
+            mem_free(word);
             word = new_arr;
             cap  = new_cap;
         }

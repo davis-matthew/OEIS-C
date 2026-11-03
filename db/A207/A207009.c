@@ -12,6 +12,7 @@
  *            a(9)=60855601, a(10)=423577561. Note: a(n) equals the square...
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 22, u128 n <= 45,
  *            big any n
+ * Validated: standard, pass, 35 terms through n = 205 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

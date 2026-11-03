@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1457, u16 n <= 7069, u32 n <= 7069, u64 n <= 7069,
  *            u128 n <= 7069, big any n
- * Helpers:   count_divisors
+ * Validated: standard, pass, 109 terms through n = 7013 (2026-11-01)
+ * Helpers:   num_divisors_idx_to_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,10 +25,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <assert.h>
-#include "../utils/count_divisors.h"
+#include "../utils/num_divisors_idx_to_idx.h"
 
 /* Forward declaration of helper functions */
-static idx_t count_divisors(idx_t n);
+static idx_t num_divisors_idx_to_idx(idx_t n);
 static int cmp_idx(const void *a, const void *b);
 
 /* Cumulative sum of divisor counts.
@@ -52,7 +53,7 @@ static void ensure_cumulative(idx_t target)
     /* Extend until we have enough rows */
     while (cum_len == 0 || cum[cum_len - 1] < target) {
         idx_t r = (idx_t)(cum_len);          /* the next row number   */
-        idx_t dcnt = count_divisors(r);
+        idx_t dcnt = num_divisors_idx_to_idx(r);
 
         if (cum_len >= cum_cap) {            /* grow capacity          */
             size_t new_cap = cum_cap * 2;
@@ -87,7 +88,7 @@ seq_t a(idx_t n)
     idx_t k = n - prev_sum;                  /* position in this row (1‑based) */
 
     /* Count divisors of the row when building cumulative array.  */
-    idx_t dcnt = count_divisors(r);
+    idx_t dcnt = num_divisors_idx_to_idx(r);
 
     /* Generate all divisors of r in ascending order. */
     idx_t *divs = (idx_t*)malloc(dcnt * sizeof(idx_t));

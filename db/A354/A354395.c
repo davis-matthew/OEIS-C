@@ -7,7 +7,8 @@
  * Formula:   a(n) = -∑_{k=1..n} binomial(n-1,k-1) * Stirling2(k,2) * a(n-k)
  * Range:     i8 n <= 5, i16 n <= 9, i32 n <= 14, i64 n <= 23, i128 n <= 23,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,23 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/binomial.h"
+#include "../utils/mem.h"
+
+/* Compute binomial coefficient n choose k multiplicatively.
+   This works for any seq_t that supports + - * / % with integer constants. */
+static seq_t binomial(idx_t n, idx_t k)
+{
+    if (k > n)
+        return 0;
+    if (k > n - k)      /* use symmetry */
+        k = n - k;
+    seq_t res = 1;
+    for (idx_t i = 1; i <= k; ++i) {
+        res = res * (seq_t)(n - k + i);
+        res = res / (seq_t)i;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -28,7 +45,7 @@ seq_t a(idx_t n)
     /* Expand cache if necessary */
     if (n + 1 > cache_cap) {
         idx_t new_cap = (n + 1) > 2 ? (n + 1) : 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cache_cap = new_cap;
     }
@@ -40,7 +57,7 @@ seq_t a(idx_t n)
     /* we need powers up to n-1 (for k‑1 where k ≤ n) */
     if (n >= pow2_cap) {
         idx_t new_cap = (n + 1) > 2 ? (n + 1) : 2;
-        seq_t *tmp = (seq_t *)realloc(pow2, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, pow2, new_cap);
         pow2 = tmp;
         if (pow2_cap == 0) {
             pow2[0] = (seq_t)1;

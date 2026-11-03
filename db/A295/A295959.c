@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 18, u32 n <= 41, u64 n <= 87, u128 n <= 180,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 1952 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,8 +39,8 @@ seq_t a(idx_t n)
     if (!a_vals) {
         /* Allocate an initial small buffer */
         a_cap = b_cap = 8;
-        a_vals = (seq_t*)malloc(a_cap * sizeof(seq_t));
-        b_vals = (seq_t*)malloc(b_cap * sizeof(seq_t));
+        a_vals = mem_new(seq_t, a_cap);
+        b_vals = mem_new(seq_t, b_cap);
         if (!a_vals || !b_vals) abort();   /* memory error */
 
         /* Hard‑coded starting values */
@@ -55,12 +57,12 @@ seq_t a(idx_t n)
     /* ---------- make sure storage is large enough ---------- */
     if (n >= a_cap) {
         while (n >= a_cap) a_cap <<= 1;
-        a_vals = (seq_t*)realloc(a_vals, a_cap * sizeof(seq_t));
+        a_vals = mem_resize(seq_t, a_vals, a_cap);
         if (!a_vals) abort();
     }
     if (n >= b_cap) {
         while (n >= b_cap) b_cap <<= 1;
-        b_vals = (seq_t*)realloc(b_vals, b_cap * sizeof(seq_t));
+        b_vals = mem_resize(seq_t, b_vals, b_cap);
         if (!b_vals) abort();
     }
 

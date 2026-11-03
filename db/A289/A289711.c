@@ -12,14 +12,16 @@
  *            the triangle * row‑by‑row (0‑based indexing)
  * Range:     u8 n <= 11, u16 n <= 37, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   binom, int_sqrt, pow2
+ * Validated: partial, pass, 52 terms through n = 51 (2026-11-01)
+ * Helpers:   binomial, isqrt, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/int_sqrt.h"
-#include "../utils/binom.h"
+#include <stdbool.h>
+#include "../utils/binomial.h"
+#include "../utils/isqrt.h"
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     }
 
     /* Row index: largest r with r*(r+1)/2 ≤ n */
-    idx_t row = (int_sqrt(8 * n + 1) - 1) / 2;
+    idx_t row = (isqrt(8 * n + 1) - 1) / 2;
 
     /* First index of this row */
     idx_t first_in_row = row * (row + 1) / 2;
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     }
 
     /* col ≥ 2 :  T = C(row,col)^2 * col * 2^(row-col) */
-    seq_t comb = binom(row, col);                /* C(row,col)   */
+    seq_t comb = binomial(row, col);                /* C(row,col)   */
     seq_t result = comb * comb * (seq_t)col * pow2(row - col);
     return result;
 }

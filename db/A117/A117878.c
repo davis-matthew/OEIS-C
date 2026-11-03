@@ -10,6 +10,7 @@
  *            r*(r-1)/2
  * Range:     u8 n <= 20, u16 n <= 44, u32 n <= 89, u64 n <= 230,
  *            u128 n <= 629, big any n
+ * Validated: standard, pass, 70 terms through n = 4611 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

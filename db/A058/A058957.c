@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build system. */
 
@@ -109,7 +111,7 @@ static void append_term(seq_t val)
 {
     if (seq_terms_cnt == seq_terms_cap) {
         size_t new_cap = (seq_terms_cap == 0) ? 64 : seq_terms_cap * 2;
-        seq_t *new_arr = (seq_t *)realloc(seq_terms, new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, seq_terms, new_cap);
         if (!new_arr) abort();
         seq_terms = new_arr;
         seq_terms_cap = new_cap;

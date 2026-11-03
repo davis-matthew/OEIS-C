@@ -10,12 +10,14 @@
  *            r(r-1)/2 + k (1 ≤ k ≤ r)
  * Range:     i8 n <= 66, i16 n <= 66, i32 n <= 66, i64 n <= 66, i128 n <= 66,
  *            big any n
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
  * Helpers:   mobius
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
+#include <stdint.h>
 #include "../utils/mobius.h"
 
 seq_t a(idx_t n)

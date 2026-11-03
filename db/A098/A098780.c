@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 18, u128 n <= 30,
  *            big any n
- * Helpers:   bitlen_seq_t
+ * Validated: standard, pass, 34 terms through n = 380 (2026-11-03)
+ * Helpers:   bit_length, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
    where bitlen_seq_t(x) returns the number of bits needed to represent x. */
 
 #include <stdlib.h>
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +38,7 @@ seq_t a(idx_t n)
     /* Expand cache if necessary */
     if (n + 1 > capacity) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache)
             exit(EXIT_FAILURE);          /* cannot allocate more memory */
         cache = new_cache;
@@ -50,7 +53,7 @@ seq_t a(idx_t n)
 
     /* Compute missing values up to n */
     for (idx_t i = computed_max + 1; i <= n; ++i) {
-        unsigned bits = bitlen_seq_t(cache[i-1]);   /* length of a(i-1) in bits */
+        unsigned bits = bit_length(cache[i-1]);   /* length of a(i-1) in bits */
         seq_t term = ((seq_t)i << bits);            /* i shifted by that many bits */
         cache[i] = cache[i - 1] + term;             /* concatenate i before previous string */
     }

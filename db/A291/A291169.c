@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 35, i16 n <= 57, i32 n <= 57, i64 n <= 57, i128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes floor(cuberoot(n)) for unsigned 64‑bit n */
 static idx_t floor_cuberoot(idx_t n)
@@ -45,9 +47,9 @@ static void recompute(idx_t n)
         return;                                 /* nothing to do */
 
     /* Allocate temporary arrays */
-    seq_t *n_cur   = (seq_t *)calloc(new_len, sizeof(seq_t));
-    seq_t *n_next  = (seq_t *)calloc(new_len, sizeof(seq_t));
-    seq_t *d_cur   = (seq_t *)calloc(new_len, sizeof(seq_t));
+    seq_t *n_cur   = mem_new(seq_t, new_len);
+    seq_t *n_next  = mem_new(seq_t, new_len);
+    seq_t *d_cur   = mem_new(seq_t, new_len);
     if (!n_cur || !n_next || !d_cur) {
         /* memory error – terminate */
         abort();
@@ -89,10 +91,10 @@ static void recompute(idx_t n)
     */
 
     /* Allocate array for sequence coefficients */
-    seq_t *new_coeffs = (seq_t *)malloc(new_len * sizeof(seq_t));
+    seq_t *new_coeffs = mem_new(seq_t, new_len);
     if (!new_coeffs) {
-        free(n_cur);
-        free(d_cur);
+        mem_free(n_cur);
+        mem_free(d_cur);
         abort();
     }
 
@@ -106,9 +108,9 @@ static void recompute(idx_t n)
     }
 
     /* Free old cached data */
-    free(cached_numerator);
-    free(cached_denominator);
-    free(cached_coeffs);
+    mem_free(cached_numerator);
+    mem_free(cached_denominator);
+    mem_free(cached_coeffs);
 
     /* Store new data */
     cached_numerator   = d_cur;
@@ -117,7 +119,7 @@ static void recompute(idx_t n)
     cached_len         = new_len;
 
     /* free temporary buffer (now empty) */
-    free(n_next);
+    mem_free(n_next);
 }
 
 /* Public sequence function

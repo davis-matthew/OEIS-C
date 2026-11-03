@@ -9,12 +9,14 @@
  *            For n ≤ 1, a(n) is defined to be 0
  * Range:     u8 n <= 23, u16 n <= 55, u32 n <= 151, u64 n <= 465,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 880 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* State for a memoised partition table. */
 static idx_t max_p = 0;
@@ -31,7 +33,7 @@ ensure_partitions(idx_t n)
     if (new_size < n + 1)
         new_size = n + 1;
 
-    seq_t *new_p = (seq_t *)realloc(p, new_size * sizeof(seq_t));
+    seq_t *new_p = mem_resize(seq_t, p, new_size);
     if (!new_p)
         abort(); /* allocation failure */
 

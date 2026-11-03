@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = gcd(n, A166590(n))
- * Range:     u8 n <= 35, u16 n <= 5631, u32 n <= 9913, u64 n <= 9913,
- *            u128 n <= 9913, big any n
- * Helpers:   _smallest_prime_factor, gcd, pow_seq_unsigned
+ * Range:     u8 n <= 35, u16 n <= 5631, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 121 terms through n = 9913 (2026-11-01)
+ * Helpers:   gcd, ipow_u64, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,8 @@
 #include <stdint.h>
 #include <stddef.h>
 #include "../utils/gcd.h"
-#include "../utils/_smallest_prime_factor.h"
-#include "../utils/pow_seq_unsigned.h"
+#include "../utils/ipow_u64.h"
+#include "../utils/smallest_prime_factor.h"
 
 /* Compute A166590(n) for 1 <= n <= 2^64 */
 static seq_t A166590(uint64_t n)
@@ -32,7 +33,7 @@ static seq_t A166590(uint64_t n)
 
     while (m > 1)
     {
-        uint64_t p = _smallest_prime_factor(m);
+        uint64_t p = smallest_prime_factor(m);
         uint64_t e = 0;
         while (m % p == 0)
         {
@@ -40,7 +41,7 @@ static seq_t A166590(uint64_t n)
             ++e;
         }
         seq_t base = (seq_t)(p + 2);
-        seq_t pow_val = pow_seq_unsigned(base, e);
+        seq_t pow_val = ipow_u64(base, e);
         prod *= pow_val;
     }
     return prod;

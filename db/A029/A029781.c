@@ -7,7 +7,8 @@
  * Formula:   a(n) = A029780(n)^2
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   get_digits, seq_mul
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-01)
+ * Helpers:   get_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,15 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/get_digits.h"
-#include "../utils/seq_mul.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Returns a bit mask of the decimal digits present in x */
 static inline uint16_t digit_mask(seq_t x)

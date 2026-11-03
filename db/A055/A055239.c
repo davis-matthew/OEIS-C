@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   ok_small
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,30 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/ok_small.h"
+#include "../utils/mem.h"
+
+/* Test whether a number m (m >= 11) satisfies the property
+   by checking all bases between 2 and m-1.  Numbers >120
+   are assumed to satisfy the property automatically. */
+static bool ok_small(uint64_t m) {
+    if (m > 120) return true;              /* OEIS remark */
+    if (m < 11) return false;              /* below offset */
+
+    for (uint64_t base = 2; base < m; ++base) {
+        uint64_t temp = m;
+        bool good = true;
+        while (temp > 0) {
+            uint64_t d = temp % base;
+            if (d > 0 && m % d == 0) {     /* digit divides m */
+                good = false;
+                break;
+            }
+            temp /= base;
+        }
+        if (good) return true;
+    }
+    return false;
+}
 
 /* Helper: integer square root (floor) */
 static uint64_t isqrt_u64(uint64_t n) {
@@ -45,7 +69,7 @@ seq_t a(idx_t n) {
     /* Initialize on first call */
     if (terms == NULL) {
         terms_cap = 128;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
     }
 
     /* Extend sequence until we have at least n terms */
@@ -55,7 +79,7 @@ seq_t a(idx_t n) {
             /* store term */
             if (terms_len >= terms_cap) {
                 terms_cap *= 2;
-                terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
             }
             terms[terms_len++] = (seq_t)m;
         }

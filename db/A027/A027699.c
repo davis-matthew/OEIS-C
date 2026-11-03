@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 2858, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mem_alloc, mem_realloc
+ * Validated: standard, pass, 70 terms through n = 7450 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,14 +19,31 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mem_alloc.h"
-#include "../utils/mem_realloc.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* dynamic array helpers ------------------------------------------------- */
+static inline void *mem_alloc(size_t sz) { return malloc(sz); }
+
+#ifdef __cplusplus
+template <class T>
+static inline T *mem_realloc(T *p, size_t sz) { return mem_resize(T, p, (sz) / sizeof(T)); }
+#else
+static inline void *mem_realloc(void *p, size_t sz) { return realloc(p, sz); }
+#endif
 
 static inline void grow_arr(seq_t **arr, size_t *cap)
 {
     if (*cap == 0) {
         *cap = 8;
-        *arr = (seq_t *)mem_alloc(*cap * sizeof(seq_t));
+        *arr = mem_new(seq_t, (*cap * sizeof(seq_t)) / sizeof(seq_t));
     } else {
         *cap <<= 1; /* double capacity */
         *arr = (seq_t *)mem_realloc(*arr, *cap * sizeof(seq_t));

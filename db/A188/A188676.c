@@ -9,7 +9,8 @@
  *            a(0)=1, a(n)=binomial(3*n,n)-a(n-1)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 24, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 84 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached values of a(n) and B(n)=binomial(3*n,n). */
 static seq_t *a_cache = NULL;
@@ -33,11 +35,11 @@ static void ensure_cache_capacity(size_t needed)
     size_t new_cap = (cache_cap ? cache_cap << 1 : 8);
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_t *tmp_a = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp_a = mem_resize(seq_t, a_cache, new_cap);
     if (!tmp_a) abort();        /* allocation failed */
-    seq_t *tmp_b = (seq_t *)realloc(b_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp_b = mem_resize(seq_t, b_cache, new_cap);
     if (!tmp_b) {
-        free(tmp_a); abort();
+        mem_free(tmp_a); abort();
     }
     a_cache = tmp_a;
     b_cache = tmp_b;

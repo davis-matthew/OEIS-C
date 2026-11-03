@@ -10,6 +10,7 @@
  *            ((k+1)^2-(k+1))^i ) For k = 0 we define T(n,0) = n! (factorial)
  * Range:     u8 n <= 17, u16 n <= 24, u32 n <= 40, u64 n <= 60, u128 n <= 86,
  *            big any n
+ * Validated: standard, pass, 71 terms through n = 324 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

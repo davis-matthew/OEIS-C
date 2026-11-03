@@ -12,14 +12,15 @@
  *            (binom(2m, m) >> popcount(m))^2
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 19, u64 n <= 35, u128 n <= 67,
  *            big any n
- * Helpers:   binom, pow2
+ * Validated: standard, pass, 45 terms through n = 980 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
 
 /* Count the number of 1-bits in a 64‑bit integer. */
@@ -58,7 +59,7 @@ seq_t a(idx_t n)
         return pow2(exp);
     } else {                         /* odd n = 2m+1 */
         uint64_t m = (n - 1ULL) >> 1;   /* m ≥ 0 */
-        seq_t B = binom(2ULL * m, m);   /* central binomial coefficient */
+        seq_t B = binomial(2ULL * m, m);   /* central binomial coefficient */
         unsigned int pc = popcount_uint64(m);
         seq_t Bprime = B >> pc;          /* divide by 2^pc; B is divisible by this */
         seq_t prod  = Bprime * Bprime;   /* (B/2^pc)^2 */

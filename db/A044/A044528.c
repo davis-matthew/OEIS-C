@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   has12_in_base7
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,21 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/has12_in_base7.h"
+#include "../utils/mem.h"
+
+/* Return true if the base‑7 representation of x contains the substring "12". */
+static bool has12_in_base7(seq_t x)
+{
+    seq_t t = x;
+    int prev = -1;                           /* lower‑significant digit seen so far */
+    while (t > (seq_t)0) {
+        int d = (int)(t % (seq_t)7);
+        t = t / (seq_t)7;
+        if (d == 1 && prev == 2) return true;
+        prev = d;
+    }
+    return false;
+}
 
 /* Dynamic cache of already found terms. */
 static seq_t *cache     = NULL;
@@ -35,7 +50,7 @@ static void ensure_cache_size(size_t needed)
     if (cache_cap < needed) {
         size_t new_cap = cache_cap ? cache_cap << 1 : 128;
         while (new_cap < needed) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();                   /* memory exhaustion */
         cache = tmp;
         cache_cap = new_cap;

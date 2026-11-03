@@ -9,7 +9,8 @@
  *            growing bound, test with Miller-Rabin, sort
  * Range:     u8 n <= 5, u16 n <= 46, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   s2647_cmp, s2647_isprime, s2647_mulmod, s2647_powmod
+ * Validated: standard, pass, 55 terms through n = 997 (2026-11-03)
+ * Helpers:   is_prime_u64, mulmod, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,10 +19,15 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/s2647_cmp.h"
-#include "../utils/s2647_isprime.h"
-#include "../utils/s2647_mulmod.h"
-#include "../utils/s2647_powmod.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mulmod.h"
+#include "../utils/powmod_u64.h"
+
+static int s2647_cmp(const void *p, const void *q) {
+    uint64_t u = *(const uint64_t *)p;
+    uint64_t v = *(const uint64_t *)q;
+    return (u < v) ? -1 : (u > v) ? 1 : 0;
+}
 
 static uint64_t *s2647_list = NULL;
 static size_t s2647_count = 0;
@@ -39,7 +45,7 @@ static void s2647_build(uint64_t L) {
             uint64_t y2 = y * y;
             uint64_t f = x4 - x2 * y2 + y2 * y2;
             if (f > L) continue;
-            if (s2647_isprime(f)) {
+            if (is_prime_u64(f)) {
                 if (cnt == cap) {
                     cap *= 2;
                     buf = (uint64_t *)realloc(buf, cap * sizeof(uint64_t));

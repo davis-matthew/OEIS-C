@@ -9,6 +9,7 @@
  *            generating function (1-x+x^3)/(1-x^2+2*x^3-x^4)
  * Range:     i8 n <= 11, i16 n <= 23, i32 n <= 41, i64 n <= 41, i128 n <= 41,
  *            big any n
+ * Validated: partial, pass, 42 terms through n = 41 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

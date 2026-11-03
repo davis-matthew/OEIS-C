@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 13, u64 n <= 26, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 644 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
  *     n*(154*n^2+2*n-77)*a(n-1) + 3*(3*n-4)*(7*n+2)*(3*n-2)*a(n-2)   */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* first call: allocate and initialise */
     if (cache == NULL) {
         cache_capacity = 2;
-        cache = (seq_t*)malloc(cache_capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_capacity);
         if (cache == NULL) return (seq_t)0; /* allocation failed */
         cache[0] = (seq_t)2;          /* a(0) */
         cache[1] = (seq_t)7;          /* a(1) */
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     if (n >= cache_capacity) {
         idx_t new_capacity = cache_capacity * 2;
         if (new_capacity <= n) new_capacity = n + 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_capacity * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_capacity);
         if (tmp == NULL) return (seq_t)0; /* allocation failed */
         cache = tmp;
         cache_capacity = new_capacity;

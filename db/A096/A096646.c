@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 40, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 /* Includes present in all builds */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Utility: floor(sqrt(n)) for unsigned 64‑bit inputs.
    Returns the largest r with r*r <= n. */
@@ -71,7 +73,7 @@ static void build_rows(idx_t row_needed)
     /* Build missing rows. */
     for (idx_t r = cache_rows + 1; r <= row_needed; ++r) {
         idx_t len = 2 * r - 1;
-        seq_t *row = (seq_t *)malloc((size_t)len * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (size_t)len);
         if (!row) return;      /* allocation failure – abort quietly */
 
         /* First and last entries are 1. */

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 22, u32 n <= 22, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *sqs[10];      /* sqs[d] holds squares with leading digit d (1..9)   */
 static size_t len[10];      /* current number of stored squares per digit      */
@@ -46,7 +48,7 @@ static void ensure_digit_vector(int d, size_t need)
         if (1 <= ld && ld <= 9) {
             if (len[ld] == cap[ld]) {
                 size_t new_cap = cap[ld] ? cap[ld] * 2 : 16;
-                seq_t *new_ptr = (seq_t *)realloc(sqs[ld], new_cap * sizeof(seq_t));
+                seq_t *new_ptr = mem_resize(seq_t, sqs[ld], new_cap);
                 if (!new_ptr) exit(1);
                 sqs[ld] = new_ptr;
                 cap[ld] = new_cap;

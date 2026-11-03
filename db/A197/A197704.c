@@ -9,7 +9,8 @@
  *            the sequence on demand using a simple sieve
  * Range:     u8 n <= 8, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   weight_bin
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,19 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/weight_bin.h"
+#include "../utils/mem.h"
+
+/* Weight of x in binary: 1 counts as 3, 0 counts as 4. */
+static seq_t
+weight_bin(seq_t x)
+{
+    seq_t w = 0;
+    while (x) {
+        w += (x & 1) ? 3 : 4;
+        x >>= 1;
+    }
+    return w;
+}
 
 /* Dynamic array of found terms. */
 static seq_t *terms  = NULL;
@@ -32,7 +45,7 @@ ensure_capacity(size_t needed)
         while (new_cap < needed)
             new_cap <<= 1;
         /* reinterpret_cast to seq_t* for C++ compatibility */
-        seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
         if (tmp) {
             terms = tmp;
             capacity = new_cap;

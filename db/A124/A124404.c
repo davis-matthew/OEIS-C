@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   is_palindrome
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-01)
+ * Helpers:   is_palindrome_base
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
    Requires:  #include "../utils/is_palindrome.h"  */
 
 #include <stdbool.h>
-#include "../utils/is_palindrome.h"
+#include "../utils/is_palindrome_base.h"
 
 seq_t a(idx_t n)
 {
@@ -35,11 +36,11 @@ seq_t a(idx_t n)
         num++;  /* next candidate integer */
 
         /* Skip numbers that are palindromes in base 10. */
-        if (is_palindrome(num, 10))
+        if (is_palindrome_base(num, 10))
             continue;
 
         /* Skip numbers that are palindromes in base 2. */
-        if (is_palindrome(num, 2))
+        if (is_palindrome_base(num, 2))
             continue;
 
         /* num satisfies both conditions. */

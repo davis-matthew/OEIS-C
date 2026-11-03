@@ -12,13 +12,40 @@
  *            computes a(n) for n≥1
  * Range:     i8 n <= 1000, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   prime_value
+ * Validated: standard, pass, 121 terms through n = 947 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/prime_value.h"
+
+static seq_t prime_value(idx_t p, idx_t e)
+{
+    /* Handle p == 2 separately (e>=1). For e==0, product part will
+       never be called; a(1) is handled in the main function. */
+    if (p == 2) {
+        /* e is at least 1 here. */
+        return (e & 1) ? (seq_t)1 : (seq_t)(-1);
+    }
+    if (p == 5) {
+        return 1;
+    }
+    idx_t mod = p % 20;
+    if (mod == 11 || mod == 13 || mod == 17 || mod == 19) {
+        /* (1+(-1)^e)/2 : 1 if e even, 0 if e odd */
+        return (e & 1) ? (seq_t)0 : (seq_t)1;
+    } else if (mod == 1 || mod == 9) {
+        return (seq_t)(e + 1);
+    } else if (mod == 3 || mod == 7) {
+        seq_t val = (seq_t)(e + 1);
+        if (e & 1) val = -val;
+        return val;
+    } else {
+        /* Should not happen for primes >5, but fall back safely. */
+        return 1;
+    }
+}
 
 seq_t a(idx_t n)
 {

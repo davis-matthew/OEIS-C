@@ -9,6 +9,7 @@
  * Formula:   a(n) = 18*n + 14, a(1) = 32, a(2) = 50, a(3) = 68,
  * Range:     u8 n <= 13, u16 n <= 3640, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 70 terms through n = 4568 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,13 +8,15 @@
  * Formula:   a(n) = a(n-3) + a(n-5) + a(n-6) with a(0)=1, a(1)=0, a(2)=0
  * Range:     u8 n <= 28, u16 n <= 51, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     /* Initialize cache for indices 0..6 */
     if (cache_len == 0) {
         cache_len = 7;                     /* 0..6 inclusive */
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         if (!cache) {
             return (seq_t)0;               /* allocation failure – unlikely in test harness */
         }
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     /* Grow cache if needed to cover index n */
     if (n + (idx_t)1 > cache_len) {
         idx_t new_len = n + (idx_t)1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_len);
         if (!new_cache) {
             return (seq_t)0;               /* allocation failure – unlikely in test harness */
         }

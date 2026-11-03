@@ -7,14 +7,17 @@
  * Formula:   numbers k such that φ(k)+2 divides k+2
  * Range:     u8 n <= 31, u16 n <= 3514, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   phi
+ * Validated: standard, pass, 69 terms through n = 8812 (2026-11-03)
+ * Helpers:   mem, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/phi.h"
+#include <stdint.h>
+#include "../utils/totient.h"
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;       /* cached list of found terms           */
 static size_t seq_len = 0;       /* number of terms stored              */
@@ -27,14 +30,14 @@ static void ensure_terms(idx_t target_index)
 {
     size_t tgt = (size_t)target_index;
     while (seq_len <= tgt) {
-        seq_t phi_val = phi(next_k);
+        seq_t phi_val = totient(next_k);
         seq_t denom = phi_val + (seq_t)2;
         seq_t num   = (seq_t)next_k + (seq_t)2;
 
         if (num % denom == (seq_t)0) {
             if (seq_len == seq_cap) {
                 size_t new_cap = seq_cap ? seq_cap * 2 : 1;
-                seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, new_cap);
                 seq_cap = new_cap;
             }
             seq[seq_len++] = (seq_t)next_k;

@@ -7,7 +7,8 @@
  * Formula:   a(n) = (n!)^2 * Sum_{d|n} (-1)^(d+1) / (d!)^2
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 12, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached factorials: fact_cache[i] = i!  (i = 0 .. fact_cache_len-1) */
 static seq_t *fact_cache = NULL;
@@ -29,7 +31,7 @@ static void ensure_fact_cache(idx_t n)
         return;
 
     size_t new_len = (size_t)n + 1;
-    seq_t *new_cache = (seq_t *)malloc(new_len * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_len);
     if (!new_cache)
         abort();                       /* allocation failure */
 
@@ -48,7 +50,7 @@ static void ensure_fact_cache(idx_t n)
     }
 
     /* Replace old cache */
-    free(fact_cache);
+    mem_free(fact_cache);
     fact_cache     = new_cache;
     fact_cache_len = new_len;
 }

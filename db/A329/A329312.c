@@ -9,14 +9,20 @@
  *            n
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   inv_bit
+ * Validated: partial, pass, 86 terms through n = 86 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/inv_bit.h"
+
+/* Helper to get the inverted bit at position pos (0 = most significant) */
+static inline unsigned char inv_bit(idx_t n, idx_t len, idx_t pos)
+{
+    return (unsigned char)(((n >> (len - 1 - pos)) & 1) ^ 1);
+}
 
 seq_t a(idx_t n)
 {

@@ -11,15 +11,51 @@
  *            factorial‑base representation by one zero
  * Range:     u8 n <= 15, u16 n <= 36, u32 n <= 78, u64 n <= 210,
  *            u128 n <= 595, big any n
- * Helpers:   shift_n, shift_one
+ * Validated: standard, pass, 82 terms through n = 1606 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/shift_n.h"
-#include "../utils/shift_one.h"
+
+/* Perform one left‑shift in factorial base (A153880) */
+static seq_t shift_one(seq_t x)
+{
+    /* factorial/ base digits of x (least significant first) */
+    seq_t digits[128];
+    idx_t len = 0;
+    seq_t t = x;
+    idx_t f = 2;                     /* first divisor corresponds to 2! */
+    while (t != (seq_t)0)
+    {
+        seq_t d = t % (seq_t)f;
+        digits[len++] = d;
+        t /= (seq_t)f;
+        ++f;
+    }
+
+    /* Re‑assemble with an extra zero at the least significant position:
+       new value = Σ_{i=0}^{len-1} digits[i] * (i+2)!               */
+    seq_t result = 0;
+    seq_t fact   = 1;                 /* 1! */
+    for (idx_t i = 0; i < len; ++i)
+    {
+        fact *= (i + 2);              /* (i+2)! */
+        result += digits[i] * fact;
+    }
+    return result;
+}
+
+/* Shift by k (k ≥ 0).  Small k is used here (col‑1). */
+static seq_t shift_n(seq_t x, idx_t k)
+{
+    seq_t res = x;
+    for (idx_t i = 0; i < k; ++i)
+        res = shift_one(res);
+    return res;
+}
 
 /* Allocate enough space for rows needed for typical n ≤ 100000 */
 #define MAX_ROWS 10000

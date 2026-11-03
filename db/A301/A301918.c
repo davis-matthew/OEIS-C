@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 36, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------ */
 /*  Cached data: primes discoverd so far and the resulting
@@ -62,7 +65,7 @@ static bool has_even_order_of_3(uint64_t p)
 
             /* try to reduce ord by q */
             while (ord % q == 0) {
-                seq_t test = mod_pow((seq_t)3, (idx_t)(ord / q), (seq_t)p);
+                seq_t test = powmod((seq_t)3, (idx_t)(ord / q), (seq_t)p);
                 if (test == (seq_t)1) ord /= q;
                 else break;
             }
@@ -71,7 +74,7 @@ static bool has_even_order_of_3(uint64_t p)
     if (n > 1) {                             /* remaining large prime factor */
         uint64_t q = n;
         while (ord % q == 0) {
-            seq_t test = mod_pow((seq_t)3, (idx_t)(ord / q), (seq_t)p);
+            seq_t test = powmod((seq_t)3, (idx_t)(ord / q), (seq_t)p);
             if (test == (seq_t)1) ord /= q;
             else break;
         }
@@ -93,7 +96,7 @@ seq_t a(idx_t n)
     /* initialise cache on first use */
     if (!cache_cap) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* generate terms until we have at least n of them */
@@ -114,7 +117,7 @@ seq_t a(idx_t n)
             if (accept) {
                 if (cache_len == cache_cap) {
                     cache_cap *= 2;
-                    cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cache_cap);
                 }
                 cache[cache_len++] = (seq_t)c;
             }

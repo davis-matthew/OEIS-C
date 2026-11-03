@@ -11,12 +11,37 @@
  *            within that row, 0‑based
  * Range:     u8 n <= 14, u16 n <= 27, u32 n <= 65, u64 n <= 152,
  *            u128 n <= 405, big any n
- * Helpers:   divisor_power_sum
+ * Validated: standard, pass, 71 terms through n = 4983 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/divisor_power_sum.h"
+/* Compute the sum of divisor powers for a given r and k.
+   r and k are both non‑negative and r>=1, k<r. */
+static seq_t divisor_power_sum(idx_t r, idx_t k)
+{
+    seq_t sum = 0;
+    /* Enumerate divisors up to sqrt(r). */
+    for (idx_t d = 1; d * d <= r; ++d) {
+        if (r % d == 0) {
+            /* Compute d^k */
+            seq_t term = 1;
+            for (idx_t e = 0; e < k; ++e)
+                term *= (seq_t)d;
+            sum += term;
+
+            idx_t e = r / d;
+            if (e != d) {               /* avoid double counting perfect square */
+                term = 1;
+                for (idx_t f = 0; f < k; ++f)
+                    term *= (seq_t)e;
+                sum += term;
+            }
+        }
+    }
+    return sum;
+}
 
 /* Main entry point.  Computes the n-th term of the sequence. */
 seq_t a(idx_t n)

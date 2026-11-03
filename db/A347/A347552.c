@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
+ * Validated: partial, pass, 87 terms through n = 86 (2026-11-01)
  * Helpers:   build_primes_upto, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,8 +16,10 @@
 /* Number of partitions of n into at most 2 prime parts. */
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/is_prime.h"
 
 seq_t a(idx_t n)
 {

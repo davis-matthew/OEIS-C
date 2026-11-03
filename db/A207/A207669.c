@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 59, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   divides, to_coeff
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,49 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/divides.h"
-#include "../utils/to_coeff.h"
+#include "../utils/mem.h"
+
+/* Polynomial long division over GF(3):
+   divides(f, deg_f, g, deg_g) returns true iff g divides f.
+   Both f and g are stored little‑endian (coeff[0] constant). */
+static bool divides(const int *f, int deg_f, const int *g, int deg_g)
+{
+    if (deg_f < deg_g) return false;
+
+    int tmp[32];
+    for (int i = 0; i <= deg_f; ++i) tmp[i] = f[i];
+
+    for (int i = deg_f; i >= deg_g; --i) {
+        int coeff = tmp[i];
+        if (coeff == 0) continue;
+        int shift = i - deg_g;
+        for (int j = 0; j <= deg_g; ++j) {
+            int val = tmp[shift + j] - coeff * g[j];
+            val %= 3;
+            if (val < 0) val += 3;
+            tmp[shift + j] = val;
+        }
+    }
+
+    /* remainder must be zero */
+    for (int i = 0; i < deg_g; ++i)
+        if (tmp[i] != 0) return false;
+    return true;
+}
+
+/* Convert integer n (>=1) into base‑3 coefficients.
+   coeff[0] is the constant term.  On return *deg holds the
+   degree (index of the most significant non‑zero digit).      */
+static void to_coeff(idx_t n, int *coeff, int *deg)
+{
+    int i = 0;
+    while (n > 0) {
+        coeff[i] = n % 3;
+        n /= 3;
+        ++i;
+    }
+    *deg = i - 1;
+}
 
 /* 3^k for k = 0..20 (enough for the degrees that appear up
    to n ≈ 10000; higher values are never reached). */
@@ -104,8 +146,7 @@ seq_t a(idx_t n)
 
         if (is_irreducible(coeff, deg)) {
             /* Resize cache and add term */
-            seq_t *p = (seq_t *)realloc(seq_cache,
-                                       (cache_len + 1) * sizeof(seq_t));
+            seq_t *p = mem_resize(seq_t, seq_cache, (cache_len + 1));
             if (!p) abort();           /* allocation failure */
             seq_cache = p;
             seq_cache[cache_len] = (seq_t)next_test_n;

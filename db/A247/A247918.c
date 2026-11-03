@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 47, i16 n <= 87, i32 n <= 167, i64 n <= 323,
  *            i128 n <= 640, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 965 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;
 static size_t a_cache_cap = 0;
@@ -32,7 +34,7 @@ static void a_ensure_cache(idx_t n)
     if (a_cache == NULL) {
         size_t cap = (size_t)(n + 1);
         if (cap < 9) cap = 9;
-        a_cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        a_cache = mem_new(seq_t, cap);
         /* initialise fixed first nine terms */
         a_cache[0] = 1; a_cache[1] = 1; a_cache[2] = 0; a_cache[3] = 0; a_cache[4] = 0;
         a_cache[5] = 1; a_cache[6] = 1; a_cache[7] = 0; a_cache[8] = 1;
@@ -42,7 +44,7 @@ static void a_ensure_cache(idx_t n)
     else if ((size_t)(n + 1) > a_cache_cap) {
         size_t new_cap = a_cache_cap * 2;
         while ((size_t)(n + 1) > new_cap) new_cap <<= 1;
-        a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_cap);
         a_cache_cap = new_cap;
     }
 

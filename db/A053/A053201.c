@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4951, u16 n <= 4951, u32 n <= 4951, u64 n <= 4951,
  *            u128 n <= 4951, big any n
- * Helpers:   binom_mod, u64gcd
+ * Validated: standard, pass, 120 terms through n = 4744 (2026-11-01)
+ * Helpers:   gcd_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,8 +28,47 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/binom_mod.h"
-#include "../utils/u64gcd.h"
+#include "../utils/gcd_idx.h"
+
+/* compute C(n,k) modulo 'mod' where mod > 0.
+ * n and k are small (≤ about 200 for the 10 000‑term test),
+ * but the routine works for any 64‑bit values.  The result
+ * is returned as seq_t (= unsigned integer of arbitrary precision).
+ */
+static seq_t binom_mod(idx_t n, idx_t k, idx_t mod)
+{
+    if (k > n - k) k = n - k;          /* use symmetry */
+    if (k == 0) return (seq_t)1;       /* C(n,0) = 1 */
+
+    /* allocate array for the numerator factors */
+    idx_t *num = (idx_t*)malloc(k * sizeof(idx_t));
+    for (idx_t i = 0; i < k; ++i) {
+        num[i] = n - i;                 /* n, n-1, ..., n-k+1 */
+    }
+
+    /* cancel denominator factors one by one */
+    for (idx_t d = 2; d <= k; ++d) {
+        idx_t remaining = d;
+        for (idx_t i = 0; i < k && remaining > 1; ++i) {
+            idx_t g = gcd_idx(num[i], remaining);
+            if (g > 1) {
+                num[i] /= g;
+                remaining /= g;
+            }
+        }
+    }
+
+    /* multiply the remaining numerator factors modulo mod */
+    /* use 128‑bit intermediate for safety on 64‑bit builds */
+    idx_t prod = 1 % mod;               /* idx_t is 64‑bit unsigned */
+    for (idx_t i = 0; i < k; ++i) {
+        idx_t term = num[i] % mod;
+        prod = (idx_t)(((unsigned __int128)prod * term) % mod);
+    }
+
+    free(num);
+    return (seq_t)prod;
+}
 
 /*====================================================================*/
 /*  Sequence function:  seq_t a(idx_t n)  --------------------------- */

@@ -10,12 +10,14 @@
  *            a(3) = 20412 a(4) = 551124 a(5) = 14880348 a(6) = 401769018
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 13, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 612 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_values[7] = {
     (seq_t)1,
@@ -38,7 +40,7 @@ static void ensure_capacity(size_t needed)
     size_t new_cap = cache_cap ? cache_cap * 2 : 8;
     if (new_cap < needed)
         new_cap = needed;
-    seq_t *ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *ptr = mem_resize(seq_t, cache, new_cap);
     cache = ptr;
     cache_cap = new_cap;
 }
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
         size_t init_cap = (size_t)n + 1;
         if (init_cap < 8)
             init_cap = 8;
-        cache = (seq_t *)malloc(init_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, init_cap);
         cache_cap = init_cap;
 
         /* Copy initial values */

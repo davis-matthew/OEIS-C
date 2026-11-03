@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 10, u128 n <= 22,
  *            big any n
- * Helpers:   seq_from_str
+ * Validated: standard, pass, 29 terms through n = 181 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,11 +26,23 @@
    1154085846201751972824, 47965168186749101620584
 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Forward declarations of utilities that may provide arbitrary‑precision
    support. They are available whenever the build uses an arbitrary‑precision
    seq_t and are harmless if seq_t is a plain integer type. */
-#include "../utils/seq_from_str.h"
+#include <string.h>
+#include <stdbool.h>
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
 
 seq_t a(idx_t n)
 {
@@ -58,7 +71,7 @@ seq_t a(idx_t n)
 
     /* first call – initialise cache */
     if (cache == NULL) {
-        cache = (seq_t *)malloc((size_t)init_len * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)init_len);
         if (!cache) return 0;          /* out of memory – give up */
         for (idx_t i = 0; i < init_len; ++i)
             cache[i] = seq_from_str(init_strs[i]);   /* works for integer or big‑int */
@@ -72,7 +85,7 @@ seq_t a(idx_t n)
     if ((size_t)size < n) {
         size_t new_cap = n;
         if (new_cap < cap * 2) new_cap = cap * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;                /* out of memory */
         cache = tmp;
         cap   = new_cap;

@@ -7,16 +7,29 @@
  * Formula:   Number of partitions of n into distinct cubes, computed by
  *            dynamic programming on the generating function ∏_{k≥1} (1 +
  *            x^{k^3})
- * Range:     u8 n <= 9882, u16 n <= 9882, u32 n <= 9882, u64 n <= 9882,
- *            u128 n <= 9882, big any n
- * Helpers:   alloc_seq_array, free_seq_array
+ * Range:     u8 n <= 19691, u16 n <= 93716, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 103 terms through n = 9882 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 seq_t a(idx_t n)
 {

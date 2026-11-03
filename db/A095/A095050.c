@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   alloc_seq_array, free_seq_array, has_all_digits
+ * Validated: standard, pass, 65 terms through n = 9830 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,9 +26,44 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
-#include "../utils/has_all_digits.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
+
+/* Return true iff every decimal digit 0–9 occurs in the representation
+   of at least one divisor of n.  n is assumed to be >0. */
+static bool has_all_digits(uint64_t n)
+{
+    unsigned char dig[10] = {0};
+    for (uint64_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            uint64_t v = d;
+            while (v > 0) {
+                dig[v % 10] = 1;
+                v /= 10;
+            }
+            uint64_t other = n / d;
+            if (other != d) {
+                v = other;
+                while (v > 0) {
+                    dig[v % 10] = 1;
+                    v /= 10;
+                }
+            }
+        }
+    }
+    for (int i = 0; i < 10; ++i)
+        if (!dig[i]) return false;
+    return true;
+}
 
 seq_t a(idx_t n)
 {
@@ -56,7 +92,7 @@ seq_t a(idx_t n)
             if (count == capacity) {          /* grow array */
                 size_t new_cap = capacity << 1;
                 seq_t *tmp = alloc_seq_array(new_cap);
-                memcpy(tmp, seq, count * sizeof(seq_t));
+                mem_copy(tmp, seq, count * sizeof(seq_t));
                 free_seq_array(seq);
                 seq = tmp;
                 capacity = new_cap;

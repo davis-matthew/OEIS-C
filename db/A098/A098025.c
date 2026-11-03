@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 400, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   modmul64
+ * Validated: standard, pass, 61 terms through n = 9402 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,8 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/modmul64.h"
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 /* ---------- Miller–Rabin primality test for 64‑bit integers ---------- */
 
@@ -34,8 +36,8 @@ static uint64_t modpow64(uint64_t base, uint64_t exp, uint64_t mod) {
     uint64_t result = 1;
     while (exp) {
         if (exp & 1)
-            result = modmul64(result, base, mod);
-        base = modmul64(base, base, mod);
+            result = mulmod(result, base, mod);
+        base = mulmod(base, base, mod);
         exp >>= 1;
     }
     return result;
@@ -57,7 +59,7 @@ static bool miller_rabin(uint64_t n) {
         if (x == 1 || x == n - 1) continue;
         bool composite = true;
         for (int r = 1; r < s; r++) {
-            x = modmul64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) { composite = false; break; }
         }
         if (composite) return false;
@@ -93,7 +95,7 @@ seq_t a(idx_t n) {
         if (!isPrime64(q)) continue; /* q is automatically ≡ 1 (mod 4) */
 
         /* append to cache */
-        seq_t *tmp = (seq_t*)realloc(cache, (cache_len + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (cache_len + 1));
         if (!tmp) return 0;   /* allocation failure – return zero */
         cache = tmp;
         cache[cache_len++] = (seq_t)p;

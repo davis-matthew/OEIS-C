@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 38,
  *            big any n
- * Helpers:   pow_int, safe_pow10
+ * Validated: standard, pass, 34 terms through n = 909 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,28 @@
 /* Sequence A061435: a(n) = largest n‑digit cube.
    Formula: a(n) = (floor( (10^n − 1)^(1/3) ))^3 */
 #include <stdbool.h>
-#include "../utils/pow_int.h"
-#include "../utils/safe_pow10.h"
+#include "../utils/ipow_idx.h"
+
+/* Compute 10^exp as a seq_t, detecting overflow.
+   If the result cannot be represented in seq_t, *overflow is set to true
+   and the function returns 0.  */
+static seq_t safe_pow10(idx_t exp, bool *overflow)
+{
+    seq_t result = 1;
+    *overflow = false;
+    for (idx_t i = 0; i < exp; ++i) {
+        seq_t old = result;
+        result *= 10;
+        /* Overflow for unsigned integral types is detected by the fact
+           that division by 10 does not recover the previous value.  For
+           arbitrary‑precision seq_t this test never triggers. */
+        if (result / 10 != old) {
+            *overflow = true;
+            break;
+        }
+    }
+    return result;
+}
 
 seq_t a(idx_t n)
 {

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   has48_base9
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,25 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/has48_base9.h"
+#include "../utils/mem.h"
+
+/* Helper: test whether x in base 9 contains the digit pair 4,8 */
+static bool has48_base9(seq_t x)
+{
+    if (x == 0) return false;
+    uint8_t digits[64];       /* sufficient for any value handled */
+    int len = 0;
+    while (x > 0) {
+        int d = (int)(x % (seq_t)9);
+        digits[len++] = (uint8_t)d;
+        x /= (seq_t)9;
+    }
+    for (int i = len - 1; i > 0; --i) {
+        if (digits[i] == 4 && digits[i - 1] == 8)
+            return true;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -36,7 +55,7 @@ seq_t a(idx_t n)
             /* ensure capacity */
             if (cache_len + 1 > cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 8;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) abort();   /* insufficient memory */
                 cache = tmp;
                 cache_cap = new_cap;

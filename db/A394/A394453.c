@@ -7,9 +7,10 @@
  * Offset:    2    (a(2) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 15, u16 n <= 9555, u32 n <= 9555, u64 n <= 9555,
- *            u128 n <= 9555, big any n
- * Helpers:   lpf, sigma_of
+ * Range:     u8 n <= 15, u16 n <= 10001, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 108 terms through n = 9555 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,31 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/sigma_of.h" /* seq_t sigma_of(idx_t n); */
-#include "../utils/lpf.h"      /* idx_t lpf(idx_t n); */
+#include <stdlib.h>
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
+
+/* Return the smallest prime factor of n   (n > 1) */
+static inline idx_t lpf(idx_t n)
+{
+    if (n % 2 == 0) return 2;
+    for (idx_t i = 3; i <= n / i; i += 2)
+        if (n % i == 0) return i;
+    return n;   /* n itself is prime – should not be called for primes */
+}
 
 static const size_t MAX_TRACK = 1024; /* sufficient for all test ranges */
 

@@ -7,12 +7,14 @@
  * Formula:   a(0)=1, * a(2k) = 10^(2k), * a(2k+1) = 10^(2k+1) + a(k)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 static seq_t *cache = NULL;
@@ -24,7 +26,7 @@ static void ensure_cache(idx_t n) {
     if (n + 1 <= cache_size)
         return;
     size_t new_size = (size_t)n + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_size);
     if (!tmp) abort();
     for (idx_t i = cache_size; i <= n; ++i)
         tmp[i] = 0;            /* newly added slots */

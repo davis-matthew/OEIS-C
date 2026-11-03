@@ -12,6 +12,7 @@
  *            does not contain a forbidden pattern. The transition tab...
  * Range:     u8 none, u16 n <= 2, u32 n <= 9, u64 n <= 24, u128 n <= 54,
  *            big any n
+ * Validated: standard, pass, 33 terms through n = 206 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

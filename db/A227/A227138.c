@@ -11,13 +11,15 @@
  *            = -1
  * Range:     u8 n <= 0, u16 n <= 0, u32 n <= 1, u64 n <= 3, u128 n <= 6,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 9 terms through n = 8 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;   /* cached sequence values */
 static size_t  seq_cap   = 0;     /* allocated capacity of seq_cache */
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* initialisation on first call */
     if (!seq_cache) {
         seq_cap = 2;
-        seq_cache = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, seq_cap);
         if (!seq_cache) abort();          /* allocation failed */
         seq_cache[0] = 1;
         seq_cache[1] = (seq_t)1000001;
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
         size_t new_cap = seq_cap;
         while (new_cap <= (size_t)(n + 1))
             new_cap *= 2;
-        seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, new_cap);
         if (!seq_cache) abort();          /* allocation failed */
         seq_cap = new_cap;
     }

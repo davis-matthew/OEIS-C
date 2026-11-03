@@ -12,7 +12,8 @@
  *            polynomial coefficients
  * Range:     u8 n <= 9, u16 n <= 13, u32 n <= 20, u64 n <= 21, u128 n <= 25,
  *            big any n
- * Helpers:   big_pow, factor_u64, get_prime
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-03)
+ * Helpers:   factor_u64, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,9 +25,63 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/get_prime.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
+
+/* Return the k‑th prime (k ≥ 1).  On first call the prime list
+   is built incrementally using trial division.  The list is
+   stored in a static array which is expanded as necessary.   */
+static uint32_t get_prime(idx_t k)
+{
+    static uint32_t *pr = NULL;     /* array of primes */
+    static size_t sz   = 0;         /* number of primes stored */
+    static size_t cap  = 0;         /* allocated capacity */
+    static uint32_t cand = 3;       /* candidate after 2 */
+
+    /* initialise the prime table on first use */
+    if (sz == 0) {
+        cap = 8;
+        pr = (uint32_t *)realloc(pr, cap * sizeof(uint32_t));
+        if (!pr) abort();
+        sz = 0;
+    }
+
+    /* grow the array until we have at least k primes */
+    while (sz < (size_t)k) {
+        if (sz == 0) {                /* add the first prime */
+            pr[sz++] = 2;
+            continue;
+        }
+
+        /* find the next prime candidate */
+        uint32_t p = cand;
+        bool ok = true;
+        for (size_t i = 0; i < sz; ++i) {
+            uint32_t prime = pr[i];
+            if ((uint64_t)prime * prime > (uint64_t)p) break;
+            if (p % prime == 0) { ok = false; break; }
+        }
+
+        if (!ok) {                    /* not prime – keep searching */
+            cand += 2;                /* only odd numbers remain */
+            continue;
+        }
+
+        /* prime found – store it, grow table if needed */
+        if (sz == cap) {
+            cap <<= 1;
+            pr = (uint32_t *)realloc(pr, cap * sizeof(uint32_t));
+            if (!pr) abort();
+        }
+        pr[sz++] = p;
+        cand = p + 2;
+    }
+
+    return pr[(size_t)k - 1];
+}
 
 #define MAX_DEG 20000          /* maximal degree needed for n ≤ 10000 */
 #define MAX_IDX 2000           /* maximal prime index needed for n ≤ 10000 */
@@ -45,7 +100,7 @@ seq_t a(idx_t n)
     factor_u64((uint64_t)n, primes, exps, &cnt);
 
     /* reset coefficient lookup table */
-    memset(base_coeff_by_index, 0, sizeof(base_coeff_by_index));
+    mem_set(base_coeff_by_index, 0, sizeof(base_coeff_by_index));
 
     /* fill coefficient table with prime exponents */
     size_t max_idx = 0;
@@ -59,8 +114,8 @@ seq_t a(idx_t n)
     size_t base_deg = (max_idx == 0 ? 0 : max_idx);
 
     /* clear working arrays */
-    memset(cur_pow, 0, sizeof(cur_pow));
-    memset(result, 0, sizeof(result));
+    mem_set(cur_pow, 0, sizeof(cur_pow));
+    mem_set(result, 0, sizeof(result));
 
     cur_pow[0] = (seq_t)1;   /* P^0 = 1 */
     size_t cur_deg = 1;      /* current degree of cur_pow */
@@ -81,7 +136,7 @@ seq_t a(idx_t n)
         /* cur_pow = cur_pow * P (sparse multiplication) */
         size_t tmp_len = cur_deg + base_deg + 1;
         if (tmp_len > MAX_DEG) tmp_len = MAX_DEG;
-        memset(tmp, 0, tmp_len * sizeof(seq_t));
+        mem_set(tmp, 0, tmp_len * sizeof(seq_t));
 
         for (size_t idx = 0; idx <= base_deg; ++idx) {
             seq_t c = base_coeff_by_index[idx];
@@ -98,7 +153,7 @@ seq_t a(idx_t n)
         }
 
         /* copy back to cur_pow */
-        memcpy(cur_pow, tmp, new_deg * sizeof(seq_t));
+        mem_copy(cur_pow, tmp, new_deg * sizeof(seq_t));
         cur_deg = new_deg;
     }
 
@@ -113,7 +168,7 @@ seq_t a(idx_t n)
         seq_t coeff = result[k];
         if (coeff == 0) continue;
         seq_t prime = (seq_t)get_prime((idx_t)(k + 1));
-        seq_t power = big_pow(prime, coeff);
+        seq_t power = ipow(prime, coeff);
         ans = ans * power;
     }
     return ans;

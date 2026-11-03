@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,12 +25,13 @@
 #endif
 
 #if defined(__cplusplus)
-#define ALLOC_SEQ(cnt) reinterpret_cast<seq_t*>(malloc(sizeof(seq_t)*(cnt)))
-#define REALLOC_SEQ(ptr,cnt) reinterpret_cast<seq_t*>(realloc(ptr, sizeof(seq_t)*(cnt)))
+#define ALLOC_SEQ(cnt) mem_new(seq_t, (cnt))
+#define REALLOC_SEQ(ptr,cnt) mem_resize(seq_t, ptr, (cnt))
 #else
-#define ALLOC_SEQ(cnt) (seq_t*)malloc(sizeof(seq_t)*(cnt))
-#define REALLOC_SEQ(ptr,cnt) (seq_t*)realloc(ptr, sizeof(seq_t)*(cnt))
+#define ALLOC_SEQ(cnt) mem_new(seq_t, (cnt))
+#define REALLOC_SEQ(ptr,cnt) mem_resize(seq_t, ptr, (cnt))
 #endif
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static const seq_t base[10] = {

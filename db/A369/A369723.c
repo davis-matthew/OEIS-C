@@ -10,12 +10,14 @@
  *            calls in any order are fast
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
 
     /* initialize cache for n = 0 and n = 1 */
     if (size == 0) {
-        cache = (seq_t *)malloc(2 * sizeof(seq_t));
+        cache = mem_new(seq_t, 2);
         if (!cache) return 0;          /* allocation failed, return 0 as a fallback */
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)4;
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
 
     /* extend cache up to n */
     idx_t new_size = n + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_size);
     if (!tmp) return 0;                 /* allocation failed */
     cache = tmp;
 

@@ -8,7 +8,8 @@
  *            prime (found by trial division)
  * Range:     u8 n <= 28, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   a003627_isprime
+ * Validated: standard, pass, 72 terms through n = 939 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/a003627_isprime.h"
+#include "../utils/is_prime_u64.h"
 
 static uint64_t *a003627_cache = NULL;
 static idx_t a003627_len = 0;
@@ -33,7 +34,7 @@ seq_t a(idx_t n) {
     while (a003627_len < n) {
         uint64_t c = a003627_cache[a003627_len - 1] + 3;
         if (a003627_len == 1) c = 5;
-        while (!a003627_isprime(c)) c += 6 - 3; /* step through 3k-1 */
+        while (!is_prime_u64(c)) c += 6 - 3; /* step through 3k-1 */
         if (a003627_len == a003627_cap) {
             a003627_cap *= 2;
             a003627_cache = (uint64_t *)realloc(a003627_cache, a003627_cap * sizeof(uint64_t));

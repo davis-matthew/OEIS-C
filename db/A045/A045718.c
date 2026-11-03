@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 90, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 9414 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Comparator for qsort over seq_t. */
 static int cmp_seq_t(const void *a, const void *b)
@@ -74,7 +76,7 @@ static void extend_sieve_to(size_t new_limit)
     }
 
     /* Collect neighbour values. */
-    seq_t *raw = (seq_t *)malloc(count * sizeof(seq_t));
+    seq_t *raw = mem_new(seq_t, count);
     if (!raw) exit(1);
 
     size_t idx = 0;
@@ -88,7 +90,7 @@ static void extend_sieve_to(size_t new_limit)
 
     /* Sort and deduplicate. */
     if (count > 0) {
-        qsort(raw, count, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(raw, count, sizeof(seq_t), cmp_seq_t);
     }
     size_t unique = 0;
     if (count > 0) {
@@ -103,12 +105,12 @@ static void extend_sieve_to(size_t new_limit)
     }
 
     /* Allocate final array. */
-    seq_t *final = (seq_t *)malloc(unique * sizeof(seq_t));
+    seq_t *final = mem_new(seq_t, unique);
     if (!final) exit(1);
-    memcpy(final, raw, unique * sizeof(seq_t));
+    mem_copy(final, raw, unique * sizeof(seq_t));
 
-    free(raw);
-    free(neighbors);
+    mem_free(raw);
+    mem_free(neighbors);
     neighbors = final;
     neighbors_len = unique;
     sieve_limit = new_limit;

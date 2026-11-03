@@ -11,13 +11,36 @@
  *            point
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   calc_t
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/calc_t.h"
+
+static inline idx_t calc_t(idx_t n)
+{
+    /* Find the largest t with t*(t+1)/2 < n.
+       This is equivalent to floor((sqrt(8*n-7)-1)/2). */
+    idx_t low = 0;
+    idx_t high = 1;
+
+    /* Grow high until high*(high+1)/2 >= n, using 128‑bit
+       to avoid overflow. */
+    while (((__int128)high * (high + 1) / 2) < n)
+        high <<= 1;
+
+    /* Binary search for the maximal low satisfying the inequality. */
+    while (low < high) {
+        idx_t mid = low + ((high - low + 1) >> 1); /* upper mid */
+        if (((__int128)mid * (mid + 1) / 2) < n)
+            low = mid;
+        else
+            high = mid - 1;
+    }
+    return low; /* low == t */
+}
 
 seq_t a(idx_t n)
 {

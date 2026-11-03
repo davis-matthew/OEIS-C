@@ -9,14 +9,23 @@
  *            factorizations (Legendre), using multiplication only
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 14, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   powmul
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/powmul.h"
+
+static seq_t powmul(seq_t r, seq_t b, long long e) {
+    while (e > 0) {
+        if (e & 1) r = r * b;
+        e >>= 1;
+        if (e) b = b * b;
+    }
+    return r;
+}
 
 static long long leg(long long N, long long p) {
     long long e = 0;

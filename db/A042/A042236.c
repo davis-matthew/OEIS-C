@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 19, u64 n <= 41, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 190 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Constants for sqrt(644) */
 static const int D_SQRT = 644;
@@ -83,13 +85,13 @@ static void ensure_cache(idx_t n)
     while (new_cap <= (size_t)n)
         new_cap <<= 1;
 
-    seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         abort();
 
     if (cache == NULL) {
         /* First allocation – zero all bytes. */
-        memset(tmp, 0, new_cap * sizeof(seq_t));
+        mem_set(tmp, 0, new_cap * sizeof(seq_t));
     } else {
         /* Zero only the newly added part. */
         size_t old_cap = cache_cap;

@@ -7,14 +7,21 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   pow6k
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Computation: Enumerate base‑6 palindromes that start with the digit 4 */
 #include <stdint.h>
-#include "../utils/pow6k.h"
+
+/* helper: compute 6^exp using repeated multiplication */
+static seq_t pow6k(idx_t exp) {
+    seq_t r = 1;
+    for (idx_t i = 0; i < exp; ++i) r *= 6;
+    return r;
+}
 
 /* a(n) = n-th base‑6 palindrome beginning with 4 (OEIS A043013) */
 seq_t a(idx_t n) {

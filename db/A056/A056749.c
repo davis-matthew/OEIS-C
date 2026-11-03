@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 132, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_palindrome, pal_from_prefix
+ * Validated: standard, pass, 67 terms through n = 983 (2026-11-01)
+ * Helpers:   is_palindrome_base
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,27 @@
    increasing order and test the base‑n palindrome property. */
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_palindrome.h"
-#include "../utils/pal_from_prefix.h"
+#include "../utils/is_palindrome_base.h"
+
+/* construct a palindrome value from a binary prefix */
+static inline seq_t pal_from_prefix(uint64_t prefix, unsigned k, unsigned L)
+{
+    seq_t val = 0;
+    /* left half */
+    for (int i = k - 1; i >= 0; --i)
+        val = (val << 1) | ((prefix >> i) & 1);
+    if (L % 2 == 0)            /* even length: mirror full prefix */
+    {
+        for (int i = 0; i < (int)k; ++i)
+            val = (val << 1) | ((prefix >> i) & 1);
+    }
+    else                       /* odd length: exclude middle bit from mirror */
+    {
+        for (int i = 1; i < (int)k; ++i)
+            val = (val << 1) | ((prefix >> i) & 1);
+    }
+    return val;
+}
 
 /* reverse bits of a number in the given bit width */
 static inline uint64_t rev_bits(uint64_t x, unsigned bits)
@@ -45,7 +65,7 @@ seq_t a(idx_t n)
         {
             seq_t m = pal_from_prefix(pref, k, L);
             if (m <= (seq_t)n) continue;        /* we want m > n */
-            if (is_palindrome(m, n))            /* base‑n palindrome test */
+            if (is_palindrome_base(m, n))            /* base‑n palindrome test */
                 return m;
         }
     }

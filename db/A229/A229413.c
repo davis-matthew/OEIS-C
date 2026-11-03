@@ -12,12 +12,14 @@
  *            of size m. The required value is a(n) = dp[3n]
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 8, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 141 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     size_t size = (size_t)m + 1;
 
     /* Allocate DP array */
-    seq_t *dp = (seq_t*)malloc(size * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, size);
     if (!dp) return 0;  /* fallback – the caller should never hit OOM */
 
     dp[0] = 1;  /* empty set has exactly one partition – the empty family */
@@ -53,6 +55,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[m];
-    free(dp);
+    mem_free(dp);
     return result;
 }

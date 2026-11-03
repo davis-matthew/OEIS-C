@@ -9,7 +9,8 @@
  *            1‑indexed
  * Range:     u8 n <= 198, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   popcnt_128, popcnt_generic, popcnt_generic128
+ * Validated: standard, pass, 84 terms through n = 9600 (2026-11-03)
+ * Helpers:   mem, popcount_u128, popcount_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,9 @@
    unsigned __int128) and idx_t as an unsigned 64‑bit type. */
 
 #include <stdlib.h>
-#include "../utils/popcnt_128.h"
-#include "../utils/popcnt_generic.h"
-#include "../utils/popcnt_generic128.h"
+#include "../utils/popcount_u128.h"
+#include "../utils/popcount_u64.h"
+#include "../utils/mem.h"
 
 static seq_t *cache   = NULL;
 static size_t  cap    = 0;
@@ -33,13 +34,13 @@ static void grow_cache(size_t min_cap) {
     if (cap >= min_cap) return;
     size_t new_cap = cap ? cap * 2 : 64;
     while (new_cap < min_cap) new_cap <<= 1;
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cap = new_cap;
 }
 
 /* Compute popcount for seq_t values.  */
 static unsigned int popcnt_seq(seq_t x) {
-    return popcnt_generic((unsigned long long)x);
+    return popcount_u64((unsigned long long)x);
 }
 
 /* Main entry.  */
@@ -53,7 +54,7 @@ seq_t a(idx_t n) {
         unsigned int pc_val = popcnt_seq(val);
 
         unsigned __int128 sq = (unsigned __int128)val * (unsigned __int128)val;
-        unsigned int pc_sq = popcnt_128(sq);
+        unsigned int pc_sq = popcount_u128(sq);
 
         last_checked = cand;
 

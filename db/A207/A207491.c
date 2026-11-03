@@ -9,7 +9,8 @@
  *            and vertical 011 or 110
  * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 19, u64 n <= 45, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define MAX_ROWS 6
 #define MAX_COLS 64
@@ -94,8 +96,8 @@ seq_t a(idx_t n) {
     /* DP over columns, keeping last two columns */
     static seq_t dp[MAX_STATES];
     static seq_t next_dp[MAX_STATES];
-    memset(dp, 0, sizeof(dp));
-    memset(next_dp, 0, sizeof(next_dp));
+    mem_set(dp, 0, sizeof(dp));
+    mem_set(next_dp, 0, sizeof(next_dp));
 
     /* Initialize for n = 2 (all allowed pairs count as 1) */
     for (uint32_t p1 = 0; p1 < MAX_COLS; ++p1) {
@@ -119,8 +121,8 @@ seq_t a(idx_t n) {
                 next_dp[next_idx] += ways;
             }
         }
-        memcpy(dp, next_dp, sizeof(dp));
-        memset(next_dp, 0, sizeof(next_dp));
+        mem_copy(dp, next_dp, sizeof(dp));
+        mem_set(next_dp, 0, sizeof(next_dp));
     }
 
     /* Sum all possibilities */

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   ei_eval
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,21 @@
  */
 
 #include <stdint.h>
-#include "../utils/ei_eval.h"
+
+static seq_t ei_eval(idx_t row, idx_t col) {
+    /* Base row: only two elements 1 and 3. */
+    if (row == 1) {
+        return (col == 0) ? (seq_t)1 : (seq_t)3;
+    }
+
+    /* Even column: look up the value half the column index in the previous row. */
+    if ((col & 1U) == 0U) {
+        return ei_eval(row - 1, col >> 1);
+    }
+
+    /* Odd column: sum of the two neighboring half indices in the previous row. */
+    return ei_eval(row - 1, (col - 1) >> 1) + ei_eval(row - 1, (col + 1) >> 1);
+}
 /* seq_t and idx_t are supplied by the build environment; do not define them here. */
 
 seq_t a(idx_t n) {

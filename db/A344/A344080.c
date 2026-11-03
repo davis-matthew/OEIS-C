@@ -9,14 +9,16 @@
  *            divisors of k
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 15, u64 n <= 23, u128 n <= 47,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 42 terms through n = 680 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 /* Recursive helper: enumerate all combinations of exponent choices for
    prime factors.  tau_prod holds the product \prod (exponent_i + 1)
@@ -26,7 +28,7 @@ static void dfs_divisor_sum(size_t pos, size_t pcnt, idx_t exps[],
 {
     if (pos == pcnt)
     {
-        *sum = *sum + big_pow(tau_prod, (seq_t)n);
+        *sum = *sum + ipow(tau_prod, (seq_t)n);
         return;
     }
     for (idx_t e = 0; e <= exps[pos]; ++e)

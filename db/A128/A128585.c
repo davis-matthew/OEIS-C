@@ -7,17 +7,42 @@
  * Formula:   a(n) = Fib(j) * (-1)^{r-j} * (C(r,j) - 2*C(r-1,j)) where r = the
  *            row number such that r*(r+1)/2 ≥ n, and j = n - r*(r-1)/2 (the
  *            column within that row)
- * Range:     i8 n <= 30, i16 n <= 66, i32 n <= 66, i64 n <= 66, i128 n <= 66,
+ * Range:     i8 n <= 41, i16 n <= 66, i32 n <= 66, i64 n <= 66, i128 n <= 66,
  *            big any n
- * Helpers:   binomial, fib, mul_small
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binomial.h"   /* for binomial(idx_t, idx_t)          */
-#include "../utils/fib.h"        /* for fib(idx_t)                      */
-#include "../utils/mul_small.h"  /* for mul_small(seq_t, unsigned int) */
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 seq_t a(idx_t n) {
     /* Find the row r that contains the nth element (1‑based). */

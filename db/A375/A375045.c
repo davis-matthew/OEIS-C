@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -43,6 +44,7 @@
  */
 
 #include <stdlib.h>   /* malloc, free */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -64,8 +66,8 @@ seq_t a(idx_t n)
     /* Allocate buffers for two consecutive rows.  The maximum row
      * length needed is r+1. */
     size_t max_len = (size_t)r + 1;
-    seq_t *prev = (seq_t *)malloc(max_len * sizeof(seq_t));
-    seq_t *cur  = (seq_t *)malloc(max_len * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, max_len);
+    seq_t *cur  = mem_new(seq_t, max_len);
 
     /* Initial row (row 1) has length 2. */
     prev[0] = 2;          /* a_{1,0} */
@@ -101,8 +103,8 @@ seq_t a(idx_t n)
     seq_t result = prev[k];
 
     /* Free allocated memory */
-    free(prev);
-    free(cur);
+    mem_free(prev);
+    mem_free(cur);
 
     return result;
 }

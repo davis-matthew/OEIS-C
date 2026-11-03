@@ -8,6 +8,7 @@
  *            ((e+1)*p^(2*e+1)-(e+2)*p^(2*e)+p^e)/(p-1)
  * Range:     u8 n <= 9, u16 n <= 95, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 64 terms through n = 9688 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,8 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 /* Computes the value of a prime power contribution a(p^e) using the

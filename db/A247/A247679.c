@@ -7,6 +7,7 @@
  * Formula:   a(n) = the nth composite integer congruent to 17 mod 18
  * Range:     u8 n <= 5, u16 n <= 2547, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 60 terms through n = 8558 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

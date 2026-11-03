@@ -10,14 +10,15 @@
  *            triangle is read by rows, starting with a(1)=T(1,1)
  * Range:     u8 n <= 11, u16 n <= 37, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binomial.h"     /* binomial(idx_t N, idx_t K)        */
-#include "../utils/pow2.h"         /* pow2(idx_t exp)                   */
+#include "../utils/binomial.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {

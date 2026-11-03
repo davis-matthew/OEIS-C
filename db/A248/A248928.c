@@ -7,13 +7,36 @@
  * Formula:   a(n) = A027434(n+1)^2
  * Range:     u8 n <= 55, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   group_k
+ * Validated: standard, pass, 72 terms through n = 899 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/group_k.h"
+
+/* Compute the smallest k such that k*(k+1) > n (k >= 1).
+   Uses binary search with 128‑bit arithmetic to avoid overflow. */
+static idx_t
+group_k(idx_t n)
+{
+    idx_t low = 0;
+    idx_t high = 1;
+
+    /* Increase high until it exceeds the required bound. */
+    while ((unsigned __int128)high * (high + 1) <= n)
+        high <<= 1;
+
+    /* Binary search in [low, high). */
+    while (low + 1 < high) {
+        idx_t mid = low + (high - low) / 2;
+        if ((unsigned __int128)mid * (mid + 1) <= n)
+            low = mid;
+        else
+            high = mid;
+    }
+    return high;          /* high is the desired k */
+}
 
 /* Return the n-th term of OEIS sequence A248928. */
 seq_t

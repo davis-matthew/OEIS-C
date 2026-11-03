@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 14, u32 n <= 26, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  * a() and b() are increasing complementary sequences.  */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static cache */
 static seq_t *a_cache = NULL;   /* stores a(0)...a(k)   */
@@ -34,8 +36,8 @@ static void ensure_capacity(void)
 {
     if (a_len >= cache_cap) {
         cache_cap = (cache_cap == 0) ? 8 : cache_cap << 1;
-        a_cache = (seq_t *)realloc(a_cache, cache_cap * sizeof(seq_t));
-        b_cache = (seq_t *)realloc(b_cache, cache_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, cache_cap);
+        b_cache = mem_resize(seq_t, b_cache, cache_cap);
     }
 }
 
@@ -73,8 +75,8 @@ seq_t a(idx_t n)
     /* Initialise the cache on first call */
     if (a_cache == NULL) {
         cache_cap = 8;
-        a_cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
-        b_cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        a_cache = mem_new(seq_t, cache_cap);
+        b_cache = mem_new(seq_t, cache_cap);
         a_cache[0] = (seq_t)1;
         a_cache[1] = (seq_t)3;
         a_len = 2;          /* a(0), a(1) stored */

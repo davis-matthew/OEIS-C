@@ -9,12 +9,24 @@
  *            natural order (starting with the term of smallest degree)
  * Range:     u8 n <= 17, u16 n <= 32, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   binom_pow
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom_pow.h"
+/* helper: binomial times power: C(b,i) * r^i   (0 <= i <= b) */
+static seq_t binom_pow(idx_t b, idx_t i, seq_t r_val)
+{
+    seq_t comb = 1;      /* C(b,0) */
+    seq_t pow_r = 1;     /* r^0 */
+    for (idx_t j = 1; j <= i; ++j)
+    {
+        comb = comb * (seq_t)(b - (j - 1)) / (seq_t)j; /* exact division */
+        pow_r *= r_val;
+    }
+    return comb * pow_r;
+}
 
 /* main sequence function */
 seq_t a(idx_t n)

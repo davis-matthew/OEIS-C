@@ -11,12 +11,14 @@
  *            not yet used by either sequence
  * Range:     u8 n <= 7, u16 n <= 19, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Cached values of a and b */
@@ -38,13 +40,13 @@ seq_t a(idx_t n) {
     /* Initialise on first call. */
     if (!a_cache) {
         a_cap = 64;
-        a_cache = (seq_t *)malloc(a_cap * sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_cap);
         a_cache[0] = (seq_t)1;
         a_cache[1] = (seq_t)3;
         a_len = 2;
 
         b_cap = 64;
-        b_cache = (seq_t *)malloc(b_cap * sizeof(seq_t));
+        b_cache = mem_new(seq_t, b_cap);
         b_cache[0] = (seq_t)2;
         b_cache[1] = (seq_t)4;
         b_len = 2;
@@ -70,11 +72,11 @@ seq_t a(idx_t n) {
         /* Ensure enough space. */
         if (a_len >= a_cap) {
             a_cap <<= 1;
-            a_cache = (seq_t *)realloc(a_cache, a_cap * sizeof(seq_t));
+            a_cache = mem_resize(seq_t, a_cache, a_cap);
         }
         if (b_len >= b_cap) {
             b_cap <<= 1;
-            b_cache = (seq_t *)realloc(b_cache, b_cap * sizeof(seq_t));
+            b_cache = mem_resize(seq_t, b_cache, b_cap);
         }
 
         /* Find the next b(i-1) as the smallest unused positive integer. */

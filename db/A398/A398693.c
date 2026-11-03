@@ -9,13 +9,15 @@
  *            number)
  * Range:     u8 n <= 17, u16 n <= 43, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Cache for partition numbers */
 static seq_t *partitions = NULL;
@@ -29,7 +31,7 @@ static void ensure_cache(idx_t n)
         /* initial allocation: size 1 for p[0] */
         cache_capacity = 1;
         cache_size = 1;
-        partitions = (seq_t *)malloc(sizeof(seq_t) * cache_capacity);
+        partitions = mem_new(seq_t, cache_capacity);
         if (!partitions) exit(EXIT_FAILURE);
         partitions[0] = 1;   /* p(0) = 1 */
     }
@@ -40,7 +42,7 @@ static void ensure_cache(idx_t n)
     if (n + 1 > cache_capacity) {
         idx_t new_cap = cache_capacity;
         while (new_cap <= n) new_cap <<= 1;   /* double until enough */
-        seq_t *tmp = (seq_t *)realloc(partitions, sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_resize(seq_t, partitions, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         partitions = tmp;
         cache_capacity = new_cap;

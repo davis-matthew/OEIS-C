@@ -11,13 +11,15 @@
  *            q∈{2,6,7,8,10}}
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 9919 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- heap helpers ------------------------------------------------- */
 static seq_t *heap;
@@ -66,7 +68,7 @@ static void init_sources(void)
     const idx_t HMAX = 5000ULL;        /* large enough for n up to about 10 000 */
     const size_t TOTAL = 10 * (size_t)(HMAX + 1);
 
-    heap = (seq_t*)malloc(TOTAL * sizeof(seq_t));
+    heap = mem_new(seq_t, TOTAL);
     heap_sz = 0;
 
     for (idx_t h = 0; h <= HMAX; ++h) {
@@ -94,7 +96,7 @@ seq_t a(idx_t n)
         initialised = true;
         init_sources();
         seq_cap = 1000;
-        seq = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         seq_len = 0;
     }
 
@@ -103,7 +105,7 @@ seq_t a(idx_t n)
         seq_t val = heap_pop();
         if (seq_len == seq_cap) {
             seq_cap <<= 1;                 /* double capacity */
-            seq = (seq_t*)realloc(seq, seq_cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, seq_cap);
         }
         seq[seq_len++] = val;
         seq_t next = (val + 1) * (seq_t)121U - 1;  /* next in the same geometric progression */

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime64
+ * Validated: standard, pass, 69 terms through n = 939 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_prime64.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 static uint64_t *terms64 = NULL;   /* array of terms in uint64_t form */
 static size_t   terms_cap = 0;     /* current capacity of terms64          */
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
         unsigned __int128 tmp = (unsigned __int128)911 * next_candidate;
         uint64_t val = (uint64_t)(tmp - 11);
 
-        if (is_prime64(val)) {
+        if (is_prime_u64(val)) {
             ensure_terms(terms_count + 1);
             terms64[terms_count] = next_candidate;
             terms_count++;

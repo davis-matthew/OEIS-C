@@ -9,8 +9,9 @@
  * Formula:   a(n) = gcd(A003415(n), A059975(n)) where A003415 is the
  *            arithmetic derivative and A059975 is the fully additive function
  *            with a(p)=p-1
- * Range:     u8 n <= 251, u16 n <= 9092, u32 n <= 9092, u64 n <= 9092,
- *            u128 n <= 9092, big any n
+ * Range:     u8 n <= 251, u16 n <= 16383, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 121 terms through n = 9092 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

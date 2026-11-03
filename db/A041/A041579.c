@@ -11,13 +11,15 @@
  *            a(16)=353900719, a(17)=4072384585, a(18)=207...
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 34, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are supplied by the build environment. */
 seq_t a(idx_t n)
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
         /* Allocate enough room for 28 terms plus a little extra. */
         cache_cap  = 32;
         cache_size = 28;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return 0;  /* allocation failure – undefined in tests */
 
         /* Continued–fraction expansion of sqrt(307). */
@@ -87,7 +89,7 @@ seq_t a(idx_t n)
         size_t new_cap = cache_cap ? cache_cap * 2U : 1U;
         while (new_cap < needed)
             new_cap *= 2U;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         if (!cache) return 0;                  /* undefined on failure */
         cache_cap = new_cap;
     }

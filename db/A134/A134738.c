@@ -9,14 +9,26 @@
  *            expressed as a sum of three squares
  * Range:     u8 none, u16 n <= 6, u32 n <= 268, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_not_sum_of_three_squares
+ * Validated: standard, pass, 48 terms through n = 9989 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_not_sum_of_three_squares.h"
+#include "../utils/mem.h"
+
+/* Test whether m is of the form 4^k·(8m+7).  Return true if it is not a sum
+   of three squares. */
+static bool is_not_sum_of_three_squares(idx_t m)
+{
+    idx_t t = m;
+    /* Strip all powers of 4. */
+    while ((t & 3) == 0)   /* t % 4 == 0 */
+        t >>= 2;
+    return (t & 7) == 7;   /* t % 8 == 7 */
+}
 
 /* Cache for A004215: store the numbers that are not sums of three squares
    in increasing order.  The cache is grown as needed. */
@@ -37,7 +49,7 @@ seq_t a(idx_t n)
             if (base_len == base_cap)
             {
                 size_t new_cap = base_cap ? (base_cap << 1) : 64;
-                seq_t *tmp = (seq_t *)realloc(base_cache, new_cap * sizeof (seq_t));
+                seq_t *tmp = mem_resize(seq_t, base_cache, new_cap);
                 if (!tmp) abort();   /* memory failure */
                 base_cache = tmp;
                 base_cap   = new_cap;

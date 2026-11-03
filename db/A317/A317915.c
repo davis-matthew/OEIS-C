@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 7573, u32 n <= 7573, u64 n <= 7573,
  *            u128 n <= 7573, big any n
- * Helpers:   spiral_label
+ * Validated: full, pass, 7574 terms through n = 7573 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,31 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/spiral_label.h"
+#include "../utils/mem.h"
+
+/* Compute the spiral number for coordinates (x,y). */
+static seq_t spiral_label(int64_t x, int64_t y)
+{
+    if (x == 0 && y == 0) return (seq_t)0;
+
+    int64_t ax = x >= 0 ? x : -x;
+    int64_t ay = y >= 0 ? y : -y;
+    int64_t r  = ax > ay ? ax : ay;
+    uint64_t start = (2ull * (uint64_t)r - 1ull) * (2ull * (uint64_t)r - 1ull); /* (2r‑1)² */
+    uint64_t offset;
+
+    if (x == r && y >= -r + 1 && y <= r) {                     /* right side */
+        offset = (uint64_t)(y + r - 1);
+    } else if (y == r && x <= r - 1 && x >= -r) {               /* top side */
+        offset = 2ull * (uint64_t)r + (uint64_t)(r - 1 - x);
+    } else if (x == -r && y <= r - 1 && y >= -r) {              /* left side */
+        offset = 4ull * (uint64_t)r + (uint64_t)(r - 1 - y);
+    } else { /* bottom side (includes corner case) */           /* bottom side */
+        offset = 6ull * (uint64_t)r + (uint64_t)(x + r - 1);
+    }
+
+    return (seq_t)(start + offset);
+}
 
 /* Global state for caching. */
 static seq_t *seq_cache = NULL;
@@ -42,7 +67,7 @@ static void ensure_seq_cap(size_t need)
     if (need <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap << 1 : 4;
     while (new_cap < need) new_cap <<= 1;
-    seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_cache = mem_resize(seq_t, seq_cache, new_cap);
     seq_cap = new_cap;
 }
 

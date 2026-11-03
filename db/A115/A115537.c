@@ -7,7 +7,8 @@
  * Keywords:  nonn, base
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 none, u64 n <= 8, u128 n <= 8, big any n
- * Helpers:   floor_sqrt
+ * Validated: partial, pass, 9 terms through n = 9 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,26 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/floor_sqrt.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Prime sieve up to a fixed limit, used only by square_free_part. */
 #define PRIME_LIMIT 10000
@@ -60,13 +80,13 @@ typedef struct {
 static void heap_init(Heap *h) {
     h->cap = 4;
     h->size = 0;
-    h->data = (HeapNode *)malloc(h->cap * sizeof(HeapNode));
+    h->data = mem_new(HeapNode, (h->cap * sizeof(HeapNode)) / sizeof(HeapNode));
 }
 
 static void heap_push(Heap *h, HeapNode n) {
     if (h->size == h->cap) {
         h->cap <<= 1;
-        h->data = (HeapNode *)realloc(h->data, h->cap * sizeof(HeapNode));
+        h->data = mem_resize(HeapNode, h->data, (h->cap * sizeof(HeapNode)) / sizeof(HeapNode));
     }
     size_t i = h->size++;
     h->data[i] = n;
@@ -160,7 +180,7 @@ seq_t a(idx_t n) {
                 /* Ensure enough space in the ddata array. */
                 if (ddata_len == ddata_cap) {
                     ddata_cap = ddata_cap ? ddata_cap << 1 : 4;
-                    ddata = (DData *)realloc(ddata, ddata_cap * sizeof(DData));
+                    ddata = mem_resize(DData, ddata, ddata_cap);
                 }
                 ddata[ddata_len].s = s;
                 ddata[ddata_len].u_cur = u_low;
@@ -178,7 +198,7 @@ seq_t a(idx_t n) {
         HeapNode cur = heap_pop(&heap);
         if (cache_len == cache_cap) {
             cache_cap = cache_cap ? cache_cap << 1 : 4;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
         cache[cache_len++] = cur.val;
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 13, u32 n <= 25, u64 n <= 49, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 2092 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Function prototype required by the build system */
 seq_t a(idx_t n);
@@ -49,12 +51,12 @@ seq_t a(idx_t n)
         idx_t new_sz = n + 1;                     /* array size required */
 
         /* Allocate new arrays for a and b */
-        seq_t *new_a = (seq_t *)calloc((size_t)new_sz, sizeof(seq_t));
-        seq_t *new_b = (seq_t *)calloc((size_t)new_sz, sizeof(seq_t));
+        seq_t *new_a = mem_new(seq_t, (size_t)new_sz);
+        seq_t *new_b = mem_new(seq_t, (size_t)new_sz);
 
         /* Partition DP array and factorial array */
-        seq_t *dp   = (seq_t *)calloc((size_t)new_sz,  sizeof(seq_t));
-        seq_t *fact = (seq_t *)calloc((size_t)(max_k_for_n(n) + 1), sizeof(seq_t));
+        seq_t *dp   = mem_new(seq_t, (size_t)new_sz);
+        seq_t *fact = mem_new(seq_t, (size_t)(max_k_for_n(n) + 1));
 
         /* Base values */
         dp[0]   = 1;
@@ -93,15 +95,15 @@ seq_t a(idx_t n)
         }
 
         /* Replace old cache with new data */
-        if (a_cache) free(a_cache);
-        if (b_cache) free(b_cache);
+        if (a_cache) mem_free(a_cache);
+        if (b_cache) mem_free(b_cache);
         a_cache = new_a;
         b_cache = new_b;
         cache_sz = new_sz;
 
         /* Free temporary arrays */
-        free(dp);
-        free(fact);
+        mem_free(dp);
+        mem_free(fact);
     }
 
     return a_cache[n];

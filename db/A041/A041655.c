@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 23, u64 n <= 44, u128 n <= 84,
  *            big any n
- * Helpers:   alloc_cache, free_seq
+ * Validated: standard, pass, 46 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,22 @@
    a(5)=183, a(6)=188, a(7)=371, a(8)=559, a(9)=930
 */
 #include <stdlib.h>
-#include "../utils/alloc_cache.h"
-#include "../utils/free_seq.h"
+#include <stddef.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Allocate and free using malloc/free when compiled as C. */
+static seq_t *alloc_cache(idx_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+/* Helper: free an array allocated by alloc_seq. */
+static void free_seq(seq_t *p)
+{
+    mem_free(p);
+}
 
 static const seq_t init_vals[10] = {
     (seq_t)1, (seq_t)1, (seq_t)2, (seq_t)3, (seq_t)5,

@@ -8,13 +8,15 @@
  * Formula:   a(n) = Sum_{k=0..n} [gcd(k,n) = 1] * (-2)^k
  * Range:     i8 n <= 7, i16 n <= 15, i32 n <= 31, i64 n <= 33, i128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Compute gcd of two unsigned 64‑bit values */
 static inline idx_t gcd_idx(idx_t a, idx_t b) {
@@ -36,7 +38,7 @@ static void ensure_cache(idx_t n) {
     if (n < cache_cap)
         return;
     size_t new_cap = n + 1;
-    seq_t *new_vals   = (seq_t *)realloc(cache_vals, new_cap * sizeof(seq_t));
+    seq_t *new_vals   = mem_resize(seq_t, cache_vals, new_cap);
     uint8_t *new_flag = (uint8_t *)realloc(cache_computed, new_cap * sizeof(uint8_t));
     if (!new_vals || !new_flag) {
         /* Allocation failed – abort */

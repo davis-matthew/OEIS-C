@@ -11,6 +11,7 @@
  *            prime p ≤ 2n, * stops counting at the first non‑evil exponent
  * Range:     u8 n <= 319, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
+ * Validated: standard, pass, 103 terms through n = 1731 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/build_primes_upto.h"
 
 /* Count leading evil exponents in (2n)! */

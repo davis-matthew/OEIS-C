@@ -9,14 +9,34 @@
  *            Sum_{j=1..n} (-1)^(j+1) * floor(n/j)^k
  * Range:     u8 n <= 30, u16 n <= 59, u32 n <= 157, u64 n <= 412,
  *            u128 n <= 1092, big any n
- * Helpers:   _diagonal_from_index, big_pow
+ * Validated: standard, pass, 82 terms through n = 9791 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
 #include <stdint.h>
-#include "../utils/_diagonal_from_index.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
+
+/* Find the diagonal d such that d(d+1)/2 >= idx. */
+static idx_t _diagonal_from_index(idx_t idx)
+{
+    idx_t low = 1, high = 1;
+    /* grow high until it is large enough */
+    while ((unsigned __int128)high * (high + 1) / 2 < idx)
+        high <<= 1;
+    /* binary search */
+    while (low < high) {
+        idx_t mid = (low + high) >> 1;
+        if ((unsigned __int128)mid * (mid + 1) / 2 >= idx)
+            high = mid;
+        else
+            low = mid + 1;
+    }
+    return low;
+}
+#include <stdint.h>
 
 seq_t a(idx_t n)
 {
@@ -31,7 +51,7 @@ seq_t a(idx_t n)
     seq_t sum = 0;
     for (idx_t j = 1; j <= nn; ++j) {
         idx_t base = nn / j;                           /* floor(nn / j) */
-        seq_t term = big_pow((seq_t)base, (seq_t)k);   /* base^k */
+        seq_t term = ipow((seq_t)base, (seq_t)k);   /* base^k */
         if (j & 1)   /* odd j → plus */
             sum += term;
         else         /* even j → minus */

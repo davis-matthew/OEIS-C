@@ -13,12 +13,19 @@
  *            (1,1),(2,1),(2,2),(3,1),(3,2),(3,3),… This implement...
  * Range:     u8 n <= 9, u16 n <= 9, u32 n <= 9, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   sum_range
+ * Validated: partial, pass, 9 terms through n = 9 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/sum_range.h"
+static seq_t sum_range(idx_t s, idx_t e)
+{
+    seq_t sum = 0;
+    for (idx_t v = s; v <= e; ++v)
+        sum += (seq_t)v;          /* truncates to seq_t width */
+    return sum;
+}
 
 seq_t a(idx_t n)
 {

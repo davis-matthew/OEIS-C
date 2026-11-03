@@ -9,7 +9,8 @@
  *            Initial values: a(1) = 1, a(2) = 2
  * Range:     u8 n <= 10, u16 n <= 303, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   num_bits
+ * Validated: standard, pass, 67 terms through n = 9919 (2026-11-03)
+ * Helpers:   bit_length_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/num_bits.h"
+#include "../utils/bit_length_idx.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_cap = 0;
@@ -28,7 +30,7 @@ static void ensure_cache(idx_t n)
 {
     if (cache == NULL) {
         cache_cap = n + 1;
-        cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) return; /* Allocation failed; let caller handle */
         cache[1] = (seq_t)1;
         if (cache_cap > 2) cache[2] = (seq_t)2;
@@ -37,10 +39,10 @@ static void ensure_cache(idx_t n)
     if ((idx_t)n >= (idx_t)cache_cap) {
         size_t new_cap = cache_cap * 2;
         while ((idx_t)new_cap <= n) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) return; /* Allocation failed; caller will crash */
         cache = tmp;
-        memset(cache + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
+        mem_set(cache + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
         cache_cap = new_cap;
         if (cache[1] == 0) cache[1] = (seq_t)1;
         if (cache_cap > 2 && cache[2] == 0) cache[2] = (seq_t)2;
@@ -52,7 +54,7 @@ static seq_t compute_a(idx_t n)
 {
     ensure_cache(n);
     if (cache[(size_t)n] != 0) return cache[(size_t)n];
-    idx_t bits = num_bits(n);
+    idx_t bits = bit_length_idx(n);
     seq_t val = (seq_t)n * compute_a(bits);
     cache[(size_t)n] = val;
     return val;

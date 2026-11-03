@@ -12,6 +12,7 @@
  *            1 has two, etc.)
  * Range:     u8 n <= 23, u16 n <= 96, u32 n <= 417, u64 n <= 1737,
  *            u128 n <= 5150, big any n
+ * Validated: standard, pass, 82 terms through n = 4252 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,6 +21,7 @@
 /* Assumes the helper function seq_t binomial(idx_t n, idx_t k) is available. */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n) {

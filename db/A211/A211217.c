@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 191, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   alloc_seq_array, free_cache
+ * Validated: standard, pass, 66 terms through n = 9462 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,20 @@
  */
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/alloc_seq_array.h"   /* seq_t *alloc_seq_array(size_t n); */
-#include "../utils/free_cache.h"       /* void free_cache(seq_t *p); */
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_cache(seq_t *p)
+{
+    mem_free(p);
+}
 
 static seq_t *sigma_cache = NULL; /* sum-of-divisors cache */
 static size_t sigma_cap = 0;     /* cache size (number of slots) */
@@ -77,7 +90,7 @@ static void compute_max_n(idx_t n)
 
         /* copy existing values */
         if (max_cache) {
-            memcpy(new_arr, max_cache, sizeof(seq_t) * max_cap);
+            mem_copy(new_arr, max_cache, sizeof(seq_t) * max_cap);
             free_cache(max_cache);
         }
 

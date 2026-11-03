@@ -8,12 +8,14 @@
  * Formula:   a(n) = Sum_{d|n} phi(d) * n^{n/d-1}
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 27,
  *            big any n
- * Helpers:   calc_phi
+ * Validated: standard, pass, 35 terms through n = 188 (2026-11-01)
+ * Helpers:   totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/calc_phi.h"
+#include <stdint.h>
+#include "../utils/totient_seq.h"
 
 static seq_t pow_seq(seq_t base, idx_t exp)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
 
     for (idx_t d = 1; d <= n; ++d) {
         if (n % d == 0) {
-            seq_t phi_d = calc_phi((seq_t)d);
+            seq_t phi_d = totient_seq((seq_t)d);
             idx_t div = n / d;          /* n/d ≥ 1 */
             seq_t pow_val = pow_seq(n_seq, div - 1); /* n^{n/d-1} */
             sum += phi_d * pow_val;

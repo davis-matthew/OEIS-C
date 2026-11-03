@@ -7,8 +7,9 @@
  * Offset:    2    (a(2) is the first term)
  * Keywords:  nonn, tabf
  * Formula:   not stated
- * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 31, u64 n <= 133, u128 n <= 442,
+ * Range:     u8 n <= 5, u16 n <= 13, u32 n <= 37, u64 n <= 133, u128 n <= 442,
  *            big any n
+ * Validated: standard, pass, 58 terms through n = 2195 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,6 +21,7 @@
    then evaluates T(r,k) by the explicit formula
    T(r,k) = C(r+k-2,k) * ( Σ_{i=0..⌊(r-2k-2)/3⌋} C(r+k+i-2,i) * C(4r-4-k-i,
                  r-2k-2-3i) ) / (r-1). */
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 static seq_t compute_T(idx_t n, idx_t k) {

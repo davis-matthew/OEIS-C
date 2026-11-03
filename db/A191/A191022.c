@@ -7,7 +7,8 @@
  * Formula:   a(n) = n-th prime p such that p is a quadratic residue modulo 29
  * Range:     u8 n <= 26, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 924 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 static bool residues[29] = {0};
 static uint64_t *primes = NULL;
@@ -77,7 +79,7 @@ static void addSol(uint64_t p)
 {
     if (sol_len == sol_cap) {
         sol_cap = sol_cap * 2 + 1;
-        sol = (seq_t *)realloc(sol, sol_cap * sizeof(seq_t));
+        sol = mem_resize(seq_t, sol, sol_cap);
     }
     sol[sol_len++] = (seq_t)p;
 }

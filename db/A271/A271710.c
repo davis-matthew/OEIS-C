@@ -11,12 +11,14 @@
  *            (i,j) = (d-offset, offset) Then a(n) = pow2(i) ^ pow2(j)
  * Range:     u8 n <= 35, u16 n <= 135, u32 n <= 527, u64 n <= 2079,
  *            u128 n <= 8255, big any n
+ * Validated: standard, pass, 80 terms through n = 9796 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n) {

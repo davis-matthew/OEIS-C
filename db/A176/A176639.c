@@ -9,7 +9,8 @@
  *            Row r (0‑based) contains r+1 entries: T(r,0)…T(r,r)
  * Range:     u8 n <= 10, u16 n <= 16, u32 n <= 23, u64 n <= 47, u128 n <= 82,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 52 terms through n = 1110 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,7 +35,8 @@ static inline idx_t isqrt_idx(idx_t x)
 /* External function required by the system. */
 /* We include the header that declares pow_uint.  The header name follows the
    naming convention described in the documentation. */
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -52,5 +54,5 @@ seq_t a(idx_t n)
     /* Compute 15^e exactly.  pow_uint(base,exp) handles large exponents
        by repeated multiplication.  seq_t is large enough for the result
        in the tested ranges. */
-    return pow_uint(15ull, e);
+    return ipow_u64_idx(15ull, e);
 }

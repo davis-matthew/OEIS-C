@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   has56_pair
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,27 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has56_pair.h"
+#include "../utils/mem.h"
+
+/* Detect whether a decimal representation of v contains the
+   adjacent digit pair 5 followed by 6.
+   The function scans digits from least significant to most and
+   looks for the pattern 6 (previous digit) followed by 5. */
+static bool has56_pair(seq_t v)
+{
+    bool prev6 = false;
+    bool has  = false;
+    while (v > (seq_t)0) {
+        int d = (int)(v % (seq_t)10);
+        if (prev6 && d == 5) {
+            has = true;
+            break;
+        }
+        prev6 = (d == 6);
+        v /= (seq_t)10;
+    }
+    return has;
+}
 
 /* Return the nth term of A044388.  The function caches the terms
    that have been generated so far so that any order of calls works.
@@ -37,7 +58,7 @@ seq_t a(idx_t n)
         if (terms_cap < (size_t)n) {
             size_t new_cap = terms_cap ? terms_cap * 2 : 16;
             if (new_cap < (size_t)n) new_cap = (size_t)n;
-            terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+            terms = mem_resize(seq_t, terms, new_cap);
             terms_cap = new_cap;
         }
 

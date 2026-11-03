@@ -9,14 +9,42 @@
  *            one and no two consecutive digits are equal
  * Range:     u8 n <= 59, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   is_up_first_zigzag_base8
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_up_first_zigzag_base8.h"
+#include "../utils/mem.h"
+
+static bool is_up_first_zigzag_base8(seq_t x)
+{
+    if (x < 8)
+        return false;                      /* needs at least two base‑8 digits */
+
+    /* Extract base‑8 digits (least significant first) */
+    unsigned char digits[128];
+    int len = 0;
+    seq_t tmp = x;
+    while (tmp > 0) {
+        digits[len++] = (unsigned char)(tmp % 8);
+        tmp /= 8ULL;                       /* use 8ULL to avoid overflow on seq_t */
+    }
+
+    if (len < 2)
+        return false;                      /* just in case */
+
+    /* No consecutive equal digits */
+    for (int i = len - 1; i > 0; --i) {
+        if (digits[i] == digits[i - 1])
+            return false;
+    }
+
+    /* First comparison must be "up": most significant digit < second most significant */
+    return digits[len - 1] < digits[len - 2];
+}
 
 seq_t a(idx_t n)
 {
@@ -30,7 +58,7 @@ seq_t a(idx_t n)
     if (cache_count < (size_t)n) {
         if (!cache) {
             cache_cap = 16;
-            cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+            cache = mem_new(seq_t, cache_cap);
             if (!cache)
                 exit(1);
         }
@@ -40,7 +68,7 @@ seq_t a(idx_t n)
             if (is_up_first_zigzag_base8(candidate)) {
                 if (cache_count == cache_cap) {
                     size_t new_cap = cache_cap * 2;
-                    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                     if (!tmp)
                         exit(1);
                     cache = tmp;

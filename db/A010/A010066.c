@@ -7,13 +7,15 @@
  * Formula:   a(0) = 1; a(n+1) = a(n) + sum_of_digits_in_base5(a(n)) for n ≥ 0
  * Range:     u8 n <= 43, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 896 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* dynamic array holding computed terms   */
 static size_t cache_cap = 0;    /* allocated capacity in elements         */
@@ -28,7 +30,7 @@ ensure_capacity(size_t needed)
     size_t new_cap = cache_cap ? cache_cap << 1 : 64;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         exit(EXIT_FAILURE);
     cache = tmp;

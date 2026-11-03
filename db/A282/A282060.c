@@ -13,6 +13,7 @@
  *            arithmetic for the 64‑bit build, and uses a 128‑...
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 15, u64 n <= 255, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 41 terms through n = 962 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 /* Helper that safely multiplies two seq_t values.  For 64‑bit builds

@@ -14,12 +14,14 @@
  *            a(8)=8155, a(9)=30205, a(10)=11...
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 34, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* cache[1..] holds values of a(n) */
 static size_t cap   = 0;       /* allocated capacity (number of elements) */
@@ -34,7 +36,7 @@ static void ensure_capacity(idx_t need)
     size_t newcap = cap ? cap : 64;
     while (newcap < required)
         newcap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, newcap);
     if (!tmp)
         abort();
     cache = tmp;

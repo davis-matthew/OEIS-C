@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 28, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    Initial values: a(0)=1, a(1)=0, a(2)=1, a(3)=0, a(4)=3, a(5)=2, ...  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,11 +35,11 @@ seq_t a(idx_t n)
         return 1;
 
     /* allocate temporary arrays for two consecutive rows */
-    seq_t *prev = (seq_t*)malloc((r + 1) * sizeof(seq_t));
-    seq_t *cur  = (seq_t*)malloc((r + 1) * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, (r + 1));
+    seq_t *cur  = mem_new(seq_t, (r + 1));
     if (!prev || !cur) {
-        if (prev) free(prev);
-        if (cur)  free(cur);
+        if (prev) mem_free(prev);
+        if (cur)  mem_free(cur);
         return 0;          /* on allocation failure return 0 */
     }
 
@@ -62,8 +64,8 @@ seq_t a(idx_t n)
 
         if (i == r) {          /* we have reached desired row */
             seq_t result = cur[k];
-            free(prev);
-            free(cur);
+            mem_free(prev);
+            mem_free(cur);
             return result;
         }
 
@@ -74,7 +76,7 @@ seq_t a(idx_t n)
     }
 
     /* Should never reach here */
-    free(prev);
-    free(cur);
+    mem_free(prev);
+    mem_free(cur);
     return 0;
 }

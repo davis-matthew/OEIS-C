@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 2800, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_spf
+ * Validated: standard, pass, 68 terms through n = 9960 (2026-11-03)
+ * Helpers:   build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 
 /* Helper that builds the smallest–prime‑factor array up to a limit. */
 #include "../utils/build_spf.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Global state for the sieve and the cache of infinitary abundant
@@ -113,10 +115,10 @@ static void ensure_cache(size_t N)
     /* allocate or enlarge the cache array */
     if (cache_cap == 0) {
         cache_cap = 256;
-        abund_cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        abund_cache = mem_new(seq_t, cache_cap);
     } else if (cache_len >= cache_cap) {
         cache_cap *= 2;
-        abund_cache = (seq_t *)realloc(abund_cache, cache_cap * sizeof(seq_t));
+        abund_cache = mem_resize(seq_t, abund_cache, cache_cap);
     }
 
     /* search for additional infinitary abundant numbers */
@@ -132,8 +134,7 @@ static void ensure_cache(size_t N)
             /* store the term */
             if (cache_len >= cache_cap) {       /* just in case */
                 cache_cap *= 2;
-                abund_cache = (seq_t *)realloc(abund_cache,
-                                               cache_cap * sizeof(seq_t));
+                abund_cache = mem_resize(seq_t, abund_cache, cache_cap);
             }
             abund_cache[cache_len++] = (seq_t)next_test;
         }

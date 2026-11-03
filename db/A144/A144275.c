@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 21, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp_table = NULL;         /* flattened dp[n][m] */
 static idx_t  dp_rows   = 0;           /* number of rows currently computed  */
@@ -37,7 +39,7 @@ static void ensure_dp(idx_t max_rows)
     if (dp_rows >= max_rows) return;
 
     /* allocate/resize f_table */
-    seq_t *new_f = (seq_t*)realloc(f_table, (max_rows + 1) * sizeof(seq_t));
+    seq_t *new_f = mem_resize(seq_t, f_table, (max_rows + 1));
     if (!new_f) exit(1);
     f_table = new_f;
 
@@ -50,7 +52,7 @@ static void ensure_dp(idx_t max_rows)
 
     /* allocate/build dp_table */
     size_t sz = (size_t)(max_rows + 1) * (max_rows + 1);
-    seq_t *new_dp = (seq_t*)realloc(dp_table, sz * sizeof(seq_t));
+    seq_t *new_dp = mem_resize(seq_t, dp_table, sz);
     if (!new_dp) exit(1);
     dp_table = new_dp;
 

@@ -8,14 +8,16 @@
  * Formula:   a(n) = binomial(n-m-1, m+1), where m is the * 0‑based position
  *            of n in the irregular triangle read by rows * starting with row
  *            n = 2. For n < 2 the return value is 0
- * Range:     u8 n <= 39, u16 n <= 83, u32 n <= 83, u64 n <= 83, u128 n <= 83,
+ * Range:     u8 n <= 59, u16 n <= 83, u32 n <= 83, u64 n <= 83, u128 n <= 83,
  *            big any n
+ * Validated: partial, pass, 82 terms through n = 83 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* Return the total number of terms up to and including row r

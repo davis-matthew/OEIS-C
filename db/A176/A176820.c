@@ -8,7 +8,8 @@
  *            3*A171821(2n)
  * Range:     u8 n <= 8, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* -------------------------------------------------------------------------- */
 /*  Set up a sieve and a twin‑prime list so that we can quickly count primes   */
@@ -64,7 +66,7 @@ static void sieve_upto(size_t limit) {
 static void rebuild_twin_seq(void) {
     if (!twin_seq) {
         twin_cap = 1024;
-        twin_seq = (seq_t *)malloc(twin_cap * sizeof(seq_t));
+        twin_seq = mem_new(seq_t, twin_cap);
         if (!twin_seq) exit(1);
     }
 
@@ -81,7 +83,7 @@ static void rebuild_twin_seq(void) {
         if (twin) {
             if (twin_len == twin_cap) {
                 twin_cap <<= 1;
-                twin_seq = (seq_t *)realloc(twin_seq, twin_cap * sizeof(seq_t));
+                twin_seq = mem_resize(seq_t, twin_seq, twin_cap);
                 if (!twin_seq) exit(1);
             }
             twin_seq[twin_len++] = (seq_t)p;

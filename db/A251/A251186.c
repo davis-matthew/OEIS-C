@@ -12,13 +12,14 @@
  *            observation that in every 3‑consecutive window t...
  * Range:     u8 none, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 20,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 20 terms through n = 20 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +37,7 @@ seq_t a(idx_t n)
 
     for (idx_t i = 0; i < 3; ++i)
         for (idx_t j = 0; j < 3; ++j)
-            ans *= binom(c[i] + c[j], c[i]);
+            ans *= binomial(c[i] + c[j], c[i]);
 
     return ans;
 }

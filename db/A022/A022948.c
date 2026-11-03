@@ -8,7 +8,8 @@
  *            integer not in the sequence. Initial values: a(1)=1, * a(2)=4
  * Range:     i8 n <= 13, i16 n <= 49, i32 n <= 49, i64 n <= 49, i128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static state for incremental computation. */
 static idx_t   seq_len     = 0;      /* number of terms computed so far */
@@ -68,7 +70,7 @@ static void ensure_seq_capacity(idx_t n)
     if (seq_cap >= n) return;
     idx_t new_cap = seq_cap ? seq_cap << 1 : 16;
     if (new_cap < n) new_cap = n;
-    seq_t *tmp = (seq_t *)realloc(seq_arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_arr, new_cap);
     if (!tmp) exit(1);
     seq_arr = tmp;
     seq_cap = new_cap;
@@ -82,7 +84,7 @@ seq_t a(idx_t n)
     /* Initialise structures on first call. */
     if (!seq_arr) {
         seq_cap = n > 16 ? n : 16;
-        seq_arr = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_arr = mem_new(seq_t, seq_cap);
         if (!seq_arr) exit(1);
     }
     ensure_seq_capacity(n);

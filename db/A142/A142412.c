@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 411, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 61 terms through n = 942 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* Return the n‑th prime congruent to 43 (mod 48).  This implementation
    builds the sequence incrementally and caches all found terms so that
@@ -39,15 +41,14 @@ seq_t a(idx_t n)
     while (prime_count < n)
     {
         /* Test the current candidate.  It is guaranteed to be  ≡ 43 (mod 48). */
-        if (is_prime_small((seq_t)next_candidate))
+        if (is_prime_seq((seq_t)next_candidate))
         {
             /* Allocate a larger buffer.  Use a C style cast because the
                type seq_t may be a built‑in integer type or a trivial type
                in the C case, and C++ allows a cast from void* to any
                object pointer.  If seq_t is a non‑trivial type the build
                is expected to provide a proper allocator. */
-            seq_t *tmp = (seq_t *)realloc(prime_cache,
-                                          (prime_count + 1) * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, prime_cache, (prime_count + 1));
             if (tmp == NULL)
                 abort();                     /* out of memory */
 

@@ -7,17 +7,21 @@
  * Formula:   a(n) = 3^n mod 131
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 82 terms through n = 822 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
     /* Use the given period 65 to keep exponents small. */
     idx_t k = n % 65;
-    return mod_pow((seq_t)3, k, (seq_t)131);
+    return powmod((seq_t)3, k, (seq_t)131);
 }

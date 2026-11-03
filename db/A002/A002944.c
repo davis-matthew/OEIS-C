@@ -8,19 +8,20 @@
  *            - v_p(n))
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 28, u64 n <= 48, u128 n <= 96,
  *            big any n
- * Helpers:   is_prime_simple
+ * Validated: standard, pass, 47 terms through n = 433 (2026-11-01)
+ * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime_simple.h"
+#include "../utils/is_prime.h"
 
 seq_t a(idx_t n) {
     seq_t result = 1;
     for (idx_t p = 2; p <= n; p++) {
-        if (!is_prime_simple(p)) continue;
+        if (!is_prime(p)) continue;
         /* e = largest k with p^k <= n */
         idx_t e = 1;
         idx_t pk = p;

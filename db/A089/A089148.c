@@ -7,12 +7,14 @@
  * Formula:   a(n) = -\sum_{k=2}^{n}\binom{n}{k}\,a(n-k), a(0)=1, a(1)=0
  * Range:     i8 n <= 6, i16 n <= 9, i32 n <= 15, i64 n <= 22, i128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
     /* Initialize on first call */
     if (upto == 0) {
         size_t init = 2;                      /* capacity for indices 0 and 1 */
-        cache = (seq_t *)realloc(NULL, init * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, init);
         cap   = init;
         cache[0] = 1;
         cache[1] = 0;
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     if (n >= (idx_t)cap) {
         size_t newcap = cap;
         while ((idx_t)newcap <= n) newcap *= 2;
-        cache = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, newcap);
         cap   = newcap;
     }
 

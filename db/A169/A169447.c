@@ -12,12 +12,14 @@
  *            function G(t) = (1+2∑_{k=1}^{31}t^k+t^32)/(1–48∑_{k=1}^{31}t^...
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     if (seq_len == 0) {
         /* First call: initialise with a(0). */
         seq_cap = 1;
-        seq_arr = (seq_t*)realloc(NULL, seq_cap * sizeof(seq_t));
+        seq_arr = mem_resize(seq_t, NULL, seq_cap);
         if (!seq_arr) abort();          /* allocation failed */
         seq_arr[0] = (seq_t)1;          /* a(0) = 1 */
         seq_len = 1;
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
         if (needed > seq_cap) {
             size_t newcap = seq_cap ? seq_cap << 1 : 1;
             while (newcap < needed) newcap <<= 1;
-            seq_t *tmp = (seq_t*)realloc(seq_arr, newcap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq_arr, newcap);
             if (!tmp) abort();
             seq_arr = tmp;
             seq_cap = newcap;

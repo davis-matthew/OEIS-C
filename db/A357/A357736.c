@@ -7,13 +7,15 @@
  * Formula:   a(n) = Sum_{k=0..floor((n-1)/2)} (-2)^k * Stirling2(n, 2*k+1)
  * Range:     i8 n <= 7, i16 n <= 9, i32 n <= 15, i64 n <= 24, i128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>   /* for size_t */
 #include <stdlib.h>   /* for malloc/realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,14 +30,14 @@ seq_t a(idx_t n)
     /* Make sure we have space for indices up to n in a_cache and S_arr */
     if (n >= (idx_t)a_cap) {
         size_t new_cap = (size_t)n + 1;
-        a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_cap);
         /* initialise new entries to 0 (they will be filled when computed) */
         for (idx_t i = a_cap; i < new_cap; ++i) a_cache[i] = 0;
         a_cap = new_cap;
     }
     if (n >= (idx_t)s_cap) {
         size_t new_cap = (size_t)n + 1;
-        S_arr = (seq_t *)realloc(S_arr, new_cap * sizeof(seq_t));
+        S_arr = mem_resize(seq_t, S_arr, new_cap);
         /* initialise new entries to 0 */
         for (idx_t i = s_cap; i < new_cap; ++i) S_arr[i] = 0;
         s_cap = new_cap;

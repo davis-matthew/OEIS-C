@@ -11,8 +11,9 @@
  *            p_k the k‑th prime. Sort the factors by decreasing k. For i =
  *            1..t define cum_i = e_1+…+e_i and diff_i = k_i−k_{i+1} (with
  *            k_{t+1} = 0). Then a(n) = ∏_{i=1..t} cum_i ^ dif...
- * Range:     u8 n <= 360, u16 n <= 2808, u32 n <= 9208, u64 n <= 9208,
- *            u128 n <= 9208, big any n
+ * Range:     u8 n <= 360, u16 n <= 2808, u32 n <= 10201, u64 n <= 10201,
+ *            u128 n <= 10201, big any n
+ * Validated: standard, pass, 121 terms through n = 9208 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

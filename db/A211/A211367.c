@@ -10,12 +10,14 @@
  *            (1,1), * then (1,2),(2,1), then (1,3),(2,2),(3,1), etc
  * Range:     u8 n <= 5, u16 n <= 13, u32 n <= 27, u64 n <= 64, u128 n <= 169,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 2002 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *fact_cache = NULL;    /* factorial cache: fact_cache[i] = i! */
 static idx_t  fact_len   = 0;       /* number of cached factorials   */
@@ -33,7 +35,7 @@ ensure_factorial(idx_t k)
         size_t new_cap = fact_cap ? fact_cap : 16;
         while (new_cap < (size_t)(k + 1))
             new_cap <<= 1;
-        fact_cache = (seq_t*)realloc(fact_cache, new_cap * sizeof(seq_t));
+        fact_cache = mem_resize(seq_t, fact_cache, new_cap);
         fact_cap = new_cap;
     }
 

@@ -7,6 +7,7 @@
  * Formula:   a(n) = (is_prime(n) ? n^3 : n)
  * Range:     u8 n <= 6, u16 n <= 40, u32 n <= 1626, u64 n <= 2000,
  *            u128 n <= 2000, big any n
+ * Validated: standard, pass, 73 terms through n = 1913 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 16, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stddef.h>   /* size_t, NULL */
 #include <stdlib.h>   /* calloc, realloc, abort, memset */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,13 +43,13 @@ seq_t a(idx_t n)
        ------------------------------------------------------------ */
     if (a_cap == 0) {
         a_cap   = 1;
-        a_cache = (seq_t*)calloc(a_cap, sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_cap);
         if (!a_cache) abort();
         a_cache[0] = 1;          /* a(0) = 1 */
         a_len    = 1;
 
         conv_cap   = 1;
-        conv_cache = (seq_t*)calloc(conv_cap, sizeof(seq_t));
+        conv_cache = mem_new(seq_t, conv_cap);
         if (!conv_cache) abort();
         conv_cache[0] = 1;       /* conv[0] = a0*a0 = 1 */
     }
@@ -63,11 +65,11 @@ seq_t a(idx_t n)
     if (a_cap <= n) {
         size_t old_cap = (size_t)a_cap;
         size_t new_cap = (size_t)(n + 1) * 2;  /* overshoot to reduce reallocs */
-        seq_t *tmp = (seq_t*)realloc(a_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
         if (!tmp) abort();
         a_cache = tmp;
         if (new_cap > old_cap)
-            memset(a_cache + old_cap, 0, (new_cap - old_cap) * sizeof(seq_t));
+            mem_set(a_cache + old_cap, 0, (new_cap - old_cap) * sizeof(seq_t));
         a_cap = (idx_t)new_cap;
     }
 
@@ -77,12 +79,11 @@ seq_t a(idx_t n)
     if (conv_cap <= 2 * n) {
         size_t old_cap = (size_t)conv_cap;
         size_t new_cap = (size_t)(2 * n + 1) * 2;  /* overshoot */
-        seq_t *tmp = (seq_t*)realloc(conv_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, conv_cache, new_cap);
         if (!tmp) abort();
         conv_cache = tmp;
         if (new_cap > old_cap)
-            memset(conv_cache + old_cap, 0,
-                   (new_cap - old_cap) * sizeof(seq_t));
+            mem_set(conv_cache + old_cap, 0, (new_cap - old_cap) * sizeof(seq_t));
         conv_cap = (idx_t)new_cap;
     }
 

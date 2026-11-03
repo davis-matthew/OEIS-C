@@ -7,19 +7,20 @@
  * Formula:   a(n) = n^2 + ceil(n*(1 + sqrt(5))/2)^2
  * Range:     u8 n <= 7, u16 n <= 133, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   isqrt
+ * Validated: standard, pass, 63 terms through n = 9925 (2026-11-01)
+ * Helpers:   isqrt_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/isqrt.h"
+#include "../utils/isqrt_seq.h"
 
 static inline seq_t ceil_phi(idx_t n)
 {
     /* m = floor(n * sqrt(5)) = floor(sqrt(5 * n^2)) */
     seq_t nn   = (seq_t)n * (seq_t)n;
     seq_t t    = (seq_t)5 * nn;
-    seq_t m    = isqrt(t);
+    seq_t m    = isqrt_seq(t);
     seq_t sum  = (seq_t)n + m;
     /* ceil(n*phi) = floor((n+m)/2) + 1 */
     return (sum >> 1) + 1;

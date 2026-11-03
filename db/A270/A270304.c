@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 7, u64 n <= 7, u128 n <= 7,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 7 terms through n = 7 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    exceeds the number of found terms, it returns 0. */
 
 #include <stddef.h>  /* for size_t */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static table to memoize the sequence values */
@@ -31,7 +33,7 @@ seq_t a(idx_t n) {
     if (terms == NULL) {
         const size_t LIMIT = 400000UL;          /* known upper bound */
         capacity = 16;                         /* initial allocation */
-        terms = (seq_t *)malloc(capacity * sizeof(seq_t));
+        terms = mem_new(seq_t, capacity);
         if (terms == NULL)                     /* allocation failed */
             return (seq_t)0;
 
@@ -52,10 +54,9 @@ seq_t a(idx_t n) {
             if (sum == (seq_t)x) {               /* record solution */
                 if (term_count >= capacity) {    /* grow the table */
                     capacity *= 2;
-                    seq_t *newp = (seq_t *)realloc(terms,
-                                                    capacity * sizeof(seq_t));
+                    seq_t *newp = mem_resize(seq_t, terms, capacity);
                     if (newp == NULL) {          /* allocation failed */
-                        free(terms);
+                        mem_free(terms);
                         terms = NULL;
                         return (seq_t)0;
                     }

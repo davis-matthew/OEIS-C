@@ -11,7 +11,8 @@
  *            once the requested index has been reached
  * Range:     u8 n <= 1, u16 n <= 217, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factorize, grow_seq_array, is_prime, mod_pow, next_prime
+ * Validated: standard, pass, 62 terms through n = 9754 (2026-11-03)
+ * Helpers:   factorize, is_prime, mem, next_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,11 +22,24 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#include <string.h>
+#include "../utils/factorize.h"
 #include "../utils/is_prime.h"
 #include "../utils/next_prime.h"
-#include "../utils/factorize.h"
-#include "../utils/mod_pow.h"
-#include "../utils/grow_seq_array.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
+
+/* Helper to grow a sequence array of type seq_t. */
+static void grow_seq_array(seq_t **arr, size_t *size, size_t new_len)
+{
+    if (*size >= new_len) return;
+    size_t new_cap = (*size > 0) ? (*size << 1) : 16;
+    while (new_cap < new_len) new_cap <<= 1;
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+    if (!tmp) abort();
+    *arr = tmp;
+    *size = new_cap;
+}
 
 /* Check if 2 is a primitive root modulo the odd prime p. */
 static bool is_primitive_root_two(uint64_t p)
@@ -38,7 +52,7 @@ static bool is_primitive_root_two(uint64_t p)
     for (size_t i = 0; i < cnt; ++i) {
         uint64_t q = primes[i];
         /* If 2^((p-1)/q) ≡ 1 (mod p), 2 is not a primitive root. */
-        if (mod_pow((seq_t)2, phi / q, (seq_t)p) == (seq_t)1)
+        if (powmod((seq_t)2, phi / q, (seq_t)p) == (seq_t)1)
             return false;
     }
     return true;
@@ -55,7 +69,7 @@ seq_t a(idx_t n)
     /* Allocate and grow the array to hold at least n terms. */
     if (seq == NULL) {
         seq_cap = 64;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
     }
     if ((size_t)n > seq_cap) {
         size_t new_cap = seq_cap;

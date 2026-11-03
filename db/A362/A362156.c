@@ -7,7 +7,8 @@
  * Formula:   a(n) = Expansion of -1/(1 - x * sqrt(1-4*x))
  * Range:     i8 n <= 6, i16 n <= 10, i32 n <= 18, i64 n <= 28, i128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *a_cache = NULL;          /* cached a values */
@@ -26,7 +28,7 @@ seq_t a(idx_t n) {
 
     /* Ensure a[0] is defined */
     if (a_cap == 0) {
-        a_cache = (seq_t *)malloc(sizeof(seq_t));
+        a_cache = mem_new(seq_t, 1);
         if (!a_cache) return 0;          /* allocation failure */
         a_cache[0] = -1;
         a_cap = 1;
@@ -37,14 +39,14 @@ seq_t a(idx_t n) {
         /* Resize a_cache to hold n+1 elements */
         size_t new_a_cap = (size_t)(n + 1);
         if (new_a_cap < 2) new_a_cap = 2;
-        seq_t *tmp_a = (seq_t *)realloc(a_cache, new_a_cap * sizeof(seq_t));
+        seq_t *tmp_a = mem_resize(seq_t, a_cache, new_a_cap);
         if (!tmp_a) return 0;            /* allocation failure */
         a_cache = tmp_a;
         /* Prepare Catalan numbers up to index n-2 (needs C_0 .. C_{n-2}) */
         if ((size_t)n >= 2) {
             size_t needed_c_cap = (size_t)(n - 1);  /* number of Catalan entries needed */
             if (needed_c_cap > c_cap) {
-                seq_t *tmp_c = (seq_t *)realloc(c_cache, needed_c_cap * sizeof(seq_t));
+                seq_t *tmp_c = mem_resize(seq_t, c_cache, needed_c_cap);
                 if (!tmp_c) return 0;
                 c_cache = tmp_c;
                 /* Compute missing Catalan numbers */

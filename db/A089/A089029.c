@@ -10,7 +10,8 @@
  *            n>2)
  * Range:     u8 n <= 89, u16 n <= 89, u32 n <= 89, u64 n <= 89, u128 n <= 89,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 88 terms through n = 89 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *Q = NULL;     /* Q[0] unused, Q[1] = Q[2] = 1 */
 static size_t Qlen = 0;     /* highest n already computed (1‑based) */
@@ -32,7 +34,7 @@ static void ensure_capacity(size_t new_cap)
     if (new_cap < 3)
         new_cap = 3;                 /* at least indices 0..2 needed */
     size_t new_len = new_cap * sizeof(seq_t);
-    seq_t *tmp = (seq_t *)realloc(Q, new_len);
+    seq_t *tmp = mem_resize(seq_t, Q, (new_len) / sizeof(seq_t));
     if (!tmp)
         exit(1);                     /* out of memory */
     /* initialise any newly allocated elements to 0 */

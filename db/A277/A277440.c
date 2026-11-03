@@ -12,7 +12,8 @@
  *            terms
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 40, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* External type definitions from the build */
 extern seq_t gcd(seq_t a, seq_t b);
@@ -34,8 +36,8 @@ static void need_size(idx_t idx)
 {
     if (idx + 1 <= allocated) return;
     size_t new_alloc = (idx + 1) * 2;
-    seq_t *new_num = (seq_t *)realloc(num_table, new_alloc * sizeof(seq_t));
-    seq_t *new_den = (seq_t *)realloc(den_table, new_alloc * sizeof(seq_t));
+    seq_t *new_num = mem_resize(seq_t, num_table, new_alloc);
+    seq_t *new_den = mem_resize(seq_t, den_table, new_alloc);
     if (!new_num || !new_den) {
         /* Allocation failed – abort */
         exit(EXIT_FAILURE);

@@ -10,12 +10,14 @@
  *            (-1)^(n+1)*(13+3^(n+2)) + 11*(3^(n+1)-1)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 18, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *pow3_cache = NULL;   /* pow3_cache[i] = 3^i */
 static idx_t pow3_len   = 0;        /* current allocated size */
@@ -28,7 +30,7 @@ static void ensure_pow3(idx_t m)
 
     /* Reallocate once for all new entries to reduce realloc calls */
     idx_t new_len = m + 1;
-    seq_t *new_cache = (seq_t *)realloc(pow3_cache, new_len * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, pow3_cache, new_len);
     if (!new_cache)
         abort(); /* memory failure */
     pow3_cache = new_cache;

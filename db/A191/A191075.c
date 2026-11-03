@@ -8,7 +8,8 @@
  *            modulo 59
  * Range:     u8 n <= 29, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 71 terms through n = 995 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,12 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+#include <stdbool.h>
 #include "../utils/is_prime.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -43,7 +48,7 @@ seq_t a(idx_t n)
         {
             seq_t p   = (seq_t)cur;          /* cast to the build’s seq_t */
             seq_t base = p % (seq_t)59;        /* p mod 59  */
-            seq_t res  = mod_pow(base, 29ULL, (seq_t)59); /* pow(base,29,59) */
+            seq_t res  = powmod(base, 29ULL, (seq_t)59); /* pow(base,29,59) */
 
             /* Legendre symbol (p/59) == -1 iff res == 58 (mod 59) */
             if (res == (seq_t)58)
@@ -52,7 +57,7 @@ seq_t a(idx_t n)
                 if (nonres_len == nonres_cap)
                 {
                     size_t new_cap = (nonres_cap == 0) ? 16 : nonres_cap * 2;
-                    seq_t *tmp = (seq_t *)realloc(nonres, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, nonres, new_cap);
                     nonres = tmp;
                     nonres_cap = new_cap;
                 }

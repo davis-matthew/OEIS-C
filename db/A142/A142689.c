@@ -7,12 +7,14 @@
  * Formula:   a(n) = the n-th prime p with p ≡ 40 (mod 57)
  * Range:     u8 n <= 2, u16 n <= 184, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 58 terms through n = 991 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/is_prime.h"   /* is_prime(idx_t) */
+#include <stdbool.h>
+#include "../utils/is_prime.h"
 
 /* Return the n‑th prime that is congruent to 40 modulo 57.
    The sequence is indexed from 1 (a(1) = 97). */

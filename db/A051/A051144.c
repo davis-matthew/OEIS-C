@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 84, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   good_uint64
+ * Validated: standard, pass, 75 terms through n = 9167 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,30 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/good_uint64.h"
+#include "../utils/mem.h"
+
+static bool good_uint64(uint64_t v)
+{
+    bool has_gt1 = false;   /* at least one exponent > 1  */
+    bool has_odd = false;   /* at least one exponent odd   */
+    uint64_t n = v;
+
+    for (uint64_t p = 2; p * p <= n; ++p) {
+        int cnt = 0;
+        while (n % p == 0) {
+            n /= p;
+            ++cnt;
+            if (cnt >= 2)
+                has_gt1 = true;
+        }
+        if (cnt > 0 && (cnt & 1))
+            has_odd = true;
+    }
+    if (n > 1) {   /* remaining prime factor with exponent 1 */
+        has_odd = true;
+    }
+    return has_gt1 && has_odd;
+}
 
 seq_t a(idx_t n)
 {
@@ -42,7 +66,7 @@ seq_t a(idx_t n)
         /* grow array if needed */
         if (len == cap) {
             size_t newcap = cap ? cap << 1 : 16;
-            seq_t *tmp = (seq_t*)realloc(seq, newcap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq, newcap);
             if (!tmp)
                 exit(EXIT_FAILURE);   /* allocation failed */
             seq = tmp;

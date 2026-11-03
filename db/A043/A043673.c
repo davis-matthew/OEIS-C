@@ -8,7 +8,8 @@
  *            6 runs
  * Range:     u8 none, u16 none, u32 n <= 27, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   runs_base15
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,24 @@
 /*  Portable implementation for seq_t and idx_t as defined by the build system.  */
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/runs_base15.h"
+#include "../utils/mem.h"
+
+/* Count the number of runs of digits in the base‑15 representation of x. */
+static int runs_base15(seq_t x)
+{
+    if (x == (seq_t)0) return 0;
+    seq_t prev = (seq_t)15;           /* a value outside the digit range 0‑14 */
+    int runs = 0;
+    while (x > (seq_t)0) {
+        seq_t d = x % (seq_t)15;
+        if (d != prev) {
+            runs++;
+            prev = d;
+        }
+        x /= (seq_t)15;
+    }
+    return runs;
+}
 
 /* Static cache state */
 static seq_t *cache = NULL;      /* array of cached terms */
@@ -30,11 +48,11 @@ static void ensure_cache_cap(size_t needed)
     if (needed <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 8;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     if (cache) {
-        memcpy(tmp, cache, cache_cap * sizeof(seq_t));
-        free(cache);
+        mem_copy(tmp, cache, cache_cap * sizeof(seq_t));
+        mem_free(cache);
     }
     cache = tmp;
     cache_cap = new_cap;

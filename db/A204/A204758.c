@@ -9,7 +9,8 @@
  *            permanents are all equal and nonzero. (A204758)
  * Range:     u8 none, u16 n <= 1, u32 n <= 6, u64 n <= 17, u128 n <= 38,
  *            big any n
- * Helpers:   seq_alloc_new_array
+ * Validated: standard, pass, 31 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,12 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/seq_alloc_new_array.h"
+#include <string.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
 
 #define MAX_ROWS 1296          /* 6^4 possible rows */
 #define CMAX   51              /* permanents 0..50, 0 unused */

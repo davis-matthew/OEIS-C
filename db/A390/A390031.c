@@ -7,13 +7,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 84, u16 n <= 84, u32 n <= 84, u64 n <= 84, u128 n <= 84,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 85 terms through n = 84 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Number of ordered factorizations of 2*n into factors > 1. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached values of f(m) = number of ordered factorizations of m (m≥1). */
 static seq_t *f_cache = NULL;    /* array index == m */
@@ -29,7 +31,7 @@ ensure_f_cache(idx_t need)
     size_t new_cap = f_cache_cap ? f_cache_cap : 4;
     while ((idx_t)new_cap <= need)
         new_cap <<= 1;
-    seq_t *new_cache = (seq_t*)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache)
         abort();
     /* Copy existing data */
@@ -38,7 +40,7 @@ ensure_f_cache(idx_t need)
     /* Zero new entries */
     for (size_t i = f_cache_cap; i < new_cap; ++i)
         new_cache[i] = 0;
-    free(f_cache);
+    mem_free(f_cache);
     f_cache = new_cache;
     f_cache_cap = new_cap;
 }

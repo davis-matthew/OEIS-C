@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   abs_int, gcd_int
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-03)
+ * Helpers:   gcd_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,8 +34,11 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/abs_int.h"
-#include "../utils/gcd_int.h"
+#include "../utils/gcd_i32.h"
+#include "../utils/mem.h"
+
+/* simple absolute value for int */
+static inline int abs_int(int x) { return x < 0 ? -x : x; }
 
 /* ----------------------------------------------------------------------------- */
 /*  Static state: the walk and auxiliary data                                */
@@ -78,7 +82,7 @@ static void ensure_capacity(idx_t n) {
 
     points_x = (idx_t*)realloc(points_x, new_cap * sizeof(idx_t));
     points_y = (idx_t*)realloc(points_y, new_cap * sizeof(idx_t));
-    seq     = (seq_t*)realloc(seq    , (new_cap + 1) * sizeof(seq_t));
+    seq     = mem_resize(seq_t, seq, (new_cap + 1));
 
     freqR = (int*)realloc(freqR, (new_cap + 1) * sizeof(int));
     freqU = (int*)realloc(freqU, (new_cap + 1) * sizeof(int));
@@ -106,7 +110,7 @@ static void compute_freq(idx_t cx, idx_t cy,
         int dy = (int)(points_y[i]) - (int)(cy);
 
         int adx = abs_int(dx), ady = abs_int(dy);
-        int g   = gcd_int(adx, ady);
+        int g   = gcd_i32(adx, ady);
         if (g == 0) continue;              /* identical point (should not happen) */
 
         dx /= g;  dy /= g;

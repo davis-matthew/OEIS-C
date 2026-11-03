@@ -13,12 +13,13 @@
  *            ceil((sqrt(8·n+1) - 1)/2) and j = (n-1) mod (k·(k-1)/2)
  * Range:     u8 n <= 19, u16 n <= 34, u32 n <= 76, u64 n <= 170,
  *            u128 n <= 434, big any n
- * Helpers:   pow_int
+ * Validated: standard, pass, 71 terms through n = 1196 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -42,6 +43,6 @@ seq_t a(idx_t n)
         return 1;
 
     /* Compute k^(j-1) and multiply by (k-j) */
-    seq_t powk = pow_int((seq_t)k, j - 1);
+    seq_t powk = ipow_idx((seq_t)k, j - 1);
     return ((seq_t)(k - j)) * powk;
 }

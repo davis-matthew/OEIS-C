@@ -7,19 +7,21 @@
  * Formula:   a(n) = 4^(n+C(n,2))*(-1)^n*sum{k=0..n, C(n+k,2k)(-2)^(n-k)}
  * Range:     i8 n <= 2, i16 n <= 3, i32 n <= 4, i64 n <= 7, i128 n <= 10,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 12 terms through n = 11 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
     /* compute S(n) = sum_{k=0}^n binom(n+k,2k) * (-2)^(n-k) */
     seq_t S = 0;
     seq_t T = 1;                       /* binom(n,0) */
-    seq_t p = pow_uint(2, (idx_t)n);   /* 2^n */
+    seq_t p = ipow_u64_idx(2, (idx_t)n);   /* 2^n */
 
     for (idx_t k = 0; k <= n; ++k)
     {
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     seq_t n_seq = (seq_t)n;
     seq_t e = n_seq + (n_seq * (n_seq - 1)) / 2;   /* n + n*(n-1)/2 = n + C(n,2) */
 
-    seq_t factor = pow_uint(4, (idx_t)e);          /* 4^e */
+    seq_t factor = ipow_u64_idx(4, (idx_t)e);          /* 4^e */
 
     seq_t result = factor * S;
     if (n & 1)                                     /* (-1)^n */

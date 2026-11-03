@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 12, u64 n <= 35, u128 n <= 79,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 202 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define N_STATES 19683   /* 3^9 */
 
@@ -58,8 +60,8 @@ seq_t a(idx_t n)
         }
 
         /* Allocate DP arrays */
-        cur_counts  = (seq_t*)malloc(N_STATES * sizeof(seq_t));
-        next_counts = (seq_t*)malloc(N_STATES * sizeof(seq_t));
+        cur_counts  = mem_new(seq_t, N_STATES);
+        next_counts = mem_new(seq_t, N_STATES);
 
         /* initial counts: for length 9 all states are possible (no window constraint yet) */
         for (idx_t s = 0; s < N_STATES; ++s) {

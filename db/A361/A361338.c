@@ -7,8 +7,9 @@
  * Keywords:  nonn, base
  * Formula:   a(n) = number of distinct single‑digit numbers reachable from n
  *            * by any sequence of split‑and‑multiply operations
- * Range:     u8 n <= 9683, u16 n <= 9683, u32 n <= 9683, u64 n <= 9683,
- *            u128 n <= 9683, big any n
+ * Range:     u8 n <= 17999, u16 n <= 17999, u32 n <= 17999, u64 n <= 17999,
+ *            u128 n <= 17999, big any n
+ * Validated: standard, pass, 156 terms through n = 9683 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

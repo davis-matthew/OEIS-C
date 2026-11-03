@@ -11,13 +11,15 @@
  *            a(7)=275769, a(8)=1446381
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 12, u64 n <= 26, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* array of computed values, index 0 unused */
 static size_t cache_cap = 0;     /* current allocated size */
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     /* determine how much storage is needed (at least up to n, plus index 0) */
     size_t needed = (size_t)n + 1;
     if (cache_cap < needed) {
-        seq_t *tmp = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, needed);
         if (!tmp) {               /* allocation failure – return 0 as a safe fallback */
             return 0;
         }

@@ -9,13 +9,14 @@
  *            C(k+1+j, j)
  * Range:     i8 n <= 10, i16 n <= 22, i32 n <= 48, i64 n <= 50, i128 n <= 50,
  *            big any n
- * Helpers:   binom, gcd
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-01)
+ * Helpers:   binomial, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)
@@ -35,8 +36,8 @@ seq_t a(idx_t n)
 
     idx_t m = r - k;                     /* number of factors (may be 0) */
     for (idx_t j = 0; j < m; ++j) {
-        seq_t num = binom(2 * k + 2 + j, k + 1);
-        seq_t den = binom(k + 1 + j, j);
+        seq_t num = binomial(2 * k + 2 + j, k + 1);
+        seq_t den = binomial(k + 1 + j, j);
 
         /* Multiply and reduce by gcd to keep numbers small */
         prod_num = prod_num * num;

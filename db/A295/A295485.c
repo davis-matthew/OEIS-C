@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 7, u32 n <= 7, u64 n <= 7, u128 n <= 7,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 7 terms through n = 7 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static state for the pre‑computed list */
 static seq_t *list   = NULL;          /* array of all terms */
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
              dp[t][s] = number of ways to write s as a sum of exactly t
              positive square numbers, ignoring order --------------------------------- */
         const size_t dp_size = (size_t)(7 * (MAX_SUM + 1));
-        seq_t *dp = (seq_t *)calloc(dp_size, sizeof(seq_t));
+        seq_t *dp = mem_new(seq_t, dp_size);
         if (!dp) return 0;   /* allocation failure – unlikely */
 
         /* Helper macro to access the two‑dimensional array */
@@ -62,8 +64,8 @@ seq_t a(idx_t n)
 
         /* ---------- 2. count representations with at most six squares
              r6[s] = Σ_{t=0..6} dp[t][s]  --------------------------------- */
-        seq_t *r6 = (seq_t *)calloc((size_t)(MAX_SUM + 1), sizeof(seq_t));
-        if (!r6) { free(dp); return 0; }
+        seq_t *r6 = mem_new(seq_t, (size_t)(MAX_SUM + 1));
+        if (!r6) { mem_free(dp); return 0; }
 
         for (idx_t s = 0; s <= MAX_SUM; ++s) {
             seq_t total = (seq_t)0;
@@ -79,8 +81,8 @@ seq_t a(idx_t n)
             if (r6[s] == (seq_t)2) ++cnt;
         }
 
-        list = (seq_t *)malloc((size_t)cnt * sizeof(seq_t));
-        if (!list) { free(dp); free(r6); return 0; }
+        list = mem_new(seq_t, (size_t)cnt);
+        if (!list) { mem_free(dp); mem_free(r6); return 0; }
 
         idx_t pos = 0;
         for (idx_t s = 1; s <= MAX_SUM; ++s) {
@@ -89,8 +91,8 @@ seq_t a(idx_t n)
             }
         }
 
-        free(dp);
-        free(r6);
+        mem_free(dp);
+        mem_free(r6);
         #undef DP
 
         len = cnt;

@@ -8,13 +8,24 @@
  *            the base‑3 digits of i
  * Range:     u8 n <= 13, u16 n <= 374, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digsum3
+ * Validated: standard, pass, 84 terms through n = 9941 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>  /* for uint64_t in helper */
-#include "../utils/digsum3.h"
+
+/* Return the sum of the base‑3 digits of n.  */
+static inline unsigned int digsum3(uint64_t n)
+{
+    unsigned int sum = 0;
+    while (n > 0) {
+        sum += (unsigned int)(n % 3);
+        n /= 3;
+    }
+    return sum;
+}
 
 seq_t a(idx_t n)
 {

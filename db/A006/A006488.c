@@ -11,7 +11,8 @@
  *            == q^2. Stirling's series in long double gives lo...
  * Range:     u8 n <= 13, u16 n <= 146, u32 n <= 1311, u64 n <= 1311,
  *            u128 n <= 1311, big any n
- * Helpers:   a000037_isqrt, log10fact
+ * Validated: standard, pass, 65 terms through n = 1056 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,17 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/a000037_isqrt.h"
-#include "../utils/log10fact.h"
+#include "../utils/isqrt_u64.h"
+
+/* log10(k!) for k >= 21 via Stirling series */
+static long double log10fact(uint64_t k) {
+    long double x = (long double)k + 1.0L;
+    long double ix = 1.0L / x, ix2 = ix * ix;
+    long double lg = (x - 0.5L) * logl(x) - x
+                     + 0.918938533204672741780329736405617639861L
+                     + ix * (1.0L / 12.0L - ix2 * (1.0L / 360.0L - ix2 * (1.0L / 1260.0L - ix2 / 1680.0L)));
+    return lg / 2.302585092994045684017991454684364208L;
+}
 
 static uint64_t *terms = NULL;
 static idx_t cnt = 0, cap = 0;
@@ -43,7 +53,7 @@ static void init_small(void) {
         if (k > 0) f *= k;
         uint64_t d = 0, t = f;
         while (t > 0) { d++; t /= 10; }
-        uint64_t r = a000037_isqrt(d);
+        uint64_t r = isqrt_u64(d);
         if (r * r == d) push_term(k);
     }
 }

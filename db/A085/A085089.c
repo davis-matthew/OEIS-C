@@ -9,8 +9,9 @@
  *            its prime * factorisation (order of the primes is irrelevant).
  *            The function * builds a table of smallest prime factors (SPF)
  *            for 1 … n, extracts and * normalises the ex...
- * Range:     u8 n <= 9999, u16 n <= 9999, u32 n <= 9999, u64 n <= 9999,
- *            u128 n <= 9999, big any n
+ * Range:     u8 n <= 65536, u16 n <= 65536, u32 n <= 65536, u64 n <= 65536,
+ *            u128 n <= 65536, big any n
+ * Validated: standard, pass, 96 terms through n = 9999 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,16 +10,18 @@
  *            the row L such that * S(L-1) < n ≤ S(L), S(k) = Σ_{i=1..k}
  *            Catalan(i), * computing the index j of the node in that row
  *            (0‑based), * then descending the tree from the root k...
- * Range:     u8 n <= 9, u16 n <= 1933, u32 n <= 9696, u64 n <= 9696,
- *            u128 n <= 9696, big any n
- * Helpers:   binom
+ * Range:     u8 n <= 86, u16 n <= 23712, u32 n <= 23713, u64 n <= 23713,
+ *            u128 n <= 23713, big any n
+ * Validated: standard, pass, 122 terms through n = 9696 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
         cumulative += catalan;
         ++level;
         /* Catalan(level) = binom(2·level, level) / (level+1) */
-        catalan = binom(2*level, level) / (level+1);
+        catalan = binomial(2*level, level) / (level+1);
     }
 
     /* Index within the found row (0‑based). */
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
     size_t h_max = (size_t)(level - 1);
     size_t max_k = (size_t)(2 * level);    /* sufficient for all child values */
     size_t stride = max_k + 1;
-    seq_t *F = (seq_t *)malloc((h_max + 1) * stride * sizeof(seq_t));
+    seq_t *F = mem_new(seq_t, (h_max + 1) * stride);
     if (!F)
         return 0;                        /* allocation failure */
 
@@ -89,6 +91,6 @@ seq_t a(idx_t n)
         }
     }
 
-    free(F);
+    mem_free(F);
     return current_k;
 }

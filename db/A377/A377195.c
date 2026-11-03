@@ -8,12 +8,14 @@
  *            with initial values a(0)=1, a(1)=10, a(2)=90
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* cached values of the sequence */
 static seq_t *cache = NULL;
@@ -30,7 +32,7 @@ static void ensure_capacity(idx_t need)
 
     idx_t new_cap = need + 1;
     /* reuse realloc for both C and C++ builds – cast result when needed */
-    seq_t *new_cache = (seq_t *)realloc(cache, (size_t)new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (size_t)new_cap);
     cache = new_cache;
     cache_cap = new_cap;
 }

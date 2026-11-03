@@ -12,7 +12,8 @@
  *            digits
  * Range:     u8 n <= 122, u16 n <= 122, u32 n <= 122, u64 n <= 122,
  *            u128 n <= 122, big any n
- * Helpers:   none
+ * Validated: partial, pass, 97 terms through n = 122 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build environment. */
 
@@ -43,7 +45,7 @@ static void ensure_frac_cap(size_t needed)
     if (needed <= frac_cap) return;
     size_t new_cap = frac_cap == 0 ? 128 : frac_cap * 2;
     while (new_cap < needed) new_cap *= 2;
-    frac_digits = (seq_t *)realloc(frac_digits, new_cap * sizeof(seq_t));
+    frac_digits = mem_resize(seq_t, frac_digits, new_cap);
     frac_cap = new_cap;
 }
 

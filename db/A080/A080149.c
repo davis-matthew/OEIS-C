@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn
  * Formula:   not stated
- * Range:     u8 n <= 11, u16 n <= 497, u32 n <= 9952, u64 n <= 9952,
- *            u128 n <= 9952, big any n
- * Helpers:   none
+ * Range:     u8 n <= 11, u16 n <= 497, u32 n <= 32898, u64 n <= 32898,
+ *            u128 n <= 32898, big any n
+ * Validated: standard, pass, 65 terms through n = 9952 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>   /* size_t */
 #include <stdint.h>   /* uint64_t, size_t */
 #include <stdbool.h>  /* bool */
+#include "../utils/mem.h"
 
 /*======================================================================
  * 32‑bit and 64‑bit helper functions
@@ -113,7 +115,7 @@ static void ensure_terms_cap(size_t needed)
     if (needed <= terms_cap) return;
     size_t new_cap = terms_cap ? terms_cap * 2 : 16;
     while (new_cap < needed) new_cap *= 2;
-    terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    terms = mem_resize(seq_t, terms, new_cap);
     terms_cap = new_cap;
 }
 

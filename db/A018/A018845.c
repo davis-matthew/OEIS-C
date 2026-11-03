@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 764, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _sum_prime_factors
+ * Validated: standard, pass, 102 terms through n = 9758 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,24 @@
     Count the number of such transformations until t is prime. */
 
 #include <stdbool.h>
-#include "../utils/_sum_prime_factors.h"
+
+/* Helper: sum of prime factors of n (counted with multiplicity). */
+static seq_t _sum_prime_factors(seq_t n)
+{
+    seq_t temp = n;
+    seq_t sum = 0;
+    seq_t p = 2;
+    while (p * p <= temp) {
+        while (temp % p == 0) {
+            sum += p;
+            temp /= p;
+        }
+        if (p == 2) p = 3;          /* skip even numbers after 2 */
+        else p += 2;
+    }
+    if (temp > 1) sum += temp;     /* remaining prime factor */
+    return sum;
+}
 
 /* Helper: test whether a number is prime (trial division). */
 static bool _is_prime(seq_t x)

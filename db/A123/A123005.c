@@ -7,12 +7,14 @@
  * Formula:   a(n) = 2*a(n-1) + 49*a(n-2), a(1)=0, a(2)=1 (OEIS A123005)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 23, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 930 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* 1‑based array of computed terms   */
 static idx_t  max_n  = 0;       /* highest n for which cache[n] is valid */
@@ -32,13 +34,13 @@ seq_t a(idx_t n)
         if (cache == NULL)
         {
             /* First allocation: zero all elements. */
-            new_cache = (seq_t *)calloc(new_cap, sizeof(seq_t));
+            new_cache = mem_new(seq_t, new_cap);
         }
         else
         {
             /* Grow the existing array.  realloc does not guarantee zero
                for newly allocated memory, so we clear it ourselves. */
-            new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            new_cache = mem_resize(seq_t, cache, new_cap);
             for (idx_t i = max_n + 1; i < new_cap; ++i)
                 new_cache[i] = 0;
         }

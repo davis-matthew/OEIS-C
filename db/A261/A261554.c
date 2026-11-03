@@ -10,9 +10,10 @@
  *            of p into exactly k parts. * The sequence a(n) is the triangle
  *            read by rows: * a(1) = T(1,1), a(2) = T(2,1), a(3) = T(3,1),
  *            a(4) = T(3,2), … * (flattened in increasing n and, fo...
- * Range:     u8 n <= 119, u16 n <= 584, u32 n <= 3227, u64 n <= 9825,
- *            u128 n <= 9825, big any n
- * Helpers:   none
+ * Range:     u8 n <= 119, u16 n <= 584, u32 n <= 3227, u64 n <= 10075,
+ *            u128 n <= 10075, big any n
+ * Validated: standard, pass, 92 terms through n = 9825 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #ifndef MAXN
 #define MAXN 10000   /* default maximum n needed */
 #endif
+#include "../utils/mem.h"
 
 /* Pre‑compute once to answer any a(n) in O(1). */
 static bool initialized = false;
@@ -48,9 +50,9 @@ static void init_table(void) {
 
     /* allocate P_exact table */
     size_t pExactSize = (size_t)(MAXN + 1) * (size_t)(KMAX + 1);
-    pExact = (seq_t *)malloc(pExactSize * sizeof(seq_t));
+    pExact = mem_new(seq_t, pExactSize);
     if (!pExact) abort();
-    memset(pExact, 0, pExactSize * sizeof(seq_t));
+    mem_set(pExact, 0, pExactSize * sizeof(seq_t));
 
     /* base case */
     pExact[0 * (KMAX + 1) + 0] = 1;
@@ -72,7 +74,7 @@ static void init_table(void) {
         tot += kmax_n;
     }
     totalTerms = tot;
-    values = (seq_t *)malloc(totalTerms * sizeof(seq_t));
+    values = mem_new(seq_t, totalTerms);
     if (!values) abort();
 
     /* temporary row buffer (max KMAX <= 141 for MAXN=10000) */

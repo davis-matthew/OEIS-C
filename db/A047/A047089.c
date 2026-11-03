@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 44, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 82 terms through n = 81 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Compute a(n) for OEIS sequence A047089 */
 seq_t a(idx_t n)
@@ -50,11 +52,11 @@ seq_t a(idx_t n)
     if (k > sizeof(seq_t) * 8) { /* defensive */
         return (seq_t)0;
     }
-    seq_t *prev = (seq_t *)calloc((size_t)k + 1, sizeof(seq_t));
-    seq_t *curr = (seq_t *)calloc((size_t)k + 1, sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, (size_t)k + 1);
+    seq_t *curr = mem_new(seq_t, (size_t)k + 1);
     if (!prev || !curr) {
-        free(prev);
-        free(curr);
+        mem_free(prev);
+        mem_free(curr);
         return (seq_t)0;
     }
 
@@ -77,7 +79,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = prev[k];
-    free(prev);
-    free(curr);
+    mem_free(prev);
+    mem_free(curr);
     return result;
 }

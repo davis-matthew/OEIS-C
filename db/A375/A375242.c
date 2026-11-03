@@ -7,6 +7,7 @@
  * Formula:   a(n) = 9*floor((n-1)/5) + {1,3,4,6,7}[((n-1)%5)] + 1
  * Range:     u8 n <= 141, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 81 terms through n = 9655 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

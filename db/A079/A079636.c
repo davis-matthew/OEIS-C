@@ -8,7 +8,8 @@
  * Formula:   a(n) = ceil(1/(√p(n+1) – √p(n)))
  * Range:     u8 n <= 53, u16 n <= 6576, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 9949 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*----------------------------------------------------------------------*/
 /*  Prime generation (simple sieve up to a fixed limit)                 */
@@ -55,7 +57,7 @@ static void prepare_primes(void)
         if (!sieve_table[i])
             ++cnt;
 
-    prime_list = (seq_t *)malloc(cnt * sizeof(seq_t));
+    prime_list = mem_new(seq_t, cnt);
     if (!prime_list)
         abort();
 

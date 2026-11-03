@@ -10,13 +10,15 @@
  *            3≤k<3)
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 73 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc, abort */
 #include <stddef.h>   /* size_t */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= cache_len) {
         size_t new_len = (size_t)n + 1;
         /* realloc works for both C and C++ (returns void*) */
-        void *ptr = realloc(cache, new_len * sizeof(seq_t));
+        void *ptr = mem_resize(seq_t, cache, new_len);
         if (!ptr) abort();                      /* out of memory */
         seq_t *tmp = (seq_t *)ptr;
         cache = tmp;
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
             cache[i] = 0;
 #else
         for (size_t i = cache_len; i < new_len; ++i)
-            new (&cache[i]) seq_t();
+            *(&cache[i]) = (seq_t)0;
 #endif
 
         /* Compute missing values */

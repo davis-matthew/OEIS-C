@@ -5,14 +5,16 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, mult
  * Formula:   a(n) = 1 if n is odd and squarefree, otherwise 0
- * Range:     u8 n <= 2932, u16 n <= 9983, u32 n <= 9983, u64 n <= 9983,
- *            u128 n <= 9983, big any n
+ * Range:     u8 n <= 2932, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 122 terms through n = 9983 (2026-11-01)
  * Helpers:   is_squarefree
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/is_squarefree.h"
 
 seq_t a(idx_t n)

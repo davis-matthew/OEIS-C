@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 36, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,8 +37,8 @@ seq_t a(idx_t n)
         /* enlarge arrays to hold sums up to n+1 (index 0 unused)          */
         size_t new_cap = (size_t)n + 1;
 
-        sum_pr = (seq_t *)realloc(sum_pr, new_cap * sizeof(seq_t));
-        sum_wt = (seq_t *)realloc(sum_wt, new_cap * sizeof(seq_t));
+        sum_pr = mem_resize(seq_t, sum_pr, new_cap);
+        sum_wt = mem_resize(seq_t, sum_wt, new_cap);
         if (!sum_pr || !sum_wt)
             return 0; /* allocation failure – unlikely for contest data */
 

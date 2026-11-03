@@ -7,7 +7,8 @@
  * Formula:   a(n) = the nth prime p such that 2^x ≡ 3 (mod p) has no solution
  * Range:     u8 n <= 22, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   factor_u64, is_prime, mod_pow
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   factor_u64, is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,9 +28,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../utils/mod_pow.h"
-#include "../utils/is_prime.h"
 #include "../utils/factor_u64.h"
+#include "../utils/is_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* memoised sequence table */
 static seq_t *prime_seq   = NULL;  /* array of primes satisfying the property */
@@ -55,7 +57,7 @@ static uint64_t order_of_two(uint64_t p)
         while (ord % q == 0)
         {
             uint64_t cand = ord / q;
-            if (mod_pow((seq_t)2, cand, (seq_t)p) == (seq_t)1)
+            if (powmod((seq_t)2, cand, (seq_t)p) == (seq_t)1)
                 ord = cand;
             else
                 break;
@@ -68,17 +70,17 @@ static uint64_t order_of_two(uint64_t p)
 static bool has_solution(uint64_t p)
 {
     uint64_t ord = order_of_two(p);
-    return mod_pow((seq_t)3, ord, (seq_t)p) == (seq_t)1;
+    return powmod((seq_t)3, ord, (seq_t)p) == (seq_t)1;
 }
 
 /* grow the memoised array when capacity is reached */
 static void grow_seq_array(void)
 {
     size_t new_cap = seq_cap ? seq_cap << 1 : 64;
-    seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (!new_arr) abort();  /* out‑of‑memory */
-    memcpy(new_arr, prime_seq, seq_len * sizeof(seq_t));
-    free(prime_seq);
+    mem_copy(new_arr, prime_seq, seq_len * sizeof(seq_t));
+    mem_free(prime_seq);
     prime_seq = new_arr;
     seq_cap   = new_cap;
 }
@@ -92,7 +94,7 @@ static void ensure_n_terms(idx_t n)
     if (!prime_seq)
     {
         seq_cap = 64;
-        prime_seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        prime_seq = mem_new(seq_t, seq_cap);
         if (!prime_seq) abort();
     }
 

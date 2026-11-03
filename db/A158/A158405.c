@@ -8,13 +8,27 @@
  *            sqrt(8*n-7)) / 2 )
  * Range:     u8 n <= 8384, u16 n <= 9870, u32 n <= 9870, u64 n <= 9870,
  *            u128 n <= 9870, big any n
- * Helpers:   _triangle_probe
+ * Validated: standard, pass, 94 terms through n = 9847 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_triangle_probe.h"
+
+static inline idx_t _triangle_probe(idx_t n) {
+    idx_t low  = 0;
+    idx_t high = n;
+    while (low < high) {
+        idx_t mid = (low + high + 1) >> 1;                 /* upper mid to avoid infinite loop */
+        unsigned __int128 tri = (unsigned __int128)mid * (mid + 1) / 2;
+        if ((idx_t)tri < n)
+            low = mid;
+        else
+            high = mid - 1;
+    }
+    return low;
+}
 
 seq_t a(idx_t n) {
     idx_t t  = _triangle_probe(n);

@@ -5,20 +5,22 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = n + floor(sqrt(n*n / 3)) + floor(4*n / 3)
- * Range:     u8 n <= 9, u16 n <= 428, u32 n <= 7891, u64 n <= 10000,
+ * Range:     u8 n <= 27, u16 n <= 1219, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sqrt_floor
+ * Validated: standard, pass, 90 terms through n = 9269 (2026-11-01)
+ * Helpers:   isqrt_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/sqrt_floor.h"
+#include <stdint.h>
+#include "../utils/isqrt_seq.h"
 
 seq_t a(idx_t n)
 {
     seq_t sn   = (seq_t)n;
     seq_t term = sn
-               + sqrt_floor( (sn * sn) / (seq_t)3 )
+               + isqrt_seq( (sn * sn) / (seq_t)3 )
                + (sn * (seq_t)4) / (seq_t)3;
     return term;
 }

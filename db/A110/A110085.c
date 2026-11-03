@@ -11,13 +11,15 @@
  *            factors
  * Range:     u8 none, u16 n <= 368, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 919 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *sigma_arr   = NULL;
 static seq_t *phi_arr     = NULL;
@@ -34,10 +36,10 @@ static const idx_t MAX_LIMIT = 400000;   /* sufficient for n ≤ 10000 */
 static void init_sieve(idx_t limit)
 {
     min_p   = (uint32_t*)calloc(limit + 1, sizeof(uint32_t));
-    sigma_arr = (seq_t*)calloc(limit + 1, sizeof(seq_t));
-    phi_arr   = (seq_t*)calloc(limit + 1, sizeof(seq_t));
-    tau_arr   = (seq_t*)calloc(limit + 1, sizeof(seq_t));
-    omega_arr = (seq_t*)calloc(limit + 1, sizeof(seq_t));
+    sigma_arr = mem_new(seq_t, limit + 1);
+    phi_arr   = mem_new(seq_t, limit + 1);
+    tau_arr   = mem_new(seq_t, limit + 1);
+    omega_arr = mem_new(seq_t, limit + 1);
 
     /* generate primes */
     uint32_t *primes = (uint32_t*)malloc((limit / 10 + 1) * sizeof(uint32_t));
@@ -106,7 +108,7 @@ static void init_sieve(idx_t limit)
 /* Build the list of terms up to MAX_LIMIT */
 static void init_terms(idx_t limit)
 {
-    terms = (seq_t*)malloc((limit / 4 + 10) * sizeof(seq_t));
+    terms = mem_new(seq_t, (limit / 4 + 10));
     terms_count = 0;
     for (idx_t i = 1; i <= limit; ++i) {
         seq_t left = sigma_arr[i] - phi_arr[i];

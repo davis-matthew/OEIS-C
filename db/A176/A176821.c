@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,8 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 static seq_t *q_cache = NULL;   /* cache of qualifying q’s          */
 static size_t q_cnt   = 0;      /* number of cached q’s             */
@@ -45,15 +47,15 @@ seq_t a(idx_t n)
         last_checked += (last_checked % 2 == 0) ? 1 : 2;
 
         /* Quick prime tests: q , q+2 , 2q+1 , 2q+3 all prime. */
-        if (!is_prime_small((seq_t)last_checked))          continue;
-        if (!is_prime_small((seq_t)(last_checked + 2)))    continue;
-        if (!is_prime_small((seq_t)(last_checked * 2 + 1))) continue;
-        if (!is_prime_small((seq_t)(last_checked * 2 + 3))) continue;
+        if (!is_prime_seq((seq_t)last_checked))          continue;
+        if (!is_prime_seq((seq_t)(last_checked + 2)))    continue;
+        if (!is_prime_seq((seq_t)(last_checked * 2 + 1))) continue;
+        if (!is_prime_seq((seq_t)(last_checked * 2 + 3))) continue;
 
         /* Ensure capacity of the cache. */
         if (q_cnt >= q_cap) {
             size_t new_cap = (q_cap == 0) ? 4 : q_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(q_cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, q_cache, new_cap);
             if (!tmp) return 0;          /* allocation failure */
             q_cache = tmp;
             q_cap   = new_cap;

@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, cons
  * Formula:   a(n) = the n-th decimal digit of sqrt(56) (1‑based)
- * Range:     u8 n <= 9829, u16 n <= 9829, u32 n <= 9829, u64 n <= 9829,
- *            u128 n <= 9829, big any n
- * Helpers:   none
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 115 terms through n = 9829 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Big integer in base 1e9; only needed operations are add/sub/mul by small */
 typedef struct {
@@ -147,7 +149,7 @@ static void ensure_len(idx_t n) {
     if (!initialized) {
         /* first digit 7, remainder 56-49=7 */
         digits_cap = 16;
-        digits = (seq_t*)malloc(digits_cap * sizeof(seq_t));
+        digits = mem_new(seq_t, digits_cap);
         if (!digits) abort();
         digits[0] = 7;
         digits_len = 1;
@@ -180,7 +182,7 @@ static void ensure_len(idx_t n) {
 
                 if (digits_len == digits_cap) {
                     digits_cap *= 2;
-                    digits = (seq_t*)realloc(digits, digits_cap * sizeof(seq_t));
+                    digits = mem_resize(seq_t, digits, digits_cap);
                     if (!digits) abort();
                 }
                 digits[digits_len++] = (seq_t)x;

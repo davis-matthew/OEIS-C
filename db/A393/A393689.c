@@ -10,16 +10,35 @@
  * Formula:   a(n) = read antidiagonally from A(n,k) where A(n,k) =
  *            k*(k-2)*(2*k+1)*n/12 when k even, and (k^2-1)*(2*k-3)*n/12 when
  *            k odd
- * Range:     u8 n <= 51, u16 n <= 932, u32 n <= 9611, u64 n <= 9611,
- *            u128 n <= 9611, big any n
- * Helpers:   triangular_root_upper
+ * Range:     u8 n <= 51, u16 n <= 932, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 82 terms through n = 9611 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/triangular_root_upper.h"
+
+static idx_t triangular_root_upper(idx_t n)
+{
+    /* Return minimal m such that m*(m+1)/2 >= n. */
+    idx_t low = 0;
+    idx_t high = 1;
+    while (((unsigned __int128)high * (high + 1) / 2) < n) {
+        high <<= 1;
+    }
+    while (low + 1 < high) {
+        idx_t mid = low + ((high - low) >> 1);
+        if (((unsigned __int128)mid * (mid + 1) / 2) >= n) {
+            high = mid;
+        } else {
+            low = mid;
+        }
+    }
+    return high;
+}
 
 seq_t a(idx_t n)
 {

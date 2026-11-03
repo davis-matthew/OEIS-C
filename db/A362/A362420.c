@@ -8,7 +8,8 @@
  *            semiprimes)
  * Range:     u8 n <= 8, u16 n <= 162, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 56 terms through n = 8742 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* The build system supplies the following types:
    - idx_t  : unsigned index type, typically uint64_t
@@ -74,7 +76,7 @@ static void add_odd_semiprime(idx_t val)
     if (semip_cnt == pref_cap)
     {
         pref_cap = pref_cap ? pref_cap * 2 : 16;
-        pref = (seq_t *)realloc(pref, pref_cap * sizeof(*pref));
+        pref = mem_resize(seq_t, pref, pref_cap);
         if (!pref) abort();
     }
     seq_t new_sum = (semip_cnt > 0 ? pref[semip_cnt - 1] : (seq_t)0);

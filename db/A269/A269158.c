@@ -8,9 +8,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 8386, u16 n <= 9865, u32 n <= 9865, u64 n <= 9865,
- *            u128 n <= 9865, big any n
- * Helpers:   diagonal_index
+ * Range:     u8 n <= 8386, u16 n <= 32896, u32 n <= 32896, u64 n <= 32896,
+ *            u128 n <= 32896, big any n
+ * Validated: standard, pass, 121 terms through n = 9865 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,25 @@
 /* Standard inclusions – required for integer types and
    unsigned __int128 used in triangular computations. */
 #include <stdint.h>
-#include "../utils/diagonal_index.h"
+
+/* Compute the smallest integer S such that S*(S+1)/2 >= n.
+   Uses binary search on 64‑bit range with 128‑bit intermediate
+   to avoid overflow. */
+static uint64_t diagonal_index(uint64_t n)
+{
+    uint64_t lo = 0, hi = 1;
+    while ( ((__uint128_t)hi * (hi + 1)) / 2 < n) {
+        hi <<= 1;
+    }
+    while (lo + 1 < hi) {
+        uint64_t mid = lo + ((hi - lo) >> 1);
+        if ( ((__uint128_t)mid * (mid + 1)) / 2 >= n )
+            hi = mid;
+        else
+            lo = mid;
+    }
+    return hi;
+}
 
 /* Forward declaration of the recursive definition of F. */
 static seq_t f_recursive(seq_t p, seq_t q);

@@ -7,12 +7,14 @@
  * Formula:   a(n) = n! - 2
  * Range:     i8 n <= 5, i16 n <= 7, i32 n <= 12, i64 n <= 20, i128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* This function returns n! - 2 for any n >= 0.
    It caches factorial values up to the largest request,
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* initialize cache for 0! if needed */
     if (fact_cache == NULL) {
         /* allocate for index 0 */
-        fact_cache = (seq_t*)malloc(sizeof(seq_t));
+        fact_cache = mem_new(seq_t, 1);
         if (fact_cache == NULL) return (seq_t)0;  /* unlikely failure */
         fact_cache[0] = (seq_t)1;  /* 0! = 1 */
         cache_size = 1;
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     if (n > fact_max) {
         /* ensure storage for indices up to n */
         if (cache_size < (size_t)(n + 1)) {
-            seq_t *tmp = (seq_t*)realloc(fact_cache, sizeof(seq_t) * (n + 1));
+            seq_t *tmp = mem_resize(seq_t, fact_cache, (n + 1));
             if (tmp == NULL) return (seq_t)0;  /* unlikely failure */
             fact_cache = tmp;
             cache_size = (size_t)(n + 1);

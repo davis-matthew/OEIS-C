@@ -11,7 +11,8 @@
  *            exhaustive search (no formula or recurrence is known)
  * Range:     u8 n <= 6, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   has_adjacent_3_7
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,26 @@
    and works for all allowed seq_t types (including arbitrary‑precision). */
 
 #include <stdbool.h>
-#include "../utils/has_adjacent_3_7.h"
+
+static bool has_adjacent_3_7(seq_t x)
+{
+    /* Return true iff the base‑9 digits of x contain 3 and 7
+       next to each other (either 37 or 73). */
+    const seq_t nine = (seq_t)9;
+    if (x == (seq_t)0)
+        return false;
+    seq_t prev = x % nine;
+    x /= nine;
+    while (x > (seq_t)0) {
+        seq_t cur = x % nine;
+        if ((prev == (seq_t)3 && cur == (seq_t)7) ||
+            (prev == (seq_t)7 && cur == (seq_t)3))
+            return true;
+        prev = cur;
+        x /= nine;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

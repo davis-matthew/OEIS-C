@@ -8,7 +8,8 @@
  *            |Stirling1(n,2*k)|/k!
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 18,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/big_pow.h"    /* big_pow(seq_t base, seq_t exp) */
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 #define MAX_N 20000   /* sufficient for all tests (n <= 10000) */
 
@@ -53,7 +55,7 @@ static void init_once(void)
 {
     if (init_done) return;
     /* row for n = 0  :  c(0,0) = 1 */
-    memset(cur_row, 0, sizeof(cur_row));
+    mem_set(cur_row, 0, sizeof(cur_row));
     cur_row[0] = 1;
     a_values[0] = 1;          /* a(0) = 1 */
     max_precomputed = 0;
@@ -88,7 +90,7 @@ static void ensure_precomputed(idx_t n)
             seq_t term = fact[2 * k] * next_row[2 * k];  /* (2k)! * c(m,2k) */
             term = term / fact[k];                      /* divide by k!   */
             seq_t base = (seq_t)(m + k + 1);
-            seq_t pow_val = big_pow(base, (seq_t)(k - 1)); /* (m+k+1)^(k-1) */
+            seq_t pow_val = ipow(base, (seq_t)(k - 1)); /* (m+k+1)^(k-1) */
             term *= pow_val;
             sum += term;
         }

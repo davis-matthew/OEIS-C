@@ -9,13 +9,15 @@
  *            ≥ 1 (τ = number of divisors)
  * Range:     u8 n <= 52, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;         /* cache of a(i), index i ≥ 0 (0 unused) */
 static seq_t *tau  = NULL;          /* τ(k) for k ≥ 0 (0 unused) */
@@ -28,7 +30,7 @@ static void ensure_capacity(idx_t need, seq_t **arr, size_t *cap) {
     if ((size_t)need <= *cap) return;
     size_t new_cap = (*cap > 0) ? *cap : 16;
     while (new_cap < (size_t)need) new_cap <<= 1;
-    *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, new_cap);
     for (idx_t i = *cap; i < (idx_t)new_cap; ++i) (*arr)[i] = 0;
     *cap = new_cap;
 }

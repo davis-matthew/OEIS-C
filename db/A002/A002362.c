@@ -11,6 +11,7 @@
  *            then replace P(x) by x^5 * P(c + 1/x) (exact b...
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 18, u64 n <= 33, u128 n <= 70,
  *            big any n
+ * Validated: standard, pass, 43 terms through n = 936 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

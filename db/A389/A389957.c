@@ -8,7 +8,8 @@
  *            power (m^k, m even, k ≥ 2)
  * Range:     u8 none, u16 none, u32 n <= 987, u64 n <= 10000, u128 n <= 10000,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 9884 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Node in the heap: current power (val) and the base that generates
    the next power. */
@@ -86,7 +88,7 @@ static void init_heap(void)
     if (heap_inited)
         return;
 
-    heap = (heap_node_t *)malloc(HEAP_CAP * sizeof(heap_node_t));
+    heap = mem_new(heap_node_t, HEAP_CAP);
     if (!heap)
         return;  /* allocation failure – further computation may be impossible */
 
@@ -114,7 +116,7 @@ static void ensure_cache_capacity(size_t need)
     size_t new_cap = cache_cap ? cache_cap << 1 : 64;
     while (new_cap < need)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (tmp) {
         cache = tmp;
         cache_cap = new_cap;

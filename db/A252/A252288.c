@@ -11,7 +11,8 @@
  *            over the last two rows
  * Range:     u8 none, u16 n <= 5, u32 n <= 14, u64 n <= 32, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 typedef uint64_t idx_t;   /* index type */
 
@@ -116,17 +118,17 @@ static void init_once(void)
             }
 
     /* allocate DP arrays */
-    dp_prev = (seq_t *)malloc(dp_size * sizeof(seq_t));
-    dp_next = (seq_t *)malloc(dp_size * sizeof(seq_t));
+    dp_prev = mem_new(seq_t, dp_size);
+    dp_next = mem_new(seq_t, dp_size);
 
     /* initialise dp_prev for height = 2: all pairs count 1 */
     for (idx_t i = 0; i < dp_size; ++i) dp_prev[i] = (seq_t)1;
-    memset(dp_next, 0, dp_size * sizeof(seq_t));
+    mem_set(dp_next, 0, dp_size * sizeof(seq_t));
 
     /* Prepare memo array with room for at least 1024 terms */
     memo_cap = 1024;
-    memo = (seq_t *)malloc(memo_cap * sizeof(seq_t));
-    memset(memo, 0, memo_cap * sizeof(seq_t));
+    memo = mem_new(seq_t, memo_cap);
+    mem_set(memo, 0, memo_cap * sizeof(seq_t));
     computed_n = 0;
     cur_height = 2;
 }
@@ -138,8 +140,8 @@ static void ensure_memo_capacity(idx_t n)
     if (n < memo_cap) return;
     size_t new_cap = memo_cap;
     while (n >= new_cap) new_cap <<= 1;
-    memo = (seq_t *)realloc(memo, new_cap * sizeof(seq_t));
-    memset(memo + memo_cap, 0, (new_cap - memo_cap) * sizeof(seq_t));
+    memo = mem_resize(seq_t, memo, new_cap);
+    mem_set(memo + memo_cap, 0, (new_cap - memo_cap) * sizeof(seq_t));
     memo_cap = new_cap;
 }
 

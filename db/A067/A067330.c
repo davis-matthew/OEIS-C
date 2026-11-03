@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 50, u16 n <= 202, u32 n <= 854, u64 n <= 3714,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 86 terms through n = 9003 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper: binary search for the row r such that r(r+1)/2 <= n < (r+1)(r+2)/2 */
 static inline idx_t find_row(idx_t n)
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
 
     /* Need Fibonacci numbers up to F(r+1) */
     idx_t fib_lim = r + 1;
-    seq_t *fib = (seq_t *)malloc((fib_lim + 1) * sizeof(seq_t));
+    seq_t *fib = mem_new(seq_t, (fib_lim + 1));
     if (!fib)
         return 0;   /* Out of memory: return 0 as fallback */
 
@@ -65,6 +67,6 @@ seq_t a(idx_t n)
         result += fib[k + 1] * fib[r - k + 1];
     }
 
-    free(fib);
+    mem_free(fib);
     return result;
 }

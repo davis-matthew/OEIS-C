@@ -7,14 +7,66 @@
  * Formula:   a(n) = 2 * A000959(n)
  * Range:     u8 n <= 27, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   compute_lucky_upto
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/compute_lucky_upto.h"
+#include "../utils/mem.h"
+
+/* Helper: generate lucky numbers up to 'limit'.
+   Returns an array of seq_t lucky numbers (not doubled) and
+   the number of elements in *len.  The caller must free the
+   returned pointer.  If allocation fails, *output is set to NULL
+   and *len is set to 0. */
+static void compute_lucky_upto(seq_t limit, seq_t **output, size_t *len)
+{
+    /* Start with all odd numbers ≤ limit: 1,3,5,... */
+    size_t oddcnt = (size_t)(limit / 2 + (limit & 1));
+    seq_t *L = mem_new(seq_t, oddcnt);
+    if (!L) {
+        *output = NULL;
+        *len = 0;
+        return;
+    }
+
+    seq_t val = 1;
+    for (size_t i = 0; i < oddcnt; ++i) {
+        L[i] = val;
+        val += 2;
+    }
+
+    size_t sz = oddcnt;
+    size_t i = 1;                          /* skip the first element (1) */
+    while (i < sz) {
+        seq_t step = L[i];
+        if (step > (seq_t)sz) break;      /* no more removals can occur */
+
+        /* Build the new list by keeping elements whose (index+1) mod step ≠ 0 */
+        size_t write = 0;
+        for (size_t j = 0; j < sz; ++j) {
+            if ((j + 1) % step != 0) {
+                L[write++] = L[j];
+            }
+        }
+        sz = write;
+        ++i;
+    }
+
+    /* Resize the array to the actual size. */
+    seq_t *tmp = mem_resize(seq_t, L, sz);
+    if (!tmp && sz > 0) {          /* realloc failed but we still have data */
+        mem_free(L);
+        *output = NULL;
+        *len = 0;
+        return;
+    }
+    *output = tmp;
+    *len = sz;
+}
 
 seq_t a(idx_t n)
 {
@@ -46,14 +98,14 @@ seq_t a(idx_t n)
         }
 
         /* Not enough: free what we just computed and double the limit. */
-        free(new_cache);
+        mem_free(new_cache);
         new_cache = NULL;
         new_len = 0;
         limit *= 2;
     }
 
     /* Replace the old cache (if any). */
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
     cache_len = new_len;
 

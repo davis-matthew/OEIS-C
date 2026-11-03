@@ -9,13 +9,33 @@
  *            1 or entering a cycle. Return trajectory length
  * Range:     u8 n <= 29, u16 n <= 137, u32 n <= 137, u64 n <= 275,
  *            u128 n <= 275, big any n
- * Helpers:   proper_divisor_sum
+ * Validated: standard, pass, 118 terms through n = 261 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/proper_divisor_sum.h"
+
+static seq_t proper_divisor_sum(seq_t x) {
+    if (x <= 1) return 0;
+    
+    seq_t sum = 1;
+    seq_t i = 2;
+    
+    while (i * i <= x) {
+        if (x % i == 0) {
+            seq_t complement = x / i;
+            sum += i;
+            if (i != complement) {
+                sum += complement;
+            }
+        }
+        i++;
+    }
+    
+    return sum;
+}
 
 seq_t a(idx_t n_idx) {
     seq_t n = (seq_t)n_idx;

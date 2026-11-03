@@ -10,6 +10,7 @@
  *            anti‑diagonal enumeration
  * Range:     u8 n <= 105, u16 n <= 1830, u32 n <= 1830, u64 n <= 1830,
  *            u128 n <= 1830, big any n
+ * Validated: standard, pass, 81 terms through n = 1814 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

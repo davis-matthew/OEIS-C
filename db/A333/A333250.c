@@ -8,12 +8,14 @@
  * Formula:   a(n) = concatenate(n-1, a(n-1)) mod n (a(0) = 0)
  * Range:     u8 n <= 266, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 9817 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External types are supplied by the build environment. */
 static seq_t *cache = NULL;          /* cached terms */
@@ -26,7 +28,7 @@ static void compute_to(idx_t n)
 
     /* Allocate or enlarge the cache. */
     size_t new_limit = (size_t)n + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_limit * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_limit);
     if (!tmp)                       /* allocation failure – nothing more we can do */
         return;
     cache = tmp;

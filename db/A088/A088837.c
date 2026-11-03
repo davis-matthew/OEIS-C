@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn, frac
  * Formula:   a(n) = (2*n) XOR (2*n-1) (numerator of sigma(2*n)/sigma(n))
- * Range:     u8 n <= 127, u16 n <= 8714, u32 n <= 8714, u64 n <= 8714,
- *            u128 n <= 8714, big any n
+ * Range:     u8 n <= 127, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 109 terms through n = 8714 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

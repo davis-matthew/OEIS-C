@@ -7,8 +7,9 @@
  * Formula:   a(n) = 1 if n ≡ 1 (mod 3); 2 if n ≡ 2 (mod 3); 3 + v2(n/3) if n
  *            ≡ 0 (mod 3). Here v2(m) is the exponent of the highest power of
  *            2 dividing m
- * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
- *            u128 n <= 105, big any n
+ * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 121 terms through n = 9976 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

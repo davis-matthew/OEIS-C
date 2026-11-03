@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 595, u32 n <= 9000, u64 n <= 9000,
  *            u128 n <= 9000, big any n
+ * Validated: standard, pass, 60 terms through n = 8827 (2026-11-01)
  * Helpers:   digit_sum_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

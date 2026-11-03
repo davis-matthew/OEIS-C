@@ -7,6 +7,7 @@
  * Formula:   a(n) = sum_{k=1..n} k^11
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 7, u64 n <= 49, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 37 terms through n = 965 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

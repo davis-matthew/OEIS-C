@@ -11,7 +11,8 @@
  *            Compatible with both C11 and C++17 builds
  * Range:     u8 n <= 3, u16 n <= 10, u32 n <= 45, u64 n <= 171, u128 n <= 699,
  *            big any n
- * Helpers:   cmp_seq_t, pow_uint
+ * Validated: standard, pass, 51 terms through n = 9956 (2026-11-03)
+ * Helpers:   ipow_u64_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,13 +22,24 @@
 #ifdef __cplusplus
 #  include <new>
 #endif
+#include "../utils/mem.h"
 
 /* Utility to compute 11^exp.  The function is provided by the build
    environment and returns a value of type seq_t. */
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
 
 /* Comparison routine for seq_t values used by qsort. */
-#include "../utils/cmp_seq_t.h"
 
 /* The public sequence function.  External linkage is required. */
 seq_t a(idx_t n)
@@ -46,20 +58,20 @@ seq_t a(idx_t n)
 
     /* Allocate space for the sums.  We use malloc to avoid
        invoking constructors for potentially non‑trivial seq_t. */
-    seq_t *arr = (seq_t *)malloc(total_pairs * sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, total_pairs);
     if (!arr)
         return (seq_t)0;          /* allocation failure – give up */
 
     /* Generate all sums 11^i + 11^j with i < j. */
     size_t idx = 0;
     for (idx_t i = 0; i < k; ++i) {
-        seq_t pow_i = pow_uint(11, i);
+        seq_t pow_i = ipow_u64_idx(11, i);
         for (idx_t j = i + 1; j <= k; ++j) {
-            seq_t pow_j = pow_uint(11, j);
+            seq_t pow_j = ipow_u64_idx(11, j);
             seq_t sum = pow_i + pow_j;
             /* Construct the seq_t in the allocated memory. */
 #ifdef __cplusplus
-            ::new (arr + idx) seq_t(sum);
+            *(arr + idx) = (seq_t)(sum);
 #else
             arr[idx] = sum;
 #endif
@@ -68,7 +80,7 @@ seq_t a(idx_t n)
     }
 
     /* Sort the sums to obtain them in ascending order. */
-    qsort(arr, total_pairs, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(arr, total_pairs, sizeof(seq_t), cmp_seq_t);
 
     /* Extract the requested term. */
     seq_t result = arr[n - 1U];
@@ -77,9 +89,9 @@ seq_t a(idx_t n)
     /* Call destructors for the seq_t objects before freeing the
        raw memory.  In a plain C build this block is skipped. */
     for (size_t i = 0; i < total_pairs; ++i)
-        arr[i].~seq_t();
+(void)0;  /* mem_free destroys the elements */
 #endif
 
-    free(arr);
+    mem_free(arr);
     return result;
 }

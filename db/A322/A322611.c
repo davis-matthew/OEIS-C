@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   centered_value
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,14 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>  /* for size_t */
-#include "../utils/centered_value.h"
+#include "../utils/mem.h"
+
+/* Centred square number for index m (1‑based).  Uses seq_t to avoid overflow. */
+static inline seq_t centered_value(idx_t m)
+{
+    seq_t mm = (seq_t)m;
+    return 2 * mm * mm - 2 * mm + 1;
+}
 
 /* --- Elementary helpers --------------------------------------------------- */
 
@@ -44,7 +52,7 @@ static void heap_ensure(void)
 {
     if (heap_len >= heap_cap) {
         size_t new_cap = heap_cap ? heap_cap * 2 : 16;
-        heap = (HeapNode *)realloc(heap, new_cap * sizeof(HeapNode));
+        heap = mem_resize(HeapNode, heap, new_cap);
         heap_cap = new_cap;
     }
 }
@@ -111,7 +119,7 @@ static void cache_ensure(void)
 {
     if (cache_len >= cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 }

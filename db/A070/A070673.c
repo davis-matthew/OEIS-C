@@ -9,13 +9,19 @@
  *            1 if no such m exists
  * Range:     u8 n <= 76, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 92 terms through n = 8992 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/mod_pow.h"   /* for mod_pow if desired, not used here */
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* Static cache for memoization */
 static seq_t *cache = NULL;
@@ -31,7 +37,7 @@ static void ensure_cache(idx_t n)
         size_t new_cap = cap > 1 ? cap * 2 : 8;
         while (new_cap <= (size_t)n) new_cap *= 2;
         /* allocate or reallocate */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();          /* out of memory */
         /* zero newly allocated part */
         for (size_t i = cap; i < new_cap; ++i) tmp[i] = (seq_t)0;

@@ -7,12 +7,14 @@
  * Formula:   a(1) = 1, a(n+1) = (a(n) - n)^2 (OEIS offset 1)
  * Range:     u8 n <= 7, u16 n <= 8, u32 n <= 9, u64 n <= 10, u128 n <= 11,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 12 terms through n = 12 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* cache of computed values: cache[1] = a(1), ... */
 static seq_t *cache = NULL;
@@ -23,7 +25,7 @@ static void compute_up_to(idx_t m)
 {
     if (cache == NULL) {
         size_t sz = (size_t)(m + 1);   /* need indices 0..m, index 0 unused */
-        cache = (seq_t *)malloc(sz * sizeof(seq_t));
+        cache = mem_new(seq_t, sz);
         if (!cache) abort();          /* out of memory */
         cache[0] = (seq_t)0;          /* unused */
         cache[1] = (seq_t)1;          /* a(1) */
@@ -33,7 +35,7 @@ static void compute_up_to(idx_t m)
 
     /* extend storage */
     size_t newsize = (size_t)(m + 1);
-    seq_t *tmp = (seq_t *)realloc(cache, newsize * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, newsize);
     if (!tmp) abort();               /* out of memory */
     cache = tmp;
 

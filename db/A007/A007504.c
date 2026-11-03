@@ -6,8 +6,9 @@
  * Keywords:  nonn, nice
  * Formula:   a(n) = Sum_{k=1..n} prime(k), a(0) = 0; primes come from a
  *            cached sieve of Eratosthenes, doubled in size as needed
- * Range:     u8 n <= 13, u16 n <= 157, u32 n <= 9305, u64 n <= 9305,
- *            u128 n <= 9305, big any n
+ * Range:     u8 n <= 13, u16 n <= 157, u32 n <= 27875, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 66 terms through n = 9305 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

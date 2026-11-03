@@ -8,12 +8,14 @@
  *            satisfy C_0 = 1, C_k = C_{k-1} * (4*k - 2) / (k + 1) for k ≥ 1
  * Range:     i8 n <= 8, i16 n <= 16, i32 n <= 32, i64 n <= 38, i128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache for Catalan numbers.  The array grows on demand. */
 static seq_t *catalan_cache = NULL;
@@ -25,8 +27,7 @@ static seq_t catalan(idx_t k)
     if (k >= catalan_cache_len)
     {
         /* Allocate or enlarge the cache to hold indices up to k. */
-        seq_t *tmp = (seq_t *)realloc(catalan_cache,
-                                      sizeof(seq_t) * (k + 1));
+        seq_t *tmp = mem_resize(seq_t, catalan_cache, (k + 1));
         if (!tmp)
             return 0;                      /* allocation failure – return 0 */
         catalan_cache = tmp;

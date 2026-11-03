@@ -8,16 +8,24 @@
  *            form a(p^e) = p^(12e-12) * (p^13-1)/(p-1)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 37, u128 n <= 1469,
  *            big any n
- * Helpers:   factor_u64, seq_mul, seq_pow
+ * Validated: standard, pass, 33 terms through n = 7546 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_pow.h"
-#include "../utils/seq_mul.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -55,8 +63,8 @@ seq_t a(idx_t n)
             unsigned __int128 prod = term1 * term2;
             term = (seq_t)prod;
         } else {                            /* arbitrary‑precision build */
-            seq_t term1 = seq_pow((seq_t)p, 12 * e - 12);
-            seq_t p13   = seq_pow((seq_t)p, 13);
+            seq_t term1 = ipow_idx((seq_t)p, 12 * e - 12);
+            seq_t p13   = ipow_idx((seq_t)p, 13);
             seq_t term2 = (p13 - 1) / ((seq_t)p - 1);
             term = seq_mul(term1, term2);
         }

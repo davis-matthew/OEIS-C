@@ -6,14 +6,16 @@
  * Keywords:  easy, nonn
  * Formula:   a(n) = Sum_{i=0..n} C(n,i)^2 * i! * 3^i Recurrence: a(0)=1,
  *            a(1)=4, a(n)=2*(3*n-1)*a(n-1)-9*(n-1)^2*a(n-2)
- * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 14, u128 n <= 16,
+ * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 14, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 336 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* initialize cache for n = 0 and 1 */
     if (cache == NULL) {
         cache_size = 2;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)4;
         last_computed = 1;
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     /* resize cache to fit up to n */
     if (n >= (idx_t)cache_size) {
         /* extend cache to size n+1 */
-        seq_t *new_cache = (seq_t *)realloc(cache, (size_t)(n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (size_t)(n + 1));
         if (!new_cache) {
             /* allocation failed – fall back to recomputing on its own */
             /* Very unlikely in normal use. */

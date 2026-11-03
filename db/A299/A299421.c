@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 169, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   ensure_seq
+ * Validated: standard, pass, 82 terms through n = 1795 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,19 @@
 #include <stddef.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/ensure_seq.h"
+#include "../utils/mem.h"
+
+/* Ensure the dynamic array ‘arr’ can hold ‘needed’ elements. */
+static void ensure_seq(seq_t **arr, size_t *cap, size_t needed)
+{
+    if (needed > *cap) {
+        size_t new_cap = needed > *cap * 2 ? needed : (*cap * 2);
+        seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+        if (!tmp) exit(1);                       /* out of memory */
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
 
 /* Ensure the used bit‑array can hold a value ‘val’.  */
 static void ensure_used(idx_t val, unsigned char **used, idx_t *used_size)
@@ -63,8 +76,8 @@ seq_t a(idx_t n)
         b_cap = 4;
         a_len = 2;      /* a(0) .. a(1) */
         b_len = 2;      /* b(0) .. b(1) */
-        a_vals = (seq_t*)calloc(a_cap, sizeof(seq_t));
-        b_vals = (seq_t*)calloc(b_cap, sizeof(seq_t));
+        a_vals = mem_new(seq_t, a_cap);
+        b_vals = mem_new(seq_t, b_cap);
         if (!a_vals || !b_vals) exit(1);   /* memory failure */
         /* a(0)=4, a(1)=5 */
         a_vals[0] = (seq_t)4;

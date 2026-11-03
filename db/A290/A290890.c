@@ -8,12 +8,14 @@
  *            values: a(0)=0, a(1)=1, a(2)=4, a(3)=11
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 23, u64 n <= 46, u128 n <= 92,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 875 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;   /* dynamic cache of computed terms   */
 static size_t a_cap = 0;        /* allocated capacity of the cache   */
@@ -26,7 +28,7 @@ static void ensure_a_cache(idx_t n) {
     if (a_cap <= (size_t)n) {
         size_t new_cap = (size_t)(n + 1);
         if (new_cap < 16) new_cap = 16;    /* start with some room */
-        seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
         a_cache = tmp;
         a_cap = new_cap;
     }

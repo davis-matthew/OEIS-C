@@ -9,7 +9,8 @@
  *            is an arithmetic number (sigma(m) divisible by tau(m)), else 0
  * Range:     u8 n <= 19, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static storage */
 static bool *arith     = NULL;   /* arithmetic indicator, index 1..N */
@@ -78,11 +80,11 @@ static void recompute_arith(idx_t limit)
 static void recompute_area(idx_t limit)
 {
     /* allocate new area array */
-    seq_t *new_area = (seq_t *)malloc((limit + 1) * sizeof(seq_t));
+    seq_t *new_area = mem_new(seq_t, (limit + 1));
     if (!new_area) return;
 
     /* free old array if any */
-    free(area);
+    mem_free(area);
     area     = new_area;
     area_cap = limit + 1;
 

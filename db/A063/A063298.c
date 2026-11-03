@@ -10,13 +10,15 @@
  *            a(9)=151, a(10)=174, a(11)=197, a(12)=220, a(13)=244
  * Range:     i8 n <= 7, i16 n <= 49, i32 n <= 49, i64 n <= 49, i128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Static storage for memoisation */
 static seq_t *seq_cache   = NULL;
@@ -30,7 +32,7 @@ static void seq_init_cache(void)
         return;                    /* already initialised */
 
     seq_capacity = 14;             /* indices 0..13 */
-    seq_cache = (seq_t *)malloc(sizeof(seq_t) * seq_capacity);
+    seq_cache = mem_new(seq_t, seq_capacity);
     for (idx_t i = 0; i < seq_capacity; ++i)
         seq_cache[i] = (seq_t)0;   /* clear */
 
@@ -58,7 +60,7 @@ static void seq_grow_capacity(idx_t needed)
         return;
 
     idx_t new_cap = needed > seq_capacity * 2 ? needed : seq_capacity * 2;
-    seq_cache = (seq_t *)realloc(seq_cache, sizeof(seq_t) * new_cap);
+    seq_cache = mem_resize(seq_t, seq_cache, new_cap);
     for (idx_t i = seq_capacity; i < new_cap; ++i)
         seq_cache[i] = (seq_t)0;
     seq_capacity = new_cap;

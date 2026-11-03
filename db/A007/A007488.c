@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  base, nonn, nice
  * Formula:   not stated
- * Range:     u8 n <= 2, u16 n <= 19, u32 n <= 2822, u64 n <= 9492,
- *            u128 n <= 9492, big any n
- * Helpers:   is_prime
+ * Range:     u8 n <= 2, u16 n <= 19, u32 n <= 2822, u64 n <= 14356,
+ *            u128 n <= 14356, big any n
+ * Validated: standard, pass, 53 terms through n = 9492 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include "../utils/is_prime_u64.h"
 
 static uint64_t *list = NULL;
 static size_t cnt = 0, cap = 0;
@@ -55,7 +56,7 @@ seq_t a(idx_t n) {
             root++;
             if (s % 10 == 0) continue;
             uint64_t p = reverse_digits(s);
-            if (p > 1 && is_prime(p)) push(p);
+            if (p > 1 && is_prime_u64(p)) push(p);
         }
         qsort(list + start, cnt - start, sizeof(uint64_t), cmp_u64);
     }

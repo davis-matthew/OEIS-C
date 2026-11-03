@@ -8,9 +8,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 7, u16 n <= 2155, u32 n <= 9825, u64 n <= 9825,
- *            u128 n <= 9825, big any n
- * Helpers:   none
+ * Range:     u8 n <= 7, u16 n <= 2155, u32 n <= 11142, u64 n <= 11142,
+ *            u128 n <= 11142, big any n
+ * Validated: standard, pass, 69 terms through n = 9825 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- helper ---------------------------------------------------- */
 static unsigned long long *phi_array = NULL;      /* φ(k) for k ≤ LIMIT */
@@ -91,8 +93,7 @@ static void ensure_terms(idx_t n)
                 /* Append to cached list */
                 if (terms_len == terms_cap) {
                     size_t new_cap = terms_cap ? terms_cap * 2U : 16U;
-                    seq_t *tmp = (seq_t *)realloc(terms,
-                                                  new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, terms, new_cap);
                     if (!tmp) abort();
                     terms = tmp;
                     terms_cap = new_cap;

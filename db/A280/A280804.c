@@ -14,12 +14,14 @@
  *            a(2)=1, a(3)=3, a(4)=18, a(5)=72, a(6)=284, a(7)=1047, * a(...
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 40, u128 n <= 82,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const int COEFFS[18] = {
     9, -30, 48, -45, 18, 44, -60, 30, -2, -51,
@@ -38,7 +40,7 @@ seq_t a(idx_t n) {
     if (n <= 18) return INIT[n-1];
 
     /* allocate array of size n to store intermediate values */
-    seq_t *arr = (seq_t*)malloc(n * sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, n);
     if (!arr) return 0;            /* allocation failed, return 0 as fallback */
 
     for (idx_t i = 0; i < 18; ++i) arr[i] = INIT[i];
@@ -58,6 +60,6 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = arr[n-1];
-    free(arr);
+    mem_free(arr);
     return result;
 }

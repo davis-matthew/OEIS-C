@@ -11,13 +11,27 @@
  *            2t+1 : g_k = 6 * ( (2t)!^2 ) / ( t!^2 * 4^t ) For...
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/binom.h"   /* for seq_t binom(idx_t a, idx_t b) */
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* Compute binomial coefficient C(a,b) using multiplicative formula. */
+static seq_t binom(idx_t a, idx_t b) {
+    if (b > a) return 0;
+    if (b > a - b) b = a - b;          /* use symmetry */
+    seq_t res = 1;
+    for (idx_t i = 1; i <= b; ++i) {
+        res *= (seq_t)(a - b + i);
+        res /= (seq_t)i;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -37,7 +51,7 @@ seq_t a(idx_t n)
         if (n + 1 > fact_cap) {
             size_t old = fact_cap;
             fact_cap = n + 1;
-            fact = (seq_t *)realloc(fact, fact_cap * sizeof(seq_t));
+            fact = mem_resize(seq_t, fact, fact_cap);
             if (old == 0) { fact[0] = 1; old = 1; }
             for (size_t i = old; i < fact_cap; ++i)
                 fact[i] = fact[i - 1] * (seq_t)i;
@@ -47,7 +61,7 @@ seq_t a(idx_t n)
         if (t_max + 1 > pow4_cap) {
             size_t old = pow4_cap;
             pow4_cap = t_max + 1;
-            pow4 = (seq_t *)realloc(pow4, pow4_cap * sizeof(seq_t));
+            pow4 = mem_resize(seq_t, pow4, pow4_cap);
             if (old == 0) { pow4[0] = 1; old = 1; }
             for (size_t i = old; i < pow4_cap; ++i)
                 pow4[i] = pow4[i - 1] * (seq_t)4;
@@ -56,7 +70,7 @@ seq_t a(idx_t n)
         if (n + 1 > g_cap) {
             size_t old = g_cap;
             g_cap = n + 1;
-            g = (seq_t *)realloc(g, g_cap * sizeof(seq_t));
+            g = mem_resize(seq_t, g, g_cap);
             for (size_t i = old; i < g_cap; ++i) g[i] = 0;
             for (size_t k = old; k < g_cap; ++k) {
                 if (k & 1) {                     /* odd k */
@@ -72,7 +86,7 @@ seq_t a(idx_t n)
         if (n + 1 > A_cap) {
             size_t old = A_cap;
             A_cap = n + 1;
-            A = (seq_t *)realloc(A, A_cap * sizeof(seq_t));
+            A = mem_resize(seq_t, A, A_cap);
             for (size_t i = old; i < A_cap; ++i) A[i] = 0;
             if (old == 0) { A[0] = 1; old = 1; }   /* A[0] = 1 */
             for (size_t cur = old; cur < A_cap; ++cur) {

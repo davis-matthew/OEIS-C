@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 57, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   vowelCountString
+ * Validated: partial, pass, 74 terms through n = 74 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,22 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/vowelCountString.h"
+
+/* Helper: count vowels in a null‑terminated string (ignores hyphens, spaces, accents). */
+static seq_t vowelCountString(const char *s)
+{
+    seq_t cnt = 0;
+    for (; *s; ++s) {
+        switch (*s) {
+            case 'a': case 'e': case 'i': case 'o': case 'u':
+                ++cnt;
+                break;
+            default:
+                break;
+        }
+    }
+    return cnt;
+}
 
 /* Constants for French number parts.
    unit_words[0] = "zero" for n==0.

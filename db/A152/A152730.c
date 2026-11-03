@@ -7,13 +7,15 @@
  * Formula:   a(n) + a(n+1) + a(n+2) = n^5, with a(1) = a(2) = 0
  * Range:     u8 n <= 5, u16 n <= 12, u32 n <= 106, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 4943 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute n^5 using 128‑bit intermediate to avoid overflow on 64‑bit builds. */
 static inline seq_t pow5(idx_t n)
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
 
     /* initialise cache if necessary */
     if (!cache) {
-        cache = (seq_t *)malloc(2 * sizeof(seq_t));
+        cache = mem_new(seq_t, 2);
         if (!cache) return (seq_t)0;   /* allocation failed */
         cache[0] = (seq_t)0;   /* a(1) */
         cache[1] = (seq_t)0;   /* a(2) */
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
     /* keep old size to know where to start computing */
     idx_t old_size = cache_size;
     if (cache_size < n) {
-        seq_t *tmp = (seq_t *)realloc(cache, n * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, n);
         if (!tmp) return (seq_t)0;   /* allocation failed */
         cache = tmp;
         cache_size = n;

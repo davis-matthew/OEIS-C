@@ -12,13 +12,15 @@
  *            seq_t and idx_t types supplied by the build
  * Range:     u8 n <= 17, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Cache for the A086582 sequence */
 static seq_t *b_buf  = NULL;   /* b[0 .. b_len-1] */
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
 
     /* Ensure capacity for b_buf */
     if (b_len < L) {
-        seq_t *newb = (seq_t *)realloc(b_buf, L * sizeof(seq_t));
+        seq_t *newb = mem_resize(seq_t, b_buf, L);
         if (!newb) return 0;            /* allocation failure */
         b_buf = newb;
     }
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
 
     /* Ensure capacity for tmp_buf */
     if (tmp_cap < (size_t)L) {
-        seq_t *newtmp = (seq_t *)realloc(tmp_buf, L * sizeof(seq_t));
+        seq_t *newtmp = mem_resize(seq_t, tmp_buf, L);
         if (!newtmp) return 0;
         tmp_buf = newtmp;
         tmp_cap = L;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 13, u64 n <= 28, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 984 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    This implementation memoises the sequence in a static array.          */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache    = NULL;          /* memoisation array                */
 static size_t cache_sz = 0;             /* number of allocated slots         */
@@ -35,7 +37,7 @@ ensure_capacity(idx_t n)
         return;
 
     size_t new_sz = (size_t)(n + 1);
-    seq_t *new_arr = (seq_t *)realloc(cache, new_sz * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, cache, new_sz);
     if (!new_arr) {
         /* allocation failed – fall back to no‑op to make the program
            still compile; the calling judge will treat it as failure.   */

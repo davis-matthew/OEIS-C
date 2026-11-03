@@ -8,6 +8,7 @@
  *            3)*(2*n - 5)*(5*n + 7)*(35*n^2 + 98*n + 72)/5443200
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 12, u64 n <= 76, u128 n <= 3055,
  *            big any n
+ * Validated: standard, pass, 37 terms through n = 8882 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 30,
  *            big any n
- * Helpers:   validate_row
+ * Validated: standard, pass, 33 terms through n = 180 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,31 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/validate_row.h"
+#include "../utils/mem.h"
+
+/* Checks if a given row (mask) satisfies the neighbor condition
+   when the rows above (=above) and below (=below) are known. */
+static inline bool validate_row(uint8_t row, uint8_t above, uint8_t below)
+{
+    for (int col = 0; col < 6; ++col) {
+        if (row & (1u << col)) {
+            int cnt = 0;
+            /* Neighbors from the row above */
+            if (col > 0)        cnt += !!(above & (1u << (col - 1)));
+            cnt += !!(above & (1u << col));
+            if (col < 5)        cnt += !!(above & (1u << (col + 1)));
+            /* Neighbors from the same row (excluding itself) */
+            if (col > 0)        cnt += !!(row & (1u << (col - 1)));
+            if (col < 5)        cnt += !!(row & (1u << (col + 1)));
+            /* Neighbors from the row below */
+            if (col > 0)        cnt += !!(below & (1u << (col - 1)));
+            cnt += !!(below & (1u << col));
+            if (col < 5)        cnt += !!(below & (1u << (col + 1)));
+            if (cnt < 3 || cnt > 5) return false;
+        }
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {
@@ -79,8 +104,8 @@ seq_t a(idx_t n)
     }
 
     /* Reset DP arrays */
-    memset(dp, 0, sizeof(dp));
-    memset(dp_next, 0, sizeof(dp_next));
+    mem_set(dp, 0, sizeof(dp));
+    mem_set(dp_next, 0, sizeof(dp_next));
 
     /* Initial DP: first two rows. */
     for (int prev = 0; prev < 64; ++prev) {
@@ -106,7 +131,7 @@ seq_t a(idx_t n)
     /* DP for rows 3..n */
     int remaining = (int)n - 2;
     for (int step = 0; step < remaining; ++step) {
-        memset(dp_next, 0, sizeof(dp_next));
+        mem_set(dp_next, 0, sizeof(dp_next));
         for (int prev = 0; prev < 64; ++prev) {
             for (int curr = 0; curr < 64; ++curr) {
                 seq_t val = dp[prev][curr];
@@ -120,7 +145,7 @@ seq_t a(idx_t n)
                 }
             }
         }
-        memcpy(dp, dp_next, sizeof(dp));
+        mem_copy(dp, dp_next, sizeof(dp));
     }
 
     /* Final answer: validate the last row. */

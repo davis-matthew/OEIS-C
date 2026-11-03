@@ -13,7 +13,8 @@
  *            The recurrence is derived from the definition, no...
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 34,
  *            big any n
- * Helpers:   compute_violations
+ * Validated: standard, pass, 32 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,29 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/compute_violations.h"
+#include "../utils/mem.h"
+
+static unsigned char compute_violations(unsigned prev2, unsigned prev1, unsigned cur)
+{
+    unsigned violations = 0;
+    for (int c = 0; c < 4; ++c) {
+        unsigned cell = (prev1 >> c) & 1U;
+        if (cell == 0)
+            continue;               /* The rule applies only to 1’s. */
+        unsigned equal = 0;
+        /* horizontal neighbors */
+        if (c > 0)   equal += ((prev1 >> (c - 1)) & 1U) == cell;
+        if (c < 3)   equal += ((prev1 >> (c + 1)) & 1U) == cell;
+        /* diagonal neighbors (up-left, up-right) */
+        if (c > 0)   equal += ((prev2 >> (c - 1)) & 1U) == cell;
+        if (c < 3)   equal += ((prev2 >> (c + 1)) & 1U) == cell;
+        /* antidiagonal neighbors (down-left, down-right) */
+        if (c > 0)   equal += ((cur   >> (c - 1)) & 1U) == cell;
+        if (c < 3)   equal += ((cur   >> (c + 1)) & 1U) == cell;
+        if (equal > 3) violations++;
+    }
+    return (unsigned char)violations;
+}
 
 static unsigned char viol[256][16];
 static bool precomputed = false;
@@ -49,7 +72,7 @@ seq_t a(idx_t n)
        used = 0 or 1 (number of violations found). */
     static seq_t dp_cur[256][2];
     static seq_t dp_next[256][2];
-    memset(dp_cur, 0, sizeof dp_cur);
+    mem_set(dp_cur, 0, sizeof dp_cur);
 
     /* First row: prev2 = 0, prev1 = pattern of the first row */
     for (int p1 = 0; p1 < 16; ++p1) {
@@ -59,7 +82,7 @@ seq_t a(idx_t n)
 
     /* Process additional rows (row 2 to n). */
     for (idx_t r = 2; r <= n; ++r) {
-        memset(dp_next, 0, sizeof dp_next);
+        mem_set(dp_next, 0, sizeof dp_next);
         for (int state = 0; state < 256; ++state) {
             unsigned prev2 = (state >> 4) & 0xF;
             unsigned prev1 = state & 0xF;
@@ -78,7 +101,7 @@ seq_t a(idx_t n)
             }
         }
         /* swap dp_cur and dp_next */
-        memcpy(dp_cur, dp_next, sizeof dp_cur);
+        mem_copy(dp_cur, dp_next, sizeof dp_cur);
     }
 
     /* Final evaluation: use a dummy zero row to finish the last real row. */

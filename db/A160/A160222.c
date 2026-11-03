@@ -8,7 +8,8 @@
  *            a(n) = 25*a(n-1) - 392*(n-1)*a(n-2) (n ≥ 2)
  * Range:     i8 n <= 1, i16 n <= 3, i32 n <= 6, i64 n <= 11, i128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 397 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    calls may be made in any order. */
 
 #include <stdlib.h>   /* for size_t, realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
 
     /* Resize the cache to hold terms up to index n. */
     size_t needed = (size_t)(n + 1);
-    seq_t *new_cache = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, needed);
     if (!new_cache)
         return 0;                     /* allocation failed – unlikely in tests */
 

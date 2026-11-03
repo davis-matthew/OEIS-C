@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 980 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ---- helper to grow a seq_t array ------------------------------------- */
 static void grow_seq_array(seq_t **arr, size_t *cap, size_t need)
@@ -29,7 +31,7 @@ static void grow_seq_array(seq_t **arr, size_t *cap, size_t need)
     if (*cap >= need) return;
     size_t new_cap = (*cap == 0) ? 128 : (*cap << 1);
     while (new_cap < need) new_cap <<= 1;
-    *arr = (seq_t*)realloc(*arr, new_cap * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, new_cap);
     *cap = new_cap;
 }
 
@@ -46,7 +48,7 @@ static void init_three_almost_primes(size_t required)
     /* If we already have an array, free it – we rebuild with a larger
        limit when necessary.  The 500 000 bound is sufficient for the
        first 10 000 terms (so this function runs only once in normal use). */
-    free(three);
+    mem_free(three);
     three = NULL;
     three_len = 0;
     three_cap = 0;

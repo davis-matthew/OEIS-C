@@ -11,7 +11,8 @@
  *            n‑1 ≤ 2^(p+1)
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,13 +33,13 @@ seq_t a(idx_t n)
 
     /* Reallocate storage if necessary */
     if (cap_a < (size_t)(n + 1)) {
-        seq_t *tmp = (seq_t *)realloc(a_arr, (size_t)(n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_arr, (size_t)(n + 1));
         if (!tmp) abort();
         a_arr = tmp;
         cap_a = n + 1;
     }
     if (cap_p < (size_t)(n + 1)) {
-        seq_t *tmp = (seq_t *)realloc(prefix, (size_t)(n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, prefix, (size_t)(n + 1));
         if (!tmp) abort();
         prefix = tmp;
         cap_p = n + 1;

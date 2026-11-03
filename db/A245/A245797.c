@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 8, u64 n <= 12, u128 n <= 16,
  *            big any n
- * Helpers:   binomial, pow2, pow_uint
+ * Validated: standard, pass, 32 terms through n = 49 (2026-11-03)
+ * Helpers:   binomial, ipow_u64_idx, mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -37,9 +38,12 @@
  */
 
 #include <stdlib.h>
+#include <stdbool.h>
+#include <stdint.h>
 #include "../utils/binomial.h"
+#include "../utils/ipow_u64_idx.h"
 #include "../utils/pow2.h"
-#include "../utils/pow_uint.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -52,8 +56,8 @@ seq_t a(idx_t n)
     static size_t pow_cap = 0;
 
     if (pow_cap < n + 1) {
-        free(pow_arr);
-        pow_arr = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        mem_free(pow_arr);
+        pow_arr = mem_new(seq_t, (n + 1));
         pow_cap  = n + 1;
     }
 

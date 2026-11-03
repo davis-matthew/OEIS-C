@@ -8,13 +8,15 @@
  *            (OEIS A234000)
  * Range:     u8 n <= 12, u16 n <= 2976, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 9914 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* Helper data structures                                                */
@@ -49,7 +51,7 @@ static void ensure_cache_cap(idx_t needed)
     if (needed > cache_cap) {
         size_t newcap = cache_cap ? cache_cap * 2 : 64;
         while (newcap < (size_t)needed) newcap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp) abort();
         cache = tmp;
         cache_cap = newcap;
@@ -61,7 +63,7 @@ static void ensure_heap_cap(size_t needed)
     if (needed > heap_cap) {
         size_t newcap = heap_cap ? heap_cap * 2 : 8;
         while (newcap < needed) newcap *= 2;
-        node_t *tmp = (node_t *)realloc(heap, newcap * sizeof(node_t));
+        node_t *tmp = mem_resize(node_t, heap, newcap);
         if (!tmp) abort();
         heap = tmp;
         heap_cap = newcap;
@@ -116,8 +118,8 @@ static void extend_powers(idx_t n)
     seq_t limit = (seq_t)6 * (seq_t)n;          /* 6*n is enough for n terms */
     if (pow4_len == 0) {
         /* initial power of 4 */
-        pow4 = (seq_t *)malloc(1 * sizeof(seq_t));
-        inc  = (seq_t *)malloc(1 * sizeof(seq_t));
+        pow4 = mem_new(seq_t, 1);
+        inc  = mem_new(seq_t, 1);
         pow4_len = 1;
         pow4[0] = (seq_t)1;
         inc[0]  = (seq_t)8;
@@ -128,8 +130,8 @@ static void extend_powers(idx_t n)
     /* compute next powers until we exceed the limit */
     while (pow4[pow4_len-1] <= limit / 4) {
         /* grow arrays */
-        seq_t *tpow4 = (seq_t *)realloc(pow4, (pow4_len + 1) * sizeof(seq_t));
-        seq_t *tinc  = (seq_t *)realloc(inc,  (pow4_len + 1) * sizeof(seq_t));
+        seq_t *tpow4 = mem_resize(seq_t, pow4, (pow4_len + 1));
+        seq_t *tinc  = mem_resize(seq_t, inc, (pow4_len + 1));
         if (!tpow4 || !tinc) abort();
         pow4 = tpow4;
         inc  = tinc;

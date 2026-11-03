@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   T(m,n) = Sum_{-m<i<m,-n<j<n, gcd(|i|,|j|)=2} (m-|i|)*(n-|j|)
- * Range:     u8 n <= 26, u16 n <= 350, u32 n <= 9987, u64 n <= 9987,
- *            u128 n <= 9987, big any n
+ * Range:     u8 n <= 26, u16 n <= 350, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 82 terms through n = 9987 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 
 /* a(n) is the triangle read by rows of T(m,n). */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 /* Compute the triangle entry T(m,n).  m >= n >= 1. */

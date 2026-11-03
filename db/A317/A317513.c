@@ -10,7 +10,8 @@
  *            a(2)=128, a(3)=2032
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* cache of a(1), a(2), ... stored at cache[0], cache[1], ... */
 static seq_t *cache = NULL;
@@ -30,7 +32,7 @@ static bool _ensure_cache(idx_t n)
         return true;
 
     size_t new_len = (size_t)n;
-    seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_len);
     if (!tmp)
         return false;
     cache = tmp;

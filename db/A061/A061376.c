@@ -9,21 +9,24 @@
  *            otherwise f(n) = sum of distinct primes dividing n.
  *            Implementation: factorize each composite n, sum distinct primes,
  *            then evaluate f again on the result (which is a small number)
- * Range:     u8 n <= 397, u16 n <= 9753, u32 n <= 9753, u64 n <= 9753,
- *            u128 n <= 9753, big any n
- * Helpers:   factorize, is_prime64
+ * Range:     u8 n <= 397, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 96 terms through n = 9753 (2026-11-03)
+ * Helpers:   factorize, is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/is_prime64.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factorize.h"
+#include "../utils/is_prime_u64.h"
 
 static seq_t f_val(idx_t n)
 {
     uint64_t x = (uint64_t)n;
-    if (x <= 1 || is_prime64(x))
+    if (x <= 1 || is_prime_u64(x))
         return 0;
 
     /* Enough space for all distinct prime factors of a 64‑bit number. */

@@ -7,11 +7,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 32, u64 n <= 63, u128 n <= 124,
  *            big any n
+ * Validated: standard, pass, 50 terms through n = 966 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#ifdef __cplusplus
+#include <vector>
+#endif
 /* Recurrence: a(n) = 4*a(n-2) + a(n-4)   with   a(0)=0, a(1)=a(2)=1, a(3)=2 */
 
 #include <stdlib.h>

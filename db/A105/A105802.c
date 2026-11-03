@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 31, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-01)
+ * Helpers:   ipow_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,7 +33,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow_uint.h"   /* seq_t pow_uint(seq_t base, unsigned long long exp); */
+#include "../utils/ipow_u64.h"
 
 /* Prime list – enough for divisor counts up to 10000 */
 static const uint32_t primes[] = {
@@ -67,7 +68,7 @@ static void dfs_minimal(uint32_t idx, uint32_t last, uint32_t remain,
         uint32_t d = e + 1u;
         if (remain % d != 0u) continue;
         /* compute new current value */
-        seq_t powp = pow_uint((seq_t)prime, (unsigned long long)e);
+        seq_t powp = ipow_u64((seq_t)prime, (unsigned long long)e);
         seq_t new_cur = cur * powp;
         if (*best != 0 && new_cur > *best) continue;  /* prune */
         dfs_minimal(idx + 1, e, remain / d, new_cur, best);
@@ -86,7 +87,7 @@ static seq_t minimal_with_divisors(uint32_t K, bool require_even)
         for (uint32_t e = 1; e <= K; ++e) {
             uint32_t d = e + 1u;
             if (K % d != 0u) continue;
-            seq_t val2 = pow_uint((seq_t)2u, (unsigned long long)e);
+            seq_t val2 = ipow_u64((seq_t)2u, (unsigned long long)e);
             seq_t cur = val2;
             /* search with remaining divisor product */
             dfs_minimal(1, e, K / d, cur, &best);

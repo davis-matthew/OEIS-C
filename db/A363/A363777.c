@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 13, i16 n <= 38, i32 n <= 45, i64 n <= 45, i128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    up to the largest n requested. */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *c_arr = NULL;          /* c(n) = number of representations as sum of three cubes */
 static seq_t *a_arr = NULL;          /* a(n) values */
@@ -34,8 +36,8 @@ static void ensure_arrays(idx_t n)
     size_t needed = (size_t)n + 1;
     if (needed > arr_cap) {
         size_t new_cap = needed;
-        c_arr = (seq_t *)realloc(c_arr, new_cap * sizeof(seq_t));
-        a_arr = (seq_t *)realloc(a_arr, new_cap * sizeof(seq_t));
+        c_arr = mem_resize(seq_t, c_arr, new_cap);
+        a_arr = mem_resize(seq_t, a_arr, new_cap);
         for (size_t i = arr_cap; i < new_cap; ++i) {
             c_arr[i] = 0;
             a_arr[i] = 0;

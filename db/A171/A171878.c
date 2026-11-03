@@ -9,13 +9,17 @@
  *            values a(0)=0, a(1)=0, a(2)=0, a(3)=0, a(4)=1
  * Range:     u8 n <= 10, u16 n <= 11, u32 n <= 12, u64 n <= 12, u128 n <= 13,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;
@@ -25,7 +29,7 @@ seq_t a(idx_t n) {
     /* Initialize cache with first 5 terms */
     if (cache == NULL) {
         cap = 16;                    /* initial capacity */
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         cache[0] = cache[1] = cache[2] = cache[3] = (seq_t)0;
         cache[4] = (seq_t)1;
         len = 5;
@@ -36,7 +40,7 @@ seq_t a(idx_t n) {
         size_t new_cap = cap ? cap * 2 : 16;
         while (new_cap <= (size_t)n)
             new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) {
             /* Allocation failed – abort computation */
             exit(EXIT_FAILURE);
@@ -53,7 +57,7 @@ seq_t a(idx_t n) {
             seq_t a3 = cache[i - 3];
             seq_t a4 = cache[i - 4];
             seq_t a5 = cache[i - 5];
-            seq_t term = a1 + (a2 * a3) + big_pow(a4, a5);
+            seq_t term = a1 + (a2 * a3) + ipow(a4, a5);
             cache[i] = term;
         }
         len = n + 1;

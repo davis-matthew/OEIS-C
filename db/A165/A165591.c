@@ -5,15 +5,29 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  sign, mult, easy
  * Formula:   a(n) = Jacobi symbol (n,59701)
- * Range:     i8 n <= 9496, i16 n <= 9496, i32 n <= 9496, i64 n <= 9496,
- *            i128 n <= 9496, big any n
- * Helpers:   powmod64_local
+ * Range:     i8 n <= 59701, i16 n <= 59701, i32 n <= 59701, i64 n <= 59701,
+ *            i128 n <= 59701, big any n
+ * Validated: standard, pass, 97 terms through n = 9496 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/powmod64_local.h"
+
+/* Small modular exponentiation.  All intermediates safely fit in 64 bits
+   because the modulus is 227 or 263. */
+static uint64_t powmod64_local(uint64_t base, uint64_t exp, uint64_t mod)
+{
+    uint64_t result = 1 % mod;
+    base %= mod;
+    while (exp) {
+        if (exp & 1U) result = (result * base) % mod;
+        base = (base * base) % mod;
+        exp >>= 1U;
+    }
+    return result;
+}
 
 /* Legendre symbol (a|p) for odd prime p.  Returns 1, 0, or -1. */
 static int legendre(uint64_t a, uint64_t p)

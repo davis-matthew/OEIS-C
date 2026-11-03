@@ -11,14 +11,16 @@
  *            Adams-Moulton formula, over the common denominator n!...
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 26,
  *            big any n
- * Helpers:   a002402_isprime
+ * Validated: standard, pass, 36 terms through n = 99 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/a002402_isprime.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     idx_t N = n + 1;
@@ -29,7 +31,7 @@ seq_t a(idx_t n) {
 
     /* L = lcm(1..n+1) */
     for (m = 2; m <= N; m++) {
-        if (a002402_isprime(m)) {
+        if (is_prime(m)) {
             idx_t pp = m;
             while (pp <= N / m) pp *= m;
             L *= (seq_t)pp;
@@ -37,7 +39,7 @@ seq_t a(idx_t n) {
     }
 
     /* q[j] = coefficient of t^j in (t+1)(t+2)...(t+n-1) = |Stirling1(n, j+1)| */
-    q = (seq_t *)calloc((size_t)n, sizeof(seq_t));
+    q = mem_new(seq_t, (size_t)n);
     for (j = 0; j < n; j++) q[j] = (seq_t)0;
     q[0] = (seq_t)1;
     for (k = 1; k < n; k++) {
@@ -51,6 +53,6 @@ seq_t a(idx_t n) {
         if (d == 0) continue; /* only possible when the result overflows seq_t */
         sum += q[j] * (L / d);
     }
-    free(q);
+    mem_free(q);
     return sum * (seq_t)n;
 }

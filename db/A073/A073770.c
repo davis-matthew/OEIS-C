@@ -10,7 +10,8 @@
  *            prime
  * Range:     u8 n <= 28, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Global tables used by the computation */
 static seq_t *seqA          = NULL;     /* sequence values                     */
@@ -105,7 +107,7 @@ static void recompute(idx_t new_limit)
         uint32_t p = primes[pi];
         if (!excluded[(size_t)p]) {
             if (new_len >= seqA_len) {
-                new_seqA = (seq_t *)realloc(new_seqA, (new_len + 1) * sizeof(seq_t));
+                new_seqA = mem_resize(seq_t, new_seqA, (new_len + 1));
                 new_seqA[new_len] = (seq_t)p;
             } else {
                 new_seqA[new_len] = (seq_t)p;
@@ -116,7 +118,7 @@ static void recompute(idx_t new_limit)
     free(excluded);
 
     /* replace old sequence */
-    free(seqA);
+    mem_free(seqA);
     seqA      = new_seqA;
     seqA_len  = new_len;
     current_limit = new_limit;

@@ -11,13 +11,16 @@
  *            where a(n) = A[n-1] for n ≥ 1
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 14, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   pow2
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +35,7 @@ seq_t a(idx_t n)
     /* initialise array if first call */
     if (size == 0) {
         cap  = 1;
-        A    = (seq_t *)malloc(cap * sizeof(seq_t));
+        A    = mem_new(seq_t, cap);
         if (!A) exit(1);
         A[0] = (seq_t)1;          /* A[0] = 1 */
         size = 1;
@@ -42,7 +45,7 @@ seq_t a(idx_t n)
     if (target + 1 > cap) {
         idx_t new_cap = cap ? cap * 2 : 1;
         while (new_cap < target + 1) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(A, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, A, new_cap);
         if (!tmp) exit(1);
         A   = tmp;
         cap = new_cap;

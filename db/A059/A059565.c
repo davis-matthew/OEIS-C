@@ -8,6 +8,7 @@
  * Formula:   a(n) = floor(n * e^γ) (Euler–Mascheroni constant γ)
  * Range:     u8 n <= 143, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
+ * Validated: standard, pass, 82 terms through n = 1894 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

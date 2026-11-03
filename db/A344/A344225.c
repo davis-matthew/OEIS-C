@@ -8,15 +8,18 @@
  * Formula:   a(n) = Sum_{d|n} φ(n/d) * τ(d^(n/d)) (OEIS A344225)
  * Range:     u8 n <= 29, u16 n <= 245, u32 n <= 6989, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, phi
+ * Validated: standard, pass, 83 terms through n = 9658 (2026-11-01)
+ * Helpers:   factor_u64, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/phi.h"            /* seq_t phi(idx_t m) */
-#include "../utils/factor_u64.h"     /* factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt) */
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -42,7 +45,7 @@ seq_t a(idx_t n)
         /* first divisor d1 = i */
         idx_t d1 = i;
         idx_t k1 = n / d1;           /* exponent of d1 */
-        seq_t phi_k1 = phi(k1);
+        seq_t phi_k1 = totient(k1);
 
         factor_u64(d1, primes, exps, &cnt);
         seq_t tau_d1k1 = 1;
@@ -56,7 +59,7 @@ seq_t a(idx_t n)
         if (i != n / i) {
             idx_t d2 = n / i;
             idx_t k2 = i;            /* exponent of d2 */
-            seq_t phi_k2 = phi(k2);
+            seq_t phi_k2 = totient(k2);
 
             factor_u64(d2, primes, exps, &cnt);
             seq_t tau_d2k2 = 1;

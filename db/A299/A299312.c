@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 19, u128 n <= 37,
  *            big any n
- * Helpers:   _check_row
+ * Validated: standard, pass, 34 terms through n = 204 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,40 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/_check_row.h"
+
+/* ---------- row validity test ---------- */
+static int _check_row(uint8_t up, uint8_t mid, uint8_t down,
+                      int hasUp, int hasDown)
+{
+    for (int j = 0; j < 6; ++j)
+    {
+        int bit  = (mid >> j) & 1;
+        int cnt  = 0;
+
+        /* same row */
+        if (j > 0   && ((mid >> (j-1)) & 1) == bit) ++cnt;
+        if (j < 5   && ((mid >> (j+1)) & 1) == bit) ++cnt;
+
+        /* upper row */
+        if (hasUp)
+        {
+            if (j > 0   && ((up   >> (j-1)) & 1) == bit) ++cnt;
+            if        (((up   >> j)     & 1) == bit) ++cnt;
+            if (j < 5   && ((up   >> (j+1)) & 1) == bit) ++cnt;
+        }
+
+        /* lower row */
+        if (hasDown)
+        {
+            if (j > 0   && ((down >> (j-1)) & 1) == bit) ++cnt;
+            if        (((down >> j)     & 1) == bit) ++cnt;
+            if (j < 5   && ((down >> (j+1)) & 1) == bit) ++cnt;
+        }
+
+        if (cnt == 0 || cnt == 3 || cnt == 8) return 0;   /* invalid */
+    }
+    return 1;   /* valid */
+}
 
 /* ---------- tables (built once) ---------- */
 static unsigned char  _next_list[64][64][64];

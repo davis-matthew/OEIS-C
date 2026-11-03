@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 19,
  *            big any n
- * Helpers:   binomial, pow_seq
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-01)
+ * Helpers:   binomial, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,9 @@
    Formula: a(n) = n! * Σ_{k=0..⌊n/3⌋} (n+1)^(n-3k-1) * binomial(n-2k-1,k) / (n-3k)! */
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -29,10 +31,10 @@ seq_t a(idx_t n)
 
     /* base for powers: n+1 */
     seq_t base = (seq_t)(n + (idx_t)1);
-    seq_t pow3 = pow_seq(base, 3);      /* (n+1)^3 */
+    seq_t pow3 = ipow_i32(base, 3);      /* (n+1)^3 */
 
     /* initial power for k=0: (n+1)^(n-1) */
-    seq_t pow = pow_seq(base, (int)(n - (idx_t)1));
+    seq_t pow = ipow_i32(base, (int)(n - (idx_t)1));
 
     seq_t ratio = (seq_t)1;             /* n!/(n-3k)! for current k */
 

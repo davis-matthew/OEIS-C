@@ -6,15 +6,16 @@
  * Keywords:  nonn
  * Formula:   a(n) = (1/(n+1)) * Sum_{k=0..floor(n/3)} binomial(3*n+k+2,k) *
  *            binomial(n-2*k-1,n-3*k)
- * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 20, u64 n <= 41, u128 n <= 76,
+ * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 22, u64 n <= 41, u128 n <= 76,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 47 terms through n = 991 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 /* Compute binomial with proper handling of the special
    case n = 0, k = 0 when the first argument would be -1.  */
@@ -23,7 +24,7 @@ static inline seq_t safe_binom(idx_t a, idx_t b)
     if (a == (idx_t)-1 && b == 0) /* binomial(-1,0) = 1 */
         return 1;
     if (a >= b && b >= 0)
-        return binom(a, b);
+        return binomial(a, b);
     return 0;
 }
 
@@ -40,7 +41,7 @@ seq_t a(idx_t n)
     seq_t sum = 0;
     idx_t maxk = n / 3;
     for (idx_t k = 0; k <= maxk; ++k) {
-        seq_t term1 = binom(3 * n + k + 2, k);
+        seq_t term1 = binomial(3 * n + k + 2, k);
         idx_t a2 = n - 2 * k - 1;
         idx_t b2 = n - 3 * k;
         seq_t term2 = safe_binom(a2, b2);
@@ -54,7 +55,7 @@ seq_t a(idx_t n)
     __uint128_t sum = 0;
     idx_t maxk = n / 3;
     for (idx_t k = 0; k <= maxk; ++k) {
-        __uint128_t term1 = (__uint128_t)binom(3 * n + k + 2, k);
+        __uint128_t term1 = (__uint128_t)binomial(3 * n + k + 2, k);
         idx_t a2 = n - 2 * k - 1;
         idx_t b2 = n - 3 * k;
         __uint128_t term2 = (__uint128_t)safe_binom(a2, b2);

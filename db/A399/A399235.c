@@ -8,12 +8,14 @@
  *            (n-k-j) * 2^j * a(k) (OEIS A399235)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 19, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,11 +31,11 @@ seq_t a(idx_t n)
     /* enlarge working storage if necessary */
     if (n + 1 > a_cap) {
         size_t new_cap = n + 1;
-        a_cache = (seq_t*)realloc(a_cache, new_cap * sizeof(seq_t));
-        S       = (seq_t*)realloc(S,       new_cap * sizeof(seq_t));
-        T       = (seq_t*)realloc(T,       new_cap * sizeof(seq_t));
-        binom_arr = (seq_t*)realloc(binom_arr, new_cap * sizeof(seq_t));
-        pow2_arr  = (seq_t*)realloc(pow2_arr,  new_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_cap);
+        S       = mem_resize(seq_t, S, new_cap);
+        T       = mem_resize(seq_t, T, new_cap);
+        binom_arr = mem_resize(seq_t, binom_arr, new_cap);
+        pow2_arr  = mem_resize(seq_t, pow2_arr, new_cap);
         m_cur     = (size_t*)realloc(m_cur,    new_cap * sizeof(size_t));
 
         /* initialise new entries */

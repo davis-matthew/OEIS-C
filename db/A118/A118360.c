@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 69, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   seq_alloc_array
+ * Validated: standard, pass, 77 terms through n = 920 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,13 @@
    digits of the preceding term and add 2 (decimal) to get the next. */
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/seq_alloc_array.h"
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 /* Helper: number of significant bits in a sequence value. */
 static unsigned bitlen_seq_t(seq_t x)
@@ -66,7 +73,7 @@ seq_t a(idx_t n)
         while (new_cap < (size_t)n) new_cap *= 2;
         seq_t *tmp = seq_alloc_array(new_cap);
         for (size_t i = 0; i < cache_n; ++i) tmp[i] = cache[i];
-        free(cache);
+        mem_free(cache);
         cache = tmp;
         cache_cap = new_cap;
     }

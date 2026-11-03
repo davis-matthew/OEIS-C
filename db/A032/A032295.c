@@ -10,14 +10,28 @@
  *            [m odd ? m*4^{(m+1)/2} : (m/2)*(4^{m/2+1}+4^{m/2}) ] )
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   mul_small
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mul_small.h"
+#include "../utils/mem.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 /* cached data */
 static seq_t *B  = NULL;         /* B[n]  : bracelet count (including periodic)   */
@@ -36,10 +50,10 @@ static void ensure_arrays(idx_t n)
         return;
 
     /* allocate / reallocate arrays */
-    B    = (seq_t *)realloc(B,    (n + 1) * sizeof(seq_t));
+    B    = mem_resize(seq_t, B, (n + 1));
     phi  = (idx_t *)realloc(phi,  (n + 1) * sizeof(idx_t));
     mu   = (int *)    realloc(mu,   (n + 1) * sizeof(int));
-    pow4 = (seq_t *)  realloc(pow4, (n + 1) * sizeof(seq_t));
+    pow4 = mem_resize(seq_t, pow4, (n + 1));
 
     primes  = (int *)realloc(primes,  (n + 1) * sizeof(int));
     is_comp = (unsigned char *)realloc(is_comp, (n + 1) * sizeof(unsigned char));

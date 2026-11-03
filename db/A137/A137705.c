@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 66, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 986 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* --- helper primes -- */
 static inline uint64_t mul_mod_uint64(uint64_t a, uint64_t b, uint64_t mod)
@@ -135,7 +137,7 @@ static void grow_cache(size_t need_cap)
     if (need_cap <= seq_cache_cap) return;
     size_t new_cap = seq_cache_cap ? seq_cache_cap << 1 : 256;
     if (new_cap < need_cap) new_cap = need_cap;
-    seq_t *new_ptr = (seq_t*)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, seq_cache, new_cap);
     if (!new_ptr) exit(1); /* out of memory */
     seq_cache = new_ptr;
     seq_cache_cap = new_cap;

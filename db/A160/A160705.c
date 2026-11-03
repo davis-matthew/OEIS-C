@@ -9,12 +9,14 @@
  *            a(7)=a(8)=-4, a(9)=5, a(10)=a(11)=9
  * Range:     i8 n <= 23, i16 n <= 140, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 959 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* memoised sequence values (defined for indices 0 .. cache_len-1) */
 static idx_t cache_len   = 0;        /* number of computed entries in cache */
@@ -26,7 +28,7 @@ static void ensure_cache(idx_t n)
     if (cache == NULL) {
         /* initialise with the given 12 base terms (index 0..11) */
         cache_cap = 13; /* allocate one more slot for the first computed term (a(12)) */
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) return;  /* allocation failure – caller receives garbage */
         cache[0] = 0;  /* a(0) */
         cache[1] = 0;  /* a(1) */
@@ -49,7 +51,7 @@ static void ensure_cache(idx_t n)
     if (n + 1 > cache_cap) {
         idx_t new_cap = cache_cap * 2;
         while (new_cap <= n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) return;        /* reallocation failure – caller receives garbage */
         cache = tmp;
         cache_cap = new_cap;

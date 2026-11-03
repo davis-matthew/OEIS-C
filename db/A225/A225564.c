@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 41, i16 n <= 884, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 829 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static const seq_t binom8[9] = {1,8,28,56,70,56,28,8,1};
 
@@ -32,8 +34,8 @@ seq_t a(idx_t n)
 
     /* allocate coefficient arrays */
     const idx_t N = n;
-    seq_t *coeff = (seq_t*)calloc(N+1, sizeof(seq_t));
-    seq_t *next  = (seq_t*)calloc(N+1, sizeof(seq_t));
+    seq_t *coeff = mem_new(seq_t, N+1);
+    seq_t *next  = mem_new(seq_t, N+1);
     if (!coeff || !next) return (seq_t)0;      /* fallback for OOM */
 
     coeff[0] = (seq_t)1;
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
         if ((2*k-1 > N) && (4*k > N)) break;
 
         /* clear the next array */
-        memset(next, 0, (N+1)*sizeof(seq_t));
+        mem_set(next, 0, (N+1)*sizeof(seq_t));
 
         /* precompute base exponents and coefficients */
         const idx_t exp_a = 2*k-1;
@@ -87,8 +89,8 @@ seq_t a(idx_t n)
     seq_t result = coeff[N];
 
     /* free memory */
-    free(coeff);
-    free(next);
+    mem_free(coeff);
+    mem_free(next);
 
     return result;
 }

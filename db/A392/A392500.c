@@ -11,7 +11,8 @@
  *            and a subset-sum dynamic programming test for each composite
  * Range:     u8 n <= 64, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   shift_or_inplace
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,30 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/shift_or_inplace.h"
+#include "../utils/mem.h"
+
+/* Shift bits left by 'shift' positions and OR into the same array (in place).
+   Works only for shifts < target+1 (ensured by caller). */
+static void shift_or_inplace(uint64_t *bits, size_t wordCount, size_t shift)
+{
+    size_t wshift = shift >> 6;
+    uint64_t bshift = shift & 63;
+
+    if (wshift >= wordCount) return;
+
+    if (bshift == 0) {
+        long i;
+        for (i = (long)wordCount - 1; i >= (long)wshift; --i)
+            bits[i] |= bits[i - wshift];
+    } else {
+        long i;
+        for (i = (long)wordCount - 1; i >= (long)wshift + 1; --i)
+            bits[i] |= (bits[i - wshift] << bshift) |
+                       (bits[i - wshift - 1] >> (64 - bshift));
+        /* handle the lowest word separately (no high source word) */
+        bits[wshift] |= bits[0] << bshift;
+    }
+}
 
 #ifndef LIMIT
 #define LIMIT 200000 /* enough for n up to ~10000 */
@@ -121,10 +145,10 @@ seq_t a(idx_t n)
             if (is_noncomposable(candidate)) {
                 if (cacheCap == 0) {
                     cacheCap = 16;
-                    cache = (seq_t *)malloc(cacheCap * sizeof(seq_t));
+                    cache = mem_new(seq_t, cacheCap);
                 } else if (cacheSize == cacheCap) {
                     cacheCap <<= 1;
-                    cache = (seq_t *)realloc(cache, cacheCap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cacheCap);
                 }
                 cache[cacheSize++] = (seq_t)candidate;
             }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 32, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 358 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -49,14 +51,14 @@ seq_t a(idx_t n)
         size_t new_a = need;
         size_t new_c = 2 * need;     /* conv2 indices go up to 2*need-2 */
 
-        seq_t *tmpA = (seq_t *)realloc(A, new_a * sizeof(seq_t));
+        seq_t *tmpA = mem_resize(seq_t, A, new_a);
         if (!tmpA) abort();
-        memset(tmpA + old_a, 0, (new_a - old_a) * sizeof(seq_t));
+        mem_set(tmpA + old_a, 0, (new_a - old_a) * sizeof(seq_t));
         A = tmpA;   a_size = new_a;
 
-        seq_t *tmpC = (seq_t *)realloc(conv2, new_c * sizeof(seq_t));
+        seq_t *tmpC = mem_resize(seq_t, conv2, new_c);
         if (!tmpC) abort();
-        memset(tmpC + old_c, 0, (new_c - old_c) * sizeof(seq_t));
+        mem_set(tmpC + old_c, 0, (new_c - old_c) * sizeof(seq_t));
         conv2 = tmpC;   conv_size = new_c;
 
         /* compute new terms */

@@ -11,12 +11,14 @@
  *            part of the * coefficient of x^s in ∏_{k=1}^{n} (1 - n*...
  * Range:     i8 n <= 5, i16 n <= 9, i32 n <= 22, i64 n <= 27, i128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,8 +26,8 @@ seq_t a(idx_t n)
     if (n == 0) return (seq_t)1;
 
     /* arrays to hold real and imaginary parts up to index n */
-    seq_t *real = (seq_t *)malloc((n + 1) * sizeof(seq_t));
-    seq_t *imag = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *real = mem_new(seq_t, (n + 1));
+    seq_t *imag = mem_new(seq_t, (n + 1));
     if (real == NULL || imag == NULL) return (seq_t)0;   /* allocation failed */
 
     for (idx_t i = 0; i <= n; ++i) {
@@ -48,8 +50,8 @@ seq_t a(idx_t n)
 
     seq_t result = real[n] + mult * imag[n];
 
-    free(real);
-    free(imag);
+    mem_free(real);
+    mem_free(imag);
 
     return result;
 }

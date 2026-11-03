@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 255, u16 n <= 8192, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   _is_binpal
+ * Validated: standard, pass, 94 terms through n = 8174 (2026-11-01)
+ * Helpers:   is_binary_palindrome
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,12 +22,12 @@
  */
 
 #include <stdbool.h>
-#include "../utils/_is_binpal.h"
+#include "../utils/is_binary_palindrome.h"
 
 seq_t a(idx_t n)
 {
     seq_t val = (seq_t)n;
-    while (!_is_binpal(val))
+    while (!is_binary_palindrome(val))
         val >>= 1;
     return val;
 }

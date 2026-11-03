@@ -8,12 +8,14 @@
  *            >= 2
  * Range:     i8 n <= 2, i16 n <= 4, i32 n <= 7, i64 n <= 13, i128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache handling ----------------------------------------------------------- */
 static seq_t *cache   = NULL; /* stored values */
@@ -31,7 +33,7 @@ static void ensure_capacity(idx_t n)
         newcap <<= 1;              /* grow until enough */
 
     /* realloc may return void* in C++; cast to seq_t* explicitly */
-    seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, newcap);
     if (!tmp && newcap > 0)        /* allocation failed */
         exit(EXIT_FAILURE);
 

@@ -7,6 +7,7 @@
  * Formula:   a(n) = (n-10*n^3-15*n^4+24*n^5)/30
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 88, u64 n <= 7457,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 44 terms through n = 9440 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

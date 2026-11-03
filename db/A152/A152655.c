@@ -11,13 +11,15 @@
  *            recursively by the vector operations in the OEIS entry
  * Range:     u8 n <= 22, u16 n <= 47, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t **rows = NULL;          /* array of pointers to each row */
 static size_t rows_alloc = 0;        /* allocated capacity of `rows` */
@@ -33,7 +35,7 @@ static void ensure_rows(size_t r)
         rows_alloc = new_alloc;
     }
     for (size_t cur = rows_count; cur <= r; ++cur) {
-        seq_t *row = (seq_t*)malloc((cur + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (cur + 1));
         /* Base rows:   r = 0..3  */
         if (cur == 0) {
             row[0] = (seq_t)1;

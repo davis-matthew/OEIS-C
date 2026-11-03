@@ -8,7 +8,8 @@
  *            integer m such that m or m+1 is prime
  * Range:     u8 n <= 16, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ---- Prime helpers ----------------------------------------------------- */
 static uint32_t *prime_list  = NULL;
@@ -75,7 +77,7 @@ static idx_t  next_candidate = 1;
 static void grow_t_cache(void)
 {
     size_t new_cap = t_cap ? t_cap * 2 : 64;
-    seq_t *tmp = (seq_t *)realloc(t_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, t_cache, new_cap);
     if (!tmp) abort();
     t_cache = tmp;
     t_cap   = new_cap;

@@ -8,14 +8,27 @@
  *            dropping duplicates
  * Range:     u8 n <= 3, u16 n <= 20, u32 n <= 785, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   s6_pow6
+ * Validated: standard, pass, 52 terms through n = 9995 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/s6_pow6.h"
+
+static seq_t s6_pow6(idx_t x, int *ovf) {
+    seq_t b = (seq_t)x;
+    seq_t r = b;
+    int k;
+    *ovf = 0;
+    for (k = 1; k < 6; k++) {
+        seq_t t = r * b;
+        if (t / b != r) { *ovf = 1; return r; }
+        r = t;
+    }
+    return r;
+}
 
 #define S6_MAXR 65536
 

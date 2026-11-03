@@ -7,8 +7,9 @@
  * Keywords:  base, easy, nonn, look
  * Formula:   a(n) = number of distinct permutations of the decimal digits of
  *            n that are coprime to n (i.e., have gcd(n,k) > 1)
- * Range:     u8 n <= 104, u16 n <= 9931, u32 n <= 9931, u64 n <= 9931,
- *            u128 n <= 9931, big any n
+ * Range:     u8 n <= 104, u16 n <= 12345, u32 n <= 12345, u64 n <= 12345,
+ *            u128 n <= 12345, big any n
+ * Validated: standard, pass, 121 terms through n = 9931 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

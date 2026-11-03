@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 53, u16 n <= 126, u32 n <= 349, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 84 terms through n = 993 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    Computation uses a standard coin–change DP keeping two flags.
    The DP is O(n²) with a constant factor about 4, well below the time limit for n ≤ 10000. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* Allocate dp array: (n+1) rows, 4 columns for flags (00,01,10,11) */
     const size_t rows = (size_t)n + 1;
     const size_t cols = 4;
-    seq_t *dp = (seq_t *)malloc(rows * cols * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, rows * cols);
     if (!dp) return 0;               /* Out of memory – return 0 as a safe default */
 
     /* Helper macro for indexing: dp[row * 4 + col] */
@@ -59,6 +61,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = DP(n, 3);  /* mask 3 means both types used at least once */
-    free(dp);
+    mem_free(dp);
     return result;
 }

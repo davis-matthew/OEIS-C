@@ -7,7 +7,8 @@
  * Formula:   a(n) = Lower s-Wythoff sequence with s(n) = 2n + 1
  * Range:     u8 n <= 180, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 116 terms through n = 814 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdbool.h>  /* bool */
 #include <stdlib.h>   /* malloc, realloc, exit */
 #include <stdint.h>   /* uint64_t */
+#include "../utils/mem.h"
 
 /* Static cache for the sequence terms. */
 static seq_t *a_cache = NULL;
@@ -35,7 +37,7 @@ static void ensure_a_capacity(size_t needed)
     if (needed > a_cache_cap) {
         size_t new_cap = a_cache_cap ? a_cache_cap * 2 : 16;
         while (new_cap <= needed) new_cap <<= 1;
-        seq_t *new_arr = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, a_cache, new_cap);
         if (!new_arr) exit(1);
         a_cache = new_arr;
         a_cache_cap = new_cap;

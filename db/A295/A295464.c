@@ -7,17 +7,36 @@
  * Formula:   a(n) = ((30*n)!*(5*n)!*(3*n)!)/((15*n)!*(10*n)!*(7*n)!*(6*n)!)
  * Range:     u8 n <= 0, u16 n <= 0, u32 n <= 0, u64 n <= 1, u128 n <= 3,
  *            big any n
- * Helpers:   _prime_exp_in_fact, build_primes, seq_mul, seq_pow
+ * Validated: partial, pass, 7 terms through n = 6 (2026-11-01)
+ * Helpers:   build_primes, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>   /* size_t */
 #include <stdlib.h>   /* NULL, free() */
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/build_primes.h"
-#include "../utils/seq_mul.h"
-#include "../utils/seq_pow.h"
-#include "../utils/_prime_exp_in_fact.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* Compute the exponent of prime p in m! using Legendre's formula. */
+static idx_t _prime_exp_in_fact(idx_t m, idx_t p)
+{
+    idx_t exp = 0;
+    while (m)
+    {
+        m /= p;
+        exp += m;
+    }
+    return exp;
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)
@@ -49,7 +68,7 @@ seq_t a(idx_t n)
 
         if (e > 0)
         {
-            seq_t part = seq_pow((seq_t)p, e);
+            seq_t part = ipow_idx((seq_t)p, e);
             result = seq_mul(result, part);
         }
     }

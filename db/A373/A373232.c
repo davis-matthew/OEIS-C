@@ -10,13 +10,15 @@
  *            a(n-a(n-3)) for n > 12
  * Range:     u8 n <= 262, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 89 terms through n = 9762 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* memoization array */
 static size_t cache_cap = 0;          /* current capacity of cache   */
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first use */
     if (!cache) {
         cache_cap = 128;
-        cache = (seq_t*)calloc(cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         for (idx_t k = 1; k <= 12; ++k) cache[k-1] = (seq_t)k;
     }
 
@@ -41,9 +43,9 @@ seq_t a(idx_t n)
             size_t new_cap = cache_cap;
             if (new_cap == 0) new_cap = 128;
             while (new_cap < (size_t)n) new_cap <<= 1;
-            seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) return 0;          /* allocation failed */
-            memset(tmp + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
+            mem_set(tmp + cache_cap, 0, (new_cap - cache_cap) * sizeof(seq_t));
             cache = tmp;
             cache_cap = new_cap;
         }

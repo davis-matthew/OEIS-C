@@ -9,14 +9,46 @@
  *            sorted in ascending order
  * Range:     u8 none, u16 none, u32 none, u64 n <= 170, u128 n <= 170,
  *            big any n
- * Helpers:   isHappy
+ * Validated: full, pass, 170 terms through n = 170 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/isHappy.h"
+#include "../utils/mem.h"
+
+/* ----------------- helper: check if a number is happy ----------------- */
+static bool isHappy(seq_t n)
+{
+    seq_t seen[20];
+    size_t seen_count = 0;
+    seq_t x = n;
+
+    while (x != (seq_t)1)
+    {
+        /* detect cycle */
+        for (size_t i = 0; i < seen_count; ++i)
+        {
+            if (seen[i] == x)
+                return false;
+        }
+        seen[seen_count++] = x;
+
+        /* sum of squares of digits */
+        seq_t sum = (seq_t)0;
+        seq_t tmp = x;
+        while (tmp > (seq_t)0)
+        {
+            seq_t d = tmp % (seq_t)10;
+            sum += d * d;
+            tmp /= (seq_t)10;
+        }
+        x = sum;
+    }
+    return true;
+}
 
 /* ----------------- comparator for qsort ----------------- */
 static int cmp_seq(const void *p1, const void *p2)
@@ -33,7 +65,7 @@ static size_t cache_len  = 0;
 static void build_cache(void)
 {
     size_t cap = 10;
-    cache = (seq_t *)malloc(cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cap);
     cache_len = 0;
 
     /* start with single‑digit happy numbers (non‑zero digits) */
@@ -46,7 +78,7 @@ static void build_cache(void)
             if (cache_len == cap)
             {
                 cap *= 2;
-                cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cap);
             }
         }
     }
@@ -63,7 +95,7 @@ static void build_cache(void)
                 if (cache_len == cap)
                 {
                     cap *= 2;
-                    cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cap);
                 }
                 cache[cache_len++] = cand;
             }
@@ -71,7 +103,7 @@ static void build_cache(void)
     }
 
     /* sort the resulting list */
-    qsort(cache, cache_len, sizeof(seq_t), cmp_seq);
+    mem_qsort(cache, cache_len, sizeof(seq_t), cmp_seq);
 }
 
 /* ----------------- public function ----------------- */

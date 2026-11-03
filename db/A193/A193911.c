@@ -11,13 +11,16 @@
  *            2^((n/2)-i) - 1 )
  * Range:     u8 n <= 10, u16 n <= 25, u32 n <= 57, u64 n <= 121,
  *            u128 n <= 249, big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 56 terms through n = 1588 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/big_pow.h"   /* provides seq_t big_pow(seq_t base, idx_t exp) */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +33,7 @@ seq_t a(idx_t n)
     if ((n & 1U) != 0)   /* odd n */
     {
         k = (n + 1) >> 1;                     /* (n+1)/2 */
-        pow = big_pow((seq_t)2, k);          /* 2^k */
+        pow = ipow((seq_t)2, k);          /* 2^k */
         res = pow - (seq_t)n + (seq_t)k - 2;
 
         seq_t curPow = pow;
@@ -44,10 +47,10 @@ seq_t a(idx_t n)
     else   /* even n */
     {
         k = n >> 1;                            /* n/2 */
-        pow = big_pow((seq_t)2, k + 2);        /* 2^(k+2) */
+        pow = ipow((seq_t)2, k + 2);        /* 2^(k+2) */
         res = pow - (seq_t)n - 4;
 
-        seq_t curPow = big_pow((seq_t)2, k);   /* 2^k */
+        seq_t curPow = ipow((seq_t)2, k);   /* 2^k */
         for (idx_t i = 0; i < k; ++i)
         {
             seq_t term = ((seq_t)(2 * i + 1)) * (curPow - 1);

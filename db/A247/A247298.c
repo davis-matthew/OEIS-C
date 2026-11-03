@@ -10,13 +10,15 @@
  *            equation * G = 1 + zG + z²G + z³G(G – z³)
  * Range:     u8 n <= 8, u16 n <= 14, u32 n <= 27, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are provided by the build system. */
 
@@ -33,8 +35,8 @@ static void ensure_cache(idx_t n)
     size_t new_size = cache_size ? cache_size : 1;
     while (new_size <= (size_t)n) new_size <<= 1;
 
-    seq_t *tmpA = (seq_t *)realloc(A, new_size * sizeof(seq_t));
-    seq_t *tmpC = (seq_t *)realloc(C, new_size * sizeof(seq_t));
+    seq_t *tmpA = mem_resize(seq_t, A, new_size);
+    seq_t *tmpC = mem_resize(seq_t, C, new_size);
     if (!tmpA || !tmpC) return;                /* allocation failed – leave unchanged */
 
     if (cache_size < new_size) {

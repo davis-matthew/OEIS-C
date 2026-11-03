@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 9, u32 n <= 20, u64 n <= 65, u128 n <= 209,
  *            big any n
- * Helpers:   add_shift
+ * Validated: standard, pass, 44 terms through n = 952 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,7 +32,23 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/add_shift.h"
+
+/* auxiliary: multiply a by binomial coefficient via iterative
+   binomial recurrence: C(j,0)=1; C(j,t+1)=C(j,t)*(j-t)/(t+1)       */
+static void add_shift(const seq_t* src, size_t src_len, seq_t* dst)
+{
+    for (size_t j = 0; j < src_len; ++j) {
+        seq_t coeff = src[j];
+        seq_t bin   = (seq_t)1;
+        for (size_t t = 0; t <= j; ++t) {
+            dst[t] += coeff * bin;
+            if (t < j) {
+                seq_t n = bin * (seq_t)(j - t);
+                bin = n / (seq_t)(t + 1);
+            }
+        }
+    }
+}
 
 /* allocator helpers that work in both C and C++ */
 static seq_t* seq_alloc(size_t n)

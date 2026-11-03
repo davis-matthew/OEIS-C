@@ -8,14 +8,24 @@
  *            exists. (equivalently a(n) = n * A050782(n))
  * Range:     u8 n <= 12, u16 n <= 80, u32 n <= 161, u64 n <= 8990,
  *            u128 n <= 10000, big any n
- * Helpers:   pow10
+ * Validated: standard, pass, 78 terms through n = 8230 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/pow10.h"   /* pow10(idx_t) returns seq_t */
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Reverse the decimal digits of an arbitrary-precision number. */
 static seq_t reverse_seq(seq_t x)

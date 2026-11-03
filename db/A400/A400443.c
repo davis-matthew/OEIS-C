@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   max_digit_base2, pow_leq_u128
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   bit_length_u64_to_u32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,19 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/max_digit_base2.h"
-#include "../utils/pow_leq_u128.h"
+#include "../utils/bit_length_u64_to_u32.h"
+#include "../utils/mem.h"
+
+/* Return true if base^exp <= limit. Uses unsigned __int128 to avoid overflow. */
+static bool pow_leq_u128(uint64_t base, unsigned int exp, uint64_t limit)
+{
+    __uint128_t val = 1;
+    for (unsigned int i = 0; i < exp; ++i) {
+        val *= base;
+        if (val > limit) return false;
+    }
+    return true;
+}
 
 /* ---------- integer utilities ---------- */
 
@@ -54,7 +66,7 @@ static bool has_automorphic_base(uint64_t k)
 
     __uint128_t prod = (__uint128_t)k * (k - 1);   /* k(k-1) */
 
-    unsigned int max_d = max_digit_base2(k);
+    unsigned int max_d = bit_length_u64_to_u32(k);
 
     for (unsigned int d = 2; d <= max_d; ++d) {
         /* Determine the valid range of b for this digit count d. */
@@ -93,7 +105,7 @@ static void ensure_cache_capacity(size_t need)
     if (cache_cap >= need) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 64;
     while (new_cap < need) new_cap *= 2;
-    seq_t *new_arr = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, seq_cache, new_cap);
     if (!new_arr) abort();        /* allocation failure */
     seq_cache = new_arr;
     cache_cap = new_cap;

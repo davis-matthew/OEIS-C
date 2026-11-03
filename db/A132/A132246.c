@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache      = NULL;   /* cache of sequence values               */
 static idx_t cache_len   = 0;       /* number of values stored in cache       */
@@ -51,7 +53,7 @@ static void ensure_cache(idx_t need) {
         /* --- Build new cache --- */
         /* Rough capacity: about half the primes, conservatively 1/2 of limit */
         size_t new_cap = sieve_limit / 2 + 20;
-        seq_t *new_cache = (seq_t*)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_cap);
         if (!new_cache) exit(1);
         size_t new_len  = 0;
 
@@ -71,14 +73,14 @@ static void ensure_cache(idx_t need) {
                 if (ok) {
                     if (new_len == new_cap) {
                         new_cap *= 2;
-                        seq_t *tmp = (seq_t*)realloc(new_cache, new_cap * sizeof(seq_t));
+                        seq_t *tmp = mem_resize(seq_t, new_cache, new_cap);
                         if (!tmp) exit(1);
                         new_cache = tmp;
                     }
                     new_cache[new_len++] = (seq_t)p;
                     if (new_len == new_cap) {
                         new_cap *= 2;
-                        seq_t *tmp = (seq_t*)realloc(new_cache, new_cap * sizeof(seq_t));
+                        seq_t *tmp = mem_resize(seq_t, new_cache, new_cap);
                         if (!tmp) exit(1);
                         new_cache = tmp;
                     }
@@ -88,7 +90,7 @@ static void ensure_cache(idx_t need) {
         }
         free(is_prime);
 
-        free(cache);
+        mem_free(cache);
         cache      = new_cache;
         cache_len  = (idx_t)new_len;
         cache_cap  = new_cap;

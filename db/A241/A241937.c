@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 10, u32 n <= 112, u64 n <= 210,
  *            u128 n <= 210, big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 202 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    Initial values: a(1)=16, a(2)=96, a(3)=357, a(4)=1007, a(5)=2373, a(6)=4928 */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_len = 0;            /* largest index currently stored in cache */
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* Ensure cache is allocated and contains values up to n */
     if (cache == NULL) {                 /* first call, create cache for at least 6 entries */
         size_t init_len = 7;              /* indices 0..6 inclusive */
-        cache = (seq_t *)malloc((init_len + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (init_len + 1));
         if (cache == NULL) abort();      /* out of memory, terminate */
         for (size_t i = 1; i <= 6; ++i) cache[i] = base[i];
         cache_len = 6;                   /* highest stored index */
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
 
     if ((size_t)n > cache_len) {         /* need to extend cache */
         size_t new_len = (size_t)n;
-        seq_t *tmp = (seq_t *)realloc(cache, (new_len + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (new_len + 1));
         if (tmp == NULL) abort();        /* out of memory */
         cache = tmp;
         for (size_t i = cache_len + 1; i <= new_len; ++i) {

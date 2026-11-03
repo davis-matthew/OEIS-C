@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 122, u32 n <= 150, u64 n <= 150,
  *            u128 n <= 150, big any n
- * Helpers:   _floor_isqrt_u64, build_primes_upto, is_prime
+ * Validated: standard, pass, 62 terms through n = 150 (2026-11-03)
+ * Helpers:   build_primes_upto, is_prime, isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,9 +26,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "../utils/is_prime.h"
-#include "../utils/_floor_isqrt_u64.h"
 #include "../utils/build_primes_upto.h"
+#include "../utils/is_prime.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 static seq_t *terms   = NULL;   /* cached sequence values          */
 static size_t term_count = 0;   /* number of cached terms          */
@@ -58,13 +60,13 @@ static void extend_primes(uint64_t limit)
 static void cache_term(seq_t value)
 {
     if (terms == NULL) {
-        terms = (seq_t *)malloc(64 * sizeof(seq_t));
+        terms = mem_new(seq_t, 64);
         if (!terms) abort();
         term_count = 0;
     }
     if (term_count % 64 == 0) {
         size_t new_cap = (terms == NULL) ? 64 : (term_count + 64);
-        seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
         if (!tmp) abort();
         terms = tmp;
     }
@@ -86,7 +88,7 @@ static void ensure_terms(size_t n)
         last_checked += 2;          /* next odd number */
 
         /* Ensure we have primes up to floor(sqrt(last_checked)). */
-        uint64_t sqrt_lim = _floor_isqrt_u64(last_checked) + 1;
+        uint64_t sqrt_lim = isqrt(last_checked) + 1;
         extend_primes(sqrt_lim);
 
         bool expressible = false;

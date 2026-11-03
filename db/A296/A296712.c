@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 102, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   equal_rises_falls
+ * Validated: standard, pass, 73 terms through n = 9841 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,24 @@
  * and counts rises (digit(i) < digit(i+1)) and falls (digit(i) > digit(i+1)).
  */
 #include <stdbool.h>
-#include "../utils/equal_rises_falls.h"
+
+static bool equal_rises_falls(seq_t x)
+{
+    /* Count rises and falls in the decimal representation of x. */
+    if (x < (seq_t)10)   /* single digit: 0 rises, 0 falls */
+        return true;
+    seq_t prev = x % (seq_t)10;  /* least significant digit */
+    x /= (seq_t)10;
+    int rises = 0, falls = 0;
+    while (x > (seq_t)0) {
+        seq_t cur = x % (seq_t)10;
+        if (cur > prev)  rises++;
+        else if (cur < prev) falls++;
+        prev = cur;
+        x /= (seq_t)10;
+    }
+    return rises == falls;
+}
 
 seq_t a(idx_t n)
 {

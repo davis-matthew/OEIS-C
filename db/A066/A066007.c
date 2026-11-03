@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   zeros_count
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,23 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/zeros_count.h"
+
+/* helper: compute the number of zeros r for a given n (n ≥ 4) */
+static idx_t zeros_count(idx_t n)
+{
+    /* threshold for r = 1 is 4, for r = 2 is 15, etc. */
+    idx_t r = 1;
+    for (;; ++r) {
+        /* compute 10^r */
+        idx_t pow10r = 1;
+        for (idx_t k = 0; k < r; ++k)
+            pow10r *= 10U;
+        /* threshold t(r) = (10^r – 1)/9 + r + 2 */
+        idx_t t = (pow10r - 1) / 9 + r + 2;
+        if (n < t)
+            return r - 1;        /* previous r is the correct count */
+    }
+}
 
 /* helper: power of 10 in seq_t */
 static seq_t pow10_seq_t(idx_t exp)

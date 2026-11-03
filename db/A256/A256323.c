@@ -10,13 +10,14 @@
  *            81/(4*(2*n+3)))
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 20, u64 n <= 37, u128 n <= 37,
  *            big any n
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
-
 
 static inline seq_t gcd_seq(seq_t a, seq_t b)
 {

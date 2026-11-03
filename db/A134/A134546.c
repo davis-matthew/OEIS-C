@@ -7,8 +7,9 @@
  * Formula:   a(n) = T(r,c) where r = smallest integer with r(r+1)/2 ≥ n, c =
  *            n - (r-1)r/2, and T(r,c) = k*floor(r/k)*(floor(r/k)-1)/2 + (r
  *            mod k + 1)*floor(r/k) (k=c)
- * Range:     u8 n <= 253, u16 n <= 8900, u32 n <= 8900, u64 n <= 8900,
- *            u128 n <= 8900, big any n
+ * Range:     u8 n <= 253, u16 n <= 11325, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 107 terms through n = 8900 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

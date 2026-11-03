@@ -7,12 +7,15 @@
  * Formula:   a(n) = Product_{i=1..11} ((-9)^(n-i+1)-1)/((-9)^i-1)
  * Range:     i8 n <= 11, i16 n <= 11, i32 n <= 11, i64 n <= 12, i128 n <= 14,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 23 terms through n = 98 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +38,7 @@ seq_t a(idx_t n)
         if (e_start == 0) {
             pow_cur = 1;                    /* (-9)^0 = 1 */
         } else {
-            pow_cur = seq_pow(q, e_start);
+            pow_cur = ipow_idx(q, e_start);
         }
 
         for (int i = max_i; i >= 1; --i) {

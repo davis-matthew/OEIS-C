@@ -10,7 +10,8 @@
  *            is 0, which follows from the recurrence itself
  * Range:     i8 n <= 3, i16 n <= 8, i32 n <= 17, i64 n <= 30, i128 n <= 2,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 989 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #ifdef __cplusplus
 #include <type_traits>   /* std::is_integral<...> */
 #endif
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_size = 0;
@@ -32,7 +34,7 @@ static void ensure_cache(idx_t n)
         return;
 
     size_t new_size = (size_t)n + 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache) {
         /* In a test environment this should never happen. */
         exit(1);

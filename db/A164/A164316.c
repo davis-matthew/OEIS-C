@@ -9,12 +9,14 @@
  *            (prefix sum of previous terms)
  * Range:     u8 n <= 13, u16 n <= 27, u32 n <= 56, u64 n <= 114,
  *            u128 n <= 230, big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 1884 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,8 +27,8 @@ seq_t a(idx_t n)
     /* ----- initialise storage for first three terms ----- */
     if (!a_cache) {
         size_t init = 3;   /* indices 0,1,2 */
-        a_cache   = (seq_t*)malloc(sizeof(seq_t)*init);
-        pref_cache = (seq_t*)malloc(sizeof(seq_t)*init);
+        a_cache   = mem_new(seq_t, init);
+        pref_cache = mem_new(seq_t, init);
         if (!a_cache || !pref_cache) return 0;   /* allocation failed */
 
         a_cache[0]   = (seq_t)1;   pref_cache[0] = (seq_t)1;
@@ -38,8 +40,8 @@ seq_t a(idx_t n)
     /* ----- extend cache if needed ----- */
     if (n >= cache_size) {
         size_t new_size = (size_t)(n + 1);
-        seq_t *tmp_a   = (seq_t*)realloc(a_cache,   sizeof(seq_t)*new_size);
-        seq_t *tmp_pref= (seq_t*)realloc(pref_cache,sizeof(seq_t)*new_size);
+        seq_t *tmp_a   = mem_resize(seq_t, a_cache, new_size);
+        seq_t *tmp_pref= mem_resize(seq_t, pref_cache, new_size);
         if (!tmp_a || !tmp_pref) return 0;    /* allocation failed */
         a_cache = tmp_a;
         pref_cache = tmp_pref;

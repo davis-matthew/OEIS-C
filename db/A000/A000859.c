@@ -12,7 +12,8 @@
  *            #{v : h^{|c|} v = v}. The sum over g runs o...
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 6,
  *            big any n
- * Helpers:   a859_gcd
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a859_gcd.h"
+#include "../utils/gcd_u64.h"
 
 typedef struct { uint64_t len, cnt; } a859_cyc;
 
@@ -73,7 +74,7 @@ static a859_cyc *a859_combine(const a859_cyc *A, int na, const a859_cyc *B, int 
     int n = 0, i, j;
     for (i = 0; i < na; i++)
         for (j = 0; j < nb; j++) {
-            uint64_t g = a859_gcd(A[i].len, B[j].len);
+            uint64_t g = gcd_u64(A[i].len, B[j].len);
             a859_push(R, &n, A[i].len / g * B[j].len, A[i].cnt * B[j].cnt * g);
         }
     *nout = n;

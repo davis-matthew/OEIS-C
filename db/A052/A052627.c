@@ -8,13 +8,15 @@
  *            g(n) = g(n-1) + g(n-5) (from the EGF (1‑x)/(1‑x‑x⁵))
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* The build supplies typedefs for seq_t (value type) and idx_t (index type). */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Utility to ensure an array can hold indices up to n (inclusive). */
 static void
@@ -22,7 +24,7 @@ ensure_capacity(seq_t **arr, size_t *size, idx_t n)
 {
     if (*size <= (size_t)n) {
         size_t new_size = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(*arr, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, new_size);
         if (!tmp) return;          /* memory allocation failed – return */
         *arr   = tmp;
         *size  = new_size;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 34, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   is_strobogrammatic, rotate_map
+ * Validated: full, pass, 34 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,38 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/is_strobogrammatic.h"
-#include "../utils/rotate_map.h"
+#include "../utils/mem.h"
+
+/* Map a digit to its 180° rotated partner.
+ * Return 0xFF if the digit cannot be rotated. */
+static uint8_t rotate_map(uint8_t d) {
+    switch (d) {
+        case 0: return 0;
+        case 1: return 1;
+        case 2: return 2;
+        case 5: return 5;
+        case 8: return 8;
+        case 6: return 9;
+        case 9: return 6;
+        default: return 0xFF;   /* invalid digit */
+    }
+}
+
+/* Check whether a digit array of length len is strobogrammatic. */
+static int is_strobogrammatic(const uint8_t *dig, size_t len) {
+    size_t i;
+    for (i = 0; i < len / 2; ++i) {
+        uint8_t rd = rotate_map(dig[i]);
+        if (rd == 0xFF || rd != dig[len - 1 - i])
+            return 0;
+    }
+    if (len % 2 == 1) {
+        uint8_t mid = rotate_map(dig[i]); /* i == len/2 */
+        if (mid == 0xFF || mid != dig[i])
+            return 0;
+    }
+    return 1;
+}
 
 /* Comparator for qsort */
 static int cmp_seq_t(const void *a, const void *b) {
@@ -39,7 +70,7 @@ seq_t a(idx_t n) {
 
     if (cache == NULL) {
         /* 24×60 = 1440 times, so 1500 slots are enough. */
-        cache = (seq_t *)malloc(sizeof(seq_t) * 1500);
+        cache = mem_new(seq_t, 1500);
         if (cache == NULL)
             return 0;   /* unlikely in tests */
 
@@ -86,7 +117,7 @@ seq_t a(idx_t n) {
             }
         }
         cache_len = pos;
-        qsort(cache, cache_len, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(cache, cache_len, sizeof(seq_t), cmp_seq_t);
     }
 
     if (n < 1 || n > cache_len)

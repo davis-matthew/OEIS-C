@@ -8,12 +8,14 @@
  *            Sum_{k=0..2*n} (-2)^k * k! * Stirling2(2*n, k) )
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 9, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 96 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,18 +31,18 @@ seq_t a(idx_t n)
     /* Ensure a_cache can hold n */
     if ((size_t)n >= a_cache_len) {
         size_t new_len = (size_t)(n + 1);
-        a_cache = (seq_t *)realloc(a_cache, new_len * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_len);
         a_cache_len = new_len;
     }
 
     /* Initialize for m = 0 if necessary */
     if (t_prev == NULL) {
         t_prev_len = 1;
-        t_prev = (seq_t *)calloc(t_prev_len, sizeof(seq_t));
+        t_prev = mem_new(seq_t, t_prev_len);
         t_prev[0] = 1;                       /* T(0,0) = 1 */
         current_m = 0;
         if ((size_t)0 >= a_cache_len) {
-            a_cache = (seq_t *)realloc(a_cache, sizeof(seq_t));
+            a_cache = mem_resize(seq_t, a_cache, 1);
             a_cache_len = 1;
         }
         a_cache[0] = 1;                       /* a(0) = 1 */
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
         /* Grow DP from current_m+1 up to target_m */
         for (idx_t m = current_m + 1; m <= target_m; ++m) {
             size_t len = (size_t)(m + 1);
-            seq_t *t_cur = (seq_t *)calloc(len, sizeof(seq_t));
+            seq_t *t_cur = mem_new(seq_t, len);
             /* Compute t_cur[1..m] using recurrence k * (T_prev[k-1] + T_prev[k]) */
             for (size_t k = 1; k <= (size_t)m; ++k) {
                 seq_t a0 = (k - 1 < t_prev_len) ? t_prev[k - 1] : 0;
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
                 idx_t idx = m >> 1;
                 if ((size_t)idx >= a_cache_len) {
                     size_t new_len = (size_t)(idx + 1);
-                    a_cache = (seq_t *)realloc(a_cache, new_len * sizeof(seq_t));
+                    a_cache = mem_resize(seq_t, a_cache, new_len);
                     a_cache_len = new_len;
                 }
                 /* Sum_{k} (-2)^k * T_cur[k] = sum_even - sum_odd,
@@ -84,7 +86,7 @@ seq_t a(idx_t n)
             }
 
             /* Advance DP */
-            free(t_prev);
+            mem_free(t_prev);
             t_prev = t_cur;
             t_prev_len = len;
             current_m = m;

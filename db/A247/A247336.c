@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/big_pow.h"   /* seq_t big_pow(seq_t base, seq_t exp) */
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 typedef struct {
     seq_t val;   /* current value m^k - k - 1 */
@@ -36,7 +38,7 @@ static void heap_push(node_t **heap, size_t *size, size_t *cap,
 {
     if (*size >= *cap) {
         *cap = (*cap == 0) ? 16 : (*cap << 1);
-        *heap = (node_t *)realloc(*heap, *cap * sizeof(node_t));
+        *heap = mem_resize(node_t, *heap, (*cap * sizeof(node_t)) / sizeof(node_t));
     }
     size_t i = (*size)++;
     node_t tmp = *x;
@@ -86,7 +88,7 @@ static void ensure_cache(idx_t n)
     /* Initialise cache with the first term 0 (a(1) = 0) */
     if (cache_len == 0) {
         cache_cap = 8;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = (seq_t)0;
         cache_len = 1;
     }
@@ -95,10 +97,10 @@ static void ensure_cache(idx_t n)
     if (!heap_init) {
         const idx_t K_INIT = 30;          /* should cover n up to ≈ 10000 */
         heap_cap   = 64;
-        heap       = (node_t *)malloc(heap_cap * sizeof(node_t));
+        heap       = mem_new(node_t, heap_cap);
         heap_size  = 0;
         for (idx_t k = 2; k <= K_INIT; ++k) {
-            seq_t val = big_pow((seq_t)2, (seq_t)k);
+            seq_t val = ipow((seq_t)2, (seq_t)k);
             val -= (seq_t)k;
             val -= (seq_t)1;
             node_t nxx = { val, k, 2 };
@@ -118,7 +120,7 @@ static void ensure_cache(idx_t n)
         if (!last_set || cur.val != last_val) {
             if (cache_len >= cache_cap) {
                 cache_cap = (cache_cap == 0) ? 16 : (cache_cap << 1);
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = cur.val;
             last_val = cur.val;
@@ -127,7 +129,7 @@ static void ensure_cache(idx_t n)
 
         /* Push next base for the same exponent k */
         node_t nxt = { 0, cur.k, cur.m + 1 };
-        nxt.val = big_pow((seq_t)nxt.m, (seq_t)nxt.k);
+        nxt.val = ipow((seq_t)nxt.m, (seq_t)nxt.k);
         nxt.val -= (seq_t)nxt.k;
         nxt.val -= (seq_t)1;
         heap_push(&heap, &heap_size, &heap_cap, &nxt);

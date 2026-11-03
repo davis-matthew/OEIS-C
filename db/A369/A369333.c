@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   gcd, pack_pair, seq_cmp, unpack_a, unpack_b
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,11 +30,28 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include "../utils/gcd.h"
-#include "../utils/seq_cmp.h"
-#include "../utils/pack_pair.h"
-#include "../utils/unpack_a.h"
-#include "../utils/unpack_b.h"
+#include "../utils/mem.h"
+
+static int seq_cmp(const void *p, const void *q)
+{
+    const seq_t *a = (const seq_t *)p;
+    const seq_t *b = (const seq_t *)q;
+    if (*a < *b) return -1;
+    if (*a > *b) return 1;
+    return 0;
+}
+
+/* pack a,b into 64‑bit */
+static inline uint64_t pack_pair(uint32_t a, uint32_t b)
+{
+    return ((uint64_t)a << 32) | b;
+}
+
+static inline uint32_t unpack_a(uint64_t p) { return (uint32_t)(p >> 32); }
+
+static inline uint32_t unpack_b(uint64_t p) { return (uint32_t)(p & 0xffffffffu); }
 
 /* Hash table entry for a reduced rational (num/den) */
 struct FractionEntry {
@@ -101,7 +119,7 @@ struct TempBuffer {
 };
 static void buffer_init(struct TempBuffer *buf, size_t cap)
 {
-    buf->data = (seq_t*)malloc(cap * sizeof(seq_t));
+    buf->data = mem_new(seq_t, cap);
     buf->len  = 0;
     buf->cap  = cap;
 }
@@ -109,13 +127,13 @@ static void buffer_push(struct TempBuffer *buf, seq_t val)
 {
     if (buf->len >= buf->cap) {
         buf->cap = buf->cap ? buf->cap << 1 : 16;
-        buf->data = (seq_t*)realloc(buf->data, buf->cap * sizeof(seq_t));
+        buf->data = mem_resize(seq_t, buf->data, (buf->cap * sizeof(seq_t)) / sizeof(seq_t));
     }
     buf->data[buf->len++] = val;
 }
 static void buffer_free(struct TempBuffer *buf)
 {
-    free(buf->data);
+    mem_free(buf->data);
 }
 
 /* merge a sorted unique list of new values into the global sequence */
@@ -123,7 +141,7 @@ static void merge_new_values(seq_t *new_vals, size_t new_len)
 {
     size_t i = 0, j = 0, k = 0;
     size_t new_total = m_count + new_len;
-    seq_t *merged = (seq_t*)malloc(new_total * sizeof(seq_t));
+    seq_t *merged = mem_new(seq_t, new_total);
 
     while (i < m_count && j < new_len) {
         int cmp = seq_cmp(&m_values[i], &new_vals[j]);
@@ -139,7 +157,7 @@ static void merge_new_values(seq_t *new_vals, size_t new_len)
     while (i < m_count) merged[k++] = m_values[i++];
     while (j < new_len) merged[k++] = new_vals[j++];
 
-    free(m_values);
+    mem_free(m_values);
     m_values = merged;
     m_count  = k;
 }
@@ -181,7 +199,7 @@ static void ensure_generated(idx_t need)
 
         /* sort the newly found candidates and remove duplicates */
         if (buf.len > 0) {
-            qsort(buf.data, buf.len, sizeof(seq_t), seq_cmp);
+            mem_qsort(buf.data, buf.len, sizeof(seq_t), seq_cmp);
             size_t uniq = 1;
             for (size_t i = 1; i < buf.len; ++i)
                 if (seq_cmp(&buf.data[uniq-1], &buf.data[i]) != 0)

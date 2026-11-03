@@ -9,6 +9,7 @@
  *            1‑indexed, and prime(k) is the k‑th prime (k ≥ 1)
  * Range:     u8 n <= 71, u16 n <= 7875, u32 n <= 7875, u64 n <= 7875,
  *            u128 n <= 7875, big any n
+ * Validated: standard, pass, 87 terms through n = 6781 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,13 +8,26 @@
  *            (Fib(d-1)+Fib(d+1))] / 2)
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   fib, phi
+ * Validated: partial, pass, 41 terms through n = 42 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/phi.h"
-#include "../utils/fib.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/totient.h"
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
 
 seq_t a(idx_t n)
 {
@@ -36,14 +49,14 @@ seq_t a(idx_t n)
             idx_t d2 = n / i;      /* paired divisor */
 
             /* term for d1 */
-            seq_t phi1  = phi(n / d1);
+            seq_t phi1  = totient(n / d1);
             seq_t fib_d1m1 = fib(d1 - 1);
             seq_t fib_d1p1 = fib(d1 + 1);
             sum += phi1 * (fib_d1m1 + fib_d1p1);
 
             if (d2 != d1)          /* avoid double counting of square root */
             {
-                seq_t phi2  = phi(n / d2);
+                seq_t phi2  = totient(n / d2);
                 seq_t fib_d2m1 = fib(d2 - 1);
                 seq_t fib_d2p1 = fib(d2 + 1);
                 sum += phi2 * (fib_d2m1 + fib_d2p1);

@@ -7,7 +7,8 @@
  * Formula:   a(n) = prime( n*(n+1)/2 + 2 ) (prime(1)=2)
  * Range:     u8 n <= 9, u16 n <= 113, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   upper_bound_prime_n
+ * Validated: standard, pass, 64 terms through n = 974 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,14 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/upper_bound_prime_n.h"
+
+/* Estimate an upper bound for the n-th prime (n >= 1) */
+static uint64_t upper_bound_prime_n(idx_t n) {
+    if (n < 6) return 15; /* prime(6)=13 */
+    double nd = (double)n;
+    double estimate = nd * (log(nd) + log(log(nd))) + 3.0 * nd;
+    return (uint64_t)(estimate + 1.0);
+}
 
 /*--- globals -------------------------------------------------------*/
 static uint64_t *primes    = NULL;   /* primes generated so far        */

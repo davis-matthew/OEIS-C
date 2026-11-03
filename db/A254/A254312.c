@@ -13,7 +13,8 @@
  *            - (-1)^n)/2) - 2^n + 4)/6, with b(n) = floor(n*log(3)/log(3/2))
  * Range:     u8 n <= 3, u16 n <= 15, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   pow2
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdbool.h>
 #include <math.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 static const double RATIO = log(3.0) / log(1.5);
 
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
     while (cache_len < (size_t)n) {
         if (cache_len + 1 > cache_cap) {
             cache_cap = cache_cap ? 2 * cache_cap : 16;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
             if (!cache) {
                 abort();  /* memory allocation failure */
             }

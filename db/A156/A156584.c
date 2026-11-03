@@ -12,12 +12,15 @@
  *            integers raised to calculated exponents
  * Range:     u8 n <= 15, u16 n <= 22, u32 n <= 38, u64 n <= 58, u128 n <= 109,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 61 terms through n = 477 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -51,9 +54,9 @@ seq_t a(idx_t n)
             exp_t -= (int)(lower - t + 1);
 
         if (exp_t > 0)
-            result = result * big_pow((seq_t)t, (seq_t)exp_t);
+            result = result * ipow((seq_t)t, (seq_t)exp_t);
         else if (exp_t < 0)
-            result = result / big_pow((seq_t)t, (seq_t)(-exp_t));
+            result = result / ipow((seq_t)t, (seq_t)(-exp_t));
     }
 
     return result;

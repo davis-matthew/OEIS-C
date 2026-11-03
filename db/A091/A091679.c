@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   rev_base4
+ * Validated: partial, pass, 71 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,18 @@
 /* Standard headers needed for static memory management. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/rev_base4.h"
+#include "../utils/mem.h"
+
+/* Helper: reverse the digits of x in base 4. */
+static idx_t rev_base4(idx_t x)
+{
+    idx_t r = 0;
+    while (x > 0) {
+        r = r * 4 + (x % 4);
+        x /= 4;
+    }
+    return r;
+}
 
 /* Forward declaration of the sequence type supplied by the build system. */
 /* #include "<path_to_seq_and_idx_definitions>" is omitted because they
@@ -55,7 +67,7 @@ static void recompute_upto(idx_t new_bound)
 
     /* Allocate space for the list of good numbers.
        In the worst case every number up to the bound is good. */
-    seq_t *new_good = (seq_t *)malloc((size_t)new_bound * sizeof(seq_t));
+    seq_t *new_good = mem_new(seq_t, (size_t)new_bound);
     if (!new_good) {
         free(new_bad);
         abort();
@@ -72,7 +84,7 @@ static void recompute_upto(idx_t new_bound)
 
     /* Release the old structures. */
     free(bad);
-    free(good);
+    mem_free(good);
 
     /* Install the new structures. */
     bad = new_bad;

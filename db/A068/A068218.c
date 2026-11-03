@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 22, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   find_k_r
+ * Validated: partial, pass, 42 terms through n = 41 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,7 +33,17 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/find_k_r.h"
+
+/* map n to (k,r) using k(k+1)/2 ≤ n < (k+1)(k+2)/2 */
+static void find_k_r(idx_t n, idx_t *k_ptr, idx_t *r_ptr)
+{
+    idx_t k = 0;
+    while ((k + 1) * (k + 2) / 2 <= n)
+        ++k;
+    idx_t r = n - k * (k + 1) / 2;
+    *k_ptr = k;
+    *r_ptr = r;
+}
 
 #define MAX_K 200   /* sufficient for n up to ≈ 20000 */
 

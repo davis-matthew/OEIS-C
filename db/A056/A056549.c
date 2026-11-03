@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=1..2n} floor(2n/k) - Sum_{k=1..n} floor(n/k)
  * Range:     u8 n <= 47, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   sum_floor_divs
+ * Validated: partial, pass, 58 terms through n = 57 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,22 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/sum_floor_divs.h"
+
+/* Compute S(N) = sum_{k=1}^{N} floor(N/k).  N is 0 or positive. */
+static seq_t sum_floor_divs(idx_t N)
+{
+    seq_t res = 0;
+    idx_t i = 1;
+    while (i <= N) {
+        /* floor(N / i) remains constant on the interval [i, r] */
+        idx_t q = N / i;
+        idx_t r = N / q;
+        /* Add q * (r - i + 1) safely using seq_t. */
+        res += (seq_t)q * (seq_t)(r - i + 1);
+        i = r + 1;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {

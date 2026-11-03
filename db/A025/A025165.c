@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 8, i16 n <= 12, i32 n <= 21, i64 n <= 34, i128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 774 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
    (derived from H_{n+1}=2H_n-2nH_{n-1} at x=1).  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     /* initialise memo array on first call */
     if (memo == NULL) {
         memo_len = 4;                   /* initial capacity */
-        memo = (seq_t *)malloc(memo_len * sizeof(seq_t));
+        memo = mem_new(seq_t, memo_len);
         if (!memo) return 0;            /* allocation failure unlikely */
         memo[0] = (seq_t)1;
         memo[1] = (seq_t)2;
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     if ((size_t)n + 1 > memo_len) {
         size_t new_len = memo_len;
         while ((size_t)n + 1 > new_len) new_len <<= 1;
-        seq_t *tmp = (seq_t *)realloc(memo, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, memo, new_len);
         if (!tmp) return 0;            /* allocation failure unlikely */
         memo = tmp;
         memo_len = new_len;

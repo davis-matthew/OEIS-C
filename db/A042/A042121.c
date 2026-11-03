@@ -11,7 +11,8 @@
  *            The first 16 terms are produced by computing th...
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 15, u64 n <= 31, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 183 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         /* allocate space for indices 0 … 15 */
         cap    = 16;
-        cache  = (seq_t *)malloc(sizeof(seq_t) * cap);
+        cache  = mem_new(seq_t, cap);
         if (!cache)
             return 0;                /* allocation failed – return 0 */
 
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
        linear recurrence a(n) = 66562*a(n-8) - a(n-16).
        -------------------------------------------------------------------- */
     if (n >= cap) {
-        seq_t *new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * (n + 1));
+        seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
         if (!new_cache)
             return 0;                /* allocation failed – return 0 */
         cache = new_cache;

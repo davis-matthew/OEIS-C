@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 32, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,13 +19,14 @@
  * n‑th term (n ≥ 1). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Append a value to a dynamically growing seq_t array. */
 static void append_to_cache(seq_t val, seq_t **cache, size_t *size, size_t *cap)
 {
     if (*size == *cap) {
         size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
-        seq_t *tmp = (seq_t *)realloc(*cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *cache, new_cap);
         if (tmp == NULL) abort();
         *cache = tmp;
         *cap = new_cap;
@@ -81,8 +83,7 @@ seq_t a(idx_t n)
 
         /* Ensure pow81 contains 81^0 … 81^(current_len-1). */
         if (pow_cap < (size_t)current_len) {
-            seq_t *tmp = (seq_t *)realloc(pow81,
-                    current_len * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, pow81, current_len);
             if (tmp == NULL) abort();
             pow81 = tmp;
             pow81[0] = (seq_t)1;

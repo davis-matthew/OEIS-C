@@ -10,15 +10,38 @@
  *            integer with r(r-1)/2 < n ≤ r(r+1)/2 (row number), let k = n –
  *            (r-1)r/2 (position within the row). Then T(r,k) =
  *            Σ_{t=1}^{⌊r/k⌋} binom(r – t(k-1) – 1, t-1) – Σ_{t=1}^{⌊r/(k+...
- * Range:     u8 n <= 36, u16 n <= 153, u32 n <= 561, u64 n <= 2145,
+ * Range:     u8 n <= 45, u16 n <= 153, u32 n <= 561, u64 n <= 2145,
  *            u128 n <= 8385, big any n
- * Helpers:   binom, row_of
+ * Validated: standard, pass, 107 terms through n = 9513 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
-#include "../utils/row_of.h"
+#include <stdint.h>
+#include <sys/types.h>
+#include "../utils/binomial.h"
+
+static inline idx_t
+row_of(idx_t n)                 /* return r with r(r+1)/2 ≤ n < (r+1)(r+2)/2 */
+{
+    idx_t low  = 0;
+    idx_t high = 1;
+    /* exponential search to find an upper bound */
+    while ((unsigned __int128)high * (high + 1) / 2 <= n) {
+        low  = high;
+        high <<= 1;              /* double high */
+    }
+    /* binary search between low (inclusive) and high (inclusive) */
+    while (low < high) {
+        idx_t mid = low + ((high - low) >> 1) + 1; /* upper mid to avoid infinite loop */
+        if ((unsigned __int128)mid * (mid + 1) / 2 <= n)
+            low = mid;
+        else
+            high = mid - 1;
+    }
+    return low;
+}
 
 static seq_t compute_f(idx_t n, idx_t k)
 {
@@ -28,7 +51,7 @@ static seq_t compute_f(idx_t n, idx_t k)
     {
         idx_t N = n - r * (k - 1) - 1;   /* N ≥ 0 */
         idx_t K = r - 1;
-        sum += binom(N, K);
+        sum += binomial(N, K);
     }
     return sum;
 }

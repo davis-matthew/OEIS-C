@@ -9,12 +9,14 @@
  *            complexity: O(n^2 / 8), memory O(n)
  * Range:     u8 n <= 66, u16 n <= 169, u32 n <= 495, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 87 terms through n = 897 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -22,7 +24,7 @@ seq_t a(idx_t n)
     if (n == 0) return 0;
 
     /* Allocate DP array of size n+1. */
-    seq_t *dp = (seq_t*)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1));
     if (!dp) return 0;                     /* allocation failure */
     dp[0] = 1;
     for (idx_t i = 1; i <= n; ++i) dp[i] = 0;
@@ -46,6 +48,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

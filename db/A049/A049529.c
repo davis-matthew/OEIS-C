@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 7, u32 n <= 23, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 23 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Precomputed factorials of digits 0–9. */
 static const uint32_t digit_fact[10] = {
@@ -101,7 +103,7 @@ seq_t a(idx_t n)
     /* Initialise static data once. */
     if (!cache) {
         cache_cap = 256;
-        cache = (seq_t *)calloc((size_t)cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)cache_cap);
         if (!cache) return 0;               /* memory failure */
 
         sieve_limit = 100000;               /* initial size for sieve */
@@ -130,7 +132,7 @@ seq_t a(idx_t n)
         if (sum_fact == (seq_t)prime_count) {
             if (cache_len == cache_cap) {
                 cache_cap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                 if (!tmp) return 0;          /* memory failure */
                 cache = tmp;
             }

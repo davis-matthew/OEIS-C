@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 14, u128 n <= 28,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 34 terms through n = 991 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/pow_uint.h"   /* pow_uint(uint64_t base, idx_t exp) returns seq_t */
+#include "../utils/ipow_u64_idx.h"
 
 static inline idx_t exp_in_factorial(idx_t m, idx_t p) {
     idx_t e = 0;
@@ -85,7 +86,7 @@ seq_t a(idx_t n) {
                   - exp_in_factorial(mn, p)
                   - exp_in_factorial(mp1, p);
         if (exp > 0) {
-            seq_t term = pow_uint((uint64_t)p, exp); /* term = p^exp */
+            seq_t term = ipow_u64_idx((uint64_t)p, exp); /* term = p^exp */
             result = result * term;
         }
     }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 30, u32 n <= 38, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    with a(n,k) = a(n-1,k-1) * a(n-1,k),
    a(n,1) = n, a(n,n) = 1. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     while (flen < n)
     {
         size_t L = (size_t)row_no;           /* length of new row    */
-        seq_t *curr = (seq_t*)malloc(L * sizeof(seq_t)); /* new row buffer      */
+        seq_t *curr = mem_new(seq_t, L); /* new row buffer      */
         if (!curr) return (seq_t)0;           /* allocation failed    */
 
         if (row_no == 1)          /* first row          */
@@ -54,8 +56,8 @@ seq_t a(idx_t n)
             if (flen == fcap)                      /* grow flatten if needed */
             {
                 size_t new_cap = fcap == 0 ? 8 : fcap * 2;
-                seq_t *tmp = (seq_t*)realloc(flatten, new_cap * sizeof(seq_t));
-                if (!tmp) { free(curr); return (seq_t)0; }
+                seq_t *tmp = mem_resize(seq_t, flatten, new_cap);
+                if (!tmp) { mem_free(curr); return (seq_t)0; }
                 flatten = tmp;
                 fcap    = new_cap;
             }
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
 
         /* Prepare for next iteration: free old previous row
            and use the new row as the previous row. */
-        if (prev) free(prev);
+        if (prev) mem_free(prev);
         prev      = curr;
         prev_len  = L;
 

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   cmp_seq_t, floor_cube_root
+ * Validated: standard, pass, 68 terms through n = 9927 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,39 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/cmp_seq_t.h"
-#include "../utils/floor_cube_root.h"
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
+
+/* Floor cube root by binary search */
+static inline seq_t floor_cube_root(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    /* raise hi until hi^3 > x */
+    while (ipow_i32(hi, 3) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid3 = ipow_i32(mid, 3);
+        if (mid3 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 static seq_t *values = NULL;
 static size_t values_count = 0;
@@ -34,7 +66,7 @@ static void generate_values(void)
 {
     const seq_t LIMIT = (seq_t)200000000;
     size_t cap = 200000;            /* initial capacity (over‑estimate) */
-    seq_t *buf = (seq_t *)malloc(cap * sizeof(seq_t));
+    seq_t *buf = mem_new(seq_t, cap);
     if (!buf) exit(1);
     size_t cnt = 0;
 
@@ -47,7 +79,7 @@ static void generate_values(void)
             if (c * c * c != val) {
                 if (cnt >= cap) {
                     cap *= 2;
-                    seq_t *tmp = (seq_t *)realloc(buf, cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, buf, cap);
                     if (!tmp) exit(1);
                     buf = tmp;
                 }
@@ -61,14 +93,14 @@ static void generate_values(void)
     }
 
     /* Sort and deduplicate */
-    qsort(buf, cnt, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(buf, cnt, sizeof(seq_t), cmp_seq_t);
     size_t uniq = 0;
     for (size_t i = 0; i < cnt; ++i) {
         if (i == 0 || buf[i] != buf[i - 1]) {
             buf[uniq++] = buf[i];
         }
     }
-    buf = (seq_t *)realloc(buf, uniq * sizeof(seq_t));
+    buf = mem_resize(seq_t, buf, uniq);
     values = buf;
     values_count = uniq;
     initialized = true;

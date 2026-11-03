@@ -9,7 +9,8 @@
  *            = 4
  * Range:     u8 n <= 13, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* static storage for the two complementary sequences */
 static seq_t *a_cache = NULL;
@@ -58,8 +60,8 @@ static int used_test(idx_t v)
 /* initialise the first two terms of a and b and mark them as used */
 static void init_sequences(void)
 {
-    a_cache = (seq_t *)calloc(2, sizeof(seq_t));
-    b_cache = (seq_t *)calloc(2, sizeof(seq_t));
+    a_cache = mem_new(seq_t, 2);
+    b_cache = mem_new(seq_t, 2);
     if (!a_cache || !b_cache) exit(1);
     a_cache[0] = (seq_t)1;
     a_cache[1] = (seq_t)3;
@@ -77,8 +79,8 @@ static void ensure_cache(idx_t n)
 {
     if (n < cache_len) return;
     size_t new_len = n + 1;
-    seq_t *na = (seq_t *)realloc(a_cache, new_len * sizeof(seq_t));
-    seq_t *nb = (seq_t *)realloc(b_cache, new_len * sizeof(seq_t));
+    seq_t *na = mem_resize(seq_t, a_cache, new_len);
+    seq_t *nb = mem_resize(seq_t, b_cache, new_len);
     if (!na || !nb) exit(1);
     a_cache = na;
     b_cache = nb;

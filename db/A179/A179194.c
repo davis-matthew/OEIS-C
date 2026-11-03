@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   build_primes_upto, build_spf, powmod_two
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   build_primes_upto, build_spf, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,23 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/build_primes_upto.h"   /* build_primes_upto(idx_t limit, uint64_t **primes_out, size_t *cnt_out) */
-#include "../utils/build_spf.h"          /* build_spf(idx_t limit, idx_t **spf_out) */
-#include "../utils/powmod_two.h"
+#include "../utils/build_primes_upto.h"
+#include "../utils/build_spf.h"
+#include "../utils/mem.h"
+
+/* Modular exponentiation: base^exp mod mod (base and mod <= current_limit). */
+static uint64_t powmod_two(uint64_t exp, uint64_t mod)
+{
+    uint64_t result = 1 % mod;
+    uint64_t base   = 2 % mod;
+    while (exp > 0) {
+        if (exp & 1ULL)
+            result = (unsigned __int128)result * base % mod;
+        base = (unsigned __int128)base * base % mod;
+        exp >>= 1ULL;
+    }
+    return result;
+}
 
 static uint64_t *primes = NULL;          /* array of primes up to current_limit */
 static size_t    primes_len = 0;        /* number of primes found */
@@ -74,7 +89,7 @@ static void ensure_cache(idx_t n)
                 /* add p + 2 to cache */
                 if (cache_len == cache_cap) {
                     size_t new_cap = cache_cap ? cache_cap * 2 : 8;
-                    seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                    seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
                     if (!new_ptr) exit(EXIT_FAILURE);
                     cache = new_ptr;
                     cache_cap = new_cap;

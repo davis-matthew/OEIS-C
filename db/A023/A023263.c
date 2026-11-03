@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 13, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 61 terms through n = 993 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* Upper bound for the sieve – large enough to generate ~10 000 terms. */
 #define SIEVE_LIMIT 80000000UL
@@ -66,7 +68,7 @@ static bool     initialized = false;
     do {                                                                    \
         if ((cap) < (need)) {                                               \
             size_t new_cap = (need);                                        \
-            type *tmp = (type*)realloc((void*)(ptr), new_cap * sizeof(type)); \
+            type *tmp = mem_resize(type, (ptr), new_cap); \
             if (!tmp) exit(EXIT_FAILURE);                                  \
             (ptr) = tmp;                                                    \
             (cap) = new_cap;                                                \
@@ -111,7 +113,7 @@ static void init_sieve(void)
 
     /* Initialise term cache. */
     term_cap  = 20000;
-    term_list = (seq_t*)malloc(term_cap * sizeof(seq_t));
+    term_list = mem_new(seq_t, term_cap);
     if (!term_list) exit(EXIT_FAILURE);
 }
 
@@ -129,7 +131,7 @@ static void ensure_terms(size_t need)
         uint64_t x = 8ULL * (uint64_t)p + 7ULL;
         uint64_t y = 64ULL * (uint64_t)p + 63ULL;
 
-        if (is_prime_small((seq_t)x) && is_prime_small((seq_t)y)) {
+        if (is_prime_seq((seq_t)x) && is_prime_seq((seq_t)y)) {
             if (term_cnt == term_cap) {
                 term_cap <<= 1;
                 GROW_ARRAY(term_list, term_cap, term_cap, seq_t);

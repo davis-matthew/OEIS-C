@@ -11,15 +11,17 @@
  *            e≥3. Convolution of the above over prime factors
  * Range:     u8 n <= 23, u16 n <= 839, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, pow_seq
+ * Validated: standard, pass, 88 terms through n = 8358 (2026-11-01)
+ * Helpers:   factor_u64, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n) {
     if (n == 1)
@@ -44,7 +46,7 @@ seq_t a(idx_t n) {
                 result *= (seq_t)16;
             } else {
                 /* 2^(e+3) */
-                seq_t powv = pow_seq((seq_t)2, (int)(e + 3));
+                seq_t powv = ipow_i32((seq_t)2, (int)(e + 3));
                 result *= powv;
             }
         } else {
@@ -52,7 +54,7 @@ seq_t a(idx_t n) {
             seq_t mult = 2 *
                          ((p % 4 == 1) ? (p - 1) : (p + 1));
             /* p^(e-1) */
-            seq_t powv = pow_seq((seq_t)p, (int)(e - 1));
+            seq_t powv = ipow_i32((seq_t)p, (int)(e - 1));
             result *= mult;
             result *= powv;
         }

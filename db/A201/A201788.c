@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   not stated
- * Range:     u8 n <= 3, u16 n <= 24, u32 n <= 35, u64 n <= 35, u128 n <= 35,
- *            big any n
- * Helpers:   miller_rabin
+ * Range:     u8 n <= 3, u16 n <= 24, u32 n <= 2435, u64 n <= 5000,
+ *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 51 terms through n = 4962 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "../utils/miller_rabin.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     while (found < n) {
         seq_t p = 5 * k * k - 7;   /* compute candidate; fits in seq_t */
         /* p is guaranteed to be < 2^64 for all practical n (n ≈ 10^4) */
-        if (miller_rabin((uint64_t)p)) {
+        if (is_prime_u64((uint64_t)p)) {
             ++found;
             if (found == n)
                 return p;

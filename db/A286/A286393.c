@@ -10,12 +10,15 @@
  *            7^((n^2+1)/2) + 4*7^((n^2+n)/2)) if n odd
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 4, u128 n <= 6,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 25 terms through n = 34 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -23,16 +26,16 @@ seq_t a(idx_t n)
     idx_t n2 = n * n;
 
     if ((n & (idx_t)1) == 0) {            /* n even */
-        seq_t t1 = seq_pow((seq_t)7, n2);
-        seq_t t2 = seq_pow((seq_t)7, n2 / 4);
-        seq_t t3 = seq_pow((seq_t)7, n2 / 2);
-        seq_t t4 = seq_pow((seq_t)7, (n2 + n) / 2);
+        seq_t t1 = ipow_idx((seq_t)7, n2);
+        seq_t t2 = ipow_idx((seq_t)7, n2 / 4);
+        seq_t t3 = ipow_idx((seq_t)7, n2 / 2);
+        seq_t t4 = ipow_idx((seq_t)7, (n2 + n) / 2);
         return (t1 + 2 * t2 + 3 * t3 + 2 * t4) / (seq_t)8;
     } else {                               /* n odd */
-        seq_t t1 = seq_pow((seq_t)7, n2);
-        seq_t t2 = seq_pow((seq_t)7, (n2 + 3) / 4);
-        seq_t t3 = seq_pow((seq_t)7, (n2 + 1) / 2);
-        seq_t t4 = seq_pow((seq_t)7, (n2 + n) / 2);
+        seq_t t1 = ipow_idx((seq_t)7, n2);
+        seq_t t2 = ipow_idx((seq_t)7, (n2 + 3) / 4);
+        seq_t t3 = ipow_idx((seq_t)7, (n2 + 1) / 2);
+        seq_t t4 = ipow_idx((seq_t)7, (n2 + n) / 2);
         return (t1 + 2 * t2 + t3 + 4 * t4) / (seq_t)8;
     }
 }

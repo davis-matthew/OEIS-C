@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 9, u32 n <= 30, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    of the middle of the row and greater than 1, then concatenating
    those elements. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for already computed terms */
 static seq_t *term_cache = NULL;   /* array of computed terms */
@@ -35,7 +37,7 @@ static void append_term(seq_t val)
     {
         /* grow cache (at least twice the current capacity) */
         size_t new_cap = term_cap == 0 ? 8 : term_cap << 1;
-        seq_t *tmp = (seq_t *)realloc(term_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, term_cache, new_cap);
         if (!tmp)
             return;                     /* allocation failure – abort */
         term_cache = tmp;
@@ -50,7 +52,7 @@ static void generate_until(size_t need)
     /* initialise first row if not yet done */
     if (!prev_row)
     {
-        prev_row = (seq_t *)malloc(sizeof(seq_t));
+        prev_row = mem_new(seq_t, 1);
         prev_row[0] = (seq_t)1;
         prev_len = 1;                 /* row index n = 1 */
     }
@@ -62,7 +64,7 @@ static void generate_until(size_t need)
         size_t nlen = (size_t)n;               /* length of the new row */
 
         /* allocate new row */
-        seq_t *new_row = (seq_t *)malloc(nlen * sizeof(seq_t));
+        seq_t *new_row = mem_new(seq_t, nlen);
         if (!new_row)
             return;                     /* allocation failure – abort */
 
@@ -90,7 +92,7 @@ static void generate_until(size_t need)
         }
 
         /* free previous row and store the new one for the next step */
-        free(prev_row);
+        mem_free(prev_row);
         prev_row = new_row;
         prev_len = nlen;
     }

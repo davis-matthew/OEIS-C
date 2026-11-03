@@ -8,20 +8,22 @@
  *            q^{9k-6}))
  * Range:     i8 n <= 41, i16 n <= 122, i32 n <= 383, i64 n <= 1301,
  *            i128 n <= 4697, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 9242 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *coeff = NULL;
 static idx_t max_cached = 0;
 
 static void recompute_to(idx_t n)
 {
-    if (coeff) free(coeff);
-    coeff = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+    if (coeff) mem_free(coeff);
+    coeff = mem_new(seq_t, (n + 1));
     if (!coeff) abort();               /* allocation failed */
     for (idx_t i = 0; i <= n; ++i) coeff[i] = 0;
     coeff[0] = 1;                      /* constant term */

@@ -7,7 +7,8 @@
  * Formula:   a(n) = the n-th prime congruent to 21 (mod 61)
  * Range:     u8 none, u16 n <= 108, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 56 terms through n = 956 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Simple deterministic primality test for 64‑bit integers */
 static bool isprime_u64(uint64_t n)
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
         if (cand >= 2 && isprime_u64(cand)) {
             if (len == cap) {            /* grow cache if needed */
                 size_t newcap = (cap == 0) ? 16 : cap << 1;
-                seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, newcap);
                 if (!tmp) abort();
                 cache = tmp;
                 cap   = newcap;

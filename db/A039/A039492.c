@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   good_term
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,25 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/good_term.h"
+#include "../utils/mem.h"
+
+/* Check whether x has an equal, positive number of 9's and 10's
+   in its base‑11 representation. */
+static bool good_term(seq_t x)
+{
+    int cnt9  = 0;
+    int cnt10 = 0;
+    seq_t t = x;
+    while (t) {
+        unsigned digit = (unsigned)(t % 11);
+        if (digit == 9)
+            ++cnt9;
+        else if (digit == 10)
+            ++cnt10;
+        t /= 11;
+    }
+    return (cnt9 > 0) && (cnt9 == cnt10);
+}
 
 /* External integer types supplied by the build system */
 extern seq_t a(idx_t n); /* declaration required by the harness */
@@ -40,7 +59,7 @@ static void ensure_cache_capacity(size_t min_cap)
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     if (new_cap < min_cap)
         new_cap = min_cap;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)          /* fatal in all configurations */
         exit(EXIT_FAILURE);
     cache = tmp;

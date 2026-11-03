@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 18, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 183 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -42,6 +43,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Initial terms (1‑based index 1..13). */
 static const seq_t init_vals[13] = {
@@ -69,12 +71,12 @@ static void ensure_capacity(idx_t n)
     size_t new_cap = cache_cap < 64 ? 64 : cache_cap * 2;
     while (new_cap < (size_t)n)
         new_cap *= 2;
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache)
         return;                    /* Allocation failure – unlikely. */
     if (cache && cache_len > 0) {
-        memcpy(new_cache, cache, cache_len * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_cache, cache, cache_len * sizeof(seq_t));
+        mem_free(cache);
     }
     cache = new_cache;
     cache_cap = new_cap;
@@ -86,7 +88,7 @@ static void init_cache(void)
     if (cache_len != 0)
         return;                    /* Already initialised. */
     ensure_capacity(13);
-    memcpy(cache, init_vals, 13 * sizeof(seq_t));
+    mem_copy(cache, init_vals, 13 * sizeof(seq_t));
     cache_len = 13;
 }
 

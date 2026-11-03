@@ -8,7 +8,8 @@
  * Formula:   a(n) = abs(floor((pi(n)-2)/(2-pi(n)+pi(n-1))))
  * Range:     u8 n <= 92, u16 n <= 92, u32 n <= 92, u64 n <= 92, u128 n <= 92,
  *            big any n
- * Helpers:   floor_div64
+ * Validated: partial, pass, 92 terms through n = 92 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,15 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/floor_div64.h"
+
+/* Floor division for signed 64‑bit integers (denominator > 0). */
+static inline long long floor_div64(long long a, long long b)
+{
+    if (b <= 0) return 0;            /* safety; should not occur */
+    if (a >= 0) return a / b;
+    /* a < 0 : emulate floor division (toward –∞) */
+    return -(((-a + b - 1) / b));
+}
 
 /* Dynamic sieve state */
 static uint8_t *is_prime   = NULL;      /* 1 if prime, 0 otherwise */

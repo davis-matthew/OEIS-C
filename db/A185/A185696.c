@@ -9,13 +9,15 @@
  *            a(n-1-k)
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 25, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static caches, maintained across calls */
 static seq_t *a_cache   = NULL;   /* a[0 .. size-1] */
@@ -45,7 +47,7 @@ static void ensure_a(idx_t n)
 {
     if (a_size <= n) {
         size_t new_size = (size_t)n + 1;
-        seq_t *new_a = (seq_t *)realloc(a_cache, new_size * sizeof(seq_t));
+        seq_t *new_a = mem_resize(seq_t, a_cache, new_size);
         if (!new_a) abort();
         a_cache = new_a;
         /* initialise newly added entries */

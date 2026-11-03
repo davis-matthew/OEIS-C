@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 38, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,6 +35,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are supplied by the build, e.g.:
  *   typedef unsigned __int128 seq_t;
@@ -69,7 +71,7 @@ static void init_tables(void)
     /* Allocate memory for f: f[m][n] */
     for (idx_t m = 0; m <= MAX_ROWS; m++)
     {
-        f[m] = (seq_t *)malloc((MAX_ROWS + 1) * sizeof(seq_t));
+        f[m] = mem_new(seq_t, (MAX_ROWS + 1));
         for (idx_t n = 0; n <= MAX_ROWS; n++)
             f[m][n] = (seq_t)0;
     }
@@ -77,7 +79,7 @@ static void init_tables(void)
     /* Allocate memory for T: T[n][k] (k runs from 1 to n) */
     for (idx_t n = 0; n <= MAX_ROWS; n++)
     {
-        T[n] = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        T[n] = mem_new(seq_t, (n + 1));
         for (idx_t k = 0; k <= n; k++)
             T[n][k] = (seq_t)0;
     }
@@ -86,7 +88,7 @@ static void init_tables(void)
     for (idx_t m = 1; m <= MAX_ROWS; m++)
     {
         /* Auxiliary array A for the reciprocal series 1/(1 - S_m(z)) */
-        seq_t *A = (seq_t *)calloc((MAX_ROWS + 1), sizeof(seq_t));
+        seq_t *A = mem_new(seq_t, (MAX_ROWS + 1));
         if (!A) exit(1);                            /* safety check */
         A[0] = (seq_t)1;
 
@@ -110,7 +112,7 @@ static void init_tables(void)
             f[m][n] = sum;
         }
 
-        free(A);
+        mem_free(A);
     }
 
     /* Compute the triangle entries T[n][k]   */

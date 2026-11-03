@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   has_two_runs
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,25 @@
  * form two maximal blocks of equal digits. */
 /* External linkage */
 #include <stdbool.h>
-#include "../utils/has_two_runs.h"
+
+static bool has_two_runs(seq_t x)
+{
+    seq_t prev = (seq_t)-1;  /* sentinel for “no previous digit” */
+    seq_t runs = 0;
+
+    while (x > 0) {
+        seq_t d = x % 12;     /* current least‑significant digit */
+        x = x / 12;           /* shift right by one base‑12 digit */
+
+        if (d != prev) {      /* a new run starts */
+            ++runs;
+            prev = d;
+            if (runs > 2)     /* early exit if more than two runs */
+                return false;
+        }
+    }
+    return runs == 2;
+}
 
 seq_t a(idx_t n)
 {

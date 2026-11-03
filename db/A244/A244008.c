@@ -9,7 +9,8 @@
  *            names concatenated contain no repeated letters
  * Range:     u8 n <= 18, u16 n <= 18, u32 n <= 18, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 18 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* English names of the decimal digits */
 static const char *digit_word[10] = {
@@ -104,7 +106,7 @@ static void generate_sequence(void)
 
     /* Sort the list increasingly */
     if (term_cnt > 1)
-        qsort(term_buf, term_cnt, sizeof(seq_t), seq_compare);
+        mem_qsort(term_buf, term_cnt, sizeof(seq_t), seq_compare);
 }
 
 /* OEIS entry */

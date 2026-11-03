@@ -9,8 +9,9 @@
  *            none of which are prime powers. The factorization may contain a
  *            single factor n itself if n is not a prime power. Recursively
  *            enumerates factors in non‑decreasing order to avoid permutations
- * Range:     u8 n <= 9846, u16 n <= 9846, u32 n <= 9846, u64 n <= 9846,
- *            u128 n <= 9846, big any n
+ * Range:     u8 n <= 20160, u16 n <= 20160, u32 n <= 20160, u64 n <= 20160,
+ *            u128 n <= 20160, big any n
+ * Validated: standard, pass, 121 terms through n = 9846 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

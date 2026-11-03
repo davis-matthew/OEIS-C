@@ -7,7 +7,8 @@
  * Formula:   a(n) is the nth nonnegative integer k such that 2k+7 is prime
  * Range:     u8 n <= 94, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 80 terms through n = 794 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_prime.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;      /* array of found k's   */
@@ -30,19 +33,19 @@ seq_t a(idx_t n) {
     /* Grow cache capacity if needed. */
     if (cache_cap == 0) {
         cache_cap = 1;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* Generate k's until we have n of them. */
     while (cache_size < n) {
         if (cache_size == cache_cap) {
             cache_cap <<= 1;                /* double capacity   */
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
 
         /* Test if 2*next_k + 7 is prime. */
         uint64_t candidate = (uint64_t)next_k * 2ull + 7ull;
-        if (is_prime(candidate)) {
+        if (is_prime_u64(candidate)) {
             cache[cache_size++] = (seq_t)next_k;
         }
         ++next_k;   /* move to next k for next iteration */

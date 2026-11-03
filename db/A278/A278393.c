@@ -13,13 +13,15 @@
  *            dp[0][h>0] = 0). Then * * dp[i+1][h] = Σ_{s=-4}^{4} dp[i][h-...
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 21, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static memoisation state ------------------------------------------ */
 static idx_t    max_computed = 0;   /* largest n already computed */
@@ -34,7 +36,7 @@ static void ensure_ans_cap(idx_t n)
 {
         if ((size_t)n + 1 > ans_cap) {
                 size_t new_cap = (size_t)n + 1;
-                seq_t *tmp = (seq_t*)realloc(ans_arr, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, ans_arr, new_cap);
                 if (!tmp) exit(EXIT_FAILURE);
                 ans_arr = tmp;
                 ans_cap = new_cap;
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
         /* First call initialises the state */
         if (ans_cap == 0) {
                 ans_cap = 1;
-                ans_arr = (seq_t*)malloc(ans_cap * sizeof(seq_t));
+                ans_arr = mem_new(seq_t, ans_cap);
                 if (!ans_arr) exit(EXIT_FAILURE);
                 ans_arr[0] = (seq_t)1;          /* a(0) = 1 */
                 max_computed = 0;
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
         for (idx_t m = max_computed + 1; m <= n; ++m) {
                 idx_t curr_max_h = 4 * m;               /* maximum possible height */
                 /* Allocate and zero the array for current dp values */
-                seq_t *dp_curr = (seq_t*)calloc(curr_max_h + 1, sizeof(seq_t));
+                seq_t *dp_curr = mem_new(seq_t, curr_max_h + 1);
                 if (!dp_curr) exit(EXIT_FAILURE);
 
                 seq_t total = 0;                         /* a(m) */
@@ -102,7 +104,7 @@ seq_t a(idx_t n)
                 ans_arr[m] = total;
 
                 /* Prepare for next iteration: the current dp becomes the previous dp */
-                if (dp_prev) free(dp_prev);
+                if (dp_prev) mem_free(dp_prev);
                 dp_prev = dp_curr;
                 prev_max_h = curr_max_h;
         }

@@ -12,12 +12,14 @@
  *            47, a(11) = 52, a(12) = 57
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* cached values of the sequence */
 static size_t cache_size = 0;        /* number of cached entries */
@@ -27,7 +29,7 @@ static void init_cache(void)
 {
     if (!cache) {
         cache_size = 13;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache) abort();        /* cannot proceed without memory */
 
         /* set the initial 13 values */
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
 
     /* grow the cache to hold indices up to n */
     size_t new_size = idx + 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache)
         abort(); /* memory allocation failed */
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 6,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 8 terms through n = 7 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,9 @@
    Then a(n) = p_n (numerator after reduction). */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *num_arr  = NULL;
 static seq_t *den_arr  = NULL;
@@ -37,8 +40,8 @@ seq_t a(idx_t n)
     /* Initialise on first call */
     if (cache_len == 0) {
         cache_cap = 16;  /* initial capacity */
-        num_arr = (seq_t *)malloc(cache_cap * sizeof(seq_t));
-        den_arr = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        num_arr = mem_new(seq_t, cache_cap);
+        den_arr = mem_new(seq_t, cache_cap);
         if (!num_arr || !den_arr) abort();
         num_arr[0] = (seq_t)2;
         den_arr[0] = (seq_t)1;
@@ -71,10 +74,10 @@ seq_t a(idx_t n)
         if (cache_len == cache_cap) {
             size_t new_cap = cache_cap * 2;
             if (new_cap <= i + 1) new_cap = i + 1;
-            seq_t *tmp = (seq_t *)realloc(num_arr, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, num_arr, new_cap);
             if (!tmp) abort();
             num_arr = tmp;
-            tmp = (seq_t *)realloc(den_arr, new_cap * sizeof(seq_t));
+            tmp = mem_resize(seq_t, den_arr, new_cap);
             if (!tmp) abort();
             den_arr = tmp;
             cache_cap = new_cap;

@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{d|n, A083345(d) even} d
- * Range:     u8 n <= 224, u16 n <= 9258, u32 n <= 9258, u64 n <= 9258,
- *            u128 n <= 9258, big any n
- * Helpers:   gcd64
+ * Range:     u8 n <= 224, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 106 terms through n = 9258 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/gcd64.h"
+#include "../utils/gcd_u64.h"
 
 /* Smallest prime factor array, dynamic up to current maximum. */
 static uint64_t *spf = NULL;
@@ -91,7 +92,7 @@ static bool parity_of(uint64_t x)
         N += exps[i] * M;
     }
 
-    uint64_t g = gcd64(N, D);
+    uint64_t g = gcd_u64(N, D);
     N /= g;
     return (N & 1ULL) == 0ULL;
 }

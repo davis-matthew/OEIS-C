@@ -12,7 +12,8 @@
  *            multiple exists, return 0
  * Range:     u8 n <= 12, u16 n <= 181, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bfs_min_multiple
+ * Validated: standard, pass, 76 terms through n = 9387 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,82 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/bfs_min_multiple.h"
+
+/* Breadth‑first search over remainders.  digits must contain all
+   allowed digits in ascending order, start_digits the allowed
+   leading digits (no zero), and their sizes.  */
+static seq_t bfs_min_multiple(idx_t n,
+                              const int *digits, int ndigits,
+                              const int *start_digits, int nstart)
+{
+    /* per‑remainder data */
+    bool *vis = (bool *)calloc((size_t)n, sizeof(bool));
+    idx_t *prev = (idx_t *)malloc((size_t)n * sizeof(idx_t));
+    int   *prev_d = (int   *)malloc((size_t)n * sizeof(int));
+
+    /* simple circular queue */
+    int *queue = (int *)malloc((size_t)n * sizeof(int));
+    int head = 0, tail = 0;
+
+    /* initialise with one‑digit numbers */
+    for (int i = 0; i < nstart; ++i) {
+        int d = start_digits[i];
+        idx_t r = d % n;
+        if (!vis[r]) {
+            vis[r] = true;
+            prev[r] = (idx_t)-1;       /* no predecessor */
+            prev_d[r] = d;
+            queue[tail++] = (int)r;
+            if (r == 0) {              /* single‑digit solution */
+                free(vis); free(prev); free(prev_d); free(queue);
+                seq_t res = 0;
+                res = res * 10 + d;
+                return res;
+            }
+        }
+    }
+
+    /* BFS loop */
+    while (head < tail) {
+        int cur = queue[head++];
+        for (int k = 0; k < ndigits; ++k) {
+            int d = digits[k];
+            idx_t nr = (cur * 10 + d) % n;
+            if (!vis[nr]) {
+                vis[nr] = true;
+                prev[nr] = (idx_t)cur;
+                prev_d[nr] = d;
+                queue[tail++] = (int)nr;
+                if (nr == 0) {          /* solution found */
+                    /* reconstruct digits backwards */
+                    int buf[64];         /* n ≤ 10⁴ → < 64 digits in practice */
+                    int len = 0;
+                    int r = (int)nr;
+                    while (r != (int)-1) {
+                        buf[len++] = prev_d[r];
+                        r = prev[r];
+                    }
+                    /* reverse to correct order */
+                    for (int i = 0; i < len / 2; ++i) {
+                        int tmp = buf[i];
+                        buf[i] = buf[len - 1 - i];
+                        buf[len - 1 - i] = tmp;
+                    }
+                    /* build the number */
+                    seq_t res = 0;
+                    for (int i = 0; i < len; ++i)
+                        res = res * 10 + (seq_t)buf[i];
+                    free(vis); free(prev); free(prev_d); free(queue);
+                    return res;
+                }
+            }
+        }
+    }
+
+    /* no multiple exists */
+    free(vis); free(prev); free(prev_d); free(queue);
+    return 0;
+}
 
 typedef seq_t seq_t;
 typedef idx_t idx_t;

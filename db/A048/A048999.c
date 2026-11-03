@@ -11,7 +11,8 @@
  *            n(n+1)/2
  * Range:     i8 n <= 10, i16 n <= 22, i32 n <= 66, i64 n <= 162,
  *            i128 n <= 419, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 1210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <math.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are supplied by the build; do not define them here. */
 
@@ -59,7 +61,7 @@ static idx_t fact_size = 0;     /* number of stored factorials = size of array *
 static void ensure_factorials(idx_t n)
 {
     if (fact_size > n) return;          /* already computed */
-    seq_t *tmp = (seq_t *)realloc(fact, (size_t)(n + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, fact, (size_t)(n + 1));
     if (!tmp) return;                   /* allocation failure: caller will fail */
     if (fact_size == 0) {
         tmp[0] = (seq_t)1;
@@ -84,15 +86,15 @@ static void ensure_bernoulli(idx_t m)
 
     /* Resize arrays if necessary */
     if (B_size == 0) {
-        Bnum = (seq_t *)malloc(sizeof(seq_t));
-        Bden = (seq_t *)malloc(sizeof(seq_t));
+        Bnum = mem_new(seq_t, 1);
+        Bden = mem_new(seq_t, 1);
         if (!Bnum || !Bden) return;
         Bnum[0] = (seq_t)1;
         Bden[0] = (seq_t)1;
         B_size = 1;
     } else if (B_size <= m) {
-        seq_t *tmp_num = (seq_t *)realloc(Bnum, (size_t)(m + 1) * sizeof(seq_t));
-        seq_t *tmp_den = (seq_t *)realloc(Bden, (size_t)(m + 1) * sizeof(seq_t));
+        seq_t *tmp_num = mem_resize(seq_t, Bnum, (size_t)(m + 1));
+        seq_t *tmp_den = mem_resize(seq_t, Bden, (size_t)(m + 1));
         if (!tmp_num || !tmp_den) return;
         Bnum = tmp_num;
         Bden = tmp_den;

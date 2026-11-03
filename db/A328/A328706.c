@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{d|n} A045778(n/d) * A045778(d)
  * Range:     u8 n <= 359, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   compute_g_rec
+ * Validated: standard, pass, 96 terms through n = 7408 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,28 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/compute_g_rec.h"
+#include "../utils/mem.h"
+
+/* Recursive helper: count factorizations of rem into distinct factors >= minf */
+static seq_t compute_g_rec(idx_t rem, idx_t minf) {
+    if (rem == 1) return (seq_t)1;         /* empty factorization */
+    if (rem < minf || rem < 2) return (seq_t)0;
+    seq_t total = 0;
+    for (idx_t d = 2; d <= rem / d; ++d) {
+        if (rem % d == 0) {
+            if (d >= minf) {
+                total += compute_g_rec(rem / d, d + 1);
+            }
+            idx_t e = rem / d;
+            if (e != d && e >= minf) {
+                total += compute_g_rec(rem / e, e + 1);
+            }
+        }
+    }
+    /* include the factorization consisting of the number itself */
+    if (rem >= minf && rem >= 2) total += (seq_t)1;
+    return total;
+}
 
 /* ---------- helpers for A045778 ---------- */
 static seq_t *g_cache = NULL;      /* cached values of g(n) */
@@ -30,7 +52,7 @@ static void ensure_g_cache(idx_t n) {
     if (n < g_cap) return;
     size_t new_cap = g_cap ? g_cap : 16;
     while (new_cap <= (size_t)n) new_cap <<= 1;
-    seq_t *gc = (seq_t *)realloc(g_cache, new_cap * sizeof(seq_t));
+    seq_t *gc = mem_resize(seq_t, g_cache, new_cap);
     bool  *gd = (bool  *)realloc(g_done , new_cap * sizeof(bool));
     if (!gc || !gd) abort();
     for (size_t i = g_cap; i < new_cap; ++i) gd[i] = false;
@@ -60,7 +82,7 @@ static void ensure_a_cache(idx_t n) {
     if (n < a_cap) return;
     size_t new_cap = a_cap ? a_cap : 16;
     while (new_cap <= (size_t)n) new_cap <<= 1;
-    seq_t *ac = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *ac = mem_resize(seq_t, a_cache, new_cap);
     bool  *ad = (bool  *)realloc(a_done , new_cap * sizeof(bool));
     if (!ac || !ad) abort();
     for (size_t i = a_cap; i < new_cap; ++i) ad[i] = false;

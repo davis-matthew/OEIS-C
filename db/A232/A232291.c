@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 */
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache of computed values.  cache[0] is unused to keep indices 1‑based. */
 static seq_t *cache = NULL;
@@ -39,7 +41,7 @@ static void init_base(void)
     /* Ensure at least 11 slots (index 0 unused). */
     if (cache_len < 11) {
         cache_len = 11;
-        cache = (seq_t *)realloc(cache, cache_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_len);
         if (!cache) exit(EXIT_FAILURE); /* fatal if allocation fails */
     }
     cache[1]  = (seq_t)15;
@@ -63,7 +65,7 @@ static void ensure_cache(idx_t n)
     /* Grow to at least n+1 slots, at least double the current size. */
     idx_t new_len = cache_len * 2;
     if (new_len <= n) new_len = n + 1;
-    cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_len);
     if (!cache) exit(EXIT_FAILURE);
     cache_len = new_len;
 }

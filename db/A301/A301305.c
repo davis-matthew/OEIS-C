@@ -13,7 +13,8 @@
  *            answers a(n) by indexing the appropriate entry
  * Range:     i8 n <= 11, i16 n <= 23, i32 n <= 58, i64 n <= 157,
  *            i128 n <= 417, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 1274 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 static seq_t *rows[2001];       /* stored rows of the triangle; rows[0] unused */
 static size_t rows_len[2001];   /* length of each stored row */
@@ -34,11 +36,11 @@ static void ensure_rows(idx_t target)
 
     for (idx_t r = rows_computed + 1; r <= target; ++r) {
         size_t len = (size_t)r;
-        rows[r] = (seq_t *)calloc(len, sizeof(seq_t));
+        rows[r] = mem_new(seq_t, len);
         rows_len[r] = len;
 
         /* temporary array for the convolution term */
-        seq_t *S = (seq_t *)calloc(len, sizeof(seq_t));
+        seq_t *S = mem_new(seq_t, len);
 
         /* Sum over j=1..r-1 of j * a_j * a_{r-j}, accumulated into S */
         for (size_t j = 1; j < r; ++j) {
@@ -70,7 +72,7 @@ static void ensure_rows(idx_t target)
         if (r == 1)
             ar[0] += (seq_t)1;
 
-        free(S);
+        mem_free(S);
     }
 
     rows_computed = target;

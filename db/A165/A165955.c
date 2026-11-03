@@ -7,12 +7,14 @@
  * Formula:   a(n) = A014076(n) + A163300(n)
  * Range:     u8 n <= 45, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 75 terms through n = 4785 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/is_prime_small.h"
+#include <stdbool.h>
+#include "../utils/is_prime_seq.h"
 
 /* Return the n-th odd nonprime (1,9,15,21,25,...) */
 static seq_t nth_odd_nonprime(idx_t n)
@@ -22,7 +24,7 @@ static seq_t nth_odd_nonprime(idx_t n)
 
     while (count < n)
     {
-        if (!is_prime_small(cand))
+        if (!is_prime_seq(cand))
         {
             ++count;
             if (count == n)

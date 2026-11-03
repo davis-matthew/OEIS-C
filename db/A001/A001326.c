@@ -12,14 +12,42 @@
  *            complementing inputs)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 6,
  *            big any n
- * Helpers:   a001326_mul, a001326_pow
+ * Validated: partial, pass, 8 terms through n = 9 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a001326_mul.h"
-#include "../utils/a001326_pow.h"
+
+/* x = 8*T + R, with 0 <= R < 8 */
+static void a001326_mul(seq_t *T1, unsigned *R1, seq_t T2, unsigned R2)
+{
+    seq_t t = *T1;
+    unsigned r = *R1;
+    seq_t nt = t * (T2 * 8 + R2) + T2 * r + (seq_t)((r * R2) / 8);
+    *T1 = nt;
+    *R1 = (r * R2) % 8;
+}
+
+static void a001326_pow(idx_t b, idx_t e, seq_t *T, unsigned *R)
+{
+    seq_t rt = 0;
+    unsigned rr = 1;
+    seq_t bt = (seq_t)(b / 8);
+    unsigned br = (unsigned)(b % 8);
+    while (e > 0) {
+        if (e & 1) a001326_mul(&rt, &rr, bt, br);
+        e >>= 1;
+        if (e > 0) {
+            seq_t ct = bt;
+            unsigned cr = br;
+            a001326_mul(&bt, &br, ct, cr);
+        }
+    }
+    *T = rt;
+    *R = rr;
+}
 
 seq_t a(idx_t n)
 {

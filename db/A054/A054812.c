@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 171, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_primes
+ * Validated: standard, pass, 54 terms through n = 953 (2026-11-03)
+ * Helpers:   build_primes, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/build_primes.h"
+#include "../utils/mem.h"
 
 /* ----- static data for caching ------------------------------------------------ */
 static idx_t   *primes       = NULL;  /* array of primes up to current limit */
@@ -51,14 +53,14 @@ static void ensure_cache(idx_t n)
     while (true) {
         /* Free previous data if any */
         if (primes) free(primes);
-        if (cache) free(cache);
+        if (cache) mem_free(cache);
 
         /* Build primes up to current limit */
         build_primes(limit, &primes, &prime_cnt);
 
         /* Prepare a fresh cache */
         cache_cap = 1024;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache_len = 0;
 
         /* Scan for strict decreasing gaps of length 5 */
@@ -71,7 +73,7 @@ static void ensure_cache(idx_t n)
             if (d1 > d2 && d2 > d3 && d3 > d4) {
                 if (cache_len == cache_cap) {
                     cache_cap *= 2;
-                    cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cache_cap);
                 }
                 cache[cache_len++] = (seq_t)primes[i];
             }

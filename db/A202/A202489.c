@@ -12,7 +12,8 @@
  *            every pair of previous rows, all possible next...
  * Range:     u8 none, u16 n <= 1, u32 n <= 5, u64 n <= 14, u128 n <= 31,
  *            big any n
- * Helpers:   no_forbidden_triplet
+ * Validated: standard, pass, 30 terms through n = 193 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,12 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/no_forbidden_triplet.h"
+
+/* Helper to test forbidden 3‑bit patterns */
+static inline bool no_forbidden_triplet(uint8_t a, uint8_t b, uint8_t c)
+{
+    return !((a==0 && b==0 && c==0) || (a==0 && b==1 && c==0));
+}
 
 #define COLS 7
 #define MASKS (1 << COLS)

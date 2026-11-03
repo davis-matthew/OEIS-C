@@ -13,13 +13,15 @@
  *            a(12)=242, a(13)=382, a(14)=600, a(15)=938
  * Range:     u8 n <= 12, u16 n <= 24, u32 n <= 49, u64 n <= 98, u128 n <= 196,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Pre‑computed first 15 values (index 0 unused). */
 static const seq_t init[16] = {
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
         /* Allocate enough for the first request plus some room for future calls. */
         cache_size = n + 1;
         if (cache_size < 16) cache_size = 16;
-        cache = (seq_t*)calloc(cache_size, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache) return (seq_t)0;   /* allocation failure */
         /* Load the initial known values */
         for (idx_t i = 1; i < 16; ++i) cache[i] = init[i];
@@ -56,10 +58,10 @@ seq_t a(idx_t n)
     /* Enlarge cache if necessary for a current request. */
     else if (n + 1 > cache_size) {
         idx_t new_size = n + 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) return (seq_t)0;   /* allocation failure */
         /* Zero‑initialize the newly added part. */
-        memset(tmp + cache_size, 0, (new_size - cache_size) * sizeof(seq_t));
+        mem_set(tmp + cache_size, 0, (new_size - cache_size) * sizeof(seq_t));
         cache = tmp;
         cache_size = new_size;
     }

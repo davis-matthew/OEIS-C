@@ -9,7 +9,8 @@
  *            gcd(S(n), n) where S(n) = Σ_{j=1}^n d(j)
  * Range:     u8 n <= 59, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 77 terms through n = 935 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *psum = NULL;        /* psum[i] = Σ_{j=1..i} d(j) */
 static uint32_t *divcnt = NULL;   /* divcnt[i] = d(i) */
@@ -30,7 +32,7 @@ static void ensure_prepped(idx_t n)
 
     idx_t len = n + 1;                 /* include index 0 */
     divcnt = (uint32_t *)realloc(divcnt, len * sizeof(uint32_t));
-    psum  = (seq_t *)realloc(psum,  len * sizeof(seq_t));
+    psum  = mem_resize(seq_t, psum, len);
     if (!divcnt || !psum) abort();
 
     /* initialize divisor counts to zero */

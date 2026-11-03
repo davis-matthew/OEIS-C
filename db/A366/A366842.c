@@ -9,7 +9,8 @@
  *            1
  * Range:     u8 n <= 16, u16 n <= 49, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 typedef idx_t idx_t;
 typedef seq_t seq_t;
@@ -37,13 +39,13 @@ static void init_tables(idx_t n)
     if (n <= max_n) return;                /* already initialised */
 
     /* Allocate new arrays */
-    seq_t *new_p     = (seq_t*)malloc((n + 1) * sizeof(seq_t));
-    seq_t *new_p_odd = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+    seq_t *new_p     = mem_new(seq_t, (n + 1));
+    seq_t *new_p_odd = mem_new(seq_t, (n + 1));
     int  *new_mu     = (int*)malloc((n + 1) * sizeof(int));
 
     /* Zero initialise */
-    memset(new_p,     0, (n + 1) * sizeof(seq_t));
-    memset(new_p_odd, 0, (n + 1) * sizeof(seq_t));
+    mem_set(new_p, 0, (n + 1) * sizeof(seq_t));
+    mem_set(new_p_odd, 0, (n + 1) * sizeof(seq_t));
     memset(new_mu,    0, (n + 1) * sizeof(int));
 
     /* Base cases */
@@ -99,8 +101,8 @@ static void init_tables(idx_t n)
     free(primes);
 
     /* Free old tables */
-    free(p);
-    free(p_odd);
+    mem_free(p);
+    mem_free(p_odd);
     free(mu);
 
     /* Commit new tables */

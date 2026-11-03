@@ -7,7 +7,8 @@
  * Formula:   coefficients of the 273rd cyclotomic polynomial Φ_273(x)
  * Range:     i8 n <= 144, i16 n <= 144, i32 n <= 144, i64 n <= 144,
  *            i128 n <= 144, big any n
- * Helpers:   mul_by_xm_minus_one_int32
+ * Validated: full, pass, 145 terms through n = 144 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,21 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/mul_by_xm_minus_one_int32.h"
+
+/* Multiply a polynomial by (x^m–1) and store the result in out.
+   out must have room for in_sz + m coefficients.  All inputs
+   are int32_t, and out is cleared before it is filled. */
+static void mul_by_xm_minus_one_int32(int32_t *out,
+                                      const int32_t *in, size_t in_sz,
+                                      size_t m)
+{
+    /* put zeros in the output buffer up to the needed length */
+    /* (the caller clears the buffer before each call) */
+    for (size_t i = 0; i < in_sz; ++i) {
+        out[i]        -= in[i];        /* -(x^0) term  */
+        out[i + m]    += in[i];        /* +x^m          */
+    }
+}
 
 #define MAX_POLY 300              /* ample space for intermediate results */
 #define DEG       144              /* φ(273) = 144 */

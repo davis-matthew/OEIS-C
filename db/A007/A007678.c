@@ -11,12 +11,25 @@
  *            - 78n*d_120 - 48n*d_210, for n >= 3; a(1) =...
  * Range:     u8 n <= 10, u16 n <= 36, u32 n <= 568, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   from_i128
+ * Validated: standard, pass, 61 terms through n = 9334 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/from_i128.h"
+#include <stdlib.h>
+#include <string.h>
+
+static seq_t from_i128(__int128 v)
+{
+    if (v >= -(__int128)4000000000000000000LL && v <= (__int128)4000000000000000000LL)
+        return (seq_t)(long long)v;
+    {
+        __int128 q = v / ((__int128)1 << 32);
+        long long rem = (long long)(v - q * ((__int128)1 << 32));
+        return from_i128(q) * (seq_t)4294967296LL + (seq_t)rem;
+    }
+}
 
 static const int dv[10] = {12, 18, 24, 30, 42, 60, 84, 90, 120, 210};
 static const int cf[10] = {49*24, 32*48, 19*48, -36*48, -50*48, -190*48, -78*48, -48*48, -78*48, -48*48};

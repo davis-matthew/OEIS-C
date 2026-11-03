@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 93, u16 n <= 93, u32 n <= 93, u64 n <= 93, u128 n <= 93,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 94 terms through n = 93 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,12 +16,13 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Computation: number of partitions of n into sums of squares of nonprime integers. */
 seq_t a(idx_t n)
 {
     /* Allocate array ways[0..n] */
-    seq_t *ways = (seq_t*)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *ways = mem_new(seq_t, (size_t)(n + 1));
     if (!ways) return 0;           /* fallback if allocation fails */
 
     /* Initialize DP table */
@@ -38,6 +40,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = ways[n];
-    free(ways);
+    mem_free(ways);
     return result;
 }

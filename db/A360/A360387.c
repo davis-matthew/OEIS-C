@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 196, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 103 terms through n = 9932 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Forward declaration required by the build. */
 seq_t a(idx_t n);
@@ -42,8 +44,8 @@ static void ensure_capacity(idx_t n)
     if (!cache || cap < n) {
         idx_t new_cap = (cap == 0) ? 1 : cap;
         while (new_cap < n) new_cap <<= 1;          /* double until enough   */
-        cache = (seq_t*)realloc(cache, sizeof(seq_t)*(new_cap + 1));
-        pref  = (seq_t*)realloc(pref , sizeof(seq_t)*(new_cap + 1));
+        cache = mem_resize(seq_t, cache, (new_cap + 1));
+        pref  = mem_resize(seq_t, pref, (new_cap + 1));
         cap   = new_cap;
         if (len == 0) { /* initialise the first term lazily later */
             cache[0] = (seq_t)0;

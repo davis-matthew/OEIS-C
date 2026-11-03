@@ -7,6 +7,7 @@
  * Formula:   a(n) = the n-th prime p with p ≡ 19 (mod 44)
  * Range:     u8 n <= 4, u16 n <= 334, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 60 terms through n = 988 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

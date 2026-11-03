@@ -8,7 +8,8 @@
  *            (1 + 3^(k-1)*x^k)
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 13, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   mul_small, seq_mul
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,27 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/seq_mul.h"
-#include "../utils/mul_small.h"
+#include <stdint.h>
+#include <string.h>
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 static seq_t *dp = NULL;          /* array of coefficients */
 static idx_t  computed_up_to = (idx_t)-1; /* largest n for which dp[n] is valid */
@@ -25,7 +45,7 @@ static idx_t  computed_up_to = (idx_t)-1; /* largest n for which dp[n] is valid 
 /* Recompute all coefficients up to limit (inclusive) from scratch */
 static void recompute_all(idx_t limit)
 {
-    seq_t *newdp = (seq_t *)malloc(sizeof(seq_t) * (limit + 1));
+    seq_t *newdp = mem_new(seq_t, (limit + 1));
     if (!newdp) return;          /* out of memory – caller will see 0 */
 
     for (idx_t i = 0; i <= limit; ++i) newdp[i] = 0;
@@ -66,7 +86,7 @@ static void recompute_all(idx_t limit)
     }
 
     /* Replace old array */
-    if (dp) free(dp);
+    if (dp) mem_free(dp);
     dp = newdp;
     computed_up_to = limit;
 }

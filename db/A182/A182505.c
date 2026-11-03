@@ -7,7 +7,8 @@
  * Formula:   a(n) = ((a(n-1)+a(n-2)) AND n) + n
  * Range:     u8 n <= 127, u16 n <= 8192, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 7954 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Initial values: a(0)=0, a(1)=1 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* Initialise cache with the first two terms if not yet done. */
     if (cache_len == 0) {
         cache_len = 2;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_len);
+        cache = mem_new(seq_t, cache_len);
         if (!cache)               /* allocation failure – fall back to simple */
             return 0;              /* but this case is unlikely in tests */
         cache[0] = 0;
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
 
     /* Grow cache to accommodate up to 'n'. */
     idx_t new_len = n + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_len);
+    seq_t *tmp = mem_resize(seq_t, cache, new_len);
     if (!tmp)                     /* allocation failure – return old value */
         return cache[n - 1];
     cache = tmp;

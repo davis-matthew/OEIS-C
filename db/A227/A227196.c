@@ -7,16 +7,41 @@
  * Keywords:  nonn
  * Formula:   a(n) = first i ≥ 1 with Kronecker symbol K(i,n) ≠ +1; computed
  *            by a search
- * Range:     u8 n <= 9802, u16 n <= 9802, u32 n <= 9802, u64 n <= 9802,
- *            u128 n <= 9802, big any n
- * Helpers:   gcd64, jacobi_symbol
+ * Range:     u8 n <= 20164, u16 n <= 20164, u32 n <= 20164, u64 n <= 20164,
+ *            u128 n <= 20164, big any n
+ * Validated: standard, pass, 103 terms through n = 9802 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/jacobi_symbol.h"
-#include "../utils/gcd64.h"
+#include <stdbool.h>
+#include "../utils/gcd_u64.h"
+
+/* Jacobi symbol (a|n) for odd positive n <= 2^64-1.
+   Returns 1, 0, or -1. */
+static int jacobi_symbol(uint64_t a, uint64_t n) {
+    if (n == 0) return 0;
+    a %= n;
+    if (a == 0) return 0;
+    int res = 1;
+    while (a != 0) {
+        while ((a & 1) == 0) {
+            a >>= 1;
+            uint64_t n_mod8 = n & 7;
+            if (n_mod8 == 3 || n_mod8 == 5)
+                res = -res;
+        }
+        uint64_t tmp = a;
+        a = n;
+        n = tmp;
+        if ((a & 3) == 3 && (n & 3) == 3)
+            res = -res;
+        a %= n;
+    }
+    return (n == 1) ? res : 0;
+}
 
 /* Euclidean gcd for uint64_t */
 
@@ -69,7 +94,7 @@ seq_t a(idx_t n)
     /* Scan i = 2,3,4,...  until the symbol is not +1. */
     for (uint64_t i = 2; ; ++i) {
         /* If i shares a factor with nn the symbol becomes 0. */
-        if (gcd64(i, nn) != 1)
+        if (gcd_u64(i, nn) != 1)
             return (seq_t)i;
 
         /* Compute the product of Legendre symbols over odd‑exponent primes. */

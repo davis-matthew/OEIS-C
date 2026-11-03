@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>  /* bool */
 #include <stdint.h>   /* uint8_t, uint16_t, uint32_t, uint64_t, etc. */
 #include <stdlib.h>   /* qsort */
+#include "../utils/mem.h"
 
 /* Static storage for all values that fit in seq_t.  The maximum
    possible number with these digits is 7532, so at most 64 numbers. */
@@ -70,7 +72,7 @@ static void init_sequence(void)
         gen_numbers(0, 0, len);
     }
     /* Sort numerically. */
-    qsort(seq_arr, seq_count, sizeof(seq_t), seq_cmp);
+    mem_qsort(seq_arr, seq_count, sizeof(seq_t), seq_cmp);
     initialized = true;
 }
 

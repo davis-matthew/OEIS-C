@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   has_equal_7_8
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,19 @@
  */
 
 #include <stdbool.h>
-#include "../utils/has_equal_7_8.h"
+
+/* Return true if v has equal nonzero numbers of digits 7 and 8 in base 11. */
+static inline bool has_equal_7_8(seq_t v) {
+    seq_t tmp = v;
+    int cnt7 = 0, cnt8 = 0;
+    while (tmp > 0) {
+        int d = (int)(tmp % 11);
+        if (d == 7)   cnt7++;
+        else if (d == 8) cnt8++;
+        tmp /= 11;
+    }
+    return cnt7 > 0 && cnt7 == cnt8;
+}
 
 seq_t a(idx_t n) {
     idx_t count = 0;

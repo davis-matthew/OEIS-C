@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{d|n, d<n, d odd} d^4
  * Range:     u8 n <= 9, u16 n <= 33, u32 n <= 513, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _floor_isqrt_u64, build_primes_upto
+ * Validated: standard, pass, 71 terms through n = 9806 (2026-11-01)
+ * Helpers:   build_primes_upto, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,9 @@
    If n is odd we subtract n^4 to remove the divisor n itself. */
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
 
 /* Prime list used for factorisation.  It grows as needed. */
 static uint64_t *prime_list = NULL;
@@ -47,7 +49,7 @@ static seq_t sigma_4_odd(uint64_t x)
     uint64_t remaining = x;
 
     /* Factorise x using primes up to √x. */
-    idx_t sqrt_x = _floor_isqrt_u64(x);
+    idx_t sqrt_x = isqrt(x);
     ensure_primes_up_to(sqrt_x);
 
     for (size_t i = 0; i < prime_cnt; ++i) {

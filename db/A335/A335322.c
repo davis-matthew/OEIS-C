@@ -7,13 +7,15 @@
  * Keywords:  nonn, tabl
  * Formula:   a(n) = binomial(r, floor((r + k + 1)/2)) where * r =
  *            ceil((sqrt(8n + 1) - 1) / 2) and k = n - (r-1)r/2
- * Range:     u8 n <= 36, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
+ * Range:     u8 n <= 55, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 static idx_t isqrt_u64(idx_t n)

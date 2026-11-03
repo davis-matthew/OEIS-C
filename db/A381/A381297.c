@@ -9,13 +9,15 @@
  *            )
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 7, u128 n <= 13,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 14 terms through n = 13 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/seq_pow.h"
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 static inline idx_t exp_factorial(idx_t k, idx_t p) {
     idx_t t = k;
@@ -55,7 +57,7 @@ seq_t a(idx_t n) {
         long long exp = 2 * e2n + e4n - 8 * en;
         if (p == 2) exp -= 4 * n;
         if (exp > 0) {
-            seq_t pow_part = seq_pow((seq_t)p, (idx_t)exp);
+            seq_t pow_part = ipow_idx((seq_t)p, (idx_t)exp);
             result *= pow_part;
         }
     }

@@ -9,7 +9,8 @@
  *            substring
  * Range:     u8 n <= 9, u16 n <= 99, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   reverse_str
+ * Validated: standard, pass, 76 terms through n = 9827 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,19 @@
 #include <stddef.h>
 #include <string.h>
 #include <stdlib.h>
-#include "../utils/reverse_str.h"
+
+/* reverse a string in place */
+static void reverse_str(char *s, size_t len)
+{
+    size_t i = 0, j = len - 1;
+    while (i < j) {
+        char c = s[i];
+        s[i] = s[j];
+        s[j] = c;
+        ++i;
+        --j;
+    }
+}
 
 /* convert a seq_t value to a decimal string */
 static size_t seq_to_string(seq_t x, char *buf, size_t bufsize)

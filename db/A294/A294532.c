@@ -12,13 +12,15 @@
  *            order) are fast
  * Range:     u8 n <= 8, u16 n <= 19, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 
 static seq_t *a_cache = NULL;   /* cache of a(0)..a(k) */
@@ -45,8 +47,8 @@ static void ensure_cache(idx_t n)
     if ((size_t)n < cache_len) return;     /* already computed */
 
     size_t new_len = (size_t)n + 1;
-    a_cache = (seq_t *)realloc(a_cache, new_len * sizeof(seq_t));
-    b_cache = (seq_t *)realloc(b_cache, new_len * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, new_len);
+    b_cache = mem_resize(seq_t, b_cache, new_len);
 
     size_t old_len = cache_len;          /* last index that was valid before */
     for (idx_t i = (idx_t)old_len; i <= n; ++i) {

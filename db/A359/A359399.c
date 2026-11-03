@@ -8,6 +8,7 @@
  *            a(floor(n/k))
  * Range:     u8 n <= 14, u16 n <= 110, u32 n <= 6479, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 66 terms through n = 9785 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

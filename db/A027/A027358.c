@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,11 +40,11 @@ seq_t a(idx_t n)
 
     /* Allocate DP arrays: dpAll counts all partitions; dp3 counts those
      * whose current largest part is ≡ 3 (mod 4).  Zero initialize. */
-    seq_t *dpAll = (seq_t *)calloc(N + 1, sizeof(seq_t));
-    seq_t *dp3  = (seq_t *)calloc(N + 1, sizeof(seq_t));
+    seq_t *dpAll = mem_new(seq_t, N + 1);
+    seq_t *dp3  = mem_new(seq_t, N + 1);
     if (!dpAll || !dp3) {
-        free(dpAll);
-        free(dp3);
+        mem_free(dpAll);
+        mem_free(dp3);
         return 0;             /* Out of memory – return safe default */
     }
 
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
 
     seq_t result = dp3[N];
 
-    free(dpAll);
-    free(dp3);
+    mem_free(dpAll);
+    mem_free(dp3);
     return result;
 }

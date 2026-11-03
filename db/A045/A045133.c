@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 30, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    a(1) is the first such integer (22015). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache for memoised terms.  Initially empty. */
 static seq_t *cache     = NULL;   /* raw storage for seq_t objects   */
@@ -34,7 +36,7 @@ static void push_cache(seq_t val)
 {
     if (cache_size == cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 8;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) exit(1);                 /* allocation failed */
         cache = tmp;
         cache_cap = new_cap;

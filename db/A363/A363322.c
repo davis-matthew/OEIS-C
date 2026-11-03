@@ -10,14 +10,17 @@
  *            c(x) = [gcd(n,x) = 1]
  * Range:     u8 n <= 22, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* No partitions for n < 4 */
@@ -27,8 +30,8 @@ seq_t a(idx_t n) {
     const size_t N = (size_t)n;
 
     /* Allocate arrays for coprime flags and prefix sums */
-    seq_t *carr = (seq_t *)malloc((N + 1) * sizeof(seq_t));
-    seq_t *pref = (seq_t *)malloc((N + 1) * sizeof(seq_t));
+    seq_t *carr = mem_new(seq_t, (N + 1));
+    seq_t *pref = mem_new(seq_t, (N + 1));
     if (!carr || !pref) {
         /* Allocation failed – return 0 to avoid crash */
         return 0;
@@ -72,7 +75,7 @@ seq_t a(idx_t n) {
         }
     }
 
-    free(carr);
-    free(pref);
+    mem_free(carr);
+    mem_free(pref);
     return total;
 }

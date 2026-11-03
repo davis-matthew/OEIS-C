@@ -9,15 +9,28 @@
  *            r_j = 2n/(2n-j) * C(2n-j,j) = C(2n-j,j) + C(2n-j-1,j-1)
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 13, u64 n <= 21, u128 n <= 34,
  *            big any n
- * Helpers:   c3, seq_is_bounded
+ * Validated: standard, pass, 37 terms through n = 250 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/c3.h"
-#include "../utils/seq_is_bounded.h"
+#include "../utils/mem.h"
+
+static uint64_t c3(idx_t j)
+{
+    return (uint64_t)j * (j - 1) * (j - 2) / 6;
+}
+
+static int seq_is_bounded(void)
+{
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 300; i++) x <<= 1;
+    return x == 0;
+}
 
 seq_t a(idx_t n)
 {
@@ -29,8 +42,8 @@ seq_t a(idx_t n)
     if (seq_is_bounded()) {
         /* fixed width: division-free (Pascal), exact modulo 2^w */
         idx_t N2 = 2 * n, m, k;
-        seq_t *R = (seq_t *)malloc((size_t)(N2 + 1) * sizeof(seq_t));
-        seq_t *r = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+        seq_t *R = mem_new(seq_t, (size_t)(N2 + 1));
+        seq_t *r = mem_new(seq_t, (size_t)(n + 1));
         for (k = 0; k <= N2; k++) R[k] = 0;
         for (k = 0; k <= n; k++) r[k] = 0;
         R[0] = 1;
@@ -56,8 +69,8 @@ seq_t a(idx_t n)
             c = (seq_t)c3(j) * r[j];
             if (((j - 3) & 1) == 0) P += c; else Q += c;
         }
-        free(R);
-        free(r);
+        mem_free(R);
+        mem_free(r);
         return P - Q;
     } else {
         /* arbitrary precision: exact multiplicative binomials */

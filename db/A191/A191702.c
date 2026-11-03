@@ -9,13 +9,25 @@
  *            described in OEIS A191702
  * Range:     u8 n <= 10, u16 n <= 28, u32 n <= 105, u64 n <= 406,
  *            u128 n <= 1596, big any n
- * Helpers:   pow5_idx
+ * Validated: standard, pass, 66 terms through n = 5049 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow5_idx.h"
+
+static seq_t pow5_idx(idx_t exp) {
+    seq_t result = 1;
+    seq_t base   = 5;
+    while (exp) {
+        if (exp & 1U)
+            result *= base;
+        base *= base;
+        exp >>= 1U;
+    }
+    return result;
+}
 
 /* Multiply arithmetic in seq_t is overloaded by the build system.
    We implement a power‑of‑five helper that works for any seq_t. */

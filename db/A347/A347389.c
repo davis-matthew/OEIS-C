@@ -11,7 +11,8 @@
  *            is the derivative of the primorial base expansion of d
  * Range:     u8 n <= 29, u16 n <= 115, u32 n <= 777, u64 n <= 2309,
  *            u128 n <= 2309, big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 88 terms through n = 2106 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/seq_pow.h"   /* seq_pow(seq_t base, idx_t exp) */
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 
 /* --------------------------------------------------------------------
    Prime table and primorial table (generated once on first call)
@@ -110,7 +112,7 @@ static seq_t derivative_A276086(uint64_t d)
     seq_t N = 1;
     for (size_t i = 0; i <= k; ++i) {
         if (digs[i]) {
-            seq_t p_pow = seq_pow((seq_t)prime_list[i], (idx_t)digs[i]);
+            seq_t p_pow = ipow_idx((seq_t)prime_list[i], (idx_t)digs[i]);
             N *= p_pow;
         }
     }

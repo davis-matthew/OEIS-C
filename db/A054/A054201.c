@@ -8,12 +8,14 @@
  *            a(n) = (n-1)! * sum_{k=1..n} k^k/k! )
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 385 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Internal helper: integer exponentiation in the seq_t type. */
 static seq_t pow_seq_uint(idx_t base, idx_t exp)
@@ -40,7 +42,7 @@ static void ensure_a_capacity(idx_t need)
     if (need <= a_cap) return;
     idx_t new_cap = (a_cap == 0) ? 1 : a_cap;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
     a_cache = tmp;
     a_cap = new_cap;
 }

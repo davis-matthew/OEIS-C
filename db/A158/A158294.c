@@ -13,7 +13,8 @@
  *            the sequence on demand by testing successive...
  * Range:     u8 n <= 3, u16 n <= 9, u32 n <= 504, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, pow_int
+ * Validated: standard, pass, 67 terms through n = 9847 (2026-11-03)
+ * Helpers:   factor_u64, ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
 
 static seq_t *cache_a = NULL;            /* cached a(n) values */
 static size_t cache_len = 0;             /* number of cached values */
@@ -35,7 +38,7 @@ static void ensure_cache_capacity(size_t new_cap)
     if (new_cap <= cache_cap) return;
     size_t cap = cache_cap ? cache_cap : 4;
     while (cap < new_cap) cap <<= 1;
-    seq_t *new_arr = (seq_t *)realloc(cache_a, cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, cache_a, cap);
     if (!new_arr) abort();
     cache_a = new_arr;
     cache_cap = cap;
@@ -69,10 +72,10 @@ seq_t a(idx_t n)
             idx_t exp = (idx_t)exps[i];
 
             /* numerator: p^(2*exp+2) - 1 */
-            seq_t num = pow_int(p, 2 * exp + 2) - 1;
+            seq_t num = ipow_idx(p, 2 * exp + 2) - 1;
 
             /* denominator: p^2 - 1 */
-            seq_t den = pow_int(p, 2) - 1;
+            seq_t den = ipow_idx(p, 2) - 1;
 
             /* term = num / den (exact division) */
             sigma2 *= (num / den);

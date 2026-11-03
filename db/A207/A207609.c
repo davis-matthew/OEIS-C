@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -45,6 +46,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
     /* generate missing rows up to row r */
     while (rows_count < r) {
         idx_t new_len = rows_count + 1;   /* length of the new row */
-        seq_t *new_row = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_row = mem_new(seq_t, new_len);
         if (!new_row) {
             /* allocation failed – terminate the program as this is a fatal error */
             abort();
@@ -103,7 +105,7 @@ seq_t a(idx_t n)
         seq_t **rows_new = (seq_t **)
             realloc(rows, (rows_count + 1) * sizeof(seq_t *));
         if (!rows_new) {
-            free(new_row);
+            mem_free(new_row);
             abort();
         }
         rows = rows_new;

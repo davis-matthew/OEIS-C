@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 99 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
         /* For the first digit: 1*10 / 482 = 0  (digit 0)
            remainder becomes 10. */
         cap = 1;
-        digits = (seq_t *)malloc(cap * sizeof(seq_t));
+        digits = mem_new(seq_t, cap);
         digits[0] = 0;
         len   = 1;
         rem   = 10 % 482;    /* 10 */
@@ -44,10 +46,10 @@ seq_t a(idx_t n)
     if ((size_t)n + 1 > cap) {
         size_t new_cap = cap ? cap << 1 : 1024;
         if (new_cap < (size_t)n + 1) new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(digits, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, digits, new_cap);
         if (!tmp) {
             /* allocation failed; fall back to minimal array */
-            tmp = (seq_t *)malloc((size_t)n + 1 * sizeof(seq_t));
+            tmp = mem_new(seq_t, ((size_t)n + 1 * sizeof(seq_t)) / sizeof(seq_t));
             cap = 0;   /* we are not keeping the array any more */
         } else {
             digits = tmp;

@@ -9,6 +9,7 @@
  *            on d mod 6: g = 0,5,4,6,4,5 for d == 0,1,2,3,4,5 (mod 6)
  * Range:     u8 n <= 32, u16 n <= 5354, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 70 terms through n = 9459 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

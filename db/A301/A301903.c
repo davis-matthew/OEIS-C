@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 19, u64 n <= 35, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    Initial values: a(1)=1, a(2)=3, a(3)=2, a(4)=8, a(5)=12, a(6)=64 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
 
     /* first call: allocate storage for indices 0..6 and set initial values */
     if (dp == NULL) {
-        dp = (seq_t *)malloc((size_t)7 * sizeof(seq_t));   /* indices 0..6 */
+        dp = mem_new(seq_t, (size_t)7);   /* indices 0..6 */
         if (dp == NULL)
             return 0;               /* allocation failure */
 
@@ -52,9 +54,9 @@ seq_t a(idx_t n)
     /* extend the array to include index n */
     size_t new_len = (size_t)(n + 1);                   /* elements 0..n */
     if (new_len > (size_t)(dp_len + 1)) {
-        seq_t *tmp = (seq_t *)realloc(dp, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, new_len);
         if (tmp == NULL) {                            /* realloc failed */
-            free(dp);
+            mem_free(dp);
             dp    = NULL;
             dp_len = 0;
             return 0;

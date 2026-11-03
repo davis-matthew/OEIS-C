@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 20, u32 n <= 45, u64 n <= 95, u128 n <= 195,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 56 terms through n = 1000 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_cap = 0;   /* allocated size */
@@ -34,7 +36,7 @@ static size_t cache_len = 0;   /* number of computed entries (cache[0..len-1]) *
 static void init_cache(void)
 {
     if (cache != NULL) return;
-    cache = (seq_t*)malloc(8 * sizeof(seq_t));
+    cache = mem_new(seq_t, 8);
     if (!cache) return;   /* memory allocation failed */
     cache_cap = 8;
     /* seed the first eight a(n) */
@@ -58,7 +60,7 @@ static void ensure_cache(idx_t n)
     /* increase capacity */
     size_t new_cap = cache_cap;
     while (new_cap <= (size_t)n) new_cap <<= 1;
-    seq_t *new_cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) return;   /* allocation failed – leave cache unchanged */
     cache = new_cache;
     cache_cap = new_cap;

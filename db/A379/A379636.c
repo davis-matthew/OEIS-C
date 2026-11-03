@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 274, u16 n <= 5050, u32 n <= 5050, u64 n <= 5050,
  *            u128 n <= 5050, big any n
- * Helpers:   ceil2div3
+ * Validated: standard, pass, 87 terms through n = 4443 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
    T(n,k) is computed by parity formulas from the OEIS entry. */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/ceil2div3.h"
+
+static seq_t ceil2div3(seq_t x) { return (x * 2 + 2) / 3; }
 
 static void find_row_col(idx_t n, idx_t *row, idx_t *col) {
     idx_t r = 1;

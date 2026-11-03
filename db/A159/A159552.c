@@ -7,13 +7,15 @@
  * Formula:   a(0)=1, a(1)=7, a(n)=7*a(n-1)-162*(n-1)*a(n-2) for n>=2
  * Range:     i8 n <= 2, i16 n <= 3, i32 n <= 6, i64 n <= 13, i128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 415 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* This function computes the OEIS sequence A159552 (numerators of Hermite(n,7/18)*9^n) */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     /* If cache is empty, initialise with space for at least two terms */
     if (cache == NULL) {
         cap = (n + 1 >= 2) ? (n + 1) : 2;
-        cache = (seq_t*)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)7;
         sz = 2;                     /* we have a(0) and a(1) stored */
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
         size_t new_cap = cap;
         while ((idx_t)(n + 1) > (idx_t)new_cap)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cap   = new_cap;
     }

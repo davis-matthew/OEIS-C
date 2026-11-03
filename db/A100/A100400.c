@@ -11,13 +11,30 @@
  *            (0‑based column)
  * Range:     u8 n <= 6, u16 n <= 21, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   binom_big
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* The binomial helper is provided by the build system: */
-#include "../utils/binom_big.h"
+#include <stdint.h>
+
+static seq_t binom_big(seq_t m, seq_t k)
+{
+    if (k > m) return 0;
+    /* use symmetry to reduce k */
+    if (k > m - k) k = m - k;
+    /* if k fits into uint64_t, iterate */
+    if (k > (seq_t)UINT64_MAX) return 0; /* too large to compute iteratively */
+    seq_t res = 1;
+    for (idx_t i = 1; i <= (idx_t)k; ++i)
+    {
+        res = res * (m - k + (seq_t)i);
+        res = res / (seq_t)i;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {

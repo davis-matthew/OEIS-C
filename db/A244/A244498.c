@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 22, u64 n <= 283, u128 n <= 1000,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 45 terms through n = 967 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,14 +21,15 @@
  *                             53382*n^4 + 25095*n^5 + 7896*n^6 + 1620*n^7 +
  *                             198*n^8 + 11*n^9) / 7560.
  */
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n) {
     static const int coeff[7] = {1, 26, 131, 212, 131, 26, 1};
     seq_t result = 0;
     for (idx_t k = 0; k < 7; ++k) {
         idx_t N = n + 9 - k;          /* compute n + 9 - k   */
-        seq_t term = binom(N, 9);     /* binom(N,9) uses seq_t arithmetic */
+        seq_t term = binomial(N, 9);     /* binom(N,9) uses seq_t arithmetic */
         term = term * (seq_t)coeff[k];
         result = result + term;
     }

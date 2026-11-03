@@ -9,6 +9,7 @@
  *            A091194(m) is the number of abundant integers ≤ m
  * Range:     u8 n <= 22, u16 n <= 382, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
+ * Validated: standard, pass, 98 terms through n = 1930 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

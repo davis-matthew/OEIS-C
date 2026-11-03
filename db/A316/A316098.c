@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 4975, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 9797 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static uint32_t *primes = NULL;
 static size_t primes_count = 0;
@@ -114,8 +116,7 @@ seq_t a(idx_t n)
         if (abundant) {
             if (prev_abundant != 0 && cur == prev_abundant + 4) {
                 /* Store prev_abundant in the cache. */
-                seq_t *tmp = (seq_t *)realloc(cache,
-                                              (cache_len + 1) * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, (cache_len + 1));
                 if (!tmp)
                     abort();
                 cache = tmp;

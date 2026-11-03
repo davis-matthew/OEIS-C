@@ -7,7 +7,8 @@
  * Formula:   a(n) = A338038(A002808(n))
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* ---------- internal state ----------------------------------------- */
 static seq_t *composites = NULL;        /* array of composite numbers   */
@@ -59,7 +61,7 @@ static void ensure_composites(idx_t n)
             if (num >= 2 && spf[num] != (uint32_t)num) { /* composite */
                 if (composites_cap <= composites_cnt) {
                     composites_cap = composites_cap ? composites_cap * 2 : 16;
-                    seq_t *tmp = (seq_t *)realloc(composites, composites_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, composites, composites_cap);
                     if (!tmp) abort();
                     composites = tmp;
                 }

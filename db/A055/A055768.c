@@ -8,7 +8,8 @@
  *            primorial number (OEIS A055768)
  * Range:     u8 n <= 1065, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 9364 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* --- parameters ----------------------------------------------------------- */
 #define SIEVE_LIMIT 2000000          /* > 10 000th prime (104 729) + margin */
@@ -70,7 +72,7 @@ static void init_sieve(void)
 
     /* initialise cache */
     cache_cap = 16;
-    cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     cache[0] = 0;           /* unused slot for a(0) */
     cache_len = 1;          /* currently only index 0 stored */
 }
@@ -88,7 +90,7 @@ seq_t a(idx_t n)
         idx_t new_cap = cache_cap;
         while (new_cap <= n)
             new_cap <<= 1;            /* double until large enough */
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 

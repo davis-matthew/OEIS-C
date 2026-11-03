@@ -8,14 +8,17 @@
  *            of 2 in n and σ₂(k) is the sum of squares of all divisors of k
  * Range:     u8 n <= 4, u16 n <= 16, u32 n <= 2304, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, pow_seq_t
+ * Validated: standard, pass, 66 terms through n = 9473 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/factor_u64.h"   /* factor_u64() */
-#include "../utils/pow_seq_t.h"   /* pow_seq_t() */
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -46,10 +49,10 @@ seq_t a(idx_t n)
         seq_t p   = (seq_t)pr[i];
         int   k   = (int)exp[i];
         int   pow_exp = 2 * (k + 1);       /* exponent of p in numerator   */
-        seq_t num = pow_seq_t(p, pow_exp);
+        seq_t num = ipow_idx(p, pow_exp);
         num -= 1;                         /* p^(2(k+1)) – 1 */
 
-        seq_t den = pow_seq_t(p, 2);
+        seq_t den = ipow_idx(p, 2);
         den -= 1;                         /* p^2 – 1 */
 
         seq_t term = num / den;           /* exact division */

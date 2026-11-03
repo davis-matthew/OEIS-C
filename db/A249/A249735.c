@@ -8,6 +8,7 @@
  * Formula:   a(n) = ∏_{p^e | (2n-1)} next_prime(p)^e
  * Range:     u8 n <= 31, u16 n <= 1093, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 91 terms through n = 9190 (2026-11-01)
  * Helpers:   factor_u64, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,8 +18,9 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/factor_u64.h"   /* factor_u64(uint64_t n,uint64_t *pr,uint64_t *ex,size_t *cnt) */
-#include "../utils/next_prime.h"   /* next_prime(uint64_t start) returns the next prime after start */
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+#include "../utils/next_prime.h"
 
 /* Multiply a base to a power e (e >= 0), result stored in seq_t */
 static seq_t pow_seq(seq_t base, unsigned int e)

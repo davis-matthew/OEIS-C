@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 189, u16 n <= 8192, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 7208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Sequence A228082: numbers that can be written as k + popcount(k) for some nonnegative integer k */
 
@@ -47,7 +49,7 @@ static void extend_to_n(idx_t n)
         idx_t k_end   = k_start + batch;
 
         size_t buf_size = (size_t)(k_end - k_start);
-        seq_t *buf = (seq_t *)malloc(buf_size * sizeof(seq_t));
+        seq_t *buf = mem_new(seq_t, buf_size);
         if (!buf) exit(1);
 
         size_t buf_len = 0;
@@ -67,11 +69,11 @@ static void extend_to_n(idx_t n)
         }
 
         /* Sort the buffer */
-        qsort(buf, buf_len, sizeof(seq_t), compare_seq);
+        mem_qsort(buf, buf_len, sizeof(seq_t), compare_seq);
 
         /* Remove duplicates inside the buffer */
         size_t uniq_len = 0;
-        seq_t *uniq_buf = (seq_t *)malloc(buf_len * sizeof(seq_t));
+        seq_t *uniq_buf = mem_new(seq_t, buf_len);
         if (!uniq_buf) exit(1);
 
         for (size_t i = 0; i < buf_len; ++i)
@@ -82,7 +84,7 @@ static void extend_to_n(idx_t n)
 
         /* Merge the existing sequence with the new unique values */
         size_t merged_len = seq_len + uniq_len;
-        seq_t *merged = (seq_t *)malloc(merged_len * sizeof(seq_t));
+        seq_t *merged = mem_new(seq_t, merged_len);
         if (!merged) exit(1);
 
         size_t i = 0, j = 0, k = 0;
@@ -102,12 +104,12 @@ static void extend_to_n(idx_t n)
 
         /* Resize to the actual number of unique elements */
         seq_len = k;
-        seq = (seq_t *)realloc(merged, seq_len * sizeof(seq_t));
+        seq = mem_resize(seq_t, merged, seq_len);
         if (!seq) exit(1);
 
         /* Clean up */
-        free(buf);
-        free(uniq_buf);
+        mem_free(buf);
+        mem_free(uniq_buf);
 
         /* Prepare for next batch */
         k_last = k_end;

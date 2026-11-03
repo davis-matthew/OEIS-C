@@ -8,12 +8,13 @@
  * Formula:   a(n) = ceil((n-R(n^2))^2/(n+R(n^2)))
  * Range:     u8 n <= 3, u16 n <= 11, u32 n <= 426, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   revdecimal
+ * Validated: standard, pass, 73 terms through n = 9893 (2026-11-01)
+ * Helpers:   reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/revdecimal.h"
+#include "../utils/reverse_digits.h"
 /* where R(x) is the decimal digit reversal of x. */
 
 seq_t a(idx_t n)
@@ -25,7 +26,7 @@ seq_t a(idx_t n)
     seq_t sq = sn * sn;
 
     /* Reverse the decimal digits of n^2. */
-    seq_t rev = revdecimal(sq);
+    seq_t rev = reverse_digits(sq);
 
     /* Compute the absolute difference |n - rev|. */
     seq_t diff = (sn >= rev) ? (sn - rev) : (rev - sn);

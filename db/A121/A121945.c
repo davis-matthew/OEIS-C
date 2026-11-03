@@ -8,7 +8,8 @@
  * Formula:   a(n) = Sum_{k = 1..n} (k!)^(n-k+1) (offset 1)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 8, u64 n <= 11, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,10 +18,11 @@
 
 /* Helper macro for casting realloc to the appropriate type in C or C++ */
 #ifdef __cplusplus
-#  define RELOC(ptr, size) reinterpret_cast<seq_t*>(realloc(ptr, size))
+#  define RELOC(ptr, size) mem_resize(seq_t, ptr, (size) / sizeof(seq_t))
 #else
-#  define RELOC(ptr, size) ((seq_t*)realloc(ptr, size))
+#  define RELOC(ptr, size) (mem_resize(seq_t, ptr, (size) / sizeof(seq_t)))
 #endif
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     /* Ensure factorial array covers [0..n] */
     if (fact == NULL) {
         fact_cap = (size_t)n + 1;
-        fact = (seq_t*)malloc(fact_cap * sizeof(seq_t));
+        fact = mem_new(seq_t, fact_cap);
         if (!fact) exit(1);
         fact[0] = (seq_t)1;
         for (idx_t i = 1; i <= n; ++i)

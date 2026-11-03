@@ -9,7 +9,8 @@
  *            same number of 1-bits in their binary representation
  * Range:     u8 n <= 31, u16 n <= 115, u32 n <= 392, u64 n <= 1472,
  *            u128 n <= 5434, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 9889 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static inline idx_t popcount_u64(idx_t x)
 {
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     size_t total_cells = (size_t)(max_k + 1) * (size_t)(n + 1);
     seq_t *buffer;
 #ifdef __cplusplus
-    buffer = static_cast<seq_t*>(calloc(total_cells, sizeof(seq_t)));
+    buffer = mem_new(seq_t, total_cells);
 #else
     buffer = (seq_t*)calloc(total_cells, sizeof(seq_t));
 #endif
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
 #else
     dp = (seq_t**)malloc((size_t)(max_k + 1) * sizeof(seq_t*));
 #endif
-    if (!dp) { free(buffer); return (seq_t)0; }
+    if (!dp) { mem_free(buffer); return (seq_t)0; }
 
     for (idx_t k = 0; k <= max_k; ++k) {
         dp[k] = buffer + (size_t)k * (size_t)(n + 1);
@@ -83,6 +85,6 @@ seq_t a(idx_t n)
 
     /* clean up */
     free(dp);
-    free(buffer);
+    mem_free(buffer);
     return result;
 }

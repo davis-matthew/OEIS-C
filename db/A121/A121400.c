@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,6 +36,7 @@
 */
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache of triangle rows */
@@ -60,7 +62,7 @@ seq_t a(idx_t n) {
         if (i < r + 1 && rows[i] != NULL) continue;  /* already computed */
 
         /* allocate space for row i (size i+1) */
-        seq_t *row = (seq_t *)malloc(sizeof(seq_t) * (i + 1));
+        seq_t *row = mem_new(seq_t, (i + 1));
         if (!row) exit(1);  /* abort on bad alloc */
 
         if (i == 0) {

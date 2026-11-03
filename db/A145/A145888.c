@@ -11,12 +11,14 @@
  *            ((r-k+1)(r-k+2)) for k >= 2
  * Range:     u8 n <= 16, u16 n <= 37, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *fact = NULL;      /* fact[i] = i!  (0 <= i <= fact_cap-1) */
 static size_t fact_cap = 0;     /* current capacity of 'fact' */
@@ -36,7 +38,7 @@ static void ensure_factorial(idx_t n)
     }
 
     size_t old_cap = fact_cap;
-    seq_t *new_fact = (seq_t *)realloc(fact, new_cap * sizeof(seq_t));
+    seq_t *new_fact = mem_resize(seq_t, fact, new_cap);
     if (!new_fact) {
         exit(1);  /* allocation failed */
     }

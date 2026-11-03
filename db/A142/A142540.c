@@ -7,6 +7,7 @@
  * Formula:   a(n) is the nth prime ≡ 10 (mod 53)
  * Range:     u8 none, u16 n <= 118, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 56 terms through n = 935 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

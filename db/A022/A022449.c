@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 47, u16 n <= 5963, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 8932 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ---------- static storage for primes and composites ---------- */
 static uint32_t *primes = NULL;     /* primes[0] = 2, primes[1] = 3, ... */
@@ -34,7 +36,7 @@ static void rebuild_tables(size_t need_comp, size_t need_prime)
 {
     /* free previous arrays */
     free(primes);
-    free(composites);
+    mem_free(composites);
     primes = NULL;
     composites = NULL;
     primes_len = 0;
@@ -83,7 +85,7 @@ static void rebuild_tables(size_t need_comp, size_t need_prime)
             primes_len = cnt_prime;
 
             /* Allocate and fill composites array (index 0 unused) */
-            composites = (seq_t *)malloc((cnt_comp + 1) * sizeof(seq_t));
+            composites = mem_new(seq_t, (cnt_comp + 1));
             if (!composites) exit(1);
             composites[0] = 0;  /* unused */
             size_t ci = 1;

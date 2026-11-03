@@ -11,7 +11,8 @@
  *            – 2q is prime
  * Range:     u8 n <= 12, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ---------- 64‑bit deterministic Miller–Rabin primality test ---------- */
 static inline uint64_t modpow(uint64_t a, uint64_t e, uint64_t mod)
@@ -107,7 +109,7 @@ seq_t a(idx_t n)
         p = 2;                     /* first prime */
         q = next_prime(p);         /* successive prime */
         terms_cap = 16;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
         terms_used = 0;
         initialized = true;
     }
@@ -116,7 +118,7 @@ seq_t a(idx_t n)
     if ((size_t)n > terms_cap) {
         size_t new_cap = terms_cap;
         while ((size_t)n > new_cap) new_cap <<= 1;
-        terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, new_cap);
         terms_cap = new_cap;
     }
 

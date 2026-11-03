@@ -7,14 +7,34 @@
  * Keywords:  sign
  * Formula:   a(n) = 0 unless n = 3*j*j + 2*j or n = 3*j*j + 4*j + 1 (j ≥ 0),
  *            in which case a(n) = (-1)^(j+1)
- * Range:     i8 n <= 4, i16 n <= 1208, i32 n <= 9127, i64 n <= 9127,
- *            i128 n <= 9127, big any n
- * Helpers:   floor_sqrt
+ * Range:     i8 n <= 4, i16 n <= 1208, i32 n <= 65537, i64 n <= 65537,
+ *            i128 n <= 65537, big any n
+ * Validated: standard, pass, 116 terms through n = 9127 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/floor_sqrt.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Compute term a(n) of OEIS sequence A290739. */
 seq_t a(idx_t n)

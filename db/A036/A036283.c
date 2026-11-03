@@ -8,6 +8,7 @@
  * Formula:   a(n) = denominator of ((2^(2n-1)-1) * B_{2n} / n)
  * Range:     u8 n <= 5, u16 n <= 17, u32 n <= 35, u64 n <= 209,
  *            u128 n <= 1259, big any n
+ * Validated: standard, pass, 59 terms through n = 9652 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 3502, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 9918 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- configuration ----------
  * The following limit is enough to generate the first 20000 terms.
@@ -45,7 +47,7 @@ static void grow_seq(size_t new_cap) {
     if (new_cap <= seq_cap) return;
     if (seq_cap == 0) seq_cap = 16;
     while (seq_cap < new_cap) seq_cap <<= 1;
-    seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, seq_cap);
     if (!seq) abort();
 }
 

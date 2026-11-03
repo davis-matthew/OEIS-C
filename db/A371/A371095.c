@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 91, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   odd_part_of_three_plus_one
+ * Validated: partial, pass, 91 terms through n = 91 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,14 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/odd_part_of_three_plus_one.h"
+
+/* odd part of 3*val+1, computed using a wider type to avoid overflow. */
+static inline seq_t odd_part_of_three_plus_one(seq_t val)
+{
+    unsigned long long t = (unsigned long long)val * 3 + 1;
+    while ((t & 1ULL) == 0) t >>= 1;
+    return (seq_t)t;
+}
 
 /* find minimal m such that m*(m+1)/2 >= n.  Uses binary search with 128‑bit
    arithmetic so no overflow occurs for any 64‑bit n. */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 526, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_primes_upto, build_spf, update_factor
+ * Validated: standard, pass, 94 terms through n = 905 (2026-11-01)
+ * Helpers:   build_primes_upto, build_spf
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,22 @@
 #include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 #include "../utils/build_spf.h"
-#include "../utils/update_factor.h"
+
+static inline void update_factor(uint64_t x, int sign,
+                                 int *exp, const idx_t *prime_index,
+                                 const idx_t *spf, size_t pcount, int *cnt)
+{
+    while (x > 1)
+    {
+        idx_t p = spf[x];                 /* smallest prime factor of x   */
+        size_t ip = prime_index[p];       /* index of p in the prime list  */
+        int before = exp[ip];
+        exp[ip] += sign;
+        if (before == 0 && exp[ip] != 0) (*cnt)++;
+        else if (before != 0 && exp[ip] == 0) (*cnt)--;
+        x /= p;
+    }
+}
 
 static seq_t compute_a(idx_t n)
 {

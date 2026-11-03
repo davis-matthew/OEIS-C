@@ -8,14 +8,20 @@
  *            ascending)
  * Range:     u8 n <= 11, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   is_bigint
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_bigint.h"
+#include "../utils/mem.h"
+
+/* true if seq_t is not a built‑in unsigned type (assume big integer class) */
+static inline int is_bigint(void) {
+    return sizeof(seq_t) > 8;
+}
 
 /* node used in the min‑heap */
 typedef struct {
@@ -54,7 +60,7 @@ static const seq_t MAX_VAL = (seq_t)-1;   /* maximum unsigned value of seq_t */
 static void heap_push(node_t n) {
     if (heap_len == heap_cap) {
         size_t new_cap = heap_cap ? heap_cap * 2 : 4;
-        node_t *tmp = (node_t *)realloc(heap, new_cap * sizeof(node_t));
+        node_t *tmp = mem_resize(node_t, heap, new_cap);
         heap = tmp;
         heap_cap = new_cap;
     }
@@ -96,7 +102,7 @@ static void ensure_pow6(idx_t x) {
         if (pow6_cap <= pow6_len) {
             size_t nc = pow6_cap ? pow6_cap * 2 : 4;
             while (nc <= pow6_len) nc <<= 1;
-            seq_t *tmp = (seq_t *)realloc(pow6_arr, nc * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, pow6_arr, nc);
             pow6_arr = tmp; pow6_cap = nc;
         }
         pow6_arr[pow6_len] = nv;
@@ -112,7 +118,7 @@ static void ensure_powy(idx_t y) {
             if (powy_cap <= powy_len) {
                 size_t nc = powy_cap ? powy_cap * 2 : 4;
                 while (nc <= powy_len) nc <<= 1;
-                seq_t *tmp = (seq_t *)realloc(powy_arr, nc * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, powy_arr, nc);
                 powy_arr = tmp; powy_cap = nc;
             }
             powy_arr[powy_len] = nv;
@@ -129,7 +135,7 @@ static void ensure_powy(idx_t y) {
         if (powy_cap <= powy_len) {
             size_t nc = powy_cap ? powy_cap * 2 : 4;
             while (nc <= powy_len) nc <<= 1;
-            seq_t *tmp = (seq_t *)realloc(powy_arr, nc * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, powy_arr, nc);
             powy_arr = tmp; powy_cap = nc;
         }
         powy_arr[powy_len] = r;
@@ -161,16 +167,16 @@ seq_t a(idx_t n) {
 
         /* pow6[0] = 1, powy[0] = 0 */
         pow6_cap = 4; pow6_len = 1;
-        pow6_arr = (seq_t *)malloc(pow6_cap * sizeof(seq_t));
+        pow6_arr = mem_new(seq_t, pow6_cap);
         pow6_arr[0] = (seq_t)1;
 
         powy_cap = 4; powy_len = 1;
-        powy_arr = (seq_t *)malloc(powy_cap * sizeof(seq_t));
+        powy_arr = mem_new(seq_t, powy_cap);
         powy_arr[0] = (seq_t)0;
 
         /* heap initial node (0,0) */
         heap_cap = 4; heap_len = 1;
-        heap = (node_t *)malloc(heap_cap * sizeof(node_t));
+        heap = mem_new(node_t, heap_cap);
         heap[0].sum = (seq_t)1;
         heap[0].x   = 0;
         heap[0].y   = 0;
@@ -186,7 +192,7 @@ seq_t a(idx_t n) {
         if (seq_len == 0 || val != seq_arr[seq_len - 1]) {
             if (seq_len == seq_cap) {
                 size_t nc = seq_cap ? seq_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(seq_arr, nc * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, seq_arr, nc);
                 seq_arr = tmp; seq_cap = nc;
             }
             seq_arr[seq_len++] = val;

@@ -8,13 +8,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Sequence: Numbers k whose decimal expansion starts with the sum of the last two digits of k */
 
@@ -71,7 +73,7 @@ static void ensure_capacity(size_t new_len)
     while (new_cap < new_len)
         new_cap <<= 1;          /* double until sufficient */
 
-    seq_t *new_ptr = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, terms, new_cap);
     terms = new_ptr;
     terms_cap = new_cap;
 }

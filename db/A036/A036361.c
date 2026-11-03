@@ -7,7 +7,8 @@
  * Formula:   a(n) = binom(n,2) * (2*n-3)^(n-4) (for n >= 4)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 10, u64 n <= 15, u128 n <= 25,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: standard, pass, 35 terms through n = 95 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,9 @@
 #include <stdbool.h>
 
 /* The helper functions binomial and big_pow are provided by the build. */
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     seq_t exp = (seq_t)(n - 4);
 
     /* Compute (2*n-3)^(n-4) using the provided big_pow helper */
-    seq_t powv = big_pow(base, exp);
+    seq_t powv = ipow(base, exp);
 
     /* Final result */
     return bin * powv;

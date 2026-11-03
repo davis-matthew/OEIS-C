@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 42, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   equal_runs
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,35 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/equal_runs.h"
+#include "../utils/mem.h"
+
+static bool equal_runs(seq_t x)
+{
+    if (x == 0) return false;          /* not a positive integer */
+    unsigned odd = 0, even = 0;        /* counters for run parities */
+    unsigned len = 0;                  /* current run length   */
+    int prev = -1;                     /* previous digit, -1 means none yet */
+
+    /* Process all octal digits of x, starting with the least significant */
+    while (x > 0) {
+        unsigned d = (unsigned)(x % 8);
+        x /= 8;
+        if (d == prev) {
+            len++;                     /* extend current run */
+        } else {                      /* new run starts */
+            if (prev != -1) {          /* finalize previous run */
+                if ((len & 1) == 0) even++; else odd++;
+            }
+            prev = d;
+            len = 1;
+        }
+    }
+    /* finalize the last run (if any) */
+    if (prev != -1) {
+        if ((len & 1) == 0) even++; else odd++;
+    }
+    return odd == even;
+}
 
 seq_t a(idx_t n)
 {
@@ -36,7 +65,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (cap == 0) {
         cap = 64;
-        cache = (seq_t*)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
     }
 
     /* generate terms until we have at least n of them */
@@ -44,7 +73,7 @@ seq_t a(idx_t n)
         if (equal_runs(next)) {
             if (have == cap) {      /* double the capacity when needed */
                 cap *= 2;
-                cache = (seq_t*)realloc(cache, cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cap);
             }
             cache[have++] = next;   /* store the term */
         }

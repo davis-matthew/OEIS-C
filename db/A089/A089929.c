@@ -7,6 +7,7 @@
  * Formula:   a(n) = phi(n/gcd(n,2))
  * Range:     u8 n <= 256, u16 n <= 400, u32 n <= 400, u64 n <= 400,
  *            u128 n <= 400, big any n
+ * Validated: standard, pass, 87 terms through n = 400 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

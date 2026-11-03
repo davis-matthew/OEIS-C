@@ -10,7 +10,8 @@
  *            lazily with a min‑heap over all primes up to a hard‑coded limit
  * Range:     u8 none, u16 none, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* -------------------------------------------------------------------------- */
 /*  Helper: modular exponentiation for 64‑bit modulus, using 128‑bit multiplication. */
@@ -79,7 +81,7 @@ static size_t heap_size = 0;
 /* min‑heap insertion */
 static void heap_push(heap_node_t node)
 {
-    if (!heap) heap = (heap_node_t *)malloc(20000 * sizeof(heap_node_t)); /* sufficient for our limit */
+    if (!heap) heap = mem_new(heap_node_t, 20000); /* sufficient for our limit */
     heap[heap_size] = node;
     size_t i = heap_size++;
     while (i > 0) {
@@ -158,7 +160,7 @@ static void init_sequence(void)
 
     /* ------------------ 4. Allocate initial cache ------------------ */
     seq_cap = 1024;
-    seq_cache = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+    seq_cache = mem_new(seq_t, seq_cap);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -167,7 +169,7 @@ static void seq_append(seq_t val)
 {
     if (seq_len == seq_cap) {
         seq_cap *= 2;
-        seq_cache = (seq_t *)realloc(seq_cache, seq_cap * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, seq_cap);
     }
     seq_cache[seq_len++] = val;
 }

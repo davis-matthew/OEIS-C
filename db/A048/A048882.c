@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 9, u32 n <= 35, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Use the helper for integer square root if desired
    (not needed here because we use a linear search for the row). */
@@ -38,10 +40,10 @@ seq_t a(idx_t n)
 
     /* Allocate two rows (previous and current).  Size r+1 is enough for all
        indices that may be accessed during the DP. */
-    seq_t *prev = (seq_t *)calloc((size_t)r + 1, sizeof(seq_t));
-    seq_t *cur  = (seq_t *)calloc((size_t)r + 1, sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, (size_t)r + 1);
+    seq_t *cur  = mem_new(seq_t, (size_t)r + 1);
     if (!prev || !cur) {         /* allocation failure – return 0 */
-        free(prev); free(cur);
+        mem_free(prev); mem_free(cur);
         return (seq_t)0;
     }
 
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
 
     /* Build rows up to r */
     for (idx_t row = 1; row < r; ++row) {
-        memset(cur, 0, ((size_t)r + 1) * sizeof(seq_t));   /* cur[0] stays 0 */
+        mem_set(cur, 0, ((size_t)r + 1) * sizeof(seq_t));   /* cur[0] stays 0 */
         for (idx_t col = 1; col <= row + 1; ++col) {
             seq_t term1 = prev[col]   * (seq_t)(4 * (4 * row + col));
             seq_t term2 = prev[col-1] * (seq_t)col;
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = prev[m];
-    free(prev);
-    free(cur);
+    mem_free(prev);
+    mem_free(cur);
     return result;
 }

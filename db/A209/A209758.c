@@ -12,12 +12,14 @@
  *            1
  * Range:     u8 n <= 32, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,8 +36,8 @@ seq_t a(idx_t n)
     idx_t offset = n - prev_tri - 1;   /* 0‑based index within the row */
 
     /* Arrays for u and v polynomials.  Start with row 1. */
-    seq_t *u = (seq_t *)malloc(sizeof(seq_t));
-    seq_t *v = (seq_t *)malloc(sizeof(seq_t));
+    seq_t *u = mem_new(seq_t, 1);
+    seq_t *v = mem_new(seq_t, 1);
     if (!u || !v) return 0;        /* allocation failure */
     u[0] = 1;
     v[0] = 1;
@@ -47,11 +49,11 @@ seq_t a(idx_t n)
         size_t new_len_v = (size_t)k;      /* v has k coefficients */
         size_t new_len_u = (size_t)(k - 1);/* u has k-1 coefficients */
 
-        seq_t *v_next = (seq_t *)malloc(sizeof(seq_t) * new_len_v);
-        seq_t *u_next = (seq_t *)malloc(sizeof(seq_t) * new_len_u);
+        seq_t *v_next = mem_new(seq_t, new_len_v);
+        seq_t *u_next = mem_new(seq_t, new_len_u);
         if (!v_next || !u_next) {
-            free(u);
-            free(v);
+            mem_free(u);
+            mem_free(v);
             return 0;                    /* allocation failure */
         }
 
@@ -74,8 +76,8 @@ seq_t a(idx_t n)
         }
 
         /* Replace old arrays. */
-        free(u);
-        free(v);
+        mem_free(u);
+        mem_free(v);
         u = u_next;
         v = v_next;
         len_u = new_len_u;
@@ -85,7 +87,7 @@ seq_t a(idx_t n)
     seq_t result = v[offset];
 
     /* Clean up. */
-    free(u);
-    free(v);
+    mem_free(u);
+    mem_free(v);
     return result;
 }

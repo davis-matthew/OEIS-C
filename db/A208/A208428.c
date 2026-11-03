@@ -9,6 +9,7 @@
  * Formula:   a(n) = 27*2^(2*n-5) for n>2, with a(1)=2, a(2)=14, a(3)=54
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 32, u128 n <= 64,
  *            big any n
+ * Validated: standard, pass, 39 terms through n = 210 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

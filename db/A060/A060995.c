@@ -8,12 +8,14 @@
  * Formula:   a(n) = 4*a(n-1) - 2*a(n-2); a(1)=0, a(2)=2
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 19, u64 n <= 37, u128 n <= 73,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 176 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache for memoisation */
 static seq_t *seq_cache = NULL;
@@ -26,11 +28,11 @@ static void ensure_cache_capacity(idx_t need)
     if (need <= cache_cap) return;
     idx_t new_cap = cache_cap ? cache_cap : 2;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *new_ptr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_new(seq_t, new_cap);
     if (!new_ptr) abort();
     if (seq_cache) {
         for (idx_t i = 0; i < cache_size; ++i) new_ptr[i] = seq_cache[i];
-        free(seq_cache);
+        mem_free(seq_cache);
     }
     seq_cache = new_ptr;
     cache_cap = new_cap;

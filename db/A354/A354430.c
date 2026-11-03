@@ -8,7 +8,8 @@
  * Formula:   a(n) = Σ_{k=0}^{n-1} C(n-1,k) * nonprime(2k+1) (nonprime(1)=1)
  * Range:     u8 n <= 5, u16 n <= 12, u32 n <= 27, u64 n <= 58, u128 n <= 121,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 3063 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static storage for nonprime numbers */
 static seq_t *nonprimes = NULL;   /* array holding nonprimes up to a certain limit */
@@ -53,7 +55,7 @@ static void ensure_nonprimes(idx_t need)
 
         if (cnt >= need) {
             /* Allocate and fill the array of nonprimes */
-            seq_t *new_arr = (seq_t *)malloc((size_t)cnt * sizeof(seq_t));
+            seq_t *new_arr = mem_new(seq_t, (size_t)cnt);
             if (!new_arr) {
                 free(is_comp);
                 exit(EXIT_FAILURE);
@@ -63,7 +65,7 @@ static void ensure_nonprimes(idx_t need)
                 if (i == 1 || is_comp[i])
                     new_arr[idx++] = (seq_t)i;
             }
-            free(nonprimes);
+            mem_free(nonprimes);
             nonprimes = new_arr;
             nonprime_cnt = cnt;
             free(is_comp);

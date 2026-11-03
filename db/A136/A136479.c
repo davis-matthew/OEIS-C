@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 3, u64 n <= 3, u128 n <= 3,
  *            big any n
- * Helpers:   _floor_isqrt_u64, factor_u64, mult_seq, sigma_of
+ * Validated: partial, pass, 3 terms through n = 3 (2026-11-03)
+ * Helpers:   factor_u64, isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,10 +25,30 @@
 #include <stdbool.h>
 #include <string.h>
 
-#include "../utils/_floor_isqrt_u64.h"
-#include "../utils/sigma_of.h"
 #include "../utils/factor_u64.h"
-#include "../utils/mult_seq.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
+
+/* ---------- primitive abundant test ---------- */
+static seq_t mult_seq(seq_t a, seq_t b)
+{
+    return (seq_t)((__int128)a * b);
+}
 
 /* ---------- prime sieve ---------- */
 static uint64_t *prime_list = NULL;
@@ -96,10 +117,10 @@ static void heap_expand(void)
 {
     if (heap_cap == 0) {
         heap_cap = 16;
-        heap = (Node *)malloc(heap_cap * sizeof(Node));
+        heap = mem_new(Node, heap_cap);
     } else {
         heap_cap <<= 1;
-        heap = (Node *)realloc(heap, heap_cap * sizeof(Node));
+        heap = mem_resize(Node, heap, heap_cap);
     }
     if (!heap) abort();
 }
@@ -145,7 +166,7 @@ static void heap_pop(Node *out)
 static void heap_add_new_x(uint32_t x_idx)
 {
     uint64_t x = prime_list[x_idx];
-    uint64_t bound = _floor_isqrt_u64(2 * x - 1);
+    uint64_t bound = isqrt(2 * x - 1);
     if (bound < 3) return;            /* no odd y possible */
     size_t max_y_idx = upper_bound_prime_idx(bound);
     if (max_y_idx <= 1) return;       /* no y >=3 */
@@ -166,7 +187,7 @@ static void res_space(size_t need)
     if (res_len + need <= res_cap) return;
     size_t new_cap = res_cap ? res_cap * 2 : 16;
     while (res_len + need > new_cap) new_cap <<= 1;
-    res = (seq_t *)realloc(res, new_cap * sizeof(seq_t));
+    res = mem_resize(seq_t, res, new_cap);
     if (!res) abort();
     res_cap = new_cap;
 }
@@ -247,7 +268,7 @@ seq_t a(idx_t n)
             Node *peek = &heap[0];
             while (next_x_idx < prime_count) {
                 uint64_t x = prime_list[next_x_idx];
-                uint64_t bound = _floor_isqrt_u64(2 * x - 1);
+                uint64_t bound = isqrt(2 * x - 1);
                 if (bound < 3) { next_x_idx++; continue; }
 
                 seq_t min_n = (seq_t)((__int128)x * x + x + (__int128)9);

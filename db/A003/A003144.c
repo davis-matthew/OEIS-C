@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   search; build the tribonacci word by self-expansion under a->ab,
  *            b->ac, c->a and record the positions of a (memoized)
- * Range:     u8 n <= 139, u16 n <= 9717, u32 n <= 9717, u64 n <= 9717,
- *            u128 n <= 9717, big any n
+ * Range:     u8 n <= 139, u16 n <= 10609, u32 n <= 10609, u64 n <= 10609,
+ *            u128 n <= 10609, big any n
+ * Validated: standard, pass, 84 terms through n = 9717 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

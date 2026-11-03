@@ -11,6 +11,7 @@
  *            0 ≤ n < 1024; for larger n it returns 0
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 2, u64 n <= 1023, u128 n <= 1023,
  *            big any n
+ * Validated: full, pass, 1024 terms through n = 1023 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

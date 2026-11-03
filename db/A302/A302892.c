@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 9, u64 n <= 18, u128 n <= 34,
  *            big any n
- * Helpers:   _valid_neighbors
+ * Validated: standard, pass, 33 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,52 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/_valid_neighbors.h"
+#include "../utils/mem.h"
+
+/* test whether column "curr" satisfies the neighbour condition
+   given the left column "prev" and right column "next".
+   For missing neighbours (at an edge) the flags left_missing/right_missing
+   must be set to true and will be ignored. */
+static inline bool _valid_neighbors(uint32_t prev,
+                                    uint32_t curr,
+                                    uint32_t next,
+                                    bool left_missing,
+                                    bool right_missing)
+{
+    for (int r = 0; r < 5; ++r) {
+        int cur_bit = (curr >> r) & 1;
+        int eq_cnt = 0;
+
+        /* left neighbour (same row) */
+        if (!left_missing)
+            eq_cnt += ((prev >> r) & 1) == cur_bit;
+
+        /* right neighbour (same row) */
+        if (!right_missing)
+            eq_cnt += ((next >> r) & 1) == cur_bit;
+
+        /* up‑left */
+        if (!left_missing && r > 0)
+            eq_cnt += ((prev >> (r - 1)) & 1) == cur_bit;
+
+        /* down‑left */
+        if (!left_missing && r < 4)
+            eq_cnt += ((prev >> (r + 1)) & 1) == cur_bit;
+
+        /* up‑right */
+        if (!right_missing && r > 0)
+            eq_cnt += ((next >> (r - 1)) & 1) == cur_bit;
+
+        /* down‑right */
+        if (!right_missing && r < 4)
+            eq_cnt += ((next >> (r + 1)) & 1) == cur_bit;
+
+        if (!(eq_cnt == 0 || eq_cnt == 2 || eq_cnt == 3 ||
+              eq_cnt == 4 || eq_cnt == 5))
+            return false;
+    }
+    return true;
+}
 
 static bool _tables_ready = false;
 
@@ -88,7 +134,7 @@ seq_t a(idx_t n)
     /* DP arrays: dp[prev][curr] holds number of ways for the last two columns. */
     static seq_t dp[32][32];
     static seq_t ndp[32][32];
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
 
     /* Initialise from the left boundary: only need to consider the first two columns. */
     for (uint32_t col0 = 0; col0 < 32; ++col0) {
@@ -102,7 +148,7 @@ seq_t a(idx_t n)
 
     /* Expand to the right for the remaining columns. */
     for (idx_t step = 0; step < n - 2; ++step) {
-        memset(ndp, 0, sizeof(ndp));
+        mem_set(ndp, 0, sizeof(ndp));
         for (uint32_t prev = 0; prev < 32; ++prev) {
             for (uint32_t curr = 0; curr < 32; ++curr) {
                 seq_t val = dp[prev][curr];
@@ -115,7 +161,7 @@ seq_t a(idx_t n)
                 }
             }
         }
-        memcpy(dp, ndp, sizeof(dp));
+        mem_copy(dp, ndp, sizeof(dp));
     }
 
     /* Final right‑boundary check. */

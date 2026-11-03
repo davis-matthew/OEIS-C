@@ -10,16 +10,18 @@
  *            polynomial of the second kind: B(n,k) = (n!/k!) * Σ_{j=0..k}
  *            C(k,j) * C(7*j,n) * (-1)^(k-j) The index n with offset 1 is
  *            converted to the pair (r,k) by solving T(r-1) < n...
- * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 35, u64 n <= 36, u128 n <= 36,
+ * Range:     u8 n <= 4, u16 n <= 11, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/binomial.h"  /* seq_t binomial(idx_t n, idx_t k); */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *fact_cache = NULL;
 static idx_t fact_cache_size = 0;
@@ -30,7 +32,7 @@ ensure_fact_cache(idx_t n)
 {
     if (n < fact_cache_size) return;
     idx_t new_size = n + 1;
-    seq_t *new_cache = (seq_t *)realloc(fact_cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, fact_cache, new_size);
     if (!new_cache) abort();
     /* Compute missing factorials. */
     for (idx_t i = fact_cache_size; i <= n; ++i) {

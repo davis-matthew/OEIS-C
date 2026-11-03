@@ -9,7 +9,8 @@
  *            x^2 + x + x*y + y + y^2 for some integers x and y
  * Range:     u8 n <= 56, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdbool.h>
 #include <math.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static data used by the sequence builder */
 static idx_t  current_limit = 0;       /* current sieve limit */
@@ -99,8 +101,8 @@ static void ensure_sequence(idx_t n)
 
         /* --- collect sequence values ---------------------------------- */
         if (seq_values)
-            free(seq_values);
-        seq_values = (seq_t *)malloc((prime_count + 1) * sizeof(seq_t));
+            mem_free(seq_values);
+        seq_values = mem_new(seq_t, (prime_count + 1));
         if (!seq_values)
             exit(EXIT_FAILURE);
 

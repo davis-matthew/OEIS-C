@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 14, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   digit_sum, seq_mul, seq_realloc
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-01)
+ * Helpers:   digit_sum
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,27 @@
 #include <stddef.h>    /* size_t */
 #include <stdbool.h>   /* bool */
 
-#include "../utils/digit_sum.h"   /* seq_t digit_sum(seq_t v) */
-#include "../utils/seq_mul.h"     /* seq_t seq_mul(seq_t a, seq_t b) */
-#include "../utils/seq_realloc.h" /* seq_t *seq_realloc(seq_t *old, size_t old_cap, size_t new_cap) */
+#include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+#include "../utils/digit_sum.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 /* memoised cache of found terms */
 static seq_t *cache   = NULL;

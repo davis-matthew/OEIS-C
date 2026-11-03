@@ -7,7 +7,8 @@
  * Formula:   a(n) = ∑_{k=1..n} ∑_{d=1..k} (k mod d)
  * Range:     u8 n <= 16, u16 n <= 103, u32 n <= 4171, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 9827 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
  */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (computed == 0) {
         cache_len = 2;                 /* allocate space for indices 0 and 1 */
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_len);
+        cache = mem_new(seq_t, cache_len);
         if (!cache) return 0;         /* out of memory – unlikely in test harness */
         cache[0] = 0;
         cache[1] = 0;                 /* a(1) is 0, will be corrected when computing for k = 1 */
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     if (n >= cache_len) {
         idx_t new_len = cache_len;
         while (new_len <= n) new_len <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_len);
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) return 0;           /* out of memory */
         cache = tmp;
         cache_len = new_len;

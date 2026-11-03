@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 39, u16 n <= 4892, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 9331 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Ensure a dynamic array of uint64_t has at least need elements. */
 static void ensure_cap_uint64(uint64_t **arr, size_t *cap, size_t need)
@@ -35,7 +37,7 @@ static void ensure_cap_seq(seq_t **arr, size_t *cap, size_t need)
     if (*cap >= need) return;
     size_t new_cap = (*cap) ? (*cap) << 1 : 16;
     while (new_cap < need) new_cap <<= 1;
-    *arr = (seq_t *)realloc(*arr, new_cap * sizeof(**arr));
+    *arr = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
     *cap = new_cap;
 }
 

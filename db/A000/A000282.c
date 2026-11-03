@@ -11,7 +11,8 @@
  *            ], f(L) = Sum_{d|L} d*c_d (c_d = number of d-cyc...
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 10, u128 n <= 16,
  *            big any n
- * Helpers:   bitlen64
+ * Validated: partial, pass, 16 terms through n = 16 (2026-11-01)
+ * Helpers:   bit_length_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/bitlen64.h"
+#include "../utils/bit_length_u64.h"
 
 static int BL;
 static uint32_t *S_, *T1, *T2, *T3, *CNT, *FACT;
@@ -164,8 +165,8 @@ static void rec(idx_t rem, idx_t maxp) {
 static void compute(idx_t N) {
     idx_t m, j, n;
     uint64_t W = 3;
-    for (j = 2; j <= N; j++) W += bitlen64(j);
-    W += 2 * N * (uint64_t)bitlen64(2 * N);
+    for (j = 2; j <= N; j++) W += bit_length_u64(j);
+    W += 2 * N * (uint64_t)bit_length_u64(2 * N);
     BL = (int)(2 * (W / 32 + 1) + 4);
 
     S_ = (uint32_t *)malloc(sizeof(uint32_t) * BL);

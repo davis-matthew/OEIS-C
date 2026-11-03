@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   cube_ok
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,21 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/cube_ok.h"
+#include "../utils/mem.h"
+
+/* Return true iff all decimal digits of x are ≤ 6 and at least one digit is 6. */
+static bool cube_ok(seq_t x)
+{
+    bool has6 = false;
+    while (x > 0)
+    {
+        unsigned d = (unsigned)(x % 10);
+        if (d > 6) return false;
+        if (d == 6) has6 = true;
+        x /= 10;
+    }
+    return has6;
+}
 
 seq_t a(idx_t n)
 {
@@ -39,7 +54,7 @@ seq_t a(idx_t n)
             if (len + 1 > cap)
             {
                 size_t new_cap = (cap == 0) ? 16 : (cap << 1);
-                void *p = realloc(table, new_cap * sizeof(seq_t));
+                void *p = mem_resize(seq_t, table, new_cap);
                 if (!p) abort();
                 table = (seq_t*)p;
                 cap   = new_cap;

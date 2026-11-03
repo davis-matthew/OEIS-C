@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{d|n} phi(d)^(n-d)
  * Range:     u8 n <= 9, u16 n <= 13, u32 n <= 20, u64 n <= 32, u128 n <= 50,
  *            big any n
- * Helpers:   big_pow, build_primes_upto, phi
+ * Validated: standard, pass, 49 terms through n = 565 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,9 +16,10 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/phi.h"
-#include "../utils/big_pow.h"
+#include <stdlib.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/ipow.h"
+#include "../utils/totient.h"
 
 /* Recursive helper to enumerate all divisors of n */
 static void gen_divisors(size_t pos, uint64_t cur,
@@ -93,8 +95,8 @@ extern seq_t a(idx_t n)
     seq_t result = 0;
     for (size_t i = 0; i < div_cnt; ++i) {
         uint64_t d = divisors[i];
-        seq_t phi_d = phi((idx_t)d);
-        seq_t term = big_pow(phi_d, (seq_t)(n - d));
+        seq_t phi_d = totient((idx_t)d);
+        seq_t term = ipow(phi_d, (seq_t)(n - d));
         result += term;
     }
     return result;

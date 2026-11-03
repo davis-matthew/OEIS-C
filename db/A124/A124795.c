@@ -8,6 +8,7 @@
  * Formula:   a(n) = (k1+2*k2+...)! / ((k1!*k2!*...)*(1^k1*2^k2*...))
  * Range:     u8 n <= 12, u16 n <= 22, u32 n <= 40, u64 n <= 78, u128 n <= 150,
  *            big any n
+ * Validated: standard, pass, 67 terms through n = 2736 (2026-11-01)
  * Helpers:   factor_u64, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 #include "../utils/is_prime.h"
 

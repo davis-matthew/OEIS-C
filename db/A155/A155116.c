@@ -8,12 +8,14 @@
  *            a(2)=8
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 17, u64 n <= 33, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 931 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Global cache for memoised values. */
 static seq_t *cache = NULL;      /* pointer to stored terms */
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* Ensure at least three slots for the base values. */
         cache_len = 3;
-        cache = (seq_t *)calloc(cache_len, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         if (!cache) abort();            /* memory allocation failure */
 
         cache[0] = (seq_t)1;
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= cache_len) {
         size_t new_len = cache_len;
         while (new_len <= (size_t)n) new_len <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) abort();             /* memory allocation failure */
         cache = tmp;
         cache_len = new_len;

@@ -10,6 +10,7 @@
  *            a(16n+{3,7,9,13}) = a(2n+1)+2, * a(16n+5) = a(4n+1)+2
  * Range:     u8 n <= 1024, u16 n <= 1024, u32 n <= 1024, u64 n <= 1024,
  *            u128 n <= 1024, big any n
+ * Validated: standard, pass, 98 terms through n = 1009 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,7 +10,8 @@
  *            e_i > 2, or • there are distinct i, j with p_i^e_i ≡ 1 (mod p_j)
  * Range:     u8 n <= 156, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   factor
+ * Validated: standard, pass, 83 terms through n = 950 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,23 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/factor.h"
+#include <stddef.h>
+#include "../utils/mem.h"
+
+/* --------------------------------------------------------------- */
+static void factor(uint64_t n, uint64_t *pr, uint64_t *exp, size_t *cnt)
+{
+    size_t c = 0;
+    for (uint64_t p = 2; p*p <= n; ++p) {
+        if (n % p == 0) {
+            pr[c] = p; exp[c] = 0;
+            while (n % p == 0) { n /= p; ++exp[c]; }
+            ++c;
+        }
+    }
+    if (n > 1) { pr[c] = n; exp[c] = 1; ++c; }
+    *cnt = c;
+}
 
 /* test whether a number can be the order of a non‑Abelian group */
 static bool is_non_abelian(uint64_t m)
@@ -67,7 +84,7 @@ seq_t a(idx_t n)
         /* grow cache if necessary */
         if (used == cap) {
             cap = cap ? cap * 2 : 16;
-            terms = (seq_t *)realloc(terms, cap * sizeof(seq_t));
+            terms = mem_resize(seq_t, terms, cap);
         }
         terms[used++] = (seq_t)next;
     }

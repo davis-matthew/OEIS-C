@@ -9,6 +9,7 @@
  *            d_i * 11^i, where d_i are the decimal digits of a(n)
  * Range:     u8 n <= 34, u16 n <= 56, u32 n <= 75, u64 n <= 93, u128 n <= 111,
  *            big any n
+ * Validated: standard, pass, 71 terms through n = 189 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -12,23 +12,26 @@
  *            for p ≡ 3 (mod 4) : contribution = (n/p) * e - fo...
  * Range:     u8 n <= 63, u16 n <= 2048, u32 n <= 2048, u64 n <= 2048,
  *            u128 n <= 2048, big any n
- * Helpers:   factor_u64, int_sqrt
+ * Validated: standard, pass, 90 terms through n = 1938 (2026-11-01)
+ * Helpers:   factor_u64, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/int_sqrt.h"
+#include "../utils/isqrt.h"
 
 static uint64_t sum_ab(int64_t p)
 {
     /* Return a+b for the unique pair a,b>0 with a^2+b^2 = p (p ≡ 1 mod 4). */
-    int64_t lim = int_sqrt(p);
+    int64_t lim = isqrt(p);
     for (int64_t a = 1; a <= lim; ++a) {
         int64_t rem = p - a * a;
-        int64_t b = int_sqrt(rem);
+        int64_t b = isqrt(rem);
         if (b >= 1 && b * b == rem) {
             return (uint64_t)(a + b);
         }

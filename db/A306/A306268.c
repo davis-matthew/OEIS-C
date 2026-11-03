@@ -10,13 +10,15 @@
  *            factors. a(1) = 1. All other values are computed recursively
  * Range:     u8 n <= 85, u16 n <= 85, u32 n <= 85, u64 n <= 85, u128 n <= 85,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 85 terms through n = 85 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 
 static idx_t floor_sqrt(idx_t n)
@@ -55,7 +57,7 @@ static void ensure_g(idx_t need)
     if (need < g_cap)
         return;
     idx_t new_cap = (need + 1) * 2;
-    g_cache = (seq_t *)realloc(g_cache, new_cap * sizeof(seq_t));
+    g_cache = mem_resize(seq_t, g_cache, new_cap);
     g_done  = (bool  *)realloc(g_done , new_cap * sizeof(bool));
     for (idx_t i = g_cap; i < new_cap; ++i)
         g_done[i] = false;
@@ -104,7 +106,7 @@ static void ensure_a(idx_t need)
     if (need < a_cap)
         return;
     idx_t new_cap = (need + 1) * 2;
-    a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, new_cap);
     a_done  = (bool  *)realloc(a_done , new_cap * sizeof(bool));
     for (idx_t i = a_cap; i < new_cap; ++i)
         a_done[i] = false;

@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -32,7 +33,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/binomial.h"   /* seq_t binomial(idx_t n, idx_t k) */
+#include "../utils/binomial.h"
 
 /* Computes the m‑th Pell number (A000129).  m≥1.  */
 static seq_t pell(idx_t m)

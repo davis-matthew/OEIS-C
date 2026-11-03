@@ -10,12 +10,14 @@
  *            (OEIS A064183)
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 9, u64 n <= 11, u128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 14 terms through n = 13 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache for computed values */
@@ -32,7 +34,7 @@ seq_t a(idx_t n) {
         idx_t new_len = n + 1;
         if (new_len < 64)            /* avoid too small allocations */
             new_len = 64;
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         cache = tmp;
         /* Initialise new slots to zero (uncomputed) */
         for (idx_t i = old_len; i < new_len; ++i)

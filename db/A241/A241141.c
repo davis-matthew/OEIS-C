@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   share_digit
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,29 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/share_digit.h"
+#include "../utils/mem.h"
+
+/* Test whether two decimal numbers share at least one digit. */
+static bool share_digit(seq_t a, seq_t b)
+{
+    unsigned int maskA = 0, maskB = 0;
+
+    if (a == 0) maskA |= 1u << 0;
+    while (a > 0) {
+        unsigned int d = (unsigned int)(a % 10);
+        maskA |= 1u << d;
+        a /= 10;
+    }
+
+    if (b == 0) maskB |= 1u << 0;
+    while (b > 0) {
+        unsigned int d = (unsigned int)(b % 10);
+        maskB |= 1u << d;
+        b /= 10;
+    }
+
+    return (maskA & maskB) != 0;
+}
 
 static seq_t *cache = NULL;   /* cached terms */
 static size_t cacheCap = 0;   /* capacity of the cache */
@@ -29,11 +52,11 @@ static seq_t lastChecked = 0; /* last integer examined */
 static void grow_cache(void)
 {
     size_t newCap = (cacheCap == 0) ? 4 : cacheCap * 2;
-    seq_t *newCache = (seq_t *)malloc(newCap * sizeof(seq_t));
+    seq_t *newCache = mem_new(seq_t, newCap);
     if (!newCache) return; /* allocation failed – caller will not get more terms */
     if (cache) {
-        memcpy(newCache, cache, cacheSize * sizeof(seq_t));
-        free(cache);
+        mem_copy(newCache, cache, cacheSize * sizeof(seq_t));
+        mem_free(cache);
     }
     cache = newCache;
     cacheCap = newCap;

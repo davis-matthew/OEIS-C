@@ -7,6 +7,7 @@
  * Formula:   a(n) = Product_{d|n, d<n} ( 2*d - sigma(d) )
  * Range:     i8 n <= 44, i16 n <= 104, i32 n <= 489, i64 n <= 1759,
  *            i128 n <= 7479, big any n
+ * Validated: standard, pass, 111 terms through n = 8384 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

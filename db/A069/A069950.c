@@ -9,7 +9,8 @@
  *            ∏_{j=1}^{10} (1-x^j)
  * Range:     u8 n <= 13, u16 n <= 41, u32 n <= 187, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 817 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,12 +19,13 @@
    (1+x^2)(1+x^5)(1+x^8) and convolves it with the
    partition numbers into parts at most 10.  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate array for partition numbers p[0..n] */
     size_t sz = (size_t)(n + 1);
-    seq_t *p = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *p = mem_new(seq_t, sz);
     if (!p) {
         /* In the unlikely event that allocation fails, return 0 */
         return 0;
@@ -50,6 +52,6 @@ seq_t a(idx_t n)
             res = res + p[n - s];
     }
 
-    free(p);
+    mem_free(p);
     return res;
 }

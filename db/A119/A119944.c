@@ -8,7 +8,8 @@
  *            p^k, in which case a(n) = lcm(1..n) * (p – 1)
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 21, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   build_primes_upto, seq_mul, seq_pow
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,15 @@
 #include <stddef.h>
 #include <stdlib.h>
 
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/seq_pow.h"
-#include "../utils/seq_mul.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Static prime table, rebuilt only when a larger limit is needed. */
 static uint64_t *primes      = NULL;
@@ -84,7 +91,7 @@ static seq_t lcm_upto(idx_t n)
             pow *= q;
         }
         if (e > 0) {
-            seq_t p_to_e = seq_pow((seq_t)q, e);   /* q^e */
+            seq_t p_to_e = ipow_idx((seq_t)q, e);   /* q^e */
             result = seq_mul(result, p_to_e);
         }
     }

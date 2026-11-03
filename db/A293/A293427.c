@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 73, u16 n <= 3398, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   no_adjacent_zeros
+ * Validated: standard, pass, 90 terms through n = 8844 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,22 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/no_adjacent_zeros.h"
+#include "../utils/mem.h"
+
+/* ----------  Test for consecutive zeros in binary form  ---------- */
+static inline bool no_adjacent_zeros(idx_t x)
+{
+    int prev_bit = 1;          /* leading 1 is the msb   */
+    x >>= 1;                   /* skip msb               */
+    while (x) {
+        int bit = x & 1;
+        if (bit == 0 && prev_bit == 0)
+            return false;
+        prev_bit = bit;
+        x >>= 1;
+    }
+    return true;
+}
 
 /* ----------  Smallest Prime Factor table  ---------- */
 static uint32_t *spf = NULL;      /* array of SPF values   */
@@ -100,7 +116,7 @@ seq_t a(idx_t n)
         /* Store the value, growing the cache if necessary */
         if (cache_len == cache_cap) {
             cache_cap = (cache_cap == 0) ? 1024 : cache_cap * 2;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
             if (!cache)
                 abort();
         }

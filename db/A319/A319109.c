@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 13, i16 n <= 32, i32 n <= 50, i64 n <= 50, i128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Global cache of coefficients and sequence values */
 static idx_t   maxN = 0;   /* largest index currently computed   */
@@ -39,8 +41,8 @@ static seq_t *A  = NULL;   /* a(n) values (size = maxN+1)      */
 static void recompute_until(idx_t N)
 {
     /* allocate new arrays */
-    seq_t *Cnew = (seq_t*)malloc((N + 1) * sizeof(seq_t));
-    seq_t *Anew = (seq_t*)malloc((N + 1) * sizeof(seq_t));
+    seq_t *Cnew = mem_new(seq_t, (N + 1));
+    seq_t *Anew = mem_new(seq_t, (N + 1));
     if (!Cnew || !Anew) exit(1);
 
     /* zero initialize Cnew */
@@ -66,8 +68,8 @@ static void recompute_until(idx_t N)
     }
 
     /* free old cache and store new pointers */
-    free(C);
-    free(A);
+    mem_free(C);
+    mem_free(A);
     C   = Cnew;
     A   = Anew;
     maxN = N;

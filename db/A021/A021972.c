@@ -9,6 +9,7 @@
  *            a(8)=7, a(9)=8, a(10)=5, a(11)=1, a(12)=2, a(13)=3, a(14)=9
  * Range:     u8 n <= 98, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
+ * Validated: partial, pass, 99 terms through n = 98 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

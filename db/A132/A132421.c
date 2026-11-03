@@ -11,7 +11,8 @@
  *            m=n+1-k are found, then lcm of all such integers
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 15, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   gcd_seq, kth_coprime, lcm_seq
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,35 @@
 /* Note: seq_t and idx_t are defined by the build system.  No external libraries
    are used aside from the standard C headers. */
 #include <stdint.h>
-#include "../utils/gcd_seq.h"
-#include "../utils/kth_coprime.h"
-#include "../utils/lcm_seq.h"
+#include "../utils/gcd.h"
+
+/* Return the k-th positive integer that is coprime to m (m ≥ 1). */
+static seq_t kth_coprime(idx_t k, idx_t m)
+{
+    seq_t count = 0;
+    seq_t num   = 1;            /* candidate integer */
+    seq_t sm    = (seq_t)m;     /* cast once for speed */
+
+    while (1)
+    {
+        if (gcd(num, sm) == 1)
+        {
+            ++count;
+            if (count == k)
+                return num;
+        }
+        ++num;
+    }
+}
+
+/* Least common multiple of two seq_t values. */
+static seq_t lcm_seq(seq_t a, seq_t b)
+{
+    seq_t g = gcd(a, b);
+    if (g == 0)
+        return 0;
+    return (a / g) * b;
+}
 
 /* Greatest common divisor for seq_t using the Euclidean algorithm. */
 

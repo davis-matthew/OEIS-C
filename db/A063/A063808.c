@@ -7,6 +7,7 @@
  * Formula:   a(0) = 1, a(1) = 4, a(2) = 8, a(n) = 6 for all n >= 3
  * Range:     u8 n <= 92, u16 n <= 92, u32 n <= 92, u64 n <= 92, u128 n <= 92,
  *            big any n
+ * Validated: partial, pass, 93 terms through n = 92 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

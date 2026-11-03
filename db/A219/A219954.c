@@ -9,7 +9,8 @@
  *            of m. * This implements the exact definition of OEIS A219954
  * Range:     u8 n <= 18, u16 n <= 267, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_power_of_two_u64
+ * Validated: standard, pass, 62 terms through n = 9998 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,12 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/is_power_of_two_u64.h"
+#include "../utils/mem.h"
+
+/* Test whether a 64‑bit integer is a power of two (>=1). */
+static inline int is_power_of_two_u64(uint64_t x) {
+    return (x & (x - 1)) == 0;
+}
 
 /* Basic popcount for 64‑bit unsigned integers. */
 static inline unsigned popcnt_u64(uint64_t x) {
@@ -48,10 +54,10 @@ static void ensure_cache(idx_t n) {
     /* Grow or create the cache array.  We keep index 0 unused. */
     seq_t *new_cache = NULL;
     if (cache == NULL) {
-        new_cache = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        new_cache = mem_new(seq_t, (n + 1));
         if (new_cache == NULL) exit(EXIT_FAILURE); /* safe‑guard */
     } else {
-        new_cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        new_cache = mem_resize(seq_t, cache, (n + 1));
         if (new_cache == NULL) exit(EXIT_FAILURE);
     }
     cache = new_cache;

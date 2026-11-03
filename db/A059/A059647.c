@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd, is_prime, mod_pow
+ * Validated: standard, pass, 70 terms through n = 984 (2026-11-03)
+ * Helpers:   gcd, is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,12 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <string.h>
 #include "../utils/gcd.h"
+#include "../utils/is_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -53,14 +57,14 @@ seq_t a(idx_t n)
         uint64_t exp = (p - 1ULL) / (uint64_t)g;
 
         /* Test the non‑residue condition. */
-        seq_t r = mod_pow((seq_t)2, exp, (seq_t)p);
+        seq_t r = powmod((seq_t)2, exp, (seq_t)p);
         if (r != (seq_t)1)
         {
             /* Grow the cache if necessary. */
             if (pl_cap == pl_cnt)
             {
                 size_t new_cap = pl_cap ? pl_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(plist, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, plist, new_cap);
                 if (!tmp) abort();   /* allocation failure */
                 plist = tmp;
                 pl_cap = new_cap;

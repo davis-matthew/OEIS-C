@@ -9,15 +9,17 @@
  *            binomial(n+1,2k+1)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 8, u64 n <= 13, u128 n <= 23,
  *            big any n
- * Helpers:   binomial, seq_pow
+ * Validated: standard, pass, 34 terms through n = 346 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* a(0) = 1 */
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     seq_t n_sq_minus = n_seq * n_seq - (seq_t)1;   /* n^2-1 */
 
     seq_t power_term = (seq_t)1;                   /* (n^2-1)^k      */
-    seq_t power_n    = seq_pow(n_seq, n);          /* n^n            */
+    seq_t power_n    = ipow_idx(n_seq, n);          /* n^n            */
     seq_t sum        = (seq_t)0;
 
     for (idx_t k = 0; k <= n / 2; ++k) {

@@ -11,7 +11,8 @@
  *            bignum, so intermediates never overflow seq_t
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 20, u64 n <= 37, u128 n <= 70,
  *            big any n
- * Helpers:   a005648_addmul, a005648_div, a005648_mul, a005648_phi
+ * Validated: standard, pass, 42 terms through n = 1660 (2026-11-01)
+ * Helpers:   totient_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,10 +20,50 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a005648_addmul.h"
-#include "../utils/a005648_div.h"
-#include "../utils/a005648_mul.h"
-#include "../utils/a005648_phi.h"
+#include "../utils/totient_u64.h"
+
+static void a005648_addmul(uint32_t *s, size_t *slen, const uint32_t *c, size_t clen, uint64_t m) {
+    uint64_t carry = 0;
+    size_t i = 0;
+    for (; i < clen; i++) {
+        uint64_t si = (i < *slen) ? s[i] : 0;
+        uint64_t t = (uint64_t)c[i] * m + si + carry;
+        s[i] = (uint32_t)t;
+        carry = t >> 32;
+    }
+    for (; carry || i < *slen; i++) {
+        uint64_t si = (i < *slen) ? s[i] : 0;
+        uint64_t t = si + carry;
+        s[i] = (uint32_t)t;
+        carry = t >> 32;
+        if (i >= *slen && !carry) { i++; break; }
+    }
+    if (i > *slen) *slen = i;
+    while (*slen > 1 && s[*slen - 1] == 0) (*slen)--;
+}
+
+static void a005648_div(uint32_t *c, size_t *len, uint64_t x) {
+    uint64_t rem = 0;
+    for (size_t i = *len; i-- > 0;) {
+        uint64_t cur = (rem << 32) | c[i];
+        c[i] = (uint32_t)(cur / x);
+        rem = cur % x;
+    }
+    while (*len > 1 && c[*len - 1] == 0) (*len)--;
+}
+
+static void a005648_mul(uint32_t *c, size_t *len, uint64_t m) {
+    uint64_t carry = 0;
+    for (size_t i = 0; i < *len; i++) {
+        uint64_t t = (uint64_t)c[i] * m + carry;
+        c[i] = (uint32_t)t;
+        carry = t >> 32;
+    }
+    while (carry) {
+        c[(*len)++] = (uint32_t)carry;
+        carry >>= 32;
+    }
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 1;
@@ -43,7 +84,7 @@ seq_t a(idx_t n) {
             blen = clen;
         }
         if (n % d == 0)
-            a005648_addmul(s, &slen, c, clen, a005648_phi(n / d));
+            a005648_addmul(s, &slen, c, clen, totient_u64(n / d));
     }
 
     a005648_div(s, &slen, 2 * (uint64_t)n);

@@ -8,7 +8,8 @@
  *            a(n)=2*(2*n-1)^2/((n+1)*(2*n-3))*a(n-1)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 17, u64 n <= 33, u128 n <= 65,
  *            big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 42 terms through n = 895 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* Allocate initial cache */
     if (cache == NULL) {
         cache_cap = 4;            /* initial capacity */
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
 
     /* Grow cache if needed */
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
         size_t new_cap = (size_t)n + 1;
         if (new_cap < cache_cap * 2) new_cap = cache_cap * 2;
         cache_cap = new_cap;
-        cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 
     /* initialise a(1) if not yet done */

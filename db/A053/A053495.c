@@ -13,13 +13,15 @@
  *            −1)
  * Range:     i8 n <= 23, i16 n <= 41, i32 n <= 49, i64 n <= 49, i128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Global storage for the computed rows of the triangle */
 static size_t _row_cap = 0;
@@ -42,13 +44,13 @@ static void _ensure_rows(idx_t upto)
         }
 
         if (_row_cnt == 0) {                     /* row 0 : p0 = -1 */
-            seq_t *row0 = (seq_t *)malloc(sizeof(seq_t) * 1);
+            seq_t *row0 = mem_new(seq_t, 1);
             row0[0] = (seq_t)(-1);
             _rows[0] = row0;
             _row_cnt  = 1;
         }
         else if (_row_cnt == 1) {                /* row 1 : p1 = 1 - x */
-            seq_t *row1 = (seq_t *)malloc(sizeof(seq_t) * 2);
+            seq_t *row1 = mem_new(seq_t, 2);
             row1[0] = (seq_t)1;
             row1[1] = (seq_t)(-1);
             _rows[1] = row1;
@@ -58,7 +60,7 @@ static void _ensure_rows(idx_t upto)
             idx_t r      = _row_cnt;              /* index of the new row */
             seq_t *prev1 = _rows[r - 1];          /* length r   */
             seq_t *prev2 = _rows[r - 2];          /* length r-1 */
-            seq_t *cur   = (seq_t *)malloc(sizeof(seq_t) * (r + 1));
+            seq_t *cur   = mem_new(seq_t, (r + 1));
 
             /* c[0] = prev2[0] */
             cur[0] = prev2[0];

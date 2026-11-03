@@ -12,13 +12,15 @@
  *            a(current_b) from a(i) and advance current_b by a(i)+1...
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Ensure the array can index up to min_cap (1‑based). New elements
    are initialised to 1.  The array may grow geometrically. */
@@ -28,7 +30,7 @@ static void ensure_cap(idx_t *cap, seq_t **arr, idx_t min_cap) {
     idx_t new_cap = (*cap) ? (*cap) * 2 : 1;
     while (new_cap < min_cap)
         new_cap <<= 1;            /* double until sufficient */
-    seq_t *tmp = (seq_t *)realloc(*arr, (new_cap + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *arr, (new_cap + 1));
     if (!tmp)
         abort();                  /* out of memory */
     /* initialise the newly added elements to 1 */
@@ -47,7 +49,7 @@ seq_t a(idx_t n) {
 
     /* one‑time allocation */
     if (!vals) {
-        vals = (seq_t *)calloc(2, sizeof(seq_t));  /* indices 0..1 */
+        vals = mem_new(seq_t, 2);  /* indices 0..1 */
         if (!vals)
             abort();
         vals[1] = 1;                /* a(1) = 1 */

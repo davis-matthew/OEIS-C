@@ -10,7 +10,8 @@
  *            DFS
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   alloc_seq_array, dfs
+ * Validated: standard, pass, 118 terms through n = 9111 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,42 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/alloc_seq_array.h"
-#include "../utils/dfs.h"
+#include <stddef.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+/* Memoised DFS: counts subsets of comp[ ] that multiply to rem */
+static seq_t dfs(uint64_t *comp, size_t m, size_t nplus,
+                 size_t idx, size_t rem,
+                 seq_t *dp, bool *vis)
+{
+    size_t pos = idx * nplus + rem;
+    if (vis[pos]) return dp[pos];
+    vis[pos] = true;
+
+    if (rem == 1) {
+        dp[pos] = (seq_t)1;
+        return dp[pos];
+    }
+    if (idx == m) {
+        dp[pos] = (seq_t)0;
+        return dp[pos];
+    }
+
+    seq_t ans = (seq_t)0;
+    /* Skip current composite divisor */
+    ans += dfs(comp, m, nplus, idx + 1, rem, dp, vis);
+    /* Take current divisor if it divides the remaining product */
+    if (rem % comp[idx] == 0)
+        ans += dfs(comp, m, nplus, idx + 1, rem / comp[idx], dp, vis);
+
+    dp[pos] = ans;
+    return ans;
+}
 
 static bool prime_table[10001];
 static bool prime_init = false;

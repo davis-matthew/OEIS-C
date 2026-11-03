@@ -9,6 +9,7 @@
  *            is_squarefree(n-k) ]
  * Range:     u8 n <= 76, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
+ * Validated: partial, pass, 76 terms through n = 76 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -25,7 +26,7 @@
 #include <stddef.h>
 
 /* Utilities provided by the build environment. */
-#include "../utils/build_primes_upto.h"   /* build_primes_upto(limit, &primes, &cnt) */
+#include "../utils/build_primes_upto.h"
 
 /* ------------------------------------------------------------------ */
 /*  Square‑free table (mu(k)^2) and cache handling                       */

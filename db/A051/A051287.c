@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 73, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 74 terms through n = 73 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,7 +36,7 @@
  * All arithmetic is performed with idx_t for indices and seq_t
  * for counts (the seq_t type is large enough for all values). */ 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -72,8 +73,8 @@ seq_t a(idx_t n)
         if (s_num >= 0 && (s_num & 1) == 0) {
             idx_t s = s_num >> 1;
             if (s <= e) {
-                seq_t val = binom(m, e);
-                val *= binom(e, s);
+                seq_t val = binomial(m, e);
+                val *= binomial(e, s);
                 val <<= (m - e);
                 return val;
             }
@@ -87,8 +88,8 @@ seq_t a(idx_t n)
         if (s_num >= 0 && (s_num & 1) == 0) {
             idx_t s = s_num >> 1;
             if (s <= e) {
-                seq_t val = binom(m, e);
-                val *= binom(e, s);
+                seq_t val = binomial(m, e);
+                val *= binomial(e, s);
                 val <<= (m - e);
                 total += val;
             }

@@ -8,14 +8,25 @@
  * Formula:   a(n) = (n-1)! * Sum_{k=1}^{n-1} d(k)*d(n-k)/k
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 22,
  *            big any n
- * Helpers:   divisor_count_u64, factorial
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/divisor_count_u64.h"   /* uint64_t divisor_count_u64(uint64_t n); */
-#include "../utils/factorial.h"          /* seq_t factorial(idx_t n); */
+#include "../utils/num_divisors.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 seq_t a(idx_t n)
 {
@@ -27,8 +38,8 @@ seq_t a(idx_t n)
 
     for (idx_t k = (idx_t)1; k < n; ++k)
     {
-        seq_t dk   = (seq_t)divisor_count_u64((uint64_t)k);
-        seq_t dnk  = (seq_t)divisor_count_u64((uint64_t)(n - k));
+        seq_t dk   = (seq_t)num_divisors((uint64_t)k);
+        seq_t dnk  = (seq_t)num_divisors((uint64_t)(n - k));
 
         unsigned __int128 prod = (unsigned __int128)fact;
         prod *= (unsigned __int128)dk;

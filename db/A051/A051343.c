@@ -9,7 +9,8 @@
  *            integers * such that i^3 + j^3 + k^3 = n (counted naively)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 109 terms through n = 9044 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* The build supplies seq_t (an unsigned integer type or an
  * arbitrary‑precision integer class) and idx_t (uint64_t). */
@@ -33,13 +35,13 @@ seq_t a(idx_t n)
         size_t newCap = (size_t)(n + 1);
 
         /* allocate new memo array */
-        seq_t *newMemo = (seq_t*)malloc(newCap * sizeof(seq_t));
+        seq_t *newMemo = mem_new(seq_t, newCap);
         if (!newMemo) exit(1);
         if (memo) {
-            memcpy(newMemo, memo, capacity * sizeof(seq_t));
-            free(memo);
+            mem_copy(newMemo, memo, capacity * sizeof(seq_t));
+            mem_free(memo);
         }
-        memset(newMemo + capacity, 0, (newCap - capacity) * sizeof(seq_t));
+        mem_set(newMemo + capacity, 0, (newCap - capacity) * sizeof(seq_t));
         memo = newMemo;
         capacity = newCap;
 

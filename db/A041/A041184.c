@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 10, u32 n <= 19, u64 n <= 38, u128 n <= 82,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const uint32_t D   = 103;   /* D = 103 */
 static const uint32_t A0  = 10;    /* floor(sqrt(D)) */
@@ -34,7 +36,7 @@ static void ensure_capacity(size_t need)
     if (need < num_cap) return;
     size_t new_cap = num_cap ? num_cap : 16;
     while (new_cap <= need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(nums, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, nums, new_cap);
     nums = tmp;
     num_cap = new_cap;
 }

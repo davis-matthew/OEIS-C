@@ -10,12 +10,14 @@
  *            x^m/(m!)^2 )
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 11, u64 n <= 17, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,11 +31,11 @@ seq_t a(idx_t n)
     /* enlarge the memo array if necessary */
     size_t new_len = (size_t)n + 1;
     if (memo_len == 0) {               /* first call */
-        memo = (seq_t*)malloc(new_len * sizeof(seq_t));
+        memo = mem_new(seq_t, new_len);
         if (!memo) abort();             /* allocation failed */
         memo_len = 0;
     } else if (new_len > memo_len) {    /* expand */
-        memo = (seq_t*)realloc(memo, new_len * sizeof(seq_t));
+        memo = mem_resize(seq_t, memo, new_len);
         if (!memo) abort();             /* allocation failed */
         memo_len = 0;                   /* will rebuild up to n */
     }

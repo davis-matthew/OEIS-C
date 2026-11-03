@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 56, u16 n <= 320, u32 n <= 2141, u64 n <= 9700,
- *            u128 n <= 9700, big any n
- * Helpers:   none
+ * Range:     u8 n <= 56, u16 n <= 320, u32 n <= 2141, u64 n <= 10195,
+ *            u128 n <= 10195, big any n
+ * Validated: standard, pass, 78 terms through n = 9700 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Ensure that an array can hold at least 'needed' elements.  */
 static void ensure_capacity(seq_t **arr, size_t *cap, size_t needed)
@@ -28,7 +30,7 @@ static void ensure_capacity(seq_t **arr, size_t *cap, size_t needed)
         return;
     size_t ncap = *cap ? *cap : 4;
     while (ncap < needed) ncap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(*arr, ncap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *arr, ncap);
     *arr = tmp;
     *cap = ncap;
 }

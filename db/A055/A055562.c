@@ -10,12 +10,13 @@
  *            base 2 of x)
  * Range:     u8 n <= 169, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_log2_idx
+ * Validated: standard, pass, 86 terms through n = 9538 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/floor_log2_idx.h"
+#include "../utils/ilog2.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +24,7 @@ seq_t a(idx_t n)
 
     if ((n & 1u) == 0u) {                /* even index 2m */
         idx_t m = n >> 1;                /* m ≥ 1 here */
-        idx_t val = (idx_t)3 * m + 1 + (idx_t)(floor_log2_idx(m) & 1u);
+        idx_t val = (idx_t)3 * m + 1 + (idx_t)(ilog2(m) & 1u);
         return (seq_t)val;
     } else {                             /* odd index 2m+1 */
         idx_t m = n >> 1;                /* m ≥ 0 */

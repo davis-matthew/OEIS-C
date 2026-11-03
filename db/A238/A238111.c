@@ -10,12 +10,14 @@
  *            a(1)=4, a(2)=12, … as required
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 14, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached sequence of large Schröder numbers S(n). */
 static seq_t *schroeder_cache = NULL;   /* array of S values */
@@ -30,8 +32,7 @@ ensure_cache(idx_t n)
         return;
     /* Grow capacity: double until sufficient. */
     idx_t new_cap = (n + 1) * 2;
-    seq_t *new_ptr = (seq_t *)realloc(schroeder_cache,
-                                      new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, schroeder_cache, new_cap);
     if (!new_ptr) {
         /* Out of memory; on failure we abort the program. */
         abort();

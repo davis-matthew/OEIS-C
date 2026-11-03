@@ -5,8 +5,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  easy, sign
  * Formula:   a(n+3) = 3*a(n+2) - 2*a(n), with a(0) = -1, a(1) = 1, a(2) = 3
- * Range:     i8 n <= 5, i16 n <= 10, i32 n <= 21, i64 n <= 30, i128 n <= 30,
+ * Range:     i8 n <= 5, i16 n <= 10, i32 n <= 21, i64 n <= 43, i128 n <= 88,
  *            big any n
+ * Validated: standard, pass, 47 terms through n = 982 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

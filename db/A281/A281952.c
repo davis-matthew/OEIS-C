@@ -13,7 +13,8 @@
  *            3) The first array element (top‑left) must be...
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 10, u64 n <= 21, u128 n <= 43,
  *            big any n
- * Helpers:   row_is_valid_with_neighbors
+ * Validated: standard, pass, 35 terms through n = 207 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,39 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/row_is_valid_with_neighbors.h"
+
+/* Helper to check if a row satisfies the neighbor constraint
+ * given its upper and lower neighbour rows.
+ * `havePrev` and `haveNext` indicate the presence of each row. */
+static bool row_is_valid_with_neighbors(int prev_row, int curr_row, int next_row,
+                                        bool havePrev, bool haveNext)
+{
+    for (int j = 0; j < 5; ++j) {
+        int v = (curr_row >> j) & 1;
+        int diffs = 0;
+
+        /* same row neighbours */
+        if (j > 0 && ((curr_row >> (j - 1)) & 1) != v) ++diffs;
+        if (j < 4 && ((curr_row >> (j + 1)) & 1) != v) ++diffs;
+
+        /* upper neighbours */
+        if (havePrev) {
+            if (j > 0 && ((prev_row >> (j - 1)) & 1) != v) ++diffs;
+            if (((prev_row >> j) & 1) != v) ++diffs;
+            if (j < 4 && ((prev_row >> (j + 1)) & 1) != v) ++diffs;
+        }
+
+        /* lower neighbours */
+        if (haveNext) {
+            if (j > 0 && ((next_row >> (j - 1)) & 1) != v) ++diffs;
+            if (((next_row >> j) & 1) != v) ++diffs;
+            if (j < 4 && ((next_row >> (j + 1)) & 1) != v) ++diffs;
+        }
+
+        if (diffs > 4) return false;
+    }
+    return true;
+}
 
 /* Constants for the DP */
 #define NONE 32                     /* index for "no previous row"          */

@@ -9,12 +9,14 @@
  *            r+s=n, offset 2
  * Range:     u8 n <= 79, u16 n <= 79, u32 n <= 79, u64 n <= 79, u128 n <= 79,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 79 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t* phi_cache = NULL;
 static seq_t* a_cache   = NULL;
@@ -24,8 +26,8 @@ static idx_t  cache_max = 1;  /* biggest n for which caches are valid */
 static void rebuild_cache(idx_t n)
 {
     idx_t  N   = n + 1;          /* array size */
-    seq_t* new_phi = (seq_t*)calloc(N, sizeof(seq_t));
-    seq_t* new_a   = (seq_t*)calloc(N, sizeof(seq_t));
+    seq_t* new_phi = mem_new(seq_t, N);
+    seq_t* new_a   = mem_new(seq_t, N);
 
     if (!new_phi || !new_a) {    /* allocation failed – abort */
         exit(1);
@@ -53,8 +55,8 @@ static void rebuild_cache(idx_t n)
         new_a[m] = best;
     }
 
-    free(phi_cache);
-    free(a_cache);
+    mem_free(phi_cache);
+    mem_free(a_cache);
     phi_cache = new_phi;
     a_cache   = new_a;
     cache_max = n;

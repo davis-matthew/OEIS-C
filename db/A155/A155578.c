@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* integer square‑root for idx_t (assumed unsigned 64‑bit)              */
@@ -57,7 +59,7 @@ static void _extend_to(idx_t target_n)
     /* initial allocation if needed */
     if (!seq_cap) {
         seq_cap = 1024;
-        seq     = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+        seq     = mem_new(seq_t, seq_cap);
         if (!seq) abort();
     }
 
@@ -94,7 +96,7 @@ static void _extend_to(idx_t target_n)
             if (flag_two[x] && flag_seven[x]) {
                 if (seq_size == seq_cap) {
                     seq_cap *= 2;
-                    seq = (seq_t*)realloc(seq, seq_cap * sizeof(seq_t));
+                    seq = mem_resize(seq_t, seq, seq_cap);
                     if (!seq) abort();
                 }
                 seq[seq_size++] = (seq_t)x;

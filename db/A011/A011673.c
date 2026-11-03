@@ -9,12 +9,14 @@
  *            m‑sequence expansion of 1/(x^6+x^5+1)
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 81 terms through n = 80 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;
@@ -23,7 +25,7 @@ seq_t a(idx_t n) {
     /* First call – allocate the initial 6 terms */
     if (cache == NULL) {
         cap   = 6;                       /* indices 0..5 */
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) return 0;            /* allocation failed – give up */
 
         cache[0] = cache[1] = cache[2] = cache[3] = cache[4] = 0;
@@ -33,7 +35,7 @@ seq_t a(idx_t n) {
     /* Expand the cache if necessary */
     size_t needed = (size_t)n + 1;            /* we need indices 0..n */
     if (needed > cap) {
-        seq_t *tmp = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, needed);
         if (!tmp) return 0;                  /* allocation failed – give up */
         cache = tmp;
 

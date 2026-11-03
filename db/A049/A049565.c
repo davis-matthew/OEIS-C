@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 34, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _ensure_uint64_cap, mod_pow
+ * Validated: standard, pass, 71 terms through n = 989 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,18 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/mod_pow.h"
-#include "../utils/_ensure_uint64_cap.h"
+#include <string.h>
+#include "../utils/powmod.h"
+
+/* ensure we have room for n elements in *arr (uint64_t array) */
+static void _ensure_uint64_cap(uint64_t **arr, size_t *cap, size_t n) {
+    if (*cap < n) {
+        size_t new_cap = (*cap == 0) ? 16 : (*cap << 1);
+        while (new_cap < n) new_cap <<= 1;
+        *arr = (uint64_t *)realloc(*arr, new_cap * sizeof(uint64_t));
+        *cap = new_cap;
+    }
+}
 
 /* small Euclidean gcd for uint64_t */
 static uint64_t _gcd64(uint64_t a, uint64_t b) {
@@ -53,7 +64,7 @@ static bool _prime_satisfies(uint64_t p) {
     if (p == 2) return true;            /* 0^33 == 2 (mod 2) */
     uint64_t g = _gcd64(33ULL, p - 1ULL);          /* gcd(33, p‑1) */
     uint64_t exp = (p - 1ULL) / g;                /* exponent for testing */
-    seq_t r = mod_pow((seq_t)2, exp, (seq_t)p);
+    seq_t r = powmod((seq_t)2, exp, (seq_t)p);
     return r == (seq_t)1;
 }
 

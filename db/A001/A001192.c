@@ -11,13 +11,21 @@
  *            Q_{k+1} = Q_k^2 * (1+x)^k
  * Range:     u8 n <= 5, u16 n <= 6, u32 n <= 9, u64 n <= 12, u128 n <= 17,
  *            big any n
- * Helpers:   a001192_zalloc
+ * Validated: standard, pass, 33 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/a001192_zalloc.h"
+#include "../utils/mem.h"
+
+static seq_t *a001192_zalloc(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    idx_t i;
+    for (i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
 
 static seq_t *a001192_memo = NULL;
 static idx_t a001192_have = 0;
@@ -67,11 +75,11 @@ static void a001192_compute(idx_t N) {
         }
     }
 
-    free(pos);
-    free(neg);
-    free(Q);
-    free(T);
-    if (a001192_memo != NULL) free(a001192_memo);
+    mem_free(pos);
+    mem_free(neg);
+    mem_free(Q);
+    mem_free(T);
+    if (a001192_memo != NULL) mem_free(a001192_memo);
     a001192_memo = A;
     a001192_have = L;
 }

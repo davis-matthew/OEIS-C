@@ -11,7 +11,8 @@
  *            zeros, so that a(3)=S3(3,1), a(4)=S3(4,1), …. The fun...
  * Range:     u8 n <= 13, u16 n <= 26, u32 n <= 56, u64 n <= 133,
  *            u128 n <= 341, big any n
- * Helpers:   binomial
+ * Validated: standard, pass, 60 terms through n = 9312 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#include "../utils/binomial.h"   /* extern seq_t binomial(idx_t n, idx_t k); */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t **S3 = NULL;          /* S3[n][k] ; n ≥ 0 , k ≥ 0 */
 static idx_t  S3_max_n = 0;        /* maximum n for which the triangle has been
@@ -43,7 +45,7 @@ static void ensure_s3_upto(idx_t n)
     for (idx_t i = S3_max_n + 1; i <= n; ++i)
     {
         size_t kmax = i / 3;         /* floor(i/3) */
-        S3[i] = (seq_t *)calloc(kmax + 1, sizeof(seq_t));
+        S3[i] = mem_new(seq_t, kmax + 1);
         if (S3[i] == NULL)
             abort();                 /* should never happen */
 

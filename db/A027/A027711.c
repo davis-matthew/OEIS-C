@@ -11,12 +11,14 @@
  *            and any n ≥ 1
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 33, u64 n <= 65, u128 n <= 129,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 989 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 /* static cache for memoization */
 static seq_t *cache = NULL;          /* array of computed a(n) values, 1‑indexed */
@@ -30,7 +32,7 @@ static void grow_cache_to(idx_t n)
     /* Allocate initial elements if necessary */
     if (cache == NULL) {
         /* indices 0..5, we ignore index 0 */
-        cache = (seq_t *)malloc((6) * sizeof(seq_t));
+        cache = mem_new(seq_t, (6));
         /* initial values */
         cache[0] = 0; /* unused */
         cache[1] = (seq_t)0;
@@ -43,7 +45,7 @@ static void grow_cache_to(idx_t n)
 
     /* grow array to hold up to n */
     if (n > cached_max) {
-        cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (n + 1));
         /* compute new values */
         for (idx_t i = cached_max + 1; i <= n; ++i) {
             /* recurrence uses a(i-1) … a(i-5) */

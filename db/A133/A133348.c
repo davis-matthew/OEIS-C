@@ -10,11 +10,13 @@
  *            function (x^6+16x^5+70x^4+112x^3+70x^2+16x+1)/(1-x)^16
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 14, u64 n <= 79, u128 n <= 1627,
  *            big any n
+ * Validated: standard, pass, 41 terms through n = 9610 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

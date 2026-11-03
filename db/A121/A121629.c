@@ -13,7 +13,8 @@
  *            values: a(0)=1, a(1)=3, a(2)=16
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 16, u128 n <= 27,
  *            big any n
- * Helpers:   mul_small
+ * Validated: standard, pass, 35 terms through n = 348 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,20 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/mul_small.h"   /* provides seq_t mul_small(seq_t x, unsigned int m) */
+#include "../utils/mem.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 static seq_t *cache = NULL;
 static size_t cache_size = 0;
@@ -41,7 +55,7 @@ static void ensure_cache_size(idx_t n)
     while (newsize < n + 1)
         newsize = newsize * 3 / 2;
 
-    seq_t *newcache = (seq_t *)malloc(newsize * sizeof(seq_t));
+    seq_t *newcache = mem_new(seq_t, newsize);
     if (!newcache) {
         /* allocation failed – abort to avoid undefined behaviour */
         abort();
@@ -54,7 +68,7 @@ static void ensure_cache_size(idx_t n)
         newcache[i] = 0;
 
     if (cache)
-        free(cache);
+        mem_free(cache);
     cache = newcache;
     cache_size = newsize;
 

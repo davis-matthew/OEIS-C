@@ -11,7 +11,8 @@
  *            using only elements of S
  * Range:     u8 n <= 84, u16 n <= 84, u32 n <= 84, u64 n <= 84, u128 n <= 84,
  *            big any n
- * Helpers:   exps_distinct, factor_u64
+ * Validated: partial, pass, 84 terms through n = 84 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,16 @@
 #include <string.h>
 #include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/exps_distinct.h"
+#include "../utils/mem.h"
+
+/* ------------------------------------------------------------ */
+static bool exps_distinct(uint64_t *ex, size_t cnt) {
+    if (cnt <= 1) return true;
+    for (size_t i = 0; i < cnt - 1; ++i)
+        for (size_t j = i + 1; j < cnt; ++j)
+            if (ex[i] == ex[j]) return false;
+    return true;
+}
 
 /* ------------------------------------------------------------ */
 /* Simple hash table for memoisation (idx_t → seq_t).  Empty key=0. */
@@ -40,7 +50,7 @@ static void ht_init(void) {
     memo.cap = 64;
     memo.used = 0;
     memo.keys = (idx_t *)calloc(memo.cap, sizeof(idx_t));
-    memo.vals = (seq_t *)calloc(memo.cap, sizeof(seq_t));
+    memo.vals = mem_new(seq_t, memo.cap);
 }
 
 static size_t hash_u64(idx_t x) {
@@ -56,7 +66,7 @@ static size_t hash_u64(idx_t x) {
 static void ht_resize(void) {
     size_t new_cap = memo.cap << 1;
     idx_t *new_keys = (idx_t *)calloc(new_cap, sizeof(idx_t));
-    seq_t *new_vals = (seq_t *)calloc(new_cap, sizeof(seq_t));
+    seq_t *new_vals = mem_new(seq_t, new_cap);
     for (size_t i = 0; i < memo.cap; ++i) {
         idx_t k = memo.keys[i];
         if (!k) continue;
@@ -66,7 +76,7 @@ static void ht_resize(void) {
         new_vals[pos] = memo.vals[i];
     }
     free(memo.keys);
-    free(memo.vals);
+    mem_free(memo.vals);
     memo.keys = new_keys;
     memo.vals = new_vals;
     memo.cap = new_cap;

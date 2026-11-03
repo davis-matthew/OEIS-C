@@ -9,7 +9,8 @@
  *            representation contains only the digits 0 and 1
  * Range:     u8 n <= 10, u16 n <= 58, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mul4_mod
+ * Validated: standard, pass, 69 terms through n = 999 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,16 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/mul4_mod.h"
+
+/* Multiply by 4 modulo N without overflow. */
+static inline idx_t mul4_mod(idx_t r, idx_t N)
+{
+    idx_t res = r << 1;          /* r*2 */
+    if (res >= N) res -= N;
+    res += res;                  /* r*4 */
+    if (res >= N) res -= N;
+    return res;
+}
 
 seq_t a(idx_t n)
 {

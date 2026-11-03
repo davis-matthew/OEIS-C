@@ -7,12 +7,15 @@
  * Formula:   a(n) = Sum_{p|n, p prime} p^(n/p)
  * Range:     u8 n <= 14, u16 n <= 29, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +26,7 @@ seq_t a(idx_t n)
     /* Handle the prime factor 2 */
     if ((temp & 1) == 0) {
         seq_t exp = (seq_t)(original / 2);
-        result += big_pow((seq_t)2, exp);
+        result += ipow((seq_t)2, exp);
         while ((temp & 1) == 0) temp >>= 1;
     }
 
@@ -31,7 +34,7 @@ seq_t a(idx_t n)
     for (idx_t p = 3; p <= temp / p; p += 2) {
         if (temp % p == 0) {
             seq_t exp = (seq_t)(original / p);
-            result += big_pow((seq_t)p, exp);
+            result += ipow((seq_t)p, exp);
             while (temp % p == 0) temp /= p;
         }
     }
@@ -39,7 +42,7 @@ seq_t a(idx_t n)
     /* Remaining prime factor, if any */
     if (temp > 1) {
         seq_t exp = (seq_t)(original / temp);
-        result += big_pow((seq_t)temp, exp);
+        result += ipow((seq_t)temp, exp);
     }
 
     return result;

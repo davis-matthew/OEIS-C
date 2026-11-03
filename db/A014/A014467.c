@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 16, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    n‑th element (1‑based).  a(1)=1.  */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 #ifdef __cplusplus
 #include <type_traits>
@@ -47,7 +49,7 @@ static inline void grow_cache(idx_t needed, seq_t **cache, size_t *cap) {
     if ((idx_t)*cap >= needed) return;
     size_t newcap = (*cap) ? (*cap)*2 : 16;
     if ((idx_t)newcap < needed) newcap = needed;
-    *cache = (seq_t*)realloc(*cache, newcap * sizeof(seq_t));
+    *cache = mem_resize(seq_t, *cache, newcap);
     *cap = newcap;
 }
 
@@ -66,7 +68,7 @@ seq_t a(idx_t n) {
     /* Grow cache until it contains the n-th value. */
     while (cache_len < n) {
         idx_t row = next_row;               /* length of the current Eulerian row */
-        seq_t *curr = (seq_t*)malloc(sizeof(seq_t) * row);
+        seq_t *curr = mem_new(seq_t, row);
 
         /* Compute Eulerian numbers for this row. */
         curr[0] = (seq_t)1;
@@ -84,7 +86,7 @@ seq_t a(idx_t n) {
         }
 
         /* Prepare for the next iteration. */
-        free(prev);
+        mem_free(prev);
         prev = curr;
         prev_len = row;
         ++next_row;

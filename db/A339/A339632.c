@@ -10,7 +10,8 @@
  *            floor(log10(2*n-k))]
  * Range:     u8 n <= 93, u16 n <= 93, u32 n <= 93, u64 n <= 93, u128 n <= 93,
  *            big any n
- * Helpers:   bigomega, digit_count
+ * Validated: partial, pass, 93 terms through n = 93 (2026-11-01)
+ * Helpers:   bigomega, num_digits0
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,10 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/digit_count.h"
+#include <stdlib.h>
+#include <math.h>
 #include "../utils/bigomega.h"
+#include "../utils/num_digits0.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +38,7 @@ seq_t a(idx_t n)
         idx_t other = two_n - k;
 
         /* Parts must have the same number of decimal digits */
-        if (digit_count(k) != digit_count(other)) continue;
+        if (num_digits0(k) != num_digits0(other)) continue;
 
         /* Check if the product is a semiprime: Omega(product) == 2 */
         idx_t prod = k * other;            /* product fits in 64‑bits for n ≤ 10 000 */

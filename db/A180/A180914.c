@@ -12,7 +12,8 @@
  *            recurrence with Berlekamp–Massey over two primes, reco...
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 16, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 92 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- auxiliary modular arithmetic ---------- */
 
@@ -140,7 +142,7 @@ static int64_t rebuild_int64_from_resid(const uint32_t *resid,
 static void compute_initial_terms(idx_t M, seq_t *init)
 {
     /* dp_prev holds counts for level i-1 */
-    seq_t *dp_prev = (seq_t *)calloc(1, sizeof(seq_t));
+    seq_t *dp_prev = mem_new(seq_t, 1);
     dp_prev[0] = (seq_t)1;
     size_t prev_size = 1;
 
@@ -148,10 +150,10 @@ static void compute_initial_terms(idx_t M, seq_t *init)
 
     for (idx_t step = 1; step < M; ++step) {
         size_t new_size = 9 * step + 1;
-        seq_t *dp_next = (seq_t *)calloc(new_size, sizeof(seq_t));
+        seq_t *dp_next = mem_new(seq_t, new_size);
 
         /* prefix sums of dp_prev */
-        seq_t *pref = (seq_t *)malloc(prev_size * sizeof(seq_t));
+        seq_t *pref = mem_new(seq_t, prev_size);
         if (prev_size > 0) {
             pref[0] = dp_prev[0];
             for (size_t i = 1; i < prev_size; ++i)
@@ -170,12 +172,12 @@ static void compute_initial_terms(idx_t M, seq_t *init)
         }
         init[step] = sum;
 
-        free(pref);
-        free(dp_prev);
+        mem_free(pref);
+        mem_free(dp_prev);
         dp_prev = dp_next;
         prev_size = new_size;
     }
-    free(dp_prev);
+    mem_free(dp_prev);
 }
 
 /* ---------- global state ---------- */
@@ -198,7 +200,7 @@ seq_t a(idx_t n)
         const uint32_t primes[2] = {1000000007U, 1000000009U};
 
         /* compute initial terms */
-        state.init = (seq_t *)malloc(M * sizeof(seq_t));
+        state.init = mem_new(seq_t, M);
         compute_initial_terms(M, state.init);
         state.init_len = M;
 
@@ -242,7 +244,7 @@ seq_t a(idx_t n)
     /* evaluate recurrence from state.init_len up to n-1 */
     size_t cur = state.init_len;      /* next index to compute  (0‑based) */
     size_t L = state.rec_len;
-    seq_t *buf = (seq_t *)malloc(L * sizeof(seq_t));
+    seq_t *buf = mem_new(seq_t, L);
 
     /* fill buffer with the last L terms of the known prefix */
     for (size_t j = 0; j < L; ++j)
@@ -266,6 +268,6 @@ seq_t a(idx_t n)
     }
 
     seq_t res = buf[L - 1];
-    free(buf);
+    mem_free(buf);
     return res;
 }

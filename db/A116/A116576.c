@@ -11,12 +11,14 @@
  *            T(2)=4, T(k)=T(k-1)+T(k-2)+T(k-3) for k≥3
  * Range:     u8 n <= 10, u16 n <= 19, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 32 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,8 +31,8 @@ seq_t a(idx_t n)
     /* We need T[0 … n-2] and d[0 … n-3].  */
     idx_t t_size = n - 1;          /* n-2 + 1 elements */
     idx_t d_size = n - 2;          /* n-3 + 1 elements */
-    seq_t *T = (seq_t *)calloc(t_size, sizeof(seq_t));
-    seq_t *d = (seq_t *)calloc(d_size, sizeof(seq_t));
+    seq_t *T = mem_new(seq_t, t_size);
+    seq_t *d = mem_new(seq_t, d_size);
     if (!T || !d) return (seq_t)0; /* allocation failure – unlikely */
 
     /* Tribonacci initialization */
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
     result += (seq_t)(n - 1);
 
     /* Clean up */
-    free(T);
-    free(d);
+    mem_free(T);
+    mem_free(d);
     return result;
 }

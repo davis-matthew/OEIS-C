@@ -6,14 +6,16 @@
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{k=0..floor(n/3)} binomial(n,k) *
  *            binomial(3*n-3*k-1,n-3*k)
- * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 11, u64 n <= 22, u128 n <= 22,
+ * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -24,12 +26,12 @@ seq_t a(idx_t n)
     idx_t maxk = n / 3;
 
     for (idx_t k = 0; k <= maxk; ++k) {
-        seq_t term1 = binom(n, k);
+        seq_t term1 = binomial(n, k);
 
         // compute 3*n - 3*k - 1 safely; n > 0 guarantees non‑negative
         idx_t first  = 3 * n - 3 * k - 1;
         idx_t second = n - 3 * k;
-        seq_t term2 = binom(first, second);
+        seq_t term2 = binomial(first, second);
 
         sum += term1 * term2;
     }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 103 terms through n = 9996 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ζ(3) ≈ 1.202056903159594, stored as NUM/DEN with high precision. */
 static const unsigned long long ZETA_NUM = 1202056903159594ULL;
@@ -64,11 +66,11 @@ static void ensure_seq_capacity(size_t need)
     if (need <= seq_cap) return;
     size_t new_cap = seq_cap ? seq_cap << 1 : 64;
     if (new_cap < need) new_cap = need;
-    seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (!new_arr) abort();
     if (seq_arr) {
-        memcpy(new_arr, seq_arr, seq_len * sizeof(seq_t));
-        free(seq_arr);
+        mem_copy(new_arr, seq_arr, seq_len * sizeof(seq_t));
+        mem_free(seq_arr);
     }
     seq_arr = new_arr;
     seq_cap = new_cap;

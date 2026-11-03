@@ -7,12 +7,15 @@
  * Formula:   a(n) = 5^n - n^8
  * Range:     i8 n <= 1, i16 n <= 3, i32 n <= 13, i64 n <= 27, i128 n <= 54,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 36 terms through n = 386 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -20,7 +23,7 @@ seq_t a(idx_t n)
     seq_t n_seq = (seq_t)n;
 
     /* Compute 5^n using the big‑integer utility */
-    seq_t pow5 = big_pow((seq_t)5, n);
+    seq_t pow5 = ipow((seq_t)5, n);
 
     /* Compute n^8 by repeated multiplication */
     seq_t pow8 = 1;

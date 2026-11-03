@@ -8,13 +8,14 @@
  *            base 10
  * Range:     u8 n <= 201, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_palindrome
+ * Validated: standard, pass, 102 terms through n = 9801 (2026-11-01)
+ * Helpers:   is_palindrome_base
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_palindrome.h"
+#include "../utils/is_palindrome_base.h"
 
 seq_t a(idx_t n)
 {
@@ -25,11 +26,11 @@ seq_t a(idx_t n)
     {
         if (n % d == 0)
         {
-            if (is_palindrome((seq_t)d, 10))
+            if (is_palindrome_base((seq_t)d, 10))
                 sum += (seq_t)d;
 
             idx_t other = n / d;
-            if (other != d && is_palindrome((seq_t)other, 10))
+            if (other != d && is_palindrome_base((seq_t)other, 10))
                 sum += (seq_t)other;
         }
     }

@@ -7,6 +7,7 @@
  * Formula:   primes p such that 10000-p is also prime (OEIS A126693)
  * Range:     u8 n <= 8, u16 n <= 254, u32 n <= 254, u64 n <= 254,
  *            u128 n <= 254, big any n
+ * Validated: full, pass, 254 terms through n = 254 (2026-11-02)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

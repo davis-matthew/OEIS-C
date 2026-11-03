@@ -8,6 +8,7 @@
  *            binomial(n+k,n-2k)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 16, u64 n <= 25, u128 n <= 25,
  *            big any n
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
 //          The factor 3^k * P_k / k! can be computed recursively
 //          as fact_k = fact_{k-1} * 3 * (3k-2) / k, with fact_0 = 1.
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n) {

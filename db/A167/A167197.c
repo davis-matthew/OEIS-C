@@ -7,7 +7,8 @@
  * Formula:   a(n) = a(n-1) + gcd(n, a(n-1)), a(6) = 7, for n >= 7
  * Range:     u8 n <= 129, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 79 terms through n = 980 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,9 @@
 /*         a(n) = 0       for n < 6   (output below the offset is irrelevant) */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* cache[i] == a(6 + i) */
 static idx_t cache_size = 0;  /* number of cached terms */
@@ -27,7 +30,7 @@ static void expand_cache(idx_t n) {
     idx_t needed = n - 6 + 1; /* number of terms to store up to a(n) */
 
     if (cache == NULL) {               /* first call */
-        cache = (seq_t *)calloc((size_t)needed, sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)needed);
         if (!cache) abort();           /* out of memory */
 
         cache[0] = (seq_t)7;           /* a(6) */
@@ -39,7 +42,7 @@ static void expand_cache(idx_t n) {
             cache[i - 6] = prev + g;            /* a(i) */
         }
     } else if (needed > cache_size) {   /* extend cache */
-        cache = (seq_t *)realloc(cache, (size_t)needed * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (size_t)needed);
         if (!cache) abort();           /* out of memory */
 
         for (idx_t i = cache_size + 6; i <= n; ++i) {

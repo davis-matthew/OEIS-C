@@ -10,7 +10,8 @@
  *            (2^⌊u(n-1)/2⌋ + 2^⌊u(n-2)/2⌋ + 1) / u(n-3)
  * Range:     u8 n <= 94, u16 n <= 94, u32 n <= 94, u64 n <= 94, u128 n <= 94,
  *            big any n
- * Helpers:   gcd, pow_seq
+ * Validated: partial, pass, 94 terms through n = 94 (2026-11-01)
+ * Helpers:   gcd, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/gcd.h"
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 typedef struct { seq_t num; seq_t den; } rat_t;
 
@@ -39,8 +40,8 @@ seq_t a(idx_t n)
         int exp1 = (int)fl1;
         int exp2 = (int)fl2;
 
-        seq_t pw1 = pow_seq((seq_t)2, exp1);
-        seq_t pw2 = pow_seq((seq_t)2, exp2);
+        seq_t pw1 = ipow_i32((seq_t)2, exp1);
+        seq_t pw2 = ipow_i32((seq_t)2, exp2);
 
         seq_t num_new = pw1 + pw2 + 1;
         seq_t num_res = num_new * t1.den;

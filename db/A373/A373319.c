@@ -8,6 +8,7 @@
  * Formula:   a(n) = denominator of φ(n)/n^2 = n^2 / gcd( φ(n), n^2 )
  * Range:     u8 n <= 15, u16 n <= 255, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 71 terms through n = 9247 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

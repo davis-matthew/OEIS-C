@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 93, u16 n <= 93, u32 n <= 93, u64 n <= 93, u128 n <= 93,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 93 terms through n = 93 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    a(1) = 5; for n > 1, a(n) is produced in order by multiplying
    every digit of each preceding term by 2. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
 
     /* Rough upper bound: each term generates at most two new terms. */
     size_t capacity = 2 * (size_t)n + 16;
-    seq_t *arr = (seq_t *)malloc(capacity * sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, capacity);
     if (!arr) return 0;             /* allocation failure */
 
     size_t  len = 1;                /* number of elements stored */
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
         if (cur == 0) {             /* single zero digit */
             if (len == capacity) {
                 capacity *= 2;
-                arr = (seq_t *)realloc(arr, capacity * sizeof(seq_t));
+                arr = mem_resize(seq_t, arr, capacity);
                 if (!arr) return 0;
             }
             arr[len++] = (seq_t)0;  /* 0*2 */
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
         for (int i = dcnt - 1; i >= 0; --i) {
             if (len == capacity) {
                 capacity *= 2;
-                arr = (seq_t *)realloc(arr, capacity * sizeof(seq_t));
+                arr = mem_resize(seq_t, arr, capacity);
                 if (!arr) return 0;
             }
             arr[len++] = (seq_t)(digits[i] * 2);
@@ -62,6 +64,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = arr[n - 1];
-    free(arr);
+    mem_free(arr);
     return result;
 }

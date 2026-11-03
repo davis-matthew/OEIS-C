@@ -10,6 +10,7 @@
  *            binomial coefficient. a(0) = 2, a(1) = 4…
  * Range:     u8 n <= 38, u16 n <= 143, u32 n <= 574, u64 n <= 2175,
  *            u128 n <= 5150, big any n
+ * Validated: standard, pass, 82 terms through n = 4261 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

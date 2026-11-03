@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 206, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   squarefree_product
+ * Validated: standard, pass, 45 terms through n = 9128 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,22 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/squarefree_product.h"
+
+/* Compute k·(k–1)·(k+1) safely, using a 128‑bit temporary if available. */
+static seq_t squarefree_product(idx_t k)
+{
+#if defined(__SIZEOF_INT128__)
+    unsigned __int128 tmp = (unsigned __int128)k *
+                            (unsigned __int128)(k - 1) *
+                            (unsigned __int128)(k + 1);
+    return (seq_t)tmp;
+#else
+    seq_t res = (seq_t)k;
+    res *= (seq_t)(k - 1);
+    res *= (seq_t)(k + 1);
+    return res;
+#endif
+}
 
 /* Check whether a small integer v is square–free.
  * v ≤ ~10^6 in practice; the loop runs at most ≈ √v iterations. */

@@ -9,13 +9,15 @@
  *            a(k-i) (All binomial coefficients are ordinary integers.)
  * Range:     i8 n <= 6, i16 n <= 9, i32 n <= 13, i64 n <= 21, i128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are provided by the build. */
 
@@ -29,8 +31,8 @@ seq_t a(idx_t n)
     /* Grow the cache if necessary. */
     if (n >= cache_size) {
         idx_t new_size = n + 1;           /* allocate up to n inclusive           */
-        a_vals = (seq_t *)realloc(a_vals, new_size * sizeof(seq_t));
-        c_vals = (seq_t *)realloc(c_vals, new_size * sizeof(seq_t));
+        a_vals = mem_resize(seq_t, a_vals, new_size);
+        c_vals = mem_resize(seq_t, c_vals, new_size);
 
         /* Initialise the first element.  For n==0 we always have a(0)=0.  */
         if (cache_size == 0) {

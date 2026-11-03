@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 97, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 9549 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* multiply base^exp while staying ≤ limit, return limit+1 on overflow/overflow test */
 static inline __int128 pow_leq(__int128 base, int exp, __int128 limit)
@@ -103,7 +105,7 @@ seq_t a(idx_t n)
         fact_len = 1;
 
         qual_size = 16;
-        qual = (seq_t *)malloc(qual_size * sizeof(seq_t));
+        qual = mem_new(seq_t, qual_size);
         qual[0] = 1;           /* 1 is a qualifying number */
         qual_len = 1;
     }
@@ -139,7 +141,7 @@ seq_t a(idx_t n)
         if (is_perfect_power(sum)) {
             if (qual_len >= qual_size) {
                 size_t new_size = qual_size ? qual_size << 1 : 16;
-                qual = (seq_t *)realloc(qual, new_size * sizeof(seq_t));
+                qual = mem_resize(seq_t, qual, new_size);
                 qual_size = new_size;
             }
             qual[qual_len++] = (seq_t)k;

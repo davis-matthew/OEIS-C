@@ -7,11 +7,13 @@
  * Formula:   a(n) = 2^n*floor(n/2)!*Gamma(ceil((n+1)/2),-1/4)*exp(-1/4)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 13, u64 n <= 20, u128 n <= 33,
  *            big any n
+ * Validated: standard, pass, 39 terms through n = 411 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 /* Compute a(2m) for m >= 0.  Uses factorial and an alternating sum. */

@@ -8,7 +8,8 @@
  * Formula:   a(n) = number of composite numbers of the form n||k for k = 1..n
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* small primes up to 97 for fast composite detection */
 static const uint32_t small_prime[] = {
@@ -160,7 +162,7 @@ seq_t a(idx_t n)
     /* extend cache */
     size_t old_size = cached_n;
     size_t new_size = n;
-    seq_t *new_arr = (seq_t *)realloc(cache_arr, new_size * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, cache_arr, new_size);
     if (!new_arr) abort();
     cache_arr = new_arr;
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 5189, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   leading_digit_uint128
+ * Validated: standard, pass, 70 terms through n = 9464 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,14 @@
 
 #include <math.h>
 #include <stdint.h>
-#include "../utils/leading_digit_uint128.h"
+
+/* Helper: return the leading decimal digit of an unsigned __int128 value. */
+static int leading_digit_uint128(unsigned __int128 x)
+{
+    while (x >= 10)
+        x /= 10;
+    return (int)x;
+}
 
 /* Main function required by the framework. */
 seq_t a(idx_t n)

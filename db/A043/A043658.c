@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 45, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   has_three_runs
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,22 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/has_three_runs.h"
+#include "../utils/mem.h"
+
+static inline bool has_three_runs(seq_t x) {
+    int runs = 0;
+    int prev = -1;
+    while (x > 0) {
+        int d = (int)(x % 13);
+        if (d != prev) {
+            ++runs;
+            if (runs > 3) return false;
+            prev = d;
+        }
+        x /= 13;
+    }
+    return runs == 3;
+}
 
 /* static cache to serve repeated calls in any order */
 static seq_t  *cache = NULL;
@@ -33,7 +49,7 @@ static idx_t  last_checked = 169;   /* start just before the first term (170) */
 static void append_value(seq_t v) {
     if (cache_len == cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-        seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
         if (!new_ptr) exit(1);                     /* out of memory */
         cache = new_ptr;
         cache_cap = new_cap;

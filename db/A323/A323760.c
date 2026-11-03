@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 15, u32 n <= 23, u64 n <= 47, u128 n <= 119,
  *            big any n
- * Helpers:   _factorise_using_spf, big_pow, build_spf, gcd
+ * Validated: standard, pass, 57 terms through n = 7394 (2026-11-01)
+ * Helpers:   build_spf, gcd, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,10 +28,31 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "../utils/gcd.h"
-#include "../utils/big_pow.h"
 #include "../utils/build_spf.h"
-#include "../utils/_factorise_using_spf.h"
+#include "../utils/gcd.h"
+#include "../utils/ipow.h"
+
+/* factorises 'x' using the pre‑computed smallest‑prime‑factor table
+ * 'spf' (indices 0..n).  The distinct primes and their exponents
+ * are stored in 'primes' and 'exps'; the function returns the count.
+ */
+static inline size_t _factorise_using_spf(idx_t x, idx_t primes[],
+                                          int exps[], const idx_t *spf)
+{
+    size_t cnt = 0;
+    while (x > 1) {
+        idx_t p = spf[x];
+        int e   = 0;
+        while (x % p == 0) {
+            x /= p;
+            ++e;
+        }
+        primes[cnt] = p;
+        exps[cnt]   = e;
+        ++cnt;
+    }
+    return cnt;
+}
 
 /*  Computes the nth term of sequence A323760 (1‑based index).  */
 seq_t a(idx_t n)
@@ -65,7 +87,7 @@ seq_t a(idx_t n)
         seq_t pod = (seq_t)1;
         for (size_t i = 0; i < pcnt; ++i) {
             seq_t exp = ((seq_t)exps[i] * tau_d) / (seq_t)2;
-            seq_t term = big_pow((seq_t)primes[i], exp);
+            seq_t term = ipow((seq_t)primes[i], exp);
             pod *= term;
         }
 

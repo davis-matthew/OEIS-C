@@ -9,7 +9,8 @@
  *            representation contains an equal number of digits 1 and 4
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   has_equal_1_4
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,23 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/has_equal_1_4.h"
+
+static inline bool has_equal_1_4(seq_t val)
+{
+    seq_t v = val;
+    idx_t cnt1 = 0;
+    idx_t cnt4 = 0;
+    while (v > 0)
+    {
+        int d = (int)(v % 11);
+        if (d == 1)
+            ++cnt1;
+        else if (d == 4)
+            ++cnt4;
+        v /= 11;
+    }
+    return cnt1 == cnt4;
+}
 
 seq_t a(idx_t n)
 {

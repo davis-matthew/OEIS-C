@@ -11,19 +11,21 @@
  *            S(m)), and a(n) = S(n+1). This is equivalent to A(x)...
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 33, u64 n <= 63, u128 n <= 122,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 873 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a001137_S = NULL;
 static idx_t a001137_cap = 0;
 
 static void a001137_build(idx_t Nmax) {
-    seq_t *S = (seq_t *)calloc(Nmax + 1, sizeof(seq_t));
-    seq_t *P = (seq_t *)calloc(Nmax + 1, sizeof(seq_t));
+    seq_t *S = mem_new(seq_t, Nmax + 1);
+    seq_t *P = mem_new(seq_t, Nmax + 1);
     idx_t r = 0, m, k, t;
     P[0] = 1;
     for (m = 1; 2 * m <= Nmax; m++) {
@@ -43,8 +45,8 @@ static void a001137_build(idx_t Nmax) {
             for (k = 0; k <= lim; k++) S[2 * m + k] += D * P[k];
         }
     }
-    free(P);
-    if (a001137_S) free(a001137_S);
+    mem_free(P);
+    if (a001137_S) mem_free(a001137_S);
     a001137_S = S;
     a001137_cap = Nmax;
 }

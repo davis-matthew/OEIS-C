@@ -11,7 +11,8 @@
  *            (the complement then sums to k). This subset sum...
  * Range:     u8 n <= 1, u16 n <= 134, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   w_cmp_desc
+ * Validated: standard, pass, 56 terms through n = 9699 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/w_cmp_desc.h"
+
+static int w_cmp_desc(const void *x, const void *y) {
+    uint64_t u = *(const uint64_t *)x, v = *(const uint64_t *)y;
+    return (u < v) ? 1 : (u > v) ? -1 : 0;
+}
 
 static uint32_t *w_spf = NULL;
 static uint64_t w_spf_lim = 0;

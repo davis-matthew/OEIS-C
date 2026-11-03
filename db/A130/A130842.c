@@ -9,13 +9,24 @@
  *            non‑zero 3‑digit group
  * Range:     u8 n <= 41, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   starts_t_group
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/starts_t_group.h"
+
+/* Return true iff a 3‑digit block starts with a word beginning with 't'.
+   These blocks are: 2, 10–13 (10,12,13) and 20–39 and 200–299. */
+static bool starts_t_group(seq_t g)
+{
+    if (g == 2) return true;
+    if (g >= 200 && g <= 299) return true;        /* two hundred… */
+    if (g >= 20  && g <= 39 ) return true;        /* twenty… and thirty… */
+    if (g == 10 || g == 12 || g == 13) return true;/* ten, twelve, thirteen */
+    return false;
+}
 
 seq_t a(idx_t n)
 {

@@ -9,13 +9,15 @@
  *            antipalindrome)
  * Range:     u8 n <= 8, u16 n <= 44, u32 n <= 764, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bitlen_seq_t
+ * Validated: standard, pass, 70 terms through n = 9418 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/bitlen_seq_t.h"   /* provides unsigned bitlen_seq_t(seq_t x) */
+#include <stdint.h>
+#include "../utils/bit_length.h"
 
 /* Return true if x is a binary antipalindrome.
    An antipalindrome has even bit length and each symmetric pair of bits are different. */
@@ -25,7 +27,7 @@ static bool is_antipal(seq_t x)
     if (x == 0)
         return false;
 
-    unsigned len = bitlen_seq_t(x);
+    unsigned len = bit_length(x);
     if (len & 1)      /* odd length cannot be a (binary) antipalindrome */
         return false;
 

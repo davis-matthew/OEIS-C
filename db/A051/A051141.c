@@ -11,7 +11,8 @@
  *            a(n,0)=0 for n≥1
  * Range:     i8 n <= 6, i16 n <= 21, i32 n <= 45, i64 n <= 120, i128 n <= 351,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 1248 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>   /* malloc, realloc, abort */
 #include <stdint.h>   /* int64_t */
 #include <stddef.h>   /* size_t */
+#include "../utils/mem.h"
 
 static seq_t **rows          = NULL; /* rows[i] holds the (i+1)-th row  */
 static size_t  rows_cap      = 0;
@@ -62,7 +64,7 @@ static void compute_next_row(void)
 
     /* Allocate space for indices 0..n; index 0 is unused so that
        row indices start at 1, matching the recurrence definition. */
-    seq_t *cur = (seq_t*)malloc((n + 1) * sizeof *cur);
+    seq_t *cur = mem_new(seq_t, ((n + 1) * sizeof *cur) / sizeof(seq_t));
     if (!cur) abort();
 
     cur[0] = 0; /* unused */

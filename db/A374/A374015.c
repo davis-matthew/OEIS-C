@@ -7,8 +7,9 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = ( n! / 10^min(v2(n!), v5(n!)) ) mod 5, where v2 and v5
  *            are exponents of 2 and 5 in n!
- * Range:     u8 n <= 9817, u16 n <= 9817, u32 n <= 9817, u64 n <= 9817,
- *            u128 n <= 9817, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 122 terms through n = 9817 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

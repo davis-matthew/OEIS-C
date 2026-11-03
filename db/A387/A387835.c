@@ -10,8 +10,9 @@
  *            from 1 to the maximum exponent e occurring in the prime
  *            factorisation of r. The sequence is concatenated starting from
  *            offset 2 (i.e., a(2) is the first term). This imple...
- * Range:     u8 n <= 424, u16 n <= 9503, u32 n <= 9503, u64 n <= 9503,
- *            u128 n <= 9503, big any n
+ * Range:     u8 n <= 424, u16 n <= 10002, u32 n <= 10002, u64 n <= 10002,
+ *            u128 n <= 10002, big any n
+ * Validated: standard, pass, 91 terms through n = 9503 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

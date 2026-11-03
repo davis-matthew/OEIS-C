@@ -8,12 +8,14 @@
  *            1)*a(n-2) + n^6*a(n-3), a(0) = 1, a(1) = 14, a(2) = 273
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 10, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 99 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;
 static idx_t memo_cap = 0;
@@ -21,12 +23,12 @@ static idx_t memo_cap = 0;
 static void ensure_capacity(idx_t n) {
     if (n >= memo_cap) {
         idx_t new_cap = (n + 1000) * 2;
-        seq_t *new_memo = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_memo = mem_new(seq_t, new_cap);
         if (memo) {
             for (idx_t i = 0; i < memo_cap; i++) {
                 new_memo[i] = memo[i];
             }
-            free(memo);
+            mem_free(memo);
         }
         for (idx_t i = memo_cap; i < new_cap; i++) {
             new_memo[i] = 0;

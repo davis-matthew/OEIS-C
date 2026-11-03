@@ -7,6 +7,7 @@
  * Formula:   a(n) = 4*Product_{i=1..2n-1} (3^i+1)^2
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 2, u64 n <= 3, u128 n <= 4,
  *            big any n
+ * Validated: partial, pass, 9 terms through n = 8 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

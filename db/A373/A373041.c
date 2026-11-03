@@ -10,7 +10,8 @@
  *            pairs 1≤x<y<m with x+y>m)
  * Range:     u8 n <= 33, u16 n <= 725, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _S_size_t
+ * Validated: standard, pass, 77 terms through n = 9921 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,22 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/_S_size_t.h"
+
+/* Compute S(m) as described above, returns a seq_t value */
+static inline seq_t _S_size_t(size_t m)
+{
+    if (m < 3) return 0; /* no valid pairs */
+    if ((m & 1) == 0) {          /* even m */
+        size_t k = m / 2;
+        size_t t = (k > 0) ? k - 1 : 0;
+        return (seq_t)(t * t);
+    } else {                     /* odd m */
+        size_t k = (m - 1) / 2;
+        size_t t1 = k;
+        size_t t2 = (k > 0) ? k - 1 : 0;
+        return (seq_t)(t1 * t2);
+    }
+}
 
 /* global tables for Möbius function and smallest prime factors */
 static size_t _mu_max = 0;

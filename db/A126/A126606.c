@@ -8,7 +8,8 @@
  *            a(n) + a(n+1), a(2n+1) = a(n+1)
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 80 terms through n = 80 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* The function is memoised and works for any order of calls. */
 
 #include <stdlib.h>   /* malloc, realloc, calloc */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* cache[1..] holds a(n) */
 static idx_t  cache_cap = 0;           /* allocated size (>=0) */
@@ -32,7 +34,7 @@ ensure_cache(idx_t n)
     while (new_cap <= n)
         new_cap *= 2;
 
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (new_cache == NULL)
         abort();                    /* out of memory */
 
@@ -53,7 +55,7 @@ init_cache(void)
 
     /* allocate indices 0..2 (index 0 unused) */
     cache_cap = 3;
-    cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     if (cache == NULL)
         abort();
 

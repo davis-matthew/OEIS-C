@@ -7,12 +7,14 @@
  * Formula:   a(n) = 12*a(n-1) - a(n-2) + 1, with a(0)=1, a(1)=13
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 17, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_size = 0;
@@ -26,7 +28,7 @@ static void extend_cache(idx_t n)
     size_t new_size = cache_size ? cache_size : 2;
     while (new_size < required) new_size <<= 1;
 
-    cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_size);
     cache_size = new_size;
 }
 

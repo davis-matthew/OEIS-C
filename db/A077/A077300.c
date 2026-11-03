@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 none, u64 n <= 17, u128 n <= 21,
  *            big any n
- * Helpers:   x_to_digits
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,27 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/x_to_digits.h"
+#include "../utils/mem.h"
+
+/* Convert an unsigned integer x (type idx_t) to decimal digits.
+   buf must be at least 21 bytes for a 64‑bit number. */
+static size_t x_to_digits(idx_t x, char *buf)
+{
+    if (x == 0) {
+        buf[0] = '0';
+        return 1;
+    }
+    idx_t t = x;
+    char rev[32];
+    size_t rlen = 0;
+    while (t > 0) {
+        rev[rlen++] = (char)('0' + (t % 10));
+        t /= 10;
+    }
+    for (size_t i = 0; i < rlen; ++i)
+        buf[i] = rev[rlen - 1 - i];
+    return rlen;
+}
 
 /* State kept by the implementation. */
 struct A077300State {
@@ -48,7 +69,7 @@ static void grow_seq(seq_t **arr, size_t *cap, size_t need)
     size_t newcap = (*cap == 0) ? 8 : (*cap << 1);
     if (newcap < need) newcap = need;
 #if defined(__cplusplus)
-    *arr = reinterpret_cast<seq_t*>(realloc(*arr, newcap * sizeof(seq_t)));
+    *arr = reinterpret_cast<seq_t*>(mem_resize(seq_t, *arr, newcap));
 #else
     *arr = realloc(*arr, newcap * sizeof(seq_t));
 #endif

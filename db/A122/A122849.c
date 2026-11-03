@@ -8,13 +8,15 @@
  *            2^{n-2k})
  * Range:     u8 n <= 9, u16 n <= 15, u32 n <= 24, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are provided by the build environment. */
 static seq_t *fact = NULL;
@@ -26,7 +28,7 @@ static void ensure_fact(idx_t m)
     if (m < fact_size)
         return;
     size_t new_size = m + 1;
-    seq_t *new_fact = (seq_t *)malloc(new_size * sizeof(seq_t));
+    seq_t *new_fact = mem_new(seq_t, new_size);
     if (!new_fact)
         return; /* allocation failure; let the caller handle it */
     if (!fact) {
@@ -34,10 +36,10 @@ static void ensure_fact(idx_t m)
         for (idx_t i = 1; i <= m; ++i)
             new_fact[i] = new_fact[i - 1] * (seq_t)i;
     } else {
-        memcpy(new_fact, fact, fact_size * sizeof(seq_t));
+        mem_copy(new_fact, fact, fact_size * sizeof(seq_t));
         for (idx_t i = fact_size; i <= m; ++i)
             new_fact[i] = new_fact[i - 1] * (seq_t)i;
-        free(fact);
+        mem_free(fact);
     }
     fact = new_fact;
     fact_size = new_size;

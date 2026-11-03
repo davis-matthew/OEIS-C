@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 16, u32 n <= 23, u64 n <= 39, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 706 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,11 +32,11 @@ seq_t a(idx_t n)
     idx_t c = n - r * (r + 1) / 2;
 
     /* Allocate first row */
-    seq_t *prev = (seq_t*)calloc(1, sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, 1);
     prev[0] = (seq_t)1;     /* T(0,0) */
 
     for (idx_t i = 1; i <= r; ++i) {
-        seq_t *curr = (seq_t*)calloc(i + 1, sizeof(seq_t));
+        seq_t *curr = mem_new(seq_t, i + 1);
         curr[0] = (seq_t)1; /* first element is always 1 */
 
         /* Compute i^i using exponentiation by squaring */
@@ -53,11 +55,11 @@ seq_t a(idx_t n)
             curr[j] = prev_j + pow_val * prev_jm1;
         }
 
-        free(prev);
+        mem_free(prev);
         prev = curr;
     }
 
     seq_t result = prev[c];
-    free(prev);
+    mem_free(prev);
     return result;
 }

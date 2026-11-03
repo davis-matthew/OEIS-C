@@ -8,7 +8,8 @@
  *            k-1 and k+1 are NOT squarefree
  * Range:     u8 n <= 8, u16 n <= 2769, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 9518 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #ifdef __cplusplus
 #include <new>
 #endif
+#include "../utils/mem.h"
 
 /*--- Limits ---------------------------------------------------*/
 #define SPF_LIMIT 20000000U  /* must be large enough to find n ≤ 10000 */
@@ -94,13 +96,13 @@ static void add_term(uint64_t val)
 {
     if (terms_cap == 0) {
         terms_cap = 16;
-        terms = (seq_t*)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
     } else if (terms_size == terms_cap) {
         terms_cap <<= 1;
-        terms = (seq_t*)realloc(terms, terms_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, terms_cap);
     }
 #ifdef __cplusplus
-    new (terms + terms_size) seq_t((seq_t)val);
+    *(terms + terms_size) = (seq_t)((seq_t)val);
 #else
     terms[terms_size] = (seq_t)val;
 #endif

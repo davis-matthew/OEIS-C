@@ -8,14 +8,16 @@
  * Formula:   a(n) = Sum_{j=0..floor((n-1)/3)} binomial(n-2*j-1, n-3*j-1) *
  *            binomial(n+3+j, n+2) / (n+3) Implements the OEIS sequence
  *            A054514 using the provided binomial() and gcd() utilities
- * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 27, u64 n <= 35, u128 n <= 35,
+ * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 27, u64 n <= 35, u128 n <= 35,
  *            big any n
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-01)
  * Helpers:   binomial, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/gcd.h"
 

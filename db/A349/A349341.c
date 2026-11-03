@@ -9,8 +9,9 @@
  *            with: a(1) = 1 a(2^e) = -1 (for any e ≥ 1) a(p) = -p (p an odd
  *            prime) a(p^e) = 0 (p odd prime, e > 1) The implementation
  *            factorises n and multiplies these local values
- * Range:     i8 n <= 128, i16 n <= 9377, i32 n <= 9377, i64 n <= 9377,
- *            i128 n <= 9377, big any n
+ * Range:     i8 n <= 128, i16 n <= 20000, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 95 terms through n = 9377 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

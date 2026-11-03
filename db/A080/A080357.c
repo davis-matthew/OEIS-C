@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define MAX_N   10000ULL          /* pre‑compute up to this index             */
 #define LIMIT   5000000ULL        /* maximum prime value to sieve            */
@@ -57,9 +59,9 @@ static void compute_all(void)
 
     /* Allocate a cache array (1‑based) */
     if (cache_s == NULL) {
-        cache_s = (seq_t *)calloc((size_t)(MAX_N + 1), sizeof(seq_t));
+        cache_s = mem_new(seq_t, (size_t)(MAX_N + 1));
     } else {
-        memset(cache_s, 0, (size_t)(MAX_N + 1) * sizeof(seq_t));
+        mem_set(cache_s, 0, (size_t)(MAX_N + 1) * sizeof(seq_t));
     }
 
     /* Sieve primes */

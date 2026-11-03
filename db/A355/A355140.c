@@ -10,18 +10,20 @@
  *            rounded up
  * Range:     u8 n <= 77, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   divisor_count_u64
+ * Validated: partial, pass, 77 terms through n = 77 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/divisor_count_u64.h"
+#include <stdint.h>
+#include "../utils/num_divisors.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) /* undefined for offset 1; return 0 as safe fallback */
         return 0;
-    uint64_t d = divisor_count_u64((uint64_t)n);
+    uint64_t d = num_divisors((uint64_t)n);
     /* integer division and remainder */
     uint64_t q = n / d;
     uint64_t r = n % d;

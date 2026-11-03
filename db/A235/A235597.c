@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 10, u32 n <= 10, u64 n <= 10, u128 n <= 10,
  *            big any n
- * Helpers:   is_good_sq
+ * Validated: full, pass, 10 terms through n = 10 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,31 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/is_good_sq.h"
+
+/* Return true if the decimal digits of x satisfy
+   each later digit > previous digit + 1. */
+static bool is_good_sq(seq_t x)
+{
+    if (x == (seq_t)0)
+        return true;                    /* 0 is a square and satisfies the condition */
+
+    seq_t tmp = x;
+    uint8_t digs[20];
+    size_t d = 0;
+
+    /* Extract digits in least‑to‑most order. */
+    while (tmp > (seq_t)0) {
+        digs[d++] = (uint8_t)(tmp % (seq_t)10);
+        tmp /= (seq_t)10;
+    }
+
+    /* Check the condition from most‑to‑least significant digit. */
+    for (size_t j = d - 1; j > 0; --j) {
+        if (digs[j - 1] <= digs[j] + 1)
+            return false;
+    }
+    return true;
+}
 
 /* Return the n-th term of the sequence (offset 1). */
 seq_t a(idx_t n)

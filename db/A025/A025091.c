@@ -10,7 +10,8 @@
  *            composite numbers starting at 6 (6,8,9,10,12,…)
  * Range:     u8 n <= 8, u16 n <= 28, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Simple primality test for 64-bit values (trial division). */
 static bool is_prime(uint64_t n)
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
 
     /* 1. generate the first n composite numbers (starting at 6). */
     size_t need = (size_t)n;
-    seq_t *comps = (seq_t*)malloc(need * sizeof(seq_t));
+    seq_t *comps = mem_new(seq_t, need);
     if (!comps) abort();                /* out of memory */
 
     size_t count = 0;
@@ -73,6 +75,6 @@ seq_t a(idx_t n)
         sum += s * t;
     }
 
-    free(comps);
+    mem_free(comps);
     return sum;
 }

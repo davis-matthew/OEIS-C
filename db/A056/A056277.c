@@ -9,7 +9,8 @@
  *            S(k,j) (S = Stirling numbers of the second kind)
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 16, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   mul_small
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,20 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/mul_small.h"   /* seq_t mul_small(seq_t x, unsigned int m); */
+#include "../utils/mem.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 /* --------------------------------------------------------------------------
    Static state: arrays for A056273 (total word structures) and the
@@ -40,8 +54,8 @@ static void compute_A_arr(size_t N)
     static seq_t S[7];   /* S[0..6] */
 
     /* Allocate space for A_arr */
-    free(A_arr);
-    A_arr = (seq_t *)calloc(N + 1, sizeof(seq_t));
+    mem_free(A_arr);
+    A_arr = mem_new(seq_t, N + 1);
     if (!A_arr) exit(EXIT_FAILURE);
 
     /* Initialise first row: S(0,0) = 1, others 0 */
@@ -72,8 +86,8 @@ static void compute_A_arr(size_t N)
 static void compute_res_arr(size_t N)
 {
     /* Allocate space for the result array */
-    free(res_arr);
-    res_arr = (seq_t *)calloc(N + 1, sizeof(seq_t));
+    mem_free(res_arr);
+    res_arr = mem_new(seq_t, N + 1);
     if (!res_arr) exit(EXIT_FAILURE);
 
     for (size_t n = 1; n <= N; ++n) {

@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 3, u32 n <= 12, u64 n <= 27, u128 n <= 57,
  *            big any n
- * Helpers:   adjacent_rows
+ * Validated: standard, pass, 35 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,7 +31,26 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/adjacent_rows.h"
+#include "../utils/mem.h"
+
+/* check whether two rows can be consecutive (vertical adjacency + 2×2 rule) */
+static bool
+adjacent_rows(const uint8_t *r1, const uint8_t *r2)
+{
+    for (int col = 0; col < 4; ++col)
+        if (r1[col] == r2[col]) return false;   /* no equal vertical neighbours */
+
+    for (int col = 0; col < 3; ++col) {
+        int a = r1[col];
+        int b = r1[col + 1];
+        int c = r2[col];
+        int d = r2[col + 1];
+        int diff = a + d - (b + c);
+        if (diff < 0) diff = -diff;
+        if (diff != 4) return false;            /* 2×2 block constraint */
+    }
+    return true;
+}
 
 /* ---------- global matrices built on first call ---------- */
 static uint8_t         (*pattern)[4] = NULL;  /* 4‑digit rows */
@@ -94,8 +114,8 @@ a(idx_t n)
     }
 
     /* dynamic programming arrays */
-    seq_t *dp_cur  = (seq_t *)calloc(pattern_count, sizeof(seq_t));
-    seq_t *dp_next = (seq_t *)calloc(pattern_count, sizeof(seq_t));
+    seq_t *dp_cur  = mem_new(seq_t, pattern_count);
+    seq_t *dp_next = mem_new(seq_t, pattern_count);
 
     /* every pattern may start the first row */
     for (size_t i = 0; i < pattern_count; ++i) dp_cur[i] = (seq_t)1;
@@ -127,7 +147,7 @@ a(idx_t n)
         total += dp_cur[i];
 
     /* clean up */
-    free(dp_cur);
-    free(dp_next);
+    mem_free(dp_cur);
+    mem_free(dp_next);
     return total;
 }

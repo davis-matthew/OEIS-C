@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 69, u32 n <= 175, u64 n <= 441,
  *            u128 n <= 1139, big any n
- * Helpers:   diagonal
+ * Validated: standard, pass, 94 terms through n = 1065 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,7 +36,25 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/diagonal.h"
+
+/* Uses 128‑bit arithmetic to avoid overflow for large ``idx_t``.    */
+static idx_t diagonal(idx_t n)
+{
+    idx_t lo = 0;
+    idx_t hi = 1;
+    /* grow hi until the triangular number is >= n */
+    while ((unsigned __int128)hi * (hi + (idx_t)1) / 2 < n)
+        hi <<= 1;
+    /* binary search between lo and hi */
+    while (lo < hi) {
+        idx_t mid = lo + (hi - lo) / 2;
+        if ((unsigned __int128)mid * (mid + (idx_t)1) / 2 >= n)
+            hi = mid;
+        else
+            lo = mid + 1;
+    }
+    return lo;
+}
 
 /* ------------------------------------------------------------------ */
 /* Small binary exponentiation – works for any seq_t that supports  * */

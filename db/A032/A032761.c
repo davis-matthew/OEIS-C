@@ -9,7 +9,8 @@
  *            each subsequent cube to the end of the previous cube
  * Range:     u8 n <= 6, u16 n <= 26, u32 n <= 1127, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow10
+ * Validated: standard, pass, 60 terms through n = 9358 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,18 @@
    standard utils provided. */
 
 #include <stdlib.h>
-#include "../utils/pow10.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Return the leftmost decimal digit of x (x ≥ 0). */
 static seq_t leftmost_digit(seq_t x)
@@ -34,7 +46,7 @@ seq_t a(idx_t n)
     if (n == 0) return (seq_t)0;
 
     size_t m = (size_t)(n + 1);           /* number of cubes needed */
-    seq_t *cubes = (seq_t *)malloc(m * sizeof(seq_t));
+    seq_t *cubes = mem_new(seq_t, m);
     if (!cubes) return (seq_t)0;          /* fall back if allocation fails */
 
     /* initial cubes list: cube[i] = i^3 */
@@ -61,6 +73,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = cubes[n - 1];  /* a(n) corresponds to modified cube(n-1) */
-    free(cubes);
+    mem_free(cubes);
     return result;
 }

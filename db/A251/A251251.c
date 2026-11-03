@@ -10,12 +10,14 @@
  *            recurrence implementation with dynamic array
  * Range:     u8 n <= 5, u16 n <= 12, u32 n <= 26, u64 n <= 55, u128 n <= 112,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     /* initialise cache with first three terms if not yet done */
     if (cache == NULL) {
         cache_size = 3;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         cache[0] = (seq_t)8;
         cache[1] = (seq_t)18;
         cache[2] = (seq_t)38;
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
 
     /* extend cache if needed */
     if (n > cache_size) {
-        cache = (seq_t *)realloc(cache, n * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, n);
         cache_size = n;
     }
 

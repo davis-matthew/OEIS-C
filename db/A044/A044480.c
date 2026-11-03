@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   has42
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,35 @@
  * type seq_t. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has42.h"
+#include "../utils/mem.h"
+
+/* Return true iff base‑5 representation of x contains the adjacent
+ * digits 4 followed by 2. */
+static bool has42(seq_t x)
+{
+    /* A buffer is needed only to hold the digits of the current
+       number.  128 digits more than suffice for all test values up
+       to 10 000th term. */
+    uint8_t dig[128];
+    size_t len = 0;
+    seq_t t = x;
+
+    if (t == 0)
+        return false;
+
+    while (t > 0) {
+        dig[len++] = (uint8_t)(t % 5);
+        t /= 5;
+    }
+
+    /* The digits are stored from least‑significant to most‑significant.
+       Scan for the pattern 4,2 from most‑significant downwards. */
+    for (size_t i = len; i > 1; --i) {
+        if (dig[i - 1] == 4 && dig[i - 2] == 2)
+            return true;
+    }
+    return false;
+}
 
 /* Return the nth element of the sequence (1‑based).
  * The function can be called in any order; results are cached
@@ -44,7 +73,7 @@ seq_t a(idx_t n)
                 /* make room if necessary */
                 if (size == cap) {
                     size_t new_cap = cap ? cap * 2 : 16;
-                    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                     if (tmp == NULL)   /* allocation failed */
                         return 0;
                     cache = tmp;

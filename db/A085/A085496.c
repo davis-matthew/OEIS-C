@@ -9,7 +9,8 @@
  *            distinct divisors of that prime plus one
  * Range:     u8 n <= 40, u16 n <= 127, u32 n <= 472, u64 n <= 3597,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 99 terms through n = 4304 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ----------  Local prime generation (used to fetch nth prime)  ---------- */
 static uint64_t *primes = NULL;    /* array of primes [0 .. prime_cnt-1]      */
@@ -106,7 +108,7 @@ seq_t a(idx_t n)
 
     /* Dynamic programming over sums */
     size_t dp_size = (size_t)(p + 1);
-    seq_t *dp = (seq_t*)calloc(dp_size, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, dp_size);
     if (!dp) { free(divs); return 0; }
     dp[0] = 1;                            /* empty sum */
 
@@ -121,7 +123,7 @@ seq_t a(idx_t n)
 
     seq_t result = dp[p];
 
-    free(dp);
+    mem_free(dp);
     free(divs);
 
     return result;

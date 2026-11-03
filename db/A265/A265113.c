@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 116, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   next_prime
+ * Validated: standard, pass, 61 terms through n = 990 (2026-11-03)
+ * Helpers:   mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 static inline int popcnt_seq(seq_t x)
 {
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
         if (popcnt_seq(sp) == popcnt_seq(sp2)) {
             if (term_count >= term_cap) {
                 term_cap = (term_cap ? term_cap * 2 : 64);
-                terms = (seq_t*)realloc(terms, term_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, term_cap);
             }
             terms[term_count++] = sp;
         }

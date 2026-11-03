@@ -7,13 +7,17 @@
  * Formula:   a(n) = smallest k>0 such that (-2*(-1)^n)^k ≡ ±1 (mod 4n+3)
  * Range:     u8 n <= 63, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 94 terms through n = 9646 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -45,7 +49,7 @@ seq_t a(idx_t n)
                t_mod^r ≡ 1 (mod M). */
             while (r % p == 0) {
                 uint64_t cand = r / p;
-                if (mod_pow(t_mod, cand, M_seq) == (seq_t)1)
+                if (powmod(t_mod, cand, M_seq) == (seq_t)1)
                     r = cand;
                 else
                     break;
@@ -57,7 +61,7 @@ seq_t a(idx_t n)
         uint64_t p = tempr;
         while (r % p == 0) {
             uint64_t cand = r / p;
-            if (mod_pow(t_mod, cand, M_seq) == (seq_t)1)
+            if (powmod(t_mod, cand, M_seq) == (seq_t)1)
                 r = cand;
             else
                 break;
@@ -67,7 +71,7 @@ seq_t a(idx_t n)
     /* If r is even and t_mod^(r/2) ≡ -1 (mod M), the true order
        on the quotient (Z/MZ)/{±1} is r/2. */
     if ((r & 1ULL) == 0) {
-        seq_t mid = mod_pow(t_mod, r / 2, M_seq);
+        seq_t mid = powmod(t_mod, r / 2, M_seq);
         if (mid == (seq_t)(M - 1))
             return (seq_t)(r / 2);
     }

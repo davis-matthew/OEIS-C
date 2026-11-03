@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 61, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,13 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#endif
 
 /* ------------------------------------------------------------------ */
 /*  Static storage used by the routine                              */
@@ -45,6 +53,20 @@ static uint64_t      next_k      = 1;              /* next integer to test */
 /*  Helper to allocate and grow a dynamic array                        */
 /* ------------------------------------------------------------------ */
 
+#ifdef __cplusplus
+template <class T>
+static void grow_if_needed(size_t needed, size_t *cap, T **ptr, size_t elem_size) /* elem_size: sizeof(T) */
+{
+    if (needed <= *cap) return;
+    size_t new_cap = *cap;
+    if (new_cap == 0) new_cap = 16;
+    while (new_cap < needed) new_cap <<= 1;
+    T *tmp = mem_resize(T, *ptr, new_cap);
+    if (!tmp) abort();
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#else
 static void grow_if_needed(size_t needed, size_t *cap, void **ptr, size_t elem_size)
 {
     if (needed <= *cap) return;
@@ -56,6 +78,7 @@ static void grow_if_needed(size_t needed, size_t *cap, void **ptr, size_t elem_s
     *ptr = tmp;
     *cap = new_cap;
 }
+#endif
 
 /* ------------------------------------------------------------------ */
 /*  Initialise all tables                                             */
@@ -100,7 +123,7 @@ static void init(void)
 
     /* term cache */
     cache_cap = 16;
-    term_cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    term_cache = mem_new(seq_t, cache_cap);
     term_cache[0] = (seq_t)1;          /* a(1) = 1 */
     cache_len = 1;
     next_k = 2;                        /* start checking from k = 2 */
@@ -116,7 +139,7 @@ static void append_term(seq_t val)
 {
     if (cache_len == cache_cap)
     {
-        grow_if_needed(cache_cap + 1, &cache_cap, (void **)&term_cache, sizeof(seq_t));
+        grow_if_needed(cache_cap + 1, &cache_cap, OEISC_VPP(&term_cache), sizeof(seq_t));
     }
     term_cache[cache_len++] = val;
 }

@@ -11,7 +11,8 @@
  *            fixed limit, then collects all k satisfying the equality
  * Range:     u8 n <= 15, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static uint32_t *divcnt = NULL;      /* divisor counts */
 static uint8_t  *primcnt = NULL;     /* primorial divisor counts */
@@ -71,7 +73,7 @@ static void init(void)
 
     /* Build the sequence: collect all k where d_nonprim(k) == d_nonprim(k+1) */
     terms_cap = 10000;  /* initial reserve */
-    terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+    terms = mem_new(seq_t, terms_cap);
     if (!terms) return;
 
     for (idx_t k = 1; k <= LIMIT; ++k) {
@@ -80,7 +82,7 @@ static void init(void)
         if (dnp_k == dnp_k1) {
             if (terms_size == terms_cap) {
                 terms_cap *= 2;
-                seq_t *tmp = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, terms_cap);
                 if (!tmp) return;
                 terms = tmp;
             }

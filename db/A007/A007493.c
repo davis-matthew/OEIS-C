@@ -10,8 +10,9 @@
  *            5*D^3) >= 0. The next digit d is the largest one with d*(300*X^2
  *            - 200*D^2) + 30*d^2*X + d^3 <= 1000*G. Then a(k+2) = d, and a(1)
  *            = 2
- * Range:     u8 n <= 9751, u16 n <= 9751, u32 n <= 9751, u64 n <= 9751,
- *            u128 n <= 9751, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 121 terms through n = 9751 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

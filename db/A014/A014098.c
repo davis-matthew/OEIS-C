@@ -7,7 +7,8 @@
  * Formula:   a(n) = a(n-1) + a(n-4), a(0)=1, a(1)=1, a(2)=1, a(3)=4
  * Range:     u8 n <= 16, u16 n <= 33, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,10 +29,10 @@ seq_t a(idx_t n)
     /* Need to extend cache to at least n+1 elements */
     idx_t new_size = n + 1;
     if (!cache) {
-        cache = (seq_t *)calloc(new_size, sizeof(seq_t));
+        cache = mem_new(seq_t, new_size);
         if (!cache) exit(1);          /* allocation failure */
     } else if (new_size > cache_size) {
-        cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
         if (!cache) exit(1);          /* allocation failure */
     }
 

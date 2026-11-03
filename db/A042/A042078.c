@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 17, u64 n <= 35, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 188 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    length 10 (q(1)…q(10)), which the routine computes once. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const int D = 563;        /* the square‑free integer */
 static const int a0 = 23;        /* floor(sqrt(563)) */
@@ -59,7 +61,7 @@ static void ensure_num_capacity(idx_t n) {
     if (n + 1 <= num_cap) return;
     size_t new_cap = num_cap ? num_cap * 2 : 64;
     while ((idx_t)new_cap <= n) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(num_arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, num_arr, new_cap);
     if (!tmp) abort();                 /* allocation failed */
     num_arr = tmp;
     num_cap = new_cap;

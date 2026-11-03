@@ -8,13 +8,26 @@
  * Formula:   a(n) = 1095-2^(n-2)*33885+4^(n-2)*(15876*n^2-69930*n+118080)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 8, u64 n <= 22, u128 n <= 53,
  *            big any n
- * Helpers:   pow2, pow4
+ * Validated: standard, pass, 36 terms through n = 998 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
-#include "../utils/pow4.h"
+
+static inline seq_t pow4(idx_t exp) {
+    seq_t result = 1;
+    seq_t base   = 4;
+    idx_t e = exp;
+    while (e) {
+        if (e & 1) result *= base;
+        base *= base;
+        e >>= 1;
+    }
+    return result;
+}
 
 seq_t a(idx_t n)
 {

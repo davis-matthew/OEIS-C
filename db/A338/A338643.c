@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 8016, u16 n <= 9656, u32 n <= 9656, u64 n <= 9656,
- *            u128 n <= 9656, big any n
- * Helpers:   cycle_len, next_node
+ * Range:     u8 n <= 8016, u16 n <= 50000, u32 n <= 50000, u64 n <= 50000,
+ *            u128 n <= 50000, big any n
+ * Validated: standard, pass, 96 terms through n = 9656 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,38 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/cycle_len.h"
-#include "../utils/next_node.h"
+
+/* Return the next node index in the graph of 'm' nodes, given the
+   current node 'i'.  Nodes are 0‑based. */
+static inline idx_t
+next_node(idx_t i, const idx_t *offsets, idx_t m)
+{
+    return (i + offsets[i]) % m;
+}
+
+/* Compute the length of the cycle containing node 0 in the graph
+   defined by the first 'm' offsets.  Uses Floyd's cycle‑finding algorithm. */
+static idx_t
+cycle_len(const idx_t *offsets, idx_t m)
+{
+    idx_t tortoise = next_node(0, offsets, m);
+    idx_t hare     = next_node(tortoise, offsets, m);
+
+    /* Find a meeting point inside the cycle. */
+    while (tortoise != hare) {
+        tortoise = next_node(tortoise, offsets, m);
+        hare     = next_node(next_node(hare, offsets, m), offsets, m);
+    }
+
+    /* Now tortoise==hare somewhere in the cycle.  Compute cycle length. */
+    idx_t lam = 1;
+    hare = next_node(tortoise, offsets, m);
+    while (hare != tortoise) {
+        hare = next_node(hare, offsets, m);
+        ++lam;
+    }
+    return lam;
+}
 
 /* Static storage for the sequence values.  Values are stored as
    idx_t (uint64_t) so they can be cast to seq_t on return. */

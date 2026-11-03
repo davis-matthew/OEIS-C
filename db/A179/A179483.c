@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 4, i16 n <= 9, i32 n <= 19, i64 n <= 39, i128 n <= 80,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: standard, pass, 43 terms through n = 961 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,13 +19,13 @@
 */
 
 #include <stdint.h>
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
     if (n == 1) return (seq_t)3;
     if (n == 2) return (seq_t)-9;
-    seq_t pow2n = pow_seq((seq_t)2, (int)n);
-    seq_t pow3n = pow_seq((seq_t)3, (int)n);
+    seq_t pow2n = ipow_i32((seq_t)2, (int)n);
+    seq_t pow3n = ipow_i32((seq_t)3, (int)n);
     return (seq_t)3 - (seq_t)3 * pow2n + pow3n;
 }

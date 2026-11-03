@@ -8,12 +8,14 @@
  *            decimal; a(1) = 10
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 3, u128 n <= 4,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 5 terms through n = 5 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 seq_t a(idx_t n) {
@@ -24,7 +26,7 @@ seq_t a(idx_t n) {
     
     if (cache == NULL) {
         cache_size = (n > 1000) ? n + 1000 : 2000;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         cache[0] = 10;
         for (idx_t i = 1; i < cache_size; i++) {
             cache[i] = 0;
@@ -33,7 +35,7 @@ seq_t a(idx_t n) {
         seq_t *old_cache = cache;
         idx_t old_size = cache_size;
         cache_size = n + 1000;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         
         for (idx_t i = 0; i < old_size; i++) {
             cache[i] = old_cache[i];
@@ -43,7 +45,7 @@ seq_t a(idx_t n) {
             cache[i] = 0;
         }
         
-        free(old_cache);
+        mem_free(old_cache);
     }
     
     for (idx_t i = 1; i < n; i++) {

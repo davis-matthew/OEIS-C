@@ -11,13 +11,22 @@
  *            = 0) * corresponds to the triangular number 0
  * Range:     u8 n <= 17, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   get_k_by_idx
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/get_k_by_idx.h"
+
+/* Return the m‑th index k_m in the sequence 0,3,8,11,12,… */
+static inline idx_t get_k_by_idx(idx_t m)
+{
+    static const idx_t offs[4] = {0U, 3U, 8U, 11U};
+    idx_t block  = m / 4U;
+    idx_t offid  = m % 4U;
+    return block * 12U + offs[offid];
+}
 
 /* Return the triangular number T(k) = k*(k+1)/2 using seq_t arithmetic. */
 static inline seq_t triangular(idx_t k)

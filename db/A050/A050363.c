@@ -7,7 +7,8 @@
  * Formula:   a(n) = sum_{p^k|n, p prime, k>=1} a(n / p^k) (a(1)=1)
  * Range:     u8 n <= 383, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   factor_u64
+ * Validated: standard, pass, 112 terms through n = 4547 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,10 @@
 #include <stdlib.h>
 
 /* use utility for factorization */
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 static seq_t *f_cache   = NULL;   /* cached values of a(n)      */
 static bool  *visited   = NULL;   /* flags for computed entries */
@@ -32,7 +36,7 @@ ensure_capacity(idx_t n)
         return;
 
     idx_t new_cap = n;                    /* exact size needed */
-    seq_t *new_f  = (seq_t *)calloc(new_cap + 1, sizeof(seq_t));
+    seq_t *new_f  = mem_new(seq_t, new_cap + 1);
     bool  *new_v  = (bool  *)calloc(new_cap + 1, sizeof(bool));
     if (!new_f || !new_v) {
         /* allocation failure – abort */
@@ -41,8 +45,8 @@ ensure_capacity(idx_t n)
 
     /* copy previously computed results */
     if (f_cache) {
-        memcpy(new_f, f_cache, (capacity + 1) * sizeof(seq_t));
-        free(f_cache);
+        mem_copy(new_f, f_cache, (capacity + 1) * sizeof(seq_t));
+        mem_free(f_cache);
     }
     if (visited) {
         memcpy(new_v, visited, (capacity + 1) * sizeof(bool));

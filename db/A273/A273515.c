@@ -10,8 +10,9 @@
  *            or largest term, where the other two terms belong to the Stanley
  *            sequence S(0,1) (numbers whose base‑3 digits are only 0 or 1).
  *            This implementation enumerates all possible...
- * Range:     u8 n <= 7208, u16 n <= 7208, u32 n <= 7208, u64 n <= 7208,
- *            u128 n <= 7208, big any n
+ * Range:     u8 n <= 14761, u16 n <= 19683, u32 n <= 19683, u64 n <= 19683,
+ *            u128 n <= 19683, big any n
+ * Validated: standard, pass, 99 terms through n = 7208 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

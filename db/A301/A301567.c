@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 74, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 75 terms through n = 74 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    congruent to 0 or 1 (mod 5).  The function recomputes the value
    directly by the standard 0/1 knapsack DP for each call. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,9 +28,9 @@ seq_t a(idx_t n)
     /* allocate or grow the cache if needed */
     if ((size_t)n + 1 > cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *new_dp = (seq_t*)calloc(new_cap, sizeof(seq_t));
+        seq_t *new_dp = mem_new(seq_t, new_cap);
         if (!new_dp) return 0;   /* allocation failure */
-        if (dp) free(dp);
+        if (dp) mem_free(dp);
         dp   = new_dp;
         cap  = new_cap;
     }

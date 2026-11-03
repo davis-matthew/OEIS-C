@@ -12,14 +12,42 @@
  *            is described in the code
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 15, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   count_for_size, idx_of_cell, seq_pow
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
-#include "../utils/count_for_size.h"
-#include "../utils/idx_of_cell.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
+
+/* Count how many matrices exist for a given size m.                */
+static idx_t count_for_size(idx_t m)
+{
+    return (m & 1) ? ((m + 1) >> 1) : (m >> 1);
+}
+
+/* Return the position of cell (i,j) in the antidiagonal scan for an
+ * m×m matrix (most‑significant bit first).                          */
+static idx_t idx_of_cell(idx_t m, idx_t i, idx_t j)
+{
+    idx_t s = i + j;                     /* sum of coordinates */
+    idx_t start_i = (s < m) ? 0 : s - (m - 1);
+    idx_t offset   = i - start_i;
+
+    idx_t prior;
+    if (s < m) {
+        /* first half of the scan – all cells up to s */
+        prior = s * (s + 1) / 2;
+    } else {
+        /* second half – counts decrease */
+        idx_t part1 = m * (m + 1) / 2;   /* sum for s = 0 .. m‑1 */
+        idx_t t = s - m;                /* steps beyond the middle */
+        prior = part1 + t * (m - 1) - (t * (t - 1)) / 2;
+    }
+    return prior + offset;
+}
 
 /* Main sequence function.                                               */
 seq_t a(idx_t n)
@@ -37,7 +65,7 @@ seq_t a(idx_t n)
         if (r == 0) {                /* single centre one                  */
             idx_t c   = (m - 1) >> 1;
             idx_t exp = idx_of_cell(m, c, c);
-            return seq_pow(2, exp);
+            return ipow_idx(2, exp);
         }
         /* two symmetric ones, distance d = r from the centre */
         idx_t d   = r;
@@ -46,8 +74,8 @@ seq_t a(idx_t n)
         idx_t i2  = c + d, j2 = c - d;
         idx_t exp1 = idx_of_cell(m, i1, j1);
         idx_t exp2 = idx_of_cell(m, i2, j2);
-        seq_t v1 = seq_pow(2, exp1);
-        seq_t v2 = seq_pow(2, exp2);
+        seq_t v1 = ipow_idx(2, exp1);
+        seq_t v2 = ipow_idx(2, exp2);
         return v1 + v2;
     } else {                          /* even size – always two ones       */
         idx_t outer = m >> 1;          /* number of symmetric pairs        */
@@ -56,8 +84,8 @@ seq_t a(idx_t n)
         idx_t i2  = m - 1 - d, j2 = d;
         idx_t exp1 = idx_of_cell(m, i1, j1);
         idx_t exp2 = idx_of_cell(m, i2, j2);
-        seq_t v1 = seq_pow(2, exp1);
-        seq_t v2 = seq_pow(2, exp2);
+        seq_t v1 = ipow_idx(2, exp1);
+        seq_t v2 = ipow_idx(2, exp2);
         return v1 + v2;
     }
 }

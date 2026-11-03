@@ -12,13 +12,15 @@
  *            is an array of seq_t, indexed by idx_t. The arra...
  * Range:     u8 n <= 79, u16 n <= 975, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 88 terms through n = 9484 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External types supplied by the build environment. */
 typedef uint64_t idx_t;
@@ -40,7 +42,7 @@ static void ensure_cache(idx_t n) {
     idx_t new_size = cache_size == 0 ? 1 : cache_size;
     while (new_size <= n)
         new_size <<= 1; /* double until large enough */
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache) {
         /* Allocation failed: terminate. */
         exit(1);

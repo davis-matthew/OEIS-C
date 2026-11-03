@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   floor_isqrt_u64, floor_sqrt
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-01)
+ * Helpers:   ipow_i32, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,13 +20,32 @@
    positive solution k, the value is z = r/k + k - 1; otherwise 0. */
 
 #include <stdbool.h>
-#include "../utils/floor_isqrt_u64.h"   /* floor_isqrt_u64 */
-#include "../utils/floor_sqrt.h"       /* floor_sqrt for seq_t if needed */
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/isqrt.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 seq_t a(idx_t n)
 {
     /* r = row index: smallest r with r^2 >= n */
-    idx_t r = floor_isqrt_u64(n - 1) + 1;
+    idx_t r = isqrt(n - 1) + 1;
 
     /* number of elements before this row */
     idx_t left = (r - 1) * (r - 1);
@@ -43,7 +63,7 @@ seq_t a(idx_t n)
     idx_t D = t_abs * t_abs + (idx_t)4 * r;
 
     /* Integer square root of D */
-    idx_t s = floor_isqrt_u64(D);
+    idx_t s = isqrt(D);
     if (s * s != D) {
         return (seq_t)0;  /* discriminant not a perfect square */
     }

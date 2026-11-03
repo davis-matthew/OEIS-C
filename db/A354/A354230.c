@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 5, i16 n <= 7, i32 n <= 12, i64 n <= 18, i128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* The build provides the types seq_t (value type) and idx_t (uint64_t). */
 seq_t a(idx_t n)
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     /* initialise a_cache */
     if (!a_cache) {
         a_cap   = 1;
-        a_cache = (seq_t *)malloc(a_cap * sizeof(seq_t));
+        a_cache = mem_new(seq_t, a_cap);
         a_cache[0] = (seq_t)1;      /* a(0)=1 */
         a_max = 0;
     }
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     /* initialise s_cache and auxiliary array c */
     if (!s_cache) {
         s_cap   = 1;
-        s_cache = (seq_t *)malloc(s_cap * sizeof(seq_t));
+        s_cache = mem_new(seq_t, s_cap);
         s_cache[0] = (seq_t)0;      /* s(0,5)=0 */
         s_max = 0;
         c[0] = (seq_t)1;
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
     /* ---- extend Stirling cache up to n ---- */
     if (s_max < n) {
         if (s_cap <= (size_t)n) {
-            s_cache = (seq_t *)realloc(s_cache, (n + 1) * sizeof(seq_t));
+            s_cache = mem_resize(seq_t, s_cache, (n + 1));
             s_cap   = n + 1;
         }
         for (idx_t k = s_max + 1; k <= n; ++k) {
@@ -74,7 +76,7 @@ seq_t a(idx_t n)
     /* ---- extend a_cache up to n ---- */
     if (a_max < n) {
         if (a_cap <= (size_t)n) {
-            a_cache = (seq_t *)realloc(a_cache, (n + 1) * sizeof(seq_t));
+            a_cache = mem_resize(seq_t, a_cache, (n + 1));
             a_cap   = n + 1;
         }
         for (idx_t i = a_max + 1; i <= n; ++i) {

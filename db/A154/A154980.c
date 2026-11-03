@@ -12,12 +12,14 @@
  *            a(3)=T(2,0), a(4)=T(2,1), a(5)=T(2,2), …
  * Range:     u8 n <= 16, u16 n <= 30, u32 n <= 69, u64 n <= 126,
  *            u128 n <= 262, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 1270 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,12 +41,12 @@ seq_t a(idx_t n)
 
     /* Allocate three rows of size r+1 (the maximum needed). */
     size_t sz = (size_t)(r + 1);
-    seq_t *row_nm2 = (seq_t*)calloc(sz, sizeof(seq_t));  /* row n‑2   */
-    seq_t *row_nm1 = (seq_t*)calloc(sz, sizeof(seq_t));  /* row n‑1   */
-    seq_t *row_n   = (seq_t*)calloc(sz, sizeof(seq_t));  /* current   */
+    seq_t *row_nm2 = mem_new(seq_t, sz);  /* row n‑2   */
+    seq_t *row_nm1 = mem_new(seq_t, sz);  /* row n‑1   */
+    seq_t *row_n   = mem_new(seq_t, sz);  /* current   */
 
     if (!row_nm2 || !row_nm1 || !row_n) {
-        free(row_nm2); free(row_nm1); free(row_n);
+        mem_free(row_nm2); mem_free(row_nm1); mem_free(row_n);
         return (seq_t)0;   /* allocation failure – unlikely for n≤10000 */
     }
 
@@ -74,9 +76,9 @@ seq_t a(idx_t n)
 
     seq_t result = row_nm1[k];
 
-    free(row_nm2);
-    free(row_nm1);
-    free(row_n);
+    mem_free(row_nm2);
+    mem_free(row_nm1);
+    mem_free(row_n);
 
     return result;
 }

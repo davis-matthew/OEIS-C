@@ -10,13 +10,26 @@
  *            T(n,k) = binomial(n,k) + 4^(n-1) * binomial(n-2,k-1) otherwise
  * Range:     u8 n <= 15, u16 n <= 37, u32 n <= 95, u64 n <= 308,
  *            u128 n <= 1097, big any n
- * Helpers:   binomial, pow4
+ * Validated: standard, pass, 71 terms through n = 5108 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow4.h"
+
+static inline seq_t pow4(idx_t exp) {
+    seq_t result = 1;
+    seq_t base   = 4;
+    idx_t e = exp;
+    while (e) {
+        if (e & 1) result *= base;
+        base *= base;
+        e >>= 1;
+    }
+    return result;
+}
 
 seq_t a(idx_t n) {
     /* Find row r such that the cumulative number of terms up to row r

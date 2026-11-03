@@ -7,6 +7,7 @@
  * Formula:   a(n) = Σ_{k≥0 , 2^k ≤ n} binomial(n - 2^k + k , k)
  * Range:     u8 n <= 15, u16 n <= 45, u32 n <= 176, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 63 terms through n = 989 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
    way that avoids overflow on 64‑bit values by using a 128‑bit
    intermediate for the multiplicative calculation. */
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

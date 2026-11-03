@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
  
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
  
 seq_t a(idx_t n)
 {
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
             if (next[k] == 2) {
                 if (pos_len >= pos_cap) {
                     pos_cap = pos_cap ? pos_cap * 2 : 8;
-                    pos = (seq_t *)realloc(pos, pos_cap * sizeof(seq_t));
+                    pos = mem_resize(seq_t, pos, pos_cap);
                 }
                 pos[pos_len++] = (seq_t)(k + 1);   /* 1‑based position */
             }

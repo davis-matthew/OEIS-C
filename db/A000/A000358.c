@@ -12,14 +12,15 @@
  *            about a(n)
  * Range:     u8 n <= 17, u16 n <= 30, u32 n <= 54, u64 n <= 101,
  *            u128 n <= 195, big any n
- * Helpers:   a358_totient
+ * Validated: standard, pass, 63 terms through n = 865 (2026-11-01)
+ * Helpers:   totient_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/a358_totient.h"
+#include "../utils/totient_u64.h"
 
 seq_t a(idx_t n) {
     uint64_t N = (uint64_t)n;
@@ -34,7 +35,7 @@ seq_t a(idx_t n) {
 
     for (uint64_t k = 1; k <= N; k++) {
         if (N % k == 0) {
-            uint64_t ph = a358_totient(N / k);
+            uint64_t ph = totient_u64(N / k);
             unsigned __int128 t = (unsigned __int128)ph * cr;
             Q += (seq_t)ph * cq + (seq_t)(uint64_t)(t / N);
             R += (uint64_t)(t % N);

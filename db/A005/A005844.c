@@ -7,13 +7,15 @@
  * Formula:   a(n+1) = 2^a(n) - 1, a(0) = 3
  * Range:     i8 n <= 2, i16 n <= 2, i32 n <= 2, i64 n <= 2, i128 n <= 3,
  *            big any n
- * Helpers:   A001832_pow2
+ * Validated: partial, pass, 4 terms through n = 3 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/A001832_pow2.h"
+#include <stdint.h>
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n) {
     static seq_t memo[4];
@@ -32,7 +34,7 @@ seq_t a(idx_t n) {
         result = 3;
     } else {
         seq_t prev = a(n - 1);
-        result = A001832_pow2((idx_t)prev) - 1;
+        result = pow2((idx_t)prev) - 1;
     }
     
     computed[n] = true;

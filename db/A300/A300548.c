@@ -6,14 +6,16 @@
  * Keywords:  sign
  * Formula:   a(n) = [x^n] Product_{d|n} 1/(1 + x^d)
  * Range:     i8 n <= 44, i16 n <= 164, i32 n <= 824, i64 n <= 3464,
- *            i128 n <= 9547, big any n
- * Helpers:   none
+ *            i128 n <= 10201, big any n
+ * Validated: standard, pass, 102 terms through n = 9547 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*
  * Compute a(n) for any n ≥ 0.
@@ -75,11 +77,11 @@ seq_t a(idx_t n)
 
     /* ----- Build the coefficient of x^n by iterating divisors ----- */
     size_t sz = (size_t)(n + 1);
-    seq_t *dp   = (seq_t*)calloc(sz, sizeof(seq_t));
-    seq_t *next = (seq_t*)calloc(sz, sizeof(seq_t));
+    seq_t *dp   = mem_new(seq_t, sz);
+    seq_t *next = mem_new(seq_t, sz);
     if (!dp || !next) {          /* allocation failure – graceful exit */
-        free(dp);
-        free(next);
+        mem_free(dp);
+        mem_free(next);
         return (seq_t)0;
     }
 
@@ -103,7 +105,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[(size_t)n];
-    free(dp);
-    free(next);
+    mem_free(dp);
+    mem_free(next);
     return result;
 }

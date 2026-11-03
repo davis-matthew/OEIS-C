@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base, fini, full, easy
  * Formula:   not stated
- * Range:     u8 n <= 1, u16 n <= 18, u32 n <= 3337, u64 n <= 4095,
+ * Range:     u8 n <= 1, u16 n <= 18, u32 n <= 3302, u64 n <= 4095,
  *            u128 n <= 4095, big any n
- * Helpers:   gen_recursive
+ * Validated: full, pass, 4095 terms through n = 4095 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,15 @@
  * requested term. */
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/gen_recursive.h"
+#include "../utils/mem.h"
+
+static void gen_recursive(int prev_digit, seq_t cur_val, seq_t *buf, size_t *cnt)
+{
+    buf[(*cnt)++] = cur_val;
+    for (int next = prev_digit - 1; next >= 0; --next) {
+        gen_recursive(next, cur_val * ((seq_t)12) + (seq_t)next, buf, cnt);
+    }
+}
 
 static int seq_compare(const void *p, const void *q)
 {
@@ -36,7 +45,7 @@ static void build_cache(seq_t *buf, size_t *cnt)
         gen_recursive(start, (seq_t)start, buf, &c);
     }
     *cnt = c;
-    qsort(buf, c, sizeof(seq_t), seq_compare);
+    mem_qsort(buf, c, sizeof(seq_t), seq_compare);
 }
 
 seq_t a(idx_t n)

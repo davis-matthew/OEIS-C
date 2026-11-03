@@ -8,11 +8,13 @@
  *            n Derived from a(2k) = 4k*3^k and a(2k+1) = (2k+1)*3^(k+1)
  * Range:     u8 n <= 5, u16 n <= 14, u32 n <= 33, u64 n <= 71, u128 n <= 151,
  *            big any n
+ * Validated: standard, pass, 53 terms through n = 846 (2026-11-01)
  * Helpers:   pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/pow3.h"
 
 seq_t a(idx_t n)

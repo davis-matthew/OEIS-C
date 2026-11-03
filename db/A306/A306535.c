@@ -10,12 +10,14 @@
  *            involution that swaps each i with i+n)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 10, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 218 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *der_cache   = NULL;   /* cache of derangements D_k for k ≤ m */
 static idx_t  der_cache_size = 0;    /* next free index in der_cache */
@@ -26,7 +28,7 @@ static void ensure_der_cache(idx_t m)
     /* initialise cache if it does not exist */
     if (der_cache == NULL) {
         der_cache_cap = 2;
-        der_cache = (seq_t*)calloc(der_cache_cap, sizeof(seq_t));
+        der_cache = mem_new(seq_t, der_cache_cap);
         der_cache[0] = (seq_t)1;   /* D_0 = 1 */
         der_cache[1] = (seq_t)0;   /* D_1 = 0 */
         der_cache_size = 2;
@@ -37,7 +39,7 @@ static void ensure_der_cache(idx_t m)
         idx_t new_cap = der_cache_cap;
         while ((idx_t)(m + 1) > new_cap)
             new_cap <<= 1;            /* double until large enough */
-        der_cache = (seq_t*)realloc(der_cache, new_cap * sizeof(seq_t));
+        der_cache = mem_resize(seq_t, der_cache, new_cap);
         der_cache_cap = new_cap;
     }
 

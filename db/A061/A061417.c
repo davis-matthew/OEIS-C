@@ -8,7 +8,8 @@
  * Formula:   a(n) = (1/n) * Σ_{d|n} φ(n/d) * (n/d)^d * d!
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 13, u64 n <= 21, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 95 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------ */
 /* Prime sieve (up to the largest n requested).               */
@@ -98,7 +100,7 @@ static void ensure_factorial_up_to(idx_t n)
     if (n <= fact_size) return;
     size_t new_cap = fact_cap ?: 16;
     while (new_cap <= (size_t)n) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(fact_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, fact_cache, new_cap);
     fact_cache = tmp;
     fact_cap = new_cap;
     if (fact_size == 0) fact_cache[0] = (seq_t)1;

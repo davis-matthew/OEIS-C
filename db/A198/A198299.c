@@ -8,7 +8,8 @@
  *            (x^k/k)/Product_{d|k}(1-d*x^k)
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 53, u64 n <= 113,
  *            u128 n <= 233, big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 492 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Computes the OEIS A198299 sequence. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Assuming seq_t and idx_t are defined by the build system. */
 
@@ -24,13 +26,13 @@ seq_t a(idx_t n) {
     if (n < 1) return (seq_t)0;
 
     /* Allocate array for accumulating results up to n. */
-    seq_t *A = (seq_t*)calloc((size_t)n + 1, sizeof(seq_t));
+    seq_t *A = mem_new(seq_t, (size_t)n + 1);
     if (!A) return (seq_t)0;  /* Allocation failed. */
 
     /* Temporary array for h values – maximum size needed is n. */
     /* We'll reuse the same buffer for each outer loop iteration. */
-    seq_t *h = (seq_t*)malloc((size_t)n * sizeof(seq_t));
-    if (!h) { free(A); return (seq_t)0; }
+    seq_t *h = mem_new(seq_t, (size_t)n);
+    if (!h) { mem_free(A); return (seq_t)0; }
 
     /* Buffer for divisors – maximum number of divisors <= 200 for n <= 10000. */
     int divs[256];
@@ -74,7 +76,7 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = A[n];
-    free(h);
-    free(A);
+    mem_free(h);
+    mem_free(A);
     return result;
 }

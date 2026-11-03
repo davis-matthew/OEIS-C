@@ -9,13 +9,15 @@
  *            78, a(8) = 89, a(9) = 101, a(10) = 112
  * Range:     u8 n <= 22, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 902 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,8 +34,7 @@ seq_t a(idx_t n)
         idx_t new_size = n;
         seq_t *tmp;
 #if defined(__cplusplus)
-        tmp = reinterpret_cast<seq_t*>(realloc(cache,
-                                                (size_t)new_size * sizeof(seq_t)));
+        tmp = reinterpret_cast<seq_t*>(mem_resize(seq_t, cache, (size_t)new_size));
 #else
         tmp = (seq_t*)realloc(cache,
                               (size_t)new_size * sizeof(seq_t));

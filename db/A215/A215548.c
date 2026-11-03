@@ -7,12 +7,14 @@
  * Formula:   a(n) = C(8*n+8,8)*(8*n-7)/(8*n+1), a(0)=0
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 7, u64 n <= 120, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 37 terms through n = 982 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

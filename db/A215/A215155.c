@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   isPrimeTrial
+ * Validated: standard, pass, 70 terms through n = 873 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/isPrimeTrial.h"
+#include <stdlib.h>
+#include "../utils/is_prime_seq.h"
 
 /* Return the n-th prime that is 2, 3, 5 or 7 (mod 13).
    The sequence starts with a(1) = 2. */
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
             continue;
 
         /* Fast primality test provided by the library. */
-        if (!isPrimeTrial((seq_t)cand))
+        if (!is_prime_seq((seq_t)cand))
             continue;
 
         uint64_t r = cand % 13ULL;

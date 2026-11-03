@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign
  * Formula:   a(n) = ∑_{d|n} A055615(n/d) * A252463(d)
- * Range:     i8 n <= 840, i16 n <= 9951, i32 n <= 9951, i64 n <= 9951,
- *            i128 n <= 9951, big any n
- * Helpers:   factor_u64, prev_prime
+ * Range:     i8 n <= 840, i16 n <= 20000, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 109 terms through n = 9951 (2026-11-01)
+ * Helpers:   factor_u64, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,19 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/prev_prime.h"
+#include "../utils/is_prime.h"
+
+/* Return the largest prime < n   (n > 2)   ; pp(2) = 1, but we never call it for n==2 */
+static inline idx_t prev_prime(idx_t n)
+{
+    idx_t p = n - 1;
+    for (;; --p)
+    {
+        if (is_prime(p)) return p;
+    }
+}
 
 static void rec(size_t pos, uint64_t d_val,
                 uint64_t cur_exp[],

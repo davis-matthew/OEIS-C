@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 38, u16 n <= 158, u32 n <= 574, u64 n <= 2238,
  *            u128 n <= 5252, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 5079 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
       r*(r+1)/2 <= n < (r+1)*(r+2)/2   and   k = n - r*(r+1)/2.   */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Cache for the flattened triangle */
 static seq_t *cache      = NULL;   /* flattened values a(0),a(1),...    */
@@ -36,7 +38,7 @@ static void ensure_cache_capacity(size_t need)
     if (cache_cap >= need) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 128;
     if (new_cap < need) new_cap = need;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     cache = tmp;
     cache_cap = new_cap;
 }

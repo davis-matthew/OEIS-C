@@ -7,13 +7,15 @@
  * Formula:   a(n) = n-th coefficient of the simple continued fraction of √487
  * Range:     u8 n <= 1, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 87 terms through n = 86 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* Ensure cache holds a[0] */
     if (cache_len == 0) {
         if (!cache) {
-            cache = (seq_t *)malloc(sizeof(seq_t));
+            cache = mem_new(seq_t, 1);
             cache_alloc = 1;
         }
         cache[0] = a_prev;
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
             size_t new_alloc = cache_alloc ? cache_alloc * 2 : 4;
             while (new_alloc < needed)
                 new_alloc <<= 1;
-            seq_t *tmp = (seq_t *)realloc(cache, new_alloc * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_alloc);
             cache = tmp;
             cache_alloc = new_alloc;
         }

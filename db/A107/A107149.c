@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 552, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mul_mod, representable_by_form
+ * Validated: standard, pass, 59 terms through n = 8286 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,27 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
-#include "../utils/mul_mod.h"
-#include "../utils/representable_by_form.h"
+#include <stddef.h>
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
+
+/* ------------------------------------------------------------ */
+static bool representable_by_form(uint64_t p)
+{
+    if (p == 11) return true;  /* 11 = 4*0^2 + 11*1^2 */
+
+    uint64_t max_y = (uint64_t) sqrtl((long double)p / 11.0L);
+    for (uint64_t y = 1; y <= max_y; ++y) {
+        uint64_t rem = p - 11 * y * y;
+        if (rem & 3ULL)          /* must be divisible by 4 */
+            continue;
+        uint64_t val = rem >> 2; /* val = x^2 */
+        uint64_t x = (uint64_t) sqrtl((long double)val);
+        if (x * x == val)
+            return true;
+    }
+    return false;
+}
 
 /* ------------------------------------------------------------ */
 /*  Simple deterministic Miller–Rabin primality test for 64‑bit  */
@@ -32,8 +52,8 @@ static uint64_t mod_pow(uint64_t base, uint64_t exp, uint64_t mod)
     uint64_t result = 1;
     while (exp) {
         if (exp & 1ULL)
-            result = mul_mod(result, base, mod);
-        base = mul_mod(base, base, mod);
+            result = mulmod(result, base, mod);
+        base = mulmod(base, base, mod);
         exp >>= 1ULL;
     }
     return result;
@@ -65,7 +85,7 @@ static bool is_prime(uint64_t n)
         if (x == 1 || x == n - 1) continue;
         bool composite = true;
         for (unsigned r = 1; r < s; ++r) {
-            x = mul_mod(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) {
                 composite = false;
                 break;
@@ -91,7 +111,7 @@ static void add_term(seq_t val)
 {
     if (terms_size == terms_cap) {
         idx_t new_cap = terms_cap ? terms_cap * 2 : 64;
-        seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, new_cap);
         if (!tmp) abort();          /* allocation failure */
         terms = tmp;
         terms_cap = new_cap;

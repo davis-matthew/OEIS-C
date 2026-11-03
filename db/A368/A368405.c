@@ -9,13 +9,15 @@
  *            (-1)^{∑ popcount(exponent in k’s prime factorisation)}
  * Range:     i8 n <= 10000, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 93 terms through n = 8698 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* count number of set bits in an idx_t value  */
 static int popcount_uint64(idx_t v) {
@@ -45,7 +47,7 @@ seq_t a(idx_t n) {
     }
 
     /* μ_inf array */
-    seq_t *mu = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+    seq_t *mu = mem_new(seq_t, (n + 1));
     if (!mu) { free(spf); return 0; }
     mu[1] = 1;
 
@@ -67,6 +69,6 @@ seq_t a(idx_t n) {
     for (idx_t i = 1; i <= n; ++i) sum += mu[i];
 
     free(spf);
-    free(mu);
+    mem_free(mu);
     return sum;
 }

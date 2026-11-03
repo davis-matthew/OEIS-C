@@ -12,7 +12,8 @@
  *            2n+1, computes the exponents of each prime in N...
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 12, u128 n <= 14,
  *            big any n
- * Helpers:   build_primes_upto, exp_in_int, seq_mul, seq_pow
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,10 +23,26 @@
 #include <stdbool.h>
 
 /* --- utility prototypes ----------------------------------------------------- */
+#include <string.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/seq_pow.h"
-#include "../utils/seq_mul.h"
-#include "../utils/exp_in_int.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* --- prime exponent in an integer ----------------------------------------------- */
+static idx_t exp_in_int(idx_t x, uint64_t p)
+{
+    idx_t e = 0;
+    while (x % p == 0)
+    {
+        ++e;
+        x /= p;
+    }
+    return e;
+}
 
 /* --- prime exponent in factorial ------------------------------------------------- */
 static idx_t exp_fact(idx_t n, uint64_t p)
@@ -102,7 +119,7 @@ seq_t a(idx_t n)
         idx_t diff = expN[pj] - minExp[pj];
         if (diff == 0)
             continue;
-        seq_t part = seq_pow((seq_t)primes[pj], diff);
+        seq_t part = ipow_idx((seq_t)primes[pj], diff);
         result = seq_mul(result, part);
     }
 

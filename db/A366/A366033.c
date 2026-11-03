@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 989, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_len, is_prime_small, pow10
+ * Validated: standard, pass, 102 terms through n = 9614 (2026-11-01)
+ * Helpers:   is_prime_seq, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,20 @@
  * (0–9) at position n (0‑based).  It is memoised so that calls in any
  * order are efficient. */
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
-#include "../utils/digit_len.h"
-#include "../utils/pow10.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/is_prime_seq.h"
+#include "../utils/num_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -34,11 +46,11 @@ seq_t a(idx_t n)
     /* Extend the processed range until the desired digit lies within it */
     while (cum_digits <= n) {
         ++cur_k;
-        if (is_prime_small((seq_t)cur_k))
+        if (is_prime_seq((seq_t)cur_k))
             ++pi_count;
 
         last_val = pi_count;
-        last_len = digit_len(last_val);
+        last_len = num_digits(last_val);
         cum_digits += last_len;
     }
 

@@ -10,14 +10,28 @@
  *            base‑4 representation of k‑1 does not
  * Range:     u8 n <= 30, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   has_adjacent_03
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_adjacent_03.h"
+#include "../utils/mem.h"
+
+/* Check whether seq_t value x has digits 0 and 3 adjacent in base‑4 */
+static bool has_adjacent_03(seq_t x) {
+    seq_t prev = (seq_t)-1;          /* sentinel value, not 0 or 3 */
+    while (x > 0) {
+        seq_t d = x % 4;            /* least significant digit */
+        x = x / 4;                  /* drop the digit */
+        if ((prev == 0 && d == 3) || (prev == 3 && d == 0))
+            return true;
+        prev = d;
+    }
+    return false;
+}
 
 /* Return the n‑th term of A043102 */
 seq_t a(idx_t n) {
@@ -29,7 +43,7 @@ seq_t a(idx_t n) {
     /* Allocate initial storage on first call */
     if (terms == NULL) {
         terms_cap = 64;
-        terms = (seq_t*)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
     }
 
     /* Generate terms until we have at least n of them */
@@ -45,7 +59,7 @@ seq_t a(idx_t n) {
                 /* Store the new term, growing the array if necessary */
                 if (terms_len >= terms_cap) {
                     terms_cap *= 2;
-                    terms = (seq_t*)realloc(terms, terms_cap * sizeof(seq_t));
+                    terms = mem_resize(seq_t, terms, terms_cap);
                 }
                 terms[terms_len++] = k;
             }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   contains_27
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,20 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/contains_27.h"
+#include "../utils/mem.h"
+
+/* Test if a decimal number contains the substring "27". */
+static bool contains_27(seq_t x) {
+    if (x < (seq_t)10) return false;
+    seq_t y = x;
+    while (y >= (seq_t)10) {
+        if ((y % (seq_t)10) == (seq_t)7 &&
+            ((y / (seq_t)10) % (seq_t)10) == (seq_t)2)
+            return true;
+        y = y / (seq_t)10;
+    }
+    return false;
+}
 
 /* Cached values of the sequence; grown on demand. */
 static seq_t *cache   = NULL;
@@ -40,7 +54,7 @@ seq_t a(idx_t n) {
         /* grow the cache if necessary */
         if (cache_size == cache_cap) {
             size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-            seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort();      /* out of memory */
             cache = tmp;
             cache_cap = new_cap;

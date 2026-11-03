@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2621, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   int_sqrt
+ * Validated: standard, pass, 121 terms through n = 8923 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,14 +22,14 @@
    then diff = t – 10·k = ⌊10·(√m – k)⌋.
    If diff == 2 we have a qualifying number. */
 #include <stdint.h>
-#include "../utils/int_sqrt.h"  /* declares idx_t int_sqrt(idx_t); */
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
     seq_t cnt = 0;
     for (idx_t i = 1; i <= n; ++i) {
-        idx_t k  = int_sqrt(i);
-        idx_t t  = int_sqrt((idx_t)(((__uint128_t)i * 100)));
+        idx_t k  = isqrt(i);
+        idx_t t  = isqrt((idx_t)(((__uint128_t)i * 100)));
         idx_t diff = t - (10 * k);
         if (diff == 2) {
             ++cnt;

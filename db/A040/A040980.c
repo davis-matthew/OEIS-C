@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 42, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 64 terms through n = 989 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* Append a value to a dynamic array. */
 static void append_u64(uint64_t **arr, size_t *len, size_t *cap, uint64_t val) {
@@ -42,7 +45,7 @@ static void append_u64(uint64_t **arr, size_t *len, size_t *cap, uint64_t val) {
 static void append_seq(seq_t **arr, size_t *len, size_t *cap, seq_t val) {
     if (*len >= *cap) {
         size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
-        seq_t *tmp = (seq_t *)realloc(*arr, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, newcap);
         if (!tmp) exit(EXIT_FAILURE);
         *arr = tmp;
         *cap = newcap;
@@ -77,7 +80,7 @@ seq_t a(idx_t n)
                 ok = true;
             } else {
                 uint64_t exp = (candidate - 1) / 5;
-                seq_t val = mod_pow((seq_t)18, exp, (seq_t)candidate);
+                seq_t val = powmod((seq_t)18, exp, (seq_t)candidate);
                 ok = (val == (seq_t)1);
             }
 

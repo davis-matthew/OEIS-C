@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 74, u16 n <= 1574, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes, prime_in_list
+ * Validated: standard, pass, 98 terms through n = 9214 (2026-11-01)
+ * Helpers:   build_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,24 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/build_primes.h"  /* provides build_primes(limit, &out, &cnt) */
-#include "../utils/prime_in_list.h"
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/build_primes.h"
+
+/* Helper: binary search to test membership of x in an array of primes */
+static bool prime_in_list(idx_t x, idx_t *primes, size_t cnt)
+{
+    if (x < 2) return false;
+    size_t lo = 0;
+    size_t hi = cnt;
+    while (lo < hi) {
+        size_t mid = (lo + hi) >> 1;
+        if (primes[mid] == x) return true;
+        if (primes[mid] < x)   lo = mid + 1;
+        else                   hi = mid;
+    }
+    return false;
+}
 
 /* External entry point for the sequence */
 seq_t a(idx_t n)

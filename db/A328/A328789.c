@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 33, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* dynamic cache for a(n) and γ(n) */
 static seq_t *a_cache = NULL;          /* a(n) */
@@ -41,8 +43,8 @@ static void ensure_capacity(idx_t n)
     size_t new_size = (size_t)n + 1;
 
     /* resize arrays */
-    a_cache  = (seq_t *)realloc(a_cache,  new_size * sizeof(seq_t));
-    gamma    = (seq_t *)realloc(gamma,    new_size * sizeof(seq_t));
+    a_cache  = mem_resize(seq_t, a_cache, new_size);
+    gamma    = mem_resize(seq_t, gamma, new_size);
 
     /* initialise new slots to zero */
     for (size_t i = cache_size; i < new_size; ++i) {

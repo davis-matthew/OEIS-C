@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 6, u64 n <= 13, u128 n <= 28,
  *            big any n
- * Helpers:   max_minus_second
+ * Validated: standard, pass, 30 terms through n = 203 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,23 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/max_minus_second.h"
+
+/* second largest of four numbers 0..3 and the maximum */
+static inline uint8_t max_minus_second(uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3)
+{
+    int mx = v0, mx2 = -1;
+    uint8_t v[3] = {v1, v2, v3};
+    for (int k = 0; k < 3; ++k) {
+        int vcur = v[k];
+        if (vcur > mx) {
+            mx2 = mx;
+            mx = vcur;
+        } else if (vcur > mx2) {
+            mx2 = vcur;
+        }
+    }
+    return (uint8_t)(mx - mx2);   /* 0..3 */
+}
 
 /* convert a row index 0..63 to its three base‑4 digits */
 static inline void decode_row(uint8_t idx, uint8_t *a0, uint8_t *a1, uint8_t *a2)

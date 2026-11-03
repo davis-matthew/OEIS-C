@@ -13,13 +13,15 @@
  *            2*(2*n-5)*(n-3)*a(n-3) ] / (10*(n+1)*(...
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 14, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         cap = (size_t)n + 1;
         if (cap < 5) cap = 5;                /* need space up to index 4 */
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         /* initialise unused lower indices and first terms */
         cache[0] = cache[1] = 0;
         cache[2] = 0;
@@ -47,9 +49,9 @@ seq_t a(idx_t n)
     /* Grow the array if necessary.  Copy existing values. */
     if ((size_t)n + 1 > cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
-        memcpy(new_cache, cache, sizeof(seq_t) * (cached + 1));
-        free(cache);
+        seq_t *new_cache = mem_new(seq_t, new_cap);
+        mem_copy(new_cache, cache, sizeof(seq_t) * (cached + 1));
+        mem_free(cache);
         cache = new_cache;
         cap = new_cap;
     }

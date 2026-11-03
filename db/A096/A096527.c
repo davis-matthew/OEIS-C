@@ -12,7 +12,8 @@
  *            enumerates all ordered * pairs of first two divisors and th...
  * Range:     u8 n <= 59, u16 n <= 79, u32 n <= 79, u64 n <= 79, u128 n <= 79,
  *            big any n
- * Helpers:   enum_divs, factor
+ * Validated: partial, pass, 79 terms through n = 79 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,35 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/enum_divs.h"
-#include "../utils/factor.h"
+
+static void enum_divs(size_t idx, uint64_t cur,
+                      const uint64_t *pr, const uint64_t *exp,
+                      size_t pcnt, uint64_t *divs, size_t *sz)
+{
+    if (idx == pcnt) { divs[*sz] = cur; ++(*sz); return; }
+    uint64_t p = pr[idx];
+    uint64_t prod = 1;
+    for (uint64_t e = 0; e <= exp[idx]; ++e) {
+        enum_divs(idx+1, cur*prod, pr, exp, pcnt,
+                  divs, sz);
+        prod *= p;
+    }
+}
+
+/* --------------------------------------------------------------- */
+static void factor(uint64_t n, uint64_t *pr, uint64_t *exp, size_t *cnt)
+{
+    size_t c = 0;
+    for (uint64_t p = 2; p*p <= n; ++p) {
+        if (n % p == 0) {
+            pr[c] = p; exp[c] = 0;
+            while (n % p == 0) { n /= p; ++exp[c]; }
+            ++c;
+        }
+    }
+    if (n > 1) { pr[c] = n; exp[c] = 1; ++c; }
+    *cnt = c;
+}
 
 /* --------------------------------------------------------------- */
 /*  Deterministic Miller–Rabin test for 64‑bit integers            */

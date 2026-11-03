@@ -11,14 +11,16 @@
  *            that sum is itself a palindrome
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 7, u64 n <= 7, u128 n <= 7,
  *            big any n
- * Helpers:   is_palindrome
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-03)
+ * Helpers:   is_palindrome_base, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_palindrome.h"
+#include "../utils/is_palindrome_base.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Cache of previously found terms.  The cache grows only when
@@ -42,14 +44,14 @@ seq_t a(idx_t n) {
 
     /* Produce terms until we have at least n cached values. */
     while (len < n) {
-        if (is_palindrome(cand, (idx_t)10)) {
+        if (is_palindrome_base(cand, (idx_t)10)) {
             sum += cand;
             ++count;
-            if (is_palindrome(sum, (idx_t)10)) {
+            if (is_palindrome_base(sum, (idx_t)10)) {
                 /* Ensure cache capacity. */
                 if (len == cap) {
                     cap = (cap == 0) ? 4 : cap * 2;
-                    cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cap);
                 }
                 /* Store the current index (count) as a cache entry. */
                 cache[len++] = (seq_t)count;

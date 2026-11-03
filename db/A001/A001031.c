@@ -9,12 +9,21 @@
  *            are prime (1 counted as prime)
  * Range:     u8 n <= 436, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_or_one
+ * Validated: standard, pass, 114 terms through n = 9847 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/is_prime_or_one.h"
+static int is_prime_or_one(seq_t p) {
+    if (p == 1) return 1;
+    if (p == 2) return 1;
+    if ((p & 1) == 0) return 0;
+    for (seq_t i = 3; i <= p / i; i += 2) {
+        if (p % i == 0) return 0;
+    }
+    return 1;
+}
 
 seq_t a(idx_t n) {
     seq_t nn = (seq_t)n;

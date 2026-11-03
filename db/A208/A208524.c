@@ -11,7 +11,8 @@
  *            coefficient, row 2 has 2, etc
  * Range:     u8 n <= 31, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 /* a(n) is the nth term of the triangle read row by row. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 extern seq_t a(idx_t n);
 
@@ -34,13 +36,13 @@ seq_t a(idx_t n) {
     idx_t offset = n - prev_tri - (idx_t)1;   /* 0‑based index in row r */
 
     /* allocate arrays for coefficients of u and v */
-    seq_t *u   = (seq_t*)calloc(r, sizeof(seq_t));
-    seq_t *v   = (seq_t*)calloc(r, sizeof(seq_t));
-    seq_t *u2  = (seq_t*)calloc(r, sizeof(seq_t));
-    seq_t *v2  = (seq_t*)calloc(r, sizeof(seq_t));
+    seq_t *u   = mem_new(seq_t, r);
+    seq_t *v   = mem_new(seq_t, r);
+    seq_t *u2  = mem_new(seq_t, r);
+    seq_t *v2  = mem_new(seq_t, r);
     if (!u || !v || !u2 || !v2) {
         /* allocation failed; return zero as fallback */
-        if(u) free(u); if(v) free(v); if(u2) free(u2); if(v2) free(v2);
+        if(u) mem_free(u); if(v) mem_free(v); if(u2) mem_free(u2); if(v2) mem_free(v2);
         return (seq_t)0;
     }
 
@@ -75,10 +77,10 @@ seq_t a(idx_t n) {
     seq_t result = u[offset];
 
     /* free all allocated memory */
-    free(u);    /* after swaps, original pointers are freed */
-    free(u2);
-    free(v);
-    free(v2);
+    mem_free(u);    /* after swaps, original pointers are freed */
+    mem_free(u2);
+    mem_free(v);
+    mem_free(v2);
 
     return result;
 }

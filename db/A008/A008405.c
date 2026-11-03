@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 5, i16 n <= 7, i32 n <= 12, i64 n <= 20, i128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 191 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    incrementally and uses the above convolution to obtain a(n).  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static storage for computed values */
@@ -35,16 +37,16 @@ seq_t a(idx_t n) {
     if (n >= A_cap) {
         idx_t new_cap = (n + 1) * 2;        /* grow at least to 2*(n+1) */
         if (A_cap == 0)
-            A = (seq_t *)malloc(new_cap * sizeof(seq_t));
+            A = mem_new(seq_t, new_cap);
         else
-            A = (seq_t *)realloc(A, new_cap * sizeof(seq_t));
+            A = mem_resize(seq_t, A, new_cap);
         for (idx_t i = A_cap; i < new_cap; ++i) A[i] = 0;
         A_cap = new_cap;
 
         if (g_cap == 0)
-            g = (seq_t *)malloc(new_cap * sizeof(seq_t));
+            g = mem_new(seq_t, new_cap);
         else
-            g = (seq_t *)realloc(g, new_cap * sizeof(seq_t));
+            g = mem_resize(seq_t, g, new_cap);
         for (idx_t i = g_cap; i < new_cap; ++i) g[i] = 0;
         g_cap = new_cap;
     }

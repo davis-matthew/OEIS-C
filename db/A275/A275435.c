@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 58, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   len_of
+ * Validated: partial, pass, 72 terms through n = 71 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,7 +31,9 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/len_of.h"
+#include "../utils/mem.h"
+
+static inline idx_t len_of(idx_t n) { return n / 2 + 1; }
 
 static seq_t **rows = NULL;          /* rows[r] points to array of T(r,k) */
 static idx_t *starts = NULL;         /* starts[r] = linear index of first element of row r */
@@ -59,7 +62,7 @@ seq_t a(idx_t n)
 
         idx_t r = rows_used;
         idx_t len = len_of(r);
-        seq_t *row = (seq_t *)malloc(len * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, len);
         if (!row) abort();
 
         /* ---- Base rows 0…5 ---- */

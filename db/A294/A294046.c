@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 41, u32 n <= 98, u64 n <= 204,
  *            u128 n <= 518, big any n
- * Helpers:   binomial
+ * Validated: standard, pass, 76 terms through n = 9775 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /* Static storage for the computed columns of the square array */
 static seq_t **col      = NULL;   /* pointers to columns */
@@ -51,10 +53,10 @@ static void ensure_col(idx_t k, idx_t need_n)
 
     /* Allocate or enlarge the column itself */
     if (col[k] == NULL) {
-        col[k] = (seq_t *)calloc((size_t)need_n, sizeof(seq_t));
+        col[k] = mem_new(seq_t, (size_t)need_n);
         if (!col[k]) abort();
     } else if (col_len[k] < (size_t)need_n) {
-        col[k] = (seq_t *)realloc(col[k], (size_t)need_n * sizeof(seq_t));
+        col[k] = mem_resize(seq_t, col[k], (size_t)need_n);
         if (!col[k]) abort();
     }
 

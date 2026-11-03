@@ -9,7 +9,8 @@
  *            representation has even length (negative trace)
  * Range:     u8 n <= 126, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 936 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build system; no typedefs here. */
 
@@ -105,7 +107,7 @@ seq_t a(idx_t n)
         }
 
         /* ---- Build the list of terms with even minimal length ----- */
-        terms = (seq_t *)malloc(LIMIT * sizeof(seq_t));
+        terms = mem_new(seq_t, LIMIT);
         terms_count = 0;
         for (int k = 1; k <= (int)LIMIT; ++k) {
             if (min_steps[k] != -1 && (min_steps[k] & 1) == 0) {

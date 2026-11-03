@@ -13,22 +13,23 @@
  *            valid for a...
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 8, u64 n <= 29, u128 n <= 500,
  *            big any n
- * Helpers:   binomial_simple
+ * Validated: standard, pass, 40 terms through n = 427 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binomial_simple.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
     if (n < 5) return 0;
 
-    seq_t c7 = binomial_simple(n, 7);
-    seq_t c6 = binomial_simple(n, 6);
-    seq_t c5 = binomial_simple(n, 5);
-    seq_t c4 = binomial_simple(n, 4);
-    seq_t c3 = binomial_simple(n, 3);
+    seq_t c7 = binomial(n, 7);
+    seq_t c6 = binomial(n, 6);
+    seq_t c5 = binomial(n, 5);
+    seq_t c4 = binomial(n, 4);
+    seq_t c3 = binomial(n, 3);
 
     seq_t sum = 0;
     sum += 3110940ULL * c7 * c7;

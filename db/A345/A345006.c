@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 93, i16 n <= 93, i32 n <= 93, i64 n <= 93, i128 n <= 93,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 94 terms through n = 93 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    as needed and does not recompute terms already known. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* initialise a(0) the first time */
     if (cache_len == 0) {
         cache_cap = 1;
-        cache = (seq_t *)realloc(NULL, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, cache_cap);
         if (!cache) return (seq_t)0;            /* unsafe fallback */
         cache[0] = (seq_t)1;
         cache_len = 1;                         /* indices [0 .. 0] computed */
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
         size_t new_cap = cache_cap ? cache_cap * 2 : 8;
         while (new_cap < (size_t)n + 1)
             new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return (seq_t)0;    /* unsafe fallback */
         cache = tmp;
         cache_cap = new_cap;

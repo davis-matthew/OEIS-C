@@ -7,14 +7,40 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 30, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   count_runs_seq_t
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Find the nth integer whose base‑5 representation contains exactly 7 runs */
 #include <stdbool.h>
-#include "../utils/count_runs_seq_t.h"
+
+/* Count the number of runs in the base‑5 expansion of x */
+static int count_runs_seq_t(seq_t x)
+{
+    if (x == 0)                 /* only for completeness */
+        return 1;
+
+    unsigned char digits[32];   /* sufficient for all numbers we examine */
+    int len = 0;
+
+    while (x > 0) {
+        digits[len++] = (unsigned char)(x % 5);
+        x /= 5;
+    }
+
+    int runs = 1;
+    unsigned char prev = digits[len - 1];
+    for (int i = len - 2; i >= 0; --i) {
+        unsigned char d = digits[i];
+        if (d != prev) {
+            ++runs;
+            prev = d;
+        }
+    }
+    return runs;
+}
 
 seq_t a(idx_t n)
 {

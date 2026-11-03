@@ -14,11 +14,13 @@
  *            a(14)=21525,a(15)=896
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 63, u128 n <= 126,
  *            big any n
- * Helpers:   seq_from_str
+ * Validated: standard, pass, 52 terms through n = 126 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdio.h>
 /* The function below implements the sequence using the above
    linear recurrence, storing intermediate big integers in a
    simple limb‑based representation so that it works for both
@@ -29,7 +31,16 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/seq_from_str.h"
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
 
 #define BASE 1000000000U      /* base 1e9 for limb representation */
 

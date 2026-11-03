@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 143, u32 n <= 163, u64 n <= 163,
  *            u128 n <= 163, big any n
- * Helpers:   inc_digits_uint64
+ * Validated: full, pass, 163 terms through n = 163 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,24 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/inc_digits_uint64.h"
+
+/* Test whether the decimal digits of x are in strictly increasing order. */
+static bool inc_digits_uint64(uint64_t x)
+{
+    if (x < 10)               /* single‑digit numbers are OK (0 is not included). */
+        return x != 0;
+
+    uint8_t prev = x % 10;
+    x /= 10;
+    while (x > 0) {
+        uint8_t d = x % 10;
+        x /= 10;
+        if (d >= prev)
+            return false;
+        prev = d;
+    }
+    return true;
+}
 
 /* Test whether every divisor of n has strictly increasing digits. */
 static bool good_candidate(uint64_t n)

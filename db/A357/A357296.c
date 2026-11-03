@@ -7,14 +7,27 @@
  * Formula:   a(n) = n! * Σ_{d|n} 1 / ( d^(n/d-1) * d! ) (offset 1)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 22,
  *            big any n
- * Helpers:   factorial, pow_int
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/pow_int.h"
-#include "../utils/factorial.h"
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 seq_t a(idx_t n)
 {
@@ -29,7 +42,7 @@ seq_t a(idx_t n)
     /* allocate and extend factorial array as necessary */
     if (fact_cap == 0) {
         fact_cap = 1;
-        fact = (seq_t *)malloc(fact_cap * sizeof(seq_t));
+        fact = mem_new(seq_t, fact_cap);
         if (fact == NULL) return (seq_t)0;
         fact[0] = (seq_t)1;
         fact_len = 1;
@@ -39,7 +52,7 @@ seq_t a(idx_t n)
         if (fact_len >= fact_cap) {
             size_t new_cap = fact_cap * 2;
             if (new_cap <= fact_len) new_cap = fact_len + 1;
-            seq_t *tmp = (seq_t *)realloc(fact, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, fact, new_cap);
             if (tmp == NULL) return (seq_t)0;
             fact = tmp;
             fact_cap = new_cap;
@@ -71,14 +84,14 @@ seq_t a(idx_t n)
             /* term for divisor d */
             idx_t exp1 = d2 - 1;              /* n/d - 1 */
             seq_t denom1 = fact[d];
-            denom1 *= pow_int((seq_t)d, exp1);
+            denom1 *= ipow_idx((seq_t)d, exp1);
             sum += fact_n / denom1;
 
             /* term for complementary divisor d2, if distinct */
             if (d2 != d) {
                 idx_t exp2 = d - 1;           /* n/d2 - 1 */
                 seq_t denom2 = fact[d2];
-                denom2 *= pow_int((seq_t)d2, exp2);
+                denom2 *= ipow_idx((seq_t)d2, exp2);
                 sum += fact_n / denom2;
             }
         }

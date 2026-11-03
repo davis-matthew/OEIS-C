@@ -7,9 +7,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = smallest k > 0 such that k and k+n are both abundant.
  *            (Abundant: sum of proper divisors > k.)
- * Range:     u8 none, u16 n <= 9145, u32 n <= 9145, u64 n <= 9145,
- *            u128 n <= 9145, big any n
- * Helpers:   none
+ * Range:     u8 none, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 72 terms through n = 9145 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -78,7 +80,7 @@ seq_t a(idx_t n)
         }
 
         /* Pre‑compute answers for n = 1 .. MAX_QUERY_N. */
-        answers = (seq_t*)calloc(MAX_QUERY_N + 1, sizeof(seq_t));
+        answers = mem_new(seq_t, MAX_QUERY_N + 1);
         if (!answers) return 0;
 
         for (idx_t q = 1; q <= MAX_QUERY_N; ++q)

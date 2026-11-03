@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 32, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
+#include "../utils/is_prime_u64.h"
 
 static uint64_t *k_cache = NULL;   /* dynamic array of k values (uint64_t) */
 static size_t k_cache_cap = 0;     /* allocated capacity (in elements) */
@@ -47,7 +48,7 @@ seq_t a(idx_t n)
     while (k_cache_size < target) {
         uint64_t candidate = next_k;
         uint64_t val = 31ULL * candidate + 29ULL;
-        if (is_prime(val)) {
+        if (is_prime_u64(val)) {
             ensure_k_cache_size(k_cache_size + 1);
             k_cache[k_cache_size++] = candidate;
         }

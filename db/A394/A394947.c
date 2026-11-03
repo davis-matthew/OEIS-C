@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -52,6 +53,7 @@
 #else
 #define XT(x) (seq_t*)(x)
 #endif
+#include "../utils/mem.h"
 
 /* Static storage for memoisation */
 static seq_t *seq_a = NULL;
@@ -67,13 +69,13 @@ static void ensure_capacity(idx_t n)
     if (a_cap < req) {
         size_t new_cap = a_cap ? a_cap * 2 : 4;
         if (new_cap < req) new_cap = req;
-        seq_a = XT(realloc(seq_a, new_cap * sizeof(seq_t)));
+        seq_a = XT(mem_resize(seq_t, seq_a, new_cap));
         a_cap = new_cap;
     }
     if (conv_cap < req) {
         size_t new_cap = conv_cap ? conv_cap * 2 : 4;
         if (new_cap < req) new_cap = req;
-        seq_conv = XT(realloc(seq_conv, new_cap * sizeof(seq_t)));
+        seq_conv = XT(mem_resize(seq_t, seq_conv, new_cap));
         conv_cap = new_cap;
     }
 }

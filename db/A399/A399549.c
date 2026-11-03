@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 36, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 74 terms through n = 73 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static mutable state for memoisation */
 static bool initialized = false;
@@ -53,7 +55,7 @@ static void init_once(void) {
 
     /* base polynomials P_0 … P_3 = 1 */
     for (idx_t i = 0; i < 4; ++i) {
-        polys_coeffs[i] = (seq_t*)malloc(sizeof(seq_t));
+        polys_coeffs[i] = mem_new(seq_t, 1);
         polys_coeffs[i][0] = (seq_t)1;
         polys_len[i] = 1;
         row_len[i] = 1;
@@ -98,27 +100,27 @@ static void ensure_rows(idx_t n) {
 
         /* A = c1 * c3 */
         size_t lA = l1 + l3 - 1;
-        seq_t *A = (seq_t*)calloc(lA, sizeof(seq_t));
+        seq_t *A = mem_new(seq_t, lA);
         for (size_t i = 0; i < l1; ++i)
             for (size_t j = 0; j < l3; ++j)
                 A[i+j] += c1[i] * c3[j];
 
         /* B = c2 * c2 */
         size_t lB = l2 + l2 - 1;
-        seq_t *B = (seq_t*)calloc(lB, sizeof(seq_t));
+        seq_t *B = mem_new(seq_t, lB);
         for (size_t i = 0; i < l2; ++i)
             for (size_t j = 0; j < l2; ++j)
                 B[i+j] += c2[i] * c2[j];
 
         /* Bshift = t * B  (shift right by one) */
         size_t lBshift = lB + 1;
-        seq_t *Bshift = (seq_t*)calloc(lBshift, sizeof(seq_t));
+        seq_t *Bshift = mem_new(seq_t, lBshift);
         for (size_t i = 0; i < lB; ++i)
             Bshift[i+1] = B[i];                /* first element stays 0 */
 
         /* C = A + Bshift */
         size_t lC = lA > lBshift ? lA : lBshift;
-        seq_t *C = (seq_t*)calloc(lC, sizeof(seq_t));
+        seq_t *C = mem_new(seq_t, lC);
         for (size_t i = 0; i < lA; ++i) C[i] += A[i];
         for (size_t i = 0; i < lBshift; ++i) C[i] += Bshift[i];
 
@@ -126,7 +128,7 @@ static void ensure_rows(idx_t n) {
         size_t degN = lC - 1;
         size_t degD = ld - 1;
         size_t degQ = degN - degD;
-        seq_t *Q = (seq_t*)calloc(degQ + 1, sizeof(seq_t));
+        seq_t *Q = mem_new(seq_t, degQ + 1);
 
         for (size_t k = 0; k <= degQ; ++k) {
             seq_t val = C[k];                     /* N[k] */
@@ -138,10 +140,10 @@ static void ensure_rows(idx_t n) {
         }
 
         /* free temporaries */
-        free(A);
-        free(B);
-        free(Bshift);
-        free(C);
+        mem_free(A);
+        mem_free(B);
+        mem_free(Bshift);
+        mem_free(C);
 
         /* store new polynomial */
         polys_coeffs[m] = Q;

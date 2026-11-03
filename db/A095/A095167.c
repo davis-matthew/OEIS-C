@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 143, u16 n <= 9958, u32 n <= 9958, u64 n <= 9958,
- *            u128 n <= 9958, big any n
- * Helpers:   none
+ * Range:     u8 n <= 143, u16 n <= 10011, u32 n <= 10011, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 86 terms through n = 9958 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <limits.h>
+#include "../utils/mem.h"
 
 /* ----- static state ------------------------------------------------------ */
 
@@ -80,7 +82,7 @@ static void seq_push(seq_t val)
 {
     if (seq_len == seq_cap) {
         seq_cap = seq_cap ? seq_cap << 1 : 16;
-        seq_t *tmp = (seq_t*)realloc(seq_buf, seq_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_buf, seq_cap);
         if (!tmp) abort();
         seq_buf = tmp;
     }

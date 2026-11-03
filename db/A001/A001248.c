@@ -7,6 +7,7 @@
  * Formula:   a(n) = A000040(n)^2, where A000040(n) is the n-th prime
  * Range:     u8 n <= 6, u16 n <= 54, u32 n <= 6542, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 59 terms through n = 9945 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

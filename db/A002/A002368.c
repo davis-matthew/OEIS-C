@@ -10,7 +10,8 @@
  *            so a(n) = 2*u*v. Primes are found by a sieve
  * Range:     u8 n <= 45, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   c7645_isqrt
+ * Validated: standard, pass, 74 terms through n = 998 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/c7645_isqrt.h"
+#include "../utils/isqrt_u64.h"
 
 static uint64_t *c7645_pr = NULL;
 static size_t c7645_cnt = 0;
@@ -61,7 +62,7 @@ seq_t a(idx_t n) {
     p = c7645_pr[k];
     for (v = 1; 3 * v * v < p; v++) {
         uint64_t rem = p - 3 * v * v;
-        uint64_t u = c7645_isqrt(rem);
+        uint64_t u = isqrt_u64(rem);
         if (u * u == rem && u > 0) {
             seq_t r = (seq_t)2;
             r *= (seq_t)u;

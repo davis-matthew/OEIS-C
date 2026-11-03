@@ -6,8 +6,9 @@
  * Keywords:  nonn, base, nice, easy, look
  * Formula:   a(n) = sortdigits( n + rev(n) ) (digits sorted in increasing
  *            order)
- * Range:     u8 n <= 113, u16 n <= 8575, u32 n <= 8575, u64 n <= 8575,
- *            u128 n <= 8575, big any n
+ * Range:     u8 n <= 113, u16 n <= 10364, u32 n <= 50000, u64 n <= 50000,
+ *            u128 n <= 50000, big any n
+ * Validated: standard, pass, 78 terms through n = 8575 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

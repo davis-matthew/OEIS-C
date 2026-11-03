@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 146, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64
+ * Validated: standard, pass, 80 terms through n = 9940 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* cached terms of the sequence   */
 static size_t cache_size = 0;    /* number of terms cached          */
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
     /* lazy allocation and expansion of the cache */
     if (!cache) {
         cache_cap = 64;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return 0;  /* allocation failure – return zero */
     }
 
@@ -79,7 +81,7 @@ seq_t a(idx_t n)
             /* store the term */
             if (cache_size == cache_cap) {
                 size_t new_cap = cache_cap * 2;
-                seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) return 0; /* allocation failure */
                 cache = tmp;
                 cache_cap = new_cap;

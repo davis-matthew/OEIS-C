@@ -8,7 +8,8 @@
  * Formula:   a(n) = binary_concat(n/spf(n), spf(n))
  * Range:     u8 n <= 127, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   get_spf
+ * Validated: standard, pass, 81 terms through n = 987 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,16 @@
    largest proper divisor of n followed by the binary
    representation of spf(n).  */
 #include <stdint.h>
-#include "../utils/get_spf.h"
+
+static uint64_t get_spf(uint64_t n)
+{
+    if (n <= 1) return 1;
+    if (n % 2 == 0) return 2;
+    for (uint64_t i = 3; i * i <= n; i += 2)
+        if (n % i == 0)
+            return i;
+    return n;          /* n is prime */
+}
 
 static int bitlen_uint64(uint64_t v)
 {

@@ -9,7 +9,8 @@
  *            0, 2, 3, 6, 10, 13, or 14 modulo 16
  * Range:     u8 n <= 28, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
 
     /* Allocate an array of seq_t values.  The array holds dp[i]
      * = number of partitions of i using only allowed parts.  */
-    seq_t *dp = (seq_t*)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1));
     if (!dp)
         return (seq_t)0;          /* allocation failure – unlikely for small n */
 
@@ -50,6 +52,6 @@ seq_t a(idx_t n)
 
     /* Copy the result and free the temporary array. */
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

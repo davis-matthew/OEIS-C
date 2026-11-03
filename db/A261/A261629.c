@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Computes a(n) = coefficient of x^n in
    Π_{k≥0} 1/(1 - x^(4k+1))^2 (OEIS A261629) */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External types: seq_t (unsigned, arbitrary‑precision) and idx_t (uint64_t) */
 seq_t a(idx_t n)
@@ -29,13 +31,13 @@ seq_t a(idx_t n)
 
     /* --- Compute up to n from scratch ------------------------------------ */
     idx_t size = n + 1ULL;
-    seq_t *dp  = (seq_t *)calloc((size_t)size, sizeof(seq_t));
-    seq_t *t1  = (seq_t *)calloc((size_t)size, sizeof(seq_t));
-    seq_t *t2  = (seq_t *)calloc((size_t)size, sizeof(seq_t));
+    seq_t *dp  = mem_new(seq_t, (size_t)size);
+    seq_t *t1  = mem_new(seq_t, (size_t)size);
+    seq_t *t2  = mem_new(seq_t, (size_t)size);
 
     if (!dp || !t1 || !t2) {
         /* Allocation failed */
-        free(dp); free(t1); free(t2);
+        mem_free(dp); mem_free(t1); mem_free(t2);
         return 0;
     }
 
@@ -64,14 +66,14 @@ seq_t a(idx_t n)
     /* dp now holds the final sequence up to n */
     /* If we already had a cache, free it */
     if (cache)
-        free(cache);
+        mem_free(cache);
 
     cache = dp;                    /* store for future calls */
     cached_size = size;            /* cache now has 'size' elements */
 
     /* Clean up temporary buffers */
-    free(t1);
-    free(t2);                      /* t2 now holds the old dp buffer, which has been freed above */
+    mem_free(t1);
+    mem_free(t2);                      /* t2 now holds the old dp buffer, which has been freed above */
 
     return cache[n];
 }

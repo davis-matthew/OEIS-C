@@ -13,6 +13,7 @@
  *            counting only tuples that satisfy the constraints
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 96 terms through n = 9891 (2026-11-03)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -49,12 +50,6 @@ seq_t a(idx_t n)
 
     idx_t lim = n - 1;                 /* w² = n - (x²+y²+z²) ≥ 1 */
 
-    /* Pre‑compute square flags for values up to sqrt(n) to avoid repeated sqrt. */
-    idx_t root_lim = isqrt_u64(lim);
-    bool is_sq_val[256] = {false};    /* 256 > sqrt(10000) */
-    for (idx_t i = 0; i <= root_lim; ++i)
-        is_sq_val[i * i] = true;
-
     for (idx_t x = 0; x * x <= lim; ++x) {
         idx_t xsq = x * x;
         for (idx_t y = 0; xsq + y * y <= lim; ++y) {
@@ -78,7 +73,7 @@ seq_t a(idx_t n)
                     continue;
 
                 /* At least one of x, y, z must be a square */
-                if (!is_sq_val[x] && !is_sq_val[y] && !is_sq_val[z])
+                if (!is_square_uint64(x) && !is_square_uint64(y) && !is_square_uint64(z))
                     continue;
 
                 ++count;

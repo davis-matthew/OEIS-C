@@ -7,12 +7,14 @@
  * Formula:   a(n) satisfies A(x) = (1 + x / sqrt(A(x))) / (1 - x)
  * Range:     i8 n <= 9, i16 n <= 15, i32 n <= 25, i64 n <= 31, i128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The types seq_t and idx_t are supplied by the build. */
 
@@ -31,9 +33,9 @@ static void ensure_computed(idx_t n)
     size_t old_size  = (size_t)computed;
 
     /* Allocate or grow the arrays */
-    b_arr = (seq_t *)realloc(b_arr, new_size * sizeof(seq_t));
-    a_arr = (seq_t *)realloc(a_arr, new_size * sizeof(seq_t));
-    c_arr = (seq_t *)realloc(c_arr, new_size * sizeof(seq_t));
+    b_arr = mem_resize(seq_t, b_arr, new_size);
+    a_arr = mem_resize(seq_t, a_arr, new_size);
+    c_arr = mem_resize(seq_t, c_arr, new_size);
 
     /* Initialise new elements to 0 */
     for (size_t i = old_size; i < new_size; ++i) {

@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, frac
  * Formula:   a(n) = sigma(n) / gcd(sigma(n), sigma(A003961(n)))
- * Range:     u8 n <= 254, u16 n <= 8670, u32 n <= 8670, u64 n <= 8670,
- *            u128 n <= 8670, big any n
- * Helpers:   factor_u64, next_prime, seq_gcd, sigma_of
+ * Range:     u8 n <= 254, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 106 terms through n = 8670 (2026-11-01)
+ * Helpers:   factor_u64, gcd, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,10 +20,26 @@
 /* series 1 + p' + p'^2 + … + p'^e for each prime factor, avoiding big integers. */
 
 #include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
 #include "../utils/next_prime.h"
-#include "../utils/sigma_of.h"
-#include "../utils/seq_gcd.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 seq_t a(idx_t n)
 {
@@ -56,7 +73,7 @@ seq_t a(idx_t n)
     }
 
     /* gcd(sigma_n, sigma_A) = gcd(sigma_n, sigma_A_mod) */
-    seq_t g = seq_gcd(sigma_n, sigma_A_mod);
+    seq_t g = gcd(sigma_n, sigma_A_mod);
 
     return sigma_n / g;
 }

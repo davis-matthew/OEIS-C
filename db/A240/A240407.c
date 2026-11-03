@@ -13,13 +13,15 @@
  *            -82*a(n-13) +60*a(n-14) (same base terms as OEIS entry)
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 32, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Includes required for dynamic memory allocation */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first use */
     if (cache == NULL) {
         cache_size = 16;   /* at least up to 15 */
-        cache = (seq_t*)malloc((size_t)cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)cache_size);
         if (cache == NULL) return 0; /* allocation failure (should not happen) */
         /* copy base values; leave cache[0] unused */
         for (idx_t i = 1; i <= 14; ++i) cache[i] = base[i];
@@ -83,7 +85,7 @@ seq_t a(idx_t n)
     if (n >= cache_size) {
         idx_t new_size = n + 1;
         if (new_size < cache_size * 2) new_size = cache_size * 2;
-        seq_t *tmp = (seq_t*)realloc(cache, (size_t)new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_size);
         if (tmp == NULL) return 0; /* conversion failure */
         cache = tmp;
         cache_size = new_size;

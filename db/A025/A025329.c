@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 400, u32 n <= 400, u64 n <= 400, u128 n <= 400,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 372 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Helper: integer square root of a 64‑bit unsigned integer */
 static idx_t isqrt_u64(idx_t n)
@@ -68,7 +70,7 @@ static void ensure_capacity(size_t needed)
     if (needed > cache_cap) {
         size_t new_cap = cache_cap == 0 ? 8 : cache_cap * 2;
         while (new_cap < needed) new_cap *= 2;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 }

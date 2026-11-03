@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 27, u64 n <= 10000, u128 n <= 10000,
  *            big any n
- * Helpers:   gen_prod_primorials, seq_mul
+ * Validated: standard, pass, 57 terms through n = 9341 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,32 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_mul.h"
-#include "../utils/gen_prod_primorials.h"
+#include <string.h>
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/*  Recursive generation of all products of primorials up to 'limit'.  */
+static void gen_prod_primorials(int idx, uint64_t cur,
+                                const uint64_t *primorials, int prim_cnt,
+                                uint8_t *is_prod, uint64_t limit)
+{
+    if (idx == prim_cnt) {
+        if (cur > 1 && cur <= limit)
+            is_prod[(size_t)cur] = 1;
+        return;
+    }
+    uint64_t mul = 1;
+    while (cur * mul <= limit) {
+        gen_prod_primorials(idx + 1, cur * mul,
+                            primorials, prim_cnt, is_prod, limit);
+        if (mul > limit / primorials[idx]) break;
+        mul *= primorials[idx];
+    }
+}
 
 typedef struct {
     seq_t val;        /* current power value */
@@ -45,12 +70,12 @@ static void heap_init(Heap *h)
 {
     h->size = 0;
     h->cap  = 16;
-    h->data = (Node *)malloc(sizeof(Node) * h->cap);
+    h->data = mem_new(Node, (sizeof(Node) * h->cap) / sizeof(Node));
 }
 
 static void heap_free(Heap *h)
 {
-    free(h->data);
+    mem_free(h->data);
     h->data = NULL;
     h->size = h->cap = 0;
 }
@@ -66,7 +91,7 @@ static void heap_push(Heap *h, Node n)
 {
     if (h->size == h->cap) {
         h->cap *= 2;
-        h->data = (Node *)realloc(h->data, sizeof(Node) * h->cap);
+        h->data = mem_resize(Node, h->data, (sizeof(Node) * h->cap) / sizeof(Node));
     }
     size_t i = h->size++;
     h->data[i] = n;
@@ -196,7 +221,7 @@ seq_t a(idx_t n)
             if (first || cur.val != (seq_t)last_val) {
                 if (cache_len == cache_cap) {
                     cache_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-                    cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cache_cap);
                 }
                 cache[cache_len++] = cur.val;
                 last_val = (uint64_t)cur.val;

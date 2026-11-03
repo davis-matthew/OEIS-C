@@ -8,8 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 4, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   alloc_seq_array, digit_len, isPrimeGeneric, pow10,
- *            seq_free_array
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   is_prime_u128, is_prime_u64, mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,11 +24,51 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "../utils/digit_len.h"          /* digit_len(seq_t) -> int */
-#include "../utils/pow10.h"              /* pow10(idx_t) -> seq_t */
-#include "../utils/isPrimeGeneric.h"     /* isPrimeGeneric(seq_t) -> bool */
-#include "../utils/alloc_seq_array.h"    /* alloc_seq_array(size_t) -> seq_t* */
-#include "../utils/seq_free_array.h"    /* seq_free_array(seq_t*) */
+#include <stdlib.h>
+#include <limits.h>
+#include <string.h>
+#include <math.h>
+#include "../utils/is_prime_u128.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
+
+/* -----------------  Generic primality test ------------------------ */
+static bool isPrimeGeneric(seq_t n)
+{
+    /* all seq_t are unsigned; use the smallest type that fits */
+    if ((seq_t)(ULLONG_MAX) >= n) {
+        return is_prime_u64((uint64_t)n);
+    }
+#if defined(__SIZEOF_INT128__)
+    return is_prime_u128((__uint128_t)n);
+#else
+    /* fallback: if seq_t > 64‑bit but no 128‑bit support,
+       order the test as simple trial division up to sqrt */
+    seq_t limit = 0;
+    for (seq_t i = 2; i*i <= n; ++i) {
+        if (n % i == 0) return false;
+    }
+    return true;
+#endif
+}
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 /* Cache for already discovered terms. */
 static seq_t *cache      = NULL;   /* array of previously found m values */
@@ -52,7 +92,7 @@ static void grow_cache(void)
 static seq_t concat_4_3_2_1(idx_t m_val)
 {
     seq_t m   = (seq_t)m_val;
-    int   d   = digit_len(m);          /* number of decimal digits of m */
+    int   d   = num_digits(m);          /* number of decimal digits of m */
     seq_t p10 = pow10((idx_t)d);        /* 10^d */
 
     seq_t x = (seq_t)4;

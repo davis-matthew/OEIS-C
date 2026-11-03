@@ -8,12 +8,14 @@
  *            a(0)=0, a(1)=1)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 19, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache for memoisation */
 static seq_t *cache = NULL;         /* array of computed terms          */
@@ -25,7 +27,7 @@ static void init_cache(void)
 {
     if (cache == NULL) {
         cache_size = 2;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_size);
+        cache = mem_new(seq_t, cache_size);
         cache[0] = (seq_t)0;
         cache[1] = (seq_t)1;
         computed   = 2;
@@ -40,7 +42,7 @@ static void ensure_capacity(idx_t n)
     idx_t new_size = cache_size ? cache_size : 2;
     while (new_size <= n)
         new_size <<= 1;                 /* grow exponentially */
-    seq_t *new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_size);
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache)
         exit(1);                        /* fatal in case of out‑of‑memory */
     cache = new_cache;

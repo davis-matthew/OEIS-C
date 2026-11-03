@@ -8,7 +8,8 @@
  *            base. (OEIS A064508)
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   cast_value, isPrimeGeneric, seq_alloc, seq_realloc
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   is_prime_u128, is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,10 +20,83 @@
 #include <stdlib.h>
 
 /* Utility headers (provided by the build system) */
-#include "../utils/isPrimeGeneric.h"
-#include "../utils/seq_alloc.h"
-#include "../utils/seq_realloc.h"
-#include "../utils/cast_value.h"
+#include <limits.h>
+#include "../utils/is_prime_u128.h"
+#include "../utils/is_prime_u64.h"
+
+/* -----------------  Generic primality test ------------------------ */
+static bool isPrimeGeneric(seq_t n)
+{
+    /* all seq_t are unsigned; use the smallest type that fits */
+    if ((seq_t)(ULLONG_MAX) >= n) {
+        return is_prime_u64((uint64_t)n);
+    }
+#if defined(__SIZEOF_INT128__)
+    return is_prime_u128((__uint128_t)n);
+#else
+    /* fallback: if seq_t > 64‑bit but no 128‑bit support,
+       order the test as simple trial division up to sqrt */
+    seq_t limit = 0;
+    for (seq_t i = 2; i*i <= n; ++i) {
+        if (n % i == 0) return false;
+    }
+    return true;
+#endif
+}
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
+
+/*--------------------------------------------------------------------
+ * Evaluate n in its own base, and return the resulting value in *out.
+ *
+ * The function checks that every decimal digit of n is strictly less
+ * than n.  If this holds, *out is set to the interpreted value and
+ * true is returned; otherwise false is returned.
+ *--------------------------------------------------------------------*/
+static bool cast_value(idx_t n, seq_t *out)
+{
+    /* Extract decimal digits of n into an array, most‑significant first. */
+    uint8_t digits[20];             /* uint64_t has at most 20 decimal digits */
+    int dcnt = 0;
+    idx_t tmp = n;
+    while (tmp > 0) {
+        uint8_t dig = tmp % 10;
+        if (dig >= n)                /* digit cannot appear in base n */
+            return false;
+        digits[dcnt++] = dig;
+        tmp /= 10;
+    }
+    if (dcnt == 0)                   /* n == 0 is never used                */
+        return false;
+
+    /* Evaluate the number as a base‑n integer. */
+    seq_t val   = 0;
+    seq_t base  = (seq_t)n;
+    for (int i = dcnt - 1; i >= 0; --i)
+        val = val * base + (seq_t)digits[i];
+
+    *out = val;
+    return true;
+}
 
 /* Static table of primes found so far and state for the search */
 static seq_t *prime_vals   = NULL;   /* array of found prime values   */

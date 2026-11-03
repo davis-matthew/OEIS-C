@@ -11,7 +11,8 @@
  *            -1 if no such k exists
  * Range:     i8 n <= 12, i16 n <= 18, i32 n <= 28, i64 n <= 53, i128 n <= 53,
  *            big any n
- * Helpers:   gcd_int
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-01)
+ * Helpers:   gcd_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/gcd_int.h"
+#include <stddef.h>
+#include "../utils/gcd_i32.h"
 
 #define STRIDE 2520           /* LCM of digits 1..9 */
 #define MAX_MASK 1024         /* 2^10 possible digit sets */
@@ -29,7 +31,7 @@
 
 /* Compute lcm of two integers, result fits in int (<=2520) */
 static int lcm_int(int a, int b) {
-    return a / gcd_int(a, b) * b;
+    return a / gcd_i32(a, b) * b;
 }
 
 /* Global structures reused for every evaluation to keep memory usage bounded */

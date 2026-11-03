@@ -10,13 +10,15 @@
  *            b(0)=0, b(1)=1, * b(2k) = 3*b(k) * b(2k+1) = 2*b(k)+b(k+1)
  * Range:     u8 n <= 22, u16 n <= 767, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 4677 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache for computed values of b(n)=A006046(n). */
 static seq_t *b_cache = NULL;
@@ -29,7 +31,7 @@ static void ensure_b_upto(idx_t N)
         return;                           /* already computed */
 
     size_t new_size = (size_t)(N + 1);
-    seq_t *tmp = (seq_t *)realloc(b_cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, b_cache, new_size);
     if (!tmp)                              /* allocation failed */
         abort();
     b_cache = tmp;

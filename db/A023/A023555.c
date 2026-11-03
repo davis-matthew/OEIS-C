@@ -9,13 +9,15 @@
  *            ordered pairs of indices of the self‑convolution of A023531
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 90 terms through n = 90 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Cache structure: values up to cache_limit are stored in cache[0..limit] */
 static seq_t *cache       = NULL;   /* values of a(k) for k ≤ cache_limit */
@@ -50,7 +52,7 @@ static void precompute(idx_t limit)
 
     /* Allocate new cache array, zeroed. */
     size_t new_cap = (size_t)limit + 1;          /* indices 0..limit */
-    seq_t *new_cache = (seq_t *)calloc(new_cap, sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache)
         abort();
 
@@ -64,7 +66,7 @@ static void precompute(idx_t limit)
         }
 
     /* Replace old cache. */
-    free(cache);
+    mem_free(cache);
     free(pos);
     cache       = new_cache;
     cache_size  = new_cap;

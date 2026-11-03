@@ -11,14 +11,16 @@
  *            and, while that value is divisible by 3, the next two terms are
  *            the result of dividing it by 3 and then multiplying that result
  *            by 2. The table is generated row‑by‑row and concat...
- * Range:     u8 n <= 132, u16 n <= 9446, u32 n <= 9446, u64 n <= 9446,
- *            u128 n <= 9446, big any n
- * Helpers:   none
+ * Range:     u8 n <= 132, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 72 terms through n = 9446 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 static seq_t *cache = NULL;      /* array of computed terms          */
@@ -75,7 +77,7 @@ static void ensure_cache(idx_t n)
 {
     if (cache_len == 0) {                         /* first call initialisation */
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();
         /* initialise generator for the first row */
         gen_i = 1;
@@ -86,7 +88,7 @@ static void ensure_cache(idx_t n)
     while (cache_len < n) {
         if (cache_len >= cache_cap) {
             size_t new_cap = cache_cap * 2;
-            seq_t *temp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *temp = mem_resize(seq_t, cache, new_cap);
             if (!temp) abort();
             cache    = temp;
             cache_cap = new_cap;

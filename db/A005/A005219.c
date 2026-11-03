@@ -12,7 +12,8 @@
  *            (T(0)=...
  * Range:     u8 n <= 10, u16 n <= 16, u32 n <= 27, u64 n <= 48, u128 n <= 88,
  *            big any n
- * Helpers:   a5219_gsm, alloc_zero, release, seq_is_fixed_width, u128_to_seq
+ * Validated: standard, pass, 46 terms through n = 181 (2026-11-03)
+ * Helpers:   gcd_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,11 +21,43 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
-#include "../utils/seq_is_fixed_width.h"
-#include "../utils/u128_to_seq.h"
-#include "../utils/a5219_gsm.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
+
+static seq_t u128_to_seq(unsigned __int128 u)
+{
+    seq_t r = 0;
+    int k;
+    for (k = 3; k >= 0; k--) {
+        r = r * 65536ULL;
+        r = r * 65536ULL;
+        r += (seq_t)(uint64_t)(uint32_t)(u >> (32 * k));
+    }
+    return r;
+}
 
 /* c[0..N] computed in unsigned __int128 (fixed-width builds) */
 static void a5219_c_u128(seq_t *c, idx_t N) {
@@ -106,7 +139,7 @@ seq_t a(idx_t n) {
                 seq_t B = bin[j - 1];
                 uint64_t g;
                 if (c[k] < (seq_t)j) { J = j - 1; break; }
-                g = a5219_gsm((uint64_t)(B % j), (uint64_t)j);
+                g = gcd_u64((uint64_t)(B % j), (uint64_t)j);
                 bin[j] = (B / g) * ((c[k] - (j - 1)) / (j / g));
             }
             for (m = N; m >= k; m--) {

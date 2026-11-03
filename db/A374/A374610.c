@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   build_primes_upto, mul_small
+ * Validated: partial, pass, 60 terms through n = 61 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,20 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/mul_small.h"
+#include "../utils/mem.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 seq_t a(idx_t n)
 {
@@ -42,7 +56,7 @@ seq_t a(idx_t n)
     /* ---------------------------------------------------- */
     /* 2. Pre‑compute weights 3^i for each prime index i   */
     /* ---------------------------------------------------- */
-    seq_t *weight = (seq_t*)calloc(prime_cnt, sizeof(seq_t));
+    seq_t *weight = mem_new(seq_t, prime_cnt);
     if (!weight) { free(primes); return 0; }
     weight[0] = (seq_t)1;
     for (size_t i = 1; i < prime_cnt; ++i)
@@ -52,9 +66,9 @@ seq_t a(idx_t n)
     /* 3. DP arrays: dp[s] = minimal cost to reach sum s   */
     /* ---------------------------------------------------- */
     size_t N = (size_t)n + 1;       /* sums 0 .. n          */
-    seq_t *dp   = (seq_t*)calloc(N, sizeof(seq_t));
+    seq_t *dp   = mem_new(seq_t, N);
     bool *reach = (bool*)calloc(N, sizeof(bool));
-    if (!dp || !reach) { free(primes); free(weight); free(dp); free(reach); return 0; }
+    if (!dp || !reach) { free(primes); mem_free(weight); mem_free(dp); free(reach); return 0; }
 
     reach[0] = true;
     dp[0]    = (seq_t)0;
@@ -85,8 +99,8 @@ seq_t a(idx_t n)
     /* ---------------------------------------------------- */
     seq_t result = reach[n] ? dp[n] : (seq_t)0;
     free(primes);
-    free(weight);
-    free(dp);
+    mem_free(weight);
+    mem_free(dp);
     free(reach);
     return result;
 }

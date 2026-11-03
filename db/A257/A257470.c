@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 87 terms through n = 86 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* static state maintained across calls */
 static seq_t *seq_arr = NULL;   /* array of generated terms   */
@@ -34,9 +36,9 @@ static size_t used_cap = 0;     /* capacity of used array     */
     if (used_cap <= need_val) {                                       \
         size_t new_cap = used_cap ? used_cap * 2 : 256;                \
         while (new_cap <= need_val) new_cap *= 2;                     \
-        bool *tmp = (bool*)realloc(used, new_cap * sizeof(bool));    \
+        bool *tmp = mem_resize(bool, used, new_cap);    \
         if (!tmp) exit(EXIT_FAILURE);                                 \
-        memset(tmp + used_cap, 0, (new_cap - used_cap) * sizeof(bool)); \
+        mem_set(tmp + used_cap, 0, (new_cap - used_cap) * sizeof(bool)); \
         used = tmp;                                                   \
         used_cap = new_cap;                                           \
     }                                                                  \
@@ -46,7 +48,7 @@ static size_t used_cap = 0;     /* capacity of used array     */
 #define ENSURE_SEQ_CAP() do {                                          \
     if (seq_len >= seq_cap) {                                          \
         size_t new_cap = seq_cap ? seq_cap * 2 : 16;                   \
-        seq_t *tmp = (seq_t*)realloc(seq_arr, new_cap * sizeof(seq_t)); \
+        seq_t *tmp = mem_resize(seq_t, seq_arr, new_cap); \
         if (!tmp) exit(EXIT_FAILURE);                                 \
         seq_arr = tmp;                                                \
         seq_cap = new_cap;                                            \
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
     /* initialise on first call */
     if (seq_len == 0) {
         seq_cap = 16;
-        seq_arr = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+        seq_arr = mem_new(seq_t, seq_cap);
         seq_arr[0] = (seq_t)0;
         seq_len = 1;
 

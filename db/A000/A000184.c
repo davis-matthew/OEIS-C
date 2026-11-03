@@ -9,13 +9,14 @@
  *            so a(n) = T(n) - n*4^(n-1)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 14, u64 n <= 29, u128 n <= 60,
  *            big any n
- * Helpers:   a184_g
+ * Validated: standard, pass, 46 terms through n = 496 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a184_g.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +26,7 @@ seq_t a(idx_t n)
     for (k = 2; k <= n; k++) {
         unsigned long long m = 2ULL * (2ULL * (unsigned long long)k + 1ULL);
         unsigned long long d = (unsigned long long)(k - 1);
-        unsigned long long g = a184_g(m, d);
+        unsigned long long g = gcd_u64(m, d);
         m /= g;
         d /= g;
         T /= (seq_t)d;

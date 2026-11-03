@@ -10,12 +10,14 @@
  *            6,7,8,… and columns k = 0..floor((N-6)/2)
  * Range:     u8 n <= 9, u16 n <= 21, u32 n <= 63, u64 n <= 250,
  *            u128 n <= 1009, big any n
+ * Validated: standard, pass, 49 terms through n = 2217 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
 

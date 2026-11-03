@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 86, u16 n <= 8784, u32 n <= 8784, u64 n <= 8784,
- *            u128 n <= 8784, big any n
- * Helpers:   none
+ * Range:     u8 n <= 86, u16 n <= 12000, u32 n <= 12000, u64 n <= 12000,
+ *            u128 n <= 12000, big any n
+ * Validated: standard, pass, 86 terms through n = 8784 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Test whether a 64‑bit integer has odd Ω(n) and odd popcount of its exponents. */
 static bool is_special(uint64_t x)
@@ -71,8 +73,7 @@ seq_t a(idx_t n)
 
     while (cache_len < (size_t)n) {
         if (is_special(next_candidate)) {
-            seq_t *tmp = (seq_t*)realloc(cache,
-                                         (cache_len + 1) * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, (cache_len + 1));
             if (!tmp) abort();           /* memory allocation failed */
             cache = tmp;
             cache[cache_len] = (seq_t)next_candidate;

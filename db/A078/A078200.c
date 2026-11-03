@@ -10,6 +10,7 @@
  *            appearing with the same frequency
  * Range:     u8 none, u16 n <= 201, u32 n <= 201, u64 n <= 201, u128 n <= 201,
  *            big any n
+ * Validated: partial, pass, 102 terms through n = 201 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

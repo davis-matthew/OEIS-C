@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    a(n) is the nth positive integer whose base‑4 and base‑8 digit sums are equal. */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static int digit_sum(seq_t x, int base)
 {
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
             {
                 cache_cap = cache_cap ? cache_cap * 2 : 64;
                 /* cast is required to make this code compile as both C and C++ */
-                seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                 cache = tmp;
             }
             cache[cache_size++] = next_candidate;

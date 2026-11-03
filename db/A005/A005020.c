@@ -12,7 +12,8 @@
  *            = numb...
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 6, u128 n <= 6,
  *            big any n
- * Helpers:   a005020_pow2, a005020_rec, binom
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-03)
+ * Helpers:   binomial, mem, pow2_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,39 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/binom.h"
-#include "../utils/a005020_pow2.h"
-#include "../utils/a005020_rec.h"
+#include "../utils/binomial.h"
+#include "../utils/pow2_u64.h"
+#include "../utils/mem.h"
+
+static void a005020_rec(const uint64_t *adj, int W, uint64_t *buf, int depth,
+                        int n, uint64_t *cnt) {
+    const uint64_t *cand = buf + (size_t)depth * W;
+    uint64_t *next = buf + (size_t)(depth + 1) * W;
+    for (int w = 0; w < W; w++) {
+        uint64_t bits = cand[w];
+        while (bits) {
+            int b = __builtin_ctzll(bits);
+            bits &= bits - 1;
+            int v = w * 64 + b;
+            cnt[depth + 1]++;
+            if (depth + 1 == n) continue;
+            const uint64_t *av = adj + (size_t)v * W;
+            uint64_t pc = 0;
+            int any = 0;
+            for (int x = 0; x < W; x++) {
+                uint64_t m;
+                if (x < w) m = 0;
+                else if (x == w) m = (b == 63) ? 0 : (cand[x] & av[x] & (~0ULL << (b + 1)));
+                else m = cand[x] & av[x];
+                next[x] = m;
+                if (m) { any = 1; pc += (uint64_t)__builtin_popcountll(m); }
+            }
+            if (!any) continue;
+            if (depth + 2 == n) cnt[n] += pc;
+            else a005020_rec(adj, W, buf, depth + 1, n, cnt);
+        }
+    }
+}
 
 seq_t a(idx_t n) {
     int nn = (int)n;
@@ -38,7 +69,7 @@ seq_t a(idx_t n) {
     a005020_rec(adj, W, buf, 0, nn, cnt);
 
     /* Stirling numbers of the second kind S2(n,k) */
-    seq_t *S = (seq_t *)malloc((size_t)(nn + 1) * (nn + 1) * sizeof(seq_t));
+    seq_t *S = mem_new(seq_t, (size_t)(nn + 1) * (nn + 1));
     for (int i = 0; i <= nn; i++)
         for (int k = 0; k <= nn; k++) S[i * (nn + 1) + k] = 0;
     S[0] = 1;
@@ -55,12 +86,12 @@ seq_t a(idx_t n) {
 
     seq_t pos = 0, neg = 0;
     for (int k = 1; k <= nn; k++) {
-        seq_t t = binom(n, (idx_t)k) * a005020_pow2((uint64_t)nn * (uint64_t)(nn - k));
+        seq_t t = binomial(n, (idx_t)k) * pow2_u64((uint64_t)nn * (uint64_t)(nn - k));
         if (k & 1) pos += t; else neg += t;
     }
     seq_t B1 = pos - neg;
 
-    seq_t res = a005020_pow2((uint64_t)nn * (uint64_t)nn) - P - B1;
-    free(adj); free(buf); free(cnt); free(S);
+    seq_t res = pow2_u64((uint64_t)nn * (uint64_t)nn) - P - B1;
+    free(adj); free(buf); free(cnt); mem_free(S);
     return res;
 }

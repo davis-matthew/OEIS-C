@@ -10,19 +10,21 @@
  *            (1+x^10)/((1-x)(1-x^2)(1-x^3)(1-x^4))
  * Range:     u8 n <= 25, u16 n <= 167, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 948 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build; use them directly. */
 extern seq_t a(idx_t n) {
     /* Allocate array for p_4 up to n (since n>=0). */
     size_t len = (size_t)n + 1;
-    seq_t *p4 = (seq_t*)malloc(len * sizeof(seq_t));
+    seq_t *p4 = mem_new(seq_t, len);
     if (!p4) return 0; /* stack overflow protection, though unlikely */
 
     /* Initialize */
@@ -41,6 +43,6 @@ extern seq_t a(idx_t n) {
     if (n >= 10)
         result += p4[n - 10];
 
-    free(p4);
+    mem_free(p4);
     return result;
 }

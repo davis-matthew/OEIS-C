@@ -9,8 +9,9 @@
  * Formula:   a(n) = (σ₁(n) + χ(n)) / 2 * where σ₁(n) = Σ_{d|n} d (sum of
  *            divisors) * χ(d) = 0 if d is even; +1 if d ≡ 1 (mod 4); -1 if d
  *            ≡ 3 (mod 4)
- * Range:     u8 n <= 179, u16 n <= 9950, u32 n <= 9950, u64 n <= 9950,
- *            u128 n <= 9950, big any n
+ * Range:     u8 n <= 179, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 86 terms through n = 9950 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

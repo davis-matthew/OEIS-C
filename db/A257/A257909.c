@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 145, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 939 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --- memory for the sequence --- */
 static seq_t *a_buf   = NULL;            /* a(1), a(2), …     */
@@ -43,8 +45,8 @@ static void ensure_capacity(size_t need)
     size_t new_cap = buf_cap == 0 ? 16 : buf_cap * 2;
     while (new_cap < need) new_cap <<= 1;
 
-    a_buf = (seq_t *)realloc(a_buf, new_cap * sizeof(seq_t));
-    d_buf = (seq_t *)realloc(d_buf, new_cap * sizeof(seq_t));
+    a_buf = mem_resize(seq_t, a_buf, new_cap);
+    d_buf = mem_resize(seq_t, d_buf, new_cap);
     buf_cap = new_cap;
 }
 

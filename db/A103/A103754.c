@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
  */
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* Grow the array if needed. */
     if (cap == 0) {
         cap = 1024;
-        runs = (seq_t *)malloc(cap * sizeof(seq_t));
+        runs = mem_new(seq_t, cap);
         if (!runs) return 0;                  /* allocation failure */
     }
 
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
                     /* Store the run length. */
                     if (count >= cap) {
                         size_t new_cap = cap * 2;
-                        seq_t *tmp_ptr = (seq_t *)realloc(runs, new_cap * sizeof(seq_t));
+                        seq_t *tmp_ptr = mem_resize(seq_t, runs, new_cap);
                         if (!tmp_ptr) return 0;          /* allocation failure */
                         runs = tmp_ptr;
                         cap = new_cap;
@@ -77,7 +79,7 @@ seq_t a(idx_t n)
         if (zero_run > 0) {
             if (count >= cap) {
                 size_t new_cap = cap * 2;
-                seq_t *tmp_ptr = (seq_t *)realloc(runs, new_cap * sizeof(seq_t));
+                seq_t *tmp_ptr = mem_resize(seq_t, runs, new_cap);
                 if (!tmp_ptr) return 0;
                 runs = tmp_ptr;
                 cap = new_cap;

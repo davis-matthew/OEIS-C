@@ -13,7 +13,8 @@
  *            T(m,k) = Σ_{t=0..min(4,k)} binom(k,t)·T(m−1,k−t)
  * Range:     u8 n <= 17, u16 n <= 32, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Dynamic storage of rows of the triangle */
 static seq_t **rows      = NULL;   /* rows[m] -> array of T(m,0..4m) */
@@ -71,7 +73,7 @@ static void init_storage(void)
     if (rows_len) return;
     ensure_rows_cap(1);
     ensure_cum_cap(1);
-    rows[0] = (seq_t *)malloc(sizeof(seq_t));
+    rows[0] = mem_new(seq_t, 1);
     if (!rows[0]) abort();
     rows[0][0] = 1;          /* T(0,0)=1 */
     rows_len = 1;
@@ -88,7 +90,7 @@ static void extend_rows_until(idx_t target_n)
         size_t cur_max = 4 * m;            /* k ranges 0..4m */
         size_t prev_max = 4 * (m - 1);
 
-        seq_t *row = (seq_t *)malloc((cur_max + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (cur_max + 1));
         if (!row) abort();
         row[0] = 1;                        /* T(m,0)=1 */
 

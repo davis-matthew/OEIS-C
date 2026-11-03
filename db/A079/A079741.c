@@ -8,13 +8,18 @@
  *            letter y
  * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   is_vowel_or_y
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_vowel_or_y.h"
+
+static inline bool is_vowel_or_y(char c)
+{
+    return c=='a'||c=='e'||c=='i'||c=='o'||c=='u'||c=='y';
+}
 
 /* last letters for numbers 1..19 */
 static const char last1to19[20] = {

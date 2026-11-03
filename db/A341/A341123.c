@@ -8,14 +8,17 @@
  *            (prime powers include 1 as 1 = p⁰)
  * Range:     u8 n <= 40, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 60 terms through n = 64 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -59,7 +62,7 @@ seq_t a(idx_t n)
     /* --------------------------------------------------------------------- */
     size_t rows = (size_t)n + 1;      /* sums 0 .. n */
     size_t cols = 6;                  /* parts 0 .. 5 */
-    seq_t *dp = (seq_t *)calloc(rows * cols, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, rows * cols);
     if (!dp) {
         free(vals);
         return (seq_t)0;
@@ -77,7 +80,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[(size_t)n * cols + 5];
-    free(dp);
+    mem_free(dp);
     free(vals);
     return result;
 }

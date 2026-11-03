@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 1171, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   add_divisors, factor_uint64
+ * Validated: standard, pass, 70 terms through n = 9440 (2026-11-03)
+ * Helpers:   factor_uint64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,23 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/factor_uint64.h"   /* factor_uint64 */
-#include "../utils/add_divisors.h"
+#include "../utils/factor_uint64.h"
+#include "../utils/mem.h"
+
+static void add_divisors(uint64_t cur, int depth, const uint64_t *pr, const int *exp,
+                         int cnt, uint64_t *sum)
+{
+    if (depth == cnt) {
+        *sum += __builtin_popcountll(cur);
+        return;
+    }
+    uint64_t p = pr[depth];
+    uint64_t mult = 1;
+    for (int i = 0; i <= exp[depth]; ++i) {
+        add_divisors(cur * mult, depth + 1, pr, exp, cnt, sum);
+        mult *= p;
+    }
+}
 
 static uint64_t divisor_popcount_sum(uint64_t n)
 {
@@ -49,7 +65,7 @@ seq_t a(idx_t n)
     /* Allocate initial buffer. */
     if (!terms) {
         terms_cap = 128;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
     }
 
     /* Generate terms until we have at least n of them. */
@@ -60,7 +76,7 @@ seq_t a(idx_t n)
             /* Store the term, expanding the buffer if needed. */
             if (terms_len == terms_cap) {
                 terms_cap <<= 1;
-                terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
             }
             terms[terms_len++] = (seq_t)x;
         }

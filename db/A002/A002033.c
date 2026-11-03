@@ -8,13 +8,15 @@
  *            f(m) = sum over divisors d > 1 of m: f(m/d), with f(1) = 1
  * Range:     u8 n <= 190, u16 n <= 8638, u32 n <= 9999, u64 n <= 9999,
  *            u128 n <= 9999, big any n
- * Helpers:   none
+ * Validated: standard, pass, 112 terms through n = 9494 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;
 static idx_t memo_cap = 0;
@@ -26,12 +28,12 @@ static seq_t ordered_factorizations(idx_t m) {
     if (m >= memo_cap) {
         idx_t old_cap = memo_cap;
         idx_t new_cap = m * 2 + 1;
-        seq_t *new_memo = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_memo = mem_new(seq_t, new_cap);
         if (memo) {
-            memcpy(new_memo, memo, old_cap * sizeof(seq_t));
-            free(memo);
+            mem_copy(new_memo, memo, old_cap * sizeof(seq_t));
+            mem_free(memo);
         }
-        memset(new_memo + old_cap, 0, (new_cap - old_cap) * sizeof(seq_t));
+        mem_set(new_memo + old_cap, 0, (new_cap - old_cap) * sizeof(seq_t));
         memo = new_memo;
         memo_cap = new_cap;
     }

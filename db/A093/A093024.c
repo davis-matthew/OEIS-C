@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 6554, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   required_luhn_check_digit
+ * Validated: standard, pass, 70 terms through n = 9891 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,28 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/required_luhn_check_digit.h"
+
+/* Compute the required Luhn check digit for a prefix value.
+ * This uses the standard Luhn algorithm: the check digit itself
+ * is not doubled, so the first digit of the prefix is doubled. */
+static seq_t required_luhn_check_digit(idx_t value)
+{
+    unsigned int sum = 0;
+    bool double_flag = true;          /* first digit of prefix is doubled */
+    while (value > 0) {
+        unsigned int digit = value % 10;
+        value /= 10;
+        if (double_flag) {
+            digit = digit * 2;
+            if (digit > 9)
+                digit -= 9;
+        }
+        sum += digit;
+        double_flag = !double_flag;
+    }
+    unsigned int mod = sum % 10;
+    return (seq_t)((10 - mod) % 10);
+}
 
 /* External function required by the build. */
 seq_t a(idx_t n)

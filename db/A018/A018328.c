@@ -7,13 +7,15 @@
  * Formula:   a(n) = the nth smallest divisor of 192 (1‑indexed)
  * Range:     u8 n <= 14, u16 n <= 14, u32 n <= 14, u64 n <= 14, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 14 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Comparison function for qsort that works with any unsigned seq_t type */
 static int cmp_seq_t(const void *p1, const void *p2)
@@ -43,7 +45,7 @@ static void init_divs(void)
         }
     }
     /* pos should be 14 here */
-    qsort(divs, 14, sizeof(divs[0]), cmp_seq_t);
+    mem_qsort(divs, 14, sizeof(divs[0]), cmp_seq_t);
     initialized = true;
 }
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   has_adjacent01
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,22 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_adjacent01.h"
+#include "../utils/mem.h"
+
+/* Test whether the base‑4 representation of x has any adjacent pair
+   consisting of digits 0 and 1 (either order). */
+static bool has_adjacent01(seq_t x)
+{
+    int prev = -1;
+    while (x) {
+        int d = (int)(x % 4);
+        if (prev >= 0 && ((d == 0 && prev == 1) || (d == 1 && prev == 0)))
+            return true;
+        prev = d;
+        x /= 4;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -37,7 +53,7 @@ seq_t a(idx_t n)
             if (!has_adjacent01(k1)) {
                 if (cache_len >= cache_cap) {
                     size_t new_cap = cache_cap ? cache_cap * 2 : 64;
-                    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                     if (!tmp) abort();
                     cache = tmp;
                     cache_cap = new_cap;

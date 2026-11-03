@@ -9,14 +9,16 @@
  *            a(n-k) where A001700(k) = binomial(2*k+1, k) (OEIS A323668)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 16, u128 n <= 20,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/binomial.h"   /* provides: seq_t binomial(idx_t n, idx_t k); */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* Ensure cache can hold a[n] */
     if (n + 1 > cache_cap) {
         size_t new_cap = n + 1;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
         /* Compute A001700 values up to k=m (if needed) */
         if ((size_t)m > B_cap) {
             size_t new_B_cap = m + 1;
-            B = (seq_t *)realloc(B, new_B_cap * sizeof(seq_t));
+            B = mem_resize(seq_t, B, new_B_cap);
             for (idx_t k = B_cap + 1; k <= m; ++k) {
                 B[k] = binomial(2 * k + 1, k);
             }

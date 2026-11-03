@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = the number of k ≥ 1 such that k! ≡ −1 (mod n)
- * Range:     u8 n <= 4612, u16 n <= 9557, u32 n <= 9557, u64 n <= 9557,
- *            u128 n <= 9557, big any n
- * Helpers:   none
+ * Range:     u8 n <= 4612, u16 n <= 65536, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 136 terms through n = 9557 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static cache for previously computed values of a(n) */
 static seq_t *cache = NULL;          /* computed a(n) values      */
@@ -33,7 +35,7 @@ static void ensure_cache_size(idx_t n)
     size_t new_size = n + 1;
     if (new_size < cache_size * 2) new_size = (cache_size ? cache_size * 2 : 16);
 
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache) exit(EXIT_FAILURE);
     uint8_t *new_cached = (uint8_t *)realloc(cached, new_size * sizeof(uint8_t));
     if (!new_cached) exit(EXIT_FAILURE);

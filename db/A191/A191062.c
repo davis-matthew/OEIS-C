@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_sieve
+ * Validated: standard, pass, 70 terms through n = 877 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,12 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime_sieve.h"
+
+/* Probe a prime number needed in the sieve.  Works for idx_t = uint64_t. */
+static inline bool is_prime_sieve(uint64_t i, const bool *is_comp)
+{
+    return !is_comp[i];
+}
 
 seq_t a(idx_t n)
 {

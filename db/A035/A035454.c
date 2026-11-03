@@ -8,6 +8,7 @@
  *            modulo 8
  * Range:     u8 n <= 55, u16 n <= 149, u32 n <= 456, u64 n <= 1536,
  *            u128 n <= 5527, big any n
+ * Validated: standard, pass, 82 terms through n = 9308 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

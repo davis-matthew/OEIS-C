@@ -7,13 +7,29 @@
  * Formula:   a(n) = Sum_{k=0..n-1} 2^k * (n-k)^k * a(k) for n>0, a(0)=1
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 8, u64 n <= 11, u128 n <= 15,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>               /* malloc, realloc, NULL */
-#include "../utils/big_pow.h"     /* big_pow(seq_t, seq_t) */
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Multiply-by-self exponentiation for big exponent (seq_t type) */
+static seq_t big_pow(seq_t base, seq_t exp) {
+    seq_t result = 1;
+    while (exp != 0) {
+        if ((exp % 2) != 0) {
+            result *= base;
+        }
+        base *= base;
+        exp /= 2;
+    }
+    return result;
+}
 
 seq_t a(idx_t n) {
     /* Static cache for previously computed values. */
@@ -27,14 +43,14 @@ seq_t a(idx_t n) {
     /* ---------- Ensure cache has space for n ---------- */
     if (cache == NULL) {
         cache_len = n + 1;
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         if (cache == NULL) return (seq_t)1;          /* allocation failure */
         for (idx_t i = 0; i < cache_len; ++i) cache[i] = (seq_t)0;
         cache[0] = (seq_t)1;                         /* a(0) = 1 */
     } else if (cache_len <= n) {
         idx_t old_len = cache_len;
         cache_len = n + 1;
-        cache = (seq_t *)realloc(cache, cache_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_len);
         if (cache == NULL) return (seq_t)1;          /* allocation failure */
         for (idx_t i = old_len; i < cache_len; ++i) cache[i] = (seq_t)0;
     }
@@ -42,14 +58,14 @@ seq_t a(idx_t n) {
     /* ---------- Ensure pow2 has space for n ---------- */
     if (pow2 == NULL) {
         pow2_len = n + 1;
-        pow2 = (seq_t *)malloc(pow2_len * sizeof(seq_t));
+        pow2 = mem_new(seq_t, pow2_len);
         if (pow2 == NULL) return (seq_t)1;          /* allocation failure */
         for (idx_t i = 0; i < pow2_len; ++i) pow2[i] = (seq_t)0;
         pow2[0] = (seq_t)1;                         /* 2^0 = 1 */
     } else if (pow2_len <= n) {
         idx_t old_len = pow2_len;
         pow2_len = n + 1;
-        pow2 = (seq_t *)realloc(pow2, pow2_len * sizeof(seq_t));
+        pow2 = mem_resize(seq_t, pow2, pow2_len);
         if (pow2 == NULL) return (seq_t)1;          /* allocation failure */
         for (idx_t i = old_len; i < pow2_len; ++i) pow2[i] = (seq_t)0;
         /* Compute newly needed powers */

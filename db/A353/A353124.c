@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 108, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_tau
+ * Validated: standard, pass, 78 terms through n = 9808 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,23 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/build_tau.h"
+#include "../utils/mem.h"
+
+/* Build divisor‑count table up to 'limit' (inclusive).  */
+static uint32_t *build_tau(idx_t limit)
+{
+    uint32_t *tau = (uint32_t*)malloc((size_t)(limit + 1) * sizeof(uint32_t));
+    if (!tau) exit(EXIT_FAILURE);
+
+    for (size_t i = 0; i <= (size_t)limit; ++i) tau[i] = 0;
+
+    for (size_t i = 1; i <= (size_t)limit; ++i) {
+        for (size_t j = i; j <= (size_t)limit; j += i) {
+            ++tau[j];
+        }
+    }
+    return tau;
+}
 
 static seq_t *term_arr  = NULL;  /* cached record terms  */
 static size_t term_len  = 0;     /* number of stored terms  */
@@ -44,7 +61,7 @@ seq_t a(idx_t n)
     /* initialise term storage once */
     if (!term_arr) {
         term_cap = 64;
-        term_arr = (seq_t*)malloc(term_cap * sizeof(seq_t));
+        term_arr = mem_new(seq_t, term_cap);
         if (!term_arr) exit(EXIT_FAILURE);
     }
 
@@ -74,7 +91,7 @@ seq_t a(idx_t n)
             /* new record found */
             if (term_len == term_cap) {
                 term_cap *= 2;
-                term_arr = (seq_t*)realloc(term_arr, term_cap * sizeof(seq_t));
+                term_arr = mem_resize(seq_t, term_arr, term_cap);
                 if (!term_arr) exit(EXIT_FAILURE);
             }
             term_arr[term_len++] = (seq_t)cur_k;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   contains28_or82
+ * Validated: standard, pass, 57 terms through n = 950 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,24 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/contains28_or82.h"
+#include "../utils/mem.h"
+
+/* Return true if the decimal representation of x contains the
+   adjacent digits 2 and 8 in either order. */
+static bool contains28_or82(seq_t x)
+{
+    /* sentinel value larger than a single decimal digit */
+    seq_t prev = (seq_t)10;
+    while (x > (seq_t)0) {
+        seq_t d = x % (seq_t)10;
+        if ( (d == (seq_t)2 && prev == (seq_t)8) ||
+             (d == (seq_t)8 && prev == (seq_t)2) )
+            return true;
+        prev = d;
+        x /= (seq_t)10;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -42,7 +60,7 @@ seq_t a(idx_t n)
             /* Ensure allocator capacity */
             if (cache_len == cache_cap) {
                 cache_cap = cache_cap ? cache_cap * 2 : 16;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
                 if (!cache)          /* memory allocation failure */
                     return (seq_t)0;
             }

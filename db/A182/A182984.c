@@ -10,7 +10,8 @@
  *            partitions of n)
  * Range:     u8 n <= 13, u16 n <= 33, u32 n <= 104, u64 n <= 359,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 58 terms through n = 922 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Cached values for 0 .. cache_size-1 */
 static seq_t *sum_parts_cache = NULL;
@@ -36,11 +38,11 @@ seq_t a(idx_t n)
         size_t new_size = N + 1;
 
         /* Allocate fresh tables */
-        seq_t *sum_arr = (seq_t*)calloc(new_size, sizeof(seq_t));
-        seq_t *g_arr   = (seq_t*)calloc(new_size, sizeof(seq_t));
+        seq_t *sum_arr = mem_new(seq_t, new_size);
+        seq_t *g_arr   = mem_new(seq_t, new_size);
 
         /* ---- 1. Sum of parts over all partitions ---- */
-        seq_t *p = (seq_t*)calloc(new_size, sizeof(seq_t));        /* partition counts */
+        seq_t *p = mem_new(seq_t, new_size);        /* partition counts */
         seq_t *sum = (seq_t*)sum_arr;                              /* same buffer as sum_arr */
         p[0]       = 1;
         sum[0]     = 0;
@@ -55,13 +57,13 @@ seq_t a(idx_t n)
         /* ---- 2. Sum of multiplicity of the smallest part ---- */
         /* B[t] = number of partitions of t with parts >= current s
            prev[t] holds the values before the current s step            */
-        seq_t *B    = (seq_t*)calloc(new_size, sizeof(seq_t));
-        seq_t *prev = (seq_t*)malloc(new_size * sizeof(seq_t));
+        seq_t *B    = mem_new(seq_t, new_size);
+        seq_t *prev = mem_new(seq_t, new_size);
         B[0] = 1;                    /* partitions of 0 with any parts = 1 */
 
         for (size_t s = N; s >= 1; --s) {
             /* copy current B into prev before it is updated */
-            memcpy(prev, B, new_size * sizeof(seq_t));
+            mem_copy(prev, B, new_size * sizeof(seq_t));
 
             /* accumulate contributions of the smallest part = s */
             for (size_t n = s; n <= N; ++n) {
@@ -83,13 +85,13 @@ seq_t a(idx_t n)
         }
 
         /* Free temporary arrays */
-        free(p);
-        free(prev);
-        free(B);
+        mem_free(p);
+        mem_free(prev);
+        mem_free(B);
 
         /* Replace old cached tables */
-        if (sum_parts_cache) free(sum_parts_cache);
-        if (g_part_cache)   free(g_part_cache);
+        if (sum_parts_cache) mem_free(sum_parts_cache);
+        if (g_part_cache)   mem_free(g_part_cache);
         sum_parts_cache = sum_arr;
         g_part_cache   = g_arr;
         cache_size     = new_size;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 53, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 typedef struct {
     idx_t i;
@@ -122,7 +124,7 @@ static void odd_ensure(size_t need)
     if (odd_cap >= need) return;
     size_t newcap = odd_cap ? odd_cap * 2 : 16;
     while (newcap < need) newcap <<= 1;
-    seq_t *newarr = (seq_t *)realloc(odd_ranks, newcap * sizeof(seq_t));
+    seq_t *newarr = mem_resize(seq_t, odd_ranks, newcap);
     assert(newarr != NULL);
     odd_ranks = newarr;
     odd_cap = newcap;

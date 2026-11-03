@@ -9,17 +9,31 @@
  *            antidiagonal pair (x,y) with index n (A091256)
  * Range:     u8 n <= 81, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
- * Helpers:   bitlen_seq_t, poly_mult
+ * Validated: partial, pass, 81 terms through n = 81 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/bitlen_seq_t.h"
-#include "../utils/poly_mult.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
+
+static inline seq_t poly_mult(seq_t a, seq_t b) {
+    seq_t prod = 0;
+    seq_t aa = a;
+    int i = 0;
+    while (aa != 0) {
+        if (aa & 1)
+            prod ^= b << i;
+        aa >>= 1;
+        i++;
+    }
+    return prod;
+}
 
 static inline int poly_degree(seq_t a) {
-    return (a == 0) ? -1 : (int)bitlen_seq_t(a) - 1;
+    return (a == 0) ? -1 : (int)bit_length(a) - 1;
 }
 
 static inline seq_t poly_mod(seq_t a, seq_t b) {

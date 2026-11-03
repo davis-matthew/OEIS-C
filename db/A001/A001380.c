@@ -10,13 +10,14 @@
  *            overall parity bit
  * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 6, u64 n <= 6, u128 n <= 6,
  *            big any n
- * Helpers:   a001380_pop
+ * Validated: full, pass, 7 terms through n = 6 (2026-11-02)
+ * Helpers:   popcount_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a001380_pop.h"
+#include "../utils/popcount_u32.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +35,7 @@ seq_t a(idx_t n)
 			for (b = 0; b < 12; b++)
 				if ((m >> b) & 1u)
 					c ^= g << b;
-			w = a001380_pop(c);
+			w = popcount_u32(c);
 			w += w & 1; /* extend with parity bit */
 			cnt[w]++;
 		}

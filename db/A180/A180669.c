@@ -9,12 +9,14 @@
  *            a(0)=0, a(1)=0, a(2)=1
  * Range:     u8 n <= 6, u16 n <= 15, u32 n <= 33, u64 n <= 69, u128 n <= 142,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 940 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Memoised cache */
 static seq_t *cache = NULL;        /* array holding a(0)…a(max) */
@@ -33,7 +35,7 @@ static void grow_cache(idx_t n)
     while (new_cap <= (size_t)n)
         new_cap *= 2;
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();                        /* unrecoverable memory failure */
 
     cache = tmp;

@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{d|n, d ≡ 1 (mod 4)} d^4
  * Range:     u8 n <= 4, u16 n <= 16, u32 n <= 256, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   dfs_sum
+ * Validated: standard, pass, 64 terms through n = 8902 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,47 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/dfs_sum.h"
+
+/* -------------------  Recursive divisor summation  ------------------- */
+static void dfs_sum(const uint64_t *fac_primes, const int *exps,
+                    int fac_cnt, int idx,
+                    seq_t cur_prod, int cur_mod4,
+                    seq_t *sum)
+{
+    if (idx == fac_cnt) {
+        if (cur_mod4 == 1) {
+            seq_t p2 = cur_prod * cur_prod;
+            seq_t p4 = p2 * p2;
+            *sum += p4;
+        }
+        return;
+    }
+
+    uint64_t p = fac_primes[idx];
+    int        e = exps[idx];
+
+    /* Divisors containing 2 cannot be ≡ 1 (mod 4); skip all exponents > 0 */
+    if (p == 2) {
+        dfs_sum(fac_primes, exps, fac_cnt, idx + 1, cur_prod, cur_mod4, sum);
+        return;
+    }
+
+    seq_t prod = cur_prod;
+    for (int k = 0; k <= e; ++k) {
+        int new_mod4;
+        if ((p & 3ULL) == 1UL)                 /* p ≡ 1 (mod 4) */
+            new_mod4 = cur_mod4;
+        else if ((p & 3ULL) == 3ULL)           /* p ≡ 3 (mod 4) */
+            new_mod4 = (cur_mod4 * ((k & 1) ? 3 : 1)) & 3;
+        else                                   /* should not happen */
+            new_mod4 = cur_mod4;
+
+        dfs_sum(fac_primes, exps, fac_cnt, idx + 1, prod, new_mod4, sum);
+
+        if (k < e)
+            prod = prod * p;
+    }
+}
 
 /* -------------------  Prime sieve (up to 1 000 000)  ------------------- */
 #define MAX_PRIME 1000000

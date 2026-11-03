@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_pow2_digits, copy_and_double
+ * Validated: standard, pass, 97 terms through n = 968 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,53 @@
    and 2^(n+1). This implements the OEIS definition of a(n). */
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/build_pow2_digits.h"
-#include "../utils/copy_and_double.h"
+
+/* Build the decimal digits of 2^exp into dig (least‑significant first). */
+static inline void build_pow2_digits(idx_t exp,
+                                     unsigned char *dig,
+                                     size_t *len)
+{
+    dig[0] = 1;
+    *len   = 1;
+
+    for (size_t i = 0; i < (size_t)exp; ++i) {
+        unsigned int carry = 0;
+        for (size_t j = 0; j < *len; ++j) {
+            unsigned int v = dig[j] * 2u + carry;
+            dig[j]   = (unsigned char)(v % 10u);
+            carry    = v / 10u;
+        }
+        while (carry) {
+            dig[*len] = (unsigned char)(carry % 10u);
+            carry     = carry / 10u;
+            ++(*len);
+        }
+    }
+}
+
+/* Double the number stored in src of length src_len into dst, storing
+   the result in dst and updating dst_len. */
+static inline void copy_and_double(size_t src_len,
+                                   const unsigned char *src,
+                                   unsigned char *dst,
+                                   size_t *dst_len)
+{
+    *dst_len = src_len;
+    for (size_t i = 0; i < src_len; ++i)
+        dst[i] = src[i];
+
+    unsigned int carry = 0;
+    for (size_t i = 0; i < *dst_len; ++i) {
+        unsigned int v = dst[i] * 2u + carry;
+        dst[i]   = (unsigned char)(v % 10u);
+        carry    = v / 10u;
+    }
+    while (carry) {
+        dst[*dst_len] = (unsigned char)(carry % 10u);
+        carry /= 10u;
+        ++(*dst_len);
+    }
+}
 
 /* Maximum number of decimal digits needed for 2^10000 (~3011 digits). */
 #define MAXD 4000

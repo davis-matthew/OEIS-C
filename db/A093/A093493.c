@@ -9,7 +9,8 @@
  * Formula:   a(n) = |{ r | 1 ≤ r ≤ n-1 , τ(n‑r) = τ(n+r) }|
  * Range:     u8 n <= 83, u16 n <= 83, u32 n <= 83, u64 n <= 83, u128 n <= 83,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 83 terms through n = 83 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* where τ(k) is the number of positive divisors of k. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* Expand the sieve whenever a larger n is requested. */
     if (n > cur_max_n) {
         idx_t limit = 2 * n;               /* need τ(k) up to 2n-1 */
-        seq_t *new_tau = (seq_t *)malloc((limit + 1) * sizeof(seq_t));
+        seq_t *new_tau = mem_new(seq_t, (limit + 1));
         if (!new_tau) return 0;            /* memory allocation failed */
 
         /* initialise and compute divisor counts */
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
                 new_tau[j] += 1;
 
         /* Replace old table if any. */
-        if (tau) free(tau);
+        if (tau) mem_free(tau);
         tau = new_tau;
         cur_max_n = n;
     }

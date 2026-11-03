@@ -9,6 +9,7 @@
  *            (1+147*x+1098*x^2+1638*x^3+632*x^4+59*x^5+x^6)/(1-x)^7
  * Range:     u8 none, u16 n <= 3, u32 n <= 30, u64 n <= 1243, u128 n <= 10000,
  *            big any n
+ * Validated: standard, pass, 41 terms through n = 9828 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

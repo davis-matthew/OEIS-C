@@ -7,12 +7,14 @@
  * Formula:   a(n) = 33*a(n-2) - 272*a(n-4); a(0)=1, a(1)=5, a(2)=21, a(3)=85
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     /* create the cache if empty */
     if (cache_len == 0) {
         cache_len = INIT;
-        cache = (seq_t *)calloc((size_t)cache_len, sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)cache_len);
         if (!cache) return (seq_t)0;        /* out‑of‑memory, return 0 as a safety net */
 
         /* initialise the first four terms */
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     /* extend the cache up to n */
     if (n >= cache_len) {
         idx_t new_len = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_len);
         if (!tmp) return (seq_t)0;          /* out‑of‑memory, safety return */
         cache = tmp;
 

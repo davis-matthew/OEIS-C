@@ -11,12 +11,14 @@
  *            The generating function is Π_{k≥1} 1/(1 - binomial(k+5,5)·x^k)
  * Range:     u8 n <= 0, u16 n <= 5, u32 n <= 11, u64 n <= 24, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 928 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* compute a(n) – weighted partition number */
 seq_t a(idx_t n)
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* allocate dp[0..n] */
-    seq_t *dp = (seq_t *)malloc(sizeof(seq_t) * (n + 1));
+    seq_t *dp = mem_new(seq_t, (n + 1));
     if (!dp)
         return (seq_t)0;               /* allocation failed */
 
@@ -55,6 +57,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

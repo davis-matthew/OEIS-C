@@ -9,7 +9,8 @@
  *            (OEIS A121649)
  * Range:     u8 n <= 11, u16 n <= 20, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static cache for computed terms. */
 static seq_t *seq_cache = NULL;      /* cache array */
@@ -34,9 +36,9 @@ static void seq_ensure_cache(idx_t n)
     seq_t *tmp = NULL;
 
     if (seq_cache == NULL)
-        tmp = (seq_t *)malloc(new_size * sizeof(seq_t));
+        tmp = mem_new(seq_t, new_size);
     else
-        tmp = (seq_t *)realloc(seq_cache, new_size * sizeof(seq_t));
+        tmp = mem_resize(seq_t, seq_cache, new_size);
 
     if (tmp == NULL)
         abort();  /* allocation failure */

@@ -9,12 +9,14 @@
  *            divisors of k
  * Range:     u8 n <= 669, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 92 terms through n = 9588 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *pref = NULL;     /* prefix counts, 1‑based */
 static idx_t   cur_max = 0;    /* maximum n that has been precomputed */
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     idx_t new_max = n;
 
     /* Allocate temporary array for divisor counts */
-    seq_t *tau = (seq_t*)malloc((new_max + 1) * sizeof(seq_t));
+    seq_t *tau = mem_new(seq_t, (new_max + 1));
     if (!tau)
         return 0;  /* Allocation failed – return 0 as a safe fallback */
 
@@ -49,9 +51,9 @@ seq_t a(idx_t n)
 
     /* Free old prefix storage */
     if (pref)
-        free(pref);
+        mem_free(pref);
 
-    pref = (seq_t*)malloc((new_max + 1) * sizeof(seq_t));
+    pref = mem_new(seq_t, (new_max + 1));
     if (!pref)
         return 0;  /* Allocation failed */
 
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
                   ((tau[i] % 3ULL) == 2ULL ? 1 : 0);
     }
 
-    free(tau);
+    mem_free(tau);
 
     cur_max = new_max;
     return pref[n];

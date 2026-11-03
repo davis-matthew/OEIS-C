@@ -8,6 +8,7 @@
  *            the count of digit 5 exceeds the count of digit 0 by exactly 2
  * Range:     u8 n <= 13, u16 n <= 2500, u32 n <= 2500, u64 n <= 2500,
  *            u128 n <= 2500, big any n
+ * Validated: standard, pass, 62 terms through n = 2402 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

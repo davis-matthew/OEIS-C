@@ -7,6 +7,7 @@
  * Formula:   a(n) = 2^(Row(n)+1) + 3*(3+2^Col(n))
  * Range:     u8 n <= 20, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,7 @@
 
 /* Computes the OEIS sequence A274048 for any n ≥ 1. */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

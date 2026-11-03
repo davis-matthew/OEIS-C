@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 18, u32 n <= 29, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   seq_realloc
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,19 @@
    (uint8_t … uint64_t, unsigned __int128 or arbitrary‑precision). */
 
 #include <stddef.h>                /* size_t */
-#include "../utils/seq_realloc.h"  /* seq_realloc(seq_t *,size_t,size_t) */
+#include <stdlib.h>
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 /* static cache (1‑based indexing; index 0 unused) */
 static seq_t *seq_cache = NULL;

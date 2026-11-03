@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_consecutive, mul_by_small
+ * Validated: standard, pass, 102 terms through n = 9159 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,35 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/has_consecutive.h"
-#include "../utils/mul_by_small.h"
+
+/* Return true if the decimal number (stored little‑endian) has two equal
+   adjacent digits when read in normal order. */
+static bool has_consecutive(const uint8_t *digits, int len)
+{
+    for (int i = len - 1; i > 0; --i)
+        if (digits[i] == digits[i-1]) return true;
+    return false;
+}
+
+/* Multiply a decimal number (stored as little‑endian digits) by a small integer.
+   digits[] contains the least significant digit first.  len is the number of
+   digits (in use).  n is the multiplier (idx_t up to 64 bits). */
+static void mul_by_small(uint8_t *digits, int *len, uint64_t n)
+{
+    /* use an unsigned 128‑bit type when available */
+    typedef unsigned __int128 u128;
+    u128 carry = 0;
+    for (int i = 0; i < *len; ++i) {
+        u128 prod = (u128)digits[i] * (u128)n + carry;
+        digits[i] = (uint8_t)(prod % 10u);
+        carry    = prod / 10u;
+    }
+    while (carry > 0) {
+        digits[*len] = (uint8_t)(carry % 10u);
+        carry        = carry / 10u;
+        ++(*len);
+    }
+}
 
 seq_t a(idx_t n)
 {

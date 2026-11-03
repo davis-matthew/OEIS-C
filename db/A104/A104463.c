@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 62, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   ensure_bitset, set_bit, test_bit
+ * Validated: partial, pass, 63 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -39,9 +40,27 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/ensure_bitset.h"
-#include "../utils/set_bit.h"
-#include "../utils/test_bit.h"
+#include "../utils/mem.h"
+
+/* bitset helpers ---------------------------------------------------- */
+static void ensure_bitset(idx_t need, uint8_t **arr, idx_t *cap) {
+    if (need < *cap) return;
+    idx_t new_cap = (*cap) ? *cap << 1 : 128;
+    while (new_cap <= need) new_cap <<= 1;
+    uint8_t *tmp = (uint8_t *)realloc(*arr, new_cap);
+    if (!tmp) abort();  /* allocation failure => crash */
+    if (new_cap > *cap) memset(tmp + *cap, 0, new_cap - *cap);
+    *arr  = tmp;
+    *cap  = new_cap;
+}
+
+static inline void set_bit(uint8_t *arr, idx_t ix) {
+    arr[ix >> 3] |= (uint8_t)(1U << (ix & 7));
+}
+
+static inline bool test_bit(const uint8_t *arr, idx_t ix) {
+    return (arr[ix >> 3] >> (ix & 7)) & 1;
+}
 
 /* ------------------------------------------------------------------ */
 /* --- Lazy storage of the a(n) and b(n) sequences ------------------ */
@@ -82,7 +101,7 @@ static void generate_next_a(void) {
     /* store the new a value */
     if (a_size >= a_cap) {
         a_cap = a_cap ? a_cap << 1 : 16;
-        a_vals = (seq_t *)realloc(a_vals, a_cap * sizeof(seq_t));
+        a_vals = mem_resize(seq_t, a_vals, a_cap);
         if (!a_vals) abort();
     }
     a_vals[a_size] = (seq_t)cand;
@@ -110,7 +129,7 @@ static void generate_b_up_to(idx_t target) {
     /* Ensure we have the first a values to start with */
     if (a_size == 0) {
         a_cap = 16;
-        a_vals = (seq_t *)malloc(a_cap * sizeof(seq_t));
+        a_vals = mem_new(seq_t, a_cap);
         if (!a_vals) abort();
         a_size = 0;
         /* pre‑compute a(0)=0 and a(1)=1 to initialise */
@@ -133,7 +152,7 @@ static void generate_b_up_to(idx_t target) {
     /* set up scanning for b values */
     if (b_size == 0) {
         b_cap = 16;
-        b_vals = (seq_t *)malloc(b_cap * sizeof(seq_t));
+        b_vals = mem_new(seq_t, b_cap);
         if (!b_vals) abort();
         b_size = 0;
     }
@@ -153,7 +172,7 @@ static void generate_b_up_to(idx_t target) {
         /* store the b value */
         if (b_size >= b_cap) {
             b_cap = b_cap ? b_cap << 1 : 16;
-            b_vals = (seq_t *)realloc(b_vals, b_cap * sizeof(seq_t));
+            b_vals = mem_resize(seq_t, b_vals, b_cap);
             if (!b_vals) abort();
         }
         b_vals[b_size] = (seq_t)next_b_cand;

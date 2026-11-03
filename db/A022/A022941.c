@@ -9,12 +9,14 @@
  *            complement (positive integers not in the sequence)
  * Range:     u8 n <= 20, u16 n <= 347, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 9566 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *a_arr = NULL;   /* sequence a */
@@ -45,7 +47,7 @@ seq_t a(idx_t n) {
                 /* x is missing; store it as the next c element */
                 if (c_len >= c_cap) {
                     size_t new_cap = c_cap ? c_cap << 1U : 8U;
-                    seq_t *tmp = (seq_t *)realloc(c_arr, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, c_arr, new_cap);
                     if (!tmp) exit(1);  /* allocation failure */
                     c_arr = tmp;
                     c_cap = new_cap;
@@ -69,7 +71,7 @@ seq_t a(idx_t n) {
         /* Grow the a array if needed */
         if (a_len >= a_cap) {
             size_t new_cap = a_cap ? a_cap << 1U : 8U;
-            seq_t *tmp = (seq_t *)realloc(a_arr, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, a_arr, new_cap);
             if (!tmp) exit(1);  /* allocation failure */
             a_arr = tmp;
             a_cap = new_cap;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   has_required_digits, is_prime_small, seq_realloc
+ * Validated: standard, pass, 68 terms through n = 994 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,36 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#include "../utils/is_prime_small.h"
-#include "../utils/seq_realloc.h"
-#include "../utils/has_required_digits.h"
+#include "../utils/is_prime_seq.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
+
+static bool has_required_digits(idx_t x)
+{
+    bool prime_digit   = false;
+    bool nonprime_digit = false;
+
+    while (x > 0) {
+        uint32_t d = (uint32_t)(x % 10);
+        if (d == 0) return false;           /* reject digits 0 */
+        if (d == 2 || d == 3 || d == 5 || d == 7)
+            prime_digit = true;
+        else
+            nonprime_digit = true;
+        x /= 10;
+    }
+    return prime_digit && nonprime_digit;
+}
 
 seq_t a(idx_t n)
 {
@@ -39,7 +67,7 @@ seq_t a(idx_t n)
 
     while (cache_len < (size_t)n) {
         /* test the next integer */
-        if (is_prime_small((uint64_t)last_checked) &&
+        if (is_prime_seq((uint64_t)last_checked) &&
             has_required_digits(last_checked)) {
             if (cache_len == cache_cap) {
                 size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;

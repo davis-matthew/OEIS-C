@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 12, u32 n <= 16, u64 n <= 25, u128 n <= 40,
  *            big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 42 terms through n = 468 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>   /* uint64_t used for idx_t conversion if needed */
 #include <stdbool.h>  /* not used directly but required by the style guide */
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* Return the n-th term of sequence A309705.  The function caches
    previously computed values so that calls in arbitrary order are
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     /* Initialise the cache with a(1) if it is empty. */
     if (cache_len == 0) {
         cache_cap = 1;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();
         cache[0] = (seq_t)1;    /* a(1) */
         cache_len = 1;
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     /* Grow the cache if necessary.  The new capacity is at least n. */
     if (n > cache_cap) {
         cache_cap = n;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
         if (!cache) abort();
     }
 

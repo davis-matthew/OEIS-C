@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gpf
+ * Validated: standard, pass, 121 terms through n = 9423 (2026-11-01)
+ * Helpers:   largest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/gpf.h"   /* has uint64_t gpf(uint64_t x) */
+#include "../utils/largest_prime_factor.h"
 
 /*--- static storage for the prime table -----------------------------------*/
 static uint64_t *prime_table = NULL;   /* list of primes in ascending order */
@@ -79,7 +80,7 @@ seq_t a(idx_t n)
     seq_t steps = 0;
     uint64_t current = p;
     while (current != 2) {
-        current = gpf(current - 1);
+        current = largest_prime_factor(current - 1);
         ++steps;
     }
     return steps;

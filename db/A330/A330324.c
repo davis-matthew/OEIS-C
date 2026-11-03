@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign
  * Formula:   a(n) = Sum_{i=1..n} Moebius(i) * Moebius(i+1)
- * Range:     i8 n <= 7597, i16 n <= 7597, i32 n <= 7597, i64 n <= 7597,
- *            i128 n <= 7597, big any n
+ * Range:     i8 n <= 20000, i16 n <= 20000, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 103 terms through n = 7597 (2026-11-01)
  * Helpers:   mobius
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

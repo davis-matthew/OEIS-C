@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = |{<x,y,z> : x,y,z >= 0 and x^2 + (3y^2 - y)/2 + (2z^2 -
  *            z) = n}|
- * Range:     u8 n <= 9981, u16 n <= 9981, u32 n <= 9981, u64 n <= 9981,
- *            u128 n <= 9981, big any n
+ * Range:     u8 n <= 50000, u16 n <= 50000, u32 n <= 50000, u64 n <= 50000,
+ *            u128 n <= 50000, big any n
+ * Validated: standard, pass, 120 terms through n = 9981 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 35, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,15 +21,17 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static bool good(idx_t k)
 {
     seq_t mod_k = (seq_t)k;
-    seq_t r10 = mod_pow(10, (uint64_t)k, mod_k);
-    seq_t r9  = mod_pow(9,  (uint64_t)k, mod_k);
-    seq_t r8  = mod_pow(8,  (uint64_t)k, mod_k);
-    seq_t r7  = mod_pow(7,  (uint64_t)k, mod_k);
+    seq_t r10 = powmod(10, (uint64_t)k, mod_k);
+    seq_t r9  = powmod(9,  (uint64_t)k, mod_k);
+    seq_t r8  = powmod(8,  (uint64_t)k, mod_k);
+    seq_t r7  = powmod(7,  (uint64_t)k, mod_k);
 
     seq_t sum = r10 + r9;
     if (sum >= mod_k) sum -= mod_k;
@@ -51,14 +54,14 @@ seq_t a(idx_t n)
     if (!init) {
         init = true;
         cap   = 64;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
     }
 
     while (len < n) {
         if (good(cur_k)) {
             if (len == cap) {
                 cap <<= 1;
-                cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cap);
             }
             cache[len++] = (seq_t)cur_k;
         }

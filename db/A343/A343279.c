@@ -7,7 +7,8 @@
  * Formula:   a(n) = Stirling2(n, floor(n/2))
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 16, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* static state for memoisation */
 static seq_t *S = NULL;        /* current row of Stirling numbers */
@@ -32,7 +34,7 @@ static void ensure_capk(size_t new_cap) {
         return;
     size_t old_cap = capk;
     capk = new_cap;
-    seq_t *tmp = (seq_t *)realloc(S, capk * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, S, capk);
     if (!tmp)
         exit(1);
     S = tmp;
@@ -47,7 +49,7 @@ static void ensure_capn(size_t new_cap) {
         return;
     size_t old_cap = capn;
     capn = new_cap;
-    seq_t *tmp = (seq_t *)realloc(a_vals, capn * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_vals, capn);
     if (!tmp)
         exit(1);
     a_vals = tmp;

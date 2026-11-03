@@ -12,12 +12,14 @@
  *            Partition counts are computed via the * recurrence for...
  * Range:     u8 n <= 7, u16 n <= 17, u32 n <= 59, u64 n <= 433, u128 n <= 433,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 427 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
        dp[j][s] = number of partitions of s into parts not exceeding j. */
     size_t rows = K + 1;
     size_t cols = N + 1;
-    seq_t *dp = (seq_t *)calloc(rows * cols, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, rows * cols);
     if (!dp) return (seq_t)0;            /* allocation failed – return 0 */
 
     /* Helper to index the flattened array. */
@@ -80,6 +82,6 @@ seq_t a(idx_t n)
         result += part[r] * sum_u;
     }
 
-    free(dp);
+    mem_free(dp);
     return result;
 }

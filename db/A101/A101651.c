@@ -9,13 +9,25 @@
  *            binary expansion
  * Range:     u8 n <= 16, u16 n <= 32, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   bitlen, pow2
+ * Validated: partial, pass, 46 terms through n = 45 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/bitlen.h"
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
+
+/* Computes the number of bits needed to represent x:
+   0 has length 1. */
+static idx_t bitlen(idx_t x)
+{
+    if (x == 0) return 1;
+    idx_t len = 0;
+    while (x) { ++len; x >>= 1; }
+    return len;
+}
 
 seq_t a(idx_t n)
 {

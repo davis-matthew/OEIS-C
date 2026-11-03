@@ -8,13 +8,15 @@
  *            a(1) = -2, a(2) = 2, a(n) = 2*a(n-2) - a(n-3)
  * Range:     i8 n <= 10, i16 n <= 21, i32 n <= 44, i64 n <= 90, i128 n <= 182,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 965 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Build system supplies seq_t and idx_t definitions. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static cache to memoize already-computed terms so repeated calls
@@ -27,7 +29,7 @@ seq_t a(idx_t n) {
     if (cap <= n) {
         size_t new_cap = (cap > 0) ? cap * 2 : 8;
         if (new_cap <= n + 1) new_cap = n + 1;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cap = new_cap;
     }
 

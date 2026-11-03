@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 34, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   none
+ * Validated: partial, pass, 102 terms through n = 104 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Node used to build the Huffman tree */
 struct Node {
@@ -86,7 +88,7 @@ seq_t a(idx_t n)
     size_t totalNodes = 2 * N - 1;       /* leaves + internal nodes */
 
     /* Allocate nodes and initialise leaves. */
-    struct Node *nodes = (struct Node *)calloc(totalNodes, sizeof(struct Node));
+    struct Node *nodes = mem_new(struct Node, totalNodes);
     if (!nodes)
         return 0;                        /* allocation failure guard */
 
@@ -99,7 +101,7 @@ seq_t a(idx_t n)
     /* Allocate heap that initially contains all leaf indices. */
     size_t *heap = (size_t *)calloc(N, sizeof(size_t));
     if (!heap) {
-        free(nodes);
+        mem_free(nodes);
         return 0;
     }
     for (size_t i = 0; i < N; ++i)
@@ -139,7 +141,7 @@ seq_t a(idx_t n)
     int *leafDepth = (int *)calloc(N, sizeof(int));
     if (!leafDepth) {
         free(heap);
-        free(nodes);
+        mem_free(nodes);
         return 0;
     }
 
@@ -149,7 +151,7 @@ seq_t a(idx_t n)
     int   *stackDepth = (int *)calloc(stackCap, sizeof(int));
     if (!stackNode || !stackDepth) {
         free(heap);
-        free(nodes);
+        mem_free(nodes);
         free(leafDepth);
         free(stackNode);
         free(stackDepth);
@@ -184,7 +186,7 @@ seq_t a(idx_t n)
     bool *seen = (bool *)calloc(N + 1, sizeof(bool)); /* depth cannot exceed N */
     if (!seen) {
         free(heap);
-        free(nodes);
+        mem_free(nodes);
         free(leafDepth);
         free(stackNode);
         free(stackDepth);
@@ -204,7 +206,7 @@ seq_t a(idx_t n)
 
     /* Clean up. */
     free(heap);
-    free(nodes);
+    mem_free(nodes);
     free(leafDepth);
     free(stackNode);
     free(stackDepth);

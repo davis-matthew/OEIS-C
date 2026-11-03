@@ -7,15 +7,27 @@
  * Formula:   a(n) = Sum_{k=0..n} Stirling1(n, k)*2^(k^2-k)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 8, u128 n <= 11,
  *            big any n
- * Helpers:   A001832_pow2, alloc_zero, release
+ * Validated: standard, pass, 29 terms through n = 48 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/A001832_pow2.h"
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
+#include <stdint.h>
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 1;
@@ -33,7 +45,7 @@ seq_t a(idx_t n) {
     /* s(n, k) = (-1)^(n-k) c(n, k); accumulate positive and negative parts */
     seq_t pos = 0, neg = 0;
     for (idx_t k = 1; k <= n; k++) {
-        seq_t term = c[k] * A001832_pow2(k * k - k);
+        seq_t term = c[k] * pow2(k * k - k);
         if (((n - k) & 1) == 0) pos += term;
         else neg += term;
     }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 42, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _floor_isqrt_u64
+ * Validated: standard, pass, 54 terms through n = 973 (2026-11-03)
+ * Helpers:   isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 /* Test whether x is a heptagonal number.
    An integer h is heptagonal iff 9 + 40·h is a perfect square s²
@@ -30,7 +32,7 @@
 static bool is_heptagonal(seq_t x)
 {
     idx_t v   = 40 * (idx_t)x + 9;
-    idx_t r   = _floor_isqrt_u64(v);
+    idx_t r   = isqrt(v);
     return r * r == v && (3 + r) % 10 == 0;
 }
 
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
         if (cache_len == cache_cap)
         {
             size_t new_cap = cache_cap ? cache_cap << 1 : 16;
-            seq_t *tmp = (seq_t*)malloc(new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_new(seq_t, new_cap);
             if (!tmp)
                 return 0;        /* allocation failure → 0 */
 
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
             for (size_t i = 0; i < cache_len; ++i)
                 tmp[i] = cache[i];
 
-            free(cache);
+            mem_free(cache);
             cache      = tmp;
             cache_cap  = new_cap;
         }

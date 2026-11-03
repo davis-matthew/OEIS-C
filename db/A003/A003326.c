@@ -11,8 +11,8 @@
  *            (j-k)*T(j-1) + (j-k+2)*T(j)
  * Range:     i8 n <= 10, i16 n <= 12, i32 n <= 16, i64 n <= 22, i128 n <= 24,
  *            big any n
- * Helpers:   a3326_add, a3326_allones, a3326_bitlen, a3326_lincomb,
- *            a3326_mask, a3326_norm, a3326_shr
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,13 +20,85 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a3326_add.h"
-#include "../utils/a3326_allones.h"
-#include "../utils/a3326_bitlen.h"
-#include "../utils/a3326_lincomb.h"
-#include "../utils/a3326_mask.h"
-#include "../utils/a3326_norm.h"
-#include "../utils/a3326_shr.h"
+
+/* x += y; returns new length (x must have room) */
+static size_t a3326_add(uint32_t *x, size_t xl, const uint32_t *y, size_t yl) {
+  size_t L = xl > yl ? xl : yl;
+  uint64_t carry = 0;
+  for (size_t i = 0; i < L; i++) {
+    uint64_t v = carry;
+    if (i < xl) v += x[i];
+    if (i < yl) v += y[i];
+    x[i] = (uint32_t)v;
+    carry = v >> 32;
+  }
+  if (carry) x[L++] = (uint32_t)carry;
+  return L;
+}
+
+/* is x == 2^s - 1 ? */
+static int a3326_allones(const uint32_t *x, size_t len, size_t s) {
+  size_t full = (s + 31) / 32;
+  if (len != full || s == 0) return 0;
+  for (size_t i = 0; i + 1 < len; i++)
+    if (x[i] != 0xFFFFFFFFu) return 0;
+  uint32_t top = (s % 32) ? (uint32_t)((1u << (s % 32)) - 1) : 0xFFFFFFFFu;
+  return x[len - 1] == top;
+}
+
+static size_t a3326_bitlen(const uint32_t *x, size_t len) {
+  if (!len) return 0;
+  uint32_t t = x[len - 1];
+  size_t b = 0;
+  while (t) { b++; t >>= 1; }
+  return (len - 1) * 32 + b;
+}
+
+static size_t a3326_norm(const uint32_t *x, size_t len) {
+  while (len && !x[len - 1]) len--;
+  return len;
+}
+
+/* y = a*x + b*y */
+static size_t a3326_lincomb(uint32_t *y, size_t yl, const uint32_t *x, size_t xl,
+                            uint64_t ca, uint64_t cb) {
+  size_t L = xl > yl ? xl : yl;
+  uint64_t carry = 0;
+  for (size_t i = 0; i < L; i++) {
+    uint64_t v = carry;
+    if (i < xl) v += ca * x[i];
+    if (i < yl) v += cb * y[i];
+    y[i] = (uint32_t)v;
+    carry = v >> 32;
+  }
+  if (carry) y[L++] = (uint32_t)carry;
+  return a3326_norm(y, L);
+}
+
+/* dst = src mod 2^s */
+static size_t a3326_mask(uint32_t *dst, const uint32_t *src, size_t len, size_t s) {
+  size_t full = (s + 31) / 32;
+  size_t L = len < full ? len : full;
+  for (size_t i = 0; i < L; i++) dst[i] = src[i];
+  if (L == full && s % 32) dst[L - 1] &= (uint32_t)((1u << (s % 32)) - 1);
+  return a3326_norm(dst, L);
+}
+
+/* dst = src >> s; dst may alias src */
+static size_t a3326_shr(uint32_t *dst, const uint32_t *src, size_t len, size_t s) {
+  size_t w = s / 32, b = s % 32;
+  if (w >= len) return 0;
+  size_t L = len - w;
+  for (size_t i = 0; i < L; i++) {
+    uint64_t v = src[i + w];
+    if (b) {
+      v >>= b;
+      if (i + w + 1 < len) v |= (uint64_t)src[i + w + 1] << (32 - b);
+    }
+    dst[i] = (uint32_t)v;
+  }
+  return a3326_norm(dst, L);
+}
 
 static uint32_t **a3326_tab = NULL;
 static size_t *a3326_tlen = NULL;

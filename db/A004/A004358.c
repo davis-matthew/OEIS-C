@@ -7,12 +7,14 @@
  * Formula:   a(n) = binomial(6*n, n-3)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 19, u128 n <= 21,
  *            big any n
- * Helpers:   gcd_ull
+ * Validated: partial, pass, 19 terms through n = 21 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/gcd_ull.h"
+#include <stdint.h>
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n) {
     idx_t k = n - 3;
@@ -23,7 +25,7 @@ seq_t a(idx_t n) {
         /* r = C(base+i-1, i-1); next = r * (base+i) / i, kept exact without overflow */
         unsigned long long num = (unsigned long long)(base + i);
         unsigned long long rm = (unsigned long long)(r % (seq_t)i);
-        unsigned long long g = gcd_ull(rm, (unsigned long long)i);
+        unsigned long long g = gcd_u64(rm, (unsigned long long)i);
         unsigned long long d = (unsigned long long)i / g;
         r = (r / (seq_t)g) * (seq_t)(num / d);
     }

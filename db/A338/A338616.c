@@ -9,8 +9,9 @@
  *            representable as the sum of k consecutive positive integers.
  *            This is equivalent to summing the lengths of all representations
  *            of n as a sum of consecutive positive integers
- * Range:     u8 n <= 493, u16 n <= 8118, u32 n <= 8118, u64 n <= 8118,
- *            u128 n <= 8118, big any n
+ * Range:     u8 n <= 493, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 96 terms through n = 8118 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

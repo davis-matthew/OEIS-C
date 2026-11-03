@@ -10,14 +10,16 @@
  *            system (combinadic) for k = 10
  * Range:     u8 none, u16 n <= 8008, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   binom, pow2
+ * Validated: standard, pass, 55 terms through n = 9856 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"   /* provides seq_t binom(idx_t, idx_t); */
-#include "../utils/pow2.h"    /* provides seq_t pow2(idx_t); */
+#include <stdbool.h>
+#include "../utils/binomial.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n) {
     const int k = 10;                     /* number of set bits */
@@ -28,7 +30,7 @@ seq_t a(idx_t n) {
     for (int i = k; i >= 1; --i) {        /* i = number of bits left to place */
         int p = i - 1;                   /* minimal possible position for this bit */
         while (1) {
-            seq_t c = binom((idx_t)p, (idx_t)i);
+            seq_t c = binomial((idx_t)p, (idx_t)i);
             if (c <= rank) {
                 ++p;
             } else {
@@ -37,7 +39,7 @@ seq_t a(idx_t n) {
         }
         --p;                              /* last valid position */
         pos[i - 1] = p;                   /* store position */
-        rank -= binom((idx_t)p, (idx_t)i);/* subtract contribution */
+        rank -= binomial((idx_t)p, (idx_t)i);/* subtract contribution */
     }
 
     /* Build the result by adding 2^pos for each set bit */

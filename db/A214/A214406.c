@@ -10,13 +10,15 @@
  *            1) * T(n-1,k) for 0 <= k <= n, n>0
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Find the row r such that r(r+1)/2 <= n < (r+1)(r+2)/2 */
 static inline idx_t find_row(idx_t n) {
@@ -42,7 +44,7 @@ static void init_triangle(void) {
     triangle = (seq_t**)malloc(triangle_cap * sizeof(seq_t*));
     if (!triangle) abort();
     for (size_t i = 0; i < triangle_cap; ++i) triangle[i] = NULL;
-    seq_t *row0 = (seq_t*)malloc(sizeof(seq_t));
+    seq_t *row0 = mem_new(seq_t, 1);
     row0[0] = (seq_t)1;
     triangle[0] = row0;
     max_row_computed = 0;
@@ -61,7 +63,7 @@ static void ensure_row(idx_t r) {
     }
     for (idx_t n = max_row_computed + 1; n <= r; ++n) {
         seq_t *prev = triangle[n - 1];
-        seq_t *row = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (n + 1));
         for (idx_t k = 0; k <= n; ++k) {
             seq_t val;
             if (k == 0) {

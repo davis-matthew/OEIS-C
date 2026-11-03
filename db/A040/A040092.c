@@ -8,7 +8,8 @@
  *            cubic residue modulo p (i.e., 22^{(p−1)/3} ≠ 1 (mod p))
  * Range:     u8 n <= 15, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 964 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Integer power modulo: works for any seq_t (built‑in or arbitrary‑precision). */
 static seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod)
@@ -57,7 +59,7 @@ static void grow_seq_array(seq_t **arr, size_t *cap, size_t need)
     if (*cap < need) {
         size_t new_cap = (*cap) ? (*cap) * 2 : 16;
         while (new_cap < need) new_cap <<= 1;
-        *arr = (seq_t*)realloc(*arr, new_cap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, new_cap);
         *cap = new_cap;
     }
 }

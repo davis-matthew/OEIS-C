@@ -8,13 +8,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 3, u64 n <= 3, u128 n <= 3,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 3 terms through n = 3 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Near-factorions: numbers equal to the sum of the factorials of all but one of their decimal digits */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Precomputed factorials for digits 0–9 (type seq_t) */
 static const seq_t fact[10] = {1, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880};
@@ -30,7 +32,7 @@ static void cache_append(seq_t val)
 {
     if (cache_len == cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 128;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) exit(1);          /* abort on allocation failure */
         cache = tmp;
         cache_cap = new_cap;

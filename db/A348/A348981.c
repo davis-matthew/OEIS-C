@@ -7,9 +7,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{d|n} phi(n/d) * (d - prod_{p|d} (p-1)^{v_p(d)}),
  *            where phi is Euler's totient and the product is A003958(d)
- * Range:     u8 n <= 71, u16 n <= 4319, u32 n <= 9788, u64 n <= 9788,
- *            u128 n <= 9788, big any n
- * Helpers:   phi
+ * Range:     u8 n <= 71, u16 n <= 4319, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 97 terms through n = 9788 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/phi.h"        /* provides seq_t phi(idx_t m) */
+#include "../utils/totient.h"
 
 static uint64_t *prime_list = NULL;   /* primes, 0‑indexed             */
 static size_t   prime_count = 0;      /* number of primes              */
@@ -125,7 +126,7 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < dcnt; ++i) {
         idx_t  d   = (idx_t)divs[i];
         seq_t  a322 = divs[i] - prod[i];          /* A322582(d) */
-        seq_t  phi_val = phi(n / d);              /* phi from utils */
+        seq_t  phi_val = totient(n / d);              /* phi from utils */
         sum += phi_val * a322;
     }
 

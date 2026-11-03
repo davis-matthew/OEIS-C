@@ -8,15 +8,35 @@
  *            and j = n - i(i+1)/2
  * Range:     u8 n <= 5, u16 n <= 15, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   binomial, floor_sqrt, pow_uint
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-01)
+ * Helpers:   binomial, ipow_i32, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_uint.h"
-#include "../utils/floor_sqrt.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/ipow_u64_idx.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 seq_t a(idx_t n)
 {
@@ -32,8 +52,8 @@ seq_t a(idx_t n)
 
     /* compute binomial coefficient and powers */
     seq_t bin = binomial((idx_t)i, j);
-    seq_t p9 = pow_uint(9, i - j);
-    seq_t p8 = pow_uint(8, j);
+    seq_t p9 = ipow_u64_idx(9, i - j);
+    seq_t p8 = ipow_u64_idx(8, j);
 
     return bin * p9 * p8;
 }

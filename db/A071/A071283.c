@@ -8,12 +8,14 @@
  *            given first 20 terms)
  * Range:     u8 n <= 79, u16 n <= 79, u32 n <= 79, u64 n <= 79, u128 n <= 79,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 80 terms through n = 79 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     {
         /* Start with some capacity – will be grown as needed */
         cap  = 64;
-        cache = (seq_t*)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
 
         /* Initial 20 values from the OEIS entry */
         const seq_t base[20] = {
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
         /* Grow cache if needed */
         if (len >= cap) {
             cap = cap * 2;
-            cache = (seq_t*)realloc(cache, cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cap);
         }
 
         size_t i = len;

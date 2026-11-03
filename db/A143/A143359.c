@@ -10,20 +10,22 @@
  *            R_{k/2}((r-k)/2) if k even Σ_{s=0}^{⌊(r-k)/2⌋} R_{(k-1)/2}(s) *
  *            binom(r-k-2s, ⌊(r-k-2s)/2⌋) if k odd with R_m(s) = (m/(2s+m)) *
  *            C(2s+m,s) (unless m=0, then R_0(0)=1, else R_0(s)=0)
- * Range:     u8 n <= 36, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
+ * Range:     u8 n <= 66, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 91 terms through n = 91 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 /* Helper: binomial central coefficient G_t(t) = binom(t, floor(t/2)). */
 static inline seq_t G_t(idx_t t)
 {
-    return binom(t, t >> 1);
+    return binomial(t, t >> 1);
 }
 
 /* Helper: R_m(s) = (m/(2s+m)) * binom(2s+m,s).  Handles m==0 specially. */
@@ -32,7 +34,7 @@ static inline seq_t R_m_s(idx_t m, idx_t s)
     if (m == 0u) {
         return (s == 0u) ? (seq_t)1 : (seq_t)0;
     }
-    seq_t B = binom(2u * s + m, s);
+    seq_t B = binomial(2u * s + m, s);
     seq_t tmp = B * (seq_t)m;
     seq_t den = 2u * s + m;
     return tmp / den;

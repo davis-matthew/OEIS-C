@@ -9,13 +9,27 @@
  *            010 vertically. Computed by dynamic programming over columns
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 32,
  *            big any n
- * Helpers:   is_valid_column
+ * Validated: standard, pass, 32 terms through n = 208 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>   /* for uint8_t */
-#include "../utils/is_valid_column.h"
+
+/* Helper: compute whether a 5‑bit column contains the vertical
+   forbidden pattern 010 in any consecutive triple of rows.        */
+static int is_valid_column(uint8_t col)
+{
+    /* check rows 0–2, 1–3, 2–4 */
+    for (int r = 0; r <= 2; ++r) {
+        if (((col >> r)     & 1) == 0 &&
+            ((col >> (r+1)) & 1) == 1 &&
+            ((col >> (r+2)) & 1) == 0)
+            return 0;           /* forbidden */
+    }
+    return 1;                   /* allowed */
+}
 
 /*------------------------------------------------------------*/
 

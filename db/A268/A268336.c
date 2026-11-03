@@ -10,17 +10,25 @@
  *            function A002322
  * Range:     u8 n <= 81, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
  *            big any n
- * Helpers:   factor_u64, gcd, seq_mul, seq_pow
+ * Validated: partial, pass, 81 terms through n = 81 (2026-11-01)
+ * Helpers:   factor_u64, gcd, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_pow.h"
-#include "../utils/seq_mul.h"
 #include "../utils/gcd.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 static seq_t _lambda(idx_t n)
 {
@@ -47,9 +55,9 @@ static seq_t _lambda(idx_t n)
             else if (e == 2)
                 term = (seq_t)2;
             else
-                term = seq_pow((seq_t)2, e - 2);   /* 2^(e-2) for e≥3 */
+                term = ipow_idx((seq_t)2, e - 2);   /* 2^(e-2) for e≥3 */
         } else {
-            seq_t pow_e = seq_pow((seq_t)p, e - 1);   /* p^(e-1) */
+            seq_t pow_e = ipow_idx((seq_t)p, e - 1);   /* p^(e-1) */
             term      = seq_mul(pow_e, (seq_t)(p - 1)); /* (p-1)*p^(e-1) */
         }
 

@@ -7,6 +7,7 @@
  * Formula:   a(n) = [Product_{j=0..n-1} (1-3*j)]/n! * 3^(n*(n-1)/2)
  * Range:     i8 n <= 3, i16 n <= 4, i32 n <= 6, i64 n <= 8, i128 n <= 12,
  *            big any n
+ * Validated: partial, pass, 14 terms through n = 13 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

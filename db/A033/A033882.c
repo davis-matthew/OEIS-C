@@ -9,13 +9,15 @@
  *            n-th abundant or perfect number
  * Range:     u8 n <= 57, u16 n <= 8745, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 9928 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static cache of the m-values for abundant/perfect numbers */
 static seq_t *abundant_vals = NULL;
@@ -41,7 +43,7 @@ static void compute_abundant_upto(size_t limit)
     /* allocate array for the m-values */
     seq_t *new_vals = NULL;
     if (count > 0) {
-        new_vals = (seq_t *)malloc(count * sizeof(seq_t));
+        new_vals = mem_new(seq_t, count);
         if (!new_vals) { free(sigma); return; }  /* allocation failure */
         size_t idx = 0;
         for (size_t k = 1; k <= limit; ++k)
@@ -52,7 +54,7 @@ static void compute_abundant_upto(size_t limit)
     }
 
     /* replace old cache with new data */
-    free(abundant_vals);
+    mem_free(abundant_vals);
     abundant_vals = new_vals;
     abundant_len  = count;
     sieve_limit   = limit;

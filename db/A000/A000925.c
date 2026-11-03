@@ -10,23 +10,24 @@
  *            testing whether n - x^2 is a perfect square
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a925_isqrt
+ * Validated: standard, pass, 117 terms through n = 7400 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a925_isqrt.h"
+#include "../utils/isqrt_u64.h"
 
 seq_t a(idx_t n)
 {
     uint64_t N = (uint64_t)n;
-    uint64_t s = a925_isqrt(N);
+    uint64_t s = isqrt_u64(N);
     uint64_t count = 0;
     uint64_t x;
     for (x = 0; x <= s; x++) {
         uint64_t rem = N - x * x;
-        uint64_t y = a925_isqrt(rem);
+        uint64_t y = isqrt_u64(rem);
         if (y * y == rem) count++;
     }
     return (seq_t)count;

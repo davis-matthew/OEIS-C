@@ -8,13 +8,15 @@
  *            a(1) = 1
  * Range:     u8 n <= 9, u16 n <= 18, u32 n <= 33, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Standard allocation helpers */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* 10^exp in seq_t */
 static seq_t pow10_seq(idx_t exp)
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
 
     /* Ensure the initial term a(1)=1 is present */
     if (!cache) {
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) return 0;     /* Allocation failed */
         cache[0] = 1;             /* a(1) */
         cached_n = 1;
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
     /* Grow cache and compute missing terms */
     if (cached_n < n) {
         /* Resize cache to hold up to term n */
-        seq_t *new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * n);
+        seq_t *new_cache = mem_resize(seq_t, cache, n);
         if (!new_cache) return 0; /* Allocation failed */
         cache = new_cache;
 

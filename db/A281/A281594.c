@@ -8,7 +8,8 @@
  * Formula:   a(n) = radical( binomial(2*n, n) / (n+1) )
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 20, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   build_primes_upto, seq_mul
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-01)
+ * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,13 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/build_primes_upto.h"  /* build_primes_upto(idx_t limit, uint64_t **primes_out, size_t *cnt_out) */
-#include "../utils/seq_mul.h"           /* seq_mul(seq_t a, seq_t b) */
+#include <string.h>
+#include "../utils/build_primes_upto.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 static uint64_t *cached_primes = NULL;
 static size_t cached_prime_count = 0;

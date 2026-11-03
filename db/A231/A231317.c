@@ -10,12 +10,14 @@
  *            a(2)=24, a(3)=216
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 11, u64 n <= 22, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* 1‑based cache of computed terms */
 static idx_t cache_size = 0;  /* largest index cached so far */
@@ -23,7 +25,7 @@ static idx_t cache_size = 0;  /* largest index cached so far */
 static void ensure_cache(idx_t n)
 {
     if (n <= cache_size) return;
-    seq_t *new_cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
     if (!new_cache) {
         /* allocation failure; abort – the build environment will treat this as a fatal error */
         abort();

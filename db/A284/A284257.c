@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = number of prime factors of n that are < (smallest prime
  *            factor of n)^2 (counted with multiplicity)
- * Range:     u8 n <= 9994, u16 n <= 9994, u32 n <= 9994, u64 n <= 9994,
- *            u128 n <= 9994, big any n
+ * Range:     u8 n <= 10001, u16 n <= 10001, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 136 terms through n = 9994 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

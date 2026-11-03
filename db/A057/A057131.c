@@ -7,7 +7,8 @@
  * Formula:   a(n) = 6 * (Π_{i=1}^{n} p_i) - 1
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 16,
  *            big any n
- * Helpers:   next_prime, seq_alloc_new_array, seq_free_array
+ * Validated: partial, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,17 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
+#include <stddef.h>
+#include <math.h>
+#include <stdbool.h>
 #include "../utils/next_prime.h"
-#include "../utils/seq_alloc_new_array.h"
-#include "../utils/seq_free_array.h"
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 static seq_t *cache = NULL;          /* 1‑indexed array of computed terms   */
 static idx_t cache_capacity = 0;     /* allocated capacity (in terms)      */

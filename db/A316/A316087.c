@@ -8,12 +8,14 @@
  *            -3, a(3) = -2
  * Range:     i8 n <= 9, i16 n <= 18, i32 n <= 35, i64 n <= 70, i128 n <= 141,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 2753 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return the nth term of sequence A316087. */
 seq_t a(idx_t n)
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
 
     /* Grow the cache if needed.  Note: idx_t is unsigned. */
     size_t new_size = (size_t)n + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_size);
     if (tmp == NULL)
         return (seq_t)0;   /* allocation failure – caller should handle */
     cache = tmp;

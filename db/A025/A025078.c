@@ -9,13 +9,26 @@
  *            and s(k)=s(k-1)+s(k-2) for k≥2 (Fibonacci)
  * Range:     u8 n <= 9, u16 n <= 19, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   seq_realloc
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/seq_realloc.h"   /* seq_realloc */
+#include <stdlib.h>
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 static seq_t *fib_cache      = NULL;   /* fib_cache[0] = 1, fib_cache[1] = 1, … */
 static idx_t  fib_cache_cap  = 0;      /* allocated size (maximum index + 1) */

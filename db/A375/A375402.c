@@ -12,7 +12,8 @@
  *            * It uses the helper factor_u64 for prime factoris...
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   factor_u64
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 static bool has_distinct_maxima(uint64_t n)
 {
@@ -76,7 +78,7 @@ seq_t a(idx_t n)
 
     if (cache == NULL) {          /* lazy initialisation */
         cap = 128;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         length = 0;
         candidate = 1;
     }
@@ -89,7 +91,7 @@ seq_t a(idx_t n)
         ++candidate;
         if (length == cap) {      /* grow cache */
             cap <<= 1;
-            cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cap);
         }
     }
 

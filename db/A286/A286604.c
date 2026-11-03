@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base
  * Formula:   a(n) = n mod sum_of_digits_of_n_in_factorial_base
- * Range:     u8 n <= 120, u16 n <= 9937, u32 n <= 9937, u64 n <= 9937,
- *            u128 n <= 9937, big any n
+ * Range:     u8 n <= 120, u16 n <= 10080, u32 n <= 10080, u64 n <= 10080,
+ *            u128 n <= 10080, big any n
+ * Validated: standard, pass, 136 terms through n = 9937 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

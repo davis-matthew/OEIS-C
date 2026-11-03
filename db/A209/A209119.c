@@ -13,13 +13,15 @@
  *            Initial values: a(1) = 25, a(2) = 865, …, a(22) = 603...
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 30, u64 n <= 210, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Standard library headers. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* 23-term table for n = 0 … 22 (index 0 unused). */
 static const seq_t init_vals[23] = {
@@ -45,13 +47,13 @@ static void ensure_cache(idx_t n)
     if (cache == NULL) {
         /* Initial allocation: at least capacity for indices 0..22. */
         cache_cap = (size_t)(n < 22 ? 23 : n + 1);
-        cache     = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+        cache     = mem_new(seq_t, cache_cap);
         if (cache == NULL) abort();   /* allocation failed */
         for (size_t i = 1; i <= 22; ++i) cache[i] = init_vals[i];
         cache_size = 22;
     } else if ((size_t)n + 1 > cache_cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) abort();
         cache     = tmp;
         cache_cap = new_cap;

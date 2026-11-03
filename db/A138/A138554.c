@@ -5,15 +5,17 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, look
  * Formula:   a(n) = minimal sum of k_i such that Σ (k_i)² = n (OEIS A138554)
- * Range:     u8 n <= 294, u16 n <= 9521, u32 n <= 9521, u64 n <= 9521,
- *            u128 n <= 9521, big any n
- * Helpers:   none
+ * Range:     u8 n <= 294, u16 n <= 20163, u32 n <= 20163, u64 n <= 20163,
+ *            u128 n <= 20163, big any n
+ * Validated: standard, pass, 102 terms through n = 9521 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Integer square root: floor(√n) for unsigned 64‑bit values */
 static idx_t isqrt_u64(idx_t n)
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
 
     /* Allocate cache on first call */
     if (dp == NULL) {
-        dp = (seq_t *)malloc(sizeof(seq_t) * (n + 1));
+        dp = mem_new(seq_t, (n + 1));
         if (dp == NULL) return 0;          /* allocation failed */
         dp[0] = 0;
         dp_current = 0;
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
 
     /* Extend cache if needed */
     if (dp_current < n) {
-        seq_t *tmp = (seq_t *)realloc(dp, sizeof(seq_t) * (n + 1));
+        seq_t *tmp = mem_resize(seq_t, dp, (n + 1));
         if (tmp == NULL) return 0;         /* allocation failed */
         dp = tmp;
 

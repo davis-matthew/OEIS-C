@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
  * followed by f applied to each element of the previous row.
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,12 +41,12 @@ seq_t a(idx_t n)
     /* initialise on first call */
     if (seq == NULL) {
         seq_cap = 1;
-        seq = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         seq[0] = (seq_t)1;
         seq_len = 1;
 
         row_len = 1;
-        row = (seq_t*)malloc(row_len * sizeof(seq_t));
+        row = mem_new(seq_t, row_len);
         row[0] = (seq_t)1;
     }
 
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
         size_t new_row_len = row_len + extra;
 
         /* allocate buffer for the new row */
-        seq_t *new_row = (seq_t*)malloc(new_row_len * sizeof(seq_t));
+        seq_t *new_row = mem_new(seq_t, new_row_len);
 
         /* first copy the old row */
         for (size_t i = 0; i < row_len; ++i)
@@ -98,7 +100,7 @@ seq_t a(idx_t n)
         /* ensure seq has enough space for the new terms */
         if (seq_len + new_row_len > seq_cap) {
             seq_cap = seq_len + new_row_len;
-            seq = (seq_t*)realloc(seq, seq_cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, seq_cap);
         }
 
         /* copy the new row into seq */
@@ -107,7 +109,7 @@ seq_t a(idx_t n)
         seq_len += new_row_len;
 
         /* replace the current row */
-        free(row);
+        mem_free(row);
         row = new_row;
         row_len = new_row_len;
     }

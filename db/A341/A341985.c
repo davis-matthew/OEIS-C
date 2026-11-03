@@ -11,7 +11,8 @@
  *            for all builds (fixed‑size or arbitrary‑precision seq_t)
  * Range:     u8 n <= 12, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* -----------------  static storage  ----------------- */
 static bool   *prime_flags = NULL;      /* sieve flag array   */
@@ -33,13 +35,6 @@ static seq_t  *dp_cur  = NULL;          /* DP for k              */
 static idx_t   dp_cap  = 0;             /* capacity of DP arrays  */
 
 /* -----------------  helpers  ----------------- */
-static void reallocate_seq_buf(seq_t **buf, idx_t new_cap)
-{
-    if (*buf == NULL || dp_cap < new_cap) {
-        *buf = (seq_t*)realloc(*buf, sizeof(seq_t)*new_cap);
-    }
-    dp_cap = new_cap;
-}
 
 static void ensure_primes(idx_t n)
 {
@@ -74,8 +69,15 @@ static void ensure_primes(idx_t n)
 static void ensure_dp_buffer(idx_t n)
 {
     if (dp_cap < n+1) {
-        reallocate_seq_buf(&dp_prev, n+1);
-        reallocate_seq_buf(&dp_cur,  n+1);
+        /* both arrays (the helper recorded the new capacity after the
+           first, so the second was never resized) */
+        seq_t *p = mem_resize(seq_t, dp_prev, n + 1);
+        if (!p) abort();
+        dp_prev = p;
+        seq_t *c = mem_resize(seq_t, dp_cur, n + 1);
+        if (!c) abort();
+        dp_cur = c;
+        dp_cap = n + 1;
     }
 }
 
@@ -89,8 +91,8 @@ seq_t a(idx_t n)
     ensure_dp_buffer(n);
 
     /* zero the DP arrays */
-    memset(dp_prev, 0, sizeof(seq_t)*(n+1));
-    memset(dp_cur,  0, sizeof(seq_t)*(n+1));
+    mem_set(dp_prev, 0, sizeof(seq_t)*(n+1));
+    mem_set(dp_cur, 0, sizeof(seq_t)*(n+1));
 
     /* base for k = 0 : one way to sum to 0 */
     dp_prev[0] = (seq_t)1;
@@ -98,7 +100,7 @@ seq_t a(idx_t n)
     /* iterate k = 1 .. 6 */
     for (int k = 1; k <= 6; ++k) {
         /* reset current DP row */
-        memset(dp_cur, 0, sizeof(seq_t)*(n+1));
+        mem_set(dp_cur, 0, sizeof(seq_t)*(n+1));
 
         /* contribution of the pseudo‑prime 1 */
         for (idx_t s = 1; s <= n; ++s)

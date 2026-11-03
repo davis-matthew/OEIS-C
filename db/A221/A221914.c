@@ -12,14 +12,15 @@
  *            1
  * Range:     u8 n <= 103, u16 n <= 103, u32 n <= 103, u64 n <= 103,
  *            u128 n <= 103, big any n
- * Helpers:   binom
+ * Validated: partial, pass, 103 terms through n = 103 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/binom.h"   /* provides seq_t binom(idx_t n, idx_t k) */
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n) {
     /* Find the row r such that the first r rows contain at least n entries. */
@@ -38,7 +39,7 @@ seq_t a(idx_t n) {
     /* Determine the size m of the combination. */
     idx_t m = 1;
     while (1) {
-        seq_t cnt = binom(r, m);              /* #subsets of size m   */
+        seq_t cnt = binomial(r, m);              /* #subsets of size m   */
         if (cnt > pos) break;                 /* this is the group    */
         pos -= cnt;                           /* skip preceding groups */
         m++;
@@ -54,7 +55,7 @@ seq_t a(idx_t n) {
         for (idx_t cand = prev + 1;
              cand <= r - (m - t - 1);
              cand++) {
-            seq_t remaining = binom(r - cand, m - t - 1);
+            seq_t remaining = binomial(r - cand, m - t - 1);
             if (remaining > k) {
                 prod *= (seq_t)cand;       /* include this element   */
                 prev = cand;

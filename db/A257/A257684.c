@@ -9,8 +9,9 @@
  * Formula:   discard the rightmost digit from the factorial base
  *            representation of n, subtract one from all remaining nonzero
  *            digits, and convert back to decimal
- * Range:     u8 n <= 2249, u16 n <= 9774, u32 n <= 9774, u64 n <= 9774,
- *            u128 n <= 9774, big any n
+ * Range:     u8 n <= 2249, u16 n <= 10080, u32 n <= 10080, u64 n <= 10080,
+ *            u128 n <= 10080, big any n
+ * Validated: standard, pass, 112 terms through n = 9774 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

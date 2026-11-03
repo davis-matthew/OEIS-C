@@ -14,13 +14,15 @@
  *            0. The array is read row by row to form the flat sequenc...
  * Range:     u8 n <= 16, u16 n <= 48, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Handle the offset (a(1) is the first term). */
@@ -40,8 +42,8 @@ seq_t a(idx_t n) {
     if (r == 2) return (offset == 0) ? (seq_t)2 : (seq_t)3;
 
     /* Allocate the first two rows. */
-    seq_t *prev2 = (seq_t *)malloc(sizeof(seq_t) * 1);   /* row 1 */
-    seq_t *prev1 = (seq_t *)malloc(sizeof(seq_t) * 2);   /* row 2 */
+    seq_t *prev2 = mem_new(seq_t, 1);   /* row 1 */
+    seq_t *prev1 = mem_new(seq_t, 2);   /* row 2 */
     prev2[0] = (seq_t)1;
     prev1[0] = (seq_t)2;
     prev1[1] = (seq_t)3;
@@ -49,7 +51,7 @@ seq_t a(idx_t n) {
     /* Build rows 3 … r. */
     seq_t *cur = NULL;
     for (idx_t i = 3; i <= r; ++i) {
-        cur = (seq_t *)malloc(sizeof(seq_t) * i);
+        cur = mem_new(seq_t, i);
         for (idx_t k = 0; k < i; ++k) {
             seq_t pos = 0, sub = 0;
 
@@ -66,13 +68,13 @@ seq_t a(idx_t n) {
         }
 
         /* Advance the rolling array pointers. */
-        free(prev2);
+        mem_free(prev2);
         prev2 = prev1;
         prev1 = cur;
     }
 
     seq_t result = prev1[offset];
-    free(prev2);
-    free(prev1);
+    mem_free(prev2);
+    mem_free(prev1);
     return result;
 }

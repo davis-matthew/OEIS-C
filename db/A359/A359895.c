@@ -12,7 +12,8 @@
  *            function implements this counting using DP
  * Range:     u8 n <= 34, u16 n <= 74, u32 n <= 199, u64 n <= 584,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 993 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
                         size_t cols = maxS + 1;
 
                         /* excess DP: partitions of s into at most t parts (unrestricted parts) */
-                        seq_t *excess = (seq_t*)calloc(cols, sizeof(seq_t));
+                        seq_t *excess = mem_new(seq_t, cols);
                         excess[0] = 1;
                         for (idx_t p = 1; p <= t; ++p) {
                             for (idx_t s = p; s <= maxS; ++s) {
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
                         size_t dp_rows = t + 1;
                         size_t dp_cols = cols;
                         size_t dp_size = dp_rows * dp_cols;
-                        seq_t *dp = (seq_t*)calloc(dp_size, sizeof(seq_t));
+                        seq_t *dp = mem_new(seq_t, dp_size);
                         dp[0] = 1;   /* dp[0][0] = 1 */
 
                         for (idx_t dval = 1; dval <= M; ++dval) {
@@ -75,7 +77,7 @@ seq_t a(idx_t n)
                         }
 
                         /* deficits array: sum over u ≤ t */
-                        seq_t *deficits = (seq_t*)calloc(cols, sizeof(seq_t));
+                        seq_t *deficits = mem_new(seq_t, cols);
                         for (idx_t u = 0; u <= t; ++u) {
                             size_t base = u * dp_cols;
                             for (idx_t s = 0; s <= maxS; ++s) {
@@ -90,9 +92,9 @@ seq_t a(idx_t n)
                         }
                         total += sum_term;
 
-                        free(excess);
-                        free(dp);
-                        free(deficits);
+                        mem_free(excess);
+                        mem_free(dp);
+                        mem_free(deficits);
                     }
                 }
             }
@@ -114,7 +116,7 @@ seq_t a(idx_t n)
                         idx_t maxS = t * M;
                         size_t cols = maxS + 1;
 
-                        seq_t *excess = (seq_t*)calloc(cols, sizeof(seq_t));
+                        seq_t *excess = mem_new(seq_t, cols);
                         excess[0] = 1;
                         for (idx_t p = 1; p <= t; ++p) {
                             for (idx_t s = p; s <= maxS; ++s) {
@@ -125,7 +127,7 @@ seq_t a(idx_t n)
                         size_t dp_rows = t + 1;
                         size_t dp_cols = cols;
                         size_t dp_size = dp_rows * dp_cols;
-                        seq_t *dp = (seq_t*)calloc(dp_size, sizeof(seq_t));
+                        seq_t *dp = mem_new(seq_t, dp_size);
                         dp[0] = 1;
 
                         for (idx_t dval = 1; dval <= M; ++dval) {
@@ -138,7 +140,7 @@ seq_t a(idx_t n)
                             }
                         }
 
-                        seq_t *deficits = (seq_t*)calloc(cols, sizeof(seq_t));
+                        seq_t *deficits = mem_new(seq_t, cols);
                         for (idx_t u = 0; u <= t; ++u) {
                             size_t base = u * dp_cols;
                             for (idx_t s = 0; s <= maxS; ++s) {
@@ -152,9 +154,9 @@ seq_t a(idx_t n)
                         }
                         total += sum_term;
 
-                        free(excess);
-                        free(dp);
-                        free(deficits);
+                        mem_free(excess);
+                        mem_free(dp);
+                        mem_free(deficits);
                     }
                 }
             }

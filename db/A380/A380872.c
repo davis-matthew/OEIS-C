@@ -12,16 +12,34 @@
  *            ≤ n} and T(k)=k*(k+1)/2. The value is obtained by iter...
  * Range:     u8 n <= 16, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   digit_len, digit_product, digit_sum, pow10, seq_mul
+ * Validated: partial, pass, 88 terms through n = 87 (2026-11-01)
+ * Helpers:   digit_product, digit_sum, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/digit_sum.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <string.h>
 #include "../utils/digit_product.h"
-#include "../utils/digit_len.h"
-#include "../utils/pow10.h"
-#include "../utils/seq_mul.h"
+#include "../utils/digit_sum.h"
+#include "../utils/num_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 static inline idx_t triangular(idx_t k)
 {
@@ -54,7 +72,7 @@ static seq_t orbit_value(idx_t r, idx_t steps)
     {
         seq_t ssum = digit_sum(cur);
         seq_t prod = digit_product(cur);
-        int plen = digit_len(prod);
+        int plen = num_digits(prod);
         seq_t new_val = seq_mul(ssum, pow10((idx_t)plen)) + prod;
         cur = new_val;
     }

@@ -12,13 +12,15 @@
  *            sequence is read row by row
  * Range:     u8 n <= 33, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t **u_rows = NULL;          /* stored u coefficient rows */
 static size_t u_rows_cap = 0;          /* current capacity of u_rows array */
@@ -37,8 +39,8 @@ static void compute_rows_up_to(idx_t r)
         u_rows[0] = NULL;       /* unused slot */
 
         /* Allocate row 1 for u and v */
-        seq_t *row_u = (seq_t *)malloc(sizeof(seq_t) * 1);
-        seq_t *row_v = (seq_t *)malloc(sizeof(seq_t) * 1);
+        seq_t *row_u = mem_new(seq_t, 1);
+        seq_t *row_v = mem_new(seq_t, 1);
         row_u[0] = 1;
         row_v[0] = 1;
 
@@ -53,8 +55,8 @@ static void compute_rows_up_to(idx_t r)
         size_t i = u_rows_cap + 1;               /* new row index */
         size_t i_len = i;                        /* length of this row */
 
-        seq_t *u_cur = (seq_t *)malloc(sizeof(seq_t) * i_len);
-        seq_t *v_cur = (seq_t *)malloc(sizeof(seq_t) * i_len);
+        seq_t *u_cur = mem_new(seq_t, i_len);
+        seq_t *v_cur = mem_new(seq_t, i_len);
 
         if (i_len == 1) {
             /* Should not happen after the first row */

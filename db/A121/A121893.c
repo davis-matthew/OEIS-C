@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 158, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _floor_isqrt_u64, isPrimeGeneric
+ * Validated: standard, pass, 79 terms through n = 9877 (2026-11-03)
+ * Helpers:   is_prime_u128, is_prime_u64, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,18 +20,43 @@
  * a(1) = 10, a(2) = 14, …
  */
 #include <stdbool.h>
-#include "../utils/isPrimeGeneric.h"      /* isPrimeGeneric(seq_t)           */
-#include "../utils/_floor_isqrt_u64.h"    /* _floor_isqrt_u64(idx_t)        */
+#include <stddef.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <limits.h>
+#include "../utils/is_prime_u128.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/isqrt.h"
+
+/* -----------------  Generic primality test ------------------------ */
+static bool isPrimeGeneric(seq_t n)
+{
+    /* all seq_t are unsigned; use the smallest type that fits */
+    if ((seq_t)(ULLONG_MAX) >= n) {
+        return is_prime_u64((uint64_t)n);
+    }
+#if defined(__SIZEOF_INT128__)
+    return is_prime_u128((__uint128_t)n);
+#else
+    /* fallback: if seq_t > 64‑bit but no 128‑bit support,
+       order the test as simple trial division up to sqrt */
+    seq_t limit = 0;
+    for (seq_t i = 2; i*i <= n; ++i) {
+        if (n % i == 0) return false;
+    }
+    return true;
+#endif
+}
 
 /* Test whether a composite number x (x ≥ 4) has one of the forbidden forms.  */
 static bool is_forbidden(idx_t x) {
     /* 1. k*k  */
-    idx_t k = _floor_isqrt_u64(x);
+    idx_t k = isqrt(x);
     if (k * k == x) return true;
 
     /* 2. k*(k+1)  → 4x+1 must be a perfect square */
     idx_t t = 4 * x + 1;
-    idx_t sqrt_t = _floor_isqrt_u64(t);
+    idx_t sqrt_t = isqrt(t);
     if (sqrt_t * sqrt_t == t) {
         if ((sqrt_t - 1) % 2 == 0) {
             idx_t k2 = (sqrt_t - 1) / 2;
@@ -40,7 +66,7 @@ static bool is_forbidden(idx_t x) {
 
     /* 3. k*(k+2)  →  x+1 must be a perfect square */
     idx_t y = x + 1;
-    idx_t sqrt_y = _floor_isqrt_u64(y);
+    idx_t sqrt_y = isqrt(y);
     if (sqrt_y * sqrt_y == y) {
         if (sqrt_y >= 2) {
             idx_t k3 = sqrt_y - 1;

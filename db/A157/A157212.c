@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 29, u32 n <= 58, u64 n <= 142,
  *            u128 n <= 388, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 1309 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* The following helper(s) are only used for the integer square root   */
@@ -74,7 +76,7 @@ static void ensure_rows_to(size_t r_needed)
         size_t r = rows_len;            /* the row we are going to compute */
 
         grow_rows_cap(rows_len + 1);
-        triangle_rows[rows_len] = (seq_t *)malloc((r + 1) * sizeof(seq_t));
+        triangle_rows[rows_len] = mem_new(seq_t, (r + 1));
 
         if (r == 0) {                   /* row 0: [1] */
             triangle_rows[r][0] = 1;

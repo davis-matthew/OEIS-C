@@ -7,6 +7,7 @@
  * Formula:   a(n) = denominator of n / (∑_{k=1..n} 1/k)
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 24, u64 n <= 46, u128 n <= 88,
  *            big any n
+ * Validated: standard, pass, 46 terms through n = 198 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 /* Computes the denominator of the harmonic mean of the first n positive integers.
    Uses the rational representation of the harmonic sum H_n = P/Q, then returns
    the reduced denominator of n/(P/Q) which equals P / gcd(P, n*Q). */
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

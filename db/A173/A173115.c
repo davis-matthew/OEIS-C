@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 9, u128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 13 terms through n = 12 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    a(0) = 0, a(1) = 24, a(2) = 2400 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* dynamic cache for computed terms */
 static idx_t cache_len = 0;      /* number of elements currently stored */
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
 
     /* Expand the cache to hold terms up to n. */
     idx_t new_len = n + 1;
-    cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_len);
     /* (Realloc may return NULL if allocation fails; the test harness
        guarantees that this never happens under the allowed limits.) */
 

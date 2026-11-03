@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   is_palindrome
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-01)
+ * Helpers:   is_palindrome_base
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/is_palindrome.h"
+#include "../utils/is_palindrome_base.h"
 
 /* ------------------------------------------------------------ */
 /* Configuration constants - array bounds are static for speed.  */
@@ -43,7 +44,7 @@ static bool            data_prepared      = false;
 static void generate_palindromes(void)
 {
     for (idx_t i = 1; i <= MAX_B; ++i) {
-        if (is_palindrome((seq_t)i, 10)) {
+        if (is_palindrome_base((seq_t)i, 10)) {
             if (pal_cnt >= PAL_MAX) break;   /* safety guard */
             palins[pal_cnt++] = (seq_t)i;
         }

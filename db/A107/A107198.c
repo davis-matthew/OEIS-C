@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   not stated
- * Range:     u8 n <= 1, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
- *            big any n
- * Helpers:   isPrime64
+ * Range:     u8 n <= 1, u16 n <= 397, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 57 terms through n = 9500 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/isPrime64.h"
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 /* Integer square root for 64‑bit values (returns floor(sqrt(x))) */
 static uint64_t isqrt64(uint64_t x)
@@ -59,7 +62,7 @@ static void add_term(seq_t val)
     if (terms_cnt == terms_cap)
     {
         size_t new_cap = terms_cap ? terms_cap * 2 : 128;
-        seq_t *tmp = (seq_t *)realloc(terms_arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms_arr, new_cap);
         if (!tmp) exit(1);
         terms_arr = tmp;
         terms_cap = new_cap;
@@ -73,7 +76,7 @@ static void ensure_terms(idx_t n)
     if (terms_cnt >= (size_t)n) return;
     while (terms_cnt < (size_t)n)
     {
-        if (isPrime64(candidate) && has_representation(candidate))
+        if (is_prime_u64(candidate) && has_representation(candidate))
             add_term((seq_t)candidate);
         ++candidate;
     }

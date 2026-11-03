@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 2104, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 9022 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* -------------------------------------------------------------------------- */
 /* Small integer square root: floor(√n) for 0 ≤ n ≤ UINT64_MAX. */
@@ -133,7 +135,7 @@ static void ensure_terms_capacity(size_t need) {
     if (need <= terms_cap) return;
     size_t new_cap = terms_cap ? terms_cap * 2 : 4;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *new_terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *new_terms = mem_resize(seq_t, terms, new_cap);
     if (!new_terms) return;            /* allocation error – stop */
     terms = new_terms;
     terms_cap = new_cap;

@@ -9,13 +9,27 @@
  *            number of 4's and 6's. Compute by a linear scan over integers
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   has_equal_4_6
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/has_equal_4_6.h"
+
+/* Check whether a number has an equal count of digits 4 and 6 in base 12. */
+static bool has_equal_4_6(seq_t x)
+{
+    unsigned count4 = 0, count6 = 0;
+    seq_t y = x;
+    while (y != 0) {
+        seq_t digit = y % 12;
+        if (digit == 4) count4++;
+        else if (digit == 6) count6++;
+        y /= 12;
+    }
+    return count4 == count6;
+}
 
 seq_t a(idx_t n)
 {

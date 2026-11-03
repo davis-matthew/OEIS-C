@@ -10,14 +10,17 @@
  *            (-1)^k * k * (2*k-1)^(n-2) * binomial(n,k) for k ≥ 2
  * Range:     i8 n <= 12, i16 n <= 23, i32 n <= 49, i64 n <= 113,
  *            i128 n <= 312, big any n
- * Helpers:   big_pow, binomial
+ * Validated: standard, pass, 61 terms through n = 4937 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -46,7 +49,7 @@ seq_t a(idx_t n)
 
     /* k ≥ 2 : use the defining formula */
     seq_t bin = binomial(r, k);                                 /* binomial(r,k)   */
-    seq_t pow_term = big_pow((seq_t)(2 * k - 1), (seq_t)(r - 2)); /* (2k-1)^(r-2)    */
+    seq_t pow_term = ipow((seq_t)(2 * k - 1), (seq_t)(r - 2)); /* (2k-1)^(r-2)    */
     seq_t prod = bin * pow_term * (seq_t)k;                     /* k * bin * pow    */
 
     if (k & 1)                          /* apply the (-1)^k factor */

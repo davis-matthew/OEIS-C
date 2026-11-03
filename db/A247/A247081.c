@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 711, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, gcd
+ * Validated: standard, pass, 72 terms through n = 9742 (2026-11-03)
+ * Helpers:   factor_u64, gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,6 +37,7 @@
 #include <stdlib.h>
 #include "../utils/factor_u64.h"
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* ---------- cache for the sequence ---------- */
 static seq_t *cache = NULL;     /* array of terms */
@@ -46,7 +48,7 @@ static uint64_t next_candidate = 2;   /* next integer to test */
 /* enlarge cache when needed */
 static void grow_cache(size_t new_cap)
 {
-    seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
     if (!new_ptr) abort();   /* out of memory */
     cache = new_ptr;
     cache_cap = new_cap;

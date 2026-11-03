@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{d|n} (d!)^(n/d-1) (offset 1)
  * Range:     u8 n <= 11, u16 n <= 17, u32 n <= 25, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   big_pow, factor_u64, factorial
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,20 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <assert.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/factorial.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 /* Recursive enumeration of all divisors of n.
    sum accumulates the contributions (d!)^(n/d-1). */
@@ -33,7 +45,7 @@ static void rec_divs(size_t idx, const uint64_t *primes,
             term = (seq_t)1;
         } else {
             seq_t fact = factorial(cur);
-            term = big_pow(fact, (seq_t)exp);
+            term = ipow(fact, (seq_t)exp);
         }
         *sum += term;
         return;

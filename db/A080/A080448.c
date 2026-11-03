@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  * that has exactly n decimal digits, is not 10*a(n‑1), and not divisible by 10. */
 
 #include <stdlib.h> /* malloc, realloc */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* memoised values */
 static idx_t cache_size = 0;     /* current capacity of cache */
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* initialise cache on first call */
     if (cache == NULL) {
         cache_size = 4;                 /* initial capacity */
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_size);
+        cache = mem_new(seq_t, cache_size);
         cache[1] = (seq_t)4;            /* a(1) */
         computed_up_to = 1U;
         pow10_nMinus1 = (seq_t)10;      /* low bound for n=2 */
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
         size_t new_cap = cache_size * 2U;
         if (new_cap < (size_t)(n + 1U))
             new_cap = (size_t)(n + 1U);
-        cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_size = new_cap;
     }
 

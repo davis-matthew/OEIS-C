@@ -8,13 +8,22 @@
  *            powers
  * Range:     u8 none, u16 none, u32 none, u64 n <= 1000, u128 n <= 1000,
  *            big any n
- * Helpers:   compare_seq_t
+ * Validated: standard, pass, 63 terms through n = 981 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/compare_seq_t.h"
+#include "../utils/mem.h"
+
+static int compare_seq_t(const void *a, const void *b) {
+    seq_t va = *(const seq_t *)a;
+    seq_t vb = *(const seq_t *)b;
+    if (va < vb) return -1;
+    if (va > vb) return 1;
+    return 0;
+}
 
 static seq_t *cached_sequence = NULL;
 static idx_t cached_length = 0;
@@ -22,10 +31,10 @@ static idx_t cached_length = 0;
 static void init_sequence(void) {
     if (cached_sequence != NULL) return;
     
-    seq_t *sums = (seq_t *)malloc(sizeof(seq_t) * 600000);
+    seq_t *sums = mem_new(seq_t, 600000);
     idx_t count = 0;
     
-    seq_t *powers = (seq_t *)malloc(sizeof(seq_t) * 36);
+    seq_t *powers = mem_new(seq_t, 36);
     for (idx_t i = 0; i <= 35; i++) {
         if (i == 0) {
             powers[i] = 0;
@@ -50,11 +59,11 @@ static void init_sequence(void) {
         }
     }
     
-    free(powers);
+    mem_free(powers);
     
-    qsort(sums, count, sizeof(seq_t), compare_seq_t);
+    mem_qsort(sums, count, sizeof(seq_t), compare_seq_t);
     
-    seq_t *result = (seq_t *)malloc(sizeof(seq_t) * count);
+    seq_t *result = mem_new(seq_t, count);
     idx_t unique_count = 0;
     for (idx_t i = 0; i < count; i++) {
         if (unique_count == 0 || sums[i] != sums[i-1]) {
@@ -62,7 +71,7 @@ static void init_sequence(void) {
         }
     }
     
-    free(sums);
+    mem_free(sums);
     
     cached_sequence = result;
     cached_length = unique_count;

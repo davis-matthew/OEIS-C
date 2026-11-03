@@ -8,7 +8,8 @@
  *            order, interpreted as a decimal integer
  * Range:     u8 n <= 7, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   is_primitive_bits
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,29 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_primitive_bits.h"
+#include "../utils/mem.h"
+
+/* test whether the binary word represented by num of length L is primitive */
+static bool is_primitive_bits(uint64_t num, size_t L) {
+    if (L <= 1)
+        return true;
+    for (size_t d = 1; d < L; ++d) {
+        if (L % d != 0)
+            continue;
+        bool period = true;
+        for (size_t i = d; i < L; ++i) {
+            uint64_t bit_i     = (num >> (L - 1 - i)) & 1;
+            uint64_t bit_base  = (num >> (L - 1 - (i % d))) & 1;
+            if (bit_i != bit_base) {
+                period = false;
+                break;
+            }
+        }
+        if (period)
+            return false;   /* imprimitive */
+    }
+    return true;
+}
 
 /* cache of already generated primitive words */
 static seq_t *cache = NULL;
@@ -31,7 +54,7 @@ static void ensure_cache_capacity(size_t new_cap) {
     size_t cap = cache_capacity ? cache_capacity * 2 : 16;
     while (cap < new_cap)
         cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, cap);
     cache = tmp;
     cache_capacity = cap;
 }

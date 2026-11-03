@@ -9,6 +9,7 @@
  *            Möbius function
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-01)
  * Helpers:   build_spf, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,8 +17,9 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/gcd.h"
+#include <stdint.h>
 #include "../utils/build_spf.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {

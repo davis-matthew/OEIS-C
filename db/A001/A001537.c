@@ -12,7 +12,8 @@
  *            points is lambda, and z(lambda) = Prod_j j^m_j * m_j!....
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 4, u64 n <= 5, u128 n <= 5,
  *            big any n
- * Helpers:   x1537_deg, x1537_pmod, x1537_pmul
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-01)
+ * Helpers:   ilog2_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,21 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/x1537_deg.h"
-#include "../utils/x1537_pmod.h"
-#include "../utils/x1537_pmul.h"
+#include "../utils/ilog2_u64.h"
+
+static uint64_t x1537_pmod(uint64_t a, uint64_t b)
+{
+    int db = ilog2_u64(b), da;
+    while ((da = ilog2_u64(a)) >= db) a ^= b << (da - db);
+    return a;
+}
+
+static uint64_t x1537_pmul(uint64_t a, uint64_t b)
+{
+    uint64_t r = 0;
+    while (b) { if (b & 1) r ^= a; a <<= 1; b >>= 1; }
+    return r;
+}
 
 typedef struct { uint32_t *d; size_t n, cap; } Z1537;
 

@@ -9,12 +9,14 @@
  *            q·ψ(q³)·ψ(q⁵) in powers of q)
  * Range:     u8 n <= 87, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 103 terms through n = 9102 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *A = NULL;     /* array of coefficients */
 static idx_t computed_n = 0;
@@ -28,8 +30,8 @@ seq_t a(idx_t n)
     {
         /* Allocate (n+1) elements, zero‑initialised. */
         size_t new_n = (size_t)n;
-        seq_t *tmp = (seq_t *)calloc(new_n + 1, sizeof(seq_t));
-        free(A);
+        seq_t *tmp = mem_new(seq_t, new_n + 1);
+        mem_free(A);
         A = tmp;
         computed_n = n;
 

@@ -13,7 +13,8 @@
  *            n + 1] * * where f[i] = 1 if i is prime, otherw...
  * Range:     u8 n <= 98, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 97 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
     free(is_prime);
 
     /* ---------- Compute cyclic autocorrelations ---------- */
-    seq_t *C = (seq_t*)calloc((size_t)n, sizeof(seq_t));
+    seq_t *C = mem_new(seq_t, (size_t)n);
     if (!C) {
         free(primes);
         return (seq_t)0;
@@ -117,6 +119,6 @@ seq_t a(idx_t n)
     }
 
     free(primes);
-    free(C);
+    mem_free(C);
     return (seq_t)result;
 }

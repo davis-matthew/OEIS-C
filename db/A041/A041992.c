@@ -7,7 +7,8 @@
  * Formula:   numerators of convergents to sqrt(519) via continued fraction
  * Range:     u8 none, u16 n <= 9, u32 n <= 21, u64 n <= 44, u128 n <= 89,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>   /* for uint64_t used by idx_t */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
         a_state = a0;           /* first partial quotient a[0] */
 
         cap = 8;
-        num = (seq_t *)malloc(cap * sizeof(seq_t));
+        num = mem_new(seq_t, cap);
         len = 0;
         initialized = true;
     }
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
         /* store numerator */
         if (len >= cap) {
             cap *= 2;
-            num = (seq_t *)realloc(num, cap * sizeof(seq_t));
+            num = mem_resize(seq_t, num, cap);
         }
         num[len++] = h;
 

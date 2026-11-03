@@ -8,13 +8,15 @@
  * Formula:   a(0) = 1; for n>=1, a(n) = Sum_{d|n, d>1} a((n-d)/d)
  * Range:     u8 n <= 2417, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 111 terms through n = 8355 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* --- integer sqrt for idx_t -------------------------------------- */
 static inline idx_t floor_sqrt_idx(idx_t n) {
@@ -39,7 +41,7 @@ static void ensure_cache(idx_t n) {
     if (cache_cap > n)
         return;
     idx_t new_cap = (n + 1) * 2;           /* grow by factor 2 */
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache)
         exit(EXIT_FAILURE);
     if (cache) {
@@ -49,7 +51,7 @@ static void ensure_cache(idx_t n) {
     for (idx_t i = cache_cap; i < new_cap; ++i)
         new_cache[i] = 0;
     if (cache)
-        free(cache);
+        mem_free(cache);
     cache = new_cache;
     cache_cap = new_cap;
     if (cache_cap > 0)

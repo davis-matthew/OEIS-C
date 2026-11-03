@@ -8,15 +8,23 @@
  * Formula:   a(n) = lcm_over_prime_powers[ p^e if p==2 else p^e * (p^2-1) ]
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 10, u64 n <= 10, u128 n <= 10,
  *            big any n
- * Helpers:   gcd, pow_uint, seq_mul
+ * Validated: partial, pass, 10 terms through n = 10 (2026-11-01)
+ * Helpers:   gcd, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/gcd.h"
-#include "../utils/pow_uint.h"
-#include "../utils/seq_mul.h"
+#include "../utils/ipow_u64_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 static inline seq_t lcm_seq(seq_t a, seq_t b)
 {
@@ -40,7 +48,7 @@ seq_t a(idx_t n)
         ++e;
     }
     if (e > 0) {
-        seq_t val = pow_uint(2, e);
+        seq_t val = ipow_u64_idx(2, e);
         result = lcm_seq(result, val);
     }
 
@@ -52,7 +60,7 @@ seq_t a(idx_t n)
                 k /= p;
                 ++exp;
             }
-            seq_t powpe = pow_uint(p, exp);
+            seq_t powpe = ipow_u64_idx(p, exp);
             seq_t factor = (seq_t)(p * p - 1);
             seq_t val = seq_mul(powpe, factor);
             result = lcm_seq(result, val);

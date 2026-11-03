@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 168, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   has_triple
+ * Validated: standard, pass, 82 terms through n = 1973 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,19 @@
    (either 000 or 111).  The function scans integers sequentially
    and counts those that satisfy the pattern. */
 #include <stdbool.h>
-#include "../utils/has_triple.h"
+
+static bool has_triple(seq_t v)
+{
+    /* Check every group of three consecutive bits. */
+    while (v != 0)
+    {
+        seq_t last3 = v & 7;                 /* mask the lowest three bits */
+        if (last3 == 0 || last3 == 7)        /* 000 or 111 */
+            return true;
+        v >>= 1;                             /* slide window by one bit */
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

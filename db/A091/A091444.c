@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  easy, nonn
  * Formula:   not stated
- * Range:     u8 n <= 9717, u16 n <= 9717, u32 n <= 9717, u64 n <= 9717,
- *            u128 n <= 9717, big any n
- * Helpers:   popcount
+ * Range:     u8 n <= 18433, u16 n <= 18433, u32 n <= 18433, u64 n <= 18433,
+ *            u128 n <= 18433, big any n
+ * Validated: standard, pass, 114 terms through n = 9717 (2026-11-01)
+ * Helpers:   popcount_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
    then by number of 1's, then lexicographically. */
 
 #include <stdint.h>
-#include "../utils/popcount.h"
+#include "../utils/popcount_idx.h"
 
 seq_t a(idx_t n) {
     idx_t cum = 0;                     /* number of bits already processed */
@@ -26,7 +27,7 @@ seq_t a(idx_t n) {
         idx_t max = ((idx_t)1 << len); /* 2^len */
         for (idx_t w = 0; w <= len; ++w) { /* number of 1's */
             for (idx_t x = 0; x < max; ++x) {
-                if (popcount(x) != w) continue; /* skip wrong popcount */
+                if (popcount_idx(x) != w) continue; /* skip wrong popcount */
                 if (cum + len > n) {            /* the desired bit is here */
                     idx_t pos = n - cum;        /* position inside this vector */
                     idx_t bit = (x >> (len - 1 - pos)) & 1;

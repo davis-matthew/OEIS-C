@@ -7,13 +7,14 @@
  * Formula:   a(n) = binomial(4n,n) = Product_{i=1..n} (3n+i)/i
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 40,
  *            big any n
- * Helpers:   a005810_gcd_u64
+ * Validated: standard, pass, 36 terms through n = 923 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a005810_gcd_u64.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n) {
     seq_t r = 1;
@@ -21,7 +22,7 @@ seq_t a(idx_t n) {
     for (i = 1; i <= n; i++) {
         /* r currently equals C(3n+i-1, i-1); next is r*(3n+i)/i */
         uint64_t rm = (uint64_t)(r % (seq_t)i);
-        uint64_t g = a005810_gcd_u64(rm, (uint64_t)i);
+        uint64_t g = gcd_u64(rm, (uint64_t)i);
         if (g == 0) g = (uint64_t)i;
         r /= (seq_t)g;
         {

@@ -10,7 +10,8 @@
  *            memoised: any n ≥ 0 can be requested in any order
  * Range:     u8 n <= 85, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 9793 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #ifdef __cplusplus
 # include <new>
 #endif
+#include "../utils/mem.h"
 
 /* ----- static data ----------------------------------------------------- */
 static seq_t *a_vals = NULL; /* array containing the a‑sequence */
@@ -41,13 +43,13 @@ static void ensure_a_cap(idx_t need)
     if (a_cap >= need) return;
     idx_t new_cap = a_cap ? a_cap * 2 : 8;
     if (new_cap < need) new_cap = need;
-    seq_t *tmp = (seq_t*)realloc(a_vals, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_vals, new_cap);
     if (!tmp) abort();
     a_vals = tmp;
 #ifdef __cplusplus
     /* default‑construct any newly added objects (C++ only) */
     for (idx_t i = a_cap; i < new_cap; ++i)
-        new (&a_vals[i]) seq_t();
+        *(&a_vals[i]) = (seq_t)0;
 #endif
     a_cap = new_cap;
 }
@@ -58,12 +60,12 @@ static void ensure_b_cap(idx_t need)
     if (b_cap >= need) return;
     idx_t new_cap = b_cap ? b_cap * 2 : 8;
     if (new_cap < need) new_cap = need;
-    seq_t *tmp = (seq_t*)realloc(b_vals, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, b_vals, new_cap);
     if (!tmp) abort();
     b_vals = tmp;
 #ifdef __cplusplus
     for (idx_t i = b_cap; i < new_cap; ++i)
-        new (&b_vals[i]) seq_t();
+        *(&b_vals[i]) = (seq_t)0;
 #endif
     b_cap = new_cap;
 }

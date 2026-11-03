@@ -8,14 +8,16 @@
  * Formula:   a(n) = largest binary palindrome obtainable from the digits of n
  * Range:     u8 n <= 256, u16 n <= 4095, u32 n <= 4095, u64 n <= 4095,
  *            u128 n <= 4095, big any n
- * Helpers:   floor_log2_uint64
+ * Validated: standard, pass, 86 terms through n = 3595 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include "../utils/ilog2.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     }
 
     /* Length of binary representation (without leading zeros) */
-    idx_t bitlen = floor_log2_uint64(n) + 1;
+    idx_t bitlen = ilog2(n) + 1;
 
     idx_t c0 = bitlen - c1;             /* number of '0' bits */
 

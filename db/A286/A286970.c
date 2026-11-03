@@ -9,7 +9,8 @@
  *            primes
  * Range:     u8 n <= 17, u16 n <= 31, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   is_palindrome, is_prime_small
+ * Validated: partial, pass, 46 terms through n = 45 (2026-11-03)
+ * Helpers:   is_palindrome_base, is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 /* Helper functions provided by the build system */
-#include "../utils/is_prime_small.h"
-#include "../utils/is_palindrome.h"
+#include "../utils/is_palindrome_base.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     /* ---- initial allocation ------------------------------------------- */
     if (dp_cap == 0) {
         dp_cap = 1;
-        dp = (seq_t *)malloc(dp_cap * sizeof(seq_t));
+        dp = mem_new(seq_t, dp_cap);
         if (!dp) return (seq_t)0;          /* allocation failure, safe fallback */
         dp[0] = (seq_t)1;                  /* a(0) = 1 */
         dp_max = 0;
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     /* ---- extend palindromic prime list up to n ----------------------- */
     if (pal_checked_upto < n) {
         for (idx_t cand = pal_checked_upto + 1; cand <= n; ++cand) {
-            if (is_prime_small((seq_t)cand) && is_palindrome((seq_t)cand, 10)) {
+            if (is_prime_seq((seq_t)cand) && is_palindrome_base((seq_t)cand, 10)) {
                 if (pal_cap == 0) {
                     pal_cap = 8;
                     pal_primes = (uint64_t *)malloc(pal_cap * sizeof(uint64_t));
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
     if (n > dp_max) {
         if ((size_t)(n + 1) > dp_cap) {
             size_t new_cap = (size_t)(n + 1);
-            seq_t *tmp = (seq_t *)realloc(dp, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, dp, new_cap);
             if (!tmp) return (seq_t)0;
             dp = tmp;
             /* initialise new slots to 0 */

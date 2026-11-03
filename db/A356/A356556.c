@@ -7,7 +7,8 @@
  * Formula:   a(n) = A061418(n) mod 2
  * Range:     u8 n <= 108, u16 n <= 108, u32 n <= 108, u64 n <= 108,
  *            u128 n <= 108, big any n
- * Helpers:   none
+ * Validated: partial, pass, 108 terms through n = 108 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Size of the big‑integer buffer in 32‑bit limbs.
    Enough for n <= 10000 (≈ 6000 bits). */
@@ -68,7 +70,7 @@ static void ensure_cache(idx_t n)
     if (needed <= cache_cap) return;
 
     size_t newcap = needed;
-    seq_t *tmp = (seq_t *)realloc(parity_cache, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, parity_cache, newcap);
     if (!tmp) return;                         /* out of memory – leave cache unchanged */
 
     if (!parity_cache) {

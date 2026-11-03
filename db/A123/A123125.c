@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 48, u32 n <= 110, u64 n <= 261,
  *            u128 n <= 644, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 7335 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    appropriate Eulerian entry.  All arithmetic is performed in seq_t. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
             continue;
         }
         if (i == 1) {                /* base case: E(1,0) = 1 */
-            seq_t *arr = (seq_t*)malloc(sizeof(seq_t));
+            seq_t *arr = mem_new(seq_t, 1);
             arr[0] = (seq_t)1;
             rows[1] = arr;
             continue;
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
 
         /* i ≥ 2: build Eulerian numbers for row i from row i‑1 */
         seq_t *prev = rows[i - 1];   /* size i‑1 */
-        seq_t *curr = (seq_t*)malloc(i * sizeof(seq_t));
+        seq_t *curr = mem_new(seq_t, i);
 
         for (idx_t m = 0; m < i; ++m) {
             seq_t term1 = 0;

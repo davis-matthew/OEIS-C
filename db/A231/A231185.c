@@ -11,12 +11,14 @@
  *            first five terms are a(0)=1, a(1)=0, a(2)=4, a(3)=1, a(4)=14
  * Range:     i8 n <= 7, i16 n <= 16, i32 n <= 33, i64 n <= 33, i128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* memoised values of a(n)   */
 static idx_t  cache_cap = 0;     /* allocated capacity        */
@@ -27,7 +29,7 @@ static void ensure_cache(idx_t n) {
     /* Initialise cache if it does not yet exist. */
     if (cache == NULL) {
         cache_cap = 5;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache_size = 5;
         /* Base values a(0)..a(4) */
         cache[0] = 1;
@@ -44,7 +46,7 @@ static void ensure_cache(idx_t n) {
     if (n + 1 > cache_cap) {
         idx_t new_cap = cache_cap * 2;
         if (new_cap < n + 1) new_cap = n + 1;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 

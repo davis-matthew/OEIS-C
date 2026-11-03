@@ -7,7 +7,8 @@
  * Formula:   a(n) = 4 * Σ_{k=1..n} binomial(n,k) * a(k‑1) with a(0)=1
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 19, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static cache for previously computed values. */
 static seq_t *cache    = NULL;   /* array of a(i) */
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
 {
     /* Initialise cache to contain a(0). */
     if (cache_len == 0) {
-        cache = (seq_t *)calloc(1, sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) return 0;            /* allocation failure */
         cache[0] = 1;
         cache_len = 1;
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
 
     /* Extend cache to hold indices up to n. */
     idx_t new_len = n + 1;
-    seq_t *new_cache = (seq_t *)calloc(new_len, sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_len);
     if (!new_cache) return 0;            /* allocation failure */
 
     /* Copy previously computed values. */
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
     }
 
     /* Replace old cache with the new one. */
-    free(cache);
+    mem_free(cache);
     cache      = new_cache;
     cache_len  = new_len;
 

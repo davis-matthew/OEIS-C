@@ -12,7 +12,8 @@
  *            implementation precomputes all P(r,k) up to the...
  * Range:     i8 n <= 26, i16 n <= 43, i32 n <= 103, i64 n <= 251,
  *            i128 n <= 628, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 9735 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /*  storage for the triangular array of partition numbers  P(n,k)        */
@@ -39,7 +41,7 @@ static inline size_t offset_of(idx_t n) {
 static void compute_partitions(idx_t max_n) {
     size_t needed = offset_of(max_n) + (size_t)max_n + 1;
     if (needed > P_alloc) {
-        seq_t *new_data = (seq_t *)realloc(P_data, needed * sizeof(seq_t));
+        seq_t *new_data = mem_resize(seq_t, P_data, needed);
         if (!new_data) abort();
         P_data = new_data;
         P_alloc = needed;

@@ -7,14 +7,16 @@
  * Formula:   a(n) = ∏_{i=1..5} (3^(n-i+1)-1)/(3^i-1)
  * Range:     u8 n <= 5, u16 none, u32 n <= 8, u64 n <= 12, u128 n <= 21,
  *            big any n
- * Helpers:   big_pow, gcd
+ * Validated: standard, pass, 29 terms through n = 184 (2026-11-01)
+ * Helpers:   gcd, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/gcd.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
 
     for (idx_t i = 1; i <= 5; ++i) {
         idx_t exp = n - i + 1;
-        seq_t num = big_pow((seq_t)3, (seq_t)exp) - 1;
+        seq_t num = ipow((seq_t)3, (seq_t)exp) - 1;
 
         /* Reduce the numerator with the remaining part of the denominator */
         seq_t g = gcd(num, denom);

@@ -11,13 +11,23 @@
  *            least one 0) 5 * m (m has decimal digits 0 or 1 an...
  * Range:     u8 n <= 7, u16 n <= 39, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 static seq_t *cache = NULL;        /* cache of already computed terms   */
 static size_t cache_size = 0, cache_cap = 0;   /* cache limits      */
@@ -40,6 +50,19 @@ static size_t i2 = 0, i5 = 0;
 
 /* ---------------------------------------------------------- */
 /* helpers for dynamic arrays                                  */
+#ifdef __cplusplus
+template <class T>
+static void grow(T **p, size_t *cap, size_t *size, size_t elem_size)
+{
+    if (*size == *cap) {
+        size_t new_cap = (*cap) ? (*cap << 1) : 16;
+        T *tmp = mem_resize(T, *p, (new_cap * elem_size) / sizeof(T));
+        if (!tmp) exit(1);
+        *p = tmp;
+        *cap = new_cap;
+    }
+}
+#else
 static void grow(void **p, size_t *cap, size_t *size, size_t elem_size)
 {
     if (*size == *cap) {
@@ -50,32 +73,33 @@ static void grow(void **p, size_t *cap, size_t *size, size_t elem_size)
         *cap = new_cap;
     }
 }
+#endif
 
 /* push value to ms queue */
 static void push_ms(uint64_t val)
 {
-    grow((void **)&ms, &ms_cap, &ms_size, sizeof(uint64_t));
+    grow(OEISC_VPP(&ms), &ms_cap, &ms_size, sizeof(uint64_t));
     ms[ms_size++] = val;
 }
 
 /* push value to list2 */
 static void push_list2(seq_t val)
 {
-    grow((void **)&list2, &cap2, &len2, sizeof(seq_t));
+    grow(OEISC_VPP(&list2), &cap2, &len2, sizeof(seq_t));
     list2[len2++] = val;
 }
 
 /* push value to list5 */
 static void push_list5(seq_t val)
 {
-    grow((void **)&list5, &cap5, &len5, sizeof(seq_t));
+    grow(OEISC_VPP(&list5), &cap5, &len5, sizeof(seq_t));
     list5[len5++] = val;
 }
 
 /* grow cache size */
 static void push_cache(seq_t val)
 {
-    grow((void **)&cache, &cache_cap, &cache_size, sizeof(seq_t));
+    grow(OEISC_VPP(&cache), &cache_cap, &cache_size, sizeof(seq_t));
     cache[cache_size++] = val;
 }
 

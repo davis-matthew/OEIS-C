@@ -12,7 +12,8 @@
  *            (descending). The sequence is the concatenation of...
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for the flattened indicator sequence */
 static seq_t   *flat      = NULL;   /* array of 0/1 indicators */
@@ -38,7 +40,7 @@ static void ensure_flat_cap(size_t needed)
     if (flat_cap >= needed) return;
     size_t new_cap = flat_cap ? (flat_cap << 1) : 8;
     while (new_cap < needed) new_cap <<= 1;
-    flat = (seq_t *)realloc(flat, new_cap * sizeof(seq_t));
+    flat = mem_resize(seq_t, flat, new_cap);
     flat_cap = new_cap;
 }
 

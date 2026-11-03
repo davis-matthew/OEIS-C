@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 5470, u32 n <= 8683, u64 n <= 8683,
  *            u128 n <= 8683, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 8682 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --------- Prime sieve --------- */
 #define PRIME_LIMIT 2000000U          /* sieve size */
@@ -130,7 +132,7 @@ static void ensure_cache_cap(seq_t **arr, size_t *cap, size_t need)
     if (*cap >= need) return;
     size_t new_cap = (*cap == 0) ? 16 : (*cap << 1);
     if (new_cap < need) new_cap = need;
-    seq_t *new_arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, *arr, new_cap);
     if (!new_arr) exit(EXIT_FAILURE);
     *arr = new_arr;
     *cap = new_cap;

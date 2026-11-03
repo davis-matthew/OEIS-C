@@ -5,8 +5,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = n - Σ p^e (sum over prime power components of n)
- * Range:     u8 n <= 279, u16 n <= 9390, u32 n <= 9390, u64 n <= 9390,
- *            u128 n <= 9390, big any n
+ * Range:     u8 n <= 279, u16 n <= 65636, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 76 terms through n = 9390 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

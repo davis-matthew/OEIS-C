@@ -11,13 +11,15 @@
  *            dynamic programming
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 116 terms through n = 8856 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static void factor_uint64(uint64_t n, uint64_t *primes, uint64_t *exps,
                           size_t *cnt)
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
     idx_t k = omega >> 1;   /* floor(omega/2) */
 
     /* DP array: dp[s] = #ways to obtain exponent‑sum s from processed primes. */
-    seq_t *dp = (seq_t*)malloc((k + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (k + 1));
     if (!dp)
         return 0;          /* unlikely for n ≤ 10⁴, but graceful fallback */
 
@@ -83,6 +85,6 @@ seq_t a(idx_t n)
     }
 
     seq_t ans = dp[k];
-    free(dp);
+    mem_free(dp);
     return ans;
 }

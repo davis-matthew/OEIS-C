@@ -9,12 +9,14 @@
  *            with a(0) = 1)
  * Range:     i8 n <= 2, i16 n <= 4, i32 n <= 6, i64 n <= 10, i128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute a(n) for the OEIS sequence A371684 */
 seq_t a(idx_t n)
@@ -29,13 +31,13 @@ seq_t a(idx_t n)
 
     /* initialise for the first call */
     if (a_cache == NULL) {
-        a_cache = (seq_t *)malloc(sizeof(seq_t));
+        a_cache = mem_new(seq_t, 1);
         a_cache[0] = (seq_t)1;      /* a(0) = 1 */
         a_size   = 1;
     }
 
     if (pow2_cache == NULL) {
-        pow2_cache = (seq_t *)malloc(sizeof(seq_t));
+        pow2_cache = mem_new(seq_t, 1);
         pow2_cache[0] = (seq_t)1;    /* 2^0 = 1 */
         pow2_size = 1;
     }
@@ -43,11 +45,11 @@ seq_t a(idx_t n)
     /* grow the tables if necessary */
     if (n + 1 > a_size) {
         /* resize a_cache to hold values up to n */
-        a_cache = (seq_t *)realloc(a_cache, (n + 1) * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, (n + 1));
 
         /* resize pow2_cache to at least n+1 entries */
         if (n + 1 > pow2_size) {
-            pow2_cache = (seq_t *)realloc(pow2_cache, (n + 1) * sizeof(seq_t));
+            pow2_cache = mem_resize(seq_t, pow2_cache, (n + 1));
             for (idx_t i = pow2_size; i <= n; ++i)
                 pow2_cache[i] = pow2_cache[i - 1] * (seq_t)2;
             pow2_size = n + 1;

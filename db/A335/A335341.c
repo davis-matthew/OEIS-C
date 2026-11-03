@@ -7,8 +7,9 @@
  * Formula:   a(n) = Σ_{d|n , n/d coreful} d Equivalent: multiply over prime
  *            powers p^e | n a(p^1) = 1, a(p^e) = 1 + p + p^2 + … + p^{e-1} (e
  *            ≥ 2)
- * Range:     u8 n <= 511, u16 n <= 9569, u32 n <= 9569, u64 n <= 9569,
- *            u128 n <= 9569, big any n
+ * Range:     u8 n <= 511, u16 n <= 16383, u32 n <= 16383, u64 n <= 16383,
+ *            u128 n <= 16383, big any n
+ * Validated: standard, pass, 95 terms through n = 9569 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,12 +7,15 @@
  * Formula:   a(n) = n! * Sum_{k=1..floor(n/2)} k^(n-2*k-1)/(n-2*k)!
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 19, u128 n <= 21,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -41,7 +44,7 @@ seq_t a(idx_t n)
         else                             /* exponent = diff - 1  ≥ 0 */
         {
             seq_t exp = (seq_t)(diff - 1);
-            term = P * big_pow((seq_t)k, exp);
+            term = P * ipow((seq_t)k, exp);
         }
 
         sum += term;

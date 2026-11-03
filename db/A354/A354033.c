@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = 1 if n > 1 and n is a power of a prime of the form 4m+3,
  *            otherwise 0
- * Range:     u8 n <= 9667, u16 n <= 9667, u32 n <= 9667, u64 n <= 9667,
- *            u128 n <= 9667, big any n
+ * Range:     u8 n <= 65539, u16 n <= 65539, u32 n <= 65539, u64 n <= 65539,
+ *            u128 n <= 65539, big any n
+ * Validated: standard, pass, 143 terms through n = 9667 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  easy, nonn
  * Formula:   not stated
- * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 32, u128 n <= 64,
+ * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 32, u128 n <= 65,
  *            big any n
- * Helpers:   binomial, gcd
+ * Validated: standard, pass, 42 terms through n = 866 (2026-11-03)
+ * Helpers:   binomial, gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,9 @@
  */
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/gcd.h"
 #include "../utils/binomial.h"
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
        to avoid intermediate overflow.  Otherwise, delegate to binomial(). */
     if (sizeof(seq_t) <= 8) {
         /* Allocate array for numerator factors (n+1 .. 2n) */
-        seq_t *nums = (seq_t *)calloc((size_t)n, sizeof(seq_t));
+        seq_t *nums = mem_new(seq_t, (size_t)n);
         if (!nums) return 0; /* allocation failure → 0 as fallback */
 
         for (idx_t i = 0; i < n; ++i) {
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
             bin *= nums[i];
         }
 
-        free(nums);
+        mem_free(nums);
         return bin * 3;                  /* a(n) for n>0 */
     } else {
         /* For 128‑bit or arbitrary precision builds, use the provided

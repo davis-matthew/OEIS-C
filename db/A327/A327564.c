@@ -6,15 +6,17 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, mult
  * Formula:   For n = ∏ p_j^k_j, a(n) = ∏ (p_j + 1)^(k_j − 1)
- * Range:     u8 n <= 127, u16 n <= 4095, u32 n <= 9677, u64 n <= 9677,
- *            u128 n <= 9677, big any n
- * Helpers:   big_pow
+ * Range:     u8 n <= 127, u16 n <= 4095, u32 n <= 16383, u64 n <= 16383,
+ *            u128 n <= 16383, big any n
+ * Validated: standard, pass, 101 terms through n = 9677 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
         }
         if (exp) {
             /* (p + 1)^(exp - 1) */
-            res *= big_pow((seq_t)(p + 1), (seq_t)(exp - 1));
+            res *= ipow((seq_t)(p + 1), (seq_t)(exp - 1));
         }
         p = (p == 2) ? 3 : p + 2;   /* jump from 2 to 3, then odd numbers */
     }

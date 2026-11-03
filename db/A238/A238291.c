@@ -7,13 +7,26 @@
  * Formula:   a(n) = last digit of the real part of (n+n*i)^n
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   powmod10_uint
+ * Validated: standard, pass, 102 terms through n = 979 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/powmod10_uint.h"
+
+/* Modular exponentiation for modulus 10 */
+static inline unsigned char powmod10_uint(idx_t base, idx_t exp)
+{
+    unsigned char b = base % 10;
+    unsigned char res = 1;
+    while (exp) {
+        if (exp & 1) res = (res * b) % 10;
+        b = (b * b) % 10;
+        exp >>= 1;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {

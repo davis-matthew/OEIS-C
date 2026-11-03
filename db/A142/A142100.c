@@ -8,14 +8,16 @@
  *            36k+1
  * Range:     i8 n <= 3, i16 n <= 16, i32 n <= 16, i64 n <= 16, i128 n <= 16,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: partial, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"   /* declares is_prime_small(seq_t) */
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
 
     if (!init) {
         cache_cap = 128;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return 0;           /* allocation failed */
         cache_len = 0;
         init = true;
@@ -36,10 +38,10 @@ seq_t a(idx_t n)
 
     while (cache_len < n) {
         seq_t val = (seq_t)candidate;
-        if (is_prime_small(val)) {
+        if (is_prime_seq(val)) {
             if (cache_len == cache_cap) {
                 cache_cap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * cache_cap);
+                seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                 if (!tmp) return 0;     /* allocation failed */
                 cache = tmp;
             }

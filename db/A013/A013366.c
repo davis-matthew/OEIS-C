@@ -8,13 +8,15 @@
  *            by (2n)! (OEIS A013366)
  * Range:     i8 n <= 3, i16 n <= 4, i32 n <= 6, i64 n <= 10, i128 n <= 13,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 14 terms through n = 13 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute a(idx_t n) given the types seq_t and idx_t defined by the build */
 seq_t a(idx_t n)
@@ -23,9 +25,9 @@ seq_t a(idx_t n)
     idx_t maxDeg = 2 * n;
 
     /* Allocate dynamic arrays */
-    seq_t *E     = (seq_t*)malloc((maxDeg + 1) * sizeof(seq_t));
-    seq_t *Eneg  = (seq_t*)malloc((maxDeg + 1) * sizeof(seq_t));
-    seq_t *M     = (seq_t*)malloc((maxDeg + 1) * sizeof(seq_t));
+    seq_t *E     = mem_new(seq_t, (maxDeg + 1));
+    seq_t *Eneg  = mem_new(seq_t, (maxDeg + 1));
+    seq_t *M     = mem_new(seq_t, (maxDeg + 1));
     if (!E || !Eneg || !M) return 0;          /* safety – should never happen */
 
     /* Pre‑compute the integers M[k] = k! * c_k, where
@@ -83,9 +85,9 @@ seq_t a(idx_t n)
     seq_t result = (E[2 * n] + Eneg[2 * n]) / (seq_t)2;
 
     /* Free allocated memory */
-    free(E);
-    free(Eneg);
-    free(M);
+    mem_free(E);
+    mem_free(Eneg);
+    mem_free(M);
 
     return result;
 }

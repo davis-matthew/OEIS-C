@@ -8,12 +8,14 @@
  *            a(2) = 4 a(3) = 22 a(4) = 114
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 14, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Handle indices below the offset in any way — they are irrelevant */
@@ -29,7 +31,7 @@ seq_t a(idx_t n) {
     /* Ensure capacity for the required index (dp is 1‑based) */
     if (dp_size <= n) {
         idx_t new_size = (n + 8);          /* a little slack to reduce reallocs */
-        seq_t *tmp = (seq_t *)realloc(dp, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, new_size);
         if (!tmp) return (seq_t)0;         /* out‑of‑memory; unlikely in tests */
         dp = tmp;
         dp_size = new_size;

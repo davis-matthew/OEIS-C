@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 132, u16 n <= 132, u32 n <= 132, u64 n <= 132,
  *            u128 n <= 132, big any n
- * Helpers:   none
+ * Validated: partial, pass, 132 terms through n = 132 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    morphism 0 → 01, 1 → 02, 2 → 001. The function builds the sequence
    incrementally up to the requested index. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;      /* cached sequence values */
 static idx_t  seq_len = 0;     /* number of values currently stored */
@@ -29,7 +31,7 @@ static void expand_to(idx_t n)
     /* initialise the seed sequence 0 if this is the first call */
     if (seq == NULL) {
         seq_len = 1;
-        seq = (seq_t*)malloc(sizeof(seq_t));
+        seq = mem_new(seq_t, 1);
         seq[0] = 0;
     }
 
@@ -46,7 +48,7 @@ static void expand_to(idx_t n)
         }
 
         /* build the next iteration */
-        seq_t *next = (seq_t*)malloc(next_len * sizeof(seq_t));
+        seq_t *next = mem_new(seq_t, next_len);
         idx_t pos = 0;
         for (idx_t i = 0; i < seq_len; ++i) {
             seq_t v = seq[i];
@@ -65,7 +67,7 @@ static void expand_to(idx_t n)
             }
         }
 
-        free(seq);
+        mem_free(seq);
         seq = next;
         seq_len = next_len;
     }

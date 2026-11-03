@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 19, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Function to compute the sequence value a(n). */
 seq_t a(idx_t n)
@@ -37,9 +39,9 @@ seq_t a(idx_t n)
     size_t needed = (size_t)n + 1;       /* need room for index n */
     if (cache_sz < needed) {
         if (cache_sz == 0) {
-            cache = (seq_t *)malloc(sizeof(seq_t) * needed);
+            cache = mem_new(seq_t, needed);
         } else {
-            cache = (seq_t *)realloc(cache, sizeof(seq_t) * needed);
+            cache = mem_resize(seq_t, cache, needed);
         }
         cache_sz = needed;
     }

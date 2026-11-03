@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 9, u64 n <= 25, u128 n <= 57,
  *            big any n
+ * Validated: standard, pass, 34 terms through n = 960 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
  * A177684: a(n) = 4^(n+6) + 1953*2^n - 1 for n > 2;
  * a(0) = 633, a(1) = 4809, a(2) = 46041
  */
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

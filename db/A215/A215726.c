@@ -9,6 +9,7 @@
  *            k: a(1)=1, a(2)=2, a(3)=3, …
  * Range:     u8 n <= 15, u16 n <= 555, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 80 terms through n = 9875 (2026-11-01)
  * Helpers:   is_squarefree
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/is_squarefree.h"
 
 /* Maximum number of terms we expect to store.  The sequence has

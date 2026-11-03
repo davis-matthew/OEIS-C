@@ -10,6 +10,7 @@
  *            1‑bits in the binary representation of x
  * Range:     u8 n <= 7, u16 n <= 31, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

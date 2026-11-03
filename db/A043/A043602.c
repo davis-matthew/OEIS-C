@@ -8,13 +8,15 @@
  *            representation has exactly 2 runs
  * Range:     u8 n <= 48, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Helper: simple insertion sort for seq_t arrays. */
 static void sort_seq(seq_t *a, size_t n) {
@@ -45,7 +47,7 @@ seq_t a(idx_t n) {
         if (max_len < 2) continue; /* skip length 1, not needed */
 
         size_t newcnt = 16 * (size_t)(max_len - 1); /* 4 * 4 * (L-1) */
-        seq_t *buf = (seq_t*)malloc(newcnt * sizeof(seq_t));
+        seq_t *buf = mem_new(seq_t, newcnt);
         if (!buf) return 0; /* allocation failure */
 
         size_t idx = 0;
@@ -72,17 +74,17 @@ seq_t a(idx_t n) {
         if (terms_len + newcnt > terms_cap) {
             size_t newcap = terms_cap ? terms_cap << 1 : 256;
             while (terms_len + newcnt > newcap) newcap <<= 1;
-            void *p = realloc(terms, newcap * sizeof(seq_t));
+            void *p = mem_resize(seq_t, terms, newcap);
             if (!p) {
-                free(buf);
+                mem_free(buf);
                 return 0;
             }
             terms = (seq_t*)p;
             terms_cap = newcap;
         }
-        memcpy(terms + terms_len, buf, newcnt * sizeof(seq_t));
+        mem_copy(terms + terms_len, buf, newcnt * sizeof(seq_t));
         terms_len += newcnt;
-        free(buf);
+        mem_free(buf);
     }
 
     return terms[(size_t)n - 1];

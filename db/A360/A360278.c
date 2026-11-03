@@ -9,6 +9,7 @@
  * Formula:   a(n) = L(n+1)^2 - 5*(n mod 2) (L = Lucas numbers)
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 22, u64 n <= 45, u128 n <= 91,
  *            big any n
+ * Validated: standard, pass, 51 terms through n = 912 (2026-11-01)
  * Helpers:   fib_pair
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   has_79_or_97
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,21 @@
    This implementation finds the n‑th term by a simple brute‑force search. */
 
 #include <stdbool.h>
-#include "../utils/has_79_or_97.h"
+
+static bool has_79_or_97(seq_t x) {
+    seq_t tmp = x;
+    int prev = -1;
+    while (tmp > 0) {
+        int d = (int)(tmp % 10);
+        if (prev != -1) {
+            if ((d == 7 && prev == 9) || (d == 9 && prev == 7))
+                return true;
+        }
+        prev = d;
+        tmp = tmp / 10;
+    }
+    return false;
+}
 
 seq_t a(idx_t n) {
     seq_t k = 1;

@@ -11,7 +11,8 @@
  *            prime divisors of m, counted with multiplicities)
  * Range:     u8 n <= 4, u16 n <= 11, u32 n <= 15, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* All types and helper headers are supplied by the build system.  We
  * include <stdbool.h> so we can use bool.  We rely on the build system
@@ -108,10 +110,10 @@ static void ensure_best_capacity(idx_t need)
     if (need <= best_alloc) return;
     idx_t new_cap = best_alloc ? best_alloc << 1 : 16;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *new_arr = (seq_t *)realloc(best, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, best, new_cap);
     if (!new_arr) abort();
     /* Initialize new part to 0 (the zero element of seq_t). */
-    memset(new_arr + best_alloc, 0, (new_cap - best_alloc) * sizeof(seq_t));
+    mem_set(new_arr + best_alloc, 0, (new_cap - best_alloc) * sizeof(seq_t));
     best = new_arr;
     best_alloc = new_cap;
 }

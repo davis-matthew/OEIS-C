@@ -10,13 +10,15 @@
  *            columns k
  * Range:     u8 n <= 49, u16 n <= 84, u32 n <= 159, u64 n <= 264,
  *            u128 n <= 509, big any n
- * Helpers:   binomial, pow_int
+ * Validated: standard, pass, 82 terms through n = 9421 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 /* Return the nth term of OEIS sequence A323767 */
 seq_t a(idx_t n)
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     for (idx_t t = 0; t <= limit; ++t)
     {
         seq_t bin = binomial(i - t, t);  /* binomial coefficient (i-t choose t) */
-        seq_t pow = pow_int(bin, k);     /* bin^k */
+        seq_t pow = ipow_idx(bin, k);     /* bin^k */
         sum += pow;
     }
 

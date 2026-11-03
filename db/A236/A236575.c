@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 871, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime, is_squarefree
+ * Validated: standard, pass, 102 terms through n = 9609 (2026-11-03)
+ * Helpers:   is_prime, is_squarefree, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,10 @@
  */
 
 #include <stdlib.h>
-#include "../utils/is_squarefree.h"
+#include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/is_squarefree.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -77,7 +80,7 @@ seq_t a(idx_t n)
             /* Grow a_arr if necessary */
             if (a_cap <= nf_count - 1) {
                 size_t newcap = a_cap ? a_cap * 2 : 8;
-                a_arr = (seq_t *)realloc(a_arr, newcap * sizeof(seq_t));
+                a_arr = mem_resize(seq_t, a_arr, newcap);
                 a_cap = newcap;
             }
             a_arr[nf_count - 1] = prime_count;

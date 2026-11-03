@@ -11,7 +11,8 @@
  *            a power of 4
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_power4_idx
+ * Validated: standard, pass, 96 terms through n = 9967 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,21 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/is_power4_idx.h"
+
+/* Test whether a value is a power of 4 (4^k, k >= 0). */
+static inline bool is_power4_idx(idx_t v)
+{
+    if (v == 0) return false;
+    /* Must be a power of two. */
+    if ((v & (v - 1)) != 0) return false;
+    /* Count trailing zeros (exponent of 2). */
+    unsigned exp = 0;
+    while ((v & 1) == 0) {
+        exp++;
+        v >>= 1;
+    }
+    return (exp & 1) == 0; /* exponent even => power of 4. */
+}
 
 /* Integer square root for idx_t (unsigned 64‑bit). */
 static inline idx_t int_sqrt_idx(idx_t n)

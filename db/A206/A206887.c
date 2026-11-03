@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 184 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- static state ---------- */
 static int init_done = 0;
@@ -93,7 +95,7 @@ static void init_state(void)
 
     /* 4. Allocate cache for sequence values up to 16 (will grow dynamically) */
     cache_sz = 16;
-    a_cache = (seq_t *)malloc(sizeof(seq_t) * cache_sz);
+    a_cache = mem_new(seq_t, cache_sz);
     if (!a_cache) { /* fall back: use seq_t default ctor? */
         abort();
     }
@@ -123,7 +125,7 @@ seq_t a(idx_t n)
         idx_t new_sz = cache_sz * 2;
         if (new_sz < n + 1)
             new_sz = n + 1;
-        a_cache = (seq_t *)realloc(a_cache, sizeof(seq_t) * new_sz);
+        a_cache = mem_resize(seq_t, a_cache, new_sz);
         cache_sz = new_sz;
     }
 

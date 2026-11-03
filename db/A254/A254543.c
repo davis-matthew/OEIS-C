@@ -9,7 +9,8 @@
  *            leading partial sum is not prime
  * Range:     u8 n <= 3, u16 n <= 11, u32 n <= 103, u64 n <= 210,
  *            u128 n <= 210, big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ----------  prime sieve (static state)  ---------- */
 static bool *prime_table = NULL;   /* prime_table[s] == true  => s is prime  */
@@ -64,10 +66,10 @@ seq_t a(idx_t n)
 
     /* ensure DP arrays large enough */
     if (max_sum + 1 > dp_cap) {
-        free(dp_prev);
-        free(dp_cur);
-        dp_prev = (seq_t *)calloc(max_sum + 1, sizeof(seq_t));
-        dp_cur  = (seq_t *)calloc(max_sum + 1, sizeof(seq_t));
+        mem_free(dp_prev);
+        mem_free(dp_cur);
+        dp_prev = mem_new(seq_t, max_sum + 1);
+        dp_cur  = mem_new(seq_t, max_sum + 1);
         if (!dp_prev || !dp_cur) abort();  /* OOM protection */
         dp_cap = max_sum + 1;
     }

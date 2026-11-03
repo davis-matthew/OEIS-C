@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 23, u32 n <= 23, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 23 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* non‑multiples of 3 in [2..35] (23 values) */
 static const idx_t non_mult3[] = {
@@ -56,7 +58,7 @@ static void init_sequence(void)
         return;
 
     /* clear array */
-    memset(digit_sum_counts, 0, sizeof(digit_sum_counts));
+    mem_set(digit_sum_counts, 0, sizeof(digit_sum_counts));
 
     /* sieve up to 9999 */
     bool is_prime[10000];

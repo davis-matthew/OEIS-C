@@ -7,13 +7,15 @@
  * Formula:   a(n) = phi(n³ – 1) / 3, where phi is Euler's totient function
  * Range:     u8 n <= 6, u16 n <= 40, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   phi
+ * Validated: standard, pass, 63 terms through n = 965 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Use the provided totient routine. */
-#include "../utils/phi.h"
+#include <stdint.h>
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -31,5 +33,5 @@ seq_t a(idx_t n)
     idx_t val = (idx_t)tmp;
 
     /* phi(m) is guaranteed to be divisible by 3 for these arguments. */
-    return phi(val) / 3;
+    return totient(val) / 3;
 }

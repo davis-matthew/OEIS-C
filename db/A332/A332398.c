@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 18, u64 n <= 30, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 579 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -51,8 +53,8 @@ seq_t a(idx_t n)
 
     /* ---------- DP arrays ---------- */
     size_t maxB = limit + 1;                 /* enough for indices up to n+1 */
-    seq_t *dp_prev = (seq_t*)calloc(maxB, sizeof(seq_t));
-    seq_t *dp_cur  = (seq_t*)calloc(maxB, sizeof(seq_t));
+    seq_t *dp_prev = mem_new(seq_t, maxB);
+    seq_t *dp_cur  = mem_new(seq_t, maxB);
     if (!dp_prev || !dp_cur) {
         free(is_prime); free(pi);
         return (seq_t)0;
@@ -90,8 +92,8 @@ seq_t a(idx_t n)
     /* ---------- Clean up ---------- */
     free(is_prime);
     free(pi);
-    free(dp_prev);
-    free(dp_cur);
+    mem_free(dp_prev);
+    mem_free(dp_cur);
 
     return result;
 }

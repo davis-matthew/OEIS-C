@@ -11,13 +11,15 @@
  *            h_1(1) = 1 h_k(n) = (k-1)*h_{k-1}(n-1) + 2*(n-1)*h...
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Computes terms of OEIS sequence A383170 */
 seq_t a(idx_t n)
@@ -31,14 +33,14 @@ seq_t a(idx_t n)
 
     /* Initialisation for n = 0 */
     if (a_cache == NULL) {
-        a_cache = (seq_t*)calloc(1, sizeof(seq_t));   /* a_cache[0] = 0 */
+        a_cache = mem_new(seq_t, 1);   /* a_cache[0] = 0 */
         a_cap   = 1;
     }
     if (n < a_cap) return a_cache[n];
 
     /* Initialise h_cache if not yet done */
     if (h_cache == NULL) {
-        h_cache = (seq_t*)calloc(1, sizeof(seq_t));   /* h_cache[0] = 0 */
+        h_cache = mem_new(seq_t, 1);   /* h_cache[0] = 0 */
         h_cap   = 1;
     }
 
@@ -49,19 +51,17 @@ seq_t a(idx_t n)
         /* Ensure h_cache has room for indices up to next */
         if (h_cap <= (size_t)next) {
             size_t new_cap = (size_t)(next + 1);
-            h_cache = (seq_t*)realloc(h_cache, new_cap * sizeof(seq_t));
+            h_cache = mem_resize(seq_t, h_cache, new_cap);
             /* Initialise the new memory to zero */
-            memset(h_cache + h_cap, 0,
-                   (new_cap - h_cap) * sizeof(seq_t));
+            mem_set(h_cache + h_cap, 0, (new_cap - h_cap) * sizeof(seq_t));
             h_cap = new_cap;
         }
 
         /* Ensure a_cache has room for index next */
         if (a_cap <= (size_t)next) {
             size_t new_cap = (size_t)(next + 1);
-            a_cache = (seq_t*)realloc(a_cache, new_cap * sizeof(seq_t));
-            memset(a_cache + a_cap, 0,
-                   (new_cap - a_cap) * sizeof(seq_t));
+            a_cache = mem_resize(seq_t, a_cache, new_cap);
+            mem_set(a_cache + a_cap, 0, (new_cap - a_cap) * sizeof(seq_t));
             a_cap = new_cap;
         }
 

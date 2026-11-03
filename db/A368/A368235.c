@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 9, i16 n <= 15, i32 n <= 44, i64 n <= 44, i128 n <= 44,
  *            big any n
- * Helpers:   _factorial, binomial, pow2
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,18 @@
  * The sequence begins 1,1,2,3,8,8,15,54,72,48,105,480,864,768,384,945,...
  */
 
-#include "../utils/binomial.h"   /* seq_t binomial(idx_t n, idx_t k) */
-#include "../utils/pow2.h"       /* seq_t pow2(idx_t exp) */
-#include "../utils/_factorial.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/pow2.h"
+
+static seq_t _factorial(idx_t m)
+{
+    seq_t res = 1;
+    for (idx_t i = 2; i <= m; ++i)
+        res *= (seq_t)i;
+    return res;
+}
 
 seq_t a(idx_t n)
 {

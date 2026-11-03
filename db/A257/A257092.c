@@ -11,15 +11,24 @@
  * Formula:   a(n) = Flip(Flip(i) XOR Flip(j)) where (i,j) are the coordinates
  *            read by antidiagonals of the square array given by NSum(x,y) =
  *            Flip(Flip(x) XOR Flip(y))
- * Range:     u8 n <= 9971, u16 n <= 9971, u32 n <= 9971, u64 n <= 9971,
- *            u128 n <= 9971, big any n
- * Helpers:   flip
+ * Range:     u8 n <= 11324, u16 n <= 11324, u32 n <= 11324, u64 n <= 11324,
+ *            u128 n <= 11324, big any n
+ * Validated: standard, pass, 136 terms through n = 9971 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/flip.h"
+
+static inline seq_t flip(seq_t n) {
+    if (n == 0)
+        return 0;
+    /* Parity test */
+    if ((n & 1) == 1)
+        return n + 1;
+    return n - 1;
+}
 
 /* Find the diagonal d such that d*(d+1)/2 <= n < (d+1)*(d+2)/2.
    Binary search in [0, n] with 128‑bit arithmetic to avoid overflow. */

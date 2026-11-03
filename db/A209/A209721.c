@@ -8,6 +8,7 @@
  * Formula:   a(n) = 2*a(n-2)-1 for n ≥ 3; a(1) = 3, a(2) = 4
  * Range:     u8 n <= 14, u16 n <= 30, u32 n <= 62, u64 n <= 126,
  *            u128 n <= 210, big any n
+ * Validated: standard, pass, 58 terms through n = 208 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

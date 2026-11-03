@@ -8,7 +8,8 @@
  *            primes p ≤ n with exponent in n! at least e
  * Range:     u8 n <= 18, u16 n <= 52, u32 n <= 130, u64 n <= 310,
  *            u128 n <= 718, big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 68 terms through n = 9746 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/seq_pow.h"
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -87,7 +89,7 @@ seq_t a(idx_t n)
 
     for (idx_t k = Emax; k >= 1; --k) {
         cur += freq[(size_t)k];          /* m_k */
-        seq_t mult = seq_pow((seq_t)2, (idx_t)freq[(size_t)k]); /* 2^{freq[k]} */
+        seq_t mult = ipow_idx((seq_t)2, (idx_t)freq[(size_t)k]); /* 2^{freq[k]} */
         pow2_cur = pow2_cur * mult;        /* 2^{cur} */
         S += pow2_cur;
     }

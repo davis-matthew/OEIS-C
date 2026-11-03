@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    The index n runs row by row starting at 0. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Locate the row r containing index n:
    r is the greatest integer with r(r+1)/2 ≤ n.     */
@@ -57,18 +59,18 @@ seq_t a(idx_t n)
         seq_t *newrow = NULL;
 
         if (rr == 0) {                  /* first row : [1] */
-            newrow = (seq_t *)malloc(sizeof(seq_t));
+            newrow = mem_new(seq_t, 1);
             if (!newrow) abort();
             newrow[0] = 1;
         } else if (rr == 1) {          /* second row : [1,1] */
-            newrow = (seq_t *)malloc(2 * sizeof(seq_t));
+            newrow = mem_new(seq_t, 2);
             if (!newrow) abort();
             newrow[0] = 1;
             newrow[1] = 1;
         } else {
             seq_t *prev = rows[rr - 1];
             size_t len = rr + 1;           /* length of the new row */
-            newrow = (seq_t *)calloc(len, sizeof(seq_t));
+            newrow = mem_new(seq_t, len);
             if (!newrow) abort();
 
             newrow[0] = 1;

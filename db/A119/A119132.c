@@ -8,13 +8,15 @@
  *            are only 1,5,6)
  * Range:     u8 n <= 5, u16 n <= 12, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Return the n-th triangular number composed only of the digits {1,5,6}. */
 seq_t a(idx_t n)
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* Grow the cache lazily. */
     if (tri_cache == NULL) {
         tri_cache_cap = 64;
-        tri_cache = (seq_t *)malloc(sizeof(seq_t) * tri_cache_cap);
+        tri_cache = mem_new(seq_t, tri_cache_cap);
     }
 
     /* Generate triangles until we have at least n of them. */
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
             /* Store t in the cache. */
             if (tri_cache_size == tri_cache_cap) {
                 tri_cache_cap *= 2;
-                tri_cache = (seq_t *)realloc(tri_cache, sizeof(seq_t) * tri_cache_cap);
+                tri_cache = mem_resize(seq_t, tri_cache, tri_cache_cap);
             }
             tri_cache[tri_cache_size++] = t;
         }

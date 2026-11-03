@@ -7,7 +7,8 @@
  * Formula:   a(n) = A003557(A013929(n))
  * Range:     u8 n <= 197, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 107 terms through n = 8748 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* a(n) is the n-th non‑squarefree integer divided by its squarefree kernel */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /*  Static data                                                        */
@@ -67,7 +69,7 @@ static void ensure_cache(idx_t need)
     if (need <= cache_size) return;
     idx_t new_size = cache_size ? cache_size * 2 : 64;
     while (new_size < need) new_size <<= 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache) exit(1);
     cache = new_cache;
     cache_size = new_size;

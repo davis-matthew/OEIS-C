@@ -7,6 +7,7 @@
  * Formula:   a(n) = 0 if n==0; a(1)=5; otherwise a(n) = n*(n+3)
  * Range:     u8 n <= 14, u16 n <= 254, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 66 terms through n = 4766 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

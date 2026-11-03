@@ -8,7 +8,8 @@
  * Formula:   a(n) = numerator( ( (1/3)_n * (2/3)_n ) / n! )
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   build_spf, seq_mul, seq_pow
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-01)
+ * Helpers:   build_spf, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,15 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/build_spf.h"
-#include "../utils/seq_pow.h"
-#include "../utils/seq_mul.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Prime tables: spf[i] = smallest prime factor of i (i == spf[i] iff i is prime). */
 static idx_t   *spf          = NULL;
@@ -155,7 +162,7 @@ a(idx_t n)
     for (size_t i = 0; i < prime_cnt; ++i) {
         if (exp_num[i] == 0)
             continue;
-        seq_t part = seq_pow((seq_t)prime_list[i], exp_num[i]);
+        seq_t part = ipow_idx((seq_t)prime_list[i], exp_num[i]);
         result = seq_mul(result, part);
     }
 

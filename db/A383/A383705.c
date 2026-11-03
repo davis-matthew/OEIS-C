@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 63, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, factorial, pow3, seq_gcd
+ * Validated: standard, pass, 93 terms through n = 9508 (2026-11-03)
+ * Helpers:   factor_u64, gcd, mem, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -39,10 +40,22 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
 #include "../utils/pow3.h"
-#include "../utils/factorial.h"
-#include "../utils/seq_gcd.h"
+#include "../utils/mem.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 static seq_t *a_prime_power = NULL;   /* a_prime_power[k] == A(k) */
 static size_t   a_prime_power_size = 0;   /* number of stored elements */
@@ -54,7 +67,7 @@ static void ensure_a_prime_power(idx_t k)
         return;
 
     size_t new_size = (size_t)k + 1;
-    seq_t *new_arr = (seq_t *)malloc(new_size * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_size);
     if (!new_arr) return; /* malloc failure – caller will multiply by 0 later */
 
     /* copy old values if any */
@@ -76,11 +89,11 @@ static void ensure_a_prime_power(idx_t k)
         seq_t kfac = factorial(e);
         den *= kfac;
 
-        seq_t g = seq_gcd(prod, den);
+        seq_t g = gcd(prod, den);
         new_arr[i] = prod / g;     /* numerator after reduction */
     }
 
-    free(a_prime_power);
+    mem_free(a_prime_power);
     a_prime_power = new_arr;
     a_prime_power_size = new_size;
 }

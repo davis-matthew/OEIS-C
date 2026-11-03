@@ -8,6 +8,7 @@
  * Formula:   a(1)=24, a(2)=48, a(3)=48, a(4)=120, a(5)=120, a(n)=0 for n>5
  * Range:     u8 n <= 5, u16 n <= 5, u32 n <= 5, u64 n <= 5, u128 n <= 5,
  *            big any n
+ * Validated: full, pass, 5 terms through n = 5 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

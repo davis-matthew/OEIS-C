@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 62, u32 n <= 185, u64 n <= 558,
  *            u128 n <= 1949, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 7153 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    the triangle up to the required index. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
         rows = temp;                   /* realloc may move the array */
         for (idx_t i = rows_cnt; i <= r; ++i) {
             /* allocate storage for row i (i+1 entries) */
-            rows[i] = (seq_t *)malloc((i + 1) * sizeof(seq_t));
+            rows[i] = mem_new(seq_t, (i + 1));
             /* compute the row via the recurrence */
             for (idx_t j = 0; j <= i; ++j) {
                 seq_t val;

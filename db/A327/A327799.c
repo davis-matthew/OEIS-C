@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 29, i16 n <= 53, i32 n <= 53, i64 n <= 53, i128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    where A038548(k) = (d(k)+1)/2 and d(k) is the divisor‑count function. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static idx_t *spf    = NULL; /* smallest prime factor table */
 static size_t spf_cap = 0;    /* current allocated size */
@@ -95,7 +97,7 @@ seq_t a(idx_t n)
     if (a_cap <= (size_t)n) {
         ensure_u(n);
 
-        seq_t *new_a = (seq_t *)realloc(a_cache, (n + 1) * sizeof(seq_t));
+        seq_t *new_a = mem_resize(seq_t, a_cache, (n + 1));
         if (!new_a) exit(EXIT_FAILURE);
         a_cache = new_a;
 

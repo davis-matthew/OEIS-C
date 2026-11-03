@@ -9,12 +9,14 @@
  *            are Stirling numbers of the second kind
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static storage for memoisation */
 static seq_t *cache   = NULL; /* a[0..]     */
@@ -35,7 +37,7 @@ static void grow_seq_t_array(seq_t **arr, size_t *cap, size_t needed)
     if (*cap >= needed) return;
     size_t newcap = (*cap) ? (*cap) * 2 : 8;
     if (newcap < needed) newcap = needed;
-    *arr = (seq_t*)realloc(*arr, newcap * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, newcap);
     *cap = newcap;
 }
 

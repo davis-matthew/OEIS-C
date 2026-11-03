@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 440, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_undulating_in_base
+ * Validated: standard, pass, 103 terms through n = 8943 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,52 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/is_undulating_in_base.h"
+
+/* Helper: return true iff n (in seq_t) is undulating in base 'base'.
+ * 'base' is passed as idx_t but converted to seq_t within the
+ * function. If base exceeds the maximum representable value of
+ * seq_t, the function immediately returns true because every
+ * representation of n then has a single digit. */
+static bool is_undulating_in_base(seq_t n, idx_t base)
+{
+    /* If the base is larger than the maximum value of seq_t,
+       every representation of n consists of a single digit. */
+    if (base > (idx_t)(~(seq_t)0))
+        return true;
+
+    seq_t base_seq = (seq_t)base;
+    /* Convert n to base 'base_seq' (least‑significant digit first). */
+    uint16_t digits[128];      /* 128 digits are enough for any 128‑bit value */
+    size_t len = 0;
+    seq_t temp = n;
+
+    if (temp == (seq_t)0) {    /* 0 is undulating in any base */
+        return true;
+    }
+
+    while (temp != (seq_t)0) {
+        digits[len++] = (uint16_t)(temp % base_seq);
+        temp /= base_seq;
+    }
+
+    /* One‑digit representation is always undulating */
+    if (len == 1)
+        return true;
+
+    uint16_t a = digits[0];
+    uint16_t b = digits[1];
+
+    for (size_t i = 2; i < len; ++i) {
+        if ((i & 1) == 0) {
+            if (digits[i] != a)
+                return false;
+        } else {
+            if (digits[i] != b)
+                return false;
+        }
+    }
+    return true;
+}
 
 /* Main sequence function requested by the judge. */
 seq_t a(idx_t n)

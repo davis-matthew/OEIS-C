@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 none, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static int compare_seq_t(const void *p1, const void *p2)
 {
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
         const idx_t LIMIT = 2000;                     /* bound for a,b */
         /* Number of distinct pairs a<b with 1≤a<b≤LIMIT. */
         cache_len = (size_t)LIMIT * (LIMIT - 1) / 2;
-        cache = (seq_t*)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
 
         size_t pos = 0;
         for (idx_t a = 1; a < LIMIT; ++a) {
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
             }
         }
         /* Sort the list once. */
-        qsort(cache, cache_len, sizeof(seq_t), compare_seq_t);
+        mem_qsort(cache, cache_len, sizeof(seq_t), compare_seq_t);
     }
     /* n is 1‑based, array indices are 0‑based. */
     if (n > cache_len) return 0;      /* overflow safety (should not happen) */

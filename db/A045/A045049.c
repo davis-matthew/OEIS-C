@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base
  * Formula:   not stated
- * Range:     u8 n <= 3, u16 n <= 6519, u32 n <= 9684, u64 n <= 9684,
- *            u128 n <= 9684, big any n
- * Helpers:   choose2
+ * Range:     u8 n <= 3, u16 n <= 6519, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 60 terms through n = 9684 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,10 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/choose2.h"
+
+static inline idx_t choose2(idx_t n) {
+    return (n * (n - 1)) >> 1;
+}
 
 static inline idx_t choose(idx_t n, idx_t k) {
     if (k == 0) return 1;

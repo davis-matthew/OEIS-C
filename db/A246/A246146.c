@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 85, u16 n <= 85, u32 n <= 85, u64 n <= 85, u128 n <= 85,
  *            big any n
- * Helpers:   bit_parity
+ * Validated: partial, pass, 86 terms through n = 85 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,7 +37,22 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/bit_parity.h"
+#include "../utils/mem.h"
+
+static inline seq_t bit_parity(idx_t x)
+{
+#if defined(__GNUC__)
+    return (seq_t)__builtin_parityll((unsigned long long)x);
+#else
+    uint64_t y = (uint64_t)x;
+    uint64_t p = 0;
+    while (y) {
+        p ^= 1;
+        y &= y - 1;
+    }
+    return (seq_t)p;
+#endif
+}
 
 /* cached data ---------------------------------------------------------- */
 static idx_t *m_vals  = NULL;   /* start indices m(i) */
@@ -56,7 +72,7 @@ static void ensure_index_capacity(size_t need)
         if (newcap < need) newcap = need;
 
         idx_t  *tmpM = (idx_t *)realloc(m_vals, newcap * sizeof(idx_t));
-        seq_t *tmpA = (seq_t *)realloc(a_vals, newcap * sizeof(seq_t));
+        seq_t *tmpA = mem_resize(seq_t, a_vals, newcap);
         if (!tmpM || !tmpA) abort();          /* allocation failure */
         m_vals = tmpM;
         a_vals = tmpA;
@@ -69,7 +85,7 @@ static void ensure_pattern_capacity(size_t need)
 {
     if (pat_cap < need) {
         size_t newcap = need;
-        seq_t *tmpP = (seq_t *)realloc(pattern, newcap * sizeof(seq_t));
+        seq_t *tmpP = mem_resize(seq_t, pattern, newcap);
         int   *tmpI = (int   *)realloc(pi,      newcap * sizeof(int));
         if (!tmpP || !tmpI) abort();
         pattern = tmpP;

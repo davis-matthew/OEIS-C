@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 26, u16 n <= 58, u32 n <= 122, u64 n <= 1786,
  *            u128 n <= 1786, big any n
- * Helpers:   is_known_prime_exp
+ * Validated: standard, pass, 78 terms through n = 1763 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,12 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/is_known_prime_exp.h"
+
+/* ---------- largest prime exponents with 2^k+1 prime (k in {1,2,4,8,16}) ---------- */
+static inline bool is_known_prime_exp(idx_t k)
+{
+    return (k == 1 || k == 2 || k == 4 || k == 8 || k == 16);
+}
 
 /* ---------- prime sieve (up to 2 000 000) ---------- */
 #define SIEVE_LIMIT 2000000

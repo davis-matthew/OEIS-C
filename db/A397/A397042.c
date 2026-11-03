@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 404, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 8364 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* -------------------  Configuration  ------------------- */
 #undef  MAX_LIMIT
@@ -51,7 +53,7 @@ static void heap_push(seq_t val)
     if (heap_len >= heap_cap) {
         /* increase capacity twice */
         heap_cap = heap_cap ? heap_cap * 2 : 1;
-        heap = (seq_t*)realloc(heap, heap_cap * sizeof(seq_t));
+        heap = mem_resize(seq_t, heap, heap_cap);
         if (!heap) exit(1);
     }
     heap[heap_len++] = val;
@@ -103,12 +105,12 @@ static void build_sequence(void)
 
     /* 3. allocate heap */
     heap_cap = (size_t)MAX_LIMIT + 1;
-    heap = (seq_t*)malloc(heap_cap * sizeof(seq_t));
+    heap = mem_new(seq_t, heap_cap);
     if (!heap) exit(1);
 
     /* 4. allocate cache for terms */
     cache_cap = (size_t)MAX_LIMIT + 1;
-    seq_cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+    seq_cache = mem_new(seq_t, cache_cap);
     if (!seq_cache) exit(1);
 
     /* 5. initialise generation with 1 */
@@ -138,7 +140,7 @@ static void build_sequence(void)
 
     /* 7. free auxiliary data; cache stays allocated */
     free(visited);
-    free(heap);
+    mem_free(heap);
     visited = NULL;
     heap    = NULL;
 }

@@ -8,20 +8,21 @@
  *            prime factors counted with multiplicity)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _bigomega_local, _tau_local
+ * Validated: standard, pass, 96 terms through n = 9629 (2026-11-01)
+ * Helpers:   bigomega, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/_bigomega_local.h"
-#include "../utils/_tau_local.h"
+#include "../utils/bigomega.h"
+#include "../utils/num_divisors.h"
 
 /* Main sequence function. */
 seq_t a(idx_t n)
 {
-    seq_t omega = _bigomega_local(n);   /* Ω(n) */
+    seq_t omega = bigomega(n);   /* Ω(n) */
     if (omega == 0)                     /* Ω(1) = 0, no divisors */
         return 0;
 
@@ -32,8 +33,8 @@ seq_t a(idx_t n)
     while ((q & 1) == 0)
         q >>= 1;
 
-    uint64_t tau_om  = _tau_local(om);
-    uint64_t tau_q   = _tau_local(q);
+    uint64_t tau_om  = num_divisors(om);
+    uint64_t tau_q   = num_divisors(q);
 
     /* Even divisors = total divisors – odd divisors. */
     seq_t result = (seq_t)(tau_om - tau_q);

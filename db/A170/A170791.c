@@ -7,6 +7,7 @@
  * Formula:   a(n) = n^9*(n^9 + 1)/2
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 3, u64 n <= 12, u128 n <= 143,
  *            big any n
+ * Validated: standard, pass, 30 terms through n = 9704 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

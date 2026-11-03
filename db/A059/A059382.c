@@ -7,7 +7,8 @@
  * Formula:   a(n) = ∏_{i=1..n} J_3(i) where J_3(i) = i^3 ∏_{p|i} (1 - 1/p^3)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 9, u128 n <= 15,
  *            big any n
- * Helpers:   _build_spf
+ * Validated: standard, pass, 30 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,22 @@
  * libraries are used. */
 
 #include <stdlib.h>   /* malloc, calloc, realloc, free */
-#include "../utils/_build_spf.h"
+#include "../utils/mem.h"
+
+/* Build a smallest‑prime‑factor table up to “limit”. */
+static void _build_spf(idx_t limit, idx_t *spf)
+{
+    for (idx_t i = 2; i <= limit; ++i) spf[i] = 0;
+    for (idx_t i = 2; i <= limit; ++i) {
+        if (spf[i] == 0) {            /* i is prime */
+            spf[i] = i;
+            if (i * i <= limit) {
+                for (idx_t j = i * i; j <= limit; j += i)
+                    if (spf[j] == 0) spf[j] = i;
+            }
+        }
+    }
+}
 
 static idx_t _spf_limit = 0;
 static idx_t *_spf = NULL;           /* _spf[0] unused, _spf[1] = 0    */
@@ -48,7 +64,7 @@ static void _ensure_cache(idx_t n)
 {
     if (n + 1 <= _cache_cap) return;
     idx_t new_cap = (n + 1) * 2;
-    seq_t *tmp = (seq_t *)realloc(_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, _cache, new_cap);
     if (!tmp) return;                   /* allocation failed – keep old */
     _cache = tmp;
     _cache_cap = new_cap;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 60, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 962 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Definition of arbitrary length big integer in base 1e9 */
 #define BASE 1000000000ull
@@ -86,7 +88,7 @@ seq_t a(idx_t n)
     /* Lazy initialization on first call */
     if (cache_len == 0)
     {
-        cache = (seq_t*)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) abort();
         cache_len = 1;
         cache[0] = 1;                /* 8^0 = 1 -> digit sum 1 */
@@ -103,7 +105,7 @@ seq_t a(idx_t n)
     {
         /* Allocate larger cache to hold up to n */
         size_t new_len = n + 1;
-        seq_t *new_cache = (seq_t*)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_len);
         if (!new_cache) abort();
         cache = new_cache;
 

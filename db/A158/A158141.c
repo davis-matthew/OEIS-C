@@ -9,13 +9,15 @@
  *            the number of integer partitions of n into exactly k parts
  * Range:     u8 n <= 8, u16 n <= 30, u32 n <= 305, u64 n <= 787,
  *            u128 n <= 787, big any n
- * Helpers:   none
+ * Validated: standard, pass, 56 terms through n = 785 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --------- Local static data for the partition table ---------- */
 static seq_t *partition_table = NULL;      /* 1‑dim array: (n+1)*(7+1) */
@@ -33,7 +35,7 @@ static void ensure_partitions(idx_t n)
 
     seq_t *new_table;
     if (partition_table == NULL) {
-        new_table = (seq_t *)malloc(new_size * sizeof(seq_t));
+        new_table = mem_new(seq_t, new_size);
         if (!new_table) return;
         /* initialise all values to zero */
         for (size_t i = 0; i < new_size; ++i) new_table[i] = 0;
@@ -41,7 +43,7 @@ static void ensure_partitions(idx_t n)
         new_table[0] = 1;
     } else {
         size_t old_size = (size_t)(partition_nmax + 1) * ROWS;
-        new_table = (seq_t *)realloc(partition_table, new_size * sizeof(seq_t));
+        new_table = mem_resize(seq_t, partition_table, new_size);
         if (!new_table) return;
         /* zero the new part of the array */
         for (size_t i = old_size; i < new_size; ++i) new_table[i] = 0;

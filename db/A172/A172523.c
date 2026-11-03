@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 17, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   is_holey_prime
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,18 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_holey_prime.h"
+#include "../utils/mem.h"
+
+/* true iff all decimal digits of p are in {0,4,6,8,9}                      */
+static inline bool is_holey_prime(uint64_t p) {
+    while (p > 0) {
+        uint8_t d = (uint8_t)(p % 10);
+        if (d==1 || d==2 || d==3 || d==5 || d==7)
+            return false;
+        p /= 10;
+    }
+    return true;
+}
 
 /* --------------------------------------------------------------------- */
 /*                           static state                                 */
@@ -73,7 +85,7 @@ static void init(void) {
 
     /* cumulative sums – 0 is a sentinel so a(0) would be 0            */
     cumsum_cap  = 64;
-    cumsum      = (seq_t*)malloc(cumsum_cap * sizeof(seq_t));
+    cumsum      = mem_new(seq_t, cumsum_cap);
     cumsum[0]   = 0;
     cumsum_cnt  = 0;
     current_sum = 0;
@@ -116,8 +128,7 @@ seq_t a(idx_t n) {
             /* ensure enough space for the new entry                 */
             if ((size_t)(cumsum_cnt + 1) >= cumsum_cap) {
                 cumsum_cap <<= 1;
-                cumsum = (seq_t*)realloc(cumsum,
-                                         cumsum_cap * sizeof(seq_t));
+                cumsum = mem_resize(seq_t, cumsum, cumsum_cap);
             }
             cumsum[++cumsum_cnt] = current_sum;
         }

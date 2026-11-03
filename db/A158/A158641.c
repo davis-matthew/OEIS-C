@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 16, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* maximum prime value needed for the search */
 #define SIEVE_LIMIT 120000
@@ -115,7 +117,7 @@ static void init_sequence(void)
     uint64_t pow10[6] = {1,10,100,1000,10000,100000};
 
     /* allocate space for strong primes (max 8325 for 120k limit) */
-    strong_primes = (seq_t *)malloc(MAX_PRIMES * sizeof(seq_t));
+    strong_primes = mem_new(seq_t, MAX_PRIMES);
     strong_cnt = 0;
 
     for (size_t i = 0; i < global_prime_cnt; ++i) {
@@ -132,8 +134,7 @@ static void init_sequence(void)
         if (ok) {
             if (strong_cnt == MAX_PRIMES) {
                 /* should never happen for this sequence */
-                strong_primes = (seq_t *)realloc(strong_primes,
-                                                 strong_cnt * 2 * sizeof(seq_t));
+                strong_primes = mem_resize(seq_t, strong_primes, strong_cnt * 2);
             }
             strong_primes[strong_cnt++] = (seq_t)p;
         }

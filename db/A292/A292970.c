@@ -7,12 +7,15 @@
  * Formula:   a(n) = n! * Sum_{k=0..⌊n/5⌋} (-k)^(n-5k)/(k! * (n-5k)!)
  * Range:     i8 n <= 5, i16 n <= 9, i32 n <= 12, i64 n <= 21, i128 n <= 34,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 39 terms through n = 443 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -49,7 +52,7 @@ seq_t a(idx_t n)
 
         /* Compute the power (-k)^(n-5k). */
         idx_t m = n - 5 * k;
-        seq_t power = big_pow((seq_t)(- (seq_t)k), (seq_t)m);
+        seq_t power = ipow((seq_t)(- (seq_t)k), (seq_t)m);
 
         /* Add the current term to the sum. */
         seq_t term = bin * ratio * power;

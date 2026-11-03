@@ -7,12 +7,14 @@
  * Formula:   a(n) = number of partitions of n into parts 3, 4, 6, and 8
  * Range:     u8 n <= 83, u16 n <= 597, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 1000 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache of computed values */
 static seq_t *dp = NULL;        /* dp[i] holds a(i) for 0 <= i < dp_size */
@@ -32,7 +34,7 @@ static void ensure_up_to(idx_t n)
 
     /* Allocate or enlarge the cache */
     idx_t new_size = n + 1;
-    seq_t *tmp = (seq_t *)realloc(dp, (size_t)new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, dp, (size_t)new_size);
     if (!tmp) abort();              /* allocation failure */
     dp = tmp;
 

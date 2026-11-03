@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 128, u16 n <= 2520, u32 n <= 2520, u64 n <= 2520,
  *            u128 n <= 2520, big any n
- * Helpers:   odd_factorial_digit_sum
+ * Validated: standard, pass, 79 terms through n = 2501 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,23 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/odd_factorial_digit_sum.h"
+#include "../utils/mem.h"
+
+/* Check whether the factorial‑base digits of x sum to an odd number */
+static bool odd_factorial_digit_sum(seq_t x)
+{
+    seq_t tmp = x;
+    unsigned sum = 0;
+    seq_t base = 2;   /* first division base (for 1!) */
+
+    while (tmp > 0) {
+        seq_t digit = tmp % base;
+        sum ^= (unsigned)(digit & 1);
+        tmp /= base;
+        base++;
+    }
+    return sum != 0;
+}
 
 /* Cache for already computed terms */
 static seq_t *cache   = NULL;  /* array of results a(1)…a(cache_len) */
@@ -39,7 +56,7 @@ static seq_t next_k = 1;
 static void grow_cache(void)
 {
     size_t new_cap = (cache_cap == 0) ? 64 : cache_cap << 1;
-    seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
     cache = new_ptr;
     cache_cap = new_cap;
 }

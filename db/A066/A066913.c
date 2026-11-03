@@ -8,7 +8,8 @@
  *            A066913)
  * Range:     u8 n <= 43, u16 n <= 965, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 95 terms through n = 988 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- prime list handling ------------------------------------- */
 static idx_t   _prime_max_generated = 0;  /* largest number checked for primes */
@@ -69,7 +71,7 @@ static idx_t   _cache_len = 0;     /* highest index stored in cache */
 /* Grow the cache array to the requested capacity */
 static void _grow_cache(size_t new_cap)
 {
-    seq_t *tmp = (seq_t *)realloc(_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, _cache, new_cap);
     if (!tmp) abort();
     _cache = tmp;
     _cache_cap = new_cap;

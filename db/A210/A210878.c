@@ -11,13 +11,15 @@
  *            v(n,x)=(x+1)*u(n-1,x)+x*v(n-1,x)+1
  * Range:     u8 n <= 26, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper: find the triangle row r such that r*(r+1)/2 >= n. */
 static idx_t _row_of(idx_t n)
@@ -64,8 +66,8 @@ static void _ensure_rows(idx_t r)
     for (idx_t i = _max_row + 1; i <= r; ++i) {
         _ensure_capacity(i);
 
-        seq_t *u_i = (seq_t *)malloc(sizeof(seq_t) * i);
-        seq_t *v_i = (seq_t *)malloc(sizeof(seq_t) * i);
+        seq_t *u_i = mem_new(seq_t, i);
+        seq_t *v_i = mem_new(seq_t, i);
         if (!u_i || !v_i) {
             /* Handle allocation failure (not required by spec). */
             exit(1);

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 73, u16 n <= 8080, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   popcnt128
+ * Validated: standard, pass, 77 terms through n = 8604 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,17 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/popcnt128.h"
+
+/* Count the number of set bits in a 128‑bit unsigned integer. */
+static size_t popcnt128(unsigned __int128 x)
+{
+    size_t c = 0;
+    while (x) {
+        x &= (x - 1);
+        ++c;
+    }
+    return c;
+}
 
 /* Main sequence function. */
 seq_t a(idx_t n)

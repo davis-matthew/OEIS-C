@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 402, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64
+ * Validated: standard, pass, 105 terms through n = 9376 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* cache of already computed a(n) values */
 static seq_t *cache = NULL;
@@ -38,7 +40,7 @@ static void ensure_cache_capacity(void)
 {
     if (cache_len < cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap << 1 : 8U;
-    seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
     if (!new_ptr) exit(1);
     cache = new_ptr;
     cache_cap = new_cap;

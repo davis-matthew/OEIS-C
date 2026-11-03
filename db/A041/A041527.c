@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 23, u64 n <= 43, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #ifndef SEQ_T_DEFINED
 /* The build system provides typedefs: seq_t and idx_t */
 #endif
+#include "../utils/mem.h"
 
 /* Cached values of the sequence. */
 static seq_t *cache = NULL;
@@ -41,7 +43,7 @@ static void ensure_cache(idx_t n)
     if (cache == NULL) {
         /* Start with at least 12 elements (size of init_vals) */
         cache_cap = need > 12 ? need : 12;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) abort();         /* allocation failed */
         for (size_t i = 0; i < 12; ++i)
             cache[i] = init_vals[i];
@@ -49,7 +51,7 @@ static void ensure_cache(idx_t n)
     } else if (need > cache_cap) {
         /* Grow capacity (double until enough) */
         while (cache_cap < need) cache_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
         if (tmp == NULL) abort();            /* reallocation failed */
         cache = tmp;
         /* new elements are uninitialized; they will be filled later */

@@ -9,14 +9,24 @@
  *            where T(n,k) = (k^4 mod n) + (n^4 mod k), with 1 ≤ k ≤ n
  * Range:     u8 n <= 5050, u16 n <= 5050, u32 n <= 5050, u64 n <= 5050,
  *            u128 n <= 5050, big any n
- * Helpers:   mod_pow4
+ * Validated: standard, pass, 98 terms through n = 4732 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mod_pow4.h"
+
+/* compute x^4 mod m using 128‑bit arithmetic for safety */
+static seq_t mod_pow4(idx_t x, idx_t m)
+{
+    if (m == 0) return 0;          /* avoid division by zero */
+    idx_t xm = x % m;
+    idx_t x2 = (idx_t)(((__int128)xm * xm) % m);
+    idx_t x4 = (idx_t)(((__int128)x2 * x2) % m);
+    return (seq_t)x4;
+}
 
 /* find the row r such that (r-1)*r/2 < n ≤ r*(r+1)/2 */
 static idx_t row_of(idx_t n)

@@ -9,15 +9,16 @@
  *            T(n,k)=k^3*2^k*binomial(2n-k,n-k)/(2n-k) read by rows
  * Range:     u8 n <= 9, u16 n <= 38, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   binomial, gcd_any, pow2
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-01)
+ * Helpers:   binomial, gcd, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include "../utils/binomial.h"
+#include "../utils/gcd.h"
 #include "../utils/pow2.h"
-#include "../utils/gcd_any.h"
 
 seq_t a(idx_t n)
 {
@@ -51,19 +52,19 @@ seq_t a(idx_t n)
 
     /* Reduce the denominator by common factors with the multipliers
        to keep intermediate values within bounds. */
-    seq_t g = gcd_any(k3, denom);
+    seq_t g = gcd(k3, denom);
     if (g != (seq_t)1u) {
         k3 /= g;
         denom /= g;
     }
 
-    g = gcd_any(two_pow, denom);
+    g = gcd(two_pow, denom);
     if (g != (seq_t)1u) {
         two_pow /= g;
         denom /= g;
     }
 
-    g = gcd_any(B, denom);
+    g = gcd(B, denom);
     if (g != (seq_t)1u) {
         B /= g;
         denom /= g;

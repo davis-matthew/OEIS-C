@@ -10,6 +10,7 @@
  *            a(5) = 1598, a(6) = 4027, a(7) = 10110 (OEIS A260241)
  * Range:     u8 n <= 2, u16 n <= 9, u32 n <= 21, u64 n <= 45, u128 n <= 93,
  *            big any n
+ * Validated: standard, pass, 41 terms through n = 195 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

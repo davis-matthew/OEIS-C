@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 135, u16 n <= 135, u32 n <= 135, u64 n <= 135,
  *            u128 n <= 135, big any n
- * Helpers:   none
+ * Validated: partial, pass, 135 terms through n = 135 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    The values are memoised and the array is grown on demand. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
 
     /* Allocate or grow the cache to accommodate the required index. */
     if (n + 1 > cache_size) {
-        seq_t *new_cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
         if (!new_cache)  /* Out of memory – abort. */
             abort();
 

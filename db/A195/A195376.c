@@ -7,7 +7,8 @@
  * Formula:   a(n) = A064413(n) mod 2 (parity of the EKG sequence)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 9959 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /*  static state -------------------------------------------------------- */
@@ -33,9 +35,9 @@ static void ensure_parity_cap(idx_t n)
     if (n > parity_cap) {
         idx_t new_cap = (parity_cap << 1) ? parity_cap << 1 : 64;
         if (new_cap < n) new_cap = n;
-        seq_t *new_arr = (seq_t *)realloc(parity, (new_cap + 1) * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, parity, (new_cap + 1));
         if (!new_arr) exit(EXIT_FAILURE);
-        memset(new_arr + parity_cap + 1, 0, (new_cap - parity_cap) * sizeof(seq_t));
+        mem_set(new_arr + parity_cap + 1, 0, (new_cap - parity_cap) * sizeof(seq_t));
         parity = new_arr;
         parity_cap = new_cap;
     }
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
     /* first‑time initialization */
     if (parity == NULL) {
         parity_cap = 2;
-        parity     = (seq_t *)calloc(parity_cap + 1, sizeof(seq_t));
+        parity     = mem_new(seq_t, parity_cap + 1);
         if (!parity) exit(EXIT_FAILURE);
         parity[1] = 1;                       /* A064413(1) = 1 (odd)   */
         parity[2] = 0;                       /* A064413(2) = 2 (even)  */

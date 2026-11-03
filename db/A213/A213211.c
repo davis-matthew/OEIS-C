@@ -13,7 +13,8 @@
  *            triangular array T(r,k) with T(n,k) = C(k + floor((n - k)/3), k)
  *            by rows)
  * Range:     u8 n <= 196, u16 n <= 607, u32 n <= 2104, u64 n <= 7673,
- *            u128 n <= 9558, big any n
+ *            u128 n <= 10010, big any n
+ * Validated: standard, pass, 107 terms through n = 9558 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

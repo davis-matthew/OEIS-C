@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 35, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   ensure_capacity, is_prime
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,12 +19,22 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/is_prime.h"   /* declares bool is_prime(uint64_t); */
-#include "../utils/ensure_capacity.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+/* Grow an array of seq_t elements to at least min_cap elements. */
+static void ensure_capacity(size_t min_cap, seq_t **arr, size_t *cap)
+{
+    if (min_cap <= *cap) return;
+    size_t new_cap = (*cap) ? (*cap) * 2 : 1024;
+    if (new_cap < min_cap) new_cap = min_cap;
+    *arr = mem_resize(seq_t, *arr, new_cap);
+    *cap = new_cap;
+}
 
 /* External function to test 64‑bit primality.
    Provided by the utilities: bool is_prime(uint64_t n); */
-extern bool is_prime(uint64_t);
+extern bool is_prime_u64(uint64_t);
 
 /* Sequence generator. */
 seq_t a(idx_t n)
@@ -43,7 +54,7 @@ seq_t a(idx_t n)
             uint64_t k = (uint64_t)next_k;               /* Safe cast; k stays < 2^64. */
             uint64_t N = k * 100000ULL + 11111ULL;       /* N fits in 64‑bit. */
 
-            if (is_prime(N)) {
+            if (is_prime_u64(N)) {
                 /* Add this k to the array. */
                 ensure_capacity(vals_len + 1, &vals, &vals_cap);
                 vals[vals_len++] = (seq_t)next_k;

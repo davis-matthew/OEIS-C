@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 15, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_sqrt_seq
+ * Validated: standard, pass, 87 terms through n = 7948 (2026-11-01)
+ * Helpers:   isqrt_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,8 @@
  *  thousand this is far below two seconds.
  */
 
-#include "../utils/floor_sqrt_seq.h"
+#include <stdint.h>
+#include "../utils/isqrt_seq.h"
 
 /* compute a(n) */
 seq_t a(idx_t n)
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
         seq_t D = one + four * (seq_t)t * temp;
 
         /* s = floor(sqrt(D))  */
-        seq_t s = floor_sqrt_seq(D);
+        seq_t s = isqrt_seq(D);
 
         /* check for perfect square */
         if (s * s == D)

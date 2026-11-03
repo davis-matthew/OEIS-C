@@ -11,13 +11,15 @@
  *            increasing complementary sequences
  * Range:     u8 n <= 5, u16 n <= 16, u32 n <= 39, u64 n <= 85, u128 n <= 177,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 841 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* binary search for a seq_t in a sorted array */
 static bool seq_contains(const seq_t *arr, size_t len, seq_t val)
@@ -45,8 +47,8 @@ seq_t a(idx_t n)
     if (!init) {
         Acap = 8;          /* initial capacity for A */
         Bcap = 8;          /* initial capacity for B */
-        A = (seq_t *)malloc(Acap * sizeof(seq_t));
-        B = (seq_t *)malloc(Bcap * sizeof(seq_t));
+        A = mem_new(seq_t, Acap);
+        B = mem_new(seq_t, Bcap);
         if (!A || !B) return (seq_t)0;   /* allocation failure */
 
         /* seed the known initial terms */
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
 
             if (Blen >= Bcap) {
                 size_t new_cap = Bcap ? Bcap << 1 : 8;
-                seq_t *tmp = (seq_t *)realloc(B, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, B, new_cap);
                 if (!tmp) return (seq_t)0;
                 B = tmp;
                 Bcap = new_cap;
@@ -83,7 +85,7 @@ seq_t a(idx_t n)
 
         if (Alen >= Acap) {
             size_t new_cap = Acap ? Acap << 1 : 8;
-            seq_t *tmp = (seq_t *)realloc(A, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, A, new_cap);
             if (!tmp) return (seq_t)0;
             A = tmp;
             Acap = new_cap;

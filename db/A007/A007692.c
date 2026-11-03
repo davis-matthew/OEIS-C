@@ -8,7 +8,8 @@
  *            nonzero squares in 2+ ways
  * Range:     u8 n <= 12, u16 n <= 7014, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a000037_isqrt
+ * Validated: standard, pass, 70 terms through n = 8600 (2026-11-03)
+ * Helpers:   isqrt_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,15 +17,15 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/a000037_isqrt.h"
-
+#include "../utils/isqrt_u64.h"
+#include "../utils/mem.h"
 
 static int count_representations(uint64_t k) {
     int count = 0;
     
     for (uint64_t a = 1; 2 * a * a <= k; a++) {
         uint64_t b_sq = k - a * a;
-        uint64_t b = a000037_isqrt(b_sq);
+        uint64_t b = isqrt_u64(b_sq);
         
         if (b >= a && b * b == b_sq) {
             count++;
@@ -46,7 +47,7 @@ seq_t a(idx_t n) {
     
     if (terms == NULL) {
         capacity = 128;
-        terms = (seq_t *)malloc(capacity * sizeof(seq_t));
+        terms = mem_new(seq_t, capacity);
         computed = 0;
         next_candidate = 2;
     }
@@ -55,11 +56,11 @@ seq_t a(idx_t n) {
         if (count_representations(next_candidate) >= 2) {
             if (computed >= capacity) {
                 capacity *= 2;
-                seq_t *new_terms = (seq_t *)malloc(capacity * sizeof(seq_t));
+                seq_t *new_terms = mem_new(seq_t, capacity);
                 for (idx_t i = 0; i < computed; i++) {
                     new_terms[i] = terms[i];
                 }
-                free(terms);
+                mem_free(terms);
                 terms = new_terms;
             }
             terms[computed] = (seq_t)next_candidate;

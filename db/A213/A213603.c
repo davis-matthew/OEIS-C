@@ -13,17 +13,64 @@
  *            path length (sum of weight × depth). Then a(n) =...
  * Range:     u8 n <= 11, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   gcd, heap_pop, heap_push, heapify_down, heapify_up
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/heap_pop.h"
-#include "../utils/heap_push.h"
-#include "../utils/heapify_down.h"
-#include "../utils/heapify_up.h"
+#include "../utils/mem.h"
+
+static void heapify_down(seq_t *heap, size_t size, size_t idx)
+{
+    while (1) {
+        size_t left  = idx * 2 + 1;
+        size_t right = left + 1;
+        size_t smallest = idx;
+        if (left < size && heap[left] < heap[smallest])
+            smallest = left;
+        if (right < size && heap[right] < heap[smallest])
+            smallest = right;
+        if (smallest == idx)
+            break;
+        seq_t tmp = heap[idx];
+        heap[idx] = heap[smallest];
+        heap[smallest] = tmp;
+        idx = smallest;
+    }
+}
+
+static seq_t heap_pop(seq_t *heap, size_t *size)
+{
+    seq_t ret = heap[0];
+    heap[0] = heap[--(*size)];
+    if (*size > 0)
+        heapify_down(heap, *size, 0);
+    return ret;
+}
+
+static void heapify_up(seq_t *heap, size_t size, size_t idx)
+{
+    while (idx > 0) {
+        size_t parent = (idx - 1) >> 1;
+        if (heap[parent] <= heap[idx])
+            break;
+        seq_t tmp = heap[parent];
+        heap[parent] = heap[idx];
+        heap[idx] = tmp;
+        idx = parent;
+    }
+}
+
+static void heap_push(seq_t *heap, size_t *size, seq_t val)
+{
+    heap[*size] = val;
+    heapify_up(heap, *size, *size);
+    ++(*size);
+}
 
 seq_t a(idx_t n)
 {
@@ -31,7 +78,7 @@ seq_t a(idx_t n)
         return 1;                /* by convention, same as a(1) */
 
     /* Allocate heap with capacity n (enough to hold all items). */
-    seq_t *heap = (seq_t *)malloc((size_t)n * sizeof(seq_t));
+    seq_t *heap = mem_new(seq_t, (size_t)n);
     if (heap == NULL)
         return 0;                /* out of memory */
 
@@ -56,7 +103,7 @@ seq_t a(idx_t n)
         heap_push(heap, &hsize, s);
     }
 
-    free(heap);
+    mem_free(heap);
 
     seq_t total = (seq_t)n * ((seq_t)n + 1) / 2;
     seq_t g = gcd(cost, total);

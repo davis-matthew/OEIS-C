@@ -7,7 +7,8 @@
  * Formula:   a(n) = number of partitions of n into 9 distinct nonzero squares
  * Range:     u8 none, u16 n <= 3428, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 116 terms through n = 3993 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Integer square root – integer part of sqrt(n) */
 static idx_t _isqrt_u64(idx_t n)
@@ -45,13 +47,13 @@ static void _ensure_dp(idx_t max_n)
 
     /* free old tables */
     for (int k = 0; k < 10; ++k) {
-        if (dp[k]) free(dp[k]);
+        if (dp[k]) mem_free(dp[k]);
         dp[k] = NULL;
     }
 
     /* allocate new tables – cast needed for C++ */
     for (int k = 0; k < 10; ++k) {
-        dp[k] = (seq_t *)calloc((size_t)(max_n + 1), sizeof(seq_t));
+        dp[k] = mem_new(seq_t, (size_t)(max_n + 1));
         if (!dp[k]) abort(); /* memory error */
     }
 

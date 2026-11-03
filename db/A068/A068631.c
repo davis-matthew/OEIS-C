@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* a(n) = smallest unused composite making the sum composite. */
 seq_t a(idx_t n) {
@@ -46,7 +48,7 @@ seq_t a(idx_t n) {
     /* Ensure sequence storage is ready. */
     if (seq_len == 0) {
         seq_cap = 256;
-        seq = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         if (!seq) exit(1);           /* abort if allocation fails */
 
         /* initialise sieve */
@@ -131,7 +133,7 @@ seq_t a(idx_t n) {
                 /* extend seq array if needed */
                 if (seq_len == seq_cap) {
                     seq_cap *= 2;
-                    seq = (seq_t*)realloc(seq, seq_cap * sizeof(seq_t));
+                    seq = mem_resize(seq_t, seq, seq_cap);
                     if (!seq) exit(1);
                 }
                 seq[seq_len++] = (seq_t)cand;

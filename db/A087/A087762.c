@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 948, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   reverse_num
+ * Validated: standard, pass, 64 terms through n = 9620 (2026-11-03)
+ * Helpers:   mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/reverse_num.h"
+#include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static state, initialized on first call */
@@ -53,28 +55,28 @@ seq_t a(idx_t n) {
         }
         /* collect primes into dynamic array */
         primes_cap = 1 << 10;
-        primes = (seq_t *)malloc(primes_cap * sizeof(seq_t));
+        primes = mem_new(seq_t, primes_cap);
         primes_cnt = 0;
         for (size_t i = 2; i <= LIMIT; ++i) {
             if (sieve[i]) {
                 if (primes_cnt == primes_cap) {
                     primes_cap <<= 1;
-                    primes = (seq_t *)realloc(primes, primes_cap * sizeof(seq_t));
+                    primes = mem_resize(seq_t, primes, primes_cap);
                 }
                 primes[primes_cnt++] = (seq_t)i;
             }
         }
         /* collect qualifying primes into results array */
         results_cap = 1 << 10;
-        results = (seq_t *)malloc(results_cap * sizeof(seq_t));
+        results = mem_new(seq_t, results_cap);
         results_cnt = 0;
         for (size_t i = 0; i < primes_cnt; ++i) {
             seq_t p = primes[i];
-            seq_t r = reverse_num(p);
+            seq_t r = reverse_digits(p);
             if (r % 7 == 0) {
                 if (results_cnt == results_cap) {
                     results_cap <<= 1;
-                    results = (seq_t *)realloc(results, results_cap * sizeof(seq_t));
+                    results = mem_resize(seq_t, results, results_cap);
                 }
                 results[results_cnt++] = p;
             }

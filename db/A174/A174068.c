@@ -12,12 +12,14 @@
  *            is the partition number (OEIS A000041). The implementa...
  * Range:     u8 n <= 20, u16 n <= 54, u32 n <= 163, u64 n <= 540,
  *            u128 n <= 1911, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 8953 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Grow a dynamic array of seq_t elements to hold at least 'needed' entries. */
 static void
@@ -28,7 +30,7 @@ ensure_capacity(seq_t **arr, size_t *cap, size_t needed)
     size_t new_cap = (*cap == 0) ? needed + 1 : (*cap << 1);
     if (new_cap < needed + 1)
         new_cap = needed + 1;
-    *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, new_cap);
     if (!*arr) abort();
     *cap = new_cap;
 }

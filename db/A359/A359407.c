@@ -10,7 +10,8 @@
  *            a(n) for n ≥ 1
  * Range:     i8 n <= 13, i16 n <= 25, i32 n <= 45, i64 n <= 87, i128 n <= 169,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 934 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    intermediate values small and uses only the allowed operators. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;   /* stored a(n) values, 1‑indexed */
 static idx_t cache_max  = 0;      /* highest n for which seq_cache is valid */
@@ -30,9 +32,9 @@ static idx_t cache_max  = 0;      /* highest n for which seq_cache is valid */
    Execution time is O(max_n^2). */
 static void recompute(idx_t max_n)
 {
-    seq_t *f = (seq_t *)calloc((size_t)(max_n + 1), sizeof(seq_t));
+    seq_t *f = mem_new(seq_t, (size_t)(max_n + 1));
     if (!f) abort();
-    seq_t *new_cache = (seq_t *)calloc((size_t)(max_n + 1), sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, (size_t)(max_n + 1));
     if (!new_cache) abort();
 
     f[0] = 1;                         /* coefficient of x^0 */
@@ -50,10 +52,10 @@ static void recompute(idx_t max_n)
     }
 
     /* replace old cache */
-    if (seq_cache) free(seq_cache);
+    if (seq_cache) mem_free(seq_cache);
     seq_cache = new_cache;
     cache_max  = max_n;
-    free(f);
+    mem_free(f);
 }
 
 seq_t a(idx_t n)

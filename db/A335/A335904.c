@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 9286, u16 n <= 9286, u32 n <= 9286, u64 n <= 9286,
- *            u128 n <= 9286, big any n
- * Helpers:   factor_u64, is_prime
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9286 (2026-11-03)
+ * Helpers:   factor_u64, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,10 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *a_cache      = NULL;   /* memoised values */
 static uint8_t *a_done     = NULL;   /* 0 = unset, 1 = set */
@@ -38,7 +41,7 @@ ensure_cache(idx_t n)
     size_t needed = (size_t)n + 1;
     if (needed > a_cache_size) {
         size_t new_size = needed * 2 + 10;
-        a_cache = (seq_t *)realloc(a_cache, new_size * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_size);
         a_done  = (uint8_t *)realloc(a_done,  new_size * sizeof(uint8_t));
         for (size_t i = a_cache_size; i < new_size; ++i) a_done[i] = 0;
         a_cache_size = new_size;

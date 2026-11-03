@@ -13,7 +13,8 @@
  *            them. It remembers previously found queens * so that...
  * Range:     u8 n <= 11, u16 n <= 171, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 9504 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* choose a limit that comfortably covers the board indices that
  * are needed for n up to about 10000.  The arrays store 0/1
@@ -90,7 +92,7 @@ static void extend_results(idx_t n)
             /* Grow the result array if necessary. */
             if (res_len >= res_cap) {
                 size_t newcap = res_cap ? res_cap * 2 : 8;
-                seq_t *tmp = (seq_t *)realloc(results, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, results, newcap);
                 if (!tmp)
                     abort();  /* out of memory */
                 results = tmp;

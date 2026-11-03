@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 42, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_zero_digits
+ * Validated: standard, pass, 65 terms through n = 9889 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,23 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/count_zero_digits.h"
+
+/* Helper: counts the zero digits of a non‑negative integer.  */
+static idx_t count_zero_digits(idx_t v)
+{
+    idx_t zeros = 0;
+    /* Special case: the number 0 has one zero digit. */
+    if (v == 0) {
+        return 1;
+    }
+    while (v > 0) {
+        if ((v % 10) == 0) {
+            ++zeros;
+        }
+        v /= 10;
+    }
+    return zeros;
+}
 
 seq_t a(idx_t n)
 {

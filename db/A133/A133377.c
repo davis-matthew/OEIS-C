@@ -9,7 +9,8 @@
  *            hex(n) equals reverse(decimal(n))
  * Range:     u8 none, u16 none, u32 n <= 14, u64 n <= 14, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 14 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_len = 0;
@@ -32,7 +34,7 @@ static void init_cache(void)
     const idx_t LIMIT = 200000;
 
     size_t capacity = 64;
-    cache = (seq_t *)malloc(sizeof(seq_t) * capacity);
+    cache = mem_new(seq_t, capacity);
     if (!cache) return; /* allocation failure – we simply give up */
 
     cache_len = 0;
@@ -46,7 +48,7 @@ static void init_cache(void)
         if (tmp == 0) {          /* zero is a valid term */
             if (cache_len == capacity) {
                 capacity <<= 1;
-                cache = (seq_t *)realloc(cache, sizeof(seq_t) * capacity);
+                cache = mem_resize(seq_t, cache, capacity);
             }
             cache[cache_len++] = n;
             continue;
@@ -83,7 +85,7 @@ static void init_cache(void)
 
         if (cache_len == capacity) {
             capacity <<= 1;
-            cache = (seq_t *)realloc(cache, sizeof(seq_t) * capacity);
+            cache = mem_resize(seq_t, cache, capacity);
         }
         cache[cache_len++] = n;
     }

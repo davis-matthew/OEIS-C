@@ -11,14 +11,17 @@
  *            overall
  * Range:     u8 n <= 7, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/is_prime_small.h"
+#include <stdbool.h>
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;            /* behaviour below offset is irrelevant */
@@ -36,17 +39,17 @@ seq_t a(idx_t n) {
     if (cache_len < (size_t)n) {
         if (cache_cap == 0) {
             cache_cap = 16;
-            cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+            cache = mem_new(seq_t, cache_cap);
         } else if (cache_len >= cache_cap) {
             cache_cap *= 2;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
 
         /* continue searching for cousin primes until cache has n terms */
         while (cache_len < (size_t)n) {
             /* Only odd candidates are possible primes > 2 */
-            if (is_prime_small((seq_t)candidate) &&
-                is_prime_small((seq_t)(candidate + 4))) {
+            if (is_prime_seq((seq_t)candidate) &&
+                is_prime_seq((seq_t)(candidate + 4))) {
                 sum += (seq_t)candidate;
                 cache[cache_len++] = sum;
             }

@@ -7,14 +7,15 @@
  * Formula:   a(n) = numerator of Laguerre(n, -10)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 35,
  *            big any n
- * Helpers:   seq_gcd
+ * Validated: standard, pass, 35 terms through n = 493 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/seq_gcd.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +37,7 @@ seq_t a(idx_t n)
         seq_t t2_den = den_prev2;           /* denominator part of second term */
 
         /* Compute lcm of denominators to subtract safely */
-        seq_t g = seq_gcd(t1_den, t2_den);
+        seq_t g = gcd(t1_den, t2_den);
         seq_t lcm_den = (t1_den / g) * t2_den;   /* lcm(t1_den, t2_den) */
 
         seq_t factor1 = lcm_den / t1_den;      /* corresponds to t2_den / g */
@@ -46,7 +47,7 @@ seq_t a(idx_t n)
         seq_t new_den = lcm_den * (seq_t)i;    /* divide by i at the end */
 
         /* Reduce the fraction to keep numbers small */
-        seq_t g2 = seq_gcd(new_num, new_den);
+        seq_t g2 = gcd(new_num, new_den);
         new_num /= g2;
         new_den /= g2;
 

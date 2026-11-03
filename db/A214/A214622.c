@@ -13,14 +13,17 @@
  *            derived from the generating function of the sequence
  * Range:     i8 n <= 14, i16 n <= 35, i32 n <= 54, i64 n <= 54, i128 n <= 54,
  *            big any n
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Includes for the utility functions that we use */
-#include "../utils/binomial.h"   /* binomial(idx_t a, idx_t b) -> seq_t */
-#include "../utils/pow2.h"       /* pow2(idx_t exp) -> seq_t */
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/pow2.h"
 
 /* Maximum number of rows we pre‑compute (sufficient for n up to about 10000). */
 #define MAX_ROWS 20000

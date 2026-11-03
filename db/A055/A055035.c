@@ -7,6 +7,7 @@
  * Formula:   a(1)=1, a(2)=1; for n>2, a(n)=phi(n)/(1 if n%4!=2 else 2)
  * Range:     u8 n <= 175, u16 n <= 175, u32 n <= 175, u64 n <= 175,
  *            u128 n <= 175, big any n
+ * Validated: standard, pass, 89 terms through n = 175 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

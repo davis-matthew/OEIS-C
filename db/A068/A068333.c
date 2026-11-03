@@ -8,6 +8,7 @@
  * Formula:   a(n) = ∏_{k | n, 1 ≤ k ≤ ⌊√n⌋} (n/k − k)
  * Range:     u8 n <= 17, u16 n <= 47, u32 n <= 119, u64 n <= 359,
  *            u128 n <= 1679, big any n
+ * Validated: standard, pass, 70 terms through n = 9672 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

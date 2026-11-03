@@ -10,14 +10,29 @@
  *            -1 to obtain a value of +1
  * Range:     i8 n <= 109, i16 n <= 109, i32 n <= 109, i64 n <= 109,
  *            i128 n <= 109, big any n
- * Helpers:   mobius, row_of_index
+ * Validated: partial, pass, 110 terms through n = 109 (2026-11-01)
+ * Helpers:   mobius_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/row_of_index.h"   /* provides idx_t row_of_index(idx_t n);   */
-#include "../utils/mobius.h"        /* provides int mobius(idx_t k);          */
+#include "../utils/mobius_idx.h"
+
+static inline idx_t row_of_index(idx_t n)
+{
+    /* Binary search for the largest r with r*(r+1)/2 <= n. */
+    idx_t low = 0, high = n, mid, tri;
+    idx_t r = 0;
+    while (low <= high)
+    {
+        mid = low + (high - low) / 2;
+        tri = mid * (mid + 1) / 2;
+        if (tri <= n) { r = mid; low = mid + 1; }
+        else           high = mid - 1;
+    }
+    return r;
+}
 
 seq_t a(idx_t n)
 {
@@ -28,5 +43,5 @@ seq_t a(idx_t n)
     if (prod == 0)                       /* μ(0) is treated as -1 */
         return (seq_t)1;
     else
-        return -(seq_t)mobius(prod);     /* -μ(prod) */
+        return -(seq_t)mobius_idx(prod);     /* -μ(prod) */
 }

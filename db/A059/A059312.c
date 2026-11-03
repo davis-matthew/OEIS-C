@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 112, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 54 terms through n = 985 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,11 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <string.h>
+#include <stdbool.h>
 #include "../utils/is_prime.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static seq_t *seq_terms = NULL;      /* array of computed terms */
 static size_t seq_len   = 0;          /* number of terms stored */
@@ -42,13 +46,12 @@ static void ensure_seq(idx_t n)
         if (is_prime((idx_t)cand)) {                     /* is cand prime? */
             /* compute 2^((cand-1)/59) mod cand */
             uint64_t exp = (cand - 1ull) / 59ull;
-            seq_t pow_res = mod_pow((seq_t)2, exp, (seq_t)cand);
+            seq_t pow_res = powmod((seq_t)2, exp, (seq_t)cand);
             if (pow_res != (seq_t)1) {                   /* fails 59‑th power test */
                 /* append to sequence */
                 if (seq_len + 1 > seq_cap) {
                     size_t new_cap = seq_cap == 0 ? 64 : seq_cap * 2;
-                    seq_terms = (seq_t *)realloc(seq_terms,
-                                                 new_cap * sizeof(seq_t));
+                    seq_terms = mem_resize(seq_t, seq_terms, new_cap);
                     seq_cap = new_cap;
                 }
                 seq_terms[seq_len++] = (seq_t)cand;

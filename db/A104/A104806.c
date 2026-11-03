@@ -7,7 +7,8 @@
  * Formula:   a(n) = A000194(A022099(n-1))
  * Range:     u8 n <= 9, u16 n <= 21, u32 n <= 44, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   isqrt
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-01)
+ * Helpers:   isqrt_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 /* Then a(n) = round(√t_n).  Compute the floor of the square root (isqrt)   */
 /* and round up if t_n ≥ (floor_sqrt)² + floor_sqrt + 1. */
 
-#include "../utils/isqrt.h"
+#include "../utils/isqrt_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +36,7 @@ seq_t a(idx_t n)
     }
 
     /* t_cur now holds t_n.  Compute round(√t_n). */
-    seq_t y   = isqrt(t_cur);                 /* floor(√t_n) */
+    seq_t y   = isqrt_seq(t_cur);                 /* floor(√t_n) */
     seq_t y2  = y * y;                        /* y² */
     seq_t lim = y2 + y + (seq_t)1;            /* y² + y + 1 */
     if (t_cur >= lim)

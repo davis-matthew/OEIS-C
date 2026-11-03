@@ -8,11 +8,13 @@
  * Formula:   a(n) = binom(2n+3,5) - 6*binom(n+3,5) (OEIS A179096)
  * Range:     u8 n <= 3, u16 n <= 12, u32 n <= 114, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 48 terms through n = 877 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 /* compute binomial coefficient C(N,5) for N>=0 using safe multiplicative

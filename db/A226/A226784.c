@@ -11,13 +11,15 @@
  *            a(13)=11
  * Range:     u8 n <= 306, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 85 terms through n = 9486 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* External integer types supplied by the build */
 extern seq_t a(idx_t n);   /* declared elsewhere in the build */
@@ -43,9 +45,9 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* Choose a modest power of two that covers the initial base + padding. */
         cache_size = 32;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache) return (seq_t)0;   /* Out of memory; return zero. */
-        memset(cache, 0, cache_size * sizeof(seq_t));
+        mem_set(cache, 0, cache_size * sizeof(seq_t));
 
         /* Copy the known base values. */
         for (idx_t i = 1; i <= base_count; ++i) {
@@ -58,10 +60,10 @@ seq_t a(idx_t n)
     if (n >= cache_size) {
         idx_t newsize = cache_size;
         while (newsize <= n) newsize <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, newsize * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newsize);
         if (!tmp) return (seq_t)0;     /* Allocation failed */
         /* Zero the newly allocated portion. */
-        memset(tmp + cache_size, 0, (newsize - cache_size) * sizeof(seq_t));
+        mem_set(tmp + cache_size, 0, (newsize - cache_size) * sizeof(seq_t));
         cache = tmp;
         cache_size = newsize;
     }

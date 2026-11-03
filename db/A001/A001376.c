@@ -12,7 +12,8 @@
  *            = odd part...
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 2, u64 n <= 3, u128 n <= 4,
  *            big any n
- * Helpers:   r_absorb, r_gcd, r_lcm, r_pow2
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-01)
+ * Helpers:   gcd_u64, pow2_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,10 +21,18 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/r_absorb.h"
-#include "../utils/r_gcd.h"
-#include "../utils/r_lcm.h"
-#include "../utils/r_pow2.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/pow2_u64.h"
+
+/* multiply odd part of f into *odd, add its 2-adic valuation to *v */
+static void r_absorb(uint64_t f, seq_t *odd, uint64_t *v) {
+    while (f > 0 && (f & 1) == 0) { f >>= 1; (*v)++; }
+    *odd *= (seq_t)f;
+}
+
+static uint64_t r_lcm(uint64_t a, uint64_t b) {
+    return a / gcd_u64(a, b) * b;
+}
 
 typedef struct {
     idx_t n;
@@ -49,7 +58,7 @@ static void r_leaf(r_state *st, int k) {
         for (idx_t c = 0; c < st->mult[x]; c++) r_absorb(st->parts[x], &dodd, &v);
         for (idx_t c = 2; c <= st->mult[x]; c++) r_absorb(c, &dodd, &v);
     }
-    seq_t num = r_pow2(2 * e - v);
+    seq_t num = pow2_u64(2 * e - v);
     seq_t q = num / dodd;
     seq_t r = num % dodd;
     st->Q += q;

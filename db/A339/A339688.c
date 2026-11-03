@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{d|n} 8^(d-1)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 22, u128 n <= 43,
  *            big any n
- * Helpers:   factor_u64
+ * Validated: standard, pass, 37 terms through n = 922 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -53,7 +56,7 @@ seq_t a(idx_t n)
     }
 
     /* Pre‑compute powers of 8: pow8[k] = 8^k for k = 0 … maxd-1. */
-    seq_t *pow8 = (seq_t *)malloc(maxd * sizeof(seq_t));
+    seq_t *pow8 = mem_new(seq_t, maxd);
     pow8[0] = (seq_t)1;
     for (idx_t i = 1; i < maxd; ++i) {
         pow8[i] = pow8[i - 1] * (seq_t)8;
@@ -66,6 +69,6 @@ seq_t a(idx_t n)
         sum += pow8[d - 1];
     }
 
-    free(pow8);
+    mem_free(pow8);
     return sum;
 }

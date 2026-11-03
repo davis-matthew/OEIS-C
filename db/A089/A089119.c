@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 198, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 85 terms through n = 8670 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,6 +34,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
         cur_k = 1;           /* we have computed up to index 1 */
 
         zeros_cap = 8;
-        zeros = (seq_t *)malloc(zeros_cap * sizeof(seq_t));
+        zeros = mem_new(seq_t, zeros_cap);
         zeros_cnt = 0;
     }
 
@@ -90,7 +92,7 @@ seq_t a(idx_t n)
         if (value == 0) {
             if (zeros_cnt >= zeros_cap) {
                 zeros_cap <<= 1;
-                zeros = (seq_t *)realloc(zeros, zeros_cap * sizeof(seq_t));
+                zeros = mem_resize(seq_t, zeros, zeros_cap);
             }
             zeros[zeros_cnt++] = (seq_t)new_k;
         }

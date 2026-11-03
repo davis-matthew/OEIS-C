@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  base, easy, nonn, tabf
  * Formula:   not stated
- * Range:     u8 n <= 1023, u16 n <= 9393, u32 n <= 9393, u64 n <= 9393,
- *            u128 n <= 9393, big any n
- * Helpers:   none
+ * Range:     u8 n <= 1023, u16 n <= 11264, u32 n <= 11264, u64 n <= 11264,
+ *            u128 n <= 11264, big any n
+ * Validated: standard, pass, 91 terms through n = 9393 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache for previously computed terms. */
 static seq_t *cache = NULL;   /* dynamically allocated array */
@@ -52,7 +54,7 @@ static void extend_cache(idx_t n)
     /* Allocate the initial storage if needed. */
     if (cap == 0) {
         cap = 16;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
     }
 
     /* Generate terms up to index n. */
@@ -60,7 +62,7 @@ static void extend_cache(idx_t n)
         /* Grow the buffer when necessary. */
         if (sz >= cap) {
             cap <<= 1;
-            cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cap);
             if (!cache) abort(); /* unrecoverable memory error */
         }
 

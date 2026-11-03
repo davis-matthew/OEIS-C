@@ -7,13 +7,15 @@
  * Formula:   a(n) = ∑_{k=0}^n [n k]_{q} with q = –6 (Gaussian q‑binomial sum)
  * Range:     i8 n <= 3, i16 n <= 4, i32 n <= 6, i64 n <= 9, i128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* idx_t and seq_t are defined by the build environment */
 static seq_t *row = NULL;       /* Gaussian q‑binomial row for current n */
@@ -27,7 +29,7 @@ static void ensure_pow_q(idx_t n)
 {
     if (pow_cap > n) return;
     idx_t new_cap = n + 1;
-    seq_t *tmp = (seq_t *)realloc(pow_q, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, pow_q, new_cap);
     if (!tmp) return;
     if (!pow_q) {                /* first allocation */
         tmp[0] = 1;
@@ -45,23 +47,23 @@ static void ensure_cap(idx_t n)
     if (row_cap > n && sum_cap > n) return;
     idx_t new_cap = n + 1;
     if (row_cap < new_cap) {
-        seq_t *tmp = (seq_t *)realloc(row, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, row, new_cap);
         if (!tmp) return;
         if (!row) {
-            memset(tmp, 0, new_cap * sizeof(seq_t));
+            mem_set(tmp, 0, new_cap * sizeof(seq_t));
         } else {
-            memset(tmp + row_cap, 0, (new_cap - row_cap) * sizeof(seq_t));
+            mem_set(tmp + row_cap, 0, (new_cap - row_cap) * sizeof(seq_t));
         }
         row = tmp;
         row_cap = new_cap;
     }
     if (sum_cap < new_cap) {
-        seq_t *tmp = (seq_t *)realloc(sum_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, sum_cache, new_cap);
         if (!tmp) return;
         if (!sum_cache) {
-            memset(tmp, 0, new_cap * sizeof(seq_t));
+            mem_set(tmp, 0, new_cap * sizeof(seq_t));
         } else {
-            memset(tmp + sum_cap, 0, (new_cap - sum_cap) * sizeof(seq_t));
+            mem_set(tmp + sum_cap, 0, (new_cap - sum_cap) * sizeof(seq_t));
         }
         sum_cache = tmp;
         sum_cap = new_cap;
@@ -72,9 +74,9 @@ static void ensure_cap(idx_t n)
 static void init_base(void)
 {
     if (!row || !sum_cache || !pow_q) {
-        row = (seq_t *)calloc(1, sizeof(seq_t));
-        sum_cache = (seq_t *)calloc(1, sizeof(seq_t));
-        pow_q = (seq_t *)calloc(1, sizeof(seq_t));
+        row = mem_new(seq_t, 1);
+        sum_cache = mem_new(seq_t, 1);
+        pow_q = mem_new(seq_t, 1);
         if (!row || !sum_cache || !pow_q) return;
         row[0] = 1;
         sum_cache[0] = 1;

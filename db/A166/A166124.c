@@ -12,14 +12,14 @@
  *            a(1)=0, a(2)=2
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   int_sqrt
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/int_sqrt.h"
-
+#include "../utils/isqrt.h"
 
 /* Computes a(n) for OEIS sequence A166124.  */
 seq_t a(idx_t n)
@@ -30,7 +30,7 @@ seq_t a(idx_t n)
 
     /* Compute floor(sqrt(1 + 8*n)).  */
     idx_t rad = 1 + n * 8;
-    idx_t t   = int_sqrt(rad);                 /* ⌊√(1+8n)⌋          */
+    idx_t t   = isqrt(rad);                 /* ⌊√(1+8n)⌋          */
     idx_t m0  = (t - 1) / 2;                   /* ⌊(-1+√(1+8n))/2⌋   */
 
     /* Triangular number T(m0) = m0*(m0+1)/2.  */

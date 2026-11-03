@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 267, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 974 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --- data structures --------------------------------------------------- */
 
@@ -54,7 +56,7 @@ static void ensure_seq_cap(size_t need)
     if (need + 1 > seq_cap) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 16;
         if (new_cap < need + 1) new_cap = need + 1;
-        seq_t *tmp = (seq_t *)realloc(seq_arr, sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_resize(seq_t, seq_arr, new_cap);
         if (!tmp) abort();
         seq_arr = tmp;
         seq_cap = new_cap;
@@ -67,8 +69,7 @@ static void ensure_first_index_cap(size_t need)
     if (need > first_index_cap) {
         size_t new_cap = first_index_cap ? first_index_cap * 2 : 16;
         if (new_cap < need) new_cap = need;
-        pair_t *tmp = (pair_t *)realloc(first_index_arr,
-                                        sizeof(pair_t) * new_cap);
+        pair_t *tmp = mem_resize(pair_t, first_index_arr, new_cap);
         if (!tmp) abort();
         first_index_arr = tmp;
         first_index_cap = new_cap;

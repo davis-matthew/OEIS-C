@@ -9,14 +9,28 @@
  *            enumeration)
  * Range:     u8 n <= 213, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   no_consecutive_equal_digits
+ * Validated: standard, pass, 125 terms through n = 9920 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/no_consecutive_equal_digits.h"
+
+/* Test whether a seq_t value has any pair of consecutive equal decimal digits. */
+static inline bool no_consecutive_equal_digits(seq_t val) {
+    if (val == (seq_t)0) return true;          /* 0 contains only one digit */
+    int prev = -1;                             /* previous digit, -1 means none yet */
+    seq_t tmp = val;
+    while (tmp > (seq_t)0) {
+        int d = (int)(tmp % (seq_t)10);        /* current least‑significant digit */
+        if (prev == d) return false;           /* found equal neighbours */
+        prev = d;
+        tmp /= (seq_t)10;                      /* shift right one decimal digit */
+    }
+    return true;                               /* all adjacent digits differ */
+}
 
 seq_t a(idx_t n)
 {

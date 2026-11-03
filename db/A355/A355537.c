@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 34, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
     It works for all n ≥ 1, is O(n) for each new maximum n, and
     uses only allowed arithmetic on seq_t and idx_t. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static idx_t *spf        = NULL;   /* smallest prime factor table           */
 static size_t spf_size   = 0;      /* allocated length of spf               */
@@ -34,7 +36,7 @@ static void build_spf(idx_t limit)
 {
     if (spf_size < (size_t)(limit + 1)) {
         idx_t *new_spf = (idx_t *)realloc(spf, sizeof(idx_t) * (size_t)(limit + 1));
-        if (!new_spf) { free(spf); free(prod); /* terminate on bad malloc */ }
+        if (!new_spf) { free(spf); mem_free(prod); /* terminate on bad malloc */ }
         spf = new_spf;
         spf_size = (size_t)(limit + 1);
         for (idx_t i = 0; i <= limit; ++i) spf[i] = i;
@@ -56,8 +58,8 @@ static void ensure_up_to(idx_t n)
 
     /* Grow the products table if necessary. */
     if (prod_size < (size_t)(n + 1)) {
-        seq_t *new_prod = (seq_t *)realloc(prod, sizeof(seq_t) * (size_t)(n + 1));
-        if (!new_prod) { free(spf); free(prod); /* terminate on bad malloc */ }
+        seq_t *new_prod = mem_resize(seq_t, prod, (size_t)(n + 1));
+        if (!new_prod) { free(spf); mem_free(prod); /* terminate on bad malloc */ }
         prod = new_prod;
         prod_size = (size_t)(n + 1);
     }

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   good_ternary
+ * Validated: standard, pass, 71 terms through n = 882 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,30 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/good_ternary.h"
+
+/* Test whether a number satisfies the ternary balance property. */
+static bool good_ternary(seq_t x) {
+    if (x == 0) return true;
+
+    /* Extract ternary digits into an array (least significant first). */
+    int digits[64];
+    int len = 0;
+    seq_t tmp = x;
+    while (tmp > 0) {
+        digits[len++] = (int)(tmp % 3);
+        tmp /= 3;
+    }
+
+    unsigned cnt1 = 0, cnt2 = 0;
+    /* Process digits from most significant to least. */
+    for (int i = len - 1; i >= 0; --i) {
+        int d = digits[i];
+        if (d == 1) ++cnt1;
+        else if (d == 2) ++cnt2;
+        if (cnt1 < cnt2) return false;   /* prefix balance violated */
+    }
+    return cnt1 == cnt2;
+}
 
 /* Helper to allocate an array of seq_t with correct constructor semantics
    in both C and C++ builds. */

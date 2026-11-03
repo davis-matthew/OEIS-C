@@ -10,13 +10,26 @@
  *            of k in [1..n] whose binary prefix (k, k/2, k/4, ...) contains m
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 19, u128 n <= 20,
  *            big any n
- * Helpers:   count_desc
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/count_desc.h"
+
+static uint64_t count_desc(uint64_t m, uint64_t n)
+{
+    uint64_t c = 0, lo = m, hi = m;
+    while (lo <= n) {
+        uint64_t top = hi < n ? hi : n;
+        c += top - lo + 1;
+        if (lo > (n >> 1) + 1) break;
+        lo = lo << 1;
+        hi = (hi << 1) + 1;
+    }
+    return c;
+}
 
 seq_t a(idx_t n)
 {

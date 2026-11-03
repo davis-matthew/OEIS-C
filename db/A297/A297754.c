@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 32,
  *            big any n
- * Helpers:   triple_valid
+ * Validated: standard, pass, 32 terms through n = 209 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,31 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/triple_valid.h"
+
+/*  For each 1 in the middle column, count neighbours from left and right
+ *  columns only (horizontal and diagonal) and require counts of 1, 3, or 4.
+ * ------------------------------------------------------------------------- */
+static bool triple_valid(int left, int mid, int right)
+{
+    for (int r = 0; r < 6; ++r) {
+        if ((mid >> r) & 1) {
+            int cnt = 0;
+            /* left column: horizontal and diagonal neighbours */
+            cnt += (left >> r) & 1;               /* left horizontal   */
+            if (r > 0)   cnt += (left >> (r - 1)) & 1; /* up‑left         */
+            if (r < 5)   cnt += (left >> (r + 1)) & 1; /* down‑left       */
+
+            /* right column: horizontal and diagonal neighbours */
+            cnt += (right >> r) & 1;               /* right horizontal  */
+            if (r > 0)   cnt += (right >> (r - 1)) & 1;/* up‑right         */
+            if (r < 5)   cnt += (right >> (r + 1)) & 1;/* down‑right       */
+
+            /* neighbour count must be 1, 3 or 4 */
+            if (cnt != 1 && cnt != 3 && cnt != 4) return false;
+        }
+    }
+    return true;
+}
 
 /* ------------------------------------------------------------------------- */
 /*  Constants and internal data structures                                  */

@@ -12,13 +12,15 @@
  *            ≤ 10 000
  * Range:     u8 n <= 9, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
         size_t new_cap = t_cache_cap ? t_cache_cap : 1;
         while (new_cap < (size_t)n)
             new_cap <<= 1;
-        t_cache = (seq_t *)realloc(t_cache, new_cap * sizeof(seq_t));
+        t_cache = mem_resize(seq_t, t_cache, new_cap);
         t_cache_cap = new_cap;
         /* constants for the convergent of φ² */
         const uint64_t NUM = 2178309ULL;   /*  (F_{k+1}+F_k)  */

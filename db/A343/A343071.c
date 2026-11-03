@@ -8,8 +8,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabf, easy
  * Formula:   not stated
- * Range:     u8 n <= 22, u16 n <= 382, u32 n <= 8927, u64 n <= 8927,
- *            u128 n <= 8927, big any n
+ * Range:     u8 n <= 22, u16 n <= 382, u32 n <= 16382, u64 n <= 16382,
+ *            u128 n <= 16382, big any n
+ * Validated: standard, pass, 79 terms through n = 8927 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -25,7 +26,8 @@
  */
 
 #include <stdint.h>               /* for uint64_t typedefs */
-#include "../utils/pow2.h"        /* seq_t pow2(idx_t exp)   */
+#include <stdbool.h>
+#include "../utils/pow2.h"
 #include <stdbool.h>              /* for bool                */
 
 /* Computes a(n) for any n >= 0. */

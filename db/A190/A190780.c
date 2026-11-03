@@ -7,6 +7,7 @@
  * Formula:   a(n) = 2*(n^8 + 224*n^4 + 256)^2
  * Range:     u8 none, u16 none, u32 n <= 3, u64 n <= 15, u128 n <= 245,
  *            big any n
+ * Validated: standard, pass, 32 terms through n = 947 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

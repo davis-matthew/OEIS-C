@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   isPrime_uint64
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/isPrime_uint64.h"
+#include "../utils/is_prime_u64.h"
 
 /* External integer types: seq_t is the sequence value type,
    idx_t is the index type (uint64_t). */
@@ -28,7 +29,7 @@ seq_t a(idx_t n) {
 
     for (idx_t k = 1;; ++k) {          /* iterate positive integers k */
         uint64_t val = 107ULL * k - 109ULL;   /* 107*k - 109, fits in 64‑bit */
-        if (isPrime_uint64(val)) {     /* test primality of 107*k-109 */
+        if (is_prime_u64(val)) {     /* test primality of 107*k-109 */
             ++count;                   /* we found a term */
             if (count == n) {          /* nth term reached */
                 return (seq_t)k;        /* cast k to the result type */

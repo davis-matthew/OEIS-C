@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 14, u64 n <= 49, u128 n <= 119,
  *            big any n
- * Helpers:   smallest_of_cycle, sort_sevens
+ * Validated: standard, pass, 38 terms through n = 459 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,37 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/smallest_of_cycle.h"
-#include "../utils/sort_sevens.h"
+
+/* Build the smallest element of the 7‑cycle for a given even digit length d ≥ 6. */
+static seq_t smallest_of_cycle(idx_t d)
+{
+    seq_t val = 0;
+    size_t m = (size_t)((d - 4) / 2);   /* m >= 1 because d >= 6 */
+
+    val = val * 10 + 4;                       /* 4 */
+    for (size_t i = 0; i < m - 1; ++i)        /* (m‑1) copies of 3 */
+        val = val * 10 + 3;
+    val = val * 10 + 2;                       /* 2 */
+    val = val * 10 + 0;                       /* 0 */
+    val = val * 10 + 8;                       /* 8 */
+    val = val * 10 + 7;                       /* 7 */
+    for (size_t i = 0; i < m; ++i)            /* m copies of 6 */
+        val = val * 10 + 6;
+
+    return val;
+}
+
+/* Simple selection sort for the 7 cycle members. */
+static void sort_sevens(seq_t *v)
+{
+    for (size_t i = 0; i < 7; ++i)
+        for (size_t j = i + 1; j < 7; ++j)
+            if (v[j] < v[i]) {
+                seq_t t = v[i];
+                v[i] = v[j];
+                v[j] = t;
+            }
+}
 
 /* Compute one Kaprekar step: rearrange digits of x in descending order
    to form 'high', rearrange in ascending order (without leading zeros)

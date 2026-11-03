@@ -7,6 +7,7 @@
  * Formula:   a(n) = 32*n^6 - 48*n^4 + 18*n^2 - 1
  * Range:     i8 n <= 1, i16 n <= 3, i32 n <= 20, i64 n <= 812, i128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 42 terms through n = 902 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

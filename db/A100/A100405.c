@@ -7,22 +7,24 @@
  * Keywords:  easy, nonn
  * Formula:   Product_{k>0} (1+x^(3k)/(1-x^k)) – partitions where each part
  *            appears at least 3 times
- * Range:     u8 n <= 38, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
- *            big any n
- * Helpers:   none
+ * Range:     u8 n <= 38, u16 n <= 91, u32 n <= 258, u64 n <= 815,
+ *            u128 n <= 2804, big any n
+ * Validated: standard, pass, 77 terms through n = 9970 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate arrays of size n+1 */
     size_t len = (size_t)n + 1;
-    seq_t *dp = (seq_t*)malloc(len * sizeof(seq_t));
-    seq_t *newdp = (seq_t*)malloc(len * sizeof(seq_t));
-    seq_t *cdp = (seq_t*)malloc(len * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, len);
+    seq_t *newdp = mem_new(seq_t, len);
+    seq_t *cdp = mem_new(seq_t, len);
     if (!dp || !newdp || !cdp) return (seq_t)0;   /* out of memory – return 0 as safe fallback */
 
     /* initialise dp[0] = 1, others 0 */
@@ -51,9 +53,9 @@ seq_t a(idx_t n)
     seq_t result = dp[n];
 
     /* free memory */
-    free(dp);
-    free(newdp);
-    free(cdp);
+    mem_free(dp);
+    mem_free(newdp);
+    mem_free(cdp);
 
     return result;
 }

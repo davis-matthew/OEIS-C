@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 13, u64 n <= 28, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 201 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static cache of computed terms.  Index 0 is unused for 1‑based access. */
@@ -48,7 +50,7 @@ seq_t a(idx_t n) {
     if (cache_size < 9) {
         /* First time: allocate capacity for at least 9 terms + dummy 0. */
         cache_size = 9;
-        cache = (seq_t*)malloc((cache_size + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (cache_size + 1));
         for (idx_t i = 1; i <= cache_size; ++i) {
             cache[i] = base[i];
         }
@@ -56,7 +58,7 @@ seq_t a(idx_t n) {
     if (n > cache_size) {
         /* Grow cache to n+1 elements (including dummy 0). */
         size_t new_size = (size_t)n + 1;      /* cast to size_t for malloc */
-        seq_t *tmp = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) {
             /* Allocation failure: abort to keep contract simple. */
             abort();

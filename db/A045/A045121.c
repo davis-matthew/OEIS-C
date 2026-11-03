@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   ok_base4
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,21 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/ok_base4.h"
+#include "../utils/mem.h"
+
+/* Test whether a number has exactly two 1's and two 3's in its base‑4 expansion. */
+static bool ok_base4(seq_t x)
+{
+    unsigned int cnt1 = 0, cnt3 = 0;
+    while (x != 0)
+    {
+        int d = (int)(x & 3);   /* x % 4  (uses only the lowest two bits) */
+        if (d == 1) cnt1++;
+        else if (d == 3) cnt3++;
+        x = x >> 2;              /* x /= 4   (shift right by 2 bits) */
+    }
+    return (cnt1 == 2 && cnt3 == 2);
+}
 
 /* Cached terms of the sequence */
 static seq_t *cache  = NULL;
@@ -43,7 +58,7 @@ static void ensure_cache(idx_t n)
         if (cache_size == cache_cap)
         {
             size_t new_cap = cache_cap ? 2 * cache_cap : 16;
-            seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
             if (!new_cache) abort(); /* allocation failure */
             cache = new_cache;
             cache_cap = new_cap;

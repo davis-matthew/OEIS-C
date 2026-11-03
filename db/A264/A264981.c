@@ -7,6 +7,7 @@
  * Formula:   a(n) = 9^⌊v₃(n)/2⌋ where v₃(n) is the exponent of 3 in n
  * Range:     u8 n <= 728, u16 n <= 6561, u32 n <= 6561, u64 n <= 6561,
  *            u128 n <= 6561, big any n
+ * Validated: standard, pass, 115 terms through n = 6549 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

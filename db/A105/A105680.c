@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 3883, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 9911 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Deterministic Miller–Rabin for 64‑bit integers. */
 static uint64_t modmul64(uint64_t a, uint64_t b, uint64_t mod)
@@ -86,7 +88,7 @@ static void ensure_cache(size_t required)
     size_t cap = k_capacity ? k_capacity : 128;
     while (cap < required) cap <<= 1;
     if (cap != k_capacity) {
-        seq_t *ptr = (seq_t *)realloc(k_cache, cap * sizeof(seq_t));
+        seq_t *ptr = mem_resize(seq_t, k_cache, cap);
         if (!ptr) abort();          /* should never happen */
         k_cache   = ptr;
         k_capacity = cap;

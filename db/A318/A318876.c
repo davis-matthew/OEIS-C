@@ -5,22 +5,25 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{d|n} [2*phi(d) > d]*d
- * Range:     u8 n <= 170, u16 n <= 9936, u32 n <= 9936, u64 n <= 9936,
- *            u128 n <= 9936, big any n
- * Helpers:   calc_phi, factor_u64
+ * Range:     u8 n <= 170, u16 n <= 34424, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9936 (2026-11-01)
+ * Helpers:   factor_u64, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/calc_phi.h"
+#include "../utils/totient_seq.h"
 
 static void enumerate_divisors(const uint64_t *primes, const uint64_t *exps,
                                size_t cnt, size_t idx, seq_t current, seq_t *sum)
 {
     if (idx == cnt) {
-        seq_t phi = calc_phi(current);
+        seq_t phi = totient_seq(current);
         if ((seq_t)2 * phi > current)
             *sum += current;
         return;

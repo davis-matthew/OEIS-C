@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign
  * Formula:   not stated
- * Range:     i8 n <= 23, i16 n <= 1023, i32 n <= 9041, i64 n <= 9041,
- *            i128 n <= 9041, big any n
- * Helpers:   factor_u64, gcd, next_prime, sigma_of
+ * Range:     i8 n <= 23, i16 n <= 1023, i32 n <= 16384, i64 n <= 16384,
+ *            i128 n <= 16384, big any n
+ * Validated: standard, pass, 104 terms through n = 9041 (2026-11-03)
+ * Helpers:   factor_u64, gcd, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,11 +27,25 @@
 #include <string.h>
 
 /* utils that are required for the implementation */
-#include "../utils/next_prime.h"      /* uint64_t next_prime(uint64_t start)      */
-#include "../utils/factor_u64.h"      /* void factor_u64(uint64_t n, uint64_t *pr,
-                                       uint64_t *ex, size_t *cnt) */
-#include "../utils/gcd.h"             /* seq_t gcd(seq_t a, seq_t b)              */
-#include "../utils/sigma_of.h"        /* seq_t sigma_of(idx_t n)                  */
+#include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
+#include "../utils/next_prime.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 /* --------------------------------------------------------------------- */
 /*  integer power:  np^exp  (np up to 64‑bit, exp up to idx_t)           */
@@ -95,9 +110,9 @@ static void ensure_cache_cap(size_t need)
 
     /* reallocate a_cache */
     if (a_cache == NULL)
-        a_cache = (seq_t *)malloc(ncap * sizeof(seq_t));
+        a_cache = mem_new(seq_t, ncap);
     else
-        a_cache = (seq_t *)realloc(a_cache, ncap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, ncap);
 
     /* reallocate a_computed */
     if (a_computed == NULL) {

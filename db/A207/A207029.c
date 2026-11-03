@@ -12,7 +12,8 @@
  *            the vertical validity of each column and * the...
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 20, u64 n <= 53, u128 n <= 126,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -138,7 +140,7 @@ seq_t a(idx_t n)
 
         /* 4. Initialise cache for n=1 and n=2. */
         cache_size   = 2;
-        cache  = (seq_t*)calloc(cache_size + 1, sizeof(seq_t)); /* cache[0] unused */
+        cache  = mem_new(seq_t, cache_size + 1); /* cache[0] unused */
         cache[1] = (seq_t)cnt_valid_cols;                       /* a(1) */
         cache[2] = 0;                                           /* will compute below */
 
@@ -161,16 +163,16 @@ seq_t a(idx_t n)
     /* --------------------------------------------------------------- */
     if (n > cache_size) {
         /* Allocate a larger cache. */
-        seq_t *new_cache = (seq_t*)malloc((n + 1) * sizeof(seq_t));
-        memcpy(new_cache, cache, (cache_size + 1) * sizeof(seq_t));
-        memset(new_cache + cache_size + 1, 0, (n - cache_size) * sizeof(seq_t));
-        free(cache);
+        seq_t *new_cache = mem_new(seq_t, (n + 1));
+        mem_copy(new_cache, cache, (cache_size + 1) * sizeof(seq_t));
+        mem_set(new_cache + cache_size + 1, 0, (n - cache_size) * sizeof(seq_t));
+        mem_free(cache);
         cache     = new_cache;
         cache_size = n;
 
         /* Extend DP from current_step + 1 up to n. */
         for (idx_t k = current_step + 1; k <= n; ++k) {
-            memset(next, 0, 4096 * sizeof(seq_t));
+            mem_set(next, 0, 4096 * sizeof(seq_t));
 
             for (int s = 0; s < 4096; ++s) {
                 seq_t v = curr[s];
@@ -189,7 +191,7 @@ seq_t a(idx_t n)
             cache[k] = total;
 
             /* Prepare for next iteration. */
-            memcpy(curr, next, 4096 * sizeof(seq_t));
+            mem_copy(curr, next, 4096 * sizeof(seq_t));
             current_step = k;
         }
     }

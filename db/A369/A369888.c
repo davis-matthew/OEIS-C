@@ -8,12 +8,14 @@
  * Formula:   a(n) = coefficient of x^n in \prod_{k\ge1} (1 + k^3 x^k/(1-x^k))
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 21, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -21,11 +23,11 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     size_t sz = (size_t)n + 1;
-    seq_t *f = (seq_t*)malloc(sz * sizeof(seq_t));
-    seq_t *g = (seq_t*)malloc(sz * sizeof(seq_t));
+    seq_t *f = mem_new(seq_t, sz);
+    seq_t *g = mem_new(seq_t, sz);
     if (!f || !g) {
-        free(f);
-        free(g);
+        mem_free(f);
+        mem_free(g);
         return (seq_t)0;   /* allocation failure sentinel */
     }
 
@@ -52,8 +54,8 @@ seq_t a(idx_t n)
 
     seq_t result = f[n];
 
-    free(g);  /* g now holds the old f */
-    free(f);
+    mem_free(g);  /* g now holds the old f */
+    mem_free(f);
 
     return result;
 }

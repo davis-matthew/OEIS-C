@@ -9,13 +9,14 @@
  *            of the exponent e of the prime p
  * Range:     u8 n <= 14, u16 n <= 215, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 67 terms through n = 9917 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 /* contribution of a prime power p^e to the product a(n) */
 static seq_t _inf_contrib(seq_t p, unsigned int e)
@@ -27,7 +28,7 @@ static seq_t _inf_contrib(seq_t p, unsigned int e)
     while (rem) {
         if (rem & 1) {
             /* exponent 2^(bit+1) fits in 64-bit for e <= 64 */
-            seq_t term = pow_uint((uint64_t)p, (idx_t)(1ULL << (bit + 1))) + 1;
+            seq_t term = ipow_u64_idx((uint64_t)p, (idx_t)(1ULL << (bit + 1))) + 1;
             prod *= term;
         }
         rem >>= 1;

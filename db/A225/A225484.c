@@ -8,7 +8,8 @@
  *            a(1)=0, a(2)=0
  * Range:     u8 n <= 22, u16 n <= 40, u32 n <= 76, u64 n <= 148,
  *            u128 n <= 292, big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 987 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #ifdef __cplusplus
 #include <new>
 #endif
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
         while (new_cap <= (size_t)n)
             new_cap <<= 1;
 
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();                 /* out of memory */
         cache = tmp;
 
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
         cap = new_cap;
         for (size_t i = old_cap; i < cap; ++i) {
 #ifdef __cplusplus
-            new (&cache[i]) seq_t();      /* default construct (C++ only) */
+            *(&cache[i]) = (seq_t)0;      /* default construct (C++ only) */
 #else
             cache[i] = (seq_t)0;          /* zero initialisation (C only) */
 #endif

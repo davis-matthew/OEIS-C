@@ -12,13 +12,15 @@
  *            For k≥2 the number of entries up to row k is...
  * Range:     u8 n <= 1082, u16 n <= 4951, u32 n <= 4951, u64 n <= 4951,
  *            u128 n <= 4951, big any n
- * Helpers:   _gcd_u64
+ * Validated: standard, pass, 94 terms through n = 4700 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_gcd_u64.h"
+#include <stddef.h>
+#include "../utils/gcd_u64.h"
 
 /*------------------------------------------------------------*/
 /*  GCD for 64‑bit unsigned integers (used for small k,h).   */
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
     idx_t h = idx - prev + 1;      /* 1 ≤ h ≤ k−1 */
 
     /*  If gcd(h,k)>1 the Dedekind sum is 0 → denominator = 1. */
-    if (_gcd_u64((uint64_t)h, (uint64_t)k) != 1) return (seq_t)1;
+    if (gcd_u64((uint64_t)h, (uint64_t)k) != 1) return (seq_t)1;
 
     /*  Compute the numerator of s(h,k) as described:
      *      numerator = Σ_{t=1}^{k-1} (2t−k)(2m−k),

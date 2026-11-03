@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   has_32_in_oct
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,27 @@
 */
 
 #include <stdbool.h>
-#include "../utils/has_32_in_oct.h"
+
+static bool has_32_in_oct(seq_t v)
+{
+    /* Return true if the octal representation of v contains the
+       consecutive digits 3 followed by 2.  The digits are examined
+       from least significant to most significant, so we keep a
+       record of the previous (lower place) digit and check if the
+       current (higher place) digit is 3 and the previous is 2. */
+    if (v < 8)              /* less than two octal digits */
+        return false;
+    seq_t prev = v % 8;     /* least significant digit */
+    v /= 8;
+    while (v > 0) {
+        seq_t cur = v % 8;  /* next higher digit */
+        if (cur == 3 && prev == 2)
+            return true;
+        prev = cur;
+        v /= 8;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

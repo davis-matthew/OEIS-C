@@ -10,7 +10,8 @@
  *            prime factors and at least one squared prime factor)
  * Range:     u8 n <= 83, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, pow2
+ * Validated: standard, pass, 103 terms through n = 9322 (2026-11-03)
+ * Helpers:   factor_u64, mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/factor_u64.h"  /* factor_u64(uint64_t, uint64_t*, uint64_t*, size_t*) */
-#include "../utils/pow2.h"        /* pow2(idx_t exp) -> seq_t */
+#include "../utils/factor_u64.h"
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 /* --- cache of the sequence A126706 ----------------------------------- */
 static seq_t *alist      = NULL;   /* list of A126706 values (seq_t)        */
@@ -32,7 +34,7 @@ static void alist_append(seq_t v)
 {
     if (alist_len >= alist_cap) {
         size_t new_cap = alist_cap ? alist_cap << 1 : 1024;
-        seq_t *new_arr = (seq_t *)realloc(alist, new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, alist, new_cap);
         if (!new_arr) abort();
         alist = new_arr;
         alist_cap = new_cap;

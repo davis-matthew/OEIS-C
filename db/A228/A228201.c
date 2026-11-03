@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 600, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 883 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,28 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 extern idx_t get_prime(idx_t k);  /* not used – kept to satisfy compiler */
 
+#ifdef __cplusplus
+template <class T>
+static void ensure_cap(size_t needed, size_t *cap, T **ptr, size_t elem_size) {
+    if (needed <= *cap) return;
+    size_t new_cap = *cap ? *cap * 2 : 16;
+    while (new_cap < needed) new_cap *= 2;
+    *ptr = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+    *cap = new_cap;
+}
+#else
 static void ensure_cap(size_t needed, size_t *cap, void **ptr, size_t elem_size) {
     if (needed <= *cap) return;
     size_t new_cap = *cap ? *cap * 2 : 16;
@@ -30,6 +50,7 @@ static void ensure_cap(size_t needed, size_t *cap, void **ptr, size_t elem_size)
     *ptr = realloc(*ptr, new_cap * elem_size);
     *cap = new_cap;
 }
+#endif
 
 /* Very small prime test (suitable for numbers up to about 2·10⁶). */
 static bool is_prime_uint64(uint64_t n) {
@@ -61,7 +82,7 @@ seq_t a(idx_t n) {
         seq_t p = (seq_t)cand;
 
         /* Store the new prime */
-        ensure_cap(primes_cnt + 1, &primes_cap, (void **)&primes, sizeof(seq_t));
+        ensure_cap(primes_cnt + 1, &primes_cap, OEISC_VPP(&primes), sizeof(seq_t));
         primes[primes_cnt++] = p;
 
         /* Update sliding sum of 11 primes */
@@ -74,7 +95,7 @@ seq_t a(idx_t n) {
         if (primes_cnt >= 11) {
             if (!is_prime_uint64((uint64_t)sum)) {
                 seq_t start_prime = primes[primes_cnt - 11];
-                ensure_cap(cache_len + 1, &cache_cap, (void **)&cache, sizeof(seq_t));
+                ensure_cap(cache_len + 1, &cache_cap, OEISC_VPP(&cache), sizeof(seq_t));
                 cache[cache_len++] = start_prime;
             }
         }

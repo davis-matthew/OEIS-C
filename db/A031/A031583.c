@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 40, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Integer square root for uint64_t (floor). */
 static uint64_t isqrt_u64(uint64_t x) {
@@ -45,11 +47,11 @@ static size_t terms_cap = 0;
 static void append_term(seq_t val) {
     if (terms_len >= terms_cap) {
         size_t new_cap = terms_cap ? terms_cap << 1 : 16;
-        seq_t *new_terms = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_terms = mem_new(seq_t, new_cap);
         if (terms) {
             for (size_t i = 0; i < terms_len; ++i)
                 new_terms[i] = terms[i];
-            free(terms);
+            mem_free(terms);
         }
         terms = new_terms;
         terms_cap = new_cap;

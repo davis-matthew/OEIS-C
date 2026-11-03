@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 505, u16 n <= 9842, u32 n <= 9842, u64 n <= 9842,
- *            u128 n <= 9842, big any n
- * Helpers:   build_primes_upto
+ * Range:     u8 n <= 505, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9842 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,10 @@
 /* The function computes φ up to n and then counts matches. */
 
 #include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 /* Static cache for Euler's totient values. */
 static seq_t *phi_cache = NULL;
@@ -33,10 +37,10 @@ static void ensure_phi_up_to(idx_t n)
 
     /* Allocate (n+1) entries (indices 0..n). */
     size_t new_size = (size_t)(n + 1);
-    seq_t *tmp = (seq_t *)realloc(phi_cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, phi_cache, new_size);
     if (!tmp) {
         /* Allocation failed: leave the cache empty. */
-        free(phi_cache);
+        mem_free(phi_cache);
         phi_cache = NULL;
         phi_cache_max = 0;
         return;

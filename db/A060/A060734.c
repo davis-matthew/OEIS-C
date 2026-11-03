@@ -10,8 +10,9 @@
  *            is the n‑th pair in the antidiagonal enumeration (diagonal *
  *            index d = ⎣(√(8n – 7)+1)/2⎦, offset = n – d(d – 1)/2 – 1, i =
  *            offset+1, * j = d – offset)
- * Range:     u8 n <= 120, u16 n <= 9488, u32 n <= 9488, u64 n <= 9488,
- *            u128 n <= 9488, big any n
+ * Range:     u8 n <= 120, u16 n <= 10011, u32 n <= 10011, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 82 terms through n = 9488 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

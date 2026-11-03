@@ -12,7 +12,8 @@
  *            qualifying semiprimes for fast * repeated querie...
  * Range:     u8 n <= 8, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   digit_sum
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include "../utils/digit_sum.h"
+#include "../utils/mem.h"
 
 /* ---------- prime generation ------------------------------------------ */
 #define PRIME_SIEVE_LIMIT 5000000ULL           /* enough for n ≈ 10000 */
@@ -83,7 +85,7 @@ static void cache_ensure(idx_t needed)
     if (needed <= cacheCap) return;
     idx_t newCap = cacheCap ? cacheCap << 1 : 256;
     while (newCap < needed) newCap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, newCap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, newCap);
     if (!tmp) abort();    /* out of memory */
     cache = tmp;
     cacheCap = newCap;

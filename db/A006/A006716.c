@@ -11,7 +11,8 @@
  *            last 12 digits of k^2 also 1/4/9
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 10, u64 n <= 15, u128 n <= 17,
  *            big any n
- * Helpers:   ok64, ok_digit, u128_to_seq
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,26 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/u128_to_seq.h"
-#include "../utils/ok64.h"
-#include "../utils/ok_digit.h"
+
+static seq_t u128_to_seq(unsigned __int128 u)
+{
+    seq_t r = 0;
+    int k;
+    for (k = 3; k >= 0; k--) {
+        r = r * 65536ULL;
+        r = r * 65536ULL;
+        r += (seq_t)(uint64_t)(uint32_t)(u >> (32 * k));
+    }
+    return r;
+}
+
+static bool ok_digit(unsigned d) { return d == 1 || d == 4 || d == 9; }
+
+static bool ok64(uint64_t x) {
+    if (x == 0) return false;
+    while (x) { if (!ok_digit((unsigned)(x % 10))) return false; x /= 10; }
+    return true;
+}
 
 typedef unsigned __int128 u128_t;
 

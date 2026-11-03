@@ -11,15 +11,26 @@
  *            that double factorial
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 9, u128 n <= 13,
  *            big any n
- * Helpers:   digit_len, pow10
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-01)
+ * Helpers:   num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/pow10.h"
-#include "../utils/digit_len.h"
+#include <stdlib.h>
+#include "../utils/num_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -31,11 +42,11 @@ seq_t a(idx_t n)
     for (idx_t k = 2; k <= n; ++k) {
         if ((k & 1) == 0) {      /* even k */
             even_df = even_df * (seq_t)k;
-            idx_t d = digit_len(even_df);
+            idx_t d = num_digits(even_df);
             value = value * pow10((idx_t)d) + even_df;
         } else {                 /* odd k */
             odd_df = odd_df * (seq_t)k;
-            idx_t d = digit_len(odd_df);
+            idx_t d = num_digits(odd_df);
             value = value * pow10((idx_t)d) + odd_df;
         }
     }

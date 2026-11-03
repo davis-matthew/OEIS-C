@@ -12,12 +12,14 @@
  *            a static array to allow arbitrary call order
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 12, u64 n <= 23, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* initialise first five values on first call */
     if (cache == NULL) {
         /* allocate space for indices 0..5 (index 0 unused) */
-        cache = (seq_t *)malloc((5 + 2) * sizeof(seq_t));
+        cache = mem_new(seq_t, (5 + 2));
         if (!cache) return (seq_t)0;  /* out‑of‑memory fallback */
         cache[1] = (seq_t)1;
         cache[2] = (seq_t)4;
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
 
     /* ensure cache large enough */
     if (n > max_computed) {
-        seq_t *new_cache = (seq_t *)realloc(cache, (n + 2) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (n + 2));
         if (!new_cache) return (seq_t)0;  /* out‑of‑memory fallback */
         cache = new_cache;
 

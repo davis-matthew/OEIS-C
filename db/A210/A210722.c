@@ -7,9 +7,10 @@
  * Keywords:  nonn
  * Formula:   Number of ways to write n = (2-(n mod 2))p + q + 2^k with p
  *            prime, q-1 and q+1 prime, p-1, p+1 and q practical
- * Range:     u8 n <= 668, u16 n <= 9680, u32 n <= 9680, u64 n <= 9680,
- *            u128 n <= 9680, big any n
- * Helpers:   is_power_of_two
+ * Range:     u8 n <= 668, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 116 terms through n = 9680 (2026-11-01)
+ * Helpers:   is_pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_power_of_two.h"
+#include "../utils/is_pow2.h"
 
 /* ----- static data for memoisation ------------------------------------ */
 static idx_t precomp_limit = 0;
@@ -181,7 +182,7 @@ seq_t a(idx_t n)
             idx_t q = q_cands[iq];
             if (q > rem_start - 1) break;   /* q too large for this p */
             idx_t r = rem_start - q;
-            if (is_power_of_two(r)) ++count;
+            if (is_pow2(r)) ++count;
         }
     }
     return count;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_cubefree
+ * Validated: standard, pass, 103 terms through n = 9830 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,7 +31,34 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/factor_cubefree.h"
+#include "../utils/mem.h"
+
+/*   returns true  if m is cubefree, false otherwise */
+static bool factor_cubefree(uint64_t m, seq_t *omega)
+{
+    uint64_t t = m;
+    seq_t    o = 0;
+    bool cubefree = true;
+
+    /* trial division, skipping even >2 */
+    for (uint64_t p=2; p*p <= t; ) {
+        if (t % p == 0) {
+            int exp = 0;
+            do {
+                t /= p;
+                ++exp;
+                ++o;
+            } while (t % p == 0);
+            if (exp >= 3) { cubefree = false; break; }
+        }
+        p = (p==2)?3:p+2;
+    }
+    if (cubefree && t > 1) {   /* t is prime with exponent 1 */
+        ++o;
+    }
+    *omega = o;
+    return cubefree;
+}
 
 /* --- Helper: dynamic array for cached values ----------------------- */
 static seq_t  *cache    = NULL;      /* array of a(1), a(2), ...          */
@@ -42,11 +70,11 @@ static uint64_t last_num = 1;       /* next integer to test as cubefree   */
 static void grow_cache(void)
 {
     size_t new_cap = (cache_cap==0)?64:cache_cap*2;
-    seq_t *tmp = (seq_t*)malloc(new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, new_cap);
     if (tmp==NULL) return;                /* out of memory – leave as is  */
     if (cache!=NULL) {
         for (size_t i=0;i<cache_sz;i++) tmp[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
     cache = tmp;
     cache_cap = new_cap;

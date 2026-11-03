@@ -8,9 +8,10 @@
  * Keywords:  nonn
  * Formula:   RG-transform mapping each distinct pair (A003557(n), A319697(n))
  *            to the 1‑based index of its first occurrence
- * Range:     u8 n <= 601, u16 n <= 9811, u32 n <= 9811, u64 n <= 9811,
- *            u128 n <= 9811, big any n
- * Helpers:   compute_pair
+ * Range:     u8 n <= 601, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9811 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,44 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/compute_pair.h"
+#include "../utils/mem.h"
+
+/* Compute the pair for given n. */
+static void compute_pair(idx_t n, seq_t *out_x, seq_t *out_y)
+{
+    uint64_t orig = (uint64_t)n;
+    uint64_t temp = orig;
+    uint64_t rad = 1ULL;        /* product of distinct prime factors of n */
+    uint64_t prod_odd = 1ULL;   /* product of (1 + p) for odd primes p | n */
+    bool has_two = false;
+
+    for (uint64_t d = 2; d * d <= temp; ++d) {
+        if (temp % d == 0) {
+            uint64_t e = 0;
+            while (temp % d == 0) {
+                temp /= d;
+                ++e;
+            }
+            rad *= d;
+            if (d == 2) {
+                has_two = true;
+            } else {
+                prod_odd *= (1 + d);
+            }
+        }
+    }
+    if (temp > 1) {                            /* remaining prime factor */
+        rad *= temp;
+        if (temp == 2) {
+            has_two = true;
+        } else {
+            prod_odd *= (1 + temp);
+        }
+    }
+
+    *out_x = (seq_t)(orig / rad);
+    *out_y = has_two ? (seq_t)(2 * prod_odd) : (seq_t)0;
+}
 
 /* Helper struct to store a pair (odd part, even‑squarefree sum). */
 typedef struct {
@@ -36,7 +74,7 @@ static void grow_pair_array(void)
 {
     if (pair_cnt == pair_cap) {
         size_t new_cap = pair_cap ? pair_cap * 2 : 8;
-        Pair *tmp = (Pair *)realloc(pairs, new_cap * sizeof(Pair));
+        Pair *tmp = mem_resize(Pair, pairs, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         pairs = tmp;
         pair_cap = new_cap;
@@ -52,7 +90,7 @@ static void grow_cache_array(void)
 {
     if (cache_size == cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 8;
-        seq_t *tmp = (seq_t *)realloc(cache_vals, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache_vals, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         cache_vals = tmp;
         cache_cap = new_cap;

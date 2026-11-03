@@ -10,9 +10,10 @@
  *            with A003961(p) = nextprime(p). The computation uses the
  *            standard multiplicative formula for sigma and avoids any
  *            hard‑coded lookup
- * Range:     u8 n <= 4, u16 n <= 26, u32 n <= 1023, u64 n <= 8961,
- *            u128 n <= 8961, big any n
- * Helpers:   big_pow, factor_u64, next_prime
+ * Range:     u8 n <= 4, u16 n <= 26, u32 n <= 1023, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 69 terms through n = 8961 (2026-11-01)
+ * Helpers:   factor_u64, ipow, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,10 @@
 #include <stddef.h>
 #include <stdbool.h>
 
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/ipow.h"
 #include "../utils/next_prime.h"
-#include "../utils/big_pow.h"
 
 /* Compute a(n) for n >= 1. */
 seq_t a(idx_t n)
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
 
         /* exponent in n² is 2*e, divisor‑sum term uses 2*e+1 */
         seq_t exp       = (seq_t)(2 * e + 1);
-        seq_t pow_term  = big_pow((seq_t)q, exp);
+        seq_t pow_term  = ipow((seq_t)q, exp);
         seq_t numerator = pow_term - (seq_t)1;
         seq_t denom     = (seq_t)(q - 1);
         seq_t term      = numerator / denom;

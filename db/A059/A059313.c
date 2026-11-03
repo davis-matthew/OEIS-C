@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow, next_prime
+ * Validated: standard, pass, 65 terms through n = 847 (2026-11-03)
+ * Helpers:   mem, next_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,10 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/mod_pow.h"      /* mod_pow(seq_t, uint64_t, seq_t) */
-#include "../utils/next_prime.h"   /* next_prime(uint64_t) */
+#include <string.h>
+#include "../utils/next_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static bool has_solution(uint64_t p)
 {
@@ -37,7 +40,7 @@ static bool has_solution(uint64_t p)
         d = 1;
 
     uint64_t exp = pm1 / d;
-    seq_t val = mod_pow((seq_t)2, exp, (seq_t)p);
+    seq_t val = powmod((seq_t)2, exp, (seq_t)p);
     return val == (seq_t)1;
 }
 
@@ -51,7 +54,7 @@ static void ensure_capacity(void)
     if (len >= cap)
     {
         size_t new_cap = (cap < 16) ? 16 : cap * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         /* In a production environment we would handle malloc failure. */
         cache = tmp;
         cap   = new_cap;

@@ -7,12 +7,14 @@
  * Formula:   a(n) = Sum_{k=0..2} binom(n,k)*2^(n-k)
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 25, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,8 +25,8 @@ seq_t a(idx_t n)
 
     if (n >= cache_size) {
         idx_t new_size = n + 1;
-        pow2   = (seq_t *)realloc(pow2,   new_size * sizeof(seq_t));
-        cache  = (seq_t *)realloc(cache,  new_size * sizeof(seq_t));
+        pow2   = mem_resize(seq_t, pow2, new_size);
+        cache  = mem_resize(seq_t, cache, new_size);
 
         /* compute powers of two up to new_size-1 */
         for (idx_t i = pow2_size; i < new_size; ++i) {

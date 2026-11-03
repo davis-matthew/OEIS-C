@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 12, i16 n <= 22, i32 n <= 40, i64 n <= 40, i128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
    the build).  All computations use seq_t. */
 
 #include <stdlib.h>   /* for malloc, free */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
 
     /* Allocate array to hold h[0..n] – small for n up to 10⁴.  */
     size_t len = (size_t)n + 1;
-    seq_t *h = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *h = mem_new(seq_t, len);
     if (!h)  /* Allocation failure – return 0 as fallback. */
         return (seq_t)0;
 
@@ -55,6 +57,6 @@ seq_t a(idx_t n)
         sum += h[i];
     }
 
-    free(h);
+    mem_free(h);
     return sum;
 }

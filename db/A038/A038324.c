@@ -9,17 +9,18 @@
  *            floor((sqrt(8n+1)-1)/2), j = n - i*(i+1)/2
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 37, u64 n <= 138, u128 n <= 476,
  *            big any n
- * Helpers:   _my_binomial
+ * Validated: standard, pass, 52 terms through n = 9576 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_my_binomial.h"
+#include "../utils/binomial.h"
 
 /* Forward declaration of util function if available */
 #ifndef BINOMIAL_DECLARED
-static seq_t _my_binomial(idx_t n, idx_t k);
+static seq_t binomial(idx_t n, idx_t k);
 #define BINOMIAL_DECLARED
 #endif
 
@@ -36,7 +37,7 @@ seq_t a(idx_t n) {
     idx_t j = n - prev_cumulative;
 
     /* Compute binomial(i, j) */
-    seq_t bin = _my_binomial(i, j);
+    seq_t bin = binomial(i, j);
 
     /* Compute 11^(i-j) */
     seq_t pow11 = 1;

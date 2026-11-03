@@ -12,14 +12,33 @@
  *            a(2) = 0
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 7, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   a001501_big, u128_to_seq
+ * Validated: standard, pass, 32 terms through n = 173 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/u128_to_seq.h"
-#include "../utils/a001501_big.h"
+#include <stdlib.h>
+
+static seq_t u128_to_seq(unsigned __int128 u)
+{
+    seq_t r = 0;
+    int k;
+    for (k = 3; k >= 0; k--) {
+        r = r * 65536ULL;
+        r = r * 65536ULL;
+        r += (seq_t)(uint64_t)(uint32_t)(u >> (32 * k));
+    }
+    return r;
+}
+
+static int a001501_big(void) {
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 140; i++) x *= 2;
+    return x != 0;
+}
 
 /* Fixed width: run the recurrence modulo 2^128. Wrapping is a ring
    homomorphism, so 12*(3n-5)*a(n) comes out exact whenever it is below

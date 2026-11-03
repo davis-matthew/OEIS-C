@@ -7,12 +7,15 @@
  * Formula:   a(n) = (n^n - 3*(n-1)^n + 3*(n-2)^n - (n-3)^n)/6
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 27,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 37 terms through n = 352 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 /* Compute a(n) for all n >= 0.  The function may be called in
  * arbitrary order and is fully self‑contained. */
@@ -23,10 +26,10 @@ seq_t a(idx_t n)
         return 0;
 
     /* Compute the four powers using the provided big_pow utility. */
-    seq_t n_pow  = big_pow((seq_t)n,     (seq_t)n);
-    seq_t n1_pow = big_pow((seq_t)(n-1), (seq_t)n);
-    seq_t n2_pow = big_pow((seq_t)(n-2), (seq_t)n);
-    seq_t n3_pow = big_pow((seq_t)(n-3), (seq_t)n);
+    seq_t n_pow  = ipow((seq_t)n,     (seq_t)n);
+    seq_t n1_pow = ipow((seq_t)(n-1), (seq_t)n);
+    seq_t n2_pow = ipow((seq_t)(n-2), (seq_t)n);
+    seq_t n3_pow = ipow((seq_t)(n-3), (seq_t)n);
 
     /* numerator = n_pow - 3*n1_pow + 3*n2_pow - n3_pow */
     seq_t num = n_pow;

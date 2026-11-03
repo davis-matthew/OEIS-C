@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{d|n} d^(3*d+1) for n >= 1
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 7, u128 n <= 11,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 28 terms through n = 149 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 /* Static cache of computed a(n) values */
 static seq_t *cache = NULL;
@@ -67,11 +69,11 @@ seq_t a(idx_t n) {
     /* Ensure cache is large enough */
     if ((size_t)n > cache_size) {
         size_t new_size = ((size_t)n > 10) ? (size_t)n + 10 : 10;
-        seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_size);
         if (!new_cache) return (seq_t)0;  /* allocation failure – unlikely */
         for (size_t i = 0; i < cache_size; ++i) new_cache[i] = cache[i];
         for (size_t i = cache_size; i < new_size; ++i) new_cache[i] = 0;
-        free(cache);
+        mem_free(cache);
         cache = new_cache;
         cache_size = new_size;
     }
@@ -96,7 +98,7 @@ seq_t a(idx_t n) {
     seq_t sum = 0;
     for (size_t i = 0; i < div_cnt; ++i) {
         uint64_t d = divs[i];
-        seq_t term = big_pow((seq_t)d, (seq_t)(3 * d + 1));
+        seq_t term = ipow((seq_t)d, (seq_t)(3 * d + 1));
         sum += term;
     }
     free(divs);

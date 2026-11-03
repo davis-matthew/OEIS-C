@@ -11,11 +11,13 @@
  *            (100*m^2+132*m+41) + 9*(2*m+1)*(-1)^(m-3)
  * Range:     u8 n <= 2, u16 n <= 14, u32 n <= 40, u64 n <= 100, u128 n <= 222,
  *            big any n
+ * Validated: standard, pass, 57 terms through n = 958 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

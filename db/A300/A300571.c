@@ -8,7 +8,8 @@
  * Formula:   a(n) = concatenation of binary(n), binary(n-1), …, binary(0)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 7, u128 n <= 12,
  *            big any n
- * Helpers:   floor_log2_uint64, pow10
+ * Validated: standard, pass, 29 terms through n = 137 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,19 @@
  * functions pow10() and floor_log2_uint64().
  */
 
-#include "../utils/pow10.h"
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/ilog2.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -33,7 +45,7 @@ seq_t a(idx_t n)
          */
         idx_t len = 1;
         if (i != 0) {
-            len = floor_log2_uint64(i) + 1;
+            len = ilog2(i) + 1;
         }
 
         /* Convert the binary representation of i into its decimal value.

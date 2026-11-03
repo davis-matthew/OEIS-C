@@ -7,7 +7,8 @@
  * Formula:   a(n) = product of the Zumkeller divisors of n
  * Range:     u8 n <= 23, u16 n <= 47, u32 n <= 119, u64 n <= 419,
  *            u128 n <= 1679, big any n
- * Helpers:   build_spf, compute_divisors, factor_u64, is_zumkeller
+ * Validated: standard, pass, 96 terms through n = 9957 (2026-11-01)
+ * Helpers:   build_spf, factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,10 +19,79 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../utils/factor_u64.h"   /* factor_u64 */
-#include "../utils/build_spf.h"    /* build_spf */
-#include "../utils/compute_divisors.h"
-#include "../utils/is_zumkeller.h"
+#include "../utils/build_spf.h"
+#include "../utils/factor_u64.h"
+
+/* Generate all divisors of a number given its prime factorization. */
+static void compute_divisors(uint64_t n,
+                             uint64_t *pr, uint64_t *ex, size_t cnt,
+                             uint64_t *divs, size_t *div_cnt)
+{
+    divs[0] = 1;
+    size_t cur = 1;
+    for (size_t i = 0; i < cnt; ++i) {
+        uint64_t p = pr[i];
+        uint64_t e = ex[i];
+        size_t sz = cur;
+        uint64_t mult = 1;
+        for (uint64_t k = 1; k <= e; ++k) {
+            mult *= p;
+            for (size_t j = 0; j < sz; ++j) {
+                divs[cur++] = divs[j] * mult;
+            }
+        }
+    }
+    *div_cnt = cur;
+}
+
+/* Test whether a number m (m <= limit) is a Zumkeller number. */
+static bool is_zumkeller(uint64_t m, idx_t *spf)
+{
+    /* Quick check: the sum of divisors must be even. */
+    /* Generate divisors. */
+    uint64_t pr[32];
+    uint64_t ex[32];
+    size_t  cnt = 0;
+    uint64_t temp = m;
+    while (temp > 1 && cnt < 32) {
+        uint64_t p = spf[temp];
+        if (p == 0) p = temp;              /* temp is prime */
+        uint64_t e = 0;
+        while (temp % p == 0) {
+            temp /= p;
+            ++e;
+        }
+        pr[cnt] = p;
+        ex[cnt] = e;
+        ++cnt;
+    }
+    uint64_t divs[256];
+    size_t div_cnt;
+    compute_divisors(m, pr, ex, cnt, divs, &div_cnt);
+
+    /* Sum of divisors. */
+    uint64_t sigma = 0;
+    for (size_t i = 0; i < div_cnt; ++i) sigma += divs[i];
+    if (sigma & 1ULL) return false;     /* odd sum, impossible */
+
+    uint64_t target = sigma >> 1;
+    /* Subset-sum DP over divisors. */
+    size_t dp_size = (size_t)target + 1;
+    /* Allocate DP array. */
+    char *dp = (char*)calloc(dp_size, 1);
+    if (!dp) return false;             /* allocation failure, treat as false */
+    dp[0] = 1;
+    for (size_t i = 0; i < div_cnt; ++i) {
+        uint64_t d = divs[i];
+        if (d > target) continue;
+        for (size_t s = target; s >= d; --s) {
+            if (dp[s - d]) dp[s] = 1;
+        }
+    }
+    bool ok = dp[target];
+    free(dp);
+    return ok;
+}
 
 /* Static cache for smallest prime factor array up to current limit. */
 static idx_t *spf_cache = NULL;          /* smallest prime factor */

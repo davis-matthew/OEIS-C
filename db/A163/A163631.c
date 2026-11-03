@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum of the first n odd nonprimes (1, 9, 15, 21, …)
  * Range:     u8 n <= 10, u16 n <= 199, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 63 terms through n = 4861 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

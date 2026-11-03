@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 16, u128 n <= 28,
  *            big any n
- * Helpers:   pow4_seq
+ * Validated: standard, pass, 36 terms through n = 446 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,14 @@
  */
 
 #include <stdlib.h>
-#include "../utils/pow4_seq.h"
+#include "../utils/mem.h"
+
+/* compute (x)^4 using seq_t operations */
+static seq_t pow4_seq(seq_t x)
+{
+    seq_t sq = x * x;
+    return sq * sq;
+}
 
 static seq_t *cache = NULL;        /* a[0..max_n]                           */
 static size_t cache_cap = 0;       /* allocated capacity of cache           */
@@ -31,7 +39,7 @@ seq_t a(idx_t n)
     if (cache == NULL)
     {
         cache_cap = 1;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return 0;
         cache[0] = 1;          /* a(0) = 1 */
         max_n = 0;
@@ -41,7 +49,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= cache_cap)
     {
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;
         cache = tmp;
         cache_cap = new_cap;

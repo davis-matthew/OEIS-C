@@ -7,7 +7,8 @@
  * Formula:   a(n) = number of 9‑element subsets of [n] having a prime sum
  * Range:     u8 n <= 13, u16 n <= 21, u32 n <= 63, u64 n <= 500,
  *            u128 n <= 500, big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 429 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* static state                                                     */
@@ -38,9 +40,9 @@ static size_t prime_cap = 0;
 static void grow_seq_arr(seq_t **arr, size_t *cap, size_t need)
 {
     if (*cap >= need) return;
-    seq_t *tmp = (seq_t *)realloc(*arr, need * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *arr, need);
     if (!tmp) abort();
-    memset(tmp + *cap, 0, (need - *cap) * sizeof(seq_t));
+    mem_set(tmp + *cap, 0, (need - *cap) * sizeof(seq_t));
     *arr = tmp;
     *cap = need;
 }
@@ -75,9 +77,9 @@ static void ensure_res_cap(idx_t needed)
 {
     if (res_cap >= (size_t)needed) return;
     size_t new_cap = (size_t)needed;
-    seq_t *tmp = (seq_t *)realloc(res, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, res, new_cap);
     if (!tmp) abort();
-    memset(tmp + res_cap, 0, (new_cap - res_cap) * sizeof(seq_t));
+    mem_set(tmp + res_cap, 0, (new_cap - res_cap) * sizeof(seq_t));
     res = tmp;
     res_cap = new_cap;
 }

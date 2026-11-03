@@ -9,11 +9,13 @@
  *            (r+1)*(r+2)/2 and k = n - r*(r+1)/2
  * Range:     u8 n <= 43, u16 n <= 151, u32 n <= 559, u64 n <= 2143,
  *            u128 n <= 5150, big any n
+ * Validated: standard, pass, 107 terms through n = 5115 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n) {

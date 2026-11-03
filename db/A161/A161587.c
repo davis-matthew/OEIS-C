@@ -7,6 +7,7 @@
  * Formula:   a(n) = 13*n^2 + 10*n + 1
  * Range:     u8 n <= 4, u16 n <= 70, u32 n <= 9999, u64 n <= 9999,
  *            u128 n <= 9999, big any n
+ * Validated: standard, pass, 56 terms through n = 9879 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

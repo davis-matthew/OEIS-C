@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 60, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 88 terms through n = 90 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------ helper types ------------------------------ */
 /* The types seq_t and idx_t are defined by the build system.  They are
@@ -70,13 +72,13 @@ static void ensure_u_cap(size_t needed) {
     size_t newcap = u_cap ? u_cap << 1 : 64;
     while (newcap < needed) newcap <<= 1;
 
-    u      = (seq_t  *) realloc(u,      newcap * sizeof(seq_t));
-    a_arr  = (seq_t  *) realloc(a_arr,  newcap * sizeof(seq_t));
+    u      = mem_resize(seq_t, u, newcap);
+    a_arr  = mem_resize(seq_t, a_arr, newcap);
 
     /* Zero initialize the new part. */
     size_t add = newcap - u_cap;
-    memset(u      + u_cap, 0, add * sizeof(seq_t));
-    memset(a_arr  + u_cap, 0, add * sizeof(seq_t));
+    mem_set(u      + u_cap, 0, add * sizeof(seq_t));
+    mem_set(a_arr  + u_cap, 0, add * sizeof(seq_t));
 
     u_cap = newcap;
 }

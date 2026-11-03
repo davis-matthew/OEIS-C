@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 18, u64 n <= 37, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 958 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache     = NULL;   /* memoisation array */
 static idx_t cache_len   = 0;     /* allocated slots */
@@ -36,14 +38,14 @@ ensure_cache(idx_t n)
     if (cache_len == 0) {
         /* allocate enough space for the first few terms (at least 5) */
         size_t new_len = (size_t)((n >= 4) ? n + 1 : 5);
-        cache = (seq_t *)malloc(new_len * sizeof(seq_t));
+        cache = mem_new(seq_t, new_len);
         if (!cache) abort();  /* out of memory */
         for (idx_t i = 0; i < new_len; ++i) cache[i] = (seq_t)0;
         cache_len = new_len;
     } else if (cache_len <= n) {
         /* grow the cache to hold up to n */
         size_t new_len = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) abort();  /* out of memory */
         cache = tmp;
         for (idx_t i = cache_len; i < new_len; ++i) cache[i] = (seq_t)0;

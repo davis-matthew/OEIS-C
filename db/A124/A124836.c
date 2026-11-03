@@ -7,12 +7,14 @@
  * Formula:   a(n) = coefficient of x^n in ∏_{k=0}^n 1/(1 - binomial(n,k)·x)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 8, u128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute A124836: central terms of even-indexed rows in triangle A124834 */
 seq_t a(idx_t n)
@@ -23,12 +25,12 @@ seq_t a(idx_t n)
 
     /* Allocate two arrays of size n+1 for dynamic programming */
     size_t size = (size_t)n + 1;
-    seq_t *dp    = (seq_t *)malloc(size * sizeof(seq_t));
-    seq_t *newdp = (seq_t *)malloc(size * sizeof(seq_t));
+    seq_t *dp    = mem_new(seq_t, size);
+    seq_t *newdp = mem_new(seq_t, size);
     if (!dp || !newdp) {
         /* In practice this should never happen for the test ranges */
-        if (dp) free(dp);
-        if (newdp) free(newdp);
+        if (dp) mem_free(dp);
+        if (newdp) mem_free(newdp);
         return (seq_t)0;
     }
 
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
-    free(newdp);
+    mem_free(dp);
+    mem_free(newdp);
     return result;
 }

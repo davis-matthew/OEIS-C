@@ -9,6 +9,7 @@
  *            less than n that do not divide n)
  * Range:     u8 n <= 126, u16 n <= 966, u32 n <= 6898, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 93 terms through n = 9121 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

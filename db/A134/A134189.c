@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 12, u16 n <= 20, u32 n <= 23, u64 n <= 35, u128 n <= 35,
+ * Range:     u8 n <= 12, u16 n <= 20, u32 n <= 33, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   cmp_seq_t, gcd, is_prime_big
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-03)
+ * Helpers:   gcd, is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,9 +25,75 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+#include <stdint.h>
+#include <stddef.h>
 #include "../utils/gcd.h"
-#include "../utils/is_prime_big.h"
-#include "../utils/cmp_seq_t.h"
+#include "../utils/mem.h"
+#include "../utils/is_prime_u64.h"
+
+/* Miller–Rabin primality test for seq_t (supports 8/16/32/64/128/ arbitrary-precision) */
+/* n fits in uint64_t (n >= 0 here) */
+static bool is_prime_big_fits_u64(seq_t v)
+{
+    if (sizeof(seq_t) <= 8) return true;
+    return !((seq_t)UINT64_MAX < v);
+}
+
+static bool is_prime_big(seq_t n) {
+    if (n < 2) return false;
+    /* exact in 64 bits when n fits: the seq_t products below overflow at
+       u64/i64 once n passes 2^32, and are slow under big */
+    if (is_prime_big_fits_u64(n)) return is_prime_u64((uint64_t)n);
+    if (n == 2 || n == 3) return true;
+    if ((n & 1) == 0) return false;
+
+    /* write n-1 as d * 2^s with d odd */
+    seq_t d = n - 1;
+    unsigned s = 0;
+    while ((d & 1) == 0) {
+        d >>= 1;
+        s++;
+    }
+
+    /* deterministic bases covering 128‑bit values */
+    static const int base_list[] = {2,3,5,7,11,13,17,19,23,29,31,37};
+    const int num_bases = sizeof(base_list)/sizeof(base_list[0]);
+
+    for (int i = 0; i < num_bases; i++) {
+        seq_t a = (seq_t)base_list[i];
+        if (a >= n) continue;
+
+        /* compute a^d mod n */
+        seq_t x = 1;
+        seq_t pow = a % n;
+        seq_t exp = d;
+        while (exp > 0) {
+            if (exp & 1) x = (x * pow) % n;
+            pow = (pow * pow) % n;
+            exp >>= 1;
+        }
+
+        if (x == 1 || x == n-1) continue;
+
+        bool cont = false;
+        for (unsigned r = 1; r < s; r++) {
+            x = (x * x) % n;
+            if (x == n-1) { cont = true; break; }
+        }
+        if (!cont) return false;
+    }
+    return true;
+}
+
+/* comparison function for qsort */
+static int cmp_seq_t(const void *p1, const void *p2)
+{
+    const seq_t *x = (const seq_t *)p1;
+    const seq_t *y = (const seq_t *)p2;
+    if (*x < *y) return -1;
+    if (*y < *x) return 1;
+    return 0;
+}
 
 static seq_t *cache = NULL;          /* 0‑based array of already known terms, a(1) at cache[0] */
 static size_t cache_len = 0;         /* number of terms currently stored */
@@ -115,7 +182,7 @@ static seq_t count_divisors(seq_t x)
     seq_t buf[1024];
     size_t flen = 0;
     factor_rho_rec(x, buf, &flen);
-    qsort(buf, flen, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(buf, flen, sizeof(seq_t), cmp_seq_t);
     seq_t total = (seq_t)1;
     for (size_t i = 0; i < flen;) {
         size_t j = i;
@@ -143,7 +210,7 @@ static void ensure_cache(idx_t n)
     /* initialise first term if needed */
     if (cache_len == 0) {
         cache_cap = 16;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
         cache[0] = a_prev;
         cache_len = 1;
         a_prev = (seq_t)1;
@@ -180,7 +247,7 @@ static void ensure_cache(idx_t n)
         seq_t sum_buf[1024];
         size_t sum_flen = 0;
         factor_rho_rec(sum_val, sum_buf, &sum_flen);
-        qsort(sum_buf, sum_flen, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(sum_buf, sum_flen, sizeof(seq_t), cmp_seq_t);
 
         seq_t sum_primes[1024];
         unsigned char sum_exps[1024];
@@ -230,7 +297,7 @@ static void ensure_cache(idx_t n)
         /* store computed term */
         if (cache_len == cache_cap) {
             cache_cap *= 2;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
         cache[cache_len] = a_prev;
         ++cache_len;

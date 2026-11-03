@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 61, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 9389 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Fermat primes up to 65537.  Add more if desired. */
 static const uint64_t _fermat_primes[] = {3ULL,5ULL,17ULL,257ULL,65537ULL};
@@ -61,7 +63,7 @@ static size_t _cache_cap   = 0;
 static void _ensure_cache(idx_t target_n) {
     if (_cache == NULL) {
         _cache_cap   = 128;
-        _cache       = (seq_t *)malloc(_cache_cap * sizeof(seq_t));
+        _cache       = mem_new(seq_t, _cache_cap);
         _cache_count = 0;
     }
     while (_cache_count < target_n) {
@@ -80,7 +82,7 @@ static void _ensure_cache(idx_t target_n) {
         /* Store the term. */
         if (_cache_count >= _cache_cap) {
             _cache_cap *= 2;
-            _cache = (seq_t *)realloc(_cache, _cache_cap * sizeof(seq_t));
+            _cache = mem_resize(seq_t, _cache, _cache_cap);
         }
         _cache[_cache_count++] = (seq_t)cand;
     }

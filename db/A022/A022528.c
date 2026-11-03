@@ -7,6 +7,7 @@
  * Formula:   a(n) = (n+1)^12 - n^12 (expanded)
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 5, u64 n <= 44, u128 n <= 2539,
  *            big any n
+ * Validated: standard, pass, 34 terms through n = 9921 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

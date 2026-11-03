@@ -10,12 +10,14 @@
  *            a(n) = a(n-1)+1 otherwise
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 118 terms through n = 9523 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* enlarge table if necessary */
     if (n >= memo_size) {
         idx_t new_size = n + 1;                /* indices 0..n inclusive */
-        seq_t *new_table = (seq_t *)realloc(memo, new_size * sizeof(seq_t));
+        seq_t *new_table = mem_resize(seq_t, memo, new_size);
         if (!new_table) return 0;              /* allocation failure */
         memo = new_table;
         for (idx_t i = memo_size; i < new_size; ++i) memo[i] = 0;

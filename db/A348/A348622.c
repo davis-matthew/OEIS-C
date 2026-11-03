@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 17, u32 n <= 25, u64 n <= 49, u128 n <= 86,
  *            big any n
- * Helpers:   pow2
+ * Validated: standard, pass, 52 terms through n = 1593 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,9 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 /* Integer square root using 128‑bit arithmetic (floor) */
 static inline idx_t int_isqrt_u64(idx_t x) {
@@ -47,7 +50,7 @@ static idx_t T1_len = 0;
 static void ensure_T1(idx_t up_to) {
     if (T1_len <= up_to) {
         idx_t new_len = up_to + 1;
-        seq_t *new_arr = (seq_t *)realloc(T1, new_len * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, T1, new_len);
         if (!new_arr) { /* allocation failed – terminate */
             exit(EXIT_FAILURE);
         }

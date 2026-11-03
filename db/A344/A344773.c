@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{d|n} [ gcd(1+d, ψ(d)) == gcd(1+n, ψ(n)) ]
- * Range:     u8 n <= 865, u16 n <= 9472, u32 n <= 9472, u64 n <= 9472,
- *            u128 n <= 9472, big any n
+ * Range:     u8 n <= 865, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9472 (2026-11-01)
  * Helpers:   factor_u64, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,8 +17,10 @@
 /* where ψ(n) = n * Prod_{p|n}(1+1/p) = Prod_{p^e||n} (p^e + p^(e-1)) */
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/gcd.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
 
 static void count_divisors(idx_t idx,
                            idx_t cur_d,

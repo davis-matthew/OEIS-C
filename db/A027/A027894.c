@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 12, u32 n <= 12, u64 n <= 12, u128 n <= 12,
  *            big any n
- * Helpers:   seq_cmp
+ * Validated: full, pass, 12 terms through n = 12 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,18 @@
    divisor (1‑based).  For n > 12 the sequence is undefined. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_cmp.h"
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/mem.h"
+
+static int seq_cmp(const void *p, const void *q)
+{
+    const seq_t *a = (const seq_t *)p;
+    const seq_t *b = (const seq_t *)q;
+    if (*a < *b) return -1;
+    if (*a > *b) return 1;
+    return 0;
+}
 
 seq_t a(idx_t n)
 {
@@ -45,7 +57,7 @@ seq_t a(idx_t n)
             }
         }
         /* Sort the array in ascending order */
-        qsort(divisors, 12, sizeof(seq_t), seq_cmp);
+        mem_qsort(divisors, 12, sizeof(seq_t), seq_cmp);
         initialized = true;
     }
 

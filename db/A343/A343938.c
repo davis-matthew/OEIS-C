@@ -8,15 +8,19 @@
  * Formula:   a(n) = 2*Ω(n) - Σ e * index(p) over prime factorisation of n
  * Range:     i8 n <= 738, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   _floor_isqrt_u64, build_primes_upto, compute_pi
+ * Validated: standard, pass, 85 terms through n = 9000 (2026-11-01)
+ * Helpers:   build_primes_upto, isqrt, prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/_floor_isqrt_u64.h"
+#include <stddef.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/compute_pi.h"
+#include "../utils/isqrt.h"
+#include "../utils/prime_pi.h"
 
 static idx_t prime_limit = 0;
 static uint64_t *prime_list = NULL;
@@ -27,7 +31,7 @@ seq_t a(idx_t n)
     if (n < 1) return 0;               /* undefined for n < 1 */
 
     /* Ensure we have all primes up to sqrt(n) for factorisation. */
-    idx_t sq = _floor_isqrt_u64(n);
+    idx_t sq = isqrt(n);
     if (sq > prime_limit) {
         free(prime_list);
         build_primes_upto(sq, &prime_list, &prime_cnt);
@@ -55,7 +59,7 @@ seq_t a(idx_t n)
 
     if (tmp > 1) {                     /* remaining prime factor */
         total_mult  += 1;
-        sum_indices += compute_pi(tmp);  /* index of the prime */
+        sum_indices += prime_pi(tmp);  /* index of the prime */
     }
 
     return 2 * total_mult - sum_indices;

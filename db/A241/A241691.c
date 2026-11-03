@@ -12,13 +12,15 @@
  *            parts...
  * Range:     u8 n <= 14, u16 n <= 37, u32 n <= 115, u64 n <= 390,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 943 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *q_arr    = NULL;   /* partitions into distinct parts */
 static seq_t *s_arr    = NULL;   /* sum of lengths across partitions */
@@ -33,15 +35,15 @@ static void precompute(idx_t up_to)
     size_t N = (size_t)up_to;
 
     /* free previous arrays */
-    free(q_arr);    free(s_arr);    free(conv_arr);
-    free(perm_arr); free(dp_all);
+    mem_free(q_arr);    mem_free(s_arr);    mem_free(conv_arr);
+    mem_free(perm_arr); mem_free(dp_all);
 
     /* allocate new arrays */
-    q_arr    = (seq_t*)calloc(N+1, sizeof(seq_t));
-    s_arr    = (seq_t*)calloc(N+1, sizeof(seq_t));
-    conv_arr = (seq_t*)calloc(N+1, sizeof(seq_t));
-    perm_arr = (seq_t*)calloc(N+1, sizeof(seq_t));
-    dp_all   = (seq_t*)calloc(N+1, sizeof(seq_t));
+    q_arr    = mem_new(seq_t, N+1);
+    s_arr    = mem_new(seq_t, N+1);
+    conv_arr = mem_new(seq_t, N+1);
+    perm_arr = mem_new(seq_t, N+1);
+    dp_all   = mem_new(seq_t, N+1);
 
     /* -------- q[n] and s[n]  (partitions into distinct parts) -------- */
     q_arr[0] = 1;           /* empty partition */
@@ -70,14 +72,14 @@ static void precompute(idx_t up_to)
     }
 
     /* -------- descent_less[n] = s[n] - q[n] -------- */
-    seq_t *descent_less = (seq_t*)malloc((N+1) * sizeof(seq_t));
+    seq_t *descent_less = mem_new(seq_t, (N+1));
     for (size_t n = 0; n <= N; ++n) {
         descent_less[n] = s_arr[n] - q_arr[n];
     }
 
     /* -------- equal_pairs[n] -------- */
-    seq_t *equal_pairs = (seq_t*)calloc(N+1, sizeof(seq_t));
-    seq_t *dp_excl = (seq_t*)calloc(N+1, sizeof(seq_t));   /* temporary */
+    seq_t *equal_pairs = mem_new(seq_t, N+1);
+    seq_t *dp_excl = mem_new(seq_t, N+1);   /* temporary */
 
     for (size_t t = 1; t <= N/2; ++t) {
         size_t maxS = N - 2*t;
@@ -92,15 +94,15 @@ static void precompute(idx_t up_to)
             equal_pairs[n] += dp_excl[n - 2*t];
         }
     }
-    free(dp_excl);
+    mem_free(dp_excl);
 
     /* -------- final a[n] -------- */
     for (size_t n = 3; n <= N; ++n) {
         perm_arr[n] = conv_arr[n] - descent_less[n] - equal_pairs[n];
     }
 
-    free(descent_less);
-    free(equal_pairs);
+    mem_free(descent_less);
+    mem_free(equal_pairs);
     max_n = N;
 }
 

@@ -7,16 +7,19 @@
  * Formula:   a(n) = Sum_{d|n} d^rad(d) (OEIS A345263)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 16, u128 n <= 22,
  *            big any n
- * Helpers:   big_pow, factor_u64, rad
+ * Validated: partial, pass, 22 terms through n = 22 (2026-11-01)
+ * Helpers:   factor_u64, ipow, radical
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
-#include "../utils/rad.h"
+#include "../utils/ipow.h"
+#include "../utils/radical.h"
 
 /* Recursive helper: generate all divisors of n.
    `idx`   : current prime factor index
@@ -27,11 +30,11 @@
    `sum`  : accumulated result                      */
 static void dfs_divisors(size_t idx, size_t pf_cnt,
                          const uint64_t *primes, const uint64_t *exps,
-                         seq_t val, seq_t rad, seq_t *sum)
+                         seq_t val, seq_t radical, seq_t *sum)
 {
     if (idx == pf_cnt) {
         /* Add d^rad(d) for the divisor `val`                 */
-        *sum += big_pow(val, rad);
+        *sum += ipow(val, radical);
         return;
     }
 
@@ -39,10 +42,10 @@ static void dfs_divisors(size_t idx, size_t pf_cnt,
     uint64_t emax= exps[idx];
 
     /* e = 0 case: prime p not used in this divisor        */
-    dfs_divisors(idx + 1, pf_cnt, primes, exps, val, rad, sum);
+    dfs_divisors(idx + 1, pf_cnt, primes, exps, val, radical, sum);
 
     /* e >= 1 cases: prime p used at least once            */
-    seq_t rad_ep = rad * (seq_t)p;  /* rad contains p once             */
+    seq_t rad_ep = radical * (seq_t)p;  /* rad contains p once             */
     seq_t val_ep = val;
     for (uint64_t e = 1; e <= emax; ++e) {
         val_ep *= (seq_t)p;

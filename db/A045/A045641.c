@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 113, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   idx_pow10
+ * Validated: standard, pass, 58 terms through n = 8879 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,13 @@
    OEIS sequence A045641. */
 
 #include <stdbool.h>
-#include "../utils/idx_pow10.h"
+
+static idx_t idx_pow10(int exp)
+{
+    idx_t r = 1;
+    while (exp--) r *= 10;
+    return r;
+}
 
 /* Build a palindrome from its left half.
    left   – left half as an idx_t (most‑significant digit first)

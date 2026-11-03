@@ -8,18 +8,19 @@
  * Formula:   a(n) = P(n)!
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 12, u64 n <= 22, u128 n <= 36,
  *            big any n
- * Helpers:   max_prime_factor
+ * Validated: standard, pass, 46 terms through n = 449 (2026-11-01)
+ * Helpers:   largest_prime_factor_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* a(1) = 1, otherwise a(n) = (largest prime factor of n)! */
 #include <stdint.h>
-#include "../utils/max_prime_factor.h"
+#include "../utils/largest_prime_factor_idx.h"
 
 seq_t a(idx_t n)
 {
-    seq_t L = max_prime_factor(n);
+    seq_t L = largest_prime_factor_idx(n);
     seq_t res = 1;
 
     for (seq_t i = 2; i <= L; ++i)

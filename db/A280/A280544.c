@@ -9,13 +9,15 @@
  *            A280544). a(0)=1, a(1)=0, a(2)=0, a(3)=0,
  * Range:     u8 n <= 29, u16 n <= 50, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Compute the n-th term of the sequence.  The function is memoised
    and works for arbitrary order of calls. */
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* Ensure the tables are large enough for n */
     if (n >= allocated) {
         size_t new_len = (size_t)n + 1;
-        dp = (seq_t *)realloc(dp, new_len * sizeof(seq_t));
+        dp = mem_resize(seq_t, dp, new_len);
         is_composite = (bool *)realloc(is_composite, new_len * sizeof(bool));
 
         /* Sieve of Eratosthenes for primes up to n */

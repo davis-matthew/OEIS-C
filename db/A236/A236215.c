@@ -7,16 +7,34 @@
  * Formula:   a(n) = Sum_{k=1..n} prime(k)^9
  * Range:     u8 none, u16 n <= 2, u32 n <= 5, u64 n <= 30, u128 n <= 1000,
  *            big any n
- * Helpers:   big_pow, grow_seq, sieve_first_n_primes
+ * Validated: standard, pass, 34 terms through n = 999 (2026-11-03)
+ * Helpers:   ipow, mem, sieve_first_n_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/grow_seq.h"
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include <string.h>
+#include <math.h>
+#include "../utils/ipow.h"
 #include "../utils/sieve_first_n_primes.h"
+#include "../utils/mem.h"
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
 
 seq_t a(idx_t n)
 {
@@ -43,7 +61,7 @@ seq_t a(idx_t n)
 
     for (idx_t i = cached_n; i < n; ++i) {
         seq_t p   = (seq_t)primes[i];
-        seq_t p9  = big_pow(p, (seq_t)9);
+        seq_t p9  = ipow(p, (seq_t)9);
         cumsum[i+1] = cumsum[i] + p9;
     }
 

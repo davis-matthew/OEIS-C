@@ -7,6 +7,7 @@
  * Formula:   a(n) = number of integer pairs (x,y) with x⁴ + y⁴ = n
  * Range:     u8 n <= 15, u16 n <= 9999, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 121 terms through n = 8725 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

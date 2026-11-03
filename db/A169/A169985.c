@@ -9,7 +9,8 @@
  *            7, 11, 18, …
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 46, u64 n <= 92, u128 n <= 184,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 3898 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* Implementation uses memoised Lucas numbers. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *lucas_cache   = NULL;   /* holds L[0], L[1], … */
 static size_t lucas_size    = 0;      /* number of elements stored */
@@ -33,7 +35,7 @@ static void ensure_lucas(idx_t n)
     while (new_cap <= (size_t)n)
         new_cap <<= 1;                /* multiply by 2 */
 
-    seq_t *tmp = (seq_t *)realloc(lucas_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, lucas_cache, new_cap);
     if (!tmp)
         exit(EXIT_FAILURE);          /* OOM */
     lucas_cache = tmp;

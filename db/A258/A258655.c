@@ -9,6 +9,7 @@
  *            d≡1,4,7 (mod 8)} 2d
  * Range:     i8 n <= 9, i16 n <= 119, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
+ * Validated: standard, pass, 69 terms through n = 979 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,8 @@
 /* Computes a(n) for n ≥ 1.  Uses divisor enumeration over n². */
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 static void generate_divisors(size_t idx, seq_t cur,

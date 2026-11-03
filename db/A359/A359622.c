@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 10, u64 n <= 21, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
        a(1)=1, a(2)=26, a(3)=307, a(4)=3004, a(5)=27049,
        a(6)=232658, a(7)=1947103 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;       /* memoization array, cache[0] unused */
 static idx_t  max_cached = 0;     /* highest n written into cache */
@@ -34,7 +36,7 @@ static void ensure_cache_size(idx_t n)
     if (cache == NULL) {
         /* Allocate initial cache for indices 0..7 */
         size_t cap = 8;
-        cache = (seq_t*)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) { /* allocation failed – abort by returning 0 */
             max_cached = 0;
             return;
@@ -61,7 +63,7 @@ static void ensure_cache_size(idx_t n)
     size_t cap = (size_t)max_cached + 1;
     if (needed > cap) {
         size_t new_cap = needed * 2;   /* simple growth factor */
-        seq_t *new_cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache)               /* allocation failed */
             return;
         /* Initialize newly allocated slots to 0 */

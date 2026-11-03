@@ -9,12 +9,14 @@
  *            k
  * Range:     u8 n <= 11, u16 n <= 151, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 995 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static idx_t maxN = 0;          /* maximum n for which we have computed values */
 static seq_t *A = NULL;         /* cumulative sums a(k) for k = 0 .. N */
@@ -28,9 +30,9 @@ seq_t a(idx_t n)
     if (n > maxN) {
         /* Allocate space for indices 0..n (inclusive) */
         if (A == NULL) {
-            A = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
+            A = mem_new(seq_t, (size_t)n + 1);
         } else {
-            A = (seq_t *)realloc(A, ((size_t)n + 1) * sizeof(seq_t));
+            A = mem_resize(seq_t, A, ((size_t)n + 1));
         }
         if (A == NULL) exit(1);               /* allocation failed */
 

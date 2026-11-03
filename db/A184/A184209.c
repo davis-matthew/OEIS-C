@@ -12,7 +12,8 @@
  *            results up to the largest n requested * and u...
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 18, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 190 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static unsigned char M[16][16];
 static bool adj_init = false;
@@ -59,13 +61,13 @@ static void ensure_cache(idx_t n)
         size_t new_cap = a_cache_cap ? a_cache_cap * 2 : n + 1;
         if (new_cap < (size_t)(n + 1))
             new_cap = n + 1;
-        seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, new_cap);
         if (!tmp)
             abort();                    /* allocation failed */
         if (a_cache) {
             for (size_t i = 0; i <= (size_t)a_cache_n; ++i)
                 tmp[i] = a_cache[i];
-            free(a_cache);
+            mem_free(a_cache);
         }
         a_cache = tmp;
         a_cache_cap = new_cap;

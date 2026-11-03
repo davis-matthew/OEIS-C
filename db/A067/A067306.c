@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
  */
 
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static idx_t cache_size = 0;
 static seq_t *a_cache = NULL;
@@ -37,25 +39,25 @@ static void ensure_cache(idx_t n)
     if (n < cache_size) return;
 
     /* free old if any */
-    if (a_cache)  free(a_cache);
-    if (d_cache)  free(d_cache);
-    if (pow2_cache) free(pow2_cache);
-    if (pow3_cache) free(pow3_cache);
-    if (pow4_cache) free(pow4_cache);
-    if (pow5_cache) free(pow5_cache);
-    if (D_cache)  free(D_cache);
-    if (N_cache)  free(N_cache);
+    if (a_cache)  mem_free(a_cache);
+    if (d_cache)  mem_free(d_cache);
+    if (pow2_cache) mem_free(pow2_cache);
+    if (pow3_cache) mem_free(pow3_cache);
+    if (pow4_cache) mem_free(pow4_cache);
+    if (pow5_cache) mem_free(pow5_cache);
+    if (D_cache)  mem_free(D_cache);
+    if (N_cache)  mem_free(N_cache);
 
     /* allocate new cache */
     size_t N = (size_t)(n + 1);
-    a_cache  = (seq_t*)malloc(N * sizeof(seq_t));
-    d_cache  = (seq_t*)malloc(N * sizeof(seq_t));
-    pow2_cache = (seq_t*)malloc(N * sizeof(seq_t));
-    pow3_cache = (seq_t*)malloc(N * sizeof(seq_t));
-    pow4_cache = (seq_t*)malloc(N * sizeof(seq_t));
-    pow5_cache = (seq_t*)malloc(N * sizeof(seq_t));
-    D_cache  = (seq_t*)malloc(N * sizeof(seq_t));
-    N_cache  = (seq_t*)malloc(N * sizeof(seq_t));
+    a_cache  = mem_new(seq_t, N);
+    d_cache  = mem_new(seq_t, N);
+    pow2_cache = mem_new(seq_t, N);
+    pow3_cache = mem_new(seq_t, N);
+    pow4_cache = mem_new(seq_t, N);
+    pow5_cache = mem_new(seq_t, N);
+    D_cache  = mem_new(seq_t, N);
+    N_cache  = mem_new(seq_t, N);
 
     /* compute Catalan numbers times 4^k */
     d_cache[0] = 1;          /* C0 = 1, 4^0 = 1 */

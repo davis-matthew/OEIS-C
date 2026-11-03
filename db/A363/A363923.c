@@ -8,15 +8,23 @@
  * Formula:   a(n) = n^(A001222(n)) / A007947(n) (OEIS A363923)
  * Range:     u8 n <= 7, u16 n <= 31, u32 n <= 63, u64 n <= 383,
  *            u128 n <= 4095, big any n
- * Helpers:   factor_u64, seq_mul, seq_pow
+ * Validated: standard, pass, 72 terms through n = 9536 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_mul.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -41,7 +49,7 @@ seq_t a(idx_t n)
         seq_t p   = (seq_t)primes[i];
         idx_t  e  = (idx_t)exps[i];
         idx_t  exp = e * omega - 1;       /* exponent for this prime */
-        seq_t term = seq_pow(p, exp);     /* p^exp */
+        seq_t term = ipow_idx(p, exp);     /* p^exp */
         result = seq_mul(result, term);   /* multiply into the result */
     }
     return result;

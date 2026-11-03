@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign
  * Formula:   a(n) = tau(sigma(n)) - tau(n)
- * Range:     i8 n <= 59, i16 n <= 9299, i32 n <= 9299, i64 n <= 9299,
- *            i128 n <= 9299, big any n
+ * Range:     i8 n <= 59, i16 n <= 16384, i32 n <= 16384, i64 n <= 16384,
+ *            i128 n <= 16384, big any n
+ * Validated: standard, pass, 121 terms through n = 9299 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 
 /* Compute the divisor count τ(n) for a 64‑bit integer n. */

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 168, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 84 terms through n = 9186 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*--- Prime sieve -----------------------------------------------*/
 #define PRIME_LIMIT 200000       /* sufficient for all needed factors */
@@ -116,7 +118,7 @@ static void ensure_seq_capacity(size_t need)
         seq_cap = 16;
     while (seq_cap < need)
         seq_cap <<= 1;
-    seq_arr = (seq_t *)realloc(seq_arr, seq_cap * sizeof(seq_t));
+    seq_arr = mem_resize(seq_t, seq_arr, seq_cap);
 }
 
 /*--- Sequence function ----------------------------------------*/

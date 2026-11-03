@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 89, u16 n <= 89, u32 n <= 89, u64 n <= 89, u128 n <= 89,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 89 terms through n = 89 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
   
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ----------------------------------------------------------------------
  * Helper: floor(sqrt(n)) for n <= 2^64-1.  Uses 128‑bit arithmetic to avoid
@@ -64,7 +66,7 @@ static idx_t   precomp   = 0;     /* maximum n that has been pre‑computed */
 static void rebuild_tables(idx_t new_max)
 {
     /* free old tables if they exist */
-    free(seq_vals);
+    mem_free(seq_vals);
     free(row_off);
 
     /* compute row offsets */
@@ -76,10 +78,10 @@ static void rebuild_tables(idx_t new_max)
     /* total number of entries in the flattened triangle */
     idx_t total = row_off[new_max] + row_length(new_max);
 
-    seq_vals = (seq_t *)calloc(total, sizeof(seq_t));   /* zero‑init */
+    seq_vals = mem_new(seq_t, total);   /* zero‑init */
 
     /* temporary DP array for a fixed smallest part m */
-    seq_t *dp = (seq_t *)calloc((new_max + 1), sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (new_max + 1));
 
     for (idx_t m = 1; m <= new_max; ++m) {
         /* reset dp: dp[0] = 1, others 0 */
@@ -112,7 +114,7 @@ static void rebuild_tables(idx_t new_max)
         }
     }
 
-    free(dp);
+    mem_free(dp);
     precomp = new_max;
 }
 

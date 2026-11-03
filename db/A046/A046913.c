@@ -10,15 +10,18 @@
  *            applying the multiplicative formula for sigma
  * Range:     u8 n <= 16, u16 n <= 1696, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, pow_seq
+ * Validated: standard, pass, 84 terms through n = 9975 (2026-11-01)
+ * Helpers:   factor_u64, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -41,13 +44,13 @@ seq_t a(idx_t n)
         seq_t    part_n, part_3n;
 
         /* sigma component for n: (p^(e+1)-1)/(p-1) */
-        seq_t pow_pe1 = pow_seq((seq_t)p, e + 1);
+        seq_t pow_pe1 = ipow_i32((seq_t)p, e + 1);
         part_n = (pow_pe1 - (seq_t)1) / ((seq_t)p - (seq_t)1);
         sigma_n *= part_n;
 
         /* sigma component for 3*n: exponent of 3 may increase by 1 */
         int e3n = (int)(p == 3 ? e + 1 : e);
-        seq_t pow_pe1_3n = pow_seq((seq_t)p, e3n + 1);
+        seq_t pow_pe1_3n = ipow_i32((seq_t)p, e3n + 1);
         part_3n = (pow_pe1_3n - (seq_t)1) / ((seq_t)p - (seq_t)1);
         sigma_3n *= part_3n;
 

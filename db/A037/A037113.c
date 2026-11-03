@@ -8,6 +8,7 @@
  *            a(0)=3; for n>0, a(n) = a(n-1)/2 if a(n-1) even else 31*a(n-1)+1
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 22, u64 n <= 24, u128 n <= 24,
  *            big any n
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

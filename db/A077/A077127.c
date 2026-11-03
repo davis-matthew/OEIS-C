@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 130, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 87 terms through n = 9832 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static void init_sequence(void);
 static void factor_unique(idx_t n, uint32_t *pr, size_t *cnt);
@@ -71,7 +73,7 @@ static void init_sequence(void)
 
     /* Allocate buffer */
     buf_cap = INIT_BUF_CAP;
-    buf = (seq_t*)malloc(buf_cap * sizeof(seq_t));
+    buf = mem_new(seq_t, buf_cap);
     buf_len = 0;
 
     /* seed first two terms */
@@ -194,7 +196,7 @@ seq_t a(idx_t n)
         /* Store result */
         if (buf_len == buf_cap) {
             buf_cap *= 2;
-            buf = (seq_t*)realloc(buf, buf_cap * sizeof(seq_t));
+            buf = mem_resize(seq_t, buf, buf_cap);
         }
         buf[buf_len++] = (seq_t)best;
     }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 31, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
    The OEIS sequence a(n) is the flattened triangle read row-wise.
 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t **triangle = NULL;    /* array of row pointers, 1‑indexed */
 static idx_t max_row    = 0;        /* highest computed row */
@@ -57,7 +59,7 @@ static void ensure_rows(idx_t needed)
     }
 
     for (idx_t i = max_row + 1; i <= needed; ++i) {
-        triangle[i] = (seq_t*)malloc(sizeof(seq_t) * (i + 2));
+        triangle[i] = mem_new(seq_t, (i + 2));
         if (!triangle[i]) return;           /* allocation failed – ignore */
         triangle[i][0]      = 0;           /* unused boundary 0 */
         triangle[i][i + 1]  = 0;           /* unused boundary i+1 */

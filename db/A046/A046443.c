@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 42, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   digit_count
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem, num_digits0
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/digit_count.h"
+#include <math.h>
+#include "../utils/num_digits0.h"
+#include "../utils/mem.h"
 
 /* Smallest‑prime‑factor table */
 static uint32_t *spf = NULL;
@@ -91,9 +94,9 @@ static bool is_candidate(uint32_t n)
 
     if (repeat || count != 3) return false;
 
-    uint64_t l1 = digit_count(primes[0]);
-    uint64_t l2 = digit_count(primes[1]);
-    uint64_t l3 = digit_count(primes[2]);
+    uint64_t l1 = num_digits0(primes[0]);
+    uint64_t l2 = num_digits0(primes[1]);
+    uint64_t l3 = num_digits0(primes[2]);
     return (l1 != l2 && l1 != l3 && l2 != l3);
 }
 
@@ -103,7 +106,7 @@ static void ensure_cache_capacity(size_t need)
     if (cache_cap >= need) return;
     size_t new_cap = (cache_cap == 0) ? 1024 : cache_cap * 2;
     while (new_cap < need) new_cap *= 2;
-    seq_t *new_arr = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, cache, new_cap);
     if (!new_arr) abort();
     cache = new_arr;
     cache_cap = new_cap;

@@ -9,13 +9,23 @@
  *            A328745)
  * Range:     i8 n <= 128, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   binomial_prime_exp
+ * Validated: standard, pass, 84 terms through n = 7873 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binomial_prime_exp.h"
+
+static seq_t binomial_prime_exp(uint64_t p, uint64_t e) {
+    if (e == 0) return 1;
+    if (e > p) return 0;   /* binomial(p,e)=0 when e>p */
+    seq_t bin = 1;
+    for (uint64_t i = 1; i <= e; ++i) {
+        bin = bin * (seq_t)(p - (i - 1)) / (seq_t)i;
+    }
+    return (e & 1) ? -bin : bin;   /* (-1)^e * binom(p,e) */
+}
 
 seq_t a(idx_t n) {
     if (n <= 1) return 1;          /* a(1)=1 */

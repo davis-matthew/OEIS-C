@@ -7,16 +7,17 @@
  * Formula:   a(n) = (n-3) * binomial(2n-6, n)
  * Range:     u8 n <= 8, u16 n <= 11, u32 n <= 18, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   binom_seq
+ * Validated: partial, pass, 24 terms through n = 29 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom_seq.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n) {
     idx_t m = 2 * n - 6;
-    seq_t binom_val = binom_seq(m, n);
+    seq_t binom_val = binomial(m, n);
     seq_t coeff = (seq_t)(n - 3);
     return coeff * binom_val;
 }

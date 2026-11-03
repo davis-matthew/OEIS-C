@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   build_prime_sieve
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,21 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/build_prime_sieve.h"
+
+/* ------------------------------------------------------------------ */
+static void build_prime_sieve(idx_t limit, bool *isPrime)
+{
+    /* mark all as prime initially; 0 and 1 are not prime */
+    for (idx_t i = 0; i <= limit; ++i) isPrime[i] = true;
+    isPrime[0] = isPrime[1] = false;
+
+    for (idx_t p = 2; p * p <= limit; ++p) {
+        if (isPrime[p]) {
+            for (idx_t m = p * p; m <= limit; m += p)
+                isPrime[m] = false;
+        }
+    }
+}
 
 /* ------------------------------------------------------------------ */
 /* Helper: sieve primes up to a given limit.                         */

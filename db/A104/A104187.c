@@ -8,12 +8,14 @@
  *            a(n)=3*a(n-1)-2*a(n-2)-a(n-4)+a(n-5) for n >= 5
  * Range:     u8 n <= 6, u16 n <= 15, u32 n <= 34, u64 n <= 70, u128 n <= 143,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 986 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* Initialise with the first 5 terms on the first call */
     if (sz == 0) {
         cap = 16;                /* initial capacity – arbitrary */
-        tbl = (seq_t *)malloc(cap * sizeof(seq_t));
+        tbl = mem_new(seq_t, cap);
         if (!tbl) abort();       /* allocation failure */
         tbl[0] = (seq_t)1;
         tbl[1] = (seq_t)3;
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
         idx_t new_cap = cap;
         while (new_cap <= n)
             new_cap <<= 1;            /* double until large enough */
-        seq_t *tmp = (seq_t *)realloc(tbl, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, tbl, new_cap);
         if (!tmp) abort();            /* allocation failure */
         tbl = tmp;
         cap = new_cap;

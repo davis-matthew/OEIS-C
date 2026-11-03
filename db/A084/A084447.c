@@ -8,7 +8,8 @@
  *            1/((1-x)^5*(1-x^3)^4*(1-x^5)^3*(1-x^7)^2*(1-x^9))
  * Range:     u8 n <= 5, u16 n <= 16, u32 n <= 62, u64 n <= 401,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 907 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* Each part size has a fixed number of distinguishable colours:
    1×5, 3×4, 5×3, 7×2, 9×1.  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     const size_t type_count = sizeof(weights)/sizeof(weights[0]);
 
     /* Allocate a DP array of size n+1. */
-    seq_t *dp = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1));
     if (!dp) return 0;   /* Allocation failure – return 0. */
 
     /* Initialise dp[0] = 1, others 0. */
@@ -47,6 +49,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

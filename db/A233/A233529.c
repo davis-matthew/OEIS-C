@@ -7,7 +7,8 @@
  * Formula:   a(n) = |{ 0 < k <= n/2 : prime(k)*prime(n-k) - 6 is prime }|
  * Range:     u8 n <= 3107, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   prime_uint64
+ * Validated: standard, pass, 116 terms through n = 8419 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "../utils/prime_uint64.h"
+#include "../utils/is_prime_u64.h"
 
 /* Global storage for prime numbers up to the current maximum n ever
    requested. */
@@ -88,7 +89,7 @@ seq_t a(idx_t n) {
         uint64_t product = p * q;
         if (product <= 6) continue; /* product-6 would not be positive */
         uint64_t val = product - 6;
-        if (prime_uint64(val)) ++count;
+        if (is_prime_u64(val)) ++count;
     }
     return (seq_t)count;
 }

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   bigomega, triangular_sum
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
+ * Helpers:   bigomega, triangular
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,9 @@
    k = n – r(r‑1)/2. 
    Ω(k) is the total number of prime factors of k counted with multiplicity. */
 
+#include <stdlib.h>
 #include "../utils/bigomega.h"
-#include "../utils/triangular_sum.h"
+#include "../utils/triangular.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     idx_t low = 1u, high = n;
     while (low < high) {
         idx_t mid = low + ((high - low) >> 1);
-        if (triangular_sum(mid) >= n)
+        if (triangular(mid) >= n)
             high = mid;
         else
             low = mid + 1;
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     idx_t r = low;
 
     /* Total entries before row r. */
-    idx_t prev = triangular_sum(r - 1u);
+    idx_t prev = triangular(r - 1u);
 
     /* Column index (1‑based) within the row. */
     idx_t k = n - prev;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 11, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 873 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Computes OEIS A023765: numbers whose base‑9 digits are in non‑increasing order. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_size = 0;
@@ -48,7 +50,7 @@ static void rec(seq_t val, int last_digit, int pos, int len)
 static void build_cache(void)
 {
     /* approximate total count for length up to MAX_LEN (≈24301) */
-    cache = (seq_t *)malloc(25000 * sizeof(seq_t));
+    cache = mem_new(seq_t, 25000);
     cache_size = 0;
 
     /* number 0 */
@@ -64,7 +66,7 @@ static void build_cache(void)
     }
 
     /* sort all values to obtain the sequence in increasing order */
-    qsort(cache, cache_size, sizeof(seq_t), seq_cmp);
+    mem_qsort(cache, cache_size, sizeof(seq_t), seq_cmp);
 }
 
 /* main sequence function */

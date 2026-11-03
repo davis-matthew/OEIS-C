@@ -8,12 +8,14 @@
  *            i))
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 31, u128 n <= 62,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 41 terms through n = 1491 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 #define DIRECT_LIMIT 31  /* use direct summation for n <= 31 (fits in uint64_t) */
 
@@ -26,7 +28,7 @@ seq_t a(idx_t n) {
             idx_t two_i = 2 * i;
             for (j = 0; j <= n; ++j) {
                 /* binom(2*i, j) + binom(2*j, i) */
-                sum += binom(two_i, j) + binom(2 * j, i);
+                sum += binomial(two_i, j) + binomial(2 * j, i);
             }
         }
         return sum;

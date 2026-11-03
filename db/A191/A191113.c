@@ -12,13 +12,15 @@
  *            terms only when a larger index is requested
  * Range:     u8 n <= 16, u16 n <= 660, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 85 terms through n = 9321 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ----- Dynamic array for the cache of sequence values ----- */
 static seq_t *seq_cache = NULL;
@@ -27,7 +29,7 @@ static size_t cache_len = 0;
 
 static void grow_cache(void) {
     size_t new_cap = cache_cap ? cache_cap * 2 : 64;
-    seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
     if (!tmp) abort();            /* out‑of‑memory */
     seq_cache = tmp;
     cache_cap = new_cap;
@@ -40,7 +42,7 @@ static size_t heap_len = 0;
 
 static void grow_heap(void) {
     size_t new_cap = heap_cap ? heap_cap * 2 : 64;
-    seq_t *tmp = (seq_t *)realloc(heap, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, heap, new_cap);
     if (!tmp) abort();
     heap = tmp;
     heap_cap = new_cap;

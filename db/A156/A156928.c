@@ -9,12 +9,14 @@
  *            Initial values: a(2) = 1, a(3) = 7, a(4) = 28, a(5) = 86
  * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 29, u64 n <= 61, u128 n <= 125,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 989 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache for memoisation */
 static seq_t *cache = NULL;     /* cache[i] holds a(i) */
@@ -26,7 +28,7 @@ static void init_cache(void)
     if (cache != NULL)
         return;
     cache_size = 6;                     /* indices 0..5 */
-    cache = (seq_t *)malloc(sizeof(seq_t) * cache_size);
+    cache = mem_new(seq_t, cache_size);
     if (!cache)
         exit(1);                         /* out of memory */
     cache[0] = 0;                         /* unused */
@@ -43,7 +45,7 @@ static void extend_cache(idx_t n)
     if (n < cache_size)
         return;
     idx_t new_size = n + 1;                     /* indices 0 .. n */
-    seq_t *new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_size);
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache)
         exit(1);                                 /* out of memory */
     cache = new_cache;

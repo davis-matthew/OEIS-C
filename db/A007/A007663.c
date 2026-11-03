@@ -9,20 +9,22 @@
  *            at a time
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 20, u128 n <= 32,
  *            big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 37 terms through n = 437 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/is_prime.h"
+#include <stdbool.h>
+#include "../utils/is_prime_u64.h"
 
 static uint64_t nth_prime(idx_t n) {
     if (n == 1) return 2;
     idx_t count = 1;
     uint64_t candidate = 3;
     while (1) {
-        if (is_prime(candidate)) {
+        if (is_prime_u64(candidate)) {
             count++;
             if (count == n) return candidate;
         }

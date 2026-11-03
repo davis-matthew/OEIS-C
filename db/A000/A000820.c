@@ -11,7 +11,8 @@
  *            forms) and over the translation types of the unipotent part
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 4, u64 n <= 5, u128 n <= 6,
  *            big any n
- * Helpers:   add_sh, bdiv, bmul, bshr, clmul, factor, ggcd
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,13 +20,56 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/add_sh.h"
-#include "../utils/bdiv.h"
-#include "../utils/bmul.h"
-#include "../utils/bshr.h"
-#include "../utils/clmul.h"
-#include "../utils/factor.h"
-#include "../utils/ggcd.h"
+#include "../utils/gcd_u64.h"
+
+static void add_sh(uint32_t *T, const uint32_t *s, int SL, uint64_t sh) {
+    size_t off = (size_t)(sh >> 5), i; int b = (int)(sh & 31);
+    uint64_t carry = 0, hi = 0;
+    for (i = 0; i <= (size_t)SL; i++) {
+        uint64_t v = i < (size_t)SL ? ((uint64_t)s[i] << b) : 0;
+        uint64_t cur = (uint64_t)T[off + i] + (uint32_t)v + hi + carry;
+        hi = v >> 32;
+        T[off + i] = (uint32_t)cur; carry = cur >> 32;
+    }
+    while (carry) {
+        uint64_t cur = (uint64_t)T[off + i] + carry;
+        T[off + i] = (uint32_t)cur; carry = cur >> 32; i++;
+    }
+}
+
+static void bdiv(uint32_t *x, size_t L, uint64_t d) {
+    unsigned __int128 r = 0; size_t i;
+    if (d == 1) return;
+    for (i = L; i-- > 0;) { r = (r << 32) | x[i]; x[i] = (uint32_t)(r / d); r %= d; }
+}
+
+static void bmul(uint32_t *x, int L, uint64_t m) {
+    unsigned __int128 c = 0; int i;
+    for (i = 0; i < L; i++) { c += (unsigned __int128)x[i] * m; x[i] = (uint32_t)c; c >>= 32; }
+}
+
+static void bshr(uint32_t *T, size_t L, uint64_t s) {
+    size_t off = (size_t)(s >> 5), i; int b = (int)(s & 31);
+    for (i = 0; i < L; i++) {
+        uint32_t lo = i + off < L ? T[i + off] : 0;
+        uint32_t h = i + off + 1 < L ? T[i + off + 1] : 0;
+        T[i] = b ? ((lo >> b) | (h << (32 - b))) : lo;
+    }
+}
+
+static uint64_t clmul(uint64_t a, uint64_t b) {
+    uint64_t r = 0;
+    while (b) { if (b & 1) r ^= a; a <<= 1; b >>= 1; }
+    return r;
+}
+
+static int factor(uint64_t x, uint64_t *pr, int *ex) {
+    int k = 0; uint64_t p;
+    for (p = 2; p * p <= x; p++)
+        if (x % p == 0) { pr[k] = p; ex[k] = 0; while (x % p == 0) { x /= p; ex[k]++; } k++; }
+    if (x > 1) { pr[k] = x; ex[k] = 1; k++; }
+    return k;
+}
 
 #define MXN 24
 
@@ -90,7 +134,7 @@ static void process(void) {
         int i = CP[c], p = CQ[c], d = PD[i], v;
         long long s = PSC2[p];
         if (i == 0) { mu = p; m = PK[p]; }
-        else Lodd = Lodd / ggcd(Lodd, PO[i]) * PO[i];
+        else Lodd = Lodd / gcd_u64(Lodd, PO[i]) * PO[i];
         for (v = 1; v <= PK[p]; v++) {
             int mv = PMUL[p * (MXN + 1) + v];
             s -= (long long)mv * (mv + 1) / 2;

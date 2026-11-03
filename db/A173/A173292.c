@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 1, i16 n <= 3, i32 n <= 8, i64 n <= 18, i128 n <= 20,
  *            big any n
- * Helpers:   pow10
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,17 @@
 /*  A173292: find the smallest integer N such that N! has exactly 10^n trailing zeros.
     The routine uses a binary search on N.  It returns -1 if no such N exists
     (i.e. if the desired number of zeros is skipped by the trailing‑zero function). */
-#include "../utils/pow10.h"
+#include <stdint.h>
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 static seq_t trailing_zeros(seq_t N)
 {

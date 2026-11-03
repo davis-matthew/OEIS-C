@@ -11,7 +11,8 @@
  *            floor(real root of P) and replace P(x) with x^3...
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 17, u64 n <= 31, u128 n <= 72,
  *            big any n
- * Helpers:   a2359_cmpmag
+ * Validated: standard, pass, 41 terms through n = 956 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/a2359_cmpmag.h"
+
+static int a2359_cmpmag(const uint32_t *a, size_t an, const uint32_t *b, size_t bn) {
+    size_t i;
+    if (an != bn) return an < bn ? -1 : 1;
+    for (i = an; i-- > 0;) {
+        if (a[i] != b[i]) return a[i] < b[i] ? -1 : 1;
+    }
+    return 0;
+}
 
 typedef struct { uint32_t *d; size_t n, cap; int neg; } a2359_bn;
 

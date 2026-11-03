@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   digits, pow10
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-01)
+ * Helpers:   num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,18 @@
    Sequence is indexed with a(1)=310 etc. */
 
 #include <stdint.h>
-#include "../utils/pow10.h"
-#include "../utils/digits.h"
+#include <stdbool.h>
+#include "../utils/num_digits_idx.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -55,8 +66,8 @@ seq_t a(idx_t n)
        shift the current value left by the number of digits of the
        next component.  digits(0) returns 1, so no special case needed. */
     seq_t result = b;
-    result = result * pow10((idx_t)digits(c)) + c;
-    result = result * pow10((idx_t)digits(d)) + d;
+    result = result * pow10((idx_t)num_digits_idx(c)) + c;
+    result = result * pow10((idx_t)num_digits_idx(d)) + d;
 
     return result;
 }

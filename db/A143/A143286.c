@@ -11,13 +11,15 @@
  *            a(13)=6, a(14)=7, a(15)=9
  * Range:     u8 n <= 26, u16 n <= 48, u32 n <= 95, u64 n <= 192,
  *            u128 n <= 387, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 998 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache of computed terms. */
 static seq_t *cache = NULL;              /* array of a(0)..a(current_max)   */
@@ -34,7 +36,7 @@ static void init_cache(void)
 {
     if (cache_len != 0) return;         /* already initialised */
     cache_len = 16;
-    cache = (seq_t*)malloc(cache_len * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_len);
     for (idx_t i = 0; i < 16; ++i) cache[i] = BASE[i];
 }
 
@@ -43,7 +45,7 @@ static void extend_cache(idx_t n)
 {
     if ((size_t)n < cache_len) return;  /* already computed */
     size_t new_len = (size_t)n + 1;
-    cache = (seq_t*)realloc(cache, new_len * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_len);
     /* Compute new values using the recurrence. */
     for (size_t i = cache_len; i < new_len; ++i) {
         seq_t val = cache[i-1] + cache[i-1]         /* 2*a(i-1) */

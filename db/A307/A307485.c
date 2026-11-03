@@ -9,11 +9,13 @@
  * Formula:   a(n) = 2*n - floor(2^k/3) where k = floor(log_2(4*n+1))
  * Range:     u8 n <= 63, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
+ * Validated: partial, pass, 71 terms through n = 70 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 /* Compute floor(log2(x)) for non‑zero x.  Safe for 64‑bit values. */

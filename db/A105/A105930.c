@@ -9,7 +9,8 @@
  *            the digit sequence 123456789101112
  * Range:     u8 n <= 31, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   estimate_prime_upper_bound
+ * Validated: partial, pass, 56 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,18 @@
 #include <stdbool.h>
 #include <string.h>
 
-#include "../utils/estimate_prime_upper_bound.h"   /* provides estimate_prime_upper_bound */
+#include <stdint.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* -------------------------------------------------------------------- */
+static uint64_t estimate_prime_upper_bound(idx_t n)
+{
+    if (n < 6) return 15;  /* covers first 6 primes                        */
+    double nn    = (double)n;
+    double bound = nn * (log(nn) + log(log(nn)));
+    return (uint64_t)(bound + 3.0);  /* safety margin                         */
+}
 
 /* Forward declarations of utility types (supplied by the build). */
 extern idx_t estimate_prime_upper_bound(idx_t n);
@@ -73,13 +85,13 @@ static void build_primes_and_pref(idx_t limit)
     primes_cnt = count;
 
     /* Build prefix digit counts. */
-    seq_t *new_pref = (seq_t *)malloc(((size_t)limit + 1) * sizeof(seq_t));
+    seq_t *new_pref = mem_new(seq_t, ((size_t)limit + 1));
     if (!new_pref) exit(1);
     new_pref[0] = 0;
     for (idx_t i = 1; i <= limit; ++i)
         new_pref[i] = new_pref[i - 1] + digit_count_uint64(i);
 
-    free(pref_arr);
+    mem_free(pref_arr);
     pref_arr = new_pref;
     pref_cap = (size_t)limit;
 

@@ -7,7 +7,8 @@
  * Formula:   a(n) = (9^n - 9)/24 + n
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 21, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Recurrence: a(1) = 1; a(n) = 9*a(n-1) - 8*n + 12  (n >= 2) */
 
 #include <stdlib.h>      /* for realloc, exit, EXIT_FAILURE */
+#include "../utils/mem.h"
 
 /* static cache for memoization */
 static seq_t *cache = NULL;   /* 1-indexed array: cache[1] = a(1) */
@@ -32,7 +34,7 @@ static void ensure_n(idx_t n)
     if (new_cap < 1) new_cap = 1;      /* never zero */
 
     /* reallocate cache to hold indices 0..new_cap */
-    seq_t *tmp = (seq_t *)realloc(cache, (new_cap + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, (new_cap + 1));
     if (!tmp) {
         /* allocation failure – abort */
         exit(EXIT_FAILURE);

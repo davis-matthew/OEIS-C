@@ -7,8 +7,9 @@
  * Formula:   Pi^2 = 10 * Sum_{k>=0} binomial(2*k,k)*(-1/16)^k/(2*k+1)^2; a(n)
  *            = n-th decimal digit of Pi^2, computed with base-10^9
  *            fixed-point arithmetic
- * Range:     u8 n <= 9337, u16 n <= 9337, u32 n <= 9337, u64 n <= 9337,
- *            u128 n <= 9337, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 121 terms through n = 9337 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

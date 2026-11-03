@@ -11,14 +11,25 @@
  *            Example: n = 15 = 3¹·5¹ → a(15) = 3151
  * Range:     u8 n <= 5, u16 n <= 29, u32 n <= 2309, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow10_u64
+ * Validated: standard, pass, 61 terms through n = 9016 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow10_u64.h"
+
+/* Compute 10^k as seq_t, for 0 <= k.  k is small for the expected n. */
+static seq_t pow10_u64(idx_t k)
+{
+    seq_t r = 1;
+    while (k > 0) {
+        r *= 10;
+        --k;
+    }
+    return r;
+}
 
 /* Count the number of decimal digits of an unsigned integer. */
 static int digits_idx(idx_t x)

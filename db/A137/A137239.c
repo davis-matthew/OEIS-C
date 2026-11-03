@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base, easy
  * Formula:   not stated
- * Range:     u8 n <= 9812, u16 n <= 9812, u32 n <= 9812, u64 n <= 9812,
- *            u128 n <= 9812, big any n
- * Helpers:   none
+ * Range:     u8 n <= 12034, u16 n <= 12034, u32 n <= 12034, u64 n <= 12034,
+ *            u128 n <= 12034, big any n
+ * Validated: standard, pass, 121 terms through n = 9812 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* External integer types provided by the build system.  They are
    already typedefs, so we use them directly without redefining. */
@@ -74,7 +76,7 @@ ensure_counts(idx_t target)
     if (a_cap <= target) {
         size_t new_cap = (a_cap == 0) ? 64 : a_cap * 2;
         if (new_cap <= target) new_cap = target + 1;
-        seq_t *tmp = (seq_t *)realloc(a_counts, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_counts, new_cap);
         if (!tmp) return; /* allocation failure – caller will fail silently */
         for (size_t i = a_cap; i < new_cap; ++i)
             tmp[i] = 0;
@@ -99,7 +101,7 @@ ensure_counts(idx_t target)
         if (digits >= a_cap) {
             /* grow counts array for safety (should not happen often) */
             size_t new_cap = digits + 1;
-            seq_t *tmp = (seq_t *)realloc(a_counts, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, a_counts, new_cap);
             if (!tmp) return;
             for (size_t i = a_cap; i < new_cap; ++i)
                 tmp[i] = 0;

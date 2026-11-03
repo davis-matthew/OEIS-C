@@ -10,12 +10,14 @@
  *            a(4)=a(3,1), …
  * Range:     u8 n <= 6, u16 n <= 16, u32 n <= 46, u64 n <= 137, u128 n <= 383,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 56 terms through n = 1265 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Keep all rows that have been computed so far. */
 static seq_t **triangle = NULL;   /* triangle[1] .. triangle[max_row] */
@@ -38,7 +40,7 @@ static void ensure_rows(size_t n)
 
     for (size_t r = max_row + 1; r <= n; ++r) {
         /* Allocate the r‑th row; index 0 of each row is unused. */
-        seq_t *row = (seq_t*)malloc(sizeof(seq_t) * (r + 1));
+        seq_t *row = mem_new(seq_t, (r + 1));
         if (!row)
             exit(1);
         row[0] = (seq_t)0;                /* unused entry */

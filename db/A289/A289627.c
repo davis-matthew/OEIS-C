@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{d|n} mu(phi(d)) * n/d
  * Range:     u8 n <= 153, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _floor_isqrt_u64, mobius, phi
+ * Validated: standard, pass, 100 terms through n = 8833 (2026-11-01)
+ * Helpers:   isqrt, mobius, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,9 +16,9 @@
 /* Compute a(n) for any positive n.  The implementation is fast enough for
    n up to ~10⁴ and works for arbitrary-precision seq_t and 64‑bit idx_t. */
 #include <stdint.h>
-#include "../utils/phi.h"
+#include "../utils/isqrt.h"
 #include "../utils/mobius.h"
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +26,7 @@ seq_t a(idx_t n)
         return 0;
 
     seq_t sum = 0;
-    idx_t limit = _floor_isqrt_u64(n);
+    idx_t limit = isqrt(n);
 
     for (idx_t d = 1; d <= limit; ++d) {
         if (n % d != 0) continue;
@@ -33,7 +34,7 @@ seq_t a(idx_t n)
         /* divisor d */
         idx_t div1 = d;
         idx_t quot1 = n / div1;
-        seq_t phi1 = phi(div1);            /* phi(div1) fits in idx_t */
+        seq_t phi1 = totient(div1);            /* phi(div1) fits in idx_t */
         seq_t mu1  = mobius((idx_t)phi1);  /* mu(phi(d)) */
         sum += mu1 * (seq_t)quot1;
 
@@ -41,7 +42,7 @@ seq_t a(idx_t n)
         idx_t div2 = n / d;
         if (div2 != div1) {
             idx_t quot2 = n / div2;          /* == d */
-            seq_t phi2 = phi(div2);
+            seq_t phi2 = totient(div2);
             seq_t mu2  = mobius((idx_t)phi2);
             sum += mu2 * (seq_t)quot2;
         }

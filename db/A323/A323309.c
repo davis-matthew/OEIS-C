@@ -8,12 +8,25 @@
  *            a(p^e) = p for e = 1 and a(p^e) = p^e + p otherwise
  * Range:     u8 n <= 171, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   part_for_prime_power
+ * Validated: standard, pass, 83 terms through n = 9638 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/part_for_prime_power.h"
+/* Compute a(p^e) as a seq_t value. */
+static inline seq_t part_for_prime_power(seq_t p, idx_t e)
+{
+    if (e == 1) {
+        return p;
+    } else {
+        seq_t pow = 1;
+        for (idx_t i = 0; i < e; ++i) {
+            pow *= p;
+        }
+        return pow + p;
+    }
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)

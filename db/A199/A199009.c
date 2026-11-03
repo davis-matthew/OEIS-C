@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 79, u16 n <= 2836, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 9554 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --- Helper: integer square root (binary search via Newton iteration) --- */
 static uint64_t uint64_sqrt(uint64_t n)
@@ -86,7 +88,7 @@ static size_t  seq_cap   = 0;     /* allocated capacity of cache   */
 static void seq_cache_grow(void)
 {
     size_t new_cap = seq_cap ? seq_cap * 2 : 16;
-    seq_t *new_ptr = (seq_t *)realloc(seq_cache, new_cap * sizeof(*seq_cache));
+    seq_t *new_ptr = mem_resize(seq_t, seq_cache, new_cap);
     if (!new_ptr) return;
     seq_cache = new_ptr;
     seq_cap   = new_cap;

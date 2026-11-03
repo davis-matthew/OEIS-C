@@ -7,7 +7,8 @@
  * Formula:   a(n) = 11^n - 2^n + 1
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Recurrence: a(0) = 1, a(1) = 10, a(n) = 13*a(n-1) - 22*a(n-2) + 10 for n>1 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,9 +29,9 @@ seq_t a(idx_t n)
     if (cache_cap <= n) {
         idx_t new_cap = n + 1;
         if (cache == NULL)
-            cache = (seq_t *)malloc((size_t)new_cap * sizeof(seq_t));
+            cache = mem_new(seq_t, (size_t)new_cap);
         else
-            cache = (seq_t *)realloc(cache, (size_t)new_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, (size_t)new_cap);
         if (cache == NULL)          /* allocation failure – give up */
             return (seq_t)0;
         cache_cap = new_cap;
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
         /* Ensure at least two slots exist */
         if (cache_cap < 2) {
             idx_t new_cap = 2;
-            seq_t *tmp = (seq_t *)realloc(cache, (size_t)new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_cap);
             if (tmp == NULL)
                 return (seq_t)0;
             cache = tmp;

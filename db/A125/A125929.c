@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 84, u16 n <= 84, u32 n <= 84, u64 n <= 84, u128 n <= 84,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 84 terms through n = 84 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static cache for Grundy values */
 static seq_t *G = NULL;
@@ -43,7 +45,7 @@ static void ensure_G(idx_t n)
     size_t need = (size_t)n + 1;
     if (G_size >= need) return;
 
-    seq_t *tmp = (seq_t *)realloc(G, need * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, G, need);
     if (!tmp) abort();
     /* initialise new cells to 0 */
     for (size_t i = G_size; i < need; ++i) tmp[i] = (seq_t)0;

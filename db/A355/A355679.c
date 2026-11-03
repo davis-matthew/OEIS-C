@@ -10,6 +10,7 @@
  *            the d_k are the digits of n in primorial base
  * Range:     i8 n <= 149, i16 n <= 2310, i32 n <= 2310, i64 n <= 2310,
  *            i128 n <= 2310, big any n
+ * Validated: standard, pass, 78 terms through n = 2264 (2026-11-01)
  * Helpers:   next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,6 +18,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
 #include "../utils/next_prime.h"
 
 seq_t a(idx_t n)

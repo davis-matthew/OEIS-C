@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 10000, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   divisor_count_u64
+ * Validated: standard, pass, 105 terms through n = 9798 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,12 +19,12 @@
  */
 
 #include <stdint.h>
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
 
 seq_t a(idx_t n)
 {
     uint64_t nn = n;
-    seq_t dc = (seq_t)divisor_count_u64(nn);
+    seq_t dc = (seq_t)num_divisors(nn);
     seq_t sign = (nn & 1ULL) ? (seq_t)-1 : (seq_t)1;
     return dc - 3 - sign;
 }

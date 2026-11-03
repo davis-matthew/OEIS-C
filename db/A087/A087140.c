@@ -11,13 +11,27 @@
  *            a(3)=14,
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   divisible_by_all_digits
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/divisible_by_all_digits.h"
+
+/* Return true iff m is divisible by every nonzero decimal digit of m.
+   A digit 0 makes it false immediately. */
+static bool divisible_by_all_digits(seq_t m) {
+    if (m == (seq_t)0) return false;          /* 0 is not considered a valid number */
+    seq_t temp = m;
+    while (temp > (seq_t)0) {
+        seq_t d = temp % (seq_t)10;
+        if (d == (seq_t)0) return false;      /* digit 0 => cannot divide */
+        if (m % d != (seq_t)0) return false;  /* parity check fails */
+        temp /= (seq_t)10;
+    }
+    return true;
+}
 
 seq_t a(idx_t n) {
     idx_t found = 0;

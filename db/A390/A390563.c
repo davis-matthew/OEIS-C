@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 21, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    The sequence is the lower (1/5,1/2) midsequence of (3^n) and (5*n). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Shared static cache of computed terms.
    cache_len holds the number of entries stored (index range [0, cache_len-1]). */
@@ -35,7 +37,7 @@ static void ensure_cache(idx_t n)
     /* Initial capacity: at least 13 entries for the recurrence base case */
     if (cache_len == 0) {
         /* Allocate 13 entries */
-        cache = (seq_t*)malloc(13 * sizeof(seq_t));
+        cache = mem_new(seq_t, 13);
         if (!cache) return;            /* allocation failure – caller will get 0 */
         cache_len = 13;
         /* initialise the first thirteen terms */
@@ -58,7 +60,7 @@ static void ensure_cache(idx_t n)
 
     /* Expand the cache to contain indices up to n */
     idx_t new_len = n + 1;
-    seq_t *tmp = (seq_t*)realloc(cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_len);
     if (!tmp) return;                /* allocation failure – caller gets 0 */
     cache = tmp;
     cache_len = new_len;

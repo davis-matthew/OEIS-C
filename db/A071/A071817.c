@@ -7,6 +7,7 @@
  * Formula:   a(n) = number of 3‑digit numbers whose digits add up to n
  * Range:     u8 n <= 27, u16 n <= 27, u32 n <= 27, u64 n <= 27, u128 n <= 27,
  *            big any n
+ * Validated: full, pass, 27 terms through n = 27 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

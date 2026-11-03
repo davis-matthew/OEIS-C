@@ -9,9 +9,10 @@
  * Formula:   a(n) = n/2 if n is even * a(n) = number of occurrences of the
  *            decimal string of a(n-1) * in the concatenated decimal strings
  *            of a(i) for i < n
- * Range:     u8 n <= 510, u16 n <= 8781, u32 n <= 8781, u64 n <= 8781,
- *            u128 n <= 8781, big any n
- * Helpers:   count_occurrences
+ * Range:     u8 n <= 510, u16 n <= 106472, u32 n <= 106473, u64 n <= 106473,
+ *            u128 n <= 106473, big any n
+ * Validated: standard, pass, 126 terms through n = 8781 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,28 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/count_occurrences.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+static size_t count_occurrences(const char *text, size_t text_len,
+                                const char *pat, size_t pat_len)
+{
+    if (pat_len == 0 || pat_len > text_len)
+        return 0;
+    size_t count = 0;
+    for (size_t i = 0; i + pat_len <= text_len; ++i) {
+        if (memcmp(text + i, pat, pat_len) == 0)
+            ++count;
+    }
+    return count;
+}
 
 static size_t seq_to_dec(seq_t x, char *out)
 {
@@ -45,6 +67,18 @@ static size_t seq_to_dec(seq_t x, char *out)
     return idx;
 }
 
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t need, size_t *cap, T **ptr,
+                            size_t elem_size)
+{
+    if (need <= *cap) return;
+    size_t newcap = (*cap > 0 ? *cap : 1);
+    while (newcap < need) newcap <<= 1;
+    *ptr = mem_resize(T, *ptr, (newcap * elem_size) / sizeof(T));
+    *cap = newcap;
+}
+#else
 static void ensure_capacity(size_t need, size_t *cap, void **ptr,
                             size_t elem_size)
 {
@@ -54,15 +88,16 @@ static void ensure_capacity(size_t need, size_t *cap, void **ptr,
     *ptr = realloc(*ptr, newcap * elem_size);
     *cap = newcap;
 }
+#endif
 
 static void ensure_array_cap(seq_t **arr, size_t *cap, size_t need)
 {
-    ensure_capacity(need, cap, (void**)arr, sizeof(seq_t));
+    ensure_capacity(need, cap, OEISC_VPP(arr), sizeof(seq_t));
 }
 
 static void ensure_text_cap(char **buf, size_t *cap, size_t need)
 {
-    ensure_capacity(need, cap, (void**)buf, sizeof(char));
+    ensure_capacity(need, cap, OEISC_VPP(buf), sizeof(char));
 }
 
 seq_t a(idx_t n)
@@ -81,7 +116,7 @@ seq_t a(idx_t n)
     /* Initialise on first call. */
     if (seq == NULL) {
         seq_cap = 128;
-        seq = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         seq[0] = 0;                 /* a(0) = 0 */
         next_computed = 1;
 

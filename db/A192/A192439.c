@@ -9,6 +9,7 @@
  *            otherwise a(n)=a(n-1)+a(n-2)
  * Range:     u8 n <= 23, u16 n <= 39, u32 n <= 74, u64 n <= 137,
  *            u128 n <= 259, big any n
+ * Validated: standard, pass, 65 terms through n = 999 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

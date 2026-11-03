@@ -11,13 +11,24 @@
  *            by r*(r+1)/2 <= n < (r+1)*(r+2)/2 and k = n - r*(r+1)/2
  * Range:     i8 n <= 42, i16 n <= 117, i32 n <= 432, i64 n <= 1650,
  *            i128 n <= 6214, big any n
- * Helpers:   zeroth
+ * Validated: standard, pass, 81 terms through n = 9831 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/zeroth.h"
+
+/* Return the zeroth column of row m: T(m,0). */
+static inline seq_t zeroth(idx_t m)
+{
+    /* m even -> 0;  m odd -> (-1)^((m-1)/2) */
+    if ((m & 1) == 0)
+        return (seq_t)0;
+    /* m is odd */
+    idx_t t = (m - 1) >> 1;                 /* (m-1)/2  */
+    return ((t & 1) == 0) ? (seq_t)1 : (seq_t)-1;
+}
 
 /* Compute a(n) for the sequence A292495. */
 seq_t a(idx_t n)

@@ -8,13 +8,15 @@
  *            (Omega = total number of prime factors, counting multiplicity)
  * Range:     u8 n <= 59, u16 n <= 6299, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bigomega
+ * Validated: standard, pass, 80 terms through n = 8565 (2026-11-03)
+ * Helpers:   bigomega, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/bigomega.h"   /* provides seq_t bigomega(idx_t) */
+#include "../utils/bigomega.h"
+#include "../utils/mem.h"
 
 static seq_t *omegaFact = NULL;     /* cache of Ω(d!) for d = 0..current maximum */
 static size_t omegaFactSize = 0;    /* number of elements stored in omegaFact */
@@ -24,7 +26,7 @@ static seq_t omega_fact(idx_t d)
 {
     if ((size_t)d + 1 > omegaFactSize) {
         size_t newSize = (size_t)d + 1;
-        seq_t *newArr = (seq_t *)realloc(omegaFact, newSize * sizeof(seq_t));
+        seq_t *newArr = mem_resize(seq_t, omegaFact, newSize);
         if (!newArr)
             abort();   /* out of memory – unlikely in test harness */
 

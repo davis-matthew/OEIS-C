@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 74, u16 n <= 5514, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, factor_u64
+ * Validated: standard, pass, 76 terms through n = 9788 (2026-11-03)
+ * Helpers:   build_primes_upto, factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdbool.h>
 #include "../utils/build_primes_upto.h"
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 static uint64_t *prime_list     = NULL;   /* prime list (1‑based index)    */
 static size_t   prime_cnt       = 0;      /* number of primes              */
@@ -64,7 +66,7 @@ static void init_global(void)
 
     /* Allocate cache for sequence terms. */
     terms_cap = 10000;
-    terms     = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+    terms     = mem_new(seq_t, terms_cap);
     terms_cnt = 0;
 }
 
@@ -157,7 +159,7 @@ seq_t a(idx_t n)
     /* Ensure the terms array can hold at least n entries. */
     if (n > terms_cap) {
         terms_cap = n * 2;
-        terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, terms_cap);
     }
 
     /* Find terms up to index n. */

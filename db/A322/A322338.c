@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   gcd_uint64
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,7 +33,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/gcd_uint64.h"
+#include "../utils/gcd_u64.h"
 
 /* ---------- GCD for 64‑bit integers ---------- */
 
@@ -143,7 +144,7 @@ static bool disconnected_after(unsigned long long rem_mask, size_t V, const uint
             if (u == v) continue;
             if (rem_mask & (1ULL << v)) continue;
             if (visited[v]) continue;
-            if (gcd_uint64((uint64_t)parts[u], (uint64_t)parts[v]) > 1ULL) {
+            if (gcd_u64((uint64_t)parts[u], (uint64_t)parts[v]) > 1ULL) {
                 visited[v] = true;
                 visitedCnt++;
                 stack[sp++] = (unsigned long long)v;

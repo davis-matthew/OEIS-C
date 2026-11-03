@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 3, u32 n <= 10, u64 n <= 23, u128 n <= 48,
  *            big any n
- * Helpers:   abs_int
+ * Validated: standard, pass, 34 terms through n = 210 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/abs_int.h"
+
+/* simple absolute value for int */
+static inline int abs_int(int x) { return x < 0 ? -x : x; }
 
 #define STATES 2401          /* 7^4 */
 #define EDGE_CAP (STATES * 7)/* upper bound on number of edges */

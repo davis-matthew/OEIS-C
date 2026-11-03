@@ -11,16 +11,33 @@
  *            antidiagonals (bottom‑to‑top). For a given index n the diagonal
  *            index s satisfies T_{s-1} = s(s-1)/2 ≤ n < s(s+1)/2, and the
  *            offset within that diagonal is offset = n - s(s-1)/2. T...
- * Range:     u8 n <= 126, u16 n <= 543, u32 n <= 5605, u64 n <= 9404,
- *            u128 n <= 9404, big any n
- * Helpers:   T_term
+ * Range:     u8 n <= 126, u16 n <= 543, u32 n <= 5605, u64 n <= 10010,
+ *            u128 n <= 10010, big any n
+ * Validated: standard, pass, 107 terms through n = 9404 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <math.h>
-#include "../utils/T_term.h"
+
+static seq_t T_term(idx_t n, idx_t k)
+{
+    seq_t result = 0;
+    seq_t power  = 1;          /*  k^0  */
+    seq_t k_seq  = (seq_t)k;
+    idx_t x = n;
+
+    while (x)
+    {
+        if (x & 1ULL)
+            result += power;
+        x >>= 1;
+        power *= k_seq;
+    }
+    return result;
+}
 
 seq_t a(idx_t n)
 {

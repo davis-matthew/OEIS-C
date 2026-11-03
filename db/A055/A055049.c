@@ -7,6 +7,7 @@
  * Formula:   a(n) = 5^(2*i+1)*(5*j±2), n ≥ 1, starting at a(1)=10
  * Range:     u8 n <= 21, u16 n <= 5461, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 66 terms through n = 9887 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

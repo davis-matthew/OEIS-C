@@ -8,7 +8,8 @@
  *            (sequence A145305)
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 2, u64 n <= 3, u128 n <= 7,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 25 terms through n = 167 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define MAX_STATIC_N 10000      /* enough for all required tests */
 
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
     if (dyn_cap < need)
     {
         size_t new_cap = need * 2;
-        dyn_cache = (seq_t *)realloc(dyn_cache, new_cap * sizeof(seq_t));
+        dyn_cache = mem_resize(seq_t, dyn_cache, new_cap);
         dyn_flag  = (idx_t *)realloc(dyn_flag,  new_cap * sizeof(idx_t));
         if (!dyn_cache || !dyn_flag) abort();
 

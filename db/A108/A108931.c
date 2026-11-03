@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 6, i16 n <= 12, i32 n <= 25, i64 n <= 29, i128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *even_seq = NULL;      /* stores u(i+1)  – i.e. u(1) at even_seq[0] */
 static size_t even_len = 0;
@@ -38,7 +40,7 @@ static void ensure_even(size_t idx)
         if (even_cap < even_len + 1) {
             size_t new_cap = even_cap ? even_cap * 2 : 4;
             if (new_cap < even_len + 1) new_cap = even_len + 1;
-            seq_t *tmp = (seq_t *)realloc(even_seq, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, even_seq, new_cap);
             if (!tmp) exit(1);             /* abort on out‑of‑memory */
             even_seq = tmp;
             even_cap = new_cap;
@@ -65,7 +67,7 @@ static void ensure_odd(size_t idx)
         if (odd_cap < odd_len + 1) {
             size_t new_cap = odd_cap ? odd_cap * 2 : 4;
             if (new_cap < odd_len + 1) new_cap = odd_len + 1;
-            seq_t *tmp = (seq_t *)realloc(odd_seq, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, odd_seq, new_cap);
             if (!tmp) exit(1);
             odd_seq = tmp;
             odd_cap = new_cap;

@@ -11,14 +11,23 @@
  *            (t^23+2t^22+…+2t+1)/(1-16t-…-16t^22+136t^23)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 16,
  *            big any n
- * Helpers:   b_val
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/b_val.h"
+#include "../utils/mem.h"
+
+/* inhomogeneous term b(n) as defined in the comment above */
+static inline seq_t b_val(idx_t n)
+{
+    if (n == 0 || n == 23) return (seq_t)1;
+    if (n <= 22)            return (seq_t)2;
+    return (seq_t)0;
+}
 
 static seq_t *cache = NULL;     /* memoised sequence values            */
 static size_t cached_cap = 0;   /* current allocation capacity         */
@@ -30,11 +39,11 @@ seq_t a(idx_t n)
     if ((size_t)(n + 1) > cached_cap) {
         size_t new_cap = (cached_cap == 0) ? 1 : cached_cap * 2;
         while (new_cap < (size_t)(n + 1)) new_cap *= 2;
-        seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, new_cap);
         if (!tmp) return (seq_t)0;      /* allocation failure – caller should not call in that case */
         if (cache) {
             for (size_t i = 0; i < cached_len; ++i) tmp[i] = cache[i];
-            free(cache);
+            mem_free(cache);
         }
         cache = tmp;
         cached_cap = new_cap;

@@ -11,12 +11,14 @@
  *            σ₂(k) * c_{n-k}, with σ₂(k)=sum of squares of divisors of k
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 16, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Memoised arrays. */
 static seq_t *a_cache   = NULL;   /* a values */
@@ -30,10 +32,10 @@ seq_t a(idx_t n)
 {
     /* First call: allocate and initialise for n=0 */
     if (cached_max == 0 && a_cache == NULL) {
-        a_cache = (seq_t*)malloc(sizeof(seq_t));
-        fact_cache = (seq_t*)malloc(sizeof(seq_t));
-        c_cache = (seq_t*)malloc(sizeof(seq_t));
-        sigma_cache = (seq_t*)malloc(sizeof(seq_t));
+        a_cache = mem_new(seq_t, 1);
+        fact_cache = mem_new(seq_t, 1);
+        c_cache = mem_new(seq_t, 1);
+        sigma_cache = mem_new(seq_t, 1);
         if (!a_cache || !fact_cache || !c_cache || !sigma_cache) return (seq_t)0;
         a_cache[0]   = (seq_t)1;
         fact_cache[0] = (seq_t)1;
@@ -47,20 +49,20 @@ seq_t a(idx_t n)
 
     /* Grow arrays to size n+1 */
     size_t new_size = (size_t)n + 1;
-    a_cache = (seq_t*)realloc(a_cache, new_size * sizeof(seq_t));
-    fact_cache = (seq_t*)realloc(fact_cache, new_size * sizeof(seq_t));
-    c_cache = (seq_t*)realloc(c_cache, new_size * sizeof(seq_t));
-    sigma_cache = (seq_t*)realloc(sigma_cache, new_size * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, new_size);
+    fact_cache = mem_resize(seq_t, fact_cache, new_size);
+    c_cache = mem_resize(seq_t, c_cache, new_size);
+    sigma_cache = mem_resize(seq_t, sigma_cache, new_size);
     if (!a_cache || !fact_cache || !c_cache || !sigma_cache) return (seq_t)0;
 
     /* Zero new entries */
     if (new_size > cached_max + 1) {
         size_t old = (size_t)cached_max + 1;
         size_t diff = new_size - old;
-        memset(a_cache + old,   0, diff * sizeof(seq_t));
-        memset(fact_cache + old,0, diff * sizeof(seq_t));
-        memset(c_cache + old,   0, diff * sizeof(seq_t));
-        memset(sigma_cache + old,0, diff * sizeof(seq_t));
+        mem_set(a_cache + old, 0, diff * sizeof(seq_t));
+        mem_set(fact_cache + old, 0, diff * sizeof(seq_t));
+        mem_set(c_cache + old, 0, diff * sizeof(seq_t));
+        mem_set(sigma_cache + old, 0, diff * sizeof(seq_t));
     }
 
     /* Recompute σ₂ values up to n */

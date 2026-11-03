@@ -8,15 +8,36 @@
  * Formula:   a(0)=2; a(n+1)=lcm(a(0..n))+gcd(a(0..n))
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 6, u64 n <= 7, u128 n <= 8,
  *            big any n
- * Helpers:   gcd, grow_cache_to
+ * Validated: standard, pass, 14 terms through n = 13 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/gcd.h"   /* seq_t gcd(seq_t a, seq_t b) */
-#include "../utils/grow_cache_to.h"
+#include <stdint.h>
+#include "../utils/gcd.h"
+
+/* Grow or create the cache array (works for both C and C++) */
+static void grow_cache_to(size_t new_cap, seq_t **cache, size_t *cap, size_t size)
+{
+#ifdef __cplusplus
+    seq_t *tmp = new seq_t[new_cap];
+#else
+    seq_t *tmp = (seq_t *)malloc(new_cap * sizeof(seq_t));
+#endif
+    if (*cache) {
+        for (size_t i = 0; i < size; ++i) tmp[i] = (*cache)[i];
+#ifdef __cplusplus
+        delete[] *cache;
+#else
+        free(*cache);
+#endif
+    }
+    *cache = tmp;
+    *cap = new_cap;
+}
 
 /* Helper to compute the lcm of two seq_t values */
 static inline seq_t lcm_seq(seq_t a, seq_t b)

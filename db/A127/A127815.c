@@ -12,12 +12,13 @@
  *            is reached. * * The function works for any...
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 6, u64 n <= 7, u128 n <= 8,
  *            big any n
- * Helpers:   seq_gcd
+ * Validated: partial, pass, 10 terms through n = 10 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_gcd.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {
@@ -43,7 +44,7 @@ seq_t a(idx_t n)
 
         seq_t new_den = num * den;
 
-        seq_t g = seq_gcd(new_num_abs, new_den);
+        seq_t g = gcd(new_num_abs, new_den);
         num = new_num_abs / g;
         den = new_den / g;
         /* den is always positive; no sign tracking needed for the result */

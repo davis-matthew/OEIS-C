@@ -11,14 +11,16 @@
  *            prime index of any prime divisor of m
  * Range:     u8 n <= 170, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   ugcd32
+ * Validated: standard, pass, 82 terms through n = 9948 (2026-11-03)
+ * Helpers:   gcd_u32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/ugcd32.h"
+#include "../utils/gcd_u32.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -83,16 +85,16 @@ seq_t a(idx_t n)
 
         /* Generate the sequence of qualified numbers */
         qual_cap = 20000; /* initial capacity, will grow if needed */
-        qual_seq = (seq_t*)malloc(qual_cap * sizeof(seq_t));
+        qual_seq = mem_new(seq_t, qual_cap);
         if (!qual_seq) exit(1);
 
         for (i = 1; i <= (size_t)LIMIT; ++i) {
             uint32_t k = omega[i];
             uint32_t m = maxPrimeIdx[i];
-            if (ugcd32(k, m) == 1) {
+            if (gcd_u32(k, m) == 1) {
                 if (qual_len == qual_cap) {
                     qual_cap <<= 1;
-                    qual_seq = (seq_t*)realloc(qual_seq, qual_cap * sizeof(seq_t));
+                    qual_seq = mem_resize(seq_t, qual_seq, qual_cap);
                     if (!qual_seq) exit(1);
                 }
                 qual_seq[qual_len++] = (seq_t)i;

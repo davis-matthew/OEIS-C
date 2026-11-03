@@ -8,13 +8,15 @@
  *            Pentatope number P(k) = k*(k+1)*(k+2)*(k+3)/24
  * Range:     u8 none, u16 none, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *unique_sums = NULL; /* sorted unique sums */
 static size_t unique_count = 0;   /* number of unique sums */
@@ -39,7 +41,7 @@ static void build(void)
     const idx_t MAX_N = 25;                       /* 2 424 620 8‑combinations */
 
     /* pre‑compute pentatope numbers P[1..MAX_N] */
-    seq_t *P = (seq_t *)malloc((MAX_N + 1) * sizeof(seq_t));
+    seq_t *P = mem_new(seq_t, (MAX_N + 1));
     if (!P) { built = true; return; }
     P[0] = 0;
     for (idx_t i = 1; i <= MAX_N; ++i) {
@@ -55,8 +57,8 @@ static void build(void)
     for (idx_t k = 1; k <= 8; ++k)
         combos = combos * (MAX_N - k + 1) / k;
 
-    seq_t *sums = (seq_t *)malloc(combos * sizeof(seq_t));
-    if (!sums) { free(P); built = true; return; }
+    seq_t *sums = mem_new(seq_t, combos);
+    if (!sums) { mem_free(P); built = true; return; }
     size_t pos = 0;
 
     /* enumerate all 8‑combinations of indices and compute the sums */
@@ -73,7 +75,7 @@ static void build(void)
     }
 
     /* sort the raw sums */
-    qsort(sums, combos, sizeof(seq_t), cmp_seq);
+    mem_qsort(sums, combos, sizeof(seq_t), cmp_seq);
 
     /* deduplicate in place, keeping only unique values */
     size_t uniq = 0;
@@ -83,12 +85,12 @@ static void build(void)
     }
 
     /* shrink array to the number of unique sums */
-    sums = (seq_t *)realloc(sums, uniq * sizeof(seq_t));
+    sums = mem_resize(seq_t, sums, uniq);
     unique_sums = sums;
     unique_count = uniq;
 
     built = true;
-    free(P);
+    mem_free(P);
 }
 
 /* Sequence function required by the build system */

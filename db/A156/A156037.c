@@ -6,15 +6,17 @@
  * Keywords:  nonn
  * Formula:   a(n) = largest non‑prime < the n‑th prime. (searches downward
  *            from the n‑th prime until a composite or 1 is found.)
- * Range:     u8 n <= 54, u16 n <= 6542, u32 n <= 9289, u64 n <= 9289,
- *            u128 n <= 9289, big any n
- * Helpers:   none
+ * Range:     u8 n <= 54, u16 n <= 6542, u32 n <= 10453, u64 n <= 10453,
+ *            u128 n <= 10453, big any n
+ * Validated: standard, pass, 77 terms through n = 9289 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static state for prime generation */
 static seq_t *primes = NULL;   /* array of primes found so far */
@@ -31,7 +33,7 @@ ensure_primes(idx_t n)
 
     if (!primes) {
         prime_cap = 64;
-        primes = (seq_t *)malloc(prime_cap * sizeof(seq_t));
+        primes = mem_new(seq_t, prime_cap);
         if (!primes)
             return; /* allocation failed; caller will fail gracefully */
     }
@@ -55,7 +57,7 @@ ensure_primes(idx_t n)
             /* add to prime list */
             if (prime_count == prime_cap) {
                 prime_cap *= 2;
-                seq_t *tmp = (seq_t *)realloc(primes, prime_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, primes, prime_cap);
                 if (!tmp)
                     return; /* allocation failed */
                 primes = tmp;

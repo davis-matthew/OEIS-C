@@ -9,6 +9,7 @@
  *            r(r+1)/2 ≥ n, \ and k = n – r(r‑1)/2 (the column index in row r)
  * Range:     u8 n <= 40, u16 n <= 144, u32 n <= 543, u64 n <= 1830,
  *            u128 n <= 1830, big any n
+ * Validated: standard, pass, 71 terms through n = 1827 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

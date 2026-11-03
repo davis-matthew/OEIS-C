@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 26, u32 n <= 7018, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_sqrt
+ * Validated: standard, pass, 71 terms through n = 7753 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,27 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/floor_sqrt.h"     /* seq_t floor_sqrt(seq_t) */
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* ----- Simple dynamic array for seq_t values ----- */
 typedef struct {
@@ -40,12 +61,12 @@ typedef struct {
 static void vec_init(vec_t *v, size_t init_cap) {
     v->capacity = init_cap > 0 ? init_cap : 4;
     v->size = 0;
-    v->data = (seq_t *)malloc(v->capacity * sizeof(seq_t));
+    v->data = mem_new(seq_t, (v->capacity * sizeof(seq_t)) / sizeof(seq_t));
 }
 static void vec_push(vec_t *v, seq_t val) {
     if (v->size == v->capacity) {
         v->capacity <<= 1;
-        v->data = (seq_t *)realloc(v->data, v->capacity * sizeof(seq_t));
+        v->data = mem_resize(seq_t, v->data, (v->capacity * sizeof(seq_t)) / sizeof(seq_t));
     }
     v->data[v->size++] = val;
 }
@@ -63,12 +84,12 @@ typedef struct {
 static void heap_init(heap_t *h, size_t init_cap) {
     h->capacity = init_cap > 0 ? init_cap : 4;
     h->size = 0;
-    h->data = (seq_t *)malloc(h->capacity * sizeof(seq_t));
+    h->data = mem_new(seq_t, (h->capacity * sizeof(seq_t)) / sizeof(seq_t));
 }
 static void heap_push(heap_t *h, seq_t val) {
     if (h->size == h->capacity) {
         h->capacity <<= 1;
-        h->data = (seq_t *)realloc(h->data, h->capacity * sizeof(seq_t));
+        h->data = mem_resize(seq_t, h->data, (h->capacity * sizeof(seq_t)) / sizeof(seq_t));
     }
     size_t i = h->size++;
     h->data[i] = val;

@@ -10,12 +10,14 @@
  *            and prefix sums for O(n) time
  * Range:     u8 n <= 21, u16 n <= 89, u32 n <= 609, u64 n <= 8307,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 9665 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *term = NULL; /* stores a(i) with 1-based index */
 static seq_t *pref  = NULL; /* stores prefix sums pref(i) = sum_{k=1}^i a(k) */
@@ -31,8 +33,8 @@ static void ensure_capacity(size_t required)
     while (new_cap < required + 1)
         new_cap *= 2;
 
-    term = (seq_t *)realloc(term, new_cap * sizeof(seq_t));
-    pref = (seq_t *)realloc(pref, new_cap * sizeof(seq_t));
+    term = mem_resize(seq_t, term, new_cap);
+    pref = mem_resize(seq_t, pref, new_cap);
     /* If realloc fails, the original pointer remains, but per the
        constraints we assume sufficient memory is available. */
     cap = new_cap;

@@ -10,7 +10,8 @@
  *            a(4)=127, …
  * Range:     u8 n <= 5, u16 n <= 13, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* helper: test whether a word consisting of digits 1 or 2 is a Lyndon word.
    It checks primitiveness (no proper period) and lexicographic minimality
@@ -70,12 +72,12 @@ static uint64_t gen_max = 2;          /* 1ULL << gen_len */
 static void ensure_cache(idx_t need) {
     if (!cum_cache) {
         cum_cap = 64;
-        cum_cache = (seq_t *)malloc(cum_cap * sizeof(seq_t));
+        cum_cache = mem_new(seq_t, cum_cap);
         if (!cum_cache) exit(1);
     }
     while (cum_cap < (size_t)need) {
         cum_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cum_cache, cum_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cum_cache, cum_cap);
         if (!tmp) exit(1);
         cum_cache = tmp;
     }

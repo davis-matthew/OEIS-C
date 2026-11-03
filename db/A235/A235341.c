@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 17, u32 n <= 17, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   cmp_seq_t_local
+ * Validated: full, pass, 17 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,17 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/cmp_seq_t_local.h"
+#include "../utils/mem.h"
+
+/* compare two seq_t values for qsort */
+static int cmp_seq_t_local(const void *p1, const void *p2)
+{
+    const seq_t *a = (const seq_t *)p1;
+    const seq_t *b = (const seq_t *)p2;
+    if (*a < *b) return -1;
+    if (*a > *b) return 1;
+    return 0;
+}
 
 /* static storage for the solutions in ascending order */
 static seq_t  terms[32];
@@ -62,7 +73,7 @@ static void init_sequence(void)
 
     /* sort the array and remove duplicates */
     if (terms_cnt > 1)
-        qsort(terms, terms_cnt, sizeof(seq_t), cmp_seq_t_local);
+        mem_qsort(terms, terms_cnt, sizeof(seq_t), cmp_seq_t_local);
 
     size_t uniq = 0;
     for (size_t i = 0; i < terms_cnt; ++i)

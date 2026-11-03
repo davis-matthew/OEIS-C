@@ -11,13 +11,15 @@
  *            later calls are fast
  * Range:     u8 n <= 8, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- helpers ---------- */
 static bool has_equal_2_and_6(seq_t v) {
@@ -38,7 +40,7 @@ static void ensure_capacity(idx_t needed, size_t *cap, seq_t **ptr) {
     size_t newcap = *cap ? *cap : 1;
     while ((idx_t)newcap < needed)
         newcap *= 2;
-    seq_t *tmp = (seq_t *)realloc(*ptr, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *ptr, newcap);
     if (tmp == NULL && newcap > 0) abort();
     *ptr = tmp;
     *cap = newcap;

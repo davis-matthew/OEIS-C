@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 13, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   digit_sum, reverse_decimal, seq_pow
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-03)
+ * Helpers:   digit_sum, ipow_idx, mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,9 +25,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "../utils/seq_pow.h"
-#include "../utils/reverse_decimal.h"
 #include "../utils/digit_sum.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 seq_t a(idx_t n)
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
 
     if (!cache) {                          /* one‑time allocation      */
         cache_cap = 128;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache)
             exit(EXIT_FAILURE);
     }
@@ -58,10 +60,10 @@ seq_t a(idx_t n)
                         (size_t)(cur_len / 2) :
                         (size_t)((cur_len - 1) / 2);
 
-        seq_t mult = seq_pow((seq_t)10, (idx_t)half);
+        seq_t mult = ipow_idx((seq_t)10, (idx_t)half);
         seq_t rev  = (cur_len % 2 == 0) ?
-                        reverse_decimal(cur_left) :
-                        reverse_decimal(cur_left / (seq_t)10);
+                        reverse_digits(cur_left) :
+                        reverse_digits(cur_left / (seq_t)10);
 
         seq_t pal = cur_left * mult + rev;
 
@@ -70,8 +72,8 @@ seq_t a(idx_t n)
             /* enlarge cache if necessary */
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap * 2 + 64;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
-                if (!tmp) { free(cache); exit(EXIT_FAILURE); }
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
+                if (!tmp) { mem_free(cache); exit(EXIT_FAILURE); }
                 cache   = tmp;
                 cache_cap = new_cap;
             }
@@ -83,8 +85,8 @@ seq_t a(idx_t n)
             /* advance to next palindrome length */
             ++cur_len;
             idx_t left_len = (cur_len + 1) / 2;
-            cur_start = seq_pow((seq_t)10, (idx_t)(left_len - 1));
-            cur_end   = seq_pow((seq_t)10, (idx_t)left_len) - (seq_t)1;
+            cur_start = ipow_idx((seq_t)10, (idx_t)(left_len - 1));
+            cur_end   = ipow_idx((seq_t)10, (idx_t)left_len) - (seq_t)1;
             cur_left  = cur_start;
         } else {
             ++cur_left;

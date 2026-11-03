@@ -12,7 +12,8 @@
  *            used, as a bitmask
  * Range:     u8 n <= 51, u16 n <= 167, u32 n <= 646, u64 n <= 750,
  *            u128 n <= 750, big any n
- * Helpers:   alloc_zero, cmp_desc_u64, release
+ * Validated: standard, pass, 79 terms through n = 715 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,23 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
-#include "../utils/cmp_desc_u64.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
+
+static int cmp_desc_u64(const void *a, const void *b) {
+    uint64_t x = *(const uint64_t *)a, y = *(const uint64_t *)b;
+    return x < y ? 1 : (x > y ? -1 : 0);
+}
 
 typedef struct { uint64_t mask; seq_t *row; } a7360_ent;
 

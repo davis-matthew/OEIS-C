@@ -10,12 +10,14 @@
  *            (For n > 15, p[n] = 0.)
  * Range:     u8 n <= 9, u16 n <= 151, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 993 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const int q[15] = {
     -1, /* q0   */
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
 
     /* Allocate if first call. */
     if (!data) {
-        data = (seq_t *)malloc(cap * sizeof(seq_t));
+        data = mem_new(seq_t, cap);
     }
 
     /* Extend array if necessary. */
@@ -85,7 +87,7 @@ seq_t a(idx_t n)
         /* Grow the array if necessary. */
         if (len == cap) {
             cap <<= 1;                   /* double the capacity                  */
-            data = (seq_t *)realloc(data, cap * sizeof(seq_t));
+            data = mem_resize(seq_t, data, cap);
         }
     }
 

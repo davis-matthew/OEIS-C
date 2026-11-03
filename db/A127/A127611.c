@@ -12,13 +12,15 @@
  *            the standard recurrence p_{-2}=0, p_{-1}=1 p_i = a_i * p_{i-1...
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 59, u64 n <= 179,
  *            u128 n <= 719, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 9744 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Comparison function for qsort (works for any seq_t type). */
 static int cmp_seq(const void *x, const void *y)
@@ -75,7 +77,7 @@ seq_t a(idx_t n)
     }
 
     /* ---------- generate all divisors (unsorted) ---------- */
-    seq_t *divs = (seq_t *)malloc(div_cnt * sizeof(seq_t));
+    seq_t *divs = mem_new(seq_t, div_cnt);
     if (!divs) return 0; /* allocation failure: unlikely for small n */
 
     size_t sz = 1;          /* start with divisor 1 */
@@ -96,7 +98,7 @@ seq_t a(idx_t n)
     }
 
     /* ---------- sort divisors ascending ---------- */
-    qsort(divs, sz, sizeof(seq_t), cmp_seq);
+    mem_qsort(divs, sz, sizeof(seq_t), cmp_seq);
 
     /* ---------- compute numerator by recurrence ---------- */
     seq_t p_prevprev = 0;
@@ -109,6 +111,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = p_prev;   /* numerator of the continued fraction */
-    free(divs);
+    mem_free(divs);
     return result;
 }

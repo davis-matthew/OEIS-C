@@ -8,11 +8,13 @@
  *            n, this equals Sum_{k=1..n} gcd(k,n)/cos(Pi*k/n)^2
  * Range:     u8 n <= 4, u16 n <= 111, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 59 terms through n = 976 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n) {

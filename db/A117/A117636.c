@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 4, u64 n <= 5, u128 n <= 6,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,9 @@
    by taking gcd(x_{n-1},denominator). */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +43,7 @@ seq_t a(idx_t n)
     /* initialise on the first call */
     if (cache == NULL) {
         cache_len = 1;
-        cache = (seq_t *)malloc(sizeof(seq_t) * (cache_len + 1));
+        cache = mem_new(seq_t, (cache_len + 1));
         cache[1] = (seq_t)4;      /* a(1) */
         last_num = (seq_t)4;
         last_den = (seq_t)3;      /* x_1 = 4/3 */
@@ -52,7 +55,7 @@ seq_t a(idx_t n)
 
     /* grow cache to hold up to term n */
     size_t new_len = (size_t)n;
-    cache = (seq_t *)realloc(cache, sizeof(seq_t) * (new_len + 1));
+    cache = mem_resize(seq_t, cache, (new_len + 1));
     for (size_t i = cache_len + 1; i <= new_len; ++i) {
         /* ceil( (last_num / last_den)^2 ) */
         seq_t num_sq = last_num * last_num;

@@ -8,12 +8,14 @@
  *            with period 131071 (=2^17-1)
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 81 terms through n = 80 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
 
     if (cache == NULL) {
         /* allocate space for the period */
-        cache = (seq_t*)malloc(PERIOD * sizeof(seq_t));
+        cache = mem_new(seq_t, PERIOD);
         if (cache == NULL) {
             return (seq_t)0;   /* unlikely, but keeps the compiler happy */
         }

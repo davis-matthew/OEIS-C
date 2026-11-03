@@ -10,13 +10,15 @@
  *            m. (OEIS A014884)
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 49 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /*------------------------------------------------------------
  * State used to generate the sequence lazily.
@@ -78,7 +80,7 @@ static void generate_to(size_t target)
     /* initialise on first use */
     if (LEN == 0) {
         CAP  = 16;
-        CACHE = (seq_t *)malloc(CAP * sizeof(seq_t));
+        CACHE = mem_new(seq_t, CAP);
 
         CURR   = 1;
         DIFF   = 0;                    /* count(1)=1, so 1-1=0 */
@@ -97,7 +99,7 @@ static void generate_to(size_t target)
         if (DIFF == 0) {                 /* CURR is the next term */
             if (LEN == CAP) {
                 CAP = CAP * 2 + 1;
-                CACHE = (seq_t *)realloc(CACHE, CAP * sizeof(seq_t));
+                CACHE = mem_resize(seq_t, CACHE, CAP);
             }
             CACHE[LEN++] = CURR;
         }

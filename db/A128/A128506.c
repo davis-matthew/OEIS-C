@@ -8,6 +8,7 @@
  *            S(2k,√2)/(2k+1)^3, S(2k,√2) = 1,1,-1,-1 repeating (period 4)
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 8, u128 n <= 17,
  *            big any n
+ * Validated: standard, pass, 29 terms through n = 358 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

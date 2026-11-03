@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 3, u32 n <= 8, u64 n <= 19, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Number of possible rows: 4^3 = 64 */
 #define ROWS 64
@@ -104,10 +106,10 @@ seq_t a(idx_t n)
     size_t rows_needed = (size_t)n + 2;    /* number of rows in the array */
 
     /* Allocate DP arrays: one entry per state (pair of rows) */
-    seq_t *dp_cur   = (seq_t *)calloc(STATES, sizeof(seq_t));
-    seq_t *dp_next  = (seq_t *)calloc(STATES, sizeof(seq_t));
+    seq_t *dp_cur   = mem_new(seq_t, STATES);
+    seq_t *dp_next  = mem_new(seq_t, STATES);
     if (!dp_cur || !dp_next) {
-        free(dp_cur); free(dp_next);
+        mem_free(dp_cur); mem_free(dp_next);
         return (seq_t)0;                   /* allocation failure */
     }
 
@@ -117,7 +119,7 @@ seq_t a(idx_t n)
 
     /* Add remaining rows one by one */
     for (size_t len = 3; len <= rows_needed; ++len) {
-        memset(dp_next, 0, STATES * sizeof(seq_t));
+        mem_set(dp_next, 0, STATES * sizeof(seq_t));
 
         for (size_t state = 0; state < STATES; ++state) {
             seq_t cur = dp_cur[state];
@@ -149,7 +151,7 @@ seq_t a(idx_t n)
     for (size_t state = 0; state < STATES; ++state)
         result += dp_cur[state];
 
-    free(dp_cur);
-    free(dp_next);
+    mem_free(dp_cur);
+    mem_free(dp_next);
     return result;
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 10, u64 n <= 21, u128 n <= 43,
  *            big any n
- * Helpers:   is_horizontal_valid
+ * Validated: standard, pass, 35 terms through n = 210 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,7 +36,21 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_horizontal_valid.h"
+
+static bool is_horizontal_valid(uint8_t r)
+{
+    /* r is a 6‑bit row.  Check all triples for 001 or 010. */
+    for (int pos = 0; pos <= 3; ++pos)
+    {
+        uint8_t b0 = (r >> pos) & 1U;
+        uint8_t b1 = (r >> (pos + 1)) & 1U;
+        uint8_t b2 = (r >> (pos + 2)) & 1U;
+        if ((b0 == 0 && b1 == 0 && b2 == 1) ||
+            (b0 == 0 && b1 == 1 && b2 == 0))
+            return false;
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {

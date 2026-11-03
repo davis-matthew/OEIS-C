@@ -12,7 +12,8 @@
  *            match the OEIS values
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   mobius, seq_alloc
+ * Validated: partial, pass, 23 terms through n = 23 (2026-11-01)
+ * Helpers:   mobius
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,15 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/mobius.h"
-#include "../utils/seq_alloc.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
 
 static seq_t *P_cache = NULL;   /* Cached companion Pell numbers, 1‑indexed */
 static idx_t   P_len   = 0;      /* Current allocated length (>= assigned) */

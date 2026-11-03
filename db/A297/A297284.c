@@ -9,13 +9,15 @@
  *            down‑variation
  * Range:     u8 n <= 128, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 9860 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_cap = 0;
@@ -29,11 +31,11 @@ static void grow_cache(size_t required)
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < required)
         new_cap *= 2;
-    seq_t *tmp = (seq_t*)malloc(new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, new_cap);
     if (cache)
     {
-        memcpy(tmp, cache, cache_len * sizeof(seq_t));
-        free(cache);
+        mem_copy(tmp, cache, cache_len * sizeof(seq_t));
+        mem_free(cache);
     }
     cache = tmp;
     cache_cap = new_cap;

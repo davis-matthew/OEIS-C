@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   distinct_digits_count
+ * Validated: standard, pass, 67 terms through n = 8984 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,23 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/distinct_digits_count.h"
+#include "../utils/mem.h"
+
+static inline int distinct_digits_count(seq_t v) {
+    int mask = 0;
+    int count = 0;
+    while (v > 0) {
+        int d = (int)(v % 10);
+        int bit = 1 << d;
+        if (!(mask & bit)) {
+            mask |= bit;
+            ++count;
+            if (count > 6) return count; /* early exit */
+        }
+        v /= 10;
+    }
+    return count;
+}
 
 seq_t a(idx_t n) {
     /* Convert n (1‑based index) to the nth term. */
@@ -33,7 +50,7 @@ seq_t a(idx_t n) {
         if (distinct_digits_count(sq) == 6) {
             if (vm_len == vm_cap) {
                 size_t new_cap = vm_cap ? vm_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(valid, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, valid, new_cap);
                 if (!tmp) abort(); /* memory allocation failed */
                 valid = tmp;
                 vm_cap = new_cap;

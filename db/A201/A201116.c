@@ -6,8 +6,9 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = the nth prime of the form 3k³+7, with k starting at 0 *
  *            (so a(1) = 7, a(2) = 31, a(3) = 199, …)
- * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 29, u64 n <= 29, u128 n <= 29,
- *            big any n
+ * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 100, u64 n <= 2600,
+ *            u128 n <= 2600, big any n
+ * Validated: standard, pass, 45 terms through n = 2544 (2026-11-01)
  * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

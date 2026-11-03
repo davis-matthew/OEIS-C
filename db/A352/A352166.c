@@ -10,7 +10,8 @@
  *            ∪ {p^k : p odd prime, p^k ≤ n}
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 71 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,12 +19,13 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Returns a(n) for any n ≥ 0. */
 seq_t a(idx_t n)
 {
     /* Allocate dynamic array for DP counts */
-    seq_t *dp = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1));
     if (!dp) return 0;                       /* out of memory */
 
     /* initialise to zero */
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* Simple sieve to get primes up to n (2 is generated but will be skipped later). */
     size_t limit = (size_t)n;
     bool *is_composite = (bool *)calloc(limit + 1, sizeof(bool));
-    if (!is_composite) { free(dp); return 0; }
+    if (!is_composite) { mem_free(dp); return 0; }
 
     /* dynamic array for primes */
     uint64_t *primes = NULL;
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
             if (prime_cnt == prime_cap) {
                 prime_cap = prime_cap ? prime_cap * 2 : 16;
                 uint64_t *tmp = (uint64_t *)realloc(primes, prime_cap * sizeof(uint64_t));
-                if (!tmp) { free(is_composite); free(primes); free(dp); return 0; }
+                if (!tmp) { free(is_composite); free(primes); mem_free(dp); return 0; }
                 primes = tmp;
             }
             primes[prime_cnt++] = p;
@@ -77,7 +79,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     free(primes);
     return result;
 }

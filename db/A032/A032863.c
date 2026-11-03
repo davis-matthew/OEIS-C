@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 59, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   is_valid_base8
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,33 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_valid_base8.h"
+#include "../utils/mem.h"
+
+static bool is_valid_base8(seq_t x)
+{
+    if (x == (seq_t)0)
+        return true;
+    uint8_t digs[256];
+    int len = 0;
+    seq_t t = x;
+    const seq_t base = (seq_t)8;
+    while (t != (seq_t)0) {
+        digs[len++] = (uint8_t)(t % base);
+        t /= base;
+    }
+    for (int k = 0; k < len - 1; ++k) {
+        uint8_t high = digs[len - 1 - k];
+        uint8_t low  = digs[len - 2 - k];
+        if ((k & 1) == 0) {
+            if (!(high > low))
+                return false;
+        } else {
+            if (!(high < low))
+                return false;
+        }
+    }
+    return true;
+}
 
 static seq_t *values = NULL;
 static idx_t  values_len = 0;
@@ -34,7 +61,7 @@ static void ensure_capacity(idx_t needed)
     idx_t new_cap = values_cap ? values_cap * 2 : 128;
     while (new_cap < needed)
         new_cap *= 2;
-    seq_t *new_vals = (seq_t *)realloc(values, new_cap * sizeof(seq_t));
+    seq_t *new_vals = mem_resize(seq_t, values, new_cap);
     if (!new_vals)
         abort();
     values = new_vals;

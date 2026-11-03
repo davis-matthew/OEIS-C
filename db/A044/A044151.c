@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 1446, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 8144 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return true iff the base‑7 representation of x contains the
    consecutive digits 1 followed by 6.  */
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
     /* Grow cache if necessary. */
     if (cap == 0) {
         cap = 64;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
     }
 
     /* Generate terms until we have at least n of them. */
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
         if (cur_has && !prev_has) {          /* new occurrence */
             if (cached_cnt >= cap) {          /* extend cache */
                 cap *= 2;
-                cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cap);
             }
             cache[cached_cnt++] = next_k;
         }

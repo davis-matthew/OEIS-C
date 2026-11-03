@@ -11,7 +11,8 @@
  *            forbidden } | (n ≥ 2) For n < 2 the function returns 0
  * Range:     u8 n <= 106, u16 n <= 106, u32 n <= 106, u64 n <= 106,
  *            u128 n <= 106, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 106 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Upper bound for the 10000‑th prime (≈104729) – safe for all required n. */
 #define SIEVE_LIMIT 200000
@@ -66,7 +68,7 @@ static void init_sieve(void)
             prime_list[j++] = (int)i;
 
     /* Allocate cache (index 0 unused) */
-    cache = (seq_t *)calloc(prime_count + 1, sizeof(seq_t));
+    cache = mem_new(seq_t, prime_count + 1);
 }
 
 /* ----------------------------------------------------------------------- */

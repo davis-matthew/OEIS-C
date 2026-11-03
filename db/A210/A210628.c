@@ -8,13 +8,16 @@
  *            -Catalan((n-1)/2) if n is odd (n > 0) where Catalan(k) = (2k)! /
  *            (k! (k+1)!) The helper function `catalan(idx_t k)` is provided
  *            in "../utils/catalan.h"
- * Range:     i8 n <= 10, i16 n <= 18, i32 n <= 34, i64 n <= 72, i128 n <= 138,
+ * Range:     i8 n <= 12, i16 n <= 22, i32 n <= 40, i64 n <= 72, i128 n <= 138,
  *            big any n
+ * Validated: standard, pass, 61 terms through n = 993 (2026-11-01)
  * Helpers:   catalan
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/catalan.h"
 
 seq_t a(idx_t n)

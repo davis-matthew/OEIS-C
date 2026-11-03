@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   has38
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,26 @@
    the substring "38" while the preceding integer (n−1) does not. */
 
 #include <stdbool.h>
-#include "../utils/has38.h"
+
+/* Test whether a non‑negative integer contains the adjacent digits 3 and 8
+   in its base‑10 representation.  The function expects an idx_t, which
+   guarantees enough width to hold any number we examine. */
+static inline int has38(idx_t x)
+{
+    idx_t prev = 0;         /* least significant digit seen so far */
+    while (x > 0) {
+        idx_t cur = x % 10;
+        /* a "38" occurs when a 3 is immediately followed by an 8
+           when reading the number from most to least significant digit.
+           In the reverse scan this shows up as cur==3 and the
+           previously seen digit == 8. */
+        if (cur == 3 && prev == 8)
+            return 1;
+        prev = cur;
+        x /= 10;
+    }
+    return 0;
+}
 
 /* Return the nth term of the sequence (1‑based index).  The function
    scans through the integers, counting those that fulfill the

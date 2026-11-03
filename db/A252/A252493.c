@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   is_13_smooth
+ * Validated: full, pass, 68 terms through n = 68 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,18 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/is_13_smooth.h"
+
+/* Check whether x consists only of prime factors ≤ 13. */
+static bool is_13_smooth(seq_t x)
+{
+    static const seq_t primes[6] = {2, 3, 5, 7, 11, 13};
+    for (int i = 0; i < 6; ++i) {
+        seq_t p = primes[i];
+        while (x % p == 0)
+            x /= p;
+    }
+    return x == (seq_t)1;
+}
 
 /* Local static storage for the sequence.  128 slots are plenty
    for the 68 terms that exist. */

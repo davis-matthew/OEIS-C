@@ -12,6 +12,7 @@
  *            (count of v among the first i+1 digits) in the ba...
  * Range:     u8 n <= 120, u16 n <= 5039, u32 n <= 5039, u64 n <= 5039,
  *            u128 n <= 5039, big any n
+ * Validated: standard, pass, 84 terms through n = 4929 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

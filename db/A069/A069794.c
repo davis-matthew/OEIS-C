@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 37, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   freq_equal, grow_freq_array
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,27 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
-#include "../utils/freq_equal.h"
-#include "../utils/grow_freq_array.h"
+
+/* Compare two frequency tables.  */
+static bool
+freq_equal(const uint8_t *a, const uint8_t *b)
+{
+    for (int d = 0; d < 10; ++d)
+        if (a[d] != b[d]) return false;
+    return true;
+}
+
+/* Grow an array of 10-byte digit frequency blocks.  */
+static uint8_t *
+grow_freq_array(uint8_t *arr, size_t *cap, size_t need)
+{
+    if (*cap >= need) return arr;
+    size_t new_cap = (*cap) ? (*cap) << 1 : 1024;
+    while (new_cap < need) new_cap <<= 1;
+    uint8_t *tmp = (uint8_t *)realloc(arr, new_cap * 10 * sizeof(uint8_t));
+    *cap = new_cap;
+    return tmp;
+}
 
 /* ---------- local types and constants ---------- */
 typedef uint64_t local_uint64;          /* used for internal calculations */

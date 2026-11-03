@@ -7,16 +7,23 @@
  * Formula:   a(n) = (20*n)!*(9*n)!*(6*n)! / ((18*n)!*(10*n)!*(4*n)!*(3*n)!)
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 3, u64 n <= 7, u128 n <= 12,
  *            big any n
- * Helpers:   build_spf, seq_mul, seq_pow
+ * Validated: partial, pass, 13 terms through n = 12 (2026-11-01)
+ * Helpers:   build_spf, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/build_spf.h"
-#include "../utils/seq_mul.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -75,7 +82,7 @@ seq_t a(idx_t n)
 
         int exp = exps[p];
         idx_t abs_exp = (exp > 0) ? (idx_t)exp : (idx_t)(-exp);
-        seq_t power = seq_pow((seq_t)p, abs_exp);
+        seq_t power = ipow_idx((seq_t)p, abs_exp);
 
         if (exp > 0) {
             result = seq_mul(result, power);

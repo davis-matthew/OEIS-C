@@ -9,13 +9,15 @@
  *            a(0)=2, a(1)=4, a(2)=9, a(3)=23, a(4)=55, a(5)=126, a(6)=292
  * Range:     u8 n <= 5, u16 n <= 12, u32 n <= 25, u64 n <= 51, u128 n <= 104,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 965 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static state used for memoisation */
 static seq_t *cache   = NULL;   /* allocated array of seq_t values   */
@@ -31,7 +33,7 @@ static void grow_cache(size_t needed)
     size_t new_cap = cap ? cap : 8;
     while (new_cap < needed)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp && new_cap > 0)
         abort();          /* fatal error */
     cache = tmp;

@@ -7,13 +7,15 @@
  * Formula:   a(n) = number of primes <= n that end in digit 7
  * Range:     u8 n <= 5000, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 136 terms through n = 4644 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build environment. */
 
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
         }
 
         /* Reallocate the cache for the counts. */
-        count_cache = (seq_t *)realloc(count_cache, new_max * sizeof(seq_t));
+        count_cache = mem_resize(seq_t, count_cache, new_max);
 
         /* Initialize the cache if this is the first expansion. */
         if (cache_max == 0)

@@ -9,18 +9,20 @@
  *            is the position within that row (1‑based)
  * Range:     u8 n <= 7875, u16 n <= 7875, u32 n <= 7875, u64 n <= 7875,
  *            u128 n <= 7875, big any n
- * Helpers:   int_sqrt
+ * Validated: standard, pass, 107 terms through n = 7487 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/int_sqrt.h"
+#include <stdint.h>
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
     /* find the row number r such that r*(r+1)/2 ≥ n */
     idx_t D = 1 + 8*n;
-    idx_t s = int_sqrt(D);              /* floor sqrt */
+    idx_t s = isqrt(D);              /* floor sqrt */
     if (s*s < D) s++;                    /* ceil sqrt */
     idx_t r = (s - 1) / 2;              /* floor of (ceil√D-1)/2 */
     if (r*(r+1)/2 < n) r++;              /* adjust to satisfy inequality */

@@ -10,12 +10,15 @@
  *            k(k+1)/2 integers raised to the k‑th power.)
  * Range:     u8 n <= 13, u16 n <= 26, u32 n <= 63, u64 n <= 151,
  *            u128 n <= 404, big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 82 terms through n = 918 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +41,7 @@ seq_t a(idx_t n)
 
     seq_t sum = 0;
     for (idx_t j = 1; j <= r; ++j) {
-        sum += big_pow((seq_t)j, (seq_t)k);
+        sum += ipow((seq_t)j, (seq_t)k);
     }
     return sum;
 }

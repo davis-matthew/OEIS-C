@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy, new
  * Formula:   not stated
- * Range:     u8 n <= 123, u16 n <= 9022, u32 n <= 9022, u64 n <= 9022,
- *            u128 n <= 9022, big any n
- * Helpers:   none
+ * Range:     u8 n <= 123, u16 n <= 10041, u32 n <= 10041, u64 n <= 10041,
+ *            u128 n <= 10041, big any n
+ * Validated: standard, pass, 79 terms through n = 9022 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Sequence A400587: numbers k such that
    k is not divisible by 4 and has an even number of distinct
@@ -62,7 +64,7 @@ static void ensure_cache(idx_t n)
         if (passes(next_k)) {
             if (cache_len == cache_cap) {
                 size_t new_cap = (cache_cap == 0) ? 32 : cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) abort();          /* allocation failure */
                 cache = tmp;
                 cache_cap = new_cap;

@@ -9,7 +9,8 @@
  *            4 where c(k) is the k‑th positive integer not in the sequence a
  * Range:     u8 n <= 26, u16 n <= 487, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 8867 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static cache for the sequence a */
 static seq_t *a_cache          = NULL;
@@ -38,7 +40,7 @@ static void ensure_a_cap(size_t newlen)
     if (a_cap >= newlen) return;
     size_t cap = a_cap ? a_cap * 2 : 1;
     while (cap < newlen) cap *= 2;
-    a_cache = (seq_t *)realloc(a_cache, cap * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, cap);
     a_cap   = cap;
 }
 
@@ -48,7 +50,7 @@ static void ensure_c_cap(size_t newlen)
     if (c_cap >= newlen) return;
     size_t cap = c_cap ? c_cap * 2 : 1;
     while (cap < newlen) cap *= 2;
-    c_cache = (seq_t *)realloc(c_cache, cap * sizeof(seq_t));
+    c_cache = mem_resize(seq_t, c_cache, cap);
     c_cap   = cap;
 }
 

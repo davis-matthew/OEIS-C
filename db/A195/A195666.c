@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 17, u32 n <= 17, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 17 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static const uint64_t prime_list[7] = {2, 3, 5, 7, 11, 13, 17};
 
@@ -68,7 +70,7 @@ static int cmp_seq(const void *a, const void *b) {
 static void ensure_sequence(void) {
     if (seq_len == 0) {
         generate_rec(0, 17, (seq_t)1);
-        qsort(seq, seq_len, sizeof(seq_t), cmp_seq);
+        mem_qsort(seq, seq_len, sizeof(seq_t), cmp_seq);
     }
 }
 

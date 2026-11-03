@@ -12,13 +12,15 @@
  *            A014963(1)=1 and A014963(m) is always an integer * not excee...
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static idx_t isqrt_u64(idx_t x) {
     idx_t lo = 0, hi = x;
@@ -42,7 +44,7 @@ static seq_t *a014963 = NULL;
 static void ensure_A014963(idx_t need) {
     if (need <= a014963_max)
         return;
-    seq_t *new_arr = (seq_t *)realloc(a014963, (need + 1) * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, a014963, (need + 1));
     if (!new_arr) abort();      /* graceful abort on allocation failure */
     a014963 = new_arr;
 

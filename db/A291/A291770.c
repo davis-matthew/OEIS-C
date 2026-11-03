@@ -7,8 +7,9 @@
  * Formula:   a(n) is the binary number whose 1‐bits correspond to the *
  *            non‑leading zero digits in the ternary representation of n. *
  *            For example: ternary(33)=1020 → binary(a(33))=101 (a(33)=5)
- * Range:     u8 n <= 9342, u16 n <= 9342, u32 n <= 9342, u64 n <= 9342,
- *            u128 n <= 9342, big any n
+ * Range:     u8 n <= 19682, u16 n <= 59049, u32 n <= 59049, u64 n <= 59049,
+ *            u128 n <= 59049, big any n
+ * Validated: standard, pass, 126 terms through n = 9342 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

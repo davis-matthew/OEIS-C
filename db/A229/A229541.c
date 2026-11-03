@@ -10,7 +10,8 @@
  *            triangle is flattened in row-major order
  * Range:     u8 n <= 674, u16 n <= 3311, u32 n <= 3311, u64 n <= 3311,
  *            u128 n <= 3311, big any n
- * Helpers:   none
+ * Validated: standard, pass, 107 terms through n = 2514 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,13 +19,14 @@
 /* Include required headers for standard facilities */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Helper function to ensure capacity of an array of seq_t */
 static void ensure_cache_capacity(size_t new_capacity, seq_t **ptr, size_t *cap) {
     if (new_capacity <= *cap) return;
     size_t new_cap = (*cap == 0) ? new_capacity : (*cap << 1);
     while (new_cap < new_capacity) new_cap <<= 1;
-    seq_t *tmp = (seq_t*)realloc(*ptr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *ptr, new_cap);
     if (!tmp) exit(1);                /* simple error handling */
     *ptr = tmp;
     *cap = new_cap;
@@ -49,7 +51,7 @@ seq_t a(idx_t n) {
         size_t DPsize = S * S;
 
         /* DP table: dp[s * S + k] == partitions of s using exactly k squares */
-        seq_t *dp = (seq_t*)calloc(DPsize, sizeof(seq_t));
+        seq_t *dp = mem_new(seq_t, DPsize);
         if (!dp) exit(1);
         dp[0] = (seq_t)1;                /* dp[0][0] = 1 */
 
@@ -74,7 +76,7 @@ seq_t a(idx_t n) {
         for (idx_t k = 1; k <= (idx_t)N; ++k) {
             cache[cache_len++] = dp[row_base + k];
         }
-        free(dp);
+        mem_free(dp);
         ++next_row;
     }
     return cache[n - 1];

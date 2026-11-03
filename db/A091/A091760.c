@@ -7,19 +7,22 @@
  * Formula:   a(n) = 3 * ((n+2)^n - (-1)^n) / (n+3)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 8, u64 n <= 15, u128 n <= 19,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0)
         return 1;
     /* Compute (n+2)^n */
-    seq_t pow = big_pow((seq_t)(n + 2), (seq_t)n);
+    seq_t pow = ipow((seq_t)(n + 2), (seq_t)n);
     /* Adjust for (-1)^n */
     if ((n & 1) == 0) /* n even: subtract 1 */
         pow -= 1;

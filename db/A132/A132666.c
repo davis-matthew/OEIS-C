@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 254, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 88 terms through n = 9920 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
    ------------------------------------------------------------- */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------------
    Static state for memoisation.  We keep the sequence already computed
@@ -101,7 +103,7 @@ static void ensure_sequence_upto(idx_t n)
     /* Initialise on first call. */
     if (seq_len == 0) {
         seq_cap = 16;
-        seq = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         if (!seq) exit(1);
 
         par_cap = 16;
@@ -124,7 +126,7 @@ static void ensure_sequence_upto(idx_t n)
 
     /* Grow the sequence array if necessary. */
     while (seq_cap <= n) seq_cap <<= 1;
-    seq = (seq_t*)realloc(seq, seq_cap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, seq_cap);
     if (!seq) exit(1);
 
     seq_t current = seq[seq_len];

@@ -7,12 +7,14 @@
  * Formula:   a(n) = 20*a(n-1) - a(n-2); a(0) = 2; a(1) = 20
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 14, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
     /* Ensure base cases are present */
     if (cache_cap < 2) {
         /* Allocate space for indices 0 and 1 */
-        cache = (seq_t *)realloc(cache, 2 * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, 2);
         cache_cap = 2;
         cache[0] = (seq_t)2;
         cache[1] = (seq_t)20;
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
 
     /* Extend cache to hold up to index n */
     idx_t old_cap = cache_cap;
-    cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, (n + 1));
     cache_cap = n + 1;
 
     /* Compute missing terms using the recurrence */

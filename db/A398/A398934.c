@@ -12,12 +12,15 @@
  *            third term.)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 5, u64 n <= 5, u128 n <= 5,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 5 terms through n = 5 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"   /* seq_pow(seq_t, idx_t) */
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 /* Compute A398934(n) – the least common volume of k‑dimensional
    lattice boxes with all edge components non‑zero, for every
@@ -29,6 +32,6 @@ seq_t a(idx_t n)
     if (n == 3) return 675;
 
     /* For n ≥ 4: 25 * 7^(n-1) */
-    seq_t pow7 = seq_pow((seq_t)7, n - 1);
+    seq_t pow7 = ipow_idx((seq_t)7, n - 1);
     return 25 * pow7;
 }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digits_mask_uint64
+ * Validated: standard, pass, 122 terms through n = 9215 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,16 @@
    a(n) = |{d : d in digits(n) and digits(n+1)}|   for n ≥ 0
 */
 #include <stdint.h>
-#include "../utils/digits_mask_uint64.h"
+
+static inline unsigned int digits_mask_uint64(uint64_t x)
+{
+    unsigned int mask = 0;
+    do {
+        mask |= 1U << (x % 10);
+        x /= 10;
+    } while (x);
+    return mask;
+}
 
 seq_t a(idx_t n)
 {

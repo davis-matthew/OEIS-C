@@ -8,16 +8,19 @@
  *            dividing by 2 and 3 before the multiplication
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 33, u128 n <= 65,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 43 terms through n = 195 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
-    seq_t t = seq_pow((seq_t)2, n);   /* t = 2^n */
+    seq_t t = ipow_idx((seq_t)2, n);   /* t = 2^n */
     seq_t A = t + (seq_t)4;
     seq_t B = t - (seq_t)1;
 

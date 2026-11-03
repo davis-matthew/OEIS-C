@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 39, u16 n <= 5771, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 92 terms through n = 9085 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static state */
 static bool          initialized      = false;
@@ -41,7 +43,7 @@ static void vis_append(seq_t v)
 {
     if (vis_len == vis_cap) {
         vis_cap = vis_cap ? vis_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(vis_list, vis_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, vis_list, vis_cap);
         if (!tmp) exit(1);
         vis_list = tmp;
     }
@@ -75,7 +77,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         /* Allocate and initialise visited array with the first value 0. */
         vis_cap = 16;
-        vis_list = (seq_t *)malloc(vis_cap * sizeof(seq_t));
+        vis_list = mem_new(seq_t, vis_cap);
         if (!vis_list) exit(1);
         vis_append((seq_t)0);
         vis_len = 1;

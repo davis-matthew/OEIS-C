@@ -8,12 +8,15 @@
  *            directly by calling the provided pow2 and pow3 utilities
  * Range:     i8 n <= 4, i16 n <= 8, i32 n <= 18, i64 n <= 39, i128 n <= 79,
  *            big any n
+ * Validated: standard, pass, 44 terms through n = 968 (2026-11-01)
  * Helpers:   pow2, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdint.h>
 #include "../utils/pow2.h"
 #include "../utils/pow3.h"
 

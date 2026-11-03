@@ -7,15 +7,30 @@
  * Keywords:  nonn, base
  * Formula:   a(n) = Sum_{d|n} A034968(d), where A034968(d) is the sum of
  *            digits of d in factorial base
- * Range:     u8 n <= 1423, u16 n <= 9494, u32 n <= 9494, u64 n <= 9494,
- *            u128 n <= 9494, big any n
- * Helpers:   factorial_base_sum
+ * Range:     u8 n <= 1423, u16 n <= 40320, u32 n <= 40320, u64 n <= 40320,
+ *            u128 n <= 40320, big any n
+ * Validated: standard, pass, 111 terms through n = 9494 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/factorial_base_sum.h"
+
+/* Compute the sum of digits of n in factorial base. */
+static seq_t factorial_base_sum(idx_t n)
+{
+    seq_t sum = 0;
+    seq_t temp = (seq_t)n;
+    idx_t div = 2;                /* divisor starts at 2 = (1+1) */
+
+    while (temp != 0) {
+        sum += temp % (seq_t)div;
+        temp /= (seq_t)div;
+        ++div;
+    }
+    return sum;
+}
 
 seq_t a(idx_t n)
 {

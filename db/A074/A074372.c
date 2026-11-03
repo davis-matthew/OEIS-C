@@ -7,12 +7,14 @@
  * Formula:   a(n) = 1 + sum of distinct primes dividing n
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
+ * Validated: partial, pass, 80 terms through n = 80 (2026-11-01)
  * Helpers:   factor_uint64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Uses the helper function factor_uint64 to obtain the prime factorisation of n */
+#include <stdint.h>
 #include "../utils/factor_uint64.h"
 
 seq_t a(idx_t n)

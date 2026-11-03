@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 40, u128 n <= 81,
  *            big any n
+ * Validated: standard, pass, 46 terms through n = 916 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,7 +16,8 @@
 /* Formula implemented: a(1) = 1; for n > 1, a(n) = 3*a(n-1) + (n mod 2)*floor(2^(n+1)/3) */
 #include <stddef.h>                        /* size_t, idx_t */
 #include <stdint.h>                       /* uint64_t */
-#include "../utils/pow2.h"                 /* pow2(idx_t) → seq_t */
+#include <stdbool.h>
+#include "../utils/pow2.h"
 
 /* External sequence type */
 extern seq_t a(idx_t n)

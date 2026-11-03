@@ -9,12 +9,14 @@
  *            caches computed values to allow arbitrary non‑monotone calls
  * Range:     u8 n <= 8, u16 n <= 17, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[5] = {18, 36, 70, 134, 258};
 
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
 
     /* Need to extend the cache to cover n. */
     size_t needed_len = (size_t)(n - 5 + 1);          /* number of terms needed */
-    seq_t *tmp = (seq_t *)realloc(cache, needed_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, needed_len);
     cache = tmp;                                      /* may move memory */
 
     /* Fill any new terms from the current end up to n. */

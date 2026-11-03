@@ -12,6 +12,7 @@
  *            divide m), for all m <= X with X increased as needed
  * Range:     u8 n <= 248, u16 n <= 290, u32 n <= 290, u64 n <= 290,
  *            u128 n <= 290, big any n
+ * Validated: standard, pass, 84 terms through n = 273 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

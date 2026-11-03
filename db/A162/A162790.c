@@ -7,14 +7,15 @@
  * Formula:   not stated
  * Range:     u8 n <= 57, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Sequence: OEIS A162790: primes >10 plus composites 10,12,14,15,16,20,25. */
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +27,7 @@ seq_t a(idx_t n)
             case 10: case 12: case 14: case 15: case 16: case 20: case 25:
                 include = true; break;
             default:
-                if (is_prime_small((seq_t)num)) include = true;
+                if (is_prime_seq((seq_t)num)) include = true;
         }
         if (include) {
             count++;

@@ -9,14 +9,17 @@
  *            of n
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _gcd_idx
+ * Validated: standard, pass, 120 terms through n = 9823 (2026-11-01)
+ * Helpers:   gcd_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/_gcd_idx.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/gcd_idx.h"
 
 /* Compute greatest common divisor for unsigned 64‑bit integers */
 
@@ -44,7 +47,7 @@ seq_t a(idx_t n)
         idx_t rem = d;
         for (idx_t j = 0; j < k && rem > 1; ++j)
         {
-            idx_t g = _gcd_idx(nums[j], rem);
+            idx_t g = gcd_idx(nums[j], rem);
             if (g > 1)
             {
                 nums[j] /= g;

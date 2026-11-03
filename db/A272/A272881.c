@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 83, u16 n <= 83, u32 n <= 83, u64 n <= 83, u128 n <= 83,
  *            big any n
- * Helpers:   floor_log2_uint64, pow2
+ * Validated: partial, pass, 83 terms through n = 83 (2026-11-01)
+ * Helpers:   ilog2, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,10 @@
    a(n) = 2^ceil(log2(n))              otherwise
    Uses helper functions floor_log2_uint64 and pow2. */
 
-#include "../utils/floor_log2_uint64.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/ilog2.h"
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)
@@ -26,7 +30,7 @@ seq_t a(idx_t n)
     /* Check whether n = 2^i + 1 for some i */
     idx_t m = n - 1;                    /* m = n-1 */
     if (m && ((m & (m - 1)) == 0)) {    /* m is a power of two */
-        idx_t i = floor_log2_uint64(m); /* i = log2(m) */
+        idx_t i = ilog2(m); /* i = log2(m) */
         if (i > 2 && (i & 1)) {         /* odd i > 2 */
             return pow2(i + 1) - 3;
         }
@@ -37,7 +41,7 @@ seq_t a(idx_t n)
     }
 
     /* Default: 2^ceil(log2(n)) */
-    idx_t fl = floor_log2_uint64(n);          /* floor(log2(n)) */
+    idx_t fl = ilog2(n);          /* floor(log2(n)) */
     idx_t ceil = ((idx_t)1 << fl) == n ? fl : fl + 1;
     return pow2(ceil);
 }

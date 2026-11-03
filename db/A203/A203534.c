@@ -12,13 +12,15 @@
  *            the definition
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static caches */
 static seq_t *sigma_arr = NULL;   /* sum of divisors, indices start at 1 */
@@ -37,7 +39,7 @@ static void compute_sigma(idx_t n)
     if (n <= sigma_size)
         return;
 
-    seq_t *new_arr = (seq_t *)realloc(sigma_arr, (n + 1) * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, sigma_arr, (n + 1));
     if (!new_arr)
         return;                    /* out of memory – abort silently */
     sigma_arr = new_arr;
@@ -60,7 +62,7 @@ static void compute_comp(idx_t n)
     if (n <= comp_size)
         return;
 
-    seq_t *new_arr = (seq_t *)realloc(comp_arr, (n + 1) * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, comp_arr, (n + 1));
     if (!new_arr)
         return;
     comp_arr = new_arr;
@@ -83,7 +85,7 @@ static void compute_a(idx_t n)
     if (n <= a_size)
         return;
 
-    seq_t *new_arr = (seq_t *)realloc(a_arr, (n + 1) * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, a_arr, (n + 1));
     if (!new_arr)
         return;
     a_arr = new_arr;
@@ -109,7 +111,7 @@ seq_t a(idx_t n)
 {
     if (n == 0) {                     /* ensure a[0] exists */
         if (a_size == 0) {
-            a_arr = (seq_t *)calloc(1, sizeof(seq_t));
+            a_arr = mem_new(seq_t, 1);
             a_arr[0] = (seq_t)1;
             a_size = 0;
         }

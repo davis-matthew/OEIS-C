@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 59, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   count_digits, is_semiprime_uint64, pow10
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   is_prime_u64, num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,37 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/is_semiprime_uint64.h"
-#include "../utils/count_digits.h"
-#include "../utils/pow10.h"
+#include <stdlib.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/num_digits_idx.h"
+
+/* true if x is the product of exactly two primes (possibly the same) */
+static bool is_semiprime_uint64(uint64_t x)
+{
+    if (x < 4)
+        return false;
+    uint64_t d = 0;
+    if (x % 2 == 0)
+        d = 2;
+    else {
+        for (uint64_t dd = 3; dd <= x / dd; dd += 2) {
+            if (x % dd == 0) {
+                d = dd;
+                break;
+            }
+        }
+    }
+    if (d == 0)
+        return false;                      /* x is prime */
+    uint64_t second = x / d;
+    return is_prime_u64(second);
+}
+
+static seq_t pow10(idx_t exp) {
+    seq_t res = 1;
+    for (idx_t i = 0; i < exp; ++i) res *= (seq_t)10;
+    return res;
+}
 
 seq_t a(idx_t n) {
     /* Static state across calls. */
@@ -54,7 +83,7 @@ seq_t a(idx_t n) {
 
         uint64_t sp = candidate;           /* current semiprime */
         bool omit = false;
-        int len_sp = count_digits((idx_t)sp);
+        int len_sp = num_digits_idx((idx_t)sp);
 
         /* Check whether sp is a concatenation of some consecutive
            subsequence of earlier semiprimes. */
@@ -63,7 +92,7 @@ seq_t a(idx_t n) {
             int len_concat = 0;
             for (size_t j = i; j < semis_cnt; ++j) {
                 uint64_t sj = semis[j];
-                int dj = count_digits((idx_t)sj);
+                int dj = num_digits_idx((idx_t)sj);
                 if (len_concat + dj > len_sp)
                     break;
 

@@ -7,13 +7,14 @@
  * Formula:   a(n) = Sum_{d|n} (n-d) * phi(n/d)
  * Range:     u8 n <= 16, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   phi
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/phi.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -29,12 +30,12 @@ seq_t a(idx_t n)
             idx_t d2 = n_idx / d;  /* complementary divisor n/d */
 
             /* contribution from divisor d1 */
-            seq_t phi_d2 = phi(d2);                     /* phi(n/d) */
+            seq_t phi_d2 = totient(d2);                     /* phi(n/d) */
             result += ((seq_t)n_idx - (seq_t)d1) * phi_d2;
 
             /* contribution from complementary divisor d2, if distinct */
             if (d1 != d2) {
-                seq_t phi_d1 = phi(d1);                     /* phi(d1) */
+                seq_t phi_d1 = totient(d1);                     /* phi(d1) */
                 result += ((seq_t)n_idx - (seq_t)d2) * phi_d1;
             }
         }

@@ -10,13 +10,23 @@
  *            = -6*x^2*G)
  * Range:     i8 n <= 8, i16 n <= 14, i32 n <= 24, i64 n <= 30, i128 n <= 30,
  *            big any n
- * Helpers:   seq_is_big
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/seq_is_big.h"
+#include <stdlib.h>
+#include <stdint.h>
+
+static int seq_is_big(void)
+{
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 130; i++) x = x * 2;
+    return !(x == 0);
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 1;

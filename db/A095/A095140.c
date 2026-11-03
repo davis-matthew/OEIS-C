@@ -9,7 +9,8 @@
  *            i*(i+1)/2 ≤ n < (i+1)*(i+2)/2 and j = n - i*(i+1)/2
  * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   mul5
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,12 @@
 /* Note: this implementation assumes the existence of the types
  *  seq_t and idx_t.  It uses only integer arithmetic.  */
 #include <stdint.h>
-#include "../utils/mul5.h"
+
+/* Multiply two small modulo‑5 numbers.  */
+static inline seq_t mul5(seq_t a, seq_t b)
+{
+    return (seq_t)((a * b) % 5);
+}
 
 /*  Pre‑computed binomial coefficients modulo 5 for 0 ≤ n < 5. */
 static const seq_t binom5[5][5] = {

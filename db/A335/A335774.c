@@ -11,12 +11,14 @@
  *            a(15)=224 (a(0) is undefined, return 0)
  * Range:     u8 n <= 18, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 1000 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Precomputed initial 15 terms */
 static const seq_t init_vals[16] = {
@@ -55,7 +57,7 @@ static void grow_cache(idx_t n)
         new_size <<= 1;
 
     /* Reallocate memory; cast from void* to seq_t*. */
-    seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_size);
     if (!new_cache)
         abort(); /* memory allocation failure */
 

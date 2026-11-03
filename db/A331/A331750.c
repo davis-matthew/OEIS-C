@@ -7,7 +7,8 @@
  * Formula:   a(n) = A048675(sigma(n))
  * Range:     u8 n <= 15, u16 n <= 63, u32 n <= 276, u64 n <= 660,
  *            u128 n <= 728, big any n
- * Helpers:   build_primes_upto, factor_u64, mul_small, pow2, sigma_of
+ * Validated: standard, pass, 103 terms through n = 9910 (2026-11-01)
+ * Helpers:   build_primes_upto, factor_u64, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,11 +20,37 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/sigma_of.h"
+#include "../utils/build_primes_upto.h"
 #include "../utils/factor_u64.h"
 #include "../utils/pow2.h"
-#include "../utils/mul_small.h"
-#include "../utils/build_primes_upto.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 static uint64_t *prime_list = NULL;   /* list of primes */
 static size_t prime_count = 0;        /* number of primes in prime_list */

@@ -12,7 +12,8 @@
  *            a(7)=219824, a(8)=675264, a(9)=2072804
  * Range:     u8 none, u16 n <= 5, u32 n <= 15, u64 n <= 35, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache for computed terms */
 static seq_t *cache = NULL;
@@ -39,9 +41,9 @@ static void grow_cache(size_t n)
     size_t new_size = n;
     seq_t *new_cache;
     if (cache == NULL) {
-        new_cache = (seq_t *)malloc(sizeof(seq_t) * new_size);
+        new_cache = mem_new(seq_t, new_size);
     } else {
-        new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_size);
+        new_cache = mem_resize(seq_t, cache, new_size);
     }
     /* If realloc fails, keep old cache to avoid loss of data - but
        for this problem we assume success. */

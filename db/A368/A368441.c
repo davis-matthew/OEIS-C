@@ -11,15 +11,38 @@
  *            order, return the correct value
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 6, u64 n <= 11, u128 n <= 15,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 /* Ensure capacity for a seq_t array */
+#ifdef __cplusplus
+template <class T>
+static inline void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elsize) {
+    if (*cap < needed) {
+        /* Use standard realloc for portability; zero‑initialise new part */
+        T *tmp = mem_resize(T, *ptr, (needed * elsize) / sizeof(T));
+        if (!tmp) return; /* allocation failure – caller will fail gracefully */
+        *ptr = tmp;
+        *cap = needed;
+    }
+}
+#else
 static inline void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elsize) {
     if (*cap < needed) {
         /* Use standard realloc for portability; zero‑initialise new part */
@@ -29,6 +52,7 @@ static inline void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_
         *cap = needed;
     }
 }
+#endif
 
 /* The sequence function */
 seq_t a(idx_t n)
@@ -38,7 +62,7 @@ seq_t a(idx_t n)
     static size_t cache_cap = 0;
     static idx_t last_computed = 0;          /* highest index computed so far */
 
-    ensure_capacity((size_t)n + 1, &cache_cap, (void **)&cache, sizeof(seq_t));
+    ensure_capacity((size_t)n + 1, &cache_cap, OEISC_VPP(&cache), sizeof(seq_t));
 
     /* Initialise a(0) if necessary */
     if (n == 0) {
@@ -55,12 +79,12 @@ seq_t a(idx_t n)
     static idx_t pow3_last = 0;           /* index up to which pow3 is filled */
 
     if (!pow3) {
-        ensure_capacity(1, &pow3_cap, (void **)&pow3, sizeof(seq_t));
+        ensure_capacity(1, &pow3_cap, OEISC_VPP(&pow3), sizeof(seq_t));
         pow3[0] = 1;
         pow3_last = 0;
     }
     if (pow3_cap <= (size_t)n) {
-        ensure_capacity((size_t)n + 1, &pow3_cap, (void **)&pow3, sizeof(seq_t));
+        ensure_capacity((size_t)n + 1, &pow3_cap, OEISC_VPP(&pow3), sizeof(seq_t));
         for (idx_t i = pow3_last + 1; i <= n; ++i) {
             pow3[i] = pow3[i - 1] * 3;
         }

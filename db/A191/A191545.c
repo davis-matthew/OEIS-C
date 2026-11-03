@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   in_s
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,7 +32,18 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/in_s.h"
+
+/* ------------------------------------------------------------------ */
+static inline bool in_s(uint64_t m)
+{
+    /* Inverse roughly m ≈ 9n/4 => n ≈ 4m/9.  Check the nearest two n. */
+    uint64_t n0 = (4 * m) / 9;
+    uint64_t s0 = (9 * n0) / 4;
+    if (s0 == m) return true;
+    uint64_t n1 = n0 + 1;
+    uint64_t s1 = (9 * n1) / 4;
+    return s1 == m;
+}
 
 /* ------------------------------------------------------------------ */
 /* Helper: test whether m belongs to the sequence s(n)=⌊9n/4⌋          */

@@ -12,6 +12,7 @@
  *            positive integer quotient
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,7 +21,8 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/build_primes_upto.h"   /* provides build_primes_upto */
+#include <stdbool.h>
+#include "../utils/build_primes_upto.h"
 /* seq_t and idx_t types are supplied by the build environment. */
 
 seq_t a(idx_t n)

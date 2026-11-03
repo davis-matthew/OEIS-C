@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 13, u64 n <= 31, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
    that fit in the chosen type. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 # /* Cache for memoisation.  cache[i] holds a(i).  Index 0 is unused
 #    (the sequence is 1‑based). */
@@ -47,7 +49,7 @@ static void ensure_cache_size(idx_t n)
     size_t new_size = n + 1;
     if (new_size < 17) new_size = 17;
     if (new_size < cache_size * 2) new_size = cache_size * 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_size);
     if (!tmp) abort();
     cache = tmp;
     cache_size = new_size;

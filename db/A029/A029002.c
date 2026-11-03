@@ -7,6 +7,7 @@
  * Formula:   a(n) = 1 + floor((2*n^3 + 42*n^2 + (255+9*(-1)^n)*n)/576)
  * Range:     u8 n <= 1, u16 n <= 25, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
+ * Validated: partial, pass, 58 terms through n = 57 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,7 +10,8 @@
  *            k^2
  * Range:     u8 n <= 77, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 9839 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static uint32_t *spf = NULL;
 static idx_t spf_limit = 0;
@@ -104,7 +106,7 @@ seq_t a(idx_t n) {
         ++last_k;
         ensure_spf(last_k);                 /* extend SPF if needed */
         if (qualifies(last_k)) {
-            seq_cache = (seq_t*)realloc(seq_cache, (seq_len + 1) * sizeof(seq_t));
+            seq_cache = mem_resize(seq_t, seq_cache, (seq_len + 1));
             if (!seq_cache) exit(1);
             seq_cache[seq_len] = (seq_t)last_k;
             ++seq_len;

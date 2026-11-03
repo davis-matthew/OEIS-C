@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 98, u32 n <= 1100, u64 n <= 1100,
  *            u128 n <= 1100, big any n
- * Helpers:   bigomega, build_primes
+ * Validated: standard, pass, 62 terms through n = 1053 (2026-11-03)
+ * Helpers:   bigomega, build_primes, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,9 @@
 #include <stdlib.h>
 
 /* Helper prototypes provided by the framework */
-#include "../utils/bigomega.h"          /* seq_t bigomega(idx_t n); */
-#include "../utils/build_primes.h"      /* void build_primes(idx_t limit, idx_t **out, size_t *cnt); */
+#include "../utils/bigomega.h"
+#include "../utils/build_primes.h"
+#include "../utils/mem.h"
 
 static seq_t *seq_cache     = NULL;   /* stored sequence values              */
 static size_t seq_size      = 0;      /* number of terms cached              */
@@ -73,7 +75,7 @@ static void ensure_sequence(idx_t n)
             /* Grow cache if necessary. */
             if (seq_size == seq_cap) {
                 size_t new_cap = seq_cap ? (seq_cap << 1) : 4;
-                seq_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+                seq_cache = mem_resize(seq_t, seq_cache, new_cap);
                 seq_cap   = new_cap;
             }
             seq_cache[seq_size++] = (seq_t)p;

@@ -12,7 +12,8 @@
  *            encoded as 12‑bit integers. * For each state...
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 11, u64 n <= 21, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 208 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const bool ALLOWED[9] = { true, false, false, true, true, true, true, false, false };
 
@@ -107,8 +109,8 @@ seq_t a(idx_t n)
     init_transitions();
 
     /* DP arrays over state (prev<<6 | curr) */
-    seq_t *dp     = (seq_t *)calloc(4096, sizeof(seq_t));
-    seq_t *nextdp = (seq_t *)calloc(4096, sizeof(seq_t));
+    seq_t *dp     = mem_new(seq_t, 4096);
+    seq_t *nextdp = mem_new(seq_t, 4096);
     if (!dp || !nextdp) return (seq_t)0;  /* memory fault protection */
 
     /* initialise for the first two rows */
@@ -128,7 +130,7 @@ seq_t a(idx_t n)
             if (bottom_row_valid(prev, curr))
                 total += dp[s];
         }
-        free(dp); free(nextdp);
+        mem_free(dp); mem_free(nextdp);
         return total;
     }
 
@@ -165,6 +167,6 @@ seq_t a(idx_t n)
             total += dp[s];
     }
 
-    free(dp); free(nextdp);
+    mem_free(dp); mem_free(nextdp);
     return total;
 }

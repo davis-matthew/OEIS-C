@@ -8,8 +8,9 @@
  * Formula:   a(n) = number of iterations of the prime‑shift function A003961
  *            until the result becomes deficient (σ(x) < 2x), starting from x
  *            = n
- * Range:     u8 n <= 23, u16 n <= 6737, u32 n <= 8961, u64 n <= 8961,
- *            u128 n <= 8961, big any n
+ * Range:     u8 n <= 23, u16 n <= 6737, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 136 terms through n = 8961 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,7 +21,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"   /* provides: bool is_prime(idx_t x); */
+#include "../utils/is_prime.h"
 
 /* ------------------------------------------------------------------
    Helper: factorization of a 64‑bit integer.

@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 26, u16 n <= 8695, u32 n <= 8695, u64 n <= 8695,
- *            u128 n <= 8695, big any n
- * Helpers:   none
+ * Range:     u8 n <= 26, u16 n <= 12272, u32 n <= 12272, u64 n <= 12272,
+ *            u128 n <= 12272, big any n
+ * Validated: standard, pass, 69 terms through n = 8695 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- helper macros ---------- */
 
@@ -140,7 +142,7 @@ static void ensure_terms_cap(size_t needed)
     if (a_cap >= needed) return;
     size_t new_cap = a_cap ? a_cap << 1 : 1;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t*)realloc(a_terms, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_terms, new_cap);
     if (!tmp) exit(1);
     a_terms = tmp;
     a_cap = new_cap;

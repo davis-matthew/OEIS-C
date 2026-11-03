@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 11, u32 n <= 11, u64 n <= 11, u128 n <= 11,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 11 terms through n = 11 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define SIEVE_LIMIT 1000000U          /* upper bound for searching n */
 
@@ -74,7 +76,7 @@ static void init(void)
 
     /* Prepare a dynamic array for the terms. */
     size_t cap = 32;
-    terms = (seq_t *)malloc(cap * sizeof(seq_t));
+    terms = mem_new(seq_t, cap);
     if (!terms) {
         free(primes);
         exit(1);
@@ -113,7 +115,7 @@ static void init(void)
         if (next_prime > xmax) {          /* condition satisfied */
             if (term_cnt == cap) {         /* grow the terms array */
                 cap <<= 1;
-                terms = (seq_t *)realloc(terms, cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, cap);
                 if (!terms) {
                     free(primes);
                     exit(1);

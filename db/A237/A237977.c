@@ -11,13 +11,15 @@
  *            programming table for p(m, k)
  * Range:     u8 n <= 30, u16 n <= 78, u32 n <= 237, u64 n <= 791,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 883 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Compute a(n) – OEIS A237977. */
 seq_t a(idx_t n)
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* Allocate DP table: dp[sum*(kmax+1) + parts] = p(sum, parts) */
     size_t stride = (size_t)(kmax + 1);          /* columns */
     size_t rows   = (size_t)(n + 1);            /* rows: 0…n */
-    seq_t *dp = (seq_t *)calloc(rows * stride, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, rows * stride);
     if (!dp) /* malloc failed – return 0 as a fallback */
         return 0;
 
@@ -76,6 +78,6 @@ seq_t a(idx_t n)
         result += val1 - val2;               /* val1 ≥ val2 always */
     }
 
-    free(dp);
+    mem_free(dp);
     return result;
 }

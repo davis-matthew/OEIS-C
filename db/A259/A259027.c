@@ -9,7 +9,8 @@
  *            * c(n/d)^d = 1 + 1/n
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 35, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   big_pow, gcd, seq_mul
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   gcd, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,15 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <string.h>
 #include "../utils/gcd.h"
-#include "../utils/big_pow.h"
-#include "../utils/seq_mul.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* External types supplied by the build.  */
 typedef uint64_t idx_t;   /* index type */
@@ -43,8 +50,8 @@ static void ensure_capacity(idx_t n)
     size_t new_cap = (cap == 0) ? 2 : cap << 1;
     while (new_cap < (size_t)(n + 1))
         new_cap <<= 1;
-    seq_t *new_num = (seq_t *)realloc(c_num, new_cap * sizeof(seq_t));
-    seq_t *new_den = (seq_t *)realloc(c_den, new_cap * sizeof(seq_t));
+    seq_t *new_num = mem_resize(seq_t, c_num, new_cap);
+    seq_t *new_den = mem_resize(seq_t, c_den, new_cap);
     if (!new_num || !new_den)
         abort();   /* out of memory */
     for (size_t i = cap; i < new_cap; ++i) {
@@ -94,8 +101,8 @@ static void compute_up_to(idx_t n)
             idx_t m = k / d;                  /* m = k/d */
             seq_t p = c_num[m];
             seq_t q = c_den[m];
-            seq_t p_pow = big_pow(p, (seq_t)d);
-            seq_t q_pow = big_pow(q, (seq_t)d);
+            seq_t p_pow = ipow(p, (seq_t)d);
+            seq_t q_pow = ipow(q, (seq_t)d);
             seq_t term_num = p_pow;
             seq_t term_den = seq_mul(q_pow, (seq_t)d);
 
@@ -111,8 +118,8 @@ static void compute_up_to(idx_t n)
                 idx_t m2 = k / d2;            /* m2 = k/d2 = d */
                 seq_t p2 = c_num[m2];
                 seq_t q2 = c_den[m2];
-                seq_t p2_pow = big_pow(p2, (seq_t)d2);
-                seq_t q2_pow = big_pow(q2, (seq_t)d2);
+                seq_t p2_pow = ipow(p2, (seq_t)d2);
+                seq_t q2_pow = ipow(q2, (seq_t)d2);
                 seq_t term_num2 = p2_pow;
                 seq_t term_den2 = seq_mul(q2_pow, (seq_t)d2);
 

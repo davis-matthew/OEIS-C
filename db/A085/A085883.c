@@ -7,14 +7,16 @@
  * Keywords:  nonn, look
  * Formula:   a(n) = maximum over 1 ≤ r < n of τ(r) + τ(n-r), where τ(k) is
  *            the number of positive divisors of k. (Offset 2)
- * Range:     u8 n <= 9578, u16 n <= 9578, u32 n <= 9578, u64 n <= 9578,
- *            u128 n <= 9578, big any n
- * Helpers:   none
+ * Range:     u8 n <= 16385, u16 n <= 16385, u32 n <= 16385, u64 n <= 16385,
+ *            u128 n <= 16385, big any n
+ * Validated: standard, pass, 92 terms through n = 9578 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute number of divisors τ(k) for all k ≤ n and
    store them in a static cache.  The cache is recomputed
@@ -26,10 +28,10 @@ static void recompute_tau(idx_t n)
 {
     /* Free old cache if any. */
     if (tau_cache != NULL)
-        free(tau_cache);
+        mem_free(tau_cache);
 
     /* Allocate new cache of size n+1. */
-    tau_cache = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    tau_cache = mem_new(seq_t, (n + 1));
     if (tau_cache == NULL)
         return; /* In practice, the caller will fail gracefully. */
 

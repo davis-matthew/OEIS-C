@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   constant_first_quotients
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,24 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/constant_first_quotients.h"
+
+/* Test whether a list of prime indices sorted in decreasing order has
+   a constant first quotient. */
+static bool constant_first_quotients(const idx_t *idxes, size_t len)
+{
+    if (len <= 1)
+        return true;                           /* single part always ok */
+
+    idx_t denom = idxes[0];                    /* largest index  */
+    idx_t numer = idxes[1];                    /* next one     */
+
+    for (size_t i = 2; i < len; ++i) {
+        /* All ratios idxes[i]/idxes[i-1] must equal numer/denom   */
+        if (idxes[i] * denom != numer * idxes[i - 1])
+            return false;
+    }
+    return true;
+}
 
 /* Algorithm:
    a(n) is the nth Heinz number of an integer partition whose prime indices

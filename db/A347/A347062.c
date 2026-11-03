@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 85, u16 n <= 85, u32 n <= 85, u64 n <= 85, u128 n <= 85,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 86 terms through n = 85 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,18 +25,19 @@
    returns a(n). */
 
 #include <stdlib.h>   /* for malloc, calloc, free */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* allocate array for a[0..n] */
-    seq_t *a_arr = (seq_t*)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *a_arr = mem_new(seq_t, (size_t)(n + 1));
     if (!a_arr) return 0;                 /* in case of allocation failure */
 
     /* frequency table for values that are eligible to be counted.
        Size n+2 is sufficient because the largest value seen will never
        exceed n (in practice it is much smaller). */
     idx_t *freq = (idx_t*)calloc((size_t)(n + 2), sizeof(idx_t));
-    if (!freq) { free(a_arr); return 0; }
+    if (!freq) { mem_free(a_arr); return 0; }
 
     idx_t m = 0;                       /* current value to be counted */
 
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = a_arr[n];
-    free(a_arr);
+    mem_free(a_arr);
     free(freq);
     return result;
 }

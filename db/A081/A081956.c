@@ -7,7 +7,8 @@
  * Formula:   a(n) = 3*a(n-1) + 2^n, a(1) = 2
  * Range:     i8 n <= 3, i16 n <= 8, i32 n <= 18, i64 n <= 25, i128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    power 2^n that is needed for the recurrence. */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache */
@@ -30,7 +32,7 @@ seq_t a(idx_t n) {
     if (cache == NULL) {
         cache_cap   = 128;
         cache_size  = 1;
-        cache       = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache       = mem_new(seq_t, cache_cap);
         if (cache == NULL) return (seq_t)0;   /* allocation failed – return 0 */
         cache[0] = (seq_t)2;                  /* a(1) */
         pow2     = (seq_t)4;                  /* 2^2 for next computation */
@@ -46,7 +48,7 @@ seq_t a(idx_t n) {
         /* grow array if necessary */
         if (cache_size == cache_cap) {
             cache_cap *= 2;
-            seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
             if (tmp == NULL) return (seq_t)0;   /* allocation failed – return 0 */
             cache = tmp;
         }

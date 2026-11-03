@@ -9,7 +9,8 @@
  * Formula:   a(n) = A168036(A276086(n)) = A327860(n) - A276086(n)
  * Range:     i8 n <= 14, i16 n <= 57, i32 n <= 208, i64 n <= 2278,
  *            i128 n <= 2310, big any n
- * Helpers:   seq_mul, seq_pow
+ * Validated: standard, pass, 81 terms through n = 2221 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,15 @@
  *   expansion of n, and e_i is the corresponding digit. */
 
 #include <stdint.h>
-#include "../utils/seq_mul.h"   /* seq_mul(seq_t a, seq_t b) */
-#include "../utils/seq_pow.h"   /* seq_pow(seq_t base, idx_t exp) */
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 static const uint32_t _primes[] = {
     2, 3, 5, 7, 11, 13, 17, 19, 23, 29,
@@ -45,7 +53,7 @@ seq_t a(idx_t n)
         digits[pos] = digit;
 
         if (digit) {
-            seq_t pow_val = seq_pow((seq_t)_primes[pos], digit);
+            seq_t pow_val = ipow_idx((seq_t)_primes[pos], digit);
             m = seq_mul(m, pow_val);
         }
         w = w * (seq_t)_primes[pos];      /* next weight w_{i+1} */

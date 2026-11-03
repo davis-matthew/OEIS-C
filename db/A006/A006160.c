@@ -7,13 +7,15 @@
  * Formula:   a(n) = a(a(n-5)) + a(n-a(n-5)), with a(1)=a(2)=a(3)=a(4)=a(5)=1
  * Range:     u8 n <= 76, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 76 terms through n = 76 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;
 static idx_t memo_len = 0;
@@ -21,10 +23,10 @@ static idx_t memo_len = 0;
 static void ensure_capacity(idx_t n) {
     if (n >= memo_len) {
         idx_t new_len = (n < 1000) ? 1000 : (n + n / 10 + 100);
-        seq_t *new_memo = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_memo = mem_new(seq_t, new_len);
         if (memo != NULL) {
-            memcpy(new_memo, memo, memo_len * sizeof(seq_t));
-            free(memo);
+            mem_copy(new_memo, memo, memo_len * sizeof(seq_t));
+            mem_free(memo);
         }
         for (idx_t i = memo_len; i < new_len; i++) {
             new_memo[i] = 0;

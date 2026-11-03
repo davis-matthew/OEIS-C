@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 641, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   first_digit_uint64, last_digit_uint64
+ * Validated: standard, pass, 63 terms through n = 981 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,18 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/first_digit_uint64.h"
-#include "../utils/last_digit_uint64.h"
+#include "../utils/mem.h"
+
+static uint8_t first_digit_uint64(uint64_t x)
+{
+    while (x >= 10) x /= 10;
+    return (uint8_t)x;
+}
+
+static uint8_t last_digit_uint64(uint64_t x)
+{
+    return (uint8_t)(x % 10);
+}
 
 /* ------------- Prime test (Miller–Rabin, deterministic for 64‑bit) ------------- */
 
@@ -100,7 +111,7 @@ static void ensure_cache_capacity(size_t new_cap)
     if (new_cap <= cache_cap) return;
     size_t sz = cache_cap ? cache_cap : 16;
     while (sz < new_cap) sz <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, sz * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, sz);
     cache = tmp;
     cache_cap = sz;
 }

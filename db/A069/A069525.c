@@ -9,6 +9,7 @@
  *            if such a multiple does not exist
  * Range:     u8 n <= 12, u16 n <= 88, u32 n <= 528, u64 n <= 2500,
  *            u128 n <= 2500, big any n
+ * Validated: standard, pass, 75 terms through n = 2458 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -11,7 +11,8 @@
  *            of primes of * the form k + d (with d a divisor of k)
  * Range:     u8 n <= 44, u16 n <= 7729, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   append_candidate, is_prime_small
+ * Validated: standard, pass, 82 terms through n = 8536 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,25 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <limits.h>
-#include "../utils/is_prime_small.h"   /* is_prime_small(seq_t)          */
-#include "../utils/append_candidate.h"/* append_candidate(seq_t**,size_t*,size_t*,seq_t) */
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
+
+/* Append a value to the cached array, expanding it if necessary.  `p` is a
+   pointer to the array pointer. */
+static void append_candidate(seq_t **p, size_t *len, size_t *cap, seq_t val)
+{
+    if (*len == *cap) {
+        size_t newcap = (*cap == 0) ? 16 : (*cap << 1);
+        seq_t *tmp = mem_resize(seq_t, *p, newcap);
+        if (!tmp) {
+            exit(EXIT_FAILURE);
+        }
+        *p = tmp;
+        *cap = newcap;
+    }
+    (*p)[*len] = val;
+    (*len)++;
+}
 
 static seq_t *cached_seq = NULL;   /* dynamic array of sequence terms          */
 static size_t cached_len = 0;      /* number of terms stored                  */
@@ -43,17 +61,17 @@ static void count_prime_pairs(uint64_t k, int *cnt_minus, int *cnt_plus) {
         if (k % d == 0) {
             /* divisor d */
             uint64_t dm1 = k - d;
-            if (dm1 >= 2 && is_prime_small((seq_t)dm1)) (*cnt_minus)++;
+            if (dm1 >= 2 && is_prime_seq((seq_t)dm1)) (*cnt_minus)++;
             uint64_t dp1 = k + d;
-            if (is_prime_small((seq_t)dp1)) (*cnt_plus)++;
+            if (is_prime_seq((seq_t)dp1)) (*cnt_plus)++;
 
             /* paired divisor k/d if different */
             if (d != k / d) {
                 uint64_t d2 = k / d;
                 uint64_t dm2 = k - d2;
-                if (dm2 >= 2 && is_prime_small((seq_t)dm2)) (*cnt_minus)++;
+                if (dm2 >= 2 && is_prime_seq((seq_t)dm2)) (*cnt_minus)++;
                 uint64_t dp2 = k + d2;
-                if (is_prime_small((seq_t)dp2)) (*cnt_plus)++;
+                if (is_prime_seq((seq_t)dp2)) (*cnt_plus)++;
             }
         }
     }

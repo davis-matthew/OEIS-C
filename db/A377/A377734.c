@@ -12,7 +12,8 @@
  *            have each prime as their smallest prime factor....
  * Range:     u8 n <= 513, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 96 terms through n = 8684 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static state for on‑demand sieving */
 static idx_t            max_sieved = 0;     /* largest n that has been sieved */
@@ -35,9 +37,9 @@ static void sieve_up_to(idx_t n)
 
     /* allocate fresh arrays */
     free(spf_arr);
-    free(cnt_arr);
+    mem_free(cnt_arr);
     spf_arr = (uint64_t *)malloc((size_t)(n + 1) * sizeof(uint64_t));
-    cnt_arr = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    cnt_arr = mem_new(seq_t, (size_t)(n + 1));
     if (!spf_arr || !cnt_arr)
         return;                     /* allocation failure – unlikely here */
 

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 7, i16 n <= 10, i32 n <= 15, i64 n <= 22, i128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 395 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 */
 #include <stdlib.h>
 #include <string.h>   /* for memcpy */
+#include "../utils/mem.h"
 
 /* static cache for memoisation */
 static seq_t *cache = NULL;
@@ -34,14 +36,14 @@ ensure_cache (idx_t n)
         return;
 
     size_t new_cap = (size_t)(n + 1) * 2;   /* grow linearly */
-    seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (!new_arr)
         return;                     /* out‑of‑memory: caller will fail */
 
     if (cache)
     {
-        memcpy(new_arr, cache, (cached_up_to + 1) * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_arr, cache, (cached_up_to + 1) * sizeof(seq_t));
+        mem_free(cache);
     }
     cache = new_arr;
     cache_cap = new_cap;

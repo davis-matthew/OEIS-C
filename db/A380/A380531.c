@@ -9,7 +9,8 @@
  *            a(1)=0
  * Range:     u8 n <= 54, u16 n <= 6542, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, mod_minus_four, mod_pow
+ * Validated: standard, pass, 76 terms through n = 9523 (2026-11-01)
+ * Helpers:   build_primes_upto, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,18 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <math.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/mod_pow.h"
-#include "../utils/mod_minus_four.h"
+#include "../utils/powmod.h"
+
+/* Return (-4) modulo p, i.e. p-4 if p>4, otherwise p-4+ p */
+static seq_t mod_minus_four(uint64_t p)
+{
+    long long val = (long long)p - 4;
+    if (val < 0) val += p;          /* handles p == 3 */
+    return (seq_t)val;
+}
 
 static uint64_t *prime_tbl = NULL;      /* array of primes */
 static size_t prime_cnt  = 0;           /* number of primes stored */
@@ -58,7 +68,7 @@ static seq_t order_of_minus_four(uint64_t p)
         if (temp % q != 0) continue;
         while (temp % q == 0) {
             seq_t cand = temp / q;
-            seq_t r = mod_pow(base, (uint64_t)cand, (seq_t)p);
+            seq_t r = powmod(base, (uint64_t)cand, (seq_t)p);
             if (r == 1) {
                 temp = cand;
             } else {
@@ -70,7 +80,7 @@ static seq_t order_of_minus_four(uint64_t p)
     /* Remaining prime factor, if any */
     if (temp > 1) {
         seq_t cand = temp / temp;   /* = 1 */
-        seq_t r = mod_pow(base, (uint64_t)cand, (seq_t)p);
+        seq_t r = powmod(base, (uint64_t)cand, (seq_t)p);
         if (r == 1) temp = cand;
     }
 

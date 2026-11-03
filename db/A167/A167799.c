@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 45, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 73 terms through n = 921 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 typedef uint64_t idx_t; /* supplied by the build */
 
@@ -109,14 +112,14 @@ static bool is_primitive_mod_p(idx_t p) {
     for (size_t i = 0; i < prime_cnt && (uint32_t)prime_list[i] * prime_list[i] <= phi_copy; ++i) {
         uint32_t q = prime_list[i];
         if (phi_copy % q == 0) {
-            seq_t val = mod_pow(base, (uint64_t)(phi / q), (seq_t)p);
+            seq_t val = powmod(base, (uint64_t)(phi / q), (seq_t)p);
             if (val == (seq_t)1) return false;
             while (phi_copy % q == 0) phi_copy /= q;
         }
     }
     if (phi_copy > 1) {
         uint32_t q = (uint32_t)phi_copy;
-        seq_t val = mod_pow(base, (uint64_t)(phi / q), (seq_t)p);
+        seq_t val = powmod(base, (uint64_t)(phi / q), (seq_t)p);
         if (val == (seq_t)1) return false;
     }
     return true;
@@ -125,7 +128,7 @@ static bool is_primitive_mod_p(idx_t p) {
 static bool higher_powers_ok(idx_t p) {
     seq_t mod = (seq_t)p * (seq_t)p;
     seq_t base = mod - (seq_t)3;
-    seq_t val = mod_pow(base, (uint64_t)(p - 1), mod);
+    seq_t val = powmod(base, (uint64_t)(p - 1), mod);
     return val != (seq_t)1;
 }
 
@@ -139,7 +142,7 @@ static void ensure_seq_cap(size_t needed) {
     if (needed <= seq_cap) return;
     size_t new_cap = (seq_cap == 0) ? 16 : seq_cap * 2;
     while (new_cap < needed) new_cap <<= 1;
-    seq_vals = (seq_t*)realloc(seq_vals, new_cap * sizeof(seq_t));
+    seq_vals = mem_resize(seq_t, seq_vals, new_cap);
     seq_cap = new_cap;
 }
 

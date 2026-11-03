@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 192, u16 n <= 1001, u32 n <= 1001, u64 n <= 1001,
  *            u128 n <= 1001, big any n
- * Helpers:   has_digit, odd_digits
+ * Validated: standard, pass, 89 terms through n = 1001 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,33 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_digit.h"
-#include "../utils/odd_digits.h"
+#include "../utils/mem.h"
+
+/* Does integer x contain decimal digit d? */
+static bool has_digit(seq_t x, uint8_t d)
+{
+    if (x == 0) return d == 0;
+    while (x > 0) {
+        if ((x % 10) == d) return true;
+        x /= 10;
+    }
+    return false;
+}
+
+/* Extract unique odd decimal digits from x into arr; *cnt set to count. */
+static void odd_digits(seq_t x, uint8_t *arr, int *cnt)
+{
+    bool seen[10] = {0};
+    *cnt = 0;
+    while (x > 0) {
+        uint8_t d = (uint8_t)(x % 10);
+        if ((d & 1U) && !seen[d]) {
+            seen[d] = true;
+            arr[(*cnt)++] = d;
+        }
+        x /= 10;
+    }
+}
 
 /* Global storage for the sequence and used numbers */
 static seq_t *seq_arr  = NULL;   /* a(1), a(2), ... */
@@ -41,7 +67,7 @@ static void ensure_seq_cap(size_t need)
     if (seq_cap < need) {
         size_t new_cap = seq_cap ? seq_cap << 1 : 64;
         while (new_cap < need) new_cap <<= 1;
-        seq_arr = (seq_t *)realloc(seq_arr, new_cap * sizeof(seq_t));
+        seq_arr = mem_resize(seq_t, seq_arr, new_cap);
         seq_cap = new_cap;
     }
 }
@@ -51,7 +77,7 @@ static void ensure_used_cap(size_t need)
     if (used_cap < need) {
         size_t new_cap = used_cap ? used_cap << 1 : 64;
         while (new_cap < need) new_cap <<= 1;
-        used_arr = (seq_t *)realloc(used_arr, new_cap * sizeof(seq_t));
+        used_arr = mem_resize(seq_t, used_arr, new_cap);
         used_cap = new_cap;
     }
 }

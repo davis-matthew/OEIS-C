@@ -7,14 +7,34 @@
  * Formula:   a(n) = ⎣2r⎦ – ⎣n r⎦ – ⎣2r – n r⎦, where r = (1+√5)/2
  * Range:     u8 n <= 3, u16 n <= 57, u32 n <= 138, u64 n <= 138,
  *            u128 n <= 138, big any n
- * Helpers:   floor_sqrt
+ * Validated: partial, pass, 138 terms through n = 138 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Using the identity ⎣nφ⎦ = ⎣(n + ⌊n√5⌋)/2⎦ and 2r = 1 + √5. */
 
-#include "../utils/floor_sqrt.h"        /* Provides floor_sqrt(seq_t) */
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Return ⎣n·φ⎦ (φ = (1+√5)/2). */
 static seq_t floor_phi(idx_t n)

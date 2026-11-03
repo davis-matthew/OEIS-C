@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 5, u64 n <= 13, u128 n <= 20,
  *            big any n
- * Helpers:   diff_mask
+ * Validated: standard, pass, 20 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,21 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/diff_mask.h"
+#include "../utils/mem.h"
+
+/* Compute the 7‑bit difference mask for rows r0 (top) and r1 (bottom). */
+static inline unsigned char diff_mask(unsigned char r0, unsigned char r1)
+{
+    unsigned char m = 0;
+    for (unsigned j = 0; j < 7; ++j) {
+        unsigned a = (r0 >> j) & 1;
+        unsigned b = (r0 >> (j + 1)) & 1;
+        unsigned c = (r1 >> j) & 1;
+        unsigned d = (r1 >> (j + 1)) & 1;
+        if (a + b + c + d == 2) m |= 1 << j;
+    }
+    return m;
+}
 
 #define ROWS   256      /* 8‑bit row masks */
 #define MASKS  8        /* 0..7 one‐s prefix length */
@@ -95,7 +110,7 @@ seq_t a(idx_t n)
     init_tables();
 
     /* Initial state: choose any first row, previous k = 0. */
-    memset(dp_cur, 0, sizeof(dp_cur));
+    mem_set(dp_cur, 0, sizeof(dp_cur));
     for (unsigned r = 0; r < ROWS; ++r) dp_cur[r][0] = 1;
 
     /* Perform n transitions (n+1 rows). */
@@ -109,7 +124,7 @@ seq_t a(idx_t n)
         }
 
         /* Zero next DP array. */
-        memset(dp_nxt, 0, sizeof(dp_nxt));
+        mem_set(dp_nxt, 0, sizeof(dp_nxt));
 
         /* Process transitions. */
         for (unsigned r0 = 0; r0 < ROWS; ++r0) {
@@ -121,7 +136,7 @@ seq_t a(idx_t n)
         }
 
         /* Copy next to current for the next step. */
-        memcpy(dp_cur, dp_nxt, sizeof(dp_cur));
+        mem_copy(dp_cur, dp_nxt, sizeof(dp_cur));
     }
 
     /* Sum all final states. */

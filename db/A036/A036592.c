@@ -8,6 +8,7 @@
  *            and height at most 9 (empty tree counts as n = 0)
  * Range:     u8 n <= 10, u16 n <= 17, u32 n <= 34, u64 n <= 71, u128 n <= 171,
  *            big any n
+ * Validated: full, pass, 512 terms through n = 511 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

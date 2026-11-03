@@ -7,8 +7,9 @@
  * Keywords:  nonn, base
  * Formula:   a(n) = leading base‑3 digit of n × sum of squares of its base‑3
  *            digits
- * Range:     u8 n <= 8562, u16 n <= 8562, u32 n <= 8562, u64 n <= 8562,
- *            u128 n <= 8562, big any n
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 92 terms through n = 8562 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

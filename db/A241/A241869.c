@@ -9,7 +9,8 @@
  *            appears exactly nine times
  * Range:     u8 n <= 14, u16 n <= 20, u32 n <= 36, u64 n <= 71, u128 n <= 151,
  *            big any n
- * Helpers:   binom, seq_mul
+ * Validated: standard, pass, 47 terms through n = 947 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,13 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/binom.h"
-#include "../utils/seq_mul.h"
+#include <string.h>
+#include "../utils/binomial.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -37,8 +43,8 @@ seq_t a(idx_t n)
         for (idx_t k = 1; k <= kmax; ++k) {
             idx_t n1 = R - k * s - 1;   /* n1 = R - k*s - 1 = Y + k - 1 */
             idx_t r1 = k - 1;           /* r1 = k-1   */
-            seq_t bin1 = binom(n1, r1); /* C(R - k*s - 1, k-1) */
-            seq_t bin2 = binom(k + 9, 9);/* C(k+9,9)   */
+            seq_t bin1 = binomial(n1, r1); /* C(R - k*s - 1, k-1) */
+            seq_t bin2 = binomial(k + 9, 9);/* C(k+9,9)   */
             seq_t prod = seq_mul(bin1, bin2);
             total += prod;
         }

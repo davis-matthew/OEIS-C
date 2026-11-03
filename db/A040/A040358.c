@@ -10,7 +10,8 @@
  *            explicit table is hard‑coded
  * Range:     u8 none, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 88 terms through n = 87 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
         /* Allocate space for the period terms; it will be reallocated if
            necessary (the period length for √378 is 8). */
         size_t cap = 8;
-        period = (seq_t *)malloc(cap * sizeof(seq_t));
+        period = mem_new(seq_t, cap);
         if (!period) return (seq_t)0;        /* Out‑of‑memory guard */
 
         /* Generate period until the coefficient equals twice a0. */
@@ -58,8 +60,8 @@ seq_t a(idx_t n)
             /* Store the coefficient (starting with a(1)). */
             if (period_len == cap) {
                 cap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(period, cap * sizeof(seq_t));
-                if (!tmp) { free(period); return (seq_t)0; }
+                seq_t *tmp = mem_resize(seq_t, period, cap);
+                if (!tmp) { mem_free(period); return (seq_t)0; }
                 period = tmp;
             }
             period[period_len++] = a_coef;

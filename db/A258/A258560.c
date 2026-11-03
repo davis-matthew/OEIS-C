@@ -13,12 +13,14 @@
  *            a(13)=54998, a(14)=61394
  * Range:     u8 none, u16 n <= 14, u32 n <= 210, u64 n <= 210, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* Allocate space for indices 0 … 14 (15 elements) */
         cache_len = 15;
-        cache = (seq_t*)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         cache[0] = 0;                      /* unused dummy slot */
         for (idx_t i = 1; i <= 14; i++)
             cache[i] = init[i - 1];
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
         /* Grow cache to accommodate index n */
         idx_t old_len = cache_len;
         cache_len = n + 1;                /* +1 to allow 1‑based indexing */
-        seq_t *tmp = (seq_t*)realloc(cache, cache_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, cache_len);
         cache = tmp;
         /* Compute any new terms beyond the old cache size, up to n */
         for (idx_t i = old_len; i <= n; ++i) {

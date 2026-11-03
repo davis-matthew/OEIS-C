@@ -8,11 +8,13 @@
  * Formula:   a(n) = n*(n+1)*(n^2+n+6)*(n^4 + 2*n^3 + 23*n^2 + 22*n + 24)/576
  * Range:     u8 none, u16 n <= 7, u32 n <= 34, u64 n <= 566, u128 n <= 1000,
  *            big any n
+ * Validated: standard, pass, 45 terms through n = 989 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

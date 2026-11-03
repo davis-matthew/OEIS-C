@@ -7,7 +7,8 @@
  * Formula:   a(n) = n*A008578(n) ; A008578(1)=1, A008578(n>1)=prime_{n-1}
  * Range:     u8 n <= 10, u16 n <= 109, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 9757 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- internal helpers for prime generation ---------- */
 
@@ -82,7 +84,7 @@ static void ensure_cache(idx_t n)
     size_t needed = (size_t)n;
     if (cache_cap < needed) {
         cache_cap = (cache_cap * 2 > needed) ? cache_cap * 2 : needed;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 
     for (size_t m = cache_len; m < needed; ++m) { /* m is 0‑based index; actual n = m+1 */

@@ -10,15 +10,16 @@
  *            only on gcd(t mod d, d), d = gcd(k-1,n)
  * Range:     u8 n <= 14, u16 n <= 23, u32 n <= 41, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   a2729_gcd, a2729_phi
+ * Validated: standard, pass, 51 terms through n = 50 (2026-11-01)
+ * Helpers:   gcd_u64, totient_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/a2729_gcd.h"
-#include "../utils/a2729_phi.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/totient_u64.h"
 
 seq_t a(idx_t n) {
     uint64_t p, k, e, x, y, ph = 0, N, R = 0;
@@ -35,13 +36,13 @@ seq_t a(idx_t n) {
 
     for (k = 0; k < p; k++) {
         uint64_t d;
-        if (a2729_gcd(k, p) != 1) continue;
+        if (gcd_u64(k, p) != 1) continue;
         ph++;
-        d = a2729_gcd((k + p - 1) % p, p);
+        d = gcd_u64((k + p - 1) % p, p);
         for (e = 1; e <= d; e++) {
             uint64_t mult, t, cyc = 0;
             if (d % e) continue;
-            mult = a2729_phi(d / e) * (p / d);
+            mult = totient_u64(d / e) * (p / d);
             t = e % p;
             stamp++;
             for (x = 0; x < p; x++) {

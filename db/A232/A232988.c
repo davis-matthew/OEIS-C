@@ -12,14 +12,22 @@
  *            terms
  * Range:     u8 n <= 16, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   divisor_sign, gcd
+ * Validated: partial, pass, 71 terms through n = 70 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/divisor_sign.h"
+
+/* sign contributed by a divisor: +1 for ≡1 (mod 6), –1 for ≡5 (mod 6), 0 otherwise */
+static inline int divisor_sign(idx_t d) {
+    int r = d % 6;
+    if (r == 1) return 1;
+    if (r == 5) return -1;
+    return 0;
+}
 
 /* Signed 128‑bit integer for intermediate arithmetic.  GCC/Clang support it; 
    for builds that use smaller types the final result will fit into seq_t. */

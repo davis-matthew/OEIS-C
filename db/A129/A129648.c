@@ -8,6 +8,7 @@
  * Formula:   a(n) = max{ lcm(a,b,c) | a+b+c = n, a,b,c ≥ 1 }
  * Range:     u8 n <= 19, u16 n <= 121, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 68 terms through n = 912 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

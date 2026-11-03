@@ -7,16 +7,19 @@
  * Formula:   a(n) = Σ_{k|(n+1)} φ(k)·2^(k-1) (OEIS A130586)
  * Range:     u8 n <= 5, u16 n <= 13, u32 n <= 27, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   factor_u64, phi, pow2
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-01)
+ * Helpers:   factor_u64, pow2, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/phi.h"
 #include "../utils/pow2.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -52,7 +55,7 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < div_len; ++i)
     {
         idx_t k = divisors[i];
-        seq_t phi_k   = phi(k);
+        seq_t phi_k   = totient(k);
         seq_t pow_term = pow2(k - 1);
         sum += phi_k * pow_term;
     }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 15, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   binomial, pow_seq
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-01)
+ * Helpers:   binomial, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,10 @@
  * where i = floor((sqrt(8*n+1)-1)/2)  (row index)
  *       j = n - i*(i+1)/2              (position in that row)
  */
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -42,8 +45,8 @@ seq_t a(idx_t n)
     idx_t j = n - row_start;
 
     seq_t bin = binomial(i, j);
-    seq_t p7  = pow_seq((seq_t)7, i - j);
-    seq_t p9  = pow_seq((seq_t)9, j);
+    seq_t p7  = ipow_i32((seq_t)7, i - j);
+    seq_t p9  = ipow_i32((seq_t)9, j);
     seq_t res = bin * p7 * p9;
     return res;
 }

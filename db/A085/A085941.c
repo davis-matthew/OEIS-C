@@ -7,19 +7,21 @@
  * Formula:   a(n) = 3^{floor(n/10)} * 2^{n mod 10}
  * Range:     i8 n <= 6, i16 n <= 22, i32 n <= 22, i64 n <= 22, i128 n <= 22,
  *            big any n
- * Helpers:   pow2, pow_int
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-01)
+ * Helpers:   ipow_idx, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include "../utils/ipow_idx.h"
 #include "../utils/pow2.h"
-#include "../utils/pow_int.h"
 
 seq_t a(idx_t n)
 {
     idx_t k = n / 10;      /* floor(n/10)   */
     idx_t r = n % 10;      /* n mod 10      */
     seq_t res = pow2(r);   /* 2^{n mod 10}  */
-    res = res * pow_int((seq_t)3, k); /* *3^{floor(n/10)} */
+    res = res * ipow_idx((seq_t)3, k); /* *3^{floor(n/10)} */
     return res;
 }

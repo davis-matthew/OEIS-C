@@ -7,12 +7,14 @@
  * Formula:   a(n) = 302*a(n-1) - a(n-2) with a(1) = 38, a(2) = 11438
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 8, u128 n <= 11,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 11 terms through n = 11 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;    /* array holding terms 1.. */
 static size_t cache_cap = 0;   /* allocated number of slots */
@@ -26,7 +28,7 @@ static void ensure_cache(size_t need)
     size_t new_cap = cache_cap > 0 ? cache_cap : 4;
     while (new_cap <= need)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         abort();                     /* no memory */
     cache = tmp;

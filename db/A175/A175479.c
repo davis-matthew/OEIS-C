@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 100 terms through n = 9348 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static linked list of bits, with current length and capacity */
 static seq_t *bits = NULL;   /* array of bits (0 or 1) */
@@ -36,7 +38,7 @@ static void ensure_cap(size_t need)
     if (need > cap) {
         size_t newcap = (cap == 0) ? 64 : cap * 2;
         while (newcap < need) newcap *= 2;
-        seq_t *tmp = (seq_t *)realloc(bits, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, bits, newcap);
         bits = tmp;
         cap  = newcap;
     }
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
     /* Initialize on first call */
     if (!bits) {
         cap  = 64;
-        bits = (seq_t *)malloc(cap * sizeof(seq_t));
+        bits = mem_new(seq_t, cap);
         bits[0] = (seq_t)1;   /* a(1) = 1 */
         len = 1;
         processed = 1;        /* index 1 has been processed (produced bits for 2) */

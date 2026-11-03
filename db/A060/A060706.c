@@ -10,13 +10,15 @@
  *            (4n−1) * (4n−2) * (4n−3) for n ≥ 1
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 6, u128 n <= 10,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 29 terms through n = 97 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 /* idx_t and seq_t are defined by the build system. */
 
 /* Cache for already computed terms.  cache[i] == a(i).  The cache grows
@@ -31,9 +33,9 @@ static void ensure_cache(idx_t n)
     if (n <= cached_max) return;                  /* already covered */
     size_t new_len = (size_t)(n + 1);             /* one past the max index */
     if (!cache)
-        cache = (seq_t *)malloc(new_len * sizeof(seq_t));
+        cache = mem_new(seq_t, new_len);
     else
-        cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_len);
     /* initialize a(0) */
     if (cached_max == 0 && cache[0] == 0) cache[0] = (seq_t)1;
     /* compute missing terms */

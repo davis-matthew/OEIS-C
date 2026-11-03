@@ -10,13 +10,15 @@
  *            r), F(0)=0, F(1)=1 are the Fibonacci numbers
  * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 69 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* internal cache for Fibonacci numbers */
 static seq_t *fib_cache = NULL;          /* array of Fibonacci numbers F(i) */
@@ -33,7 +35,7 @@ static void ensure_fib(idx_t need)
     while (new_len <= need)
         new_len *= 2;                    /* guarantee new_len > need */
 
-    seq_t *tmp = (seq_t*)realloc(fib_cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, fib_cache, new_len);
     if (!tmp) abort();                   /* allocation failed */
     fib_cache = tmp;
 

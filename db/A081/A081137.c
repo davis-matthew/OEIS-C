@@ -7,12 +7,14 @@
  * Formula:   a(n) = C(n,2) * 7^(n-2) (C(n,2)= n*(n-1)/2)
  * Range:     i8 n <= 3, i16 n <= 5, i32 n <= 10, i64 n <= 11, i128 n <= 11,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 12 terms through n = 11 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *pow7_cache = NULL;
 static idx_t pow7_cache_len = 0;
@@ -22,15 +24,14 @@ ensure_pow7(idx_t e)
 {
     if (pow7_cache_len <= e) {
         if (pow7_cache_len == 0) {
-            pow7_cache = (seq_t *)malloc(sizeof(seq_t));
+            pow7_cache = mem_new(seq_t, 1);
             if (!pow7_cache) return;
             pow7_cache[0] = (seq_t)1;
             pow7_cache_len = 1;
         }
         while (pow7_cache_len <= e) {
             seq_t next = pow7_cache[pow7_cache_len - 1] * (seq_t)7;
-            seq_t *tmp = (seq_t *)realloc(pow7_cache,
-                                          (pow7_cache_len + 1) * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, pow7_cache, (pow7_cache_len + 1));
             if (!tmp) return;
             pow7_cache = tmp;
             pow7_cache[pow7_cache_len++] = next;

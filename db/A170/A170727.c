@@ -12,13 +12,15 @@
  *            described in OEIS A170727. The recurrence is * of order 50...
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* The build supplies the integer types seq_t and idx_t. */
 static seq_t *cache = NULL;     /* Memoised values a[0..] */
@@ -33,9 +35,9 @@ static void ensure_cache(idx_t n)
     /* Grow the cache */
     idx_t new_size = n + 1;
     if (cache == NULL)
-        cache = (seq_t*)malloc(new_size * sizeof(seq_t));
+        cache = mem_new(seq_t, new_size);
     else
-        cache = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_size);
 
     /* Compute new terms */
     for (idx_t i = cache_size; i <= n; ++i) {

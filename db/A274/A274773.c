@@ -9,6 +9,7 @@
  *            (floor(sqrt(2*n-1) + 1/2))^2 ) + 1 Offset: 1 Return type: seq_t
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 136 terms through n = 9566 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

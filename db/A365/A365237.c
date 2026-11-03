@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 107, u16 n <= 107, u32 n <= 107, u64 n <= 107,
  *            u128 n <= 107, big any n
- * Helpers:   champernowne_first_digits
+ * Validated: partial, pass, 107 terms through n = 107 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,19 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdio.h>
-#include "../utils/champernowne_first_digits.h"
+
+/* Generate the first m digits of the Champernowne constant as a string */
+static void champernowne_first_digits(idx_t m, char *buf) {
+    idx_t pos = 0;
+    for (uint64_t num = 1; pos < m; ++num) {
+        char nb[32];
+        int len = snprintf(nb, sizeof(nb), "%llu", (unsigned long long)num);
+        for (int i = 0; i < len && pos < m; ++i) {
+            buf[pos++] = nb[i];
+        }
+    }
+    buf[pos] = '\0';
+}
 
 /* Big integer base. 1e9 fits into 32 bits. */
 #define BIGBASE 1000000000U

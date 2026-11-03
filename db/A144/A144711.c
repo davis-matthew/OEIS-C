@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 122, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_spf, floor_sqrt, seq_alloc_array, seq_free_array
+ * Validated: standard, pass, 79 terms through n = 932 (2026-11-03)
+ * Helpers:   build_spf, ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,10 +27,37 @@
 #include <stdbool.h>
 #include <string.h>
 
-#include "../utils/floor_sqrt.h"
-#include "../utils/seq_alloc_array.h"
-#include "../utils/seq_free_array.h"
+#include <stddef.h>
+#include <math.h>
 #include "../utils/build_spf.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 /* ----------  Helper: integer square test ---------- */
 static inline bool is_square(seq_t x)
@@ -59,7 +87,7 @@ static void grow_cache(size_t new_cap)
 {
     seq_t *new_cache = seq_alloc_array(new_cap);
     if (cache) {
-        memcpy(new_cache, cache, term_count * sizeof(seq_t));
+        mem_copy(new_cache, cache, term_count * sizeof(seq_t));
         seq_free_array(cache);
     }
     cache = new_cache;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 96, u32 n <= 335, u64 n <= 1196,
  *            u128 n <= 4507, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 4763 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -37,6 +38,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /*--- Memoisation structure ----------------------------------------------*/
 static seq_t **T_rows = NULL;     /* array of pointers to rows (1‑based) */
@@ -60,7 +62,7 @@ static void ensure_rows(idx_t need)
     /* compute any missing rows from T_next up to 'need' */
     for (idx_t i = T_next; i <= need; ++i) {
         size_t len = (i <= 2) ? 1 : (size_t)(i - 1);  /* length of row i */
-        T_rows[i] = (seq_t *)malloc(len * sizeof(seq_t));
+        T_rows[i] = mem_new(seq_t, len);
         if (i == 1) {
             T_rows[i][0] = (seq_t)1;
         } else if (i == 2) {

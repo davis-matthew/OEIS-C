@@ -10,13 +10,31 @@
  *            known, so a brute‑force search is used.)
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   same_zeros_sevens
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/same_zeros_sevens.h"
+
+/* Check whether a number has equal count of 0's and 7's in base 8. */
+static bool same_zeros_sevens(seq_t x)
+{
+    unsigned int zero = 0, sev = 0;
+    seq_t tmp = x;
+    /* Handle 0 specially: representation is "0" → one zero, zero sevens. */
+    if (tmp == (seq_t)0) {
+        return 0; /* zero has the wrong balance, but we never test it. */
+    }
+    while (tmp != (seq_t)0) {
+        unsigned int d = (unsigned int)(tmp % (seq_t)8);
+        if (d == 0)   zero++;
+        else if (d == 7) sev++;
+        tmp /= (seq_t)8;
+    }
+    return zero == sev;
+}
 
 seq_t a(idx_t n)
 {

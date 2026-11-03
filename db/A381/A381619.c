@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 622, u64 n <= 622, u128 n <= 622,
  *            big any n
- * Helpers:   cmp_terms
+ * Validated: full, pass, 622 terms through n = 622 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,16 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/cmp_terms.h"
+#include "../utils/mem.h"
+
+static int cmp_terms(const void *p, const void *q)
+{
+    const seq_t *a = (const seq_t *)p;
+    const seq_t *b = (const seq_t *)q;
+    if (*a < *b) return -1;
+    if (*a > *b) return 1;
+    return 0;
+}
 
 seq_t a(idx_t n)
 {
@@ -35,7 +45,7 @@ seq_t a(idx_t n)
     if (!terms)
     {
         term_cap = 1024;
-        terms = (seq_t *)malloc(term_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, term_cap);
         if (!terms) return 0;   /* allocation failure */
 
         /* Search bounds for x,y */
@@ -71,11 +81,10 @@ seq_t a(idx_t n)
                     if (term_len == term_cap)
                     {
                         term_cap *= 2;
-                        seq_t *tmp = (seq_t *)realloc(terms,
-                                                      term_cap * sizeof(seq_t));
+                        seq_t *tmp = mem_resize(seq_t, terms, term_cap);
                         if (!tmp)
                         {
-                            free(terms);
+                            mem_free(terms);
                             terms = NULL;
                             return 0;
                         }
@@ -87,7 +96,7 @@ seq_t a(idx_t n)
         }
 
         /* Sort the list of sums */
-        qsort(terms, term_len, sizeof(seq_t), cmp_terms);
+        mem_qsort(terms, term_len, sizeof(seq_t), cmp_terms);
     }
 
     if (n == 0) return 0;

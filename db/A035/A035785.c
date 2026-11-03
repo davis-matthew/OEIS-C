@@ -7,6 +7,7 @@
  * Formula:   a(n) = [x^(2n)] ((1+x)/(1-x))^48
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 3, u64 n <= 8, u128 n <= 28,
  *            big any n
+ * Validated: standard, pass, 28 terms through n = 9747 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
  * The helper function binomial(idx_t a, idx_t b) (in utils/binomial.h)
  * is used to evaluate binomial coefficients in arbitrary precision.
  */
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

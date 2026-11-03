@@ -7,8 +7,9 @@
  * Keywords:  base, easy, sign
  * Formula:   a(n) = ∑_{k≥0} bit_k(n) · (−1)^k (alternating bit sum – replace
  *            each 2^k in the binary expansion of n with (−1)^k)
- * Range:     i8 n <= 9946, i16 n <= 9946, i32 n <= 9946, i64 n <= 9946,
- *            i128 n <= 9946, big any n
+ * Range:     i8 n <= 65535, i16 n <= 65535, i32 n <= 65535, i64 n <= 65535,
+ *            i128 n <= 65535, big any n
+ * Validated: standard, pass, 123 terms through n = 9946 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

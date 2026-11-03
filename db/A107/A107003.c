@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 814, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mul_mod
+ * Validated: standard, pass, 64 terms through n = 9323 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/mul_mod.h"
+#include <stdbool.h>
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 /* --- prime storage ---------------------------------------------- */
 
@@ -37,8 +40,8 @@ static uint64_t pow_mod(uint64_t base, uint64_t exp, uint64_t mod)
     base %= mod;
     while (exp)
     {
-        if (exp & 1) result = mul_mod(result, base, mod);
-        base = mul_mod(base, base, mod);
+        if (exp & 1) result = mulmod(result, base, mod);
+        base = mulmod(base, base, mod);
         exp >>= 1;
     }
     return result;
@@ -76,7 +79,7 @@ static int is_prime_uint64(uint64_t n)
         int cont = 0;
         for (uint64_t r = 1; r < s; ++r)
         {
-            x = mul_mod(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n-1) { cont = 1; break; }
         }
         if (!cont) return 0;
@@ -98,7 +101,7 @@ seq_t a(idx_t n)
             if (prime_form_cnt == prime_form_cap)
             {
                 size_t new_cap = prime_form_cap ? prime_form_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(prime_form, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, prime_form, new_cap);
                 if (!tmp) exit(1);  /* allocation failure */
                 prime_form = tmp;
                 prime_form_cap = new_cap;

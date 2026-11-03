@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 4, i16 n <= 6, i32 n <= 9, i64 n <= 14, i128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
     multiplicatively from the previous value */
 
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 static seq_t *cache  = NULL;   /* a[0..max_computed]               */
 static seq_t *s_prev = NULL;   /* Stirling1 for n-1 (size up to cap)*/
@@ -35,10 +37,10 @@ static void ensure_arrays(idx_t needed)
 {
     if (array_cap <= needed) {
         idx_t new_cap = needed + 1;
-        cache   = (seq_t*)realloc(cache,   sizeof(seq_t) * (size_t)new_cap);
-        s_prev  = (seq_t*)realloc(s_prev,  sizeof(seq_t) * (size_t)new_cap);
-        s_curr  = (seq_t*)realloc(s_curr,  sizeof(seq_t) * (size_t)new_cap);
-        pow_arr = (seq_t*)realloc(pow_arr, sizeof(seq_t) * (size_t)new_cap);
+        cache   = mem_resize(seq_t, cache, (size_t)new_cap);
+        s_prev  = mem_resize(seq_t, s_prev, (size_t)new_cap);
+        s_curr  = mem_resize(seq_t, s_curr, (size_t)new_cap);
+        pow_arr = mem_resize(seq_t, pow_arr, (size_t)new_cap);
         array_cap = new_cap;
     }
 }

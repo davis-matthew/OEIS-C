@@ -9,13 +9,15 @@
  *            greatest part is even
  * Range:     u8 n <= 33, u16 n <= 85, u32 n <= 250, u64 n <= 813,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 970 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 seq_t a(idx_t n)
@@ -28,11 +30,11 @@ seq_t a(idx_t n)
     /* Allocate DP arrays: total = all partitions into distinct parts,
        even   = partitions whose largest part is even,
        odd    = partitions whose largest part is odd. */
-    seq_t *total = (seq_t*)calloc(N + 1, sizeof(seq_t));
-    seq_t *even  = (seq_t*)calloc(N + 1, sizeof(seq_t));
-    seq_t *odd   = (seq_t*)calloc(N + 1, sizeof(seq_t));
+    seq_t *total = mem_new(seq_t, N + 1);
+    seq_t *even  = mem_new(seq_t, N + 1);
+    seq_t *odd   = mem_new(seq_t, N + 1);
     if (!total || !even || !odd) {
-        free(total); free(even); free(odd);
+        mem_free(total); mem_free(even); mem_free(odd);
         return 0;
     }
 
@@ -61,6 +63,6 @@ seq_t a(idx_t n)
 
     seq_t result = even[N];   /* partitions of n with largest part even */
 
-    free(total); free(even); free(odd);
+    mem_free(total); mem_free(even); mem_free(odd);
     return result;
 }

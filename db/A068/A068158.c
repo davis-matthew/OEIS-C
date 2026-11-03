@@ -10,16 +10,18 @@
  *            = 1. Otherwise a(n) = product(i from R(n)+1 to n) i
  * Range:     u8 n <= 9, u16 n <= 9, u32 n <= 19, u64 n <= 29, u128 n <= 39,
  *            big any n
- * Helpers:   rev
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
+ * Helpers:   reverse_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/rev.h"
+#include <stdbool.h>
+#include "../utils/reverse_digits_idx.h"
 
 seq_t a(idx_t n)
 {
-    idx_t r = rev(n);            /* digit reversal of n */
+    idx_t r = reverse_digits_idx(n);            /* digit reversal of n */
     if (n < r) return 0;         /* 0 when n < R(n) */
     if (n == r) return 1;        /* 1 when n is a palindrome */
 

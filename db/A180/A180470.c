@@ -7,6 +7,7 @@
  * Formula:   a(n) = -prime(n) + prime(n + prime(n)) - 1
  * Range:     u8 n <= 15, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -24,7 +25,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"   /* bool is_prime(idx_t x); */
+#include "../utils/is_prime.h"
 
 static uint64_t *prime_cache = NULL;   /* list of primes (1‑based index)   */
 static size_t   prime_cnt   = 0;        /* number of primes stored          */

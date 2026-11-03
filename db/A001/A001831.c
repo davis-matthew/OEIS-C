@@ -8,13 +8,14 @@
  * Formula:   a(n) = Sum_{k=0..n} binomial(n, k)*(2^k-1)^(n-k)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 14, u128 n <= 20,
  *            big any n
- * Helpers:   a1831_pow
+ * Validated: standard, pass, 35 terms through n = 50 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a1831_pow.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n) {
     seq_t result = 0;
@@ -23,7 +24,7 @@ seq_t a(idx_t n) {
     idx_t k;
     for (k = 0; k <= n; k++) {
         seq_t base = pow2k - 1;
-        result += binom * a1831_pow(base, n - k);
+        result += binom * ipow_idx(base, n - k);
         if (k < n) {
             binom = binom * (seq_t)(n - k) / (seq_t)(k + 1);
             pow2k = pow2k * 2;

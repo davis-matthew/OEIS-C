@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 5, i16 n <= 8, i32 n <= 13, i64 n <= 22, i128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
     All computations are done with the type seq_t; no floating point is used. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -43,9 +45,9 @@ seq_t a(idx_t n)
     /* initialise on first call */
     if (max_n == (idx_t)-1) {
         max_n = 0;
-        s = (seq_t *)malloc(sizeof(seq_t));
-        b = (seq_t *)malloc(sizeof(seq_t));
-        a_seq = (seq_t *)malloc(sizeof(seq_t));
+        s = mem_new(seq_t, 1);
+        b = mem_new(seq_t, 1);
+        a_seq = mem_new(seq_t, 1);
         s[0] = (seq_t)1;              /* sec(0) = 1 */
         b[0] = (seq_t)0;              /* sec(0)-exp(0) = 0 */
         a_seq[0] = (seq_t)1;          /* a(0) = 1 */
@@ -57,9 +59,9 @@ seq_t a(idx_t n)
 
     if (n > max_n) {
         size_t new_len = (size_t)(n + 1);
-        s = (seq_t *)realloc(s, sizeof(seq_t) * new_len);
-        b = (seq_t *)realloc(b, sizeof(seq_t) * new_len);
-        a_seq = (seq_t *)realloc(a_seq, sizeof(seq_t) * new_len);
+        s = mem_resize(seq_t, s, new_len);
+        b = mem_resize(seq_t, b, new_len);
+        a_seq = mem_resize(seq_t, a_seq, new_len);
         if (!s || !b || !a_seq) exit(1);
 
         /* compute s(k) for new indices */

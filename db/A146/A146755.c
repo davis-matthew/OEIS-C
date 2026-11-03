@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   cmp_seq_arr
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,15 @@
    number.  The maximum term is 30 033 (30 000 + 33).  */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/cmp_seq_arr.h"
+#include "../utils/mem.h"
+
+/* Compare function for qsort over seq_t. */
+static int cmp_seq_arr(const void *p1, const void *p2)
+{
+    const seq_t *a = (const seq_t *)p1;
+    const seq_t *b = (const seq_t *)p2;
+    return (*a < *b) ? -1 : (*a > *b) ? 1 : 0;
+}
 
 /* Static buffer for all terms (max 98 items). */
 static seq_t seq_values[200];
@@ -66,7 +75,7 @@ seq_t a(idx_t n)
         }
 
         /* Sort the unique terms. */
-        qsort(seq_values, idx, sizeof(seq_t), cmp_seq_arr);
+        mem_qsort(seq_values, idx, sizeof(seq_t), cmp_seq_arr);
         seq_len = idx;
         initialized = true;
     }

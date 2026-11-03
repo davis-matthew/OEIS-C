@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Static table of partition counts.  dp_size = table size (maximum n + 1). */
 static seq_t *dp = NULL;
@@ -37,9 +39,9 @@ static idx_t dp_size = 0;
 static void compute_up_to(idx_t n)
 {
     /* Allocate new table and zero it. */
-    seq_t *new_dp = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *new_dp = mem_new(seq_t, (size_t)(n + 1));
     if (!new_dp) return;                /* allocation failure: undefined behaviour */
-    memset(new_dp, 0, (size_t)(n + 1) * sizeof(seq_t));
+    mem_set(new_dp, 0, (size_t)(n + 1) * sizeof(seq_t));
 
     new_dp[0] = (seq_t)1;               /* base case: one way to partition 0 */
 
@@ -55,7 +57,7 @@ static void compute_up_to(idx_t n)
     }
 
     /* Replace the old table with the new one. */
-    free(dp);
+    mem_free(dp);
     dp      = new_dp;
     dp_size = n + 1;   /* dp covers indices 0 … n */
 }

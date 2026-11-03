@@ -8,12 +8,14 @@
  *            a(5)=40, a(6)=84
  * Range:     u8 n <= 8, u16 n <= 17, u32 n <= 36, u64 n <= 74, u128 n <= 149,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 991 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Global storage for the sequence */
 static seq_t *seq = NULL;
@@ -30,7 +32,7 @@ static void ensure_cap(idx_t n)
     while (new_cap < n + 1)
         new_cap <<= 1;               /* double until we have enough capacity */
 
-    seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+    seq = mem_resize(seq_t, seq, new_cap);
     seq_cap = new_cap;
 }
 

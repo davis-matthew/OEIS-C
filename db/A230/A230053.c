@@ -7,14 +7,24 @@
  * Formula:   a(0)=1, a(1)=1, a(n+2) = (n+2)*a(n+1)*a(n)
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 7, u64 n <= 8, u128 n <= 9,
  *            big any n
- * Helpers:   seq_alloc_new_array, seq_free
+ * Validated: standard, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>               /* for size_t */
-#include "../utils/seq_alloc_new_array.h" /* allocates seq_t array */
-#include "../utils/seq_free.h"                /* frees seq_t array */
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* C allocation helpers */
+static seq_t* seq_alloc_new_array(size_t n)   { return mem_new(seq_t, n); }
+
+static void seq_free(seq_t *p) { mem_free(p); }
 
 static seq_t *cache = NULL;          /* memoisation array */
 static idx_t  cache_max = (idx_t)-1; /* largest index that has been cached */

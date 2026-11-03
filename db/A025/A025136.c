@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 33, u128 n <= 65,
  *            big any n
- * Helpers:   compute_a_for
+ * Validated: standard, pass, 39 terms through n = 1637 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,7 +33,32 @@
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/compute_a_for.h"
+#include "../utils/mem.h"
+
+/* Compute a single value a(n).  n ≥ 2. */
+static seq_t compute_a_for(idx_t n)
+{
+    idx_t half   = n / 2;
+    idx_t limit  = half + 1;            /* number of terms in C */
+    seq_t comb   = 1;                   /* C(n,0) */
+    seq_t sum    = 0;                   /* Σ C[i]  */
+    seq_t sumsq  = 0;                   /* Σ C[i]² */
+
+    for (idx_t i = 0; i < limit; ++i)
+    {
+        sum   += comb;
+        sumsq += comb * comb;
+
+        if (i < limit - 1)
+        {
+            /* Compute C(n,i+1) from C(n,i) */
+            comb = (comb * (seq_t)(n - i)) / (seq_t)(i + 1);
+        }
+    }
+
+    /* a(n) = (sum² - sumsq) / 2 */
+    return ((sum * sum) - sumsq) / 2;
+}
 
 /* Cached values of the sequence.  They are grown only as needed. */
 static seq_t *cache = NULL;
@@ -48,12 +74,11 @@ static void ensure_cache(idx_t n)
     if (cache == NULL)
     {
         cache_size = (size_t)(n + 1);
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
     }
     else if ((size_t)(n + 1) > cache_size)
     {
-        seq_t *tmp = (seq_t *)realloc(cache,
-                                      (size_t)(n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)(n + 1));
         if (tmp == NULL) return; /* allocation failed – leave old cache */
         cache     = tmp;
         cache_size = (size_t)(n + 1);

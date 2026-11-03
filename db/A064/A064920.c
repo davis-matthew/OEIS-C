@@ -8,7 +8,8 @@
  * Formula:   a(n) = n/gpf(n) + gpf(n) - 1
  * Range:     u8 n <= 255, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   gpf_u64
+ * Validated: standard, pass, 91 terms through n = 988 (2026-11-01)
+ * Helpers:   largest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 /* gpf(n) is the greatest prime factor of n. */
 
 #include <stdint.h>
-#include "../utils/gpf_u64.h"
+#include "../utils/largest_prime_factor.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +25,7 @@ seq_t a(idx_t n)
         return 0;  /* behavior below the offset is undefined */
 
     uint64_t n64 = (uint64_t)n;
-    uint64_t gpf64 = gpf_u64(n64);
+    uint64_t gpf64 = largest_prime_factor(n64);
 
     seq_t nseq = (seq_t)n64;
     seq_t gseq = (seq_t)gpf64;

@@ -10,6 +10,7 @@
  *            trailing zeros from n
  * Range:     i8 n <= 1, i16 n <= 4, i32 n <= 31, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 114 terms through n = 9714 (2026-11-01)
  * Helpers:   digit_frequencies
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,14 +9,28 @@
  *            [m-1,k-1] + 5^k*[m-1,k], [m,0] = 1
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 5, u128 n <= 7,
  *            big any n
- * Helpers:   seq_is_fixed_width
+ * Validated: standard, pass, 26 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_is_fixed_width.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
 
 static seq_t pow5(idx_t e) {
     seq_t result = 1;
@@ -45,8 +59,8 @@ seq_t a(idx_t n) {
     }
 
     /* fixed width: only + and *, so the result is exact whenever it fits */
-    seq_t *c = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
-    seq_t *pw = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *c = mem_new(seq_t, (size_t)(n + 1));
+    seq_t *pw = mem_new(seq_t, (size_t)(n + 1));
     idx_t k, m;
     pw[0] = 1;
     for (k = 1; k <= n; k++) pw[k] = pw[k - 1] * 5;
@@ -58,7 +72,7 @@ seq_t a(idx_t n) {
             c[k] = c[k - 1] + pw[k] * c[k];
     }
     seq_t result = c[n];
-    free(c);
-    free(pw);
+    mem_free(c);
+    mem_free(pw);
     return result;
 }

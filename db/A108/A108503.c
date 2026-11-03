@@ -9,13 +9,15 @@
  *            p in n
  * Range:     u8 n <= 95, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   binom_small
+ * Validated: standard, pass, 104 terms through n = 9758 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/binom_small.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;   /* safety: domain starts at 1 */
@@ -49,9 +51,9 @@ seq_t a(idx_t n) {
     /* Sum contributions from all possible numbers of factors k */
     seq_t total = 0;
     for (idx_t k = 1; k <= e + 2; ++k) {
-        seq_t ways = binom_small(e + 1, k - 1);   /* distribution of 2‑exponent */
+        seq_t ways = binomial(e + 1, k - 1);   /* distribution of 2‑exponent */
         for (size_t i = 0; i < cnt; ++i) {
-            ways *= binom_small(exps[i] + k - 1, k - 1);
+            ways *= binomial(exps[i] + k - 1, k - 1);
         }
         total += ways;
     }

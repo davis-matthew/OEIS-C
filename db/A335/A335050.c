@@ -9,14 +9,16 @@
  * Formula:   a(n) = T(i,j) where i = offset, j = d - offset and T(i,j) =
  *            Σ_{t=0..i} ( binom(2t+j+2, t+1) - binom(2t+j+2, t) ) The pair
  *            (i,j) is obtained from the anti‑diagonal decomposition of n
- * Range:     u8 n <= 8, u16 n <= 34, u32 n <= 54, u64 n <= 54, u128 n <= 54,
+ * Range:     u8 n <= 19, u16 n <= 53, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -37,8 +39,8 @@ seq_t a(idx_t n)
     seq_t sum = 0;
     for (idx_t t = 0; t <= i; ++t) {
         idx_t inner = 2 * t + j + 2;
-        seq_t c1 = binom(inner, t + 1);
-        seq_t c0 = binom(inner, t);
+        seq_t c1 = binomial(inner, t + 1);
+        seq_t c0 = binomial(inner, t);
         sum += c1 - c0;
     }
     return sum;

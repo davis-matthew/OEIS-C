@@ -11,11 +11,13 @@
  *            the fraction is returned, with sign (-1)^n
  * Range:     i8 n <= 2, i16 n <= 5, i32 n <= 11, i64 n <= 19, i128 n <= 19,
  *            big any n
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 extern seq_t a(idx_t n)

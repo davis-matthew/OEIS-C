@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define YMAX 40000  /* enough to generate the first 10 000 terms */
 
@@ -42,7 +44,7 @@ static inline void heap_swap(node_t *a, node_t *b) {
 static void heap_push(node_t n) {
     if (heap_size == heap_cap) {
         heap_cap = heap_cap ? heap_cap * 2 : 16;
-        heap = (node_t *)realloc(heap, heap_cap * sizeof(node_t));
+        heap = mem_resize(node_t, heap, heap_cap);
     }
     size_t i = heap_size++;
     heap[i] = n;
@@ -75,7 +77,7 @@ static node_t heap_pop(void) {
 static void init_heap(void) {
     if (heap != NULL) return;           /* already initialized */
     heap_cap = YMAX;
-    heap = (node_t *)malloc(heap_cap * sizeof(node_t));
+    heap = mem_new(node_t, heap_cap);
     heap_size = 0;
     for (uint64_t y = 1; y <= YMAX; ++y) {
         node_t n;
@@ -101,7 +103,7 @@ seq_t a(idx_t n) {
         if ((size_t)n > cache_cap) {
             size_t new_cap = cache_cap ? cache_cap * 2 : 16;
             while (new_cap < (size_t)n) new_cap *= 2;
-            cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_cap);
             cache_cap = new_cap;
         }
         /* Generate terms until we reach the nth one. */

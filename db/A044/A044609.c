@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   has_51_octal
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,24 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_51_octal.h"
+#include "../utils/mem.h"
+
+/* Helper: test whether the octal representation of x contains the
+ * substring "51".  |x| may be any seq_t value.
+ */
+static bool has_51_octal(seq_t x)
+{
+    if (x == 0) return false;          /* "0" does not contain "51" */
+    seq_t prev = x % 8;                /* least significant digit */
+    x /= 8;
+    while (x != 0) {
+        seq_t d = x % 8;               /* next more significant digit */
+        if (d == 5 && prev == 1) return true;
+        prev = d;
+        x /= 8;
+    }
+    return false;
+}
 
 /* Main function required by the platform */
 seq_t a(idx_t n)
@@ -41,7 +59,7 @@ seq_t a(idx_t n)
     /* grow cache at start */
     if (cache == NULL) {
         cache_cap = 32;                /* initial capacity */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) return 0;   /* allocation failure */
     }
 
@@ -51,7 +69,7 @@ seq_t a(idx_t n)
         if (has_51_octal(cur) && !has_51_octal(cur + 1)) {
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap << 1;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (tmp == NULL) return 0; /* allocation failure */
                 cache = tmp;
                 cache_cap = new_cap;

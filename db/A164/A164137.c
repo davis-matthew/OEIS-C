@@ -12,13 +12,15 @@
  *            represented as a non‑negative index in a fixed window. The...
  * Range:     u8 n <= 9, u16 n <= 18, u32 n <= 34, u64 n <= 67, u128 n <= 131,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 476 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Maximum difference between the numbers of 000 and 001 substrings
    cannot exceed n‑2, so 20000 is sufficient for n up to 10000. */
@@ -31,7 +33,7 @@ static int   stamp[4][2 * MAX_DIFF + 1];
 seq_t a(idx_t n)
 {
     /* clear the buffers for each call */
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
     memset(stamp, 0, sizeof(stamp));
 
     /* handle the trivial cases */

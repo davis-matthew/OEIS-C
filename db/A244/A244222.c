@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 23, u16 n <= 1582, u32 n <= 9679, u64 n <= 9679,
  *            u128 n <= 9679, big any n
- * Helpers:   none
+ * Validated: standard, pass, 93 terms through n = 9204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
    Their values are stored in an array that grows as needed. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---- Catalan numbers handling ---- */
 static seq_t *catalan = NULL;    /* array of Catalan numbers: C_0, C_1, ... */
@@ -37,7 +39,7 @@ static void ensure_catalan_up_to(seq_t limit)
     /* Initialize with the first three Catalan numbers if empty. */
     if (catalan_len == 0) {
         size_t init_cap = 8;
-        catalan = (seq_t *)malloc(init_cap * sizeof(seq_t));
+        catalan = mem_new(seq_t, init_cap);
         if (!catalan) abort();     /* allocation failure -> terminate */
         catalan_cap = init_cap;
         catalan[0] = 1;      /* C_0 */
@@ -58,7 +60,7 @@ static void ensure_catalan_up_to(seq_t limit)
         if (catalan_len == catalan_cap) {
             size_t new_cap = catalan_cap * 2;
             if (new_cap == 0) new_cap = 8;
-            seq_t *tmp = (seq_t *)realloc(catalan, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, catalan, new_cap);
             if (!tmp) abort();                     /* allocation failure -> terminate */
             catalan = tmp;
             catalan_cap = new_cap;
@@ -110,7 +112,7 @@ static void ensure_sequence_upto(idx_t n)
         /* Grow capacity if necessary. */
         if (seq_len == seq_cap) {
             size_t new_cap = seq_cap ? seq_cap * 2 : 8;
-            seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
             if (!tmp) abort();          /* allocation failure -> terminate */
             seq_cache = tmp;
             seq_cap = new_cap;

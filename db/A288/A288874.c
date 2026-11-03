@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 37, u32 n <= 69, u64 n <= 175,
  *            u128 n <= 471, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 8899 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,6 +35,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* external integer and value types */
 typedef uint64_t idx_t;   /* as defined in the build system */
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
         }
         /* Build new rows one by one */
         for (size_t i = rows_alloced; i < new_rows; ++i) {
-            T[i] = (seq_t *)malloc((i + 1) * sizeof(seq_t));
+            T[i] = mem_new(seq_t, (i + 1));
             for (size_t j = 0; j <= i; ++j) {
                 if (i == 0) {           /* base case */
                     T[i][j] = (seq_t)1;

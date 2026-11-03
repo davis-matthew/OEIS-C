@@ -8,9 +8,10 @@
  * Formula:   a(n) = T(r,k) with T(r,k) = Σ_{i=k}^r i * Σ_{j≥1} p(r-j*i),
  *            where p(m) is the partition number of m. r,k are the row and
  *            column of the flattened index n
- * Range:     u8 n <= 36, u16 n <= 351, u32 n <= 3916, u64 n <= 9885,
- *            u128 n <= 9885, big any n
- * Helpers:   none
+ * Range:     u8 n <= 36, u16 n <= 351, u32 n <= 3916, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 82 terms through n = 9885 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for partition numbers */
 static seq_t *P = NULL;       /* array of p[0..] */
@@ -29,7 +31,7 @@ static void ensure_partitions(idx_t n)
     if (n <= P_cap) return;          /* already available */
 
     /* allocate new array */
-    seq_t *new_arr = (seq_t*)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, (size_t)(n + 1));
     if (!new_arr) return;            /* allocation failed, leave undefined */
 
     /* initialize */
@@ -44,7 +46,7 @@ static void ensure_partitions(idx_t n)
     }
 
     /* replace old array */
-    free(P);
+    mem_free(P);
     P = new_arr;
     P_cap = n;
 }

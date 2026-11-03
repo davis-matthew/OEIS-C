@@ -7,13 +7,14 @@
  * Formula:   a(n) = (1 + 2^n + 2^{2n} + 2^{3n} + 2^{4n}) * (1 + 3^n + 3^{2n})
  * Range:     u8 n <= 0, u16 n <= 2, u32 n <= 4, u64 n <= 8, u128 n <= 17,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 29 terms through n = 198 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -22,11 +23,11 @@ seq_t a(idx_t n)
        because 0^0=1 for each pow_uint invocation.        */
     seq_t sum2 = 0;
     for (idx_t j = 0; j <= 4; ++j)
-        sum2 += pow_uint(2, j * n);
+        sum2 += ipow_u64_idx(2, j * n);
 
     seq_t sum3 = 0;
     for (idx_t j = 0; j <= 2; ++j)
-        sum3 += pow_uint(3, j * n);
+        sum3 += ipow_u64_idx(3, j * n);
 
     return sum2 * sum3;
 }

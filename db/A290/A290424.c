@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 36, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 #define MAX_LIMIT 10000000ULL  /* upper bound for precomputation (10 million) */
 
@@ -112,7 +114,7 @@ static void precompute(void)
         if (!rep[k]) ++unrep_cnt;
 
     /* allocate and fill the array of unrepresentable evens */
-    unrep = (seq_t*)malloc(unrep_cnt * sizeof(seq_t));
+    unrep = mem_new(seq_t, unrep_cnt);
     size_t idx = 0;
     for (uint64_t k = 1; k <= (MAX_LIMIT >> 1); ++k)
         if (!rep[k]) unrep[idx++] = (seq_t)(2ULL * k);

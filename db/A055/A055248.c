@@ -11,7 +11,8 @@
  *            binomial(r,k)
  * Range:     u8 n <= 35, u16 n <= 135, u32 n <= 527, u64 n <= 2079,
  *            u128 n <= 8000, big any n
- * Helpers:   binomial, row_for_idx
+ * Validated: standard, pass, 82 terms through n = 7556 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,19 @@
 #include <math.h>
 #include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/row_for_idx.h"
+
+static idx_t
+row_for_idx(idx_t n)
+{
+    /* Solve r*(r+1)/2 <= n < (r+1)*(r+2)/2 */
+    double disc = sqrt(8.0 * (double)n + 1.0);
+    idx_t r = (idx_t)((disc - 1.0) * 0.5);
+
+    /* Correct possible rounding errors */
+    while ((r + 1) * (r + 2) / 2 <= n) ++r;
+    while (r * (r + 1) / 2 > n) --r;
+    return r;
+}
 
 seq_t
 a(idx_t n)

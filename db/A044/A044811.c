@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   has_98
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,21 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/has_98.h"
+#include "../utils/mem.h"
+
+/* Test whether the decimal representation of x contains the substring
+   "98".  Works for any unsigned integer type seq_t (including big
+   integers).  */
+static bool has_98(seq_t x)
+{
+    while (x >= (seq_t)10) {
+        if ((x % (seq_t)100) == (seq_t)98) {
+            return true;
+        }
+        x /= (seq_t)10;
+    }
+    return false;
+}
 
 /* Static cache of discovered terms.  All static variables are shared
    between calls.  */
@@ -46,7 +61,7 @@ seq_t a(idx_t n)
         if (new_cap < needed) {
             new_cap = needed;
         }
-        seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) {
             abort();   /* allocation failure – terminate */
         }

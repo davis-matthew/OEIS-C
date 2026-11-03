@@ -7,7 +7,8 @@
  * Formula:   a(n) = Product_{k=0..n} ((3*k+1)*(3*k+2))^(n-k)
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 3, u64 n <= 5, u128 n <= 6,
  *            big any n
- * Helpers:   _prime_index, build_primes_upto, seq_mul, seq_pow
+ * Validated: partial, pass, 10 terms through n = 9 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,10 +18,33 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/seq_mul.h"
-#include "../utils/seq_pow.h"
+#include <string.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/_prime_index.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* Find the index of value in a sorted array of primes, or primes_cnt if not found */
+static size_t _prime_index(const uint64_t *primes, size_t primes_cnt, uint64_t value)
+{
+    size_t lo = 0, hi = primes_cnt;
+    while (lo < hi) {
+        size_t mid = (lo + hi) >> 1;
+        if (primes[mid] < value) {
+            lo = mid + 1;
+        }
+        else if (primes[mid] > value) {
+            hi = mid;
+        }
+        else {
+            return mid;
+        }
+    }
+    return primes_cnt;        /* not found */
+}
 
 seq_t a(idx_t n)
 {
@@ -69,7 +93,7 @@ seq_t a(idx_t n)
     seq_t result = (seq_t)1;
     for (size_t i = 0; i < primes_cnt; ++i) {
         if (prime_exp[i]) {
-            seq_t powp = seq_pow((seq_t)primes[i], (idx_t)prime_exp[i]);
+            seq_t powp = ipow_idx((seq_t)primes[i], (idx_t)prime_exp[i]);
             result = seq_mul(result, powp);
         }
     }

@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabf, base
  * Formula:   not stated
- * Range:     u8 n <= 9993, u16 n <= 9993, u32 n <= 9993, u64 n <= 9993,
- *            u128 n <= 9993, big any n
- * Helpers:   append_digit
+ * Range:     u8 n <= 55146, u16 n <= 55146, u32 n <= 55146, u64 n <= 55146,
+ *            u128 n <= 55146, big any n
+ * Validated: standard, pass, 147 terms through n = 9993 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,21 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/append_digit.h"
+#include "../utils/mem.h"
+
+/* Append a digit to the cache, reallocating if necessary. */
+static void append_digit(seq_t **cache, idx_t *len, idx_t *cap, seq_t val)
+{
+    if (*len >= *cap) {
+        idx_t new_cap = (*cap == 0) ? 16 : (*cap << 1);
+        void *tmp = mem_resize(seq_t, *cache, new_cap);
+        if (!tmp) abort();            /* memory exhausted – terminate */
+        *cache = (seq_t *)tmp;
+        *cap   = new_cap;
+    }
+    (*cache)[*len] = val;
+    (*len)++;
+}
 
 static seq_t  *seq_cache      = NULL;   /* cache of computed terms */
 static idx_t  seq_cache_len  = 0;        /* number of terms stored    */

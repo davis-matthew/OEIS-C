@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* State used while expanding numbers digit by digit. */
 struct State {
@@ -42,7 +44,7 @@ static idx_t max_len_generated = 0; /* number of digits that have been generated
 static void add_value(seq_t v) {
     if (list_len == list_cap) {
         size_t new_cap = list_cap ? list_cap * 2 : 8;
-        seq_t *tmp = (seq_t *)realloc(list, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, list, new_cap);
         list = tmp;
         list_cap = new_cap;
     }
@@ -64,7 +66,7 @@ static void generate_next_len(void) {
         /* Initialization: single‑digit numbers 1..5 */
         max_len_generated = 1;
         frontier_len = 5;
-        frontier = (struct State *)malloc(frontier_len * sizeof(struct State));
+        frontier = mem_new(struct State, frontier_len);
         for (uint8_t d = 1; d <= 5; ++d) {
             frontier[d-1].val      = (seq_t)d;
             frontier[d-1].last     = d;
@@ -76,7 +78,7 @@ static void generate_next_len(void) {
 
         /* Each state can generate at most 6 new states (digits 0‑5). */
         size_t new_cap = frontier_len * 6;
-        struct State *new_frontier = (struct State *)malloc(new_cap * sizeof(struct State));
+        struct State *new_frontier = mem_new(struct State, new_cap);
         size_t new_len = 0;
 
         for (size_t i = 0; i < frontier_len; ++i) {
@@ -99,7 +101,7 @@ static void generate_next_len(void) {
         }
 
         /* Replace old frontier. */
-        free(frontier);
+        mem_free(frontier);
         frontier = new_frontier;
         frontier_len = new_len;
     }
@@ -118,7 +120,7 @@ seq_t a(idx_t n) {
 
     /* Sort once after new terms are added. */
     if (!sorted) {
-        qsort(list, list_len, sizeof(seq_t), compare_seq);
+        mem_qsort(list, list_len, sizeof(seq_t), compare_seq);
         sorted = true;
     }
 

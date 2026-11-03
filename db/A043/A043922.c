@@ -10,7 +10,8 @@
  *            not hold for k+1
  * Range:     u8 n <= 10, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   has_adj23or32
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,22 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_adj23or32.h"
+#include "../utils/mem.h"
+
+/* Return true if x (in the given seq_t type) has the substring
+   "23" or "32" in its base‑7 representation. */
+static bool has_adj23or32(seq_t x)
+{
+    int prev = 7;                  /* sentinel; never equal to 2 or 3 */
+    while (x > (seq_t)0) {
+        int d = (int)(x % (seq_t)7);
+        if (((prev == 2) && d == 3) || ((prev == 3) && d == 2))
+            return true;
+        prev = d;
+        x /= (seq_t)7;
+    }
+    return false;
+}
 
 /* Cache for previously computed terms and state for incremental
    generation. */
@@ -36,7 +52,7 @@ static void grow_cache(size_t need)
     size_t new_cap = cache_cap == 0 ? 16 : cache_cap;
     while (new_cap < need)
         new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) {
         /* Allocation failure – abort as building continues
            without a cache would be impossible. */

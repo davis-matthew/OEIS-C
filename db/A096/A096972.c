@@ -9,7 +9,8 @@
  *            product_of_nonzero_digits(k) = n
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Array of counts, indexed by the integer target value. */
 static seq_t *preimage_counts = NULL;
@@ -34,14 +36,14 @@ static void ensure_size(idx_t idx)
     size_t newsize = array_size ? (size_t)array_size * 2 : 1;
     while (newsize <= (size_t)idx) newsize *= 2;
 
-    seq_t *newarr = (seq_t *)malloc(newsize * sizeof(seq_t));
+    seq_t *newarr = mem_new(seq_t, newsize);
     if (!newarr) exit(EXIT_FAILURE);
 
     if (preimage_counts) {
-        memcpy(newarr, preimage_counts, array_size * sizeof(seq_t));
-        free(preimage_counts);
+        mem_copy(newarr, preimage_counts, array_size * sizeof(seq_t));
+        mem_free(preimage_counts);
     }
-    memset(newarr + array_size, 0, (newsize - array_size) * sizeof(seq_t));
+    mem_set(newarr + array_size, 0, (newsize - array_size) * sizeof(seq_t));
 
     preimage_counts = newarr;
     array_size = (idx_t)newsize;

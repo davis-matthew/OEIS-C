@@ -9,13 +9,14 @@
  *            sum of the decimal digits of T(m). (i.e. m % S(T(m)) == 0)
  * Range:     u8 n <= 7, u16 n <= 54, u32 n <= 4942, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_sum_u64
+ * Validated: standard, pass, 57 terms through n = 8825 (2026-11-01)
+ * Helpers:   digit_sum_u64_to_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>                       /* for uint64_t */
-#include "../utils/digit_sum_u64.h"       /* provides unsigned digit_sum_u64(uint64_t) */
+#include "../utils/digit_sum_u64_to_u32.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +29,7 @@ seq_t a(idx_t n)
         uint64_t tri = (uint64_t)m * (m + 1u) / 2u;
 
         /* digit sum of tri – guaranteed to fit in unsigned int              */
-        unsigned int d = digit_sum_u64(tri);
+        unsigned int d = digit_sum_u64_to_u32(tri);
 
         if (d != 0 && (m % d) == 0) {
             ++count;

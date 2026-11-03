@@ -12,13 +12,17 @@
  *            a(1)=1, a(2)=2, a(3)=1
  * Range:     u8 n <= 11, u16 n <= 19, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   floor_log2_uint64
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-03)
+ * Helpers:   ilog2, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/ilog2.h"
+#include "../utils/mem.h"
 
 static seq_t *seq  = NULL;          /* stored values a(1) … a(n)   */
 static seq_t *pref = NULL;          /* pref[0]=0, pref[k]=∑_{i=1}^k a(i) */
@@ -31,7 +35,7 @@ static void ensure_capacity(idx_t needed, seq_t **arr, idx_t *cap)
     if (*cap < needed) {
         idx_t new_cap = (*cap > 0) ? (*cap << 1) : needed;
         if (new_cap < needed) new_cap = needed;
-        *arr = (seq_t *)realloc(*arr, (size_t)new_cap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, (size_t)new_cap);
         *cap = new_cap;
     }
 }
@@ -65,7 +69,7 @@ seq_t a(idx_t n)
 
                 /* Compute p according to the definition */
                 idx_t x = i - 1;
-                idx_t p = floor_log2_uint64(x);
+                idx_t p = ilog2(x);
                 if (((idx_t)1 << p) == x) {
                     /* when n-1 is a power of two subtract one */
                     p--;

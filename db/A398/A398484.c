@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 27, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -44,7 +45,9 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <assert.h>
-#include "../utils/gcd.h"            /* provides seq_t gcd(seq_t a, seq_t b); */
+#include <stdint.h>
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -64,9 +67,9 @@ seq_t a(idx_t n)
         if (needed > cache_cap) {
             size_t new_cap = cache_cap ? cache_cap * 2 : 8;
             if (new_cap < needed) new_cap = needed;
-            seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
             if (new_cache == NULL) {
-                free(cache);
+                mem_free(cache);
                 abort();
             }
             cache     = new_cache;

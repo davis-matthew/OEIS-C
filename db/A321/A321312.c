@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 22, u16 n <= 22, u32 n <= 23, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
    A(n,k) = n^^k   (n tetrated to height k).  The tetration
    is defined recursively: n^^0 = 1, n^^(k+1) = n^(n^^k).  */
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 /* Compute n^^k for integer n ≥ 0 and k ≥ 0.  */
 static seq_t tetration(idx_t base, idx_t exp)
@@ -42,7 +44,7 @@ static seq_t tetration(idx_t base, idx_t exp)
        the recurrence n^^k = n^(n^^(k-1)).  */
     seq_t result = (seq_t)base;                 /* n^^1 */
     for (idx_t k = 2; k <= exp; ++k) {
-        result = big_pow((seq_t)base, result);  /* n^result */
+        result = ipow((seq_t)base, result);  /* n^result */
     }
     return result;
 }

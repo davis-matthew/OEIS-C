@@ -10,14 +10,16 @@
  *            1
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 9, u128 n <= 15,
  *            big any n
- * Helpers:   binomial
+ * Validated: standard, pass, 30 terms through n = 166 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/binomial.h"   /* binomial(idx_t a, idx_t b) -> seq_t */
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,12 +32,12 @@ seq_t a(idx_t n)
 
     /* Grow cache if needed */
     if (cache_sz < n + 1) {
-        seq_t *newc = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        seq_t *newc = mem_new(seq_t, (n + 1));
         if (!newc) return 0;          /* out of memory, return 0 */
-        memset(newc, 0, (n + 1) * sizeof(seq_t));
+        mem_set(newc, 0, (n + 1) * sizeof(seq_t));
         if (cache) {
-            memcpy(newc, cache, cache_sz * sizeof(seq_t));
-            free(cache);
+            mem_copy(newc, cache, cache_sz * sizeof(seq_t));
+            mem_free(cache);
         }
         cache     = newc;
         cache_sz  = n + 1;

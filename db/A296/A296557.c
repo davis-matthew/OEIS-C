@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 20, u32 n <= 43, u64 n <= 89, u128 n <= 181,
  *            big any n
- * Helpers:   next_unused_b, seq_array_contains
+ * Validated: standard, pass, 53 terms through n = 935 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,8 +35,41 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/next_unused_b.h"
-#include "../utils/seq_array_contains.h"
+#include "../utils/mem.h"
+
+/* Helper: binary search in a sorted array */
+static bool seq_array_contains(const seq_t *arr, size_t len, seq_t val)
+{
+    size_t low = 0, high = len;
+    while (low < high) {
+        size_t mid = low + (high - low) / 2;
+        if (arr[mid] == val) return true;
+        if (arr[mid] < val) low = mid + 1;
+        else high = mid;
+    }
+    return false;
+}
+
+/* Find the next unused integer for b:
+ * last_b: the previous b value,
+ * a_arr:  array of already computed a values,
+ * a_len:  number of a values,
+ * b_arr:  array of already computed b values (including last_b),
+ * b_len:  number of b values          */
+static seq_t next_unused_b(seq_t last_b,
+                           const seq_t *a_arr, size_t a_len,
+                           const seq_t *b_arr, size_t b_len)
+{
+    seq_t cand = last_b + (seq_t)1;
+    for (;;) {
+        if (seq_array_contains(a_arr, a_len, cand) ||
+            seq_array_contains(b_arr, b_len, cand)) {
+            ++cand; /* already used */
+        } else {
+            return cand;
+        }
+    }
+}
 
 /* Helper: grow a dynamic array */
 static void ensure_capacity(seq_t **arr, size_t *cap, size_t need)
@@ -43,7 +77,7 @@ static void ensure_capacity(seq_t **arr, size_t *cap, size_t need)
     if (*cap < need) {
         size_t newcap = (*cap < 8 ? 8 : *cap);
         while (newcap < need) newcap <<= 1;
-        *arr = (seq_t *)realloc(*arr, newcap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, newcap);
         *cap = newcap;
     }
 }
@@ -62,8 +96,8 @@ seq_t a(idx_t n)
     if (a_arr == NULL) {
         a_cap = 8;
         b_cap = 8;
-        a_arr = (seq_t *)malloc(a_cap * sizeof(seq_t));
-        b_arr = (seq_t *)malloc(b_cap * sizeof(seq_t));
+        a_arr = mem_new(seq_t, a_cap);
+        b_arr = mem_new(seq_t, b_cap);
 
         /* a(0) .. a(3) */
         a_arr[0] = (seq_t)1;

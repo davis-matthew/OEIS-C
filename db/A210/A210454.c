@@ -8,7 +8,8 @@
  * Formula:   a(n) = (4^(p_{n+2}) - 1) / 3 where p_k is the k‑th prime (>3)
  * Range:     u8 none, u16 n <= 2, u32 n <= 4, u64 n <= 9, u128 n <= 16,
  *            big any n
- * Helpers:   big_pow, build_primes_upto
+ * Validated: standard, pass, 29 terms through n = 48 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,9 @@
  * primes up to 179842, enough for n up to at least 10000. */
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/ipow.h"
 
 /* static state belonging to this function */
 static uint64_t *prime_list   = NULL; /* array of primes, prime_list[0] = 2 */
@@ -55,7 +57,7 @@ a(idx_t n)
     ensure_primes_upto(prime_idx);
 
     uint64_t p = prime_list[prime_idx];           /* prime > 3 */
-    seq_t    pow = big_pow((seq_t)4, (seq_t)p);    /* 4^p   */
+    seq_t    pow = ipow((seq_t)4, (seq_t)p);    /* 4^p   */
     seq_t    result = (pow - (seq_t)1) / (seq_t)3; /* (4^p-1)/3 */
     return result;
 }

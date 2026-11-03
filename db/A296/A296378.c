@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 5, u32 n <= 5, u64 n <= 5, u128 n <= 5,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 5 terms through n = 5 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,6 +34,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static bool distinct_digits(seq_t x)
 {
@@ -80,7 +82,7 @@ seq_t a(idx_t n)
     /* One‑time initialization */
     if (!initialized) {
         fib_cap = 8;
-        fib_list = (seq_t *)malloc(fib_cap * sizeof(seq_t));
+        fib_list = mem_new(seq_t, fib_cap);
         mask_list = (uint16_t *)malloc(fib_cap * sizeof(uint16_t));
         fib_len = 0;
 
@@ -91,7 +93,7 @@ seq_t a(idx_t n)
 
         /* Result storage */
         res_cap = 8;
-        results = (seq_t *)malloc(res_cap * sizeof(seq_t));
+        results = mem_new(seq_t, res_cap);
         res_len = 0;
 
         initialized = true;
@@ -119,7 +121,7 @@ seq_t a(idx_t n)
             /* Append to the list of candidate Fibonacci numbers */
             if (fib_len == fib_cap) {
                 fib_cap <<= 1;
-                fib_list = (seq_t *)realloc(fib_list, fib_cap * sizeof(seq_t));
+                fib_list = mem_resize(seq_t, fib_list, fib_cap);
                 mask_list = (uint16_t *)realloc(mask_list, fib_cap * sizeof(uint16_t));
             }
             fib_list[fib_len] = next;
@@ -135,7 +137,7 @@ seq_t a(idx_t n)
             /* Append to the results list */
             if (res_len == res_cap) {
                 res_cap <<= 1;
-                results = (seq_t *)realloc(results, res_cap * sizeof(seq_t));
+                results = mem_resize(seq_t, results, res_cap);
             }
             results[res_len++] = next;
         }

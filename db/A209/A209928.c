@@ -7,13 +7,25 @@
  * Formula:   a(n) = maximum decimal digit appearing in any divisor of n
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   largest_digit_u64
+ * Validated: standard, pass, 103 terms through n = 9810 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/largest_digit_u64.h"
+
+static inline uint8_t largest_digit_u64(idx_t v)
+{
+    uint8_t max = 0;
+    while (v > 0)
+    {
+        uint8_t d = v % 10;
+        if (d > max) max = d;
+        v /= 10;
+    }
+    return max;
+}
 
 seq_t a(idx_t n)
 {

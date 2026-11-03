@@ -9,7 +9,8 @@
  *            integer
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   gcd, is_prime_small
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
+ * Helpers:   gcd, is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,8 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#include "../utils/is_prime_small.h"
 #include "../utils/gcd.h"
+#include "../utils/is_prime_seq.h"
 
 /* Find the n‑th composite integer (composites start at 4). */
 static seq_t nth_composite(idx_t n)
@@ -30,7 +31,7 @@ static seq_t nth_composite(idx_t n)
     while (cnt < n)
     {
         /* cand is composite ⇔ not prime (for cand ≥ 4). */
-        if (!is_prime_small((seq_t)cand))
+        if (!is_prime_seq((seq_t)cand))
         {
             ++cnt;
             if (cnt == n) break;

@@ -8,8 +8,9 @@
  * Keywords:  tabf, sign
  * Formula:   not stated
  * Range:     i8 n <= 125, i16 n <= 389, i32 n <= 1250, i64 n <= 4800,
- *            i128 n <= 9679, big any n
- * Helpers:   none
+ *            i128 n <= 10010, big any n
+ * Validated: standard, pass, 88 terms through n = 9679 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -43,6 +44,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /*-------------------- Find row r and offset --------------------*/
@@ -55,8 +57,8 @@ seq_t a(idx_t n) {
 
     /*-------------------- Allocate polynomial arrays --------------------*/
     /* Max degree needed is r.  Allocate arrays large enough for all steps. */
-    seq_t *prev_p = (seq_t *)calloc(r + 1, sizeof(seq_t));
-    seq_t *prev_q = (seq_t *)calloc(r + 1, sizeof(seq_t));
+    seq_t *prev_p = mem_new(seq_t, r + 1);
+    seq_t *prev_q = mem_new(seq_t, r + 1);
     /* Initially for n = 1: p(x) = 1 - x, q(x) = 1   (constant) */
     prev_p[0] = 1;          /* coefficient of x⁰  */
     prev_p[1] = -1;         /* coefficient of x¹  */
@@ -65,8 +67,8 @@ seq_t a(idx_t n) {
     /*-------------------- Build up to row r --------------------*/
     for (idx_t i = 2; i <= r; ++i) {
         size_t sz = i + 1;                /* new degree = i */
-        seq_t *next_p = (seq_t *)calloc(sz, sizeof(seq_t));
-        seq_t *next_q = (seq_t *)calloc(sz, sizeof(seq_t));
+        seq_t *next_p = mem_new(seq_t, sz);
+        seq_t *next_q = mem_new(seq_t, sz);
 
         if (i & 1) { /* odd i */
             /* pᵢ = (1 - x)·pᵢ₋₁ - qᵢ₋₁ */
@@ -99,15 +101,15 @@ seq_t a(idx_t n) {
             }
         }
         /* Free previous polynomials and advance */
-        free(prev_p);
-        free(prev_q);
+        mem_free(prev_p);
+        mem_free(prev_q);
         prev_p = next_p;
         prev_q = next_q;
     }
 
     /*-------------------- Return requested coefficient --------------------*/
     seq_t result = prev_p[offset];
-    free(prev_p);
-    free(prev_q);
+    mem_free(prev_p);
+    mem_free(prev_q);
     return result;
 }

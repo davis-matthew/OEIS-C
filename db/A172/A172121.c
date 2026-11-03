@@ -11,7 +11,8 @@
  *            integers sequentially, caching found terms
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   gcd_uint64
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   gcd_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/gcd_uint64.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/mem.h"
  
 /* ---------- Small helpers ----------
  * Explicit integer GCD for 64‑bit values. */
@@ -36,9 +38,9 @@ static idx_t    rad_limit = 0;      /* current maximum index of rad table */
  
 static void rebuild_rad(idx_t limit)
 {
-    if (rad) free(rad);
+    if (rad) mem_free(rad);
     rad_limit = limit;
-    rad = (seq_t *)malloc((limit + 1) * sizeof(seq_t));
+    rad = mem_new(seq_t, (limit + 1));
     /* init to 1 */
     for (idx_t i = 0; i <= limit; ++i) rad[i] = (seq_t)1;
     /* sieve primes */
@@ -68,7 +70,7 @@ static inline bool qualifies(idx_t k)
  
     for (idx_t x = 1; x <= half; ++x)
     {
-        if (gcd_uint64((uint64_t)x, (uint64_t)k) != 1) continue;
+        if (gcd_u64((uint64_t)x, (uint64_t)k) != 1) continue;
         size_t prod = (size_t)rad[x] * (size_t)rad[k - x];
         if (prod < min_prod) {
             min_prod   = prod;
@@ -108,7 +110,7 @@ seq_t a(idx_t n)
         if (qualifies(next_k)) {
             if (cache_cap <= cache_len) {   /* grow cache */
                 size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 /* realloc may fail; when it does, the old pointer is kept */
                 if (!tmp) return (seq_t)0;  /* allocation failure → zero */
                 cache     = tmp;

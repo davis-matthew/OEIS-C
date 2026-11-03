@@ -11,6 +11,7 @@
  *            a(0) is the first term
  * Range:     u8 n <= 30, u16 n <= 48, u32 n <= 94, u64 n <= 177,
  *            u128 n <= 334, big any n
+ * Validated: standard, pass, 82 terms through n = 1282 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

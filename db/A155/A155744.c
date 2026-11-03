@@ -11,12 +11,14 @@
  *            the triangle read by rows
  * Range:     u8 n <= 15, u16 n <= 29, u32 n <= 57, u64 n <= 125,
  *            u128 n <= 334, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 1253 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache of rows of unsigned Stirling numbers of the first kind. */
 static seq_t **cached_rows = NULL;
@@ -37,7 +39,7 @@ static void ensure_rows(idx_t n)
     /* Generate rows from the first missing one up to n. */
     for (idx_t i = max_cached; i <= n; ++i)
     {
-        seq_t *row = (seq_t*)calloc(i + 1, sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, i + 1);
         if (i == 0)
         {
             row[0] = (seq_t)1;

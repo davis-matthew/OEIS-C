@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 155, u16 n <= 1002, u32 n <= 1002, u64 n <= 1002,
  *            u128 n <= 1002, big any n
- * Helpers:   none
+ * Validated: standard, pass, 95 terms through n = 896 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /*  ---  Global state used for memoisation  ---  */
 static seq_t *seq          = NULL;   /* concatenated sequence values   */
@@ -108,7 +110,7 @@ static void append_value(seq_t val)
 {
     if (seq_len == seq_cap) {
         seq_cap = seq_cap ? seq_cap * 2 : 16;
-        seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, seq_cap);
         if (!seq) abort();
     }
     seq[seq_len++] = val;

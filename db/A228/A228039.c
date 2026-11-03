@@ -5,8 +5,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = s2(n^2) mod 2 (Thue-Morse value at n^2)
- * Range:     u8 n <= 15, u16 n <= 2390, u32 n <= 9728, u64 n <= 9728,
- *            u128 n <= 9728, big any n
+ * Range:     u8 n <= 15, u16 n <= 2390, u32 n <= 65536, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9728 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

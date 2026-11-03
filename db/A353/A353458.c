@@ -7,8 +7,9 @@
  * Formula:   a(1) = 1. For n > 1, factor n = Π p^e. Let π(p) = number of
  *            primes ≤ p. If π(p) is odd: a(p^e) = 1. If π(p) is even: a(p) =
  *            –1, a(p^e) = 0 for e>1. a(n) = Π a(p^e)
- * Range:     i8 n <= 8979, i16 n <= 8979, i32 n <= 8979, i64 n <= 8979,
- *            i128 n <= 8979, big any n
+ * Range:     i8 n <= 65537, i16 n <= 65537, i32 n <= 65537, i64 n <= 65537,
+ *            i128 n <= 65537, big any n
+ * Validated: standard, pass, 110 terms through n = 8979 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

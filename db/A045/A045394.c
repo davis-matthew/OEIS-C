@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 37, u16 n <= 1034, u32 n <= 1034, u64 n <= 1034,
  *            u128 n <= 1034, big any n
- * Helpers:   ensure_good_cap
+ * Validated: standard, pass, 63 terms through n = 1028 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,19 @@
    by incremental trial division. */
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/ensure_good_cap.h"
+#include "../utils/mem.h"
+
+/* Grow a list of qualifying primes to hold at least 'need' elements. */
+static void ensure_good_cap(size_t need, size_t *cap, seq_t **arr) {
+    if (need > *cap) {
+        size_t newcap = (*cap) ? (*cap) * 2 : 8;
+        while (newcap < need) newcap *= 2;
+        seq_t *tmp = mem_resize(seq_t, *arr, newcap);
+        if (!tmp) abort();
+        *arr = tmp;
+        *cap = newcap;
+    }
+}
 
 /* Grow a prime list to hold at least 'need' elements. */
 static void ensure_prime_cap(size_t need, size_t *cap, uint64_t **arr) {

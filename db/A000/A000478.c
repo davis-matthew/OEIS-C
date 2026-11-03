@@ -8,6 +8,7 @@
  * Formula:   a(n) = 3*a(n-1) + (2^(n-3) - n + 1)*(n-1), a(n) = 0 for n < 6
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 21, u64 n <= 42, u128 n <= 82,
  *            big any n
+ * Validated: standard, pass, 42 terms through n = 195 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

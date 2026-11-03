@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 382, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_primes
+ * Validated: standard, pass, 97 terms through n = 958 (2026-11-03)
+ * Helpers:   build_primes, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/build_primes.h"
+#include "../utils/mem.h"
 
 /* Static cache of previously computed values.  cache[k] holds a(k). */
 static seq_t *cache = NULL;
@@ -32,7 +34,7 @@ static void recompute_cache(idx_t new_max)
 {
     /* Allocate a fresh cache of size new_max + 1 (index 0 unused). */
     size_t sz = (size_t)new_max + 1;
-    seq_t *new_cache = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, sz);
     if (!new_cache) return;   /* allocation failure – leave cache unchanged */
 
     /* Generate all primes up to new_max.  build_primes returns an array
@@ -77,7 +79,7 @@ static void recompute_cache(idx_t new_max)
 
     /* Free the prime list and replace the old cache. */
     free(primes);
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
     cache_size = sz;
 }

@@ -10,13 +10,22 @@
  *            q = 8. a(0) = 1
  * Range:     u8 n <= 3, u16 n <= 3, u32 n <= 47, u64 n <= 111, u128 n <= 308,
  *            big any n
- * Helpers:   g_val
+ * Validated: standard, pass, 61 terms through n = 4952 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/g_val.h"
+
+/* helper: product (n+8)!/(n-1)! = n*(n+1)*…*(n+8) */
+static inline seq_t g_val(idx_t n)
+{
+    seq_t prod = 1;
+    for (idx_t t = n; t <= n + 8; ++t)
+        prod *= (seq_t)t;
+    return prod;
+}
 
 /* multiply and divide using an intermediate 128‑bit type when compiling C.
    When compiling C++ the overloaded operators of seq_t produce big‑int

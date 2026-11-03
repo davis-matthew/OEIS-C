@@ -9,12 +9,14 @@
  *            sum stops when 3m > ⌊(n+2)/3⌋ or 2m > n − ⌊(n+2)/3⌋
  * Range:     u8 n <= 12, u16 n <= 24, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -32,8 +34,8 @@ seq_t a(idx_t n)
     seq_t ans = 0;
     for (idx_t m = 1; m <= mmax; ++m)
     {
-        seq_t c1 = binom(low, 3 * m);   /* C(low, 3m) */
-        seq_t c2 = binom(high, 2 * m);  /* C(high, 2m) */
+        seq_t c1 = binomial(low, 3 * m);   /* C(low, 3m) */
+        seq_t c2 = binomial(high, 2 * m);  /* C(high, 2m) */
         ans += c1 * c2;
     }
     return ans;

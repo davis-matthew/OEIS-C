@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign
  * Formula:   not stated
- * Range:     i8 n <= 9066, i16 n <= 9066, i32 n <= 9066, i64 n <= 9066,
- *            i128 n <= 9066, big any n
- * Helpers:   none
+ * Range:     i8 n <= 65537, i16 n <= 65537, i32 n <= 65537, i64 n <= 65537,
+ *            i128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9066 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    where t(k) = parity of popcount(k). */
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static inline int parity64(uint64_t x) {
     return (__builtin_popcountll(x) & 1);
@@ -30,7 +32,7 @@ static void ensure_cache_to(idx_t n) {
     if (n <= cache_size) return;
 
     size_t target = (size_t)n + 1;           /* need indices 0 .. n inclusive */
-    seq_t *new_cache = (seq_t*)realloc(cache, target * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, target);
     if (!new_cache) abort();
 
     cache = new_cache;

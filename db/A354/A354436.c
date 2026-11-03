@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 15, u128 n <= 18,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
  * values to avoid large intermediate factorials.  Powers are computed
  * with the helper pow_seq which performs exponentiation by squaring.
  */
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
 
     for (idx_t k = 0; k <= n; ++k) {
         /* (n-k)^k */
-        seq_t pow_term = pow_seq((seq_t)(n - k), (int)k);
+        seq_t pow_term = ipow_i32((seq_t)(n - k), (int)k);
 
         /* term = binom * fact * pow_term */
         seq_t term = binom * fact;

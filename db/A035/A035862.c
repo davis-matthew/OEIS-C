@@ -7,12 +7,14 @@
  * Formula:   a(n) = Sum_{d=1..36} C(37,d) * C(n-1,d-1) * C(36-d+n, n) (m=2n)
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 3, u64 n <= 10, u128 n <= 12,
  *            big any n
+ * Validated: partial, pass, 13 terms through n = 12 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Utility: binomial coefficient C(n,k) with small k (k <= 35) */
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 static seq_t binom_uint(idx_t n, idx_t k)

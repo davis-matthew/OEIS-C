@@ -12,7 +12,8 @@
  *            (the sum of digits of n) occurring either as a p...
  * Range:     u8 n <= 20, u16 n <= 40, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   digit_sum, seq_to_str
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   digit_sum
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,26 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include "../utils/digit_sum.h"
-#include "../utils/seq_to_str.h"
+
+/* convert a seq_t value to a decimal string */
+static void seq_to_str(seq_t v, char *buf, size_t *len)
+{
+    if (v == 0) {
+        buf[0] = '0';
+        *len = 1;
+        return;
+    }
+    char tmp[64];
+    int pos = 0;
+    seq_t ten = (seq_t)10;
+    while (v != 0) {
+        tmp[pos++] = '0' + (int)(v % ten);
+        v /= ten;
+    }
+    for (int i = 0; i < pos; ++i)
+        buf[i] = tmp[pos - 1 - i];
+    *len = pos;
+}
 
 static seq_t
 build_candidate(const char *d_str, size_t len_d,

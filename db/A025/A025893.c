@@ -11,12 +11,14 @@
  *            works for any build of seq_t and idx_t
  * Range:     u8 n <= 509, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 106 terms through n = 984 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
        freed before the function returns, so no static memory is
        retained between calls. */
     size_t len = (size_t)n + 1;
-    seq_t *dp = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, len);
     if (!dp) return 0;               /* defensive: unlikely to happen */
 
     /* Initialize the DP array.  Only dp[0] must be set to 1;
@@ -47,6 +49,6 @@ seq_t a(idx_t n)
 
     /* Store result before freeing the array. */
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

@@ -8,14 +8,16 @@
  * Formula:   a(n) = nth integer k such that pi(k) is palindromic
  * Range:     u8 n <= 44, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_palindrome
+ * Validated: standard, pass, 66 terms through n = 890 (2026-11-03)
+ * Helpers:   is_palindrome_base, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_palindrome.h"
+#include "../utils/is_palindrome_base.h"
+#include "../utils/mem.h"
 
 /* Persistent state across calls. */
 static seq_t *terms      = NULL;
@@ -52,18 +54,18 @@ seq_t a(idx_t n)
                     prime[j] = false;
 
         /* ---------- Prefix prime‑count array ---------- */
-        seq_t *pi = (seq_t *)malloc(sz * sizeof(seq_t));
+        seq_t *pi = mem_new(seq_t, sz);
         if (!pi) { free(prime); return 0; }
         pi[0] = 0;
         for (idx_t i = 1; i <= new_limit; ++i)
             pi[i] = pi[i - 1] + (prime[i] ? 1 : 0);
 
         /* ---------- Collect terms with palindromic pi ---------- */
-        seq_t *new_terms = (seq_t *)malloc(sz * sizeof(seq_t));
-        if (!new_terms) { free(prime); free(pi); return 0; }
+        seq_t *new_terms = mem_new(seq_t, sz);
+        if (!new_terms) { free(prime); mem_free(pi); return 0; }
         size_t count = 0;
         for (idx_t i = 1; i <= new_limit; ++i)
-            if (is_palindrome(pi[i], (idx_t)10))
+            if (is_palindrome_base(pi[i], (idx_t)10))
                 new_terms[count++] = (seq_t)i;
 
         /* ---------- Replace old data ----------
@@ -71,8 +73,8 @@ seq_t a(idx_t n)
            the newly built data. ----------
         */
         free(prime);
-        free(pi);
-        free(terms);
+        mem_free(pi);
+        mem_free(terms);
 
         terms      = new_terms;
         terms_len  = count;

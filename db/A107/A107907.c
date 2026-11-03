@@ -9,14 +9,31 @@
  *            least one occurrence of "00" or "11"
  * Range:     u8 n <= 247, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_consecutive_bits
+ * Validated: standard, pass, 87 terms through n = 9820 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has_consecutive_bits.h"
+#include "../utils/mem.h"
+
+/* Helper: test if an unsigned long long has a pair of identical
+   consecutive bits in its binary representation. */
+static bool has_consecutive_bits(unsigned long long x)
+{
+    unsigned int prev = x & 1;
+    x >>= 1;
+    while (x) {
+        unsigned int cur = x & 1;
+        if (cur == prev)
+            return true;
+        prev = cur;
+        x >>= 1;
+    }
+    return false;
+}
 
 /* State for memoisation across calls. */
 static seq_t *cache = NULL;
@@ -32,7 +49,7 @@ static void ensure_cache(idx_t n)
     idx_t new_cap = cache_cap ? cache_cap * 2 : 128;
     if (new_cap < n)
         new_cap = n;
-    seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
     if (!new_ptr)
         abort();          /* should not happen in these tests */
     cache = new_ptr;

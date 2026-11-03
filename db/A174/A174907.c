@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 88, u16 n <= 88, u32 n <= 88, u64 n <= 88, u128 n <= 88,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 87 terms through n = 88 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,6 +37,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static const idx_t PRIME_LIMIT = 1000000;   /* maximum prime needed */
 
@@ -87,7 +89,7 @@ static void init_data(void)
     init_primes();
 
     term_cap   = 1024;
-    term_cache = (seq_t *)malloc(term_cap * sizeof(seq_t));
+    term_cache = mem_new(seq_t, term_cap);
     if (!term_cache) abort();
 
     term_len   = 0;
@@ -99,7 +101,7 @@ static void ensure_capacity(size_t needed)
     if (needed < term_cap) return;
     size_t new_cap = term_cap;
     while (needed >= new_cap) new_cap *= 2;
-    seq_t *new_ptr = (seq_t *)realloc(term_cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, term_cache, new_cap);
     if (!new_ptr) abort();
     term_cache = new_ptr;
     term_cap   = new_cap;

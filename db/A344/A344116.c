@@ -10,7 +10,8 @@
  *            (rows are numbered starting at 1, columns at 1)
  * Range:     u8 n <= 5, u16 n <= 13, u32 n <= 20, u64 n <= 43, u128 n <= 76,
  *            big any n
- * Helpers:   pow2
+ * Validated: standard, pass, 52 terms through n = 1262 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/pow2.h"   /* seq_t pow2(idx_t exp); */
+#include <stdbool.h>
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 static seq_t **S = NULL;   /* Stirling numbers, S[i][j] = S(i,j) */
 static seq_t *fact = NULL; /* factorials, fact[j] = j! */
@@ -33,12 +36,12 @@ static void ensure_precompute(size_t level) {
     if (!S) exit(1);
 
     /* extend fact array */
-    fact = (seq_t *)realloc(fact, sizeof(seq_t) * (level + 1));
+    fact = mem_resize(seq_t, fact, (level + 1));
     if (!fact) exit(1);
 
     /* base row 0 */
     if (curR == 0) {
-        S[0] = (seq_t *)malloc(sizeof(seq_t) * 1);
+        S[0] = mem_new(seq_t, 1);
         if (!S[0]) exit(1);
         S[0][0] = (seq_t)1;          /* S(0,0) = 1 */
         fact[0] = (seq_t)1;          /* 0! = 1 */
@@ -47,7 +50,7 @@ static void ensure_precompute(size_t level) {
 
     /* compute rows curR+1 .. level */
     for (size_t i = curR + 1; i <= level; ++i) {
-        S[i] = (seq_t *)malloc(sizeof(seq_t) * (i + 1));
+        S[i] = mem_new(seq_t, (i + 1));
         if (!S[i]) exit(1);
         S[i][0] = (seq_t)0;
         for (size_t j = 1; j <= i; ++j) {

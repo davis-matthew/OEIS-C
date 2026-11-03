@@ -11,12 +11,14 @@
  *            {1,…,n} in which exactly 3/4 of the elements are <= (n-1)/3
  * Range:     u8 n <= 18, u16 n <= 31, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 42 terms through n = 42 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -38,8 +40,8 @@ seq_t a(idx_t n)
 
     seq_t result = 0;
     for (idx_t k = 1; k <= maxk; ++k) {
-        seq_t low_part  = binom(m, 3 * k);
-        seq_t high_part = binom(high, k);
+        seq_t low_part  = binomial(m, 3 * k);
+        seq_t high_part = binomial(high, k);
         result += low_part * high_part;
     }
     return result;

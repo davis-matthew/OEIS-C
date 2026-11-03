@@ -8,13 +8,16 @@
  *            a(n) = sum_{i=0}^{min(21,2n)} C(21,i) * C(20+2n-i,20)
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 4, u64 n <= 17, u128 n <= 169,
  *            big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 35 terms through n = 9439 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* Pre‑compute binomial coefficients C(21,i) for i=0..21.  */
 static seq_t binom21[22];
@@ -70,7 +73,7 @@ seq_t a(idx_t n)
     /* Expand cache if necessary.  */
     if ((size_t)n >= cache_len) {
         size_t new_len = ((size_t)n + 1) * 2;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_len);
         if (!new_cache) return 0; /* allocation failed, return 0 as fallback */
         cache = new_cache;
         for (size_t i = cache_len; i < new_len; ++i)

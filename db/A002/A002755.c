@@ -11,12 +11,14 @@
  *            Prod_{m>=1} 1/(1-x^m) (A000041, via pentagonal recurrence)
  * Range:     u8 n <= 3, u16 n <= 15, u32 n <= 63, u64 n <= 257,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 917 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *Pt = 0;
 static idx_t Plen = 0;
@@ -25,9 +27,9 @@ static void ensure_P(idx_t n) {
     if (n < Plen) return;
     idx_t newlen = n + 1;
     if (newlen < 2 * Plen) newlen = 2 * Plen;
-    seq_t *np = (seq_t *)calloc((size_t)newlen, sizeof(seq_t));
+    seq_t *np = mem_new(seq_t, (size_t)newlen);
     for (idx_t i = 0; i < Plen; i++) np[i] = Pt[i];
-    if (Pt) free(Pt);
+    if (Pt) mem_free(Pt);
     Pt = np;
     for (idx_t m = Plen; m < newlen; m++) {
         if (m == 0) { Pt[0] = 1; continue; }
@@ -72,10 +74,10 @@ static void rec(int j, int rem, idx_t n, seq_t *buf, seq_t *total) {
 
 seq_t a(idx_t n) {
     ensure_P(n);
-    seq_t *buf = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *buf = mem_new(seq_t, (size_t)(n + 1));
     seq_t total = 0;
     for (int j = 0; j <= 6; j++) cnt[j] = 0;
     rec(6, 6, n, buf, &total);
-    free(buf);
+    mem_free(buf);
     return total;
 }

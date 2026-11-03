@@ -13,13 +13,25 @@
  *            cycle blocks of each symmetry
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 11, u64 n <= 23, u128 n <= 48,
  *            big any n
- * Helpers:   _binom_n5, big_pow
+ * Validated: standard, pass, 37 terms through n = 97 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
-#include "../utils/_binom_n5.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+
+/* binomial(n,5) for unsigned 64‑bit n */
+static seq_t _binom_n5(idx_t n)
+{
+    seq_t res = 1;
+    for (idx_t i = 0; i < 5; ++i) {
+        res *= (n - i);
+    }
+    return res / 120;   /* 5! = 120 */
+}
 
 /* Euler's totient of an unsigned 64‑bit integer */
 static seq_t _phi_u64(idx_t m)
@@ -40,10 +52,10 @@ static seq_t _phi_u64(idx_t m)
 static seq_t _term_for_cycles(idx_t c)
 {
     if (c < 5) return (seq_t)0;
-    seq_t pow5 = big_pow((seq_t)5, (seq_t)c);
-    seq_t pow4 = big_pow((seq_t)4, (seq_t)c);
-    seq_t pow3 = big_pow((seq_t)3, (seq_t)c);
-    seq_t pow2 = big_pow((seq_t)2, (seq_t)c);
+    seq_t pow5 = ipow((seq_t)5, (seq_t)c);
+    seq_t pow4 = ipow((seq_t)4, (seq_t)c);
+    seq_t pow3 = ipow((seq_t)3, (seq_t)c);
+    seq_t pow2 = ipow((seq_t)2, (seq_t)c);
     seq_t term = pow5;
     term -= pow4 * 5;
     term += pow3 * 10;

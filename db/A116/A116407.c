@@ -11,14 +11,15 @@
  *            where row = ⌊(√(8n+1)-1)/2⌋ and col = n - row·(row+1)/2
  * Range:     u8 n <= 27, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 /* integer square root of a 64‑bit unsigned value */
 static uint64_t isqrt_u64(uint64_t x)
@@ -58,8 +59,8 @@ seq_t a(idx_t n)
         for (uint64_t t = 0; ; ++t) {
             int64_t rem = (int64_t)r - (int64_t)m - 2 * (int64_t)t;
             if (rem < 0) break;
-            seq_t bin1 = binom(r, t);
-            seq_t bin2 = binom(r - t, t + m);
+            seq_t bin1 = binomial(r, t);
+            seq_t bin2 = binomial(r - t, t + m);
             term += bin1 * bin2;
         }
         if ((j & 1) == 0)

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd_int
+ * Validated: standard, pass, 87 terms through n = 9944 (2026-11-03)
+ * Helpers:   gcd_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/gcd_int.h"
+#include <stddef.h>
+#include "../utils/gcd_i32.h"
+#include "../utils/mem.h"
 
 typedef struct {
     seq_t c;          /* hypotenuse of the triple */
@@ -50,7 +53,7 @@ static void heap_push(Node node)
 {
     if (heap_sz == heap_cap) {
         size_t new_cap = (heap_cap == 0) ? 16 : heap_cap << 1;
-        Node *new_arr = (Node *)realloc(heap, new_cap * sizeof(Node));
+        Node *new_arr = mem_resize(Node, heap, new_cap);
         if (!new_arr) abort();
         heap = new_arr;
         heap_cap = new_cap;
@@ -97,7 +100,7 @@ static void build_primitives_and_heap(void)
     const idx_t MAX_C_LIMIT = 200000;   /* sufficient for n≈10000 */
     for (idx_t m = 2; m * m <= MAX_C_LIMIT; ++m) {
         for (idx_t n = 1; n < m; ++n) {
-            if (((m - n) & 1) && gcd_int((int)m, (int)n) == 1) {
+            if (((m - n) & 1) && gcd_i32((int)m, (int)n) == 1) {
                 seq_t Mm = (seq_t)m;
                 seq_t Nm = (seq_t)n;
                 seq_t a0 = Mm * Mm - Nm * Nm;
@@ -119,7 +122,7 @@ seq_t a(idx_t n)
 
     if (!cache) {
         cache_cap = 1024;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();
     }
 
@@ -129,7 +132,7 @@ seq_t a(idx_t n)
         if ((idx_t)cache_cap < n) {
             size_t new_cap = cache_cap;
             while (new_cap < (size_t)n) new_cap <<= 1;
-            seq_t *new_arr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *new_arr = mem_resize(seq_t, cache, new_cap);
             if (!new_arr) abort();
             cache = new_arr;
             cache_cap = new_cap;

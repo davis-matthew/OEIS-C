@@ -12,6 +12,7 @@
  *            term_0 = 1 term_j = term_{j-1} * (k-j+1) * (4*k + 2*row + 4...
  * Range:     u8 n <= 8, u16 n <= 19, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

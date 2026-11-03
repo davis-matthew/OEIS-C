@@ -7,13 +7,25 @@
  * Formula:   a(n) = n^2*(n+1)*(3*n^2 + 7*n - 2)*(n+5)!/11520
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 13, u128 n <= 26,
  *            big any n
- * Helpers:   factorial, gcd
+ * Validated: standard, pass, 32 terms through n = 341 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/factorial.h"
+#include <stdint.h>
 #include "../utils/gcd.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 /* helper that reduces a factor by the current denominator D and returns the reduced factor.
    It also updates D to reflect the reduction. */

@@ -10,14 +10,15 @@
  *            1. (k is the column index, n-1 is the row index)
  * Range:     u8 n <= 24, u16 n <= 49, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   lucas, pow_seq
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   ipow_idx, lucas
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include "../utils/ipow_idx.h"
 #include "../utils/lucas.h"
-#include "../utils/pow_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -39,5 +40,5 @@ seq_t a(idx_t n)
     idx_t exp = (s + 1) - k;          /* exponent (row index) */
 
     seq_t base = lucas(k);            /* Lucas number L(k) */
-    return pow_seq(base, exp);        /* L(k) ^ exp */
+    return ipow_idx(base, exp);        /* L(k) ^ exp */
 }

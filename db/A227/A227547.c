@@ -7,7 +7,8 @@
  * Formula:   a(n) = a(n-1) + prime(n-1), with a(1)=3
  * Range:     u8 n <= 14, u16 n <= 157, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   next_prime
+ * Validated: standard, pass, 65 terms through n = 950 (2026-11-03)
+ * Helpers:   mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-#include "../utils/next_prime.h"   /* prototype: uint64_t next_prime(uint64_t start) */
+#include <stdbool.h>
+#include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 static uint64_t *prime_list = NULL;        /* stored primes */
 static seq_t    *prime_sum  = NULL;        /* cumulative sums: prime_sum[i] = sum_{k=0}^i prime_list[k] */
@@ -35,7 +38,7 @@ ensure_primes(idx_t need)
     if (prime_list == NULL) {
         prime_cap = 16;
         prime_list = (uint64_t*)malloc(sizeof(uint64_t) * prime_cap);
-        prime_sum  = (seq_t*)malloc(sizeof(seq_t)      * prime_cap);
+        prime_sum  = mem_new(seq_t, prime_cap);
     }
 
     while (prime_cnt < need) {
@@ -48,7 +51,7 @@ ensure_primes(idx_t need)
         if (prime_cnt == prime_cap) {
             size_t new_cap = prime_cap * 2;
             uint64_t *tmp_list = (uint64_t*)realloc(prime_list, new_cap * sizeof(uint64_t));
-            seq_t    *tmp_sum  = (seq_t*)realloc(prime_sum,  new_cap * sizeof(seq_t));
+            seq_t    *tmp_sum  = mem_resize(seq_t, prime_sum, new_cap);
             if (!tmp_list || !tmp_sum) { /* allocation failed, abort gracefully */
                 /* In an embedded environment we could handle this differently. */
                 exit(EXIT_FAILURE);

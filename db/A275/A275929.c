@@ -7,13 +7,15 @@
  * Formula:   a(n) = 2*(n-1)! + n + 1
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 13, u64 n <= 21, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* initialize factorial array on first call */
     if (!fact) {
         fact_capacity = 4;                     /* room for indices 0..3 */
-        fact = (seq_t *)malloc(fact_capacity * sizeof(seq_t));
+        fact = mem_new(seq_t, fact_capacity);
         if (!fact) exit(1);
         fact[0] = (seq_t)1;
         fact[1] = (seq_t)1;
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     if (fact_capacity <= n-1) {
         size_t new_cap = fact_capacity ? fact_capacity * 2 : 4;
         while (new_cap <= n-1) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(fact, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fact, new_cap);
         if (!tmp) exit(1);
         fact = tmp;
         fact_capacity = (idx_t)new_cap;

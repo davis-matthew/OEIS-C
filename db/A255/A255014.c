@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   encode_parikh, ensure_prefix
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,8 +33,61 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/encode_parikh.h"
-#include "../utils/ensure_prefix.h"
+
+/* Encode a 4‑tuple of counts (each < 2^16) into a 64‑bit key. */
+static inline uint64_t encode_parikh(const idx_t *c)
+{
+    return ((uint64_t)c[0] << 48) |
+           ((uint64_t)c[1] << 32) |
+           ((uint64_t)c[2] << 16) |
+           (uint64_t)c[3];
+}
+
+/* Grow the prefix of the 4‑bonacci word until it reaches at least
+   needed_len characters.  The prefix is stored in a static buffer
+   that is regenerated on each enlargement by applying the morphism. */
+static void ensure_prefix(idx_t needed_len, uint8_t **buf, size_t *len)
+{
+    static uint8_t *prefix = NULL;
+    static size_t cur_len = 0;
+
+    if (!prefix) {
+        /* seed word "0" */
+        prefix = (uint8_t *)malloc(16);
+        if (!prefix) { *buf = NULL; *len = 0; return; }
+        prefix[0] = 0;
+        cur_len = 1;
+    }
+
+    while (cur_len < (size_t)needed_len) {
+        /* compute length after applying the morphism once */
+        idx_t new_len = 0;
+        for (idx_t i = 0; i < (idx_t)cur_len; ++i) {
+            new_len += (prefix[i] == 3) ? 1 : 2;
+        }
+
+        uint8_t *next = (uint8_t *)malloc((size_t)new_len);
+        if (!next) { *buf = NULL; *len = 0; return; }
+
+        /* perform the morphism expansion */
+        idx_t pos = 0;
+        for (idx_t i = 0; i < (idx_t)cur_len; ++i) {
+            switch (prefix[i]) {
+            case 0: next[pos++] = 0; next[pos++] = 1; break;
+            case 1: next[pos++] = 0; next[pos++] = 2; break;
+            case 2: next[pos++] = 0; next[pos++] = 3; break;
+            case 3: next[pos++] = 0;                  break;
+            }
+        }
+
+        free(prefix);
+        prefix = next;
+        cur_len = (size_t)new_len;
+    }
+
+    *buf = prefix;
+    *len = cur_len;
+}
 
 /* Compute a(n) for n >= 1. */
 seq_t a(idx_t n)

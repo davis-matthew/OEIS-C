@@ -7,13 +7,14 @@
  * Formula:   a(n) = least prime factor of the n-th squarefree number
  * Range:     u8 n <= 157, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_squarefree_local
+ * Validated: standard, pass, 106 terms through n = 9521 (2026-11-01)
+ * Helpers:   is_squarefree_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_squarefree_local.h"
+#include "../utils/is_squarefree_u64.h"
 
 // Helper: return the least prime factor of x; 1 if x <= 1
 static seq_t smallest_prime_factor_uint64(uint64_t x) {
@@ -33,7 +34,7 @@ seq_t a(idx_t n) {
 
     while (count < n) {
         ++num;
-        if (is_squarefree_local(num)) {
+        if (is_squarefree_u64(num)) {
             ++count;
             if (count == n) {
                 return smallest_prime_factor_uint64(num);

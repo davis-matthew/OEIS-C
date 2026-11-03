@@ -11,12 +11,21 @@
  *            [1,37,315,873,873,315,37,1]
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 14, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   binom12
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom12.h"
+static seq_t binom12(idx_t base) {
+	/* binomial(base+12, 12), computed multiplicatively */
+	seq_t r = 1;
+	idx_t i;
+	for (i = 1; i <= 12; i++) {
+		r = r * (seq_t)(base + i) / (seq_t)i;
+	}
+	return r;
+}
 
 seq_t a(idx_t n) {
 	static const unsigned int c[8] = {1, 37, 315, 873, 873, 315, 37, 1};

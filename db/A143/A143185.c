@@ -7,13 +7,15 @@
  * Keywords:  nonn, tabl
  * Formula:   T(n,k) = (1+abs(n-2*k))*binomial(n,k); a(n) is the nth element
  *            when the triangle is read row by row (rows numbered from 0)
- * Range:     u8 n <= 39, u16 n <= 158, u32 n <= 573, u64 n <= 1325,
+ * Range:     u8 n <= 47, u16 n <= 158, u32 n <= 573, u64 n <= 1325,
  *            u128 n <= 1325, big any n
+ * Validated: standard, pass, 82 terms through n = 1239 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

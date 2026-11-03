@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 51, u16 n <= 4709, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_sum
+ * Validated: standard, pass, 72 terms through n = 9050 (2026-11-03)
+ * Helpers:   digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/digit_sum.h"
+#include "../utils/mem.h"
 
 /* static state used for memoization */
 static seq_t *seq_cache      = NULL;   /* array of computed terms      */
@@ -31,7 +33,7 @@ static void seq_ensure_cached(idx_t n)
 {
     if (seq_cache == NULL) {
         seq_cache_size = 1;
-        seq_cache = (seq_t *)malloc(seq_cache_size * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, seq_cache_size);
         if (!seq_cache) exit(EXIT_FAILURE);
         seq_cache[0] = (seq_t)0;                     /* a(0) = 0             */
         seq_sum_digsum = digit_sum(seq_cache[0]);    /* = 0                   */
@@ -41,8 +43,7 @@ static void seq_ensure_cached(idx_t n)
         /* grow capacity if necessary */
         if (seq_cache_len >= seq_cache_size) {
             seq_cache_size *= 2;
-            seq_t *tmp = (seq_t *)realloc(seq_cache,
-                                          seq_cache_size * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq_cache, seq_cache_size);
             if (!tmp) exit(EXIT_FAILURE);
             seq_cache = tmp;
         }

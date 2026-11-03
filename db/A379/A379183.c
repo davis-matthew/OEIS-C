@@ -7,13 +7,15 @@
  * Formula:   a(1)=0; a(2)=a(3)=1; a(n) = n - a(a(n-2)) for n>3
  * Range:     u8 n <= 76, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 76 terms through n = 76 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* memoized values, index 0 unused */
 static unsigned char *computed = NULL;/* flag array: 1 if value computed */
@@ -29,16 +31,16 @@ static void grow_cache(idx_t needed) {
             new_cap <<= 1;
     }
     /* allocate new arrays */
-    seq_t *new_cache = (seq_t*)calloc(new_cap, sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     unsigned char *new_comp = (unsigned char*)calloc(new_cap, sizeof(unsigned char));
     if (new_cache == NULL || new_comp == NULL) {
         /* allocation failed – in this build we just abort */
         abort();
     }
     if (cache != NULL) {
-        memcpy(new_cache, cache, cache_size * sizeof(seq_t));
+        mem_copy(new_cache, cache, cache_size * sizeof(seq_t));
         memcpy(new_comp, computed, cache_size * sizeof(unsigned char));
-        free(cache);
+        mem_free(cache);
         free(computed);
     }
     cache = new_cache;

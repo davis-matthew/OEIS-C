@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 39, u16 n <= 143, u32 n <= 542, u64 n <= 1275,
+ * Range:     u8 n <= 39, u16 n <= 143, u32 n <= 543, u64 n <= 1275,
  *            u128 n <= 1275, big any n
- * Helpers:   binomial, find_sum_index
+ * Validated: standard, pass, 82 terms through n = 1160 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -38,8 +39,28 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/find_sum_index.h"
+
+/* Find the smallest s≥2 such that (s-1)*s/2 ≥ n   (antidiagonal sum s=m+n). */
+static idx_t find_sum_index(idx_t n)
+{
+    idx_t low = 2, high = 2;
+    /* exponential search to get an upper bound */
+    while ((__int128)(high - 1) * high / 2 < n) {
+        high <<= 1;
+    }
+    /* binary search within [low,high] */
+    while (low < high) {
+        idx_t mid = low + ((high - low) >> 1);
+        if ((__int128)(mid - 1) * mid / 2 >= n) {
+            high = mid;
+        } else {
+            low = mid + 1;
+        }
+    }
+    return low;
+}
 
 /* Helper: compute T(m,n) by the formula above (no negative intermediates). */
 static seq_t compute_T(idx_t m, idx_t n)

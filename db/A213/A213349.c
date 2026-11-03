@@ -10,13 +10,16 @@
  *            0..floor((N-7)/2). a(7) is the first term of the sequence
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 57, u64 n <= 236,
  *            u128 n <= 979, big any n
+ * Validated: standard, pass, 48 terms through n = 2183 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow2.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   is_power_of_two
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-01)
+ * Helpers:   is_pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,7 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_power_of_two.h"
+#include "../utils/is_pow2.h"
 
 /* Fixed maximum number of sequence elements to cache.  This should be
    large enough for all tests (≈1 000 000 is sufficient for n up to 10 000). */
@@ -40,7 +41,7 @@ static bool good_number(seq_t num)
         sum += d * d;
         t   /= 10;
     }
-    return is_power_of_two(sum);
+    return is_pow2(sum);
 }
 
 /* Compute terms up to index n_idx (1‑based). */

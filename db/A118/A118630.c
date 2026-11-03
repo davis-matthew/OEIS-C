@@ -8,12 +8,14 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 20, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Recurrence: a(n) = 6*a(n-9)-a(n-18)+4802 for n>18
    with initial values a(1)=0, a(2)=539, … , a(18)=35819. */
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     if (newSize < 18) newSize = 18;          /* ensure we can store 18 seeds */
 
     /* reallocate (or allocate) the cache */
-    seq_t *tmp = (seq_t *)realloc(cache, newSize * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, newSize);
     if (!tmp) return 0;                      /* allocation failed → 0 */
     cache = tmp;
 

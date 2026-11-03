@@ -7,7 +7,8 @@
  * Formula:   a(n) = digit_sum(5^n) (OEIS A066001)
  * Range:     u8 n <= 74, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   ensure_digits, ensure_results
+ * Validated: standard, pass, 76 terms through n = 983 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,31 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/ensure_digits.h"
-#include "../utils/ensure_results.h"
+#include "../utils/mem.h"
+
+static void ensure_digits(size_t need, uint8_t **dig, size_t *cap)
+{
+    if (*cap <= need) {
+        size_t new_cap = (*cap == 0) ? 128 : *cap << 1;
+        while (new_cap <= need) new_cap <<= 1;
+        uint8_t *tmp = (uint8_t *)realloc(*dig, new_cap);
+        if (!tmp) return; /* memory error – caller will return 0 */
+        *dig = tmp;
+        *cap = new_cap;
+    }
+}
+
+static void ensure_results(size_t need, seq_t **arr, size_t *cap)
+{
+    if (*cap <= need) {
+        size_t new_cap = (*cap == 0) ? 128 : *cap << 1;
+        while (new_cap <= need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
+        if (!tmp) return; /* memory error – caller will return 0 */
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
 
 seq_t a(idx_t n)
 {
@@ -33,12 +57,12 @@ seq_t a(idx_t n)
     if (max_computed == (idx_t)-1) {
         /* first invocation */
         values_cap = 128;
-        values = (seq_t *)malloc(values_cap * sizeof(seq_t));
+        values = mem_new(seq_t, values_cap);
         if (!values) return (seq_t)0;
         digits_cap = 128;
         digits = (uint8_t *)malloc(digits_cap);
         if (!digits) {
-            free(values);
+            mem_free(values);
             values = NULL;
             return (seq_t)0;
         }

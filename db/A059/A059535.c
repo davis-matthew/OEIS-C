@@ -10,6 +10,7 @@
  *            enough for all practical values of n used in the tests
  * Range:     u8 none, u16 none, u32 n <= 1, u64 n <= 2000, u128 n <= 2000,
  *            big any n
+ * Validated: standard, pass, 84 terms through n = 1839 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

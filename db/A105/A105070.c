@@ -10,15 +10,17 @@
  *            index n is first converted to the row r * and column k, then the
  *            value is computed. The routine uses * the helper functions
  *            int_sqrt, binomial and pow2, all of which * return the...
- * Range:     u8 n <= 22, u16 n <= 60, u32 n <= 64, u64 n <= 64, u128 n <= 64,
- *            big any n
- * Helpers:   binomial, int_sqrt, pow2
+ * Range:     u8 n <= 22, u16 n <= 60, u32 n <= 203, u64 n <= 743,
+ *            u128 n <= 2550, big any n
+ * Validated: standard, pass, 80 terms through n = 2377 (2026-11-01)
+ * Helpers:   binomial, isqrt, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/int_sqrt.h"
+#include <stdint.h>
 #include "../utils/binomial.h"
+#include "../utils/isqrt.h"
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     if (n == 0)               /* out of bounds for this sequence */
         return (seq_t)0;
 
-    idx_t m = int_sqrt(n - 1);        /* floor(sqrt(n‑1))  */
+    idx_t m = isqrt(n - 1);        /* floor(sqrt(n‑1))  */
     idx_t t_even = m * (m + 1);      /* n ≤ t_even ? row even else row odd */
     idx_t row, start, k;
 

@@ -8,7 +8,8 @@
  * Formula:   a(1) = 1, a(n) = reverse_digits(a(n−1)) + 44 for n > 1
  * Range:     u8 n <= 4, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 980 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* reverse_digits is implemented by repeated division and multiplication by 10. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* Ensure capacity for at least n terms */
     if ((size_t)n > cache_cap) {
         /* Allocate or grow the array */
-        seq_t *new_cache = (seq_t *)realloc(cache, (size_t)n * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (size_t)n);
         if (!new_cache) {
             /* Allocation failed – return 0 or handle error as preferred */
             return (seq_t)0;

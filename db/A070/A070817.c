@@ -8,6 +8,7 @@
  * Formula:   a(n) = floor(n/2) - gpf(phi(n))
  * Range:     i8 n <= 94, i16 n <= 94, i32 n <= 94, i64 n <= 94, i128 n <= 94,
  *            big any n
+ * Validated: partial, pass, 92 terms through n = 94 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

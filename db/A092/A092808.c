@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
    64‑bit, 128‑bit or arbitrary‑precision types. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* forward declaration of helper – valid in C11 and C++17 */
 static void ensure_pow4(idx_t);
@@ -38,7 +40,7 @@ ensure_pow4(idx_t idx)
 {
     while (pow4_cap <= idx) {
         seq_t nxt = pow4[pow4_cap - 1] * (seq_t)4;
-        pow4 = (seq_t *)realloc(pow4, sizeof(seq_t) * (pow4_cap + 1));
+        pow4 = mem_resize(seq_t, pow4, (pow4_cap + 1));
         pow4[pow4_cap++] = nxt;
     }
 }
@@ -48,14 +50,14 @@ seq_t a(idx_t n)
     /* initialise pow4[0] = 1 */
     if (pow4 == NULL) {
         pow4_cap = 1;
-        pow4 = (seq_t *)malloc(sizeof(seq_t) * pow4_cap);
+        pow4 = mem_new(seq_t, pow4_cap);
         pow4[0] = (seq_t)1;
     }
 
     /* initialise sequence cache with the first two terms */
     if (seq == NULL) {
         seq_cap = 2;
-        seq = (seq_t *)malloc(sizeof(seq_t) * seq_cap);
+        seq = mem_new(seq_t, seq_cap);
         seq[0] = (seq_t)1;   /* a(0) */
         seq[1] = (seq_t)0;   /* a(1) */
     }
@@ -80,7 +82,7 @@ seq_t a(idx_t n)
             value = seq[i - 2] + add;     /* recurrence */
         }
 
-        seq = (seq_t *)realloc(seq, sizeof(seq_t) * (seq_cap + 1));
+        seq = mem_resize(seq_t, seq, (seq_cap + 1));
         seq[seq_cap++] = value;
     }
 

@@ -7,7 +7,8 @@
  * Formula:   a(n) = nth prime congruent to 41 (mod 51)
  * Range:     u8 n <= 1, u16 n <= 201, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 59 terms through n = 989 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static seq_t *prime_cache = NULL;
 static size_t cache_size = 0;
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
             /* Ensure enough capacity */
             if (cache_size == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 4;
-                prime_cache = (seq_t *)realloc(prime_cache, new_cap * sizeof(seq_t));
+                prime_cache = mem_resize(seq_t, prime_cache, new_cap);
                 cache_cap = new_cap;
             }
             prime_cache[cache_size] = (seq_t)candidate;

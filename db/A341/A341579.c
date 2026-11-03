@@ -9,12 +9,14 @@
  *            a(0)=0, a(1)=1, a(2)=3, a(3)=7
  * Range:     u8 n <= 8, u16 n <= 17, u32 n <= 35, u64 n <= 71, u128 n <= 143,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 700 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_cap = 0;
@@ -28,11 +30,11 @@ static void ensure_cache(idx_t n)
     /* grow storage */
     if (cache_cap == 0) {
         cache_cap = 64;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
     while (cache_cap <= n) {
         cache_cap <<= 1; /* double */
-        cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 
     /* compute missing terms */

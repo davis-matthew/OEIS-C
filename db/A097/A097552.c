@@ -9,12 +9,14 @@
  *            for n≥7 a(n)=5*a(n-1)-8*a(n-2)+7*a(n-3)-4*a(n-4)+a(n-5)
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 19, u64 n <= 40, u128 n <= 81,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 932 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* memoised array of a(n) */
 static idx_t cache_cap = 0;     /* current array capacity */
@@ -27,14 +29,14 @@ static void init_cache(idx_t n)
     if (cache == NULL) {
         /* Allocate space for at least n+1 entries */
         cache_cap = (n >= 6 ? n+1 : 7);
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();
         for (idx_t i = 0; i < 7 && i <= n; ++i)
             cache[i] = init_vals[i];
     } else if (n >= cache_cap) {
         /* Grow the cache to cover up to n */
         idx_t new_cap = n + 1;
-        cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         if (!cache) abort();
         /* Initialise any new slots (they will be filled by the loop below) */
         cache_cap = new_cap;

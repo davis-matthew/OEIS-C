@@ -11,7 +11,8 @@
  *            static table so that calls in any order are efficient
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 120 terms through n = 8784 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;          /* computed values */
 static bool *a_computed = NULL;        /* flags for computed entries */
@@ -31,7 +33,7 @@ static void ensure_a_cache_size(size_t cap)
         return;
     size_t new_cap = cap > 1 ? cap*2 : 16;
     if (new_cap < cap) new_cap = cap;          /* avoid overflow */
-    a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, new_cap);
     a_computed = (bool *)realloc(a_computed, new_cap * sizeof(bool));
     /* initialise new part */
     for (size_t i = a_cache_size; i < new_cap; ++i) {

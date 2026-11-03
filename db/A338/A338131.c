@@ -11,7 +11,8 @@
  *            T(0,0) = 1, T(n,n) = 1
  * Range:     u8 n <= 37, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   pow2
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,9 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 /* Compute the row `r` such that r*(r+1)/2 ≤ n < (r+1)*(r+2)/2. */
 static idx_t compute_row(idx_t n)
@@ -57,7 +60,7 @@ static void ensure_rows(idx_t max_r)
     /* Compute each new row. */
     for (idx_t r = rows_allocated; r <= max_r; ++r) {
         /* Allocate the k component of this row. */
-        tri[r] = (seq_t *)malloc((size_t)(r + 1) * sizeof(seq_t));
+        tri[r] = mem_new(seq_t, (size_t)(r + 1));
         if (!tri[r]) {
             abort();
         }

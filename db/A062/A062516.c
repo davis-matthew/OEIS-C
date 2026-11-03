@@ -11,14 +11,16 @@
  *            R(p,e) = p^(e-1)*(p-1)/(e+1) * equals 2. T...
  * Range:     u8 n <= 9, u16 n <= 9, u32 n <= 9, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   u64_gcd
+ * Validated: full, pass, 9 terms through n = 9 (2026-11-03)
+ * Helpers:   gcd_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/u64_gcd.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/mem.h"
 
 /* comparison function for qsort */
 static int cmp_seq_t(const void *p1, const void *p2)
@@ -96,7 +98,7 @@ seq_t a(idx_t n)
                             r_den *= Rden;
                         }
                         /* reduce fraction r_num/r_den */
-                        uint64_t g = u64_gcd((uint64_t)r_num, (uint64_t)r_den);
+                        uint64_t g = gcd_u64((uint64_t)r_num, (uint64_t)r_den);
                         r_num /= g;
                         r_den /= g;
                         if (r_num == (seq_t)2 && r_den == (seq_t)1) {
@@ -108,7 +110,7 @@ seq_t a(idx_t n)
         }
         solCnt = idx;
         /* sort the solutions */
-        qsort(sol, solCnt, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(sol, solCnt, sizeof(seq_t), cmp_seq_t);
         initialized = 1;
     }
 

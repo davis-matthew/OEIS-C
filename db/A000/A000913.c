@@ -8,17 +8,18 @@
  *            (1/2)*c((n-1)/4), c(n) = Catalan number
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   binomial_central
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-01)
+ * Helpers:   central_binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/binomial_central.h"
+#include "../utils/central_binomial.h"
 
 static seq_t catalan(idx_t k) {
     if (k == 0) return 1;
-    seq_t binom = binomial_central(k);
+    seq_t binom = central_binomial(k);
     return binom / (k + 1);
 }
 

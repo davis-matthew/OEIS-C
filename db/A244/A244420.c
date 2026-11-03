@@ -10,15 +10,17 @@
  *            where r = row of the flattened triangle containing n, offset = n
  *            - r(r+1)/2, and col = r-offset, so that the triangle columns are
  *            listed in descending order (m = r, r-1, …, 0)
- * Range:     u8 n <= 9, u16 n <= 35, u32 n <= 65, u64 n <= 65, u128 n <= 65,
+ * Range:     u8 n <= 14, u16 n <= 44, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 /* Find the row r such that r(r+1)/2 <= n < (r+1)(r+2)/2.       */
 static idx_t find_row(idx_t n)
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     idx_t   col     = r - offset;        /* columns are in descending order   */
 
     /* Binomial coefficient for the (r, col) entry.            */
-    seq_t val = binom(2 * r + 1, col);
+    seq_t val = binomial(2 * r + 1, col);
 
     /* Remove powers of two up to 2*r (the denominator).       */
     idx_t limit = 2 * r;

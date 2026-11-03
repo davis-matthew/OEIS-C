@@ -9,6 +9,7 @@
  *            ⌊(((n%50)%25)%10)/5⌋ + ((n%5) )
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 118 terms through n = 7258 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

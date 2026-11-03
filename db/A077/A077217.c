@@ -13,7 +13,8 @@
  *            search/sieve.)
  * Range:     u8 n <= 11, u16 n <= 732, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 9444 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define SIEVE_LIMIT 2000000U            /* size of the sieve (2 million enough for n≈10 000) */
 
@@ -73,7 +75,7 @@ static void append_seq(seq_t v)
 {
     if (seq_len == seq_cap) {
         seq_cap = seq_cap ? seq_cap << 1U : 64U;
-        seq_t *tmp = (seq_t *)realloc(seq_vals, seq_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_vals, seq_cap);
         if (!tmp) abort();
         seq_vals = tmp;
     }

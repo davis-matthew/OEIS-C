@@ -6,8 +6,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  sign, base
  * Formula:   not stated
- * Range:     i8 n <= 12, i16 n <= 88, i32 n <= 609, i64 n <= 9236,
- *            i128 n <= 9236, big any n
+ * Range:     i8 n <= 12, i16 n <= 88, i32 n <= 609, i64 n <= 10924,
+ *            i128 n <= 10946, big any n
+ * Validated: standard, pass, 65 terms through n = 9236 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

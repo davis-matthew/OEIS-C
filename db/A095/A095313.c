@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 53, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 933 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static data used to cache the sequence and to generate new primes.  */
 static seq_t  *qcache    = NULL;     /* array of qualifying primes      */
@@ -46,7 +48,7 @@ static uint64_t next_candidate = 3;  /* next odd number to test        */
     do {                                            \
         if ((len) == (cap)) {                       \
             size_t new_cap = (cap) ? (cap) << 1 : 32; \
-            type *tmp = (type*)realloc((arr), new_cap * sizeof(type)); \
+            type *tmp = mem_resize(type, (arr), new_cap); \
             if (!tmp) exit(1);                      \
             (arr) = tmp;                            \
             (cap) = new_cap;                        \

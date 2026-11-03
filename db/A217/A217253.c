@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 421, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 9744 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
  * by dynamic programming, storing the minimal length and the number of
  * expressions that attain that length. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static idx_t *len_arr = NULL;     /* minimal length for each n */
 static seq_t *cnt_arr = NULL;     /* number of minimal expressions for n */
@@ -34,10 +36,10 @@ static void ensure_up_to(idx_t n)
     /* enlarge tables */
     if (len_arr == NULL) {
         len_arr = (idx_t *)malloc(new_cap * sizeof(idx_t));
-        cnt_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        cnt_arr = mem_new(seq_t, new_cap);
     } else {
         len_arr = (idx_t *)realloc(len_arr, new_cap * sizeof(idx_t));
-        cnt_arr = (seq_t *)realloc(cnt_arr, new_cap * sizeof(seq_t));
+        cnt_arr = mem_resize(seq_t, cnt_arr, new_cap);
     }
     if (len_arr == NULL || cnt_arr == NULL)
         exit(1);  /* allocation failed */

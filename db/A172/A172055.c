@@ -9,7 +9,8 @@
  * Formula:   a(n) = A121765(n) + A121763(n)
  * Range:     u8 n <= 38, u16 n <= 6726, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 70 terms through n = 9706 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 /* Prime test provided by the utilities */
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Expand a dynamic array of seq_t values */
 static void grow_array(seq_t **arr, size_t *len, size_t *cap)
@@ -27,7 +29,7 @@ static void grow_array(seq_t **arr, size_t *len, size_t *cap)
     if (*len >= *cap)
     {
         size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
-        seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
         if (!tmp)
             exit(EXIT_FAILURE);
         *arr = tmp;

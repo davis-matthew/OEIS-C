@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, mod_pow, next_prime
+ * Validated: standard, pass, 60 terms through n = 974 (2026-11-01)
+ * Helpers:   is_prime, next_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,10 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"      /* bool is_prime(idx_t) */
-#include "../utils/next_prime.h"   /* uint64_t next_prime(uint64_t) */
-#include "../utils/mod_pow.h"      /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod) */
+#include <string.h>
+#include "../utils/is_prime.h"
+#include "../utils/next_prime.h"
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
             if (p % 20 == 11 || p % 20 == 19)
                 ok = true;
         } else { /* p % 4 == 1 */
-            seq_t res = mod_pow((seq_t)5, (p - 1) / 4, (seq_t)p);
+            seq_t res = powmod((seq_t)5, (p - 1) / 4, (seq_t)p);
             if (res == (seq_t)1)
                 ok = true;
         }

@@ -9,8 +9,9 @@
  *            non‑adjacent form of n: reverse the digits except the trailing
  *            zeros (least significant zeros are left unchanged). The NAF
  *            digits are 0, 1, or -1
- * Range:     u8 n <= 170, u16 n <= 9579, u32 n <= 9579, u64 n <= 9579,
- *            u128 n <= 9579, big any n
+ * Range:     u8 n <= 170, u16 n <= 10921, u32 n <= 10921, u64 n <= 10921,
+ *            u128 n <= 10921, big any n
+ * Validated: standard, pass, 84 terms through n = 9579 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

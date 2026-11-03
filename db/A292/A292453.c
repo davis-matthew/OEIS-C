@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base, easy
  * Formula:   not stated
- * Range:     u8 n <= 4, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
- *            big any n
- * Helpers:   digit_counts
+ * Range:     u8 n <= 4, u16 n <= 4807, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 64 terms through n = 9860 (2026-11-03)
+ * Helpers:   digit_counts, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,9 @@
 
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/digit_counts.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* array of terms */
 static size_t cache_size = 0;        /* number of cached terms */
@@ -35,7 +38,7 @@ append_to_cache(seq_t val)
 {
     if (cache_size == cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-        seq_t *new_arr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, cache, new_cap);
         if (!new_arr) { /* allocation failure: terminate caller */
             /* In the context of the problem a panic is acceptable; the
                build system will handle such failure without crashing. */

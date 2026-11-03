@@ -9,7 +9,8 @@
  *            primes
  * Range:     u8 n <= 36, u16 n <= 3026, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 79 terms through n = 9355 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 #define PRIME_LIMIT 2000000U
 
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
         build_primes(&primes, &prime_cnt, PRIME_LIMIT);
         if (!primes || prime_cnt < 2) return 0;
         cache_cap = 1024;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return 0;
         initialized = true;
     }
@@ -104,9 +106,9 @@ seq_t a(idx_t n)
         if (good) {
             if (cache_len == cache_cap) {
                 cache_cap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                 if (!tmp) {
-                    free(cache);
+                    mem_free(cache);
                     free(primes);
                     return 0;
                 }

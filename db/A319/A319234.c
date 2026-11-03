@@ -14,13 +14,15 @@
  *            Q(x,1,1,1)^n. * The sequence a(n) lists...
  * Range:     i8 n <= 22, i16 n <= 65, i32 n <= 65, i64 n <= 65, i128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *terms      = NULL; /* flattened coefficients */
 static size_t terms_len  = 0;
@@ -37,7 +39,7 @@ static void ensure_terms_capacity(size_t needed)
     if (needed <= terms_cap) return;
     size_t new_cap = terms_cap ? terms_cap * 2 : 8;
     if (new_cap < needed) new_cap = needed + 64;
-    seq_t *new_terms = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *new_terms = mem_resize(seq_t, terms, new_cap);
     if (!new_terms) abort();     /* out of memory */
     terms = new_terms;
     terms_cap = new_cap;
@@ -50,11 +52,11 @@ seq_t a(idx_t n)
     if (terms_len == 0) {
         /* start with polynomial p_0 = [1], T_0 = [0] */
         terms_cap = 8;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
         if (!terms) abort();
 
-        p_prev = (seq_t *)malloc(sizeof(seq_t));
-        T_prev = (seq_t *)malloc(sizeof(seq_t));
+        p_prev = mem_new(seq_t, 1);
+        T_prev = mem_new(seq_t, 1);
         if (!p_prev || !T_prev) abort();
 
         p_prev[0] = (seq_t)1;
@@ -70,8 +72,8 @@ seq_t a(idx_t n)
     /* --- generate polynomials until we have index n --------------------- */
     while (terms_len <= (size_t)n) {
         size_t next_len = cur_deg + 2;       /* degree+1 terms */
-        seq_t *p_next   = (seq_t *)malloc(next_len * sizeof(seq_t));
-        seq_t *T_next   = (seq_t *)malloc(next_len * sizeof(seq_t));
+        seq_t *p_next   = mem_new(seq_t, next_len);
+        seq_t *T_next   = mem_new(seq_t, next_len);
         if (!p_next || !T_next) abort();
 
         for (size_t k = 0; k < next_len; ++k) {
@@ -90,12 +92,12 @@ seq_t a(idx_t n)
 
         /* append new coefficients to the global array */
         ensure_terms_capacity(terms_len + next_len);
-        memcpy(terms + terms_len, p_next, next_len * sizeof(seq_t));
+        mem_copy(terms + terms_len, p_next, next_len * sizeof(seq_t));
         terms_len += next_len;
 
         /* free old arrays and advance */
-        free(p_prev);
-        free(T_prev);
+        mem_free(p_prev);
+        mem_free(T_prev);
         p_prev = p_next;
         T_prev = T_next;
         prev_len = next_len;

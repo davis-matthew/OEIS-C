@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   bitlen_seq_t
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -37,7 +38,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/bitlen_seq_t.h"
+#include "../utils/bit_length.h"
 
 seq_t a(idx_t n)
 {
@@ -46,7 +47,7 @@ seq_t a(idx_t n)
         return (seq_t)1;
 
     /* Number of bits in n */
-    unsigned len = bitlen_seq_t((seq_t)n);
+    unsigned len = bit_length((seq_t)n);
 
     /* Second most significant bit */
     bool second_bit = ((n >> (len - 2)) & 1UL) != 0;

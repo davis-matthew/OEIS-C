@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = the largest divisor k of 2n such that k-1 | 2n or k+1 |
  *            2n
- * Range:     u8 n <= 5245, u16 n <= 9479, u32 n <= 9479, u64 n <= 9479,
- *            u128 n <= 9479, big any n
+ * Range:     u8 n <= 5245, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 115 terms through n = 9479 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

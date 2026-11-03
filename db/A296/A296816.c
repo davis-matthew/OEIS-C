@@ -7,7 +7,8 @@
  * Formula:   a(n) = a(a(n-1)) + a(n-a(n-2)), a(1) = a(2) = a(3) = 1
  * Range:     u8 n <= 465, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 101 terms through n = 9377 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for previously computed values.
    cache[0] is unused. */
@@ -26,7 +28,7 @@ static void ensure_cache(idx_t n)
 {
     size_t needed = (size_t)n + 1;           /* indices 0 … n */
     if (cache_cap < needed) {
-        seq_t *tmp = (seq_t *)realloc(cache, needed * sizeof(*cache));
+        seq_t *tmp = mem_resize(seq_t, cache, needed);
         if (!tmp) /* allocation failed – leave cache unchanged */
             return;
         /* Zero‑initialize the new slots */

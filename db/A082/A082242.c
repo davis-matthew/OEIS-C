@@ -9,6 +9,7 @@
  *            numbers 4n+1, 4n+2, 4n+3, 4n+4
  * Range:     u8 none, u16 n <= 1, u32 n <= 24, u64 n <= 25, u128 n <= 25,
  *            big any n
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

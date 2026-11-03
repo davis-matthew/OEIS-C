@@ -13,13 +13,20 @@
  *            (Catalan(n) - a(n))/2, a(1) = 1
  * Range:     u8 n <= 8, u16 n <= 12, u32 n <= 21, u64 n <= 37, u128 n <= 70,
  *            big any n
- * Helpers:   a000957_fixed
+ * Validated: standard, pass, 47 terms through n = 1662 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/a000957_fixed.h"
+#include "../utils/mem.h"
+
+static int a000957_fixed(void) {
+    seq_t z = 0;
+    z = z - 1;
+    return z > 0;
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;
@@ -34,7 +41,7 @@ seq_t a(idx_t n) {
     }
     {
         idx_t m = n - 1, i, k;
-        seq_t *r = (seq_t *)malloc((size_t)(m + 1) * sizeof(seq_t));
+        seq_t *r = mem_new(seq_t, (size_t)(m + 1));
         seq_t pos = 0, neg = 0;
         r[0] = 1;
         for (i = 1; i <= m; i++) {
@@ -45,7 +52,7 @@ seq_t a(idx_t n) {
             if (((m - k) & 1) == 0) pos += r[k];
             else neg += r[k];
         }
-        free(r);
+        mem_free(r);
         return pos - neg;
     }
 }

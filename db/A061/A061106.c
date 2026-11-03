@@ -9,7 +9,8 @@
  * Formula:   a(n) = Min{phi(c) : prime(n) < c < prime(n+1)}
  * Range:     u8 n <= 53, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   build_primes_upto, is_prime_small, phi, prime_limit_for_idx
+ * Validated: standard, pass, 86 terms through n = 969 (2026-11-01)
+ * Helpers:   build_primes_upto, is_prime_seq, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,10 +26,23 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "../utils/prime_limit_for_idx.h"
+#include <math.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/phi.h"
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/totient.h"
+
+/* utility – estimate an upper bound for the n-th prime (Rosser–Schoenfeld) */
+static idx_t prime_limit_for_idx(idx_t n)
+{
+    if (n < 6)
+        return 12;                               /* prime(6)=13 */
+    double dn   = (double)n;
+    double lgn  = log(dn);
+    double lgln = log(lgn);
+    /* p_n < n(ln n + ln ln n) for n ≥ 6, add a safety margin */
+    double limit = dn * (lgn + lgln) + 3.0;
+    return (idx_t)limit;
+}
 
 /* Cached list of primes (0‑indexed).  This cache is shared by all calls
    to a(), since building primes is expensive.  It is resized only
@@ -94,10 +108,10 @@ seq_t a(idx_t n)
 
     for (uint64_t c = p_n + 1; c < p_next; ++c) {
         /* Skip primes: we only consider composites. */
-        if (is_prime_small(c))
+        if (is_prime_seq(c))
             continue;
 
-        seq_t phi_val = phi((idx_t)c);
+        seq_t phi_val = totient((idx_t)c);
         if (min_phi == 0 || phi_val < min_phi)
             min_phi = phi_val;
     }

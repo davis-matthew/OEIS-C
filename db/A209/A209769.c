@@ -11,12 +11,14 @@
  *            a(1)=1, a(2)=1, a(3)=2, …
  * Range:     u8 n <= 24, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static arrays storing each row of the polynomials */
 static seq_t **u_rows = NULL;     /* u_rows[r-1] points to array of r coeffs	*/
@@ -46,8 +48,8 @@ static void ensure_rows(size_t R)
         size_t prev_len = r - 1;             /* length of previous row */
 
         /* allocate storage for the current row and clear it */
-        seq_t *u_curr = (seq_t*)malloc(r * sizeof(seq_t));
-        seq_t *v_curr = (seq_t*)malloc(r * sizeof(seq_t));
+        seq_t *u_curr = mem_new(seq_t, r);
+        seq_t *v_curr = mem_new(seq_t, r);
         for (size_t j = 0; j < r; ++j) { u_curr[j] = 0; v_curr[j] = 0; }
 
         if (r == 1) {                       /* base row */

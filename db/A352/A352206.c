@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 12, u32 n <= 17, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,8 @@
 */
 
 #include <stdlib.h>
-#include "../utils/seq_pow.h"
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)1;
@@ -40,7 +42,7 @@ seq_t a(idx_t n) {
     }
 
     /* 2^n */
-    seq_t two_n = seq_pow((seq_t)2, n);
+    seq_t two_n = ipow_idx((seq_t)2, n);
 
     /* Result */
     return two_n * mult;

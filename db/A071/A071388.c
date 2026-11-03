@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 56, u16 n <= 8830, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 9478 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of the public function. */
 seq_t a(idx_t n);
@@ -76,7 +78,7 @@ static void init_sequence(void)
     /* Collect the k whose frequency is a prime.  Grow the list
        dynamically as required. */
     size_t cap = 100000;                     /* initial capacity */
-    a_terms = (seq_t *)malloc(cap * sizeof(seq_t));
+    a_terms = mem_new(seq_t, cap);
     a_terms_len = 0;
     for (uint32_t k = 1; k <= N; ++k)
     {
@@ -85,7 +87,7 @@ static void init_sequence(void)
             if (a_terms_len == cap)             /* grow if needed */
             {
                 cap <<= 1;
-                a_terms = (seq_t *)realloc(a_terms, cap * sizeof(seq_t));
+                a_terms = mem_resize(seq_t, a_terms, cap);
             }
             a_terms[a_terms_len++] = (seq_t)k;
         }

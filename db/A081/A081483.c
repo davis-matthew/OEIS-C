@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 6, u64 n <= 7, u128 n <= 8,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 9 terms through n = 9 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Assume seq_t and idx_t are defined by the build environment. */
 
@@ -51,8 +53,8 @@ static void ensure_capacity(size_t need)
     if (need <= memo_cap) return;
     size_t new_cap = memo_cap ? memo_cap * 2 : 16;
     if (new_cap < need) new_cap = need;
-    seq_t *new_nums = (seq_t *)realloc(numerators, new_cap * sizeof(seq_t));
-    seq_t *new_dens = (seq_t *)realloc(denominators, new_cap * sizeof(seq_t));
+    seq_t *new_nums = mem_resize(seq_t, numerators, new_cap);
+    seq_t *new_dens = mem_resize(seq_t, denominators, new_cap);
     if (!new_nums || !new_dens) exit(1);
     numerators = new_nums;
     denominators = new_dens;

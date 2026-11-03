@@ -10,7 +10,8 @@
  *            S(r, r–c+1) with S(r,m) the Stirling numbers of the second kind
  * Range:     u8 n <= 15, u16 n <= 29, u32 n <= 68, u64 n <= 176,
  *            u128 n <= 500, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 7735 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* ----------  temporary array for Stirling numbers  ---------- */
 static seq_t *S = NULL;     /* S[0..m]  (allocated on demand) */
@@ -30,7 +32,7 @@ static void ensure_S_cap(idx_t cap)
     idx_t new_cap = (S_cap == 0) ? cap : S_cap * 2;
     if (new_cap < cap)
         new_cap = cap;
-    seq_t *tmp = (seq_t *)realloc(S, (new_cap + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, S, (new_cap + 1));
     S = tmp;
     S_cap = new_cap;
 }

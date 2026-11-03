@@ -9,7 +9,8 @@
  *            is the number of partitions of m into exactly k parts
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 44, u64 n <= 162, u128 n <= 259,
  *            big any n
- * Helpers:   seq_alloc_array, seq_free_array
+ * Validated: standard, pass, 49 terms through n = 241 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,18 @@
 #include <stdint.h>
 
 /* utilities for dynamic allocation of seq_t arrays */
-#include "../utils/seq_alloc_array.h"
-#include "../utils/seq_free_array.h"
+#include <string.h>
+#include <stddef.h>
+#include <math.h>
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 static seq_t *parts = NULL;          /* parts[n*28 + k] = p_k(n) (k=0..27) */
 static idx_t  max_computed = 0;     /* largest n for which all rows are known */

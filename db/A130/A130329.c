@@ -9,13 +9,15 @@
  *            row‑wise (a(0)=1, a(1)=5, a(2)=2, …)
  * Range:     u8 n <= 9, u16 n <= 35, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow2.h"   /* pow2(idx_t exp) -> seq_t   */
+#include <stdbool.h>
+#include "../utils/pow2.h"
 
 /* integer square‑root of a non‑negative 64‑bit integer.
    Returns floor(sqrt(x)).  No floating‑point operations are used. */

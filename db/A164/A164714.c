@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 88, u64 n <= 100, u128 n <= 100,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* compare function for qsort */
 static int cmp_seq(const void *a, const void *b)
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
 
         /* initial capacity – far more than needed for 10 000 terms */
         cache_cap = 1 << 15; /* 32768 */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         size_t count = 0;
 
         for (size_t k = 1; k <= K_MAX; ++k) {
@@ -85,7 +87,7 @@ seq_t a(idx_t n)
 
                     if (count == cache_cap) {
                         cache_cap <<= 1;
-                        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                        cache = mem_resize(seq_t, cache, cache_cap);
                     }
                     cache[count++] = val;
                 }
@@ -107,7 +109,7 @@ seq_t a(idx_t n)
 
                     if (count == cache_cap) {
                         cache_cap <<= 1;
-                        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                        cache = mem_resize(seq_t, cache, cache_cap);
                     }
                     cache[count++] = val;
                 }
@@ -115,7 +117,7 @@ seq_t a(idx_t n)
         }
 
         /* sort and deduplicate */
-        qsort(cache, count, sizeof(seq_t), cmp_seq);
+        mem_qsort(cache, count, sizeof(seq_t), cmp_seq);
 
         size_t uniq = 0;
         for (size_t i = 0; i < count; ++i) {

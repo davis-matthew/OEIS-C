@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 19, u32 n <= 38, u64 n <= 78, u128 n <= 157,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 496 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,20 +37,20 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* store indices 0 … 4 inclusive */
         cache_size = 5;
-        cache = (seq_t *)malloc(sizeof(seq_t) * cache_size);
+        cache = mem_new(seq_t, cache_size);
         if (!cache) return (seq_t)0;   /* OOM fallback */
 
         /* a(0) = 1 (empty string) */
         cache[0] = (seq_t)1;
 
         /* initial DP: only the empty string */
-        memset(dp_cur, 0, sizeof(dp_cur));
+        mem_set(dp_cur, 0, sizeof(dp_cur));
         dp_cur[0] = (seq_t)1;
         cur_len = 0;
 
         /* precompute terms up to index 4 */
         for (idx_t l = 0; l < 4; ++l) {
-            memset(dp_next, 0, sizeof(dp_next));
+            mem_set(dp_next, 0, sizeof(dp_next));
             for (int s = 0; s < 8; ++s) {
                 seq_t val = dp_cur[s];
                 if (!val) continue;
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
                     dp_next[new_s] += val;
                 }
             }
-            memcpy(dp_cur, dp_next, sizeof(dp_cur));
+            mem_copy(dp_cur, dp_next, sizeof(dp_cur));
             ++cur_len;                           /* now strings of length l+1 */
             seq_t total = 0;
             for (int s = 0; s < 8; ++s) total += dp_cur[s];
@@ -78,13 +80,13 @@ seq_t a(idx_t n)
         return cache[n];
 
     /* ----------- extend cache and DP up to requested n ----------- */
-    seq_t *new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * (n + 1));
+    seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
     if (!new_cache) return (seq_t)0;   /* OOM fallback */
     cache = new_cache;
     cache_size = n + 1;
 
     for (idx_t l = cur_len; l < n; ++l) {
-        memset(dp_next, 0, sizeof(dp_next));
+        mem_set(dp_next, 0, sizeof(dp_next));
         for (int s = 0; s < 8; ++s) {
             seq_t val = dp_cur[s];
             if (!val) continue;
@@ -99,7 +101,7 @@ seq_t a(idx_t n)
                 dp_next[new_s] += val;
             }
         }
-        memcpy(dp_cur, dp_next, sizeof(dp_cur));
+        mem_copy(dp_cur, dp_next, sizeof(dp_cur));
         ++cur_len;
         seq_t total = 0;
         for (int s = 0; s < 8; ++s) total += dp_cur[s];

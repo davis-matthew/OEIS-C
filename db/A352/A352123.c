@@ -8,23 +8,25 @@
  *            * Stirling2(n,k)
  * Range:     i8 n <= 3, i16 n <= 5, i32 n <= 8, i64 n <= 13, i128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate arrays for Stirling numbers S(k) and products P(k) */
-    seq_t *S = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
-    seq_t *P = (seq_t *)calloc((size_t)n + 1, sizeof(seq_t));
+    seq_t *S = mem_new(seq_t, (size_t)n + 1);
+    seq_t *P = mem_new(seq_t, (size_t)n + 1);
     if (!S || !P) {
         /* In the unlikely event of allocation failure, return 0. */
-        free(S);
-        free(P);
+        mem_free(S);
+        mem_free(P);
         return (seq_t)0;
     }
 
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
         pow_factor = pow_factor * (seq_t)-4;    /* next power for k-1 */
     }
 
-    free(S);
-    free(P);
+    mem_free(S);
+    mem_free(P);
     return sum;
 }

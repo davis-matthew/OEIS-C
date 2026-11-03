@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 35, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* global storage for the triangular rows and the flattened sequence */
 static seq_t **row_ptr  = NULL;   /* pointers to each row */
@@ -60,7 +62,7 @@ static void ensure_a(size_t n)
     size_t new_cap = a_alloc ? a_alloc * 2 : 1;
     while (new_cap < n)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t*)realloc(a_vals, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_vals, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     a_vals = tmp;
     a_alloc = new_cap;
@@ -75,7 +77,7 @@ static void compute_up_to(idx_t n)
     /* Initialize first row if not yet present */
     if (rows_used == 0) {
         ensure_rows(1);
-        row_ptr[0] = (seq_t*)calloc(1, sizeof(seq_t));
+        row_ptr[0] = mem_new(seq_t, 1);
         if (!row_ptr[0]) exit(EXIT_FAILURE);
         row_len[0] = 1;
         row_ptr[0][0] = (seq_t)1;
@@ -91,7 +93,7 @@ static void compute_up_to(idx_t n)
         size_t r = rows_used;               /* new row index, 0‑based */
         ensure_rows(rows_used + 1);
         size_t len = r + 1;
-        row_ptr[r] = (seq_t*)calloc(len, sizeof(seq_t));
+        row_ptr[r] = mem_new(seq_t, len);
         if (!row_ptr[r]) exit(EXIT_FAILURE);
         row_len[r] = len;
 

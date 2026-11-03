@@ -7,6 +7,7 @@
  * Formula:   a(n) = 2*n - (1 + (-1)^n)/2 (n ≥ 1), a(0) = 1
  * Range:     u8 n <= 128, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 78 terms through n = 4980 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

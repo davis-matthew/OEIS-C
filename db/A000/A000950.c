@@ -11,20 +11,22 @@
  *            exp(T3)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 95 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *a000950_cache = NULL;
 static idx_t a000950_cap = 0;
 
 static void a000950_build(idx_t N) {
-    seq_t *t = (seq_t *)malloc((size_t)(N + 1) * sizeof(seq_t));
-    seq_t *f = (seq_t *)malloc((size_t)(N + 1) * sizeof(seq_t));
-    seq_t *bin = (seq_t *)malloc((size_t)(N + 2) * sizeof(seq_t));
+    seq_t *t = mem_new(seq_t, (size_t)(N + 1));
+    seq_t *f = mem_new(seq_t, (size_t)(N + 1));
+    seq_t *bin = mem_new(seq_t, (size_t)(N + 2));
     idx_t m, k, j;
     int level;
 
@@ -53,9 +55,9 @@ static void a000950_build(idx_t N) {
         }
     }
 
-    free(t);
-    free(bin);
-    if (a000950_cache) free(a000950_cache);
+    mem_free(t);
+    mem_free(bin);
+    if (a000950_cache) mem_free(a000950_cache);
     a000950_cache = f;
     a000950_cap = N;
 }

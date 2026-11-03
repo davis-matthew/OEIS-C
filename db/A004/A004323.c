@@ -7,6 +7,7 @@
  * Formula:   a(n) = C(3n, n-5) = Product_{i=1..n-5} (2n+5+i)/i
  * Range:     u8 n <= 7, u16 n <= 9, u32 n <= 15, u64 n <= 26, u128 n <= 49,
  *            big any n
+ * Validated: standard, pass, 35 terms through n = 970 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

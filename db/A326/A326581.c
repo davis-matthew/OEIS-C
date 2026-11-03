@@ -7,14 +7,16 @@
  * Formula:   a(n) = the nth odd integer that is prime or a perfect square
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static cache of computed sequence values */
@@ -35,7 +37,7 @@ seq_t a(idx_t n) {
         /* Ensure enough capacity */
         if (cache_len >= cache_cap) {
             size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) return 0;          /* allocation failure, return 0 */
             cache = tmp;
             cache_cap = new_cap;
@@ -49,7 +51,7 @@ seq_t a(idx_t n) {
         while (true) {
             bool is_square = (cand == next_square_val);
             bool is_prime = false;
-            if (cand > 2) is_prime = is_prime_small(cand);
+            if (cand > 2) is_prime = is_prime_seq(cand);
             if (is_square || is_prime) break;        /* found next term */
 
             cand += 2;                               /* skip to next odd */

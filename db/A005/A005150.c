@@ -8,6 +8,7 @@
  * Formula:   Look-and-say sequence, a(n+1) = A045918(a(n)), a(1) = 1
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 8, u64 n <= 10, u128 n <= 12,
  *            big any n
+ * Validated: standard, pass, 25 terms through n = 25 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

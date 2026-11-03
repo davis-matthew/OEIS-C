@@ -10,14 +10,31 @@
  *            a(37^e) = a(37)^e, a(1) = 1, a(p^0) = 1
  * Range:     i8 n <= 941, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   ap_of
+ * Validated: standard, pass, 111 terms through n = 8893 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/ap_of.h"
+
+static long long ap_of(uint64_t p) {
+    /* cnt[r] = number of y in [0,p) with y^2 + y == r (mod p) */
+    long long *cnt = (long long *)calloc((size_t)p, sizeof(long long));
+    for (uint64_t y = 0; y < p; y++) {
+        uint64_t r = (y * y + y) % p;
+        cnt[r]++;
+    }
+    long long affine = 0;
+    for (uint64_t x = 0; x < p; x++) {
+        uint64_t x3 = (x * x % p) * x % p;
+        uint64_t rhs = (x3 + p - x) % p;
+        affine += cnt[rhs];
+    }
+    free(cnt);
+    return (long long)p - affine;
+}
 
 seq_t a(idx_t n) {
     seq_t result = 1;

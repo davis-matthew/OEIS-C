@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 17, u32 n <= 36, u64 n <= 75, u128 n <= 152,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 164 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
    a(12)=3280,a(13)=5816,a(14)=10425   */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* cached computed terms; indices 0..n‑1 contain a(1)..a(n) */
 static seq_t *cache = NULL;
@@ -54,7 +56,7 @@ static void ensure_cache(idx_t n)
     while ((idx_t)new_cap < n)
         new_cap *= 2;
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         abort();                 /* allocation failure */
 

@@ -10,14 +10,46 @@
  *            where p = x^2 + y^2 and y is even
  * Range:     i8 n <= 20, i16 n <= 2145, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   a729_bp, a729_pe
+ * Validated: standard, pass, 85 terms through n = 9532 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a729_bp.h"
-#include "../utils/a729_pe.h"
+
+static long long a729_bp(long long p) {
+    long long i;
+    for (i = 1; 2 * i * i <= p; i++) {
+        long long r = p - i * i;
+        long long j = 0;
+        while ((j + 1) * (j + 1) <= r) j++;
+        if (j * j == r) {
+            long long x, y;
+            if (j % 2 == 0) { x = i; y = j; } else { x = j; y = i; }
+            return 2 * (x * x - y * y);
+        }
+    }
+    return 0;
+}
+
+static long long a729_pe(long long p, long long e) {
+    if (p % 4 == 3) {
+        long long r = 1, i;
+        if (e % 2 == 1) return 0;
+        for (i = 0; i < e; i++) r *= p;
+        return r;
+    } else {
+        long long bp = a729_bp(p);
+        long long prev = 1, cur = bp, i;
+        for (i = 2; i <= e; i++) {
+            long long nx = bp * cur - p * p * prev;
+            prev = cur;
+            cur = nx;
+        }
+        return cur;
+    }
+}
 
 seq_t a(idx_t n) {
     long long m = 4 * (long long)n + 1;

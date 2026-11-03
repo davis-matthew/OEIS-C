@@ -12,14 +12,22 @@
  *            exactly via prime factorization of the factorial products
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 10, u64 n <= 14, u128 n <= 19,
  *            big any n
- * Helpers:   add_factors
+ * Validated: standard, pass, 36 terms through n = 78 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/add_factors.h"
+
+static void add_factors(long long *pe, const int *spf, long long x, long long mult) {
+    while (x > 1) {
+        int p = spf[x];
+        pe[p] += mult;
+        x /= p;
+    }
+}
 
 seq_t a(idx_t n) {
     long long f = (long long)(n / 2);

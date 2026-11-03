@@ -8,14 +8,25 @@
  *            has an even number of 1‑bits in binary)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _is_evil_exponent, factor_u64
+ * Validated: standard, pass, 116 terms through n = 9005 (2026-11-01)
+ * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>                 /* for size_t */
-#include "../utils/factor_u64.h"    /* external function: factor_u64 */
-#include "../utils/_is_evil_exponent.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+
+static inline seq_t _is_evil_exponent(uint64_t e)
+{
+    /* An exponent is evil if its binary representation has an even
+       number of 1‑bits.  __builtin_popcountll is available in GCC/Clang
+       and is evaluated at compile time if e is a constant. */
+    return ((__builtin_popcountll(e) & 1ULL) ? (seq_t)0 : (seq_t)1);
+}
 
 seq_t a(idx_t n)
 {

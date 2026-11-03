@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 33, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   count_symmetric_sets
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,7 +35,37 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/count_symmetric_sets.h"
+#include "../utils/mem.h"
+
+/* Count of symmetric offset sets for given d and L (L = n-d) */
+static seq_t count_symmetric_sets(idx_t d, idx_t L, seq_t *dp, seq_t *pref)
+{
+    idx_t t = d / 2;               /* floor(d/2) */
+    dp[0] = (seq_t)1;
+    pref[0] = (seq_t)1;
+
+    for (idx_t j = 1; j <= t; ++j) {
+        seq_t sum = pref[j - 1];
+        if (j > L) {               /* subtract sum of excluded prefix */
+            idx_t sub = j - L - 1;
+            sum -= pref[sub];
+        }
+        dp[j] = sum;
+        pref[j] = pref[j - 1] + sum;
+    }
+
+    seq_t total = (seq_t)0;
+    seq_t d_val = (seq_t)d;
+    seq_t L_val = (seq_t)L;
+    for (idx_t j = 0; j <= t; ++j) {
+        /* condition: d - 2*j <= L   <=>   d <= L + 2*j */
+        seq_t two_j = (seq_t)2 * (seq_t)j;
+        if (d_val <= L_val + two_j) {
+            total += dp[j];
+        }
+    }
+    return total;
+}
 
 seq_t a(idx_t n)
 {
@@ -44,8 +75,8 @@ seq_t a(idx_t n)
 
     /* Allocate DP arrays once (max size n/2 + 2) */
     idx_t max_t = n / 2 + 1;
-    seq_t *dp   = (seq_t*)malloc(max_t * sizeof(seq_t));
-    seq_t *pref = (seq_t*)malloc(max_t * sizeof(seq_t));
+    seq_t *dp   = mem_new(seq_t, max_t);
+    seq_t *pref = mem_new(seq_t, max_t);
     if (!dp || !pref) {
         return (seq_t)0; /* allocation failure */
     }
@@ -57,7 +88,7 @@ seq_t a(idx_t n)
         total += count_symmetric_sets(d, L, dp, pref);
     }
 
-    free(dp);
-    free(pref);
+    mem_free(dp);
+    mem_free(pref);
     return total;
 }

@@ -12,7 +12,8 @@
  *            a(1)*b(n-1) = b(n) + 2*b(n-1)
  * Range:     u8 n <= 120, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 968 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ----- Bitset of used numbers (a and b) ----- */
 static uint8_t *used_bits = NULL;   /* bitmap of used values   */
@@ -78,7 +80,7 @@ static void ensure_a_capacity(idx_t n)
     size_t new_cap = a_capacity > 0 ? a_capacity : 4;
     while (new_cap <= (size_t)n)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
     if (!tmp)
         abort();
     a_cache = tmp;
@@ -93,7 +95,7 @@ static void ensure_b_capacity(idx_t n)
     size_t new_cap = b_capacity > 0 ? b_capacity : 4;
     while (new_cap <= (size_t)n)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(b_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, b_cache, new_cap);
     if (!tmp)
         abort();
     b_cache = tmp;
@@ -108,8 +110,8 @@ static void init_sequence(void)
     /* Allocate space for the initial terms */
     a_capacity = 4;   /* indices 0..3 will fit */
     b_capacity = 4;   /* indices 0..3 will fit */
-    a_cache = (seq_t *)malloc(a_capacity * sizeof(seq_t));
-    b_cache = (seq_t *)malloc(b_capacity * sizeof(seq_t));
+    a_cache = mem_new(seq_t, a_capacity);
+    b_cache = mem_new(seq_t, b_capacity);
     if (!a_cache || !b_cache)
         abort();
 

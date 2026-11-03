@@ -10,13 +10,15 @@
  *            of the flattened triangle
  * Range:     u8 n <= 12, u16 n <= 31, u32 n <= 112, u64 n <= 420,
  *            u128 n <= 1275, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 1204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Global storage for computed rows of the triangle.
    triangle_rows[i] points to an array of seq_t of length i+1 (indices 1..i). */
@@ -43,7 +45,7 @@ static void ensure_rows(size_t max_row)
 
     /* Allocate memory for any new rows that did not exist before. */
     for (size_t i = triangle_max_row + 1; i <= max_row; ++i) {
-        triangle_rows[i] = (seq_t*)malloc((i + 1) * sizeof(seq_t));
+        triangle_rows[i] = mem_new(seq_t, (i + 1));
     }
 
     /* Base rows 1, 2, 3.  We set them only if they haven’t been set already. */

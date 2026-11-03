@@ -9,15 +9,17 @@
  *            row(row+1)/2 + col. For k=0: T(r,0)=∑_{i=0}^{r}
  *            (-1)^(r-i)*C(i,floor(i/2)). For k>0: T(r,k)=C(r,floor((r-k)/2)).
  *            The sequence a(n) is read by rows of this triangle
- * Range:     u8 n <= 35, u16 n <= 189, u32 n <= 566, u64 n <= 2345,
- *            u128 n <= 8777, big any n
- * Helpers:   binom
+ * Range:     u8 n <= 65, u16 n <= 190, u32 n <= 630, u64 n <= 2345,
+ *            u128 n <= 8778, big any n
+ * Validated: standard, pass, 94 terms through n = 9977 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include <sys/types.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
         unsigned __int128 neg = 0;
         for (idx_t i = 0; i <= r; ++i) {
             idx_t k   = i / 2;
-            seq_t ti  = binom(i, k);
+            seq_t ti  = binomial(i, k);
             unsigned __int128 term = (unsigned __int128)ti;
             if (((r - i) & 1) == 0)
                 pos += term;
@@ -50,6 +52,6 @@ seq_t a(idx_t n)
     } else {
         /* For k>0, T(r,k)=C(r, floor((r-k)/2)). */
         idx_t k = (r - col) / 2;
-        return binom(r, k);
+        return binomial(r, k);
     }
 }

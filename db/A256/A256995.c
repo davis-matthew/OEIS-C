@@ -12,7 +12,8 @@
  *            antidiagonals starting with A(1,1) as a(2)
  * Range:     u8 n <= 38, u16 n <= 138, u32 n <= 530, u64 n <= 2082,
  *            u128 n <= 8258, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 9955 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* popcount for any unsigned seq_t (works for 8/16/32/64/128 and arbitrary‑precision) */
 static unsigned popcount_generic(seq_t x)
@@ -53,7 +55,7 @@ static void ensure_seed_cache(size_t need_rows)
 {
     if (!seed_cache) {                       /* first time initialisation   */
         seed_cache_cap = 16;
-        seed_cache = (seq_t *)malloc(seed_cache_cap * sizeof(seq_t));
+        seed_cache = mem_new(seq_t, seed_cache_cap);
         if (!seed_cache) return;             /* graceful failure (should not happen) */
         seed_cache_cnt = 0;
         next_m = 1;
@@ -76,7 +78,7 @@ static void ensure_seed_cache(size_t need_rows)
         /* candidate is a seed → store it */
         if (seed_cache_cnt == seed_cache_cap) {
             size_t new_cap = seed_cache_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(seed_cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seed_cache, new_cap);
             if (!tmp) return;               /* graceful failure              */
             seed_cache = tmp;
             seed_cache_cap = new_cap;

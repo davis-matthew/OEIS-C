@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 9008 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    Equivalent to the fixed point of the composite morphism
    g: 0 -> 010010 (length 6), 1 -> 1101011 (length 7). */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
 
     size_t idx = (size_t)(n - (idx_t)1);     /* 0‑based index */
     size_t len = 1;
-    seq_t *cur = (seq_t *)calloc(len, sizeof(seq_t));   /* initial word "0" */
+    seq_t *cur = mem_new(seq_t, len);   /* initial word "0" */
     if (!cur) return (seq_t)0;     /* allocation failure – unlikely */
     cur[0] = (seq_t)0;
 
@@ -38,9 +40,9 @@ seq_t a(idx_t n)
             newlen += (cur[i] == (seq_t)0) ? 6 : 7;
         }
 
-        seq_t *next = (seq_t *)calloc(newlen, sizeof(seq_t));
+        seq_t *next = mem_new(seq_t, newlen);
         if (!next) {
-            free(cur);
+            mem_free(cur);
             return (seq_t)0;     /* allocation failure */
         }
 
@@ -67,12 +69,12 @@ seq_t a(idx_t n)
             }
         }
 
-        free(cur);
+        mem_free(cur);
         cur = next;
         len = newlen;
     }
 
     seq_t result = cur[idx];
-    free(cur);
+    mem_free(cur);
     return result;
 }

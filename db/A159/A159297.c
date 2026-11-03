@@ -8,12 +8,14 @@
  * Formula:   a(n) = sum_{i,j,k>0, i*j*k <= n} C(n-1, i*j*k - 1)
  * Range:     u8 n <= 6, u16 n <= 14, u32 n <= 29, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     idx_t N1 = N - 1;
 
     /* Precompute binomial coefficients C(N-1, r) for r = 0 .. N-1 */
-    seq_t *binom = (seq_t *)malloc(N * sizeof(seq_t));
+    seq_t *binom = mem_new(seq_t, N);
     if (!binom)
         return 0;   /* Out of memory – caller should handle */
 
@@ -46,6 +48,6 @@ seq_t a(idx_t n)
         }
     }
 
-    free(binom);
+    mem_free(binom);
     return sum;
 }

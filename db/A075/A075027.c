@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 84, u16 n <= 3403, u32 n <= 3403, u64 n <= 3403,
  *            u128 n <= 3403, big any n
- * Helpers:   _floor_isqrt_u64, build_primes_upto
+ * Validated: standard, pass, 76 terms through n = 3020 (2026-11-03)
+ * Helpers:   build_primes_upto, isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,8 @@
 
 /* ---- Utility headers (provided by the build system) ---- */
 #include "../utils/build_primes_upto.h"
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 /* ---- Forward declaration of helper for divisor count ---- */
 static seq_t tau_of_n(idx_t n);
@@ -51,7 +53,7 @@ static void append_term(seq_t val)
 {
     if (terms_len == terms_cap) {
         terms_cap = (terms_cap == 0) ? 16 : terms_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, terms, terms_cap);
         assert(tmp);
         terms = tmp;
     }
@@ -64,7 +66,7 @@ static void ensure_tau_cap(idx_t i)
     if ((size_t)i < tau_cap) return;
     size_t new_cap = tau_cap ? tau_cap * 2 : 64;
     while (new_cap <= (size_t)i) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(tau, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, tau, new_cap);
     assert(tmp);
     tau = tmp;
     tau_cap = new_cap;
@@ -85,7 +87,7 @@ static seq_t tau_of_n(idx_t n)
     if (n <= 1) return (seq_t)n;          /* τ(0)=0, τ(1)=1 */
     idx_t m = n;
     seq_t res = 1;
-    idx_t sqrt_m = _floor_isqrt_u64(m);
+    idx_t sqrt_m = isqrt(m);
     ensure_primes(sqrt_m);
     for (size_t i = 0; i < primes_cnt && primes[i] <= sqrt_m; ++i) {
         uint64_t p = primes[i];
@@ -96,7 +98,7 @@ static seq_t tau_of_n(idx_t n)
                 ++exp;
             }
             res *= (seq_t)(exp + 1);
-            sqrt_m = _floor_isqrt_u64(m);
+            sqrt_m = isqrt(m);
         }
     }
     if (m > 1) res *= 2;  /* remaining prime factor */
@@ -112,10 +114,10 @@ seq_t a(idx_t n)
     static bool initialized = false;
     if (!initialized) {
         terms_cap = 16;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
         assert(terms);
         tau_cap = 8;
-        tau = (seq_t *)malloc(tau_cap * sizeof(seq_t));
+        tau = mem_new(seq_t, tau_cap);
         assert(tau);
         tau[0] = 0;
         tau[1] = 1;

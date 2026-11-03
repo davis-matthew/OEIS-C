@@ -9,14 +9,28 @@
  *            k+4) * a(k)
  * Range:     u8 n <= 3, u16 n <= 10, u32 n <= 16, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   binom_start
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/binom_start.h"
+#include "../utils/mem.h"
+
+/* Compute C(m+2,4) as seq_t   */
+static seq_t binom_start(idx_t m)
+{
+    /* C(m+2,4) = (m+2)(m+1)m(m-1)/24   */
+    seq_t r = 1;
+    r = r * (seq_t)(m + 2);
+    r = r * (seq_t)(m + 1);
+    r = r * (seq_t)m;
+    r = r * (seq_t)(m - 1);
+    r = r / (seq_t)24;
+    return r;
+}
 
 /* Memoisation cache */
 static seq_t *cache = NULL;        /* array of computed values           */
@@ -31,7 +45,7 @@ static void ensure_capacity(idx_t n)
     idx_t new_cap = cache_cap == 0 ? 8 : cache_cap << 1;
     while (new_cap <= n)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();
     cache = tmp;
     cache_cap = new_cap;

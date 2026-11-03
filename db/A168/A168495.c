@@ -7,12 +7,15 @@
  * Formula:   a(n) = 3^floor(n^2/3)
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 7, u64 n <= 11, u128 n <= 15,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 31 terms through n = 77 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -21,5 +24,5 @@ seq_t a(idx_t n)
     seq_t exp = sq / ((idx_t)3);      /* floor division by 3 */
 
     /* Return 3^exp.  big_pow works for any seq_t type, including big integers. */
-    return big_pow((seq_t)3, exp);
+    return ipow((seq_t)3, exp);
 }

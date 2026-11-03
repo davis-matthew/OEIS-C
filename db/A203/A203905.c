@@ -11,14 +11,30 @@
  *            it is ceil(min(i,j)/2) when i is odd, or min(i,j)/2...
  * Range:     i8 n <= 99, i16 n <= 99, i32 n <= 99, i64 n <= 99, i128 n <= 99,
  *            big any n
- * Helpers:   _find_diagonal
+ * Validated: partial, pass, 99 terms through n = 99 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_find_diagonal.h"
+
+/* helper: binary search for smallest k such that k*(k-1)/2 >= n */
+static idx_t _find_diagonal(idx_t n) {
+    idx_t low = 1;
+    idx_t high = n * 2;  /* sufficient upper bound */
+    while (low < high) {
+        idx_t mid = low + ((high - low) >> 1);
+        /* compute mid*(mid-1)/2 without overflow using idx_t */
+        idx_t val = (mid * (mid - 1)) >> 1;
+        if (val >= n)
+            high = mid;
+        else
+            low = mid + 1;
+    }
+    return low;
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 0; /* offset is 1, but guard against invalid input */

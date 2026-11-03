@@ -9,15 +9,27 @@
  *            central binomial coefficient C(n, floor(n/2)))
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 33, u64 n <= 65, u128 n <= 130,
  *            big any n
- * Helpers:   build_primes, pow_int_seq, v_prime_factor
+ * Validated: standard, pass, 49 terms through n = 2791 (2026-11-01)
+ * Helpers:   build_primes, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
+#include <stddef.h>
 #include "../utils/build_primes.h"
-#include "../utils/pow_int_seq.h"   /* provides seq_t pow_int_seq(seq_t base, idx_t exp) */
-#include "../utils/v_prime_factor.h"
+#include "../utils/ipow_idx.h"
+
+/* Computes v_p(n!) */
+static inline idx_t v_prime_factor(idx_t n, idx_t p) {
+    idx_t exp = 0;
+    while (n > 0) {
+        n /= p;
+        exp += n;
+    }
+    return exp;
+}
 
 /* Cache of primes up to the maximum requested n */
 static idx_t *primes_cache = NULL;
@@ -53,7 +65,7 @@ seq_t a(idx_t n) {
         if (e == 0)
             continue;
         /* term = 1 + p^e */
-        seq_t term = pow_int_seq((seq_t)p, e);
+        seq_t term = ipow_idx((seq_t)p, e);
         term = term + (seq_t)1;
         res = res * term;
     }

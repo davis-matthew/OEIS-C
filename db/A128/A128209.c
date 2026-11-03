@@ -8,12 +8,14 @@
  *            a(2)=2, a(n)=2*a(n-1)+a(n-2)-2*a(n-3) for n>=3)
  * Range:     u8 n <= 9, u16 n <= 17, u32 n <= 33, u64 n <= 65, u128 n <= 1,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 852 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;        /* dynamically sized cache */
 static idx_t computed_upto = 0;    /* number of indices already computed */
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
     /* Ensure the cache is large enough for index n */
     if (n + 1 > computed_upto) {
         /* Reallocate cache to hold indices 0..n */
-        cache = (seq_t *)realloc(cache, sizeof(seq_t) * (size_t)(n + 1));
+        cache = mem_resize(seq_t, cache, (size_t)(n + 1));
         /* If realloc fails, cache may be NULL – we let the program crash
            as this situation indicates out‑of‑memory.  */
         computed_upto = n + 1;

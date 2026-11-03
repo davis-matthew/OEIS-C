@@ -9,24 +9,27 @@
  *            20*n^10 + 24*n^6)
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 1, u64 n <= 2, u128 n <= 4,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 25 terms through n = 972 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
     /* Convert index to primary integer type */
     seq_t sn   = (seq_t)n;
-    seq_t pow6  = big_pow(sn, (seq_t)6);
-    seq_t pow10 = big_pow(sn, (seq_t)10);
-    seq_t pow12 = big_pow(sn, (seq_t)12);
-    seq_t pow20 = big_pow(sn, (seq_t)20);
-    seq_t pow30 = big_pow(sn, (seq_t)30);
-    seq_t pow32 = big_pow(sn, (seq_t)32);
-    seq_t pow60 = big_pow(sn, (seq_t)60);
+    seq_t pow6  = ipow(sn, (seq_t)6);
+    seq_t pow10 = ipow(sn, (seq_t)10);
+    seq_t pow12 = ipow(sn, (seq_t)12);
+    seq_t pow20 = ipow(sn, (seq_t)20);
+    seq_t pow30 = ipow(sn, (seq_t)30);
+    seq_t pow32 = ipow(sn, (seq_t)32);
+    seq_t pow60 = ipow(sn, (seq_t)60);
 
     seq_t numerator =
         pow60

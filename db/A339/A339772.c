@@ -9,15 +9,17 @@
  *            c(k) * c(2n-k) where c is the prime characteristic
  * Range:     u8 n <= 93, u16 n <= 93, u32 n <= 93, u64 n <= 93, u128 n <= 93,
  *            big any n
- * Helpers:   digit_count, is_prime
+ * Validated: partial, pass, 93 terms through n = 93 (2026-11-01)
+ * Helpers:   is_prime, num_digits0
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>                 /* for uint64_t in digit_count argument */
+#include <math.h>
 #include "../utils/is_prime.h"
-#include "../utils/digit_count.h"
+#include "../utils/num_digits0.h"
 
 /* Number of Goldbach partitions of 2n whose parts have the same number
    of decimal digits.   a(1) = 0, a(2) = 1, ... */
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
             continue;
 
         /* same number of decimal digits */
-        if (digit_count((uint64_t)k) == digit_count((uint64_t)m))
+        if (num_digits0((uint64_t)k) == num_digits0((uint64_t)m))
             count += 1;
     }
     return count;

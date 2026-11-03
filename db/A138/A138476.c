@@ -8,13 +8,22 @@
  *            x*(2*y-x))
  * Range:     i8 n <= 34, i16 n <= 77, i32 n <= 77, i64 n <= 77, i128 n <= 77,
  *            big any n
- * Helpers:   pow2_seq
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow2_seq.h"
+
+/* Compute 2^exp using repeated doubling.  */
+static seq_t pow2_seq(idx_t exp)
+{
+    seq_t r = 1;
+    for (idx_t i = 0; i < exp; ++i)
+        r *= 2;
+    return r;
+}
 
 /* helper: binomial coefficient C(N,K) in seq_t */
 static seq_t binom_seq(idx_t N, idx_t K)

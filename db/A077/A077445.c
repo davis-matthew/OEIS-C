@@ -8,12 +8,14 @@
  *            recurrence, solution 4*(3+2√2)^(n-1)+4*(3-2√2)^(n-1)/2)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 25, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 800 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;    /* cache of a(1) .. a(k) */
 static size_t cache_allocated = 0;
@@ -24,7 +26,7 @@ static void ensure_capacity(idx_t needed) {
     if (needed <= cache_allocated) return;
     size_t new_allocated = cache_allocated ? cache_allocated * 2 : 2;
     if (new_allocated < needed) new_allocated = needed;
-    seq_t *new_cache = (seq_t*)realloc(cache, new_allocated * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_allocated);
     if (!new_cache) abort();
     cache = new_cache;
     cache_allocated = new_allocated;

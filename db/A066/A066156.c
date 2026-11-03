@@ -11,6 +11,7 @@
  *            7) the value is known to be 0
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 94, u64 n <= 94, u128 n <= 94,
  *            big any n
+ * Validated: partial, pass, 95 terms through n = 94 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

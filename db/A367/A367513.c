@@ -9,15 +9,18 @@
  *            number of 1‑bits in the binary expansion of e is even
  * Range:     u8 n <= 342, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, pow_seq
+ * Validated: standard, pass, 102 terms through n = 9154 (2026-11-01)
+ * Helpers:   factor_u64, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +37,7 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < cnt; ++i) {
         unsigned int pc = __builtin_popcountll(exps[i]); /* popcount of the exponent */
         if ((pc & 1) == 0) {                            /* even number of 1 bits     */
-            seq_t term = pow_seq((seq_t)primes[i], (int)exps[i]);
+            seq_t term = ipow_i32((seq_t)primes[i], (int)exps[i]);
             result = result * term;                      /* multiplication works for
                                                              all seq_t types        */
         }

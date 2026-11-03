@@ -7,8 +7,9 @@
  * Formula:   a(n) = A000005(n) * A003557(n). For a prime power p^e, a(p^e) =
  *            (e+1) * p^(e-1). The sequence is multiplicative, so for n =
  *            ∏p_i^e_i a(n) = ∏ (e_i + 1) * p_i^(e_i - 1)
- * Range:     u8 n <= 127, u16 n <= 9986, u32 n <= 9986, u64 n <= 9986,
- *            u128 n <= 9986, big any n
+ * Range:     u8 n <= 127, u16 n <= 10367, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9986 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,13 +9,15 @@
  *            a(n)=6*a(n-3)-a(n-6) for n>6
  * Range:     u8 n <= 2, u16 n <= 12, u32 n <= 29, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* 1‑based index, cache[0] unused */
 static size_t cache_cap = 0;     /* number of elements currently allocated (>=1) */
@@ -35,7 +37,7 @@ static void ensure_cache(size_t len)
         new_cap <<= 1;            /* double until big enough */
 
     /* realloc automatically frees the old buffer */
-    seq_t *tmp = (seq_t *)realloc(cache, (new_cap + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, (new_cap + 1));
     if (!tmp)
         abort();                 /* out of memory */
 

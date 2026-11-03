@@ -8,12 +8,14 @@
  *            A002417(d) ) * a(n-k), where A002417(k) = k * binomial(k+2,3)
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build environment. */
 static seq_t *A = NULL;      /* a[0..]          */
@@ -56,8 +58,8 @@ seq_t a(idx_t n)
     if (cap == 0)
     {
         cap = 1;
-        A = (seq_t *)malloc(sizeof(seq_t));
-        V = (seq_t *)malloc(sizeof(seq_t));
+        A = mem_new(seq_t, 1);
+        V = mem_new(seq_t, 1);
         if (!A || !V) exit(EXIT_FAILURE);
         A[0] = (seq_t)1;
         V[0] = (seq_t)0;
@@ -70,8 +72,8 @@ seq_t a(idx_t n)
     size_t new_cap = (size_t)n + 1;
     if (new_cap > cap)
     {
-        A = (seq_t *)realloc(A, new_cap * sizeof(seq_t));
-        V = (seq_t *)realloc(V, new_cap * sizeof(seq_t));
+        A = mem_resize(seq_t, A, new_cap);
+        V = mem_resize(seq_t, V, new_cap);
         if (!A || !V) exit(EXIT_FAILURE);
         for (size_t i = cap; i < new_cap; ++i)
             A[i] = (seq_t)0;     /* A will be computed below */

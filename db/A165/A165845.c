@@ -8,18 +8,21 @@
  *            multiplicity)
  * Range:     u8 n <= 3, u16 n <= 15, u32 n <= 127, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bigomega, seq_pow
+ * Validated: standard, pass, 61 terms through n = 9254 (2026-11-01)
+ * Helpers:   bigomega, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
+#include <stdlib.h>
+#include <stdint.h>
 #include "../utils/bigomega.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n) {
     /* n ≥ 1 by offset.  bigomega returns the count of prime factors
        with multiplicity as a seq_t; cast to idx_t for seq_pow. */
     idx_t exp = (idx_t)bigomega(n);
-    return seq_pow((seq_t)24, exp);
+    return ipow_idx((seq_t)24, exp);
 }

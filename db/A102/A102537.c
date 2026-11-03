@@ -9,6 +9,7 @@
  *            n-th term is read by rows of the triangle
  * Range:     u8 n <= 13, u16 n <= 33, u32 n <= 99, u64 n <= 315,
  *            u128 n <= 1065, big any n
+ * Validated: standard, pass, 65 terms through n = 9655 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

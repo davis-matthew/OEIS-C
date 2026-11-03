@@ -7,7 +7,8 @@
  * Formula:   a(n) = 2^p - 1 where p is the n‑th prime ≡ 7 (mod 24)
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 2, u64 n <= 2, u128 n <= 5,
  *            big any n
- * Helpers:   is_prime, pow_uint
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-01)
+ * Helpers:   ipow_u64_idx, is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/ipow_u64_idx.h"
 #include "../utils/is_prime.h"
-#include "../utils/pow_uint.h"
 
 /* Return the nth term of OEIS A135983.
    n is 1‑based.  For n == 0 the function returns 0. */
@@ -44,7 +45,7 @@ seq_t a(idx_t n)
     }
 
     /* Compute 2^prime_of_form - 1.  pow_uint returns a seq_t. */
-    seq_t term = pow_uint(2, prime_of_form);
+    seq_t term = ipow_u64_idx(2, prime_of_form);
     term = term - (seq_t)1;        /* subtract 1 */
 
     return term;

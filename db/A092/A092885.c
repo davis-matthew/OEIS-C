@@ -8,7 +8,8 @@
  *            of 25
  * Range:     u8 n <= 16, u16 n <= 43, u32 n <= 128, u64 n <= 421,
  *            u128 n <= 1487, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 9880 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* via a classic unbounded knapsack DP counting partitions with forbidden part sizes. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
 
     if (n >= cap) {                    /* need to grow and recompute */
         idx_t new_cap = n + 1;          /* array size for indices 0..n */
-        seq_t *new_dp = (seq_t*)malloc(sizeof(seq_t) * new_cap);
+        seq_t *new_dp = mem_new(seq_t, new_cap);
         if (!new_dp) return (seq_t)0;   /* allocation failure, return 0 */
 
         /* initialise dp[0] = 1 and others to 0 */
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
         }
 
         /* replace old array */
-        if (dp) free(dp);
+        if (dp) mem_free(dp);
         dp = new_dp;
         cap = new_cap;
     }

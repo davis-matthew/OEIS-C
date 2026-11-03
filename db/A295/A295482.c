@@ -9,7 +9,8 @@
  *            binomial(24*n,6*n)*binomial(6*n,3*n)*binomial(4*n,2*n)/(binomial(12*n,3*n)*binomial(8*n,2*n))
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 2, u64 n <= 5, u128 n <= 9,
  *            big any n
- * Helpers:   build_primes_upto, pow_int
+ * Validated: partial, pass, 11 terms through n = 10 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,9 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 /* Legendre's formula: exponent of prime p in m! */
 static idx_t exp_factorial(idx_t m, uint64_t p)
@@ -75,7 +77,7 @@ seq_t a(idx_t n)
 
         if (e > 0)
         {
-            res *= pow_int((seq_t)p, e);
+            res *= ipow_idx((seq_t)p, e);
         }
         /* Exponents should never be negative for this sequence */
     }

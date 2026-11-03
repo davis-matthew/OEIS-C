@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 0, u16 n <= 3, u32 n <= 20, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   compute_g
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,7 +31,28 @@
  */
 
 #include <stdlib.h>
-#include "../utils/compute_g.h"
+#include "../utils/mem.h"
+
+/* Compute g(n, len[0..cnt-1]): number of non‑negative solutions to
+ * Σ len[i] * ai = n.  Classic coin‑change DP.  */
+static seq_t compute_g(idx_t n, const idx_t *len, idx_t cnt)
+{
+    /* Allocate array of seq_t of size n+1.  Use calloc to zero-initialize. */
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1));
+    if (!dp) return 0;   /* memory error – not expected for n ≤ 10000 */
+
+    dp[0] = 1;
+    for (idx_t i = 0; i < cnt; ++i) {
+        idx_t l = len[i];
+        if (l == 0) continue;
+        for (idx_t j = l; j <= n; ++j) {
+            dp[j] += dp[j - l];
+        }
+    }
+    seq_t res = dp[n];
+    mem_free(dp);
+    return res;
+}
 
 /* Structure describing a conjugacy class of S6 */
 typedef struct {

@@ -7,7 +7,8 @@
  * Formula:   a(n) = lcm(1, 2, ..., n)^(n-1) / (n! * (n-1)!)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 7, u64 n <= 10, u128 n <= 12,
  *            big any n
- * Helpers:   big_pow, build_primes
+ * Validated: partial, pass, 13 terms through n = 13 (2026-11-01)
+ * Helpers:   build_primes, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,10 @@
    where exp_p(m!) is the exponent of p in m! (Legendre’s formula). */
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/build_primes.h"
+#include "../utils/ipow.h"
 
 /* Return the exponent of prime p in k! */
 static idx_t fact_prime_exp(idx_t k, idx_t p)
@@ -74,7 +77,7 @@ seq_t a(idx_t n)
         if (total_exp == 0) continue;
 
         /* multiply result by p^total_exp */
-        seq_t term = big_pow((seq_t)p, (seq_t)total_exp);
+        seq_t term = ipow((seq_t)p, (seq_t)total_exp);
         result *= term;
     }
 

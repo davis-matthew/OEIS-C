@@ -8,12 +8,15 @@
  * Formula:   a(n) = 4^((n*(n+1))/2) for n≥5; special cases for n=1..4
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 7, u128 n <= 7,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -25,5 +28,5 @@ seq_t a(idx_t n)
 
     /* For n ≥ 5 use the general formula. */
     seq_t exp = (seq_t)n * ((seq_t)n + 1) / 2;
-    return big_pow((seq_t)4, exp);
+    return ipow((seq_t)4, exp);
 }

@@ -9,15 +9,16 @@
  *            enumerated starting with 1; the offset is 1.) * * The
  *            implementation uses only standard integer arithmetic. For each *
  *            candidate integer it counts the number of 1‑bits and the tot...
- * Range:     u8 n <= 206, u16 n <= 9754, u32 n <= 9754, u64 n <= 9754,
- *            u128 n <= 9754, big any n
- * Helpers:   bit_count_u64
+ * Range:     u8 n <= 206, u16 n <= 14031, u32 n <= 14031, u64 n <= 14031,
+ *            u128 n <= 14031, big any n
+ * Validated: standard, pass, 79 terms through n = 9754 (2026-11-01)
+ * Helpers:   popcount_idx_to_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>   /* for uint64_t and related types */
-#include "../utils/bit_count_u64.h"
+#include "../utils/popcount_idx_to_u32.h"
 
 /* external types (provided by the build system) */
 typedef uint64_t idx_t;  /* index type (unsigned 64‑bit) */
@@ -55,7 +56,7 @@ seq_t a(idx_t n)
 
     while (1) {
         /* Count ones and total bit length of k. */
-        unsigned ones   = bit_count_u64(k);
+        unsigned ones   = popcount_idx_to_u32(k);
         unsigned bitlen = bit_length_u64(k);
         unsigned zeros  = bitlen - ones;
 

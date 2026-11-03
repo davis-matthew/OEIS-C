@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 56, u32 n <= 4368, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow4
+ * Validated: standard, pass, 57 terms through n = 9133 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,18 @@
    combinatorial number system and adding 4^exponent
    for each chosen exponent.
 */
-#include "../utils/pow4.h"
+
+static inline seq_t pow4(idx_t exp) {
+    seq_t result = 1;
+    seq_t base   = 4;
+    idx_t e = exp;
+    while (e) {
+        if (e & 1) result *= base;
+        base *= base;
+        e >>= 1;
+    }
+    return result;
+}
 
 static inline idx_t binom(idx_t n, idx_t k)
 {

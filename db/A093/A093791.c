@@ -11,7 +11,8 @@
  *            element
  * Range:     u8 none, u16 none, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 77 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 /*  ----------  Headers and constants  ----------  */
 #include <stdlib.h>   /* for qsort, malloc, free */
 #include <stdint.h>   /* for uint64_t */
+#include "../utils/mem.h"
 
 /* Maximum number of partitions of 12 */
 #define PART_CNT 77
@@ -84,7 +86,7 @@ static void init_sequence(void)
     /* generate partitions and store hook products */
     gen_partitions(12, 12, curr, 0, seq_values, &cnt);
     /* cnt should equal PART_CNT */
-    qsort(seq_values, cnt, sizeof(seq_t), cmp_seq_t);
+    mem_qsort(seq_values, cnt, sizeof(seq_t), cmp_seq_t);
     seq_init_flag = 1;
 }
 

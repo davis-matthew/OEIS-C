@@ -10,13 +10,15 @@
  *            is computed by dynamic programming
  * Range:     u8 n <= 10, u16 n <= 18, u32 n <= 35, u64 n <= 68, u128 n <= 133,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Integer square root: largest r with r*r ≤ n. */
 static inline idx_t isqrt_idx(idx_t n)
@@ -47,12 +49,12 @@ seq_t a(idx_t n)
     size_t shift = (size_t)maxR;         /* index offset for D = 0 */
 
     /* Allocate two arrays of size L for dynamic programming. */
-    seq_t *cur  = (seq_t *)malloc(L * sizeof(seq_t));
-    seq_t *next = (seq_t *)malloc(L * sizeof(seq_t));
+    seq_t *cur  = mem_new(seq_t, L);
+    seq_t *next = mem_new(seq_t, L);
     if (!cur || !next) {
         /* If allocation fails, return 0 as a fallback. */
-        free(cur);
-        free(next);
+        mem_free(cur);
+        mem_free(next);
         return (seq_t)0;
     }
 
@@ -109,8 +111,8 @@ seq_t a(idx_t n)
     }
 
     /* Free the allocated arrays. */
-    free(cur);
-    free(next);
+    mem_free(cur);
+    mem_free(next);
 
     return result;
 }

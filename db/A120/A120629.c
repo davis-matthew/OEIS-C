@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 163, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _floor_isqrt_u64, is_perfect_power_odd
+ * Validated: standard, pass, 85 terms through n = 963 (2026-11-03)
+ * Helpers:   isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,8 +36,33 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../utils/_floor_isqrt_u64.h"
-#include "../utils/is_perfect_power_odd.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
+
+/* Helper: test whether k is a perfect e‑th power for any odd e >= 3 */
+static bool is_perfect_power_odd(uint64_t k)
+{
+    if (k <= 1) return true;   /* 1 is a perfect power (1^e) */
+
+    /* Exponent loop: only odd exponents starting at 3 */
+    for (uint64_t e = 3; e <= 63; e += 2)
+    {
+        /* Roughly estimate the e‑th root using floating point */
+        double d = pow((double)k, 1.0 / (double)e);
+        uint64_t r = (uint64_t)(d + 0.5);   /* round to nearest integer */
+        if (r < 2) continue;               /* not a valid base */
+
+        /* Compute r^e using 128‑bit arithmetic */
+        __int128 val = 1;
+        for (uint64_t i = 0; i < e; ++i)
+        {
+            val *= r;
+            if (val > k) break;
+        }
+        if (val == k) return true;
+    }
+    return false;
+}
 
 static seq_t *cache = NULL;     /* cached sequence terms */
 static size_t cache_size = 0;   /* number of stored terms */
@@ -56,7 +82,7 @@ static uint64_t squarefree_part(uint64_t k)
     if (exp & 1ULL) s *= 2;
 
     /* Handle odd factors */
-    for (uint64_t p = 3; p <= _floor_isqrt_u64(k); p += 2)
+    for (uint64_t p = 3; p <= isqrt(k); p += 2)
     {
         if (k % p == 0)
         {
@@ -79,7 +105,7 @@ static void ensure_cache_cap(size_t needed)
     if (needed <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 64;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *new_arr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, cache, new_cap);
     if (!new_arr) abort();   /* termination on allocation failure */
     cache = new_arr;
     cache_cap = new_cap;

@@ -14,10 +14,13 @@
  *            elements of order d in (Z/mZ)^*)/φ(d)
  * Range:     u8 n <= 8346, u16 n <= 8346, u32 n <= 8346, u64 n <= 8346,
  *            u128 n <= 8346, big any n
- * Helpers:   calc_phi, cmpSize, gcd_uint64, mod_pow
+ * Validated: standard, pass, 124 terms through n = 7783 (2026-11-03)
+ * Helpers:   gcd_u64, mem, powmod, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
+
+#include "../utils/mem.h"
 
 #ifndef A327925_H
 #define A327925_H
@@ -27,16 +30,23 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/calc_phi.h"
-#include "../utils/mod_pow.h"
-#include "../utils/cmpSize.h"
-#include "../utils/gcd_uint64.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/powmod.h"
+#include "../utils/totient_seq.h"
+
+/* ---------- divisor generation from prime factorization ---------- */
+static int cmpSize(const void *a, const void *b)
+{
+    size_t x = *(const size_t *)a;
+    size_t y = *(const size_t *)b;
+    return (x < y) ? -1 : (x > y) ? 1 : 0;
+}
 
 /* ---------- integer helpers ---------- */
 
 static uint64_t lcm_uint64(uint64_t a, uint64_t b)
 {
-    return a / gcd_uint64(a, b) * b;
+    return a / gcd_u64(a, b) * b;
 }
 
 /* ---------- factorization (trial division) ---------- */
@@ -120,7 +130,7 @@ static void ensure_cache_cap(size_t needed)
     if (cache_cap >= needed) return;
     size_t new_cap = cache_cap ? cache_cap * 2 : 256;
     while (new_cap < needed) new_cap *= 2;
-    cache_vals = (seq_t *)realloc(cache_vals, new_cap * sizeof(seq_t));
+    cache_vals = mem_resize(seq_t, cache_vals, new_cap);
     if (!cache_vals) exit(EXIT_FAILURE);
     cache_cap = new_cap;
 }
@@ -132,7 +142,7 @@ static void generate_row(uint64_t m)
     size_t lam = (size_t)lam_uint;
 
     /* phi(m) */
-    seq_t phi_val = calc_phi((idx_t)m);
+    seq_t phi_val = totient_seq((idx_t)m);
     size_t phi = (size_t)phi_val; /* fits in size_t for our bounds */
 
     /* divisors of lam */
@@ -143,18 +153,18 @@ static void generate_row(uint64_t m)
     divisors_from_factors(prLam, exLam, pcntLam, divsLambda, &divCntLambda);
 
     /* count number of elements of each order d in (Z/mZ)^* */
-    seq_t *count_order = (seq_t *)calloc(phi + 1, sizeof(seq_t));
+    seq_t *count_order = mem_new(seq_t, phi + 1);
     if (!count_order) exit(EXIT_FAILURE);
 
     if (m == 1) {
         count_order[1] = 1;
     } else {
         for (uint64_t x = 1; x < m; ++x) {
-            if (gcd_uint64(x, m) != 1) continue;
+            if (gcd_u64(x, m) != 1) continue;
             /* find minimal d|lam with x^d ≡ 1 mod m */
             for (size_t idx = 0; idx < divCntLambda; ++idx) {
                 size_t d = divsLambda[idx];
-                if (mod_pow((seq_t)x, d, (seq_t)m) == 1) {
+                if (powmod((seq_t)x, d, (seq_t)m) == 1) {
                     count_order[d] += 1;
                     break;
                 }
@@ -163,17 +173,17 @@ static void generate_row(uint64_t m)
     }
 
     /* precompute contr[d] = count_order[d] / φ(d) for all d|lam */
-    seq_t *contr = (seq_t *)calloc(lam + 1, sizeof(seq_t));
+    seq_t *contr = mem_new(seq_t, lam + 1);
     if (!contr) exit(EXIT_FAILURE);
     for (size_t i = 0; i < divCntLambda; ++i) {
         size_t d = divsLambda[i];
         if (count_order[d] == 0) continue;
-        seq_t phi_d = calc_phi((idx_t)d);
+        seq_t phi_d = totient_seq((idx_t)d);
         contr[d] = count_order[d] / phi_d;
     }
 
     /* build row via divisor convolution */
-    seq_t *row = (seq_t *)calloc(lam + 1, sizeof(seq_t));
+    seq_t *row = mem_new(seq_t, lam + 1);
     if (!row) exit(EXIT_FAILURE);
     for (size_t i = 0; i < divCntLambda; ++i) {
         size_t d = divsLambda[i];
@@ -189,9 +199,9 @@ static void generate_row(uint64_t m)
         cache_vals[cache_size++] = row[i];
 
     /* clean up */
-    free(count_order);
-    free(contr);
-    free(row);
+    mem_free(count_order);
+    mem_free(contr);
+    mem_free(row);
     next_m_to_generate++;
 }
 

@@ -13,16 +13,50 @@
  *            (k-1)*D...
  * Range:     u8 n <= 8, u16 n <= 12, u32 n <= 19, u64 n <= 32, u128 n <= 58,
  *            big any n
- * Helpers:   a3455_big, a3455_is_fixed, a3455_phi
+ * Validated: standard, pass, 41 terms through n = 199 (2026-11-01)
+ * Helpers:   totient_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <string.h>
-#include "../utils/a3455_big.h"
-#include "../utils/a3455_is_fixed.h"
-#include "../utils/a3455_phi.h"
+#include "../utils/totient_idx.h"
+
+/* ---- arbitrary-precision path ---- */
+static seq_t a3455_big(idx_t n) {
+    seq_t sum, s0 = 1, s1 = 1, d0 = 1, d1 = 3, cur;
+    idx_t k;
+    for (k = 2; k <= n - 2; k++) {
+        seq_t s2 = s1 * (6 * k - 3);
+        s2 -= s0 * (k - 2);
+        s2 /= (k + 1);
+        s0 = s1;
+        s1 = s2;
+    }
+    sum = s1;
+    for (k = 0; k < n / 2; k++) {
+        if (k == 0) cur = 1;
+        else if (k == 1) cur = 3;
+        else {
+            cur = d1 * (6 * k - 3);
+            cur -= d0 * (k - 1);
+            cur /= k;
+            d0 = d1;
+            d1 = cur;
+        }
+        if (n % (k + 1) == 0 && n / (k + 1) >= 2)
+            sum += cur * totient_idx(n / (k + 1));
+    }
+    return sum / n;
+}
+
+static int a3455_is_fixed(void) {
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 300; i++) x = x + x;
+    return x == 0;
+}
 
 #define A3455_L 8
 
@@ -100,7 +134,7 @@ static seq_t a3455_fixed(idx_t n) {
             memcpy(d1, cur, sizeof(cur));
         }
         if (n % (k + 1) == 0 && n / (k + 1) >= 2) {
-            a3455_mul(u, cur, (uint32_t)a3455_phi(n / (k + 1)));
+            a3455_mul(u, cur, (uint32_t)totient_idx(n / (k + 1)));
             a3455_add(sum, u);
         }
     }

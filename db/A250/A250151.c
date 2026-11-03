@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 8, u64 n <= 24, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* public API */
 seq_t a(idx_t n)
@@ -96,8 +98,8 @@ seq_t a(idx_t n)
         }
 
         /* allocate DP buffers */
-        dp_cur = (seq_t *)malloc(sizeof(seq_t) * STATE_SIZE);
-        dp_nxt = (seq_t *)malloc(sizeof(seq_t) * STATE_SIZE);
+        dp_cur = mem_new(seq_t, STATE_SIZE);
+        dp_nxt = mem_new(seq_t, STATE_SIZE);
 
         /* initial length = 6: every 6‑tuple is allowed, count = 1 */
         for (size_t s = 0; s < STATE_SIZE; ++s) dp_cur[s] = (seq_t)1;
@@ -110,10 +112,10 @@ seq_t a(idx_t n)
      * ---------------------------------------------------- */
     if (results_cap <= (size_t)n) {
         size_t new_cap = (size_t)n + 1;  /* indices 0..n   (index 0 unused) */
-        seq_t *new_res = (seq_t *)malloc(sizeof(seq_t) * new_cap);
+        seq_t *new_res = mem_new(seq_t, new_cap);
         if (results) {
-            memcpy(new_res, results, results_cap * sizeof(seq_t));
-            free(results);
+            mem_copy(new_res, results, results_cap * sizeof(seq_t));
+            mem_free(results);
         }
         results = new_res;
         results_cap = new_cap;

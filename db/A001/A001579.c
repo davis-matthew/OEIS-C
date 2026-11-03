@@ -7,14 +7,15 @@
  * Formula:   a(n) = 3^n + 5^n + 6^n
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 12, u64 n <= 24, u128 n <= 49,
  *            big any n
- * Helpers:   a000248_pow
+ * Validated: standard, pass, 36 terms through n = 257 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a000248_pow.h"
-
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n) {
-    return a000248_pow((seq_t)3, n) + a000248_pow((seq_t)5, n) + a000248_pow((seq_t)6, n);
+    return ipow_idx((seq_t)3, n) + ipow_idx((seq_t)5, n) + ipow_idx((seq_t)6, n);
 }

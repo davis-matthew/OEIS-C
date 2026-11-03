@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   visited_insert
+ * Validated: standard, pass, 119 terms through n = 8888 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,20 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/visited_insert.h"
+
+/* ---------- visited hash table (open addressing) ----------
+   We store a 64‑bit key formed from i and j.  0 is reserved as empty. */
+static int visited_insert(uint64_t key, uint64_t *tbl, size_t tblsize)
+{
+    uint64_t ek = key + 1;                     /* 0 is empty marker   */
+    size_t pos = key & (tblsize - 1);          /* tblsize is power‑of‑2 */
+    while (tbl[pos]) {
+        if (tbl[pos] == ek) return 0;          /* already present     */
+        pos = (pos + 1) & (tblsize - 1);
+    }
+    tbl[pos] = ek;
+    return 1;                                  /* inserted            */
+}
 
 /* Node stored in the heap.  The weight is a double approximation of the
    logarithm of 7^i * 8^j.  The double is used only for ordering; the

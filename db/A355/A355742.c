@@ -10,16 +10,19 @@
  *            function; a(p_k) = bigomega(k))
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bigomega, compute_pi, factor_u64
+ * Validated: standard, pass, 103 terms through n = 9741 (2026-11-01)
+ * Helpers:   bigomega, factor_u64, prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/factor_u64.h"
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/bigomega.h"
-#include "../utils/compute_pi.h"
+#include "../utils/factor_u64.h"
+#include "../utils/prime_pi.h"
 
 seq_t a(idx_t n) {
     if (n == 1) return 1;          /* No prime factors → product = 1 */
@@ -33,7 +36,7 @@ seq_t a(idx_t n) {
         uint64_t e = exps[i];
 
         /* Index of prime p : π(p) */
-        seq_t pi_val = compute_pi(p);
+        seq_t pi_val = prime_pi(p);
         idx_t idx = (idx_t)pi_val;          /* idx fits in idx_t for n ≤ 10000 */
 
         /* bigomega(idx) is A001222(idx) */

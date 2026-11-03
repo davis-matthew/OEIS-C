@@ -9,13 +9,15 @@
  *            maximum n requested. Assumes seq_t supports +, *, / operators
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 32, u64 n <= 64, u128 n <= 128,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 934 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static cache for memoisation */
@@ -26,7 +28,7 @@ seq_t a(idx_t n) {
     /* Initialise cache on first call */
     if (!cache) {
         cache_len = (idx_t)(n + 1);
-        cache = (seq_t*)calloc(cache_len, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         /* a(0) = 0 already */
         max_computed = 0;
     }
@@ -34,7 +36,7 @@ seq_t a(idx_t n) {
     /* Grow cache if necessary */
     if (n + 1 > cache_len) {
         cache_len = (idx_t)(n + 1);
-        cache = (seq_t*)realloc(cache, cache_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_len);
     }
 
     /* Compute any missing values up to n */

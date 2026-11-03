@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #ifdef __cplusplus
 #  include <new>
 #endif
+#include "../utils/mem.h"
 
 struct row
 {
@@ -54,17 +56,17 @@ ensure_rows(idx_t target_row)
     {
         size_t len = (size_t)r;
 
-        seq_t *u_cur = (seq_t *)malloc(len * sizeof(seq_t));
-        seq_t *v_cur = (seq_t *)malloc(len * sizeof(seq_t));
+        seq_t *u_cur = mem_new(seq_t, len);
+        seq_t *v_cur = mem_new(seq_t, len);
         if (!u_cur || !v_cur)
         {
-            free(u_cur); free(v_cur);
+            mem_free(u_cur); mem_free(v_cur);
             return 0;
         }
 
 #ifdef __cplusplus
-        for (size_t i = 0; i < len; ++i) new(&u_cur[i]) seq_t();
-        for (size_t i = 0; i < len; ++i) new(&v_cur[i]) seq_t();
+        for (size_t i = 0; i < len; ++i) *(&u_cur[i]) = (seq_t)0;
+        for (size_t i = 0; i < len; ++i) *(&v_cur[i]) = (seq_t)0;
 #endif
 
         if (r == 1)                     /* base row 1 */

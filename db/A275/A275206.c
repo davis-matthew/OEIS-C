@@ -6,8 +6,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = 0 for n < 3; a(n) = (C(2*n, n-2) - (n even ? C(n, n/2-1)
  *            : 0)) / n for n >= 3
- * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 15, u64 n <= 29, u128 n <= 29,
+ * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 29, u128 n <= 29,
  *            big any n
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 /* Uses the binomial() helper from "utils/binomial.h" */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

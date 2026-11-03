@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 14, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
    which gives the desired number of odd permutations of order exactly 6. */
 
 #include <stddef.h>   /* size_t */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* divisor list and allowed cycle lengths for each divisor of 6 */
@@ -48,8 +50,8 @@ seq_t a(idx_t n) {
         size_t new_cap = ((size_t)n) + 1;
         /* grow each table to the new capacity */
         for (int d = 0; d < 4; ++d) {
-            ev[d] = (seq_t *)realloc(ev[d], new_cap * sizeof(seq_t));
-            od[d] = (seq_t *)realloc(od[d], new_cap * sizeof(seq_t));
+            ev[d] = mem_resize(seq_t, ev[d], new_cap);
+            od[d] = mem_resize(seq_t, od[d], new_cap);
         }
         /* compute missing rows, from old cap up to new_cap-1 */
         for (size_t k = cap; k < new_cap; ++k) {

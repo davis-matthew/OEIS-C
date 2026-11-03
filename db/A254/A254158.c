@@ -9,7 +9,8 @@
  *            1007276466621
  * Range:     u8 none, u16 none, u32 none, u64 n <= 10, u128 n <= 10,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 10 terms through n = 10 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* The sequence starts with: 3,9,7,2,5,9,9,6,9,0,... */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
         rem = NUM % DEN;
 
         cap = (n > 20 ? n : 20); /* start with a reasonable size */
-        buf = (seq_t*)malloc(cap * sizeof(seq_t));
+        buf = mem_new(seq_t, cap);
         buf[0] = int_part;
         len = 1;
     }
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
         /* Grow buffer if necessary */
         if (n > cap) {
             while (cap < n) cap <<= 1;              /* double until enough */
-            buf = (seq_t*)realloc(buf, cap * sizeof(seq_t));
+            buf = mem_resize(seq_t, buf, cap);
         }
 
         for (idx_t i = len; i < n; ++i) {

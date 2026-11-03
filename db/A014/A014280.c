@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 23, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *a_tab = NULL;
@@ -34,9 +36,9 @@ seq_t a(idx_t n) {
     /* enlarge arrays if needed */
     if ((idx_t)(n + 1) > cap) {
         idx_t new_cap = n + 1;
-        seq_t *na = (seq_t *)realloc(a_tab, new_cap * sizeof(seq_t));
-        seq_t *ng = (seq_t *)realloc(g_tab, new_cap * sizeof(seq_t));
-        seq_t *ns = (seq_t *)realloc(s_tab, new_cap * sizeof(seq_t));
+        seq_t *na = mem_resize(seq_t, a_tab, new_cap);
+        seq_t *ng = mem_resize(seq_t, g_tab, new_cap);
+        seq_t *ns = mem_resize(seq_t, s_tab, new_cap);
         if (!na || !ng || !ns) { exit(EXIT_FAILURE); }
 
         /* zero any newly allocated slots */

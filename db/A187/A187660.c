@@ -8,14 +8,16 @@
  * Formula:   a(n) = (-1)^⌊3k/2⌋ * binomial(⌊(r+k)/2⌋, k) where r = the
  *            largest integer such that r(r+1)/2 ≤ n, k = n – r(r+1)/2. (This
  *            flattens the triangle T(n,k) defined in the OEIS entry.)
- * Range:     i8 n <= 70, i16 n <= 77, i32 n <= 77, i64 n <= 77, i128 n <= 77,
+ * Range:     i8 n <= 77, i16 n <= 77, i32 n <= 77, i64 n <= 77, i128 n <= 77,
  *            big any n
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

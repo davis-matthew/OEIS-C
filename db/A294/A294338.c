@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 103 terms through n = 9862 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    a(n) = 1 + Σ_{a^b = n, a>1, b>1} a(a) · a(b)          (OEIS A294338) */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* cache for already computed values, 1‑indexed */
 static seq_t *cache = NULL;
@@ -30,7 +32,7 @@ static void ensure_cache(idx_t n)
         return;
 
     size_t sz = (size_t)(n + 1);                /* need indices 0..n */
-    seq_t *tmp = (seq_t *)realloc(cache, sz * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, sz);
     if (!tmp)
         abort();                               /* allocation failed */
     cache = tmp;

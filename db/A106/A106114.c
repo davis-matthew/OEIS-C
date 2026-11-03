@@ -6,9 +6,10 @@
  * Keywords:  nonn, base
  * Formula:   a(n) = the n‑th prime whose decimal representation contains only
  *            digits ≥ 4. The function returns the term for any n ≥ 1
- * Range:     u8 n <= 8, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
- *            big any n
- * Helpers:   digits_ge_four, is_prime_uint64, seq_realloc
+ * Range:     u8 n <= 8, u16 n <= 377, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 67 terms through n = 5132 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,28 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "../utils/is_prime_uint64.h"
-#include "../utils/seq_realloc.h"
-#include "../utils/digits_ge_four.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+static inline seq_t *seq_realloc(seq_t *p, idx_t n)
+{
+#ifdef __cplusplus
+    return mem_resize(seq_t, p, n);
+#else
+    return (seq_t *)realloc(p, n * sizeof(seq_t));
+#endif
+}
+
+/* Return true if every decimal digit of x is at least 4. */
+static inline bool digits_ge_four(uint64_t x)
+{
+    if (x == 0) return false;   /* zero has a digit 0 */
+    while (x > 0) {
+        if ((x % 10) < 4) return false;
+        x /= 10;
+    }
+    return true;
+}
 
 static seq_t *primes = NULL;          /* cached primes */
 static idx_t  count   = 0;            /* number of primes stored */
@@ -44,7 +64,7 @@ seq_t a(idx_t n)
 
     while (count < n) {
         /* Find the next odd candidate that is prime and has all digits ≥ 4. */
-        while (!(is_prime_uint64(next_candidate) && digits_ge_four(next_candidate))) {
+        while (!(is_prime_u64(next_candidate) && digits_ge_four(next_candidate))) {
             next_candidate += 2;   /* stay odd */
         }
 

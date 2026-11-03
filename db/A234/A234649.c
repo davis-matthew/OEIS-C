@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = (largest p < n with p and (2n-p) prime) – (smallest p < n
  *            with p and (2n-p) prime)
- * Range:     u8 n <= 271, u16 n <= 9462, u32 n <= 9462, u64 n <= 9462,
- *            u128 n <= 9462, big any n
+ * Range:     u8 n <= 271, u16 n <= 65552, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 92 terms through n = 9462 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 
 /* The equal‑prime pair (p = n) is excluded, as the OEIS definition requires distinct primes. */
 
+#include <stdbool.h>
 #include "../utils/is_prime.h"
 
 seq_t a(idx_t n)

@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, look
  * Formula:   not stated
- * Range:     u8 n <= 2, u16 n <= 9616, u32 n <= 9616, u64 n <= 9616,
- *            u128 n <= 9616, big any n
- * Helpers:   factor_u64
+ * Range:     u8 n <= 2, u16 n <= 25000, u32 n <= 25000, u64 n <= 25000,
+ *            u128 n <= 25000, big any n
+ * Validated: standard, pass, 76 terms through n = 9616 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/factor_u64.h"   /* provides factor_u64() */
+#include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* ---------- dynamic arrays for the sequence and the used flag ---------- */
 static seq_t *seq      = NULL;   /* zero‑based array of values              */
@@ -38,7 +40,7 @@ static void grow_seq(size_t new_cap)
     if (new_cap <= seq_cap) return;
     size_t cap = seq_cap ? seq_cap << 1 : 16;
     while (cap < new_cap) cap <<= 1;
-    seq_t *tmp = (seq_t*)realloc(seq, cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, cap);
     if (!tmp) abort();
     seq = tmp;
     seq_cap = cap;

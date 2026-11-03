@@ -7,6 +7,7 @@
  * Formula:   a(n) = binomial(44,n)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 8, u64 n <= 44, u128 n <= 44,
  *            big any n
+ * Validated: full, pass, 45 terms through n = 44 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

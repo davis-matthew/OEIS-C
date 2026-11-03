@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 6, u64 n <= 14, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 130 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,6 +35,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /*  Parameters and static tables                                       */
@@ -154,8 +156,8 @@ static void init(void)
     free(pos);
 
     /* 4) initialise DP buffers */
-    dpA = (seq_t *)malloc(ROWS * sizeof(seq_t));
-    dpB = (seq_t *)malloc(ROWS * sizeof(seq_t));
+    dpA = mem_new(seq_t, ROWS);
+    dpB = mem_new(seq_t, ROWS);
     if (!dpA || !dpB) return;
     for (int i = 0; i < ROWS; ++i) dpA[i] = (seq_t)1;   /* one way for first row */
     dp_cur = dpA;
@@ -163,7 +165,7 @@ static void init(void)
 
     /* 5) memo table: results[0] corresponds to n=0 (a single row) */
     res_size = 1;
-    results = (seq_t *)malloc(res_size * sizeof(seq_t));
+    results = mem_new(seq_t, res_size);
     if (!results) return;
     results[0] = (seq_t)ROWS;   /* number of single‑row arrays */
     cur_step = 0;
@@ -184,9 +186,9 @@ seq_t a(idx_t n)
     if (n >= res_size) {
         size_t new_size = res_size ? res_size << 1 : 1;
         while (new_size <= n) new_size <<= 1;
-        seq_t *tmp = (seq_t *)realloc(results, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, results, new_size);
         if (!tmp) return 0;          /* allocation failure: abort */
-        memset(tmp + res_size, 0, (new_size - res_size) * sizeof(seq_t));
+        mem_set(tmp + res_size, 0, (new_size - res_size) * sizeof(seq_t));
         results = tmp;
         res_size = new_size;
     }
@@ -197,7 +199,7 @@ seq_t a(idx_t n)
     /* Perform DP steps up to n */
     for (size_t step = cur_step + 1; step <= n; ++step) {
         /* zero next buffer */
-        memset(dp_next, 0, ROWS * sizeof(seq_t));
+        mem_set(dp_next, 0, ROWS * sizeof(seq_t));
 
         /* transitions */
         for (int i = 0; i < ROWS; ++i) {

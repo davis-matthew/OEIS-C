@@ -11,6 +11,7 @@
  *            = 1 * p_k = a_k * p_{k-1} + p_{k-2} * * T...
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 16, u64 n <= 35, u128 n <= 70,
  *            big any n
+ * Validated: standard, pass, 38 terms through n = 179 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 12, u64 n <= 25, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* check if a row *row* satisfies the adjacency constraint
  * when the row above is *prev* and the row below *next*.
@@ -64,13 +66,13 @@ seq_t a(idx_t n)
     seq_t result = 0;
 
     /* Initialise for the first row: prev row is 0 (non‑existent). */
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
     for (int cur = 0; cur < 16; ++cur)
         dp[0][cur] = 1;
 
     /* Process rows 2..n */
     for (int r = 2; r <= (int)n; ++r) {
-        memset(newdp, 0, sizeof(newdp));
+        mem_set(newdp, 0, sizeof(newdp));
         for (int prev = 0; prev < 16; ++prev) {
             for (int cur = 0; cur < 16; ++cur) {
                 seq_t ways = dp[prev][cur];
@@ -83,7 +85,7 @@ seq_t a(idx_t n)
                 }
             }
         }
-        memcpy(dp, newdp, sizeof(dp));
+        mem_copy(dp, newdp, sizeof(dp));
     }
 
     /* After the final row, validate it against prev row and an empty next row. */

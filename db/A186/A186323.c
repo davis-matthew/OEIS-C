@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = n + floor(sqrt(H_n - 1))
- * Range:     u8 n <= 3, u16 n <= 26, u32 n <= 83, u64 n <= 83, u128 n <= 83,
+ * Range:     u8 n <= 10, u16 n <= 83, u32 n <= 83, u64 n <= 83, u128 n <= 83,
  *            big any n
- * Helpers:   floor_seq_sqrt
+ * Validated: partial, pass, 83 terms through n = 83 (2026-11-01)
+ * Helpers:   isqrt_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 /* of squares strictly less than H_n.                         */
 
 #include <stdint.h>
-#include "../utils/floor_seq_sqrt.h"
+#include "../utils/isqrt_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +35,7 @@ seq_t a(idx_t n)
 
     /* Compute floor(sqrt(H - 1)) */
     seq_t H_minus_1 = H - ((seq_t)1);
-    seq_t sq        = floor_seq_sqrt(H_minus_1);
+    seq_t sq        = isqrt_seq(H_minus_1);
 
     /* The required rank is n + sq */
     return seq_n + sq;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 725, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64
+ * Validated: standard, pass, 63 terms through n = 9723 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 /* Return the number of divisors of n in the Gaussian integers.
    d_G(n) = 4 * (2*e_2+1) * ∏_{p≡1 mod4} (e_p+1)^2 * ∏_{q≡3 mod4} (e_q+1)  */
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
         /* enlarge storage if necessary */
         if (cap < need) {
             cap = need * 2;
-            cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cap);
         }
 
         /* start scanning from the next integer after the last found term */

@@ -10,22 +10,25 @@
  *            0
  * Range:     u8 n <= 15, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   bitlen_seq_t, floor_log2_uint64
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-01)
+ * Helpers:   bit_length, ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/floor_log2_uint64.h"
-#include "../utils/bitlen_seq_t.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/bit_length.h"
+#include "../utils/ilog2.h"
 
 seq_t a(idx_t n) {
     /* n is guaranteed >= 1 per OEIS offset. */
     seq_t result = (seq_t)n;
-    idx_t current = floor_log2_uint64(n);
+    idx_t current = ilog2(n);
     while (current > 0) {
-        unsigned bits = bitlen_seq_t(result);
+        unsigned bits = bit_length(result);
         result = ((seq_t)current << bits) | result;
-        current = floor_log2_uint64(current);
+        current = ilog2(current);
     }
     return result;
 }

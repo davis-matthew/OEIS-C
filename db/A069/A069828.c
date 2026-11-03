@@ -9,13 +9,53 @@
  *            the Möbius function; τ(d) the divisor‑count function
  * Range:     u8 n <= 28, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   enumerate_divisors, factor_uint64
+ * Validated: partial, pass, 71 terms through n = 71 (2026-11-01)
+ * Helpers:   factor_uint64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
 #include "../utils/factor_uint64.h"
-#include "../utils/enumerate_divisors.h"
+
+static void enumerate_divisors(idx_t n_orig,
+                               const uint64_t *primes, const int *exps, int cnt,
+                               int idx,
+                               uint64_t current,
+                               int mu,   /* 0, +1 or -1 */
+                               uint64_t tau,
+                               seq_t *posSum,
+                               seq_t *negSum)
+{
+    if (idx == cnt) {
+        if (mu == 0)
+            return; /* square factor ⇒ μ(d)=0 */
+        seq_t term = (seq_t)(n_orig / current) * (seq_t)tau;
+        if (mu > 0)
+            *posSum += term;
+        else
+            *negSum += term;
+        return;
+    }
+
+    uint64_t p = primes[idx];
+    uint64_t prod = 1;       /* p^exp for current exponent */
+    for (int e = 0; e <= exps[idx]; ++e) {
+        int new_mu = mu;
+        if (e == 0) {
+            /* nothing changes */
+        } else if (e == 1) {
+            new_mu = -mu;
+        } else {    /* e > 1 → μ becomes 0 */
+            new_mu = 0;
+        }
+        uint64_t new_tau = tau * (e + 1);
+        enumerate_divisors(n_orig, primes, exps, cnt, idx + 1,
+                           current * prod,
+                           new_mu, new_tau, posSum, negSum);
+        prod *= p;
+    }
+}
 
 seq_t a(idx_t n)
 {

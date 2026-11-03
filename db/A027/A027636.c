@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 45, u16 n <= 327, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   coeff0
+ * Validated: standard, pass, 73 terms through n = 946 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,28 @@
  */
 
 #include <stdbool.h>
-#include "../utils/coeff0.h"
+
+/* Helper: compute coeff_0(k) as described above */
+static seq_t coeff0(idx_t k)
+{
+    /* no solutions for odd k */
+    if (k & 1U) return 0;
+
+    seq_t total = 0;
+    idx_t m = k / 2U;                 /* because all terms are even */
+    idx_t max_d = m / 3U;            /* d ranges 0 .. floor(m/3) */
+
+    for (idx_t d = 0U; d <= max_d; ++d)
+    {
+        /* remaining after taking 3d from m */
+        idx_t rem = m - 3U * d;
+        idx_t t   = rem / 2U;        /* floor((m-3d)/2) */
+        /* (t+1)(t+2)/2 fits into seq_t if seq_t is big enough */
+        seq_t val = ((seq_t)(t) + 1U) * ((seq_t)(t) + 2U) / 2U;
+        total += val;
+    }
+    return total;
+}
 
 seq_t a(idx_t n)
 {

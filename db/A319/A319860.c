@@ -9,7 +9,8 @@
  *            (2*k-1)*x^(2*k-1))
  * Range:     i8 n <= 14, i16 n <= 31, i32 n <= 44, i64 n <= 44, i128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,17 +36,17 @@ seq_t a(idx_t n)
     if (n == 0) return (seq_t)1;
 
     size_t sz = (size_t)(n + 1);
-    seq_t *f  = (seq_t *)malloc(sz * sizeof(seq_t));
-    seq_t *h  = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *f  = mem_new(seq_t, sz);
+    seq_t *h  = mem_new(seq_t, sz);
     if (!f || !h)
     {
-        free(f);
-        free(h);
+        mem_free(f);
+        mem_free(h);
         return (seq_t)0;  /* memory allocation failure fallback */
     }
 
     /* initialise f to 1 + 0*x + 0*x^2 + ... */
-    memset(f, 0, sz * sizeof(seq_t));
+    mem_set(f, 0, sz * sizeof(seq_t));
     f[0] = (seq_t)1;
 
     /* maximum k needed: terms with 2k-1 ≤ n or 2k ≤ n are relevant.
@@ -76,7 +78,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = f[n];
-    free(f);
-    free(h);
+    mem_free(f);
+    mem_free(h);
     return result;
 }

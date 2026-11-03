@@ -9,7 +9,8 @@
  *            (x^2 mod prime(n)) > (4*x^2 mod prime(n))
  * Range:     u8 n <= 166, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 96 terms through n = 9875 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ============================= Prime generation ============================= */
 /* Stand‑alone implementation of the nth prime (1‑based) using incremental
@@ -76,7 +78,7 @@ static size_t  cache_cnt  = 0; /* number of cached values */
 static void cache_grow(void)
 {
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-    seq_t *tmp = (seq_t *)realloc(cache_vals, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache_vals, new_cap);
     if (!tmp) exit(1);
     cache_vals = tmp;
     cache_cap = new_cap;

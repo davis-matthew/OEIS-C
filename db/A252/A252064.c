@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 7, u64 n <= 18, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static bool initialized = false;
 static int   K;                               /* number of admissible rows   */
@@ -127,10 +129,10 @@ static void init(void)
     }
 
     /* DP arrays */
-    dp = (seq_t *)malloc(pair_cnt * sizeof(seq_t));
-    dp_next = (seq_t *)malloc(pair_cnt * sizeof(seq_t));
-    memset(dp, 0, pair_cnt * sizeof(seq_t));
-    memset(dp_next, 0, pair_cnt * sizeof(seq_t));
+    dp = mem_new(seq_t, pair_cnt);
+    dp_next = mem_new(seq_t, pair_cnt);
+    mem_set(dp, 0, pair_cnt * sizeof(seq_t));
+    mem_set(dp_next, 0, pair_cnt * sizeof(seq_t));
     for (int idx = 0; idx < pair_cnt; ++idx) dp[idx] = 1; /* height = 2 */
 
     initialized = true;
@@ -148,7 +150,7 @@ seq_t a(idx_t n)
     if (n + 1 > cache_size) {
         idx_t new_cap = cache_size < 32 ? 32 : cache_size * 2;
         while (new_cap <= n) new_cap <<= 1;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         for (idx_t i = cache_size; i < new_cap; ++i) cache[i] = 0;
         cache_size = new_cap;
     }
@@ -156,7 +158,7 @@ seq_t a(idx_t n)
     /* compute up to desired n */
     while (max_n_done < n) {
         /* zero dp_next */
-        memset(dp_next, 0, K * K * sizeof(seq_t));
+        mem_set(dp_next, 0, K * K * sizeof(seq_t));
 
         /* single transition step */
         for (int idx = 0; idx < K * K; ++idx) {

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 3, u64 n <= 8, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 27 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -36,6 +37,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* Helper: decode a column (4 entries in base‑3) into an array of 4 ints.   */
@@ -128,7 +130,7 @@ static void ensure_a_values_cap(size_t needed) {
     if (a_vals_cap >= needed) return;
     size_t new_cap = a_vals_cap ? a_vals_cap * 2 : 128;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *new_arr = (seq_t *)realloc(a_values, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, a_values, new_cap);
     if (!new_arr) exit(EXIT_FAILURE);
     a_values = new_arr;
     a_vals_cap = new_cap;
@@ -136,8 +138,8 @@ static void ensure_a_values_cap(size_t needed) {
 
 /* Initialise DP vectors once.  All pairs of columns are initially allowed. */
 static void init_dp_vectors(void) {
-    curr_dp = (seq_t *)malloc(MAX_STATE * sizeof(seq_t));
-    next_dp = (seq_t *)malloc(MAX_STATE * sizeof(seq_t));
+    curr_dp = mem_new(seq_t, MAX_STATE);
+    next_dp = mem_new(seq_t, MAX_STATE);
     if (!curr_dp || !next_dp) exit(EXIT_FAILURE);
     for (size_t i = 0; i < MAX_STATE; ++i) curr_dp[i] = 1; /* two columns */
     /* a(1) will be computed after first transition below */

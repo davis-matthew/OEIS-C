@@ -11,12 +11,14 @@
  *            a(6)=1110000, a(n)=111*a(n-2)-1110*a(n-4)+1000*a(n-6) for n>6
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 19, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 124 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     if (n + 1 > cap) {
         idx_t new_cap = cap ? cap << 1 : 8;          /* at least 8 to store 0..7 */
         while (new_cap <= n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return (seq_t)0;                  /* allocation failure */
         cache = tmp;
         cap   = new_cap;

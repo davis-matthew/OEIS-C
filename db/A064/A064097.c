@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 120 terms through n = 9580 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stdlib.h>   /* for malloc, realloc, free */
 #include <stddef.h>   /* for size_t */
+#include "../utils/mem.h"
 
 /* The build supplies the integer types seq_t and idx_t; we use them directly. */
 
@@ -40,7 +42,7 @@ static void ensure_precompute(idx_t n)
     if (new_size == 0) new_size = 16;   /* initial allocation */
 
     /* Reallocate a_arr and spf_arr.  If they are NULL, malloc. */
-    a_arr   = (seq_t *)realloc(a_arr,  new_size * sizeof(seq_t));
+    a_arr   = mem_resize(seq_t, a_arr, new_size);
     spf_arr = (idx_t *)realloc(spf_arr, new_size * sizeof(idx_t));
 
     /* Initialise new entries in spf_arr to 0. */

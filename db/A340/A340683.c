@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = A007949((A003961(A003961(n))+1)/2)
- * Range:     u8 n <= 15, u16 n <= 3179, u32 n <= 9221, u64 n <= 9221,
- *            u128 n <= 9221, big any n
- * Helpers:   is_prime_small, seq_mul
+ * Range:     u8 n <= 15, u16 n <= 3179, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9221 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,15 @@
  */
 
 #include <stdint.h>
-#include "../utils/is_prime_small.h"
-#include "../utils/seq_mul.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/is_prime_seq.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 static uint64_t next_prime_u64(uint64_t p)
 {
@@ -35,7 +43,7 @@ static uint64_t next_prime_u64(uint64_t p)
         return 2;
     if ((x & 1ULL) == 0)
         x += 1;                 /* make x odd */
-    while (!is_prime_small((seq_t)x))
+    while (!is_prime_seq((seq_t)x))
         x += 2;
     return x;
 }

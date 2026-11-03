@@ -11,13 +11,23 @@
  *            any order
  * Range:     i8 n <= 4, i16 n <= 6, i32 n <= 9, i64 n <= 16, i128 n <= 28,
  *            big any n
- * Helpers:   alloc_seq
+ * Validated: standard, pass, 35 terms through n = 367 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/alloc_seq.h"   /* provides seq_t *alloc_seq(size_t n); */
+#include <stddef.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+/* Helper: allocate an array of seq_t and zero it. */
+static seq_t *alloc_seq(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 static seq_t *cache   = NULL;
 static size_t cache_alloc = 0;
@@ -37,7 +47,7 @@ seq_t a(idx_t n)
     if (n + 1 > cache_alloc) {
         size_t new_alloc = cache_alloc;
         while (n + 1 > new_alloc) new_alloc <<= 1;
-        cache = (seq_t *)realloc(cache, new_alloc * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_alloc);
         if (!cache) abort();
         cache_alloc = new_alloc;
     }

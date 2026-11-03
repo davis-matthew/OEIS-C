@@ -10,12 +10,14 @@
  *            positive integer that is not equal to any a(k)
  * Range:     u8 n <= 6, u16 n <= 17, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 36 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,8 +26,8 @@ seq_t a(idx_t n)
     if (n == 1) return (seq_t)3;
 
     /* Allocate space for a and b up to the requested index. */
-    seq_t *arr_a = (seq_t *)malloc((n + 1) * sizeof(seq_t));
-    seq_t *arr_b = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *arr_a = mem_new(seq_t, (n + 1));
+    seq_t *arr_b = mem_new(seq_t, (n + 1));
     if (!arr_a || !arr_b) return (seq_t)0;  /* unlikely, but safety */
 
     /* Set the given initials. */
@@ -85,8 +87,8 @@ seq_t a(idx_t n)
     seq_t result = arr_a[n];
 
     /* Clean up. */
-    free(arr_a);
-    free(arr_b);
+    mem_free(arr_a);
+    mem_free(arr_b);
 
     return result;
 }

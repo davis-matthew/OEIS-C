@@ -9,20 +9,22 @@
  * Formula:   a(n) = 4 * Sum_{k=0}^{n-1} p(k) * d(n-k)
  * Range:     u8 n <= 7, u16 n <= 24, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* where p(k) is the k‑th partition number and d(m) is the divisor count of m. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return 0;
 
     /* Compute partition numbers p[0..n-1] using Euler's pentagonal recurrence. */
-    seq_t *p = (seq_t *)malloc((size_t)n * sizeof(seq_t));
+    seq_t *p = mem_new(seq_t, (size_t)n);
     if (!p) return 0;                 /* safety, should not happen in tests */
 
     p[0] = (seq_t)1;
@@ -47,8 +49,8 @@ seq_t a(idx_t n)
     }
 
     /* Compute divisor counts d[1..n] by a simple sieve.  d[0] is left as 0. */
-    seq_t *d = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
-    if (!d) { free(p); return 0; }
+    seq_t *d = mem_new(seq_t, (size_t)(n + 1));
+    if (!d) { mem_free(p); return 0; }
     for (idx_t i = 1; i <= n; ++i) d[i] = (seq_t)0;
     for (idx_t i = 1; i <= n; ++i) {
         for (idx_t j = i; j <= n; j += i)
@@ -62,7 +64,7 @@ seq_t a(idx_t n)
 
     seq_t result = sum_parts * (seq_t)4;
 
-    free(p);
-    free(d);
+    mem_free(p);
+    mem_free(d);
     return result;
 }

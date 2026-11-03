@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 511, u16 n <= 9946, u32 n <= 9946, u64 n <= 9946,
- *            u128 n <= 9946, big any n
- * Helpers:   degree_u64, poly_divide_u64
+ * Range:     u8 n <= 511, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 111 terms through n = 9946 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,35 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/degree_u64.h"
-#include "../utils/poly_divide_u64.h"
+
+/* Return degree of a 64‑bit integer (position of highest set bit)
+ * or 0 for value 0 (not used here). */
+static int degree_u64(uint64_t v)
+{
+    int d = 0;
+    while (v >>= 1) ++d;
+    return d;
+}
+
+/* Divide the binary polynomial of n by the binary polynomial of d
+ * over GF(2).  If divisible, return the quotient polynomial
+ * represented as a binary integer; otherwise return 0. */
+static seq_t poly_divide_u64(uint64_t n, uint64_t d)
+{
+    if (d == 0) return (seq_t)0;            /* undefined, return 0 */
+    int deg_n = degree_u64(n);
+    int deg_d = degree_u64(d);
+    uint64_t rem = n;
+    uint64_t quo = 0;
+    while (rem != 0 && deg_n >= deg_d) {
+        int shift = deg_n - deg_d;
+        rem ^= d << shift;
+        quo |= 1ULL << shift;
+        if (rem == 0) break;
+        deg_n = degree_u64(rem);
+    }
+    return (rem == 0) ? (seq_t)quo : (seq_t)0;
+}
 
 /* Public function required by the checker. */
 seq_t a(idx_t n)

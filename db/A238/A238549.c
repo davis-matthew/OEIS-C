@@ -9,13 +9,15 @@
  * Formula:   a(n) = a(n-1) + 2*a(n-2) - 2*a(n-3), a(1)=1, a(2)=2, a(3)=6
  * Range:     u8 n <= 12, u16 n <= 28, u32 n <= 60, u64 n <= 124,
  *            u128 n <= 252, big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 961 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
 
     if (n > cache_len) {
         /* Allocate a new array big enough for all needed terms. */
-        seq_t *new_cache = (seq_t *)malloc(n * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, n);
         if (!new_cache) return (seq_t)0;   /* Allocation failed */
 
         /* Copy existing terms to the new array. */
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
 
         /* If we had an old cache, free it. */
         if (cache != NULL)
-            free((void *)cache);
+            mem_free(cache);
 
         /* Compute the new terms using the recurrence. */
         for (idx_t k = cache_len + 1; k <= n; ++k) {

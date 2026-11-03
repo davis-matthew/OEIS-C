@@ -8,7 +8,8 @@
  *            1/Φ₁₅₉₁(x). The sequence is periodic of period 1591
  * Range:     i8 n <= 2000, i16 n <= 2000, i32 n <= 2000, i64 n <= 2000,
  *            i128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 92 terms through n = 1962 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* -------------------------------------------------------------
    Internal data for the coefficients of Φ1591(x) and its inverse.
@@ -36,7 +38,7 @@ static bool initialized = false;
 static void init_phi_coeffs(void)
 {
     /* Allocate storage for the coefficients of Φ1591(x)                 */
-    phi_coef = (seq_t*)malloc((DEG_PHI + 1) * sizeof(seq_t));
+    phi_coef = mem_new(seq_t, (DEG_PHI + 1));
     if (!phi_coef) return;                                 /* OOM guard */
 
     /* D(x) = (x^43 - 1)*(x^37 - 1) = x^80 - x^43 - x^37 + 1 */
@@ -70,7 +72,7 @@ static void init_phi_coeffs(void)
 static void init_inv_coeffs(void)
 {
     /* Allocate array for the inverse coefficients */
-    inv_coef = (seq_t*)malloc(PERIOD * sizeof(seq_t));
+    inv_coef = mem_new(seq_t, PERIOD);
     if (!inv_coef) return;                                 /* OOM guard */
 
     inv_coef[0] = (seq_t)1;   /* a₀ = 1 */

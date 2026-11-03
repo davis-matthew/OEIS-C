@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 114, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_spf, good_odd
+ * Validated: standard, pass, 93 terms through n = 9136 (2026-11-01)
+ * Helpers:   build_spf
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,39 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "../utils/build_spf.h"
-#include "../utils/good_odd.h"
+
+/* Test whether an odd number n satisfies the sequence condition. */
+static bool good_odd(idx_t n, idx_t *spf)
+{
+    if (n == 1)
+        return true;
+
+    idx_t primes[64];
+    idx_t exps[64];
+    int fac = 0;
+
+    while (n > 1)
+    {
+        idx_t p   = spf[n];
+        idx_t exp = 0;
+        while (n % p == 0)
+        {
+            n /= p;
+            exp++;
+            if (exp > 2)      /* largest prime can't exceed exponent 2 */
+                return false;
+        }
+        primes[fac] = p;
+        exps[fac]   = exp;
+        fac++;
+    }
+    /* All primes except the largest must have exponent 1. */
+    for (int i = 0; i < fac - 1; i++)
+        if (exps[i] != 1)
+            return false;
+    /* largest prime exponent already verified <= 2 */
+    return true;
+}
 
 static idx_t *g_spf = NULL;
 static idx_t  g_spf_limit = 0;

@@ -7,13 +7,22 @@
  * Formula:   a(n) = ∏_{p^k∥n} (p-1)·k
  * Range:     u8 n <= 256, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   first_prime_factor
+ * Validated: standard, pass, 91 terms through n = 973 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/first_prime_factor.h"
+
+static uint64_t first_prime_factor(uint64_t n)
+{
+    if (n % 2 == 0) return 2;
+    for (uint64_t d = 3; d * d <= n; d += 2) {
+        if (n % d == 0) return d;
+    }
+    return n; /* n is prime */
+}
 
 /* Compute a(n) for A304407 */
 seq_t a(idx_t n)

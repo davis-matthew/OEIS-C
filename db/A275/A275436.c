@@ -8,12 +8,14 @@
  * Formula:   a(n) = a(n-1)+3*a(n-2)-2*a(n-3)-2*a(n-5)-3*a(n-6)+a(n-7)+a(n-8)
  * Range:     u8 n <= 9, u16 n <= 19, u32 n <= 41, u64 n <= 85, u128 n <= 176,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 890 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Recursive formula based cache.  Values are stored up to the
  * current maximum n computed.  The cache grows lazily and
@@ -30,14 +32,14 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* first allocation: at least need, but also at least 9 for base data */
         idx_t init = need > 9 ? need : 9;
-        cache = (seq_t*)malloc(init * sizeof(seq_t));
+        cache = mem_new(seq_t, init);
         if (!cache) return (seq_t)0;   /* allocation failure: return 0 */
         cache_len = init;
     } else if (need > cache_len) {
         /* grow: double size or just enough */
         idx_t new_len = cache_len * 2;
         if (new_len < need) new_len = need;
-        seq_t *tmp = (seq_t*)realloc(cache, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_len);
         if (!tmp) return (seq_t)0;   /* allocation failure: return 0 */
         cache = tmp;
         cache_len = new_len;

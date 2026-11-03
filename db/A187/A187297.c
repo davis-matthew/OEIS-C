@@ -9,6 +9,7 @@
  * Formula:   a(n) = 0 if n == 1; otherwise a(n) = 4*n*n - 6*n
  * Range:     u8 n <= 8, u16 n <= 128, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 63 terms through n = 972 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

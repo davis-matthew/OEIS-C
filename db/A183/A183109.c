@@ -10,15 +10,16 @@
  *            k = 1
  * Range:     u8 n <= 5, u16 n <= 13, u32 n <= 20, u64 n <= 43, u128 n <= 76,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 1268 (2026-11-02)
+ * Helpers:   binomial, ipow_idx, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "..//utils/binom.h"
-#include "..//utils/pow2.h"
-#include "..//utils/seq_pow.h"
+#include "../utils/binomial.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/pow2.h"
 
 /* Find the row r such that r*(r+1)/2 ≥ n */
 static idx_t find_row(idx_t n)
@@ -43,9 +44,9 @@ seq_t a(idx_t n)
     seq_t neg = 0;   /* sum of terms with odd  j */
 
     for (idx_t j = 0; j <= col; ++j) {
-        seq_t bin   = binom(col, j);                          /* C(col, j) */
+        seq_t bin   = binomial(col, j);                         /* C(col, j) */
         seq_t base  = pow2(col - j) - (seq_t)1;              /* 2^(col-j) – 1 */
-        seq_t power = seq_pow(base, row);                    /* (2^(col-j)-1)^row */
+        seq_t power = ipow_idx(base, row);                   /* (2^(col-j)-1)^row */
 
         seq_t term   = bin * power;                          /* term value */
 

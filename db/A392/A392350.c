@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..floor(3*n/11)} binomial(3*n-10*k,k)
  * Range:     u8 n <= 12, u16 n <= 23, u32 n <= 45, u64 n <= 89, u128 n <= 176,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 56 terms through n = 975 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Initial terms: a(0)=1, a(1)=1, a(2)=1, a(3)=1, a(4)=3, a(5)=6, a(6)=9, a(7)=12, a(8)=21, a(9)=39 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;
 static size_t seq_cap   = 0;   /* capacity of allocated cache */
@@ -28,7 +30,7 @@ ensure_seq(idx_t n)
     /* Allocate and initialize first 10 terms if needed */
     if (seq_cache == NULL) {
         seq_cap  = 10;
-        seq_cache = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_cache = mem_new(seq_t, seq_cap);
         if (seq_cache == NULL)
             exit(EXIT_FAILURE); /* out of memory */
         seq_cache[0] = 1; seq_cache[1] = 1; seq_cache[2] = 1; seq_cache[3] = 1;
@@ -41,7 +43,7 @@ ensure_seq(idx_t n)
     if ((size_t)n + 1 > seq_cap) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 16;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
         if (tmp == NULL)
             exit(EXIT_FAILURE);
         seq_cache = tmp;

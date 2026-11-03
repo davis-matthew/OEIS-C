@@ -8,7 +8,8 @@
  *            floor((sqrt(8*n+1)-1)/2), c = d - r
  * Range:     u8 n <= 119, u16 n <= 119, u32 n <= 119, u64 n <= 119,
  *            u128 n <= 119, big any n
- * Helpers:   tri_leq
+ * Validated: partial, pass, 120 terms through n = 119 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,11 @@
 /* Computes the nth term of OEIS sequence A103582. */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/tri_leq.h"
+
+static inline bool tri_leq(idx_t m, idx_t n)
+{
+    return ((unsigned __int128)m * (m + 1) / 2) <= n;
+}
 
 seq_t a(idx_t n)
 {

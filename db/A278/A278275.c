@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 25, u128 n <= 50,
  *            big any n
- * Helpers:   satisfies_row
+ * Validated: standard, pass, 37 terms through n = 208 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,51 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/satisfies_row.h"
+
+/* Helper to test if a 3‑bit row satisfies the constraints with given
+   neighbours.  'upper' is the row above the current one (ignored
+   if has_up==false).  'lower' is the row below (ignored if
+   has_down==false). */
+static inline bool satisfies_row(int upper, int cur, int lower,
+                                 bool has_up, bool has_down)
+{
+    for (int j = 0; j < 3; ++j) {
+        int val = (cur >> j) & 1;
+        bool eq = false, diff = false;
+        /* up‑left */
+        if (has_up && j > 0) {
+            int nb = (upper >> (j - 1)) & 1;
+            if (nb == val) eq = true; else diff = true;
+        }
+        /* up */
+        if (has_up) {
+            int nb = (upper >> j) & 1;
+            if (nb == val) eq = true; else diff = true;
+        }
+        /* up‑right */
+        if (has_up && j < 2) {
+            int nb = (upper >> (j + 1)) & 1;
+            if (nb == val) eq = true; else diff = true;
+        }
+        /* left */
+        if (j > 0) {
+            int nb = (cur >> (j - 1)) & 1;
+            if (nb == val) eq = true; else diff = true;
+        }
+        /* right */
+        if (j < 2) {
+            int nb = (cur >> (j + 1)) & 1;
+            if (nb == val) eq = true; else diff = true;
+        }
+        /* down */
+        if (has_down) {
+            int nb = (lower >> j) & 1;
+            if (nb == val) eq = true; else diff = true;
+        }
+        if (!eq || !diff) return false;
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {

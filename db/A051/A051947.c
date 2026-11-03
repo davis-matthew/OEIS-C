@@ -7,12 +7,14 @@
  * Formula:   a(n) = binom(n+5,5) * (2*n+3) / 3
  * Range:     u8 none, u16 n <= 12, u32 n <= 93, u64 n <= 1000, u128 n <= 1000,
  *            big any n
- * Helpers:   gcd_seq
+ * Validated: standard, pass, 51 terms through n = 976 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/gcd_seq.h"
+#include <stdint.h>
+#include "../utils/gcd.h"
 /* Computed as (n+5)*(n+4)*(n+3)*(n+2)*(n+1)*(2*n+3) / 360 with intermediate reduction */
 /* No hard‑coded lookup table, works for any n >= 0, calls may arrive in arbitrary order */
 
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
 
     /* Reduce each numerator with the current denominator */
     for (int i = 0; i < 6; ++i) {
-        seq_t g = gcd_seq(nums[i], denom);
+        seq_t g = gcd(nums[i], denom);
         if (g > 1) {
             nums[i] /= g;
             denom /= g;
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
     if (denom > 1) {
         /* This should not happen for valid n, but protects against
            unforeseen numerical issues. */
-        seq_t g = gcd_seq(denom, nums[0]); /* arbitrary */
+        seq_t g = gcd(denom, nums[0]); /* arbitrary */
         nums[0] /= g;
         denom /= g;
     }

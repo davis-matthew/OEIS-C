@@ -10,12 +10,14 @@
  *            51
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 22, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* array storing computed a(k) values   */
 static idx_t  cache_len = 0;         /* number of elements already computed */
@@ -29,7 +31,7 @@ static void ensure_cache(idx_t up)
     /* enlarge storage if necessary */
     if (cache_cap == 0) cache_cap = 64;
     while (cache_cap <= (size_t)up) cache_cap <<= 1;
-    cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, cache_cap);
 
     /* compute missing values */
     for (idx_t i = cache_len; i <= up; ++i) {

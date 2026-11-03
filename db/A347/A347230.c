@@ -8,17 +8,20 @@
  *            gcd(σ(d), ψ(d)) σ(d) is the sum-of-divisors function, ψ(d) = Π
  *            p^{e-1}·(p+1) over prime powers p^e || d A344695 is not
  *            multiplicative; we cache its values for reuse
- * Range:     i8 n <= 128, i16 n <= 9897, i32 n <= 9897, i64 n <= 9897,
- *            i128 n <= 9897, big any n
- * Helpers:   gcd, mobius
+ * Range:     i8 n <= 128, i16 n <= 16384, i32 n <= 16384, i64 n <= 16384,
+ *            i128 n <= 16384, big any n
+ * Validated: standard, pass, 95 terms through n = 9897 (2026-11-03)
+ * Helpers:   gcd, mem, mobius
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /*---------------------------------------------------------------*/
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 #include "../utils/mobius.h"
+#include "../utils/mem.h"
 
 /* -----------------------------------------------------------------
    Local helpers
@@ -85,7 +88,7 @@ static idx_t   A_cache_cap = 0;
 static void ensure_A_cache(idx_t n) {
     if (n <= A_cache_cap) return;
     size_t new_cap = (size_t)n + 1;                   /* index 0 … n */
-    seq_t *tmp = (seq_t *)realloc(A_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, A_cache, new_cap);
     if (!tmp) abort();                               /* allocation failure */
     A_cache = tmp;
 

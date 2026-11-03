@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 95, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   count_distinct_primes, rev
+ * Validated: standard, pass, 76 terms through n = 938 (2026-11-03)
+ * Helpers:   mem, omega, reverse_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,10 @@
    prime divisors of k equals that of its decimal reverse. */
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/rev.h"
-#include "../utils/count_distinct_primes.h"
+#include <stdbool.h>
+#include "../utils/omega.h"
+#include "../utils/reverse_digits_idx.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* cached sequence terms */
 static size_t cache_size = 0;        /* number of terms currently stored */
@@ -36,17 +39,17 @@ static void ensure_cache(idx_t n)
         /* Look for the next qualifying integer. */
         search_start++;                     /* start checking from previous+1 */
         uint64_t k      = search_start;
-        uint64_t revk   = rev(k);
+        uint64_t revk   = reverse_digits_idx(k);
         if (revk == k)                      /* skip palindromes */
             continue;
 
-        if (count_distinct_primes(k) == count_distinct_primes(revk))
+        if (omega(k) == omega(revk))
         {
             /* Grow storage if necessary. */
             if (cache_size == cache_cap)
             {
                 size_t new_cap = cache_cap == 0 ? 16 : cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) abort();            /* unrecoverable allocation failure */
                 cache = tmp;
                 cache_cap = new_cap;

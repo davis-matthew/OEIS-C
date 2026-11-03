@@ -11,6 +11,7 @@
  *            10⁹ this approximation gives the exact integer va...
  * Range:     i8 n <= 102, i16 n <= 102, i32 n <= 102, i64 n <= 102,
  *            i128 n <= 102, big any n
+ * Validated: partial, pass, 103 terms through n = 102 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

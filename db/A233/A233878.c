@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 10, u64 n <= 23, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@ Initial values: a(1)=240, a(2)=1224, …, a(13)=208076709744 */
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* memoisation state ----------------------------------------------------- */
 static seq_t *cache = NULL;
@@ -52,13 +54,13 @@ static void ensure_cache(idx_t n)
     if (needed < 14) needed = 14;      /* keep space for the 13 initial terms */
 
     if (cache_cap < needed) {
-        seq_t *new_cache = (seq_t *)malloc(needed * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, needed);
         if (cache_cap > 0) {
-            memcpy(new_cache, cache, cache_cap * sizeof(seq_t));
-            free(cache);
+            mem_copy(new_cache, cache, cache_cap * sizeof(seq_t));
+            mem_free(cache);
         }
         /* initialise any new entries to zero */
-        memset(new_cache + cache_cap, 0, (needed - cache_cap) * sizeof(seq_t));
+        mem_set(new_cache + cache_cap, 0, (needed - cache_cap) * sizeof(seq_t));
         cache = new_cache;
         cache_cap = needed;
     }

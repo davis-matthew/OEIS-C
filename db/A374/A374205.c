@@ -6,9 +6,10 @@
  * Offset:    2    (a(2) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 36, u16 n <= 30, u32 n <= 46, u64 n <= 8466,
- *            u128 n <= 8466, big any n
- * Helpers:   fib_mod_n
+ * Range:     u8 n <= 36, u16 n <= 30, u32 n <= 46, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 140 terms through n = 8466 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,19 @@
  * Prime factorisation of n is done by trial division. */
 
 #include <stdint.h>
-#include "../utils/fib_mod_n.h"
+
+/* Return F(p) modulo mod (F(0)=0, F(1)=1). */
+static seq_t fib_mod_n(idx_t p, seq_t mod)
+{
+    seq_t a = 0, b = 1;   /* F(0), F(1) */
+    for (idx_t i = 0; i < p; ++i) {
+        seq_t t = a + b;
+        if (t >= mod) t -= mod;
+        a = b;
+        b = t;
+    }
+    return a;             /* F(p) mod mod */
+}
 
 seq_t a(idx_t n)
 {

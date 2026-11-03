@@ -7,15 +7,18 @@
  * Formula:   a(n) = pₙ! / pₙ# (prime factorial divided by primorial)
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 7, u64 n <= 9, u128 n <= 14,
  *            big any n
- * Helpers:   build_primes, power
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-01)
+ * Helpers:   build_primes, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <math.h>
+#include <stdint.h>
+#include <stddef.h>
 #include "../utils/build_primes.h"
-#include "../utils/power.h"
+#include "../utils/ipow_idx.h"
 
 /* Estimate an upper bound for the n‑th prime (prime number theorem). */
 static idx_t estimate_limit(idx_t n) {
@@ -58,7 +61,7 @@ seq_t a(idx_t n) {
         idx_t q = prime_list[i];
         idx_t e = legendre_exponent(p_n, q);
         if (e <= 1) continue;                 /* exponent - 1 <= 0, skip */
-        seq_t pow_val = power((seq_t)q, e - 1);
+        seq_t pow_val = ipow_idx((seq_t)q, e - 1);
         result *= pow_val;
     }
 

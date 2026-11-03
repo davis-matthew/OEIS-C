@@ -7,13 +7,43 @@
  * Formula:   a(n) = arithmetic derivative of n! (OEIS A068311)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 19, u128 n <= 33,
  *            big any n
- * Helpers:   derivative_of
+ * Validated: standard, pass, 38 terms through n = 430 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/derivative_of.h"
+
+/*  Compute the arithmetic derivative of an integer k using trial‑division. */
+static seq_t derivative_of(uint64_t k)
+{
+    seq_t dk = 0;
+    uint64_t temp = k;
+
+    /* factorise k */
+    for (uint64_t p = 2; p * p <= temp; ++p)
+    {
+        if (temp % p == 0)
+        {
+            uint64_t e = 0;
+            while (temp % p == 0)
+            {
+                temp /= p;
+                ++e;
+            }
+            dk += ((seq_t)k / (seq_t)p) * (seq_t)e;
+        }
+    }
+
+    /* remaining prime factor */
+    if (temp > 1)
+    {
+        dk += ((seq_t)k / (seq_t)temp) * (seq_t)1;
+    }
+
+    return dk;
+}
 
 /*  The main sequence function required by the problem. */
 seq_t a(idx_t n)

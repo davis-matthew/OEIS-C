@@ -10,7 +10,8 @@
  *            smallest number of that form
  * Range:     u8 n <= 3, u16 n <= 11, u32 n <= 269, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow_uint128_overflow
+ * Validated: standard, pass, 53 terms through n = 9656 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,34 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/pow_uint128_overflow.h"
+#include "../utils/mem.h"
+
+/* --------------------------------------------------------------------------
+   Helper: compute base^exp in an unsigned __int128 accumulator.
+   It returns true if the result fits in the range of an unsigned __int128,
+   otherwise it returns false.  The result is stored in *out.
+   -------------------------------------------------------------------------- */
+static bool pow_uint128_overflow(uint32_t base, int exp,
+                                 __uint128_t max, __uint128_t *out)
+{
+    __uint128_t res = 1;
+    __uint128_t b = base;
+    while (exp > 0) {
+        if (exp & 1) {
+            res *= b;
+            if (res > max)
+                return false;
+        }
+        exp >>= 1;
+        if (exp) {
+            b *= b;
+            if (b > max)
+                b = max + 1;   /* any value > max causes overflow later */
+        }
+    }
+    *out = res;
+    return true;
+}
 
 /* --------------------------------------------------------------------------
    Sieve of Eratosthenes, executed only once.
@@ -82,7 +110,7 @@ seq_t a(idx_t n)
         int exp;            /* exponent of this power */
     } node_t;
 
-    node_t *nodes = (node_t *)malloc(e_cnt * sizeof(node_t));
+    node_t *nodes = mem_new(node_t, e_cnt);
 
     /* initialise nodes with the first prime (2) for each exponent */
     for (size_t i = 0; i < e_cnt; ++i) {
@@ -129,6 +157,6 @@ seq_t a(idx_t n)
         }
     }
 
-    free(nodes);
+    mem_free(nodes);
     return result;
 }

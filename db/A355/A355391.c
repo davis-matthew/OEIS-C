@@ -10,6 +10,7 @@
  *            binomial is the standard definition of the binomial coefficient
  * Range:     u8 n <= 5, u16 n <= 15, u32 n <= 30, u64 n <= 63, u128 n <= 127,
  *            big any n
+ * Validated: standard, pass, 53 terms through n = 162 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 #include "../utils/pow2.h"
 

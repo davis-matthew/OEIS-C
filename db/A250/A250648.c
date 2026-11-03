@@ -13,7 +13,8 @@
  *            a(n‑1) + 2a(n‑2) + a(n‑3) − 4a(n‑4) − 5a(n‑5) + 3a(...
  * Range:     u8 n <= 2, u16 n <= 10, u32 n <= 122, u64 n <= 210,
  *            u128 n <= 210, big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 /* Computes A250648: number of length‑5 arrays 0..n whose adjacent pair maxima
    can be signed + or – to sum to zero.  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- Core function ---------- */
 seq_t a(idx_t n)
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     if (cache == NULL)
     {
         /* Allocate space for at least 14 elements initially. */
-        cache = (seq_t *)malloc(14 * sizeof(seq_t));
+        cache = mem_new(seq_t, 14);
         if (!cache) return 0;          /* out of memory: return 0 (unlikely). */
         cached_n = 14;
         for (idx_t i = 1; i <= 14; ++i)
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
     if (n > cached_n)
     {
         /* Reallocate enlarged array. */
-        seq_t *tmp = (seq_t *)realloc(cache, n * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, n);
         if (!tmp) return 0;            /* out of memory: return 0. */
         cache = tmp;
 

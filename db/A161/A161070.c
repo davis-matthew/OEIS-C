@@ -9,7 +9,8 @@
  *            that each distinct part used appears at least 8 times
  * Range:     u8 n <= 169, u16 n <= 615, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 110 terms through n = 947 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,11 +27,11 @@ seq_t a(idx_t n)
 
     /* Allocate dynamic arrays for dynamic programming. */
     size_t size = (size_t)n + 1;
-    seq_t *dp_cur  = (seq_t *)calloc(size, sizeof(seq_t));
-    seq_t *dp_next = (seq_t *)calloc(size, sizeof(seq_t));
+    seq_t *dp_cur  = mem_new(seq_t, size);
+    seq_t *dp_next = mem_new(seq_t, size);
     if (!dp_cur || !dp_next) {
-        free(dp_cur);
-        free(dp_next);
+        mem_free(dp_cur);
+        mem_free(dp_next);
         return (seq_t)0;
     }
 
@@ -66,7 +68,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp_cur[n];
-    free(dp_cur);
-    free(dp_next);
+    mem_free(dp_cur);
+    mem_free(dp_next);
     return result;
 }

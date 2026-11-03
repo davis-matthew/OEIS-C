@@ -12,13 +12,19 @@
  *            a(7) = 63184, a(8) = 139436, a(9) = 301786 for n ≥ 10
  * Range:     u8 none, u16 n <= 7, u32 n <= 22, u64 n <= 54, u128 n <= 118,
  *            big any n
- * Helpers:   add_mult
+ * Validated: standard, pass, 40 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/add_mult.h"
+#include "../utils/mem.h"
+
+/* Helper: add *src *mult to *dest using repeated addition. */
+static inline void add_mult(seq_t *dest, const seq_t *src, unsigned int mult) {
+    for (unsigned int i = 0; i < mult; ++i) *dest += *src;
+}
 
 /* Store the first nine values.  They are needed even for the smallest n. */
 static const seq_t init_vals[9] = {
@@ -36,12 +42,12 @@ static size_t cache_len  = 0;      /* highest n whose value is stored */
 static void ensure_cache_capacity(idx_t max_n) {
     size_t need  = (size_t)max_n + 1;   /* include index 0          */
     if (cache == NULL) {
-        cache     = (seq_t*)calloc(need, sizeof(seq_t));
+        cache     = mem_new(seq_t, need);
         cache_cap = need;
         cache_len = 0;
     }
     if (need > cache_cap) {
-        seq_t *new_cache = (seq_t*)realloc(cache, need * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, need);
         /* Zero new elements that will be filled later. */
         for (size_t i = cache_cap; i < need; ++i) new_cache[i] = (seq_t)0;
         cache     = new_cache;

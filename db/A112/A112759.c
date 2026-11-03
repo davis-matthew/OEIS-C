@@ -8,12 +8,14 @@
  *            n-th 5‑smooth number (product of 2^a 3^b 5^c)
  * Range:     u8 n <= 50, u16 n <= 615, u32 n <= 1982, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 120 terms through n = 9998 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Returns the total number of prime factors of the n-th 5‑smooth number. */
 seq_t a(idx_t n) {
@@ -29,7 +31,7 @@ seq_t a(idx_t n) {
     /* ---- allocation/on‑demand growth ---- */
     if (cap == 0) {                           /* first time */
         cap = 1024;
-        vals = (seq_t*)malloc(sizeof(seq_t) * (cap + 1));
+        vals = mem_new(seq_t, (cap + 1));
         e2   = (idx_t *)malloc(sizeof(idx_t) * (cap + 1));
         e3   = (idx_t *)malloc(sizeof(idx_t) * (cap + 1));
         e5   = (idx_t *)malloc(sizeof(idx_t) * (cap + 1));
@@ -58,7 +60,7 @@ seq_t a(idx_t n) {
         /* grow buffers if needed */
         if (size + 1 >= cap) {
             idx_t new_cap = cap * 2;
-            seq_t *new_vals = (seq_t*)realloc(vals, sizeof(seq_t) * (new_cap + 1));
+            seq_t *new_vals = mem_resize(seq_t, vals, (new_cap + 1));
             if (!new_vals) return 0;   /* allocation failed */
             vals = new_vals;
             idx_t *new_e2 = (idx_t*)realloc(e2, sizeof(idx_t) * (new_cap + 1));

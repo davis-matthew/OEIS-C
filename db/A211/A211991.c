@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign
  * Formula:   a(n) = A003415(n) - A001065(n)
- * Range:     i8 n <= 12, i16 n <= 698, i32 n <= 9819, i64 n <= 9819,
- *            i128 n <= 9819, big any n
+ * Range:     i8 n <= 12, i16 n <= 698, i32 n <= 65536, i64 n <= 65537,
+ *            i128 n <= 65537, big any n
+ * Validated: standard, pass, 88 terms through n = 9819 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

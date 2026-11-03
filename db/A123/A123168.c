@@ -7,6 +7,7 @@
  * Formula:   a(1)=0; a(n)= (2*n-3)*(3-(-1)^n)/2 for n>1
  * Range:     u8 n <= 66, u16 n <= 1500, u32 n <= 1500, u64 n <= 1500,
  *            u128 n <= 1500, big any n
+ * Validated: standard, pass, 77 terms through n = 1497 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

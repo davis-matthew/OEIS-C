@@ -9,8 +9,9 @@
  *            Sum_{i=1..k} phi(i)); the terms are produced by the next-term
  *            rule: after a/b, c/d comes (t*c - a)/(t*d - b) with t = floor((k
  *            + b)/d), starting from 0/1, 1/k
- * Range:     u8 n <= 9934, u16 n <= 9934, u32 n <= 9934, u64 n <= 9934,
- *            u128 n <= 9934, big any n
+ * Range:     u8 n <= 10563, u16 n <= 10563, u32 n <= 10563, u64 n <= 10563,
+ *            u128 n <= 10563, big any n
+ * Validated: standard, pass, 128 terms through n = 9934 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

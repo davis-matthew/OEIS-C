@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   total_stop_mod3
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,24 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/total_stop_mod3.h"
+#include "../utils/mem.h"
+
+/* Computes (total stopping time of m) % 3.  The value is 0 for m==1,
+ * 1 when the number of steps to reach 1 leaves remainder 1, etc. */
+static unsigned total_stop_mod3(seq_t m)
+{
+    unsigned mod = 0;            /* current total stopping time modulo 3 */
+    seq_t x = m;
+    while (x != (seq_t)1) {
+        if ((x & (seq_t)1) == 0)          /* even */
+            x = x >> 1;
+        else                              /* odd */
+            x = x * ((seq_t)3) + (seq_t)1;
+        mod += 1;
+        if (mod >= 3) mod -= 3;           /* keep mod in {0,1,2} */
+    }
+    return mod;
+}
 
 /* ----------------- helper: total stopping time modulo 3 ----------------- */
 
@@ -40,7 +58,7 @@ static void ensure_capacity(idx_t needed)
     idx_t new_cap = cache_cap == 0 ? 16 : cache_cap * 2;
     if (new_cap < needed)
         new_cap = needed;
-    seq_t *new_arr = (seq_t *)realloc(cache, (size_t)new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, cache, (size_t)new_cap);
     if (!new_arr)                    /* allocation failure – leave cache */
         return;
     cache = new_arr;

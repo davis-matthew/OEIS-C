@@ -10,7 +10,8 @@
  *            is a product of exactly two primes)
  * Range:     u8 n <= 12, u16 n <= 601, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 71 terms through n = 9923 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 #define LIMIT 5000000U          /* upper bound for numbers whose prime
                                  factors we need to know */
@@ -57,7 +59,7 @@ static void init_sequence(void)
     }
 
     /* --- Build semiprime list --------------------------------- */
-    semiprimes = (seq_t *)malloc((size_t)MAX_SEMIPRIMES * sizeof(seq_t));
+    semiprimes = mem_new(seq_t, (size_t)MAX_SEMIPRIMES);
     if (!semiprimes) exit(EXIT_FAILURE);
 
     for (uint32_t x = 4; x <= LIMIT && semiprime_count < MAX_SEMIPRIMES; ++x) {
@@ -89,7 +91,7 @@ static void add_qual(seq_t val)
 {
     if (qual_size == qual_cap) {
         size_t new_cap = (qual_cap == 0) ? 16 : qual_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(qual, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, qual, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         qual = tmp;
         qual_cap = new_cap;
@@ -114,7 +116,7 @@ seq_t a(idx_t n)
         seq_t sem_val = semiprimes[to_sz(next_k) - 1];
         seq_t cand    = sem_val + 1ULL;
 
-        if (is_prime_small(cand))
+        if (is_prime_seq(cand))
             add_qual((seq_t)next_k);
 
         ++next_k;

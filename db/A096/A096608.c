@@ -13,12 +13,14 @@
  *            + T(n-1,3) + T(n-1,1) * For 2 <= k <= 2n * T...
  * Range:     u8 n <= 63, u16 n <= 195, u32 n <= 675, u64 n <= 2303,
  *            u128 n <= 8648, big any n
- * Helpers:   none
+ * Validated: standard, pass, 101 terms through n = 8784 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
  
 /* Integer square root (floor) without overflow */
 static idx_t int_isqrt(idx_t n)
@@ -44,12 +46,12 @@ static void ensure_base(void)
     rows = (seq_t**)realloc(rows, rows_cap * sizeof(seq_t*));
  
     /* Row 0: length 1 */
-    seq_t *row0 = (seq_t*)malloc(sizeof(seq_t));
+    seq_t *row0 = mem_new(seq_t, 1);
     row0[0] = (seq_t)1;
     rows[0] = row0;
  
     /* Row 1: length 3 */
-    seq_t *row1 = (seq_t*)malloc(3 * sizeof(seq_t));
+    seq_t *row1 = mem_new(seq_t, 3);
     row1[0] = (seq_t)0;
     row1[1] = (seq_t)0;
     row1[2] = (seq_t)1;
@@ -71,7 +73,7 @@ static void compute_up_to(idx_t target_row)
  
     for (idx_t n = max_row + 1; n <= target_row; ++n) {
         size_t len = 2 * (size_t)n + 1;
-        seq_t *row = (seq_t*)malloc(len * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, len);
         for (size_t i = 0; i < len; ++i)
             row[i] = (seq_t)0;
  

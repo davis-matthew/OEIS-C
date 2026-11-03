@@ -11,15 +11,29 @@
  *            alternating sum: T(row, k) = Σ_{i=0}^{⌊k/row⌋} (-1)^i * C(6,i) *
  *            C(k+5-i·row,5). This function finds the row containing the
  *            n‑t...
- * Range:     u8 n <= 5, u16 n <= 36, u32 n <= 7284, u64 n <= 7400,
+ * Range:     u8 n <= 15, u16 n <= 304, u32 n <= 7400, u64 n <= 7400,
  *            u128 n <= 7400, big any n
- * Helpers:   binomial, mul_small
+ * Validated: standard, pass, 81 terms through n = 7285 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/mul_small.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 static inline idx_t cum_count(idx_t r) {
     /* cumulative number of terms up to row r: r*(3r-2) */

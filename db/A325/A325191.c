@@ -10,6 +10,7 @@
  *            n−t(t+1)/2 ≤ t
  * Range:     u8 n <= 58, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
 /* The function uses the combinatorial identity:
    a(n) = Σ_{t} C(t+1, k)   where k = n−t(t+1)/2 and 1≤k≤t. */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 static inline void mul128(seq_t a, seq_t b, seq_t *res)

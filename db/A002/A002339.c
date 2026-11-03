@@ -9,15 +9,16 @@
  *            unique y > 0 with 4*p = x^2 + 27*y^2
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   a2339_isprime, a2339_isqrt
+ * Validated: standard, pass, 134 terms through n = 942 (2026-11-03)
+ * Helpers:   is_prime_u64, isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/a2339_isprime.h"
-#include "../utils/a2339_isqrt.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/isqrt_u64.h"
 
 seq_t a(idx_t n) {
     idx_t count = 0;
@@ -26,13 +27,13 @@ seq_t a(idx_t n) {
 
     while (count < n) {
         p += 6;
-        if (a2339_isprime(p)) count++;
+        if (is_prime_u64(p)) count++;
     }
 
     target = 4 * p;
     for (y = 1; 27 * y * y < target; y++) {
         uint64_t xs = target - 27 * y * y;
-        uint64_t x = a2339_isqrt(xs);
+        uint64_t x = isqrt_u64(xs);
         if (x * x == xs && x % 3 != 0) return (seq_t)y;
     }
     return (seq_t)0;

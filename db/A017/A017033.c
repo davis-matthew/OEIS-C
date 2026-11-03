@@ -7,6 +7,7 @@
  * Formula:   a(n) = (7*n + 4)^5
  * Range:     u8 none, u16 n <= 0, u32 n <= 11, u64 n <= 1018, u128 n <= 10000,
  *            big any n
+ * Validated: standard, pass, 40 terms through n = 8729 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,15 +10,16 @@
  * Formula:   a(n) = T(r,k) where r = ceil((sqrt(1+8n)-1)/2), k = n -
  *            r(r-1)/2, and T(r,k) = (1/2)*(2 + ((phi(k)+floor(r/k))^2) -
  *            phi(k) - 3*floor(r/k))
- * Range:     u8 n <= 276, u16 n <= 9652, u32 n <= 9652, u64 n <= 9652,
- *            u128 n <= 9652, big any n
- * Helpers:   phi
+ * Range:     u8 n <= 276, u16 n <= 10585, u32 n <= 10585, u64 n <= 10585,
+ *            u128 n <= 10585, big any n
+ * Validated: standard, pass, 121 terms through n = 9652 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/phi.h"
+#include "../utils/totient.h"
 
 /* Compute the row index r for a given overall index n. */
 static idx_t compute_row(idx_t n)
@@ -44,7 +45,7 @@ seq_t a(idx_t n)
     idx_t k = n - prev;                        /* column index (1‑based) */
 
     /* Compute φ(k) and floor(r/k). */
-    seq_t phi_k = phi(k);
+    seq_t phi_k = totient(k);
     seq_t y = (seq_t)(r / k);                  /* floor(r/k) fits in idx_t */
 
     /* Apply the given pairing formula. */

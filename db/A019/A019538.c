@@ -10,13 +10,15 @@
  *            T(n-1,k)) for n ≥ 1, 1 ≤ k ≤ n
  * Range:     u8 n <= 17, u16 n <= 32, u32 n <= 73, u64 n <= 184,
  *            u128 n <= 514, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 4685 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Memoised triangle: rows 0..max_row, each row 0..row  (index 0 unused for k=0 except row 0) */
 static seq_t **T_table = NULL;
@@ -31,7 +33,7 @@ static void init_base(void)
         if (!T_table) exit(EXIT_FAILURE);
 
         /* Row 0 contains a single element T(0,0) = 1 */
-        T_table[0] = (seq_t*)malloc(sizeof(seq_t));
+        T_table[0] = mem_new(seq_t, 1);
         if (!T_table[0]) exit(EXIT_FAILURE);
         T_table[0][0] = (seq_t)1;
 
@@ -53,7 +55,7 @@ static void ensure_rows_up_to(idx_t r)
     /* Compute new rows */
     for (idx_t row = max_row + 1; row <= r; ++row) {
         /* Allocate storage for this row; indices 0..row */
-        T_table[row] = (seq_t*)malloc(sizeof(seq_t) * (size_t)(row + 1));
+        T_table[row] = mem_new(seq_t, (size_t)(row + 1));
         if (!T_table[row]) exit(EXIT_FAILURE);
 
         /* The k = 0 entry is 0 (unused) */

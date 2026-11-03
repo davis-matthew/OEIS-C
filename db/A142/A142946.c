@@ -8,7 +8,8 @@
  *            incremental trial division)
  * Range:     u8 n <= 2, u16 n <= 209, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 59 terms through n = 928 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 /* Dynamic array of primes congruent to 47 (mod 64) */
 static seq_t *primes = NULL;
@@ -30,7 +32,7 @@ static uint64_t next_candidate = 47;
 static void grow_primes(void)
 {
     size_t new_cap = prime_cap ? prime_cap << 1 : 64;
-    seq_t *tmp = (seq_t *)realloc(primes, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, primes, new_cap);
     if (!tmp && new_cap) abort();          /* allocation failure  */
     primes = tmp;
     prime_cap = new_cap;
@@ -40,7 +42,7 @@ static void grow_primes(void)
 static void generate_next_prime(void)
 {
     while (true) {
-        if (is_prime_small(next_candidate)) {
+        if (is_prime_seq(next_candidate)) {
             if (prime_cnt == prime_cap) grow_primes();
             primes[prime_cnt++] = (seq_t)next_candidate;
             next_candidate += 64;

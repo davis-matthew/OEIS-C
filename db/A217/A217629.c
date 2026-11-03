@@ -9,12 +9,14 @@
  *            r(r+1)/2 and T(r,k) = k!*C(r,k)*3^(r-k) = 3^(r-k) * r!/(r-k)!
  * Range:     u8 n <= 15, u16 n <= 38, u32 n <= 97, u64 n <= 244,
  *            u128 n <= 623, big any n
+ * Validated: standard, pass, 61 terms through n = 5052 (2026-11-01)
  * Helpers:   pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/pow3.h"
 
 seq_t a(idx_t n)

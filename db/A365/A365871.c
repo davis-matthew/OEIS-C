@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 127, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   even_lpf_exp
+ * Validated: standard, pass, 56 terms through n = 8123 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,31 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/even_lpf_exp.h"
+#include "../utils/mem.h"
+
+/* Return true if the exponent of the least prime factor of n
+   in its prime factorisation is even.  For n < 2 the result is false. */
+static bool even_lpf_exp(seq_t n)
+{
+    if (n < 2) return false;
+    uint64_t nn = (uint64_t)n;          /* values needed for this problem are small */
+    /* trial division, checking 2 then odd numbers */
+    uint64_t p = 2;
+    while (p * p <= nn) {
+        if (nn % p == 0) {
+            unsigned cnt = 0;
+            while (nn % p == 0) {
+                nn /= p;
+                ++cnt;
+            }
+            return (cnt & 1) == 0;     /* even exponent? */
+        }
+        p = (p == 2) ? 3 : p + 2;      /* skip even numbers after 2 */
+    }
+    /* If we reach here, nn is prime (or 1).  Exponent of the least
+       prime factor is 1, which is odd, so return false. */
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -39,7 +64,7 @@ seq_t a(idx_t n)
 
             if (cache_len >= cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) return 0;       /* out of memory; judge handles */
                 cache = tmp;
                 cache_cap = new_cap;

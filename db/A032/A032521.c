@@ -7,7 +7,8 @@
  * Formula:   a(n) = ∑_{k=1}^{n} ⌊k^(3/14)⌋
  * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   pow14
+ * Validated: partial, pass, 69 terms through n = 68 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,17 @@
  */
 
 #include <stdint.h>
-#include "../utils/pow14.h"
+
+/* Compute m^(14) using 128‑bit arithmetic to avoid overflow.
+   m is small (≤ 10 for n up to 10 000), but the routine is generic. */
+static unsigned __int128 pow14(uint64_t m)
+{
+    unsigned __int128 r = 1;
+    /* 14 multiplications, safe because m^14 fits in 128 bits for m ≤ 10^4 */
+    for (int i = 0; i < 14; ++i)
+        r *= m;
+    return r;
+}
 
 seq_t a(idx_t n)
 {

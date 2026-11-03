@@ -8,21 +8,23 @@
  * Formula:   a(n) = ceiling( binomial(n,8) * 256 / (2*n + 1) )
  * Range:     u8 none, u16 n <= 11, u32 n <= 33, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 31 terms through n = 38 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Uses the helper function binom(n,k) from utils/binom.h */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
     if (n < 8) return 0;        /* undefined for n < 8, return 0 for safety */
 
     /* binomial coefficient C(n,8) */
-    seq_t c = binom(n, (idx_t)8);
+    seq_t c = binomial(n, (idx_t)8);
 
     /* numerator: C(n,8) * 256 */
     seq_t num = c * (seq_t)256;

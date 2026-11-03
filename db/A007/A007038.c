@@ -10,9 +10,10 @@
  *            weight 2 on Gamma_0(2)), B = Sum_{k>=1} (Sum_{d|k, k/d odd} d^3)
  *            x^k (= eta(2z)^16/eta(z)^8, weight 4). The coefficients are
  *            computed exactly modulo three ~60-bit primes and reco...
- * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 9, u64 n <= 108, u128 n <= 8032,
+ * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 9, u64 n <= 108, u128 n <= 15064,
  *            big any n
- * Helpers:   alloc_zero, is_prime, release, seq_is_fixed_width
+ * Validated: standard, pass, 38 terms through n = 8032 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,10 +21,31 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
-#include "../utils/alloc_zero.h"
-#include "../utils/release.h"
-#include "../utils/seq_is_fixed_width.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
 
 typedef unsigned __int128 u128_t;
 
@@ -51,7 +73,7 @@ static void init_primes(void) {
     uint64_t c = (1ULL << 60) - 1;
     int i = 0;
     while (i < 3) {
-        if (is_prime(c)) P_[i++] = c;
+        if (is_prime_u64(c)) P_[i++] = c;
         c -= 2;
     }
     primes_ready = 1;

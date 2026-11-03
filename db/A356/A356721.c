@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 46, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Predefined Roman numeral values and symbols (standard subtractive notation). */
 static const int roman_vals[13] = {1000,900,500,400,100,90,50,40,10,9,5,4,1};
@@ -55,7 +57,7 @@ seq_t a(idx_t n) {
     /* Ensure cache has initial capacity. */
     if (cache_cap == 0) {
         cache_cap = 32;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return 0; /* allocation failure */
     }
 
@@ -88,7 +90,7 @@ seq_t a(idx_t n) {
             /* Store term in cache, resizing if necessary. */
             if (cache_size >= cache_cap) {
                 cache_cap *= 2;
-                seq_t *tmp = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                 if (!tmp) return 0; /* allocation failure */
                 cache = tmp;
             }

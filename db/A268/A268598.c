@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 25, u64 n <= 53, u128 n <= 114,
  *            big any n
+ * Validated: standard, pass, 47 terms through n = 957 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,7 @@
             a(n) = 2^(n-7)*(n-4)*(n-3)*(n+3)  (n ≥ 7)  */
 
 /* Uses the utility function pow2 from the build’s utils folder. */
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

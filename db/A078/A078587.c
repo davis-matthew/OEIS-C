@@ -7,8 +7,9 @@
  * Formula:   a(n) = largest prime p < n such that 2n - p is also prime.
  *            Implementation uses a simple sieve of Eratosthenes built up to
  *            2*n on demand
- * Range:     u8 n <= 259, u16 n <= 9766, u32 n <= 9766, u64 n <= 9766,
- *            u128 n <= 9766, big any n
+ * Range:     u8 n <= 259, u16 n <= 60000, u32 n <= 60000, u64 n <= 60000,
+ *            u128 n <= 60000, big any n
+ * Validated: standard, pass, 88 terms through n = 9766 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

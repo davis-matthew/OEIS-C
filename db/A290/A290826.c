@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 19, i16 n <= 59, i32 n <= 59, i64 n <= 59, i128 n <= 59,
  *            big any n
- * Helpers:   Cum, binomial, find_block, pow_uint
+ * Validated: partial, pass, 60 terms through n = 59 (2026-11-01)
+ * Helpers:   binomial, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,10 +36,48 @@
  */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow_uint.h"
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/Cum.h"
-#include "../utils/find_block.h"
+#include "../utils/ipow_u64_idx.h"
+
+static inline seq_t Cum(idx_t n)
+{
+    /* cumulative number of terms up to block n (inclusive) */
+    seq_t a = (seq_t)(n + 1);
+    seq_t b = (seq_t)(n + 2);
+    seq_t c = (seq_t)(2 * n + 3);
+    return a * b * c / 3;            /* (n+1)(n+2)(2n+3)/3 */
+}
+
+static idx_t find_block(idx_t idx)
+{
+    seq_t idxt = (seq_t)idx;
+
+    idx_t low = 0;
+    idx_t high = 1;
+    /* find high such that Cum(high) > idx */
+    while (true) {
+        seq_t cumh = Cum(high);
+        if (cumh > idxt)
+            break;
+        if (high > ((idx_t)-1) >> 1) {          /* avoid overflow */
+            high = (idx_t)-1;
+            break;
+        }
+        high <<= 1;
+    }
+
+    /* binary search for smallest n with Cum(n) > idx */
+    while (low < high) {
+        idx_t mid = low + ((high - low) >> 1);
+        seq_t cumm = Cum(mid);
+        if (cumm > idxt)
+            high = mid;
+        else
+            low = mid + 1;
+    }
+    return low;
+}
 
 static seq_t my_pow_uint(uint64_t base, idx_t exp)
 {
@@ -85,7 +124,7 @@ seq_t a(idx_t idx)
 
     /* 3. final coefficient */
     seq_t coeff = binomial((idx_t)n, col);                     /* C(n, col) */
-    coeff *= pow_uint(2u, (idx_t)(n - col));      /* 2^(n-col) */
+    coeff *= ipow_u64_idx(2u, (idx_t)(n - col));      /* 2^(n-col) */
     if (col & 1)                                   /* (-1)^col */
         coeff = -coeff;
     coeff *= sumS;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 23, u32 n <= 71, u64 n <= 167, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 201 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {                 /* first call */
         /* Allocate space for at least indices 0..7 */
         cap = (idx > 7 ? idx : 7) + 1;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) return (seq_t)0;    /* allocation failed – return 0 */
 
         /* Initialise the first 7 values (index 0 unused) */
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
     } else if (idx >= cap) {             /* need more space */
         size_t newcap = cap;
         while (idx >= newcap) newcap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp) return (seq_t)0;      /* realloc failed – return 0 */
         cache = tmp;
         cap = newcap;

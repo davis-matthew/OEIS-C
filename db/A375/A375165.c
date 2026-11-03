@@ -5,8 +5,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = Sum_{k=0..⌊n/6⌋} 2^k * binomial(n+5, 6*k+5)
- * Range:     u8 n <= 3, u16 n <= 11, u32 n <= 26, u64 n <= 31, u128 n <= 31,
+ * Range:     u8 n <= 5, u16 n <= 12, u32 n <= 27, u64 n <= 31, u128 n <= 31,
  *            big any n
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,8 +15,10 @@
 
 /* The function uses the utilities pow2 and binomial from the utils directory. */
 
-#include "../utils/binomial.h"   /* binomial(idx_t a, idx_t b) returns seq_t */
-#include "../utils/pow2.h"       /* pow2(idx_t exp) returns seq_t */
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {

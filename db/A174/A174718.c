@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 16, i16 n <= 47, i32 n <= 159, i64 n <= 576,
  *            i128 n <= 2237, big any n
- * Helpers:   binom, pow2
+ * Validated: standard, pass, 71 terms through n = 5075 (2026-11-01)
+ * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,10 @@
     utility functions binom() and pow2() to evaluate the binomial
     coefficient and the power of two. */
 
-#include "../utils/pow2.h"   /* seq_t pow2(idx_t exp); */
-#include "../utils/binom.h"  /* seq_t binom(idx_t a, idx_t b); */
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {
@@ -42,7 +45,7 @@ seq_t a(idx_t n)
 
     /* Compute 2^r and the binomial coefficient C(r,k). */
     seq_t pow2_r = pow2(r);        /* 2^r */
-    seq_t bin     = binom(r, k);   /* C(r,k) */
+    seq_t bin     = binomial(r, k);   /* C(r,k) */
 
     /* Apply the triangle formula: (1-2^r)*(C(r,k)-1)+1 */
     seq_t term = (seq_t)1 - pow2_r;

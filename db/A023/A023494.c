@@ -9,7 +9,8 @@
  *            2 d(n) = n-th non‑Lucas number (Lucas numbers start 1,3,4,7,…)
  * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   fib
+ * Validated: partial, pass, 37 terms through n = 36 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,17 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/fib.h"
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
 
 static seq_t lucas_buf[64];     /* small cache of Lucas numbers 1,3,4,7,... */
 static size_t lucas_len = 0;    /* number of entries in lucas_buf */

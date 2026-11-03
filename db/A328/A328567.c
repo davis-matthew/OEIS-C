@@ -11,11 +11,13 @@
  *            the exponent of the largest power of two dividing n
  * Range:     u8 n <= 8, u16 n <= 128, u32 n <= 8192, u64 n <= 8192,
  *            u128 n <= 8192, big any n
+ * Validated: standard, pass, 66 terms through n = 7995 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 static idx_t floor_log2_u64(idx_t x) {

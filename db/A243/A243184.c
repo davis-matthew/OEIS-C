@@ -8,7 +8,8 @@
  *            in sorted order (duplicates removed)
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 1562, u64 n <= 1562,
  *            u128 n <= 1562, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 1504 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /* Nth term (n >= 1) is a(n). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define BOUND 300          /* search window, large enough for >10000 terms */
 
@@ -40,7 +42,7 @@ static void build_cache(void)
        The number of distinct results is well above 12000.   */
     size_t raw_cap = 100000;
     size_t raw_len = 0;
-    seq_t *raw = (seq_t *)malloc(raw_cap * sizeof(seq_t));
+    seq_t *raw = mem_new(seq_t, raw_cap);
     if (!raw) return;   /* allocation failure */
 
     /* Enumerate all pairs (x,y) in [-BOUND,BOUND] */
@@ -52,8 +54,8 @@ static void build_cache(void)
             if (val >= 0) {
                 if (raw_len >= raw_cap) {
                     raw_cap <<= 1;
-                    seq_t *tmp = (seq_t *)realloc(raw, raw_cap * sizeof(seq_t));
-                    if (!tmp) { free(raw); return; }
+                    seq_t *tmp = mem_resize(seq_t, raw, raw_cap);
+                    if (!tmp) { mem_free(raw); return; }
                     raw = tmp;
                 }
                 raw[raw_len++] = val;
@@ -62,12 +64,12 @@ static void build_cache(void)
     }
 
     /* Sort raw results */
-    qsort(raw, raw_len, sizeof(seq_t), cmp_seq);
+    mem_qsort(raw, raw_len, sizeof(seq_t), cmp_seq);
 
     /* Compress to unique values */
     cached_len = raw_len;
     if (cached_len > 0) {
-        cached = (seq_t *)malloc(cached_len * sizeof(seq_t));
+        cached = mem_new(seq_t, cached_len);
         if (cached) {
             seq_t prev = raw[0];
             cached[0] = prev;
@@ -82,7 +84,7 @@ static void build_cache(void)
         }
     }
 
-    free(raw);
+    mem_free(raw);
 }
 
 seq_t a(idx_t n)
@@ -102,7 +104,7 @@ seq_t a(idx_t n)
             const idx_t new_bound = old_bound * 2;
             /* Rebuild with larger BOUND; not efficient but defensive.   */
             /* Free old cache.   */
-            free(cached);
+            mem_free(cached);
             cached_len = 0;
             /* Temporarily modify macro – not possible, so stop here.   */
             /* In practice, this situation won't occur.   */

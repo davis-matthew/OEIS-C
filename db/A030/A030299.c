@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 153, u32 n <= 5913, u64 n <= 5913,
  *            u128 n <= 5913, big any n
- * Helpers:   digit_len, pow10
+ * Validated: standard, pass, 58 terms through n = 5634 (2026-11-03)
+ * Helpers:   mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,19 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/pow10.h"
-#include "../utils/digit_len.h"
+#include <stdbool.h>
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -45,7 +57,7 @@ seq_t a(idx_t n)
     seq_t permIdx = sn - cum - 1;
 
     /* Pre‑compute factorials 0! … m! as seq_t values. */
-    seq_t *fact = (seq_t *)malloc((m + 1) * sizeof(seq_t));
+    seq_t *fact = mem_new(seq_t, (m + 1));
     fact[0] = 1;
     for (size_t i = 1; i <= m; ++i)
         fact[i] = fact[i - 1] * (seq_t)i;
@@ -75,12 +87,12 @@ seq_t a(idx_t n)
     seq_t result = 0;
     for (size_t i = 0; i < m; ++i) {
         seq_t x   = perm[i];
-        int dlen  = digit_len(x);
+        int dlen  = num_digits(x);
         result = result * pow10((idx_t)dlen) + x;
     }
 
     /* Clean up. */
-    free(fact);
+    mem_free(fact);
     free(rem);
     free(perm);
 

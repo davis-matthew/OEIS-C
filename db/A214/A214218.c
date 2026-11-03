@@ -9,14 +9,15 @@
  *            The word is returned as a decimal integer (digits 1 and 2)
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 350, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 49 terms through n = 979 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +26,7 @@ seq_t a(idx_t n)
     seq_t cum = 0;
     idx_t k = 1;
     for (;; ++k) {
-        seq_t count = binom((idx_t)(2 * k), (idx_t)k);
+        seq_t count = binomial((idx_t)(2 * k), (idx_t)k);
         if (cum + count >= (seq_t)n) break;
         cum += count;
     }
@@ -41,7 +42,7 @@ seq_t a(idx_t n)
         idx_t positions_left = len - pos;
         seq_t cnt_first = 0;
         if (ones_needed > 0) {
-            cnt_first = binom((idx_t)(positions_left - 1),
+            cnt_first = binomial((idx_t)(positions_left - 1),
                               (idx_t)(ones_needed - 1));
         }
         if (offset < cnt_first) {

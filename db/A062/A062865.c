@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 35, u32 n <= 177, u64 n <= 201,
  *            u128 n <= 201, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 200 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 
 /* standard library for memory allocation */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* compute the nth term, with 1‑based index */
 seq_t a(idx_t n)
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* helper to grow the array when necessary */
     if (terms == NULL || cap == 0) {
         cap    = 64;
-        terms  = (seq_t *)malloc(cap * sizeof(seq_t));
+        terms  = mem_new(seq_t, cap);
     }
 
     /* generate terms until we have at least n of them */
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
         if (m == 0) {
             if (count >= cap) {
                 cap   = 2 * cap;
-                terms = (seq_t *)realloc(terms, cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, cap);
             }
             terms[count++] = (seq_t)0;
             m = 1;                 /* next candidate is 1 */
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
         if (V % m == 0) {
             if (count >= cap) {
                 cap   = 2 * cap;
-                terms = (seq_t *)realloc(terms, cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, cap);
             }
             terms[count++] = (seq_t)m;
         }

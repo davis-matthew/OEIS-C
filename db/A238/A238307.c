@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 7, u64 n <= 16, u128 n <= 34,
  *            big any n
- * Helpers:   second_smallest_4
+ * Validated: standard, pass, 31 terms through n = 209 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,20 @@
  * rules enforce the “exactly one” neighbor condition.
  */
 #include <stdint.h>
-#include "../utils/second_smallest_4.h"
+
+/* return the second smallest of four values (0..3) */
+static inline uint8_t second_smallest_4(uint8_t a0, uint8_t a1,
+                                        uint8_t a2, uint8_t a3)
+{
+    uint8_t v[4] = {a0,a1,a2,a3};
+    uint8_t min1 = 4, min2 = 4;
+    for (int i = 0; i < 4; ++i) {
+        uint8_t val = v[i];
+        if (val < min1) { min2 = min1; min1 = val; }
+        else if (val < min2) { min2 = val; }
+    }
+    return min2;
+}
 
 #define STATE_ROWS   64
 #define MAX_TRANS    (STATE_ROWS)          /* at most 64 successors */

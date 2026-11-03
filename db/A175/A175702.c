@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=1..n} λ(k) * λ(n+1-k) (Liouville λ)
  * Range:     i8 n <= 75, i16 n <= 75, i32 n <= 75, i64 n <= 75, i128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 75 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static cache for λ and smallest prime factor tables.  They grow only
    when a larger n is requested, independent of call order. */
@@ -49,7 +51,7 @@ static void ensure_tables(idx_t n)
 
     /* ---------- Compute λ up to n ---------- */
     size_t new_lambda_size = (size_t)n + 1;
-    seq_t *new_lambda = (seq_t *)realloc(lambda_cache, new_lambda_size * sizeof(seq_t));
+    seq_t *new_lambda = mem_resize(seq_t, lambda_cache, new_lambda_size);
     if (!new_lambda) abort();
     lambda_cache = new_lambda;
 

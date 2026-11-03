@@ -10,13 +10,30 @@
  *            number itself) initial terms: a(1)=0, a(2)=0
  * Range:     u8 n <= 71, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sum_proper_factors_from_idx
+ * Validated: standard, pass, 104 terms through n = 9429 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/sum_proper_factors_from_idx.h"
+
+static seq_t sum_proper_factors_from_idx(idx_t m)
+{
+    /* Proper factors are all divisors of m except 1 and m itself. */
+    seq_t sum = 0;
+    for (idx_t i = 2; i <= m / i; ++i)
+    {
+        if (m % i == 0)
+        {
+            sum += (seq_t)i;
+            idx_t j = m / i;
+            if (j != i)
+                sum += (seq_t)j;
+        }
+    }
+    return sum;
+}
 
 seq_t a(idx_t n)
 {

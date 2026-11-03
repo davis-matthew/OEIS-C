@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 59, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   no_common_digits_idx
+ * Validated: standard, pass, 71 terms through n = 989 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,26 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/no_common_digits_idx.h"
+#include "../utils/mem.h"
+
+/* Check whether val has no common digit in its base‑4 and base‑7 representations. */
+static bool no_common_digits_idx(idx_t val)
+{
+    uint64_t mask4 = 0, mask7 = 0;
+    idx_t v = val;
+    while (v != 0) {
+        int d = v % 4;
+        mask4 |= 1ULL << d;
+        v /= 4;
+    }
+    v = val;
+    while (v != 0) {
+        int d = v % 7;
+        mask7 |= 1ULL << d;
+        v /= 7;
+    }
+    return (mask4 & mask7) == 0;
+}
 
 /* External linkage function required by the build. */
 seq_t a(idx_t n)
@@ -35,13 +55,13 @@ seq_t a(idx_t n)
         /* Grow cache storage if necessary. */
         if (cache_cap == 0) {
             cache_cap = 64;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
             if (!cache) return 0;
         }
         if (no_common_digits_idx(next_candidate)) {
             if (cache_len == cache_cap) {
                 cache_cap *= 2;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
                 if (!cache) return 0;
             }
             cache[cache_len++] = (seq_t)next_candidate;

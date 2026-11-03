@@ -10,7 +10,8 @@
  *            horizontal and vertical neighbors
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 6, u64 n <= 12, u128 n <= 24,
  *            big any n
- * Helpers:   is_zero_seq
+ * Validated: standard, pass, 31 terms through n = 203 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/is_zero_seq.h"
+#include "../utils/mem.h"
+
+/* Utility: linearly compare a seq_t with zero (works for builtin types) */
+static bool is_zero_seq(seq_t x) {
+    return x == 0;
+}
 
 /* Constants */
 #define NUM_ROWS   5
@@ -168,11 +174,11 @@ static void init_global(void) {
     build_transitions();
 
     /* allocate DP arrays */
-    dp_prev = (seq_t *)calloc(NUM_STATES, sizeof(seq_t));
-    dp_next = (seq_t *)calloc(NUM_STATES, sizeof(seq_t));
+    dp_prev = mem_new(seq_t, NUM_STATES);
+    dp_next = mem_new(seq_t, NUM_STATES);
 
     /* allocate value cache (index 0 unused) */
-    val_cache = (seq_t *)calloc(2, sizeof(seq_t));
+    val_cache = mem_new(seq_t, 2);
     max_computed = 0;
 
     initialized = true;
@@ -183,10 +189,10 @@ static void init_global(void) {
 static void ensure_cache(idx_t n) {
     if (n <= max_computed) return;
     idx_t new_cap = n + 1;                 /* indices 0..n */
-    seq_t *new_arr = (seq_t *)calloc(new_cap, sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (val_cache) {
-        memcpy(new_arr, val_cache, max_computed * sizeof(seq_t));
-        free(val_cache);
+        mem_copy(new_arr, val_cache, max_computed * sizeof(seq_t));
+        mem_free(val_cache);
     }
     val_cache = new_arr;
     max_computed = n;
@@ -211,7 +217,7 @@ seq_t a(idx_t n) {
     static idx_t cur_len = 0;
     if (cur_len == 0) {        /* no columns processed yet */
         /* Initialize for first column */
-        memset(dp_prev, 0, NUM_STATES * sizeof(seq_t));
+        mem_set(dp_prev, 0, NUM_STATES * sizeof(seq_t));
         for (int col = 0; col < NUM_COLS; ++col) {
             int m = init_mask[col];
             if (m >= 0) {
@@ -233,7 +239,7 @@ seq_t a(idx_t n) {
     /* Incrementally extend DP to the requested n */
     while (cur_len < n) {
         /* zero dp_next */
-        memset(dp_next, 0, NUM_STATES * sizeof(seq_t));
+        mem_set(dp_next, 0, NUM_STATES * sizeof(seq_t));
 
         /* transition */
         for (int src = 0; src < NUM_STATES; ++src) {

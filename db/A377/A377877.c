@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, less
  * Formula:   a(n) = (product of the first n primes) mod 3125
- * Range:     u8 n <= 3, u16 n <= 10, u32 n <= 9441, u64 n <= 9441,
- *            u128 n <= 9441, big any n
- * Helpers:   none
+ * Range:     u8 n <= 3, u16 n <= 10, u32 n <= 15625, u64 n <= 15625,
+ *            u128 n <= 15625, big any n
+ * Validated: standard, pass, 74 terms through n = 9441 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Cached data for primorial modulo 3125 */
 static seq_t *prod_cache  = NULL;   /* prod_cache[i] = primorial(i) mod 3125 */
@@ -71,7 +73,7 @@ static void ensure_n(idx_t n)
     /* Grow product cache if needed. */
     while (prod_cap <= idx) {
         size_t new_cap = prod_cap ? prod_cap * 2 : 8;
-        seq_t *tmp = (seq_t*)realloc(prod_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, prod_cache, new_cap);
         prod_cache = tmp;
         prod_cap = new_cap;
     }
@@ -91,7 +93,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         /* Initialise product cache. */
         prod_cap = 8;
-        prod_cache = (seq_t*)malloc(prod_cap * sizeof(seq_t));
+        prod_cache = mem_new(seq_t, prod_cap);
         prod_cache[0] = (seq_t)1;
         prod_size = 1;
 

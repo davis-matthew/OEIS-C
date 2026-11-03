@@ -11,7 +11,8 @@
  *            last parts have the same parity
  * Range:     u8 n <= 36, u16 n <= 91, u32 n <= 263, u64 n <= 845,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 988 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* global state */
 static idx_t max_n_global   = 0;          /* highest n for which tables exist */
@@ -39,9 +41,9 @@ static unsigned char *been    = NULL; /* 0/1 flag array               */
 static void recompute(idx_t N)
 {
     /* free old tables */
-    free(dp_even);
-    free(dp_odd);
-    free(ans_cache);
+    mem_free(dp_even);
+    mem_free(dp_odd);
+    mem_free(ans_cache);
     free(been);
 
     max_n_global  = N;
@@ -58,12 +60,12 @@ static void recompute(idx_t N)
     idx_t rows = (Emax_global > Omax_global ? Emax_global : Omax_global) + 1U;
 
     /* allocate dp tables */
-    dp_even = (seq_t *)calloc(rows * stride_global, sizeof(seq_t));
-    dp_odd  = (seq_t *)calloc(rows * stride_global, sizeof(seq_t));
+    dp_even = mem_new(seq_t, rows * stride_global);
+    dp_odd  = mem_new(seq_t, rows * stride_global);
     if (!dp_even || !dp_odd)
     {
-        free(dp_even);
-        free(dp_odd);
+        mem_free(dp_even);
+        mem_free(dp_odd);
         dp_even = dp_odd = NULL;
         return;   /* allocation failure – caller will see unset tables */
     }
@@ -96,7 +98,7 @@ static void recompute(idx_t N)
     }
 
     /* answer cache */
-    ans_cache = (seq_t *)calloc(max_n_global + 1U, sizeof(seq_t));
+    ans_cache = mem_new(seq_t, max_n_global + 1U);
     been      = (unsigned char *)calloc(max_n_global + 1U, sizeof(unsigned char));
 }
 

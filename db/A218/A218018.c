@@ -10,12 +10,15 @@
  *            = n – r(r+1)/2
  * Range:     u8 n <= 5, u16 n <= 14, u32 n <= 54, u64 n <= 173, u128 n <= 542,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 53 terms through n = 5137 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 #include <stdint.h>
 
 seq_t a(idx_t n)
@@ -42,7 +45,7 @@ seq_t a(idx_t n)
         prod = prod * (seq_t)i;
 
     /* Compute 11^(r–k) */
-    seq_t pow11 = seq_pow((seq_t)11, r - k);
+    seq_t pow11 = ipow_idx((seq_t)11, r - k);
 
     return prod * pow11;
 }

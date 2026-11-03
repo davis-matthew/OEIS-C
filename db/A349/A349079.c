@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   bitset_copy, bitset_equal
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,19 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/bitset_copy.h"
-#include "../utils/bitset_equal.h"
+#include "../utils/mem.h"
+
+static inline void bitset_copy(uint64_t *dst, const uint64_t *src, size_t words)
+{
+    memcpy(dst, src, words * sizeof(uint64_t));
+}
+
+static inline bool bitset_equal(const uint64_t *a, const uint64_t *b, size_t words)
+{
+    for (size_t i = 0; i < words; ++i)
+        if ((a[i] ^ b[i]) != 0) return false;
+    return true;
+}
 
 /* --------------------------------------------------------------------- */
 /*  Configuration: limit for precomputation of factorial parities         */
@@ -146,7 +158,7 @@ static void seq_init(void)
     init_factParity();
 
     g_state.term_cap = 1000;
-    g_state.terms = (seq_t*)calloc(g_state.term_cap, sizeof(seq_t));
+    g_state.terms = mem_new(seq_t, g_state.term_cap);
     g_state.superParity = (uint64_t*)calloc(g_parity_words, sizeof(uint64_t));
 
     g_state.cur_k = 0;
@@ -199,8 +211,7 @@ seq_t a(idx_t n)
         if (is_term(g_state.cur_k)) {
             if (g_state.term_count == g_state.term_cap) {
                 g_state.term_cap *= 2;
-                g_state.terms = (seq_t*)realloc(g_state.terms,
-                                                g_state.term_cap * sizeof(seq_t));
+                g_state.terms = mem_resize(seq_t, g_state.terms, g_state.term_cap);
             }
             g_state.terms[g_state.term_count++] = (seq_t)g_state.cur_k;
         }

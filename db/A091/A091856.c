@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 66, u32 n <= 264, u64 n <= 264,
  *            u128 n <= 264, big any n
- * Helpers:   least_prime_factor_uint64
+ * Validated: standard, pass, 66 terms through n = 250 (2026-11-03)
+ * Helpers:   mem, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/least_prime_factor_uint64.h"
+#include "../utils/smallest_prime_factor.h"
+#include "../utils/mem.h"
 
 /* Memoised sequence storage */
 static seq_t *seq_cache = NULL;   /* indices 0 .. cache_cap-1 */
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     size_t idx = (size_t)n;
     if (idx >= cache_cap) {
         size_t new_cap = idx + 1;        /* indices 0 … idx */
-        seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
         if (!tmp) {
             /* Allocation failed; abort the program. */
             exit(EXIT_FAILURE);
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
                 seq_cache[i] = seq_cache[i - 1] + (seq_t)1;
             } else {                      /* i = 2n+1 : a(i) = a(i-1) + lpf(a(i-1)) */
                 seq_t prev = seq_cache[i - 1];
-                uint64_t lp = least_prime_factor_uint64((uint64_t)prev);
+                uint64_t lp = smallest_prime_factor((uint64_t)prev);
                 seq_cache[i] = prev + (seq_t)lp;
             }
         }

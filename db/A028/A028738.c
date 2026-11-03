@@ -9,6 +9,7 @@
  *            2,3,5,7,8,10,12,13,15,17,18,20,22,23
  * Range:     u8 n <= 14, u16 n <= 14, u32 n <= 14, u64 n <= 14, u128 n <= 14,
  *            big any n
+ * Validated: full, pass, 14 terms through n = 14 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,13 +8,15 @@
  *            a(n-5*k-4)/(n-5*k-4)!
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 13, u64 n <= 22, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Memoisation cache */
@@ -23,12 +25,12 @@ seq_t a(idx_t n) {
 
     /* Allocate / extend cache on first request or when n is larger */
     if (cache == NULL) {
-        cache = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (n + 1));
         if (cache == NULL) return 0;     /* allocation failure */
         cache[0] = (seq_t)1;
         cached = 0;
     } else if (n > cached) {
-        cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (n + 1));
         if (cache == NULL) return 0;     /* allocation failure */
     }
 

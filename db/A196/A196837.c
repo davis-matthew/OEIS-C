@@ -10,6 +10,7 @@
  *            s(r+1, r+1-c) (signed Stirling numbers of the first kind)
  * Range:     i8 n <= 12, i16 n <= 32, i32 n <= 74, i64 n <= 205,
  *            i128 n <= 557, big any n
+ * Validated: standard, pass, 71 terms through n = 9467 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

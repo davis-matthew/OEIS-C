@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 18, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   S_of_row, binomial, factorial
+ * Validated: partial, pass, 36 terms through n = 37 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,11 +22,40 @@
     a(n) is the n‑th entry of the triangle read row‑by‑row
     (offset 2, so a(2) = first entry).                                       */
 
-#include "../utils/factorial.h"
-#include "../utils/binomial.h"
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/S_of_row.h"
+#include <stdlib.h>
+#include "../utils/binomial.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
+
+/*  S(r) = Σ_{i=2..r} ⌊i/2⌋.  For r even (r=2m): S(r)=m².  For r odd (r=2m+1): S(r)=m(m+1).  */
+static inline idx_t S_of_row(idx_t r)
+{
+    if (r < 2)
+        return 0;
+    if (r & 1)       /* odd r = 2m+1 */
+    {
+        idx_t m = (r - 1) >> 1;
+        return m * (m + 1);
+    }
+    else             /* even r = 2m */
+    {
+        idx_t m = r >> 1;
+        return m * m;
+    }
+}
+#include <stddef.h>
+#include <stdint.h>
 
 /* Cumulative count of triangle entries up to row r (inclusive).          */
 

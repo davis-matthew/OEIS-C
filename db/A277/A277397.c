@@ -11,7 +11,8 @@
  *            + 6 = 14638
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 2, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   big_pow, digit_len, seq_to_str
+ * Validated: full, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   ipow, mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,29 @@
 #include <stdbool.h>
 #include <assert.h>
 
-#include "../utils/digit_len.h"   /* int digit_len(seq_t x); */
-#include "../utils/seq_to_str.h"  /* void seq_to_str(seq_t v, char *buf, size_t *len); */
-#include "../utils/big_pow.h"     /* seq_t big_pow(seq_t base, seq_t exp); */
+#include "../utils/ipow.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* convert a seq_t value to a decimal string */
+static void seq_to_str(seq_t v, char *buf, size_t *len)
+{
+    if (v == 0) {
+        buf[0] = '0';
+        *len = 1;
+        return;
+    }
+    char tmp[64];
+    int pos = 0;
+    seq_t ten = (seq_t)10;
+    while (v != 0) {
+        tmp[pos++] = '0' + (int)(v % ten);
+        v /= ten;
+    }
+    for (int i = 0; i < pos; ++i)
+        buf[i] = tmp[pos - 1 - i];
+    *len = pos;
+}
 
 static seq_t *cache      = NULL;   /* cached sequence values */
 static size_t cache_len  = 0;      /* number of stored terms        */
@@ -37,7 +58,7 @@ static void ensure_cache_capacity(void)
     if (cache_len < cache_cap)
         return;
     size_t newcap = cache_cap == 0 ? 4 : cache_cap * 2;
-    void *tmp = realloc(cache, newcap * sizeof(seq_t));
+    void *tmp = mem_resize(seq_t, cache, newcap);
     if (!tmp)
         abort();
     cache = (seq_t *)tmp;
@@ -48,10 +69,10 @@ static void ensure_cache_capacity(void)
 static bool is_candidate(seq_t n)
 {
     /* compute n^4 */
-    seq_t pow4 = big_pow(n, (seq_t)4);
+    seq_t pow4 = ipow(n, (seq_t)4);
 
     /* convert to decimal string */
-    size_t len = digit_len(pow4);
+    size_t len = num_digits(pow4);
     /* allocate buffer of digits + one byte for null terminator */
     char *buf = (char *)malloc(len + 1);
     if (!buf)

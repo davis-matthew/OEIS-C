@@ -7,19 +7,21 @@
  * Formula:   a(n) = (n+1)^18 + n^18
  * Range:     u8 n <= 0, u16 n <= 0, u32 n <= 2, u64 n <= 10, u128 n <= 132,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: standard, pass, 28 terms through n = 9728 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_seq.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
 
 /* Computes the nth centered cube number:
  *     a(n) = (n+1)^18 + n^18
  * for n >= 0. */
 seq_t a(idx_t n)
 {
-    seq_t term1 = pow_seq((seq_t)n + 1, 18);
-    seq_t term2 = pow_seq((seq_t)n, 18);
+    seq_t term1 = ipow_i32((seq_t)n + 1, 18);
+    seq_t term2 = ipow_i32((seq_t)n, 18);
     return term1 + term2;
 }

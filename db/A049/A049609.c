@@ -8,7 +8,8 @@
  *            +(n-2)*(n+2)*(n+1)*a(n-2)=0; a(0)=0, a(1)=1
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #if defined(__cplusplus)
 #include <type_traits>
 #endif
+#include "../utils/mem.h"
 
 /* Multiplication helper that prevents overflow on integral types */
 static inline seq_t mul_seq(seq_t x, seq_t y)
@@ -88,7 +90,7 @@ seq_t a(idx_t n)
     /* Lazy initialisation */
     if (!cache) {
         cache_cap = 3;                        /* space for indices 0..2 */
-        cache     = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache     = mem_new(seq_t, cache_cap);
         cache[0]  = (seq_t)0;
         cache[1]  = (seq_t)1;
         cache[2]  = (seq_t)7;                  /* a(2) from the recurrence */
@@ -100,7 +102,7 @@ seq_t a(idx_t n)
         size_t new_cap = cache_cap;
         while (new_cap <= (size_t)n) new_cap <<= 1;   /* grow exponentially */
 
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) { /* in case of allocation failure, return 0 (unlikely) */
             return (seq_t)0;
         }

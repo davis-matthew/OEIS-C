@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 45, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t* run_terms = NULL;      /* array of sequence terms */
 static size_t run_term_count = 0;    /* number of terms in run_terms   */
@@ -80,7 +82,7 @@ static void build_terms_up_to(idx_t limit)
         if (run_mem[i]) ++new_count;
 
     /* Allocate/replace term array */
-    seq_t *new_terms = (seq_t*)malloc(new_count * sizeof(seq_t));
+    seq_t *new_terms = mem_new(seq_t, new_count);
     if (!new_terms) exit(EXIT_FAILURE);
 
     size_t pos = 0;
@@ -88,7 +90,7 @@ static void build_terms_up_to(idx_t limit)
         if (run_mem[i]) new_terms[pos++] = (seq_t)i;
 
     /* Free old array and replace */
-    free(run_terms);
+    mem_free(run_terms);
     run_terms = new_terms;
     run_term_count = new_count;
     run_search_limit = limit;

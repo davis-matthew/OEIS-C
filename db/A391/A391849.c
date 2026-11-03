@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 328, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bitlen_seq_t
+ * Validated: standard, pass, 81 terms through n = 8887 (2026-11-03)
+ * Helpers:   bit_length, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,10 +41,10 @@ seq_t a(idx_t n)
         /* Polynomial division of prod by k over GF(2) */
         seq_t temp = prod;
         seq_t divisor = k;
-        unsigned dlen = bitlen_seq_t(divisor);
+        unsigned dlen = bit_length(divisor);
 
         while (temp != (seq_t)0) {
-            unsigned tlen = bitlen_seq_t(temp);
+            unsigned tlen = bit_length(temp);
             if (tlen < dlen) break;
             unsigned shift = tlen - dlen;
             temp ^= divisor << shift;
@@ -50,9 +53,9 @@ seq_t a(idx_t n)
         if (temp == (seq_t)0) {               /* k is in the sequence */
             if (cache_len == cache_cap) {      /* grow cache */
                 size_t new_cap = (cache_cap == 0) ? 8 : cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) {
-                    free(cache);
+                    mem_free(cache);
                     abort();                   /* unrecoverable error */
                 }
                 cache = tmp;

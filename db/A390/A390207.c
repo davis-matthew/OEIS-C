@@ -15,6 +15,7 @@
  *            nodes. This method works for all n that fit in an...
  * Range:     u8 n <= 109, u16 n <= 1033, u32 n <= 3101, u64 n <= 3101,
  *            u128 n <= 3101, big any n
+ * Validated: standard, pass, 95 terms through n = 3028 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

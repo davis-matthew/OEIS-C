@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
  * a(n) is the element at index n when this triangle is read row by row. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;      /* flattened triangle values */
 static size_t seq_cache_size = 0;     /* number of values stored    */
@@ -35,7 +37,7 @@ static void ensure_to_row(idx_t target_row)
 {
     while (row_count < target_row) {
         idx_t new_len = row_count + 1;          /* length of the new row    */
-        seq_t *new_row = (seq_t*)malloc(new_len * sizeof(seq_t));
+        seq_t *new_row = mem_new(seq_t, new_len);
         if (!new_row) exit(1);                 /* allocation failure      */
 
         if (row_count == 0) {                  /* row 1 */
@@ -59,7 +61,7 @@ static void ensure_to_row(idx_t target_row)
         if (required > seq_cache_cap) {
             size_t new_cap = seq_cache_cap ? seq_cache_cap * 2 : 128;
             while (new_cap < required) new_cap *= 2;
-            seq_t *tmp = (seq_t*)realloc(seq_cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
             if (!tmp) exit(1);
             seq_cache = tmp;
             seq_cache_cap = new_cap;
@@ -69,7 +71,7 @@ static void ensure_to_row(idx_t target_row)
         seq_cache_size += new_len;
 
         /* Prepare for the next iteration */
-        free(prev_row);
+        mem_free(prev_row);
         prev_row = new_row;
         prev_len = new_len;
         row_count = new_len;

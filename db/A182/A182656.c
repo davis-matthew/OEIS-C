@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 13, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   ensure_nextJ_capacity, floor_sqrt
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,38 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/floor_sqrt.h"
-#include "../utils/ensure_nextJ_capacity.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+/* Ensure a size_t array has at least 'needed' capacity */
+static void ensure_nextJ_capacity(size_t needed, size_t **arr, size_t *cap)
+{
+    if (*cap < needed) {
+        size_t new_cap = (*cap == 0) ? 64 : *cap * 2;
+        while (new_cap < needed) new_cap *= 2;
+        *arr = (size_t *)realloc(*arr, new_cap * sizeof(size_t));
+        *cap = new_cap;
+    }
+}
 
 typedef struct { seq_t val; size_t i; } Node;
 
@@ -29,7 +60,7 @@ static void ensure_seq_capacity(size_t needed, seq_t **arr, size_t *cap)
     if (*cap < needed) {
         size_t new_cap = (*cap == 0) ? 64 : *cap * 2;
         while (new_cap < needed) new_cap *= 2;
-        *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, new_cap);
         *cap = new_cap;
     }
 }
@@ -39,7 +70,7 @@ static void heap_push(Node **heap, size_t *cap, size_t *len, Node n)
 {
     if (*len == *cap) {
         size_t new_cap = (*cap == 0) ? 64 : *cap * 2;
-        *heap = (Node *)realloc(*heap, new_cap * sizeof(Node));
+        *heap = mem_resize(Node, *heap, new_cap);
         *cap = new_cap;
     }
     (*heap)[(*len)++] = n;
@@ -140,7 +171,7 @@ seq_t a(idx_t n)
         nextJ[1] = 2;      /* invalid yet (>=S_len) */
 
         /* heap for candidates */
-        heap = (Node *)malloc(64 * sizeof(Node));
+        heap = mem_new(Node, 64);
         heap_cap = 64;
         heap_len = 0;
 

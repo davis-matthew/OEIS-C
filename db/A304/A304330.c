@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 18, u32 n <= 33, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   _floor_isqrt_u64, big_pow, binomial_2k_j
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
+ * Helpers:   ipow, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,18 +24,27 @@
  */
 
 #include <stdint.h>            /* for uint64_t, if needed */
-#include "../utils/_floor_isqrt_u64.h"   /* for _floor_isqrt_u64 */
-#include "../utils/big_pow.h"              /* for big_pow */
-#include "../utils/binomial_2k_j.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/isqrt.h"
+
+static seq_t binomial_2k_j(idx_t k, idx_t j)
+{
+    /* Returns C(2*k, j) with multiplicative cancellation */
+    seq_t bin = 1;
+    for (idx_t t = 0; t < j; ++t)
+        bin = (bin * (seq_t)(2*k - t)) / (seq_t)(t + 1);
+    return bin;
+}
 
 /* declarations of external functions used */
-extern idx_t _floor_isqrt_u64(idx_t n);
-extern seq_t big_pow(seq_t base, seq_t exp);
+extern idx_t isqrt(idx_t n);
+extern seq_t ipow(seq_t base, seq_t exp);
 
 seq_t a(idx_t n)
 {
     /* Determine row and column from index n */
-    idx_t row = (_floor_isqrt_u64(8*n + 1) - 1) / 2;
+    idx_t row = (isqrt(8*n + 1) - 1) / 2;
     /* correct possible rounding errors */
     while ((row + 1) * (row + 2) / 2 <= n)
         ++row;
@@ -49,7 +59,7 @@ seq_t a(idx_t n)
 
     for (idx_t j = 0; j <= col; ++j) {
         seq_t base = (seq_t)(col - j);
-        seq_t p = big_pow(base, exp);
+        seq_t p = ipow(base, exp);
         seq_t term = bin * p;
         if ((j & 1) == 0)
             sum += term;

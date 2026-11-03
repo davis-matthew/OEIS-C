@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 99, u16 n <= 99, u32 n <= 99, u64 n <= 99, u128 n <= 99,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 99 terms through n = 99 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,10 @@
    residue. The earlier occurrence of that residue is the required j. */
 
 #include <stdlib.h>
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +42,7 @@ seq_t a(idx_t n)
     /* By the pigeonhole principle, among the first n+1 values of m^m mod n
        a residue must repeat. The first duplicate identifies the required j. */
     for (idx_t m = 1; m <= n + 1; ++m) {
-        seq_t val = mod_pow((seq_t)m, m, (seq_t)n);   /* m^m mod n */
+        seq_t val = powmod((seq_t)m, m, (seq_t)n);   /* m^m mod n */
         idx_t residue = (idx_t)val;                   /* 0 .. n-1 */
 
         if (first[residue] == 0) {

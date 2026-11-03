@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 18, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   parity_alternating
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,23 @@
  */
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/parity_alternating.h"
+#include "../utils/mem.h"
+
+/* Check whether the decimal digits of x alternate in parity. */
+static bool parity_alternating(seq_t x)
+{
+    int last_parity = -1;   /* -1 = not yet set */
+    while (x > 0) {
+        int digit   = (int)(x % 10); /* 0 <= digit <= 9 */
+        int parity  = digit & 1;     /* 0 = even, 1 = odd */
+        if (last_parity != -1 && parity == last_parity)
+            return false;
+        last_parity = parity;
+        x /= 10;
+    }
+    /* For x == 0 or single-digit numbers the loop is skipped and the result is true. */
+    return true;
+}
 
 /*
  *  a(idx_t n) returns the n-th entry of A030162.
@@ -40,7 +57,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call */
     if (cache == NULL) {
         cache_cap = 8;                     /* initial capacity */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return 0;              /* memory allocation failed */
         cache[0] = 0;                      /* a(1) = 0^3 */
         cache_len = 1;                     /* one term stored */
@@ -61,7 +78,7 @@ seq_t a(idx_t n)
             /* Ensure sufficient capacity */
             if (cache_len == cache_cap) {
                 cache_cap *= 2;
-                seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                 if (!tmp) return 0;        /* memory allocation failed */
                 cache = tmp;
             }

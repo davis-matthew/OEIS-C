@@ -9,14 +9,21 @@
  *            (-1)^(k+1) (p(m-k(3k-1)/2) + p(m-k(3k+1)/2)), p(0) = 1
  * Range:     u8 n <= 8, u16 n <= 22, u32 n <= 67, u64 n <= 216, u128 n <= 748,
  *            big any n
- * Helpers:   alloc_zero
+ * Validated: standard, pass, 55 terms through n = 9489 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/alloc_zero.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
 
 static seq_t *P = 0;
 static idx_t Plen = 0;

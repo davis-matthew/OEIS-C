@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 86, u16 n <= 86, u32 n <= 86, u64 n <= 86, u128 n <= 86,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 87 terms through n = 86 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t a0 = 22;                      /* numeric value of ⌊√509⌋ */
 static uint64_t a0_num = 22;               /* for arithmetic in initialization */
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
 
         /* Allocate initial capacity */
         period_cap = 16;
-        period = (seq_t *)realloc(NULL, period_cap * sizeof(seq_t));
+        period = mem_resize(seq_t, NULL, period_cap);
         if (!period) return (seq_t)0;      /* allocation failed */
 
         while (1) {
@@ -53,9 +55,8 @@ seq_t a(idx_t n)
             /* Store the term */
             if (period_len == period_cap) {
                 period_cap <<= 1;
-                seq_t *tmp = (seq_t *)realloc(period,
-                                               period_cap * sizeof(seq_t));
-                if (!tmp) { free(period); return (seq_t)0; }
+                seq_t *tmp = mem_resize(seq_t, period, period_cap);
+                if (!tmp) { mem_free(period); return (seq_t)0; }
                 period = tmp;
             }
             period[period_len++] = (seq_t)a_val;

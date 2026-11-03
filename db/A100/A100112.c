@@ -9,27 +9,28 @@
  *            0
  * Range:     u8 n <= 418, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   int_sqrt, mobius
+ * Validated: standard, pass, 100 terms through n = 9982 (2026-11-01)
+ * Helpers:   isqrt, mobius_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/int_sqrt.h"
-#include "../utils/mobius.h"
+#include "../utils/isqrt.h"
+#include "../utils/mobius_idx.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0) return 0;  /* index 0 is not used, safety */
 
     /* Check if n is squarefree. */
-    if (mobius(n) == 0) return 0;
+    if (mobius_idx(n) == 0) return 0;
 
     /* Count squarefree numbers <= n via Möbius inversion. */
-    idx_t sqrt_n = int_sqrt(n);
+    idx_t sqrt_n = isqrt(n);
     int64_t count = 0;
     for (idx_t k = 1; k <= sqrt_n; ++k) {
-        int mu = mobius(k);
+        int mu = mobius_idx(k);
         if (mu == 0) continue;
         idx_t kk = k * k;
         idx_t term = n / kk;

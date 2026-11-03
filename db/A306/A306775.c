@@ -11,13 +11,15 @@
  *            μ^2(d)
  * Range:     u8 n <= 14, u16 n <= 229, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 9608 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static idx_t   max_cached = 0;     /* largest n for which tables were built */
 static idx_t   *omega      = NULL; /* number of distinct prime factors */
@@ -34,7 +36,7 @@ static void build_tables(idx_t n)
     /* and C++ because seq_t is a basic unsigned integer type or a type */
     /* with a trivial constructor (as required by the build). */
     omega = (idx_t *)realloc(omega, (n + 1) * sizeof(idx_t));
-    pow2omega = (seq_t *)realloc(pow2omega, (n + 1) * sizeof(seq_t));
+    pow2omega = mem_resize(seq_t, pow2omega, (n + 1));
     if (!omega || !pow2omega)
         return; /* Allocation failed – caller will return 0. */
 

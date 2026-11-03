@@ -7,6 +7,7 @@
  * Formula:   a(n) = |{ w*h : w ≥ 1, h ≥ 1, w*h ≥ n, w+h-1 ≤ n }|
  * Range:     u8 n <= 45, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

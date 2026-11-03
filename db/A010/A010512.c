@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, cons
  * Formula:   not stated
- * Range:     u8 n <= 9837, u16 n <= 9837, u32 n <= 9837, u64 n <= 9837,
- *            u128 n <= 9837, big any n
- * Helpers:   none
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 115 terms through n = 9837 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 #define BI_BASE     1000000000u        /* 1e9 base for big ints */
 #define BI_BASE_DIG 9                 /* digits per limb */
@@ -187,7 +189,7 @@ static void ensure_digits_cap(size_t need) {
     if (need <= digits_cap) return;
     size_t new_cap = digits_cap ? digits_cap*2 : 8;
     while (new_cap < need) new_cap *= 2;
-    seq_t *newp = (seq_t *)realloc(digits, new_cap * sizeof(seq_t));
+    seq_t *newp = mem_resize(seq_t, digits, new_cap);
     if (!newp) abort();
     digits = newp;
     digits_cap = new_cap;
@@ -204,7 +206,7 @@ static void init_sequence(void) {
     bi_set_uint64(&rem, 10);
 
     digits_cap = 8;
-    digits = (seq_t *)malloc(digits_cap * sizeof(seq_t));
+    digits = mem_new(seq_t, digits_cap);
     if (!digits) abort();
 
     digits[0] = 7;

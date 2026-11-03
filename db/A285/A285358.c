@@ -10,12 +10,14 @@
  *            the morphism to the symbol 1
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 9879 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached word produced by successive applications of the morphism. */
 static seq_t *bits = NULL;
@@ -30,7 +32,7 @@ static void expand(void)
     for (idx_t i = 0; i < old_len; ++i)
         new_len += (bits[i] == 0) ? 2U : 4U;
 
-    seq_t *nw = (seq_t *)malloc(new_len * sizeof(seq_t));
+    seq_t *nw = mem_new(seq_t, new_len);
     if (!nw) exit(EXIT_FAILURE);
 
     idx_t pos = 0;
@@ -46,7 +48,7 @@ static void expand(void)
         }
     }
 
-    free(bits);
+    mem_free(bits);
     bits = nw;
     bits_len = (idx_t)new_len;
 }
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
     if (n == 0) return (seq_t)0;          /* offset is 1, n==0 undefined */
 
     if (bits_len == 0) {                  /* initialise with the seed 1 */
-        bits = (seq_t *)malloc(sizeof(seq_t));
+        bits = mem_new(seq_t, 1);
         if (!bits) exit(EXIT_FAILURE);
         bits[0] = (seq_t)1;
         bits_len = 1;

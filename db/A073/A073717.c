@@ -7,12 +7,14 @@
  * Formula:   a(n) = T(2*n+1) (Tribonnaci bisection, a(0)=0,a(1)=1,a(2)=4)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 19, u64 n <= 37, u128 n <= 73,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 932 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* for malloc, realloc */
+#include "../utils/mem.h"
 
 static seq_t *trib      = NULL;
 static idx_t  trib_cap  = 0;   /* allocated size (number of elements) */
@@ -24,7 +26,7 @@ static void trib_init_cache(void)
 {
     if (!trib_init) {
         trib_cap = 8;                               /* initial capacity */
-        trib     = (seq_t *)malloc(trib_cap * sizeof(seq_t));
+        trib     = mem_new(seq_t, trib_cap);
         trib[0] = (seq_t)0;  /* T(0) */
         trib[1] = (seq_t)0;  /* T(1) */
         trib[2] = (seq_t)1;  /* T(2) */
@@ -46,7 +48,7 @@ static void trib_ensure(idx_t n)
         idx_t new_cap = trib_cap * 2;
         while (new_cap <= n)
             new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(trib, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, trib, new_cap);
         /* If realloc fails, we simply keep the old pointer and rely on the
          * caller not to exceed practical limits; production code would
          * handle the error. */

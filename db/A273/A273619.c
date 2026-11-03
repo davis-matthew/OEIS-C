@@ -10,8 +10,9 @@
  *            indexes start at n>1, k>0 and the sequence is offset 2. * The
  *            mapping is: * p = n-2 (0‑based sequence position) * d =
  *            floor((sqrt(8p+1)-1)/2) (diagonal index) * left = d*(d+1)...
- * Range:     u8 n <= 8595, u16 n <= 8595, u32 n <= 8595, u64 n <= 8595,
- *            u128 n <= 8595, big any n
+ * Range:     u8 n <= 10012, u16 n <= 10012, u32 n <= 10012, u64 n <= 10012,
+ *            u128 n <= 10012, big any n
+ * Validated: standard, pass, 102 terms through n = 8595 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

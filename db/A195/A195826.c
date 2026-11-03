@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 76, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   kmax_row
+ * Validated: partial, pass, 76 terms through n = 76 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,22 @@
 
 #include <stdint.h>
 #include <limits.h>
-#include "../utils/kmax_row.h"
+
+/* Computes the largest integer k such that k(k+1)/2 ≤ r.
+   Uses a binary search with 128‑bit arithmetic to avoid overflow. */
+static idx_t kmax_row(idx_t r)
+{
+    idx_t lo = 0, hi = r;           /* hi may be large but loop runs ≤64 steps */
+    while (lo < hi) {
+        idx_t mid = lo + (hi - lo + 1) / 2;
+        unsigned __int128 val = (unsigned __int128)mid * (mid + 1) / 2;
+        if (val <= r)
+            lo = mid;
+        else
+            hi = mid - 1;
+    }
+    return lo;
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)

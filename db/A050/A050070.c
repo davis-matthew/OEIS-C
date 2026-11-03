@@ -10,7 +10,8 @@
  *            a(n) = a(n-1)+a(n-1-2^⌊log₂(n-2)⌋)
  * Range:     u8 n <= 29, u16 n <= 188, u32 n <= 1650, u64 n <= 8193,
  *            u128 n <= 8193, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 7927 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #ifdef __cplusplus
 #include <new>
 #endif
+#include "../utils/mem.h"
 
 /* Ensure enough space for indices up to n (inclusive). */
 static void ensure_cache(size_t n)
@@ -30,12 +32,12 @@ static void ensure_cache(size_t n)
     if (n <= cache_cap) return;
     size_t new_cap = cache_cap ? (cache_cap << 1) : 16;
     while (new_cap < n) new_cap <<= 1;
-    seq_t *new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) abort();            /* Out of memory */
 #ifdef __cplusplus
     /* Construct newly allocated objects for a class type, no-op for integral types. */
     for (size_t i = cache_cap; i < new_cap; ++i)
-        new (new_cache + i) seq_t();
+        *(new_cache + i) = (seq_t)0;
 #endif
     cache = new_cache;
     cache_cap = new_cap;
@@ -55,13 +57,13 @@ static void init(void)
     if (global_cache) return;   /* already initialized */
     /* Allocate at least space for indices 0..3 (0 unused). */
     size_t init_cap = 4;
-    global_cache = (seq_t *)malloc(sizeof(seq_t) * init_cap);
+    global_cache = mem_new(seq_t, init_cap);
     if (!global_cache) abort();
     global_cache_cap = init_cap;
 #ifdef __cplusplus
     /* Default construct if needed */
     for (size_t i = 0; i < init_cap; ++i)
-        new (global_cache + i) seq_t();
+        *(global_cache + i) = (seq_t)0;
 #endif
     /* Set base values */
     global_cache[1] = (seq_t)1;
@@ -75,12 +77,12 @@ static void grow_cache(size_t n)
     if (n + 1 <= global_cache_cap) return;
     size_t new_cap = global_cache_cap ? (global_cache_cap << 1) : 16;
     while (new_cap <= n) new_cap <<= 1;
-    seq_t *new_cache = (seq_t *)realloc(global_cache, sizeof(seq_t) * new_cap);
+    seq_t *new_cache = mem_resize(seq_t, global_cache, new_cap);
     if (!new_cache) abort();
 #ifdef __cplusplus
     /* Construct new elements */
     for (size_t i = global_cache_cap; i < new_cap; ++i)
-        new (new_cache + i) seq_t();
+        *(new_cache + i) = (seq_t)0;
 #endif
     global_cache = new_cache;
     global_cache_cap = new_cap;

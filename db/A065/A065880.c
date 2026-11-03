@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 52, u16 n <= 5670, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   popcnt_seq_t
+ * Validated: standard, pass, 82 terms through n = 9963 (2026-11-01)
+ * Helpers:   popcount_seq_to_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
  * or 0 if no such k exists. */
 
 #include <stdint.h>
-#include "../utils/popcnt_seq_t.h"
+#include "../utils/popcount_seq_to_i32.h"
 #if defined(__SIZEOF_INT128__) || defined(__GNUC__) || defined(__clang__)
 #define HAVE_UINT128 1
 #else
@@ -58,7 +59,7 @@ seq_t a(idx_t n)
         if (overflow) continue;
         k = (seq_t)prod;
 #endif
-        if (popcnt_seq_t(k) == p) return k;
+        if (popcount_seq_to_i32(k) == p) return k;
     }
 
     return 0;

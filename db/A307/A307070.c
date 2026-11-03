@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 79, u16 n <= 79, u32 n <= 79, u64 n <= 79, u128 n <= 79,
  *            big any n
- * Helpers:   mod_mul
+ * Validated: partial, pass, 79 terms through n = 79 (2026-11-01)
+ * Helpers:   mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,9 @@
    Else        a(n) = multiplicative order of 10 modulo m   (recurring period) */
 
 #include <stdint.h>
-#include "../utils/mod_mul.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include "../utils/mulmod.h"
 
 seq_t a(idx_t n)
 {
@@ -46,7 +49,7 @@ seq_t a(idx_t n)
     idx_t mod = (idx_t)(10 % tmp);
 
     while (mod != 1) {
-        mod = (idx_t)mod_mul((uint64_t)mod, (uint64_t)10, (uint64_t)tmp);
+        mod = (idx_t)mulmod((uint64_t)mod, (uint64_t)10, (uint64_t)tmp);
         period++;
     }
 

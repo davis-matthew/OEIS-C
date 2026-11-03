@@ -9,15 +9,55 @@
  *            that compact(n + m) = n; if no such m exists, a(n) = 0
  * Range:     u8 n <= 25, u16 n <= 122, u32 n <= 449, u64 n <= 449,
  *            u128 n <= 449, big any n
- * Helpers:   compact_seq_t, distinct_digits_seq_t
+ * Validated: standard, pass, 76 terms through n = 441 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Author's implementation of A337857. */
 #include <stdbool.h>
-#include "../utils/compact_seq_t.h"
-#include "../utils/distinct_digits_seq_t.h"
+
+/* Return the compact of x: the number obtained by removing all duplicate digits
+   (keeping only first occurrence of each digit), in the same order. */
+static seq_t compact_seq_t(seq_t x)
+{
+    seq_t result = 0;
+    uint16_t seen = 0;
+    /* store digits in reverse order */
+    seq_t temp = x;
+    seq_t digits[64];  /* enough for any realistic seq_t */
+    int len = 0;
+    while (temp > 0) {
+        digits[len++] = temp % 10;
+        temp /= 10;
+    }
+    for (int i = len - 1; i >= 0; --i) {
+        int d = (int)(digits[i]);
+        if (!(seen & (1u << d))) {
+            result = result * 10 + d;
+            seen |= (1u << d);
+        }
+    }
+    return result;
+}
+
+/* Check whether seq_t x has all distinct decimal digits. */
+static bool distinct_digits_seq_t(seq_t x)
+{
+    uint16_t mask = 0;
+    if (x == 0) {
+        /* digit 0 is considered distinct */
+        return true;
+    }
+    while (x > 0) {
+        int d = (int)(x % 10);
+        if (mask & (1u << d)) return false;
+        mask |= (1u << d);
+        x /= 10;
+    }
+    return true;
+}
 
 /* Recursive generator for numbers with distinct digits (in increasing order).
    len   – target length of the generated number

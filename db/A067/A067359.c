@@ -7,13 +7,15 @@
  * Formula:   a(n) = 10*a(n-1) - 169*a(n-2), a(1)=1, a(2)=5
  * Range:     i8 n <= 3, i16 n <= 5, i32 n <= 9, i64 n <= 18, i128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     /* ensure cache has at least two elements for the base cases */
     if (cache_len < 2) {
         /* allocate 3 slots: we ignore cache[0] to keep 1‑based indexing */
-        cache = (seq_t *)malloc(3 * sizeof(seq_t));
+        cache = mem_new(seq_t, 3);
         if (cache == NULL) {
             /* memory allocation failed; return zero as a safe fallback */
             return (seq_t)0;
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     /* extend the cache up to n */
     if (n > cache_len) {
         /* reallocate to accommodate up to index n (1‑based) */
-        seq_t *new_cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
         if (new_cache == NULL) {
             /* realloc failed, leave cache unchanged */
             return cache[n]; /* may be out of bounds but caller should not rely on this */

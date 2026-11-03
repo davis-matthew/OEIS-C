@@ -9,11 +9,13 @@
  *            9*2^(n/2-1) + 9*2^(n-1) + 34 for even n * (offset 1, a(1)=49)
  * Range:     u8 n <= 5, u16 n <= 13, u32 n <= 29, u64 n <= 61, u128 n <= 125,
  *            big any n
+ * Validated: standard, pass, 46 terms through n = 194 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

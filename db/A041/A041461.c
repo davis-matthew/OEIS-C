@@ -12,13 +12,15 @@
  *            a(18)=6882387...
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 19, u64 n <= 37, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 188 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static const seq_t _initial[20] = {
     (seq_t)1, (seq_t)1, (seq_t)3, (seq_t)16, (seq_t)19, (seq_t)282,
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call. */
     if (_cache == NULL) {
         size_t cap = 20;   /* at least first 20 terms are known */
-        _cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        _cache = mem_new(seq_t, cap);
         if (_cache == NULL) return (seq_t)0;        /* out of memory; unlikely in tests */
         for (idx_t i = 0; i < 20; ++i) _cache[i] = _initial[i];
         _cache_size = cap;
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
     if ((size_t)(n + 1) > _cache_size) {
         size_t new_cap = _cache_size ? _cache_size : 1;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, _cache, new_cap);
         if (tmp == NULL) return (seq_t)0;  /* out of memory */
         _cache = tmp;
         _cache_size = new_cap;

@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = 1 if n = p² * q with p and q distinct prime, otherwise 0
  *            This implementation factors n and checks the pattern p²·q
- * Range:     u8 n <= 8178, u16 n <= 8178, u32 n <= 8178, u64 n <= 8178,
- *            u128 n <= 8178, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 137 terms through n = 8178 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

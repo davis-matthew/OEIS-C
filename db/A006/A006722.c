@@ -11,14 +11,28 @@
  *            multiplying with the modular inverse of a(n-6)
  * Range:     u8 n <= 10, u16 n <= 14, u32 n <= 19, u64 n <= 25, u128 n <= 35,
  *            big any n
- * Helpers:   seq_is_fixed_width
+ * Validated: standard, pass, 44 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_is_fixed_width.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
 
 static seq_t *cache = NULL;
 static idx_t cache_size = 0;
@@ -47,7 +61,7 @@ seq_t a(idx_t n) {
     }
     if (cache == NULL) {
         cache_size = 64;
-        cache = (seq_t *)malloc((size_t)cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)cache_size);
         for (i = 0; i < 6; i++) {
             cache[i] = 1;
         }
@@ -59,11 +73,11 @@ seq_t a(idx_t n) {
         while (new_size <= n) {
             new_size *= 2;
         }
-        nc = (seq_t *)malloc((size_t)new_size * sizeof(seq_t));
+        nc = mem_new(seq_t, (size_t)new_size);
         for (i = 0; i <= max_computed; i++) {
             nc[i] = cache[i];
         }
-        free(cache);
+        mem_free(cache);
         cache = nc;
         cache_size = new_size;
     }

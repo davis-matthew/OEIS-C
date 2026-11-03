@@ -8,12 +8,14 @@
  *            3*k)
  * Range:     u8 n <= 9, u16 n <= 16, u32 n <= 31, u64 n <= 59, u128 n <= 115,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 51 terms through n = 855 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -22,8 +24,8 @@ seq_t a(idx_t n)
 
     for (idx_t k = 0; k <= maxk; ++k) {
         /* binom is the helper that returns binomial(n, k) exactly. */
-        seq_t c1 = binom(2 * k, k);
-        seq_t c2 = binom(n - k, 3 * k);
+        seq_t c1 = binomial(2 * k, k);
+        seq_t c2 = binomial(n - k, 3 * k);
 
         sum += c1 * c2;
     }

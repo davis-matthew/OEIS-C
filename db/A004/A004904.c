@@ -10,14 +10,20 @@
  *            least n terms
  * Range:     u8 n <= 10, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   pow10u
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/pow10u.h"
+
+static uint64_t pow10u(uint64_t b) {
+    uint64_t r = 1;
+    for (int i = 0; i < 10; i++) r *= b;
+    return r;
+}
 
 static uint64_t *g_buf = NULL;
 static size_t g_len = 0, g_cap = 0;

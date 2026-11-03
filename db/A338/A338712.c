@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 18, u32 n <= 38, u64 n <= 77, u128 n <= 154,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 56 terms through n = 959 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 */
 
 #include <stdlib.h>     /* malloc, free */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
         return 0;
 
     /* Allocate a temporary array large enough for indices 1..n */
-    seq_t *term = (seq_t*)malloc((n + 1) * sizeof(seq_t));
+    seq_t *term = mem_new(seq_t, (n + 1));
     if (!term)
         return 0;   /* allocation failure – unlikely for n≤10000 */
 
@@ -52,6 +54,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = term[n];
-    free(term);
+    mem_free(term);
     return result;
 }

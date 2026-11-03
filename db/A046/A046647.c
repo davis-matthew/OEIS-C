@@ -7,7 +7,8 @@
  * Formula:   a(n) = 4*(7*n-15)*(3*n-6)!/((n-2)!*(2*n-2)!)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 15, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   build_primes_upto, pow_seq
+ * Validated: partial, pass, 24 terms through n = 25 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,9 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 /* --------- prime table (local to this file) --------- */
 static uint64_t *prime_buf = NULL;
@@ -81,7 +83,7 @@ seq_t a(idx_t n)
 
         seq_t exp_total = exp_num - exp_den + exp_factor;
         if (exp_total > 0) {
-            result *= pow_seq((seq_t)p, (int)exp_total);
+            result *= ipow_i32((seq_t)p, (int)exp_total);
         }
         /* for n ≥ 3 exp_total is guaranteed non‑negative (factor cancels all
            remaining denominators). */

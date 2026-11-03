@@ -9,13 +9,14 @@
  *            k next to it are then compared exactly in seq_t
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 18, u64 n <= 29, u128 n <= 47,
  *            big any n
- * Helpers:   a3320_pw
+ * Validated: standard, pass, 42 terms through n = 526 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
-#include "../utils/a3320_pw.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n) {
     seq_t result = 1;
@@ -35,7 +36,7 @@ seq_t a(idx_t n) {
     lo = (best > 3) ? best - 2 : 1;
     hi = (best + 2 <= n) ? best + 2 : n;
     for (k = lo; k <= hi; k++) {
-        seq_t v = a3320_pw((seq_t)k, n - k);
+        seq_t v = ipow_idx((seq_t)k, n - k);
         if (v > result) result = v;
     }
     return result;

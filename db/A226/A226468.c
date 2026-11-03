@@ -9,7 +9,8 @@
  *            digit equals the sum modulo 10 of the other digits
  * Range:     u8 n <= 9, u16 n <= 23, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* popcount for 64‑bit values */
 static inline int popcnt64(uint64_t v)
@@ -97,7 +99,7 @@ seq_t a(idx_t n)
                 /* add to the list (grow if necessary) */
                 if (terms_len == terms_cap) {
                     size_t newcap = terms_cap ? terms_cap * 2 : 8;
-                    seq_t *tmp = (seq_t *)realloc(terms, newcap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, terms, newcap);
                     if (!tmp) abort();                /* allocation failed */
                     terms = tmp;
                     terms_cap = newcap;
@@ -109,7 +111,7 @@ seq_t a(idx_t n)
         /* keep the array in ascending order – all new numbers are larger
            than all previously generated ones, but they are not
            necessarily sorted within the new length, so we sort the whole list. */
-        qsort(terms, terms_len, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(terms, terms_len, sizeof(seq_t), cmp_seq_t);
     }
 
     return terms[n - 1];

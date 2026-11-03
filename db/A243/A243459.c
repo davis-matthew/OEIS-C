@@ -8,7 +8,8 @@
  *            (offset 1)
  * Range:     u8 n <= 7, u16 n <= 527, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 971 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- Helper: miller-rabin for 64‑bit integers ---------- */
 static bool is_prime_uint64(uint64_t n)
@@ -85,7 +87,7 @@ seq_t a(idx_t n)
     if (s_len < nn) {
         if (s_cache == NULL) {
             s_cap = 64;
-            s_cache = (seq_t*)malloc(s_cap * sizeof(seq_t));
+            s_cache = mem_new(seq_t, s_cap);
         }
         while (s_len < nn) {
             /* find next prime */
@@ -99,7 +101,7 @@ seq_t a(idx_t n)
                 if (is_prime_uint64(diff)) {
                     if (s_len == s_cap) {
                         s_cap *= 2;
-                        s_cache = (seq_t*)realloc(s_cache, s_cap * sizeof(seq_t));
+                        s_cache = mem_resize(seq_t, s_cache, s_cap);
                     }
                     s_cache[s_len++] = (seq_t)cand;
                 }

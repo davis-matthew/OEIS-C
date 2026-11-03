@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 40, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   _T_of
+ * Validated: partial, pass, 53 terms through n = 52 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,27 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/_T_of.h"
+
+/* Compute T(n,k) with the recurrence.  n ≤ 2000 for our use. */
+static seq_t _T_of(idx_t n, seq_t prime)
+{
+    if (n == 0) return (seq_t)1;
+    if (n == 1) return (seq_t)2;
+
+    seq_t prevprev = (seq_t)1;   /* T(n-2) */
+    seq_t prev     = (seq_t)2;   /* T(n-1) */
+    seq_t pow      = prime;      /* p^(i-1) for the current i */
+
+    for (idx_t i = 2; i <= n; ++i) {
+        seq_t term = pow - (seq_t)1;           /* p^(i-1)-1 */
+        term = term * prevprev;                /* *T(i-2) */
+        seq_t curr = (seq_t)2 * prev + term;   /* 2*T(i-1)+term */
+        prevprev = prev;
+        prev = curr;
+        pow = pow * prime;                    /* advance power */
+    }
+    return prev;   /* T(n) */
+}
 
 /* --- Prime table ------------------------------------------------------- */
 /* Store the first 2048 primes; they easily cover all indices needed

@@ -11,12 +11,14 @@
  *            computed values so that calls with any order...
  * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 28, u64 n <= 56, u128 n <= 112,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;         /* 1‑based array: cache[i] = a(i)     */
 static idx_t cache_size = 0;        /* largest n currently computed       */
@@ -29,7 +31,7 @@ static void ensure_capacity(idx_t n)
     size_t new_cap = (cache_cap ? cache_cap * 2 : 16);
     while (new_cap <= (size_t)n) new_cap *= 2;
     /* realloc returns void* in C++ – cast to seq_t* */
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) exit(1);              /* out of memory */
     cache = tmp;
     cache_cap = new_cap;

@@ -11,12 +11,14 @@
  *            x·(1+82x+86x²+266x³+1273x⁴+4234x⁵+5880x⁶+28498x⁷)/(1−x)⁹
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 18, u64 n <= 258, u128 n <= 1000,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 43 terms through n = 913 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
         idx_t arg = n + 7 - k;
         if (arg < 8)   /* binom(arg,8) would be zero */
             continue;
-        result += coeff[k] * binom(arg, 8);
+        result += coeff[k] * binomial(arg, 8);
     }
     return result;
 }

@@ -8,15 +8,16 @@
  * Keywords:  nonn, tabl
  * Formula:   a(n) = read the triangle T(r,k) where * T(r,k) = binomial(r,k) +
  *            ((3+(-1)^k)/2) * binomial(r,k+1)
- * Range:     u8 n <= 48, u16 n <= 160, u32 n <= 539, u64 n <= 1325,
+ * Range:     u8 n <= 48, u16 n <= 160, u32 n <= 608, u64 n <= 1325,
  *            u128 n <= 1325, big any n
- * Helpers:   binom_n
+ * Validated: standard, pass, 94 terms through n = 1316 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/binom_n.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -30,8 +31,8 @@ seq_t a(idx_t n)
     }
     idx_t c = n - offset;
 
-    seq_t bin1 = binom_n(r, c);         /* C(r,c)  */
-    seq_t bin2 = binom_n(r, c + 1);     /* C(r,c+1) */
+    seq_t bin1 = binomial(r, c);         /* C(r,c)  */
+    seq_t bin2 = binomial(r, c + 1);     /* C(r,c+1) */
 
     seq_t coeff = (c & 1) ? (seq_t)1 : (seq_t)2; /* (3+(-1)^c)/2 */
     return bin1 + coeff * bin2;

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 27, u32 n <= 65, u64 n <= 152,
  *            u128 n <= 405, big any n
- * Helpers:   big_pow, binomial, seq_mul
+ * Validated: standard, pass, 71 terms through n = 9274 (2026-11-03)
+ * Helpers:   binomial, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,9 +26,16 @@
 #include <stdint.h>
 
 /* Helper functions provided by the build system */
-#include "../utils/binomial.h"   /* seq_t binomial(idx_t n, idx_t k); */
-#include "../utils/seq_mul.h"    /* seq_t seq_mul(seq_t a, seq_t b); */
-#include "../utils/big_pow.h"    /* seq_t big_pow(seq_t base, idx_t exp); */
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Cached values of A105785(m) for m = 0 .. A_count-1 */
 static seq_t *A_values = NULL;
@@ -40,7 +48,7 @@ static void ensure_A_up_to(idx_t up)
         return;
 
     /* Allocate a new array of the required size */
-    seq_t *newp = (seq_t *)malloc((size_t)(up + 1) * sizeof(seq_t));
+    seq_t *newp = mem_new(seq_t, (size_t)(up + 1));
     if (!newp)
         exit(1);                  /* unrecoverable allocation error */
 
@@ -53,7 +61,7 @@ static void ensure_A_up_to(idx_t up)
         if (m == 0) {
             newp[0] = (seq_t)1;
         } else {
-            seq_t total = big_pow((seq_t)(m + 1), (idx_t)(m - 1));
+            seq_t total = ipow((seq_t)(m + 1), (idx_t)(m - 1));
             seq_t sum   = (seq_t)0;
             for (idx_t t = 1; t <= m; ++t) {
                 seq_t comb = binomial(m, t);
@@ -65,7 +73,7 @@ static void ensure_A_up_to(idx_t up)
     }
 
     /* Free old storage and replace with the new array */
-    free(A_values);
+    mem_free(A_values);
     A_values = newp;
     A_count  = up + 1;
 }

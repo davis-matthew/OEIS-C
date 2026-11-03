@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 31, u16 n <= 110, u32 n <= 389, u64 n <= 1402,
  *            u128 n <= 5050, big any n
- * Helpers:   alloc_seq_array, free_seq_array
+ * Validated: standard, pass, 76 terms through n = 4418 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,20 @@
    by antidiagonals (offset 1). */
 
 #include <stdlib.h>
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 static seq_t **A = NULL;        /* cached table of a(n,k) values */
 static idx_t A_size = 0;        /* current table dimension (rows/cols) */

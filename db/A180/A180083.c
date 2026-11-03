@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 12, u32 n <= 12, u64 n <= 12, u128 n <= 13,
  *            big any n
- * Helpers:   min_with_digit_sum
+ * Validated: partial, pass, 13 terms through n = 13 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,32 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/min_with_digit_sum.h"
+#include "../utils/mem.h"
+
+/*  Helper that constructs the minimal number having a given digit sum.
+ *  For a digit sum S, the minimal number is:
+ *      - if S % 9 == 0:   99...9   (S/9 copies of '9')
+ *      - otherwise:      (S%9) followed by (S/9) copies of '9'
+ */
+static seq_t min_with_digit_sum(seq_t S)
+{
+    seq_t q = S / 9;          /* number of '9' digits        */
+    unsigned r = (unsigned)(S % 9);   /* first digit if non‑zero     */
+    seq_t res = 0;
+
+    if (r > 0) {
+        res = r;
+    }
+
+    /* append q copies of 9 */
+    /* Note: for the sequence values that fit in seq_t, q is small enough
+     * to finish in a reasonable time.  For larger q the value would overflow
+     * seq_t anyway, which is outside the test range.            */
+    for (idx_t j = 0; j < (idx_t)q; ++j) {
+        res = res * 10 + 9;
+    }
+    return res;
+}
 
 /*  Cached computation of a(n).  The result for each n is stored in an
  *  array; if subsequent calls request larger n the array is expanded
@@ -41,7 +67,7 @@ seq_t a(idx_t n)
     if (cache_len == 0) {
         /* initialise with a(1) = 0 */
         cache_cap = 1;
-        cache    = (seq_t *)malloc(sizeof(seq_t) * cache_cap);
+        cache    = mem_new(seq_t, cache_cap);
         cache[0] = (seq_t)0;
         cache_len = 1;
     }
@@ -54,7 +80,7 @@ seq_t a(idx_t n)
         /* grow cache if necessary */
         if (cache_len >= cache_cap) {
             cache_cap = cache_cap * 2;
-            cache = (seq_t *)realloc(cache, sizeof(seq_t) * cache_cap);
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
         cache[cache_len] = next;
         ++cache_len;

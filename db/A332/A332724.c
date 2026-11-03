@@ -12,13 +12,15 @@
  *            A001629)
  * Range:     u8 n <= 8, u16 n <= 17, u32 n <= 39, u64 n <= 83, u128 n <= 174,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 961 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,11 +33,11 @@ seq_t a(idx_t n)
     if (n >= cap) {
         size_t new_cap = (cap == 0) ? 8 : cap << 1;
         while (new_cap <= n) new_cap <<= 1;
-        seq_t *tmp = (seq_t*)malloc(new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, new_cap);
         if (!tmp) return 0;   /* failure path; unlikely in tests */
         if (cache) {
             for (idx_t i = 0; i < sz; ++i) tmp[i] = cache[i];
-            free(cache);
+            mem_free(cache);
         }
         cache = tmp;
         cap   = new_cap;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 174, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   digit_product_local
+ * Validated: standard, pass, 100 terms through n = 986 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,20 @@
 /*              simple array of a fixed (sufficiently large) size.         */
 
 #include <stdint.h>
-#include "../utils/digit_product_local.h"
+
+/* digit product --------------------------------------------------------------- */
+static inline seq_t digit_product_local(seq_t x)
+{
+    seq_t prod = 1;
+    seq_t tmp = x;
+    while (tmp != (seq_t)0)
+    {
+        seq_t d = tmp % (seq_t)10;
+        prod *= d;
+        tmp /= (seq_t)10;
+    }
+    return prod;
+}
 
 #define CACHE_MAX 200000          /* enough for all practical queries (n up to ~100 000) */
 

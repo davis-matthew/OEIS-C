@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 20, u32 n <= 42, u64 n <= 42, u128 n <= 42,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 42 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Public function as required by the signature */
 seq_t a(idx_t n)
@@ -33,9 +35,9 @@ seq_t a(idx_t n)
     }
 
     /* Arrays for h, a and temporary dp */
-    seq_t *h  = (seq_t*)calloc((size_t)n + 1, sizeof(seq_t));
-    seq_t *a  = (seq_t*)calloc((size_t)n + 1, sizeof(seq_t));
-    seq_t *dp = (seq_t*)calloc((size_t)n + 1, sizeof(seq_t));
+    seq_t *h  = mem_new(seq_t, (size_t)n + 1);
+    seq_t *a  = mem_new(seq_t, (size_t)n + 1);
+    seq_t *dp = mem_new(seq_t, (size_t)n + 1);
 
     if (!h || !a || !dp) return (seq_t)0; /* allocation failure */
 
@@ -94,8 +96,8 @@ seq_t a(idx_t n)
     /* ---------------------------------------------------------------- */
     seq_t result = a[n];
     /* free temporary arrays */
-    free(h);
-    free(a);
-    free(dp);
+    mem_free(h);
+    mem_free(a);
+    mem_free(dp);
     return result;
 }

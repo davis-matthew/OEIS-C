@@ -7,7 +7,8 @@
  * Formula:   a(n) = the n-th smallest integer of the form 6^j + 7^k (j,k ≥ 0)
  * Range:     u8 n <= 9, u16 n <= 41, u32 n <= 156, u64 n <= 575,
  *            u128 n <= 2300, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 9976 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Comparator for qsort; sorts seq_t values in ascending order. */
 static int cmp_seq_t(const void *p1, const void *p2)
@@ -39,9 +41,9 @@ seq_t a(idx_t n)
         /* --- 1. Generate all powers of 6 and 7 up to a modest exponent --- */
         const size_t MAX_EXP = 200;   /* large enough for n≈10 000, even 128‑bit */
         size_t sz6 = 0, sz7 = 0;
-        seq_t *pow6 = (seq_t *)malloc(MAX_EXP * sizeof(seq_t));
-        seq_t *pow7 = (seq_t *)malloc(MAX_EXP * sizeof(seq_t));
-        if (!pow6 || !pow7) { free(pow6); free(pow7); return (seq_t)0; }
+        seq_t *pow6 = mem_new(seq_t, MAX_EXP);
+        seq_t *pow7 = mem_new(seq_t, MAX_EXP);
+        if (!pow6 || !pow7) { mem_free(pow6); mem_free(pow7); return (seq_t)0; }
 
         pow6[sz6++] = (seq_t)1;         /* 6^0 */
         for (size_t i = 1; i < MAX_EXP; ++i)
@@ -60,8 +62,8 @@ seq_t a(idx_t n)
 
         /* --- 2. Compute all possible sums 6^j+7^k --- */
         size_t total = sz6 * sz7;
-        seq_t *tmp = (seq_t *)malloc(total * sizeof(seq_t));
-        if (!tmp) { free(pow6); free(pow7); return (seq_t)0; }
+        seq_t *tmp = mem_new(seq_t, total);
+        if (!tmp) { mem_free(pow6); mem_free(pow7); return (seq_t)0; }
         size_t cnt = 0;
         for (size_t i = 0; i < sz6; ++i)
         {
@@ -77,24 +79,24 @@ seq_t a(idx_t n)
                     tmp[cnt++] = sum;
             }
         }
-        free(pow6);
-        free(pow7);
+        mem_free(pow6);
+        mem_free(pow7);
 
         /* --- 3. Sort and deduplicate --- */
-        qsort(tmp, cnt, sizeof(seq_t), cmp_seq_t);
+        mem_qsort(tmp, cnt, sizeof(seq_t), cmp_seq_t);
 
         uniqc = 0;
         if (cnt > 0)
         {
-            uniq = (seq_t *)malloc(cnt * sizeof(seq_t));
-            if (!uniq) { free(tmp); return (seq_t)0; }
+            uniq = mem_new(seq_t, cnt);
+            if (!uniq) { mem_free(tmp); return (seq_t)0; }
             uniq[0] = tmp[0];
             uniqc = 1;
             for (size_t i = 1; i < cnt; ++i)
                 if (tmp[i] != uniq[uniqc-1])
                     uniq[uniqc++] = tmp[i];
         }
-        free(tmp);
+        mem_free(tmp);
         built = true;
     }
 

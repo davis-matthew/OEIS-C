@@ -7,13 +7,15 @@
  * Formula:   a(n) = a(n-2) + a(n-3), a(0) = 0, a(1) = 1, a(2) = 2
  * Range:     u8 n <= 20, u16 n <= 40, u32 n <= 79, u64 n <= 158,
  *            u128 n <= 316, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 975 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;
@@ -26,7 +28,7 @@ seq_t a(idx_t n) {
     
     if (cache == NULL) {
         cache_size = (n + 1 > 16) ? (n + 1) : 16;
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (cache == NULL) return (seq_t)0;
         
         cache[0] = (seq_t)0;
@@ -39,11 +41,11 @@ seq_t a(idx_t n) {
         idx_t new_size = cache_size * 2;
         while (new_size <= n) new_size *= 2;
         
-        seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_size);
         if (new_cache == NULL) return (seq_t)0;
         
-        memcpy(new_cache, cache, computed * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_cache, cache, computed * sizeof(seq_t));
+        mem_free(cache);
         cache = new_cache;
         cache_size = new_size;
     }

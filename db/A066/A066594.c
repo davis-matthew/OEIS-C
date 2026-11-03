@@ -9,7 +9,8 @@
  *            powers of 3 (including 3⁰ = 1) and optional 0's
  * Range:     u8 n <= 5, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   digit_len, is_prime_big, pow3, seq_to_str
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   is_prime_u64, mem, num_digits, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,10 +21,84 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../utils/is_prime_big.h"
+#include "../utils/num_digits.h"
 #include "../utils/pow3.h"
-#include "../utils/digit_len.h"
-#include "../utils/seq_to_str.h"
+#include "../utils/mem.h"
+#include "../utils/is_prime_u64.h"
+
+/* Miller–Rabin primality test for seq_t (supports 8/16/32/64/128/ arbitrary-precision) */
+/* n fits in uint64_t (n >= 0 here) */
+static bool is_prime_big_fits_u64(seq_t v)
+{
+    if (sizeof(seq_t) <= 8) return true;
+    return !((seq_t)UINT64_MAX < v);
+}
+
+static bool is_prime_big(seq_t n) {
+    if (n < 2) return false;
+    /* exact in 64 bits when n fits: the seq_t products below overflow at
+       u64/i64 once n passes 2^32, and are slow under big */
+    if (is_prime_big_fits_u64(n)) return is_prime_u64((uint64_t)n);
+    if (n == 2 || n == 3) return true;
+    if ((n & 1) == 0) return false;
+
+    /* write n-1 as d * 2^s with d odd */
+    seq_t d = n - 1;
+    unsigned s = 0;
+    while ((d & 1) == 0) {
+        d >>= 1;
+        s++;
+    }
+
+    /* deterministic bases covering 128‑bit values */
+    static const int base_list[] = {2,3,5,7,11,13,17,19,23,29,31,37};
+    const int num_bases = sizeof(base_list)/sizeof(base_list[0]);
+
+    for (int i = 0; i < num_bases; i++) {
+        seq_t a = (seq_t)base_list[i];
+        if (a >= n) continue;
+
+        /* compute a^d mod n */
+        seq_t x = 1;
+        seq_t pow = a % n;
+        seq_t exp = d;
+        while (exp > 0) {
+            if (exp & 1) x = (x * pow) % n;
+            pow = (pow * pow) % n;
+            exp >>= 1;
+        }
+
+        if (x == 1 || x == n-1) continue;
+
+        bool cont = false;
+        for (unsigned r = 1; r < s; r++) {
+            x = (x * x) % n;
+            if (x == n-1) { cont = true; break; }
+        }
+        if (!cont) return false;
+    }
+    return true;
+}
+
+/* convert a seq_t value to a decimal string */
+static void seq_to_str(seq_t v, char *buf, size_t *len)
+{
+    if (v == 0) {
+        buf[0] = '0';
+        *len = 1;
+        return;
+    }
+    char tmp[64];
+    int pos = 0;
+    seq_t ten = (seq_t)10;
+    while (v != 0) {
+        tmp[pos++] = '0' + (int)(v % ten);
+        v /= ten;
+    }
+    for (int i = 0; i < pos; ++i)
+        buf[i] = tmp[pos - 1 - i];
+    *len = pos;
+}
 
 /* ----- helpers for powers of 3 ----- */
 static char **pow_strs = NULL;      /* decimal strings of powers of 3      */
@@ -38,7 +113,7 @@ static void ensure_powers_len(size_t needed_len)
     /* generate powers of 3 whose decimal length ≤ needed_len */
     while (true) {
         seq_t val = pow3((idx_t)pow_exp);     /* compute next power     */
-        size_t dlen = digit_len(val);         /* its number of digits   */
+        size_t dlen = num_digits(val);         /* its number of digits   */
         if (dlen > needed_len) break;         /* stop once too long    */
 
         /* Allocate space for strings if necessary */
@@ -71,7 +146,7 @@ static void ensure_powers_len(size_t needed_len)
    0's ----- */
 static bool valid_prime(seq_t val)
 {
-    size_t len = digit_len(val);
+    size_t len = num_digits(val);
     char *s = (char *)malloc(len + 1);
     size_t outlen;
     seq_to_str(val, s, &outlen);
@@ -121,15 +196,14 @@ seq_t a(idx_t n)
         while (true) {
             if (is_prime_big(next_candidate)) {
                 /* ensure powers list covers this prime's length */
-                size_t needed = digit_len(next_candidate);
+                size_t needed = num_digits(next_candidate);
                 ensure_powers_len(needed);
 
                 if (valid_prime(next_candidate)) {
                     /* store term */
                     if (terms_len == terms_cap) {
                         size_t new_cap = terms_cap == 0 ? 8 : terms_cap * 2;
-                        seq_t *new_arr = (seq_t *)realloc(terms,
-                                                          new_cap * sizeof(seq_t));
+                        seq_t *new_arr = mem_resize(seq_t, terms, new_cap);
                         terms = new_arr;
                         terms_cap = new_cap;
                     }

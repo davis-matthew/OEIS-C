@@ -13,12 +13,14 @@
  *            the process using O(n) memory and O(a(n)+n) time
  * Range:     u8 n <= 24, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
 
     /* Allocate one extra element to hold the possible transfer into box n+1 */
     const idx_t arr_size = n + 2;
-    seq_t *boxes = (seq_t *)malloc((size_t)arr_size * sizeof(seq_t));
+    seq_t *boxes = mem_new(seq_t, (size_t)arr_size);
     if (!boxes)
         return 0;         /* out of memory fallback (should not happen for n ≤ 10000) */
 
@@ -67,6 +69,6 @@ seq_t a(idx_t n)
         }
     }
 
-    free(boxes);
+    mem_free(boxes);
     return steps;
 }

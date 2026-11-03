@@ -11,8 +11,9 @@
  *            the exponent of p in n, and “∏ p⁽ʷ⁽p⁾⁾” denotes the product over
  *            all prime factors of n. This implements the definition: take the
  *            partition whose Heinz number is n, divid...
- * Range:     u8 n <= 255, u16 n <= 9879, u32 n <= 9879, u64 n <= 9879,
- *            u128 n <= 9879, big any n
+ * Range:     u8 n <= 255, u16 n <= 65535, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 107 terms through n = 9879 (2026-11-01)
  * Helpers:   build_primes_upto, factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -21,8 +22,9 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/factor_u64.h"
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/factor_u64.h"
 
 /* Small internal GCD for 64‑bit unsigned integers */
 static uint64_t gcd_uint64(uint64_t a, uint64_t b)

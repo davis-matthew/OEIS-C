@@ -7,7 +7,8 @@
  * Formula:   a(n) = numerator(((2*n+1)^(n-1))/(2^n * n!))
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 25,
  *            big any n
- * Helpers:   build_primes_upto, pow_seq
+ * Validated: standard, pass, 36 terms through n = 199 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,11 @@
 /* Compute the numerator of the reduced fraction ((2n+1)^(n-1))/(2^n*n!) */
 
 #include <stddef.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 static size_t primes_limit = 0;
 static idx_t *primes = NULL;
@@ -79,7 +83,7 @@ seq_t a(idx_t n)
 
         if (e_res > 0)
         {
-            seq_t powp = pow_seq((seq_t)p, (int)e_res);
+            seq_t powp = ipow_i32((seq_t)p, (int)e_res);
             result = result * powp;
         }
     }

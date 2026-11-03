@@ -8,22 +8,24 @@
  *            Π_{k=0}^m (1 + q^{2k+1} + q^{4k+2})
  * Range:     i8 n <= 176, i16 n <= 545, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 111 terms through n = 972 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     idx_t N = n;
     size_t sz = (size_t)N + 1;
-    seq_t *ans  = (seq_t*)calloc(sz, sizeof(seq_t));
-    seq_t *cur  = (seq_t*)calloc(sz, sizeof(seq_t));
-    seq_t *tmp  = (seq_t*)calloc(sz, sizeof(seq_t));
+    seq_t *ans  = mem_new(seq_t, sz);
+    seq_t *cur  = mem_new(seq_t, sz);
+    seq_t *tmp  = mem_new(seq_t, sz);
     if (!ans || !cur || !tmp) {
-        free(ans); free(cur); free(tmp);
+        mem_free(ans); mem_free(cur); mem_free(tmp);
         return (seq_t)0;
     }
 
@@ -69,6 +71,6 @@ seq_t a(idx_t n) {
     }
 
     seq_t result = ans[n];
-    free(ans); free(cur); free(tmp);
+    mem_free(ans); mem_free(cur); mem_free(tmp);
     return result;
 }

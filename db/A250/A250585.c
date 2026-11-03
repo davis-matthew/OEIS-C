@@ -13,7 +13,8 @@
  *            defined for n >= 1. For n < 1 the function returns 0...
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 15, u64 n <= 33, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* cached a(1) .. a(k) in cache[0..k-1] */
 static size_t cache_len = 0;  /* number of elements stored in cache */
@@ -34,7 +36,7 @@ static void ensure_capacity(size_t need)
     size_t new_cap = cache_cap ? cache_cap : 4;
     while (new_cap < need)
         new_cap = new_cap * 2 + 4;
-    seq_t *new_ptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, cache, new_cap);
     if (!new_ptr) {
         /* Allocation failed: abort, as we cannot continue safely. */
         abort();

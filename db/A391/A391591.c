@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 4901, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_small_and_large_exponent
+ * Validated: standard, pass, 69 terms through n = 8889 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,46 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/has_small_and_large_exponent.h"
+
+/* Test whether m has a prime exponent < 3 and a prime exponent > 3. */
+static bool has_small_and_large_exponent(uint64_t m)
+{
+    bool small = false;     /* some exponent <= 2  */
+    bool large = false;     /* some exponent >= 4  */
+    uint64_t n = m;
+    uint64_t e = 0;
+
+    /* factor 2 */
+    if ((n & 1ULL) == 0) {
+        e = 0;
+        while ((n & 1ULL) == 0) {
+            n >>= 1;
+            ++e;
+        }
+        if (e < 3) small = true;
+        if (e > 3) large = true;
+        if (small && large) return true;
+    }
+
+    /* factor odd primes by trial division */
+    for (uint64_t d = 3; d * d <= n; d += 2) {
+        if (n % d == 0) {
+            e = 0;
+            while (n % d == 0) {
+                n /= d;
+                ++e;
+            }
+            if (e < 3) small = true;
+            if (e > 3) large = true;
+            if (small && large) return true;
+        }
+    }
+
+    /* remaining prime factor, if any, has exponent = 1 < 3 */
+    if (n > 1) small = true;
+
+    return small && large;
+}
 
 /* Maximum number of terms we keep in the cache.  The 10 000th term
    easily fits below this bound, so the array is more than large enough

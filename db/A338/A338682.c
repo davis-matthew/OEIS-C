@@ -5,14 +5,16 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  sign
  * Formula:   a(n) = Sum_{d|n} (-1)^(d-1) * binomial(d + n/d - 1, d)
- * Range:     i8 n <= 17, i16 n <= 79, i32 n <= 287, i64 n <= 1119,
+ * Range:     i8 n <= 20, i16 n <= 79, i32 n <= 287, i64 n <= 1119,
  *            i128 n <= 4306, big any n
+ * Validated: standard, pass, 75 terms through n = 9911 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

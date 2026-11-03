@@ -11,7 +11,8 @@
  *            k^2·(-1)^k in O(1)
  * Range:     i8 n <= 7, i16 n <= 55, i32 n <= 2047, i64 n <= 8191,
  *            i128 n <= 8191, big any n
- * Helpers:   none
+ * Validated: standard, pass, 63 terms through n = 8148 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    idx_t types. */
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,10 +38,10 @@ seq_t a(idx_t n)
     if ((size_t)n >= cache_cap) {
         size_t new_cap = cache_cap ? cache_cap : 1;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;   /* allocation failed */
         /* initialise new entries to zero */
-        memset((void *)(tmp + cache_cap), 0, (new_cap - cache_cap) * sizeof(seq_t));
+        mem_set((tmp + cache_cap), 0, (new_cap - cache_cap) * sizeof(seq_t));
         cache = tmp;
         cache_cap = new_cap;
     }
@@ -48,10 +50,10 @@ seq_t a(idx_t n)
     if ((size_t)n >= pref_cap) {
         size_t new_cap = pref_cap ? pref_cap : 1;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(prefix, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, prefix, new_cap);
         if (!tmp) return 0;   /* allocation failed */
         /* initialise new entries to zero; later filled in */
-        memset((void *)(tmp + pref_cap), 0, (new_cap - pref_cap) * sizeof(seq_t));
+        mem_set((tmp + pref_cap), 0, (new_cap - pref_cap) * sizeof(seq_t));
         prefix = tmp;
         pref_cap = new_cap;
     }
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
     if (pref_cap > 0 && pref_cap > cache_len) {
         /* prefix[0] should be zero */
         if (pref_cap > 0 && prefix[0] == 0) /* first time */ ;
-        else if (pref_cap == 0) prefix = (seq_t *)malloc(sizeof(seq_t) * 1);
+        else if (pref_cap == 0) prefix = mem_new(seq_t, 1);
     }
     if (pref_cap > 0 && pref_cap > cache_len) {
         /* Compute prefix from cache_len+1 up to n */

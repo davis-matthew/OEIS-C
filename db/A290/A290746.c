@@ -10,13 +10,16 @@
  *            recursively by L₂(k) = (2^k − Σ_{d|k,d<k} d·L₂(d)) / k
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 25, u64 n <= 56, u128 n <= 100,
  *            big any n
- * Helpers:   pow2
+ * Validated: standard, pass, 46 terms through n = 98 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 /* static storage for Lyndon counts up to the largest n seen */
 static idx_t max_prepared = 0;
@@ -28,7 +31,7 @@ static void prepare_lyndon(idx_t n)
     if (n <= max_prepared) return;
 
     size_t new_size = (size_t)(n + 1);
-    seq_t *tmp = (seq_t *)realloc(Loly, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, Loly, new_size);
     if (!tmp) exit(1);                 /* memory failure */
     Loly = tmp;
     if (max_prepared == 0) Loly[0] = 0; /* unused entry */

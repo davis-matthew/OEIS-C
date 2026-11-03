@@ -10,12 +10,23 @@
  *            even
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 34, u128 n <= 67,
  *            big any n
- * Helpers:   power14
+ * Validated: standard, pass, 35 terms through n = 924 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/power14.h"
+static seq_t power14(idx_t exp)
+{
+    seq_t result = 1;   /* 14^0 */
+    seq_t base   = 14;  /* 14^1 */
+    while (exp > 0) {
+        if (exp & 1) result *= base;
+        base *= base;
+        exp >>= 1;
+    }
+    return result;
+}
 
 extern seq_t a(idx_t n)
 {

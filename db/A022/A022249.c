@@ -11,6 +11,7 @@
  *            C_q(n-1,k) (q = 8, k = 9) with C_q(n,0) = C_q(n,n) =...
  * Range:     u8 n <= 9, u16 n <= 9, u32 n <= 10, u64 n <= 11, u128 n <= 13,
  *            big any n
+ * Validated: standard, pass, 22 terms through n = 130 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

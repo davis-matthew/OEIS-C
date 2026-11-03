@@ -8,12 +8,14 @@
  *            a(n-1-4k)
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 29, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache for memoization */
 static seq_t *cache = NULL;          /* array of computed values */
@@ -30,14 +32,14 @@ static void ensure_cache(idx_t n)
     while (new_cap <= (size_t)n)
         new_cap <<= 1;
 
-    seq_t *new_buf = (seq_t *)calloc(new_cap, sizeof(seq_t));
+    seq_t *new_buf = mem_new(seq_t, new_cap);
     if (!new_buf)
         exit(EXIT_FAILURE);          /* allocation failed */
 
     if (cache) {
         for (size_t i = 0; i < cap; ++i)
             new_buf[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
     cache = new_buf;
     cap = new_cap;

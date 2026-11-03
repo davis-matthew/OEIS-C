@@ -6,24 +6,27 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = |{p prime : v_p(phi(n)) > v_p(n‑1)}|
- * Range:     u8 n <= 530, u16 n <= 9750, u32 n <= 9750, u64 n <= 9750,
- *            u128 n <= 9750, big any n
- * Helpers:   factor_u64, phi
+ * Range:     u8 n <= 530, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9750 (2026-11-01)
+ * Helpers:   factor_u64, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/phi.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
     if (n <= 1) return (seq_t)0;          /* a(1) = 0 by convention */
 
     /* Euler's totient of n */
-    seq_t phi_val = phi((idx_t)n);
+    seq_t phi_val = totient((idx_t)n);
 
     /* Factor φ(n) into primes and exponents (φ(n) ≤ 10⁴ for n ≤ 10⁴) */
     uint64_t primes[20];

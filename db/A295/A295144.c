@@ -10,13 +10,15 @@
  *            b(1)=4. Complementary increasing sequences
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 22, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static storage for the sequences and auxiliary data */
 static seq_t *a_seq   = NULL;
@@ -49,7 +51,7 @@ static void ensure_a_capacity(size_t needed)
     if (needed <= a_cap) return;
     a_cap = (a_cap > 0 ? a_cap * 2 : 16);
     while (a_cap < needed) a_cap *= 2;
-    a_seq = (seq_t *)realloc(a_seq, a_cap * sizeof(seq_t));
+    a_seq = mem_resize(seq_t, a_seq, a_cap);
 }
 
 static void ensure_b_capacity(size_t needed)
@@ -57,16 +59,16 @@ static void ensure_b_capacity(size_t needed)
     if (needed <= b_cap) return;
     b_cap = (b_cap > 0 ? b_cap * 2 : 16);
     while (b_cap < needed) b_cap *= 2;
-    b_seq = (seq_t *)realloc(b_seq, b_cap * sizeof(seq_t));
+    b_seq = mem_resize(seq_t, b_seq, b_cap);
 }
 
 /* initialize the base values of the sequences */
 static void init_sequences(void)
 {
     a_cap = 16;
-    a_seq = (seq_t *)malloc(a_cap * sizeof(seq_t));
+    a_seq = mem_new(seq_t, a_cap);
     b_cap = 16;
-    b_seq = (seq_t *)malloc(b_cap * sizeof(seq_t));
+    b_seq = mem_new(seq_t, b_cap);
 
     /* base values */
     a_seq[0] = (seq_t)1;

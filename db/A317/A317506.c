@@ -9,6 +9,7 @@
  *            reading T(n,k) row-wise: for each n ≥ 0, k = 0 .. ⌊n/4⌋
  * Range:     i8 n <= 9, i16 n <= 35, i32 n <= 49, i64 n <= 49, i128 n <= 49,
  *            big any n
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,8 +17,9 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binomial.h"   /* seq_t binomial(idx_t n, idx_t k); */
-#include "../utils/pow2.h"       /* seq_t pow2(idx_t exp); */
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/pow2.h"
 
 /* cumulative number of terms up to row n (inclusive of row n) */
 static idx_t cumulative_terms(idx_t n)

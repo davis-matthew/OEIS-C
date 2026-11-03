@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 62, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   has_matching_base
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,55 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/has_matching_base.h"
+
+/* true if k satisfies the property. */
+static bool has_matching_base(seq_t k)
+{
+    /* 0…9 are always present: any base > 10 works. */
+    if (k < (seq_t)10)
+        return true;
+
+    unsigned int dec_mask = 0;        /* digit set of k in base 10 */
+    unsigned int seen = 0;           /* digit set seen in current base b */
+    int maxdig = -1;
+    seq_t tmp = k;
+
+    while (tmp > 0) {
+        int d = (int)(tmp % 10);
+        dec_mask |= 1u << d;
+        if (d > maxdig)
+            maxdig = d;
+        tmp /= 10;
+    }
+
+    idx_t start = (idx_t)(maxdig + 1);
+    if (start < 2)
+        start = 2;                   /* bases must be at least 2 */
+
+    for (idx_t b = start; (seq_t)b < k; ++b) {
+        if (b == 10)                 /* other base must differ from 10 */
+            continue;
+
+        seen = 0;
+        seq_t t = k;
+        bool ok = true;
+
+        while (t > 0) {
+            int d = (int)(t % b);
+            if (d <= 9) {
+                if (!(dec_mask & (1u << d))) {
+                    ok = false;
+                    break;
+                }
+                seen |= 1u << d;
+            }
+            t /= b;
+        }
+        if (ok && seen == dec_mask)
+            return true;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

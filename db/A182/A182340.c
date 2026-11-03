@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 55, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has5_rec
+ * Validated: standard, pass, 72 terms through n = 9772 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,26 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/has5_rec.h"
+#include "../utils/mem.h"
+
+static bool has5_rec(uint64_t x) {
+    if (x % 5 == 0) return true;
+    uint64_t n = x;
+    if (n % 2 == 0) {
+        uint64_t e = 0;
+        while (n % 2 == 0) { n /= 2; ++e; }
+        if (e > 1 && has5_rec(e)) return true;
+    }
+    for (uint64_t p = 3; p * p <= n; p += 2) {
+        if (n % p == 0) {
+            uint64_t e = 0;
+            while (n % p == 0) { n /= p; ++e; }
+            if (e > 1 && has5_rec(e)) return true;
+        }
+    }
+    /* remaining prime factor (if any) has exponent 1 – cannot contain 5 */
+    return false;
+}
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;      /* array of terms a(1), a(2), ...      */
@@ -38,7 +58,7 @@ seq_t a(idx_t n) {
                 /* grow cache if needed */
                 if (size == cap) {
                     cap = cap ? cap * 2 : 128;
-                    seq_t *tmp = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, cap);
                     cache = tmp; /* assume success for the purpose of the contest */
                 }
                 cache[size++] = (seq_t)candidate;

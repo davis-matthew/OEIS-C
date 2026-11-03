@@ -9,7 +9,8 @@
  *            king‑move neighboring 1s
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 10, u64 n <= 20, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 176 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 #define STATE_BASE 7
 #define STATE_COLS 5
@@ -141,8 +143,8 @@ seq_t a(idx_t n)
     static int epoch = 1;
 
     if (!dp_cur) {
-        dp_cur = (seq_t *)malloc(STATE_COUNT * sizeof(seq_t));
-        dp_next = (seq_t *)malloc(STATE_COUNT * sizeof(seq_t));
+        dp_cur = mem_new(seq_t, STATE_COUNT);
+        dp_next = mem_new(seq_t, STATE_COUNT);
         active = (int *)malloc(STATE_COUNT * sizeof(int));
         new_active = (int *)malloc(STATE_COUNT * sizeof(int));
         last_seen = (int *)malloc(STATE_COUNT * sizeof(int));

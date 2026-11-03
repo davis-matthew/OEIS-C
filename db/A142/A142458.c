@@ -12,13 +12,20 @@
  *            = n - r*(r-1)/2 (column index, 1‑based)
  * Range:     u8 n <= 12, u16 n <= 24, u32 n <= 59, u64 n <= 142,
  *            u128 n <= 388, big any n
- * Helpers:   seq_alloc_array
+ * Validated: standard, pass, 61 terms through n = 1097 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/seq_alloc_array.h"   /* provides seq_alloc_array() */
+#include "../utils/mem.h"
+
+/* allocate an array of seq_t of given length (may be 0) */
+static seq_t *seq_alloc_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 /* static cache for the triangle rows */
 static seq_t **rows      = NULL;   /* rows[1] … rows[max_row] */

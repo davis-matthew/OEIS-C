@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 18, u64 n <= 37, u128 n <= 74,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
    a(20)=23775889227, a(21)=78249787781, a(22)=257531127865,
    a(23)=847571571085, a(24)=2789478970713 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached sequence values; a[0] holds a(1) */
 static seq_t *cache = NULL;
@@ -40,7 +42,7 @@ static void init_cache(void)
 
     /* Allocate space for the first 24 terms */
     cache_len = 24;
-    cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_len);
     if (!cache) abort();             /* fatal if no memory */
 
     static const seq_t init[24] = {
@@ -69,7 +71,7 @@ static void ensure_cache(idx_t n)
     size_t old_len = cache_len;
     /* Grow at least to n, but never shrink */
     cache_len = (size_t)n;
-    cache = (seq_t *)realloc(cache, cache_len * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, cache_len);
     if (!cache) abort();
 
     /* Compute new entries; indices are 0‑based

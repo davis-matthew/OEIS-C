@@ -10,7 +10,8 @@
  *            finite, ends with 9876543210123456789
  * Range:     u8 none, u16 none, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Comparator for qsort. */
 static int cmp_seq(const void *p, const void *q)
@@ -48,7 +50,7 @@ static void build_sequence(void)
         }
     }
 
-    seq_cache = (seq_t *)malloc(total * sizeof(seq_t));
+    seq_cache = mem_new(seq_t, total);
     if (seq_cache == NULL) return; /* allocation failure -> empty sequence */
 
     size_t idx = 0;
@@ -104,7 +106,7 @@ static void build_sequence(void)
     }
 
     seq_len = (idx_t)idx;
-    qsort(seq_cache, seq_len, sizeof(seq_t), cmp_seq);
+    mem_qsort(seq_cache, seq_len, sizeof(seq_t), cmp_seq);
 }
 
 /* Public function required by the assessment. */

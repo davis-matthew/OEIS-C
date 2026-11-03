@@ -11,16 +11,39 @@
  *            n>=4 (OEIS A233106)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 16, u64 n <= 29, u128 n <= 57,
  *            big any n
- * Helpers:   alloc_seq_array, mul_small, seq_free_array
+ * Validated: standard, pass, 39 terms through n = 182 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <string.h>
-#include "../utils/alloc_seq_array.h"
-#include "../utils/seq_free_array.h"
-#include "../utils/mul_small.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <math.h>
+#include <stdbool.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 /* dynamic‑programming cache for previously computed terms */
 static seq_t *cache = NULL;   /* sequence of cached terms */
@@ -32,7 +55,7 @@ static void grow_cache(idx_t new_cap)
 {
     seq_t *new_cache = alloc_seq_array(new_cap);
     if (cache != NULL) {
-        memcpy(new_cache, cache, cache_len * sizeof(seq_t));
+        mem_copy(new_cache, cache, cache_len * sizeof(seq_t));
         seq_free_array(cache);
     }
     cache     = new_cache;

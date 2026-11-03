@@ -13,7 +13,8 @@
  *            that can be appended without violating the constra...
  * Range:     u8 n <= 13, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   valid_candidate
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,37 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/valid_candidate.h"
+#include "../utils/mem.h"
+
+/* Test whether candidate 'num' can be appended.  The updated difference
+   after appending is stored in *newDiff.  Returns true iff the
+   candidate is admissible. */
+static bool valid_candidate(seq_t num, int64_t curDiff, int64_t *newDiff)
+{
+    seq_t tmp = num;
+    unsigned char d[128];
+    int cnt = 0;
+
+    /* digit extraction in reverse order */
+    while (tmp != 0) {
+        d[cnt++] = (unsigned char)(tmp % 10);
+        tmp /= 10;
+    }
+    if (cnt == 0) {          /* num==0, never reached for positive integers */
+        *newDiff = curDiff;
+        return true;
+    }
+
+    /* process most significant digit first */
+    for (int i = cnt - 1; i >= 0; --i) {
+        int digit = d[i];
+        curDiff += (int64_t)(digit - 1);
+        if (curDiff > 0)           /* constraint violated */
+            return false;
+    }
+    *newDiff = curDiff;
+    return true;
+}
 
 /* static state for memoisation */
 static seq_t *seq      = NULL;   /* stored sequence     */
@@ -77,7 +108,7 @@ static void ensure_up_to(size_t target)
         if (seq_len == seq_cap) {
             size_t new_cap = seq_cap ? seq_cap * 2 : 16;
             seq_t *tmp_seq =
-                (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+                mem_resize(seq_t, seq, new_cap);
             if (!tmp_seq)                /* allocation failed */
                 return;
             seq = tmp_seq;

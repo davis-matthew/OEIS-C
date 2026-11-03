@@ -9,15 +9,70 @@
  *            O(1) per call and works for all n ≥ 1
  * Range:     u8 n <= 133, u16 n <= 133, u32 n <= 133, u64 n <= 133,
  *            u128 n <= 133, big any n
- * Helpers:   floor_phi_int64, floor_phi_unsigned, floormult_sqrt5
+ * Validated: partial, pass, 133 terms through n = 133 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/floor_phi_int64.h"
-#include "../utils/floor_phi_unsigned.h"
-#include "../utils/floormult_sqrt5.h"
+
+/* ----------------------------------------------------------------------
+ *  Return ⌊|k|·√5⌋ for 0 ≤ k ≤ 2^64−1.
+ *  Uses a binary search on the 128‑bit value 5·k².
+ * ---------------------------------------------------------------------- */
+static inline uint64_t floormult_sqrt5(uint64_t k)
+{
+    __uint128_t target = (__uint128_t)5 * k * k;
+    uint64_t low  = 0;
+    uint64_t high = (uint64_t)(((__uint128_t)k * 3 + 1) > (__uint128_t)UINT64_MAX
+                               ? UINT64_MAX
+                               : (__uint128_t)k * 3 + 1);
+    while (low < high) {
+        uint64_t mid = low + ((high - low + 1) >> 1);
+        __uint128_t mid2 = (__uint128_t)mid * mid;
+        if (mid2 <= target)
+            low = mid;
+        else
+            high = mid - 1;
+    }
+    return low;
+}
+
+/* ----------------------------------------------------------------------
+ *  Compute floor(k·φ) for signed 64‑bit integer k.
+ *  Uses the identity ⌊k·φ⌋ = ⌊(k + ⌊k·√5⌋)/2⌋ with proper handling
+ *  of negative arguments.
+ * ---------------------------------------------------------------------- */
+static inline int64_t floor_phi_int64(int64_t k)
+{
+    uint64_t k_abs = k >= 0 ? (uint64_t)k : (uint64_t)(-k);
+    uint64_t sqrt5_mul_k = floormult_sqrt5(k_abs);
+    int64_t floor_sqrt5;
+    if (k >= 0) {
+        floor_sqrt5 = (int64_t)sqrt5_mul_k;
+    } else {
+        /* floor(k·√5) = –(floor(|k|·√5) + 1) */
+        floor_sqrt5 = -( (int64_t)sqrt5_mul_k + 1 );
+    }
+    int64_t num = k + floor_sqrt5;              /* may be negative */
+    int64_t q   = num / 2;                      /* truncates toward 0 */
+    if (num < 0 && (num & 1LL)) q -= 1;         /* adjust to floor */
+    return q;
+}
+
+/* ----------------------------------------------------------------------
+ *  Compute floor(k·φ) for unsigned 64‑bit integer k (k ≥ 0).
+ *  Uses the same identity but with unsigned arithmetic; no
+ *  adjustment needed since the result is non‑negative.
+ * ---------------------------------------------------------------------- */
+static inline seq_t floor_phi_unsigned(uint64_t k)
+{
+    uint64_t sqrt5_mul_k = floormult_sqrt5(k);
+    __uint128_t sum      = (__uint128_t)k + sqrt5_mul_k; /* non‑negative   */
+    seq_t result = (seq_t)(sum >> 1);                    /* floor(sum/2) */
+    return result;
+}
 
 /* ----------------------------------------------------------------------
  *  Integer square root for 64‑bit values (floor of √x).

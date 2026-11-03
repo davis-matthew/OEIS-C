@@ -7,8 +7,9 @@
  * Formula:   a(n) = n + A023900(n), where A023900(n) = (-1)^ω(n) * φ(n) /
  *            d(n), ω(n) = number of distinct prime factors of n, d(n) = ∏
  *            p_i^{e_i-1} = n / rad(n), rad(n) the squarefree kernel
- * Range:     u8 n <= 142, u16 n <= 9948, u32 n <= 9948, u64 n <= 9948,
- *            u128 n <= 9948, big any n
+ * Range:     u8 n <= 142, u16 n <= 33016, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 106 terms through n = 9948 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,7 +10,8 @@
  *            mod_pow
  * Range:     u8 n <= 49, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   _prime_limit_for_idx, build_primes_upto, factor_u64, mod_pow
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-01)
+ * Helpers:   build_primes_upto, factor_u64, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,10 +21,19 @@
 #include <stdbool.h>
 
 /* Utility includes */
-#include "../utils/_prime_limit_for_idx.h"
+#include <string.h>
+#include <math.h>
 #include "../utils/build_primes_upto.h"
 #include "../utils/factor_u64.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+
+static size_t _prime_limit_for_idx(idx_t n) {
+    /* Rough upper bound for the n-th prime using n*(log n + log log n) + 3 */
+    if (n < 6) return 15; /* first 6 primes < 15 */
+    double nn = (double)n;
+    double bound = nn * (log(nn) + log(log(nn))) + 3.0;
+    return (size_t)bound;
+}
 
 /* Static cache for the prime list */
 static uint64_t *prime_array = NULL;
@@ -69,7 +79,7 @@ static seq_t least_root_of_p2(uint64_t p)
         bool ok = true;
         for (size_t i = 0; i < cnt_pf; ++i) {
             uint64_t q = pf[i];
-            seq_t result = mod_pow(g, (p - 1) / q, (seq_t)p);
+            seq_t result = powmod(g, (p - 1) / q, (seq_t)p);
             if (result == 1) {
                 ok = false;
                 break;
@@ -79,7 +89,7 @@ static seq_t least_root_of_p2(uint64_t p)
             continue;
 
         /* 2. Check the necessary condition for p² */
-        if (mod_pow(g, (p - 1), p2) != 1)
+        if (powmod(g, (p - 1), p2) != 1)
             return g;                 /* g is primitive modulo p² */
     }
 

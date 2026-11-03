@@ -10,13 +10,16 @@
  *            ascending antidiagonals
  * Range:     u8 n <= 32, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   big_pow, gcd
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
+ * Helpers:   gcd, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/gcd.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +38,7 @@ seq_t a(idx_t n)
     idx_t K = pos;
 
     /* Compute K^N and reduce with N */
-    seq_t power = big_pow((seq_t)K, (seq_t)N);
+    seq_t power = ipow((seq_t)K, (seq_t)N);
     seq_t g     = gcd(power, (seq_t)N);
     return power / g;
 }

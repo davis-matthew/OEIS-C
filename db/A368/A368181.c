@@ -7,9 +7,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, base, fini, full
  * Formula:   not stated
- * Range:     u8 n <= 21, u16 n <= 1882, u32 n <= 9666, u64 n <= 9666,
- *            u128 n <= 9666, big any n
- * Helpers:   digit_frequencies, has_common_digit
+ * Range:     u8 n <= 21, u16 n <= 353, u32 n <= 14594, u64 n <= 14594,
+ *            u128 n <= 14594, big any n
+ * Validated: full, pass, 14594 terms through n = 14594 (2026-11-02)
+ * Helpers:   digit_frequencies
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,17 @@
 
 /* Utility supplied by the build environment. */
 #include "../utils/digit_frequencies.h"
-#include "../utils/has_common_digit.h"
+
+/* Return true if the integer num contains any digit that is set in mask. */
+static inline bool has_common_digit(idx_t num, uint16_t mask)
+{
+    while (num) {
+        int d = num % 10;
+        if (mask & (1u << d)) return true;
+        num /= 10;
+    }
+    return false;
+}
 
 /* Determine the set of decimal digits present in a seq_t value.
    The returned mask has bit d set iff digit d appears in x. */

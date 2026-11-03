@@ -8,21 +8,33 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 5, u64 n <= 6, u128 n <= 6,
  *            big any n
- * Helpers:   binomial_large_k
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Recurrence:  a(1) = 4,  a(n+1) = binomial(a(n), n)  for n ≥ 1. */
 #include <stdlib.h>
-#include "../utils/binomial_large_k.h"
+#include "../utils/mem.h"
+
+/* Compute binomial(a, k) with k ≤ idx_t using a multiplicative loop. */
+static seq_t binomial_large_k(seq_t a, idx_t k) {
+    if (k == 0)
+        return (seq_t)1;
+    seq_t result = (seq_t)1;
+    for (idx_t i = 1; i <= k; ++i) {
+        result = result * (a - (seq_t)(i - 1)) / (seq_t)i;
+    }
+    return result;
+}
 
 /* Ensure the cache can hold indices 0 … n. */
 static void ensure_cache(idx_t n, seq_t **cache_ptr, idx_t *cache_size) {
     if ((size_t)(n + 1) <= (size_t)*cache_size)
         return;
     size_t new_cap = (size_t)(n + 1);
-    seq_t *tmp = (seq_t*)realloc(*cache_ptr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *cache_ptr, new_cap);
     if (tmp == NULL) {
         /* Allocation failure – caller cannot compute further values. */
         abort();

@@ -11,14 +11,28 @@
  *            a(n-7) modulo 2^w, which is exact whenever a(n) fits
  * Range:     u8 n <= 12, u16 n <= 16, u32 n <= 21, u64 n <= 29, u128 n <= 40,
  *            big any n
- * Helpers:   seq_is_fixed_width
+ * Validated: standard, pass, 45 terms through n = 100 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_is_fixed_width.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
 
 static seq_t *cache = NULL;
 static idx_t cache_len = 0;
@@ -46,9 +60,9 @@ seq_t a(idx_t n) {
         idx_t newlen = cache_len ? cache_len : 64;
         seq_t *nc;
         while (newlen <= n) newlen *= 2;
-        nc = (seq_t *)malloc(newlen * sizeof(seq_t));
+        nc = mem_new(seq_t, newlen);
         for (i = 0; i < computed; i++) nc[i] = cache[i];
-        free(cache);
+        mem_free(cache);
         cache = nc;
         cache_len = newlen;
     }

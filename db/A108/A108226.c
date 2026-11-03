@@ -8,7 +8,8 @@
  *            7)) * or p is one of the special primes 47 or 79
  * Range:     u8 n <= 11, u16 n <= 11, u32 n <= 11, u64 n <= 11, u128 n <= 11,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 11 terms through n = 11 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static const uint64_t INITIAL_LIMIT = 2000000ULL;      /* initial sieve limit: 2 000 000 */
 static const size_t    PRIME_CAP_INIT = 200000;        /* initial capacity for primes array */
@@ -67,7 +69,7 @@ static void generate_initial_primes(void)
 
     /* Build the sequence values from the primes already found */
     seqCap = primeCnt / 3 + 10;          /* rough estimate of required capacity */
-    seqVals = (seq_t*)malloc(seqCap * sizeof(seq_t));
+    seqVals = mem_new(seq_t, seqCap);
     if (!seqVals) exit(1);
 
     for (size_t i = 0; i < primeCnt; ++i) {
@@ -75,7 +77,7 @@ static void generate_initial_primes(void)
         if (p == 47 || p == 79 || (p % 7ULL) == 6ULL) {
             if (seqCnt >= seqCap) {        /* grow if necessary */
                 seqCap <<= 1;
-                seqVals = (seq_t*)realloc(seqVals, seqCap * sizeof(seq_t));
+                seqVals = mem_resize(seq_t, seqVals, seqCap);
                 if (!seqVals) exit(1);
             }
             seqVals[seqCnt++] = (seq_t)p;
@@ -118,7 +120,7 @@ static void extend_primes_and_sequence(void)
                 ((nextCandidate % 7ULL) == 6ULL)) {
                 if (seqCnt >= seqCap) {
                     seqCap <<= 1;
-                    seqVals = (seq_t*)realloc(seqVals, seqCap * sizeof(seq_t));
+                    seqVals = mem_resize(seq_t, seqVals, seqCap);
                     if (!seqVals) exit(1);
                 }
                 seqVals[seqCnt++] = (seq_t)nextCandidate;

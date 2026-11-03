@@ -12,14 +12,21 @@
  *            c=n−r(r+1)/2
  * Range:     u8 n <= 30, u16 n <= 69, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   mul_div2
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/mul_div2.h"
+#include "../utils/mem.h"
+
+/* Compute a·b/2 using 128‑bit arithmetic to avoid overflow of idx_t. */
+static inline unsigned __int128 mul_div2(idx_t a, idx_t b)
+{
+    return ((unsigned __int128)a * b) / 2;
+}
 
 /* Find the greatest row index r such that r·(r+1)/2 ≤ n. */
 static idx_t find_row(idx_t n)
@@ -50,7 +57,7 @@ static void grow_buffer(idx_t r)
     idx_t new_capacity = data_capacity ? data_capacity : 1;
     while (new_capacity < required) new_capacity <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(data, new_capacity * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, data, new_capacity);
     if (!tmp) abort();                      /* allocation failure */
     data        = tmp;
     data_capacity = new_capacity;
@@ -91,7 +98,7 @@ seq_t a(idx_t n)
 {
     /* First call: initialise the storage with T(0,0)=1. */
     if (!data) {
-        data = (seq_t *)malloc(sizeof(seq_t));
+        data = mem_new(seq_t, 1);
         if (!data) abort();
         data[0] = (seq_t)1;
         data_capacity = 1;

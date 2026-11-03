@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 310, u64 n <= 310, u128 n <= 310,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 296 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_len = 0, cache_cap = 0;
@@ -35,7 +37,7 @@ static void init_cache(void)
 
     /* Dynamic array for results */
     cache_cap = CAP0;
-    cache     = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+    cache     = mem_new(seq_t, cache_cap);
 
     /* Sieve of Eratosthenes up to LIMIT */
     bool *prime = (bool*)calloc(LIMIT + 1, sizeof(bool));
@@ -86,7 +88,7 @@ static void init_cache(void)
         if (nonprime_cnt == 3) {
             if (cache_len == cache_cap) {
                 cache_cap *= 2;
-                cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = num;
         }

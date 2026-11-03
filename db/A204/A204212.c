@@ -10,7 +10,8 @@
  *            than 7
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 18, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 201 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* • a(idx_t n) returns the nth term (1‑based).  The implementation
    builds the sequence incrementally using a dynamic programming
@@ -42,21 +44,21 @@ seq_t a(idx_t n)
     if (max_n == 0) {
         /* ans[0] unused, allocate space for a(1) */
         ans_cap = 2;
-        ans = (seq_t *)malloc(ans_cap * sizeof(seq_t));
+        ans = mem_new(seq_t, ans_cap);
         ans[0] = 0;                     /* dummy, not used */
         ans[1] = (seq_t)1;              /* a(1) = 1            */
         max_n  = 1;
 
         /* prev will hold dp[1][k]  (0 <= k <= 7), all equal to 1 */
         prev_cap = 8;
-        prev = (seq_t *)malloc(prev_cap * sizeof(seq_t));
+        prev = mem_new(seq_t, prev_cap);
         for (size_t i = 0; i < prev_cap; ++i)
             prev[i] = (seq_t)1;
     }
 
     /* ---------- grow the cache to accommodate n --------------------- */
     if (ans_cap <= (size_t)n) {
-        ans = (seq_t *)realloc(ans, (n + 1) * sizeof(seq_t));
+        ans = mem_resize(seq_t, ans, (n + 1));
         ans_cap = (size_t)n + 1;
     }
 
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
         size_t prev_size  = 7 * (step - 1) + 1;
 
         /* allocate temporary array for the current step */
-        seq_t *cur = (seq_t *)malloc(cur_size * sizeof(seq_t));
+        seq_t *cur = mem_new(seq_t, cur_size);
 
         /* sliding‑window sum over the previous array */
         size_t low  = 0;
@@ -102,7 +104,7 @@ seq_t a(idx_t n)
         ans[step] = cur[0];
 
         /* free the previous array and make current array the new previous */
-        free(prev);
+        mem_free(prev);
         prev = cur;
         prev_cap = cur_size;
     }

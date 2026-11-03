@@ -12,34 +12,35 @@
  *            2*(r-k+1)) * a(n) = T(r,k)
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   tri_sum
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-01)
+ * Helpers:   triangular_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/tri_sum.h"
+#include "../utils/triangular_idx.h"
 
 seq_t a(idx_t n)
 {
     /* find row r such that tri_sum(r-1) < n <= tri_sum(r) */
     idx_t low = 1, high = 1;
     /* grow high until it covers n */
-    while (tri_sum(high) < n) high <<= 1;
+    while (triangular_idx(high) < n) high <<= 1;
     /* binary search [low, high] */
     low = high >> 1;
     if (low < 1) low = 1;
     while (low < high) {
         idx_t mid = low + ((high - low) >> 1);
-        if (tri_sum(mid) >= n)
+        if (triangular_idx(mid) >= n)
             high = mid;
         else
             low = mid + 1;
     }
     idx_t r = high;                     /* row index */
     seq_t row = (seq_t)r;
-    seq_t prev_sum = tri_sum(r - 1);
+    seq_t prev_sum = triangular_idx(r - 1);
     seq_t k = (seq_t)(n - prev_sum);     /* column index inside this row */
 
     /* within-row pairs (dx = 0) */

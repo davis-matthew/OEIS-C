@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   is_palindrome
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   is_palindrome_base, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/is_palindrome.h"
+#include "../utils/is_palindrome_base.h"
+#include "../utils/mem.h"
 
 /* Comparator for qsort on idx_t */
 static int cmp_idx(const void *p, const void *q)
@@ -40,7 +42,7 @@ static bool has_consecutive(idx_t k)
     /* Small bases: 2 .. floor(sqrt(k)) – full digit inspection */
     idx_t sq = (idx_t)sqrt((double)k);
     for (idx_t b = 2; b <= sq && cnt < 1024; ++b) {
-        if (is_palindrome((seq_t)k, b))
+        if (is_palindrome_base((seq_t)k, b))
             bases[cnt++] = b;
     }
 
@@ -89,7 +91,7 @@ seq_t a(idx_t n)
         /* allocate more space if needed */
         if (seq_len == seq_cap) {
             size_t new_cap = seq_cap == 0 ? 16 : seq_cap << 1;
-            seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq, new_cap);
             seq = tmp;
             seq_cap = new_cap;
         }

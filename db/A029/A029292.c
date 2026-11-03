@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 103, u16 n <= 722, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 876 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  * a[i] += a[i−p] for all i ≥ p.
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;           /* memoised table of a(n) values */
 static idx_t  max_n = 0;           /* highest n for which dp[0..max_n] are valid */
@@ -33,12 +35,12 @@ seq_t a(idx_t n)
     /* Need to recompute up to n (may be larger than any previous query) */
     /* Free old table if it exists */
     if (dp) {
-        free(dp);
+        mem_free(dp);
     }
 
     /* Allocate table for indices 0..n */
     size_t sz = (size_t)(n + 1);
-    dp = (seq_t *)malloc(sz * sizeof(seq_t));
+    dp = mem_new(seq_t, sz);
     if (!dp) {           /* out‑of‑memory; return 0 as a fallback */
         return 0;
     }

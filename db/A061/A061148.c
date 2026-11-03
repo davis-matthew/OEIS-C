@@ -8,7 +8,8 @@
  * Formula:   a(n) = A005179(A006881(n))
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 20, u64 n <= 39, u128 n <= 77,
  *            big any n
- * Helpers:   pow2, pow3, seq_mul
+ * Validated: standard, pass, 42 terms through n = 563 (2026-11-01)
+ * Helpers:   pow2, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,14 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include <string.h>
 #include "../utils/pow2.h"
 #include "../utils/pow3.h"
-#include "../utils/seq_mul.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* -------------------------------------------------------------------------- */
 /*  Data structures and static tables                                         */

@@ -11,20 +11,29 @@
  *            uses the provided binomial() and fact_upto() utilities
  * Range:     u8 n <= 18, u16 n <= 42, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   _floor_isqrt_u64, binomial, fact_upto
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   binomial, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/_floor_isqrt_u64.h"
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/fact_upto.h"
+#include "../utils/isqrt.h"
+
+static seq_t fact_upto(idx_t m)
+{
+    seq_t r = 1;
+    for (idx_t i = 2; i <= m; ++i)
+        r *= (seq_t)i;
+    return r;
+}
 
 seq_t a(idx_t n) {
     /* Find the row number r such that r(r+1)/2 <= n < (r+1)(r+2)/2 */
-    idx_t r = (_floor_isqrt_u64(8 * n + 1) - 1) / 2;
+    idx_t r = (isqrt(8 * n + 1) - 1) / 2;
     idx_t start = r * (r + 1) / 2;        /* first index of this row   */
     idx_t k = n - start;                  /* column within the row     */
 

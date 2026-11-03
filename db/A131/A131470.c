@@ -8,19 +8,20 @@
  * Formula:   a(n) = 1 + floor(n / sd2(n))
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   bitcnt_uint64
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-01)
+ * Helpers:   popcount_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/bitcnt_uint64.h"
+#include "../utils/popcount_u64.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0)
         return 0;
-    unsigned sd2 = bitcnt_uint64((uint64_t)n);
+    unsigned sd2 = popcount_u64((uint64_t)n);
     seq_t res = (seq_t)n / sd2;
     return res + 1;
 }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 51, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 8669 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Sequence A084864: numbers that can be written as 2*u^2 + 3*v^2 for u,v>0 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are defined by the build system. */
 
@@ -75,7 +77,7 @@ static void heap_sift_down(size_t i) {
 static void heap_push(seq_t val, idx_t u, idx_t v) {
     if (heap_size == heap_cap) {
         size_t new_cap = heap_cap ? heap_cap << 1 : 64;
-        heap = (struct Node *)realloc(heap, new_cap * sizeof(struct Node));
+        heap = mem_resize(struct Node, heap, new_cap);
         heap_cap = new_cap;
     }
     heap[heap_size].val = val;
@@ -99,13 +101,13 @@ static struct Node heap_pop_min(void) {
 static void generate_until(size_t needed) {
     if (cache == NULL) {
         cache_cap = 64;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     }
     if (needed > cache_cap) {
         size_t new_cap = cache_cap;
         while (new_cap < needed)
             new_cap <<= 1;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 

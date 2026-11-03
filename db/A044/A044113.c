@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   base6_has_15
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,30 @@
  */
 
 #include <stdbool.h>
-#include "../utils/base6_has_15.h"
+
+/* Check whether the base‑6 representation of x contains the substring 15 */
+static bool base6_has_15(seq_t x)
+{
+    /* Zero has no digits matching “15” */
+    if (x == 0)
+        return false;
+
+    /* Store base‑6 digits in reverse order: least significant first. */
+    uint8_t digits[64];  /* 6^64 > 2^256, enough for uint128 and beyond */
+    idx_t len = 0;
+    seq_t tmp = x;
+    while (tmp != 0) {
+        digits[len++] = (uint8_t)(tmp % 6);
+        tmp /= 6;
+    }
+
+    /* Scan from most significant digit to least (reverse the array) */
+    for (idx_t i = len; i > 1; --i) {
+        if (digits[i - 1] == 1 && digits[i - 2] == 5)
+            return true;
+    }
+    return false;
+}
 
 /*
  * a(n):

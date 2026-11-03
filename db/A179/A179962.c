@@ -8,12 +8,14 @@
  * Formula:   a(n) = (49/2)*4^n - (8/3)*3^n (a(0)=24)
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 13, u64 n <= 29, u128 n <= 61,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 41 terms through n = 901 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -21,10 +23,10 @@ seq_t a(idx_t n)
         return (seq_t)24;
 
     /* 4^n and 3^n computed with fast exponentiation */
-    seq_t pow4 = pow_uint(4, n);          /* 4^n */
+    seq_t pow4 = ipow_u64_idx(4, n);          /* 4^n */
     seq_t term1 = (((seq_t)49 * pow4) / 2);  /* (49/2)*4^n */
 
-    seq_t pow3 = pow_uint(3, n);          /* 3^n */
+    seq_t pow3 = ipow_u64_idx(3, n);          /* 3^n */
     seq_t term2 = (((seq_t)8 * pow3) / 3);   /* (8/3)*3^n */
 
     return term1 - term2;

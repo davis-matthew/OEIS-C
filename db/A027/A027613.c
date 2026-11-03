@@ -10,7 +10,8 @@
  * Formula:   a(n) = sum of the first n primes minus 1 if n ≥ 4
  * Range:     u8 n <= 6, u16 n <= 6, u32 n <= 6, u64 n <= 6, u128 n <= 6,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 static seq_t *cumsum = NULL;          /* cumulative sum: cumsum[i] = sum of first i primes */
 static idx_t   cumsum_size = 0;       /* number of primes currently stored */
@@ -63,8 +65,8 @@ static void generate_sieve_and_sums(idx_t target_n)
     }
 
     /* compute cumulative sums */
-    if (cumsum) free(cumsum);
-    seq_t *new_cumsum = (seq_t *)malloc((primes_cnt + 1) * sizeof(seq_t));
+    if (cumsum) mem_free(cumsum);
+    seq_t *new_cumsum = mem_new(seq_t, (primes_cnt + 1));
     if (!new_cumsum) { free(pr); free(is_prime); return; }
 
     new_cumsum[0] = (seq_t)0;

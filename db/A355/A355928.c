@@ -7,8 +7,9 @@
  * Formula:   a(n) = product of primes having odd exponent in the sum of
  *            divisors σ(n). This is the odd‑part of σ(n) and equals the
  *            squarefree part of σ(n) after removing primes with even exponent
- * Range:     u8 n <= 143, u16 n <= 9042, u32 n <= 9042, u64 n <= 9042,
- *            u128 n <= 9042, big any n
+ * Range:     u8 n <= 143, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 105 terms through n = 9042 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

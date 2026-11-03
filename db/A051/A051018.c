@@ -8,7 +8,8 @@
  *            not
  * Range:     u8 none, u16 none, u32 n <= 1000, u64 n <= 1000, u128 n <= 1000,
  *            big any n
- * Helpers:   is_pandigital10_local
+ * Validated: standard, pass, 38 terms through n = 941 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,22 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_pandigital10_local.h"
+#include "../utils/mem.h"
+
+/* Test whether a 10‑digit unsigned integer is a full 0‑9 pandigital number. */
+static bool is_pandigital10_local(uint64_t v)
+{
+    uint16_t mask = 0;
+    for (int i = 0; i < 10; ++i)
+    {
+        unsigned d = (unsigned)(v % 10U);
+        if (mask & (1U << d))
+            return false;
+        mask |= (1U << d);
+        v /= 10U;
+    }
+    return mask == 0x3FFU;   /* all ten bits set */
+}
 
 /* Classic next_permutation: returns true if a higher permutation exists. */
 static bool next_permutation(int *a, int n)
@@ -46,7 +62,7 @@ seq_t a(idx_t n)
     {
         /* Initial capacity; reallocate if needed. */
         solutions_cap = 2000;
-        solutions = (seq_t *)malloc(solutions_cap * sizeof(seq_t));
+        solutions = mem_new(seq_t, solutions_cap);
         solutions_count = 0;
 
         int digits[10];
@@ -73,8 +89,7 @@ seq_t a(idx_t n)
                 if (solutions_count == solutions_cap)
                 {
                     solutions_cap <<= 1;
-                    solutions = (seq_t *)realloc(solutions,
-                                                solutions_cap * sizeof(seq_t));
+                    solutions = mem_resize(seq_t, solutions, solutions_cap);
                 }
                 solutions[solutions_count++] = (seq_t)m;
             }

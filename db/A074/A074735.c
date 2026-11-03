@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   _gcd_seqt, gcd
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,8 @@
    arithmetic carried out in seq_t.
 */
 #include <stdbool.h>
-#include "../utils/gcd.h"   /* provides seq_t gcd(seq_t , seq_t) */
-#include "../utils/_gcd_seqt.h"
+#include <stdint.h>
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +32,7 @@ seq_t a(idx_t n)
     seq_t den = 4;                  /* denominator                         */
 
     /* Reduce initial fraction */
-    seq_t g = _gcd_seqt(num, den);
+    seq_t g = gcd(num, den);
     num /= g;
     den /= g;
 
@@ -46,7 +47,7 @@ seq_t a(idx_t n)
         seq_t new_num = num * ceil_val;
         seq_t new_den = den;
 
-        seq_t g2 = _gcd_seqt(new_num, new_den);
+        seq_t g2 = gcd(new_num, new_den);
         new_num /= g2;
         new_den /= g2;
 

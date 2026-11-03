@@ -9,13 +9,14 @@
  *            antidiagonals)
  * Range:     u8 n <= 91, u16 n <= 91, u32 n <= 91, u64 n <= 91, u128 n <= 91,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: partial, pass, 91 terms through n = 91 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -58,9 +59,9 @@ seq_t a(idx_t n)
     idx_t p = (v2 < j) ? v2 : j;   /* min(v2(i), j) */
     idx_t q = (v5 < j) ? v5 : j;   /* min(v5(i), j) */
 
-    seq_t gcd_factor = pow_uint(2, p);
+    seq_t gcd_factor = ipow_u64_idx(2, p);
     if (q > 0)
-        gcd_factor = gcd_factor * pow_uint(5, q);
+        gcd_factor = gcd_factor * ipow_u64_idx(5, q);
 
     return ((seq_t)i) / gcd_factor;
 }

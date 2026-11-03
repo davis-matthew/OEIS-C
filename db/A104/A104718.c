@@ -7,7 +7,8 @@
  * Formula:   a(n) = concat(A023202(n), A023202(n)+8)
  * Range:     u8 none, u16 n <= 9, u32 n <= 33, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   digit_len, pow10
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-01)
+ * Helpers:   num_digits0_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../utils/pow10.h"      /* seq_t pow10(idx_t exp); */
-#include "../utils/digit_len.h"  /* idx_t digit_len(seq_t x); */
+#include "../utils/num_digits0_seq.h"
+
+static seq_t pow10(idx_t exp) {
+    seq_t res = 1;
+    for (idx_t i = 0; i < exp; ++i) res *= (seq_t)10;
+    return res;
+}
 
 /* static state for memoization */
 static bool built = false;
@@ -103,7 +109,7 @@ seq_t a(idx_t n)
 
     uint64_t p = pair_primes[(size_t)n - 1];
     seq_t q = (seq_t)(p + 8);
-    idx_t d = digit_len(q);
+    idx_t d = num_digits0_seq(q);
     seq_t pow10d = pow10(d);
     return (seq_t)p * pow10d + q;
 }

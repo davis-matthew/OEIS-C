@@ -11,7 +11,8 @@
  *            to P(n,0..n)^2 = A000041(n)^2
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 43, u64 n <= 131, u128 n <= 191,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 183 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* -------------------------------------------------------------
    DP tables
@@ -43,14 +45,14 @@ static void ensure_up_to(idx_t n)
     const size_t new_rows = (size_t)(n + 1);
     const size_t new_size = new_rows * (MAX_PARTS + 1);
 
-    seq_t *new_dp   = (seq_t *)malloc(new_size * sizeof(seq_t));
-    seq_t *new_pref = (seq_t *)malloc(new_size * sizeof(seq_t));
+    seq_t *new_dp   = mem_new(seq_t, new_size);
+    seq_t *new_pref = mem_new(seq_t, new_size);
     if (!new_dp || !new_pref)
         abort();
 
     /* zero new memory */
-    memset(new_dp,   0, new_size * sizeof(seq_t));
-    memset(new_pref, 0, new_size * sizeof(seq_t));
+    mem_set(new_dp, 0, new_size * sizeof(seq_t));
+    mem_set(new_pref, 0, new_size * sizeof(seq_t));
 
     /* copy old data */
     if (dp && pref) {
@@ -59,8 +61,8 @@ static void ensure_up_to(idx_t n)
             new_dp[i]   = dp[i];
             new_pref[i] = pref[i];
         }
-        free(dp);
-        free(pref);
+        mem_free(dp);
+        mem_free(pref);
     }
 
     dp   = new_dp;

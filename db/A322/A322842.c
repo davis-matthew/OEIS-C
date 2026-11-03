@@ -9,7 +9,8 @@
  *            semiprime (i.e. each has at least three prime factors)
  * Range:     u8 n <= 1, u16 n <= 1483, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _floor_isqrt_u64, build_primes_upto, isPrimeTrial
+ * Validated: standard, pass, 60 terms through n = 9581 (2026-11-03)
+ * Helpers:   build_primes_upto, is_prime_seq, isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/_floor_isqrt_u64.h"   /* _floor_isqrt_u64(idx_t)                 */
-#include "../utils/build_primes_upto.h" /* build_primes_upto(idx_t limit, uint64_t **out, size_t *cnt) */
-#include "../utils/isPrimeTrial.h"      /* bool isPrimeTrial(seq_t n)              */
+#include "../utils/build_primes_upto.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* ----  Dynamic storage for the sequence values                         */
@@ -34,7 +36,7 @@ static void append_to_results(seq_t val)
 {
     if (results_len == results_cap) {
         size_t new_cap = results_cap ? results_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(results, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, results, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         results = tmp;
         results_cap = new_cap;
@@ -72,7 +74,7 @@ static bool has_three_or_more(idx_t m)
     idx_t tmp = m;
 
     /* Ensure we have primes up to sqrt(tmp). */
-    idx_t lim = (idx_t)_floor_isqrt_u64(tmp) + 1;
+    idx_t lim = (idx_t)isqrt(tmp) + 1;
     extend_primes_to(lim);
 
     for (size_t i = 0; i < prime_count && prime_list[i] * prime_list[i] <= tmp; ++i) {
@@ -104,7 +106,7 @@ seq_t a(idx_t n)
 /* Generate terms until we have at least n of them. */
     while (results_len < n) {
         /* Test whether next_candidate is prime. */
-        if (isPrimeTrial((seq_t)next_candidate)) {
+        if (is_prime_seq((seq_t)next_candidate)) {
             /* Check the condition on p-2 and p+2.  Both must have
                at least three prime factors. */
             if (has_three_or_more(next_candidate - 2) &&

@@ -5,8 +5,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   a(n) = triangle read by rows for T(r,k) = (r-k+1)*(4*k+1)
- * Range:     u8 n <= 126, u16 n <= 9966, u32 n <= 9966, u64 n <= 9966,
- *            u128 n <= 9966, big any n
+ * Range:     u8 n <= 126, u16 n <= 11475, u32 n <= 11475, u64 n <= 11475,
+ *            u128 n <= 11475, big any n
+ * Validated: standard, pass, 86 terms through n = 9966 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

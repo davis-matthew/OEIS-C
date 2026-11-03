@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   binsearch_diag
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,20 @@
    by the rational 1618033989/1000000000. */
 
 #include <stdint.h>
-#include "../utils/binsearch_diag.h"
+
+static inline uint64_t binsearch_diag(uint64_t n)
+{
+    uint64_t low = 2, high = 2 * n;            /* upper bound 2n suffices */
+    while (low < high) {
+        uint64_t mid = low + ((high - low) >> 1);
+        __int128 val = (__int128)mid * (mid - 1) / 2;
+        if (val >= n)
+            high = mid;
+        else
+            low = mid + 1;
+    }
+    return low;
+}
 
 static const uint64_t R_NUM = 1618033989ULL;   /* approx. φ * 1e9 */
 static const uint64_t R_DEN = 1000000000ULL;   /* denominator */

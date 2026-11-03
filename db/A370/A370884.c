@@ -9,8 +9,9 @@
  * Formula:   a(n) = number of unmatched left parentheses in the k-th string
  *            of length r in reverse lexicographic order, where r =
  *            floor(log2(n+1)) and k = n - (2^r - 1)
- * Range:     u8 n <= 9209, u16 n <= 9209, u32 n <= 9209, u64 n <= 9209,
- *            u128 n <= 9209, big any n
+ * Range:     u8 n <= 16382, u16 n <= 16382, u32 n <= 16382, u64 n <= 16382,
+ *            u128 n <= 16382, big any n
+ * Validated: standard, pass, 104 terms through n = 9209 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

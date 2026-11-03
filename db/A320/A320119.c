@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 26, i16 n <= 49, i32 n <= 52, i64 n <= 52, i128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 52 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* -------------------------------------------------------------- */
 seq_t a(idx_t n)
@@ -37,14 +39,14 @@ seq_t a(idx_t n)
     /* Allocate or grow working arrays if needed ---------------- */
     if ((size_t)(n + 1) > cap) {
         size_t new_cap = (size_t)(n + 1);
-        free(b);
-        free(a_arr);
-        free(dp);
-        free(ndp);
-        b     = (seq_t*)calloc(new_cap, sizeof(seq_t));
-        a_arr = (seq_t*)calloc(new_cap, sizeof(seq_t));
-        dp    = (seq_t*)calloc(new_cap, sizeof(seq_t));
-        ndp   = (seq_t*)calloc(new_cap, sizeof(seq_t));
+        mem_free(b);
+        mem_free(a_arr);
+        mem_free(dp);
+        mem_free(ndp);
+        b     = mem_new(seq_t, new_cap);
+        a_arr = mem_new(seq_t, new_cap);
+        dp    = mem_new(seq_t, new_cap);
+        ndp   = mem_new(seq_t, new_cap);
         if (!b || !a_arr || !dp || !ndp) abort();
         cap = new_cap;
 
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
         for (idx_t k = 1; k <= n; ++k) {
             /* ndp will hold the convolution of dp with
                P_k(x) = sum_{m>=0} x^{k*m^2}              */
-            memset(ndp, 0, (n + 1) * sizeof(seq_t));
+            mem_set(ndp, 0, (n + 1) * sizeof(seq_t));
 
             /* m = 0 term (shift = 0) : copy dp as-is      */
             for (idx_t s = 0; s <= n; ++s) ndp[s] = dp[s];
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
             /* prepare for next k                            */
             seq_t *tmp = dp; dp = ndp; ndp = tmp;
         }
-        memcpy(b, dp, (n + 1) * sizeof(seq_t));
+        mem_copy(b, dp, (n + 1) * sizeof(seq_t));
 
         /* ----------------------------------------------- */
         /* 2. Compute the convolution inverse a[n]         */

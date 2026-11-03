@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 88, u32 n <= 88, u64 n <= 88, u128 n <= 88,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: partial, pass, 89 terms through n = 88 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,27 @@
  */
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/floor_sqrt.h"
+#include <stdint.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 seq_t a(idx_t n)
 {
@@ -41,7 +62,7 @@ seq_t a(idx_t n)
         seq_t a_prev = a0;
 
         size_t capacity = 16;
-        cycle = (seq_t *)malloc(capacity * sizeof(seq_t));
+        cycle = mem_new(seq_t, capacity);
         period_len = 0;
 
         while (1)
@@ -59,7 +80,7 @@ seq_t a(idx_t n)
             if (period_len >= capacity)
             {
                 capacity *= 2;
-                cycle = (seq_t *)realloc(cycle, capacity * sizeof(seq_t));
+                cycle = mem_resize(seq_t, cycle, capacity);
             }
             cycle[period_len++] = a_next;
 

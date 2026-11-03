@@ -12,13 +12,15 @@
  *            exploits that S(i) are the Jacobsthal numbers J(i...
  * Range:     i8 n <= 14, i16 n <= 27, i32 n <= 38, i64 n <= 38, i128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 39 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* floor(sqrt(x)) for 128‑bit unsigned integers */
 static uint64_t isqrt_uint128(unsigned __int128 x) {
@@ -53,8 +55,8 @@ static void ensure_upto(idx_t need) {
     if (J_cap == 0) {
         J_cap = 2;
         P_cap = 2;
-        J = (seq_t *)realloc(NULL, J_cap * sizeof(seq_t));
-        P = (seq_t *)realloc(NULL, P_cap * sizeof(seq_t));
+        J = mem_resize(seq_t, NULL, J_cap);
+        P = mem_resize(seq_t, NULL, P_cap);
         J[0] = 0;
         J[1] = 1;
         P[0] = 1;
@@ -67,12 +69,12 @@ static void ensure_upto(idx_t need) {
     /* Grow arrays if necessary */
     if (J_cap <= need) {
         size_t new_cap = (size_t)(need + 1);
-        J = (seq_t *)realloc(J, new_cap * sizeof(seq_t));
+        J = mem_resize(seq_t, J, new_cap);
         J_cap = (idx_t)new_cap;
     }
     if (P_cap <= need) {
         size_t new_cap = (size_t)(need + 1);
-        P = (seq_t *)realloc(P, new_cap * sizeof(seq_t));
+        P = mem_resize(seq_t, P, new_cap);
         P_cap = (idx_t)new_cap;
     }
 

@@ -7,9 +7,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 1449, u16 n <= 9343, u32 n <= 9343, u64 n <= 9343,
- *            u128 n <= 9343, big any n
- * Helpers:   none
+ * Range:     u8 n <= 1449, u16 n <= 16347, u32 n <= 16347, u64 n <= 16347,
+ *            u128 n <= 16347, big any n
+ * Validated: standard, pass, 117 terms through n = 9343 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
    subset‑sum DP. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* external types provided by the build system */
 extern seq_t a(idx_t n)
@@ -29,7 +31,7 @@ extern seq_t a(idx_t n)
     seq_t f2 = 2;
 
     /* allocate DP array: dp[s] = #ways to form sum s */
-    seq_t *dp = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (n + 1));
     if (!dp) return 0;          /* allocation failure → 0 ways */
 
     for (idx_t i = 1; i <= n; ++i)
@@ -58,6 +60,6 @@ extern seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

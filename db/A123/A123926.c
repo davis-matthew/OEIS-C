@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64, factor_u64, mod_pow
+ * Validated: standard, pass, 121 terms through n = 9638 (2026-11-01)
+ * Helpers:   factor_u64, num_divisors, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,11 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/factor_u64.h"
-#include "../utils/divisor_count_u64.h"
-#include "../utils/mod_pow.h"
+#include "../utils/num_divisors.h"
+#include "../utils/powmod.h"
 
 /* Helper: test whether a divisor d divides σ_k(n) for all k = 1 … τ(n). */
 static bool divisor_divides_all_sigma(uint64_t n, uint64_t d, uint64_t tau)
@@ -44,7 +47,7 @@ static bool divisor_divides_all_sigma(uint64_t n, uint64_t d, uint64_t tau)
 
         for (size_t pi = 0; pi < cnt; ++pi) {
             /* pk = p^k (mod d) */
-            seq_t pk_mod = mod_pow((seq_t)(primes[pi] % d), k, md);
+            seq_t pk_mod = powmod((seq_t)(primes[pi] % d), k, md);
 
             /* Sum_{i=0}^{e} (pk_mod)^i  (mod d) */
             seq_t sum   = 1 % md;        /* term for i = 0 */
@@ -70,7 +73,7 @@ seq_t a(idx_t n)
     uint64_t N = (uint64_t)n;
 
     /* τ(n) = σ_0(n) = number of divisors of n. */
-    uint64_t tau = divisor_count_u64(N);
+    uint64_t tau = num_divisors(N);
 
     /* Test divisors of τ(n) in decreasing order. */
     for (uint64_t d = tau; d >= 1; --d) {

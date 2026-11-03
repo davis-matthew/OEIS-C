@@ -8,7 +8,8 @@
  *            a(n) = a(n-1) + 3*a(n-3) - 3*a(n-6) + a(n-9) for n>8
  * Range:     u8 n <= 11, u16 n <= 20, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 38 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* static cache of computed terms */
 static seq_t *cache = NULL;      /* array of sequence values      */
@@ -31,16 +33,15 @@ static void ensure_cache(idx_t n)
     size_t new_size = cache_size ? cache_size : 1;
     while (new_size <= idx) new_size <<= 1;      /* double until big enough */
 
-    seq_t *new_cache = (seq_t*)malloc(new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_size);
     if (!new_cache) abort();                     /* allocation failure */
 
     if (cache) {
-        memcpy(new_cache, cache, cache_size * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_cache, cache, cache_size * sizeof(seq_t));
+        mem_free(cache);
     }
     /* zero the newly added slots */
-    memset(new_cache + cache_size, 0,
-           (new_size - cache_size) * sizeof(seq_t));
+    mem_set(new_cache + cache_size, 0, (new_size - cache_size) * sizeof(seq_t));
 
     cache     = new_cache;
     cache_size = new_size;

@@ -14,6 +14,7 @@
  *            implementation obtains the parity of the prime index b...
  * Range:     i8 n <= 90, i16 n <= 90, i32 n <= 90, i64 n <= 90, i128 n <= 90,
  *            big any n
+ * Validated: partial, pass, 90 terms through n = 90 (2026-11-01)
  * Helpers:   build_primes_upto, factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -21,8 +22,9 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/factor_u64.h"
+#include <stdint.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/factor_u64.h"
 
 /* Static storage for the list of primes used to determine parity of
    prime indices.  The list is stored in ascending order.  It is

@@ -8,13 +8,15 @@
  * Formula:   a(n) = least binary palindrome ≥ n (base 2)
  * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bitlen_seq_t
+ * Validated: standard, pass, 84 terms through n = 9370 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
 
 /* Reverse the lowest `bits` bits of `x`. */
 static seq_t reverse_bits(seq_t x, idx_t bits)
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
 {
     seq_t x = (seq_t)n;
     /* bit length of x; a(0) becomes 0 instantly */
-    idx_t L = bitlen_seq_t(x);
+    idx_t L = bit_length(x);
     while (1) {
         idx_t half = (L + 1) / 2;          /* bits in left half (middle included if odd) */
         seq_t left = x >> (L - half);      /* left half (with middle if odd) */

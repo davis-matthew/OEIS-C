@@ -7,7 +7,8 @@
  * Formula:   a(0)=1, a(1)=0; a(2^i+j)=a(j)+2*a(j+1) for 0<=j<2^i
  * Range:     u8 n <= 122, u16 n <= 8179, u32 n <= 8191, u64 n <= 8191,
  *            u128 n <= 8191, big any n
- * Helpers:   none
+ * Validated: standard, pass, 100 terms through n = 7469 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Compute terms recursively by scanning increasing indices. */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Memoised cache for previously computed values. */
 static seq_t *cache = NULL;          /* Array storing computed a(n) values. */
@@ -27,7 +29,7 @@ static void grow_cache(size_t new_len)
     if (cache_len >= new_len) return;
     size_t new_cap = cache_len ? cache_len * 2 : 8;
     if (new_cap < new_len) new_cap = new_len;
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cache_len = new_cap;
 }
 

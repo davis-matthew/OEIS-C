@@ -7,6 +7,7 @@
  * Formula:   a(n) = floor((18*n + 325)/10)
  * Range:     u8 none, u16 n <= 2000, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
+ * Validated: standard, pass, 66 terms through n = 1947 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

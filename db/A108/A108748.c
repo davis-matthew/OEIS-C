@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 15, u32 n <= 53, u64 n <= 195, u128 n <= 738,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 9955 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *terms = NULL;   /* array of computed terms */
 static idx_t  terms_size  = 0;/* number of terms stored     */
@@ -37,7 +39,7 @@ static void ensure_capacity(void)
     if (terms_size < terms_cap)
         return;
     size_t new_cap = terms_cap ? terms_cap * 2 : 16;
-    seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, terms, new_cap);
     if (!tmp) abort();             /* unlikely OOM */
     terms       = tmp;
     terms_cap   = new_cap;
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     /* Initialise on first call */
     if (!terms) {
         terms_cap   = 16;
-        terms       = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms       = mem_new(seq_t, terms_cap);
         if (!terms) abort();
         terms[0]    = (seq_t)1;
         terms_size  = 1;

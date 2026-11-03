@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 12, u32 n <= 27, u64 n <= 57, u128 n <= 116,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 826 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* memoisation cache – 1‑based indexing, index 0 unused */
 static seq_t *cache      = NULL;   /* cache array */
@@ -42,7 +44,7 @@ ensure_cache(idx_t n)
     /* Allocate and initialise the cache on first use. */
     if (cache_len == 0) {
         cache_cap = 32;                 /* initial capacity */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();
 
         /* store the first nine terms (index 0 unused). */
@@ -63,10 +65,10 @@ ensure_cache(idx_t n)
         size_t new_cap = cache_cap ? cache_cap * 2 : 32;
         while (new_cap <= (size_t)n + 1) new_cap <<= 1;
 
-        seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_new(seq_t, new_cap);
         if (!new_arr) abort();
-        memcpy(new_arr, cache, (cache_len + 1) * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_arr, cache, (cache_len + 1) * sizeof(seq_t));
+        mem_free(cache);
         cache         = new_arr;
         cache_cap     = new_cap;
     }

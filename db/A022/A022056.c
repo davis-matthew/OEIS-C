@@ -9,12 +9,14 @@
  *            25 coordinates. The function returns a(n) for any n ≥ 0
  * Range:     u8 n <= 0, u16 n <= 1, u32 n <= 5, u64 n <= 34, u128 n <= 1000,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 948 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,12 +34,12 @@ seq_t a(idx_t n)
     size_t len    = (size_t)(max_sum + 1) * 2;  /* two parity states per sum */
 
     /* Allocate DP arrays */
-    seq_t *dp  = (seq_t *)calloc(len, sizeof(seq_t));
-    seq_t *tmp = (seq_t *)calloc(len, sizeof(seq_t));
+    seq_t *dp  = mem_new(seq_t, len);
+    seq_t *tmp = mem_new(seq_t, len);
     if (!dp || !tmp)
     {
-        free(dp);
-        free(tmp);
+        mem_free(dp);
+        mem_free(tmp);
         return (seq_t)0;                     /* unlikely in contest */
     }
 
@@ -91,11 +93,11 @@ seq_t a(idx_t n)
     }
 
     /* Allocate new cache with all values up to new_n */
-    seq_t *new_cache = (seq_t *)calloc((size_t)(new_n + 1), sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, (size_t)(new_n + 1));
     if (!new_cache)
     {
-        free(dp);
-        free(tmp);
+        mem_free(dp);
+        mem_free(tmp);
         return (seq_t)0;                     /* allocation failure */
     }
 
@@ -106,10 +108,10 @@ seq_t a(idx_t n)
     }
 
     /* Free DP arrays and previous cache */
-    free(dp);
-    free(tmp);
+    mem_free(dp);
+    mem_free(tmp);
     if (cache)
-        free(cache);
+        mem_free(cache);
 
     /* Update cache */
     cache    = new_cache;

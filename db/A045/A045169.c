@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   comb_int
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,18 @@
  * contains exactly three 0`s and no 1`s. The sequence is indexed
  * starting at 1 (OEIS offset 1). */
 #include <stdint.h>
-#include "../utils/comb_int.h"
+
+/* helper: compute binomial coefficient C(n,k) for small n,k.
+ * The result fits in seq_t (which is unsigned 128 or wider). */
+static seq_t comb_int(int n, int k)
+{
+    if (k < 0 || k > n) return 0;
+    if (k > n - k) k = n - k;          /* use symmetry */
+    seq_t res = 1;
+    for (int i = 1; i <= k; ++i)
+        res = res * (n - k + i) / i;   /* integer division exact */
+    return res;
+}
 
 /* powers of 3 up to 20 (enough for lengths needed with n<=10000). */
 static const seq_t pow3[21] = {

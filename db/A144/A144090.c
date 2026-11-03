@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 32, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 /* integer square root of UINT64: floor(sqrt(x)) */
 static idx_t floor_sqrt_u64(idx_t x)
@@ -76,7 +77,7 @@ seq_t a(idx_t n)
 
         idx_t n1 = r - 1 - m;
         idx_t k1 = k - 1 - m;
-        seq_t C = binom(n1, k1);
+        seq_t C = binomial(n1, k1);
 
         seq_t temp = P * C;                /* temp = P * C(n-1-m, k-1-m) */
         temp /= fact_m;                    /* exact division by m! */

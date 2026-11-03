@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 314, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   incr_base
+ * Validated: standard, pass, 65 terms through n = 9841 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,35 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/incr_base.h"
+#include "../utils/mem.h"
+
+/* Increment a number's representation in base `b` and update its digit sum. */
+static void incr_base(int b,
+                      uint8_t *digits,    /* digits[b][...], array of length MAX_DIGITS */
+                      uint16_t *sum,      /* current digit sum */
+                      uint8_t *len)       /* current number of digits */
+{
+    size_t i = 0;
+    bool carry = true;
+    while (carry && i < *len) {
+        uint8_t d = digits[i];
+        if (d + 1 == (uint8_t)b) {
+            digits[i] = 0;
+            *sum -= (b - 1);
+            i++;
+            /* carry stays true */
+        } else {
+            digits[i] = d + 1;
+            *sum += 1;
+            carry = false;
+        }
+    }
+    if (carry) {                     /* added a new most significant digit */
+        digits[*len] = 1;
+        *sum += 1;
+        (*len)++;
+    }
+}
 
 #define MAX_BASE   10          /* highest base used */
 #define MAX_DIGITS 200         /* enough for all expected values */
@@ -33,7 +62,7 @@ static void ensure_cap(size_t needed, size_t *cap, seq_t **arr)
     if (needed <= *cap) return;
     size_t newcap = (*cap == 0) ? 4 : (*cap << 1);
     if (newcap < needed) newcap = needed;
-    seq_t *tmp = (seq_t *)realloc(*arr, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *arr, newcap);
     if (!tmp) exit(1);                /* allocation failed */
     *arr = tmp;
     *cap = newcap;

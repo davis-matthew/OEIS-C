@@ -8,12 +8,14 @@
  * Formula:   a(n) = Sum_{k=0..n-1} (k+1)*binomial(n,k)*a(k), a(0) = 1
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 12, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 241 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache for already computed values */
 static seq_t *a_cache = NULL;      /* array of a(k) */
@@ -27,12 +29,12 @@ static void ensure_cache(idx_t n)
         /* first allocation */
         cache_cap = (n > 0) ? 1 << 1 : 1;
         while (cache_cap <= (size_t)n) cache_cap <<= 1;
-        a_cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        a_cache = mem_new(seq_t, cache_cap);
         if (!a_cache) abort(); /* out of memory */
     } else if (cache_cap <= (size_t)n) {
         size_t new_cap = cache_cap;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_cap);
         if (!a_cache) abort();
         cache_cap = new_cap;
     }

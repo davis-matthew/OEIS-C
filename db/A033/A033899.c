@@ -7,14 +7,41 @@
  * Formula:   a(1)=17, a(n)=a(n-1)+sort_ascending_digits(a(n-1))
  * Range:     u8 n <= 4, u16 n <= 14, u32 n <= 35, u64 n <= 35, u128 n <= 35,
  *            big any n
- * Helpers:   sort_digits_asc
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/sort_digits_asc.h"
+#include "../utils/mem.h"
+
+static seq_t sort_digits_asc(seq_t x)
+{
+    const seq_t ten = (seq_t)10;
+    int freq[10] = {0};
+    seq_t temp = x;
+
+    if (temp == (seq_t)0) {
+        freq[0] = 1;
+    } else {
+        while (temp > (seq_t)0) {
+            seq_t rem = temp % ten;
+            int d = (int)rem;
+            freq[d]++;
+            temp /= ten;
+        }
+    }
+
+    seq_t res = (seq_t)0;
+    for (int d = 0; d <= 9; ++d) {
+        for (int k = 0; k < freq[d]; ++k) {
+            res = res * ten + (seq_t)d;
+        }
+    }
+    return res;
+}
 
 /* Allocate a static cache large enough for the expected usage.
    The sequence is required to be computed up to about 10 000, so
@@ -51,7 +78,7 @@ seq_t a(idx_t n)
     /* If we need more than the static cache can hold, use dynamic cache */
     if (dynamic_cache == NULL) {
         dynamic_capacity = (size_t)n > 1 ? (size_t)n : 1;
-        dynamic_cache = (seq_t *)malloc(dynamic_capacity * sizeof(seq_t));
+        dynamic_cache = mem_new(seq_t, dynamic_capacity);
         dynamic_cache[0] = (seq_t)17;
         dynamic_cached_terms = 1;
     }
@@ -62,8 +89,7 @@ seq_t a(idx_t n)
             while ((size_t)n > new_cap) {
                 new_cap <<= 1;
             }
-            dynamic_cache = (seq_t *)realloc(dynamic_cache,
-                                            new_cap * sizeof(seq_t));
+            dynamic_cache = mem_resize(seq_t, dynamic_cache, new_cap);
             dynamic_capacity = new_cap;
         }
         for (idx_t i = dynamic_cached_terms; i < n; ++i) {

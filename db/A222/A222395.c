@@ -11,7 +11,8 @@
  *            ⌊n/2⌋ positions that differ from at least one king‑move neighbor
  * Range:     u8 n <= 10, u16 n <= 17, u32 n <= 31, u64 n <= 57, u128 n <= 111,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* idx_t and seq_t are defined by the build; we only use them as opaque types. */
 
@@ -39,8 +41,8 @@ seq_t a(idx_t n) {
 
     /* Allocate two DP layers */
     size_t layer_size = 12 * dim;
-    seq_t *cur   = (seq_t *)calloc(layer_size, sizeof(seq_t));
-    seq_t *next  = (seq_t *)calloc(layer_size, sizeof(seq_t));
+    seq_t *cur   = mem_new(seq_t, layer_size);
+    seq_t *next  = mem_new(seq_t, layer_size);
     if (!cur || !next) return 0;        /* safety in case of allocation failure */
 
     /* ---------- Initialization for position 2 -------------------------------- */
@@ -58,7 +60,7 @@ seq_t a(idx_t n) {
     /* ---------- DP over positions 3 .. n ----------------------------------- */
     for (idx_t pos = 3; pos <= n; ++pos) {
         /* clear next layer */
-        memset(next, 0, layer_size * sizeof(seq_t));
+        mem_set(next, 0, layer_size * sizeof(seq_t));
 
         for (int state = 0; state < 12; ++state) {
             int prev  = (state >> 2) & 3;
@@ -110,7 +112,7 @@ seq_t a(idx_t n) {
         }
     }
 
-    free(cur);
-    free(next);
+    mem_free(cur);
+    mem_free(next);
     return result;
 }

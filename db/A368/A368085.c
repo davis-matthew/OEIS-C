@@ -11,6 +11,7 @@
  *            the position in the array corresponding to the index n
  * Range:     u8 n <= 29, u16 n <= 135, u32 n <= 527, u64 n <= 2079,
  *            u128 n <= 8255, big any n
+ * Validated: standard, pass, 82 terms through n = 8890 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

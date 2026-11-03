@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 21, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   _floor_isqrt_u64, floor_sqrt, is_prime_small
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
+ * Helpers:   ipow_i32, is_prime_seq, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,9 +26,27 @@
 #include <stdint.h>
 #include <stdlib.h>                 /* realloc, NULL */
 
-#include "../utils/is_prime_small.h"
-#include "../utils/_floor_isqrt_u64.h"
-#include "../utils/floor_sqrt.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/isqrt.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Cached sequence values. */
 static seq_t *cache = NULL;
@@ -59,7 +78,7 @@ static void grow_cache(size_t needed)
 /* Test whether a prime p is representable by x² + 150*y². */
 static bool rep_by_150(uint64_t p)
 {
-    uint64_t max_y = (uint64_t)_floor_isqrt_u64(p / 150ULL);
+    uint64_t max_y = (uint64_t)isqrt(p / 150ULL);
     for (uint64_t y = 1; y <= max_y; ++y) {
         uint64_t yy = y * y;
         uint64_t lhs = 150ULL * yy;
@@ -80,13 +99,13 @@ seq_t a(idx_t n)
         uint64_t base = 240ULL * (uint64_t)next_k;
 
         uint64_t p1 = base + 1ULL;
-        if (is_prime_small((seq_t)p1) && rep_by_150(p1)) {
+        if (is_prime_seq((seq_t)p1) && rep_by_150(p1)) {
             grow_cache(cache_len + 1);
             cache[cache_len++] = (seq_t)p1;
         }
 
         uint64_t p2 = base + 169ULL;
-        if (is_prime_small((seq_t)p2) && rep_by_150(p2)) {
+        if (is_prime_seq((seq_t)p2) && rep_by_150(p2)) {
             grow_cache(cache_len + 1);
             cache[cache_len++] = (seq_t)p2;
         }

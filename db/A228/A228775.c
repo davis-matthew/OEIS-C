@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-01)
  * Helpers:   next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,8 @@
 /* Computes a(n): maximal k such that for all j = 1..k,
    next_prime(j*n) <= (j+1)*n. */
 
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/next_prime.h"
 #include <stdint.h>
 

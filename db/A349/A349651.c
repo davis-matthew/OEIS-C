@@ -8,13 +8,16 @@
  *            |Stirling1(n,k)|
  * Range:     i8 n <= 3, i16 n <= 4, i32 n <= 7, i64 n <= 12, i128 n <= 21,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 33 terms through n = 318 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -57,7 +60,7 @@ seq_t a(idx_t n)
     for (idx_t k = 1; k <= n; ++k) {
         seq_t base  = (seq_t)(3 * k - 1);
         seq_t exp   = (seq_t)(k - 1);
-        seq_t w     = big_pow(base, exp);       /* (3*k-1)^(k-1) */
+        seq_t w     = ipow(base, exp);       /* (3*k-1)^(k-1) */
         sum += w * row[k];                      /* add weighted Stirling number */
     }
 

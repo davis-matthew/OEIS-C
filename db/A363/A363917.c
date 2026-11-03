@@ -9,7 +9,8 @@
  * Formula:   a(n) = Product_{p in Factors(n)} mult(p) * n^mult(p) / p
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   _term, big_pow, build_primes, int_sqrt
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-01)
+ * Helpers:   build_primes, ipow, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,10 +20,22 @@
 #include <stdbool.h>
 
 /* Utilities required from the framework */
-#include "../utils/big_pow.h"     /* seq_t big_pow(seq_t, seq_t);          */
-#include "../utils/int_sqrt.h"    /* idx_t int_sqrt(idx_t);                */
-#include "../utils/build_primes.h"/* void build_primes(idx_t, idx_t **, size_t *); */
-#include "../utils/_term.h"
+#include <stddef.h>
+#include "../utils/build_primes.h"
+#include "../utils/ipow.h"
+#include "../utils/isqrt.h"
+
+/* Compute a single term k * n^k / p, where k is the multiplicity of prime p in n */
+static seq_t _term(idx_t n, idx_t p, int k)
+{
+    seq_t pow_n = 1;
+    for (int i = 0; i < k; ++i)
+        pow_n *= (seq_t)n;          /* n^k  */
+
+    seq_t term = pow_n * (seq_t)k;   /* k * n^k */
+    term /= (seq_t)p;                /* divide by prime p */
+    return term;
+}
 
 /* Static cache for primes */
 static idx_t *prime_cache = NULL;
@@ -52,7 +65,7 @@ seq_t a(idx_t n)
         return (seq_t)1;            /* a(1) = 1 */
 
     /* Prepare primes up to sqrt(n) */
-    idx_t lim = int_sqrt(n);
+    idx_t lim = isqrt(n);
     if (lim < 2) lim = 2;           /* minimum limit for primes */
     _ensure_primes(lim);
 

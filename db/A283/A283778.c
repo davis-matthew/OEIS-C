@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 127, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 9846 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 #define E_NUM 2718281828459045ULL   /* floor(e * 10^15) */
 #define E_DEN 1000000000000000ULL  /* 10^15 */
@@ -52,10 +54,10 @@ seq_t a(idx_t n)
     /* Grow the cache capacity if necessary. */
     if (cache_len == 0) {
         cache_cap = 64;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     } else if (n > cache_cap) {
         while (cache_cap < n) cache_cap <<= 1;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 
     /* Scan k from last_scanned_k + 1 upwards until we find enough terms. */

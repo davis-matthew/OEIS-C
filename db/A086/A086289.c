@@ -10,12 +10,14 @@
  *            method for Hamming numbers (2‑,3‑,5‑,7‑smooth)
  * Range:     u8 n <= 76, u16 n <= 1066, u32 n <= 8353, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 116 terms through n = 9794 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static tables holding the 7‑smooth numbers and their Ω values */
 static seq_t *smooth_vals  = NULL;   /* 7‑smooth numbers, indexed from 1 */
@@ -36,8 +38,8 @@ static void ensure_terms(idx_t n)
         size_t new_cap = size_cap ? size_cap * 2 : 16;
         while (new_cap < (size_t)n) new_cap <<= 1;
 
-        smooth_vals  = (seq_t *)realloc(smooth_vals,  (new_cap + 1) * sizeof(seq_t));
-        smooth_omega = (seq_t *)realloc(smooth_omega, (new_cap + 1) * sizeof(seq_t));
+        smooth_vals  = mem_resize(seq_t, smooth_vals, (new_cap + 1));
+        smooth_omega = mem_resize(seq_t, smooth_omega, (new_cap + 1));
         size_cap = new_cap;
     }
 

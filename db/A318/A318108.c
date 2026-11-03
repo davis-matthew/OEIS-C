@@ -8,7 +8,8 @@
  *            binomial(n+2*k,n) * binomial(2*k,k)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 9, u64 n <= 17, u128 n <= 33,
  *            big any n
- * Helpers:   compute_powers_of_three
+ * Validated: standard, pass, 37 terms through n = 827 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,17 @@
 /* seq_t and idx_t are provided by the build. */
 
 #include <stdlib.h>
-#include "../utils/compute_powers_of_three.h"
+#include "../utils/mem.h"
+
+/* Helper: compute 3^e for 0 <= e <= n using multiplication. */
+static void compute_powers_of_three(idx_t max_n, seq_t *p)
+{
+    seq_t val = 1;
+    for (idx_t i = 0; i <= max_n; ++i) {
+        p[i] = val;
+        val = val * 3;
+    }
+}
 
 /* Main sequence function with static cache. */
 seq_t a(idx_t n)
@@ -29,13 +40,13 @@ seq_t a(idx_t n)
     /* Allocate / enlarge cache if needed */
     if ((idx_t)cache_len == 0) { /* first call */
         cache_cap = 8;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
         if (!cache) exit(EXIT_FAILURE);
     }
     if ((idx_t)cache_cap <= n) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 8;
         while ((idx_t)new_cap <= n) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         cache = tmp;
         cache_cap = new_cap;
@@ -49,7 +60,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= pow3_cap) {
         size_t new_cap = pow3_cap ? pow3_cap * 2 : 8;
         while ((size_t)n >= new_cap) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(pow3, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, pow3, new_cap);
         if (!tmp) exit(EXIT_FAILURE);
         pow3 = tmp;
         pow3_cap = new_cap;

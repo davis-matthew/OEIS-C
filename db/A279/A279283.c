@@ -8,11 +8,13 @@
  * Formula:   a(n) = Sum_{k=1..n} binomial(k+2,3) * binomial(n+3*k-1,4*k-1)
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 30, u128 n <= 63,
  *            big any n
+ * Validated: standard, pass, 42 terms through n = 909 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

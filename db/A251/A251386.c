@@ -11,6 +11,7 @@
  *            in {2,3,4,5,6}. The DP iterates n times to build a (n+1)×5 array
  * Range:     u8 none, u16 n <= 1, u32 n <= 3, u64 n <= 7, u128 n <= 16,
  *            big any n
+ * Validated: standard, pass, 27 terms through n = 207 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

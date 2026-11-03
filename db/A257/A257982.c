@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 135, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 991 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are supplied by the build environment. */
 typedef seq_t seq_t;
@@ -47,8 +49,8 @@ static void ensure_capacity(idx_t need)
     if (need <= cap) return;
     cap = cap == 0 ? 16 : cap * 2;
     while (cap < need) cap <<= 1;
-    A = (seq_t *)realloc(A, sizeof(seq_t) * cap);
-    D = (seq_t *)realloc(D, sizeof(seq_t) * cap);
+    A = mem_resize(seq_t, A, cap);
+    D = mem_resize(seq_t, D, cap);
 }
 
 /* Append a new term (a_next, d_next) to the cached sequence. */

@@ -8,13 +8,15 @@
  * Formula:   a(n) = 3*(x^2 + x*y + y^2 + x + y) + 1 for integers x, y
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 8614 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *cached_values = NULL;
 static size_t cached_size   = 0;
@@ -27,7 +29,7 @@ static void grow_cache(size_t needed)
     if (needed <= cached_cap) return;
     size_t new_cap = cached_cap == 0 ? 128 : cached_cap;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *new_arr = (seq_t*)realloc(cached_values, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, cached_values, new_cap);
     if (!new_arr) abort();
     cached_values = new_arr;
     cached_cap = new_cap;
@@ -61,9 +63,9 @@ static void build_cache(void)
     }
     /* Resize to actual number of elements */
     cached_cap = idx;
-    cached_values = (seq_t*)realloc(cached_values, idx * sizeof(seq_t));
+    cached_values = mem_resize(seq_t, cached_values, idx);
     /* Sort */
-    qsort(cached_values, idx, sizeof(seq_t), cmp_seq);
+    mem_qsort(cached_values, idx, sizeof(seq_t), cmp_seq);
     /* Deduplicate */
     size_t uniq = 0;
     for (size_t i = 0; i < idx; ++i) {
@@ -72,7 +74,7 @@ static void build_cache(void)
         }
     }
     cached_size = uniq;
-    cached_values = (seq_t*)realloc(cached_values, uniq * sizeof(seq_t));
+    cached_values = mem_resize(seq_t, cached_values, uniq);
 }
 
 seq_t a(idx_t n)

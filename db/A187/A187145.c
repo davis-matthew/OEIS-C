@@ -11,7 +11,8 @@
  *            mod 12] where c = {3,-4,2,-2,3,-4,3,-2,2,-4,3,0}
  * Range:     i8 n <= 18, i16 n <= 101, i32 n <= 395, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 89 terms through n = 934 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* External types are provided by the build environment. */
 extern idx_t _floor_isqrt_u64(idx_t n); /* unused but allowed */
@@ -39,8 +41,8 @@ static void ensure_up_to(idx_t target_index)
     while (new_cap <= (size_t)target_index)
         new_cap <<= 1;
 
-    coeff = (seq_t *)realloc(coeff, new_cap * sizeof(seq_t));
-    d_arr   = (seq_t *)realloc(d_arr,   new_cap * sizeof(seq_t));
+    coeff = mem_resize(seq_t, coeff, new_cap);
+    d_arr   = mem_resize(seq_t, d_arr, new_cap);
     /* Initialize new cells to zero */
     for (size_t i = coeff_capacity; i < new_cap; ++i) {
         coeff[i] = 0;
@@ -79,11 +81,11 @@ seq_t a(idx_t n)
 
     idx_t target_index = n + 1;   /* a(n) = coeff[n+1] of f(q) */
     if (coeff_capacity == 0) {    /* first call: initialize coeff[0] = 1 */
-        coeff = (seq_t *)malloc(sizeof(seq_t));
+        coeff = mem_new(seq_t, 1);
         coeff_capacity = 1;
         coeff[0] = (seq_t)1;      /* product at q^0 is 1 */
         coeff_limit = 0;
-        d_arr = (seq_t *)malloc(sizeof(seq_t));
+        d_arr = mem_new(seq_t, 1);
         d_arr[0] = 0;             /* unused */
     }
     ensure_up_to(target_index);

@@ -7,11 +7,13 @@
  * Formula:   a(n) = (sum_digits(n^3)-n)/3
  * Range:     i8 n <= 5, i16 n <= 31, i32 n <= 66, i64 n <= 66, i128 n <= 66,
  *            big any n
+ * Validated: partial, pass, 67 terms through n = 66 (2026-11-01)
  * Helpers:   digit_sum
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/digit_sum.h"
 
 seq_t a(idx_t n)

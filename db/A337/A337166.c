@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 4, i16 n <= 6, i32 n <= 10, i64 n <= 16, i128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Declaration of the helper that computes binomial coefficients.
    It returns an exact integer of type seq_t. */
@@ -43,10 +45,10 @@ seq_t a(idx_t n)
     if (cache_len < needed) {
         /* Allocate or grow the cache. */
         if (cache == NULL) {
-            cache = (seq_t *)malloc(needed * sizeof(seq_t));
+            cache = mem_new(seq_t, needed);
             cache_cap = needed;
         } else if (cache_cap < needed) {
-            seq_t *tmp = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, needed);
             cache = tmp;
             cache_cap = needed;
         }

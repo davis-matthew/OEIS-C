@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 62, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   seq_cmp_func
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,15 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_cmp_func.h"
+#include "../utils/mem.h"
+
+/* Comparator for qsort when sorting divisors */
+static int seq_cmp_func(const void *a, const void *b)
+{
+    seq_t aa = *(const seq_t *)a;
+    seq_t bb = *(const seq_t *)b;
+    return (aa < bb) ? -1 : (aa > bb) ? 1 : 0;
+}
 
 /* Test whether x has a nonpositive entry in its divisor-difference table. */
 static bool has_nonpositive_entry(seq_t x)
@@ -33,7 +42,7 @@ static bool has_nonpositive_entry(seq_t x)
     /* allocate space for divisors */
     if (divs == NULL || div_cap < 64) {
         div_cap = 64;
-        divs = (seq_t *)realloc(divs, div_cap * sizeof(seq_t));
+        divs = mem_resize(seq_t, divs, div_cap);
         if (!divs) exit(1);
     }
 
@@ -41,14 +50,14 @@ static bool has_nonpositive_entry(seq_t x)
         if (x % d == 0) {
             if (div_len == div_cap) {
                 div_cap <<= 1;
-                divs = (seq_t *)realloc(divs, div_cap * sizeof(seq_t));
+                divs = mem_resize(seq_t, divs, div_cap);
                 if (!divs) exit(1);
             }
             divs[div_len++] = d;
             if (d != x / d) {
                 if (div_len == div_cap) {
                     div_cap <<= 1;
-                    divs = (seq_t *)realloc(divs, div_cap * sizeof(seq_t));
+                    divs = mem_resize(seq_t, divs, div_cap);
                     if (!divs) exit(1);
                 }
                 divs[div_len++] = x / d;
@@ -57,7 +66,7 @@ static bool has_nonpositive_entry(seq_t x)
     }
 
     /* sort divisors ascending */
-    qsort(divs, div_len, sizeof(seq_t), seq_cmp_func);
+    mem_qsort(divs, div_len, sizeof(seq_t), seq_cmp_func);
 
     /* iterate over successive difference tables */
     seq_t *cur = divs;
@@ -66,25 +75,25 @@ static bool has_nonpositive_entry(seq_t x)
         /* check for nonpositive entry */
         for (size_t i = 0; i + 1 < cur_len; ++i) {
             if (cur[i] >= cur[i + 1]) {
-                if (cur != divs) free(cur);
+                if (cur != divs) mem_free(cur);
                 return true;
             }
         }
 
         /* build next level of differences */
-        seq_t *next = (seq_t *)malloc((cur_len - 1) * sizeof(seq_t));
+        seq_t *next = mem_new(seq_t, (cur_len - 1));
         if (!next) exit(1);
         for (size_t i = 0; i + 1 < cur_len; ++i) {
             next[i] = cur[i + 1] - cur[i];
         }
 
         /* advance to next row */
-        if (cur != divs) free(cur);
+        if (cur != divs) mem_free(cur);
         cur = next;
         cur_len -= 1;
     }
 
-    if (cur != divs) free(cur);
+    if (cur != divs) mem_free(cur);
     return false;
 }
 
@@ -105,7 +114,7 @@ seq_t a(idx_t n)
         if (has_nonpositive_entry(val)) {
             if (cache_len == cache_cap) {
                 cache_cap = (cache_cap == 0) ? 16 : cache_cap << 1;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
                 if (!cache) exit(1);
             }
             cache[cache_len++] = val;

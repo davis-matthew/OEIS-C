@@ -12,7 +12,8 @@
  *            z^j/(1 - z^j)^2 ∏_{i≠j} 1/(1 - z^i)
  * Range:     u8 n <= 20, u16 n <= 44, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Static table of partition counts for integer m into at most 9 parts */
 static seq_t *coeff = NULL;
@@ -32,14 +34,14 @@ static void ensure_coeff(idx_t up_to)
     if (coeff && coeff_cap > (size_t)up_to) return;
 
     size_t new_cap = (size_t)up_to + 1;
-    seq_t *new_coeff = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_coeff = mem_new(seq_t, new_cap);
     if (!new_coeff) {
         /* Allocation failure – abort the program (no other choice). */
         exit(1);
     }
 
     /* Zero initialize */
-    memset(new_coeff, 0, new_cap * sizeof(seq_t));
+    mem_set(new_coeff, 0, new_cap * sizeof(seq_t));
     new_coeff[0] = (seq_t)1;            /* one way to partition 0 */
 
     /* Partition DP: count partitions into parts of size <= 9 */
@@ -50,7 +52,7 @@ static void ensure_coeff(idx_t up_to)
     }
 
     /* Free old table if present */
-    if (coeff) free(coeff);
+    if (coeff) mem_free(coeff);
 
     coeff = new_coeff;
     coeff_cap = new_cap;

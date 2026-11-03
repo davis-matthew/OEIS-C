@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 15, u32 n <= 38, u64 n <= 84, u128 n <= 176,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 192 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    a(1)=308, a(2)=470, a(3)=617, a(4)=864, a(5)=1166, a(6)=1608 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[6] = {
     (seq_t)308, (seq_t)470, (seq_t)617,
@@ -36,7 +38,7 @@ static void ensure_cache(idx_t needed)
     size_t new_cap = (size_t)needed + 1;
     if (new_cap < cache_cap * 2) new_cap = cache_cap * 2; /* grow fast */
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) return;                      /* allocation failed – keep old */
 
     /* zero‑initialize the new entries */
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
     /* initialise the cache on the first call */
     if (!cache) {
         size_t init_cap = (size_t)(n >= 6 ? n + 1 : 7);
-        cache = (seq_t *)malloc(init_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, init_cap);
         if (!cache) return (seq_t)0;        /* allocation failure */
 
         for (size_t i = 0; i < init_cap; ++i)

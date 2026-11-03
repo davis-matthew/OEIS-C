@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 49, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   fails, log2_floor_uint64
+ * Validated: partial, pass, 57 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,8 +36,44 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/fails.h"
-#include "../utils/log2_floor_uint64.h"
+#include "../utils/mem.h"
+
+/* Compute floor(log₂ x) for non‑zero x (works for 64‑bit values). */
+static inline int log2_floor_uint64(uint64_t x)
+{
+    return 63 - __builtin_clzll(x);
+}
+
+/* Test whether an odd integer z fails the high‑multiplication trick. */
+static int fails(uint64_t z)
+{
+    /* 1. Determine e = floor(log₂ z) */
+    int e = log2_floor_uint64(z);
+
+    /* 2. Compute a = ceil(2^(64+e) / z)  (128‑bit). */
+    unsigned __int128 pow64e = (unsigned __int128)1 << (64 + e); /* 2^(64+e) */
+    unsigned __int128 a = (pow64e + z - 1) / z;
+
+    /* 3. Compute the special test value y = floor(2^64 / z) * z – 1. */
+    unsigned __int128 two64 = (unsigned __int128)1 << 64;           /* 2^64   */
+    unsigned __int128 q    = two64 / z;                             /* floor(2^64 / z) */
+    unsigned __int128 m    = q * z;                                 /* q * z <= 2^64 */
+    uint64_t y = (uint64_t)(m - 1);                                 /* y < 2^64 */
+
+    /* 4. Evaluate floor((a*y) / 2^(64+e)) without overflowing 128 bits. */
+    uint64_t a_hi = (uint64_t)(a >> 64);                           /* high 64 bits of a */
+    uint64_t a_lo = (uint64_t)(a);                                 /* low  64 bits of a */
+
+    /* a_hi * y may be up to 126 bits; shifting right by e (≤62) yields ≤64 bits. */
+    uint64_t term1 = (uint64_t)(((unsigned __int128)a_hi * y) >> e);
+    /* a_lo * y up to 128 bits; shifting right by (64+e) yields ≤64 bits. */
+    uint64_t term2 = (uint64_t)(((unsigned __int128)a_lo * y) >> (64 + e));
+    uint64_t calc  = term1 + term2;
+
+    /* 5. Compare with the true floor division. */
+    uint64_t correct = y / z;
+    return calc != correct;
+}
 
 /* Forward declaration of build_cache */
 static void build_cache(idx_t n_needed);
@@ -51,7 +88,7 @@ static uint64_t next_z   = 3;  /* next odd z to test */
 
 static void grow_cache(size_t new_cap)
 {
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (!new_cache) {
         /* In a real program you would handle the error; here we abort. */
         abort();

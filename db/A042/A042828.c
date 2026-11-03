@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 14, u64 n <= 32, u128 n <= 65,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 198 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return the n-th term of the sequence.
    n is 0–based: a(0) = 30. */
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     /* Initialise on first call */
     if (max_n == (idx_t)-1) {
         cap = 1;
-        h = (seq_t*)malloc(cap * sizeof(seq_t));
+        h = mem_new(seq_t, cap);
         if (!h) abort();            /* out of memory */
         h[0] = (seq_t)a0;          /* a(0) = 30 */
         max_n = 0;
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
         if ((size_t)(i + 1) > cap) {
             size_t new_cap = cap ? cap * 2 : 4;
             while (new_cap <= (size_t)i) new_cap <<= 1;
-            seq_t *tmp = (seq_t*)realloc(h, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, h, new_cap);
             if (!tmp) abort();      /* out of memory */
             h = tmp;
             cap = new_cap;

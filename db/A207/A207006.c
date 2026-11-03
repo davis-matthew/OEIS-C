@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 94, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_distinct_primes
+ * Validated: standard, pass, 77 terms through n = 9880 (2026-11-03)
+ * Helpers:   mem, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,8 @@
 #include <string.h>
 
 /* helper from the utils library */
-#include "../utils/count_distinct_primes.h"
+#include "../utils/omega.h"
+#include "../utils/mem.h"
 
 /* external types supplied by the build system */
 extern seq_t a(idx_t n);
@@ -42,7 +44,7 @@ static void ensure_capacity(size_t needed)
     if (seq_cap >= needed) return;
     size_t new_cap = seq_cap ? seq_cap * 2 : 128;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *tmp = (seq_t*)realloc(seq_arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_arr, new_cap);
     if (!tmp) abort();          /* allocation failure */
     seq_arr = tmp;
     seq_cap = new_cap;
@@ -51,8 +53,8 @@ static void ensure_capacity(size_t needed)
 static void generate_terms(size_t target)
 {
     while (seq_len < target) {
-        size_t omega1 = count_distinct_primes(cur_num);
-        size_t omega2 = count_distinct_primes(cur_num + omega1);
+        size_t omega1 = omega(cur_num);
+        size_t omega2 = omega(cur_num + omega1);
         if (omega1 == omega2) {
             ensure_capacity(seq_len + 1);
             seq_arr[seq_len++] = (seq_t)cur_num;

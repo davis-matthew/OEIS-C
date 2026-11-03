@@ -9,13 +9,15 @@
  *            the substring "84" while n+1 does not
  * Range:     u8 n <= 3, u16 n <= 889, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 974 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Return true if x in base 9 contains the adjacent digits 8 then 4. */
 static bool has84(seq_t x) {
@@ -45,7 +47,7 @@ seq_t a(idx_t n) {
         if (has84(cur) && !has84(cur + 1)) {
             if (count >= cap) {
                 size_t newcap = cap ? cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(terms, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, newcap);
                 terms = tmp;
                 cap = newcap;
             }

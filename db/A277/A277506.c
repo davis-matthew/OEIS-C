@@ -7,7 +7,8 @@
  * Formula:   a(n) = n*a(n-1) + n^n, a(0) = 1
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 26,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 36 terms through n = 372 (2026-11-03)
+ * Helpers:   ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/seq_pow.h"
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
 
 /* Cache for computed values, zero‑based. */
 static seq_t *cache      = NULL;   /* array of seq_t */
@@ -28,7 +31,7 @@ static void ensure_cache(idx_t n)
 {
     if (cache_cap < (size_t)(n + 1)) {
         size_t new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cache_cap = new_cap;
     }
@@ -40,7 +43,7 @@ seq_t a(idx_t n)
     /* Base term a(0) = 1. */
     if (n == (idx_t)0) {
         if (cache_cap < 1) {
-            seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, 1);
             cache = tmp;
             cache_cap = 1;
         }
@@ -56,7 +59,7 @@ seq_t a(idx_t n)
 
     /* Compute all missing values up to n. */
     for (idx_t i = cache_size; i <= n; ++i) {
-        seq_t pow_val = seq_pow((seq_t)i, (idx_t)i);            /* i^i */
+        seq_t pow_val = ipow_idx((seq_t)i, (idx_t)i);            /* i^i */
         seq_t term    = ((seq_t)i) * cache[(size_t)(i - 1)] + pow_val; /* i*a(i-1)+i^i */
         cache[(size_t)i] = term;
     }

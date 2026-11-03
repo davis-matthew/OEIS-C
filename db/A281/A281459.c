@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 118, u16 n <= 306, u32 n <= 888, u64 n <= 2873,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 94 terms through n = 9611 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  */
 
 #include <stdlib.h>   /* for malloc, realloc, abort */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     size_t needed = (size_t)n + 1;   /* we need indices 0..n inclusive */
 
     if (dp_sz < needed) {
-        seq_t *tmp = (seq_t *)realloc(dp, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, needed);
         if (!tmp) abort();          /* allocation failure */
         dp = tmp;
         dp_sz = needed;

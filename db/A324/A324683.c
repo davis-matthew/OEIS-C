@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 29, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   hs_index
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,7 +36,18 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/hs_index.h"
+
+struct hs_slot;
+
+static size_t
+hs_index(const struct hs_slot *tab, size_t cap, int64_t key)
+{
+    /* Simple 64‑bit mix – works well for signed integers. */
+    uint64_t k = (uint64_t)key;
+    k ^= k >> 33;
+    k *= 0xff51afd7ed558ccdULL;
+    return (size_t)k & (cap - 1);
+}
 
 /* ------------------------------------------------------------------ */
 /*   Hash table for signed 64‑bit keys passed by value (no collisions

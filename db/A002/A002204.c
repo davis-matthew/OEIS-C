@@ -8,12 +8,13 @@
  *            a(1)=1
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 6, u128 n <= 8,
  *            big any n
- * Helpers:   binom_helper
+ * Validated: standard, pass, 26 terms through n = 40 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom_helper.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n) {
     if (n == 1) return (seq_t)1;
@@ -21,8 +22,8 @@ seq_t a(idx_t n) {
     seq_t result = (seq_t)1;
     
     for (idx_t k = 2; k <= n; k++) {
-        seq_t c1 = binom_helper(2*k - 2, k - 2);
-        seq_t c2 = binom_helper(2*k - 2, k - 1);
+        seq_t c1 = binomial(2*k - 2, k - 2);
+        seq_t c2 = binomial(2*k - 2, k - 1);
         seq_t factor = (seq_t)(2*k - 1);
         
         result = result * c1 * c2 * factor;

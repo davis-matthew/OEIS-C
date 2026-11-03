@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 196, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_palindrome
+ * Validated: standard, pass, 75 terms through n = 841 (2026-11-01)
+ * Helpers:   is_palindrome_base
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,7 @@
    The algorithm brute‑forces the multiplier (t = 1, 2, …) until the
    condition is met. */
 #include <stdbool.h>
-#include "../utils/is_palindrome.h"
+#include "../utils/is_palindrome_base.h"
 
 seq_t a(idx_t n)
 {
@@ -34,7 +35,7 @@ seq_t a(idx_t n)
         }
 
         /* check palindrome in base 3 */
-        if (is_palindrome(v, 3)) {
+        if (is_palindrome_base(v, 3)) {
             return m;
         }
     }

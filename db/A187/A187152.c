@@ -14,12 +14,22 @@
  *            diagonal of the triangle: D(1)=2, D(2)=7, D(3)=22 D(j)=3*D...
  * Range:     u8 n <= 19, u16 n <= 54, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   alloc_seq_array
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/alloc_seq_array.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 static seq_t *D_array = NULL;        /* Diagonal values, 1‑based */
 static seq_t *U_array = NULL;        /* Off‑diagonal values, 1‑based */
@@ -32,7 +42,7 @@ static void ensure_D(size_t n)
     if (n + 1 <= D_len) return;        /* already computed */
 
     size_t new_len = n + 1;
-    seq_t *tmp = (seq_t *)realloc(D_array, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, D_array, new_len);
     if (!tmp) exit(1);                  /* abort on allocation failure */
     D_array = tmp;
     D_len = new_len;
@@ -52,7 +62,7 @@ static void ensure_U(size_t n)
     if (n + 1 <= U_len) return;        /* already computed */
 
     size_t new_len = n + 1;
-    seq_t *tmp = (seq_t *)realloc(U_array, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, U_array, new_len);
     if (!tmp) exit(1);                  /* abort on allocation failure */
     U_array = tmp;
     U_len = new_len;

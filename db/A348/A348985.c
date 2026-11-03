@@ -11,8 +11,9 @@
  *            2. The numerator can be computed as a(n) = 2 * sigma(n) / gcd( 2
  *            * sigma(n), sum_sf + sum_uni ), with the products taken over the
  *            prime factorisation of n
- * Range:     u8 n <= 22, u16 n <= 3364, u32 n <= 9810, u64 n <= 9810,
- *            u128 n <= 9810, big any n
+ * Range:     u8 n <= 22, u16 n <= 3364, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 115 terms through n = 9810 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -25,6 +26,7 @@ static seq_t pow_seq_t(seq_t base, int exp) {
     return result;
 }
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n) {

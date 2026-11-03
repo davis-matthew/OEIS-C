@@ -9,12 +9,14 @@
  *            (recurrence derived from (x^21+x^2+1)·G(x)=x^20 over GF(2)
  * Range:     u8 n <= 80, u16 n <= 80, u32 n <= 80, u64 n <= 80, u128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 81 terms through n = 80 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* holds a(0) … a(PERIOD-1)   */
 static const idx_t PERIOD = 2097151; /* 2^21-1, the period of the m‑sequence */
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     /* initialise the period table on first call */
     if (!cache) {
         /* allocate memory for the entire period */
-        cache = (seq_t *)malloc(PERIOD * sizeof(seq_t));
+        cache = mem_new(seq_t, PERIOD);
         if (!cache) return (seq_t)0; /* fallback: should not happen */
 
         /* initial 20 zeros, then a(20)=1 */

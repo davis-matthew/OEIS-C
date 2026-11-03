@@ -7,12 +7,14 @@
  * Formula:   a(n) = n! * [x^n] cosh(arcsinh(x)*exp(x)) (sequence A012593)
  * Range:     i8 n <= 4, i16 n <= 8, i32 n <= 13, i64 n <= 20, i128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,10 +25,10 @@ seq_t a(idx_t n)
     idx_t mmax = (N - 1) / 2;
 
     /* allocate working arrays */
-    seq_t *d      = (seq_t *)malloc((mmax + 1) * sizeof(seq_t));  /* d[m] = (-1)^m * C(2m,m)*(2m)! / 4^m */
-    seq_t *hprime = (seq_t *)malloc((N + 1) * sizeof(seq_t));   /* h'_k = k! * [x^k] (arcsinh(x)*exp(x)) */
-    seq_t *s      = (seq_t *)malloc((N + 1) * sizeof(seq_t));   /* s[k] = k! * t_k  */
-    seq_t *r      = (seq_t *)malloc((N + 1) * sizeof(seq_t));   /* r[k] = k! * u_k  */
+    seq_t *d      = mem_new(seq_t, (mmax + 1));  /* d[m] = (-1)^m * C(2m,m)*(2m)! / 4^m */
+    seq_t *hprime = mem_new(seq_t, (N + 1));   /* h'_k = k! * [x^k] (arcsinh(x)*exp(x)) */
+    seq_t *s      = mem_new(seq_t, (N + 1));   /* s[k] = k! * t_k  */
+    seq_t *r      = mem_new(seq_t, (N + 1));   /* r[k] = k! * u_k  */
 
     /* -------------------------------------------------------------
        1.  Compute d[m]   (recurrence from ( (2m+2)(2m+1) )^2 / (4*(m+1)^2) )
@@ -94,10 +96,10 @@ seq_t a(idx_t n)
     seq_t result = (s[N] + r[N]) / (seq_t)2;
 
     /* free temporary storage */
-    free(d);
-    free(hprime);
-    free(s);
-    free(r);
+    mem_free(d);
+    mem_free(hprime);
+    mem_free(s);
+    mem_free(r);
 
     return result;
 }

@@ -9,14 +9,16 @@
  * Formula:   a(0) = a(1) = 1; For n>1, let c = count of all occurrences of
  *            a(n-1) in the list so far. If c < |a(n-1)| then a(n) = c -
  *            a(n-1); otherwise a(n) = c
- * Range:     i8 n <= 9841, i16 n <= 9841, i32 n <= 9841, i64 n <= 9841,
- *            i128 n <= 9841, big any n
- * Helpers:   none
+ * Range:     i8 n <= 20167, i16 n <= 50000, i32 n <= 50000, i64 n <= 50000,
+ *            i128 n <= 50000, big any n
+ * Validated: standard, pass, 94 terms through n = 9841 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>  /* malloc, realloc, size_t */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
         if (cap < needed) {
             size_t newcap = cap ? cap * 2 : 16;
             while (newcap < needed) newcap *= 2;
-            seq = (seq_t *)realloc(seq, newcap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, newcap);
             cap = newcap;
         }
         /* compute missing terms */

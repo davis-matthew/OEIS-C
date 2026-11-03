@@ -10,6 +10,7 @@
  *            with 64 digits '1'. * n ≥ 65 -> since 64 < n, 64 is a single
  *            base‑n digit: result = 64
  * Range:     u8 none, u16 none, u32 none, u64 none, u128 none, big any n
+ * Validated: partial, pass, 12 terms through n = 12 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

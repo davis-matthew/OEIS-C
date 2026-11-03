@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 5, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_palindrome, reverse_decimal
+ * Validated: standard, pass, 60 terms through n = 9257 (2026-11-03)
+ * Helpers:   is_palindrome_base, mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,9 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/reverse_decimal.h"
-#include "../utils/is_palindrome.h"
+#include "../utils/is_palindrome_base.h"
+#include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
 
 static inline bool needs_six_steps(seq_t x)
 {
@@ -32,11 +34,11 @@ static inline bool needs_six_steps(seq_t x)
      * reaches a palindrome after exactly six Reverse‑and‑Add steps. */
     seq_t cur = x;
     for (idx_t step = 0; step < 6; ++step) {
-        if (is_palindrome(cur, 10))       /* already a palindrome – exclude */
+        if (is_palindrome_base(cur, 10))       /* already a palindrome – exclude */
             return false;
-        cur = cur + reverse_decimal(cur);
+        cur = cur + reverse_digits(cur);
     }
-    return is_palindrome(cur, 10);        /* true only if palindrome after 6 steps */
+    return is_palindrome_base(cur, 10);        /* true only if palindrome after 6 steps */
 }
 
 seq_t a(idx_t n)
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap << 1 : 8;
                 /* Use a cast so the code compiles under both C and C++. */
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) abort();     /* out of memory – terminate */
                 cache = tmp;
                 cache_cap = new_cap;

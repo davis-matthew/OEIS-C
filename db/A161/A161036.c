@@ -12,13 +12,15 @@
  *            Results are cached so that subsequent calls with large...
  * Range:     u8 n <= 111, u16 n <= 300, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 109 terms through n = 959 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* External integer types supplied by the build system. */
 typedef uint64_t idx_t;   /* index type */
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
 
     /* Need to recompute up to n.  Allocate a new DP array. */
     size_t sz = (size_t)n + 1;          /* array size */
-    seq_t *dp      = (seq_t *)calloc(sz, sizeof(seq_t)); /* dp[i] holds
+    seq_t *dp      = mem_new(seq_t, sz); /* dp[i] holds
                                                            a(i) for current
                                                            set of coins */
     if (!dp) {
@@ -68,15 +70,15 @@ seq_t a(idx_t n)
     }
 
     /* Temporary array for updates and a prefix array for each residue. */
-    seq_t *dp_new = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *dp_new = mem_new(seq_t, sz);
     if (!dp_new) {
-        free(dp);
+        mem_free(dp);
         exit(EXIT_FAILURE);
     }
-    seq_t *pref = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *pref = mem_new(seq_t, sz);
     if (!pref) {
-        free(dp);
-        free(dp_new);
+        mem_free(dp);
+        mem_free(dp_new);
         exit(EXIT_FAILURE);
     }
 
@@ -85,7 +87,7 @@ seq_t a(idx_t n)
         idx_t F = fibs[fi];
 
         /* Start with the counts that do not use this part. */
-        memcpy(dp_new, dp, sz * sizeof(seq_t));
+        mem_copy(dp_new, dp, sz * sizeof(seq_t));
 
         /* Consider residues modulo F. */
         for (idx_t r = 0; r < F && r <= n; ++r) {
@@ -114,12 +116,12 @@ seq_t a(idx_t n)
     }
 
     /* Clean up temporary arrays. */
-    free(dp_new);
-    free(pref);
+    mem_free(dp_new);
+    mem_free(pref);
 
     /* Cache the computed array for future calls. */
     if (dp_cache) {
-        free(dp_cache);
+        mem_free(dp_cache);
     }
     dp_cache = dp;
     cache_max = n;

@@ -12,12 +12,14 @@
  *            a(6) = 30, a(7) = 35, a(8) = 39, a(9) = 43, a(10) = 48
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The function returns the nth term of OEIS sequence A314740.  It
    lazily builds a cache of computed terms so that repeated calls are
@@ -41,7 +43,7 @@ a(idx_t n)
     if (needed > cache_cap) {
         size_t new_cap = needed * 2;
         if (new_cap < needed) new_cap = needed;
-        seq_t *newptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *newptr = mem_resize(seq_t, cache, new_cap);
         if (!newptr) exit(1);          /* terminate on allocation failure */
         cache = newptr;
         cache_cap = new_cap;

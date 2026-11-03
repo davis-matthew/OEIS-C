@@ -9,14 +9,37 @@
  *            down: d₀ < d₁ > d₂ < d₃ > … (d₀ is the most significant digit)
  * Range:     u8 n <= 55, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   compute_dp_len
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/compute_dp_len.h"
+
+static void compute_dp_len(size_t len, unsigned long long *dp)
+{
+    /* dp[pos*5 + d] = number of completions from position pos
+       when digit at position pos is d  (0 ≤ d ≤ 4). */
+    size_t i;
+    for (i = 0; i < 5; ++i)
+        dp[(len - 1) * 5 + i] = 1ULL;          /* last digit any value */
+
+    for (long long pos = (long long)len - 2; pos >= 0; --pos) {
+        for (int p = 0; p < 5; ++p) {
+            unsigned long long sum = 0ULL;
+            if (pos % 2 == 0) {            /* need next digit > p */
+                for (int q = p + 1; q < 5; ++q)
+                    sum += dp[(pos + 1) * 5 + q];
+            } else {                        /* need next digit < p */
+                for (int q = 0; q < p; ++q)
+                    sum += dp[(pos + 1) * 5 + q];
+            }
+            dp[pos * 5 + p] = sum;
+        }
+    }
+}
 
 static unsigned long long count_len(size_t len, unsigned long long *dp)
 {

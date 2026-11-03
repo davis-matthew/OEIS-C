@@ -10,7 +10,8 @@
  *            row‑major order of this triangle
  * Range:     u8 n <= 17, u16 n <= 39, u32 n <= 96, u64 n <= 220,
  *            u128 n <= 609, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 1188 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t **tri_rows = NULL;
 static size_t tri_cap  = 0;
@@ -66,7 +68,7 @@ static void ensure_rows_cap(idx_t need)
 static void compute_row(idx_t n)
 {
     ensure_rows_cap(n);
-    tri_rows[n] = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    tri_rows[n] = mem_new(seq_t, (n + 1));
     seq_t *row = tri_rows[n];
 
     row[1] = 1;

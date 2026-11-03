@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
  ********************************************************************/
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 typedef struct {
     seq_t  val;   /* Heinz number of the partial partition */
@@ -38,7 +40,7 @@ static void heap_push(Node **heap, size_t *sz, size_t *cap, Node v)
 {
     if (*sz + 1 > *cap) {
         *cap = (*cap == 0) ? 16 : (*cap << 1);
-        *heap = (Node*)realloc(*heap, *cap * sizeof(Node));
+        *heap = mem_resize(Node, *heap, (*cap * sizeof(Node)) / sizeof(Node));
     }
     size_t i = *sz;
     (*heap)[i] = v;
@@ -86,14 +88,14 @@ static void init_primes(void)
     bool *sieve = (bool*)calloc(SIEVE_LIMIT + 1, sizeof(bool));
     if (!sieve) return;
     size_t cap = 1024;
-    primes = (seq_t*)malloc(cap * sizeof(seq_t));
+    primes = mem_new(seq_t, cap);
     if (!primes) { free(sieve); return; }
     for (idx_t i = 2; i <= SIEVE_LIMIT; ++i) {
         if (!sieve[i]) {
             if (prime_cnt == TARGET_CNT) break;
             if (prime_cnt == cap) {
                 cap <<= 1;
-                primes = (seq_t*)realloc(primes, cap * sizeof(seq_t));
+                primes = mem_resize(seq_t, primes, cap);
             }
             primes[prime_cnt++] = (seq_t)i;
             for (idx_t j = i + i; j <= SIEVE_LIMIT; j += i)
@@ -134,7 +136,7 @@ seq_t a(idx_t n)
         if (cur.flag) {
             if (cache_len == cache_cap) {
                 cache_cap = (cache_cap == 0) ? 16 : (cache_cap << 1);
-                cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = cur.val;
         }

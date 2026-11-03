@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   build_primes
+ * Validated: partial, pass, 48 terms through n = 47 (2026-11-03)
+ * Helpers:   build_primes, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include "../utils/build_primes.h"
+#include "../utils/mem.h"
 
 /* Comparison function for qsort */
 static int seq_compare(const void *a, const void *b)
@@ -36,7 +39,7 @@ static void recompute_up_to(idx_t n_needed)
 {
     /* Release previous cache */
     if (seq_cache) {
-        free(seq_cache);
+        mem_free(seq_cache);
         seq_cache = NULL;
         seq_len   = 0;
     }
@@ -58,7 +61,7 @@ static void recompute_up_to(idx_t n_needed)
             continue;
         }
         /* Allocate array for candidate numbers */
-        seq_t *cand = (seq_t *)malloc(cand_cnt * sizeof(seq_t));
+        seq_t *cand = mem_new(seq_t, cand_cnt);
         if (!cand) { free(primes); abort(); }
 
         size_t pos = 0;
@@ -75,7 +78,7 @@ static void recompute_up_to(idx_t n_needed)
 
         /* If we have enough terms, sort and cache them */
         if (cand_cnt > (size_t)n_needed) {
-            qsort(cand, cand_cnt, sizeof(seq_t), seq_compare);
+            mem_qsort(cand, cand_cnt, sizeof(seq_t), seq_compare);
             seq_cache = cand;
             seq_len   = cand_cnt;
             free(primes);
@@ -83,7 +86,7 @@ static void recompute_up_to(idx_t n_needed)
         }
 
         /* Not enough terms: clean up and increase bound */
-        free(cand);
+        mem_free(cand);
         free(primes);
         limit *= 2;
     }

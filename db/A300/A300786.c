@@ -7,12 +7,15 @@
  * Formula:   a(n) = Sum_{d|n} (-d)^(n/d+1)
  * Range:     i8 n <= 8, i16 n <= 23, i32 n <= 45, i64 n <= 45, i128 n <= 45,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 /* Computes a(n) of OEIS A300786.
    n >= 1. */
@@ -24,7 +27,7 @@ seq_t a(idx_t n)
         if (n % d == 0) {
             exp = n / d + 1;
             seq_t base = -(seq_t)d;
-            seq_t term = seq_pow(base, exp);
+            seq_t term = ipow_idx(base, exp);
             sum += term;
         }
     }

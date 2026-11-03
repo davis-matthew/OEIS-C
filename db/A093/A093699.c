@@ -12,12 +12,14 @@
  *            x(x⁶+38x⁵+95x⁴+148x³+79x²+22x+1)/[(1‑x)⁵(1+x)³]
  * Range:     u8 n <= 3, u16 n <= 13, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     if ((size_t)n >= buf_sz) {
         size_t old_sz = buf_sz;
         size_t new_sz = (size_t)n + 1; /* need indices 0 .. n */
-        seq_t *tmp = (seq_t *)realloc(buf, new_sz * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, buf, new_sz);
         if (!tmp)               /* allocation failed */
             return 0;
         buf = tmp;

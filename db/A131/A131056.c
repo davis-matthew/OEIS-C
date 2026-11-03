@@ -6,15 +6,17 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = 5*a(n-1) - 8*a(n-2) + 4*a(n-3) for n >= 5 Initial values:
  *            a(1)=1, a(2)=3, a(3)=7, a(4)=17
- * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 29, u64 n <= 60, u128 none,
+ * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 29, u64 n <= 60, u128 n <= 123,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 952 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, free */
 #include <string.h>   /* memcpy (optional) */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,15 +29,15 @@ seq_t a(idx_t n)
         return 0;
 
     /* Allocate / extend cache if necessary */
-    if (cap < (n + 1) * sizeof(seq_t)) {
+    if (cap < (n + 1 < 5 ? 5 : n + 1) * sizeof(seq_t)) {
         size_t new_cap = cap > 0 ? cap * 2 : 64;   /* bytes */
-        while (new_cap < (n + 1) * sizeof(seq_t))
+        while (new_cap < (n + 1 < 5 ? 5 : n + 1) * sizeof(seq_t))
             new_cap *= 2;
-        seq_t *tmp = (seq_t *)malloc(new_cap);
+        seq_t *tmp = mem_new(seq_t, (new_cap) / sizeof(seq_t));
         if (!tmp) abort();                 /* out of memory */
         if (cache) {
-            memcpy(tmp, cache, (sz + 1) * sizeof(seq_t));
-            free(cache);
+            mem_copy(tmp, cache, (sz + 1) * sizeof(seq_t));
+            mem_free(cache);
         }
         cache = tmp;
         cap   = new_cap;

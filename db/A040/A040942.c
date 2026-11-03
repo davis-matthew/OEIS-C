@@ -8,13 +8,15 @@
  *            fraction expansion of sqrt(974) (using the standard recurrence)
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 88 terms through n = 87 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
         d      = 1;
 
         cap   = 32;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) return 0;             /* allocation failure */
 
         cache[0] = (seq_t)a0;
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
         /* grow cache capacity if necessary */
         if (len == cap) {
             size_t new_cap = cap * 2;
-            seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
             if (new_cache) {
                 cache = new_cache;
                 cap   = new_cap;

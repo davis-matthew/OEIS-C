@@ -11,13 +11,15 @@
  *            114003240, 342487240, 732805056, 1141169536
  * Range:     u8 none, u16 n <= 4, u32 n <= 19, u64 n <= 48, u128 n <= 105,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static const seq_t seed[18] = {
     (seq_t)7388,      (seq_t)9464,      (seq_t)11832,
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
 
     if (cache == NULL) {                       /* first call */
         cache_size = 64;                       /* start with some space */
-        cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         if (!cache) return 0;                  /* allocation failed */
         for (size_t i = 0; i < cache_size; ++i) cache[i] = 0;
         /* initialise the 18 known terms */
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     if (n >= cache_size) {
         size_t new_size = cache_size;
         while (n >= new_size) new_size <<= 1;  /* double until sufficient */
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) return 0;                    /* allocation failed */
         for (size_t i = cache_size; i < new_size; ++i) tmp[i] = 0;
         cache = tmp;

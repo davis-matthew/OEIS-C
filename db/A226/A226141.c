@@ -8,6 +8,7 @@
  * Formula:   a(n) = Sum_{i=1..floor(n/2)} (i^2 + (n-i)^2)
  * Range:     u8 n <= 9, u16 n <= 58, u32 n <= 1440, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 63 terms through n = 9553 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

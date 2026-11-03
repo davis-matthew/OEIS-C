@@ -9,6 +9,7 @@
  *            Sum_{odd primes p <= m} g(m-p)
  * Range:     i8 n <= 20, i16 n <= 48, i32 n <= 111, i64 n <= 241,
  *            i128 n <= 500, big any n
+ * Validated: standard, pass, 71 terms through n = 923 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

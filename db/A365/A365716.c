@@ -8,15 +8,16 @@
  * Formula:   a(n) = 1 if the largest divisor of n ≤ sqrt(n) is a power of 2,
  *            otherwise 0. Offset: 1 Implementation uses integer arithmetic
  *            only
- * Range:     u8 n <= 9629, u16 n <= 9629, u32 n <= 9629, u64 n <= 9629,
- *            u128 n <= 9629, big any n
- * Helpers:   is_power_of_two
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 121 terms through n = 9629 (2026-11-01)
+ * Helpers:   is_pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_power_of_two.h"   /* to test if a seq_t is a power of 2 */
+#include "../utils/is_pow2.h"
 
 /* Integer square root for non‑negative 64‑bit values.
    Returns floor(sqrt(n)) without using floating point. */
@@ -51,7 +52,7 @@ seq_t a(idx_t n)
     {
         if (n % d == 0)              /* d is the largest divisor ≤ sqrt(n) */
         {
-            return is_power_of_two((seq_t)d) ? (seq_t)1 : (seq_t)0;
+            return is_pow2((seq_t)d) ? (seq_t)1 : (seq_t)0;
         }
     }
     return (seq_t)0;                 /* unreachable for n ≥ 1 */

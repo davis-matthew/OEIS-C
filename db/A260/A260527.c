@@ -11,14 +11,15 @@
  *            digits that do not occur are skipped
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   digit_len_seq_value
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-01)
+ * Helpers:   num_digits_seq_to_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/digit_len_seq_value.h"
+#include "../utils/num_digits_seq_to_u64.h"
 
 /* helper: 10^exp as seq_t (exp small, exp ≤ 20 is enough for idx_t up to 64‑bit) */
 static seq_t pow10_seq(idx_t exp)
@@ -75,7 +76,7 @@ seq_t a(idx_t n)
     {
         if (cur[d] != 0)
         {
-            size_t cur_len = digit_len_seq_value(cur[d]);
+            size_t cur_len = num_digits_seq_to_u64(cur[d]);
             result = result * pow10_seq(cur_len) + cur[d];
         }
     }

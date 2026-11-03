@@ -8,7 +8,8 @@
  *            n
  * Range:     u8 n <= 17, u16 n <= 17, u32 n <= 17, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   is_complete, is_complete_without_removed, minimal
+ * Validated: partial, pass, 17 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,42 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/is_complete.h"
-#include "../utils/is_complete_without_removed.h"
-#include "../utils/minimal.h"
+#include "../utils/mem.h"
+
+/* Check if a given set (represented by seq[0..len-1]) is complete.
+   The set is guaranteed to be sorted in increasing order. */
+static bool is_complete(const idx_t *seq, int len)
+{
+    idx_t reach = 0;
+    for (int i = 0; i < len; ++i) {
+        if (seq[i] > reach + 1) return false;
+        reach += seq[i];
+    }
+    return true;
+}
+
+/* Check completeness after removing element at position rem (0 <= rem < len). */
+static bool is_complete_without_removed(const idx_t *seq, int len, int rem)
+{
+    idx_t reach = 0;
+    for (int i = 0; i < len; ++i) {
+        if (i == rem) continue;
+        if (seq[i] > reach + 1) return false;
+        reach += seq[i];
+    }
+    return true;
+}
+
+/* Minimality test: a set is minimal if removing any non‑max element makes it incomplete. */
+static bool minimal(const idx_t *seq, int len)
+{
+    if (len <= 1) return true;           /* {1} is minimal */
+    for (int rem = 0; rem <= len - 2; ++rem) {
+        if (is_complete_without_removed(seq, len, rem))
+            return false;                /* removable element still yields a complete set */
+    }
+    return true;
+}
 
 /* Maximum possible length of a minimal complete set for n <= 10000 */
 /* For n = 10000, the longest set occurs when each new element is sum(prev)+1,
@@ -50,7 +84,7 @@ static void dfs(idx_t last, idx_t sum, idx_t *seq, int len,
 /* Compute counts for all n up to 'limit' in the array 'counts' (size limit+1). */
 static void compute_counts(idx_t limit, seq_t *counts)
 {
-    memset(counts, 0, (size_t)(limit + 1) * sizeof(seq_t));
+    mem_set(counts, 0, (size_t)(limit + 1) * sizeof(seq_t));
 
     idx_t seq[MAX_LEN];
     seq[0] = 1;                     /* the first element must be 1 */
@@ -69,12 +103,12 @@ seq_t a(idx_t n)
     if (cached_counts == NULL || n > cached_limit) {
         /* Allocate new array and compute all values up to 'n'. */
         idx_t new_limit = n;
-        seq_t *new_counts = (seq_t *)malloc((size_t)(new_limit + 1) * sizeof(seq_t));
+        seq_t *new_counts = mem_new(seq_t, (size_t)(new_limit + 1));
         if (!new_counts) exit(EXIT_FAILURE);
         compute_counts(new_limit, new_counts);
 
         /* Release old cache if it exists. */
-        free(cached_counts);
+        mem_free(cached_counts);
         cached_counts = new_counts;
         cached_limit = new_limit;
     }

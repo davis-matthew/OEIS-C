@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 34, u32 n <= 63, u64 n <= 123,
  *            u128 n <= 242, big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 912 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 /* Standard headers (required for realloc, SIZE_MAX, size_t). */
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --------------  Static cache  --------------------- */
 static seq_t *cache          = NULL;    /* cache[0..computed_max] */
@@ -30,7 +32,7 @@ static void
 ensure_capacity(size_t needed)
 {
     if (needed <= cache_cap) return;
-    seq_t *newp = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+    seq_t *newp = mem_resize(seq_t, cache, needed);
     cache       = newp;
     cache_cap   = needed;
 }

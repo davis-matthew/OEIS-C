@@ -12,17 +12,64 @@
  *            exactly mod 2^w); the arbitrary-precision build u...
  * Range:     u8 n <= 11, u16 n <= 17, u32 n <= 30, u64 n <= 55, u128 n <= 104,
  *            big any n
- * Helpers:   binom_c, div_one, grow_zero, seq_is_fixed_width
+ * Validated: standard, pass, 55 terms through n = 2116 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/grow_zero.h"
-#include "../utils/seq_is_fixed_width.h"
-#include "../utils/binom_c.h"
-#include "../utils/div_one.h"
+#include <string.h>
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
+
+static void div_one(seq_t *t, idx_t j, idx_t p) {
+    idx_t i;
+    for (i = 0; i < j; i++) {
+        if (t[i] % p == 0) { t[i] /= p; return; }
+    }
+}
+
+/* C(c, j) for small j, exact whenever the result fits in seq_t */
+static seq_t binom_c(seq_t c, idx_t j, seq_t *t) {
+    idx_t i, m, p, x;
+    seq_t r;
+    if (c < (seq_t)j) return 0;
+    for (i = 0; i < j; i++) t[i] = c - (seq_t)i;
+    for (m = 2; m <= j; m++) {
+        x = m;
+        for (p = 2; p * p <= x; p++)
+            while (x % p == 0) { div_one(t, j, p); x /= p; }
+        if (x > 1) div_one(t, j, x);
+    }
+    r = 1;
+    for (i = 0; i < j; i++) r = r * t[i];
+    return r;
+}
 
 #define FIX_CAP 200
 
@@ -49,7 +96,7 @@ static void build_fixed(void) {
         }
         for (i = 0; i <= FIX_CAP; i++) P[i] = Q[i];
     }
-    free(P); free(Q); free(B); free(t);
+    mem_free(P); mem_free(Q); mem_free(B); mem_free(t);
 }
 
 static seq_t *bA = NULL, *bCP = NULL, *bCN = NULL;

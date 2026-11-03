@@ -12,7 +12,8 @@
  *            the divisibility condition, and keeping only those numbers t...
  * Range:     u8 n <= 19, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ----------------------------------------------------------------------
  *  Global parameters
@@ -140,7 +142,7 @@ seq_t a(idx_t n)
     if (seq == NULL) {
         init_spf();
         seq_cap = 256;
-        seq = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         primitives = (int*)malloc(seq_cap * sizeof(int));
     }
 
@@ -157,7 +159,7 @@ seq_t a(idx_t n)
                     /* append to sequence */
                     if (seq_len == seq_cap) {
                         seq_cap *= 2;
-                        seq = (seq_t*)realloc(seq, seq_cap * sizeof(seq_t));
+                        seq = mem_resize(seq_t, seq, seq_cap);
                         primitives = (int*)realloc(primitives, seq_cap * sizeof(int));
                     }
                     seq[seq_len] = (seq_t)candidate;

@@ -9,14 +9,46 @@
  *            round(r(n-1,k) * sqrt(2)), c = sqrt(2)
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 21, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   floor_sqrt, mul_small
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/mul_small.h"
-#include "../utils/floor_sqrt.h"
+#include <stdlib.h>
+#include "../utils/ipow_i32.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Perform round(x * sqrt(2)) using integer arithmetic.
    The function works for any size of seq_t. */

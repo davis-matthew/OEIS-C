@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 153, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   fib_mod_u128
+ * Validated: standard, pass, 63 terms through n = 985 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,45 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/fib_mod_u128.h"
+#include "../utils/mem.h"
+
+/*---- Fast‑doubling Fibonacci modulo mod, all in 128‑bit arithmetic
+      (a,b are F(k),F(k+1) modulo mod).  ----------------------------------*/
+static inline unsigned __int128 fib_mod_u128(idx_t n, unsigned __int128 mod)
+{
+    unsigned __int128 a = 0;   /* F(0) */
+    unsigned __int128 b = 1;   /* F(1) */
+
+    /* Find most significant bit of n */
+    uint64_t mask = (uint64_t)1 << (sizeof(idx_t) * 8 - 1);
+    while (mask && !(n & mask))
+        mask >>= 1;
+
+    while (mask)
+    {
+        /* c = a * (2*b - a) mod mod   */
+        unsigned __int128 twob = b + b;
+        if (twob >= mod) twob -= mod;
+        unsigned __int128 t1 = (a * ((twob + mod - a) % mod)) % mod;
+
+        /* d = a*a + b*b mod mod   */
+        unsigned __int128 t2 = (a * a + b * b) % mod;
+
+        if (n & mask)   /* odd bit */
+        {
+            a = t2;
+            b = (t1 + t2) % mod;
+        }
+        else           /* even bit */
+        {
+            a = t1;
+            b = t2;
+        }
+
+        mask >>= 1;
+    }
+    return a;   /* F(n) mod mod */
+}
 
 /*---- Main sequence function --------------------------------------------*/
 seq_t a(idx_t n)
@@ -51,7 +90,7 @@ seq_t a(idx_t n)
             if (len == cap)
             {
                 cap = cap ? cap << 1 : 64;
-                terms = (seq_t *)realloc(terms, cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, cap);
             }
             terms[len++] = (seq_t)k;   /* store the k value           */
         }

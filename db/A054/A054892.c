@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 118, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 83 terms through n = 912 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime_small.h"   /* provided primality test for 64‑bit numbers */
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 static uint64_t *primes = NULL;      /* list of primes */
 static seq_t   *pref   = NULL;      /* prefix sums of primes: pref[i] = sum of primes[0..i-1] */
@@ -43,7 +45,7 @@ static void ensure_primes(size_t need)
         if (primes_cap == 0) {
             primes_cap = 64;
             primes = (uint64_t*)malloc(primes_cap * sizeof(uint64_t));
-            pref   = (seq_t*)   malloc((primes_cap + 1) * sizeof(seq_t));
+            pref   = mem_new(seq_t, (primes_cap + 1));
         }
         primes[0] = 2;
         pref[0]   = 0;
@@ -60,7 +62,7 @@ static void ensure_primes(size_t need)
         if (primes_cnt == primes_cap) {
             size_t new_cap = primes_cap * 2;
             uint64_t *newp = (uint64_t*)realloc(primes, new_cap * sizeof(uint64_t));
-            seq_t   *newq = (seq_t*)   realloc(pref,   (new_cap + 1) * sizeof(seq_t));
+            seq_t   *newq = mem_resize(seq_t, pref, (new_cap + 1));
             if (!newp || !newq) { /* fallback in low‑memory environments */
                 /* terminate silently – caller will retry after smaller allocation */
                 return;
@@ -70,7 +72,7 @@ static void ensure_primes(size_t need)
         }
 
         /* test cand for primality */
-        if (is_prime_small(cand)) {
+        if (is_prime_seq(cand)) {
             primes[primes_cnt] = cand;
             pref[primes_cnt + 1] = pref[primes_cnt] + (seq_t)cand;
             primes_cnt++;
@@ -87,7 +89,7 @@ static void ensure_cache_capacity(idx_t n)
     if ((size_t)n < cache_cap) return;
     size_t new_cap = cache_cap?cache_cap*2:n+1;
     if (new_cap < (size_t)(n+1)) new_cap = n+1;
-    seq_t *newc = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *newc = mem_resize(seq_t, cache, new_cap);
     bool  *newf = (bool *)realloc(cached, new_cap * sizeof(bool));
     if (!newc || !newf) return;   /* memory error – unlikely in test harness */
     for (size_t i=cache_cap; i<new_cap; ++i) newf[i] = false;

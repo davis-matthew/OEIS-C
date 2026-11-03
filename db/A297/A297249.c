@@ -10,13 +10,35 @@
  *            of successive integers
  * Range:     u8 n <= 125, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sat
+ * Validated: standard, pass, 78 terms through n = 9117 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/sat.h"
+
+/* Test whether a base‑3 number has larger down‑variation than up‑variation. */
+static bool sat(seq_t x)
+{
+    int dv = 0;           /* sum of increases (down‑variation) */
+    int uv = 0;           /* sum of decreases (up‑variation) */
+    int prev = -1;        /* previous digit (least significant first) */
+    seq_t t = x;
+
+    while (t > 0) {
+        int d = (int)(t % 3);   /* current base‑3 digit */
+        if (prev != -1) {
+            if (d > prev)
+                dv += d - prev;
+            else if (d < prev)
+                uv += prev - d;
+        }
+        prev = d;
+        t /= 3;
+    }
+    return dv > uv;
+}
 
 /* Return the n­th term (1‑based) of the sequence. */
 seq_t a(idx_t n)

@@ -10,7 +10,8 @@
  *            searching for the smallest k with m = n·k and gcd(m,σ(m)) = k
  * Range:     u8 n <= 17, u16 n <= 89, u32 n <= 2309, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _floor_isqrt_u64, seq_gcd
+ * Validated: standard, pass, 81 terms through n = 9907 (2026-11-01)
+ * Helpers:   gcd, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,8 @@
 #include <stdbool.h>
 
 /* Utilities */
-#include "../utils/seq_gcd.h"
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/gcd.h"
+#include "../utils/isqrt.h"
 
 /* ----------  prime table  ---------- */
 #define MAX_PRIME 1300000        /* sufficient for sqrt of k up to ~1.7e12   */
@@ -132,7 +133,7 @@ seq_t a(idx_t n)
         }
 
         /* compute gcd(m, σ(m)) */
-        seq_t g = seq_gcd((seq_t)m, sigma);
+        seq_t g = gcd((seq_t)m, sigma);
 
         /* if gcd equals k (i.e. m / gcd = n) then m is the answer */
         if (g == (seq_t)k)

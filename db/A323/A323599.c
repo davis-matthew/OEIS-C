@@ -6,17 +6,19 @@
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{p|n} sigma(n/p) (sum over distinct prime divisors p
  *            of n)
- * Range:     u8 n <= 33, u16 n <= 3017, u32 n <= 9901, u64 n <= 9901,
- *            u128 n <= 9901, big any n
- * Helpers:   factor_u64, seq_pow
+ * Range:     u8 n <= 33, u16 n <= 3017, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 91 terms through n = 9901 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
         for (size_t j = 0; j < cm; ++j) {
             uint64_t q = pr_m[j];
             uint64_t ek = ex_m[j];
-            seq_t pow_q = seq_pow((seq_t)q, ek + 1);
+            seq_t pow_q = ipow_idx((seq_t)q, ek + 1);
             seq_t term = (pow_q - 1) / ((seq_t)(q - 1));
             sigma_m *= term;
         }

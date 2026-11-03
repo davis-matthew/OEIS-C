@@ -10,6 +10,7 @@
  *            a(0)=a(1)=…=a(7)=1
  * Range:     u8 n <= 11, u16 n <= 18, u32 n <= 34, u64 n <= 66, u128 n <= 130,
  *            big any n
+ * Validated: standard, pass, 53 terms through n = 2469 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

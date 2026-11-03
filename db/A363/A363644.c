@@ -7,15 +7,17 @@
  * Formula:   a(n) = Σ_{d|n} (n/d)^(d‑3) * binomial(d-1,2)
  * Range:     u8 n <= 13, u16 n <= 25, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   big_pow, binom
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-01)
+ * Helpers:   binomial, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Utilities required for the implementation. */
 #include <stdint.h>
-#include "../utils/big_pow.h"   /* seq_t big_pow(seq_t base, seq_t exp); */
-#include "../utils/binom.h"    /* seq_t binom(idx_t a, idx_t b); */
+#include <stdbool.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow.h"
 
 /* Computes term a(n) for n ≥ 1.  External linkage is required. */
 seq_t a(idx_t n)
@@ -30,8 +32,8 @@ seq_t a(idx_t n)
             if (d1 >= 3) {
                 seq_t base   = (seq_t)(n / d1);
                 seq_t exp    = (seq_t)(d1 - 3);
-                seq_t power  = big_pow(base, exp);
-                seq_t coeff  = binom(d1 - 1, 2);
+                seq_t power  = ipow(base, exp);
+                seq_t coeff  = binomial(d1 - 1, 2);
                 total += power * coeff;
             }
 
@@ -39,8 +41,8 @@ seq_t a(idx_t n)
             if (d2 != d1 && d2 >= 3) {
                 seq_t base   = (seq_t)(n / d2);
                 seq_t exp    = (seq_t)(d2 - 3);
-                seq_t power  = big_pow(base, exp);
-                seq_t coeff  = binom(d2 - 1, 2);
+                seq_t power  = ipow(base, exp);
+                seq_t coeff  = binomial(d2 - 1, 2);
                 total += power * coeff;
             }
         }

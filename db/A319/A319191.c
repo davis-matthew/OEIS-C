@@ -10,7 +10,8 @@
  *            y_i!)
  * Range:     i8 n <= 12, i16 n <= 18, i32 n <= 40, i64 n <= 47, i128 n <= 47,
  *            big any n
- * Helpers:   factor_u64, factorial, pow_seq
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-01)
+ * Helpers:   factor_u64, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,9 +24,19 @@
 #include <stdbool.h>
 
 /*--- utility headers -----------------------------------------------------*/
-#include "../utils/factor_u64.h"   /* factor_u64()                            */
-#include "../utils/pow_seq.h"      /* pow_seq()                              */
-#include "../utils/factorial.h"    /* factorial()                            */
+#include "../utils/factor_u64.h"
+#include "../utils/ipow_i32.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 /*--- Prime sieve for finding prime indices -----------------------------*/
 #define PRIME_LIMIT 2000000ULL    /* good enough for n ≤ 100 000 */
@@ -116,7 +127,7 @@ seq_t a(idx_t n)
         uint64_t p  = fac_pr[i];
         uint64_t e  = fac_ex[i];
         uint64_t idxp = prime_index(p);
-        denom *= pow_seq((seq_t)idxp, (int)e);      /* x_i^y_i   */
+        denom *= ipow_i32((seq_t)idxp, (int)e);      /* x_i^y_i   */
         denom *= factorial((idx_t)e);               /* y_i!      */
     }
 

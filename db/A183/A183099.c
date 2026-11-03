@@ -6,16 +6,19 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = sum of powerful divisors d of n, with d > 1 (a powerful
  *            number has each prime factor occurring with exponent ≥ 2)
- * Range:     u8 n <= 143, u16 n <= 8882, u32 n <= 8882, u64 n <= 8882,
- *            u128 n <= 8882, big any n
- * Helpers:   factor_u64, seq_pow
+ * Range:     u8 n <= 143, u16 n <= 16385, u32 n <= 16385, u64 n <= 16385,
+ *            u128 n <= 16385, big any n
+ * Validated: standard, pass, 116 terms through n = 8882 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +41,7 @@ seq_t a(idx_t n)
         seq_t p = (seq_t)primes[i];
 
         /* sum_{k=2}^{exp} p^k  =  p^2 * (p^{exp-1} - 1) / (p - 1)  */
-        seq_t p_pow_exp_minus1 = seq_pow(p, (idx_t)(exp - 1));
+        seq_t p_pow_exp_minus1 = ipow_idx(p, (idx_t)(exp - 1));
         seq_t numerator   = p_pow_exp_minus1 - 1;
         seq_t denom       = p - 1;
         seq_t sum_ge_2    = (p * p * numerator) / denom;

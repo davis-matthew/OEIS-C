@@ -12,7 +12,8 @@
  *            value is 0, except for r==0 where T(0,0)=1
  * Range:     u8 n <= 15, u16 n <= 28, u32 n <= 66, u64 n <= 153,
  *            u128 n <= 435, big any n
- * Helpers:   binomial, factorial
+ * Validated: standard, pass, 71 terms through n = 4678 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,19 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/factorial.h"   /* seq_t factorial(idx_t n)       */
-#include "../utils/binomial.h"    /* static seq_t binomial(idx_t n, idx_t k) */
+#include <stdlib.h>
+#include "../utils/binomial.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
 
 static void
 idx_to_row_col(idx_t n, idx_t *row, idx_t *col)

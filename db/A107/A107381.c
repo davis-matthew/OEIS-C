@@ -10,12 +10,14 @@
  *            previous 5 terms)
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 25, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
         idx_t need = 8;
         if (n + 1 > need)
             need = n + 1;                          /* at least up to n if n<7 */
-        table = (seq_t *)realloc(table, need * sizeof(seq_t));
+        table = mem_resize(seq_t, table, need);
         table[0] = (seq_t)4;
         table[1] = (seq_t)3;
         table[2] = (seq_t)9;
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
     /* grow table to hold up to n */
     if (n + 1 > size) {
         idx_t newsize = n + 1;
-        table = (seq_t *)realloc(table, newsize * sizeof(seq_t));
+        table = mem_resize(seq_t, table, newsize);
 
         /* compute missing terms */
         for (idx_t i = size; i <= n; ++i) {

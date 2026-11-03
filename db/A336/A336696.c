@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = sum of odd divisors of 1 + sigma(n)
- * Range:     u8 n <= 83, u16 n <= 9914, u32 n <= 9914, u64 n <= 9914,
- *            u128 n <= 9914, big any n
- * Helpers:   none
+ * Range:     u8 n <= 83, u16 n <= 12863, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 93 terms through n = 9914 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     /* Resize and recompute sigma[] if a larger n is requested. */
     if (n > sigma_size) {
         idx_t new_size = n + 1;  /* space for indices 0..n */
-        seq_t *new_sigma = (seq_t *)malloc((size_t)new_size * sizeof(seq_t));
+        seq_t *new_sigma = mem_new(seq_t, (size_t)new_size);
         if (!new_sigma) return 0;  /* OOM guard */
 
         /* Initialise to zero. */
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
         }
 
         /* Replace old cache. */
-        if (sigma) free(sigma);
+        if (sigma) mem_free(sigma);
         sigma = new_sigma;
         sigma_size = n;
     }

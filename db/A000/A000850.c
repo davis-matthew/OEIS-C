@@ -13,17 +13,26 @@
  *            classes of GL(n,2) (rational canonical form) and ove...
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 4, u64 n <= 5, u128 n <= 6,
  *            big any n
- * Helpers:   a850_deg, a850_gcd, a850_lcm, a850_mod
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-01)
+ * Helpers:   gcd_u64, ilog2_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/a850_deg.h"
-#include "../utils/a850_gcd.h"
-#include "../utils/a850_lcm.h"
-#include "../utils/a850_mod.h"
+#include "../utils/gcd_u64.h"
+#include "../utils/ilog2_u64.h"
+
+static uint64_t a850_lcm(uint64_t x, uint64_t y) { return x / gcd_u64(x, y) * y; }
+
+static uint64_t a850_mod(uint64_t a, uint64_t f)
+{
+    int df = ilog2_u64(f);
+    int da;
+    while ((da = ilog2_u64(a)) >= df) a ^= f << (da - df);
+    return a;
+}
 
 static int a850_n, a850_big, a850_np, a850_sp;
 static uint64_t *a850_pord;
@@ -179,7 +188,7 @@ seq_t a(idx_t n)
         for (f = (uint64_t)1 << d; f < ((uint64_t)1 << (d + 1)); f++) {
             int irr = 1;
             if (!(f & 1)) continue;
-            for (g = 2; a850_deg(g) <= d / 2; g++)
+            for (g = 2; ilog2_u64(g) <= d / 2; g++)
                 if (a850_mod(f, g) == 0) { irr = 0; break; }
             if (!irr) continue;
             uint64_t ord = 1;

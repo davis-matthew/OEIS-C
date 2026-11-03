@@ -8,7 +8,8 @@
  *            primes. The sequence is generated lazily and cached
  * Range:     u8 n <= 45, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <string.h>
 /* Provided primality test */
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Static cache of discovered terms */
 static seq_t *cache     = NULL;   /* array of terms */
@@ -39,13 +41,13 @@ ensure_cache(size_t need)
     while (new_cap < need)
         new_cap *= 2;
 
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache)
         abort(); /* critical failure */
 
     if (cache) {
-        memcpy(new_cache, cache, cache_len * sizeof(seq_t));
-        free(cache);
+        mem_copy(new_cache, cache, cache_len * sizeof(seq_t));
+        mem_free(cache);
     }
 
     cache     = new_cache;

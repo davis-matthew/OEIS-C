@@ -12,12 +12,14 @@
  *            a(11)=67344, a(12)=175884, a(13)=458832, a(14)=1196364...
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 22, u64 n <= 45, u128 n <= 91,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 976 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t _init[16] = {
     (seq_t)1,  (seq_t)3,   (seq_t)9,   (seq_t)27,
@@ -37,7 +39,7 @@ static void ensure_cache(idx_t n)
 
     size_t old_cap = cache_cap;
     size_t new_cap = (size_t)n + 1;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)                      /* allocation failure – keep return 0 */
         return;
     cache = tmp;

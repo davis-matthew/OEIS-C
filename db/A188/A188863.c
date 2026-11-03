@@ -8,6 +8,7 @@
  * Formula:   a(n) = 243*n - 265 for n>3; a(1)=64, a(2)=239, a(3)=466
  * Range:     u8 n <= 2, u16 n <= 200, u32 n <= 200, u64 n <= 200,
  *            u128 n <= 200, big any n
+ * Validated: standard, pass, 59 terms through n = 197 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

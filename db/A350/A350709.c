@@ -11,13 +11,27 @@
  *            congruent to k modulo 3 (k = 0,1,2)
  * Range:     u8 none, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_len_int
+ * Validated: standard, pass, 53 terms through n = 9007 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/digit_len_int.h"
+
+/* Helper: number of decimal digits of a non‑negative int. */
+static int digit_len_int(int x)
+{
+    if (x == 0)
+        return 1;
+    int len = 0;
+    while (x > 0)
+    {
+        len++;
+        x /= 10;
+    }
+    return len;
+}
 
 /* Helper: 10^e as a seq_t value.  e is small (≤ 2 in this problem). */
 static seq_t pow10_int(int e)

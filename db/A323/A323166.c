@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = gcd(n, ∏_{p^e‖n} (1 + p^e))
- * Range:     u8 n <= 815, u16 n <= 9038, u32 n <= 9038, u64 n <= 9038,
- *            u128 n <= 9038, big any n
- * Helpers:   pow_uint, seq_gcd
+ * Range:     u8 n <= 815, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 121 terms through n = 9038 (2026-11-01)
+ * Helpers:   gcd, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow_uint.h"   /* seq_t pow_uint(uint64_t base, idx_t exp); */
-#include "../utils/seq_gcd.h"   /* seq_t seq_gcd(seq_t a, seq_t b); */
+#include "../utils/gcd.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +38,7 @@ seq_t a(idx_t n)
                 ++exponent;
             }
             /* Term = 1 + p^exponent */
-            seq_t term = 1 + pow_uint((uint64_t)p, exponent);
+            seq_t term = 1 + ipow_u64_idx((uint64_t)p, exponent);
             unitary_sum *= term;
         }
     }
@@ -49,5 +50,5 @@ seq_t a(idx_t n)
     }
 
     /* a(n) = gcd(n, unitary_sum) */
-    return seq_gcd(unitary_sum, (seq_t)n);
+    return gcd(unitary_sum, (seq_t)n);
 }

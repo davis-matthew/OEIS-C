@@ -7,13 +7,15 @@
  * Formula:   a(n) = -2*a(n-1) + 4*a(n-3); a(0)=1, a(1)=-2, a(2)=4
  * Range:     i8 n <= 9, i16 n <= 16, i32 n <= 33, i64 n <= 69, i128 n <= 139,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 907 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Local memoisation table for previously computed values */
 static seq_t *terms       = NULL;       /* array of terms, indexed by n */
@@ -27,7 +29,7 @@ static void ensure_capacity(size_t need)
     size_t new_cap = terms_cap ? terms_cap : 8;
     while (new_cap <= need) new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, terms, new_cap);
     if (!tmp) abort();                    /* allocation failure */
     terms = tmp;
     terms_cap = new_cap;
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
     if (!terms) {
         size_t init_cap = 8;
         while (init_cap < (size_t)n + 1) init_cap <<= 1;
-        terms = (seq_t *)malloc(init_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, init_cap);
         if (!terms) abort();
         terms[0] = (seq_t)1;
         terms[1] = (seq_t)-2;

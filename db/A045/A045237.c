@@ -11,13 +11,29 @@
  *            numbers
  * Range:     u8 n <= 45, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   has_one_and_three
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/has_one_and_three.h"
+
+/* Check whether a value satisfies the digit condition. */
+static inline bool has_one_and_three(seq_t x)
+{
+    unsigned ones = 0, threes = 0;
+    while (x > 0) {
+        unsigned digit = (unsigned)(x % (seq_t)5);
+        if (digit == 1) {
+            if (++ones > 1) return false;
+        } else if (digit == 3) {
+            if (++threes > 1) return false;
+        }
+        x /= (seq_t)5;
+    }
+    return (ones == 1) && (threes == 1);
+}
 
 seq_t a(idx_t n)
 {

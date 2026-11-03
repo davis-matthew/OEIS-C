@@ -9,12 +9,14 @@
  *            a(5)=648, a(6)=2414, a(7)=8809
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 17, u64 n <= 34, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 /* static cache (1‑based indexing, cache[0] unused) */
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     size_t needed = (size_t)n + 1;        /* include index 0 */
     if (cache_cap < needed)
     {
-        seq_t *tmp = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, needed);
         if (!tmp) abort();                /* allocation failed */
         cache = tmp;
         cache_cap = needed;
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
         /* Ensure the array can store indices 0 … 7. */
         if (cache_cap < 8)
         {
-            seq_t *tmp = (seq_t *)realloc(cache, 8 * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, 8);
             if (!tmp) abort();
             cache = tmp;
             cache_cap = 8;

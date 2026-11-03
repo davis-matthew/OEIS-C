@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 37, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 63 terms through n = 992 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,12 +18,14 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static bool qualifies(uint64_t p){
     if(p==2 || p==3) return true;
     if(p%3==2) return true;
-    seq_t res = mod_pow((seq_t)5, (p-1)/3, (seq_t)p);
+    seq_t res = powmod((seq_t)5, (p-1)/3, (seq_t)p);
     return res == (seq_t)1;
 }
 
@@ -71,7 +74,7 @@ seq_t a(idx_t n){
         if(qualifies(p)){
             if(cache_len == cache_cap){
                 cache_cap = cache_cap? cache_cap*2 : 8;
-                cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_len++] = (seq_t)p;
         }

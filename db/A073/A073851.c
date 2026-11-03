@@ -7,7 +7,8 @@
  * Formula:   a(n) = a(n-1) + first_digit_base5(n), a(0) = 0
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   first_digit_base5
+ * Validated: partial, pass, 68 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,14 @@
 /* first_digit_base5(n) is the most significant digit of n in base 5. */
 
 #include <stdlib.h>
-#include "../utils/first_digit_base5.h"
+#include "../utils/mem.h"
+
+/* helper: return first digit of n in base 5 (0 <= result <= 4) */
+static seq_t first_digit_base5(idx_t n) {
+    if (n == 0) return 0;
+    while (n >= 5) n /= 5;
+    return (seq_t)n;
+}
 
 seq_t a(idx_t n) {
     /* static cache of computed values */
@@ -26,7 +34,7 @@ seq_t a(idx_t n) {
     /* initialise cache on first call */
     if (cached == 0) {
         capacity = 16;                     /* arbitrary small start */
-        cache = (seq_t*)realloc(NULL, capacity * sizeof(seq_t));
+        cache = mem_resize(seq_t, NULL, capacity);
         if (!cache) return 0;              /* fail-safe: unreachable in tests */
         cache[0] = 0;                      /* a(0) = 0 */
         cached = 1;
@@ -36,7 +44,7 @@ seq_t a(idx_t n) {
     if ((idx_t)n >= capacity) {
         size_t new_cap = capacity;
         while ((idx_t)n >= new_cap) new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;                /* fail-safe */
         cache = tmp;
         capacity = new_cap;

@@ -7,16 +7,18 @@
  * Formula:   a(n) = -(-1)^n * (sum of odd divisors of n) (equivalently, a(n)
  *            = sigma(odd_part(n)) if n is odd, and a(n) = -sigma(odd_part(n))
  *            if n is even)
- * Range:     i8 n <= 12, i16 n <= 640, i32 n <= 8873, i64 n <= 8873,
- *            i128 n <= 8873, big any n
- * Helpers:   seq_pow
+ * Range:     i8 n <= 12, i16 n <= 640, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 91 terms through n = 8873 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -36,12 +38,12 @@ seq_t a(idx_t n)
                 ++e;
             }
             /* term = (p^(e+1)-1)/(p-1) */
-            seq_t term = (seq_pow((seq_t)p, e + 1) - 1) / (seq_t)(p - 1);
+            seq_t term = (ipow_idx((seq_t)p, e + 1) - 1) / (seq_t)(p - 1);
             sigma = sigma * term;
         }
     }
     if (t > 1) {   /* remaining prime factor with exponent 1 */
-        seq_t term = (seq_pow((seq_t)t, 2) - 1) / (seq_t)(t - 1);
+        seq_t term = (ipow_idx((seq_t)t, 2) - 1) / (seq_t)(t - 1);
         sigma = sigma * term;
     }
 

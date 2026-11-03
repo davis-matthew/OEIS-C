@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   has_equal_3_and_7
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,21 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/has_equal_3_and_7.h"
+
+/* Test whether a number has equal positive counts of digits 3 and 7 in base 12 */
+static bool has_equal_3_and_7(seq_t x)
+{
+    int cnt3 = 0, cnt7 = 0;
+    seq_t t = x;
+    if (t == 0) return false;
+    while (t > 0) {
+        int d = (int)(t % 12);
+        if (d == 3) cnt3++;
+        else if (d == 7) cnt7++;
+        t /= 12;
+    }
+    return (cnt3 > 0 && cnt3 == cnt7);
+}
 
 /* Static cache for already computed terms */
 static seq_t *cache = NULL;      /* pointer to array of seq_t */

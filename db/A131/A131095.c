@@ -13,7 +13,8 @@
  *            The terms are listed row by row, starting with a(1)=2
  * Range:     u8 n <= 21, u16 n <= 105, u32 n <= 465, u64 n <= 1953,
  *            u128 n <= 7875, big any n
- * Helpers:   pow2
+ * Validated: standard, pass, 69 terms through n = 7760 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 /* Triangular sequence storage */
 static seq_t *cache = NULL;          /* cache of computed terms, 1‑based index */
@@ -35,7 +37,7 @@ static void ensure_capacity(size_t new_len)
     if (new_len <= cache_len) return;
     size_t new_cap = cache_len ? cache_len << 1 : 64;
     while (new_cap < new_len) new_cap <<= 1;
-    cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     /* no return value needed – just extend the cache */
 }
 

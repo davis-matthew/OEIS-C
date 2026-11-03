@@ -7,14 +7,16 @@
  * Keywords:  nonn
  * Formula:   a(n) = 1 + Σ_{d|n, d < n, d² ≥ n} a(d) a(1) = 1. Count of
  *            decreasing chains of distinct superior divisors starting with n
- * Range:     u8 n <= 287, u16 n <= 9604, u32 n <= 9604, u64 n <= 9604,
- *            u128 n <= 9604, big any n
- * Helpers:   none
+ * Range:     u8 n <= 287, u16 n <= 17279, u32 n <= 65536, u64 n <= 65536,
+ *            u128 n <= 65536, big any n
+ * Validated: standard, pass, 99 terms through n = 9604 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static idx_t _computed = 0;
 static seq_t * _cache = NULL;
@@ -27,11 +29,10 @@ seq_t a(idx_t n)
     if (_computed < n) {
         size_t new_cap = (size_t)n + 1;      /* capacity for indices 0..n */
         if (_cache == NULL) {
-            _cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+            _cache = mem_new(seq_t, new_cap);
             if (_cache == NULL) return 0;    /* allocation failed */
         } else if (new_cap > (size_t)_computed + 1) {
-            seq_t *tmp = (seq_t *)realloc(_cache,
-                                          new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, _cache, new_cap);
             if (tmp == NULL) return 0;      /* allocation failed */
             _cache = tmp;
         }

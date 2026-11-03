@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   bitlen_seq_t
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,12 +20,13 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/bitlen_seq_t.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
 
 static bool is_good(seq_t value)
 {
     if (value == 0) return false;           /* 0 is not considered */
-    unsigned bits = bitlen_seq_t(value);
+    unsigned bits = bit_length(value);
     seq_t rem = 0;
     for (int i = (int)bits - 1; i >= 0; --i) {
         int bit = (int)((value >> i) & 1ULL);

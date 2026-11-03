@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 74, u16 n <= 1048, u32 n <= 1048, u64 n <= 1048,
  *            u128 n <= 1048, big any n
- * Helpers:   _smallest_prime_factor, digits_of, ensure_capacity, is_prime
+ * Validated: full, pass, 1048 terms through n = 1048 (2026-11-03)
+ * Helpers:   is_prime, mem, num_digits_idx, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,10 +20,45 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"           /* bool is_prime(idx_t x); */
-#include "../utils/_smallest_prime_factor.h" /* uint64_t _smallest_prime_factor(uint64_t n); */
-#include "../utils/digits_of.h"            /* int digits_of(idx_t x); */
-#include "../utils/ensure_capacity.h"      /* void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size); */
+#include <stdlib.h>
+#include "../utils/is_prime.h"
+#include "../utils/num_digits_idx.h"
+#include "../utils/smallest_prime_factor.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* Grow a dynamic array when needed.  The pointer is passed as OEISC_VPP(.) */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    T *tmp = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#else
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#endif
 
 static seq_t *seq = NULL;        /* dynamically grown array of sequence terms */
 static size_t seq_len   = 0;     /* number of terms stored so far */
@@ -41,13 +77,13 @@ seq_t a(idx_t n)
         uint64_t tmp = (uint64_t)next_num;
         int len = 0;
         while (tmp > 1) {
-            uint64_t spf = _smallest_prime_factor(tmp);
+            uint64_t spf = smallest_prime_factor(tmp);
             tmp /= spf;
-            len += digits_of(spf);
+            len += num_digits_idx(spf);
         }
 
         if (len == 4) {                /* desired property */
-            ensure_capacity(seq_len + 1, &seq_cap, (void**)&seq, sizeof(seq_t));
+            ensure_capacity(seq_len + 1, &seq_cap, OEISC_VPP(&seq), sizeof(seq_t));
             seq[seq_len++] = (seq_t)next_num;
         }
     }

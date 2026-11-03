@@ -9,8 +9,9 @@
  * Formula:   a(n) = ((x + y - 1)*(x + y - 2))/2 + x where x = Q(n - Q(n-1)),
  *            y = Q(n - Q(n-2)) Q: Hofstadter Q-sequence, Q(1)=Q(2)=1,
  *            Q(n)=Q(n-Q(n-1))+Q(n-Q(n-2)) a(1) = a(2) = 0
- * Range:     u8 n <= 30, u16 n <= 647, u32 n <= 9895, u64 n <= 9895,
- *            u128 n <= 9895, big any n
+ * Range:     u8 n <= 30, u16 n <= 647, u32 n <= 67390, u64 n <= 67390,
+ *            u128 n <= 67390, big any n
+ * Validated: standard, pass, 95 terms through n = 9895 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

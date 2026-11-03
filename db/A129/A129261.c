@@ -8,7 +8,8 @@
  * Formula:   a(n) = [x^n] ∏_{k=0..n} (1 + 2x + 3x^2 + … + (k+1)x^k)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 24, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 296 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,16 +20,17 @@
    Time complexity: O(n²).  Use 2 arrays of size n+1. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* allocate space for two coefficient arrays */
     size_t sz = (size_t)(n + 1);
-    seq_t *arr1 = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *arr2 = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *arr1 = mem_new(seq_t, sz);
+    seq_t *arr2 = mem_new(seq_t, sz);
     if (!arr1 || !arr2) {
-        free(arr1);
-        free(arr2);
+        mem_free(arr1);
+        mem_free(arr2);
         return (seq_t)0;
     }
 
@@ -65,7 +67,7 @@ seq_t a(idx_t n)
 
     seq_t result = curr[n];   /* a(n) is the coefficient x^n */
 
-    free(arr1);
-    free(arr2);
+    mem_free(arr1);
+    mem_free(arr2);
     return result;
 }

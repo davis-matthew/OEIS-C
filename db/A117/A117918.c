@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 35, u16 n <= 104, u32 n <= 376, u64 n <= 1275,
  *            u128 n <= 1275, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 1004 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Cached rows of the triangle.  tri[i] points to an array of size i+1
  * (indices 0..i) where only elements 1..i are used.  tri[0] is NULL.
@@ -48,7 +50,7 @@ static void ensure_rows(idx_t r)
 
     for (idx_t i = rows_alloc + 1; i <= r; ++i) {
         /* Allocate storage for row i (indices 0..i). */
-        seq_t *row = (seq_t*)malloc((i + 1) * sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, (i + 1));
         if (row == NULL)
             abort();
 

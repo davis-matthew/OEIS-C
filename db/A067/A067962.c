@@ -9,12 +9,14 @@
  *            a(n)=a(n-1)*F(n+1)*F(n+2) for n>0
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 9, u128 n <= 13,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
 
     /* allocate array for Fibonacci numbers up to F(n+2) */
     size_t sz = (size_t)n + 3;           /* indices 0 .. n+2 inclusive */
-    seq_t *fib = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *fib = mem_new(seq_t, sz);
     if (!fib)
         return 0;                       /* allocation failed */
 
@@ -38,6 +40,6 @@ seq_t a(idx_t n)
         result *= fib[i + 2];
     }
 
-    free(fib);
+    mem_free(fib);
     return result;
 }

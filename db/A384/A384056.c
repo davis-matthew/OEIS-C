@@ -9,13 +9,15 @@
  *            for odd primes
  * Range:     u8 n <= 255, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 85 terms through n = 9484 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -34,10 +36,10 @@ seq_t a(idx_t n)
             }
             if (p == 2) {
                 /* 2^e */
-                result *= pow_uint(2, e);
+                result *= ipow_u64_idx(2, e);
             } else {
                 /* p^e - 1 */
-                seq_t val = pow_uint(p, e);
+                seq_t val = ipow_u64_idx(p, e);
                 val -= (seq_t)1;
                 result *= val;
             }
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
         if (m == 2) {
             result *= (seq_t)2;
         } else {
-            seq_t val = pow_uint(m, 1);
+            seq_t val = ipow_u64_idx(m, 1);
             val -= (seq_t)1;
             result *= val;
         }

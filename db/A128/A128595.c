@@ -8,7 +8,8 @@
  *            (1-q^(2j-1))/(1-q)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 17, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,15 +17,16 @@
 /* This implementation builds the product modulo x^(n+1)-1 and
    extracts the coefficient of x^0, which equals the required sum. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     idx_t M = n + 1;                /* modulus */
     size_t m = (size_t)M;
 
     /* Allocate working arrays. */
-    seq_t *cur = (seq_t*)malloc(m * sizeof(seq_t));
-    seq_t *next = (seq_t*)malloc(m * sizeof(seq_t));
-    seq_t *cum = (seq_t*)malloc((2*m + 1) * sizeof(seq_t));
+    seq_t *cur = mem_new(seq_t, m);
+    seq_t *next = mem_new(seq_t, m);
+    seq_t *cum = mem_new(seq_t, (2*m + 1));
 
     /* Initialize with the empty product. */
     cur[0] = 1;
@@ -66,9 +68,9 @@ seq_t a(idx_t n) {
     seq_t result = cur[0];
 
     /* Free working memory. */
-    free(cur);
-    free(next);
-    free(cum);
+    mem_free(cur);
+    mem_free(next);
+    mem_free(cum);
 
     return result;
 }

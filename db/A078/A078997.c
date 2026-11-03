@@ -11,17 +11,19 @@
  *            term. For odd k > 1 all coefficients are multiplied by -1
  * Range:     i8 n <= 75, i16 n <= 75, i32 n <= 75, i64 n <= 75, i128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 76 terms through n = 75 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Initial polynomial for k = 1: (1 - x - x^2) */
     size_t curLen = 3;
-    seq_t *cur = (seq_t *)malloc(curLen * sizeof(seq_t));
+    seq_t *cur = mem_new(seq_t, curLen);
     cur[0] = (seq_t)1;
     cur[1] = (seq_t)-1;
     cur[2] = (seq_t)-1;
@@ -41,7 +43,7 @@ seq_t a(idx_t n) {
             if (coeff != (seq_t)0) {
                 if (count == n) {
                     seq_t result = sign * coeff;
-                    free(cur);
+                    mem_free(cur);
                     return result;
                 }
                 ++count;
@@ -52,7 +54,7 @@ seq_t a(idx_t n) {
 
         /* Build next polynomial = cur * (1 - x - x^2) */
         size_t nextLen = 2 * (k + 1) + 1;
-        seq_t *next = (seq_t *)calloc(nextLen, sizeof(seq_t));
+        seq_t *next = mem_new(seq_t, nextLen);
         for (size_t i = 0; i < curLen; ++i) {
             seq_t v = cur[i];
             if (v != (seq_t)0) {
@@ -61,7 +63,7 @@ seq_t a(idx_t n) {
                 next[i + 2] -= v;          /* * -1 */
             }
         }
-        free(cur);
+        mem_free(cur);
         cur = next;
         curLen = nextLen;
     }

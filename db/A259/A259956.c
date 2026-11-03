@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 18, u64 n <= 40, u128 n <= 84,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 184 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stddef.h>   /* for size_t, NULL */
 #include <stdlib.h>   /* for malloc, realloc */
 #include <stdbool.h>  /* for bool */
+#include "../utils/mem.h"
 
 static void _ensure_capacity(idx_t n, seq_t **cache, size_t *cap)
 /* Ensure the cache can hold indices 1..n (array size n+1). */
@@ -31,7 +33,7 @@ static void _ensure_capacity(idx_t n, seq_t **cache, size_t *cap)
     if (*cap < (size_t)n + 1) {
         size_t newcap = (*cap == 0) ? 64 : *cap;
         while (newcap < (size_t)n + 1) newcap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(*cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *cache, newcap);
         if (!tmp) {
             /* Allocation failed – keep cache NULL; caller will return 0. */
             *cache = NULL;

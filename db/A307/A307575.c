@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 7, u32 n <= 16, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   coeff
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,7 +35,24 @@
 #include <stddef.h>   /* size_t */
 #include <stdint.h>   /* uint64_t */
 #include <stdlib.h>   /* malloc, realloc, free */
-#include "../utils/coeff.h"
+#include "../utils/mem.h"
+
+/* Coefficient for the recurrence (1 ≤ j ≤ 8) */
+static inline int64_t coeff(idx_t n, int j)
+{
+    int64_t n64 = (int64_t)n;
+    switch (j) {
+        case 1: return 4LL * (4LL*n64*n64 - 7LL*n64 - 3LL);
+        case 2: return 3LL * (-7LL*n64*n64 + 17LL*n64 - 2LL);
+        case 3: return 4LL * n64 * (n64 - 3LL);
+        case 4: return -(n64 - 3LL) * (25LL*n64 - 82LL);
+        case 5: return 4LL * (n64 - 3LL) * (6LL*n64 - 19LL);
+        case 6: return 61LL*n64*n64 - 575LL*n64 + 1302LL;
+        case 7: return -4LL * (11LL*n64 - 37LL) * (n64 - 6LL);
+        case 8: return -12LL * (n64 - 6LL) * (n64 - 7LL);
+        default: return 0LL;
+    }
+}
 
 /* Initial terms (metadata only: 0‑based) */
 static const uint64_t base_terms_full[8] = {
@@ -52,7 +70,7 @@ static void ensure_capacity(size_t need)
     if (need <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap : 8;
     while (new_cap < need) new_cap <<= 1;
-    seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();            /* allocation failed */
     cache = tmp;
     cache_cap = new_cap;
@@ -63,7 +81,7 @@ static void init_cache(void)
 {
     if (cache) return;
     cache_cap = 8;
-    cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     if (!cache) abort();
     for (size_t i = 0; i < 8; ++i) cache[i] = (seq_t)base_terms_full[i];
     cache_len = 8;

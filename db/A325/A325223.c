@@ -9,7 +9,8 @@
  * Formula:   a(n) = A056239(n) - max(A001222(n), A061395(n))
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   compute_pi, factor_u64, is_prime
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-01)
+ * Helpers:   factor_u64, is_prime, prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,11 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "../utils/is_prime.h"
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/compute_pi.h"
+#include "../utils/is_prime.h"
+#include "../utils/prime_pi.h"
 
 /* Return the nth term of the sequence A325223. */
 seq_t a(idx_t n)
@@ -50,7 +53,7 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < cnt; ++i) {
         uint64_t   p = primes[i];
         uint64_t   e = exps[i];
-        seq_t      idx = (seq_t)compute_pi(p);   /* prime index of p */
+        seq_t      idx = (seq_t)prime_pi(p);   /* prime index of p */
 
         sum_indices += idx * (seq_t)e;
         total_mult += (seq_t)e;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 2734, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime, mod_pow64
+ * Validated: standard, pass, 70 terms through n = 9877 (2026-11-01)
+ * Helpers:   is_prime, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include "../utils/is_prime.h"
-#include "../utils/mod_pow64.h"
+#include "../utils/powmod_u64.h"
 
 /* Return true iff the multiplicative order of -2 modulo prime p is a multiple of 4. */
 static bool order_minus2_ok(uint64_t p)
@@ -39,7 +41,7 @@ static bool order_minus2_ok(uint64_t p)
 
     for (uint64_t q = 2; q * q <= temp; ++q) {
         if (temp % q == 0) {
-            while (ord % q == 0 && mod_pow64(base, ord / q, p) == 1) {
+            while (ord % q == 0 && powmod_u64(base, ord / q, p) == 1) {
                 ord /= q;                      /* remove factor q from order */
             }
             while (temp % q == 0) temp /= q;  /* skip factor q in temp */
@@ -47,7 +49,7 @@ static bool order_minus2_ok(uint64_t p)
     }
     if (temp > 1) {                           /* remaining prime factor */
         while (ord % temp == 0 &&
-               mod_pow64(base, ord / temp, p) == 1) {
+               powmod_u64(base, ord / temp, p) == 1) {
             ord /= temp;
         }
     }

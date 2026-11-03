@@ -6,9 +6,10 @@
  * Keywords:  nonn
  * Formula:   a(n) = the n‑th prime p such that 14·p −3 and 14·p +3 are both
  *            primes
- * Range:     u8 n <= 11, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
- *            big any n
- * Helpers:   is_prime_uint64, seq_realloc
+ * Range:     u8 n <= 11, u16 n <= 354, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 64 terms through n = 8854 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,18 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/is_prime_uint64.h"
-#include "../utils/seq_realloc.h"
+#include <stdlib.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
+
+static inline seq_t *seq_realloc(seq_t *p, idx_t n)
+{
+#ifdef __cplusplus
+    return mem_resize(seq_t, p, n);
+#else
+    return (seq_t *)realloc(p, n * sizeof(seq_t));
+#endif
+}
 
 static seq_t *cache = NULL;      /* cached terms */
 static size_t cache_size = 0;    /* number of cached terms */
@@ -51,14 +62,14 @@ seq_t a(idx_t n) {
     for (uint64_t cand = last_checked + 1; cache_size < idx; ++cand) {
         last_checked = cand;               /* mark this integer as checked */
 
-        if (!is_prime_uint64(cand)) {
+        if (!is_prime_u64(cand)) {
             continue;                     /* skip non‑prime candidiates */
         }
 
         uint64_t a1 = 14 * cand - 3;
         uint64_t a2 = 14 * cand + 3;
 
-        if (!is_prime_uint64(a1) || !is_prime_uint64(a2)) {
+        if (!is_prime_u64(a1) || !is_prime_u64(a2)) {
             continue;                     /* property fails */
         }
 

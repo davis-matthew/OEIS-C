@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 22, u32 n <= 49, u64 n <= 134,
  *            u128 n <= 161, big any n
- * Helpers:   none
+ * Validated: standard, pass, 62 terms through n = 1054 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,17 +39,17 @@ seq_t a(idx_t n)
     if (cache == NULL || cap <= n) {
         size_t newcap = n + 1;   /* at least up to n (inclusive) */
         /* allocate new cache */
-        seq_t *newptr = (seq_t *)malloc(newcap * sizeof(seq_t));
+        seq_t *newptr = mem_new(seq_t, newcap);
         if (!newptr)
             return (seq_t)0;     /* out‑of‑memory, return 0 as sentinel */
 
         /* copy existing data if any */
         if (cache && cap > 0)
-            memcpy(newptr, cache, cap * sizeof(seq_t));
+            mem_copy(newptr, cache, cap * sizeof(seq_t));
 
         /* clear new part */
         if (newcap > cap)
-            memset(newptr + cap, 0, (newcap - cap) * sizeof(seq_t));
+            mem_set(newptr + cap, 0, (newcap - cap) * sizeof(seq_t));
 
         /* initialize known base values if not already present */
         if (newcap > 0)
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
             newptr[1] = (seq_t)1;
 
         /* free old cache */
-        if (cache) free(cache);
+        if (cache) mem_free(cache);
 
         cache = newptr;
         cap = newcap;

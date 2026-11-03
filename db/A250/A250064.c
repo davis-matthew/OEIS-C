@@ -12,13 +12,15 @@
  *            via the empirical polynomial
  * Range:     u8 none, u16 n <= 1, u32 n <= 6, u64 n <= 84, u128 n <= 185,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 185 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 
 static seq_t compute_base(idx_t n) {
@@ -49,14 +51,14 @@ static void ensure_cache(idx_t n) {
     /* Build initial 11 terms */
     if (cache == NULL) {
         cache_size = 11;
-        cache = (seq_t *)malloc((cache_size + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (cache_size + 1));
         for (idx_t i = 1; i <= 11; ++i)
             cache[i] = compute_base(i);
     }
 
     /* Extend the cache up to n */
     if (n > cache_size) {
-        cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (n + 1));
         for (idx_t i = cache_size + 1; i <= n; ++i) {
             if (i <= 11) {
                 cache[i] = compute_base(i);

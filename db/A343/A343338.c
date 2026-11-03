@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 45, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ----------------- cache and tables ----------------- */
 
@@ -129,7 +131,7 @@ static bool is_candidate_valid(idx_t m) {
 seq_t a(idx_t n) {
     while (cache_len < n) {
         if (is_candidate_valid(next_candidate)) {
-            seq_t *tmp = (seq_t *)realloc(seq_cache, (cache_len + 1) * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq_cache, (cache_len + 1));
             if (!tmp) exit(1);
             seq_cache = tmp;
             seq_cache[cache_len] = (seq_t)next_candidate;

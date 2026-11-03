@@ -7,7 +7,8 @@
  * Formula:   a(n) = 7*a(n-1) - a(n-2), a(0)=1, a(1)=6
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 23, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 1067 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  * or arbitrary‑precision. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* cache[n] holds a(n) */
 static idx_t cache_size = 0;  /* number of cache entries currently allocated */
@@ -30,7 +32,7 @@ static void ensure_cache(idx_t n)
 
     /* Expand cache to hold indices 0..n */
     size_t new_size = (size_t)(n + 1);
-    cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_size);
 
     /* Initialise the base terms if they are not already present */
     if (cache_size == 0) {

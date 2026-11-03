@@ -10,12 +10,15 @@
  *            A372380.)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_log2_uint64
+ * Validated: standard, pass, 103 terms through n = 9505 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/ilog2.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +36,7 @@ seq_t a(idx_t n)
         e++;
     }
     if (e > 0)
-        result *= (seq_t)(floor_log2_uint64(e + 1) + 1);
+        result *= (seq_t)(ilog2(e + 1) + 1);
 
     /* Factor odd primes */
     for (idx_t p = 3; p <= tmp / p; p += 2) {
@@ -43,13 +46,13 @@ seq_t a(idx_t n)
                 tmp /= p;
                 exp++;
             }
-            result *= (seq_t)(floor_log2_uint64(exp + 1) + 1);
+            result *= (seq_t)(ilog2(exp + 1) + 1);
         }
     }
 
     /* If a prime factor > sqrt(n) remains */
     if (tmp > 1)
-        result *= (seq_t)(floor_log2_uint64(1 + 1) + 1);  /* exp = 1 */
+        result *= (seq_t)(ilog2(1 + 1) + 1);  /* exp = 1 */
 
     return result;
 }

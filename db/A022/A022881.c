@@ -9,12 +9,13 @@
  *            · j · √3) = n
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   _floor_isqrt_u64
+ * Validated: partial, pass, 90 terms through n = 90 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
 
 static const idx_t SCALE = 10000000ULL;          /* 10^7 : > maximum i*j * sqrt(3) needed */
 static idx_t P = 0;                              /* floor(SCALE·√3) */
@@ -24,7 +25,7 @@ seq_t a(idx_t n)
     /* Lazily initialise the constant P = floor(SCALE * sqrt(3)) */
     if (!P) {
         /* 3 * SCALE^2 fits in 64‑bit (3·10^14 < 2^63) */
-        P = _floor_isqrt_u64(3ULL * SCALE * SCALE);
+        P = isqrt(3ULL * SCALE * SCALE);
     }
 
     seq_t count = 0;                            /* result counter */

@@ -12,6 +12,7 @@
  *            precomputed set
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 119 terms through n = 9833 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,7 +21,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/factor_u64.h"   /* for factor_u64 */
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
 
 #define MAX_LIMIT 1000000          /* maximum value to pre‑compute p^k - 1 */
 static bool allowed[MAX_LIMIT + 1];  /* allowed[d] == true ⇔ d+1 is p^k for some prime p */

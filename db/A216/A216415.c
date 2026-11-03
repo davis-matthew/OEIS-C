@@ -10,15 +10,20 @@
  *            2n‑1, 0 when gcd(10,2n‑1)≠1)
  * Range:     u8 n <= 100, u16 n <= 100, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   calc_phi, factor_u64, gcd, mod_pow
+ * Validated: partial, pass, 100 terms through n = 100 (2026-11-01)
+ * Helpers:   factor_u64, gcd, powmod, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/gcd.h"
-#include "../utils/calc_phi.h"
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
+#include "../utils/powmod.h"
+#include "../utils/totient_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +31,7 @@ seq_t a(idx_t n)
     seq_t g = gcd(m, (seq_t)10);             /* check coprimality */
     if (g != 1) return (seq_t)0;             /* no inverse → order undefined */
 
-    seq_t phi = calc_phi(m);                 /* Euler’s totient of m */
+    seq_t phi = totient_seq(m);                 /* Euler’s totient of m */
     seq_t order = phi;                       /* current candidate for the order */
 
     /* factor phi to obtain its distinct prime divisors */
@@ -41,7 +46,7 @@ seq_t a(idx_t n)
         uint64_t p = primes[i];
         while (order % (seq_t)p == 0) {
             seq_t cand = order / (seq_t)p;
-            if (mod_pow((seq_t)10, (uint64_t)cand, m) == 1)
+            if (powmod((seq_t)10, (uint64_t)cand, m) == 1)
                 order = cand;                 /* p is redundant in the exponent */
             else
                 break;

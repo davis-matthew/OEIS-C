@@ -8,13 +8,15 @@
  *            * 3^k * a(n−2k−1) for n ≥ 1
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 14, u64 n <= 24, u128 n <= 25,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* cached a(n) values */
 static size_t cache_cap = 0;         /* allocated size of cache array */
@@ -25,10 +27,10 @@ seq_t a(idx_t n)
     /* Ensure cache can hold a(n) */
     size_t need = (size_t)n + 1;
     if (cache == NULL) {
-        cache = (seq_t*)malloc(need * sizeof(seq_t));
+        cache = mem_new(seq_t, need);
         cache_cap = need;
     } else if (need > cache_cap) {
-        cache = (seq_t*)realloc(cache, need * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, need);
         cache_cap = need;
     }
 

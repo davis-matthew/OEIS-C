@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 102, u32 n <= 3517, u64 n <= 3517,
  *            u128 n <= 3517, big any n
- * Helpers:   seen_contains, seq_grow
+ * Validated: standard, pass, 75 terms through n = 3259 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,8 +28,30 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seen_contains.h"
-#include "../utils/seq_grow.h"
+#include "../utils/mem.h"
+
+/* Test whether val is already present in arr[0..len-1].  */
+static bool seen_contains(const seq_t *arr, size_t len, seq_t val)
+{
+    for (size_t i = 0; i < len; ++i)
+        if (arr[i] == val)
+            return true;
+    return false;
+}
+
+/* Grow the array that stores all discovered nodes.  */
+static void seq_grow(seq_t **seqp, size_t *lenp, size_t *capp)
+{
+    if (*lenp < *capp)
+        return;
+    size_t newcap = (*capp) ? (*capp << 1) : 64,
+           newlen = (*capp) * sizeof(seq_t);
+    seq_t *newseq = mem_resize(seq_t, *seqp, newcap);
+    if (!newseq)
+        abort();
+    *seqp = newseq;
+    *capp = newcap;
+}
 
 seq_t a(idx_t n)
 {
@@ -41,7 +64,7 @@ seq_t a(idx_t n)
     /* initialise on first call --------------------------------------- */
     if (seq_len == 0) {
         seq_cap = 64;
-        seq = (seq_t *)calloc(seq_cap, sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         if (!seq)
             abort();
         seq[0] = (seq_t)1;

@@ -8,13 +8,17 @@
  *            m(m-1)/2 (indexed with a(1) = first element of the triangle)
  * Range:     u8 n <= 5, u16 n <= 13, u32 n <= 20, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   pow2, seq_pow
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-01)
+ * Helpers:   ipow_idx, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 #include "../utils/pow2.h"
-#include "../utils/seq_pow.h"
 
 seq_t a(idx_t n)
 {
@@ -30,5 +34,5 @@ seq_t a(idx_t n)
 
     /* compute (2^k - 1)^m */
     seq_t base = pow2(k) - 1;       /* 2^k - 1 */
-    return seq_pow(base, m);        /* raise to the power m */
+    return ipow_idx(base, m);        /* raise to the power m */
 }

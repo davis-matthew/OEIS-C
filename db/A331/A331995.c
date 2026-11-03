@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 67 terms through n = 67 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,15 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 /* ---------- adjustable constants ---------- */
 #define INITIAL_LIMIT 200000   /* pre‑sieved limit (enough for n up to ~10000) */
@@ -42,6 +52,19 @@ static size_t   terms_cnt = 0;
 static idx_t    next_candidate = 1;  /* next number to test */
 
 /* ---------- helper functions ---------- */
+#ifdef __cplusplus
+template <class T>
+static void grow_array(T **ptr, size_t *cap, size_t need, size_t elem_size)
+{
+    if (*cap < need)
+    {
+        size_t newcap = *cap ? *cap * 2 : 8;
+        while (newcap < need) newcap *= 2;
+        *ptr = mem_resize(T, *ptr, (newcap * elem_size) / sizeof(T));
+        *cap = newcap;
+    }
+}
+#else
 static void grow_array(void **ptr, size_t *cap, size_t need, size_t elem_size)
 {
     if (*cap < need)
@@ -52,6 +75,7 @@ static void grow_array(void **ptr, size_t *cap, size_t need, size_t elem_size)
         *cap = newcap;
     }
 }
+#endif
 
 /* Count distinct prime factors of n whose index is a prime */
 static void factor_and_check(idx_t n, size_t *cnt)
@@ -131,7 +155,7 @@ seq_t a(idx_t n)
         }
         if (ok)
         {
-            grow_array((void **)&terms, &terms_cap, terms_cnt + 1, sizeof(seq_t));
+            grow_array(OEISC_VPP(&terms), &terms_cap, terms_cnt + 1, sizeof(seq_t));
             terms[terms_cnt++] = (seq_t)val;
         }
     }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 9431 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /*  External linkage; idx_t is an unsigned integer type (e.g. uint64_t)
     seq_t is the result type (e.g. uint64_t or arbitrary‑precision type). */
@@ -75,7 +77,7 @@ seq_t a(idx_t n)
         }
 
         if (cnt >= n) {      /* we have enough terms for the requested n */
-            seq_t *new_terms = (seq_t *)malloc(cnt * sizeof(seq_t));
+            seq_t *new_terms = mem_new(seq_t, cnt);
             if (!new_terms) {
                 free(dp);
                 return 0;   /* allocation failure */
@@ -85,7 +87,7 @@ seq_t a(idx_t n)
                 if (dp10[s] >= 4) new_terms[idx++] = (seq_t)s;
             }
             free(dp);
-            free(terms);     /* discard any previous cache */
+            mem_free(terms);     /* discard any previous cache */
             terms = new_terms;
             term_cnt = cnt;
             break;

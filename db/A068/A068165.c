@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 102, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   idx_to_str, seq_to_str, subseq
+ * Validated: standard, pass, 66 terms through n = 9968 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,9 +32,57 @@
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/idx_to_str.h"
-#include "../utils/seq_to_str.h"
-#include "../utils/subseq.h"
+
+/* convert an integer x of type idx_t to a decimal string */
+static void idx_to_str(idx_t x, char *buf, size_t *len)
+{
+    if (x == 0) {
+        buf[0] = '0';
+        *len = 1;
+        return;
+    }
+    char tmp[32];
+    int pos = 0;
+    while (x != 0) {
+        tmp[pos++] = '0' + (int)(x % 10);
+        x /= 10;
+    }
+    for (int i = 0; i < pos; ++i)
+        buf[i] = tmp[pos - 1 - i];
+    *len = pos;
+}
+
+/* convert a seq_t value to a decimal string */
+static void seq_to_str(seq_t v, char *buf, size_t *len)
+{
+    if (v == 0) {
+        buf[0] = '0';
+        *len = 1;
+        return;
+    }
+    char tmp[64];
+    int pos = 0;
+    seq_t ten = (seq_t)10;
+    while (v != 0) {
+        tmp[pos++] = '0' + (int)(v % ten);
+        v /= ten;
+    }
+    for (int i = 0; i < pos; ++i)
+        buf[i] = tmp[pos - 1 - i];
+    *len = pos;
+}
+
+/* test whether s contains n as a subsequence (in order) */
+static bool subseq(const char *s, size_t slen, const char *n, size_t nlen)
+{
+    size_t i = 0, j = 0;
+    while (i < slen && j < nlen) {
+        if (s[i] == n[j])
+            ++j;
+        ++i;
+    }
+    return j == nlen;
+}
 
 /* A068165
  * Return the smallest square obtainable by inserting zero or more decimal

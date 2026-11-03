@@ -5,15 +5,19 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  sign, mult, easy
  * Formula:   a(n) = Legendre symbol (n,514229)
- * Range:     i8 n <= 3, i16 n <= 3, i32 n <= 9342, i64 n <= 9342,
- *            i128 n <= 9342, big any n
- * Helpers:   mod_pow
+ * Range:     i8 n <= 3, i16 n <= 3, i32 n <= 514229, i64 n <= 514229,
+ *            i128 n <= 514229, big any n
+ * Validated: standard, pass, 100 terms through n = 9342 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +34,7 @@ seq_t a(idx_t n)
 
     /* Euler's criterion: n^((p-1)/2) mod p */
     const uint64_t EXP = (P - 1) / 2;             /* 257114 */
-    seq_t val = mod_pow((seq_t)r, EXP, (seq_t)P);
+    seq_t val = powmod((seq_t)r, EXP, (seq_t)P);
 
     /* Resolve Legendre symbol value */
     if ((long long)val == 1)

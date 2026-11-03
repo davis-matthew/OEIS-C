@@ -8,14 +8,28 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 44, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   binomial, ij_from_index
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/ij_from_index.h"
+#include "../utils/mem.h"
+
+/* Convert the linear index n into (i,j) coordinates on the antidiagonals.
+   (i,j) satisfy i+j=D where D(D+1)/2 ≤ n < (D+1)(D+2)/2. */
+static void ij_from_index(idx_t n, idx_t *i, idx_t *j)
+{
+    idx_t D = 0;
+    while (D * (D + 1) / 2 <= n) ++D;
+    --D;
+    idx_t start  = D * (D + 1) / 2;
+    idx_t offset = n - start;
+    *i = D - offset;
+    *j = offset;
+}
 
 /* The sequence A398993: a(n) is read by ascending antidiagonals of the
    binomial matrix of the Bell numbers.
@@ -35,13 +49,13 @@ static idx_t bell_size = 0;
 static void ensure_bell(idx_t max_n)
 {
     if (bell == NULL) {
-        bell = (seq_t *)malloc(sizeof(seq_t));
+        bell = mem_new(seq_t, 1);
         if (!bell) exit(EXIT_FAILURE);
         bell[0] = 1;
         bell_size = 1;
     }
     if (bell_size <= max_n) {
-        seq_t *tmp = (seq_t *)realloc(bell, (max_n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, bell, (max_n + 1));
         if (!tmp) exit(EXIT_FAILURE);
         bell = tmp;
         for (idx_t n = bell_size; n <= max_n; ++n) {

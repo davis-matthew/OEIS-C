@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 37, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, powmod64
+ * Validated: standard, pass, 71 terms through n = 983 (2026-11-01)
+ * Helpers:   is_prime, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"   /* is_prime(uint64_t) */
-#include "../utils/powmod64.h"   /* powmod64(uint64_t, uint64_t, uint64_t) */
+#include "../utils/is_prime.h"
+#include "../utils/powmod_u64.h"
 
 /* compute gcd of two unsigned integers */
 static inline uint64_t gcd_u64(uint64_t a, uint64_t b)
@@ -46,7 +47,7 @@ seq_t a(idx_t n)
             if (is_prime(candidate)) {
                 uint64_t d   = gcd_u64(54ULL, candidate - 1ULL);
                 uint64_t exp = (candidate - 1ULL) / d;
-                uint64_t pow = powmod64(candidate - 2ULL, exp, candidate);
+                uint64_t pow = powmod_u64(candidate - 2ULL, exp, candidate);
 
                 /* if -2 is NOT a 54th power residue, keep this prime */
                 if (pow != 1ULL) {

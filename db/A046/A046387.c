@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 497, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 54 terms through n = 9777 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Prime sieve limit – large enough to cover all primes needed for n up to 10000 */
 static const uint32_t PRIME_LIMIT = 5000;
@@ -77,14 +79,14 @@ static void init_primes(void)
 static void init_cache(void)
 {
     CACHE_CAP = 1024;
-    CACHE = (seq_t*)malloc(CACHE_CAP * sizeof(seq_t));
+    CACHE = mem_new(seq_t, CACHE_CAP);
     CACHE_LEN = 0;
 }
 
 static void grow_cache(void)
 {
     CACHE_CAP *= 2;
-    CACHE = (seq_t*)realloc(CACHE, CACHE_CAP * sizeof(seq_t));
+    CACHE = mem_resize(seq_t, CACHE, CACHE_CAP);
 }
 
 /* --------------------------------------------------------------------- */
@@ -92,14 +94,14 @@ static void grow_cache(void)
 static void init_heap(void)
 {
     HEAP_CAP = 1024;
-    HEAP = (struct Node*)malloc(HEAP_CAP * sizeof(struct Node));
+    HEAP = mem_new(struct Node, HEAP_CAP);
     HEAP_SIZE = 0;
 }
 
 static void grow_heap(void)
 {
     HEAP_CAP *= 2;
-    HEAP = (struct Node*)realloc(HEAP, HEAP_CAP * sizeof(struct Node));
+    HEAP = mem_resize(struct Node, HEAP, HEAP_CAP);
 }
 
 static void heap_percolate_up(size_t pos)

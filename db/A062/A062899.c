@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   rev
+ * Validated: standard, pass, 69 terms through n = 1000 (2026-11-03)
+ * Helpers:   mem, reverse_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
    iff its first digit is even.  Hence we select all multiples of
    6 whose most significant decimal digit is even. */
 #include <stddef.h>
-#include "../utils/rev.h"
+#include <stdbool.h>
+#include "../utils/reverse_digits_idx.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +38,7 @@ seq_t a(idx_t n)
         idx_t m = last_checked;
 
         /* rev(m) % 10 gives the most significant digit of m */
-        seq_t revm = rev(m);
+        seq_t revm = reverse_digits_idx(m);
         uint64_t first_digit = (uint64_t)(revm % 10);
 
         /* first digit must be even and non‑zero */
@@ -43,7 +46,7 @@ seq_t a(idx_t n)
             /* grow cache if needed */
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 64;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp)
                     return 0;      /* allocation failure → undefined */
                 cache = tmp;

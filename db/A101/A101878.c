@@ -7,12 +7,13 @@
  * Formula:   a(n) = Sum_{k=0..n} (k+1)^k * (n+1)^(n-k-1) * C(n,k)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 25,
  *            big any n
- * Helpers:   seq_pow_local
+ * Validated: standard, pass, 35 terms through n = 90 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow_local.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -24,12 +25,12 @@ seq_t a(idx_t n)
     seq_t base_n    = (seq_t)(n + 1U);
 
     /* n+1^(n-1) for the term k = 0 (used in loop) and later for k = n */
-    seq_t pow_n_term = seq_pow_local(base_n, n - 1U);
+    seq_t pow_n_term = ipow_idx(base_n, n - 1U);
 
     for (idx_t k = 0U; k < n; ++k)
     {
         /* (k+1)^k */
-        seq_t pow_k = seq_pow_local((seq_t)(k + 1U), k);
+        seq_t pow_k = ipow_idx((seq_t)(k + 1U), k);
 
         /* term for current k */
         seq_t term = C * pow_k * pow_n_term;
@@ -45,7 +46,7 @@ seq_t a(idx_t n)
     }
 
     /* term for k = n : (n+1)^(n-1) */
-    sum += seq_pow_local(base_n, n - 1U);
+    sum += ipow_idx(base_n, n - 1U);
 
     return sum;
 }

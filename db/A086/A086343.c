@@ -7,13 +7,14 @@
  * Formula:   a(n) = 4n - 2 - popcount(n-1)
  * Range:     u8 n <= 59, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   popcnt_idx
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-01)
+ * Helpers:   popcount_idx_to_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/popcnt_idx.h"
+#include "../utils/popcount_idx_to_i32.h"
 
 seq_t a(idx_t n) {
     /* Guard against a zero index; the sequence is defined for n >= 1. */
@@ -22,7 +23,7 @@ seq_t a(idx_t n) {
 
     seq_t n_seq = (seq_t)n;
     seq_t val    = (seq_t)4 * n_seq - (seq_t)2;
-    int pc       = popcnt_idx(n - 1u);
+    int pc       = popcount_idx_to_i32(n - 1u);
     val -= (seq_t)pc;
     return val;
 }

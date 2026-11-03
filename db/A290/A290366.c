@@ -8,7 +8,8 @@
  * Formula:   a(n) = denominator of the reduced fraction
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 14, u128 n <= 14,
  *            big any n
- * Helpers:   pow2, seq_gcd
+ * Validated: partial, pass, 14 terms through n = 14 (2026-11-01)
+ * Helpers:   gcd, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
  *                is performed in the integer type seq_t.  The result is
  *                the reduced denominator of this rational number. */
 
-#include "../utils/seq_gcd.h"
+#include <stdbool.h>
+#include "../utils/gcd.h"
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
         seq_t new_num = sum_num * term_den + sum_den * term_num;
         seq_t new_den = sum_den * term_den;
 
-        seq_t g = seq_gcd(new_num, new_den);
+        seq_t g = gcd(new_num, new_den);
         sum_num = new_num / g;
         sum_den = new_den / g;
     }
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
     }
 
     /* Final reduction: divide numerator and denominator by their GCD */
-    seq_t g2 = seq_gcd(sum_num, sum_den);
+    seq_t g2 = gcd(sum_num, sum_den);
     sum_den = sum_den / g2;   /* numerator is not needed after this point */
 
     return sum_den;

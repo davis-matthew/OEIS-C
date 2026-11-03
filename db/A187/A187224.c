@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 110, u16 n <= 110, u32 n <= 110, u64 n <= 110,
  *            u128 n <= 110, big any n
- * Helpers:   none
+ * Validated: partial, pass, 110 terms through n = 110 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    h(n) counts r(i) with a(n-1)<=r(i)<a(n), then
    r(n)=r(n-1)+h(n)+1.  The returned value is r(n). */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     if (n == 1) return 1;
 
     /* Allocate array for r[1..n] */
-    seq_t *r = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *r = mem_new(seq_t, (size_t)(n + 1));
     if (!r) return 0;         /* allocation failure */
 
     r[1] = 1;
@@ -49,6 +51,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = r[n];
-    free(r);
+    mem_free(r);
     return result;
 }

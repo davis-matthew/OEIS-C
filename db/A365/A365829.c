@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
    the requested index. */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Return true iff x is squarefree and not a product of exactly two
    distinct primes. */
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
             seq_t val = (seq_t)next_candidate;
             if (cache_len == cache_cap) {
                 cache_cap = (cache_cap == 0) ? 4 : cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
                 if (!tmp) return 0;      /* allocation failure (unlikely) */
                 cache = tmp;
             }

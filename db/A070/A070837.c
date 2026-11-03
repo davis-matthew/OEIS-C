@@ -9,7 +9,8 @@
  *            decimal digit reverse of k; return 0 if no such k exists
  * Range:     u8 n <= 9, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   dfs_len
+ * Validated: partial, pass, 76 terms through n = 76 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,55 @@
    contributions.  The result is correct for all n ≥ 1.  */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/dfs_len.h"
+
+/* Recursive search over digit pairs. */
+static void dfs_len(int t, int m, int p,
+                    __int128 diff_rem,
+                    const __int128 *coeff,
+                    const __int128 *minRem,
+                    const __int128 *maxRem,
+                    int *digits,
+                    seq_t *best_val,
+                    bool *found)
+{
+    if (t == p) {
+        if (diff_rem != 0) return; /* must match target exactly */
+        if (m & 1) digits[m/2] = 0;  /* middle digit minimised */
+        /* construct value from most significant to least */
+        seq_t val = 0;
+        for (int i = m-1; i >= 0; --i) val = val * 10 + (seq_t)digits[i];
+        if (!*found || val < *best_val) {
+            *best_val = val;
+            *found = true;
+        }
+        return;
+    }
+
+    int j = m - 1 - t;          /* most significant position of this pair */
+    int i = t;                  /* least significant position of this pair */
+    int lb = (t == 0) ? 1 : 0;  /* leading digit cannot be zero */
+
+    for (int diff_d = -9; diff_d <= 9; ++diff_d) {
+        /* determine bounds for the higher digit a_j */
+        int aj_min = lb;
+        if (-diff_d > aj_min) aj_min = -diff_d;      /* ensures a_i >= 0 */
+        int aj_max = 9;
+        if (9 - diff_d < aj_max) aj_max = 9 - diff_d; /* ensures a_i <= 9 */
+        if (aj_min > aj_max) continue;
+
+        int aj = aj_min;                           /* minimal leading digit */
+        int ai = aj + diff_d;                      /* lower digit */
+        if (ai < 0 || ai > 9) continue;
+
+        __int128 new_rem = diff_rem - coeff[t] * (__int128)diff_d;
+        if (new_rem < minRem[t+1] || new_rem > maxRem[t+1]) continue;
+
+        digits[j] = aj;
+        digits[i] = ai;
+        dfs_len(t+1, m, p, new_rem, coeff, minRem, maxRem,
+                digits, best_val, found);
+    }
+}
 
 /* forward declaration of helper */
 static seq_t solve_len(int m, __int128 diff_target);

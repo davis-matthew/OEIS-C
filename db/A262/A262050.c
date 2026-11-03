@@ -10,20 +10,29 @@
  *            10), b(k) = 0 if k≡0 (mod 10)
  * Range:     u8 n <= 5, u16 n <= 16, u32 n <= 50, u64 n <= 166, u128 n <= 590,
  *            big any n
- * Helpers:   mpb
+ * Validated: standard, pass, 52 terms through n = 869 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/mpb.h"
+#include "../utils/mem.h"
+
+/* Helper: value of b(k) as described above */
+static unsigned int mpb(idx_t k)
+{
+    unsigned int r = (unsigned int)(k % 10u);
+    if (r == 0u) return 0u;
+    return (r & 1u) ? 4u : 1u;
+}
 
 seq_t a(idx_t n)
 {
     if (n == 0) return (seq_t)1;
 
     /* Allocate zero‑initialized array of size n+1 */
-    seq_t *dp = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1));
     if (!dp) return (seq_t)0;         /* allocation failure */
 
     dp[0] = (seq_t)1;
@@ -42,6 +51,6 @@ seq_t a(idx_t n)
     }
 
     seq_t res = dp[n];
-    free(dp);
+    mem_free(dp);
     return res;
 }

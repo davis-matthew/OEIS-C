@@ -9,7 +9,8 @@
  *            of two primes
  * Range:     u8 n <= 44, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   build_sieve_and_primes
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,32 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/build_sieve_and_primes.h"
+#include "../utils/mem.h"
+
+static void build_sieve_and_primes(idx_t limit, bool **is_prime_out,
+                                   uint64_t **primes_out, size_t *prime_count_out) {
+    bool *is_prime = (bool *)malloc((size_t)(limit + 1) * sizeof(bool));
+    if (!is_prime) exit(1);
+    memset(is_prime, true, (size_t)(limit + 1) * sizeof(bool));
+    if (limit >= 0) {
+        is_prime[0] = is_prime[1] = false;
+    }
+    for (idx_t i = 2; (idx_t)i * i <= limit; ++i) {
+        if (is_prime[i]) {
+            for (idx_t j = i * i; j <= limit; j += i) is_prime[j] = false;
+        }
+    }
+    /* Count primes */
+    size_t pc = 0;
+    for (idx_t i = 2; i <= limit; ++i) if (is_prime[i]) ++pc;
+    uint64_t *primes = (uint64_t *)malloc(pc * sizeof(uint64_t));
+    if (!primes) exit(1);
+    size_t k = 0;
+    for (idx_t i = 2; i <= limit; ++i) if (is_prime[i]) primes[k++] = (uint64_t)i;
+    *is_prime_out = is_prime;
+    *primes_out   = primes;
+    *prime_count_out = pc;
+}
 
 static seq_t *terms = NULL;
 static size_t   terms_len = 0;
@@ -28,7 +54,7 @@ static void ensure_terms_cap(size_t min_cap) {
     if (min_cap > terms_cap) {
         size_t new_cap = terms_cap ? terms_cap * 2 : 16;
         if (new_cap < min_cap) new_cap = min_cap;
-        seq_t *new_arr = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, terms, new_cap);
         if (!new_arr) { /* OOM: abort */ exit(1); }
         terms = new_arr;
         terms_cap = new_cap;

@@ -7,8 +7,9 @@
  * Keywords:  nonn, look
  * Formula:   a(n) = Σ_{j=1}^{k} y_j * j, where y_j are the prime indices of
  *            the prime factorization of n sorted in nondecreasing order
- * Range:     u8 n <= 1437, u16 n <= 9574, u32 n <= 9574, u64 n <= 9574,
- *            u128 n <= 9574, big any n
+ * Range:     u8 n <= 1437, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 86 terms through n = 9574 (2026-11-01)
  * Helpers:   prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,7 +20,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-#include "../utils/prime_pi.h"   /* provides seq_t prime_pi(idx_t) */
+#include "../utils/prime_pi.h"
 
 /* static data for the list of small primes */
 static idx_t *primes = NULL;

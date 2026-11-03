@@ -10,7 +10,8 @@
  *            digit 1)
  * Range:     u8 n <= 15, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   digits, factor_u64, is_prime_small, pow10
+ * Validated: partial, pass, 53 terms through n = 52 (2026-11-01)
+ * Helpers:   factor_u64, is_prime_seq, num_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,10 +19,20 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/is_prime_small.h"
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/digits.h"
-#include "../utils/pow10.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/num_digits_idx.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {
@@ -32,7 +43,7 @@ seq_t a(idx_t n)
         return 11;
 
     /* If n is prime (or 0/1 handled above) append a trailing digit 1 */
-    if (is_prime_small((seq_t)n))
+    if (is_prime_seq((seq_t)n))
         return ((seq_t)n) * 10 + 1;
 
     /* Composite case: factor n and concatenate prime factors in ascending
@@ -54,7 +65,7 @@ seq_t a(idx_t n)
                 result = (seq_t)p;
                 first = false;
             } else {
-                int d = digits((idx_t)p);          /* number of decimal digits of p */
+                int d = num_digits_idx((idx_t)p);          /* number of decimal digits of p */
                 seq_t mult = pow10((idx_t)d);       /* 10^d as seq_t */
                 result = result * mult + (seq_t)p;
             }

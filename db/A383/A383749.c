@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 1557, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes_upto, contains_sub, floor_sqrt
+ * Validated: standard, pass, 78 terms through n = 9664 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,9 +23,42 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/floor_sqrt.h"
 #include "../utils/build_primes_upto.h"
-#include "../utils/contains_sub.h"
+#include "../utils/ipow_i32.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+/* Check whether string `sub` of length sublen occurs as a contiguous
+   substring of string `str` of length len. */
+static bool
+contains_sub(const char *str, int len, const char *sub, int sublen)
+{
+    if (sublen == 0) return true;
+    for (int i = 0; i + sublen <= len; ++i) {
+        int j;
+        for (j = 0; j < sublen; ++j) {
+            if (str[i + j] != sub[j]) break;
+        }
+        if (j == sublen) return true;
+    }
+    return false;
+}
 
 /* Static storage for the list of primes used by the factoriser */
 static uint64_t *prime_list = NULL;

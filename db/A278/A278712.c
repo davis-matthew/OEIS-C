@@ -11,6 +11,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 17, u16 n <= 106, u32 n <= 106, u64 n <= 106,
  *            u128 n <= 106, big any n
+ * Validated: partial, pass, 105 terms through n = 106 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -29,6 +30,7 @@
  *  algorithm runs in O(√n) time for each call.
  */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

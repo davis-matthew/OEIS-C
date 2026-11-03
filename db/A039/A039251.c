@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   equal_4_9
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,21 @@
    The function searches sequentially from 0, counting numbers that satisfy
    the property until it reaches the specified index n. */
 #include <stdbool.h>
-#include "../utils/equal_4_9.h"
+
+static bool equal_4_9(seq_t value)
+{
+    if (value == 0)            /* 0 has 0 occurrences of 4 and 9, which are equal */
+        return true;
+    seq_t v = value;
+    unsigned int cnt4 = 0, cnt9 = 0;
+    while (v) {
+        unsigned int digit = (unsigned int)(v % 12);
+        if (digit == 4) ++cnt4;
+        else if (digit == 9) ++cnt9;
+        v /= 12;
+    }
+    return cnt4 == cnt9;
+}
 
 seq_t a(idx_t n)
 {

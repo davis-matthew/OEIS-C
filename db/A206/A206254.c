@@ -12,6 +12,7 @@
  *            the zero/non‑zero pattern, so 256 states (2^...
  * Range:     u8 none, u16 none, u32 n <= 1, u64 n <= 5, u128 n <= 12,
  *            big any n
+ * Validated: standard, pass, 25 terms through n = 210 (2026-11-01)
  * Helpers:   pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,7 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/pow3.h"
 
 #define STATES (1 << 8)   /* number of 0/1 patterns for a row */

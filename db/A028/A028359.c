@@ -11,6 +11,7 @@
  *            1 for i odd and 2 for i even. a(n) consists of the di...
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 15, u64 n <= 30, u128 n <= 59,
  *            big any n
+ * Validated: standard, pass, 41 terms through n = 1395 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

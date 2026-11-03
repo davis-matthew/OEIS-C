@@ -9,6 +9,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 109, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 64 terms through n = 953 (2026-11-01)
  * Helpers:   sieve_first_n_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -18,6 +19,8 @@
    a(n)=p_{(n-1)/2}*p_{(n+1)/2} if n odd (with p_k the k-th prime). */
 #include <stdlib.h>
 #include <stdint.h>
+#include <string.h>
+#include <math.h>
 #include "../utils/sieve_first_n_primes.h"
 
 static uint32_t *primes = NULL;     /* primes[0] = 2, primes[1] = 3, … */

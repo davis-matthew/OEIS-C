@@ -12,12 +12,14 @@
  *            function is * memoised across calls, works for any o...
  * Range:     u8 n <= 7, u16 n <= 21, u32 n <= 124, u64 n <= 643,
  *            u128 n <= 643, big any n
- * Helpers:   none
+ * Validated: standard, pass, 53 terms through n = 596 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 #define PARTS_MAX 10
 
@@ -34,7 +36,7 @@ ensure_partitions(idx_t n)
     idx_t new_n   = n;
     size_t new_sz = (new_n + 1) * PARTS_MAX;
 
-    seq_t *new_part = (seq_t *)calloc(new_sz, sizeof(seq_t));
+    seq_t *new_part = mem_new(seq_t, new_sz);
     if (!new_part) abort();               /* allocation failed */
 
     /* copy old data */
@@ -42,7 +44,7 @@ ensure_partitions(idx_t n)
         size_t old_sz = (partitions_n + 1) * PARTS_MAX;
         for (size_t i = 0; i < old_sz; ++i)
             new_part[i] = partitions[i];
-        free(partitions);
+        mem_free(partitions);
     }
 
     /* initialise base case: p(0,0)=1 */

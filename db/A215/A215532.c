@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, easy
  * Formula:   not stated
- * Range:     u8 n <= 8943, u16 n <= 8943, u32 n <= 8943, u64 n <= 8943,
- *            u128 n <= 8943, big any n
- * Helpers:   none
+ * Range:     u8 n <= 10011, u16 n <= 10011, u32 n <= 10011, u64 n <= 10011,
+ *            u128 n <= 10011, big any n
+ * Validated: standard, pass, 103 terms through n = 8943 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *word_buf = NULL;   /* buffer holding the generated bits */
 static size_t   buf_cap  = 0;    /* current capacity of word_buf   */
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     if (!initialized) {
         initialized = true;
         buf_cap = 16;
-        word_buf = (seq_t *)malloc(buf_cap * sizeof(*word_buf));
+        word_buf = mem_new(seq_t, buf_cap);
         /* initial word: 0, 1 */
         word_buf[0] = (seq_t)0;
         word_buf[1] = (seq_t)1;
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
         if (new_len > buf_cap) {
             size_t new_cap = buf_cap ? buf_cap * 2 : 16;
             while (new_cap < new_len) new_cap *= 2;
-            seq_t *tmp = (seq_t *)realloc(word_buf, new_cap * sizeof(*word_buf));
+            seq_t *tmp = mem_resize(seq_t, word_buf, new_cap);
             word_buf = tmp;
             buf_cap  = new_cap;
         }

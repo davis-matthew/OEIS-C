@@ -8,6 +8,7 @@
  *            more times than any other digit combined (brute‑force scan)
  * Range:     u8 n <= 3, u16 n <= 237, u32 n <= 767, u64 n <= 767,
  *            u128 n <= 767, big any n
+ * Validated: standard, pass, 64 terms through n = 702 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

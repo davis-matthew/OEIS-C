@@ -8,6 +8,7 @@
  *            Recurrence: a(0)=1, a(1)=a(2)=0, a(n)=−2*a(n−3)
  * Range:     i8 n <= 23, i16 n <= 47, i32 n <= 95, i64 n <= 191,
  *            i128 n <= 383, big any n
+ * Validated: standard, pass, 87 terms through n = 988 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

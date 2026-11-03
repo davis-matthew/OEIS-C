@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 216, u16 n <= 577, u32 n <= 2368, u64 n <= 5050,
  *            u128 n <= 5050, big any n
- * Helpers:   _smallest_prime_factor, big_pow, phi
+ * Validated: standard, pass, 116 terms through n = 4928 (2026-11-01)
+ * Helpers:   ipow, smallest_prime_factor, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,9 +30,11 @@
    idx_t, which is a 64‑bit unsigned integer. */
 
 #include <stdint.h>
-#include "../utils/phi.h"
-#include "../utils/big_pow.h"
-#include "../utils/_smallest_prime_factor.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/ipow.h"
+#include "../utils/smallest_prime_factor.h"
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
@@ -67,7 +70,7 @@ seq_t a(idx_t n)
         return 1;           /* should not happen because i > j */
 
     /* Determine if r is a prime power */
-    uint64_t p = _smallest_prime_factor((uint64_t)r);
+    uint64_t p = smallest_prime_factor((uint64_t)r);
     if (p == 0)          /* r is prime; the helper returns 0 for primes */
         p = r;
     while (r % p == 0)
@@ -76,6 +79,6 @@ seq_t a(idx_t n)
         return 1;
 
     /* r is a prime power p^k.  Result = p^φ(j) */
-    seq_t phi_j = phi(j);                     /* φ(j) fits in seq_t    */
-    return big_pow((seq_t)p, phi_j);           /* p^φ(j) computed precisely */
+    seq_t phi_j = totient(j);                     /* φ(j) fits in seq_t    */
+    return ipow((seq_t)p, phi_j);           /* p^φ(j) computed precisely */
 }

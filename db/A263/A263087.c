@@ -8,8 +8,9 @@
  * Formula:   a(n) = number of solutions to x - d(x) = n², where d(x) is * the
  *            number of divisors of x (A060990(n²)). The function counts all *
  *            positive integers x such that x - d(x) equals n²
- * Range:     u8 n <= 15, u16 n <= 614, u32 n <= 9088, u64 n <= 9088,
- *            u128 n <= 9088, big any n
+ * Range:     u8 n <= 15, u16 n <= 614, u32 n <= 10082, u64 n <= 10082,
+ *            u128 n <= 10082, big any n
+ * Validated: standard, pass, 102 terms through n = 9088 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

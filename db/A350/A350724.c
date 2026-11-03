@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 4258, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 9813 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ----------------- utility: integer square root ----------------- */
 static inline idx_t int_isqrt(idx_t n) {
@@ -125,7 +127,7 @@ static void precompute(void) {
 
     /* build the sequence */
     seq_cap = 1024;
-    seq_array = (seq_t*)malloc(seq_cap * sizeof(seq_t));
+    seq_array = mem_new(seq_t, seq_cap);
     seq_len = 0;
 
     for (idx_t n = 2; n <= LIMIT; ++n) {
@@ -146,7 +148,7 @@ static void precompute(void) {
 
             if (seq_len == seq_cap) {
                 seq_cap <<= 1;
-                seq_array = (seq_t*)realloc(seq_array, seq_cap * sizeof(seq_t));
+                seq_array = mem_resize(seq_t, seq_array, seq_cap);
             }
             seq_array[seq_len++] = (seq_t)n;
         }

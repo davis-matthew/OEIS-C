@@ -5,8 +5,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  sign, easy
  * Formula:   a(n) = Sum_{k=0..n} (-1)^k * floor(k^(1/4))
- * Range:     i8 n <= 9669, i16 n <= 9669, i32 n <= 9669, i64 n <= 9669,
- *            i128 n <= 9669, big any n
+ * Range:     i8 n <= 16383, i16 n <= 16383, i32 n <= 16383, i64 n <= 16383,
+ *            i128 n <= 16383, big any n
+ * Validated: standard, pass, 113 terms through n = 9669 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

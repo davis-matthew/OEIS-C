@@ -13,12 +13,14 @@
  *            memoised in a static array
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 19, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 125 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;  /* memoisation array */
 static idx_t cache_size = 0;     /* current number of elements stored (size_t beware) */
@@ -30,7 +32,7 @@ static void ensure_cache_size(idx_t n)
         return;
 
     size_t new_len = (size_t)(n + 1);
-    seq_t *tmp = (seq_t *)realloc(seq_cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, new_len);
     if (!tmp)              /* allocation failed – keep old cache */
         return;
 

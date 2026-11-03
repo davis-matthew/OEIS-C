@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 59, u16 n <= 229, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 86 terms through n = 940 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
    fast and independent of call order. */
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* cache[0..cached_n] */
 static idx_t cached_n = 0;    /* largest n for which cache is valid */
@@ -35,7 +37,7 @@ static void free_cache(void)
 {
     if (cache != NULL)
     {
-        free(cache);
+        mem_free(cache);
         cache = NULL;
         cached_n = 0;
     }
@@ -52,11 +54,11 @@ seq_t a(idx_t n)
 
     /* ------------- Compute DP up to n ------------- */
     const size_t N = (size_t)n;         /* array bounds use size_t */
-    seq_t *dp    = (seq_t *)malloc((N + 1) * sizeof(seq_t));
-    seq_t *newdp = (seq_t *)malloc((N + 1) * sizeof(seq_t));
+    seq_t *dp    = mem_new(seq_t, (N + 1));
+    seq_t *newdp = mem_new(seq_t, (N + 1));
     if (dp == NULL || newdp == NULL)
     {
-        free(dp); free(newdp);
+        mem_free(dp); mem_free(newdp);
         /* Fallback: free old cache and return 0 */
         free_cache();
         return (seq_t)0;
@@ -96,7 +98,7 @@ seq_t a(idx_t n)
     cached_n = n;
 
     /* Free the temporary buffer (which is the old dp pointer) */
-    free(newdp);
+    mem_free(newdp);
 
     return cache[n];
 }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 45, u32 n <= 45, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   has_adj34_local
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,23 @@
    k‑1 does not. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has_adj34_local.h"
+#include "../utils/mem.h"
+
+/* Return true if x in base‑7 has an adjacent 3 and 4 (any order). */
+static bool has_adj34_local(seq_t x)
+{
+    seq_t tmp = x;
+    int prev = -1;                       /* undefined previous digit */
+    while (tmp > 0) {
+        int digit = (int)(tmp % 7);
+        /* Detect either "34" or "43" while scanning from least significant. */
+        if ((digit == 3 && prev == 4) || (digit == 4 && prev == 3))
+            return true;
+        prev = digit;
+        tmp /= 7;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {
@@ -37,10 +54,10 @@ seq_t a(idx_t n)
             /* Append val to cache */
             if (cache_size == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 4;
-                seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+                seq_t *new_arr = mem_new(seq_t, new_cap);
                 if (!new_arr) abort();
                 for (size_t i = 0; i < cache_size; ++i) new_arr[i] = cache[i];
-                if (cache) free(cache);
+                if (cache) mem_free(cache);
                 cache = new_arr;
                 cache_cap = new_cap;
             }

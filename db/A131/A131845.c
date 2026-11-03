@@ -9,13 +9,15 @@
  *            * a(n‑2); a(1)=a(2)=1
  * Range:     u8 n <= 41, u16 n <= 1141, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 96 terms through n = 9498 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Sequences cache – 0‑based index, cache_len = number of stored terms */
 static seq_t *cache          = NULL;
@@ -34,7 +36,7 @@ static void ensure_cache_capacity(idx_t need)
     if (need <= cache_cap) return;
     idx_t new_cap = cache_cap ? cache_cap * 2 : 4;
     if (new_cap < need) new_cap = need;
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cache_cap = new_cap;
 }
 
@@ -43,8 +45,8 @@ static void ensure_freq_capacity(void)
 {
     if (freq_len < freq_cap) return;
     size_t new_cap = freq_cap ? freq_cap * 2 : 4;
-    freq_vals = (seq_t *)realloc(freq_vals, new_cap * sizeof(seq_t));
-    freq_cnts = (seq_t *)realloc(freq_cnts, new_cap * sizeof(seq_t));
+    freq_vals = mem_resize(seq_t, freq_vals, new_cap);
+    freq_cnts = mem_resize(seq_t, freq_cnts, new_cap);
     freq_cap  = new_cap;
 }
 
@@ -53,15 +55,15 @@ static void init_sequence(void)
 {
     /* Cache: a(1)=1, a(2)=1 */
     cache_cap = 4;
-    cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     cache[0] = (seq_t)1;   /* a(1) */
     cache[1] = (seq_t)1;   /* a(2) */
     cache_len = 2;
 
     /* Frequency table: value 1 occurs twice */
     freq_cap = 4;
-    freq_vals = (seq_t *)malloc(freq_cap * sizeof(seq_t));
-    freq_cnts = (seq_t *)malloc(freq_cap * sizeof(seq_t));
+    freq_vals = mem_new(seq_t, freq_cap);
+    freq_cnts = mem_new(seq_t, freq_cap);
     freq_vals[0] = (seq_t)1;
     freq_cnts[0] = (seq_t)2;   /* two occurrences of 1 */
     freq_len = 1;

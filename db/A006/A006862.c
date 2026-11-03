@@ -7,13 +7,14 @@
  * Formula:   a(n) = 1 + product of the first n primes
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 26,
  *            big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 36 terms through n = 335 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/is_prime.h"
-
+#include <stdbool.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n) {
     seq_t product = 1;
@@ -21,7 +22,7 @@ seq_t a(idx_t n) {
     uint64_t candidate = 2;
     
     while (prime_count < n) {
-        if (is_prime(candidate)) {
+        if (is_prime_u64(candidate)) {
             product *= (seq_t)candidate;
             prime_count++;
         }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 35, u16 n <= 9565, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64
+ * Validated: standard, pass, 71 terms through n = 9867 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
 
 seq_t a(idx_t n)
 {
@@ -37,10 +38,10 @@ seq_t a(idx_t n)
         uint64_t k = next_k++;
 
         /* Skip non‑composites: τ(p)=2 for a prime. */
-        uint64_t tau_k = divisor_count_u64(k);
+        uint64_t tau_k = num_divisors(k);
         if (tau_k < 3) continue;
 
-        uint64_t tau_2k1 = divisor_count_u64(2 * k + 1);
+        uint64_t tau_2k1 = num_divisors(2 * k + 1);
 
         if (tau_k == tau_2k1) {
             /* Ensure capacity. */

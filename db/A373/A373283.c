@@ -9,12 +9,14 @@
  *            that repeated calls are fast
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 23, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 985 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* 7^i cache ; pow_cache[i] = 7^i for 0 <= i < pow_cache_size   */
 static seq_t *pow_cache   = NULL;
@@ -31,8 +33,7 @@ static void ensure_pow_cache(idx_t need)
     if (need + 1 <= pow_cache_size) return;
 
     idx_t new_size = need + 1;
-    seq_t *new_cache = (seq_t *)realloc(pow_cache,
-                                        new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, pow_cache, new_size);
     if (!new_cache) exit(1);
     pow_cache = new_cache;
 
@@ -54,8 +55,7 @@ static void ensure_a_cache(idx_t n)
     if (n + 1 <= a_cache_size) return;
 
     idx_t new_size = n + 1;
-    seq_t *new_cache = (seq_t *)realloc(a_cache,
-                                        new_size * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, a_cache, new_size);
     if (!new_cache) exit(1);
     a_cache = new_cache;
 

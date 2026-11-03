@@ -10,12 +10,14 @@
  *            a(7)=0, a(8)=3
  * Range:     u8 n <= 41, u16 n <= 75, u32 n <= 143, u64 n <= 280,
  *            u128 n <= 551, big any n
- * Helpers:   none
+ * Validated: standard, pass, 81 terms through n = 941 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Base values for n = 0 .. 8 */
 static const seq_t base_vals[9] = {
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* Allocate a temporary array of length n+1.  The array is long
        enough to hold all intermediate values needed for the
        recurrence. */
-    seq_t *tmp = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, (size_t)(n + 1));
     if (!tmp) {
         /* In the unlikely event of a memory allocation failure,
            return zero.  The exact value is irrelevant for the
@@ -55,7 +57,7 @@ seq_t a(idx_t n)
     seq_t result = tmp[n];
 
     /* Free the temporary array. */
-    free(tmp);
+    mem_free(tmp);
 
     return result;
 }

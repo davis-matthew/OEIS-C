@@ -8,13 +8,14 @@
  *            (2n+4+i)/i
  * Range:     u8 n <= 6, u16 n <= 8, u32 n <= 14, u64 n <= 26, u128 n <= 49,
  *            big any n
- * Helpers:   a004322_gcd
+ * Validated: standard, pass, 38 terms through n = 925 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a004322_gcd.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n) {
     idx_t k = n - 4;
@@ -23,7 +24,7 @@ seq_t a(idx_t n) {
     idx_t i;
     for (i = 1; i <= k; i++) {
         uint64_t rm = (uint64_t)(r % (seq_t)i);
-        uint64_t g = a004322_gcd(rm, (uint64_t)i);
+        uint64_t g = gcd_u64(rm, (uint64_t)i);
         uint64_t den = (uint64_t)i / g;
         seq_t num = (seq_t)(base + i);
         r /= (seq_t)g;

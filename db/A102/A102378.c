@@ -7,13 +7,15 @@
  * Formula:   a(n) = a(n-1) + a([n/2]) + 1, a(1) = 1, n ≥ 1
  * Range:     u8 n <= 17, u16 n <= 48, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*
  * Compute the n-th term of OEIS A102378.
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
 
     /* Allocate a temporary array large enough for indices 0 .. n. */
     size_t sz = (size_t)(n + 1);
-    seq_t *buf = (seq_t *)malloc(sz * sizeof(seq_t));
+    seq_t *buf = mem_new(seq_t, sz);
     if (!buf)
         return (seq_t)0;               /* allocation failed – return 0 (unused) */
 
@@ -43,6 +45,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = buf[n];
-    free(buf);
+    mem_free(buf);
     return result;
 }

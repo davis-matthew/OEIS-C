@@ -8,12 +8,15 @@
  *            values: a(0) = 1, a(1) = 34
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 16 terms through n = 15 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -27,8 +30,8 @@ seq_t a(idx_t n)
         seq_t term1 = ((seq_t)21) * a_prev1;
         seq_t term2 = ((seq_t)110) * a_prev2;
 
-        seq_t pow7 = big_pow((seq_t)7, (seq_t)(i + 1));
-        seq_t pow6 = big_pow((seq_t)6, (seq_t)(i + 1));
+        seq_t pow7 = ipow((seq_t)7, (seq_t)(i + 1));
+        seq_t pow6 = ipow((seq_t)6, (seq_t)(i + 1));
 
         seq_t a_curr = term1 - term2 + pow7 - pow6;
 

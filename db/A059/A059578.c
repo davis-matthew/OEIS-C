@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 14, u64 n <= 24, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* static storage for computed values */
 static seq_t *A      = NULL;   /* first‑row entries, 1‑based */
@@ -41,21 +43,21 @@ static void allocate_up_to(idx_t N)
         return;
 
     /* new arrays, zero‑initialized */
-    seq_t *newA     = (seq_t *)calloc((size_t)(N + 1), sizeof(seq_t));
-    seq_t *newRow   = (seq_t *)calloc((size_t)(N + 1), sizeof(seq_t));
-    seq_t *newCol   = (seq_t *)calloc((size_t)(N + 1), sizeof(seq_t));
+    seq_t *newA     = mem_new(seq_t, (size_t)(N + 1));
+    seq_t *newRow   = mem_new(seq_t, (size_t)(N + 1));
+    seq_t *newCol   = mem_new(seq_t, (size_t)(N + 1));
 
     /* copy old data if any */
     if (max_n > 0) {
-        memcpy(newA + 1,     A   + 1, (size_t)max_n * sizeof(seq_t));
-        memcpy(newRow + 1,   rowSum + 1, (size_t)max_n * sizeof(seq_t));
-        memcpy(newCol + 1,   colSum + 1, (size_t)max_n * sizeof(seq_t));
+        mem_copy(newA + 1, A   + 1, (size_t)max_n * sizeof(seq_t));
+        mem_copy(newRow + 1, rowSum + 1, (size_t)max_n * sizeof(seq_t));
+        mem_copy(newCol + 1, colSum + 1, (size_t)max_n * sizeof(seq_t));
     }
 
     /* free old memory (NULL is safe) */
-    free(A);
-    free(rowSum);
-    free(colSum);
+    mem_free(A);
+    mem_free(rowSum);
+    mem_free(colSum);
 
     A      = newA;
     rowSum = newRow;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 12, i16 n <= 19, i32 n <= 28, i64 n <= 44, i128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 757 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>   /* size_t */
 #include <stdint.h>   /* uint64_t */
 #include <stdlib.h>   /* malloc, realloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache: computed values of the sequence up to the highest
@@ -34,7 +36,7 @@ seq_t a(idx_t n) {
     if (!initialized) {
         computed_upto = 0;
         cache_size = (size_t)(7);  /* small but enough for first term */
-        cache = (seq_t*)malloc(cache_size * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_size);
         cache[0] = (seq_t)1;
         initialized = 1;
     }
@@ -43,7 +45,7 @@ seq_t a(idx_t n) {
     if (n >= (idx_t)cache_size) {
         size_t new_size = (size_t)(n + 1);
         if (new_size < cache_size * 2) new_size = cache_size * 2;
-        seq_t *tmp = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) return (seq_t)0; /* allocation failure: return 0 */
         cache = tmp;
         cache_size = new_size;

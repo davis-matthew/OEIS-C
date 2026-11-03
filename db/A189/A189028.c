@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 128, u16 n <= 128, u32 n <= 128, u64 n <= 128,
  *            u128 n <= 128, big any n
- * Helpers:   none
+ * Validated: partial, pass, 128 terms through n = 128 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 /* Include the standard allocation header. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached values of the sequence; they are indexed from 1. */
 static seq_t *cache      = NULL;
@@ -38,10 +40,10 @@ seq_t a(idx_t n)
         size_t new_size = (size_t)(n + 1);      /* indices 0 … n */
         if (!cache) {
             /* Allocate fresh cache. */
-            cache = (seq_t*)malloc(new_size * sizeof(seq_t));
+            cache = mem_new(seq_t, new_size);
         } else {
             /* Extend existing cache. */
-            cache = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_size);
         }
         if (!cache)   /* allocation failed – abort safely. */
             abort();

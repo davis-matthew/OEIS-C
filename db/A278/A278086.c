@@ -10,6 +10,7 @@
  *            {2,3,8,10,12,13,14,15,18}, a(p) = p-1 otherwise, a(19)=19
  * Range:     u8 n <= 200, u16 n <= 500, u32 n <= 500, u64 n <= 500,
  *            u128 n <= 500, big any n
+ * Validated: standard, pass, 116 terms through n = 481 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

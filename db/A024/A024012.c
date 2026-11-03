@@ -7,6 +7,7 @@
  * Formula:   a(n) = 2^n - n^2
  * Range:     i8 n <= 7, i16 n <= 15, i32 n <= 31, i64 n <= 63, i128 n <= 127,
  *            big any n
+ * Validated: standard, pass, 52 terms through n = 818 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

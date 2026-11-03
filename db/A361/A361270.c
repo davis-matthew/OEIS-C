@@ -9,7 +9,8 @@
  *            C(x,3) = (x+3)(x+2)(x+1)/6 for integer x ≥ 0
  * Range:     u8 n <= 15, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   binom_n3
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,17 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/binom_n3.h"
+
+static seq_t binom_n3(idx_t k) {
+    /* Compute (k+3 choose 3) = (k+3)(k+2)(k+1)/6
+       using 64‑bit intermediates to avoid overflow.      */
+    unsigned long long a = (unsigned long long)k + 3ULL;
+    unsigned long long b = (unsigned long long)k + 2ULL;
+    unsigned long long c = (unsigned long long)k + 1ULL;
+    unsigned long long prod = a * b * c;      /* division is exact */
+    prod /= 6ULL;
+    return (seq_t)prod;
+}
 
 seq_t a(idx_t n)
 {

@@ -9,13 +9,36 @@
  *            (i.e. of the n-th triangular number)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   max_exp_from_factor
+ * Validated: standard, pass, 122 terms through n = 9975 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/max_exp_from_factor.h"
+
+/* Helper: returns the largest exponent appearing in the prime factorisation of
+   the value 'val'.  val > 0. */
+static seq_t max_exp_from_factor(idx_t val) {
+    seq_t max_exp = 0;
+    idx_t temp = val;
+    idx_t p = 2;
+    while (p <= temp / p) {
+        if (temp % p == 0) {
+            seq_t e = 0;
+            do {
+                temp /= p;
+                ++e;
+            } while (temp % p == 0);
+            if (e > max_exp) max_exp = e;
+        }
+        ++p;
+    }
+    if (temp > 1) {            /* one prime factor left with exponent 1 */
+        if (max_exp < 1) max_exp = 1;
+    }
+    return max_exp;
+}
 
 seq_t a(idx_t n) {
     /* Decompose T_n = n(n+1)/2 as described:

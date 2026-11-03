@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 11, u64 n <= 21, u128 n <= 42,
  *            big any n
- * Helpers:   left_val, right_val
+ * Validated: standard, pass, 36 terms through n = 207 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,10 @@
     suffices.  All calculations are done with the build‑defined
     type seq_t, which may be an arbitrary‑precision integer.  */
 #include <stdbool.h>
-#include "../utils/left_val.h"
-#include "../utils/right_val.h"
+
+static inline int left_val(int code)  { return code & 3; }
+
+static inline int right_val(int code) { return (code >> 2) & 3; }
 
 #define MISSING 16
 

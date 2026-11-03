@@ -9,6 +9,7 @@
  *            binomial(4*n-k,n-k)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 13, u128 n <= 26,
  *            big any n
+ * Validated: standard, pass, 34 terms through n = 313 (2026-11-01)
  * Helpers:   binomial, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -22,8 +23,10 @@
 #define A386870_H
 
 #include <stddef.h>
-#include "../utils/pow2.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/pow2.h"
 
 #if defined(__cplusplus)
 # include <type_traits>

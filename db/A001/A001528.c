@@ -12,7 +12,8 @@
  *            the hyperoctahedral group B_n (fix = 2^(#inpu...
  * Range:     u8 n <= 4, u16 n <= 4, u32 n <= 5, u64 n <= 6, u128 n <= 6,
  *            big any n
- * Helpers:   npn_gcd
+ * Validated: partial, pass, 7 terms through n = 6 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/npn_gcd.h"
+#include "../utils/gcd_u64.h"
 
 static int npn_k[64], npn_s[64], npn_np;
 static uint32_t *npn_S;
@@ -34,7 +35,7 @@ static unsigned __int128 npn_fix(uint64_t j)
     int e = 0, i;
     for (i = 0; i < npn_np; i++) {
         uint64_t k = (uint64_t)npn_k[i];
-        uint64_t g = j ? npn_gcd(j, k) : k;
+        uint64_t g = j ? gcd_u64(j, k) : k;
         if (npn_s[i] && ((j / g) & 1)) return 0;
         e += (int)g;
     }
@@ -70,7 +71,7 @@ static void npn_leaf(unsigned __int128 z)
     int i, allEven;
     for (i = 0; i < npn_np; i++) {
         uint64_t q = npn_s[i] ? 2 * (uint64_t)npn_k[i] : (uint64_t)npn_k[i];
-        L = L / npn_gcd(L, q) * q;
+        L = L / gcd_u64(L, q) * q;
     }
     for (j = 0; j < L; j++) acc += npn_fix(j);
     c = (uint64_t)(acc / L);

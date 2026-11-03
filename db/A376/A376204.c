@@ -12,7 +12,8 @@
  *            the primes p^e | k, * then tests whether...
  * Range:     u8 n <= 2, u16 n <= 614, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 64 terms through n = 9618 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static const idx_t MAX_LIMIT = 5000000;          /* sieve range for factorisation */
 static uint32_t *spf = NULL;                    /* smallest prime factor array   */
@@ -110,7 +112,7 @@ static void ensure_cache_capacity(size_t new_len)
     if (new_len <= cached_fit) return;
     size_t new_cap = cached_fit ? cached_fit * 2 : 64;
     if (new_cap < new_len) new_cap = new_len;
-    cached = (seq_t *)realloc(cached, new_cap * sizeof(seq_t));
+    cached = mem_resize(seq_t, cached, new_cap);
     if (!cached) exit(EXIT_FAILURE);
     cached_fit = new_cap;
 }
@@ -120,7 +122,7 @@ seq_t a(idx_t n)
 {
     if (!initialized) {
         init_sieve();
-        cached = (seq_t *)malloc(64 * sizeof(seq_t));
+        cached = mem_new(seq_t, 64);
         cached_fit = 64;
         cached_len = 0;
         initialized = true;

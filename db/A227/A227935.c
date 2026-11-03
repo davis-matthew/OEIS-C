@@ -7,13 +7,15 @@
  * Formula:   a(n) = Sum_{k=0..n} binomial(k^5 + n - k - 1, n - k)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 11, u128 n <= 16,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     for (idx_t k = 1; k <= n; ++k)         /* k = 0 gives no contribution for n > 0 */
     {
         seq_t k_seq = (seq_t)k;
-        seq_t k5 = big_pow(k_seq, (seq_t)5);   /* k^5 */
+        seq_t k5 = ipow(k_seq, (seq_t)5);   /* k^5 */
 
         seq_t N;
         if (k == n)                          /* n - k - 1 == -1 in this case */

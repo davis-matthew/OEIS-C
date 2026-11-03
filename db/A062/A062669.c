@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 2489, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_digit4
+ * Validated: standard, pass, 64 terms through n = 8762 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,19 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/has_digit4.h"
+
+/* Checks whether the decimal representation of x contains the digit 4.
+   Works for integral seq_t values and for arbitrary‑precision types
+   that support the usual arithmetic operators. */
+static bool has_digit4(seq_t x)
+{
+    if (x == 0) return false;
+    while (x != 0) {
+        if ((x % 10) == 4) return true;
+        x /= 10;
+    }
+    return false;
+}
 
 /* Recursively verifies that every divisor of the number represented by
    current (a partial product of prime powers) contains the digit 4.

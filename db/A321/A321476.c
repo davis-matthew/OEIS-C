@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   rank_mod
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,7 +31,29 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/rank_mod.h"
+
+/* Helper: compute the rank T(n,k) for given row n and column k. */
+static seq_t rank_mod(idx_t N, idx_t K)
+{
+    /* Special case N == 1: the first row has only T(1,0)=1 */
+    seq_t mod = (seq_t)N;
+    seq_t a_prev_prev = 0;
+    seq_t a_prev = 1 % mod;
+    if (a_prev == 0)                /* N == 1 */
+        return (seq_t)1;
+
+    idx_t m = 2;
+    while (1) {
+        seq_t a_cur = ((seq_t)K * a_prev + a_prev_prev) % mod;
+        if (a_cur == 0)
+            return (seq_t)m;
+        a_prev_prev = a_prev;
+        a_prev = a_cur;
+        ++m;
+        /* By the property of the sequence the rank is never > 2*N.
+           The loop will definitely terminate before overflow.          */
+    }
+}
 
 /* Main function required by the problem statement. */
 seq_t a(idx_t idx)

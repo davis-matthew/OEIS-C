@@ -8,7 +8,8 @@
  *            and p ≡ 1 (mod 3)
  * Range:     u8 n <= 9, u16 n <= 982, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, is_prime, mod_pow
+ * Validated: standard, pass, 65 terms through n = 9139 (2026-11-03)
+ * Helpers:   factor_u64, is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,11 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"
+#include <string.h>
 #include "../utils/factor_u64.h"
-#include "../utils/mod_pow.h"
+#include "../utils/is_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* Test whether 2 is a primitive root modulo p.  p is assumed to be
    a prime that fits in uint64_t. */
@@ -33,7 +36,7 @@ static bool is_primitive_root_2(seq_t p)
     for (size_t i = 0; i < cnt; ++i)
     {
         uint64_t q = primes[i];
-        if (mod_pow((seq_t)2, m / q, p) == (seq_t)1)
+        if (powmod((seq_t)2, m / q, p) == (seq_t)1)
             return false;
     }
     return true;
@@ -69,7 +72,7 @@ seq_t a(idx_t n)
             if (term_count == term_capacity)
             {
                 size_t new_cap = term_capacity == 0 ? 64 : term_capacity * 2;
-                seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, new_cap);
                 if (!tmp)
                     exit(1);  /* memory error */
                 terms = tmp;

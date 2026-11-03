@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   has_equal_nonzero_0_and_4
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,23 @@
 /* Computed by brute‑force search of integers that have the same positive
    number of 0's and 4's in their base‑6 representation. */
 #include <stdbool.h>
-#include "../utils/has_equal_nonzero_0_and_4.h"
+
+static bool has_equal_nonzero_0_and_4(seq_t val)
+{
+    seq_t y = val;
+    unsigned zeros = 0, fours = 0;
+    const seq_t six = (seq_t)6;
+    while (y > (seq_t)0) {
+        unsigned d = (unsigned)(y % six);
+        if (d == 0) {
+            ++zeros;
+        } else if (d == 4) {
+            ++fours;
+        }
+        y /= six;
+    }
+    return zeros > 0 && zeros == fours;
+}
 
 seq_t a(idx_t n)
 {

@@ -9,12 +9,14 @@
  *            for n ≤ 0 are undefined.)
  * Range:     u8 n <= 23, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache     = NULL;   /* 1‑based array of computed values   */
 static size_t cache_len = 0;      /* highest index currently stored    */
@@ -28,7 +30,7 @@ static void ensure_cache_cap(size_t needed)
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     if (new_cap < needed)
         new_cap = needed;
-    cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     cache_cap = new_cap;
 }
 
@@ -40,7 +42,7 @@ static void init_cache(void)
 
     /* Allocate space for indices 0 … 5 (index 0 is unused). */
     cache_cap = 16;                      /* arbitrary but sufficient start */
-    cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+    cache = mem_new(seq_t, cache_cap);
     cache_len = 5;                       /* highest stored index */
     cache[0] = (seq_t)0;                 /* unused placeholder */
     cache[1] = (seq_t)5;                 /* a(1) */

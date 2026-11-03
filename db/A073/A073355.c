@@ -7,7 +7,8 @@
  * Formula:   a(n) = Σ_{k=1..n} rad(k) (rad(k) = square‑free kernel of k)
  * Range:     u8 n <= 25, u16 n <= 430, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 9987 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,8 +30,8 @@ seq_t a(idx_t n)
     /* allocate auxiliary arrays of size n+1                 */
     idx_t size = n + 1;
     idx_t *spf    = (idx_t *)calloc(size, sizeof(idx_t));
-    seq_t *rad    = (seq_t *)calloc(size, sizeof(seq_t));
-    seq_t *prefix = (seq_t *)calloc(size, sizeof(seq_t));
+    seq_t *rad    = mem_new(seq_t, size);
+    seq_t *prefix = mem_new(seq_t, size);
 
     if (!spf || !rad || !prefix) {
         /* on allocation failure terminate the program – the
@@ -67,8 +69,8 @@ seq_t a(idx_t n)
     seq_t result = prefix[n];
 
     free(spf);
-    free(rad);
-    free(prefix);
+    mem_free(rad);
+    mem_free(prefix);
 
     return result;
 }

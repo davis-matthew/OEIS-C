@@ -8,8 +8,9 @@
  * Formula:   a(n) = if j==k: ceil(j/2) else ceil(j/2)+ceil(k/2) where j,k are
  *            the row/col indices for n in the triangular enumeration: n =
  *            (k-1)*k/2 + j, 1 <= j <= k
- * Range:     u8 n <= 9629, u16 n <= 9629, u32 n <= 9629, u64 n <= 9629,
- *            u128 n <= 9629, big any n
+ * Range:     u8 n <= 11325, u16 n <= 11325, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 121 terms through n = 9629 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

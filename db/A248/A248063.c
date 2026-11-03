@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 6, u32 n <= 23, u64 n <= 57, u128 n <= 126,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    Computed by the empirical recurrence (see OEIS). */
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Empirical recurrence
    a(n) = 2*a(n-1) - a(n-4) + a(n-5) + a(n-6)
@@ -76,7 +78,7 @@ static void ensure_cache_cap(idx_t n)
     if ((size_t)(n + 1) <= a_cache_size) return;
     size_t new_size = a_cache_size ? a_cache_size * 2 : 32;
     while ((size_t)(n + 1) > new_size) new_size <<= 1;
-    seq_t *tmp = (seq_t *)realloc(a_cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, new_size);
     if (!tmp) abort();
     a_cache = tmp;
     a_cache_size = new_size;

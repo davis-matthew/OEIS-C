@@ -7,11 +7,13 @@
  * Formula:   a(n) = Sum_{k=0..floor(n/3)} C(n-2*k, k)^3
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 22, u64 n <= 42, u128 n <= 81,
  *            big any n
+ * Validated: standard, pass, 48 terms through n = 497 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* Compute the nth term of OEIS A248658 */

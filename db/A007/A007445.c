@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{d|n} prime(d)
  * Range:     u8 n <= 35, u16 n <= 2519, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   sieve_and_extract_primes
+ * Validated: standard, pass, 73 terms through n = 4983 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,37 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdlib.h>
-#include "../utils/sieve_and_extract_primes.h"
+#include "../utils/mem.h"
+
+static seq_t *sieve_and_extract_primes(uint64_t limit, idx_t *count) {
+    bool *is_prime = (bool *)malloc(limit + 1);
+    memset(is_prime, 1, limit + 1);
+    is_prime[0] = is_prime[1] = false;
+    
+    for (uint64_t i = 2; i * i <= limit; i++) {
+        if (is_prime[i]) {
+            for (uint64_t j = i * i; j <= limit; j += i) {
+                is_prime[j] = false;
+            }
+        }
+    }
+    
+    *count = 0;
+    for (uint64_t i = 2; i <= limit; i++) {
+        if (is_prime[i]) (*count)++;
+    }
+    
+    seq_t *primes = mem_new(seq_t, (*count * sizeof(seq_t)) / sizeof(seq_t));
+    idx_t idx = 0;
+    for (uint64_t i = 2; i <= limit; i++) {
+        if (is_prime[i]) {
+            primes[idx++] = (seq_t)i;
+        }
+    }
+    
+    free(is_prime);
+    return primes;
+}
 
 seq_t a(idx_t n) {
     static seq_t *primes = NULL;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   build_primes_upto, floor_sqrt
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   build_primes_upto, ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,27 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/floor_sqrt.h"
 #include "../utils/build_primes_upto.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Return true iff the Pell equation X² – D Y² = 2 has an integer solution. */
 static bool pell2_has_solution(uint64_t D)
@@ -134,7 +154,7 @@ seq_t a(idx_t n)
             if (cacheSize == cacheCap)
             {
                 size_t newCap = cacheCap ? cacheCap * 2 : 64;
-                cache = (seq_t *)realloc(cache, newCap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, newCap);
                 cacheCap = newCap;
             }
             cache[cacheSize++] = (seq_t)cand;

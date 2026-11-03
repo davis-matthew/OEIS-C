@@ -7,15 +7,18 @@
  * Formula:   a(n) = q^24 * (q^12-1) * (q^8-1) * (q^6-1) * (q^2-1), where q is
  *            the n‑th prime power
  * Range:     u8 none, u16 none, u32 none, u64 n <= 1, u128 n <= 4, big any n
- * Helpers:   is_prime, seq_pow
+ * Validated: partial, pass, 5 terms through n = 5 (2026-11-03)
+ * Helpers:   ipow_idx, is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow_idx.h"
 #include "../utils/is_prime.h"
-#include "../utils/seq_pow.h"
+#include "../utils/mem.h"
 
 static idx_t     next_candidate = 2;
 static idx_t*    prime_list     = NULL;
@@ -43,7 +46,7 @@ static void ensure_cache_cap(size_t needed)
     if (cache_cap < needed) {
         size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
         while (new_cap < needed) new_cap <<= 1;
-        seq_t* newp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t* newp = mem_resize(seq_t, cache, new_cap);
         if (!newp) abort();
         cache = newp;
         cache_cap = new_cap;
@@ -88,11 +91,11 @@ seq_t a(idx_t n)
         int dummy_exp;
         if (!is_prime_power(m, &dummy_exp)) continue;
         seq_t q = (seq_t)m;
-        seq_t val = seq_pow(q, 24);
-        val *= (seq_pow(q, 12) - (seq_t)1);
-        val *= (seq_pow(q, 8)  - (seq_t)1);
-        val *= (seq_pow(q, 6)  - (seq_t)1);
-        val *= (seq_pow(q, 2)  - (seq_t)1);
+        seq_t val = ipow_idx(q, 24);
+        val *= (ipow_idx(q, 12) - (seq_t)1);
+        val *= (ipow_idx(q, 8)  - (seq_t)1);
+        val *= (ipow_idx(q, 6)  - (seq_t)1);
+        val *= (ipow_idx(q, 2)  - (seq_t)1);
         ensure_cache_cap(cache_cnt + 1);
         cache[cache_cnt++] = val;
     }

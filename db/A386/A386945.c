@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 24, u16 n <= 8226, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 9104 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* helper structure for a triple */
 typedef struct {
@@ -78,7 +80,7 @@ static void generate_up_to(idx_t limit_c)
                 if (!is_nonprimitive(p, q)) continue;
                 if (triples_len == triples_cap) {
                     const size_t new_cap = triples_cap ? triples_cap * 2 : 64;
-                    Triple *tmp = (Triple *)realloc(triples, new_cap * sizeof(Triple));
+                    Triple *tmp = mem_resize(Triple, triples, new_cap);
                     if (!tmp) exit(EXIT_FAILURE);
                     triples = tmp;
                     triples_cap = new_cap;
@@ -94,7 +96,7 @@ static void generate_up_to(idx_t limit_c)
 
     /* keep the collection sorted */
     if (triples_len > 1)
-        qsort(triples, triples_len, sizeof(Triple), triple_cmp);
+        mem_qsort(triples, triples_len, sizeof(Triple), triple_cmp);
 }
 
 /* public sequence function */

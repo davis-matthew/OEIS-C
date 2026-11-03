@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 10, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 185 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
                      a(n) = 64 * a(n-1) + binomial(2n,n)^3   for n >= 1            */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static caches for a(n) and binomial(2n,n) values */
 static seq_t *cache_a = NULL;  /* holds a(0..k) */
@@ -32,7 +34,7 @@ static void ensure_cache(seq_t **arr, idx_t *size, idx_t n)
     size_t new_size = *size ? *size : 1;
     while (new_size <= n) new_size <<= 1;   /* grow in powers of two */
 
-    seq_t *tmp = (seq_t *)realloc(*arr, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *arr, new_size);
     if (!tmp) abort();                /* memory exhaustion */
 
     if (new_size > *size) {           /* zero‑initialize new slots */
@@ -48,12 +50,12 @@ seq_t a(idx_t n)
 {
     /* Initialise caches on first call */
     if (!cache_a) {
-        cache_a = (seq_t *)calloc(1, sizeof(seq_t));
+        cache_a = mem_new(seq_t, 1);
         if (!cache_a) abort();
         cache_size_a = 1;
     }
     if (!cache_b) {
-        cache_b = (seq_t *)calloc(1, sizeof(seq_t));
+        cache_b = mem_new(seq_t, 1);
         if (!cache_b) abort();
         cache_size_b = 1;
     }

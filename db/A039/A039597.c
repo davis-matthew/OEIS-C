@@ -8,9 +8,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, easy, tabl
  * Formula:   not stated
- * Range:     u8 n <= 8, u16 n <= 34, u32 n <= 49, u64 n <= 49, u128 n <= 49,
+ * Range:     u8 n <= 17, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   binom, pow2
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   binomial, mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,8 +27,11 @@
  */
 
 #include <stdlib.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
-#include "../utils/binom.h"
+#include "../utils/mem.h"
 
 static seq_t **rows = NULL;   /* rows[1] … rows[max_row] (1‑based) */
 static size_t max_row = 0;    /* highest row computed so far */
@@ -51,7 +55,7 @@ static void ensure_rows(size_t r)
     for (size_t i = max_row + 1; i <= r; ++i)
     {
         /* Allocate array of seq_t for row i (length = i) */
-        seq_t *row = (seq_t*)malloc(sizeof(seq_t) * i);
+        seq_t *row = mem_new(seq_t, i);
         if (!row) exit(EXIT_FAILURE);
 
         /* Leftmost element */
@@ -62,7 +66,7 @@ static void ensure_rows(size_t r)
             row[k] = rows[i - 1][k] + row[k - 1];
 
         /* Rightmost element */
-        row[i - 1] = binom(2 * (idx_t)i, (idx_t)i);
+        row[i - 1] = binomial(2 * (idx_t)i, (idx_t)i);
 
         rows[i] = row;
     }

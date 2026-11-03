@@ -5,9 +5,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, easy
  * Formula:   not stated
- * Range:     u8 n <= 321, u16 n <= 9572, u32 n <= 9572, u64 n <= 9572,
- *            u128 n <= 9572, big any n
- * Helpers:   contains_seq
+ * Range:     u8 n <= 321, u16 n <= 99999, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 116 terms through n = 9572 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,17 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/contains_seq.h"
+#include "../utils/mem.h"
+
+/* Linear search for equality.  Works for both built‑in integer types
+   and arbitrary‑precision integer classes that provide operator==. */
+static bool contains_seq(const seq_t *arr, size_t cnt, seq_t val)
+{
+    for (size_t i = 0; i < cnt; ++i)
+        if (arr[i] == val)
+            return true;
+    return false;
+}
 
 /* Grow a dynamic array of seq_t objects.  The function is called with
    the pointer to the array, its current capacity, and the desired
@@ -30,7 +41,7 @@ static void grow_seq_t_array(seq_t **arr, size_t *cap, size_t needed)
         size_t new_cap = *cap ? *cap : 8;
         while (new_cap < needed)
             new_cap <<= 1;
-        *arr = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, new_cap);
         *cap = new_cap;
     }
 }

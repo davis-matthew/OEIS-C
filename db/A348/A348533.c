@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 36, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   compute_T_m_k
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -41,7 +42,30 @@
  */
 
 #include <stdbool.h>
-#include "../utils/compute_T_m_k.h"
+
+static seq_t compute_T_m_k(idx_t m, idx_t k)
+{
+    seq_t T = 1;          /* T(1,k) */
+    seq_t S = 1;          /* S(1,k) */
+    for (idx_t cur = 1; cur < m; ++cur) {
+        seq_t p = T % (k - 1);
+        if (S > p) { /* e = -p */
+            /* numerator = k*T - p */
+            seq_t numerator = (seq_t)k * T - p;
+            T = numerator / (k - 1);
+            /* S = 1 + (S - p - 1) mod T */
+            seq_t temp = (S - p - 1) % T;
+            S = 1 + temp;
+        } else { /* e = k-1-p */
+            seq_t e = (seq_t)(k - 1 - p);
+            seq_t numerator = (seq_t)k * T + e;
+            T = numerator / (k - 1);
+            seq_t temp = (S + e - 1) % T;
+            S = 1 + temp;
+        }
+    }
+    return T;
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)

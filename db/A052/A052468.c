@@ -7,7 +7,8 @@
  * Formula:   a(n) = numerator((2*n-1)!/(4^n*(n!)^2))
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 18, u64 n <= 35, u128 n <= 67,
  *            big any n
- * Helpers:   factor_in_number
+ * Validated: standard, pass, 43 terms through n = 973 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,16 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/factor_in_number.h"
+
+static idx_t factor_in_number(idx_t n, idx_t p)
+{
+    idx_t cnt = 0;
+    while (n % p == 0) {
+        ++cnt;
+        n /= p;
+    }
+    return cnt;
+}
 
 static bool primes_initialized = false;
 static idx_t primes[3000];

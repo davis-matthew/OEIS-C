@@ -11,14 +11,21 @@
  *            (1-x^k)^(-A_c(k)) = 1 + Sum_{n>=1} T_c(n) x^n,...
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
- * Helpers:   a1574_g, a1574_is_fixed
+ * Validated: partial, pass, 8 terms through n = 8 (2026-11-01)
+ * Helpers:   gcd_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/a1574_g.h"
-#include "../utils/a1574_is_fixed.h"
+#include "../utils/gcd_idx.h"
+
+static int a1574_is_fixed(void) {
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 200; i++) x += x;
+    return x == 0;
+}
 
 #define A1574_MAXN 10000
 #define A1574_FIXN 200
@@ -42,7 +49,7 @@ static seq_t a1574_fixed_T(idx_t n, unsigned c) {
         for (j = 1; j * k <= n; j++) {
             seq_t x = Ak + (seq_t)(j - 1);
             idx_t r = (idx_t)(x % (seq_t)j);
-            idx_t h = a1574_g(j, r);
+            idx_t h = gcd_idx(j, r);
             Cf[j] = (Cf[j - 1] / (seq_t)(j / h)) * (x / (seq_t)h);
         }
         for (m = n; m >= k; m--) {

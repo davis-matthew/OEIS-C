@@ -10,13 +10,15 @@
  *            into parts not exceeding 10. For s<0 the value is 0
  * Range:     u8 n <= 71, u16 n <= 105, u32 n <= 289, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 945 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *part_counts = NULL;          /* P_{<=10}(s) for s >= 0   */
 static idx_t part_cap = 0;                 /* size of part_counts       */
@@ -33,7 +35,7 @@ static void ensure_cache(idx_t n)
     if (part_cap <= need_s) {
         idx_t new_cap = part_cap ?: 64;
         while (new_cap <= need_s) new_cap <<= 1;
-        seq_t *new_part = (seq_t*)realloc(part_counts, new_cap * sizeof(seq_t));
+        seq_t *new_part = mem_resize(seq_t, part_counts, new_cap);
         part_counts = new_part;
         part_cap = new_cap;
         for (idx_t i = 0; i < part_cap; ++i) part_counts[i] = 0;

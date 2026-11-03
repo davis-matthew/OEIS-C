@@ -7,6 +7,7 @@
  * Formula:   a(n) = #{ (x,y) : 0 < x < y and n = x^2 + x*y + y^2 }
  * Range:     u8 n <= 112, u16 n <= 112, u32 n <= 112, u64 n <= 112,
  *            u128 n <= 112, big any n
+ * Validated: partial, pass, 113 terms through n = 112 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

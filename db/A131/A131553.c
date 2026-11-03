@@ -7,6 +7,7 @@
  * Formula:   a(n) = ∏_{k=1..n, gcd(k,n)=1} (1 + k)
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 12, u64 n <= 22, u128 n <= 36,
  *            big any n
+ * Validated: standard, pass, 43 terms through n = 442 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -14,6 +15,7 @@
 
 /* a(0) = 1 */
 
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 /* Compute the sequence element a(n) for a(0)=1 */

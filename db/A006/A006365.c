@@ -11,7 +11,8 @@
  *            Sum_{i=0..j-m} g_m(i)*g_m(j-m-i) for 1 <= m <= j, g_m(j)...
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 19, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   alloc_zero, seq_is_fixed_width
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,25 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/alloc_zero.h"
-#include "../utils/seq_is_fixed_width.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
 
 static seq_t **col = NULL;   /* col[j][m] = g_m(j) for m = 0..j */
 static idx_t done = 0;       /* columns 0..done-1 are computed */

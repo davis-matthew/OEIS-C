@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 846, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mul_mod64
+ * Validated: standard, pass, 69 terms through n = 9867 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/mul_mod64.h"
+#include <stddef.h>
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 /* ---------- prime test for 64‑bit integers ---------- */
 
@@ -30,8 +33,8 @@ static uint64_t pow_mod64(uint64_t base, uint64_t exp, uint64_t mod)
 {
     uint64_t res = 1 % mod;
     while (exp) {
-        if (exp & 1ULL) res = mul_mod64(res, base, mod);
-        base = mul_mod64(base, base, mod);
+        if (exp & 1ULL) res = mulmod(res, base, mod);
+        base = mulmod(base, base, mod);
         exp >>= 1ULL;
     }
     return res;
@@ -55,7 +58,7 @@ static bool is_prime_64(uint64_t n)
         if (x == 1ULL || x == n-1) continue;
         bool comp = true;
         for (uint64_t r = 1; r < s; ++r) {
-            x = mul_mod64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n-1) { comp = false; break; }
         }
         if (comp) return false;
@@ -105,7 +108,7 @@ static void ensure_cache_cap(size_t need)
     if (cache_cap >= need) return;
     size_t new_cap = cache_cap ? cache_cap : 8;
     while (new_cap < need) new_cap <<= 1U;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     cache = tmp;
     cache_cap = new_cap;
 }

@@ -9,6 +9,7 @@
  *            70*a(n-4) + 56*a(n-5) - 28*a(n-6) + 8*a(n-7) - 2*a(n-8)
  * Range:     i8 n <= 10, i16 n <= 17, i32 n <= 34, i64 n <= 67, i128 n <= 136,
  *            big any n
+ * Validated: standard, pass, 52 terms through n = 2880 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

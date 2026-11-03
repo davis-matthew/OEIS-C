@@ -8,12 +8,14 @@
  *            starts at 1)
  * Range:     u8 n <= 8, u16 n <= 13, u32 n <= 22, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache of factorials: fact_cache[i] = i! for i <= fact_cache_size */
 static seq_t *fact_cache = NULL;
@@ -25,7 +27,7 @@ static void init_fact_cache(void)
     if (fact_cache != NULL)
         return;
 
-    fact_cache = (seq_t *)malloc(2 * sizeof(seq_t));
+    fact_cache = mem_new(seq_t, 2);
     if (fact_cache == NULL)
         return;                 /* allocation failed – values will be zero */
 
@@ -41,7 +43,7 @@ static void ensure_fact_cache(idx_t needed)
         return;                  /* already computed */
 
     idx_t new_size = needed + 1;  /* number of elements after growth */
-    seq_t *tmp = (seq_t *)realloc(fact_cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, fact_cache, new_size);
     if (tmp == NULL)
         return;                  /* allocation failed – leave cache unchanged */
 

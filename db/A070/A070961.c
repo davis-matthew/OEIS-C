@@ -11,7 +11,8 @@
  *            function bigomega(idx_t)
  * Range:     u8 n <= 279, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   bigomega
+ * Validated: standard, pass, 90 terms through n = 9869 (2026-11-03)
+ * Helpers:   bigomega, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include "../utils/bigomega.h"
+#include "../utils/mem.h"
 
 static seq_t *omega_counts = NULL;   /* number of occurrences of each bigomega */
 static size_t   counts_cap = 0;       /* current size of omega_counts array */
@@ -38,8 +40,7 @@ static void _ensure_limit(idx_t n)
         if (om_val >= (idx_t)counts_cap) {
             size_t new_cap = (size_t)(om_val + 1);
             /* Expand the array to fit the new max index. */
-            seq_t *tmp = (seq_t *)realloc(omega_counts,
-                                          new_cap * sizeof(*tmp));
+            seq_t *tmp = mem_resize(seq_t, omega_counts, new_cap);
             if (!tmp) {
                 /* Allocation failed – abort to avoid undefined behaviour. */
                 abort();

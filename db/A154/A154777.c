@@ -8,7 +8,8 @@
  *            sorted in increasing order
  * Range:     u8 n <= 93, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 9679 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 /* ----------------------------------------------------------------- */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 typedef struct {
     idx_t x;
@@ -50,7 +52,7 @@ static void swap_node(node_t *a, node_t *b)
 static void heap_grow(void)
 {
     heap_cap = heap_cap ? heap_cap * 2U : 16U;
-    node_t *tmp = (node_t *)realloc(heap, heap_cap * sizeof(node_t));
+    node_t *tmp = mem_resize(node_t, heap, heap_cap);
     if (!tmp) abort();
     heap = tmp;
 }
@@ -118,7 +120,7 @@ static void ensure_n_terms(idx_t n)
         if (seq_len == 0 || cur.val != sequence[seq_len - 1]) {
             if (seq_len == seq_cap) {
                 seq_cap = seq_cap ? seq_cap * 2U : 16U;
-                seq_t *tmp = (seq_t *)realloc(sequence, seq_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, sequence, seq_cap);
                 if (!tmp) abort();
                 sequence = tmp;
             }

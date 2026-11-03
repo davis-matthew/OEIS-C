@@ -7,12 +7,22 @@
  * Formula:   a(n) = Π_{i=0}^{2} ( 2^{⌊(n+i)/3⌋} - 1 )
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 64, u128 n <= 128,
  *            big any n
- * Helpers:   power_of_two_minus_one
+ * Validated: standard, pass, 53 terms through n = 812 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/power_of_two_minus_one.h"
+static seq_t power_of_two_minus_one(idx_t exp)
+{
+    seq_t value = 1;
+    while (exp--) {
+        value <<= 1;
+    }
+    /* value = 2^exp now */
+    value -= 1;  /* 2^exp - 1 */
+    return value;
+}
 
 seq_t a(idx_t n)
 {

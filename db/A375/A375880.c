@@ -9,13 +9,15 @@
  * Formula:   not stated
  * Range:     i8 n <= 3, i16 n <= 7, i32 n <= 16, i64 n <= 24, i128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Sequence A375880:
    a(0) = 2, a(1) = 7,
@@ -29,8 +31,7 @@ seq_t a(idx_t n)
     /* grow cache if needed */
     if (cache_size <= n) {
         /* allocate space for indices 0 .. n */
-        seq_t *new_cache = (seq_t *)realloc(cache,
-                       (size_t)(n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, (size_t)(n + 1));
         if (!new_cache)        /* allocation failed – return 0 */
             return (seq_t)0;
         cache = new_cache;

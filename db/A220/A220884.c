@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 58, u64 n <= 142,
  *            u128 n <= 389, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 9703 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
  *   concatenating the rows.
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute the coefficient at the given global index n. */
 seq_t a(idx_t n)
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
 
             /* Allocate array for the polynomial coefficients.
              * The product has degree r-1, so we need r coefficients. */
-            seq_t *coeff = (seq_t *)calloc((size_t)r, sizeof(seq_t));
+            seq_t *coeff = mem_new(seq_t, (size_t)r);
             if (!coeff)                     /* allocation failure */
                 return (seq_t)0;
 
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
             }
 
             seq_t result = coeff[pos];
-            free(coeff);
+            mem_free(coeff);
             return result;
         }
         sum += len;     /* skip this row and continue */

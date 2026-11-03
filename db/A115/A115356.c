@@ -9,8 +9,9 @@
  *            “middle element” of odd rows); * otherwise a(n) = 0. * This
  *            matches the triangle T(n,k) defined by * T(n,k) = 1 if n = k or
  *            n = 2k+1, 0 otherwise
- * Range:     u8 n <= 9143, u16 n <= 9143, u32 n <= 9143, u64 n <= 9143,
- *            u128 n <= 9143, big any n
+ * Range:     u8 n <= 101474, u16 n <= 101474, u32 n <= 101474,
+ *            u64 n <= 101474, u128 n <= 101474, big any n
+ * Validated: standard, pass, 121 terms through n = 9143 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

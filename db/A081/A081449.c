@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,6 +34,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------------- */
 /* 64‑bit deterministic Miller–Rabin primality test                          */
@@ -109,7 +111,7 @@ seq_t a(idx_t n)
                 /* Store the found term */
                 if (size == capacity) {
                     capacity = capacity ? capacity << 1 : 4;
-                    cache = (seq_t *)realloc(cache, capacity * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, capacity);
                 }
                 cache[size++] = square;
                 sum += square;

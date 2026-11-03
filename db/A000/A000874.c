@@ -12,7 +12,8 @@
  *            length, t(g) = number of cycles of length divi...
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 6,
  *            big any n
- * Helpers:   a874_div, a874_gcd, a874_mu, a874_mul
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-01)
+ * Helpers:   gcd_i64, mobius_i64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,10 +21,30 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/a874_div.h"
-#include "../utils/a874_gcd.h"
-#include "../utils/a874_mu.h"
-#include "../utils/a874_mul.h"
+#include "../utils/gcd_i64.h"
+#include "../utils/mobius_i64.h"
+
+static void a874_div(uint32_t *x, size_t L, uint32_t d)
+{
+    uint64_t r = 0;
+    size_t i;
+    for (i = L; i-- > 0;) {
+        r = (r << 32) | x[i];
+        x[i] = (uint32_t)(r / d);
+        r %= d;
+    }
+}
+
+static void a874_mul(uint32_t *x, size_t L, uint32_t m)
+{
+    uint64_t c = 0;
+    size_t i;
+    for (i = 0; i < L; i++) {
+        uint64_t p = (uint64_t)x[i] * m + c;
+        x[i] = (uint32_t)p;
+        c = p >> 32;
+    }
+}
 
 static int a874_n;
 static int a874_pa[128], a874_pb[128];
@@ -67,8 +88,8 @@ static void a874_proc(void)
     size_t nd = 0, i, j;
 
     for (k = 1; k <= n; k++) {
-        if (a874_pa[k]) L = L / a874_gcd(L, k) * k;
-        if (a874_pb[k]) L = L / a874_gcd(L, 2 * k) * (2 * k);
+        if (a874_pa[k]) L = L / gcd_i64(L, k) * k;
+        if (a874_pb[k]) L = L / gcd_i64(L, 2 * k) * (2 * k);
     }
     for (d = 1; d <= L; d++) if (L % d == 0) nd++;
     dv = (long long *)malloc(nd * sizeof(long long));
@@ -81,7 +102,7 @@ static void a874_proc(void)
         long long e = 0;
         d = dv[i];
         for (k = 1; k <= n; k++) {
-            long long g = a874_gcd(d, k);
+            long long g = gcd_i64(d, k);
             if (a874_pa[k]) e += g * a874_pa[k];
             if (a874_pb[k]) {
                 if ((d / g) & 1) zero = 1;
@@ -94,7 +115,7 @@ static void a874_proc(void)
         long long s = 0;
         d = dv[i];
         for (j = 0; j <= i; j++)
-            if (d % dv[j] == 0) s += a874_mu(d / dv[j]) * F[j];
+            if (d % dv[j] == 0) s += mobius_i64(d / dv[j]) * F[j];
         s /= d;
         c += s;
         if (d % 2 == 0) ce += s;

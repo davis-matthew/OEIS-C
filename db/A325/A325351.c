@@ -7,8 +7,9 @@
  * Keywords:  nonn, look
  * Formula:   a(n) = Heinz number of the augmented differences of the integer
  *            partition with Heinz number n
- * Range:     u8 n <= 255, u16 n <= 9439, u32 n <= 9439, u64 n <= 9439,
- *            u128 n <= 9439, big any n
+ * Range:     u8 n <= 255, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 107 terms through n = 9439 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

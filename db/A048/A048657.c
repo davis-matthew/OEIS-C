@@ -7,7 +7,8 @@
  * Formula:   a(n) = A000005(n!) - 2^(A000720(n))
  * Range:     u8 n <= 10, u16 n <= 21, u32 n <= 49, u64 n <= 118,
  *            u128 n <= 282, big any n
- * Helpers:   build_primes_upto, build_spf, pow2
+ * Validated: standard, pass, 52 terms through n = 991 (2026-11-03)
+ * Helpers:   build_primes_upto, build_spf, mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include "../utils/build_primes_upto.h"
 #include "../utils/build_spf.h"
 #include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 static idx_t max_comp = 0;              /* highest n processed so far          */
 static uint64_t *primes = NULL;         /* list of primes up to max_comp       */
@@ -80,8 +82,7 @@ static void ensure_extended(idx_t n) {
 
     /* ---- resize d_cache if necessary ---- */
     if (d_cache_size <= (size_t)n) {
-        seq_t *tmp = (seq_t *)realloc(d_cache,
-                                      (n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, d_cache, (n + 1));
         if (!tmp)
             abort();
         d_cache = tmp;

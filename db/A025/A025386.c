@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 55, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <string.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Global memoisation structures */
 static size_t max_limit = 0;      /* current maximum sum considered */
@@ -66,14 +68,14 @@ static void rebuild_until(size_t target_n)
         for (size_t s = 0; s <= limit; ++s)
             if (count[4][s] >= 2) ++new_len;
 
-        seq_t *new_terms = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_terms = mem_new(seq_t, new_len);
         if (!new_terms) exit(EXIT_FAILURE);
         size_t idx = 0;
         for (size_t s = 0; s <= limit; ++s)
             if (count[4][s] >= 2) new_terms[idx++] = (seq_t)s;
 
         /* Replace old table and terms array */
-        free(terms);
+        mem_free(terms);
         terms = new_terms;
         terms_len = new_len;
         max_limit = limit;

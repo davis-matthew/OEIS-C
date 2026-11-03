@@ -9,14 +9,18 @@
  *            1
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 5, u64 n <= 8, u128 n <= 11,
  *            big any n
- * Helpers:   big_pow, pow2
+ * Validated: partial, pass, 12 terms through n = 11 (2026-11-03)
+ * Helpers:   ipow, mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/pow2.h"     /* seq_t pow2(idx_t exp);            */
-#include "../utils/big_pow.h"  /* seq_t big_pow(seq_t base, seq_t exp); */
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/ipow.h"
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;   /* cache of a(k), size a_size */
 static idx_t  a_size  = 0;
@@ -32,14 +36,14 @@ ensure_t_cache(idx_t k)
         return;
 
     idx_t new_size = k + 1;
-    seq_t *tmp = (seq_t *)realloc(t_cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, t_cache, new_size);
     if (!tmp)
         abort();
     t_cache = tmp;
     for (idx_t i = t_size; i <= k; ++i) {
         seq_t two_pow = pow2(i);
         seq_t base = two_pow - (seq_t)1;
-        t_cache[i] = big_pow(base, (seq_t)i);
+        t_cache[i] = ipow(base, (seq_t)i);
     }
     t_size = new_size;
 }
@@ -49,7 +53,7 @@ static void
 ensure_a_cache(idx_t n)
 {
     if (a_cache == NULL) {            /* first call: allocate and set a(0) */
-        a_cache = (seq_t *)malloc(sizeof(seq_t));
+        a_cache = mem_new(seq_t, 1);
         if (!a_cache)
             abort();
         a_cache[0] = (seq_t)1;
@@ -60,7 +64,7 @@ ensure_a_cache(idx_t n)
         return;
 
     idx_t new_size = n + 1;
-    seq_t *tmp = (seq_t *)realloc(a_cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, new_size);
     if (!tmp)
         abort();
     a_cache = tmp;

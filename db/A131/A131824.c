@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 18, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,12 +35,12 @@ seq_t a(idx_t n)
     i_max--;   /* now 2^i_max <= n < 2^(i_max+1) */
 
     /* allocate DP arrays */
-    seq_t *dp  = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
-    seq_t *dp2 = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *dp  = mem_new(seq_t, (size_t)(n + 1));
+    seq_t *dp2 = mem_new(seq_t, (size_t)(n + 1));
     if (!dp || !dp2) {
         /* memory failure – return 0 as a sentinel value */
-        free(dp);
-        free(dp2);
+        mem_free(dp);
+        mem_free(dp2);
         return 0;
     }
 
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
 
     for (idx_t i = 0; i <= i_max; ++i) {
         /* clear the new array */
-        memset(dp2, 0, (size_t)(n + 1) * sizeof(seq_t));
+        mem_set(dp2, 0, (size_t)(n + 1) * sizeof(seq_t));
 
         idx_t shift_base = (idx_t)1 << i;          /* 2^i */
         idx_t maxk       = n / shift_base;          /* largest k with k*2^i <= n */
@@ -74,7 +76,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
-    free(dp2);
+    mem_free(dp);
+    mem_free(dp2);
     return result;
 }

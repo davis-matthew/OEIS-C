@@ -12,12 +12,31 @@
  *            median + lower median of every 2×2 subblock is the...
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 17, u64 n <= 36, u128 n <= 74,
  *            big any n
- * Helpers:   sum_top_three
+ * Validated: standard, pass, 40 terms through n = 195 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/sum_top_three.h"
+/* Helper: compute the sum of the three largest numbers of the four
+   values belonging to a pair of consecutive rows.  Indices 0..8 encode
+   the pair (x0,x1) via i = 3*x0 + x1. */
+static seq_t sum_top_three(seq_t a, seq_t b) {
+    unsigned int x0 = (unsigned int)(a / 3);
+    unsigned int x1 = (unsigned int)(a % 3);
+    unsigned int y0 = (unsigned int)(b / 3);
+    unsigned int y1 = (unsigned int)(b % 3);
+    unsigned int v[4] = {x0, x1, y0, y1};
+    /* simple insertion sort for 4 elements */
+    for (int i = 0; i < 3; ++i)
+        for (int j = i + 1; j < 4; ++j)
+            if (v[i] > v[j]) {
+                unsigned int t = v[i];
+                v[i] = v[j];
+                v[j] = t;
+            }
+    return (seq_t)(v[1] + v[2] + v[3]);  /* 0..6 */
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;          /* offset starts at 1 */

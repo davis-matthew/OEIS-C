@@ -8,8 +8,8 @@
  * Formula:   a(n) = Sum_{d|n} phi(n/d) * tau(d)^d
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 15, u64 n <= 23, u128 n <= 26,
  *            big any n
- * Helpers:   _generate_divisors, big_pow, build_primes_upto, calc_phi,
- *            divisor_count_u64
+ * Validated: partial, pass, 26 terms through n = 26 (2026-11-01)
+ * Helpers:   build_primes_upto, ipow, num_divisors, totient_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,11 +19,35 @@
 #include <stdlib.h>
 
 /* Utilities provided by the build system */
-#include "../utils/big_pow.h"               /* seq_t big_pow(seq_t base, seq_t exp); */
-#include "../utils/build_primes_upto.h"    /* void build_primes_upto(idx_t limit, uint64_t **primes_out, size_t *cnt_out); */
-#include "../utils/calc_phi.h"             /* seq_t calc_phi(seq_t m); */
-#include "../utils/divisor_count_u64.h"    /* uint64_t divisor_count_u64(uint64_t n); */
-#include "../utils/_generate_divisors.h"
+#include <stdbool.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/ipow.h"
+#include "../utils/num_divisors.h"
+#include "../utils/totient_seq.h"
+
+/* ------------------------------------------------------------------ */
+static void
+_generate_divisors(const uint64_t *primes,
+                   const int      *exps,
+                   size_t          idx,
+                   size_t          num_factors,
+                   uint64_t        acc,
+                   uint64_t        *dst,
+                   size_t          *len)
+{
+    if (idx == num_factors) {
+        dst[(*len)++] = acc;
+        return;
+    }
+
+    uint64_t p   = primes[idx];
+    uint64_t mult = 1;
+    for (int e = 0; e <= exps[idx]; ++e) {
+        _generate_divisors(primes, exps, idx + 1, num_factors,
+                           acc * mult, dst, len);
+        mult *= p;
+    }
+}
 
 /* ------------------------------------------------------------------ */
 /* Recursively generate all divisors of n from its prime factorisation */
@@ -92,9 +116,9 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < div_cnt; ++i) {
         uint64_t d   = divs[i];
         idx_t    nd  = n / d;                           /* n/d fits in idx_t */
-        seq_t   phi_val = calc_phi((seq_t)nd);          /* φ(n/d) */
-        seq_t   tau_d   = (seq_t)divisor_count_u64(d);  /* τ(d)  */
-        seq_t   pow_val = big_pow(tau_d, (seq_t)d);     /* τ(d)^d */
+        seq_t   phi_val = totient_seq((seq_t)nd);          /* φ(n/d) */
+        seq_t   tau_d   = (seq_t)num_divisors(d);  /* τ(d)  */
+        seq_t   pow_val = ipow(tau_d, (seq_t)d);     /* τ(d)^d */
         sum += phi_val * pow_val;
     }
 

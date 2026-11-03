@@ -10,7 +10,8 @@
  * Formula:   a(n) = 6*a(n-1) + 18*a(n-2), a(1) = 72, a(2) = 594
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 9, u64 n <= 20, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 188 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  * grows as needed and the recurrence is evaluated exactly using the
  * type seq_t.  The code works in both C11 and C++17. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     if (idx + 1 > cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 16;
         while (new_cap < idx + 1) new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp && new_cap > 0) exit(1);   /* allocation failure */
         cache = tmp;
         cache_cap = new_cap;

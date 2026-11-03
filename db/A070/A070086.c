@@ -11,14 +11,21 @@
  *            (u+v+w)/2. The computation uses only integer arithmetic
  * Range:     u8 n <= 972, u16 n <= 972, u32 n <= 972, u64 n <= 972,
  *            u128 n <= 972, big any n
- * Helpers:   u128_sqrt, upow2
+ * Validated: standard, pass, 91 terms through n = 968 (2026-11-01)
+ * Helpers:   isqrt_u128_to_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/u128_sqrt.h"
-#include "../utils/upow2.h"
+#include "../utils/isqrt_u128_to_u64.h"
+
+static unsigned long long upow2(int e)
+{
+    unsigned long long r = 1ULL;
+    while (e--) r <<= 1;
+    return r;
+}
 
 /* Main function for sequence A070086 */
 seq_t a(idx_t n)
@@ -46,7 +53,7 @@ seq_t a(idx_t n)
                             (unsigned __int128)t3 *
                             (unsigned __int128)t4;
 
-                        unsigned long long sqrt_numer = u128_sqrt(numer);
+                        unsigned long long sqrt_numer = isqrt_u128_to_u64(numer);
                         seq_t result = (seq_t)((sqrt_numer + 2ULL) / 4ULL);
                         return result;
                     }

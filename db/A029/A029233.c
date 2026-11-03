@@ -7,12 +7,14 @@
  * Formula:   a(n) = number of partitions of n into parts 2, 7, 10, 11
  * Range:     u8 n <= 118, u16 n <= 831, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 80 terms through n = 873 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     if (!dp || n > max_n) {
         /* Allocate a new array of length n+1.  Use malloc; the
            required cast is legal for C++ as well. */
-        seq_t *new_dp = (seq_t*)malloc((size_t)(n + 1) * sizeof(seq_t));
+        seq_t *new_dp = mem_new(seq_t, (size_t)(n + 1));
         if (!new_dp) return (seq_t)0;           /* out of memory – graceful failure */
 
         /* Initialise all entries to zero */
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
         }
 
         /* Free the old cached array if it existed, and replace it. */
-        if (dp) free(dp);
+        if (dp) mem_free(dp);
         dp = new_dp;
         max_n = n;
     }

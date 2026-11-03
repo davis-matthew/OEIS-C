@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 1188, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   integer_sqrt, is_prime, push_seq
+ * Validated: standard, pass, 64 terms through n = 9813 (2026-11-03)
+ * Helpers:   is_prime_u64, isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,22 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
-#include "../utils/integer_sqrt.h"
-#include "../utils/push_seq.h"
+#include <stdlib.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
+
+/* Dynamic array helpers. */
+static void push_seq(seq_t **arr, idx_t *cap, idx_t *size, seq_t val)
+{
+    if (*size >= *cap) {
+        size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+        *arr = mem_resize(seq_t, *arr, new_cap);
+        *cap = new_cap;
+    }
+    (*arr)[*size] = val;
+    (*size)++;
+}
 
 /* Test whether a prime p can be written as 3x^2 – x*y + 5y^2 with x,y ≥ 0.
    For each y with 12p – 59y² ≥ 0 we solve 3x² – yx + (5y² – p) = 0.
@@ -33,7 +47,7 @@ static bool form_rep_prime(uint64_t p)
         uint64_t t   = 59 * ysq;
         if (t > limit) break;
         uint64_t D   = limit - t;
-        uint64_t sD  = integer_sqrt(D);
+        uint64_t sD  = isqrt(D);
         if (sD * sD == D) {
             if (((y + sD) % 6ULL) == 0ULL || ((y >= sD) && ((y - sD) % 6ULL) == 0ULL))
                 return true;
@@ -58,7 +72,7 @@ seq_t a(idx_t n)
         uint64_t cand = next_candidate;
         next_candidate += 2;              /* skip even numbers */
 
-        if (is_prime(cand) && form_rep_prime(cand)) {
+        if (is_prime_u64(cand) && form_rep_prime(cand)) {
             push_seq(&seq_arr, &seq_cap, &seq_size, (seq_t)cand);
         }
     }

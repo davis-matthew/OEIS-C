@@ -12,13 +12,22 @@
  *            fixed‑size re...
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 9, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   binom10
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom10.h"
+
+/* binom(t+10,10) for t >= 0, t of type idx_t (uint64_t) */
+static seq_t binom10(idx_t t)
+{
+    /* 10! = 3628800 */
+    return (seq_t)(
+            ((seq_t)(t + 10) * (t + 9) * (t + 8) * (t + 7) * (t + 6) *
+             (t + 5) * (t + 4) * (t + 3) * (t + 2) * (t + 1)) / 3628800);
+}
 
 static const seq_t P[12] = {
     (seq_t)1ULL,

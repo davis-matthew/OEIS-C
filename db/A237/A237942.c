@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 3, u64 n <= 7, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 27 terms through n = 201 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define NUM_PATTERNS (729)     /* 3^6 */
 #define WIDTH (6)
@@ -135,10 +137,10 @@ static void build_tables(void)
 static void ensure_dp_buffers(void)
 {
     if (dp_cap >= NUM_PATTERNS) return;
-    if (dp_cur) free(dp_cur);
-    if (dp_next) free(dp_next);
-    dp_cur = (seq_t *)malloc(NUM_PATTERNS * sizeof(seq_t));
-    dp_next = (seq_t *)malloc(NUM_PATTERNS * sizeof(seq_t));
+    if (dp_cur) mem_free(dp_cur);
+    if (dp_next) mem_free(dp_next);
+    dp_cur = mem_new(seq_t, NUM_PATTERNS);
+    dp_next = mem_new(seq_t, NUM_PATTERNS);
     if (!dp_cur || !dp_next) abort();
     dp_cap = NUM_PATTERNS;
 }

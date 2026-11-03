@@ -6,19 +6,21 @@
  * Keywords:  nonn
  * Formula:   a(n) = number of partitions of n into distinct odd cubes.
  *            Computed by dynamic programming over the odd cubes ≤ n
- * Range:     u8 n <= 9177, u16 n <= 9177, u32 n <= 9177, u64 n <= 9177,
- *            u128 n <= 9177, big any n
- * Helpers:   none
+ * Range:     u8 n <= 100000, u16 n <= 100000, u32 n <= 100000,
+ *            u64 n <= 100000, u128 n <= 100000, big any n
+ * Validated: standard, pass, 173 terms through n = 9177 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate DP array for sums 0..n, initialize to zero. */
-    seq_t *dp = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1));
     if (!dp) return (seq_t)0;  /* unlikely, fallback */
     dp[0] = 1;                /* empty partition */
 
@@ -37,6 +39,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

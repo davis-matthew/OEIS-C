@@ -9,12 +9,14 @@
  *            a(6)=1619, a(7)=5239, a(8)=17379
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 18, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
 
     /* Ensure enough space for the first few values and set them. */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(9 * sizeof(seq_t));   /* indices 0…8 */
+        cache = mem_new(seq_t, 9);   /* indices 0…8 */
         for (idx_t i = 0; i < 9; ++i) cache[i] = (seq_t)0;
         cache[3] = (seq_t)63;
         cache[4] = (seq_t)179;
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     /* Expand cache if the caller asks for a larger index. */
     if (n > cached_to) {
         if ((n + 1) > (cached_to + 1)) {
-            cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, (n + 1));
         }
         /* Compute new values using the recurrence. */
         for (idx_t k = cached_to + 1; k <= n; ++k) {

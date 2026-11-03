@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 4, u64 n <= 11, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /*  Fundamental types provided by the build environment                 */
@@ -207,8 +209,8 @@ seq_t a(idx_t n)
     if (n < 1) return (seq_t)0;
 
     int stateCount = NUM_ROWS * diffCount;
-    seq_t *curr  = (seq_t*)calloc(stateCount, sizeof(seq_t));
-    seq_t *next  = (seq_t*)calloc(stateCount, sizeof(seq_t));
+    seq_t *curr  = mem_new(seq_t, stateCount);
+    seq_t *next  = mem_new(seq_t, stateCount);
 
     /* ---- initial counts: all (row0,row1) pairs with a valid diff pattern */
     for (int r = 0; r < NUM_ROWS; ++r) {
@@ -222,7 +224,7 @@ seq_t a(idx_t n)
 
     /* ----- dynamic programming: add rows 2 .. n --------------------- */
     for (idx_t step = 1; step < n; ++step) {
-        memset(next, 0, stateCount * sizeof(seq_t));
+        mem_set(next, 0, stateCount * sizeof(seq_t));
         for (int s = 0; s < stateCount; ++s) {
             seq_t cnt = curr[s];
             if (cnt == 0) continue;
@@ -238,7 +240,7 @@ seq_t a(idx_t n)
     seq_t result = (seq_t)0;
     for (int s = 0; s < stateCount; ++s) result += curr[s];
 
-    free(curr);
-    free(next);
+    mem_free(curr);
+    mem_free(next);
     return result;
 }

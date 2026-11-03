@@ -10,6 +10,7 @@
  *            (4*n^3 + 15*n^2 + 14*n + 3) / 6
  * Range:     u8 n <= 6, u16 n <= 40, u32 n <= 128, u64 n <= 128,
  *            u128 n <= 128, big any n
+ * Validated: standard, pass, 59 terms through n = 127 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

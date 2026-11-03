@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   bitlen_idx_t, lps_min_del
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,8 +28,52 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/bitlen_idx_t.h"
-#include "../utils/lps_min_del.h"
+#include "../utils/mem.h"
+
+/* Compute the number of bits in an idx_t value (bit length). */
+static unsigned bitlen_idx_t(idx_t v)
+{
+    unsigned len = 0;
+    do {
+        ++len;
+        v >>= 1;
+    } while (v);
+    return len;
+}
+
+/* Return the minimal number of deletions required to make the binary
+   representation of `val` a palindrome. */
+static int lps_min_del(idx_t val)
+{
+    unsigned L = bitlen_idx_t(val);
+    if (L <= 1) return 0;               /* already a palindrome */
+
+    /* Extract bits: bits[0] is MSB, bits[L-1] is LSB. */
+    uint8_t bits[128];
+    idx_t tmp = val;
+    for (unsigned i = 0; i < L; ++i) {
+        bits[L - 1 - i] = (uint8_t)(tmp & 1);
+        tmp >>= 1;
+    }
+
+    /* Longest palindromic subsequence DP. */
+    static int dp[128][128];
+    for (int i = (int)L - 1; i >= 0; --i) {
+        dp[i][i] = 1;
+        for (int j = i + 1; j < (int)L; ++j) {
+            if (bits[i] == bits[j]) {
+                dp[i][j] = 2 + ((i + 1 <= j - 1) ? dp[i + 1][j - 1] : 0);
+            } else {
+                int a = dp[i + 1][j];
+                int b = dp[i][j - 1];
+                dp[i][j] = (a > b) ? a : b;
+            }
+        }
+    }
+
+    int deletions = (int)L - dp[0][L - 1];
+    return deletions;
+}
 
 /* Cached list of found terms. */
 static seq_t *cache   = NULL;
@@ -42,9 +87,9 @@ static void grow_cache(size_t newCap)
     if (newCap <= cacheCap) return;
     size_t newSize = newCap > 16 ? newCap : 16;
     if (cache == NULL) {
-        cache = (seq_t *)malloc(newSize * sizeof(seq_t));
+        cache = mem_new(seq_t, newSize);
     } else {
-        seq_t *tmp = (seq_t *)realloc(cache, newSize * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newSize);
         cache = tmp;
     }
     cacheCap = newSize;

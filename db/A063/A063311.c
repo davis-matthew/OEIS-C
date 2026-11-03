@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 10, i16 n <= 51, i32 n <= 51, i64 n <= 51, i128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* dynamic cache of already computed terms */
 static seq_t *a_tbl = NULL;        /* array of computed terms */
@@ -33,7 +35,7 @@ static void ensure_capacity(idx_t n)
 {
     if (n + 1 > tbl_size) {
         size_t new_size = (size_t)(n + 1);
-        seq_t *new_tbl = (seq_t *)realloc(a_tbl, new_size * sizeof(seq_t));
+        seq_t *new_tbl = mem_resize(seq_t, a_tbl, new_size);
         if (!new_tbl) {
             /* allocation failed – silently fall back to undefined behaviour */
             return;

@@ -9,13 +9,15 @@
  *            h[n-k]
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 18, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 353 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *h_vals = NULL;          /* h[n] values (stored as absolute values) */
 static seq_t *a_vals = NULL;          /* a[n] values */
@@ -29,7 +31,7 @@ static void ensure_cap(size_t *cap_ptr, seq_t **arr_ptr, size_t need)
     if (*cap_ptr >= need) return;
     size_t new_cap = (*cap_ptr == 0) ? 1 : *cap_ptr << 1;
     while (new_cap < need) new_cap <<= 1;
-    *arr_ptr = (seq_t *)realloc(*arr_ptr, new_cap * sizeof(seq_t));
+    *arr_ptr = mem_resize(seq_t, *arr_ptr, new_cap);
     *cap_ptr = new_cap;
 }
 

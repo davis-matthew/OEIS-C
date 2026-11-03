@@ -10,14 +10,15 @@
  *            output a(d,0), a(d‑1,1), … , a(0,d)
  * Range:     u8 n <= 116, u16 n <= 348, u32 n <= 1222, u64 n <= 1274,
  *            u128 n <= 1274, big any n
- * Helpers:   fib_u
+ * Validated: standard, pass, 94 terms through n = 1221 (2026-11-01)
+ * Helpers:   fibonacci
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <math.h>
-#include "../utils/fib_u.h"
+#include "../utils/fibonacci.h"
 
 seq_t a(idx_t n) {
     /* Find diagonal d such that d*(d+1)/2 <= n < (d+1)*(d+2)/2. */
@@ -38,8 +39,8 @@ seq_t a(idx_t n) {
 
     if (j == 0) return (seq_t)0;
 
-    seq_t fib_jm1 = fib_u(j - 1);
-    seq_t fib_j   = fib_u(j);
+    seq_t fib_jm1 = fibonacci(j - 1);
+    seq_t fib_j   = fibonacci(j);
 
     return ((seq_t)i) * fib_jm1 + fib_j;
 }

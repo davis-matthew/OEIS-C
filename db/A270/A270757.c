@@ -9,13 +9,15 @@
  *            the k-th Bell number (Bell(0)=1)
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 16, u64 n <= 26, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 552 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static void ensure_capacity(seq_t **ptr, size_t *cap, size_t needed)
 {
@@ -23,7 +25,7 @@ static void ensure_capacity(seq_t **ptr, size_t *cap, size_t needed)
         size_t new_cap = (*cap > 0) ? (*cap) * 2 : 1;
         while (new_cap <= needed)
             new_cap *= 2;
-        seq_t *tmp = (seq_t *)realloc(*ptr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *ptr, new_cap);
         if (!tmp)
             exit(EXIT_FAILURE);
         *ptr = tmp;
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     /* initialise containers on first use --------------------------------- */
     if (!bell) {
         bell_cap = 1;
-        bell = (seq_t *)malloc(bell_cap * sizeof(seq_t));
+        bell = mem_new(seq_t, bell_cap);
         if (!bell)
             exit(EXIT_FAILURE);
         bell[0] = (seq_t)1;          /* Bell(0) = 1 */
@@ -56,7 +58,7 @@ seq_t a(idx_t n)
     }
     if (!a_vals) {
         a_cap = 3;
-        a_vals = (seq_t *)malloc(a_cap * sizeof(seq_t));
+        a_vals = mem_new(seq_t, a_cap);
         if (!a_vals)
             exit(EXIT_FAILURE);
         a_vals[0] = a_vals[1] = a_vals[2] = (seq_t)0;

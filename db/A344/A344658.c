@@ -9,14 +9,15 @@
  *            digits * of n from most significant to least
  * Range:     i8 n <= 3, i16 n <= 5, i32 n <= 39, i64 n <= 39, i128 n <= 39,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 40 terms through n = 39 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     /* Extract decimal digits of n into an array with most significant digit first. */
@@ -40,7 +41,7 @@ seq_t a(idx_t n) {
     bool add = true;
     for (int i = len - 1; i >= 0; --i) {
         uint8_t d = digits[i];
-        seq_t val = (d == 0) ? 1 : big_pow((seq_t)d, (seq_t)d);
+        seq_t val = (d == 0) ? 1 : ipow((seq_t)d, (seq_t)d);
         result = add ? result + val : result - val;
         add = !add;
     }

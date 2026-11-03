@@ -9,12 +9,14 @@
  *            numbers (k(3k±1)/2 with k ≥ 1)
  * Range:     u8 n <= 11, u16 n <= 21, u32 n <= 38, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 38 terms through n = 38 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,12 +27,12 @@ seq_t a(idx_t n)
 
     /* Allocate or grow the DP table as needed */
     if (dp == NULL) {
-        dp = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+        dp = mem_new(seq_t, (size_t)(n + 1));
         if (dp == NULL) return 0;  /* allocation failure – unlikely in tests */
         dp[0] = 1;                 /* base case: empty composition */
         dp_max = 0;
     } else if (dp_max < n) {
-        seq_t *tmp = (seq_t *)realloc(dp, (size_t)(n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, (size_t)(n + 1));
         if (tmp == NULL) return 0;/* allocation failure */
         dp = tmp;
         /* existing entries up to dp_max remain untouched */

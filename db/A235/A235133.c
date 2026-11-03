@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 9, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   seq_alloc, seq_realloc
+ * Validated: partial, pass, 9 terms through n = 9 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -33,8 +34,20 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/seq_alloc.h"
-#include "../utils/seq_realloc.h"
+#include "../utils/mem.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+    return mem_new(seq_t, cap);
+}
+
+/* (this copied old_cap elements also when shrinking, past the new array) */
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+    (void)old_cap;
+    seq_t *p = mem_resize(seq_t, old, new_cap ? new_cap : 1);
+    if (!p) abort();
+    return p;
+}
 
 /* Storage for discovered terms */
 static seq_t *terms      = NULL;
@@ -126,7 +139,7 @@ static void ensure_terms(idx_t n)
         generate_m(++cur_m);
     }
     if (!terms_sorted) {
-        qsort(terms, terms_len, sizeof(seq_t), seq_cmp);
+        mem_qsort(terms, terms_len, sizeof(seq_t), seq_cmp);
 
         /* deduplicate */
         size_t w = 0;

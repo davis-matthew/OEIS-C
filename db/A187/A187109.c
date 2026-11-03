@@ -7,7 +7,8 @@
  * Formula:   a(n) = floor(sqrt(2/11) * 10^(n+1)) mod 10
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   alloc_seq_array
+ * Validated: standard, pass, 106 terms through n = 9061 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/alloc_seq_array.h"
+#include <stddef.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 /* --------------------------------------------------------------------- */
 /*  Simple arbitrary‑precision integers in base 1e9                       */
@@ -144,8 +151,8 @@ static void ensure_digits(idx_t n) {
     while (digit_len <= (size_t)n) {
         if (digit_len == digit_cap) {
             seq_t *tmp = alloc_seq_array(digit_cap * 2);
-            memcpy(tmp, digit_cache, digit_cap * sizeof(seq_t));
-            free(digit_cache);
+            mem_copy(tmp, digit_cache, digit_cap * sizeof(seq_t));
+            mem_free(digit_cache);
             digit_cache = tmp;
             digit_cap *= 2;
         }

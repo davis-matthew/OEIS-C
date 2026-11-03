@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 25, u16 n <= 4021, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime, is_squarefree
+ * Validated: standard, pass, 73 terms through n = 8038 (2026-11-03)
+ * Helpers:   is_prime, is_squarefree, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include "../utils/is_prime.h"
 #include "../utils/is_squarefree.h"
+#include "../utils/mem.h"
 
 /* static cache of sequence values for memoisation */
 static seq_t *seq_vals = NULL;
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
         /* store the found term */
         if (seq_cnt == seq_cap) {
             size_t new_cap = seq_cap == 0 ? 8 : seq_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(seq_vals, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq_vals, new_cap);
             if (!tmp) {
                 /* memory allocation failed – abort */
                 exit(EXIT_FAILURE);

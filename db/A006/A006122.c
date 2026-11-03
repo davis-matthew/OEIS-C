@@ -7,13 +7,15 @@
  * Formula:   a(n) = 2*a(n-1)+(8^(n-1)-1)*a(n-2), a(0) = 1, a(1) = 2
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 6, u64 n <= 9, u128 n <= 13,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 65 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static idx_t cache_len = 0;
@@ -23,14 +25,14 @@ seq_t a(idx_t n) {
     // Ensure cache is large enough
     if (cache == NULL || n >= cache_len) {
         idx_t new_len = (n < 16) ? 16 : (n + 1);
-        seq_t *new_cache = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_len);
         if (new_cache == NULL) return 0;
         
         if (cache != NULL) {
-            memcpy(new_cache, cache, cache_len * sizeof(seq_t));
-            free(cache);
+            mem_copy(new_cache, cache, cache_len * sizeof(seq_t));
+            mem_free(cache);
         } else {
-            memset(new_cache, 0, new_len * sizeof(seq_t));
+            mem_set(new_cache, 0, new_len * sizeof(seq_t));
         }
         
         cache = new_cache;

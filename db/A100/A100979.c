@@ -10,13 +10,14 @@
  *            of 2 dividing n)
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 63, u128 n <= 127,
  *            big any n
- * Helpers:   power_of_two
+ * Validated: standard, pass, 61 terms through n = 2526 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/power_of_two.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {
@@ -46,8 +47,8 @@ seq_t a(idx_t n)
             idx_t exp1 = n - div1;             /* n - n/2^s */
             idx_t exp2 = n - div2;             /* n - n/2^{s-1} */
 
-            seq_t a1 = power_of_two(exp1);
-            seq_t a2 = power_of_two(exp2);
+            seq_t a1 = pow2(exp1);
+            seq_t a2 = pow2(exp2);
 
             term = ((seq_t)pow_s) * (a1 - a2);
         }

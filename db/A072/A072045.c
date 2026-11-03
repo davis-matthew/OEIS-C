@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 7, u64 n <= 12, u128 n <= 16,
  *            big any n
- * Helpers:   build_primes, gcd
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-03)
+ * Helpers:   build_primes, gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,8 +25,9 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/build_primes.h"   /* build_primes(idx_t limit, idx_t **out, size_t *cnt) */
-#include "../utils/gcd.h"            /* gcd(seq_t a, seq_t b) */
+#include "../utils/build_primes.h"
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 /* ---------- prime storage -------------------------------------------- */
 static idx_t *prime_list = NULL;     /* array of primes */
@@ -68,7 +70,7 @@ static void grow_denoms(size_t need)
     if (denom_rows >= need)
         return;
     size_t new_size = (need + 10) * 2;
-    seq_t *tmp = (seq_t *)realloc(denoms, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, denoms, new_size);
     if (!tmp)
         exit(EXIT_FAILURE);
     denoms = tmp;

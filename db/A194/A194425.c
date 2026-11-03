@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 147, u16 n <= 2230, u32 n <= 2230, u64 n <= 2230,
  *            u128 n <= 2230, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 2225 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Integer square root of a 64‑bit unsigned integer.
  * Returns the greatest r with r*r ≤ x.  Uses 128‑bit arithmetic to avoid overflow. */
@@ -58,7 +60,7 @@ static idx_t  A_count  = 0;        /* running count of acceptable k's */
 static void grow_seq(void)
 {
     size_t new_cap = (seq_cap == 0) ? 64 : seq_cap * 2;
-    seq_t *new_buf = (seq_t *)realloc(seq_buf, new_cap * sizeof(seq_t));
+    seq_t *new_buf = mem_resize(seq_t, seq_buf, new_cap);
     if (!new_buf) return;  /* on allocation failure leave unchanged – caller will not use the result */
     seq_buf = new_buf;
     seq_cap = new_cap;

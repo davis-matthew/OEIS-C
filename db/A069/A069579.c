@@ -10,7 +10,8 @@
  *            core(φ(k)) where core(k) is the squarefree part of k
  * Range:     u8 n <= 53, u16 n <= 4416, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 76 terms through n = 9951 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t types are supplied by the build system. */
 typedef idx_t idx_t;
@@ -134,7 +136,7 @@ seq_t a(idx_t n)
             if (terms_len == terms_cap)
             {
                 terms_cap = terms_cap ? terms_cap * 2 : 64;
-                terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, terms_cap);
                 if (!terms) exit(1);
             }
             terms[terms_len++] = (seq_t)current_k;

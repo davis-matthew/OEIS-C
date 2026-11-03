@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 54, u32 n <= 135, u64 n <= 350,
  *            u128 n <= 945, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 1309 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
  *  where Bell(m) is the m‑th Bell number, Bell(0)=1.  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static inline idx_t floor_sqrt_u128(unsigned __int128 x)
 {
@@ -48,7 +50,7 @@ static void ensure_bell_capacity(idx_t need)
     if (bell_cap <= (size_t)need) {
         size_t new_cap = bell_cap ? bell_cap * 2 : 16;
         if (new_cap <= (size_t)need) new_cap = (size_t)need + 1;
-        seq_t *tmp = (seq_t *)realloc(bell, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, bell, new_cap);
         bell = tmp;
         bell_cap = new_cap;
     }
@@ -58,7 +60,7 @@ static void ensure_bell_capacity(idx_t need)
 static void compute_bell_up_to(idx_t m)
 {
     if (bell == NULL) {                     /* first time initialisation */
-        bell = (seq_t *)malloc(sizeof(seq_t));
+        bell = mem_new(seq_t, 1);
         bell[0] = (seq_t)1;                 /* Bell(0) = 1 */
         bell_cap = 1;
         bell_cur = 0;

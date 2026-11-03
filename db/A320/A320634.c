@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 54, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define LIMIT 2000000            /* upper bound for sieve (must cover required values) */
 #define MAX_PRIMES 200000        /* enough to hold all primes <= LIMIT */
@@ -120,7 +122,7 @@ seq_t a(idx_t n)
 
     /* ensure at least the first term */
     if (cache_size == 0) {
-        term_cache = (seq_t*)malloc(sizeof(seq_t));
+        term_cache = mem_new(seq_t, 1);
         term_cache[0] = (seq_t)1;
         cache_size = 1;
     }
@@ -133,7 +135,7 @@ seq_t a(idx_t n)
         if (!passes(cand)) continue;  /* not a valid term */
 
         /* append to cache */
-        seq_t *tmp = (seq_t*)realloc(term_cache, (cache_size + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, term_cache, (cache_size + 1));
         if (!tmp) abort();            /* memory failure, terminate */
         term_cache = tmp;
         term_cache[cache_size++] = (seq_t)cand;

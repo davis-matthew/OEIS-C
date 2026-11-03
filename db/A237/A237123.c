@@ -10,7 +10,8 @@
  *            n and phi(i),phi(j),phi(k) are perfect cubes
  * Range:     u8 n <= 7000, u16 n <= 7000, u32 n <= 7000, u64 n <= 7000,
  *            u128 n <= 7000, big any n
- * Helpers:   is_perfect_cube, totient_sieve
+ * Validated: standard, pass, 86 terms through n = 6862 (2026-11-01)
+ * Helpers:   is_cube
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,22 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_perfect_cube.h"
-#include "../utils/totient_sieve.h"
+#include "../utils/is_cube.h"
+
+/* ----------
+   Utility: Euler totient sieve
+   ----------
+   Fills an array phi[0..n] with Euler's totient values.
+   Efficient for small to medium n (here n <= ~20000). */
+static void totient_sieve(idx_t n, uint64_t *phi)
+{
+    for (idx_t i = 0; i <= n; ++i) phi[i] = (uint64_t)i;
+
+    for (idx_t p = 2; p <= n; ++p)
+        if (phi[p] == (uint64_t)p)           /* p is prime */
+            for (idx_t m = p; m <= n; m += p)
+                phi[m] -= phi[m] / p;
+}
 
 seq_t a(idx_t n)
 {
@@ -37,7 +52,7 @@ seq_t a(idx_t n)
     /* Mark numbers with cube totient. */
     size_t good_cnt = 0;
     for (idx_t i = 1; i <= n; ++i) {
-        if (is_perfect_cube(phi[i])) {
+        if (is_cube(phi[i])) {
             good[i] = true;
             ++good_cnt;
         } else {

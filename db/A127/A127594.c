@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   is_prime_small
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,14 +40,13 @@ seq_t a(idx_t n)
         {
             seq_t m = (seq_t)256 * candidate + (seq_t)85; /* 256k+85 */
 
-            if (is_prime_small((uint64_t)m))
+            if (is_prime_seq((uint64_t)m))
             {
                 /* ensure enough space in the cache array */
                 if (computed >= cache_cap)
                 {
                     size_t new_cap = cache_cap ? cache_cap << 1 : 64;
-                    seq_t *tmp = (seq_t *)realloc(cache,
-                                                  new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                     if (!tmp)
                         abort(); /* allocation failure */
                     cache     = tmp;

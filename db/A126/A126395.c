@@ -9,12 +9,14 @@
  *            a(1) = 8, a(2) = 34, a(3) = 150
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* storage for computed terms */
 static idx_t  computed = 0;   /* number of terms stored (indices 0..computed-1) */
@@ -27,11 +29,11 @@ ensure_cache(idx_t n)
         /* first allocation: at least 4 terms for the recurrence base cases */
         idx_t sz = n + 1;
         if (sz < 4) sz = 4;
-        cache = (seq_t *)malloc(sz * sizeof(seq_t));
+        cache = mem_new(seq_t, sz);
     } else if (computed <= n) {
         /* grow the allocation */
         idx_t sz = n + 1;
-        cache = (seq_t *)realloc(cache, sz * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, sz);
     }
 
     /* Compute any missing terms */

@@ -7,12 +7,15 @@
  * Formula:   a(n) = n! * Sum_{k=0..floor(n/3)} (n-3k)^k/(n-3k)!
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 19, u128 n <= 31,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 38 terms through n = 349 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n) {
     idx_t max_k = n / 3;
@@ -28,7 +31,7 @@ seq_t a(idx_t n) {
 
         /* Base (n-3k) and its k-th power */
         seq_t base = (seq_t)(n - 3 * k);
-        seq_t base_pow = big_pow(base, k);
+        seq_t base_pow = ipow(base, k);
 
         /* Term for this k */
         seq_t term = product * base_pow;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 5, u64 n <= 5, u128 n <= 5,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 5 terms through n = 5 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Pre‑computed eighth powers of the digits 0–9. */
 static uint32_t pow8[10];
@@ -66,7 +68,7 @@ static bool build_tables(void) {
 static void append_fixed(uint32_t val) {
     if (fixed_len == fixed_cap) {
         size_t new_cap = fixed_cap ? fixed_cap * 2 : 64;
-        seq_t *tmp = (seq_t*)realloc(fixed, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fixed, new_cap);
         if (!tmp) return;            /* out of memory – abort silently */
         fixed = tmp;
         fixed_cap = new_cap;

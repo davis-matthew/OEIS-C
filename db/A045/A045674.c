@@ -8,13 +8,17 @@
  * Formula:   a(0)=1; a(2n)=a(n)+2^(n-1) for n>0; a(2n+1)=2^n
  * Range:     u8 n <= 16, u16 n <= 32, u32 n <= 64, u64 n <= 128,
  *            u128 n <= 200, big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 59 terms through n = 196 (2026-11-03)
+ * Helpers:   ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +27,7 @@ seq_t a(idx_t n)
 
     /* initialise cache with first term when first called */
     if (cache_size == 0) {
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) exit(1);
         cache[0] = 1;
         cache_size = 1;
@@ -32,7 +36,7 @@ seq_t a(idx_t n)
     /* extend cache up to n if necessary */
     if (n >= cache_size) {
         idx_t new_size = n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_size);
         if (!new_cache) exit(1);
         cache = new_cache;
 
@@ -43,10 +47,10 @@ seq_t a(idx_t n)
             }
             if (i & 1U) {                    /* odd: i = 2k+1 */
                 idx_t k = (i - 1) >> 1;
-                cache[i] = big_pow((seq_t)2, (seq_t)k);
+                cache[i] = ipow((seq_t)2, (seq_t)k);
             } else {                         /* even: i = 2k */
                 idx_t k = i >> 1;
-                seq_t pow_term = big_pow((seq_t)2, (seq_t)(k - 1));
+                seq_t pow_term = ipow((seq_t)2, (seq_t)(k - 1));
                 cache[i] = cache[k] + pow_term;
             }
         }

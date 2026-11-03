@@ -12,13 +12,15 @@
  *            memoised, so repeated calls share the partition...
  * Range:     u8 n <= 12, u16 n <= 32, u32 n <= 99, u64 n <= 346,
  *            u128 n <= 1290, big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 1847 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *partitions = NULL;   /* p[0..cached_n] */
 static idx_t   cached_n   = 0;
@@ -29,7 +31,7 @@ static void ensure_partitions(idx_t N)
     if (N <= cached_n) return;
 
     /* Allocate new table; zero it, set p[0] = 1. */
-    seq_t *newp = (seq_t *)malloc((N + 1) * sizeof(seq_t));
+    seq_t *newp = mem_new(seq_t, (N + 1));
     if (!newp) exit(1);
     for (idx_t i = 0; i <= N; ++i) newp[i] = 0;
     newp[0] = 1;
@@ -40,7 +42,7 @@ static void ensure_partitions(idx_t N)
             newp[i] += newp[i - j];
 
     /* Replace old table. */
-    free(partitions);
+    mem_free(partitions);
     partitions = newp;
     cached_n = N;
 }

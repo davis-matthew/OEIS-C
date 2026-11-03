@@ -11,7 +11,8 @@
  *            to 12, which is sufficient for the first 10 000 t...
  * Range:     u8 n <= 40, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   build_primes_upto, phi_k_prime
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-01)
+ * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,74 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/build_primes_upto.h"  /* build_primes_upto(limit, &primes, &cnt) */
-#include "../utils/phi_k_prime.h"
+#include <stdlib.h>
+#include "../utils/build_primes_upto.h"
+
+static bool phi_k_prime(int k, seq_t p, seq_t *res)
+{
+    seq_t t1, t2, t3, t4, t5, t6;
+    switch (k) {
+    case 1: *res = p - (seq_t)1; return true;                 /* p‑1 */
+    case 2: *res = p + (seq_t)1; return true;                 /* p+1 */
+    case 3:                                                     /* p² + p + 1 */
+        t1 = p * p;
+        *res = t1 + p + (seq_t)1;
+        return true;
+    case 4:                                                     /* p² + 1 */
+        t1 = p * p;
+        *res = t1 + (seq_t)1;
+        return true;
+    case 5:                                                     /* p⁴ + p³ + p² + p + 1 */
+        t1 = p * p;          /* p² */
+        t2 = t1 * p;         /* p³ */
+        t3 = t2 * p;         /* p⁴ */
+        *res = t3 + t2 + t1 + p + (seq_t)1;
+        return true;
+    case 6:                                                     /* p² – p + 1 */
+        t1 = p * p;
+        *res = t1 - p + (seq_t)1;
+        return true;
+    case 7:                                                     /* p⁶ + p⁵ + p⁴ + p³ + p² + p + 1 */
+        t1 = p * p;          /* p² */
+        t2 = t1 * p;         /* p³ */
+        t3 = t2 * p;         /* p⁴ */
+        t4 = t3 * p;         /* p⁵ */
+        t5 = t4 * p;         /* p⁶ */
+        *res = t5 + t4 + t3 + t2 + t1 + p + (seq_t)1;
+        return true;
+    case 8:                                                     /* p⁴ + 1 */
+        t1 = p * p;          /* p² */
+        t2 = t1 * t1;        /* p⁴ */
+        *res = t2 + (seq_t)1;
+        return true;
+    case 9:                                                     /* p⁶ + p³ + 1 */
+        t1 = p * p;          /* p² */
+        t2 = t1 * p;         /* p³ */
+        t3 = t2 * t2;        /* p⁶ */
+        *res = t3 + t2 + (seq_t)1;
+        return true;
+    case 10:                                                    /* p⁴ – p³ + p² – p + 1 */
+        t1 = p * p;          /* p² */
+        t2 = t1 * p;         /* p³ */
+        t3 = t2 * p;         /* p⁴ */
+        *res = t3 - t2 + t1 - p + (seq_t)1;
+        return true;
+    case 11:                                                    /* sum_{i=0}^{10} p^i */
+        *res = (seq_t)1;
+        t1 = p;
+        for (int i = 1; i <= 10; ++i) {
+            t1 = t1 * p;
+            *res = *res + t1;
+        }
+        return true;
+    case 12:                                                    /* p⁴ – p² + 1 */
+        t1 = p * p;          /* p² */
+        t2 = t1 * t1;        /* p⁴ */
+        *res = t2 - t1 + (seq_t)1;
+        return true;
+    default: return false; /* should not occur with JMAX=12 */
+    }
+}
 
 /* ---------- Cyclotomic values Φ_j(p) for j = 1 … JMAX ------------------ */
 #define JMAX 12 /* we compute up to Φ_12(p); this covers the first 10 000 terms */

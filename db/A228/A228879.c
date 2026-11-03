@@ -7,20 +7,23 @@
  * Formula:   a(n) = 4*3^(n/2) if n is even, a(n) = 7*3^((n-1)/2) if n is odd
  * Range:     u8 n <= 7, u16 n <= 17, u32 n <= 37, u64 n <= 78, u128 n <= 158,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 51 terms through n = 952 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
     if ((n & 1ULL) == 0ULL) {
         idx_t k = n >> 1;
-        return seq_pow((seq_t)3, k) * (seq_t)4;
+        return ipow_idx((seq_t)3, k) * (seq_t)4;
     } else {
         idx_t k = (n - 1ULL) >> 1;
-        return seq_pow((seq_t)3, k) * (seq_t)7;
+        return ipow_idx((seq_t)3, k) * (seq_t)7;
     }
 }

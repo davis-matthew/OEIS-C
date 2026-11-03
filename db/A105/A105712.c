@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 13, u128 n <= 16,
  *            big any n
- * Helpers:   pow10_idx
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,14 @@
    position n (0‑based from the least significant digit) of the
    m‑th Fibonacci number Fm is 2. */
 #include <stdlib.h>
-#include "../utils/pow10_idx.h"
+
+static seq_t pow10_idx(idx_t exp)
+{
+    seq_t res = 1;
+    for (idx_t i = 0; i < exp; ++i)
+        res *= 10;
+    return res;
+}
 
 /* Return a(n) for any n >= 0.  The function builds Fibonacci numbers
    on the fly and stops at the first occurrence of digit 2 at the

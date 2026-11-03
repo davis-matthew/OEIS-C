@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 27, u16 n <= 55, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Assume seq_t and idx_t are defined in the build environment. */
 
@@ -50,7 +52,7 @@ static void append_miss(uint64_t val)
 
     if (miss_sz == miss_cap) {
         miss_cap = miss_cap ? miss_cap * 2 : 16;
-        miss = (seq_t *)realloc(miss, miss_cap * sizeof(seq_t));
+        miss = mem_resize(seq_t, miss, miss_cap);
     }
     miss[miss_sz++] = (seq_t)val;
 }

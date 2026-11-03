@@ -9,14 +9,35 @@
  *            8 appear adjacent (as 58 or 85) in k, but not in k − 1
  * Range:     u8 n <= 4, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   has_adjacent_58_or_85
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/has_adjacent_58_or_85.h"
+
+/* test whether v contains the adjacent pair 58 or 85 */
+static bool has_adjacent_58_or_85(seq_t v)
+{
+    if (v == 0) return false;
+    unsigned char digits[64];
+    size_t len = 0;
+    seq_t tmp = v;
+    while (tmp > 0) {
+        digits[len++] = (unsigned char)(tmp % (seq_t)10);
+        tmp /= (seq_t)10;
+    }
+    /* scan digits from most significant to least */
+    for (size_t pos = len - 1; pos > 0; --pos) {
+        unsigned char high = digits[pos - 1];
+        unsigned char low  = digits[pos];
+        if ((high == 5 && low == 8) || (high == 8 && low == 5))
+            return true;
+    }
+    return false;
+}
 
 /* return the n-th term of the sequence; n ≥ 1 */
 seq_t a(idx_t n)

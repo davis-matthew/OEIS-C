@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 71, u16 n <= 71, u32 n <= 71, u64 n <= 71, u128 n <= 71,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 71 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    is exactly the described grouping rule. */
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* v2: exponent of 2 in a positive 64‑bit integer. */
 static inline unsigned int v2_uint64(uint64_t x)
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     /* allocate or grow the table */
     if (seq == NULL) {
         static idx_t init_cap = 128;
-        seq = (seq_t *)malloc(init_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, init_cap);
         if (!seq) return 0;
         len = 0;
     }

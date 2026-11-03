@@ -13,7 +13,8 @@
  *            T(n-1,k-3)+T(n-1,k-2)+T(n-1,k-1) for 3 ≤ k ≤ 2n‑1
  * Range:     u8 n <= 74, u16 n <= 189, u32 n <= 615, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 900 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdint.h>   /* for uint64_t, if needed */
+#include "../utils/mem.h"
 
 static seq_t **rows = NULL;
 static size_t rows_count = 0;
@@ -46,7 +48,7 @@ static void ensure_rows(idx_t up_to)
     for (idx_t i = rows_count; i <= up_to; ++i)
     {
         size_t len = 2 * i + 1;                       /* number of columns in row i */
-        seq_t *row = (seq_t *)calloc(len, sizeof(seq_t));
+        seq_t *row = mem_new(seq_t, len);
         if (!row) exit(EXIT_FAILURE);
 
         /* base values */

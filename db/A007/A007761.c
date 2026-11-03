@@ -12,7 +12,8 @@
  *            6381, a(3) = 1176900
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 8, u128 n <= 14,
  *            big any n
- * Helpers:   seq_is_big
+ * Validated: standard, pass, 28 terms through n = 230 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,14 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/seq_is_big.h"
+
+static int seq_is_big(void)
+{
+    seq_t x = 1;
+    int i;
+    for (i = 0; i < 130; i++) x = x * 2;
+    return !(x == 0);
+}
 
 /* small non-negative multi-limb integer, used for fixed-width builds so that
    intermediates never overflow */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 12, u32 n <= 18, u64 n <= 35, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 373 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -42,6 +43,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Node for the priority queue                                          */
@@ -86,7 +88,7 @@ static inline int node_less(const Node *x, const Node *y)
 static void heap_resize(void)
 {
     size_t new_cap = (heap_cap == 0) ? 8 : heap_cap * 2;
-    Node *tmp = (Node *)realloc(heap, new_cap * sizeof(Node));
+    Node *tmp = mem_resize(Node, heap, new_cap);
     if (!tmp) abort(); /* allocation failure */
     heap = tmp;
     heap_cap = new_cap;
@@ -139,7 +141,7 @@ static void cache_resize(size_t min_cap)
     if (cache_cap >= min_cap) return;
     size_t new_cap = (cache_cap == 0) ? 8 : cache_cap;
     while (new_cap < min_cap) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();
     cache = tmp;
     cache_cap = new_cap;

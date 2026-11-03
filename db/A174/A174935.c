@@ -11,13 +11,14 @@
  *            half‑integer, so we compute (k^((d-1)/2)) * sqrt(k)
  * Range:     u8 n <= 5, u16 n <= 17, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   seq_pow_native
+ * Validated: partial, pass, 36 terms through n = 36 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/seq_pow_native.h"
+#include "../utils/ipow_idx.h"
 
 /* Integer square root (floor) for seq_t using binary search. */
 static seq_t int_floor_sqrt(seq_t n)
@@ -64,11 +65,11 @@ seq_t a(idx_t n)
 
         if ((d & 1) == 0) {                         /* d even */
             idx_t exp = d / 2;
-            prod = seq_pow_native(k_seq, exp);
+            prod = ipow_idx(k_seq, exp);
         } else {                                     /* d odd -> k is a perfect square */
             seq_t sq = int_floor_sqrt(k_seq);
             idx_t exp = (d - 1) / 2;
-            prod = seq_pow_native(k_seq, exp) * sq;
+            prod = ipow_idx(k_seq, exp) * sq;
         }
 
         sum += prod * k_seq;

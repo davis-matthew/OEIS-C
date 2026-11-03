@@ -9,7 +9,8 @@
  *            have another digit in the integer differing by 1
  * Range:     u8 n <= 39, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   has_adjacent_digits
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,25 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/has_adjacent_digits.h"
+#include "../utils/mem.h"
+
+/* Helper that tests the adjacency property for a positive integer. */
+static bool has_adjacent_digits(idx_t x)
+{
+    bool present[10] = {false};
+    while (x > 0) {
+        present[x % 10] = true;
+        x /= 10;
+    }
+    for (int d = 0; d <= 9; ++d) {
+        if (!present[d]) continue;
+        bool ok = false;
+        if (d > 0 && present[d - 1]) ok = true;
+        if (d < 9 && present[d + 1]) ok = true;
+        if (!ok) return false;
+    }
+    return true;
+}
 
 /* Cache of computed terms. */
 static seq_t *cache = NULL;
@@ -41,7 +60,7 @@ seq_t a(idx_t n)
             /* Expand cache if needed. */
             if (cache_size + 1 > cache_cap) {
                 size_t newcap = cache_cap ? cache_cap * 2 : 128;
-                seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, newcap);
                 if (!tmp) abort();          /* allocation failure */
                 cache = tmp;
                 cache_cap = newcap;

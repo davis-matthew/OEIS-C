@@ -11,7 +11,8 @@
  *            divisor–sum formula and applies the above piecewise...
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 /* --------------------------------------------------------------------- */
 /* factor_uint64: factor n into primes (array size 16 is enough for n<=10000) */
@@ -56,7 +57,7 @@ static void dfs_Lk(uint64_t k, uint64_t n, size_t idx, uint64_t curr,
     if (idx == pc) {
         if (!is_sf) return;                 /* μ(d)=0 */
         int mu = (primecnt % 2 == 0) ? 1 : -1;
-        seq_t term = big_pow((seq_t)k, (seq_t)(n / curr));
+        seq_t term = ipow((seq_t)k, (seq_t)(n / curr));
         if (mu > 0)
             *pos += term;
         else

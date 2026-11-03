@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 278, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 60 terms through n = 883 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"   /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod); */
+#include <string.h>
+#include "../utils/powmod.h"
 
 static uint64_t *prime_list = NULL;   /* dynamic array of primes */
 static size_t prime_cap   = 0;        /* capacity of prime_list   */
@@ -82,7 +84,7 @@ seq_t a(idx_t n)
             if ((p - 1) % 23 == 0) {
                 uint64_t k = (p - 1) / 23;
                 /* 2^(k) mod p should not be 1 for the sequence prime. */
-                if (mod_pow((seq_t)2, k, (seq_t)p) != (seq_t)1) {
+                if (powmod((seq_t)2, k, (seq_t)p) != (seq_t)1) {
                     ++count;
                     if (count == n) {
                         return (seq_t)p;

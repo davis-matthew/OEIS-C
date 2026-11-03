@@ -7,16 +7,19 @@
  * Formula:   a(n) = reverse_decimal(pow_seq((seq_t)6, n))
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 24, u128 n <= 48,
  *            big any n
- * Helpers:   pow_seq, rev_decimal
+ * Validated: standard, pass, 37 terms through n = 911 (2026-11-01)
+ * Helpers:   ipow_i32, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_seq.h"
-#include "../utils/rev_decimal.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/reverse_digits.h"
 
 seq_t a(idx_t n)
 {
-    seq_t p = pow_seq((seq_t)6, n);
-    return rev_decimal(p);
+    seq_t p = ipow_i32((seq_t)6, n);
+    return reverse_digits(p);
 }

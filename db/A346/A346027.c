@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 2, u32 n <= 29, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   rev
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-03)
+ * Helpers:   mem, reverse_digits_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/rev.h"
+#include "../utils/reverse_digits_idx.h"
+#include "../utils/mem.h"
 
 /* helper: index of an odd number in the bit set */
 static inline idx_t bit_index(idx_t n)
@@ -98,7 +100,7 @@ static void build_sequence(void)
     for (idx_t n = 3; n <= LIMIT; n += 2) {
         if (!isComposite(n, comp)) {
             p = n;
-            idx_t rev_v = rev(p);
+            idx_t rev_v = reverse_digits_idx(p);
             int rev_is_prime = (rev_v != p) && isPrimeBitset(rev_v, comp, LIMIT);
             emirp_flag = rev_is_prime ? 1 : 0;
 
@@ -122,8 +124,7 @@ static void build_sequence(void)
                        i.e., last_vals[7]. */
                     if (run_cnt == run_cap) {
                         run_cap = run_cap ? run_cap * 2 : 1024;
-                        seq_t *tmp = (seq_t *)realloc(run_seq,
-                                                      run_cap * sizeof(seq_t));
+                        seq_t *tmp = mem_resize(seq_t, run_seq, run_cap);
                         if (!tmp) { free(comp); exit(1); }
                         run_seq = tmp;
                     }

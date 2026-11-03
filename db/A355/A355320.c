@@ -13,21 +13,17 @@
  *            outside the domain are treated as zero). The function computes
  *            a(n) by building rows of the trian...
  * Range:     u8 n <= 135, u16 n <= 404, u32 n <= 1368, u64 n <= 4647,
- *            u128 n <= 9775, big any n
- * Helpers:   none
+ *            u128 n <= 10010, big any n
+ * Validated: standard, pass, 107 terms through n = 9775 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#if defined(__cplusplus)
-#include <cstddef>
-inline seq_t *alloc_seq(size_t n) { return new seq_t[n]; }
-inline void free_seq(seq_t *p) { delete[] p; }
-#else
 #include <stddef.h>
-static inline seq_t *alloc_seq(size_t n) { return (seq_t*)calloc(n, sizeof(seq_t)); }
-static inline void free_seq(seq_t *p) { free(p); }
-#endif
+#include "../utils/mem.h"
+static inline seq_t *alloc_seq(size_t n) { return mem_new(seq_t, n); }
+static inline void free_seq(seq_t *p) { mem_free(p); }
 #include <stdlib.h>
 #include <stdint.h>
 

@@ -10,13 +10,15 @@
  *            divisors of m
  * Range:     u8 n <= 93, u16 n <= 310, u32 n <= 1164, u64 n <= 5008,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 89 terms through n = 9950 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp_cache = NULL;
 static idx_t dp_cache_size = 0;
@@ -25,9 +27,9 @@ seq_t a(idx_t n)
 {
     if (n + 1 > dp_cache_size) {
         /* Recreate cache for current n */
-        if (dp_cache) free(dp_cache);
+        if (dp_cache) mem_free(dp_cache);
         dp_cache_size = n + 1;
-        dp_cache = (seq_t*)calloc(dp_cache_size, sizeof(seq_t));
+        dp_cache = mem_new(seq_t, dp_cache_size);
         if (!dp_cache) return 0;
         dp_cache[0] = 1;
 

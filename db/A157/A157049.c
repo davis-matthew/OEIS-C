@@ -9,7 +9,8 @@
  *            (p(n+1)-p(n)), where p(k) is the k‑th prime
  * Range:     u8 n <= 54, u16 n <= 6542, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _prime_limit_for_idx, build_primes_upto, gcd
+ * Validated: standard, pass, 75 terms through n = 9619 (2026-11-01)
+ * Helpers:   build_primes_upto, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,17 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/_prime_limit_for_idx.h"   /* idx_t _prime_limit_for_idx(idx_t n); */
-#include "../utils/build_primes_upto.h"      /* void build_primes_upto(idx_t limit, uint64_t **primes_out, size_t *cnt_out); */
-#include "../utils/gcd.h"                    /* seq_t gcd(seq_t a, seq_t b); */
+#include <math.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/gcd.h"
+
+static size_t _prime_limit_for_idx(idx_t n) {
+    /* Rough upper bound for the n-th prime using n*(log n + log log n) + 3 */
+    if (n < 6) return 15; /* first 6 primes < 15 */
+    double nn = (double)n;
+    double bound = nn * (log(nn) + log(log(nn))) + 3.0;
+    return (size_t)bound;
+}
 
 /* Prime cache: array of primes up to the currently known upper bound.  */
 static uint64_t *prime_cache = NULL;

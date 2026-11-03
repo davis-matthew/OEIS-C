@@ -10,14 +10,25 @@
  *            T(k-1,k-j) for 1 <= j <= k, a(n) = T(n,n)
  * Range:     u8 n <= 6, u16 n <= 9, u32 n <= 14, u64 n <= 23, u128 n <= 38,
  *            big any n
- * Helpers:   grow_buf
+ * Validated: standard, pass, 39 terms through n = 481 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/grow_buf.h"
+#include "../utils/mem.h"
+
+static seq_t *grow_buf(seq_t *old, idx_t oldlen, idx_t newcap) {
+  seq_t *p = mem_new(seq_t, (size_t)newcap);
+  idx_t i;
+  mem_set(p, 0, (size_t)newcap * sizeof(seq_t));
+  for (i = 0; i < newcap; i++) p[i] = 0;
+  for (i = 0; i < oldlen; i++) p[i] = old[i];
+  if (old) mem_free(old);
+  return p;
+}
 
 static seq_t *R = NULL, *P = NULL, *Q = NULL;
 static idx_t done = 0, cap = 0;

@@ -12,8 +12,9 @@
  *            antidiagonal entry, where (i,j) = A(n,k). The pair is obtained
  *            by d = smallest integer with d*(d+1)/2 >= n offset = n -
  *            (d-1)*d/2 i = offset j = d - offset + 1 and the recu...
- * Range:     u8 n <= 9744, u16 n <= 9744, u32 n <= 9744, u64 n <= 9744,
- *            u128 n <= 9744, big any n
+ * Range:     u8 n <= 10585, u16 n <= 10585, u32 n <= 10585, u64 n <= 10585,
+ *            u128 n <= 10585, big any n
+ * Validated: standard, pass, 136 terms through n = 9744 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

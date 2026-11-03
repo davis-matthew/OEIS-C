@@ -8,6 +8,7 @@
  *            4*a(n-1) – 7*a(n-2) + 4*a(n-3) – a(n-4)
  * Range:     i8 n <= 5, i16 n <= 14, i32 n <= 28, i64 n <= 28, i128 n <= 28,
  *            big any n
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

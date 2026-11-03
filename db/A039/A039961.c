@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 70, i16 n <= 70, i32 n <= 70, i64 n <= 70, i128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,6 +35,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Return the length of row r of the triangle.
  * For r = 1 or 2 the row has length 1.
@@ -67,7 +69,7 @@ static void compute_up_to(idx_t r)
     {
         idx_t len         = row_length(i);
         size_t sz         = (size_t)len;
-        coeffs[i] = (seq_t *)malloc(sz * sizeof(seq_t));
+        coeffs[i] = mem_new(seq_t, sz);
         if (coeffs[i] == NULL)
             abort();
 

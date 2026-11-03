@@ -10,6 +10,7 @@
  *            floor((n-k-j+1)/j)
  * Range:     u8 n <= 13, u16 n <= 25, u32 n <= 50, u64 n <= 99, u128 n <= 198,
  *            big any n
+ * Validated: standard, pass, 58 terms through n = 495 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

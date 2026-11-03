@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   digit_counts, factor_u64, seq_to_str
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   digit_counts, factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,31 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/factor_u64.h"
-#include "../utils/seq_to_str.h"
+#include <stddef.h>
+#include <stdint.h>
 #include "../utils/digit_counts.h"
+#include "../utils/factor_u64.h"
+#include "../utils/mem.h"
+
+/* convert a seq_t value to a decimal string */
+static void seq_to_str(seq_t v, char *buf, size_t *len)
+{
+    if (v == 0) {
+        buf[0] = '0';
+        *len = 1;
+        return;
+    }
+    char tmp[64];
+    int pos = 0;
+    seq_t ten = (seq_t)10;
+    while (v != 0) {
+        tmp[pos++] = '0' + (int)(v % ten);
+        v /= ten;
+    }
+    for (int i = 0; i < pos; ++i)
+        buf[i] = tmp[pos - 1 - i];
+    *len = pos;
+}
 
 /* Helper: test whether integer 'num' fulfills the sequence conditions. */
 static bool qualifies(uint64_t num)
@@ -85,7 +108,7 @@ static void append_term(seq_t val)
     if (term_len == term_cap)
     {
         size_t new_cap = term_cap ? term_cap * 2 : 16;
-        seq_t *tmp = (seq_t *)realloc(term_buffer, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, term_buffer, new_cap);
         if (!tmp) abort();           /* out of memory */
         term_buffer = tmp;
         term_cap   = new_cap;

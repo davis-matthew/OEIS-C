@@ -11,15 +11,16 @@
  *            contain the flattened index n. The row and column are given by *
  *            r = floor((sqrt(8*n+1)-3)/2) + 1 * m = n - r*(r+1)/2 * * This
  *            implements the OEIS sequence A273167
- * Range:     u8 n <= 9, u16 n <= 35, u32 n <= 65, u64 n <= 65, u128 n <= 65,
+ * Range:     u8 n <= 20, u16 n <= 54, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +39,7 @@ seq_t a(idx_t n)
     }
 
     idx_t k = r - m;                /* binomial argument: choose k */
-    seq_t bin = binom(2 * r, k);    /* binomial coefficient */
+    seq_t bin = binomial(2 * r, k);    /* binomial coefficient */
 
     /* Count trailing powers of two in the binomial coefficient. */
     int tz = 0;

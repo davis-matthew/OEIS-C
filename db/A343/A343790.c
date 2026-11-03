@@ -8,12 +8,14 @@
  *            Bell numbers with blocks of size 7 forbidden)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 18, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* precomputed values of a(n) */
 static size_t cache_cap = 0;     /* current allocated capacity */
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
         size_t new_cap = n + 1;
         if (new_cap < 4) new_cap = 4;
         while (new_cap < n + 1) new_cap <<= 1;   /* double until sufficient */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cache_cap = new_cap;
     }

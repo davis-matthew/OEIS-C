@@ -7,20 +7,22 @@
  * Formula:   a(n) = number of partitions of n into parts 1, 2, 9 and 11
  * Range:     u8 n <= 53, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const idx_t _parts[4] = {1, 2, 9, 11};
 
 seq_t a(idx_t n)
 {
     // Allocate array dp[0..n] and initialize to zero.
-    seq_t *dp = (seq_t*)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, (size_t)(n + 1));
     if (!dp) return 0;     // In case of allocation failure.
     dp[0] = 1;             // Base case: one way to make 0.
 
@@ -34,6 +36,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[n];
-    free(dp);
+    mem_free(dp);
     return result;
 }

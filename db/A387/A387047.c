@@ -8,12 +8,15 @@
  * Formula:   a(n) = (n-2)/2 * (n+1)^(n-2) for n >= 2, a(1) = 0
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 27,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 36 terms through n = 89 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +27,7 @@ seq_t a(idx_t n)
     /* (n+1)^(n-2) */
     seq_t base = (seq_t)(n + 1);
     seq_t exp  = (seq_t)(n - 2);
-    seq_t power = big_pow(base, exp);
+    seq_t power = ipow(base, exp);
 
     /* Compute (n-2)/2 * power accurately for all n */
     idx_t nm2 = n - 2;

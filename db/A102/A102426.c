@@ -9,14 +9,15 @@
  *            flattened index in the triangle, r is the row number and k is
  *            the position within that row (0‑based). Row lengths: len(0) = 1,
  *            len(r) = ((r-1)/2)+1 for r>0
- * Range:     u8 n <= 44, u16 n <= 81, u32 n <= 81, u64 n <= 81, u128 n <= 81,
- *            big any n
- * Helpers:   binom_val
+ * Range:     u8 n <= 67, u16 n <= 201, u32 n <= 686, u64 n <= 2470,
+ *            u128 n <= 2550, big any n
+ * Validated: standard, pass, 98 terms through n = 2428 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom_val.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -42,5 +43,5 @@ seq_t a(idx_t n)
     idx_t N = a1 + k;                    /* numerator binom */
     idx_t K = a2 - k;                    /* denominator binom */
 
-    return binom_val(N, K);
+    return binomial(N, K);
 }

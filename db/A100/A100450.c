@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 38, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   comb3
+ * Validated: standard, pass, 56 terms through n = 999 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,18 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/comb3.h"
+
+/* binomial coefficient C(n,3) for n >= 0, using seq_t */
+static seq_t comb3(idx_t n)
+{
+    if (n < 3) return 0;
+    seq_t a = (seq_t)n;
+    seq_t b = (seq_t)(n - 1);
+    seq_t c = (seq_t)(n - 2);
+    /* compute a*b*c/6 safely */
+    seq_t num = a * b * c;
+    return num / 6;
+}
 
 /* static tables for μ */
 static int8_t  *mu_tab  = NULL;   /* μ[0..]   */

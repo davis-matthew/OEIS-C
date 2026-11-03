@@ -8,14 +8,16 @@
  *            (reverse_digits: decimal reversal of the integer)
  * Range:     u8 none, u16 n <= 1, u32 n <= 12, u64 n <= 35, u128 n <= 78,
  *            big any n
- * Helpers:   rev_digits_seq_t
+ * Validated: standard, pass, 36 terms through n = 2403 (2026-11-03)
+ * Helpers:   mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/rev_digits_seq_t.h"
+#include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
 
 /* Cache of previously computed terms. */
 static seq_t *cache  = NULL;   /* array of computed terms */
@@ -26,7 +28,7 @@ seq_t a(idx_t n) {
     /* Ensure the cache is initialized. */
     if (cache == NULL) {
         cache_cap = (idx_t)8;
-        cache = (seq_t *)malloc((size_t)cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)cache_cap);
         if (cache == NULL) {
             /* Allocation failure: return 0 (should never happen in tests). */
             return (seq_t)0;
@@ -46,7 +48,7 @@ seq_t a(idx_t n) {
         while (n >= new_cap) {
             new_cap *= (idx_t)2;
         }
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)new_cap);
         if (tmp == NULL) {
             /* Allocation failure: return 0. */
             return (seq_t)0;
@@ -62,7 +64,7 @@ seq_t a(idx_t n) {
             continue;
         }
         seq_t prev = cache[i - (idx_t)1];
-        seq_t rev  = rev_digits_seq_t(prev);
+        seq_t rev  = reverse_digits(prev);
         seq_t next = prev + rev;
         cache[i] = next;
     }

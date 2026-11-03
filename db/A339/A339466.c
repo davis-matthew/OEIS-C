@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 4202, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gpf, next_prime
+ * Validated: standard, pass, 68 terms through n = 9808 (2026-11-03)
+ * Helpers:   largest_prime_factor, mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,10 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/gpf.h"      /* uint64_t gpf(uint64_t); */
-#include "../utils/next_prime.h"   /* uint64_t next_prime(uint64_t); */
+#include <stdint.h>
+#include "../utils/largest_prime_factor.h"
+#include "../utils/next_prime.h"
+#include "../utils/mem.h"
 
 /* External linkage function as required */
 seq_t a(idx_t n)
@@ -42,7 +45,7 @@ seq_t a(idx_t n)
     /* ensure the cache can grow */
     if (cache_cap == 0) {
         cache_cap = 16;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return 0; /* allocation failure, but unlikely in tests */
     }
 
@@ -55,17 +58,17 @@ seq_t a(idx_t n)
         /* skip if m==0 (should not happen) */
         if (m == 0) continue;
 
-        uint64_t g1 = gpf(m);        /* greatest prime factor of m */
+        uint64_t g1 = largest_prime_factor(m);        /* greatest prime factor of m */
         if (g1 == 0) continue;      /* should not happen */
 
         uint64_t q = m / g1;         /* quotient */
 
         /* check the condition: gpf(q) > 3 */
-        if (gpf(q) > 3) {
+        if (largest_prime_factor(q) > 3) {
             /* store the prime, cast to seq_t (assumed to fit) */
             if (cache_size >= cache_cap) {
                 cache_cap *= 2;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
                 if (!cache) return 0;
             }
             cache[cache_size] = (seq_t)last_prime;

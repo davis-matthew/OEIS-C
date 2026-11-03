@@ -9,16 +9,19 @@
  * Formula:   a(n) = Sum_{d|n} A003415(d) * A003959(n/d) * A003415 is the
  *            arithmetic derivative, A003959 is fully * multiplicative with
  *            a(p) = p+1
- * Range:     u8 n <= 23, u16 n <= 575, u32 n <= 8934, u64 n <= 8934,
- *            u128 n <= 8934, big any n
- * Helpers:   big_pow, factor_u64
+ * Range:     u8 n <= 23, u16 n <= 575, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 94 terms through n = 8934 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/ipow.h"
 
 static void dfs(uint64_t idx,
                 seq_t curr,
@@ -42,7 +45,7 @@ static void dfs(uint64_t idx,
         for (size_t j = 0; j < cnt; ++j) {
             uint64_t diff = ex[j] - curr_e[j];
             if (diff) {
-                b_val *= big_pow((seq_t)(pr[j] + 1), (seq_t)diff);
+                b_val *= ipow((seq_t)(pr[j] + 1), (seq_t)diff);
             }
         }
 

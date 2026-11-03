@@ -6,8 +6,9 @@
  * Keywords:  nonn, tabl, easy
  * Formula:   a(n) = binomial(2*r-1 , k) where r is the largest integer with
  *            r*(r+1)/2 <= n and k = n - r*(r+1)/2
- * Range:     u8 n <= 18, u16 n <= 50, u32 n <= 54, u64 n <= 54, u128 n <= 54,
+ * Range:     u8 n <= 24, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t n)

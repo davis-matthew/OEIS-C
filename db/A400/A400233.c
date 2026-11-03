@@ -8,6 +8,7 @@
  * Formula:   a(n) = (n+1)^4 - 2*(n-1)^4
  * Range:     i8 n <= 2, i16 n <= 17, i32 n <= 218, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 51 terms through n = 9884 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

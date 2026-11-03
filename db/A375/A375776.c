@@ -7,13 +7,15 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, look, base
  * Formula:   a(n) = smallest k such that for all i < n with a(i)=k, n & i = 0
- * Range:     u8 n <= 404, u16 n <= 9335, u32 n <= 9335, u64 n <= 9335,
- *            u128 n <= 9335, big any n
+ * Range:     u8 n <= 404, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 91 terms through n = 9335 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <string.h>
 /* This implementation keeps a growing cache of computed values and a
    list of bit masks for each color.  It works for all C11 and C++17
    builds, handling both built‑in integer types and arbitrary‑precision

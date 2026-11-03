@@ -8,7 +8,8 @@
  *            Σ_{d|gcd(n,k)} d * μ(n/d)
  * Range:     i8 n <= 66, i16 n <= 66, i32 n <= 66, i64 n <= 66, i128 n <= 66,
  *            big any n
- * Helpers:   gcd_idx_t_func, mobius_calc
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-01)
+ * Helpers:   gcd_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,35 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/gcd_idx_t_func.h"
-#include "../utils/mobius_calc.h"
+#include "../utils/gcd_idx.h"
+
+/* Mobius function μ(m) for unsigned 64‑bit integers */
+static inline int mobius_calc(idx_t m)
+{
+    if (m == 0) return 0;
+    if (m == 1) return 1;
+
+    idx_t n = m;
+    int prime_factors = 0;
+
+    /* trial division up to sqrt(n) */
+    for (idx_t p = 2; ( (__uint128_t)p * p) <= n; ++p) {
+        if (n % p == 0) {
+            int exp = 0;
+            while (n % p == 0) {
+                n /= p;
+                ++exp;
+                if (exp > 1)      /* squared prime factor → μ = 0 */
+                    return 0;
+            }
+            ++prime_factors;
+        }
+    }
+    if (n > 1)  /* remaining prime factor */
+        ++prime_factors;
+
+    return (prime_factors & 1) ? -1 : 1;
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)
@@ -46,7 +74,7 @@ seq_t a(idx_t n)
     idx_t k = n - prev_total;
 
     /* --- Compute gcd(r, k) --- */
-    idx_t G = gcd_idx_t_func(r, k);
+    idx_t G = gcd_idx(r, k);
 
     /* --- Sum over divisors of G: d * μ(r/d) --- */
     seq_t sum = 0;

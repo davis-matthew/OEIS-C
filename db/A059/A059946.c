@@ -7,13 +7,15 @@
  * Formula:   a(n) = (1/120) * (10^n - 5·6^n - 10·4^n + 20·3^n + 30·2^n - 60)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 11, u64 n <= 21, u128 n <= 39,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 38 terms through n = 196 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -40,11 +42,11 @@ seq_t a(idx_t n)
     }
 
     /* Arbitrary‑precision build: use big_pow for exponentiation. */
-    seq_t pow2  = big_pow((seq_t)2, (seq_t)n);
-    seq_t pow3  = big_pow((seq_t)3, (seq_t)n);
-    seq_t pow4  = big_pow((seq_t)4, (seq_t)n);
-    seq_t pow6  = big_pow((seq_t)6, (seq_t)n);
-    seq_t pow10 = big_pow((seq_t)10, (seq_t)n);
+    seq_t pow2  = ipow((seq_t)2, (seq_t)n);
+    seq_t pow3  = ipow((seq_t)3, (seq_t)n);
+    seq_t pow4  = ipow((seq_t)4, (seq_t)n);
+    seq_t pow6  = ipow((seq_t)6, (seq_t)n);
+    seq_t pow10 = ipow((seq_t)10, (seq_t)n);
 
     seq_t term = pow10;
     term -= pow6 * (seq_t)5;

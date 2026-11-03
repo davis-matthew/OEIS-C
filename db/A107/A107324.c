@@ -8,7 +8,8 @@
  *            A107324)
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 90 terms through n = 90 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Compute the function a(n) as described above. */
 seq_t a(idx_t n)
@@ -27,8 +29,8 @@ seq_t a(idx_t n)
 
     /* Allocate arrays to hold small and large divisors */
     idx_t max_cnt = sqrt_n + 1;
-    seq_t *small = (seq_t*)malloc(sizeof(seq_t) * max_cnt);
-    seq_t *large = (seq_t*)malloc(sizeof(seq_t) * max_cnt);
+    seq_t *small = mem_new(seq_t, max_cnt);
+    seq_t *large = mem_new(seq_t, max_cnt);
     if (!small || !large) return 0;   /* allocation failed */
 
     idx_t small_cnt = 0, large_cnt = 0;
@@ -75,7 +77,7 @@ seq_t a(idx_t n)
         result = lhalf + rhalf + rem_sum / 2;
     }
 
-    free(small);
-    free(large);
+    mem_free(small);
+    mem_free(large);
     return result;
 }

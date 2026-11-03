@@ -9,7 +9,8 @@
  *            neighbours
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static bool valid_row(int prev, int cur, int next) {
     /* check for every column that has a 1 in cur */
@@ -63,17 +65,17 @@ seq_t a(idx_t n) {
     }
 
     const size_t STATES = 32U * 32U;           /* (prev<<5)|cur  */
-    seq_t *dp = (seq_t *)malloc(STATES * sizeof(seq_t));
-    seq_t *newdp = (seq_t *)malloc(STATES * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, STATES);
+    seq_t *newdp = mem_new(seq_t, STATES);
     if (!dp || !newdp) return 0;              /* allocation failure (unlikely) */
 
-    memset(dp, 0, STATES * sizeof(seq_t));
+    mem_set(dp, 0, STATES * sizeof(seq_t));
     seq_t one = 1;
     for (int r = 0; r < 32; r++)
         dp[(0 << 5) | r] = one;              /* start with prev = 0 */
 
     for (idx_t step = 2; step <= n; ++step) {
-        memset(newdp, 0, STATES * sizeof(seq_t));
+        mem_set(newdp, 0, STATES * sizeof(seq_t));
         for (size_t idx = 0; idx < STATES; ++idx) {
             seq_t val = dp[idx];
             if (val == 0) continue;
@@ -102,7 +104,7 @@ seq_t a(idx_t n) {
             ans += val;
     }
 
-    free(dp);
-    free(newdp);
+    mem_free(dp);
+    mem_free(newdp);
     return ans;
 }

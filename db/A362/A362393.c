@@ -8,13 +8,14 @@
  *            (n-4*k)!)
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 19, u128 n <= 31,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: standard, pass, 38 terms through n = 385 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_seq.h"  /* seq_t pow_seq(seq_t a, int k) */
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -33,7 +34,7 @@ seq_t a(idx_t n)
     {
         /* exponent = n - 3*k - 1  (non‑negative for k <= floor(n/4) ) */
         idx_t exp_idx = n - 3*k - 1;
-        seq_t pow_term = pow_seq((seq_t)(k + 1), (int)exp_idx);
+        seq_t pow_term = ipow_i32((seq_t)(k + 1), (int)exp_idx);
 
         /* comb = numerator / denominator  (exact division) */
         seq_t comb = numerator / denominator;

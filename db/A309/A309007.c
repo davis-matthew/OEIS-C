@@ -8,14 +8,30 @@
  *            (a(n) = 0 for n <= 1 or n > 9876543210)
  * Range:     u8 none, u16 none, u32 none, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   digit_len, has_unique_digits
+ * Validated: partial, pass, 86 terms through n = 87 (2026-11-01)
+ * Helpers:   num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/digit_len.h"
-#include "../utils/has_unique_digits.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/num_digits.h"
+
+/* Helper: true if x has all distinct decimal digits */
+static bool has_unique_digits(seq_t x)
+{
+    unsigned int mask = 0;
+    while (x > 0) {
+        unsigned int d = (unsigned int)(x % 10);
+        if (mask & (1u << d))
+            return false;
+        mask |= (1u << d);
+        x /= 10;
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {
@@ -30,7 +46,7 @@ seq_t a(idx_t n)
     seq_t power = (seq_t)n;   /* n^1 */
     seq_t best_k = 0;
 
-    for (seq_t k = 1; digit_len(power) <= 10; ++k) {
+    for (seq_t k = 1; num_digits(power) <= 10; ++k) {
         if (has_unique_digits(power))
             best_k = k;
         power *= (seq_t)n;   /* advance to n^(k+1) */

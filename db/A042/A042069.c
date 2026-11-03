@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 15, u32 n <= 29, u64 n <= 58, u128 n <= 112,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 188 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Local state for incremental generation of terms */
 static seq_t *cache   = NULL;   /* array of computed denominators          */
@@ -41,12 +43,12 @@ static seq_t *ensure_cache(size_t needed)
     if (needed <= cache_len) return cache;
 
     /* Grow the cache to at least 'needed' elements; use malloc for the demo */
-    seq_t *new_cache = (seq_t *)malloc(needed * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, needed);
     if (!new_cache) abort(); /* out of memory */
     /* copy existing values if any */
     for (size_t i = 0; i < cache_len; ++i) new_cache[i] = cache[i];
     /* free old cache */
-    free(cache);
+    mem_free(cache);
     cache = new_cache;
     cache_len = needed;
     return cache;
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
     /* First use: initialise the cache and the state for the continued fraction */
     if (cache_len == 0) {
         /* Allocate just enough for the asked index initially */
-        cache = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        cache = mem_new(seq_t, (n + 1));
         if (!cache) abort(); /* out of memory */
         cache_len = n + 1;
 

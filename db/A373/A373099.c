@@ -7,16 +7,21 @@
  * Formula:   a(n) = (n*2^n + 1) mod 10
  * Range:     u8 n <= 79, u16 n <= 79, u32 n <= 79, u64 n <= 79, u128 n <= 79,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 80 terms through n = 79 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n) {
     /* compute 2^n mod 10 */
-    seq_t pow2mod = mod_pow((seq_t)2, n, (seq_t)10);
+    seq_t pow2mod = powmod((seq_t)2, n, (seq_t)10);
 
     /* only n mod 10 matters for the product modulo 10 */
     seq_t nmod = (seq_t)(n % (idx_t)10);

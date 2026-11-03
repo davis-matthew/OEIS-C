@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 3245, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow, next_prime
+ * Validated: standard, pass, 69 terms through n = 9645 (2026-11-03)
+ * Helpers:   mem, next_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,8 +31,12 @@
 
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../utils/next_prime.h"
-#include "../utils/mod_pow.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static seq_t *prime_cache   = NULL;  /* cached primes satisfying the condition */
 static size_t cache_len    = 0;       /* number of cached primes */
@@ -63,7 +68,7 @@ seq_t a(idx_t n)
             seq_t base = (seq_t)((mod163 == 0) ? 0 : p - mod163);
 
             /* Euler's criterion: base ^ ((p-1)/2) mod p should be 1 */
-            seq_t res = mod_pow(base, (p - 1) / 2, (seq_t)p);
+            seq_t res = powmod(base, (p - 1) / 2, (seq_t)p);
             if (res == (seq_t)1)
                 accepted = true;
         }
@@ -74,7 +79,7 @@ seq_t a(idx_t n)
             if (cache_len >= cache_cap)
             {
                 size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(prime_cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, prime_cache, new_cap);
                 if (!tmp) return (seq_t)0;          /* memory failure, return 0 */
                 prime_cache = tmp;
                 cache_cap   = new_cap;

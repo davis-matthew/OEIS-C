@@ -13,12 +13,14 @@
  *            1,2,2,2 respectively), restricted to stay non‑nega...
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,20 +35,20 @@ seq_t a(idx_t n)
     /* first call initialisation */
     if (!prev) {
         dp_cap = 1;
-        prev = (seq_t *)calloc(dp_cap, sizeof(seq_t));
-        curr = (seq_t *)calloc(dp_cap, sizeof(seq_t));
+        prev = mem_new(seq_t, dp_cap);
+        curr = mem_new(seq_t, dp_cap);
         /* a(0) = 1: the empty walk */
         prev[0] = 1;
 
         cache_cap = 1;
-        cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = 1;
     }
 
     /* enlarge cache if necessary */
     if ((size_t)n >= cache_cap) {
         size_t new_cap = (size_t)n + 1;
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         /* zero the new part (not strictly needed) */
         for (size_t i = cache_cap; i < new_cap; ++i) cache[i] = 0;
         cache_cap = new_cap;
@@ -62,8 +64,8 @@ seq_t a(idx_t n)
         size_t need_cap = (size_t)step + 1;
         if (dp_cap < need_cap) {
             dp_cap = need_cap;
-            prev = (seq_t *)realloc(prev, dp_cap * sizeof(seq_t));
-            curr = (seq_t *)realloc(curr, dp_cap * sizeof(seq_t));
+            prev = mem_resize(seq_t, prev, dp_cap);
+            curr = mem_resize(seq_t, curr, dp_cap);
         }
 
         /* zero destination array */

@@ -11,13 +11,15 @@
  *            from 1; the first term is T(1,1)
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 90 terms through n = 90 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* -------------  DP storage ------------- */
 static seq_t **dp = NULL;           /* dp[row][k] = T(row,k)   */
@@ -39,8 +41,8 @@ static void ensure_rows(idx_t rows)
     for (idx_t r = dp_rows + 1; r <= rows; ++r)
     {
         /* allocate two rows of size r+1 (index 0 unused) */
-        dp[r]    = (seq_t*)calloc((size_t)(r + 1), sizeof(seq_t));
-        pref[r]  = (seq_t*)calloc((size_t)(r + 1), sizeof(seq_t));
+        dp[r]    = mem_new(seq_t, (size_t)(r + 1));
+        pref[r]  = mem_new(seq_t, (size_t)(r + 1));
         if (!dp[r] || !pref[r]) continue; /* ignore failure */
 
         /* compute dp[r][k] for k from r down to 1 */

@@ -7,6 +7,7 @@
  * Formula:   a(n) = binomial(n+7,7)*6^n
  * Range:     u8 n <= 0, u16 n <= 3, u32 n <= 7, u64 n <= 17, u128 n <= 39,
  *            big any n
+ * Validated: standard, pass, 36 terms through n = 374 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

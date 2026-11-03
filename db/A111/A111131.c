@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 26, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   cube, isprime_big
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,14 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "../utils/isprime_big.h"   /* isprime_big(seq_t n) */
-#include "../utils/cube.h"          /* cube(seq_t x) */
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
+
+/* Compute x^3 using seq_t arithmetic. */
+static seq_t cube(seq_t x)
+{
+    return x * x * x;
+}
 
 /* Global memoisation tables */
 static seq_t *seq  = NULL;   /* cached a(i) values */
@@ -38,7 +45,7 @@ static bool valid_diff(seq_t diff)
     /* strip factors of 2 */
     while (d % two == (seq_t)0)
         d /= two;
-    return d > (seq_t)1 && isprime_big(d);
+    return d > (seq_t)1 && is_prime_seq(d);
 }
 
 /* Ensure the memoisation tables can store up to n entries */
@@ -49,12 +56,12 @@ static void build_up_to(idx_t n)
     /* initialise / grow tables */
     if (cap == 0) {
         cap  = 16;
-        seq  = (seq_t *)malloc(cap * sizeof(seq_t));
+        seq  = mem_new(seq_t, cap);
         root = (idx_t *)malloc(cap * sizeof(idx_t));
     }
     while (cap < n) {
         cap <<= 1;
-        seq  = (seq_t *)realloc(seq,  cap * sizeof(seq_t));
+        seq  = mem_resize(seq_t, seq, cap);
         root = (idx_t *)realloc(root, cap * sizeof(idx_t));
     }
 

@@ -7,7 +7,8 @@
  * Formula:   a(n) = nth integer > 1 for which 6*n-7 is not prime
  * Range:     u8 n <= 130, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 79 terms through n = 965 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* simple primality test for 64‑bit values – fast enough for small 6*n‑7 */
 static bool is_prime_u64(uint64_t v)
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
 
     if (cache == NULL) {
         cap   = 64;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
     }
 
     while (size < n) {
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
         /* store found integer in cache */
         if (size >= cap) {
             cap = cap * 2;
-            cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cap);
         }
         cache[size++] = (seq_t)next;
         ++next;

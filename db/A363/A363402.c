@@ -8,13 +8,16 @@
  *            the distinct prime factors of n
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 /* Return the product of distinct prime factors of n (the radical of n). */
 static seq_t rad_of(idx_t n)
@@ -59,7 +62,7 @@ seq_t a(idx_t n)
     seq_t factor = (seq_t)n / rad;          /* exact division */
 
     /* Compute 2^n and (4^n - 2^n). */
-    seq_t pow2 = seq_pow((seq_t)2, n);      /* 2^n */
+    seq_t pow2 = ipow_idx((seq_t)2, n);      /* 2^n */
     seq_t diff = pow2 * pow2 - pow2;         /* 4^n - 2^n */
 
     return factor * diff;

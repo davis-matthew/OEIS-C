@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = 1 + A347950(n) a(n) = 2 if n has a middle divisor,
  *            otherwise a(n) = 1 (A mid‑divisor d satisfies ⌈n/2⌉ ≤ d² ≤ n.)
- * Range:     u8 n <= 9717, u16 n <= 9717, u32 n <= 9717, u64 n <= 9717,
- *            u128 n <= 9717, big any n
+ * Range:     u8 n <= 16384, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 121 terms through n = 9717 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

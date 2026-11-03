@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 67, u16 n <= 3782, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   permute
+ * Validated: standard, pass, 76 terms through n = 9382 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,24 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>      /* for abort() */
-#include "../utils/permute.h"
+#include "../utils/mem.h"
+
+/* ---------- Generate all numbers for a given mask (including all permutations) ---------- */
+static void permute(const int *digits, int k, uint32_t value,
+                    unsigned used, uint32_t *out, size_t *cnt)
+{
+    if (used == (1U << k) - 1) {
+        out[*cnt] = value;
+        ++(*cnt);
+        return;
+    }
+    for (int i = 0; i < k; ++i) {
+        if (!(used & (1U << i))) {
+            permute(digits, k, value * 10u + (uint32_t)digits[i],
+                    used | (1U << i), out, cnt);
+        }
+    }
+}
  
 /* Types supplied by the build */
 typedef idx_t seq_idx_t;    /* uint64_t, unsigned */
@@ -127,7 +145,7 @@ static void init_sequence(void)
     /* Build sorted list of unique ratios */
     sorted_count = 0;
     /* Upper bound 200000 is safe for the 179540 terms */
-    sorted_ratios = (seq_val_t *)malloc(200000 * sizeof(seq_val_t));
+    sorted_ratios = mem_new(seq_val_t, 200000);
     if (!sorted_ratios) abort();
 
     for (uint32_t v = 1; v <= MAX_RATIO; ++v) {

@@ -13,14 +13,15 @@
  *            antidiagonals: i is the row (offset), j the colum...
  * Range:     i8 n <= 52, i16 n <= 102, i32 n <= 207, i64 n <= 493,
  *            i128 n <= 1272, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 92 terms through n = 9152 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 #define MAX_N 300  /* sufficient for n up to about 10000 */
 
@@ -40,7 +41,7 @@ static seq_t A_rec(idx_t n, idx_t k)
     } else {
         seq_t sum = 0;
         for (idx_t i = k; i <= n-1; ++i) {
-            seq_t b   = binom(n-1, i);          /* binom(n-1,i) */
+            seq_t b   = binomial(n-1, i);          /* binom(n-1,i) */
             seq_t val = A_rec(n-1-i, k);        /* A(n-1-i,k)  */
             sum += b * val;
         }

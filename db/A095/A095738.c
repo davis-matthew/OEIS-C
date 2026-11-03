@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 5731, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _smallest_prime_factor, gcd, seq_alloc, seq_realloc, sigma_of
+ * Validated: standard, pass, 71 terms through n = 9881 (2026-11-01)
+ * Helpers:   gcd, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,11 +24,45 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/sigma_of.h"
+#include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/_smallest_prime_factor.h"
-#include "../utils/seq_alloc.h"
-#include "../utils/seq_realloc.h"
+#include "../utils/smallest_prime_factor.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 static seq_t *cache = NULL;      /* array of cached sequence values */
 static size_t cache_cap = 0;     /* current allocation size */
@@ -39,7 +74,7 @@ static idx_t next_candidate = 21;
 /* Return true iff n is a prime power (including n being prime). */
 static bool is_prime_power(uint64_t n)
 {
-    uint64_t p = _smallest_prime_factor(n);
+    uint64_t p = smallest_prime_factor(n);
     if (p == 0) return false;        /* n < 2, not expected here */
     if (p == n) return true;         /* n is prime */
 

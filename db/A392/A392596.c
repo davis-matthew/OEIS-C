@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, base, look
  * Formula:   a(n) = A276086(n) mod 360
- * Range:     u8 n <= 14, u16 n <= 9979, u32 n <= 9979, u64 n <= 9979,
- *            u128 n <= 9979, big any n
- * Helpers:   is_prime, mod_pow
+ * Range:     u8 n <= 14, u16 n <= 30030, u32 n <= 30030, u64 n <= 30030,
+ *            u128 n <= 30030, big any n
+ * Validated: standard, pass, 88 terms through n = 9979 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,36 @@
    then A276086(n) = ∏ p_k^{d_k}.  a(n) is this value modulo 360. */
 
 #include <stdbool.h>
-#include "../utils/is_prime.h"
-#include "../utils/mod_pow.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+
+/* Return true if x >= 2 is prime (deterministic trial division) */
+static inline bool is_prime(idx_t x)
+{
+    if (x < 2)                         return false;
+    if (x == 2 || x == 3)              return true;
+    if (x % 2 == 0)                    return false;
+    for (idx_t i = 3; i <= x / i; i += 2)
+        if (x % i == 0)                return false;
+    return true;
+}
+
+/* modular exponentiation using 128‑bit intermediate.
+   Works for any seq_t. */
+static seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod)
+{
+    seq_t res = 1 % mod;
+    base   %= mod;
+    while (exp) {
+        if (exp & 1)
+            res = (unsigned __int128)res * base % mod;
+        exp >>= 1;
+        if (exp)
+            base = (unsigned __int128)base * base % mod;
+    }
+    return res;
+}
 
 seq_t a(idx_t n)
 {

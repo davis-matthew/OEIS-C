@@ -9,7 +9,8 @@
  *            ≤ n having exactly ω distinct prime factors
  * Range:     u8 n <= 10, u16 n <= 28, u32 n <= 61, u64 n <= 116,
  *            u128 n <= 225, big any n
- * Helpers:   build_spf, pow_uint
+ * Validated: standard, pass, 59 terms through n = 951 (2026-11-01)
+ * Helpers:   build_spf, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,8 @@
 #include <stdint.h>
 
 /* External utilities */
-#include "../utils/build_spf.h"   /* void build_spf(idx_t limit, idx_t **spf_out); */
-#include "../utils/pow_uint.h"    /* seq_t pow_uint(uint64_t base, idx_t exp); */
+#include "../utils/build_spf.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -65,7 +66,7 @@ seq_t a(idx_t n)
         if (c == 0)
             continue;
 
-        seq_t term = pow_uint(2ULL, (idx_t)c); /* 2^c */
+        seq_t term = ipow_u64_idx(2ULL, (idx_t)c); /* 2^c */
         term -= (seq_t)1;                       /* exclude empty subset of this class */
         result += term;
     }

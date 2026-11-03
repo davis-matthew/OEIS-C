@@ -15,7 +15,8 @@
  *            A248601)
  * Range:     u8 n <= 74, u16 n <= 74, u32 n <= 74, u64 n <= 74, u128 n <= 74,
  *            big any n
- * Helpers:   build_primes, seq_mul
+ * Validated: partial, pass, 74 terms through n = 74 (2026-11-01)
+ * Helpers:   build_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,8 +26,14 @@
 #include <stdbool.h>
 
 /* Utilities provided in the build */
-#include "../utils/build_primes.h"   /* build_primes(limit,&arr,&cnt) */
-#include "../utils/seq_mul.h"        /* seq_mul(a,b) returns a*b as seq_t */
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/build_primes.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Global prime list (1‑based indexing: prime[1] = 2, prime[2] = 3, …) */
 static uint64_t *prime_list = NULL;

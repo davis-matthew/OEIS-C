@@ -8,15 +8,18 @@
  *            (3k+1)
  * Range:     u8 n <= 10, u16 n <= 16, u32 n <= 25, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Utility to compute binomial coefficients */
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 #include <stdlib.h>   /* realloc, exit */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;        /* array of computed values */
 static size_t cache_size = 0;      /* number of elements stored (next free index) */
@@ -33,7 +36,7 @@ static void ensure_cache(idx_t n)
         size_t new_cap = (cache_cap == 0) ? 8 : cache_cap * 2;
         while (new_cap <= (size_t)n) new_cap *= 2;
 
-        seq_t *new_cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) {                  /* allocation failure – abort */
             exit(EXIT_FAILURE);
         }

@@ -7,8 +7,9 @@
  * Keywords:  sign
  * Formula:   a(n) = n - A050449(n) where A050449(n) = sum of all positive
  *            divisors d of n such that d ≡ 1 (mod 4)
- * Range:     i8 n <= 130, i16 n <= 8791, i32 n <= 8791, i64 n <= 8791,
- *            i128 n <= 8791, big any n
+ * Range:     i8 n <= 130, i16 n <= 20000, i32 n <= 20000, i64 n <= 20000,
+ *            i128 n <= 20000, big any n
+ * Validated: standard, pass, 98 terms through n = 8791 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

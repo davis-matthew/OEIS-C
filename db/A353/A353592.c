@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 69 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Internal static state ---------------------------------------------------- */
 static seq_t *seq_cache = NULL;     /* cached terms, index 0..seq_len */
@@ -41,7 +43,7 @@ static void init_static(void)
 
     /* initialise terms cache: indices 0 and 1 */
     seq_cap = 4;
-    seq_cache = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+    seq_cache = mem_new(seq_t, seq_cap);
     seq_cache[0] = 0;                 /* a(0) */
     seq_cache[1] = 1;                 /* a(1) */
     seq_len = 1;                       /* maximum computed index */
@@ -77,7 +79,7 @@ static void ensure_seq_cap(idx_t n)
     size_t new_cap = seq_cap ? seq_cap : 1;
     while (new_cap <= (size_t)n)
         new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
     if (!tmp)
         abort(); /* allocation failed */
     seq_cache = tmp;

@@ -9,7 +9,8 @@
  * Formula:   a(n) = nth integer m ≥ 2 such that sigma(m)*tau(m) > prime(2*m)
  * Range:     u8 n <= 10, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   _seq_build_spf_and_primes, _seq_compute_div_stats
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,64 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/_seq_build_spf_and_primes.h"
-#include "../utils/_seq_compute_div_stats.h"
+#include "../utils/mem.h"
+
+/* Linear sieve to fill spf array and primes list */
+static void _seq_build_spf_and_primes(idx_t limit, idx_t **spf_out, uint64_t **primes_out, size_t *prime_cnt_out)
+{
+    /* Allocate spf array */
+    idx_t *spf = (idx_t*)malloc((limit + 1) * sizeof(idx_t));
+    for (idx_t i = 2; i <= limit; ++i)
+        spf[i] = 0;
+
+    /* Simple sieve for primes */
+    size_t prime_cap = 100000;
+    uint64_t *primes = (uint64_t*)malloc(prime_cap * sizeof(uint64_t));
+    size_t prime_cnt = 0;
+
+    for (idx_t i = 2; i <= limit; ++i) {
+        if (!spf[i]) {
+            spf[i] = i;
+            if (prime_cnt == prime_cap) {
+                prime_cap = prime_cap * 2;
+                primes = (uint64_t*)realloc(primes, prime_cap * sizeof(uint64_t));
+            }
+            primes[prime_cnt++] = (uint64_t)i;
+        }
+        for (size_t j = 0; j < prime_cnt && primes[j] <= spf[i] && i * primes[j] <= limit; ++j) {
+            spf[i * primes[j]] = (idx_t)primes[j];
+        }
+    }
+
+    *spf_out = spf;
+    *primes_out = primes;
+    *prime_cnt_out = prime_cnt;
+}
+
+/* Precompute sigma and tau using the spf array */
+static void _seq_compute_div_stats(idx_t limit, idx_t *spf, seq_t *sigma, seq_t *tau)
+{
+    sigma[1] = (seq_t)1;
+    tau[1] = (seq_t)1;
+    for (idx_t n = 2; n <= limit; ++n) {
+        idx_t p = spf[n];
+        idx_t m = n / p;
+        idx_t exp = 1;
+        while (m % p == 0) {
+            m /= p;
+            ++exp;
+        }
+        /* compute sum of p^0 .. p^exp */
+        seq_t power = (seq_t)1;
+        seq_t sum = (seq_t)1;
+        for (idx_t i = 1; i <= exp; ++i) {
+            power *= (seq_t)p;
+            sum += power;
+        }
+        sigma[n] = sigma[m] * sum;
+        tau[n] = tau[m] * (exp + 1);
+    }
+}
 
 /* external integer types: seq_t and idx_t are provided by the build environment */
 
@@ -41,7 +98,7 @@ static size_t _seq_qual_cnt = 0;               /* count of qualifiers */
 static void _seq_build_qualifiers(idx_t limit, uint64_t *primes, size_t prime_cnt, seq_t *sigma, seq_t *tau)
 {
     size_t qual_cap = limit / 2;
-    seq_t *qual = (seq_t*)malloc(qual_cap * sizeof(seq_t));
+    seq_t *qual = mem_new(seq_t, qual_cap);
     size_t qual_cnt = 0;
 
     for (idx_t n = 2; n <= limit; ++n) {
@@ -51,7 +108,7 @@ static void _seq_build_qualifiers(idx_t limit, uint64_t *primes, size_t prime_cn
         if (prod > prime_val) {
             if (qual_cnt == qual_cap) {
                 qual_cap *= 2;
-                qual = (seq_t*)realloc(qual, qual_cap * sizeof(seq_t));
+                qual = mem_resize(seq_t, qual, qual_cap);
             }
             qual[qual_cnt++] = (seq_t)n;
         }
@@ -68,8 +125,8 @@ static void _seq_initialize(void)
     _seq_build_spf_and_primes(_SEQ_LIMIT, &_seq_spf, &_seq_primes, &_seq_prime_cnt);
 
     /* 2. Compute sigma and tau */
-    _seq_sigma = (seq_t*)malloc((_SEQ_LIMIT + 1) * sizeof(seq_t));
-    _seq_tau = (seq_t*)malloc((_SEQ_LIMIT + 1) * sizeof(seq_t));
+    _seq_sigma = mem_new(seq_t, (_SEQ_LIMIT + 1));
+    _seq_tau = mem_new(seq_t, (_SEQ_LIMIT + 1));
     _seq_compute_div_stats(_SEQ_LIMIT, _seq_spf, _seq_sigma, _seq_tau);
 
     /* 3. Build qualifiers */

@@ -9,8 +9,9 @@
  *            G(x)=-(x^6+x^5+x^4+2x^3+x^2+x)/(x^3-1), giving the recurrence
  *            a(n)=a(n-3)+c_n, where c_n=1,1,2,1,1,1 for n=1..6 and c_n=0 for
  *            n≥7. Hence a(n)=a(n-3) for n≥7, yielding the 3‑per...
- * Range:     u8 n <= 8922, u16 n <= 8922, u32 n <= 8922, u64 n <= 8922,
- *            u128 n <= 8922, big any n
+ * Range:     u8 n <= 10005, u16 n <= 10005, u32 n <= 10005, u64 n <= 10005,
+ *            u128 n <= 10005, big any n
+ * Validated: standard, pass, 102 terms through n = 8922 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

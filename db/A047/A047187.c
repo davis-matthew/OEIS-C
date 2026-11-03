@@ -9,13 +9,15 @@
  *            binomial(⌊(n-2)/2⌋, k) * binomial(n-⌊(n-2)/2⌋, 4k)
  * Range:     u8 n <= 12, u16 n <= 22, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>                        /* for size_t */
-#include "../utils/binomial.h"              /* provides seq_t binomial(idx_t, idx_t) */
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {

@@ -9,12 +9,14 @@
  *            a(n-6) (a(1)=5, a(2)=12, a(3)=24, a(4)=43, a(5)=69, a(6)=104)
  * Range:     u8 n <= 8, u16 n <= 64, u32 n <= 200, u64 n <= 200,
  *            u128 n <= 200, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;
@@ -25,7 +27,7 @@ seq_t a(idx_t n) {
     size_t need_cap = (n > 6 ? n : 6) + 1;          /* indices 0..n (or 0..6) */
     if (need_cap > capacity) {
         capacity = need_cap;
-        cache = (seq_t*)realloc(cache, sizeof(seq_t)*capacity);
+        cache = mem_resize(seq_t, cache, capacity);
     }
 
     /* initialise base values */

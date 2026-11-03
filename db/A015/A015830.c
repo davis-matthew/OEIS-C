@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 462, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   phi, sigma_of
+ * Validated: standard, pass, 69 terms through n = 1890 (2026-11-03)
+ * Helpers:   mem, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,23 @@
 /* A015830: Numbers k such that φ(k + 10) divides σ(k) */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/phi.h"
-#include "../utils/sigma_of.h"
+#include "../utils/totient.h"
+#include "../utils/mem.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 seq_t a(idx_t n)
 {
@@ -39,7 +55,7 @@ seq_t a(idx_t n)
             idx_t new_cap = cap ? cap << 1 : 64;
             if (new_cap < n)
                 new_cap = n;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp)          /* allocation failed – abort */
                 return 0;
             cache = tmp;
@@ -54,7 +70,7 @@ seq_t a(idx_t n)
                 ++last_k;
                 seq_t sigma = sigma_of(last_k);
                 /* phi accepts idx_t, which is uint64_t, so cast is safe. */
-                seq_t phi_val = phi((idx_t)last_k + 10);
+                seq_t phi_val = totient((idx_t)last_k + 10);
                 /* phi_val cannot be zero for positive numbers. */
                 if (phi_val != 0 && sigma % phi_val == 0)
                 {

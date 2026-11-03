@@ -13,13 +13,15 @@
  *            antidiagonal i increases from 1 to s-1
  * Range:     u8 n <= 39, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static size_t T_dim = 0;          /* current maximal dimension (>= max n,k) */
 static seq_t *T = NULL;           /* flat array of size (T_dim+1)*(T_dim+1) */
@@ -30,9 +32,9 @@ static seq_t *T = NULL;           /* flat array of size (T_dim+1)*(T_dim+1) */
 static void build_table(size_t newDim)
 {
     /* allocate new table */
-    seq_t *newT = (seq_t *)calloc((newDim + 1) * (newDim + 1), sizeof(seq_t));
+    seq_t *newT = mem_new(seq_t, (newDim + 1) * (newDim + 1));
     if (!newT) exit(1);          /* out of memory */
-    if (T) free(T);
+    if (T) mem_free(T);
     T = newT;
     T_dim = newDim;
 

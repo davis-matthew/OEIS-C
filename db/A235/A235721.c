@@ -9,7 +9,8 @@
  *            contains exactly six distinct decimal digits
  * Range:     u8 none, u16 none, u32 n <= 1000, u64 n <= 1000, u128 n <= 1000,
  *            big any n
- * Helpers:   digit_frequencies
+ * Validated: standard, pass, 48 terms through n = 975 (2026-11-03)
+ * Helpers:   digit_frequencies, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "../utils/digit_frequencies.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -52,10 +54,10 @@ seq_t a(idx_t n)
             {
                 /* Grow the cache: double the capacity, starting at 4. */
                 size_t new_cap = (cache_cap == 0) ? 4 : cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) /* allocation failure – abort gracefully */
                 {
-                    free(cache);
+                    mem_free(cache);
                     cache = NULL;
                     cache_size = cache_cap = 0;
                     return 0;

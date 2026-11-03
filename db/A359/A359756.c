@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 20, u32 n <= 20, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   pow2
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,8 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/pow2.h"   /* seq_t pow2(idx_t exp); */
+#include "../utils/pow2.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,10 +43,10 @@ seq_t a(idx_t n)
     /* DP: dp[s] holds the minimal sum of 2^(p-1) over subsets of
        {1,…,current_pos} that reach total position sum s.  A separate
        boolean array marks which sums are reachable. */
-    seq_t *dp    = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *dp    = mem_new(seq_t, (n + 1));
     bool   *reach = (bool   *)malloc((n + 1) * sizeof(bool));
     if (!dp || !reach) {
-        if (dp) free(dp);
+        if (dp) mem_free(dp);
         if (reach) free(reach);
         abort();    /* allocation failed */
     }
@@ -83,7 +85,7 @@ seq_t a(idx_t n)
         }
     }
 
-    free(dp);
+    mem_free(dp);
     free(reach);
 
     return found ? best : (seq_t)0;   /* should always be true for n>0 */

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 46, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 9997 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --------------------  dynamic arrays  -------------------- */
 static seq_t *term_array = NULL;      /* stored terms  */
@@ -100,7 +102,7 @@ static void push_term(seq_t val)
 {
     if (term_len == term_cap) {
         term_cap = term_cap ? (term_cap << 1) : 8;
-        term_array = (seq_t *)realloc(term_array, term_cap * sizeof(seq_t));
+        term_array = mem_resize(seq_t, term_array, term_cap);
     }
     term_array[term_len++] = val;
 }

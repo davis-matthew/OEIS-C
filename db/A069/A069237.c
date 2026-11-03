@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 132, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64, is_prime, phi
+ * Validated: standard, pass, 79 terms through n = 9997 (2026-11-03)
+ * Helpers:   is_prime, mem, num_divisors, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/divisor_count_u64.h"
 #include "../utils/is_prime.h"
-#include "../utils/phi.h"
+#include "../utils/num_divisors.h"
+#include "../utils/totient.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
 
     if (cache == NULL) {
         cache_cap = 64;
-        cache   = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache   = mem_new(seq_t, cache_cap);
         if (!cache) abort();
     }
 
@@ -40,14 +42,14 @@ seq_t a(idx_t n)
         ++candidate;
         if (is_prime(candidate)) continue;       /* skip primes */
 
-        uint64_t tau = divisor_count_u64(candidate);
-        seq_t phi_val = phi(candidate);
+        uint64_t tau = num_divisors(candidate);
+        seq_t phi_val = totient(candidate);
         uint64_t phi_u64 = (uint64_t)phi_val;   /* phi ≤ candidate-1 < 2^64 */
 
         if (phi_u64 % tau == 0) {               /* condition holds */
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) abort();
                 cache = tmp;
                 cache_cap = new_cap;

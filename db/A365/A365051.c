@@ -8,11 +8,13 @@
  * Formula:   a(0)=40, a(1)=16, a(2)=192, a(n)=9*2^(2n+1) for n>=3
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 5, u64 n <= 5, u128 n <= 5,
  *            big any n
+ * Validated: partial, pass, 6 terms through n = 5 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 seq_t a(idx_t n)

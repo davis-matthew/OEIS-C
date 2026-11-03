@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 130, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   grow_prime_arr
+ * Validated: standard, pass, 47 terms through n = 9294 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,17 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/grow_prime_arr.h"
+#include "../utils/mem.h"
+
+/* Grow a dynamic array of uint64_t (used for the prime list). */
+static void grow_prime_arr(uint64_t **arr, size_t *cap, size_t need)
+{
+    if (need <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 64 : *cap;
+    while (new_cap < need) new_cap <<= 1;
+    *arr = (uint64_t*)realloc(*arr, new_cap * sizeof(uint64_t));
+    *cap = new_cap;
+}
 
 /* Grow a dynamic array of seq_t (used for the output sequence). */
 static void grow_seq_arr(seq_t **arr, size_t *cap, size_t need)
@@ -27,7 +38,7 @@ static void grow_seq_arr(seq_t **arr, size_t *cap, size_t need)
     if (need <= *cap) return;
     size_t new_cap = (*cap == 0) ? 16 : *cap;
     while (new_cap < need) new_cap <<= 1;
-    *arr = (seq_t*)realloc(*arr, new_cap * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, new_cap);
     *cap = new_cap;
 }
 

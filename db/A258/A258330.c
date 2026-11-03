@@ -8,6 +8,7 @@
  *            mod 10^d. if r >= 10^(d-1) then a(n)=r else a(n)=t
  * Range:     u8 n <= 36, u16 n <= 9998, u32 n <= 9999, u64 n <= 9999,
  *            u128 n <= 9999, big any n
+ * Validated: standard, pass, 82 terms through n = 9096 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 21, u64 n <= 38, u128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 190 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Integer square root for unsigned 64‑bit integers.
    Returned type is seq_t for consistency with the rest of the code. */
@@ -55,7 +57,7 @@ static void init_coeff(void)
     /* Allocate space for a0 + period coefficients.
        We'll grow the array as needed. */
     size_t cap = 16;
-    coeff = (seq_t *)malloc(cap * sizeof(seq_t));
+    coeff = mem_new(seq_t, cap);
     if (!coeff)
         return;           /* memory failure – caller will crash (acceptable) */
 
@@ -76,9 +78,9 @@ static void init_coeff(void)
         /* Resize if necessary */
         if (idx >= cap) {
             cap <<= 1;
-            seq_t *tmp = (seq_t *)realloc(coeff, cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, coeff, cap);
             if (!tmp) {
-                free(coeff);
+                mem_free(coeff);
                 coeff = NULL;
                 period = 0;
                 return;

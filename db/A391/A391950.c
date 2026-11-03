@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 15, u32 n <= 36, u64 n <= 45, u128 n <= 45,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* --- static cache for flattened triangle values ---------------------------------- */
 
@@ -36,7 +38,7 @@ static void push_cache(seq_t val)
 {
     if (cache_len == cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 64;
-        seq_t *tmp = (seq_t*)realloc(seq_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, new_cap);
         seq_cache = tmp;
         cache_cap = new_cap;
     }
@@ -58,10 +60,10 @@ static void compute_next_row(void)
     idx_t n = current_row + 1; /* new row number, 1‑based */
 
     if (n == 1) { /* first row: P_1(x) = 2x */
-        if (row_prev) free(row_prev);
-        if (S_prev)  free(S_prev);
+        if (row_prev) mem_free(row_prev);
+        if (S_prev)  mem_free(S_prev);
 
-        row_prev = (seq_t*)calloc(1, sizeof(seq_t));
+        row_prev = mem_new(seq_t, 1);
         row_prev[0] = (seq_t)2;
         row_len = 1;
         S_prev = NULL;
@@ -73,8 +75,8 @@ static void compute_next_row(void)
     }
 
     /* allocate space for the new row and for the new S(n) values */
-    seq_t *S_curr = (seq_t*)calloc((size_t)(n-1), sizeof(seq_t));
-    seq_t *P_curr = (seq_t*)calloc((size_t)n, sizeof(seq_t));
+    seq_t *S_curr = mem_new(seq_t, (size_t)(n-1));
+    seq_t *P_curr = mem_new(seq_t, (size_t)n);
 
     /* build S_curr from S_prev and row_prev:
          S_curr[0] = row_prev[0]
@@ -106,8 +108,8 @@ static void compute_next_row(void)
     }
 
     /* free old memory and finalize the new row as the current one */
-    if (row_prev) free(row_prev);
-    if (S_prev)   free(S_prev);
+    if (row_prev) mem_free(row_prev);
+    if (S_prev)   mem_free(S_prev);
 
     row_prev = P_curr;
     row_len  = n;

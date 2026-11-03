@@ -6,8 +6,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = 1 for all n except at indices S_k = k(k‑1)/2 + 1. * At n
  *            = S_k, a(n) = k if k is odd, k+1 if k is even
- * Range:     u8 n <= 9285, u16 n <= 9285, u32 n <= 9285, u64 n <= 9285,
- *            u128 n <= 9285, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 119 terms through n = 9285 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

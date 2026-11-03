@@ -12,12 +12,14 @@
  *            occur
  * Range:     u8 n <= 21, u16 n <= 1153, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 9385 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- global static state ---------- */
 static seq_t *terms      = NULL;   /* cached terms, 0 indexed */
@@ -31,7 +33,7 @@ static idx_t  heap_cap   = 0;      /* heap capacity */
 /* ---------- heap helpers ---------- */
 static void heap_resize(idx_t new_cap)
 {
-    heap = (seq_t *)realloc(heap, new_cap * sizeof(seq_t));
+    heap = mem_resize(seq_t, heap, new_cap);
     heap_cap = new_cap;
 }
 
@@ -85,13 +87,13 @@ seq_t a(idx_t n)
 
     /* Initialise state if needed */
     if (terms == NULL) {
-        terms = (seq_t *)malloc(8 * sizeof(seq_t));
+        terms = mem_new(seq_t, 8);
         term_cap = 8;
         terms[0] = (seq_t)0;
         term_count = 1;               /* we have a(0) */
         /* initialise heap with first non‑zero generation */
         heap_reserve:
-        heap = (seq_t *)malloc(8 * sizeof(seq_t));
+        heap = mem_new(seq_t, 8);
         heap_cap = 8;
         heap_size = 0;
         heap_push((seq_t)2);          /* 2 is the first generated element */
@@ -102,7 +104,7 @@ seq_t a(idx_t n)
         seq_t v = heap_pop();             /* next smallest element */
         if (term_count == term_cap) {
             term_cap <<= 1;
-            terms = (seq_t *)realloc(terms, term_cap * sizeof(seq_t));
+            terms = mem_resize(seq_t, terms, term_cap);
         }
         terms[term_count++] = v;          /* store a(term_count-1) */
 

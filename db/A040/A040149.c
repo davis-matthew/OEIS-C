@@ -7,7 +7,8 @@
  * Formula:   Find the nth prime p for which x^4 = 21 has a solution modulo p
  * Range:     u8 n <= 21, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 62 terms through n = 973 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,8 +16,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
 #include "../utils/is_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -45,7 +48,7 @@ seq_t a(idx_t n)
                 else                                   /* p ≡ 3 (mod 4) */
                     exp = (candidate - 1) / 2;
 
-                seq_t r = mod_pow((seq_t)21, exp, (seq_t)candidate);
+                seq_t r = powmod((seq_t)21, exp, (seq_t)candidate);
                 if (r == (seq_t)1)
                     ok = true;
             }
@@ -56,7 +59,7 @@ seq_t a(idx_t n)
                 if (cache_len == cache_cap)
                 {
                     size_t new_cap = cache_cap ? cache_cap * 2 : 8;
-                    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                     if (!tmp) return 0;    /* allocation failure */
                     cache = tmp;
                     cache_cap = new_cap;

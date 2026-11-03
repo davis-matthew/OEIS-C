@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = number of factorizations of n into factors > 1 with
  *            integer average
- * Range:     u8 n <= 2875, u16 n <= 9636, u32 n <= 9636, u64 n <= 9636,
- *            u128 n <= 9636, big any n
+ * Range:     u8 n <= 2875, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 124 terms through n = 9636 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

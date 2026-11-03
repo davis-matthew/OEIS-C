@@ -10,16 +10,19 @@
  *            function)
  * Range:     i8 n <= 10000, i16 n <= 10000, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   mobius_uint64
+ * Validated: standard, pass, 129 terms through n = 9802 (2026-11-01)
+ * Helpers:   mobius_u64_to_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/mobius_uint64.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/mobius_u64_to_seq.h"
 
 seq_t a(idx_t n)
 {
     if ((n & 1) == 0)
         return 0;
-    return mobius_uint64(n);
+    return mobius_u64_to_seq(n);
 }

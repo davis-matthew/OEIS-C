@@ -13,14 +13,16 @@
  *            antidiagonals upwards
  * Range:     u8 n <= 39, u16 n <= 85, u32 n <= 200, u64 n <= 486,
  *            u128 n <= 1207, big any n
- * Helpers:   floor_isqrt_u64, pow2
+ * Validated: standard, pass, 94 terms through n = 8881 (2026-11-01)
+ * Helpers:   isqrt, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include "../utils/isqrt.h"
 #include "../utils/pow2.h"
-#include "../utils/floor_isqrt_u64.h"
 
 static inline seq_t A_ij(idx_t i, idx_t j)
 {
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
      * the first d+1 antidiagonals.  Count of terms up to diagonal d
      * is (d+1)(d+2)/2.  Solve for d using the floor of the quadratic root. */
     idx_t tmp = 8 * n + 1;
-    idx_t s   = floor_isqrt_u64(tmp);
+    idx_t s   = isqrt(tmp);
     idx_t d   = (s - 1) / 2;
 
     /* Count of terms before diagonal d */

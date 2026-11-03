@@ -8,12 +8,14 @@
  *            than 0 (i.e. popcount(x) = (bits(x)+1)/2)
  * Range:     u8 n <= 29, u16 n <= 4707, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 67 terms through n = 9959 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     idx_t L = 1;                   /* current odd length */
     while (1) {
         idx_t half   = (L - 1) >> 1;          /* (L-1)/2 = ones in lower bits */
-        seq_t count  = binom(L - 1, half);    /* C(L-1, (L-1)/2) */
+        seq_t count  = binomial(L - 1, half);    /* C(L-1, (L-1)/2) */
         if (cumulative + count >= (seq_t)n)   /* target length found */
             break;
         cumulative += count;
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     /* Unrank the combination of positions for the remaining ones. */
     for (idx_t pos = 0; pos < L - 1 && ones > 0; ++pos) {
         idx_t remaining_bits_after = (L - 2) - pos;
-        seq_t ways = binom(remaining_bits_after, ones);
+        seq_t ways = binomial(remaining_bits_after, ones);
 
         /* If the desired index is beyond all combinations with 0 at this bit,
            we must set this bit to 1. */

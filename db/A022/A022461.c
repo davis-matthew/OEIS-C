@@ -7,15 +7,26 @@
  * Formula:   a(n) = prime(n+1) * prime(n+2) mod prime(n)
  * Range:     u8 n <= 5, u16 n <= 53, u32 n <= 8693, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _prime_upper, build_primes_upto
+ * Validated: standard, pass, 82 terms through n = 9784 (2026-11-01)
+ * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <math.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/_prime_upper.h"
+
+/* Upper bound for the n-th prime (n >= 6) based on the PNT */
+static idx_t _prime_upper(idx_t n)
+{
+    if (n < 6) return 15;            /* 2, 3, 5, 7, 11, 13 < 15 */
+    double dn = (double)n;
+    double l = dn * (log(dn) + log(log(dn))) + 3.0;
+    return (idx_t)l;
+}
 
 /* Cache of primes: primes[0] = 2 = prime(1) */
 static idx_t *primes = NULL;

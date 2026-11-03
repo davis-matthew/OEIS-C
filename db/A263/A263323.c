@@ -8,13 +8,18 @@
  * Formula:   a(n) = max(A051903(n), A061395(n))
  * Range:     u8 n <= 1618, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
- * Helpers:   compute_pi, factor_u64
+ * Validated: standard, pass, 96 terms through n = 4615 (2026-11-01)
+ * Helpers:   factor_u64, prime_pi
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stddef.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/compute_pi.h"
+#include "../utils/prime_pi.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +43,7 @@ seq_t a(idx_t n)
             max_p   = primes[i];
     }
 
-    seq_t pi_val = compute_pi((idx_t)max_p);  /* π(max_p) */
+    seq_t pi_val = prime_pi((idx_t)max_p);  /* π(max_p) */
 
     return (pi_val > max_exp) ? pi_val : max_exp;
 }

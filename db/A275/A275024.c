@@ -6,8 +6,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = Σ_{p^e‖n} e * Ω(index(p)+1) (Ω = Ω(m), the total number
  *            of prime factors of m counting multiplicity)
- * Range:     u8 n <= 104, u16 n <= 104, u32 n <= 104, u64 n <= 104,
- *            u128 n <= 104, big any n
+ * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 120 terms through n = 9310 (2026-11-02)
  * Helpers:   bigomega, build_primes_upto, factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,13 +18,10 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-#include "../utils/bigomega.h"         /* seq_t bigomega(idx_t n);               */
-#include "../utils/build_primes_upto.h"/* void build_primes_upto(idx_t limit,
-                                           uint64_t **primes_out, size_t *cnt_out); */
-#include "../utils/factor_u64.h"       /* void factor_u64(uint64_t n,
-                                           uint64_t *pr, uint64_t *ex,
-                                           size_t *cnt); */
-
+#include <stdbool.h>
+#include "../utils/bigomega.h"
+#include "../utils/build_primes_upto.h"
+#include "../utils/factor_u64.h"
 
 static uint64_t *prime_list = NULL;   /* array of primes, 0‑based */
 static size_t   primes_cnt = 0;        /* number of primes in array   */

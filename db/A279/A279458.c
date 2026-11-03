@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 101, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 88 terms through n = 981 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- helpers for prime generation (incremental sieve) ---------- */
 static uint64_t *prime_buf   = NULL;   /* stored primes */
@@ -95,7 +97,7 @@ static uint64_t checked = 0;         /* largest integer examined so far */
 static void add_term(seq_t val) {
     if (term_len == term_cap) {
         size_t new_cap = term_cap == 0 ? 16 : term_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(term_buf, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, term_buf, new_cap);
         term_buf  = tmp;
         term_cap  = new_cap;
     }

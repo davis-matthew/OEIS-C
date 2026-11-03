@@ -5,15 +5,17 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  easy, nonn, nice
  * Formula:   a(n) = 2^(a(n-1)) mod n; a(1) = 0
- * Range:     u8 n <= 83, u16 n <= 7740, u32 n <= 7740, u64 n <= 7740,
- *            u128 n <= 7740, big any n
- * Helpers:   none
+ * Range:     u8 n <= 83, u16 n <= 59999, u32 n <= 60000, u64 n <= 60000,
+ *            u128 n <= 60000, big any n
+ * Validated: standard, pass, 99 terms through n = 7740 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* fast modular exponentiation where the exponent is an arbitrary-size seq_t */
 static seq_t powmod_big(seq_t base, seq_t exp, seq_t mod)
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     /* Grow cache if necessary */
     if (n + 1 > capacity) {
         size_t new_cap = n + 1;
-        seq_t *new_cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+        seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
         if (!new_cache) exit(1);   /* allocation failure */
         cache = new_cache;
         capacity = new_cap;

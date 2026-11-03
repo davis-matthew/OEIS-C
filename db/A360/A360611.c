@@ -7,14 +7,18 @@
  * Formula:   a(n) = Sum_{k=0..floor(n/2)} (n-k)^(n-k) * binomial(n-k,k)
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 26,
  *            big any n
- * Helpers:   big_pow, binomial
+ * Validated: standard, pass, 35 terms through n = 376 (2026-11-03)
+ * Helpers:   binomial, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/binomial.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +29,7 @@ seq_t a(idx_t n)
     /* Expand cache if necessary */
     if ((size_t)n + 1 > pows_cap) {
         size_t new_cap = (size_t)n + 1;
-        seq_t *new_pows = (seq_t *)realloc(pows, new_cap * sizeof(seq_t));
+        seq_t *new_pows = mem_resize(seq_t, pows, new_cap);
         if (!new_pows) return 0;        /* out of memory – return 0 as a failure value */
 
         /* Compute new entries */
@@ -33,7 +37,7 @@ seq_t a(idx_t n)
             if (i == 0) {
                 new_pows[i] = (seq_t)1;          /* convention 0^0 = 1 for a(0) */
             } else {
-                new_pows[i] = big_pow((seq_t)i, (seq_t)i);
+                new_pows[i] = ipow((seq_t)i, (seq_t)i);
             }
         }
         pows = new_pows;

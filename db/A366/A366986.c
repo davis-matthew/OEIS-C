@@ -9,14 +9,16 @@
  *            The indices (i,j) are obtained from n as follows: let m = n-1, d
  *            = floor((sqrt(8*m+1)-1)/2), total_prev = d*(d+1)/2, offset = m -
  *            total_prev, i = offset + 1, j = d - offset
- * Range:     u8 n <= 40, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
+ * Range:     u8 n <= 60, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 seq_t a(idx_t N) {

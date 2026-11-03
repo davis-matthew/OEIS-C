@@ -9,6 +9,7 @@
  *            starting from n. Initial values: a(5)=0, a(6)=3, a(7)=2,
  * Range:     u8 n <= 4736, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 129 terms through n = 9468 (2026-11-01)
  * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,7 +18,9 @@
 /* A008474(m) = Σ (prime_i + exponent_i) in the prime factorisation of m */
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/factor_u64.h"   /* gives factor_u64(uint64_t,…) */
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
 
 seq_t a(idx_t n)
 {

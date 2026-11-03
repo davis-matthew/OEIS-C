@@ -5,8 +5,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  easy, sign
  * Formula:   a(n) = Sum_{k=0..floor(n/2)} Legendre( binom(n-k, k), 3 )
- * Range:     i8 n <= 2185, i16 n <= 8364, i32 n <= 8364, i64 n <= 8364,
- *            i128 n <= 8364, big any n
+ * Range:     i8 n <= 2185, i16 n <= 16384, i32 n <= 16384, i64 n <= 16384,
+ *            i128 n <= 16384, big any n
+ * Validated: standard, pass, 117 terms through n = 8364 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

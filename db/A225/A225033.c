@@ -10,12 +10,14 @@
  *            a(5)=106205, a(6)=1514633, a(7)=23353828
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 132 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Compute the n-th term of OEIS A225033.  */
 seq_t a(idx_t n)
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     if (cache_len == 0) {
         /* Allocate a small initial buffer (at least 8) */
         cache_cap = 8;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         /* first 8 terms of the sequence */
         cache[0] = 1;
         cache[1] = 8;
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
         while (new_cap <= (size_t)n) {
             new_cap *= 2;
         }
-        cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_cap);
         cache_cap = new_cap;
     }
 

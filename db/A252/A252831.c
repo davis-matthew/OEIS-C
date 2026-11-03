@@ -12,6 +12,7 @@
  *            a(n)=3*a(n-1)-3*a(n-2)+a(n-3) for n>6
  * Range:     u8 n <= 4, u16 n <= 42, u32 n <= 210, u64 n <= 210,
  *            u128 n <= 210, big any n
+ * Validated: standard, pass, 56 terms through n = 194 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

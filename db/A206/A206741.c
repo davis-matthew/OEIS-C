@@ -9,7 +9,8 @@
  *            x^3/(1 - x^5/(1 - x^8/(1 - ...))))))
  * Range:     u8 n <= 8, u16 n <= 14, u32 n <= 28, u64 n <= 55, u128 n <= 109,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 497 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* The build supplies idx_t and seq_t types.  */
 seq_t a(idx_t n)
@@ -40,8 +42,8 @@ seq_t a(idx_t n)
 
     /* Allocate coefficient arrays.  */
     size_t sz = (size_t)n + 1;
-    seq_t *cur  = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *next = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *cur  = mem_new(seq_t, sz);
+    seq_t *next = mem_new(seq_t, sz);
     if (!cur || !next) return 0;   /* out of memory */
 
     cur[0] = 1;  /* base case */
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
 
     seq_t result = cur[n];
 
-    free(cur);
-    free(next);
+    mem_free(cur);
+    mem_free(next);
     return result;
 }

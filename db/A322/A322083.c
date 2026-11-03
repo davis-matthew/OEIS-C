@@ -9,6 +9,7 @@
  *            antidiagonal coordinates of n (i>=1, k>=0)
  * Range:     i8 n <= 30, i16 n <= 69, i32 n <= 158, i64 n <= 414,
  *            i128 n <= 1138, big any n
+ * Validated: standard, pass, 82 terms through n = 1065 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

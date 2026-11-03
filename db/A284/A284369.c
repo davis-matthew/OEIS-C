@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   not stated
- * Range:     u8 n <= 9366, u16 n <= 9366, u32 n <= 9366, u64 n <= 9366,
- *            u128 n <= 9366, big any n
- * Helpers:   none
+ * Range:     u8 n <= 31648, u16 n <= 31648, u32 n <= 31648, u64 n <= 31648,
+ *            u128 n <= 31648, big any n
+ * Validated: standard, pass, 102 terms through n = 9366 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Fixed point of the morphism 0→1, 1→1001; returns the n‑th
    (1‑indexed) symbol of the infinite word. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +25,7 @@ seq_t a(idx_t n)
 
     /* initialise with the one‑letter word "1" */
     if (w == NULL) {
-        w = (seq_t *)malloc(sizeof(seq_t));
+        w = mem_new(seq_t, 1);
         w[0] = 1;
         len = 1;
     }
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
             new_len += (w[i] == 0) ? 1 : 4;          /* 0→1 (len = 1),
                                                         1→1001 (len = 4) */
 
-        seq_t *neww = (seq_t *)malloc((size_t)new_len * sizeof(seq_t));
+        seq_t *neww = mem_new(seq_t, (size_t)new_len);
         idx_t pos = 0;
         for (idx_t i = 0; i < len; ++i) {
             if (w[i] == 0) {
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
             }
         }
 
-        free(w);
+        mem_free(w);
         w     = neww;
         len   = new_len;
     }

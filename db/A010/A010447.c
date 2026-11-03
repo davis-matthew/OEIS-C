@@ -8,13 +8,15 @@
  *            w^2 mod 86 for w = 0,…,85
  * Range:     u8 n <= 44, u16 n <= 44, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static int cmp_seq(const void *a, const void *b)
 {
@@ -42,8 +44,8 @@ seq_t a(idx_t n)
                 tmp[tmpcnt++] = (seq_t)sq_int; /* cast to seq_t for storage */
             }
         }
-        qsort(tmp, tmpcnt, sizeof(seq_t), cmp_seq);
-        res = (seq_t*)malloc(tmpcnt * sizeof(seq_t)); /* cast for C++ */
+        mem_qsort(tmp, tmpcnt, sizeof(seq_t), cmp_seq);
+        res = mem_new(seq_t, tmpcnt); /* cast for C++ */
         for (size_t i = 0; i < tmpcnt; ++i)
             res[i] = tmp[i];
         cnt = tmpcnt;

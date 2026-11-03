@@ -7,15 +7,16 @@
  * Keywords:  nonn
  * Formula:   a(n) = Ω(n) + Ω(n+1) – 1 where Ω(k) is the number of prime
  *            factors of k counted with multiplicity
- * Range:     u8 n <= 530, u16 n <= 9725, u32 n <= 9725, u64 n <= 9725,
- *            u128 n <= 9725, big any n
- * Helpers:   count_prime_factors
+ * Range:     u8 n <= 530, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 106 terms through n = 9725 (2026-11-01)
+ * Helpers:   bigomega_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/count_prime_factors.h"
+#include "../utils/bigomega_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -23,7 +24,7 @@ seq_t a(idx_t n)
         /* The sequence is defined for n ≥ 1; return 0 for safety. */
         return 0;
     }
-    seq_t omega_n   = count_prime_factors((seq_t)n);
-    seq_t omega_np1 = count_prime_factors((seq_t)(n + 1));
+    seq_t omega_n   = bigomega_seq((seq_t)n);
+    seq_t omega_np1 = bigomega_seq((seq_t)(n + 1));
     return omega_n + omega_np1 - 1;
 }

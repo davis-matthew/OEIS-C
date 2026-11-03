@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 24, u32 n <= 36, u64 n <= 36, u128 n <= 36,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 36 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    a(6)=228, a(7)=426, a(8)=726
  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t base[9] = {0, 0, 2, 14, 44, 110, 228, 426, 726};
 
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
 
     /* extend the cache if required */
     if (cache_size < needed) {
-        seq_t *tmp = (seq_t *)realloc(cache, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, needed);
         if (!tmp) abort();                 /* out‑of‑memory */
         cache = tmp;
         for (size_t i = old_size; i < needed; ++i) {

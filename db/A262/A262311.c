@@ -10,7 +10,8 @@
  *            0, n = x^2 + y^2 + φ(z^2), and with y or z prime
  * Range:     u8 n <= 16, u16 n <= 2360, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   sieve_phi_prime
+ * Validated: standard, pass, 116 terms through n = 9728 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,25 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/sieve_phi_prime.h"
+
+/* Compute φ(1) … φ(n) and primality up to n. */
+static void sieve_phi_prime(idx_t limit, idx_t *phi, bool *prime) {
+    if (limit < 1) return;
+    for (idx_t i = 0; i <= limit; ++i) {
+        phi[i] = i;
+        prime[i] = (i >= 2);
+    }
+    phi[0] = 0;
+    for (idx_t p = 2; p <= limit; ++p) {
+        if (prime[p]) {
+            phi[p] = p - 1;
+            for (idx_t j = 2 * p; j <= limit; j += p) {
+                prime[j] = false;
+                phi[j] = phi[j] / p * (p - 1);
+            }
+        }
+    }
+}
 
 /* Integer floor square root for 64‑bit values. */
 static inline idx_t isqrt_u64(idx_t n) {

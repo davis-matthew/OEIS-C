@@ -9,13 +9,14 @@
  *            of n)
  * Range:     u8 n <= 35, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   binomial_k_r
+ * Validated: partial, pass, 74 terms through n = 73 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binomial_k_r.h"
+#include "../utils/binomial.h"
 
 static idx_t triangular_row(idx_t n)
 
@@ -45,6 +46,6 @@ seq_t a(idx_t n)
         for (idx_t i = 0; i < k; ++i) val <<= 1;
         return (seq_t)val;
     } else {
-        return binomial_k_r(k, r);
+        return binomial(k, r);
     }
 }

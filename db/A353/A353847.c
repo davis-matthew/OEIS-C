@@ -12,7 +12,8 @@
  *            * in standard order (A066099)
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   index_of_comp
+ * Validated: partial, pass, 68 terms through n = 67 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,37 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/index_of_comp.h"
+
+/* compute the index (0‑based) of a composition given its parts array
+ * and its length (len).  The result fits in seq_t because
+ * MAX_SUM <= 20.
+ */
+static seq_t index_of_comp(const uint8_t *parts, uint8_t len)
+{
+    if (len == 0)   /* empty composition */
+        return (seq_t)0;
+
+    int weight = 0;
+    for (uint8_t i = 0; i < len; ++i)
+        weight += parts[i];
+
+    seq_t offset = ((seq_t)1 << (weight - 1));
+    seq_t rank = 0;
+    int rem = weight;
+
+    for (uint8_t i = 0; i < len; ++i) {
+        int p = parts[i];
+        for (int a = rem; a > p; --a) {
+            /* number of compositions with first part = a */
+            if (rem - a == 0)
+                rank += 1; /* single part composition */
+            else
+                rank += ((seq_t)1 << (rem - a - 1));
+        }
+        rem -= p;
+    }
+    return offset + rank;
+}
 
 /* allocate all compositions up to weight MAX_SUM.
  * total number of compositions = 2^MAX_SUM.

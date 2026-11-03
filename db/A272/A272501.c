@@ -9,17 +9,26 @@
  *            6^k · (10−k)^(n-3k)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   big_pow, pow2, pow3, seq_mul
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-01)
+ * Helpers:   ipow, pow2, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Inclusion–exclusion over the 10 letters. */
 
-#include "../utils/seq_mul.h"
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/ipow.h"
 #include "../utils/pow2.h"
 #include "../utils/pow3.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 static const seq_t C10[11] = {1, 10, 45, 120, 210, 252, 210, 120, 45, 10, 1};
 
@@ -46,7 +55,7 @@ seq_t a(idx_t n) {
         if (count3 > k) p = seq_mul(p, pow3((idx_t)(count3 - k)));
 
         /* multiply by (10-k)^(n-3k) */
-        seq_t pow_val = big_pow((seq_t)(10 - k), (seq_t)(n - 3 * k));
+        seq_t pow_val = ipow((seq_t)(10 - k), (seq_t)(n - 3 * k));
         p = seq_mul(p, pow_val);
 
         term = seq_mul(term, p);

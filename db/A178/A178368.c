@@ -9,7 +9,8 @@
  *            mean of digits equals 8)
  * Range:     u8 n <= 8, u16 n <= 604, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 991 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are supplied by the build; do not define them */
 typedef __typeof__(*(seq_t *)0) seq_t;
@@ -37,7 +39,7 @@ static void ensure_capacity(size_t need)
     while (new_cap < need)
         new_cap *= 2;
     /* cast void* to seq_t* explicitly so the code compiles in C++ */
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();          /* memory exhausted */
     cache = tmp;
     capacity = new_cap;

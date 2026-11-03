@@ -8,7 +8,8 @@
  *            the identity sum_{k=1}^n F_k = F_{n+2} - 1
  * Range:     u8 n <= 11, u16 n <= 22, u32 n <= 45, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   fib, gcd
+ * Validated: partial, pass, 56 terms through n = 56 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,20 @@
    ../utils/gcd.h   - seq_t gcd(seq_t a, seq_t b)
    ../utils/fib.h   - seq_t fib(idx_t n)
 */
+#include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
-#include "../utils/fib.h"
+
+static seq_t fib(idx_t n) {
+    if (n <= 2) return (seq_t)1;
+    seq_t f1 = 1, f2 = 1, f3;
+    for (idx_t i = 3; i <= n; ++i) {
+        f3 = f1 + f2;
+        f1 = f2;
+        f2 = f3;
+    }
+    return f2;
+}
 
 seq_t a(idx_t n)
 {

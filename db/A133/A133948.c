@@ -9,21 +9,22 @@
  *            nor d+1 divides n(n+1)
  * Range:     u8 n <= 2078, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   floor_isqrt_u64
+ * Validated: standard, pass, 99 terms through n = 9679 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
 
 seq_t a(idx_t n)
 {
     /* m = n*(n+1) fits in 64 bits for n up to 10000 (and the tests). */
     uint64_t m = (uint64_t)n * ((uint64_t)n + 1);
     /* sqrt floor of m */
-    idx_t limit = floor_isqrt_u64(m);
+    idx_t limit = isqrt(m);
 
     seq_t isolated = 0;
 

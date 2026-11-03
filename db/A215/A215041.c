@@ -12,14 +12,22 @@
  *            if n is a pure odd prime power p^k, a(n) = p^((...
  * Range:     u8 n <= 29, u16 n <= 44, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   big_pow, seq_mul
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
-#include "../utils/seq_mul.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/ipow.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -61,9 +69,9 @@ seq_t a(idx_t n)
         uint64_t p = primes[0];
         int      k = exps[0];
         /* exponent = (p^(k-1)+1)/2 */
-        seq_t p_pow = big_pow((seq_t)p, (seq_t)(k - 1));
+        seq_t p_pow = ipow((seq_t)p, (seq_t)(k - 1));
         seq_t exp   = (p_pow + 1) / 2;
-        return big_pow((seq_t)p, exp);
+        return ipow((seq_t)p, exp);
     }
 
     /* compute phi(2n) */
@@ -74,7 +82,7 @@ seq_t a(idx_t n)
         int      exp  = e;
         if (p == 2) exp++;                   /* exponent in 2n */
 
-        seq_t pow_part = big_pow((seq_t)p, (seq_t)(exp - 1));
+        seq_t pow_part = ipow((seq_t)p, (seq_t)(exp - 1));
         seq_t contrib  = seq_mul(pow_part, (seq_t)(p - 1));
         phi = seq_mul(phi, contrib);
     }
@@ -87,7 +95,7 @@ seq_t a(idx_t n)
         uint64_t p = primes[i];
         if (p == 2) continue;               /* skip factor 2 */
         seq_t exp_term = delta / (seq_t)(p - 1);
-        seq_t term = big_pow((seq_t)p, exp_term);
+        seq_t term = ipow((seq_t)p, exp_term);
         result = seq_mul(result, term);
     }
 

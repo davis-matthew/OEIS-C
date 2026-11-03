@@ -8,8 +8,9 @@
  * Formula:   a(n) = a(n-1) with the recursion a(2^m-1) = m, a(n) = a(n - (2^m
  *            - 1)) for n > 2^m-1, where 2^m <= n+1 < 2^(m+1). Implements
  *            A082850 (OEIS)
- * Range:     u8 n <= 9971, u16 n <= 9971, u32 n <= 9971, u64 n <= 9971,
- *            u128 n <= 9971, big any n
+ * Range:     u8 n <= 65535, u16 n <= 65535, u32 n <= 65535, u64 n <= 65535,
+ *            u128 n <= 65535, big any n
+ * Validated: standard, pass, 121 terms through n = 9971 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

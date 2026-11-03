@@ -11,7 +11,8 @@
  *            b(0)…b(n‑1)
  * Range:     u8 n <= 57, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* --- static state ---------------------------------------------------- */
 
@@ -43,7 +45,7 @@ static void ensure_a_cap(idx_t needed)
     if ((idx_t)a_cap > needed) return;
     size_t new_cap = a_cap ? a_cap << 1 : 16;
     if (new_cap < (size_t)(needed + 1)) new_cap = needed + 1;
-    a_cache = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    a_cache = mem_resize(seq_t, a_cache, new_cap);
     a_cap = new_cap;
 }
 
@@ -52,7 +54,7 @@ static void ensure_b_cap(idx_t needed)
     if ((idx_t)b_cap > needed) return;
     size_t new_cap = b_cap ? b_cap << 1 : 16;
     if (new_cap < (size_t)(needed + 1)) new_cap = needed + 1;
-    b_cache = (seq_t *)realloc(b_cache, new_cap * sizeof(seq_t));
+    b_cache = mem_resize(seq_t, b_cache, new_cap);
     b_cap = new_cap;
 }
 

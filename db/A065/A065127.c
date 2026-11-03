@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 15, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   factor_u64
+ * Validated: standard, pass, 68 terms through n = 988 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
-#include "../utils/factor_u64.h"   /* provides factor_u64() */
+#include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -52,11 +54,11 @@ seq_t a(idx_t n)
                 /* enlarge cache if necessary */
                 if (cached_len >= cached_cap) {
                     cached_cap = cached_cap ? cached_cap * 2 : 16;
-                    seq_t *tmp = (seq_t *)malloc(cached_cap * sizeof(seq_t));
+                    seq_t *tmp = mem_new(seq_t, cached_cap);
                     if (!tmp) abort();              /* unrecoverable */
                     if (cache) {
-                        memcpy(tmp, cache, cached_len * sizeof(seq_t));
-                        free(cache);
+                        mem_copy(tmp, cache, cached_len * sizeof(seq_t));
+                        mem_free(cache);
                     }
                     cache = tmp;
                 }

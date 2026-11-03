@@ -12,7 +12,8 @@
  *            with the build‑supplied type seq_t
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Limit for the prime sieve: must include all prime factors of n up to the
  * maximum n that will be queried (here 10000, so 200000 is safe). */
@@ -68,10 +70,10 @@ static void ensure_cache(idx_t n)
     size_t new_size = n + 1;
     if (new_size < cache_size * 2) new_size = cache_size * 2;
 
-    g_ex_cache   = (seq_t*)realloc(g_ex_cache,   new_size * sizeof(seq_t));
-    g_incl_cache = (seq_t*)realloc(g_incl_cache, new_size * sizeof(seq_t));
-    f_ex_cache   = (seq_t*)realloc(f_ex_cache,   new_size * sizeof(seq_t));
-    f_incl_cache = (seq_t*)realloc(f_incl_cache, new_size * sizeof(seq_t));
+    g_ex_cache   = mem_resize(seq_t, g_ex_cache, new_size);
+    g_incl_cache = mem_resize(seq_t, g_incl_cache, new_size);
+    f_ex_cache   = mem_resize(seq_t, f_ex_cache, new_size);
+    f_incl_cache = mem_resize(seq_t, f_incl_cache, new_size);
 
     for (size_t i = cache_size; i < new_size; ++i) {
         g_ex_cache[i]   = 0;

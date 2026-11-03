@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 3596, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   collatz_hits, next_prime, seq_alloc, seq_realloc
+ * Validated: standard, pass, 55 terms through n = 9950 (2026-11-01)
+ * Helpers:   next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,9 +24,44 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "../utils/next_prime.h"
-#include "../utils/seq_alloc.h"
-#include "../utils/seq_realloc.h"
-#include "../utils/collatz_hits.h"
+
+/* Helper allocation for seq_t (arbitrary‑precision or builtin integer) */
+static seq_t* seq_alloc(size_t cap) {
+#ifdef __cplusplus
+    return new seq_t[cap];
+#else
+    return (seq_t*)malloc(cap * sizeof(seq_t));
+#endif
+}
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
+
+/* Collatz trajectory test: returns true if p or q appears in the
+   trajectory of N = p*q+1.  All arithmetic is done in uint64_t
+   which is sufficient for the ranges required by the problem. */
+static bool collatz_hits(uint64_t p, uint64_t q, uint64_t N)
+{
+    uint64_t x = N;
+    while (x != 1 && x != p && x != q) {
+        if ((x & 1) == 0) {
+            x >>= 1;
+        } else {
+            if (x > (UINT64_MAX - 1) / 3) break; /* safety */
+            x = x * 3 + 1;
+        }
+    }
+    return (x == p) || (x == q);
+}
 
 typedef struct { idx_t p_idx; idx_t q_idx; } Pair;
 

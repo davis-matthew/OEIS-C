@@ -7,6 +7,7 @@
  * Formula:   a(n) = (1/n) * Sum_{d|n} phi(d) * tau(d^n)
  * Range:     u8 n <= 9, u16 n <= 29, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

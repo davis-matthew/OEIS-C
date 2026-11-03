@@ -11,12 +11,14 @@
  *            efficiently
  * Range:     i8 n <= 7, i16 n <= 9, i32 n <= 15, i64 n <= 22, i128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
  
 seq_t a(idx_t n)
 {
@@ -28,8 +30,8 @@ seq_t a(idx_t n)
     if (seq == NULL || n > maxN) {
         /* new required size */
         size_t newSize = (size_t)(n + 1);          /* indices 0 .. n */
-        seq  = (seq_t *)realloc(seq,  newSize * sizeof(seq_t));
-        pow2 = (seq_t *)realloc(pow2, newSize * sizeof(seq_t));
+        seq  = mem_resize(seq_t, seq, newSize);
+        pow2 = mem_resize(seq_t, pow2, newSize);
         if (seq == NULL || pow2 == NULL)
             exit(EXIT_FAILURE);                   /* allocation failure */
  

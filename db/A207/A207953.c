@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 14, u64 n <= 111, u128 n <= 210,
  *            big any n
- * Helpers:   has_vertical_forbidden, is_allowed_transition
+ * Validated: standard, pass, 37 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,35 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/has_vertical_forbidden.h"
-#include "../utils/is_allowed_transition.h"
+#include "../utils/mem.h"
+
+/* Helper to test vertical validity of a 7‑bit column mask */
+static bool has_vertical_forbidden(uint8_t m) {
+    for (idx_t i = 0; i + 2 < 7; ++i) {
+        uint8_t b0 = (m >> i)       & 1u;
+        uint8_t b1 = (m >> (i + 1)) & 1u;
+        uint8_t b2 = (m >> (i + 2)) & 1u;
+        /* forbidden vertical patterns are 010 and 101 */
+        if ((b0 == 0 && b1 == 1 && b2 == 0) ||
+            (b0 == 1 && b1 == 0 && b2 == 1))
+            return true;
+    }
+    return false;
+}
+
+/* Helper to test if a new column r is allowed after previous columns p,q
+ * (horizontal constraints 001 and 011). */
+static bool is_allowed_transition(uint8_t p, uint8_t q, uint8_t r) {
+    for (idx_t i = 0; i < 7; ++i) {
+        uint8_t pi = (p >> i) & 1u;
+        uint8_t qi = (q >> i) & 1u;
+        uint8_t ri = (r >> i) & 1u;
+        if ((pi == 0 && qi == 0 && ri == 1) ||
+            (pi == 0 && qi == 1 && ri == 1))
+            return false;
+    }
+    return true;
+}
 
 /* A207953: Number of 7×n 0..1 arrays avoiding horizontal 001,011
  * and vertical 010,101.  Computed by dynamic programming over
@@ -74,15 +102,15 @@ static void init_sequence(void) {
     }
 
     /* 3) Allocate DP arrays (state_count entries) */
-    cur = (seq_t*)malloc(state_count * sizeof(seq_t));
-    nxt = (seq_t*)malloc(state_count * sizeof(seq_t));
+    cur = mem_new(seq_t, state_count);
+    nxt = mem_new(seq_t, state_count);
 
     /* 4) Initialise DP for n = 2 (all pairs allowed) */
     for (size_t i = 0; i < state_count; ++i) cur[i] = 1;
 
     /* 5) Initialise cache for a(1) and a(2) */
     cache_size = 3; /* indices 0,1,2 */
-    cache = (seq_t*)calloc(cache_size, sizeof(seq_t));
+    cache = mem_new(seq_t, cache_size);
     cache[1] = (seq_t)V;                    /* a(1) */
     cache[2] = (seq_t)V * (seq_t)V;          /* a(2) */
     cur_len = 2;
@@ -92,7 +120,7 @@ static void init_sequence(void) {
 static void extend_cache(idx_t n) {
     if (n < cache_size) return;
     size_t new_size = n + 1;
-    cache = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_size);
     for (idx_t i = cache_size; i < new_size; ++i) cache[i] = 0;
     cache_size = new_size;
 }

@@ -9,14 +9,16 @@
  *            closed form directly
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 22, u128 n <= 22,
  *            big any n
- * Helpers:   binomial, seq_gcd
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-01)
+ * Helpers:   binomial, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/binomial.h"   /* seq_t binomial(idx_t a, idx_t b); */
-#include "../utils/seq_gcd.h"    /* seq_t seq_gcd(seq_t a, seq_t b); */
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {
@@ -42,14 +44,14 @@ seq_t a(idx_t n)
         seq_t denom = (seq_t)m;
 
         /* reduce coeff1 with denom */
-        seq_t g = seq_gcd(coeff1, denom);
+        seq_t g = gcd(coeff1, denom);
         if (g != 0) {
             coeff1 = coeff1 / g;
             denom  = denom / g;
         }
 
         /* reduce coeff2 with the remaining denom */
-        g = seq_gcd(coeff2, denom);
+        g = gcd(coeff2, denom);
         if (g != 0) {
             coeff2 = coeff2 / g;
             denom  = denom / g;

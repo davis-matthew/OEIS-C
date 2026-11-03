@@ -12,12 +12,14 @@
  *            dp[i][e]. Then a(n) = Σ_d dp[n][d] with...
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 10, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,7 +37,7 @@ seq_t a(idx_t n)
     {
         cache = NULL;
         cache_len = 2;              /* reserve for a(0) and a(1) */
-        cache = (seq_t *)calloc((size_t)cache_len, sizeof(seq_t));
+        cache = mem_new(seq_t, (size_t)cache_len);
         if (!cache) return 0;       /* allocation failure: return 0 */
 
         cache[0] = (seq_t)1;        /* a(0) */
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
         for (idx_t d = 0; d < 12; ++d) total += dp_next[d];
 
         /* Store it in the cache. */
-        cache = (seq_t *)realloc(cache, (size_t)(cache_len + 1) * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, (size_t)(cache_len + 1));
         cache[cache_len] = total;
         ++cache_len;
 

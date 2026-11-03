@@ -13,12 +13,14 @@
  *            two, new values 0..5 * introduced in row major...
  * Range:     u8 n <= 7, u16 n <= 10, u32 n <= 17, u64 n <= 31, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 209 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
         if (needed > cache_cap) {
             /* Increase capacity to at least needed. */
             cache_cap = needed;
-            cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cache_cap);
         }
         /* Fill new entries. */
         for (size_t i = cache_len; i < n; ++i) {

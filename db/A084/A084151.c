@@ -9,12 +9,14 @@
  *            a(0) = 0, a(1) = 0
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 14, u64 n <= 26, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 947 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for a(n) and for powers of 3 (3^k). */
 static seq_t *a_cache   = NULL;  /* stores a(0) … a(k) */
@@ -28,8 +30,8 @@ static void ensure_cache(idx_t n)
     idx_t new_size = n + 1;            /* number of elements needed */
     /* Resize arrays if necessary. */
     if (a_cache == NULL || new_size > cache_size) {
-        a_cache     = (seq_t*)realloc(a_cache,     new_size * sizeof(seq_t));
-        pow3_cache  = (seq_t*)realloc(pow3_cache,  new_size * sizeof(seq_t));
+        a_cache     = mem_resize(seq_t, a_cache, new_size);
+        pow3_cache  = mem_resize(seq_t, pow3_cache, new_size);
     }
 
     /* Initialisation of the first term(s). */

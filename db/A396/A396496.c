@@ -8,9 +8,10 @@
  * Keywords:  nonn, easy
  * Formula:   Count ways to write n as 0+1+2±3±4…±m with all partial sums
  *            non‑negative and minimal m. Uses DP on the partial sums
- * Range:     u8 n <= 346, u16 n <= 2206, u32 n <= 9543, u64 n <= 9543,
- *            u128 n <= 9543, big any n
- * Helpers:   none
+ * Range:     u8 n <= 346, u16 n <= 2206, u32 n <= 17761, u64 n <= 20099,
+ *            u128 n <= 20099, big any n
+ * Validated: standard, pass, 107 terms through n = 9543 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 /* cast for C     */
 #define CAST(ptr, type) ((type)(ptr))
 #endif
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -41,16 +43,16 @@ seq_t a(idx_t n)
     /* --------- dynamic programming from scratch --------- */
     /* Start with terms 0,1,2 already fixed: partial sum 3. */
     size_t cur_cap = 3;                /* current maximum sum (=T_m). */
-    seq_t *dp_cur = CAST(calloc(cur_cap + 1, sizeof(seq_t)), seq_t *);
+    seq_t *dp_cur = CAST(mem_new(seq_t, cur_cap + 1), seq_t *);
     if (!dp_cur) return 0;             /* allocation failure → 0. */
     dp_cur[3] = (seq_t)1;              /* one way to reach 3. */
 
     /* Iterate adding terms i = 3,4,5,… until n is reachable. */
     for (idx_t i = 3; ; ++i) {
         size_t new_cap = cur_cap + (size_t)i;   /* new maximum sum */
-        seq_t *dp_next = CAST(calloc(new_cap + 1, sizeof(seq_t)), seq_t *);
+        seq_t *dp_next = CAST(mem_new(seq_t, new_cap + 1), seq_t *);
         if (!dp_next) {
-            free(dp_cur);
+            mem_free(dp_cur);
             return 0;
         }
 
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
                 dp_next[s - i] += val;
         }
 
-        free(dp_cur);
+        mem_free(dp_cur);
         dp_cur = dp_next;
         cur_cap = new_cap;
 
@@ -78,9 +80,9 @@ seq_t a(idx_t n)
             /* Expand cache if needed and store the result. */
             if (n >= cache_size) {
                 size_t new_size = (size_t)n + 1;
-                seq_t *new_cache = CAST(realloc(cache, new_size * sizeof(seq_t)), seq_t *);
+                seq_t *new_cache = CAST(mem_resize(seq_t, cache, new_size), seq_t *);
                 if (!new_cache) {
-                    free(dp_cur);
+                    mem_free(dp_cur);
                     return result; /* return result even if we cannot cache */
                 }
                 /* initialize new slots to zero (default‑constructed). */
@@ -90,7 +92,7 @@ seq_t a(idx_t n)
                 cache_size = new_size;
             }
             cache[n] = result;
-            free(dp_cur);
+            mem_free(dp_cur);
             return result;
         }
     }

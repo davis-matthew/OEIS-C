@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* ----------  dynamic storage  ---------- */
 static seq_t **rows = NULL;     /* pointers to each stored row */
@@ -61,7 +63,7 @@ static void init_row0(void)
     if (rows_used == 0)
     {
         ensure_capacity(1);
-        rows[0] = (seq_t *)malloc(sizeof(seq_t));
+        rows[0] = mem_new(seq_t, 1);
         rows[0][0] = 1;
         row_len[0]   = 1;
         row_start[0] = 0;
@@ -78,7 +80,7 @@ static void compute_row(size_t r)
 
     /* convolution: S[i] = Σ_{k=0..3} prev[i-k] * coeff[k]  (if index valid) */
     const seq_t coeff[4] = {1, 3, 3, 1};
-    seq_t *conv = (seq_t *)malloc(new_len * sizeof(seq_t));
+    seq_t *conv = mem_new(seq_t, new_len);
     for (size_t i = 0; i < new_len; ++i)
     {
         seq_t val = 0;
@@ -95,12 +97,12 @@ static void compute_row(size_t r)
     }
 
     /* build the new row: S[1]…S[new_len-1] then S[1] again */
-    seq_t *new_row = (seq_t *)malloc(new_len * sizeof(seq_t));
+    seq_t *new_row = mem_new(seq_t, new_len);
     for (size_t i = 0; i < new_len - 1; ++i)
         new_row[i] = conv[i + 1];
     new_row[new_len - 1] = conv[1];
 
-    free(conv);
+    mem_free(conv);
 
     /* store the new row */
     ensure_capacity(r);

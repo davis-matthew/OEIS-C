@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 21, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 typedef struct {
     seq_t  val;   /* p^2 * q */
@@ -88,7 +90,7 @@ seq_t a(idx_t n)
 
         /* --------- Build the initial heap of candidates --------- */
         heap_cap = prime_cnt;
-        heap = (HeapNode *)malloc(heap_cap * sizeof(HeapNode));
+        heap = mem_new(HeapNode, heap_cap);
         heap_size = 0;
 
         for (size_t i = 0; i < prime_cnt; ++i) {
@@ -115,7 +117,7 @@ seq_t a(idx_t n)
 
         /* --------- Prepare space for cached terms --------- */
         terms_cap = 256;
-        terms = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, terms_cap);
 
         initialized = true;
     }
@@ -133,7 +135,7 @@ seq_t a(idx_t n)
         /* Store the extracted value */
         if (terms_cnt >= terms_cap) {
             terms_cap <<= 1;
-            terms = (seq_t *)realloc(terms, terms_cap * sizeof(seq_t));
+            terms = mem_resize(seq_t, terms, terms_cap);
         }
         terms[terms_cnt++] = top.val;
 

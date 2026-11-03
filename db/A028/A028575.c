@@ -11,12 +11,14 @@
  *            (OEIS A028575 – Row sums of triangle A011801)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 14, u128 n <= 24,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 196 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* 1‑based cache: cache[1] = a(1) */
 static size_t cache_len = 0;     /* highest n cached (≥5 after init) */
@@ -28,7 +30,7 @@ static void ensure_cache_size(size_t need)
     if (cache_alloc >= need) return;
     size_t new_alloc = cache_alloc ? cache_alloc * 2 : 8;
     while (new_alloc < need) new_alloc *= 2;
-    seq_t *new_cache = (seq_t *)realloc(cache, (new_alloc + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (new_alloc + 1));
     cache = new_cache;
     cache_alloc = new_alloc;
 }

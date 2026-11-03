@@ -7,13 +7,16 @@
  * Formula:   a(1)=a(2)=a(3)=1, a(n+1)=a(n)+gcd(a(n),a(n-2)) (n≥3)
  * Range:     u8 n <= 118, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 76 terms through n = 9432 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +32,7 @@ seq_t a(idx_t n)
     /* Initialize cache if first call. */
     if (len == 0) {
         cap = 8;
-        seq = (seq_t *)malloc(cap * sizeof(seq_t));
+        seq = mem_new(seq_t, cap);
         if (!seq) return 0;          /* allocation failure fallback */
         seq[0] = 1; /* a(1) */
         seq[1] = 1; /* a(2) */
@@ -41,7 +44,7 @@ seq_t a(idx_t n)
     while (len < target) {
         if (len >= cap) { /* grow capacity */
             size_t new_cap = cap * 2;
-            seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, seq, new_cap);
             if (!tmp) return 0;      /* allocation failure fallback */
             seq = tmp;
             cap = new_cap;

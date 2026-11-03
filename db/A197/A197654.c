@@ -14,13 +14,21 @@
  *            + A^3·B^2 + A^2·B^3 + A·B^4 (T(5, r, r) =...
  * Range:     u8 n <= 6, u16 n <= 15, u32 n <= 38, u64 n <= 125, u128 n <= 418,
  *            big any n
- * Helpers:   len_of_row
+ * Validated: standard, pass, 52 terms through n = 8429 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/len_of_row.h"
+
+/* len_of_row returns the number of terms in row r of the triangle */
+static idx_t len_of_row(idx_t r)
+{
+    if (r == 0 || r == 1) return 1;
+    if (r == 2)           return 4;
+    return r + 1;
+}
 
 static seq_t binom_calc(idx_t n, idx_t k)
 {

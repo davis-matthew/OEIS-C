@@ -9,14 +9,28 @@
  *            of 3's and 8's
  * Range:     u8 n <= 7, u16 n <= 7663, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_equal_3_8
+ * Validated: standard, pass, 68 terms through n = 7235 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/has_equal_3_8.h"
+#include "../utils/mem.h"
+
+/* Return nonzero if x has the same (positive) number of 3's and 8's in base 9 */
+static int has_equal_3_8(uint64_t x)
+{
+    size_t c3 = 0, c8 = 0;
+    while (x) {
+        uint8_t d = x % 9;
+        if (d == 3)  ++c3;
+        else if (d == 8) ++c8;
+        x /= 9;
+    }
+    return (c3 == c8 && c3 > 0);
+}
 
 /* Static storage for the generated sequence */
 static seq_t  *terms      = NULL;   /* array of found terms */
@@ -28,7 +42,7 @@ static uint64_t next_int   = 1;     /* next integer to test */
 static void grow_terms(void)
 {
     size_t new_cap = terms_cap ? terms_cap * 2 : 16;
-    seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, terms, new_cap);
     if (!tmp) exit(1);          /* abort on allocation failure */
     terms = tmp;
     terms_cap = new_cap;

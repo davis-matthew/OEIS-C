@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   ensure_cap_uint, is_prime, mod_pow
+ * Validated: standard, pass, 72 terms through n = 996 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,21 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+#include <string.h>
 #include "../utils/is_prime.h"
-#include "../utils/mod_pow.h"
-#include "../utils/ensure_cap_uint.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
+
+static void ensure_cap_uint(uint64_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        uint64_t *tmp = (uint64_t*)realloc(*arr, new_cap * sizeof(uint64_t));
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
 
 /* static storage for all primes discovered so far */
 static uint64_t *prime_list = NULL;   /* array of primes */
@@ -43,7 +56,7 @@ static void ensure_cap_seq(seq_t **arr, size_t *cap, size_t need)
     if (*cap < need) {
         size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
         while (new_cap < need) new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(*arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
         *arr = tmp;
         *cap = new_cap;
     }
@@ -61,14 +74,14 @@ static bool is_primitive_root_77(uint64_t p)
         uint64_t q = prime_list[i];
         if (q * q > rem) break;
         if (rem % q == 0) {
-            if (mod_pow((seq_t)77, (idx_t)((p - 1) / q), (seq_t)p) == (seq_t)1)
+            if (powmod((seq_t)77, (idx_t)((p - 1) / q), (seq_t)p) == (seq_t)1)
                 return false;
             while (rem % q == 0) rem /= q;
         }
     }
 
     if (rem > 1) {
-        if (mod_pow((seq_t)77, (idx_t)((p - 1) / rem), (seq_t)p) == (seq_t)1)
+        if (powmod((seq_t)77, (idx_t)((p - 1) / rem), (seq_t)p) == (seq_t)1)
             return false;
     }
 

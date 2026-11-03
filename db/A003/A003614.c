@@ -11,14 +11,22 @@
  *            (A_k^3 - 3 A_k A_2k(x^2) + 2 A_3k(x^3))/6 + 2^...
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 13, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   a3614_find
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/a3614_find.h"
+
+static int a3614_find(const uint64_t *ks, int nk, uint64_t k)
+{
+    int x;
+    for (x = 0; x < nk; x++)
+        if (ks[x] == k) return x;
+    return -1;
+}
 
 typedef unsigned __int128 a3614_u128;
 

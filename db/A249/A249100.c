@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 44, u32 n <= 135, u64 n <= 378,
  *            u128 n <= 1129, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 4957 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    a(n) is the row‑by‑row flattening of these coefficients. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -47,7 +49,7 @@ seq_t a(idx_t n)
 
         /* Compute new rows. */
         for (idx_t i = rows_used; i <= r; ++i) {
-            seq_t *row = (seq_t *)malloc((i + 1) * sizeof(seq_t));
+            seq_t *row = mem_new(seq_t, (i + 1));
             if (!row) exit(1);
 
             /* Initialise to zero. */

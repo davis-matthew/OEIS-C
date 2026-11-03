@@ -8,6 +8,7 @@
  *            2^n, starting from the most significant digit
  * Range:     u8 n <= 14, u16 n <= 32, u32 n <= 62, u64 n <= 127,
  *            u128 n <= 254, big any n
+ * Validated: standard, pass, 60 terms through n = 6603 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,6 +10,7 @@
  *            (3*n^4+5*n^3-3*n^2-3*n+2)/18 if n ≡ 2 (mod 3)
  * Range:     u8 n <= 3, u16 n <= 13, u32 n <= 197, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 56 terms through n = 920 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

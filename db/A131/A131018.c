@@ -12,7 +12,8 @@
  *            integer arithmetic is used; the sequence values ar...
  * Range:     i8 n <= 467, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 99 terms through n = 958 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Helper to test whether an integer n is a triangular number
    n = m(m+1)/2 for some non‑negative integer m. */
@@ -68,7 +70,7 @@ static void extend_series(idx_t target)
     if (target <= current_max) return;        /* already computed */
 
     size_t new_size = target + 1;
-    g_series = (seq_t*)realloc(g_series, new_size * sizeof(seq_t));
+    g_series = mem_resize(seq_t, g_series, new_size);
 
     /* Ensure the d_indices needed for all new positions are ready. */
     ensure_d_indices(target);
@@ -97,7 +99,7 @@ seq_t a(idx_t n)
 
     /* Lazy initialization of the series. */
     if (g_series == NULL) {
-        g_series = (seq_t*)malloc(1 * sizeof(seq_t));
+        g_series = mem_new(seq_t, 1);
         g_series[0] = 1;            /* ψ(q)/ψ(q^25) starts with 1 */
         current_max = 0;
     }

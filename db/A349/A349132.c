@@ -7,8 +7,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, mult
  * Formula:   a(n) = Sum_{d|n} psi(d) * A003958(n/d)
- * Range:     u8 n <= 41, u16 n <= 2309, u32 n <= 9264, u64 n <= 9264,
- *            u128 n <= 9264, big any n
+ * Range:     u8 n <= 41, u16 n <= 2309, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 86 terms through n = 9264 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

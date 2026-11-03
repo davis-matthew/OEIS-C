@@ -8,7 +8,8 @@
  *            Product_{i=1..n+1} Gamma(i))
  * Range:     u8 n <= 3, u16 n <= 3, u32 n <= 5, u64 n <= 6, u128 n <= 8,
  *            big any n
- * Helpers:   exponent_d_in_product, seq_from_str, seq_mul, seq_pow
+ * Validated: partial, pass, 10 terms through n = 10 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,10 +17,38 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/seq_from_str.h"
-#include "../utils/seq_pow.h"
-#include "../utils/seq_mul.h"
-#include "../utils/exponent_d_in_product.h"
+#include <stdbool.h>
+#include "../utils/ipow_idx.h"
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
+
+/* Exponent of prime 'p' in the product ∏_{j=0}^n j!  (Equation derived in analysis). */
+static inline idx_t exponent_d_in_product(idx_t p, idx_t n)
+{
+    idx_t exp = 0;
+    idx_t power = p;
+    while (power <= n) {
+        idx_t q = n / power;
+        idx_t r = n % power;
+        exp += power * q * (q - 1) / 2 + (r + 1) * q;
+        if (power > n / p) break;      /* avoid overflow */
+        power *= p;
+    }
+    return exp;
+}
 
 static uint8_t* composite = NULL;          /* 0 = prime, 1 = composite */
 static int* primes = NULL;                 /* list of primes */
@@ -129,7 +158,7 @@ seq_t a(idx_t n)
 
         if (exp_num > exp_d) {
             idx_t exp = exp_num - exp_d;
-            seq_t pow_part = seq_pow((seq_t)p, exp);
+            seq_t pow_part = ipow_idx((seq_t)p, exp);
             result = seq_mul(result, pow_part);
         }
         /* exp_num <= exp_d would imply a non‑integer result, which should not occur */

@@ -10,13 +10,15 @@
  *            42; a(9) = 47; a(10) = 56; a(11) = 61; a(12) = 70; a(13) = 77;
  * Range:     i8 n <= 20, i16 n <= 53, i32 n <= 53, i64 n <= 53, i128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 52 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Computes the n-th term of OEIS sequence A063299 (offset 2). */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *A = NULL;      /* dynamic array holding the sequence */
 static size_t cap = 0;       /* current capacity of A */
@@ -29,7 +31,7 @@ static void ensure_size(idx_t n) {
     size_t newcap = (cap == 0) ? 32 : cap * 2;
     while (newcap < (size_t)(n + 1))
         newcap *= 2;
-    seq_t *tmp = (seq_t *)realloc(A, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, A, newcap);
     if (!tmp) { /* allocation failure – undefined behaviour in this context */
         exit(1);
     }

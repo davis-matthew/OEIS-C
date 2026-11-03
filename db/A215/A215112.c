@@ -8,12 +8,14 @@
  *            1
  * Range:     i8 n <= 7, i16 n <= 14, i32 n <= 27, i64 n <= 30, i128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, realloc, free */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* dynamic cache of computed terms */
 static idx_t  last_comp = 0;     /* highest index that has been computed so far */
@@ -26,7 +28,7 @@ ensure_cache(idx_t n)
     if (!cache) {
         /* first allocation: store the first three base values */
         cache_cap = (size_t)(n + 1 > 4 ? n + 1 : 4);
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache[0] = -1;
         cache[1] = -1;
         cache[2] = 1;
@@ -34,7 +36,7 @@ ensure_cache(idx_t n)
     } else if (cache_cap <= (size_t)n) {
         size_t new_cap = cache_cap * 2;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         cache = tmp;
         cache_cap = new_cap;
     }

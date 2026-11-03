@@ -11,13 +11,15 @@
  *            - 5x⁵) / (1 - x²)(1 + 6x² + 25x⁴)
  * Range:     i8 n <= 7, i16 n <= 14, i32 n <= 27, i64 n <= 32, i128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     if (n + 1 > cap) {
         idx_t new_cap = n + 1;
         if (new_cap < 6) new_cap = 6;               /* at least 6 for safety   */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();                         /* allocation failed */
         cache = tmp;
         cap   = new_cap;

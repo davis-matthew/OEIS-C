@@ -8,13 +8,16 @@
  *            (j·k)^{n-k}
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 14, u128 n <= 24,
  *            big any n
- * Helpers:   binomial, pow_uint
+ * Validated: standard, pass, 38 terms through n = 300 (2026-11-01)
+ * Helpers:   binomial, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +31,7 @@ seq_t a(idx_t n)
             seq_t binom_k_j = binomial(k, j);
 
             /* 3^{k-j} */
-            seq_t pow3 = pow_uint(3, k - j);
+            seq_t pow3 = ipow_u64_idx(3, k - j);
 
             /* (j*k)^{n-k} */
             seq_t powjk;
@@ -39,7 +42,7 @@ seq_t a(idx_t n)
             }
             else
             {
-                powjk = pow_uint(j * k, n - k);
+                powjk = ipow_u64_idx(j * k, n - k);
             }
 
             seq_t prod = binom_k_j * pow3 * powjk;

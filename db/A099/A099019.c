@@ -8,7 +8,8 @@
  *            composite
  * Range:     u8 n <= 17, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 68 terms through n = 8393 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static storage for memoisation */
 static seq_t *seq_arr = NULL;   /* array of found terms */
@@ -63,7 +65,7 @@ static void build_until(idx_t min_n)
                     /* Grow the term array if needed. */
                     if (seq_len == seq_cap) {
                         size_t new_cap = seq_cap ? seq_cap * 2 : 8;
-                        seq_t *tmp = (seq_t *)realloc(seq_arr, new_cap * sizeof(seq_t));
+                        seq_t *tmp = mem_resize(seq_t, seq_arr, new_cap);
                         if (!tmp)
                             exit(1);      /* allocation failure */
                         seq_arr = tmp;

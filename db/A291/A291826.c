@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 19, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,7 +30,8 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     /* helper to grow the terms array ---------------------------------- */
     if (term_cnt == term_cap) {
         term_cap = (term_cap == 0) ? 128 : term_cap * 2;
-        terms = (seq_t *)realloc(terms, term_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, term_cap);
     }
 
     /* determine needed number of j‑sequences ---------------------------- */
@@ -59,15 +61,15 @@ seq_t a(idx_t n)
         desired_j_max = 3;             /* j = 1,2,3 are enough */
     } else {
         /* upper bound: 32 * n^6  (fits in seq_t for the sizes we target) */
-        seq_t ub = pow_seq((seq_t)n, 6);
+        seq_t ub = ipow_i32((seq_t)n, 6);
         ub = ub * ((seq_t)32);
 
         /* extend j_max while base(j) ≤ ub */
         while (1) {
             idx_t next_j = desired_j_max + 1;
-            seq_t j6 = pow_seq((seq_t)next_j, 6);
+            seq_t j6 = ipow_i32((seq_t)next_j, 6);
             seq_t j6p1 = j6 + ((seq_t)1);
-            seq_t base_j = pow_seq(j6p1, 5);
+            seq_t base_j = ipow_i32(j6p1, 5);
             if (base_j > ub)
                 break;
             ++desired_j_max;
@@ -76,12 +78,12 @@ seq_t a(idx_t n)
 
     /* add new j‑entries if required ------------------------------------ */
     if (desired_j_max > j_max) {
-        base  = (seq_t *)realloc(base,  (desired_j_max + 1) * sizeof(seq_t));
+        base  = mem_resize(seq_t, base, (desired_j_max + 1));
         i_next = (idx_t *)realloc(i_next, (desired_j_max + 1) * sizeof(idx_t));
         for (idx_t j = j_max + 1; j <= desired_j_max; ++j) {
-            seq_t j6 = pow_seq((seq_t)j, 6);
+            seq_t j6 = ipow_i32((seq_t)j, 6);
             seq_t j6p1 = j6 + ((seq_t)1);
-            base[j] = pow_seq(j6p1, 5);   /* (j^6 + 1)^5 */
+            base[j] = ipow_i32(j6p1, 5);   /* (j^6 + 1)^5 */
             i_next[j] = 1;                /* start with i = 1 */
         }
         j_max = desired_j_max;
@@ -93,7 +95,7 @@ seq_t a(idx_t n)
         seq_t  min_val = 0;
         idx_t  best_j  = 0;
         for (idx_t j = 1; j <= j_max; ++j) {
-            seq_t candidate = base[j] * pow_seq((seq_t)i_next[j], 6);
+            seq_t candidate = base[j] * ipow_i32((seq_t)i_next[j], 6);
             if (best_j == 0 || candidate < min_val) {
                 min_val = candidate;
                 best_j = j;
@@ -105,7 +107,7 @@ seq_t a(idx_t n)
             /* grow terms array if necessary */
             if (term_cnt == term_cap) {
                 term_cap = (term_cap == 0) ? 128 : term_cap * 2;
-                terms = (seq_t *)realloc(terms, term_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, term_cap);
             }
             terms[term_cnt++] = min_val;
         }

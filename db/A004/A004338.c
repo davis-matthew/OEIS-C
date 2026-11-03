@@ -7,6 +7,7 @@
  * Formula:   a(n) = C(4n, n-8) = Product_{i=1..n-8} (3n+8+i)/i
  * Range:     u8 n <= 9, u16 n <= 11, u32 n <= 15, u64 n <= 25, u128 n <= 44,
  *            big any n
+ * Validated: standard, pass, 36 terms through n = 880 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

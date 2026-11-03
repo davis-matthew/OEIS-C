@@ -9,12 +9,14 @@
  *            even -S/2 if n odd
  * Range:     i8 n <= 1, i16 n <= 3, i32 n <= 7, i64 n <= 14, i128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 290 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache of previously computed values */
@@ -23,7 +25,7 @@ seq_t a(idx_t n) {
 
     /* grow the cache if necessary */
     if (n + 1 > seq_len) {
-        seq_t *new_seq = (seq_t *)realloc(seq, (n + 1) * sizeof(seq_t));
+        seq_t *new_seq = mem_resize(seq_t, seq, (n + 1));
         /* realloc may return NULL – ignore that case for brevity as test harness
            guarantees enough memory */
         seq = new_seq;

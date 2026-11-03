@@ -7,12 +7,15 @@
  * Formula:   a(n) = 7*6^((n-1)/2)-2 (n odd), 2*6^(n/2)-2 (n even)
  * Range:     u8 n <= 5, u16 n <= 11, u32 n <= 23, u64 n <= 48, u128 n <= 98,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 45 terms through n = 858 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -24,11 +27,11 @@ seq_t a(idx_t n)
 
     if ((n & 1) == 1) {    /* n is odd */
         exp = (n - 1) / 2;
-        pow = big_pow((seq_t)6, (seq_t)exp);
+        pow = ipow((seq_t)6, (seq_t)exp);
         res = (seq_t)7 * pow;
     } else {               /* n is even */
         exp = n / 2;
-        pow = big_pow((seq_t)6, (seq_t)exp);
+        pow = ipow((seq_t)6, (seq_t)exp);
         res = (seq_t)2 * pow;
     }
 

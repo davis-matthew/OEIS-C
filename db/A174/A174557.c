@@ -8,12 +8,13 @@
  *            the smallest integer with r(r+1)/2 ≥ n, and k = n - r(r-1)/2
  * Range:     i8 n <= 465, i16 n <= 465, i32 n <= 465, i64 n <= 465,
  *            i128 n <= 465, big any n
- * Helpers:   _floor_isqrt_u64
+ * Validated: standard, pass, 94 terms through n = 435 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/_floor_isqrt_u64.h"
+#include "../utils/isqrt.h"
 
 static inline __uint128_t tri128(idx_t r) {
     __uint128_t rr = r;

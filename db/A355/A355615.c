@@ -9,13 +9,16 @@
  *            (indices start at 1)
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 6, u128 n <= 7,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 8 terms through n = 8 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *num = NULL;    /* numerators of b(k) */
 static seq_t *den = NULL;    /* denominators of b(k) */
@@ -28,8 +31,8 @@ static void ensure_capacity(idx_t n)
     if (n <= cap)
         return;
     idx_t new_cap = n * 2;
-    seq_t *new_num = (seq_t *)realloc(num, (new_cap + 1) * sizeof(seq_t));
-    seq_t *new_den = (seq_t *)realloc(den, (new_cap + 1) * sizeof(seq_t));
+    seq_t *new_num = mem_resize(seq_t, num, (new_cap + 1));
+    seq_t *new_den = mem_resize(seq_t, den, (new_cap + 1));
     if (!new_num || !new_den)
         exit(EXIT_FAILURE);
     num = new_num;
@@ -46,8 +49,8 @@ seq_t a(idx_t n)
     /* Lazy initialization of storage if needed. */
     if (num == NULL) {
         cap = 2;                /* capacity for indices 0..2 */
-        num = (seq_t *)malloc((cap + 1) * sizeof(seq_t));
-        den = (seq_t *)malloc((cap + 1) * sizeof(seq_t));
+        num = mem_new(seq_t, (cap + 1));
+        den = mem_new(seq_t, (cap + 1));
         if (!num || !den)
             exit(EXIT_FAILURE);
         num[1] = (seq_t)1;      /* b(1) = 1/1 */

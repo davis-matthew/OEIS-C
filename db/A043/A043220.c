@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 41, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   pair_0_5
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,21 @@
  */
 
 #include <stdbool.h>
-#include "../utils/pair_0_5.h"
+
+static inline bool pair_0_5(seq_t x) {
+    /* return true iff x (decimal) has adjacent 0 and 5 digits */
+    int prev = -1;          /* previous digit, -1 means none yet */
+    while (x > 0) {
+        unsigned long long d = (unsigned long long)(x % 10); /* 0 ≤ d < 10 */
+        if (prev != -1) {
+            if ((prev == 0 && d == 5) || (prev == 5 && d == 0))
+                return true;
+        }
+        prev = (int)d;
+        x /= 10;
+    }
+    return false;
+}
 
 seq_t a(idx_t n) {
     idx_t count = 0;

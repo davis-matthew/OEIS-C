@@ -8,13 +8,15 @@
  * Formula:   a(n) = lcm{1, 5, 9, 13, …, 4n+1} (OEIS A051539)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 17, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 849 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ----------  internal state  ---------- */
 static seq_t *lcm_vals = NULL;   /* a(n) values already computed */
@@ -36,7 +38,7 @@ static void ensure_lcm_cap(size_t need)
     if (lcm_cap < need) {
         size_t new_cap = lcm_cap ? lcm_cap * 2 : 16;
         if (new_cap < need) new_cap = need;
-        lcm_vals = (seq_t *)realloc(lcm_vals, new_cap * sizeof(seq_t));
+        lcm_vals = mem_resize(seq_t, lcm_vals, new_cap);
         lcm_cap = new_cap;
     }
 }

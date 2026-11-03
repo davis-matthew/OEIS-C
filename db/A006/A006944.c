@@ -9,12 +9,81 @@
  *            excluding hyphens and spaces
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   cardinal_letters
+ * Validated: standard, pass, 92 terms through n = 998 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/cardinal_letters.h"
+static seq_t cardinal_letters(idx_t x) {
+    static const uint8_t base_cardinals[] = {
+        3, // 1: one
+        3, // 2: two
+        5, // 3: three
+        4, // 4: four
+        4, // 5: five
+        3, // 6: six
+        5, // 7: seven
+        5, // 8: eight
+        4  // 9: nine
+    };
+    
+    static const uint8_t tens_cardinals[] = {
+        6, // 20: twenty
+        6, // 30: thirty
+        5, // 40: forty
+        5, // 50: fifty
+        5, // 60: sixty
+        7, // 70: seventy
+        6, // 80: eighty
+        6  // 90: ninety
+    };
+    
+    static const uint8_t teens[] = {
+        3, // 10: ten
+        6, // 11: eleven
+        6, // 12: twelve
+        8, // 13: thirteen
+        8, // 14: fourteen
+        7, // 15: fifteen
+        7, // 16: sixteen
+        9, // 17: seventeen
+        8, // 18: eighteen
+        8  // 19: nineteen
+    };
+    
+    if (x <= 9) {
+        return (seq_t)base_cardinals[x - 1];
+    } else if (x < 20) {
+        return (seq_t)teens[x - 10];
+    } else if (x < 100) {
+        idx_t tens = x / 10;
+        idx_t ones = x % 10;
+        if (ones == 0) {
+            return (seq_t)tens_cardinals[tens - 2];
+        } else {
+            return (seq_t)tens_cardinals[tens - 2] + (seq_t)base_cardinals[ones - 1];
+        }
+    } else if (x < 1000) {
+        idx_t hundreds = x / 100;
+        idx_t remainder = x % 100;
+        seq_t result = (seq_t)base_cardinals[hundreds - 1] + (seq_t)7;
+        if (remainder > 0) {
+            result += cardinal_letters(remainder);
+        }
+        return result;
+    } else if (x < 1000000) {
+        idx_t thousands = x / 1000;
+        idx_t remainder = x % 1000;
+        seq_t result = cardinal_letters(thousands) + (seq_t)8;
+        if (remainder > 0) {
+            result += cardinal_letters(remainder);
+        }
+        return result;
+    }
+    
+    return (seq_t)0;
+}
 static seq_t cardinal_letters(idx_t x);
 
 seq_t a(idx_t n) {

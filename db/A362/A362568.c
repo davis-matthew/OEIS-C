@@ -8,14 +8,16 @@
  *            binomial(n‑k‑1,k)/(n‑k)!
  * Range:     i8 n <= 5, i16 n <= 7, i32 n <= 11, i64 n <= 19, i128 n <= 31,
  *            big any n
- * Helpers:   binomial, pow_seq
+ * Validated: standard, pass, 37 terms through n = 391 (2026-11-01)
+ * Helpers:   binomial, ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
 
     for (idx_t k = 0; k <= maxk; ++k)
     {
-        seq_t powv = pow_seq((seq_t)(n - k), (int)k);       /* (n-k)^k   */
+        seq_t powv = ipow_i32((seq_t)(n - k), (int)k);       /* (n-k)^k   */
         seq_t bin  = binomial(n - k - 1, k);                 /* binomial(n-k-1,k) */
         seq_t term = powv * bin;                            /* (n-k)^k * bin */
         term = term * P;                                    /* * P_k       */

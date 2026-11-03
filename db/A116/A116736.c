@@ -9,13 +9,15 @@
  *            Initial values: a(1)=1, a(2)=2, a(3)=6, a(4)=21, a(5)=75
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 19, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static const seq_t base5[5] = {
     (seq_t)1, (seq_t)2, (seq_t)6,
@@ -30,7 +32,7 @@ static void ensure_capacity(idx_t n)
 {
     if ((size_t)n > cache_cap)
     {
-        seq_t *tmp = (seq_t *)realloc(cache, (size_t)n * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, (size_t)n);
         if (!tmp)
             abort();
         cache = tmp;

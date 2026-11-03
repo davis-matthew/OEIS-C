@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 21, u16 n <= 317, u32 n <= 5555, u64 n <= 5555,
  *            u128 n <= 5555, big any n
- * Helpers:   pow10
+ * Validated: standard, pass, 71 terms through n = 5403 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,18 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/pow10.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 static seq_t* dp0_data = NULL;       /* dp0[sum][len]  : 0‑9 digits, leading zeros allowed */
 static size_t  dp_dim   = 0;          /* current size of dp array (dp_dim = max_r+1) */
@@ -30,7 +42,7 @@ static void ensure_dp(size_t maxR) {
     if (dp_dim > maxR) return;
 
     size_t new_dim = maxR + 1;
-    seq_t* new_data = (seq_t*)malloc(new_dim * new_dim * sizeof(seq_t));
+    seq_t* new_data = mem_new(seq_t, new_dim * new_dim);
     if (!new_data) return;  /* failure – caller will handle */
 
     for (size_t s = 0; s < new_dim; ++s)
@@ -51,7 +63,7 @@ static void ensure_dp(size_t maxR) {
         }
     }
 
-    if (dp0_data) free(dp0_data);
+    if (dp0_data) mem_free(dp0_data);
     dp0_data = new_data;
     dp_dim   = new_dim;
 }
@@ -79,7 +91,7 @@ static void ensure_row_cache(size_t maxR) {
     ensure_dp(maxR);
 
     size_t newSize = maxR + 1;
-    seq_t* newArr = (seq_t*)malloc(newSize * sizeof(seq_t));
+    seq_t* newArr = mem_new(seq_t, newSize);
     if (!newArr) return;  /* failure */
 
     for (size_t i = 0; i < newSize; ++i) newArr[i] = 0;
@@ -93,7 +105,7 @@ static void ensure_row_cache(size_t maxR) {
         newArr[r] = newArr[r - 1] + sum_counts;
     }
 
-    if (rowCount_cache) free(rowCount_cache);
+    if (rowCount_cache) mem_free(rowCount_cache);
     rowCount_cache = newArr;
     rowCache_size = newSize;
 }

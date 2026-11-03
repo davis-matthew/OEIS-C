@@ -8,17 +8,18 @@
  *            largest integer with k*(k-1) < n
  * Range:     u8 n <= 240, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a000037_isqrt
+ * Validated: standard, pass, 106 terms through n = 9767 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a000037_isqrt.h"
+#include "../utils/isqrt_u64.h"
 
 seq_t a(idx_t n)
 {
-    uint64_t r = a000037_isqrt((uint64_t)n);
+    uint64_t r = isqrt_u64((uint64_t)n);
     seq_t k = (seq_t)r;
     /* round(sqrt(n)) = r+1 iff r*(r+1) < n */
     if ((seq_t)r * ((seq_t)r + 1) < (seq_t)n) k = k + 1;

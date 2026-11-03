@@ -10,7 +10,8 @@
  *            value so that the result can be cast to seq_t safely
  * Range:     u8 n <= 6, u16 n <= 58, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 1000 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* -------------------------------------------------------------
    Deterministic Miller‑Rabin for 64‑bit integers.
@@ -88,7 +90,7 @@ static void ensure_seq_cap(void)
 {
     if (seq_len >= seq_cap) {
         size_t new_cap = (seq_cap == 0) ? 64 : seq_cap * 2;
-        seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, new_cap);
         seq_cap = new_cap;
     }
 }

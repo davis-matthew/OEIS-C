@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 47, u32 n <= 5920, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _prime_upper_bound
+ * Validated: standard, pass, 58 terms through n = 9506 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,15 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <math.h>
-#include "../utils/_prime_upper_bound.h"
+
+/* upper bound for the n-th prime (n ≥ 6) */
+static size_t _prime_upper_bound(size_t n)
+{
+    if (n < 6) return 15;
+    double  nn     = (double)n;
+    double  bound  = nn * (log(nn) + log(log(nn)));
+    return (size_t)(bound) + 3;
+}
 
 /* static storage for primes */
 static uint64_t *primes      = NULL;   /* array of primes */

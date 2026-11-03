@@ -9,6 +9,7 @@
  *            otherwise a(n-1) + 2^(n-1). Initial value: a(2) = 1
  * Range:     u8 n <= 7, u16 n <= 17, u32 n <= 33, u64 n <= 65, u128 n <= 127,
  *            big any n
+ * Validated: standard, pass, 50 terms through n = 907 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

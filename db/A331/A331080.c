@@ -8,12 +8,14 @@
  *            tau(d) and tau(k) is the number of divisors of k
  * Range:     u8 n <= 9, u16 n <= 268, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 9665 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -21,9 +23,9 @@ seq_t a(idx_t n)
     /* we need d3 for values up to n+1 */
     idx_t M = n + 1;
     /* allocate arrays for tau and d3 */
-    seq_t *tau = (seq_t*)calloc((size_t)(M + 1), sizeof(seq_t));
-    seq_t *d3  = (seq_t*)calloc((size_t)(M + 1), sizeof(seq_t));
-    if (!tau || !d3) { free(tau); free(d3); return 0; }
+    seq_t *tau = mem_new(seq_t, (size_t)(M + 1));
+    seq_t *d3  = mem_new(seq_t, (size_t)(M + 1));
+    if (!tau || !d3) { mem_free(tau); mem_free(d3); return 0; }
 
     /* compute tau(k) for all k <= M */
     for (idx_t i = 1; i <= M; ++i) {
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
         sum += d3[i] * d3[i + 1];
     }
 
-    free(tau);
-    free(d3);
+    mem_free(tau);
+    mem_free(d3);
     return sum;
 }

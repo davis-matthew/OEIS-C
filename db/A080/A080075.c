@@ -9,7 +9,8 @@
  *            2 where L(x) is the number of binary digits of x
  * Range:     u8 n <= 22, u16 n <= 382, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 69 terms through n = 9515 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* Uses dynamic caching; works for all supported seq_t types. */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Compute the number of binary digits of x.  Works for arbitrary-precision seq_t
    as long as the class or type supports shift and comparison with 0. */
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     if (target > proth_cap) {
         size_t new_cap = (proth_cap == 0) ? 4 : (proth_cap << 1);
         if (new_cap < target) new_cap = target;
-        seq_t *tmp = (seq_t *)realloc(proth_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, proth_cache, new_cap);
         /* If realloc fails, leave the old cache and rely on the judge not
            providing such a case. */
         proth_cache = tmp;

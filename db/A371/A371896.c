@@ -9,8 +9,9 @@
  * Formula:   a(n) = length of the longest prefix of primes produced by f(x) =
  *            x^2 + x + p, where p = the n‑th smaller twin prime
  * Range:     u8 n <= 17, u16 n <= 1414, u32 n <= 10000, u64 n <= 10000,
- *            u128 n <= 7837, big any n
- * Helpers:   is_prime
+ *            u128 n <= 8078, big any n
+ * Validated: standard, pass, 102 terms through n = 9985 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"   /* provides bool is_prime(idx_t) */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* state for twin‑prime generation ------------------------------------- */
 static seq_t *twin_primes = NULL;         /* array of twin‑prime starts */
@@ -36,7 +38,7 @@ ensure_twin_primes(idx_t n)
     /* grow array */
     if (twin_cnt == twin_cap) {
         size_t new_cap = twin_cap ? twin_cap * 2 : 4;
-        seq_t *new_arr = (seq_t *)realloc(twin_primes, new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, twin_primes, new_cap);
         if (!new_arr) exit(EXIT_FAILURE);
         twin_primes = new_arr;
         twin_cap = new_cap;

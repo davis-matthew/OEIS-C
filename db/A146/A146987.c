@@ -12,12 +12,14 @@
  *            The triangle is read by rows: row 0 = [1]; row...
  * Range:     u8 n <= 22, u16 n <= 47, u32 n <= 125, u64 n <= 415,
  *            u128 n <= 1451, big any n
- * Helpers:   binom, pow3
+ * Validated: standard, pass, 71 terms through n = 5019 (2026-11-01)
+ * Helpers:   binomial, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 #include "../utils/pow3.h"
 
 seq_t a(idx_t n)
@@ -33,11 +35,11 @@ seq_t a(idx_t n)
     idx_t k = n - r * (r + 1) / 2;
 
     /* Base binomial term */
-    seq_t val = binom(r, k);
+    seq_t val = binomial(r, k);
 
     /* Add the extra part for r ≥ 2 and k > 0 */
     if (r >= 2 && k > 0) {
-        val += pow3(r - 1) * binom(r - 2, k - 1);
+        val += pow3(r - 1) * binomial(r - 2, k - 1);
     }
     return val;
 }

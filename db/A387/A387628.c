@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 24, u64 n <= 49, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 957 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    Recurrence (given in OEIS): a(n) = 2*a(n-1) - a(n-2) + 4*a(n-3) + 4*a(n-4) - 4*a(n-6)
    Initial values: a(0)=1, a(1)=3, a(2)=5, a(3)=9, a(4)=29, a(5)=81, a(6)=185   */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t _base_vals[7] = {
     (seq_t)1,   /* a(0) */
@@ -40,14 +42,14 @@ static void _ensure_cache(idx_t n)
     size_t required = (size_t)n + 1;
     if (_cache == NULL) {
         _cap = required > 8 ? required : 8;
-        _cache = (seq_t *)malloc(_cap * sizeof(seq_t));
+        _cache = mem_new(seq_t, _cap);
         for (size_t i = 0; i < 7; ++i)
             _cache[i] = _base_vals[i];
         _max_computed = 6;
     } else if (required > _cap) {
         size_t new_cap = _cap * 2;
         while (required > new_cap) new_cap *= 2;
-        _cache = (seq_t *)realloc(_cache, new_cap * sizeof(seq_t));
+        _cache = mem_resize(seq_t, _cache, new_cap);
         _cap = new_cap;
     }
 }

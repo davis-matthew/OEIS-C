@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 11, u16 n <= 287, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 9745 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
    repeated calls (in any order) are efficient. */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache: cache[i] holds a(i) for i < computed. */
@@ -31,7 +33,7 @@ seq_t a(idx_t n) {
     /* Expand the cache if necessary. */
     if (idx >= cache_size) {
         size_t new_size = idx + 1;    /* need indices 0 .. idx */
-        seq_t *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_size);
         if (!new_cache) abort();     /* allocation failure */
 
         /* Copy existing computed values. */
@@ -42,7 +44,7 @@ seq_t a(idx_t n) {
             new_cache[i] = (seq_t)0;
 
         /* Replace old cache. */
-        free(cache);
+        mem_free(cache);
         cache       = new_cache;
         cache_size  = new_size;
     }

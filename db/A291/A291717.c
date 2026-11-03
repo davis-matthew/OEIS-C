@@ -12,14 +12,15 @@
  *            (m,k) with 1 ≤ k ≤ m
  * Range:     u8 n <= 11, u16 n <= 33, u32 n <= 89, u64 n <= 252,
  *            u128 n <= 778, big any n
- * Helpers:   binom
+ * Validated: standard, pass, 61 terms through n = 1146 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 /* auxiliary: power of two cast for abs calculation */
 #define ABS_VAL(x) ((x) > 0 ? (x) : -(x))
@@ -61,7 +62,7 @@ seq_t a(idx_t n)
                 if (prod == 0) continue;
                 idx_t M = (prod - 1) >> 1;   /* pairs having this centre (cell centre) */
                 if (M < t) continue;
-                sum += binom(M, t);
+                sum += binomial(M, t);
             }
         }
         return sum;
@@ -84,7 +85,7 @@ seq_t a(idx_t n)
             if (prod == 0) continue;
             idx_t M = prod >> 1;         /* pairs sharing this centre */
             if (M < t) continue;
-            sum += binom(M, t);
+            sum += binomial(M, t);
         }
     }
     return sum;

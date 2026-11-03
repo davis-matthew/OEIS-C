@@ -12,15 +12,28 @@
  *            uses O(n) space, * which is adequate for n up to...
  * Range:     u8 n <= 100, u16 n <= 243, u32 n <= 679, u64 n <= 2150,
  *            u128 n <= 7441, big any n
- * Helpers:   alloc_seq_array, free_seq_array, is_squarefree
+ * Validated: standard, pass, 93 terms through n = 9556 (2026-11-03)
+ * Helpers:   is_squarefree, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdlib.h>
 #include "../utils/is_squarefree.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 seq_t a(idx_t n)
 {

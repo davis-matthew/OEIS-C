@@ -8,12 +8,14 @@
  *            number)
  * Range:     u8 n <= 47, u16 n <= 409, u32 n <= 5194, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 9823 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static buffers for the 7‑smooth sequence and its divisor sums */
@@ -26,8 +28,8 @@ seq_t a(idx_t n) {
     /* first run: initialisation */
     if (!smooth) {
         alloc = 64;
-        smooth    = (seq_t*)malloc(alloc * sizeof(seq_t));
-        sigmaVals = (seq_t*)malloc(alloc * sizeof(seq_t));
+        smooth    = mem_new(seq_t, alloc);
+        sigmaVals = mem_new(seq_t, alloc);
         smooth[1]   = 1;
         sigmaVals[1] = 1;          /* σ(1) = 1 */
         listSize = 1;
@@ -38,8 +40,8 @@ seq_t a(idx_t n) {
         /* grow buffers when needed */
         if (listSize + 1 >= alloc) {
             alloc <<= 1;
-            smooth    = (seq_t*)realloc(smooth,    alloc * sizeof(seq_t));
-            sigmaVals = (seq_t*)realloc(sigmaVals, alloc * sizeof(seq_t));
+            smooth    = mem_resize(seq_t, smooth, alloc);
+            sigmaVals = mem_resize(seq_t, sigmaVals, alloc);
         }
 
         /* next candidates from the four pointers */

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 5, u64 n <= 13, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 193 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #ifndef _POSIX_C_SOURCE
 #define _POSIX_C_SOURCE 200112L
 #endif
+#include "../utils/mem.h"
 
 /* Helper function: test compatibility of two 5‑tuples */
 static bool compat(const uint8_t a[5], const uint8_t b[5])
@@ -114,8 +116,8 @@ seq_t a(idx_t n)
 {
     build_data();   /* Ensure tables ready */
     /* DP arrays */
-    seq_t *curr = (seq_t*)calloc(NSTATE, sizeof(seq_t));
-    seq_t *next = (seq_t*)calloc(NSTATE, sizeof(seq_t));
+    seq_t *curr = mem_new(seq_t, NSTATE);
+    seq_t *next = mem_new(seq_t, NSTATE);
     /* initialise: any first row is allowed */
     for (int i = 0; i < NSTATE; ++i)
         curr[i] = 1;
@@ -123,7 +125,7 @@ seq_t a(idx_t n)
     for (idx_t step = 0; step < n; ++step)
     {
         /* zero next */
-        memset(next, 0, NSTATE * sizeof(seq_t));
+        mem_set(next, 0, NSTATE * sizeof(seq_t));
         /* propagate */
         for (int i = 0; i < NSTATE; ++i)
         {
@@ -146,7 +148,7 @@ seq_t a(idx_t n)
     for (int i = 0; i < NSTATE; ++i)
         total += curr[i];
 
-    free(curr);
-    free(next);
+    mem_free(curr);
+    mem_free(next);
     return total;
 }

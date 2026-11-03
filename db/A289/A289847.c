@@ -11,7 +11,8 @@
  *            recurrence: * for m≥1: * C_m = ∑_{j=0}^{m-...
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 13, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* ----- Macro to cast idx_t to size_t safely ----- */
 #define IDX_TO_SIZE(x) ((size_t)(x))
@@ -90,13 +92,13 @@ static void generate_primes_up_to(size_t cnt)
 static void ensure_b_capacity(size_t need)
 {
     if (b_cap < need) {
-        seq_t *tmp = (seq_t *)realloc(b_arr, need * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, b_arr, need);
         if (!tmp) abort();
         b_arr = tmp;
         b_cap = need;
     }
     if (c_cap < need) {
-        seq_t *tmpc = (seq_t *)realloc(c_arr, need * sizeof(seq_t));
+        seq_t *tmpc = mem_resize(seq_t, c_arr, need);
         if (!tmpc) abort();
         c_arr = tmpc;
         c_cap = need;

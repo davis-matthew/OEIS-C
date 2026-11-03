@@ -8,7 +8,8 @@
  *            a(1) = 2, a(2) = 5
  * Range:     u8 n <= 6, u16 n <= 12, u32 n <= 23, u64 n <= 47, u128 n <= 95,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 2387 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    with realloc, which is available in both C11 and C++17. */
 #include <stddef.h>   /* size_t */
 #include <stdlib.h>   /* malloc, realloc, free */
+#include "../utils/mem.h"
 
 /* The external types seq_t and idx_t are provided by the build
    environment.  seq_t is an unsigned integer type of arbitrary size. */
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* ---- First use: create the cache with the three initial terms ---- */
     if (cache == NULL) {
         capacity = 3;                       /* at least three slots */
-        cache = (seq_t *)malloc(capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, capacity);
         if (cache == NULL) {                 /* allocation failure – abort */
             /* In a real‑world library we might throw an exception
                or return an error code; for the purpose of this
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
         /* Grow the cache exactly to the required size – a small
            upgrade strategy (e.g. double) is unnecessary for the
            expected n ranges. */
-        seq_t *tmp = (seq_t *)realloc(cache, required * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, required);
         if (tmp == NULL) { /* allocation failure – abort */
             exit(1);
         }

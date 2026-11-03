@@ -7,6 +7,7 @@
  * Formula:   a(0)=0, a(1)=1, a(2)=2, else a(n)=4 if n is even, otherwise 3
  * Range:     u8 n <= 1001, u16 n <= 1001, u32 n <= 1001, u64 n <= 1001,
  *            u128 n <= 1001, big any n
+ * Validated: standard, pass, 117 terms through n = 947 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

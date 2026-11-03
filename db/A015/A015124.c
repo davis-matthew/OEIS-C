@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 6, i16 n <= 15, i32 n <= 23, i64 n <= 36, i128 n <= 36,
  *            big any n
- * Helpers:   gcd, pow_q, seq_gcd
+ * Validated: partial, pass, 37 terms through n = 36 (2026-11-01)
+ * Helpers:   gcd, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,9 +33,8 @@
  */
 
 #include <stdint.h>
-#include "../utils/seq_gcd.h"     /* seq_gcd(seq_t a, seq_t b) */
-#include "../utils/gcd.h"         /* gcd(seq_t a, seq_t b) */
-#include "../utils/pow_q.h"
+#include "../utils/gcd.h"
+#include "../utils/ipow_idx.h"
 
 static inline idx_t row_of(idx_t idx) {
     /* find r such that r*(r+1)/2 <= idx < (r+1)*(r+2)/2 */
@@ -57,18 +57,18 @@ static seq_t q_binom(idx_t n, idx_t k, seq_t q) {
     seq_t result = 1;
     for (idx_t i = 1; i <= k; ++i) {
         /* numerator: 1 - q^(n-i+1) */
-        seq_t num = 1 - pow_q(q, n - i + 1);
+        seq_t num = 1 - ipow_idx(q, n - i + 1);
         /* denominator: 1 - q^i */
-        seq_t den = 1 - pow_q(q, i);
+        seq_t den = 1 - ipow_idx(q, i);
 
         /* reduce any common factors to keep intermediate values small */
-        seq_t g1 = seq_gcd(result, den);
+        seq_t g1 = gcd(result, den);
         if (g1 != 0) { result /= g1; den /= g1; }
 
-        seq_t g2 = seq_gcd(num, den);
+        seq_t g2 = gcd(num, den);
         if (g2 != 0) { num /= g2; den /= g2; }
 
-        seq_t g3 = seq_gcd(num, result);
+        seq_t g3 = gcd(num, result);
         if (g3 != 0) { num /= g3; result /= g3; }
 
         result = result * num;   /* den should now be 1 */

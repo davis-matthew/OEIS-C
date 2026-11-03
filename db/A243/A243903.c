@@ -9,7 +9,8 @@
  *            greater than or equal to the count of semiprimes ≤ m
  * Range:     u8 n <= 30, u16 n <= 30, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static storage for the sequence */
 static seq_t *good = NULL;
@@ -29,7 +31,7 @@ static void ensure_good_cap(size_t needed)
     if (good_cap >= needed) return;
     size_t new_cap = good_cap ? good_cap * 2 : 64;
     while (new_cap < needed) new_cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(good, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, good, new_cap);
     if (!tmp) abort();
     good = tmp;
     good_cap = new_cap;

@@ -9,6 +9,7 @@
  *            d_i·6^i (0 ≤ d_i < 6), then a(n) = Σ_{i=0}^{k} d_i·6^{k-i}
  * Range:     u8 n <= 217, u16 n <= 7775, u32 n <= 7775, u64 n <= 7775,
  *            u128 n <= 7775, big any n
+ * Validated: standard, pass, 87 terms through n = 7504 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

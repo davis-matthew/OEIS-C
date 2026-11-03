@@ -12,6 +12,7 @@
  *            (2587/6048)*n^3 + (3315209/1663200)*n^2 - (11097/3080)*n + 2
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 24, u64 n <= 174, u128 n <= 210,
  *            big any n
+ * Validated: standard, pass, 42 terms through n = 210 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

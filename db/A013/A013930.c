@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 164, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _smallest_prime_factor
+ * Validated: standard, pass, 86 terms through n = 8140 (2026-11-03)
+ * Helpers:   mem, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,14 +23,16 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/_smallest_prime_factor.h"
+#include <stddef.h>
+#include "../utils/smallest_prime_factor.h"
+#include "../utils/mem.h"
 
 /* Local routine that tests whether a uint64_t number is square‑free. */
 static bool is_squarefree_idx(uint64_t n) {
     if (n <= 1) return true;          /* 0 and 1 are square‑free by convention */
     uint64_t t = n;
     while (t > 1) {
-        uint64_t p = _smallest_prime_factor(t);
+        uint64_t p = smallest_prime_factor(t);
         int exp = 0;
         while (t % p == 0) {
             t /= p;
@@ -71,7 +74,7 @@ seq_t a(idx_t n) {
             /* grow terms array if needed */
             if (terms_len == terms_cap) {
                 size_t new_cap = terms_cap ? terms_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, terms, new_cap);
                 if (!tmp) abort();
                 terms = tmp;
                 terms_cap = new_cap;

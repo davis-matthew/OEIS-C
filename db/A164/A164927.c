@@ -12,7 +12,8 @@
  *            base primes are 2 and the primes ≡ 1 (mod 4); fo...
  * Range:     u8 none, u16 none, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   build_primes_upto, factor_u64
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-03)
+ * Helpers:   build_primes_upto, factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include "../utils/build_primes_upto.h"
 #include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 static bool initialized = false;
 
@@ -82,13 +84,13 @@ static void init_sequence(void)
      * enough for the first 10000 terms.  It keeps the algorithm
      * O(n * |prime_list|). */
     humble_cap = 300000;
-    humble = (seq_t *)malloc(humble_cap * sizeof(seq_t));
+    humble = mem_new(seq_t, humble_cap);
     humble[0] = 1;
     humble_len = 1;
 
     /* Cache for a(n).  A capacity of 20000 is safe for up to n=10000. */
     a_cap = 20000;
-    a_cache = (seq_t *)malloc(a_cap * sizeof(seq_t));
+    a_cache = mem_new(seq_t, a_cap);
     a_len = 0;
 }
 
@@ -118,7 +120,7 @@ static void generate_until(size_t target)
         {
             /* unlikely to happen with the chosen capacities */
             humble_cap <<= 1;
-            humble = (seq_t *)realloc(humble, humble_cap * sizeof(seq_t));
+            humble = mem_resize(seq_t, humble, humble_cap);
         }
         humble[humble_len++] = next;
 
@@ -154,7 +156,7 @@ static void generate_until(size_t target)
         if (a_len == a_cap)
         {
             a_cap <<= 1;
-            a_cache = (seq_t *)realloc(a_cache, a_cap * sizeof(seq_t));
+            a_cache = mem_resize(seq_t, a_cache, a_cap);
         }
         a_cache[a_len++] = sum;
 

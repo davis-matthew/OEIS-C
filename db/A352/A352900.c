@@ -12,6 +12,7 @@
  *            C(n+1,k)*C(n-2k-1,k-1)/(n+1) ) (n>5) * For n≤5, a(n)=0....
  * Range:     u8 n <= 8, u16 n <= 12, u32 n <= 17, u64 n <= 28, u128 n <= 28,
  *            big any n
+ * Validated: partial, pass, 26 terms through n = 28 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* compile‐time limits – sufficient for n up to ≈10000 */

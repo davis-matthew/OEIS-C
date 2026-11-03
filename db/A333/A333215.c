@@ -10,13 +10,15 @@
  *            function returns the length of the nth such subsequence
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static state --------------------------------------------------------- */
 static bool initialized = false;
@@ -52,7 +54,7 @@ static void grow_segs(size_t new_cap)
     if (segCap >= new_cap) return;
     size_t cap = segCap ? segCap * 2 : 64;
     while (cap < new_cap) cap *= 2;
-    seq_t *tmp = (seq_t *)realloc(segments, cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, segments, cap);
     segments = tmp;
     segCap = cap;
 }

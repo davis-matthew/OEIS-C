@@ -9,6 +9,7 @@
  *            number of compositions of n into the parts 2, 3 and 4
  * Range:     u8 n <= 17, u16 n <= 31, u32 n <= 60, u64 n <= 118,
  *            u128 n <= 234, big any n
+ * Validated: standard, pass, 61 terms through n = 878 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

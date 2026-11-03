@@ -10,7 +10,8 @@
  *            = # of distinct prime factors
  * Range:     u8 n <= 5, u16 n <= 1722, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_distinct_primes
+ * Validated: standard, pass, 64 terms through n = 9609 (2026-11-03)
+ * Helpers:   mem, omega
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/count_distinct_primes.h"
+#include <stdint.h>
+#include "../utils/omega.h"
+#include "../utils/mem.h"
 
 /* Return true if k satisfies the definition. */
 static bool is_good(idx_t k)
@@ -28,9 +31,9 @@ static bool is_good(idx_t k)
     uint64_t km1 = k64 - 1;
     uint64_t kp1 = k64 + 1;
 
-    int wkm1 = count_distinct_primes(km1);
-    int wk   = count_distinct_primes(k64);
-    int wkp1 = count_distinct_primes(kp1);
+    int wkm1 = omega(km1);
+    int wk   = omega(k64);
+    int wkp1 = omega(kp1);
 
     return (wkm1 == wk - 1) && (wkp1 == wk + 1);
 }
@@ -46,10 +49,10 @@ static void append_term(seq_t val)
 {
     if (t_cap == 0) {
         t_cap = 8;
-        terms = (seq_t *)malloc(t_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, t_cap);
     } else if (t_len == t_cap) {
         t_cap <<= 1;
-        terms = (seq_t *)realloc(terms, t_cap * sizeof(seq_t));
+        terms = mem_resize(seq_t, terms, t_cap);
     }
     terms[t_len++] = val;
 }

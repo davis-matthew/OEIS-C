@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 21, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   digit_len, digit_sum, grow_seq, isqrt_seq
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-03)
+ * Helpers:   digit_sum, mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,10 +19,41 @@
 
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/digit_sum.h"
-#include "../utils/digit_len.h"
-#include "../utils/isqrt_seq.h"
-#include "../utils/grow_seq.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Integer square root (floor) of a non‑negative seq_t value. */
+static seq_t isqrt_seq(seq_t v)
+{
+    seq_t lo = 0, hi = v;
+    while (lo <= hi) {
+        seq_t mid = lo + ((hi - lo) >> 1);
+        seq_t sq  = mid * mid;
+        if (sq == v) return mid;
+        if (sq < v) {
+            lo = mid + 1;
+        } else {
+            hi = mid - 1;
+        }
+    }
+    return hi;
+}
+
+/* --- dynamic array helpers ------------------------------------------- */
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
+{
+    if (*cap < need) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        while (new_cap < need) new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, *arr, (new_cap * sizeof(**arr)) / sizeof(seq_t));
+        if (!tmp) exit(EXIT_FAILURE);
+        *arr = tmp;
+        *cap = new_cap;
+    }
+}
 
 /* Helper: true if v is a perfect square. */
 static bool is_square_seq(seq_t v)
@@ -62,7 +94,7 @@ seq_t a(idx_t n)
         }
 
         /* Check that number of digits is a square. */
-        int  diglen = digit_len(sq);
+        int  diglen = num_digits(sq);
         if (!is_square_seq((seq_t)diglen)) {
             ++last_m;
             continue;

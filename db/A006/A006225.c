@@ -10,7 +10,8 @@
  *            = A000045 (F(0) contributes a single "0")
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 18,
  *            big any n
- * Helpers:   build_bits
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,19 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/build_bits.h"
+
+static seq_t build_bits(const unsigned char *b, size_t l, size_t r) {
+    if (r - l <= 32) {
+        uint64_t v = 0;
+        size_t i;
+        for (i = l; i < r; i++) v = (v << 1) | b[i];
+        return (seq_t)v;
+    }
+    size_t m = l + (r - l) / 2;
+    seq_t hi = build_bits(b, l, m);
+    seq_t lo = build_bits(b, m, r);
+    return (hi << (idx_t)(r - m)) | lo;
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return (seq_t)0;

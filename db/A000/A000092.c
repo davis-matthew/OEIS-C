@@ -12,7 +12,8 @@
  *            residue mod 8, skipping the classes 3, 6 and 7 mod 8, where r2 =
  *            0
  * Range:     u8 n <= 16, u16 n <= 64, u32 n <= 131, u64 n <= 131,
- *            u128 n <= 130, big any n
+ *            u128 n <= 131, big any n
+ * Validated: standard, pass, 64 terms through n = 130 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

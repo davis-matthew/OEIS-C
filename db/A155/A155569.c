@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,26 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/floor_sqrt.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Forward declaration of the build routine */
 static void build_intersection(idx_t limit);
@@ -88,7 +108,7 @@ static void build_intersection(idx_t limit)
     }
 
     /* Gather the intersection into a sorted array */
-    free(intersection);
+    mem_free(intersection);
     intersection = NULL;
     inter_size = 0;
     inter_capacity = 0;
@@ -96,8 +116,7 @@ static void build_intersection(idx_t limit)
         if (rep_a[i] && rep_b[i]) {
             if (inter_size == inter_capacity) {
                 inter_capacity = inter_capacity ? inter_capacity * 2 : 1024;
-                intersection = (seq_t *)realloc(intersection,
-                                                inter_capacity * sizeof(seq_t));
+                intersection = mem_resize(seq_t, intersection, inter_capacity);
                 if (!intersection)
                     exit(EXIT_FAILURE);
             }

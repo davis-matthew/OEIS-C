@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 59 terms through n = 9849 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,6 +35,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of the requested function */
 seq_t a(idx_t n);
@@ -51,7 +53,7 @@ static bool   initialized   = false;  /* Flag for one‑time initialization */
 static void build_sequence(idx_t base)
 {
     /* Pre‑compute powers of fourth powers up to 'base' */
-    seq_t *pow4 = (seq_t *)malloc((size_t)(base + 1) * sizeof(seq_t));
+    seq_t *pow4 = mem_new(seq_t, (size_t)(base + 1));
     pow4[0] = 0;                         /* dummy entry */
     for (idx_t i = 1; i <= base; ++i) {
         seq_t val = (seq_t)i * i * i * i; /* i^4, promoted to seq_t */
@@ -65,7 +67,7 @@ static void build_sequence(idx_t base)
     /* Allocate counter array: counts up to 65535 are sufficient          */
     uint16_t *cnt = (uint16_t *)calloc(max_sum + 1, sizeof(uint16_t));
     if (!cnt) {
-        free(pow4);
+        mem_free(pow4);
         return;                   /* out of memory – caller will try again   */
     }
 
@@ -105,10 +107,10 @@ static void build_sequence(idx_t base)
     }
 
     /* Allocate the new sequence buffer */
-    seq_t *new_seq = (seq_t *)malloc(needed * sizeof(seq_t));
+    seq_t *new_seq = mem_new(seq_t, needed);
     if (!new_seq) {
         free(cnt);
-        free(pow4);
+        mem_free(pow4);
         return;
     }
 
@@ -121,13 +123,13 @@ static void build_sequence(idx_t base)
     }
 
     /* Replace the old cached sequence (freeing its memory) */
-    free(cached_seq);
+    mem_free(cached_seq);
     cached_seq = new_seq;
     cached_len = needed;
 
     /* Clean up temporary structures */
     free(cnt);
-    free(pow4);
+    mem_free(pow4);
 }
 
 /* ------------------------------------------------------------------ */

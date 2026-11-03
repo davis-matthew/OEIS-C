@@ -8,13 +8,15 @@
  * Formula:   a(n) = -Sum_{k=0..n-1} sigma(n-k) * a(k), a(0) = 1
  * Range:     i8 n <= 20, i16 n <= 45, i32 n <= 90, i64 n <= 181,
  *            i128 n <= 363, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 997 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* (sigma(m) = sum of divisors of m) */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cached sequence values a[0..] and divisor sums sigma[0..] */
 static seq_t *s_a     = NULL; /* a[0]..a[last] */
@@ -27,7 +29,7 @@ static size_t s_sigsize = 0;  /* number of stored sigma values */
 static void build_sigma(idx_t N)
 {
     size_t new_size = (size_t)N + 1;           /* includes index 0 */
-    seq_t *new_sigma = (seq_t*)calloc(new_size, sizeof(seq_t));
+    seq_t *new_sigma = mem_new(seq_t, new_size);
     if (!new_sigma) return;                   /* allocation failed – ignore */
 
     for (idx_t i = 1; i <= N; ++i) {
@@ -36,7 +38,7 @@ static void build_sigma(idx_t N)
             new_sigma[(size_t)j] += add;
     }
 
-    free(s_sigma);
+    mem_free(s_sigma);
     s_sigma   = new_sigma;
     s_sigsize = new_size;
 }
@@ -47,7 +49,7 @@ static void extend_a(idx_t N)
     if ((size_t)N >= s_asize) {
         size_t oldsize = s_asize;
         size_t newsize = (size_t)N + 1;
-        seq_t *new_a = (seq_t*)realloc(s_a, newsize * sizeof(seq_t));
+        seq_t *new_a = mem_resize(seq_t, s_a, newsize);
         if (!new_a) return;                  /* allocation failed – ignore */
 
         if (oldsize == 0)

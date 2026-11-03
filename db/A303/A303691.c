@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 54, u16 n <= 82, u32 n <= 82, u64 n <= 82, u128 n <= 82,
  *            big any n
- * Helpers:   build_primes_upto, is_prime_small
+ * Validated: partial, pass, 82 terms through n = 82 (2026-11-01)
+ * Helpers:   build_primes_upto, is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,9 @@
 #include <stddef.h>
 #include <stdbool.h>
 
+#include <stdlib.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 /* static cache of primes */
 static uint64_t *prime_list = NULL;   /* array of primes */
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
     /* iterate over all 3‑smooth numbers k <= p */
     for (seq_t v = 1; v <= p; ) {         /* v = 3^j */
         for (seq_t k = v; k <= p; ) {     /* k = v * 2^i = 3^j * 2^i */
-            if (is_prime_small(p - k)) count++;
+            if (is_prime_seq(p - k)) count++;
 
             /* avoid overflow: stop if next doubling would exceed p */
             if (k > p / 2) break;

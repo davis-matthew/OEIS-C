@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 6, i16 n <= 9, i32 n <= 14, i64 n <= 21, i128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
    so that repeated calls are efficient. */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static size_t a_cap = 0;          /* allocated size of a[]               */
 static seq_t *a_arr = NULL;       /* cached a(n) values                 */
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     /* initialise cache for a(0) */
     if (a_cap == 0) {
         a_cap = 1;
-        a_arr = (seq_t *)realloc(a_arr, a_cap * sizeof(seq_t));
+        a_arr = mem_resize(seq_t, a_arr, a_cap);
         a_arr[0] = (seq_t)1;
         a_nmax = 0;
     }
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     /* enlarge cache if necessary */
     if (n >= a_cap) {
         size_t new_cap = (size_t)(n + 1);
-        a_arr = (seq_t *)realloc(a_arr, new_cap * sizeof(seq_t));
+        a_arr = mem_resize(seq_t, a_arr, new_cap);
         a_cap = new_cap;
     }
 

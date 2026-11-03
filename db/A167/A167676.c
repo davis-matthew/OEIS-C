@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 30,
  *            big any n
- * Helpers:   mul_times
+ * Validated: standard, pass, 32 terms through n = 499 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,15 @@
  */
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/mul_times.h"
+#include "../utils/mem.h"
+
+static inline seq_t mul_times(seq_t v, size_t times)
+{
+    seq_t r = 0;
+    for (size_t i = 0; i < times; ++i)
+        r += v;
+    return r;
+}
 
 seq_t a(idx_t n)
 {
@@ -34,7 +43,7 @@ seq_t a(idx_t n)
         size_t new_cap = (size_t)n + 1;
         if (new_cap < 32)
             new_cap = 32;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp)
             abort(); /* out‑of‑memory */
         cache     = tmp;

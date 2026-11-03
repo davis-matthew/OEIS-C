@@ -8,6 +8,7 @@
  * Formula:   a(n) = denominator(1 - Fib(n+2)/2^n)
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 31, u64 n <= 35, u128 n <= 35,
  *            big any n
+ * Validated: partial, pass, 35 terms through n = 35 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,8 @@
 
 /* This is the least power of 2 dividing the denominator of the
  * probability that two consecutive heads appear in n tosses.  */
+#include <stdbool.h>
+#include <stdint.h>
 #include "../utils/pow2.h"
 #include <stdint.h>
 

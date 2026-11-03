@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 99 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>   /* for uint64_t (idx_t) */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -38,11 +40,11 @@ seq_t a(idx_t n)
 
         if (digits == NULL) {
             /* first allocation */
-            digits = (seq_t *)malloc(new_len * sizeof(seq_t));
+            digits = mem_new(seq_t, new_len);
             digits_len = 0;
         } else {
             /* grow existing array */
-            seq_t *tmp = (seq_t *)realloc(digits, new_len * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, digits, new_len);
             if (tmp == NULL) {
                 /* allocation failure – abort (undefined behavior otherwise) */
                 abort();

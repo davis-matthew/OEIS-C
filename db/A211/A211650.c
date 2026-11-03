@@ -9,12 +9,14 @@
  *            pairs (x,y) with 1 ≤ x,y ≤ n and x^3 + y^3 ≤ w^3
  * Range:     u8 n <= 6, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* for malloc, free */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
     size_t N = (size_t)n;
 
     /* cube[i] = i^3 */
-    seq_t *cube = (seq_t*)malloc((N + 1) * sizeof(seq_t));
+    seq_t *cube = mem_new(seq_t, (N + 1));
     if (!cube) return 0; /* allocation failed */
 
     for (size_t i = 1; i <= N; ++i)
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
     /* Y[x] holds the current maximum y such that
        cube[x] + cube[y] <= current threshold. */
     idx_t *Y = (idx_t*)malloc((N + 1) * sizeof(idx_t));
-    if (!Y) { free(cube); return 0; }
+    if (!Y) { mem_free(cube); return 0; }
 
     for (size_t i = 1; i <= N; ++i) Y[i] = 0;
 
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
 
     seq_t result = n3 - sum_f;
 
-    free(cube);
+    mem_free(cube);
     free(Y);
     return result;
 }

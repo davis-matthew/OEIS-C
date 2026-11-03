@@ -8,8 +8,9 @@
  * Formula:   a(n) = (n - ⌊r(r+1)/2⌋) * ⌊r/10⌋ + (r mod 10), where r =
  *            ⌊(√(8n+1) - 1)/2⌋ (the largest integer with r(r+1)/2 ≤ n) (reads
  *            the triangular array T(n,k) = k·⌊n/10⌋ + n mod 10 by rows)
- * Range:     u8 n <= 1376, u16 n <= 8897, u32 n <= 8897, u64 n <= 8897,
- *            u128 n <= 8897, big any n
+ * Range:     u8 n <= 1376, u16 n <= 11475, u32 n <= 11475, u64 n <= 11475,
+ *            u128 n <= 11475, big any n
+ * Validated: standard, pass, 116 terms through n = 8897 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

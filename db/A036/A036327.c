@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 77, u16 n <= 104, u32 n <= 104, u64 n <= 104,
  *            u128 n <= 104, big any n
- * Helpers:   digitlen, factor_u64
+ * Validated: full, pass, 104 terms through n = 104 (2026-11-03)
+ * Helpers:   factor_u64, mem, num_digits_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include "../utils/factor_u64.h"
-#include "../utils/digitlen.h"
+#include "../utils/num_digits_u64.h"
+#include "../utils/mem.h"
 
 /* Cache of terms produced so far. */
 static seq_t *seq      = NULL;
@@ -46,7 +48,7 @@ static void ensure_seq(idx_t need)
             int    sumlen       = 0;
             for (size_t i = 0; i < cnt; ++i) {
                 total_factors += ex[i];
-                sumlen += ex[i] * digitlen(pr[i]);
+                sumlen += ex[i] * num_digits_u64(pr[i]);
                 if (sumlen > 3) break;
             }
             if (total_factors < 2) continue; /* skip primes and 1 */
@@ -55,7 +57,7 @@ static void ensure_seq(idx_t need)
             /* Accept the number. */
             if (seq_len == seq_cap) {
                 size_t newcap = seq_cap ? seq_cap * 2 : 16;
-                seq_t *tmp = (seq_t *)realloc(seq, newcap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, seq, newcap);
                 if (!tmp) abort();           /* allocation failure */
                 seq    = tmp;
                 seq_cap = newcap;

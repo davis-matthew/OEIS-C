@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 5, u128 n <= 6,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 7 terms through n = 7 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 */
 
 #include <stdlib.h>   /* malloc, free */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Cached sequence values.  Index 0 is unused. */
@@ -28,10 +30,10 @@ seq_t a(idx_t n) {
 
     /* Ensure there is at least space for index 1 */
     if (cache_len < 2) {
-        seq_t *tmp = (seq_t *)malloc(2 * sizeof(seq_t));
+        seq_t *tmp = mem_new(seq_t, 2);
         if (!tmp) return (seq_t)0;          /* allocation failed */
         tmp[1] = (seq_t)3;
-        if (cache) free(cache);
+        if (cache) mem_free(cache);
         cache      = tmp;
         cache_len  = 2;
         cached_up_to = 1;
@@ -39,12 +41,12 @@ seq_t a(idx_t n) {
 
     /* Resize cache if necessary to accommodate requested index n */
     if (n + 1 > cache_len) {
-        seq_t *new_cache = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, (n + 1));
         if (!new_cache) return (seq_t)0;          /* allocation failed */
         /* Copy existing values */
         for (idx_t i = 1; i <= cached_up_to; ++i)
             new_cache[i] = cache[i];
-        if (cache) free(cache);
+        if (cache) mem_free(cache);
         cache    = new_cache;
         cache_len = n + 1;
     }

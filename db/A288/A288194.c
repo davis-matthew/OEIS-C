@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 63, u128 n <= 126,
  *            big any n
- * Helpers:   floor_log2_uint64
+ * Validated: standard, pass, 56 terms through n = 123 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,9 @@
  *           n = 16  →  p = 8 → 11111110
  */
 
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/ilog2.h"
 
 seq_t a(idx_t n)
 {
@@ -41,7 +44,7 @@ seq_t a(idx_t n)
 
     /* Even n ≥ 4 */
     idx_t k = n >> 1;                     /* k = n/2 */
-    uint64_t m = floor_log2_uint64(k);    /* m = ⌊log2(k)⌋ */
+    uint64_t m = ilog2(k);    /* m = ⌊log2(k)⌋ */
     idx_t  p = (idx_t)1 << m;             /* p = 2^m,  p ≥ 2 */
 
     /* Build decimal number with (p‑1) ones followed by 0 */

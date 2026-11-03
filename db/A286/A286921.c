@@ -13,14 +13,16 @@
  *            described in OEIS A286921
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 12, u64 n <= 18, u128 n <= 33,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 44 terms through n = 430 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <math.h>
 #include <stdbool.h>
-#include "../utils/pow_uint.h"   /* seq_t pow_uint(uint64_t base, idx_t exp) */
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -45,32 +47,32 @@ seq_t a(idx_t n)
     bool m_even = ((m & 1) == 0);
 
     seq_t result;
-    seq_t p_half = pow_uint(10, half);   /* 10^(mn/2) used several times */
+    seq_t p_half = ipow_u64_idx(10, half);   /* 10^(mn/2) used several times */
 
     if (r_even && m_even) {
         /* T(n,m) = (10^(mn) + 3*10^(mn/2)) / 4 */
-        seq_t p1 = pow_uint(10, mn);
+        seq_t p1 = ipow_u64_idx(10, mn);
         seq_t p2 = p_half * 3;
         result = (p1 + p2) / 4;
     } else if (r_even && !m_even) {
         /* T(n,m) = (10^(mn) + 10^((mn+r)/2) + 2*10^(mn/2)) / 4 */
-        seq_t p1 = pow_uint(10, mn);
-        seq_t p2 = pow_uint(10, (mn + r) / 2);
+        seq_t p1 = ipow_u64_idx(10, mn);
+        seq_t p2 = ipow_u64_idx(10, (mn + r) / 2);
         seq_t p3 = p_half * 2;
         result = (p1 + p2 + p3) / 4;
     } else if (!r_even && m_even) {
         /* T(n,m) = (10^(mn) + 10^((mn+m)/2) + 2*10^(mn/2)) / 4 */
-        seq_t p1 = pow_uint(10, mn);
-        seq_t p2 = pow_uint(10, (mn + m) / 2);
+        seq_t p1 = ipow_u64_idx(10, mn);
+        seq_t p2 = ipow_u64_idx(10, (mn + m) / 2);
         seq_t p3 = p_half * 2;
         result = (p1 + p2 + p3) / 4;
     } else { /* r odd, m odd */
         /* T(n,m) = (10^(mn) + 10^((mn+r)/2) + 10^((mn+m)/2)
                    + 10^((mn+1)/2)) / 4 */
-        seq_t p1 = pow_uint(10, mn);
-        seq_t p2 = pow_uint(10, (mn + r) / 2);
-        seq_t p3 = pow_uint(10, (mn + m) / 2);
-        seq_t p4 = pow_uint(10, (mn + 1) / 2);
+        seq_t p1 = ipow_u64_idx(10, mn);
+        seq_t p2 = ipow_u64_idx(10, (mn + r) / 2);
+        seq_t p3 = ipow_u64_idx(10, (mn + m) / 2);
+        seq_t p4 = ipow_u64_idx(10, (mn + 1) / 2);
         result = (p1 + p2 + p3 + p4) / 4;
     }
 

@@ -7,6 +7,7 @@
  * Formula:   a(n) = floor((n+2)/2)*Fibonacci(n+1)
  * Range:     u8 n <= 8, u16 n <= 18, u32 n <= 40, u64 n <= 85, u128 n <= 175,
  *            big any n
+ * Validated: standard, pass, 52 terms through n = 980 (2026-11-01)
  * Helpers:   fib_pair
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

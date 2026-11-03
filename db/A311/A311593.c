@@ -12,12 +12,14 @@
  *            a(11) = 48, a(12) = 52
  * Range:     u8 n <= 49, u16 n <= 49, u32 n <= 49, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init[13] = {
     1, 4, 8, 12, 18, 22, 26, 30, 36, 40, 44, 48, 52
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     if (cache == NULL) {
         /* allocate enough space for the requested index */
         cache_cap = (size_t)((n + 1) > 13 ? (n + 1) : 13);
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         for (int i = 0; i < 13; ++i)
             cache[i] = init[i];
     }
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
     /* grow cache if necessary */
     if ((size_t)(n + 1) > cache_cap) {
         cache_cap = (size_t)(n + 1);
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 
     /* compute missing values using the recurrence */

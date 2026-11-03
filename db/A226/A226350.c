@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 68, i16 n <= 82, i32 n <= 82, i64 n <= 82, i128 n <= 82,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 83 terms through n = 82 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Periodic sequence b(d).  Index 0 is unused. */
 static const int B[13] = {
@@ -49,8 +51,8 @@ static void ensure_capacity(size_t n)
     if (cap <= n) {
         size_t new_cap = (cap == 0) ? 16 : cap << 1;
         if (new_cap <= n) new_cap = n + 1;
-        seq_t *newA = (seq_t*)realloc(A, new_cap * sizeof(seq_t));
-        seq_t *newH = (seq_t*)realloc(H, new_cap * sizeof(seq_t));
+        seq_t *newA = mem_resize(seq_t, A, new_cap);
+        seq_t *newH = mem_resize(seq_t, H, new_cap);
         if (!newA || !newH) abort();          /* allocation failure */
         A = newA; H = newH;
         cap = new_cap;

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 19, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,13 +20,14 @@
 */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate arrays for dynamic programming */
-    seq_t *a_seq   = (seq_t*)malloc((n + 1) * sizeof(seq_t));
-    seq_t *sum_b   = (seq_t*)calloc((n + 1), sizeof(seq_t));   /* cumulative sums B(k,jmax) */
-    seq_t *term    = (seq_t*)calloc((n + 1), sizeof(seq_t));   /* current term_j for each k */
+    seq_t *a_seq   = mem_new(seq_t, (n + 1));
+    seq_t *sum_b   = mem_new(seq_t, (n + 1));   /* cumulative sums B(k,jmax) */
+    seq_t *term    = mem_new(seq_t, (n + 1));   /* current term_j for each k */
     idx_t *curr_j  = (idx_t*)calloc((n + 1), sizeof(idx_t));   /* last computed j for each k */
 
     if (!a_seq || !sum_b || !term || !curr_j) {
@@ -37,9 +39,9 @@ seq_t a(idx_t n)
     a_seq[0] = (seq_t)1;
     if (n == 0) {
         seq_t res = a_seq[0];
-        free(a_seq);
-        free(sum_b);
-        free(term);
+        mem_free(a_seq);
+        mem_free(sum_b);
+        mem_free(term);
         free(curr_j);
         return res;
     }
@@ -84,9 +86,9 @@ seq_t a(idx_t n)
     seq_t result = a_seq[n];
 
     /* Clean up */
-    free(a_seq);
-    free(sum_b);
-    free(term);
+    mem_free(a_seq);
+    mem_free(sum_b);
+    mem_free(term);
     free(curr_j);
 
     return result;

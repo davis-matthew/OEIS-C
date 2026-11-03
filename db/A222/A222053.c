@@ -8,13 +8,15 @@
  * Formula:   a(n) = Sum_{k=1..n} C(n-1,k-1) * S2(3*n,k) for n>0 with a(0)=1
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 8, u128 n <= 13,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 14 terms through n = 13 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Cache for a(n) values */
 static seq_t *a_cache = NULL;
@@ -37,7 +39,7 @@ ensure_cache(idx_t n)
     size_t new_cap = cache_cap ? cache_cap << 1 : 8;
     while ((idx_t)new_cap <= n)
         new_cap <<= 1;
-    seq_t *new_ptr = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, a_cache, new_cap);
     if (!new_ptr)
         exit(EXIT_FAILURE);
     for (size_t i = cache_cap; i < new_cap; ++i)
@@ -55,7 +57,7 @@ ensure_row_cap(idx_t n)
     size_t new_cap = row_cap ? row_cap << 1 : 8;
     while ((idx_t)new_cap <= n)
         new_cap <<= 1;
-    seq_t *new_row = (seq_t *)realloc(row, new_cap * sizeof(seq_t));
+    seq_t *new_row = mem_resize(seq_t, row, new_cap);
     if (!new_row)
         exit(EXIT_FAILURE);
     for (size_t i = row_cap; i < new_cap; ++i)

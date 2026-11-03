@@ -11,7 +11,8 @@
  *            k parts, we compute directly with the classic coin‑change DP
  * Range:     u8 n <= 10, u16 n <= 27, u32 n <= 89, u64 n <= 327,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 57 terms through n = 958 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;
 static idx_t a_cached_up_to = 0;
@@ -26,14 +28,14 @@ static idx_t a_cached_up_to = 0;
 static seq_t compute_a_upto(idx_t n) {
     /* Allocate cache for a[0..n] */
     size_t cache_size = (size_t)n + 1;          /* index n is needed */
-    seq_t *new_cache = (seq_t *)malloc(cache_size * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, cache_size);
     if (!new_cache) return (seq_t)0;            /* fallback */
     for (size_t i = 0; i < cache_size; ++i)
         new_cache[i] = (seq_t)0;                /* initialize to zero */
 
     if (n < 3) {                                /* a(1)=a(2)=0 */
         /* free previous cache if any */
-        if (a_cache) free(a_cache);
+        if (a_cache) mem_free(a_cache);
         a_cache = new_cache;
         a_cached_up_to = n;
         return a_cache[n];
@@ -41,9 +43,9 @@ static seq_t compute_a_upto(idx_t n) {
 
     /* DP array: dp[0..n+1] for partitions with parts up to current k */
     size_t dp_size = (size_t)n + 2;             /* indices 0 .. n+1 inclusive */
-    seq_t *dp = (seq_t *)malloc(dp_size * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, dp_size);
     if (!dp) {
-        free(new_cache);
+        mem_free(new_cache);
         return (seq_t)0;
     }
     for (size_t i = 0; i < dp_size; ++i)
@@ -62,12 +64,12 @@ static seq_t compute_a_upto(idx_t n) {
     }
 
     /* Free old cache if any */
-    if (a_cache) free(a_cache);
+    if (a_cache) mem_free(a_cache);
     a_cache = new_cache;
     a_cached_up_to = n;
 
     /* Free temporary dp */
-    free(dp);
+    mem_free(dp);
 
     return a_cache[n];
 }

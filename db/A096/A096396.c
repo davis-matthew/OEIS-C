@@ -8,14 +8,45 @@
  * Formula:   a(n) = #{ 0 <= i <= n : K(n,i) = +1 } (Kronecker symbol)
  * Range:     u8 n <= 288, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   kronecker_prime
+ * Validated: standard, pass, 97 terms through n = 9136 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/kronecker_prime.h"
+
+/* Compute the Kronecker symbol (n | p) for a prime divisor p of i
+ * n is the first argument of the symbol, p > 1 is a prime (not 2).
+ * For p == 2 special cases are handled separately.
+ */
+static int kronecker_prime(idx_t n, idx_t p)
+{
+    if (p == 2) {
+        /* (n | 2) : n even -> 0; odd -> ±1 according to n mod 8 */
+        if ((n & 1U) == 0)
+            return 0;
+        idx_t r = n & 7U;        /* n mod 8 */
+        return (r == 1U || r == 7U) ? 1 : -1;
+    }
+
+    /* odd prime: use Euler's criterion (n | p) = n^((p-1)/2) mod p  */
+    if ((n % p) == 0)          /* n divisible by p -> symbol 0 */
+        return 0;
+    idx_t exp = (p - 1) >> 1;
+    idx_t base = n % p;
+    idx_t mod  = p;
+    idx_t result = 1;
+
+    while (exp) {
+        if (exp & 1U)
+            result = (result * base) % mod;
+        base = (base * base) % mod;
+        exp >>= 1U;
+    }
+    return (result == mod - 1) ? -1 : (int)result;  /* ±1 */
+}
 
 /*-----
 //  The following helpers are minimal and compile under C11 / C++17.

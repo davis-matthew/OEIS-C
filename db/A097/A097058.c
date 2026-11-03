@@ -7,7 +7,8 @@
  * Formula:   a(n) = p_n^2 + 2^p_n, where p_n is the n-th prime number
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 11, u64 n <= 18, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 142 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,15 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 /* Simple primality test (sufficient for n up to about 1e6). */
 static bool is_prime(uint64_t x)
@@ -27,6 +37,18 @@ static bool is_prime(uint64_t x)
 }
 
 /* Grow a dynamically allocated array. */
+#ifdef __cplusplus
+template <class T>
+static void ensure_size(T **ptr, size_t *cap, size_t needed, size_t elem_size)
+{
+    if (*cap < needed) {
+        size_t new_cap = *cap ? *cap * 2 : 8;
+        while (new_cap < needed) new_cap *= 2;
+        *ptr = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+        *cap = new_cap;
+    }
+}
+#else
 static void ensure_size(void **ptr, size_t *cap, size_t needed, size_t elem_size)
 {
     if (*cap < needed) {
@@ -36,6 +58,7 @@ static void ensure_size(void **ptr, size_t *cap, size_t needed, size_t elem_size
         *cap = new_cap;
     }
 }
+#endif
 
 /* Power of 2: 2^e computed by repeated multiplication. */
 static seq_t pow2(idx_t e)
@@ -62,7 +85,7 @@ seq_t a(idx_t n)
         while (!is_prime(candidate))
             ++candidate;
         /* Store it. */
-        ensure_size((void **)&primes, &primes_cap, primes_sz + 1, sizeof(uint64_t));
+        ensure_size(OEISC_VPP(&primes), &primes_cap, primes_sz + 1, sizeof(uint64_t));
         primes[primes_sz++] = candidate;
         ++candidate;
     }
@@ -72,7 +95,7 @@ seq_t a(idx_t n)
         uint64_t p = primes[cache_sz];          /* p_n for the term being computed */
         seq_t term = (seq_t)p * (seq_t)p;       /* p^2   */
         term += pow2(p);                       /* + 2^p */
-        ensure_size((void **)&cache, &cache_cap, cache_sz + 1, sizeof(seq_t));
+        ensure_size(OEISC_VPP(&cache), &cache_cap, cache_sz + 1, sizeof(seq_t));
         cache[cache_sz++] = term;
     }
 

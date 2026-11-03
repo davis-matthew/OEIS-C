@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 87, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 103 terms through n = 9825 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache of φ values */
 static seq_t *phi_cache = NULL;   /* array of φ(i) for 0 ≤ i ≤ φ_cap */
@@ -35,7 +37,7 @@ static idx_t  phi_cap   = 0;      /* current maximum index stored */
 static void compute_phi_up_to(idx_t limit)
 {
     /* allocate new array */
-    seq_t *p = (seq_t *)malloc((size_t)(limit + 1) * sizeof(seq_t));
+    seq_t *p = mem_new(seq_t, (size_t)(limit + 1));
     if (!p) exit(EXIT_FAILURE);        /* fatal error */
 
     /* initialise φ[i] = i */
@@ -51,7 +53,7 @@ static void compute_phi_up_to(idx_t limit)
     }
 
     /* free old cache and replace it */
-    free(phi_cache);
+    mem_free(phi_cache);
     phi_cache = p;
     phi_cap   = limit;
 }

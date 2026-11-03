@@ -9,7 +9,8 @@
  *            (Indices in the nonprime list are 0‑based.)
  * Range:     u8 n <= 13, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static const size_t SIEVE_LIMIT = 20000000;   /* upper bound for primes */
 
@@ -79,7 +81,7 @@ seq_t a(idx_t n)
     /* Grow cache to at least n entries */
     if (a_cache_len < (size_t)n) {
         size_t new_len = (size_t)n;
-        a_cache = (seq_t*)realloc(a_cache, new_len * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, new_len);
         for (size_t i = a_cache_len; i < new_len; ++i) {
             if (i == 0) {
                 a_cache[0] = (seq_t)5;   /* a(1) */

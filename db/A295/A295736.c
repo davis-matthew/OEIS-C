@@ -9,7 +9,8 @@
  *            a(1)=-2, a(2)=-2, a(3)=1
  * Range:     i8 n <= 10, i16 n <= 20, i32 n <= 43, i64 n <= 89, i128 n <= 181,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 1943 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,12 +18,13 @@
 #include <stdlib.h>
 
 #ifdef __cplusplus
-#define ALLOC(p, n) (p) = reinterpret_cast<seq_t*>(calloc(n, sizeof(seq_t)));
-#define REALLOC(p, n) (p) = reinterpret_cast<seq_t*>(realloc(p, (n) * sizeof(seq_t)));
+#define ALLOC(p, n) (p) = mem_new(seq_t, n);
+#define REALLOC(p, n) (p) = mem_resize(seq_t, p, (n));
 #else
-#define ALLOC(p, n) (p) = (seq_t*)calloc(n, sizeof(seq_t));
-#define REALLOC(p, n) (p) = (seq_t*)realloc(p, (n) * sizeof(seq_t));
+#define ALLOC(p, n) (p) = mem_new(seq_t, n);
+#define REALLOC(p, n) (p) = mem_resize(seq_t, p, (n));
 #endif
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {

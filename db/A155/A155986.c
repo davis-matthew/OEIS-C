@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 9, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   used_contains
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,18 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/used_contains.h"
+#include "../utils/mem.h"
+
+/* Return true if x appears in the used list.
+   The used list is unsorted; for n≤10 000 a linear
+   search is fast enough. */
+static bool used_contains(const seq_t *used, size_t used_len, seq_t x)
+{
+    for (size_t i = 0; i < used_len; ++i)
+        if (used[i] == x)
+            return true;
+    return false;
+}
 
 /* ----------  Helpers  ---------- */
 
@@ -55,7 +67,7 @@ static void grow_cache(size_t new_len)
     size_t new_cap = cache_cap ? cache_cap * 2 : 16;
     if (new_cap < new_len)
         new_cap = new_len;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         abort();
     cache = tmp;
@@ -70,7 +82,7 @@ static void grow_used(size_t new_len)
     size_t new_cap = used_cap ? used_cap * 2 : 16;
     if (new_cap < new_len)
         new_cap = new_len;
-    seq_t *tmp = (seq_t *)realloc(used, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, used, new_cap);
     if (!tmp)
         abort();
     used = tmp;

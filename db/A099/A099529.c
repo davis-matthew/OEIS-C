@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 11, i16 n <= 21, i32 n <= 40, i64 n <= 40, i128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 /* Recurrence: a(n) = -2*a(n-1) - a(n-2) - a(n-3);  a(0)=1, a(1)=0, a(2)=0. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     /* first call: set up initial terms */
     if (last == (idx_t)-1) {
         cap = 8;
-        buf = (seq_t*)malloc(cap * sizeof(seq_t));
+        buf = mem_new(seq_t, cap);
         if (!buf) return (seq_t)0;   /* allocation failure */
         buf[0] = (seq_t)1;
         buf[1] = (seq_t)0;
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     if (n > (idx_t)cap - 1) {
         size_t newcap = cap;
         while (newcap <= (size_t)n) newcap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(buf, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, buf, newcap);
         if (!tmp) return (seq_t)0;   /* realloc failure */
         buf = tmp;
         cap = newcap;

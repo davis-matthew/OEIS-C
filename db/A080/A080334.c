@@ -7,6 +7,7 @@
  * Formula:   a(n) = reverse_digits((52-n)^2) for 1 ≤ n ≤ 51, 0 otherwise
  * Range:     u8 none, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
+ * Validated: full, pass, 51 terms through n = 51 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

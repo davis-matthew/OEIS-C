@@ -9,7 +9,8 @@
  *            prime divisors
  * Range:     u8 none, u16 n <= 12, u32 n <= 27, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   uniq_add
+ * Validated: partial, pass, 27 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,19 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/uniq_add.h"
+#include "../utils/mem.h"
+
+/* add prime to array if not already present, return true if added */
+static bool uniq_add(int p, int *arr, size_t *cnt, size_t max)
+{
+    for (size_t i = 0; i < *cnt; ++i)
+        if (arr[i] == p) return false;
+    if (*cnt < max) {
+        arr[(*cnt)++] = p;
+        return true;
+    }
+    return false;
+}
 
 /* ------- global cache for the sequence ------- */
 static seq_t *cache     = NULL;   /* a(k) values   */
@@ -68,7 +81,7 @@ static void ensure_cache(size_t needed)
     if (needed <= cache_cap) return;
     size_t new_cap = cache_cap ? cache_cap * 2u : 64u;
     while (new_cap < needed) new_cap <<= 1u;
-    seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();
     cache = tmp;
     cache_cap = new_cap;

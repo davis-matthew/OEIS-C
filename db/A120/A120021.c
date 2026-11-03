@@ -11,7 +11,8 @@
  *            Catalan(k) = C(2k, k)/(k+1)
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 18,
  *            big any n
- * Helpers:   binom, catalan
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-01)
+ * Helpers:   binomial, catalan
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,10 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
 #include "../utils/catalan.h"
-#include "../utils/binom.h"
 
 seq_t a(idx_t n)
 {
@@ -48,8 +51,8 @@ seq_t a(idx_t n)
             idx_t k1  = j - i;
             idx_t k2  = i - 1;
 
-            seq_t bin1 = binom(m, k1);          /* C(m, j-i)   */
-            seq_t bin2 = binom(m - 1, k2);      /* C(m-1, i-1) */
+            seq_t bin1 = binomial(m, k1);          /* C(m, j-i)   */
+            seq_t bin2 = binomial(m - 1, k2);      /* C(m-1, i-1) */
 
             term = catal;
             term *= curpow;                     /* (n+1)^(i-1) */

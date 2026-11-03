@@ -5,13 +5,15 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 121, u16 n <= 862, u32 n <= 7384, u64 n <= 8927,
- *            u128 n <= 8927, big any n
+ * Range:     u8 n <= 121, u16 n <= 862, u32 n <= 7384, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 94 terms through n = 8927 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /* 
  * Formula: a(n) is the nth entry of the triangle read by rows, where
  * the triangle entries are

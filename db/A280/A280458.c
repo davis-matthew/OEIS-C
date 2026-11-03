@@ -8,13 +8,15 @@
  *            * (phi(1)=1). The first term of the sequence is 1
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 10, u64 n <= 16, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static uint64_t *phi_cache = NULL;   /* stores φ(i) for i <= current cacheSize */
 static seq_t   *prod_cache = NULL;   /* stores a(i) for i <= current cacheSize */
@@ -59,10 +61,10 @@ seq_t a(idx_t n)
         /* Allocate or grow the phi and product caches. */
         if (phi_cache == NULL) {
             phi_cache  = (uint64_t *)malloc(sizeof(uint64_t) * (newSize + 1));
-            prod_cache = (seq_t *)   malloc(sizeof(seq_t)   * (newSize + 1));
+            prod_cache = mem_new(seq_t, (newSize + 1));
         } else {
             phi_cache  = (uint64_t *)realloc(phi_cache,  sizeof(uint64_t) * (newSize + 1));
-            prod_cache = (seq_t *)   realloc(prod_cache, sizeof(seq_t)   * (newSize + 1));
+            prod_cache = mem_resize(seq_t, prod_cache, (newSize + 1));
         }
 
         /* Compute values for indices cacheSize+1 .. newSize. */

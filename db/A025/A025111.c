@@ -8,7 +8,8 @@
  * Formula:   a(n) = sum_{i=1..k} F(i+1) * prime_{n-i+2}
  * Range:     u8 n <= 8, u16 n <= 26, u32 n <= 41, u64 n <= 41, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 41 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <string.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* --- prime cache -------------------------------------------------- */
 static uint64_t *prime_cache = NULL;   /* 1‑based array: prime_cache[1] = 2 */
@@ -93,7 +95,7 @@ static void ensure_fib(size_t need)
         return;
 
     if (!fib_cache) {
-        fib_cache = (seq_t *)malloc((need + 1) * sizeof(seq_t));
+        fib_cache = mem_new(seq_t, (need + 1));
         if (!fib_cache)
             return;
         fib_cache[0] = (seq_t)0;
@@ -110,7 +112,7 @@ static void ensure_fib(size_t need)
     }
 
     if (fib_len < need)
-        fib_cache = (seq_t *)realloc(fib_cache, (need + 1) * sizeof(seq_t));
+        fib_cache = mem_resize(seq_t, fib_cache, (need + 1));
 
     for (size_t i = fib_len + 1; i <= need; ++i)
         fib_cache[i] = fib_cache[i - 1] + fib_cache[i - 2];

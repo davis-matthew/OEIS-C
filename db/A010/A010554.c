@@ -7,21 +7,23 @@
  * Formula:   a(n) = phi(phi(n)) – Euler’s totient applied twice
  * Range:     u8 n <= 555, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   phi
+ * Validated: standard, pass, 88 terms through n = 9901 (2026-11-01)
+ * Helpers:   totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Assumes the helper function `phi` is defined in ../utils/phi.h */
-#include "../utils/phi.h"
+#include <stdint.h>
+#include "../utils/totient.h"
 
 seq_t a(idx_t n)
 {
     /* First totient - input is an idx_t, result is a seq_t */
-    seq_t first = phi(n);
+    seq_t first = totient(n);
 
     /* Second totient - cast back to idx_t since phi(n) <= n */
-    seq_t second = phi((idx_t)first);
+    seq_t second = totient((idx_t)first);
 
     return second;
 }

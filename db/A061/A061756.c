@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 80, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes, legendre_v
+ * Validated: standard, pass, 71 terms through n = 9365 (2026-11-01)
+ * Helpers:   build_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,20 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../utils/build_primes.h"   /* build_primes(idx_t limit, idx_t **out, size_t *cnt) */
-#include "../utils/legendre_v.h"
+#include "../utils/build_primes.h"
+
+/* Legendre’s formula: exponent of prime p in k!. */
+static idx_t legendre_v(idx_t k, idx_t p)
+{
+    idx_t v = 0;
+    idx_t div = p;
+    while (div <= k) {
+        v += k / div;
+        if (div > k / p) break;      /* prevent overflow of div*p */
+        div *= p;
+    }
+    return v;
+}
 
 static idx_t *primes = NULL;   /* list of primes used for factorisation */
 static size_t primes_cnt = 0;

@@ -11,14 +11,24 @@
  *            T = (1+S)/(1-S): T(0) = 1, T(m) = 2*S(m)...
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 19, u64 n <= 37, u128 n <= 72,
  *            big any n
- * Helpers:   alloc_series
+ * Validated: standard, pass, 42 terms through n = 904 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/alloc_series.h"
+#include <stdlib.h>
+#include "../utils/mem.h"
+
+static seq_t *alloc_series(size_t sz)
+{
+    seq_t *p = mem_new(seq_t, sz);
+    size_t i;
+    for (i = 0; i < sz; i++) p[i] = 0;
+    return p;
+}
 
 static seq_t *Bv = 0, *Cv = 0, *Tv = 0;
 static idx_t cap = 0;   /* allocated length */

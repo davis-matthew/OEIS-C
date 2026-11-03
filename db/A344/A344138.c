@@ -7,13 +7,42 @@
  * Formula:   a(n) = Sum_{d|n} phi(n/d) * tau(d)^4
  * Range:     u8 n <= 5, u16 n <= 119, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   rec_func
+ * Validated: standard, pass, 77 terms through n = 9674 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/rec_func.h"
+
+static void rec_func(int idx, idx_t d_acc, uint64_t tau_acc, seq_t phi_acc, seq_t *ans,
+                     const uint64_t *primes, const int *exps, int num)
+{
+    if (idx == num) {
+        seq_t t4 = (seq_t)(tau_acc * tau_acc * tau_acc * tau_acc);
+        *ans += phi_acc * t4;
+        return;
+    }
+    uint64_t p = primes[idx];
+    int e_max = exps[idx];
+    idx_t pow_p = 1;
+    for (int e = 0; e <= e_max; ++e) {
+        int e_diff = e_max - e;
+        seq_t phi_factor = 1;
+        if (e_diff > 0) {
+            seq_t p_pow_exp = 1;
+            for (int k = 0; k < e_diff - 1; ++k) {
+                p_pow_exp *= (seq_t)p;
+            }
+            phi_factor = (seq_t)(p - 1) * p_pow_exp;
+        }
+        seq_t next_phi = phi_acc * phi_factor;
+        uint64_t next_tau = tau_acc * (uint64_t)(e + 1);
+        rec_func(idx + 1, (idx_t)(d_acc * pow_p), next_tau, next_phi, ans,
+                 primes, exps, num);
+        pow_p *= p;
+    }
+}
 
 static void rec_func(int idx, idx_t d_acc, uint64_t tau_acc, seq_t phi_acc, seq_t *ans,
                      const uint64_t *primes, const int *exps, int num);

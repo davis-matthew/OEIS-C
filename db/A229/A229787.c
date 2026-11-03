@@ -7,6 +7,7 @@
  * Formula:   a(n) = n‑th prime modulo 24
  * Range:     u8 n <= 1900, u16 n <= 1900, u32 n <= 1900, u64 n <= 1900,
  *            u128 n <= 1900, big any n
+ * Validated: standard, pass, 101 terms through n = 1831 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

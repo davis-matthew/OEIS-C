@@ -8,12 +8,14 @@
  *            n>3, with initial values a(1)=1, a(2)=2, a(3)=4
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 32, u64 n <= 64, u128 n <= 128,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 990 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* memoisation array, a(n-1) stored at cache[n-1] */
 static idx_t  cache_len = 0;     /* number of terms currently in cache */
@@ -29,7 +31,7 @@ static void ensure_up_to(idx_t n)
     if (cache == NULL || cache_cap < n) {
         size_t new_cap = cache_cap;
         if (new_cap < n) new_cap = n;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();        /* out of memory */
         cache = tmp;
         cache_cap = new_cap;

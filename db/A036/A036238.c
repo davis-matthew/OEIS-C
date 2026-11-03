@@ -6,8 +6,9 @@
  * Keywords:  nonn, look, easy, tabl
  * Formula:   a(n) = j*(j+1) mod (r+2), where r is the row such that r*(r+1)/2
  *            >= n and j = n - r*(r-1)/2
- * Range:     u8 n <= 9936, u16 n <= 9936, u32 n <= 9936, u64 n <= 9936,
- *            u128 n <= 9936, big any n
+ * Range:     u8 n <= 20100, u16 n <= 20100, u32 n <= 20100, u64 n <= 20100,
+ *            u128 n <= 20100, big any n
+ * Validated: standard, pass, 121 terms through n = 9936 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

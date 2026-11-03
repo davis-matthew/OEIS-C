@@ -7,8 +7,8 @@
  * Formula:   a(n) = prime(n) modulo semiprime(n)
  * Range:     u8 n <= 54, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   _prime_limit_for_idx, _smallest_prime_factor, build_primes_upto,
- *            is_prime
+ * Validated: standard, pass, 86 terms through n = 984 (2026-11-01)
+ * Helpers:   build_primes_upto, is_prime, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,17 +16,26 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"
-#include "../utils/_prime_limit_for_idx.h"
+#include <math.h>
+#include <stddef.h>
 #include "../utils/build_primes_upto.h"
-#include "../utils/_smallest_prime_factor.h"
+#include "../utils/is_prime.h"
+#include "../utils/smallest_prime_factor.h"
+
+static size_t _prime_limit_for_idx(idx_t n) {
+    /* Rough upper bound for the n-th prime using n*(log n + log log n) + 3 */
+    if (n < 6) return 15; /* first 6 primes < 15 */
+    double nn = (double)n;
+    double bound = nn * (log(nn) + log(log(nn))) + 3.0;
+    return (size_t)bound;
+}
 
 /* Test whether x is a product of exactly two primes (allowing repeats). */
 static bool
 is_semiprime(uint64_t x)
 {
     if (x < 4) return false;        /* 4 is the smallest semiprime */
-    uint64_t p = _smallest_prime_factor(x);
+    uint64_t p = smallest_prime_factor(x);
     if (p == x) return false;       /* prime numbers are not semiprimes */
     uint64_t q = x / p;
     return is_prime((idx_t)q);

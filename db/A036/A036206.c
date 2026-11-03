@@ -8,6 +8,7 @@
  *            field modulo 233. If n mod 233 = 0 the value is defined to be 0
  * Range:     u8 n <= 232, u16 n <= 232, u32 n <= 232, u64 n <= 232,
  *            u128 n <= 232, big any n
+ * Validated: full, pass, 232 terms through n = 232 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

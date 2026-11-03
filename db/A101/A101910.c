@@ -9,13 +9,15 @@
  *            a(A000120(n-k-1)) (Lucas) (where Mod(C,2)=1 iff C(n-1,k) is odd)
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 79 terms through n = 78 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call */
     if (cache == NULL) {
         capacity = 1;
-        cache = (seq_t *)malloc(capacity * sizeof(seq_t));
+        cache = mem_new(seq_t, capacity);
         if (!cache) abort();
         cache[0] = (seq_t)1;   /* a(0) = 1 */
         up_to   = 0;
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
         /* Expand capacity as needed */
         while (capacity <= n)
             capacity <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, capacity * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, capacity);
         if (!tmp) abort();
         cache = tmp;
 

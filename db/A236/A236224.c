@@ -7,7 +7,8 @@
  * Formula:   a(n) = Σ_{k=1..n} prime(k)^16
  * Range:     u8 none, u16 none, u32 n <= 2, u64 n <= 6, u128 n <= 51,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 28 terms through n = 1000 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <assert.h>
+#include "../utils/mem.h"
 
 /* Raise a seq_t value to the 16th power (iterative multiplication). */
 static seq_t pow16(seq_t p)
@@ -57,7 +59,7 @@ static void grow_sum_cache(size_t needed)
     size_t new_cap = (sum_cache_cap == 0) ? 16 : sum_cache_cap * 2;
     while (new_cap < needed)
         new_cap *= 2;
-    seq_t *new_ptr = (seq_t *)realloc(sum_cache, new_cap * sizeof(seq_t));
+    seq_t *new_ptr = mem_resize(seq_t, sum_cache, new_cap);
     assert(new_ptr != NULL);
     sum_cache = new_ptr;
     sum_cache_cap = new_cap;

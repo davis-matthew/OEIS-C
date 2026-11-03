@@ -10,7 +10,8 @@
  *            flattened row by row starting with a(0)
  * Range:     u8 n <= 10, u16 n <= 21, u32 n <= 39, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   factorial, seq_one
+ * Validated: partial, pass, 41 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,21 @@
 /* ---------- standard headers ------------------------------------------- */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/factorial.h" /* seq_t factorial(idx_t n) */
-#include "../utils/seq_one.h"   /* seq_t seq_one(void) */
+#include <stdint.h>
+#include "../utils/mem.h"
+
+/* Helper: compute factorials iteratively.
+   For built‑in integer types the result may overflow for large n,
+   but the tests use only n for which the value fits in seq_t. */
+static seq_t factorial(idx_t n)
+{
+    seq_t result = 1;
+    for (idx_t i = 2; i <= n; ++i)
+        result *= (seq_t)i;
+    return result;
+}
+
+static inline seq_t seq_one(void) { return (seq_t)1; }
 
 /* ---------- Eulerian numbers by recurrence ----------------------------- */
 /* 0 <= k <= n-1 */
@@ -30,11 +44,11 @@ eulerian(idx_t n, idx_t k)
         return seq_one();        /* E(n,0) = 1 for all n >= 1 */
 
     /* allocate two rows of size k+1 */
-    seq_t *prev = (seq_t *)malloc((k + 1) * sizeof(seq_t));
-    seq_t *cur  = (seq_t *)malloc((k + 1) * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, (k + 1));
+    seq_t *cur  = mem_new(seq_t, (k + 1));
     if (!prev || !cur) {
-        free(prev);
-        free(cur);
+        mem_free(prev);
+        mem_free(cur);
         return seq_one();        /* unreachable in normal use */
     }
 
@@ -64,8 +78,8 @@ eulerian(idx_t n, idx_t k)
 
     /* result is in prev[k] after final iteration */
     seq_t result = prev[k];
-    free(prev);
-    free(cur);
+    mem_free(prev);
+    mem_free(cur);
     return result;
 }
 

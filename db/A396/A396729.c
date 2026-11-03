@@ -9,9 +9,10 @@
  *            S(r) = Σ_{k=0}^{r} A000041(k) > n. A000041(k) is the partition
  *            function p(k). The triangle is formed by writing the first p(k)
  *            positive integers in row k
- * Range:     u8 n <= 96, u16 n <= 9586, u32 n <= 9586, u64 n <= 9586,
- *            u128 n <= 9586, big any n
- * Helpers:   none
+ * Range:     u8 n <= 96, u16 n <= 11731, u32 n <= 11731, u64 n <= 11731,
+ *            u128 n <= 11731, big any n
+ * Validated: standard, pass, 113 terms through n = 9586 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,8 +37,8 @@ seq_t a(idx_t n)
     /* (2) Ensure we have space for at least one element.  */
     if (p_len == 0) {
         p_len = 16;
-        p = (seq_t *)malloc(p_len * sizeof(seq_t));
-        cum = (seq_t *)malloc(p_len * sizeof(seq_t));
+        p = mem_new(seq_t, p_len);
+        cum = mem_new(seq_t, p_len);
         /* Initialize first partition p(0)=1.  */
         p[0] = (seq_t)1;
         cum[0] = (seq_t)1;
@@ -50,8 +52,8 @@ seq_t a(idx_t n)
         /* Ensure capacity.  */
         if (computed >= p_len) {
             size_t new_len = p_len * 2;
-            p = (seq_t *)realloc(p, new_len * sizeof(seq_t));
-            cum = (seq_t *)realloc(cum, new_len * sizeof(seq_t));
+            p = mem_resize(seq_t, p, new_len);
+            cum = mem_resize(seq_t, cum, new_len);
             p_len = new_len;
         }
 

@@ -8,13 +8,42 @@
  *            (n >= 3)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 33, u128 n <= 64,
  *            big any n
- * Helpers:   catalan_n, pow2
+ * Validated: standard, pass, 41 terms through n = 190 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow2.h"
-#include "../utils/catalan_n.h"
+#include <stdbool.h>
+
+/* Compute 2^exp for any exponent that may not fit in the bit width of seq_t. */
+static seq_t pow2(idx_t exp)
+{
+    seq_t res = (seq_t)1;
+    for (idx_t i = 0; i < exp; ++i)
+        res *= (seq_t)2;
+    return res;
+}
+
+static seq_t catalan_n(idx_t n)
+{
+    seq_t res = 1;
+    for (idx_t i = 1; i <= n; ++i) {
+        idx_t num = n + i;
+        idx_t den = i;
+        /* Compute (res * num) / den safely.
+           For small seq_t types use a 128‑bit intermediate. */
+        if (sizeof(seq_t) <= sizeof(unsigned long long)) {
+            __int128 prod = (__int128)res * (__int128)((seq_t)num);
+            res = (seq_t)(prod / (seq_t)den);
+        } else {
+            res = (seq_t)((seq_t)res * (seq_t)num / (seq_t)den);
+        }
+    }
+    /* Divide by (n+1) to get the Catalan number. */
+    res = res / (seq_t)(n + 1);
+    return res;
+}
 
 seq_t a(idx_t n)
 {

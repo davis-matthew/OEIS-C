@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 19, u32 n <= 122, u64 n <= 200,
  *            u128 n <= 200, big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
              a(6) = 144, a(7) = 256
 */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache for computed values, 1‑based indexing internally */
@@ -33,7 +35,7 @@ seq_t a(idx_t n) {
     /* If we have not yet initialized the base values, do so */
     if (known_max == 0) {
         const size_t init_cap = 8;                 /* at least 8 for recurrence */
-        cache = (seq_t *)realloc(cache, init_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, init_cap);
         if (!cache) abort();                      /* malloc failure */
         cache_cap = init_cap;
         static const seq_t base[7] = { (seq_t)7, (seq_t)13, (seq_t)24,
@@ -49,7 +51,7 @@ seq_t a(idx_t n) {
         size_t new_cap = cache_cap;
         if (new_cap == 0) new_cap = 8;
         while (new_cap < n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();
         cache = tmp;
         cache_cap = new_cap;

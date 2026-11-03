@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 105, u16 n <= 105, u32 n <= 105, u64 n <= 105,
  *            u128 n <= 105, big any n
- * Helpers:   subvalue
+ * Validated: partial, pass, 105 terms through n = 105 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,16 @@
    '1' are considered when the subword length is > 1. */
 
 #include <stdint.h>
-#include "../utils/subvalue.h"
+
+static inline seq_t subvalue(idx_t n, idx_t L, idx_t l, idx_t pos)
+{
+    /* Return the value of the l‑bit substring of n starting at pos
+       (pos = 0 is the most significant bit). */
+    idx_t shift = L - l - pos;
+    idx_t tmp = n >> shift;
+    seq_t mask = ((seq_t)1 << l) - 1;
+    return (seq_t)tmp & mask;
+}
 
 seq_t a(idx_t n)
 {

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 76, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 77 terms through n = 76 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* cached values */
 static bool *computed = NULL;        /* flags whether an entry is computed */
@@ -38,7 +40,7 @@ static void ensure_cache(idx_t needed)
     while (cap <= needed)
         cap <<= 1;
 
-    seq_t *tmp_cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+    seq_t *tmp_cache = mem_resize(seq_t, cache, cap);
     bool *tmp_comp  = (bool *)realloc(computed, cap * sizeof(bool));
     if (!tmp_cache || !tmp_comp) { /* allocation failed – abort */
         exit(1);

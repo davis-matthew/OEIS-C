@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 57, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   mul_mod_128
+ * Validated: partial, pass, 57 terms through n = 57 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mul_mod_128.h"
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 static uint64_t pow_mod_uint64(uint64_t base, uint64_t exp, uint64_t mod)
 {
@@ -32,8 +34,8 @@ static uint64_t pow_mod_uint64(uint64_t base, uint64_t exp, uint64_t mod)
     base %= mod;
     while (exp != 0) {
         if (exp & 1)
-            result = mul_mod_128(result, base, mod);
-        base = mul_mod_128(base, base, mod);
+            result = mulmod(result, base, mod);
+        base = mulmod(base, base, mod);
         exp >>= 1;
     }
     return result;
@@ -53,7 +55,7 @@ static bool satisfies(const uint64_t b)
 
         /* numerator modulo denom: (p^2 - p + 8k^2 - 2) mod denom */
         uint64_t term1 = 8 * k * k;                     /* 8k^2   */
-        uint64_t temp  = mul_mod_128(p, p, denom);      /* p^2    */
+        uint64_t temp  = mulmod(p, p, denom);      /* p^2    */
         temp = (temp + denom - p) % denom;              /* p^2 - p */
         temp = (temp + term1 % denom + denom - 2) % denom;
 
@@ -77,7 +79,7 @@ static void ensure_cache(size_t limit)
         if (satisfies(last_checked_b)) {
             if (cache_size == cache_cap) {
                 size_t new_cap = cache_cap ? cache_cap * 2 : 64;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (!tmp) abort();   /* unrecoverable allocation failure */
                 cache = tmp;
                 cache_cap = new_cap;

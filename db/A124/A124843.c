@@ -11,12 +11,14 @@
  *            a(6)=8980
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 14, u64 n <= 29, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 97 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq_cache = NULL;
 static idx_t seq_cache_len = 0;
@@ -30,9 +32,9 @@ seq_t a(idx_t n)
         if (newlen < 7u)
             newlen = 7u;
         if (seq_cache == NULL) {
-            seq_cache = (seq_t *)malloc(newlen * sizeof(seq_t));
+            seq_cache = mem_new(seq_t, newlen);
         } else {
-            seq_cache = (seq_t *)realloc(seq_cache, newlen * sizeof(seq_t));
+            seq_cache = mem_resize(seq_t, seq_cache, newlen);
         }
         seq_cache_len = (idx_t)newlen;
         /* Initialize the first seven terms, which are needed for the recurrence */

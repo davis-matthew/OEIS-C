@@ -10,14 +10,29 @@
  *            the binomial coefficient. All arithmetic is performed in seq_t
  * Range:     i8 n <= 5, i16 n <= 9, i32 n <= 15, i64 n <= 24, i128 n <= 24,
  *            big any n
- * Helpers:   resize_seq_arr
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/resize_seq_arr.h"
+#include "../utils/mem.h"
+
+/* Allocate (or grow) an array of seq_t to at least size 'n+1'.
+   If 'old' is not NULL, copy its contents.  Free the old memory. */
+static seq_t *resize_seq_arr(seq_t *old, idx_t *old_cap, idx_t n)
+{
+    seq_t *new_arr = mem_new(seq_t, (n + 1));
+    if (!new_arr) exit(1);
+    if (old) {
+        for (idx_t i = 0; i < *old_cap; ++i) new_arr[i] = old[i];
+        mem_free(old);
+    }
+    *old_cap = n + 1;
+    return new_arr;
+}
 
 static seq_t *a_arr = NULL;          /* memoized a(n) values  */
 static idx_t  a_cap = 0;             /* allocated size of a_arr   */

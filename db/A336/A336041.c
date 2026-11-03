@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = Sum_{d|n} [ tau(d) divides d ]
- * Range:     u8 n <= 9943, u16 n <= 9943, u32 n <= 9943, u64 n <= 9943,
- *            u128 n <= 9943, big any n
- * Helpers:   _refactorable_count_rec
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 108 terms through n = 9943 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,41 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/_refactorable_count_rec.h"
+
+/* Recursive helper: counts refactorable divisors of a number
+ * given its prime factorisation.
+ *
+ * p_idx   : current prime index being processed
+ * d       : divisor currently constructed
+ * tau     : divisor count of the current divisor
+ * primes  : array of prime factors
+ * exps    : array of corresponding exponents
+ * pcnt    : total number of distinct primes
+ */
+static seq_t
+_refactorable_count_rec(size_t p_idx, idx_t d, idx_t tau,
+                        const idx_t *primes, const idx_t *exps,
+                        size_t pcnt)
+{
+    if (p_idx == pcnt) {
+        /* d is a divisor of the original number.
+           It is refactorable if d % tau == 0. */
+        return (d % tau == 0) ? (seq_t)1 : (seq_t)0;
+    }
+
+    seq_t total = 0;
+    idx_t d_mult = 1;     /* power of current prime */
+    idx_t tau_factor = 1; /* (exponent+1) for current prime */
+
+    for (idx_t e = 0; e <= exps[p_idx]; ++e) {
+        idx_t next_tau = tau * tau_factor;
+        total += _refactorable_count_rec(p_idx + 1, d * d_mult,
+                                         next_tau, primes, exps, pcnt);
+        d_mult *= primes[p_idx];
+        tau_factor++;
+    }
+    return total;
+}
 
 /* Small primes up to 100, sufficient for n ≤ 10000. */
 static const idx_t PRIMES[] = {2,3,5,7,11,13,17,19,23,29,

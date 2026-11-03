@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   comb3
+ * Validated: standard, pass, 101 terms through n = 9662 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,15 @@
  */
 
 #include <stdint.h>
-#include "../utils/comb3.h"
+
+/* compute binomial coefficient C(x,3) with 128‑bit intermediate to avoid overflow */
+static inline uint64_t comb3(uint64_t x)
+{
+    if (x < 3)
+        return 0;
+    __uint128_t r = (__uint128_t)x * (x - 1) * (x - 2) / 6;
+    return (uint64_t)r;
+}
 
 /* Main sequence function */
 seq_t a(idx_t n)

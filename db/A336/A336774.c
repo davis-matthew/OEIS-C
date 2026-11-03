@@ -9,9 +9,10 @@
  * Offset:    2    (a(2) is the first term)
  * Keywords:  nonn, fini
  * Formula:   not stated
- * Range:     u8 n <= 9294, u16 n <= 9294, u32 n <= 9294, u64 n <= 9294,
- *            u128 n <= 9294, big any n
- * Helpers:   bitlen_seq_t, float_exact_uint128
+ * Range:     u8 n <= 16384, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 98 terms through n = 9294 (2026-11-01)
+ * Helpers:   bit_length
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,8 +28,22 @@
 #include <stdbool.h>
 #include <math.h>
 #include <float.h>
-#include "../utils/bitlen_seq_t.h"
-#include "../utils/float_exact_uint128.h"
+#include <stdint.h>
+#include "../utils/bit_length.h"
+
+static inline bool float_exact_uint128(unsigned __int128 v)
+{
+    if (v == 0) return true;
+    unsigned bitlen = 0;
+    unsigned __int128 tmp = v;
+    while (tmp) {
+        ++bitlen;
+        tmp >>= 1;
+    }
+    if (bitlen <= 24) return true;
+    unsigned shift = bitlen - 24;           /* shift < 128 for all values we see */
+    return ((v >> shift) << shift) == v;
+}
 
 seq_t a(idx_t n)
 {

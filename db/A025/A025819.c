@@ -7,7 +7,8 @@
  * Formula:   a(n) = number of partitions of n into parts 2, 7, and 11
  * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 69 terms through n = 68 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Computation: dynamic programming (order‑independent coin change) */
 seq_t a(idx_t n)
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
         size_t new_len = dp_len ? dp_len : 16;
         while (new_len < (size_t)(n + 1))
             new_len <<= 1;
-        dp = (seq_t*)realloc(dp, new_len * sizeof(seq_t));
+        dp = mem_resize(seq_t, dp, new_len);
         dp_len = new_len;
     }
 

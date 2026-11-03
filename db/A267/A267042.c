@@ -11,13 +11,15 @@
  *            a(6)=496, a(7)=32319, a(8)=1984
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 16, u64 n <= 32, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 967 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t* cache = NULL;            /* cached values  */
 static size_t cache_cap = 0;           /* size of the cache array    */
@@ -40,7 +42,7 @@ static void ensure_cache(idx_t n)
     if (cache_cap > (size_t)n + 1) return;
     size_t new_cap = cache_cap ? cache_cap : 16;
     while (new_cap <= (size_t)n) new_cap <<= 1;
-    seq_t* new_ptr = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t* new_ptr = mem_resize(seq_t, cache, new_cap);
     if (!new_ptr) return;             /* allocation failed – let the caller use 0 */
     cache = new_ptr;
     cache_cap = new_cap;

@@ -9,9 +9,10 @@
  *            (1/2) * (A057521(n) - Σ_{d|n, 1<d<n} f(d) * f(n/d)) Here
  *            A057521(n) is the powerful part of n. The function memoises the
  *            values and returns a(n) for any n ≥ 1
- * Range:     u8 n <= 15, u16 n <= 255, u32 n <= 8191, u64 n <= 9727,
- *            u128 n <= 9727, big any n
- * Helpers:   factor_u64, int_sqrt
+ * Range:     u8 n <= 15, u16 n <= 255, u32 n <= 8191, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 113 terms through n = 9727 (2026-11-03)
+ * Helpers:   factor_u64, isqrt, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
-#include "../utils/factor_u64.h"      /* factor_u64 */
-#include "../utils/int_sqrt.h"        /* int_sqrt */
+#include "../utils/factor_u64.h"
+#include "../utils/isqrt.h"
+#include "../utils/mem.h"
 
 static seq_t  *num  = NULL;            /* numerator of f(n)      */
 static unsigned char *den = NULL;      /* 2‑exponent of denominator */
@@ -32,13 +34,13 @@ static void compute_to(idx_t limit)
 {
     size_t new_cap = limit + 1;   /* 1‑based arrays */
     if (!num) {
-        num  = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        num  = mem_new(seq_t, new_cap);
         den  = (unsigned char *)malloc(new_cap * sizeof(unsigned char));
         num[1] = 1;
         den[1] = 0;
         max_mem = 1;
     } else if (limit > max_mem) {
-        num  = (seq_t *)realloc(num, new_cap * sizeof(seq_t));
+        num  = mem_resize(seq_t, num, new_cap);
         den  = (unsigned char *)realloc(den, new_cap * sizeof(unsigned char));
     }
 
@@ -62,7 +64,7 @@ static void compute_to(idx_t limit)
         seq_t sum_num = 0;
         unsigned int sum_exp = 0;   /* denominator exponent for the sum */
 
-        idx_t root = int_sqrt((idx_t)n);
+        idx_t root = isqrt((idx_t)n);
         for (idx_t d = 2; d <= root; ++d) {
             if (n % d) continue;
             idx_t e = n / d;

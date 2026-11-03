@@ -7,15 +7,17 @@
  * Formula:   a(n) = number of divisors of n^9 (a(p^e) = 9*e+1)
  * Range:     u8 n <= 23, u16 n <= 2309, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _floor_isqrt_u64, build_primes_upto
+ * Validated: standard, pass, 78 terms through n = 9391 (2026-11-01)
+ * Helpers:   build_primes_upto, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/build_primes_upto.h"   /* void build_primes_upto(idx_t limit, uint64_t **primes_out, size_t *cnt_out); */
-#include "../utils/_floor_isqrt_u64.h"   /* idx_t _floor_isqrt_u64(idx_t n); */
+#include <stdbool.h>
+#include "../utils/build_primes_upto.h"
+#include "../utils/isqrt.h"
 
 static uint64_t *primes   = NULL;      /* array of primes up to current limit */
 static size_t   primes_cnt   = 0;      /* number of primes stored */
@@ -25,7 +27,7 @@ static idx_t    primes_max   = 0;      /* maximum limit up to which primes have 
 seq_t a(idx_t n)
 {
     /* Ensure we have primes up to floor(sqrt(n)) */
-    idx_t limit = _floor_isqrt_u64(n);
+    idx_t limit = isqrt(n);
     if (limit > primes_max) {
         /* Rebuild prime table up to the new limit */
         free(primes);

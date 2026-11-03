@@ -7,8 +7,9 @@
  * Keywords:  nonn, easy
  * Formula:   a(4*k) = 4*k a(4*k+2) = 2*k+1 a(4*k+1) = 1 if k%3 ≠ 2 3 if k%3 =
  *            2 a(4*k+3) = 1 if k%3 ≠ 0 3 if k%3 = 0
- * Range:     u8 n <= 255, u16 n <= 9790, u32 n <= 9790, u64 n <= 9790,
- *            u128 n <= 9790, big any n
+ * Range:     u8 n <= 255, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 96 terms through n = 9790 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

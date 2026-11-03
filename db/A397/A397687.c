@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 41, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 82 terms through n = 930 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Global state: divisor counts and prefix sums up to _max_limit. */
 static size_t _max_limit  = 0;          /* largest index for which data are valid */
@@ -38,7 +40,7 @@ _ensure_limit(size_t limit)
 
     /* Reallocate arrays to new size (include index 0). */
     _divcnt = (uint32_t *)realloc(_divcnt, (limit + 1) * sizeof(uint32_t));
-    _prefix = (seq_t   *)realloc(_prefix, (limit + 1) * sizeof(seq_t));
+    _prefix = mem_resize(seq_t, _prefix, (limit + 1));
 
     /* Initialise all entries to zero. */
     for (size_t i = 0; i <= limit; ++i)

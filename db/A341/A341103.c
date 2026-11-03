@@ -9,8 +9,9 @@
  * Formula:   a(n) is the row‑major flattening of the triangle T(n,k) =
  *            binomial(n + k, 2*k) – binomial(n - 1, 2*k) for n>0, with T(0,0)
  *            = 1. The index n is 0‑based
- * Range:     u8 n <= 22, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
+ * Range:     u8 n <= 38, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,7 @@
 /* The function uses the helper binomial(idx_t, idx_t) supplied by the build. */
 
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 static inline idx_t triangular(idx_t i) {

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 9, u128 n <= 11,
  *            big any n
- * Helpers:   seq_mul, seq_pow
+ * Validated: partial, pass, 11 terms through n = 11 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,16 @@
    • a(n) = (10^n – 32) * 10^n   for n ≥ 5  */
 
 /* The routines seq_pow and seq_mul are provided by the build system.  */
-#include "../utils/seq_pow.h"
-#include "../utils/seq_mul.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -34,7 +43,7 @@ seq_t a(idx_t n)
     if (n == 4) return (seq_t)88640000;
 
     /* for n ≥ 5:  a(n) = (10^n – 32) * 10^n */
-    seq_t pow10 = seq_pow((seq_t)10, n);          /* 10^n */
+    seq_t pow10 = ipow_idx((seq_t)10, n);          /* 10^n */
     seq_t pow10_minus32 = pow10 - (seq_t)32;      /* 10^n – 32 */
     return seq_mul(pow10_minus32, pow10);         /* (10^n – 32) * 10^n */
 }

@@ -11,7 +11,8 @@
  *            programming on the last five digits
  * Range:     u8 none, u16 n <= 2, u32 n <= 13, u64 n <= 35, u128 n <= 80,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 204 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* 6^5 = 7776   number of possible 5‑digit suffixes                 */
 #define STATE_COUNT 7776
@@ -116,7 +118,7 @@ static void init_sequence(void)
 
     /* Allocate cache for answers. */
     ans_cap = 256;
-    answers = (seq_t *)malloc(ans_cap * sizeof(seq_t));
+    answers = mem_new(seq_t, ans_cap);
     ans_len = 0;
 }
 
@@ -156,7 +158,7 @@ seq_t a(idx_t n)
         /* Cache the computed value. */
         if (ans_len == ans_cap) {
             ans_cap *= 2;
-            answers = (seq_t *)realloc(answers, ans_cap * sizeof(seq_t));
+            answers = mem_resize(seq_t, answers, ans_cap);
         }
         answers[ans_len++] = total;
 

@@ -10,7 +10,8 @@
  *            its arguments
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 16, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* Utility to estimate an upper bound for the k-th prime.
    For k >= 6, p_k < k (log k + log log k).  The function adds a small
@@ -84,10 +86,10 @@ seq_t a(idx_t n)
 #endif
 
         /* Allocate arrays for the symmetric sums */
-        free(S2);
-        free(S4);
-        S2 = (seq_t*)malloc((primes_cnt + 1) * sizeof(seq_t));
-        S4 = (seq_t*)malloc((primes_cnt + 1) * sizeof(seq_t));
+        mem_free(S2);
+        mem_free(S4);
+        S2 = mem_new(seq_t, (primes_cnt + 1));
+        S4 = mem_new(seq_t, (primes_cnt + 1));
         S2[0] = S4[0] = 0;
 
         /* Reset running sums and processed count */

@@ -10,7 +10,8 @@
  *            arbitrary order of calls
  * Range:     u8 n <= 62, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   gcd
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;        /* cache[0] unused, cache[1] = a(1) */
 static idx_t  cache_cap = 0;       /* allocated size (indexable up to cache_cap-1) */
@@ -30,7 +32,7 @@ static void ensure_cache(idx_t n)
     /* initialise cache on first use */
     if (cache_cap == 0) {
         cache_cap = 64;                    /* initial capacity */
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) abort();
         cache[1] = (seq_t)1;               /* a(1) = 1 */
         cache_len = 1;
@@ -39,7 +41,7 @@ static void ensure_cache(idx_t n)
     if (cache_cap <= n) {
         idx_t new_cap = cache_cap * 2;
         if (new_cap <= n) new_cap = n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();
         cache = tmp;
         cache_cap = new_cap;

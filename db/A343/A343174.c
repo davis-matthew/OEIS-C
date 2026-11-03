@@ -7,13 +7,15 @@
  * Formula:   a(n) = A004526(n+2) + A033264(n+1)
  * Range:     u8 n <= 507, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 92 terms through n = 9332 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *partial = NULL;   /* partial sums of the paper‑folding sequence */
@@ -54,14 +56,14 @@ seq_t a(idx_t n) {
     }
 
     /* Compute partial sums */
-    seq_t *new_cache = (seq_t*)malloc(len * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, len);
     new_cache[0] = bits[0];
     for (size_t i = 1; i < len; ++i) {
         new_cache[i] = new_cache[i - 1] + bits[i];
     }
 
     free(bits);
-    free(partial);
+    mem_free(partial);
     partial = new_cache;
     seq_len = len;
 

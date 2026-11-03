@@ -11,6 +11,7 @@
  *            a(3k+1)=5*a(3k), and a(3k)=5*a(3(k-1))+5 (k≥2) with a(3)=8
  * Range:     u8 n <= 9, u16 n <= 18, u32 n <= 39, u64 n <= 81, u128 n <= 162,
  *            big any n
+ * Validated: standard, pass, 57 terms through n = 996 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

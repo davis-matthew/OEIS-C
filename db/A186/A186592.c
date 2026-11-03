@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 3, u32 n <= 30, u64 n <= 86, u128 n <= 159,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 41 terms through n = 154 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 const seq_t init_vals[14] = {
     48243ULL, 2703ULL, 8853ULL, 104547ULL,
@@ -48,7 +50,7 @@ seq_t a(idx_t n) {
     if (cache == NULL) {
         /* Allocate at least 14 elements, or n if larger */
         cache_cap = (n > 14) ? (size_t)n : 14;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return 0;  /* allocation failed */
         for (size_t i = 0; i < 14; ++i) cache[i] = init_vals[i];
         cache_len = 14;
@@ -57,7 +59,7 @@ seq_t a(idx_t n) {
     /* Expand cache if necessary */
     if ((size_t)n > cache_cap) {
         size_t new_cap = (size_t)n;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;      /* reallocation failed */
         cache = tmp;
         cache_cap = new_cap;

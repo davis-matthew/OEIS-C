@@ -8,8 +8,9 @@
  * Formula:   a(n) is the period length of the sequence k^i (i ≥ imin) modulo
  *            n, where (n,k) is the flattened triangle index: rows start at
  *            n=2 with k from 1 to n‑1
- * Range:     u8 n <= 9737, u16 n <= 9737, u32 n <= 9737, u64 n <= 9737,
- *            u128 n <= 9737, big any n
+ * Range:     u8 n <= 19901, u16 n <= 19901, u32 n <= 19901, u64 n <= 19901,
+ *            u128 n <= 19901, big any n
+ * Validated: standard, pass, 95 terms through n = 9737 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

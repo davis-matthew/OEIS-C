@@ -10,15 +10,25 @@
  *            number * (offset 1). Each a(n) is distinct
  * Range:     u8 n <= 29, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   isPrime, term_contains
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/isPrime.h"   /* bool isPrime(idx_t x); */
-#include "../utils/term_contains.h"
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
+
+/*--------------------------------------------------------------------*/
+static bool term_contains(const seq_t *arr, size_t len, seq_t v)
+{
+    for (size_t i = 0; i < len; ++i)
+        if (arr[i] == v)
+            return true;
+    return false;
+}
  
 /* seq_t and idx_t are supplied by the build system. */
  
@@ -43,9 +53,8 @@ seq_t a(idx_t n)
         /* grow the composite array as needed */
         while (comp_len < n) {
             /* test whether 'next_int' is composite */
-            if (!isPrime(next_int)) {
-                comps = (seq_t *)realloc(comps,
-                                         (comp_len + 1) * sizeof(seq_t));
+            if (!is_prime(next_int)) {
+                comps = mem_resize(seq_t, comps, (comp_len + 1));
                 if (!comps) exit(EXIT_FAILURE);
                 comps[comp_len++] = next_int;
             }
@@ -61,12 +70,11 @@ seq_t a(idx_t n)
             idx_t cand = m + 1;                 /* first number ≡ 1 (mod m) */
 
             while (true) {
-                if (isPrime(cand) &&
+                if (is_prime(cand) &&
                     !term_contains(terms, term_len, (seq_t)cand)) {
 
                     /* store the new term */
-                    terms = (seq_t *)realloc(terms,
-                                             (term_len + 1) * sizeof(seq_t));
+                    terms = mem_resize(seq_t, terms, (term_len + 1));
                     if (!terms) exit(EXIT_FAILURE);
                     terms[term_len++] = (seq_t)cand;
                     break;

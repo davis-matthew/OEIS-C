@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 20, u32 n <= 44, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -31,6 +32,7 @@
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 static seq_t *f_arr = NULL;   /* cache of composition counts f(m) */
 static idx_t f_max = 0;       /* highest m computed so far */
@@ -40,7 +42,7 @@ static void compute_f_up_to(idx_t m)
 {
     if (m <= f_max) return;
     size_t new_cap = (size_t)(m + 1);
-    f_arr = (seq_t *)realloc(f_arr, new_cap * sizeof(seq_t));
+    f_arr = mem_resize(seq_t, f_arr, new_cap);
     for (idx_t i = f_max + 1; i <= m; ++i) {
         seq_t sum = 0;
         for (idx_t s = 1; s * s <= i; ++s) {
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
 {
     /* lazily initialise cache with f(0)=1 */
     if (f_arr == NULL) {
-        f_arr = (seq_t *)malloc(sizeof(seq_t));
+        f_arr = mem_new(seq_t, 1);
         if (!f_arr) return 0;            /* allocation failed */
         f_arr[0] = 1;
         f_max  = 0;

@@ -11,20 +11,22 @@
  *            A(x)^4. C[0] = D[0] = 1. C and D are computed iter...
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 18, u64 n <= 26, u128 n <= 26,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 27 terms through n = 26 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* The external types seq_t and idx_t are provided by the build. */
 seq_t a(idx_t n)
 {
     /* Allocate arrays for a, C, and D with size n+1 elements. */
-    seq_t *A = (seq_t*)calloc((size_t)n + 1, sizeof(seq_t));
-    seq_t *C = (seq_t*)calloc((size_t)n + 1, sizeof(seq_t));
-    seq_t *D = (seq_t*)calloc((size_t)n + 1, sizeof(seq_t));
+    seq_t *A = mem_new(seq_t, (size_t)n + 1);
+    seq_t *C = mem_new(seq_t, (size_t)n + 1);
+    seq_t *D = mem_new(seq_t, (size_t)n + 1);
 
     if (!A || !C || !D) {
         /* In case of allocation failure, return 0. */
@@ -64,9 +66,9 @@ seq_t a(idx_t n)
     seq_t result = A[n];
 
     /* Free allocated memory. */
-    free(A);
-    free(C);
-    free(D);
+    mem_free(A);
+    mem_free(C);
+    mem_free(D);
 
     return result;
 }

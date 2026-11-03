@@ -9,8 +9,9 @@
  *            digits of n. This implements the “move the least significant
  *            base‑4 digit to the most significant position and convert back
  *            to base‑10” transformation
- * Range:     u8 n <= 256, u16 n <= 7824, u32 n <= 7824, u64 n <= 7824,
- *            u128 n <= 7824, big any n
+ * Range:     u8 n <= 256, u16 n <= 16384, u32 n <= 16384, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 86 terms through n = 7824 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

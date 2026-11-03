@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 12, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   append_word
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,17 @@
 
 #include <stddef.h>
 #include <string.h>
-#include "../utils/append_word.h"
+
+/* Append a word to the buffer, inserting a leading space if needed */
+static void append_word(const char *w, char *buf, size_t *len)
+{
+    if (*len) {
+        buf[(*len)++] = ' ';
+    }
+    size_t l = strlen(w);
+    memcpy(buf + *len, w, l);
+    *len += l;
+}
 
 /* Basic English word tables */
 static const char *const units[10] = {

@@ -13,7 +13,8 @@
  *            fixed limit (10,000,000) and searches successive x unt...
  * Range:     u8 none, u16 n <= 34, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 #define PREALLOC 1024
 #define LIMIT 10000000  /* assumed large enough for n up to ~10000 */
@@ -91,7 +93,7 @@ static void build_prime_power_sieve(void) {
 static void ensure_sol_cap(void) {
     if (sol_size >= sol_cap) {
         size_t new_cap = sol_cap == 0 ? PREALLOC : sol_cap * 2;
-        seq_t *new_arr = (seq_t *)realloc(solutions, new_cap * sizeof(seq_t));
+        seq_t *new_arr = mem_resize(seq_t, solutions, new_cap);
         if (!new_arr) exit(1);
         solutions = new_arr;
         sol_cap = new_cap;

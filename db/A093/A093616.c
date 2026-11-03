@@ -11,7 +11,8 @@
  *            ≥ e_i. The minimal k over these permutations * is returned
  * Range:     u8 n <= 67, u16 n <= 6883, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   permute_rec
+ * Validated: standard, pass, 88 terms through n = 9822 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,40 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/permute_rec.h"
+
+/* recursive helper to generate all permutations of the exponent indices */
+static void
+permute_rec(size_t depth, size_t m, int *perm, bool *used,
+            idx_t *primes, idx_t *exps, seq_t *best_out)
+{
+    if (depth == m) {
+        /* evaluate this permutation */
+        bool ok = true;
+        seq_t k = 1;
+        for (size_t i = 0; i < m; ++i) {
+            idx_t e  = exps[i];
+            idx_t te = exps[perm[i]];
+            if (2*te < e) { ok = false; break; }
+            idx_t f = 2*te - e;
+            for (idx_t t = 0; t < f; ++t)
+                k *= (seq_t)primes[i];
+        }
+        if (ok) {
+            if (*best_out == 0 || k < *best_out)
+                *best_out = k;
+        }
+        return;
+    }
+
+    for (size_t j = 0; j < m; ++j) {
+        if (!used[j]) {
+            used[j] = true;
+            perm[depth] = (int)j;
+            permute_rec(depth + 1, m, perm, used, primes, exps, best_out);
+            used[j] = false;
+        }
+    }
+}
 
 /* smallest primes up to 100 for trial division */
 static const uint32_t small_primes[25] = { 2,3,5,7,11,13,17,19,23,29,31,

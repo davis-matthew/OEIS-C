@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 60, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   count_prime_factors, seq_realloc
+ * Validated: standard, pass, 82 terms through n = 9173 (2026-11-01)
+ * Helpers:   bigomega_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,19 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/count_prime_factors.h"
-#include "../utils/seq_realloc.h"
+#include "../utils/bigomega_seq.h"
+
+static seq_t* seq_realloc(seq_t* old, size_t old_cap, size_t new_cap) {
+#ifdef __cplusplus
+    seq_t* new_ptr = new seq_t[new_cap];
+    for (size_t i = 0; i < old_cap; ++i)
+        new_ptr[i] = old[i];
+    delete[] old;
+    return new_ptr;
+#else
+    return (seq_t*)realloc(old, new_cap * sizeof(seq_t));
+#endif
+}
 
 seq_t a(idx_t n)
 {
@@ -36,8 +48,8 @@ seq_t a(idx_t n)
 
     while (terms_len < n) {
         idx_t k = ++last_checked;                 /* next candidate   */
-        seq_t om1 = count_prime_factors((seq_t)(k - 1));
-        seq_t op1 = count_prime_factors((seq_t)(k + 1));
+        seq_t om1 = bigomega_seq((seq_t)(k - 1));
+        seq_t op1 = bigomega_seq((seq_t)(k + 1));
 
         if (om1 == op1) {                         /* satisfy condition */
             if (terms_len == terms_cap) {         /* grow array       */

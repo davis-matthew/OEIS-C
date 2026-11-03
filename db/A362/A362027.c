@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 130, u16 n <= 130, u32 n <= 130, u64 n <= 130,
  *            u128 n <= 130, big any n
- * Helpers:   abs_diff_seq_t
+ * Validated: full, pass, 130 terms through n = 130 (2026-11-02)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,12 @@
     If there is a tie the smaller numbered square is chosen.
 */
 #include <stdbool.h>
-#include "../utils/abs_diff_seq_t.h"
+
+/* ----- helpers --------------------------------------------------------- */
+static seq_t abs_diff_seq_t(seq_t a, seq_t b)
+{
+    return (a > b) ? (a - b) : (b - a);
+}
 
 /* ----- parameters ------------------------------------------------------ */
 #define MAX_NUM   800          /* generate spiral numbers up to this value */

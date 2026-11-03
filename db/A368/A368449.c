@@ -10,7 +10,8 @@
  *            `n`
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 9, u64 n <= 16, u128 n <= 19,
  *            big any n
- * Helpers:   binomial, mul_small, seq_mul
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,29 @@
 #include <stdlib.h>  /* malloc, realloc, abort, size_t */
 
 /* Utility functions from the OEIS library */
-#include "../utils/binomial.h"   /* seq_t binomial(idx_t n, idx_t k) */
-#include "../utils/mul_small.h"  /* seq_t mul_small(seq_t x, unsigned int m) */
-#include "../utils/seq_mul.h"    /* seq_t seq_mul(seq_t a, seq_t b) */
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include "../utils/binomial.h"
+#include "../utils/mem.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Memoisation arrays */
 static seq_t   *cache  = NULL;   /* a(n) values */
@@ -47,7 +68,7 @@ static void ensure_cache(idx_t n)
     while (new_cap <= (size_t)n)
         new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) abort();
     cache = tmp;
     cache_cap = new_cap;
@@ -63,13 +84,13 @@ static void ensure_fact_pow(idx_t n)
     while (new_cap <= (size_t)n) new_cap <<= 1;
 
     if (new_cap > fact_cap) {
-        seq_t *tmp = (seq_t *)realloc(fact_arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, fact_arr, new_cap);
         if (!tmp) abort();
         fact_arr = tmp;
         fact_cap = new_cap;
     }
     if (new_cap > pow2_cap) {
-        seq_t *tmp = (seq_t *)realloc(pow2_arr, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, pow2_arr, new_cap);
         if (!tmp) abort();
         pow2_arr = tmp;
         pow2_cap = new_cap;
@@ -96,9 +117,9 @@ seq_t a(idx_t n)
     if (!cache) {
         /* a(0) = 1 */
         size_t init_cap = 16;
-        cache     = (seq_t *)malloc(init_cap * sizeof(seq_t));
-        fact_arr  = (seq_t *)malloc(init_cap * sizeof(seq_t));
-        pow2_arr  = (seq_t *)malloc(init_cap * sizeof(seq_t));
+        cache     = mem_new(seq_t, init_cap);
+        fact_arr  = mem_new(seq_t, init_cap);
+        pow2_arr  = mem_new(seq_t, init_cap);
         if (!cache || !fact_arr || !pow2_arr) abort();
 
         cache[0]   = (seq_t)1;   /* a(0) */

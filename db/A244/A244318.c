@@ -8,13 +8,15 @@
  *            representation of n
  * Range:     u8 n <= 388, u16 n <= 4862, u32 n <= 4862, u64 n <= 4862,
  *            u128 n <= 4862, big any n
- * Helpers:   none
+ * Validated: standard, pass, 95 terms through n = 4468 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache of Catalan numbers – start with C0 = 1 */
 static seq_t *Catalan = NULL;
@@ -25,7 +27,7 @@ static size_t Catalan_cap = 0;
 static void ensure_catalan_upto(idx_t n) {
     if (Catalan_len == 0) {
         Catalan_cap = 4;
-        Catalan = (seq_t *)malloc(Catalan_cap * sizeof(seq_t));
+        Catalan = mem_new(seq_t, Catalan_cap);
         Catalan[0] = (seq_t)1;          /* C0 = 1 */
         Catalan_len = 1;
     }
@@ -42,7 +44,7 @@ static void ensure_catalan_upto(idx_t n) {
             break;
         if (Catalan_len == Catalan_cap) {
             Catalan_cap <<= 1;
-            Catalan = (seq_t *)realloc(Catalan, Catalan_cap * sizeof(seq_t));
+            Catalan = mem_resize(seq_t, Catalan, Catalan_cap);
         }
         Catalan[Catalan_len++] = (seq_t)next128;
     }

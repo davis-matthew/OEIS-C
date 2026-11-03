@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 251, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 66 terms through n = 997 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/is_prime.h"   /* provides bool is_prime(idx_t x) */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
         if (is_prime(p1) && is_prime(p1 + 2)) {
             if (cache_size == cache_cap) {
                 cache_cap = cache_cap ? 2 * cache_cap : 16;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_size++] = (seq_t)p1;
         }
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
         if (is_prime(p2) && is_prime(p2 + 2)) {
             if (cache_size == cache_cap) {
                 cache_cap = cache_cap ? 2 * cache_cap : 16;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_size++] = (seq_t)p2;
         }
@@ -59,7 +61,7 @@ seq_t a(idx_t n)
         if (is_prime(p3) && is_prime(p3 + 2)) {
             if (cache_size == cache_cap) {
                 cache_cap = cache_cap ? 2 * cache_cap : 16;
-                cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_size++] = (seq_t)p3;
         }

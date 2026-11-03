@@ -8,11 +8,13 @@
  *            2^floor(n*(n-1)/4) otherwise
  * Range:     i8 n <= 5, i16 n <= 9, i32 n <= 11, i64 n <= 17, i128 n <= 23,
  *            big any n
+ * Validated: standard, pass, 36 terms through n = 111 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 /* Compute A160636 at index n (offset 0). */

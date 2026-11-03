@@ -11,15 +11,18 @@
  *            given in the OEIS entry
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 7, u64 n <= 56, u128 n <= 1000,
  *            big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: standard, pass, 37 terms through n = 982 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/big_pow.h"          /* seq_t big_pow(seq_t base, seq_t exp)      */
-#include "../utils/factor_u64.h"       /* void factor_u64(uint64_t n, uint64_t *pr, uint64_t *ex, size_t *cnt) */
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -39,12 +42,12 @@ seq_t a(idx_t n)
         idx_t  e     = (idx_t)exps[i];
 
         /* p^(2e) */
-        seq_t p_pow_2e   = big_pow(p, (seq_t)(2 * e));
+        seq_t p_pow_2e   = ipow(p, (seq_t)(2 * e));
 
         /* geometric series 1 + p^9 + p^18 + … + p^(9e) */
         seq_t sum   = 1;          /* first term */
         seq_t term  = 1;
-        seq_t p_pow_9 = big_pow(p, (seq_t)9);
+        seq_t p_pow_9 = ipow(p, (seq_t)9);
 
         for (idx_t k = 1; k <= e; ++k) {
             term = term * p_pow_9;

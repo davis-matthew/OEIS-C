@@ -11,12 +11,14 @@
  *            9
  * Range:     u8 n <= 98, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 99 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Return the n‑th term of A021519.  The function is idempotent and
  * memoises the computed values so that calls with arbitrary n occur
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
 
         /* small initial capacity; will grow lazily as needed. */
         cache_cap = 64;
-        cache     = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache     = mem_new(seq_t, cache_cap);
         if (!cache)
             exit(EXIT_FAILURE);
 
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
         /* grow the underlying storage if the capacity is exceeded. */
         if (cache_sz >= cache_cap) {
             size_t new_cap = cache_cap * 2;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp)
                 exit(EXIT_FAILURE);
             cache = tmp;

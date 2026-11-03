@@ -9,7 +9,8 @@
  *            e^k
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 9, u64 n <= 15, u128 n <= 26,
  *            big any n
- * Helpers:   big_pow, factor_u64
+ * Validated: standard, pass, 35 terms through n = 364 (2026-11-01)
+ * Helpers:   factor_u64, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,10 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
+#include "../utils/ipow.h"
 
 /* Recursively generate all divisors of a number given its prime factors.
    pf   – array of distinct prime factors
@@ -96,7 +99,7 @@ seq_t a(idx_t n)
         seq_t sigma = 0;
         for (size_t k = 0; k < nd_d; ++k) {
             idx_t kdiv = divs_d[k];
-            sigma += big_pow((seq_t)kdiv, (seq_t)d);
+            sigma += ipow((seq_t)kdiv, (seq_t)d);
         }
 
         /* term = (n/d) * sigma_d(d) */

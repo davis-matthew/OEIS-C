@@ -11,6 +11,7 @@
  *            correspond to the index n, then evaluates T(r,k)
  * Range:     u8 n <= 23, u16 n <= 41, u32 n <= 98, u64 n <= 243,
  *            u128 n <= 618, big any n
+ * Validated: standard, pass, 71 terms through n = 8792 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,8 +7,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, easy, nice
  * Formula:   a(n) = round((n + 3)^2 / 12) = ((n + 3)^2 + 6) / 12
- * Range:     u8 n <= 12, u16 n <= 882, u32 n <= 9548, u64 n <= 9548,
- *            u128 n <= 9548, big any n
+ * Range:     u8 n <= 12, u16 n <= 882, u32 n <= 17501, u64 n <= 17501,
+ *            u128 n <= 17501, big any n
+ * Validated: standard, pass, 78 terms through n = 9548 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

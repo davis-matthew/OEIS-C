@@ -7,7 +7,8 @@
  * Formula:   a(n) = the largest Catalan number ≤ n
  * Range:     u8 n <= 73, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 74 terms through n = 73 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
    integers). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *catalan = NULL;
 static idx_t catalan_size = 0;
@@ -32,7 +34,7 @@ static void ensure_catalan_upto(seq_t limit)
 {
     if (catalan_size == 0) {                 /* initialise the list */
         catalan_cap   = 4;
-        catalan       = (seq_t *)malloc(catalan_cap * sizeof(seq_t));
+        catalan       = mem_new(seq_t, catalan_cap);
         catalan[0]    = (seq_t)1;             /* C_0 = 1 */
         catalan_size  = 1;
     }
@@ -49,8 +51,7 @@ static void ensure_catalan_upto(seq_t limit)
 
         if (catalan_size == catalan_cap) {      /* grow buffer  */
             catalan_cap = catalan_cap * 2;
-            catalan = (seq_t *)realloc(catalan,
-                                       catalan_cap * sizeof(seq_t));
+            catalan = mem_resize(seq_t, catalan, catalan_cap);
         }
         catalan[catalan_size++] = next;
 

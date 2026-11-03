@@ -10,7 +10,8 @@
  *            function
  * Range:     u8 n <= 41, u16 n <= 1133, u32 n <= 2900, u64 n <= 2900,
  *            u128 n <= 2900, big any n
- * Helpers:   none
+ * Validated: standard, pass, 96 terms through n = 2567 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static cache of sieved data */
 static idx_t _cached_n = 0;            /* size of the cache */
@@ -34,7 +36,7 @@ static void _build_pi(idx_t n)
 {
     /* free old cache, if any */
     if (_cached_bitset) free(_cached_bitset);
-    if (_cached_pi)    free(_cached_pi);
+    if (_cached_pi)    mem_free(_cached_pi);
 
     _cached_n = n;
     uint64_t limit = (uint64_t)n * (uint64_t)n;
@@ -50,7 +52,7 @@ static void _build_pi(idx_t n)
     }
 
     /* allocate array for π(j·n) values */
-    _cached_pi = (seq_t*)calloc((size_t)(n + 1), sizeof(seq_t));
+    _cached_pi = mem_new(seq_t, (size_t)(n + 1));
     seq_t prime_count = 0;
 
     /* walk through numbers up to limit, count primes,

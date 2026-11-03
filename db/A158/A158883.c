@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 4, i16 n <= 6, i32 n <= 11, i64 n <= 19, i128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 445 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
  
 /* helper to multiply a seq_t by a small idx_t (≤ n) safely */
 static inline seq_t mul_int(seq_t x, idx_t y)
@@ -60,7 +62,7 @@ static void compute_a(idx_t n)
     if (a_len > n) return;          /* already computed enough */
  
     size_t new_len = (size_t)(n + 1);
-    seq_t *new_arr = (seq_t*)malloc(new_len * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_len);
     if (!new_arr) return;           /* memory error → caller sees 0 */
  
     /* copy existing values if any */
@@ -94,7 +96,7 @@ static void compute_a(idx_t n)
         new_arr[k]  = - mul_int(total, (idx_t)k);
     }
  
-    free(a_cache);
+    mem_free(a_cache);
     a_cache = new_arr;
     a_len   = new_len;
 }

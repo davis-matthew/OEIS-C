@@ -12,13 +12,19 @@
  *            a(9)=109206613488 (n>=1)
  * Range:     u8 none, u16 n <= 2, u32 n <= 7, u64 n <= 17, u128 n <= 36,
  *            big any n
- * Helpers:   mul921
+ * Validated: standard, pass, 32 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/mul921.h"
+#include "../utils/mem.h"
+
+static inline seq_t mul921(seq_t x)
+{
+    return (seq_t)(x * (seq_t)921);
+}
 
 static const seq_t init_vals[10] = {
     0ULL,
@@ -45,7 +51,7 @@ seq_t a(idx_t n)
         return init_vals[n];
 
     if (cache == NULL) {
-        cache = (seq_t *)calloc(10, sizeof(seq_t));
+        cache = mem_new(seq_t, 10);
         if (cache == NULL)
             return 0;
         for (idx_t i = 1; i <= 9; ++i)
@@ -56,7 +62,7 @@ seq_t a(idx_t n)
     if (n <= cached_n)
         return cache[n];
 
-    seq_t *tmp = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
     if (tmp == NULL)
         return 0;
     cache = tmp;

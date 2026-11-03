@@ -12,13 +12,44 @@
  *            * (row, col) of that antidiagonal and evaluate...
  * Range:     u8 n <= 24, u16 n <= 50, u32 n <= 86, u64 n <= 184,
  *            u128 n <= 429, big any n
- * Helpers:   T_row_col
+ * Validated: standard, pass, 71 terms through n = 7955 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>   /* for uint64_t, but idx_t is defined elsewhere */
-#include "../utils/T_row_col.h"
+
+static seq_t
+T_row_col(idx_t row, idx_t col)
+{
+    if (row == 0)
+        return (seq_t)1;
+    if (row == 1)
+        return (seq_t)1;
+
+    seq_t tprev2 = (seq_t)1; /* T(0,k) */
+    seq_t tprev1 = (seq_t)1; /* T(1,k) */
+    seq_t tcur;
+
+    for (idx_t m = 2; m <= row; ++m) {
+        /* term1 = (2*k*m-2*k+1) * T(m-1,k) */
+        seq_t coeff1 = ((seq_t)2 * (seq_t)col * (seq_t)m
+                        - (seq_t)2 * (seq_t)col + (seq_t)1);
+        seq_t term1  = coeff1 * tprev1;
+
+        /* term2 = k^2 * (m-1)*(m-2) * T(m-2,k) */
+        seq_t coeff2 = (seq_t)col * (seq_t)col
+                       * (seq_t)(m - 1) * (seq_t)(m - 2);
+        seq_t term2  = coeff2 * tprev2;
+
+        tcur = term1 - term2;
+
+        tprev2 = tprev1;
+        tprev1 = tcur;
+    }
+    return tprev1;
+}
 
 seq_t a(idx_t n)
 {

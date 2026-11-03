@@ -11,6 +11,7 @@
  *            T(n,k) = ((k*n*(n+1) - (k-1)*(n-1)) / (2*n)) * (n!)^k
  * Range:     u8 n <= 12, u16 n <= 18, u32 n <= 32, u64 n <= 40, u128 n <= 40,
  *            big any n
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

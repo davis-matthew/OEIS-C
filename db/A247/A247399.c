@@ -10,11 +10,13 @@
  *            a(6) = 640, a(7) = 864, a(8) = 1136, a(9) = 1456, a(10) = 1824
  * Range:     u8 n <= 1, u16 n <= 23, u32 n <= 63, u64 n <= 143, u128 n <= 210,
  *            big any n
+ * Validated: standard, pass, 51 terms through n = 204 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
 

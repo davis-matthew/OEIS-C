@@ -8,13 +8,15 @@
  *            r*(r+1)/2, T(n,k) = Sum_{j=0..n-k} binom(n-j,k) * binom(2*k,j)
  * Range:     u8 n <= 30, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* The binomial coefficient routine is provided by the framework. */
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     idx_t max_j = r - c;
     for (idx_t j = 0; j <= max_j; ++j)
     {
-        seq_t term = binom(r - j, c) * binom(2 * c, j);
+        seq_t term = binomial(r - j, c) * binomial(2 * c, j);
         result += term;
     }
     return result;

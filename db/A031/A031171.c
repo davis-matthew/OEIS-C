@@ -7,7 +7,8 @@
  * Formula:   a(n) = prime(n+9) - prime(n)
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 8732 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Cached list of primes that the function uses. */
 static seq_t *primeList = NULL;   /* array of primes, each of type seq_t   */
@@ -47,7 +49,7 @@ static void regenerate_primes(idx_t limit)
     for (idx_t i = 2; i <= limit; ++i)
         if (isPrime[i]) ++cnt;
 
-    seq_t *list = (seq_t *)malloc(cnt * sizeof(seq_t));
+    seq_t *list = mem_new(seq_t, cnt);
     if (!list) {
         free(isPrime);
         return;
@@ -60,7 +62,7 @@ static void regenerate_primes(idx_t limit)
     free(isPrime);
 
     /* Replace old list if present. */
-    if (primeList) free(primeList);
+    if (primeList) mem_free(primeList);
     primeList   = list;
     primeCount  = cnt;
     sieveLimit  = limit;

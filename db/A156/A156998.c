@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   build_primes_upto
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-03)
+ * Helpers:   build_primes_upto, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <string.h>
 
 #include "../utils/build_primes_upto.h"
+#include "../utils/mem.h"
 
 /* ---------- static data -------------------------------- */
 
@@ -50,7 +52,7 @@ static void cache_append(seq_t val)
             cache_cap = 16;
         else
             cache_cap <<= 1;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
     cache[cache_size++] = val;
 }

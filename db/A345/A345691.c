@@ -11,13 +11,15 @@
  *            = u_{x,y}·x + v_{x,y}·y with u_{x,y},v_{x,y} minimal
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 30, u64 n <= 30, u128 n <= 30,
  *            big any n
- * Helpers:   gcd_int
+ * Validated: partial, pass, 30 terms through n = 30 (2026-11-01)
+ * Helpers:   gcd_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/gcd_int.h"   /* provides int gcd_int(int a,int b) */
+#include <stddef.h>
+#include "../utils/gcd_i32.h"
 
 static void extended_gcd(int64_t a, int64_t b, int64_t *u, int64_t *v, int64_t *g) {
     int64_t r0 = a, r1 = b;
@@ -47,7 +49,7 @@ seq_t a(idx_t n) {
             sumk_t2 = 1;
         } else {
             for (idx_t b = 1; b < k; ++b) {
-                if (gcd_int((int)k, (int)b) != 1) continue;   /* skip non‑coprime */
+                if (gcd_i32((int)k, (int)b) != 1) continue;   /* skip non‑coprime */
                 int64_t u, v, g;
                 extended_gcd((int64_t)k, (int64_t)b, &u, &v, &g);
                 if (g != 1) continue;          /* safety, should never happen */

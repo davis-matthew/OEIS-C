@@ -9,8 +9,9 @@
  *            (row,col) is obtained by traversing the array * T(row,col) =
  *            (col + max(floor(row/2)-1,0))^2 + row - 1 * along antidiagonals
  *            (rows increase inside each diagonal)
- * Range:     u8 n <= 120, u16 n <= 9064, u32 n <= 9064, u64 n <= 9064,
- *            u128 n <= 9064, big any n
+ * Range:     u8 n <= 120, u16 n <= 11325, u32 n <= 11325, u64 n <= 11325,
+ *            u128 n <= 11325, big any n
+ * Validated: standard, pass, 81 terms through n = 9064 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

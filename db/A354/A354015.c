@@ -10,7 +10,8 @@
  *            2*(k-2)!) and C(m,r) is the ordinary binomial coefficient
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 19, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
   Internal static data for memoisation
  ======================================================================*/
 #include <stdlib.h>      /* for malloc/free */
+#include "../utils/mem.h"
 
 static seq_t *a_cache = NULL;    /* a values */
 static seq_t *fac_cache = NULL;  /* factorials */
@@ -36,9 +38,9 @@ static void ensure_capacity(idx_t n)
     size_t new_size = (size_t)(n + 1);
 
     /* Allocate new arrays */
-    seq_t *new_a  = (seq_t*)malloc(new_size * sizeof(seq_t));
-    seq_t *new_f  = (seq_t*)malloc(new_size * sizeof(seq_t));
-    seq_t *new_g  = (seq_t*)malloc(new_size * sizeof(seq_t));
+    seq_t *new_a  = mem_new(seq_t, new_size);
+    seq_t *new_f  = mem_new(seq_t, new_size);
+    seq_t *new_g  = mem_new(seq_t, new_size);
 
     /* Copy old data */
     if (a_cache)
@@ -52,9 +54,9 @@ static void ensure_capacity(idx_t n)
     }
 
     /* Free old memory */
-    if (a_cache)  free(a_cache);
-    if (fac_cache) free(fac_cache);
-    if (g_cache)  free(g_cache);
+    if (a_cache)  mem_free(a_cache);
+    if (fac_cache) mem_free(fac_cache);
+    if (g_cache)  mem_free(g_cache);
 
     a_cache = new_a;
     fac_cache = new_f;

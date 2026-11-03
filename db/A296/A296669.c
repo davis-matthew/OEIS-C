@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 30, u128 n <= 60,
  *            big any n
- * Helpers:   test_row
+ * Validated: standard, pass, 38 terms through n = 199 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,31 @@
  * is `u` and its lower row is `d`.  The table is filled once on first call.  */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/test_row.h"
+
+/* test_row(p,u,d) : true iff a row pattern `p` is valid given the patterns
+ * of the row above it (`u`) and below it (`d`).  For each 1 in `p` the number
+ * of 1‑neighbours (king moves) is computed and must be in {0,2,3}.  */
+static inline bool test_row(uint8_t p, uint8_t u, uint8_t d) {
+    for (int j = 0; j < 3; ++j) {
+        if (!((p >> j) & 1u))
+            continue;
+        int cnt = 0;
+        /* same row */
+        if (j > 0   && ((p >> (j-1)) & 1u)) ++cnt;
+        if (j < 2   && ((p >> (j+1)) & 1u)) ++cnt;
+        /* upper neighbours */
+        if ((u >> j)            & 1u) ++cnt;
+        if (j > 0   && ((u >> (j-1)) & 1u)) ++cnt;
+        if (j < 2   && ((u >> (j+1)) & 1u)) ++cnt;
+        /* lower neighbours */
+        if ((d >> j)            & 1u) ++cnt;
+        if (j > 0   && ((d >> (j-1)) & 1u)) ++cnt;
+        if (j < 2   && ((d >> (j+1)) & 1u)) ++cnt;
+        if (cnt != 0 && cnt != 2 && cnt != 3)
+            return false;
+    }
+    return true;
+}
 
 seq_t a(idx_t n) {
     enum { P = 8 };                     /* 3‑bit patterns: 0 .. 7 */

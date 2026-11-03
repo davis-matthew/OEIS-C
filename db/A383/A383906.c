@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 567, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   ensure_capacity, equal_even_odd_sum, factor_u64
+ * Validated: standard, pass, 68 terms through n = 9168 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,9 +26,58 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../utils/factor_u64.h"   /* factorial helper for factorise */
-#include "../utils/ensure_capacity.h"   /* ensure_capacity helper */
-#include "../utils/equal_even_odd_sum.h"
+#include "../utils/factor_u64.h"
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
+
+/* Grow a dynamic array when needed.  The pointer is passed as OEISC_VPP(.) */
+#ifdef __cplusplus
+template <class T>
+static void ensure_capacity(size_t needed, size_t *cap, T **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    T *tmp = mem_resize(T, *ptr, (new_cap * elem_size) / sizeof(T));
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#else
+static void ensure_capacity(size_t needed, size_t *cap, void **ptr, size_t elem_size)
+{
+    if (needed <= *cap) return;
+    size_t new_cap = (*cap == 0) ? 4 : (*cap << 1);
+    while (new_cap < needed) new_cap <<= 1;
+    void *tmp = realloc(*ptr, new_cap * elem_size);
+    if (!tmp) abort();               /* on OOM we abort as required */
+    *ptr = tmp;
+    *cap = new_cap;
+}
+#endif
+
+/* Helper: sum of even digits == sum of odd digits ? */
+static bool equal_even_odd_sum(uint64_t x)
+{
+    int even_sum = 0, odd_sum = 0;
+    while (x > 0)
+    {
+        int d = (int)(x % 10U);
+        if (d % 2 == 0)
+            even_sum += d;
+        else
+            odd_sum += d;
+        x /= 10U;
+    }
+    return even_sum == odd_sum;
+}
 
 /* Helper: test if a 64‑bit number is a semiprime
  * (product of exactly two primes, counting multiplicity). */
@@ -68,7 +118,7 @@ seq_t a(idx_t n)
             {
                 /* Store the term. */
                 seq_t val = (seq_t)next_input;   /* will truncate if too large; judge guarantees fit. */
-                ensure_capacity(cache_len + 1, &cache_cap, (void **)&cache,
+                ensure_capacity(cache_len + 1, &cache_cap, OEISC_VPP(&cache),
                                 sizeof(seq_t));
                 cache[cache_len++] = val;
                 ++next_input;

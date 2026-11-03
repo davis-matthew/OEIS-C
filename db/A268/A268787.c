@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 33 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /*  External integer types supplied by the build.            */
 /* #define idx_t   uint64_t   (example)                        */
@@ -65,7 +67,7 @@ static void ensure_cache(idx_t n)
 {
     if (n == 0) return;
     if (cache_size < n+1) {
-        seq_t *tmp = (seq_t*)realloc(seq_cache, (n+1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seq_cache, (n+1));
         if (!tmp) abort();           /* out of memory */
         seq_cache = tmp;
         cache_size = n;
@@ -76,7 +78,7 @@ static void ensure_cache(idx_t n)
 
     /*  First time: initialise for n = 1  */
     if (computed_n == 0) {
-        memset(cur_dp, 0, sizeof(cur_dp));
+        mem_set(cur_dp, 0, sizeof(cur_dp));
         for (int m = 0; m < 64; ++m) {
             unsigned char h = horiz[m];
             if (h <= 1) cur_dp[m][h] = 1;
@@ -90,7 +92,7 @@ static void ensure_cache(idx_t n)
 
     /*  Grow the cache up to n  */
     for (idx_t row = computed_n + 1; row <= n; ++row) {
-        memset(nxt_dp, 0, sizeof(nxt_dp));
+        mem_set(nxt_dp, 0, sizeof(nxt_dp));
         for (int pm = 0; pm < 64; ++pm) {
             for (int k = 0; k < 2; ++k) {
                 seq_t val = cur_dp[pm][k];

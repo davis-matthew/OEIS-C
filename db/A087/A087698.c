@@ -7,8 +7,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabl
  * Formula:   not stated
- * Range:     u8 n <= 39, u16 n <= 84, u32 n <= 84, u64 n <= 84, u128 n <= 84,
+ * Range:     u8 n <= 82, u16 n <= 84, u32 n <= 84, u64 n <= 84, u128 n <= 84,
  *            big any n
+ * Validated: partial, pass, 85 terms through n = 84 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -25,7 +26,8 @@
  * a(r*(r+1)/2 + k) = T(r,k).
  */
 #include <stdbool.h>
-#include "../utils/binomial.h"   /* provides: static seq_t binomial(idx_t n, idx_t k) */
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 /* Return C(n,k); if k>n then 0.  All parameters are unsigned, so underflow
  * yields a very large number but the > comparison blocks the call. */

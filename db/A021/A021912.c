@@ -7,7 +7,8 @@
  * Formula:   a(n) = ((10^(n+1) / 908) % 10)
  * Range:     u8 n <= 98, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 99 terms through n = 98 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    The result is stored and reused for future calls. */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *digits = NULL;   /* cached digits */
@@ -29,8 +31,7 @@ seq_t a(idx_t n) {
         rem = t % 908;                            /* new remainder */
 
         /* Reallocate the array to hold one more digit */
-        seq_t *tmp = (seq_t *)realloc(digits,
-                                      (digits_len + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, digits, (digits_len + 1));
         if (!tmp) { /* allocation failed – abort on error */
             abort();
         }

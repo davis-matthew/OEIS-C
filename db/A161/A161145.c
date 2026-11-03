@@ -8,7 +8,8 @@
  * Formula:   numbers expressible as product of numbers comprised only of 7's
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 130, u64 n <= 2557,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 9876 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /*-----------------------------------------------------------
    Helper to multiply two seq_t values with overflow detection.
@@ -49,7 +51,7 @@ static void seq_append(seq_t **arr, size_t *cap, size_t *len, seq_t val)
 {
     if (*len == *cap) {
         *cap = (*cap == 0) ? 16 : (*cap << 1);
-        *arr = (seq_t *)realloc(*arr, (*cap) * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, (*cap));
     }
     (*arr)[*len] = val;
     (*len)++;
@@ -72,7 +74,7 @@ static void init_sequence(void)
     /* Create the list of generators up to a generous length (50 digits) */
     const size_t MAX_GENS = 50;
     GEN_len = 0;
-    GEN = (seq_t *)malloc(MAX_GENS * sizeof(seq_t));
+    GEN = mem_new(seq_t, MAX_GENS);
     seq_t repunit = 0;
     for (size_t len = 1; len <= MAX_GENS; ++len) {
         seq_t tmp;
@@ -88,7 +90,7 @@ static void init_sequence(void)
 
     SEQ_cap = 16;
     SEQ_len = 1;
-    SEQ = (seq_t *)malloc(SEQ_cap * sizeof(seq_t));
+    SEQ = mem_new(seq_t, SEQ_cap);
     SEQ[0] = (seq_t)1;   /* a(1) = 1 */
 }
 

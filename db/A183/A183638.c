@@ -8,12 +8,15 @@
  * Formula:   a(n) = 2702 + 301*2^(n+2) + 62*3^(n+1) + 4^(n+1)
  * Range:     u8 none, u16 n <= 4, u32 n <= 14, u64 n <= 30, u128 n <= 62,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 41 terms through n = 188 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -24,9 +27,9 @@ seq_t a(idx_t n)
     seq_t exp_n2 = (seq_t)(n + 2);
 
     /* compute the needed powers */
-    seq_t pow2 = big_pow((seq_t)2, exp_n2);   /* 2^(n+2)  */
-    seq_t pow3 = big_pow((seq_t)3, exp_n1);   /* 3^(n+1)  */
-    seq_t pow4 = big_pow((seq_t)4, exp_n1);   /* 4^(n+1)  */
+    seq_t pow2 = ipow((seq_t)2, exp_n2);   /* 2^(n+2)  */
+    seq_t pow3 = ipow((seq_t)3, exp_n1);   /* 3^(n+1)  */
+    seq_t pow4 = ipow((seq_t)4, exp_n1);   /* 4^(n+1)  */
 
     /* assemble the result according to the closed form */
     seq_t result = (seq_t)2702;

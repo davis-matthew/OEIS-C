@@ -7,8 +7,9 @@
  * Keywords:  nonn, base, easy
  * Formula:   a(n) = product of the positions of the one bits in the binary
  *            expansion of n (most significant bit position 1)
- * Range:     u8 n <= 46, u16 n <= 382, u32 n <= 8190, u64 n <= 9759,
- *            u128 n <= 9759, big any n
+ * Range:     u8 n <= 46, u16 n <= 382, u32 n <= 8190, u64 n <= 16384,
+ *            u128 n <= 16384, big any n
+ * Validated: standard, pass, 87 terms through n = 9759 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

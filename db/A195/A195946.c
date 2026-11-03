@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 15,
  *            big any n
- * Helpers:   big_pow, digit_counts
+ * Validated: partial, pass, 16 terms through n = 16 (2026-11-03)
+ * Helpers:   digit_counts, ipow, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,11 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stddef.h>
 #include "../utils/digit_counts.h"
+#include "../utils/ipow.h"
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;     /* array of computed terms */
 static size_t cache_len = 0;    /* number of stored terms */
@@ -32,12 +36,12 @@ seq_t a(idx_t n)
         /* Grow the cache if necessary */
         if (cache_len >= cache_cap) {
             size_t new_cap = (cache_cap == 0) ? 16 : cache_cap * 2;
-            cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, new_cap);
             cache_cap = new_cap;
         }
 
         /* Compute 11^next_exp */
-        seq_t pow = big_pow((seq_t)11, (seq_t)next_exp);
+        seq_t pow = ipow((seq_t)11, (seq_t)next_exp);
 
         /* Check for zero digits */
         unsigned char cnt[10];

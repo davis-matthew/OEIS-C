@@ -11,13 +11,15 @@
  *            13. The implementation computes the needed co...
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 113 terms through n = 9625 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static const idx_t MAX_N = 10000;          // maximum index we precompute
 
@@ -98,7 +100,7 @@ static void precompute(void)
     }
 
     /* store the cached values: a(n) = prod[n-1]  (n>=1)  */
-    cache = (seq_t *)malloc((MAX_N + 1) * sizeof(seq_t));
+    cache = mem_new(seq_t, (MAX_N + 1));
     if (!cache) {
         exit(1);
     }
@@ -127,7 +129,7 @@ seq_t a(idx_t n)
     /* If a larger n is requested, compute only up to that n on demand. */
     /* (Not required by the problem statement but keeps the function safe.) */
     const idx_t new_size = (idx_t)(n + 1);
-    cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_size);
+    cache = mem_resize(seq_t, cache, new_size);
     if (!cache) {
         exit(1);
     }

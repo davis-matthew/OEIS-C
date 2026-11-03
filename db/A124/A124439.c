@@ -11,7 +11,8 @@
  *            positive when |x| is equal. The sequence is finite
  * Range:     i8 n <= 7, i16 n <= 8, i32 n <= 8, i64 n <= 8, i128 n <= 8,
  *            big any n
- * Helpers:   cmp_mordell
+ * Validated: full, pass, 8 terms through n = 8 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,22 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/cmp_mordell.h"
+#include "../utils/mem.h"
+
+/* Compare two x-values according to Mordell's ordering. */
+static int cmp_mordell(const void *p1, const void *p2)
+{
+    seq_t x = *(const seq_t *)p1;
+    seq_t y = *(const seq_t *)p2;
+    seq_t ax = x < 0 ? (seq_t)(-x) : x;
+    seq_t ay = y < 0 ? (seq_t)(-y) : y;
+
+    if (ax < ay) return -1;
+    if (ax > ay) return 1;
+    if (x < y)   return -1;  /* negative first when |x| = |y| */
+    if (x > y)   return 1;
+    return 0;
+}
 
 /* Upper bound for the search; large enough to contain all known
  * integer solutions for the curve y² = x³ + 17 (the largest solution
@@ -53,7 +69,7 @@ static void compute_solutions(void)
 
     /* Temporary dynamic array to gather solutions. */
     size_t cap = 32;
-    seq_t *tmp = (seq_t *)malloc(cap * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, cap);
     size_t nsol = 0;
 
     for (int64_t ix = -LIMIT; ix <= LIMIT; ++ix) {
@@ -70,14 +86,14 @@ static void compute_solutions(void)
 
             if (nsol == cap) {
                 cap *= 2;
-                tmp = (seq_t *)realloc(tmp, cap * sizeof(seq_t));
+                tmp = mem_resize(seq_t, tmp, cap);
             }
             tmp[nsol++] = xseq;
         }
     }
 
     /* Sort solutions by Mordell ordering. */
-    qsort(tmp, nsol, sizeof(seq_t), cmp_mordell);
+    mem_qsort(tmp, nsol, sizeof(seq_t), cmp_mordell);
 
     /* Copy to static buffer – the sequence is finite. */
     if (nsol > 32) nsol = 32;                  /* just in case */
@@ -86,7 +102,7 @@ static void compute_solutions(void)
     }
     _sol_count = nsol;
 
-    free(tmp);
+    mem_free(tmp);
     _computed = true;
 }
 

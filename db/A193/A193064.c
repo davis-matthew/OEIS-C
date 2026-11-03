@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 4, u32 n <= 4, u64 n <= 4, u128 n <= 4,
  *            big any n
- * Helpers:   mod_pow, next_prime
+ * Validated: full, pass, 4 terms through n = 4 (2026-11-03)
+ * Helpers:   mem, next_prime, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,10 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "../utils/next_prime.h"     /* uint64_t next_prime(uint64_t start); */
-#include "../utils/mod_pow.h"        /* seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod); */
+#include <string.h>
+#include "../utils/next_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static seq_t *seq_arr   = NULL;   /* list of sequence terms */
 static size_t   seq_len = 0, seq_cap = 0;
@@ -40,7 +43,7 @@ static void grow_arr(seq_t **arr, size_t *cap, size_t *len)
     if (*len >= *cap) {
         *cap = (*cap == 0) ? 8 : (*cap << 1);
         #ifdef __cplusplus
-        *arr = static_cast<seq_t*>(realloc(*arr, *cap * sizeof(seq_t)));
+        *arr = mem_resize(seq_t, *arr, (*cap * sizeof(seq_t)) / sizeof(seq_t));
         #else
         *arr = (seq_t*)realloc(*arr, *cap * sizeof(seq_t));
         #endif
@@ -70,7 +73,7 @@ seq_t a(idx_t n)
         for (size_t i = 0; i < pr2_len; ++i) {
             seq_t q = pr2_arr[i];
             if (q >= p) break;                  /* only smaller primes */
-            seq_t leg = mod_pow(q, exp, p);     /* Legendre (q|p) */
+            seq_t leg = powmod(q, exp, p);     /* Legendre (q|p) */
             if (leg == (seq_t)1) {               /* quadratic residue found */
                 ok = false;
                 break;

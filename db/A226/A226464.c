@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabf
  * Formula:   not stated
- * Range:     u8 n <= 9974, u16 n <= 9974, u32 n <= 9974, u64 n <= 9974,
- *            u128 n <= 9974, big any n
- * Helpers:   none
+ * Range:     u8 n <= 14640, u16 n <= 14640, u32 n <= 14640, u64 n <= 14640,
+ *            u128 n <= 14640, big any n
+ * Validated: standard, pass, 102 terms through n = 9974 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *triangle_data = NULL;  /* flattened rows, indexed by global index */
 static size_t   data_capacity  = 0;   /* allocated size of triangle_data */
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* Ensure the global data array exists. */
     if (triangle_data == NULL) {
         data_capacity = 1;
-        triangle_data = (seq_t *)malloc(data_capacity * sizeof(seq_t));
+        triangle_data = mem_new(seq_t, data_capacity);
         if (triangle_data == NULL)
             return (seq_t)0;          /* allocation failure – unlikely */
         triangle_data[0] = (seq_t)0;   /* row 0 consists of a single 0 */
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
         size_t new_cap = data_capacity * 2;
         if (new_cap < (size_t)(n + 1))
             new_cap = (size_t)(n + 1);
-        seq_t *tmp = (seq_t *)realloc(triangle_data, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, triangle_data, new_cap);
         if (tmp == NULL)
             return (seq_t)0;          /* allocation failure – unlikely */
         triangle_data = tmp;
@@ -74,7 +76,7 @@ seq_t a(idx_t n)
             size_t new_cap = data_capacity * 2;
             if (new_cap < (size_t)needed)
                 new_cap = (size_t)needed;
-            seq_t *tmp = (seq_t *)realloc(triangle_data, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, triangle_data, new_cap);
             if (tmp == NULL)
                 return (seq_t)0;          /* allocation failure – unlikely */
             triangle_data = tmp;

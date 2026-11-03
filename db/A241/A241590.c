@@ -7,15 +7,23 @@
  * Formula:   a(n) = numerator of 2^n * (n+1)^(n-1) / n!
  * Range:     u8 n <= 4, u16 n <= 5, u32 n <= 9, u64 n <= 17, u128 n <= 21,
  *            big any n
- * Helpers:   big_pow, seq_mul
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/big_pow.h"
-#include "../utils/seq_mul.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/ipow.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -86,7 +94,7 @@ seq_t a(idx_t n)
     }
     if (expA2 > expB2) {
         idx_t diff = expA2 - expB2;
-        seq_t term = big_pow((seq_t)2, (seq_t)diff);
+        seq_t term = ipow((seq_t)2, (seq_t)diff);
         result = seq_mul(result, term);
     }
 
@@ -107,7 +115,7 @@ seq_t a(idx_t n)
 
         if (expA > expB) {
             idx_t diff = expA - expB;
-            seq_t term = big_pow((seq_t)p, (seq_t)diff);
+            seq_t term = ipow((seq_t)p, (seq_t)diff);
             result = seq_mul(result, term);
         }
     }

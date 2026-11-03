@@ -9,7 +9,8 @@
  *            floor(n/k)^2) / 2 where φ(k) is Euler's totient function
  * Range:     u8 n <= 2, u16 n <= 7, u32 n <= 29, u64 n <= 29, u128 n <= 29,
  *            big any n
- * Helpers:   compute_phi_table
+ * Validated: partial, pass, 29 terms through n = 29 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,20 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/compute_phi_table.h"
+
+static uint64_t *compute_phi_table(idx_t N) {
+    uint64_t *phi = (uint64_t*)malloc((N + 1) * sizeof(uint64_t));
+    if (!phi) return NULL;
+    for (idx_t i = 0; i <= N; ++i) phi[i] = i;
+    for (idx_t i = 2; i <= N; ++i) {
+        if (phi[i] == i) {             // i is prime
+            for (idx_t j = i; j <= N; j += i) {
+                phi[j] -= phi[j] / i;
+            }
+        }
+    }
+    return phi;
+}
 
 seq_t a(idx_t n) {
     if (n == 0) return 0;  /* sequence defined for n>=1 */

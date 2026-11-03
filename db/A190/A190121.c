@@ -8,7 +8,8 @@
  *            k (a(1) = 0)
  * Range:     u8 n <= 26, u16 n <= 413, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 9950 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 /*  Partial sums of the arithmetic derivative function A003415.  */
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- helper: arithmetic derivative of a single integer ---------- */
 static inline seq_t arithmetic_derivative(idx_t n)
@@ -61,7 +63,7 @@ seq_t a(idx_t n)
     {
         /* start with capacity at least n+1 to avoid immediate grow */
         partial_cap = (size_t)n + 1;
-        partial = (seq_t *)calloc(partial_cap, sizeof(seq_t));
+        partial = mem_new(seq_t, partial_cap);
         if (!partial) return (seq_t)0;     /* memory allocation failed */
         partial[0] = (seq_t)0;
         computed_max = 0;
@@ -70,7 +72,7 @@ seq_t a(idx_t n)
     {
         size_t new_cap = partial_cap;
         while (new_cap <= (size_t)n) new_cap <<= 1;
-        seq_t *tmp = (seq_t *)realloc(partial, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, partial, new_cap);
         if (!tmp) return (seq_t)0;          /* memory allocation failed */
         /* zero newly added entries */
         for (size_t i = partial_cap; i < new_cap; ++i) tmp[i] = (seq_t)0;

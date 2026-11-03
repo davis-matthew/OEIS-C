@@ -7,13 +7,15 @@
  * Formula:   a(n) = max_{0<=k<=n} digital_root( binom(n,k) )
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 102 terms through n = 991 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *row = NULL;
 static size_t row_cap = 0;
@@ -27,7 +29,7 @@ static void ensure_cap(seq_t **arr, size_t *cap, idx_t needed)
     if ((size_t)needed <= *cap) return;
     size_t newcap = *cap ? *cap * 2 : 1;
     if (newcap < (size_t)needed) newcap = needed;
-    seq_t *tmp = (seq_t *)realloc(*arr, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *arr, newcap);
     if (!tmp) abort();
     *arr = tmp;
     *cap = newcap;

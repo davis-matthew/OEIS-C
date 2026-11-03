@@ -7,8 +7,9 @@
  * Keywords:  easy, nonn, tabl
  * Formula:   a(n) = 1 if n is a triangular number (n = m*(m+1)/2 for some
  *            m>=0), otherwise 2
- * Range:     u8 n <= 9919, u16 n <= 9919, u32 n <= 9919, u64 n <= 9919,
- *            u128 n <= 9919, big any n
+ * Range:     u8 n <= 22154, u16 n <= 22154, u32 n <= 22154, u64 n <= 22154,
+ *            u128 n <= 22154, big any n
+ * Validated: standard, pass, 121 terms through n = 9919 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,8 +9,9 @@
  *            triangle is listed in row‑major order, so a( n ) = the entry at
  *            index n in that ordering
  * Range:     u8 n <= 196, u16 n <= 644, u32 n <= 2376, u64 n <= 8973,
- *            u128 n <= 9372, big any n
- * Helpers:   none
+ *            u128 n <= 20300, big any n
+ * Validated: standard, pass, 82 terms through n = 9372 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 /* Function implementing a(n) for the OEIS sequence A207974. */
 /* External linkage as required. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Locate the row (r) and column (c) of the entry at position n. */
@@ -37,7 +39,7 @@ seq_t a(idx_t n) {
     if (tri_len == 0) {
         /* First build: rows 0 .. r. */
         size_t new_len = (size_t)(r + 1) * (r + 2) / 2;
-        tri = (seq_t *)calloc(new_len, sizeof(seq_t));
+        tri = mem_new(seq_t, new_len);
         if (!tri) abort();   /* insufficient memory */
 
         /* Compute all rows from 0 to r. */
@@ -67,7 +69,7 @@ seq_t a(idx_t n) {
     } else if (r > max_row) {
         /* Extend the triangle to include rows up to r. */
         size_t new_len = (size_t)(r + 1) * (r + 2) / 2;
-        seq_t *tmp = (seq_t *)realloc(tri, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, tri, new_len);
         if (!tmp) abort();   /* out of memory */
         tri = tmp;
 

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 106, i16 n <= 1006, i32 n <= 10000, i64 n <= 10000,
  *            i128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 92 terms through n = 9452 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Binomial coefficients for k up to 8.  The table is small; values are
    fits in unsigned int. */
@@ -49,7 +51,7 @@ static void ensure_capacity(idx_t n)
            to avoid frequent reallocations. */
         size_t start = (size_t)n + 1;
         if (start < 9) start = 9;
-        cache = (seq_t *)malloc(start * sizeof(seq_t));
+        cache = mem_new(seq_t, start);
         if (cache == NULL) return;   /* should never happen in small tests */
         cap   = start;
         /* Seed base values */
@@ -58,7 +60,7 @@ static void ensure_capacity(idx_t n)
     } else if ((size_t)n >= cap) {
         size_t new_cap = cap * 2;
         if (new_cap <= (size_t)n) new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) return;
         cache = tmp;
         cap   = new_cap;

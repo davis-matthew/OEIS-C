@@ -9,13 +9,15 @@
  *            a(n)=a(1)*a(n-1)+a(2)*a(n-2)+...+a(n-1)*a(1) for n ≥ 5
  * Range:     u8 n <= 8, u16 n <= 12, u32 n <= 21, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 28 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* External linkage as required */
 seq_t a(idx_t n)
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     /* Ensure the array has room for index n */
     if ((size_t)n + 1 > cap) {
         size_t newcap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newcap);
         if (!tmp) abort();          /* out of memory */
         cache = tmp;
         /* zero the new part so that products are correct   */

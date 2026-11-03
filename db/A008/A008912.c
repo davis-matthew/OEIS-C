@@ -10,7 +10,8 @@
  *            this expression taken for all n,k
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* helper to compute the expression for a given n and k */
 static inline seq_t expr_val(idx_t n, idx_t k) {
@@ -51,7 +53,7 @@ static void seq_ensure(size_t needed) {
     if (needed > seq_cap) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 16;
         while (new_cap < needed) new_cap *= 2;
-        seq_vals = (seq_t*)realloc(seq_vals, new_cap * sizeof(seq_t));
+        seq_vals = mem_resize(seq_t, seq_vals, new_cap);
         seq_cap = new_cap;
     }
 }
@@ -61,7 +63,7 @@ static void heap_ensure(size_t needed) {
     if (needed > heap_cap) {
         size_t new_cap = heap_cap ? heap_cap * 2 : 16;
         while (new_cap < needed) new_cap *= 2;
-        heap_arr = (HeapNode*)realloc(heap_arr, new_cap * sizeof(HeapNode));
+        heap_arr = mem_resize(HeapNode, heap_arr, new_cap);
         heap_cap = new_cap;
     }
 }

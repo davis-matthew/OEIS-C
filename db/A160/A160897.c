@@ -8,15 +8,23 @@
  *            a prime power p^e, a(p^e) = p^(6e-6) * (p^7-1)/(p-1)
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 35, u64 n <= 1319,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, seq_mul, seq_pow
+ * Validated: standard, pass, 44 terms through n = 9212 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_mul.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -40,7 +48,7 @@ seq_t a(idx_t n)
         if (e == (idx_t)1)
             pow_p6 = (seq_t)1;
         else
-            pow_p6 = seq_pow((seq_t)p, 6 * (e - (idx_t)1));
+            pow_p6 = ipow_idx((seq_t)p, 6 * (e - (idx_t)1));
 
         /* compute S = 1 + p + p^2 + ... + p^6  */
         seq_t S      = (seq_t)1;

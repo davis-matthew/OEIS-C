@@ -7,6 +7,7 @@
  * Formula:   a(n) = ∏_{i=0..6} floor((n+i)/7)
  * Range:     u8 n <= 15, u16 n <= 34, u32 n <= 166, u64 n <= 3957,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 61 terms through n = 9798 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

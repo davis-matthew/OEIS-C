@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 9, u32 n <= 11, u64 n <= 11, u128 n <= 11,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 11 terms through n = 11 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Integer square root: largest r such that r*r <= n. */
 static inline idx_t _floor_isqrt_u64(idx_t n) {
@@ -47,7 +49,7 @@ static void init(void)
     const size_t COLS = (size_t)MAX_M + 1UL;
     const size_t DP_SIZE = ROWS * COLS;
 
-    seq_t *dp = (seq_t *)calloc(DP_SIZE, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, DP_SIZE);
     if (!dp) return;                   /* unlikely – abort on allocation failure */
 
     /* Base case: one way to represent 0 with 0 squares. */
@@ -71,9 +73,9 @@ static void init(void)
     }
 
     /* Allocate array mapping count → largest m with that count. */
-    seq_t *cache = (seq_t *)calloc((size_t)local_max + 1U, sizeof(seq_t));
+    seq_t *cache = mem_new(seq_t, (size_t)local_max + 1U);
     if (!cache) {
-        free(dp);
+        mem_free(dp);
         return;
     }
 
@@ -84,7 +86,7 @@ static void init(void)
         }
     }
 
-    free(dp);
+    mem_free(dp);
     max_for_count = cache;
     max_count_val = local_max;
 }

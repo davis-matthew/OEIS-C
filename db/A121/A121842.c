@@ -8,14 +8,15 @@
  *            and the smallest prime larger than n³)
  * Range:     u8 n <= 6, u16 n <= 40, u32 n <= 2147, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime_small
+ * Validated: standard, pass, 106 terms through n = 9911 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_prime_small.h"
+#include "../utils/is_prime_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +25,7 @@ seq_t a(idx_t n)
 
     /* Find the next prime > cube64. */
     uint64_t p = cube64 + 1;
-    while (!is_prime_small(p)) {
+    while (!is_prime_seq(p)) {
         ++p;
     }
 

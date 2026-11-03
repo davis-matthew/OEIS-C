@@ -6,8 +6,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, base, easy
  * Formula:   a(n) = 4*A010051(4*n+1) + 2*A010051(4*n+2) + A010051(4*n+3)
- * Range:     u8 n <= 9130, u16 n <= 9130, u32 n <= 9130, u64 n <= 9130,
- *            u128 n <= 9130, big any n
+ * Range:     u8 n <= 14641, u16 n <= 14641, u32 n <= 14641, u64 n <= 14641,
+ *            u128 n <= 14641, big any n
+ * Validated: standard, pass, 103 terms through n = 9130 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,7 @@
 
 /* A010051(k) = 1 if k is prime, 0 otherwise. */
 
+#include <stdbool.h>
 #include "../utils/is_prime.h"
 
 seq_t a(idx_t n) {

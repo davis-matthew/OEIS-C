@@ -10,6 +10,7 @@
  *            n ≥ 0 with offset 0; a(n) = 0 for all n > 32
  * Range:     u8 n <= 10, u16 n <= 14, u32 n <= 32, u64 n <= 32, u128 n <= 32,
  *            big any n
+ * Validated: full, pass, 33 terms through n = 32 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

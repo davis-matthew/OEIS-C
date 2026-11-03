@@ -9,7 +9,8 @@
  *            1
  * Range:     u8 n <= 21, u16 n <= 42, u32 n <= 48, u64 n <= 48, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 48 terms through n = 48 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 #define MAX_DIGITS 256
 
@@ -120,7 +122,7 @@ seq_t a(idx_t n)
     /* Initialize cache on first call. */
     if (cache == NULL) {
         cap   = 64;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) {            /* allocation failure */
             abort();
         }
@@ -155,7 +157,7 @@ seq_t a(idx_t n)
         if (size >= cap) {
             size_t newcap = cap * 2;
             if (newcap < size + 2) newcap = size + 2;
-            seq_t *tmpc = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+            seq_t *tmpc = mem_resize(seq_t, cache, newcap);
             if (!tmpc) {
                 abort();
             }

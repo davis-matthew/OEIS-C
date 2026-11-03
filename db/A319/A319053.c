@@ -9,14 +9,17 @@
  *            entries)
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   usmax, v2_from_64
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-01)
+ * Helpers:   ctz_u64_to_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/usmax.h"
-#include "../utils/v2_from_64.h"
+#include "../utils/ctz_u64_to_u32.h"
+
+/* Simple max for unsigned */
+static unsigned usmax(unsigned a, unsigned b) { return a > b ? a : b; }
 
 /* Fast doubling Fibonacci modulo 2^64 */
 static void fib_pair(idx_t n, uint64_t *fn, uint64_t *fn1)
@@ -48,16 +51,16 @@ seq_t a(idx_t n)
 
     /* v2(F(n+3)) */
     fib_pair(n + 3, &val, &dummy);
-    maxv2 = usmax(maxv2, v2_from_64(val));
+    maxv2 = usmax(maxv2, ctz_u64_to_u32(val));
 
     /* v2(F(n))   */
     fib_pair(n, &val, &dummy);
-    maxv2 = usmax(maxv2, v2_from_64(val));
+    maxv2 = usmax(maxv2, ctz_u64_to_u32(val));
 
     /* v2(F(n-3))  – ignore when n==3 (value 0) */
     if (n > 3) {
         fib_pair(n - 3, &val, &dummy);
-        maxv2 = usmax(maxv2, v2_from_64(val));
+        maxv2 = usmax(maxv2, ctz_u64_to_u32(val));
     }
 
     return (seq_t)(base + maxv2);

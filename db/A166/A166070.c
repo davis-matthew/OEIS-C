@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 1000, u64 n <= 1000, u128 n <= 1000,
  *            big any n
- * Helpers:   is_multiply_perfect
+ * Validated: standard, pass, 76 terms through n = 865 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,64 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/is_multiply_perfect.h"
+#include "../utils/mem.h"
+
+static bool is_multiply_perfect(idx_t k, const uint32_t *spf)
+{
+    if (k < 2) return false;  /* 1 is handled separately */
+
+    /* factorisation of k (at most 7 distinct primes for k <= 200000) */
+    idx_t t = k;
+    uint32_t primes[8];
+    int    exps[8];
+    int    pcnt = 0;
+    while (t > 1) {
+        uint32_t p = spf[t];
+        int e = 0;
+        while (t % p == 0) {
+            t /= p;
+            ++e;
+        }
+        primes[pcnt]   = p;
+        exps[pcnt]     = e;
+        ++pcnt;
+    }
+
+    /* compute sigma(k) = Π (p^(e+1)-1)/(p-1) */
+    seq_t sigma = 1;
+    for (int i = 0; i < pcnt; ++i) {
+        seq_t pow = 1;
+        for (int e = 0; e <= exps[i]; ++e) {
+            pow *= (seq_t)primes[i];
+        }
+        seq_t denom = (seq_t)primes[i] - 1;
+        seq_t geom  = (pow - 1) / denom;
+        sigma *= geom;
+    }
+
+    /* enumerate all proper divisors of k */
+    seq_t divs[2048];
+    size_t sz = 1;
+    divs[0] = 1;
+    for (int i = 0; i < pcnt; ++i) {
+        size_t cur = sz;
+        seq_t mul = 1;
+        for (int e = 1; e <= exps[i]; ++e) {
+            mul *= (seq_t)primes[i];
+            for (size_t j = 0; j < cur; ++j) {
+                divs[sz++] = divs[j] * mul;
+            }
+        }
+    }
+
+    /* check the multiply‑perfect condition */
+    for (size_t i = 0; i < sz; ++i) {
+        seq_t d = divs[i];
+        if (d <= 1 || d == k) continue;
+        if (sigma % d != 0) return false;
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {
@@ -50,7 +108,7 @@ seq_t a(idx_t n)
 
         /* ---------- 2. allocate space for the sequence ---------- */
         terms_cap = 5000;
-        terms     = (seq_t *)malloc(terms_cap * sizeof(seq_t));
+        terms     = mem_new(seq_t, terms_cap);
         if (!terms) abort();
 
         /* ---------- 3. compute all terms up to LIMIT ---------- */
@@ -63,8 +121,7 @@ seq_t a(idx_t n)
             if (add) {
                 if (terms_cnt >= terms_cap) {
                     terms_cap <<= 1;
-                    terms = (seq_t *)realloc(terms,
-                            terms_cap * sizeof(seq_t));
+                    terms = mem_resize(seq_t, terms, terms_cap);
                     if (!terms) abort();
                 }
                 terms[terms_cnt++] = (seq_t)k;

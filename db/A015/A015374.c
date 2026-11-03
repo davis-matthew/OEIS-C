@@ -9,7 +9,8 @@
  *            period length 1365
  * Range:     i8 n <= 2000, i16 n <= 2000, i32 n <= 2000, i64 n <= 2000,
  *            i128 n <= 2000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 97 terms through n = 1874 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 typedef struct {
     idx_t deg;
@@ -28,7 +30,7 @@ static Poly *poly_create(idx_t deg)
 {
     Poly *p = (Poly *)malloc(sizeof(Poly));
     p->deg = deg;
-    p->c = (seq_t *)calloc(deg + 1, sizeof(seq_t));
+    p->c = mem_new(seq_t, deg + 1);
     return p;
 }
 
@@ -36,7 +38,7 @@ static Poly *poly_create(idx_t deg)
 static void poly_free(Poly *p)
 {
     if (p) {
-        free(p->c);
+        mem_free(p->c);
         free(p);
     }
 }

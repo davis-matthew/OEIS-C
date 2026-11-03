@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 63, u16 n <= 9633, u32 n <= 9633, u64 n <= 9633,
- *            u128 n <= 9633, big any n
- * Helpers:   factor_u64, gcd, sigma_of
+ * Range:     u8 n <= 63, u16 n <= 12799, u32 n <= 12800, u64 n <= 12800,
+ *            u128 n <= 12800, big any n
+ * Validated: standard, pass, 101 terms through n = 9633 (2026-11-01)
+ * Helpers:   factor_u64, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,26 @@
 
 /* Precision helpers provided by the harness */
 #include <stddef.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/sigma_of.h"
 #include "../utils/gcd.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 seq_t a(idx_t n)
 {

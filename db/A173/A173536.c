@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 194, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 73 terms through n = 922 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Computes the n-th term of OEIS sequence A173536. */
 seq_t a(idx_t n)
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
 
     /* Allocate an array of size n+1 (indices start at 1).  */
     size_t sz = (size_t)n + 1;
-    seq_t *a = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *a = mem_new(seq_t, sz);
     if (a == NULL)
         abort();                     /* allocation failure */
 
@@ -47,6 +49,6 @@ seq_t a(idx_t n)
         a[i] = 3 * a[i - 3] - 3 * a[i - 6] + a[i - 9];
 
     seq_t result = a[n];
-    free(a);
+    mem_free(a);
     return result;
 }

@@ -11,7 +11,8 @@
  *            (1,2,3,4,…)
  * Range:     i8 none, i16 none, i32 none, i64 n <= 77, i128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* ---------- prime‑power cache ------------------------------------- */
 #define PRIME_POWER_CACHE_CAP 4096
@@ -72,13 +74,13 @@ static void init_prime_powers(void)
 
     /* temporary buffer for collected prime powers */
     size_t buf_cap = 1024;
-    seq_t *buf = (seq_t*)malloc(buf_cap * sizeof(seq_t));
+    seq_t *buf = mem_new(seq_t, buf_cap);
     size_t buf_len = 0;
 
     /* include 1 */
     if (buf_len == buf_cap) {
         buf_cap <<= 1;
-        buf = (seq_t*)realloc(buf, buf_cap * sizeof(seq_t));
+        buf = mem_resize(seq_t, buf, buf_cap);
     }
     buf[buf_len++] = (seq_t)1;
 
@@ -89,7 +91,7 @@ static void init_prime_powers(void)
         while (true) {
             if (buf_len == buf_cap) {
                 buf_cap <<= 1;
-                buf = (seq_t*)realloc(buf, buf_cap * sizeof(seq_t));
+                buf = mem_resize(seq_t, buf, buf_cap);
             }
             buf[buf_len++] = (seq_t)val;
             if (val > MAX_VAL / p) break;         /* avoid overflow */
@@ -117,7 +119,7 @@ static void init_prime_powers(void)
             prime_power_cache[out_len++] = buf[i];
         }
     }
-    free(buf);
+    mem_free(buf);
     prime_power_len = out_len;
 }
 

@@ -12,7 +12,8 @@
  *            by the digit itself. The resulting concate...
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 9, u64 n <= 16, u128 n <= 16,
  *            big any n
- * Helpers:   string_to_seq
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include "../utils/string_to_seq.h"
+
+/* Convert a decimal string to seq_t. */
+static seq_t string_to_seq(const char *s)
+{
+    seq_t v = (seq_t)0;
+    for (; *s; ++s)
+        v = v * (seq_t)10 + (seq_t)(*s - '0');
+    return v;
+}
 
 /* Main sequence function. */
 seq_t a(idx_t n)

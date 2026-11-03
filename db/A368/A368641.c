@@ -8,13 +8,15 @@
  *            π(k‑1) for all k from 2 to n that do NOT divide n)
  * Range:     u8 n <= 40, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Cached pi and prefix‑sum arrays */
 static idx_t   cached_limit = 0u;
@@ -41,10 +43,10 @@ static void ensure_cache(idx_t n)
     }
 
     if (pi_arr)  free(pi_arr);
-    if (sum_arr) free(sum_arr);
+    if (sum_arr) mem_free(sum_arr);
 
     pi_arr  = (idx_t *)malloc((size_t)(limit + 1) * sizeof(idx_t));
-    sum_arr = (seq_t *)malloc((size_t)(limit + 1) * sizeof(seq_t));
+    sum_arr = mem_new(seq_t, (size_t)(limit + 1));
     if (!pi_arr || !sum_arr) exit(1);
 
     pi_arr[0]  = 0;

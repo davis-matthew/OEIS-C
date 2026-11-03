@@ -13,13 +13,15 @@
  *            never assumes any order of calls
  * Range:     u8 n <= 7, u16 n <= 18, u32 n <= 41, u64 n <= 87, u128 n <= 180,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 1905 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* static storage for the sequences and auxiliary indices             */
@@ -40,7 +42,7 @@ static void ensure_cap(idx_t need, seq_t **arr, idx_t *cap)
     if (*cap >= need) return;
     size_t new_cap = (*cap) ? (*cap) * 2 : 4;
     while (new_cap < (size_t)need) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
     if (!tmp) exit(EXIT_FAILURE);
     *arr = tmp;
     *cap = (idx_t)new_cap;

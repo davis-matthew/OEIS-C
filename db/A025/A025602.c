@@ -11,7 +11,8 @@
  *            out‑of‑order queries
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 16, u64 n <= 28, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 400 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Knight move offsets */
 static const int dr[8] = { -2, -2,  2,  2, -1, -1,  1,  1 };
@@ -53,9 +55,9 @@ static void init_knight_graph(void)
             neighbor_count[idx] = cnt;
         }
     }
-    memset(cur_vec, 0, sizeof(cur_vec));
+    mem_set(cur_vec, 0, sizeof(cur_vec));
     cur_vec[0] = 1;               /* start at (0,0) -> index 0 */
-    a_cache = (seq_t *)malloc(sizeof(seq_t) * 1);
+    a_cache = mem_new(seq_t, 1);
     a_cache[0] = (seq_t)0;        /* a(0) = 0 */
     cache_max = 0;
     initialized = true;
@@ -69,9 +71,9 @@ seq_t a(idx_t n)
     }
     if (n > cache_max) {
         /* Extend the cache to include up to n */
-        a_cache = (seq_t *)realloc(a_cache, sizeof(seq_t) * (n + 1));
+        a_cache = mem_resize(seq_t, a_cache, (n + 1));
         for (idx_t step = cache_max + 1; step <= n; ++step) {
-            memset(next_vec, 0, sizeof(next_vec));
+            mem_set(next_vec, 0, sizeof(next_vec));
             for (int i = 0; i < 64; ++i) {
                 if (cur_vec[i]) {
                     seq_t val = cur_vec[i];
@@ -84,7 +86,7 @@ seq_t a(idx_t n)
             }
             /* target corner is (0,7) -> index 7 */
             a_cache[step] = next_vec[7];
-            memcpy(cur_vec, next_vec, sizeof(cur_vec));
+            mem_copy(cur_vec, next_vec, sizeof(cur_vec));
         }
         cache_max = n;
     }

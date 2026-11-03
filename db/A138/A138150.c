@@ -11,7 +11,8 @@
  *            reaches n, then parity of the run index gives the digit
  * Range:     u8 n <= 77, u16 n <= 77, u32 n <= 77, u64 n <= 77, u128 n <= 77,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 77 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* static cache of primes and cumulative sums */
 static uint32_t *prime_cache = NULL;
@@ -52,7 +54,7 @@ static void ensure_up_to_n(idx_t N)
 
                 /* store cumulative sum */
                 seq_t sum = (cum_cnt == 0) ? (seq_t)cand : cum_cache[cum_cnt - 1] + (seq_t)cand;
-                cum_cache = (seq_t *)realloc(cum_cache, (cum_cnt + 1) * sizeof(seq_t));
+                cum_cache = mem_resize(seq_t, cum_cache, (cum_cnt + 1));
                 cum_cache[cum_cnt++] = sum;
                 break;
             }

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 111, u32 n <= 111, u64 n <= 111, u128 n <= 111,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 60 terms through n = 106 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>   /* malloc, calloc, realloc, free, abort */
 #include <stddef.h>   /* size_t */
 #include <stdbool.h>  /* bool */
+#include "../utils/mem.h"
 
 /* Public API ----------------------------------------------------------- */
 seq_t a(idx_t n);
@@ -59,7 +61,7 @@ static void build_terms(idx_t max_val)
     }
 
     /* Free any previous term array */
-    free(terms);
+    mem_free(terms);
     terms = NULL;
     term_len = 0;
     term_cap = 0;
@@ -70,7 +72,7 @@ static void build_terms(idx_t max_val)
             /* Ensure capacity */
             if (term_len == term_cap) {
                 term_cap = term_cap ? term_cap * 2 : 16384;
-                terms = (seq_t *)realloc(terms, term_cap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, term_cap);
                 if (!terms) abort();
             }
             terms[term_len++] = (seq_t)s;

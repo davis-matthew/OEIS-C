@@ -11,18 +11,52 @@
  *            product DP (fixed width)
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 18, u64 n <= 33, u128 n <= 63,
  *            big any n
- * Helpers:   a004113_gcd, alloc_zero, grow_zero, release, seq_is_fixed_width
+ * Validated: standard, pass, 43 terms through n = 491 (2026-11-03)
+ * Helpers:   gcd_i64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/seq_is_fixed_width.h"
-#include "../utils/alloc_zero.h"
-#include "../utils/grow_zero.h"
-#include "../utils/release.h"
-#include "../utils/a004113_gcd.h"
+#include <string.h>
+#include <stdint.h>
+#include "../utils/gcd_i64.h"
+#include "../utils/mem.h"
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
+
+static seq_t *alloc_zero(idx_t len) {
+    seq_t *p = mem_new(seq_t, (size_t)len);
+    for (idx_t i = 0; i < len; i++) p[i] = 0;
+    return p;
+}
+
+static seq_t *grow_zero(seq_t *old, idx_t oldlen, idx_t newlen) {
+    seq_t *p = mem_new(seq_t, (size_t)newlen);
+    if (p == NULL) return NULL;
+    mem_set(p, 0, (size_t)newlen * sizeof(seq_t));
+    if (old != NULL) {
+        mem_copy(p, old, (size_t)oldlen * sizeof(seq_t));
+        mem_free(old);
+    }
+    return p;
+}
+
+static void release(seq_t *v, idx_t len) {
+    for (idx_t i = 0; i < len; i++) v[i] = 0;
+    mem_free(v);
+}
 
 static seq_t *A4113 = NULL;   /* A4113[1..have] valid */
 static seq_t *B4113 = NULL;   /* Euler transform b(0..have-1) (big path) */
@@ -46,7 +80,7 @@ static void a004113_fixed(idx_t n) {
         seq_t c = 1;
         for (idx_t i = 1; i <= imax; i++) {
             seq_t top = m + (seq_t)(i - 1);
-            long long g = a004113_gcd((long long)(top % (seq_t)i), (long long)i);
+            long long g = gcd_i64((long long)(top % (seq_t)i), (long long)i);
             c = (c / (seq_t)(i / (idx_t)g)) * (top / (seq_t)g);
             cs[i] = c;
         }

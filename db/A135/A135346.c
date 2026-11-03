@@ -9,12 +9,14 @@
  *            the number of positive divisors of k (A000005)
  * Range:     u8 n <= 7, u16 n <= 12, u32 n <= 21, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
 
     /* Ensure cache for a[0] exists */
     if (a_len == 0) {
-        a_cache = (seq_t *)malloc(sizeof(seq_t));
+        a_cache = mem_new(seq_t, 1);
         if (!a_cache) exit(EXIT_FAILURE);
         a_cache[0] = (seq_t)1;   /* a(0) = 1 */
         a_len = 1;
@@ -53,7 +55,7 @@ seq_t a(idx_t n)
     if (a_len <= n) {
         idx_t old_len = a_len;
         a_len = n + 1;
-        a_cache = (seq_t *)realloc(a_cache, a_len * sizeof(seq_t));
+        a_cache = mem_resize(seq_t, a_cache, a_len);
         if (!a_cache) exit(EXIT_FAILURE);
         for (idx_t i = old_len; i < a_len; ++i) a_cache[i] = (seq_t)0;
     }

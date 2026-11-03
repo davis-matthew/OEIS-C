@@ -9,11 +9,13 @@
  *            (n>0)
  * Range:     u8 n <= 6, u16 n <= 13, u32 n <= 28, u64 n <= 29, u128 n <= 29,
  *            big any n
+ * Validated: partial, pass, 30 terms through n = 29 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /* ------------------------------------------------------------
    Memoisation utilities that work both in C and in C++17.
    For C, new[]/delete[] are not available, so we fall back to

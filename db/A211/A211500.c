@@ -13,12 +13,14 @@
  *            a(3)=298, a(4)=660, a(5)=1384, a(6)=2890, a(7)=5...
  * Range:     u8 n <= 2, u16 n <= 10, u32 n <= 26, u64 n <= 57, u128 n <= 117,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 43 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static storage for memoisation */
 static seq_t *cache = NULL;          /* array of computed terms (1‑based)    */
@@ -47,13 +49,13 @@ static void ensure_cache(idx_t n)
     idx_t new_cap = (cache_size == 0) ? 18 : cache_size;
     while (new_cap <= n) new_cap *= 2;
 
-    seq_t *new_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_new(seq_t, new_cap);
     if (!new_cache) exit(1);  /* out of memory */
 
     for (idx_t i = 0; i < new_cap; ++i) new_cache[i] = (seq_t)0;
     if (cache) {
         for (idx_t i = 0; i < cache_size; ++i) new_cache[i] = cache[i];
-        free(cache);
+        mem_free(cache);
     }
     cache = new_cache;
     cache_size = new_cap;

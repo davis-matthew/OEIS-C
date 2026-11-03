@@ -9,7 +9,8 @@
  *            corner to any square
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 13, u64 n <= 25, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 394 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -52,14 +54,14 @@ seq_t a(idx_t n)
     if (n == 0)
         return (seq_t)1;
 
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
     dp[0] = (seq_t)1;
 
     seq_t total = 0;  /* will hold a(n) after the loop */
 
     /* iterate from step 1 to n ------------------------------------------------------------- */
     for (idx_t step = 1; step <= n; ++step) {
-        memset(next, 0, sizeof(next));
+        mem_set(next, 0, sizeof(next));
 
         for (int pos = 0; pos < 64; ++pos) {
             seq_t ways = dp[pos];
@@ -71,7 +73,7 @@ seq_t a(idx_t n)
         }
 
         /* after propagation, dp will contain counts for this step ----------------------------- */
-        memcpy(dp, next, sizeof(dp));
+        mem_copy(dp, next, sizeof(dp));
 
         /* sum over all squares to get total number of paths of length 'step' -------------------- */
         total = (seq_t)0;

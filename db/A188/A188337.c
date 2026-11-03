@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 8, u32 n <= 86, u64 n <= 200, u128 n <= 200,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 48 terms through n = 187 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
  */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Brute‑force calculation for n ≤ 22.
  * Count non‑decreasing 7‑tuples of non‑zero integers in [-(n+5)..-(1)]∪[1..(n+5)] whose sum is 0. */
@@ -34,7 +36,7 @@ static seq_t brute_a(idx_t n)
     int offset = 7 * (int)m;
 
     /* DP table: rows for used numbers (0..7), columns for sum index (0..range-1) */
-    seq_t *dp = (seq_t *)calloc(8 * range, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, 8 * range);
     if (!dp) exit(1);
     dp[0 * range + offset] = 1;
 
@@ -70,7 +72,7 @@ static seq_t brute_a(idx_t n)
     }
 
     seq_t result = dp[7 * range + offset];
-    free(dp);
+    mem_free(dp);
     return result;
 }
 
@@ -85,7 +87,7 @@ static void ensure_capacity(idx_t n)
     if (n <= s_cap) return;
     idx_t new_cap = s_cap ? s_cap * 2 : 64;
     if (new_cap < n) new_cap = n;
-    seq_t *new_cache = (seq_t *)realloc(s_cache, sizeof(seq_t) * new_cap);
+    seq_t *new_cache = mem_resize(seq_t, s_cache, new_cap);
     if (!new_cache) exit(1);
     s_cache = new_cache;
     s_cap   = new_cap;

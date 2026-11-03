@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 244, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   good_number
+ * Validated: standard, pass, 88 terms through n = 9614 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,44 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/good_number.h"
+#include "../utils/mem.h"
+
+/* Helper that returns true if a number satisfies the condition. */
+static bool good_number(unsigned long long x)
+{
+    unsigned long long n = x;
+    unsigned long long sum_distinct = 0;
+    unsigned long long sum_exponents = 0;
+
+    /* handle the trivial case x == 1 */
+    if (n == 1ULL)
+        return true;
+
+    /* factor by trial division */
+    unsigned long long p = 2ULL;
+    while (p * p <= n) {
+        if (n % p == 0) {
+            unsigned long long exp = 0;
+            sum_distinct += p;
+            while (n % p == 0) {
+                n /= p;
+                exp++;
+            }
+            sum_exponents += exp;
+        }
+        if (p == 2ULL)
+            p = 3ULL;
+        else
+            p += 2ULL;
+    }
+    /* n > 1 now means it is a prime factor larger than sqrt(original n) */
+    if (n > 1ULL) {
+        sum_distinct += n;
+        sum_exponents += 1ULL;
+    }
+
+    return sum_distinct >= sum_exponents;
+}
 
 /* The types seq_t and idx_t are supplied by the build system. */
 
@@ -37,7 +75,7 @@ seq_t a(idx_t n)
     /* initialize the dynamic array lazily */
     if (valid == NULL) {
         cap = 128;  /* arbitrary small start */
-        valid = (seq_t *)malloc(cap * sizeof(seq_t));
+        valid = mem_new(seq_t, cap);
         if (valid == NULL)
             return (seq_t)0;  /* out‑of‑memory - should not happen */
     }
@@ -49,7 +87,7 @@ seq_t a(idx_t n)
             /* enlarge storage if necessary */
             if (valid_len >= cap) {
                 cap *= 2;
-                seq_t *tmp = (seq_t *)realloc(valid, cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, valid, cap);
                 if (tmp == NULL)
                     return (seq_t)0;  /* out‑of‑memory */
                 valid = tmp;

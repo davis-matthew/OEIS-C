@@ -8,7 +8,8 @@
  * Formula:   a(n) = A045753(n) + A123986(n)
  * Range:     u8 n <= 13, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_prime.h"   /* bool is_prime(idx_t x); */
+#include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -33,8 +35,8 @@ seq_t a(idx_t n)
     /* Initial allocation on the first call */
     if (list1 == NULL) {
         const idx_t init_cap = 2000; /* enough for small n, will grow as needed */
-        list1 = (seq_t *)malloc(init_cap * sizeof(seq_t));
-        list2 = (seq_t *)malloc(init_cap * sizeof(seq_t));
+        list1 = mem_new(seq_t, init_cap);
+        list2 = mem_new(seq_t, init_cap);
         list1_cap = list2_cap = init_cap;
     }
 
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
         if (is_prime(p1) && is_prime(p2)) {
             if (list1_size == list1_cap) {
                 list1_cap <<= 1;
-                list1 = (seq_t *)realloc(list1, list1_cap * sizeof(seq_t));
+                list1 = mem_resize(seq_t, list1, list1_cap);
             }
             list1[list1_size++] = (seq_t)k;
         }
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
         if (is_prime(p1) && is_prime(p2)) {
             if (list2_size == list2_cap) {
                 list2_cap <<= 1;
-                list2 = (seq_t *)realloc(list2, list2_cap * sizeof(seq_t));
+                list2 = mem_resize(seq_t, list2, list2_cap);
             }
             list2[list2_size++] = (seq_t)k;
         }

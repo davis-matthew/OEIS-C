@@ -10,12 +10,15 @@
  *            (1+2*x+3*x^2)^n
  * Range:     u8 n <= 20, u16 n <= 70, u32 n <= 210, u64 n <= 757,
  *            u128 n <= 2667, big any n
- * Helpers:   binom, pow2, pow3
+ * Validated: standard, pass, 74 terms through n = 8708 (2026-11-01)
+ * Helpers:   binomial, pow2, pow3
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "../utils/binomial.h"
 #include "../utils/pow2.h"
 #include "../utils/pow3.h"
 
@@ -48,8 +51,8 @@ seq_t a(idx_t n)
     for (idx_t j = 0; j <= k >> 1; ++j) {
         idx_t kmj = k - j;                /* k - j */
         idx_t exp2 = k - (j << 1);       /* k - 2j */
-        seq_t term = binom(r, kmj);
-        term *= binom(kmj, j);
+        seq_t term = binomial(r, kmj);
+        term *= binomial(kmj, j);
         term *= pow2(exp2);
         term *= pow3(j);
         sum += term;

@@ -11,12 +11,14 @@
  *            call order
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 27, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 28 terms through n = 27 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init[9] = {
     (seq_t)1, (seq_t)7, (seq_t)65, (seq_t)1,
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
         if (n + 1 > cache_cap) {
             idx_t new_cap = cache_cap ? cache_cap * 2 : 8;
             while (new_cap <= n) new_cap *= 2;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (tmp == NULL) abort();   /* allow failing fast */
             cache = tmp;
             cache_cap = new_cap;

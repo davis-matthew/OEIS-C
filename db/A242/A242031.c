@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 239, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   exponents_nonincreasing
+ * Validated: standard, pass, 85 terms through n = 9367 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,7 +28,33 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/exponents_nonincreasing.h"
+
+static bool exponents_nonincreasing(uint64_t m)
+{
+    uint64_t prev = (uint64_t)-1;   /* start with "infinite" exponent */
+    uint64_t n = m;
+
+    for (uint64_t p = 2; p * p <= n; ++p)
+    {
+        if (n % p == 0)
+        {
+            uint64_t e = 0;
+            while (n % p == 0)
+            {
+                n /= p;
+                ++e;
+            }
+            if (e > prev)          /* exponents must not increase */
+                return false;
+            prev = e;
+        }
+    }
+    /* Remaining prime factor (if any) has exponent 1 */
+    if (n > 1 && 1 > prev)
+        return false;
+
+    return true;
+}
 
 seq_t a(idx_t n)
 {

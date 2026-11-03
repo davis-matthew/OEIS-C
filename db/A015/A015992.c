@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 41 terms through n = 40 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper: reverse the decimal representation of x */
 static seq_t reverse_decimal(seq_t x)
@@ -47,7 +49,7 @@ static seq_t next_start = 0;
 static void grow_cache(void)
 {
     size_t new_cap = cached_cap ? cached_cap * 2 : 16;
-    seq_t *tmp = (seq_t *)realloc(cached, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cached, new_cap);
     if (!tmp) abort();
     cached = tmp;
     cached_cap = new_cap;

@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum of proper divisors of n that are triangular numbers
  * Range:     u8 n <= 96, u16 n <= 96, u32 n <= 96, u64 n <= 96, u128 n <= 96,
  *            big any n
+ * Validated: partial, pass, 96 terms through n = 96 (2026-11-01)
  * Helpers:   factor_u64, is_triangular_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
 #include "../utils/is_triangular_idx.h"
 

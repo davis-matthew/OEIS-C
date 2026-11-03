@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 43, u32 n <= 55, u64 n <= 55, u128 n <= 55,
  *            big any n
- * Helpers:   tri_count
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-03)
+ * Helpers:   mem, triangular
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,8 @@
    The linear sequence a(n) is obtained by reading the triangle by rows. */
 
 #include <stdlib.h>
-#include "../utils/tri_count.h"
+#include "../utils/triangular.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -34,11 +36,11 @@ seq_t a(idx_t n)
 
     /* Find the row containing the n-th term (1‑based row number) */
     idx_t lo = 1, hi = 1;
-    while (tri_count(hi) < n) hi <<= 1;
+    while (triangular(hi) < n) hi <<= 1;
     while (lo < hi)
     {
         idx_t mid = (lo + hi) >> 1;
-        if (tri_count(mid) >= n) hi = mid;
+        if (triangular(mid) >= n) hi = mid;
         else                      lo = mid + 1;
     }
     idx_t row = lo;       /* row of the n‑th term */
@@ -47,10 +49,10 @@ seq_t a(idx_t n)
     if (row > rows)
     {
         idx_t new_rows = row;
-        size_t new_total = (size_t)tri_count(new_rows);
+        size_t new_total = (size_t)triangular(new_rows);
 
         /* Reallocate with an explicit cast to accept void* in C++ */
-        seq_t *tmp = (seq_t *)realloc(tri, new_total * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, tri, new_total);
         if (!tmp) exit(1);   /* out of memory */
         tri = tmp;
 
@@ -60,7 +62,7 @@ seq_t a(idx_t n)
             for (idx_t c = 1; c <= r; ++c)
             {
                 /* Index of T(r,c) in the flat array */
-                idx_t pos = tri_count(r - 1) + c - 1;
+                idx_t pos = triangular(r - 1) + c - 1;
 
                 if (r == 1 && c == 1)
                 {
@@ -80,21 +82,21 @@ seq_t a(idx_t n)
                 /* Upper‑left neighbor (r-1, c-1) */
                 if (r > 1 && c > 1)
                 {
-                    seq_t v = tri[tri_count(r - 2) + c - 2];
+                    seq_t v = tri[triangular(r - 2) + c - 2];
                     if (v > max1) { max2 = max1; max1 = v; }
                     else if (v > max2) max2 = v;
                 }
                 /* Upper‑right neighbor (r-1, c) */
                 if (r > 1 && c <= r - 1)
                 {
-                    seq_t v = tri[tri_count(r - 2) + c - 1];
+                    seq_t v = tri[triangular(r - 2) + c - 1];
                     if (v > max1) { max2 = max1; max1 = v; }
                     else if (v > max2) max2 = v;
                 }
                 /* Upper‑right‑extended neighbor (r-1, c+1) */
                 if (r > 1 && c <= r - 2)
                 {
-                    seq_t v = tri[tri_count(r - 2) + c];
+                    seq_t v = tri[triangular(r - 2) + c];
                     if (v > max1) { max2 = max1; max1 = v; }
                     else if (v > max2) max2 = v;
                 }
@@ -107,6 +109,6 @@ seq_t a(idx_t n)
     }
 
     /* Return the n‑th term */
-    idx_t offset = tri_count(row - 1);
+    idx_t offset = triangular(row - 1);
     return tri[offset + (n - offset - 1)];
 }

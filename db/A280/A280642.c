@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 1985, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   big_pow, digit_len, pow10
+ * Validated: standard, pass, 69 terms through n = 9120 (2026-11-03)
+ * Helpers:   ipow, mem, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,9 +27,19 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/big_pow.h"   /* seq_t big_pow(seq_t base, seq_t exp); */
-#include "../utils/digit_len.h" /* int digit_len(seq_t x); */
-#include "../utils/pow10.h"      /* seq_t pow10(idx_t e); */
+#include "../utils/ipow.h"
+#include "../utils/num_digits.h"
+#include "../utils/mem.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 static seq_t *cache   = NULL;   /* cached terms of the sequence */
 static size_t  cap     = 0;     /* capacity of cache array */
@@ -41,7 +52,7 @@ static void ensure_capacity(size_t need)
     if (cap >= need) return;
     size_t newcap = cap ? cap * 2 : 4;
     while (newcap < need) newcap *= 2;
-    seq_t *tmp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, newcap);
     if (!tmp) exit(EXIT_FAILURE); /* abort on allocation failure */
     cache = tmp;
     cap = newcap;
@@ -55,8 +66,8 @@ seq_t a(idx_t n)
     /* Generate terms until we have at least n terms cached. */
     while (len < (size_t)n) {
         seq_t k = (seq_t)curr_k;
-        seq_t cube = big_pow(k, 3);          /* k^3 */
-        int dlen = digit_len(cube);          /* number of decimal digits */
+        seq_t cube = ipow(k, 3);          /* k^3 */
+        int dlen = num_digits(cube);          /* number of decimal digits */
 
         if ((dlen & 1) &&                /* odd length? */
             ((cube / pow10(dlen / 2)) % 10) == (seq_t)2) {

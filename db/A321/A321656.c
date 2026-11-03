@@ -8,14 +8,18 @@
  *            distinct (duplicates in the Fibonacci sequence are skipped)
  * Range:     u8 n <= 10, u16 n <= 16, u32 n <= 17, u64 n <= 17, u128 n <= 17,
  *            big any n
- * Helpers:   digit_counts, digit_len
+ * Validated: full, pass, 17 terms through n = 17 (2026-11-02)
+ * Helpers:   digit_counts, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <stddef.h>
 #include "../utils/digit_counts.h"
-#include "../utils/digit_len.h"
+#include "../utils/num_digits.h"
 
 static bool is_distinct_digits(seq_t x)
 {
@@ -61,7 +65,7 @@ seq_t a(idx_t n)
 
         /* All numbers with more than 10 digits cannot have all distinct digits.
            Once we reach that length we can stop searching. */
-        if (digit_len(fib) > 10) break;
+        if (num_digits(fib) > 10) break;
 
         ++fib_idx;
     }

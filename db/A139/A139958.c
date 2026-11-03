@@ -10,7 +10,8 @@
  *            utilities
  * Range:     u8 n <= 4, u16 n <= 421, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 58 terms through n = 9850 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Residues modulo 408 that primes of this form must have. */
 static const unsigned residues[8] = {35, 59, 83, 155, 179, 203, 251, 395};
@@ -89,7 +91,7 @@ static void grow_cache(idx_t need)
     idx_t new_cap = cache_cap ? cache_cap * 2 : 16;
     while (new_cap < need)
         new_cap <<= 1;
-    seq_t *newptr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *newptr = mem_resize(seq_t, cache, new_cap);
     if (!newptr)
         abort();    /* unrecoverable */
     cache = newptr;

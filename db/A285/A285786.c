@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 859, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   set_composite
+ * Validated: standard, pass, 86 terms through n = 8247 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,7 +29,12 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/set_composite.h"
+
+/* ---------- helper for the bit‑set sieve --------------------------------- */
+static inline void set_composite(uint8_t *sieve, idx_t i)
+{
+    sieve[i >> 3] |= (uint8_t)(1 << (i & 7));
+}
 
 static inline bool is_composite(const uint8_t *sieve, idx_t i)
 {

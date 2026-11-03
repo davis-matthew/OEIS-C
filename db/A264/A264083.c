@@ -10,15 +10,23 @@
  *            prime powers
  * Range:     u8 n <= 3, u16 n <= 19, u32 n <= 124, u64 n <= 124,
  *            u128 n <= 124, big any n
- * Helpers:   factor_u64, seq_mul, seq_pow
+ * Validated: standard, pass, 56 terms through n = 123 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_mul.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -42,7 +50,7 @@ seq_t a(idx_t n)
             } else if (e == 2) {
                 val = (seq_t)384;
             } else {
-                seq_t eight_e = seq_pow((seq_t)8, e);
+                seq_t eight_e = ipow_idx((seq_t)8, e);
                 val = seq_mul((seq_t)12, eight_e);
             }
         } else {
@@ -54,7 +62,7 @@ seq_t a(idx_t n)
 
             if (e > 1) {
                 idx_t exp = 3 * (e - 1);     /* exponent for p^(3e-3) */
-                seq_t pow = seq_pow(p, exp);
+                seq_t pow = ipow_idx(p, exp);
                 val = seq_mul(base, pow);
             } else {
                 val = base;

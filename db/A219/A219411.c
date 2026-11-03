@@ -11,12 +11,14 @@
  *            a(5)=351
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 17, u64 n <= 35, u128 n <= 69,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;   /* array of cached terms, 0‑based */
 static idx_t cache_len = 0;   /* number of terms currently cached */
@@ -30,7 +32,7 @@ static void ensure_cache(idx_t n)
     /* First time: create space for the 5 known initial terms */
     if (cache_len == 0) {
         idx_t const base_len = 5;
-        cache = (seq_t*)malloc(base_len * sizeof(seq_t));
+        cache = mem_new(seq_t, base_len);
         if (!cache) abort();
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)7;
@@ -43,7 +45,7 @@ static void ensure_cache(idx_t n)
     }
 
     /* Grow the cache to hold n terms */
-    seq_t *tmp = (seq_t*)realloc(cache, n * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, n);
     if (!tmp) abort();
     cache = tmp;
 

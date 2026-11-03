@@ -13,7 +13,8 @@
  *            horizontal and vertical neighbors by exactly one
  * Range:     u8 none, u16 n <= 2, u32 n <= 6, u64 n <= 15, u128 n <= 33,
  *            big any n
- * Helpers:   abs_int, compute_stat
+ * Validated: standard, pass, 31 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,8 +29,28 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>   /* for uint64_t */
-#include "../utils/abs_int.h"
-#include "../utils/compute_stat.h"
+#include "../utils/mem.h"
+
+/* simple absolute value for int */
+static inline int abs_int(int x) { return x < 0 ? -x : x; }
+
+/* compute statistic for a 2×2 block */
+static inline int compute_stat(int a0, int a1, int b0, int b1)
+{
+    int v[4] = {a0, a1, b0, b1};
+    /* simple insertion sort for 4 items */
+    for (int i = 1; i < 4; ++i) {
+        int key = v[i];
+        int j = i - 1;
+        while (j >= 0 && v[j] > key) {
+            v[j + 1] = v[j];
+            --j;
+        }
+        v[j + 1] = key;
+    }
+    /* v[0] <= v[1] <= v[2] <= v[3] */
+    return v[3] + v[0] - v[2] - v[1];
+}
 
 /* helper used by the precomputation (no external name clashes) */
 
@@ -142,8 +163,8 @@ seq_t a(idx_t n)
     }
 
     /* DP arrays */
-    seq_t *dp      = (seq_t*)calloc(V, sizeof(seq_t));
-    seq_t *dp_next = (seq_t*)calloc(V, sizeof(seq_t));
+    seq_t *dp      = mem_new(seq_t, V);
+    seq_t *dp_next = mem_new(seq_t, V);
 
     /* base: all valid first two rows contribute one arrangement each */
     for (int i = 0; i < V; ++i)
@@ -167,7 +188,7 @@ seq_t a(idx_t n)
         seq_t *tmp = dp;
         dp = dp_next;
         dp_next = tmp;
-        memset(dp_next, 0, sizeof(seq_t) * V);
+        mem_set(dp_next, 0, sizeof(seq_t) * V);
     }
 
     /* sum all ways for the final state */
@@ -175,7 +196,7 @@ seq_t a(idx_t n)
     for (int i = 0; i < V; ++i)
         total += dp[i];
 
-    free(dp);
-    free(dp_next);
+    mem_free(dp);
+    mem_free(dp_next);
     return total;
 }

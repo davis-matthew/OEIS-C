@@ -11,7 +11,8 @@
  *            sums are nondecreasing in every row and every column
  * Range:     u8 none, u16 n <= 1, u32 n <= 9, u64 n <= 30, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 77 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* Constants ----------------------------------------------------------- */
@@ -192,12 +194,12 @@ static void init_preprocess(void)
     free(row_transition_count);
 
     /* 6.  Allocate DP arrays for state counts. */
-    cur_counts = (seq_t *)calloc(TOTAL_STATES, sizeof(seq_t));
-    next_counts = (seq_t *)calloc(TOTAL_STATES, sizeof(seq_t));
+    cur_counts = mem_new(seq_t, TOTAL_STATES);
+    next_counts = mem_new(seq_t, TOTAL_STATES);
 
     /* 7.  Allocate value cache (a(0) unused). */
     cache_size = 2U;                /* at least index 0 and 1 */
-    value_cache = (seq_t *)calloc(cache_size, sizeof(seq_t));
+    value_cache = mem_new(seq_t, cache_size);
     value_cache[0] = 0;             /* unused */
 }
 
@@ -208,7 +210,7 @@ static void ensure_cache(idx_t n)
 {
     if ((idx_t)(n + 1) > cache_size) {
         idx_t newSize = (n + 1) * 2;
-        seq_t *tmp = (seq_t *)realloc(value_cache, newSize * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, value_cache, newSize);
         if (!tmp) exit(1);
         for (idx_t i = cache_size; i < newSize; ++i) tmp[i] = 0;
         value_cache = tmp;
@@ -226,7 +228,7 @@ static void compute_to(idx_t n)
 
         if (last_computed == 1) {
             /* first pair of rows */
-            memset(cur_counts, 0, TOTAL_STATES * sizeof(seq_t));
+            mem_set(cur_counts, 0, TOTAL_STATES * sizeof(seq_t));
             for (int x = 0; x < ROWS; ++x) {
                 size_t start = trans_start[x];
                 size_t end   = trans_start[x + 1];
@@ -246,7 +248,7 @@ static void compute_to(idx_t n)
         }
 
         /* subsequent rows */
-        memset(next_counts, 0, TOTAL_STATES * sizeof(seq_t));
+        mem_set(next_counts, 0, TOTAL_STATES * sizeof(seq_t));
 
         for (size_t state = 0; state < TOTAL_STATES; ++state) {
             seq_t curVal = cur_counts[state];

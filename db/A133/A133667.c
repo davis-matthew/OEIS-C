@@ -7,13 +7,15 @@
  * Formula:   a(n) = a(n-1) - 25*a(n-2), a(0) = 1, a(1) = 5
  * Range:     i8 n <= 2, i16 n <= 6, i32 n <= 13, i64 n <= 21, i128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 22 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* static cache for memoization */
 static seq_t *cache = NULL;
@@ -26,11 +28,11 @@ static void ensure_cache(idx_t n)
     if (n < cache_len) return;
     idx_t new_cap = cache_cap ? cache_cap * 2 : 1;
     while (new_cap <= n) new_cap <<= 1;
-    seq_t *tmp = (seq_t*)malloc(new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, new_cap);
     if (!tmp) abort();
     if (cache) {
-        memcpy(tmp, cache, cache_len * sizeof(seq_t));
-        free(cache);
+        mem_copy(tmp, cache, cache_len * sizeof(seq_t));
+        mem_free(cache);
     }
     cache = tmp;
     cache_cap = new_cap;

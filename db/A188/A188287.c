@@ -7,13 +7,15 @@
  * Formula:   a(n) = Sum_{k=0..n} A000085(k) * A000085(n-k)
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 18, u64 n <= 31, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 197 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache for involution numbers A000085 */
 static seq_t *inv_cache = NULL;  /* array of values 0..n */
@@ -32,9 +34,9 @@ static void ensure_inv(idx_t n)
         new_cap <<= 1;
 
     if (inv_cache == NULL) {
-        inv_cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        inv_cache = mem_new(seq_t, new_cap);
     } else {
-        seq_t *tmp = (seq_t *)realloc(inv_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, inv_cache, new_cap);
         if (tmp == NULL) {
             /* Allocation failed – abort to avoid undefined behaviour */
             abort();

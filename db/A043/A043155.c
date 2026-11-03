@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 7, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   has04
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,26 @@
    n up to about 10000. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/has04.h"
+#include "../utils/mem.h"
+
+/* Return true iff the octal representation of x contains the digits
+   0 and 4 consecutively (in either order). */
+static bool has04(seq_t x)
+{
+    if (x == 0) return false;          /* single digit 0 has no adjacency */
+
+    int prev = (int)(x % 8);
+    x /= 8;
+    while (x > 0)
+    {
+        int cur = (int)(x % 8);
+        if ((cur == 0 && prev == 4) || (cur == 4 && prev == 0))
+            return true;
+        prev = cur;
+        x /= 8;
+    }
+    return false;
+}
 
 /* Append val to the dynamic array *buf[.0..size-1], growing it if
    necessary.  The array is reallocated using realloc; we cast the
@@ -33,7 +53,7 @@ static void append(seq_t **buf, size_t *size, size_t *cap, seq_t val)
     if (*size >= *cap)
     {
         *cap = (*cap == 0) ? 16 : (*cap << 1);
-        *buf = (seq_t *)realloc(*buf, *cap * sizeof(seq_t));
+        *buf = mem_resize(seq_t, *buf, (*cap * sizeof(seq_t)) / sizeof(seq_t));
     }
     (*buf)[(*size)++] = val;
 }

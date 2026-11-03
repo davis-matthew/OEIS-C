@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 4, i16 n <= 7, i32 n <= 11, i64 n <= 18, i128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,6 +31,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 static seq_t *H_arr = NULL;   /* coefficients of 1 + sin(x)exp(-x)   */
 static seq_t *b_arr = NULL;   /* coefficients of 1 / H(x)             */
@@ -45,10 +47,10 @@ static void ensure_cache(idx_t n)
         return;
 
     /* Reallocate all arrays to the new size */
-    H_arr = (seq_t *)realloc(H_arr, needed * sizeof(seq_t));
-    b_arr = (seq_t *)realloc(b_arr, needed * sizeof(seq_t));
-    d_arr = (seq_t *)realloc(d_arr, needed * sizeof(seq_t));
-    a_arr = (seq_t *)realloc(a_arr, needed * sizeof(seq_t));
+    H_arr = mem_resize(seq_t, H_arr, needed);
+    b_arr = mem_resize(seq_t, b_arr, needed);
+    d_arr = mem_resize(seq_t, d_arr, needed);
+    a_arr = mem_resize(seq_t, a_arr, needed);
     if (!H_arr || !b_arr || !d_arr || !a_arr)
         abort();
 

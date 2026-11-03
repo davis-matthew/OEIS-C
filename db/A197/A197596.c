@@ -7,7 +7,8 @@
  * Formula:   a(n) = floor((7*n + 1/n)^n)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 5, u64 n <= 10, u128 n <= 12,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 30 terms through n = 296 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,7 +16,8 @@
 /* = floor((7*n^2 + 1)^n / n^n) */
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 static inline _Bool mul_uint128_overflow(unsigned __int128 a,
                                          unsigned __int128 b,
@@ -81,8 +83,8 @@ seq_t a(idx_t n)
         /* arbitrary‑precision build */
         seq_t base_big = (seq_t)n;
         base_big = 7 * base_big * base_big + 1;        /* 7n^2+1 */
-        seq_t num_big = big_pow(base_big, n);          /* (7n^2+1)^n */
-        seq_t den_big = big_pow(n, n);                 /* n^n      */
+        seq_t num_big = ipow(base_big, n);          /* (7n^2+1)^n */
+        seq_t den_big = ipow(n, n);                 /* n^n      */
         return num_big / den_big;
     }
 }

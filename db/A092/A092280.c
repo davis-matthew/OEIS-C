@@ -9,13 +9,40 @@
  *            removed, then period_of(k) = multiplicative order of 10 modulo m
  * Range:     u8 n <= 45, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   period_of
+ * Validated: partial, pass, 60 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/period_of.h"
+#include "../utils/mem.h"
+
+static seq_t period_of(idx_t k)
+{
+    idx_t m = k;
+
+    /* strip powers of 2 */
+    while ((m & 1ULL) == 0) {
+        m >>= 1;
+    }
+    /* strip powers of 5 */
+    while ((m % 5ULL) == 0) {
+        m /= 5;
+    }
+
+    if (m == 1ULL) {
+        return (seq_t)0;
+    }
+
+    uint64_t r = 10 % m;
+    seq_t order = 1;
+    while (r != 1ULL) {
+        r = (r * 10ULL) % m;
+        ++order;
+    }
+    return order;
+}
 
 seq_t a(idx_t n)
 {
@@ -30,7 +57,7 @@ seq_t a(idx_t n)
         size_t old_cap = cap;
         size_t new_cap = (size_t)n + 1;
 
-        cum = (seq_t *)realloc(cum, new_cap * sizeof(seq_t));
+        cum = mem_resize(seq_t, cum, new_cap);
         if (old_cap == 0) {
             cum[0] = (seq_t)0;
             cum[1] = (seq_t)0;

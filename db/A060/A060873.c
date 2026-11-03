@@ -8,7 +8,8 @@
  * Formula:   a(n) = the nth intrinsic 3–palindrome (A060873)
  * Range:     u8 n <= 34, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_3pal
+ * Validated: standard, pass, 79 terms through n = 917 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,32 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/is_3pal.h"
+#include "../utils/mem.h"
+
+static inline bool is_3pal(seq_t m)
+{
+    const seq_t FIVE = 5;
+    const seq_t ZERO = 0;
+    if (m < FIVE) return false;        /* minimal intrinsic 3–palindrome is 5 */
+
+    for (seq_t b = 2; ; ++b) {
+        const seq_t bb = b * b;        /* b² */
+        if (bb > m) break;            /* larger bases impossible */
+
+        const seq_t d2 = m % b;        /* leading digit */
+        if (d2 == ZERO) continue;      /* leading digit cannot be 0 */
+
+        const seq_t prod = d2 * (bb + (seq_t)1); /* d2·(b²+1) */
+        if (prod > m) continue;
+
+        const seq_t diff = m - prod;
+        if (diff % b != ZERO) continue; /* d1 must be integer */
+
+        const seq_t d1 = diff / b;
+        if (d1 < b) return true;         /* valid representation found */
+    }
+    return false;
+}
 
 /* ----- cache of computed terms ---- */
 static seq_t *cache = (seq_t*)NULL;   /* ascending list of intrinsic 3–palindromes */
@@ -36,7 +62,7 @@ static void ensure_cache_capacity(size_t need)
     size_t new_cap = cache_cap ? cache_cap << 1 : 16;
     while (new_cap < need) new_cap <<= 1;
     /* realloc returns void* – cast explicitly for C++ */
-    void *p = realloc(cache, new_cap * sizeof(seq_t));
+    void *p = mem_resize(seq_t, cache, new_cap);
     if (!p) exit(EXIT_FAILURE);        /* allocation failed */
     cache = (seq_t*)p;
     cache_cap = new_cap;

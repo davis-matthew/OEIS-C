@@ -11,6 +11,7 @@
  *            n >= 3. The values for n = 1,2 are * handled separately
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 15, u64 n <= 24, u128 n <= 24,
  *            big any n
+ * Validated: standard, pass, 24 terms through n = 24 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

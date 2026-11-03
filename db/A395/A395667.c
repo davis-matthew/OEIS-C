@@ -8,13 +8,15 @@
  * Formula:   a(n) = Sum_{k=0..n} 6^k * binomial(k+2,2) * binomial(7*n+7,n-k)
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 14, u128 n <= 17,
  *            big any n
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>              /* for size_t and NULL */
-#include "../utils/binomial.h"   /* provides binomial(total, n) returning seq_t */
+#include <stdlib.h>
+#include "../utils/binomial.h"
 
 /* Computes the n-th term of OEIS sequence A395667.
    n is indexed from 0 (a(0) = 1).  The calculation uses only exact

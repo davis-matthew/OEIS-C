@@ -7,12 +7,13 @@
  * Formula:   a(n) = Sum_{k=1..n} (-1)^(n-k)*A000005(k)*(k-1)!*binomial(n, k)
  * Range:     i8 n <= 5, i16 n <= 8, i32 n <= 13, i64 n <= 21, i128 n <= 34,
  *            big any n
- * Helpers:   compute_tau
+ * Validated: standard, pass, 38 terms through n = 381 (2026-11-01)
+ * Helpers:   num_divisors_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/compute_tau.h"
+#include "../utils/num_divisors_idx.h"
 
 static seq_t compute_binomial(idx_t n, idx_t k) {
     if (k > n) return 0;
@@ -34,7 +35,7 @@ seq_t a(idx_t n) {
     seq_t fact = 1;
     
     for (idx_t k = 1; k <= n; k++) {
-        seq_t tau_k = compute_tau(k);
+        seq_t tau_k = num_divisors_idx(k);
         seq_t binom = compute_binomial(n, k);
         
         int sign = ((n - k) & 1) ? -1 : 1;

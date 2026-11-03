@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1020, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 86 terms through n = 9913 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* seq_t, idx_t are provided by the build system (not redefined here). */
 
@@ -32,13 +34,13 @@ seq_t a(idx_t n)
         return 0;
 
     /* Allocate arrays for φ and primality.  Index 0..n. */
-    seq_t *phi = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *phi = mem_new(seq_t, (n + 1));
     if (!phi)
         return 0;   /* allocation failure */
 
     uint8_t *composite = (uint8_t *)malloc((n + 1) * sizeof(uint8_t));
     if (!composite) {
-        free(phi);
+        mem_free(phi);
         return 0;
     }
     /* zero the composite array; primes will be marked as 1. */
@@ -51,7 +53,7 @@ seq_t a(idx_t n)
     /* linear sieve to compute φ and mark composites */
     idx_t *prime_list = (idx_t *)malloc((n + 1) * sizeof(idx_t));
     if (!prime_list) {
-        free(phi);
+        mem_free(phi);
         free(composite);
         return 0;
     }
@@ -78,9 +80,9 @@ seq_t a(idx_t n)
     free(prime_list);
 
     /* patience sorting for longest non‑decreasing subsequence */
-    seq_t *tails = (seq_t *)malloc((n + 1) * sizeof(seq_t));
+    seq_t *tails = mem_new(seq_t, (n + 1));
     if (!tails) {
-        free(phi);
+        mem_free(phi);
         free(composite);
         return 0;
     }
@@ -106,8 +108,8 @@ seq_t a(idx_t n)
     }
 
     seq_t result = (seq_t)tl_len;
-    free(tails);
-    free(phi);
+    mem_free(tails);
+    mem_free(phi);
     free(composite);
     return result;
 }

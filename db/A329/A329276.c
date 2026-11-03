@@ -8,7 +8,8 @@
  * Formula:   a(n) = Sum_{k=1..n} A000048(k) * a(n-k), a(0)=1
  * Range:     u8 n <= 7, u16 n <= 14, u32 n <= 28, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   compute_mu_arr
+ * Validated: partial, pass, 34 terms through n = 33 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,43 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/compute_mu_arr.h"
+#include "../utils/mem.h"
+
+static signed char *compute_mu_arr(idx_t limit)
+{
+    int lim = (int)limit;                      /* limit fits in int for the tests */
+    signed char *mu = (signed char*)malloc((lim + 1) * sizeof(signed char));
+    if (!mu) exit(1);
+    mu[0] = 0;
+    if (lim >= 1) mu[1] = 1;
+
+    int *spf = (int*)calloc(lim + 1, sizeof(int));
+    int *pr  = (int*)malloc((lim + 1) * sizeof(int));
+    size_t prcnt = 0;
+
+    for (int i = 2; i <= lim; ++i) {
+        if (spf[i] == 0) {
+            spf[i] = i;
+            pr[prcnt++] = i;
+            mu[i] = -1;
+        }
+        for (size_t j = 0; j < prcnt; ++j) {
+            int p = pr[j];
+            long long ip = (long long)i * p;
+            if (ip > lim) break;
+            spf[ip] = p;
+            if (i % p == 0) {
+                mu[ip] = 0;
+                break;
+            } else {
+                mu[ip] = -mu[i];
+            }
+        }
+    }
+    free(spf);
+    free(pr);
+    return mu;
+}
 
 static signed char *mu_arr = NULL;
 static idx_t mu_limit = 0;
@@ -39,13 +76,13 @@ static size_t pow2_len = 0;          /* number of entries */
 static void ensure_pow2(idx_t limit)
 {
     if (pow2_len == 0) {
-        pow2_arr = (seq_t*)malloc(sizeof(seq_t));
+        pow2_arr = mem_new(seq_t, 1);
         pow2_arr[0] = (seq_t)1;
         pow2_len   = 1;
     }
     if (pow2_len > limit) return;
     size_t new_len = (size_t)limit + 1;
-    pow2_arr = (seq_t*)realloc(pow2_arr, new_len * sizeof(seq_t));
+    pow2_arr = mem_resize(seq_t, pow2_arr, new_len);
     for (idx_t i = pow2_len; i <= limit; ++i) {
         pow2_arr[i] = pow2_arr[i - 1] * (seq_t)2;
     }
@@ -59,12 +96,12 @@ static void ensure_t(idx_t limit)
 {
     if (t_len > limit) return;
     if (t_len == 0) {               /* allocate t[0] for convenience */
-        t_arr = (seq_t*)malloc(sizeof(seq_t));
+        t_arr = mem_new(seq_t, 1);
         t_arr[0] = (seq_t)0;
         t_len = 1;
     }
     size_t new_len = (size_t)limit + 1;
-    t_arr = (seq_t*)realloc(t_arr, new_len * sizeof(seq_t));
+    t_arr = mem_resize(seq_t, t_arr, new_len);
 
     ensure_pow2(limit);
     ensure_mu(limit * 2);            /* we need mu(2*d) for d up to limit */
@@ -104,12 +141,12 @@ static void ensure_a(idx_t limit)
 {
     if (a_len > limit) return;
     if (a_len == 0) {               /* allocate a[0] and initialize */
-        a_arr = (seq_t*)malloc(sizeof(seq_t));
+        a_arr = mem_new(seq_t, 1);
         a_arr[0] = (seq_t)1;
         a_len = 1;
     }
     size_t new_len = (size_t)limit + 1;
-    a_arr = (seq_t*)realloc(a_arr, new_len * sizeof(seq_t));
+    a_arr = mem_resize(seq_t, a_arr, new_len);
 
     ensure_t(limit);
 

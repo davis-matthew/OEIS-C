@@ -11,13 +11,15 @@
  *            a(5)=6, a(6)=4, …
  * Range:     u8 n <= 32, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,11 +31,11 @@ seq_t a(idx_t n)
     idx_t cumulative = 0;
 
     /* arrays holding coefficients of u and v for the current row */
-    seq_t *u = (seq_t *)calloc(1, sizeof(seq_t));
-    seq_t *v = (seq_t *)calloc(1, sizeof(seq_t));
+    seq_t *u = mem_new(seq_t, 1);
+    seq_t *v = mem_new(seq_t, 1);
     if (!u || !v) {                /* allocation failure – unlikely */
-        free(u);
-        free(v);
+        mem_free(u);
+        mem_free(v);
         return 0;
     }
 
@@ -49,8 +51,8 @@ seq_t a(idx_t n)
             if (cumulative + 1 == n)
             {
                 seq_t ans = v[k];
-                free(u);
-                free(v);
+                mem_free(u);
+                mem_free(v);
                 return ans;
             }
             ++cumulative;
@@ -58,14 +60,14 @@ seq_t a(idx_t n)
 
         /* prepare next row (n = row+1) */
         ++row;
-        seq_t *u_next = (seq_t *)calloc(row, sizeof(seq_t));
-        seq_t *v_next = (seq_t *)calloc(row, sizeof(seq_t));
+        seq_t *u_next = mem_new(seq_t, row);
+        seq_t *v_next = mem_new(seq_t, row);
         if (!u_next || !v_next)
         {
-            free(u);
-            free(v);
-            free(u_next);
-            free(v_next);
+            mem_free(u);
+            mem_free(v);
+            mem_free(u_next);
+            mem_free(v_next);
             return 0;
         }
 
@@ -86,8 +88,8 @@ seq_t a(idx_t n)
         }
 
         /* recycle memory for next iteration */
-        free(u);
-        free(v);
+        mem_free(u);
+        mem_free(v);
         u = u_next;
         v = v_next;
     }

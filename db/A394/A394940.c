@@ -10,12 +10,14 @@
  *            a(i)*a(n-2-i)
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 21, u64 n <= 38, u128 n <= 73,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 1602 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;
@@ -25,7 +27,7 @@ seq_t a(idx_t n) {
         return cache[n];
 
     /* enlarge cache */
-    seq_t *new_cache = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, (n + 1));
     if (!new_cache) {
         cache = NULL;
         cache_sz = 0;

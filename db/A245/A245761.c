@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 10, u32 n <= 10, u64 n <= 10, u128 n <= 10,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 10 terms through n = 10 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static bool has_property(seq_t x)
 {
@@ -45,7 +47,7 @@ seq_t a(idx_t n)
 
     if (term_cnt == 0) {
         term_cap = 32;
-        terms = (seq_t *)malloc(term_cap * sizeof(seq_t));
+        terms = mem_new(seq_t, term_cap);
         if (!terms) return 0;          /* allocation failure */
 
         /* enumerate numbers until we have all known terms (10 in total) */
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
             if (has_property(candidate)) {
                 if (term_cnt >= term_cap) {
                     term_cap *= 2;
-                    terms = (seq_t *)realloc(terms, term_cap * sizeof(seq_t));
+                    terms = mem_resize(seq_t, terms, term_cap);
                     if (!terms) return 0;
                 }
                 terms[term_cnt++] = candidate;

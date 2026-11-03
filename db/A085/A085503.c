@@ -11,12 +11,14 @@
  *            0<=k<=n
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 29, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t **eulerian_cache = NULL;   /* eulerian_cache[i][k] = A(i,k) */
 static size_t cached_rows = 0;          /* number of rows currently cached (incl. row 0) */
@@ -29,7 +31,7 @@ static void compute_eulerian_up_to(size_t need)
     eulerian_cache = (seq_t **)realloc(eulerian_cache,
                                        (need + 1) * sizeof(seq_t *));
     for (size_t i = cached_rows; i <= need; ++i) {
-        eulerian_cache[i] = (seq_t *)malloc((i + 1) * sizeof(seq_t));
+        eulerian_cache[i] = mem_new(seq_t, (i + 1));
         if (i == 0) {
             eulerian_cache[0][0] = (seq_t)1;
         } else {

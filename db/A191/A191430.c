@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 78, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* --- Integer square root of a 128‑bit unsigned integer (O(log bits)) */
 static inline idx_t floor_sqrt_u128(unsigned __int128 v)
@@ -87,7 +89,7 @@ static void push_t(seq_t v)
 {
     if (t_len == t_cap) {
         idx_t new_cap = t_cap ? t_cap * 2 : 64;
-        seq_t *tmp = (seq_t *)realloc(t_vals, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, t_vals, new_cap);
         if (!tmp) abort();
         t_vals = tmp;
         t_cap = new_cap;

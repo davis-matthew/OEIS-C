@@ -10,14 +10,25 @@
  *            is the triangle read by rows, with T(0,0)=T(1,0)=T(1,1)=1
  * Range:     u8 n <= 30, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   index_to_rowk
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/index_to_rowk.h"
+#include "../utils/mem.h"
+
+/* Convert global index n into (row, k) coordinates. */
+static void index_to_rowk(idx_t n, size_t *row, size_t *k)
+{
+    size_t r = 0;
+    while (((size_t)(r + 1) * (r + 2)) / 2 <= (size_t)n)
+        ++r;
+    *row = r;
+    *k   = (size_t)n - r * (r + 1) / 2;
+}
 
 static seq_t **TRIANGLE = NULL;          /* array of row pointers */
 static size_t TRIANGLE_CAP = 0;          /* allocated capacity of TRIANGLE */
@@ -38,7 +49,7 @@ static void ensure_triangle_capacity(size_t need)
 /* Compute row r of the triangle.  Assumes rows r-1 and r-2 exist. */
 static void compute_row(size_t r)
 {
-    seq_t *row = (seq_t *)malloc((r + 1) * sizeof(seq_t));
+    seq_t *row = mem_new(seq_t, (r + 1));
     for (size_t k = 0; k <= r; ++k)
     {
         /* Base cases */

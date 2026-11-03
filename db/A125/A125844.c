@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   build_primes, gcd
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   build_primes, gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,8 +21,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/gcd.h"
+#include <stdint.h>
+#include <stddef.h>
 #include "../utils/build_primes.h"
+#include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t *seq = NULL;          /* generated terms */
 static size_t seq_len = 0;         /* number of terms stored */
@@ -78,7 +82,7 @@ static void ensure_sequence(idx_t n)
 {
     if (seq_len >= (size_t)n) return;
 
-    seq = (seq_t *)realloc(seq, sizeof(seq_t) * n);
+    seq = mem_resize(seq_t, seq, n);
     for (idx_t i = seq_len; i < n; ++i) {
         /* the (i+1)-th composite is composites[i] */
         idx_t comp_val = composites[(size_t)i];

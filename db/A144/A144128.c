@@ -7,13 +7,15 @@
  * Formula:   a(n) = 36*a(n‑1) - a(n‑2), with a(1)=1, a(2)=36
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 13, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 31 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External linkage is required */
 seq_t a(idx_t n)
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
 
     /* Initialise the cache with the first two terms */
     if (size == 0) {
-        cache = (seq_t *)malloc(sizeof(seq_t) * 2);
+        cache = mem_new(seq_t, 2);
         if (cache == NULL)          /* allocation failure – fall back */
             return (seq_t)0;
         cache[0] = (seq_t)1;        /* a(1) */
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
 
     /* Grow the cache if the requested index is beyond what we have */
     if (n > size) {
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * n);
+        seq_t *tmp = mem_resize(seq_t, cache, n);
         if (tmp == NULL)          /* allocation failure – fall back */
             return (seq_t)0;
         cache = tmp;

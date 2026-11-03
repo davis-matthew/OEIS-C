@@ -11,12 +11,14 @@
  *            with any seq_t type supported * by the build (fixed‑...
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 20, u128 n <= 22,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,14 +31,14 @@ seq_t a(idx_t n)
     if (fact == NULL) {                          /* first call: allocate n+1 slots */
         size = 0;                                /* no factorials yet (but will compute 0!) */
         capacity = n + 1;
-        fact = (seq_t *)malloc(capacity * sizeof(seq_t));
+        fact = mem_new(seq_t, capacity);
         if (fact == NULL) abort();              /* cannot allocate */
         fact[0] = (seq_t)1;                     /* 0! = 1 */
         size = 1;
     } else if (capacity < (size_t)n + 1) {       /* need more space */
         size_t new_cap = capacity * 2;
         if (new_cap < (size_t)n + 1) new_cap = (size_t)n + 1;
-        fact = (seq_t *)realloc(fact, new_cap * sizeof(seq_t));
+        fact = mem_resize(seq_t, fact, new_cap);
         if (fact == NULL) abort();
         capacity = new_cap;
     }

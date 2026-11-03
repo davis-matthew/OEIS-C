@@ -10,12 +10,13 @@
  *            = C(k+3, m) * (C(k+4, m+1) - C(k+4, m))
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 19, u64 n <= 35, u128 n <= 68,
  *            big any n
- * Helpers:   bin_exact
+ * Validated: standard, pass, 42 terms through n = 996 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/bin_exact.h"
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n) {
     idx_t k, m;
@@ -24,13 +25,13 @@ seq_t a(idx_t n) {
     if (k % 2 == 0) {
         seq_t d;
         m = k / 2;
-        d = bin_exact(k + 3, m);
-        if (m > 0) d -= bin_exact(k + 3, m - 1);
-        return bin_exact(k + 4, m) * d;
+        d = binomial(k + 3, m);
+        if (m > 0) d -= binomial(k + 3, m - 1);
+        return binomial(k + 4, m) * d;
     } else {
         seq_t d;
         m = (k - 1) / 2;
-        d = bin_exact(k + 4, m + 1) - bin_exact(k + 4, m);
-        return bin_exact(k + 3, m) * d;
+        d = binomial(k + 4, m + 1) - binomial(k + 4, m);
+        return binomial(k + 3, m) * d;
     }
 }

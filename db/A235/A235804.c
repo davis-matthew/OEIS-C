@@ -11,13 +11,33 @@
  *            first term
  * Range:     u8 n <= 48, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   find_d, pow2
+ * Validated: partial, pass, 66 terms through n = 68 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdbool.h>
 #include "../utils/pow2.h"
-#include "../utils/find_d.h"
+
+/* Find the largest d such that d*(d+1)/2 <= m */
+static idx_t
+find_d(idx_t m)
+{
+    idx_t low = 0, high = 1;
+    while (( (__int128)high * (high + 1) / 2 ) <= m)
+        high <<= 1;
+
+    while (low < high) {
+        idx_t mid = (low + high + 1) >> 1;
+        __int128 val = (__int128)mid * (mid + 1) / 2;
+        if (val <= m)
+            low = mid;
+        else
+            high = mid - 1;
+    }
+    return low;
+}
 
 seq_t
 a(idx_t n)

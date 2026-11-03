@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 57, u32 n <= 100, u64 n <= 100,
  *            u128 n <= 100, big any n
- * Helpers:   gen_len
+ * Validated: standard, pass, 65 terms through n = 96 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,45 @@
    generation of the wanted length in increasing numeric order. */
 
 #include <stdbool.h>
-#include "../utils/gen_len.h"
+
+/* Recursive routine that walks through the remaining digits.
+   remaining_len : how many digits are still to be appended
+   prev_digit    : the digit placed just before the current level
+   current       : value of the number built so far (in decimal)
+   cnt           : running counter of how many numbers have been produced
+   target        : the desired 1‑based index within this length
+   res           : output (address) of the target number when found
+   Returns true if the target was found in this branch. */
+static bool
+gen_len(idx_t remaining_len, int prev_digit, seq_t current,
+        idx_t *cnt, idx_t target, seq_t *res)
+{
+    if (remaining_len == 0) {
+        ++(*cnt);
+        if (*cnt == target) {
+            *res = current;
+            return true;
+        }
+        return false;
+    }
+
+    int a = -1, b = -1;
+    if (prev_digit - 2 >= 0) a = prev_digit - 2;
+    if (prev_digit + 2 <= 4) b = prev_digit + 2;
+    if (a != -1 && b != -1 && a > b) { int t = a; a = b; b = t; }
+
+    if (a != -1) {
+        if (gen_len(remaining_len - 1, a, current * (seq_t)5 + (seq_t)a,
+                    cnt, target, res))
+            return true;
+    }
+    if (b != -1) {
+        if (gen_len(remaining_len - 1, b, current * (seq_t)5 + (seq_t)b,
+                    cnt, target, res))
+            return true;
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

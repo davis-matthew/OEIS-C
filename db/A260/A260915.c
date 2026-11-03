@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy, fini, base
  * Formula:   not stated
- * Range:     u8 none, u16 none, u32 n <= 9504, u64 n <= 9504, u128 n <= 9504,
- *            big any n
- * Helpers:   is_prime, is_valid_iso_date
+ * Range:     u8 none, u16 none, u32 n <= 24974, u64 n <= 24974,
+ *            u128 n <= 24974, big any n
+ * Validated: standard, pass, 45 terms through n = 9504 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,36 @@
 
 /* Provided by the build environment (see the list of utilities). */
 #include "../utils/is_prime.h"
-#include "../utils/is_valid_iso_date.h"
+#include "../utils/mem.h"
+
+/* Check whether the 32‑bit integer v (in YYYYMMDD format) represents a
+   valid Gregorian date. */
+static bool is_valid_iso_date(uint64_t v)
+{
+    uint64_t year  = v / 10000;
+    uint64_t rem   = v % 10000;
+    uint64_t month = rem / 100;
+    uint64_t day   = rem % 100;
+
+    if (month < 1 || month > 12)
+        return false;
+
+    static const int mdays[12] = {
+        31, 28, 31, 30, 31, 30,
+        31, 31, 30, 31, 30, 31
+    };
+    int days = mdays[month - 1];
+
+    /* Leap year adjustment for February. */
+    if (month == 2) {
+        bool leap = ((year % 4 == 0 && year % 100 != 0) ||
+                     (year % 400 == 0));
+        if (leap)
+            days = 29;
+    }
+
+    return (day >= 1 && day <= (uint64_t)days);
+}
 
 /* Cache of already discovered sequence terms. */
 static seq_t *cache      = NULL;    /* array of found terms */
@@ -45,7 +75,7 @@ static void ensure_cache(size_t need)
     while (new_cap < need)
         new_cap <<= 1;              /* double until large enough */
 
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp)
         abort();                    /* allocation failure – terminate */
 

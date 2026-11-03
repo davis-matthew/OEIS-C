@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 16, u64 n <= 30, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 700 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static idx_t max_computed = 0;      /* largest n for which arrays are ready   */
 static seq_t *a_arr = NULL;         /* a(n)                               */
@@ -37,9 +39,9 @@ static void initialise_arrays(void)
 
     /* start with capacity 1 for each array */
     size_t cap = 1;
-    a_arr = (seq_t *)malloc(cap * sizeof(seq_t));
-    d_arr = (seq_t *)malloc(cap * sizeof(seq_t));
-    c_arr = (seq_t *)malloc(cap * sizeof(seq_t));
+    a_arr = mem_new(seq_t, cap);
+    d_arr = mem_new(seq_t, cap);
+    c_arr = mem_new(seq_t, cap);
     if (!a_arr || !d_arr || !c_arr)
         exit(1);                                   /* memory allocation failure */
 
@@ -62,7 +64,7 @@ static void ensure_capacity(seq_t **arr, size_t *cap, size_t needed)
     while (new_cap < needed)
         new_cap <<= 1;
 
-    seq_t *tmp = (seq_t *)realloc(*arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, *arr, new_cap);
     if (!tmp)
         exit(1);                                   /* memory allocation failure */
 

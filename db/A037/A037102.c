@@ -7,6 +7,7 @@
  * Formula:   a(0)=3; a(n)= (if a(n-1) odd) 9*a(n-1)+1 else a(n-1)/2, for n>0
  * Range:     u8 n <= 21, u16 n <= 38, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
+ * Validated: partial, pass, 48 terms through n = 47 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

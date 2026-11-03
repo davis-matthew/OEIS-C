@@ -9,18 +9,20 @@
  *            numbers (A001082)
  * Range:     u8 n <= 65, u16 n <= 218, u32 n <= 891, u64 n <= 4376,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 91 terms through n = 7736 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
     /* Allocate DP array for values 0..n */
     size_t len = (size_t)n + 1;
-    seq_t *dp = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, len);
     if (!dp) return 0;                       /* allocation failure: not expected */
 
     for (size_t i = 0; i < len; ++i) dp[i] = 0;
@@ -43,6 +45,6 @@ seq_t a(idx_t n)
     }
 
     seq_t ans = dp[(size_t)n];
-    free(dp);
+    mem_free(dp);
     return ans;
 }

@@ -10,8 +10,9 @@
  *            primorial‑base of n is expressed as n = Σ d_i · P_i with 0 ≤ d_i
  *            < p_i (p_i = i‑th prime, P_0=1, P_i=∏_{k< i} p_k). a(n) = Π_{i:
  *            d_i≠0} p_i
- * Range:     u8 n <= 217, u16 n <= 9140, u32 n <= 9140, u64 n <= 9140,
- *            u128 n <= 9140, big any n
+ * Range:     u8 n <= 217, u16 n <= 32558, u32 n <= 32768, u64 n <= 32768,
+ *            u128 n <= 32768, big any n
+ * Validated: standard, pass, 96 terms through n = 9140 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

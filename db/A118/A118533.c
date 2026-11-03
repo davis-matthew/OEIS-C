@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   reverse_decimal
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-01)
+ * Helpers:   reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,8 @@
  * or an arbitrary‑precision type).
  */
 #include <stdint.h>
-#include "../utils/reverse_decimal.h"
+#include <stdlib.h>
+#include "../utils/reverse_digits.h"
 
 seq_t a(idx_t n)
 {
@@ -37,7 +39,7 @@ seq_t a(idx_t n)
     /* Iterate n-1 times to reach a(n). */
     for (idx_t i = 1; i < n; ++i)
     {
-        cur = reverse_decimal(cur) + (seq_t)16;
+        cur = reverse_digits(cur) + (seq_t)16;
     }
 
     return cur;

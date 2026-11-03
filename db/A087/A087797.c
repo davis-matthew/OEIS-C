@@ -9,7 +9,8 @@
  *            duplicates removed
  * Range:     u8 n <= 45, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 940 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Comparator for qsort that works for any supported seq_t. */
 static int cmp_seq_t(const void *p1, const void *p2)
@@ -60,7 +62,7 @@ static void build_cache(idx_t limit)
 
     /* 3. Generate candidates (primes, squares, cubes). */
     size_t cand_cap = prime_cnt * 3;
-    seq_t *cand = (seq_t *)malloc(cand_cap * sizeof(seq_t));
+    seq_t *cand = mem_new(seq_t, cand_cap);
     if (!cand) exit(EXIT_FAILURE);
     size_t cand_len = 0;
     for (size_t i = 0; i < prime_cnt; ++i) {
@@ -73,8 +75,8 @@ static void build_cache(idx_t limit)
     free(primes);
 
     /* 4. Sort and deduplicate. */
-    qsort(cand, cand_len, sizeof(seq_t), cmp_seq_t);
-    seq_t *new_cache = (seq_t *)malloc(cand_len * sizeof(seq_t));
+    mem_qsort(cand, cand_len, sizeof(seq_t), cmp_seq_t);
+    seq_t *new_cache = mem_new(seq_t, cand_len);
     if (!new_cache) exit(EXIT_FAILURE);
     size_t new_len = 0;
     if (cand_len > 0) {
@@ -82,10 +84,10 @@ static void build_cache(idx_t limit)
         for (size_t i = 1; i < cand_len; ++i)
             if (cand[i] != cand[i-1]) new_cache[new_len++] = cand[i];
     }
-    free(cand);
+    mem_free(cand);
 
     /* 5. Replace old cache. */
-    if (cache) free(cache);
+    if (cache) mem_free(cache);
     cache = new_cache;
     cache_len = new_len;
     sieve_limit = limit;

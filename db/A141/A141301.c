@@ -7,7 +7,8 @@
  * Formula:   a(n) = the n-th prime p with p % 60 == 1 or p % 60 == 49
  * Range:     i8 n <= 2, i16 n <= 50, i32 n <= 50, i64 n <= 50, i128 n <= 50,
  *            big any n
- * Helpers:   alloc_seq_array, build_primes, seq_free_array
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   build_primes, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,9 +17,19 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+#include <math.h>
+#include <stdbool.h>
 #include "../utils/build_primes.h"
-#include "../utils/alloc_seq_array.h"
-#include "../utils/seq_free_array.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void seq_free_array(seq_t* p)          { mem_free(p); }
 
 static seq_t *cache = NULL;          /* cached primes meeting the condition */
 static size_t cache_len = 0;          /* number of elements currently cached */

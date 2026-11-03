@@ -8,12 +8,14 @@
  *            -4
  * Range:     i8 n <= 14, i16 n <= 34, i32 n <= 44, i64 n <= 44, i128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,9 +26,9 @@ seq_t a(idx_t n)
     if (used <= n) {
         idx_t new_len = n + 1;
         if (cache == NULL) {
-            cache = (seq_t *)malloc(sizeof(seq_t) * new_len);
+            cache = mem_new(seq_t, new_len);
         } else {
-            cache = (seq_t *)realloc(cache, sizeof(seq_t) * new_len);
+            cache = mem_resize(seq_t, cache, new_len);
         }
         /* initial terms if not yet set */
         if (used == 0) {

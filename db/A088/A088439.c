@@ -7,6 +7,7 @@
  * Formula:   a(n) = n if n mod 3 == 0, else 1
  * Range:     u8 n <= 257, u16 n <= 5000, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 109 terms through n = 4981 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

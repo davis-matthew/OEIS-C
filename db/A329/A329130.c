@@ -10,12 +10,14 @@
  *            a(n+1)=a(n)+k, where k = |{ m | 0 <= m <= n, a(m)<=m }|
  * Range:     u8 n <= 169, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 77 terms through n = 8080 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *seq      = NULL;   /* array of computed terms */
 static idx_t   capacity = 0;      /* allocated array capacity      */
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* initialise on first call */
     if (!seq) {
         capacity = 1;
-        seq      = (seq_t *)malloc(capacity * sizeof(seq_t));
+        seq      = mem_new(seq_t, capacity);
         if (!seq) abort();
         seq[0]    = (seq_t)0;   /* a(0) = 0 */
         seq_size  = 1;
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
         idx_t new_size = n + 1;
         if (new_size > capacity) {
             idx_t new_cap = new_size * 2;
-            seq = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, new_cap);
             if (!seq) abort();
             capacity = new_cap;
         }

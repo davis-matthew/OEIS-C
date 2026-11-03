@@ -7,8 +7,9 @@
  * Keywords:  nonn, easy
  * Formula:   a(n) = number of prime divisors p of n such that p^2 < n and n %
  *            (p^2) != 0
- * Range:     u8 n <= 9625, u16 n <= 9625, u32 n <= 9625, u64 n <= 9625,
- *            u128 n <= 9625, big any n
+ * Range:     u8 n <= 65537, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 113 terms through n = 9625 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 14, u32 n <= 26, u64 n <= 33, u128 n <= 33,
  *            big any n
- * Helpers:   ensure_cache, seq_pow
+ * Validated: partial, pass, 33 terms through n = 33 (2026-11-03)
+ * Helpers:   ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,38 @@
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/ensure_cache.h"
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
+
+/* Make sure the cache is large enough */
+static void ensure_cache(idx_t n, seq_t **cache_ptr, size_t *cap_ptr) {
+    seq_t *cache = *cache_ptr;
+    size_t cap = *cap_ptr;
+    if (cap <= (size_t)n) {
+        size_t new_cap = cap ? (cap << 1) : 16;
+        while (new_cap <= (size_t)n)
+            new_cap <<= 1;
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
+        if (!tmp && new_cap > 0) {
+            /* Allocation failed – abort the program. */
+            exit(1);
+        }
+        if (tmp) {
+            /* Initialize newly allocated slots to zero. */
+            if (!cache) {
+                for (size_t i = 0; i < new_cap; ++i)
+                    tmp[i] = 0;
+            } else {
+                for (size_t i = cap; i < new_cap; ++i)
+                    tmp[i] = 0;
+            }
+            *cache_ptr = tmp;
+            *cap_ptr = new_cap;
+        }
+    }
+}
 
 static seq_t *cache = NULL;
 static size_t cache_cap = 0;
@@ -54,7 +85,7 @@ seq_t a(idx_t n)
                 if (k % d != 0) continue;
 
                 idx_t d1 = d;
-                seq_t pow1 = seq_pow(cache[d1], k / d1);
+                seq_t pow1 = ipow_idx(cache[d1], k / d1);
                 seq_t term1 = pow1 * (seq_t)d1;
                 if ( ((k + d1) & 1) == 0 )
                     Sk += term1;
@@ -64,7 +95,7 @@ seq_t a(idx_t n)
                 idx_t d2 = k / d;
                 if (d2 != d1)
                 {
-                    seq_t pow2 = seq_pow(cache[d2], k / d2);
+                    seq_t pow2 = ipow_idx(cache[d2], k / d2);
                     seq_t term2 = pow2 * (seq_t)d2;
                     if ( ((k + d2) & 1) == 0 )
                         Sk += term2;

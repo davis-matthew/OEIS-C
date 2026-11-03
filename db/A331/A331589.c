@@ -12,13 +12,15 @@
  *            products, sorts them, * collapses duplicates keepin...
  * Range:     u8 none, u16 none, u32 n <= 1559, u64 n <= 8347, u128 n <= 8347,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 8304 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Reverse the binary representation of an odd 64‑bit integer.
  * Leading zeros are dropped, which matches the OEIS definition
@@ -57,7 +59,7 @@ static int cmp_pair(const void *a, const void *b)
 static void generate_terms(idx_t max_k_even, seq_t **out, size_t *len)
 {
     size_t odd_count = (max_k_even + 1) / 2;   /* number of odd integers ≤ max_k_even */
-    Pair *pairs = (Pair *)malloc(sizeof(Pair) * odd_count);
+    Pair *pairs = mem_new(Pair, odd_count);
     size_t idx = 0;
     for (idx_t k = 1; k <= max_k_even; k += 2) {
         seq_t rev = rev_bits(k);
@@ -67,7 +69,7 @@ static void generate_terms(idx_t max_k_even, seq_t **out, size_t *len)
     }
 
     /* Sort by product so that equal products are adjacent. */
-    qsort(pairs, odd_count, sizeof(Pair), cmp_pair);
+    mem_qsort(pairs, odd_count, sizeof(Pair), cmp_pair);
 
     /* Count distinct products. */
     size_t distinct = 0;
@@ -76,7 +78,7 @@ static void generate_terms(idx_t max_k_even, seq_t **out, size_t *len)
             distinct++;
     }
 
-    seq_t *arr = (seq_t *)malloc(sizeof(seq_t) * distinct);
+    seq_t *arr = mem_new(seq_t, distinct);
     size_t pos = 0;
     size_t written = 0;
     while (pos < odd_count) {
@@ -92,7 +94,7 @@ static void generate_terms(idx_t max_k_even, seq_t **out, size_t *len)
 
     *out = arr;
     *len = written;
-    free(pairs);
+    mem_free(pairs);
 }
 
 /* Static cache holding the computed a(·) sequence. */
@@ -114,7 +116,7 @@ seq_t a(idx_t n)
     /* Grow the cache if the requested index exceeds the current size. */
     while ((size_t)n > a_cache_len) {
         a_k_limit_even *= 2;            /* double the range of odd k */
-        free(a_cache);
+        mem_free(a_cache);
         generate_terms(a_k_limit_even, &a_cache, &a_cache_len);
     }
 

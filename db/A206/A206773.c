@@ -9,12 +9,14 @@
  *            (including 1). a(1)=0. See OEIS A206773
  * Range:     u8 n <= 167, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 93 terms through n = 9999 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/is_prime.h"   /* provides: bool is_prime(idx_t) */
+#include <stdbool.h>
+#include "../utils/is_prime.h"
 
 /* Compute integer square root of n: largest i such that i*i <= n */
 static idx_t isqrt_u64(idx_t n)

@@ -7,6 +7,7 @@
  * Formula:   a(n) = (n^3 + 9*n^2 + 14*n + 9)/3
  * Range:     u8 n <= 3, u16 n <= 37, u32 n <= 2340, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 60 terms through n = 8847 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

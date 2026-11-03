@@ -7,13 +7,16 @@
  * Formula:   a(n) = n! * Sum_{k=0..floor(n/3)} k^(n-3*k)/(k! * (n-3*k)!)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 21, u128 n <= 35,
  *            big any n
- * Helpers:   big_pow
+ * Validated: standard, pass, 39 terms through n = 463 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +39,7 @@ seq_t a(idx_t n)
         }
 
         /* k^(n-3k) */
-        seq_t pow_val = big_pow((seq_t)k, (seq_t)exp);
+        seq_t pow_val = ipow((seq_t)k, (seq_t)exp);
 
         result += bin * pow_val;
     }

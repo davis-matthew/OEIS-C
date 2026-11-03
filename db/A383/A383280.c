@@ -10,7 +10,8 @@
  *            terms
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 8, u64 n <= 12, u128 n <= 17,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 18 terms through n = 17 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,28 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
+
+#ifdef __cplusplus
+#define OEISC_VPP(p) (p)
+#define OEISC_VP(p) (p)
+#else
+#define OEISC_VPP(p) ((void **)(p))
+#define OEISC_VP(p) ((void *)(p))
+#endif
 
 /* Utility: realloc with size_t; return NULL on failure (handled as no‑op). */
+#ifdef __cplusplus
+template <class T>
+static T *safe_realloc(T *p, size_t old_cap, size_t new_cap, size_t elem_size)
+{
+    if (new_cap == 0) {
+        mem_free(p);
+        return NULL;
+    }
+    return mem_resize(T, p, (new_cap * elem_size) / sizeof(T));
+}
+#else
 static void *safe_realloc(void *p, size_t old_cap, size_t new_cap, size_t elem_size)
 {
     if (new_cap == 0) {
@@ -28,6 +49,7 @@ static void *safe_realloc(void *p, size_t old_cap, size_t new_cap, size_t elem_s
     }
     return realloc(p, new_cap * elem_size);
 }
+#endif
 
 seq_t a(idx_t n)
 {

@@ -8,13 +8,24 @@
  *            with the decimal representation of n
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 16, u64 n <= 35, u128 n <= 45,
  *            big any n
- * Helpers:   pow10
+ * Validated: standard, pass, 51 terms through n = 1381 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/pow10.h"
+#include <stdint.h>
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Return the number of decimal digits of a seq_t value. */
 static int seq_digit_len(seq_t x)

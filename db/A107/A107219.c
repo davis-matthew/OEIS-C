@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, easy
  * Formula:   not stated
- * Range:     u8 n <= 4, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
- *            big any n
- * Helpers:   is_prime_uint64, isqrt_uint64, seq_malloc, seq_realloc
+ * Range:     u8 n <= 4, u16 n <= 779, u32 n <= 10000, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 59 terms through n = 9702 (2026-11-03)
+ * Helpers:   is_prime_u64, isqrt_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,10 +17,30 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "../utils/is_prime_uint64.h"   /* is_prime_uint64(uint64_t) */
-#include "../utils/isqrt_uint64.h"     /* isqrt_uint64(uint64_t) */
-#include "../utils/seq_malloc.h"       /* seq_malloc(idx_t) */
-#include "../utils/seq_realloc.h"     /* seq_realloc(seq_t *, idx_t) */
+#include <stdlib.h>
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/isqrt_u64.h"
+#include "../utils/mem.h"
+
+/* helper to allocate an array of seq_t that works in both C and C++ */
+static inline seq_t *seq_malloc(idx_t n)
+{
+#ifdef __cplusplus
+    return mem_new(seq_t, n);
+#else
+    return (seq_t *)malloc(n * sizeof(seq_t));
+#endif
+}
+
+static inline seq_t *seq_realloc(seq_t *p, idx_t n)
+{
+#ifdef __cplusplus
+    return mem_resize(seq_t, p, n);
+#else
+    return (seq_t *)realloc(p, n * sizeof(seq_t));
+#endif
+}
 
 static seq_t *cached = NULL;          /* array of found primes */
 static size_t cached_capacity = 0;    /* allocated slots     */
@@ -48,7 +69,7 @@ static void generate_next(void)
 
     while (1) {
         /* Find the next odd prime >= candidate. */
-        while (!is_prime_uint64(candidate)) {
+        while (!is_prime_u64(candidate)) {
             candidate += 2;
         }
         uint64_t p = candidate;
@@ -56,11 +77,11 @@ static void generate_next(void)
 
         /* Test whether p can be written as x^2 + 100*y^2. */
         bool ok = false;
-        uint64_t y_max = isqrt_uint64(p / 100);   /* maximal y with 100*y*y <= p */
+        uint64_t y_max = isqrt_u64(p / 100);   /* maximal y with 100*y*y <= p */
         for (uint64_t y = 0; y <= y_max; ++y) {
             uint64_t term = 100ULL * y * y;
             uint64_t rem  = p - term;            /* p >= term */
-            uint64_t s    = isqrt_uint64(rem);
+            uint64_t s    = isqrt_u64(rem);
             if (s * s == rem) {
                 ok = true;
                 break;

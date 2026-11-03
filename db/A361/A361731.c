@@ -11,13 +11,30 @@
  *            integer with s*(s+1)/2 ≤ n
  * Range:     u8 n <= 16, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   compute_A
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>     /* for idx_t, seq_t definitions used by the build */
-#include "../utils/compute_A.h"
+
+static seq_t compute_A(idx_t n, idx_t k)
+{
+    if (n == 0 || k == 0) {
+        return (seq_t)1;
+    }
+    seq_t n_seq = (seq_t)n;
+    seq_t k_seq = (seq_t)k;
+
+    seq_t term = (seq_t)1;
+    seq_t t1 = (k_seq * n_seq - (seq_t)3 * n_seq + (seq_t)9) * n_seq * k_seq;
+    seq_t t2 = ((seq_t)2 * n_seq - (seq_t)9) * n_seq + (seq_t)18;
+    seq_t inner = t1 + t2;
+    seq_t product = inner * n_seq * k_seq;
+    seq_t add = product / (seq_t)6;
+    return term + add;
+}
 
 static idx_t triangular_root(idx_t n)
 {

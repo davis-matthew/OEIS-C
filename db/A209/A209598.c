@@ -7,6 +7,7 @@
  * Keywords:  nonn
  * Formula:   a(n) = (n+1)^13 * ((n+1)*(2*n+1))^9
  * Range:     u8 none, u16 none, u32 none, u64 n <= 2, u128 n <= 13, big any n
+ * Validated: standard, pass, 23 terms through n = 47 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

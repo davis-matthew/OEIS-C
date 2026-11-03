@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 40, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
  */
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Determine floor(sqrt(x)) for 128‑bit inputs. */
 static inline idx_t isqrt128(unsigned __int128 x)
@@ -67,13 +69,13 @@ seq_t a(idx_t n)
 
     /* Allocate temporary arrays. */
     size_t max_len = (size_t)r;   /* maximum length needed */
-    seq_t *u_cur  = (seq_t *)malloc(max_len * sizeof(seq_t));
-    seq_t *v_cur  = (seq_t *)malloc(max_len * sizeof(seq_t));
-    seq_t *u_next = (seq_t *)malloc(max_len * sizeof(seq_t));
-    seq_t *v_next = (seq_t *)malloc(max_len * sizeof(seq_t));
+    seq_t *u_cur  = mem_new(seq_t, max_len);
+    seq_t *v_cur  = mem_new(seq_t, max_len);
+    seq_t *u_next = mem_new(seq_t, max_len);
+    seq_t *v_next = mem_new(seq_t, max_len);
     if (!u_cur || !v_cur || !u_next || !v_next) {
         /* Memory allocation failed. Return 0 as a safe fallback. */
-        free(u_cur); free(v_cur); free(u_next); free(v_next);
+        mem_free(u_cur); mem_free(v_cur); mem_free(u_next); mem_free(v_next);
         return (seq_t)0;
     }
 
@@ -83,7 +85,7 @@ seq_t a(idx_t n)
 
     if (r == 1) {
         seq_t result = v_cur[0];
-        free(u_cur); free(v_cur); free(u_next); free(v_next);
+        mem_free(u_cur); mem_free(v_cur); mem_free(u_next); mem_free(v_next);
         return result;
     }
 
@@ -121,10 +123,10 @@ seq_t a(idx_t n)
     seq_t result = v_cur[col - 1];
 
     /* Clean up. */
-    free(u_cur);
-    free(v_cur);
-    free(u_next);
-    free(v_next);
+    mem_free(u_cur);
+    mem_free(v_cur);
+    mem_free(u_next);
+    mem_free(v_next);
 
     return result;
 }

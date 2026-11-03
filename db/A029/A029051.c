@@ -12,12 +12,14 @@
  *            a(19)=19, a(20)=22
  * Range:     u8 n <= 58, u16 n <= 424, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 893 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[21] = {
     1, 1, 1, 2, 2, 2, 3, 4, 4, 5,
@@ -32,7 +34,7 @@ seq_t a(idx_t n)
     if (dp_size == 0) {
         /* first call – initialise cache to at least 21 elements   */
         dp_size = 21;
-        dp = (seq_t *)malloc((size_t)dp_size * sizeof(seq_t));
+        dp = mem_new(seq_t, (size_t)dp_size);
         for (idx_t i = 0; i < 21; ++i)
             dp[(size_t)i] = init_vals[(size_t)i];
     }
@@ -40,13 +42,13 @@ seq_t a(idx_t n)
     if (n >= dp_size) {
         /* grow cache to accommodate index n (at least n+1)   */
         idx_t new_size = n + 1;
-        seq_t *new_dp = (seq_t *)malloc((size_t)new_size * sizeof(seq_t));
+        seq_t *new_dp = mem_new(seq_t, (size_t)new_size);
         if (!new_dp) exit(1);   /* allocation failed – terminate */
 
         /* copy old values */
         for (idx_t i = 0; i < dp_size; ++i)
             new_dp[(size_t)i] = dp[(size_t)i];
-        free(dp);
+        mem_free(dp);
         dp = new_dp;
 
         /* initialise any new elements between old size and new_size */

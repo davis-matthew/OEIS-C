@@ -9,7 +9,8 @@
  *            nor the sum of two distinct 5‑smooth numbers
  * Range:     u8 n <= 9, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_five_smooth
+ * Validated: standard, pass, 80 terms through n = 9345 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,16 @@
 #include <stdlib.h>   /* malloc, realloc, free */
 #include <stdbool.h>  /* bool, true, false */
 #include <stddef.h>   /* size_t */
-#include "../utils/is_five_smooth.h"
+#include "../utils/mem.h"
+
+/* --- Helper: check if a number is 5‑smooth ----------------------------- */
+static bool is_five_smooth(seq_t x)
+{
+    while ((x % 2) == 0) x /= 2;
+    while ((x % 3) == 0) x /= 3;
+    while ((x % 5) == 0) x /= 5;
+    return x == 1;
+}
 
 /* --- Dynamic storage for the sequence and for the list of 5‑smooth     */
 /*     numbers -------------------------------------------------------- */
@@ -38,7 +48,7 @@ static void ensure_seq_cap(size_t needed)
     if (needed > seq_cap) {
         size_t new_cap = seq_cap ? seq_cap * 2 : 64;
         if (new_cap < needed) new_cap = needed;
-        seq_vals = (seq_t *)realloc(seq_vals, new_cap * sizeof(seq_t));
+        seq_vals = mem_resize(seq_t, seq_vals, new_cap);
         seq_cap = new_cap;
     }
 }
@@ -48,7 +58,7 @@ static void ensure_smooth_cap(size_t needed)
     if (needed > smooth_cap) {
         size_t new_cap = smooth_cap ? smooth_cap * 2 : 64;
         if (new_cap < needed) new_cap = needed;
-        smooth_vals = (seq_t *)realloc(smooth_vals, new_cap * sizeof(seq_t));
+        smooth_vals = mem_resize(seq_t, smooth_vals, new_cap);
         smooth_cap = new_cap;
     }
 }

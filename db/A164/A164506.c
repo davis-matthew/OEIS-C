@@ -10,14 +10,23 @@
  *            corresponding to the prefixes of the * banned patterns
  * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 42, u64 n <= 85, u128 n <= 171,
  *            big any n
- * Helpers:   is_banned
+ * Validated: standard, pass, 49 terms through n = 492 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/is_banned.h"
+
+/* Check whether the 4‑character string t[0..3] equals a banned pattern. */
+static bool is_banned(const char *t, int len)
+{
+    if (len != 4) return false;
+    return (t[0] == '0' && t[1] == '0' && t[2] == '1' && t[3] == '1') || /* 0011 */
+           (t[0] == '0' && t[1] == '1' && t[2] == '1' && t[3] == '0') || /* 0110 */
+           (t[0] == '1' && t[1] == '0' && t[2] == '0' && t[3] == '1');   /* 1001 */
+}
 
 #define STATE_COUNT 11
 static const char *const state_str[STATE_COUNT] = {

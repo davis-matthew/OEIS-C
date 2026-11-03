@@ -11,14 +11,15 @@
  *            such sum exists, return 0
  * Range:     u8 n <= 28, u16 n <= 565, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_seq_prime
+ * Validated: standard, pass, 84 terms through n = 958 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/is_seq_prime.h"
+#include "../utils/is_prime_seq.h"
 
 /* Euclidean algorithm for unsigned 64‑bit integers */
 static uint64_t gcd_uint64(uint64_t a, uint64_t b)
@@ -37,13 +38,13 @@ seq_t a(idx_t n)
     if (n < 3) return 0;
 
     seq_t sum = (seq_t)(n - 1);          /* start with the largest coprime candidate */
-    if (is_seq_prime(sum)) return sum;
+    if (is_prime_seq(sum)) return sum;
 
     /* Descend through the remaining numbers less than n */
     for (idx_t i = n - 2; i > 0; --i) {
         if (gcd_uint64(i, n) == 1) {
             sum += (seq_t)i;
-            if (is_seq_prime(sum)) return sum;
+            if (is_prime_seq(sum)) return sum;
         }
     }
     return 0;   /* no prime sum was found */

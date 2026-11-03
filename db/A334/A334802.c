@@ -11,7 +11,8 @@
  *            conditions
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 53, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mul64
+ * Validated: standard, pass, 45 terms through n = 9594 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mul64.h"
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 /* ---------- deterministic Miller–Rabin for 64‑bit ---------- */
 
@@ -29,8 +31,8 @@ static uint64_t mod_pow_uint64(uint64_t a, uint64_t e, uint64_t mod)
     a %= mod;
     while (e)
     {
-        if (e & 1) r = mul64(r, a, mod);
-        a = mul64(a, a, mod);
+        if (e & 1) r = mulmod(r, a, mod);
+        a = mulmod(a, a, mod);
         e >>= 1;
     }
     return r;
@@ -63,7 +65,7 @@ static bool is_prime_64(uint64_t n)
         bool composite = true;
         for (unsigned int r = 1; r < s; ++r)
         {
-            x = mul64(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) { composite = false; break; }
         }
         if (composite) return false;
@@ -102,7 +104,7 @@ seq_t a(idx_t n)
         if (cache_len == cache_cap)
         {
             size_t new_cap = cache_cap ? cache_cap * 2 : 16;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) abort(); /* OOM */
             cache = tmp;
             cache_cap = new_cap;

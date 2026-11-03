@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 36, u16 n <= 5041, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 88 terms through n = 9749 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    a(n) = the n‑th position k where Recamán’s sequence
    performs an addition step and the previous term R(k-1) < k. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Global state for caching */
 static seq_t *recam = NULL;      /* Recamán sequence values          */
@@ -32,7 +34,7 @@ static size_t pos_len = 0, pos_cap = 0;
 static void ensure_recam_cap(void) {
     if (recam_len >= recam_cap) {
         size_t new_cap = recam_cap ? recam_cap << 1 : 16;
-        seq_t *tmp = (seq_t *)realloc(recam, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, recam, new_cap);
         if (!tmp) abort();
         recam = tmp;
         recam_cap = new_cap;
@@ -43,7 +45,7 @@ static void ensure_recam_cap(void) {
 static void ensure_seen_cap(void) {
     if (seen_len >= seen_cap) {
         size_t new_cap = seen_cap ? seen_cap << 1 : 16;
-        seq_t *tmp = (seq_t *)realloc(seen_vals, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, seen_vals, new_cap);
         if (!tmp) abort();
         seen_vals = tmp;
         seen_cap = new_cap;
@@ -68,13 +70,13 @@ seq_t a(idx_t n) {
     /* One‑time initialization */
     if (recam_cap == 0) {
         recam_cap = 1;
-        recam = (seq_t *)calloc(1, sizeof(seq_t));
+        recam = mem_new(seq_t, 1);
         if (!recam) abort();
         recam[0] = (seq_t)0;
         recam_len = 1;
 
         seen_cap = 1;
-        seen_vals = (seq_t *)calloc(1, sizeof(seq_t));
+        seen_vals = mem_new(seq_t, 1);
         if (!seen_vals) abort();
         seen_vals[0] = (seq_t)0;
         seen_len = 1;

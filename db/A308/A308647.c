@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..2*n+1} (-1)^k*Stirling2(2*n+1,k)
  * Range:     i8 n <= 3, i16 n <= 5, i32 n <= 8, i64 n <= 14, i128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     if (!T) {
         T_cap = 4;                 /* initial capacity */
         T_len = 1;                 /* we will store T[0] = 1 */
-        T = (seq_t *)malloc(T_cap * sizeof(seq_t));
+        T = mem_new(seq_t, T_cap);
         if (!T) return (seq_t)0;   /* out of memory: return 0 as safe fallback */
         T[0] = (seq_t)1;
     }
@@ -43,7 +45,7 @@ seq_t a(idx_t n)
         /* Allocate a larger array */
         size_t new_cap = T_cap * 2;
         if (new_cap <= target + 1) new_cap = target + 1;
-        seq_t *new_T = (seq_t *)realloc(T, new_cap * sizeof(seq_t));
+        seq_t *new_T = mem_resize(seq_t, T, new_cap);
         if (!new_T) return (seq_t)0;   /* out of memory: safe fallback */
         T = new_T;
         T_cap = new_cap;

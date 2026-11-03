@@ -8,6 +8,7 @@
  * Formula:   a(n) = (-1)^floor(n/4) (period 8, 1 for n%8=0..3, -1 for 4..7)
  * Range:     i8 n <= 84, i16 n <= 84, i32 n <= 84, i64 n <= 84, i128 n <= 84,
  *            big any n
+ * Validated: partial, pass, 85 terms through n = 84 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

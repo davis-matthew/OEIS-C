@@ -10,13 +10,28 @@
  *            gcd(h,2)=1, * and k_s = h·2^{m-s}·(2^s - 1), k_{-1} = 0
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 31, u64 n <= 63, u128 n <= 127,
  *            big any n
- * Helpers:   pow2, sum_of_divisors_odd
+ * Validated: standard, pass, 61 terms through n = 2826 (2026-11-01)
+ * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow2.h"   /* seq_t pow2(idx_t exp); */
-#include "../utils/sum_of_divisors_odd.h"
+#include <stdint.h>
+#include "../utils/pow2.h"
+
+/* Compute the sum of divisors of an odd integer h (h ≥ 1). */
+static seq_t sum_of_divisors_odd(idx_t h)
+{
+    seq_t sum = 0;
+    for (idx_t i = 1; i * i <= h; ++i) {
+        if (h % i == 0) {
+            sum += (seq_t)i;
+            if (i != h / i)
+                sum += (seq_t)(h / i);
+        }
+    }
+    return sum;
+}
 
 seq_t a(idx_t n)
 {

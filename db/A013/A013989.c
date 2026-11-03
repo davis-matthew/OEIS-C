@@ -7,12 +7,14 @@
  * Formula:   a(n) = (n+1)*(a(n-1)/n + a(n-2)), a(0)=1, a(1)=2
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 17, u64 n <= 29, u128 n <= 52,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 39 terms through n = 180 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 static void ensure_cache(idx_t n, seq_t **cache, idx_t *cache_size)
@@ -23,7 +25,7 @@ static void ensure_cache(idx_t n, seq_t **cache, idx_t *cache_size)
         while (new_size <= n)
             new_size <<= 1;
 
-        void *tmp_ptr = realloc(*cache, new_size * sizeof(seq_t));
+        void *tmp_ptr = mem_resize(seq_t, *cache, new_size);
         if (!tmp_ptr)
             abort();
         *cache = (seq_t *)tmp_ptr;
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     static idx_t last_computed = (idx_t)-1;
 
     if (cache == NULL) {                 /* first time we need the cache   */
-        void *tmp_ptr = malloc(2 * sizeof(seq_t));
+        void *tmp_ptr = mem_new(seq_t, 2);
         if (!tmp_ptr)
             abort();
         cache = (seq_t *)tmp_ptr;

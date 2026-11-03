@@ -11,6 +11,7 @@
  *            so * that the result is exact for all n >= 1
  * Range:     u8 none, u16 n <= 10, u32 n <= 74, u64 n <= 200, u128 n <= 200,
  *            big any n
+ * Validated: standard, pass, 46 terms through n = 196 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

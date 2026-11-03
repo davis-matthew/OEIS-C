@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 255, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   shares_digit
+ * Validated: standard, pass, 89 terms through n = 988 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,18 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/shares_digit.h"
+#include "../utils/mem.h"
+
+/* return true if a and b share any decimal digit */
+static bool shares_digit(idx_t a, idx_t b)
+{
+    unsigned int maskA = 0, maskB = 0;
+    if (a == 0) maskA |= 1u;
+    else while (a > 0) { maskA |= 1u << (a % 10); a /= 10; }
+    if (b == 0) maskB |= 1u;
+    else while (b > 0) { maskB |= 1u << (b % 10); b /= 10; }
+    return (maskA & maskB) != 0;
+}
 
 /* state kept between calls */
 static seq_t *perm = NULL;           /* array of values a(i)   */
@@ -38,9 +50,9 @@ static void ensure_capacity(idx_t need)
     if (need_cap <= perm_cap) return;
     size_t new_cap = perm_cap ? perm_cap * 2 : 4;
     while (new_cap < need_cap) new_cap <<= 1;
-    perm    = (seq_t *)realloc(perm,    new_cap * sizeof(seq_t));
+    perm    = mem_resize(seq_t, perm, new_cap);
     assigned= (bool  *)realloc(assigned,new_cap * sizeof(bool));
-    memset(perm + perm_cap, 0,        (new_cap - perm_cap) * sizeof(seq_t));
+    mem_set(perm + perm_cap, 0, (new_cap - perm_cap) * sizeof(seq_t));
     memset(assigned + perm_cap, 0,     (new_cap - perm_cap) * sizeof(bool));
     perm_cap = new_cap;
 }

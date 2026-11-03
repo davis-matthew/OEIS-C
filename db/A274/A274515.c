@@ -10,13 +10,15 @@
  *            is the Stern diatomic sequence
  * Range:     u8 n <= 3746, u16 n <= 9841, u32 n <= 9841, u64 n <= 9841,
  *            u128 n <= 9841, big any n
- * Helpers:   none
+ * Validated: standard, pass, 103 terms through n = 9056 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Include only what the build system supplies. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Forward declaration of the Stern function. */
 static seq_t stern(idx_t k);
@@ -63,7 +65,7 @@ static void grow_cache_to(idx_t max_n)
         new_cap <<= 1;
 
     /* Reallocate. */
-    stern_cache = (seq_t *)realloc(stern_cache, new_cap * sizeof(seq_t));
+    stern_cache = mem_resize(seq_t, stern_cache, new_cap);
 
     /* Initialise the newly added slots. */
     if (stern_cap == 0) {

@@ -10,6 +10,7 @@
  *            or has a divisor of the form m^2–1 (m≥2)
  * Range:     u8 n <= 132, u16 n <= 3131, u32 n <= 3131, u64 n <= 3131,
  *            u128 n <= 3131, big any n
+ * Validated: standard, pass, 82 terms through n = 3075 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -5,15 +5,17 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  sign, look
  * Formula:   a(n) = coefficient of x^n in ∏_{d|n} (1 - x^d)
- * Range:     i8 n <= 629, i16 n <= 3149, i32 n <= 9205, i64 n <= 9205,
- *            i128 n <= 9205, big any n
- * Helpers:   none
+ * Range:     i8 n <= 629, i16 n <= 3149, i32 n <= 20789, i64 n <= 65537,
+ *            i128 n <= 65537, big any n
+ * Validated: standard, pass, 102 terms through n = 9205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 static seq_t *coeff = NULL;      /* buffer reused for successive calls */
 static size_t coeff_cap = 0;     /* capacity of the buffer */
@@ -29,8 +31,8 @@ seq_t a(idx_t n)
 
     /* Ensure the buffer is large enough */
     if (coeff_cap < ns + 1) {
-        free(coeff);
-        coeff = (seq_t *)malloc((ns + 1) * sizeof(seq_t));
+        mem_free(coeff);
+        coeff = mem_new(seq_t, (ns + 1));
         coeff_cap = ns + 1;
     }
 

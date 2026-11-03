@@ -9,12 +9,14 @@
  *            a(4) = -4, a(5) = 4
  * Range:     i8 n <= 11, i16 n <= 26, i32 n <= 54, i64 n <= 118,
  *            i128 n <= 242, big any n
- * Helpers:   none
+ * Validated: standard, pass, 55 terms through n = 894 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache of previously computed values.  The array is grown
    dynamically on demand so that any order of calls is supported. */
@@ -34,7 +36,7 @@ ensure_cache(idx_t n)
     while (new_cap <= (size_t)n)
         new_cap *= 2;
 
-    seq_t *new_arr = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_resize(seq_t, cache, new_cap);
     if (!new_arr) abort();          /* out‑of‑memory: terminate    */
     cache = new_arr;
     cache_cap = new_cap;

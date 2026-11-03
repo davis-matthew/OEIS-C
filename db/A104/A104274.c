@@ -8,12 +8,15 @@
  * Keywords:  easy, nonn
  * Formula:   a(n) = coefficient of x^n in ∏_{k>0}
  *            ((1+x^{(2k-1)^2})/(1-x^{(2k-1)^2}))
- * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
- *            big any n
- * Helpers:   none
+ * Range:     u8 n <= 94, u16 n <= 384, u32 n <= 1853, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 83 terms through n = 9920 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
+
+#include "../utils/mem.h"
 
 /* DP: iterate over odd squares s = 2k-1, let t = s*s. For each t, update dp:
    dp2[i] = dp[i] + 2 * Σ_{m≥1, i≥m*t} dp[i-m*t]  (sum on multiples of t). */
@@ -23,8 +26,8 @@
 seq_t a(idx_t n) {
     /* Allocate two temporary arrays of size n+1 */
     idx_t sz = n + 1;
-    seq_t *dp  = (seq_t *)calloc(sz, sizeof(seq_t));
-    seq_t *dp2 = (seq_t *)calloc(sz, sizeof(seq_t));
+    seq_t *dp  = mem_new(seq_t, sz);
+    seq_t *dp2 = mem_new(seq_t, sz);
     if (!dp || !dp2) return 0;  /* allocation failure */
 
     dp[0] = 1;  /* base case: one way to partition 0 */
@@ -54,8 +57,8 @@ seq_t a(idx_t n) {
     seq_t result = dp[n];
 
     /* Free the dynamically allocated arrays */
-    free(dp);
-    free(dp2);
+    mem_free(dp);
+    mem_free(dp2);
 
     return result;
 }

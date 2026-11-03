@@ -7,20 +7,21 @@
  * Formula:   sum of distinct prime divisors of n that are < sqrt(n)
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   my_isqrt_u64
+ * Validated: partial, pass, 90 terms through n = 90 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/my_isqrt_u64.h"
+#include "../utils/isqrt_u64.h"
 
 seq_t a(idx_t n)
 {
     if (n < 2) return 0;
 
     uint64_t orig = (uint64_t)n;
-    uint64_t limit = my_isqrt_u64(orig);
+    uint64_t limit = isqrt_u64(orig);
     uint64_t rem   = orig;
     seq_t sum = 0;
 

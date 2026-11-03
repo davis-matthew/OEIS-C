@@ -7,19 +7,23 @@
  * Formula:   a(n) = Sum_{d|n} d^(n+1) (OEIS A294645)
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 9, u64 n <= 15, u128 n <= 26,
  *            big any n
- * Helpers:   factor_u64, seq_pow
+ * Validated: standard, pass, 34 terms through n = 361 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_pow.h"
+#include "../utils/ipow_idx.h"
 
 static void gen_divs(size_t idx, seq_t cur, const uint64_t *pr, const uint64_t *ex,
                      size_t cnt, seq_t *sum, idx_t power)
 {
     if (idx == cnt) {
-        *sum += seq_pow(cur, power);
+        *sum += ipow_idx(cur, power);
         return;
     }
     const uint64_t p = pr[idx];

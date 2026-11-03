@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 29, u16 n <= 959, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   good_idx
+ * Validated: standard, pass, 72 terms through n = 9923 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,25 @@
 /* required headers for standard integer and memory functions */
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/good_idx.h"
+#include "../utils/mem.h"
+
+/* Determine whether j satisfies the base‑3 condition. */
+static int good_idx(idx_t j)
+{
+    idx_t x = j;
+    /* parity of the number of 1‑digits (0 = even, 1 = odd) */
+    unsigned char ones_parity = 0;
+    while (x > 0) {
+        int d = (int)(x % 3);
+        if (d == 2)
+            return 0;          /* contains a 2 → not good */
+        if (d == 1)
+            ones_parity ^= 1;   /* flip parity */
+        x /= 3;
+    }
+    /* good if no 2 and even number of 1’s */
+    return ones_parity == 0;
+}
 
 /* Main sequence function.  Static state allows calls in any order. */
 seq_t a(idx_t n)
@@ -40,7 +59,7 @@ seq_t a(idx_t n)
     if (seq_cap == 0) {
         /* start with a small capacity */
         seq_cap = 64;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
     }
 
     /* Generate terms until we have at least n values */
@@ -54,7 +73,7 @@ seq_t a(idx_t n)
             if (seq_len == seq_cap) {
                 /* double capacity */
                 seq_cap <<= 1;
-                seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+                seq = mem_resize(seq_t, seq, seq_cap);
             }
             seq[seq_len++] = (seq_t)cur_j;
         }

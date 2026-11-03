@@ -12,12 +12,14 @@
  *            (x+1)*v(n-1,x) + 1. * * The triangle of coefficients is r...
  * Range:     u8 n <= 24, u16 n <= 59, u32 n <= 59, u64 n <= 59, u128 n <= 59,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 59 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -35,13 +37,13 @@ seq_t a(idx_t n)
     idx_t col   = n - start;                  /* 0‑based column */
 
     /* Allocate temporary buffers.  Size r+1 is safe for all needed arrays. */
-    seq_t *u     = (seq_t *)calloc(r + 1, sizeof(seq_t));
-    seq_t *v     = (seq_t *)calloc(r + 1, sizeof(seq_t));
-    seq_t *u_new = (seq_t *)calloc(r + 1, sizeof(seq_t));
-    seq_t *v_new = (seq_t *)calloc(r + 1, sizeof(seq_t));
+    seq_t *u     = mem_new(seq_t, r + 1);
+    seq_t *v     = mem_new(seq_t, r + 1);
+    seq_t *u_new = mem_new(seq_t, r + 1);
+    seq_t *v_new = mem_new(seq_t, r + 1);
     if (!u || !v || !u_new || !v_new) {
         /* Allocation failure – return 0 as a safe fallback. */
-        free(u); free(v); free(u_new); free(v_new);
+        mem_free(u); mem_free(v); mem_free(u_new); mem_free(v_new);
         return (seq_t)0;
     }
 
@@ -90,10 +92,10 @@ seq_t a(idx_t n)
     seq_t result = u[col];
 
     /* Clean up. */
-    free(u);
-    free(v);
-    free(u_new);
-    free(v_new);
+    mem_free(u);
+    mem_free(v);
+    mem_free(u_new);
+    mem_free(v_new);
 
     return result;
 }

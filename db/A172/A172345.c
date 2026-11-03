@@ -12,13 +12,15 @@
  *            (generalized Fibonacci with m=7)
  * Range:     u8 n <= 7, u16 n <= 16, u32 n <= 30, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 40 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +33,7 @@ seq_t a(idx_t n)
     idx_t k = n - offset;                          /* position in that row */
 
     /* ---------- precompute generalized Fibonacci numbers F[0..r] ---------- */
-    seq_t *F = (seq_t *)malloc((r + 1) * sizeof(seq_t));
+    seq_t *F = mem_new(seq_t, (r + 1));
     if (!F)
         return 0;                                 /* allocation failed */
     F[0] = 0;
@@ -46,8 +48,8 @@ seq_t a(idx_t n)
     for (idx_t cur = 0; cur <= r; ++cur)
     {
         size_t cur_len = cur + 1;
-        seq_t *curr = (seq_t *)malloc(cur_len * sizeof(seq_t));
-        if (!curr) { free(prev); free(F); return 0; }
+        seq_t *curr = mem_new(seq_t, cur_len);
+        if (!curr) { mem_free(prev); mem_free(F); return 0; }
         curr[0] = 1;                               /* first element of every row = 1 */
         for (idx_t kk = 1; kk <= cur; ++kk)
         {
@@ -55,13 +57,13 @@ seq_t a(idx_t n)
             seq_t den = F[kk];                     /*   F[k]               */
             curr[kk] = num / den;                  /* exact integer division */
         }
-        free(prev);
+        mem_free(prev);
         prev = curr;
         prev_len = cur_len;
     }
 
     seq_t result = prev[k];
-    free(prev);
-    free(F);
+    mem_free(prev);
+    mem_free(F);
     return result;
 }

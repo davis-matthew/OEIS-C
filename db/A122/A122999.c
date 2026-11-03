@@ -7,13 +7,15 @@
  * Formula:   a(n) = a(n-1) + 25*a(n-2), a(0)=1, a(1)=1
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 13, u64 n <= 20, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Compute the A122999 sequence with memoisation. */
 #include <stdlib.h>   /* for malloc, realloc */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL; /* cached values */
 static idx_t cached_n = 0;  /* number of cached entries */
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first use */
     if (cache == NULL) {
         /* Allocate space for indices 0 and 1 */
-        cache = (seq_t *)malloc(2 * sizeof(seq_t));
+        cache = mem_new(seq_t, 2);
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)1;
         cached_n = 2;
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
 
     /* Grow cache to accommodate indices up to n */
     size_t new_cap = (size_t)(n + 1);
-    seq_t *new_cache = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, cache, new_cap);
     if (new_cache == NULL) {
         /* Allocation failed – behaviour unspecified, but avoid crash */
         return (seq_t)0;

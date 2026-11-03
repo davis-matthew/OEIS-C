@@ -8,8 +8,9 @@
  * Formula:   a(n) = balanced ternary representation of n, using digits
  *            {0,1,2} where 2 stands for -1. The resulting digits are
  *            concatenated as a base‑10 number
- * Range:     u8 n <= 13, u16 n <= 121, u32 n <= 9715, u64 n <= 9715,
- *            u128 n <= 9715, big any n
+ * Range:     u8 n <= 13, u16 n <= 121, u32 n <= 29524, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 60 terms through n = 9715 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

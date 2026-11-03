@@ -8,6 +8,7 @@
  * Formula:   a(n) = (prime(n)^2 + prime(n+1)^2 + prime(n+2)^2)/3
  * Range:     u8 n <= 3, u16 n <= 34, u32 n <= 4148, u64 n <= 5000,
  *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 55 terms through n = 4978 (2026-11-01)
  * Helpers:   sieve_first_n_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -21,6 +22,9 @@
  * for n < 3, which is outside the defined domain but harmless.
  */
 #include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+#include <math.h>
 #include "../utils/sieve_first_n_primes.h"
 
 static uint32_t *prime_list = NULL;   /* array of primes, 0‑indexed */

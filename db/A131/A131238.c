@@ -10,13 +10,14 @@
  *            position in that row (0 ≤ k ≤ r)
  * Range:     u8 n <= 58, u16 n <= 178, u32 n <= 610, u64 n <= 2307,
  *            u128 n <= 5150, big any n
- * Helpers:   _binom_nk
+ * Validated: standard, pass, 94 terms through n = 5000 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/_binom_nk.h"
+#include "../utils/binomial.h"
 
 /* ----- helper: find the row number r for flattened index n ----- */
 static idx_t _row_from_index(idx_t n)
@@ -45,9 +46,9 @@ seq_t a(idx_t n)
     idx_t row_start = (idx_t)((__uint128_t)r * (r + 1) / 2);
     idx_t k = n - row_start;                 /* 0 ≤ k ≤ r */
 
-    seq_t bin1 = _binom_nk(r, k);
+    seq_t bin1 = binomial(r, k);
     idx_t f = (r + k) >> 1;                  /* floor((r+k)/2) */
-    seq_t bin2 = _binom_nk(f, k);
+    seq_t bin2 = binomial(f, k);
 
     return (seq_t)2 * bin1 - bin2;           /* T(r,k) */
 }

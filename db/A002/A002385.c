@@ -8,9 +8,10 @@
  * Formula:   search. Generate odd-length decimal palindromes in increasing
  *            order (plus 11, the only even-length one), keep those that pass
  *            a deterministic Miller-Rabin test, and memoize the results
- * Range:     u8 n <= 10, u16 n <= 70, u32 n <= 5953, u64 n <= 9980,
- *            u128 n <= 9980, big any n
- * Helpers:   pp_isprime, pp_mulmod, pp_powmod
+ * Range:     u8 n <= 10, u16 n <= 70, u32 n <= 5953, u64 n <= 47995,
+ *            u128 n <= 47995, big any n
+ * Validated: standard, pass, 62 terms through n = 9980 (2026-11-03)
+ * Helpers:   is_prime_u64, mulmod, powmod_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/pp_isprime.h"
-#include "../utils/pp_mulmod.h"
-#include "../utils/pp_powmod.h"
+#include "../utils/is_prime_u64.h"
+#include "../utils/mulmod.h"
+#include "../utils/powmod_u64.h"
 
 static uint64_t *pp_cache = NULL;
 static size_t pp_count = 0, pp_cap = 0;
@@ -59,7 +60,7 @@ seq_t a(idx_t n) {
         t = pp_h / 10;
         while (t) { p = p * 10 + t % 10; t /= 10; }
         pp_h++;
-        if (pp_isprime(p)) pp_push(p);
+        if (is_prime_u64(p)) pp_push(p);
     }
     if (n == 0 || n > pp_count) return (seq_t)0;
     return (seq_t)pp_cache[n - 1];

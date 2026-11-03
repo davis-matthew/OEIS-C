@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 5, u64 n <= 12, u128 n <= 27,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 199 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,6 +35,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Constants */
 #define N_COL    5
@@ -132,11 +134,11 @@ seq_t a(idx_t n) {
     seq_t *nxtp = nxt;
 
     /* Initial state: all columns are in state 0 (no 1 seen). */
-    memset(curp, 0, sizeof(cur));
+    mem_set(curp, 0, sizeof(cur));
     curp[0] = 1;
 
     for (size_t r = 0; r < rows; ++r) {
-        memset(nxtp, 0, sizeof(nxt));
+        mem_set(nxtp, 0, sizeof(nxt));
         for (int s = 0; s < STATES; ++s) {
             seq_t val = curp[s];
             if (val == 0) continue;

@@ -7,15 +7,26 @@
  * Formula:   a(n) = number of divisors of n with largest digit ≤ 8 (base 10)
  * Range:     u8 n <= 328, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   contains_nine, factor_u64
+ * Validated: standard, pass, 118 terms through n = 808 (2026-11-01)
+ * Helpers:   factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/contains_nine.h"
+
+static bool contains_nine(seq_t x) {
+    if (x == 0) return false;
+    while (x > 0) {
+        uint64_t d = (uint64_t)(x % 10);
+        if (d == 9) return true;
+        x /= 10;
+    }
+    return false;
+}
 
 static void count_no9(uint64_t *pr, uint64_t *ex, size_t cnt, size_t idx, uint64_t cur, int *res) {
     if (idx == cnt) {

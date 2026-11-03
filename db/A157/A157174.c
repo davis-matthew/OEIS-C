@@ -10,8 +10,9 @@
  *            r*(r+1)/2, and T(r,c,m) = (m*(r-c)+1)*C(r-1,c-1) +
  *            (m*c+1)*C(r-1,c) - m*c*(r-c)*C(r-2,c-1) (C is binomial
  *            coefficient)
- * Range:     i8 n <= 47, i16 n <= 110, i32 n <= 417, i64 n <= 1735,
+ * Range:     i8 n <= 48, i16 n <= 110, i32 n <= 417, i64 n <= 1735,
  *            i128 n <= 5150, big any n
+ * Validated: standard, pass, 82 terms through n = 4817 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

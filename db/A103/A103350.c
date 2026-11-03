@@ -7,12 +7,13 @@
  * Formula:   a(n) = denominator of sum_{k=1..n} 1/k^8
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 4, u64 n <= 6, u128 n <= 10,
  *            big any n
- * Helpers:   seq_gcd_local
+ * Validated: partial, pass, 10 terms through n = 10 (2026-11-01)
+ * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_gcd_local.h"
+#include "../utils/gcd.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +30,7 @@ seq_t a(idx_t n)
             continue;
 
         /* least common multiple of D and k8 */
-        seq_t g = seq_gcd_local(D, k8);
+        seq_t g = gcd(D, k8);
         seq_t newD = (D / g) * k8;
 
         /* combine the fractions, then reduce */
@@ -38,7 +39,7 @@ seq_t a(idx_t n)
         N = N * m1 + m2;
         D = newD;
 
-        seq_t g2 = seq_gcd_local(N, D);
+        seq_t g2 = gcd(N, D);
         N /= g2;
         D /= g2;
     }

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 14, u64 n <= 26, u128 n <= 48,
  *            big any n
- * Helpers:   binomial, binomial128
+ * Validated: standard, pass, 40 terms through n = 989 (2026-11-01)
+ * Helpers:   binomial, binomial_idx_to_i128
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,9 @@
 #include <stdint.h>
 #include <stddef.h>
 
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/binomial128.h"
+#include "../utils/binomial_idx_to_i128.h"
 
 seq_t a(idx_t n)
 {
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
             idx_t   a = 3 * n - 2 * k + 1; /* upper parameter of binom */
             idx_t   b = n - 2 * k;        /* lower parameter of binom */
 
-            __int128 bin = binomial128(a, b);
+            __int128 bin = binomial_idx_to_i128(a, b);
             __int128 term = bin * (__int128)(2 * k + 1);
 
             if (k & 1u)

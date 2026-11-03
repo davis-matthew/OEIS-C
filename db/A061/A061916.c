@@ -11,15 +11,30 @@
  *            with the digit 5
  * Range:     i8 n <= 6, i16 n <= 26, i32 n <= 79, i64 n <= 79, i128 n <= 79,
  *            big any n
- * Helpers:   all_even_digits, is_palindrome
+ * Validated: partial, pass, 80 terms through n = 79 (2026-11-01)
+ * Helpers:   is_palindrome_base
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <limits.h>
-#include "../utils/is_palindrome.h"
-#include "../utils/all_even_digits.h"
+#include "../utils/is_palindrome_base.h"
+
+/* Test whether all decimal digits of x are even. */
+static inline bool all_even_digits(seq_t x)
+{
+    if (x == 0)           /* 0 is considered to have only even digits */
+        return true;
+
+    while (x != 0) {
+        seq_t dig   = x % 10;     /* least significant decimal digit   */
+        if ((dig % 2) != 0)       /* odd digit found                    */
+            return false;
+        x /= 10;                  /* move to next digit                  */
+    }
+    return true;
+}
 
 /* Return the sequence value for index n. */
 seq_t a(idx_t n)
@@ -48,7 +63,7 @@ seq_t a(idx_t n)
         seq_t p = (seq_t)prod;
 
         /* Check both the palindrome property and that all digits are even. */
-        if (is_palindrome(p, 10) && all_even_digits(p))
+        if (is_palindrome_base(p, 10) && all_even_digits(p))
             return k;
     }
     /* Unreachable, but required for completeness. */

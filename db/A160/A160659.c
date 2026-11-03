@@ -8,14 +8,24 @@
  *            middle character (counting letters only)
  * Range:     u8 n <= 13, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   copy_char
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/copy_char.h"
+
+/* Append the null‑terminated string src into the buffer at dst,
+   returning the new position after the last copied character. */
+static char *copy_char(const char *src, char *dst)
+{
+    while (*src) {
+        *dst++ = *src++;
+    }
+    return dst;
+}
 
 static const char *UNITS[20] = {
     "zero",   "one",     "two",   "three", "four",   "five",

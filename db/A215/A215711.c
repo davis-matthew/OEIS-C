@@ -9,13 +9,33 @@
  *            0), where σ₃(m) = Σ_{d|m} d³
  * Range:     i8 n <= 2, i16 n <= 17, i32 n <= 683, i64 n <= 2500,
  *            i128 n <= 2500, big any n
- * Helpers:   sigma3
+ * Validated: standard, pass, 52 terms through n = 2474 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>   /* harmless inclusion */
-#include "../utils/sigma3.h"
+
+static seq_t sigma3(idx_t m)
+{
+    if (m == 0) return 0;
+    seq_t sum = 0;
+    for (idx_t d = 1; d <= m / d; ++d) {
+        if (m % d == 0) {
+            seq_t dseq = (seq_t)d;
+            seq_t d3 = dseq * dseq * dseq;
+            sum += d3;
+            idx_t e = m / d;
+            if (e != d) {
+                seq_t eseq = (seq_t)e;
+                seq_t e3 = eseq * eseq * eseq;
+                sum += e3;
+            }
+        }
+    }
+    return sum;
+}
 
 seq_t a(idx_t n)
 {

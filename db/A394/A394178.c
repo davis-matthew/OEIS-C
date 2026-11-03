@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  tabl, sign, easy
  * Formula:   not stated
- * Range:     i8 n <= 89, i16 n <= 9942, i32 n <= 9942, i64 n <= 9942,
- *            i128 n <= 9942, big any n
+ * Range:     i8 n <= 89, i16 n <= 10011, i32 n <= 10011, i64 n <= 10011,
+ *            i128 n <= 10011, big any n
+ * Validated: standard, pass, 94 terms through n = 9942 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -10,12 +10,14 @@
  *            numbers of parts over all partitions of m
  * Range:     u8 n <= 5, u16 n <= 15, u32 n <= 50, u64 n <= 177, u128 n <= 659,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 52 terms through n = 989 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h> /* for malloc, free, abort, calloc */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -32,8 +34,8 @@ seq_t a(idx_t n)
     /* Recompute tables if we haven't yet handled up to this n */
     if (n > maxComputedN) {
         /* Allocate new arrays of size M+1 (indices 0..M) */
-        seq_t *newP = (seq_t *)calloc(M + 1, sizeof(seq_t));
-        seq_t *newS = (seq_t *)calloc(M + 1, sizeof(seq_t));
+        seq_t *newP = mem_new(seq_t, M + 1);
+        seq_t *newS = mem_new(seq_t, M + 1);
         if (!newP || !newS) {
             /* If memory allocation fails, abort (should not happen in tests) */
             abort();
@@ -54,8 +56,8 @@ seq_t a(idx_t n)
         }
 
         /* Free old arrays and replace them */
-        free(P);
-        free(S);
+        mem_free(P);
+        mem_free(S);
         P = newP;
         S = newS;
         maxComputedN = n;

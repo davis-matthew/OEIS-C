@@ -8,13 +8,15 @@
  *            a(n-25), a(0) = 1
  * Range:     u8 n <= 58, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 59 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;          /* memoization array */
 static idx_t max_computed = 0;       /* largest index already computed */
@@ -27,7 +29,7 @@ seq_t a(idx_t n)
     if (!cache)
     {
         cap = 1;
-        cache = (seq_t *)calloc(cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) return 0;      /* should never happen in judge */
         cache[0] = 1;              /* a(0) = 1   */
         max_computed = 0;
@@ -38,9 +40,9 @@ seq_t a(idx_t n)
     {
         size_t new_cap = n + 1;
         if (new_cap < cap * 2) new_cap = cap * 2;   /* grow a bit faster */
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return 0;      /* allocation failure guard */
-        memset(tmp + cap, 0, (new_cap - cap) * sizeof(seq_t));
+        mem_set(tmp + cap, 0, (new_cap - cap) * sizeof(seq_t));
         cache = tmp;
         cap = new_cap;
     }

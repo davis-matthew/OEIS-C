@@ -9,12 +9,14 @@
  *            and a(2*k+1)=A077235(k)
  * Range:     u8 n <= 7, u16 n <= 15, u32 n <= 32, u64 n <= 65, u128 n <= 133,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 50 terms through n = 955 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>   /* malloc, free */
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
         return base4[(size_t)n];
 
     size_t len = (size_t)n + 1;    /* array length */
-    seq_t *arr = (seq_t *)malloc(len * sizeof(seq_t));
+    seq_t *arr = mem_new(seq_t, len);
     if (!arr)                      /* allocation failed */
         return (seq_t)0;
 
@@ -41,6 +43,6 @@ seq_t a(idx_t n)
         arr[i] = (seq_t)4 * arr[i - 2] - arr[i - 4];
 
     seq_t result = arr[n];
-    free(arr);
+    mem_free(arr);
     return result;
 }

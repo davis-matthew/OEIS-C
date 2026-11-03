@@ -12,13 +12,15 @@
  *            1‑5x+10x²‑10x³+5x⁴‑x⁵
  * Range:     u8 n <= 6, u16 n <= 18, u32 n <= 258, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 51 terms through n = 957 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* cache for already computed terms */
 static seq_t *cache = NULL;
@@ -32,7 +34,7 @@ static void ensure_capacity(idx_t need)
     if (cache_len >= need) return;
     idx_t new_cap = cache_len ? cache_len * 2 : 1;
     while (new_cap < need) new_cap <<= 1;
-    void *p = realloc(cache, new_cap * (sizeof(seq_t)));
+    void *p = mem_resize(seq_t, cache, (new_cap * (sizeof(seq_t))) / sizeof(seq_t));
     cache = (seq_t *)p;
     cache_len = new_cap;
 }

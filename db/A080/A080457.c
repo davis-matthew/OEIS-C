@@ -11,13 +11,15 @@
  *            O(1)
  * Range:     u8 n <= 58, u16 n <= 58, u32 n <= 58, u64 n <= 58, u128 n <= 58,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 58 terms through n = 58 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 extern seq_t a(idx_t n);     /* Declaration used by the build system */
 
@@ -54,7 +56,7 @@ static void ensure_vals_capacity(idx_t n)
         size_t new_cap = cap_vals ? cap_vals * 2 : 16;
         while ((size_t)n + 1 > new_cap)
             new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(vals, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, vals, new_cap);
         if (!tmp) exit(1);
         vals = tmp;
         cap_vals = new_cap;

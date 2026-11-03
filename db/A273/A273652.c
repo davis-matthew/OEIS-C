@@ -9,6 +9,7 @@
  * Formula:   a(n) = n*(n-1)/2 * (1 + 2^(n-2))
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 25, u64 n <= 55, u128 n <= 117,
  *            big any n
+ * Validated: standard, pass, 45 terms through n = 877 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

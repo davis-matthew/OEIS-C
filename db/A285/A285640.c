@@ -14,6 +14,7 @@
  *            (n-d-16j + 1), where (d, c_d) are the degree...
  * Range:     i8 n <= 64, i16 n <= 1024, i32 n <= 5000, i64 n <= 5000,
  *            i128 n <= 5000, big any n
+ * Validated: standard, pass, 83 terms through n = 4515 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

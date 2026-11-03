@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 16, u16 n <= 1663, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   has_two_groups_u64, is_cyclic_u64
+ * Validated: standard, pass, 70 terms through n = 1797 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,93 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/has_two_groups_u64.h"
-#include "../utils/is_cyclic_u64.h"
+#include "../utils/mem.h"
+
+/* ------------------------------------------------------------------ */
+static bool has_two_groups_u64(uint64_t n)
+{
+    if (n == 4)                     /* 2² also has 2 groups   */
+        return true;
+
+    /* factorisation */
+    uint64_t primes[64];
+    int      exps[64];
+    int      cnt = 0;
+    uint64_t m   = n;
+
+    for (uint64_t d = 2; d <= m / d; ++d) {
+        if (m % d == 0) {
+            int e = 0;
+            while (m % d == 0) {
+                m /= d;
+                ++e;
+            }
+            primes[cnt] = d;
+            exps[cnt]   = e;
+            ++cnt;
+        }
+    }
+    if (m > 1) {
+        primes[cnt] = m;
+        exps[cnt]   = 1;
+        ++cnt;
+    }
+
+    if (cnt == 1) {                /* prime power n = p^k      */
+        return exps[0] == 2;       /* only p² gives 2 groups    */
+    }
+
+    if (cnt == 2 && exps[0] == 1 && exps[1] == 1) {
+        /* n = p*q  (distinct primes).
+           Two groups iff p | (q−1). */
+        uint64_t p = primes[0];
+        uint64_t q = primes[1];
+        if (p > q) {                /* ensure p < q */
+            uint64_t t = p; p = q; q = t;
+        }
+        return ((q - 1) % p) == 0;
+    }
+
+    return false;                  /* all other cases */
+}
+
+/* ------------------------------------------------------------------ */
+static bool is_cyclic_u64(uint64_t n)
+{
+    if (n <= 3)                       /* 1,2,3 are cyclic */
+        return true;
+
+    /* factor n and check conditions: square‑free and p∤q‑1 for all primes p<q */
+    uint64_t primes[64];
+    int      cnt = 0;
+    uint64_t m   = n;
+    for (uint64_t d = 2; d <= m / d; ++d) {
+        if (m % d == 0) {
+            int exp = 0;
+            while (m % d == 0) {
+                m /= d;
+                ++exp;
+            }
+            if (exp > 1)                 /* not square‑free */
+                return false;
+            primes[cnt++] = d;
+        }
+    }
+    if (m > 1) {                       /* remaining prime factor  */
+        primes[cnt++] = m;
+    }
+
+    /* check p∤q‑1 for all pairs */
+    for (int i = 0; i < cnt; ++i) {
+        for (int j = i + 1; j < cnt; ++j) {
+            uint64_t p = primes[i];
+            uint64_t q = primes[j];
+            if ((q % p) == 1 || (p % q) == 1)
+                return false;
+        }
+    }
+    return true;
+}
 
 static seq_t *cached_terms = NULL;   /* found terms */
 static size_t   cache_len   = 0;      /* number of stored terms   */
@@ -35,7 +121,7 @@ static uint64_t last_checked = 0;     /* largest integer already tested */
 /* ------------------------------------------------------------------ */
 static void grow_cache(size_t new_cap)
 {
-    seq_t *tmp = (seq_t *)realloc(cached_terms, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cached_terms, new_cap);
     if (!tmp) abort();                /* allocation failed  */
     cached_terms = tmp;
     cache_cap    = new_cap;

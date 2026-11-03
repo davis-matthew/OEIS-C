@@ -10,13 +10,29 @@
  *            = 2*(p^{e+1}-1)/(p^2-1) if e is odd
  * Range:     u8 n <= 12, u16 n <= 1736, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   a_prime_power, ppow
+ * Validated: standard, pass, 103 terms through n = 9120 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/a_prime_power.h"
-#include "../utils/ppow.h"
+#include "../utils/ipow_idx.h"
+
+static seq_t a_prime_power(idx_t p, idx_t e)
+{
+    if (e == 0) return 1;
+    seq_t p2  = ipow_idx(p, 2);          /* p^2 */
+    seq_t denom = p2 - 1;           /* (p^2-1) */
+    if ((e & 1) == 0) {             /* e even */
+        seq_t pe = ipow_idx(p, e);      /* p^e */
+        seq_t numer = pe * p2 + pe - 2;
+        return numer / denom;
+    } else {                        /* e odd */
+        seq_t pe1 = ipow_idx(p, e + 1); /* p^{e+1} */
+        seq_t numer = 2 * (pe1 - 1);
+        return numer / denom;
+    }
+}
 
 seq_t a(idx_t n)
 {

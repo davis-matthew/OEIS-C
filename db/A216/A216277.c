@@ -8,6 +8,7 @@
  * Formula:   primes p such that p mod 20 ∉ {1,5,9}
  * Range:     u8 n <= 43, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
+ * Validated: partial, pass, 64 terms through n = 64 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,7 +16,7 @@
 
 /* The sequence consists of all primes that are NOT congruent to 1, 5, or 9 modulo 20. */
 #include <stdbool.h>
-#include "../utils/is_prime.h"   /* provides bool is_prime(idx_t x) */
+#include "../utils/is_prime.h"
 
 seq_t a(idx_t n)
 {

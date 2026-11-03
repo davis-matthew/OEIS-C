@@ -8,13 +8,15 @@
  *            a decimal palindrome
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 5, u64 n <= 6, u128 n <= 6,
  *            big any n
- * Helpers:   is_palindrome, next_prime
+ * Validated: partial, pass, 6 terms through n = 6 (2026-11-01)
+ * Helpers:   is_palindrome_base, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/is_palindrome.h"
+#include <stdint.h>
+#include "../utils/is_palindrome_base.h"
 #include "../utils/next_prime.h"
 
 seq_t a(idx_t n)
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
         uint64_t q = next_prime(p);                /* successive prime */
         seq_t prod = (seq_t)p * (seq_t)q;
 
-        if (is_palindrome(prod, 10)) {             /* palindrome in base 10 */
+        if (is_palindrome_base(prod, 10)) {             /* palindrome in base 10 */
             ++found;
             if (found == n) {
                 result = (seq_t)p;                 /* return the smaller prime */

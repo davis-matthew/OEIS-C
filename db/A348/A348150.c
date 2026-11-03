@@ -8,7 +8,8 @@
  * Formula:   a(n) = smallest n‑digit Niven number with no digit 0
  * Range:     u8 n <= 3, u16 n <= 5, u32 n <= 10, u64 n <= 20, u128 n <= 39,
  *            big any n
- * Helpers:   find_suffix, seq_from_str
+ * Validated: standard, pass, 37 terms through n = 960 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,8 +17,52 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/seq_from_str.h"
-#include "../utils/find_suffix.h"
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
+
+/* Recursive search for a suffix of length s which, together with a prefix of
+   n‑s ones, forms a valid Niven number.  The array 'digits' contains the
+   digits of the suffix (indices 0 … s-1).  The buffer 'buf' is filled with
+   the final number when a valid suffix is found. */
+static bool find_suffix(int depth, int s, int sum, int *digits,
+                        idx_t p, const int *pre_mod, const int *ten_mod,
+                        idx_t n, char *buf) {
+    if (depth == s) {
+        int S = (int)(p + sum);          /* total digit sum */
+        int pre = pre_mod[S];
+        int pow10 = ten_mod[S];
+
+        /* value of the suffix modulo S */
+        int val = 0;
+        for (int i = 0; i < s; ++i)
+            val = (val * 10 + digits[i]) % S;
+
+        int prod = (int)(((long long)pre * pow10) % S);
+        if ((prod + val) % S == 0) {
+            /* build the number into buf */
+            for (idx_t i = 0; i < p; ++i) buf[i] = '1';
+            for (int i = 0; i < s; ++i) buf[p + i] = '0' + digits[i];
+            buf[n] = '\0';
+            return true;
+        }
+        return false;
+    }
+    for (int d = 1; d <= 9; ++d) {
+        digits[depth] = d;
+        if (find_suffix(depth + 1, s, sum + d, digits,
+                        p, pre_mod, ten_mod, n, buf))
+            return true;
+    }
+    return false;
+}
 
 /* Main function required by the problem statement */
 seq_t a(idx_t n) {

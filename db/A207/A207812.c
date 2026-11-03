@@ -12,7 +12,8 @@
  *            f₃[j]=∑i good[i][j] and for k≥3 f_{k+1}[j]=...
  * Range:     u8 n <= 1, u16 n <= 3, u32 n <= 7, u64 n <= 16, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 32 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -54,12 +56,12 @@ seq_t a(idx_t n)
                 good[i * M + j] = ((patterns[i] | patterns[j]) == 0x7F);
 
         /* Allocate working buffers for f values */
-        f_cur = (seq_t*)calloc(M, sizeof(seq_t));
-        f_nxt = (seq_t*)calloc(M, sizeof(seq_t));
+        f_cur = mem_new(seq_t, M);
+        f_nxt = mem_new(seq_t, M);
 
         /* Allocate array for memoised a(n) values */
         a_cap = 32;
-        a_seq = (seq_t*)calloc(a_cap + 1, sizeof(seq_t)); /* 1‑based */
+        a_seq = mem_new(seq_t, a_cap + 1); /* 1‑based */
 
         init_done = true;
     }
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
     if ((size_t)n > a_cap) {
         size_t new_cap = a_cap;
         while ((size_t)n > new_cap) new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(a_seq, (new_cap + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_seq, (new_cap + 1));
         if (tmp) { a_seq = tmp; a_cap = new_cap; }
     }
 

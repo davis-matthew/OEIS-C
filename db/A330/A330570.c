@@ -8,13 +8,15 @@
  *            (e+2)(e+1)/2 is the 3‑divisor function
  * Range:     u8 n <= 8, u16 n <= 131, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 70 terms through n = 9317 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Smallest prime factor table (built up to the required limit).      */
@@ -88,7 +90,7 @@ static void ensure_up_to(idx_t n)
 
     /* Resize cumulative array if necessary. */
     if (n + 1 > cum_cap) {
-        seq_t *new_cum = (seq_t *)realloc(cum, (size_t)(n + 1) * sizeof(seq_t));
+        seq_t *new_cum = mem_resize(seq_t, cum, (size_t)(n + 1));
         if (!new_cum)
             return;                         /* allocation failure – later crash, harmless */
         cum = new_cum;

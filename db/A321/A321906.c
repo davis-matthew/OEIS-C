@@ -10,14 +10,17 @@
  *            2^r)
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   mod_pow
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/mod_pow.h"  /* provides: seq_t mod_pow(seq_t base, uint64_t exp, seq_t mod); */
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/powmod.h"
 
 static unsigned int floor_log2_idx(idx_t x) {
     /* x >= 1 */
@@ -38,7 +41,7 @@ seq_t a(idx_t n) {
 
     /* brute force search for the smallest odd m satisfying the congruence */
     for (uint64_t m = 1; m < (uint64_t)mod; m += 2) {
-        seq_t pow_val = mod_pow(a_val, m, mod);
+        seq_t pow_val = powmod(a_val, m, mod);
         if ( (((seq_t)m) * pow_val) % mod == 1 )
             return (seq_t)m;
     }

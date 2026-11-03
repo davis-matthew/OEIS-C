@@ -7,12 +7,14 @@
  * Formula:   a(n) = Sum_{d|n} A001156(d) (A001156 = partitions into squares)
  * Range:     u8 n <= 63, u16 n <= 63, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 63 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache of partition‑into‑squares counts dp[0..dp_size] */
 static seq_t *dp = NULL;   /* dp[0] = 1, dp[i] = p_squares(i) */
@@ -20,10 +22,10 @@ static idx_t dp_size = 0;
 
 /* Recompute dp up to N (inclusive).  All values are assumed to fit in seq_t. */
 static void recompute_dp(idx_t N) {
-    if (dp) free(dp);                         /* discard old cache if any */
+    if (dp) mem_free(dp);                         /* discard old cache if any */
 
     /* Allocate zeroed array of length N+1 */
-    dp = (seq_t *)calloc((size_t)(N + 1), sizeof(seq_t));
+    dp = mem_new(seq_t, (size_t)(N + 1));
     if (!dp) exit(1);                          /* allocation failure */
 
     dp[0] = 1;                                 /* empty partition */

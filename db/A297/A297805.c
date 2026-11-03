@@ -10,13 +10,38 @@
  *            Computed by a 5‑column transfer‑matrix
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 9, u64 n <= 18, u128 n <= 36,
  *            big any n
- * Helpers:   neighbors_ok
+ * Validated: standard, pass, 33 terms through n = 172 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/neighbors_ok.h"
+
+static int neighbors_ok(uint32_t a, uint32_t b, uint32_t c) {
+    /* Check each 1 in column b with neighbors from a (left) and c (right). */
+    for (int r = 0; r < 5; ++r) {
+        if (b & (1u << r)) {
+            unsigned cnt = 0;
+            /* Horizontal neighbours */
+            if (a & (1u << r)) ++cnt;
+            if (c & (1u << r)) ++cnt;
+            /* Diagonal neighbours */
+            if (r > 0) {
+                if (a & (1u << (r - 1))) ++cnt;
+                if (c & (1u << (r - 1))) ++cnt;
+            }
+            if (r < 4) {
+                if (a & (1u << (r + 1))) ++cnt;
+                if (c & (1u << (r + 1))) ++cnt;
+            }
+            /* Allowed counts are 2, 3 or 5 */
+            if (!(cnt == 2 || cnt == 3 || cnt == 5))
+                return 0;
+        }
+    }
+    return 1;
+}
 
 static uint32_t nextmask[1024];
 static int nextmask_initialized = 0;

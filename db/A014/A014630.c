@@ -10,13 +10,15 @@
  *            a(2)=4, a(3)=11, … (as given in OEIS A014630)
  * Range:     u8 n <= 6, u16 n <= 15, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* -------------- cache of distinct values -------------------- */
 static seq_t *cache      = NULL;   /* array of distinct Eulerian numbers */
@@ -28,7 +30,7 @@ static void append_value(seq_t v)
 {
     if (cache_len == cache_cap) {
         size_t new_cap = cache_cap ? cache_cap * 2 : 32;
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) abort();                  /* out of memory */
         cache      = tmp;
         cache_cap  = new_cap;
@@ -67,7 +69,7 @@ seq_t a(idx_t n)
         if (last_row == 0) {
             row     = 1;
             cur_len = 1;
-            cur_row = (seq_t *)malloc(sizeof(seq_t) * cur_len);
+            cur_row = mem_new(seq_t, cur_len);
             if (!cur_row) abort();
             cur_row[0] = (seq_t)1;          /* E(1,0) = 1 */
 
@@ -84,7 +86,7 @@ seq_t a(idx_t n)
         /* ----- generate row (row = last_row + 1) ----------------- */
         row     = last_row + 1;
         cur_len = (size_t)row;
-        cur_row = (seq_t *)malloc(sizeof(seq_t) * cur_len);
+        cur_row = mem_new(seq_t, cur_len);
         if (!cur_row) abort();
 
         cur_row[0]                = (seq_t)1;
@@ -106,7 +108,7 @@ seq_t a(idx_t n)
         }
 
         /* free previous row, update state for next iteration */
-        free(prev_row);
+        mem_free(prev_row);
         prev_row = cur_row;
         prev_len = cur_len;
         last_row = row;

@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 46, u32 n <= 46, u64 n <= 46, u128 n <= 46,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 46 terms through n = 46 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ----------  globals for memoisation  ---------- */
 static seq_t *term_cache       = NULL;   /* cached terms             */
@@ -41,7 +43,7 @@ static void grow_terms(size_t needed)
     if (term_cap < needed) {
         size_t new_cap = term_cap ? term_cap * 2 : 8;
         if (new_cap < needed) new_cap = needed;
-        seq_t *tmp = (seq_t*)realloc(term_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, term_cache, new_cap);
         if (!tmp) abort(); /* allocation failure */
         term_cache = tmp;
         term_cap   = new_cap;
@@ -86,7 +88,7 @@ seq_t a(idx_t n)
 
     /* Allocate / initialise caches on first call */
     if (!term_cache) {
-        term_cache = (seq_t*)malloc(8 * sizeof(seq_t));
+        term_cache = mem_new(seq_t, 8);
         if (!term_cache) abort();
         term_cap = 8;
     }

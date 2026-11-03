@@ -10,7 +10,8 @@
  *            build)
  * Range:     i8 n <= 104, i16 n <= 104, i32 n <= 104, i64 n <= 104,
  *            i128 n <= 104, big any n
- * Helpers:   none
+ * Validated: partial, pass, 105 terms through n = 104 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
     /* Handle the n==0 case separately to avoid out‑of‑bounds accesses. */
     if (n == 0) {
         if (cum == NULL) {
-            cum = (seq_t*)malloc(sizeof(seq_t));
+            cum = mem_new(seq_t, 1);
             if (!cum) return 0;      /* allocation failure */
             cum[0] = (seq_t)(-1);
             max_n = 0;
@@ -40,7 +42,7 @@ seq_t a(idx_t n)
     if (n > max_n) {
         idx_t new_cap = n + 1U;                     /* size of arrays: indices 0..n */
         /* Resize the cumulative array. */
-        seq_t *new_cum = (seq_t*)realloc(cum, new_cap * sizeof(seq_t));
+        seq_t *new_cum = mem_resize(seq_t, cum, new_cap);
         if (!new_cum) return 0;
         cum = new_cum;
 

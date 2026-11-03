@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 202, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   has_p3mod4
+ * Validated: standard, pass, 99 terms through n = 8884 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,25 @@
    starting at 3 and returns the nth such number (offset 1). */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/has_p3mod4.h"
+
+/* Return true iff the integer k has a prime factor ≡ 3 (mod 4). */
+static bool has_p3mod4(uint64_t k)
+{
+    /* Trial division by all integers up to sqrt(k). */
+    uint64_t t = k;
+    if (t % 2ULL == 0ULL) {          /* handle factor 2 separately */
+        t /= 2ULL;
+        while (t % 2ULL == 0ULL) t /= 2ULL;
+    }
+    for (uint64_t d = 3ULL; d * d <= t; d += 2ULL) {
+        if (t % d == 0ULL) {
+            if (d % 4ULL == 3ULL) return true;
+            do t /= d; while (t % d == 0ULL);
+        }
+    }
+    /* If a prime factor > sqrt(original k) remains. */
+    return (t > 1ULL && t % 4ULL == 3ULL);
+}
 
 seq_t a(idx_t n)
 {

@@ -5,13 +5,15 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, cons
  * Formula:   decimal digits of √52 (a(1) is the integer part)
- * Range:     u8 n <= 9862, u16 n <= 9862, u32 n <= 9862, u64 n <= 9862,
- *            u128 n <= 9862, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 115 terms through n = 9862 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <stdlib.h>
 /*  Big integer arithmetic limited to positive integers only.
  *  Base = 1e9 for compact storage.  Capacity is large enough for
  *  the required number of digits (ceil(10000/9)+1 ≈ 1112).  */

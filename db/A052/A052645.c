@@ -7,13 +7,15 @@
  * Formula:   a(n) = 0, n < 2; a(2) = 4; a(3) = 24; a(n) = 2 * n! for n ≥ 4
  * Range:     u8 n <= 5, u16 n <= 7, u32 n <= 12, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Compute a(n) using a cached factorial table. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -24,7 +26,7 @@ seq_t a(idx_t n)
 
     /* initialize factorial table with 0! = 1 and 1! = 1 */
     if (!fac_init) {
-        fac = (seq_t *)malloc(2 * sizeof(seq_t));   /* indices 0 and 1 */
+        fac = mem_new(seq_t, 2);   /* indices 0 and 1 */
         fac[0] = (seq_t)1;
         fac[1] = (seq_t)1;
         fac_max = 1;   /* we have computed up to 1! */
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
 
     /* grow the table to cover up to n, computing factorials */
     if (n > fac_max) {
-        fac = (seq_t *)realloc(fac, (n + 1) * sizeof(seq_t));
+        fac = mem_resize(seq_t, fac, (n + 1));
         for (idx_t i = fac_max + 1; i <= n; ++i) {
             fac[i] = fac[i - 1] * (seq_t)i;   /* i! = (i-1)! * i */
         }

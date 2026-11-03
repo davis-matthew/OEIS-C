@@ -8,8 +8,9 @@
  * Formula:   a(n) = the numbers whose binary representation has all bits at
  *            positions i that are not congruent to m (the index of the most
  *            significant bit) modulo 2 set to 1, where m = floor(log2(n))
- * Range:     u8 n <= 30, u16 n <= 510, u32 n <= 9765, u64 n <= 9765,
- *            u128 n <= 9765, big any n
+ * Range:     u8 n <= 30, u16 n <= 510, u32 n <= 12286, u64 n <= 12286,
+ *            u128 n <= 12286, big any n
+ * Validated: standard, pass, 66 terms through n = 9765 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

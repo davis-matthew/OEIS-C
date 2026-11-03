@@ -7,6 +7,7 @@
  * Formula:   a(n) = (n even? (1/8)*n*(n-4)^2 : (1/8)*n*(n-3)*(n-5))
  * Range:     u8 n <= 9, u16 n <= 43, u32 n <= 3252, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 64 terms through n = 9350 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

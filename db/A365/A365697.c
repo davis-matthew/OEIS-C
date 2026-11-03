@@ -6,14 +6,16 @@
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{k=0..floor(n/4)} binom(n-3k-1,
  *            n-4k)*binom(n-k+1,k)/(n-k+1)
- * Range:     u8 n <= 11, u16 n <= 23, u32 n <= 35, u64 n <= 38, u128 n <= 38,
+ * Range:     u8 n <= 14, u16 n <= 23, u32 n <= 35, u64 n <= 38, u128 n <= 38,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 39 terms through n = 38 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -23,8 +25,8 @@ seq_t a(idx_t n)
 
     seq_t sum = 0;
     for (idx_t k = 0; k <= n / 4; ++k) {
-        seq_t b1 = binom(n - 3*k - 1, n - 4*k);
-        seq_t b2 = binom(n - k + 1, k);
+        seq_t b1 = binomial(n - 3*k - 1, n - 4*k);
+        seq_t b2 = binomial(n - k + 1, k);
         seq_t denom = (seq_t)(n - k + 1);
         sum += (b1 * b2) / denom;
     }

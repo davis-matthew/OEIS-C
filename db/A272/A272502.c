@@ -9,7 +9,8 @@
  *            C(n-4i,4)) * (10-k)^(n-4k)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 19, u128 n <= 20,
  *            big any n
- * Helpers:   binom, seq_pow
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,10 @@
 /* The sequence is computed by inclusion–exclusion on the
  * letters that appear exactly four times.   */
 #include <stdbool.h>
-#include "../utils/binom.h"
-#include "../utils/seq_pow.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -32,19 +35,19 @@ seq_t a(idx_t n)
     for (idx_t k = 0; k <= max_k; ++k) {
         /* C(10, k) – choose the letters that are forced to have
          * exactly four occurrences.                                 */
-        seq_t term_letters = binom(10, k);
+        seq_t term_letters = binomial(10, k);
 
         /* Product of C(n-4i, 4) for i = 0 … k-1:
          *   positions for the 4 occurrences of each chosen letter.
          */
         seq_t term_mult = 1;
         for (idx_t i = 0; i < k; ++i) {
-            term_mult *= binom(n - 4 * i, 4);
+            term_mult *= binomial(n - 4 * i, 4);
         }
 
         /* Remaining positions (n-4k) can be filled with any of the
          * remaining 10-k letters.                                        */
-        seq_t term_pow = seq_pow((seq_t)(10 - k), n - 4 * k);
+        seq_t term_pow = ipow_idx((seq_t)(10 - k), n - 4 * k);
 
         /* Full term for this k.   */
         seq_t term = term_letters * term_mult * term_pow;

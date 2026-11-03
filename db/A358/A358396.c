@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 1, u16 n <= 529, u32 n <= 9226, u64 n <= 9226,
- *            u128 n <= 9226, big any n
- * Helpers:   sigma_of
+ * Range:     u8 n <= 1, u16 n <= 529, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 64 terms through n = 9226 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,10 +18,25 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are provided by the build. */
 /* The only used utility is sigma_of: seq_t sigma_of(idx_t n). */
-#include "../utils/sigma_of.h"
+
+/* Compute σ(i) by trial division up to √i. */
+static seq_t sigma_of(idx_t n)
+{
+    seq_t sum = (seq_t)0;
+    for (idx_t d = 1; d * d <= n; ++d) {
+        if (n % d == 0) {
+            sum += (seq_t)d;
+            idx_t d2 = n / d;
+            if (d2 != d)
+                sum += (seq_t)d2;
+        }
+    }
+    return sum;
+}
 
 static seq_t *terms   = NULL;   /* cached sequence values */
 static idx_t  terms_len = 0;    /* number of terms stored */
@@ -33,7 +49,7 @@ static void grow_terms(idx_t needed)
     if (terms_cap >= needed) return;
     idx_t new_cap = terms_cap ? (terms_cap << 1) : 16;
     while (new_cap < needed) new_cap <<= 1;
-    seq_t *tmp = (seq_t*)realloc(terms, sizeof(seq_t) * new_cap);
+    seq_t *tmp = mem_resize(seq_t, terms, new_cap);
     if (!tmp) abort();
     terms = tmp;
     terms_cap = new_cap;

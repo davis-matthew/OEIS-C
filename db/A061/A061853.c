@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = smallest_prime_not_dividing(n) - smallest_nondivisor(n)
- * Range:     u8 n <= 9689, u16 n <= 9689, u32 n <= 9689, u64 n <= 9689,
- *            u128 n <= 9689, big any n
+ * Range:     u8 n <= 30030, u16 n <= 30030, u32 n <= 30030, u64 n <= 30030,
+ *            u128 n <= 30030, big any n
+ * Validated: standard, pass, 121 terms through n = 9689 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -5,9 +5,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn, look
  * Formula:   not stated
- * Range:     u8 n <= 1278, u16 n <= 7858, u32 n <= 7858, u64 n <= 7858,
- *            u128 n <= 7858, big any n
- * Helpers:   none
+ * Range:     u8 n <= 1278, u16 n <= 25000, u32 n <= 25000, u64 n <= 25000,
+ *            u128 n <= 25000, big any n
+ * Validated: standard, pass, 103 terms through n = 7858 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    many numbers ≤ n have the same σ value.  The result is the rank of
    n among the numbers that share its σ. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     size_t N = (size_t)n;
 
     /* Allocate and compute σ[1..N] using a divisor sieve */
-    seq_t *sigma = (seq_t*)calloc(N + 1, sizeof(seq_t));
+    seq_t *sigma = mem_new(seq_t, N + 1);
     if (!sigma) return 0;   /* allocation failure */
 
     for (idx_t i = 1; i <= N; ++i) {
@@ -44,9 +46,9 @@ seq_t a(idx_t n)
     size_t max_sigma_idx = (size_t)max_sigma;   /* safe: σ is small */
 
     /* Count how many times each σ has appeared so far */
-    seq_t *cnt = (seq_t*)calloc(max_sigma_idx + 1, sizeof(seq_t));
+    seq_t *cnt = mem_new(seq_t, max_sigma_idx + 1);
     if (!cnt) {
-        free(sigma);
+        mem_free(sigma);
         return 0;
     }
 
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
         if (i == N) result = cnt[idx];
     }
 
-    free(sigma);
-    free(cnt);
+    mem_free(sigma);
+    mem_free(cnt);
     return result;
 }

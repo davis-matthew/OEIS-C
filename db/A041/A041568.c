@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 9, u32 n <= 20, u64 n <= 42, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 177 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
    where c={2,1,1,1,4,2,1,16,1,2,4,1,1,1,2,34}.  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Periodic coefficients for the continued fraction of sqrt(302). */
 static const unsigned int period[16] = {
@@ -39,10 +41,10 @@ seq_t a(idx_t n)
     /* Allocate or grow the cache to handle up to index n. */
     if (cache == NULL) {
         cache_cap = (n + 1 > 32 ? n + 1 : 32);
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
     } else if (n + 1 > cache_cap) {
         cache_cap = n + 1;
-        cache = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, cache_cap);
     }
 
     /* Prepare the two predecessor values for the recurrence. */

@@ -9,7 +9,8 @@
  *            p, the even positions contain p+22
  * Range:     u8 n <= 27, u16 n <= 1935, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 71 terms through n = 9701 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 /* Static storage for the generated terms */
 static seq_t *terms      = NULL;   /* array holding the sequence values     */
@@ -35,7 +37,7 @@ static void ensure_terms_capacity(size_t need)
     size_t new_cap = terms_cap ? terms_cap * 2 : 16;
     if (new_cap < terms_len + need) new_cap = terms_len + need;
 
-    seq_t *tmp = (seq_t *)realloc(terms, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, terms, new_cap);
     if (!tmp) exit(1);              /* fatal error handling */
     terms      = tmp;
     terms_cap  = new_cap;

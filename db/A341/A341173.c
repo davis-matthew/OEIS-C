@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 4595, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   digit_sum
+ * Validated: standard, pass, 76 terms through n = 9968 (2026-11-03)
+ * Helpers:   digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,9 @@
 /* Find numbers n such that n % sum_of_digits(n) == 6.
    a(1) = 34, a(2) = 46, a(3) = 58, …               */
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../utils/digit_sum.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static cache of found terms */
@@ -29,14 +32,14 @@ seq_t a(idx_t n) {
     if (!initialized) {
         initialized = true;
         cap = 16;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
     }
 
     if (len < n) {
         /* enlarge cache if necessary */
         if (len == cap) {
             cap *= 2;
-            cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+            cache = mem_resize(seq_t, cache, cap);
         }
 
         /* search until we have n terms */
@@ -46,7 +49,7 @@ seq_t a(idx_t n) {
                 cache[len++] = current;
                 if (len == cap) {
                     cap *= 2;
-                    cache = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+                    cache = mem_resize(seq_t, cache, cap);
                 }
             }
             ++current;

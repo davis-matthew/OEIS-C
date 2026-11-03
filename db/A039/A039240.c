@@ -10,7 +10,8 @@
  *            representation contains an equal number of digits 3 and 5
  * Range:     u8 n <= 69, u16 n <= 69, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 69 terms through n = 69 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>     /* malloc, free */
 #include <string.h>     /* memcpy */
 #include <stdbool.h>    /* bool */
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* stored sequence values */
 static size_t cap   = 0;         /* capacity of cache */
@@ -51,10 +53,10 @@ static void grow_cache(size_t new_cap)
     size_t nc = cap ? cap * 2 : 64;
     while (nc < new_cap)
         nc *= 2;
-    seq_t *tmp = (seq_t *)malloc(nc * sizeof(seq_t));
+    seq_t *tmp = mem_new(seq_t, nc);
     if (cache) {
-        memcpy(tmp, cache, sz * sizeof(seq_t));
-        free(cache);
+        mem_copy(tmp, cache, sz * sizeof(seq_t));
+        mem_free(cache);
     }
     cache = tmp;
     cap   = nc;

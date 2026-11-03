@@ -12,13 +12,15 @@
  *            * using the precomputed array. All arithmetic...
  * Range:     u8 n <= 20, u16 n <= 48, u32 n <= 136, u64 n <= 430,
  *            u128 n <= 1482, big any n
- * Helpers:   none
+ * Validated: standard, pass, 67 terms through n = 7066 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* allocate or grow an array of seq_t to hold partition numbers up to max_n.
  * The array is kept static and rebuilt only when a larger max_n is requested. */
@@ -33,7 +35,7 @@ static void ensure_partitions(idx_t max_n)
 
     /* allocate new array */
     size_t new_cap = (size_t)(max_n + 1);
-    seq_t *tmp = (seq_t *)realloc(partitions, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, partitions, new_cap);
     if (tmp == NULL) exit(EXIT_FAILURE);
     partitions = tmp;
     partition_cap = new_cap;

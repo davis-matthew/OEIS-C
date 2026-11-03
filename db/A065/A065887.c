@@ -8,6 +8,7 @@
  *            is divisible by n!)
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 17, u64 n <= 30, u128 n <= 50,
  *            big any n
+ * Validated: standard, pass, 43 terms through n = 699 (2026-11-01)
  * Helpers:   build_primes_upto
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,7 +17,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/build_primes_upto.h"   /* provides build_primes_upto() */
+#include <stdbool.h>
+#include "../utils/build_primes_upto.h"
 
 seq_t a(idx_t n)
 {

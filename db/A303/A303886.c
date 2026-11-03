@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 6, u32 n <= 14, u64 n <= 30, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Utility: test if the element on a row satisfies the neighbour rule.
    row : the current 6‑bit row.
@@ -138,7 +140,7 @@ seq_t a(idx_t n)
     /* dynamic programming over the pair of last two rows */
     static seq_t dp[64][64];
     static seq_t ndp[64][64];
-    memset(dp, 0, sizeof(dp));
+    mem_set(dp, 0, sizeof(dp));
 
     /* initialise with the first two rows */
     for (int row0 = 0; row0 < 64; ++row0) {
@@ -153,7 +155,7 @@ seq_t a(idx_t n)
 
     /* add remaining rows */
     for (idx_t r = 2; r < n; ++r) {
-        memset(ndp, 0, sizeof(ndp));
+        mem_set(ndp, 0, sizeof(ndp));
         for (int prev = 0; prev < 64; ++prev)
             for (int curr = 0; curr < 64; ++curr) {
                 seq_t ways = dp[prev][curr];
@@ -165,7 +167,7 @@ seq_t a(idx_t n)
                     ndp[curr][next] += ways;
                 }
             }
-        memcpy(dp, ndp, sizeof(dp));
+        mem_copy(dp, ndp, sizeof(dp));
     }
 
     /* final row: enforce its own constraint (no lower neighbour) */

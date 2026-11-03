@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 none, u32 n <= 2, u64 n <= 8, u128 n <= 18,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 26 terms through n = 45 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Integer types provided by the build environment */
 typedef uint64_t idx_t;
@@ -115,8 +117,8 @@ seq_t a(idx_t n)
         free(cnt);
 
         /* Allocate DP arrays for pairs.  */
-        cur  = (seq_t *)malloc(S * sizeof(seq_t));
-        next = (seq_t *)malloc(S * sizeof(seq_t));
+        cur  = mem_new(seq_t, S);
+        next = mem_new(seq_t, S);
         if (!cur || !next) return 0;
 
         /* Initial DP: all pairs are allowed before any 3‑row check.  */
@@ -153,7 +155,7 @@ seq_t a(idx_t n)
         if (a_count == a_capacity)
         {
             size_t new_cap = (a_capacity == 0) ? 16 : a_capacity << 1;
-            seq_t *tmp = (seq_t *)realloc(a_vals, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, a_vals, new_cap);
             if (!tmp) return 0;
             a_vals = tmp;
             a_capacity = new_cap;

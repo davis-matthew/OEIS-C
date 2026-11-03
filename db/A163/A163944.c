@@ -7,6 +7,7 @@
  * Formula:   a(n) = (10*n^2 +107*n^3 +61*n^4 +13*n^5 +n^6)/48
  * Range:     u8 n <= 3, u16 n <= 10, u32 n <= 74, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 47 terms through n = 967 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

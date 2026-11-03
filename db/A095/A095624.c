@@ -8,13 +8,21 @@
  *            interpreted as a decimal integer obtained by concatenating the
  *            base‑n digits (e.g. 117 base 10 = 117, 117 base 11 = 107)
  * Range:     u8 none, u16 none, u32 none, u64 none, u128 none, big any n
- * Helpers:   pow10_from_digits
+ * Validated: partial, pass, 10 terms through n = 10 (2026-11-03)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>  /* for uintptr_t used only in cast */
-#include "../utils/pow10_from_digits.h"
+
+static inline seq_t pow10_from_digits(int d) {
+    /* Return 10^k where k is the number of decimal digits of d. */
+    seq_t p = 10;
+    if (d >= 10) p *= 10;
+    if (d >= 100) p *= 10;
+    return p;
+}
 
 seq_t a(idx_t n) {
     if (n == 1) {
@@ -27,7 +35,7 @@ seq_t a(idx_t n) {
     }
 
     /* Compute base‑n digits of 117 (least significant first). */
-    int digits[5];   /* maximum 3 digits needed for base 10‑based cases,
+    int digits[72];   /* maximum 3 digits needed for base 10‑based cases,
                        but keep a few spare for safety. */
     int dcnt = 0;
     int val = 117;

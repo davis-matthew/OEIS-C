@@ -6,9 +6,10 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   not stated
- * Range:     u8 n <= 3, u16 n <= 17, u32 n <= 58, u64 n <= 276, u128 n <= 630,
+ * Range:     u8 n <= 5, u16 n <= 22, u32 n <= 58, u64 n <= 276, u128 n <= 630,
  *            big any n
- * Helpers:   binom
+ * Validated: standard, pass, 61 terms through n = 9854 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/binom.h"   /* binom(idx_t a, idx_t b) → seq_t */
+#include "../utils/binomial.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +39,7 @@ seq_t a(idx_t n)
     idx_t k = 1;       /* start with s(1) */
     while (1) {
         /* Exact value of s(k) = C(2k,k)/2 */
-        seq_t val = binom((idx_t)(2 * k), k);
+        seq_t val = binomial((idx_t)(2 * k), k);
         val = val / (seq_t)2;
 
         /* Residue of s(k) modulo n */

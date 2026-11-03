@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 22, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   is_prime, mod_pow
+ * Validated: standard, pass, 50 terms through n = 69 (2026-11-03)
+ * Helpers:   is_prime, mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "../utils/mod_pow.h"   /* mod_pow(seq_t base, uint64_t exp, seq_t mod) */
-#include "../utils/is_prime.h"  /* is_prime(idx_t x) */
+#include <string.h>
+#include "../utils/is_prime.h"
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 static seq_t *cache      = NULL; /* array of found primes */
 static size_t cache_cap  = 0;    /* current capacity of cache */
@@ -40,7 +43,7 @@ static void ensure_seq(idx_t n)
     /* Grow cache if necessary. */
     if (cache_cap < cache_len + 1) {
         size_t new_cap = cache_cap == 0 ? 8 : cache_cap * 2;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp == NULL) exit(EXIT_FAILURE);     /* allocation failure */
         cache = tmp;
         cache_cap = new_cap;
@@ -57,8 +60,8 @@ static void ensure_seq(idx_t n)
                 uint64_t exp49 = exp7 / 7;                   /* (p‑1)/49  */
 
                 /* 2^((p‑1)/7) must be 1 mod p and 2^((p‑1)/49) must not be 1. */
-                if (mod_pow((seq_t)2, exp7, p) == 1 &&
-                    mod_pow((seq_t)2, exp49, p) != 1) {
+                if (powmod((seq_t)2, exp7, p) == 1 &&
+                    powmod((seq_t)2, exp49, p) != 1) {
                     cache[cache_len++] = p;
                 }
             }

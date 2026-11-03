@@ -7,7 +7,8 @@
  * Formula:   a(n) = Sum_{k=0..n} (-k)^(n-k)*binomial(n, k)
  * Range:     i8 n <= 6, i16 n <= 9, i32 n <= 15, i64 n <= 25, i128 n <= 41,
  *            big any n
- * Helpers:   a000272_ipow, from_i128, seq_is_fixed_width
+ * Validated: standard, pass, 42 terms through n = 556 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,9 +16,31 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/a000272_ipow.h"
-#include "../utils/seq_is_fixed_width.h"
-#include "../utils/from_i128.h"
+#include <string.h>
+#include "../utils/ipow_idx.h"
+
+static bool seq_is_fixed_width(void)
+{
+    seq_t t = 1;
+    int i;
+    for (i = 0; i < 256; i++) {
+        t *= 2;
+        if (t == 0)
+            return true;
+    }
+    return false;
+}
+
+static seq_t from_i128(__int128 v)
+{
+    if (v >= -(__int128)4000000000000000000LL && v <= (__int128)4000000000000000000LL)
+        return (seq_t)(long long)v;
+    {
+        __int128 q = v / ((__int128)1 << 32);
+        long long rem = (long long)(v - q * ((__int128)1 << 32));
+        return from_i128(q) * (seq_t)4294967296LL + (seq_t)rem;
+    }
+}
 
 typedef unsigned __int128 u128_t;
 
@@ -60,7 +83,7 @@ seq_t a(idx_t n) {
         idx_t k;
         for (k = 1; k <= n; k++) {
             b = b * (seq_t)(n - k + 1) / (seq_t)k;
-            seq_t t = a000272_ipow((seq_t)k, n - k) * b;
+            seq_t t = ipow_idx((seq_t)k, n - k) * b;
             if ((n - k) & 1) res -= t;
             else res += t;
         }

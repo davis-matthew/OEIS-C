@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   mex_of
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../utils/mex_of.h"
+#include "../utils/mem.h"
+
+/* Return the mex of the array reach[0 … limit‑1].  */
+static seq_t mex_of(const bool *reach, size_t limit)
+{
+    for (size_t i = 0; i < limit; ++i)
+        if (!reach[i]) return (seq_t)i;
+    return (seq_t)limit;               /* should not happen for this game */
+}
 
 /* Octal digits for removing 1…4 tokens.  The index 0 is unused. */
 static const unsigned char OCTAL_D[5] = {0, 7, 3, 0, 7};
@@ -41,7 +50,7 @@ seq_t a(idx_t n)
 
     /* initialise the cache with the base case a(0)=0 */
     if (cache_len == 0) {
-        cache      = (seq_t *)calloc(1, sizeof(seq_t));  /* cache[0] = 0 */
+        cache      = mem_new(seq_t, 1);  /* cache[0] = 0 */
         cache_cap  = 1;
         cache_len  = 1;
     }
@@ -52,7 +61,7 @@ seq_t a(idx_t n)
         if (cache_cap <= (size_t)n) {
             size_t new_cap = cache_cap * 2;
             if (new_cap <= (size_t)n) new_cap = (size_t)n + 1;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             cache = tmp;
             cache_cap = new_cap;
         }

@@ -9,7 +9,8 @@
  *            divisors of binomial(2k, k) is odd
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   carry_exists
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,22 @@
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
-#include "../utils/carry_exists.h"
+#include "../utils/mem.h"
+
+/* Kummer test ----------------------------------------------------------- */
+static inline bool carry_exists(uint64_t p, uint64_t k)
+{
+    unsigned __int128 power = p;
+    unsigned __int128 two_k  = (unsigned __int128)k * 2;
+    while (power <= two_k) {
+        unsigned __int128 term =
+            (two_k / power) - 2 * (k / power);
+        if (term != 0) return true;
+        if (power > ((unsigned __int128)UINT64_MAX) / p) break;
+        power *= p;
+    }
+    return false;
+}
 
 /* ------------------------------------------------------------------------- */
 /* Sieve --------------------------------------------------------------- */
@@ -92,7 +108,7 @@ seq_t a(idx_t n)
 {
     if (!cache) {
         cache_cap = 16;
-        cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         cache_sz = 0;
         last_k = 0;
         extend_sieve(1024);
@@ -107,7 +123,7 @@ seq_t a(idx_t n)
         if (has_odd_distinct_prime_divisors(last_k)) {
             if (cache_sz == cache_cap) {
                 cache_cap <<= 1;
-                cache = (seq_t*)realloc(cache, cache_cap * sizeof(seq_t));
+                cache = mem_resize(seq_t, cache, cache_cap);
             }
             cache[cache_sz++] = (seq_t)last_k;
         }

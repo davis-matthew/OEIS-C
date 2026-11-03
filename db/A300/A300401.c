@@ -10,8 +10,9 @@
  *            (i*(i-1))/2 + 1 ). The pair (i,j) for a given index n is
  *            obtained by s = floor((sqrt(8*n+1)-1)/2) // diagonal index k = n
  *            - s*(s+1)/2 // position inside diagonal i = k j =...
- * Range:     u8 n <= 109, u16 n <= 3437, u32 n <= 9557, u64 n <= 9557,
- *            u128 n <= 9557, big any n
+ * Range:     u8 n <= 109, u16 n <= 3437, u32 n <= 11475, u64 n <= 11475,
+ *            u128 n <= 11475, big any n
+ * Validated: standard, pass, 86 terms through n = 9557 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

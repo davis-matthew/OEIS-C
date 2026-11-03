@@ -8,13 +8,15 @@
  *            –4*a(n-1) + 4*a(n-3) + a(n-4)
  * Range:     i8 n <= 3, i16 n <= 7, i32 n <= 16, i64 n <= 25, i128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 26 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -26,7 +28,7 @@ seq_t a(idx_t n)
     /* initialise cache with the first four terms */
     if (cap == 0) {
         cap = 4;
-        cache = (seq_t*)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) return 0;          /* out of memory – return 0 */
         cache[0] = (seq_t)-1;
         cache[1] = (seq_t)4;
@@ -44,7 +46,7 @@ seq_t a(idx_t n)
         idx_t new_cap = cap;
         while (new_cap < n + 1)
             new_cap = new_cap * 2;
-        seq_t *tmp = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (tmp) {
             cache = tmp;
             cap = new_cap;

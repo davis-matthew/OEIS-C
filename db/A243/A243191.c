@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 75 terms through n = 9506 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,6 +24,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------------ */
 /* Helpers: integer square roots for 64‑bit unsigned integers          */
@@ -75,7 +77,7 @@ static void build_sequence(size_t n_needed)
        Doubling ensures O(n log n) complexity of rebuilding. */
     while (list_len < n_needed) {
         /* free previous data if any */
-        if (list) { free(list); list = NULL; list_len = 0; }
+        if (list) { mem_free(list); list = NULL; list_len = 0; }
 
         /* allocate a presence bitmap up to current bound */
         uint8_t *present = (uint8_t *)calloc(bound + 1, sizeof(uint8_t));
@@ -83,7 +85,7 @@ static void build_sequence(size_t n_needed)
 
         /* temporary buffer for collected values */
         size_t temp_cap = 1 << 16;   /* 64 k          */
-        seq_t *temp     = (seq_t *)malloc(temp_cap * sizeof(seq_t));
+        seq_t *temp     = mem_new(seq_t, temp_cap);
         if (!temp) { free(present); exit(EXIT_FAILURE); }
         size_t temp_len = 0;
 
@@ -117,9 +119,8 @@ static void build_sequence(size_t n_needed)
                     present[v] = 1;
                     if (temp_len == temp_cap) {
                         temp_cap = temp_cap << 1;
-                        seq_t *newp = (seq_t *)realloc(temp,
-                                                       temp_cap * sizeof(seq_t));
-                        if (!newp) { free(temp); free(present); exit(EXIT_FAILURE); }
+                        seq_t *newp = mem_resize(seq_t, temp, temp_cap);
+                        if (!newp) { mem_free(temp); free(present); exit(EXIT_FAILURE); }
                         temp = newp;
                     }
                     temp[temp_len++] = (seq_t)v;
@@ -128,12 +129,12 @@ static void build_sequence(size_t n_needed)
         }
 
         /* Store collected values, sorted */
-        list = (seq_t *)malloc(temp_len * sizeof(seq_t));
-        if (!list) { free(temp); free(present); exit(EXIT_FAILURE); }
+        list = mem_new(seq_t, temp_len);
+        if (!list) { mem_free(temp); free(present); exit(EXIT_FAILURE); }
         for (size_t i = 0; i < temp_len; ++i) list[i] = temp[i];
-        free(temp);
+        mem_free(temp);
         free(present);
-        qsort(list, temp_len, sizeof(seq_t), cmp_seq);
+        mem_qsort(list, temp_len, sizeof(seq_t), cmp_seq);
         list_len = temp_len;
 
         /* If still not enough, increase bound and try again */

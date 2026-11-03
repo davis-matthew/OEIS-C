@@ -7,6 +7,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 20, u16 n <= 2134, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 72 terms through n = 8782 (2026-11-01)
  * Helpers:   is_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -15,6 +16,8 @@
 /* Computes the n-th prime that contains no digits 1 or 8
    (OEIS A386334). By brute‑force search using is_prime()
    and digit filtering. */
+#include <stdbool.h>
+#include <stdint.h>
 #include "../utils/is_prime.h"
 #include <stdbool.h>
 #include <stdint.h>

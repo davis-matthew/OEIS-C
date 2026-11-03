@@ -7,8 +7,9 @@
  * Formula:   a(n) = floor(3^(1/5) * 10^(n-1)) mod 10; 3^(1/5) = 3*y^4 where y
  *            = 3^(-1/5) is found by the Newton iteration y <- y*(6 -
  *            3*y^5)/5, using fixed-point bignums in base 10^9
- * Range:     u8 n <= 9933, u16 n <= 9933, u32 n <= 9933, u64 n <= 9933,
- *            u128 n <= 9933, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 121 terms through n = 9933 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

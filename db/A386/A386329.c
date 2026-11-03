@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 1107, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _digits_ok
+ * Validated: standard, pass, 71 terms through n = 9287 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,7 +31,19 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/_digits_ok.h"
+
+static bool _digits_ok(uint64_t x)
+{
+    /* reject any decimal digit 1 or 3 */
+    if (x == 0) return true;
+    while (x) {
+        unsigned d = x % 10;
+        if (d == 1 || d == 3)
+            return false;
+        x /= 10;
+    }
+    return true;
+}
 
 seq_t a(idx_t n)
 {

@@ -8,7 +8,8 @@
  *            binomial(k,n-k) / k!
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 21,
  *            big any n
- * Helpers:   big_pow, binomial, pow2
+ * Validated: standard, pass, 34 terms through n = 328 (2026-11-01)
+ * Helpers:   binomial, ipow, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,9 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/big_pow.h"
+#include <stdlib.h>
 #include "../utils/binomial.h"
+#include "../utils/ipow.h"
 #include "../utils/pow2.h"
 
 #ifdef __cplusplus
@@ -74,7 +76,7 @@ seq_t a(idx_t n)
         term /= FACT(k);           /* now term = n! / k! */
         term *= bin;               /* multiply by binomial */
         if (k > 0) {
-            seq_t pow_term = big_pow((seq_t)(3 * k + 1), (seq_t)(k - 1));
+            seq_t pow_term = ipow((seq_t)(3 * k + 1), (seq_t)(k - 1));
             term *= pow_term;
         }
         seq_t denom = pow2(n - k);  /* 2^(n-k) */

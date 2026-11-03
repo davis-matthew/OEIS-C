@@ -10,13 +10,39 @@
  *            numbers are defined by T(k) = k*(k+1)/2 (k >= 0)
  * Range:     u8 n <= 10, u16 n <= 108, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   to_decimal
+ * Validated: standard, pass, 69 terms through n = 9581 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/to_decimal.h"
+
+/* Convert an integer of type idx_t or seq_t to a decimal string.
+   The digits are stored in buf[0..len-1].  The function returns
+   the number of digits written.  The buffer must be large enough
+   to hold the result (max 64 for any 128‑bit value). */
+static size_t to_decimal(seq_t value, char *buf)
+{
+    if (value == 0) {
+        buf[0] = '0';
+        return 1;
+    }
+    seq_t tmp = value;
+    size_t len = 0;
+    while (tmp != 0) {
+        int digit = (int)(tmp % 10);
+        buf[len++] = '0' + digit;
+        tmp /= 10;
+    }
+    /* reverse the string in place */
+    for (size_t i = 0; i < len / 2; ++i) {
+        char c = buf[i];
+        buf[i] = buf[len - 1 - i];
+        buf[len - 1 - i] = c;
+    }
+    return len;
+}
 
 /* Simple substring search: check whether s[0..nlen-1] occurs in
    t[0..tlen-1].  Returns 1 if found, 0 otherwise. */

@@ -7,13 +7,14 @@
  * Formula:   a(n) = greatest prime factor of 2*n^4 + 1
  * Range:     u8 n <= 3, u16 n <= 13, u32 n <= 217, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   gpf
+ * Validated: standard, pass, 56 terms through n = 1576 (2026-11-01)
+ * Helpers:   largest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/gpf.h"
+#include "../utils/largest_prime_factor.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +29,7 @@ seq_t a(idx_t n)
     /* For n up to about 10 000, val fits in 64‑bit.  Use the utility
        gpf to get the greatest prime factor. */
     uint64_t v = (uint64_t)val;
-    uint64_t g = gpf(v);
+    uint64_t g = largest_prime_factor(v);
 
     return (seq_t)g;
 }

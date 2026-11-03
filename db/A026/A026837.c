@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 33, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
    G(x) = Σ_{k≥1} x^{2k‑1} ∏_{j=1}^{2k-2} (1 + x^j).  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,8 +27,8 @@ seq_t a(idx_t n)
     size_t N = (size_t)n;
     /* count[i]  – total partitions of i into distinct parts (any largest part).
        dpodd[i] – partitions of i with largest part odd.           */
-    seq_t *count = (seq_t *)malloc((N + 1) * sizeof(seq_t));
-    seq_t *dpodd = (seq_t *)malloc((N + 1) * sizeof(seq_t));
+    seq_t *count = mem_new(seq_t, (N + 1));
+    seq_t *dpodd = mem_new(seq_t, (N + 1));
     if (!count || !dpodd) return 0;   /* insufficient memory → 0 */
 
     for (size_t i = 0; i <= N; ++i) {
@@ -48,7 +50,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dpodd[N];
-    free(count);
-    free(dpodd);
+    mem_free(count);
+    mem_free(dpodd);
     return result;
 }

@@ -8,7 +8,8 @@
  *            (OEIS A375343)
  * Range:     u8 n <= 2, u16 n <= 2, u32 n <= 3, u64 n <= 6, u128 n <= 6,
  *            big any n
- * Helpers:   big_pow, digit_sum
+ * Validated: full, pass, 6 terms through n = 6 (2026-11-02)
+ * Helpers:   digit_sum, ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,8 @@
 #include <stdbool.h>
 
 /* Provided utilities */
-#include "../utils/big_pow.h"
 #include "../utils/digit_sum.h"
+#include "../utils/ipow.h"
 
 /* Cached list of all solutions */
 static seq_t solutions[256];
@@ -31,7 +32,7 @@ seq_t a(idx_t n) {
         /* Find all numbers k = s^6 with digit sum s up to the level where s^6
            can be at most 13 decimal digits (s <= 150 guarantees this).       */
         for (idx_t s = 0; s <= 150; ++s) {
-            seq_t val = big_pow((seq_t)s, 6);
+            seq_t val = ipow((seq_t)s, 6);
             seq_t sum = digit_sum(val);
             if (sum == (seq_t)s) {
                 solutions[solution_count++] = val;

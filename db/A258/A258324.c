@@ -8,6 +8,7 @@
  * Formula:   a(n) = lcm{ n - d : d < n, d | n }
  * Range:     u8 n <= 9, u16 n <= 23, u32 n <= 59, u64 n <= 239,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 61 terms through n = 999 (2026-11-01)
  * Helpers:   factor_u64, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,8 +17,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include "../utils/gcd.h"
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
+#include "../utils/gcd.h"
 
 /* Computes a(n) for the OEIS sequence A258324. */
 seq_t a(idx_t n)

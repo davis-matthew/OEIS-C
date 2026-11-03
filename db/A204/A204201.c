@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 33, u16 n <= 61, u32 n <= 61, u64 n <= 61, u128 n <= 61,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 61 terms through n = 61 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 /*  Offset: 1  (a(1) is the first term)                          */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*--------------------------------------------------------------*/
 static seq_t pow2_u64(idx_t e)
@@ -59,12 +61,12 @@ seq_t a(idx_t n)
     }
 
     /* Allocate two row buffers of length r+1 (index 1..r). */
-    seq_t *prev = (seq_t *)malloc((r + 1) * sizeof(seq_t));
-    seq_t *cur  = (seq_t *)malloc((r + 1) * sizeof(seq_t));
+    seq_t *prev = mem_new(seq_t, (r + 1));
+    seq_t *cur  = mem_new(seq_t, (r + 1));
     if (!prev || !cur)  /* allocation failed: return 0 as safe fallback */
     {
-        free(prev);
-        free(cur);
+        mem_free(prev);
+        mem_free(cur);
         return (seq_t)0;
     }
 
@@ -101,8 +103,8 @@ seq_t a(idx_t n)
     seq_t result = prev[k];
 
     /* Clean up memory. */
-    free(prev);
-    free(cur);
+    mem_free(prev);
+    mem_free(cur);
 
     return result;
 }

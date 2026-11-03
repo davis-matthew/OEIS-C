@@ -12,6 +12,7 @@
  *            and multiplies the arithmetic-geometric sum fo...
  * Range:     u8 n <= 23, u16 n <= 3527, u32 n <= 5000, u64 n <= 5000,
  *            u128 n <= 5000, big any n
+ * Validated: standard, pass, 74 terms through n = 4642 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

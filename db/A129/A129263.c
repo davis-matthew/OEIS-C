@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 50, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 65 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,6 +33,7 @@
    All arithmetic is performed in type seq_t. */
 
 #include <stdlib.h>   /* malloc, free, size_t */
+#include "../utils/mem.h"
 
 static const idx_t DENOM[4] = {1, 5, 10, 25};              /* coin values          */
 static const seq_t FACT[5] = {(seq_t)1, (seq_t)1, (seq_t)2,
@@ -67,11 +69,11 @@ static void init_subsets(void) {
     16 x (new_max_n+1) with 0th row unused.                              */
 static void build_dp(idx_t new_max_n) {
     /* Free previous table if it exists */
-    if (DP) free(DP);
+    if (DP) mem_free(DP);
 
     size_t stride = (size_t)(new_max_n + 1);
     size_t total  = stride * 16;
-    DP = (seq_t*)malloc(total * sizeof(seq_t));
+    DP = mem_new(seq_t, total);
     if (!DP) exit(1);   /* memory failure */
 
     /* Initialise all entries to 0 */

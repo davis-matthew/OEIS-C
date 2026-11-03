@@ -9,7 +9,8 @@
  *            over primes and testing the quartic residue condition
  * Range:     u8 n <= 20, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 82 terms through n = 984 (2026-11-03)
+ * Helpers:   mem, powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,9 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/mod_pow.h"
+#include <string.h>
+#include "../utils/powmod.h"
+#include "../utils/mem.h"
 
 /* static storage for memoised results and prime list */
 static seq_t   *results = NULL;
@@ -33,7 +36,7 @@ static void grow_results(size_t min_cap) {
     if (results_cap < min_cap) {
         size_t new_cap = results_cap ? results_cap << 1 : 8;
         while (new_cap < min_cap) new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(results, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, results, new_cap);
         results = tmp;
         results_cap = new_cap;
     }
@@ -69,10 +72,10 @@ static void init(void) {
 static bool good_prime(uint64_t p) {
     if (p == 2) return true;  /* 2 is always included */
     seq_t base = (seq_t)(p - 2);                 /* –2 modulo p */
-    seq_t leg  = mod_pow(base, (p - 1) / 2, (seq_t)p);
+    seq_t leg  = powmod(base, (p - 1) / 2, (seq_t)p);
     if (leg != (seq_t)1) return false;           /* not a quadratic residue */
     if (p % 4 == 3) return true;                 /* all quadratic residues are 4th powers */
-    seq_t t = mod_pow(base, (p - 1) / 4, (seq_t)p);
+    seq_t t = powmod(base, (p - 1) / 4, (seq_t)p);
     return t == (seq_t)1;                       /* fourth‑power condition for p≡1 (mod 4) */
 }
 

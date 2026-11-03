@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 18, u64 n <= 19, u128 n <= 19,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 19 terms through n = 19 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,12 +20,13 @@
 #include <stdlib.h>
 
 #if defined(__cplusplus)
-# define ALLOC_SEQ_T(ptr,size) ((ptr) = reinterpret_cast<seq_t*>(calloc((size), sizeof(seq_t))))
-# define REALLOC_SEQ_T(ptr,newsize) ((ptr) = reinterpret_cast<seq_t*>(realloc((ptr), (newsize) * sizeof(seq_t))))
+# define ALLOC_SEQ_T(ptr,size) ((ptr) = mem_new(seq_t, (size)))
+# define REALLOC_SEQ_T(ptr,newsize) ((ptr) = mem_resize(seq_t, (ptr), (newsize)))
 #else
-# define ALLOC_SEQ_T(ptr,size) ((ptr) = (seq_t*)calloc((size), sizeof(seq_t)))
-# define REALLOC_SEQ_T(ptr,newsize) ((ptr) = (seq_t*)realloc((ptr), (newsize) * sizeof(seq_t)))
+# define ALLOC_SEQ_T(ptr,size) ((ptr) = mem_new(seq_t, (size)))
+# define REALLOC_SEQ_T(ptr,newsize) ((ptr) = mem_resize(seq_t, (ptr), (newsize)))
 #endif
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {

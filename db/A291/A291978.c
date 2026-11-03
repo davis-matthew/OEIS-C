@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 27, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   _floor_isqrt_u64, binomial
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   binomial, isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -30,8 +31,9 @@
  */
 
 #include <stdbool.h>
-#include "../utils/binomial.h"          /* binomial(idx_t, idx_t) -> seq_t */
-#include "../utils/_floor_isqrt_u64.h"   /* _floor_isqrt_u64(idx_t) -> idx_t */
+#include <stdlib.h>
+#include "../utils/binomial.h"
+#include "../utils/isqrt.h"
 
 #define MAX_ROWS 200   /* enough for n up to about 10 000 */
 
@@ -86,7 +88,7 @@ seq_t a(idx_t n)
 
     /* Find row r (here named m) and column c (named k) such that
        n = r·(r+1)/2 + c, 0 ≤ c ≤ r. */
-    idx_t t = _floor_isqrt_u64((n << 3) + 1);          /* sqrt(8*n + 1) */
+    idx_t t = isqrt((n << 3) + 1);          /* sqrt(8*n + 1) */
     idx_t r = (t - 1) >> 1;                           /* floor((t-1)/2) */
     idx_t c = n - (r * (r + 1)) / 2;                  /* column index */
 

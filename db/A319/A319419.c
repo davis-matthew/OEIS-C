@@ -6,9 +6,10 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  sign, base, hear
  * Formula:   not stated
- * Range:     i8 n <= 510, i16 n <= 9944, i32 n <= 9944, i64 n <= 9944,
- *            i128 n <= 9944, big any n
- * Helpers:   floor_log2_uint64
+ * Range:     i8 n <= 510, i16 n <= 16384, i32 n <= 16384, i64 n <= 16384,
+ *            i128 n <= 16384, big any n
+ * Validated: standard, pass, 98 terms through n = 9944 (2026-11-01)
+ * Helpers:   ilog2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,14 +18,16 @@
    In binary representation of n, delete one symbol from each run.
    The resulting binary string (without leading zeros) is interpreted as
    a number; if the string is empty then return -1. */
-#include "../utils/floor_log2_uint64.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/ilog2.h"
 
 seq_t a(idx_t n)
 {
     if (n == 0)            /* 0 has one run of zero bits, becomes empty */
         return -1;
 
-    int msb = (int)floor_log2_uint64(n);  /* position of most‑significant 1 */
+    int msb = (int)ilog2(n);  /* position of most‑significant 1 */
     seq_t result = 0;
     int has_bit = 0;
     int i = msb;

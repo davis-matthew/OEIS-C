@@ -7,7 +7,8 @@
  * Formula:   a(n) = the nth integer n > 0 such that π(n) = n/10
  * Range:     u8 none, u16 n <= 9, u32 n <= 9, u64 n <= 9, u128 n <= 9,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 9 terms through n = 9 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ----- static memoisation state ----- */
 static idx_t      sieve_limit   = 0;       /* highest n that has been sieved */
@@ -35,7 +37,7 @@ static void extend_sieve(idx_t new_limit)
 {
     /* free old structures */
     if (is_prime) free(is_prime);
-    if (pi_arr)   free(pi_arr);
+    if (pi_arr)   mem_free(pi_arr);
 
     /* allocate prime flag array */
     is_prime = (unsigned char*)calloc((size_t)(new_limit + 1), 1);
@@ -54,7 +56,7 @@ static void extend_sieve(idx_t new_limit)
     }
 
     /* build cumulative prime count array */
-    pi_arr = (seq_t*)malloc((size_t)(new_limit + 1) * sizeof(seq_t));
+    pi_arr = mem_new(seq_t, (size_t)(new_limit + 1));
     if (!pi_arr) abort();
     pi_arr[0] = 0;
     for (idx_t i = 1; i <= new_limit; ++i)
@@ -68,7 +70,7 @@ static void append_solution(seq_t val)
 {
     if (sol_len == sol_cap) {
         size_t new_cap = sol_cap == 0 ? 16 : sol_cap * 2;
-        seq_t *new_buf = (seq_t*)realloc(solutions, new_cap * sizeof(seq_t));
+        seq_t *new_buf = mem_resize(seq_t, solutions, new_cap);
         if (!new_buf) abort();
         solutions = new_buf;
         sol_cap   = new_cap;

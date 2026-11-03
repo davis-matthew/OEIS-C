@@ -9,15 +9,26 @@
  *            1)^(phi(d)/ord_d(3)), the number of units of GF(3)[x]/(x^n - 1)
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   a3474_ord3, a3474_pow, a3474_totient
+ * Validated: partial, pass, 32 terms through n = 32 (2026-11-01)
+ * Helpers:   ipow_u64, totient_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a3474_ord3.h"
-#include "../utils/a3474_pow.h"
-#include "../utils/a3474_totient.h"
+#include "../utils/ipow_u64.h"
+#include "../utils/totient_u64.h"
+
+static uint64_t a3474_ord3(uint64_t d) {
+    uint64_t o = 1, pw;
+    if (d == 1) return 1;
+    pw = 3 % d;
+    while (pw != 1) {
+        pw = (pw * 3) % d;
+        o++;
+    }
+    return o;
+}
 
 seq_t a(idx_t n) {
     uint64_t m, d;
@@ -25,13 +36,13 @@ seq_t a(idx_t n) {
     if (n == 1) return 1;
     m = (uint64_t)n;
     while (m % 3 == 0) m /= 3;
-    res = a3474_pow((seq_t)3, (uint64_t)n - m);
+    res = ipow_u64((seq_t)3, (uint64_t)n - m);
     for (d = 1; d <= m; d++) {
         if (m % d == 0) {
             uint64_t o = a3474_ord3(d);
-            uint64_t ph = a3474_totient(d);
-            seq_t f = a3474_pow((seq_t)3, o) - 1;
-            res *= a3474_pow(f, ph / o);
+            uint64_t ph = totient_u64(d);
+            seq_t f = ipow_u64((seq_t)3, o) - 1;
+            res *= ipow_u64(f, ph / o);
         }
     }
     return res;

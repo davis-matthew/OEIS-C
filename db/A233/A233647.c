@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 3, u32 n <= 8, u64 n <= 19, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 207 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -40,6 +41,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static bool          init_done          = false;
 static uint8_t       adj[216][216];
@@ -85,8 +87,8 @@ static void init(void)
     }
 
     /* allocate DP arrays */
-    dp_cur  = (seq_t *)malloc(sizeof(seq_t) * 216);
-    dp_next = (seq_t *)malloc(sizeof(seq_t) * 216);
+    dp_cur  = mem_new(seq_t, 216);
+    dp_next = mem_new(seq_t, 216);
     for (int i = 0; i < 216; ++i) dp_cur[i] = (seq_t)1; /* one row */
 
     init_done = true;
@@ -102,7 +104,7 @@ seq_t a(idx_t n)
     /* enlarge and fill cache if necessary */
     if ((size_t)n > cache_cap) {
         size_t newsize = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, newsize * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, newsize);
         if (!tmp) return (seq_t)0;      /* allocation failure */
         cache = tmp;
         for (size_t i = cache_cap + 1; i < newsize; ++i)

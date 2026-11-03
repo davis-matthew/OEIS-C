@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 68, u16 n <= 68, u32 n <= 68, u64 n <= 68, u128 n <= 68,
  *            big any n
- * Helpers:   factor_u64, seq_cmp, seq_pow
+ * Validated: partial, pass, 68 terms through n = 68 (2026-11-03)
+ * Helpers:   factor_u64, ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,9 +24,20 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
+#include <stddef.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_pow.h"
-#include "../utils/seq_cmp.h"
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
+
+static int seq_cmp(const void *p, const void *q)
+{
+    const seq_t *a = (const seq_t *)p;
+    const seq_t *b = (const seq_t *)q;
+    if (*a < *b) return -1;
+    if (*a > *b) return 1;
+    return 0;
+}
 
 static bool is_cyclic(uint64_t n)
 {
@@ -105,11 +117,11 @@ seq_t a(idx_t n_flat)
                     comps[comp_cnt++] = (seq_t)2;
                 } else { /* e >= 3 */
                     comps[comp_cnt++] = (seq_t)2;
-                    comps[comp_cnt++] = seq_pow((seq_t)2, (idx_t)(e - 2));
+                    comps[comp_cnt++] = ipow_idx((seq_t)2, (idx_t)(e - 2));
                 }
             } else { /* odd prime */
                 if (e >= 2) {
-                    comps[comp_cnt++] = seq_pow((seq_t)p, (idx_t)(e - 1));
+                    comps[comp_cnt++] = ipow_idx((seq_t)p, (idx_t)(e - 1));
                 }
                 uint64_t m = p - 1;
                 if (m > 1) {
@@ -117,7 +129,7 @@ seq_t a(idx_t n_flat)
                     size_t cnt2;
                     factor_u64(m, pr2, ex2, &cnt2);
                     for (size_t j = 0; j < cnt2; ++j) {
-                        comps[comp_cnt++] = seq_pow((seq_t)pr2[j], (idx_t)ex2[j]);
+                        comps[comp_cnt++] = ipow_idx((seq_t)pr2[j], (idx_t)ex2[j]);
                     }
                 }
             }
@@ -125,7 +137,7 @@ seq_t a(idx_t n_flat)
 
         /* Sort ascending to later index from the largest */
         if (comp_cnt > 1)
-            qsort(comps, comp_cnt, sizeof(seq_t), seq_cmp);
+            mem_qsort(comps, comp_cnt, sizeof(seq_t), seq_cmp);
 
         if (sum_len + comp_cnt >= n_flat) {
             idx_t k = n_flat - sum_len - 1;              /* 0‑based position in this row */

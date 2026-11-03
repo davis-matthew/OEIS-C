@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 33, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 51 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
     r ≈ √(2n).  No external libraries are required apart from <stdlib.h>. */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache of the triangular array.
    tri[i] stores the i‑th entry of the flattened triangle. */
@@ -50,7 +52,7 @@ static void ensure_capacity(size_t needed)
     size_t new_cap = tri_cap ? tri_cap * 2 : 1024;
     if (new_cap < needed)
         new_cap = needed;
-    tri = (seq_t *)realloc(tri, new_cap * sizeof(seq_t));
+    tri = mem_resize(seq_t, tri, new_cap);
     tri_cap = new_cap;
 }
 

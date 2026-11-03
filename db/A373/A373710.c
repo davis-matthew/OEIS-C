@@ -7,8 +7,9 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn, tabf, easy
  * Formula:   T(n,k) = n^2 + 2*k^2 - 2*n*k; a(n) is the triangle read by rows
- * Range:     u8 n <= 71, u16 n <= 9045, u32 n <= 9045, u64 n <= 9045,
- *            u128 n <= 9045, big any n
+ * Range:     u8 n <= 71, u16 n <= 16511, u32 n <= 100000, u64 n <= 100000,
+ *            u128 n <= 100000, big any n
+ * Validated: standard, pass, 80 terms through n = 9045 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

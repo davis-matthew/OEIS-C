@@ -11,6 +11,7 @@
  *            returns the n‑th term of the flattened triangle
  * Range:     i8 n <= 81, i16 n <= 237, i32 n <= 754, i64 n <= 2583,
  *            i128 n <= 5150, big any n
+ * Validated: standard, pass, 90 terms through n = 3722 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -9,13 +9,31 @@
  *            computed by comparing 256·n with (2·⌊n^(1/8)⌋+1)^8
  * Range:     u8 n <= 102, u16 n <= 102, u32 n <= 102, u64 n <= 102,
  *            u128 n <= 102, big any n
- * Helpers:   int_root_8
+ * Validated: partial, pass, 102 terms through n = 102 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/int_root_8.h"
+
+/* Return floor(n^(1/8)) for 0 ≤ n ≤ 2^64−1.
+   Since the eighth root of a 64‑bit integer is ≤256, a simple
+   linear search with 128‑bit intermediate values is fast enough. */
+static inline uint64_t int_root_8(uint64_t n)
+{
+    uint64_t a = 0;
+    while (1)
+    {
+        __int128 t = 1;
+        for (int i = 0; i < 8; ++i)
+            t *= (a + 1);
+        if (t > n)
+            break;
+        ++a;
+    }
+    return a;
+}
 
 static inline __int128 pow128_uint64(uint64_t base, unsigned exp)
 {

@@ -6,17 +6,30 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = v3(1 + A000265(σ(n))) (v3 = 3‑adic valuation)
- * Range:     u8 n <= 687, u16 n <= 9852, u32 n <= 9852, u64 n <= 9852,
- *            u128 n <= 9852, big any n
- * Helpers:   alloc_seq_array, free_seq_array, odd_part
+ * Range:     u8 n <= 687, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 121 terms through n = 9852 (2026-11-03)
+ * Helpers:   mem, odd_part
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>               /* for NULL */
-#include "../utils/alloc_seq_array.h"
-#include "../utils/free_seq_array.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/odd_part.h"
+#include "../utils/mem.h"
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 static seq_t *sigma_cache = NULL;   /* cache of σ(1..current_max)      */
 static idx_t  sigma_max  = 0;       /* size of current cache (excl. 0) */

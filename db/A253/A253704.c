@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 14, u32 n <= 51, u64 n <= 124, u128 n <= 210,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 210 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -38,6 +39,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 #define ROWS          8      /* number of rows in the array */
 #define RPAIRS        7      /* adjacent row pairs for a 2×2 block */
@@ -182,7 +184,7 @@ static void memo_push(seq_t value)
     if (memo_len >= memo_cap) {
         size_t new_cap = memo_cap ? memo_cap * 2 : 4;
         if (new_cap <= memo_len) new_cap = memo_len + 1;
-        seq_t *tmp = (seq_t*)realloc(memo, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, memo, new_cap);
         if (!tmp) abort();          /* out of memory */
         memo = tmp;
         memo_cap = new_cap;
@@ -202,7 +204,7 @@ seq_t a(idx_t n)
     if (!memo) {
         memo_len = 38;               /* indices 0..37, 0 unused */
         memo_cap = memo_len;
-        memo = (seq_t*)malloc(memo_cap * sizeof(seq_t));
+        memo = mem_new(seq_t, memo_cap);
         if (!memo) abort();          /* out of memory */
         memo[0] = 0;                 /* dummy */
         for (int i = 1; i <= 37; ++i) memo[i] = init_terms[i];

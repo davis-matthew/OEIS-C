@@ -9,7 +9,8 @@
  *            semiprime (Generator by brute force search with memoisation)
  * Range:     u8 n <= 4, u16 n <= 40, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   factor_u64, rev_decimal
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   factor_u64, mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,8 +18,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include <stdbool.h>
 #include "../utils/factor_u64.h"
-#include "../utils/rev_decimal.h"
+#include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
 
 static seq_t* terms = NULL;      /* sorted list of terms found so far */
 static size_t  terms_len  = 0;   /* number of terms currently stored */
@@ -56,7 +59,7 @@ seq_t a(idx_t n)
     /* initialise storage for terms */
     if (terms == NULL) {
         terms_cap = 64;
-        terms     = (seq_t*)malloc(sizeof(seq_t) * terms_cap);
+        terms     = mem_new(seq_t, terms_cap);
     }
 
     /* generate terms until we have at least n of them */
@@ -72,14 +75,14 @@ seq_t a(idx_t n)
             if (!is_powerful_uint64(cand)) continue;
 
             /* reverse decimal digits */
-            seq_t rev_seq = rev_decimal((seq_t)cand);
+            seq_t rev_seq = reverse_digits((seq_t)cand);
             uint64_t rev = (uint64_t)rev_seq;   /* fits easily for the required n */
 
             if (is_semiprime_uint64(rev)) {
                 /* store new term */
                 if (terms_len == terms_cap) {
                     terms_cap *= 2;
-                    terms = (seq_t*)realloc(terms, sizeof(seq_t) * terms_cap);
+                    terms = mem_resize(seq_t, terms, terms_cap);
                 }
                 terms[terms_len++] = (seq_t)cand;
                 break;   /* proceed to next candidate for subsequent terms */

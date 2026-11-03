@@ -7,6 +7,7 @@
  * Formula:   a(n) = sum of the distinct prime divisors of C(7*n,n)
  * Range:     u8 n <= 10, u16 n <= 212, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 71 terms through n = 933 (2026-11-01)
  * Helpers:   build_primes
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -20,7 +21,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "../utils/build_primes.h"          /* build_primes(idx_t, idx_t **, size_t *) */
+#include "../utils/build_primes.h"
 
 static inline idx_t vp_factorial(idx_t k, uint64_t p) {
     idx_t e = 0;

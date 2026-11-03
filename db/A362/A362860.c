@@ -7,7 +7,8 @@
  * Formula:   a(n) = (-1)^n * ∑_{k=0..n} (-3*k)^k * binomial(n,k)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 7, u64 n <= 12, u128 n <= 16,
  *            big any n
- * Helpers:   pow_seq
+ * Validated: partial, pass, 17 terms through n = 16 (2026-11-01)
+ * Helpers:   ipow_i32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,7 +18,7 @@
    (with unsigned overflow semantics) is used; no floating point.   */
 
 #include <stdint.h>
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
 
 seq_t a(idx_t n)
 {
@@ -31,7 +32,7 @@ seq_t a(idx_t n)
         if (k == 0)
             term_pow = 1;
         else
-            term_pow = pow_seq((seq_t)(3 * k), (int)k);
+            term_pow = ipow_i32((seq_t)(3 * k), (int)k);
 
         /* combine with binomial coefficient */
         seq_t term = term_pow * bin;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 13, u16 n <= 43, u32 n <= 44, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 44 terms through n = 44 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
  
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
  
 static seq_t *dp        = NULL;   /* number of partitions of each m */
 static seq_t *dp_parts  = NULL;   /* total parts in those partitions   */
@@ -37,9 +39,9 @@ static idx_t  max_n     = 0;      /* maximum n that has been computed  */
 static void recompute(idx_t n)
 {
     size_t sz = (size_t)n + 1U;
-    dp        = (seq_t*)realloc(dp,        sz * sizeof(seq_t));
-    dp_parts  = (seq_t*)realloc(dp_parts,  sz * sizeof(seq_t));
-    cum       = (seq_t*)realloc(cum,       sz * sizeof(seq_t));
+    dp        = mem_resize(seq_t, dp, sz);
+    dp_parts  = mem_resize(seq_t, dp_parts, sz);
+    cum       = mem_resize(seq_t, cum, sz);
     /* initialise all entries to zero before the DP loops */
     for (idx_t i = 0; i <= n; ++i) {
         dp[i]        = 0;

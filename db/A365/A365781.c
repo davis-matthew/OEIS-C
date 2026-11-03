@@ -12,7 +12,8 @@
  *            composite * (4) and repeatedly append the smallest...
  * Range:     u8 n <= 1, u16 n <= 82, u32 n <= 82, u64 n <= 82, u128 n <= 82,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 82 terms through n = 82 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* --------------------------------------------------------------------- */
 /* Helper: first decimal digit of a number                                 */
@@ -64,7 +66,7 @@ seq_t a(idx_t n)
     if (!composites) {
         /* Allocate space for composites. */
         comp_cap = INITIAL_COMP_CAP;
-        composites = (seq_t *)malloc(comp_cap * sizeof(seq_t));
+        composites = mem_new(seq_t, comp_cap);
         used_composites = (bool *)malloc(comp_cap * sizeof(bool));
         if (!composites || !used_composites) exit(1);
 
@@ -73,7 +75,7 @@ seq_t a(idx_t n)
             if (!is_prime_int(i)) {
                 if (comp_len == comp_cap) {
                     comp_cap <<= 1;
-                    composites = (seq_t *)realloc(composites, comp_cap * sizeof(seq_t));
+                    composites = mem_resize(seq_t, composites, comp_cap);
                     used_composites = (bool *)realloc(used_composites, comp_cap * sizeof(bool));
                     if (!composites || !used_composites) exit(1);
                 }
@@ -85,7 +87,7 @@ seq_t a(idx_t n)
 
     if (!seq) {
         seq_cap = INITIAL_SEQ_CAP;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         if (!seq) exit(1);
 
         /* Construct the lexicographically earliest sequence. */
@@ -111,7 +113,7 @@ seq_t a(idx_t n)
                     /* Append this composite. */
                     if (seq_len == seq_cap) {
                         seq_cap <<= 1;
-                        seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+                        seq = mem_resize(seq_t, seq, seq_cap);
                         if (!seq) exit(1);
                     }
                     seq[seq_len++] = composites[j];

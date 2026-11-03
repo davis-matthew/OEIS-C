@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 89, u16 n <= 89, u32 n <= 89, u64 n <= 89, u128 n <= 89,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 90 terms through n = 89 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    Computed by the standard square‑root continued fraction algorithm. */
 
 #include <stdlib.h>   /* abort, realloc, size_t */
+#include "../utils/mem.h"
 
 static seq_t *period = NULL;   /* array of periodic terms a(1..period_len) */
 static size_t period_len = 0;  /* length of the period (16 for sqrt(750)) */
@@ -49,7 +51,7 @@ static void init_cf(void)
         a = (a0_idx + m) / d;
 
         /* append the new period term */
-        seq_t *tmp = (seq_t *)realloc(period, (period_len + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, period, (period_len + 1));
         if (!tmp) abort();               /* allocation failed */
         period = tmp;
         period[period_len++] = (seq_t)a;

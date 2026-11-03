@@ -9,14 +9,16 @@
  *            enumeration of the triangle)
  * Range:     u8 n <= 5, u16 n <= 14, u32 n <= 44, u64 n <= 139, u128 n <= 533,
  *            big any n
- * Helpers:   binomial, pow_int
+ * Validated: standard, pass, 48 terms through n = 8601 (2026-11-01)
+ * Helpers:   binomial, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_int.h"
+#include "../utils/ipow_idx.h"
 
 static idx_t find_row(idx_t n)
 {
@@ -42,7 +44,7 @@ seq_t a(idx_t n)
     idx_t j = n - prev;
 
     seq_t res = binomial(i, j);
-    res *= pow_int(12, i - j);
-    res *= pow_int(6, j);
+    res *= ipow_idx(12, i - j);
+    res *= ipow_idx(6, j);
     return res;
 }

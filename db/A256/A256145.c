@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 17, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Helper: floor of square root for a seq_t (works for 64‑bit and / or big integers). */
 static seq_t floor_sqrt_seq(seq_t x) {
@@ -71,7 +73,7 @@ static void generate_primes(uint64_t limit, uint64_t **primes_out, size_t *cnt_o
 static void cache_append(seq_t val, seq_t **cache, size_t *len, size_t *cap) {
     if (*len == *cap) {
         size_t new_cap = (*cap == 0) ? 16 : (*cap << 1);
-        *cache = (seq_t*)realloc(*cache, new_cap * sizeof(seq_t));
+        *cache = mem_resize(seq_t, *cache, new_cap);
         *cap = new_cap;
     }
     (*cache)[(*len)++] = val;

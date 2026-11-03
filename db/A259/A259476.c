@@ -11,7 +11,8 @@
  *            by row, starting at n=4
  * Range:     u8 n <= 11, u16 n <= 34, u32 n <= 69, u64 n <= 69, u128 n <= 69,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 66 terms through n = 69 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,7 @@
    integer arithmetic is used. */
 
 #include <stdint.h>
-#include "../utils/binom.h"
+#include "../utils/binomial.h"
 
 /* Find the row number r (>=4) such that (r-3)(r-2)/2 > idx ,
    where idx = n-4 is the zero‑based position in the triangular
@@ -57,8 +58,8 @@ seq_t a(idx_t n)
     idx_t    k        = r + offset;              /* column index (m) */
 
     /* Compute the formula: 2 * C(k,r) * C(r-2, k-r+2) / (r-2) */
-    seq_t c1 = binom(k, r);                       /* C(k, r)   */
-    seq_t c2 = binom(r - 2, k - r + 2);           /* C(r-2, k-r+2) */
+    seq_t c1 = binomial(k, r);                       /* C(k, r)   */
+    seq_t c2 = binomial(r - 2, k - r + 2);           /* C(r-2, k-r+2) */
 
     seq_t val = c1;
     val = val * c2;                               /*  C(k,r)*C(r-2,k-r+2) */

@@ -7,6 +7,7 @@
  * Formula:   a(n) = Fibonacci(n+3) + 1
  * Range:     u8 n <= 10, u16 n <= 21, u32 n <= 44, u64 n <= 90, u128 n <= 183,
  *            big any n
+ * Validated: standard, pass, 55 terms through n = 976 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

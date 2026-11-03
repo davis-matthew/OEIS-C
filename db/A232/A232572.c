@@ -13,12 +13,14 @@
  *            a(9)=26985196, a(10)=165981072, a(11)=1020610296
  * Range:     u8 n <= 2, u16 n <= 5, u32 n <= 11, u64 n <= 24, u128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 35 terms through n = 202 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     /* initial setup: allocate space for first 11 terms and store them */
     if (cache == NULL) {
         cache_cap = 11;
-        cache = (seq_t*)calloc(cache_cap + 1, sizeof(seq_t)); /* index 0 unused */
+        cache = mem_new(seq_t, cache_cap + 1); /* index 0 unused */
         if (cache == NULL) return (seq_t)0; /* allocation failure, unlikely for n≤10000 */
 
         cache[1]  = (seq_t)16;
@@ -50,7 +52,7 @@ seq_t a(idx_t n)
     /* ensure cache can hold up to index n */
     if (n > cache_cap) {
         idx_t new_cap = n;
-        seq_t *tmp = (seq_t*)realloc(cache, sizeof(seq_t)*(new_cap + 1));
+        seq_t *tmp = mem_resize(seq_t, cache, (new_cap + 1));
         if (tmp == NULL) return (seq_t)0; /* allocation failure */
         cache     = tmp;
         cache_cap = new_cap;

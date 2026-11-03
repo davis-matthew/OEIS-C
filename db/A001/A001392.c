@@ -8,13 +8,14 @@
  *            a(n) = 9*binomial(2n,n-4)/(n+5)]
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 18, u64 n <= 35, u128 n <= 67,
  *            big any n
- * Helpers:   a001392_gcd64
+ * Validated: standard, pass, 40 terms through n = 191 (2026-11-01)
+ * Helpers:   gcd_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a001392_gcd64.h"
+#include "../utils/gcd_u64.h"
 
 seq_t a(idx_t n) {
     static idx_t cur_n = 0;
@@ -28,7 +29,7 @@ seq_t a(idx_t n) {
         idx_t k = cur_n + 1;
         uint64_t num = (uint64_t)(2 * k) * (uint64_t)(2 * k - 1);
         uint64_t den = (uint64_t)(k + 5) * (uint64_t)(k - 4);
-        uint64_t g = a001392_gcd64(num, den);
+        uint64_t g = gcd_u64(num, den);
         num /= g;
         den /= g;
         /* den is now coprime to num, so it divides cur_v exactly */

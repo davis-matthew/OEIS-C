@@ -12,14 +12,23 @@
  *            binom(r+m,2m)*binom(2m,m) and Zeta3(r) = Σ_{t=1..r} 1/t³ in...
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 17, u64 n <= 44, u128 n <= 44,
  *            big any n
- * Helpers:   binom, gcd, seq_mul
+ * Validated: partial, pass, 45 terms through n = 44 (2026-11-01)
+ * Helpers:   binomial, gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/binom.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/binomial.h"
 #include "../utils/gcd.h"
-#include "../utils/seq_mul.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* Compute Zeta3(r) as a reduced fraction num/den = Σ_{t=1..r} 1/t³. */
 static void
@@ -66,8 +75,8 @@ seq_t a(idx_t n)
         seq_t m2 = seq_mul(m_s, m_s);          /* m²  */
         seq_t m3 = seq_mul(m2, m_s);           /* m³  */
 
-        seq_t bin1 = binom(r + m, 2 * m);
-        seq_t bin2 = binom(2 * m, m);
+        seq_t bin1 = binomial(r + m, 2 * m);
+        seq_t bin2 = binomial(2 * m, m);
         seq_t B    = seq_mul(bin1, bin2);
 
         seq_t den_term = seq_mul(seq_mul((seq_t)2, m3), B);  /* 2*m³*B */

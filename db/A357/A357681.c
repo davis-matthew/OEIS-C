@@ -13,6 +13,7 @@
  *            and j = s - i
  * Range:     u8 n <= 41, u16 n <= 86, u32 n <= 167, u64 n <= 400,
  *            u128 n <= 1028, big any n
+ * Validated: standard, pass, 94 terms through n = 1324 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

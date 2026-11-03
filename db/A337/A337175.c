@@ -9,19 +9,21 @@
  *            divisors of n
  * Range:     u8 n <= 839, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64
+ * Validated: standard, pass, 102 terms through n = 9454 (2026-11-01)
+ * Helpers:   num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/divisor_count_u64.h"
+#include <stdint.h>
+#include "../utils/num_divisors.h"
 
 seq_t a(idx_t n)
 {
     if (n < 1) return 0;                 /* OEIS offset starts at 1 */
 
     /* divisor_count_u64 is provided in the utils set */
-    uint64_t tau = divisor_count_u64((uint64_t)n);
+    uint64_t tau = num_divisors((uint64_t)n);
 
     /* compute floor(tau^2 / 4) – 64‑bit arithmetic is enough for all
        values that can appear in the tested range. */

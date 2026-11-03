@@ -8,16 +8,24 @@
  *            prime p
  * Range:     i8 n <= 66, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
  *            i128 n <= 1000, big any n
- * Helpers:   factor_u64, seq_mul, seq_pow
+ * Validated: standard, pass, 84 terms through n = 952 (2026-11-01)
+ * Helpers:   factor_u64, ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
 #include "../utils/factor_u64.h"
-#include "../utils/seq_pow.h"
-#include "../utils/seq_mul.h"
+#include "../utils/ipow_idx.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 seq_t a(idx_t n)
 {
@@ -41,7 +49,7 @@ seq_t a(idx_t n)
         seq_t base = (seq_t)2 * (((seq_t)primes[i]) - (seq_t)3);
 
         /* (2*(p-3))^e */
-        seq_t power = seq_pow(base, (idx_t)exps[i]);
+        seq_t power = ipow_idx(base, (idx_t)exps[i]);
 
         /* multiply into running product */
         result = seq_mul(result, power);

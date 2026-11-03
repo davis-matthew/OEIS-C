@@ -6,15 +6,17 @@
  * Offset:    0    (a(0) is the first term)
  * Keywords:  nonn
  * Formula:   Product_{k>=1} (1 + x^{k*(5*k-3)/2})*(1 + x^{k*(5*k+3)/2})
- * Range:     u8 n <= 405, u16 n <= 1437, u32 n <= 6342, u64 n <= 9720,
- *            u128 n <= 9720, big any n
- * Helpers:   none
+ * Range:     u8 n <= 405, u16 n <= 1437, u32 n <= 6342, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 117 terms through n = 9720 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* Static cache of dp values */
 static seq_t *cache = NULL;
@@ -27,8 +29,8 @@ static void recompute(idx_t new_max)
     /* allocate enough space for cache */
     size_t new_cap = (size_t)new_max + 1;
     if (cache == NULL || cache_cap < new_cap) {
-        free(cache);
-        cache = (seq_t *)malloc(new_cap * sizeof(seq_t));
+        mem_free(cache);
+        cache = mem_new(seq_t, new_cap);
         cache_cap = new_cap;
     }
 

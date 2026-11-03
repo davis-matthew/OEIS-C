@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 3, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   floor_sqrt, is_prime_small
+ * Validated: standard, pass, 72 terms through n = 898 (2026-11-03)
+ * Helpers:   ipow_i32, is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,8 +23,27 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils/floor_sqrt.h"
-#include "../utils/is_prime_small.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* Bit mask for all ten digits */
 #define ALL_DIGIT_MASK 0x3FFU
@@ -51,7 +71,7 @@ static bool is_valid_term(seq_t m)
 
     /* If m fits in 64‑bit, try to skip full divisor loop for primes. */
     if (m <= UINT64_MAX) {
-        if (is_prime_small((uint64_t)m)) {
+        if (is_prime_seq((uint64_t)m)) {
             /* Only factorization candidate is 1 * m. */
             if ((mask_m | 0x2U) == ALL_DIGIT_MASK)   /* mask of digit 1 */
                 return true;
@@ -92,10 +112,10 @@ static void ensure_capacity(idx_t needed)
     idx_t new_cap = term_cap ? term_cap * 2 : 32;
     while (new_cap < needed)
         new_cap *= 2;
-    seq_t *new_arr = (seq_t *)malloc(new_cap * sizeof(seq_t));
+    seq_t *new_arr = mem_new(seq_t, new_cap);
     if (seq) {
-        memcpy(new_arr, seq, term_count * sizeof(seq_t));
-        free(seq);
+        mem_copy(new_arr, seq, term_count * sizeof(seq_t));
+        mem_free(seq);
     }
     seq = new_arr;
     term_cap = new_cap;

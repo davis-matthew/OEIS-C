@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 49, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   integer_sqrt
+ * Validated: standard, pass, 73 terms through n = 9052 (2026-11-01)
+ * Helpers:   isqrt
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,8 @@
    from A102883. */
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/integer_sqrt.h"
+#include <stdint.h>
+#include "../utils/isqrt.h"
 
 /* cache for already computed a(i) values (stored as uint64_t) */
 static idx_t *cache = NULL;       /* holds the true values of a(i) */
@@ -41,7 +43,7 @@ static inline idx_t gcd_u64(idx_t a, idx_t b)
 static inline bool excluded_by_rule(idx_t x)
 {
     idx_t m = x * 6;
-    idx_t sqrt_m = integer_sqrt(m);
+    idx_t sqrt_m = isqrt(m);
     idx_t sum_div = 0;
     for (idx_t d = 1; d <= sqrt_m; ++d) {
         if (m % d == 0)

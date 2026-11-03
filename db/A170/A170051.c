@@ -10,12 +10,14 @@
  *            is homogeneous for n≥36
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 11, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are supplied by the build system.  */
 typedef seq_t  seq_t;
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
 
     /* -------- 1st allocation  -------- */
     if (cache == NULL) {
-        cache = (seq_t *)malloc(sizeof(seq_t));
+        cache = mem_new(seq_t, 1);
         if (!cache) return (seq_t)0;          /* allocation error          */
         cache[0] = (seq_t)1;                  /* a(0)                      */
         computed = 0;
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
         new_cap <<= 1;                        /* exponential growth       */
 
     if (new_cap != old_cap) {
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return (seq_t)0;            /* realloc failure          */
         cache = tmp;
     }

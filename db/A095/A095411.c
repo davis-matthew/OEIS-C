@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 79, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   uint64_digit_len
+ * Validated: standard, pass, 78 terms through n = 9381 (2026-11-03)
+ * Helpers:   mem, num_digits_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/uint64_digit_len.h"
+#include "../utils/num_digits_u64.h"
+#include "../utils/mem.h"
 
 /* ---------- Prime list generation (single run) ---------- */
 static uint32_t *prime_list = NULL;      /* array of primes up to LIMIT */
@@ -81,21 +83,21 @@ static void ensure_terms(size_t n) {
             uint64_t pp = (uint64_t)p;
             if (pp * pp > temp) break;
             if (temp % pp == 0) {
-                sum_digits += uint64_digit_len(pp);
+                sum_digits += num_digits_u64(pp);
                 while (temp % pp == 0)
                     temp /= pp;
             }
         }
         /* Remaining factor (if >1) is a prime greater than sqrt(k). */
         if (temp > 1)
-            sum_digits += uint64_digit_len(temp);
+            sum_digits += num_digits_u64(temp);
 
-        int len_k = uint64_digit_len((uint64_t)k);
+        int len_k = num_digits_u64((uint64_t)k);
         if (sum_digits > len_k) {
             /* Append to cache, enlarging if necessary. */
             if (term_len == term_cap) {
                 term_cap = term_cap ? term_cap * 2 : 8;
-                term_cache = (seq_t*)realloc(term_cache, term_cap * sizeof(seq_t));
+                term_cache = mem_resize(seq_t, term_cache, term_cap);
                 if (!term_cache) exit(EXIT_FAILURE);
             }
             term_cache[term_len++] = (seq_t)k;

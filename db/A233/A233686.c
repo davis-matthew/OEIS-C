@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 3, u32 n <= 9, u64 n <= 20, u128 n <= 41,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 188 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 #define STATE_CNT 108            /* number of admissible 4‑element rows */
 
@@ -93,7 +95,7 @@ static void ensure_cache(idx_t n)
 {
     if (n + 1 <= cache_size) return;
     idx_t newsize = n + 1;
-    seq_t *newcache = (seq_t *)realloc(cache, newsize * sizeof(seq_t));
+    seq_t *newcache = mem_resize(seq_t, cache, newsize);
     if (!newcache) exit(EXIT_FAILURE);
     cache = newcache;
     cache_size = newsize;
@@ -119,7 +121,7 @@ seq_t a(idx_t n)
 
     /* Compute values up to n. */
     for (idx_t step = cache_valid_up_to + 1; step <= n; ++step) {
-        memset(nextv, 0, sizeof(nextv));
+        mem_set(nextv, 0, sizeof(nextv));
         for (int i = 0; i < STATE_CNT; ++i) {
             seq_t val = cur[i];
             if (val == (seq_t)0) continue;
@@ -134,7 +136,7 @@ seq_t a(idx_t n)
         for (int j = 0; j < STATE_CNT; ++j) total = total + nextv[j];
         cache[step] = total;
 
-        memcpy(cur, nextv, sizeof(cur));
+        mem_copy(cur, nextv, sizeof(cur));
     }
 
     cache_valid_up_to = n;

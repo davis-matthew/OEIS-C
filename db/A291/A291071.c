@@ -8,6 +8,7 @@
  * Formula:   a(n) = Σ_{r|6} μ(6/r) * Σ_{c|n} μ(n/c) * 2^{r*c}
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 10, u128 n <= 15,
  *            big any n
+ * Validated: partial, pass, 15 terms through n = 15 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,7 @@
  *  vertical or horizontal period. */
 
 #include <stddef.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 /* Compute Möbius μ(k) for 1 ≤ k ≤ 10⁴.  The implementation runs in

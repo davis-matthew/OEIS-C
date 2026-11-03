@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 18, u16 n <= 54, u32 n <= 63, u64 n <= 63, u128 n <= 63,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 64 terms through n = 63 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -34,6 +35,7 @@
 
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 /* static storage for the computed rows */
 static seq_t **rows = NULL;       /* rows[i] points to array of 2*i+1 entries */
@@ -64,19 +66,19 @@ static void grow_rows_up_to(idx_t m)
 
         /* base cases */
         if (n == 0) {
-            rows[0] = (seq_t *)malloc(sizeof(seq_t));
+            rows[0] = mem_new(seq_t, 1);
             rows[0][0] = (seq_t)1;
             continue;
         }
         if (n == 1) {
-            rows[1] = (seq_t *)malloc(3 * sizeof(seq_t));
+            rows[1] = mem_new(seq_t, 3);
             rows[1][0] = (seq_t)1;
             rows[1][1] = (seq_t)3;
             rows[1][2] = (seq_t)1;
             continue;
         }
         if (n == 2) {
-            rows[2] = (seq_t *)malloc(5 * sizeof(seq_t));
+            rows[2] = mem_new(seq_t, 5);
             rows[2][0] = (seq_t)1;
             rows[2][1] = (seq_t)8;
             rows[2][2] = (seq_t)16;
@@ -87,7 +89,7 @@ static void grow_rows_up_to(idx_t m)
 
         /* recurrence for n ≥ 3 */
         size_t sz = 2 * n + 1;
-        rows[n] = (seq_t *)malloc(sz * sizeof(seq_t));
+        rows[n] = mem_new(seq_t, sz);
         seq_t *row_nm1 = rows[n - 1];
         seq_t *row_nm2 = rows[n - 2];
         seq_t *row_nm3 = rows[n - 3];

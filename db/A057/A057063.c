@@ -11,7 +11,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 66, u16 n <= 66, u32 n <= 66, u64 n <= 66, u128 n <= 66,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 66 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -35,6 +36,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* compute the nth term of OEIS sequence A057063 */
 seq_t a(idx_t n)
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
      * is less than 2*n (e.g. for k = n-1 the block spans up to 2n-2).
      * Allocating 2*n + 1 elements with 1‑based indexing covers all cases. */
     idx_t M = n + n;                     /* 2*n */
-    seq_t *seq = (seq_t *)malloc((M + 1) * sizeof(seq_t));
+    seq_t *seq = mem_new(seq_t, (M + 1));
     if (!seq)
         return (seq_t)0;                 /* allocation failed */
 
@@ -69,6 +71,6 @@ seq_t a(idx_t n)
     }
 
     seq_t result = seq[n];
-    free(seq);
+    mem_free(seq);
     return result;
 }

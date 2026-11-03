@@ -7,7 +7,8 @@
  * Formula:   a(1) = 1; for n ≥ 2, a(n) = (sum_{i=1}^{n-1} a(i)) mod n
  * Range:     u8 n <= 30, u16 n <= 79, u32 n <= 79, u64 n <= 79, u128 n <= 79,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 79 terms through n = 79 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
    The function caches computed terms so that subsequent calls
   —even in a different order—are O(1) after initial computation. */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static state: array of computed terms, its length and allocated capacity,
@@ -31,7 +33,7 @@ seq_t a(idx_t n) {
     /* Initialize state on first call */
     if (seq == NULL) {
         cap = 16;
-        seq = (seq_t *)malloc(cap * sizeof(seq_t));
+        seq = mem_new(seq_t, cap);
         len = 0;
         sum = 0;
     }
@@ -50,7 +52,7 @@ seq_t a(idx_t n) {
         /* Grow the array if necessary */
         if (len >= cap) {
             cap *= 2;
-            seq = (seq_t *)realloc(seq, cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, cap);
         }
 
         /* Store the new term and update the running sum */

@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 28, u16 n <= 68, u32 n <= 187, u64 n <= 571,
  *            u128 n <= 1879, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 9834 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static state for memoisation */
 static seq_t *dp      = NULL;   /* partition counts up to current max_n */
@@ -61,7 +63,7 @@ static void compute_perfect_powers(idx_t limit)
    with calloc and the static pointer dp is updated. */
 static void recompute_dp(idx_t n)
 {
-    seq_t *newdp = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *newdp = mem_new(seq_t, (size_t)(n + 1));
     if (newdp == NULL)   /* allocation failure – keep old array */
         return;
 
@@ -76,7 +78,7 @@ static void recompute_dp(idx_t n)
             newdp[sum] += newdp[sum - part];
     }
 
-    free(dp);
+    mem_free(dp);
     dp     = newdp;
     max_n  = n;
 }

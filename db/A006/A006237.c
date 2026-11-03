@@ -7,13 +7,14 @@
  * Formula:   a(n) = 2^(2^n-1-n) * Product_{k=1..n} k^binomial(n,k)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 4, u64 n <= 4, u128 n <= 5,
  *            big any n
- * Helpers:   a006237_powseq
+ * Validated: standard, pass, 11 terms through n = 10 (2026-11-01)
+ * Helpers:   ipow_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a006237_powseq.h"
+#include "../utils/ipow_u64.h"
 
 seq_t a(idx_t n) {
     uint64_t e2, c;
@@ -22,12 +23,12 @@ seq_t a(idx_t n) {
 
     if (n >= 64) e2 = UINT64_MAX;
     else e2 = ((uint64_t)1 << n) - 1 - (uint64_t)n;
-    result = a006237_powseq((seq_t)2, e2);
+    result = ipow_u64((seq_t)2, e2);
 
     c = 1; /* binomial(n, k), built multiplicatively */
     for (k = 1; k <= n; k++) {
         c = (uint64_t)(((unsigned __int128)c * (n - k + 1)) / k);
-        if (k >= 2) result *= a006237_powseq((seq_t)k, c);
+        if (k >= 2) result *= ipow_u64((seq_t)k, c);
     }
     return result;
 }

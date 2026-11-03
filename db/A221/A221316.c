@@ -9,7 +9,8 @@
  *            − Σ r_i )⁄3 is an integer × C( (n−Σ r_i)/3 + n−1 , n−1 )
  * Range:     u8 n <= 8, u16 n <= 15, u32 n <= 28, u64 n <= 54, u128 n <= 107,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 47 terms through n = 206 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
  
 /* multiplicative binomial coefficient */
 static seq_t binom_seq(idx_t n, idx_t k)
@@ -45,15 +47,15 @@ seq_t a(idx_t n)
     seq_t *cur[3], *nxt[3];
     for (int r = 0; r < 3; ++r)
     {
-        cur[r] = (seq_t *)calloc(len, sizeof(seq_t));
-        nxt[r] = (seq_t *)calloc(len, sizeof(seq_t));
+        cur[r] = mem_new(seq_t, len);
+        nxt[r] = mem_new(seq_t, len);
         if (!cur[r] || !nxt[r])
         {
             /* memory allocation failure – clean up and return 0 */
             for (int rr = 0; rr <= r; ++rr)
             {
-                if (cur[rr]) free(cur[rr]);
-                if (nxt[rr]) free(nxt[rr]);
+                if (cur[rr]) mem_free(cur[rr]);
+                if (nxt[rr]) mem_free(nxt[rr]);
             }
             return 0;
         }
@@ -69,7 +71,7 @@ seq_t a(idx_t n)
     {
         /* clear next layer */
         for (int r = 0; r < 3; ++r)
-            memset(nxt[r], 0, len * sizeof(seq_t));
+            mem_set(nxt[r], 0, len * sizeof(seq_t));
  
         idx_t prevMax = 2 * (pos - 1);    /* maximum residue sum of previous position */
  
@@ -121,8 +123,8 @@ seq_t a(idx_t n)
     /* free allocated memory */
     for (int r = 0; r < 3; ++r)
     {
-        free(cur[r]);
-        free(nxt[r]);   /* nxt now holds old cur due to swap */
+        mem_free(cur[r]);
+        mem_free(nxt[r]);   /* nxt now holds old cur due to swap */
     }
  
     return ans;

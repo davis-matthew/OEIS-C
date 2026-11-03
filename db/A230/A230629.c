@@ -6,8 +6,9 @@
  * Keywords:  nonn
  * Formula:   a(0) = 0; for n > 0, a(n) = (floor(log2(n)) + 1) mod 3. This
  *            follows from the recurrence a(n) = (1 + a(floor(n/2))) mod 3
- * Range:     u8 n <= 7900, u16 n <= 7900, u32 n <= 7900, u64 n <= 7900,
- *            u128 n <= 7900, big any n
+ * Range:     u8 n <= 32768, u16 n <= 32768, u32 n <= 32768, u64 n <= 32768,
+ *            u128 n <= 32768, big any n
+ * Validated: standard, pass, 121 terms through n = 7900 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

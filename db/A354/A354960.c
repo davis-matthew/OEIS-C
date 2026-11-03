@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 48, u16 n <= 6814, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   alloc_seq_array, floor_sqrt
+ * Validated: standard, pass, 92 terms through n = 8827 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,32 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/floor_sqrt.h"      /* seq_t floor_sqrt(seq_t x) */
-#include "../utils/alloc_seq_array.h"/* seq_t *alloc_seq_array(size_t n) */
+#include <stddef.h>
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
 
 /* Sequence A354960
  *
@@ -103,8 +128,8 @@ static void ensure_sequence_up_to(idx_t n)
             size_t new_cap = seq_cap * 2;
             seq_t *tmp = alloc_seq_array(new_cap);
             if (!tmp) abort();
-            memcpy(tmp, seq_cache, seq_len * sizeof(seq_t));
-            free(seq_cache);
+            mem_copy(tmp, seq_cache, seq_len * sizeof(seq_t));
+            mem_free(seq_cache);
             seq_cache = tmp;
             seq_cap   = new_cap;
         }

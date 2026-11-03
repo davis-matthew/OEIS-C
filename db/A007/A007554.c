@@ -7,13 +7,15 @@
  * Formula:   a(n+1) = Sum_{d|n} mu(n/d) * a(d)
  * Range:     i8 n <= 48, i16 n <= 274, i32 n <= 1592, i64 n <= 5000,
  *            i128 n <= 5000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 4563 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static int mobius(uint64_t n) {
     if (n == 1) return 1;
@@ -45,7 +47,7 @@ seq_t a(idx_t n) {
     
     if (cache == NULL) {
         cache_len = 16;
-        cache = (seq_t *)malloc(cache_len * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_len);
         cache[0] = 1;
         computed_up_to = 1;
     }
@@ -54,7 +56,7 @@ seq_t a(idx_t n) {
         idx_t new_len = cache_len;
         while (new_len < n) new_len *= 2;
         
-        cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, new_len);
         cache_len = new_len;
     }
     

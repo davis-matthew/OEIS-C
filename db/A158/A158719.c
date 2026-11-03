@@ -12,7 +12,8 @@
  *            floor(p2/2)+p2 p6 = ceil (p2/2)+p2 are not prime
  * Range:     u8 n <= 3, u16 n <= 52, u32 n <= 52, u64 n <= 52, u128 n <= 52,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 52 terms through n = 52 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 static bool satisfies(seq_t p)
 {
@@ -58,7 +60,7 @@ seq_t a(idx_t n)
         if (is_prime((idx_t)cur) && satisfies(cur)) {
             if (size == cap) {
                 size_t new_cap = cap ? cap * 2 : 4;
-                seq_t *tmp = (seq_t *)realloc(seq, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, seq, new_cap);
                 if (!tmp) abort();
                 seq = tmp;
                 cap = new_cap;

@@ -6,16 +6,31 @@
  * Keywords:  easy, nonn, changed
  * Formula:   a(n) = (127^n - 7*126^n + 21*125^n - 35*124^n + 35*123^n * -
  *            21*122^n + 7*121^n - 120^n) / 7! with a(7)=1
- * Range:     u8 none, u16 n <= 8, u32 n <= 10, u64 n <= 14, u128 n <= 21,
+ * Range:     u8 none, u16 n <= 8, u32 n <= 10, u64 n <= 14, u128 n <= 19,
  *            big any n
- * Helpers:   big_pow, mul_small
+ * Validated: partial, pass, 13 terms through n = 19 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/big_pow.h"
-#include "../utils/mul_small.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include "../utils/ipow.h"
+
+/* multiply a seq_t by a small uint32_t constant without overflow
+ * for 64‑bit seq_t we use unsigned __int128 as intermediate,
+ * for larger seq_t we rely on the built‑in arithmetic. */
+static inline seq_t mul_small(seq_t x, unsigned int m)
+{
+    if (sizeof(seq_t) <= 8) {
+        unsigned __int128 res = (unsigned __int128)x * m;
+        return (seq_t)res;
+    } else {
+        return x * m;
+    }
+}
 
 static inline unsigned __int128 pow_uint128(uint64_t base, idx_t exp)
 {
@@ -66,16 +81,16 @@ seq_t a(idx_t n)
     }
 
     /* For arbitrary‑precision seq_t we rely on the utilities. */
-    seq_t sum_pos = big_pow((seq_t)127, (seq_t)n);
-    seq_t t = big_pow((seq_t)125, (seq_t)n); sum_pos += mul_small(t, 21);
-    t = big_pow((seq_t)123, (seq_t)n);        sum_pos += mul_small(t, 35);
-    t = big_pow((seq_t)121, (seq_t)n);        sum_pos += mul_small(t, 7);
+    seq_t sum_pos = ipow((seq_t)127, (seq_t)n);
+    seq_t t = ipow((seq_t)125, (seq_t)n); sum_pos += mul_small(t, 21);
+    t = ipow((seq_t)123, (seq_t)n);        sum_pos += mul_small(t, 35);
+    t = ipow((seq_t)121, (seq_t)n);        sum_pos += mul_small(t, 7);
 
-    seq_t sum_neg = big_pow((seq_t)126, (seq_t)n);
+    seq_t sum_neg = ipow((seq_t)126, (seq_t)n);
     sum_neg = mul_small(sum_neg, 7);
-    t = big_pow((seq_t)124, (seq_t)n);        sum_neg += mul_small(t, 35);
-    t = big_pow((seq_t)122, (seq_t)n);        sum_neg += mul_small(t, 21);
-    t = big_pow((seq_t)120, (seq_t)n);        sum_neg += t;
+    t = ipow((seq_t)124, (seq_t)n);        sum_neg += mul_small(t, 35);
+    t = ipow((seq_t)122, (seq_t)n);        sum_neg += mul_small(t, 21);
+    t = ipow((seq_t)120, (seq_t)n);        sum_neg += t;
 
     seq_t total = sum_pos - sum_neg;          /* guaranteed non‑negative */
     return total / denom;

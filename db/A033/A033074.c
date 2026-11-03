@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 54, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 54 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 /* Returns the n‑th such number (1‑based index). */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,14 +27,14 @@ seq_t a(idx_t n)
     /* ---- level 1: single‑digit numbers 1 … 8 ---- */
     size_t count = 0;               /* numbers produced so far     */
     size_t curr_len = 8;            /* length of current level     */
-    seq_t *curr = (seq_t*)malloc(curr_len * sizeof(seq_t));
+    seq_t *curr = mem_new(seq_t, curr_len);
     if (!curr) return 0;            /* allocation failure */
 
     for (int d = 1; d <= 8; ++d) {
         count++;
         if (count == n) {
             seq_t val = (seq_t)d;
-            free(curr);
+            mem_free(curr);
             return val;
         }
         curr[count - 1] = (seq_t)d;
@@ -41,7 +43,7 @@ seq_t a(idx_t n)
     /* ---- breadth‑first expansion for longer numbers ---- */
     while (count < n) {
         size_t next_cap = curr_len * 2 + 1;   /* worst case size */
-        seq_t *next = (seq_t*)malloc(next_cap * sizeof(seq_t));
+        seq_t *next = mem_new(seq_t, next_cap);
         if (!next) break;                    /* safety; should not happen */
 
         size_t next_len = 0;
@@ -57,7 +59,7 @@ seq_t a(idx_t n)
                 next[next_len++] = num * 9 + (last + 1);
         }
 
-        free(curr);          /* old level no longer needed */
+        mem_free(curr);          /* old level no longer needed */
         curr = next;
         curr_len = next_len;
 
@@ -65,13 +67,13 @@ seq_t a(idx_t n)
             count++;
             if (count == n) {
                 seq_t result = curr[i];
-                free(curr);
+                mem_free(curr);
                 return result;
             }
         }
     }
 
     /* ---- fallback (should not occur for valid input) ---- */
-    if (curr) free(curr);
+    if (curr) mem_free(curr);
     return 0;
 }

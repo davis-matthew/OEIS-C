@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 1, u32 n <= 13, u64 n <= 35, u128 n <= 75,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 36 terms through n = 121 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -32,12 +33,13 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static void grow_cache(seq_t **arr, size_t *cap, size_t need)
 {
     size_t newcap = *cap ? *cap : 32;
     while (newcap < need) newcap <<= 1;
-    *arr = (seq_t*)realloc(*arr, newcap * sizeof(seq_t));
+    *arr = mem_resize(seq_t, *arr, newcap);
     *cap = newcap;
 }
 

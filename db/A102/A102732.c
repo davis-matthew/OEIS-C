@@ -9,13 +9,18 @@
  *            is_prime() helper from utils
  * Range:     u8 n <= 5, u16 n <= 552, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 61 terms through n = 947 (2026-11-03)
+ * Helpers:   is_prime_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/is_prime.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,13 +36,13 @@ seq_t a(idx_t n)
     /* generate primes until we have at least n of them */
     while (count < n) {
         /* find next prime of the form 13k+5 */
-        while (!is_prime(cand))
+        while (!is_prime_u64(cand))
             cand += 13;
 
         /* grow the storage array if needed */
         if (count == capacity) {
             idx_t new_cap = capacity ? capacity << 1 : 128;
-            seq_t *tmp = (seq_t *)realloc(primes, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, primes, new_cap);
             if (!tmp) exit(1);           /* abort if allocation fails */
             primes   = tmp;
             capacity = new_cap;

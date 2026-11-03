@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 999, u16 n <= 999, u32 n <= 999, u64 n <= 999,
  *            u128 n <= 999, big any n
- * Helpers:   block_len
+ * Validated: standard, pass, 103 terms through n = 984 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,15 @@
    blocks S[k] have length 1+(v+1)^2 where v = exponent of 2 dividing k */
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/block_len.h"
+
+/* Return the length of block S[k] */
+static idx_t block_len(idx_t k)
+{
+    /* k >= 1 */
+    unsigned int v = __builtin_ctzll(k);          /* exponent of highest power of 2 dividing k */
+    idx_t m = ((idx_t)(v + 1)) * ((idx_t)(v + 1)); /* (v+1)^2 */
+    return 1 + m;
+}
 
 /* seq_t a(idx_t n)  -- external linkage */
 seq_t a(idx_t n)

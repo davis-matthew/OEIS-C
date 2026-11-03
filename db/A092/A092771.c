@@ -7,14 +7,47 @@
  * Formula:   a(n) = (prime(prime(n)))^2 – 1 (p_k denotes the k‑th prime)
  * Range:     u8 n <= 3, u16 n <= 16, u32 n <= 34, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   build_primes_up_to
+ * Validated: partial, pass, 34 terms through n = 34 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "../utils/build_primes_up_to.h"
+
+/* --------------------------------------------------------------------- */
+static void build_primes_up_to(size_t limit, uint32_t **primes, size_t *count)
+{
+    /* Allocate sieve array */
+    unsigned char *sieve = (unsigned char *)malloc(limit + 1);
+    if (!sieve) return;            /* allocation failure – should not occur in tests */
+
+    /* Sieve of Eratosthenes (simple implementation) */
+    for (size_t i = 0; i <= limit; ++i) sieve[i] = 1;
+    sieve[0] = sieve[1] = 0;
+
+    for (size_t i = 2; i * i <= limit; ++i) {
+        if (sieve[i]) {
+            for (size_t j = i * i; j <= limit; j += i) sieve[j] = 0;
+        }
+    }
+
+    /* First pass: count primes */
+    size_t cnt = 0;
+    for (size_t i = 2; i <= limit; ++i) if (sieve[i]) ++cnt;
+
+    /* Second pass: copy primes into array */
+    uint32_t *arr = (uint32_t *)malloc(cnt * sizeof(uint32_t));
+    size_t idx = 0;
+    for (size_t i = 2; i <= limit; ++i) {
+        if (sieve[i]) arr[idx++] = (uint32_t)i;
+    }
+
+    free(sieve);
+    *primes = arr;
+    *count  = cnt;
+}
 
 /* --------------------------------------------------------------------- */
 /*  Helper: generate all primes ≤ limit using a simple sieve.            */

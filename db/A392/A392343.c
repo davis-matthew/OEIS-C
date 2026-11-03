@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   is_four_full
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,32 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/is_four_full.h"
+
+/* ---------- helper functions ---------- */
+static bool is_four_full(uint32_t n)
+{
+    if (n == 1) return true;   /* 1 is considered 4‑full */
+    while (n > 1) {
+        uint32_t p = 2;
+        uint32_t exp = 0;
+        /* trial division */
+        for (p = 2; (uint64_t)p * p <= n; ++p) {
+            if (n % p == 0) break;
+        }
+        if (p * p > n) p = n; /* remaining factor is prime */
+        if (n % p == 0) {
+            while (n % p == 0) {
+                n /= p;
+                ++exp;
+            }
+            if (exp < 4) return false;
+        } else {
+            /* Should never happen, but safety */
+            return false;
+        }
+    }
+    return true;
+}
 
 /* ---------- configuration ---------- */
 #define MAX_SEQ_CAP 2000000      /* maximum expected number of terms          */

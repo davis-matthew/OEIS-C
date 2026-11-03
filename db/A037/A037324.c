@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 30, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 65 terms through n = 991 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,16 +26,17 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Grow a dynamic array of seq_t elements.  The pointer should be a pointer
    to a seq_t*.  New capacity is at least 'need'.  The allocation size must
    be multiples of sizeof(seq_t), not sizeof(void*). */
-static void grow_seq(void **arr, size_t *cap, size_t need)
+static void grow_seq(seq_t **arr, size_t *cap, size_t need)
 {
     if (need > *cap) {
         size_t newcap = *cap ? (*cap << 1) : 16;
         if (newcap < need) newcap = need;
-        *arr = realloc(*arr, newcap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, newcap);
         *cap = newcap;
     }
 }
@@ -107,7 +109,7 @@ static void init_state(void)
 {
     if (memo != NULL) return; /* already initialised */
 
-    memo = (seq_t*)malloc(128 * sizeof(seq_t));
+    memo = mem_new(seq_t, 128);
     memo_cap = 128;
     memo_len = 0;
 
@@ -139,7 +141,7 @@ seq_t a(idx_t n)
 
         if (sum5 == sum8) {
             /* Store the found value, growing the array if necessary */
-            grow_seq((void**)&memo, &memo_cap, memo_len + 1);
+            grow_seq(&memo, &memo_cap, memo_len + 1);
             memo[memo_len++] = (seq_t)cur_val;
         }
     }

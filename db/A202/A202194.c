@@ -8,7 +8,8 @@
  * Formula:   a(n) = 4*(n+2)^2 * binom(2*n+1, n)
  * Range:     u8 n <= 1, u16 n <= 4, u32 n <= 12, u64 n <= 21, u128 n <= 21,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 21 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *B_cache = NULL;   /* binom(2*k+1, k) for k<=cache_size-1 */
@@ -24,18 +26,18 @@ seq_t a(idx_t n) {
 
     if (n >= cache_size) {          /* extend cache to include n */
         size_t new_size = (size_t)n + 1;
-        seq_t *new_B = (seq_t *)malloc(new_size * sizeof(seq_t));
-        seq_t *new_A = (seq_t *)malloc(new_size * sizeof(seq_t));
+        seq_t *new_B = mem_new(seq_t, new_size);
+        seq_t *new_A = mem_new(seq_t, new_size);
         if (!new_B || !new_A) abort();
 
         /* copy old values */
         if (B_cache) {
-            memcpy(new_B, B_cache, cache_size * sizeof(seq_t));
-            free(B_cache);
+            mem_copy(new_B, B_cache, cache_size * sizeof(seq_t));
+            mem_free(B_cache);
         }
         if (A_cache) {
-            memcpy(new_A, A_cache, cache_size * sizeof(seq_t));
-            free(A_cache);
+            mem_copy(new_A, A_cache, cache_size * sizeof(seq_t));
+            mem_free(A_cache);
         }
         B_cache = new_B;
         A_cache = new_A;

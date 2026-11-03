@@ -7,12 +7,16 @@
  * Formula:   a(n) = the nth integer m such that 5*m + 2 is prime
  * Range:     u8 n <= 54, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime
+ * Validated: standard, pass, 75 terms through n = 917 (2026-11-03)
+ * Helpers:   is_prime_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/is_prime.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include "../utils/is_prime_u64.h"
 
 seq_t a(idx_t n)
 {
@@ -21,7 +25,7 @@ seq_t a(idx_t n)
 
     while (cnt < n) {
         uint64_t val = 5ull * cur + 2;
-        if (is_prime(val)) {
+        if (is_prime_u64(val)) {
             ++cnt;
             if (cnt == n)
                 return (seq_t)cur;

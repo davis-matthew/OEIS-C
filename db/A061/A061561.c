@@ -11,12 +11,14 @@
  *            - 3*2^k if r == 3: k = (n+5)/4, a(n) = 6*2^(2k) + 3*2^k - 3
  * Range:     u8 n <= 5, u16 n <= 21, u32 n <= 53, u64 n <= 117, u128 n <= 245,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 52 terms through n = 464 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/pow_uint.h"
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -32,19 +34,19 @@ seq_t a(idx_t n)
     switch (r) {
         case 0:   /* n ≡ 0 (mod 4) */
             k = (n + 4) / 4;
-            term = 12ull * pow_uint(2, 2 * k) - 3ull * pow_uint(2, k);
+            term = 12ull * ipow_u64_idx(2, 2 * k) - 3ull * ipow_u64_idx(2, k);
             break;
         case 1:   /* n ≡ 1 (mod 4) */
             k = (n + 3) / 4;
-            term = 12ull * pow_uint(2, 2 * k) + 9ull * pow_uint(2, k) - 3ull;
+            term = 12ull * ipow_u64_idx(2, 2 * k) + 9ull * ipow_u64_idx(2, k) - 3ull;
             break;
         case 2:   /* n ≡ 2 (mod 4) */
             k = (n + 6) / 4;
-            term = 6ull * pow_uint(2, 2 * k) - 3ull * pow_uint(2, k);
+            term = 6ull * ipow_u64_idx(2, 2 * k) - 3ull * ipow_u64_idx(2, k);
             break;
         case 3:   /* n ≡ 3 (mod 4) */
             k = (n + 5) / 4;
-            term = 6ull * pow_uint(2, 2 * k) + 3ull * pow_uint(2, k) - 3ull;
+            term = 6ull * ipow_u64_idx(2, 2 * k) + 3ull * ipow_u64_idx(2, k) - 3ull;
             break;
         default:  /* should never happen */
             term = 0;

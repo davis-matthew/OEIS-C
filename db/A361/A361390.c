@@ -11,6 +11,7 @@
  *            offset = n – s; then i = offset, j = d – offset
  * Range:     u8 n <= 100, u16 n <= 129, u32 n <= 219, u64 n <= 474,
  *            u128 n <= 1234, big any n
+ * Validated: standard, pass, 121 terms through n = 9546 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

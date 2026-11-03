@@ -8,13 +8,17 @@
  * Formula:   a(n) = reverse(a(n-1)) + 30, with a(1) = 1
  * Range:     u8 n <= 7, u16 n <= 109, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   reverse_digits
+ * Validated: standard, pass, 62 terms through n = 940 (2026-11-03)
+ * Helpers:   mem, reverse_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include <stdbool.h>
+#include <stdint.h>
 #include "../utils/reverse_digits.h"
+#include "../utils/mem.h"
 
 /* Return the n-th term of OEIS sequence A118637. */
 seq_t a(idx_t n)
@@ -30,7 +34,7 @@ seq_t a(idx_t n)
     /* Initialise cache on first call. */
     if (!cache) {
         cap  = 16;
-        cache = (seq_t *)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         if (!cache) return (seq_t)0;   /* Out of memory: abort quietly */
         size = 0;
     }
@@ -49,7 +53,7 @@ seq_t a(idx_t n)
 
         if (size >= cap) {            /* Double capacity */
             cap *= 2;
-            seq_t *tmp = (seq_t *)realloc(cache, cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, cap);
             if (!tmp) return (seq_t)0; /* Out of memory: abort quietly */
             cache = tmp;
         }

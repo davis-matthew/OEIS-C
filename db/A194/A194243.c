@@ -10,7 +10,8 @@
  *            identity { (2−√2)·k } = 1 − { √2·k } and the derivations above
  * Range:     u8 n <= 73, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   floor_sqrt
+ * Validated: partial, pass, 73 terms through n = 73 (2026-11-03)
+ * Helpers:   ipow_i32, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,26 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-# include "../utils/floor_sqrt.h"  /* floor_sqrt(seq_t x) is provided */
+#include "../utils/ipow_i32.h"
+#include "../utils/mem.h"
+
+/* Floor square root by binary search */
+static inline seq_t floor_sqrt(seq_t x)
+{
+    seq_t lo = 0, hi = 1;
+    while (ipow_i32(hi, 2) <= x)
+        hi <<= 1;
+    while (lo < hi)
+    {
+        seq_t mid = (lo + hi) >> 1;
+        seq_t mid2 = mid * mid;
+        if (mid2 <= x)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    return lo - 1;
+}
 
 /* integer square root of a 64‑bit value:
    returns ⌊√x⌋, x must fit in idx_t (64‑bit) and result < 2^32 */
@@ -45,8 +65,7 @@ seq_t a(idx_t n)
 
     /* allocate/grow the table */
     if (n > max_computed) {
-        seq_t *tmp = (seq_t *)realloc(cum_sum,
-                                      (size_t)(n + 1) * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cum_sum, (size_t)(n + 1));
         if (!tmp) return 0;               /* allocation failed          */
         cum_sum = tmp;
         if (max_computed == 0) cum_sum[0] = 0;

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 242, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   gcd
+ * Validated: standard, pass, 88 terms through n = 9140 (2026-11-03)
+ * Helpers:   gcd, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <string.h>
 #include "../utils/gcd.h"
+#include "../utils/mem.h"
 
 static seq_t * _a_seq = NULL;      /* sequence table, index 0 unused */
 static size_t  _a_cap = 0;         /* largest index stored */
@@ -48,7 +50,7 @@ static void _ensure_sequence(idx_t n)
 
     /* enlarge sequence table */
     size_t new_cap = (size_t)n + 1;               /* include index n, 0 unused */
-    seq_t *tmp = (seq_t *)realloc(_a_seq, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, _a_seq, new_cap);
     if (!tmp) abort();
     _a_seq = tmp;
 

@@ -8,7 +8,8 @@
  *            primes) - 2*n Offset: 1 (a(1) = 0)
  * Range:     u8 n <= 14, u16 n <= 51, u32 n <= 51, u64 n <= 51, u128 n <= 51,
  *            big any n
- * Helpers:   estimate_nth_prime
+ * Validated: partial, pass, 51 terms through n = 51 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,7 +17,17 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/estimate_nth_prime.h"
+#include "../utils/mem.h"
+
+/* --------------------------------------------------------------------- */
+static idx_t estimate_nth_prime(idx_t n)
+{
+    if (n < 6)
+        return 15;   /* first few primes are < 15 */
+    long double dn = (long double)n;
+    long double est = dn * (logl(dn) + logl(logl(dn))) + 3.0L;
+    return (idx_t)est;
+}
 
 /* --------------------------------------------------------------------- */
 /* Estimate an upper bound for the n-th prime (for n >= 6)                 */
@@ -56,7 +67,7 @@ static void build_psum(idx_t n)
 
         /* Count primes and accumulate sums */
         idx_t  count = 0;
-        seq_t *new_psum = (seq_t *)malloc((size_t)(n + 1) * sizeof(seq_t));
+        seq_t *new_psum = mem_new(seq_t, (size_t)(n + 1));
         if (!new_psum)
             abort(); /* memory allocation failed */
 
@@ -73,7 +84,7 @@ static void build_psum(idx_t n)
         if (count >= n) {
             /* We have enough primes; replace old psum */
             if (psum)
-                free(psum);
+                mem_free(psum);
             psum = new_psum;
             psum_max_n = count;
             psum_computed = true;
@@ -81,7 +92,7 @@ static void build_psum(idx_t n)
         }
 
         /* Not enough primes – try a larger bound */
-        free(new_psum);
+        mem_free(new_psum);
         bound *= 2;
     }
 }

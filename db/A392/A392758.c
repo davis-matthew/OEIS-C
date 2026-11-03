@@ -10,7 +10,8 @@
  *            divide n
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   divisor_count_u64, factor_u64, is_prime
+ * Validated: standard, pass, 103 terms through n = 9728 (2026-11-01)
+ * Helpers:   factor_u64, is_prime, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,10 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/is_prime.h"
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/divisor_count_u64.h"
+#include "../utils/is_prime.h"
+#include "../utils/num_divisors.h"
 
 seq_t a(idx_t n)
 {
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
     uint64_t N = (uint64_t)n;           /* idx_t is uint64_t */
 
     /* divisor count of n */
-    seq_t divcnt = (seq_t)divisor_count_u64(N);
+    seq_t divcnt = (seq_t)num_divisors(N);
 
     /* factor n; store prime exponents (existing but not needed here). */
     uint64_t pr[64];

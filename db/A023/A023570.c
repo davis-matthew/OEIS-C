@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 10000, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _prime_limit_for_idx, build_primes_upto, factor_u64
+ * Validated: standard, pass, 115 terms through n = 9594 (2026-11-01)
+ * Helpers:   build_primes_upto, factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,19 @@
    Uses a static cache of primes and the provided factor_u64 helper. */
 
 #include <stdlib.h>
-#include "../utils/_prime_limit_for_idx.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <math.h>
 #include "../utils/build_primes_upto.h"
 #include "../utils/factor_u64.h"
+
+static size_t _prime_limit_for_idx(idx_t n) {
+    /* Rough upper bound for the n-th prime using n*(log n + log log n) + 3 */
+    if (n < 6) return 15; /* first 6 primes < 15 */
+    double nn = (double)n;
+    double bound = nn * (log(nn) + log(log(nn))) + 3.0;
+    return (size_t)bound;
+}
 
 static uint64_t *prime_cache = NULL;
 static size_t   prime_cache_cnt = 0;

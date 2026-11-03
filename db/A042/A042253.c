@@ -7,7 +7,8 @@
  * Formula:   a(n) = denominator of the n-th convergent to sqrt(652)
  * Range:     u8 n <= 6, u16 n <= 10, u32 n <= 23, u64 n <= 44, u128 n <= 87,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 46 terms through n = 194 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* constants */
 static const idx_t D = 652;
@@ -58,12 +60,12 @@ static void ensure_denoms(size_t n)
     if (denoms_cap > n) return;
     size_t new_cap = denoms_cap ? denoms_cap : 8;
     while (new_cap <= n) new_cap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(denoms, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, denoms, new_cap);
     if (!tmp) exit(1);           /* allocation failure */
     if (!denoms)
-        memset(tmp, 0, new_cap * sizeof(seq_t));
+        mem_set(tmp, 0, new_cap * sizeof(seq_t));
     else
-        memset(tmp + denoms_cap, 0, (new_cap - denoms_cap) * sizeof(seq_t));
+        mem_set(tmp + denoms_cap, 0, (new_cap - denoms_cap) * sizeof(seq_t));
     denoms = tmp;
     denoms_cap = new_cap;
 }

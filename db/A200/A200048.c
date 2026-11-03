@@ -9,6 +9,7 @@
  *            (1/12)*(135*n^3-117*n^2+54*n-12) if n even
  * Range:     u8 n <= 1, u16 n <= 8, u32 n <= 390, u64 n <= 1000,
  *            u128 n <= 1000, big any n
+ * Validated: standard, pass, 53 terms through n = 995 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

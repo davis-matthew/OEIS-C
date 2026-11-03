@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 19, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
- * Helpers:   seq_mul, seq_pow
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-03)
+ * Helpers:   ipow_idx, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,14 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/seq_mul.h"
-#include "../utils/seq_pow.h"
+#include <string.h>
+#include "../utils/ipow_idx.h"
+#include "../utils/mem.h"
+
+/* Helper: safe multiplication for seq_t */
+static inline seq_t seq_mul(seq_t a, seq_t b) {
+    return a * b;
+}
 
 /* --- Hash set for deduplication ------------------------------------- */
 typedef struct {
@@ -46,7 +53,7 @@ static void hash_init(hash_set_t *h, size_t init_size)
 {
     h->size = init_size;
     h->count = 0;
-    h->tab = (seq_t *)malloc(init_size * sizeof(seq_t));
+    h->tab = mem_new(seq_t, init_size);
     h->used = (uint8_t *)calloc(init_size, sizeof(uint8_t));
 }
 
@@ -79,14 +86,14 @@ static size_t heap_sz = 0;
 static void heap_init(void)
 {
     heap_cap = 1024;
-    heap = (seq_t *)malloc(heap_cap * sizeof(seq_t));
+    heap = mem_new(seq_t, heap_cap);
     heap_sz = 0;
 }
 
 static void heap_grow(size_t need)
 {
     while (heap_cap <= need) heap_cap <<= 1;
-    heap = (seq_t *)realloc(heap, heap_cap * sizeof(seq_t));
+    heap = mem_resize(seq_t, heap, heap_cap);
 }
 
 static void heap_push(seq_t val)
@@ -139,7 +146,7 @@ static void generate_sequence_to(idx_t target)
     if (!init_done) {
         /* initial base numbers 2^k + 1 */
         for (idx_t k = 0; k <= MAX_EXP; ++k) {
-            seq_t p = seq_pow((seq_t)2, (idx_t)k);
+            seq_t p = ipow_idx((seq_t)2, (idx_t)k);
             p = p + (seq_t)1;
             base_vals[base_cnt++] = p;
         }
@@ -148,7 +155,7 @@ static void generate_sequence_to(idx_t target)
         hash_insert(&visited, (seq_t)1);
         heap_push((seq_t)1);
         seq_cap = INITIAL_SEQ_CAP;
-        seq_vals = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq_vals = mem_new(seq_t, seq_cap);
         seq_len = 0;
         init_done = true;
     }
@@ -159,7 +166,7 @@ static void generate_sequence_to(idx_t target)
 
         if (seq_len == seq_cap) {
             seq_cap <<= 1;
-            seq_vals = (seq_t *)realloc(seq_vals, seq_cap * sizeof(seq_t));
+            seq_vals = mem_resize(seq_t, seq_vals, seq_cap);
         }
         seq_vals[seq_len++] = cur;
 

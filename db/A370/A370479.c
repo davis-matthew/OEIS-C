@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 14, u64 n <= 23, u128 n <= 23,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 24 terms through n = 23 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ----------- local helpers -------------------------------------------- */
 
@@ -48,7 +50,7 @@ static void ensure_a(idx_t n)
 {
     if (cache_len > n) return;
     size_t new_len = (size_t)(n + 1);
-    seq_t *tmp = (seq_t *)realloc(a_cache, new_len * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, a_cache, new_len);
     if (!tmp) abort();
     a_cache = tmp;
 

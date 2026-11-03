@@ -9,6 +9,7 @@
  * Formula:   a(n) = 5*5^n - 10*4^n + 10*3^n - 5*2^n + 1
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 26, u128 n <= 54,
  *            big any n
+ * Validated: standard, pass, 38 terms through n = 962 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

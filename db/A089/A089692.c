@@ -7,7 +7,8 @@
  * Formula:   a(n) = phi(2n)/2^omega(n) (OEIS A089692)
  * Range:     u8 n <= 511, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   factor_u64, pow2, pow_seq
+ * Validated: standard, pass, 102 terms through n = 9909 (2026-11-01)
+ * Helpers:   factor_u64, ipow_i32, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,9 +22,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
+#include "../utils/ipow_i32.h"
 #include "../utils/pow2.h"
-#include "../utils/pow_seq.h"
 
 seq_t a(idx_t n)
 {
@@ -51,8 +53,8 @@ seq_t a(idx_t n)
             term = pow2((idx_t)(e - 1));
         } else {
             /* a(p^e) = (p^e - p^(e-1))/2  (p odd prime) */
-            seq_t pe  = pow_seq((seq_t)p, (int)e);
-            seq_t pe1 = pow_seq((seq_t)p, (int)(e - 1));
+            seq_t pe  = ipow_i32((seq_t)p, (int)e);
+            seq_t pe1 = ipow_i32((seq_t)p, (int)(e - 1));
             term = (pe - pe1) / (seq_t)2;
         }
         result = result * term;

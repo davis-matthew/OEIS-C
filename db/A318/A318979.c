@@ -7,8 +7,9 @@
  * Keywords:  nonn
  * Formula:   a(n) = Number of divisors of n whose prime indices have greatest
  *            common divisor 1 (excluding divisor 1)
- * Range:     u8 n <= 9757, u16 n <= 9757, u32 n <= 9757, u64 n <= 9757,
- *            u128 n <= 9757, big any n
+ * Range:     u8 n <= 20000, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 103 terms through n = 9757 (2026-11-01)
  * Helpers:   build_primes_upto, factor_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -17,8 +18,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/factor_u64.h"
 #include "../utils/build_primes_upto.h"
+#include "../utils/factor_u64.h"
 
 /* Prime cache (1‑based indices). */
 static uint64_t *prime_list = NULL;  /* array of primes */

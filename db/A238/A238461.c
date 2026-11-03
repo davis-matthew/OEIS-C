@@ -7,7 +7,8 @@
  * Formula:   a(n) = max{k: A000009(k) <= n}
  * Range:     u8 n <= 247, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 116 terms through n = 994 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;            /* DP array for partitions */
 static size_t dp_cap = 0;
@@ -31,7 +33,7 @@ static void ensure_up_to_value(seq_t limit)
     /* Initialising the DP array if it hasn't been done yet. */
     if (dp_cap == 0) {
         dp_cap = 64;
-        dp = (seq_t *)calloc(dp_cap, sizeof(seq_t));
+        dp = mem_new(seq_t, dp_cap);
         dp[0] = 1;
         dp_len = 0;
     }
@@ -43,10 +45,10 @@ static void ensure_up_to_value(seq_t limit)
         if ((idx_t)dp_cap <= next_part) {
             size_t newcap = dp_cap ? dp_cap * 2 : 64;
             while ((idx_t)newcap <= next_part) newcap *= 2;
-            seq_t *ptr = (seq_t *)realloc(dp, newcap * sizeof(seq_t));
+            seq_t *ptr = mem_resize(seq_t, dp, newcap);
             if (!ptr) exit(1);          /* abort on allocation failure */
             /* Zero the new entries. */
-            memset(ptr + dp_cap, 0, (newcap - dp_cap) * sizeof(seq_t));
+            mem_set(ptr + dp_cap, 0, (newcap - dp_cap) * sizeof(seq_t));
             dp = ptr;
             dp_cap = newcap;
         }
@@ -63,7 +65,7 @@ static void ensure_up_to_value(seq_t limit)
         /* Grow Q vector if needed. */
         if ((size_t)Qlen >= Qcap) {
             size_t newcap = Qcap ? Qcap * 2 : 32;
-            seq_t *ptr = (seq_t *)realloc(Qvec, newcap * sizeof(seq_t));
+            seq_t *ptr = mem_resize(seq_t, Qvec, newcap);
             if (!ptr) exit(1);
             Qvec = ptr;
             Qcap = newcap;

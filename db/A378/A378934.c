@@ -10,13 +10,15 @@
  *            25*a(n-5) + 21*a(n-6) + 5*a(n-7) - 4*a(n-8) - a(n-9)
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 16, u64 n <= 35, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 192 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* Initial terms */
 static const seq_t init_vals[9] = {
@@ -47,7 +49,7 @@ static void ensure_cache(idx_t n)
     if (new_cap < need)
         new_cap = need;
 
-    seq_t *new_cache = (seq_t *)realloc(seq_cache, new_cap * sizeof(seq_t));
+    seq_t *new_cache = mem_resize(seq_t, seq_cache, new_cap);
     if (new_cache == NULL)
         abort();  /* allocation failure */
     seq_cache = new_cache;

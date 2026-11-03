@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 24, u32 n <= 24, u64 n <= 49, u128 n <= 49,
  *            big any n
- * Helpers:   pow_uint, seq_to_str
+ * Validated: partial, pass, 49 terms through n = 49 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,8 +22,29 @@
  */
 
 #include <stdbool.h>
-#include "../utils/seq_to_str.h"
-#include "../utils/pow_uint.h"
+#include <stddef.h>
+#include <stdint.h>
+#include "../utils/ipow_u64_idx.h"
+
+/* convert a seq_t value to a decimal string */
+static void seq_to_str(seq_t v, char *buf, size_t *len)
+{
+    if (v == 0) {
+        buf[0] = '0';
+        *len = 1;
+        return;
+    }
+    char tmp[64];
+    int pos = 0;
+    seq_t ten = (seq_t)10;
+    while (v != 0) {
+        tmp[pos++] = '0' + (int)(v % ten);
+        v /= ten;
+    }
+    for (int i = 0; i < pos; ++i)
+        buf[i] = tmp[pos - 1 - i];
+    *len = pos;
+}
 
 static seq_t next_powertrain(seq_t x)
 {
@@ -34,7 +56,7 @@ static seq_t next_powertrain(seq_t x)
     for (size_t i = 0; i + 1 < len; i += 2) {
         unsigned int base = (unsigned int)(buf[i] - '0');
         unsigned int exp  = (unsigned int)(buf[i + 1] - '0');
-        prod *= pow_uint(base, exp);
+        prod *= ipow_u64_idx(base, exp);
     }
     if (len % 2 == 1) {
         unsigned int last = (unsigned int)(buf[len - 1] - '0');

@@ -12,12 +12,15 @@
  *            one may also use a(n)=4·a(n−6).)
  * Range:     u8 n <= 21, u16 n <= 45, u32 n <= 93, u64 n <= 189,
  *            u128 n <= 381, big any n
- * Helpers:   seq_pow
+ * Validated: standard, pass, 69 terms through n = 996 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -37,8 +40,8 @@ seq_t a(idx_t n)
         idx_t R = (n + 2) % C;               /* (n+2) mod C     */
         idx_t Q = (n + 2) / C - 2;           /* floor((n+2)/C)-2*/
 
-        seq_t part1 = seq_pow((seq_t)Q, C - R);
-        seq_t part2 = seq_pow((seq_t)(Q + 1), R);
+        seq_t part1 = ipow_idx((seq_t)Q, C - R);
+        seq_t part2 = ipow_idx((seq_t)(Q + 1), R);
         return part1 * part2;
     }
 
@@ -46,7 +49,7 @@ seq_t a(idx_t n)
     idx_t C = (n + 2) / 6;                   /* floor((n+2)/6)  */
     idx_t R = (n + 2) % 6;                   /* (n+2) mod 6     */
 
-    seq_t part1 = seq_pow((seq_t)4, C - R);
-    seq_t part2 = seq_pow((seq_t)5, R);
+    seq_t part1 = ipow_idx((seq_t)4, C - R);
+    seq_t part2 = ipow_idx((seq_t)5, R);
     return part1 * part2;
 }

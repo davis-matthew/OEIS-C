@@ -7,13 +7,16 @@
  * Formula:   a(n) = Sum_{k=1..n} φ(k)^2
  * Range:     u8 n <= 12, u16 n <= 76, u32 n <= 3108, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   phi
+ * Validated: standard, pass, 60 terms through n = 9903 (2026-11-03)
+ * Helpers:   mem, totient
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/phi.h"
+#include <stdint.h>
+#include "../utils/totient.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +32,7 @@ seq_t a(idx_t n)
 
     /* Grow the cache to hold indices up to n. */
     idx_t new_size = n + 1;                  /* indices 0..n inclusive */
-    seq_t *tmp = (seq_t *)realloc(sum_cache, new_size * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, sum_cache, new_size);
     if (!tmp)                               /* allocation failed */
         return 0;                           /* caller must not expect a valid sum */
 
@@ -41,7 +44,7 @@ seq_t a(idx_t n)
 
     /* Compute missing values incrementally. */
     for (idx_t i = max_computed + 1; i <= n; ++i) {
-        seq_t phi_i = phi(i);               /* φ(i)  */
+        seq_t phi_i = totient(i);               /* φ(i)  */
         seq_t sq    = phi_i * phi_i;        /* φ(i)^2  */
         sum_cache[i] = sum_cache[i - 1] + sq;
     }

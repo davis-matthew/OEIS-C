@@ -9,15 +9,16 @@
  *            with rows of length r+1. The implementation uses only integer
  *            arithmetic, avoiding any floating‑point error for all n that fit
  *            in idx_t
- * Range:     u8 n <= 10, u16 n <= 22, u32 n <= 54, u64 n <= 54, u128 n <= 54,
+ * Range:     u8 n <= 11, u16 n <= 30, u32 n <= 54, u64 n <= 54, u128 n <= 54,
  *            big any n
- * Helpers:   binom
+ * Validated: partial, pass, 55 terms through n = 54 (2026-11-01)
+ * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>                // for the builtin uint64_t type
-#include "../utils/binom.h"        // binom(idx_t a, idx_t b) → seq_t
+#include "../utils/binomial.h"
 
 /* Integer square root: floor(sqrt(x)) for x up to 2^64‑1. */
 static idx_t floor_isqrt(idx_t x)
@@ -57,5 +58,5 @@ seq_t a(idx_t n)
     idx_t k = n - offset;                    /* 0 ≤ k ≤ r   */
 
     /* Compute the binomial coefficient binomial(3*r, 3*k) */
-    return binom(3 * r, 3 * k);
+    return binomial(3 * r, 3 * k);
 }

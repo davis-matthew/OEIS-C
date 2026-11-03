@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 73, u16 n <= 73, u32 n <= 73, u64 n <= 73, u128 n <= 73,
  *            big any n
- * Helpers:   is_palindrome, seq_from_str, seq_to_str
+ * Validated: partial, pass, 74 terms through n = 73 (2026-11-01)
+ * Helpers:   is_palindrome_base
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,9 +21,39 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/seq_to_str.h"
-#include "../utils/seq_from_str.h"
-#include "../utils/is_palindrome.h"
+#include <stdlib.h>
+#include <string.h>
+#include "../utils/is_palindrome_base.h"
+
+/* convert a seq_t value to a decimal string */
+static void seq_to_str(seq_t v, char *buf, size_t *len)
+{
+    if (v == 0) {
+        buf[0] = '0';
+        *len = 1;
+        return;
+    }
+    char tmp[64];
+    int pos = 0;
+    seq_t ten = (seq_t)10;
+    while (v != 0) {
+        tmp[pos++] = '0' + (int)(v % ten);
+        v /= ten;
+    }
+    for (int i = 0; i < pos; ++i)
+        buf[i] = tmp[pos - 1 - i];
+    *len = pos;
+}
+
+/* Parse a decimal string into a seq_t value.  Works for all allowed seq_t
+   types because the arithmetic operators are defined for both
+   machine integers and the big‑int class.                                 */
+static seq_t seq_from_str(const char *s)
+{
+    seq_t v = 0;
+    while (*s) { v = v*10 + (seq_t)(*s - '0'); ++s; }
+    return v;
+}
 
 static void build_pal(const char *prefix, int p_len, int total_len, char *out)
 {
@@ -60,7 +91,7 @@ seq_t a(idx_t n)
     if (n == (idx_t)0) return (seq_t)0;
 
     seq_t x = (seq_t)n;
-    if (is_palindrome(x, 10)) return x;  /* n is already a palindrome */
+    if (is_palindrome_base(x, 10)) return x;  /* n is already a palindrome */
 
     /* convert n to decimal string */
     char buf[1024];

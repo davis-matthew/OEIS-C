@@ -8,14 +8,15 @@
  *            binomial(n,3*k)/k!
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 19,
  *            big any n
- * Helpers:   pow_seq_scalar
+ * Validated: partial, pass, 20 terms through n = 19 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/pow_seq_scalar.h"
+#include "../utils/ipow_idx.h"
 
 /* Small helper: compute n! for n <= 10000 */
 static seq_t factorial_uint64(idx_t n)
@@ -71,7 +72,7 @@ seq_t a(idx_t n)
             term = term / fac_k;
 
             /* multiply by (3k+1)^(k-1) */
-            term = term * pow_seq_scalar((seq_t)(3 * k + 1), k - 1);
+            term = term * ipow_idx((seq_t)(3 * k + 1), k - 1);
         }
 
         result += term;

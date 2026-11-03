@@ -8,7 +8,8 @@
  *            composite
  * Range:     u8 n <= 2, u16 n <= 40, u32 n <= 40, u64 n <= 40, u128 n <= 40,
  *            big any n
- * Helpers:   is_prime
+ * Validated: partial, pass, 40 terms through n = 40 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../utils/is_prime.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* Static cache of computed terms (1‑based indexing). */
@@ -27,7 +29,7 @@ seq_t a(idx_t n) {
     /* Allocate the cache on first use. */
     if (cache == NULL) {
         cache_cap = 8;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache) return (seq_t)0;   /* unlikely, but safe */
     }
 
@@ -43,8 +45,8 @@ seq_t a(idx_t n) {
             /* Grow the cache if necessary. */
             if (cache_len == cache_cap) {
                 cache_cap <<= 1;   /* double the capacity */
-                seq_t *tmp = (seq_t *)realloc(cache, cache_cap * sizeof(seq_t));
-                if (!tmp) { free(cache); return (seq_t)0; }
+                seq_t *tmp = mem_resize(seq_t, cache, cache_cap);
+                if (!tmp) { mem_free(cache); return (seq_t)0; }
                 cache = tmp;
             }
 

@@ -8,7 +8,8 @@
  * Formula:   a(n) = (p_{n+1} - p_n) / 4 where p_k are primes ≡ 3 (mod 4)
  * Range:     u8 n <= 28, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   grow_seq_t_array
+ * Validated: standard, pass, 121 terms through n = 9892 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,18 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/grow_seq_t_array.h"
+#include "../utils/mem.h"
+
+/* helper: grow array of seq_t (generic)                               */
+static void grow_seq_t_array(seq_t **arr, size_t *cnt, size_t *cap) {
+    if (*cnt >= *cap) {
+        size_t new_cap = (*cap == 0) ? 64 : (*cap << 1);
+        seq_t *newp = mem_resize(seq_t, *arr, new_cap);
+        if (!newp) abort();
+        *arr = newp;
+        *cap = new_cap;
+    }
+}
 
 /* static state ------------------------------------------------------- */
 static uint64_t *primes   = NULL;    /* all primes found (uint64_t)       */

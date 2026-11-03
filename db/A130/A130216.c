@@ -9,12 +9,14 @@
  *            a[0..n-1])
  * Range:     u8 n <= 33, u16 n <= 552, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 74 terms through n = 976 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Static cache for computed terms and counts of multiples of 3. */
 static seq_t *value = NULL;      /* a(n) values */
@@ -30,7 +32,7 @@ seq_t a(idx_t n)
         /* Grow the storage vectors. */
         void *tmp;
 
-        tmp = realloc(value, needed * sizeof(seq_t));
+        tmp = mem_resize(seq_t, value, needed);
         if (!tmp) return 0;                 /* out‑of‑memory: return 0 as a safe fallback */
         value = (seq_t *)tmp;
 

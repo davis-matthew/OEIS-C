@@ -7,9 +7,10 @@
  * Keywords:  nonn, look
  * Formula:   a(n) = #{k ≤ n : gpf(k) = gpf(n)} where gpf(k) is the greatest
  *            prime factor of k (gpf(1)=1)
- * Range:     u8 n <= 8683, u16 n <= 8683, u32 n <= 8683, u64 n <= 8683,
- *            u128 n <= 8683, big any n
- * Helpers:   none
+ * Range:     u8 n <= 12349, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 115 terms through n = 8683 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Static state */
 static seq_t *a_cache = NULL;          /* a(n) values, 1‑index: a_cache[0] = a(1) */
@@ -64,7 +66,7 @@ static void ensure_up_to(idx_t limit)
     /* Allocate or grow a_cache. */
     size_t cache_needed = (size_t)limit;  /* a_cache[0 .. limit-1] */
     if (a_cap < cache_needed) {
-        seq_t *tmp2 = (seq_t*)realloc(a_cache, cache_needed * sizeof(seq_t));
+        seq_t *tmp2 = mem_resize(seq_t, a_cache, cache_needed);
         if (!tmp2) exit(EXIT_FAILURE);
         a_cache = tmp2;
         a_cap  = cache_needed;

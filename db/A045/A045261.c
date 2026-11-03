@@ -9,13 +9,15 @@
  *            three 1’s and two 4’s (OEIS A045261)
  * Range:     u8 none, u16 n <= 37, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Cache for previously found values.  The cache grows only as needed
    and is shared among all calls to a(). */
@@ -27,7 +29,7 @@ static seq_t cursor          = 1;   /* next integer to test */
 /* Grow the cache when it is full. */
 static void grow_cache(void) {
     size_t new_cap = cache_cap ? cache_cap << 1 : 16;
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) {
         /* In a proper build environment we could abort or
            handle the allocation failure more gracefully. */

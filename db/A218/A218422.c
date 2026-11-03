@@ -8,6 +8,7 @@
  * Formula:   a(n) is computed with a 2‑row transfer‑matrix DP (n≥1)
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 8, u64 n <= 16, u128 n <= 32,
  *            big any n
+ * Validated: standard, pass, 35 terms through n = 145 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

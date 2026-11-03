@@ -10,7 +10,8 @@
  *            transversal
  * Range:     u8 n <= 75, u16 n <= 1331, u32 n <= 2000, u64 n <= 2000,
  *            u128 n <= 2000, big any n
- * Helpers:   count_matchings
+ * Validated: standard, pass, 77 terms through n = 1847 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,24 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "../utils/count_matchings.h"
+
+/* Recursive count of matchings, stops after finding two. */
+static void count_matchings(int idx, uint64_t used, const uint64_t *adj,
+                            int leftCount, int *found)
+{
+    if (*found >= 2)
+        return;
+    if (idx == leftCount) {
+        (*found)++;
+        return;
+    }
+    uint64_t opts = adj[idx] & ~used;
+    while (opts && *found < 2) {
+        uint64_t bit = opts & -opts;   /* least significant set bit */
+        opts -= bit;
+        count_matchings(idx + 1, used | bit, adj, leftCount, found);
+    }
+}
 
 /* Count the number of set bits in a 64‑bit integer. */
 static int popcount64(uint64_t x)

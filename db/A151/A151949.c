@@ -8,8 +8,9 @@
  * Keywords:  nonn, base, look
  * Formula:   a(n) = (digits of n sorted in descending order) - (digits of n
  *            sorted in ascending order)
- * Range:     u8 n <= 102, u16 n <= 9847, u32 n <= 9847, u64 n <= 9847,
- *            u128 n <= 9847, big any n
+ * Range:     u8 n <= 102, u16 n <= 10006, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 136 terms through n = 9847 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

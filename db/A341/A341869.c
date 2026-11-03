@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 65, u16 n <= 65, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   digit_sum
+ * Validated: partial, pass, 65 terms through n = 65 (2026-11-03)
+ * Helpers:   digit_sum, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,7 +25,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <stdbool.h>
 #include "../utils/digit_sum.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -55,12 +58,12 @@ seq_t a(idx_t n)
         /* Ensure there is space in the array */
         if (length >= capacity) {
             size_t newcap = capacity ? capacity * 2 : 4;
-            seq_t *newarr = (seq_t *)malloc(newcap * sizeof(seq_t));
+            seq_t *newarr = mem_new(seq_t, newcap);
             if (!newarr)
                 abort();                       /* allocation failure    */
             if (terms) {
-                memcpy(newarr, terms, length * sizeof(seq_t));
-                free(terms);
+                mem_copy(newarr, terms, length * sizeof(seq_t));
+                mem_free(terms);
             }
             terms   = newarr;
             capacity = newcap;

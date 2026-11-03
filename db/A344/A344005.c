@@ -6,8 +6,9 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = smallest positive m such that n divides m*(m+1)
- * Range:     u8 n <= 256, u16 n <= 9998, u32 n <= 9998, u64 n <= 9998,
- *            u128 n <= 9998, big any n
+ * Range:     u8 n <= 256, u16 n <= 10001, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 93 terms through n = 9998 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

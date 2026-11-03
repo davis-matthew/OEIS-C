@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 none, u16 n <= 9, u32 n <= 22, u64 n <= 48, u128 n <= 99,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 42 terms through n = 175 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* --- Constants and global tables --------------------------------------- */
 #define ROWS   64             /* 4^3 possible rows (digits 0..3)      */
@@ -112,7 +114,7 @@ static seq_t compute_all(idx_t up_to)
     if (!cache || cached_max < up_to) {
         idx_t old_max = cached_max;
         idx_t new_size = up_to + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) exit(EXIT_FAILURE);
         cache = tmp;
 
@@ -124,7 +126,7 @@ static seq_t compute_all(idx_t up_to)
 
         /* extend DP and cache for new n values */
         for (idx_t n = old_max + 1; n <= up_to; ++n) {
-            memset(nextdp, 0, sizeof(nextdp));
+            mem_set(nextdp, 0, sizeof(nextdp));
 
             for (uint16_t state = 0; state < STATES; ++state) {
                 seq_t cnt = dp[state];
@@ -137,7 +139,7 @@ static seq_t compute_all(idx_t up_to)
                 }
             }
 
-            memcpy(dp, nextdp, sizeof(dp));
+            mem_copy(dp, nextdp, sizeof(dp));
             ++dp_length;   /* dp now represents arrays of length dp_length rows */
 
             /* total count for this n (height = n+2 rows) */

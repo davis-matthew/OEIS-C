@@ -12,14 +12,26 @@
  *            The pair (h,k) corresponding to the index n...
  * Range:     u8 n <= 1830, u16 n <= 1830, u32 n <= 1830, u64 n <= 1830,
  *            u128 n <= 1830, big any n
- * Helpers:   depth, parent
+ * Validated: standard, pass, 102 terms through n = 1663 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/depth.h"
-#include "../utils/parent.h"
+
+static inline idx_t parent(idx_t x) {
+    return (x & 1) ? x - 1 : x >> 1;
+}
+
+static inline idx_t depth(idx_t x) {
+    idx_t d = 0;
+    while (x) {
+        d++;
+        x = parent(x);
+    }
+    return d;
+}
 
 /* 128‑bit integer square root (floor)  */
 static inline idx_t isqrt_u128(unsigned __int128 val) {

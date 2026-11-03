@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 60, u16 n <= 78, u32 n <= 78, u64 n <= 78, u128 n <= 78,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 78 terms through n = 78 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* Representation of a polynomial: coefficients c[0] .. c[len-1] */
 typedef struct {
@@ -47,7 +49,7 @@ static void ensure_powers(size_t k)
     /* Initialise first power (k == 0) */
     if (polys_cnt == 0) {
         polys[0].len = 1;
-        polys[0].c = (seq_t *)malloc(sizeof(seq_t));
+        polys[0].c = mem_new(seq_t, 1);
         polys[0].c[0] = (seq_t)1;
         polys_cnt = 1;
     }
@@ -59,7 +61,7 @@ static void ensure_powers(size_t k)
     while (polys_cnt <= k) {
         const Poly *prev = &polys[polys_cnt - 1];
         size_t newlen = prev->len + 3;          /* 3 is the max degree added by the base */
-        seq_t *newc = (seq_t *)calloc(newlen, sizeof(seq_t));  /* zero-initialised */
+        seq_t *newc = mem_new(seq_t, newlen);  /* zero-initialised */
 
         for (size_t i = 0; i < prev->len; ++i) {
             seq_t ai = prev->c[i];

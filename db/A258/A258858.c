@@ -7,7 +7,8 @@
  * Formula:   a(n) = 8th iterate of the pi‑based arithmetic derivative of n
  * Range:     u8 n <= 7, u16 n <= 11, u32 n <= 959, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _smallest_prime_factor, compute_pi
+ * Validated: standard, pass, 66 terms through n = 9038 (2026-11-01)
+ * Helpers:   prime_pi, smallest_prime_factor
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,8 +24,10 @@
  * used in the tests. */
 
 #include <stdint.h>
-#include "../utils/_smallest_prime_factor.h"
-#include "../utils/compute_pi.h"
+#include <stddef.h>
+#include <stdlib.h>
+#include "../utils/prime_pi.h"
+#include "../utils/smallest_prime_factor.h"
 
 /* Compute the pi‑based arithmetic derivative of a 64‑bit number n.
  * The implementation uses the product rule:
@@ -39,13 +42,13 @@ static seq_t pi_based_deriv_uint64(uint64_t n)
     seq_t res   = 0;
 
     while (tmp > 1) {
-        uint64_t p   = _smallest_prime_factor(tmp);
+        uint64_t p   = smallest_prime_factor(tmp);
         int     cnt  = 0;
         while (tmp % p == 0) {
             tmp /= p;
             ++cnt;
         }
-        seq_t pi_p = compute_pi((idx_t)p);          // π(p)
+        seq_t pi_p = prime_pi((idx_t)p);          // π(p)
         seq_t part = (n_seq / (seq_t)p) * (seq_t)cnt * pi_p;
         res += part;
     }

@@ -8,13 +8,27 @@
  * Formula:   a(n) = n + floor(n*r) + floor(n*r^2) with r = 2^(1/5)
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   power_leq_limit
+ * Validated: partial, pass, 60 terms through n = 60 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/power_leq_limit.h"
+
+/* Check whether base^5 <= limit without overflowing seq_t.
+   Works for any base, limit in seq_t. */
+static bool power_leq_limit(seq_t base, seq_t limit)
+{
+    if (base == 0) return true;
+    seq_t res = 1;
+    for (unsigned int i = 0; i < 5; ++i) {
+        /* If res > limit / base then res*base > limit */
+        if (res > limit / base) return false;
+        res *= base;
+    }
+    return true;
+}
 
 /* Integer 5th root: floor(cuberoot_5(limit)) */
 static seq_t fifth_root(seq_t limit)

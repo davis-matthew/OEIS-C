@@ -8,15 +8,34 @@
  * Formula:   not stated
  * Range:     u8 n <= 10, u16 n <= 23, u32 n <= 49, u64 n <= 100,
  *            u128 n <= 203, big any n
- * Helpers:   state_id, state_len, state_suf
+ * Validated: standard, pass, 51 terms through n = 499 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
-#include "../utils/state_id.h"
-#include "../utils/state_len.h"
-#include "../utils/state_suf.h"
+
+static inline int state_id(int len, int suf) {
+    if (len == 0) return 0;
+    if (len == 1) return 1 + suf;              /* 0→1, 1→2 */
+    if (len == 2) return 3 + suf;              /* 0→3, …, 3→6 */
+    return 7 + suf;                            /* 0→7, …, 7→14 */
+}
+
+static inline int state_len(int s) {
+    if (s == 0) return 0;
+    if (s <= 2) return 1;          /* states 1,2 */
+    if (s <= 6) return 2;          /* states 3–6 */
+    return 3;                      /* states 7–14 */
+}
+
+static inline int state_suf(int s) {
+    if (s == 0) return 0;
+    if (s <= 2)       return s - 1;          /* 1→0, 2→1 */
+    if (s <= 6)       return s - 3;          /* 3→0, 4→1, 5→2, 6→3 */
+    return s - 7;                          /* 7→0, …, 14→7 */
+}
 
 /* Computes the number of binary strings of length n with no substrings
    equal to 0001, 1010 or 1101.  The implementation uses a deterministic

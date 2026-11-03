@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 14, u16 n <= 64, u32 n <= 64, u64 n <= 64, u128 n <= 64,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 66 terms through n = 64 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,6 +27,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* helper: floor(log2(x)) for x >= 1 */
 static inline idx_t log2_floor(idx_t x)
@@ -45,7 +47,7 @@ extern seq_t a(idx_t n)
     /* Initialize cache with base cases if needed */
     if (cache == NULL) {
         size_t init_sz = 3; /* indices -1, 0, 1 */
-        cache = (seq_t*)calloc(init_sz, sizeof(seq_t));
+        cache = mem_new(seq_t, init_sz);
         cache[0] = (seq_t)0;            /* a(-1) */
         cache[1] = (seq_t)1;            /* a(0)  */
         cache[2] = (seq_t)6;            /* a(1)  */
@@ -55,7 +57,7 @@ extern seq_t a(idx_t n)
     /* Extend cache to cover requested n */
     if (n > cached_limit) {
         size_t new_size = (size_t)(n + 2); /* indices 0..n+1 */
-        seq_t *tmp = (seq_t*)realloc(cache, new_size * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_size);
         if (!tmp) abort();                /* allocation failure */
         cache = tmp;
 

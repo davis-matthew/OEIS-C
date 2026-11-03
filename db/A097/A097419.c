@@ -7,12 +7,14 @@
  * Formula:   a(1) = 2; a(n) = 2*a(n-1)^2 - a(n-1) for n > 1
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 6, u128 n <= 7,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 8 terms through n = 8 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* 1‑based cache of known terms.  seq_cache[0] is unused. */
 static seq_t *seq_cache = NULL;
@@ -33,7 +35,7 @@ seq_t a(idx_t n)
         /* Use realloc, then cast to the appropriate pointer type. */
 #if defined(__cplusplus)
         seq_t *tmp = reinterpret_cast<seq_t *>(
-            realloc(seq_cache, (size_t)new_size * sizeof(seq_t)));
+            mem_resize(seq_t, seq_cache, (size_t)new_size));
 #else
         seq_t *tmp = (seq_t *)realloc(seq_cache,
                                       (size_t)new_size * sizeof(seq_t));

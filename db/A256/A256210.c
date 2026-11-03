@@ -8,15 +8,17 @@
  * Formula:   a(n) is the lexicographically earliest permutation of positive
  *            integers that starts with 2 and satisfies a(a(n)+a(n+1)) is odd
  *            for all n
- * Range:     u8 n <= 252, u16 n <= 9736, u32 n <= 9736, u64 n <= 9736,
- *            u128 n <= 9736, big any n
- * Helpers:   none
+ * Range:     u8 n <= 252, u16 n <= 20000, u32 n <= 20000, u64 n <= 20000,
+ *            u128 n <= 20000, big any n
+ * Validated: standard, pass, 83 terms through n = 9736 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* static state shared by all calls */
 static seq_t *perm   = NULL;   /* 1‑indexed permutation */
@@ -35,7 +37,7 @@ static void ensure_perm_cap(idx_t need)
     if (need <= perm_cap) return;
     idx_t newcap = perm_cap ? perm_cap << 1 : 16;
     while (newcap < need) newcap <<= 1;
-    perm = (seq_t *)realloc(perm, (newcap + 1) * sizeof(seq_t));
+    perm = mem_resize(seq_t, perm, (newcap + 1));
     perm_cap = newcap;
 }
 
@@ -69,7 +71,7 @@ static void init_sequence(void)
     if (perm != NULL) return;          /* already initialized */
 
     perm_cap = 16;
-    perm = (seq_t *)malloc((perm_cap + 1) * sizeof(seq_t));
+    perm = mem_new(seq_t, (perm_cap + 1));
     perm[1] = (seq_t)2;                 /* first term is 2 */
     perm_len = 1;
 

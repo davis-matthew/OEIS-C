@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1114, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   phi_from_b
+ * Validated: standard, pass, 85 terms through n = 8598 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -23,7 +24,24 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../utils/phi_from_b.h"
+#include "../utils/mem.h"
+
+/* φ(b) for a given b using stored primes. */
+static seq_t phi_from_b(idx_t b, idx_t *primes, size_t prime_cnt)
+{
+    seq_t result = b;
+    idx_t temp = b;
+    for (size_t i = 0; i < prime_cnt; ++i) {
+        idx_t p = primes[i];
+        if (p * p > temp) break;
+        if (temp % p == 0) {
+            result -= result / p;
+            while (temp % p == 0) temp /= p;
+        }
+    }
+    if (temp > 1) result -= result / temp;
+    return result;
+}
 
 /* Helper: generate primes up to a given limit (used for φ factorisation). */
 static void build_primes_upto(idx_t limit, idx_t **primes_out, size_t *cnt_out)
@@ -86,7 +104,7 @@ seq_t a(idx_t n)
         /* ensure capacity */
         if (size >= cap) {
             size_t new_cap = cap ? cap * 2 : 16;
-            seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, new_cap);
             if (!tmp) { /* out of memory; abort gracefully */ return 0; }
             cache = tmp;
             cap = new_cap;

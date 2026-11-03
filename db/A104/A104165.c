@@ -11,7 +11,8 @@
  *            limit and generates the terms lazily
  * Range:     u8 n <= 3, u16 n <= 43, u32 n <= 43, u64 n <= 43, u128 n <= 43,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 43 terms through n = 43 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 static const uint64_t SIEVE_LIMIT = 4000000ULL;   /* enough for n≈10 000 */
 static uint8_t *is_comp = NULL;                  /* composite flags */
@@ -75,7 +77,7 @@ static void compute_a_up_to(size_t n) {
         uint64_t cand = (p * 7ULL - 1ULL) / 2ULL;   /* candidate value */
 
         if (cand <= SIEVE_LIMIT && !is_comp[(size_t)cand]) {
-            seq_t *tmp = (seq_t*)realloc(a_values, (a_count + 1) * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, a_values, (a_count + 1));
             if (!tmp) exit(EXIT_FAILURE);
             a_values = tmp;
             a_values[a_count++] = (seq_t)cand;

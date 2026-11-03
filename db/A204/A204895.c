@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 70 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static uint64_t *prime_list = NULL;
 static size_t prime_cap   = 0;
@@ -76,7 +78,7 @@ seq_t a(idx_t n)
     if (n == 0) return 0;               /* not used, but safe */
 
     size_t N = (size_t)n;
-    seq_t *first = (seq_t *)calloc(N, sizeof(seq_t));
+    seq_t *first = mem_new(seq_t, N);
     if (!first) return 0;               /* memory failure, unlikely */
 
     size_t idx = 0;
@@ -87,7 +89,7 @@ seq_t a(idx_t n)
         size_t i = (size_t)r;
         if (first[i] != 0) {
             seq_t result = first[i];
-            free(first);
+            mem_free(first);
             return result;
         }
         first[i] = (seq_t)p;

@@ -10,14 +10,32 @@
  *            minimum)
  * Range:     u8 none, u16 n <= 1, u32 n <= 6, u64 n <= 14, u128 n <= 31,
  *            big any n
- * Helpers:   expr4
+ * Validated: standard, pass, 30 terms through n = 210 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/expr4.h"
+
+/* Compute max + second largest + - min for 4 integers. */
+static inline int expr4(int a, int b, int c, int d)
+{
+    int vals[4] = { a, b, c, d };
+    int m1 = -1, m2 = -1, mn = 4;
+    for (int i = 0; i < 4; ++i) {
+        int v = vals[i];
+        if (v > m1) {
+            m2 = m1;
+            m1 = v;
+        } else if (v > m2) {
+            m2 = v;
+        }
+        if (v < mn) mn = v;
+    }
+    return m1 + m2 - mn;
+}
 
 seq_t a(idx_t n)
 {

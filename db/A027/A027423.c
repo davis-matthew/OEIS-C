@@ -7,6 +7,7 @@
  * Formula:   a(n) = τ(n!) = ∏_{p ≤ n} ( floor(n/p)+floor(n/p²)+… + 1 )
  * Range:     u8 n <= 9, u16 n <= 21, u32 n <= 49, u64 n <= 118, u128 n <= 282,
  *            big any n
+ * Validated: standard, pass, 52 terms through n = 9877 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

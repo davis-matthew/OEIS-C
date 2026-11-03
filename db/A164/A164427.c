@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 41, u64 n <= 84, u128 n <= 169,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 49 terms through n = 457 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
    works for arbitrary‑precision seq_t as well as for fixed‑size unsigned
    integer types.  */
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     size_t needed = (size_t)(n >= 8 ? n + 1 : 9);
     if (cap < needed)
     {
-        seq_t *tmp = (seq_t*)realloc(cache, needed * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, needed);
         if (!tmp) abort();            /* out of memory */
         /* initialise newly allocated slots to zero */
         for (size_t i = cap; i < needed; ++i) tmp[i] = (seq_t)0;

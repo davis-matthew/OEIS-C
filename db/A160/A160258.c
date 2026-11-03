@@ -12,7 +12,8 @@
  *            sequence is sorted in non‑decreasing order
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* comparison function for qsort */
 static int compare_seq_t(const void *p1, const void *p2)
@@ -70,8 +72,7 @@ static void ensure_cache(idx_t n)
                     /* grow array as needed */
                     if (len == cap) {
                         cap = (cap == 0) ? 16 : cap * 2;
-                        arr = (seq_t *)realloc(arr,
-                                              sizeof(seq_t) * cap);
+                        arr = mem_resize(seq_t, arr, cap);
                     }
 
                     /* store product (truncated to seq_t) */
@@ -82,10 +83,10 @@ static void ensure_cache(idx_t n)
         }
 
         /* sort the array */
-        qsort(arr, len, sizeof(seq_t), compare_seq_t);
+        mem_qsort(arr, len, sizeof(seq_t), compare_seq_t);
 
         /* replace old cache */
-        free(cache);
+        mem_free(cache);
         cache = arr;
         cache_len = len;
     }

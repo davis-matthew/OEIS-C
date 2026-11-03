@@ -9,13 +9,15 @@
  *            algorithm with generators 6, 10 and 15
  * Range:     u8 n <= 4, u16 n <= 22, u32 n <= 37, u64 n <= 37, u128 n <= 37,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 37 terms through n = 37 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     /* static storage for the sequence */
@@ -27,7 +29,7 @@ seq_t a(idx_t n) {
     if (!initialized) {
         /* initialise with the first four terms: 2, 3, 5, 30 */
         seq_cap = 16;
-        seq = (seq_t *)malloc(seq_cap * sizeof(seq_t));
+        seq = mem_new(seq_t, seq_cap);
         seq[0] = (seq_t)2;
         seq[1] = (seq_t)3;
         seq[2] = (seq_t)5;
@@ -55,7 +57,7 @@ seq_t a(idx_t n) {
         /* append the new term, expanding the array if necessary */
         if (seq_len == seq_cap) {
             seq_cap <<= 1;
-            seq = (seq_t *)realloc(seq, seq_cap * sizeof(seq_t));
+            seq = mem_resize(seq_t, seq, seq_cap);
         }
         seq[seq_len++] = next_val;
 

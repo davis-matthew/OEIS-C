@@ -8,11 +8,13 @@
  * Formula:   not stated
  * Range:     u8 n <= 148, u16 n <= 8191, u32 n <= 8191, u64 n <= 8191,
  *            u128 n <= 8191, big any n
+ * Validated: standard, pass, 87 terms through n = 7268 (2026-11-02)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
+#include <string.h>
 /*
  * Formula: a(n) obeys the recurrences
  *   a(1) = 0, a(2) = 1, a(3) = 1

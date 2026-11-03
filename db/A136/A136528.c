@@ -8,14 +8,17 @@
  * Formula:   a(n) = max{ d(x + y) : x,y positive divisors of n, x<y }
  * Range:     u8 n <= 96, u16 n <= 96, u32 n <= 96, u64 n <= 96, u128 n <= 96,
  *            big any n
- * Helpers:   divisor_count_u64, factor_u64
+ * Validated: partial, pass, 95 terms through n = 96 (2026-11-01)
+ * Helpers:   factor_u64, num_divisors
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/divisor_count_u64.h"
+#include "../utils/num_divisors.h"
 
 /* Generate all divisors of n from its prime factorisation.
    primes[] and ex[] hold the primes and their exponents,
@@ -60,7 +63,7 @@ seq_t a(idx_t n)
     for (size_t i = 0; i < dcnt; ++i) {
         for (size_t j = i + 1; j < dcnt; ++j) {
             uint64_t sum = divs[i] + divs[j];
-            size_t dsum = (size_t)divisor_count_u64(sum);
+            size_t dsum = (size_t)num_divisors(sum);
             if (dsum > maxd) maxd = dsum;
         }
     }

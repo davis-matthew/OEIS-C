@@ -7,12 +7,14 @@
  * Formula:   a(n) = Σ_{k=1}^{n} S(n,k) * ⌊n/k⌋ (OEIS A309911)
  * Range:     u8 n <= 5, u16 n <= 9, u32 n <= 15, u64 n <= 25, u128 n <= 25,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 25 terms through n = 25 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* very small static state for memoisation */
 static seq_t *a_cache   = NULL;   /* a_cache[i] = a(i)          */
@@ -27,7 +29,7 @@ static void ensure_a_capacity(idx_t need)
     if (a_cap < (size_t)need + 1) {
         size_t new_cap = a_cap ? a_cap : 8;
         while (new_cap <= (size_t)need) new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(a_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
         if (!tmp) abort();
         a_cache = tmp;
         a_cap   = new_cap;
@@ -40,7 +42,7 @@ static void ensure_s_capacity(idx_t need)
     if (s_cap < (size_t)need + 1) {
         size_t new_cap = s_cap ? s_cap : 8;
         while (new_cap <= (size_t)need) new_cap <<= 1;
-        seq_t *tmp = (seq_t*)realloc(s, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, s, new_cap);
         if (!tmp) abort();
         s = tmp;
         s_cap = new_cap;

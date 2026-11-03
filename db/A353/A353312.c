@@ -7,14 +7,23 @@
  * Keywords:  nonn
  * Formula:   a(n) = size of the finite cycle eventually reached by iterating
  *            A353313, or -1 if no finite cycle is ever reached
- * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 9722, u64 n <= 9722,
- *            u128 n <= 9722, big any n
- * Helpers:   f
+ * Range:     u8 n <= 1, u16 n <= 1, u32 n <= 19683, u64 n <= 19683,
+ *            u128 n <= 19683, big any n
+ * Validated: standard, pass, 97 terms through n = 9722 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/f.h"
+/* Helper: one step of the map f.  Works for both builtin unsigned
+ * integers and arbitrary‑precision seq_t objects. */
+static inline seq_t f(seq_t x)
+{
+    if (x % (seq_t)3 == (seq_t)0)
+        return x / (seq_t)3;
+    else
+        return x + (( ( (seq_t)2 * x + (seq_t)7 ) / (seq_t)3));
+}
 /* Definition of A353313 (used in the algorithm below):
  *   f(x) = x/3           if x is divisible by 3
  *          x + ((2*x + 7)/3)   otherwise             (integer division)

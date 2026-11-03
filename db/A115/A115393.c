@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 280, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 61 terms through n = 9991 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ---------- integer square root for uint64_t ---------- */
 static inline uint64_t isqrt_u64(uint64_t n)
@@ -116,7 +118,7 @@ seq_t a(idx_t n)
     /* initialise cache array lazily */
     if (cache_cap == 0) {
         cache_cap = 64;
-        terms_cache = (seq_t*)malloc(cache_cap * sizeof(seq_t));
+        terms_cache = mem_new(seq_t, cache_cap);
         if (!terms_cache) abort();
     }
 
@@ -130,7 +132,7 @@ seq_t a(idx_t n)
                 /* store term, expanding cache if needed */
                 if (used_terms == cache_cap) {
                     cache_cap *= 2;
-                    terms_cache = (seq_t*)realloc(terms_cache, cache_cap * sizeof(seq_t));
+                    terms_cache = mem_resize(seq_t, terms_cache, cache_cap);
                     if (!terms_cache) abort();
                 }
                 terms_cache[used_terms++] = (seq_t)k;

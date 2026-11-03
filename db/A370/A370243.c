@@ -8,12 +8,14 @@
  *            n-2*k)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 14, u64 n <= 24, u128 n <= 24,
  *            big any n
+ * Validated: partial, pass, 25 terms through n = 24 (2026-11-01)
  * Helpers:   binomial
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* The binomial utility is provided by the build environment. */
+#include <stdlib.h>
 #include "../utils/binomial.h"
 
 /* External linkage as required */

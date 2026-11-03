@@ -8,8 +8,9 @@
  *            function. The sum is taken over all distinct prime divisors p of
  *            n that are strictly less than n. For a prime n the sum is empty,
  *            hence a(n)=0
- * Range:     u8 n <= 269, u16 n <= 8993, u32 n <= 8993, u64 n <= 8993,
- *            u128 n <= 8993, big any n
+ * Range:     u8 n <= 269, u16 n <= 65537, u32 n <= 65537, u64 n <= 65537,
+ *            u128 n <= 65537, big any n
+ * Validated: standard, pass, 114 terms through n = 8993 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

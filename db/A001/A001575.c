@@ -11,13 +11,22 @@
  *            transform of U, i.e. n*(u_n + s_n) = sum_{k=1...
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
- * Helpers:   from_u128
+ * Validated: partial, pass, 8 terms through n = 8 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/from_u128.h"
+#include <stdint.h>
+#include "../utils/mem.h"
+
+static seq_t from_u128(unsigned __int128 v) {
+    seq_t two64 = 1;
+    int i;
+    for (i = 0; i < 64; i++) two64 = two64 + two64;
+    return (seq_t)(uint64_t)(v >> 64) * two64 + (seq_t)(uint64_t)v;
+}
 
 #define DEF_EXT(NAME, T)                                                     \
 static void NAME(T **u, T **m, T **cc, idx_t *len, idx_t *cap, idx_t n) {   \
@@ -27,14 +36,14 @@ static void NAME(T **u, T **m, T **cc, idx_t *len, idx_t *cap, idx_t n) {   \
         idx_t nc = (*cap) * 2;                                               \
         if (nc < n + 1) nc = n + 1;                                          \
         for (c = 0; c < 3; c++) {                                            \
-            T *nu = (T *)malloc(nc * sizeof(T));                             \
-            T *nm = (T *)malloc(nc * sizeof(T));                             \
-            T *ncc = (T *)malloc(nc * sizeof(T));                            \
+            T *nu = mem_new(T, nc);                             \
+            T *nm = mem_new(T, nc);                             \
+            T *ncc = mem_new(T, nc);                            \
             for (i = 0; i < nc; i++) { nu[i] = 0; nm[i] = 0; ncc[i] = 0; }   \
             for (i = 0; i < *len; i++) {                                     \
                 nu[i] = u[c][i]; nm[i] = m[c][i]; ncc[i] = cc[c][i];         \
             }                                                                \
-            if (u[c]) { free(u[c]); free(m[c]); free(cc[c]); }               \
+            if (u[c]) { mem_free(u[c]); mem_free(m[c]); mem_free(cc[c]); }               \
             u[c] = nu; m[c] = nm; cc[c] = ncc;                               \
         }                                                                    \
         *cap = nc;                                                           \

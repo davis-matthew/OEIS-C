@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     i8 n <= 4, i16 n <= 8, i32 n <= 14, i64 n <= 25, i128 n <= 48,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 794 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,6 +29,7 @@
 
 #include <stdlib.h>   /* malloc, free, calloc, memcpy */
 #include <string.h>   /* memcpy */
+#include "../utils/mem.h"
 
 static seq_t *A      = NULL;   /* a(n)   */
 static seq_t *C2     = NULL;   /* C2[n]  */
@@ -42,17 +44,17 @@ static void grow_to(idx_t n)
     size_t new_cap = (size_t)(n + 1);   /* indices 0 .. n */
 
     /* Allocate new arrays (zero‑initialized). */
-    seq_t *newA  = (seq_t *)calloc(new_cap, sizeof(seq_t));
-    seq_t *newC2 = (seq_t *)calloc(new_cap, sizeof(seq_t));
-    seq_t *newC3 = (seq_t *)calloc(new_cap, sizeof(seq_t));
+    seq_t *newA  = mem_new(seq_t, new_cap);
+    seq_t *newC2 = mem_new(seq_t, new_cap);
+    seq_t *newC3 = mem_new(seq_t, new_cap);
 
     /* Copy existing contents. */
-    if (A)   memcpy(newA,  A,  (size_t)(computed_max + 1) * sizeof(seq_t));
-    if (C2)  memcpy(newC2, C2, (size_t)(computed_max + 1) * sizeof(seq_t));
-    if (C3)  memcpy(newC3, C3, (size_t)(computed_max + 1) * sizeof(seq_t));
+    if (A)   mem_copy(newA, A, (size_t)(computed_max + 1) * sizeof(seq_t));
+    if (C2)  mem_copy(newC2, C2, (size_t)(computed_max + 1) * sizeof(seq_t));
+    if (C3)  mem_copy(newC3, C3, (size_t)(computed_max + 1) * sizeof(seq_t));
 
     /* Free old arrays. */
-    free(A);  free(C2);  free(C3);
+    mem_free(A);  mem_free(C2);  mem_free(C3);
 
     /* Use new arrays. */
     A = newA;  C2 = newC2;  C3 = newC3;

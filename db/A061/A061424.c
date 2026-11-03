@@ -8,13 +8,30 @@
  *            of digits)
  * Range:     u8 n <= 6, u16 n <= 414, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   _init_dp
+ * Validated: standard, pass, 66 terms through n = 9597 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/_init_dp.h"
+
+static void _init_dp(unsigned long long dp[][176], int max_d, int max_sum)
+{
+    for (int i = 0; i <= max_d; ++i)
+        for (int s = 0; s <= max_sum; ++s)
+            dp[i][s] = 0;
+    dp[0][0] = 1;
+    for (int i = 1; i <= max_d; ++i) {
+        for (int s = 0; s <= max_sum; ++s) {
+            unsigned long long ways = 0;
+            for (int d = 0; d <= 9; ++d)
+                if (s >= d)
+                    ways += dp[i - 1][s - d];
+            dp[i][s] = ways;
+        }
+    }
+}
 
 seq_t a(idx_t n)
 {

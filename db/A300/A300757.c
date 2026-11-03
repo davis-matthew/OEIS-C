@@ -8,16 +8,20 @@
  * Formula:   a(n) = 2^(n^2) - Σ_{i=0}^n (-1)^i * C(n,i) * (2^(n-i)-1)^n
  * Range:     u8 n <= 3, u16 n <= 4, u32 n <= 5, u64 n <= 8, u128 n <= 11,
  *            big any n
- * Helpers:   binomial, pow2, pow_seq
+ * Validated: standard, pass, 30 terms through n = 57 (2026-11-01)
+ * Helpers:   binomial, ipow_i32, pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* OEIS A300757: Number of {0,1} n×n matrices with at least one zero row or column. */
 
-#include "../utils/pow2.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include "../utils/binomial.h"
-#include "../utils/pow_seq.h"
+#include "../utils/ipow_i32.h"
+#include "../utils/pow2.h"
 
 seq_t a(idx_t n)
 {
@@ -38,7 +42,7 @@ seq_t a(idx_t n)
         seq_t base = pow2(n - i);
         base = base - 1;                     /* base = 2^(n-i)-1, can be 0 when i=n */
 
-        seq_t pow_base_n = pow_seq(base, (int)n); /* n fits in int for our range */
+        seq_t pow_base_n = ipow_i32(base, (int)n); /* n fits in int for our range */
 
         /* term = C(n,i) * (2^(n-i)-1)^n */
         seq_t term = comb * pow_base_n;

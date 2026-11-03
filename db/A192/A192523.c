@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 47, u32 n <= 47, u64 n <= 47, u128 n <= 47,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 47 terms through n = 47 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------ */
 /*  Min‑heap of candidate values of the form v[i]*v[j] – 2.     */
@@ -43,7 +45,7 @@ static void heap_push(node_t n)
 {
     if (heap_sz == heap_cap) {
         heap_cap = (heap_cap == 0) ? 4 : heap_cap << 1;
-        heap = (node_t *)realloc(heap, heap_cap * sizeof(node_t));
+        heap = mem_resize(node_t, heap, heap_cap);
     }
     size_t k = heap_sz++;
     heap[k] = n;
@@ -95,7 +97,7 @@ static void ensure_terms(idx_t n)
     /* Initialise with the first element v(1) = 3. */
     if (v_sz == 0) {
         v_cap = 4;
-        v_cache = (seq_t *)realloc(v_cache, v_cap * sizeof(seq_t));
+        v_cache = mem_resize(seq_t, v_cache, v_cap);
         v_cache[0] = (seq_t)3;
         v_sz = 1;
     }
@@ -103,7 +105,7 @@ static void ensure_terms(idx_t n)
     /* Initialise heap with the first candidate from (1,1). */
     if (heap_sz == 0) {
         heap_cap = 4;
-        heap = (node_t *)realloc(heap, heap_cap * sizeof(node_t));
+        heap = mem_resize(node_t, heap, heap_cap);
         heap[0] = (node_t){(seq_t)((v_cache[0] * v_cache[0]) - (seq_t)2), 0, 0};
         heap_sz = 1;
     }
@@ -120,7 +122,7 @@ static void ensure_terms(idx_t n)
         if (first_val || cur.val != last_val) {
             if (v_sz == v_cap) {
                 v_cap = (v_cap == 0) ? 4 : v_cap << 1;
-                v_cache = (seq_t *)realloc(v_cache, v_cap * sizeof(seq_t));
+                v_cache = mem_resize(seq_t, v_cache, v_cap);
             }
             v_cache[v_sz++] = cur.val;
             last_val = cur.val;

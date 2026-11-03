@@ -5,15 +5,17 @@
  * Offset:    1    (a(1) is the first term)
  * Keywords:  nonn
  * Formula:   a(n) = Sum_{k=1..n} k^3 * phi(k)
- * Range:     u8 n <= 4, u16 n <= 13, u32 n <= 37, u64 n <= 37, u128 n <= 37,
- *            big any n
- * Helpers:   none
+ * Range:     u8 n <= 4, u16 n <= 13, u32 n <= 128, u64 n <= 10000,
+ *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 53 terms through n = 9896 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -30,8 +32,8 @@ seq_t a(idx_t n)
     if (n >= cache_cap) {
         size_t new_cap = (cache_cap == 0) ? (n + 1) : (cache_cap * 2);
         if (new_cap <= n) new_cap = n + 1;
-        seq_t *new_phi = (seq_t*)realloc(phi, new_cap * sizeof(seq_t));
-        seq_t *new_sum = (seq_t*)realloc(sum, new_cap * sizeof(seq_t));
+        seq_t *new_phi = mem_resize(seq_t, phi, new_cap);
+        seq_t *new_sum = mem_resize(seq_t, sum, new_cap);
         if (!new_phi || !new_sum) {
             /* Allocation failed – abort quietly (could also use exit) */
             return (seq_t)0;

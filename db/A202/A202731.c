@@ -13,13 +13,15 @@
  *            a(7)=184848, a(8)=3010632, a(9)=46867734, a(10)=714602604
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 18, u128 n <= 35,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 34 terms through n = 182 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;      /* cache[0] unused, cache[n] = a(n)  */
 static idx_t cached_n = 0;      /* number of precomputed terms */
@@ -33,7 +35,7 @@ static int ensure_cache(idx_t n)
 
     /* Allocate or enlarge cache */
     idx_t new_len = n + 1;          /* we keep index 0 unused */
-    cache = (seq_t *)realloc(cache, new_len * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_len);
     if (!cache)
         return -1;                 /* allocation failed */
 

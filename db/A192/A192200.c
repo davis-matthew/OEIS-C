@@ -8,14 +8,26 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 3, u32 n <= 34, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   seq_cmp
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 /* Monotonic ordering of nonnegative differences 9^i-5^j for 0<=i<=40, j>=0 */
 #include <stdlib.h>
-#include "../utils/seq_cmp.h"
+#include <stdint.h>
+#include <stddef.h>
+#include "../utils/mem.h"
+
+static int seq_cmp(const void *p, const void *q)
+{
+    const seq_t *a = (const seq_t *)p;
+    const seq_t *b = (const seq_t *)q;
+    if (*a < *b) return -1;
+    if (*a > *b) return 1;
+    return 0;
+}
 
 seq_t a(idx_t n)
 {
@@ -44,7 +56,7 @@ seq_t a(idx_t n)
         }
 
         /* sort the differences */
-        qsort(diffs, difflen, sizeof(seq_t), seq_cmp);
+        mem_qsort(diffs, difflen, sizeof(seq_t), seq_cmp);
 
         /* deduplicate while preserving sorted order */
         for (size_t k = 0; k < difflen; ++k) {

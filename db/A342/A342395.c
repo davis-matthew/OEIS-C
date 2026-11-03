@@ -7,12 +7,15 @@
  * Formula:   a(n) = Σ_{k=1..n} k^( n / gcd(k,n) )
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 18,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 18 terms through n = 18 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 /* Euclidean algorithm for unsigned 64-bit integers */
 static idx_t _gcd_u64(idx_t a, idx_t b)
@@ -34,7 +37,7 @@ seq_t a(idx_t n)
     {
         idx_t g   = _gcd_u64(k, n);
         idx_t exp = n / g;
-        seq_t term = big_pow((seq_t)k, (seq_t)exp);
+        seq_t term = ipow((seq_t)k, (seq_t)exp);
         sum += term;
     }
     return sum;

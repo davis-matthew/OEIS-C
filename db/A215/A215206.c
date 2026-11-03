@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 12, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   isPrimeTrial
+ * Validated: standard, pass, 66 terms through n = 942 (2026-11-01)
+ * Helpers:   is_prime_seq
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../utils/isPrimeTrial.h"
+#include <stdlib.h>
+#include "../utils/is_prime_seq.h"
 
 #define MAX_CACHE 200000     /* enough for n ≈ 10 000 */
 
@@ -38,7 +40,7 @@ seq_t a(idx_t n)
     while (cache_cnt < (size_t)n) {
         uint64_t rem = next_candidate % 11;
         if (rem == 2 || rem == 7) {
-            if (isPrimeTrial((seq_t)next_candidate)) {
+            if (is_prime_seq((seq_t)next_candidate)) {
                 if (cache_cnt < MAX_CACHE) {
                     cache[cache_cnt++] = (seq_t)next_candidate;
                 }

@@ -8,7 +8,8 @@
  *            1)
  * Range:     u8 n <= 30, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 54 terms through n = 60 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -72,7 +74,7 @@ seq_t a(idx_t n)
 
     /* ---------- dynamic programming ------------------------------------- */
     size_t dp_len = (size_t)(limit + 1) * 8;     /* columns 0..7 */
-    seq_t *dp = (seq_t*)calloc(dp_len, sizeof(seq_t));
+    seq_t *dp = mem_new(seq_t, dp_len);
     if (!dp) { free(prime_powers); return (seq_t)0; }
     dp[0] = (seq_t)1;                           /* dp[0][0] = 1 */
 
@@ -87,7 +89,7 @@ seq_t a(idx_t n)
     }
 
     seq_t result = dp[(size_t)limit * 8 + 7];
-    free(dp);
+    mem_free(dp);
     free(prime_powers);
     return result;
 }

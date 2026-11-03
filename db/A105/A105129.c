@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 110, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   mul64_mod
+ * Validated: standard, pass, 56 terms through n = 958 (2026-11-03)
+ * Helpers:   mem, mulmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -26,7 +27,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/mul64_mod.h"
+#include "../utils/mulmod.h"
+#include "../utils/mem.h"
 
 /* 64‑bit modular exponentiation by repeated squaring */
 static inline uint64_t pow_mod64(uint64_t base, uint64_t exp, uint64_t mod)
@@ -34,8 +36,8 @@ static inline uint64_t pow_mod64(uint64_t base, uint64_t exp, uint64_t mod)
     uint64_t result = 1;
     while (exp != 0) {
         if (exp & 1)
-            result = mul64_mod(result, base, mod);
-        base = mul64_mod(base, base, mod);
+            result = mulmod(result, base, mod);
+        base = mulmod(base, base, mod);
         exp >>= 1;
     }
     return result;
@@ -74,7 +76,7 @@ static bool is_prime64(uint64_t n)
         if (x == 1 || x == n - 1)   continue;
         bool composite = true;
         for (int r = 1; r < s; ++r) {
-            x = mul64_mod(x, x, n);
+            x = mulmod(x, x, n);
             if (x == n - 1) { composite = false; break; }
         }
         if (composite) return false;
@@ -93,7 +95,7 @@ static void add_prime(seq_t value)
 {
     if (prime_count == prime_cap) {
         idx_t new_cap = prime_cap ? prime_cap * 2 : 8;
-        seq_t *tmp = (seq_t *)realloc(prime_list, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, prime_list, new_cap);
         if (!tmp) abort();
         prime_list = tmp;
         prime_cap  = new_cap;

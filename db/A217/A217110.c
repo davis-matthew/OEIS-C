@@ -7,13 +7,15 @@
  * Formula:   a(n) = 9*9!*S2(n,10)
  * Range:     u8 n <= 9, u16 n <= 9, u32 n <= 11, u64 n <= 19, u128 n <= 38,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 188 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 #define FACT (seq_t)3265920 /* 9 * 9! */
 
@@ -34,7 +36,7 @@ seq_t a(idx_t n)
     /* Ensure cache has room for the requested n */
     if (n > cache_nmax) {
         if (cache_cap < n + 1) {
-            seq_t *tmp = (seq_t *)realloc(cache, (n + 1) * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, (n + 1));
             if (!tmp) /* allocation failed; return 0 as a fallback */
                 return 0;
             cache = tmp;

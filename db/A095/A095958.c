@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 2, u16 n <= 8, u32 n <= 623, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   build_primes, digit_len, pow10
+ * Validated: standard, pass, 46 terms through n = 9137 (2026-11-01)
+ * Helpers:   build_primes, num_digits
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,9 +18,19 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include "../utils/build_primes.h"
-#include "../utils/pow10.h"
-#include "../utils/digit_len.h"
+#include "../utils/num_digits.h"
+
+/* Compute 10^e for a non‑negative integer exponent e */
+static seq_t pow10(idx_t e) {
+    seq_t res = 1;
+    while (e) {
+        res *= 10;
+        e--;
+    }
+    return res;
+}
 
 /* Static storage for the prime table and twin–prime start values. */
 static idx_t *primes = NULL;        /* list of primes */
@@ -83,7 +94,7 @@ seq_t a(idx_t n)
     idx_t p2 = p + 2;
 
     /* number of decimal digits of (p+2) */
-    int dlen = digit_len((seq_t)p2);
+    int dlen = num_digits((seq_t)p2);
     /* 10^dlen */
     seq_t pow = pow10((idx_t)dlen);
 

@@ -7,6 +7,7 @@
  * Formula:   a(n) = ∏_{p≤n} p^{ceil_even(v_p(n!))}
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 11, u64 n <= 17, u128 n <= 30,
  *            big any n
+ * Validated: standard, pass, 37 terms through n = 313 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

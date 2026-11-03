@@ -11,7 +11,8 @@
  *            divided by ((1-z)^5*(1-9*z)^4*(1-25*z)^3*(1-49*z)^2*(1-81*z))
  * Range:     u8 none, u16 n <= 1, u32 n <= 3, u64 n <= 8, u128 n <= 11,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 11 terms through n = 11 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #if defined(__cplusplus)
 #include <type_traits>
 #endif
+#include "../utils/mem.h"
 
 /* ----------  helpers for multiplying a seq_t by a 128‑bit integer  ---------- */
 #if defined(__cplusplus)
@@ -137,7 +139,7 @@ seq_t a(idx_t n)
     idx_t idx = n - 1;              /* zero‑based index */
     if (memo_len <= idx) {          /* extend cache up to idx */
         idx_t new_len = idx + 1;
-        seq_t *tmp = (seq_t *)realloc(memo, new_len * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, memo, new_len);
         if (!tmp) return 0;         /* allocation failed */
         memo = tmp;
         for (idx_t k = memo_len; k < new_len; ++k)

@@ -7,6 +7,7 @@
  * Formula:   a(n) = Sum_{d digit of n} d^6 (digits in base 10)
  * Range:     u8 n <= 2, u16 n <= 6, u32 n <= 999, u64 n <= 999, u128 n <= 999,
  *            big any n
+ * Validated: standard, pass, 55 terms through n = 992 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

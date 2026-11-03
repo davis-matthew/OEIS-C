@@ -9,7 +9,8 @@
  * Formula:   a(n) = (n-1)! * [x^(n-1)] e_7(x)^n, e_7(x)=∑_{k=0}^7 x^k/k!
  * Range:     u8 n <= 4, u16 n <= 6, u32 n <= 10, u64 n <= 16, u128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
  *  tiny enough for the 64‑bit range).                      */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /*  Static arrays to reuse the memory between calls.  */
 static idx_t dp_cap = 0;          /* capacity of dp and ndp arrays      */
@@ -39,8 +41,8 @@ static void ensure_dp_cap(idx_t len)
     if (dp_cap < len) {
         idx_t new_cap = dp_cap > 0 ? dp_cap : 8;
         while (new_cap < len) new_cap <<= 1;
-        dp  = (seq_t *)realloc(dp,  new_cap * sizeof(seq_t));
-        ndp = (seq_t *)realloc(ndp, new_cap * sizeof(seq_t));
+        dp  = mem_resize(seq_t, dp, new_cap);
+        ndp = mem_resize(seq_t, ndp, new_cap);
         dp_cap = new_cap;
     }
 }

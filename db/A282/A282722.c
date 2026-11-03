@@ -9,7 +9,8 @@
  *            is the n-th prime ≡ 3 (mod 8)
  * Range:     u8 n <= 3, u16 n <= 30, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   next_prime, sum_residues_gt_half
+ * Validated: standard, pass, 61 terms through n = 951 (2026-11-03)
+ * Helpers:   mem, next_prime
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,29 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/next_prime.h"
-#include "../utils/sum_residues_gt_half.h"
+#include "../utils/mem.h"
+
+/* helper: compute sum of residues > p/2 for a single prime p */
+static seq_t
+sum_residues_gt_half(uint64_t p)
+{
+    seq_t sum = 0;
+    seq_t sq   = 1;                    /* t^2 mod p for t = 1 */
+    seq_t p_half = (seq_t)(p / 2);     /* p/2  (integer division) */
+    uint64_t m = (p - 1) / 2;          /* number of t values */
+
+    for (uint64_t t = 1; t <= m; ++t) {
+        if (sq > p_half)
+            sum += sq;
+
+        if (t != m) {                 /* at last step no need to advance */
+            sq += (seq_t)(2 * t + 1);  /* (t+1)^2 = t^2 + 2t + 1 */
+            if (sq >= p)
+                sq -= p;
+        }
+    }
+    return sum;
+}
 
 /* main sequence routine */
 seq_t a(idx_t n)
@@ -60,7 +83,7 @@ seq_t a(idx_t n)
         size_t new_cap = a_cache_cap ? a_cache_cap * 2 : 64;
         if (n > new_cap)
             new_cap = n;
-        seq_t *tmp = (seq_t *)realloc(a_cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, a_cache, new_cap);
         if (!tmp) abort();
         a_cache = tmp;
         a_cache_cap = new_cap;

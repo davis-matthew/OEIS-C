@@ -7,15 +7,26 @@
  * Keywords:  cofr, sign, mult
  * Formula:   a(n) = 1 if n is odd; otherwise -2*A006519(n/2), where
  *            A006519(k) is the highest power of 2 dividing k (i.e. 2^v2(k))
- * Range:     i8 n <= 255, i16 n <= 9020, i32 n <= 9020, i64 n <= 9020,
- *            i128 n <= 9020, big any n
- * Helpers:   power_of_two_divisor
+ * Range:     i8 n <= 255, i16 n <= 65535, i32 n <= 65537, i64 n <= 65537,
+ *            i128 n <= 65537, big any n
+ * Validated: standard, pass, 115 terms through n = 9020 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/power_of_two_divisor.h"
+
+/* Compute the largest power of 2 dividing n (n > 0).  Returns 2^v2(n). */
+static seq_t power_of_two_divisor(idx_t n)
+{
+    seq_t power = 1;
+    while ((n & 1ULL) == 0) {
+        n >>= 1;
+        power <<= 1;
+    }
+    return power;
+}
 
 seq_t a(idx_t n)
 {

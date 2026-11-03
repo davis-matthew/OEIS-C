@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 82, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 72 terms through n = 9746 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Helper: test whether a 64‑bit integer has fewer rises than falls in base 6. */
 static bool qualifies(uint64_t val)
@@ -57,13 +59,13 @@ seq_t a(idx_t n)
         if (n > cap) {
             size_t newcap = cap ? cap : 4;
             while (newcap < n) newcap <<= 1;
-            seq_t *newarr = (seq_t *)malloc(newcap * sizeof(seq_t));
+            seq_t *newarr = mem_new(seq_t, newcap);
             if (!newarr) return 0;            /* allocation failed */
             if (cache) {
                 for (size_t i = 0; i < len; ++i)
                     newarr[i] = cache[i];
             }
-            free(cache);
+            mem_free(cache);
             cache = newarr;
             cap   = newcap;
         }

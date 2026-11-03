@@ -7,7 +7,8 @@
  * Formula:   a(n) = nth divisor of 320 in ascending order
  * Range:     u8 n <= 11, u16 n <= 14, u32 n <= 14, u64 n <= 14, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 14 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -15,6 +16,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t divisors[14];
 static bool initialized = false;
@@ -38,7 +40,7 @@ static void init_divisors(void)
         divisors[i++] = pow2;                      /* 5^0 */
         divisors[i++] = pow2 * (seq_t)5;           /* 5^1 */
     }
-    qsort(divisors, 14, sizeof(seq_t), seqcmp);
+    mem_qsort(divisors, 14, sizeof(seq_t), seqcmp);
     initialized = true;
 }
 

@@ -8,14 +8,30 @@
  *            binary expansion of n, i = length of each run, R(i) =
  *            (5*4^(i-1)+(-2)^(i-1))/6 = (5*4^(i-1) ± 2^(i-1))/6 (± according
  *            to parity)
- * Range:     u8 n <= 14, u16 n <= 766, u32 n <= 9924, u64 n <= 9924,
- *            u128 n <= 9924, big any n
- * Helpers:   run_value
+ * Range:     u8 n <= 14, u16 n <= 766, u32 n <= 16383, u64 n <= 16383,
+ *            u128 n <= 16383, big any n
+ * Validated: standard, pass, 91 terms through n = 9924 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/run_value.h"
+static seq_t run_value(idx_t len)
+{
+    seq_t pow4 = (seq_t)1;
+    seq_t pow2 = (seq_t)1;
+    for (idx_t k = 1; k < len; ++k) {
+        pow4 *= (seq_t)4;
+        pow2 *= (seq_t)2;
+    }
+    seq_t total;
+    if ((len - 1) & 1) {           /* odd exponent of -2 */
+        total = (seq_t)5 * pow4 - pow2;
+    } else {                       /* even exponent of -2  -> +2^(len-1) */
+        total = (seq_t)5 * pow4 + pow2;
+    }
+    return total / (seq_t)6;
+}
 
 seq_t a(idx_t n)
 {

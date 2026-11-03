@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1217, u16 n <= 1217, u32 n <= 1217, u64 n <= 1217,
  *            u128 n <= 1217, big any n
- * Helpers:   coord_key, hash_key
+ * Validated: full, pass, 1217 terms through n = 1217 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,8 +20,22 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/coord_key.h"
-#include "../utils/hash_key.h"
+#include "../utils/mem.h"
+
+static inline int64_t coord_key(int64_t x, int64_t y)
+{
+    uint64_t ukey = ((uint64_t)(uint32_t)x << 32) | (uint64_t)(uint32_t)y;
+    return (int64_t)ukey;
+}
+
+static inline uint64_t hash_key(int64_t k)
+{
+    /* splitmix64 style hash */
+    uint64_t z = (uint64_t)k + 0x9e3779b97f4a7c15ULL;
+    z = (z ^ (z >> 30)) * 0xbf58476d1ce4e5b9ULL;
+    z = (z ^ (z >> 27)) * 0x94d049bb133111ebULL;
+    return z ^ (z >> 31);
+}
 
 /* ------------------------------------------------------------------ */
 /*  Hash map for coordinates -> value (seq_t digit or unused)         */
@@ -37,14 +52,14 @@ static void kv_init(void)
 {
     kv_cap = 64;
     kv_len = 0;
-    kv_tbl = (KV *)calloc(kv_cap, sizeof(KV));
+    kv_tbl = mem_new(KV, kv_cap);
     for (size_t i = 0; i < kv_cap; ++i) kv_tbl[i].key = EMPTY_KEY;
 }
 
 static void kv_rehash(void)
 {
     size_t new_cap = kv_cap << 1;
-    KV *new_tbl = (KV *)calloc(new_cap, sizeof(KV));
+    KV *new_tbl = mem_new(KV, new_cap);
     for (size_t i = 0; i < new_cap; ++i) new_tbl[i].key = EMPTY_KEY;
 
     for (size_t i = 0; i < kv_cap; ++i) {
@@ -53,7 +68,7 @@ static void kv_rehash(void)
         while (new_tbl[h].key != EMPTY_KEY) h = (h + 1) & (new_cap - 1);
         new_tbl[h] = kv_tbl[i];
     }
-    free(kv_tbl);
+    mem_free(kv_tbl);
     kv_tbl = new_tbl;
     kv_cap = new_cap;
 }
@@ -135,7 +150,7 @@ static void visited_init(void)
 {
     visited_cap = 64;
     visited_len = 0;
-    visited_tbl = (KV *)calloc(visited_cap, sizeof(KV));
+    visited_tbl = mem_new(KV, visited_cap);
     for (size_t i = 0; i < visited_cap; ++i) visited_tbl[i].key = EMPTY_KEY;
 }
 
@@ -143,7 +158,7 @@ static void visited_insert(int64_t key)
 {
     if ((visited_len + 1) > (visited_cap * LOAD_FACTOR) / 100) {
         size_t new_cap = visited_cap << 1;
-        KV *new_tbl = (KV *)calloc(new_cap, sizeof(KV));
+        KV *new_tbl = mem_new(KV, new_cap);
         for (size_t i = 0; i < new_cap; ++i) new_tbl[i].key = EMPTY_KEY;
         for (size_t i = 0; i < visited_cap; ++i)
             if (visited_tbl[i].key != EMPTY_KEY) {
@@ -151,7 +166,7 @@ static void visited_insert(int64_t key)
                 while (new_tbl[h].key != EMPTY_KEY) h = (h + 1) & (new_cap - 1);
                 new_tbl[h] = visited_tbl[i];
             }
-        free(visited_tbl);
+        mem_free(visited_tbl);
         visited_tbl = new_tbl;
         visited_cap = new_cap;
     }
@@ -243,7 +258,7 @@ seq_t a(idx_t n)
         ans = best_d;
     }
     /* free visited map to avoid memory leak on repeated calls */
-    free(visited_tbl);
+    mem_free(visited_tbl);
     visited_tbl = NULL;
     visited_cap = visited_len = 0;
     return ans;

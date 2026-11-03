@@ -7,16 +7,18 @@
  * Formula:   a(n) = sum_{d | n^2} d^n (OEIS A062755)
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 6, u64 n <= 9, u128 n <= 15,
  *            big any n
- * Helpers:   big_pow, factor_u64, pow_uint64_small
+ * Validated: standard, pass, 29 terms through n = 99 (2026-11-01)
+ * Helpers:   factor_u64, ipow, ipow_u64_to_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/big_pow.h"
-#include "../utils/pow_uint64_small.h"
+#include "../utils/ipow.h"
+#include "../utils/ipow_u64_to_u64.h"
 
 /* generic exponential applied to the sequence type */
 static inline seq_t pow_seq(seq_t base, idx_t exp)
@@ -34,7 +36,7 @@ static inline seq_t pow_seq(seq_t base, idx_t exp)
         return (seq_t)res;
     } else {
         /* seq_t is an arbitrary‑precision type */
-        return big_pow(base, (seq_t)exp);
+        return ipow(base, (seq_t)exp);
     }
 }
 

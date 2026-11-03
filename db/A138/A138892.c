@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 70, u16 n <= 70, u32 n <= 70, u64 n <= 70, u128 n <= 70,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 71 terms through n = 70 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* ------- Internal state ------- */
 static bool initialized = false;
@@ -45,7 +47,7 @@ static void ensure_ulam_cap(size_t need)
     if (need <= ulam_cap) return;
     size_t new_cap = ulam_cap ? ulam_cap * 2 : 8;
     if (new_cap < need) new_cap = need;
-    seq_t *tmp = (seq_t *)realloc(ulam_arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, ulam_arr, new_cap);
     if (!tmp) abort();
     ulam_arr = tmp;
     ulam_cap = new_cap;
@@ -56,7 +58,7 @@ static void ensure_nonulam_cap(size_t need)
     if (need <= nonulam_cap) return;
     size_t new_cap = nonulam_cap ? nonulam_cap * 2 : 16;
     if (new_cap < need) new_cap = need;
-    seq_t *tmp = (seq_t *)realloc(nonulam_arr, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, nonulam_arr, new_cap);
     if (!tmp) abort();
     nonulam_arr = tmp;
     nonulam_cap = new_cap;

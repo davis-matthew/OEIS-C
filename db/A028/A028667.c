@@ -8,20 +8,21 @@
  *            Π_{j=1..n} (5^j - 1))
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 3, u64 n <= 4, u128 n <= 6,
  *            big any n
- * Helpers:   pow_uint
+ * Validated: standard, pass, 26 terms through n = 37 (2026-11-01)
+ * Helpers:   ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/pow_uint.h"   /* provides seq_t pow_uint(uint64_t base, idx_t exp) */
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n) {
     /* exponent e = n*(n+1)/2 */
     idx_t e = n * (n + 1) / 2;
 
     /* base term: 5^e */
-    seq_t result = pow_uint(5, e);
+    seq_t result = ipow_u64_idx(5, e);
 
     /* compute product Π_{j=1..n} (5^j - 1) */
     seq_t pow5j = (seq_t)5;          /* current 5^j, starts with j=1 */

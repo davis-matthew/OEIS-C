@@ -11,13 +11,15 @@
  *            y (mod p^e) and R(x)=x³ – x² (mod p^e) in lin...
  * Range:     u8 n <= 83, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 83 terms through n = 9533 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* ------------------------------------------------------------ */
 /*  prime sieve and table of smallest prime factor  (spf)       */
@@ -60,7 +62,7 @@ static seq_t prime_power_count(uint32_t m)
     seq_t cnt = 0;
     uint32_t i;
     /* zero the buffer up to m */
-    memset(tmp_counts, 0, m * sizeof(seq_t));
+    mem_set(tmp_counts, 0, m * sizeof(seq_t));
 
     /* count occurrences of L(y) = y*y + y  (mod m) */
     for (i = 0; i < m; ++i)

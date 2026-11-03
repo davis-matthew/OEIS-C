@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1000, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   starts_with_3
+ * Validated: standard, pass, 108 terms through n = 995 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,13 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
-#include "../utils/starts_with_3.h"
+
+/* Return true if integer p starts with the decimal digit 3. */
+static bool starts_with_3(uint32_t p)
+{
+    while (p >= 10) p /= 10;
+    return p == 3;
+}
 
 static uint32_t *cached_primes = NULL;       /* array of primes up to cached_limit      */
 static size_t  cached_primes_cnt = 0;        /* number of primes stored                 */

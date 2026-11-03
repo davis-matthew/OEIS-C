@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 8, u32 n <= 19, u64 n <= 41, u128 n <= 84,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 195 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,6 +20,7 @@
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *dp = NULL;   /* array of precomputed terms (1‑based) */
 static idx_t dp_size = 0;  /* current number of computed terms */
@@ -30,7 +32,7 @@ static void init_seq(void)
         return;
 
     dp_size = 5;
-    dp = (seq_t *)malloc((dp_size + 1) * sizeof(seq_t)); /* slot 0 unused */
+    dp = mem_new(seq_t, (dp_size + 1)); /* slot 0 unused */
     if (!dp)
         abort();                                     /* insufficient memory */
 
@@ -54,7 +56,7 @@ seq_t a(idx_t n)
     while (new_size < n)          /* double until we have space for n */
         new_size *= 2;
 
-    seq_t *new_dp = (seq_t *)realloc(dp, (new_size + 1) * sizeof(seq_t));
+    seq_t *new_dp = mem_resize(seq_t, dp, (new_size + 1));
     if (!new_dp)
         abort();                    /* insufficient memory */
     dp = new_dp;

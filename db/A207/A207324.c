@@ -10,13 +10,58 @@
  *            {1,…,k} for k = 1,2,3,… (1‑based index)
  * Range:     u8 n <= 383, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   kth_perm_elem
+ * Validated: standard, pass, 103 terms through n = 9900 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
-#include "../utils/kth_perm_elem.h"
+
+/* Return the element at index `pos` (0‑based) of the
+   `perm_idx`‑th (0‑based) Steinhaus‑Johnson‑Trotter permutation
+   of size `k`. (`k` ≤ 25). */
+static seq_t kth_perm_elem(int k, idx_t perm_idx, int pos)
+{
+    int perm[25];
+    int dir[25];
+
+    for (int i = 0; i < k; ++i) {
+        perm[i] = i + 1;
+        dir[i]  = -1;      /* direction: -1 = left, +1 = right */
+    }
+
+    for (idx_t step = 0; step < perm_idx; ++step) {
+        /* Find largest mobile element. */
+        int max_mobile = 0, max_pos = -1;
+        for (int i = 0; i < k; ++i) {
+            int neigh = i + dir[i];
+            if (neigh < 0 || neigh >= k) continue;
+            if (perm[i] > perm[neigh] && perm[i] > max_mobile) {
+                max_mobile = perm[i];
+                max_pos    = i;
+            }
+        }
+
+        /* Swap the mobile element with the adjacent element. */
+        int neigh = max_pos + dir[max_pos];
+        int tmp = perm[max_pos];
+        perm[max_pos] = perm[neigh];
+        perm[neigh]   = tmp;
+
+        /* Swap the directions as well, to keep them attached to the elements. */
+        int tmpd = dir[max_pos];
+        dir[max_pos] = dir[neigh];
+        dir[neigh]   = tmpd;
+
+        /* Reverse directions of all elements larger than the moved one. */
+        for (int i = 0; i < k; ++i) {
+            if (perm[i] > max_mobile) dir[i] = -dir[i];
+        }
+    }
+
+    return (seq_t)perm[pos];
+}
 
 /* Pre‑compute factorials up to 25 (more than enough for n up to 2^64−1). */
 static seq_t fact_cache[26];

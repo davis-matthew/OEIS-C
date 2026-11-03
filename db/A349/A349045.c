@@ -8,13 +8,15 @@
  *            a(n-k-1) for n ≥ 1
  * Range:     i8 n <= 3, i16 n <= 4, i32 n <= 6, i64 n <= 8, i128 n <= 12,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 14 terms through n = 13 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /*  cache for sequence values  */
 static seq_t *seq_cache  = NULL;   /* sequence values a(0)..a(n)   */
@@ -31,7 +33,7 @@ static void ensure_seq_cache(idx_t n)
 {
     if (n >= seq_cap) {
         seq_cap = n + 1;
-        seq_cache = (seq_t *)realloc(seq_cache, seq_cap * sizeof(seq_t));
+        seq_cache = mem_resize(seq_t, seq_cache, seq_cap);
     }
 }
 
@@ -39,7 +41,7 @@ static void ensure_pow_cache(idx_t n)
 {
     if (n >= pow_cap) {
         pow_cap = n + 1;
-        pow_cache = (seq_t *)realloc(pow_cache, pow_cap * sizeof(seq_t));
+        pow_cache = mem_resize(seq_t, pow_cache, pow_cap);
     }
 }
 

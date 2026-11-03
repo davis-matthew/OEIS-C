@@ -9,13 +9,15 @@
  *            Σ_{k=0}^{n‑5} C(n‑5,k) * a(k) * a(n‑k‑5) (for n ≥ 5)
  * Range:     u8 n <= 12, u16 n <= 17, u32 n <= 25, u64 n <= 32, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 33 terms through n = 32 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -29,7 +31,7 @@ seq_t a(idx_t n)
     if (n + 1 > cap) {
         idx_t new_cap = n + 1;
         /* realloc must be cast to seq_t* for C++ */
-        seq_t *tmp = (seq_t *)realloc(cache, sizeof(seq_t) * new_cap);
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) {            /* allocation failed – spoil gracefully */
             return 0;
         }

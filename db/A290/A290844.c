@@ -10,12 +10,15 @@
  *            downwards (OEIS A290844)
  * Range:     i8 n <= 16, i16 n <= 47, i32 n <= 55, i64 n <= 55, i128 n <= 55,
  *            big any n
- * Helpers:   big_pow
+ * Validated: partial, pass, 55 terms through n = 55 (2026-11-01)
+ * Helpers:   ipow
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/big_pow.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "../utils/ipow.h"
 
 seq_t a(idx_t n)
 {
@@ -41,8 +44,8 @@ seq_t a(idx_t n)
     /* Compute the required sum:   Σ_{t=1..row} t^col  –  (row+1)^col */
     seq_t sum = 0;
     for (idx_t t = 1; t <= row; ++t) {
-        sum += big_pow((seq_t)t, (seq_t)col);
+        sum += ipow((seq_t)t, (seq_t)col);
     }
-    sum -= big_pow((seq_t)(row + 1), (seq_t)col);
+    sum -= ipow((seq_t)(row + 1), (seq_t)col);
     return sum;
 }

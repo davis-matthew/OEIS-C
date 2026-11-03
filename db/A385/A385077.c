@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 8, u32 n <= 8, u64 n <= 8, u128 n <= 8,
  *            big any n
- * Helpers:   isPrimeTrial
+ * Validated: partial, pass, 8 terms through n = 8 (2026-11-03)
+ * Helpers:   is_prime_seq, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,7 +26,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "../utils/isPrimeTrial.h"
+#include "../utils/is_prime_seq.h"
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     while (tlen < n)
     {
         /* find next prime */
-        while (!isPrimeTrial((seq_t)next_candidate))
+        while (!is_prime_seq((seq_t)next_candidate))
             ++next_candidate;
 
         seq_t x = (seq_t)next_candidate;   /* current prime */
@@ -63,7 +65,7 @@ seq_t a(idx_t n)
             if (p < (seq_t)2) continue;    /* p must be ≥ 2          */
             if (p >= q)    continue;        /* require p < q           */
 
-            if (isPrimeTrial(p))
+            if (is_prime_seq(p))
             {
                 has_rep = true;
                 break;
@@ -76,7 +78,7 @@ seq_t a(idx_t n)
             if (tlen == tcap)
             {
                 tcap = tcap ? tcap * 2 : 4;
-                terms = (seq_t *)realloc(terms, tcap * sizeof(seq_t));
+                terms = mem_resize(seq_t, terms, tcap);
             }
             terms[tlen++] = x;
         }

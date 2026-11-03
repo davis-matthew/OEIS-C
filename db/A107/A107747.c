@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 106, u16 n <= 10000, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 78 terms through n = 9600 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* ---------- auxiliary prime table ---------- */
 static uint32_t *prime_tbl = NULL;   /* array of primes */
@@ -99,7 +101,7 @@ static idx_t seq_cap  = 0;        /* allocated capacity */
 static void extend_seq_vals(void)
 {
     size_t newcap = seq_cap == 0 ? 16 : seq_cap * 2;
-    seq_t *tmp = (seq_t *)realloc(seq_vals, newcap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq_vals, newcap);
     if (!tmp) abort();
     seq_vals = tmp;
     seq_cap = newcap;

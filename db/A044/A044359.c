@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 3, u16 n <= 39, u32 n <= 39, u64 n <= 39, u128 n <= 39,
  *            big any n
- * Helpers:   contains27
+ * Validated: partial, pass, 39 terms through n = 39 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,7 +19,19 @@
  */
 
 #include <stdbool.h>
-#include "../utils/contains27.h"
+
+static bool contains27(seq_t x)
+{
+    if (x < 10) return false;
+    seq_t tmp = x;
+    while (tmp >= 10) {
+        unsigned int d1 = (unsigned int)(tmp % 10);   /* rightmost digit   */
+        tmp /= 10;
+        unsigned int d2 = (unsigned int)(tmp % 10);   /* next digit to the left */
+        if (d2 == 2 && d1 == 7) return true;          /* found "27" */
+    }
+    return false;
+}
 
 seq_t a(idx_t n)
 {

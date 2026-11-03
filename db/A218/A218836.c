@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 5, u16 n <= 10, u32 n <= 20, u64 n <= 39, u128 n <= 79,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 205 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* External types are provided by the build environment */
 extern seq_t a(idx_t n)
@@ -38,7 +40,7 @@ extern seq_t a(idx_t n)
     if (cache_cap < 3) {
         /* initially store the three known terms */
         size_t init_cap = 3;
-        cache = (seq_t *)realloc(cache, init_cap * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, init_cap);
         cache[0] = (seq_t)1;
         cache[1] = (seq_t)2;
         cache[2] = (seq_t)7;
@@ -48,7 +50,7 @@ extern seq_t a(idx_t n)
     if ((size_t)n >= cache_cap) {
         /* Expand the cache to accommodate terms up to n */
         size_t new_cap = (size_t)n + 1;
-        seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, cache, new_cap);
         if (!tmp) return (seq_t)0; /* allocation failed, return 0 */
         cache = tmp;
         /* Compute new terms iteratively */

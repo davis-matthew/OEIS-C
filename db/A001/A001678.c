@@ -11,23 +11,30 @@
  *            with c(k) = Sum_{d|k} d*r(d) (this is the Euler transform)....
  * Range:     u8 n <= 14, u16 n <= 22, u32 n <= 37, u64 n <= 66, u128 n <= 124,
  *            big any n
- * Helpers:   fixed_width_mode
+ * Validated: standard, pass, 54 terms through n = 885 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/fixed_width_mode.h"
+#include "../utils/mem.h"
+
+static int fixed_width_mode(void) {
+    seq_t p = 1;
+    for (int i = 0; i < 200; i++) p = p * 2;
+    return p == 0;
+}
 
 static seq_t *R = NULL;   /* R[1..have] */
 static idx_t have = 0;
 
 static void build(idx_t N) {
-    seq_t *r = (seq_t *)calloc(N + 1, sizeof(seq_t));
+    seq_t *r = mem_new(seq_t, N + 1);
     if (fixed_width_mode()) {
         /* No division by n: multiply in one factor 1/(1-x^k)^r(k) at a time. */
-        seq_t *F = (seq_t *)calloc(N + 1, sizeof(seq_t));
-        seq_t *C = (seq_t *)calloc(N + 1, sizeof(seq_t));
+        seq_t *F = mem_new(seq_t, N + 1);
+        seq_t *C = mem_new(seq_t, N + 1);
         F[0] = 1;
         for (idx_t j = 1; j <= N; j++) {
             r[j] = F[j - 1];
@@ -46,11 +53,11 @@ static void build(idx_t N) {
                 }
             }
         }
-        free(F);
-        free(C);
+        mem_free(F);
+        mem_free(C);
     } else {
-        seq_t *e = (seq_t *)calloc(N + 1, sizeof(seq_t));
-        seq_t *c = (seq_t *)calloc(N + 1, sizeof(seq_t));
+        seq_t *e = mem_new(seq_t, N + 1);
+        seq_t *c = mem_new(seq_t, N + 1);
         e[0] = 1;
         r[1] = 1;
         for (idx_t n = 1; n <= N; n++) {
@@ -70,10 +77,10 @@ static void build(idx_t N) {
                 s += c[k] * e[n - k];
             e[n] = s / (seq_t)n;
         }
-        free(e);
-        free(c);
+        mem_free(e);
+        mem_free(c);
     }
-    if (R) free(R);
+    if (R) mem_free(R);
     R = r;
     have = N;
 }

@@ -8,12 +8,14 @@
  *            1. This uses memoisation and an O(n²) convolution implementation
  * Range:     i8 n <= 5, i16 n <= 7, i32 n <= 11, i64 n <= 18, i128 n <= 20,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 21 terms through n = 20 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -28,7 +30,7 @@ seq_t a(idx_t n)
         if (needed > cap) {
             size_t newcap = cap ? cap * 2 : 1;
             while (newcap < needed) newcap *= 2;
-            seq_t *newp = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+            seq_t *newp = mem_resize(seq_t, cache, newcap);
             if (!newp) return 0;        /* memory allocation failure – unlikely in tests */
             cache = newp;
             cap   = newcap;

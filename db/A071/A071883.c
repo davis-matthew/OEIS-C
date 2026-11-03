@@ -11,20 +11,21 @@
  *            each bit of n after the most significant bit (going from high...
  * Range:     u8 n <= 60, u16 n <= 60, u32 n <= 60, u64 n <= 60, u128 n <= 60,
  *            big any n
- * Helpers:   bitlen_idx
+ * Validated: partial, pass, 61 terms through n = 60 (2026-11-01)
+ * Helpers:   bit_length_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/bitlen_idx.h"   /* provides unsigned int bitlen_idx(idx_t); */
+#include "../utils/bit_length_idx.h"
 
 static seq_t calkin_wilf_numerator(idx_t n)
 {
     if (n == 0)
         return 0;                      /* by convention for the product */
     seq_t a = 1, b = 1;
-    unsigned int len = bitlen_idx(n);  /* number of bits in n */
+    unsigned int len = bit_length_idx(n);  /* number of bits in n */
     /* process bits from the second most significant down to 0 */
     for (int i = (int)len - 2; i >= 0; --i)
     {

@@ -13,7 +13,8 @@
  *            a(2)=T(1,0), a(3)=T(0,2), …
  * Range:     u8 n <= 25, u16 n <= 51, u32 n <= 65, u64 n <= 65, u128 n <= 65,
  *            big any n
- * Helpers:   binomial
+ * Validated: partial, pass, 66 terms through n = 65 (2026-11-03)
+ * Helpers:   binomial, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -25,6 +26,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../utils/binomial.h"
+#include "../utils/mem.h"
 
 /*  One‑dimensional storage for the triangular table T[n][k]   */
 static seq_t *T = NULL;          /* pointer to current table          */
@@ -39,7 +41,7 @@ static void compute_table_up_to(idx_t m)
     /*  Base case: m = 0  ------------------------------------------- */
     if (m == 0) {
         if (T == NULL) {                    /* first time we need it  */
-            T = (seq_t*)malloc(sizeof(seq_t));
+            T = mem_new(seq_t, 1);
             if (!T) return;                 /* allocation failed      */
             T[0] = (seq_t)1;                /* T(0,0) = 1             */
         }
@@ -51,9 +53,9 @@ static void compute_table_up_to(idx_t m)
     if (m <= maxM) return;
 
     /*  Allocate new larger table ------------------------------------ */
-    if (T != NULL) free(T);                  /* free old, if any       */
+    if (T != NULL) mem_free(T);                  /* free old, if any       */
     size_t size = (size_t)(m + 1) * (m + 1);
-    T = (seq_t*)malloc(size * sizeof(seq_t));
+    T = mem_new(seq_t, size);
     if (!T) return;                           /* allocation failed      */
 
     /*  Macro to index into the 1‑D array                         */

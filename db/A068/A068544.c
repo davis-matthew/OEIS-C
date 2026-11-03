@@ -8,7 +8,8 @@
  *            simple brute‑force search
  * Range:     u8 n <= 2, u16 n <= 53, u32 n <= 53, u64 n <= 53, u128 n <= 53,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 53 terms through n = 53 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Types seq_t and idx_t are provided by the build. */
 static bool _init_done = false;
@@ -43,7 +45,7 @@ static void _seq_push(seq_t v)
 {
     if (_seq_len == _seq_cap) {
         _seq_cap = _seq_cap ? (_seq_cap << 1) : 8;
-        _seq = (seq_t *)realloc(_seq, _seq_cap * sizeof(seq_t));
+        _seq = mem_resize(seq_t, _seq, _seq_cap);
     }
     _seq[_seq_len++] = v;
 }

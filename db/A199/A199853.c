@@ -8,13 +8,15 @@
  *            a(n)=2*a(n-1)+a(n-2)-a(n-3)
  * Range:     i8 n <= 7, i16 n <= 14, i32 n <= 28, i64 n <= 30, i128 n <= 30,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 31 terms through n = 30 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n) {
     static seq_t *cache = NULL;
@@ -24,12 +26,12 @@ seq_t a(idx_t n) {
         /* Expand the cache */
         idx_t old_len = cache_len;
         idx_t new_len = n + 1;
-        seq_t *new_cache = (seq_t *)malloc(new_len * sizeof(seq_t));
+        seq_t *new_cache = mem_new(seq_t, new_len);
         if (old_len > 0)
-            memcpy(new_cache, cache, old_len * sizeof(seq_t));
+            mem_copy(new_cache, cache, old_len * sizeof(seq_t));
 
         if (cache)
-            free(cache);
+            mem_free(cache);
         cache = new_cache;
         cache_len = new_len;
 

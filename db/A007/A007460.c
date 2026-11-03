@@ -7,12 +7,14 @@
  * Formula:   a(n) = sum_{k=0}^{n-1} (a(k) | a(n-1-k)), a(0) = 1
  * Range:     u8 n <= 6, u16 n <= 11, u32 n <= 21, u64 n <= 41, u128 n <= 82,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 45 terms through n = 1901 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 
 seq_t a(idx_t n) {
@@ -20,7 +22,7 @@ seq_t a(idx_t n) {
   static idx_t cache_size = 0;
   
   if (cache == NULL) {
-    cache = (seq_t *)malloc(sizeof(seq_t));
+    cache = mem_new(seq_t, 1);
     cache[0] = 1;
     cache_size = 1;
   }
@@ -31,7 +33,7 @@ seq_t a(idx_t n) {
     for (idx_t k = 0; k < i; k++) {
       sum += cache[k] | cache[i - 1 - k];
     }
-    cache = (seq_t *)realloc(cache, (i + 1) * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, (i + 1));
     cache[i] = sum;
     cache_size++;
   }

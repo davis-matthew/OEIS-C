@@ -11,13 +11,15 @@
  *            24 identical generating functions of a single square...
  * Range:     u8 n <= 1, u16 n <= 5, u32 n <= 24, u64 n <= 287,
  *            u128 n <= 10000, big any n
- * Helpers:   none
+ * Validated: standard, pass, 44 terms through n = 9850 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* integer square root (floor) for uint64_t */
 static idx_t int_sqrt_u64(idx_t n)
@@ -34,12 +36,12 @@ seq_t a(idx_t n)
     size_t N = (size_t)n;
 
     /* allocate arrays for DP */
-    seq_t *dp     = (seq_t*)calloc(N + 1, sizeof(seq_t));
-    seq_t *dp_next = (seq_t*)calloc(N + 1, sizeof(seq_t));
+    seq_t *dp     = mem_new(seq_t, N + 1);
+    seq_t *dp_next = mem_new(seq_t, N + 1);
     if (!dp || !dp_next) {
         /* on allocation failure simply return 0 (should not happen in controlled environment) */
-        free(dp);
-        free(dp_next);
+        mem_free(dp);
+        mem_free(dp_next);
         return (seq_t)0;
     }
 
@@ -49,8 +51,8 @@ seq_t a(idx_t n)
     size_t maxsq = (size_t)int_sqrt_u64(n);
     size_t *sqs = (size_t*)malloc((maxsq + 1) * sizeof(size_t));
     if (!sqs) {
-        free(dp);
-        free(dp_next);
+        mem_free(dp);
+        mem_free(dp_next);
         return (seq_t)0;
     }
     for (size_t i = 0; i <= maxsq; ++i)
@@ -83,8 +85,8 @@ seq_t a(idx_t n)
     seq_t result = dp[N];
 
     /* clean up */
-    free(dp);
-    free(dp_next);
+    mem_free(dp);
+    mem_free(dp_next);
     free(sqs);
 
     return result;

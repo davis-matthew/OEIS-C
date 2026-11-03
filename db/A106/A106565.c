@@ -7,13 +7,15 @@
  * Formula:   a(n) = 5*a(n-1) + 5*a(n-2), a(0) = 0, a(1) = 5
  * Range:     u8 n <= 3, u16 n <= 6, u32 n <= 12, u64 n <= 25, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 913 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -25,7 +27,7 @@ seq_t a(idx_t n)
     if (dp == NULL) {
         /* Allocate room for at least two elements (0 and 1). */
         cap = 2;
-        dp = (seq_t *)malloc(cap * sizeof(seq_t));
+        dp = mem_new(seq_t, cap);
         if (dp == NULL) abort();
         dp[0] = (seq_t)0;
         dp[1] = (seq_t)5;
@@ -39,7 +41,7 @@ seq_t a(idx_t n)
     while (n >= cap) {
         idx_t newcap = cap * 2;
         if (newcap <= cap) newcap = cap + 2; /* defensive: avoid overflow */
-        seq_t *tmp = (seq_t *)realloc(dp, newcap * sizeof(seq_t));
+        seq_t *tmp = mem_resize(seq_t, dp, newcap);
         if (tmp == NULL) abort();
         dp = tmp;
         cap = newcap;

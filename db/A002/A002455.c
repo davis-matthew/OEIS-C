@@ -8,13 +8,15 @@
  *            a(1) = 1
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 6, u64 n <= 10, u128 n <= 16,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 30 terms through n = 49 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static seq_t *memo = NULL;
 static bool *computed = NULL;
@@ -29,7 +31,7 @@ seq_t a(idx_t n) {
 			((n < 100) ? 100 : n + 1) : 
 			(memo_len * 2 < n + 1 ? n + 1 : memo_len * 2);
 		
-		seq_t *new_memo = (seq_t *)realloc(memo, new_len * sizeof(seq_t));
+		seq_t *new_memo = mem_resize(seq_t, memo, new_len);
 		bool *new_computed = (bool *)realloc(computed, new_len * sizeof(bool));
 		
 		if (new_memo == NULL || new_computed == NULL) return 0;

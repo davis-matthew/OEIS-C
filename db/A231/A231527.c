@@ -11,7 +11,8 @@
  *            programming over column masks
  * Range:     u8 n <= 2, u16 n <= 3, u32 n <= 7, u64 n <= 15, u128 n <= 31,
  *            big any n
- * Helpers:   check_col
+ * Validated: standard, pass, 32 terms through n = 200 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,7 +20,40 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "../utils/check_col.h"
+
+/* Check whether a column (mask M) satisfies the majority rule
+ * when neighbours L and R are present or absent as indicated.    */
+static bool
+check_col(int M, int L, int R, bool lp, bool rp)
+{
+    for (int r = 0; r < 5; ++r) {
+        int ones = 0, deg = 0;
+
+        /* left neighbour (same row) */
+        if (lp) { deg++; if ((L >> r) & 1) ones++; }
+
+        /* right neighbour (same row) */
+        if (rp) { deg++; if ((R >> r) & 1) ones++; }
+
+        /* up‑left */
+        if (lp && r > 0)      { deg++; if ((L >> (r - 1)) & 1) ones++; }
+        /* up‑right */
+        if (rp && r > 0)      { deg++; if ((R >> (r - 1)) & 1) ones++; }
+        /* down‑left */
+        if (lp && r < 4)      { deg++; if ((L >> (r + 1)) & 1) ones++; }
+        /* down‑right */
+        if (rp && r < 4)      { deg++; if ((R >> (r + 1)) & 1) ones++; }
+
+        /* If current cell is 0, it must not have a strict majority of 1s. */
+        if ((M >> r) & 1) {
+            /* value 1 always satisfies; nothing to do. */
+        } else {
+            if (ones * 2 > deg)   /* strict majority of 1s */
+                return false;
+        }
+    }
+    return true;
+}
 
 /* Masks for the 5 rows (bit 0 = row 0, bit 4 = row 4).  */
 #define MASKS 32

@@ -7,13 +7,30 @@
  * Formula:   a(n) = floor(10^(n+1)/769) mod 10
  * Range:     u8 n <= 98, u16 n <= 98, u32 n <= 98, u64 n <= 98, u128 n <= 98,
  *            big any n
- * Helpers:   modpow10_exp
+ * Validated: partial, pass, 99 terms through n = 98 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/modpow10_exp.h"
+
+/* Compute 10^exp mod 7690 (769 * 10) using fast exponentiation. */
+static inline uint64_t modpow10_exp(idx_t exp)
+{
+    const uint64_t MOD = 7690ULL;          /* 769 * 10 */
+    uint64_t result = 1ULL;
+    uint64_t base   = 10ULL % MOD;
+
+    while (exp)
+    {
+        if (exp & 1ULL)
+            result = (result * base) % MOD;
+        base = (base * base) % MOD;
+        exp >>= 1ULL;
+    }
+    return result;
+}
 
 seq_t a(idx_t n)
 {

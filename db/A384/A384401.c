@@ -8,13 +8,17 @@
  * Formula:   a(n) = a(n-1) * 40014 mod (2^31-85), a(1) = 1
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 10000, u64 n <= 10000,
  *            u128 n <= 10000, big any n
- * Helpers:   mod_pow
+ * Validated: standard, pass, 40 terms through n = 9704 (2026-11-01)
+ * Helpers:   powmod
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/mod_pow.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "../utils/powmod.h"
 
 seq_t a(idx_t n)
 {
@@ -24,5 +28,5 @@ seq_t a(idx_t n)
     /* modulus: 2^31 - 85 = 2147483563 */
     const uint64_t MOD_VAL = 2147483563ULL;
 
-    return mod_pow((seq_t)40014ULL, n - 1, (seq_t)MOD_VAL);
+    return powmod((seq_t)40014ULL, n - 1, (seq_t)MOD_VAL);
 }

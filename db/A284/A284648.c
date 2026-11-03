@@ -8,6 +8,7 @@
  * Formula:   a(n) = numerator of Sum_{k=1..n} sigma(k)/k
  * Range:     u8 n <= 4, u16 n <= 10, u32 n <= 18, u64 n <= 42, u128 n <= 87,
  *            big any n
+ * Validated: standard, pass, 45 terms through n = 765 (2026-11-01)
  * Helpers:   gcd
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../utils/gcd.h"
 
 seq_t a(idx_t n)

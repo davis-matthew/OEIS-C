@@ -10,7 +10,8 @@
  *            a(2)=T(2,1), a(3)=T(2,2), a(4)=T(3,1), …
  * Range:     u8 n <= 1275, u16 n <= 1275, u32 n <= 1275, u64 n <= 1275,
  *            u128 n <= 1275, big any n
- * Helpers:   compute_divisor_count
+ * Validated: standard, pass, 97 terms through n = 1165 (2026-11-01)
+ * Helpers:   num_divisors_idx_to_u32
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,7 @@
    supplied by the build. */
 
 #include <stdlib.h>   /* for realloc, abort */
-#include "../utils/compute_divisor_count.h"
+#include "../utils/num_divisors_idx_to_u32.h"
 
 /* Divisor‑count cache (1‑based).  divcnt[i] = d(i). */
 static uint32_t *divcnt = NULL;
@@ -36,7 +37,7 @@ static void ensure_divcnt(idx_t limit)
     divcnt = tmp;
 
     for (idx_t i = divcnt_size + 1; i <= limit; ++i) {
-        divcnt[i] = compute_divisor_count(i);
+        divcnt[i] = num_divisors_idx_to_u32(i);
     }
     divcnt_size = limit;
 }

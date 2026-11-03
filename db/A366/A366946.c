@@ -12,7 +12,8 @@
  *            …
  * Range:     u8 n <= 76, u16 n <= 76, u32 n <= 76, u64 n <= 76, u128 n <= 76,
  *            big any n
- * Helpers:   square_digit
+ * Validated: partial, pass, 76 terms through n = 76 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,12 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
-#include "../utils/square_digit.h"
+#include "../utils/mem.h"
+
+/* square digit set */
+static inline bool square_digit(uint8_t d) {
+    return d == 0 || d == 1 || d == 4 || d == 9;
+}
 
 /* internal storage for the sequence, used values and the concatenated
    digit stream */
@@ -39,7 +45,7 @@ static void seq_ensure(size_t need) {
     if (need <= seq_cap) return;
     size_t ncap = seq_cap ? seq_cap : 4;
     while (ncap < need) ncap <<= 1;
-    seq_t *tmp = (seq_t *)realloc(seq, ncap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, seq, ncap);
     seq = tmp;
     seq_cap = ncap;
 }

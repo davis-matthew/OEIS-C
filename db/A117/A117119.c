@@ -7,7 +7,8 @@
  * Formula:   a(n) = #{ odd prime powers x,y : x + y = 2*n , 1 ≤ x ≤ y }
  * Range:     u8 n <= 90, u16 n <= 90, u32 n <= 90, u64 n <= 90, u128 n <= 90,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 90 terms through n = 90 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -16,6 +17,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "../utils/mem.h"
 
 /* compare function for qsort on uint64_t */
 static int cmp_uint64(const void *a, const void *b)
@@ -143,8 +145,8 @@ static void recompute(idx_t new_max_n)
     free(tmp);
 
     /* ---- allocate count array -------------------------------------*/
-    free(counts);
-    counts = (seq_t *)calloc((size_t)(new_max_n + 1), sizeof(seq_t));
+    mem_free(counts);
+    counts = mem_new(seq_t, (size_t)(new_max_n + 1));
     if (!counts) {
         /* allocation failed */
         pp_cnt = 0;

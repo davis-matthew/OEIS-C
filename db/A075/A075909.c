@@ -7,7 +7,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 12, u128 n <= 14,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 15 terms through n = 14 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -27,6 +28,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* allocate or grow a buffer of seq_t values */
 static void grow_cache(seq_t **buf, size_t *cap, size_t need)
@@ -38,12 +40,12 @@ static void grow_cache(seq_t **buf, size_t *cap, size_t need)
     while (new_cap < need)
         new_cap <<= 1;
 
-    void *mem = malloc(new_cap * sizeof(seq_t));
+    seq_t *mem = mem_new(seq_t, new_cap);
     if (*buf) {
-        memcpy(mem, *buf, (*cap) * sizeof(seq_t));
-        free(*buf);
+        mem_copy(mem, *buf, (*cap) * sizeof(seq_t));
+        mem_free(*buf);
     }
-    *buf = (seq_t *)mem;
+    *buf = mem;
     *cap = new_cap;
 }
 
@@ -68,7 +70,7 @@ seq_t a(idx_t n)
     /* initialise cache with base values once */
     if (cache_len == 0) {
         grow_cache(&cache, &cache_cap, 6);
-        memcpy(cache, base, 6 * sizeof(seq_t));
+        mem_copy(cache, base, 6 * sizeof(seq_t));
         cache_len = 6;
     }
 

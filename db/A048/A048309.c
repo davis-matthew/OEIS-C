@@ -8,14 +8,51 @@
  * Formula:   a(n) = nth integer whose base‑12 run lengths strictly increase
  * Range:     u8 n <= 31, u16 n <= 57, u32 n <= 57, u64 n <= 57, u128 n <= 57,
  *            big any n
- * Helpers:   base12_increasing_runs
+ * Validated: partial, pass, 58 terms through n = 57 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../utils/base12_increasing_runs.h"
+#include "../utils/mem.h"
+
+static bool base12_increasing_runs(seq_t value)
+{
+    if (value == (seq_t)0)
+        return true;
+
+    unsigned char buf[64];
+    size_t len = 0;
+    seq_t tmp = value;
+    while (tmp != (seq_t)0) {
+        buf[len++] = (unsigned char)(tmp % 12);
+        tmp /= 12;
+    }
+
+    unsigned char last_digit = buf[len - 1];
+    size_t current_run = 1;
+    size_t prev_run   = 0;
+
+    for (int i = (int)len - 2; i >= 0; --i) {
+        unsigned char d = buf[i];
+        if (d == last_digit) {
+            ++current_run;
+        } else {
+            if (current_run <= prev_run)
+                return false;
+            prev_run = current_run;
+            last_digit = d;
+            current_run = 1;
+        }
+    }
+
+    /* final run comparison */
+    if (current_run <= prev_run)
+        return false;
+    return true;
+}
 
 seq_t a(idx_t n)
 {
@@ -26,7 +63,7 @@ seq_t a(idx_t n)
 
     if (cache == NULL) {
         cache_cap = 64;
-        cache = (seq_t *)malloc(cache_cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (cache == NULL) {
             /* allocation failure – aborting, as this is fatal */
             abort();
@@ -37,7 +74,7 @@ seq_t a(idx_t n)
         if (base12_increasing_runs(next_val)) {
             if (cache_len == cache_cap) {
                 size_t new_cap = cache_cap * 2;
-                seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+                seq_t *tmp = mem_resize(seq_t, cache, new_cap);
                 if (tmp == NULL) {
                     abort();
                 }

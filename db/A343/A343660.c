@@ -9,7 +9,8 @@
  *            distinct prime factors, and Bell(k) is the k‑th Bell number
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   factor_u64
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-03)
+ * Helpers:   factor_u64, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,8 +19,9 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "../utils/factor_u64.h"   /* void factor_u64(uint64_t n,
-                                    uint64_t *pr, uint64_t *ex, size_t *cnt); */
+#include <stdlib.h>
+#include "../utils/factor_u64.h"
+#include "../utils/mem.h"
 
 static const seq_t bell_numbers[6] = {1, 1, 2, 5, 15, 52};
 
@@ -44,7 +46,7 @@ seq_t a(idx_t n) {
         result = prod * ((seq_t)bell_numbers[cnt] - 1);
     } else {                        /* safe fallback: compute Bell(k) recursively */
         /* compute Bell number using dynamic programming */
-        seq_t *B = (seq_t*)calloc(cnt + 1, sizeof(seq_t));
+        seq_t *B = mem_new(seq_t, cnt + 1);
         if (B) {
             B[0] = 1;
             for (size_t k = 1; k <= cnt; ++k) {
@@ -59,7 +61,7 @@ seq_t a(idx_t n) {
                 B[k] = sum;
             }
             result = prod * (B[cnt] - 1);
-            free(B);
+            mem_free(B);
         }
     }
     return result;

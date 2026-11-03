@@ -9,7 +9,8 @@
  *            a(2)=9, a(3)=25
  * Range:     u8 n <= 4, u16 n <= 8, u32 n <= 17, u64 n <= 34, u128 n <= 68,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 40 terms through n = 178 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 /* Dynamic memoisation cache. */
 static seq_t *cache   = NULL;
@@ -32,15 +34,15 @@ static void ensure_cache(idx_t n)
     size_t new_size = (size_t)(n + 1);
 
     /* Allocate new storage. */
-    seq_t  *new_cache = (seq_t *)malloc(new_size * sizeof(seq_t));
+    seq_t  *new_cache = mem_new(seq_t, new_size);
     bool   *new_cached = (bool  *)malloc(new_size * sizeof(bool));
     if (!new_cache || !new_cached) abort();
 
     /* Copy old data if present. */
     if (cache_size > 0) {
-        memcpy(new_cache,   cache,   cache_size * sizeof(seq_t));
+        mem_copy(new_cache, cache, cache_size * sizeof(seq_t));
         memcpy(new_cached,  cached,  cache_size * sizeof(bool));
-        free(cache);
+        mem_free(cache);
         free(cached);
     }
 

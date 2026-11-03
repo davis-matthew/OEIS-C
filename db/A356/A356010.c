@@ -7,13 +7,15 @@
  * Formula:   a(n) = n! * Sum_{k=1..n} floor(n/k)/k (OEIS A356010)
  * Range:     u8 n <= 4, u16 n <= 7, u32 n <= 11, u64 n <= 19, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 37 terms through n = 435 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Compute a(n) for n >= 1, returns 0 for n==0 (undefined for OEIS offset 1) */
 seq_t a(idx_t n)
@@ -22,7 +24,7 @@ seq_t a(idx_t n)
         return (seq_t)0;          /* offset 1; a(0) is not defined */
 
     /* Allocate array to hold sigma values up to n.  Use calloc to zero-initialize. */
-    seq_t *sigma = (seq_t *)calloc((size_t)(n + 1), sizeof(seq_t));
+    seq_t *sigma = mem_new(seq_t, (size_t)(n + 1));
     if (!sigma)
         return (seq_t)0;          /* allocation failure – unlikely in tests */
 
@@ -46,6 +48,6 @@ seq_t a(idx_t n)
         result += term;
     }
 
-    free(sigma);
+    mem_free(sigma);
     return result;
 }

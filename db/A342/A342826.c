@@ -9,7 +9,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 34, u16 n <= 898, u32 n <= 1137, u64 n <= 1137,
  *            u128 n <= 1137, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 1127 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,6 +23,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../utils/mem.h"
 
 /* forward declarations of helper functions */
 static bool is_special(seq_t k);
@@ -53,11 +55,11 @@ static void grow_seq(seq_t **arr, size_t *cap, size_t needed)
 {
     if (*cap == 0) {
         *cap = 4;
-        *arr = (seq_t*)calloc(*cap, sizeof(seq_t));
+        *arr = mem_new(seq_t, *cap);
     } else if (needed > *cap) {
         size_t newcap = *cap << 1;
         if (newcap < needed) newcap = needed;
-        *arr = (seq_t*)realloc(*arr, newcap * sizeof(seq_t));
+        *arr = mem_resize(seq_t, *arr, newcap);
         *cap = newcap;
     }
 }

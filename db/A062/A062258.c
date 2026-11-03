@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 8, u16 n <= 16, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 32 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static const seq_t init_vals[8] = {1, 2, 4, 8, 16, 32, 64, 127};
 
@@ -34,7 +36,7 @@ static void grow_cache(size_t upto)
     {
         /* allocate at least for indices 0 … 7 */
         size_t cap = 8;
-        cache = (seq_t*)malloc(cap * sizeof(seq_t));
+        cache = mem_new(seq_t, cap);
         for (size_t i = 0; i < cap; ++i) cache[i] = init_vals[i];
         cache_cap = cap;
         cache_init = 1;
@@ -44,7 +46,7 @@ static void grow_cache(size_t upto)
 
     size_t new_cap = cache_cap * 2;
     if (new_cap < upto + 1) new_cap = upto + 1;
-    cache = (seq_t*)realloc(cache, new_cap * sizeof(seq_t));
+    cache = mem_resize(seq_t, cache, new_cap);
     /* compute newly allocated entries */
     for (size_t i = cache_cap; i < new_cap; ++i)
     {

@@ -10,7 +10,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 95, u16 n <= 95, u32 n <= 95, u64 n <= 95, u128 n <= 95,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 95 terms through n = 95 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -29,6 +30,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <limits.h>
+#include "../utils/mem.h"
 
 /* static cache of computed sequence terms */
 static seq_t *cache = NULL;        /* array storing a(k) for k=1..cache_len */
@@ -57,7 +59,7 @@ static void ensure_cache_capacity(idx_t required)
     if (cache_cap == 0) cache_cap = 1024;
     while (cache_cap < required)
         cache_cap <<= 1;                /* multiply by 2 */
-    cache = (seq_t *)realloc(cache, sizeof(seq_t) * cache_cap);
+    cache = mem_resize(seq_t, cache, cache_cap);
 }
 
 /* generate rows until we have at least `target` terms */

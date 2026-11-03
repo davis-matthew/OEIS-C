@@ -12,14 +12,16 @@
  *            and N ones, never more 0's than 1's in any prefix) written in
  *            base 10. The terms are enumerated in increasing binary order,
  *            length 2k increasing with k. No simple closed formula is known
- * Range:     u8 n <= 22, u16 n <= 2055, u32 n <= 9654, u64 n <= 9654,
- *            u128 n <= 9654, big any n
- * Helpers:   none
+ * Range:     u8 n <= 22, u16 n <= 2055, u32 n <= 23713, u64 n <= 23713,
+ *            u128 n <= 23713, big any n
+ * Validated: standard, pass, 70 terms through n = 9654 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* static cache: all computed terms in order of index */
 static seq_t *cache = NULL;     /* pointer to sequence array */
@@ -39,7 +41,7 @@ static void ensure_cache_capacity(size_t need)
     while (newcap < need)
         newcap <<= 1;
 
-    seq_t *newptr = (seq_t *)realloc(cache, newcap * sizeof(seq_t));
+    seq_t *newptr = mem_resize(seq_t, cache, newcap);
     if (!newptr)               /* allocation failed – leave cache unchanged */
         return;
 
@@ -83,7 +85,7 @@ seq_t a(idx_t n)
     /* initialise cache with the empty word if necessary */
     if (cache_size == 0) {
         cache_cap = 16;
-        cache = (seq_t *)calloc(cache_cap, sizeof(seq_t));
+        cache = mem_new(seq_t, cache_cap);
         if (!cache)        /* out of memory – return 0 */
             return (seq_t)0;
         cache[0] = (seq_t)0;   /* a(0) = 0 */

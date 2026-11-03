@@ -9,7 +9,8 @@
  *            = prime(n)-1
  * Range:     u8 n <= 87, u16 n <= 87, u32 n <= 87, u64 n <= 87, u128 n <= 87,
  *            big any n
- * Helpers:   estimate_prime_upper_bound, is_prime, simple_sieve
+ * Validated: partial, pass, 87 terms through n = 87 (2026-11-03)
+ * Helpers:   is_prime_u64, simple_sieve
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -19,9 +20,19 @@
 #include <stdbool.h>
 
 /* helpers from the build */
-#include "../utils/simple_sieve.h"              /* void simple_sieve(uint32_t limit, uint32_t **primes_out, size_t *count_out); */
-#include "../utils/is_prime.h"                 /* bool is_prime(uint64_t n); */
-#include "../utils/estimate_prime_upper_bound.h" /* idx_t estimate_prime_upper_bound(idx_t n); */
+#include <stddef.h>
+#include <math.h>
+#include "../utils/is_prime_u64.h"
+#include "../utils/simple_sieve.h"
+
+/* -------------------------------------------------------------------- */
+static uint64_t estimate_prime_upper_bound(idx_t n)
+{
+    if (n < 6) return 15;  /* covers first 6 primes                        */
+    double nn    = (double)n;
+    double bound = nn * (log(nn) + log(log(nn)));
+    return (uint64_t)(bound + 3.0);  /* safety margin                         */
+}
 
 /* static storage for the prime list */
 static uint64_t *prime_list = NULL;
@@ -69,7 +80,7 @@ seq_t a(idx_t n)
         if (p * 2 > target)
             break;
         uint64_t q = target - p;
-        if (is_prime(q))
+        if (is_prime_u64(q))
             ++count;
     }
     return count;

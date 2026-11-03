@@ -10,12 +10,14 @@
  *            multiplication
  * Range:     u8 n <= 14, u16 n <= 70, u32 n <= 299, u64 n <= 1242,
  *            u128 n <= 5065, big any n
- * Helpers:   none
+ * Validated: standard, pass, 66 terms through n = 9169 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 /* seq_t and idx_t are supplied by the build. */
 
@@ -36,7 +38,7 @@ seq_t a(idx_t n)
     /* First call: allocate initial storage and seed the first term. */
     if (count == 0) {
         capacity = 1024;
-        seq = (seq_t *)malloc((capacity + 1) * sizeof(seq_t));
+        seq = mem_new(seq_t, (capacity + 1));
         if (!seq)
             exit(EXIT_FAILURE);
         seq[1] = (seq_t)1;                  /* a(1) = 1 */
@@ -46,7 +48,7 @@ seq_t a(idx_t n)
     /* Grow array if more space is needed for the requested index. */
     while (capacity < (size_t)n) {
         capacity <<= 1;
-        seq = (seq_t *)realloc(seq, (capacity + 1) * sizeof(seq_t));
+        seq = mem_resize(seq_t, seq, (capacity + 1));
         if (!seq)
             exit(EXIT_FAILURE);
     }

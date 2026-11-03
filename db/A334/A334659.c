@@ -7,6 +7,7 @@
  * Formula:   a(n) = mu(n) * n^3; mu(n) is the Möbius function
  * Range:     i8 n <= 5, i16 n <= 32, i32 n <= 1290, i64 n <= 10000,
  *            i128 n <= 10000, big any n
+ * Validated: standard, pass, 69 terms through n = 9740 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

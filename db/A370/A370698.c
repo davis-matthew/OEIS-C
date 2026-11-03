@@ -8,6 +8,7 @@
  * Formula:   not stated
  * Range:     u8 n <= 36, u16 n <= 62, u32 n <= 62, u64 n <= 62, u128 n <= 62,
  *            big any n
+ * Validated: partial, pass, 62 terms through n = 62 (2026-11-01)
  * Helpers:   pow2
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
@@ -19,6 +20,7 @@
    in increasing numeric order.  The sequence a(n) is the n‑th element
    of this 2‑D array read by antidiagonals.  */
 #include <stdint.h>
+#include <stdbool.h>
 #include "../utils/pow2.h"
 
 /* n, k, cap are unsigned 64‑bit integers; the calculation is done in

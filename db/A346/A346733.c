@@ -8,12 +8,14 @@
  *            a(i)·a(j)·a(n‑i‑j‑3)
  * Range:     u8 n <= 10, u16 n <= 16, u32 n <= 29, u64 n <= 34, u128 n <= 34,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 35 terms through n = 34 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -31,14 +33,14 @@ seq_t a(idx_t n)
     size_t req_cache = (size_t)n + 1;
     size_t old_cache_len = cache_len;
     if (req_cache > cache_len) {
-        cache = (seq_t *)realloc(cache, req_cache * sizeof(seq_t));
+        cache = mem_resize(seq_t, cache, req_cache);
         cache_len = req_cache;
     }
 
     /* enlarge convolution array if necessary */
     size_t req_conv = 2 * (size_t)n + 1;
     if (req_conv > conv_len) {
-        conv = (seq_t *)realloc(conv, req_conv * sizeof(seq_t));
+        conv = mem_resize(seq_t, conv, req_conv);
         for (size_t i = conv_len; i < req_conv; ++i)
             conv[i] = 0;
         conv_len = req_conv;

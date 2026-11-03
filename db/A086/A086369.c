@@ -8,6 +8,7 @@
  * Formula:   a(n) = 2*τ(n) + (n mod 2) – 2, τ(n) = number of divisors of n
  * Range:     u8 n <= 2049, u16 n <= 2049, u32 n <= 2049, u64 n <= 2049,
  *            u128 n <= 2049, big any n
+ * Validated: standard, pass, 96 terms through n = 1990 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

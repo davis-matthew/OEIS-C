@@ -11,12 +11,15 @@
  *            else if j == i a(n) = 2^i * else if j == 0 a(n) = 2^i...
  * Range:     u8 n <= 36, u16 n <= 56, u32 n <= 56, u64 n <= 56, u128 n <= 56,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 57 terms through n = 56 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -36,7 +39,7 @@ seq_t a(idx_t n)
     /* Powers of two as seq_t values.  We use seq_pow for all exponents,
        which works with any seq_t implementation. */
     seq_t two = (seq_t)2;
-    seq_t pow2_i = seq_pow(two, i);            /* 2^i            */
+    seq_t pow2_i = ipow_idx(two, i);            /* 2^i            */
 
     if (j == i)
         return pow2_i;                         /* last element of the row */
@@ -45,7 +48,7 @@ seq_t a(idx_t n)
         return pow2_i - (seq_t)1;              /* first element of the row */
 
     /* General case:  (2^(i-j+1) - 1) * 2^j */
-    seq_t pow2_part = seq_pow(two, i - j + 1); /* 2^(i-j+1)      */
-    seq_t pow2_j    = seq_pow(two, j);         /* 2^j           */
+    seq_t pow2_part = ipow_idx(two, i - j + 1); /* 2^(i-j+1)      */
+    seq_t pow2_j    = ipow_idx(two, j);         /* 2^j           */
     return (pow2_part - (seq_t)1) * pow2_j;
 }

@@ -8,13 +8,14 @@
  *            x^2+y^2+z^2 = 8n+3} (counted by direct search over x, y)
  * Range:     u8 n <= 720, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   a005869_isqrt
+ * Validated: standard, pass, 86 terms through n = 965 (2026-11-01)
+ * Helpers:   isqrt_u64
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/a005869_isqrt.h"
+#include "../utils/isqrt_u64.h"
 
 seq_t a(idx_t n) {
     uint64_t N = 8 * (uint64_t)n + 3;
@@ -23,7 +24,7 @@ seq_t a(idx_t n) {
     for (x = 1; x * x < N; x += 2) {
         for (y = 1; x * x + y * y < N; y += 2) {
             uint64_t rem = N - x * x - y * y;
-            uint64_t z = a005869_isqrt(rem);
+            uint64_t z = isqrt_u64(rem);
             if (z * z == rem && (z & 1)) cnt++;
         }
     }

@@ -11,7 +11,8 @@
  *            if none
  * Range:     u8 n <= 4, u16 n <= 50, u32 n <= 50, u64 n <= 50, u128 n <= 50,
  *            big any n
- * Helpers:   none
+ * Validated: partial, pass, 50 terms through n = 50 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,6 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../utils/mem.h"
 
 static const idx_t MAX_N = 10000;
 static seq_t *best = NULL;
@@ -55,7 +57,7 @@ static void init(void) {
         }
     }
 
-    best = (seq_t *)calloc(MAX_N + 1, sizeof(seq_t));
+    best = mem_new(seq_t, MAX_N + 1);
     if (!best) { free(cnt); return; }
 
     for (size_t s = 1; s <= max_sum; ++s) {

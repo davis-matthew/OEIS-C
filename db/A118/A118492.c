@@ -10,7 +10,8 @@
  *            floor(|p|) equals n
  * Range:     u8 n <= 96, u16 n <= 96, u32 n <= 96, u64 n <= 96, u128 n <= 96,
  *            big any n
- * Helpers:   floor_sqrt_uint32
+ * Validated: partial, pass, 96 terms through n = 96 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -20,7 +21,17 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "../utils/floor_sqrt_uint32.h"
+
+/*==========================================================================*/
+static inline uint32_t floor_sqrt_uint32(uint32_t n) {
+    uint32_t lo = 0, hi = n;
+    while (lo < hi) {
+        uint32_t mid = (lo + hi + 1U) >> 1;
+        if (mid * mid <= n) lo = mid;
+        else hi = mid - 1U;
+    }
+    return lo;
+}
 
 /*==========================================================================*/
 /*  Parameters for the precomputation                                       */

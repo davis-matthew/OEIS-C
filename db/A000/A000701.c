@@ -13,23 +13,30 @@
  *            od...
  * Range:     u8 n <= 19, u16 n <= 47, u32 n <= 134, u64 n <= 428,
  *            u128 n <= 1479, big any n
- * Helpers:   dw_add
+ * Validated: standard, pass, 65 terms through n = 9045 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdlib.h>
-#include "../utils/dw_add.h"
+#include "../utils/mem.h"
+
+static void dw_add(seq_t *h, seq_t *l, seq_t xh, seq_t xl) {
+	*l += xl;
+	if (*l < xl) *h += 1;
+	*h += xh;
+}
 
 static seq_t *Ph = 0, *Pl = 0, *S = 0;
 static idx_t cap = 0;
 
 static void build(idx_t N) {
 	idx_t i, k, m;
-	if (Ph) { free(Ph); free(Pl); free(S); }
-	Ph = (seq_t *)calloc(N + 1, sizeof(seq_t));
-	Pl = (seq_t *)calloc(N + 1, sizeof(seq_t));
-	S = (seq_t *)calloc(N + 1, sizeof(seq_t));
+	if (Ph) { mem_free(Ph); mem_free(Pl); mem_free(S); }
+	Ph = mem_new(seq_t, N + 1);
+	Pl = mem_new(seq_t, N + 1);
+	S = mem_new(seq_t, N + 1);
 	cap = N + 1;
 	Ph[0] = 0;
 	Pl[0] = 1;

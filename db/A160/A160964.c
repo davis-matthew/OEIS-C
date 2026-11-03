@@ -8,15 +8,18 @@
  *            product runs over the distinct prime factors p^e of n
  * Range:     u8 none, u16 n <= 1, u32 n <= 4, u64 n <= 53, u128 n <= 6929,
  *            big any n
- * Helpers:   factor_u64, pow_uint
+ * Validated: standard, pass, 34 terms through n = 9096 (2026-11-01)
+ * Helpers:   factor_u64, ipow_u64_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "../utils/factor_u64.h"
-#include "../utils/pow_uint.h"
+#include "../utils/ipow_u64_idx.h"
 
 seq_t a(idx_t n)
 {
@@ -43,7 +46,7 @@ seq_t a(idx_t n)
         /* multiply by p^{9(e-1)}  (skipped when e==1) */
         if (e > 1) {
             idx_t exp = 9 * (idx_t)(e - 1);
-            term *= pow_uint(p, exp);
+            term *= ipow_u64_idx(p, exp);
         }
 
         result *= term;

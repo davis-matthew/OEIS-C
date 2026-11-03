@@ -9,7 +9,8 @@
  *            Eytzinger array layout of n elements (a(0)=0)
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 13, u64 n <= 20, u128 n <= 22,
  *            big any n
- * Helpers:   bit_sum, bit_update, dfs_assign
+ * Validated: partial, pass, 23 terms through n = 22 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,9 +19,31 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
-#include "../utils/bit_sum.h"
-#include "../utils/bit_update.h"
-#include "../utils/dfs_assign.h"
+#include "../utils/mem.h"
+
+/* Prefix sum of indices 1..idx (inclusive). */
+static int bit_sum(int *bit, size_t idx)
+{
+    int s = 0;
+    for (size_t i = idx; i > 0; i -= i & -i) s += bit[i];
+    return s;
+}
+
+/* Fenwick tree: add delta to index idx (1‑based). */
+static void bit_update(int *bit, size_t n, size_t idx, int delta)
+{
+    for (size_t i = idx; i <= n; i += i & -i) bit[i] += delta;
+}
+
+/* Recursively assign values 1..n to the tree positions to obtain the
+   Eytzinger permutation.  arr[1..n] will hold the permutation. */
+static void dfs_assign(idx_t node, idx_t n, idx_t *arr, idx_t *next_val)
+{
+    if (node > n) return;
+    dfs_assign(node * 2, n, arr, next_val);
+    arr[node] = (*next_val)++;
+    dfs_assign(node * 2 + 1, n, arr, next_val);
+}
 
 seq_t a(idx_t n)
 {
@@ -45,7 +68,7 @@ seq_t a(idx_t n)
     /* Resize factorial table if necessary and compute from scratch. */
     if (n > fact_cap) {
         fact_cap = n;
-        fact_cache = (seq_t *)realloc(fact_cache, (fact_cap + 1) * sizeof(seq_t));
+        fact_cache = mem_resize(seq_t, fact_cache, (fact_cap + 1));
         fact_cache[0] = 1;
         for (size_t i = 1; i <= fact_cap; ++i)
             fact_cache[i] = fact_cache[i - 1] * (seq_t)i;

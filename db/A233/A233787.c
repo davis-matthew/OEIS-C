@@ -13,7 +13,8 @@
  *            number)
  * Range:     u8 none, u16 n <= 3, u32 n <= 9, u64 n <= 21, u128 n <= 44,
  *            big any n
- * Helpers:   allowed
+ * Validated: standard, pass, 34 terms through n = 191 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,7 +22,28 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "../utils/allowed.h"
+#include "../utils/mem.h"
+
+/* test whether two consecutive rows form a valid 2×2 subblock with all three column pairs */
+static bool allowed(uint16_t p, uint16_t s) {
+    uint8_t a[4], b[4];
+    uint16_t tmp = p;
+    for (int i = 3; i >= 0; --i) { a[i] = tmp & 3; tmp >>= 2; }
+    tmp = s;
+    for (int i = 3; i >= 0; --i) { b[i] = tmp & 3; tmp >>= 2; }
+
+    for (int j = 0; j < 3; ++j) {
+        int d1 = a[j] - a[j+1];
+        int d2 = b[j] - b[j+1];
+        int d3 = a[j] - b[j];
+        int d4 = a[j+1] - b[j+1];
+        int d5 = a[j] - b[j+1];
+        int d6 = a[j+1] - b[j];
+        int sum = d1*d1 + d2*d2 + d3*d3 + d4*d4 + d5*d5 + d6*d6;
+        if (sum != 11) return false;
+    }
+    return true;
+}
 
 /* adjacency list for the 256‑state graph */
 struct transition {
@@ -71,14 +93,14 @@ static void init(void) {
 
     build_transitions();
 
-    dp_prev = (seq_t*)malloc(256 * sizeof(seq_t));
-    dp_next = (seq_t*)malloc(256 * sizeof(seq_t));
+    dp_prev = mem_new(seq_t, 256);
+    dp_next = mem_new(seq_t, 256);
     for (int i = 0; i < 256; ++i) {
         dp_prev[i] = 1;           /* single row */
         dp_next[i] = 0;
     }
 
-    cache     = (seq_t*)malloc(8 * sizeof(seq_t));
+    cache     = mem_new(seq_t, 8);
     cache_cap = 8;
     cache[0]  = 0;                /* unused */
     max_computed = 0;
@@ -114,7 +136,7 @@ seq_t a(idx_t n) {
         if (step >= cache_cap) {
             size_t cap = cache_cap ? cache_cap * 2 : 8;
             while (cap <= step) cap <<= 1;
-            seq_t *tmp = (seq_t*)realloc(cache, cap * sizeof(seq_t));
+            seq_t *tmp = mem_resize(seq_t, cache, cap);
             cache = tmp;
             cache_cap = cap;
         }

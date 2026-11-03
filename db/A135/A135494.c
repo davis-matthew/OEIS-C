@@ -13,7 +13,8 @@
  *            obtained by flattening the triangle row‑by‑r...
  * Range:     i8 n <= 33, i16 n <= 68, i32 n <= 157, i64 n <= 325,
  *            i128 n <= 325, big any n
- * Helpers:   none
+ * Validated: standard, pass, 71 terms through n = 305 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -21,6 +22,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../utils/mem.h"
 
 seq_t a(idx_t n)
 {
@@ -42,9 +44,9 @@ seq_t a(idx_t n)
     }
 
     /* allocate rows r-2 and r-1 */
-    seq_t *row_prev2 = (seq_t*)malloc(sizeof(seq_t) * 1);
+    seq_t *row_prev2 = mem_new(seq_t, 1);
     row_prev2[0] = (seq_t)1; /* row 0 */
-    seq_t *row_prev1 = (seq_t*)malloc(sizeof(seq_t) * 2);
+    seq_t *row_prev1 = mem_new(seq_t, 2);
     row_prev1[0] = 0;
     row_prev1[1] = 1;        /* row 1 */
 
@@ -52,7 +54,7 @@ seq_t a(idx_t n)
 
     for (idx_t cur = 2; cur <= r; ++cur) {
         size_t len = cur + 1;
-        row_cur = (seq_t*)malloc(len * sizeof(seq_t));
+        row_cur = mem_new(seq_t, len);
         row_cur[0] = 0;
 
         for (idx_t k = 1; k <= cur; ++k) {
@@ -68,13 +70,13 @@ seq_t a(idx_t n)
             }
             row_cur[k] = term1 + term2 - term3;
         }
-        free(row_prev2);
+        mem_free(row_prev2);
         row_prev2 = row_prev1;
         row_prev1 = row_cur;
     }
 
     seq_t result = row_prev1[j];
-    free(row_prev2);
-    free(row_prev1);
+    mem_free(row_prev2);
+    mem_free(row_prev1);
     return result;
 }

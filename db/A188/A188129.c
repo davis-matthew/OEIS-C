@@ -7,16 +7,19 @@
  * Formula:   a(n) = (2^n+3)^2-8
  * Range:     u8 n <= 3, u16 n <= 7, u32 n <= 15, u64 n <= 28, u128 n <= 28,
  *            big any n
- * Helpers:   seq_pow
+ * Validated: partial, pass, 29 terms through n = 28 (2026-11-01)
+ * Helpers:   ipow_idx
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
-#include "../utils/seq_pow.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include "../utils/ipow_idx.h"
 
 seq_t a(idx_t n)
 {
-    seq_t pow2 = seq_pow((seq_t)2, n);      /* 2^n  */
+    seq_t pow2 = ipow_idx((seq_t)2, n);      /* 2^n  */
     seq_t sum = pow2 + (seq_t)3;             /* 2^n+3 */
     seq_t sq  = sum * sum;                   /* (2^n+3)^2 */
     return sq - (seq_t)8;                    /* (2^n+3)^2-8 */

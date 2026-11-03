@@ -7,13 +7,40 @@
  * Formula:   a(n) = floor(n / sqrt(2)) + n + 1, n >= 0
  * Range:     u8 n <= 67, u16 n <= 67, u32 n <= 67, u64 n <= 67, u128 n <= 67,
  *            big any n
- * Helpers:   idx_sqrt
+ * Validated: partial, pass, 68 terms through n = 67 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdint.h>
-#include "../utils/idx_sqrt.h"
+
+/* Compute integer square‑root of an unsigned integer using only
+   arithmetic that is safe for all unsigned integer widths.  This
+   routine works on idx_t (uint64_t) and returns a seq_t. */
+static seq_t idx_sqrt(idx_t x)
+{
+    idx_t low  = 0;
+    idx_t high = x;
+    seq_t  ans  = 0;
+
+    while (low <= high) {
+        idx_t mid = low + ((high - low) >> 1);
+
+        if (mid == 0) {           /* only possible when high == 0 */
+            ans = 0;
+            break;
+        }
+
+        if (mid <= (x / mid)) {   /* mid*mid <= x  (no overflow) */
+            ans = (seq_t)mid;
+            low = mid + 1;
+        } else {
+            high = mid - 1;
+        }
+    }
+    return ans;
+}
 
 seq_t a(idx_t n)
 {

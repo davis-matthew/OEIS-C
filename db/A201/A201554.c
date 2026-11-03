@@ -7,6 +7,7 @@
  * Formula:   a(n) = 1 + 7*n*(n+1)*(841*n^4+1682*n^3+1568*n^2+727*n+222)/180
  * Range:     u8 n <= 0, u16 n <= 3, u32 n <= 22, u64 n <= 908,
  *            u128 n <= 10000, big any n
+ * Validated: standard, pass, 40 terms through n = 9584 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -8,7 +8,8 @@
  * Formula:   not stated
  * Range:     u8 n <= 72, u16 n <= 72, u32 n <= 72, u64 n <= 72, u128 n <= 72,
  *            big any n
- * Helpers:   is_prime, prev_prime
+ * Validated: partial, pass, 72 terms through n = 72 (2026-11-03)
+ * Helpers:   is_prime, mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,17 @@
 #include <assert.h>
 
 #include "../utils/is_prime.h"
-#include "../utils/prev_prime.h"
+#include "../utils/mem.h"
+
+/* Return the largest prime < n   (n > 2)   ; pp(2) = 1, but we never call it for n==2 */
+static inline idx_t prev_prime(idx_t n)
+{
+    idx_t p = n - 1;
+    for (;; --p)
+    {
+        if (is_prime(p)) return p;
+    }
+}
 
 /* Forward declarations for the optional allocation helper (used only
    if realloc casting is undesirable).  These are safe to omit if the
@@ -47,7 +58,7 @@ static void ensure_capacity(size_t need)
     while (new_cap < need)
         new_cap <<= 1;
     /* For C++ the C-style cast converts void* to seq_t* safely.  */
-    seq_t *tmp = (seq_t *)realloc(cache, new_cap * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_cap);
     if (!tmp) {
         /* Allocation failed – aborting is safe for this context */
         abort();

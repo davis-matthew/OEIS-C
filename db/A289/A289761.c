@@ -5,8 +5,9 @@
  * Offset:    2    (a(2) is the first term)
  * Keywords:  nonn, easy
  * Formula:   a(n) = ( n^2 - (mod(n,6)-3)^2 ) / 3 + n
- * Range:     u8 n <= 26, u16 n <= 441, u32 n <= 8634, u64 n <= 8634,
- *            u128 n <= 8634, big any n
+ * Range:     u8 n <= 26, u16 n <= 441, u32 n <= 10001, u64 n <= 10001,
+ *            u128 n <= 10001, big any n
+ * Validated: standard, pass, 79 terms through n = 8634 (2026-11-01)
  * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.

@@ -12,13 +12,15 @@
  *            non‑representable numbers ≤ 96 and store them in ascending order
  * Range:     u8 n <= 31, u16 n <= 31, u32 n <= 31, u64 n <= 31, u128 n <= 31,
  *            big any n
- * Helpers:   none
+ * Validated: full, pass, 31 terms through n = 31 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "../utils/mem.h"
 
 static seq_t *nonrep = NULL;   /* cache of terms */
 static size_t nonrep_len = 0;
@@ -49,7 +51,7 @@ seq_t a(idx_t n)
         }
 
         /* Allocate cache and fill it */
-        nonrep = (seq_t *)malloc(cnt * sizeof(seq_t));
+        nonrep = mem_new(seq_t, cnt);
         size_t pos = 0;
         for (int s = 1; s <= 96; ++s) {
             if (!reachable[s]) {

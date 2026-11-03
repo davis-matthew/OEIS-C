@@ -9,7 +9,8 @@
  *            * a(0)=1, a(1)=0, a(2)=0, a(3)=0, a(4)=24
  * Range:     u8 n <= 5, u16 n <= 8, u32 n <= 12, u64 n <= 19, u128 n <= 32,
  *            big any n
- * Helpers:   none
+ * Validated: standard, pass, 38 terms through n = 442 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -18,6 +19,7 @@
 #ifdef __cplusplus
 #include <new>
 #endif
+#include "../utils/mem.h"
 
 static seq_t *cache = NULL;
 static size_t cache_alloc = 0;   /* allocated size */
@@ -28,12 +30,12 @@ static void ensure_cache_size(idx_t n)
 {
     if ((idx_t)cache_alloc > n) return;
     size_t new_alloc = (size_t)n + 1;
-    seq_t *tmp = (seq_t*)realloc(cache, new_alloc * sizeof(seq_t));
+    seq_t *tmp = mem_resize(seq_t, cache, new_alloc);
     if (tmp == NULL) exit(1);  /* allocation failed */
     cache = tmp;
 #ifdef __cplusplus
     for (size_t i = cache_alloc; i < new_alloc; ++i)
-        new(&cache[i]) seq_t();
+        *(&cache[i]) = (seq_t)0;
 #else
     for (size_t i = cache_alloc; i < new_alloc; ++i)
         cache[i] = 0;

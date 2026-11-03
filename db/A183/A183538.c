@@ -11,7 +11,8 @@
  *            or the sum mod 4 of its diagonal plus antidiagonal neighbors
  * Range:     u8 n <= 2, u16 n <= 4, u32 n <= 9, u64 n <= 18, u128 n <= 18,
  *            big any n
- * Helpers:   alloc_seq_array, free_seq_array
+ * Validated: standard, pass, 18 terms through n = 18 (2026-11-03)
+ * Helpers:   mem
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -28,10 +29,19 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../utils/mem.h"
 
 /* Include the helper that allocates an array of seq_t. */
-#include "../utils/alloc_seq_array.h"   /* declares seq_t *alloc_seq_array(size_t); */
-#include "../utils/free_seq_array.h"     /* declares void free_seq_array(seq_t *); */
+
+static seq_t *alloc_seq_array(size_t n)
+{
+    return mem_new(seq_t, n);
+}
+
+static void free_seq_array(seq_t *p)
+{
+    mem_free(p);
+}
 
 /* --------------------------------------------------------------------- */
 /*  Global data                                                   */
@@ -145,13 +155,13 @@ seq_t a(idx_t n)
         return 0;       /* allocation failure – unlikely in tests */
 
     /* Initialise counts for the first row: (prev=0, cur=row) */
-    memset(cur, 0, STATE_CNT * sizeof(seq_t));
+    mem_set(cur, 0, STATE_CNT * sizeof(seq_t));
     for (int r1 = 0; r1 < 256; ++r1)
         cur[(0<<8)|r1] = 1;
 
     /* DP for rows 2 … n (n‑1 transitions) */
     for (idx_t step = 1; step <= n-1; ++step) {
-        memset(next, 0, STATE_CNT * sizeof(seq_t));
+        mem_set(next, 0, STATE_CNT * sizeof(seq_t));
         for (size_t s = 0; s < STATE_CNT; ++s) {
             seq_t val = cur[s];
             if (val == 0)

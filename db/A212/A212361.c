@@ -12,7 +12,8 @@
  *            count of primes between triple n and triple n+1
  * Range:     u8 n <= 365, u16 n <= 1000, u32 n <= 1000, u64 n <= 1000,
  *            u128 n <= 1000, big any n
- * Helpers:   is_prime_bit
+ * Validated: standard, pass, 88 terms through n = 999 (2026-11-01)
+ * Helpers:   none
  *
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
@@ -22,7 +23,12 @@
 #include <string.h>
 #include <math.h>
 #include <stdbool.h>
-#include "../utils/is_prime_bit.h"
+
+/* helper: test whether i is marked as prime in the bitset */
+static inline bool is_prime_bit(const uint8_t *bits, idx_t i)
+{
+    return (bits[i >> 3] >> (i & 7)) & 1;
+}
 
 /* static state used for memoisation */
 static size_t sieve_limit          = 0;
